@@ -26,6 +26,8 @@ public:
 
 protected:
 
+    void			exportToGISCB(CallBacker*);
+
     void			mkFileInfo() override;
 
 };

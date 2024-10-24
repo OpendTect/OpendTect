@@ -11,16 +11,24 @@ ________________________________________________________________________
 #include "uipicksetmgr.h"
 
 #include "uiioobjselgrp.h"
+#include "uigisexp.h"
+#include "uigisexpdlgs.h"
+#include "uimenu.h"
+#include "uimsg.h"
 #include "uitoolbutton.h"
 
 #include "ctxtioobj.h"
 #include "draw.h"
-#include "separstr.h"
+#include "ioman.h"
+#include "keystrs.h"
+#include "od_helpids.h"
 #include "picksettr.h"
 #include "pickset.h"
-#include "keystrs.h"
+#include "separstr.h"
 #include "survinfo.h"
-#include "od_helpids.h"
+
+static const int cPointSetMenu		= 0;
+static const int cPolygonMenu		= 1;
 
 mDefineInstanceCreatedNotifierAccess(uiPickSetMan)
 
@@ -50,12 +58,85 @@ uiPickSetMan::uiPickSetMan( uiParent* p, const char* fixedtrkey )
     mergebut_ = addManipButton( "mergepicksets",
 				uiStrings::phrMerge(uiStrings::sPointSet()),
 				mCB(this,uiPickSetMan,mergeSets) );
+    CallBack cb = mCB(this,uiPickSetMan,exportToGISCB);
+    uiToolButton* gisbut = addExtraButton( uiGISExpStdFld::strIcon(),
+					uiGISExpStdFld::sToolTipTxt(),
+					cb );
+    auto* menu = new uiMenu( tr("Export to GIS Format") );
+    auto* psaction = new uiAction( uiStrings::sPointSet(), cb );
+    menu->insertAction( psaction, cPointSetMenu );
+    auto* pgaction = new uiAction( uiStrings::sPolygon(), cb );
+    menu->insertAction( pgaction, cPolygonMenu );
+    gisbut->setMenu( menu, uiToolButton::InstantPopup );
+
     mTriggerInstanceCreatedNotifier();
 }
 
 
 uiPickSetMan::~uiPickSetMan()
+{}
+
+
+void uiPickSetMan::addToMgr( const MultiID& id, uiString& msg )
 {
+    PtrMan<IOObj> obj = IOM().get( id );
+    if ( !obj )
+	return;
+
+    RefMan<Pick::Set> ps = new Pick::Set;
+    PickSetTranslator::retrieve( *ps, obj, true, msg );
+    Pick::Mgr().set( id, ps );
+}
+
+
+void uiPickSetMan::exportToGISCB( CallBacker* cb )
+{
+    mDynamicCastGet(uiAction*,itm,cb)
+    if ( !itm || !uiGISExpStdFld::canDoExport(this) )
+	return;
+
+    const int itmid = itm->getID();
+    TypeSet<MultiID> selids;
+    getChosen( selids );
+    RefObjectSet<const Pick::Set> gisdata;
+    uiString errmsg;
+    for ( const auto& id : selids )
+    {
+	const int idx = Pick::Mgr().indexOf( id );
+	if ( idx < 0 )
+	{
+	    addToMgr( id, errmsg );
+	    const int idp = Pick::Mgr().indexOf( id );
+	    if ( idp < 0 )
+		continue;
+	}
+
+	ConstRefMan<Pick::Set> ps = Pick::Mgr().get( id );
+	if ( !ps )
+	    continue;
+
+	const bool ispolygon = ps->isPolygon();
+	if ( (itmid==cPointSetMenu && !ispolygon)
+		|| (itmid==cPolygonMenu && ispolygon) )
+	    gisdata.add( ps );
+    }
+
+    if ( !errmsg.isEmpty() )
+    {
+	if ( gisdata.isEmpty() )
+	    uiMSG().error( tr("Can't export some files."), errmsg);
+	else
+	    uiMSG().warning( errmsg );
+    }
+
+    uiGISExportDlg::Type exptype;
+    if ( itmid==cPointSetMenu )
+	exptype = uiGISExportDlg::Type::PointSet;
+    else if ( itmid==cPolygonMenu )
+	exptype = uiGISExportDlg::Type::Polygon;
+
+    uiGISExportDlg dlg( this, exptype, gisdata );
+    dlg.go();
 }
 
 
@@ -135,11 +216,13 @@ void uiPickSetMan::mkFileInfo()
 void uiPickSetMan::mergeSets( CallBacker* )
 {
     uiPickSetMgr mgr( this, Pick::Mgr() );
-    MultiID curkey; if ( curioobj_ ) curkey = curioobj_->key();
+    MultiID curkey;
+    if ( curioobj_ )
+	curkey = curioobj_->key();
+
     BufferStringSet chsnnms;
     selgrp_->getChosen( chsnnms );
     mgr.mergeSets( curkey, &chsnnms );
-
     if ( !curkey.isUdf() )
 	selgrp_->fullUpdate( curkey );
 }

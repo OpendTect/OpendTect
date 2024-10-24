@@ -111,9 +111,10 @@ void uiODPickSetParentTreeItem::setRemovedCB( CallBacker* cb )
 #define mGen3DIdx	2
 #define mRandom2DIdx	3
 #define mSaveIdx	4
-#define mDisplayIdx	5
-#define mShowAllIdx	6
-#define mMergeIdx	7
+#define mExpGISIdx	5
+#define mDisplayIdx	6
+#define mShowAllIdx	7
+#define mMergeIdx	8
 
 
 bool uiODPickSetParentTreeItem::showSubMenu()
@@ -133,7 +134,7 @@ bool uiODPickSetParentTreeItem::showSubMenu()
     mnu.addMenu( newmnu );
     showMenuNotifier().trigger( &mnu, this );
 
-    if ( children_.size() > 0 )
+    if ( !children_.isEmpty() )
     {
 	mnu.insertSeparator();
 	auto* filteritem = new uiAction( tr("Display Only at Sections") );
@@ -145,6 +146,9 @@ bool uiODPickSetParentTreeItem::showSubMenu()
 	mnu.insertSeparator();
 	mnu.insertAction( new uiAction(m3Dots(tr("Merge Sets"))), mMergeIdx );
 	mnu.insertAction( new uiAction(tr("Save Changes")), mSaveIdx );
+	mnu.insertAction( new uiAction(m3Dots(uiGISExpStdFld::sToolTipTxt()),
+			  uiGISExpStdFld::strIcon()), mExpGISIdx );
+
     }
 
     addStandardItems( mnu );
@@ -169,22 +173,43 @@ bool uiODPickSetParentTreeItem::showSubMenu()
 	}
     }
     else if ( mnuid==mGen3DIdx )
-    {
 	applMgr()->pickServer()->create3DGenSet();
-    }
     else if ( mnuid==mRandom2DIdx )
-    {
 	applMgr()->pickServer()->createRandom2DSet();
-    }
     else if ( mnuid==mEmptyIdx )
-    {
 	applMgr()->pickServer()->createEmptySet( false );
-    }
     else if ( mnuid==mSaveIdx )
     {
 	if ( !applMgr()->pickServer()->storePickSets() )
 	    uiMSG().error( tr("Problem saving changes. "
 			      "Check write protection.") );
+    }
+    else if ( mnuid==mExpGISIdx )
+    {
+	uiPickPartServer& pickserver = *applMgr()->pickServer();
+	RefObjectSet<const Pick::Set> gisdata;
+	for ( const auto* child : children_ )
+	{
+	    mDynamicCastGet(const uiODPickSetTreeItem*,pstreeitem,child)
+		if ( !pstreeitem )
+		    continue;
+
+	    ConstRefMan<visSurvey::PickSetDisplay> psd
+						= pstreeitem->getDisplay();
+	    if ( !psd )
+		continue;
+
+	    const Pick::Set* ps = psd->getSet();
+	    if ( !ps || ps->isEmpty() )
+		continue;
+
+	    RefMan<Pick::Set> pickset = new Pick::Set( *ps );
+	    pickset->pars_.setYN( uiGISExportDlg::sKeyIsOn(),
+		child->isSelected() );
+	    gisdata.add( pickset.ptr() );
+	}
+
+	pickserver.exportPointSetsToGIS( getUiParent(), gisdata );
     }
     else if ( mnuid==mDisplayIdx || mnuid==mShowAllIdx )
     {
@@ -199,7 +224,10 @@ bool uiODPickSetParentTreeItem::showSubMenu()
 	}
     }
     else if ( mnuid==mMergeIdx )
-	{ MultiID mid; applMgr()->pickServer()->mergePickSets( mid ); }
+    {
+	MultiID mid;
+	applMgr()->pickServer()->mergePickSets( mid );
+    }
     else
 	handleStandardItems( mnuid );
 
@@ -464,8 +492,7 @@ void uiODPickSetTreeItem::handleMenuCB( CallBacker* cb )
 
 
 void uiODPickSetTreeItem::paintDlgClosedCB( CallBacker* )
-{
-}
+{}
 
 
 void uiODPickSetTreeItem::enablePainting( bool yn )
@@ -598,7 +625,8 @@ void uiODPolygonParentTreeItem::addPolygon( Pick::Set* ps )
 void uiODPolygonParentTreeItem::setRemovedCB( CallBacker* cb )
 {
     mDynamicCastGet(Pick::Set*,ps,cb)
-    if ( !ps ) return;
+    if ( !ps )
+	return;
 
     for ( int idx=0; idx<children_.size(); idx++ )
     {
@@ -620,8 +648,9 @@ void uiODPolygonParentTreeItem::setRemovedCB( CallBacker* cb )
 #define mLoadPolyIdx	11
 #define mNewPolyIdx	12
 #define mSavePolyIdx	13
-#define mOnlyAtPolyIdx	14
-#define mAlwaysPolyIdx	15
+#define mExpGISPolyIdx	14
+#define mOnlyAtPolyIdx	15
+#define mAlwaysPolyIdx	16
 
 
 bool uiODPolygonParentTreeItem::showSubMenu()
@@ -635,7 +664,7 @@ bool uiODPolygonParentTreeItem::showSubMenu()
     mnu.insertAction( new uiAction(m3Dots(tr("New"))), mNewPolyIdx );
     showMenuNotifier().trigger( &mnu, this );
 
-    if ( children_.size() > 0 )
+    if ( !children_.isEmpty() )
     {
 	mnu.insertSeparator();
 	auto* filteritem = new uiAction( tr("Display Only at Sections") );
@@ -646,6 +675,8 @@ bool uiODPolygonParentTreeItem::showSubMenu()
 	shwallitem->setEnabled( !hastransform );
 	mnu.insertSeparator();
 	mnu.insertAction( new uiAction(tr("Save Changes")), mSavePolyIdx );
+	mnu.insertAction( new uiAction(m3Dots(uiGISExpStdFld::sToolTipTxt()),
+			  uiGISExpStdFld::strIcon()), mExpGISPolyIdx );
     }
 
     addStandardItems( mnu );
@@ -675,6 +706,33 @@ bool uiODPolygonParentTreeItem::showSubMenu()
 	if ( !applMgr()->pickServer()->storePickSets() )
 	    uiMSG().error( tr("Problem saving changes. "
 			      "Check write protection.") );
+    }
+    else if ( mnuid==mExpGISPolyIdx )
+    {
+	uiPickPartServer& pickserver = *applMgr()->pickServer();
+	RefObjectSet<const Pick::Set> gisdata;
+	for ( const auto* child : children_ )
+	{
+	    mDynamicCastGet(const uiODPolygonTreeItem*,pgtreeitem,child)
+	    if ( !pgtreeitem )
+		continue;
+
+	    ConstRefMan<visSurvey::PickSetDisplay> pgd
+						    = pgtreeitem->getDisplay();
+	    if ( !pgd )
+		continue;
+
+	    const Pick::Set* pg = pgd->getSet();
+	    if ( !pg || pg->isEmpty() )
+		continue;
+
+	    RefMan<Pick::Set> pickset = new Pick::Set( *pg );
+	    pickset->pars_.setYN( uiGISExportDlg::sKeyIsOn(),
+				  child->isSelected() );
+	    gisdata.add( pickset.ptr() );
+	}
+
+	pickserver.exportPolygonsToGIS( getUiParent(), gisdata );
     }
     else if ( mnuid==mAlwaysPolyIdx || mnuid==mOnlyAtPolyIdx )
     {
@@ -783,7 +841,7 @@ void uiODPolygonTreeItem::setChg( CallBacker* cb )
     if ( !ps || set_!=ps )
 	return;
 
-    RefMan<visSurvey::PickSetDisplay> polygondisplay = getPGD();
+    RefMan<visSurvey::PickSetDisplay> polygondisplay = getDisplay();
     if ( polygondisplay )
 	polygondisplay->setName( ps->name() );
 
@@ -805,7 +863,7 @@ bool uiODPolygonTreeItem::doubleClick( uiTreeViewItem* item )
     if ( item != uitreeviewitem_ )
 	return uiTreeItem::doubleClick( item );
 
-    RefMan<visSurvey::PickSetDisplay> polygondisplay = getPGD();
+    RefMan<visSurvey::PickSetDisplay> polygondisplay = getDisplay();
     if ( !polygondisplay )
 	return false;
 
@@ -844,13 +902,13 @@ bool uiODPolygonTreeItem::init()
 }
 
 
-ConstRefMan<visSurvey::PickSetDisplay> uiODPolygonTreeItem::getPGD() const
+ConstRefMan<visSurvey::PickSetDisplay> uiODPolygonTreeItem::getDisplay() const
 {
     return polygondisplay_.get();
 }
 
 
-RefMan<visSurvey::PickSetDisplay> uiODPolygonTreeItem::getPGD()
+RefMan<visSurvey::PickSetDisplay> uiODPolygonTreeItem::getDisplay()
 {
     return polygondisplay_.get();
 }
@@ -871,7 +929,7 @@ void uiODPolygonTreeItem::createMenu( MenuHandler* menu, bool istb )
 	return;
     }
 
-    ConstRefMan<visSurvey::PickSetDisplay> polygondisplay = getPGD();
+    ConstRefMan<visSurvey::PickSetDisplay> polygondisplay = getDisplay();
     if ( !polygondisplay )
 	return;
 
@@ -908,7 +966,7 @@ void uiODPolygonTreeItem::handleMenuCB( CallBacker* cb )
     if ( !isDisplayID(menu->menuID()) )
 	return;
 
-    RefMan<visSurvey::PickSetDisplay> polygondisplay = getPGD();
+    RefMan<visSurvey::PickSetDisplay> polygondisplay = getDisplay();
     if ( !polygondisplay )
 	return;
 
@@ -975,7 +1033,7 @@ void uiODPolygonTreeItem::handleMenuCB( CallBacker* cb )
 
 void uiODPolygonTreeItem::showAllPicks( bool yn )
 {
-    RefMan<visSurvey::PickSetDisplay> polygondisplay = getPGD();
+    RefMan<visSurvey::PickSetDisplay> polygondisplay = getDisplay();
     if ( polygondisplay )
 	polygondisplay->showAll( yn );
 }

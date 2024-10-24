@@ -255,9 +255,6 @@ void uiWellPartServer::showWellMgrInfo()
 
 void uiWellPartServer::wellManCreatedCB( CallBacker* cb )
 {
-    if ( !cb->isCapsule() )
-	return;
-
     mDynamicCastGet(uiWellMan*,wm,cb)
     if ( !wm )
 	return;
@@ -795,7 +792,6 @@ bool uiWellPartServer::storeWell( const TypeSet<Coord3>& coords,
 
 void uiWellPartServer::exportToGISCB( CallBacker* )
 {
-    //TODO: pass selection from manager?
     exportToGIS( parent(), nullptr );
 }
 

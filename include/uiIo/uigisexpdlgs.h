@@ -45,7 +45,6 @@ private:
 };
 
 
-
 mExpClass(uiIo) uiGISExportDlg : public uiDialog
 {
 mODTextTranslationClass(uiGISExportDlg);

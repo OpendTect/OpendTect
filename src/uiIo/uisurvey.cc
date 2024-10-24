@@ -20,6 +20,7 @@ ________________________________________________________________________
 #include "uilistbox.h"
 #include "uimain.h"
 #include "uimsg.h"
+#include "uipickpartserv.h"
 #include "uiseparator.h"
 #include "uisetdatadir.h"
 #include "uisettings.h"
@@ -80,6 +81,9 @@ static ObjectSet<uiSurvey::Util>& getUtils()
 	*newutils += new uiSurvey::Util( "clipboard",
 		od_static_tr("getUtils","Copy Survey Information to Clipboard"),
 		CallBack() );
+	*newutils += new uiSurvey::Util( "google",
+			    od_static_tr("getUtils","Export to GIS Format"),
+			    CallBack() );
 
 	utils.setIfNull(newutils,true);
 
@@ -972,12 +976,20 @@ void uiSurvey::utilButPush( CallBacker* cb )
 {
     if ( !cursurvinfo_ )
 	return;
+
     mDynamicCastGet(uiButton*,tb,cb)
     if ( !tb )
-	{ pErrMsg("Huh"); return; }
+    {
+	pErrMsg("Huh");
+	return;
+    }
 
     const int butidx = utilbuts_.indexOf( tb );
-    if ( butidx < 0 ) { pErrMsg("Huh"); return; }
+    if ( butidx < 0 )
+    {
+	pErrMsg("Huh");
+	return;
+    }
 
     if ( butidx == 0 )
     {
@@ -985,8 +997,14 @@ void uiSurvey::utilButPush( CallBacker* cb )
 	dlg.go();
     }
     else if ( butidx==1 )
-    {
 	copyInfoToClipboard();
+    else if ( butidx==2 )
+    {
+	if ( !cursurvinfo_ || !uiGISExpStdFld::canDoExport(this,cursurvinfo_) )
+	    return;
+
+	uiGISExportSurvey dlg( this, *cursurvinfo_ );
+	dlg.go();
     }
     else
     {

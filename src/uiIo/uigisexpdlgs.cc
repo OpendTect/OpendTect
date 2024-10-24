@@ -180,7 +180,10 @@ uiGISExportDlg::uiGISExportDlg( uiParent* p, Type typ,
 
     expfld_ = new uiGISExpStdFld( this, typstr.str() );
     expfld_->attach( ensureBelow, sep );
-    expfld_->attach( alignedBelow, lsfld_ );
+    if ( lsfld_ )
+	expfld_->attach( alignedBelow, lsfld_ );
+    else
+	expfld_->attach( alignedBelow, selfld_ );
 }
 
 

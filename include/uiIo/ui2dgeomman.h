@@ -27,10 +27,13 @@ public:
 			ui2DGeomManageDlg(uiParent*);
 			~ui2DGeomManageDlg();
 
+    mDeclInstanceCreatedNotifierAccess(ui2DGeomManageDlg);
+
 protected:
 
     void		manLineGeom(CallBacker*);
     void		lineRemoveCB(CallBacker*);
+
     void		ownSelChg() override;
     void		mkFileInfo() override;
 };

@@ -27,6 +27,7 @@ ________________________________________________________________________
 #include "seistrctr.h"
 #include "survinfo.h"
 
+#include "ui2dgeomman.h"
 #include "uibatchtime2depthsetup.h"
 #include "uigeninput.h"
 #include "uigisexp.h"
@@ -47,6 +48,7 @@ ________________________________________________________________________
 #include "uiseiswvltman.h"
 #include "uisurvey.h"
 #include "uitaskrunner.h"
+#include "uitoolbutton.h"
 #include "uivelocityvolumeconversion.h"
 
 
@@ -58,6 +60,8 @@ uiSeisPartServer::uiSeisPartServer( uiApplService& a )
 {
     SeisIOObjInfo::initDefault( sKey::Steering() );
     mAttachCB( IOM().surveyChanged, uiSeisPartServer::survChangedCB );
+    mAttachCB( ui2DGeomManageDlg::instanceCreated(),
+	       uiSeisPartServer::create2DLineGISExportBut );
 }
 
 
@@ -383,6 +387,24 @@ void uiSeisPartServer::exportCubePos( const MultiID* key )
 	expcubeposdlg_->setInput( *key );
 
     expcubeposdlg_->show();
+}
+
+
+void uiSeisPartServer::create2DLineGISExportBut( CallBacker* cb )
+{
+    mDynamicCastGet(ui2DGeomManageDlg*,twodgm,cb)
+	if ( !twodgm )
+	    return;
+
+    twodgm->addExtraButton( uiGISExpStdFld::strIcon(),
+			    uiGISExpStdFld::sToolTipTxt(),
+			    mCB(this,uiSeisPartServer,exportToGISCB) );
+}
+
+
+void uiSeisPartServer::exportToGISCB( CallBacker* )
+{
+    exportLinesToGIS( parent(), nullptr);
 }
 
 

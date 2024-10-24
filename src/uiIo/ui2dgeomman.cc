@@ -25,6 +25,8 @@ ________________________________________________________________________
 #include "uibutton.h"
 #include "uibuttongroup.h"
 #include "uigeninput.h"
+#include "uigisexp.h"
+#include "uigisexpdlgs.h"
 #include "uiimpexp2dgeom.h"
 #include "uilabel.h"
 #include "uimsg.h"
@@ -32,7 +34,7 @@ ________________________________________________________________________
 #include "uitable.h"
 #include "uitoolbutton.h"
 
-
+mDefineInstanceCreatedNotifierAccess(ui2DGeomManageDlg)
 
 static IOObjContext mkCtxt()
 {
@@ -51,6 +53,7 @@ ui2DGeomManageDlg::ui2DGeomManageDlg( uiParent* p )
 			mCB(this,ui2DGeomManageDlg,lineRemoveCB) );
     addManipButton( "browse2dgeom", tr("Manage Line Geometry"),
 			mCB(this,ui2DGeomManageDlg,manLineGeom) );
+    mTriggerInstanceCreatedNotifier();
 }
 
 
@@ -213,7 +216,6 @@ void ui2DGeomManageDlg::lineRemoveCB( CallBacker* )
     if ( !msgs.isEmpty() )
 	uiMSG().errorWithDetails(msgs);
 }
-
 
 
 // uiInterpolateGeomDlg

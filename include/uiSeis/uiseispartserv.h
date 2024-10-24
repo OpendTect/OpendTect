@@ -80,6 +80,9 @@ public:
 
 protected:
 
+    void		create2DLineGISExportBut(CallBacker*);
+    void		exportToGISCB(CallBacker*);
+
     bool		ioSeis(int,bool);
     void		survChangedCB(CallBacker*);
     MultiID		getDefault2DDataID() const;

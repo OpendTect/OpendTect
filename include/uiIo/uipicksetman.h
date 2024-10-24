@@ -29,8 +29,13 @@ public:
 protected:
     uiToolButton*		mergebut_;
 
+    void			exportToGISCB(CallBacker*);
+    void			chooseExportTypeCB(CallBacker*);
+    void			mergeSets(CallBacker*);
+
     void			ownSelChg() override;
     void			mkFileInfo() override;
-    void			mergeSets(CallBacker*);
+
+    void			addToMgr(const MultiID&, uiString&);
 
 };

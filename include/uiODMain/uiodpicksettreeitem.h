@@ -55,6 +55,8 @@ public:
     RefMan<Pick::Set>		getSet()		{ return set_; }
     ConstRefMan<Pick::Set>	getSet() const		{ return set_; }
 
+    ConstRefMan<visSurvey::PickSetDisplay> getDisplay() const;
+
 protected:
 			~uiODPickSetTreeItem();
 
@@ -85,7 +87,6 @@ protected:
     uiSeedPainterDlg*	paintdlg_ = nullptr;
     bool		paintingenabled_ = false;
 
-    ConstRefMan<visSurvey::PickSetDisplay> getDisplay() const;
     RefMan<visSurvey::PickSetDisplay> getDisplay();
 
     WeakPtr<visSurvey::PickSetDisplay> pointsetdisplay_;
@@ -133,6 +134,8 @@ public:
     RefMan<Pick::Set>	getSet()			{ return set_; }
     ConstRefMan<Pick::Set> getSet() const		{ return set_; }
 
+    ConstRefMan<visSurvey::PickSetDisplay> getDisplay() const;
+
 protected:
 			~uiODPolygonTreeItem();
 
@@ -159,8 +162,7 @@ protected:
     MenuItem		workareaitem_;
     MenuItem		calcvolmnuitem_;
 
-    ConstRefMan<visSurvey::PickSetDisplay> getPGD() const;
-    RefMan<visSurvey::PickSetDisplay> getPGD();
+    RefMan<visSurvey::PickSetDisplay> getDisplay();
 
     WeakPtr<visSurvey::PickSetDisplay> polygondisplay_;
 };
