@@ -55,8 +55,9 @@ public:
     typedef BufferStringSet		SSet;
 
 			ValArr(DataType);
+			ValArr(const ValArr&);
     virtual		~ValArr();
-			mOD_DisableCopy(ValArr)
+    ValArr&		operator=(const ValArr&)	= delete;
 
     DataType		dataType() const	{ return type_; }
 
@@ -290,7 +291,7 @@ public:
 			Object(const Object&);
 			~Object();
 
-    Array&		operator=(const Array&)	= delete;
+    Object&		operator=(const Object&)	= delete;
     Object*		clone() const override	{ return new Object(*this); }
     bool		isArray() const override { return false; }
 

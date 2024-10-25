@@ -216,6 +216,18 @@ OD::JSON::ValArr::ValArr( DataType typ )
 }
 
 
+OD::JSON::ValArr::ValArr( const ValArr& oth )
+    : ValArr(oth.type_)
+{
+    switch ( type_ )
+    {
+	case Boolean:	bools() = oth.bools();		break;
+	case Number:	vals() = oth.vals();		break;
+	case String:	strings() = oth.strings();	break;
+    }
+}
+
+
 OD::JSON::ValArr::~ValArr()
 {
     delete set_;
@@ -835,7 +847,7 @@ OD::JSON::Array::Array( const Array& oth )
     , valarr_(0)
 {
     if ( oth.valarr_ )
-	valarr_ = new ValArr( oth.valarr_->dataType() );
+	valarr_ = new ValArr( *oth.valarr_ );
 }
 
 
