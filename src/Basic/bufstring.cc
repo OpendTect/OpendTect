@@ -167,9 +167,14 @@ BufferString& BufferString::add( const QString& qstr )
 #ifdef OD_NO_QT
     return *this;
 #else
-    const QByteArray qba = qstr.toUtf8();
-    return add( qba.constData() );
+    return add( qstr.toStdString() );
 #endif
+}
+
+
+BufferString& BufferString::add( const std::string& str )
+{
+    return add( str.c_str() );
 }
 
 

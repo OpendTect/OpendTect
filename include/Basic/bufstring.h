@@ -104,6 +104,7 @@ public:
     BufferString&	add(const char*);
     BufferString&	add( const OD::String& s )	{ return add(s.str()); }
     BufferString&	add(const QString&);
+    BufferString&	add(const std::string&);
     template <class T>
     BufferString&	add(const T&);
     BufferString&	add(float,int nrdec);
