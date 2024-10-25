@@ -94,6 +94,7 @@ set( OD_MODULE_SOURCES
 	odjson.cc
 	odmemory.cc
 	odstring.cc
+	oduuid.cc
 	odver.cc
 	oscommand.cc
 	plugins.cc

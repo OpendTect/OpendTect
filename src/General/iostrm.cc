@@ -8,16 +8,17 @@ ________________________________________________________________________
 -*/
 
 #include "iostrm.h"
+
 #include "ascstream.h"
-#include "strmprov.h"
-#include "separstr.h"
-#include "string2.h"
+#include "envvars.h"
 #include "file.h"
 #include "filepath.h"
-#include "transl.h"
-#include "perthreadrepos.h"
-#include "envvars.h"
 #include "oddirs.h"
+#include "oduuid.h"
+#include "perthreadrepos.h"
+#include "separstr.h"
+#include "string2.h"
+#include "strmprov.h"
 
 
 static void getFullSpecFileName( BufferString& fnm, BufferString* specfnm )
@@ -262,6 +263,18 @@ Conn* IOStream::getConn( bool forread ) const
 
 void IOStream::genFileName()
 {
+    if ( GetEnvVarYN("OD_UUID_FILENAME",false) )
+    {
+	const BufferString fnm = OD::Uuid::create( false );
+	if ( !fnm.isEmpty() )
+	{
+	    FilePath fp( fnm );
+	    fp.setExtension( extension_.buf() );
+	    fs_.setFileName( fp.fullPath() );
+	    return;
+	}
+    }
+
     BufferString fnm( name() );
     FilePath fp( fnm );
     const bool isabs = fp.isAbsolute();
