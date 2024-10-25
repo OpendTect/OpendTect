@@ -195,6 +195,9 @@ public:
     TrcKey::SurvID		default3DSurvID() const
 						{ return OD::Geom3D; }
 
+private:
+    std::unordered_map<std::string,int>		namemap_;
+    std::unordered_map<int,int>			geomidmap_;
 };
 
 

@@ -296,28 +296,36 @@ const Geometry* GeometryManager::getGeometry( const char* nm ) const
     if ( IsExiting() )
 	return nullptr;
 
-    const StringView namestr( nm );
-    for ( int idx=0; idx<geometries_.size(); idx++ )
-	if ( namestr == geometries_[idx]->getName() )
-	    return geometries_[idx];
+    if ( StringView(nm).isEmpty() )
+	return nullptr;
+
+    auto it = namemap_.find( nm );
+    if ( it != namemap_.end() )
+    {
+	const int geomidx = it->second;
+	return geometries_[geomidx];
+    }
 
     return nullptr;
 }
 
 
-Pos::GeomID GeometryManager::getGeomID( const char* lnnm ) const
+Pos::GeomID GeometryManager::getGeomID( const char* nm ) const
 {
     if ( IsExiting() )
-	return cUndefGeomID();
+	return Pos::GeomID::udf();
 
-    const StringView reqln( lnnm );
-    for ( int idx=0; idx<geometries_.size(); idx++ )
+    if ( StringView(nm).isEmpty() )
+	return Pos::GeomID::udf();
+
+    auto it = namemap_.find( nm );
+    if ( it != namemap_.cend() )
     {
-	if ( geometries_[idx]->is2D() && reqln==geometries_[idx]->getName() )
-	    return geometries_[idx]->getID();
+	const int geomidx = it->second;
+	return geometries_[geomidx]->getID();
     }
 
-    return cUndefGeomID();
+    return Pos::GeomID::udf();
 }
 
 
@@ -441,6 +449,8 @@ void GeometryManager::addGeometry( Survey::Geometry& geom )
 {
     geom.ref();
     geometries_ += &geom;
+    namemap_[geom.getName()] = geometries_.size()-1;
+    geomidmap_[geom.getID().asInt()] = geometries_.size()-1;
 }
 
 
@@ -464,7 +474,7 @@ bool GeometryManager::fetchFrom2DGeom( uiString& errmsg )
 	{
 	    Pos::GeomID geomid = GM().getGeomID( lsnames.get(lsidx),
 						 lnames.get(lidx) );
-	    if ( geomid != GM().cUndefGeomID() )
+	    if ( geomid.isValid() )
 		continue;
 
 	    fetchedgeometry = true;
@@ -558,13 +568,13 @@ bool GeometryManager::write( Geometry& geom, uiString& errmsg )
 Pos::GeomID GeometryManager::addNewEntry( Geometry* geom, uiString& errmsg )
 {
     if ( !geom )
-	return cUndefGeomID();
+	return Pos::GeomID::udf();
 
     if ( !geom->is2D() )
 	return default3DGeomID();
 
     Pos::GeomID geomid = getGeomID( geom->getName() );
-    if ( geomid != cUndefGeomID() )
+    if ( geomid.isValid() )
 	return geomid;
 
     PtrMan<GeometryWriter> geomwriter =
@@ -573,7 +583,7 @@ Pos::GeomID GeometryManager::addNewEntry( Geometry* geom, uiString& errmsg )
     Threads::Locker locker( lock_ );
     geomid = geomwriter->createNewGeomID( geom->getName() );
     if ( !write(*geom,errmsg) )
-	return cUndefGeomID();
+	return Pos::GeomID::udf();
 
     return geomid;
 }
@@ -589,6 +599,9 @@ bool GeometryManager::removeGeometry( const Pos::GeomID& geomid )
 	    return false;
 
 	geometries_.removeSingle( index );
+	namemap_.erase( geom->getName() );
+	geomidmap_.erase( geom->getID().asInt() );
+
 	geom->unRef();
 	return true;
     }
@@ -599,9 +612,15 @@ bool GeometryManager::removeGeometry( const Pos::GeomID& geomid )
 
 int GeometryManager::indexOf( const Pos::GeomID& geomid ) const
 {
+    auto it = geomidmap_.find( geomid.asInt() );
+    if ( it != geomidmap_.end() )
+	return it->second;
+
+    /*
     for ( int idx=0; idx<geometries_.size(); idx++ )
 	if ( geometries_[idx]->getID() == geomid )
 	    return idx;
+    */
 
     return -1;
 }
@@ -611,11 +630,24 @@ bool GeometryManager::fillGeometries( TaskRunner* taskr )
 {
     Threads::Locker locker( lock_ );
     deepUnRef( geometries_ );
+    namemap_.clear();
+    geomidmap_.clear();
     ensureSIPresent();
     hasduplnms_ = hasDuplicateLineNames();
     PtrMan<GeometryReader> geomreader =
 		GeometryReader::factory().create(sKey::TwoD());
-    return geomreader && geomreader->read( geometries_, taskr );
+    const bool res = geomreader && geomreader->read( geometries_, taskr );
+    if ( !res )
+	return false;
+
+    for ( int idx=0; idx<geometries_.size(); idx++ )
+    {
+	const auto* geom = geometries_[idx];
+	namemap_[geom->getName()] = idx;
+	geomidmap_[geom->getID().asInt()] = idx;
+    }
+
+    return true;
 }
 
 
@@ -665,15 +697,31 @@ Pos::GeomID GeometryManager::findRelated( const Geometry& ref,
     }
 
     if ( identicalidx >= 0 )
-    { reltype = Geometry::Identical; return geometries_[identicalidx]->getID();}
-    if ( supersetidx >= 0 )
-    { reltype = Geometry::SuperSet; return geometries_[supersetidx]->getID(); }
-    if ( subsetidx >= 0 )
-    { reltype = Geometry::SubSet; return geometries_[subsetidx]->getID(); }
-    if ( relatedidx >= 0 )
-    { reltype = Geometry::Related; return geometries_[relatedidx]->getID(); }
+    {
+	reltype = Geometry::Identical;
+	return geometries_[identicalidx]->getID();
+    }
 
-    reltype = Geometry::UnRelated; return cUndefGeomID();
+    if ( supersetidx >= 0 )
+    {
+	reltype = Geometry::SuperSet;
+	return geometries_[supersetidx]->getID();
+    }
+
+    if ( subsetidx >= 0 )
+    {
+	reltype = Geometry::SubSet;
+	return geometries_[subsetidx]->getID();
+    }
+
+    if ( relatedidx >= 0 )
+    {
+	reltype = Geometry::Related;
+	return geometries_[relatedidx]->getID();
+    }
+
+    reltype = Geometry::UnRelated;
+    return Pos::GeomID::udf();
 }
 
 } // namespace Survey
