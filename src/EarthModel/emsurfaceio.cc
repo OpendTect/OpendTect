@@ -1290,6 +1290,11 @@ bool dgbSurfaceReader::readVersion3Row( od_istream& strm, int firstcol,
 
     mDynamicCastGet(Horizon2D*,hor2d,surface_);
     const bool hor2dok = hor2d && geomids_.validIdx(rowindex_);
+    const Pos::GeomID geomid =
+			hor2dok ? geomids_[rowindex_] : Pos::GeomID::udf();
+    const int surfacerowidx = hor2dok ?
+		hor2d->geometry().geometryElement()->getRowIndex( geomid )
+				      : currentRow();
 
     for ( ; colindex<nrcols+colstoskip; colindex++ )
     {
@@ -1311,9 +1316,9 @@ bool dgbSurfaceReader::readVersion3Row( od_istream& strm, int firstcol,
 	else
 	{
 	    const int zidx = readInt16( strm );
-
 	    if ( colindex < (colstoskip-1) )
 		continue;
+
 	    pos.z = (zidx==65535) ? mUdf(float) : zsd.atIndex( zidx );
 	}
 
@@ -1343,11 +1348,7 @@ bool dgbSurfaceReader::readVersion3Row( od_istream& strm, int firstcol,
 	{
 	    createArray();
 
-	    RowCol myrc( rc );
-	    if ( hor2dok )
-		myrc.row() = hor2d->geometry().geometryElement()
-			->getRowIndex( geomids_[rowindex_] );
-
+	    const RowCol myrc( surfacerowidx, rc.col() );
 	    if ( arr_ )
 	    {
 		int i, j;
