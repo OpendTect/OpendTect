@@ -17,6 +17,8 @@ ________________________________________________________________________
 #include "trckeyzsampling.h"
 #include "threadlock.h"
 
+#include <unordered_map>
+
 class TaskRunner;
 class IOObj;
 
