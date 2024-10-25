@@ -757,7 +757,7 @@ bool SeisTrcReader::mkNextFetcher()
 	{
 	    // Chances are we do not need to go through this line at all
 	    mDynamicCastGet(Seis::TableSelData*,tsd,seldata_)
-		    Pos::GeomID curgeomid = dataset_->geomID( curlineidx_ );
+	    Pos::GeomID curgeomid = dataset_->geomID( curlineidx_ );
 	    while ( !dataset_->haveMatch(curgeomid,tsd->binidValueSet()) )
 	    {
 		curlineidx_++;
