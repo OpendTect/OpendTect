@@ -2493,7 +2493,7 @@ DataPackID HorizonDisplay::getDisplayedDataPackID( int channel ) const
 
     const RefObjectSet<MapDataPack>& dps = *datapacksset_.get( channel );
     const int curversion = sections_[0]->activeVersion( channel );
-    return dps.validIdx(curversion) ? dps.get(channel)->id()
+    return dps.validIdx(curversion) ? dps.get(curversion)->id()
 				    : DataPackID::udf();
 }
 
