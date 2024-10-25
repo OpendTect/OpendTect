@@ -9,12 +9,13 @@ ________________________________________________________________________
 -*/
 
 #include "wellmod.h"
+#include "welldahobj.h"
 
 #include "iopar.h"
 #include "mnemonics.h"
 #include "ranges.h"
 #include "unitofmeasure.h"
-#include "welldahobj.h"
+#include "wellid.h"
 
 namespace Well
 {
@@ -105,16 +106,20 @@ public:
     IOPar&		pars()				{ return pars_; }
     const IOPar&	pars() const			{ return pars_; }
 
+    void		setID( const LogID& id )	{ id_ = id; }
+    const LogID&	ID() const			{ return id_; }
+
 private:
 
     TypeSet<float>	vals_;
     Interval<float>	range_;
-    const Mnemonic*	mn_ = nullptr;
-    const UnitOfMeasure* uom_ = nullptr;
+    const Mnemonic*	mn_				= nullptr;
+    const UnitOfMeasure* uom_				= nullptr;
     BufferString	mnemlbl_;
     BufferString	unitmeaslbl_;
-    bool		iscode_ = false;
+    bool		iscode_				= false;
     IOPar		pars_;
+    LogID		id_;
 
     void		setMnemonicNullCB(CallBacker*);
 

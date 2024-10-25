@@ -10,7 +10,6 @@ ________________________________________________________________________
 
 #include "wellmod.h"
 
-#include "bufstring.h"
 #include "bufstringset.h"
 #include "executor.h"
 #include "wellman.h"

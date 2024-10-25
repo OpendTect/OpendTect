@@ -239,7 +239,7 @@ void uiWellLogCalc::getAllLogs()
 
 	if ( havenewlog )
 	{
-	    if ( wrdr && !wrdr->getLogs() )
+	    if ( wrdr && !wrdr->getLogs(false) )
 		continue;
 
 	    for ( int ilog=0; ilog<wd->logs().size(); ilog++ )

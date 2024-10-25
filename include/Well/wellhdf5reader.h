@@ -63,13 +63,17 @@ public:
 
     bool		getInfo() const override;
     bool		getTrack() const override;
-    bool		getLogs(bool needjustinfo=false) const override;
+    bool		getLogs(bool needjustinfo) const override;
     bool		getMarkers() const override;
+
     bool		getD2T() const override;
     bool		getCSMdl() const override;
-    bool		getDispProps() const override;
+
     bool		getLog(const char* lognm) const override;
+    bool		getLogByID(const LogID&) const override;
     void		getLogInfo(BufferStringSet&) const override;
+
+    bool		getDispProps() const override;
 
     const		uiString& errMsg() const override    { return errmsg_; }
 

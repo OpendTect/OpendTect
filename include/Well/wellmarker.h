@@ -13,6 +13,7 @@ ________________________________________________________________________
 #include "manobjectset.h"
 #include "ranges.h"
 #include "stratlevel.h"
+#include "wellid.h"
 
 class TaskRunner;
 
@@ -51,15 +52,21 @@ public:
     static const char*	sKeyDah();
 
     // setName() and setColor() only used as fallback, if not attached to level
-    inline void		setColor( OD::Color col )	  { color_ = col; }
-    inline void		setLevelID( Strat::LevelID id ) { levelid_ = id; }
+    inline void		setColor( const OD::Color& col )
+			{ color_ = col; }
+    inline void		setLevelID( const Strat::LevelID& id )
+			{ levelid_ = id; }
     void		setNoLevelID();
 
-protected:
+    inline void		setID( const MarkerID& id )	{ id_ = id; }
+    inline const MarkerID& ID() const			{ return id_; }
+
+private:
 
     float		dah_;
     OD::Color		color_;
     Strat::LevelID	levelid_;
+    MarkerID		id_;
 
 };
 

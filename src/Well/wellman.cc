@@ -18,7 +18,7 @@ ________________________________________________________________________
 #include "ptrman.h"
 #include "surveydisklocation.h"
 #include "survinfo.h"
-#include "timer.h"
+
 #include "welldata.h"
 #include "wellio.h"
 #include "welllog.h"
@@ -27,13 +27,13 @@ ________________________________________________________________________
 #include "wellreader.h"
 #include "welltrack.h"
 #include "welltransl.h"
-#include "wellwriter.h"
 #include "wellupdate.h"
+#include "wellwriter.h"
 
 Well::LoadReqs::LoadReqs( bool addall )
 {
     if ( addall )
-        setToAll();
+	setToAll();
 }
 
 
@@ -86,7 +86,7 @@ Well::LoadReqs Well::LoadReqs::All()
     LoadReqs ret( false );
     ret.reqs_.set();
     if ( !SI().zIsTime() )
-        ret.reqs_[D2T] = 0;
+	ret.reqs_[D2T] = 0;
 
     return ret;
 }
@@ -107,7 +107,7 @@ Well::LoadReqs Well::LoadReqs::AllNoLogs()
 Well::LoadReqs& Well::LoadReqs::add( SubObjType typ )
 {
     if ( typ != D2T || SI().zIsTime() )
-        reqs_[typ] = 1;
+	reqs_[typ] = 1;
     if ( typ == Logs )
 	reqs_[LogInfos] = 1;
     return *this;
@@ -140,7 +140,7 @@ Well::LoadReqs& Well::LoadReqs::include( const LoadReqs& oth )
     for ( int idx=0; idx<mWellNrSubObjTypes; idx++ )
     {
 	if ( oth.reqs_[idx]==1 )
-            reqs_[ idx ] = 1;
+	    reqs_[ idx ] = 1;
     }
 
     if ( reqs_[Logs]==1 )
@@ -193,7 +193,7 @@ BufferString Well::LoadReqs::toString() const
     tmp.add( "Inf Trck D2T CSMdl Mrkrs Logs LogInfos DispProps2D DispProps3D" );
     BufferStringSet nms;
     nms.unCat( tmp, " " );
-    for ( int ib=0; ib<reqs_.size(); ib++ )
+    for ( size_t ib=0; ib<reqs_.size(); ib++ )
     {
 	if ( reqs_[ib]==1 )
 	    res.add( nms.get(ib) ).addSpace();
@@ -343,7 +343,7 @@ RefMan<Well::Data> Well::Man::get( const MultiID& key, LoadReqs reqs )
     const int wdidx = gtByKey( key );
     RefMan<Data> wd = wdidx < 0 ? nullptr : wells_[wdidx];
     if ( wd && wd->loadState().includes(reqs) )
-        return wd;
+	return wd;
 
     if ( wdidx >=0 && wd )
     {
@@ -422,7 +422,7 @@ bool Well::Man::readReqData( const MultiID& key, Data& wd,
     if ( reqs.includes(Mrkrs) )
 	rdr.getMarkers();
     if ( reqs.includes(Logs) )
-	rdr.getLogs();
+	rdr.getLogs( false );
     else if ( reqs.includes(LogInfos) )
 	rdr.getLogs( true );
     if ( reqs.includes(CSMdl) )
@@ -872,10 +872,10 @@ void Well::Man::getLogIDs( const MultiID& ky, const MnemonicSelection& mns,
 
 
 bool Well::Man::getLogNames( const MultiID& ky, BufferStringSet& nms,
-			     bool forceLoad )
+			     bool forceload )
 {
     nms.setEmpty();
-    if ( MGR().isLoaded(ky) && forceLoad )
+    if ( MGR().isLoaded(ky) && forceload )
     {
 	RefMan<Data> wd = MGR().get( ky, LoadReqs(LogInfos) );
 	if ( !wd )

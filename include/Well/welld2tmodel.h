@@ -10,7 +10,9 @@ ________________________________________________________________________
 
 #include "wellmod.h"
 #include "welldahobj.h"
+
 #include "uistring.h"
+#include "wellid.h"
 
 class TimeDepthModel;
 class uiString;
@@ -85,6 +87,9 @@ public:
     void		fillHeaderPar(IOPar&) const;
     void		useHeaderPar(const IOPar&);
 
+    void		setID(const D2TID& id )		{ id_ = id; }
+    const D2TID&	ID() const			{ return id_; }
+
 protected:
 
     TypeSet<float>	t_;
@@ -126,6 +131,9 @@ protected:
     static void checkReplacementVelocity( Well::Info& info,
 					 double vreplinfile,
 					 uiString& msg );
+
+private:
+    D2TID		id_;
 };
 
 mGlobal(Well) float	getDefaultVelocity();
