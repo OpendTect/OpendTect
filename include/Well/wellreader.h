@@ -11,12 +11,11 @@ ________________________________________________________________________
 #include "wellmod.h"
 #include "executor.h"
 
-#include "bufstring.h"
 #include "dbkey.h"
-#include "manobjectset.h"
-#include "ranges.h"
 #include "uistring.h"
 #include "wellman.h"
+#include "wellid.h"
+
 
 class BufferStringSet;
 class DBKeySet;
@@ -47,15 +46,20 @@ public:
 
     bool		getInfo() const;	//!< Read Info only
     bool		getTrack() const;	//!< Read Track only
-    bool		getLogs(bool needjustinfo=false) const;
-						//!< Read logs only
     bool		getMarkers() const;	//!< Read Markers only
+
     bool		getD2T() const;		//!< Read D2T model parts
     bool		getCSMdl() const;	//!< Read Checkshot model parts
-    bool		getDispProps() const;	//!< Read display props only
+
+    bool		getLogs(bool needjustinfo) const;
+						//!< Read logs only
+    bool		getLogs(const BufferStringSet& lognms) const;
     bool		getLog(const char* lognm) const; //!< Read this one only
+    bool		getLogByID(const LogID&) const; //!< Read this one only
     void		getLogInfo(BufferStringSet& lognms) const;
     bool		getDefLogs() const;	//!< Read list of default logs
+
+    bool		getDispProps() const;	//!< Read display props only
 						//!< for a particular mnemonic
 
     const uiString&	errMsg() const		{ return errmsg_; }

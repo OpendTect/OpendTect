@@ -339,6 +339,21 @@ bool Well::HDF5Reader::getLog( const char* reqlognm ) const
 }
 
 
+bool Well::HDF5Reader::getLogByID( const LogID& id ) const
+{
+    HDF5::DataSetKey dsky( sLogsGrpName() );
+    dsky.setDataSetName( toString(id.asInt()) );
+    HDF5::DataSetKey grpkey;
+    grpkey.setGroupName( dsky.fullDataSetName() );
+
+    IOPar iop;
+    if ( !getLogPars(grpkey,iop) )
+	return false;
+
+    return getWL( grpkey );
+}
+
+
 void Well::HDF5Reader::getLogInfo( BufferStringSet& nms ) const
 {
     HDF5::DataSetKey dsky( sLogsGrpName() );

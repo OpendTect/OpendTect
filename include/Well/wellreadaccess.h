@@ -9,8 +9,11 @@ ________________________________________________________________________
 -*/
 
 #include "wellmod.h"
-#include "gendefs.h"
+#include "commondefs.h"
+
 #include "uistrings.h"
+#include "wellid.h"
+
 class BufferStringSet;
 
 
@@ -32,14 +35,25 @@ public:
 
     virtual bool	getInfo() const			= 0;
     virtual bool	getTrack() const		= 0;
-    virtual bool	getLogs(bool needjustinfo=false) const	  = 0;
     virtual bool	getMarkers() const		= 0;
+
     virtual bool	getD2T() const			= 0;
+    virtual bool	getD2TByName(const char*) const;
+    virtual bool	getD2TByID(const D2TID&) const;
+    virtual bool	getD2TInfo(BufferStringSet&) const;
+
     virtual bool	getCSMdl() const		= 0; //!< Checkshot mdl
-    virtual bool	getDispProps() const		= 0;
+    virtual bool	getCSMdlByName(const char*) const;
+    virtual bool	getCSMdlByID(const D2TID&) const;
+    virtual bool	getCSMdlInfo(BufferStringSet&) const;
+
+    virtual bool	getLogs(bool needjustinfo) const	  = 0;
     virtual bool	getLog(const char* lognm) const	= 0;
+    virtual bool	getLogByID(const LogID&) const	{ return false; }
     virtual void	getLogInfo(BufferStringSet& lognms) const = 0;
     virtual bool	getDefLogs() const		{ return false; }
+
+    virtual bool	getDispProps() const		= 0;
 
     virtual const uiString& errMsg() const		= 0;
 

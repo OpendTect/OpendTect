@@ -923,7 +923,7 @@ void uiWellMan::copyLogPush( CallBacker* )
 	const MultiID& key = curmultiids_[widx];
 	RefMan<Well::Data> wd = curwds_.get( widx );
 	Well::Reader rdr( key, *wd );
-	rdr.getLogs();
+	rdr.getLogs( sellogs );
 	Well::LogSet& wls = wd->logs();
 	for ( const auto* logname : sellogs )
 	{
@@ -965,7 +965,7 @@ void uiWellMan::exportLogs( CallBacker* )
 	const MultiID& key = curmultiids_[widx];
 	RefMan<Well::Data> wd = curwds_.get( widx );
 	Well::Reader rdr( key, *wd );
-	rdr.getLogs();
+	rdr.getLogs( sellogs );
 	rdr.getD2T();
     }
 

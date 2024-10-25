@@ -13,8 +13,6 @@ ________________________________________________________________________
 #include "wellio.h"
 
 #include "od_iosfwd.h"
-#include "ranges.h"
-#include "sets.h"
 
 class BufferStringSet;
 class IOObj;
@@ -40,19 +38,23 @@ public:
 
     bool		getInfo() const override;
     bool		getTrack() const override;
-    bool		getLogs(bool needjustinfo=false) const override;
     bool		getMarkers() const override; //needs to read Track too
+
     bool		getD2T() const override;
     bool		getCSMdl() const override;
-    bool		getDispProps() const override;
+
+    bool		getLogs(bool needjustinfo=false) const override;
     bool		getLog(const char* lognm) const override;
+    bool		getLogByID(const LogID&) const override;
     void		getLogInfo(BufferStringSet& lognms) const override;
     bool		getDefLogs() const override;
+
+    bool		getDispProps() const override;
 
     const uiString&	errMsg() const override { return odIO::errMsg(); }
 
     bool		getInfo(od_istream&) const;
-    bool		addLog(od_istream&, bool needjustinfo=false) const;
+    bool		addLog(od_istream&,bool needjustinfo=false) const;
     bool		getMarkers(od_istream&) const;
     bool		getD2T(od_istream&) const;
     bool		getCSMdl(od_istream&) const;

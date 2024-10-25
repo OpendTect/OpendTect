@@ -151,7 +151,43 @@ void Well::ReadAccess::adjustTrackIfNecessary( bool frommarkers ) const
 }
 
 
+bool Well::ReadAccess::getD2TByName( const char* ) const
+{
+    return getD2T();
+}
 
+
+bool Well::ReadAccess::getD2TByID( const D2TID& ) const
+{
+    return getD2T();
+}
+
+
+bool Well::ReadAccess::getD2TInfo( BufferStringSet& ) const
+{
+    return false;
+}
+
+
+bool Well::ReadAccess::getCSMdlByName( const char* ) const
+{
+    return getCSMdl();
+}
+
+
+bool Well::ReadAccess::getCSMdlByID( const D2TID& ) const
+{
+    return getCSMdl();
+}
+
+
+bool Well::ReadAccess::getCSMdlInfo( BufferStringSet& ) const
+{
+    return false;
+}
+
+
+// Well::Reader
 Well::Reader::Reader( const IOObj& ioobj, Data& wd )
 {
     init( ioobj, wd );
@@ -205,6 +241,19 @@ mImplSimpleWRFn(getDispProps)
 mImplWRFn(bool,getLogs,bool,needjustinfo,false)
 
 
+bool Well::Reader::getLogs( const BufferStringSet& lognms ) const
+{
+    bool res = true;
+    for ( const auto* lognm : lognms )
+    {
+	if ( res )
+	    res = getLog( lognm->buf() );
+    }
+
+    return res;
+}
+
+
 bool Well::Reader::getDefLogs() const
 {
     return ra_ ? ra_->getDefLogs() : false;
@@ -244,7 +293,7 @@ bool Well::Reader::get() const
 	getCSMdl();
     }
 
-    getLogs();
+    getLogs( false );
     getMarkers();
     getDispProps();
 
@@ -270,11 +319,27 @@ bool Well::Reader::getCSMdl() const
 }
 
 
-mImplWRFn(bool,getLog,const char*,lognm,false)
+bool Well::Reader::getLog( const char* nm ) const
+{
+    return ra_ ? ra_->getLog( nm ) : false;
+}
+
+bool Well::Reader::getLogByID( const LogID& id ) const
+{
+    return ra_ ? ra_->getLogByID( id ) : false;
+}
+
 void Well::Reader::getLogInfo( BufferStringSet& logname ) const
-{ if ( ra_ ) ra_->getLogInfo( logname ); }
+{
+    if ( ra_ )
+	ra_->getLogInfo( logname );
+}
+
+
 Well::Data* Well::Reader::data()
-{ return ra_ ? &ra_->data() : nullptr; }
+{
+    return ra_ ? &ra_->data() : nullptr;
+}
 
 
 bool Well::Reader::getMapLocation( Coord& coord ) const
@@ -635,6 +700,22 @@ bool Well::odReader::getLog( const char* lognm ) const
     if ( lognmidx<0 ) return false;
 
     const int logfileidx = idxs[lognmidx];
+    mGetInpStream( sExtLog(), logfileidx, true, return false )
+    return addLog( strm );
+}
+
+
+bool Well::odReader::getLogByID( const LogID& id ) const
+{
+    BufferStringSet nms;
+    TypeSet<int> idxs;
+    getLogInfo( nms, idxs );
+
+    const int logidx = idxs.indexOf( id.asInt() );
+    if ( logidx<0 )
+	return false;
+
+    const int logfileidx = id.asInt();
     mGetInpStream( sExtLog(), logfileidx, true, return false )
     return addLog( strm );
 }
@@ -1062,7 +1143,7 @@ int MultiWellReader::nextStep()
 	if ( reqs_.includes(Well::Mrkrs) )
 	    rdr.getMarkers();
 	if ( reqs_.includes(Well::Logs) )
-	    rdr.getLogs();
+	    rdr.getLogs( false );
 	else if ( reqs_.includes(Well::LogInfos) )
 	    rdr.getLogs( true );
 	if ( reqs_.includes(Well::CSMdl) )
