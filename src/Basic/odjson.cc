@@ -216,15 +216,9 @@ OD::JSON::ValArr::ValArr( DataType typ )
 }
 
 
-OD::JSON::ValArr::ValArr( const ValArr& oth )
-    : ValArr(oth.type_)
+OD::JSON::ValArr::~ValArr()
 {
-    switch ( type_ )
-    {
-	case Boolean:	bools() = oth.bools();		break;
-	case Number:	vals() = oth.vals();		break;
-	case String:	strings() = oth.strings();	break;
-    }
+    delete set_;
 }
 
 
@@ -309,6 +303,18 @@ OD::JSON::ValueSet::ValueSet( const ValueSet& oth )
 {
     for ( const auto* val : oth.values_ )
 	values_ += val->clone( this );
+}
+
+
+OD::JSON::ValueSet::ValueSet( ValueSet* p )
+    : parent_(p)
+{
+}
+
+
+OD::JSON::ValueSet::~ValueSet()
+{
+    setEmpty();
 }
 
 
@@ -829,7 +835,7 @@ OD::JSON::Array::Array( const Array& oth )
     , valarr_(0)
 {
     if ( oth.valarr_ )
-	valarr_ = new ValArr( *oth.valarr_ );
+	valarr_ = new ValArr( oth.valarr_->dataType() );
 }
 
 
@@ -1131,11 +1137,20 @@ OD::JSON::Array& OD::JSON::Array::set( const uiStringSet& vals )
 
 //--------- Object
 
+OD::JSON::Object::Object( ValueSet* p )
+    : ValueSet(p)
+{}
+
 
 OD::JSON::Object::Object( const Object& oth )
     : ValueSet(oth)
 {
 }
+
+
+OD::JSON::Object::~Object()
+{}
+
 
 OD::JSON::ValueSet::idx_type OD::JSON::Object::indexOf( const char* nm ) const
 {

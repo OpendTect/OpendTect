@@ -55,8 +55,9 @@ public:
     typedef BufferStringSet		SSet;
 
 			ValArr(DataType);
-			ValArr(const ValArr&);
-			~ValArr()		{ delete set_; }
+    virtual		~ValArr();
+			mOD_DisableCopy(ValArr)
+
     DataType		dataType() const	{ return type_; }
 
     size_type		size() const
@@ -105,40 +106,47 @@ public:
     enum ValueType		{ Data, SubArray, SubObject };
     typedef Gason::JsonNode	GasonNode;
 
-    virtual ValueSet*	clone() const			= 0;
-    virtual		~ValueSet()			{ setEmpty(); }
-    virtual bool	isArray() const			 = 0;
-    inline Array&	asArray();
-    inline const Array&	asArray() const;
-    inline Object&	asObject();
-    inline const Object& asObject() const;
+    virtual			~ValueSet();
 
-    virtual size_type	size() const
-			{ return (size_type)values_.size(); }
-    virtual bool	isEmpty() const
-			{ return values_.isEmpty(); }
-    virtual void	setEmpty();
+    ValueSet&			operator=(const ValueSet&)	= delete;
+    virtual ValueSet*		clone() const			= 0;
+    virtual bool		isArray() const			= 0;
+    inline Array&		asArray();
+    inline const Array&		asArray() const;
+    inline Object&		asObject();
+    inline const Object&	asObject() const;
 
-    virtual ValueType	valueType(idx_type) const;
-    const BufferString& key(idx_type) const;
-    inline bool		isPlainData( idx_type i ) const
-			{ return valueType(i) == Data; }
-    inline bool		isArrayChild( idx_type i ) const
-			{ return valueType(i) == SubArray; }
-    inline bool		isObjectChild( idx_type i ) const
-			{ return valueType(i) == SubObject; }
+    virtual size_type		size() const
+				{ return (size_type)values_.size(); }
+    virtual bool		isEmpty() const
+				{ return values_.isEmpty(); }
+    virtual void		setEmpty();
 
-    bool		isTop() const		{ return !parent_; }
-    ValueSet*		top();
-    const ValueSet*	top() const;
+    virtual ValueType		valueType(idx_type) const;
+    const BufferString& 	key(idx_type) const;
+    inline bool			isPlainData( idx_type i ) const
+				{ return valueType(i) == Data; }
+    inline bool			isArrayChild( idx_type i ) const
+				{ return valueType(i) == SubArray; }
+    inline bool			isObjectChild( idx_type i ) const
+				{ return valueType(i) == SubObject; }
 
-#   define		mMkGetFns(typ,getfn,implfn) \
-    inline typ&		getfn( idx_type i )		{ return *implfn(i); } \
-    inline const typ&	getfn( idx_type i ) const	{ return *implfn(i); }
-    mMkGetFns(ValueSet,	child, gtChildByIdx )
-    mMkGetFns(Array,	array, gtArrayByIdx )
-    mMkGetFns(Object,	object, gtObjectByIdx )
-#   undef		mMkSubFn
+    bool			isTop() const		{ return !parent_; }
+    ValueSet*			top();
+    const ValueSet*		top() const;
+
+    inline ValueSet&		child( idx_type i )
+				{ return *gtChildByIdx(i); }
+    inline const ValueSet&	child( idx_type i ) const
+				{ return *gtChildByIdx(i); }
+    inline Array&		array( idx_type i )
+				{ return *gtArrayByIdx(i); }
+    inline const Array&		array( idx_type i ) const
+				{ return *gtArrayByIdx(i); }
+    inline Object&		object( idx_type i )
+				{ return *gtObjectByIdx(i); }
+    inline const Object&	object( idx_type i ) const
+				{ return *gtObjectByIdx(i); }
 
     virtual bool		getBoolValue(idx_type) const;
     virtual od_int64		getIntValue(idx_type) const;
@@ -146,38 +154,37 @@ public:
     virtual BufferString	getStringValue(idx_type) const;
     virtual FilePath		getFilePath(idx_type) const;
 
-    uiRetVal		parseJSon(char* buf,int bufsz);
-    static ValueSet*	getFromJSon(char* buf,int bufsz,uiRetVal&);
-    void		dumpJSon(BufferString&,bool pretty=false) const;
-    void		dumpJSon(StringBuilder&) const;
-    BufferString	dumpJSon(bool pretty=false) const;
+    uiRetVal			parseJSon(char* buf,int bufsz);
+    static ValueSet*		getFromJSon(char* buf,int bufsz,uiRetVal&);
+    void			dumpJSon(BufferString&,bool pretty=false) const;
+    void			dumpJSon(StringBuilder&) const;
+    BufferString		dumpJSon(bool pretty=false) const;
 
-    uiRetVal		read(od_istream&);
-    static ValueSet*	read(od_istream&,uiRetVal&);
-    uiRetVal		write(od_ostream&,bool pretty=false);
-    uiRetVal		writePretty(od_ostream&);
+    uiRetVal			read(od_istream&);
+    static ValueSet*		read(od_istream&,uiRetVal&);
+    uiRetVal			write(od_ostream&,bool pretty=false);
+    uiRetVal			writePretty(od_ostream&);
 
 protected:
 
-			ValueSet( ValueSet* p )
-			    : parent_(p)	{}
-			ValueSet(const ValueSet&);
+				ValueSet(ValueSet* parent);
+				ValueSet(const ValueSet&);
 
-    ValueSet*		parent_;
-    ObjectSet<Value>	values_;
+    ValueSet*			parent_;
+    ObjectSet<Value>		values_;
 
-    void		setParent( ValueSet* p )	{ parent_ = p; }
+    void			setParent( ValueSet* p )	{ parent_ = p; }
 
-    ValueSet*		gtChildByIdx(idx_type) const;
-    Array*		gtArrayByIdx(idx_type) const;
-    Object*		gtObjectByIdx(idx_type) const;
+    ValueSet*			gtChildByIdx(idx_type) const;
+    Array*			gtArrayByIdx(idx_type) const;
+    Object*			gtObjectByIdx(idx_type) const;
 
-    static ValueSet*	gtByParse(char*,int,uiRetVal&,ValueSet*);
-    void		use(const GasonNode&);
+    static ValueSet*		gtByParse(char*,int,uiRetVal&,ValueSet*);
+    void			use(const GasonNode&);
 
-    friend class	Array;
-    friend class	Object;
-    friend class	Value;
+    friend class		Array;
+    friend class		Object;
+    friend class		Value;
 
 };
 
@@ -197,6 +204,8 @@ public:
 			Array(DataType,ValueSet* p=0);
 			Array(const Array&);
 			~Array();
+
+    Array&		operator=(const Array&)	= delete;
     Array*		clone() const override	{ return new Array(*this); }
     bool		isArray() const override	{ return true; }
     void		setEmpty() override;
@@ -277,47 +286,55 @@ mExpClass(Basic) Object : public ValueSet
 {
 public:
 
-			Object( ValueSet* p=0 )
-			    : ValueSet(p)	{}
+			Object(ValueSet* p=nullptr);
 			Object(const Object&);
-    Object*	clone() const override	{ return new Object(*this); }
-    bool	isArray() const override { return false; }
+			~Object();
+
+    Array&		operator=(const Array&)	= delete;
+    Object*		clone() const override	{ return new Object(*this); }
+    bool		isArray() const override { return false; }
 
     idx_type		indexOf(const char*) const;
     bool		isPresent( const char* ky ) const
 						{ return indexOf(ky) >= 0; }
 
-#   define		mMkGetFn(typ,getfn,implfn) \
-    inline typ*		getfn( const char* ky )		{ return implfn(ky); } \
-    inline const typ*	getfn( const char* ky ) const	{ return implfn(ky); }
-    mMkGetFn(ValueSet,	getChild, gtChildByKey )
-    mMkGetFn(Array,	getArray, gtArrayByKey )
-    mMkGetFn(Object,	getObject, gtObjectByKey )
-#   undef		mMkGetFn
+    inline ValueSet*	getChild( const char* ky )
+			{ return gtChildByKey(ky); }
+    inline const ValueSet* getChild( const char* ky ) const
+			{ return gtChildByKey(ky); }
+    inline Array*	getArray( const char* ky )
+			{ return gtArrayByKey(ky); }
+    inline const Array* getArray( const char* ky ) const
+			{ return gtArrayByKey(ky); }
+    inline Object*	getObject( const char* ky )
+			{ return gtObjectByKey(ky); }
+    inline const Object* getObject( const char* ky ) const
+			{ return gtObjectByKey(ky); }
+
     void		getSubObjKeys(BufferStringSet&) const;
     inline ValueSet*	getChild( const BufferStringSet& bskey )
-					    { return gtChildByKeys( bskey ); }
-    inline const ValueSet*	getChild( const BufferStringSet& bskey ) const
-					    { return gtChildByKeys( bskey ); }
+				{ return gtChildByKeys( bskey ); }
+    inline const ValueSet* getChild( const BufferStringSet& bskey ) const
+				{ return gtChildByKeys( bskey ); }
     inline Array*	getArray( const BufferStringSet& bskey )
-					    { return gtArrayByKeys( bskey ); }
+				{ return gtArrayByKeys( bskey ); }
     inline const Array* getArray( const BufferStringSet& bskey ) const
-					    { return gtArrayByKeys( bskey ); }
+				{ return gtArrayByKeys( bskey ); }
     inline Object*	getObject( const BufferStringSet& bskey )
-					    { return gtObjectByKeys( bskey ); }
-    inline const Object*	getObject( const BufferStringSet& bskey ) const
-					    { return gtObjectByKeys( bskey ); }
+				{ return gtObjectByKeys( bskey ); }
+    inline const Object* getObject( const BufferStringSet& bskey ) const
+				{ return gtObjectByKeys( bskey ); }
 
-    od_int64	getIntValue( idx_type idx ) const override
-		{ return ValueSet::getIntValue( idx ); }
-    bool	getBoolValue( idx_type idx ) const override
-		{ return ValueSet::getBoolValue( idx ); }
-    double	getDoubleValue( idx_type idx ) const override
-		{ return ValueSet::getDoubleValue( idx ); }
-    BufferString getStringValue( idx_type idx ) const override
-		{ return ValueSet::getStringValue( idx ); }
-    FilePath	getFilePath( idx_type idx ) const override
-		{ return ValueSet::getFilePath( idx ); }
+    od_int64		getIntValue( idx_type idx ) const override
+			{ return ValueSet::getIntValue( idx ); }
+    bool		getBoolValue( idx_type idx ) const override
+			{ return ValueSet::getBoolValue( idx ); }
+    double		getDoubleValue( idx_type idx ) const override
+			{ return ValueSet::getDoubleValue( idx ); }
+    BufferString	getStringValue( idx_type idx ) const override
+			{ return ValueSet::getStringValue( idx ); }
+    FilePath		getFilePath( idx_type idx ) const override
+			{ return ValueSet::getFilePath( idx ); }
 
 
     bool		getBoolValue(const char*) const;
