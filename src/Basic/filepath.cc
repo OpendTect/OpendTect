@@ -414,7 +414,8 @@ BufferString FilePath::fullPath( Style f, bool cleanup ) const
     if ( cleanup )
 	res = mkCleanPath( res, f );
 
-    if ( isabs_ && ((__iswin__ && f==Local) || f==Windows) && nrLevels() < 1 )
+    if ( !isURI() && isabs_ && ((__iswin__ && f==Local) || f==Windows)
+		  && nrLevels() < 1 )
 	res.add( dirSep(Windows) );
 
     if ( !postfix_.isEmpty() )
@@ -501,7 +502,8 @@ BufferString FilePath::pathOnly( Style f, bool cleanup ) const
     if ( cleanup )
 	res = mkCleanPath( res, f );
 
-    if ( isabs_ && ((__iswin__ && f==Local) || f==Windows) && nrLevels() < 2 )
+    if ( !isURI() && isabs_ && ((__iswin__ && f==Local) || f==Windows)
+		  && nrLevels() < 2 )
 	res.add( dirSep(Windows) );
 
     return res;
