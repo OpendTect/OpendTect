@@ -8,7 +8,7 @@
 #
 
 set( BASEPACKAGES basedatadefs )
-set( PACKAGELIST basedefs develdefs )
+set( PACKAGELIST basedefs develdefs odbatchdefs )
 if ( BUILD_USERDOC AND EXISTS "${USERDOC_PROJECT}" )
     list( APPEND PACKAGELIST doc )
 endif()
