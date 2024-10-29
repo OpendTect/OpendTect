@@ -568,7 +568,7 @@ bool uiSeisIOSimple::acceptOK( CallBacker* )
     data().havepos_ = haveposfld_->getBoolValue();
     data().havenr_ = data().haverefnr_ = false;
     if ( coordsysselfld_ && coordsysselfld_->isDisplayed() )
-	data().setCoordSys( coordsysselfld_->getCoordSystem() );
+	data().setCoordSys( coordsysselfld_->getCoordSystem().ptr() );
 
     if ( data().havepos_ )
     {

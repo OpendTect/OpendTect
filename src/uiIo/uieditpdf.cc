@@ -651,7 +651,7 @@ void uiEditSampledProbDenFunc::viewPDF( CallBacker* )
 	vddp_ = dp;
 
 	vwwinnd_->viewer().clearAllPacks();
-	vwwinnd_->viewer().setPack( FlatView::Viewer::VD, dp );
+	vwwinnd_->viewer().setPack( FlatView::Viewer::VD, dp.ptr() );
 	vwwinnd_->viewer().setViewToBoundingBox();
 	vwwinnd_->start();
     }

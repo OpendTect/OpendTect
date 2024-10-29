@@ -521,9 +521,9 @@ void uiExportLogs::writeLogs( od_ostream& strm, const Well::Data& wd )
     const UnitOfMeasure* outunit =
 	outinft ? UoMR().get( "Feet" ) : UoMR().get( "Meter" );
 
-    const Coords::CoordSystem* outcrs =
+    ConstRefMan<Coords::CoordSystem> outcrs =
 	coordsysselfld_ ? coordsysselfld_->getCoordSystem() : nullptr;
-    const Coords::CoordSystem* syscrs = SI().getCoordSystem();
+    ConstRefMan<Coords::CoordSystem> syscrs = SI().getCoordSystem();
     const bool needsconversion = outcrs && !(*outcrs == *syscrs);
 
     for ( int idx=0; idx<nrsteps; idx++ )

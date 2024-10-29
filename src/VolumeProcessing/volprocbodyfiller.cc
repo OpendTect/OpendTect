@@ -55,10 +55,7 @@ void BodyFiller::initClass()
 
 
 BodyFiller::BodyFiller()
-    : body_(0)
-    , emobj_(0)
-    , implicitbody_(0)
-    , insidevaltype_(Constant)
+    : insidevaltype_(Constant)
     , outsidevaltype_(Constant)
     , insideval_(mUdf(float))
     , outsideval_(mUdf(float))
@@ -79,11 +76,8 @@ void BodyFiller::releaseData()
 {
     Step::releaseData();
 
-    if ( emobj_ ) emobj_->unRef();
-    emobj_ = 0;
-
-    delete implicitbody_;
-    implicitbody_ = 0;
+    emobj_ = nullptr;
+    deleteAndNullPtr( implicitbody_ );
 
     plgknots_.erase();
     plgbids_.erase();
@@ -94,12 +88,8 @@ void BodyFiller::releaseData()
 
 bool BodyFiller::setSurface( const MultiID& mid )
 {
-    if ( emobj_ )
-    {
-	emobj_->unRef();
-	body_ = 0;
-	emobj_ = 0;
-    }
+    body_ = nullptr;
+    emobj_ = nullptr;
 
     EM::ObjectID emid = EM::EMM().getObjectID( mid );
     RefMan<EM::EMObject> emobj = EM::EMM().getObject( emid );
@@ -121,10 +111,7 @@ bool BodyFiller::setSurface( const MultiID& mid )
     mid_ = mid;
     body_ = newsurf;
     emobj_ = emobj;
-    emobj = 0;
-
-    delete implicitbody_;
-    implicitbody_ = 0;
+    deleteAndNullPtr( implicitbody_ );
 
     return true;
 }

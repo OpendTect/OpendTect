@@ -62,7 +62,7 @@ EMObjectDisplay::~EMObjectDisplay()
 {
     turnOnSelectionMode( false );
     channel2rgba_ = nullptr;
-    removeNodeState( drawstyle_ );
+    removeNodeState( drawstyle_.ptr() );
     drawstyle_ = nullptr;
     transformation_ = nullptr;
     setSceneEventCatcher( nullptr );
@@ -115,15 +115,21 @@ bool EMObjectDisplay::setChannels2RGBA( visBase::TextureChannel2RGBA* t )
 
 
 const visBase::TextureChannel2RGBA* EMObjectDisplay::getChannels2RGBA() const
-{ return channel2rgba_; }
+{
+    return channel2rgba_.ptr();
+}
 
 
 visBase::TextureChannel2RGBA* EMObjectDisplay::getChannels2RGBA()
-{ return channel2rgba_; }
+{
+    return channel2rgba_.ptr();
+}
 
 
 const mVisTrans* EMObjectDisplay::getDisplayTransformation() const
-{ return transformation_; }
+{
+    return transformation_.ptr();
+}
 
 
 void EMObjectDisplay::setDisplayTransformation( const mVisTrans* nt )
@@ -131,10 +137,10 @@ void EMObjectDisplay::setDisplayTransformation( const mVisTrans* nt )
     transformation_ = nt;
 
     for ( auto* posattribmarker : posattribmarkers_ )
-	posattribmarker->setDisplayTransformation(transformation_);
+	posattribmarker->setDisplayTransformation( transformation_.ptr() );
 
     if ( editor_ )
-	editor_->setDisplayTransformation( transformation_ );
+	editor_->setDisplayTransformation( transformation_.ptr() );
 }
 
 
@@ -356,7 +362,7 @@ void EMObjectDisplay::showPosAttrib( int attr, bool yn )
 	    RefMan<visBase::MarkerSet> markerset = visBase::MarkerSet::create();
 	    markerset->setMarkersSingleColor( OD::Color::White() );
 	    addChild( markerset->osgNode() );
-	    posattribmarkers_ += markerset;
+	    posattribmarkers_ += markerset.ptr();
 	    markerset->setMaterial( nullptr );
 	    markerset->setScreenSize( mDefaultSize );
 	    attribindex = posattribs_.size()-1;
@@ -446,7 +452,7 @@ OD::Color EMObjectDisplay::getColor() const
 }
 
 
-MPEEditor* EMObjectDisplay::getEditor() { return editor_; }
+MPEEditor* EMObjectDisplay::getEditor() { return editor_.ptr(); }
 
 
 void EMObjectDisplay::enableEditing( bool yn )
@@ -458,8 +464,8 @@ void EMObjectDisplay::enableEditing( bool yn )
 	    return;
 
 	editor_ = MPEEditor::create();
-	editor_->setSceneEventCatcher( eventcatcher_ );
-	editor_->setDisplayTransformation( transformation_ );
+	editor_->setSceneEventCatcher( eventcatcher_.ptr() );
+	editor_->setDisplayTransformation( transformation_.ptr() );
 	editor_->sower().intersow();
 	editor_->sower().reverseSowingOrder();
 	editor_->setEditor( mpeeditor );
@@ -727,7 +733,7 @@ void EMObjectDisplay::updatePosAttrib( int attrib )
     visBase::MarkerSet* markerset = posattribmarkers_[attribindex];
     markerset->clearMarkers();
     markerset->setMarkerStyle( emobject_->getPosAttrMarkerStyle(attrib) );
-    markerset->setDisplayTransformation(transformation_);
+    markerset->setDisplayTransformation( transformation_.ptr() );
 
     mDynamicCastGet( EM::Horizon3D*, hor3d, emobject_.ptr() );
     for ( int idx=0; idx<pids->size(); idx++ )

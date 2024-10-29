@@ -136,7 +136,7 @@ bool GMTFault::doExecute( od_ostream& strm, const char* fnm )
 					new Geometry::ExplPlaneIntersection;
 	    insectn->setShape( *fltsurf );
 	    insectn->addPlane( normal, corners );
-	    Geometry::IndexedShape* idxdshape = insectn;
+	    Geometry::IndexedShape* idxdshape = insectn.ptr();
 	    idxdshape->setCoordList(new Coord3ListImpl, new Coord3ListImpl, 0);
 	    if ( !idxdshape->update(true,0) )
 		continue;

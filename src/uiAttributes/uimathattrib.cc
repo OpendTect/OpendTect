@@ -112,7 +112,7 @@ void uiMathAttrib::inpSel( CallBacker* cb )
     if ( !inpobj )
 	return;
 
-    const SeisIOObjInfo seisinfo( inpobj );
+    const SeisIOObjInfo seisinfo( *inpobj );
     if ( seisinfo.nrComponents() > 1 )
     {
 	BufferStringSet nms;
@@ -216,7 +216,7 @@ bool uiMathAttrib::setInput( const Desc& desc )
     int varinplastidx = 0;
     for ( int idx=0; idx<desc.nrInputs(); idx++ )
     {
-	const Desc* inpdsc = desc.getInput( idx );
+	ConstRefMan<Desc> inpdsc = desc.getInput( idx );
 	if ( inpdsc )
 	{
 	    BufferString refstr = inpdsc->isStored()
@@ -243,7 +243,7 @@ bool uiMathAttrib::setInput( const Desc& desc )
 		    if ( !inpobj )
 			break;
 
-		    SeisIOObjInfo seisinfo( inpobj );
+		    SeisIOObjInfo seisinfo( *inpobj );
 		    if ( seisinfo.nrComponents() > 1 )
 		    {
 			BufferStringSet nms;
@@ -339,7 +339,7 @@ bool uiMathAttrib::getInput( Desc& desc )
 		    desc.descSet()->addDesc( inpdesc.ptr() );
 	    }
 
-	    const bool res = desc.setInput( attrinpidx, inpdesc );
+	    const bool res = desc.setInput( attrinpidx, inpdesc.ptr() );
 	    if ( !res )
 		return false;
 	}

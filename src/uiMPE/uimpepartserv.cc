@@ -828,13 +828,13 @@ void uiMPEPartServer::mergeAttribSets( const Attrib::DescSet& newads,
 	    }
 
 	    Attrib::DescID newid = Attrib::DescID::undef();
-	    const Attrib::Desc* usedad = newads.getDesc( as->id() );
+	    ConstRefMan<Attrib::Desc> usedad = newads.getDesc( as->id() );
 	    if ( !usedad ) continue;
 
 	    for ( int ida=0; ida<attrset->size(); ida++ )
 	    {
 		const Attrib::DescID descid = attrset->getID( ida );
-		const Attrib::Desc* ad = attrset->getDesc( descid );
+		ConstRefMan<Attrib::Desc> ad = attrset->getDesc( descid );
 		if ( !ad ) continue;
 
 		if ( usedad->isIdenticalTo( *ad ) )

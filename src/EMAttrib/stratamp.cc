@@ -120,7 +120,7 @@ int StratAmpCalc::init( const IOPar& pars )
     if ( !outputpar->get(attribidstr,attribid) )
 	return -1;
 
-    Attrib::Desc* targetdesc =
+    RefMan<Attrib::Desc> targetdesc =
 			descset_->getDesc( Attrib::DescID(attribid,false) );
     if ( !targetdesc )
 	return -1;

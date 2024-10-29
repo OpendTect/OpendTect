@@ -190,7 +190,7 @@ protected:
 				  use isOK()*/
 
     virtual SeisMSCProvider*	getMSCProvider(bool&) const;
-    static RefMan<Provider>	internalCreate(Desc&,ObjectSet<Provider>&,
+    static RefMan<Provider>	internalCreate(Desc&,RefObjectSet<Provider>&,
 					       bool& issame,uiString&);
 				/*!< Creates the provider needed and all its
 				  input providers*/

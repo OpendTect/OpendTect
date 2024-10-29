@@ -61,11 +61,11 @@ bool uiTrackSettingsValidator::checkStoredData( Attrib::SelSpec& as,
 						MultiID& key ) const
 {
     const Attrib::DescSet* ads = Attrib::DSHolder().getDescSet( false, true );
-    const Attrib::Desc* desc = ads ? ads->getDesc( as.id() ) : 0;
+    ConstRefMan<Attrib::Desc> desc = ads ? ads->getDesc( as.id() ) : nullptr;
     if ( !desc )
     {
 	ads = Attrib::DSHolder().getDescSet( false, false );
-	desc = ads ? ads->getDesc( as.id() ) : 0;
+	desc = ads ? ads->getDesc( as.id() ).ptr() : nullptr;
     }
 
     key = desc ? desc->getStoredID(false) : MultiID::udf();

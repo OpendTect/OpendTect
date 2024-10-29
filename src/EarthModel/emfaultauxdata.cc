@@ -74,7 +74,7 @@ bool FaultAuxData::init()
 	return true; //already called
 
     PtrMan<IOObj> ioobj = IOM().get( faultmid_ );
-    IOObjInfo ioinfo( ioobj );
+    IOObjInfo ioinfo( ioobj.ptr() );
     if ( !ioobj || ioinfo.type()!=EM::ObjectType::Flt3D )
 	return false;
 

@@ -83,7 +83,7 @@ public:
     const mVisTrans*	getDisplayTransformation() const override
 			{ return displaytrans_.ptr(); }
     void		setPixelDensity(float) override;
-    const Text2*	getAnnotTexts() const { return axisannot_; }
+    const Text2*	getAnnotTexts() const { return axisannot_.ptr(); }
 
     void		setScene(Scene*);
     void		allowShading(bool yn) { allowshading_=yn; }

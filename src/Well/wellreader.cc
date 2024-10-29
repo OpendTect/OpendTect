@@ -1075,7 +1075,7 @@ int MultiWellReader::nextStep()
     if ( !wd && wkey.isInCurrentSurvey() )
 	errmsg_.append( Well::MGR().errMsg() ).addNewLine();
 
-    wds_.addIfNew( wd );
+    wds_.addIfNew( wd.ptr() );
     needsreload ? wellreloadedcount_++ : welladdedcount_++;
     return MoreToDo();
 }

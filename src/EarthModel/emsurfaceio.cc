@@ -1363,8 +1363,8 @@ int dgbSurfaceReader::readInt16(od_istream& strm) const
     {
 	const int sz = int16interpreter_->nrBytes();
 	mAllocLargeVarLenArr( char, buf, sz );
-	strm.getBin(buf,sz);
-	return int16interpreter_->get(buf,0);
+	strm.getBin( mVarLenArr(buf), sz );
+	return int16interpreter_->get( mVarLenArr(buf), 0 );
     }
 
     int res;
@@ -1380,8 +1380,8 @@ int dgbSurfaceReader::readInt32(od_istream& strm) const
     {
 	const int sz = int32interpreter_->nrBytes();
 	mAllocLargeVarLenArr( char, buf, sz );
-	strm.getBin(buf,sz);
-	return int32interpreter_->get(buf,0);
+	strm.getBin( mVarLenArr(buf), sz );
+	return int32interpreter_->get( mVarLenArr(buf), 0 );
     }
 
     int res;
@@ -1396,8 +1396,8 @@ od_int64 dgbSurfaceReader::readInt64(od_istream& strm) const
     {
 	const int sz = int64interpreter_->nrBytes();
 	mAllocLargeVarLenArr( char, buf, sz );
-	strm.getBin(buf,sz);
-	return int64interpreter_->get(buf,0);
+	strm.getBin( mVarLenArr(buf), sz );
+	return int64interpreter_->get( mVarLenArr(buf), 0 );
     }
 
     int res;
@@ -1424,8 +1424,8 @@ double dgbSurfaceReader::readDouble(od_istream& strm) const
     {
 	const int sz = floatinterpreter_->nrBytes();
 	mAllocLargeVarLenArr( char, buf, sz );
-	strm.getBin(buf,sz);
-	return floatinterpreter_->get(buf,0);
+	strm.getBin( mVarLenArr(buf), sz );
+	return floatinterpreter_->get( mVarLenArr(buf), 0 );
     }
 
     double res;

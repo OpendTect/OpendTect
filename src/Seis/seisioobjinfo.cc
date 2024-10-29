@@ -309,7 +309,7 @@ bool SeisIOObjInfo::isOK( bool createtr ) const
 
     mDynamicCast(SeisTrcTranslator*,PtrMan<SeisTrcTranslator> sttr,
 		 ioobj_->createTranslator())
-    return checkAndInitTranslRead( sttr );
+    return checkAndInitTranslRead( sttr.ptr() );
 }
 
 
@@ -584,7 +584,7 @@ od_int64 SeisIOObjInfo::getFileSize() const
     const FilePath filepath = ioobj_->fullUserExpr();
     mDynamicCast(SeisTrcTranslator*,PtrMan<SeisTrcTranslator> sttr,
 		 ioobj_->createTranslator())
-    if ( !checkAndInitTranslRead(sttr) )
+    if ( !checkAndInitTranslRead(sttr.ptr()) )
 	return -1;
 
     return sttr->getFileSize();
@@ -604,7 +604,7 @@ void SeisIOObjInfo::getAllFileNames( BufferStringSet& filenames ) const
 {
     mDynamicCast(SeisTrcTranslator*,PtrMan<SeisTrcTranslator> sttr,
 		 ioobj_->createTranslator())
-    if ( !checkAndInitTranslRead(sttr) )
+    if ( !checkAndInitTranslRead(sttr.ptr()) )
 	return;
 
     sttr->getAllFileNames( filenames );
@@ -648,7 +648,7 @@ bool SeisIOObjInfo::getDataChar( DataCharacteristics& dc ) const
     mChk(false);
     mDynamicCast(SeisTrcTranslator*,PtrMan<SeisTrcTranslator> sttr,
 		 ioobj_->createTranslator())
-    if ( !checkAndInitTranslRead(sttr,Seis::PreScan) )
+    if ( !checkAndInitTranslRead(sttr.ptr(),Seis::PreScan) )
 	return false;
 
     ObjectSet<SeisTrcTranslator::TargetComponentData>& comps
@@ -818,7 +818,7 @@ bool SeisIOObjInfo::getBPS( int& bps, int icomp ) const
 
     mDynamicCast(SeisTrcTranslator*,PtrMan<SeisTrcTranslator> sttr,
 		 ioobj_->createTranslator())
-    bool isgood = checkAndInitTranslRead( sttr );
+    bool isgood = checkAndInitTranslRead( sttr.ptr() );
     if ( !isgood )
     {
 	bps = 4;
@@ -1024,7 +1024,7 @@ int SeisIOObjInfo::getComponentInfo( const Pos::GeomID& geomid,
 	if ( !supportsmulticomp )
 	    return ret;
 
-	if ( !checkAndInitTranslRead(sttr) )
+	if ( !checkAndInitTranslRead(sttr.ptr()) )
 	    return ret;
 
 	ret = sttr->componentInfo().size();
@@ -1186,7 +1186,7 @@ bool SeisIOObjInfo::isFullyRectAndRegular() const
     mChk(false)
     mDynamicCast(SeisTrcTranslator*,PtrMan<SeisTrcTranslator> sttr,
 		 ioobj_->createTranslator())
-    if ( !checkAndInitTranslRead(sttr) )
+    if ( !checkAndInitTranslRead(sttr.ptr()) )
 	return false;
 
     PosInfo::SortedCubeData scdata;

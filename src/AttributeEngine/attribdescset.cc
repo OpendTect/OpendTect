@@ -160,7 +160,7 @@ void DescSet::updateInputs()
 		continue;
 
 	    RefMan<Desc> newinpdesc = getDesc( oldinpdesc->id() );
-	    dsc.setInput( inpidx, newinpdesc );
+	    dsc.setInput( inpidx, newinpdesc.ptr() );
 	}
     }
 }
@@ -611,7 +611,8 @@ RefMan<Desc> DescSet::createDesc( const BufferString& attrname,
 {
     errmsg_.setEmpty();
     PtrMan<uiStringSet > errmsgs = new uiStringSet;
-    RefMan<Desc> newdesc = createDesc( attrname , descpar, defstring, errmsgs );
+    RefMan<Desc> newdesc = createDesc( attrname , descpar, defstring,
+					errmsgs.ptr() );
     if ( errmsgs && !errmsgs->isEmpty() )
 	errmsg_ = (*errmsgs)[0];
 
@@ -627,7 +628,7 @@ void DescSet::handleReferenceInput( Desc* dsc )
 	if ( !inpdesc )
 	    return;
 
-	dsc->setInput( 0, inpdesc );
+	dsc->setInput( 0, inpdesc.ptr() );
     }
 }
 
@@ -651,10 +652,10 @@ bool DescSet::setAllInputDescs( int nrdescsnosteer, const IOPar& copypar,
 	    int inpid;
 	    if ( !descpar->get(key,inpid) ) continue;
 
-	    Desc* inpdesc = getDesc( DescID(inpid,false) );
+	    RefMan<Desc> inpdesc = getDesc( DescID(inpid,false) );
 	    if ( !inpdesc ) continue;
 
-	    dsc.setInput( input, inpdesc );
+	    dsc.setInput( input, inpdesc.ptr() );
 	}
 
 	if ( dsc.attribName()=="Reference" )
@@ -810,7 +811,7 @@ bool DescSet::usePar( const IOPar& par, uiStringSet* errmsgs )
 	indexes += idx;
 
 	dsc->updateParams();
-	addDesc( dsc, DescID(id,storedattronly_) );
+	addDesc( dsc.ptr(), DescID(id,storedattronly_) );
 	copypar.mergeComp( *descpar, toString(id) );
     }
 
@@ -850,7 +851,7 @@ bool DescSet::useOldSteeringPar( IOPar& par, ObjectSet<Desc>& newsteeringdescs,
 				     steeringdescid) )
 		mHandleParseErr( tr("Cannot create steering definition"));
 
-	    Desc* dsc = getDesc( DescID(id,false) );
+	    RefMan<Desc> dsc = getDesc( DescID(id,false) );
 	    for ( int idx=0; idx<dsc->nrInputs(); idx++ )
 	    {
 		BufferString inputstr = IOPar::compKey( sKey::Input(), idx );
@@ -931,14 +932,14 @@ bool DescSet::createSteeringDesc( const IOPar& steeringpar,
     if ( !inldipstr.isEmpty() )
     {
 	DescID inldipid( inldipstr.toInt(), false );
-	stdesc->setInput( 0, getDesc(inldipid) );
+	stdesc->setInput( 0, getDesc(inldipid).ptr() );
     }
 
     const BufferString crldipstr = steeringpar.find("CrlDipID");
     if ( !crldipstr.isEmpty() )
     {
 	DescID crldipid( crldipstr.toInt(), false );
-	stdesc->setInput( 1, getDesc(crldipid) );
+	stdesc->setInput( 1, getDesc(crldipid).ptr() );
     }
 
 //TODO see what's going on for the phase input
@@ -951,7 +952,7 @@ bool DescSet::createSteeringDesc( const IOPar& steeringpar,
 	}
     }
 
-    newsteeringdescs.add( stdesc );
+    newsteeringdescs.add( stdesc.ptr() );
     id = newsteeringdescs.size()-1;
 
     return true;
@@ -1083,7 +1084,7 @@ DescID DescSet::createStoredDesc( const MultiID& multiid, int selout,
     ValParam& keypar = *newdesc->getValParam( StorageProvider::keyStr() );
     keypar.setValue( multiid );
     newdesc->updateParams();
-    return addDesc( newdesc );
+    return addDesc( newdesc.ptr() );
 }
 
 
@@ -1103,7 +1104,7 @@ DescSet* DescSet::optimizeClone( const TypeSet<DescID>& targets ) const
     {
 	const DescID needednode = needednodes[0];
 	needednodes.removeSingle( 0 );
-	const Desc* dsc = getDesc( needednode );
+	ConstRefMan<Desc> dsc = getDesc( needednode );
 	if ( !dsc )
 	{
 	    delete res;
@@ -1251,7 +1252,7 @@ RefMan<Desc> DescSet::getFirstStored( bool usesteering ) const
 
 MultiID DescSet::getStoredKey( const DescID& did ) const
 {
-    const Desc* dsc = getDesc( did );
+    ConstRefMan<Desc> dsc = getDesc( did );
     if ( !dsc || !dsc->isStored() )
 	return MultiID::udf();
 
@@ -1263,7 +1264,7 @@ void DescSet::getStoredNames( BufferStringSet& nms ) const
 {
     for ( int idx=0; idx<descs_.size(); idx++ )
     {
-	const Desc* dsc = desc( idx );
+	ConstRefMan<Desc> dsc = desc( idx );
 	if ( !dsc->isStored() )
 	    continue;
 
@@ -1284,7 +1285,7 @@ void DescSet::getAttribNames( BufferStringSet& nms, bool inclhidden ) const
 {
     for ( int idx=0; idx<descs_.size(); idx++ )
     {
-	const Desc* dsc = desc( idx );
+	ConstRefMan<Desc> dsc = desc( idx );
 	if ( (!inclhidden && dsc->isHidden()) || dsc->isStored() )
 	    continue;
 
@@ -1299,7 +1300,7 @@ void DescSet::fillInAttribColRefs( BufferStringSet& attrdefs ) const
     for ( int idx=0; idx<attrinf.attrnms_.size(); idx++ )
     {
 	BufferString defstr;
-	const Attrib::Desc* mydesc = getDesc( attrinf.attrids_[idx] );
+	ConstRefMan<Attrib::Desc> mydesc = getDesc( attrinf.attrids_[idx] );
 	if ( mydesc )
 	    mydesc->getDefStr( defstr );
 	FileMultiString fms( defstr ); fms += attrinf.attrids_[idx].asInt();
@@ -1399,7 +1400,7 @@ void DescSet::createAndAddMultOutDescs( const DescID& targetid,
 					TypeSet<DescID>& outdescids )
 {
     const int nrseloutputs = seloutputs.size() ? seloutputs.size() : 1;
-    Desc* basedesc = getDesc( targetid );
+    RefMan<Desc> basedesc = getDesc( targetid );
     if ( !basedesc ) return;
 
     for ( int idx=0; idx<nrseloutputs; idx++ )
@@ -1439,7 +1440,7 @@ DataPointSet* DescSet::createDataPointSet( Attrib::DescSetup dsu,
     ObjectSet<DataColDef> dcds;
     for ( int idx=0; idx<descs_.size(); idx++ )
     {
-	const Attrib::Desc* tmpdsc = desc(idx);
+	ConstRefMan<Desc> tmpdsc = desc(idx);
 	if ( !tmpdsc || (tmpdsc->isHidden() && !dsu.hidden_) ||
 	     (tmpdsc->isStored() && !withstored) )
 	    continue;
@@ -1459,7 +1460,7 @@ void DescSet::fillInSelSpecs( Attrib::DescSetup dsu,
     //TODO check all dsu cases
     for ( int idx=0; idx<descs_.size(); idx++ )
     {
-	const Attrib::Desc* tmpdsc = desc(idx);
+	ConstRefMan<Desc> tmpdsc = desc(idx);
 	if ( !tmpdsc || (tmpdsc->isHidden() && !dsu.hidden_) ||
 	     (dsu.stored_ != tmpdsc->isStored())  )
 	    continue;
@@ -1506,7 +1507,7 @@ bool DescSet::exportToDot( const char* nm, const char* fnm ) const
     strm << "graph [label=\"" << nm << "\", labelloc=t, fontsize=30];\n";
     for ( int idx=0; idx<nrDescs(true,true); idx++ )
     {
-	const Desc* curdesc = desc( idx );
+	ConstRefMan<Desc> curdesc = desc( idx );
 	if ( !curdesc ) continue;
 
 	const int nrinputs = curdesc->nrInputs();

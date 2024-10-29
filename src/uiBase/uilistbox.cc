@@ -222,9 +222,9 @@ void uiListBoxBody::sortItems()
     while ( count()>0 )
 	takeItem( 0 );
 
-    items_.useIndexes( sortidxs );
-    itemstrings_.useIndexes( sortidxs );
-    itemmarked_.useIndexes( sortidxs );
+    items_.useIndexes( sortidxs.ptr() );
+    itemstrings_.useIndexes( sortidxs.ptr() );
+    itemmarked_.useIndexes( sortidxs.ptr() );
     for ( auto* item : items_ )
 	QListWidget::addItem( item );
 }

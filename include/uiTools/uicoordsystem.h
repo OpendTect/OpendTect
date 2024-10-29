@@ -111,7 +111,8 @@ public:
 			uiCoordSystemSel(uiParent*,
 				bool orthogonal=true,
 				bool projectiononly=true,
-				const CoordSystem* crs=SI().getCoordSystem(),
+				const CoordSystem* crs=
+					SI().getCoordSystem().ptr(),
 				const uiString& seltxt=uiStrings::sCoordSys());
 			~uiCoordSystemSel();
 

@@ -70,7 +70,8 @@ protected:
     ConstRefMan<Pick::Set>	ps_;
     RefMan<EM::Horizon3D>	hor_		= nullptr;
 
-    const Pick::Set*		getPickSet() const override	{ return ps_; }
+    const Pick::Set*		getPickSet() const override
+				{ return ps_.ptr(); }
     const EM::Horizon3D*	getHorizon() const override;
 
     void			horSel(CallBacker*);
@@ -95,7 +96,8 @@ protected:
     ConstRefMan<EM::Horizon3D>	hor_;
 
     const Pick::Set*		getPickSet() const override;
-    const EM::Horizon3D*	getHorizon() const override	{ return hor_; }
+    const EM::Horizon3D*	getHorizon() const override
+				{ return hor_.ptr(); }
 
     void			psSel(CallBacker*);
 };

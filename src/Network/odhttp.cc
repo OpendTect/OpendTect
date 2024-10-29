@@ -396,14 +396,14 @@ void HttpRequestManager::shutDownThreading()
 RefMan<HttpRequestProcess> HttpRequestManager::get( const char* url )
 {
     RefMan<HttpRequest> req = new HttpRequest( url, HttpRequest::Get );
-    return request( req );
+    return request( req.ptr() );
 }
 
 
 RefMan<HttpRequestProcess> HttpRequestManager::head( const char* url )
 {
     RefMan<HttpRequest> req = new HttpRequest( url, HttpRequest::Head );
-    return request( req );
+    return request( req.ptr() );
 }
 
 
@@ -424,7 +424,10 @@ RefMan<HttpRequestProcess>
     activeevents_ -= res.ptr();
     activeeventslock_.unLock();
 
-    return success ? res : 0;
+    if ( !success )
+	return nullptr;
+
+    return res;
 }
 
 
@@ -466,7 +469,7 @@ void HttpRequestManager::doRequestCB( CallBacker* cb )
 {
     RefMan<HttpRequestProcess> reply = sCast(HttpRequestProcess*,cb);
     activeeventslock_.lock();
-    if ( !activeevents_.isPresent( reply ) )
+    if ( !activeevents_.isPresent( reply.ptr() ) )
     {
 	activeeventslock_.unLock();
 	return;

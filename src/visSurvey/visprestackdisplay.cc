@@ -186,7 +186,7 @@ DataPackID PreStackDisplay::preProcess()
 	    if ( !gather->readFrom(*ioobj_,*reader_,tk) )
 		continue;
 
-	    preprocmgr_->setInput( relbid, gather );
+	    preprocmgr_->setInput( relbid, gather.ptr() );
 	}
     }
 
@@ -280,7 +280,7 @@ bool PreStackDisplay::setPosition( const TrcKey& tk )
 	}
     }
 
-    DPM(DataPackMgr::FlatID()).add( gather_ );
+    DPM(DataPackMgr::FlatID()).add( gather_.ptr() );
     draggerpos_ = bid_;
     draggermoving.trigger();
     dataChangedCB( nullptr );
@@ -317,7 +317,7 @@ bool PreStackDisplay::updateData()
 	{
 	    gather_ = new PreStack::Gather;
 	    if ( gather_->readFrom(*ioobj_,*reader_,tk) )
-		DPM(DataPackMgr::FlatID()).add( gather_ );
+		DPM(DataPackMgr::FlatID()).add( gather_.ptr() );
 	}
 
 	if ( gather_ )
@@ -343,7 +343,7 @@ bool PreStackDisplay::updateData()
 	const bool canupdate = flatviewer_->enableChange( false );
 	flatviewer_->setVisible( FlatView::Viewer::VD, true );
 	flatviewer_->enableChange( canupdate );
-	flatviewer_->setPack( FlatView::Viewer::VD, gather_, !haddata );
+	flatviewer_->setPack( FlatView::Viewer::VD, gather_.ptr(), !haddata );
     }
 
     turnOn( true );

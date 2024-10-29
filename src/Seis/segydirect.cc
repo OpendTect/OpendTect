@@ -269,13 +269,13 @@ bool SEGY::DirectDef::readFromFile( const char* fnm )
 	segypars.getFrom( astrm );
 
 	const od_stream::Pos datastart =
-	    DataInterpreter<od_int64>::get(int64interp,strm);
+	    DataInterpreter<od_int64>::get(int64interp.ptr(),strm);
 	const od_stream::Pos finalparstart =
-	    DataInterpreter<od_int64>::get(int64interp,strm);
+	    DataInterpreter<od_int64>::get(int64interp.ptr(),strm);
 	const od_stream::Pos cubedatastart =
-	    DataInterpreter<od_int64>::get(int64interp,strm);
+	    DataInterpreter<od_int64>::get(int64interp.ptr(),strm);
 	const od_stream::Pos indexstart =
-	    DataInterpreter<od_int64>::get(int64interp,strm);
+	    DataInterpreter<od_int64>::get(int64interp.ptr(),strm);
 	if ( !strm.isOK() )
 	{
 	    objstatus_ = IOObj::Status::FileDataCorrupt;
@@ -326,8 +326,8 @@ bool SEGY::DirectDef::readFromFile( const char* fnm )
 	indexer_ = new Seis::PosIndexer( *keylist_, false, true );
 	indexer_->setIOCompressed( hdriop.isTrue(sKeyIOCompr()) );
 
-	if ( !indexer_->readFrom( fnm, indexstart, false, int32interp,
-				  int64interp, floatinterp ) )
+	if ( !indexer_->readFrom( fnm, indexstart, false, int32interp.ptr(),
+				  int64interp.ptr(), floatinterp.ptr() ) )
 	{
 	    objstatus_ = IOObj::Status::FileDataCorrupt;
 	    mErrRet( uiStrings::phrCannotRead( toUiString(fnm) ) );
@@ -431,8 +431,8 @@ bool SEGY::DirectDef::readFooter( const char* fnm, IOPar& pars,
 	DataInterpreter<od_int64>::create(hdriop,sKeyInt64DataChar(),false );
 
     const od_stream::Pos datastart mUnusedVar =
-	DataInterpreter<od_int64>::get(int64interp,istrm);
-    offset = DataInterpreter<od_int64>::get(int64interp,istrm);
+	DataInterpreter<od_int64>::get(int64interp.ptr(),istrm);
+    offset = DataInterpreter<od_int64>::get(int64interp.ptr(),istrm);
 
     istrm.setReadPosition( offset );
     ascistream finalparastrm( istrm, false );

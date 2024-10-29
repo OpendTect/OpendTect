@@ -69,7 +69,7 @@ void uiSeisSingleTraceDisplay::setData( const Wavelet* wvlt )
     }
 
     fdp_ = dp;
-    setPack( FlatView::Viewer::WVA, dp, false );
+    setPack( FlatView::Viewer::WVA, dp.ptr(), false );
     addRefZ( 0 );
 
     handleChange( sCast(od_uint32,FlatView::Viewer::All) );
@@ -100,7 +100,7 @@ void uiSeisSingleTraceDisplay::setData( const SeisTrc* trc, const char* nm )
     }
 
     fdp_ = dp;
-    setPack( FlatView::Viewer::WVA, dp, false );
+    setPack( FlatView::Viewer::WVA, dp.ptr(), false );
 
     if ( trc )
     {

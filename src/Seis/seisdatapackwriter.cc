@@ -163,7 +163,7 @@ uiString SeisDataPackWriter::uiMessage() const
 
 void SeisDataPackWriter::setNextDataPack( const RegularSeisDataPack& dp )
 {
-    if ( dp_ != &dp )
+    if ( dp_.ptr() != &dp )
     {
 	dp_ = &dp;
 	getPosInfo();

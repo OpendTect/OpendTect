@@ -102,7 +102,7 @@ int mProgMainFnName( int argc, char** argv )
     PIM().loadAuto( false );
     OD::ModDeps().ensureLoaded( "uiIo" );
     PtrMan<uiRemoteServiceMgr> topdlg = new uiRemoteServiceMgr( nullptr );
-    app.setTopLevel( topdlg );
+    app.setTopLevel( topdlg.ptr() );
     PIM().loadAuto( true );
     topdlg->show();
     topdlg->processCommandLine();

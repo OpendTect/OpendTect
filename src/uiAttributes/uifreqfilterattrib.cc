@@ -72,7 +72,8 @@ uiFreqFilterAttrib::uiFreqFilterAttrib( uiParent* p, bool is2d )
 
 	    FreqTaperSetup freqsu;
 	    const Attrib::DescSet& attrset = inpfld_->getAttrSet();
-	    const Attrib::Desc* inpdesc = attrset.getDesc(inpfld_->attribID());
+	    ConstRefMan<Attrib::Desc> inpdesc =
+			attrset.getDesc( inpfld_->attribID() );
 	    if ( inpdesc )
 		freqsu.multiid_ = inpdesc->getStoredID( true );
 	    winflds_ += new uiFreqTaperSel( this, su, freqsu );
@@ -115,7 +116,7 @@ void uiFreqFilterAttrib::selectionDoneCB( CallBacker* )
     if ( !freqtapersel ) return;
 
     const Attrib::DescSet& attrset = inpfld_->getAttrSet();
-    const Attrib::Desc* inpdesc = attrset.getDesc( inpfld_->attribID() );
+    ConstRefMan<Attrib::Desc> inpdesc = attrset.getDesc( inpfld_->attribID() );
     const MultiID multiid =
 			inpdesc ? inpdesc->getStoredID(true) : MultiID::udf();
     freqtapersel->setMultiID( multiid );

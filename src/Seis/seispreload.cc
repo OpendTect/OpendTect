@@ -223,12 +223,12 @@ void PreLoader::loadObj( const IOPar& iop, TaskRunner* tr )
 	case Vol: {
 	    TrcKeyZSampling tkzs( true );
 	    tkzs.usePar( iop );
-	    spl.load( tkzs, usertype, scaler );
+	    spl.load( tkzs, usertype, scaler.ptr() );
 	} break;
 	case Line: {
 	    TrcKeyZSampling tkzs( false );
 	    tkzs.usePar( iop );
-	    spl.load( tkzs, usertype, scaler );
+	    spl.load( tkzs, usertype, scaler.ptr() );
 	} break;
 	case VolPS: {
 	    Interval<int> nrrg; Interval<int>* toload = nullptr;

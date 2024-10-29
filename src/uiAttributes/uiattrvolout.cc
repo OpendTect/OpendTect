@@ -156,8 +156,8 @@ uiAttrVolOut::~uiAttrVolOut()
 
 void uiAttrVolOut::setInput( const Attrib::DescID& descid )
 {
-    Attrib::Desc* desc = ads_->getDesc( descid );
-    todofld_->setDesc( desc );
+    RefMan<Attrib::Desc> desc = ads_->getDesc( descid );
+    todofld_->setDesc( desc.ptr() );
     attrSel( 0 );
 }
 
@@ -210,7 +210,7 @@ void uiAttrVolOut::attrSel( CallBacker* )
     if ( todofld_->getRanges(tkzs) )
 	transffld_->setInput( tkzs );
 
-    Attrib::Desc* desc = ads_->getDesc( todofld_->attribID() );
+    RefMan<Attrib::Desc> desc = ads_->getDesc( todofld_->attribID() );
     if ( !desc )
     {
 	mSetObjFld("")
@@ -320,7 +320,7 @@ bool uiAttrVolOut::prepareProcessing()
 	    return false;
 	}
 
-	Attrib::Desc* seldesc = ads_->getDesc( todofld_->attribID() );
+	RefMan<Attrib::Desc> seldesc = ads_->getDesc( todofld_->attribID() );
 	if ( seldesc )
 	{
 	    const bool ismctransl = objfld_->outputSupportsMultiComp();
@@ -350,10 +350,9 @@ bool uiAttrVolOut::prepareProcessing()
 	if ( typestr.isEmpty() )
 	    typestr = sKey::Attribute();
 
-	const IOObj* chioobj = outioobj->clone();
+	ConstPtrMan<IOObj> chioobj = outioobj->clone();
 	chioobj->pars().set( sKey::Type(), typestr );
 	IOM().commitChanges( *chioobj );
-	delete chioobj;
     }
 
     if ( datastorefld_ && datastorefld_->sensitive() )
@@ -415,7 +414,7 @@ Attrib::DescSet* uiAttrVolOut::getFromToDoFld(
     Attrib::DescID targetid = nlamodel_id.isValid() ? nlamodel_id
 					    : todofld_->attribID();
 
-    Attrib::Desc* seldesc = ads_->getDesc( targetid );
+    RefMan<Attrib::Desc> seldesc = ads_->getDesc( targetid );
     if ( seldesc )
     {
 	const bool is2d = todofld_->is2D();

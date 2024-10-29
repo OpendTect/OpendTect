@@ -67,7 +67,7 @@ ZAxisTransform* uiWellT2DTransform::getSelection()
     if ( !transform_ || !transform_->isOK() )
 	transform_ = nullptr;
 
-    return transform_;
+    return transform_.ptr();
 }
 
 

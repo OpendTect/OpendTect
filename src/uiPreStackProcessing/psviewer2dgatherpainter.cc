@@ -100,7 +100,7 @@ void Viewer2DGatherPainter::setVDGather( DataPackID vdid )
     if ( vdgather )
     {
 	inputvdgather_ = vdgather;
-	viewer_.setPack( FlatView::Viewer::VD, vdgather, !hadpack );
+	viewer_.setPack( FlatView::Viewer::VD, vdgather.ptr(), !hadpack );
     }
 }
 
@@ -122,7 +122,7 @@ void Viewer2DGatherPainter::setWVAGather( DataPackID wvaid )
     if ( wvagather )
     {
 	inputwvagather_ = wvagather;
-	viewer_.setPack( FlatView::Viewer::WVA, wvagather, !hadpack );
+	viewer_.setPack( FlatView::Viewer::WVA, wvagather.ptr(), !hadpack );
     }
 }
 

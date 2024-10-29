@@ -281,8 +281,8 @@ void CBVSReader::getAuxInfoSel( const char* ptr )
 bool CBVSReader::readComps()
 {
     mAllocVarLenArr( char, ucbuf, 4*integersize );
-    strm_.getBin( ucbuf, integersize );
-    nrcomps_ = iinterp_.get( ucbuf, 0 );
+    strm_.getBin( mVarLenArr(ucbuf), integersize );
+    nrcomps_ = iinterp_.get( mVarLenArr(ucbuf), 0 );
     if ( nrcomps_ < 1 ) mErrRet("Corrupt CBVS format: No components defined")
 
     cnrbytes_ = new int [nrcomps_];
@@ -290,24 +290,24 @@ bool CBVSReader::readComps()
 
     for ( int icomp=0; icomp<nrcomps_; icomp++ )
     {
-	strm_.getBin( ucbuf, integersize );
-	BufferString bs; getText( iinterp_.get(ucbuf,0), bs );
+	strm_.getBin( mVarLenArr(ucbuf), integersize );
+	BufferString bs; getText( iinterp_.get(mVarLenArr(ucbuf),0), bs );
 	BasicComponentInfo* newinf = new BasicComponentInfo( (const char*)bs );
 
-	strm_.getBin( ucbuf, integersize );
-	    newinf->datatype_ = iinterp_.get( ucbuf, 0 );
-	strm_.getBin( ucbuf, 4 );
+	strm_.getBin( mVarLenArr(ucbuf), integersize );
+	newinf->datatype_ = iinterp_.get( mVarLenArr(ucbuf), 0 );
+	strm_.getBin( mVarLenArr(ucbuf), 4 );
 	newinf->datachar_.set( ucbuf[0], ucbuf[1] );
-	    // extra 2 bytes reserved for compression type
+	// extra 2 bytes reserved for compression type
 	newinf->datachar_.fmt_ = DataCharacteristics::Ieee;
-	strm_.getBin( ucbuf, sizeof(float) );
-        info_.sd_.start_ = finterp_.get( ucbuf, 0 );
-	strm_.getBin( ucbuf, sizeof(float) );
-        info_.sd_.step_ = finterp_.get( ucbuf, 0 );
+	strm_.getBin( mVarLenArr(ucbuf), sizeof(float) );
+	info_.sd_.start_ = finterp_.get( mVarLenArr(ucbuf), 0 );
+	strm_.getBin( mVarLenArr(ucbuf), sizeof(float) );
+	info_.sd_.step_ = finterp_.get( mVarLenArr(ucbuf), 0 );
 
-	strm_.getBin( ucbuf, integersize ); // nr samples
-	    info_.nrsamples_ = iinterp_.get( ucbuf, 0 );
-	strm_.getBin( ucbuf, 2*sizeof(float) );
+	strm_.getBin( mVarLenArr(ucbuf), integersize ); // nr samples
+	    info_.nrsamples_ = iinterp_.get( mVarLenArr(ucbuf), 0 );
+	strm_.getBin( mVarLenArr(ucbuf), 2*sizeof(float) );
 	    // reserved for per-component scaling: LinScaler( a, b )
 
 	if ( info_.nrsamples_ < 0 || newinf->datatype_ < 0 )

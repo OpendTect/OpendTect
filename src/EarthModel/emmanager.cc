@@ -405,12 +405,7 @@ EMObject* EMManager::loadIfNotFullyLoaded( const MultiID& mid,
     if ( !emobj || !emobj->isFullyLoaded() )
 	return nullptr;
 
-    EM::EMObject* tmpobj = emobj;
-    tmpobj->ref();
-    emobj = nullptr; //unrefs
-    tmpobj->unRefNoDelete();
-
-    return tmpobj;
+    return emobj.release();
 }
 
 

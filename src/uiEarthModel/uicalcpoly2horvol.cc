@@ -204,7 +204,7 @@ const EM::Horizon3D* uiCalcPolyHorVol::getHorizon() const
     if ( !hor_ )
 	cCast(uiCalcPolyHorVol*,this)->horSel( nullptr);
 
-    return hor_;
+    return hor_.ptr();
 }
 
 
@@ -254,7 +254,7 @@ const Pick::Set* uiCalcHorPolyVol::getPickSet() const
     if ( !ps_ )
 	cCast(uiCalcHorPolyVol*,this)->psSel( nullptr);
 
-    return ps_;
+    return ps_.ptr();
 }
 
 

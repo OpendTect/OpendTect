@@ -57,11 +57,12 @@ int mProgMainFnName( int argc, char** argv )
     OD::ModDeps().ensureLoaded( "uiTools" );
     PtrMan<uiMainWin> topmw = new uiMainWin( nullptr, toUiString(title.buf()) );
     uiPixmap pm( fnm );
-    PtrMan<uiGraphicsView> view = new uiGraphicsView( topmw, "Graphics Viewer");
+    PtrMan<uiGraphicsView> view =
+		new uiGraphicsView( topmw.ptr(), "Graphics Viewer" );
     view->setPrefWidth( pm.width() );
     view->setPrefHeight( pm.height() );
     view->scene().addItem( new uiPixmapItem(pm) );
-    app.setTopLevel( topmw );
+    app.setTopLevel( topmw.ptr() );
     PIM().loadAuto( true );
     topmw->show();
 

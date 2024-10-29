@@ -739,9 +739,9 @@ void FlatView::Viewer::setPack( VwrDest dest, FlatDataPack* fdp,
     if ( vd )
 	curvd = getPack( false ).get();
 
-    if ( (dest == WVA && fdp == curwva) ||
-	 (dest == VD && fdp == curvd) ||
-	 (dest == Both && fdp == curwva && fdp == curvd) )
+    if ( (dest == WVA && fdp == curwva.ptr()) ||
+	 (dest == VD && fdp == curvd.ptr()) ||
+	 (dest == Both && fdp == curwva.ptr() && fdp == curvd.ptr()) )
 	return;
 
     BufferString category;
@@ -918,9 +918,9 @@ const FlatDataPack* FlatView::Viewer::obtainPack(
     if ( !res && checkother )
 	res = wva ? vdpack_.get() : wvapack_.get();
 
-    refPtr( res );
-    dpm_.add<FlatDataPack>( res );
-    return res;
+    refPtr( res.ptr() );
+    dpm_.add<FlatDataPack>( res.ptr() );
+    return res.ptr();
 }
 
 
@@ -940,7 +940,7 @@ void FlatView::Viewer::removeUnusedPacks()
 
 void FlatView::Viewer::setPack( bool wva, ::DataPackID id, bool usedefs )
 {
-    setPack( wva ? WVA : VD, dpm_.get<FlatDataPack>(id) , usedefs );
+    setPack( wva ? WVA : VD, dpm_.get<FlatDataPack>(id).ptr() , usedefs );
 }
 
 
@@ -949,13 +949,13 @@ void FlatView::Viewer::setPack( VwrDest dest, ::DataPackID id, bool usedefs )
     if ( dest == None )
 	return;
 
-    setPack( dest, dpm_.get<FlatDataPack>(id) , usedefs );
+    setPack( dest, dpm_.get<FlatDataPack>(id).ptr() , usedefs );
 }
 
 
 void FlatView::Viewer::usePack( bool wva, ::DataPackID id, bool usedefs )
 {
-    setPack( wva ? WVA : VD, dpm_.get<FlatDataPack>(id) , usedefs );
+    setPack( wva ? WVA : VD, dpm_.get<FlatDataPack>(id).ptr() , usedefs );
 }
 
 
@@ -964,7 +964,7 @@ void FlatView::Viewer::usePack( VwrDest dest, DataPackID id, bool usedefs )
     if ( dest == None )
 	return;
 
-    setPack( dest, dpm_.get<FlatDataPack>(id) , usedefs );
+    setPack( dest, dpm_.get<FlatDataPack>(id).ptr() , usedefs );
 }
 
 

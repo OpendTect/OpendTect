@@ -28,7 +28,7 @@ PolyLine::PolyLine()
 {
     ref();
     coordrange_ = Geometry::RangePrimitiveSet::create();
-    addPrimitiveSet( coordrange_ );
+    addPrimitiveSet( coordrange_.ptr() );
     unRefNoDelete();
 }
 
@@ -206,7 +206,7 @@ void PolyLine3D::touchPrimitiveSet( int idx )
 void PolyLine3D::setDisplayTransformation( const mVisTrans* trans)
 {
     VertexShape::setDisplayTransformation( trans );
-    setCoordinates( coords_ );
+    setCoordinates( coords_.ptr() );
 }
 
 

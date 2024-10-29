@@ -146,7 +146,7 @@ bool testNumberStrings()
     mRunStandardTest( bstr=="0.900", "Number string" );
 
     ArrPtrMan<wchar_t> wbuf = string.createWCharString();
-    qstr = QString::fromWCharArray( wbuf );
+    qstr = QString::fromWCharArray( wbuf.ptr() );
     bstr = BufferString( qstr );
     mRunStandardTest( bstr=="0.900", "Number string from wchar" );
 
@@ -162,7 +162,7 @@ bool testLargeNumberStrings()
     mRunStandardTest( bstr=="12500", "Large number string" );
 
     ArrPtrMan<wchar_t> wbuf = string.createWCharString();
-    qstr = QString::fromWCharArray( wbuf );
+    qstr = QString::fromWCharArray( wbuf.ptr() );
     bstr = BufferString( qstr );
     mRunStandardTest( bstr=="12500", "Large number string from wchar" );
 

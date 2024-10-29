@@ -645,7 +645,7 @@ bool BulkD2TModelAscIO::get( BufferString& wellnm, float& zval, float& twt )
 	RefMan<Data> wd = MGR().get( ioobj->key(), LoadReqs(Inf, Trck, D2T) );
 	if ( !wd || wd->track().isEmpty() ) return false;
 
-	wellsdata_ += wd;
+	wellsdata_ += wd.ptr();
 
 	wells_.add( wellnm );
 	wellidx = wells_.size()-1;

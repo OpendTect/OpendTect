@@ -76,7 +76,7 @@ void TexturePanelStrip::updatePath()
     for ( int idx=0; idx<osgpath->size(); idx++ )
     {
 	Coord3 dummy( (*pathcoords_)[idx], 0.0 );
-	mVisTrans::transform( displaytrans_, dummy );
+	mVisTrans::transform( displaytrans_.ptr(), dummy );
         (*osgpath)[idx] = osg::Vec2( dummy.x_, dummy.y_ );
     }
 
@@ -128,9 +128,9 @@ float TexturePanelStrip::getPathTextureShiftStartIdx() const
 void TexturePanelStrip::setZRange( const Interval<float>& zrange )
 {
     Coord3 topdummy( Coord(), zrange.start_ );
-    mVisTrans::transform( displaytrans_, topdummy );
+    mVisTrans::transform( displaytrans_.ptr(), topdummy );
     Coord3 bottomdummy( Coord(), zrange.stop_ );
-    mVisTrans::transform( displaytrans_, bottomdummy );
+    mVisTrans::transform( displaytrans_.ptr(), bottomdummy );
 
     osgpanelstrip_->setZRange( topdummy.z_, bottomdummy.z_ );
 }
@@ -139,9 +139,9 @@ void TexturePanelStrip::setZRange( const Interval<float>& zrange )
 Interval<float> TexturePanelStrip::getZRange() const
 {
     Coord3 topdummy( Coord(), osgpanelstrip_->getTop() );
-    mVisTrans::transformBack( displaytrans_, topdummy );
+    mVisTrans::transformBack( displaytrans_.ptr(), topdummy );
     Coord3 bottomdummy( Coord(), osgpanelstrip_->getBottom() );
-    mVisTrans::transformBack( displaytrans_, bottomdummy );
+    mVisTrans::transformBack( displaytrans_.ptr(), bottomdummy );
 
     return Interval<float>(topdummy.z_,bottomdummy.z_);
 }
@@ -196,7 +196,7 @@ bool TexturePanelStrip::areNormalsSmoothed() const
 void TexturePanelStrip::setDisplayTransformation( const mVisTrans* tr )
 {
     Coord3 dummy( 0.0, 0.0, 1.0 );
-    mVisTrans::transformDir( displaytrans_, dummy );
+    mVisTrans::transformDir( displaytrans_.ptr(), dummy );
     if ( fabs(dummy.normalize().z_) < 1.0 )
     {
 	pErrMsg( "Display transformation violates assumed orthogonality "
@@ -211,7 +211,9 @@ void TexturePanelStrip::setDisplayTransformation( const mVisTrans* tr )
 
 
 const mVisTrans* TexturePanelStrip::getDisplayTransformation() const
-{ return displaytrans_; }
+{
+    return displaytrans_.ptr();
+}
 
 
 int TexturePanelStrip::getNrTextures() const

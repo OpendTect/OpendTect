@@ -1957,7 +1957,7 @@ RefMan<Survey::Geometry3D> SurveyInfo::get3DGeometry( bool work ) const
 			= new Survey::Geometry3D( name(), zdef_ );
 	newsgeom->setID( Survey::default3DGeomID() );
 	newsgeom->setGeomData( b2c_, sampling(work), zScale() );
-	if ( sgeom.setIfEqual(0,newsgeom) )
+	if ( sgeom.setIfEqual(0,newsgeom.ptr()) )
 	    newsgeom.release();
     }
 

@@ -99,7 +99,7 @@ bool AngleMuteComputer::doPrepare( int nrthreads )
 	return false;
     }
 
-    MuteDefTranslator::store( outputmute_, muteioobj, errmsg_ );
+    MuteDefTranslator::store( outputmute_, muteioobj.ptr(), errmsg_ );
 
     params().raypar_.get( RayTracer1D::sKeyOffset(), offsets_ );
     bool offsetsinfeet = outputmute_.isOffsetInFeet();
@@ -238,7 +238,7 @@ bool AngleMuteComputer::doFinish( bool sucess )
 	: nullptr;
 
     uiString msg;
-    return mdtrl ? mdtrl->store( outputmute_, obj, msg ) : false;
+    return mdtrl ? mdtrl->store( outputmute_, obj.ptr(), msg ) : false;
 }
 
 

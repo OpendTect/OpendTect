@@ -537,7 +537,7 @@ void uiScalingAttrib::analyzeCB( CallBacker* )
 	return;
 
     Attrib::Desc& desc = *voldesc;
-    desc.setInput( 0, inpdesccp );
+    desc.setInput( 0, inpdesccp.ptr() );
     Interval<float> timegate(-28,28);
     mSetFloatInterval( VolStats::gateStr(), timegate );
     mSetBinID( VolStats::stepoutStr(), BinID(descset->is2D() ? 0 : 5,5) );
@@ -549,15 +549,15 @@ void uiScalingAttrib::analyzeCB( CallBacker* )
     desc.setUserRef( "Examine-GainCorrection" );
     desc.updateParams();
 
-    inpdesccp->setDescSet( descset );
-    descset->addDesc( inpdesccp );
-    Attrib::DescID attribid = descset->addDesc( voldesc );
+    inpdesccp->setDescSet( descset.ptr() );
+    descset->addDesc( inpdesccp.ptr() );
+    Attrib::DescID attribid = descset->addDesc( voldesc.ptr() );
     PtrMan<Attrib::EngineMan> aem = new Attrib::EngineMan;
     TypeSet<SelSpec> attribspecs;
     SelSpec sp( 0, attribid );
     sp.set( desc );
     attribspecs += sp;
-    aem->setAttribSet( descset );
+    aem->setAttribSet( descset.ptr() );
     aem->setAttribSpecs( attribspecs );
 
     TrcKeyZSampling cs( false );
@@ -577,7 +577,7 @@ void uiScalingAttrib::analyzeCB( CallBacker* )
 
 	if ( is2D() )
 	{
-	    SeisIOObjInfo seisinfo( ioobj );
+	    SeisIOObjInfo seisinfo( *ioobj );
 	    StepInterval<int> trcrg;
 	    StepInterval<float> zrg;
 	    const Pos::GeomID geomid = subseldlg.getGeomID();

@@ -51,7 +51,8 @@ public:
     void			setDisplayTransformation(
 						const mVisTrans*) override;
     const mVisTrans*		getDisplayTransformation() const override;
-    const visBase::PointSet*	getPointSet() const	{ return pointset_; }
+    const visBase::PointSet*	getPointSet() const
+				{ return pointset_.ptr(); }
 
     const char*			errMsg() const override { return errmsg_.str();}
 

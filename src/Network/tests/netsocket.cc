@@ -119,10 +119,10 @@ bool TestRunner::testNetSocket( bool closeserver )
     //before everything is written.
 
     mRunSockTest(
-	    connection.writeDoubleArray( doublewritearr, nrdoubles, false ),
+	    connection.writeDoubleArray(doublewritearr.ptr(),nrdoubles,false),
 	    "Write large array" );
 
-    mRunSockTest( connection.readDoubleArray( doublereadarr, nrdoubles ),
+    mRunSockTest( connection.readDoubleArray(doublereadarr.ptr(),nrdoubles),
 	    "Read large array" );
 
     bool readerror = false;
@@ -188,7 +188,7 @@ int mTestMainFnName( int argc, char** argv )
     doublewritearr = new double[nrdoubles];
     doublereadarr = new double[nrdoubles];
 
-    MemSetter<double> memsetter( doublewritearr, 0, nrdoubles );
+    MemSetter<double> memsetter( doublewritearr.ptr(), 0, nrdoubles );
     memsetter.setValueFunc( &randVal );
     memsetter.execute();
 

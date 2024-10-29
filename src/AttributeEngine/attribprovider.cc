@@ -98,7 +98,7 @@ RefMan<Provider> Provider::create( Desc& desc, uiString& errstr )
 
 
 RefMan<Provider> Provider::internalCreate( Desc& desc,
-					   ObjectSet<Provider>& existing,
+					   RefObjectSet<Provider>& existing,
 					   bool& issame, uiString& errstr )
 {
     for ( int idx=0; idx<existing.size(); idx++ )
@@ -159,7 +159,7 @@ RefMan<Provider> Provider::internalCreate( Desc& desc,
     if ( desc.selectedOutput()!=-1 && existing.isEmpty() )
 	newprov->enableOutput( desc.selectedOutput(), true );
 
-    existing.add( newprov );
+    existing.add( newprov.ptr() );
 
     for ( int idx=0; idx<desc.nrInputs(); idx++ )
     {
@@ -171,26 +171,29 @@ RefMan<Provider> Provider::internalCreate( Desc& desc,
 			internalCreate( *inputdesc, existing, issame, errstr );
 	if ( !inputprovider )
 	{
-	    existing.removeRange( existing.indexOf(newprov),existing.size()-1 );
+	    existing.removeRange( existing.indexOf(newprov.ptr()),
+		    		  existing.size()-1 );
 	    return nullptr;
 	}
 
 	if ( newprov.ptr() == inputprovider.ptr() )
 	{
-	    existing.removeRange( existing.indexOf(newprov),existing.size()-1 );
+	    existing.removeRange( existing.indexOf(newprov.ptr()),
+		    		  existing.size()-1 );
 	    errstr =
 		tr("Input is not correct. One of the inputs depends on itself");
 	    return nullptr;
 	}
 
-	newprov->setInput( idx, inputprovider );
-	inputprovider->addParent(newprov);
+	newprov->setInput( idx, inputprovider.ptr() );
+	inputprovider->addParent( newprov.ptr() );
 	issame = false;
     }
 
     if ( !newprov->checkInpAndParsAtStart() )
     {
-	existing.removeRange( existing.indexOf(newprov), existing.size()-1 );
+	existing.removeRange( existing.indexOf(newprov.ptr()),
+			      existing.size()-1 );
 	const Desc& newdesc = newprov->getDesc();
 	BufferString attribnm = newdesc.attribName();
 	if ( attribnm == StorageProvider::attribName() )

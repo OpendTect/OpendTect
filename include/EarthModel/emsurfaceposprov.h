@@ -66,9 +66,9 @@ public:
     MultiID		surfaceID( int idx ) const
 			{ return idx ? id2_ : id1_; }
     EM::Surface*	surface( int idx )
-			{ return idx ? surf2_ : surf1_; }
+			{ return idx ? surf2_.ptr() : surf1_.ptr(); }
     const EM::Surface*	surface( int idx ) const
-			{ return idx ? surf2_ : surf1_; }
+			{ return idx ? surf2_.ptr() : surf1_.ptr(); }
     float		zStep() const		{ return zstep_; }
     void		setZStep( float s )	{ zstep_ = s; }
     Interval<float>	extraZ() const		{ return extraz_; }

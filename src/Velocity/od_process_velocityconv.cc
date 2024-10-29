@@ -41,7 +41,7 @@ bool BatchProgram::doWork( od_ostream& strm )
     TrcKeySampling tks;
     if ( !tks.usePar(pars()) )
     {
-	const SeisIOObjInfo seisinfo( inputioobj );
+	const SeisIOObjInfo seisinfo( inputioobj.ptr() );
 	if ( !seisinfo.isOK() )
 	    mErrRet( "Cannot determine input dataset range" )
 

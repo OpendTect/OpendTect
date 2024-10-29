@@ -417,7 +417,7 @@ void uiEvaluateDlg::calcPush( CallBacker* )
 	    continue;
 
 	if ( idx )
-	    attrset_->addDesc( newad );
+	    attrset_->addDesc( newad.ptr() );
 
 	lbls_ += new BufferString( lbl );
 	SelSpec as;

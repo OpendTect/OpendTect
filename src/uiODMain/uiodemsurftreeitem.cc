@@ -387,7 +387,7 @@ void uiODEarthModelSurfaceTreeItem::handleMenuCB( CallBacker* cb )
 	RefMan<EM::HorizonZTransform> transform = new EM::HorizonZTransform;
 	transform->setHorizon( *horizon );
 	ODMainWin()->sceneMgr().tile();
-	ODMainWin()->sceneMgr().addScene( true, transform, scenenm );
+	ODMainWin()->sceneMgr().addScene( true, transform.ptr(), scenenm);
     }
 }
 
@@ -703,7 +703,7 @@ void uiODEarthModelSurfaceDataTreeItem::handleMenuCB( CallBacker* cb )
 	visserv->setSelSpec( visid, attribnr,
 		Attrib::SelSpec(name_.getFullString(),
 				Attrib::SelSpec::cOtherAttrib()) );
-	visserv->setRandomPosData( visid, attribnr, vals );
+	visserv->setRandomPosData( visid, attribnr, vals.ptr() );
 	changed_ = true;
     }
 }

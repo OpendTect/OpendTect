@@ -106,7 +106,7 @@ void uiDataPointSetMan::mergePush( CallBacker* )
 	new DataPointSet( spvds, dps->is2D(), dps->isMinimal() );
     sdps->setName( seldlg.ioObj()->name() );
 
-    uiDataPointSetMerger merger( this, dps, sdps );
+    uiDataPointSetMerger merger( this, dps.ptr(), sdps.ptr() );
     merger.go();
     if ( curioobj_ )
 	selgrp_->fullUpdate( curioobj_->key() );

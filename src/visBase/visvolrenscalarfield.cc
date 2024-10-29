@@ -909,7 +909,7 @@ void VolumeRenderScalarField::setAttribTransparency( int attr,
 
 void VolumeRenderScalarField::setMaterial( Material* newmat )
 {
-    if ( material_ == newmat )
+    if ( material_.ptr() == newmat )
 	return;
 
     if ( material_ )

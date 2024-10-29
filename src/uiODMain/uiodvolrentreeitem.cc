@@ -193,7 +193,7 @@ bool uiODVolrenTreeItem::init()
 		return false;
 	}
 
-	visserv_->addObject( voldisp, sceneID(), true );
+	visserv_->addObject( voldisp.ptr(), sceneID(), true);
     }
 
     mDynamicCastGet(visSurvey::VolumeDisplay*,voldisp,
@@ -380,7 +380,7 @@ void uiODVolrenAttribTreeItem::handleMenuCB( CallBacker* cb )
 	    return;
 	}
 
-	visserv->addObject( mcdisplay, sceneID(), true );
+	visserv->addObject( mcdisplay.ptr(), sceneID(), true);
 	addChild( new uiODBodyDisplayTreeItem(mcdisplay->id(),true), false );
 	vd->removeChild( surfobjid );
     }
@@ -581,7 +581,7 @@ void uiODVolrenSubTreeItem::handleMenuCB( CallBacker* cb )
 	    return; //TODO error msg.
 	}
 
-	visserv_->addObject( mcdisplay, sceneID(), true );
+	visserv_->addObject( mcdisplay.ptr(), sceneID(), true);
 	addChild( new uiODBodyDisplayTreeItem(mcdisplay->id(),true), false );
 	prepareForShutdown();
 	vd->removeChild( isosurface->id() );

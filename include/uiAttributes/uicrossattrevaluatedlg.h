@@ -29,7 +29,8 @@ public:
 					uiAttribDescSetEd&,bool enabstore=true);
 				~uiCrossAttrEvaluateDlg();
 
-    Attrib::Desc*		getAttribDesc() const   { return seldesc_; }
+    const Attrib::Desc*		getAttribDesc() const
+				{ return seldesc_.ptr(); }
     void			getEvalSpecs(TypeSet<Attrib::SelSpec>&) const;
     Attrib::DescSet*		getEvalSet() const	{ return &attrset_; }
     bool			storeSlices() const;
@@ -62,7 +63,7 @@ protected:
 
     bool			acceptOK(CallBacker*) override;
 
-    Attrib::Desc*		seldesc_			= nullptr;
+    RefMan<Attrib::Desc>	seldesc_;
     Attrib::DescID		srcid_;
     Attrib::DescSet&		attrset_;
     TypeSet<BufferStringSet>	userattnms_;//per parameter

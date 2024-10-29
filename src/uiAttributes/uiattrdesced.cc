@@ -50,7 +50,7 @@ const char* uiAttrDescEd::getInputAttribName( uiAttrSel* inpfld,
 					      const Desc& desc )
 {
     Attrib::DescID did = inpfld->attribID();
-    Attrib::Desc* attrd = desc.descSet()->getDesc(did);
+    RefMan<Attrib::Desc> attrd = desc.descSet()->getDesc(did);
 
     return attrd ? attrd->attribName().buf() : "";
 }
@@ -114,13 +114,13 @@ void uiAttrDescEd::fillInp( uiAttrSel* fld, Attrib::Desc& desc, int inp )
     fld->processInput();
     const DescID attribid = fld->attribID();
 
-    const Attrib::Desc* inpdesc = desc.getInput( inp );
+    ConstRefMan<Attrib::Desc> inpdesc = desc.getInput( inp );
     if ( inpdesc )
 	chtr_.set( inpdesc->id(), attribid );
     else
 	chtr_.setChanged( true );
 
-    if ( !desc.setInput(inp,desc.descSet()->getDesc(attribid)) )
+    if ( !desc.setInput(inp,desc.descSet()->getDesc(attribid).ptr()) )
     {
 	errmsg_ = tr("The suggested attribute for input %1 "
                       "is incompatible with the input (wrong datatype)")
@@ -129,7 +129,7 @@ void uiAttrDescEd::fillInp( uiAttrSel* fld, Attrib::Desc& desc, int inp )
 
     mDynamicCastGet(const uiImagAttrSel*,imagfld,fld)
     if ( imagfld )
-	desc.setInput( inp+1, desc.descSet()->getDesc(imagfld->imagID()) );
+	desc.setInput( inp+1, desc.descSet()->getDesc(imagfld->imagID()).ptr());
 }
 
 
@@ -139,13 +139,13 @@ void uiAttrDescEd::fillInp( uiSteeringSel* fld, Attrib::Desc& desc, int inp )
 	return;
 
     const DescID descid = fld->descID();
-    const Attrib::Desc* inpdesc = desc.getInput( inp );
+    ConstRefMan<Attrib::Desc> inpdesc = desc.getInput( inp );
     if ( inpdesc )
 	chtr_.set( inpdesc->id(), descid );
     else if ( fld->willSteer() )
 	chtr_.setChanged( true );
 
-    if ( !desc.setInput( inp, desc.descSet()->getDesc(descid) ) )
+    if ( !desc.setInput( inp, desc.descSet()->getDesc(descid).ptr() ) )
     {
 	errmsg_ = sInputTypeError( inp );
     }
@@ -159,13 +159,13 @@ void uiAttrDescEd::fillInp( uiSteerAttrSel* fld, Attrib::Desc& desc, int inp )
 
     fld->processInput();
     const DescID inlid = fld->inlDipID();
-    const Attrib::Desc* inpdesc = desc.getInput( inp );
+    ConstRefMan<Attrib::Desc> inpdesc = desc.getInput( inp );
     if ( inpdesc )
 	chtr_.set( inpdesc->id(), inlid );
     else
 	chtr_.setChanged( true );
 
-    if ( !desc.setInput( inp, desc.descSet()->getDesc(inlid) ) )
+    if ( !desc.setInput( inp, desc.descSet()->getDesc(inlid).ptr() ) )
     {
         errmsg_ = sInputTypeError( inp );
     }
@@ -177,7 +177,7 @@ void uiAttrDescEd::fillInp( uiSteerAttrSel* fld, Attrib::Desc& desc, int inp )
     else
 	chtr_.setChanged( true );
 
-    desc.setInput( inp+1, desc.descSet()->getDesc(crlid) );
+    desc.setInput( inp+1, desc.descSet()->getDesc(crlid).ptr() );
 }
 
 
@@ -215,24 +215,25 @@ void uiAttrDescEd::putInp( uiAttrSel* inpfld, const Attrib::Desc& ad,
     if ( dpfids_.size() )
 	inpfld->setPossibleDataPacks( dpfids_ );
 
-    const Attrib::Desc* inpdesc = ad.getInput( inpnr );
+    ConstRefMan<Attrib::Desc> inpdesc = ad.getInput( inpnr );
     if ( !inpdesc )
     {
 	if ( needinpupd_ )
 	{
 	    Attrib::DescID defaultdid = ad.descSet()->ensureDefStoredPresent();
-	    Attrib::Desc* defaultdesc = ad.descSet()->getDesc( defaultdid );
+	    RefMan<Attrib::Desc> defaultdesc =
+				ad.descSet()->getDesc( defaultdid );
 	    if ( !defaultdesc )
 		inpfld->setDescSet( ad.descSet() );
 
-	    inpfld->setDesc( defaultdesc );
+	    inpfld->setDesc( defaultdesc.ptr() );
 	}
 	else
 	    inpfld->setDescSet( ad.descSet() );
     }
     else
     {
-	inpfld->setDesc( inpdesc );
+	inpfld->setDesc( inpdesc.ptr() );
 	if ( adsman_ )
 	    inpfld->updateHistory( adsman_->inputHistory() );
     }
@@ -242,12 +243,12 @@ void uiAttrDescEd::putInp( uiAttrSel* inpfld, const Attrib::Desc& ad,
 void uiAttrDescEd::putInp( uiSteerAttrSel* inpfld, const Attrib::Desc& ad,
 			   int inpnr )
 {
-    const Attrib::Desc* inpdesc = ad.getInput( inpnr );
+    ConstRefMan<Attrib::Desc> inpdesc = ad.getInput( inpnr );
     if ( !inpdesc )
         inpfld->setDescSet( ad.descSet() );
     else
     {
-	inpfld->setDesc( inpdesc );
+	inpfld->setDesc( inpdesc.ptr() );
 	if ( adsman_ )
 	    inpfld->updateHistory( adsman_->inputHistory() );
     }
@@ -257,11 +258,11 @@ void uiAttrDescEd::putInp( uiSteerAttrSel* inpfld, const Attrib::Desc& ad,
 void uiAttrDescEd::putInp( uiSteeringSel* inpfld, const Attrib::Desc& ad,
 			   int inpnr )
 {
-    const Attrib::Desc* inpdesc = ad.getInput( inpnr );
+    ConstRefMan<Attrib::Desc> inpdesc = ad.getInput( inpnr );
     if ( !inpdesc )
 	inpfld->setDescSet( ad.descSet() );
     else
-	inpfld->setDesc( inpdesc );
+	inpfld->setDesc( inpdesc.ptr() );
 }
 
 

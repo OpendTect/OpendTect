@@ -272,7 +272,7 @@ int VolProc::ChainOutput::getChain()
     chain_ = new Chain;
     chain_->ref();
     uiString errmsg;
-    if ( !VolProcessingTranslator::retrieve(*chain_,ioobj,errmsg) )
+    if ( !VolProcessingTranslator::retrieve(*chain_,ioobj.ptr(),errmsg) )
 	return retError( errmsg );
     else if ( chain_->nrSteps() < 1 )
 	return retError( tr("Empty Volume Processing Chain - nothing to do.") );
@@ -437,7 +437,7 @@ void startWork()
 	return;
 
     SeisDataPackWriter& wrr = *co_.wrr_;
-    if ( wrr.dataPack() == dp_ )
+    if ( wrr.dataPack() == dp_.ptr() )
 	wrr.setSelection( dp_->sampling().hsamp_, wrr.zSampling() );
     else
 	wrr.setNextDataPack( *dp_ );

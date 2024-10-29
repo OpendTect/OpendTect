@@ -71,7 +71,7 @@ void GriddedFunction::fetchPerfectFit( const BinID& bid )
     }
 
     velfunc->ref();
-    directsource_ = velfunc;
+    directsource_ = velfunc.ptr();
 }
 
 
@@ -84,7 +84,7 @@ void GriddedFunction::fetchPerfectFit( const BinID& bid )
 	return false; \
     } \
     velfunc->ref(); \
-    velfuncs += velfunc; \
+    velfuncs += velfunc.ptr(); \
     velfuncsource += funcsource; \
 
 

@@ -812,7 +812,7 @@ ZAxisTransform* uiVelModelZAxisTransform::getSelection()
 	transform_ = nullptr;
     }
 
-    return transform_;
+    return transform_.ptr();
 }
 
 

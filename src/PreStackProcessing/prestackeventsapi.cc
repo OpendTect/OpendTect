@@ -186,7 +186,7 @@ int PreStack::EventsAPIMgr::openReader( const char* reference )
 	    return -1;
 
 	events_ += 0;
-	velpicks_ += vp;
+	velpicks_ += vp.ptr();
 	vp->ref();
     }
 

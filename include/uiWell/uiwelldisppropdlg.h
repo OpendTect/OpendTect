@@ -38,8 +38,8 @@ public:
 
     enum TabType { LeftLog=0, CenterLog=1, RightLog=2, Marker=3, Track=4 };
 
-    virtual Well::Data*		wellData()		{ return wd_; }
-    virtual const Well::Data*	wellData() const	{ return wd_; }
+    virtual Well::Data*		wellData()		{ return wd_.ptr(); }
+    virtual const Well::Data*	wellData() const	{ return wd_.ptr(); }
 
     TabType			currentTab() const;
     bool			is2D() const		{ return is2ddisplay_; }

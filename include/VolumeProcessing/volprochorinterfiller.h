@@ -98,8 +98,8 @@ protected:
 
     float			topvalue_;
     float			bottomvalue_;
-    EM::Horizon*		tophorizon_;
-    EM::Horizon*		bottomhorizon_;
+    RefMan<EM::Horizon>		tophorizon_;
+    RefMan<EM::Horizon>		bottomhorizon_;
     bool			usegradient_;
     float			gradient_;
 };

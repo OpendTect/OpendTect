@@ -159,14 +159,14 @@ void OD::JSON::GeoJSONWriter::getDefaultProperties( const GIS::FeatureType& typ,
 
 bool OD::JSON::GeoJSONWriter::writePoint( const Coord& coord, const char* nm )
 {
-    const LatLong ll = LatLong::transform( coord, true, inpcrs_ );
+    const LatLong ll = LatLong::transform( coord, true, inpcrs_.ptr() );
     return writePoint( ll, nm, mUdf(double) );
 }
 
 
 bool OD::JSON::GeoJSONWriter::writePoint( const Coord3& crd, const char* nm )
 {
-    const LatLong ll = LatLong::transform( crd.coord(), true, inpcrs_ );
+    const LatLong ll = LatLong::transform( crd.coord(), true, inpcrs_.ptr() );
     return writePoint( ll, nm, crd.z_ );
 }
 

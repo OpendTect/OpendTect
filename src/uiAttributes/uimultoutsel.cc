@@ -135,11 +135,14 @@ bool uiMultOutSel::handleMultiCompChain( Attrib::DescID& attribid,
 					uiParent* parent,
 					TypeSet<Attrib::SelSpec>& targetspecs)
 {
-    Desc* seldesc = curdescset ? curdescset->getDesc( attribid ) : nullptr;
+    RefMan<Desc> seldesc;
+    if ( curdescset )
+	seldesc = curdescset->getDesc( attribid );
+
     if ( !seldesc )
 	return false;
 
-    Desc* inpdesc = curdescset->getDesc( multicompinpid );
+    RefMan<Desc> inpdesc = curdescset->getDesc( multicompinpid );
     if ( !inpdesc )
 	return false;
 
@@ -251,7 +254,7 @@ void uiMultiAttribSel::fillAttribFld()
     const int nrdescs = descset_->size();
     for ( int didx=0; didx<nrdescs; didx++ )
     {
-	const Attrib::Desc* desc = descset_->desc( didx );
+	ConstRefMan<Attrib::Desc> desc = descset_->desc( didx );
 	if ( desc->isHidden() || desc->isStored() )
 	    continue;
 
@@ -265,7 +268,7 @@ void uiMultiAttribSel::fillAttribFld()
 	    if ( idx == seldescouputidx )
 	    {
 		if ( alluserrefs.size() > 1 )
-		    const_cast<Desc*>(desc)->setUserRef( usrref );
+		    const_cast<Desc*>(desc.ptr())->setUserRef( usrref );
 		allids_ += desc->id();
 		attribfld_->addItem( toUiString(desc->userRef()) );
 		continue;
@@ -275,7 +278,7 @@ void uiMultiAttribSel::fillAttribFld()
 	    tmpdesc->selectOutput( idx );
 	    tmpdesc->setUserRef( usrref );
 	    const DescID newid =
-		const_cast<Attrib::DescSet*>(descset_)->addDesc( tmpdesc );
+		const_cast<Attrib::DescSet*>(descset_)->addDesc( tmpdesc.ptr());
 	    allids_ += newid;
 	    attribfld_->addItem( toUiString(tmpdesc->userRef()) );
 	}
@@ -299,7 +302,7 @@ void uiMultiAttribSel::updateSelFld()
 
     for ( int idx=0; idx<selids_.size(); idx++ )
     {
-	const Attrib::Desc* desc = descset_->getDesc( selids_[idx] );
+	ConstRefMan<Attrib::Desc> desc = descset_->getDesc( selids_[idx] );
 	if (!desc )
 	    continue;
 

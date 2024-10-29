@@ -351,7 +351,7 @@ bool Fault3DPainter::paintIntersection( EM::Fault3D& f3d,
 
 	    pts += p0; pts += p1; pts += p2; pts += p3;
 
-	    if ( paintPlaneIntxn(f3d,f3dmaker,intxn,pts) )
+	    if ( paintPlaneIntxn(f3d,f3dmaker,intxn.ptr(),pts) )
 		status = true;
 	}
 
@@ -382,7 +382,7 @@ bool Fault3DPainter::paintIntersection( EM::Fault3D& f3d,
 	    pts += Coord3( SI().transform(stop), tkzs_.zsamp_.start_ );
 	    pts += Coord3( SI().transform(stop), tkzs_.zsamp_.stop_ );
 	}
-	if ( !paintPlaneIntxn(f3d,f3dmaker,intxn,pts) )
+	if ( !paintPlaneIntxn(f3d,f3dmaker,intxn.ptr(),pts) )
 	    return false;
     }
 

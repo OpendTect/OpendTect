@@ -98,7 +98,7 @@ bool WellProvider3D::initialize( TaskRunner* )
     {
 	RefMan<Well::Data> wd = Well::MGR().get( wellids_[idx],
 						 Well::LoadReqs(Well::Inf) );
-	welldata_ += wd;
+	welldata_ += wd.ptr();
     }
 
     if ( welldata_.isEmpty() ) return false;

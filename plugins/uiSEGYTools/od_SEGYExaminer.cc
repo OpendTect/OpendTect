@@ -87,7 +87,7 @@ int mProgMainFnName( int argc, char** argv )
     PIM().loadAuto( false );
     OD::ModDeps().ensureLoaded( "uiWellAttrib" );
     PtrMan<uiDialog> sgyex = new uiSEGYExamine( nullptr, su );
-    app.setTopLevel( sgyex );
+    app.setTopLevel( sgyex.ptr() );
     PIM().loadAuto( true );
     sgyex->show();
 

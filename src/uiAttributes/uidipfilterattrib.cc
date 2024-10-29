@@ -125,8 +125,12 @@ void uiDipFilterAttrib::panelbutCB( CallBacker* )
     if ( !dlg->go() )
 	return;
 
-    const Desc* inpdesc = ads_ ? ads_->getDesc( inpfld_->attribID() ) : nullptr;
-    if ( !inpdesc ) return;
+    ConstRefMan<Desc> inpdesc;
+    if ( ads_ )
+	inpdesc = ads_->getDesc( inpfld_->attribID() );
+
+    if ( !inpdesc )
+	return;
 
     const MultiID mid = inpdesc->getStoredID();
     const SeisIOObjInfo seisinfo( mid );

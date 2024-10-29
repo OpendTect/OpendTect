@@ -46,7 +46,7 @@ bool odTestSameMuteInDiffVersion( od_ostream& strm, const MultiID& muteid )
 
     PreStack::MuteDef mutedef;
     uiString errmsg;
-    if ( !MuteDefTranslator::retrieve(mutedef,muteobj,errmsg) )
+    if ( !MuteDefTranslator::retrieve(mutedef,muteobj.ptr(),errmsg) )
     {
 	BufferString msg;
 	msg += "Mute definition ";

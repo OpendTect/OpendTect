@@ -102,7 +102,7 @@ RefMan<MappedTextureDataSet> TextureChannel2RGBA::createMappedDataSet() const
 void TextureChannel2RGBA::setChannels( TextureChannels* ch )
 {
     RefMan<TextureChannels> channels = channels_.get();
-    if ( ch!=channels && laytex_ )
+    if ( ch!=channels.ptr() && laytex_ )
     {
 	for ( int idx=laytex_->nrProcesses()-1; idx>=0; idx-- )
 	    laytex_->removeProcess( laytex_->getProcess(idx) );

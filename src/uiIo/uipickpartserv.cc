@@ -169,9 +169,9 @@ RefMan<Pick::Set> uiPickPartServer::loadSet( const MultiID& mid )
     {
 	RefMan<Pick::Set> ps = new Pick::Set;
 	uiString errmsg;
-	if ( PickSetTranslator::retrieve(*ps,ioobj,true,errmsg) )
+	if ( PickSetTranslator::retrieve(*ps,ioobj.ptr(),true,errmsg) )
 	{
-	    psmgr_.set( mid, ps );
+	    psmgr_.set( mid, ps.ptr() );
 	    return ps;
 	}
 
@@ -189,7 +189,7 @@ bool uiPickPartServer::reLoadSet( const MultiID& mid )
     RefMan<Pick::Set> ps = Pick::Mgr().get( mid );
     ps->setEmpty();
     uiString errmsg;
-    return PickSetTranslator::retrieve( *ps, ioobj, true, errmsg );
+    return PickSetTranslator::retrieve( *ps, ioobj.ptr(), true, errmsg );
 }
 
 
@@ -240,9 +240,9 @@ bool uiPickPartServer::loadSets( TypeSet<MultiID>& psids, bool poly )
 
 	RefMan<Pick::Set> ps = new Pick::Set;
 	uiString errmsg;
-	if ( PickSetTranslator::retrieve(*ps,ioobj,true,errmsg) )
+	if ( PickSetTranslator::retrieve(*ps,ioobj.ptr(),true,errmsg) )
 	{
-	    psmgr_.set( ioobj->key(), ps );
+	    psmgr_.set( ioobj->key(), ps.ptr() );
 	    psids.addIfNew( id );
 	    retval = true;
 	}
@@ -427,7 +427,10 @@ void uiPickPartServer::setPickSet( const Pick::Set& pickset )
 {
     const int setidx = psmgr_.indexOf( pickset.name().buf() );
     const bool isnew = setidx < 0;
-    RefMan<Pick::Set> ps = isnew ? 0 : psmgr_.get( setidx );
+    RefMan<Pick::Set> ps;
+    if ( !isnew )
+	ps = psmgr_.get( setidx );
+
     if ( ps )
 	ps->setEmpty();
     else
@@ -453,7 +456,10 @@ void uiPickPartServer::setMisclassSet( const DataPointSet& dps )
     const char* sKeyMisClass = "Misclassified [NN]";
     int setidx = psmgr_.indexOf( sKeyMisClass );
     const bool isnew = setidx < 0;
-    RefMan<Pick::Set> ps = isnew ? 0 : psmgr_.get( setidx );
+    RefMan<Pick::Set> ps;
+    if ( !isnew )
+	ps = psmgr_.get( setidx );
+
     if ( ps )
 	ps->setEmpty();
     else

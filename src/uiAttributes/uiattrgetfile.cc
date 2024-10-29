@@ -103,7 +103,7 @@ void uiGetFileForAttrSet::selChg( CallBacker* )
     const int totalnrdescs = attrset_.size();
     for ( int idx=0; idx<totalnrdescs; idx++ )
     {
-	Desc* desc = attrset_.desc( idx );
+	RefMan<Desc> desc = attrset_.desc( idx );
 	if ( desc->isHidden() || desc->isStored() ) continue;
 
 	nrdone++;

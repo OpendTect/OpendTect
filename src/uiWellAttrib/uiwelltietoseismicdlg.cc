@@ -46,7 +46,7 @@ ________________________________________________________________________
 
 #define mErrRetYN(msg) { uiMSG().error(msg); return false; }
 #define mErrRet(msg) { uiMSG().error(msg); return; }
-#define mGetWD(act) const Well::Data* wd = server_.wd(); if ( !wd ) act;
+#define mGetWD(act) ConstRefMan<Well::Data> wd = server_.wd(); if ( !wd ) act;
 
 const WellTie::Setup& WellTie::uiTieWin::welltieSetup() const
 {
@@ -331,8 +331,9 @@ void WellTie::uiTieWin::infoPushed( CallBacker* )
 
 void WellTie::uiTieWin::editD2TPushed( CallBacker* cb )
 {
-    Well::Data* wd = server_.wd();
-    if ( !wd || !wd->haveD2TModel() ) return;
+    RefMan<Well::Data> wd = server_.wd();
+    if ( !wd || !wd->haveD2TModel() )
+	return;
 
     uiD2TModelDlg d2tmdlg( this, *wd, false );
     if ( d2tmdlg.go() )

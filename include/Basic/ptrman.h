@@ -48,6 +48,8 @@ template<class T>
 mClass(Basic) PtrManBase
 {
 public:
+    inline		operator bool() const	{ return ptr_; }
+    inline		operator bool()		{ return ptr_; }
     inline bool		operator !() const	{ return !ptr_; }
     inline T*		set(T* p, bool doerase=true);
 			//!<Returns old pointer if not erased
@@ -90,11 +92,13 @@ mClass(Basic) ConstPtrManBase : public PtrManBase<T>
 {
 public:
     inline const T*	ptr() const		{ return this->ptr_; }
-    inline		operator const T*() const { return this->ptr_; }
     inline const T*	operator->() const	{ return this->ptr_; }
     inline const T&	operator*() const	{ return *this->ptr_; }
     inline T*		getNonConstPtr() const
 			{ return const_cast<T*>(this->ptr()); }
+
+    mDeprecated("Use ptr()") inline operator const T*() const { return ptr(); }
+
 protected:
     typedef void	(*PtrFunc)(T*);
     inline		ConstPtrManBase(PtrFunc setfunc,PtrFunc deletor,T* p)
@@ -108,15 +112,17 @@ mClass(Basic) NonConstPtrManBase : public PtrManBase<T>
 {
 public:
     inline const T*	ptr() const		{ return this->ptr_; }
-    inline		operator const T*() const { return this->ptr_; }
     inline const T*	operator->() const	{ return this->ptr_; }
     inline const T&	operator*() const	{ return *this->ptr_; }
     inline T*		ptr()			{ return this->ptr_; }
-    inline		operator T*()		{ return this->ptr_; }
     inline T*		operator ->()		{ return this->ptr_; }
     inline T&		operator *()		{ return *this->ptr_; }
     inline T*		getNonConstPtr() const
 			{ return const_cast<T*>(this->ptr()); }
+
+    mDeprecated("Use ptr()") inline operator const T*() const { return ptr(); }
+    mDeprecated("Use ptr()") inline operator T*()	{ return ptr(); }
+
 protected:
     typedef void	(*PtrFunc)(T*);
     inline		NonConstPtrManBase(PtrFunc setfunc,PtrFunc deletor,T* p)
@@ -168,14 +174,11 @@ public:
     inline			ArrPtrMan(ArrPtrMan<T>&&);
     ArrPtrMan<T>&		operator=(T*);
 
-
-#ifdef __debug__
     T&				operator[](int);
     const T&			operator[](int) const;
     T&				operator[](od_int64);
     const T&			operator[](od_int64) const;
 
-#endif
     void			setSize( od_int64 size ) { size_=size; }
 
 private:
@@ -183,7 +186,7 @@ private:
 
     static void			deleteFunc( T* p )	{ delete [] p; }
 
-    od_int64		size_;
+    od_int64			size_;
 };
 
 
@@ -194,6 +197,11 @@ mClass(Basic) ConstArrPtrMan : public ConstPtrManBase<T>
 public:
     inline		ConstArrPtrMan(const T* =nullptr);
     ConstArrPtrMan<T>&	operator=(const T*);
+
+    T&			operator[](int);
+    const T&		operator[](int) const;
+    T&			operator[](od_int64);
+    const T&		operator[](od_int64) const;
 
 private:
 			mOD_DisableCopy(ConstArrPtrMan<T>);
@@ -378,15 +386,16 @@ ArrPtrMan<T>& ArrPtrMan<T>::operator=( T* p )
     return *this;
 }
 
-#ifdef __debug__
 
 template <class T> inline
 T& ArrPtrMan<T>::operator[]( int idx )
 {
+#ifdef __debug__
     if ( idx<0 || (size_>=0 && idx>=size_) )
     {
 	DBG::forceCrash(true);
     }
+#endif
     return this->ptr_[(size_t) idx];
 }
 
@@ -394,10 +403,12 @@ T& ArrPtrMan<T>::operator[]( int idx )
 template <class T> inline
 const T& ArrPtrMan<T>::operator[]( int idx ) const
 {
+#ifdef __debug__
     if ( idx<0 || (size_>=0 && idx>=size_) )
     {
 	DBG::forceCrash(true);
     }
+#endif
     return this->ptr_[(size_t) idx];
 }
 
@@ -405,10 +416,12 @@ const T& ArrPtrMan<T>::operator[]( int idx ) const
 template <class T> inline
 T& ArrPtrMan<T>::operator[]( od_int64 idx )
 {
+#ifdef __debug__
     if ( idx<0 || (size_>=0 && idx>=size_) )
     {
 	DBG::forceCrash(true);
     }
+#endif
     return this->ptr_[(size_t) idx];
 }
 
@@ -416,14 +429,14 @@ T& ArrPtrMan<T>::operator[]( od_int64 idx )
 template <class T> inline
 const T& ArrPtrMan<T>::operator[]( od_int64 idx ) const
 {
+#ifdef __debug__
     if ( idx<0 || (size_>=0 && idx>=size_) )
     {
 	DBG::forceCrash(true);
     }
+#endif
     return this->ptr_[(size_t) idx];
 }
-
-#endif
 
 
 template <class T> inline
@@ -437,6 +450,34 @@ ConstArrPtrMan<T>& ConstArrPtrMan<T>::operator=( const T* p )
 {
     this->set( const_cast<T*>(p) );
     return *this;
+}
+
+
+template <class T> inline
+T& ConstArrPtrMan<T>::operator[]( int idx )
+{
+    return this->ptr_[(size_t) idx];
+}
+
+
+template <class T> inline
+const T& ConstArrPtrMan<T>::operator[]( int idx ) const
+{
+    return this->ptr_[(size_t) idx];
+}
+
+
+template <class T> inline
+T& ConstArrPtrMan<T>::operator[]( od_int64 idx )
+{
+    return this->ptr_[(size_t) idx];
+}
+
+
+template <class T> inline
+const T& ConstArrPtrMan<T>::operator[]( od_int64 idx ) const
+{
+    return this->ptr_[(size_t) idx];
 }
 
 

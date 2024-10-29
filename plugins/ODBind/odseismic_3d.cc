@@ -270,7 +270,7 @@ void odSeismic3D::getData( hAllocator allocator,
 	udfrepl.execute();
     }
     const int ndim_xy = ndim==3 || iszslice ? 2 : 1;
-    PtrMan<int> dims_xy = new int[ndim_xy];
+    ArrPtrMan<int> dims_xy = new int[ndim_xy];
     if ( ndim_xy==1 )
 	dims_xy[0] = dp->nrTrcs();
     else
@@ -278,8 +278,10 @@ void odSeismic3D::getData( hAllocator allocator,
 	dims_xy[0] = tkz.nrLines();
 	dims_xy[1] = tkz.nrTrcs();
     }
-    double* xdata = static_cast<double*>(allocator(ndim_xy, dims_xy, 'd'));
-    double* ydata = static_cast<double*>(allocator(ndim_xy, dims_xy, 'd'));
+    double* xdata =
+	static_cast<double*>(allocator(ndim_xy, dims_xy.ptr(), 'd'));
+    double* ydata =
+	static_cast<double*>(allocator(ndim_xy, dims_xy.ptr(), 'd'));
     for ( int idx=0; idx<dp->nrTrcs(); idx++ )
     {
 	const TrcKey trckey = dp->getTrcKey( idx );
@@ -312,7 +314,7 @@ void odSeismic3D::putData( const float** data, const TrcKeyZSampling& tkz )
     if ( writecount_==0 )
     {
 	writer_->setComponentNames( components_ );
-	sequentialwriter_ = new SeisSequentialWriter( writer_ );
+	sequentialwriter_ = new SeisSequentialWriter( writer_.ptr() );
     }
 
     if ( !sequentialwriter_ )

@@ -73,7 +73,7 @@ void uiSeisTrcBufViewer::setBuf( const SeisTrcBuf& tbuf,
     const FlatView::Viewer::VwrDest dest =
 	  FlatView::Viewer::getDest( ddpars.wva_.show_, ddpars.vd_.show_ );
     if ( dest != FlatView::Viewer::None )
-	viewer().setPack( dest, dp_ );
+	viewer().setPack( dest, dp_.ptr() );
 
     int w = 200 + 2*sz; if ( w > 600 ) w = 600;
     int h = 150 + 5*tbuf.first()->size(); if ( h > 500 ) h = 500;

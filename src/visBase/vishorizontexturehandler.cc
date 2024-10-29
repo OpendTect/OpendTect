@@ -32,7 +32,7 @@ HorizonTextureHandler::HorizonTextureHandler( HorizonSection* horsection )
     channels_ = TextureChannels::create();
     channel2rgba_ = ColTabTextureChannel2RGBA::create();
     cache_.setNullAllowed();
-    channels_->setChannels2RGBA( channel2rgba_ );
+    channels_->setChannels2RGBA( channel2rgba_.ptr() );
     if ( channels_->nrChannels()<1 )
 	addChannel();
     else

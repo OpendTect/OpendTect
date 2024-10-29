@@ -371,7 +371,7 @@ void uiSEGYReadStarter::execNewScan( LoadDefChgType ct, bool full )
 
     MouseCursorChanger chgr( MouseCursor::Wait );
     const BufferString fnm0 = filespec_.fileName( 0 );
-    if ( !scanFile(fnm0,ct,trunner) )
+    if ( !scanFile(fnm0,ct,trunner.ptr()) )
 	return;
 
     if ( !full && detectrev0flds_ )
@@ -379,7 +379,7 @@ void uiSEGYReadStarter::execNewScan( LoadDefChgType ct, bool full )
 	detectrev0flds_ = false;
 	scaninfos_->scanInfo(0).keyData().setBest( *loaddef_.hdrdef_ );
 	scaninfos_->setEmpty();
-	if ( !scanFile(fnm0,ct,trunner) )
+	if ( !scanFile(fnm0,ct,trunner.ptr()) )
 	    return;
     }
 
@@ -388,7 +388,7 @@ void uiSEGYReadStarter::execNewScan( LoadDefChgType ct, bool full )
 	const int nrfiles = filespec_.nrFiles();
 	for ( int idx=1; idx<nrfiles; idx++ )
 	{
-	    if ( !scanFile(filespec_.fileName(idx),KeepAll,trunner) )
+	    if ( !scanFile(filespec_.fileName(idx),KeepAll,trunner.ptr()) )
 		break;
 	}
     }
@@ -1125,7 +1125,7 @@ bool uiSEGYReadStarter::scanFile( const char* fnm, LoadDefChgType ct,
 
 	ConstRefMan<Coords::CoordSystem> segycoordsystem = bfi.coordsystem_;
 	if ( segycoordsystem && segycoordsystem->isOK() &&
-	     segycoordsystem != usercoordsystem )
+	     segycoordsystem.ptr() != usercoordsystem.ptr() )
 	{
 	    coordsysselfld_->setCoordSystem( segycoordsystem.ptr() );
 	    if ( !forsurvsetup_ && SI().hasProjection() )

@@ -421,14 +421,14 @@ bool ODGoogle::KMLWriter::putIconStyles()
 
 bool ODGoogle::KMLWriter::putPlaceMark( const Coord& crd, const char* nm )
 {
-    const LatLong ll = LatLong::transform( crd, true, inpcrs_ );
+    const LatLong ll = LatLong::transform( crd, true, inpcrs_.ptr() );
     return putPlaceMark( ll, 0., nm );
 }
 
 
 bool ODGoogle::KMLWriter::putPlaceMark( const Coord3& crd, const char* nm )
 {
-    const LatLong ll = LatLong::transform( crd.coord(), true, inpcrs_ );
+    const LatLong ll = LatLong::transform( crd.coord(), true, inpcrs_.ptr() );
     return putPlaceMark( ll, crd.z_, nm );
 }
 
@@ -514,7 +514,8 @@ bool ODGoogle::KMLWriter::putLine( const TypeSet<Coord3>& crds, const char* nm,
 
     for ( const auto& crd : crds )
     {
-	const LatLong ll = LatLong::transform( crd.coord(), true, inpcrs_ );
+	const LatLong ll =
+	    LatLong::transform( crd.coord(), true, inpcrs_.ptr() );
 	strm() << "\t\t\t\t" << ll.lng_;
 	strm() << ',' << ll.lat_ << ',' << -crd.z_ << '\n';
     }
@@ -593,7 +594,8 @@ bool ODGoogle::KMLWriter::putPoly( const TypeSet<Coord3>& crds,
 
     for ( const auto& crd : crds )
     {
-	const LatLong ll = LatLong::transform( crd.coord(), true, inpcrs_ );
+	const LatLong ll =
+	    LatLong::transform( crd.coord(), true, inpcrs_.ptr() );
 	strm() << "\t\t\t\t\t\t" << ll.lng_;
 	strm() << ',' << ll.lat_ << ',' << -crd.z_ << '\n';
     }

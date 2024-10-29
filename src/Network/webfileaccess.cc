@@ -73,7 +73,7 @@ private:
 #ifndef OD_NO_QT
     const QUrl		url_;
 #endif
-    typedef ObjectSet<ODNetworkProcess> ReplySet;
+    typedef RefObjectSet<ODNetworkProcess> ReplySet;
 
 };
 
@@ -170,7 +170,9 @@ Network::FileDownloadMgr::ChunkSizeType Network::FileDownloadMgr::getReplies(
 	hdrstr.add( chunk.stop_ );
 	req->setRawHeader( "Range", hdrstr.str() );
 
-	replies += Network::HttpRequestManager::instance().request(req);
+	RefMan<Network::HttpRequestProcess> reply =
+		Network::HttpRequestManager::instance().request( req.ptr() );
+	replies += reply.ptr();
     }
 #endif // !OD_NO_QT
 

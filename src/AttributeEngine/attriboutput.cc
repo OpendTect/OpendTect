@@ -225,7 +225,9 @@ void DataPackOutput::collectData( const DataHolder& data, float refstep,
 
 
 const RegularSeisDataPack* DataPackOutput::getDataPack() const
-{ return output_; }
+{
+    return output_.ptr();
+}
 
 
 RegularSeisDataPack* DataPackOutput::getDataPack( float refstep )
@@ -233,7 +235,7 @@ RegularSeisDataPack* DataPackOutput::getDataPack( float refstep )
     if ( !output_ )
 	init( refstep );
 
-    return output_;
+    return output_.ptr();
 }
 
 
@@ -486,7 +488,7 @@ bool SeisTrcStorOutput::writeTrc()
     if ( growtrctosi_ )
     {
 	tmptrc = trc_->getExtendedTo( SI().zRange(true), true );
-	usetrc = tmptrc;
+	usetrc = tmptrc.ptr();
     }
 
     if ( !storinited_ )

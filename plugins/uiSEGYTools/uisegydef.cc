@@ -400,7 +400,7 @@ FilePars uiSEGYFilePars::getPars() const
 	fp.ns_ = nrsamplesfld_->getIntValue();
     fp.fmt_ = FilePars::fmtOf( fmtfld_->text(), forread_ );
     fp.byteswap_ = byteswapfld_ ? byteswapfld_->getIntValue() : 0;
-    fp.setCoordSys( coordsys_ );
+    fp.setCoordSys( coordsys_.ptr() );
     return fp;
 }
 

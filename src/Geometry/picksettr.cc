@@ -264,8 +264,7 @@ void PickSetTranslator::createDataPointSets( const TypeSet<MultiID>& ioobjids,
     for ( int idx=0; idx<ioobjids.size(); idx++ )
     {
 	const MultiID key = ioobjids.get( idx );
-	const int setidx = Pick::Mgr().indexOf( key );
-	ConstRefMan<Pick::Set> ps = setidx < 0 ? 0 : Pick::Mgr().get( setidx );
+	ConstRefMan<Pick::Set> ps = Pick::Mgr().get( key );
 	RefMan<Pick::Set> createdps = nullptr;
 	if ( !ps )
 	{
@@ -280,7 +279,7 @@ void PickSetTranslator::createDataPointSets( const TypeSet<MultiID>& ioobjids,
 
 	    ps = createdps = new Pick::Set;
 	    uiString errmsg;
-	    if ( !retrieve(*createdps,ioobj,true,errmsg) )
+	    if ( !retrieve(*createdps,ioobj.ptr(),true,errmsg) )
 	    {
 		msg = errmsg.getString();
 		ErrMsg( msg );
@@ -308,8 +307,7 @@ bool PickSetTranslator::getCoordSet( const MultiID& id, TypeSet<Coord3>& crds )
 bool PickSetTranslator::getCoordSet( const MultiID& key, TypeSet<Coord3>& crds,
 				     TypeSet<TrcKey>& tks )
 {
-    const int setidx = Pick::Mgr().indexOf( key );
-    ConstRefMan<Pick::Set> ps = setidx < 0 ? 0 : Pick::Mgr().get( setidx );
+    ConstRefMan<Pick::Set> ps = Pick::Mgr().get( key );
     RefMan<Pick::Set> createdps = nullptr;
     if ( !ps )
     {
@@ -323,7 +321,7 @@ bool PickSetTranslator::getCoordSet( const MultiID& key, TypeSet<Coord3>& crds,
 
 	ps = createdps = new Pick::Set;
 	uiString errmsg;
-	if ( !retrieve(*createdps,ioobj,true,errmsg) )
+	if ( !retrieve(*createdps,ioobj.ptr(),true,errmsg) )
 	{
 	    msg = errmsg.getString();
 	    ErrMsg( msg );
@@ -502,9 +500,9 @@ RefMan<Pick::Set> Pick::getSet( const MultiID& mid, uiString& errmsg )
     if ( setidx<0 )
     {
 	RefMan<Pick::Set> ps = new Pick::Set;
-	if ( PickSetTranslator::retrieve(*ps,ioobj,true,errmsg) )
+	if ( PickSetTranslator::retrieve(*ps,ioobj.ptr(),true,errmsg) )
 	{
-	    Pick::Mgr().set( mid, ps );
+	    Pick::Mgr().set( mid, ps.ptr() );
 	    return ps;
 	}
 
@@ -527,7 +525,7 @@ RefMan<Pick::Set> Pick::getSet( const DBKey& key, uiString& errmsg )
 	return nullptr;
 
     RefMan<Pick::Set> ps = new Pick::Set;
-    if ( PickSetTranslator::retrieve(*ps,ioobj,true,errmsg) )
+    if ( PickSetTranslator::retrieve(*ps,ioobj.ptr(),true,errmsg) )
 	return ps;
 
     return nullptr;

@@ -172,7 +172,7 @@ Processor* EngineMan::usePar( const IOPar& iopar, DescSet& attribset,
 	storeoutp->setOutpNames( outnms );
     }
 
-    proc->addOutput( storeoutp );
+    proc->addOutput( storeoutp.ptr() );
     return proc;
 }
 
@@ -326,12 +326,12 @@ RefMan<RegularSeisDataPack> EngineMan::getDataPackOutput(const Processor& proc)
 	if ( packset.size() && packset[0]->nrComponents()!=dp->nrComponents() )
 	    continue;
 
-	packset += dp;
+	packset += dp.ptr();
     }
 
     if ( cache_ )
     {
-	packset += cache_;
+	packset += cache_.ptr();
 	if ( !dpm_.isPresent(cache_->id()) )
 	    dpm_.add( cache_.ptr() );
     }
@@ -769,7 +769,7 @@ void EngineMan::addNLADesc( const char* specstr, DescID& nladescid,
 			stordesc->getValParam( StorageProvider::keyStr() );
 		    idpar->setValue( ioobj->key() );
 		    stordesc->setUserRef( ioobj->name() );
-		    descid = descset.addDesc( stordesc );
+		    descid = descset.addDesc( stordesc.ptr() );
 		    if ( !descid.isValid() )
 		    {
 			errmsg = tr("NLA input '%1' cannot be found in "
@@ -780,7 +780,7 @@ void EngineMan::addNLADesc( const char* specstr, DescID& nladescid,
 	    }
 	}
 
-	desc->setInput( idx, descset.getDesc(descid) );
+	desc->setInput( idx, descset.getDesc(descid).ptr() );
     }
 
     if ( outputnr > desc->nrOutputs() )
@@ -793,7 +793,7 @@ void EngineMan::addNLADesc( const char* specstr, DescID& nladescid,
     desc->setUserRef( *nlades.outputs_[outputnr] );
     desc->selectOutput( outputnr );
 
-    nladescid = descset.addDesc( desc );
+    nladescid = descset.addDesc( desc.ptr() );
     if ( nladescid == DescID::undef() )
 	errmsg = descset.errMsg();
 }
@@ -823,13 +823,13 @@ DescID EngineMan::createEvaluateADS( DescSet& descset,
 	if ( !inpdesc )
 	    continue;
 
-	desc->setInput( idx, inpdesc );
+	desc->setInput( idx, inpdesc.ptr() );
     }
 
     desc->setUserRef( "evaluate attributes" );
     desc->selectOutput(0);
 
-    const DescID evaldescid = descset.addDesc( desc );
+    const DescID evaldescid = descset.addDesc( desc.ptr() );
     if ( evaldescid == DescID::undef() )
 	errmsg = descset.errMsg();
 
@@ -1414,7 +1414,7 @@ bool EngineMan::ensureDPSAndADSPrepared( DataPointSet& datapointset,
 
 	    // Put the new DescID in coldef and in the refs
 	    BufferString tmpstr;
-	    const Attrib::Desc* desc = descset.getDesc( descid );
+	    ConstRefMan<Attrib::Desc> desc = descset.getDesc( descid );
 	    if ( !desc )
 		mErrRet(toUiString("Huh?"));
 

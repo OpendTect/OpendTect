@@ -18,7 +18,7 @@ ObjDisposer* OBJDISP()
 {
     mDefineStaticLocalObject( PtrMan<ObjDisposer>, theinst,
 			      = new ObjDisposer );
-    return theinst;
+    return theinst.ptr();
 }
 
 

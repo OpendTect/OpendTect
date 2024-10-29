@@ -174,13 +174,13 @@ void odSeismic2D::getData( hAllocator allocator, const char* linenm,
     zrg[2] = zrange.step_;
 
     const int ndim = 2;
-    PtrMan<int> dims = new int[ndim];
+    ArrPtrMan<int> dims = new int[ndim];
     dims[0] = ntrc;
     dims[1] = nsamp;
     const float valnan = std::nanf("");
     for ( int cidx=0; cidx<nrcomp; cidx++ )
     {
-	float* outdata = static_cast<float*>( allocator(ndim, dims, 'f') );
+	float* outdata = static_cast<float*>( allocator(ndim, dims.ptr(), 'f'));
 	for ( int tidx=0; tidx<ntrc; tidx++ )
 	{
 	    const SeisTrc* trc = tbuf.get( tidx );
@@ -196,12 +196,15 @@ void odSeismic2D::getData( hAllocator allocator, const char* linenm,
     }
 
     const int ndim_xy = 1;
-    PtrMan<int> dims_xy = new int[ndim_xy];
+    ArrPtrMan<int> dims_xy = new int[ndim_xy];
     dims_xy[0] = tbuf.size();
-    int* trcdata = static_cast<int*>(allocator(ndim_xy, dims_xy, 'i'));
-    float* refdata = static_cast<float*>(allocator(ndim_xy, dims_xy, 'f'));
-    double* xdata = static_cast<double*>(allocator(ndim_xy, dims_xy, 'd'));
-    double* ydata = static_cast<double*>(allocator(ndim_xy, dims_xy, 'd'));
+    int* trcdata = static_cast<int*>(allocator(ndim_xy, dims_xy.ptr(), 'i'));
+    float* refdata =
+	static_cast<float*>(allocator(ndim_xy, dims_xy.ptr(), 'f'));
+    double* xdata =
+	static_cast<double*>(allocator(ndim_xy, dims_xy.ptr(), 'd'));
+    double* ydata =
+	static_cast<double*>(allocator(ndim_xy, dims_xy.ptr(), 'd'));
     for ( int tidx=0; tidx<ntrc; tidx++ )
     {
 	const SeisTrcInfo& trc = tbuf.get( tidx )->info();

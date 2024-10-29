@@ -329,7 +329,7 @@ Executor* RandomPosBody::saver( IOObj* inpioobj )
     else
     {
 	myioobj = IOM().get( multiID() );
-	ioobj = myioobj;
+	ioobj = myioobj.ptr();
     }
 
     Conn* conn = ioobj ? ioobj->getConn( Conn::Write ) : 0;

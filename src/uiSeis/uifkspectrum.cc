@@ -304,7 +304,7 @@ bool uiFKSpectrum::view( Array2D<float>& array )
     datapack->posData().setRange( true, krg );
     datapack->posData().setRange( false, frg );
     vddp_ = datapack;
-    viewer().setPack( FlatView::Viewer::VD, datapack, false );
+    viewer().setPack( FlatView::Viewer::VD, datapack.ptr(), false );
 
     return true;
 }

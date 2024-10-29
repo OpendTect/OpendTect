@@ -190,7 +190,7 @@ bool acceptOK( CallBacker* ) override
 	    if ( !inpid.isValid() ) return false;
 
 	    for ( int iinp=0; iinp<ad.nrInputs(); iinp++ )
-		ad.setInput( iinp, attrset_->getDesc(inpid) );
+		ad.setInput( iinp, attrset_->getDesc(inpid).ptr() );
 	}
     }
 
@@ -240,16 +240,16 @@ bool AttributeSetCreator::create()
 	return false;
     }
 
-    const Desc* stored = nullptr;
+    ConstRefMan<Desc> stored;
     for ( int idx=0; idx<nrdescs; idx++ )
     {
-	const Desc& desc = *attrset_->desc( idx );
-	if ( desc.isHidden() )
+	ConstRefMan<Desc> desc = attrset_->desc( idx );
+	if ( desc->isHidden() )
 	   continue;
-	if ( desc.isStored() )
+	if ( desc->isStored() )
 	{
-	    if ( desc.getStoredID() == storhint_ )
-	       stored = &desc;
+	    if ( desc->getStoredID() == storhint_ )
+	       stored = desc;
 	}
     }
 
@@ -269,10 +269,11 @@ bool AttributeSetCreator::create()
     {
 	for ( int idx=0; idx<nrdescs; idx++ )
 	{
-	    Desc& desc = *attrset_->desc( idx );
-	    if ( desc.isHidden() || desc.isStored() )
+	    RefMan<Desc> desc = attrset_->desc( idx );
+	    if ( desc->isHidden() || desc->isStored() )
 	       continue;
-	    desc.setInput( 0, stored );
+
+	    desc->setInput( 0, stored.ptr() );
 	}
     }
 
@@ -370,8 +371,8 @@ Desc* AttributeSetCreator::getDesc( const char* extdesc )
     }
 
     desc->setUserRef( extdesc );
-    attrset_->addDesc( desc );
-    return desc;
+    attrset_->addDesc( desc.ptr() );
+    return desc.ptr();
 }
 
 

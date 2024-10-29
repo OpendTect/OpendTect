@@ -167,7 +167,7 @@ IntervalFunction* IntervalSource::createFunction( const BinID& bid )
 	return nullptr;
 
     auto* res = new IntervalFunction( *this );
-    res->setInput( inputfunc );
+    res->setInput( inputfunc.ptr() );
 
     return res;
 }

@@ -372,8 +372,8 @@ void BoxDragger::setOsgMatrix( const Coord3& worldscale,
 			       const Coord3& worldtrans )
 {
     osg::Vec3d scale, trans;
-    mVisTrans::transformSize( transform_, worldscale, scale );
-    mVisTrans::transform( transform_, worldtrans, trans );
+    mVisTrans::transformSize( transform_.ptr(), worldscale, scale );
+    mVisTrans::transform( transform_.ptr(), worldtrans, trans );
 
     osg::Matrix mat;
     mat *= osg::Matrix::scale( scale );
@@ -429,7 +429,7 @@ void BoxDragger::setCenter( const Coord3& pos )
 Coord3 BoxDragger::center() const
 {
     Coord3 trans;
-    mVisTrans::transformBack( transform_,
+    mVisTrans::transformBack( transform_.ptr(),
 			      osgboxdragger_->getMatrix().getTrans(),
 			      trans );
     return trans;
@@ -445,7 +445,7 @@ void BoxDragger::setWidth( const Coord3& scale )
 Coord3 BoxDragger::width() const
 {
     Coord3 scale;
-    mVisTrans::transformBackSize( transform_,
+    mVisTrans::transformBackSize( transform_.ptr(),
 				  osgboxdragger_->getMatrix().getScale(),
 				  scale );
     return scale;
@@ -471,7 +471,7 @@ void BoxDragger::setWidthLimits( const Interval<float>& x,
 
 void BoxDragger::setDisplayTransformation( const mVisTrans* nt )
 {
-    if ( transform_ == nt )
+    if ( transform_.ptr() == nt )
 	return;
 
     const Coord3 oldcenter = center();
@@ -486,7 +486,7 @@ void BoxDragger::setDisplayTransformation( const mVisTrans* nt )
 
 const mVisTrans* BoxDragger::getDisplayTransformation() const
 {
-    return transform_;
+    return transform_.ptr();
 }
 
 

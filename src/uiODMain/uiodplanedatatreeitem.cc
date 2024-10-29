@@ -499,7 +499,7 @@ void uiODPlaneDataTreeItem::handleMenuCB( CallBacker* cb )
     else if ( mnuid == gridlinesmnuitem_.id )
     {
 	menu->setIsHandled(true);
-	uiGridLinesDlg gldlg( getUiParent(), pdd );
+	uiGridLinesDlg gldlg( getUiParent(), pdd.ptr() );
 	gldlg.go();
     }
 

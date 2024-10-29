@@ -684,7 +684,8 @@ bool VolProc::ChainExecutor::Epoch::doPrepare( ProgressMeter* progmeter )
 
 	Step::OutputSlotID outputslotid = 0; // TODO: get correct slotid
 	TrcKeySampling unusedtks; StepInterval<int> unusedzrg;
-	currentstep->setOutput( outputslotid, outcube, unusedtks, unusedzrg );
+	currentstep->setOutput( outputslotid, outcube.ptr(), unusedtks,
+				unusedzrg );
 
 	//The step should have reffed it, so we can forget it now.
 	outcube = nullptr;

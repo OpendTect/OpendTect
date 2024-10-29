@@ -185,8 +185,8 @@ void DataManager::usePar( const IOPar& iop, uiFlatViewWin* vwwin,
 	}
 	const BufferString type = objpar->find( sKey::Type() );
 	RefMan<DataObject> obj = factory().create( type, vwwin, eds );
-	if ( obj && obj->usePar(*objpar) && !similarObjectPresent(obj) )
-	    addObject( obj );
+	if ( obj && obj->usePar(*objpar) && !similarObjectPresent(obj.ptr()) )
+	    addObject( obj.ptr() );
     }
 }
 

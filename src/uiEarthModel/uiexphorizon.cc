@@ -540,10 +540,10 @@ bool uiExportHorizon::writeAscii()
 	su.addzpos( addzpos ).doxy( doxy ).doic(doic).dogf( dogf )
 	    .issingle( !isbulk_ ).nrattrib( nrattribs ).udfstr( udfstr );
 
-	const Coords::CoordSystem* crs =
+	ConstRefMan<Coords::CoordSystem> crs =
 	    coordsysselfld_ ? coordsysselfld_->getCoordSystem() : nullptr;
 	Write3DHorASCII* executor = new Write3DHorASCII( stream, 0,
-			0, hor, unit, crs, su );
+			0, hor, unit, crs.ptr(), su );
 	exphorgrp.add( executor );
 	if ( !TaskRunner::execute(&taskrunner,exphorgrp) )
 	    return false;

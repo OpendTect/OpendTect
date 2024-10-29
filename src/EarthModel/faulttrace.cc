@@ -1099,14 +1099,13 @@ bool FaultTraceExtractor3D::extractFaultTrace( int idx )
 					new Geometry::ExplPlaneIntersection;
     insectn->setShape( *fltsurf_ );
     insectn->addPlane( normal, pts );
-    Geometry::IndexedShape* idxdshape = insectn;
     RefMan<FaultTrace> clist = new FaultTrace;
     RefMan<FaultTrace> normallist = new FaultTrace;
-    idxdshape->setCoordList( clist, normallist, 0 );
-    if ( !idxdshape->update(true,0) )
+    insectn->setCoordList( clist.ptr(), normallist.ptr(), 0 );
+    if ( !insectn->update(true,0) )
 	return false;
 
-    Geometry::IndexedGeometry* idxgeom = idxdshape->getGeometry()[0];
+    Geometry::IndexedGeometry* idxgeom = insectn->getGeometry()[0];
 
     Geometry::PrimitiveSet* idxps = idxgeom->getCoordsPrimitiveSet();
 
@@ -1380,20 +1379,22 @@ bool FaultTrcDataProvider::init( const TypeSet<MultiID>& faultids,
 
     for ( int idx=0; idx< faultids.size(); idx++ )
     {
-	EM::EMObject* emobj = EM::EMM().getObject(
+	const EM::EMObject* emobj = EM::EMM().getObject(
 				    EM::EMM().getObjectID(faultids[idx]));
-	mDynamicCastGet(EM::FaultSet3D*,fltset,emobj );
-	mDynamicCastGet(EM::Fault*,flt,emobj);
-	if ( !fltset && !flt )
+	mDynamicCastGet(const EM::FaultSet3D*,fltsetptr,emobj );
+	mDynamicCastGet(const EM::Fault*,fltptr,emobj);
+	if ( !fltsetptr && !fltptr )
 	    return false;
-	const int nrfaults = fltset ? fltset->nrFaults() : 1;
+	const int nrfaults = fltsetptr ? fltsetptr->nrFaults() : 1;
 	for ( int fltidx=0; fltidx<nrfaults; fltidx++ )
 	{
-	    if ( fltset )
+	    ConstRefMan<EM::Fault> flt = fltptr;
+	    if ( fltsetptr )
 	    {
-		const EM::ObjectID oid = fltset->getFaultID( fltidx );
-		flt = fltset->getFault3D( oid );
+		const EM::ObjectID oid = fltsetptr->getFaultID( fltidx );
+		flt = fltsetptr->getFault3D( oid );
 	    }
+
 	    if ( !flt )
 	    {
 		errmsg_ = uiStrings::phrCannotRead( uiStrings::sFault() );

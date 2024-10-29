@@ -154,7 +154,7 @@ bool uiWaveletMatchDlg::calcFilter()
     outputwvlt_.reSize( filtersz );
     outputwvlt_.setCenterSample( filtersz2 );
     float* x = outputwvlt_.samples();
-    solveAxb( filtersz, autoref, crossref, x );
+    solveAxb( filtersz, mVarLenArr(autoref), mVarLenArr(crossref), x );
 
     Interval<float> intv( -(float)filtersz2, (float)filtersz2 );
     wvltoutdisp_->setVals( intv, x, filtersz );
@@ -164,7 +164,7 @@ bool uiWaveletMatchDlg::calcFilter()
     mAllocVarLenArr(float,wqc,tarsz)
     float* wqcptr = mVarLenArr( wqc );
     GenericConvolve( refsz,0,wref, filtersz,-filtersz/2,x, tarsz,0,wqcptr );
-    wvltqcdisp_->setY2Vals( tarwvlt->samplePositions(), wqc, tarsz );
+    wvltqcdisp_->setY2Vals( tarwvlt->samplePositions(), mVarLenArr(wqc), tarsz);
     wvltqcdisp_->draw();
 
 //  Calculate similarity between QC and target wavelet

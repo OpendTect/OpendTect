@@ -256,7 +256,7 @@ void SeisTrcBuf::sort( bool ascending, SeisTrcInfo::Fld fld )
 	idxs[idx] = idx;
 	vals[idx] = (float)(trcs_[idx]->info().getValue( fld ) - offs);
     }
-    sort_coupled( (float*)vals, (int*)idxs, sz );
+    sort_coupled( mVarLenArr(vals), mVarLenArr(idxs), sz );
     ObjectSet<SeisTrc> tmp;
     for ( int idx=0; idx<sz; idx++ )
 	tmp += trcs_[idxs[idx]];

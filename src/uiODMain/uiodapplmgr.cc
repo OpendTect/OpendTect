@@ -437,7 +437,7 @@ void uiODApplMgr::addTimeDepthScene( bool is2d )
 	    .arg( ztrans->factoryDisplayName() );
 
     sceneMgr().tile();
-    const SceneID sceneid = sceneMgr().addScene( true, ztrans, snm );
+    const SceneID sceneid = sceneMgr().addScene( true, ztrans.ptr(), snm);
     if ( sceneid.isValid() )
     {
 	const float zscale = ztrans->zScale();
@@ -462,7 +462,7 @@ void uiODApplMgr::addHorFlatScene( bool is2d )
 		: transform->factoryDisplayName().getFullString();
     uiString scenenm = tr( "Flattened on '%1'").arg( hornm );
     sceneMgr().tile();
-    sceneMgr().addScene( true, transform, scenenm );
+    sceneMgr().addScene( true, transform.ptr(), scenenm);
 }
 
 
@@ -737,12 +737,12 @@ void uiODApplMgr::calcShiftAttribute( int attrib, const Attrib::SelSpec& as )
 	    attribvals[idx+2] = vals[2]; //attrib
 	}
 
-	dps->bivSet().add( binid, attribvals );
+	dps->bivSet().add( binid, mVarLenArr(attribvals) );
     }
 
     dps->dataChanged();
     visServer()->setRandomPosData( visServer()->getEventObjId(),
-				   attrib, dps );
+				   attrib, dps.ptr() );
     visserv_->setSelSpec( visserv_->getEventObjId(), attrib, as );
     visServer()->selectTexture( visServer()->getEventObjId(), attrib,
 				emattrserv_->textureIdx() );
@@ -847,7 +847,7 @@ bool uiODApplMgr::evaluateAttribute( const VisID& visid, int attrib )
 	RefMan<DataPointSet> data = new DataPointSet( false, true );
 	visserv_->getRandomPos( visid, *data );
 	attrserv_->createOutput( *data, data->nrCols() );
-	visserv_->setRandomPosData( visid, attrib, data );
+	visserv_->setRandomPosData( visid, attrib, data.ptr() );
     }
     else
     {
@@ -1285,7 +1285,8 @@ bool uiODApplMgr::handleEMAttribServEv( int evid )
 			    data->bivSet().removeVal( idy );
 		    }
 
-		    visserv_->setRandomPosData( shiftvisid, attribidx, data );
+		    visserv_->setRandomPosData( shiftvisid,
+						attribidx, data.ptr() );
 		}
 	    }
 	}
@@ -1471,7 +1472,7 @@ void uiODApplMgr::addMPEParentPath( const VisID& visid, const TrcKey& tk )
     rlnm.add( " [" ).add( tk.lineNr() ).add( "," )
 	.add( tk.trcNr() ).add( "]" );
     rl->setName( rlnm );
-    Geometry::RLM().add( rl );
+    Geometry::RLM().add( rl.ptr() );
     for ( int idx=0; idx<bends.size(); idx++ )
 	rl->addNode( trcs[bends[idx]].position() );
 

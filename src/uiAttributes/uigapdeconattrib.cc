@@ -186,14 +186,14 @@ bool uiGapDeconAttrib::setInput( const Attrib::Desc& desc )
 	return true;
     }
 
-    const Desc* neededdesc = desc.getInput(0);
+    ConstRefMan<Desc> neededdesc = desc.getInput(0);
     if ( isinp0ph && neededdesc )
 	neededdesc = neededdesc->getInput(0);
 
     if ( !neededdesc )
 	inpfld_->setDescSet( desc.descSet() );
     else
-	inpfld_->setDesc( neededdesc );
+	inpfld_->setDesc( neededdesc.ptr() );
 
     return true;
 }
@@ -235,7 +235,7 @@ bool uiGapDeconAttrib::getInput( Attrib::Desc& desc )
     {
 	DescID inputid = DescID::undef();
 	createHilbertDesc( desc, inputid );
-	if ( !desc.setInput( 0, desc.descSet()->getDesc(inputid)) )
+	if ( !desc.setInput(0,desc.descSet()->getDesc(inputid).ptr()) )
 	{
 	    errmsg_ = tr("The suggested attribute for input 0\n"
 	                 "is incompatible with the input (wrong datatype)");
@@ -250,7 +250,7 @@ bool uiGapDeconAttrib::getInput( Attrib::Desc& desc )
 	if ( isinp0ph )
 	    createHilbertDesc( desc, mixedinputid );
 
-	if ( !desc.setInput( 1, desc.descSet()->getDesc(mixedinputid)) )
+	if ( !desc.setInput( 1, desc.descSet()->getDesc(mixedinputid).ptr()) )
 	{
 	    errmsg_ = tr("The suggested attribute for input 1\n"
 	                 " is incompatible with the input (wrong datatype)");
@@ -393,11 +393,11 @@ DescID uiGapDeconAttrib::createVolStatsDesc( Desc& desc, int stepout )
     descset->getIds( attribids );
     for ( int idx=0; idx<attribids.size(); idx++ )
     {
-	const Desc* dsc = descset->getDesc( attribids[idx] );
-	if ( !passStdCheck( dsc, VolStats::attribName(), 0 , 0 , inpid ) )
+	ConstRefMan<Desc> dsc = descset->getDesc( attribids[idx] );
+	if ( !passStdCheck(dsc.ptr(),VolStats::attribName(),0,0,inpid) )
 	    continue;
 
-	if ( !passVolStatsCheck( dsc, userbid, gate ) )
+	if ( !passVolStatsCheck(dsc.ptr(),userbid,gate) )
 	    continue;
 
 	return attribids[idx];
@@ -423,7 +423,7 @@ DescID uiGapDeconAttrib::createVolStatsDesc( Desc& desc, int stepout )
 		     newdesc->getValParam(VolStats::nrtrcsStr()) )
     nrtrcsparam->setValue( 3 );
 
-    return descset->addDesc( newdesc );
+    return descset->addDesc( newdesc.ptr() );
 }
 
 
@@ -436,7 +436,7 @@ bool uiGapDeconAttrib::passStdCheck( const Desc* dsc, const char* attribnm,
     if ( dsc->selectedOutput() != seloutidx )
 	return false;
 
-    const Desc* inputdesc = dsc->getInput( inpidx );
+    ConstRefMan<Desc> inputdesc = dsc->getInput( inpidx );
     if ( !inputdesc || inputdesc->id() != inpid )
 	return false;
 
@@ -473,7 +473,7 @@ RefMan<Desc> uiGapDeconAttrib::createNewDesc( DescSet* descset, DescID inpid,
 	return nullptr;
 
     newdesc->selectOutput( seloutidx );
-    newdesc->setInput( inpidx, inpdesc );
+    newdesc->setInput( inpidx, inpdesc.ptr() );
     newdesc->setHidden( true );
     BufferString usrref = "_"; usrref += inpdesc->userRef(); usrref += specref;
     newdesc->setUserRef( usrref );
@@ -494,17 +494,17 @@ void uiGapDeconAttrib::createHilbertDesc( Desc& desc, DescID& inputid )
     descset->getIds( attribids );
     for ( int idx=0; idx<attribids.size(); idx++ )
     {
-	const Desc* dsc = descset->getDesc( attribids[idx] );
-	if ( !passStdCheck( dsc, Hilbert::attribName(), 0 , 0 , inputid ) )
+	ConstRefMan<Desc> dsc = descset->getDesc( attribids[idx] );
+	if ( !passStdCheck(dsc.ptr(),Hilbert::attribName(),0,0,inputid) )
 	    continue;
 
 	inputid = attribids[idx];
 	return;
     }
 
-    Desc* newdesc = createNewDesc( descset, inputid, Hilbert::attribName(), 0,
-				   0, "_imag" );
-    inputid = newdesc ? descset->addDesc( newdesc ) : DescID::undef();
+    RefMan<Desc> newdesc =
+	createNewDesc( descset, inputid, Hilbert::attribName(), 0, 0, "_imag" );
+    inputid = newdesc ? descset->addDesc( newdesc.ptr() ) : DescID::undef();
 }
 
 
@@ -517,7 +517,8 @@ DescID uiGapDeconAttrib::createGapDeconDesc( DescID& inp0id, DescID inp1id,
 	inp0id = inpfld_->attribID();
     }
 
-    Desc* newdesc = createNewDesc( dset, inp0id, GapDecon::attribName(),0,0,"");
+    RefMan<Desc> newdesc =
+	createNewDesc( dset, inp0id, GapDecon::attribName(), 0, 0, "" );
     if ( !newdesc )
 	return DescID::undef();
 
@@ -531,16 +532,19 @@ DescID uiGapDeconAttrib::createGapDeconDesc( DescID& inp0id, DescID inp1id,
 
     if ( !onlyacorr )
     {
-	fillInGDDescParams( newdesc );
+	fillInGDDescParams( newdesc.ptr() );
 
-	Desc* inp1desc = inp1id != DescID::undef() ? dset->getDesc( inp1id ) :0;
+	RefMan<Desc> inp1desc;
+	if ( inp1id != DescID::undef() )
+	    inp1desc = dset->getDesc( inp1id );
+
 	if ( inp1desc )
-	    newdesc->setInput( 1, inp1desc );
+	    newdesc->setInput( 1, inp1desc.ptr() );
     }
 
     newdesc->updateParams();
     newdesc->setUserRef( onlyacorr ? "autocorrelation" : "gapdecon" );
-    return dset->addDesc( newdesc );
+    return dset->addDesc( newdesc.ptr() );
 }
 
 

@@ -39,7 +39,7 @@ int mProgMainFnName( int argc, char** argv )
     {
 	uiMain app( argc, argv );
 	PtrMan<uiDialog> topdlg = new uiClusterProc( nullptr, jobpars );
-	app.setTopLevel( topdlg );
+	app.setTopLevel( topdlg.ptr() );
 	PIM().loadAuto( true );
 	topdlg->setActivateOnFirstShow();
 	topdlg->show();

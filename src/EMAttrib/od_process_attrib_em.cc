@@ -291,7 +291,7 @@ static void interpolate( EM::Horizon3D* horizon,
 	strm << "Gridding " << attribrefs.get(idx).buf() << "\n";
 
 	TextStreamProgressMeter runner( strm );
-	( (Task*)arr2dint )->setProgressMeter( &runner );
+	sCast(Task*,arr2dint.ptr())->setProgressMeter( &runner );
 	arr2dint->setArray( *attrarr );
 	arr2dint->execute();
 	runner.setFinished();
@@ -524,14 +524,15 @@ bool BatchProgram::doWork( od_ostream& strm )
 		StepInterval<int> trcrg;
 		linepar->get( sKey::TrcRange(), trcrg );
 		hsamp.setCrlRange( trcrg );
-		HorizonUtils::getWantedPos2D( strm, midset, dtps,
+		HorizonUtils::getWantedPos2D( strm, midset, dtps.ptr(),
 					      hsamp, extraz, geomid );
 		SeisTrcBuf seisoutp( false );
 		uiString uierrmsg;
 		mSetEngineMan()
 		aem.setGeomID( geomid );
 		Processor* proc = aem.create2DVarZOutput( uierrmsg, pars(),
-				dtps, outval, zboundsset ? &zbounds : nullptr );
+					dtps.ptr(), outval,
+					zboundsset ? &zbounds : nullptr );
 		if ( !proc )
 		    mErrRet( uierrmsg.getFullString() );
 
@@ -546,7 +547,7 @@ bool BatchProgram::doWork( od_ostream& strm )
 								  false );
 	    HorizonUtils::getWantedPositions( strm, midset, bivs,
 				hsamp, extraz, nrinterpsamp, mainhoridx,
-				extrawidth, provider );
+				extrawidth, provider.ptr() );
 	    SeisTrcBuf seisoutp( false );
 	    uiString uierrmsg;
 	    mSetEngineMan()

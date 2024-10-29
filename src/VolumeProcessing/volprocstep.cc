@@ -398,7 +398,7 @@ void VolProc::Step::setOutput( OutputSlotID slotid, RegularSeisDataPack* dc,
 RegularSeisDataPack* VolProc::Step::getOutput( OutputSlotID slotid )
 {
     // TODO: implement using slotid
-    return output_;
+    return output_.ptr();
 }
 
 

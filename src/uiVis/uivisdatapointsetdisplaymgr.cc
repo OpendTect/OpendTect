@@ -253,7 +253,7 @@ void uiVisDataPointSetDisplayMgr::handleMenuCB( CallBacker* cb )
 	{
 	    RefMan<EM::EMObject> emobj =
 		    EM::EMM().createTempObject( EM::RandomPosBody::typeStr() );
-	    const DataPointSet* data = display->getDataPack();
+	    ConstRefMan<DataPointSet> data = display->getDataPack();
 	    mDynamicCastGet( EM::RandomPosBody*, emps, emobj.ptr() );
 	    if ( !emps )
 		return;
@@ -277,7 +277,7 @@ void uiVisDataPointSetDisplayMgr::handleMenuCB( CallBacker* cb )
 	if ( !pickset )
 	    return;
 
-	const DataPointSet* data = display->getDataPack();
+	ConstRefMan<DataPointSet> data = display->getDataPack();
 	for ( int rid=0; rid<data->size(); rid++ )
 	{
 	    bool useloc = false;
@@ -409,7 +409,7 @@ uiVisDataPointSetDisplayMgr::addDisplay( const TypeSet<ParentID>& parents,
 	if ( !display )
 	    continue;
 
-	visserv_.addObject( display, SceneID(parents[idx].asInt()), true );
+	visserv_.addObject( display.ptr(), SceneID(parents[idx].asInt()), true);
 	display->setDispProp( dispprop_ );
 	display->setDataPack( dps.id() );
 	uiTaskRunner taskrunner( visserv_.appserv().parent() );
@@ -464,7 +464,8 @@ bool uiVisDataPointSetDisplayMgr::addDisplays( const TypeSet<ParentID>& parents,
 	    if ( !display )
 		continue;
 
-	    visserv_.addObject( display, SceneID(parents[idx].asInt()), true );
+	    visserv_.addObject( display.ptr(),
+				SceneID(parents[idx].asInt()), true);
 	    display->setDispProp( dispprop_ );
 	    display->setDataPack( dps.id() );
 	    dispupdatergrp.add( display->getUpdater() );
@@ -577,7 +578,7 @@ void uiVisDataPointSetDisplayMgr::updateDisplay( const DispID& id,
 	if ( !display )
 	    continue;
 
-	visserv_.addObject( display, SceneID( parents[idx].asInt() ), true );
+	visserv_.addObject( display.ptr(), SceneID(parents[idx].asInt()), true);
 
 	displayinfo->sceneids_ += sceneid;
 	displayinfo->visids_ += display->id();

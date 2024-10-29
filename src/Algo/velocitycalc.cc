@@ -896,7 +896,8 @@ bool Vel::sampleVint( const ValueSeries<double>& Vin, const ZValueSeries& z_in,
     if ( !mIsVarLenArrOK(zsampled) )
 	return false;
 
-    ArrayValueSeries<double,double> sampled_zout( zsampled, false, nr_out );
+    ArrayValueSeries<double,double> sampled_zout( mVarLenArr(zsampled),
+						  false, nr_out );
     if ( !getSampledZ(Vin,z_in,OD::VelocityType::Interval,z_out,sampled_zout) )
 	return false;
 
@@ -953,7 +954,8 @@ bool Vel::sampleVavg( const ValueSeries<double>& Vin,
     if ( !mIsVarLenArrOK(zsampled) )
 	return false;
 
-    ArrayValueSeries<double,double> sampled_zout( zsampled, false, nr_out );
+    ArrayValueSeries<double,double> sampled_zout( mVarLenArr(zsampled),
+						  false, nr_out );
     if ( !getSampledZ(Vin,z_in,OD::VelocityType::Avg,z_out,sampled_zout) )
 	return false;
 

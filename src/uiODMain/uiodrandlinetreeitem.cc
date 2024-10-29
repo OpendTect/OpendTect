@@ -501,7 +501,7 @@ bool uiODRandomLineTreeItem::init()
 	    rtd->addAttrib();
 	}
 
-	visserv_->addObject( rtd, sceneID(), true );
+	visserv_->addObject( rtd.ptr(), sceneID(), true);
     }
 
     mDynamicCastGet(visSurvey::RandomTrackDisplay*,rtd,
@@ -726,7 +726,7 @@ void uiODRandomLineTreeItem::handleMenuCB( CallBacker* cb )
 	else if ( mnuid == create2dgridmnuitem_.id )
 	{
 	    rln->setName( rtd->name() );
-	    applMgr()->EMAttribServer()->create2DGrid( rln );
+	    applMgr()->EMAttribServer()->create2DGrid( rln.ptr() );
 	}
     }
 }

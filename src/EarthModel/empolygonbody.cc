@@ -268,7 +268,7 @@ Executor* PolygonBody::saver()
     if ( !ioobj )
 	return nullptr;
 
-    return saver( ioobj );
+    return saver( ioobj.ptr() );
 }
 
 
@@ -319,7 +319,7 @@ Executor* PolygonBodyGeometry::saver( const SurfaceIODataSelection* newsel,
 	return nullptr;
     }
 
-    return surface_.saver( ioobj );
+    return surface_.saver( ioobj.ptr() );
 }
 
 

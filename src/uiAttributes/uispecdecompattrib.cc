@@ -367,7 +367,10 @@ void uiSpecDecompAttrib::getInputMID( MultiID& mid ) const
 {
     if ( !is2D() ) return;
 
-    Desc* tmpdesc = ads_ ? ads_->getDesc( inpfld_->attribID() ) : nullptr;
+    RefMan<Desc> tmpdesc;
+    if ( ads_ )
+	tmpdesc = ads_->getDesc( inpfld_->attribID() );
+
     if ( !tmpdesc )
 	return;
 
@@ -383,8 +386,8 @@ RefMan<Desc> uiSpecDecompAttrib::createNewDescFromDP( Attrib::DescSet* dset,
     newdesc->selectOutput( 0 );
     RefMan<Desc> inpdesc = getInputDescFromDP( inpfld_ );
     inpdesc->setDescSet( dset );
-    dset->addDesc( inpdesc );
-    newdesc->setInput( 0, inpdesc );
+    dset->addDesc( inpdesc.ptr() );
+    newdesc->setInput( 0, inpdesc.ptr() );
     newdesc->selectOutput( 0 );
     newdesc->setHidden( true );
     BufferString usrref = "_"; usrref += inpdesc->userRef();
@@ -415,13 +418,13 @@ DescID uiSpecDecompAttrib::createSpecDecompDesc( DescSet* dset ) const
 
     DescID hilbid;
     createHilbertDesc( dset, hilbid );
-    if ( !newdesc->setInput( 1, dset->getDesc(hilbid)) )
+    if ( !newdesc->setInput(1,dset->getDesc(hilbid).ptr()) )
 	return DescID::undef();
 
-    fillInSDDescParams( newdesc );
+    fillInSDDescParams( newdesc.ptr() );
     newdesc->updateParams();
     newdesc->setUserRef( "spectral decomposition" );
-    return dset->addDesc( newdesc );
+    return dset->addDesc( newdesc.ptr() );
 }
 
 
@@ -435,7 +438,7 @@ RefMan<Desc> uiSpecDecompAttrib::createNewDesc( DescSet* descset, DescID inpid,
 	return nullptr;
 
     newdesc->selectOutput( seloutidx );
-    newdesc->setInput( inpidx, inpdesc );
+    newdesc->setInput( inpidx, inpdesc.ptr() );
     newdesc->setHidden( true );
     BufferString usrref = "_"; usrref += inpdesc->userRef(); usrref += specref;
     newdesc->setUserRef( usrref );
@@ -486,8 +489,8 @@ void uiSpecDecompAttrib::createHilbertDesc( DescSet* descset,
 	descset->getIds( attribids );
 	for ( int idx=0; idx<attribids.size(); idx++ )
 	{
-	    const Desc* dsc = descset->getDesc( attribids[idx] );
-	    if ( !passStdCheck( dsc, Hilbert::attribName(), 0 , 0 , inputid ) )
+	    ConstRefMan<Desc> dsc = descset->getDesc( attribids[idx] );
+	    if ( !passStdCheck(dsc.ptr(),Hilbert::attribName(),0,0,inputid) )
 		continue;
 
 	    inputid = attribids[idx];
@@ -498,7 +501,8 @@ void uiSpecDecompAttrib::createHilbertDesc( DescSet* descset,
 				     0, 0, "_imag" );
     }
 
-    inputid = hilbertdesc ? descset->addDesc( hilbertdesc ) : DescID::undef();
+    inputid = hilbertdesc ? descset->addDesc( hilbertdesc.ptr() )
+			  : DescID::undef();
 }
 
 
@@ -512,7 +516,7 @@ bool uiSpecDecompAttrib::passStdCheck( const Desc* dsc, const char* attribnm,
     if ( dsc->selectedOutput() != seloutidx )
 	return false;
 
-    const Desc* inputdesc = dsc->getInput( inpidx );
+    ConstRefMan<Desc> inputdesc = dsc->getInput( inpidx );
     if ( !inputdesc || inputdesc->id() != inpid )
 	return false;
 

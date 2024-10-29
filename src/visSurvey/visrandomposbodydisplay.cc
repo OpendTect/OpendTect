@@ -54,10 +54,10 @@ bool RandomPosBodyDisplay::setVisBody( visBase::RandomPos2Body* body )
     }
 
     embody_->setPositions( body->getPoints() );
-    EM::EMM().addObject( embody_ );
+    EM::EMM().addObject( embody_.ptr() );
 
     displaybody_ = body;
-    displaybody_->setDisplayTransformation( transform_ );
+    displaybody_->setDisplayTransformation( transform_.ptr() );
     displaybody_->setSelectable( false );
     addChild( displaybody_->osgNode() );
 
@@ -106,7 +106,7 @@ bool RandomPosBodyDisplay::updateVisFromEM()
     if ( !displaybody_ )
     {
 	displaybody_ = visBase::RandomPos2Body::create();
-	displaybody_->setDisplayTransformation( transform_ );
+	displaybody_->setDisplayTransformation( transform_.ptr() );
 	displaybody_->setMaterial( nullptr );
 	displaybody_->setSelectable( false );
 	addChild( displaybody_->osgNode() );

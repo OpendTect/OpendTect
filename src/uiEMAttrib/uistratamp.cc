@@ -271,7 +271,7 @@ bool uiStratAmpCalc::fillPar()
     clonedset->fillPar( attrpar );
     iop.mergeComp( attrpar, Attrib::SeisTrcStorOutput::attribkey() );
 
-    const Attrib::Desc* desc = clonedset->getDesc( targetid );
+    ConstRefMan<Attrib::Desc> desc = clonedset->getDesc( targetid );
     if ( desc && desc->is2D() )
 	iop.set( "Input Line Set", desc->getStoredID() );
 

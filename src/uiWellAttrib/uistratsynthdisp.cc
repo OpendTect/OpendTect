@@ -238,7 +238,8 @@ static float getWvltRMS( const MultiID& wvltid )
     if ( !ioobj )
 	return mUdf(float);
 
-    PtrMan<Wavelet> wvlt = Wavelet::get( ioobj );
+    PtrMan<Wavelet> wvlt;
+    wvlt = Wavelet::get( ioobj.ptr() );
     if ( !wvlt )
 	return mUdf(float);
 
@@ -1950,13 +1951,13 @@ uiFlatViewer* uiStratSynthDisp::getViewerClone( uiParent* p ) const
     auto wvadp = vwr_->getPack(true).get();
     auto vddp = vwr_->getPack(false).get();
     if ( wvadp.ptr() == vddp.ptr() )
-	vwr->setPack( FlatView::Viewer::Both, wvadp, false );
+	vwr->setPack( FlatView::Viewer::Both, wvadp.ptr(), false);
     else
     {
 	const bool canupdate = vwr_->enableChange( false );
-	vwr->setPack( FlatView::Viewer::WVA, wvadp, false );
+	vwr->setPack( FlatView::Viewer::WVA, wvadp.ptr(), false);
 	vwr_->enableChange( canupdate );
-	vwr->setPack( FlatView::Viewer::VD, vddp, false );
+	vwr->setPack( FlatView::Viewer::VD, vddp.ptr(), false);
     }
 
     return vwr;

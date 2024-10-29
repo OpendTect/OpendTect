@@ -231,14 +231,14 @@ bool uiTextEditBase::saveToFile( const char* src, int linelen, bool newlns )
 		*sd.oStrm() << startptr;
 	    else
 	    {
-		OD::memSet( fullline, ' ', linelen );
+		OD::memSet( mVarLenArr(fullline), ' ', linelen );
 		fullline[linelen] = '\0';
 #ifdef __win__
-		strncpy_s( fullline, linelen+1, startptr, lnlen );
+		strncpy_s( mVarLenArr(fullline), linelen+1, startptr, lnlen );
 #else
-		strncpy( fullline, startptr, lnlen );
+		strncpy( mVarLenArr(fullline), startptr, lnlen );
 #endif
-		*sd.oStrm() << fullline;
+		*sd.oStrm() << mVarLenArr(fullline);
 	    }
 
 	    if ( newlns ) *sd.oStrm() << '\n';

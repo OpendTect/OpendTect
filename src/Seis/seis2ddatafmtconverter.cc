@@ -89,7 +89,7 @@ static void convertSeis2DTranslators()
 
 	    ioobj->setGroup( mTranslGroupName(SeisTrc2D) );
 	    ioobj->setTranslator( CBVSSeisTrc2DTranslator::translKey() );
-	    iodir.commitChanges( ioobj );
+	    iodir.commitChanges( ioobj.ptr() );
 	}
     }
 

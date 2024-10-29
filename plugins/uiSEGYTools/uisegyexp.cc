@@ -726,7 +726,7 @@ void uiSEGYExp::generateAutoTextHeader( BufferString& hdrtxt ) const
     }
 
     SEGY::TxtHeader txthdr( 1 );
-    txthdr.setInfo( datanm.getCompString(), crs, thdef );
+    txthdr.setInfo( datanm.getCompString(), crs.ptr(), thdef );
     txthdr.getText( hdrtxt );
 }
 
@@ -755,7 +755,7 @@ bool uiSEGYExp::acceptOK( CallBacker* )
 	{
 	    transffld_->setCoordSystem( *crs.ptr(), false );
 	    SEGY::FilePars filepars = fpfld_->getPars();
-	    filepars.setCoordSys( crs );
+	    filepars.setCoordSys( crs.ptr() );
 	    fpfld_->setPars( filepars );
 	}
     }

@@ -351,7 +351,7 @@ void uiViewer2DMainWin::loadMuteCB( CallBacker* cb )
 	    continue;
 	PreStack::MuteDef* mutedef = new PreStack::MuteDef;
 	uiString errmsg;
-	if ( !MuteDefTranslator::retrieve(*mutedef,muteioobj,errmsg) )
+	if ( !MuteDefTranslator::retrieve(*mutedef,muteioobj.ptr(),errmsg) )
 	    { uiMSG().error( errmsg ); continue; }
 
 	mutes_ += mutedef;
@@ -852,8 +852,9 @@ void uiViewer2DMainWin::setGatherforPreProc( const BinID& relbid,
 
 	const GatherInfo& inputginfo = gatherinfos_[gidx];
 	const ElasticModel* model = getModel( inputginfo.tk_ );
-	preprocmgr_->setInput( relbid, inputginfo.vddp_ ? inputginfo.wvadp_
-							: inputginfo.vddp_ );
+	preprocmgr_->setInput( relbid,
+			       inputginfo.vddp_ ? inputginfo.wvadp_.ptr()
+			       			: inputginfo.vddp_.ptr() );
 	preprocmgr_->setModel( relbid, model );
     }
 }
@@ -1265,9 +1266,10 @@ void uiStoredViewer2DMainWin::setGather( const GatherInfo& gatherinfo )
 	    ppgather = getPreProcessed( gatherinfo );
 
 	ppgather = ppgather ? ppgather : ConstRefMan<PreStack::Gather>(gather);
-	ConstRefMan<PreStack::Gather> anglegather = getAngleData( ppgather );
-	gd->setVDGather( hasangledata_ ? anglegather : ppgather );
-	gd->setWVAGather( hasangledata_ ? ppgather : nullptr );
+	ConstRefMan<PreStack::Gather> anglegather =
+	    	getAngleData( ppgather.ptr() );
+	gd->setVDGather( hasangledata_ ? anglegather.ptr() : ppgather.ptr() );
+	gd->setWVAGather( hasangledata_ ? ppgather.ptr() : nullptr );
         if ( mIsUdf( zrg.start_ ) )
 	   zrg = gd->getZDataRange();
 
@@ -1434,8 +1436,10 @@ void uiSyntheticViewer2DMainWin::setGather( const GatherInfo& ginfo )
     if ( preprocmgr_ && preprocmgr_->nrProcessors() )
 	ppgather = getPreProcessed( ginfo );
 
-    gd->setVDGather( !vdgather ? ppgather ? ppgather : wvagather : vdgather );
-    gd->setWVAGather( vdgather ? ppgather ? ppgather : wvagather : nullptr );
+    gd->setVDGather( !vdgather ? (ppgather ? ppgather.ptr() : wvagather.ptr())
+	    			: vdgather.ptr() );
+    gd->setWVAGather( vdgather ? (ppgather ? ppgather.ptr() : wvagather.ptr())
+	    			: nullptr );
     auto* gdi = new uiGatherDisplayInfoHeader( nullptr );
     setGatherInfo( gdi, ginfo );
     gdi->setOffsetRange( gd->getOffsetRange() );
@@ -1620,7 +1624,7 @@ void uiViewer2DControl::applyProperties( CallBacker* )
 	if ( dest != FlatView::Viewer::None )
 	{
 	    bitmapchanged = true;
-	    vwr.setPack( dest, wvadp, false );
+	    vwr.setPack( dest, wvadp.ptr(), false );
 	}
 
 	wva = wvadatapack && wvadatapack->name() == vddp->name() &&
@@ -1631,7 +1635,7 @@ void uiViewer2DControl::applyProperties( CallBacker* )
 	if ( dest != FlatView::Viewer::None )
 	{
 	    bitmapchanged = true;
-	    vwr.setPack( dest, vddp, false );
+	    vwr.setPack( dest, vddp.ptr(), false );
 	}
 
 	vwr.enableChange( doupdate );
@@ -1708,7 +1712,7 @@ DataPackID uiStoredViewer2DMainWin::getAngleData( DataPackID gatherid )
 	return DataPack::cNoID();
 
     auto gather = DPM(DataPackMgr::FlatID()).get<PreStack::Gather>( gatherid );
-    auto angle_gather = getAngleData( gather );
+    auto angle_gather = getAngleData( gather.ptr() );
     if ( !angle_gather )
 	return DataPack::cNoID();
 

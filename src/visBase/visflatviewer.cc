@@ -47,7 +47,7 @@ FlatViewer::FlatViewer()
     resolution_ = SettingsAccess().getDefaultTexResFactor( nrResolutions() );
 
     channel2rgba_->allowShading( true );
-    channels_->setChannels2RGBA( channel2rgba_ );
+    channels_->setChannels2RGBA( channel2rgba_.ptr() );
     if ( channels_->nrChannels()<1 )
     {
 	channels_->addChannel();
@@ -55,7 +55,7 @@ FlatViewer::FlatViewer()
     }
 
     rectangle_->setMaterial( nullptr );
-    rectangle_->setTextureChannels( channels_ );
+    rectangle_->setTextureChannels( channels_.ptr() );
     addChild( rectangle_->osgNode() );
 
     RefMan<Material> gridlinematerial = Material::create();
@@ -221,7 +221,7 @@ void FlatViewer::updateGridLines( bool x1 )
     }
 
     ConstRefMan<FlatDataPack> dp = getPack( false ).get();
-    PolyLine* gridlines = x1 ? x1gridlines_ : x2gridlines_;
+    PolyLine* gridlines = x1 ? x1gridlines_.ptr() : x2gridlines_.ptr();
 
     if ( !dp || (x1 && !appearance().annot_.x1_.showgridlines_ ) ||
 	 (!x1 && !appearance().annot_.x2_.showgridlines_ ) )
@@ -263,7 +263,7 @@ void FlatViewer::updateGridLines( bool x1 )
 				Geometry::RangePrimitiveSet::create();
 	Interval<int> psrange( lastidx-2, lastidx -1);
 	ps->setRange( psrange );
-	gridlines->addPrimitiveSet( ps );
+	gridlines->addPrimitiveSet( ps.ptr() );
         pos += sd.step_;
     }
 

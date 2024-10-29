@@ -84,9 +84,9 @@ protected:
     bool			getFlatPlgZRange(const BinID&,
 						 Interval<double>& result);
 
-    EM::Body*			body_;
-    EM::EMObject*		emobj_;
-    EM::ImplicitBody*		implicitbody_;
+    RefMan<EM::EMObject>	emobj_;
+    EM::Body*			body_				= nullptr;
+    EM::ImplicitBody*		implicitbody_			= nullptr;
     MultiID			mid_;
 
     ValueType			insidevaltype_;

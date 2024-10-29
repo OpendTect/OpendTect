@@ -98,7 +98,7 @@ Attrib::DescSet* uiAttrEMOut::getTargetDescSet(
     TypeSet<int> seloutputs;
     const DescID targetid =
 	nladescid_.isValid() ? nladescid_ : attrfld_->attribID();
-    const Attrib::Desc* seldesc = ads_->getDesc( targetid );
+    ConstRefMan<Attrib::Desc> seldesc = ads_->getDesc( targetid );
     if ( !seldesc )
 	return nullptr;
 

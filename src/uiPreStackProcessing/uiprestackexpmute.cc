@@ -94,9 +94,9 @@ bool uiExportMute::writeAscii()
     const bool isxy = coordfld_->getBoolValue();
 
     BufferString str;
-    const Coords::CoordSystem* outcrs =
+    ConstRefMan<Coords::CoordSystem> outcrs =
 	coordsysselfld_ ? coordsysselfld_->getCoordSystem() : nullptr;
-    const Coords::CoordSystem* syscrs = SI().getCoordSystem();
+    ConstRefMan<Coords::CoordSystem> syscrs = SI().getCoordSystem();
     Coord convcoord;
     Coord coord;
     const bool needsconversion = outcrs && !(*outcrs == *syscrs);

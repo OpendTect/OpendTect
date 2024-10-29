@@ -84,7 +84,7 @@ bool EventTracker::setMute( bool inner, const MultiID& mid )
 	if ( !mutedef )
 	    mErrRet( uiStrings::phrCannotCreate(tr("new mute definition")) );
 
-	if ( !MuteDefTranslator::retrieve( *mutedef, ioobj, errmsg_ ) )
+	if ( !MuteDefTranslator::retrieve( *mutedef, ioobj.ptr(), errmsg_ ) )
 	{
 	    delete mutedef;
 	    mErrRet(errmsg_);

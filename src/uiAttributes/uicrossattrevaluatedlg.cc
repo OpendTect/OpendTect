@@ -187,9 +187,10 @@ void uiCrossAttrEvaluateDlg::calcPush( CallBacker* )
 	    /*add me and my ancestors except the top one*/
 	    for ( int pi=0; pi<ancestorids[ci].size(); pi++ )
 	    {
-	        Desc* ds = !pi ? attrset_.getDesc(seldeschildids_[ci]) :
-				 attrset_.getDesc(ancestorids[ci][pi-1] );
-		if ( !ds ) return;
+		RefMan<Desc> ds = attrset_.getDesc(
+			!pi ? seldeschildids_[ci] : ancestorids[ci][pi-1] );
+		if ( !ds )
+		    return;
 
 		mSetSelSpecAndLbl(*ds);
 	    }
@@ -207,10 +208,10 @@ void uiCrossAttrEvaluateDlg::calcPush( CallBacker* )
 	    for ( int pi=0; pi<lastpidx; pi++ )
 	    {
 		attrset_.desc(didx+1)->setInput( aids[ci][pi],
-			attrset_.desc(didx));
+						 attrset_.desc(didx).ptr());
 		didx++;
 	    }
-	    newad->setInput( aids[ci][lastpidx], attrset_.desc(didx) );
+	    newad->setInput( aids[ci][lastpidx], attrset_.desc(didx).ptr() );
 	}
     }
     if ( specs_.isEmpty() )
@@ -254,7 +255,7 @@ void uiCrossAttrEvaluateDlg::getSelDescIDs(
 	const char* userattnm = userattnms_[sel].get(attrselected[idx]).buf();
 	for ( int idy=0; idy<attrset_.size(); idy++ )
 	{
-	    if ( !attrset_.desc(idy) || attrset_.desc(idy)==&srcad )
+	    if ( !attrset_.desc(idy) || attrset_.desc(idy).ptr()==&srcad )
 		continue;
 
 	    BufferString anm = attrset_.desc(idy)->userRef();

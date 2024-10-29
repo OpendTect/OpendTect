@@ -108,10 +108,10 @@ bool filterUndef( const ValueSeries<T>& input, T* outptr, int sz )
     if ( !inptr )
     {
 	myinp = new T[sz];
-	input.getValues( myinp, sz );
+	input.getValues( mVarLenArr(myinp), sz );
     }
     
-    return filterUndef( inptr ? inptr : myinp, outptr, sz );
+    return filterUndef( inptr ? inptr : mVarLenArr(myinp), outptr, sz );
 }
 
 

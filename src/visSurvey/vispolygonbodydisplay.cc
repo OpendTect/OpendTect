@@ -97,7 +97,7 @@ void PolygonBodyDisplay::setSceneEventCatcher( visBase::EventCatcher* vec )
 		   PolygonBodyDisplay::mouseCB );
 
     if ( viseditor_ )
-	viseditor_->setSceneEventCatcher( eventcatcher_ );
+	viseditor_->setSceneEventCatcher( eventcatcher_.ptr() );
 }
 
 
@@ -121,11 +121,11 @@ void PolygonBodyDisplay::setLineStyle( const OD::LineStyle& lst )
     else
 	drawstyle_->setLineStyle( lst );
 
-    setLineRadius( intersectiondisplay_ );
+    setLineRadius( intersectiondisplay_.ptr() );
     if ( displayedOnlyAtSections() )
 	intersectiondisplay_->touch( false );
 
-    setLineRadius( polygondisplay_ );
+    setLineRadius( polygondisplay_.ptr() );
     if ( arePolygonsDisplayed() )
 	polygondisplay_->touch( false );
 }
@@ -182,7 +182,7 @@ bool PolygonBodyDisplay::setEMID( const EM::ObjectID& emid )
 	bodydisplay_ = visBase::GeomIndexedShape::create();
 	bodydisplay_->setGeometryShapeType( visBase::GeomIndexedShape::Triangle,
 					    Geometry::PrimitiveSet::Triangles );
-	bodydisplay_->setDisplayTransformation( displaytransform_ );
+	bodydisplay_->setDisplayTransformation( displaytransform_.ptr() );
 	bodydisplay_->setMaterial( nullptr );
 	bodydisplay_->setSelectable( false );
 	bodydisplay_->setNormalBindType(visBase::VertexShape::BIND_PER_VERTEX);
@@ -193,7 +193,8 @@ bool PolygonBodyDisplay::setEMID( const EM::ObjectID& emid )
     if ( !intersectiondisplay_ )
     {
 	intersectiondisplay_ = visBase::GeomIndexedShape::create();
-	intersectiondisplay_->setDisplayTransformation( displaytransform_ );
+	intersectiondisplay_->setDisplayTransformation(
+					displaytransform_.ptr() );
 	bodydisplay_->setMaterial( nullptr );
 	intersectiondisplay_->setSelectable( false );
 	intersectiondisplay_->setGeometryShapeType(
@@ -201,20 +202,20 @@ bool PolygonBodyDisplay::setEMID( const EM::ObjectID& emid )
 					Geometry::PrimitiveSet::LineStrips );
 	addChild( intersectiondisplay_->osgNode() );
 	intersectiondisplay_->turnOn( false );
-	setLineRadius( intersectiondisplay_ );
+	setLineRadius( intersectiondisplay_.ptr() );
     }
 
     if ( !polygondisplay_ )
     {
 	polygondisplay_ = visBase::GeomIndexedShape::create();
-	polygondisplay_->setDisplayTransformation( displaytransform_ );
+	polygondisplay_->setDisplayTransformation( displaytransform_.ptr() );
 	polygondisplay_->setMaterial( getMaterial() );
 	polygondisplay_->setSelectable( false );
 	polygondisplay_->setGeometryShapeType(
 					visBase::GeomIndexedShape::PolyLine3D,
 					Geometry::PrimitiveSet::LineStrips );
 	addChild( polygondisplay_->osgNode() );
-	setLineRadius( polygondisplay_ );
+	setLineRadius( polygondisplay_.ptr() );
     }
 
     const float zscale = scene_
@@ -251,8 +252,8 @@ bool PolygonBodyDisplay::setEMID( const EM::ObjectID& emid )
     if ( !viseditor_ )
     {
 	viseditor_ = MPEEditor::create();
-	viseditor_->setSceneEventCatcher( eventcatcher_ );
-	viseditor_->setDisplayTransformation( displaytransform_ );
+	viseditor_->setSceneEventCatcher( eventcatcher_.ptr() );
+	viseditor_->setDisplayTransformation( displaytransform_.ptr() );
 	viseditor_->sower().alternateSowingOrder();
 	addChild( viseditor_->osgNode() );
     }
@@ -261,7 +262,7 @@ bool PolygonBodyDisplay::setEMID( const EM::ObjectID& emid )
     mDynamicCastGet( MPE::PolygonBodyEditor*, pe, editor.ptr() );
     polygonsurfeditor_ =  pe;
 
-    viseditor_->setEditor( polygonsurfeditor_ );
+    viseditor_->setEditor( polygonsurfeditor_.ptr() );
     bodydisplay_->turnOn( true );
     displaypolygons_ = false;
 
@@ -710,7 +711,7 @@ void PolygonBodyDisplay::updateNearestPolygonMarker()
 			    Geometry::IndexedPrimitiveSet::create( false );
 	idxps.add( idxps[0] );
 	primitiveset->append( idxps.arr(), idxps.size() );
-	nearestpolygonmarker_->addPrimitiveSet( primitiveset );
+	nearestpolygonmarker_->addPrimitiveSet( primitiveset.ptr() );
 	nearestpolygonmarker_->turnOn( true );
     }
 }
@@ -805,7 +806,7 @@ void PolygonBodyDisplay::reMakeIntersectionSurface()
     }
 
     if ( ps->size()> 3)
-	intsurf_->addPrimitiveSet( ps );
+	intsurf_->addPrimitiveSet( ps.ptr() );
 }
 
 
@@ -857,16 +858,18 @@ void PolygonBodyDisplay::otherObjectsMoved(
 	positions += c10;
 
 	RefMan<visBase::VisualObject> usedobj = plane.getNonConstPtr();
-	const int idy = intersectionobjs_.indexOf( plane );
+	const int idy = intersectionobjs_.indexOf( plane.ptr() );
 	if ( idy==-1 )
 	{
-	    usedobjects += usedobj;
-	    planeids += explicitintersections_->addPlane( normal, positions );
+	    usedobjects += usedobj.ptr();
+	    planeids += explicitintersections_->addPlane( normal,
+							  positions );
 	}
 	else
 	{
-	    usedobjects += usedobj;
-	    explicitintersections_->setPlane(planeids_[idy], normal, positions);
+	    usedobjects += usedobj.ptr();
+	    explicitintersections_->setPlane( planeids_[idy], normal,
+					      positions );
 	    planeids += planeids_[idy];
 
 	    intersectionobjs_.removeSingle( idy );

@@ -281,10 +281,10 @@ void uiODViewer2D::makeUpView( FlatDataPack* indp,
     if ( !isVertical() && !mapdp && regfdp )
     {
 	viewwin()->viewer().appearance().annot_.x2_.reversed_ = false;
-	setDataPack( createMapDataPackRM( *regfdp ), dst, isnew );
+	setDataPack( createMapDataPackRM(*regfdp).ptr(), dst, isnew);
     }
     else
-	setDataPack( fdp, dst, isnew );
+	setDataPack( fdp.ptr(), dst, isnew);
 
     adjustOthrDisp( dst, isnew );
 
@@ -325,7 +325,7 @@ void uiODViewer2D::adjustOthrDisp( FlatView::Viewer::VwrDest dest, bool isnew )
     if ( newcs && othrdp )
 	setTrcKeyZSampling( cs );
 
-    setDataPack( othrdp, !wva, isnew );
+    setDataPack( othrdp.ptr(), !wva, isnew);
 }
 
 
@@ -344,7 +344,7 @@ void uiODViewer2D::setDataPack( FlatDataPack* indp,
     for ( int ivwr=0; ivwr<viewwin()->nrViewers(); ivwr++ )
     {
 	uiFlatViewer& vwr = viewwin()->viewer(ivwr);
-	vwr.setPack( dest, fdp, isnew );
+	vwr.setPack( dest, fdp.ptr(), isnew);
     }
 
     dataChanged.trigger( this );
@@ -378,7 +378,7 @@ void uiODViewer2D::setDataPack( DataPackID packid,
 
     auto& dpm = DPM(DataPackMgr::FlatID());
     RefMan<FlatDataPack> fdp = dpm.get<FlatDataPack>( packid );
-    setDataPack( fdp, dest, isnew );
+    setDataPack( fdp.ptr(), dest, isnew);
 }
 
 
@@ -681,7 +681,7 @@ void uiODViewer2D::setPos( const TrcKeyZSampling& tkzs )
 	dest = FlatView::Viewer::WVA;
     }
 
-    makeUpView( fdp, dest );
+    makeUpView( fdp.ptr(), dest);
     posChanged.trigger();
 }
 
@@ -841,7 +841,7 @@ bool getMapperSetup( uiODMain& appl, const Attrib::SelSpec& selspec,
     PtrMan<IOObj> ioobj = appl.applMgr().attrServer()->getIOObj(selspec);
     if ( !ioobj ) return false;
 
-    SeisIOObjInfo seisobj( ioobj );
+    SeisIOObjInfo seisobj( ioobj.ptr() );
     IOPar iop;
     if ( !seisobj.getDisplayPars(iop) )
 	return false;
@@ -1796,7 +1796,7 @@ void uiODViewer2D::setUpView( DataPackID packid, bool wva )
 								      !wva );
     DataPackMgr& dpm = DPM(DataPackMgr::FlatID());
     RefMan<FlatDataPack> fdp = dpm.get<FlatDataPack>( packid );
-    makeUpView( fdp, dest );
+    makeUpView( fdp.ptr(), dest);
 }
 
 
@@ -1805,7 +1805,7 @@ void uiODViewer2D::makeUpView( DataPackID packid,
 {
     DataPackMgr& dpm = DPM(DataPackMgr::FlatID());
     RefMan<FlatDataPack> fdp = dpm.get<FlatDataPack>( packid );
-    makeUpView( fdp, dst );
+    makeUpView( fdp.ptr(), dst);
 }
 
 

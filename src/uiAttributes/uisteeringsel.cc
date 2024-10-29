@@ -155,13 +155,13 @@ void uiSteeringSel::setDesc( const Attrib::Desc* ad )
     else if ( attribname == "CentralSteering" )
     {
 	type = 1;
-	inpfld_->setDesc( ad->getInput(0) );
+	inpfld_->setDesc( ad->getInput(0).ptr() );
 	inpfld_->getHistory( uiSteerSelinpSelHist(is2d_) );
     }
     else if ( attribname == "FullSteering" )
     {
 	type = 2;
-	inpfld_->setDesc( ad->getInput(0) );
+	inpfld_->setDesc( ad->getInput(0).ptr() );
 	inpfld_->getHistory( uiSteerSelinpSelHist(is2d_) );
     }
 
@@ -221,7 +221,7 @@ DescID uiSteeringSel::descID()
 	BufferString userref = attribnm;
 	desc->setUserRef( userref );
 	desc->setHidden(true);
-	return ads->addDesc( desc );
+	return ads->addDesc( desc.ptr() );
     }
 
     inpfld_->processInput();
@@ -237,7 +237,7 @@ DescID uiSteeringSel::descID()
     for ( int idx=0; idx<descset_->size(); idx++ )
     {
 	const DescID descid = descset_->getID( idx );
-	const Desc* desc = descset_->getDesc( descid );
+	ConstRefMan<Desc> desc = descset_->getDesc( descid );
 	if ( attribnm != desc->attribName() ) continue;
 
 	if ( desc->getInput(0) && desc->getInput(0)->id() == inldipid &&
@@ -250,8 +250,8 @@ DescID uiSteeringSel::descID()
 	return DescID::undef();
 
     DescSet* ads = const_cast<DescSet*>(descset_);
-    desc->setInput( 0, ads->getDesc(inldipid) );
-    desc->setInput( 1, ads->getDesc(crldipid) );
+    desc->setInput( 0, ads->getDesc(inldipid).ptr() );
+    desc->setInput( 1, ads->getDesc(crldipid).ptr() );
     desc->setHidden( true );
     desc->setSteering( true );
 
@@ -264,7 +264,7 @@ DescID uiSteeringSel::descID()
     desc->getDefStr(defstr);
     desc->parseDefStr(defstr);
 
-    return ads->addDesc( desc );
+    return ads->addDesc( desc.ptr() );
 }
 
 
@@ -313,7 +313,7 @@ DescID uiSteerAttrSel::getDipID( int dipnr ) const
     for ( int idx=0; idx<ads.size(); idx++ )
     {
 	const DescID descid = ads.getID( idx );
-	const Desc* desc = ads.getDesc( descid );
+	ConstRefMan<Desc> desc = ads.getDesc( descid );
 	if ( !desc->isStored() || desc->selectedOutput()!=dipnr )
 	    continue;
 
@@ -333,7 +333,7 @@ DescID uiSteerAttrSel::getDipID( int dipnr ) const
     desc->setUserRef( userref );
     desc->updateParams();
 
-    return const_cast<DescSet&>(ads).addDesc( desc );
+    return const_cast<DescSet&>(ads).addDesc( desc.ptr() );
 }
 
 

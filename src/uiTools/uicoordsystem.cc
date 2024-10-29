@@ -404,7 +404,7 @@ BufferString uiCoordSystemSel::getSummary() const
 
 uiLatLongSystemSel::uiLatLongSystemSel( uiParent* p, const uiString& seltxt,
 				  ConstRefMan<Coords::CoordSystem> coordsys )
-    : uiCoordSystemSel(p,false,true,coordsys,seltxt)
+    : uiCoordSystemSel(p,false,true,coordsys.ptr(),seltxt)
 {}
 
 

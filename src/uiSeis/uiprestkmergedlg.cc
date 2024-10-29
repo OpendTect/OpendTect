@@ -296,7 +296,7 @@ bool uiPreStackMergeDlg::acceptOK( CallBacker* )
     ObjectSet<const IOObj>& selobjsconst
 		= reinterpret_cast<ObjectSet<const IOObj>&>(selobjs);
     PtrMan<SeisPSMerger> exec =
-	new SeisPSMerger( selobjsconst, *outioobj, dostack, sd );
+	new SeisPSMerger( selobjsconst, *outioobj, dostack, sd.ptr() );
     exec->setName( "Merge Prestack Data Stores" );
     uiTaskRunner dlg( this );
     return TaskRunner::execute( &dlg, *exec );
@@ -372,7 +372,7 @@ bool uiPreStackOutputGroup::go()
 	sd = Seis::SelData::get( iop );
     }
 
-    SeisPSCopier copier( *inpioobj_, *outioobj, sd );
+    SeisPSCopier copier( *inpioobj_, *outioobj, sd.ptr() );
     float ofsrgstart = offsrgfld_->getFValue( 0 );
     float ofsrgstop = offsrgfld_->getFValue( 1 );
     if ( mIsUdf(ofsrgstart) )

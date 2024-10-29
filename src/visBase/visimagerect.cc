@@ -68,7 +68,7 @@ void ImageRect::setPick( const Pick::Location& loc )
 void ImageRect::setCenterPos( const Coord3& pos )
 {
     Coord3 newpos;
-    Transformation::transform( trans_, pos, newpos );
+    Transformation::transform( trans_.ptr(), pos, newpos );
     texplane_->setCenter( osg::Vec3(newpos.x_, newpos.y_, newpos.z_) );
 }
 

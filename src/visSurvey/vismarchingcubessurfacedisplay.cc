@@ -120,7 +120,7 @@ bool MarchingCubesDisplay::setVisSurface(visBase::MarchingCubesSurface* surface)
 
     emsurface_->setZSampling( surface->getScale( 2 ) );
 
-    EM::EMM().addObject( emsurface_ );
+    EM::EMM().addObject( emsurface_.ptr() );
 
     displaysurface_ = surface;
     displaysurface_->setSelectable( false );
@@ -304,7 +304,7 @@ void MarchingCubesDisplay::setIsopach( int attrib )
 	vals[valcol] = maxz-minz;
     }
 
-    setRandomPosData( attrib, data, nullptr );
+    setRandomPosData( attrib, data.ptr(), nullptr );
 
     if ( attribselchange )
     {
@@ -327,7 +327,7 @@ void MarchingCubesDisplay::setDepthAsAttrib( int attrib )
 	vals[valcol] = vals[0];
     }
 
-    setRandomPosData( attrib, data, nullptr );
+    setRandomPosData( attrib, data.ptr(), nullptr );
 
     if ( attribselchange )
     {
@@ -353,12 +353,12 @@ void MarchingCubesDisplay::getRandomPos( DataPointSet& dps,
     RefMan<visBase::Transformation> toincrltransf =
 					visBase::Transformation::create();
     toincrltransf->setScale(
-                Coord3(inlinesampling.step_, crlinesampling.step_, zsampling.step_));
+	Coord3(inlinesampling.step_, crlinesampling.step_, zsampling.step_));
     toincrltransf->setTranslation(
-                Coord3(inlinesampling.start_,crlinesampling.start_, zsampling.start_));
+	Coord3(inlinesampling.start_,crlinesampling.start_, zsampling.start_));
 
-    displaysurface_->getShape()->getAttribPositions( dps, toincrltransf,
-						     runner);
+    displaysurface_->getShape()->getAttribPositions( dps,
+					toincrltransf.ptr(), runner );
 }
 
 
@@ -654,15 +654,16 @@ void MarchingCubesDisplay::setDisplayTransformation( const mVisTrans* nt)
 
 	model2displayspacetransform_ = visBase::Transformation::create();
 	model2displayspacetransform_->setScale(
-                    Coord3(inlinesampling.step_, crlinesampling.step_, zsampling.step_));
+	  Coord3(inlinesampling.step_, crlinesampling.step_, zsampling.step_));
 	model2displayspacetransform_->setTranslation(
-                    Coord3(inlinesampling.start_,crlinesampling.start_, zsampling.start_));
+	 Coord3(inlinesampling.start_,crlinesampling.start_, zsampling.start_));
 
 	*model2displayspacetransform_ *= *nt;
     }
 
     if ( displaysurface_ )
-	displaysurface_->setDisplayTransformation(model2displayspacetransform_);
+	displaysurface_->setDisplayTransformation(
+					model2displayspacetransform_.ptr());
 
 }
 
@@ -866,7 +867,7 @@ void MarchingCubesDisplay::updateIntersectionDisplay()
 	if ( displayintersections_ )
 	{
 	    intsinfo_[idx]->visshape_->setDisplayTransformation(
-						intersectiontransform_ );
+						intersectiontransform_.ptr() );
 	    intsinfo_[idx]->visshape_->touch( false, false );
 	}
 

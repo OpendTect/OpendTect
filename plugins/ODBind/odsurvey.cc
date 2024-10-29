@@ -135,7 +135,7 @@ void odSurvey::makeCoordsList( OD::JSON::Array& points,
 	for ( const auto& coord : coords )
 	{
 	    auto* point = new OD::JSON::Array(OD::JSON::DataType::String);
-	    const LatLong ll( LatLong::transform(coord, true, coordsys) );
+	    const LatLong ll( LatLong::transform(coord, true, coordsys.ptr()) );
 	    point->add( strdup(toString(ll.lng_, 6)) );
 	    point->add( strdup(toString(ll.lat_, 6)) );
 	    points.add(point);

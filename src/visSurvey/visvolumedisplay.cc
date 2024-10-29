@@ -109,7 +109,7 @@ VolumeDisplay::VolumeDisplay()
     updateRanges( true, true );
 
     scalarfield_ = visBase::VolumeRenderScalarField::create();
-    setChannels2RGBA( visBase::ColTabTextureChannel2RGBA::create() );
+    setChannels2RGBA( visBase::ColTabTextureChannel2RGBA::create().ptr() );
     addAttrib();
 
     addChild( scalarfield_->osgNode() );
@@ -218,7 +218,7 @@ void VolumeDisplay::updateIsoSurfColor()
 
 bool VolumeDisplay::setZAxisTransform( ZAxisTransform* zat, TaskRunner* )
 {
-    if ( zat == datatransform_ )
+    if ( zat == datatransform_.ptr() )
 	return true;
 
     const bool haddatatransform = datatransform_;
@@ -251,7 +251,9 @@ bool VolumeDisplay::setZAxisTransform( ZAxisTransform* zat, TaskRunner* )
 
 
 const ZAxisTransform* VolumeDisplay::getZAxisTransform() const
-{ return datatransform_; }
+{
+    return datatransform_.ptr();
+}
 
 
 void VolumeDisplay::setRightHandSystem( bool yn )
@@ -396,7 +398,7 @@ VisID VolumeDisplay::addSlice( int dim )
     slice->setMaterial( nullptr );
     slice->setDim( dim );
     mAttachCB( slice->motion, VolumeDisplay::sliceMoving );
-    slices_ += slice;
+    slices_ += slice.ptr();
 
     slice->setUiName( dim==cTimeSlice() ? uiStrings::sTime() :
 		   (dim==cCrossLine()
@@ -494,7 +496,7 @@ VisID VolumeDisplay::addIsoSurface( TaskRunner* taskr, bool updateisosurface )
     isosurface->setSurface( *surface, taskr );
     isosurface->setUiName( toUiString("Iso surface") );
 
-    isosurfaces_ += isosurface;
+    isosurfaces_ += isosurface.ptr();
     IsosurfaceSetting setting;
     setting.isovalue_ = defaultIsoValue();
     isosurfsettings_ += setting;
@@ -530,9 +532,9 @@ VisID VolumeDisplay::volRenID() const
 		       cs.zsamp_.step_ ); \
 \
     Coord3 trans( center ); \
-    mVisTrans::transform( displaytrans_, trans ); \
+    mVisTrans::transform( displaytrans_.ptr(), trans ); \
     Coord3 scale( width + extrasteps*step ); \
-    mVisTrans::transformSize( displaytrans_, scale ); \
+    mVisTrans::transformSize( displaytrans_.ptr(), scale ); \
     trans += 0.5 * scale; \
     scale = Coord3( scale.z_, -scale.y_, -scale.x_ ); \
     scalarfield_->set##name##Transform( trans, Coord3(0,1,0), M_PI_2, scale ); \
@@ -842,7 +844,7 @@ mDefParallelCalcBody(
 void VolumeDisplay::updateIsoSurface( int idx, TaskRunner* taskr )
 {
     // TODO:: adapt to multi-attrib
-    const RegularSeisDataPack* cache = attribs_[0]->cache_;
+    const RegularSeisDataPack* cache = attribs_[0]->cache_.ptr();
     if ( !cache || cache->isEmpty() ||
 	 mIsUdf(isosurfsettings_[idx].isovalue_) )
 	isosurfaces_[idx]->getSurface()->removeAll();
@@ -1132,7 +1134,7 @@ bool VolumeDisplay::setSeisDataPack( int attrib,
 					 usedarray->info().getSize(1),
 					 usedarray->info().getSize(0) );
 
-    if ( attribs_[attrib]->cache_ != attribdata )
+    if ( attribs_[attrib]->cache_.ptr() != attribdata )
 	attribs_[attrib]->cache_ = attribdata;
 
     isinited_ = true;

@@ -34,7 +34,7 @@ int mProgMainFnName( int argc, char** argv )
     PIM().loadAuto( false );
     OD::ModDeps().ensureLoaded( "uiPreStackProcessing" );
     PtrMan<uiDialog> topdlg = new uiPreStackMMProc( nullptr, jobpars );
-    app.setTopLevel( topdlg );
+    app.setTopLevel( topdlg.ptr() );
     PIM().loadAuto( true );
     topdlg->show();
 

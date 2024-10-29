@@ -272,9 +272,9 @@ bool uiExportFault::writeAscii()
     const bool doxy = coordfld_->getBoolValue();
     const bool inclstickidx = stickidsfld_->isChecked( 0 );
     const bool inclknotidx = stickidsfld_->isChecked( 1 );
-    const Coords::CoordSystem* outcrs =
+    ConstRefMan<Coords::CoordSystem> outcrs =
 	coordsysselfld_ ? coordsysselfld_->getCoordSystem() : nullptr;
-    const Coords::CoordSystem* syscrs = SI().getCoordSystem();
+    ConstRefMan<Coords::CoordSystem> syscrs = SI().getCoordSystem();
     for ( int idx=0; idx<midset.size(); idx++ )
     {
 	EM::ObjectID objid = EM::EMM().getObjectID( midset[idx] );
@@ -304,16 +304,16 @@ bool uiExportFault::writeAscii()
 	    }
 
 	    BufferString str;
-	    const int nrsticks = nrSticks( fltobj );
+	    const int nrsticks = nrSticks( fltobj.ptr() );
 	    mDynamicCastGet(Geometry::FaultStickSet*,fssgeom,
 						    fltobj->geometryElement())
 	    for ( int stickidx=0; stickidx<nrsticks; stickidx++ )
 	    {
-		const int nrknots = nrKnots( fltobj, stickidx );
+		const int nrknots = nrKnots( fltobj.ptr(), stickidx );
 		const Geometry::FaultStick* fs = fssgeom->getStick( stickidx );
 		for ( int knotidx=0; knotidx<nrknots; knotidx++ )
 		{
-		    Coord3 crd = getCoord( fltobj, stickidx, knotidx );
+		    Coord3 crd = getCoord( fltobj.ptr(), stickidx, knotidx );
 		    if ( !crd.isDefined() )
 			continue;
 
@@ -353,8 +353,7 @@ bool uiExportFault::writeAscii()
 
 		    if ( fss )
 		    {
-			const int sticknr =
-			    stickNr( fltobj, stickidx );
+			const int sticknr = stickNr( fltobj.ptr(), stickidx );
 			bool pickedon2d =
 			    fss->geometry().pickedOn2DLine( sticknr );
 			if ( pickedon2d && linenmfld_->isChecked() )

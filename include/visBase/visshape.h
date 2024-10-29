@@ -40,8 +40,10 @@ mExpClass(visBase) Shape : public VisualObject
 {
 public:
 
-    inline const Material*	getMaterial() const	{ return material_; }
-    inline Material*		getMaterial() override	{ return material_; }
+    inline const Material*	getMaterial() const
+				{ return material_.ptr(); }
+    inline Material*		getMaterial() override
+				{ return material_.ptr(); }
     void			setMaterial(Material*) override;
 
     void			setMaterialBinding(int);
@@ -93,8 +95,9 @@ public:
     const TextureCoords* getTextureCoords() const { return gtTextureCoords(); }
 
     virtual  void	  setCoordinates(Coordinates*);
-    virtual  Coordinates* getCoordinates() { return coords_; }
-    virtual  const Coordinates*   getCoordinates() const { return coords_; }
+    virtual  Coordinates* getCoordinates()	{ return coords_.ptr(); }
+    virtual  const Coordinates* getCoordinates() const
+				{ return coords_.ptr(); }
     virtual  void	  setLineStyle(const OD::LineStyle&){};
 
     void		removeSwitch();

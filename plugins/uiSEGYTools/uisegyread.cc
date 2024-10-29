@@ -199,12 +199,12 @@ void uiSEGYRead::readReq( CallBacker* cb )
     if ( !ioobj ) return;
 
     if ( rddlg )
-	rddlg->use( ioobj, false );
+	rddlg->use( ioobj.ptr(), false );
     else
     {
 	FileReadOpts::shallowClear( pars_ );
 	pars_.merge( ioobj->pars() );
-	defdlg_->use( ioobj, false );
+	defdlg_->use( ioobj.ptr(), false );
     }
 }
 

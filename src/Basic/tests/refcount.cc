@@ -198,7 +198,7 @@ bool testRefObjectSet()
 	ref_os += new ReferencedClass( &deleted1 );
 
 	RefMan<ReferencedClass> holder2 = new ReferencedClass( &deleted2 );
-	ref_os.replace( 0, holder2 );
+	ref_os.replace( 0, holder2.ptr() );
 
 	mRunStandardTest( deleted1 && !deleted2 && holder2->nrRefs()==2,
 			 "Number of refs after RefObjectSet::replace");
@@ -209,7 +209,7 @@ bool testRefObjectSet()
 	ref_os += new ReferencedClass( &deleted1 );
 
 	RefMan<ReferencedClass> holder2 = new ReferencedClass( &deleted2 );
-	ref_os.insertAt( holder2, 0 );
+	ref_os.insertAt( holder2.ptr(), 0 );
 
 	mRunStandardTest( !deleted1 && !deleted2 && holder2->nrRefs()==2,
 			 "Number of refs after RefObjectSet::insertAt");
@@ -220,7 +220,7 @@ bool testRefObjectSet()
 	ref_os += new ReferencedClass( &deleted1 );
 
 	RefMan<ReferencedClass> holder2 = new ReferencedClass( &deleted2 );
-	ref_os.insertAfter( holder2, 0 );
+	ref_os.insertAfter( holder2.ptr(), 0 );
 
 	mRunStandardTest( !deleted1 && !deleted2 && holder2->nrRefs()==2,
 			 "Number of refs after RefObjectSet::insertAfter");

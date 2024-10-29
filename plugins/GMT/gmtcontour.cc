@@ -106,7 +106,7 @@ bool GMTContour::doExecute( od_ostream& strm, const char* fnm )
 
     sd.rg.usePar( *subpar );
     PtrMan<EM::SurfaceIODataSelection> sel = new EM::SurfaceIODataSelection(sd);
-    PtrMan<Executor> exec = EM::EMM().objectLoader( id, sel );
+    PtrMan<Executor> exec = EM::EMM().objectLoader( id, sel.ptr() );
     if ( !exec || !exec->execute() )
 	mErrStrmRet("Cannot load horizon")
 

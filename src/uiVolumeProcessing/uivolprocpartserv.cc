@@ -58,7 +58,8 @@ void uiVolProcPartServer::doVolProc( const MultiID* mid, const char* steptype,
     if ( ioobj )
     {
 	uiString errmsg;
-	if ( !VolProcessingTranslator::retrieve(*vprocchain,ioobj,errmsg) )
+	if ( !VolProcessingTranslator::retrieve(*vprocchain,
+						ioobj.ptr(),errmsg))
 	{
 	    uiString fms( uiStrings::phrCannotRead( ioobj->uiName() ) );
 	    if ( !errmsg.isEmpty() )
@@ -98,7 +99,7 @@ void uiVolProcPartServer::volprocchainDlgClosed( CallBacker* cb )
 	return;
 
     PtrMan<IOObj> ioobj = IOM().get( vprocchain->storageID() );
-    createVolProcOutput( ioobj, is2d );
+    createVolProcOutput( ioobj.ptr(), is2d);
 }
 
 

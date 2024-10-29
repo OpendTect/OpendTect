@@ -560,7 +560,7 @@ bool ParallelTask::executeParallel( bool parallel )
 	if ( stopAllOnFailure() )
 	    enableWorkControl( true );
 
-	res = twm.executeWork( tasks, nrtasks );
+	res = twm.executeWork( mVarLenArr(tasks), nrtasks );
     }
 
     res = doFinish( res );

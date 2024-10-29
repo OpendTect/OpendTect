@@ -92,8 +92,8 @@ public:
     virtual bool		needsFullVolume() const { return true; }
     virtual bool		canHandle2D() const	{ return false; }
 
-    const RegularSeisDataPack*	getOutput() const	{ return output_; }
-    RegularSeisDataPack*	getOutput()		{ return output_; }
+    const RegularSeisDataPack*	getOutput() const	{ return output_.ptr();}
+    RegularSeisDataPack*	getOutput()		{ return output_.ptr();}
 
     virtual const VelocityDesc* getVelDesc() const	{ return 0; } // old
 

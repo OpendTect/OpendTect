@@ -178,7 +178,7 @@ void odHorizon3D::save()
 	if ( !hor3d )
 	    return;
 
-	if ( hor3d->setArray2D(array_, tk_.start_, tk_.step_) )
+	if ( hor3d->setArray2D(array_.ptr(),tk_.start_,tk_.step_) )
 	{
 	    PtrMan<Executor> saver = hor3d->saver();
 	    if (!saver || !TaskRunner::execute(nullptr, *saver.ptr()) )

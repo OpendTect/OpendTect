@@ -196,7 +196,7 @@ bool StoredFunctionSource::store( const MultiID& velid )
 
     ps->setZDomain( zDomain() );
     desc_.fillPar( ps->pars_ );
-    if ( !PickSetTranslator::store(*ps,ioobj,errmsg_) )
+    if ( !PickSetTranslator::store(*ps,ioobj.ptr(),errmsg_) )
 	return false;
 
     fillIOObjPar( ioobj->pars() );
@@ -226,7 +226,7 @@ bool StoredFunctionSource::setFrom( const MultiID& velid )
 	return false;
 
     RefMan<Pick::Set> ps = new Pick::Set( ioobj->name() );
-    if ( !PickSetTranslator::retrieve(*ps,ioobj,false,errmsg_) )
+    if ( !PickSetTranslator::retrieve(*ps,ioobj.ptr(),false,errmsg_) )
 	return false;
 
     if ( !desc_.usePar(ps->pars_) )

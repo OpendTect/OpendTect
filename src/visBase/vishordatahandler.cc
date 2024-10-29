@@ -87,7 +87,7 @@ void HorizonSectionDataHandler::updateZAxisVOI()
 
 void HorizonSectionDataHandler::setZAxisTransform( ZAxisTransform* zt )
 {
-    if ( zaxistransform_==zt )
+    if ( zaxistransform_.ptr()==zt )
 	return ;
 
     removeZTransform();
@@ -179,7 +179,7 @@ bool doWork( od_int64 start, od_int64 stop, int threadidx ) override
 
 	vals[0] = zval;
 	BinIDValueSet::SPos bidpos = bivs_.find( bid );
-	bivs_.set( bidpos, vals );
+	bivs_.set( bidpos, mVarLenArr(vals) );
     }
 
     return true;
@@ -227,8 +227,8 @@ void HorizonSectionDataHandler::generatePositionData( DataPointSet& dtpntset,
 	bivs.add( bid );
     }
 
-    DataPointSetFiller filler( bivs, *horsection_, zaxistransform_,
-			       zshift, vals );
+    DataPointSetFiller filler( bivs, *horsection_, zaxistransform_.ptr(),
+			       zshift, mVarLenArr(vals) );
     filler.execute();
 }
 

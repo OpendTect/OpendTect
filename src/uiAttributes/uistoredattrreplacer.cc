@@ -139,18 +139,18 @@ void uiStoredAttribReplacer::getStoredIds( const IOPar& iopar )
 		spacepos++;
 	    mAllocVarLenArr( char, storagestr, spacepos-equalpos+1 );
 #ifdef __win__
-	    strncpy_s( storagestr, spacepos-equalpos+1,
+	    strncpy_s( mVarLenArr(storagestr), spacepos-equalpos+1,
 #else
-	    strncpy( storagestr,
+	    strncpy( mVarLenArr(storagestr),
 #endif
 		    &defstring[equalpos], spacepos-equalpos);
 	    storagestr[spacepos-equalpos] = 0;
-	    if ( storageidstr.addIfNew(storagestr) )
+	    if ( storageidstr.addIfNew(mVarLenArr(storagestr)) )
 	    {
 		const BufferString storedref = descpar->find(
 						Attrib::DescSet::userRefStr() );
 		MultiID key;
-		key.fromString( storagestr );
+		key.fromString( mVarLenArr(storagestr) );
 		storedids_ += StoredEntry( DescID(idx,false), key, storedref );
 	    }
 	    else
@@ -158,7 +158,7 @@ void uiStoredAttribReplacer::getStoredIds( const IOPar& iopar )
 		for ( int idy=0; idy<storedids_.size(); idy++ )
 		{
 		    MultiID key;
-		    key.fromString( storagestr );
+		    key.fromString( mVarLenArr(storagestr) );
 		    if ( key == storedids_[idy].key_ )
 		    {
 			int outprevlisted =
@@ -358,13 +358,14 @@ bool acceptOK( CallBacker* ) override
 	const StringView dpnm( DataPackMgr::nameOf(dpfids_[seldpidx]) );
 	if ( attrset_ )
 	{
-	    Desc* ad = attrset_->getDesc( storedid.firstid_ );
+	    RefMan<Desc> ad = attrset_->getDesc( storedid.firstid_ );
 	    ad->changeStoredID( dbky.toString() );
 	    ad->setUserRef( dpnm );
 	}
 	else
 	{
-	    IOPar* descpar = attrdspar_->subselect( storedid.firstid_.asInt() );
+	    PtrMan<IOPar> descpar =
+		attrdspar_->subselect( storedid.firstid_.asInt() );
 	    setDefinitionKey( *descpar, dbky.toString() );
 	    descpar->set( "UserRef", dpnm );
 	    BufferString idstr;
@@ -439,7 +440,7 @@ void uiStoredAttribReplacer::handleSingleInput()
     }
     else if ( attrset_ )
     {
-	Desc* ad = attrset_->getDesc( storedids_[0].firstid_ );
+	RefMan<Desc> ad = attrset_->getDesc( storedids_[0].firstid_ );
 	if ( !ad )
 	{
 	    uiMSG().error( tr("Cannot replace stored entries") );
@@ -451,16 +452,17 @@ void uiStoredAttribReplacer::handleSingleInput()
     {
 	if ( attrset_ )
 	{
-	    Desc* ad = attrset_->getDesc( storedids_[seisinpidx[idx]].firstid_);
+	    RefMan<Desc> ad =
+		attrset_->getDesc( storedids_[seisinpidx[idx]].firstid_);
 	    ad->changeStoredID( dlg.getSeisKeyFromIndex(idx) );
 	    ad->setUserRef( dlg.getSeisRefFromIndex(idx) );
 	}
 	else
 	{
 	    if ( !iopar_ ) return;
-	    IOPar* descpar = iopar_->subselect(
+	    PtrMan<IOPar> descpar = iopar_->subselect(
 				storedids_[seisinpidx[idx]].firstid_.asInt() );
-	    setStoredKey( descpar, dlg.getSeisKeyFromIndex(idx) );
+	    setStoredKey( descpar.ptr(), dlg.getSeisKeyFromIndex(idx) );
 	    descpar->set( "UserRef", dlg.getSeisRefFromIndex(idx) );
 	    BufferString idstr;
 	    idstr+= storedids_[seisinpidx[idx]].firstid_.asInt();
@@ -475,8 +477,8 @@ void uiStoredAttribReplacer::handleSingleInput()
 	    StoredEntry storeentry = storedids_[steerinpidx[idx]];
 	    const int ouputidx = attrset_->getDesc(
 		DescID( storeentry.firstid_.asInt(), false ))->selectedOutput();
-	    Desc* adsteerinl = 0;
-	    Desc* adsteercrl = 0;
+	    RefMan<Desc> adsteerinl;
+	    RefMan<Desc> adsteercrl;
 	    if ( ouputidx == 0 )
 	    {
 		adsteerinl = attrset_->getDesc(
@@ -552,7 +554,7 @@ void uiStoredAttribReplacer::handleMultiInput()
 	{
 	    if ( attrset_ )
 	    {
-		Desc* ad = attrset_->getDesc( storedid );
+		RefMan<Desc> ad = attrset_->getDesc( storedid );
 		BufferString seisref = dlg.getSeisRef();
 		if ( seisref.isEmpty() )
 		    removeDescsWithBlankInp( storedid );
@@ -565,8 +567,8 @@ void uiStoredAttribReplacer::handleMultiInput()
 	    else
 	    {
 		if ( !iopar_ ) return;
-		IOPar* descpar = iopar_->subselect( storedid.asInt() );
-		setStoredKey( descpar, dlg.getSeisKey() );
+		PtrMan<IOPar> descpar = iopar_->subselect( storedid.asInt() );
+		setStoredKey( descpar.ptr(), dlg.getSeisKey() );
 		descpar->set( "UserRef", dlg.getSeisRef() );
 		BufferString idstr; idstr+= storedid.asInt();
 		iopar_->mergeComp( *descpar, idstr );
@@ -586,8 +588,8 @@ void uiStoredAttribReplacer::handleMultiInput()
 		const int ouputidx = attrset_->getDesc(
 			DescID(storeentry.firstid_.asInt(),false))->
 			    selectedOutput();
-		Desc* adsteerinl = 0;
-		Desc* adsteercrl = 0;
+		RefMan<Desc> adsteerinl;
+		RefMan<Desc> adsteercrl;
 		if ( ouputidx == 0 )
 		{
 		    adsteerinl = attrset_->getDesc(
@@ -635,7 +637,7 @@ void uiStoredAttribReplacer::getUserRef( const DescID& storedid,
 	for ( int idx=0; idx<attrset_->size(); idx++ )
 	{
 	    const DescID descid = attrset_->getID( idx );
-	    Desc* ad = attrset_->getDesc( descid );
+	    RefMan<Desc> ad = attrset_->getDesc( descid );
 	    if ( !ad || ad->isStored() || ad->isHidden() ) continue;
 
 	    if ( hasInput(*ad,storedid) )
@@ -660,7 +662,7 @@ void uiStoredAttribReplacer::getStoredIds()
     for ( int idx=0; idx<attrset_->size(); idx++ )
     {
 	const DescID descid = attrset_->getID( idx );
-	Desc* ad = attrset_->getDesc( descid );
+	RefMan<Desc> ad = attrset_->getDesc( descid );
 	if ( !ad || !ad->isStored() )
 	    continue;
 
@@ -692,7 +694,7 @@ bool uiStoredAttribReplacer::hasInput( const Desc& desc,
 {
     for ( int idx=0; idx<desc.nrInputs(); idx++ )
     {
-	const Desc* inp = desc.getInput( idx );
+	ConstRefMan<Desc> inp = desc.getInput( idx );
 	if ( !inp )
 	{
 	    if ( desc.inputSpec(idx).enabled_ )
@@ -706,7 +708,7 @@ bool uiStoredAttribReplacer::hasInput( const Desc& desc,
 
     for ( int idx=0; idx<desc.nrInputs(); idx++ )
     {
-	const Desc* inp = desc.getInput( idx );
+	ConstRefMan<Desc> inp = desc.getInput( idx );
 	if ( inp && inp->isHidden() && inp->nrInputs() )
 	return hasInput( *inp, id );
     }
@@ -720,7 +722,7 @@ void uiStoredAttribReplacer::removeDescsWithBlankInp(
     for ( int idx=attrset_->size()-1; idx>=0; idx-- )
     {
 	const DescID descid = attrset_->getID( idx );
-	Desc* ad = attrset_->getDesc( descid );
+	RefMan<Desc> ad = attrset_->getDesc( descid );
 	if ( !ad || ad->isStored() ) continue;
 
 	if ( hasInput(*ad,storedid) )

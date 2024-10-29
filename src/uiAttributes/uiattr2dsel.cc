@@ -126,7 +126,7 @@ void uiAttr2DSelDlg::initFields( const Attrib::DescSet& ds )
 	for ( int idx=ds.size()-1; idx!=-1; idx-- )
 	{
 	    const DescID attrid = ds.getID( idx );
-	    const Desc* ad = ds.getDesc( attrid );
+	    ConstRefMan<Desc> ad = ds.getDesc( attrid );
 	    if ( !ad || ad->isStored() )
 		continue;
 

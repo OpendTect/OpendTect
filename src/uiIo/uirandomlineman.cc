@@ -61,7 +61,8 @@ void uiRandomLineMan::exportToGISCB( CallBacker* )
 	    continue;
 
 	Geometry::RandomLineSet rdls;
-	const bool res = RandomLineSetTranslator::retrieve( rdls, obj, errmsg );
+	const bool res =
+		RandomLineSetTranslator::retrieve( rdls, obj.ptr(), errmsg );
 	if ( !res )
 	    continue;
 
@@ -86,7 +87,7 @@ void uiRandomLineMan::exportToGISCB( CallBacker* )
 	if ( pickset->isEmpty() )
 	    continue;
 
-	gisdata.add( pickset );
+	gisdata.add( pickset.ptr() );
     }
 
     if ( gisdata.isEmpty() )

@@ -185,7 +185,7 @@ void uiODView2DVariableDensityTreeItem::dataTransformCB( CallBacker* )
 
     auto dp = createDataPackRM( selspec );
     if ( dp )
-	viewer2D()->makeUpView( dp, FlatView::Viewer::VD );
+	viewer2D()->makeUpView( dp.ptr(), FlatView::Viewer::VD);
 }
 
 
@@ -313,7 +313,7 @@ bool uiODView2DVariableDensityTreeItem::handleSelMenu( int mnuid )
 	ddpars.vd_.show_ = true;
     }
 
-    viewer2D()->makeUpView( fdp, FlatView::Viewer::VD );
+    viewer2D()->makeUpView( fdp.ptr(), FlatView::Viewer::VD);
     return true;
 }
 
@@ -353,7 +353,7 @@ RefMan<SeisFlatDataPack> uiODView2DVariableDensityTreeItem::createDataPackRM(
 	    selas.setRefFromID( *ds );
 	    selas.setUserRef( attrbnm );
 
-	    const Attrib::Desc* targetdesc = ds->getDesc( attribid );
+	    ConstRefMan<Attrib::Desc> targetdesc = ds->getDesc( attribid );
 	    if ( !targetdesc )
 		return nullptr;
 

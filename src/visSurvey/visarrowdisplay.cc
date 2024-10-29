@@ -46,7 +46,7 @@ void ArrowDisplay::setDisplayTransformation( const mVisTrans* tf )
 
 const mVisTrans* ArrowDisplay::getDisplayTransformation() const
 {
-    return displaytransform_;
+    return displaytransform_.ptr();
 }
 
 
@@ -103,12 +103,12 @@ RefMan<visBase::VisualObject> ArrowDisplay::createLocation() const
     RefMan<visBase::Lines> lines = visBase::Lines::create();
     lines->setMaterial( nullptr );
     lines->setSelectable( true );
-    lines->setDisplayTransformation( displaytransform_ );
+    lines->setDisplayTransformation( displaytransform_.ptr() );
     lines->addNodeState( linestyle_.getNonConstPtr() );
     RefMan<Geometry::IndexedPrimitiveSet> indices =
 				Geometry::IndexedPrimitiveSet::create( false );
-    lines->addPrimitiveSet( indices );
-    updateLineIndices( lines );
+    lines->addPrimitiveSet( indices.ptr() );
+    updateLineIndices( lines.ptr() );
     return lines;
 }
 

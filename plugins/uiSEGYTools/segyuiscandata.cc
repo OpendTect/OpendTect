@@ -368,7 +368,7 @@ void SEGY::LoadDef::getFilePars( SEGY::FilePars& fpars ) const
 {
     BasicFileInfo::getFilePars( fpars );
     if ( coordsys_ )
-      fpars.setCoordSys( coordsys_ );
+      fpars.setCoordSys( coordsys_.ptr() );
     if ( usenrsampsinfile_ )
 	fpars.ns_ = 0;
     if ( useformatinfile_ )
@@ -589,7 +589,8 @@ void SEGY::ScanInfo::getFromSEGYBody( od_istream& strm, const LoadDef& indef,
     mAllocLargeVarLenArr( char, buf, def.traceDataBytes() );
     mAllocLargeVarLenArr( float, vals, def.ns_ );
 
-    PtrMan<TrcHeader> thdr = def.getTrace( strm, buf, vals );
+    PtrMan<TrcHeader> thdr = def.getTrace( strm,
+					   mVarLenArr(buf), mVarLenArr(vals) );
     idxfirstlive_ = 0;
     if ( !thdr )
 	{ finishGet(strm); return; }
@@ -597,7 +598,7 @@ void SEGY::ScanInfo::getFromSEGYBody( od_istream& strm, const LoadDef& indef,
     {
 	// skip dead traces to get at least the first good trace
 	idxfirstlive_++;
-	thdr = def.getTrace( strm, buf, vals );
+	thdr = def.getTrace( strm, mVarLenArr(buf), mVarLenArr(vals) );
 	if ( !thdr )
 	    { finishGet(strm); return; }
     }
@@ -606,21 +607,26 @@ void SEGY::ScanInfo::getFromSEGYBody( od_istream& strm, const LoadDef& indef,
     offscalc.type_ = def.psoffssrc_; offscalc.def_ = def.psoffsdef_;
     offscalc.is2d_ = is2D(); offscalc.coordscale_ = def.coordscale_;
 
-    addTrace( *thdr, vals, def, clipsampler, offscalc, idxfirstlive_ );
+    addTrace( *thdr, mVarLenArr(vals), def,
+	      clipsampler, offscalc, idxfirstlive_ );
 
     if ( fullscanrunner )
     {
-	FullUIScanner scanner( *this, strm, def, buf, vals,
+	FullUIScanner scanner( *this, strm, def,
+			       mVarLenArr(buf), mVarLenArr(vals),
 			       clipsampler, offscalc );
 	TaskRunner::execute( fullscanrunner, scanner );
     }
     else
     {
-#define	mAddTrcs() addTraces(strm,trcrg,buf,vals,def,clipsampler,offscalc)
+#define mAddTrcs() addTraces(strm,trcrg,mVarLenArr(buf), \
+			     mVarLenArr(vals),def,clipsampler,offscalc)
+
 	Interval<int> trcrg( 1, cQuickScanNrTrcsAtEnds );
 	mAddTrcs();
 	if ( !is2D() && indef.forsurveysetup_ )
-	    ensureStepsFound( strm, buf, vals, def, clipsampler, offscalc );
+	    ensureStepsFound( strm, mVarLenArr(buf), mVarLenArr(vals),
+			      def, clipsampler, offscalc );
 	trcrg.start_ = nrtrcs_/3 - cQuickScanNrTrcsInMiddle/2;
 	trcrg.stop_ = trcrg.start_ + cQuickScanNrTrcsInMiddle - 1;
 	mAddTrcs();

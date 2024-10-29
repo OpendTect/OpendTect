@@ -108,7 +108,8 @@ void NLADataPreparer::balance( const NLADataPreparer::BalanceSetup& setup )
 	BinIDValueSet& bvs = *bvss[idx];
 	const int totsz = mCast( int, bvs.totalSize() );
 	if ( totsz < setup.nrptsperclss )
-	    addVecs( bvs, setup.nrptsperclss - totsz, setup.noiselvl, rgs );
+	    addVecs( bvs, setup.nrptsperclss - totsz, setup.noiselvl,
+		     mVarLenArr(rgs) );
 	else
 	    bvs.randomSubselect( totsz - setup.nrptsperclss );
 	bvs_.append( bvs );
@@ -146,7 +147,7 @@ void NLADataPreparer::addVecs( BinIDValueSet& bvs, int nr, float noiselvl,
 		newvals[validx] = (float) (vals[validx] +
 				  ((gen_.get()-0.5) * wdth));
 	    }
-	    bvsnew.add( bid, newvals );
+	    bvsnew.add( bid, mVarLenArr(newvals) );
 	}
     }
     bvs.append( bvsnew );

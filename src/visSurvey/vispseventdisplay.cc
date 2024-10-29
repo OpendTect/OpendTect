@@ -341,7 +341,8 @@ void PSEventDisplay::otherObjectsMoved(
 	    pao = new ParentAttachedObject( newparentsid[idx] );
 	    addChild( pao->objectgroup_->osgNode() );
 	    parentattached_ += pao;
-	    pao->objectgroup_->setDisplayTransformation( displaytransform_ );
+	    pao->objectgroup_->setDisplayTransformation(
+						displaytransform_.ptr() );
 	}
 
 	if ( displaymode_==FullOnSections || displaymode_==FullOnGathers ||
@@ -454,7 +455,7 @@ void PSEventDisplay::updateDisplay( ParentAttachedObject* pao )
 	if ( !gather )
 	{
 	    pao->objectgroup_->removeObject(
-		pao->objectgroup_->getFirstIdx( pao->markerset_ ) );
+		pao->objectgroup_->getFirstIdx( pao->markerset_.ptr() ) );
 
 	    pao->markerset_->clearMarkers();
 
@@ -498,15 +499,15 @@ void PSEventDisplay::updateDisplay( ParentAttachedObject* pao )
 
     pao->eventsets_.erase();
     pao->tks_ = cs.hsamp_;
-    pao->objectgroup_->addObject( pao->markerset_ );
+    pao->objectgroup_->addObject( pao->markerset_.ptr() );
     pao->markerset_->setMarkerStyle( markerstyle_ );
 
     if ( fullevent && !pao->lines_ )
     {
 	pao->lines_ = visBase::PolyLine3D::create();
 	pao->lines_->setLineStyle( linestyle_->lineStyle() );
-	pao->objectgroup_->addObject( pao->lines_ );
-	pao->lines_->setDisplayTransformation( displaytransform_ );
+	pao->objectgroup_->addObject( pao->lines_.ptr() );
+	pao->lines_->setDisplayTransformation( displaytransform_.ptr() );
     }
 
     int cii = 0;
@@ -531,7 +532,7 @@ void PSEventDisplay::updateDisplay( ParentAttachedObject* pao )
 	    eventrg.start_ = eventrg.stop_ = eventidx;
 	}
 
-	pao->eventsets_ += eventset;
+	pao->eventsets_ += eventset.ptr();
 	if ( markercolor_==Single )
 	    pao->markerset_->setMarkersSingleColor( eventman_->getColor() );
 	else
@@ -597,7 +598,7 @@ void PSEventDisplay::updateDisplay( ParentAttachedObject* pao )
 				    Geometry::RangePrimitiveSet::create();
 		Interval<int> range( cii,size-1 );
 		ps->setRange( range );
-		pao->lines_->addPrimitiveSet( ps );
+		pao->lines_->addPrimitiveSet( ps.ptr() );
 		cii = pao->lines_->getCoordinates()->size();
 	    }
 	}
@@ -741,7 +742,7 @@ void PSEventDisplay::retriveParents()
     auto* pao = new ParentAttachedObject( parentid ); \
     addChild( pao->objectgroup_->osgNode() ); \
     parentattached_ += pao; \
-    pao->objectgroup_->setDisplayTransformation( displaytransform_); \
+    pao->objectgroup_->setDisplayTransformation( displaytransform_.ptr() ); \
     updateDisplay( pao );
 
     for ( int idx=0; idx<scene_->size(); idx++ )
@@ -781,7 +782,7 @@ PSEventDisplay::ParentAttachedObject::ParentAttachedObject( const VisID& parent)
     , objectgroup_(visBase::DataObjectGroup::create())
     , markerset_(visBase::MarkerSet::create())
 {
-    objectgroup_->addObject( markerset_ );
+    objectgroup_->addObject( markerset_.ptr() );
 }
 
 

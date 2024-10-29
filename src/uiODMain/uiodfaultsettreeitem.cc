@@ -226,7 +226,7 @@ bool uiODFaultSetTreeItem::init()
 	    fd->setEMObjectID( emid_ );
 	}
 
-	visserv_->addObject( fd, sceneID(), true );
+	visserv_->addObject( fd.ptr(), sceneID(), true);
     }
 
     mDynamicCastGet( visSurvey::FaultSetDisplay*, fd,

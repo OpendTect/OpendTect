@@ -275,7 +275,7 @@ bool SeisTrcTranslator::commitSelections()
 	inpfor_[0] = inpnrs[0];
     else
     {
-	sort_coupled( (int*)selnrs, (int*)inpnrs, nrsel );
+	sort_coupled( mVarLenArr(selnrs), mVarLenArr(inpnrs), nrsel );
 	for ( int idx=0; idx<nrout_; idx++ )
 	    inpfor_[idx] = inpnrs[idx];
     }
@@ -702,7 +702,7 @@ bool SeisTrcTranslator::getRanges( const IOObj& ioobj, TrcKeyZSampling& cs )
     {
 	sd = Seis::SelData::get( Seis::Range );
 	sd->setGeomID( cs.hsamp_.getGeomID() );
-	tr->setSelData( sd );
+	tr->setSelData( sd.ptr() );
     }
 
     mDynamicCastGet(const IOStream*,iostrmptr,&ioobj)

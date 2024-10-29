@@ -131,16 +131,16 @@ void uiDataPointSetPickDlg::initPickSet()
 
     RefMan<Pick::Set> ps = new Pick::Set( "DPS picks" );
     ps->disp_.color_ = OD::Color( 255, 0, 0 );
-    psd_->setSet( ps );
+    psd_->setSet( ps.ptr() );
     psd_->setSetMgr( &picksetmgr_ );
-    picksetmgr_.set( getMultiID(sceneid_), ps );
+    picksetmgr_.set( getMultiID(sceneid_), ps.ptr() );
     mAttachCB( picksetmgr_.locationChanged,
 	       uiDataPointSetPickDlg::locChgCB );
     mAttachCB( picksetmgr_.setChanged, uiDataPointSetPickDlg::pickCB );
 
     RefMan<visSurvey::Scene> scene = vispartserv_->getScene( sceneid_ );
     if ( scene )
-	scene->addObject( psd_ );
+	scene->addObject( psd_.ptr() );
 }
 
 
@@ -283,7 +283,7 @@ void uiDataPointSetPickDlg::rowClickCB( CallBacker* cb )
 void uiDataPointSetPickDlg::locChgCB( CallBacker* cb )
 {
     mDynamicCastGet(Pick::SetMgr::ChangeData*,cd,cb)
-    if ( !cd || !psd_ || (cd->set_ != psd_->getSet()) )
+    if ( !cd || !psd_ || (cd->set_ != psd_->getSet().ptr()) )
 	return;
 
     if ( cd->ev_ == Pick::SetMgr::ChangeData::Added )

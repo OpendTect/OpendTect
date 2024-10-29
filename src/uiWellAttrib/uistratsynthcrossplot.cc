@@ -181,7 +181,7 @@ RefMan<DataPointSet> uiStratSynthCrossplot::getData(
     //If default Desc(s) present remove them
     for ( int idx=seisattrs.size()-1; idx>=0; idx-- )
     {
-	const Attrib::Desc* tmpdesc = seisattrs.desc(idx);
+	ConstRefMan<Attrib::Desc> tmpdesc = seisattrs.desc(idx);
 	if ( tmpdesc && tmpdesc->isStored() && !tmpdesc->isStoredInMem() )
 	    const_cast<Attrib::DescSet*>(&seisattrs)->removeDesc(tmpdesc->id());
     }

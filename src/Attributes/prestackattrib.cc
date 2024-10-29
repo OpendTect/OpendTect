@@ -163,8 +163,8 @@ PSAttrib::PSAttrib( Desc& ds )
 	const OD::GeomSystem gs = ds.is2D() ? OD::Geom2D : OD::Geom3D;
 	preprocessor_ = new PreStack::ProcessManager( gs );
 	uiString errmsg;
-	if ( !PreStackProcTranslator::retrieve(*preprocessor_,preprociopar,
-					       errmsg) )
+	if ( !PreStackProcTranslator::retrieve(*preprocessor_,
+					preprociopar.ptr(),errmsg) )
 	{
 	    errmsg_ = errmsg;
 	    deleteAndNullPtr( preprocessor_ );

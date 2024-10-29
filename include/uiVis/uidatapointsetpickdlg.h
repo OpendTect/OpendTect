@@ -74,7 +74,7 @@ public:
 						const EM::ObjectID&);
 			~uiEMDataPointSetPickDlg();
 
-    const DataPointSet*	getData() const		{ return emdps_; }
+    const DataPointSet* getData() const		{ return emdps_.ptr(); }
     Notifier<uiEMDataPointSetPickDlg> readyForDisplay;
 
 protected:

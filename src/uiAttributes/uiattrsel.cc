@@ -176,8 +176,10 @@ void uiAttrSelDlg::initAndBuild( const uiString& seltxt,
     }
     else
     {
-	const Desc* desc = attrdata_.attribid_.isValid()
-			? attrdata_.attrSet().getDesc( attrdata_.attribid_ ) :0;
+	ConstRefMan<Desc> desc;
+	if ( attrdata_.attribid_.isValid() )
+	    desc = attrdata_.attrSet().getDesc( attrdata_.attribid_ );
+
 	if ( desc )
 	{
 	    seltyp = desc->isStored() ? 0 : 2;
@@ -785,7 +787,7 @@ const char* uiAttrSel::userNameFromKey( const char* txt ) const
 
     const DescSet& descset = attrid.isStored() ?
 	*eDSHolder().getDescSet( is2D(), true ) : attrdata_.attrSet();
-    const Desc* ad = descset.getDesc( attrid );
+    ConstRefMan<Desc> ad = descset.getDesc( attrid );
     usrnm_ = ad ? ad->userRef() : "";
     return usrnm_.buf();
 }
@@ -803,7 +805,7 @@ bool uiAttrSel::getRanges( TrcKeyZSampling& cs ) const
     if ( !attrdata_.attribid_.isValid() )
 	return false;
 
-    const Desc* desc = attrdata_.attrSet().getDesc( attrdata_.attribid_ );
+    ConstRefMan<Desc> desc = attrdata_.attrSet().getDesc( attrdata_.attribid_ );
     if ( !desc )
 	return false;
 
@@ -843,7 +845,7 @@ void uiAttrSel::processInput()
     bool useseltyp = seltype_ >= 0;
     if ( !useseltyp )
     {
-	const Desc* adesc = descset.getDesc( attrdata_.attribid_ );
+	ConstRefMan<Desc> adesc = descset.getDesc( attrdata_.attribid_ );
 	if ( adesc )
 	{
 	    useseltyp = true;
@@ -928,7 +930,7 @@ void uiAttrSel::setPossibleDataPacks( const TypeSet<DataPack::FullID>& ids )
     if ( dbky.isInMemoryDPID() )
 	return;
 
-    const Attrib::Desc* inpdesc = getAttrSet().getDesc( attribID() );
+    ConstRefMan<Attrib::Desc> inpdesc = getAttrSet().getDesc( attribID() );
     if ( !inpdesc || inpdesc->isStored() )
     {
 	auto* tmpss = new Attrib::SelSpec( 0, Attrib::DescID::undef() );
@@ -961,12 +963,12 @@ DescID uiImagAttrSel::imagID() const
     attrdata_.attrSet().getIds( attribids );
     for ( int idx=0; idx<attribids.size(); idx++ )
     {
-	const Desc* desc = attrdata_.attrSet().getDesc( attribids[idx] );
+	ConstRefMan<Desc> desc = attrdata_.attrSet().getDesc( attribids[idx] );
 
 	if ( desc->attribName() != Hilbert::attribName() )
 	    continue;
 
-	const Desc* inputdesc = desc->getInput( 0 );
+	ConstRefMan<Desc> inputdesc = desc->getInput( 0 );
 	if ( !inputdesc || inputdesc->id() != selattrid )
 	    continue;
 
@@ -980,11 +982,11 @@ DescID uiImagAttrSel::imagID() const
 	return DescID::undef();
 
     newdesc->selectOutput( 0 );
-    newdesc->setInput( 0, inpdesc );
+    newdesc->setInput( 0, inpdesc.ptr() );
     newdesc->setHidden( true );
 
     BufferString usrref = "_"; usrref += inpdesc->userRef(); usrref += "_imag";
     newdesc->setUserRef( usrref );
 
-    return descset.addDesc( newdesc );
+    return descset.addDesc( newdesc.ptr() );
 }

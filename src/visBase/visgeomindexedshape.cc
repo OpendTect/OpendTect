@@ -48,7 +48,7 @@ GeomIndexedShape::GeomIndexedShape()
     vtexshape_ = VertexShape::create();
     addChild( vtexshape_->osgNode() );
 
-    vtexshape_->setMaterial( singlematerial_ );
+    vtexshape_->setMaterial( singlematerial_.ptr() );
     singlematerial_->setColorMode( Material::Off );
     coltabmaterial_->setColorMode( Material::Diffuse );
     vtexshape_->setPrimitiveType( Geometry::PrimitiveSet::Triangles );
@@ -135,7 +135,7 @@ void GeomIndexedShape::updateGeometryMaterial()
 	colorhandler_->material_->setPropertiesFrom( *getMaterial() );
 	mapAttributeToColorTableMaterial();
 	vtexshape_->setColorBindType( VertexShape::BIND_PER_VERTEX );
-	vtexshape_->setMaterial( coltabmaterial_ );
+	vtexshape_->setMaterial( coltabmaterial_.ptr() );
     }
 }
 
@@ -167,14 +167,14 @@ void GeomIndexedShape::enableColTab( bool yn )
     if ( yn )
     {
 	    setColorBindType( VertexShape::BIND_PER_VERTEX );
-	    setMaterial( coltabmaterial_ );
-	    vtexshape_->setMaterial( coltabmaterial_ );
+	    setMaterial( coltabmaterial_.ptr() );
+	    vtexshape_->setMaterial( coltabmaterial_.ptr() );
     }
     else
     {
 	setColorBindType( VertexShape::BIND_OVERALL );
-	setMaterial( singlematerial_ );
-	vtexshape_->setMaterial( singlematerial_ );
+	setMaterial( singlematerial_.ptr() );
+	vtexshape_->setMaterial( singlematerial_.ptr() );
     }
 
     VisualObjectImpl::materialChangeCB( nullptr );
@@ -303,18 +303,18 @@ bool GeomIndexedShape::touch( bool forall, bool createnew, TaskRunner* tr )
     if ( !coords->size() )
 	return false;
 
-    vtexshape_->setCoordinates( coords );
+    vtexshape_->setCoordinates( coords.ptr() );
     vtexshape_->useOsgAutoNormalComputation( true );
 
     if ( !useosgnormal_ && normals->nrNormals() )
     {
 	normals->setDisplayTransformation( getDisplayTransformation() );
-	vtexshape_->setNormals( normals );
+	vtexshape_->setNormals( normals.ptr() );
 	vtexshape_->useOsgAutoNormalComputation( false );
     }
 
     if ( texturecoords->size() )
-	vtexshape_->setTextureCoords( texturecoords );
+	vtexshape_->setTextureCoords( texturecoords.ptr() );
 
     ObjectSet<Geometry::IndexedGeometry>& geoms=shape_->getGeometry();
 
@@ -490,7 +490,7 @@ void GeomIndexedShape::setGeometryShapeType( GeomShapeType shapetype,
     else
 	vtexshape_ = VertexShape::create();
 
-    vtexshape_->setMaterial( singlematerial_ );
+    vtexshape_->setMaterial( singlematerial_.ptr() );
     vtexshape_->setPrimitiveType( pstype );
     if ( shapetype==PolyLine || shapetype==PolyLine3D )
     {

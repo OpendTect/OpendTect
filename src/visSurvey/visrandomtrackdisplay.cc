@@ -96,7 +96,7 @@ RandomTrackDisplay::RandomTrackDisplay()
 
     panelstrip_ = visBase::TexturePanelStrip::create();
     addChild( panelstrip_->osgNode() );
-    panelstrip_->setTextureChannels( channels_ );
+    panelstrip_->setTextureChannels( channels_.ptr() );
     panelstrip_->swapTextureAxes();
 
     polyline_ = visBase::PolyLine::create();
@@ -199,13 +199,13 @@ RandomLineID RandomTrackDisplay::getRandomLineID() const
 
 const Geometry::RandomLine* RandomTrackDisplay::getRandomLine() const
 {
-    return rl_;
+    return rl_.ptr();
 }
 
 
 Geometry::RandomLine* RandomTrackDisplay::getRandomLine()
 {
-    return rl_;
+    return rl_.ptr();
 }
 
 
@@ -647,7 +647,7 @@ bool RandomTrackDisplay::setDataPackID( int attrib, const DataPackID& dpid,
 	return false;
     }
 
-    datapacks_.replace( attrib, randsdp );
+    datapacks_.replace( attrib, randsdp.ptr() );
 
     createTransformedDataPack( attrib, taskr );
     updateChannels( attrib, taskr );
@@ -677,7 +677,7 @@ DataPackID RandomTrackDisplay::getDisplayedDataPackID( int attrib ) const
 
 
 const ZAxisTransform* RandomTrackDisplay::getZAxisTransform() const
-{ return datatransform_; }
+{ return datatransform_.ptr(); }
 
 
 bool RandomTrackDisplay::setZAxisTransform( ZAxisTransform* zat, TaskRunner* )

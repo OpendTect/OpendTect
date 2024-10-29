@@ -36,7 +36,7 @@ bool ParallelDTetrahedralator::doPrepare( int nrthreads )
 	for ( int idx=0; idx<nrcoords; idx++ )
 	    arr[idx] = idx;
 
-	OD::shuffle( mVarLenArr(arr), arr+nrcoords );
+	OD::shuffle( mVarLenArr(arr), mVarLenArr(arr)+nrcoords );
 	for ( int idx=0; idx<nrcoords; idx++ )
 	    permutation_ += arr[idx];
     }

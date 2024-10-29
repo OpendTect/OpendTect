@@ -89,7 +89,7 @@ Normals::~Normals()
 void Normals::setNormal( int idx, const Vector3& n )
 {
     osg::Vec3f osgnormal;
-    Transformation::transformNormal( transformation_, n, osgnormal );
+    Transformation::transformNormal( transformation_.ptr(), n, osgnormal );
     if ( transformation_ )
 	osgnormal.normalize();
 
@@ -182,7 +182,7 @@ int Normals::addNormal( const Vector3& n )
 {
 
     osg::Vec3f osgnormal;
-    Transformation::transformNormal( transformation_, n, osgnormal );
+    Transformation::transformNormal( transformation_.ptr(), n, osgnormal );
 
     Threads::MutexLocker lock( mutex_ );
 
@@ -196,7 +196,7 @@ int Normals::addNormal( const Vector3& n )
 void Normals::addNormalValue( int idx, const Vector3& n )
 {
     osg::Vec3f osgnormal;
-    Transformation::transformNormal( transformation_, n, osgnormal );
+    Transformation::transformNormal( transformation_.ptr(), n, osgnormal );
 
     Threads::MutexLocker lock( mutex_ );
     osg::Vec3Array* osgnormals = mGetOsgVec3Arr( osgnormals_ );
@@ -270,7 +270,7 @@ Coord3 Normals::getNormal( int idx ) const
 	return Coord3::udf();
 
     Coord3 res;
-    Transformation::transformBackNormal( transformation_, norm, res );
+    Transformation::transformBackNormal( transformation_.ptr(), norm, res );
 
     return res;
 }
@@ -278,10 +278,10 @@ Coord3 Normals::getNormal( int idx ) const
 
 void Normals::setDisplayTransformation( const mVisTrans* nt )
 {
-    if ( nt==transformation_ )
+    if ( nt==transformation_.ptr() )
 	return;
 
-    DoTransformation dotf( this, nrNormals(), transformation_, nt );
+    DoTransformation dotf( this, nrNormals(), transformation_.ptr(), nt );
     TaskRunner taskrunner;
     TaskRunner::execute( &taskrunner,dotf );
 

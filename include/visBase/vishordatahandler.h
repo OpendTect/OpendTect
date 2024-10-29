@@ -30,7 +30,7 @@ public:
 
     void		updateZAxisVOI();
     void		setZAxisTransform(ZAxisTransform*);
-    ZAxisTransform*	getZAxistransform()	{ return zaxistransform_; }
+    ZAxisTransform*	getZAxistransform()	{ return zaxistransform_.ptr();}
     void		generatePositionData(DataPointSet&,double zshift,
 					     int sectionid ) const;
 

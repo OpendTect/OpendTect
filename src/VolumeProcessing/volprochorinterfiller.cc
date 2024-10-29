@@ -23,8 +23,6 @@ namespace VolProc
 HorInterFiller::HorInterFiller()
     : topvalue_( mUdf(float) )
     , bottomvalue_( mUdf(float) )
-    , tophorizon_( 0 )
-    , bottomhorizon_( 0 )
     , gradient_( mUdf(float) )
     , usegradient_( true )
 {}
@@ -39,10 +37,8 @@ HorInterFiller::~HorInterFiller()
 void HorInterFiller::releaseData()
 {
     Step::releaseData();
-    if ( tophorizon_ ) tophorizon_->unRef();
-    if ( bottomhorizon_ ) bottomhorizon_->unRef();
-    tophorizon_ = 0;
-    bottomhorizon_ = 0;
+    tophorizon_ = nullptr;
+    bottomhorizon_ = nullptr;
 }
 
 
@@ -50,7 +46,7 @@ bool HorInterFiller::setTopHorizon( const MultiID* tmid )
 {
     if ( !tmid )
     {
-	tophorizon_ = 0;
+	tophorizon_ = nullptr;
 	return true;
     }
 
@@ -58,57 +54,75 @@ bool HorInterFiller::setTopHorizon( const MultiID* tmid )
     if ( !newhor ) return false;
 
     tophorizon_ = newhor;
-    tophorizon_->ref();
-
     return true;
 }
 
 
 const MultiID* HorInterFiller::getTopHorizonID() const
-{ return tophorizon_ ? &tophorizon_->multiID() : 0; }
+{
+    return tophorizon_ ? &tophorizon_->multiID() : 0;
+}
 
 
 float HorInterFiller::getTopValue() const
-{ return topvalue_; }
+{
+    return topvalue_;
+}
 
 
 const MultiID* HorInterFiller::getBottomHorizonID() const
-{ return bottomhorizon_ ? &bottomhorizon_->multiID() : 0; }
+{
+    return bottomhorizon_ ? &bottomhorizon_->multiID() : 0;
+}
 
 
 float HorInterFiller::getBottomValue() const
-{ return bottomvalue_; }
+{
+    return bottomvalue_;
+}
 
 
 void HorInterFiller::setBottomValue( float bv )
-{ bottomvalue_ = bv; }
+{
+    bottomvalue_ = bv;
+}
 
 
 void HorInterFiller::setTopValue( float tv )
-{ topvalue_ = tv; }
+{
+    topvalue_ = tv;
+}
 
 
 bool HorInterFiller::usesGradient() const
-{ return usegradient_; }
+{
+    return usegradient_;
+}
 
 
 void HorInterFiller::useGradient( bool yn )
-{ usegradient_ = yn; }
+{
+    usegradient_ = yn;
+}
 
 
 float HorInterFiller::getGradient() const
-{ return gradient_; }
+{
+    return gradient_;
+}
 
 
 void HorInterFiller::setGradient( float g )
-{ gradient_ = g; }
+{
+    gradient_ = g;
+}
 
 
 bool HorInterFiller::setBottomHorizon( const MultiID* bmid )
 {
     if ( !bmid )
     {
-	bottomhorizon_ = 0;
+	bottomhorizon_ = nullptr;
 	return true;
     }
 
@@ -116,8 +130,6 @@ bool HorInterFiller::setBottomHorizon( const MultiID* bmid )
     if ( !newhor ) return false;
 
     bottomhorizon_ = newhor;
-    bottomhorizon_->ref();
-
     return true;
 }
 
@@ -156,8 +168,8 @@ bool HorInterFiller::computeBinID( const BinID& bid, int )
 
     //TODO: Rework EM::Horizon2D to avoid the manipulation below.
     EM::SubID topsubid = bid.toInt64(), botsubid = bid.toInt64();
-    mDynamicCastGet(const EM::Horizon2D*,tophor2d,tophorizon_)
-    mDynamicCastGet(const EM::Horizon2D*,bothor2d,bottomhorizon_)
+    mDynamicCastGet(const EM::Horizon2D*,tophor2d,tophorizon_.ptr())
+    mDynamicCastGet(const EM::Horizon2D*,bothor2d,bottomhorizon_.ptr())
     if ( tophor2d )
     {
 	const int lineidx =

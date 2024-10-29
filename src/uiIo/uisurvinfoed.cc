@@ -432,7 +432,7 @@ void uiSurveyInfoEditor::mkCRSGrp()
 {
     crsgrp_ = new uiGroup( tabs_->tabGroup(), sKey::CoordSys() );
     crssel_ = new Coords::uiCoordSystemSelGrp( crsgrp_, true, false,
-						&si_, si_.getCoordSystem() );
+					&si_, si_.getCoordSystem().ptr() );
     tabs_->addTab( crsgrp_, uiStrings::sCoordSys(), "crs" );
 }
 
@@ -1095,7 +1095,7 @@ void uiSurveyInfoEditor::sipCB( CallBacker* )
 	return;
 
     TrcKeyZSampling cs; Coord crd[3];
-    if ( !sip->getInfo(dlg,cs,crd) )
+    if ( !sip->getInfo(dlg.ptr(),cs,crd) )
 	return;
 
     IOPar& pars = si_.getLogPars();

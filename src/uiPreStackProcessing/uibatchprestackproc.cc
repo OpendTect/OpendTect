@@ -110,7 +110,7 @@ void uiBatchProcSetup::setupSelCB( CallBacker* )
 
     ProcessManager procman( gs_ );
     uiString errmsg;
-    if ( !PreStackProcTranslator::retrieve(procman,setupioobj,errmsg) )
+    if ( !PreStackProcTranslator::retrieve(procman,setupioobj.ptr(),errmsg) )
 	return;
 
     inputsel_->display( procman.needsPreStackInput() );

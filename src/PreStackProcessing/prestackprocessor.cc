@@ -74,7 +74,7 @@ bool Processor::wantsInput( const BinID& bid ) const
 void Processor::setInput( const BinID& relbid, DataPackID id )
 {
     auto input = DPM(DataPackMgr::FlatID()).get<Gather>( id );
-    setInput( relbid, input );
+    setInput( relbid, input.ptr() );
 }
 
 
@@ -139,7 +139,7 @@ const ElasticModel* Processor::getModel( const BinID& relbid ) const
 
 DataPackID Processor::getOutputID( const BinID& relbid ) const
 {
-    const Gather* res = getOutput( relbid );
+    ConstRefMan<Gather> res = getOutput( relbid );
     return res ? res->id() : DataPack::cNoID();
 }
 
@@ -344,8 +344,8 @@ bool ProcessManager::process()
 		for ( int itrc=-stepout.crl(); itrc<=stepout.crl(); itrc++ )
 		{
 		    const BinID relbid( iinl, itrc );
-		    proc->setInput( relbid, prevproc->getOutput( relbid ) );
-		    proc->setModel( relbid, prevproc->getModel( relbid ) );
+		    proc->setInput( relbid, prevproc->getOutput(relbid).ptr() );
+		    proc->setModel( relbid, prevproc->getModel(relbid) );
 		}
 	    }
 	}

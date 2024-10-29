@@ -273,10 +273,10 @@ void uiIOObjManipGroup::tbPush( CallBacker* c )
 	if ( !entryok && firstioobj->status() == IOObj::Status::BrokenLink )
 	    dolocate = true;
 
-	chgd = relocEntry( *firstioobj, trans, dolocate );
+	chgd = relocEntry( *firstioobj, trans.ptr(), dolocate );
     }
     else if ( isrename )
-	chgd = renameEntry( *firstioobj, trans );
+	chgd = renameEntry( *firstioobj, trans.ptr() );
     else
     {
 	ObjectSet<IOObj> ioobjs;
@@ -288,7 +288,7 @@ void uiIOObjManipGroup::tbPush( CallBacker* c )
 	    const bool isro = trans ? trans->implReadOnly(firstioobj)
 				    : firstioobj->implReadOnly();
 	    for ( int idx=0; idx<ioobjs.size(); idx++ )
-		readonlyEntry( *ioobjs[idx], trans, !isro );
+		readonlyEntry( *ioobjs[idx], trans.ptr(), !isro );
 	}
 	else if ( isremove )
 	{

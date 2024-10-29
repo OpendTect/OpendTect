@@ -351,7 +351,7 @@ bool IntervalND<T>::intersects( const IntervalND<T>& b, bool allowrev ) const
 
     do
     {
-	if ( b.includes((T*)vector, allowrev ) )
+	if ( b.includes( mVarLenArr(vector), allowrev ) )
 	    return true;
 
 	int dim = 0;

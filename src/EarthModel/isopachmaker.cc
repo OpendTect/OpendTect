@@ -125,7 +125,7 @@ int IsochronMaker::nextStep()
 	    const DataPointSet::Pos dpspos( pos1 );
 	    vals[0] = z1;
 	    vals[startsourceidx] = th;
-	    dps_->bivSet().add( dpspos.binID(), vals );
+	    dps_->bivSet().add( dpspos.binID(), mVarLenArr(vals) );
 	}
     }
 

@@ -278,7 +278,8 @@ void HorizonSectionTile::ensureGlueTesselated()
 	{
 	    turnOnGlue( false );
 	    datalock_.lock();
-	    tileglue->setDisplayTransformation( hrsection_.transformation_ );
+	    tileglue->setDisplayTransformation(
+		    			hrsection_.transformation_.ptr() );
 	    tileglue->buildGlue( this, neighbors_[nb], isright );
 	    datalock_.unLock();
 	    turnOnGlue( true );
@@ -489,7 +490,7 @@ void HorizonSectionTile::setPos( int row, int col, const Coord3& pos )
 	else
 	{
 	    Coord3 crd;
-	    mVisTrans::transform( hrsection_.transformation_, pos, crd );
+	    mVisTrans::transform( hrsection_.transformation_.ptr(), pos, crd );
 	    (*arr)[coordidx] = Conv::to<osg::Vec3f>(crd);
 	    bbox_.expandBy( (*arr)[coordidx] );
 	    computeNormal( coordidx,( *mGetOsgVec3Arr(normals_) )[coordidx] );
@@ -614,7 +615,7 @@ bool HorizonSectionTile::hasDefinedCoordinates( int idx ) const
     if ( thispos.isDefined() ) \
     { \
 	Coord3 crd; \
-	mVisTrans::transform( hrsection_.transformation_, thispos, crd ); \
+	mVisTrans::transform( hrsection_.transformation_.ptr(), thispos, crd );\
 	location##pos.x_ = ( flag ? -1 : 1 ) * idx * rcdist; \
 	location##pos.y_ = crd.z_; \
 	location##found = true; \

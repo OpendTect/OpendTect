@@ -50,7 +50,7 @@ public:
     Light*		getDirectionalLight();
     const Light*	getDirectionalLight() const;
 
-    PolygonOffset*	getPolygonOffset()	{ return polygonoffset_; }
+    PolygonOffset*	getPolygonOffset()	{ return polygonoffset_.ptr(); }
     bool		saveCurrentOffsetAsDefault() const;
 
     bool		blockMouseSelection(bool yn);

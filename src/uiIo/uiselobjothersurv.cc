@@ -51,7 +51,7 @@ bool getIOObjList( ObjectSet<IOObj>& objs, const SurveyDiskLocation& sdl,
 	return false;
 
     ConstArrPtrMan<int> idxs = nms.getSortIndexes();
-    nms.useIndexes( idxs );
+    nms.useIndexes( idxs.ptr() );
     for ( int idx=0; idx<unsortedobjs.size(); idx++ )
 	objs += unsortedobjs[ idxs[idx] ];
 

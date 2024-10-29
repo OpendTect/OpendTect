@@ -215,7 +215,7 @@ bool uiImpExpPickSet::doImport()
 
     IOM().commitChanges( *ioobj );
     uiString errmsg;
-    if ( !PickSetTranslator::store(*ps,ioobj,errmsg) )
+    if ( !PickSetTranslator::store(*ps,ioobj.ptr(),errmsg) )
 	mErrRet( errmsg )
 
     storedid_ = ioobj->key();
@@ -254,7 +254,7 @@ bool uiImpExpPickSet::doExport()
     PtrMan<IOObj> ioobj = objfldioobj->clone();
     uiString errmsg;
     RefMan<Pick::Set> ps = new Pick::Set;
-    if ( !PickSetTranslator::retrieve(*ps,ioobj,true,errmsg) )
+    if ( !PickSetTranslator::retrieve(*ps,ioobj.ptr(),true,errmsg) )
 	mErrRet( errmsg )
 
     const char* fname = filefld_->fileName();
@@ -269,8 +269,8 @@ bool uiImpExpPickSet::doExport()
     BufferString buf;
     for ( int locidx=0; locidx<ps->size(); locidx++ )
     {
-	ps->get(locidx).toString( buf, true,
-		coordsysselfld_ ? coordsysselfld_->getCoordSystem() : nullptr );
+	ps->get(locidx).toString( buf, true, coordsysselfld_ ?
+			coordsysselfld_->getCoordSystem().ptr() : nullptr );
 	strm << buf.buf() << '\n';
     }
 

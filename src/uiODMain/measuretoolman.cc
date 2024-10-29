@@ -163,11 +163,11 @@ void MeasureToolMan::addScene( const SceneID& sceneid )
     RefMan<Pick::Set> ps = new Pick::Set( "Measure picks" );
     ps->disp_.connect_ = Pick::Set::Disp::Open;
     ps->disp_.color_ = OD::Color( 255, 0, 0 );
-    psd->setSet( ps );
+    psd->setSet( ps.ptr() );
     psd->setSetMgr( &picksetmgr_ );
-    picksetmgr_.set( getMultiID(sceneid), ps );
+    picksetmgr_.set( getMultiID(sceneid), ps.ptr() );
 
-    appl_.applMgr().visServer()->addObject( psd, sceneid, false );
+    appl_.applMgr().visServer()->addObject( psd.ptr(), sceneid, false);
     sceneids_ += sceneid;
     displayids_ += psd->id();
 }

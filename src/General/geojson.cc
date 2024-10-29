@@ -134,7 +134,7 @@ OD::JSON::GeoJsonTree::createFeatCoordArray( const GIS::Property& props )
 bool OD::JSON::GeoJsonTree::addPoint( const Coord& crd,
 				      const GIS::Property& properties )
 {
-    const LatLong ll = LatLong::transform( crd, true, inpcrs_ );
+    const LatLong ll = LatLong::transform( crd, true, inpcrs_.ptr() );
     return addPoint( ll, mUdf(double), properties );
 }
 
@@ -142,7 +142,7 @@ bool OD::JSON::GeoJsonTree::addPoint( const Coord& crd,
 bool OD::JSON::GeoJsonTree::addPoint( const Coord3& crd,
 				      const GIS::Property& properties )
 {
-    const LatLong ll = LatLong::transform( crd.coord(), true, inpcrs_ );
+    const LatLong ll = LatLong::transform( crd.coord(), true, inpcrs_.ptr() );
     return addPoint( ll, crd.z_, properties );
 }
 

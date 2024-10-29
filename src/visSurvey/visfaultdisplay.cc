@@ -84,7 +84,7 @@ FaultDisplay::FaultDisplay()
     {
 	RefMan<visBase::MarkerSet> markerset = visBase::MarkerSet::create();
 	addChild( markerset->osgNode() );
-	knotmarkersets_ += markerset;
+	knotmarkersets_ += markerset.ptr();
 	markerset->setMarkersSingleColor(
 	    idx ? OD::Color(0,255,0) : OD::Color(255,0,255) );
     }
@@ -129,7 +129,7 @@ void FaultDisplay::setSceneEventCatcher( visBase::EventCatcher* vec )
 	mAttachCB( eventcatcher_->eventhappened,FaultDisplay::mouseCB );
 
     if ( viseditor_ )
-	viseditor_->setSceneEventCatcher( eventcatcher_ );
+	viseditor_->setSceneEventCatcher( eventcatcher_.ptr() );
 }
 
 
@@ -198,14 +198,14 @@ bool FaultDisplay::setEMObjectID( const EM::ObjectID& emid )
     if ( !paneldisplay_ )
     {
 	paneldisplay_ = visBase::GeomIndexedShape::create();
-	paneldisplay_->setDisplayTransformation( displaytransform_ );
+	paneldisplay_->setDisplayTransformation( displaytransform_.ptr() );
 	paneldisplay_->setMaterial( nullptr );
 	paneldisplay_->setSelectable( false );
 	paneldisplay_->setGeometryShapeType(
 				    visBase::GeomIndexedShape::Triangle );
 	paneldisplay_->useOsgNormal( true );
 	paneldisplay_->setRenderMode( visBase::RenderBothSides );
-	paneldisplay_->setTextureChannels( channels_ );
+	paneldisplay_->setTextureChannels( channels_.ptr() );
 
 	addChild( paneldisplay_->osgNode() );
     }
@@ -213,7 +213,8 @@ bool FaultDisplay::setEMObjectID( const EM::ObjectID& emid )
     if ( !intersectiondisplay_ )
     {
 	intersectiondisplay_ = visBase::GeomIndexedShape::create();
-	intersectiondisplay_->setDisplayTransformation( displaytransform_ );
+	intersectiondisplay_->setDisplayTransformation(
+					displaytransform_.ptr() );
 	intersectiondisplay_->setMaterial( nullptr );
 	intersectiondisplay_->setSelectable( false );
 	intersectiondisplay_->setGeometryShapeType(
@@ -226,7 +227,7 @@ bool FaultDisplay::setEMObjectID( const EM::ObjectID& emid )
     if ( !stickdisplay_ )
     {
 	stickdisplay_ = visBase::GeomIndexedShape::create();
-	stickdisplay_->setDisplayTransformation( displaytransform_ );
+	stickdisplay_->setDisplayTransformation( displaytransform_.ptr() );
 	if ( !stickdisplay_->getMaterial() )
 	{
 	    RefMan<visBase::Material> newmat = visBase::Material::create();
@@ -286,8 +287,8 @@ bool FaultDisplay::setEMObjectID( const EM::ObjectID& emid )
 	if ( !viseditor_ )
 	{
 	    viseditor_ = MPEEditor::create();
-	    viseditor_->setSceneEventCatcher( eventcatcher_ );
-	    viseditor_->setDisplayTransformation( displaytransform_ );
+	    viseditor_->setSceneEventCatcher( eventcatcher_.ptr() );
+	    viseditor_->setDisplayTransformation( displaytransform_.ptr() );
 	    viseditor_->sower().alternateSowingOrder();
 	    viseditor_->sower().setIfDragInvertMask();
 	    addChild( viseditor_->osgNode() );
@@ -301,7 +302,7 @@ bool FaultDisplay::setEMObjectID( const EM::ObjectID& emid )
 
 	if ( viseditor_ )
 	{
-	    viseditor_->setEditor( faulteditor_ );
+	    viseditor_->setEditor( faulteditor_.ptr() );
 	    mAttachCB( viseditor_->sower().sowingend,
 					    FaultDisplay::sowingFinishedCB );
 	}
@@ -446,7 +447,7 @@ void FaultDisplay::setDepthAsAttrib( int attrib )
 		vals[zcol] = vals[0];
 	}
 
-	setRandomPosData( attrib, data, 0 );
+	setRandomPosData( attrib, data.ptr(), 0 );
     }
 
     if ( !attribwasdepth )
@@ -495,7 +496,7 @@ void FaultDisplay::updateStickDisplay()
 {
     if ( stickdisplay_ )
     {
-	setLineRadius( stickdisplay_ );
+	setLineRadius( stickdisplay_.ptr() );
 
 	bool dodisplay = areSticksDisplayed() && isDisplayingSticksUseful();
 
@@ -521,7 +522,7 @@ void FaultDisplay::updateIntersectionDisplay()
 {
     if ( intersectiondisplay_ )
     {
-	setLineRadius( intersectiondisplay_ );
+	setLineRadius( intersectiondisplay_.ptr() );
 
 	const bool dodisplay = areIntersectionsDisplayed() &&
 			       arePanelsDisplayed() &&
@@ -965,7 +966,7 @@ void FaultDisplay::stickSelectCB( CallBacker* cb )
     if ( !fault_ || !isOn() || eventcatcher_->isHandled() || !isSelected() )
 	return;
 
-    if ( getCurScene() != scene_ )
+    if ( getCurScene().ptr() != scene_ )
 	setCurScene( scene_ );
 
     stickSelectionCB( cb, get3DSurvGeom() );
@@ -1067,14 +1068,14 @@ void FaultDisplay::updateActiveStickMarker()
     RowCol rc( activestick_, 0 );
     RefMan<Geometry::PrimitiveSet> idxps =
 				Geometry::IndexedPrimitiveSet::create( false );
-    for ( rc.col()=colrg.start_; rc.col()<=colrg.stop_; rc.col() += colrg.step_ )
+    for ( rc.col()=colrg.start_; rc.col()<=colrg.stop_; rc.col()+=colrg.step_ )
     {
 	const Coord3 pos = fss->getKnot( rc );
 	const int psidx = activestickmarker_->getCoordinates()->addPos( pos );
 	idxps->append( psidx );
     }
 
-    activestickmarker_->addPrimitiveSet( idxps );
+    activestickmarker_->addPrimitiveSet( idxps.ptr() );
     activestickmarker_->turnOn( true );
 }
 
@@ -1451,7 +1452,7 @@ void FaultDisplay::updateHorizonIntersections( const VisID& whichobj,
 	line->setSelectable( false );
 	line->setGeometryShapeType( visBase::GeomIndexedShape::PolyLine3D,
 				    Geometry::PrimitiveSet::LineStrips );
-	line->setDisplayTransformation( displaytransform_ );
+	line->setDisplayTransformation( displaytransform_.ptr() );
 	addChild( line->osgNode() );
 	line->turnOn( false );
 	Geometry::ExplFaultStickSurface* shape = nullptr;
@@ -1467,7 +1468,7 @@ void FaultDisplay::updateHorizonIntersections( const VisID& whichobj,
 	it.compute();
 
 	line->touch( true, false );
-	horintersections_ += line;
+	horintersections_ += line.ptr();
 	horshapes_ += shape;
 	horintersectids_ += activehorids[idx];
     }
@@ -1611,8 +1612,8 @@ void FaultDisplay::polygonFinishedCB( CallBacker* cb )
 	!isOn() || !isSelected())
 	return;
 
-    if ( getCurScene() != scene_ )
-	setCurScene(scene_);
+    if ( getCurScene().ptr() != scene_ )
+	setCurScene( scene_ );
 
     polygonSelectionCB();
 }
@@ -1656,7 +1657,7 @@ void FaultDisplay::updateKnotMarkers()
     if ( !fault_ || ( viseditor_ && viseditor_->sower().moreToSow()) )
 	return;
 
-    if ( getCurScene() != scene_ )
+    if ( getCurScene().ptr() != scene_ )
 	setCurScene( scene_ );
 
     updateStickMarkerSet();
@@ -1980,14 +1981,14 @@ void FaultDisplay::enableAttrib( int attrib, bool yn )
 
 const visBase::GeomIndexedShape* FaultDisplay::getFaultDisplayedPlane() const
 {
-    return paneldisplay_;
+    return paneldisplay_.ptr();
 }
 
 
 const visBase::GeomIndexedShape*
 FaultDisplay::getFaultDisplayedStickLines() const
 {
-    return stickdisplay_;
+    return stickdisplay_.ptr();
 }
 
 

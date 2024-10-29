@@ -112,7 +112,7 @@ uiTableTargetInfoEd( uiParent* p, Table::TargetInfo& tinf, bool ishdr,
 	    && tinf_.selection_.coordsys_->isProjection() )
     {
 	crsfld_ = new Coords::uiCoordSystemSel( this, true, true,
-						tinf_.selection_.coordsys_ );
+					tinf_.selection_.coordsys_.ptr() );
 	if ( !colboxes_.isEmpty() && !colboxes_[0]->isEmpty() )
 	    crsfld_->attach( alignedBelow, (*colboxes_[0])[0] );
 	else

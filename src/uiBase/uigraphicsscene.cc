@@ -510,7 +510,7 @@ void uiGraphicsScene::saveAsImage( const char* fnm, int w, int h, int res )
     image->fill( qcol.rgb() );
     image->setDotsPerMeterX( sCast(int,(res/0.0254)) );
     image->setDotsPerMeterY( sCast(int,(res/0.0254)) );
-    imagepainter->begin( image );
+    imagepainter->begin( image.ptr() );
 
     QGraphicsView* view = qGraphicsScene()->views()[0];
     const int viewwidth = view->viewport()->width();
@@ -518,7 +518,7 @@ void uiGraphicsScene::saveAsImage( const char* fnm, int w, int h, int res )
     const QRectF sourcerect( view->mapToScene(0,0),
 			     view->mapToScene(viewwidth-1,viewheight-1) );
     const QRectF destrect( 0, 0, w, h );
-    qGraphicsScene()->render( imagepainter, destrect, sourcerect );
+    qGraphicsScene()->render( imagepainter.ptr(), destrect, sourcerect );
     imagepainter->end();
     image->save( fname );
 }
@@ -535,7 +535,7 @@ void uiGraphicsScene::saveAsPDF( const char* filename,
     qpdfwriter->setCreator( QStringLiteral("OpendTect") );
 
     PtrMan<QPainter> qpainter = new QPainter();
-    qpainter->begin( qpdfwriter );
+    qpainter->begin( qpdfwriter.ptr() );
 
     QGraphicsView* view = qGraphicsScene()->views()[0];
     const int viewwidth = view->viewport()->width();
@@ -543,7 +543,7 @@ void uiGraphicsScene::saveAsPDF( const char* filename,
     const QRectF sourcerect( view->mapToScene(0,0),
 			     view->mapToScene(viewwidth,viewheight) );
     const QRectF destrect( 0, 0, w, h );
-    qGraphicsScene()->render( qpainter, destrect, sourcerect );
+    qGraphicsScene()->render( qpainter.ptr(), destrect, sourcerect );
     qpainter->end();
 }
 

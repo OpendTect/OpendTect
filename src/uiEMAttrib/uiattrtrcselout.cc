@@ -369,7 +369,7 @@ bool uiAttrTrcSelOut::fillPar( IOPar& iopar )
     if ( !outioobj )
 	return false;
 
-    const Desc* desc = ads_->getDesc( attrfld_->attribID() );
+    ConstRefMan<Desc> desc = ads_->getDesc( attrfld_->attribID() );
     if ( desc && desc->isStored() )
     {
 	PtrMan<IOObj> inioobj = IOM().get( desc->getStoredID() );

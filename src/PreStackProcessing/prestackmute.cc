@@ -96,7 +96,7 @@ bool Mute::setMuteDefID( const MultiID& mid )
     if ( !ioobj )
 	mErrRet(tr("Cannot find MuteDef ID '%1' in Object Manager.").arg(mid) );
 
-    if ( !MuteDefTranslator::retrieve(def_,ioobj,errmsg_) )
+    if ( !MuteDefTranslator::retrieve(def_,ioobj.ptr(),errmsg_) )
     {
 	uiString errstr( tr( "Mute definition \" %1 \" cannot be read." )
 			.arg(ioobj->uiName()) );

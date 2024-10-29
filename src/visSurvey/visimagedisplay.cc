@@ -45,7 +45,7 @@ void ImageDisplay::setDisplayTransformation(const mVisTrans* tf )
 
 const mVisTrans* ImageDisplay::getDisplayTransformation() const
 {
-    return displaytransform_;
+    return displaytransform_.ptr();
 }
 
 
@@ -107,7 +107,7 @@ RefMan<visBase::VisualObject> ImageDisplay::createLocation() const
 	mSelf().needFileName.trigger();
 
     RefMan<visBase::ImageRect> imagerct = visBase::ImageRect::create();
-    imagerct->setDisplayTransformation( displaytransform_ );
+    imagerct->setDisplayTransformation( displaytransform_.ptr() );
     return imagerct;
 }
 

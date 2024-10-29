@@ -69,7 +69,7 @@ FaultStickSetDisplay::FaultStickSetDisplay()
 	addChild( markerset->osgNode() );
 	markerset->setMarkersSingleColor( idx ? OD::Color(0,255,0) :
 						OD::Color(255,0,255) );
-	knotmarkersets_ += markerset;
+	knotmarkersets_ += markerset.ptr();
     }
 
     activestick_->setPickable( true );
@@ -95,8 +95,8 @@ FaultStickSetDisplay::~FaultStickSetDisplay()
     }
 
     fsseditor_ = nullptr;
-    sticks_->removeNodeState( stickdrawstyle_ );
-    activestick_->removeNodeState( activestickdrawstyle_ );
+    sticks_->removeNodeState( stickdrawstyle_.ptr() );
+    activestick_->removeNodeState( activestickdrawstyle_.ptr() );
 }
 
 
@@ -113,14 +113,12 @@ bool FaultStickSetDisplay::setZAxisTransform( ZAxisTransform* zat, TaskRunner* )
 	    voiid_ = -1;
 	}
 
-	zaxistransform_->unRef();
 	zaxistransform_ = nullptr;
     }
 
     zaxistransform_ = zat;
     if ( zaxistransform_ )
     {
-	zaxistransform_->ref();
 	if ( zaxistransform_->changeNotifier() )
 	    zaxistransform_->changeNotifier()->notify(
 		mCB(this,FaultStickSetDisplay,dataTransformCB) );
@@ -132,7 +130,7 @@ bool FaultStickSetDisplay::setZAxisTransform( ZAxisTransform* zat, TaskRunner* )
 
 const ZAxisTransform* FaultStickSetDisplay::getZAxisTransform() const
 {
-    return zaxistransform_;
+    return zaxistransform_.ptr();
 }
 
 
@@ -153,7 +151,7 @@ void FaultStickSetDisplay::setSceneEventCatcher( visBase::EventCatcher* vec )
 	mAttachCB( eventcatcher_->eventhappened, FaultStickSetDisplay::mouseCB);
 
     if ( viseditor_ )
-	viseditor_->setSceneEventCatcher( eventcatcher_ );
+	viseditor_->setSceneEventCatcher( eventcatcher_.ptr() );
 }
 
 
@@ -207,7 +205,7 @@ bool FaultStickSetDisplay::setEMObjectID( const EM::ObjectID& emid )
     if ( !viseditor_ )
     {
 	viseditor_ = MPEEditor::create();
-	viseditor_->setSceneEventCatcher( eventcatcher_ );
+	viseditor_->setSceneEventCatcher( eventcatcher_.ptr() );
 	viseditor_->setDisplayTransformation( displaytransform_.ptr() );
 	viseditor_->sower().alternateSowingOrder();
 	viseditor_->sower().setIfDragInvertMask();
@@ -225,7 +223,7 @@ bool FaultStickSetDisplay::setEMObjectID( const EM::ObjectID& emid )
 	fsseditor_->setEditIDs( &editpids_ );
     }
 
-    viseditor_->setEditor( fsseditor_ );
+    viseditor_->setEditor( fsseditor_.ptr() );
     mAttachCB( viseditor_->sower().sowingend,
 	       FaultStickSetDisplay::sowingFinishedCB );
 
@@ -384,7 +382,7 @@ void FaultStickSetDisplay::updateSticks( bool activeonly )
     if ( !fault_ || !viseditor_ || viseditor_->sower().moreToSow() )
 	return;
 
-    visBase::Lines* poly = activeonly ? activestick_ : sticks_;
+    visBase::Lines* poly = activeonly ? activestick_.ptr() : sticks_.ptr();
 
     mDynamicCastGet(const Geometry::RowColSurface*,rcs,
 		    fault_->geometryElement())
@@ -614,7 +612,7 @@ void FaultStickSetDisplay::mouseCB( CallBacker* cb )
 	    if ( hordisp )
 	    {
 		horid = new MultiID( hordisp->getMultiID() );
-		pickedmid = horid;
+		pickedmid = horid.ptr();
                 horshiftname = hordisp->getTranslation().z_ *
 		    scene_->zDomainInfo().userFactor();
 		pickednm = horshiftname.buf();
@@ -651,11 +649,12 @@ void FaultStickSetDisplay::mouseCB( CallBacker* cb )
     EM::PosID insertpid;
     fsseditor_->setZScale( mZScale() );
     fsseditor_->getInteractionInfo( insertpid, pickedmid, pickednm,
-				    pickedgeomid, pos, normal);
+				    pickedgeomid, pos, normal.ptr());
 
     if ( mousepid.isUdf() && !viseditor_->isDragging() )
     {
-	EM::PosID pid = fsseditor_->getNearestStick( pos,pickedgeomid,normal );
+	EM::PosID pid =
+	    fsseditor_->getNearestStick( pos,pickedgeomid,normal.ptr() );
 	if ( !pid.isUdf() )
 	{
 	   setActiveStick( pid );
@@ -765,7 +764,7 @@ void FaultStickSetDisplay::stickSelectCB( CallBacker* cb )
     if ( !fault_ || !isOn() || eventcatcher_->isHandled() || !isSelected() )
 	return;
 
-    if ( getCurScene() != scene_ )
+    if ( getCurScene().ptr() != scene_ )
 	setCurScene( scene_ );
 
     stickSelectionCB( cb, get3DSurvGeom() );
@@ -1181,7 +1180,7 @@ void FaultStickSetDisplay::polygonFinishedCB( CallBacker* cb )
     if ( !stickselectmode_ || !fault_ || !scene_ || !isOn() || !isSelected() )
 	return;
 
-    if ( getCurScene() != scene_ )
+    if ( getCurScene().ptr() != scene_ )
 	setCurScene( scene_ );
 
     polygonSelectionCB();
@@ -1199,8 +1198,8 @@ void FaultStickSetDisplay::updateKnotMarkers()
     if ( !fault_ || (viseditor_ && viseditor_->sower().moreToSow()) )
 	return;
 
-    if ( getCurScene() != scene_ )
-	setCurScene(scene_);
+    if ( getCurScene().ptr() != scene_ )
+	setCurScene( scene_ );
 
     updateStickMarkerSet();
 }

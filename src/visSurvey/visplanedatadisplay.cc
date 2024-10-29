@@ -75,7 +75,7 @@ PlaneDataDisplay::PlaneDataDisplay()
     texturerect_ = visBase::TextureRectangle::create();
     addChild( texturerect_->osgNode() );
 
-    texturerect_->setTextureChannels( channels_ );
+    texturerect_->setTextureChannels( channels_.ptr() );
 
     dragger_ = visBase::DepthTabPlaneDragger::create();
     addChild( dragger_->osgNode() );
@@ -867,7 +867,7 @@ void PlaneDataDisplay::setRandomPosDataNoCache( int attrib,
     DataPackMgr& dpm = DPM( getDataPackMgrID() );
     RefMan<RegularSeisDataPack> regsdp = dpm.get<RegularSeisDataPack>( dpid );
 
-    transformedpacks_.replace( attrib, regsdp );
+    transformedpacks_.replace( attrib, regsdp.ptr() );
 
     updateChannels( attrib, taskr );
 }
@@ -963,7 +963,7 @@ void PlaneDataDisplay::createTransformedDataPack( int attrib, TaskRunner* taskr)
 	transformed = transformer.getOutput();
     }
 
-    transformedpacks_.replace( attrib, transformed );
+    transformedpacks_.replace( attrib, transformed.ptr() );
 }
 
 

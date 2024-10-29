@@ -224,7 +224,7 @@ public:
 			    for ( int idx=0; idx<nrdim; idx++ )
 				pos[idx] = P[idx] + N[idx]*lambda;
 
-			    return func.getNDValue( pos );
+			    return func.getNDValue( mVarLenArr(pos) );
 			}
 
 protected:

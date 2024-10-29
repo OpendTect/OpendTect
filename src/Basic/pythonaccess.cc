@@ -335,8 +335,8 @@ bool OD::PythonAccess::isUsable_( bool force, uiRetVal& ret,
 
     ManagedObjectSet<FilePath> pythonenvsfp;
     BufferStringSet envnms;
-    if ( !getSortedVirtualEnvironmentLoc(pythonenvsfp,envnms,virtenvnm,
-					 externalroot) )
+    if ( !getSortedVirtualEnvironmentLoc(pythonenvsfp,envnms,virtenvnm.ptr(),
+					 externalroot.ptr()) )
     {
 	const uiString msg = source == Custom
 	     ? tr("Custom environment [%1] does not exist")

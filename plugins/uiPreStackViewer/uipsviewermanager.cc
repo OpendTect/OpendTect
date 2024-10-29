@@ -309,7 +309,7 @@ bool uiViewer3DMgr::add3DViewer( const uiMenuHandler* menu,
 
     RefMan<visSurvey::PreStackDisplay> viewer = new visSurvey::PreStackDisplay;
     viewer->setMultiID( ioobj->key() );
-    visserv_->addObject( viewer, sceneid, true );
+    visserv_->addObject( viewer.ptr(), sceneid, true );
 
     const Coord3 pickedpos = menu->getPickedPos();
 
@@ -342,7 +342,7 @@ bool uiViewer3DMgr::add3DViewer( const uiMenuHandler* menu,
 
     if ( !settingok )
     {
-	visserv_->removeObject( viewer, sceneid );
+	visserv_->removeObject( viewer.ptr(), sceneid );
 	return false;
     }
 
@@ -391,7 +391,7 @@ bool uiViewer3DMgr::add3DViewer( const uiMenuHandler* menu,
 	viewer->getScene()->change.notifyIfNotNotified(
 		mCB( this, uiViewer3DMgr, sceneChangeCB ) );
 
-    viewers3d_ += viewer;
+    viewers3d_ += viewer.ptr();
     posdialogs_ += nullptr;
     mkNewPosDialog( menu, *viewer );
     settingdlgs_ += nullptr;
@@ -438,7 +438,7 @@ uiMainWin* uiViewer3DMgr::create2DViewer( const uiString& title,
     if ( !fdp )
 	return nullptr;
 
-    vwr.setPack( FlatView::Viewer::VD, fdp, true );
+    vwr.setPack( FlatView::Viewer::VD, fdp.ptr(), true);
     int pw = 400 + 5 * fdp->data().info().getSize( 0 );
     if ( pw > 800 )
 	pw = 800;

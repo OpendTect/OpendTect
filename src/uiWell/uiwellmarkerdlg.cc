@@ -483,7 +483,7 @@ void uiMarkerDlg::resetEntries( const Well::MarkerSet& markers )
 	if ( !marker )
 	    continue;
 
-	fillMarkerRow( idx, *marker, wd );
+	fillMarkerRow( idx, *marker, wd.ptr() );
     }
 }
 
@@ -570,7 +570,7 @@ void uiMarkerDlg::setMarkerSet( const Well::MarkerSet& markers, bool add )
 							   : nullptr;
 	if ( marker )
 	{
-	    fillMarkerRow( irow, *marker, wd );
+	    fillMarkerRow( irow, *marker, wd.ptr() );
 	    continue;
 	}
 

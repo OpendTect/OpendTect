@@ -89,7 +89,7 @@ int nextStep() override
     for ( int idx=0; idx<nrvals; idx++ )
 	vals[idx] = mUdf(float);
 
-    bvalset_->get( pos_, bid, vals );
+    bvalset_->get( pos_, bid, mVarLenArr(vals) );
     if ( bid.inl() < 0 )
 	return ErrorOccurred();
 

@@ -312,7 +312,7 @@ void HorizonSection::setUpdateVar( bool& variable, bool yn )
 
 void HorizonSection::setDisplayTransformation( const mVisTrans* nt )
 {
-    if ( transformation_ == nt )
+    if ( transformation_.ptr() == nt )
 	return;
 
     HorizonSectionTile** tileptrs = tiles_.getData();
@@ -324,7 +324,7 @@ void HorizonSection::setDisplayTransformation( const mVisTrans* nt )
 	    spinlock_.lock();
 	    TileCoordinatesUpdator backupdator(
 		this, od_int64(tiles_.info().getTotalSz()),
-		transformation_,true);
+		transformation_.ptr(), true );
 	    backupdator.execute();
 	    spinlock_.unLock();
 	}
@@ -338,7 +338,7 @@ void HorizonSection::setDisplayTransformation( const mVisTrans* nt )
 	spinlock_.lock();
 	TileCoordinatesUpdator forwardupdator( this,
 					od_int64(tiles_.info().getTotalSz()),
-					transformation_,false );
+					transformation_.ptr(),false );
 	forwardupdator.execute();
 	spinlock_.unLock();
     }
@@ -348,9 +348,9 @@ void HorizonSection::setDisplayTransformation( const mVisTrans* nt )
 	if ( tileptrs[idx] )
 	{
 	    tileptrs[idx]->righttileglue_->setDisplayTransformation(
-		transformation_ );
+		transformation_.ptr() );
 	    tileptrs[idx]->bottomtileglue_->setDisplayTransformation(
-		transformation_ );
+		transformation_.ptr() );
 	    tileptrs[idx]->dirtyGeometry();
 	}
     }
@@ -521,7 +521,7 @@ char  HorizonSection::nrResolutions() const
 
 
 const mVisTrans* HorizonSection::getDisplayTransformation() const
-{ return transformation_; }
+{ return transformation_.ptr(); }
 
 
 void HorizonSection::enableGeometryTypeDisplay( GeometryType type, bool yn )

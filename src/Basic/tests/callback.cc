@@ -174,19 +174,21 @@ bool testAttach()
 	NotifierAccess* naccess = &notifier->notifier;
 	PtrMan<NotifiedClass> notified = new NotifiedClass( naccess );
 
-	notified->attachCB( *naccess, mCB(notified,NotifiedClass,callbackA));
+	notified->attachCB( *naccess, mCB(notified.ptr(),NotifiedClass,
+			    callbackA) );
 
 	notifier->notifier.trigger();
 	mRunStandardTest(notified->nrhits_==2, "Double notifications");
 
-	notified->detachCB( *naccess, mCB(notified,NotifiedClass,callbackA));
+	notified->detachCB( *naccess, mCB(notified.ptr(),NotifiedClass,
+			    callbackA) );
 	notifier->notifier.trigger();
 
 	mRunStandardTest(notified->nrhits_==3, "Detachement");
 
 
 	notified->attachCB( *naccess,
-			    mCB(notified,NotifiedClass,callbackA), true );
+			    mCB(notified.ptr(),NotifiedClass,callbackA), true );
 
 	notifier->notifier.trigger();
 

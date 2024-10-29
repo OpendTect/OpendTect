@@ -57,8 +57,8 @@ public:
     float			getSectionPosition();
     void			setBoxBoundary(float x,float y,float z);
 
-    GeomIndexedShape*		getShape()		{ return shape_; }
-    const GeomIndexedShape*	getShape() const	{ return shape_; }
+    GeomIndexedShape*		getShape()		{ return shape_.ptr(); }
+    const GeomIndexedShape*	getShape() const	{ return shape_.ptr(); }
     virtual void		setDisplayTransformation(
 						const mVisTrans*) override;
     const mVisTrans*		getDisplayTransformation() const override;

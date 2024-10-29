@@ -241,7 +241,7 @@ void SurfaceAuxData::setAuxDataVal( int dataidx, const PosID& posid, float val,
 	    vals[idx] = mUdf(float);
 
 	vals[dataidx] = val;
-	auxdata_[sectionidx]->add( geomrc, vals );
+	auxdata_[sectionidx]->add( geomrc, mVarLenArr(vals) );
     }
     else if ( !onlynewpos )
 	auxdata_[sectionidx]->getVals( pos )[dataidx] = val;

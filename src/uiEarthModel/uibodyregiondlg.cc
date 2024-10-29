@@ -997,7 +997,7 @@ bool uiBodyRegionDlg::createImplicitBody()
     emcs->setFullyLoaded( true );
     emcs->setChangedFlag();
 
-    EM::EMM().addObject( emcs );
+    EM::EMM().addObject( emcs.ptr() );
     PtrMan<Executor> exec = emcs->saver();
     if ( !exec )
 	mRetErrDelHoridx( uiStrings::sSaveBodyFail() )

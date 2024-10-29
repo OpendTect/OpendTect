@@ -87,7 +87,7 @@ Coord TextureRectangle::getTextureGrowth() const
 void TextureRectangle::setCenter( const Coord3& center )
 {
     osg::Vec3 osgcenter;
-    mVisTrans::transform( displaytrans_, center, osgcenter );
+    mVisTrans::transform( displaytrans_.ptr(), center, osgcenter );
     textureplane_->setCenter( osgcenter );
 }
 
@@ -95,7 +95,8 @@ void TextureRectangle::setCenter( const Coord3& center )
 Coord3 TextureRectangle::getCenter() const
 {
     Coord3 res;
-    mVisTrans::transformBack( displaytrans_, textureplane_->getCenter(), res );
+    mVisTrans::transformBack( displaytrans_.ptr(), textureplane_->getCenter(),
+			      res );
     return res;
 }
 
@@ -103,7 +104,7 @@ Coord3 TextureRectangle::getCenter() const
 void TextureRectangle::setWidth( const Coord3& width )
 {
     osg::Vec3f osgwidth;
-    mVisTrans::transformDir( displaytrans_, width, osgwidth );
+    mVisTrans::transformDir( displaytrans_.ptr(), width, osgwidth );
     textureplane_->setWidth( osgwidth );
 }
 
@@ -111,7 +112,8 @@ void TextureRectangle::setWidth( const Coord3& width )
 Coord3 TextureRectangle::getWidth() const
 {
     Coord3 res;
-    mVisTrans::transformBackDir( displaytrans_, textureplane_->getWidth(), res);
+    mVisTrans::transformBackDir( displaytrans_.ptr(), textureplane_->getWidth(),
+				 res );
     return res;
 }
 
@@ -126,8 +128,8 @@ void TextureRectangle::setRotation( const Coord3& spanvec0,
 				    const Coord3& spanvec1 )
 {
     osg::Vec3 v0, v1;
-    mVisTrans::transformDir( displaytrans_, spanvec0, v0 );
-    mVisTrans::transformDir( displaytrans_, spanvec1, v1 );
+    mVisTrans::transformDir( displaytrans_.ptr(), spanvec0, v0 );
+    mVisTrans::transformDir( displaytrans_.ptr(), spanvec1, v1 );
 
     if ( !v0.length() || !v1.length() )
 	return;
@@ -159,8 +161,8 @@ void TextureRectangle::setRotationAndWidth( const Coord3& spanvec0,
     setRotation( spanvec0, spanvec1 );
 
     osg::Vec3 v0, v1;
-    mVisTrans::transformDir( displaytrans_, spanvec0, v0 );
-    mVisTrans::transformDir( displaytrans_, spanvec1, v1 );
+    mVisTrans::transformDir( displaytrans_.ptr(), spanvec0, v0 );
+    mVisTrans::transformDir( displaytrans_.ptr(), spanvec1, v1 );
 
     textureplane_->setWidth( osg::Vec3(v0.length(), v1.length(), 0.0) );
 }
@@ -180,7 +182,7 @@ bool TextureRectangle::areTextureAxesSwapped() const
 
 void TextureRectangle::setDisplayTransformation( const mVisTrans* tr )
 {
-    if ( tr == displaytrans_ )
+    if ( tr == displaytrans_.ptr() )
 	return;
 
     const Coord3 center = getCenter();

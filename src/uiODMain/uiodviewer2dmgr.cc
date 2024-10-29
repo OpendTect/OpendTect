@@ -269,7 +269,7 @@ Viewer2DID uiODViewer2DMgr::displayIn2DViewer( const SeisDataPack& sdp,
 {
     uiODViewer2D* vwr2d = &addViewer2D( VisID::udf() );
     vwr2d->setSelSpec( &as, FlatView::Viewer::Both );
-    vwr2d->makeUpView( vwr2d->createFlatDataPackRM( sdp, 0 ),
+    vwr2d->makeUpView( vwr2d->createFlatDataPackRM(sdp,0).ptr(),
 		       FlatView::Viewer::Both );
     vwr2d->setWinTitle( false );
 
@@ -340,7 +340,7 @@ Viewer2DID uiODViewer2DMgr::displayIn2DViewer( Viewer2DPosDataSel& posdatasel,
 	vwr2d->setRandomLineID( rdmline->ID() );
     vwr2d->setInitialX1PosPerCM( initialx1pospercm );
     vwr2d->setInitialX2PosPerCM( initialx2pospercm );
-    vwr2d->makeUpView( vwr2d->createFlatDataPackRM( *dp, 0),
+    vwr2d->makeUpView( vwr2d->createFlatDataPackRM(*dp,0).ptr(),
 		       FlatView::Viewer::Both );
     vwr2d->setWinTitle( false );
     vwr2d->useStoredDispPars( dest );
@@ -403,10 +403,11 @@ void uiODViewer2DMgr::displayIn2DViewer( const VisID& visid, int attribid,
 
     const int version = visServ().currentVersion( visid, attribid );
     if ( isnewvwr )
-	vwr2d->makeUpView( vwr2d->createFlatDataPackRM(id, version),
+	vwr2d->makeUpView( vwr2d->createFlatDataPackRM(id,version).ptr(),
 			   FlatView::Viewer::Both );
     else
-	vwr2d->makeUpView( vwr2d->createFlatDataPackRM(id, version), dest );
+	vwr2d->makeUpView( vwr2d->createFlatDataPackRM(id,version).ptr(),
+			   dest );
 
     vwr2d->setWinTitle( true );
     uiFlatViewer& vwr = vwr2d->viewwin()->viewer();
@@ -779,10 +780,10 @@ void uiODViewer2DMgr::create2DViewer( const uiODViewer2D& curvwr2d,
 
     const uiFlatViewer& curvwr = curvwr2d.viewwin()->viewer( 0 );
     if ( curvwr.isVisible(true) )
-	vwr2d->makeUpView( vwr2d->createDataPackRM(true),
+	vwr2d->makeUpView( vwr2d->createDataPackRM(true).ptr(),
 			   FlatView::Viewer::WVA );
     else if ( curvwr.isVisible(false) )
-	vwr2d->makeUpView( vwr2d->createDataPackRM(false),
+	vwr2d->makeUpView( vwr2d->createDataPackRM(false).ptr(),
 			   FlatView::Viewer::VD );
 
     if ( vwr2d->viewControl() && control )
@@ -965,11 +966,11 @@ void uiODViewer2DMgr::getVWR2DDataGeomIDs(
 
     Attrib::DescSet* ads2d = Attrib::eDSHolder().getDescSet( true, false );
     Attrib::DescSet* ads2dns = Attrib::eDSHolder().getDescSet( true, true );
-    const Attrib::Desc* wvadesc =
+    ConstRefMan<Attrib::Desc> wvadesc =
 	ads2d->getDesc( vwr2d->selSpec(true).id() );
     if ( !wvadesc )
 	wvadesc = ads2dns->getDesc( vwr2d->selSpec(true).id() );
-    const Attrib::Desc* vddesc =
+    ConstRefMan<Attrib::Desc> vddesc =
 	ads2d->getDesc( vwr2d->selSpec(false).id() );
     if ( !vddesc )
 	vddesc = ads2dns->getDesc( vwr2d->selSpec(false).id() );

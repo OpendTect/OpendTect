@@ -1059,7 +1059,7 @@ bool IOMan::implIsLink( const MultiID& key ) const
 	return false;
 
     ConstPtrMan<Translator> trans = ioobj->createTranslator();
-    return trans && trans->implIsLink( ioobj );
+    return trans && trans->implIsLink( ioobj.ptr() );
 }
 
 
@@ -1113,7 +1113,7 @@ bool IOMan::implRename( const MultiID& key, const char* newname )
 
     ioobj->setName( newnm );
     mDynamicCastGet(IOStream*,iostrm,ioobj.ptr())
-    if ( !iostrm || trans->implIsLink(ioobj) )
+    if ( !iostrm || trans->implIsLink(ioobj.ptr()) )
 	return IOM().commitChanges( *ioobj );
 
     if ( !iostrm->implExists(true) )
@@ -1139,7 +1139,7 @@ bool IOMan::implRename( const MultiID& key, const char* newname )
 
     const bool newfnm = StringView(chiostrm.fileSpec().fileName())
 				    != iostrm->fileSpec().fileName();
-    if ( newfnm && !doReloc(key,trans,*iostrm,chiostrm) )
+    if ( newfnm && !doReloc(key,trans.ptr(),*iostrm,chiostrm) )
     {
 	if ( !newnm.contains('/') && !newnm.contains('\\') )
 	    return false;
@@ -1151,7 +1151,7 @@ bool IOMan::implRename( const MultiID& key, const char* newname )
 	fp.setFileName( deffp.fileName() );
 	chiostrm.fileSpec().setFileName( fp.fullPath() );
 	chiostrm.setName( iostrm->name() );
-	if ( !doReloc(key,trans,*iostrm,chiostrm) )
+	if ( !doReloc(key,trans.ptr(),*iostrm,chiostrm) )
 	    return false;
     }
 
@@ -1178,7 +1178,7 @@ bool IOMan::implReloc( const MultiID& key, const char* newdir )
 
     FilePath fp( oldfnm ); fp.setPath( newdir );
     chiostrm.fileSpec().setFileName( fp.fullPath() );
-    if ( !doReloc(key,trans,*iostrm,chiostrm) )
+    if ( !doReloc(key,trans.ptr(),*iostrm,chiostrm) )
 	return false;
 
     IOM().commitChanges( *ioobj );
@@ -1272,14 +1272,14 @@ IOObj* IOMan::get( const IOObjContext& ctxt, const char* objnm ) const
 bool IOMan::isPresent( const MultiID& key ) const
 {
     PtrMan<IOObj> obj = get( key );
-    return obj != nullptr;
+    return obj;
 }
 
 
 bool IOMan::isPresent( const char* objname, const char* tgname ) const
 {
     PtrMan<IOObj> obj = get( objname, tgname );
-    return obj != nullptr;
+    return obj;
 }
 
 
@@ -1311,7 +1311,7 @@ bool IOMan::commitChanges( const IOObj& ioobj )
     PtrMan<IOObj> clone = ioobj.clone();
     to( clone->key() );
 
-    return dirptr_ ? dirptr_->commitChanges( clone ) : false;
+    return dirptr_ ? dirptr_->commitChanges( clone.ptr() ) : false;
 }
 
 
@@ -1333,7 +1333,8 @@ bool IOMan::permRemove( const MultiID& ky )
 	return false;
     }
 
-    const CompoundKey defaultkey( trl->group()->getSurveyDefaultKey(ioobj) );
+    const CompoundKey defaultkey(
+		trl->group()->getSurveyDefaultKey(ioobj.ptr()) );
     Threads::Locker lock( lock_ );
     if ( !dirptr_ || !dirptr_->permRemove(ky) )
 	return false;

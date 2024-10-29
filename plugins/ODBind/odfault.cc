@@ -143,15 +143,18 @@ void odFaultObject::getStick( int idx, hAllocator allocator ) const
     }
 
     const int ndim_xy = 1;
-    PtrMan<int> dims_xy = new int[ndim_xy];
+    ArrPtrMan<int> dims_xy = new int[ndim_xy];
     const Geometry::FaultStick* stick = fss->getStick( idx );
     if ( !stick )
 	return;
 
     dims_xy[0] = stick->size();
-    double* xdata = static_cast<double*>(allocator(ndim_xy, dims_xy, 'd'));
-    double* ydata = static_cast<double*>(allocator(ndim_xy, dims_xy, 'd'));
-    double* zdata = static_cast<double*>(allocator(ndim_xy, dims_xy, 'd'));
+    double* xdata =
+	static_cast<double*>(allocator(ndim_xy, dims_xy.ptr(), 'd'));
+    double* ydata =
+	static_cast<double*>(allocator(ndim_xy, dims_xy.ptr(), 'd'));
+    double* zdata =
+	static_cast<double*>(allocator(ndim_xy, dims_xy.ptr(), 'd'));
     const TypeSet<LocationBase>& locs = stick->locs_;
     for ( const auto& loc : locs )
     {

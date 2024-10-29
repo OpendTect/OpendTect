@@ -192,7 +192,7 @@ void uiZStretchDlg::setOneZStretchToAllScenes( float zstretch, bool permanent )
     {
 	RefMan<visSurvey::Scene> scene = getSceneByIdx( idx );
 	if ( scene )
-	    setZStretch( scene, zstretch, permanent );
+	    setZStretch( scene.ptr(), zstretch, permanent);
     }
 }
 
@@ -207,7 +207,7 @@ void uiZStretchDlg::setZStretchesToScenes( TypeSet<float>& zstretches,
     {
 	RefMan<visSurvey::Scene> scene = getSceneByIdx( idx );
 	if ( scene )
-	    setZStretch( scene, zstretches[idx], permanent );
+	    setZStretch( scene.ptr(), zstretches[idx], permanent);
     }
 }
 
@@ -260,7 +260,7 @@ void uiZStretchDlg::sliderMove( CallBacker* )
     if ( stretchall )
 	setOneZStretchToAllScenes( slval, true );
     else
-	setZStretch( scene, slval, false );
+	setZStretch( scene.ptr(), slval, false);
 
 }
 

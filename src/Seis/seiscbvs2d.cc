@@ -338,7 +338,7 @@ Executor* SeisCBVS2DLineIOProvider::getFetcher( const IOObj& obj,
     {
 	tmpsd = Seis::SelData::get( Seis::Range );
 	tmpsd->setGeomID( geomid );
-	usedsd = tmpsd;
+	usedsd = tmpsd.ptr();
     }
 
     return new SeisCBVS2DLineGetter( fnm, geomid, tbuf, ntps, *usedsd );

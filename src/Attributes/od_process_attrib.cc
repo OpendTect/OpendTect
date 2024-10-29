@@ -130,7 +130,7 @@ bool BatchProgram::doWork( od_ostream& strm )
 	if ( !ioobj )
 	    mRetHostErr( "Cannot find provided attrib set ID" )
 	uiString msg;
-	if ( !AttribDescSetTranslator::retrieve(attribset,ioobj,msg) )
+	if ( !AttribDescSetTranslator::retrieve(attribset,ioobj.ptr(),msg) )
 	    mRetJobErr( msg );
     }
     else

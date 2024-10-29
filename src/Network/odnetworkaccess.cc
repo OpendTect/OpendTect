@@ -229,12 +229,12 @@ bool FileDownloader::writeData()
 	return true;
 
     mAllocLargeVarLenArr( char, buffer, bytes );
-    bytes = odnr_->read( buffer, bytes );
+    bytes = odnr_->read( mVarLenArr(buffer), bytes );
     nrdone_ += bytes;
     if ( databuffer_ )
-	return writeDataToBuffer( buffer, bytes );
+	return writeDataToBuffer( mVarLenArr(buffer), bytes );
     else
-	return writeDataToFile( buffer, bytes );
+	return writeDataToFile( mVarLenArr(buffer), bytes );
 }
 
 
@@ -437,7 +437,7 @@ int DataUploader::nextStep()
 	req->contentType( header_ );
 	req->payloadData( data_ );
 
-	odnr_ = Network::HttpRequestManager::instance().request(req);
+	odnr_ = Network::HttpRequestManager::instance().request(req.ptr());
 	init_ = false;
     }
 

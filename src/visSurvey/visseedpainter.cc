@@ -378,7 +378,7 @@ void SeedPainter::paintSeedsOnInlCrl( const visBase::EventInfo& curev,
 
     set_->bulkAppendWithUndo( mylocs, indexes );
     Pick::SetMgr::BulkChangeData cd( Pick::SetMgr::BulkChangeData::Added,
-				     set_, indexes );
+				     set_.ptr(), indexes );
     picksetmgr_->reportBulkChange( 0, cd );
 }
 
@@ -458,7 +458,7 @@ void SeedPainter::paintSeedsOnZSlice( const visBase::EventInfo& curev,
 
     set_->bulkAppendWithUndo( mylocs, indexes );
     Pick::SetMgr::BulkChangeData cd( Pick::SetMgr::BulkChangeData::Added,
-				     set_, indexes );
+				     set_.ptr(), indexes );
     picksetmgr_->reportBulkChange( 0, cd );
 }
 
@@ -551,7 +551,7 @@ void SeedPainter::paintSeedsOnRandLine( const RandomTrackDisplay* rtd,
 
     set_->bulkAppendWithUndo( mylocs, indexes );
     Pick::SetMgr::BulkChangeData cd( Pick::SetMgr::BulkChangeData::Added,
-				     set_, indexes );
+				     set_.ptr(), indexes );
     picksetmgr_->reportBulkChange( 0, cd );
 
 }
@@ -650,7 +650,7 @@ void SeedPainter::paintSeedsOn2DLine( const Seis2DDisplay* s2d,
 
     set_->bulkAppendWithUndo( mylocs, indexes );
     Pick::SetMgr::BulkChangeData cd( Pick::SetMgr::BulkChangeData::Added,
-				     set_, indexes );
+				     set_.ptr(), indexes );
     picksetmgr_->reportBulkChange( 0, cd );
 
 }
@@ -713,7 +713,7 @@ void SeedPainter::eraseSeeds( const visBase::EventInfo& curev )
 
     set_->bulkRemoveWithUndo( mylocs, indexes );
     Pick::SetMgr::BulkChangeData cd( Pick::SetMgr::BulkChangeData::ToBeRemoved,
-				     set_, indexes );
+				     set_.ptr(), indexes );
     picksetmgr_->reportBulkChange( 0, cd );
 }
 
@@ -762,7 +762,7 @@ void SeedPainter::eraseSeedsOnRandLine( const RandomTrackDisplay* rtd,
 
     set_->bulkRemoveWithUndo( mylocs, indexes );
     Pick::SetMgr::BulkChangeData cd( Pick::SetMgr::BulkChangeData::ToBeRemoved,
-				     set_, indexes );
+				     set_.ptr(), indexes );
     picksetmgr_->reportBulkChange( 0, cd );
 }
 
@@ -816,7 +816,7 @@ void SeedPainter::eraseSeedsOn2DLine( const Seis2DDisplay* s2d,
 
     set_->bulkRemoveWithUndo( mylocs, indexes );
     Pick::SetMgr::BulkChangeData cd( Pick::SetMgr::BulkChangeData::ToBeRemoved,
-				     set_, indexes );
+				     set_.ptr(), indexes );
     picksetmgr_->reportBulkChange( 0, cd );
 }
 

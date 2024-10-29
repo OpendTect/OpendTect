@@ -112,8 +112,8 @@ uiTreeItem* uiODAnnotTreeItemFactory::create( const VisID& visid,
 	PtrMan<IOObj> ioobj = IOM().get( mid );
 	RefMan<Pick::Set> ps = new Pick::Set;
 	uiString errmsg;
-	PickSetTranslator::retrieve(*ps,ioobj,true,errmsg);
-	mgr.set( mid, ps );
+	PickSetTranslator::retrieve(*ps,ioobj.ptr(), true, errmsg);
+	mgr.set( mid, ps.ptr() );
 
 	setidx = mgr.indexOf(mid);
 
@@ -176,7 +176,7 @@ void uiODAnnotTreeItem::removePickSet( Pick::Set* ps )
 	    visserv->getObject(displayid));
 	if ( !ld ) continue;
 
-	if ( ld->getSet() == ps )
+	if ( ld->getSet().ptr() == ps)
 	{
 	    applMgr()->visServer()->removeObject( displayid, sceneID() );
 	    uiTreeItem::removeChild( itm );
@@ -195,7 +195,7 @@ void uiODAnnotTreeItem::setRemovedCB( CallBacker* cb )
     {
 	mDynamicCastGet(uiODAnnotSubItem*,itm,children_[idx])
 	    if ( !itm ) continue;
-	if ( itm->getSet() == ps )
+	if ( itm->getSet().ptr() == ps)
 	{
 	    applMgr()->visServer()->removeObject( itm->displayID(), sceneID() );
 	    uiTreeItem::removeChild( itm );
@@ -256,7 +256,7 @@ bool uiODAnnotTreeItem::showSubMenu()
 		set->disp_.pixsize_ = defScale();
 
 	    Pick::SetMgr& mgr = Pick::SetMgr::getMgr( managerName() );
-	    mgr.set( mid, set );
+	    mgr.set( mid, set.ptr() );
 	    uiTreeItem* item = createSubItem( VisID::udf(), *set );
 	    addChild( item, true );
 	    break;
@@ -355,7 +355,7 @@ bool uiODAnnotSubItem::init()
     if ( ld )
     {
 	ld->setSetMgr( &Pick::SetMgr::getMgr( managerName()) );
-	ld->setSet( set_ );
+	ld->setSet( set_.ptr() );
     }
 
     return uiODDisplayTreeItem::init();
@@ -438,7 +438,7 @@ void uiODAnnotSubItem::store() const
 
     fillStoragePar( set_->pars_ );
     uiString errmsg;
-    if ( !PickSetTranslator::store(*set_,ioobj,errmsg) )
+    if ( !PickSetTranslator::store(*set_,ioobj.ptr(), errmsg))
 	uiMSG().error( errmsg );
     else
 	mgr.setUnChanged( setidx );

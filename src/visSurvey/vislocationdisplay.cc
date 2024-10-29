@@ -84,7 +84,7 @@ void LocationDisplay::setSet( Pick::Set* ps )
 
     if ( set_ )
     {
-	if ( set_!=ps )
+	if ( set_.ptr() != ps )
 	{
 	    pErrMsg("Cannot set set_ twice");
 	}
@@ -297,7 +297,7 @@ void LocationDisplay::pickCB( CallBacker* cb )
 			      cartesian2Spherical(dir,true) );
 		Pick::SetMgr::ChangeData cd(
 			Pick::SetMgr::ChangeData::Changed,
-			set_, waitsfordirectionid_ );
+			set_.ptr(), waitsfordirectionid_ );
 		picksetmgr_->reportChange( 0, cd );
 	    }
 	}
@@ -349,7 +349,7 @@ void LocationDisplay::pickCB( CallBacker* cb )
 
 	    Pick::SetMgr::ChangeData cd(
 		    Pick::SetMgr::ChangeData::Changed,
-		    set_, waitsforpositionid_ );
+		    set_.ptr(), waitsforpositionid_ );
 	    picksetmgr_->reportChange( 0, cd );
 	}
 
@@ -524,7 +524,7 @@ Coord3 LocationDisplay::display2World( const Coord3& pos ) const
 Coord3 LocationDisplay::world2Display( const Coord3& pos ) const
 {
     Coord3 res;
-    mVisTrans::transform( transformation_, pos, res );
+    mVisTrans::transform( transformation_.ptr(), pos, res );
     if ( scene_ )
 	scene_->getTempZStretchTransform()->transform( res );
     return res;
@@ -596,7 +596,7 @@ void LocationDisplay::locChg( CallBacker* cb )
 	pErrMsg("Wrong pointer passed");
 	return;
     }
-    else if ( cd->set_ != set_ )
+    else if ( cd->set_ != set_.ptr() )
 	return;
 
     if ( cd->ev_==Pick::SetMgr::ChangeData::Added )
@@ -631,7 +631,7 @@ void LocationDisplay::bulkLocChg( CallBacker* cb )
 	pErrMsg("Wrong pointer passed");
 	return;
     }
-    else if ( cd->set_ != set_ )
+    else if ( cd->set_ != set_.ptr() )
 	return;
 
     if ( cd->ev_==Pick::SetMgr::BulkChangeData::Added )
@@ -668,7 +668,7 @@ void LocationDisplay::setChg( CallBacker* cb )
 	pErrMsg("Wrong pointer passed");
 	return;
     }
-    else if ( ps != set_ )
+    else if ( ps != set_.ptr() )
 	return;
 
     manip_.trigger();
@@ -784,10 +784,10 @@ bool LocationDisplay::addPick( const Coord3& pos, const Sphere& dir,
     if ( notif && picksetmgr_ )
     {
 	if ( picksetmgr_->indexOf(*set_)==-1 )
-	    picksetmgr_->set( MultiID(), set_ );
+	    picksetmgr_->set( MultiID(), set_.ptr() );
 
 	Pick::SetMgr::ChangeData cd( Pick::SetMgr::ChangeData::Added,
-				     set_, locidx );
+				     set_.ptr(), locidx );
 	picksetmgr_->reportChange( 0, cd );
     }
 
@@ -814,7 +814,7 @@ void LocationDisplay::removePick( int removeidx, bool setundo )
 	return;
 
     Pick::SetMgr::ChangeData cd( Pick::SetMgr::ChangeData::ToBeRemoved,
-				 set_, removeidx );
+				 set_.ptr(), removeidx );
     set_->removeSingleWithUndo( removeidx );
     if ( setundo )
     {
@@ -874,7 +874,7 @@ void LocationDisplay::removePosition( int idx )
 
 void LocationDisplay::setDisplayTransformation( const mVisTrans* newtr )
 {
-    if ( transformation_==newtr )
+    if ( transformation_.ptr()==newtr )
 	return;
 
     transformation_ = newtr;
@@ -886,7 +886,7 @@ void LocationDisplay::setDisplayTransformation( const mVisTrans* newtr )
 
 const mVisTrans* LocationDisplay::getDisplayTransformation() const
 {
-    return transformation_;
+    return transformation_.ptr();
 }
 
 
@@ -918,7 +918,7 @@ int LocationDisplay::getPickIdx( visBase::DataObject* dataobj ) const
 
 bool LocationDisplay::setZAxisTransform( ZAxisTransform* zat, TaskRunner* tr )
 {
-    if ( datatransform_==zat )
+    if ( datatransform_.ptr()==zat )
 	return true;
 
     if ( datatransform_ && datatransform_->changeNotifier() )
@@ -939,7 +939,7 @@ bool LocationDisplay::setZAxisTransform( ZAxisTransform* zat, TaskRunner* tr )
 
 const ZAxisTransform* LocationDisplay::getZAxisTransform() const
 {
-    return datatransform_;
+    return datatransform_.ptr();
 }
 
 
@@ -1055,7 +1055,7 @@ bool LocationDisplay::usePar( const IOPar& par )
 	uiString errmsg;
 	PtrMan<IOObj> ioobj = IOM().get( storedmid_ );
 	if ( ioobj )
-	    PickSetTranslator::retrieve( *newps, ioobj, true, errmsg );
+	    PickSetTranslator::retrieve( *newps, ioobj.ptr(), true, errmsg );
 
 	if ( newps->name().isEmpty() )
 	    newps->setName( getName() );
@@ -1064,12 +1064,12 @@ bool LocationDisplay::usePar( const IOPar& par )
 	newps->disp_.pixsize_ = pixsize;
 
 	if ( picksetmgr_ )
-	    picksetmgr_->set( storedmid_, newps );
+	    picksetmgr_->set( storedmid_, newps.ptr() );
 
-	setSet( newps );
+	setSet( newps.ptr() );
     }
     else
-	setSet( picksetmgr_->get(storedmid_) );
+	setSet( picksetmgr_->get(storedmid_).ptr() );
 
     return true;
 }

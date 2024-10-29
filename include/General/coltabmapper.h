@@ -242,7 +242,7 @@ bool MapperTask<T>::doWork( od_int64 start, od_int64 stop, int )
 {
     mAllocVarLenArr( unsigned int, histogram,  mUndefColIdx+1);
 
-    OD::memZero( histogram, (mUndefColIdx+1)*sizeof(unsigned int) );
+    OD::memZero( mVarLenArr(histogram), (mUndefColIdx+1)*sizeof(unsigned int) );
 
     T* valresult = mappedvals_+start*mappedvalsspacing_;
     T* udfresult = mappedudfs_ ? mappedudfs_+start*mappedudfspacing_ : nullptr;

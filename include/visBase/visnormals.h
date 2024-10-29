@@ -54,7 +54,7 @@ public:
 
     void		setDisplayTransformation(const mVisTrans*) override;
     const mVisTrans*	getDisplayTransformation() const override
-			{ return transformation_; }
+			{ return transformation_.ptr(); }
 
     osg::Array*		osgArray() { return osgnormals_; }
     const osg::Array*	osgArray() const { return osgnormals_; }

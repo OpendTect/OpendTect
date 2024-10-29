@@ -123,7 +123,7 @@ int Coordinates::arraySize() const
 
 void Coordinates::setDisplayTransformation( const mVisTrans* nt )
 {
-    if ( nt==transformation_ )
+    if ( nt==transformation_.ptr() )
 	return;
 
     TypeSet<Coord3> worldpos;
@@ -194,9 +194,7 @@ int Coordinates::addPos( const Coord3& pos )
 
     Coord3 postoset = pos;
     if ( postoset.isDefined() )
-    {
-	Transformation::transform( transformation_, postoset );
-    }
+	Transformation::transform( transformation_.ptr(), postoset );
 
     mGetOsgVec3Arr(osgcoords_)->push_back( Conv::to<osg::Vec3>(postoset) );
     change.trigger();

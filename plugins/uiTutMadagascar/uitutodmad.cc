@@ -96,7 +96,7 @@ void uiTutODMad::createAndDisplay2DViewer()
     const bool dowiggles = dowigglesfld_->getBoolValue();
     const FlatView::Viewer::VwrDest dest =
 	  FlatView::Viewer::getDest( dowiggles, !dowiggles );
-    vwr.setPack( dest, bufdtpack_, true );
+    vwr.setPack( dest, bufdtpack_.ptr(), true);
     FlatView::Appearance& app = vwr.appearance();
     app.annot_.setAxesAnnot( true );
     app.setDarkBG( false );

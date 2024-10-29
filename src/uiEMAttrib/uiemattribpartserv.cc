@@ -145,10 +145,11 @@ void uiEMAttribPartServer::createHorizonOutput( HorOutType type,
 void uiEMAttribPartServer::snapHorizon( const EM::ObjectID& emid, bool is2d )
 {
     PtrMan<IOObj> ioobj = IOM().get( EM::EMM().getMultiID(emid) );
-    if ( !ioobj ) return;
+    if ( !ioobj )
+	return;
 
     delete uiseisevsnapdlg_;
-    uiseisevsnapdlg_ = new uiSeisEventSnapper( parent(), ioobj, is2d );
+    uiseisevsnapdlg_ = new uiSeisEventSnapper( parent(), ioobj.ptr(), is2d);
     uiseisevsnapdlg_->readyForDisplay.notify(
 		mCB(this,uiEMAttribPartServer,readyForDisplayCB) );
     uiseisevsnapdlg_->show();

@@ -488,7 +488,7 @@ bool uiSEGYReadFinisher::do3D( const IOObj& inioobj, const IOObj& outioobj,
     }
 
     wrr = nullptr;  // closes output
-    if ( !handleWarnings(!doimp,indexer,imp) )
+    if ( !handleWarnings(!doimp,indexer.ptr(), imp.ptr()) )
 	{ IOM().permRemove( outioobj.key() ); return false; }
 
     if ( indexer )
@@ -698,7 +698,7 @@ bool uiSEGYReadFinisher::exec2Dimp( const IOObj& inioobj, const IOObj& outioobj,
 	return false;
 
     wrr.erase(); // closes output
-    handleWarnings( false, indexer, imp );
+    handleWarnings( false, indexer.ptr(), imp.ptr() );
 
     return true;
 }

@@ -89,7 +89,8 @@ public:
     void			updateEditPids();
     void			updateKnotMarkers();
     void			updateAll();
-    const visBase::Lines*	getStickSetLines() const { return sticks_; }
+    const visBase::Lines*	getStickSetLines() const
+				{ return sticks_.ptr(); }
 
     Notifier<FaultStickSetDisplay> colorchange;
     Notifier<FaultStickSetDisplay> displaymodechange;

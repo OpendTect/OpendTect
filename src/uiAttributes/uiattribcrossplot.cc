@@ -96,7 +96,8 @@ void uiAttribCrossPlot::adsChg()
     attrinfo_ = new Attrib::SelInfo( &ads_, 0, ads_.is2D() );
     for ( int idx=0; idx<attrinfo_->attrnms_.size(); idx++ )
     {
-	const Attrib::Desc* desc = ads_.getDesc( attrinfo_->attrids_[idx] );
+	ConstRefMan<Attrib::Desc> desc =
+			ads_.getDesc( attrinfo_->attrids_[idx] );
 	if ( desc && desc->is2D() && desc->isPS() )
 	{
 	    attrinfo_->attrnms_.removeSingle( idx );
@@ -162,7 +163,7 @@ MultiID uiAttribCrossPlot::getSelectedID() const
     TypeSet<DescID>& descids = attrinfo_->attrids_;
     Attrib::DescID descid = descids.validIdx(curitem) ? descids[curitem]
 						      : Attrib::DescID();
-    const Attrib::Desc* desc = ads_.getDesc( descid );
+    ConstRefMan<Attrib::Desc> desc = ads_.getDesc( descid );
     if ( !desc )
 	return MultiID();
 
@@ -313,7 +314,7 @@ bool uiAttribCrossPlot::acceptOK( CallBacker* )
 
     MouseCursorManager::setOverride( MouseCursor::Wait );
     dps = new DataPointSet( prov->is2D() );
-    if ( !dps->extractPositions(*prov,dcds,filt,&taskrunner) )
+    if ( !dps->extractPositions(*prov,dcds,filt.ptr(),&taskrunner) )
 	return false;
 
     MouseCursorManager::restoreOverride();

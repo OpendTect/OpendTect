@@ -315,7 +315,8 @@ bool uiGMTContourGrp::loadHor()
     {
 	PtrMan<EM::SurfaceIODataSelection> sel =
 					new EM::SurfaceIODataSelection( sd_ );
-	PtrMan<Executor> exec = EM::EMM().objectLoader( ioobj->key(), sel );
+	PtrMan<Executor> exec = EM::EMM().objectLoader( ioobj->key(),
+							sel.ptr() );
 	if ( !exec )
 	    return false;
 

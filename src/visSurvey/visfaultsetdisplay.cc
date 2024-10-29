@@ -157,23 +157,23 @@ bool FaultSetDisplay::setEMObjectID( const EM::ObjectID& emid )
 				visBase::ColTabTextureChannel2RGBA::create();
 	    channels->setChannels2RGBA( channelsrgba.ptr() );
 	    channels->enableTextureInterpolation( true );
-	    channelset_.add( channels );
+	    channelset_.add( channels.ptr() );
 	    if ( idx==0 )
 		channels_ = channels;
 
 	    RefMan<visBase::GeomIndexedShape> paneldisplay =
 					visBase::GeomIndexedShape::create();
-	    paneldisplay->setDisplayTransformation( displaytransform_ );
+	    paneldisplay->setDisplayTransformation( displaytransform_.ptr() );
 	    paneldisplay->setMaterial( nullptr );
 	    paneldisplay->setSelectable( false );
 	    paneldisplay->setGeometryShapeType(
 					visBase::GeomIndexedShape::Triangle );
 	    paneldisplay->useOsgNormal( true );
 	    paneldisplay->setRenderMode( visBase::RenderBothSides );
-	    paneldisplay->setTextureChannels( channels );
+	    paneldisplay->setTextureChannels( channels.ptr() );
 
 	    addChild( paneldisplay->osgNode() );
-	    paneldisplays_ += paneldisplay;
+	    paneldisplays_ += paneldisplay.ptr();
 
 	    Geometry::ExplFaultStickSurface* explicitpanel = nullptr;
 	    mTryAlloc( explicitpanel,Geometry::ExplFaultStickSurface(0,zscale));
@@ -192,7 +192,8 @@ bool FaultSetDisplay::setEMObjectID( const EM::ObjectID& emid )
 
 	    RefMan<visBase::GeomIndexedShape> intersectiondisplay =
 					visBase::GeomIndexedShape::create();
-	    intersectiondisplay->setDisplayTransformation( displaytransform_ );
+	    intersectiondisplay->setDisplayTransformation(
+						displaytransform_.ptr() );
 	    intersectiondisplay->setMaterial( nullptr );
 	    intersectiondisplay->setSelectable( false );
 	    intersectiondisplay->setGeometryShapeType(
@@ -200,7 +201,7 @@ bool FaultSetDisplay::setEMObjectID( const EM::ObjectID& emid )
 					Geometry::PrimitiveSet::Lines );
 	    addChild( intersectiondisplay->osgNode() );
 	    intersectiondisplay->turnOn( false );
-	    intersectiondisplays_ += intersectiondisplay;
+	    intersectiondisplays_ += intersectiondisplay.ptr();
 
 	    Geometry::ExplPlaneIntersection* explicitintersection = nullptr;
 	    mTryAlloc( explicitintersection, Geometry::ExplPlaneIntersection );
@@ -343,7 +344,7 @@ void FaultSetDisplay::setDepthAsAttrib( int attrib )
 		vals[zcol] = vals[0];
 	}
 
-	setRandomPosData( attrib, data, 0 );
+	setRandomPosData( attrib, data.ptr(), nullptr );
     }
 
     if ( !attribwasdepth )
@@ -990,7 +991,7 @@ void FaultSetDisplay::updateHorizonIntersections( const VisID& whichobj,
 	line->setSelectable( false );
 	line->setGeometryShapeType( visBase::GeomIndexedShape::PolyLine3D,
 	    Geometry::PrimitiveSet::LineStrips );
-	line->setDisplayTransformation( displaytransform_ );
+	line->setDisplayTransformation( displaytransform_.ptr() );
 	addChild( line->osgNode() );
 	line->turnOn( false );
 	Geometry::ExplFaultStickSurface* shape = nullptr;

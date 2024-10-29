@@ -136,7 +136,7 @@ Wavelet* uiSeisWaveletSel::getWavelet() const
     if ( !ioobj )
 	return nullptr;
 
-    Wavelet* ret = Wavelet::get( ioobj );
+    Wavelet* ret = Wavelet::get( ioobj.ptr() );
     return ret;
 }
 

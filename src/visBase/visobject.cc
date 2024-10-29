@@ -100,7 +100,7 @@ void VisualObjectImpl::setMaterial( Material* mt )
     osg::StateSet* ss = osgroot_->getOrCreateStateSet();
     if ( material_ )
     {
-	removeNodeState( material_ );
+	removeNodeState( material_.ptr() );
 	mDetachCB( material_->change, VisualObjectImpl::materialChangeCB );
     }
 
@@ -145,7 +145,7 @@ Material* VisualObjectImpl::getMaterial()
 	setMaterial( newmt.ptr() );
     }
 
-    return material_;
+    return material_.ptr();
 }
 
 

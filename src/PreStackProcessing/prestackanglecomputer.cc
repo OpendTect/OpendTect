@@ -331,8 +331,8 @@ void AngleComputer::averageSmooth( Array2D<float>& angledata )
     float* arr1doutput = angledata.getData();
     for ( int ofsidx=0; ofsidx<offsetsize; ofsidx++ )
     {
-	OD::memCopy( arr1dinput, arr1doutput, zsize*sizeof(float) );
-	sm.setInput( arr1dinput, zsize );
+	OD::memCopy( mVarLenArr(arr1dinput), arr1doutput, zsize*sizeof(float) );
+	sm.setInput( mVarLenArr(arr1dinput), zsize );
 	sm.setOutput( arr1doutput );
 	sm.setWindow( windowname, smoothingparam, filtersz );
 	sm.execute();

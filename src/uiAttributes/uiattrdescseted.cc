@@ -520,7 +520,7 @@ void uiAttribDescSetEd::addPush( CallBacker* )
     if ( !newdesc )
 	return;
 
-    if ( !attrset_->addDesc(newdesc).isValid() )
+    if ( !attrset_->addDesc(newdesc.ptr()).isValid() )
 	{ uiMSG().error( attrset_->errMsg() ); return; }
 
     newList( attrdescs_.size() );
@@ -552,7 +552,7 @@ RefMan<Attrib::Desc> uiAttribDescSetEd::createAttribDesc( bool checkuref )
 
     newdesc->setDescSet( attrset_ );
     newdesc->setUserRef( newnm );
-    uiString res = curde->commit( newdesc );
+    uiString res = curde->commit( newdesc.ptr() );
     if ( !res.isEmpty() )
 	mErrRetNull( res );
 
@@ -762,8 +762,8 @@ bool uiAttribDescSetEd::doAcceptInputs()
     for ( int idx=0; idx<attrset_->size(); idx++ )
     {
 	const DescID descid = attrset_->getID( idx );
-	Desc* desc = attrset_->getDesc( descid );
-	uiString errmsg = curDescEd()->errMsgStr( desc );
+	RefMan<Desc> desc = attrset_->getDesc( descid );
+	uiString errmsg = curDescEd()->errMsgStr( desc.ptr() );
 	if ( !errmsg.isEmpty() )
 	{
 	    if ( desc->isStored() )
@@ -786,7 +786,7 @@ bool uiAttribDescSetEd::doAcceptInputs()
 
 bool uiAttribDescSetEd::doCommit( bool useprev )
 {
-    Desc* usedesc = useprev ? prevdesc_ : curDesc();
+    RefMan<Desc> usedesc = useprev ? prevdesc_ : curDesc();
     if ( !usedesc )
 	return false;
 
@@ -825,12 +825,12 @@ bool uiAttribDescSetEd::doCommit( bool useprev )
 		return false;
 	    }
 
-	    attrset_->insertDesc( newdesc, oldattridx, id );
+	    attrset_->insertDesc( newdesc.ptr(), oldattridx, id );
 	    const int curidx = attrdescs_.indexOf( curDesc() );
 	    newList( curidx );
 	    removeNotUsedAttr();
 	    adsman_->setSaved( false );
-	    usedesc = newdesc;
+	    usedesc = newdesc.ptr();
 	}
 	else
 	{
@@ -839,7 +839,7 @@ bool uiAttribDescSetEd::doCommit( bool useprev )
 	}
     }
 
-    if ( checkusrref && !setUserRef(usedesc) )
+    if ( checkusrref && !setUserRef(usedesc.ptr()) )
 	return false;
 
     uiAttrDescEd* curdesced = curDescEd();
@@ -864,10 +864,10 @@ void uiAttribDescSetEd::updateUserRefs()
     for ( int iattr=0; iattr<attrset_->size(); iattr++ )
     {
 	const DescID descid = attrset_->getID( iattr );
-	Desc* desc = attrset_->getDesc( descid );
+	RefMan<Desc> desc = attrset_->getDesc( descid );
 	if ( !desc || desc->isHidden() || desc->isStored() ) continue;
 
-	attrdescs_ += desc;
+	attrdescs_ += desc.ptr();
 	userattrnames_.add( desc->userRef() );
     }
 }
@@ -1056,7 +1056,7 @@ void uiAttribDescSetEd::openAttribSet( const IOObj* ioobj )
 	attrset_->getIds( ids );
 	for ( int idx=0; idx<attrset_->size(); idx++ )
 	{
-	    Desc* ad = attrset_->getDesc( ids[idx] );
+	    RefMan<Desc> ad = attrset_->getDesc( ids[idx] );
 	    if ( !ad ) continue;
 	    if ( ad->isStored() && ad->isSatisfied()==2 )
 	    {
@@ -1536,7 +1536,7 @@ bool uiAttribDescSetEd::getUiAttribParamGrps( uiParent* uip,
 
     for ( int idx=0; idx<adids.size(); idx++ )
     {
-	Attrib::Desc* ad = attrset_->getDesc( adids[idx] );
+	RefMan<Attrib::Desc> ad = attrset_->getDesc( adids[idx] );
 	if ( !ad )
 	    continue;
 
@@ -1547,7 +1547,7 @@ bool uiAttribDescSetEd::getUiAttribParamGrps( uiParent* uip,
 	    continue;
 
 	desceds2erase += de;
-	de->setDesc( ad, nullptr );
+	de->setDesc( ad.ptr(), nullptr );
 	TypeSet<EvalParam> tmp;
 	de->getEvalParams( tmp );
 	for ( int idz=0; idz<tmp.size(); idz++ )

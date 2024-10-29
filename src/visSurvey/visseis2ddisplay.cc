@@ -65,7 +65,7 @@ Seis2DDisplay::Seis2DDisplay()
 
     panelstrip_ = visBase::TexturePanelStrip::create();
     addChild( panelstrip_->osgNode() );
-    panelstrip_->setTextureChannels( channels_ );
+    panelstrip_->setTextureChannels( channels_.ptr() );
     panelstrip_->swapTextureAxes();
     panelstrip_->smoothNormals();
 
@@ -92,7 +92,7 @@ Seis2DDisplay::~Seis2DDisplay()
     delete &geometry_;
 
     transformation_ = nullptr;
-    polyline_->removeNodeState( polylineds_ );
+    polyline_->removeNodeState( polylineds_.ptr() );
     polylineds_ = nullptr;
     polyline_ = nullptr;
     panelstrip_ = nullptr;
@@ -367,7 +367,7 @@ bool Seis2DDisplay::setSeisDataPack( int attrib, RegularSeisDataPack* dp,
 	return false;
     }
 
-    datapacks_.replace( attrib, regsdp );
+    datapacks_.replace( attrib, regsdp.ptr() );
 
     createTransformedDataPack( attrib, taskr );
     updateChannels( attrib, taskr );
@@ -545,7 +545,7 @@ void Seis2DDisplay::createTransformedDataPack( int attrib, TaskRunner* taskr )
 	transformed = transformer.getOutput();
     }
 
-    transformedpacks_.replace( attrib, transformed );
+    transformedpacks_.replace( attrib, transformed.ptr() );
 }
 
 
@@ -750,9 +750,9 @@ float Seis2DDisplay::calcDist( const Coord3& pos ) const
 void Seis2DDisplay::setDisplayTransformation( const mVisTrans* tf )
 {
     transformation_ = tf;
-    polyline_->setDisplayTransformation( transformation_ );
-    panelstrip_->setDisplayTransformation( transformation_ );
-    linename_->setDisplayTransformation( transformation_ );
+    polyline_->setDisplayTransformation( transformation_.ptr() );
+    panelstrip_->setDisplayTransformation( transformation_.ptr() );
+    linename_->setDisplayTransformation( transformation_.ptr() );
 }
 
 

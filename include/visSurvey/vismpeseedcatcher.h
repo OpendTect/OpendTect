@@ -152,7 +152,7 @@ public:
 					    const VisID&);
 
     void			setEditor(MPEEditor*);
-    const MPEEditor*		getEditor() const	{ return editor_; }
+    const MPEEditor*		getEditor() const	{ return editor_.ptr();}
     bool			activateSower(const OD::Color&,
 					      const TrcKeySampling* =nullptr);
     bool			sequentSowing() const;

@@ -307,7 +307,7 @@ void uiODApplMgrAttrVisHandler::useDefColTab( const VisID& visid, int attrib )
 
     if ( ioobj )
     {
-	const SeisIOObjInfo seisobj( ioobj );
+	const SeisIOObjInfo seisobj( ioobj.ptr() );
 	IOPar iop;
 	if ( seisobj.isOK() && seisobj.getDisplayPars(iop) )
 	{

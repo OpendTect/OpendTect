@@ -153,7 +153,7 @@ void calcFingParsObject::findDataSetID( MultiID& linesetid ) const
     {
 	if ( firstinp == attrset_->desc(idxdesc)->userRef() )
 	{
-	    Desc* dsc = attrset_->desc(idxdesc);
+	    RefMan<Desc> dsc = attrset_->desc(idxdesc);
 	    if ( dsc->isStored() )
 		linesetid = dsc->getStoredID();
 	    else
@@ -161,7 +161,7 @@ void calcFingParsObject::findDataSetID( MultiID& linesetid ) const
 		bool foundstored = false;
 		while ( !foundstored )
 		{
-		    Desc* inpdsc = dsc->getInput(0);
+		    RefMan<Desc> inpdsc = dsc->getInput(0);
 		    if ( inpdsc->isStored() )
 		    {
 			linesetid = inpdsc->getStoredID();

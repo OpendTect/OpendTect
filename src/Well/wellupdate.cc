@@ -319,7 +319,8 @@ void WellFileList::catchChange()
     Well::MGR().getWellKeys( ids, true );
     for ( const auto& id : ids )
     {
-	const Well::Data* wd = Well::MGR().get( id, Well::LoadReqs(Well::Inf) );
+	ConstRefMan<Well::Data> wd =
+		Well::MGR().get( id, Well::LoadReqs(Well::Inf) );
 	if ( !wd )
 	    continue;
 

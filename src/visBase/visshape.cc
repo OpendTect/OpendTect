@@ -355,7 +355,7 @@ void VertexShape::useVertexBufferRender( bool yn )
 
 void VertexShape::setCoordinates( Coordinates* coords )
 {
-    if ( coords == coords_ )
+    if ( coords == coords_.ptr() )
 	return;
 
     if ( coords_ )

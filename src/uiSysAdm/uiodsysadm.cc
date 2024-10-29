@@ -50,7 +50,7 @@ int ODSysAdmMain( uiMain& app )
     PIM().loadAuto( false );
     OD::ModDeps().ensureLoaded( "uiSysAdm" );
     PtrMan<uiODSysAdm> topdlg = new uiODSysAdm( app );
-    mainODSysAdmMainWin( topdlg, true );
+    mainODSysAdmMainWin( topdlg.ptr(), true );
     app.setTopLevel( topdlg.ptr() );
     uiMSG().setMainWin( topdlg.ptr() );
     PIM().loadAuto( true );

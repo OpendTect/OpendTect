@@ -291,7 +291,8 @@ void HDF5::ReaderImpl::gtValues( const H5::DataSet& h5ds,
 	    for ( dim_idx_type idim=0; idim<nrdims_; idim++ )
 		hdfcoordarr[arroffs + idim] = posbuf[idim];
 	}
-	inputdataspace.selectElements( H5S_SELECT_SET, nrpts, hdfcoordarr );
+	inputdataspace.selectElements( H5S_SELECT_SET, nrpts,
+					mVarLenArr(hdfcoordarr) );
 
 	H5::DataSpace outputdataspace( 1, &nrpts );
 	h5ds.read( data, h5DataType( h5ds ), outputdataspace, inputdataspace);

@@ -25,7 +25,7 @@ mImplFactory( SurveyObject, SurveyObject::factory );
 
 SurveyObject::SurveyObject()
 {
-    set3DSurvGeom( SI().get3DGeometry(true) );
+    set3DSurvGeom( SI().get3DGeometry(true).ptr() );
 }
 
 

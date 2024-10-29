@@ -185,8 +185,9 @@ void uiAttribPartServer::useAutoSet( bool is2d )
 	PtrMan<IOObj> ioobj = IOM().get( id );
 	uiString bs;
 	DescSet* attrset = new DescSet( is2d );
-	if ( !ioobj || !AttribDescSetTranslator::retrieve(*attrset,ioobj,bs)
-		|| attrset->is2D()!=is2d )
+	if ( !ioobj ||
+		!AttribDescSetTranslator::retrieve(*attrset,ioobj.ptr(),bs) ||
+		attrset->is2D()!=is2d )
 	    delete attrset;
 	else
 	{
@@ -427,7 +428,7 @@ bool uiAttribPartServer::selectAttrib( SelSpec& selspec,
 	attrdata.outputnr_ = dlg.outputNr();
 	attrdata.compnr_ = dlg.compNr();
 	attrdata.setAttrSet( &dlg.getAttrSet() );
-	const Attrib::Desc* desc =
+	ConstRefMan<Attrib::Desc> desc =
 	    attrdata.attrSet().getDesc( attrdata.attribid_ );
 	if ( desc && desc->isStored() && attrdata.compnr_==-1 )
 	{
@@ -446,7 +447,7 @@ bool uiAttribPartServer::selectAttrib( SelSpec& selspec,
 
     const bool isnla = !attrdata.attribid_.isValid() &&
 			attrdata.outputnr_ >= 0;
-    const Desc* desc = attrdata.attrSet().getDesc( attrdata.attribid_ );
+    ConstRefMan<Desc> desc = attrdata.attrSet().getDesc( attrdata.attribid_ );
     const bool isstored = desc && desc->isStored();
     BufferString objref;
     if ( isnla )
@@ -505,7 +506,7 @@ void uiAttribPartServer::directShowAttr( CallBacker* cb )
     DescSetMan* kpman = eDSHolder().getDescSetMan( ed->is2D() );
     DescSet* edads = const_cast<DescSet*>(dirshwattrdesc_->descSet());
     PtrMan<DescSetMan> tmpadsman = new DescSetMan( ed->is2D(), edads, false );
-    eDSHolder().replaceADSMan(tmpadsman);
+    eDSHolder().replaceADSMan(tmpadsman.ptr());
     sendEvent( evDirectShowAttr() );
     eDSHolder().replaceADSMan(kpman);
 }
@@ -717,7 +718,7 @@ EngineMan* uiAttribPartServer::createEngMan( const TrcKeyZSampling* tkzs,
     if ( !istargetstored )
     {
 	DescID attribid = targetspecs_[0].id();
-	Desc* seldesc = curdescset->getDesc( attribid );
+	RefMan<Desc> seldesc = curdescset->getDesc( attribid );
 	if ( seldesc )
 	{
 	    DescID multoiid = seldesc->getMultiOutputInputID();
@@ -778,9 +779,11 @@ static const Desc* getTargetDesc( const TypeSet<Attrib::SelSpec>& targetspecs )
     const bool isstortarget = targetspecs[0].isStored();
     const bool is2d = targetspecs[0].is2D();
     const DescSet* attrds = DSHolder().getDescSet( is2d, isstortarget );
-    const Desc* targetdesc = !attrds || attrds->isEmpty() ? nullptr
-				: attrds->getDesc( targetspecs[0].id() );
-    return targetdesc;
+    ConstRefMan<Desc> targetdesc;
+    if ( attrds && !attrds->isEmpty() )
+	targetdesc = attrds->getDesc( targetspecs[0].id() );
+
+    return targetdesc.ptr();
 }
 
 
@@ -917,7 +920,7 @@ RefMan<RegularSeisDataPack> uiAttribPartServer::createOutputRM(
 	if ( preloadeddatapack )
 	{
 	    ObjectSet<const RegularSeisDataPack> cubeset;
-	    cubeset += preloadeddatapack;
+	    cubeset += preloadeddatapack.ptr();
 	    return aem->getDataPackOutput( cubeset );
 	}
 
@@ -1131,9 +1134,9 @@ RefMan<RandomSeisDataPack> uiAttribPartServer::createRdmTrcsOutputRM(
 
     const bool isstortarget = targetspecs_.size() && targetspecs_[0].isStored();
     const DescSet* attrds = DSHolder().getDescSet(false,isstortarget);
-    const Desc* targetdesc = !attrds || attrds->isEmpty()
-			   ? nullptr
-			   : attrds->getDesc(targetspecs_[0].id());
+    ConstRefMan<Desc> targetdesc;
+    if ( attrds && !attrds->isEmpty() )
+	targetdesc = attrds->getDesc( targetspecs_[0].id() );
 
     if ( targetdesc )
     {
@@ -1158,7 +1161,7 @@ RefMan<RandomSeisDataPack> uiAttribPartServer::createRdmTrcsOutputRM(
     if ( trckeys.isEmpty() )
 	return nullptr;
 
-    snapToValidRandomTraces( trckeys, targetdesc );
+    snapToValidRandomTraces( trckeys, targetdesc.ptr() );
 
     BinIDValueSet bidset( 2, false );
     for ( const auto& tk : trckeys )
@@ -1209,8 +1212,9 @@ DataPackID uiAttribPartServer::createRdmTrcsOutput( const Interval<float>& zrg,
 
     const bool isstortarget = targetspecs_.size() && targetspecs_[0].isStored();
     const DescSet* attrds = DSHolder().getDescSet(false,isstortarget);
-    const Desc* targetdesc = !attrds || attrds->isEmpty() ? 0
-	: attrds->getDesc(targetspecs_[0].id());
+    ConstRefMan<Desc> targetdesc;
+    if ( attrds && !attrds->isEmpty() )
+	targetdesc = attrds->getDesc( targetspecs_[0].id() );
 
     if ( targetdesc )
     {
@@ -1235,7 +1239,7 @@ DataPackID uiAttribPartServer::createRdmTrcsOutput( const Interval<float>& zrg,
     if ( trckeys.isEmpty() )
 	return DataPack::cNoID();
 
-    snapToValidRandomTraces( trckeys, targetdesc );
+    snapToValidRandomTraces( trckeys, targetdesc.ptr() );
 
     BinIDValueSet bidset( 2, false );
     for ( const auto& tk : trckeys )
@@ -1332,8 +1336,9 @@ DataPackID uiAttribPartServer::createRdmTrcsOutput(const Interval<float>& zrg,
 {
     const bool isstortarget = targetspecs_.size() && targetspecs_[0].isStored();
     const DescSet* attrds = DSHolder().getDescSet(false,isstortarget);
-    const Desc* targetdesc = !attrds || attrds->isEmpty() ? nullptr
-			   : attrds->getDesc(targetspecs_[0].id());
+    ConstRefMan<Desc> targetdesc;
+    if ( attrds && !attrds->isEmpty() )
+	targetdesc = attrds->getDesc( targetspecs_[0].id() );
 
     const MultiID mid = targetdesc->getStoredID();
     ConstRefMan<RegularSeisDataPack> sdp =
@@ -1560,7 +1565,7 @@ DataPackID uiAttribPartServer::create2DOutput( const TrcKeyZSampling& tkzs,
     const DescSet* curds = DSHolder().getDescSet( true, isstored );
     if ( curds )
     {
-	const Desc* targetdesc = curds->getDesc( targetID(true) );
+	ConstRefMan<Desc> targetdesc = curds->getDesc( targetID(true) );
 	if ( targetdesc )
 	{
 	    const MultiID mid = targetdesc->getStoredID();
@@ -1767,7 +1772,7 @@ void uiAttribPartServer::fillInStoredAttribMenuItem(
 {
     const DescSet* ds = DSHolder().getDescSet( is2d, true );
     const DescSet* nonstoredds = DSHolder().getDescSet( is2d, false );
-    const Attrib::Desc* desc = nullptr;
+    ConstRefMan<Attrib::Desc> desc;
     if ( ds && ds->getDesc(as.id()) )
 	desc = ds->getDesc( as.id() );
     else if ( nonstoredds && nonstoredds->getDesc(as.id()) )
@@ -1969,7 +1974,7 @@ void uiAttribPartServer::filter2DMenuItems(
 	    if ( descidx<0 )
 		continue;
 
-	    const Attrib::Desc* desc = activeds->desc( descidx );
+	    ConstRefMan<Attrib::Desc> desc = activeds->desc( descidx );
 	    if ( !desc )
 		continue;
 
@@ -2119,7 +2124,10 @@ bool uiAttribPartServer::handleAttribSubMenu( int mnuid, SelSpec& as,
     if ( attribid.asInt() != SelSpec::cAttribNotSel().asInt() )
     {
 	const DescSet* attrset = DSHolder().getDescSet(is2d, isstored);
-	const Desc* desc = attrset ? attrset->getDesc( attribid ) : nullptr;
+	ConstRefMan<Desc> desc;
+	if ( attrset )
+	    desc = attrset->getDesc( attribid );
+
 	if ( desc  )
 	{
 	    desc->getDefStr( bfs );
@@ -2195,7 +2203,7 @@ bool uiAttribPartServer::handleMultiComp( const MultiID& multiid, bool is2d,
 	    //Trick for old steering cubes: fake good component names
 	    if ( !is2d && issteering )
 	    {
-		Desc* desc = ads->getDesc(attribid);
+		RefMan<Desc> desc = ads->getDesc(attribid);
 		if ( !desc ) return false;
 		mFakeCompName( "Component 1", Desc::sKeyInlDipComp() );
 		mFakeCompName( "Component 2", Desc::sKeyCrlDipComp() );
@@ -2226,7 +2234,7 @@ bool uiAttribPartServer::prepMultCompSpecs( const TypeSet<int>& selectedcomps,
 	DescID did = ads->getStoredID( multiid, selectedcomps[idx], true );
 	SelSpec as( nullptr, did );
 	BufferString bfs;
-	Desc* desc = ads->getDesc(did);
+	RefMan<Desc> desc = ads->getDesc( did );
 	if ( !desc ) return false;
 
 	desc->getDefStr(bfs);
@@ -2260,7 +2268,10 @@ IOObj* uiAttribPartServer::getIOObj( const SelSpec& as ) const
     if ( as.isNLA() ) return nullptr;
 
     const DescSet* attrset = DSHolder().getDescSet( as.is2D(), true );
-    const Desc* desc = attrset ? attrset->getDesc( as.id() ) : nullptr;
+    ConstRefMan<Desc> desc;
+    if ( attrset )
+	desc = attrset->getDesc( as.id() );
+
     if ( !desc )
     {
 	attrset = DSHolder().getDescSet( as.is2D(), false );
@@ -2368,7 +2379,7 @@ void uiAttribPartServer::evalDlgClosed( CallBacker* cb )
 	    DescSet* ads = attrsetdlg_->getSet();
 	    for ( int idx=0; idx<cids.size(); idx++ )
 	    {
-		Desc* ad = ads->getDesc( cids[idx] );
+		RefMan<Desc> ad = ads->getDesc( cids[idx] );
 		if ( ad ) ad->parseDefStr( ds );
 	    }
 	}
@@ -2396,7 +2407,7 @@ void uiAttribPartServer::calcEvalAttrs( CallBacker* cb )
 	crossevaldlg->getEvalSpecs( targetspecs_ );
 
     PtrMan<DescSetMan> tmpadsman = new DescSetMan( is2d, ads, false );
-    eDSHolder().replaceADSMan( tmpadsman );
+    eDSHolder().replaceADSMan( tmpadsman.ptr() );
     set2DEvent( is2d );
     sendEvent( evEvalCalcAttr() );
     eDSHolder().replaceADSMan( kpman );

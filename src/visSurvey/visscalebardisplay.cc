@@ -62,7 +62,7 @@ void ScaleBarDisplay::setDisplayTransformation( const mVisTrans* tf )
 
 const mVisTrans* ScaleBarDisplay::getDisplayTransformation() const
 {
-    return displaytransform_;
+    return displaytransform_.ptr();
 }
 
 #define mToGroup( fn, val ) \
@@ -147,7 +147,7 @@ RefMan<visBase::VisualObject> ScaleBarDisplay::createLocation() const
     sb->setOrientation( orientation_ );
     sb->setColor( getMaterial()->getColor() );
     sb->setMaterial( nullptr );
-    sb->setDisplayTransformation( displaytransform_ );
+    sb->setDisplayTransformation( displaytransform_.ptr() );
     return sb;
 }
 

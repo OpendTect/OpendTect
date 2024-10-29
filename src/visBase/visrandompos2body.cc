@@ -150,7 +150,7 @@ bool RandomPos2Body::setPoints( const TypeSet<Coord3>& pts, bool ispoly )
     RefMan<Geometry::IndexedPrimitiveSet> primitiveset =
 			    Geometry::IndexedPrimitiveSet::create( false );
     primitiveset->append( result.arr(), result.size() );
-    vtxshape_->addPrimitiveSet( primitiveset );
+    vtxshape_->addPrimitiveSet( primitiveset.ptr() );
     primitiveset = nullptr;
 
     vtxshape_->dirtyCoordinates();
@@ -166,14 +166,14 @@ void RandomPos2Body::setDisplayTransformation( const mVisTrans*  nt )
     if ( transformation_ )
     {
 	if ( vtxshape_ )
-	    vtxshape_->setDisplayTransformation( transformation_ );
+	    vtxshape_->setDisplayTransformation( transformation_.ptr() );
 
     }
 }
 
 
 const mVisTrans* RandomPos2Body::getDisplayTransformation() const
-{ return transformation_; }
+{ return transformation_.ptr(); }
 
 
 } // namespace visBase

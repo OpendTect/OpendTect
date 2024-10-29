@@ -164,7 +164,7 @@ bool uiCreateAttribLogDlg::acceptOK( CallBacker* )
 	    return false;
 
 	PtrMan<uiTaskRunner> taskrunner = new uiTaskRunner( this );
-	datasetup_.tr_ = taskrunner;
+	datasetup_.tr_ = taskrunner.ptr();
 	AttribLogCreator attriblog( datasetup_, sellogidx_ );
 	if ( !attriblog.doWork( *wd, errmsg ) )
 	    mErrRet( errmsg )

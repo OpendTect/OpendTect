@@ -899,7 +899,7 @@ RefMan<Desc> Desc::cloneDescAndPropagateInput( const DescID& newinputid,
     myclone->setHidden( true );
     BufferString newuserref( userref_, "_", sufix );
     myclone->setUserRef( newuserref.buf() );
-    descset_->addDesc( myclone );
+    descset_->addDesc( myclone.ptr() );
     return myclone;
 }
 

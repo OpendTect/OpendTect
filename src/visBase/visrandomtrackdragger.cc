@@ -484,9 +484,9 @@ bool PlaneDragCBHandler::setCorners( const Coord3& worldtopleft,
 				     const Coord3& worldbotright )
 {
     osg::Vec3 localtopleft, localbotright;
-    mVisTrans::transform( rtdragger_.displaytrans_,
+    mVisTrans::transform( rtdragger_.displaytrans_.ptr(),
 			  worldtopleft, localtopleft );
-    mVisTrans::transform( rtdragger_.displaytrans_,
+    mVisTrans::transform( rtdragger_.displaytrans_.ptr(),
 			  worldbotright, localbotright );
 
     osg::Vec3 localdir = osg::Vec3( localbotright[0]-localtopleft[0],
@@ -523,9 +523,9 @@ bool PlaneDragCBHandler::getCorners( Coord3& worldtopleft,
     const osg::Vec3 localtopleft = trans - diagonal * 0.5;
     const osg::Vec3 localbotright = localtopleft + diagonal;
 
-    mVisTrans::transformBack( rtdragger_.displaytrans_,
+    mVisTrans::transformBack( rtdragger_.displaytrans_.ptr(),
 			      localtopleft, worldtopleft );
-    mVisTrans::transformBack( rtdragger_.displaytrans_,
+    mVisTrans::transformBack( rtdragger_.displaytrans_.ptr(),
 			      localbotright, worldbotright );
     return true;
 }
@@ -668,7 +668,9 @@ void RandomTrackDragger::setDisplayTransformation( const mVisTrans* trans )
 
 
 const mVisTrans* RandomTrackDragger::getDisplayTransformation() const
-{ return displaytrans_; }
+{
+    return displaytrans_.ptr();
+}
 
 
 void RandomTrackDragger::triggerRightClick( const EventInfo* eventinfo )
@@ -847,7 +849,7 @@ void RandomTrackDragger::insertKnot( int knotidx, const Coord& pos )
     {
 	RefMan<Dragger> dragger = Dragger::create();
 	dragger->setSize( 20 );
-	dragger->setDisplayTransformation( displaytrans_ );
+	dragger->setDisplayTransformation( displaytrans_.ptr() );
 	dragger->setSpaceLimits( limits_[0], limits_[1], limits_[2] );
 	dragger->handleEvents( isHandlingEvents() );
 	mAttachCB( dragger->started, RandomTrackDragger::startCB );
@@ -882,10 +884,10 @@ void RandomTrackDragger::insertKnot( int knotidx, const Coord& pos )
 	}
 
 	marker->setMarkerStyle( markerstyle );
-	dragger->setOwnShape( marker, false );
+	dragger->setOwnShape( marker.ptr(), false );
 	dragger->setPos( Coord3(pos, mZValue(idx)) );	// Must be set last
-	draggers_.insertAt( dragger, idx );
-	draggermarkers_.insertAt( marker, idx );
+	draggers_.insertAt( dragger.ptr(), idx );
+	draggermarkers_.insertAt( marker.ptr(), idx );
 
 	addChild( dragger->osgNode() );
     }
@@ -1110,7 +1112,8 @@ void RandomTrackDragger::updatePanels()
 	    osg::Vec3 pos;
 	    int idx = 4*knotidx;
 	    idx += vtxidx==0 ? 0 : vtxidx==1 ? 2 : vtxidx==2 ? 6 : 4;
-	    mVisTrans::transform(displaytrans_, draggers_[idx]->getPos(), pos);
+	    mVisTrans::transform( displaytrans_.ptr(), draggers_[idx]->getPos(),
+				  pos);
 	    if ( pos != (*verts)[vtxidx] )
 	    {
 		(*verts)[vtxidx] = pos;
@@ -1364,14 +1367,14 @@ void RandomTrackDragger::showRotationAxis( bool yn, int planeidx,
 
     Coord3 pos( pivot );
     pos.z_ = 1.1*topleft.z_ - 0.1*botright.z_;
-    mVisTrans::transform( displaytrans_, pos, (*vertices)[0] );
+    mVisTrans::transform( displaytrans_.ptr(), pos, (*vertices)[0] );
     const float pivotoffset = 0.05 * (botright.z_-topleft.z_);
     pos.z_ = pivot.z_ - pivotoffset;
-    mVisTrans::transform( displaytrans_, pos, (*vertices)[1] );
+    mVisTrans::transform( displaytrans_.ptr(), pos, (*vertices)[1] );
     pos.z_ = pivot.z_ + pivotoffset;
-    mVisTrans::transform( displaytrans_, pos, (*vertices)[2] );
+    mVisTrans::transform( displaytrans_.ptr(), pos, (*vertices)[2] );
     pos.z_ = 1.1*botright.z_ - 0.1*topleft.z_;
-    mVisTrans::transform( displaytrans_, pos, (*vertices)[3] );
+    mVisTrans::transform( displaytrans_.ptr(), pos, (*vertices)[3] );
 }
 
 

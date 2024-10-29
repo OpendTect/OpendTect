@@ -296,7 +296,7 @@ bool Semblance::computeData( const DataHolder& output, const BinID& relpos,
 
 	for ( int trcidx=0; trcidx<nrtraces; trcidx++ )
 	{
-	    semblanceinput += cache+offset;
+	    semblanceinput += mVarLenArr(cache)+offset;
 
 	    ValueSeries<float>* serie = dosteer_
 		? steeringdata_->series( steerindexes_[trcidx] )

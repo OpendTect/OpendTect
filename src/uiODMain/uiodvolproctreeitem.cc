@@ -144,14 +144,14 @@ bool uiDataTreeItem::selectSetup()
     const bool is2d = parenttype == typeid(uiOD2DLineTreeItem).name();
     IOObjContext ioctxt = is2d ? VolProcessing2DTranslatorGroup::ioContext()
 				: VolProcessingTranslatorGroup::ioContext();
-    const CtxtIOObj ctxt( ioctxt, ioobj );
+    const CtxtIOObj ctxt( ioctxt, ioobj.ptr() );
     uiIOObjSelDlg dlg( ODMainWin(), ctxt );
     if ( !dlg.go() || dlg.nrChosen() < 1 )
 	return false;
 
     RefMan<VolProc::Chain> chain = new VolProc::Chain;
     uiString str;
-    if ( VolProcessingTranslator::retrieve(*chain,ioobj,str) )
+    if ( VolProcessingTranslator::retrieve(*chain,ioobj.ptr(),str) )
     {
 	if ( !chain->areSamplesIndependent() )
 	{

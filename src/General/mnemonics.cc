@@ -1100,5 +1100,5 @@ void MnemonicSelection::sort()
     getNames( mnemnms );
     ConstArrPtrMan<int> sortindexes = mnemnms.getSortIndexes();
     if ( sortindexes )
-	useIndexes( sortindexes );
+	useIndexes( sortindexes.ptr() );
 }

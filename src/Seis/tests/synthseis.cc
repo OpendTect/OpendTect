@@ -188,14 +188,14 @@ bool BatchProgram::doWork( od_ostream& strm )
 	return false;
     }
 
-    PtrMan<Wavelet> realwav = Wavelet::get( wavioobj );
+    PtrMan<Wavelet> realwav = Wavelet::get( wavioobj.ptr() );
     if ( !realwav )
     {
 	strm << "Input wavelet could not be read." << od_newline;
 	return false;
     }
 
-    wvlts += realwav;
+    wvlts += realwav.ptr();
     initTest( singlespike, nrmodels==1, start_depth, models );
 
     PtrMan<IOPar> reflpar = pars().subselect( ReflCalc1D::sKeyReflPar() );

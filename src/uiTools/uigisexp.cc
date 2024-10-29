@@ -126,7 +126,7 @@ PtrMan<GIS::Writer> uiGISExpStdFld::createWriter( const char* survnm,
     }
 
     if ( coordsysselfld_ )
-	wrr->setInputCoordSys( coordsysselfld_->getCoordSystem() );
+	wrr->setInputCoordSys( coordsysselfld_->getCoordSystem().ptr() );
 
     return wrr;
 }

@@ -313,7 +313,7 @@ static bool testAngleMuteApplier( const MultiID& velid, PreStack::Gather& input)
 
     pars.mutecutoff_ = 20.f;
     pars.tail_ = true;
-    muter.setInput( relbid, output );
+    muter.setInput( relbid, output.ptr() );
     output = nullptr;
     mRunStandardTestWithError( muter.prepareWork() && muter.execute(),
 			       mMsg("Apply angle-based inner mute to gather"),

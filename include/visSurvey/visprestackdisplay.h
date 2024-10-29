@@ -61,8 +61,8 @@ public:
     bool			is3DSeis() const;
     DataPackID			getDataPackID(int i=0) const override;
 
-    visBase::FlatViewer*	flatViewer()	{ return flatviewer_; }
-    const visBase::FlatViewer*	flatViewer() const { return flatviewer_; }
+    visBase::FlatViewer*	flatViewer()	{ return flatviewer_.ptr(); }
+    const visBase::FlatViewer*	flatViewer() const { return flatviewer_.ptr(); }
     PreStack::ProcessManager*	procMgr()	{ return preprocmgr_; }
     void			setProcMgr(OD::GeomSystem);
     void			setProcPar(const IOPar&);

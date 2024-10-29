@@ -84,8 +84,8 @@ void uiPickSetMan::addToMgr( const MultiID& id, uiString& msg )
 	return;
 
     RefMan<Pick::Set> ps = new Pick::Set;
-    PickSetTranslator::retrieve( *ps, obj, true, msg );
-    Pick::Mgr().set( id, ps );
+    PickSetTranslator::retrieve( *ps, obj.ptr(), true, msg );
+    Pick::Mgr().set( id, ps.ptr() );
 }
 
 
@@ -126,7 +126,7 @@ void uiPickSetMan::exportToGISCB( CallBacker* cb )
 	const bool ispolygon = ps->isPolygon();
 	if ( (itmid==cPointSetMenu && !ispolygon)
 		|| (itmid==cPolygonMenu && ispolygon) )
-	    gisdata.add( ps );
+	    gisdata.add( ps.ptr() );
     }
 
     if ( !errmsg.isEmpty() )

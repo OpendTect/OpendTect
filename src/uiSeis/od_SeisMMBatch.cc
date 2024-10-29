@@ -34,7 +34,7 @@ int mProgMainFnName( int argc, char** argv )
     PIM().loadAuto( false );
     OD::ModDeps().ensureLoaded( "uiSeis" );
     PtrMan<uiDialog> topdlg = new uiSeisMMProc( nullptr, jobpars );
-    app.setTopLevel( topdlg );
+    app.setTopLevel( topdlg.ptr() );
     PIM().loadAuto( true );
     topdlg->show();
 

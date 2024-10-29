@@ -292,10 +292,10 @@ void uiFlatViewDataDispPropTab::doSetData( bool wva )
     auto dp_wva = vwr_.getPack( true ).get();
     auto dp_vd = vwr_.getPack( false ).get();
     if ( wva && dp_vd && dp_vd->name()==datanm )
-	vwr_.setPack( dest, dp_vd, false );
+	vwr_.setPack( dest, dp_vd.ptr(), false );
 
     if ( !wva && dp_wva && dp_wva->name()==datanm )
-	vwr_.setPack( dest, dp_wva, false );
+	vwr_.setPack( dest, dp_wva.ptr(), false );
 
     vwr_.enableChange( canchanged );
     if ( updated )

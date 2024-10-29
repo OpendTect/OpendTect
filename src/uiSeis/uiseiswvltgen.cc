@@ -509,7 +509,7 @@ bool uiSeisWvltMerge::acceptOK( CallBacker* )
     {
 	const int itm = selitms[idx];
 	PtrMan<IOObj> wvltioobj = Wavelet::getIOObj( namelist_.get(itm) );
-	PtrMan<Wavelet> wvlt = Wavelet::get( wvltioobj );
+	PtrMan<Wavelet> wvlt = Wavelet::get( wvltioobj.ptr() );
 	if ( !wvlt ) continue;
 
 	if ( wvlt->sampleRate() < sr )

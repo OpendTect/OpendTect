@@ -107,7 +107,7 @@ void PickSet::pickAddChgCB( CallBacker* cb )
     pickset_->add( newloc );
     const int locidx = pickset_->size()-1;
     Pick::SetMgr::ChangeData cd( Pick::SetMgr::ChangeData::Added,
-				 pickset_, locidx );
+				 pickset_.ptr(), locidx);
     Pick::Mgr().reportChange( 0, cd );
 }
 
@@ -182,7 +182,7 @@ void PickSet::pickRemoveCB( CallBacker* cb )
 
 	const int pickidx = vw2dpsidxs[locidx];
 	Pick::SetMgr::ChangeData cd( Pick::SetMgr::ChangeData::ToBeRemoved,
-				     pickset_, pickidx );
+				     pickset_.ptr(), pickidx);
 	pickset_->remove( pickidx );
 	Pick::Mgr().reportChange( 0, cd );
     }
@@ -400,9 +400,9 @@ bool PickSet::usePar( const IOPar& iop )
 	return false;
     uiString errmsg;
     RefMan<Pick::Set> newps = new Pick::Set;
-    if ( PickSetTranslator::retrieve(*newps,ioobj,true,errmsg) )
+    if ( PickSetTranslator::retrieve(*newps,ioobj.ptr(), true, errmsg))
     {
-	Pick::Mgr().set( ioobj->key(), newps );
+	Pick::Mgr().set( ioobj->key(), newps.ptr() );
 	pickset_ = newps;
 	return true;
     }

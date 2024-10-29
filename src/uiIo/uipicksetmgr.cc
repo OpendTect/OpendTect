@@ -256,7 +256,7 @@ void uiPickSetMgr::mergeSets( MultiID& mid, const BufferStringSet* nms )
 	    RefMan<Pick::Set> newset = new Pick::Set;
 	    ConstPtrMan<IOObj> ioobj = IOM().get( ky );
 	    uiString msg;
-	    if ( PickSetTranslator::retrieve(*newset,ioobj,true, msg) )
+	    if ( PickSetTranslator::retrieve(*newset,ioobj.ptr(),true, msg) )
 		mergedset->append( *newset );
 	    else
 		errmsgs.add( msg );

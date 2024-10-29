@@ -149,7 +149,7 @@ void uiPreviewGroup::updateViewer()
     fdp_ = dp;
 
     const bool canupdate = vwr_->enableChange( false );
-    vwr_->setPack( FlatView::Viewer::Both, dp, false );
+    vwr_->setPack( FlatView::Viewer::Both, dp.ptr(), false);
     vwr_->appearance().ddpars_.wva_.mappersetup_.setAutoScale( true );
     vwr_->appearance().ddpars_.vd_.mappersetup_.setAutoScale( true );
     vwr_->appearance().ddpars_.show( wvafld_->isChecked(0),

@@ -45,7 +45,7 @@ ScaleBar::ScaleBar()
 					Geometry::RangePrimitiveSet::create();
     ps->setRange( Interval<int>(0,1) );
 
-    lines_->addPrimitiveSet( ps );
+    lines_->addPrimitiveSet( ps.ptr() );
     lines_->setMaterial( nullptr );
     addChild( lines_->osgNode() );
 
@@ -59,7 +59,7 @@ ScaleBar::ScaleBar()
 ScaleBar::~ScaleBar()
 {
     delete &firstloc_;
-    lines_->removeNodeState( linestyle_ );
+    lines_->removeNodeState( linestyle_.ptr() );
 }
 
 

@@ -432,8 +432,8 @@ bool SEGYSeisTrcTranslator::writeTapeHeader()
 	fileopts_.thdef_.pinfo = &pinfo_;
 	txthead_ = new SEGY::TxtHeader( trchead_.isrev0_ ? 0 : 1 );
 	txthead_->setGeomType( Seis::geomTypeOf(is_2d,is_prestack) );
-	int lastlnr =
-		txthead_->setInfo( dataname_, coordsys_, fileopts_.thdef_ );
+	int lastlnr = txthead_->setInfo( dataname_, coordsys_.ptr(),
+					 fileopts_.thdef_ );
 	txthead_->setGeomID( curGeomID() );
 
 	txthead_->setUserInfo( ++lastlnr, pinfo_.usrinfo_ );

@@ -216,7 +216,7 @@ void WellDisplay::fullRedraw( CallBacker* )
 	return;
 
     TypeSet<Coord3> trackpos;
-    getTrackPos( wd, trackpos );
+    getTrackPos( wd.ptr(), trackpos );
     if ( trackpos.isEmpty() )
 	return;
 
@@ -728,12 +728,12 @@ void WellDisplay::setLogInfo( uiString& info, BufferString& val,
 
 void WellDisplay::setDisplayTransformation( const mVisTrans* nt )
 {
-     if ( transformation_==nt  )
+     if ( transformation_.ptr()==nt  )
 	return;
 
     transformation_ = nt;
-    well_->setDisplayTransformation( transformation_ );
-    setDisplayTransformForPicks( transformation_ );
+    well_->setDisplayTransformation( transformation_.ptr() );
+    setDisplayTransformForPicks( transformation_.ptr() );
     fullRedraw( nullptr );
 }
 
@@ -915,7 +915,7 @@ void WellDisplay::setupPicking( bool yn )
     if ( !markerset_ )
     {
 	markerset_ = visBase::MarkerSet::create();
-	setDisplayTransformForPicks( transformation_ );
+	setDisplayTransformForPicks( transformation_.ptr() );
 	addChild( markerset_->osgNode() );
 	RefMan<visBase::Material> newmat = visBase::Material::create();
 	markerset_->setMaterial( newmat.ptr() );
@@ -962,7 +962,7 @@ TypeSet<Coord3> WellDisplay::getWellCoords() const
 
 bool WellDisplay::setZAxisTransform( ZAxisTransform* zat, TaskRunner* tr )
 {
-    if ( datatransform_==zat )
+    if ( datatransform_.ptr()==zat )
 	return true;
 
     if ( datatransform_ && datatransform_->changeNotifier() )

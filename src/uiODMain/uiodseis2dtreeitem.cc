@@ -377,14 +377,14 @@ bool uiODLine2DParentTreeItem::loadDefaultData()
     if ( !ads )
 	return false;
 
-    const Attrib::Desc* desc = ads->getDesc( descid );
+    ConstRefMan<Attrib::Desc> desc = ads->getDesc( descid );
     if ( !desc )
     {
 	ads = Attrib::eDSHolder().getDescSet( true, true );
 	if ( !ads )
 	    return false;
 
-	desc = ads->getDesc( descid );
+	desc = ads->getDesc( descid ).ptr();
 	if ( !desc )
 	    return false;
     }
@@ -461,7 +461,7 @@ bool uiODLine2DParentTreeItem::selectLoadAttribute(
 	Attrib::SelSpec as;
 	if ( attrtype == 2 )
 	{
-	    const Attrib::Desc* desc = ds->getDesc(dlg.getSelDescID());
+	    ConstRefMan<Attrib::Desc> desc = ds->getDesc(dlg.getSelDescID());
 	    if ( !desc )
 	    {
 		uiMSG().error(tr("Selected attribute is not available"));
@@ -560,7 +560,7 @@ bool uiOD2DLineTreeItem::init()
 	    s2d->addAttrib();
 	}
 
-	visserv_->addObject( s2d, sceneID(), true );
+	visserv_->addObject( s2d.ptr(), sceneID(), true);
 	newdisplay = true;
     }
 
@@ -763,7 +763,7 @@ bool uiOD2DLineTreeItem::displayDefaultData()
 
     const Attrib::DescSet* ads =
 	Attrib::DSHolder().getDescSet( true, true );
-    const Attrib::Desc* desc = ads->getDesc( descid );
+    ConstRefMan<Attrib::Desc> desc = ads->getDesc( descid );
     if ( !desc )
 	return false;
 
@@ -844,7 +844,7 @@ void uiOD2DLineTreeItem::getNewData( CallBacker* )
     if ( !newdp )
 	return;
 
-    ((visSurvey::SurveyObject*) seis2ddisplay)->
+    ((visSurvey::SurveyObject*) seis2ddisplay.ptr())->
 		setSeisDataPack( attribnr, newdp.getNonConstPtr(), &uitr );
     seis2ddisplay->showPanel( true );
 }
@@ -942,7 +942,7 @@ void uiOD2DLineSetAttribItem::createMenu( MenuHandler* menu, bool istb )
     BufferStringSet datasets;
     seisserv->get2DStoredAttribs( objnm, datasets, 0 );
     const Attrib::DescSet* ads = attrserv->curDescSet(true);
-    const Attrib::Desc* desc = ads->getDesc( as.id() );
+    ConstRefMan<Attrib::Desc> desc = ads->getDesc( as.id() );
     const bool isstored = desc && desc->isStored();
 
     selattrmnuitem_.removeItems();
@@ -1144,7 +1144,7 @@ bool uiOD2DLineSetAttribItem::displayStoredData( const char* attribnm,
 	    return false;
 
 	as[idx].setRefFromID( *ds );
-	const Attrib::Desc* targetdesc = ds->getDesc( attribid );
+	ConstRefMan<Attrib::Desc> targetdesc = ds->getDesc( attribid );
 	if ( !targetdesc )
 	    return false;
 

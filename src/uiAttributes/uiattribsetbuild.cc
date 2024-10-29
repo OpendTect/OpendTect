@@ -156,7 +156,7 @@ void uiAttribDescSetBuild::editReq( bool isadd )
 
 	desc->setUserRef( "" );
 	desc->setDescSet( &descset_ );
-	descset_.addDesc( desc );
+	descset_.addDesc( desc.ptr() );
 	did = desc->id();
     }
 
@@ -171,7 +171,7 @@ void uiAttribDescSetBuild::editReq( bool isadd )
 	{
 	    for ( int idx=descset_.size()-1; idx>=0; idx-- )
 	    {
-		Desc* tmpdesc = descset_.desc(idx);
+		RefMan<Desc> tmpdesc = descset_.desc(idx);
 		if ( tmpdesc->isStoredInMem() )
 		{
 		    MultiID mid;

@@ -654,7 +654,7 @@ void uiODMain::handleStartupSession()
     }
 
     cursessid_ = id;
-    restoreSession( ioobj );
+    restoreSession( ioobj.ptr() );
 }
 
 

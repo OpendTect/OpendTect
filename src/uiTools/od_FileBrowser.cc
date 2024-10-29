@@ -98,7 +98,7 @@ int mProgMainFnName( int argc, char** argv )
     fdsetup.allowopen( vp.editable_ ).allowsave( true );
     PtrMan<uiDialog> topdlg = new uiTextFileDlg( nullptr, vp, fdsetup, fnm );
     topdlg->setActivateOnFirstShow();
-    app.setTopLevel( topdlg );
+    app.setTopLevel( topdlg.ptr() );
     PIM().loadAuto( true );
     topdlg->show();
 

@@ -396,11 +396,11 @@ const T* ArrayND<T>::get1D( const int* i ) const
     int ndim = info().getNDim();
 
     mAllocLargeVarLenArr( int, pos, ndim );
-    OD::memCopy(pos,i, (int) sizeof(int)*(ndim-1));
+    OD::memCopy( mVarLenArr(pos), i, (int) sizeof(int)*(ndim-1));
 
     pos[ndim-1] = 0;
 
-    return &ptr[info().getOffset( pos )];
+    return &ptr[info().getOffset( mVarLenArr(pos) )];
 }
 
 
@@ -485,11 +485,11 @@ public:
     bool	doWork( od_int64 start, od_int64 stop, int ) override
 		{
 		    mAllocVarLenArr( int, pos, arr_.info().getNDim() );
-		    if ( !arr_.info().getArrayPos( start, pos ) )
+		    if ( !arr_.info().getArrayPos( start, mVarLenArr(pos) ) )
 			return false;
 
 		    ArrayNDIter iterator( arr_.info() );
-		    iterator.setPos( (int*) pos );
+		    iterator.setPos( mVarLenArr(pos) );
 
 		    if ( vs_ )
 		    {

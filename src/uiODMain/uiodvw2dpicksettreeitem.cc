@@ -347,7 +347,7 @@ bool uiODView2DPickSetTreeItem::showSubMenu()
 void uiODView2DPickSetTreeItem::removePickSetCB( CallBacker* cb )
 {
     mDynamicCastGet(Pick::Set*,ps,cb)
-    if ( ps != pickset_ )
+    if ( ps != pickset_.ptr() )
 	return;
 
     if ( vw2dpickset_ )

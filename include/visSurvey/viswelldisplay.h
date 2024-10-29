@@ -144,7 +144,7 @@ public:
     void			setPixelDensity(float) override;
     const char*			errMsg() const  override
 				{ return errmsg_.str(); }
-    const visBase::Well*	getWell() const { return well_; }
+    const visBase::Well*	getWell() const { return well_.ptr(); }
 
 protected:
 				~WellDisplay();

@@ -927,7 +927,7 @@ BufferStringSet::size_type BufferStringSet::maxLength() const
 void BufferStringSet::sort( bool caseinsens, bool asc )
 {
     ConstArrPtrMan<int> idxs = getSortIndexes( caseinsens, asc );
-    useIndexes( idxs );
+    useIndexes( idxs.ptr() );
 }
 
 

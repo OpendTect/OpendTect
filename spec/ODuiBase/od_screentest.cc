@@ -113,7 +113,7 @@ int mProgMainFnName( int argc, char** argv )
     PIM().loadAuto( false );
     OD::ModDeps().ensureLoaded( "uiBase" );
     PtrMan<uiDialog> topdlg = new uiScreenDlg( nullptr );
-    app.setTopLevel( topdlg );
+    app.setTopLevel( topdlg.ptr() );
     PIM().loadAuto( true );
     topdlg->show();
 

@@ -84,6 +84,6 @@ uiRetVal EM::PolygonZChanger::doWork( TaskRunner& trprov )
 void EM::PolygonZChanger::reportChange( Pick::SetMgr::ChangeData::Ev ev,
 					int idy )
 {
-    Pick::SetMgr::ChangeData cd( ev, ps_, idy );
+    Pick::SetMgr::ChangeData cd( ev, ps_.ptr(), idy );
     Pick::Mgr().reportChange( 0, cd );
 }

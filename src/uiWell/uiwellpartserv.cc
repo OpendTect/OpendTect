@@ -405,7 +405,7 @@ void uiWellPartServer::applyTabProps( CallBacker* cb )
     for ( int ikey=0; ikey<wells.size(); ikey++ )
     {
 	RefMan<Well::Data> wd = wells[ikey];
-	if ( wd && wd != edwd )
+	if ( wd && wd.ptr()!=edwd.ptr() )
 	{
 	    const MultiID wllkey = wd->multiID();
 	    Well::DisplayProperties& wdprops = wd->displayProperties( is2d );
@@ -430,16 +430,16 @@ void uiWellPartServer::applyTabProps( CallBacker* cb )
 		    wdprops.setTrack( edprops.getTrack() );
 		    break;
 		case uiWellDispPropDlg::Marker:
-		    wdprops.setMarkers( wd, edprops.getMarkers() );
+		    wdprops.setMarkers( wd.ptr(), edprops.getMarkers() );
 		    break;
 		case uiWellDispPropDlg::LeftLog:
-		    wdprops.setLeftLog( wd, edprops.getLogs().left_ );
+		    wdprops.setLeftLog( wd.ptr(), edprops.getLogs().left_ );
 		    break;
 		case uiWellDispPropDlg::CenterLog:
-		    wdprops.setCenterLog( wd, edprops.getLogs().center_ );
+		    wdprops.setCenterLog( wd.ptr(), edprops.getLogs().center_ );
 		    break;
 		case uiWellDispPropDlg::RightLog:
-		    wdprops.setRightLog( wd, edprops.getLogs().right_ );
+		    wdprops.setRightLog( wd.ptr(), edprops.getLogs().right_ );
 	    }
 	    is2d ? wd->disp2dparschanged.trigger()
 		 : wd->disp3dparschanged.trigger();

@@ -78,7 +78,7 @@ RefMan<FlatDataPack> uiAttribPanel::computeAttrib()
 	return nullptr;
 
     RefMan<FlatDataPack> fdpack = is2d ? createFDPack( *d2dh )
-				       : createFDPack( aem, proc );
+				       : createFDPack( aem.ptr(), proc.ptr() );
     if ( !fdpack )
 	return nullptr;
 
@@ -128,7 +128,7 @@ RefMan<FlatDataPack> uiAttribPanel::createFDPack( EngineMan* aem,
 void uiAttribPanel::createAndDisplay2DViewer()
 {
     if ( flatvwin_ )
-	flatvwin_->viewer().setPack( FlatView::Viewer::VD, vddp_ );
+	flatvwin_->viewer().setPack( FlatView::Viewer::VD, vddp_.ptr() );
     else
     {
 	flatvwin_ = new uiFlatViewMainWin( parent_,
@@ -142,7 +142,7 @@ void uiAttribPanel::createAndDisplay2DViewer()
 	app.setDarkBG( false );
 	app.setGeoDefaults( true );
 	app.ddpars_.show( false, true );
-	vwr.setPack( FlatView::Viewer::VD, vddp_ );
+	vwr.setPack( FlatView::Viewer::VD, vddp_.ptr() );
 	flatvwin_->addControl( new uiFlatViewStdControl(vwr,
 		uiFlatViewStdControl::Setup(nullptr).isvertical(true)) );
 	flatvwin_->setDeleteOnClose( false );

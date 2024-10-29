@@ -286,7 +286,7 @@ void uiCEEMDAttrib::getInputMID( MultiID& mid ) const
 {
     if ( !ads_->is2D() ) return;
 
-    Desc* tmpdesc = ads_->getDesc( inpfld_->attribID() );
+    RefMan<Desc> tmpdesc = ads_->getDesc( inpfld_->attribID() );
     if ( !tmpdesc )
 	return;
 
@@ -372,10 +372,10 @@ DescID uiCEEMDAttrib::createCEEMDDesc( DescSet* dset ) const
     if ( !newdesc )
 	return DescID::undef();
 
-    fillInCEEMDDescParams( newdesc );
+    fillInCEEMDDescParams( newdesc.ptr() );
     newdesc->updateParams();
     newdesc->setUserRef( "CEEMD" );
-    return dset->addDesc( newdesc );
+    return dset->addDesc( newdesc.ptr() );
 }
 
 
@@ -389,7 +389,7 @@ RefMan<Desc> uiCEEMDAttrib::createNewDesc( DescSet* descset, DescID inpid,
 	return nullptr;
 
     newdesc->selectOutput( 0 );
-    newdesc->setInput( inpidx, inpdesc );
+    newdesc->setInput( inpidx, inpdesc.ptr() );
     newdesc->setHidden( true );
     BufferString usrref = "_"; usrref += inpdesc->userRef(); usrref += specref;
     newdesc->setUserRef( usrref );

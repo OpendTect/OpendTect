@@ -770,7 +770,7 @@ bool StratSynth::DataMgr::updateWavelet( const MultiID& oldwvltid,
     if ( !ioobj )
 	return false;
 
-    PtrMan<Wavelet> wvlt = Wavelet::get( ioobj );
+    PtrMan<Wavelet> wvlt = Wavelet::get( ioobj.ptr() );
     if ( !wvlt )
 	return false;
 
@@ -2001,9 +2001,9 @@ bool StratSynth::DataMgr::runSynthGen( Seis::RaySynthGenerator& synthgen,
 	else
 	{
 	    PtrMan<IOObj> ioobj = Wavelet::getIOObj( wvltnm );
-	    PtrMan<Wavelet> wvlt = Wavelet::get( ioobj );
+	    PtrMan<Wavelet> wvlt = Wavelet::get( ioobj.ptr() );
 	    if ( wvlt  )
-		synthgen.setWavelet( wvlt, OD::CopyPtr );
+		synthgen.setWavelet( wvlt.ptr(), OD::CopyPtr );
 	}
     }
 
@@ -2522,7 +2522,7 @@ bool StratSynth::DataMgr::getUnscaledSynthetics(
 	{
 	    ConstRefMan<SyntheticData> sd = gtDSByIdx( idx, lmsidx );
 	    if ( sd )
-		res->add( sd );
+		res->add( sd.ptr() );
 	}
     }
 
@@ -2689,27 +2689,27 @@ bool createInstAttributeSet()
     descset_ = new Attrib::DescSet( false );
     const MultiID dbky = sd_.fullID().asMultiID();
     const Attrib::DescID did = descset_->getStoredID( dbky, 0, true );
-    const Attrib::Desc* inpdesc = descset_->getDesc( did );
+    ConstRefMan<Attrib::Desc> inpdesc = descset_->getDesc( did );
     if ( !inpdesc )
 	return false;
 
     RefMan<Attrib::Desc> imagdesc = Attrib::PF().createDescCopy(
 						Attrib::Hilbert::attribName() );
     imagdesc->selectOutput( 0 );
-    imagdesc->setInput(0, inpdesc );
+    imagdesc->setInput(0, inpdesc.ptr() );
     imagdesc->setHidden( true );
     const BufferString usrref( dbky.toString(), "_imag" );
     imagdesc->setUserRef( usrref );
-    const Attrib::DescID hilbid = descset_->addDesc( imagdesc );
+    const Attrib::DescID hilbid = descset_->addDesc( imagdesc.ptr() );
     if ( !descset_->getDesc(hilbid) )
 	return false;
 
     RefMan<Attrib::Desc> psdesc = Attrib::PF().createDescCopy(
 					 Attrib::Instantaneous::attribName());
-    psdesc->setInput( 0, inpdesc );
-    psdesc->setInput( 1, imagdesc );
+    psdesc->setInput( 0, inpdesc.ptr() );
+    psdesc->setInput( 1, imagdesc.ptr() );
     psdesc->setUserRef( "synthetic attributes" );
-    const Attrib::DescID psid = descset_->addDesc( psdesc );
+    const Attrib::DescID psid = descset_->addDesc( psdesc.ptr() );
     if ( !descset_->getDesc(psid) )
 	return false;
 
@@ -3113,7 +3113,7 @@ PSAngleDataCreator( PreStackSyntheticData& pssd )
     totalnr_ = refmodels_.nrModels();
     const int nrgathers = pssd.nrPositions();
     for ( int idx=0; idx<nrgathers; idx++ )
-	seisgathers_.add( pssd.getGather(idx) );
+	seisgathers_.add( pssd.getGather(idx).ptr() );
 }
 
 
@@ -3152,7 +3152,7 @@ bool doPrepare( int nrthreads ) override
 				new PreStack::ModelBasedAngleComputer();
 	anglecomputer->setRayTracerPars( *pssd_.getGenParams().reflPars() );
 	anglecomputer->setFFTSmoother( 10.f, 15.f );
-	anglecomputers_.add( anglecomputer );
+	anglecomputers_.add( anglecomputer.ptr() );
 	anglegathers_.add( new RefObjectSet<PreStack::Gather> );
     }
 
@@ -3194,7 +3194,7 @@ bool doWork( od_int64 start, od_int64 stop, int threadid ) override
 	TypeSet<float> azimuths;
 	seisgather.getAzimuths( azimuths );
 	anglegather->setAzimuths( azimuths );
-	anglegathers.add( anglegather );
+	anglegathers.add( anglegather.ptr() );
     }
 
     return true;

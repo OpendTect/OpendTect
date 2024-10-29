@@ -32,7 +32,7 @@ ________________________________________________________________________
 #include "welltrack.h"
 
 
-#define mGetWD(act) const Well::Data* wd = data_.wd_; if ( !wd ) act;
+#define mGetWD(act) ConstRefMan<Well::Data> wd = data_.wd_; if ( !wd ) act;
 
 // WellTie::uiTieView
 
@@ -193,7 +193,7 @@ void WellTie::uiTieView::setLogsParams()
     {
 	logsdisp_[idx]->logData(true).setLog( 0 );
 	logsdisp_[idx]->logData(false).setLog( 0 );
-	uiWellDahDisplay::Data data( wd );
+	uiWellDahDisplay::Data data( wd.ptr() );
 	data.dispzinft_ = params_.iszinft_;
 	data.zistime_ = params_.iszintime_;
 	logsdisp_[idx]->setData( data );
@@ -272,7 +272,7 @@ void WellTie::uiTieView::setDataPack()
     dp->setName( data_.sKeySeismic() );
     fdp_ = dp;
     vwr_->enableChange( canupdate );
-    vwr_->setPack( FlatView::Viewer::Both, dp, false );
+    vwr_->setPack( FlatView::Viewer::Both, dp.ptr(), false);
 }
 
 

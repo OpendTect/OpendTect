@@ -681,7 +681,7 @@ void RandomLineSet::getGeometry( const MultiID& rdlsid, TrcKeyPath& knots,
     Geometry::RandomLineSet rls;
     uiString errmsg;
     const PtrMan<IOObj> rdmline = IOM().get( rdlsid );
-    RandomLineSetTranslator::retrieve( rls, rdmline, errmsg );
+    RandomLineSetTranslator::retrieve( rls, rdmline.ptr(), errmsg );
     if ( !errmsg.isEmpty() || rls.isEmpty() )
 	return;
 
@@ -752,7 +752,8 @@ RandomLine* RandomLineManager::get( const MultiID& mid )
 
     PtrMan<RandomLineSet> rdlset = new RandomLineSet;
     uiString msg;
-    const bool res = RandomLineSetTranslator::retrieve( *rdlset, ioobj, msg );
+    const bool res =
+	RandomLineSetTranslator::retrieve( *rdlset, ioobj.ptr(), msg );
     if ( !res || rdlset->isEmpty() )
 	return nullptr;
 

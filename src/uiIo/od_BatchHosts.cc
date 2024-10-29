@@ -27,7 +27,7 @@ int mProgMainFnName( int argc, char** argv )
     OD::ModDeps().ensureLoaded( "uiIo" );
     PtrMan<uiDialog> topdlg = new uiBatchHostsDlg( nullptr );
     topdlg->setActivateOnFirstShow();
-    app.setTopLevel( topdlg );
+    app.setTopLevel( topdlg.ptr() );
     PIM().loadAuto( true );
     topdlg->show();
 

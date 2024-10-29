@@ -93,7 +93,7 @@ bool BatchProgram::doWork( od_ostream& strm )
     }
 
     uiString errmsg;
-    if ( !PreStackProcTranslator::retrieve(*procman,setupioobj,errmsg) )
+    if ( !PreStackProcTranslator::retrieve(*procman,setupioobj.ptr(),errmsg) )
     {
 	mRetError( errmsg );
     }
@@ -141,7 +141,7 @@ bool BatchProgram::doWork( od_ostream& strm )
 	if ( geomtype==Seis::VolPS )
 	{
 	    reader3d = SPSIOPF().get3DReader( *inputioobj );
-	    reader = (SeisPSReader*)reader3d;
+	    reader = (SeisPSReader*)reader3d.ptr();
 	    if ( reader3d && !hastrcsampling )
 	    {
 		const PosInfo::CubeData& posdata = reader3d->posData();
@@ -162,7 +162,7 @@ bool BatchProgram::doWork( od_ostream& strm )
 	else
 	{
 	    reader2d = SPSIOPF().get2DReader( *inputioobj, linekey.buf() );
-	    reader = (SeisPSReader*)reader2d;
+	    reader = (SeisPSReader*)reader2d.ptr();
 	    if ( reader2d &&
 		 !pars().get(ProcessManager::sKeyCDPRange(),cdprange) )
 	    {
@@ -305,7 +305,7 @@ bool BatchProgram::doWork( od_ostream& strm )
 		    }
 
 		    bids += inputbid;
-		    gathers += gather;
+		    gathers += gather.ptr();
 		    DPM( DataPackMgr::FlatID() ).add( gather );
 		}
 

@@ -172,7 +172,9 @@ bool uiGenRanLinesByContour::acceptOK( CallBacker* )
 
     EM::RandomLineSetByContourGenerator::Setup cgsu( isrel );
     cgsu.contzrg( contzrg ).linezrg( linezrg );
-    if ( poly ) cgsu.selpoly_ = poly;
+    if ( poly )
+	cgsu.selpoly_ = poly.ptr();
+
     cgsu.minnrvertices_ = vtxthreshfld_->box()->getIntValue();
     if ( largestfld_->isChecked() )
 	cgsu.nrlargestonly_ = nrlargestfld_->getIntValue();

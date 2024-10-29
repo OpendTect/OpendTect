@@ -1785,8 +1785,8 @@ void IOPar::fillJSON( OD::JSON::Object& jsonobj, bool simple ) const
     if ( !sortedidxs )
 	return;
 
-    keys.useIndexes( sortedidxs );
-    vals.useIndexes( sortedidxs );
+    keys.useIndexes( sortedidxs.ptr() );
+    vals.useIndexes( sortedidxs.ptr() );
     int startidx = 0;
     fillJSON( jsonobj, keys, vals, nullptr, startidx );
 }

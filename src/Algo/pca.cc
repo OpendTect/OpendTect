@@ -285,8 +285,8 @@ bool PCA::calculate()
     for ( int idx=0; idx<nrvars_; idx++ )
 	a += ptr+idx*nrvars_-1;
 
-    tred2( a, nrvars_, d, e );
-    if ( !tqli( d, e, nrvars_, a ) )
+    tred2( a, nrvars_, mVarLenArr(d), mVarLenArr(e) );
+    if ( !tqli( mVarLenArr(d), mVarLenArr(e), nrvars_, a ) )
 	return false;
 
     for ( int idx=0; idx<nrvars_; idx++ )

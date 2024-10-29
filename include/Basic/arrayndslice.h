@@ -166,8 +166,8 @@ void Array1DSlice<T>::set( int pos, T val )
 {
     if ( !writable_ ) return;
     mAllocVarLenArr( int, srcpos, position_.size() );
-    getSourcePos( &pos, srcpos );
-    source_.setND( srcpos, val );
+    getSourcePos( &pos, mVarLenArr(srcpos) );
+    source_.setND( mVarLenArr(srcpos), val );
 }
 
 
@@ -175,8 +175,8 @@ template <class T> inline
 T Array1DSlice<T>::get( int pos ) const
 {
     mAllocVarLenArr( int, srcpos, position_.size() );
-    getSourcePos( &pos, srcpos );
-    return source_.getND( srcpos );
+    getSourcePos( &pos, mVarLenArr(srcpos) );
+    return source_.getND( mVarLenArr(srcpos) );
 }
 
 
@@ -260,8 +260,8 @@ void Array2DSlice<T>::set( int pos0, int pos1, T val )
 
     const int localpos[] = { pos0, pos1 };
     mAllocVarLenArr( int, srcpos, position_.size() );
-    getSourcePos( localpos, srcpos );
-    source_.setND( srcpos, val );
+    getSourcePos( localpos, mVarLenArr(srcpos) );
+    source_.setND( mVarLenArr(srcpos), val );
 }
 
 
@@ -270,8 +270,8 @@ T Array2DSlice<T>::get( int pos0, int pos1 ) const
 {
     const int localpos[] = { pos0, pos1 };
     mAllocVarLenArr( int, srcpos, position_.size() );
-    getSourcePos( localpos, srcpos );
-    return source_.getND( srcpos );
+    getSourcePos( localpos, mVarLenArr(srcpos) );
+    return source_.getND( mVarLenArr(srcpos) );
 }
 
 
@@ -346,8 +346,8 @@ void Array3DSlice<T>::set( idx_type pos0, idx_type pos1, idx_type pos2, T val )
 
     const idx_type localpos[] = { pos0, pos1, pos2 };
     mAllocVarLenArr( idx_type, srcpos, position_.size() );
-    getSourcePos( const_cast<NDPos>(localpos), srcpos );
-    source_.setND( srcpos, val );
+    getSourcePos( const_cast<NDPos>(localpos), mVarLenArr(srcpos) );
+    source_.setND( mVarLenArr(srcpos), val );
 }
 
 
@@ -356,8 +356,8 @@ T Array3DSlice<T>::get( idx_type pos0, idx_type pos1, idx_type pos2 ) const
 {
     const idx_type localpos[] = { pos0, pos1, pos2 };
     mAllocVarLenArr( idx_type, srcpos, position_.size() );
-    getSourcePos( const_cast<NDPos>(localpos), srcpos );
-    return source_.getND( srcpos );
+    getSourcePos( const_cast<NDPos>(localpos), mVarLenArr(srcpos) );
+    return source_.getND( mVarLenArr(srcpos) );
 }
 
 

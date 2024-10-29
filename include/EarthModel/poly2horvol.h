@@ -29,7 +29,7 @@ public:
     ConstRefMan<Pick::Set>	pickSet() const		{ return ps_; }
     void			setPickSet( const Pick::Set* ps )  { ps_ = ps; }
 
-    EM::Horizon3D*		horizon()		{ return hor_; }
+    EM::Horizon3D*		horizon()		{ return hor_.ptr(); }
     void			setHorizon(EM::Horizon3D*);
     bool			setHorizon(const MultiID&,TaskRunner* =nullptr);
 

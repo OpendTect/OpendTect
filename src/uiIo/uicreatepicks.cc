@@ -247,7 +247,7 @@ bool uiGenPosPicks::acceptOK( CallBacker* )
 	{ mRestorCursor(); return false; }
 
     dps_ = new DataPointSet( prov->is2D() );
-    if ( !dps_->extractPositions(*prov,ObjectSet<DataColDef>(),filt,
+    if ( !dps_->extractPositions(*prov,ObjectSet<DataColDef>(),filt.ptr(),
 				 &taskrunner, true) )
     {
 	dps_ = nullptr;

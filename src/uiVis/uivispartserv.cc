@@ -232,8 +232,8 @@ SceneID uiVisPartServer::addScene( visSurvey::Scene* newscene_in )
     mAttachCB( newscene->mouseposchange, uiVisPartServer::mouseMoveCB );
     mAttachCB( newscene->keypressed, uiVisPartServer::keyEventCB );
     mAttachCB( newscene->mouseclicked, uiVisPartServer::mouseEventCB );
-    scenes_ += newscene;
-    pickretriever_->addScene( newscene );
+    scenes_ += newscene.ptr();
+    pickretriever_->addScene( newscene.ptr() );
     if ( isSoloMode() )
 	displayids_ += TypeSet<VisID>();
 
@@ -491,7 +491,7 @@ void uiVisPartServer::addObject( visBase::DataObject* dobj,
     setUpConnections( dobj->id() );
     if ( isSoloMode() )
     {
-	const int typesetidx = scenes_.indexOf( scene );
+	const int typesetidx = scenes_.indexOf( scene.ptr() );
 	if ( displayids_.validIdx(typesetidx) )
 	    displayids_[typesetidx] += dobj->id();
 
@@ -1558,7 +1558,7 @@ bool uiVisPartServer::usePar( const IOPar& par )
 
 	RefMan<visSurvey::Scene> newscene = visSurvey::Scene::create();
 	newscene->setID( VisID( sceneid.asInt() ) );
-	addScene( newscene );
+	addScene( newscene.ptr() );
 
 	PtrMan<IOPar> scenepar = par.subselect( key.buf() );
 	if ( !scenepar )

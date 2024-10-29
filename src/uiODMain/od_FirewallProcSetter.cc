@@ -177,11 +177,11 @@ int mProgMainFnName( int argc, char** argv )
     if ( errocc )
     {
 	topdlg = new uiFirewallProcSetter( nullptr );
-	app.setTopLevel( topdlg );
+	app.setTopLevel( topdlg.ptr() );
 	PIM().loadAuto( true );
 	const bool pythonpathdef = !pythonpath.isEmpty();
-	PtrMan<FirewallParameterDlg> dlg = new FirewallParameterDlg( topdlg,
-						    path, pythonpath, type );
+	PtrMan<FirewallParameterDlg> dlg =
+	    new FirewallParameterDlg( topdlg.ptr(), path, pythonpath, type );
 	dlg->setActivateOnFirstShow();
 	dlg->showAlwaysOnTop();
 	if ( dlg->go() == uiDialog::Rejected )
@@ -219,7 +219,7 @@ int mProgMainFnName( int argc, char** argv )
 
 	topdlg = new uiFirewallProcSetter( nullptr, opertype, &path,
 					   &pythonpath );
-	app.setTopLevel( topdlg );
+	app.setTopLevel( topdlg.ptr() );
 	PIM().loadAuto( true );
     }
 

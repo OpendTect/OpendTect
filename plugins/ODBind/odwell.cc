@@ -365,7 +365,7 @@ void odWell::getPoints( OD::JSON::Array& jsarr, bool towgs ) const
     {
 	ConstRefMan<Coords::CoordSystem> coordsys =
 						survey_.si().getCoordSystem();
-	const LatLong ll( LatLong::transform(coord, true, coordsys) );
+	const LatLong ll( LatLong::transform(coord, true, coordsys.ptr()) );
 	jsarr.add( strdup(toString(ll.lng_, 6)) );
 	jsarr.add( strdup(toString(ll.lat_, 6)) );
     }

@@ -47,8 +47,8 @@ public:
     static RefMan<MarkerSet> create();
 			mCreateDataObj(MarkerSet);
 
-    Coordinates*	getCoordinates()         { return coords_; }
-    const Coordinates*	getCoordinates()  const  { return coords_; }
+    Coordinates*	getCoordinates()	 { return coords_.ptr(); }
+    const Coordinates*	getCoordinates()  const  { return coords_.ptr(); }
     Normals*		getNormals();
 
     void		setMaterial(visBase::Material*) override;

@@ -379,8 +379,8 @@ void DepthTabPlaneDragger::setOsgMatrix( const Coord3& worldscale,
 	mat.makeRotate( osg::Vec3(0,1,0), osg::Vec3(0,0,1) );
 
     osg::Vec3d scale, trans;
-    mVisTrans::transformSize( transform_, worldscale, scale );
-    mVisTrans::transform( transform_, worldtrans, trans );
+    mVisTrans::transformSize( transform_.ptr(), worldscale, scale );
+    mVisTrans::transform( transform_.ptr(), worldtrans, trans );
 
     mat *= osg::Matrix::scale( scale );
     mat *= osg::Matrix::translate( trans );
@@ -406,7 +406,7 @@ void DepthTabPlaneDragger::setCenter( const Coord3& newcenter, bool alldims )
 Coord3 DepthTabPlaneDragger::center() const
 {
     Coord3 res;
-    mVisTrans::transformBack( transform_,
+    mVisTrans::transformBack( transform_.ptr(),
 			      osgdragger_->getMatrix().getTrans(), res );
     return res;
 }
@@ -432,7 +432,7 @@ void DepthTabPlaneDragger::setSize( const Coord3& scale, bool alldims )
 Coord3 DepthTabPlaneDragger::size() const
 {
     Coord3 scale;
-    mVisTrans::transformBackSize( transform_,
+    mVisTrans::transformBackSize( transform_.ptr(),
 				  osgdragger_->getMatrix().getScale(), scale );
     return scale;
 }
@@ -507,7 +507,7 @@ void DepthTabPlaneDragger::getWidthLimits( Interval<float>& x,
 
 void DepthTabPlaneDragger::setDisplayTransformation( const mVisTrans* nt )
 {
-    if ( transform_ == nt )
+    if ( transform_.ptr() == nt )
 	return;
 
     const Coord3 centerpos = center();
@@ -522,7 +522,7 @@ void DepthTabPlaneDragger::setDisplayTransformation( const mVisTrans* nt )
 
 const mVisTrans* DepthTabPlaneDragger::getDisplayTransformation() const
 {
-    return transform_;
+    return transform_.ptr();
 }
 
 

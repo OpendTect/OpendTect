@@ -191,7 +191,7 @@ ConstRefMan<SyntheticData> SyntheticData::get( const SynthGenParams& sgp,
 		continue;
 
 	    gather->setName( sgp.name_ );
-	    gatherset += gather;
+	    gatherset += gather.ptr();
 	}
 
 	if ( gatherset.size() != nrrefmodels )

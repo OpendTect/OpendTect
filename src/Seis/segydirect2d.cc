@@ -291,7 +291,7 @@ Executor* SEGYDirect2DLineIOProvider::getFetcher( const IOObj& obj,
     if ( !usedsd )
     {
 	tmpsd = Seis::SelData::get(Seis::Range);
-	usedsd = tmpsd;
+	usedsd = tmpsd.ptr();
     }
 
     return new SEGYDirect2DLineGetter( fnm, tbuf, ntps, *usedsd );

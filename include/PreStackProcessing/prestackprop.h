@@ -57,11 +57,11 @@ public:
 			PropCalc(const Setup&);
     virtual		~PropCalc();
 
-    Setup&		setup()				{ return setup_; }
-    const Setup&	setup() const			{ return setup_; }
-    const Gather*	getGather() const               { return gather_; }
+    Setup&		setup()			    { return setup_; }
+    const Setup&	setup() const		    { return setup_; }
+    const Gather*	getGather() const	    { return gather_.ptr(); }
 
-    bool		hasAngleData() const		{ return angledata_; }
+    bool		hasAngleData() const	    { return angledata_; }
     void		setGather(DataPackID);
     void		setGather(const PreStack::Gather&);
     void		setAngleData(DataPackID);

@@ -52,8 +52,10 @@ bool uiReliefAttrib::setParameters( const Desc& desc )
     if ( desc.attribName() != Relief::attribName() )
 	return false;
 
-    const Desc* instdesc = desc.getInput( 0 );
-    const Desc* energydesc = instdesc ? instdesc->getInput( 0 ) : 0;
+    ConstRefMan<Desc> instdesc = desc.getInput( 0 );
+    ConstRefMan<Desc> energydesc;
+    if ( instdesc )
+	energydesc = instdesc->getInput( 0 );
 
     mDynamicCastGet(const ZGateParam*,par,
 	energydesc ? energydesc->getValParam( Energy::gateStr() ) : 0)
@@ -91,20 +93,21 @@ static DescID hasDesc( const char* attrnm, const char* usrref,
 {
     for ( int idx=0; idx<ds.size(); idx++ )
     {
-	const Desc* desc = ds.desc( idx );
-	if ( !desc ) continue;
+	ConstRefMan<Desc> desc = ds.desc( idx );
+	if ( !desc )
+	    continue;
 
 	const StringView usrrefstr = desc->userRef();
 	if ( desc->attribName()!=attrnm || usrrefstr!=usrref )
 	    continue;
 
-	const Desc* inputdesc = desc->getInput( 0 );
+	ConstRefMan<Desc> inputdesc = desc->getInput( 0 );
 	if ( !inputdesc || inputdesc->id()!=inpid )
 	    continue;
 
 	if ( inpid2.isValid() )
 	{
-	    const Desc* inputdesc2 = desc->getInput( 1 );
+	    ConstRefMan<Desc> inputdesc2 = desc->getInput( 1 );
 	    if ( !inputdesc2 || inputdesc2->id()!=inpid2 )
 		continue;
 	}
@@ -127,7 +130,7 @@ static BufferString createUserRef( const char* inpnm, const char* attrnm )
 static DescID addEnergyAttrib( DescSet& ds, const DescID& inpid,
 			       const Interval<float>& zgate, const char* ref )
 {
-    const Desc* inpdesc = ds.getDesc( inpid );
+    ConstRefMan<Desc> inpdesc = ds.getDesc( inpid );
     if ( !inpdesc )
 	return DescID::undef();
 
@@ -148,7 +151,7 @@ static DescID addEnergyAttrib( DescSet& ds, const DescID& inpid,
 	newdesc = true;
     }
 
-    energydesc->setInput( 0, inpdesc );
+    energydesc->setInput( 0, inpdesc.ptr() );
     energydesc->selectOutput( 0 );
     energydesc->setHidden( true );
 
@@ -158,7 +161,7 @@ static DescID addEnergyAttrib( DescSet& ds, const DescID& inpid,
 
     energydesc->setUserRef( usrref );
     if ( newdesc )
-	descid = ds.addDesc( energydesc );
+	descid = ds.addDesc( energydesc.ptr() );
 
     return descid;
 }
@@ -180,11 +183,11 @@ static DescID addHilbertAttrib( DescSet& ds, const DescID& inpid )
     if ( !newdesc )
 	return DescID::undef();
 
-    newdesc->setInput( 0, inpdesc );
+    newdesc->setInput( 0, inpdesc.ptr() );
     newdesc->selectOutput( 0 );
     newdesc->setHidden( true );
     newdesc->setUserRef( usrref );
-    return ds.addDesc( newdesc );
+    return ds.addDesc( newdesc.ptr() );
 }
 
 
@@ -206,8 +209,8 @@ static DescID addInstantaneousAttrib( DescSet& ds, const DescID& realid,
     if ( !newdesc )
 	return DescID::undef();
 
-    newdesc->setInput( 0, realdesc );
-    newdesc->setInput( 1, imagdesc );
+    newdesc->setInput( 0, realdesc.ptr() );
+    newdesc->setInput( 1, imagdesc.ptr() );
     newdesc->selectOutput( 13 ); // Phase rotation
     newdesc->setHidden( true );
     mDynamicCastGet(FloatParam*,param,
@@ -216,7 +219,7 @@ static DescID addInstantaneousAttrib( DescSet& ds, const DescID& realid,
 	param->setValue( 90.f );
 
     newdesc->setUserRef( usrref );
-    return ds.addDesc( newdesc );
+    return ds.addDesc( newdesc.ptr() );
 }
 
 
@@ -232,7 +235,7 @@ bool uiReliefAttrib::getInput( Desc& desc )
     const DescID hilbid = addHilbertAttrib( *ds, enid );
     const DescID instid = addInstantaneousAttrib( *ds, enid, hilbid );
 
-    return desc.setInput( 0, ds->getDesc(instid) );
+    return desc.setInput( 0, ds->getDesc(instid).ptr() );
 }
 
 

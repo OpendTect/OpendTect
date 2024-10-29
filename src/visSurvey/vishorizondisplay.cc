@@ -277,7 +277,7 @@ HorizonDisplay::HorizonDisplay()
 {
     ref();
     translation_ = visBase::Transformation::create();
-    setGroupNode( translation_ );
+    setGroupNode( translation_.ptr() );
 
     setLockable();
     maxintersectionlinethickness_ = 0.02f *
@@ -305,7 +305,7 @@ HorizonDisplay::HorizonDisplay()
     linemat->setColor( nontexturecol_ );
     linemat->setDiffIntensity( 1 );
     linemat->setAmbience( 1 );
-    setIntersectLineMaterial( linemat );
+    setIntersectLineMaterial( linemat.ptr() );
 
     int res = (int)resolution_;
     Settings::common().get( "dTect.Horizon.Resolution", res );
@@ -360,22 +360,22 @@ void HorizonDisplay::setDisplayTransformation( const mVisTrans* nt )
     MouseCursorChanger cursorchanger( MouseCursor::Wait );
 
     for ( auto* section : sections_ )
-	section->setDisplayTransformation(transformation_);
+	section->setDisplayTransformation( transformation_.ptr() );
 
     for ( auto* intersection : intersectiondata_ )
-	intersection->setDisplayTransformation( transformation_ );
+	intersection->setDisplayTransformation( transformation_.ptr() );
 
     if ( translationpos_.isDefined() )
 	setTranslation( translationpos_ );
 
     if ( parentline_ )
-	parentline_->setDisplayTransformation( transformation_ );
+	parentline_->setDisplayTransformation( transformation_.ptr() );
     if ( selections_ )
-	selections_->setDisplayTransformation( transformation_ );
+	selections_->setDisplayTransformation( transformation_.ptr() );
     if ( lockedpts_ )
-	lockedpts_->setDisplayTransformation( transformation_ );
+	lockedpts_->setDisplayTransformation( transformation_.ptr() );
     if ( sectionlockedpts_ )
-	sectionlockedpts_->setDisplayTransformation( transformation_ );
+	sectionlockedpts_->setDisplayTransformation( transformation_.ptr() );
 }
 
 
@@ -394,7 +394,7 @@ const visBase::VertexShape* HorizonDisplay::getLine( int idx ) const
     if ( !intersectiondata_.validIdx(idx) )
 	return nullptr;
 
-    return intersectiondata_[idx]->line_;
+    return intersectiondata_[idx]->line_.ptr();
 }
 
 
@@ -465,8 +465,8 @@ EM::PosID HorizonDisplay::findClosestNode( const Coord3& pickedpos ) const
     {
 	const Coord3 coord = emobject_->getPos( closestnodes[idx] );
 	Coord3 displaypos;
-	mVisTrans::transform( transformation_, coord, displaypos );
-	mVisTrans::transform( ztrans, displaypos );
+	mVisTrans::transform( transformation_.ptr(), coord, displaypos );
+	mVisTrans::transform( ztrans.ptr(), displaypos );
 
 	const float dist = (float) displaypos.distTo( pickedpos );
 	if ( !idx || dist<mindist )
@@ -918,7 +918,7 @@ void HorizonDisplay::setDepthAsAttrib( int channel )
     ZValSetter zvalssetter( bivs, col, zatf.ptr() );
     zvalssetter.execute();
 
-    setRandomPosData( channel, positions, nullptr );
+    setRandomPosData( channel, positions.ptr(), nullptr );
 }
 
 
@@ -1097,8 +1097,8 @@ Coord3 HorizonDisplay::getTranslation() const
     Coord3 shift( current );
     shift *= -1.;
 
-    mVisTrans::transformBack( transformation_, origin );
-    mVisTrans::transformBack( transformation_, shift );
+    mVisTrans::transformBack( transformation_.ptr(), origin );
+    mVisTrans::transformBack( transformation_.ptr(), shift );
 
     const Coord3 translation = origin - shift;
     return translation;
@@ -1114,8 +1114,8 @@ void HorizonDisplay::setTranslation( const Coord3& nt )
     Coord3 aftershift( nt );
     aftershift.z_ *= -1.;
 
-    mVisTrans::transform( transformation_, origin );
-    mVisTrans::transform( transformation_, aftershift );
+    mVisTrans::transform( transformation_.ptr(), origin );
+    mVisTrans::transform( transformation_.ptr(), aftershift );
 
     const Coord3 shift = origin - aftershift;
 
@@ -1169,8 +1169,9 @@ bool HorizonDisplay::addSection( const EM::SectionID& sid, TaskRunner* trans )
 
     setZDomain( horizon->zDomain() );
     RefMan<visBase::HorizonSection> surf = visBase::HorizonSection::create();
-    surf->setDisplayTransformation( transformation_ );
-    ZAxisTransform* zatf = isAlreadyTransformed() ? nullptr : zaxistransform_;
+    surf->setDisplayTransformation( transformation_.ptr() );
+    ZAxisTransform* zatf = isAlreadyTransformed() ? nullptr
+						  : zaxistransform_.ptr();
     surf->setZAxisTransform( zatf, trans );
     if ( scene_ )
 	surf->setRightHandSystem( scene_->isRightHandSystem() );
@@ -1199,7 +1200,7 @@ bool HorizonDisplay::addSection( const EM::SectionID& sid, TaskRunner* trans )
     {
 	if ( sections_.isEmpty() && channel2rgba_ )
 	{
-	    surf->setChannels2RGBA( channel2rgba_ );
+	    surf->setChannels2RGBA( channel2rgba_.ptr() );
 	    EMObjectDisplay::setChannels2RGBA( nullptr );
 	}
 
@@ -1221,7 +1222,7 @@ bool HorizonDisplay::addSection( const EM::SectionID& sid, TaskRunner* trans )
 
     surf->turnOn( !displayonlyatsections_ );
 
-    sections_ += surf;
+    sections_ += surf.ptr();
     secnames_ += emobject_->name();
 
     sids_ += sid;
@@ -1449,7 +1450,7 @@ void HorizonDisplay::updateAuxData()
 	}
 
 	dps->dataChanged();
-	setRandomPosData( cidx, dps, 0 );
+	setRandomPosData( cidx, dps.ptr(), 0 );
 	selectTexture( cidx, 0 );
     }
 }
@@ -1770,7 +1771,7 @@ void HorizonDisplay::drawHorizonOnZSlice( const TrcKeyZSampling& tkzs,
 
     ConstPtrMan<Array2D<float> > myfield;
     if ( !isAlreadyTransformed() )
-	myfield = field = horizon->createArray2D( zaxistransform_ );
+	myfield = field = horizon->createArray2D( zaxistransform_.ptr() );
 
     IsoContourTracer ictracer( *field );
     ictracer.setSampling( geom->rowRange(), geom->colRange() );
@@ -1809,9 +1810,9 @@ HorizonDisplay::IntersectionData*
     if ( pool.isEmpty() )
     {
 	data = new IntersectionData( *lineStyle() );
-	data->setDisplayTransformation(transformation_);
+	data->setDisplayTransformation( transformation_.ptr() );
 	if ( intersectionlinematerial_ )
-	    data->setMaterial( intersectionlinematerial_ );
+	    data->setMaterial( intersectionlinematerial_.ptr() );
 
 	addChild( data->line_->osgNode() );
 	addChild( data->markerset_->osgNode() );
@@ -2046,7 +2047,7 @@ void HorizonDisplay::updateSectionSeeds(
 		}
 
 		if ( transformation_ )
-		    mVisTrans::transform( transformation_,  markerpos );
+		    mVisTrans::transform( transformation_.ptr(),  markerpos );
 
 		for ( int idz=0; idz<verticalsections.size(); idz++ )
 		{
@@ -2074,7 +2075,7 @@ void HorizonDisplay::updateSectionSeeds(
     {
 	sectionlockedpts_ = visBase::PointSet::create();
 	addChild( sectionlockedpts_->osgNode() );
-	sectionlockedpts_->setDisplayTransformation( transformation_ );
+	sectionlockedpts_->setDisplayTransformation( transformation_.ptr() );
     }
     else
     {
@@ -2102,7 +2103,7 @@ void HorizonDisplay::updateSectionSeeds(
 			Geometry::IndexedPrimitiveSet::create( true );
     pointsetps->setPrimitiveType( Geometry::PrimitiveSet::Points );
     pointsetps->append( pidxs.arr(), pidxs.size() );
-    sectionlockedpts_->addPrimitiveSet( pointsetps );
+    sectionlockedpts_->addPrimitiveSet( pointsetps.ptr() );
 
     if ( hor3d )
 	sectionlockedpts_->getMaterial()->setColor( hor3d->getLockColor() );
@@ -2127,7 +2128,7 @@ void HorizonDisplay::selectParent( const TrcKey& tk )
 	parentline_->setMaterial( newmat.ptr() );
 	parentline_->getMaterial()->setColor( hor3d->getParentColor() );
 	addChild( parentline_->osgNode() );
-	parentline_->setDisplayTransformation( transformation_ );
+	parentline_->setDisplayTransformation( transformation_.ptr() );
     }
     else
     {
@@ -2152,7 +2153,7 @@ void HorizonDisplay::selectParent( const TrcKey& tk )
 	RefMan<Geometry::IndexedPrimitiveSet> primitiveset =
 			Geometry::IndexedPrimitiveSet::create( false );
 	primitiveset->append( idxps.arr(), idxps.size() );
-	parentline_->addPrimitiveSet( primitiveset );
+	parentline_->addPrimitiveSet( primitiveset.ptr() );
     }
 
     showParentLine( true );
@@ -2168,7 +2169,7 @@ void HorizonDisplay::initSelectionDisplay( bool erase )
 	if ( hor3d && selections_->getMaterial() )
 	    selections_->getMaterial()->setColor( hor3d->getSelectionColor() );
 	addChild( selections_->osgNode() );
-	selections_->setDisplayTransformation( transformation_ );
+	selections_->setDisplayTransformation( transformation_.ptr() );
     }
     else if ( erase )
     {
@@ -2216,7 +2217,7 @@ void HorizonDisplay::selectChildren()
 			Geometry::IndexedPrimitiveSet::create( true );
     pointsetps->setPrimitiveType( Geometry::PrimitiveSet::Points );
     pointsetps->append( pidxs.arr(), pidxs.size() );
-    selections_->addPrimitiveSet( pointsetps );
+    selections_->addPrimitiveSet( pointsetps.ptr() );
     selections_->turnOn( true );
 }
 
@@ -2267,7 +2268,7 @@ void HorizonDisplay::calculateLockedPoints()
     {
 	lockedpts_ = visBase::PointSet::create();
 	addChild( lockedpts_->osgNode() );
-	lockedpts_->setDisplayTransformation( transformation_ );
+	lockedpts_->setDisplayTransformation( transformation_.ptr() );
     }
     else
     {
@@ -2298,7 +2299,7 @@ void HorizonDisplay::calculateLockedPoints()
 			    Geometry::IndexedPrimitiveSet::create( true );
     pointsetps->setPrimitiveType( Geometry::PrimitiveSet::Points );
     pointsetps->append( pidxs.arr(), pidxs.size() );
-    lockedpts_->addPrimitiveSet( pointsetps );
+    lockedpts_->addPrimitiveSet( pointsetps.ptr() );
 
 }
 
@@ -2354,7 +2355,7 @@ void HorizonDisplay::updateSelections()
 		Geometry::IndexedPrimitiveSet::create( true );
     pointsetps->setPrimitiveType( Geometry::PrimitiveSet::Points );
     pointsetps->append( pidxs.arr(), pidxs.size() );
-    selections_->addPrimitiveSet( pointsetps );
+    selections_->addPrimitiveSet( pointsetps.ptr() );
     selections_->getMaterial()->setColor( hor3d->getSelectionColor() );
     selections_->turnOn( true );
 }
@@ -2531,8 +2532,8 @@ void HorizonDisplay::setPixelDensity( float dpi )
 
 HorizonDisplay::IntersectionData::IntersectionData( const OD::LineStyle& lst )
     : line_( lst.type_==OD::LineStyle::Solid
-	? (visBase::VertexShape*) visBase::PolyLine3D::create()
-	: (visBase::VertexShape*) visBase::PolyLine::create() )
+	? (visBase::VertexShape*) visBase::PolyLine3D::create().ptr()
+	: (visBase::VertexShape*) visBase::PolyLine::create().ptr() )
     , markerset_( visBase::MarkerSet::create() )
 {
 
@@ -2570,7 +2571,7 @@ void HorizonDisplay::IntersectionData::addLine( const TypeSet<Coord3>& crds )
     RefMan<Geometry::RangePrimitiveSet> rps =
 					Geometry::RangePrimitiveSet::create();
     rps->setRange( Interval<int>( start, stop ) );
-    line_->addPrimitiveSet( rps );
+    line_->addPrimitiveSet( rps.ptr() );
 }
 
 
@@ -2593,7 +2594,7 @@ void HorizonDisplay::IntersectionData::setDisplayTransformation(
 void HorizonDisplay::IntersectionData::updateDataTransform(
 			const TrcKeyZSampling& sampling, ZAxisTransform* trans )
 {
-    if ( zaxistransform_ && zaxistransform_!=trans )
+    if ( zaxistransform_ && zaxistransform_.ptr()!=trans )
     {
 	zaxistransform_->removeVolumeOfInterest( voiid_ );
 	voiid_ = -2;
@@ -2652,9 +2653,9 @@ HorizonDisplay::IntersectionData::setLineStyle( const OD::LineStyle& lst )
 	if ( removelines )
 	{
 	    RefMan<visBase::VertexShape> newline =
-		lst.type_==OD::LineStyle::Solid
-		    ? (visBase::VertexShape*) visBase::PolyLine3D::create()
-		    : (visBase::VertexShape*) visBase::PolyLine::create();
+		lst.type_==OD::LineStyle::Solid ?
+		    (visBase::VertexShape*) visBase::PolyLine3D::create().ptr()
+		  : (visBase::VertexShape*) visBase::PolyLine::create().ptr();
 	    newline->setRightHandSystem( line_->isRightHandSystem() );
 	    newline->setDisplayTransformation(
 					line_->getDisplayTransformation());

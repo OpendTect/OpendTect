@@ -99,11 +99,11 @@ void sortByLinename( TypeSet<Pos::GeomID>& geomids, BufferStringSet* linenames )
     ConstArrPtrMan<int> idxs = lnms.getSortIndexes();
     if ( linenames )
     {
-	lnms.useIndexes( idxs );
+	lnms.useIndexes( idxs.ptr() );
 	*linenames = lnms;
     }
 
-    geomids.useIndexes( idxs );
+    geomids.useIndexes( idxs.ptr() );
 }
 
 

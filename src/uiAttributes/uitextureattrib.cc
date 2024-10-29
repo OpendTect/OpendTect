@@ -258,7 +258,7 @@ protected:
 
 void uiTextureAttrib::analyzeCB( CallBacker* )
 {
-    const Attrib::Desc* inpdesc = ads_->getDesc( inpfld_->attribID() );
+    ConstRefMan<Attrib::Desc> inpdesc = ads_->getDesc( inpfld_->attribID() );
     if ( !inpdesc )
 	return;
 
@@ -274,7 +274,7 @@ void uiTextureAttrib::analyzeCB( CallBacker* )
     if ( !subseldlg.go() )
 	return;
 
-    SeisIOObjInfo seisinfo( ioobj );
+    SeisIOObjInfo seisinfo( *ioobj );
     TrcKeyZSampling cs;
     if ( inpdesc->is2D() )
     {
@@ -301,7 +301,7 @@ void uiTextureAttrib::analyzeCB( CallBacker* )
 bool uiTextureAttrib::readInpAttrib( SeisTrcBuf& buf, const TrcKeyZSampling& cs,
 				      int nrtrcs ) const
 {
-    const Attrib::Desc* inpdesc = ads_->getDesc( inpfld_->attribID() );
+    ConstRefMan<Attrib::Desc> inpdesc = ads_->getDesc( inpfld_->attribID() );
     if ( !inpdesc )
 	return false;
 
@@ -313,7 +313,7 @@ bool uiTextureAttrib::readInpAttrib( SeisTrcBuf& buf, const TrcKeyZSampling& cs,
     PtrMan<Attrib::EngineMan> aem = new Attrib::EngineMan;
     SelSpec sp( 0 );
     sp.set( *inpdesc );
-    aem->setAttribSet( descset );
+    aem->setAttribSet( descset.ptr() );
     aem->setAttribSpec( sp );
     aem->setTrcKeyZSampling( cs );
 

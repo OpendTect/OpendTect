@@ -78,14 +78,14 @@ MadStream::MadStream( IOPar& par )
 	PtrMan<IOPar> outpar = par.subselect( sKeyOutput );
 	if (!outpar) mErrRet(tr("Output parameters missing"));
 
-	initWrite( outpar );
+	initWrite( outpar.ptr() );
     }
     else
     {
 	PtrMan<IOPar> inpar = par.subselect( sKeyInput );
 	if (!inpar) mErrRet(uiStrings::sInputParamsMissing());
 
-	initRead( inpar );
+	initRead( inpar.ptr() );
     }
 }
 
@@ -226,7 +226,7 @@ void MadStream::initRead( IOPar* par )
 
 	if (!psrdr_) mErrRet(uiStrings::sCantReadInp());
 
-	fillHeaderParsFromPS( seldata );
+	fillHeaderParsFromPS( seldata.ptr() );
     }
 }
 

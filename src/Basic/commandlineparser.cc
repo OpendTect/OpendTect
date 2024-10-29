@@ -247,7 +247,7 @@ void CommandLineParser::init( const char* thecomm )
 	argarray[idx] = args.get(idx).getCStr();
     }
 
-    init( args.size(), argarray );
+    init( args.size(), mVarLenArr(argarray) );
 }
 
 

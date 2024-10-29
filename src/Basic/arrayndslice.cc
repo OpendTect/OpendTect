@@ -124,11 +124,11 @@ bool ArrayNDSliceBase::init()
     else
     {
 	mAllocVarLenArr( int, localpos, nrowndims );
-	OD::memZero( localpos, nrowndims * sizeof(int) );
+	OD::memZero( mVarLenArr(localpos), nrowndims * sizeof(int) );
 
 	mAllocVarLenArr( int, tpos, ndim );
-	getSourcePos( localpos, tpos );
-	offset_ = sourceinfo_.getOffset(tpos);
+	getSourcePos( mVarLenArr(localpos), mVarLenArr(tpos) );
+	offset_ = sourceinfo_.getOffset( mVarLenArr(tpos) );
     }
 
     for ( int idx=0; idx<nrowndims; idx++ )

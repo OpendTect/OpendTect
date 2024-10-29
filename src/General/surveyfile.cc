@@ -468,14 +468,14 @@ bool EmptyTempSurvey::writeSurveyInfo()
 	    crspar.set( IOPar::compKey(sKey::Projection(),sKey::ID()), crsid );
 	    RefMan<Coords::CoordSystem> coordsys =
 				Coords::CoordSystem::createSystem( crspar );
-	    si.setCoordSystem( coordsys );
+	    si.setCoordSystem( coordsys.ptr() );
 	    si.setXYInFeet( coordsys->isFeet() );
 	}
 	else
 	{
 	    ConstRefMan<Coords::CoordSystem> coordsys =
 				Coords::CoordSystem::getWGS84LLSystem();
-	    si.setCoordSystem( coordsys );
+	    si.setCoordSystem( coordsys.ptr() );
 	    si.setXYInFeet( coordsys->isFeet() );
 	}
     }

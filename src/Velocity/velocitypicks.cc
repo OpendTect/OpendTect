@@ -433,7 +433,7 @@ bool Picks::store( const IOObj* ioobjarg )
     fillPar( ps->pars_ );
     ps->pars_.set( sKey::Version(), 2 );
 
-    if ( !PickSetTranslator::store(*ps,ioobj,errmsg_) )
+    if ( !PickSetTranslator::store(*ps,ioobj.ptr(),errmsg_) )
 	return false;
 
     fillIOObjPar( ioobj->pars() );
@@ -1161,7 +1161,7 @@ Picks* PicksMgr::get( const MultiID& mid, bool sgmid, bool create,
 	return 0;
     }
 
-    if ( ioobj && !res->load( ioobj ) )
+    if ( ioobj && !res->load(ioobj.ptr()) )
     {
 	errmsg_ = res->errMsg();
 	res->unRef();

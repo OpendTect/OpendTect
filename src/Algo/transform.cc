@@ -195,7 +195,7 @@ bool GenericTransformND::setup()
     {
 	ArrayNDInfoImpl curarrsz( ndim-1 );
 	mAllocVarLenArr(int,globalarrpos,ndim);
-	OD::memZero( globalarrpos, ndim*sizeof(int) );
+	OD::memZero( mVarLenArr(globalarrpos), ndim*sizeof(int) );
 	for ( int dim=0; dim<ndim; dim++ )
 	{
 	    globalarrpos[dim] = 0;
@@ -222,7 +222,8 @@ bool GenericTransformND::setup()
 		    globalarrpos[idy] = iter.getPos()[curdim];
 		}
 
-		const od_int64 offset = info_->getOffset( globalarrpos );
+		const od_int64 offset =
+			info_->getOffset( mVarLenArr(globalarrpos) );
 		//Multiply by sampling_ ?
 		offsets += mCast( int, offset );
 	    } while ( iter.next() );
@@ -238,12 +239,15 @@ bool GenericTransformND::setup()
 	    }
 
 	    mAllocVarLenArr(int,nextarrpos,ndim);
-	    OD::memCopy( nextarrpos, globalarrpos, ndim*sizeof(int) );
+	    OD::memCopy( mVarLenArr(nextarrpos), mVarLenArr(globalarrpos),
+			 ndim*sizeof(int) );
 	    nextarrpos[dim] = 1;
 
 	    //Compute sampling for 1D transform
-	    const od_int64 offset = info_->getOffset( globalarrpos );
-	    const od_int64 nextoffset = info_->getOffset( nextarrpos );
+	    const od_int64 offset =
+			info_->getOffset( mVarLenArr(globalarrpos) );
+	    const od_int64 nextoffset =
+			info_->getOffset( mVarLenArr(nextarrpos) );
 	    const int sampling = mCast( int, sampling_*(nextoffset-offset) );
 
 	    Transform1D* trans = createTransform();

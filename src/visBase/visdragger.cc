@@ -74,7 +74,7 @@ void DraggerCallbackHandler::constrain()
 {
     Coord3 pos;
     osg::Vec3d osgpos = dragger_.osgdragger_->getMatrix().getTrans();
-    mVisTrans::transformBack( dragger_.displaytrans_, osgpos, pos );
+    mVisTrans::transformBack( dragger_.displaytrans_.ptr(), osgpos, pos );
 
     for ( int dim=0; dim<3; dim++ )
     {
@@ -90,7 +90,7 @@ void DraggerCallbackHandler::constrain()
 	}
     }
 
-    mVisTrans::transform( dragger_.displaytrans_, pos, osgpos );
+    mVisTrans::transform( dragger_.displaytrans_.ptr(), pos, osgpos );
     osg::Matrix mat = dragger_.osgdragger_->getMatrix();
     mat.setTrans( osgpos );
     dragger_.osgdragger_->setMatrix( mat );
@@ -323,7 +323,7 @@ void Dragger::setPos( const Coord3& pos )
 {
     if ( !osgdragger_ ) return;
     Coord3 newpos;
-    mVisTrans::transform( displaytrans_, pos, newpos );
+    mVisTrans::transform( displaytrans_.ptr(), pos, newpos );
     markerpos_ = newpos;
     updateDragger( true );
 }
@@ -353,7 +353,7 @@ Coord3 Dragger::getPos() const
 
     osg::Vec3d pos = osgdragger_->getMatrix().getTrans();
     Coord3 coord;
-    mVisTrans::transformBack( displaytrans_, pos, coord );
+    mVisTrans::transformBack( displaytrans_.ptr(), pos, coord );
     return coord;
 }
 
@@ -478,7 +478,7 @@ osg::MatrixTransform* Dragger::createTranslateDefaultGeometry()
 
 void Dragger::setDisplayTransformation( const mVisTrans* nt )
 {
-    if ( displaytrans_ == nt )
+    if ( displaytrans_.ptr() == nt )
 	return;
 
     Coord3 crd = getPos();

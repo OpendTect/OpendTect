@@ -73,7 +73,7 @@ uiSeisEventSnapper::uiSeisEventSnapper( uiParent* p, const IOObj* inp,
     uiSeparator* sep = new uiSeparator( this, "Hor sep" );
     sep->attach( stretchedBelow, undefpolicyfld_ );
 
-    savefldgrp_ = new uiHorSaveFieldGrp( this, horizon_, is2d );
+    savefldgrp_ = new uiHorSaveFieldGrp( this, horizon_.ptr(), is2d);
     savefldgrp_->setSaveFieldName( "Save snappeded horizon" );
     savefldgrp_->attach( alignedBelow, gatefld_ );
     savefldgrp_->attach( ensureBelow, sep );

@@ -318,7 +318,7 @@ void Annotation::setCorner( int idx, float x, float y, float z )
     auto* cornercoords = sCast(const osg::Vec3f*,
 			       box_->getVertexArray()->getDataPointer());
     osg::Vec3f& coord = cCast(osg::Vec3&,cornercoords[idx]);
-    mVisTrans::transform( displaytrans_, osg::Vec3(x,y,z), coord );
+    mVisTrans::transform( displaytrans_.ptr(), osg::Vec3(x,y,z), coord );
 }
 
 
@@ -395,13 +395,13 @@ void Annotation::updateGridLines()
 
 	osg::Vec3 dir(0,0,0);
 	dir[dim] = 1;
-	mVisTrans::transformDir( displaytrans_, dir );
+	mVisTrans::transformDir( displaytrans_.ptr(), dir );
 	dir.normalize();
 
 	osg::Vec3 lstart0, lstart1;
 
-	mVisTrans::transform( displaytrans_, p0, lstart0 );
-	mVisTrans::transform( displaytrans_, p1, lstart1 );
+	mVisTrans::transform( displaytrans_.ptr(), p0, lstart0 );
+	mVisTrans::transform( displaytrans_.ptr(), p1, lstart1 );
 	gridlines_->setLine( dim*2, osgGeo::Line3(lstart0, dir) );
 	gridlines_->setLine( dim*2+1, osgGeo::Line3(lstart1, -dir) );
 
@@ -441,7 +441,7 @@ void Annotation::updateGridLines()
 	    for ( int idy=0; idy<4; idy++ )
 	    {
 		osg::Vec3 pos;
-		mVisTrans::transform( displaytrans_, corners[idy], pos );
+		mVisTrans::transform( displaytrans_.ptr(), corners[idy], pos );
 		coords->push_back( pos );
 
 		mGetDrawElements(psindexes[idy])->push_back(
@@ -482,8 +482,8 @@ void Annotation::getAxisCoords( int dim, osg::Vec3& p0, osg::Vec3& p1 ) const
 
     auto* cornercoords = sCast(const osg::Vec3f*,
 			       box_->getVertexArray()->getDataPointer());
-    mVisTrans::transformBack( displaytrans_, cornercoords[pidx0], p0 );
-    mVisTrans::transformBack( displaytrans_, cornercoords[pidx1], p1 );
+    mVisTrans::transformBack( displaytrans_.ptr(), cornercoords[pidx0], p0 );
+    mVisTrans::transformBack( displaytrans_.ptr(), cornercoords[pidx1], p1 );
 }
 
 
@@ -505,7 +505,7 @@ void Annotation::updateTextPos()
 	tp[1] = (p0[1]+p1[1]) / 2;
 	tp[2] = (p0[2]+p1[2]) / 2;
 
-	mVisTrans::transform( displaytrans_, tp );
+	mVisTrans::transform( displaytrans_.ptr(), tp );
 	axisnames_->text(dim)->setPosition( tp );
 
 	Interval<float> range( p0[dim], p1[dim] );
@@ -531,7 +531,7 @@ void Annotation::updateTextPos()
 	    float displayval = val;
 	    displayval *= scalefactor_[dim];
 
-	    mVisTrans::transform( displaytrans_, pos );
+	    mVisTrans::transform( displaytrans_.ptr(), pos );
 	    text->setPosition( pos );
 	    text->setText( toUiString(displayval) );
 	    text->setColor( col );

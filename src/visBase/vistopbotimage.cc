@@ -85,8 +85,8 @@ void TopBotImage::setPos( const Coord3& c1, const Coord3& c2 )
 void TopBotImage::updateCoords()
 {
     Coord3 pos0, pos1;
-    Transformation::transform( trans_, pos0_, pos0 );
-    Transformation::transform( trans_, pos1_, pos1 );
+    Transformation::transform( trans_.ptr(), pos0_, pos0 );
+    Transformation::transform( trans_.ptr(), pos1_, pos1 );
 
     const Coord3 dif = pos1 - pos0;
     texplane_->setWidth( osg::Vec3(dif.x_, -dif.y_, 0.0) );

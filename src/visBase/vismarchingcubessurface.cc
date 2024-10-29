@@ -144,7 +144,7 @@ void MarchingCubesSurface::setDisplayTransformation( const mVisTrans* trans )
 
 const mVisTrans* MarchingCubesSurface::getDisplayTransformation() const
 {
-    return transform_;
+    return transform_.ptr();
 }
 
 
@@ -152,9 +152,8 @@ void MarchingCubesSurface::getTransformCoord( Coord3& pos )
 {
     Coord3 postoset = pos;
     if ( postoset.isDefined() )
-    {
-	Transformation::transform( transform_, postoset );
-    }
+	Transformation::transform( transform_.ptr(), postoset );
+
     pos =  postoset;
 }
 

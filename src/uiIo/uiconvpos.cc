@@ -185,7 +185,7 @@ uiManualConvGroup::uiManualConvGroup( uiParent* p, const SurveyInfo& si )
     if ( isprojcrs )
     {
 	inpcrdsysselfld_ = new Coords::uiCoordSystemSel( ingrp, true, true,
-	    si.getCoordSystem(), tr("Input Coordinate System") );
+	    si.getCoordSystem().ptr(), tr("Input Coordinate System") );
 	inpcrdsysselfld_->attach( alignedBelow, inptypfld_ );
 	attachobj = inpcrdsysselfld_->attachObj();
     }
@@ -222,7 +222,7 @@ uiManualConvGroup::uiManualConvGroup( uiParent* p, const SurveyInfo& si )
 	midgrp->attach( ensureBelow, sep1 );
 
 	outcrdsysselfld_ = new Coords::uiCoordSystemSel( midgrp, true, true,
-	    si.getCoordSystem(), tr("Output Coordinate System") );
+	    si.getCoordSystem().ptr(), tr("Output Coordinate System") );
 
 	outllsysselfld_ = new Coords::uiLatLongSystemSel( midgrp,
 			tr("Output Lat-Long System"), si.getCoordSystem() );
@@ -452,7 +452,7 @@ uiFileConvGroup::uiFileConvGroup(uiParent* p, const SurveyInfo& si)
     if ( isprojcrs )
     {
 	outcrdsysselfld_ = new Coords::uiCoordSystemSel( botgrp, true, true,
-		    si.getCoordSystem(), tr("Output Coordinate System") );
+		    si.getCoordSystem().ptr(), tr("Output Coordinate System") );
 	outcrdsysselfld_->attach( alignedBelow, outtypfld_ );
 
 	outllsysselfld_ = new Coords::uiLatLongSystemSel( botgrp,

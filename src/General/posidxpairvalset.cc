@@ -107,13 +107,13 @@ bool Pos::IdxPairValueSet::append( const IdxPairValueSet& vs )
     else
     {
 	mAllocVarLenArr( float, insvals, nrvals_ );
-	setToUdf(insvals,nrvals_);
+	setToUdf( mVarLenArr(insvals), nrvals_ );
 	while ( vs.next(pos,!allowdup_) )
 	{
 	    vs.get( pos, idxpair );
-	    OD::memCopy( insvals, vs.getVals( pos ),
+	    OD::memCopy( mVarLenArr(insvals), vs.getVals( pos ),
 			 vs.nrvals_ * sizeof(float) );
-	    const SPos newpos = add( idxpair, insvals );
+	    const SPos newpos = add( idxpair, mVarLenArr(insvals) );
 	    if ( !newpos.isValid() )
 		return false;
 	}

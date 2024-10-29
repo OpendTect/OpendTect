@@ -315,14 +315,14 @@ void uiViewer2D::doReSize( const uiSize& sz )
 void uiGatherDisplay::setVDGather( DataPackID vdid )
 {
     auto gather = DPM(DataPackMgr::FlatID()).get<PreStack::Gather>( vdid );
-    setVDGather( gather );
+    setVDGather( gather.ptr() );
 }
 
 
 void uiGatherDisplay::setWVAGather( DataPackID wvaid )
 {
     auto gather = DPM(DataPackMgr::FlatID()).get<PreStack::Gather>( wvaid );
-    setWVAGather( gather );
+    setWVAGather( gather.ptr() );
 }
 
 
@@ -331,7 +331,7 @@ uiGatherDisplay* uiViewer2D::addGatherDisplay( DataPackID vdid,
 {
     auto vdgather = DPM(DataPackMgr::FlatID()).get<PreStack::Gather>( vdid );
     auto wvagather = DPM(DataPackMgr::FlatID()).get<PreStack::Gather>( wvaid );
-    return addGatherDisplay( vdgather, wvagather );
+    return addGatherDisplay( vdgather.ptr(), wvagather.ptr() );
 }
 
 } // namespace PreStackView

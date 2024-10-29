@@ -81,7 +81,7 @@ public:
     void			showWellBotName(bool);
     bool			wellTopNameShown() const;
     bool			wellBotNameShown() const;
-    const PolyLine*		getTrack() const { return track_; }
+    const PolyLine*		getTrack() const { return track_.ptr(); }
 
     //Markers
     mStruct(visBase) MarkerParams : public BasicParams
@@ -106,7 +106,8 @@ public:
     bool			markersShown() const;
     void			showMarkerName(bool);
     bool			markerNameShown() const;
-    const visBase::Text2*	getMarkerNames() const { return markernames_; }
+    const visBase::Text2*	getMarkerNames() const
+				{ return markernames_.ptr(); }
     void			removeAllMarkers();
     void			setMarkerScreenSize(int);
 
@@ -204,7 +205,7 @@ public:
     static const char*		logwidthstr();
 
     /// for pdf3d
-    const visBase::MarkerSet*	getMarkerSet() const { return markerset_; }
+    const visBase::MarkerSet*	getMarkerSet() const { return markerset_.ptr();}
     bool			hasLog(Side side) const;
     BufferString		getLogName(Side side) const;
     bool			getLogOsgData(LogStyle style,Side side,
@@ -216,8 +217,10 @@ public:
     void			getLogStyle(Side,int&) const;
     unsigned int		getRepeat(Side side) const;
     float			getRepeatStep(Side side) const;
-    const Text2*		getWellTopText() const { return welltoptxt_; }
-    const Text2*		getWellBottomText() const{ return wellbottxt_; }
+    const Text2*		getWellTopText() const
+				{ return welltoptxt_.ptr(); }
+    const Text2*		getWellBottomText() const
+				{ return wellbottxt_.ptr(); }
 
 protected:
 				~Well();

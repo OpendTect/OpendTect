@@ -96,7 +96,7 @@ void uiODPickSetParentTreeItem::setRemovedCB( CallBacker* cb )
 	if ( !itm )
 	    continue;
 
-	if ( itm->getSet() == ps )
+	if ( itm->getSet().ptr() == ps)
 	{
 	    applMgr()->visServer()->removeObject( itm->displayID(), sceneID() );
 	    uiTreeItem::removeChild( itm );
@@ -169,7 +169,7 @@ bool uiODPickSetParentTreeItem::showSubMenu()
 	{
 	    setMoreObjectsToDoHint( idx<mids.size()-1 );
 	    RefMan<Pick::Set> ps = psm.get( mids[idx] );
-	    addPickSet( ps );
+	    addPickSet( ps.ptr() );
 	}
     }
     else if ( mnuid==mGen3DIdx )
@@ -199,7 +199,7 @@ bool uiODPickSetParentTreeItem::showSubMenu()
 	    if ( !psd )
 		continue;
 
-	    const Pick::Set* ps = psd->getSet();
+	    ConstRefMan<Pick::Set> ps = psd->getSet();
 	    if ( !ps || ps->isEmpty() )
 		continue;
 
@@ -313,7 +313,7 @@ bool uiODPickSetTreeItem::doubleClick( uiTreeViewItem* item )
 	return false;
 
     const OD::Color orgcolor( set_->disp_.color_ );
-    uiPickPropDlg dlg( getUiParent(), *set_ , pointsetdisplay );
+    uiPickPropDlg dlg( getUiParent(), *set_ , pointsetdisplay.ptr() );
     const bool ret = dlg.go();
     if ( set_->disp_.color_ != orgcolor )
 	updateColumnText( uiODSceneMgr::cColorColumn() );
@@ -325,7 +325,7 @@ bool uiODPickSetTreeItem::doubleClick( uiTreeViewItem* item )
 void uiODPickSetTreeItem::setChg( CallBacker* cb )
 {
     mDynamicCastGet(Pick::Set*,ps,cb)
-    if ( !ps || set_!=ps )
+    if ( !ps || set_.ptr()!=ps )
 	return;
 
     RefMan<visSurvey::PickSetDisplay> pointsetdisplay = getDisplay();
@@ -345,8 +345,8 @@ bool uiODPickSetTreeItem::init()
 	if ( set_->disp_.pixsize_>100 )
 	    set_->disp_.pixsize_ = 3;
 
-	psd->setSet( set_ );
-	visserv_->addObject( psd, sceneID(), true );
+	psd->setSet( set_.ptr() );
+	visserv_->addObject( psd.ptr(), sceneID(), true);
 	psd->fullRedraw();
     }
 
@@ -357,7 +357,7 @@ bool uiODPickSetTreeItem::init()
 
     const MultiID setid = psd->getMultiID();
     NotifyStopper ntfstop( Pick::Mgr().setAdded );
-    Pick::Mgr().set( setid, psd->getSet() );
+    Pick::Mgr().set( setid, psd->getSet().ptr() );
 
     updateColumnText( uiODSceneMgr::cColorColumn() );
 
@@ -452,7 +452,7 @@ void uiODPickSetTreeItem::handleMenuCB( CallBacker* cb )
     else if ( mnuid==propertymnuitem_.id )
     {
 	menu->setIsHandled( true );
-	uiPickPropDlg dlg( getUiParent(), *set_, pointsetdisplay );
+	uiPickPropDlg dlg( getUiParent(), *set_, pointsetdisplay.ptr() );
 	dlg.go();
     }
     else if ( mnuid==paintingmnuitem_.id )
@@ -483,7 +483,7 @@ void uiODPickSetTreeItem::handleMenuCB( CallBacker* cb )
 				pointsetdisplay->getDisplayTransformation() );
 	addChild( new uiODBodyDisplayTreeItem(npsd->id(),true), false );
 
-        visserv_->addObject( npsd, sceneID(), true );
+	visserv_->addObject( npsd.ptr(), sceneID(), true);
     }
 
     updateColumnText( uiODSceneMgr::cNameColumn() );
@@ -516,7 +516,8 @@ void uiODPickSetTreeItem::enablePainting( bool yn )
 	paintdlg_->refresh();
     else
     {
-	paintdlg_ = new uiSeedPainterDlg( getUiParent(), pointsetdisplay );
+	paintdlg_ = new uiSeedPainterDlg( getUiParent(),
+					  pointsetdisplay.ptr() );
 	mAttachCB( paintdlg_->windowClosed,
 		   uiODPickSetTreeItem::paintDlgClosedCB );
     }
@@ -635,7 +636,7 @@ void uiODPolygonParentTreeItem::setRemovedCB( CallBacker* cb )
 	    continue;
 
 	ConstRefMan<Pick::Set> pickset = itm->getSet();
-	if ( pickset == ps )
+	if ( pickset.ptr() == ps)
 	{
 	    applMgr()->visServer()->removeObject( itm->displayID(), sceneID() );
 	    uiTreeItem::removeChild( itm );
@@ -694,7 +695,7 @@ bool uiODPolygonParentTreeItem::showSubMenu()
 	for ( int idx=0; idx<mids.size(); idx++ )
 	{
 	    RefMan<Pick::Set> ps = Pick::Mgr().get( mids[idx] );
-	    addPolygon( ps );
+	    addPolygon( ps.ptr() );
 	}
     }
     else if ( mnuid==mNewPolyIdx )
@@ -722,7 +723,7 @@ bool uiODPolygonParentTreeItem::showSubMenu()
 	    if ( !pgd )
 		continue;
 
-	    const Pick::Set* pg = pgd->getSet();
+	    ConstRefMan<Pick::Set> pg = pgd->getSet();
 	    if ( !pg || pg->isEmpty() )
 		continue;
 
@@ -838,7 +839,7 @@ bool uiODPolygonTreeItem::actModeWhenSelected() const
 void uiODPolygonTreeItem::setChg( CallBacker* cb )
 {
     mDynamicCastGet(Pick::Set*,ps,cb)
-    if ( !ps || set_!=ps )
+    if ( !ps || set_.ptr()!=ps )
 	return;
 
     RefMan<visSurvey::PickSetDisplay> polygondisplay = getDisplay();
@@ -868,7 +869,7 @@ bool uiODPolygonTreeItem::doubleClick( uiTreeViewItem* item )
 	return false;
 
     // TODO: Make polygon specific properties dialog
-    uiPickPropDlg dlg( getUiParent(), *set_ , polygondisplay );
+    uiPickPropDlg dlg( getUiParent(), *set_ , polygondisplay.ptr() );
     return dlg.go();
 }
 
@@ -882,8 +883,8 @@ bool uiODPolygonTreeItem::init()
 	if ( set_->disp_.pixsize_>100 )
 	    set_->disp_.pixsize_ = 3;
 
-	psd->setSet( set_ );
-	visserv_->addObject( psd, sceneID(), true );
+	psd->setSet( set_.ptr() );
+	visserv_->addObject( psd.ptr(), sceneID(), true);
 	psd->fullRedraw();
     }
 
@@ -992,7 +993,7 @@ void uiODPolygonTreeItem::handleMenuCB( CallBacker* cb )
     }
     else if ( mnuid==propertymnuitem_.id )
     {
-	uiPickPropDlg dlg( getUiParent(), *set_ , polygondisplay );
+	uiPickPropDlg dlg( getUiParent(), *set_ , polygondisplay.ptr() );
 	dlg.go();
     }
     else if ( mnuid == changezmnuitem_.id )

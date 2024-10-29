@@ -212,7 +212,7 @@ float semblance( const ObjectSet<float>& signals, int signalsize,
     for ( int signalidx=0; signalidx<nrsignals; signalidx++ )
     {
 	const float* signal = signals[signalidx];
-	semblanceinput += cache+offset;
+	semblanceinput += mVarLenArr(cache)+offset;
         for ( int zidx=samplegate.start_; zidx<=samplegate.stop_ ; zidx++ )
 	{
 	    const float zpos = signalstarts[signalidx]+zidx;

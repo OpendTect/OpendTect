@@ -427,8 +427,8 @@ Executor* uiSeisTransfer::getTrcProc( const IOObj& inobj, const IOObj& outobj,
 
     if ( seldata && !seldata->isAll() )
     {
-	inpsu.seldata( seldata );
-	outsu.seldata( seldata );
+	inpsu.seldata( seldata.ptr() );
+	outsu.seldata( seldata.ptr() );
     }
 
     if ( inpcrs_ )

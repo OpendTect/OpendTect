@@ -62,7 +62,7 @@ public:
 
     const char*			getAttribName() const;
     const char*			getAttribUserRef() const;
-    Provider*			getProvider()		{ return provider_; }
+    Provider*			getProvider()	{ return provider_.ptr(); }
     RefObjectSet<Output>	outputs_;
 
     void			setRdmPaths(const TypeSet<BinID>& truepath,

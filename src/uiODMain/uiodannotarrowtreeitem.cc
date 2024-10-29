@@ -25,7 +25,7 @@ void type##ParentItem::setRemovedCB( CallBacker* cb ) \
 	{ \
 	    mDynamicCastGet(type##SubItem*,itm,getChild(idx)) \
 	    if ( !itm ) continue; \
-	    if ( itm->getSet() == ps ) \
+	    if ( itm->getSet().ptr() == ps ) \
 	    { \
 		applMgr()->visServer()->removeObject( itm->displayID(),\
 							sceneID() ); \
@@ -69,7 +69,7 @@ bool ArrowSubItem::init()
     if ( !displayid_.isValid() )
     {
 	RefMan<visSurvey::ArrowDisplay> ad = visSurvey::ArrowDisplay::create();
-	visserv_->addObject( ad, sceneID(), true );
+	visserv_->addObject( ad.ptr(), sceneID(), true);
 	displayid_ = ad->id();
 	ad->setUiName( name_ );
     }

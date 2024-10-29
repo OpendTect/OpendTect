@@ -234,7 +234,7 @@ int SeisImpBPSIF::readBinary()
     SeisTrc tmpltrc( nrshotattrs + nrrcvattrs );
     tmpltrc.info().sampling_.start_ = SI().zRange(true).start_;
     tmpltrc.info().sampling_.step_ = SI().zStep();
-    StrmOper::readBlock( strm, vbuf, (2+nrshotattrs)*sizeof(float) );
+    StrmOper::readBlock( strm, mVarLenArr(vbuf), (2+nrshotattrs)*sizeof(float));
     tmpltrc.info().coord_.x_ = vbuf[0]; tmpltrc.info().coord_.y_ = vbuf[1];
     for ( int idx=0; idx<nrshotattrs; idx++ )
 	tmpltrc.set( idx, vbuf[2+idx], 0 );
@@ -307,7 +307,7 @@ bool SeisImpBPSIF::addTrcsBinary( const SeisTrc& tmpltrc )
     mAllocVarLenArr( float, vbuf, nrrcvvals );
     for ( int idx=0; idx<nrrcvpershot_; idx++ )
     {
-	if ( !StrmOper::readBlock( curstrm_->stdStream(), vbuf,
+	if ( !StrmOper::readBlock( curstrm_->stdStream(), mVarLenArr(vbuf),
 				   nrrcvvals*sizeof(float) ) )
 	    return false;
 

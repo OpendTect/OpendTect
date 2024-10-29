@@ -66,7 +66,7 @@ void DescSetMan::cleanHist( IOPar& selhist, const DescSet& newads )
 	const int id = val.toInt();
 	if ( id < 0 ) continue;
 
-	const Desc* desc = ads_->getDesc( DescID(id,false) );
+	ConstRefMan<Desc> desc = ads_->getDesc( DescID(id,false) );
 	bool keep = false;
 	if ( desc )
 	{
@@ -92,7 +92,7 @@ void DescSetMan::fillHist()
     ads_->getIds( attribids );
     for ( int idx=0; idx<attribids.size(); idx++ )
     {
-	Desc* ad = ads_->getDesc( attribids[idx] );
+	RefMan<Desc> ad = ads_->getDesc( attribids[idx] );
 	if ( !ad || ad->isHidden() || ad->isStored() ) continue;
 
 	const BufferString key( "", attribids[idx].asInt() );

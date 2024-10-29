@@ -224,7 +224,7 @@ bool VolumeReader::setVolumeID( const MultiID& mid )
     int nrcomps = components_.size();
     if ( nrcomps == 0 )
     {
-	SeisIOObjInfo seisinfo( ioobj );
+	SeisIOObjInfo seisinfo( ioobj.ptr() );
 	if ( !seisinfo.isOK() )
 	    return false;
 

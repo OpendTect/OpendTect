@@ -198,7 +198,7 @@ bool uiSetPickDirs::acceptOK( CallBacker* )
 
 
 #define mSetColDef( nr ) \
-    const Desc* tmpdesc##nr = createdset_->getDesc( ids[nr] );\
+    ConstRefMan<Desc> tmpdesc##nr = createdset_->getDesc( ids[nr] );\
     if ( tmpdesc##nr ) \
     { \
 	BufferString tmpdefstr##nr; \
@@ -278,7 +278,7 @@ bool uiSetPickDirs::getNLAIds( TypeSet<DescID>& ids )
 	    continue;
 	}
 
-	Desc* desc0 = createdset_->getDesc( ids[0] );
+	RefMan<Desc> desc0 = createdset_->getDesc( ids[0] );
 	if ( !desc0 ) continue;
 	Desc* ad = new Desc( *desc0 );
 	ad->setDescSet( createdset_ );
@@ -389,5 +389,5 @@ void uiSetPickDirs::createSteeringDesc( int dipnr, const DescID& did )
     desc->setUserRef( userref );
     desc->updateParams();
 
-    createdset_->addDesc( desc, did );
+    createdset_->addDesc( desc.ptr(), did );
 }

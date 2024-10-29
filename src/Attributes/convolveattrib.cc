@@ -298,7 +298,7 @@ Convolve::Convolve( Desc& ds )
 	if ( !ioobj )
 	    return;
 
-	wavelet_ = Wavelet::get( ioobj );
+	wavelet_ = Wavelet::get( ioobj.ptr() );
 	if ( !wavelet_ )
 	    return;
 

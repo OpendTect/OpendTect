@@ -580,7 +580,7 @@ bool SeisDataPack::getCopiedTrcData( int comp, int globaltrcidx,
 
     const od_int64 offset = ((od_int64)globaltrcidx) * nrz;
     mAllocLargeVarLenArr( int, pos, array.nrDims() );
-    if ( !array.info().getArrayPos(offset,pos) )
+    if ( !array.info().getArrayPos(offset,mVarLenArr(pos)) )
         return false;
 
     const auto idx = pos[0];

@@ -228,7 +228,7 @@ void uiODPSEventsTreeItem::updateDisplay()
     {
 	RefMan<visSurvey::PSEventDisplay> eventdisplay =
 						new visSurvey::PSEventDisplay;
-	visserv_->addObject( eventdisplay, sceneID(), false );
+	visserv_->addObject( eventdisplay.ptr(), sceneID(), false);
 	displayid_ = eventdisplay->id();
 	eventdisplay->setName( eventname_ );
 	eventdisplay->setLineStyle( OD::LineStyle(OD::LineStyle::Solid,4) );

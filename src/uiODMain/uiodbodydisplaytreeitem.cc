@@ -150,7 +150,7 @@ void uiODBodyDisplayParentTreeItem::loadBodies()
 	if ( !uiMSG().askGoOn(msg) )
 	    continue;
 
-	uiImplicitBodyValueSwitchDlg dlg( getUiParent(), ioobj );
+	uiImplicitBodyValueSwitchDlg dlg( getUiParent(), ioobj.ptr() );
 	if ( !dlg.go() )
 	    continue;
 
@@ -278,7 +278,7 @@ bool uiODBodyDisplayTreeItem::init()
 		return false;
 
 	    displayid_ = plg->id();
-	    visserv_->addObject( plg, sceneID(), true );
+	    visserv_->addObject( plg.ptr(), sceneID(), true);
 	}
 	else if ( emmcs )
 	{
@@ -289,7 +289,7 @@ bool uiODBodyDisplayTreeItem::init()
 		return false;
 
 	    displayid_ = mcd->id();
-	    visserv_->addObject( mcd, sceneID(), true );
+	    visserv_->addObject( mcd.ptr(), sceneID(), true);
 	}
 	else if ( emrpb )
 	{
@@ -299,7 +299,7 @@ bool uiODBodyDisplayTreeItem::init()
 		return false;
 
 	    displayid_ = rpb->id();
-	    visserv_->addObject( rpb, sceneID(), true );
+	    visserv_->addObject( rpb.ptr(), sceneID(), true);
 	}
     }
 

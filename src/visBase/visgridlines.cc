@@ -172,18 +172,18 @@ void GridLines::addLine( PolyLine& lines, const Coord3& start,
 				Geometry::RangePrimitiveSet::create();
     Interval<int> range( lastidx-2, lastidx -1);
     ps->setRange( range );
-    lines.addPrimitiveSet( ps );
+    lines.addPrimitiveSet( ps.ptr() );
 }
 
 
 RefMan<PolyLine> GridLines::addLineSet()
 {
     RefMan<PolyLine> polyline = PolyLine::create();
-    polyline->setMaterial( linematerial_ );
+    polyline->setMaterial( linematerial_.ptr() );
     polyline->removeAllPrimitiveSets();
     polyline->addNodeState( drawstyle_.ptr() );
-    polyline->setDisplayTransformation( transformation_ );
-    polylineset_.add( polyline );
+    polyline->setDisplayTransformation( transformation_.ptr() );
+    polylineset_.add( polyline.ptr() );
     addChild( polyline->osgNode() );
 
     return polyline;
@@ -200,7 +200,7 @@ void GridLines::emptyLineSet( PolyLine* line )
 void GridLines::drawInlines()
 {
     if ( inlines_ )
-	emptyLineSet( inlines_ );
+	emptyLineSet( inlines_.ptr() );
     else
 	inlines_ = addLineSet();
 
@@ -218,7 +218,7 @@ void GridLines::drawInlines()
 void GridLines::drawCrosslines()
 {
     if ( crosslines_ )
-	emptyLineSet( crosslines_ );
+	emptyLineSet( crosslines_.ptr() );
     else
 	crosslines_ = addLineSet();
 
@@ -239,7 +239,7 @@ void GridLines::drawCrosslines()
 void GridLines::drawZlines()
 {
     if ( zlines_ )
-	emptyLineSet( zlines_ );
+	emptyLineSet( zlines_.ptr() );
     else
 	zlines_ = addLineSet();
 
@@ -305,7 +305,7 @@ void GridLines::setDisplayTransformation( const mVisTrans* tf )
     for ( int idx=0; idx<polylineset_.size(); idx++ )
     {
 	if ( polylineset_[idx] )
-	    polylineset_[idx]->setDisplayTransformation( transformation_ );
+	    polylineset_[idx]->setDisplayTransformation( transformation_.ptr());
     }
 }
 

@@ -108,7 +108,7 @@ PropRef_Thick_Man* getPropRef_ThickRef_Man()
 {
     mDefineStaticLocalObject( PtrMan<PropRef_Thick_Man>, ptm,
 			      = new PropRef_Thick_Man );
-    return ptm;
+    return ptm.ptr();
 }
 
 

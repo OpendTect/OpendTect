@@ -314,7 +314,7 @@ void TextTranslateMgr::loadUSEnglish()
 {
     RefMan<TextTranslatorLanguage> english =
 				new TextTranslatorLanguage("en_US");
-    addLanguage( english );
+    addLanguage( english.ptr() );
 }
 
 
@@ -385,7 +385,7 @@ void loadLocalization()
 
 	RefMan<TextTranslatorLanguage> trans =
 		new TextTranslatorLanguage( locale );
-	TrMgr().addLanguage( trans );
+	TrMgr().addLanguage( trans.ptr() );
     }
 
     Settings& setts = Settings::common();

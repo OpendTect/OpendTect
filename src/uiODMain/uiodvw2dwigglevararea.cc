@@ -128,7 +128,7 @@ void uiODView2DWiggleVarAreaTreeItem::dataTransformCB( CallBacker* )
 
     auto dp = createDataPackRM( selspec );
     if ( dp )
-	viewer2D()->makeUpView( dp, FlatView::Viewer::WVA );
+	viewer2D()->makeUpView( dp.ptr(), FlatView::Viewer::WVA);
 }
 
 
@@ -243,7 +243,7 @@ bool uiODView2DWiggleVarAreaTreeItem::handleSelMenu( int mnuid )
     }
 
     viewer2D()->setSelSpec( &selas, FlatView::Viewer::WVA );
-    viewer2D()->makeUpView( fdp, FlatView::Viewer::WVA );
+    viewer2D()->makeUpView( fdp.ptr(), FlatView::Viewer::WVA);
     return true;
 }
 
@@ -283,7 +283,7 @@ RefMan<SeisFlatDataPack> uiODView2DWiggleVarAreaTreeItem::createDataPackRM(
 	    selas.setRefFromID( *ds );
 	    selas.setUserRef( attrbnm );
 
-	    const Attrib::Desc* targetdesc = ds->getDesc( attribid );
+	    ConstRefMan<Attrib::Desc> targetdesc = ds->getDesc( attribid );
 	    if ( !targetdesc )
 		return nullptr;
 

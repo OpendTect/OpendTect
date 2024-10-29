@@ -157,8 +157,8 @@ int readInt32()
     {
 	const int sz = dt_->nrBytes();
 	mAllocLargeVarLenArr( char, buf, sz );
-	strm_.getBin(buf,sz);
-	return dt_->get(buf,0);
+	strm_.getBin( mVarLenArr(buf), sz );
+	return dt_->get( mVarLenArr(buf), 0 );
     }
 
     int res;

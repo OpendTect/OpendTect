@@ -109,7 +109,7 @@ void readParsReq( CallBacker* cb )
     if ( !ioobj ) return;
 
     imp_.sgypars_.merge( ioobj->pars() );
-    dd->use( ioobj, false );
+    dd->use( ioobj.ptr(), false);
 }
 
 BufferString getSummary() const override

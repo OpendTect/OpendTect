@@ -89,7 +89,7 @@ public:
     int				getPickIdx(visBase::DataObject*) const;
 
     const SurveyObject*		getPickedSurveyObject() const;
-    SeedPainter*		getPainter()		{ return painter_; }
+    SeedPainter*		getPainter()	{ return painter_.ptr(); }
     bool			isPainting() const override;
 
     bool			canRemoveSelection() const override

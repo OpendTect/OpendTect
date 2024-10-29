@@ -230,7 +230,7 @@ bool EMTracker::usePar( const IOPar& iopar )
 
 	    MPE::Setup setup;
 	    BufferString bs;
-	    if ( !MPESetupTranslator::retrieve(setup,ioobj,bs) )
+	    if ( !MPESetupTranslator::retrieve(setup,ioobj.ptr(),bs) )
 		{ idx++; continue; }
 
 	    IOPar setuppar;

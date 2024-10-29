@@ -60,7 +60,7 @@ void VolProcAttrib::prepareForComputeData()
     deleteAndNullPtr( executor_ );
     chain_ = new VolProc::Chain();
     uiString errmsg;
-    if ( !VolProcessingTranslator::retrieve(*chain_,ioobj,errmsg) )
+    if ( !VolProcessingTranslator::retrieve(*chain_,ioobj.ptr(),errmsg) )
     {
 	chain_ = nullptr;
 	errmsg_ = uiStrings::phrCannotRead(tr("processing setup."));
@@ -170,7 +170,7 @@ bool ExternalAttribCalculator::setTargetSelSpec( const Attrib::SelSpec& ss )
 
     chain_ = new Chain();
     uiString errmsg;
-    if ( !VolProcessingTranslator::retrieve(*chain_,ioobj,errmsg) )
+    if ( !VolProcessingTranslator::retrieve(*chain_,ioobj.ptr(),errmsg) )
     {
 	chain_ = nullptr;
 	errmsg_ = uiStrings::phrCannotRead(tr("processing setup.") );

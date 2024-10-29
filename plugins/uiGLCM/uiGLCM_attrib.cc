@@ -329,7 +329,7 @@ protected:
 
 void uiGLCM_attrib::analyzeData( CallBacker* )
 {
-    const Attrib::Desc* inpdesc = ads_->getDesc( inpfld_->attribID() );
+    ConstRefMan<Attrib::Desc> inpdesc = ads_->getDesc( inpfld_->attribID() );
     if ( !inpdesc )
 	return;
 
@@ -345,7 +345,7 @@ void uiGLCM_attrib::analyzeData( CallBacker* )
     if ( !subseldlg.go() )
 	return;
 
-    SeisIOObjInfo seisinfo( ioobj );
+    SeisIOObjInfo seisinfo( ioobj.ptr() );
     TrcKeyZSampling cs;
     if ( inpdesc->is2D() )
     {
@@ -372,7 +372,7 @@ void uiGLCM_attrib::analyzeData( CallBacker* )
 bool uiGLCM_attrib::readInputCube( SeisTrcBuf& buf, const TrcKeyZSampling& cs,
 				      int nrtrcs ) const
 {
-    const Attrib::Desc* inpdesc = ads_->getDesc( inpfld_->attribID() );
+    ConstRefMan<Attrib::Desc> inpdesc = ads_->getDesc( inpfld_->attribID() );
     if ( !inpdesc )
 	return false;
 
@@ -384,7 +384,7 @@ bool uiGLCM_attrib::readInputCube( SeisTrcBuf& buf, const TrcKeyZSampling& cs,
     PtrMan<Attrib::EngineMan> aem = new Attrib::EngineMan;
     SelSpec sp( 0 );
     sp.set( *inpdesc );
-    aem->setAttribSet( descset );
+    aem->setAttribSet( descset.ptr() );
     aem->setAttribSpec( sp );
     if ( inpdesc->is2D() )
 	aem->setGeomID( cs.hsamp_.getGeomID() );

@@ -181,7 +181,7 @@ public:
 
     virtual		~IOClass();
 
-    virtual const HGeom* hGeom() const		{ return hgeom_; }
+    virtual const HGeom* hGeom() const		{ return hgeom_.ptr(); }
     const ZGeom&	zGeom() const		{ return zgeom_; }
     const ZDomain::Def&	zDomain() const;
 

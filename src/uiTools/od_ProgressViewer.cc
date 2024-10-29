@@ -130,10 +130,10 @@ uiProgressViewer::uiProgressViewer( uiParent* p, const BufferString& fnm,
     //Ensure we have space for 80 chars
     const int nrchars = TextStreamProgressMeter::cNrCharsPerRow()+5;
     mAllocVarLenArr( char, str, nrchars+1 );
-    OD::memSet( str, ' ', nrchars );
+    OD::memSet( mVarLenArr(str), ' ', nrchars );
     str[nrchars] = '\0';
 
-    int deswidth = fnt.width( mToUiStringTodo(str) );
+    int deswidth = fnt.width( mToUiStringTodo(mVarLenArr(str)) );
     const int desktopwidth = uiMain::instance().desktopSize().hNrPics();
     if ( !mIsUdf(desktopwidth) && deswidth>desktopwidth )
 	deswidth = desktopwidth;
@@ -447,7 +447,7 @@ int mProgMainFnName( int argc, char** argv )
     OD::ModDeps().ensureLoaded( "uiTools" );
     PtrMan<uiMainWin> topmw = new uiProgressViewer( nullptr, inpfile, pid,
 						    delay);
-    app.setTopLevel( topmw );
+    app.setTopLevel( topmw.ptr() );
     PIM().loadAuto( true );
     topmw->show();
 

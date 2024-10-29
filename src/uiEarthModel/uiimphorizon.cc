@@ -825,7 +825,7 @@ bool uiImpHorFromZMap::acceptOK( CallBacker* )
     uiTaskRunner uitr( this );
     EM::ZMapImporter importer( horfnm );
     if ( crsfld_ )
-	importer.setCoordSystem( crsfld_->getCoordSystem() );
+	importer.setCoordSystem( crsfld_->getCoordSystem().ptr() );
     importer.setUOM( zuom );
     if ( !uitr.execute(importer) )
     {

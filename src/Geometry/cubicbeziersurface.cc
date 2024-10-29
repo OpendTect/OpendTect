@@ -305,7 +305,7 @@ bool CubicBezierSurface::intersectWithLine(const Line3& line, Coord& res) const
 		for ( int idx=dummypatch->nrPos()-1; idx>=0; idx-- )
                     dummypatch->pos[idx].z_ *= zfactor;
 
-		patch = dummypatch;
+		patch = dummypatch.ptr();
 
 		intersectionline.z0_ *= zfactor;
 		intersectionline.gamma_ *= zfactor;

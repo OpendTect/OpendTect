@@ -71,7 +71,8 @@ public:
 					      bool enabstore=true);
 				~uiEvaluateDlg();
 
-    Attrib::Desc*		getAttribDesc() const	{ return seldesc_; }
+    const Attrib::Desc*		getAttribDesc() const
+				{ return seldesc_.ptr(); }
     void			getEvalSpecs(TypeSet<Attrib::SelSpec>&) const;
     Attrib::DescSet*		getEvalSet() const	{ return attrset_; }
     bool			storeSlices() const;
@@ -96,7 +97,7 @@ protected:
 
     bool			acceptOK(CallBacker*) override;
 
-    Attrib::Desc*		seldesc_			= nullptr;
+    RefMan<Attrib::Desc>	seldesc_;
     Attrib::DescSet*		attrset_			= nullptr;
     uiAttrDescEd&		desced_;
     Attrib::DescID		srcid_;

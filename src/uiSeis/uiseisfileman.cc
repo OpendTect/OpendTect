@@ -185,7 +185,7 @@ void uiSeisFileMan::checkAllEntriesOK()
 	    continue;
 	}
 
-	const SeisIOObjInfo objinfo( obj );
+	const SeisIOObjInfo objinfo( obj.ptr() );
 	if ( !objinfo.isOK(true) )
 	    selgrp_->setIsBad( idx );
     }

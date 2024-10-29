@@ -688,7 +688,7 @@ const char* MPEClickInfo::getObjLineName() const
 
 
 const Attrib::Data2DHolder* MPEClickInfo::getObjLineData() const
-{ return linedata_; }
+{ return linedata_.ptr(); }
 
 
 void MPEClickInfo::clear()

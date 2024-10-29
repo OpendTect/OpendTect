@@ -94,7 +94,7 @@ void PickSetDisplay::setSet( Pick::Set* newset )
 
     RefMan<visBase::MarkerSet> marker = createOneMarker();
     dragger_= visBase::Dragger::create();
-    dragger_->setDisplayTransformation( transformation_ );
+    dragger_->setDisplayTransformation( transformation_.ptr() );
     dragger_->setDraggerType( visBase::Dragger::Translate2D );
     dragger_->setSize( (float)markerstyle.size_ );
     dragger_->setOwnShape( marker.ptr(), false );
@@ -345,7 +345,7 @@ void PickSetDisplay::redrawMultiSets()
 	RefMan<Geometry::IndexedPrimitiveSet> lineprimitiveset =
 			    Geometry::IndexedPrimitiveSet::create( false );
 	lineprimitiveset->set( ps.arr(), ps.size() );
-	polylines_->addPrimitiveSet( lineprimitiveset );
+	polylines_->addPrimitiveSet( lineprimitiveset.ptr() );
     }
 }
 
@@ -399,7 +399,7 @@ void PickSetDisplay::createLine()
     polylines_ = visBase::PolyLine::create();
 
     addChild( polylines_->osgNode() );
-    polylines_->setDisplayTransformation( transformation_ );
+    polylines_->setDisplayTransformation( transformation_.ptr() );
     RefMan<visBase::Material> newmat = visBase::Material::create();
     polylines_->setMaterial( newmat.ptr() );
 
@@ -550,7 +550,7 @@ bool PickSetDisplay::setBodyDisplay()
     }
 
     bodydisplay_->getMaterial()->setColor( set_->disp_.fillcolor_ );
-    bodydisplay_->setDisplayTransformation( transformation_ );
+    bodydisplay_->setDisplayTransformation( transformation_.ptr() );
 
     TypeSet<Coord3> picks;
     for ( int idx=0; idx<set_->size(); idx++ )
@@ -902,7 +902,7 @@ void PickSetDisplay::polygonFinishedCB(CallBacker*)
     if ( !ctrldown_ )
 	unSelectAll();
 
-    updateSelections( polysel );
+    updateSelections( polysel.ptr() );
     polysel->clear();
 
 }
@@ -964,7 +964,7 @@ bool PickSetDisplay::removeSelections( TaskRunner* )
 	if ( pickselstatus_[idx] )
 	{
 	    Pick::SetMgr::ChangeData cd(
-		Pick::SetMgr::ChangeData::ToBeRemoved, set_,idx );
+		Pick::SetMgr::ChangeData::ToBeRemoved, set_.ptr(), idx );
 	    set_->removeSingleWithUndo( idx );
 	    Pick::Mgr().reportChange( nullptr, cd );
 	    changed = true;

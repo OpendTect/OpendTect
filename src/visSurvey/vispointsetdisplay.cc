@@ -255,12 +255,12 @@ bool PointSetDisplay::removeSelections( TaskRunner* taskr )
 
 void PointSetDisplay::setDisplayTransformation( const mVisTrans* nt )
 {
-    if ( transformation_ == nt )
+    if ( transformation_.ptr() == nt )
 	return;
 
     transformation_ = nt;
     if ( pointset_ )
-        pointset_->setDisplayTransformation( transformation_ );
+	pointset_->setDisplayTransformation( transformation_.ptr() );
 }
 
 

@@ -134,13 +134,13 @@ void SetMgr::set( const MultiID& ky, Set* newset )
 	if ( newset )
 	    add( ky, newset );
     }
-    else if ( newset != oldset )
+    else if ( newset != oldset.ptr() )
     {
-	const int idx = pss_.indexOf( oldset );
+	const int idx = pss_.indexOf( oldset.ptr() );
 	//Must be removed from list before trigger, otherwise
 	//other users may remove it in calls invoked by the cb.
 	pss_.removeSingle( idx );
-	setToBeRemoved.trigger( oldset );
+	setToBeRemoved.trigger( oldset.ptr() );
 	ids_.removeSingle( idx );
 	changed_.removeSingle( idx );
 	if ( newset )
@@ -466,7 +466,7 @@ public:
 	    ? Pick::SetMgr::ChangeData::Added
 	    : Pick::SetMgr::ChangeData::ToBeRemoved );
 
-	Pick::SetMgr::ChangeData cd( ev, set, index_ );
+	Pick::SetMgr::ChangeData cd( ev, set.ptr(), index_ );
 
 	if ( type_ == Move )
 	{
@@ -508,7 +508,7 @@ public:
 	    ? Pick::SetMgr::ChangeData::ToBeRemoved
 	    : Pick::SetMgr::ChangeData::Added );
 
-	Pick::SetMgr::ChangeData cd( ev, set, index_ );
+	Pick::SetMgr::ChangeData cd( ev, set.ptr(), index_ );
 
 	if ( type_ == Move )
 	{
@@ -616,7 +616,7 @@ public:
 				? Pick::SetMgr::BulkChangeData::Added
 				: Pick::SetMgr::BulkChangeData::ToBeRemoved;
 
-	Pick::SetMgr::BulkChangeData cd( ev, set, indexes_ );
+	Pick::SetMgr::BulkChangeData cd( ev, set.ptr(), indexes_ );
 
 	if ( type_ == Remove )
 	{
@@ -649,7 +649,7 @@ public:
 				? Pick::SetMgr::BulkChangeData::ToBeRemoved
 				: Pick::SetMgr::BulkChangeData::Added;
 
-	Pick::SetMgr::BulkChangeData cd( ev, set, indexes_ );
+	Pick::SetMgr::BulkChangeData cd( ev, set.ptr(), indexes_ );
 
 	if ( type_ == Remove )
 	{

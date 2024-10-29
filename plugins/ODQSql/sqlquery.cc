@@ -108,7 +108,7 @@ SqlDB::QueryAccess* SqlDB::QueryProviderImpl::getQuery( Access& acc ) const
     if ( !query || !query->isOK() )
 	return nullptr;
 
-    return query;
+    return query.ptr();
 }
 
 

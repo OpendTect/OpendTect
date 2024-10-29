@@ -137,7 +137,7 @@ bool uiChangeHorizonDlg::doProcessing3D()
 	const BinID start( rowrg.start_, colrg.start_ );
 	const BinID step( rowrg.step_, colrg.step_ );
 	usedhor3d->geometry().geometryElement()->setArray(
-					    start, step, arr, false );
+					    start, step, arr.ptr(), false );
     }
     else
     {

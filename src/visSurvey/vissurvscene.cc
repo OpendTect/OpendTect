@@ -162,7 +162,7 @@ void Scene::setup()
     updateTransforms( tkzs );
     setTrcKeyZSampling( tkzs );
 
-    addInlCrlZObject( annot_ );
+    addInlCrlZObject( annot_.ptr() );
     updateAnnotationText();
 
 #define mGetProp(type,var,defval,get,str,func) \
@@ -186,7 +186,7 @@ void Scene::updateTransforms( const TrcKeyZSampling& cs )
     if ( !tempzstretchtrans_ )
     {
 	tempzstretchtrans_ = mVisTrans::create();
-	visBase::DataObjectGroup::addObject( tempzstretchtrans_ );
+	visBase::DataObjectGroup::addObject( tempzstretchtrans_.ptr() );
     }
 
     RefMan<mVisTrans> newinlcrlrotation = mVisTrans::create();
@@ -198,25 +198,26 @@ void Scene::updateTransforms( const TrcKeyZSampling& cs )
     // -1 to compensate for that we want z to increase with depth
 
     SceneTransformManager::computeICRotationTransform(*SI().get3DGeometry(true),
-	zfactor, cs.zsamp_.center(), newinlcrlrotation, newinlcrlscale );
+	zfactor, cs.zsamp_.center(), newinlcrlrotation.ptr(),
+			newinlcrlscale.ptr() );
 
-    tempzstretchtrans_->addObject( newinlcrlrotation );
+    tempzstretchtrans_->addObject( newinlcrlrotation.ptr() );
 
     RefMan<mVisTrans> oldinlcrlrotation = inlcrlrotation_;
-    inlcrlrotation_ = newinlcrlrotation;
-    inlcrlscale_ = newinlcrlscale;
+    inlcrlrotation_ = newinlcrlrotation.ptr();
+    inlcrlscale_ = newinlcrlscale.ptr();
 
     if ( oldinlcrlrotation )
     {
 	tempzstretchtrans_->removeObject(
-			tempzstretchtrans_->getFirstIdx( oldinlcrlrotation ));
+		tempzstretchtrans_->getFirstIdx( oldinlcrlrotation.ptr() ));
 
 	for ( int idx=0; idx<oldinlcrlrotation->size(); idx++ )
 	{
 	    RefMan<visBase::DataObject> dobj =
 				oldinlcrlrotation->getObject( idx );
-	    inlcrlrotation_->addObject( dobj );
-	    dobj->setDisplayTransformation( inlcrlscale_ );
+	    inlcrlrotation_->addObject( dobj.ptr() );
+	    dobj->setDisplayTransformation( inlcrlscale_.ptr() );
 	}
 
 	oldinlcrlrotation->removeAll();
@@ -225,16 +226,16 @@ void Scene::updateTransforms( const TrcKeyZSampling& cs )
     RefMan<mVisTrans> newutm2disptransform = mVisTrans::create();
     SceneTransformManager::computeUTM2DisplayTransform(
 		    *SI().get3DGeometry(true), zfactor, cs.zsamp_.center(),
-                    newutm2disptransform );
+                    newutm2disptransform.ptr() );
 
     if ( utm2disptransform_ )
     {
 	for ( int idx=0; idx<tempzstretchtrans_->size(); idx++ )
 	{
 	    visBase::DataObject* dobj = tempzstretchtrans_->getObject( idx );
-	    if ( dobj->getDisplayTransformation()==utm2disptransform_ )
+	    if ( dobj->getDisplayTransformation()==utm2disptransform_.ptr() )
 	    {
-		dobj->setDisplayTransformation( newutm2disptransform );
+		dobj->setDisplayTransformation( newutm2disptransform.ptr() );
 	    }
 	}
     }
@@ -242,8 +243,8 @@ void Scene::updateTransforms( const TrcKeyZSampling& cs )
     utm2disptransform_ = newutm2disptransform;
 
     ObjectSet<visBase::Transformation> utm2display;
-    utm2display += utm2disptransform_;
-    utm2display += tempzstretchtrans_;
+    utm2display += utm2disptransform_.ptr();
+    utm2display += tempzstretchtrans_.ptr();
     events_->setUtm2Display( utm2display );
 }
 
@@ -392,7 +393,7 @@ const visBase::DataObject* Scene::getObject( int idx ) const
 
 void Scene::addUTMObject( visBase::VisualObject* obj )
 {
-    obj->setDisplayTransformation( utm2disptransform_ );
+    obj->setDisplayTransformation( utm2disptransform_.ptr() );
     tempzstretchtrans_->addObject( obj );
 }
 
@@ -401,9 +402,9 @@ void Scene::addInlCrlZObject( visBase::DataObject* obj )
 {
     mDynamicCastGet(SurveyObject*,so,obj);
     if ( so )
-	so->set3DSurvGeom( SI().get3DGeometry(true) );
+	so->set3DSurvGeom( SI().get3DGeometry(true).ptr() );
 
-    obj->setDisplayTransformation( inlcrlscale_ );
+    obj->setDisplayTransformation( inlcrlscale_.ptr() );
     inlcrlrotation_->addObject( obj );
 }
 
@@ -415,7 +416,7 @@ void Scene::addObject( visBase::DataObject* obj )
 
     if ( so )
     {
-	so->set3DSurvGeom( SI().get3DGeometry(true) );
+	so->set3DSurvGeom( SI().get3DGeometry(true).ptr() );
 	mAttachCB( so->getMovementNotifier(), Scene::objectMoved );
 
 	so->setScene( this );
@@ -433,7 +434,7 @@ void Scene::addObject( visBase::DataObject* obj )
 	addUTMObject( vo );
 
     if ( so && datatransform_ )
-	so->setZAxisTransform( datatransform_,0 );
+	so->setZAxisTransform( datatransform_.ptr(), nullptr );
 
     if ( so && !getMoreObjectsToDoHint() )
 	objectMoved( obj );
@@ -531,15 +532,15 @@ float Scene::getApparentVelocity( float zstretch ) const
 
 
 const mVisTrans* Scene::getTempZStretchTransform() const
-{ return tempzstretchtrans_; }
+{ return tempzstretchtrans_.ptr(); }
 
 
 const mVisTrans* Scene::getInlCrl2DisplayTransform() const
-{ return inlcrlrotation_; }
+{ return inlcrlrotation_.ptr(); }
 
 
 const mVisTrans* Scene::getUTM2DisplayTransform() const
-{ return utm2disptransform_; }
+{ return utm2disptransform_.ptr(); }
 
 
 void Scene::showAnnotText( bool yn )
@@ -999,7 +1000,7 @@ const MouseCursor* Scene::getMouseCursor() const
 
 void Scene::setZAxisTransform( ZAxisTransform* zat, TaskRunner* )
 {
-    if ( datatransform_==zat ) return;
+    if ( datatransform_.ptr()==zat ) return;
 
     datatransform_ = zat;
 
@@ -1041,10 +1042,15 @@ void Scene::setZAxisTransform( ZAxisTransform* zat, TaskRunner* )
 
 
 ZAxisTransform* Scene::getZAxisTransform()
-{ return datatransform_; }
+{
+    return datatransform_.ptr();
+}
+
 
 const ZAxisTransform* Scene::getZAxisTransform() const
-{ return datatransform_; }
+{
+    return datatransform_.ptr();
+}
 
 
 void Scene::setMarkerPos( const TrcKeyValue& trkv, const SceneID& sceneid )
@@ -1067,7 +1073,7 @@ void Scene::setMarkerPos( const TrcKeyValue& trkv, const SceneID& sceneid )
     if ( !markerset_ )
     {
 	markerset_ = createMarkerSet();
-	addUTMObject( markerset_ );
+	addUTMObject( markerset_.ptr() );
     }
 
     markerset_->clearMarkers();
@@ -1091,7 +1097,7 @@ void Scene::setMarkerSize( float nv )
     if ( !markerset_ )
     {
 	markerset_ = createMarkerSet();
-	addUTMObject( markerset_ );
+	addUTMObject( markerset_.ptr() );
 	markerset_->turnOn( false );
     }
 
@@ -1113,7 +1119,7 @@ void Scene::setMarkerColor( const OD::Color& nc )
     if ( !markerset_ )
     {
 	markerset_ = createMarkerSet();
-	addUTMObject( markerset_ );
+	addUTMObject( markerset_.ptr() );
 	markerset_->turnOn( false );
     }
 
@@ -1208,7 +1214,8 @@ void Scene::fillPar( IOPar& par ) const
 void Scene::removeAll()
 {
     visBase::DataObjectGroup::removeAll();
-    const int idx = visBase::DataObjectGroup::getFirstIdx( tempzstretchtrans_ );
+    const int idx =
+	visBase::DataObjectGroup::getFirstIdx( tempzstretchtrans_.ptr() );
     if ( idx!=-1 )
 	visBase::DataObjectGroup::removeObject( idx );
 
@@ -1240,7 +1247,7 @@ bool Scene::usePar( const IOPar& par )
 	if ( transform && transform->usePar(*transpar) )
 	{
 	    float zscale;
-	    setZAxisTransform( transform, nullptr );
+	    setZAxisTransform( transform.ptr(), nullptr );
 	    if ( !par.get(sKey::Scale(),zscale) )
 		zscale = transform->zScale();
 
@@ -1318,7 +1325,7 @@ bool Scene::usePar( const IOPar& par )
 	if ( !survobj->usePar(*chldpar) )
 	    continue;
 
-	addObject( dobj );
+	addObject( dobj.ptr() );
     }
 
     PtrMan<IOPar> topimgpar = par.subselect( sKeyTopImage() );
@@ -1406,7 +1413,7 @@ void Scene::createTopBotImage( bool istop )
     {
 	topimg_ = visBase::TopBotImage::create();
 	topimg_->setUiName( toUiString("TopImage") );
-	addUTMObject( topimg_ );
+	addUTMObject( topimg_.ptr() );
 	topimg_->turnOn( false );
     }
 
@@ -1414,7 +1421,7 @@ void Scene::createTopBotImage( bool istop )
     {
 	botimg_ = visBase::TopBotImage::create();
 	botimg_->setUiName( toUiString("BottomImage") );
-	addUTMObject( botimg_ );
+	addUTMObject( botimg_.ptr() );
 	botimg_->turnOn( false );
     }
 }
@@ -1422,7 +1429,7 @@ void Scene::createTopBotImage( bool istop )
 
 visBase::TopBotImage* Scene::getTopBotImage( bool istop )
 {
-    return istop ? topimg_ : botimg_;
+    return istop ? topimg_.ptr() : botimg_.ptr();
 }
 
 
@@ -1439,7 +1446,7 @@ void Scene::setPolygonSelector( visBase::PolygonSelection* ps )
     if ( ps )
     {
 	polyselector_ = ps;
-	polyselector_->setUTMCoordinateTransform( utm2disptransform_ );
+	polyselector_->setUTMCoordinateTransform( utm2disptransform_.ptr() );
 	coordselector_ = new visBase::PolygonCoord3Selector( *polyselector_ );
     }
 }

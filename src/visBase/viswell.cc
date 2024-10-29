@@ -160,7 +160,7 @@ void Well::setLogTubeDisplay( Side side, bool yn )
 
 void Well::setZAxisTransform( ZAxisTransform* zat, TaskRunner* )
 {
-    if ( zaxistransform_==zat )
+    if ( zaxistransform_.ptr() == zat )
 	return;
 
     zaxistransform_ = zat;
@@ -225,7 +225,7 @@ void Well::setTrack( const TypeSet<Coord3>& pts )
     if ( !track_->nrPrimitiveSets() )
     {
 	rps = Geometry::RangePrimitiveSet::create();
-	track_->addPrimitiveSet( rps );
+	track_->addPrimitiveSet( rps.ptr() );
 
     }
     else
@@ -872,17 +872,19 @@ bool Well::logNameShown() const
 void Well::setDisplayTransformation( const mVisTrans* nt )
 {
     transformation_ = nt;
-    track_->setDisplayTransformation( transformation_ );
+    track_->setDisplayTransformation( transformation_.ptr() );
 
-    wellbottxt_->setDisplayTransformation( transformation_ );
-    welltoptxt_->setDisplayTransformation( transformation_ );
-    markernames_->setDisplayTransformation( transformation_ );
-    markerset_->setDisplayTransformation( transformation_ );
+    wellbottxt_->setDisplayTransformation( transformation_.ptr() );
+    welltoptxt_->setDisplayTransformation( transformation_.ptr() );
+    markernames_->setDisplayTransformation( transformation_.ptr() );
+    markerset_->setDisplayTransformation( transformation_.ptr() );
 }
 
 
 const mVisTrans* Well::getDisplayTransformation() const
-{ return transformation_; }
+{
+    return transformation_.ptr();
+}
 
 
 void Well::fillPar( IOPar& par ) const

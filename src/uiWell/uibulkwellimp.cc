@@ -163,7 +163,7 @@ void uiBulkTrackImport::readFile( od_istream& istrm )
 		mdrgs_ += Interval<float>::udf();
 	    }
 
-	    wells_ += wd;
+	    wells_ += wd.ptr();
 	}
 
 	if ( depthistvd )

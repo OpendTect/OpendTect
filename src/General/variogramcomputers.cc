@@ -325,7 +325,8 @@ bool VertVariogramComputer::compVarFromRange( DataPointSet& dpset, int colid,
 	    depth_out += (double)(step/zstep);
 	}
 
-	removeLinPart<double,double>( interpolatedvals, interpolatedvals,
+	removeLinPart<double,double>( mVarLenArr(interpolatedvals),
+				      mVarLenArr(interpolatedvals),
 				      nrout, true );
 	variogramvals_->set( nrcontribwells, 0, 0 );
 	axes_->set( nrcontribwells, 0, 0);

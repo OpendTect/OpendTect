@@ -210,7 +210,7 @@ void SelSpec::setIDFromRef( const DescSet& ds )
 	     attribname!=ds.getDesc(id_)->attribName() )
 	    id_ = ds.getID( defstring_, ds.containsStoredDescOnly() );
     }
-    const Desc* desc = ds.getDesc( id_ );
+    ConstRefMan<Desc> desc = ds.getDesc( id_ );
     if ( desc )
 	setZDomainKey( *desc );
     setDiscr( ds );
@@ -226,7 +226,7 @@ void SelSpec::setRefFromID( const NLAModel& nlamod )
 
 void SelSpec::setRefFromID( const DescSet& ds )
 {
-    const Desc* desc = ds.getDesc( id_ );
+    ConstRefMan<Desc> desc = ds.getDesc( id_ );
     ref_ = "";
     if ( desc )
     {
@@ -236,7 +236,7 @@ void SelSpec::setRefFromID( const DescSet& ds )
 	    PtrMan<IOObj> ioobj = IOM().get( mid );
 	    if ( ioobj )
 	    {
-		Desc* ncdesc = const_cast<Desc*>( desc );
+		Desc* ncdesc = const_cast<Desc*>( desc.ptr() );
 		const StringPair userref( desc->userRef() );
 		const BufferString& component = userref.second();
 		if ( component.isEmpty() )
@@ -301,7 +301,7 @@ const BinDataDesc* SelSpec::getPreloadDataDesc( Pos::GeomID geomid ) const
     if ( !descset || descset->isEmpty() )
 	return 0;
 
-    const Desc* desc = descset->getDesc( id() );
+    ConstRefMan<Desc> desc = descset->getDesc( id() );
     if ( !desc )
 	return 0;
 
@@ -340,7 +340,7 @@ SelInfo::SelInfo( const DescSet* attrset, const NLAModel* nlamod,
 	for ( int idx=0; idx<attrset->size(); idx++ )
 	{
 	    const DescID descid = attrset->getID( idx );
-	    const Desc* desc = attrset->getDesc( descid );
+	    ConstRefMan<Desc> desc = attrset->getDesc( descid );
 	    const BufferString usrref( desc ? desc->userRef()
 					    : sKey::EmptyString().buf() );
 	    if ( !desc || usrref.isEmpty()
@@ -496,7 +496,7 @@ void SelInfo::getAttrNames( const MultiID& key, BufferStringSet& nms,
     if ( !ioobj || !SeisTrcTranslator::is2D(*ioobj,true) )
 	return;
 
-    SeisIOObjInfo info( ioobj );
+    SeisIOObjInfo info( *ioobj );
     SeisIOObjInfo::Opts2D opt;
     opt.steerpol_ = issteer ? 1 : 0;
     info.getLineNames( nms, opt );

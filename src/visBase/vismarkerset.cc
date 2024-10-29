@@ -82,13 +82,13 @@ Normals* MarkerSet::getNormals()
 	markerset_->setNormalArray( mGetOsgVec3Arr( normals_->osgArray()) );
     }
 
-    return normals_;
+    return normals_.ptr();
 }
 
 
 void MarkerSet::setMaterial( Material* mt )
 {
-   if ( mt && material_ == mt )
+   if ( mt && material_.ptr() == mt )
        return;
 
    if ( material_ )
@@ -356,7 +356,9 @@ void MarkerSet::setDisplayTransformation( const mVisTrans* nt )
 
 
 const mVisTrans* MarkerSet::getDisplayTransformation() const
-{ return displaytrans_; }
+{
+    return displaytrans_.ptr();
+}
 
 
 void MarkerSet::turnMarkerOn( unsigned int idx,bool yn )
@@ -483,7 +485,7 @@ void MarkerSet::addPolygonOffsetNodeState()
 void MarkerSet::removePolygonOffsetNodeState()
 {
     if ( offset_ )
-	removeNodeState( offset_ );
+	removeNodeState( offset_.ptr() );
 
     offset_ = nullptr;
 }

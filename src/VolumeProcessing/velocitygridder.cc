@@ -270,7 +270,7 @@ bool VelGriddingFromFuncTask::doPrepare( int nrthreads )
        RefMan<Vel::Function> velfunc = velfuncsource_->createFunction();
        velfunc->ref();
        velfunc->setGeomID( geomid_ );
-       velfuncs_ += velfunc;
+       velfuncs_ += velfunc.ptr();
    }
 
    return true;

@@ -1442,7 +1442,7 @@ void uiDataPointSet::exportCB( CallBacker* )
     if ( !grpnames_.isEmpty() )
 	savedps->dataSet().pars().set( sKeyGroups, grpnames_ );
 
-    uiExportDataPointSet dlg( this, savedps );
+    uiExportDataPointSet dlg( this, savedps.ptr() );
     dlg.go();
 }
 

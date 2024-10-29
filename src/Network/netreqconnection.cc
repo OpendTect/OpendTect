@@ -365,7 +365,7 @@ bool RequestConnection::sendPacket( const RequestPacket& pkt,
     }
 
     RefMan<PacketSendData> senddata = new PacketSendData(pkt,waitforfinish);
-    sendqueue_ += senddata;
+    sendqueue_ += senddata.ptr();
     senddata->ref(); //Class assumes all objects in sendqueue is reffed
 
     //Trigger thread if I'm first. If size is larger, it should already be

@@ -89,7 +89,7 @@ uiVisEMObject::uiVisEMObject( uiParent* uip, const EM::ObjectID& emid,
     if ( !emod->setEMObject(emid,&dlg) )
 	return;
 
-    visserv_->addObject( emod, sceneid_, true );
+    visserv_->addObject( emod.ptr(), sceneid_, true);
 
     emobjdisplay_ = emod;
     setUpConnections();

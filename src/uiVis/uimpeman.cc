@@ -987,7 +987,7 @@ void uiMPEMan::updateClickCatcher( bool create )
 	return;
 
     visserv_->removeObject( clickcatcher_->id(), clickablesceneid_ );
-    visserv_->addObject( clickcatcher_, newsceneid, false );
+    visserv_->addObject( clickcatcher_.ptr(), newsceneid, false);
     clickablesceneid_ = newsceneid;
 }
 

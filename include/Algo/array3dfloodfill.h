@@ -161,7 +161,7 @@ Array3DFloodfill<T>::Array3DFloodfill( const Array3D<T>& input, T threshold,
 	arr[idx] = idx;
     }
 
-    OD::shuffle( mVarLenArr(arr), arr+nrcompartments );
+    OD::shuffle( mVarLenArr(arr), mVarLenArr(arr)+nrcompartments );
     for ( int idx=0; idx<nrcompartments; idx++ )
 	permutation_ += arr[idx];
 }

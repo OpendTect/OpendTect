@@ -38,7 +38,7 @@ Horizon2DDisplay::Horizon2DDisplay()
     points_.setNullAllowed();
 
     translation_ = visBase::Transformation::create();
-    setGroupNode( translation_ );
+    setGroupNode( translation_.ptr() );
 
     EMObjectDisplay::setLineStyle( OD::LineStyle(OD::LineStyle::Solid,5 ) );
 
@@ -72,18 +72,18 @@ void Horizon2DDisplay::setDisplayTransformation( const mVisTrans* nt )
     EMObjectDisplay::setDisplayTransformation( nt );
 
     for ( int idx=0; idx<lines_.size(); idx++ )
-	lines_[idx]->setDisplayTransformation( transformation_ );
+	lines_[idx]->setDisplayTransformation( transformation_.ptr() );
 
     for ( int idx=0; idx<points_.size(); idx++ )
     {
 	if( points_[idx] )
-	    points_[idx]->setDisplayTransformation(transformation_);
+	    points_[idx]->setDisplayTransformation( transformation_.ptr() );
     }
 
     if ( translationpos_.isDefined() )
 	setTranslation( translationpos_ );
 
-    intersectmkset_->setDisplayTransformation( transformation_ );
+    intersectmkset_->setDisplayTransformation( transformation_.ptr() );
 }
 
 
@@ -173,11 +173,11 @@ void Horizon2DDisplay::setLineStyle( const OD::LineStyle& lst )
 bool Horizon2DDisplay::addSection( const EM::SectionID& sid, TaskRunner* taskr )
 {
     RefMan<visBase::PolyLine3D> pl = visBase::PolyLine3D::create();
-    pl->setDisplayTransformation( transformation_ );
+    pl->setDisplayTransformation( transformation_.ptr() );
     pl->setUiName( tr("PolyLine3D") );
     pl->setLineStyle( drawstyle_->lineStyle() );
     addChild( pl->osgNode() );
-    lines_ += pl;
+    lines_ += pl.ptr();
     points_ += nullptr;
     sids_ += sid;
 
@@ -381,7 +381,7 @@ void sendPositions( TypeSet<Coord3>& positions )
 	    RefMan<Geometry::IndexedPrimitiveSet> lineprimitiveset =
 				Geometry::IndexedPrimitiveSet::create( true );
 	    lineprimitiveset->set( indices.arr(), indices.size() );
-	    lines_->addPrimitiveSet( lineprimitiveset );
+	    lines_->addPrimitiveSet( lineprimitiveset.ptr() );
 	    lock_.unLock();
 	}
     }
@@ -421,8 +421,8 @@ void Horizon2DDisplay::updateSection( int idx, const LineRanges* lineranges )
     {
 	ps = visBase::PointSet::create();
 	ps->removeAllPoints();
-	ps->setDisplayTransformation( transformation_ );
-	points_.replace( idx, ps );
+	ps->setDisplayTransformation( transformation_.ptr() );
+	points_.replace( idx, ps.ptr() );
 	addChild( ps->osgNode() );
     }
 
@@ -471,8 +471,9 @@ void Horizon2DDisplay::updateSection( int idx, const LineRanges* lineranges )
     if ( !rcs || !pl )
 	return;
 
-    ZAxisTransform* zatf = isAlreadyTransformed() ? nullptr : zaxistransform_;
-    Horizon2DDisplayUpdater updater( rcs, lrgs, pl, ps, zatf,
+    ZAxisTransform* zatf = isAlreadyTransformed() ? nullptr
+						  : zaxistransform_.ptr();
+    Horizon2DDisplayUpdater updater( rcs, lrgs, pl, ps.ptr(), zatf,
 					    geomids, volumeofinterestids_ );
     updater.execute();
 }
@@ -871,7 +872,7 @@ void Horizon2DDisplay::initSelectionDisplay( bool erase )
 	    selections_->getMaterial()->setColor( h2d->getSelectionColor() );
 
 	addChild( selections_->osgNode() );
-	selections_->setDisplayTransformation( transformation_ );
+	selections_->setDisplayTransformation( transformation_.ptr() );
     }
     else if ( erase )
     {
@@ -922,7 +923,7 @@ void Horizon2DDisplay::updateSelections()
 			Geometry::IndexedPrimitiveSet::create( true );
     pointsetps->setPrimitiveType( Geometry::PrimitiveSet::Points );
     pointsetps->append( pidxs.arr(), pidxs.size() );
-    selections_->addPrimitiveSet( pointsetps );
+    selections_->addPrimitiveSet( pointsetps.ptr() );
     selections_->getMaterial()->setColor( h2d->getSelectionColor() );
     selections_->turnOn( true );
 }
@@ -959,8 +960,8 @@ Coord3 Horizon2DDisplay::getTranslation() const
     Coord3 shift( current );
     shift  *= -1.;
 
-    mVisTrans::transformBack( transformation_, origin );
-    mVisTrans::transformBack( transformation_, shift );
+    mVisTrans::transformBack( transformation_.ptr(), origin );
+    mVisTrans::transformBack( transformation_.ptr(), shift );
 
     const Coord3 translation = origin - shift;
     return translation;
@@ -976,8 +977,8 @@ void Horizon2DDisplay::setTranslation( const Coord3& nt )
     Coord3 aftershift( nt );
     aftershift.z_ *= -1.;
 
-    mVisTrans::transform( transformation_, origin );
-    mVisTrans::transform( transformation_, aftershift );
+    mVisTrans::transform( transformation_.ptr(), origin );
+    mVisTrans::transform( transformation_.ptr(), aftershift );
 
     const Coord3 shift = origin - aftershift;
 

@@ -56,7 +56,7 @@ public:
 				mDefineFactoryInClass(SurveyObject,factory)
 
     virtual void		set3DSurvGeom(const Survey::Geometry3D*);
-    const Survey::Geometry3D*	get3DSurvGeom() const { return s3dgeom_; }
+    const Survey::Geometry3D*	get3DSurvGeom() const { return s3dgeom_.ptr(); }
     virtual const char*		get3DSurvGeomName() const;
     virtual Pos::GeomID		getGeomID() const;
 

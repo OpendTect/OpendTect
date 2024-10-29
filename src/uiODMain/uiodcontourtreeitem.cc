@@ -125,7 +125,7 @@ public:
 				~uiContourTreeItemContourGenerator()
 				{}
 
-    visBase::Text2*		getLabels() { return labels_; }
+    visBase::Text2*		getLabels() { return labels_.ptr(); }
     const TypeSet<double>&	getAreas() const { return areas_; }
     uiString			uiNrDoneText() const override;
 
@@ -256,7 +256,7 @@ bool uiContourTreeItemContourGenerator::doWork( od_int64 start, od_int64 stop,
 	const int nrshapesbefore = newcontourdata.contourcoordrgs_.size() +
 				   newcontourdata.labels_.size();
 	double area;
-	generateContours( contouridx, ictracer,newcontourdata, area );
+	generateContours( contouridx, ictracer.ptr(), newcontourdata, area);
 	const int nraddedshapes = newcontourdata.contourcoordrgs_.size() +
 	    newcontourdata.labels_.size() - nrshapesbefore;
 	totalnrshapes_ += nraddedshapes;
@@ -292,7 +292,7 @@ void uiContourTreeItemContourGenerator::addContourData(
 	    continue;
 
 	ps->setRange( newcontourdata.contourcoordrgs_[idx] + lastcoordidxrg );
-	contourdata_.contourprimitivesets_.push( ps );
+	contourdata_.contourprimitivesets_.push( ps.ptr() );
     }
 
     if ( contourdata_.labelranges_.size() )
@@ -436,7 +436,7 @@ bool uiContourTreeItemContourGenerator::addDisplayCoord(
 
     vrtxcoord.z_ += uicitem_->zshift_;
 
-    visBase::Transformation::transform( displaytrans_, vrtxcoord, vrtxcoord );
+    visBase::Transformation::transform( displaytrans_.ptr(), vrtxcoord, vrtxcoord);
     contourdata.contourcoords_.add( vrtxcoord );
     lastvrtxidx++;
     return true;
@@ -452,7 +452,7 @@ bool uiContourTreeItemContourGenerator::doFinish( bool success )
 	return false;
 
     labels_ = visBase::Text2::create();
-    labels_->setDisplayTransformation( displaytrans_ );
+    labels_->setDisplayTransformation( displaytrans_.ptr() );
     labels_->setPickable( false, false );
 
     uicitem_->lines_->getCoordinates()->setPositions(
@@ -988,7 +988,7 @@ void uiContourTreeItem::removeAll()
 {
     if ( lines_ )
     {
-	applMgr()->visServer()->removeObject( lines_, sceneID() );
+	applMgr()->visServer()->removeObject( lines_.ptr(), sceneID());
 	lines_ = nullptr;
     }
 
@@ -1003,7 +1003,7 @@ void uiContourTreeItem::removeLabels()
     uiVisPartServer* visserv = applMgr()->visServer();
     if ( labels_ )
     {
-	visserv->removeObject( labels_, sceneID() );
+	visserv->removeObject( labels_.ptr(), sceneID());
 	labels_ = nullptr;
     }
 }
@@ -1357,7 +1357,7 @@ bool uiContourTreeItem::setLabels( visBase::Text2* newlabels )
 	return false;
 
     applMgr()->visServer()->addObject( labels_.ptr(), sceneID(), false );
-    labels_->setMaterial( material_ );
+    labels_->setMaterial( material_.ptr() );
 
     for ( int idx=0; idx<labels_->nrTexts(); idx++ )
 	labels_->text(idx)->setColor( color_ );

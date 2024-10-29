@@ -205,7 +205,7 @@ bool uiODWellParentTreeItem::handleSubMenu( int mnuid )
 
 	welldisplay->setLineStyle(OD::LineStyle(OD::LineStyle::Solid,3,color));
 	welldisplay->setName( wellname );
-	visserv->addObject( welldisplay, sceneID(), true );
+	visserv->addObject( welldisplay.ptr(), sceneID(), true);
 	addChild( new uiODWellTreeItem(welldisplay->id()), false );
     }
     else if ( mnuid == cAttribIdx )
@@ -339,7 +339,7 @@ bool uiODWellTreeItem::init()
 	displayid_ = vwd->id();
 	{ //TODO: Should not be needed yet
 	    RefMan<visSurvey::Scene> scene = visserv_->getScene( sceneID() );
-	    vwd->setScene( scene );
+	    vwd->setScene( scene.ptr() );
 	    if ( !vwd->setMultiID(mid_) )
 	    {
 		PtrMan<IOObj> ioobj = IOM().get( mid_ );
@@ -353,7 +353,7 @@ bool uiODWellTreeItem::init()
 	    }
 	}
 
-	visserv_->addObject( vwd, sceneID(), true );
+	visserv_->addObject( vwd.ptr(), sceneID(), true);
     }
 
     mDynamicCastGet(visSurvey::WellDisplay*,vwd,

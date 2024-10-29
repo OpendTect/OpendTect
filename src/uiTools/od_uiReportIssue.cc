@@ -38,7 +38,7 @@ int mProgMainFnName( int argc, char** argv )
     PIM().loadAuto( false );
     OD::ModDeps().ensureLoaded( "uiTools" );
     PtrMan<uiDialog> topdlg = new uiIssueReporterDlg( nullptr, reporter );
-    app.setTopLevel( topdlg );
+    app.setTopLevel( topdlg.ptr() );
     PIM().loadAuto( true );
     topdlg->show();
 

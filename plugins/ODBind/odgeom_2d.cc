@@ -103,12 +103,12 @@ void odGeom2D::getData( hAllocator allocator ) const
     const int sz = pos.size();
 
     const int ndim = 1;
-    PtrMan<int> dims = new int[ndim];
+    ArrPtrMan<int> dims = new int[ndim];
     dims[0] = sz;
-    int* trcnrs = static_cast<int*>(allocator(ndim, dims, 'i'));
-    float* spnrs = static_cast<float*>(allocator(ndim, dims, 'f'));
-    double* xdata = static_cast<double*>(allocator(ndim, dims, 'd'));
-    double* ydata = static_cast<double*>(allocator(ndim, dims, 'd'));
+    int* trcnrs = static_cast<int*>(allocator(ndim, dims.ptr(), 'i'));
+    float* spnrs = static_cast<float*>(allocator(ndim, dims.ptr(), 'f'));
+    double* xdata = static_cast<double*>(allocator(ndim, dims.ptr(), 'd'));
+    double* ydata = static_cast<double*>(allocator(ndim, dims.ptr(), 'd'));
     for ( int idx=0; idx<sz; idx++ )
     {
 	*trcnrs++ = pos[idx].nr_;

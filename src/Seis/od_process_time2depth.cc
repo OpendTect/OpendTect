@@ -139,9 +139,8 @@ bool BatchProgram::doWork( od_ostream& strm )
 	{
 	    outputcs.hsamp_.init( geomids[idx] );
 	    outputcs.hsamp_.setTrcRange( trcrgs[idx] );
-	    auto* exec =
-		new SeisZAxisStretcher( *inputioobj, *outputioobj, outputcs,
-					*ztransform, istime2depth, veldesc );
+	    auto* exec = new SeisZAxisStretcher( *inputioobj, *outputioobj,
+			outputcs, *ztransform, istime2depth, veldesc.ptr() );
 	    exec->setName( BufferString("Time to depth conversion - ",
 					Survey::GM().getName(geomids[idx])) );
 	    taskgrp.addTask( exec );
@@ -151,7 +150,7 @@ bool BatchProgram::doWork( od_ostream& strm )
     {
 	auto* exec =
 		new SeisZAxisStretcher( *inputioobj, *outputioobj, outputcs,
-					*ztransform, istime2depth, veldesc );
+				*ztransform, istime2depth, veldesc.ptr() );
 	exec->setName( "Time to depth conversion");
 	taskgrp.addTask( exec );
     }

@@ -226,7 +226,7 @@ bool Seis::PosIndexer::readLine( TypeSet<int>& crlset,
     ArrPtrMan<char> mybuf = 0;
     if ( int32interp )
     {
-	buf = mybuf = new char[sizeof(int)*int32interp->nrBytes()];
+	mybuf = buf = new char[sizeof(int)*int32interp->nrBytes()];
 	sz = int32interp->nrBytes();
     }
     else
@@ -247,7 +247,7 @@ bool Seis::PosIndexer::readLine( TypeSet<int>& crlset,
 
     if ( int64interp )
     {
-	buf = mybuf = new char[sizeof(int)*int64interp->nrBytes()];
+	mybuf = buf = new char[sizeof(int)*int64interp->nrBytes()];
 	sz = int64interp->nrBytes();
     }
     else
@@ -404,7 +404,7 @@ bool Seis::PosIndexer::readHeader(
 	inls_.setSize( nrinl, 0 );
 	if ( int32interp )
 	{
-	    buf = mybuf = new char[sizeof(int)*int32interp->nrBytes()];
+	    mybuf = buf = new char[sizeof(int)*int32interp->nrBytes()];
 	    sz = int32interp->nrBytes();
 	}
 	else
@@ -426,7 +426,7 @@ bool Seis::PosIndexer::readHeader(
 	inlfileoffsets_.setSize( nrinl, 0 );
 	if ( int64interp )
 	{
-	    buf = mybuf = new char[sizeof(int)*int64interp->nrBytes()];
+	    mybuf = buf = new char[sizeof(int)*int64interp->nrBytes()];
 	    sz = int64interp->nrBytes();
 	}
 	else

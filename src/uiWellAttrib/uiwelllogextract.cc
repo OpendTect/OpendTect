@@ -138,7 +138,7 @@ void uiWellLogExtractGrp::adsChg()
     Attrib::SelInfo attrinf( ads_, 0, ads_->is2D() );
     for ( int idx=0; idx<attrinf.attrnms_.size(); idx++ )
     {
-	const Attrib::Desc* desc = ads_->getDesc( attrinf.attrids_[idx] );
+	ConstRefMan<Attrib::Desc> desc = ads_->getDesc( attrinf.attrids_[idx] );
 	if ( desc && desc->is2D() && desc->isPS() )
 	{
 	    attrinf.attrnms_.removeSingle( idx );

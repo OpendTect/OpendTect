@@ -245,7 +245,7 @@ bool uiIsochronMakerDlg::doWork()
 	return false;
 
     dataidx = h1->auxdata.addAuxData( attrnm );
-    IsochronMaker ipmaker( *h1, *h2, attrnm, dataidx, dps_);
+    IsochronMaker ipmaker( *h1, *h2, attrnm, dataidx, dps_.ptr() );
     if ( SI().zIsTime() )
     {
 	bool isinmsec = false;

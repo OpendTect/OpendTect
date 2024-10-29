@@ -570,7 +570,7 @@ bool WellTie::Server::setNewWavelet( const MultiID& mid )
     PtrMan<IOObj> ioobj = IOM().get( mid );
     if ( !ioobj ) return false;
 
-    PtrMan<Wavelet> wvlt = Wavelet::get( ioobj );
+    PtrMan<Wavelet> wvlt = Wavelet::get( ioobj.ptr() );
     if ( !wvlt )
 	return false;
 

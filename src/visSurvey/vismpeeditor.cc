@@ -68,7 +68,7 @@ void MPEEditor::setupPatchDisplay()
 	patchmarkers_ = visBase::MarkerSet::create();
 	patchmarkers_->setScreenSize(markersize_);
 	addChild(patchmarkers_->osgNode());
-	patchmarkers_->setDisplayTransformation( transformation_ );
+	patchmarkers_->setDisplayTransformation( transformation_.ptr() );
     }
 
     if ( !patchline_ )
@@ -77,7 +77,7 @@ void MPEEditor::setupPatchDisplay()
 	RefMan<visBase::Material> newmat = visBase::Material::create();
 	patchline_->setMaterial( newmat.ptr() );
 	addChild( patchline_->osgNode() );
-	patchline_->setDisplayTransformation( transformation_ );
+	patchline_->setDisplayTransformation( transformation_.ptr() );
     }
 
     const OD::LineStyle lsty( OD::LineStyle::Solid, 4, lineclr );
@@ -130,7 +130,7 @@ void MPEEditor::setDisplayTransformation( const mVisTrans* nt )
 {
     transformation_ = nt;
     for ( int idx=0; idx<draggers_.size(); idx++ )
-	draggers_[idx]->setDisplayTransformation( transformation_ );
+	draggers_[idx]->setDisplayTransformation( transformation_.ptr() );
 
     sower_->setDisplayTransformation( nt );
     if ( patchmarkers_ )
@@ -332,14 +332,14 @@ void MPEEditor::addDragger( const EM::PosID& pid )
     marker->addPos( Coord3( 0, 0, 0 ) );
     marker->setMarkerResolution( 0.8f );
     dragger->setSize( markersize_ );
-    dragger->setOwnShape( marker,false );
+    dragger->setOwnShape( marker.ptr(),false );
 
     dragger->setPos( emeditor_->getPosition(pid) );
 
     addChild( dragger->osgNode() );
 
-    draggers_ += dragger;
-    draggermarkers_ += marker;
+    draggers_ += dragger.ptr();
+    draggermarkers_ += marker.ptr();
     posids_ += pid;
 }
 

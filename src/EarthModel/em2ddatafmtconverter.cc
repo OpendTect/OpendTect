@@ -57,7 +57,7 @@ void OD_2DEMDataConverter_FromOD4ToOD5::convertData( EM::ObjectType ftype )
 	if ( !ioobj )
 	    continue;
 
-	EM::IOObjInfo ioobjinfo( ioobj );
+	EM::IOObjInfo ioobjinfo( ioobj.ptr() );
 	if ( ioobjinfo.hasGeomIDs() )
 	    continue;
 
