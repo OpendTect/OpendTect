@@ -1038,7 +1038,7 @@ bool InverseDistanceArray2DInterpol::doWork( od_int64, od_int64, int)
 		weights[idy] = weight;
 	    }
 
-	    auto weightsptr = mVarLenArr(weights);
+	    float* weightsptr = weights.ptr();
 	    setFrom( idx, definedidxs_.arr(), weightsptr,
 		     definedidxs_.size() );
 	}
@@ -1068,8 +1068,8 @@ bool InverseDistanceArray2DInterpol::doWork( od_int64, od_int64, int)
 	    if ( !nrsources )
 		continue;
 
-	    auto sourcesptr = mVarLenArr(sources);
-	    auto weightsptr = mVarLenArr(weights);
+	    od_int64* sourcesptr = sources.ptr();
+	    float* weightsptr = weights.ptr();
 	    setFrom( idx, sourcesptr, weightsptr, nrsources );
 	}
 
