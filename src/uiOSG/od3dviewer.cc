@@ -220,15 +220,15 @@ void OD3DViewer::setupHUD()
     hudview_->setSceneData( offscreenrenderhudswitch_ );
 
     horthumbwheel_ = visBase::ThumbWheel::create();
-    hudscene_->addObject( horthumbwheel_ );
+    hudscene_->addObject( horthumbwheel_.ptr() );
     mAttachCB( horthumbwheel_->rotation, OD3DViewer::thumbWheelRotationCB);
 
     verthumbwheel_ = visBase::ThumbWheel::create();
-    hudscene_->addObject( verthumbwheel_ );
+    hudscene_->addObject( verthumbwheel_.ptr() );
     mAttachCB( verthumbwheel_->rotation, OD3DViewer::thumbWheelRotationCB);
 
     distancethumbwheel_ = visBase::ThumbWheel::create();
-    hudscene_->addObject( distancethumbwheel_ );
+    hudscene_->addObject( distancethumbwheel_.ptr() );
     mAttachCB( distancethumbwheel_->rotation,
 	       OD3DViewer::thumbWheelRotationCB);
 
@@ -241,22 +241,22 @@ void OD3DViewer::setupHUD()
 	axes_->setSize( 5.0f, 55.0f );
 	axes_->setAnnotationTextSize( FontData::defaultPointSize() + 6 );
 	axes_->setAnnotationFont( annotfontdata );
-	hudscene_->addObject( axes_ );
+	hudscene_->addObject( axes_.ptr() );
 	if ( camera_ )
-	    axes_->setPrimaryCamera( camera_ );
+	    axes_->setPrimaryCamera( camera_.ptr() );
     }
 
     if ( !polygonselection_ )
     {
 	polygonselection_ = visBase::PolygonSelection::create();
 	hudscene_->addObject( polygonselection_ );
-	polygonselection_->setHUDCamera( vishudcamera_ );
+	polygonselection_->setHUDCamera( vishudcamera_.ptr() );
     }
 
     if ( !visscenecoltab_ )
     {
 	visscenecoltab_ = visBase::SceneColTab::create();
-	hudscene_->addObject( visscenecoltab_ );
+	hudscene_->addObject( visscenecoltab_.ptr() );
 	visscenecoltab_->setAnnotFont( annotfontdata );
 	visscenecoltab_->turnOn( false );
 	visscenecoltab_->setPos( visBase::SceneColTab::Bottom );
@@ -332,11 +332,11 @@ void OD3DViewer::setupView()
 {
     camera_ = visBase::Camera::create();
     if ( axes_ )
-	axes_->setPrimaryCamera( camera_ );
+	axes_->setPrimaryCamera( camera_.ptr() );
 
     RefMan<visBase::Scene> scene = getScene();
     if ( scene )
-	scene->setCamera( camera_ );
+	scene->setCamera( camera_.ptr() );
 
     viewport_->setViewport( 0, 0, glwidget_->width(), glwidget_->height() );
 
@@ -386,7 +386,7 @@ void OD3DViewer::setupView()
     manip->setMinimumDistance( 0 );
 
     if ( polygonselection_ )
-	polygonselection_->setPrimaryCamera( camera_ );
+	polygonselection_->setPrimaryCamera( camera_.ptr() );
 
     view_->getSceneData()->addEventCallback(new osgGeo::ThumbWheelEventHandler);
     enableThumbWheelHandling( true );
@@ -420,11 +420,11 @@ void OD3DViewer::enableThumbWheelHandling( bool yn,
     if ( !tw )	// set all
     {
 	if ( horthumbwheel_ )
-	    enableThumbWheelHandling( yn, horthumbwheel_ );
+	    enableThumbWheelHandling( yn, horthumbwheel_.ptr() );
 	if ( verthumbwheel_ )
-	    enableThumbWheelHandling( yn, verthumbwheel_ );
+	    enableThumbWheelHandling( yn, verthumbwheel_.ptr() );
 	if ( distancethumbwheel_ )
-	    enableThumbWheelHandling( yn, distancethumbwheel_ );
+	    enableThumbWheelHandling( yn, distancethumbwheel_.ptr() );
     }
     else if ( view_ && view_->getSceneData() )
     {
@@ -538,15 +538,15 @@ void OD3DViewer::reSizeEvent( CallBacker* )
 void OD3DViewer::thumbWheelRotationCB( CallBacker* cb )
 {
     mCBCapsuleUnpackWithCaller( float, deltaangle, caller, cb );
-    if ( caller==horthumbwheel_ )
+    if ( caller==horthumbwheel_.ptr() )
     {
 	uiRotate( deltaangle, true );
     }
-    else if ( caller==verthumbwheel_ )
+    else if ( caller==verthumbwheel_.ptr() )
     {
 	uiRotate( deltaangle, false );
     }
-    else if ( caller==distancethumbwheel_ )
+    else if ( caller==distancethumbwheel_.ptr() )
     {
 	osg::ref_ptr<osgGeo::TrackballManipulator> manip =
 							getCameraManipulator();
@@ -636,13 +636,13 @@ void OD3DViewer::setAnnotationFont( const FontData& fd )
 
 visBase::PolygonSelection* OD3DViewer::getPolygonSelector()
 {
-    return polygonselection_;
+    return polygonselection_.ptr();
 }
 
 
 visBase::SceneColTab* OD3DViewer::getSceneColTab()
 {
-    return visscenecoltab_;
+    return visscenecoltab_.ptr();
 }
 
 
@@ -774,7 +774,7 @@ void OD3DViewer::setScene( visBase::Scene* newscene )
     mAttachCB( survscene->mousecursorchange, OD3DViewer::mouseCursorChg );
     setAnnotColor( survscene->getAnnotColor() );
     if ( camera_ )
-	survscene->setCamera( camera_ );
+	survscene->setCamera( camera_.ptr() );
 
     OD::Color bgcol = OD::Color::Anthracite();
     Settings::common().get(
@@ -1418,8 +1418,8 @@ void OD3DViewer::setMapView( bool yn )
     mapview_ = yn;
     horthumbwheel_->turnOn( false );
     verthumbwheel_->turnOn( false );
-    enableThumbWheelHandling( false, horthumbwheel_ );
-    enableThumbWheelHandling( false, verthumbwheel_ );
+    enableThumbWheelHandling( false, horthumbwheel_.ptr() );
+    enableThumbWheelHandling( false, verthumbwheel_.ptr() );
 
     osgGeo::TrackballManipulator* manip = getCameraManipulator();
     if ( manip )

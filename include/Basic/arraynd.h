@@ -396,11 +396,12 @@ const T* ArrayND<T>::get1D( const int* i ) const
     int ndim = info().getNDim();
 
     mAllocLargeVarLenArr( int, pos, ndim );
-    OD::memCopy( mVarLenArr(pos), i, (int) sizeof(int)*(ndim-1));
+    OD::memCopy( static_cast<int*>(mVarLenArr(pos)),
+		 i, (int) sizeof(int)*(ndim-1));
 
     pos[ndim-1] = 0;
 
-    return &ptr[info().getOffset( mVarLenArr(pos) )];
+    return &ptr[info().getOffset( static_cast<int*>(mVarLenArr(pos)) )];
 }
 
 
@@ -489,7 +490,7 @@ public:
 			return false;
 
 		    ArrayNDIter iterator( arr_.info() );
-		    iterator.setPos( mVarLenArr(pos) );
+		    iterator.setPos( static_cast<int*>(mVarLenArr(pos)) );
 
 		    if ( vs_ )
 		    {

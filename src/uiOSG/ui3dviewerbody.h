@@ -108,7 +108,7 @@ public:
     virtual void		setViewMode(bool viewmode,bool trigger);
 
     Coord3			getCameraPosition() const;
-    visBase::Camera*		getVisCamera()		{ return camera_; }
+    visBase::Camera*		getVisCamera()	    { return camera_.ptr(); }
 
     virtual void		reSizeEvent(CallBacker*);
     void			toggleViewMode(CallBacker*);
