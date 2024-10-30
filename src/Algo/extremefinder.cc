@@ -441,7 +441,8 @@ int ExtremeFinderND::nextStep()
 	    xit[idy] = xi_[dir][idy];
 
 	const float fptt=fret_;
-	fret_ = linExtreme( mVarLenArr(xit) );
+	float* xitptr = xit.ptr();
+	fret_ = linExtreme( xitptr );
 	if ( fptt-fret_> del )
 	{
 	    del = fptt-fret_;
@@ -472,7 +473,8 @@ int ExtremeFinderND::nextStep()
 		del*Math::Sqrt(fp-fptt);
 	if ( t<0 )
 	{
-	    fret_ = linExtreme( mVarLenArr(xit) );
+	    float* xitptr = xit.ptr();
+	    fret_ = linExtreme( xitptr );
 	    for ( int idx=0; idx<n_; idx++ )
 	    {
 		xi_[ibig][idx]=xi_[n_-1][idx];

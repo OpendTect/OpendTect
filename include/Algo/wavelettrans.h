@@ -140,7 +140,8 @@ void DWT::FilterWT1D::transform1Dt( const T* in, T* out, int space ) const
 	for ( int nn=sz_; nn>=2; nn>>=1 )
 	{
 	    mAllocLargeVarLenArr( T, wksp, nn );
-	    OD::sysMemZero( mVarLenArr(wksp), sizeof(T)*nn );
+	    T* wkspptr = wksp.ptr();
+	    OD::sysMemZero( wkspptr, sizeof(T)*nn );
 	    int nmod = nn*filtersz_;
 	    int n1 = nn-1;
 	    int nh = nn >> 1;
@@ -170,7 +171,8 @@ void DWT::FilterWT1D::transform1Dt( const T* in, T* out, int space ) const
 	for ( int nn=2; nn<=sz_; nn<<=1 )
 	{
 	    mAllocLargeVarLenArr( T, wksp, nn );
-	    OD::sysMemZero( mVarLenArr(wksp), sizeof(T)*nn );
+	    T* wkspptr = wksp.ptr();
+	    OD::sysMemZero( wkspptr, sizeof(T)*nn );
 	    int nmod = nn*filtersz_;
 	    int n1 = nn-1;
 	    int nh = nn >> 1;

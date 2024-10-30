@@ -285,8 +285,10 @@ bool PCA::calculate()
     for ( int idx=0; idx<nrvars_; idx++ )
 	a += ptr+idx*nrvars_-1;
 
-    tred2( a, nrvars_, mVarLenArr(d), mVarLenArr(e) );
-    if ( !tqli( mVarLenArr(d), mVarLenArr(e), nrvars_, a ) )
+    float* dptr = d.ptr();
+    float* eptr = e.ptr();
+    tred2( a, nrvars_, dptr, eptr );
+    if ( !tqli( dptr, eptr, nrvars_, a ) )
 	return false;
 
     for ( int idx=0; idx<nrvars_; idx++ )

@@ -249,7 +249,7 @@ void OD3DViewer::setupHUD()
     if ( !polygonselection_ )
     {
 	polygonselection_ = visBase::PolygonSelection::create();
-	hudscene_->addObject( polygonselection_ );
+	hudscene_->addObject( polygonselection_.ptr() );
 	polygonselection_->setHUDCamera( vishudcamera_.ptr() );
     }
 
