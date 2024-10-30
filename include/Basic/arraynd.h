@@ -391,17 +391,18 @@ template <class T> inline
 const T* ArrayND<T>::get1D( const int* i ) const
 {
     const T* ptr = getData();
-    if ( !ptr ) return nullptr;
+    if ( !ptr )
+	return nullptr;
 
     int ndim = info().getNDim();
 
     mAllocLargeVarLenArr( int, pos, ndim );
-    OD::memCopy( static_cast<int*>(mVarLenArr(pos)),
-		 i, (int) sizeof(int)*(ndim-1));
+    int* posptr = pos.ptr();
+    OD::memCopy( posptr, i, (int) sizeof(int)*(ndim-1));
 
     pos[ndim-1] = 0;
 
-    return &ptr[info().getOffset( static_cast<int*>(mVarLenArr(pos)) )];
+    return &ptr[info().getOffset( posptr )];
 }
 
 
@@ -486,11 +487,12 @@ public:
     bool	doWork( od_int64 start, od_int64 stop, int ) override
 		{
 		    mAllocVarLenArr( int, pos, arr_.info().getNDim() );
-		    if ( !arr_.info().getArrayPos( start, mVarLenArr(pos) ) )
+		    auto posptr = mVarLenArr(pos);
+		    if ( !arr_.info().getArrayPos(start,posptr) )
 			return false;
 
 		    ArrayNDIter iterator( arr_.info() );
-		    iterator.setPos( static_cast<int*>(mVarLenArr(pos)) );
+		    iterator.setPos( posptr );
 
 		    if ( vs_ )
 		    {
