@@ -223,8 +223,9 @@ bool getNamesFromFactory( uiStringSet& uinms, BufferStringSet& nms, bool is2d )
     }
 
     ConstArrPtrMan<int> idxs = uinms.getSortIndexes( true, true );
-    uinms.useIndexes( mVarLenArr(idxs) );
-    nms.useIndexes( mVarLenArr(idxs) );
+    const int* idxsptr = idxs.ptr();
+    uinms.useIndexes( idxsptr );
+    nms.useIndexes( idxsptr );
     return nms.size();
 }
 

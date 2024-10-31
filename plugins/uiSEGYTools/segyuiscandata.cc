@@ -588,9 +588,10 @@ void SEGY::ScanInfo::getFromSEGYBody( od_istream& strm, const LoadDef& indef,
 
     mAllocLargeVarLenArr( char, buf, def.traceDataBytes() );
     mAllocLargeVarLenArr( float, vals, def.ns_ );
-
+    char* bufptr = buf.ptr();
+    float* valsptr = vals.ptr();
     PtrMan<TrcHeader> thdr = def.getTrace( strm,
-					   mVarLenArr(buf), mVarLenArr(vals) );
+					   bufptr, valsptr );
     idxfirstlive_ = 0;
     if ( !thdr )
 	{ finishGet(strm); return; }
@@ -598,7 +599,7 @@ void SEGY::ScanInfo::getFromSEGYBody( od_istream& strm, const LoadDef& indef,
     {
 	// skip dead traces to get at least the first good trace
 	idxfirstlive_++;
-	thdr = def.getTrace( strm, mVarLenArr(buf), mVarLenArr(vals) );
+	thdr = def.getTrace( strm, bufptr, valsptr );
 	if ( !thdr )
 	    { finishGet(strm); return; }
     }
@@ -607,25 +608,25 @@ void SEGY::ScanInfo::getFromSEGYBody( od_istream& strm, const LoadDef& indef,
     offscalc.type_ = def.psoffssrc_; offscalc.def_ = def.psoffsdef_;
     offscalc.is2d_ = is2D(); offscalc.coordscale_ = def.coordscale_;
 
-    addTrace( *thdr, mVarLenArr(vals), def,
+    addTrace( *thdr, valsptr, def,
 	      clipsampler, offscalc, idxfirstlive_ );
 
     if ( fullscanrunner )
     {
 	FullUIScanner scanner( *this, strm, def,
-			       mVarLenArr(buf), mVarLenArr(vals),
+			       bufptr, valsptr,
 			       clipsampler, offscalc );
 	TaskRunner::execute( fullscanrunner, scanner );
     }
     else
     {
-#define mAddTrcs() addTraces(strm,trcrg,mVarLenArr(buf), \
-			     mVarLenArr(vals),def,clipsampler,offscalc)
+#define mAddTrcs() addTraces(strm,trcrg,bufptr, \
+			     valsptr,def,clipsampler,offscalc)
 
 	Interval<int> trcrg( 1, cQuickScanNrTrcsAtEnds );
 	mAddTrcs();
 	if ( !is2D() && indef.forsurveysetup_ )
-	    ensureStepsFound( strm, mVarLenArr(buf), mVarLenArr(vals),
+	    ensureStepsFound( strm, bufptr, valsptr,
 			      def, clipsampler, offscalc );
 	trcrg.start_ = nrtrcs_/3 - cQuickScanNrTrcsInMiddle/2;
 	trcrg.stop_ = trcrg.start_ + cQuickScanNrTrcsInMiddle - 1;

@@ -247,15 +247,18 @@ float operator[]( int idx ) const
 bool GapDecon::computeData( const DataHolder& output, const BinID& relpos,
 			    int z0, int nrsamples, int threadid ) const
 {
-    if ( !inputdata_ ) return false;
+    if ( !inputdata_ )
+	return false;
 
     int safencorr = mMIN( ncorr_, inputdata_->nrsamples_ );
     int safelcorr = mMIN( lcorr_, inputdata_->nrsamples_ );
-    if ( safencorr==0 || safelcorr==0 ) return false;
+    if ( safencorr==0 || safelcorr==0 )
+	return false;
 
     mAllocLargeVarLenArr( float, autocorr, safelcorr );
-    OD::sysMemZero( mVarLenArr(autocorr), safelcorr * sizeof( float ) );
-    float* crosscorr = mVarLenArr(autocorr) + nlag_;//first sample of gap is at
+    float* autocorrptr = autocorr.ptr();
+    OD::sysMemZero( autocorrptr, safelcorr * sizeof( float ) );
+    float* crosscorr = autocorrptr + nlag_;//first sample of gap is at
 					//maxlag_+1 = nlag_ because minlag = 0
 
     int absstartsampidx = mNINT32( gate_.start_ / refstep_ );
@@ -266,9 +269,9 @@ bool GapDecon::computeData( const DataHolder& output, const BinID& relpos,
     ValueSeries<float>* valseries = usedmixed ?
 	inputdatamixed_->series(dataidxmixed_) : inputdata_->series(dataidx_);
 
-    if ( !valseries ) return false;
+    if ( !valseries )
+	return false;
 
-    float* autocorrptr = mVarLenArr(autocorr);
     genericCrossCorrelation<ValueSeries<float>,ValueSeries<float>,float*>(
 			    safencorr, safestartcorr, *valseries,
 			    safencorr, safestartcorr, *valseries,
@@ -290,12 +293,14 @@ bool GapDecon::computeData( const DataHolder& output, const BinID& relpos,
 
     mAllocVarLenArr( float, wiener, ngap_ );
     mAllocVarLenArr( float, spiker, ngap_ );
-    OD::sysMemZero( mVarLenArr(wiener), ngap_ * sizeof( float ) );
-    OD::sysMemZero( mVarLenArr(spiker), ngap_ * sizeof( float ) );
+    float* wienerptr = wiener.ptr();
+    float* spikerptr = spiker.ptr();
+    OD::sysMemZero( wienerptr, ngap_ * sizeof( float ) );
+    OD::sysMemZero( spikerptr, ngap_ * sizeof( float ) );
 
     autocorr[0] *= 1 + (float)noiselevel_/100;
     solveSymToeplitzsystem( ngap_, mVarLenArr(autocorr), crosscorr,
-			    mVarLenArr(wiener), mVarLenArr(spiker) );
+			    wienerptr, spikerptr );
 
     int startgapidx = nlag_;
     int stopgapidx =  startgapidx + ngap_;

@@ -260,42 +260,45 @@ void FreqFilter::butterWorthFilter( const DataHolder& output,
 			      : getInputValue( *redata_, realidx_, reidx, z0 );
     }
 
+    float* outpptr = outp.ptr();
+    float* dataptr = data.ptr();
     if ( filtertype_ == FFTFilter::LowPass )
     {
 	float cutoff = refstep_ * maxfreq_ / (zistime ? 1.0f : 1000.0f);
-	BFlowpass( nrpoles_, cutoff, nrsamp, mVarLenArr(data),
-		   mVarLenArr(outp) );
-	reverseArray( mVarLenArr(outp), nrsamp );
-	BFlowpass( nrpoles_, cutoff, nrsamp, mVarLenArr(outp),
-		   mVarLenArr(outp) );
-	reverseArray( mVarLenArr(outp), nrsamp );
+	BFlowpass( nrpoles_, cutoff, nrsamp, dataptr,
+		   outpptr );
+	reverseArray( outpptr, nrsamp );
+	BFlowpass( nrpoles_, cutoff, nrsamp, outpptr,
+		   outpptr );
+	reverseArray( outpptr, nrsamp );
     }
     else if ( filtertype_ == FFTFilter::HighPass )
     {
 	float cutoff = refstep_ * minfreq_ / (zistime ? 1.0f : 1000.0f);
-	BFhighpass( nrpoles_, cutoff, nrsamp, mVarLenArr(data),
-		    mVarLenArr(outp) );
-	reverseArray( mVarLenArr(outp), nrsamp );
-	BFhighpass( nrpoles_, cutoff, nrsamp, mVarLenArr(outp),
-		    mVarLenArr(outp) );
-	reverseArray( mVarLenArr(outp), nrsamp );
+	BFhighpass( nrpoles_, cutoff, nrsamp, dataptr,
+		    outpptr );
+	reverseArray( outpptr, nrsamp );
+	BFhighpass( nrpoles_, cutoff, nrsamp, outpptr,
+		    outpptr );
+	reverseArray( outpptr, nrsamp );
     }
     else
     {
 	float cutoff = refstep_ * maxfreq_ / (zistime ? 1.0f : 1000.0f);
 	mAllocLargeVarLenArr( float, tmp, nrsamp );
-	BFlowpass( nrpoles_, cutoff, nrsamp, mVarLenArr(data), mVarLenArr(tmp));
+	float* tmpptr = tmp.ptr();
+	BFlowpass( nrpoles_, cutoff, nrsamp, dataptr, tmpptr);
 	cutoff = refstep_ * minfreq_ / (zistime ? 1.0f : 1000.0f);
-	BFhighpass( nrpoles_, cutoff, nrsamp, mVarLenArr(tmp),
-		    mVarLenArr(outp) );
-	reverseArray( mVarLenArr(outp), nrsamp );
+	BFhighpass( nrpoles_, cutoff, nrsamp, tmpptr,
+		    outpptr );
+	reverseArray( outpptr, nrsamp );
 	cutoff = refstep_ * maxfreq_ / (zistime ? 1.0f : 1000.0f);
-	BFlowpass( nrpoles_, cutoff, nrsamp, mVarLenArr(outp),
-		   mVarLenArr(outp) );
+	BFlowpass( nrpoles_, cutoff, nrsamp, outpptr,
+		   outpptr );
 	cutoff = refstep_ * minfreq_ / (zistime ? 1.0f : 1000.0f);
-	BFhighpass( nrpoles_, cutoff, nrsamp, mVarLenArr(outp),
-		    mVarLenArr(outp) );
-	reverseArray( mVarLenArr(outp), nrsamp );
+	BFhighpass( nrpoles_, cutoff, nrsamp, outpptr,
+		    outpptr );
+	reverseArray( outpptr, nrsamp );
     }
 
     if ( nrsamples < mMINNRSAMPLES )
@@ -307,7 +310,7 @@ void FreqFilter::butterWorthFilter( const DataHolder& output,
     else
     {
 	float* out = output.series(0)->arr();
-	OD::memCopy(out,mVarLenArr(outp),nrsamp*sizeof(float));
+	OD::memCopy(out,outpptr,nrsamp*sizeof(float));
     }
 }
 

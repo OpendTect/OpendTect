@@ -547,8 +547,10 @@ int EventWriter::nextStep()
 	{
 	    const StepInterval<int> inlrg = SI().inlRange(false);
 	    const StepInterval<int> crlrg = SI().crlRange(false);
-            inlsampling.start_ = inlrg.start_; inlsampling.step_ = inlrg.step_*25;
-            crlsampling.start_ = crlrg.start_; crlsampling.step_ = crlrg.step_*25;
+	    inlsampling.start_ = inlrg.start_; 
+	    inlsampling.step_ = inlrg.step_*25;
+	    crlsampling.start_ = crlrg.start_; 
+	    crlsampling.step_ = crlrg.step_*25;
 	}
 
         auxinfo_.set( EventReader::sKeyISamp(), inlsampling.start_,
@@ -869,13 +871,14 @@ bool EventPatchFileHeader::fromStream( od_istream& strm )
     {
 	const int sz = int32interpreter_->nrBytes();
 	mAllocLargeVarLenArr( char, buf, sz );
-	if ( !strm.getBin(mVarLenArr(buf),sz) )
+	char* bufptr = buf.ptr();
+	if ( !strm.getBin(bufptr,sz) )
 	{
 	    errmsg_ = tr("Cannot read #events from stream (bin)");
 	    return false;
 	}
 
-	nrevents = int16interpreter_->get(mVarLenArr(buf),0);
+	nrevents = int16interpreter_->get(bufptr,0);
     }
     else
     {
@@ -1256,8 +1259,9 @@ int EventPatchReader::readInt16( od_istream& strm ) const
     {
 	const int sz = int16interpreter_->nrBytes();
 	mAllocLargeVarLenArr( char, buf, sz );
-	strm.getBin(mVarLenArr(buf),sz);
-	return int16interpreter_->get(mVarLenArr(buf),0);
+	char* bufptr = buf.ptr();
+	strm.getBin(bufptr,sz);
+	return int16interpreter_->get(bufptr,0);
     }
 
     int res;
@@ -1287,8 +1291,9 @@ int EventPatchReader::readInt32( od_istream& strm ) const
     {
 	const int sz = int16interpreter_->nrBytes();
 	mAllocLargeVarLenArr( char, buf, sz );
-	strm.getBin(mVarLenArr(buf),sz);
-	return int32interpreter_->get(mVarLenArr(buf),0);
+	char* bufptr = buf.ptr();
+	strm.getBin(bufptr,sz);
+	return int32interpreter_->get( bufptr, 0 );
     }
 
     int res;
@@ -1303,8 +1308,9 @@ float EventPatchReader::readFloat( od_istream& strm ) const
     {
 	const int sz = floatinterpreter_->nrBytes();
 	mAllocLargeVarLenArr( char, buf, sz );
-	strm.getBin(mVarLenArr(buf),sz);
-	return floatinterpreter_->get(mVarLenArr(buf),0);
+	char* bufptr = buf.ptr();
+	strm.getBin(bufptr,sz);
+	return floatinterpreter_->get( bufptr, 0 );
     }
 
     float res;

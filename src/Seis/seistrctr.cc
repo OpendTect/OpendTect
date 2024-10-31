@@ -275,7 +275,9 @@ bool SeisTrcTranslator::commitSelections()
 	inpfor_[0] = inpnrs[0];
     else
     {
-	sort_coupled( mVarLenArr(selnrs), mVarLenArr(inpnrs), nrsel );
+	int* selnrsptr = selnrs.ptr();
+	int* inpnrsptr = inpnrs.ptr();
+	sort_coupled( selnrsptr, inpnrsptr, nrsel );
 	for ( int idx=0; idx<nrout_; idx++ )
 	    inpfor_[idx] = inpnrs[idx];
     }

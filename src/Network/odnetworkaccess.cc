@@ -229,12 +229,13 @@ bool FileDownloader::writeData()
 	return true;
 
     mAllocLargeVarLenArr( char, buffer, bytes );
-    bytes = odnr_->read( mVarLenArr(buffer), bytes );
+    char* bufferptr = buffer.ptr();
+    bytes = odnr_->read( bufferptr, bytes );
     nrdone_ += bytes;
     if ( databuffer_ )
-	return writeDataToBuffer( mVarLenArr(buffer), bytes );
+	return writeDataToBuffer( bufferptr, bytes );
     else
-	return writeDataToFile( mVarLenArr(buffer), bytes );
+	return writeDataToFile( bufferptr, bytes );
 }
 
 
