@@ -225,7 +225,8 @@ void PosVecDataSet::merge( const PosVecDataSet& vds, OvwPolicy ovwpol,
 {
     mAllocLargeVarLenArr( int, colidxs, vds.coldefs_.size() );
     const int orgnrcds = coldefs_.size();
-    mergeColDefs( vds, cmpol, mVarLenArr(colidxs) );
+    int* colidxsptr = colidxs.ptr();
+    mergeColDefs( vds, cmpol, colidxsptr );
     pars_.merge( vds.pars_ );
 
     if ( vds.data_.isEmpty() )

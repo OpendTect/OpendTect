@@ -100,18 +100,20 @@ protected:
 template <class T> inline
 bool filterUndef( const ValueSeries<T>& input, T* outptr, int sz )
 {
-    if ( !sz || !outptr ) return true;
+    if ( !sz || !outptr )
+	return true;
     
     const T* inptr = input.arr();
-    
-    ArrPtrMan<T> myinp = 0;
+    ArrPtrMan<T> myinp = nullptr;
     if ( !inptr )
     {
 	myinp = new T[sz];
-	input.getValues( mVarLenArr(myinp), sz );
+	T* myinpptr = myinp.ptr();
+	input.getValues( myinpptr, sz );
     }
     
-    return filterUndef( inptr ? inptr : mVarLenArr(myinp), outptr, sz );
+    T* myinpptr = myinp.ptr();
+    return filterUndef( inptr ? inptr : myinpptr, outptr, sz );
 }
 
 

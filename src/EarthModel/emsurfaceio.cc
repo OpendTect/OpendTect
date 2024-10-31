@@ -656,8 +656,8 @@ void dgbSurfaceReader::setGeometry()
     {
 	const RowCol filestep = getFileStep();
 	const RowCol loadedstep = readrowrange_ && readcolrange_
-                                  ? RowCol(readrowrange_->step_,readcolrange_->step_)
-	    : filestep;
+			    ? RowCol(readrowrange_->step_,readcolrange_->step_)
+			    : filestep;
 
 	hor->geometry().setStep( filestep, loadedstep );
     }
@@ -957,7 +957,7 @@ int dgbSurfaceReader::prepareNewSection( od_istream& strm )
     if ( version_==3 && readrowrange_ )
     {
 	const StepInterval<int> sectionrowrg( firstrow_,
-                                              firstrow_+(nrrows_-1)*rowrange_.step_, rowrange_.step_ );
+		       firstrow_+(nrrows_-1)*rowrange_.step_, rowrange_.step_ );
         if ( sectionrowrg.stop_<readrowrange_->start_ ||
              sectionrowrg.start_>readrowrange_->stop_ )
 	{
@@ -1008,15 +1008,15 @@ bool dgbSurfaceReader::readVersion1Row( od_istream& strm, int firstcol,
 	    return false;
 	}
 
-	if ( readrowrange_ && (!readrowrange_->includes(surfrc.row(), false) ||
-                               ((surfrc.row()-readrowrange_->start_)%readrowrange_->step_)))
+	if ( readrowrange_ && (!readrowrange_->includes(surfrc.row(), false)
+	    || ((surfrc.row()-readrowrange_->start_)%readrowrange_->step_)))
 	{
 	    fullyread_ = false;
 	    continue;
 	}
 
-	if ( readcolrange_ && (!readcolrange_->includes(surfrc.col(), false) ||
-                               ((surfrc.col()-readcolrange_->start_)%readcolrange_->step_)))
+	if ( readcolrange_ && (!readcolrange_->includes(surfrc.col(), false)
+	    || ((surfrc.col()-readcolrange_->start_)%readcolrange_->step_)))
 	{
 	    fullyread_ = false;
 	    continue;
@@ -1066,15 +1066,15 @@ bool dgbSurfaceReader::readVersion2Row( od_istream& strm,
 	    return false;
 	}
 
-	if ( readcolrange_ && (!readcolrange_->includes(rowcol.col(), false) ||
-                               ((rowcol.col()-readcolrange_->start_)%readcolrange_->step_)))
+	if ( readcolrange_ && (!readcolrange_->includes(rowcol.col(), false)
+	    || ((rowcol.col()-readcolrange_->start_)%readcolrange_->step_)))
 	{
 	    fullyread_ = false;
 	    continue;
 	}
 
-	if ( readrowrange_ && (!readrowrange_->includes(rowcol.row(), false) ||
-                               ((rowcol.row()-readrowrange_->start_)%readrowrange_->step_)))
+	if ( readrowrange_ && (!readrowrange_->includes(rowcol.row(), false)
+	    || ((rowcol.row()-readrowrange_->start_)%readrowrange_->step_)))
 	{
 	    fullyread_ = false;
 	    continue;
@@ -1170,8 +1170,9 @@ void dgbSurfaceReader::goToNextRow()
 		inlrg.sort(); crlrg.sort();
 		if ( arr_ )
                     bidsurf->setArray( RowCol(inlrg.start_,crlrg.start_),
-                                       RowCol(inlrg.step_,crlrg.step_), arr_, true );
-		arr_ = 0;
+				       RowCol(inlrg.step_,crlrg.step_),	
+				       arr_, true );
+		arr_ = nullptr;
 	    }
 
 	    if ( secgeom )
@@ -1363,8 +1364,9 @@ int dgbSurfaceReader::readInt16(od_istream& strm) const
     {
 	const int sz = int16interpreter_->nrBytes();
 	mAllocLargeVarLenArr( char, buf, sz );
-	strm.getBin( mVarLenArr(buf), sz );
-	return int16interpreter_->get( mVarLenArr(buf), 0 );
+	char* bufptr = buf.ptr();
+	strm.getBin( bufptr, sz );
+	return int16interpreter_->get( bufptr, 0 );
     }
 
     int res;
@@ -1380,8 +1382,9 @@ int dgbSurfaceReader::readInt32(od_istream& strm) const
     {
 	const int sz = int32interpreter_->nrBytes();
 	mAllocLargeVarLenArr( char, buf, sz );
-	strm.getBin( mVarLenArr(buf), sz );
-	return int32interpreter_->get( mVarLenArr(buf), 0 );
+	char* bufptr = buf.ptr();
+	strm.getBin( bufptr, sz );
+	return int32interpreter_->get( bufptr, 0 );
     }
 
     int res;
@@ -1396,8 +1399,9 @@ od_int64 dgbSurfaceReader::readInt64(od_istream& strm) const
     {
 	const int sz = int64interpreter_->nrBytes();
 	mAllocLargeVarLenArr( char, buf, sz );
-	strm.getBin( mVarLenArr(buf), sz );
-	return int64interpreter_->get( mVarLenArr(buf), 0 );
+	char* bufptr = buf.ptr();
+	strm.getBin( bufptr, sz );
+	return int64interpreter_->get( bufptr, 0 );
     }
 
     int res;
@@ -1424,8 +1428,9 @@ double dgbSurfaceReader::readDouble(od_istream& strm) const
     {
 	const int sz = floatinterpreter_->nrBytes();
 	mAllocLargeVarLenArr( char, buf, sz );
-	strm.getBin( mVarLenArr(buf), sz );
-	return floatinterpreter_->get( mVarLenArr(buf), 0 );
+	char* bufptr = buf.ptr();
+	strm.getBin( bufptr, sz );
+	return floatinterpreter_->get( bufptr, 0 );
     }
 
     double res;
@@ -1892,10 +1897,9 @@ bool dgbSurfaceWriter::writeNewSection( od_ostream& strm )
 
 	if ( writerowrange_ )
 	{
-            if (firstrow_>writerowrange_->stop_ || lastrow<writerowrange_->start_)
-	    {
+	    if ( firstrow_>writerowrange_->stop_ 
+		|| lastrow<writerowrange_->start_)
 		nrrows_ = 0;
-	    }
 	    else
 	    {
                 if ( firstrow_<writerowrange_->start_ )
@@ -2083,7 +2087,8 @@ bool dgbSurfaceWriter::writeRow( od_ostream& strm )
 	writtencolrange_.include( firstcol, false );
 
 	const int lastcol = firstcol + (colcoords.size()-1) *
-                            (writecolrange_ ? writecolrange_->step_ : colrange.step_);
+			    (writecolrange_ ? writecolrange_->step_ 
+					    : colrange.step_);
 	writtencolrange_.include( lastcol, false );
     }
 

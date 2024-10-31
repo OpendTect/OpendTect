@@ -108,12 +108,16 @@ void NLADataPreparer::balance( const NLADataPreparer::BalanceSetup& setup )
 	BinIDValueSet& bvs = *bvss[idx];
 	const int totsz = mCast( int, bvs.totalSize() );
 	if ( totsz < setup.nrptsperclss )
-	    addVecs( bvs, setup.nrptsperclss - totsz, setup.noiselvl,
-		     mVarLenArr(rgs) );
+	{
+	    ZGate* rgsptr = rgs.ptr();
+	    addVecs( bvs, setup.nrptsperclss - totsz, setup.noiselvl, rgsptr );
+	}
 	else
 	    bvs.randomSubselect( totsz - setup.nrptsperclss );
+
 	bvs_.append( bvs );
     }
+
     deepErase( bvss );
 }
 
@@ -122,7 +126,8 @@ void NLADataPreparer::addVecs( BinIDValueSet& bvs, int nr, float noiselvl,
 				const Interval<float>* rgs )
 {
     const int orgsz = mCast( int, bvs.totalSize() );
-    if ( orgsz == 0 ) return;
+    if ( orgsz == 0 )
+	return;
 
     bvs.allowDuplicateBinIDs( true );
     BinIDValueSet bvsnew( bvs.nrVals(), true );
@@ -147,7 +152,9 @@ void NLADataPreparer::addVecs( BinIDValueSet& bvs, int nr, float noiselvl,
 		newvals[validx] = (float) (vals[validx] +
 				  ((gen_.get()-0.5) * wdth));
 	    }
-	    bvsnew.add( bid, mVarLenArr(newvals) );
+
+	    float* newvalsptr = newvals.ptr();
+	    bvsnew.add( bid, newvalsptr );
 	}
     }
     bvs.append( bvsnew );

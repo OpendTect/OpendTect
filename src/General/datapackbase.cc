@@ -56,10 +56,14 @@ public:
 	    SI().transform( BinID(hsamp_.stop_.inl(),hsamp_.start_.crl()) );
 	const Coord spt4 =
 	    SI().transform( BinID(hsamp_.stop_.inl(),hsamp_.stop_.crl()) );
-        startpt_ = Coord( mMIN( mMIN(spt1.x_, spt2.x_), mMIN(spt3.x_, spt4.x_) ),
-                          mMIN( mMIN(spt1.y_, spt2.y_), mMIN(spt3.y_, spt4.y_) ) );
-        stoppt_ = Coord( mMAX( mMAX(spt1.x_, spt2.x_), mMAX(spt3.x_, spt4.x_) ),
-                         mMAX( mMAX(spt1.y_, spt2.y_), mMAX(spt3.y_, spt4.y_) ) );
+	startpt_ = Coord( mMIN( mMIN(spt1.x_, spt2.x_),	
+				mMIN(spt3.x_, spt4.x_) ),
+			  mMIN( mMIN(spt1.y_, spt2.y_),	
+				mMIN(spt3.y_, spt4.y_) ) );
+	stoppt_ = Coord( mMAX( mMAX(spt1.x_, spt2.x_), 
+			       mMAX(spt3.x_, spt4.x_) ),
+			 mMAX( mMAX(spt1.y_, spt2.y_),
+			       mMAX(spt3.y_, spt4.y_) ) );
         xstep_ = ( float ) (stoppt_.x_ - startpt_.x_)/length;
         ystep_ = ( float ) (stoppt_.y_ - startpt_.y_)/width;
     }
@@ -70,9 +74,9 @@ public:
     bool doFinish( bool success ) override
     {
 	mdp_.xyrotposdata_.setRange( true,
-                                     StepInterval<double>(startpt_.x_,stoppt_.x_,xstep_) );
+			 StepInterval<double>(startpt_.x_,stoppt_.x_,xstep_) );
 	mdp_.xyrotposdata_.setRange( false,
-                                     StepInterval<double>(startpt_.y_,stoppt_.y_,ystep_) );
+			 StepInterval<double>(startpt_.y_,stoppt_.y_,ystep_) );
 
 	return success;
     }
@@ -273,8 +277,9 @@ MapDataPack::~MapDataPack()
 void MapDataPack::getAuxInfo( int idim0, int idim1, IOPar& par ) const
 {
     const Coord3 pos = getCoord( idim0, idim1 );
-    const Coord coord = isposcoord_ ? pos.coord() :
-                                      SI().transform(BinID(mNINT32(pos.x_),mNINT32(pos.y_)));
+    const Coord coord = isposcoord_ ? pos.coord()
+				    : SI().transform(BinID(mNINT32(pos.x_),
+							   mNINT32(pos.y_)));
     const BinID bid = isposcoord_ ? SI().transform(pos)
                                   : BinID(mNINT32(pos.x_),mNINT32(pos.y_));
     par.set( axeslbls_[0], coord.x_ );
@@ -580,7 +585,8 @@ bool SeisDataPack::getCopiedTrcData( int comp, int globaltrcidx,
 
     const od_int64 offset = ((od_int64)globaltrcidx) * nrz;
     mAllocLargeVarLenArr( int, pos, array.nrDims() );
-    if ( !array.info().getArrayPos(offset,mVarLenArr(pos)) )
+    int* posptr = pos.ptr();
+    if ( !array.info().getArrayPos(offset,posptr) )
         return false;
 
     const auto idx = pos[0];

@@ -2132,8 +2132,9 @@ bool ZipHandler::extractNextFile( ZipFileInfo& fileinfo )
 	    {
 		const od_stream::Count tohandle = count <= compfilesize
 				    ? chunksize : compfilesize % chunksize;
-		const bool inpfail = !istrm_->getBin( mVarLenArr(in), tohandle);
-		const bool outfail = !ostrm_->addBin( mVarLenArr(in), tohandle);
+		char* inptr = in.ptr();
+		const bool inpfail = !istrm_->getBin( inptr, tohandle);
+		const bool outfail = !ostrm_->addBin( inptr, tohandle);
 		if ( count > compfilesize )
 		    finish = true;
 

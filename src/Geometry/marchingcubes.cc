@@ -157,8 +157,9 @@ int readInt32()
     {
 	const int sz = dt_->nrBytes();
 	mAllocLargeVarLenArr( char, buf, sz );
-	strm_.getBin( mVarLenArr(buf), sz );
-	return dt_->get( mVarLenArr(buf), 0 );
+	char* bufptr = buf.ptr();
+	strm_.getBin( bufptr, sz );
+	return dt_->get( bufptr, 0 );
     }
 
     int res;
@@ -169,7 +170,7 @@ int readInt32()
 
 protected:
     Threads::Atomic<int>		nrdone_;
-    int		totalnr_;
+    int					totalnr_;
     MarchingCubesSurface&		surface_;
     od_istream&				strm_;
     const DataInterpreter<od_int32>*	dt_;
