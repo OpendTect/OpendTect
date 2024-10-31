@@ -293,13 +293,13 @@ bool GapDecon::computeData( const DataHolder& output, const BinID& relpos,
 
     mAllocVarLenArr( float, wiener, ngap_ );
     mAllocVarLenArr( float, spiker, ngap_ );
-    float* wienerptr = wiener.ptr();
-    float* spikerptr = spiker.ptr();
+    auto wienerptr = mVarLenArr( wiener );
+    auto spikerptr = mVarLenArr( spiker );
     OD::sysMemZero( wienerptr, ngap_ * sizeof( float ) );
     OD::sysMemZero( spikerptr, ngap_ * sizeof( float ) );
 
     autocorr[0] *= 1 + (float)noiselevel_/100;
-    solveSymToeplitzsystem( ngap_, mVarLenArr(autocorr), crosscorr,
+    solveSymToeplitzsystem( ngap_, autocorrptr, crosscorr,
 			    wienerptr, spikerptr );
 
     int startgapidx = nlag_;

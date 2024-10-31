@@ -213,9 +213,10 @@ uiODLegalInfo(uiParent* p)
 
     uiStringSet usernames = legalInformation().getUserNames();
     ArrPtrMan<int> sortidxs = usernames.getSortIndexes( true, true );
-    usernames.useIndexes( mVarLenArr(sortidxs) );
+    int* sortidxsptr = sortidxs.ptr();
+    usernames.useIndexes( sortidxsptr );
     factorynames_ = legalInformation().getNames();
-    factorynames_.useIndexes( mVarLenArr(sortidxs) );
+    factorynames_.useIndexes( sortidxsptr );
 
     textsel_ = new uiGenInput( this, tr("Project"),
 			       StringListInpSpec(usernames) );

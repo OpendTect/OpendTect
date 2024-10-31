@@ -78,10 +78,11 @@ public:
 	RefMan<Network::RequestPacket> largepacket = new Network::RequestPacket;
 	largepacket->setIsNewRequest();
 	mAllocLargeVarLenArr( char, payload, mLargePayload+1 );
-	memset( mVarLenArr(payload), ' ', mLargePayload );
+	char* payloadptr = payload.ptr();
+	memset( payloadptr, ' ', mLargePayload );
 	payload[mLargePayload] = 0;
 
-	largepacket->setStringPayload( mVarLenArr(payload) );
+	largepacket->setStringPayload( payloadptr );
 
 	mRunStandardTestWithError( conn.sendPacket( *largepacket ),
 	      packetString( prefix_,"Sending large packet",largepacket.ptr()),
@@ -131,7 +132,7 @@ public:
 	BufferString receivedlongmessage;
 	receivedpacket->getStringPayload( receivedlongmessage );
 	mRunStandardTest(
-	     receivedlongmessage==mVarLenArr(payload) &&
+	     receivedlongmessage==payloadptr &&
 	     receivedpacket->requestID()==largepacket->requestID() &&
 	     receivedpacket->subID()==largepacket->subID(),
 	     packetString(prefix_,"Large packet content",largepacket.ptr()) );
