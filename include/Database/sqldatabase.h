@@ -17,6 +17,7 @@ ________________________________________________________________________
 # define mQSqlDatabase QSqlDatabase
 #endif
 
+class BufferStringSet;
 class mQSqlDatabase;
 
 
@@ -75,6 +76,9 @@ public:
     bool		isOpen() const;
     void		close();
     const char*		dbType() const		{ return dbtype_; }
+
+    void		getColumnNames(const char* tablename,
+					BufferStringSet&) const;
 
 protected:
 
