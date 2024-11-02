@@ -1454,7 +1454,18 @@ void ui3DViewerBody::setStartupView()
 	toHomePos();
     else
     {
-	SI().has3D() ? viewPlaneInl() : viewPlaneN();
+	if ( SI().has3D() )
+	{
+	    osg::Vec3f inlvec;
+	    getInlCrlVec( inlvec, true );
+	    osg::ref_ptr<osgGeo::TrackballManipulator> manip =
+							getCameraManipulator();
+	    if ( manip )
+		manip->viewAll( view_, inlvec, osg::Vec3f(0,0,1), false );
+	}
+	else
+	    viewPlaneN();
+
 	// animation should be finished before calling viewAll
 	hp_timers.getParam(this)->start( 1000, true );
     }
