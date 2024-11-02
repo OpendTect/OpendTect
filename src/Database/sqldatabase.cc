@@ -151,13 +151,19 @@ void SqlDB::Access::close()
 void SqlDB::Access::getColumnNames( const char* tablename,
 				    BufferStringSet& nms ) const
 {
-    QSqlRecord record = qdb_->record( tablename );
+    nms.erase();
+    if ( StringView(tablename).isEmpty() )
+	return;
+
+#ifndef OD_NO_QSQL
+    const QSqlRecord record = qdb_->record( tablename );
     const int nrrecords = record.count();
     for ( int idx= 0; idx<nrrecords; idx++ )
     {
-	QString nm = record.fieldName( idx );
+	const QString nm = record.fieldName( idx );
 	nms.add( nm );
     }
+#endif
 }
 
 
