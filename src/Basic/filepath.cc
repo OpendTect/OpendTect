@@ -498,7 +498,8 @@ BufferString FilePath::pathOnly( Style f ) const
     BufferString res = dirUpTo( lvls_.size()-2 );
     res = mkCleanPath( res, f );
 
-    if ( isabs_ && ((__iswin__ && f==Local) || f==Windows) && nrLevels() < 2 )
+    if ( !isURI() && isabs_ && ((__iswin__ && f==Local) || f==Windows)
+		  && nrLevels() < 2 )
 	res.add( dirSep(Windows) );
 
     return res;
