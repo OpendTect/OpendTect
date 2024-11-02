@@ -10,6 +10,7 @@ ________________________________________________________________________
 #include "sqldatabase.h"
 
 #include "ascstream.h"
+#include "bufstringset.h"
 #include "keystrs.h"
 #include "oddirs.h"
 #include "settings.h"
@@ -19,6 +20,7 @@ ________________________________________________________________________
 
 # include <QSqlDatabase>
 # include <QSqlError>
+# include <QSqlRecord>
 
 #else
 
@@ -143,6 +145,19 @@ bool SqlDB::Access::commit()
 void SqlDB::Access::close()
 {
     qdb_->close();
+}
+
+
+void SqlDB::Access::getColumnNames( const char* tablename,
+				    BufferStringSet& nms ) const
+{
+    QSqlRecord record = qdb_->record( tablename );
+    const int nrrecords = record.count();
+    for ( int idx= 0; idx<nrrecords; idx++ )
+    {
+	QString nm = record.fieldName( idx );
+	nms.add( nm );
+    }
 }
 
 
