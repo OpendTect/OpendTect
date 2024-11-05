@@ -255,7 +255,7 @@ bool Well::Reader::get() const
 
 bool Well::Reader::getD2T() const
 {
-    if ( data() && data()->track().isEmpty() && (!getTrack() || !getInfo()) )
+    if ( data() && (!getInfo() || (data()->track().isEmpty() && !getTrack())) )
 	return false;
 
     return ra_ ? ra_->getD2T() : false;
