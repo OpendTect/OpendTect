@@ -15,7 +15,6 @@ ________________________________________________________________________
 #include "perthreadrepos.h"
 #include "odcommonenums.h"
 
-#include <string.h>
 #include <QCryptographicHash>
 #include <QFile>
 #include <QString>
@@ -276,6 +275,14 @@ bool OD::String::toBool() const
 {
     return ::toBool( str() );
 }
+
+
+std::wstring OD::String::toStdWString() const
+{
+    const QString qstr( buf() );
+    return qstr.toStdWString();
+}
+
 
 namespace Crypto
 {

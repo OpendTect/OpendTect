@@ -9,10 +9,9 @@ ________________________________________________________________________
 -*/
 
 #include "basicmod.h"
-#include "stringview.h"
-#include "string2.h"
 
-#include <string>
+#include "string2.h"
+#include "stringview.h"
 
 class QString;
 
@@ -49,6 +48,8 @@ public:
     inline		BufferString(const char*,const T&,
 				     const char* s=nullptr);
 			BufferString(const QString&);
+			BufferString(const std::string&);
+			BufferString(const std::wstring&);
     virtual		~BufferString();
 
     inline BufferString& operator=( const BufferString& b )
@@ -60,6 +61,7 @@ public:
     inline BufferString& operator=( const OD::String& s )
 						{ return assignTo(s.str()); }
     BufferString&	operator=(const std::string&);
+    BufferString&	operator=(const std::wstring&);
     template <class T>
     inline BufferString& operator=(const T&);
 
@@ -105,6 +107,7 @@ public:
     BufferString&	add( const OD::String& s )	{ return add(s.str()); }
     BufferString&	add(const QString&);
     BufferString&	add(const std::string&);
+    BufferString&	add(const std::wstring&);
     template <class T>
     BufferString&	add(const T&);
     BufferString&	add(float,int nrdec);

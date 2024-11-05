@@ -50,6 +50,8 @@ mGlobal(Basic) void		TimespecToFileTime(const std::timespec&,
 						   FILETIME&);
 mGlobal(Basic) void		FileTimeToTimet(const FILETIME&,std::timespec&);
 
+mGlobal(Basic) void		copyWString(LPCTSTR,BufferString&);
+
 }
 
 #define mDeprecatedMachCmd mDeprecated("Use MachineCommand")

@@ -69,13 +69,14 @@ SharedLibAccess::SharedLibAccess( const char* lnm )
     {
 	const UINT oldmod = GetErrorMode();
 	SetErrorMode( SEM_NOOPENFILEERRORBOX | SEM_FAILCRITICALERRORS );
-	handle_ = LoadLibrary( targetlibnm );
+	const std::wstring wtargetlibnm = targetlibnm.toStdWString();
+	handle_ = LoadLibrary( wtargetlibnm.c_str() );
 	if ( !handle_ )
 	{
-	    char* ptr = NULL;
+	    LPTSTR ptr = NULL;
 	    FormatMessage( FORMAT_MESSAGE_ALLOCATE_BUFFER |
 			   FORMAT_MESSAGE_FROM_SYSTEM, NULL,
-			   GetLastError(), 0, (char* )&ptr, 1024, NULL );
+			   GetLastError(), 0, (LPTSTR)&ptr, 1024, NULL );
 	    errmsg_ = BufferString( ptr );
 	}
 	SetErrorMode( oldmod );

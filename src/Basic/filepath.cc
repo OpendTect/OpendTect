@@ -108,12 +108,11 @@ BufferString FilePath::getLongPath( const char* shortpath,
 				    BufferString* error )
 {
     BufferString res;
-#ifndef  __win__
-    res = shortpath;
-#else
-    res.setMinBufSize( MAX_PATH );
-    const int len = GetLongPathName( shortpath, res.getCStr(), MAX_PATH );
-    if ( len==0 || len>MAX_PATH )
+#ifdef	__win__
+    const std::wstring wshortpath = StringView(shortpath).toStdWString();
+    TCHAR longpath[2048];
+    const int len = GetLongPathName( wshortpath.c_str(), longpath, 2048 );
+    if ( len==0 || len>2048 )
     {
 	DWORD errorcode = GetLastError();
 	if ( error )
@@ -121,6 +120,10 @@ BufferString FilePath::getLongPath( const char* shortpath,
 //	Implement FormatMessage for a better error message
 	res = shortpath;
     }
+    else
+	WinUtils::copyWString( longpath, res );
+#else
+    res = shortpath;
 #endif
     return res;
 }
@@ -130,11 +133,10 @@ BufferString FilePath::getShortPath( const char* longpath,
 				     BufferString* error )
 {
     BufferString res;
-#ifndef  __win__
-    res = longpath;
-#else
-    res.setMinBufSize( MAX_PATH );
-    const int len = GetShortPathName( longpath, res.getCStr(), MAX_PATH );
+#ifdef	__win__
+    const std::wstring wlongpath = StringView(longpath).toStdWString();
+    TCHAR shortpath[MAX_PATH];
+    const int len = GetShortPathName( wlongpath.c_str(), shortpath, MAX_PATH );
     if ( len==0 || len>MAX_PATH )
     {
 	DWORD errorcode = GetLastError();
@@ -143,6 +145,10 @@ BufferString FilePath::getShortPath( const char* longpath,
 //	Implement FormatMessage for a better error message
 	res = longpath;
     }
+    else
+	WinUtils::copyWString( shortpath, res );
+#else
+    res = longpath;
 #endif
     return res;
 }

@@ -449,12 +449,12 @@ const char* getProcessNameForPID( int pid )
 #ifdef __win__
     HANDLE hProcess = OpenProcess( PROCESS_QUERY_INFORMATION |
 				   PROCESS_VM_READ, FALSE, pid );
-    char procnamebuff[MAX_PATH];
+    TCHAR procnamebuff[MAX_PATH];
     ret.setEmpty();
     if ( hProcess )
     {
 	GetModuleFileNameEx( hProcess, 0, procnamebuff, MAX_PATH );
-	procname = procnamebuff;
+	WinUtils::copyWString( procnamebuff, procname );
     }
 #else
     OS::MachineCommand machcomm( "ps" );
@@ -915,10 +915,11 @@ static const char* getShortPathName( const char* path )
     return path;
 #else
     mDeclStaticString( shortpath );
+    TCHAR wshortpath[MAX_PATH];
     //Extract the shortname by removing spaces
-    shortpath.setMinBufSize( 1025 );
-    GetShortPathName( path, shortpath.getCStr(), shortpath.minBufSize()-1 );
-
+    const std::wstring wpath = StringView(path).toStdWString();
+    GetShortPathName( wpath.c_str(), wshortpath, MAX_PATH );
+    WinUtils::copyWString( wshortpath, shortpath );
     return shortpath;
 #endif
 }
@@ -939,11 +940,13 @@ mExternC(Basic) const char* GetFullExecutablePath( void )
 	{
 	    FilePath executable;
 #ifdef __win__
-	    char fullpath[1024];
+	    TCHAR wfullpath[1024];
 
 	    // get the fullpath to the executabe including the extension.
 	    // Necessary because we cannot use argv[0] on Windows
-	    GetModuleFileName(NULL, fullpath, (sizeof(fullpath)/sizeof(char)));
+	    GetModuleFileName(NULL, wfullpath, 1024);
+	    BufferString fullpath;
+	    WinUtils::copyWString( wfullpath, fullpath );
 	    executable = fullpath;
 #else
 	    executable = GetArgV()[0];

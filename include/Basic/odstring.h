@@ -11,6 +11,7 @@ ________________________________________________________________________
 #include "basicmod.h"
 
 #include "gendefs.h"
+#include <string>
 
 namespace Crypto { enum class Algorithm; }
 
@@ -80,6 +81,7 @@ public:
     float		toFloat() const;
     double		toDouble() const;
     bool		toBool() const;
+    std::wstring	toStdWString() const;
     const char*		getHash(Crypto::Algorithm) const;
 
     bool		operator >(const String&) const;

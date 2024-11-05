@@ -8,17 +8,15 @@ ________________________________________________________________________
 -*/
 
 #include "bufstring.h"
-#include "bufstringset.h"
 
 #include "arrayndimpl.h"
+#include "bufstringset.h"
 #include "globexpr.h"
 #include "iopar.h"
 #include "od_ostream.h"
 #include "odmemory.h"
 #include "perthreadrepos.h"
 #include "separstr.h"
-#include "string2.h"
-#include "stringview.h"
 #include "uistring.h"
 
 #ifndef OD_NO_QT
@@ -27,7 +25,6 @@ ________________________________________________________________________
 # include <QStringList>
 #endif
 
-#include <string>
 
 BufferString::BufferString( int sz, bool /*mknull*/ )
     : buf_(nullptr)
@@ -66,6 +63,20 @@ BufferString::BufferString( const QString& qstr )
     : mBufferStringSimpConstrInitList
 {
     add( qstr );
+}
+
+
+BufferString::BufferString( const std::string& stdstr )
+    : mBufferStringSimpConstrInitList
+{
+    add( stdstr );
+}
+
+
+BufferString::BufferString( const std::wstring& wstdstr )
+    : mBufferStringSimpConstrInitList
+{
+    add( wstdstr );
 }
 
 
@@ -172,9 +183,16 @@ BufferString& BufferString::add( const QString& qstr )
 }
 
 
-BufferString& BufferString::add( const std::string& str )
+BufferString& BufferString::add( const std::string& stdstr )
 {
-    return add( str.c_str() );
+    return add( stdstr.c_str() );
+}
+
+
+BufferString& BufferString::add( const std::wstring& wstdstr )
+{
+    const QString qstr = QString::fromStdWString( wstdstr );
+    return add( qstr );
 }
 
 

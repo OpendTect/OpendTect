@@ -104,14 +104,14 @@ const char* GetSpecialFolderLocation( int nFolder )
     LPITEMIDLIST pidl;
     HRESULT hr = SHGetSpecialFolderLocation( NULL, nFolder, &pidl );
     if ( !SUCCEEDED(hr) )
-	return 0;
+	return nullptr;
 
-    char szPath[_MAX_PATH];
+    TCHAR szPath[_MAX_PATH];
     if ( !SHGetPathFromIDList(pidl,szPath) )
-	return 0;
+	return nullptr;
 
     mDeclStaticString( ret );
-    ret = szPath;
+    WinUtils::copyWString( szPath, ret );
     return ret;
 }
 
@@ -129,12 +129,15 @@ bool winCopy( const char* from, const char* to, bool isfile, bool ismove )
     if ( !isfile )
 	frm += "\\*";
 
-    const int sz = frm.size();
-    frm[sz+1] = '\0';
+    std::wstring wfrm = frm.toStdWString();
+    frm += L'\0';
+    std::wstring wto = StringView(to).toStdWString();
+    wto += L'\0';
 
     ZeroMemory( &fileop, sizeof(fileop) );
     fileop.hwnd = NULL; fileop.wFunc = ismove ? FO_MOVE : FO_COPY;
-    fileop.pFrom = frm; fileop.pTo = to;
+    fileop.pFrom = wfrm.c_str();
+    fileop.pTo = wto.c_str();
     fileop.fFlags = ( isfile ? FOF_FILESONLY : FOF_MULTIDESTFILES )
 			       | FOF_NOCONFIRMMKDIR | FOF_NOCONFIRMATION;
 			     //  | FOF_SILENT;
@@ -147,13 +150,13 @@ bool winCopy( const char* from, const char* to, bool isfile, bool ismove )
 bool winRemoveDir( const char* dirnm )
 {
     SHFILEOPSTRUCT fileop;
-    BufferString frm( dirnm );
-    const int sz = frm.size();
-    frm[sz+1] = '\0';
+    const BufferString frm( dirnm );
+    std::wstring wfrm = frm.toStdWString();
+    wfrm += L'\0';
     ZeroMemory( &fileop, sizeof(fileop) );
     fileop.hwnd = NULL;
     fileop.wFunc = FO_DELETE;
-    fileop.pFrom = frm;
+    fileop.pFrom = wfrm.c_str();
     fileop.fFlags = FOF_MULTIDESTFILES | FOF_NOCONFIRMATION | FOF_SILENT;
     int res = SHFileOperation( &fileop );
     return !res;
@@ -246,8 +249,9 @@ SecurityID getFileSID( const char* fnm )
 	? FILE_ATTRIBUTE_NORMAL
 	: (File::isDirectory(fnm) ? FILE_FLAG_BACKUP_SEMANTICS
 	    : FILE_ATTRIBUTE_NORMAL);
+    const std::wstring wfnm = StringView(fnm).toStdWString();
     HANDLE hFile = CreateFile(
-	TEXT(fnm),
+	wfnm.c_str(),
 	GENERIC_READ,
 	FILE_SHARE_READ,
 	NULL,
@@ -338,12 +342,12 @@ int getServiceStatus( const char* nm )
     SERVICE_STATUS_PROCESS ssStatus;
     DWORD dwBytesNeeded;
 
-    scm = OpenSCManager(nullptr, nullptr, SC_MANAGER_ENUMERATE_SERVICE);
-    if (!scm) {
-            return 0;
-    }
+    scm = OpenSCManager( nullptr, nullptr, SC_MANAGER_ENUMERATE_SERVICE );
+    if (!scm )
+	return 0;
 
-    theService = OpenService(scm, nm, SERVICE_QUERY_STATUS);
+    const std::wstring wnm = StringView(nm).toStdWString();
+    theService = OpenService( scm, wnm.c_str(), SERVICE_QUERY_STATUS );
     if (!theService) {
         CloseServiceHandle(scm);
         return 0;
@@ -356,11 +360,7 @@ int getServiceStatus( const char* nm )
     CloseServiceHandle(theService);
     CloseServiceHandle(scm);
 
-    if (result == 0) {
-        return 0;
-    }
-
-    return ssStatus.dwCurrentState;
+    return result == 0 ? 0 : ssStatus.dwCurrentState;
 }
 
 
@@ -379,6 +379,13 @@ void FileTimeToTimet( const FILETIME& ft, std::timespec& t )
     ull.LowPart = ft.dwLowDateTime;
     ull.HighPart = ft.dwHighDateTime;
     t = Time::getPosixFromNTFS( ull.QuadPart );
+}
+
+
+void copyWString( LPCTSTR wstrptr, BufferString& str )
+{
+    const std::wstring wstr( wstrptr );
+    str.setEmpty().add( wstr );
 }
 
 
@@ -662,10 +669,13 @@ bool hasAppLocker()
 
 bool execShellCmd( const char* comm, const char* parm, const char* runin )
 {
-    const HINSTANCE res = ShellExecute( NULL, "runas",
-				 comm,
-				 parm,    // params
-				 runin, // directory
+    const std::wstring wcomm = StringView(comm).toStdWString();
+    const std::wstring wparm = StringView(parm).toStdWString();
+    const std::wstring wrunin = StringView(runin).toStdWString();
+    const HINSTANCE res = ShellExecute( NULL, L"runas",
+				 wcomm.c_str(),
+				 wparm.c_str(),    // params
+				 wrunin.c_str(),   // directory
 				 SW_SHOW );
     return static_cast<int>(reinterpret_cast<uintptr_t>(res)) >
 			    HINSTANCE_ERROR;;
@@ -690,32 +700,37 @@ bool execProc( const char* comm, bool inconsole, bool inbg, const char* runin )
 	si.wShowWindow = SW_HIDE;
     }
 
+    const std::wstring wcomm = StringView(comm).toStdWString();
+    const std::wstring wrunin = StringView(runin).toStdWString();
    //Start the child process.
     int res = CreateProcess( NULL,	// No module name (use command line).
-        const_cast<char*>( comm ),
+	const_cast<LPTSTR>( wcomm.c_str() ),
         NULL,				// Process handle not inheritable.
         NULL,				// Thread handle not inheritable.
         FALSE,				// Set handle inheritance to FALSE.
         0,				// Creation flags.
         NULL,				// Use parent's environment block.
-	const_cast<char*>( runin ),	// Use parent's starting directory if
+	const_cast<LPTSTR>( wrunin.c_str() ),
+					// Use parent's starting directory if
 					// runin is NULL.
         &si, &pi );
 
     if ( res )
     {
-	if ( !inbg )  WaitForSingleObject( pi.hProcess, INFINITE );
+	if ( !inbg )
+	    WaitForSingleObject( pi.hProcess, INFINITE );
+
 	CloseHandle( pi.hProcess );
 	CloseHandle( pi.hThread );
     }
     else
     {
-	char *ptr = NULL;
+	LPTSTR ptr = NULL;
 	FormatMessage( FORMAT_MESSAGE_ALLOCATE_BUFFER |
-	    FORMAT_MESSAGE_FROM_SYSTEM,
-	    0, GetLastError(), 0, (char *)&ptr, 1024, NULL);
+		       FORMAT_MESSAGE_FROM_SYSTEM, 0, GetLastError(), 0,
+		       (LPTSTR)&ptr, 1024, NULL);
 
-	fprintf(stderr, "\nError: %s\n", ptr);
+	fprintf(stderr, "\nError: %ws\n", ptr);
 	LocalFree(ptr);
     }
 
@@ -751,7 +766,9 @@ bool getDefaultApplication( const char* filetype,
     HKEY handle;
     LONG res = 0;
     const BufferString subkey( filetype, "\\Shell\\Open\\Command" );
-    res = RegOpenKeyEx( HKEY_CLASSES_ROOT, subkey.buf(), 0, KEY_READ, &handle );
+    const std::wstring wsubkey = subkey.toStdWString();
+    res = RegOpenKeyEx( HKEY_CLASSES_ROOT, wsubkey.c_str(), 0,
+			KEY_READ, &handle );
     if ( res != ERROR_SUCCESS )
     {
 	errmsg = "Cannot open registry";
@@ -782,12 +799,14 @@ bool getDefaultBrowser( BufferString& cmd, BufferString& errmsg )
     LONG res = 0;
     const BufferString subkey = "SOFTWARE\\Microsoft\\Windows\\Shell\\"
 		"Associations\\UrlAssociations\\http\\UserChoice";
-    res = RegOpenKeyEx( HKEY_CURRENT_USER, subkey.buf(), 0, KEY_READ, &handle );
+    const std::wstring wsubkey = subkey.toStdWString();
+    res = RegOpenKeyEx( HKEY_CURRENT_USER, wsubkey.c_str(), 0,
+			KEY_READ, &handle );
     if ( res == ERROR_SUCCESS )
     {
 	CHAR value[512];
 	DWORD bufsz = sizeof( value );
-	res = RegQueryValueEx( handle, "ProgId", NULL, NULL,
+	res = RegQueryValueEx( handle, L"ProgId", NULL, NULL,
 			       (LPBYTE)value, &bufsz );
 	if ( res == ERROR_SUCCESS )
 	    appkey = value;

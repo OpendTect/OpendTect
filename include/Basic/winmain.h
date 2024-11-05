@@ -12,8 +12,13 @@ ________________________________________________________________________
 
 int main( int argc, char** argv );
 
+#ifdef UNICODE
+int APIENTRY wWinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance,
+		       LPTSTR lpCmdLine, int nCmdShow )
+#else
 int APIENTRY WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance,
 		      LPTSTR lpCmdLine, int nCmdShow )
+#endif
 {
     return main( __argc, __argv ); // __argc and __argv defined in windows.h;
 }

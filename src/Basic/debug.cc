@@ -580,7 +580,7 @@ static Threads::Atomic<int> dumpsent( 0 );
 static uiString* legalText();
 static const char* breakpadname = "Google Breakpad";
 # ifdef __win__
-static bool MinidumpCB( const wchar_t* dump_path, const wchar_t* id,
+static bool MinidumpCB( LPCWSTR dump_path, LPCWSTR id,
 			void* context, EXCEPTION_POINTERS *exinfo,
 			MDRawAssertionInfo *assertion, bool succeeded )
 {

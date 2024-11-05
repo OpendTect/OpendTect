@@ -198,7 +198,8 @@ File::Permissions LocalFileSystemAccess::getPermissions( const char* uri ) const
 	return File::Permissions::udf();
 
 #ifdef __win__
-    return File::Permissions( GetFileAttributes( fnm.str() ) );
+    const std::wstring wfnm = fnm.toStdWString();
+    return File::Permissions( GetFileAttributes( wfnm.c_str() ) );
 #else
     const QFileInfo qfi( fnm.str() );
     struct stat filestat;
@@ -311,7 +312,8 @@ bool LocalFileSystemAccess::setPermissions( const char* uri,
 {
     mGetFileNameAndRetFalseIfEmpty();
 #ifdef __win__
-    return SetFileAttributes( fnm.str(), perms.asInt() );
+    const std::wstring wfnm = fnm.toStdWString();
+    return SetFileAttributes( wfnm.c_str(), perms.asInt() );
 #else
     QFile qfile( fnm.str() );
     return qfile.setPermissions( QFile::Permissions (perms.asInt()) );
@@ -688,8 +690,9 @@ od_int64 LocalFileSystemAccess::getFileSize( const char* uri,
     {
 	od_int64 filesize = 0;
 #ifdef __win__
-	HANDLE file = CreateFile( fnm, GENERIC_READ, 0, NULL, OPEN_EXISTING,
-				  FILE_ATTRIBUTE_NORMAL, NULL );
+	const std::wstring wfnm = fnm.toStdWString();
+	HANDLE file = CreateFile( wfnm.c_str(), GENERIC_READ, 0, NULL,
+				  OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL );
 	filesize = GetFileSize( file, NULL );
 	CloseHandle( file );
 #else
@@ -773,7 +776,8 @@ bool LocalFileSystemAccess::getTimes( const char* uri, Time::FileTimeSet& times,
     if ( followlink )
 	fnm = linkEnd( fnm.str() );
 
-    HANDLE hfile = CreateFile( fnm.str(), GENERIC_READ,
+    const std::wstring wfnm = fnm.toStdWString();
+    HANDLE hfile = CreateFile( wfnm.c_str(), GENERIC_READ,
 			       FILE_SHARE_READ, NULL,
 			       OPEN_EXISTING, FILE_FLAG_BACKUP_SEMANTICS, NULL);
     if ( hfile == INVALID_HANDLE_VALUE )
@@ -845,7 +849,8 @@ bool LocalFileSystemAccess::setTimes( const char* uri,
     if ( followlink )
 	fnm = linkEnd( fnm.str() );
 
-    HANDLE hfile = CreateFile( fnm.str(), GENERIC_WRITE,
+    const std::wstring wfnm = fnm.toStdWString();
+    HANDLE hfile = CreateFile( wfnm.c_str(), GENERIC_WRITE,
 			       FILE_SHARE_READ | FILE_SHARE_WRITE, NULL,
 			       OPEN_EXISTING, FILE_FLAG_BACKUP_SEMANTICS, NULL);
     bool res = false;

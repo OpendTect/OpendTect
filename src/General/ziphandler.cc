@@ -505,7 +505,8 @@ void ZipFileInfo::setFullFileName( const char* fnm, const FilePath& basepath )
     {
 	linkvalue_.setEmpty();
 #ifdef __win__
-	HANDLE filehandle = CreateFile ( fnm, GENERIC_READ, 0, NULL,
+	const std::wstring wfnm = StringView(fnm).toStdWString();
+	HANDLE filehandle = CreateFile ( wfnm.c_str(), GENERIC_READ, 0, NULL,
 				OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL );
 	const od_int32 linksize = GetFileSize( filehandle, NULL );
 	od_int32 bytesread;

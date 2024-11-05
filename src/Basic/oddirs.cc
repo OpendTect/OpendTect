@@ -24,6 +24,7 @@ ________________________________________________________________________
 
 #ifdef __msvc__
 # include <direct.h>
+# include <Lmcons.h>
 #endif
 #ifndef __win__
 # define sDirSep	"/"
@@ -551,16 +552,16 @@ mExternC(Basic) const char* GetSoftwareUser()
 
 mExternC(Basic) const char* GetUserNm()
 {
-#ifdef __win__
-    mDefineStaticLocalObject( char, usernm, [256] );
-    DWORD len = 256;
-    GetUserName( usernm, &len );
-    return usernm;
-#else
     mDeclStaticString( ret );
+#ifdef __win__
+    mDefineStaticLocalObject( TCHAR, usernm, [UNLEN+1] );
+    DWORD len = UNLEN+1;
+    GetUserName( usernm, &len );
+    WinUtils::copyWString( usernm, ret );
+#else
     ret = GetEnvVar( "USER" );
-    return ret.isEmpty() ? 0 : ret.buf();
 #endif
+    return ret.buf();
 }
 
 
