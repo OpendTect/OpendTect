@@ -347,7 +347,6 @@ bool uiODWellTreeItem::init()
 		if ( ioobj )
 		    objnm = ioobj->name();
 
-		uiMSG().error(tr("Could not load well %1").arg( objnm ) );
 		vwd->setScene( nullptr );
 		return false;
 	    }
@@ -371,7 +370,6 @@ bool uiODWellTreeItem::init()
 	    if ( ioobj )
 		objnm = ioobj->name();
 
-	    uiMSG().error(tr("Could not load well %1").arg( objnm ) );
 	    return false;
 	}
     }
