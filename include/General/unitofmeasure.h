@@ -158,6 +158,10 @@ template <class T> void convValue(T& val,
 template <class T> inline T getConvertedValue(T val,
 		const UnitOfMeasure* oldunit, const UnitOfMeasure* newunit);
 
+template <class T> inline StepInterval<T> getConvertedRange(
+					const StepInterval<T>& inrg,
+					const UnitOfMeasure* inunit,
+					const UnitOfMeasure* outunit);
 
 /*!\brief Repository of all Units of Measure in the system.
 
@@ -262,4 +266,18 @@ template <class T> inline T getConvertedValue( T val,
 	val = newunit->userValue( val );
 
     return val;
+}
+
+
+template <class T> inline StepInterval<T> getConvertedRange(
+					const StepInterval<T>& inrg,
+					const UnitOfMeasure* inunit,
+					const UnitOfMeasure* outunit )
+{
+    if ( outunit == inunit || inrg.isUdf() )
+	return inrg;
+
+    return StepInterval<T>( getConvertedValue(inrg.start,inunit,outunit),
+			    getConvertedValue(inrg.stop,inunit,outunit),
+			    getConvertedValue(inrg.step,inunit,outunit) );
 }
