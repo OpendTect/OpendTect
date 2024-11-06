@@ -277,7 +277,7 @@ template <class T> inline StepInterval<T> getConvertedRange(
     if ( outunit == inunit || inrg.isUdf() )
 	return inrg;
 
-    return StepInterval<T>( getConvertedValue(inrg.start,inunit,outunit),
-			    getConvertedValue(inrg.stop,inunit,outunit),
-			    getConvertedValue(inrg.step,inunit,outunit) );
+    return StepInterval<T>( getConvertedValue(inrg.start_,inunit,outunit),
+			    getConvertedValue(inrg.stop_,inunit,outunit),
+			    getConvertedValue(inrg.step_,inunit,outunit) );
 }
