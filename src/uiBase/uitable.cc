@@ -148,16 +148,16 @@ private:
 static void setResizeMode( QHeaderView* hdr, QHeaderView::ResizeMode mode,
 			   int idx=-1 )
 {
-#if QT_VERSION < 0x050000
-    if ( idx<0 )
-	hdr->setResizeMode( mode );
-    else
-	hdr->setResizeMode( idx, mode );
-#else
+#if QT_VERSION >= QT_VERSION_CHECK(5,0,0)
     if ( idx>=0 )
 	hdr->setSectionResizeMode( idx, mode );
     else
 	hdr->setSectionResizeMode( mode );
+#else
+    if ( idx<0 )
+	hdr->setResizeMode( mode );
+    else
+	hdr->setResizeMode( idx, mode );
 #endif
 }
 

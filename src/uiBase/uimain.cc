@@ -419,7 +419,8 @@ void uiMain::cleanQtOSEnv()
 void uiMain::preInit()
 {
     QApplication::setDesktopSettingsAware( true );
-#if QT_VERSION >= 0x050600 && QT_VERSION < 0x060000
+#if QT_VERSION >= QT_VERSION_CHECK(5,6,0) && \
+    QT_VERSION < QT_VERSION_CHECK(6,0,0)
     QCoreApplication::setAttribute( Qt::AA_EnableHighDpiScaling );
 #endif
 

@@ -924,7 +924,7 @@ ODGraphicsDynamicImageItem::ODGraphicsDynamicImageItem()
 }
 
 
-#if QT_VERSION>=0x040700
+#if QT_VERSION >= QT_VERSION_CHECK(4,7,0)
 # define mImage2PixmapImpl( image, pixmap ) pixmap->convertFromImage( image )
 #else
 # define mImage2PixmapImpl( image, pixmap ) \
@@ -1094,17 +1094,17 @@ void ODGraphicsDynamicImageItem::paint(QPainter* painter,
 
     if ( paintbase )
     {
-#if QT_VERSION < 0x050000 //Qt versions before 5.0 has a bug where large images
-			  //cannot be displayed properly
-
+#if QT_VERSION >= QT_VERSION_CHECK(5,0,0)
+	 const QRect scenerect = worldtrans.mapRect(bbox_).toRect();
+	 painter->drawPixmap( scenerect, *basepixmap_ );
+#else
+	//Qt versions before 5.0 has a bug where large images
+	//cannot be displayed properly
 	if ( basepixmap_->width() < 50000 )
 	{
 	    const QRect scenerect = worldtrans.mapRect(bbox_).toRect();
 	    painter->drawPixmap( scenerect, *basepixmap_ );
 	}
-#else
-	 const QRect scenerect = worldtrans.mapRect(bbox_).toRect();
-	 painter->drawPixmap( scenerect, *basepixmap_ );
 #endif
 
     }

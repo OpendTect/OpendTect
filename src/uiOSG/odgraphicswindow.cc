@@ -24,7 +24,7 @@
 #include <QPointer>
 #include <QWindow>
 
-#if (QT_VERSION>=QT_VERSION_CHECK(4, 6, 0))
+#if QT_VERSION >= QT_VERSION_CHECK(4,6,0)
 # define USE_GESTURES
 # include <QGestureEvent>
 # include <QGesture>
@@ -149,10 +149,10 @@ private:
 
 QPointer<HeartBeat> HeartBeat::heartBeat;
 
-#if (QT_VERSION < QT_VERSION_CHECK(5, 2, 0))
-    #define GETDEVICEPIXELRATIO() 1.0
-#else
+#if QT_VERSION >= QT_VERSION_CHECK(5,2,0)
     #define GETDEVICEPIXELRATIO() devicePixelRatio()
+#else
+    #define GETDEVICEPIXELRATIO() 1.0
 #endif
 
 ODGLWidget::ODGLWidget( QWidget* prnt, const QGLWidget* sharewidget,
@@ -603,7 +603,7 @@ bool ODGraphicsWindow::init( QWidget* prnt, const QGLWidget* shareWidget,
 	if ( _traits->windowDecoration )
 	    flags |= Qt::WindowTitleHint | Qt::WindowMinMaxButtonsHint
 		  | Qt::WindowSystemMenuHint
-#if (QT_VERSION_CHECK(4, 5, 0) <= QT_VERSION)
+#if QT_VERSION >= QT_VERSION_CHECK(4,5,0)
 		  | Qt::WindowCloseButtonHint
 #endif
 		;

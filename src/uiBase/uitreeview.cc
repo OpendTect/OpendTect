@@ -103,12 +103,12 @@ uiTreeViewBody::uiTreeViewBody( uiTreeView& hndle, uiParent* p,
 
     if ( header() )
     {
-#if QT_VERSION < 0x050000
-	header()->setResizeMode( QHeaderView::Interactive );
-	header()->setMovable( false );
-#else
+#if QT_VERSION >= QT_VERSION_CHECK(5,0,0)
 	header()->setSectionResizeMode( QHeaderView::Interactive );
 	header()->setSectionsMovable( false );
+#else
+	header()->setResizeMode( QHeaderView::Interactive );
+	header()->setMovable( false );
 #endif
     }
 
@@ -549,11 +549,11 @@ void uiTreeView::setColumnWidthMode( WidthMode widthmode )
 
 void uiTreeView::setColumnWidthMode( int column, WidthMode widthmode )
 {
-#if QT_VERSION < 0x050000
-    body_->header()->setResizeMode( column,
+#if QT_VERSION >= QT_VERSION_CHECK(5,0,0)
+    body_->header()->setSectionResizeMode( column,
 				(QHeaderView::ResizeMode)int(widthmode) );
 #else
-    body_->header()->setSectionResizeMode( column,
+    body_->header()->setResizeMode( column,
 				(QHeaderView::ResizeMode)int(widthmode) );
 #endif
 }
@@ -561,11 +561,11 @@ void uiTreeView::setColumnWidthMode( int column, WidthMode widthmode )
 
 uiTreeView::WidthMode uiTreeView::columnWidthMode( int column ) const
 {
-#if QT_VERSION < 0x050000
-    return (uiTreeView::WidthMode)int(body_->header()->resizeMode(column));
-#else
+#if QT_VERSION >= QT_VERSION_CHECK(5,0,0)
     return (uiTreeView::WidthMode)
 	int(body_->header()->sectionResizeMode(column));
+#else
+    return (uiTreeView::WidthMode)int(body_->header()->resizeMode(column));
 #endif
 }
 
