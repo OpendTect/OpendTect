@@ -7,19 +7,13 @@
 
 macro( OD_FIND_SQLITE )
 
-    if ( NOT DEFINED SQLite3_ROOT AND IS_DIRECTORY "${SQLite3_INCLUDE_DIR}" )
-	get_filename_component( SQLite3_ROOT "${SQLite3_INCLUDE_DIR}" DIRECTORY )
-    endif()
-
     if ( NOT TARGET SQLite::SQLite3 )
 	find_package( SQLite3 QUIET GLOBAL )
-	if ( SQLite3_FOUND )
+	if ( TARGET SQLite::SQLite3 )
+	    od_map_configurations( SQLite::SQLite3 )
 	    set( SQLite3_VERSION ${SQLite3_VERSION} CACHE INTERNAL
 		 "The version of sqlite3 which was detected" )
 	    unset( SQLite3_ROOT CACHE )
-	    if ( NOT DEFINED SQLite3_ROOT AND IS_DIRECTORY "${SQLite3_INCLUDE_DIR}" )
-		get_filename_component( SQLite3_ROOT "${SQLite3_INCLUDE_DIR}" DIRECTORY )
-	    endif()
 	endif()
     endif()
 
