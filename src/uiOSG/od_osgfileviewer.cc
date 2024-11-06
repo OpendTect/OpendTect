@@ -66,10 +66,10 @@ int mProgMainFnName( int argc, char** argv )
     PIM().loadAuto( false );
     OD::ModDeps().ensureLoaded( "uiOSG" );
     PtrMan<ODGLWidget> topdlg = new ODGLWidget;
-    PtrMan<ODGraphicsWindow> graphicswin = new ODGraphicsWindow( topdlg );
+    PtrMan<ODGraphicsWindow> graphicswin = new ODGraphicsWindow( topdlg.ptr() );
     viewer->getCamera()->setViewport(
 		    new osg::Viewport(0, 0, topdlg->width(), topdlg->height()));
-    viewer->getCamera()->setGraphicsContext( graphicswin );
+    viewer->getCamera()->setGraphicsContext( graphicswin.ptr() );
     PIM().loadAuto( true );
     topdlg->show();
 
