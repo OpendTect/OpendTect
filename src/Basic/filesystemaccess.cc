@@ -645,8 +645,21 @@ bool LocalFileSystemAccess::copy( const char* fromuri, const char* touri,
     bool ret = true;
     if ( preserve && isSymLink(from.buf()) && !__iswin__ )
     {
+#if QT_VERSION >= QT_VERSION_CHECK(6,6,0)
 	const QFileInfo qfi( from.buf() );
 	const BufferString linkval( qfi.readSymLink() );
+#else
+# ifdef __win__
+	const BufferString linkval = File::linkEnd( from.buf() );
+# else
+	BufferString linkval( 1024, true );
+	const int len = readlink( from.buf(), linkval.getCStr(), 1024 );
+	if ( len < 0 )
+	    linkval = from;
+	else
+	    linkval[len] = '\0';
+# endif
+#endif
 	ret = createLink( linkval.buf(), to.buf() );
     }
     else

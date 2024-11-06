@@ -204,8 +204,21 @@ int RecursiveCopier::nextStep()
     const BufferString destfile = FilePath(dest_,relpath).fullPath();
     if ( File::isSymLink(srcfile) )
     {
+#if QT_VERSION >= QT_VERSION_CHECK(6,6,0)
 	const QFileInfo qfi( srcfile.buf() );
 	const BufferString linkval( qfi.readSymLink() );
+#else
+# ifdef __win__
+	const BufferString linkval = File::linkEnd( srcfile.buf() );
+# else
+	BufferString linkval( 1024, true );
+	const int len = readlink( srcfile.buf(), linkval.getCStr(), 1024 );
+	if ( len < 0 )
+	    linkval = srcfile;
+	else
+	    linkval[len] = '\0';
+# endif
+#endif
 	if ( !createLink(linkval,destfile) )
 	    mErrRet(
 	       uiStrings::phrCannotCreate(tr("symbolic link %1").arg(destfile)))
