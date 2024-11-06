@@ -164,7 +164,7 @@ void Seis::SelData::fillPar( IOPar& iop ) const
 {
     const char* typstr = Seis::nameOf(type());
     iop.set( sKey::Type(), isall_ ? (const char*) sKey::None() : typstr );
-    if ( geomid_ == Survey::GM().cUndefGeomID() )
+    if ( geomid_.isUdf() )
 	iop.removeWithKey( sKey::GeomID() );
     else
 	iop.set( sKey::GeomID(), geomid_ );

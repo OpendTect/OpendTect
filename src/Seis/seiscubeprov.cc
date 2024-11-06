@@ -621,7 +621,7 @@ bool SeisFixedCubeProvider::calcTrcDist( const Pos::GeomID& geomid )
 bool SeisFixedCubeProvider::readData( const TrcKeyZSampling& cs,
 				      TaskRunner* taskr )
 {
-    return readData( cs, Survey::GM().cUndefGeomID(), taskr );
+    return readData( cs, Pos::GeomID::udf(), taskr );
 }
 
 

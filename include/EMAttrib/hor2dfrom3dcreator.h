@@ -57,9 +57,9 @@ protected:
 
     const EM::Horizon3D&	hor3d_;
     EM::Horizon2D&		hor2d_;
-    int				nrdone_;
+    int				nrdone_		= 0;
     int				totalnr_;
     Pos::GeomID			geomid_;
-    
-    const Survey::Geometry2D*	geom2d_;
+
+    const Survey::Geometry2D*	geom2d_		= nullptr;
 };

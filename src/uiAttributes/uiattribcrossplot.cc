@@ -275,7 +275,8 @@ bool uiAttribCrossPlot::acceptOK( CallBacker* )
 	for ( int lsidx=0; lsidx<selids_.size(); lsidx++ )
 	{
 	    PtrMan<IOObj> lsobj = IOM().get( selids_[lsidx] );
-	    if ( !lsobj ) continue;
+	    if ( !lsobj )
+		continue;
 
 	    BufferStringSet lnms = linenmsset_[lsidx];
 	    linenames.add( lnms, false );
@@ -283,7 +284,7 @@ bool uiAttribCrossPlot::acceptOK( CallBacker* )
 	    {
 		const Pos::GeomID geomid = Survey::GM().getGeomID(
 							    lnms.get(lidx) );
-		if ( geomid == Survey::GM().cUndefGeomID() )
+		if ( !geomid.is2D() )
 		    continue;
 
 		p2d->addGeomID( geomid );

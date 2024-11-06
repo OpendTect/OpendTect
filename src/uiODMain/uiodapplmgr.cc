@@ -1077,13 +1077,15 @@ bool uiODApplMgr::handleWellAttribServEv( int evid )
 	TypeSet<Coord> coords;
 	if ( !wellattrserv_->getPrev2DFromWellCoords(coords) )
 	    return false;
+
 	setupRdmLinePreview( coords );
     }
     else if ( evid == uiWellAttribPartServer::evShow2DFromWells() )
     {
-	Pos::GeomID wellto2dgeomid = wellattrserv_->new2DFromWellGeomID();
-	if ( wellto2dgeomid==Survey::GeometryManager::cUndefGeomID() )
+	const Pos::GeomID wellto2dgeomid = wellattrserv_->new2DFromWellGeomID();
+	if ( !wellto2dgeomid.is2D() )
 	    return false;
+
 	sceneMgr().add2DLineItem( wellto2dgeomid );
 	sceneMgr().updateTrees();
     }

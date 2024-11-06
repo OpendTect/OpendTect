@@ -51,9 +51,6 @@ Hor2DFrom3DCreator::Hor2DFrom3DCreator( const EM::Horizon3D& hor3d,
     : Executor("Creating 2D horizon from 3D" )
     , hor3d_(hor3d)
     , hor2d_(hor2d)
-    , geomid_(Survey::GeometryManager::cUndefGeomID())
-    , geom2d_(0)
-    , nrdone_(0)
 {
 }
 
@@ -65,7 +62,7 @@ Hor2DFrom3DCreator::~Hor2DFrom3DCreator()
 bool Hor2DFrom3DCreator::setCreator( Pos::GeomID geomid )
 {
     mDynamicCastGet( const Survey::Geometry2D*, geom2d,
-	    	     Survey::GM().getGeometry(geomid) );
+		     Survey::GM().getGeometry(geomid) );
     if ( !geom2d )
 	return false;
 

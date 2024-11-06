@@ -31,11 +31,7 @@ ________________________________________________________________________
 using namespace  Attrib;
 
 uiAttribPanel::uiAttribPanel( uiParent* p )
-    : flatvwin_(nullptr)
-    , geomid_(Survey::GM().cUndefGeomID())
-    , attribid_( DescID::undef() )
-    , dset_(nullptr)
-    , parent_(p)
+    : parent_(p)
 {
 }
 

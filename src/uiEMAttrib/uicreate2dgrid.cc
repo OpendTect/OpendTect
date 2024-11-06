@@ -733,8 +733,8 @@ int uiCreate2DGrid::checkLineNames() const
     for ( int lidx=0; lidx<linenames.size(); lidx++ )
     {
 	const char* lnm = linenames.get(lidx).buf();
-	Pos::GeomID geomid = Survey::GM().getGeomID( lnm );
-	if ( geomid != Survey::GeometryManager::cUndefGeomID() )
+	const Pos::GeomID geomid = Survey::GM().getGeomID( lnm );
+	if ( geomid.is2D() )
 	    ovwrlinenms.add( lnm );
 	else
 	    Geom2DImpHandler::getGeomID( lnm ); // adds to database

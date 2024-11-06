@@ -19,7 +19,6 @@ using namespace PosInfo;
 
 // BendPointFinder2DGeomSet
 BendPoints::BendPoints()
-    : geomid_(Survey::GeometryManager::cUndefGeomID())
 {}
 
 

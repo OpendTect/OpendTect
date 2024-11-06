@@ -564,8 +564,8 @@ void FaultStickSetGeometry::fillPar( IOPar& par ) const
 	    par.set( pickednmstr.buf(), pickednm );
 	}
 
-	Pos::GeomID geomid = pickedGeomID( sticknr );
-	if ( geomid != Survey::GeometryManager::cUndefGeomID() )
+	const Pos::GeomID geomid = pickedGeomID( sticknr );
+	if ( geomid.isValid() )
 	{
 	    const BufferString pickedgeomidstr =
 					getKey( "Picked GeomID", sticknr );

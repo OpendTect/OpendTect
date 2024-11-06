@@ -177,19 +177,21 @@ void HorizonUtils::getPositions( od_ostream& strm, const MultiID& id,
 
 
 void HorizonUtils::getExactCoords( od_ostream& strm, const MultiID& id,
-			   Pos::GeomID geomid, const TrcKeySampling& hsamp,
+			   const Pos::GeomID& geomid,
+			   const TrcKeySampling& hsamp,
 			   ObjectSet<DataPointSet>& data )
 {
     Horizon* horizon = getHorizon(id);
-    if ( !horizon ) return;
+    if ( !horizon )
+	return;
 
     mDynamicCastGet(Horizon2D*,hor2d,horizon);
 
     strm << "\nFetching horizon positions ...\n" ;
     TextStreamProgressMeter pm( strm );
 
-    DataPointSet* res = 0;
-    if ( hor2d && geomid != Survey::GeometryManager::cUndefGeomID() )
+    DataPointSet* res = nullptr;
+    if ( hor2d && geomid.is2D() )
     {
 	TypeSet<DataPointSet::DataRow> pts;
 	BufferStringSet nms;
@@ -397,7 +399,7 @@ void HorizonUtils::getWantedPos2D( od_ostream& strm,
 				   DataPointSet* dtps,
 				   const TrcKeySampling& horsamp,
 				   const Interval<float>& extraz,
-				   Pos::GeomID geomid )
+				   const Pos::GeomID& geomid )
 {
     RefObjectSet<DataPointSet> possurf0;
     RefObjectSet<DataPointSet> possurf1;

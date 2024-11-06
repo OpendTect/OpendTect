@@ -481,8 +481,9 @@ void uiODViewer2DMgr::mouseMoveCB( CallBacker* cb )
 	    curvwr.rgbCanvas().setDragMode( uiGraphicsViewBase::NoDrag );
 	    MouseCursor::Shape mc = x1auxposidx>=0 ? MouseCursor::SplitH
 						   : MouseCursor::SplitV;
-	    if ( curvwr2d->geomID()!=Survey::GeometryManager::cUndefGeomID() )
+	    if ( curvwr2d->geomID().isValid() )
 		mc = MouseCursor::PointingHand;
+
 	    MouseCursorManager::mgr()->setOverride( mc );
 	}
 
@@ -578,12 +579,13 @@ void uiODViewer2DMgr::handleLeftClick( uiODViewer2D* vwr2d )
 	if ( auxannot[selannotidx].isNormal() )
 	    return;
 
-	Line2DInterSection::Point intpoint2d( Survey::GM().cUndefGeomID(),
+	Line2DInterSection::Point intpoint2d( Pos::GeomID::udf(),
 					      mUdf(int), mUdf(int) );
 	const float auxpos = auxannot[selannotidx].pos_;
 	intpoint2d = intersectingLineID( vwr2d, auxpos );
-	if ( intpoint2d.line==Survey::GM().cUndefGeomID() )
+	if ( !intpoint2d.line.is2D() )
 	   return;
+
 	clickedvwr2d = find2DViewer( intpoint2d.line );
     }
     else
@@ -686,7 +688,7 @@ void uiODViewer2DMgr::mouseClickCB( CallBacker* cb )
     }
 
     uiMenu menu( uiStrings::sMenu() );
-    Line2DInterSection::Point intpoint2d( Survey::GM().cUndefGeomID(),
+    Line2DInterSection::Point intpoint2d( Pos::GeomID::udf(),
 					  mUdf(int), mUdf(int) );
     const TrcKeyZSampling& tkzs = curvwr2d->getTrcKeyZSampling();
     if ( tkzs.is2D() )
@@ -695,7 +697,7 @@ void uiODViewer2DMgr::mouseClickCB( CallBacker* cb )
 	     curvwr.appearance().annot_.x1_.auxannot_[x1auxposidx].isNormal() )
 	{
             intpoint2d = intersectingLineID( curvwr2d, sCast(float,wp.x_) );
-	    if ( intpoint2d.line==Survey::GM().cUndefGeomID() )
+	    if ( !intpoint2d.line.is2D() )
 		return;
 
 	    const uiString show2dtxt = m3Dots(tr("Show Line '%1'")).arg(
@@ -983,17 +985,18 @@ void uiODViewer2DMgr::getVWR2DDataGeomIDs(
 	const uiODViewer2D* vwr2d, TypeSet<Pos::GeomID>& commongids ) const
 {
     commongids.erase();
-    if ( vwr2d->geomID()==Survey::GM().cUndefGeomID() )
+    if ( !vwr2d->geomID().is2D() )
 	return;
 
     Attrib::DescSet* ads2d = Attrib::eDSHolder().getDescSet( true, false );
     Attrib::DescSet* ads2dns = Attrib::eDSHolder().getDescSet( true, true );
     ConstRefMan<Attrib::Desc> wvadesc =
-	ads2d->getDesc( vwr2d->selSpec(true).id() );
+			ads2d->getDesc( vwr2d->selSpec(true).id() );
     if ( !wvadesc )
 	wvadesc = ads2dns->getDesc( vwr2d->selSpec(true).id() );
+
     ConstRefMan<Attrib::Desc> vddesc =
-	ads2d->getDesc( vwr2d->selSpec(false).id() );
+			ads2d->getDesc( vwr2d->selSpec(false).id() );
     if ( !vddesc )
 	vddesc = ads2dns->getDesc( vwr2d->selSpec(false).id() );
 
@@ -1022,19 +1025,21 @@ void uiODViewer2DMgr::getVWR2DDataGeomIDs(
 void uiODViewer2DMgr::setVWR2DIntersectionPositions( uiODViewer2D* vwr2d )
 {
     const TrcKeyZSampling& tkzs = vwr2d->getTrcKeyZSampling();
-    if ( !tkzs.isFlat() || !vwr2d->viewwin() ) return;
+    if ( !tkzs.isFlat() || !vwr2d->viewwin() )
+	return;
 
     uiFlatViewer& vwr = vwr2d->viewwin()->viewer( 0 );
     TypeSet<PlotAnnotation>& x1auxannot = vwr.appearance().annot_.x1_.auxannot_;
     TypeSet<PlotAnnotation>& x2auxannot = vwr.appearance().annot_.x2_.auxannot_;
     x1auxannot.erase(); x2auxannot.erase();
 
-    if ( vwr2d->geomID()!=Survey::GM().cUndefGeomID() )
+    if ( vwr2d->geomID().is2D() )
     {
 	reCalc2DIntersetionIfNeeded( vwr2d->geomID() );
 	const int intscidx = intersection2DIdx( vwr2d->geomID() );
 	if ( intscidx<0 )
 	    return;
+
 	const Line2DInterSection* intsect = (*l2dintersections_)[intscidx];
 	if ( !intsect )
 	    return;
@@ -1188,9 +1193,9 @@ int uiODViewer2DMgr::intersection2DIdx( Pos::GeomID newgeomid ) const
 
 
 Line2DInterSection::Point uiODViewer2DMgr::intersectingLineID(
-	const uiODViewer2D* vwr2d, float pos ) const
+			    const uiODViewer2D* vwr2d, float pos ) const
 {
-    Line2DInterSection::Point udfintpoint( Survey::GM().cUndefGeomID(),
+    Line2DInterSection::Point udfintpoint( Pos::GeomID::udf(),
 					   mUdf(int), mUdf(int) );
 
     const int intsecidx = intersection2DIdx( vwr2d->geomID() );
@@ -1198,7 +1203,8 @@ Line2DInterSection::Point uiODViewer2DMgr::intersectingLineID(
 	return udfintpoint;
 
     const Line2DInterSection* int2d = (*l2dintersections_)[intsecidx];
-    if ( !int2d ) return udfintpoint;
+    if ( !int2d )
+	return udfintpoint;
 
     const StepInterval<double> vwrxrg =
 	vwr2d->viewwin()->viewer().posRange( true );

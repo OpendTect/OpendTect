@@ -20,7 +20,6 @@ ________________________________________________________________________
 
 uiVisPickRetriever::uiVisPickRetriever( uiVisPartServer* ps )
     : visserv_(ps)
-    , pickedgeomid_(Pos::GeomID::udf())
     , finished_(this)
 {
     resetPickedPos();
@@ -148,7 +147,7 @@ void uiVisPickRetriever::reset()
 
 void uiVisPickRetriever::resetPickedPos()
 {
-    pickedgeomid_ = Survey::GeometryManager::cUndefGeomID();
+    pickedgeomid_.setUdf();;
     pickedtrcnr_ = mUdf(int);
     pickedpos_ = Coord3::udf();
     pickedscene_.setUdf();

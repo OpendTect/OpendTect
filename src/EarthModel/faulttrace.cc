@@ -162,7 +162,7 @@ bool FaultTrace::getHorizonIntersectionInfo(
 	TypeSet<Coord>& intersections, bool firstonly, bool allowextend ) const
 {
     mDynamicCastGet(const EM::Horizon2D*, hor2d, &hor);
-    const bool use2d = hor2d && geomid!=Survey::GM().cUndefGeomID();
+    const bool use2d = hor2d && geomid.is2D();
 
     StepInterval<int> hortrcrg = isinl_ ? hor.geometry().colRange()
 					: hor.geometry().rowRange();
@@ -313,7 +313,7 @@ bool FaultTrace::getHorIntersection( const EM::Horizon& hor, BinID& bid ) const
     TypeSet<BinID> pos1bids, pos2bids;
     TypeSet<float> pos1zs, pos2zs;
     TypeSet<Coord> intersects;
-    if ( !getHorizonIntersectionInfo( hor, Survey::GM().cUndefGeomID(),
+    if ( !getHorizonIntersectionInfo( hor, Pos::GeomID::udf(),
 		pos1bids, pos1zs, pos2bids, pos2zs, intersects, true ) )
 	return false;
 

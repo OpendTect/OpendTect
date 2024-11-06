@@ -133,7 +133,7 @@ const char* SurveyObject::get3DSurvGeomName() const
 
 
 Pos::GeomID SurveyObject::getGeomID() const
-{ return s3dgeom_ ? s3dgeom_->getID() : Survey::GM().cUndefGeomID(); }
+{ return s3dgeom_ ? s3dgeom_->getID() : Pos::GeomID::udf(); }
 
 void SurveyObject::annotateNextUpdateStage( bool yn )
 {

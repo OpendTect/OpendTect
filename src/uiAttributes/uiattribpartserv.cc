@@ -1760,7 +1760,7 @@ void uiAttribPartServer::filter2DMenuItems(
 	MenuItem& subitem, const Attrib::SelSpec& as, const Pos::GeomID& geomid,
 	bool isstored, int steerpol )
 {
-    if ( geomid == Survey::GM().cUndefGeomID() )
+    if ( !geomid.is2D() )
 	return;
 
     BufferStringSet childitemnms;
@@ -1821,7 +1821,7 @@ bool uiAttribPartServer::handleAttribSubMenu( int mnuid, SelSpec& as,
 					      bool& dousemulticomp )
 {
     if ( stored3dmnuitem_.id == mnuid )
-	return selectAttrib( as, nullptr, Survey::GM().cUndefGeomID(),
+	return selectAttrib( as, nullptr, Pos::GeomID::udf(),
 			    uiStrings::phrSelect( uiStrings::sAttribute()) );
 
     const bool is3d = stored3dmnuitem_.findItem(mnuid) ||

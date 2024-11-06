@@ -31,7 +31,7 @@ ________________________________________________________________________
 
 
 mDefineEnumUtils(Viewer2DPosDataSel,PosType,"Position Type")
-{ "In-line", "Cross-line", "2D line", "Z-slice", "Random line", 0 };
+{ "In-line", "Cross-line", "2D line", "Z-slice", "Random line", nullptr };
 
 
 template <>
@@ -75,7 +75,7 @@ void Viewer2DPosDataSel::clean()
     tkzs_ = TrcKeyZSampling(true);
     rdmlinemultiid_ = MultiID::udf();
     rdmlineid_.setUdf();
-    geomid_ = Survey::GeometryManager::cUndefGeomID();
+    geomid_.setUdf();
     selectdata_	= true;
 }
 
@@ -87,14 +87,6 @@ void Viewer2DPosDataSel::clean()
 uiODViewer2DPosGrp::uiODViewer2DPosGrp( uiParent* p,
 	Viewer2DPosDataSel* posdatasel, bool onlyvertical, bool withpostype )
     : uiGroup(p)
-    , applmgr_(0)
-    , rdmlinefld_(0)
-    , postypefld_(0)
-    , inp2dfld_(0)
-    , inp3dfld_(0)
-    , subsel2dfld_(0)
-    , topgrp_(0)
-    , botgrp_(0)
     , onlyvertical_(onlyvertical)
     , posdatasel_(posdatasel ? posdatasel : new Viewer2DPosDataSel() )
     , inpSelected(this)
@@ -108,8 +100,10 @@ uiODViewer2DPosGrp::uiODViewer2DPosGrp( uiParent* p,
 	if ( !onlyvertical_ )
 	    geoms +=
 		new BufferString( mToPosTypeStr(Viewer2DPosDataSel::ZSlice) );
+
 	geoms += new BufferString( mToPosTypeStr(Viewer2DPosDataSel::RdmLine) );
     }
+
     if ( SI().has2D() )
 	geoms += new BufferString( mToPosTypeStr(Viewer2DPosDataSel::Line2D) );
 
@@ -131,6 +125,7 @@ uiODViewer2DPosGrp::uiODViewer2DPosGrp( uiParent* p,
 	inp2dfld_->selectionDone.notify( inpcb );
 	if ( postypefld_ )
 	    inp2dfld_->attach( alignedBelow, postypefld_ );
+
 	inp2dfld_->selectionDone.notify(
 		mCB(this,uiODViewer2DPosGrp,attr2DSelected));
 
@@ -293,8 +288,7 @@ void uiODViewer2DPosGrp::attr2DSelected( CallBacker* )
 #define mErrRet(s) { if ( emiterror ) uiMSG().error(s); return false; }
 bool uiODViewer2DPosGrp::commitSel( bool emiterror )
 {
-    posdatasel_->geomid_ = Survey::GeometryManager::cUndefGeomID();
-
+    posdatasel_->geomid_.setUdf();
     switch ( posdatasel_->postype_ )
     {
 	case Viewer2DPosDataSel::Line2D :
@@ -399,9 +393,9 @@ void uiODViewer2DPosGrp::gen2DLine( CallBacker* )
     if ( !applmgr_ ) return;
 
     MultiID newseis2did;
-    Pos::GeomID geomid = Survey::GeometryManager::cUndefGeomID();
+    Pos::GeomID geomid;
     if ( applmgr_->wellAttribServer()->create2DFromWells(newseis2did,geomid) &&
-	 geomid != Survey::GeometryManager::cUndefGeomID() )
+	 geomid.is2D() )
     {
 	const char* sellinenm = Survey::GM().getName( geomid );
 	subsel2dfld_->uiSeisSubSel::setInput( newseis2did );

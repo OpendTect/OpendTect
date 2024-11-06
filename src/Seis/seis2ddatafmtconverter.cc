@@ -53,10 +53,10 @@ static void convert2DPSData()
 
 	    Pos::GeomID geomid = Survey::GM().getGeomID( lnm );
 	    int lsidx=0;
-	    while( geomid==Survey::GM().cUndefGeomID() && lsidx<lsnms.size() )
+	    while( !geomid.is2D() && lsidx<lsnms.size() )
 		geomid = Survey::GM().getGeomID(lsnms.get(lsidx++), lnm.buf());
 
-	    if ( geomid==Survey::GM().cUndefGeomID() )
+	    if ( !geomid.is2D() )
 		continue;
 
 	    FilePath newfp( psdir );

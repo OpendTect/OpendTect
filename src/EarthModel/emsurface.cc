@@ -147,14 +147,13 @@ void SurfaceIOData::fillPar( IOPar& iopar ) const
     iopar.set( Horizon2DGeometry::sKeyNrLines(), nrlines );
     for ( int idx=0; idx<nrlines; idx++ )
     {
-	if ( geomids.validIdx(idx)
-		&& geomids[idx] != Survey::GeometryManager::cUndefGeomID() )
+	if ( geomids.validIdx(idx) && geomids[idx].isValid() )
 	    iopar.set( IOPar::compKey(sKey::GeomID(),idx), geomids[idx] );
 	else if ( linesets.validIdx(idx) && linenames.validIdx(idx) )
 	{
-	    Pos::GeomID geomid = Survey::GM().getGeomID( linesets.get(idx),
-							 linenames.get(idx) );
-	    if ( geomid == Survey::GeometryManager::cUndefGeomID() )
+	    const Pos::GeomID geomid = Survey::GM().getGeomID(linesets.get(idx),
+							   linenames.get(idx) );
+	    if ( !geomid.is2D() )
 		continue;
 
 	    iopar.set( IOPar::compKey(sKey::GeomID(),idx), geomid );
@@ -187,7 +186,7 @@ void SurfaceIOData::usePar( const IOPar& iopar )
 	for ( int idx=0; idx<nrlines; idx++ )
 	{
 	    BufferString key = IOPar::compKey( "Line", idx );
-	    Pos::GeomID geomid = Survey::GeometryManager::cUndefGeomID();
+	    Pos::GeomID geomid;
 	    if ( !iopar.get(IOPar::compKey(sKey::GeomID(),idx),geomid) )
 	    {
 		BufferString idstr;
@@ -203,7 +202,7 @@ void SurfaceIOData::usePar( const IOPar& iopar )
 		}
 	    }
 
-	    if ( geomid == Survey::GeometryManager::cUndefGeomID() )
+	    if ( !geomid.is2D() )
 		continue;
 
 	    const BufferString linenm = Survey::GM().getName( geomid );

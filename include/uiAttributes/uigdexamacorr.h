@@ -47,12 +47,12 @@ protected:
     void		displayWiggles(bool,bool);
     bool		setUpViewWin(bool);
 
-    uiFlatViewMainWin*		examwin_;
-    uiFlatViewMainWin*		qcwin_;
+    uiFlatViewMainWin*		examwin_	= nullptr;
+    uiFlatViewMainWin*		qcwin_		= nullptr;
     TrcKeyZSampling		tkzs_;
     Pos::GeomID			geomid_;
     Attrib::DescID		attribid_;
-    Attrib::DescSet*		dset_;
+    Attrib::DescSet*		dset_		= nullptr;
     uiParent*			parent_;
     uiString			examtitle_;
     uiString			qctitle_;

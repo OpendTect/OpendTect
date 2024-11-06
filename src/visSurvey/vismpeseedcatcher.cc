@@ -399,13 +399,13 @@ void MPEClickCatcher::sendUnderlying2DSeis(
 	if ( !seis2ddisp )
 	    continue;
 
-	if ( geomid == Survey::GeometryManager::cUndefGeomID() )
+	if ( geomid.isUdf() || geomid.is3D() )
 	{
 	    Coord3 pos = eventinfo.worldpickedpos;
 	    if ( transformation_ )
 		transformation_->transform( pos );
-	    float disttoseis2d = seis2ddisp->calcDist( pos );
 
+	    float disttoseis2d = seis2ddisp->calcDist( pos );
 	    if ( !seis2dclosest || disttoseis2d<mindisttoseis2d )
 	    {
 		mindisttoseis2d = disttoseis2d;
@@ -440,8 +440,7 @@ void MPEClickCatcher::sendUnderlying2DSeis(
     }
     else
     {
-	const bool validgeomid =
-		geomid != Survey::GeometryManager::cUndefGeomID();
+	const bool validgeomid = geomid.isValid(); // is2D() ?
 	info().setLegalClick( validgeomid );
     }
 }
@@ -705,7 +704,7 @@ void MPEClickInfo::clear()
     attrdata_ = nullptr;
     linedata_ = nullptr;
     linename_.setEmpty();
-    geomid_ = Survey::GM().cUndefGeomID();
+    geomid_.setUdf();
     rdltkpath_ = nullptr;
     rdlid_.setUdf();
     emvisids_.setUdf();

@@ -355,7 +355,7 @@ const char* Line2DSubselJobDescProv::objName( int jidx ) const
     if ( !subselpars_.validIdx(jidx) )
 	return nullptr;
 
-    Pos::GeomID geomid = Survey::GeometryManager::cUndefGeomID();
+    Pos::GeomID geomid;
     subselpars_[jidx]->get( sKey::GeomID(), geomid );
     return Survey::GM().getName( geomid );
 }

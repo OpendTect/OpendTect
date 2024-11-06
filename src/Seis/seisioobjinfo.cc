@@ -1001,7 +1001,7 @@ void SeisIOObjInfo::getComponentNames( BufferStringSet& nms,
 void SeisIOObjInfo::getCompNames( const MultiID& mid, BufferStringSet& nms )
 {
     SeisIOObjInfo ioobjinf( mid );
-    ioobjinf.getComponentNames( nms, Survey::GM().cUndefGeomID() );
+    ioobjinf.getComponentNames( nms, Pos::GeomID::udf() );
 }
 
 

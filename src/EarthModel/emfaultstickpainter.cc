@@ -26,16 +26,8 @@ FaultStickPainter::FaultStickPainter( FlatView::Viewer& fv,
     : viewer_(fv)
     , emid_(oid)
     , markerstyle_(MarkerStyle2D::Square,4,OD::Color(255,255,0))
-    , activestickid_( -1 )
-    , is2d_( false )
-    , path_(0)
-    , flatposdata_(0)
-    , geomid_( Survey::GeometryManager::cUndefGeomID() )
-    , abouttorepaint_( this )
-    , repaintdone_( this )
-    , linenabled_(true)
-    , knotenabled_(false)
-    , paintenable_(true)
+    , abouttorepaint_(this)
+    , repaintdone_(this)
 {
     EM::EMObject* emobj = EM::EMM().getObject( emid_ );
     if ( emobj )

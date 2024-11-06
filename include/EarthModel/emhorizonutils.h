@@ -39,28 +39,28 @@ public:
     static float	getZ(const RowCol&,const Horizon*);
     static float	getMissingZ(const RowCol&,const Horizon*,int);
     static Horizon*	getHorizon(const MultiID&);
-    static void 	getPositions(od_ostream&,const MultiID&,
+    static void	getPositions(od_ostream&,const MultiID&,
 				     ObjectSet<BinIDValueSet>&);
-    static void 	getExactCoords(od_ostream&,const MultiID&,
-				       Pos::GeomID,const TrcKeySampling&,
+    static void	getExactCoords(od_ostream&,const MultiID&,
+				       const Pos::GeomID&,const TrcKeySampling&,
 				       ObjectSet<DataPointSet>&);
-    static void 	getWantedPositions(od_ostream&,ObjectSet<MultiID>&,
+    static void	getWantedPositions(od_ostream&,ObjectSet<MultiID>&,
 					   BinIDValueSet&,const TrcKeySampling&,
 					   const Interval<float>& extraz,
 					   int nrinterpsamp,int mainhoridx,
 					   float extrawidth,
 					   Pos::Provider* provider=0);
-    static void 	getWantedPos2D(od_ostream&,ObjectSet<MultiID>&,
+    static void	getWantedPos2D(od_ostream&,ObjectSet<MultiID>&,
 				       DataPointSet*,const TrcKeySampling&,
 				       const Interval<float>& extraz,
-				       Pos::GeomID);
+				       const Pos::GeomID&);
     static bool		getZInterval(int idi,int idc,Horizon*,Horizon*,
-	    			     float& topz,float& botz,int nrinterpsamp,
+				     float& topz,float& botz,int nrinterpsamp,
 				     int mainhoridx,float& lastzinterval,
 				     float extrawidth);
 
     static bool		SolveIntersect(float& topz,float& botz,int nrinterpsamp,
-	    			       int is1main,float extrawidth,
+				       int is1main,float extrawidth,
 				       bool is1interp,bool is2interp);
     static void		addHorizonData(const MultiID&,const BufferStringSet&,
 				       const ObjectSet<BinIDValueSet>&);

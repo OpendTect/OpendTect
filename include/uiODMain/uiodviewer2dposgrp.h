@@ -91,18 +91,18 @@ protected:
     bool		onlyvertical_;
     Viewer2DPosDataSel* posdatasel_;
 
-    uiODApplMgr*	applmgr_;
+    uiODApplMgr*	applmgr_	= nullptr;
 
-    uiLabeledComboBox*	postypefld_;
-    uiAttrSel*		inp2dfld_;
-    uiAttrSel*		inp3dfld_;
-    uiIOObjSel*		rdmlinefld_;
-    uiSeis2DSubSel*	subsel2dfld_;
+    uiLabeledComboBox*	postypefld_	= nullptr;
+    uiAttrSel*		inp2dfld_	= nullptr;
+    uiAttrSel*		inp3dfld_	= nullptr;
+    uiIOObjSel*		rdmlinefld_	= nullptr;
+    uiSeis2DSubSel*	subsel2dfld_	= nullptr;
     uiPushButton*	gen2dlinebut_;
     uiPushButton*	genrdmlinebut_;
     ObjectSet<uiSliceSel> sliceselflds_;
-    uiGroup*		topgrp_;
-    uiGroup*		botgrp_;
+    uiGroup*		topgrp_		= nullptr;
+    uiGroup*		botgrp_		= nullptr;
 
     IOObj*		get2DObj();
     void		init(bool);

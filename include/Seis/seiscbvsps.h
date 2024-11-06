@@ -41,7 +41,7 @@ public:
 
     uiString		errMsg() const		{ return errmsg_; }
 
-    BufferString	get2DFileName(Pos::GeomID) const;
+    BufferString	get2DFileName(const Pos::GeomID&) const;
     BufferString	get2DFileName(const char* lnm) const;
     bool		get3DFileNames(BufferStringSet&,
 					const Interval<int>* inlrg=0) const;
@@ -119,7 +119,8 @@ mExpClass(Seis) SeisCBVSPS2DReader : public SeisPS2DReader
 { mODTextTranslationClass(SeisCBVSPS2DReader);
 public:
 
-			SeisCBVSPS2DReader(const char* dirnm,Pos::GeomID);
+			SeisCBVSPS2DReader(const char* dirnm,
+					   const Pos::GeomID&);
 			SeisCBVSPS2DReader(const char* dirnm,const char* lnm);
 			~SeisCBVSPS2DReader();
     uiString		errMsg() const override
@@ -139,7 +140,7 @@ protected:
 
     PosInfo::Line2DData& posdata_;
 
-    void		init(Pos::GeomID);
+    void		init(const Pos::GeomID&);
 };
 
 

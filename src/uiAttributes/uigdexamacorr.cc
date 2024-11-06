@@ -29,12 +29,7 @@ using namespace Attrib;
 
 
 GapDeconACorrView::GapDeconACorrView( uiParent* p )
-    : attribid_( DescID::undef() )
-    , geomid_(Survey::GM().cUndefGeomID())
-    , dset_( 0 )
-    , examwin_(0)
-    , qcwin_(0)
-    , parent_(p)
+    : parent_(p)
 {
     const uiString basestr = tr("Auto-correlation viewer ");
     examtitle_ = tr("%1 (examine)").arg(basestr);

@@ -172,14 +172,14 @@ RefMan<Provider> Provider::internalCreate( Desc& desc,
 	if ( !inputprovider )
 	{
 	    existing.removeRange( existing.indexOf(newprov.ptr()),
-		    		  existing.size()-1 );
+				  existing.size()-1 );
 	    return nullptr;
 	}
 
 	if ( newprov.ptr() == inputprovider.ptr() )
 	{
 	    existing.removeRange( existing.indexOf(newprov.ptr()),
-		    		  existing.size()-1 );
+				  existing.size()-1 );
 	    errstr =
 		tr("Input is not correct. One of the inputs depends on itself");
 	    return nullptr;
@@ -1459,19 +1459,19 @@ void Provider::adjust2DLineStoredVolume()
 }
 
 
-Pos::GeomID  Provider::getGeomID() const
+Pos::GeomID Provider::getGeomID() const
 {
-    if ( geomid_ != Survey::GM().cUndefGeomID() )
+    if ( geomid_.isValid() )
 	return geomid_;
 
-    Pos::GeomID geomid = Survey::GM().cUndefGeomID();
+    Pos::GeomID geomid;
     for ( int idx=0; idx<inputs_.size(); idx++ )
     {
         if ( !inputs_[idx] )
             continue;
 
         geomid = inputs_[idx]->getGeomID();
-	if ( !Values::isUdf(geomid) )
+	if ( geomid.isValid() )
             return geomid;
     }
 

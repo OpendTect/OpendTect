@@ -142,6 +142,7 @@ public:
 					    bool usezrg) const;
 				//!<Returns cUndefGeomID() if none found
 
+    mDeprecated("Use Pos::GeomID::udf()")
     static Pos::GeomID		cUndefGeomID()	{ return Pos::GeomID::udf(); }
 
 protected:

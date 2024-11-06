@@ -136,10 +136,9 @@ bool CBVSSeisPSIOProvider::getGeomIDs( const char* dirnm,
 	if ( !dotptr ) continue;
 
 	*dotptr = '\0';
-	Pos::GeomID geomid = Survey::GM().cUndefGeomID();
+	Pos::GeomID geomid;
 	geomid.fromString( geomidstr );
-	if ( geomid != Survey::GM().cUndefGeomID()
-	     && Survey::GM().getGeometry(geomid) )
+	if ( geomid.isValid() && Survey::GM().getGeometry(geomid) )
 	    geomids += geomid;
     }
 
@@ -171,7 +170,7 @@ void SeisCBVSPSIO::close()
 }
 
 
-BufferString SeisCBVSPSIO::get2DFileName( Pos::GeomID geomid ) const
+BufferString SeisCBVSPSIO::get2DFileName( const Pos::GeomID& geomid ) const
 {
     FilePath fp( dirnm_ );
     BufferString fnm( fp.fileName(), "^", toString(geomid.asInt()) );
@@ -185,9 +184,8 @@ BufferString SeisCBVSPSIO::get2DFileName( Pos::GeomID geomid ) const
 
 BufferString SeisCBVSPSIO::get2DFileName( const char* lnm ) const
 {
-    Pos::GeomID geomid = Survey::GM().getGeomID( lnm );
-    return geomid == Survey::GM().cUndefGeomID() ? BufferString::empty()
-						 : get2DFileName( geomid );
+    const Pos::GeomID geomid = Survey::GM().getGeomID( lnm );
+    return geomid.is2D() ? get2DFileName( geomid ) : BufferString::empty();
 }
 
 
@@ -661,7 +659,8 @@ bool SeisCBVSPS3DWriter::put( const SeisTrc& trc )
 
 
 // SeisCBVSPS2DReader
-SeisCBVSPS2DReader::SeisCBVSPS2DReader( const char* dirnm, Pos::GeomID geomid )
+SeisCBVSPS2DReader::SeisCBVSPS2DReader( const char* dirnm,
+					const Pos::GeomID& geomid )
     : SeisPS2DReader(geomid)
     , SeisCBVSPSIO(dirnm)
     , posdata_(*new PosInfo::Line2DData)
@@ -675,13 +674,13 @@ SeisCBVSPS2DReader::SeisCBVSPS2DReader( const char* dirnm, const char* lnm )
     , SeisCBVSPSIO(dirnm)
     , posdata_(*new PosInfo::Line2DData)
 {
-    Pos::GeomID geomid = Survey::GM().getGeomID( lnm );
-    if ( geomid != Survey::GM().cUndefGeomID() )
+    const Pos::GeomID geomid = Survey::GM().getGeomID( lnm );
+    if ( geomid.is2D() )
 	init( geomid );
 }
 
 
-void SeisCBVSPS2DReader::init( Pos::GeomID geomid )
+void SeisCBVSPS2DReader::init( const Pos::GeomID& geomid )
 {
     if ( !dirNmOK(true) )
 	return;

@@ -295,8 +295,7 @@ int uiSeis2DLineSel::nrSelected() const
 
 Pos::GeomID uiSeis2DLineSel::geomID() const
 {
-    return selidxs_.isEmpty() ? Survey::GeometryManager::cUndefGeomID()
-			      : geomids_[selidxs_[0]];
+    return selidxs_.isEmpty() ? Pos::GeomID::udf() : geomids_[selidxs_[0]];
 }
 
 
@@ -367,7 +366,7 @@ void uiSeis2DLineSel::setInput( const BufferStringSet& lnms )
     for ( int idx=0; idx<lnms.size(); idx++ )
     {
 	const Pos::GeomID geomid = Survey::GM().getGeomID( lnms.get(idx) );
-	if ( geomid == Survey::GeometryManager::cUndefGeomID() )
+	if ( !geomid.is2D() )
 	    continue;
 
 	geomids_ += geomid;
@@ -1029,14 +1028,14 @@ void uiSeis2DMultiLineSel::usePar( const IOPar& par )
 	if ( !linepar )
 	    break;
 
-	Pos::GeomID geomid = Survey::GeometryManager::cUndefGeomID();
+	Pos::GeomID geomid;
 	if ( !linepar->get(sKey::GeomID(),geomid) )
 	{
 	    const BufferString lnm = linepar->find( sKey::Name() );
 	    geomid = Survey::GM().getGeomID( lsetname, lnm );
 	}
 
-	if ( geomid == Survey::GeometryManager::cUndefGeomID() )
+	if ( !geomid.is2D() )
 	    break;
 
 	selgeomids += geomid;

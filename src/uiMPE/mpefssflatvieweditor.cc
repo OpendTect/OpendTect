@@ -605,7 +605,7 @@ void FaultStickSetFlatViewEditor::mouseReleaseCB( CallBacker* cb )
 	makenewstick_ = false;
 	Coord3 editnormal = getNormal( &pos );
 
-	Pos::GeomID geomid = Survey::GeometryManager::cUndefGeomID();
+	Pos::GeomID geomid;
 	if ( tkzs_.isEmpty() && editnormal.isUdf() )
 	{
 	    geomid = fsspainter_->getGeomID();
@@ -616,11 +616,11 @@ void FaultStickSetFlatViewEditor::mouseReleaseCB( CallBacker* cb )
 	const int insertsticknr = !fss || fss->isEmpty()
 				  ? 0 : fss->rowRange().stop_+1;
 
-	if ( geomid == Survey::GeometryManager::cUndefGeomID() )
-	    fssg.insertStick( insertsticknr, 0, pos, editnormal, true );
-	else
+	if ( geomid.is2D() )
 	    fssg.insertStick( insertsticknr, 0, pos, editnormal, geomid,
 			      true );
+	else
+	    fssg.insertStick( insertsticknr, 0, pos, editnormal, true );
 
 	const EM::SubID subid = RowCol(insertsticknr,0).toInt64();
 	fsseditor->setLastClicked( EM::PosID(emfss->id(),subid) );

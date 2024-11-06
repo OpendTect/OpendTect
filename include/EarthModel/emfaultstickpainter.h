@@ -99,8 +99,8 @@ protected:
     virtual void	fssChangedCB(CallBacker*);
 
     TrcKeyZSampling	tkzs_;
-    const TrcKeyPath*	path_;
-    const FlatPosData*	flatposdata_;
+    const TrcKeyPath*	path_		= nullptr;
+    const FlatPosData*	flatposdata_	= nullptr;
 
     MarkerStyle2D       markerstyle_;
 
@@ -110,18 +110,18 @@ protected:
 
     ObjectSet<ObjectSet<StkMarkerInfo> >	sectionmarkerlines_;
 
-    int			activestickid_;
+    int			activestickid_	= -1;
 
-    bool		is2d_;
-    Pos::GeomID geomid_;
+    bool		is2d_		= false;
+    Pos::GeomID		geomid_;
 
     TypeSet<int>	trcnos_;
     TypeSet<float>	distances_;
     TypeSet<Coord>	coords_;
 
-    bool		linenabled_;
-    bool		knotenabled_;
-    bool		paintenable_;
+    bool		linenabled_	= true;
+    bool		knotenabled_	= false;
+    bool		paintenable_	= true;
     RandomLineID	rdlid_;
 };
 

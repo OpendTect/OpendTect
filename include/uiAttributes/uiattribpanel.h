@@ -47,11 +47,11 @@ protected:
     virtual const char*		getPackName()	{ return "Attribute pack"; }
     virtual const char*		getPanelName()	{ return "Attribute preview"; }
 
-    uiFlatViewMainWin*		flatvwin_;
+    uiFlatViewMainWin*		flatvwin_	= nullptr;
     TrcKeyZSampling		tkzs_;
     Pos::GeomID			geomid_;
     Attrib::DescID		attribid_;
-    Attrib::DescSet*		dset_;
+    Attrib::DescSet*		dset_		= nullptr;
     uiParent*			parent_;
     RefMan<FlatDataPack>	vddp_;
 };

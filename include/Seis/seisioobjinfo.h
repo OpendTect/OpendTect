@@ -156,11 +156,11 @@ public:
     bool		getBPS(int&,int icomp) const;
 			//!< max bytes per sample, component -1 => add all
 
-    int			nrComponents(const Pos::GeomID& geomid=
-					    Survey::GM().cUndefGeomID()) const;
+    int			nrComponents(const Pos::GeomID&
+						=Pos::GeomID::udf()) const;
     void		getComponentNames(BufferStringSet&,
-					  const Pos::GeomID& geomid=
-					  Survey::GM().cUndefGeomID()) const;
+					  const Pos::GeomID&
+						=Pos::GeomID::udf()) const;
     bool		getDisplayPars(IOPar&) const;
 
     bool		haveAux(const char* ext) const;

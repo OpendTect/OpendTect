@@ -228,8 +228,8 @@ bool doImp( const FilePath& fp )
 	BufferString lnm( fullfnm.buf() + lnmoffs );
 	*(lnm.getCStr() + lnmlen) = '\0';
 
-	Pos::GeomID geomid = Survey::GM().getGeomID( lnm );
-	if ( geomid != Survey::GeometryManager::cUndefGeomID() )
+	const Pos::GeomID geomid = Survey::GM().getGeomID( lnm );
+	if ( geomid.is2D() )
 	{
 	    if ( !overwritequestionasked )
 	    {
@@ -242,13 +242,14 @@ bool doImp( const FilePath& fp )
 	    {
 		Survey::Geometry* geom = Survey::GMAdmin().getGeometry(geomid );
 		mDynamicCastGet(Survey::Geometry2D*,geom2d,geom);
-		if ( geom2d ) geom2d->dataAdmin().setEmpty();
+		if ( geom2d )
+		    geom2d->dataAdmin().setEmpty();
 	    }
 
 	}
 
 	IOObj* newioobj = getSubstIOObj( fullfnm );
-	if ( !doWork( newioobj, lnm, idx > dl.size()-2, nofails ) )
+	if ( !doWork(newioobj,lnm,idx>dl.size()-2,nofails) )
 	    return false;
     }
 

@@ -512,7 +512,7 @@ bool BatchProgram::doWork( od_ostream& strm )
 		if ( !linepar )
 		    break;
 
-		Pos::GeomID geomid = Survey::GeometryManager::cUndefGeomID();
+		Pos::GeomID geomid;
 		TypeSet<DataPointSet::DataRow> startset;
 		BufferStringSet valnms;
 		valnms.add("z2");

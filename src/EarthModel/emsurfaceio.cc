@@ -216,7 +216,7 @@ int dgbSurfaceReader::scanFor2DGeom( TypeSet< StepInterval<int> >& trcranges )
 	for ( int idx=0; idx<nrlines; idx++ )
 	{
 	    BufferString key = IOPar::compKey( "Line", idx );
-	    Pos::GeomID geomid = Survey::GeometryManager::cUndefGeomID();
+	    Pos::GeomID geomid;
 	    if ( !par_->get(IOPar::compKey(sKey::GeomID(),idx),geomid) )
 	    {
 		BufferString idstr;
@@ -232,12 +232,13 @@ int dgbSurfaceReader::scanFor2DGeom( TypeSet< StepInterval<int> >& trcranges )
 		}
 	    }
 
-	    if ( geomid == Survey::GeometryManager::cUndefGeomID() )
+	    if ( !geomid.is2D() )
 		continue;
 
 	    geomids_ += geomid;
 	    if ( !haslinenames )
 		linenames_.add( Survey::GM().getName(geomid) );
+
 	    StepInterval<int> trcrange;
 	    par_->get( IOPar::compKey(key,Horizon2DGeometry::sKeyTrcRg()),
 		       trcrange );
@@ -259,12 +260,12 @@ int dgbSurfaceReader::scanFor2DGeom( TypeSet< StepInterval<int> >& trcranges )
 	    if ( !ioobj )
 	    {
 		lineids[idx] = mUdf(int);
-		geomids_ += Survey::GM().cUndefGeomID();
+		geomids_ += Pos::GeomID::udf();
 		trcranges += StepInterval<int>::udf();
 		continue;
 	    }
 
-	    Pos::GeomID geomid = Survey::GM().getGeomID( ioobj->name(),
+	    const Pos::GeomID geomid = Survey::GM().getGeomID( ioobj->name(),
 							 linenames_.get(idx) );
 	    geomids_ += geomid;
 	    BufferString trcrangekey(
@@ -278,8 +279,7 @@ int dgbSurfaceReader::scanFor2DGeom( TypeSet< StepInterval<int> >& trcranges )
 	int idx = 0;
 	while ( idx<lineids.size() )
 	{
-	    if ( mIsUdf(lineids[idx]) ||
-		    geomids_[idx] == Survey::GeometryManager::cUndefGeomID() )
+	    if ( mIsUdf(lineids[idx]) || !geomids_[idx].is2D() )
 	    {
 		lineids.removeSingle( idx );
 		linenames_.removeSingle( idx );
@@ -1170,7 +1170,7 @@ void dgbSurfaceReader::goToNextRow()
 		inlrg.sort(); crlrg.sort();
 		if ( arr_ )
                     bidsurf->setArray( RowCol(inlrg.start_,crlrg.start_),
-				       RowCol(inlrg.step_,crlrg.step_),	
+				       RowCol(inlrg.step_,crlrg.step_),
 				       arr_, true );
 		arr_ = nullptr;
 	    }
@@ -1897,7 +1897,7 @@ bool dgbSurfaceWriter::writeNewSection( od_ostream& strm )
 
 	if ( writerowrange_ )
 	{
-	    if ( firstrow_>writerowrange_->stop_ 
+	    if ( firstrow_>writerowrange_->stop_
 		|| lastrow<writerowrange_->start_)
 		nrrows_ = 0;
 	    else
@@ -2087,7 +2087,7 @@ bool dgbSurfaceWriter::writeRow( od_ostream& strm )
 	writtencolrange_.include( firstcol, false );
 
 	const int lastcol = firstcol + (colcoords.size()-1) *
-			    (writecolrange_ ? writecolrange_->step_ 
+			    (writecolrange_ ? writecolrange_->step_
 					    : colrange.step_);
 	writtencolrange_.include( lastcol, false );
     }

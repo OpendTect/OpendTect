@@ -90,10 +90,9 @@ bool SEGYDirectPSIOProvider::getGeomIDs( const char* dirnm,
 	if ( !dotptr ) continue;
 
 	*dotptr = '\0';
-	Pos::GeomID geomid = Survey::GM().cUndefGeomID();
+	Pos::GeomID geomid;
 	geomid.fromString( geomidstr );
-	if ( geomid != Survey::GM().cUndefGeomID()
-	     && Survey::GM().getGeometry(geomid) )
+	if ( geomid.isValid() && Survey::GM().getGeometry(geomid) )
 	    geomids += geomid;
     }
 
