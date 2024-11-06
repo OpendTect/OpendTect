@@ -371,7 +371,7 @@ Horizon2DDataHolderSet::Horizon2DDataHolderSet()
 
 
 void Horizon2DDataHolderSet::addData( const Pos::GeomID& geomid,
-						    const MultiID& mid )
+				      const MultiID& mid )
 {
     for ( auto& data : *this )
     {
@@ -827,7 +827,7 @@ const StringView FaultStickSetT2DTransformer::getTypeString() const
 
 bool FaultStickSetT2DTransformer::doTransformation(
 		const Geometry::FaultStick* stick, int sticknr,
-		EM::FaultStickSet& outfault3d, Pos::GeomID geomid )
+		EM::FaultStickSet& outfault3d, const Pos::GeomID& geomid )
 {
     if ( !stick || stick->locs_.isEmpty() )
 	return false;

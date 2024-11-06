@@ -22,7 +22,7 @@ namespace EM
 {
 
 // Region
-Region::Region( Pos::GeomID geomid )
+Region::Region( const Pos::GeomID& geomid )
     : geomid_(geomid)
 {
     tkzs_.init( false );

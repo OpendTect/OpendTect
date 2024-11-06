@@ -36,26 +36,23 @@ public:
 
     int				nrLines() const;
 
-    int				lineIndex(Pos::GeomID geomid) const;
+    int				lineIndex(const Pos::GeomID&) const;
 
     int				lineIndex(const char* linenm) const;
     const char*			lineName(int id) const;
     const char*			lineSet(int id) const;
     Pos::GeomID			geomID(int idx) const;
     void			getGeomIDs(TypeSet<Pos::GeomID>&) const;
-    bool			hasLine(Pos::GeomID) const;
+    bool			hasLine(const Pos::GeomID&) const;
 
     PosID			getPosID(const TrcKey&) const override;
     TrcKey			getTrcKey(const PosID&) const override;
 
-    bool			includeLine(Pos::GeomID geomid,int step=1);
-
-    bool			addLine(Pos::GeomID geomid,int step=1);
-
-    bool			addLine(Pos::GeomID geomid,
+    bool			includeLine(const Pos::GeomID&,int step=1);
+    bool			addLine(const Pos::GeomID&,int step=1);
+    bool			addLine(const Pos::GeomID&,
 					const StepInterval<int>& trcrg);
-
-    void			removeLine(Pos::GeomID geomid);
+    void			removeLine(const Pos::GeomID&);
 
     bool			isAtEdge(const PosID&) const override;
     PosID			getNeighbor(const PosID& posid,bool nextcol,
@@ -80,7 +77,7 @@ public:
 
     int				getConnectedPos(const PosID& posid,
 					    TypeSet<PosID>* res) const override;
-    StepInterval<int>		colRange(Pos::GeomID geomid) const;
+    StepInterval<int>		colRange(const Pos::GeomID&) const;
 
 // Deprecated public functions
     mDeprecated("Use geometryElement()")
@@ -91,15 +88,15 @@ public:
 					const SectionID&) const override
 				{ return geometryElement(); }
     mDeprecated("Use colRange() without SectionID")
-    StepInterval<int>		colRange(const SectionID&,
-					 Pos::GeomID geomid) const
+    StepInterval<int>		colRange( const SectionID&,
+					  const Pos::GeomID& geomid ) const
 				{ return colRange(geomid); }
 
 
 protected:
     Geometry::Horizon2DLine*	createGeometryElement() const override;
 
-    bool			doAddLine(Pos::GeomID geomid,
+    bool			doAddLine(const Pos::GeomID& geomid,
 					  const StepInterval<int>& trcrg,
 					  bool mergewithdouble);
 
@@ -145,7 +142,7 @@ public:
     TypeSet<Coord3>		getPositions(int lineidx,int trcnr) const;
     Coord3			getPosition(int lidx,int trcnr) const;
 
-    Coord3			getPos(Pos::GeomID,int trc) const;
+    Coord3			getPos(const Pos::GeomID&,int trc) const;
     void			setNodeSourceType(const TrcKey&,
 					NodeSourceType) override;
     bool			isNodeSourceType(const PosID&,
@@ -153,7 +150,7 @@ public:
     bool			isNodeSourceType(const TrcKey&,
 					NodeSourceType)const override;
 
-    bool			setPos(Pos::GeomID geomid,
+    bool			setPos(const Pos::GeomID&,
 				       int trcnr,float z,bool addtohist);
 
     bool			setPos(const EM::PosID&,const Coord3&,
@@ -170,13 +167,13 @@ public:
 
     bool			setArray1D(const Array1D<float>&,
 					   const StepInterval<int>& trcrg,
-					   Pos::GeomID geomid,
+					   const Pos::GeomID&,
 					   bool onlyfillundefs);
     bool			setArray1D(const Array1D<float>&,
-					   Pos::GeomID geomid,
+					   const Pos::GeomID&,
 					   bool onlyfillundefs );
-    Array1D<float>*		createArray1D(Pos::GeomID geomid,
-					      const ZAxisTransform* =0) const;
+    Array1D<float>*		createArray1D(const Pos::GeomID&,
+					  const ZAxisTransform* =nullptr) const;
 
     OD::GeomSystem		getSurveyID() const override;
     uiString			getUserTypeStr() const override
@@ -192,25 +189,27 @@ public:
 					    int trcnr) const
 				{ return getPosition(lidx,trcnr); }
     mDeprecated("Use without SectionID")
-    Coord3			getPos(EM::SectionID,Pos::GeomID geomid,
+    Coord3			getPos(EM::SectionID,const Pos::GeomID& geomid,
 					int trc) const
 				{ return getPos(geomid,trc); }
     mDeprecated("Use without SectionID")
     bool			setArray1D(const Array1D<float>& arr,
 					   const StepInterval<int>& trcrg,
-					   SectionID sid,Pos::GeomID geomid,
+					   SectionID sid,
+					   const Pos::GeomID& geomid,
 					   bool onlyfillundefs)
 				{ return setArray1D(arr,trcrg,geomid,
 						    onlyfillundefs); }
     mDeprecated("Use without SectionID")
     bool			setArray1D(const Array1D<float>& arr,
-					   SectionID sid,Pos::GeomID geomid,
+					   SectionID sid,
+					   const Pos::GeomID& geomid,
 					   bool onlyfillundefs)
 				{ return setArray1D(arr,geomid,onlyfillundefs);}
     mDeprecated("Use without SectionID")
     Array1D<float>*		createArray1D(SectionID,
-					      Pos::GeomID geomid,
-					      const ZAxisTransform* zt=0) const
+					      const Pos::GeomID& geomid,
+				      const ZAxisTransform* zt=nullptr) const
 				{ return createArray1D(geomid,zt); }
 
 protected:

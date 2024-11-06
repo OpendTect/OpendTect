@@ -30,7 +30,7 @@ public:
 
     void		setTrcKeyZSampling(const TrcKeyZSampling&,
 					   bool upd=false);
-    void		setGeomID(Pos::GeomID);
+    void		setGeomID(const Pos::GeomID&);
 
     void		enableLine(bool);
     void		enableSeed(bool);
@@ -86,11 +86,11 @@ protected:
     MarkerStyle2D	markerstyle_;
     FlatView::Viewer&	viewer_;
 
-    Pos::GeomID 	geomid_;
+    Pos::GeomID		geomid_;
     TypeSet<int>	trcnos_;
     TypeSet<float>	distances_;
 
-    typedef ObjectSet<Marker2D> 	SectionMarker2DLine;
+    typedef ObjectSet<Marker2D>		SectionMarker2DLine;
     ObjectSet<SectionMarker2DLine>	markerline_;
     Marker2D*				markerseeds_;
 

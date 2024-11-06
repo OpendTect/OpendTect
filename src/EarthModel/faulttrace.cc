@@ -108,7 +108,7 @@ bool FaultTrace::isDefined( int idx ) const
 FaultTrace* FaultTrace::clone() const
 {
     Threads::Locker locker( lock_ );
-    FaultTrace* newobj = new FaultTrace;
+    auto* newobj = new FaultTrace;
     newobj->isinl_ = isinl_;
     newobj->nr_ = nr_;
     newobj->editedoncrl_ = editedoncrl_;
@@ -141,7 +141,7 @@ bool FaultTrace::getImage( const BinID& bid, float z,
     zimg = z1 + frac * ( z2 - z1 );
     BinID start( isinl_ ? nr_ : trcrange_.start_,
                  isinl_ ? trcrange_.start_ : nr_ );
-    BinID stop( isinl_ ? nr_ : trcrange_.stop_, isinl_ ? trcrange_.stop_ : nr_ );
+    BinID stop( isinl_ ? nr_ : trcrange_.stop_, isinl_ ? trcrange_.stop_ : nr_);
     Coord intsectn = getIntersection( start,zimg, stop, zimg );
     if ( intsectn == Coord::udf() )
 	return false;
@@ -156,7 +156,7 @@ bool FaultTrace::getImage( const BinID& bid, float z,
 
 
 bool FaultTrace::getHorizonIntersectionInfo(
-	const EM::Horizon& hor, Pos::GeomID geomid,
+	const EM::Horizon& hor, const Pos::GeomID& geomid,
 	TypeSet<BinID>& pos1bids, TypeSet<float>& pos1zs,
 	TypeSet<BinID>& pos2bids, TypeSet<float>& pos2zs,
 	TypeSet<Coord>& intersections, bool firstonly, bool allowextend ) const
@@ -296,7 +296,7 @@ bool FaultTrace::getHorizonIntersectionInfo(
 	return false;
 
     const bool usethefirst = (defined0 && !defined1) ||
-                             (defined0 && defined1 && trcrg.stop_ <= hortrcrg.start_);
+		     (defined0 && defined1 && trcrg.stop_ <= hortrcrg.start_);
 
     pos1bids += usethefirst ? extbid0 : prevbid;
     pos1zs += usethefirst ? firstz : prevz;
@@ -947,7 +947,7 @@ bool FaultTrace::isOK() const
 FaultTrcHolder::FaultTrcHolder()
     : hs_(false)
 {
-    traces_.allowNull( true );
+    traces_.setNullAllowed();
 }
 
 
@@ -961,11 +961,11 @@ const FaultTrace* FaultTrcHolder::getTrc( int linenr, bool isinl ) const
     {
 	const bool invalid = traces_.isEmpty() || !traces_[0] ||
 	    traces_[0]->isInl()!=isinl || traces_[0]->lineNr()!=linenr;
-	return invalid ? 0 : traces_[0];
+	return invalid ? nullptr : traces_[0];
     }
 
     const int idx = indexOf( linenr, isinl );
-    return traces_.validIdx(idx) ? traces_[idx] : 0;
+    return traces_.validIdx(idx) ? traces_[idx] : nullptr;
 }
 
 
@@ -1012,7 +1012,7 @@ bool FaultTraceExtractor::doPrepare( int nrthreads )
 {
     deepUnRef( holder_.traces_ );
     for ( int idx=0; idx<totalnr_; idx++ )
-	holder_.traces_ += 0;
+	holder_.traces_.add( nullptr );
 
     return true;
 }
@@ -1036,7 +1036,6 @@ bool FaultTraceExtractor::doWork( od_int64 start, od_int64 stop,
 FaultTraceExtractor3D::FaultTraceExtractor3D( const EM::Fault& flt,
 					      FaultTrcHolder& holder )
   : FaultTraceExtractor(flt,holder)
-  , fltsurf_(0)
 {
     totalnr_ = holder_.hs_.nrInl() == 1 || holder_.hs_.nrCrl() == 1 ? 1
 				: holder_.hs_.nrInl() + holder_.hs_.nrCrl();
@@ -1134,7 +1133,7 @@ bool FaultTraceExtractor3D::extractFaultTrace( int idx )
 
 FaultTraceExtractor2D::FaultTraceExtractor2D( const EM::Fault& flt,
 					  FaultTrcHolder& holder,
-					  Pos::GeomID geomid )
+					  const Pos::GeomID& geomid )
   : FaultTraceExtractor(flt,holder)
   , geomid_(geomid)
 {
@@ -1240,7 +1239,7 @@ bool FaultTraceExtractor2D::extractFaultTrace( int stickidx )
     const int nrknots = fltgeom->nrKnots( sticknr );
     if ( nrknots < 2 ) return true;
 
-    FaultTrace* flttrc = new FaultTrace;
+    auto* flttrc = new FaultTrace;
     flttrc->ref();
     flttrc->setIsInl( true );
     flttrc->setLineNr( 0 );
@@ -1266,20 +1265,29 @@ bool FaultTraceExtractor2D::extractFaultTrace( int stickidx )
 
 
 //FaultTrcDataProvider
-FaultTrcDataProvider::FaultTrcDataProvider()
-    : is2d_(false)
-{ holders_.allowNull(); }
 
-FaultTrcDataProvider::FaultTrcDataProvider( const Pos::GeomID geomid )
+FaultTrcDataProvider::FaultTrcDataProvider()
+    : geomid_(Survey::default3DGeomID())
+{
+    holders_.setNullAllowed();
+}
+
+FaultTrcDataProvider::FaultTrcDataProvider( const Pos::GeomID& geomid )
     : geomid_(geomid)
-    , is2d_(true)
-{ holders_.allowNull(); }
+{
+    holders_.setNullAllowed();
+}
 
 FaultTrcDataProvider::~FaultTrcDataProvider()
 { clear(); }
 
 uiString FaultTrcDataProvider::errMsg() const
 { return errmsg_; }
+
+bool FaultTrcDataProvider::is2D() const
+{
+    return geomid_.is2D();
+}
 
 int FaultTrcDataProvider::nrFaults() const
 { return holders_.size(); }
@@ -1307,8 +1315,8 @@ void FaultTrcDataProvider::clear()
 const FaultTrace* FaultTrcDataProvider::getFaultTrace( int idx, int linenr,
 						       bool isinl ) const
 {
-    return holders_.validIdx(idx) && holders_[idx] && !is2d_
-	?  holders_[idx]->getTrc( linenr, isinl ) : 0;
+    return holders_.validIdx(idx) && holders_[idx] && !is2D()
+	?  holders_[idx]->getTrc( linenr, isinl ) : nullptr;
 }
 
 
@@ -1324,7 +1332,7 @@ const FaultTrace* FaultTrcDataProvider::getFaultTrace2D( int fltidx,
 {
     return holders_.validIdx(fltidx) && holders_[fltidx]
 		&& holders_[fltidx]->traces_.validIdx(stickidx)
-	? holders_[fltidx]->traces_[stickidx] : 0;
+	? holders_[fltidx]->traces_[stickidx] : nullptr;
 }
 
 
@@ -1372,7 +1380,7 @@ bool FaultTrcDataProvider::init( const TypeSet<MultiID>& faultids,
     if ( !TaskRunner::execute(taskrunner, loadergrp) )
 	mErrRet( uiStrings::phrCannotRead(uiStrings::sFault()) )
 
-    if ( is2d_ )
+    if ( is2D() )
 	return get2DTraces( faultids, taskrunner );
 
     TaskGroup taskgrp;
@@ -1398,16 +1406,16 @@ bool FaultTrcDataProvider::init( const TypeSet<MultiID>& faultids,
 	    if ( !flt )
 	    {
 		errmsg_ = uiStrings::phrCannotRead( uiStrings::sFault() );
-		holders_ += 0;
+		holders_.add( nullptr );
 		continue;
 	    }
 
 	    TrcKeySampling hs( false );
 	    calcFaultBBox( *flt, hs );
 	    hs.limitTo( hrg );
-	    FaultTrcHolder* holder = new FaultTrcHolder();
+	    auto* holder = new FaultTrcHolder();
 	    holder->hs_ = hs;
-	    holders_ += holder;
+	    holders_.add( holder );
 	    taskgrp.addTask( new FaultTraceExtractor3D( *flt, *holder ) );
 	}
     }
@@ -1430,12 +1438,12 @@ bool FaultTrcDataProvider::get2DTraces( const TypeSet<MultiID>& faultids,
 	mDynamicCastGet(EM::Fault*,flt,EM::EMM().getObject(oid))
 	if ( !flt )
 	{
-	    holders_ += 0;
+	    holders_ += nullptr;
 	    continue;
 	}
 
-	FaultTrcHolder* holder = new FaultTrcHolder();
-	holders_ += holder;
+	auto* holder = new FaultTrcHolder();
+	holders_.add( holder );
 	taskgrp.addTask( new FaultTraceExtractor2D(*flt,*holder,geomid_) );
     }
 
@@ -1450,15 +1458,7 @@ bool FaultTrcDataProvider::hasFaults( const BinID& bid ) const
 	if ( !holders_[idx] )
 	    continue;
 
-	if ( !is2d_ )
-	{
-	    const FaultTrace* inltrc = holders_[idx]->getTrc( bid.inl(), true );
-	    const FaultTrace* crltrc = holders_[idx]->getTrc( bid.crl(), false);
-	    if ( (inltrc && inltrc->includes(bid))
-	      || (crltrc && crltrc->includes(bid)) )
-		return true;
-	}
-	else
+	if ( is2D() )
 	{
 	    for ( int sidx=0; sidx<holders_[idx]->traces_.size(); sidx++ )
 	    {
@@ -1466,6 +1466,14 @@ bool FaultTrcDataProvider::hasFaults( const BinID& bid ) const
 		if ( flttrc && flttrc->includes(bid) )
 		    return true;
 	    }
+	}
+	else
+	{
+	    const FaultTrace* inltrc = holders_[idx]->getTrc( bid.inl(), true );
+	    const FaultTrace* crltrc = holders_[idx]->getTrc( bid.crl(), false);
+	    if ( (inltrc && inltrc->includes(bid))
+	      || (crltrc && crltrc->includes(bid)) )
+		return true;
 	}
     }
 
@@ -1476,7 +1484,7 @@ bool FaultTrcDataProvider::hasFaults( const BinID& bid ) const
 bool FaultTrcDataProvider::isOnFault( const BinID& bid, float z,
 				      float thresholddist ) const
 {
-    if ( is2d_ )
+    if ( is2D() )
     {
 	for ( int idx=0; idx<nrFaults(); idx++ )
 	{
@@ -1509,7 +1517,7 @@ bool FaultTrcDataProvider::isOnFault( const BinID& bid, float z,
 bool FaultTrcDataProvider::isCrossingFault( const BinID& bid1, float z1,
 					    const BinID& bid2, float z2 ) const
 {
-    if ( is2d_ )
+    if ( is2D() )
     {
 	for ( int idx=0; idx<nrFaults(); idx++ )
 	{
@@ -1573,14 +1581,15 @@ bool FaultTrcDataProvider::getFaultZVals( const BinID& bid,
 					  TypeSet<float>& zvals ) const
 {
     zvals.erase();
+    const bool is2d = is2D();
     for ( int idx=0; idx<nrFaults(); idx++ )
     {
-	const int nrsticks = is2d_ ? nrSticks( idx ) : 1;
+	const int nrsticks = is2d ? nrSticks( idx ) : 1;
 	for ( int idy=0; idy<nrsticks; idy++ )
 	{
-	    const FaultTrace* flt = is2d_ ? getFaultTrace2D( idx, idy ) :
-		getFaultTrace( idx,bid.inl(),true);
-	    if ( !is2d_ && !flt )
+	    const FaultTrace* flt = is2d ? getFaultTrace2D( idx, idy )
+					 : getFaultTrace( idx,bid.inl(),true);
+	    if ( !is2d && !flt )
 		flt = getFaultTrace( idx, bid.crl(), false );
 
 	    if ( !flt ) continue;

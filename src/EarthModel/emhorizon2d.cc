@@ -61,7 +61,7 @@ int Horizon2DGeometry::nrLines() const
 }
 
 
-int Horizon2DGeometry::lineIndex( Pos::GeomID geomid ) const
+int Horizon2DGeometry::lineIndex( const Pos::GeomID& geomid ) const
 {
     const Geometry::Horizon2DLine* hor2dline = geometryElement();
     return hor2dline ? hor2dline->getRowIndex( geomid ) : -1;
@@ -95,7 +95,7 @@ void Horizon2DGeometry::getGeomIDs( TypeSet<Pos::GeomID>& geomids ) const
 }
 
 
-bool Horizon2DGeometry::hasLine( Pos::GeomID geomid ) const
+bool Horizon2DGeometry::hasLine( const Pos::GeomID& geomid ) const
 {
     const Geometry::Horizon2DLine* hor2dline = geometryElement();
     return hor2dline ? hor2dline->hasLine( geomid ) : false;
@@ -124,28 +124,28 @@ TrcKey Horizon2DGeometry::getTrcKey( const PosID& pid ) const
 }
 
 
-bool Horizon2DGeometry::includeLine( Pos::GeomID geomid, int step )
+bool Horizon2DGeometry::includeLine( const Pos::GeomID& geomid, int step )
 {
     return doAddLine( geomid, StepInterval<int>(mUdf(int),mUdf(int),step),
 		      true );
 }
 
 
-bool Horizon2DGeometry::addLine( Pos::GeomID geomid, int step )
+bool Horizon2DGeometry::addLine( const Pos::GeomID& geomid, int step )
 {
     return doAddLine( geomid, StepInterval<int>(mUdf(int),mUdf(int),step),
 		      false );
 }
 
 
-bool Horizon2DGeometry::addLine( Pos::GeomID geomid,
+bool Horizon2DGeometry::addLine( const Pos::GeomID& geomid,
 				 const StepInterval<int>& trg )
 {
     return doAddLine( geomid, trg, false );
 }
 
 
-bool Horizon2DGeometry::doAddLine( Pos::GeomID geomid,
+bool Horizon2DGeometry::doAddLine( const Pos::GeomID& geomid,
 				   const StepInterval<int>& inptrg,
 				   bool mergewithdouble )
 {
@@ -196,7 +196,7 @@ bool Horizon2DGeometry::doAddLine( Pos::GeomID geomid,
 }
 
 
-void Horizon2DGeometry::removeLine( Pos::GeomID geomid )
+void Horizon2DGeometry::removeLine( const Pos::GeomID& geomid )
 {
     Geometry::Horizon2DLine* h2dline = geometryElement();
     h2dline->removeRow( geomid );
@@ -262,7 +262,7 @@ Geometry::Horizon2DLine* Horizon2DGeometry::createGeometryElement() const
 }
 
 
-StepInterval<int> Horizon2DGeometry::colRange( Pos::GeomID geomid) const
+StepInterval<int> Horizon2DGeometry::colRange( const Pos::GeomID& geomid ) const
 {
     const Geometry::Horizon2DLine* geom = geometryElement();
     return geom ? geom->colRangeForGeomID( geomid ) : StepInterval<int>(0,0,0);
@@ -594,7 +594,7 @@ bool Horizon2D::unSetPos( const EM::SubID& subid, bool addtoundo )
 }
 
 
-Coord3 Horizon2D::getPos( Pos::GeomID geomid, int trcnr ) const
+Coord3 Horizon2D::getPos( const Pos::GeomID& geomid, int trcnr ) const
 {
     const Geometry::Horizon2DLine* geom = geometry_.geometryElement();
     if ( !geom || geom->isEmpty() )
@@ -620,7 +620,7 @@ bool Horizon2D::setPos( const EM::SubID& subid,
 }
 
 
-bool Horizon2D::setPos( Pos::GeomID geomid, int trcnr,
+bool Horizon2D::setPos( const Pos::GeomID& geomid, int trcnr,
 			float z, bool addtohistory )
 {
   Geometry::Horizon2DLine* geom = geometry_.geometryElement();
@@ -660,8 +660,7 @@ TypeSet<Coord3> Horizon2D::getPositions( int lineidx, int trcnr ) const
 
 
 bool Horizon2D::setArray1D( const Array1D<float>& arr,
-			    Pos::GeomID geomid,
-			    bool onlyfillundefs )
+			    const Pos::GeomID& geomid, bool onlyfillundefs )
 {
     const StepInterval<int> trcrg = geometry_.colRange( geomid );
     return setArray1D( arr, trcrg, geomid, onlyfillundefs );
@@ -670,8 +669,7 @@ bool Horizon2D::setArray1D( const Array1D<float>& arr,
 
 bool Horizon2D::setArray1D( const Array1D<float>& arr,
 			    const StepInterval<int>& trcrg,
-			    Pos::GeomID geomid,
-			    bool onlyfillundefs )
+			    const Pos::GeomID& geomid, bool onlyfillundefs )
 {
     Geometry::Horizon2DLine* geom = geometry_.geometryElement();
     if ( !geom )
@@ -715,21 +713,24 @@ bool Horizon2D::setArray1D( const Array1D<float>& arr,
 }
 
 
-Array1D<float>* Horizon2D::createArray1D( Pos::GeomID geomid,
+Array1D<float>* Horizon2D::createArray1D( const Pos::GeomID& geomid,
 					  const ZAxisTransform* trans ) const
 {
     const Geometry::Horizon2DLine* geom = geometry_.geometryElement();
     if ( !geom || geom->isEmpty() )
-	return 0;
+	return nullptr;
 
-    Array1DImpl<float>* arr = 0;
+    Array1DImpl<float>* arr = nullptr;
     const int lineidx = geom->getRowIndex( geomid );
     if ( lineidx < 0 )
-	return 0;
+	return nullptr;
 
     arr = new Array1DImpl<float>( geom->colRange(lineidx).nrSteps() + 1 );
     if ( !arr || !arr->isOK() )
-	return 0;
+    {
+	delete arr;
+	return nullptr;
+    }
 
     const StepInterval<int> colrg = geom->colRange( lineidx );
     for ( int col=colrg.start_; col<=colrg.stop_; col+=colrg.step_ )

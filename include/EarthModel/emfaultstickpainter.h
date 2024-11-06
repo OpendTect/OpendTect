@@ -51,17 +51,14 @@ public:
     bool		hasDiffActiveStick(const EM::PosID*);
     FlatView::AuxData*	getAuxData(const EM::PosID*);
 
-	mStruct(EarthModel)	StkMarkerInfo
+	mExpClass(EarthModel)	StkMarkerInfo
 	{
-				StkMarkerInfo()
-					: marker_(0)
-					, stickid_(-1)
-				{}
-				~StkMarkerInfo()
-				{ delete marker_; }
+	public:
+				StkMarkerInfo();
+				~StkMarkerInfo();
 
-	    FlatView::AuxData*	marker_;
-	    int			stickid_;
+	    FlatView::AuxData*	marker_	= nullptr;
+	    int			stickid_ = 1;
 	};
 
     EM::ObjectID&	getFaultSSID()			{ return emid_; }
@@ -70,9 +67,9 @@ public:
     void		set2D(bool yn)		{ is2d_ = yn; }
     bool		is2D()			{ return is2d_; }
     const char* getLineName() const;
-    void		setGeomID( Pos::GeomID geomid )
+    void		setGeomID( const Pos::GeomID& geomid )
 			{ geomid_ = geomid; }
-    Pos::GeomID getGeomID() const		{ return geomid_; }
+    Pos::GeomID		getGeomID() const		{ return geomid_; }
     Coord		getNormalToTrace( int trcnr ) const;
     Coord		getNormalInRandLine( int idx ) const;
 			//<! idx of BinID in path_ of RandomLine

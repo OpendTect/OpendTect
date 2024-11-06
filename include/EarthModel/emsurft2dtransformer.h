@@ -212,7 +212,8 @@ protected:
 						EM::FaultStickSet&);
     bool	    doTransformation(const Geometry::FaultStick*,int,
 						EM::FaultStickSet&,
-						Pos::GeomID=Pos::GeomID::udf());
+						const Pos::GeomID&
+							=Pos::GeomID::udf());
 
 };
 }

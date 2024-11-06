@@ -550,4 +550,15 @@ Coord FaultStickPainter::getNormalInRandLine( int idx ) const
     return Coord( -direction.y_, direction.x_ );
 }
 
+
+// FaultStickPainter
+
+FaultStickPainter::StkMarkerInfo::StkMarkerInfo()
+{}
+
+FaultStickPainter::StkMarkerInfo::~StkMarkerInfo()
+{
+    delete marker_;
+}
+
 } // namespace EM

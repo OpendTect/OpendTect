@@ -72,7 +72,7 @@ void HorizonPainter2D::setTrcKeyZSampling( const TrcKeyZSampling& cs,
 }
 
 
-void HorizonPainter2D::setGeomID( Pos::GeomID geomid )
+void HorizonPainter2D::setGeomID( const Pos::GeomID& geomid )
 {
     geomid_ = geomid;
 }

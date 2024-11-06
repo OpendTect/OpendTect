@@ -74,7 +74,7 @@ public:
 						  int& trace,float& zval) const;
 
     bool		getHorizonIntersectionInfo(const EM::Horizon& hor,
-				Pos::GeomID geomid,
+				const Pos::GeomID& geomid,
 				TypeSet<BinID>& pos1bids,TypeSet<float>& pos1zs,
 				TypeSet<BinID>& pos2bids,TypeSet<float>& pos2zs,
 				TypeSet<Coord>& intersections,
@@ -190,7 +190,7 @@ protected:
 
     virtual bool	doPrepare(int) override;
 
-    Geometry::ExplFaultStickSurface* fltsurf_;
+    Geometry::ExplFaultStickSurface* fltsurf_ = nullptr;
 
 };
 
@@ -199,7 +199,7 @@ mExpClass(EarthModel) FaultTraceExtractor2D : public FaultTraceExtractor
 { mODTextTranslationClass(FaultTraceExtractor2D);
 public:
 			FaultTraceExtractor2D(const EM::Fault&,FaultTrcHolder&,
-					      Pos::GeomID);
+					      const Pos::GeomID&);
 			~FaultTraceExtractor2D();
 
 protected:
@@ -220,14 +220,14 @@ mExpClass(EarthModel) FaultTrcDataProvider
 { mODTextTranslationClass(FaultTrcDataProvider);
 public:
 			FaultTrcDataProvider();
-			FaultTrcDataProvider(Pos::GeomID);
+			FaultTrcDataProvider(const Pos::GeomID&);
     virtual		~FaultTrcDataProvider();
 			mOD_DisableCopy(FaultTrcDataProvider)
 
     bool		init(const TypeSet<MultiID>&,const TrcKeySampling&,
-			     TaskRunner* =0);
+			     TaskRunner* =nullptr);
 
-    bool		is2D() const		{ return is2d_; }
+    bool		is2D() const;
     int			nrFaults() const;
     TrcKeySampling	range(int) const;
     int			nrSticks(int fltidx) const;
@@ -254,5 +254,4 @@ protected:
 
     Pos::GeomID		geomid_;
     uiString		errmsg_;
-    bool		is2d_;
 };
