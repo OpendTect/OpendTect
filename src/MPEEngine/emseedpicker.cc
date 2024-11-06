@@ -235,7 +235,6 @@ void Patch::removeSeed( int idx )
 }
 
 
-#define nMaxInteger 2109876543
 int Patch::findClosestSeedRdmIdx( const EM::PosID& pid )
 {
     const TrcKeyPath* rdmlinepath = engine().activePath();
@@ -296,7 +295,7 @@ int Patch::findClosedSeed3d( const EM::PosID& pid )
     else
 	crdir = dir.col()>0;
 
-    int mindiff = nMaxInteger;
+    int mindiff = mUdf(int);
     int minidx = 0;
     for ( int idx=0; idx<seeds_.size(); idx++ )
     {
@@ -316,7 +315,7 @@ int Patch::findClosedSeed3d( const EM::PosID& pid )
 
 int Patch::findClosedSeed2d( const TrcKeyValue& tkv )
 {
-    int mindiff = nMaxInteger;
+    int mindiff = mUdf(int);
     int minidx = 0;
     for ( int idx=0; idx<seeds_.size(); idx++ )
     {
