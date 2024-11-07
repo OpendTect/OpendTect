@@ -102,7 +102,8 @@ static inline mUnusedVar od_ostream& errStream()
     return tstStream( true );
 }
 
-inline bool handleTestResult( bool isok, const char* desc, const char* emsg=0 )
+inline bool handleTestResult( bool isok, const char* desc,
+			      const char* emsg=nullptr )
 {
     if ( isok )
 	logStream() << "[OK] " << desc << od_endl;
