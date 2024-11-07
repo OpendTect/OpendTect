@@ -54,6 +54,7 @@ set( OD_MODULE_SOURCES
 	imagedeftr.cc
 	iodir.cc
 	iodirentry.cc
+	iodirtablemodel.cc
 	ioman.cc
 	ioobj.cc
 	iostrm.cc
