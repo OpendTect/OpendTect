@@ -62,6 +62,26 @@ macro ( CREATE_PACKAGE PACKAGE_NAME )
 	      DESTINATION "${COPYTODATADIR}/data/SurveyProviders" )
 
 	COPY_THIRDPARTYLIBS()
+    elseif( ${PACKAGE_NAME} STREQUAL "dgbbatch" )
+	file( GLOB OPENSSL_PROVS "${COPYFROMDATADIR}/data/OpenSSL/*.txt" )
+	file( COPY ${OPENSSL_PROVS}
+	      DESTINATION "${COPYTODATADIR}/data/OpenSSL" )
+	file( GLOB SEISTRCTR_PROVS "${COPYFROMDATADIR}/data/SeisTrcTranslators/dGB*.txt" )
+	file( COPY ${SEISTRCTR_PROVS}
+	      DESTINATION "${COPYTODATADIR}/data/SeisTrcTranslators" )
+	file( GLOB OPENVDS_LIBS "${COPYFROMLIBDIR}/libopenvds*" )
+	file( COPY ${OPENVDS_LIBS}
+	      DESTINATION ${COPYTOLIBDIR} )
+	file( GLOB OPENZGY_LIBS "${COPYFROMLIBDIR}/libopenzgy*" )
+	file( COPY ${OPENZGY_LIBS}
+	      DESTINATION ${COPYTOLIBDIR} )
+	  file( GLOB AWS_LIBS "${COPYFROMLIBDIR}/libaws*" )
+	  file( COPY ${AWS_LIBS}
+	      DESTINATION ${COPYTOLIBDIR} )
+	foreach( EXTERNALFILE ${EXTERNAL_BACKEND_FILES} )
+	    file( COPY ${COPYFROMLIBDIR}/${EXTERNALFILE}
+		  DESTINATION ${COPYTOLIBDIR} )
+	endforeach()
     elseif( WIN32 AND ${PACKAGE_NAME} STREQUAL "dgbml" )
 	file( GLOB ML_FW_RULENM "${COPYFROMDATADIR}/data/Firewall/od_DeepLearning*.txt" )
 	file( COPY ${ML_FW_RULENM}
