@@ -53,6 +53,7 @@ public:
     Repos::Source	source() const		{ return source_; }
 
     bool		isImperial() const;
+    bool		isSI() const;
 
     template <class T>
     T			getSIValue( T inp ) const
@@ -88,6 +89,8 @@ public:
     static const UnitOfMeasure* surveyDefOffsetUnit();
 				/*!<Default offset unit for real datasets (m,ft)
 				    Not used for synthetic gathers */
+    static const UnitOfMeasure* surveyDefXYUnit();
+				/*!<Default X,Y unit (m,ft)*/
     static const UnitOfMeasure* secondsUnit();
     static const UnitOfMeasure* millisecondsUnit();
     static const UnitOfMeasure* meterUnit();

@@ -227,6 +227,12 @@ const UnitOfMeasure* UnitOfMeasure::surveyDefOffsetUnit()
 }
 
 
+const UnitOfMeasure* UnitOfMeasure::surveyDefXYUnit()
+{
+    return SI().xyInFeet() ? feetUnit() : meterUnit();
+}
+
+
 const UnitOfMeasure* UnitOfMeasure::secondsUnit()
 {
     static const UnitOfMeasure* ret = UoMR().get( secondsKey );
@@ -389,6 +395,10 @@ bool UnitOfMeasure::isImperial() const
 }
 
 
+bool UnitOfMeasure::isSI() const
+{
+    return scaler_.isEmpty();
+}
 
 
 UnitOfMeasureRepository::UnitOfMeasureRepository()
