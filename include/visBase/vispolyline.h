@@ -70,6 +70,7 @@ public:
     void		addPrimitiveSetToScene(osg::PrimitiveSet*) override;
     void		removePrimitiveSetFromScene(
 					const osg::PrimitiveSet*) override;
+    void		removeAllPrimitiveSetsFromScene() override;
     void		touchPrimitiveSet(int) override;
     void		setCoordinates(Coordinates*) override;
     void		setDisplayTransformation(const mVisTrans*) override;

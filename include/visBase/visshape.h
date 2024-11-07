@@ -158,6 +158,7 @@ protected:
 
     virtual void	addPrimitiveSetToScene(osg::PrimitiveSet*);
     virtual void	removePrimitiveSetFromScene(const osg::PrimitiveSet*);
+    virtual void	removeAllPrimitiveSetsFromScene();
 
     Normals*		gtNormals();
     const Normals*	gtNormals() const;

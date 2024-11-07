@@ -10,6 +10,7 @@ ________________________________________________________________________
 #include "horizon2dline.h"
 
 #include "interpol1d.h"
+#include "paralleltask.h"
 #include "posinfo2d.h"
 #include "survgeom2d.h"
 #include "undefval.h"
@@ -224,6 +225,15 @@ void Horizon2DLine::setRow( Pos::GeomID geomid, const StepInterval<int>* trcrg )
     }
 }
 
+mDefParallelCalc2Pars( RowFiller,
+		       od_static_tr("RowFiller","Initialize Horizon"),
+		       const TypeSet<Coord>&, path,
+		       TypeSet<Coord3>&, row )
+mDefParallelCalcBody(
+	,
+	row_[idx] = Coord3(path_[idx],mUdf(float));
+	,
+	)
 
 void Horizon2DLine::setRow( Pos::GeomID geomid, const TypeSet<Coord>& path,
 			    int start, int step )
@@ -234,12 +244,15 @@ void Horizon2DLine::setRow( Pos::GeomID geomid, const TypeSet<Coord>& path,
 
     const bool samedimensions =
 	path.size()==rows_[rowidx]->size() &&
-            start==colsampling_[rowidx].start_ && step==colsampling_[rowidx].step_;
+	start==colsampling_[rowidx].start_ && step==colsampling_[rowidx].step_;
 
     rows_[rowidx]->setSize( path.size(), Coord3::udf() );
 
-    for ( int idx=path.size()-1; idx>=0; idx-- )
-	(*rows_[rowidx])[idx] = Coord3( path[idx], mUdf(float) );
+    RowFiller filler( path.size(), path, *rows_[rowidx] );
+    filler.execute();
+
+//    for ( int idx=path.size()-1; idx>=0; idx-- )
+//	(*rows_[rowidx])[idx] = Coord3( path[idx], mUdf(float) );
 
     if ( samedimensions )
 	triggerMovement();

@@ -197,6 +197,12 @@ void PolyLine3D::removePrimitiveSetFromScene( const osg::PrimitiveSet* ps )
 }
 
 
+void PolyLine3D::removeAllPrimitiveSetsFromScene()
+{
+    osgpoly_->removeAllPrimitiveSets();
+}
+
+
 void PolyLine3D::touchPrimitiveSet( int idx )
 {
     osgpoly_->touchPrimitiveSet( idx );

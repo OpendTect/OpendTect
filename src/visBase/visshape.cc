@@ -697,8 +697,8 @@ void VertexShape::removePrimitiveSet( const Geometry::PrimitiveSet* p )
 void VertexShape::removeAllPrimitiveSets()
 {
     Threads::Locker lckr( lock_, Threads::Locker::WriteLock );
-    for ( int idx = primitivesets_.size()-1; idx >= 0; idx-- )
-	removePrimitiveSet( primitivesets_[idx] );
+    removeAllPrimitiveSetsFromScene();
+    primitivesets_.erase();
 }
 
 
@@ -747,6 +747,14 @@ void VertexShape::removePrimitiveSetFromScene( const osg::PrimitiveSet* ps )
     const int idx = osggeom_->getPrimitiveSetIndex( ps );
     osggeom_->removePrimitiveSet( idx );
 }
+
+
+void VertexShape::removeAllPrimitiveSetsFromScene()
+{
+    for ( int idx=osggeom_->getNumPrimitiveSets()-1; idx>=0; idx-- )
+	osggeom_->removePrimitiveSet( idx );
+}
+
 
 #define mImplOsgFuncs \
 osg::PrimitiveSet* getPrimitiveSet() override { return element_.get(); } \
