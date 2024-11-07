@@ -29,15 +29,15 @@ HorizonPainter2D::Marker2D::~Marker2D()
 
 HorizonPainter2D::HorizonPainter2D( FlatView::Viewer& fv,
 				    const EM::ObjectID& oid )
-    : viewer_(fv)
+    : abouttorepaint_(this)
+    , repaintdone_(this)
     , id_(oid)
     , markerlinestyle_(OD::LineStyle::Solid,2,OD::Color(0,255,0))
     , markerstyle_(MarkerStyle2D::Square,4,OD::Color::White())
+    , viewer_(fv)
+    , markerseeds_(0)
     , linenabled_(true)
     , seedenabled_(true)
-    , markerseeds_(0)
-    , abouttorepaint_(this)
-    , repaintdone_(this)
     , selectionpoints_(0)
 {
     EM::EMObject* emobj = EM::EMM().getObject( id_ );
@@ -78,11 +78,10 @@ void HorizonPainter2D::setGeomID( const Pos::GeomID& geomid )
 }
 
 
-void HorizonPainter2D::setLine2DInterSectionSet( const Line2DInterSectionSet*
-							ln2dintersectionset )
+void HorizonPainter2D::setLine2DInterSectionSet(
+			const Line2DInterSectionSet* ln2dintersectionset )
 {
-    if ( ln2dintersectionset )
-	intsectset_ = *ln2dintersectionset;
+    intsectset_ = ln2dintersectionset;
 }
 
 
@@ -236,11 +235,8 @@ void HorizonPainter2D::horChangeCB( CallBacker* cb )
 
 void HorizonPainter2D::updateIntersectionMarkers()
 {
-    if ( intsectset_.size()<=0 )
-    {
-	if ( !calcLine2DIntersections() )
-	    return;
-    }
+    if ( !intsectset_ || intsectset_->isEmpty() )
+	return;
 
     removeIntersectionMarkers();
     EM::EMObject* emobj = EM::EMM().getObject( id_ );
@@ -252,12 +248,10 @@ void HorizonPainter2D::updateIntersectionMarkers()
     for ( int idx=0; idx<nrlns; idx++ )
 	geomids += hor2d->geometry().geomID(idx);
 
-    for ( int idx=0; idx<intsectset_.size(); idx++ )
+    for ( const Line2DInterSection* intsect : *intsectset_ )
     {
-	const Line2DInterSection* intsect=intsectset_[idx];
-	if ( !intsect )  continue;
-	if ( intsect->geomID() != geomid_ )
-		continue;
+	if ( !intsect || intsect->geomID() != geomid_ )
+	    continue;
 
 	for ( int idy=0; idy<geomids.size(); idy++ )
 	{
@@ -293,21 +287,6 @@ void HorizonPainter2D::updateIntersectionMarkers()
 	    }
 	}
     }
-}
-
-
-bool HorizonPainter2D::calcLine2DIntersections()
-{
-    const TypeSet<Pos::GeomID> geom2dids = viewer_.getAllSeisGeomids();
-    if ( geom2dids.size()==0 )
-	return false;
-
-    BendPointFinder2DGeomSet bpfinder( geom2dids );
-    bpfinder.execute();
-    Line2DInterSectionFinder intfinder( bpfinder.bendPoints(), intsectset_ );
-    intfinder.execute();
-
-    return intsectset_.size()>0;
 }
 
 

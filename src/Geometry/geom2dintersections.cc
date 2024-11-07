@@ -27,10 +27,11 @@ BendPoints::~BendPoints()
 
 
 BendPointFinder2DGeomSet::BendPointFinder2DGeomSet(
-					const TypeSet<Pos::GeomID>& geomids )
+					const TypeSet<Pos::GeomID>& geomids,
+					ObjectSet<BendPoints>& bpts )
     : Executor("Analyzing 2D Line geometries")
     , geomids_(geomids)
-    , curidx_(0)
+    , bendptset_(bpts)
 {
 }
 
@@ -85,25 +86,26 @@ int BendPointFinder2DGeomSet::nextStep()
 
 // Line2DInterSection
 
-Line2DInterSection::Point::Point( Pos::GeomID myid, Pos::GeomID lineid,
+Line2DInterSection::Point::Point( const Pos::GeomID& myid,
+				  const Pos::GeomID& lineid,
 				  int mynr,int linenr )
     : line(lineid)
+    , mygeomids_(myid)
     , mytrcnr(mynr)
     , linetrcnr(linenr)
-    , mygeomids_(myid)
 {
 }
 
 
 Line2DInterSection::Point::Point( const Point& pt )
     : line(pt.line)
+    , mygeomids_(pt.mygeomids_)
     , mytrcnr(pt.mytrcnr)
     , linetrcnr(pt.linetrcnr)
-    , mygeomids_(pt.mygeomids_)
 {
 }
 
-Line2DInterSection::Point::Point( Pos::GeomID id, int mynr, int linenr )
+Line2DInterSection::Point::Point( const Pos::GeomID& id, int mynr, int linenr )
     : line(id)
     , mytrcnr(mynr)
     , linetrcnr(linenr)
@@ -123,7 +125,7 @@ bool Line2DInterSection::Point::isOpposite( const Point& pt ) const
 }
 
 
-Line2DInterSection::Line2DInterSection( Pos::GeomID geomid )
+Line2DInterSection::Line2DInterSection( const Pos::GeomID& geomid )
     : geomid_(geomid)
 {}
 

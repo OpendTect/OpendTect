@@ -61,11 +61,11 @@ ________________________________________________________________________
 #include "visrandomtrackdisplay.h"
 
 uiODViewer2DMgr::uiODViewer2DMgr( uiODMain* a )
-    : appl_(*a)
+    : vw2dObjAdded(this)
+    , vw2dObjToBeRemoved(this)
     , tifs2d_(new uiTreeFactorySet)
     , tifs3d_(new uiTreeFactorySet)
-    , vw2dObjAdded(this)
-    , vw2dObjToBeRemoved(this)
+    , appl_(*a)
 {
     // for relevant 2D datapack
     tifs2d_->addFactory( new uiODView2DWiggleVarAreaTreeItemFactory, 1000 );
@@ -93,9 +93,6 @@ uiODViewer2DMgr::uiODViewer2DMgr( uiODMain* a )
 uiODViewer2DMgr::~uiODViewer2DMgr()
 {
     detachAllNotifiers();
-    if ( l2dintersections_ )
-	deepErase( *l2dintersections_ );
-
     delete l2dintersections_;
     deepErase( viewers2d_ );
     delete tifs2d_;
@@ -109,9 +106,6 @@ int uiODViewer2DMgr::nr2DViewers() const
 
 void uiODViewer2DMgr::cleanup()
 {
-    if ( l2dintersections_ )
-	deepErase( *l2dintersections_ );
-
     deleteAndNullPtr( l2dintersections_ );
     deepErase( viewers2d_ );
     geom2dids_.erase();
@@ -858,28 +852,27 @@ void uiODViewer2DMgr::attachNotifiersAndSetAuxData( uiODViewer2D* vwr2d )
 
 void uiODViewer2DMgr::reCalc2DIntersetionIfNeeded( Pos::GeomID geomid )
 {
-    if ( intersection2DIdx(geomid) < 0 )
+    if ( intersection2DIdx(geomid) >= 0 )
+	return;
+
+    deleteAndNullPtr( l2dintersections_ );
+
+    if ( geom2dids_.isEmpty() )
     {
-	if ( l2dintersections_ )
-	    deepErase( *l2dintersections_ );
-	delete l2dintersections_;
-
-	if ( geom2dids_.isEmpty() )
-	{
-	    BufferStringSet lnms;
-	    SeisIOObjInfo::getLinesWithData( lnms, geom2dids_ );
-	}
-
-	if ( geom2dids_.isEmpty() )
-	    return;
-
-	l2dintersections_ = new Line2DInterSectionSet;
-	BendPointFinder2DGeomSet bpfinder( geom2dids_ );
-	bpfinder.execute();
-	Line2DInterSectionFinder intfinder( bpfinder.bendPoints(),
-					    *l2dintersections_ );
-	intfinder.execute();
+	BufferStringSet lnms;
+	SeisIOObjInfo::getLinesWithData( lnms, geom2dids_ );
     }
+    if ( geom2dids_.isEmpty() )
+	return;
+
+    ManagedObjectSet<BendPoints> bendpoints;
+    BendPointFinder2DGeomSet bpfinder( geom2dids_, bendpoints );
+    if ( !bpfinder.execute() )
+	return;
+
+    l2dintersections_ = new Line2DInterSectionSet;
+    Line2DInterSectionFinder intfinder( bendpoints, *l2dintersections_ );
+    intfinder.execute();
 }
 
 
@@ -1181,6 +1174,7 @@ int uiODViewer2DMgr::intersection2DIdx( Pos::GeomID newgeomid ) const
 {
     if ( !l2dintersections_ )
 	return -1;
+
     for ( int lidx=0; lidx<l2dintersections_->size(); lidx++ )
     {
 	if ( (*l2dintersections_)[lidx] &&

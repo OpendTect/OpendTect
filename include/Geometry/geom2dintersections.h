@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 #include "bufstringset.h"
 #include "executor.h"
-#include "geometrymod.h"
 #include "posgeomid.h"
 #include "paralleltask.h"
 #include "threadlock.h"
@@ -33,7 +32,8 @@ public:
 mExpClass(Geometry) BendPointFinder2DGeomSet : public Executor
 { mODTextTranslationClass(BendPointFinder2DGeomSet)
 public:
-			BendPointFinder2DGeomSet(const TypeSet<Pos::GeomID>&);
+			BendPointFinder2DGeomSet(const TypeSet<Pos::GeomID>&,
+						 ObjectSet<BendPoints>&);
 			~BendPointFinder2DGeomSet();
 
     od_int64		nrDone() const override;
@@ -41,15 +41,13 @@ public:
     uiString		uiMessage() const override;
     uiString		uiNrDoneText() const override;
 
-    const ObjectSet<BendPoints>& bendPoints() const	{ return bendptset_; }
-
 protected:
 
     int			nextStep() override;
 
     const TypeSet<Pos::GeomID>&	geomids_;
-    ObjectSet<BendPoints>	bendptset_;
-    int				curidx_;
+    ObjectSet<BendPoints>&	bendptset_;
+    int				curidx_				= 0;
 };
 
 
@@ -59,8 +57,8 @@ public:
 
     mExpStruct(Geometry) Point
     {
-			Point(Pos::GeomID id,int mynr,int linenr);
-			Point(Pos::GeomID myid,Pos::GeomID lineid,
+			Point(const Pos::GeomID& id,int mynr,int linenr);
+			Point(const Pos::GeomID& myid,const Pos::GeomID& lineid,
 			      int mynr,int linenr);
 			Point(const Point&);
 			~Point();
@@ -80,7 +78,7 @@ public:
 	int		linetrcnr;
     };
 
-			Line2DInterSection(Pos::GeomID);
+			Line2DInterSection(const Pos::GeomID&);
     virtual		~Line2DInterSection();
 
     Pos::GeomID		geomID() const		{ return geomid_; }
@@ -104,7 +102,8 @@ protected:
 };
 
 
-mExpClass(Geometry) Line2DInterSectionSet : public ObjectSet<Line2DInterSection>
+mExpClass(Geometry) Line2DInterSectionSet :
+		public ManagedObjectSet<Line2DInterSection>
 {
 public:
 				Line2DInterSectionSet();

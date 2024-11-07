@@ -128,9 +128,9 @@ protected:
     mutable bool		dodropnext_		= false;
     FlatView::AuxData*		patchdata_		= nullptr;
     TypeSet<EM::PosID>		pointselections_;
-    bool			sowingmode_		= false;
-    bool			pickinvd_		= true;
-    const Line2DInterSectionSet* line2dintersectionset_;
+    bool			sowingmode_;
+    bool			pickinvd_;
+    const Line2DInterSectionSet*	line2dintersectionset_	= nullptr;
 };
 
 } // namespace MPE

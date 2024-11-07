@@ -155,7 +155,7 @@ protected:
     void			remove2DViewer(int id,bool byvisid);
 
     ObjectSet<uiODViewer2D>	viewers2d_;
-    Line2DInterSectionSet*	l2dintersections_	= nullptr;
+    Line2DInterSectionSet*	l2dintersections_		= nullptr;
     SelectedAuxAnnot		selauxannot_;
     TypeSet<Pos::GeomID>	geom2dids_;
 

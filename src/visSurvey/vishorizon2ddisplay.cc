@@ -675,10 +675,11 @@ bool Horizon2DDisplay::calcLine2DIntersections(
 					const TypeSet<Pos::GeomID>& geom2dids,
 					Line2DInterSectionSet& intsectset )
 {
-    BendPointFinder2DGeomSet bpfinder( geom2dids );
+    ManagedObjectSet<BendPoints> bendpoints;
+    BendPointFinder2DGeomSet bpfinder( geom2dids, bendpoints );
     bpfinder.execute();
     intsectset.erase();
-    Line2DInterSectionFinder intfinder( bpfinder.bendPoints(), intsectset );
+    Line2DInterSectionFinder intfinder( bendpoints, intsectset );
     intfinder.execute();
 
     return intsectset.size()>0;

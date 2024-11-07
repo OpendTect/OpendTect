@@ -61,7 +61,7 @@ public:
     Notifier<HorizonPainter2D>	repaintdone_;
     void		setLine2DInterSectionSet(const Line2DInterSectionSet*);
     const Line2DInterSectionSet* getLine2DInterSectionSet()
-					    { return &intsectset_; }
+					    { return intsectset_; }
 
 protected:
 
@@ -76,8 +76,6 @@ protected:
     mDeprecated("Use create2DMarker without SectionID")
     Marker2D*		create2DMarker(const EM::SectionID&,float x,float z)
 			{ return create2DMarker( x, z ); }
-    bool		calcLine2DIntersections();
-
 
     EM::ObjectID	id_;
     TrcKeyZSampling	tkzs_;
@@ -93,11 +91,11 @@ protected:
     typedef ObjectSet<Marker2D>		SectionMarker2DLine;
     ObjectSet<SectionMarker2DLine>	markerline_;
     Marker2D*				markerseeds_;
+    const Line2DInterSectionSet*	intsectset_		= nullptr;
 
     bool		linenabled_;
     bool		seedenabled_;
     bool		intersection_;
-    Line2DInterSectionSet intsectset_;
     ObjectSet<Marker2D>   intsectmarks_;
     Marker2D*		  selectionpoints_;
 
