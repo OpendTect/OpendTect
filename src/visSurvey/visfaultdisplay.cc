@@ -192,6 +192,8 @@ RefMan<MPE::ObjectEditor> FaultDisplay::getMPEEditor( bool create )
 	    return nullptr;
 
 	faulteditor_ = MPE::FaultEditor::create( *emfault );
+	if ( faulteditor_ )
+            MPE::engine().addEditor( *faulteditor_.ptr() );
     }
 
     return faulteditor_.ptr();

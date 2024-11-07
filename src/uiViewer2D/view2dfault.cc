@@ -58,6 +58,8 @@ void Fault::setEditors()
 	RefMan<EM::EMObject> emobject = EM::EMM().getObject( emid_ );
 	mDynamicCastGet(EM::Fault3D*,fault,emobject.ptr());
 	f3deditor_ = fault ? MPE::FaultEditor::create( *fault ) : nullptr;
+	if ( f3deditor_ )
+	    MPE::engine().addEditor( *f3deditor_.ptr() );
     }
 
     for ( int ivwr=0; ivwr<viewerwin_->nrViewers(); ivwr++ )

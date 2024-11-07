@@ -94,6 +94,7 @@ public:
     CNotifier<Engine,const EM::ObjectID&> trackeradded;
 
 				//!< Editors
+    void			addEditor(ObjectEditor&);
     bool			hasEditor(const EM::ObjectID&) const;
     ConstRefMan<ObjectEditor>	getEditorByID(const EM::ObjectID&) const;
     RefMan<ObjectEditor>	getEditorByID(const EM::ObjectID&);

@@ -28,7 +28,7 @@ mDefStd(FaultSS3D)
 public:
 
     void		setTrcKeyZSampling(const TrcKeyZSampling&,
-					   bool upd=false );
+					   bool upd=false);
 
     void		draw();
     void		enablePainting(bool yn);

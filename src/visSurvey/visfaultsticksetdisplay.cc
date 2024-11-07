@@ -185,6 +185,8 @@ RefMan<MPE::ObjectEditor> FaultStickSetDisplay::getMPEEditor( bool create )
 	    return nullptr;
 
 	fsseditor_ = MPE::FaultStickSetEditor::create( *emfaultstickset );
+	if ( fsseditor_ )
+            MPE::engine().addEditor( *fsseditor_.ptr() );
     }
 
     return fsseditor_.ptr();

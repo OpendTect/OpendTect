@@ -167,6 +167,8 @@ RefMan<MPE::ObjectEditor> PolygonBodyDisplay::getMPEEditor( bool create )
 	    return nullptr;
 
 	polygonsurfeditor_ = MPE::PolygonBodyEditor::create( *empolys );
+	if ( polygonsurfeditor_ )
+	    MPE::engine().addEditor( *polygonsurfeditor_.ptr() );
     }
 
     return polygonsurfeditor_.ptr();

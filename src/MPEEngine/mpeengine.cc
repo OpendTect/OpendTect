@@ -559,6 +559,14 @@ void Engine::unsetOneActiveTracker()
 }
 
 
+void Engine::addEditor( ObjectEditor& editor )
+{
+    editors_.cleanupNullPtrs();
+    if ( !hasEditor(editor.objectID()) )
+	editors_ += &editor;
+}
+
+
 bool Engine::hasEditor( const EM::ObjectID& emid ) const
 {
     ConstRefMan<ObjectEditor> editor = getEditorByID( emid );

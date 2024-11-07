@@ -516,6 +516,8 @@ RefMan<MPE::ObjectEditor> HorizonDisplay::getMPEEditor( bool create )
 	    return nullptr;
 
 	mpeeditor_ = MPE::HorizonEditor::create( *horizon3d );
+	if ( mpeeditor_ )
+            MPE::engine().addEditor( *mpeeditor_.ptr() );
     }
 
     return mpeeditor_.ptr();

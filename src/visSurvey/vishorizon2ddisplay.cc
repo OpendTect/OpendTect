@@ -807,6 +807,8 @@ RefMan<MPE::ObjectEditor> Horizon2DDisplay::getMPEEditor( bool create )
 	    return nullptr;
 
 	mpeeditor_ = MPE::Horizon2DEditor::create( *horizon2d );
+	if ( mpeeditor_ )
+            MPE::engine().addEditor( *mpeeditor_.ptr() );
     }
 
     return mpeeditor_.ptr();

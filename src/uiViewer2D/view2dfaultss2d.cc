@@ -58,13 +58,15 @@ void FaultSS2D::setEditors()
 	RefMan<EM::EMObject> emobject = EM::EMM().getObject( emid_ );
 	mDynamicCastGet(EM::FaultStickSet*,fss,emobject.ptr());
 	fsseditor_ = fss ? MPE::FaultStickSetEditor::create( *fss ) : nullptr;
+	if ( fsseditor_ )
+	    MPE::engine().addEditor( *fsseditor_.ptr() );
     }
 
     deepErase( fsseds_ );
     for ( int ivwr=0; ivwr<viewerwin_->nrViewers(); ivwr++ )
     {
 	const uiFlatViewer& vwr = viewerwin_->viewer( ivwr );
-	ConstRefMan<RegularFlatDataPack> regfdp = vwr.getPack( true ).get();
+	ConstRefMan<RegularFlatDataPack> regfdp = vwr.getPack( true,true).get();
 	if ( !regfdp )
 	{
 	    fsseds_ += nullptr;
