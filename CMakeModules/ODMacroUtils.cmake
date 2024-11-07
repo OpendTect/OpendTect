@@ -494,6 +494,7 @@ if( OD_MODULE_TESTPROGS OR OD_MODULE_PROGS OR OD_MODULE_GUI_PROGS OR OD_ELEVATED
 
 	add_executable( ${TARGET_NAME} ${OD_EXEC_GUI_SYSTEM} ${EXEC} 
 			${OD_${TARGET_NAME}_RESOURCE} )
+	unset( OD_EXEC_GUI_SYSTEM )
 	OD_SET_UNICODE( ${TARGET_NAME} )
 	if ( OD_EXECUTABLE_COMPILE_FLAGS )
 	    set_source_files_properties( ${EXEC} PROPERTIES COMPILE_FLAGS
@@ -701,7 +702,7 @@ foreach ( TEST_FILE ${OD_TEST_PROGS} ${OD_BATCH_TEST_PROGS} ${OD_NIGHTLY_TEST_PR
     get_filename_component( TEST_NAME ${TEST_FILE} NAME_WE )
     set ( PARAMETER_FILE ${CMAKE_CURRENT_SOURCE_DIR}/tests/${TEST_NAME}.par )
     set ( TEST_NAME test_${TEST_NAME} )
-    add_executable( ${TEST_NAME} ${OD_EXEC_GUI_SYSTEM} tests/${TEST_FILE} )
+    add_executable( ${TEST_NAME} tests/${TEST_FILE} )
     OD_SET_UNICODE( ${TEST_NAME} )
     if ( OD_EXECUTABLE_COMPILE_FLAGS )
 	set_source_files_properties( tests/${TEST_FILE} PROPERTIES COMPILE_FLAGS
