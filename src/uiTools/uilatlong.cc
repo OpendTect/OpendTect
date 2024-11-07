@@ -160,7 +160,7 @@ uiLatLongInp::uiLatLongInp( uiParent* p )
 
     auto* inpgrp = new uiGroup( this, "Lat/Long inp grp" );
     uiFloatValidator validator( -180.f, 180.f );
-    validator.nrdecimals_ = 5;
+    validator.nrdecimals_ = 6;
     validator.scnotation_ = false;
     lngdecfld_ = new uiLineEdit( inpgrp, "Dec Longitude" );
     lngdecfld_->setValidator( validator );
