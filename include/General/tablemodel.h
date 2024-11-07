@@ -57,6 +57,7 @@ public:
 				  NumD, Color, Date, Enum, Other };
 
     virtual			~TableModel();
+				mOD_DisableCopy(TableModel)
 
     virtual int			nrRows() const				= 0;
     virtual int			nrCols() const				= 0;
