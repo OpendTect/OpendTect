@@ -8,7 +8,12 @@
 #
 
 set( BASEPACKAGES basedatadefs )
-set( PACKAGELIST basedefs develdefs odbatchdefs )
+if( ${OD_PLFSUBDIR} STREQUAL "lux64" )
+    set( PACKAGELIST odbatchdefs )
+else()
+    set( PACKAGELIST basedefs develdefs )
+endif()
+
 if ( BUILD_USERDOC AND EXISTS "${USERDOC_PROJECT}" )
     list( APPEND PACKAGELIST doc )
 endif()

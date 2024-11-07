@@ -173,6 +173,15 @@ macro ( CREATE_PACKAGE PACKAGE_NAME )
 		  DESTINATION ${COPYTOLIBDIR} )
 	endif()
     endif()
+
+    if( ${PACKAGE_NAME} STREQUAL "odbatch" )
+	COPY_SYSTEM_LIBS()
+	foreach( EXTERNALFILE ${EXTERNAL_BACKEND_FILES} )
+	    file( COPY ${COPYFROMLIBDIR}/${EXTERNALFILE}
+		  DESTINATION ${COPYTOLIBDIR} )
+	endforeach()
+    endif()
+
     foreach( EXTERNALLIB ${EXTERNALLIBS} )
 	file( COPY ${COPYFROMLIBDIR}/${EXTERNALLIB}
 	      DESTINATION ${COPYTOLIBDIR} )
@@ -200,6 +209,15 @@ macro ( CREATE_PACKAGE PACKAGE_NAME )
     ZIPPACKAGE( ${PACKAGE_FILENAME} ${REL_DIR} ${PACKAGE_DIR} )
 endmacro( CREATE_PACKAGE )
 
+macro( COPY_SYSTEM_LIBS )
+    if( NOT EXISTS ${COPYTOLIBDIR}/systemlibs )
+	file( MAKE_DIRECTORY ${COPYTOLIBDIR}/systemlibs )
+    endif()
+    foreach( LIB ${SYSTEMLIBS} )
+	file( COPY ${COPYFROMLIBDIR}/${LIB}
+	      DESTINATION ${COPYTOLIBDIR}/systemlibs )
+    endforeach()
+endmacro( COPY_SYSTEM_LIBS )
 
 macro( COPY_THIRDPARTYLIBS )
     list( APPEND SYSLIBS ${SYSTEMLIBS} )
