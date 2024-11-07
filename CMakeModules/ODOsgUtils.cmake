@@ -6,18 +6,29 @@
 #
 
 macro( OD_FIND_OSGDIR )
-    if ( NOT DEFINED OSG_DIR )
+    if ( IS_DIRECTORY "${OSG_DIR}" )
+	set( OSG_ROOT "${OSG_DIR}" CACHE PATH "OSG Location" )
+	unset( OSG_DIR CACHE )
+    endif()
+    if ( NOT DEFINED OSG_ROOT )
 	if ( DEFINED OSG_LIBRARY_RELEASE AND EXISTS ${OSG_LIBRARY_RELEASE} )
-	    get_filename_component( OSG_DIR ${OSG_LIBRARY_RELEASE} DIRECTORY )
+	    get_filename_component( OSG_ROOT ${OSG_LIBRARY_RELEASE} DIRECTORY )
 	elseif ( DEFINED OSG_LIBRARY_DEBUG AND EXISTS ${OSG_LIBRARY_DEBUG} )
-	    get_filename_component( OSG_DIR ${OSG_LIBRARY_DEBUG} DIRECTORY )
-	elseif ( DEFINED OSG_LIBRARY AND EXISTS ${OSG_LIBRARY} )
-	    get_filename_component( OSG_DIR ${OSG_LIBRARY} DIRECTORY )
-	else()
-	    set( OSG_DIR "" CACHE PATH "OSG Location" )
-	    message( FATAL_ERROR "OSG_DIR is not defined" )
+	    get_filename_component( OSG_ROOT ${OSG_LIBRARY_DEBUG} DIRECTORY )
+	elseif ( DEFINED OSG_LIBRARY )
+	    list(GET OSG_LIBRARY -1 OSG_LAST_LIBRARY )
+	    if ( EXISTS "${OSG_LAST_LIBRARY}" )
+		get_filename_component( OSG_ROOT ${OSG_LAST_LIBRARY} DIRECTORY )
+	    endif()
+	    unset( OSG_LAST_LIBRARY )
 	endif()
-	get_filename_component( OSG_DIR ${OSG_DIR} DIRECTORY )
+	if ( IS_DIRECTORY "${OSG_ROOT}" )
+	    get_filename_component( OSG_ROOT ${OSG_ROOT} DIRECTORY )
+	endif()
+	if ( NOT IS_DIRECTORY "${OSG_ROOT}" )
+	    set( OSG_ROOT "" CACHE PATH "OSG Location" )
+	    message( FATAL_ERROR "OSG_ROOT is not defined" )
+	endif()
     endif()
 endmacro(OD_FIND_OSGDIR)
 
@@ -37,7 +48,7 @@ macro( OD_CONF_OSGGEO )
 	"-DCMAKE_MODULE_LINKER_FLAGS_RELEASE=${CMAKE_EXT_LINKER_FLAGS_RELEASE}"
 	"-DCMAKE_SHARED_LINKER_FLAGS_RELEASE=${CMAKE_EXT_LINKER_FLAGS_RELEASE}"
 	"-DQTDIR=${QTDIR}"
-	"-DOSG_DIR=${OSG_DIR}"
+	"-DOSG_DIR=${OSG_ROOT}"
 	-DOSGGEO_LIB_POSTFIX=
 	-DOSGGEO_USE_DEBUG_OSG=ON
 	-DBUILD_EXAMPLES=OFF
@@ -145,7 +156,7 @@ macro( OSGGEO_GET_SYMBOLS )
 endmacro(OSGGEO_GET_SYMBOLS)
 
 macro( OD_FIND_OSG )
-    set(ENV{OSG_DIR} "${OSG_DIR}")
+    set(ENV{OSG_ROOT} "${OSG_ROOT}")
 
     if ( APPLE )
 	set( OSGGEO_DIR "${OSGGEO_EXT_DIR}/inst/Contents/Frameworks" )
@@ -192,7 +203,7 @@ macro( OD_ADD_OSG )
 	    unset( OD_OSGGEO_ISBUILT )
 	endif()
 
-	unset( OSG_DIR CACHE )
+	unset( OSG_ROOT CACHE )
     endif(OD_NO_OSG)
 
 endmacro(OD_ADD_OSG)
