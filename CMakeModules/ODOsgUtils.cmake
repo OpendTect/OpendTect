@@ -6,23 +6,23 @@
 #
 
 macro( OD_FIND_OSGDIR )
-    if ( NOT DEFINED OSG_DIR )
+    if ( NOT DEFINED OSG_ROOT )
 	if ( DEFINED OSG_LIBRARY_RELEASE AND EXISTS ${OSG_LIBRARY_RELEASE} )
-	    get_filename_component( OSG_DIR ${OSG_LIBRARY_RELEASE} DIRECTORY )
+	    get_filename_component( OSG_ROOT ${OSG_LIBRARY_RELEASE} DIRECTORY )
 	elseif ( DEFINED OSG_LIBRARY_DEBUG AND EXISTS ${OSG_LIBRARY_DEBUG} )
-	    get_filename_component( OSG_DIR ${OSG_LIBRARY_DEBUG} DIRECTORY )
+	    get_filename_component( OSG_ROOT ${OSG_LIBRARY_DEBUG} DIRECTORY )
 	elseif ( DEFINED OSG_LIBRARY )
 	    list(GET OSG_LIBRARY -1 OSG_LAST_LIBRARY )
 	    if ( EXISTS "${OSG_LAST_LIBRARY}" )
-		get_filename_component( OSG_DIR ${OSG_LAST_LIBRARY} DIRECTORY )
+		get_filename_component( OSG_ROOT ${OSG_LAST_LIBRARY} DIRECTORY )
 	    endif()
 	    unset( OSG_LAST_LIBRARY )
 	endif()
-	if ( IS_DIRECTORY "${OSG_DIR}" )
-	    get_filename_component( OSG_DIR ${OSG_DIR} DIRECTORY )
+	if ( IS_DIRECTORY "${OSG_ROOT}" )
+	    get_filename_component( OSG_ROOT ${OSG_ROOT} DIRECTORY )
 	endif()
     endif()
-    set(ENV{OSG_DIR} "${OSG_DIR}")
+    set(ENV{OSG_ROOT} "${OSG_ROOT}" )
 endmacro(OD_FIND_OSGDIR)
 
 macro( OD_CONF_OSGGEO )
@@ -51,7 +51,7 @@ macro( OD_CONF_OSGGEO )
 	"-DCMAKE_CXX_FLAGS_RELWITHDEBINFO=${OSG_CMAKE_CXX_FLAGS_RELWITHDEBINFO}"
 	"-DCMAKE_CXX_FLAGS_RELEASE=${OSG_CMAKE_CXX_FLAGS_RELEASE}"
 	"-DQTDIR=${QTDIR}"
-	"-DOSG_DIR=${OSG_DIR}"
+	"-DOSG_ROOT=${OSG_ROOT}"
 	-DOSGGEO_LIB_POSTFIX=
 	-DOSGGEO_USE_DEBUG_OSG=ON
 	-DBUILD_EXAMPLES=OFF
@@ -283,7 +283,7 @@ macro( OD_ADD_OSGGEO )
 
     if ( NOT OD_NO_OSG )
 	OD_FIND_OSGDIR()
-	if ( IS_DIRECTORY "${OSG_DIR}" )
+	if ( IS_DIRECTORY "${OSG_ROOT}" )
 	    set( OSGGEO_EXT_DIR "${OD_BINARY_BASEDIR}/external/osgGeo" )
 	    if ( NOT EXISTS "${OSGGEO_EXT_DIR}/CMakeCache.txt" )
 		OD_CONF_OSGGEO()
@@ -324,7 +324,7 @@ macro( OD_FIND_OSG )
 	if ( OSG_FOUND AND OPENTHREADS_FOUND AND OSGGEO_FOUND )
 	    OD_OSG_CREATETARGETS( "${OSGMODULES}" )
 	else()
-	    set( OSG_DIR "" CACHE PATH "OSG Location" )
+	    set( OSG_ROOT "" CACHE PATH "OSG Location" )
 	    if ( NOT OSG_FOUND )
 		message( SEND_ERROR "Cannot find the OpenSceneGraph installation" )
 	    elseif ( NOT OPENTHREADS_FOUND )
