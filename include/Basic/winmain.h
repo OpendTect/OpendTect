@@ -20,14 +20,14 @@ int APIENTRY wWinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance,
 {
     static std::vector<std::string> argvlist;
     static std::unique_ptr<char*> argv_( new char*[__argc] );
-    char** test = argv_.get();
+    char** argv = argv_.get();
     for ( int idx=0; idx<__argc; idx++ )
     {
 	argvlist.push_back( QString( __wargv[idx] ).toStdString() );
-	argv_.get()[idx] = (char*)( argvlist[idx].c_str() );
+	argv[idx] = (char*)( argvlist[idx].c_str() );
     }
 
-    return main( __argc, argv_.get() ); // __argc and __wargv defined in windows.h;
+    return main( __argc, argv ); // __argc and __wargv defined in windows.h;
 }
 #else
 int APIENTRY WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance,
