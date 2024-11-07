@@ -25,6 +25,8 @@ mExpClass(General) IODirEntry : public NamedObject
 {
 public:
 			IODirEntry(const IOObj*);
+			~IODirEntry();
+
     const IOObj*	ioobj_;
 };
 

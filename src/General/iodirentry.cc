@@ -17,7 +17,7 @@ ________________________________________________________________________
 #include "filepath.h"
 
 
-
+// IODirEntry
 IODirEntry::IODirEntry( const IOObj* iob )
     : NamedObject("")
     , ioobj_(iob)
@@ -25,6 +25,13 @@ IODirEntry::IODirEntry( const IOObj* iob )
     setName( ioobj_ ? ioobj_->name().str() : ".." );
 }
 
+
+IODirEntry::~IODirEntry()
+{}
+
+
+
+// IODirEntryList
 
 IODirEntryList::IODirEntryList( const IODir& id, const TranslatorGroup* tr,
 				bool maycd, const char* f )

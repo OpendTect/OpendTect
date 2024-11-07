@@ -365,11 +365,11 @@ void launchLocate( const MultiID& key ) override
     , itemChosen(this) \
     , newStatusMsg(this) \
     , listUpdated(this) \
+    , zDomainChanged(this) \
     , itemAdded(this) \
     , itemRemoved(this) \
+    , itemInitRead(this) \
     , itemChanged(this) \
-	, zDomainChanged(this) \
-	, itemInitRead(this) \
     , launchLocate(this) \
     , ctio_(*new CtxtIOObj(c))
 

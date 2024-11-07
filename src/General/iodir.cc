@@ -13,12 +13,11 @@ ________________________________________________________________________
 #include "dbdir.h"
 #include "file.h"
 #include "filepath.h"
-#include "hiddenparam.h"
 #include "ioman.h"
-#include "iosubdir.h"
 #include "safefileio.h"
 #include "separstr.h"
 #include "surveydisklocation.h"
+
 
 IODir::IODir( const char* dirnm )
     : dirname_(dirnm)
