@@ -921,19 +921,19 @@ void OD3DViewer::setCameraPos( const osg::Vec3f& updir,
 }
 
 
-void OD3DViewer::viewPlaneX()
+void OD3DViewer::viewPlaneX( bool animate )
 {
-    setCameraPos( osg::Vec3f(0,0,1), osg::Vec3f(1,0,0), false, true );
+    setCameraPos( osg::Vec3f(0,0,1), osg::Vec3f(1,0,0), false, animate );
 }
 
 
-void OD3DViewer::viewPlaneY()
+void OD3DViewer::viewPlaneY( bool animate )
 {
-    setCameraPos( osg::Vec3f(0,0,1), osg::Vec3f(0,1,0), false, true );
+    setCameraPos( osg::Vec3f(0,0,1), osg::Vec3f(0,1,0), false, animate );
 }
 
 
-void OD3DViewer::viewPlaneZ()
+void OD3DViewer::viewPlaneZ( bool animate )
 {
     osg::ref_ptr<osgGeo::TrackballManipulator> manip = getCameraManipulator();
     if ( !manip ) return;
@@ -948,7 +948,7 @@ void OD3DViewer::viewPlaneZ()
 
     newup.normalize();
 
-    setCameraPos( newup, osg::Vec3d(0,0,1), true, true );
+    setCameraPos( newup, osg::Vec3d(0,0,1), true, animate );
 }
 
 
@@ -958,9 +958,9 @@ void OD3DViewer::viewPlaneN( bool animate )
 }
 
 
-void OD3DViewer::viewPlaneYZ()
+void OD3DViewer::viewPlaneYZ( bool animate )
 {
-    setCameraPos( osg::Vec3f(0,1,1), osg::Vec3f(0,0,1), true, true );
+    setCameraPos( osg::Vec3f(0,1,1), osg::Vec3f(0,0,1), true, animate );
 }
 
 
@@ -988,11 +988,11 @@ void OD3DViewer::viewPlaneInl( bool animate )
 }
 
 
-void OD3DViewer::viewPlaneCrl()
+void OD3DViewer::viewPlaneCrl( bool animate )
 {
     osg::Vec3f crlvec;
     getInlCrlVec( crlvec, false );
-    setCameraPos( osg::Vec3f(0,0,1), crlvec, false, true );
+    setCameraPos( osg::Vec3f(0,0,1), crlvec, false, animate );
 }
 
 

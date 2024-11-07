@@ -95,13 +95,13 @@ public:
     void			setCameraPerspective(bool yn);
 
     void			align();
-    void			viewPlaneX();
-    void			viewPlaneY();
-    void			viewPlaneZ();
+    void			viewPlaneX(bool animate=true);
+    void			viewPlaneY(bool animate=true);
+    void			viewPlaneZ(bool animate=true);
     void			viewPlaneInl(bool animate=true);
-    void			viewPlaneCrl();
+    void			viewPlaneCrl(bool animate=true);
     void			viewPlaneN(bool animate=true);
-    void			viewPlaneYZ();
+    void			viewPlaneYZ(bool animate=true);
 
     void			uiRotate(float angle,bool horizontal);
     void			uiZoom(float rel,const osg::Vec3f* dir=0);
