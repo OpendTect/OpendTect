@@ -157,8 +157,7 @@ bool HDF5::Access::isEnvBlocked( const char* typ )
 
 bool HDF5::Access::isEnabled( const char* typ )
 {
-    if ( !HDF5::isAvailable() || isEnvBlocked(typ)
-      || !Settings::common().isTrue(sSettingsEnabKey()) )
+    if ( !HDF5::isAvailable() || isEnvBlocked(typ) )
 	return false;
 
     if ( StringView(typ).isEmpty() )
