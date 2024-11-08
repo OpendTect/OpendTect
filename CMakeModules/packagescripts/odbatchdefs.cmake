@@ -10,8 +10,9 @@
 #OpendTect libraries
 set( LIBLIST Basic;Algo;General;Database;Strat;Network;Batch;Geometry;EarthModel;Well;MMProc;Seis;NLA;AttributeEngine;Velocity;VolumeProcessing;PreStackProcessing;Attributes;MPEEngine;EMAttrib;WellAttrib)
 
-set( SYSTEMLIBS libstdc++.so.6 libgcc_s.so.1 )
-set( EXTERNAL_BACKEND_FILES libcrypto.so.3 libhdf5_cpp.so.310 libhdf5.so.310 libicudata.so.56 libicui18n.so.56 libicuuc.so.56 libproj.so.25 libQt5Core.so.5 libQt5Network.so.5 libQt5Sql.so.5 libsqlite3.so.0 libssl.so.3 libz.so.1 qt.conf )
+set( SYSTEMLIBS stdc++;gcc_s )
+set( EXTERNAL_BACKEND_LIBS hdf5_cpp;hdf5;icudata;icui18n;icuuc;proj;Qt5Core;Qt5Network;Qt5Sql;sqlite3;z )
+set( OPENSSLLIBS crypto;ssl )
 
 set( PLUGINS CEEMDAttrib;CRS;ExpAttribs;GLCM;ODHDF5;)
 
