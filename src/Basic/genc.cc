@@ -36,6 +36,7 @@ ________________________________________________________________________
 #include <string.h>
 
 #include <math.h>
+#include <memory>
 #include <stdlib.h>
 #ifdef __win__
 # include <float.h>
@@ -64,10 +65,10 @@ ________________________________________________________________________
 
 static BufferString		initialdir_;
 static int			argc_ = -1;
-static char**			argv_ = nullptr;
+static std::unique_ptr<char*>	argv_ = nullptr;
 static bool			needdataroot_ = true;
 int& GetArgC()			{ return argc_; }
-char** GetArgV()		{ return argv_; }
+char** GetArgV()		{ return argv_.get(); }
 bool NeedDataBase()		{ return needdataroot_; }
 bool AreProgramArgsSet()	{ return argc_ != -1; }
 
@@ -522,14 +523,15 @@ bool StartProgramCopy()
     if ( AreProgramArgsSet() && od_debug_isOn(DBG_PROGSTART) )
     {
 	std::cerr << "\nCreating Program copy (PID: " << GetPID() << std::endl;
-#ifndef __win__
+#ifdef __unix__
 	int dateres mUnusedVar = system( "date" );
 #endif
     }
 
-    OS::MachineCommand machcomm( argv_[0] );
+    const char** argv = const_cast<const char**>( argv_.get() );
+    OS::MachineCommand machcomm( argv[0] );
     for ( int idx=1; idx<argc_; idx++ )
-	machcomm.addArg( argv_[idx] );
+	machcomm.addArg( argv[idx] );
     return machcomm.execute( OS::RunInBG );
 }
 
@@ -860,12 +862,16 @@ mExtern(Basic) bool SetProgramArgs( int argc, char** argv, bool ddrequired )
     if ( !getcwdres )
 	{ pFreeFnErrMsg("Cannot read current directory"); }
 
-    argc_ = argc;
-    argv_ = new char* [argc_];
-    for ( int idx=0; idx<argc_; idx++ )
-	argv_[idx] = argv[idx];
+    if ( argv != argv_.get() )
+    {
+	argc_ = argc;
+	argv_ = std::unique_ptr<char*>( new char*[argc_] );
+	char** newargv = argv_.get();
+	for ( int idx=0; idx<argc_; idx++ )
+	    newargv[idx] = argv[idx];
+    }
 
-    od_putProgInfo( argc_, argv_ );
+    od_putProgInfo( argc_, GetArgV() );
     needdataroot_ = ddrequired;
 
 #ifdef __unix__
@@ -975,9 +981,9 @@ mExternC(Basic) const char* GetExecutableName( void )
 	if ( !execnmoverrule.isEmpty() )
 	    return execnmoverrule.buf();
 
-	FilePath fpargv0 = argv_[0];
+	FilePath fpargv0 = argv_.get()[0];
 	if ( !fpargv0.isAbsolute() )
-	    fpargv0 = FilePath( initialdir_, argv_[0] );
+	    fpargv0 = FilePath( initialdir_, argv_.get()[0] );
 
 	fpargv0.setExtension( nullptr );
 	res = fpargv0.fileName();
