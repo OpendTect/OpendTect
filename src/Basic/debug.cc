@@ -125,7 +125,9 @@ void od_test_prog_crash_handler(int)
 
 void od_init_test_program( int argc, char** argv, bool withdatabase )
 {
-    SetProgramArgs( argc, argv, withdatabase );
+    if ( !AreProgramArgsSet() )
+	SetProgramArgs( argc, argv, withdatabase );
+
     signal( SIGSEGV, od_test_prog_crash_handler );
     DBG::setCrashOnProgError( true );
 

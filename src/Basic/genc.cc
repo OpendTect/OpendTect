@@ -861,13 +861,16 @@ mExtern(Basic) bool SetProgramArgs( int argc, char** argv, bool ddrequired )
     if ( !getcwdres )
 	{ pFreeFnErrMsg("Cannot read current directory"); }
 
-    argc_ = argc;
-    argv_ = std::unique_ptr<char*>( new char*[argc_] );
-    char** newargv = argv_.get();
-    for ( int idx=0; idx<argc_; idx++ )
-	newargv[idx] = argv[idx];
+    if ( argv != argv_.get() )
+    {
+	argc_ = argc;
+	argv_ = std::unique_ptr<char*>( new char*[argc_] );
+	char** newargv = argv_.get();
+	for ( int idx=0; idx<argc_; idx++ )
+	    newargv[idx] = argv[idx];
+    }
 
-    od_putProgInfo( argc_, newargv );
+    od_putProgInfo( argc_, GetArgV() );
     needdataroot_ = ddrequired;
 
 #ifdef __unix__
