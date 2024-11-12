@@ -357,13 +357,13 @@ bool Engine::prepareForTrackInVolume( uiString& )
     if ( validator_ && !validator_->checkPreloadedData(key) )
 	return false;
 
-    ConstRefMan<RegularSeisDataPack> seisdp =
+    ConstRefMan<RegularSeisDataPack> regsdp =
 				Seis::PLDM().get<RegularSeisDataPack>( key );
-    if ( !seisdp )
+    if ( !regsdp )
 	return false;
 
-    setAttribData( as, *seisdp.ptr() );
-    setActiveVolume( seisdp->sampling() );
+    setAttribData( as, *regsdp.ptr() );
+    setActiveVolume( regsdp->sampling() );
     return true;
 }
 
@@ -683,22 +683,22 @@ int Engine::getCacheIndexOf( const Attrib::SelSpec& as ) const
 	if ( as.is2D() )
 	    return idx;
 
-	ConstRefMan<SeisDataPack> seisdp = cachespecs.seisdp_.get();
-	if ( !seisdp )
+	ConstRefMan<VolumeDataPack> voldp = cachespecs.voldp_.get();
+	mDynamicCastGet(const SeisVolumeDataPack*,seisvoldp,voldp.ptr());
+	if ( !seisvoldp )
 	    continue;
 
-	mDynamicCastGet(const RegularSeisDataPack*,regseisdp,seisdp.ptr())
-	if ( regseisdp )
+	mDynamicCastGet(const RegularSeisDataPack*,regsdp,seisvoldp)
+	if ( regsdp )
 	{
-	    const TrcKeySampling cachedtkzs = regseisdp->sampling().hsamp_;
+	    const TrcKeySampling cachedtkzs = regsdp->sampling().hsamp_;
 	    if ( cachedtkzs.includes(activevolume_.hsamp_) )
 		return idx;
 	    else
 		continue;
 	}
 
-	mDynamicCastGet(const RandomSeisDataPack*,randomdp,seisdp.ptr())
-	if ( randomdp )
+	if ( seisvoldp->isRandom() )
 	    return idx;
     }
 
@@ -706,21 +706,21 @@ int Engine::getCacheIndexOf( const Attrib::SelSpec& as ) const
 }
 
 
-ConstRefMan<SeisDataPack> Engine::getAttribCacheDP(
+ConstRefMan<VolumeDataPack> Engine::getAttribCacheDP(
 					const Attrib::SelSpec& as ) const
 {
     const int idx = getCacheIndexOf(as);
     if ( !attribcachespecs_.validIdx(idx) )
 	return nullptr;
 
-    return attribcachespecs_.get( idx )->seisdp_.get();
+    return attribcachespecs_.get( idx )->voldp_.get();
 }
 
 
 bool Engine::hasAttribCache( const Attrib::SelSpec& as ) const
 {
-    ConstRefMan<SeisDataPack> seisdp = getAttribCacheDP( as );
-    return seisdp.ptr();
+    ConstRefMan<VolumeDataPack> voldp = getAttribCacheDP( as );
+    return voldp.ptr();
 }
 
 
@@ -731,7 +731,7 @@ bool Engine::setAttribData( const Attrib::SelSpec& as,
     if ( !seisfdp )
 	return false;
 
-    ConstRefMan<SeisDataPack> sourcedp = seisfdp->getSource();
+    ConstRefMan<SeisVolumeDataPack> sourcedp = seisfdp->getSource();
     return sourcedp ? setAttribData_( as, *sourcedp.ptr() ) : false;
 }
 
@@ -744,20 +744,20 @@ bool Engine::setAttribData( const Attrib::SelSpec& as,
 
 
 bool Engine::setAttribData_( const Attrib::SelSpec& as,
-			     const SeisDataPack& cacheidin )
+			     const VolumeDataPack& cacheidin )
 {
-    ConstRefMan<SeisDataPack> seisdp = &cacheidin;
+    ConstRefMan<VolumeDataPack> voldp = &cacheidin;
     const int idx = getCacheIndexOf( as );
     if ( attribcachespecs_.validIdx(idx) )
     {
-	attribcachespecs_.get( idx )->seisdp_ = seisdp.getNonConstPtr();
+	attribcachespecs_.get( idx )->voldp_ = voldp.getNonConstPtr();
     }
-    else if ( seisdp )
+    else if ( voldp )
     {
 	auto* attribcachespec = as.is2D()
 			      ? new CacheSpecs( as, activeGeomID() )
 			      : new CacheSpecs( as, Survey::default3DGeomID() );
-	attribcachespec->seisdp_ = seisdp.getNonConstPtr();
+	attribcachespec->voldp_ = voldp.getNonConstPtr();
 	attribcachespecs_.add( attribcachespec );
     }
 
@@ -768,15 +768,15 @@ bool Engine::setAttribData_( const Attrib::SelSpec& as,
 bool Engine::cacheIncludes( const Attrib::SelSpec& as,
 			    const TrcKeyZSampling& cs )
 {
-    ConstRefMan<SeisDataPack> seisdp = getAttribCacheDP( as );
-    if ( !seisdp )
+    ConstRefMan<VolumeDataPack> voldp = getAttribCacheDP( as );
+    if ( !voldp )
 	return false;
 
-    mDynamicCastGet(const RegularSeisDataPack*,regseisdp,seisdp.ptr());
-    if ( !regseisdp )
+    mDynamicCastGet(const RegularSeisDataPack*,regsdp,voldp.ptr());
+    if ( !regsdp )
 	return false;
 
-    TrcKeyZSampling cachedtkzs = regseisdp->sampling();
+    TrcKeyZSampling cachedtkzs = regsdp->sampling();
     const float zrgeps = 0.01f * SI().zStep();
     cachedtkzs.zsamp_.widen( zrgeps );
     return cachedtkzs.includes( cs );
@@ -799,15 +799,16 @@ RefMan<FlatDataPack> Engine::getSeedPosDataPack( const TrcKey& tk, float z,
     if ( specs.isEmpty() )
 	return nullptr;
 
-    ConstRefMan<SeisDataPack> seisdp = getAttribCacheDP( specs.first() );
-    if ( !seisdp )
+    ConstRefMan<VolumeDataPack> voldp = getAttribCacheDP( specs.first() );
+    if ( !voldp )
 	return nullptr;
 
-    const int globidx = seisdp->getNearestGlobalIdx( tk );
+    const int globidx = voldp->getNearestGlobalIdx( tk );
     if ( globidx < 0 )
 	return nullptr;
 
-    ZSampling zintv2 = zintv; zintv2.step_ = seisdp->zRange().step_;
+    ZSampling zintv2 = zintv;
+    zintv2.step_ = voldp->zRange().step_;
     const int nrz = zintv2.nrSteps() + 1;
     auto* seeddata = new Array2DImpl<float>( nrtrcs, nrz );
     if ( !seeddata->isOK() )
@@ -819,16 +820,16 @@ RefMan<FlatDataPack> Engine::getSeedPosDataPack( const TrcKey& tk, float z,
     seeddata->setAll( mUdf(float) );
 
     const int trcidx0 = globidx - (int)(nrtrcs/2);
-    const ZSampling zsamp = seisdp->zRange();
+    const ZSampling zsamp = voldp->zRange();
     const int zidx0 = zsamp.getIndex( z + zintv.start_ );
     for ( int tidx=0; tidx<nrtrcs; tidx++ )
     {
 	const int curtrcidx = trcidx0+tidx;
-	if ( curtrcidx<0 || curtrcidx >= seisdp->nrTrcs() )
+	if ( curtrcidx<0 || curtrcidx >= voldp->nrTrcs() )
 	    continue;
 
 	const OffsetValueSeries<float> ovs =
-			    seisdp->getTrcStorage( 0, trcidx0+tidx );
+			    voldp->getTrcStorage( 0, trcidx0+tidx );
 	for ( int zidx=0; zidx<nrz; zidx++ )
 	{
 	    const float val = ovs[zidx0+zidx];

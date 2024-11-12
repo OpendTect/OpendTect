@@ -12,6 +12,7 @@ ________________________________________________________________________
 
 #include "multiid.h"
 #include "posinfo2dsurv.h"
+#include "seisdatapack.h"
 #include "visdrawstyle.h"
 #include "vispolyline.h"
 #include "vistext.h"
@@ -178,14 +179,14 @@ protected:
 							  TaskRunner* =nullptr);
 
     bool			usesDataPacks() const override	{ return true; }
-    bool			setSeisDataPack(int attrib,SeisDataPack*,
+    bool			setVolumeDataPack(int attrib,VolumeDataPack*,
 						TaskRunner*) override;
     ConstRefMan<DataPack>	getDataPack(int attrib) const override;
-    ConstRefMan<SeisDataPack>	getSeisDataPack(int attrib) const override;
-    RefMan<SeisDataPack>	getSeisDataPack(int attrib);
-    ConstRefMan<SeisDataPack>	getDisplayedSeisDataPack(int attrib)
+    ConstRefMan<VolumeDataPack> getVolumeDataPack(int attrib) const override;
+    RefMan<VolumeDataPack>	getVolumeDataPack(int attrib);
+    ConstRefMan<VolumeDataPack> getDisplayedVolumeDataPack(int attrib)
 								const override;
-    RefMan<SeisDataPack>	getDisplayedSeisDataPack(int attrib);
+    RefMan<VolumeDataPack>	getDisplayedVolumeDataPack(int attrib);
 
     bool			getNearestTrace(const Coord3&,int& idx,
 						float& sqdist) const;

@@ -239,13 +239,14 @@ Viewer2DID uiODViewer2DMgr::displayIn2DViewer( DataPackID dpid,
 					bool dowva )
 {
     const DataPackMgr& dpm = DPM(DataPackMgr::SeisID());
-    ConstRefMan<SeisDataPack> seisdp = dpm.get<SeisDataPack>( dpid );
-    if ( !seisdp )
+    ConstRefMan<SeisVolumeDataPack> seisvoldp =
+					dpm.get<SeisVolumeDataPack>( dpid );
+    if ( !seisvoldp )
 	return Viewer2DID::udf();
 
     const FlatView::Viewer::VwrDest dest = FlatView::Viewer::getDest( dowva,
 								      !dowva );
-    return displayIn2DViewer( *seisdp.ptr(), as, pars, dest );
+    return displayIn2DViewer( *seisvoldp.ptr(), as, pars, dest );
 }
 
 
@@ -255,7 +256,7 @@ Viewer2DID uiODViewer2DMgr::displayIn2DViewer( DataPackID dpid,
 					FlatView::Viewer::VwrDest dest )
 {
     const DataPackMgr& dpm = DPM(DataPackMgr::SeisID());
-    ConstRefMan<SeisDataPack> seisdp = dpm.get<SeisDataPack>( dpid );
+    ConstRefMan<SeisVolumeDataPack> seisdp = dpm.get<SeisVolumeDataPack>( dpid);
     if ( !seisdp )
 	return Viewer2DID::udf();
 
@@ -263,14 +264,14 @@ Viewer2DID uiODViewer2DMgr::displayIn2DViewer( DataPackID dpid,
 }
 
 
-Viewer2DID uiODViewer2DMgr::displayIn2DViewer( const SeisDataPack& sdp,
+Viewer2DID uiODViewer2DMgr::displayIn2DViewer( const VolumeDataPack& voldp,
 					const Attrib::SelSpec& as,
 					const FlatView::DataDispPars::VD& pars,
 					FlatView::Viewer::VwrDest dest )
 {
     uiODViewer2D* vwr2d = &addViewer2D( VisID::udf() );
     vwr2d->setSelSpec( &as, FlatView::Viewer::Both );
-    vwr2d->makeUpView( vwr2d->createFlatDataPackRM(sdp,0).ptr(),
+    vwr2d->makeUpView( vwr2d->createFlatDataPackRM(voldp,0).ptr(),
 		       FlatView::Viewer::Both );
     vwr2d->setWinTitle( false );
 
@@ -306,7 +307,7 @@ Viewer2DID uiODViewer2DMgr::displayIn2DViewer( Viewer2DPosDataSel& posdatasel,
 					float initialx1pospercm,
 					float initialx2pospercm )
 {
-    ConstRefMan<SeisDataPack> seisdp;
+    ConstRefMan<VolumeDataPack> voldp;
     uiAttribPartServer* attrserv = appl_.applMgr().attrServer();
     attrserv->setTargetSelSpec( posdatasel.selspec_ );
     const bool isrl =
@@ -323,13 +324,13 @@ Viewer2DID uiODViewer2DMgr::displayIn2DViewer( Viewer2DPosDataSel& posdatasel,
 	    return Viewer2DID::udf();
 
 	posdatasel.tkzs_.zsamp_.setInterval( rdmline->zRange() );
-	seisdp = attrserv->createRdmTrcsOutputRM(
-		posdatasel.tkzs_.zsamp_, rdmline->ID() );
+	voldp = attrserv->createRdmTrcsOutputRM( posdatasel.tkzs_.zsamp_,
+						 rdmline->ID() );
     }
     else
-	seisdp = attrserv->createOutput( posdatasel.tkzs_ );
+	voldp = attrserv->createOutput( posdatasel.tkzs_ );
 
-    if ( !seisdp )
+    if ( !voldp )
 	return Viewer2DID::udf();
 
     uiODViewer2D* vwr2d = &addViewer2D( VisID::udf() );
@@ -342,7 +343,7 @@ Viewer2DID uiODViewer2DMgr::displayIn2DViewer( Viewer2DPosDataSel& posdatasel,
 
     vwr2d->setInitialX1PosPerCM( initialx1pospercm );
     vwr2d->setInitialX2PosPerCM( initialx2pospercm );
-    vwr2d->makeUpView( vwr2d->createFlatDataPackRM(*seisdp,0).ptr(),
+    vwr2d->makeUpView( vwr2d->createFlatDataPackRM(*voldp,0).ptr(),
 		       FlatView::Viewer::Both );
     vwr2d->setWinTitle( false );
     vwr2d->useStoredDispPars( dest );
@@ -376,9 +377,9 @@ void uiODViewer2DMgr::displayIn2DViewer( const VisID& visid, int attribid,
 void uiODViewer2DMgr::displayIn2DViewer( const VisID& visid, int attribid,
 					 FlatView::Viewer::VwrDest dest )
 {
-    ConstRefMan<SeisDataPack> seisdp = visServ().getDisplayedSeisDataPack(
+    ConstRefMan<VolumeDataPack> voldp = visServ().getDisplayedVolumeDataPack(
 							    visid, attribid );
-    if ( !seisdp )
+    if ( !voldp )
 	return;
 
     uiODViewer2D* vwr2d = find2DViewer( visid );
@@ -412,13 +413,13 @@ void uiODViewer2DMgr::displayIn2DViewer( const VisID& visid, int attribid,
     if ( isnewvwr )
     {
 	RefMan<SeisFlatDataPack> flatsdp =
-			vwr2d->createFlatDataPackRM( *seisdp.ptr(), version );
+			vwr2d->createFlatDataPackRM( *voldp.ptr(), version );
 	vwr2d->makeUpView( flatsdp.ptr(), FlatView::Viewer::Both );
     }
     else
     {
 	RefMan<SeisFlatDataPack> flatsdp =
-			vwr2d->createFlatDataPackRM( *seisdp.ptr(), version );
+			vwr2d->createFlatDataPackRM( *voldp.ptr(), version );
 	vwr2d->makeUpView( flatsdp.ptr(), dest );
     }
 

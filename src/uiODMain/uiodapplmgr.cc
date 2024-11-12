@@ -545,14 +545,14 @@ bool uiODApplMgr::getNewData( const VisID& visid, int attrib )
     if ( selspecchanged )
 	visserv_->setSelSpecs( visid, attrib, myas );
 
-    ConstRefMan<SeisDataPack> seisdp =
-				visserv_->getSeisDataPack( visid, attrib );
+    ConstRefMan<VolumeDataPack> voldp =
+				visserv_->getVolumeDataPack( visid, attrib );
     bool res = false;
     switch ( visserv_->getAttributeFormat(visid,attrib) )
     {
 	case uiVisPartServer::Cube :
 	{
-	    mDynamicCastGet(const RegularSeisDataPack*,regseisdp,seisdp.ptr());
+	    mDynamicCastGet(const RegularSeisDataPack*,regsdp,voldp.ptr());
 	    const TrcKeyZSampling tkzs =
 				visserv_->getTrcKeyZSampling( visid, attrib );
 	    if ( !tkzs.isDefined() )
@@ -577,7 +577,7 @@ bool uiODApplMgr::getNewData( const VisID& visid, int attrib )
 		}
 
 		uiTaskRunner progm( &appl_ );
-		newdp = calc->createAttrib( tkzs, regseisdp, &progm );
+		newdp = calc->createAttrib( tkzs, regsdp, &progm );
 		if ( !newdp && !calc->errmsg_.isEmpty() )
 		{
 		    if ( ODMainWin()->isRestoringSession() )
@@ -589,7 +589,7 @@ bool uiODApplMgr::getNewData( const VisID& visid, int attrib )
 	    else
 	    {
 		attrserv_->setTargetSelSpecs( myas );
-		newdp = attrserv_->createOutput( tkzs, regseisdp );
+		newdp = attrserv_->createOutput( tkzs, regsdp );
 	    }
 
 	    const TypeSet<Attrib::SelSpec>& tmpset =

@@ -650,7 +650,7 @@ Interval<float> PlaneDataDisplay::getDataTraceRange() const
 
 TrcKeyZSampling PlaneDataDisplay::getDataPackSampling( int attrib ) const
 {
-    ConstRefMan<RegularSeisDataPack> regsdp = getSeisDataPack( attrib );
+    ConstRefMan<RegularSeisDataPack> regsdp = getVolumeDataPack( attrib );
     const TrcKeyZSampling tkzs =
 		    regsdp ? regsdp->sampling() : getTrcKeyZSampling( attrib );
     return tkzs;
@@ -778,10 +778,10 @@ TrcKeyZSampling PlaneDataDisplay::getTrcKeyZSampling( bool manippos,
 }
 
 
-bool PlaneDataDisplay::setSeisDataPack( int attrib, SeisDataPack* seisdp,
+bool PlaneDataDisplay::setVolumeDataPack( int attrib, VolumeDataPack* voldp,
 					TaskRunner* taskr )
 {
-    mDynamicCastGet(RegularSeisDataPack*,regseisdp,seisdp);
+    mDynamicCastGet(RegularSeisDataPack*,regseisdp,voldp);
     if ( !regseisdp || regseisdp->isEmpty() )
     {
 	channels_->setUnMappedData( attrib, 0, 0, OD::UsePtr, nullptr );
@@ -798,17 +798,18 @@ bool PlaneDataDisplay::setSeisDataPack( int attrib, SeisDataPack* seisdp,
 
 ConstRefMan<DataPack> PlaneDataDisplay::getDataPack( int attrib ) const
 {
-    return getSeisDataPack( attrib );
+    return getVolumeDataPack( attrib );
 }
 
 
-ConstRefMan<SeisDataPack> PlaneDataDisplay::getSeisDataPack( int attrib ) const
+ConstRefMan<VolumeDataPack>
+			PlaneDataDisplay::getVolumeDataPack( int attrib ) const
 {
-    return mSelf().getSeisDataPack( attrib );
+    return mSelf().getVolumeDataPack( attrib );
 }
 
 
-RefMan<SeisDataPack> PlaneDataDisplay::getSeisDataPack( int attrib )
+RefMan<VolumeDataPack> PlaneDataDisplay::getVolumeDataPack( int attrib )
 {
     if ( !datapacks_.validIdx(attrib) || !datapacks_[attrib] )
 	return nullptr;
@@ -817,14 +818,15 @@ RefMan<SeisDataPack> PlaneDataDisplay::getSeisDataPack( int attrib )
 }
 
 
-ConstRefMan<SeisDataPack> PlaneDataDisplay::getDisplayedSeisDataPack(
+ConstRefMan<VolumeDataPack> PlaneDataDisplay::getDisplayedVolumeDataPack(
 							int attrib ) const
 {
-    return mSelf().getDisplayedSeisDataPack( attrib );
+    return mSelf().getDisplayedVolumeDataPack( attrib );
 }
 
 
-RefMan<SeisDataPack> PlaneDataDisplay::getDisplayedSeisDataPack( int attrib )
+RefMan<VolumeDataPack>
+		PlaneDataDisplay::getDisplayedVolumeDataPack( int attrib )
 {
     if ( datatransform_ && !alreadyTransformed(attrib) )
     {
@@ -834,7 +836,7 @@ RefMan<SeisDataPack> PlaneDataDisplay::getDisplayedSeisDataPack( int attrib )
 	return transformedpacks_[attrib];
     }
 
-    return getSeisDataPack( attrib );
+    return getVolumeDataPack( attrib );
 }
 
 
@@ -858,8 +860,8 @@ bool PlaneDataDisplay::setRandomPosDataNoCache( int attrib,
 
 void PlaneDataDisplay::updateChannels( int attrib, TaskRunner* taskr )
 {
-    ConstRefMan<SeisDataPack> seisdp = getDisplayedSeisDataPack( attrib );
-    mDynamicCastGet(const RegularSeisDataPack*,regsdp,seisdp.ptr());
+    ConstRefMan<VolumeDataPack> voldp = getDisplayedVolumeDataPack( attrib );
+    mDynamicCastGet(const RegularSeisDataPack*,regsdp,voldp.ptr());
     if ( !regsdp )
 	return;
 
@@ -920,7 +922,7 @@ void PlaneDataDisplay::updateChannels( int attrib, TaskRunner* taskr )
 
 void PlaneDataDisplay::createTransformedDataPack( int attrib, TaskRunner* taskr)
 {
-    ConstRefMan<RegularSeisDataPack> regsdp = getSeisDataPack( attrib );
+    ConstRefMan<RegularSeisDataPack> regsdp = getVolumeDataPack( attrib );
     if ( !regsdp || regsdp->isEmpty() )
 	return;
 
@@ -1006,8 +1008,8 @@ void PlaneDataDisplay::getObjectInfo( uiString& info ) const
 bool PlaneDataDisplay::getCacheValue( int attrib, int version,
 				      const Coord3& pos, float& val ) const
 {
-    ConstRefMan<SeisDataPack> seisdp = getDisplayedSeisDataPack( attrib );
-    mDynamicCastGet(const RegularSeisDataPack*,regsdp,seisdp.ptr());
+    ConstRefMan<VolumeDataPack> voldp = getDisplayedVolumeDataPack( attrib );
+    mDynamicCastGet(const RegularSeisDataPack*,regsdp,voldp.ptr());
     if ( !regsdp || regsdp->isEmpty() )
 	return false;
 
@@ -1083,8 +1085,8 @@ SurveyObject* PlaneDataDisplay::duplicate( TaskRunner* taskr ) const
 	    continue;
 
 	pdd->setSelSpecs( idx, *selspecs );
-	ConstRefMan<SeisDataPack> regsdp = getSeisDataPack( idx );
-	pdd->setSeisDataPack( idx, regsdp.getNonConstPtr(), taskr );
+	ConstRefMan<VolumeDataPack> voldp = getVolumeDataPack( idx );
+	pdd->setVolumeDataPack( idx, voldp.getNonConstPtr(), taskr );
 	const ColTab::MapperSetup* mappersetup = getColTabMapperSetup( idx );
 	if ( mappersetup )
 	    pdd->setColTabMapperSetup( idx, *mappersetup, taskr );

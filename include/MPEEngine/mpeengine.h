@@ -109,7 +109,7 @@ public:
 				     this attrib, given that the activearea
 				     should be tracked. */
     int				getCacheIndexOf(const Attrib::SelSpec&) const;
-    ConstRefMan<SeisDataPack>	getAttribCacheDP(const Attrib::SelSpec&) const;
+    ConstRefMan<VolumeDataPack> getAttribCacheDP(const Attrib::SelSpec&) const;
     bool			hasAttribCache(const Attrib::SelSpec&) const;
     bool			setAttribData(const Attrib::SelSpec&,
 					      const FlatDataPack&);
@@ -156,7 +156,7 @@ private:
     ConstRefMan<EMTracker>	getOneActiveTracker() const;
     RefMan<EM::EMObject>	getCurrentEMObject() const;
     bool			setAttribData_(const Attrib::SelSpec&,
-					       const SeisDataPack&);
+					       const VolumeDataPack&);
 
     BufferString		errmsg_;
     TrcKeyZSampling		activevolume_;
@@ -181,7 +181,7 @@ private:
 				~CacheSpecs();
 
 	Attrib::SelSpec		attrsel_;
-	WeakPtr<SeisDataPack>	seisdp_;
+	WeakPtr<VolumeDataPack> voldp_;
 	Pos::GeomID		geomid_;
     };
 

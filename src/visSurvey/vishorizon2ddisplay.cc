@@ -488,8 +488,8 @@ bool Horizon2DDisplay::shouldDisplayIntersections(
     for ( int iattrib=0; iattrib<seisdisp.nrAttribs(); iattrib++ )
     {
 	const bool hasattribenable = seisdisp.isAttribEnabled( iattrib );
-	ConstRefMan<SeisDataPack> seisdp = survobj.getSeisDataPack( iattrib );
-	if ( hasattribenable && seisdp )
+	ConstRefMan<VolumeDataPack> voldp = survobj.getVolumeDataPack( iattrib);
+	if ( hasattribenable && voldp )
 	    return true;
     }
 

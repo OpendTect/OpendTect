@@ -9,30 +9,31 @@ ________________________________________________________________________
 -*/
 
 #include "seisdatapack.h"
-#include "paralleltask.h"
 
-class ZAxisTransform;
+#include "paralleltask.h"
+#include "zaxistransform.h"
+
 
 /*!
-\brief Uses ZAxisTransform to output a transformed SeisDataPack for the
-specified input SeisDataPack.
+\brief Uses ZAxisTransform to output a transformed SeisVolumeDataPack for the
+specified input SeisVolumeDataPack.
 */
 
 mExpClass(Seis) SeisDataPackZAxisTransformer : public ParallelTask
 {
 public:
 				SeisDataPackZAxisTransformer(ZAxisTransform&,
-						SeisDataPack* outputdp=nullptr);
+					SeisVolumeDataPack* outputdp=nullptr);
 				~SeisDataPackZAxisTransformer();
 
-    void			setInput( const SeisDataPack* dp )
+    void			setInput( const SeisVolumeDataPack* dp )
 				{ inputdp_ = dp; }
     void			setOutputZRange( const ZSampling& zrg )
 				{ zrange_ = zrg; }
     void			setInterpolate( bool yn )
 				{ interpolate_ = yn; }
 
-    RefMan<SeisDataPack>	getOutput() { return outputdp_; }
+    RefMan<SeisVolumeDataPack>	getOutput() { return outputdp_; }
 
 protected:
 
@@ -42,10 +43,9 @@ protected:
     od_int64			nrIterations() const override;
 
     bool			interpolate_ = true;
-    DataPackMgr&		dpm_;
-    ZAxisTransform&		transform_;
+    ConstRefMan<ZAxisTransform> transform_;
     ZSampling			zrange_;
 
-    ConstRefMan<DataPack>	inputdp_;
-    RefMan<SeisDataPack>	outputdp_;
+    ConstRefMan<SeisVolumeDataPack> inputdp_;
+    RefMan<SeisVolumeDataPack>	outputdp_;
 };

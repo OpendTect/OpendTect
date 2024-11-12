@@ -509,7 +509,7 @@ void RandomTrackDisplay::removeAllNodes()
     }
 
     for ( int idx=0; idx<nrAttribs(); idx++ )
-	setSeisDataPack( idx, nullptr, nullptr );
+	setVolumeDataPack( idx, nullptr, nullptr );
 
     nodes_.erase();
     updatePanelStripPath();
@@ -635,10 +635,10 @@ TypeSet<Coord> RandomTrackDisplay::getTrueCoords() const
 }
 
 
-bool RandomTrackDisplay::setSeisDataPack( int attrib, SeisDataPack* seisdp,
+bool RandomTrackDisplay::setVolumeDataPack( int attrib, VolumeDataPack* voldp,
 					  TaskRunner* taskr )
 {
-    mDynamicCastGet(RandomSeisDataPack*,randsdp,seisdp);
+    mDynamicCastGet(RandomSeisDataPack*,randsdp,voldp);
     if ( !randsdp || randsdp->isEmpty() )
     {
 	channels_->setUnMappedData( attrib, 0, 0, OD::UsePtr, nullptr );
@@ -655,18 +655,18 @@ bool RandomTrackDisplay::setSeisDataPack( int attrib, SeisDataPack* seisdp,
 
 ConstRefMan<DataPack> RandomTrackDisplay::getDataPack( int attrib ) const
 {
-    return getSeisDataPack( attrib );
+    return getVolumeDataPack( attrib );
 }
 
 
-ConstRefMan<SeisDataPack> RandomTrackDisplay::getSeisDataPack(
+ConstRefMan<VolumeDataPack> RandomTrackDisplay::getVolumeDataPack(
 							int attrib ) const
 {
-    return mSelf().getSeisDataPack( attrib );
+    return mSelf().getVolumeDataPack( attrib );
 }
 
 
-RefMan<SeisDataPack> RandomTrackDisplay::getSeisDataPack( int attrib )
+RefMan<VolumeDataPack> RandomTrackDisplay::getVolumeDataPack( int attrib )
 {
     if ( !datapacks_.validIdx(attrib) || !datapacks_[attrib] )
 	return nullptr;
@@ -675,14 +675,15 @@ RefMan<SeisDataPack> RandomTrackDisplay::getSeisDataPack( int attrib )
 }
 
 
-ConstRefMan<SeisDataPack> RandomTrackDisplay::getDisplayedSeisDataPack(
+ConstRefMan<VolumeDataPack> RandomTrackDisplay::getDisplayedVolumeDataPack(
 							    int attrib ) const
 {
-    return mSelf().getDisplayedSeisDataPack( attrib );
+    return mSelf().getDisplayedVolumeDataPack( attrib );
 }
 
 
-RefMan<SeisDataPack> RandomTrackDisplay::getDisplayedSeisDataPack( int attrib )
+RefMan<VolumeDataPack> RandomTrackDisplay::getDisplayedVolumeDataPack(
+								int attrib )
 {
     if ( datatransform_ && !alreadyTransformed(attrib) )
     {
@@ -692,7 +693,7 @@ RefMan<SeisDataPack> RandomTrackDisplay::getDisplayedSeisDataPack( int attrib )
 	return transfdatapacks_[attrib];
     }
 
-    return getSeisDataPack( attrib );
+    return getVolumeDataPack( attrib );
 }
 
 
@@ -805,8 +806,8 @@ void RandomTrackDisplay::updateTexOriginAndScale( int attrib,
 
 void RandomTrackDisplay::updateChannels( int attrib, TaskRunner* )
 {
-    ConstRefMan<SeisDataPack> seisdp = getDisplayedSeisDataPack( attrib );
-    mDynamicCastGet(const RandomSeisDataPack*,randsdp,seisdp.ptr());
+    ConstRefMan<VolumeDataPack> voldp = getDisplayedVolumeDataPack( attrib );
+    mDynamicCastGet(const RandomSeisDataPack*,randsdp,voldp.ptr());
     if ( !randsdp )
 	return;
 
@@ -861,8 +862,8 @@ void RandomTrackDisplay::updateChannels( int attrib, TaskRunner* )
 void RandomTrackDisplay::createTransformedDataPack( int attrib,
 						    TaskRunner* taskr )
 {
-    ConstRefMan<SeisDataPack> seisdp = getDisplayedSeisDataPack( attrib );
-    mDynamicCastGet(const RandomSeisDataPack*,randsdp,seisdp.ptr());
+    ConstRefMan<VolumeDataPack> voldp = getDisplayedVolumeDataPack( attrib );
+    mDynamicCastGet(const RandomSeisDataPack*,randsdp,voldp.ptr());
     if ( !randsdp || randsdp->isEmpty() )
 	return;
 
@@ -1447,8 +1448,8 @@ SurveyObject* RandomTrackDisplay::duplicate( TaskRunner* taskr ) const
 	    continue;
 
 	rtd->setSelSpecs( idx, *selspecs );
-	ConstRefMan<SeisDataPack> randsdp = getSeisDataPack( idx );
-	rtd->setSeisDataPack( idx, randsdp.getNonConstPtr(), taskr );
+	ConstRefMan<VolumeDataPack> voldp = getVolumeDataPack( idx );
+	rtd->setVolumeDataPack( idx, voldp.getNonConstPtr(), taskr );
 	const ColTab::MapperSetup* mappersetup = getColTabMapperSetup( idx );
 	if ( mappersetup )
 	    rtd->setColTabMapperSetup( idx, *mappersetup, taskr );
@@ -1563,8 +1564,8 @@ bool RandomTrackDisplay::getSelMousePosInfo( const visBase::EventInfo& ei,
 bool RandomTrackDisplay::getCacheValue( int attrib,int version,
 					const Coord3& pos,float& val ) const
 {
-    ConstRefMan<SeisDataPack> seisdp = getDisplayedSeisDataPack( attrib );
-    mDynamicCastGet(const RandomSeisDataPack*,randsdp,seisdp.ptr());
+    ConstRefMan<VolumeDataPack> voldp = getDisplayedVolumeDataPack( attrib );
+    mDynamicCastGet(const RandomSeisDataPack*,randsdp,voldp.ptr());
     if ( !randsdp || randsdp->isEmpty() )
 	return false;
 

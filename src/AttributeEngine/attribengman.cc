@@ -605,7 +605,7 @@ RefMan<RegularSeisDataPack> EngineMan::getDataPackOutput(
 			const ObjectSet<const RegularSeisDataPack>& packset )
 {
     if ( packset.isEmpty() ) return nullptr;
-    const char* category = SeisDataPack::categoryStr(
+    const char* category = VolumeDataPack::categoryStr(
 			tkzs_.defaultDir()!=TrcKeyZSampling::Z,
 			tkzs_.is2D() );
     RefMan<RegularSeisDataPack> output =

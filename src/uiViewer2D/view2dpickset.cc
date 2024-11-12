@@ -124,8 +124,8 @@ void PickSet::pickRemoveCB( CallBacker* cb )
     const int editoridx = editors_.indexOf( editor );
     if ( editoridx<0 ) return;
 
-    mDynamicCastGet(const RegularFlatDataPack*,regfdp,fdp.ptr());
-    mDynamicCastGet(const RandomFlatDataPack*,randfdp,fdp.ptr());
+    mDynamicCastGet(const RegularSeisFlatDataPack*,regfdp,fdp.ptr());
+    mDynamicCastGet(const RandomSeisFlatDataPack*,randfdp,fdp.ptr());
     if ( !regfdp && !randfdp ) return;
 
     TypeSet<int> vw2dpsidxs;
@@ -231,8 +231,8 @@ void PickSet::drawAll()
     if ( !fdp || !pickset_ )
 	return;
 
-    mDynamicCastGet(const RegularFlatDataPack*,regfdp,fdp.ptr());
-    mDynamicCastGet(const RandomFlatDataPack*,randfdp,fdp.ptr());
+    mDynamicCastGet(const RegularSeisFlatDataPack*,regfdp,fdp.ptr());
+    mDynamicCastGet(const RandomSeisFlatDataPack*,randfdp,fdp.ptr());
     if ( !regfdp && !randfdp )
 	return;
 

@@ -17,9 +17,9 @@ ________________________________________________________________________
 
 #include "attribdataholder.h"
 #include "attribsel.h"
+#include "datapackbase.h"
 #include "emposid.h"
 #include "geomelement.h"
-#include "seisdatapack.h"
 #include "trckey.h"
 
 
@@ -58,7 +58,7 @@ public:
     VisID			getEMVisID() const { return emvisids_; }
 				// avail when clicked on hor
     const TrcKeyZSampling&	getObjCS() const;
-    ConstRefMan<SeisDataPack>	getObjData() const;
+    ConstRefMan<VolumeDataPack> getObjData() const;
     const Attrib::SelSpec*	getObjDataSelSpec() const;
 
     Pos::GeomID			getGeomID() const;
@@ -80,7 +80,7 @@ protected:
     void			setEMVisID(const VisID&);
     void			setObjID(const VisID&);
     void			setObjCS(const TrcKeyZSampling&);
-    void			setObjData(const SeisDataPack*);
+    void			setObjData(const VolumeDataPack*);
     void			setObjDataSelSpec(const Attrib::SelSpec&);
 
     void			setGeomID(const Pos::GeomID&);
@@ -100,7 +100,7 @@ protected:
     EM::ObjectID			clickedemobjid_;
     VisID				clickedobjid_;
     TrcKeyZSampling			clickedcs_;
-    WeakPtr<SeisDataPack>		attrdata_;
+    WeakPtr<VolumeDataPack>		attrdata_;
     Attrib::SelSpec			attrsel_;
     const TrcKeyPath*			rdltkpath_;
     RandomLineID			rdlid_;

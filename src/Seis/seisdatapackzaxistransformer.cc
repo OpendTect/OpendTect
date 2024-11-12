@@ -13,52 +13,43 @@ ________________________________________________________________________
 #include "arrayndslice.h"
 #include "genericnumer.h"
 #include "samplfunc.h"
-#include "zaxistransform.h"
 #include "zdomain.h"
 
 
 SeisDataPackZAxisTransformer::SeisDataPackZAxisTransformer( ZAxisTransform& zat,
-							    SeisDataPack* out )
-    : dpm_(DPM(DataPackMgr::SeisID()))
-    , transform_(zat)
+						    SeisVolumeDataPack* out )
+    : transform_(&zat)
     , outputdp_(out)
 {
-    transform_.ref();
-    zrange_ = transform_.getZInterval( false );
+    zrange_ = transform_->getZInterval( false );
 }
 
 
 SeisDataPackZAxisTransformer::~SeisDataPackZAxisTransformer()
 {
-    transform_.unRef();
 }
 
 
 od_int64 SeisDataPackZAxisTransformer::nrIterations() const
 {
-    if ( !inputdp_ )
-	return -1;
-
-    ConstRefMan<SeisDataPack> seisdp = dpm_.get<SeisDataPack>( inputdp_->id() );
-    return seisdp ? seisdp->nrTrcs() : -1;
+    return inputdp_ ? inputdp_->nrTrcs() : -1;
 }
 
 
 bool SeisDataPackZAxisTransformer::doPrepare( int nrthreads )
 {
-    if ( !inputdp_ )
+    if ( !inputdp_ || (!inputdp_->isRegular() && !inputdp_->isRandom()) )
 	return false;
 
-    ConstRefMan<SeisDataPack> seisdp = dpm_.get<SeisDataPack>( inputdp_->id() );
-    mDynamicCastGet(const RegularSeisDataPack*,regsdp,seisdp.ptr());
-    mDynamicCastGet(const RandomSeisDataPack*,randsdp,seisdp.ptr());
-    if ( !(regsdp || randsdp) || seisdp->isEmpty() )
+    mDynamicCastGet(const RegularSeisDataPack*,regsdp,inputdp_.ptr());
+    mDynamicCastGet(const RandomSeisDataPack*,randsdp,inputdp_.ptr());
+    if ( !(regsdp || randsdp) || inputdp_->isEmpty() )
 	return false;
 
     if ( !outputdp_ )
     {
-	const char* category = seisdp->category();
-	const BinDataDesc* desc = &seisdp->getDataDesc();
+	const char* category = inputdp_->category();
+	const BinDataDesc* desc = &inputdp_->getDataDesc();
 	if ( regsdp )
 	{
 	    TrcKeyZSampling tkzs( regsdp->sampling() );
@@ -81,11 +72,11 @@ bool SeisDataPackZAxisTransformer::doPrepare( int nrthreads )
 	return false;
 
     outputdp_->setName( inputdp_->name() );
-    if ( seisdp->getScaler() )
-	outputdp_->setScaler( *seisdp->getScaler() );
+    if ( inputdp_->getScaler() )
+	outputdp_->setScaler( *inputdp_->getScaler() );
 
-    for ( int idx=0; idx<seisdp->nrComponents(); idx++ )
-	outputdp_->addComponent( seisdp->getComponentName(idx) );
+    for ( int idx=0; idx<inputdp_->nrComponents(); idx++ )
+	outputdp_->addComponent( inputdp_->getComponentName(idx) );
 
     return true;
 }
@@ -94,33 +85,34 @@ bool SeisDataPackZAxisTransformer::doPrepare( int nrthreads )
 bool SeisDataPackZAxisTransformer::doWork(
 				od_int64 start, od_int64 stop, int threadid )
 {
-    ConstRefMan<SeisDataPack> voldp = dpm_.get<SeisDataPack>( inputdp_->id() );
     if ( !inputdp_ || !outputdp_ )
 	return false;
 
-    const ZSampling inpzrg = voldp->zRange();
+    const SeisVolumeDataPack& voldp = *inputdp_.ptr();
+    SeisVolumeDataPack& outdp = *outputdp_.ptr();
+    const ZSampling inpzrg = voldp.zRange();
     const int nrinpsamp = inpzrg.nrSteps() + 1;
     const int nroutsamp = zrange_.nrSteps() + 1;
-    const int nrtrcs = voldp->nrTrcs() / voldp->data(0).info().getSize(0);
+    const int nrtrcs = voldp.nrTrcs() / voldp.data(0).info().getSize(0);
 
-    ZAxisTransformSampler outputsampler( transform_, true,
-                                         SamplingData<double>(zrange_.start_, zrange_.step_), false );
+    ZAxisTransformSampler outputsampler( *transform_.ptr(), true,
+		 SamplingData<double>(zrange_.start_, zrange_.step_), false );
 
-    for ( int idx=0; idx<outputdp_->nrComponents(); idx++ )
+    for ( int idx=0; idx<outdp.nrComponents(); idx++ )
     {
 	for ( int posidx=mCast(int,start); posidx<=mCast(int,stop); posidx++ )
 	{
 	    const int lineidx = posidx / nrtrcs;
 	    const int trcidx = posidx % nrtrcs;
 
-	    outputsampler.setTrcKey( voldp->getTrcKey(posidx) );
+	    outputsampler.setTrcKey( voldp.getTrcKey(posidx) );
 	    outputsampler.computeCache( Interval<int>(0,nroutsamp-1) );
 
-	    const Array3D<float>& inputdata = voldp->data( idx );
-	    Array3D<float>& array = outputdp_->data( idx );
+	    const Array3D<float>& inputdata = voldp.data( idx );
+	    Array3D<float>& array = outdp.data( idx );
 	    if ( inputdata.getData() && array.getData() )
 	    {
-		const float* trcptr = voldp->getTrcData( idx, posidx );
+		const float* trcptr = voldp.getTrcData( idx, posidx );
 		SampledFunctionImpl<float,const float*> inputfunc(
                             trcptr, nrinpsamp, inpzrg.start_, inpzrg.step_ );
 		inputfunc.setHasUdfs( true );
@@ -132,7 +124,7 @@ bool SeisDataPackZAxisTransformer::doWork(
 	    else if ( inputdata.getStorage() )
 	    {
 		const OffsetValueSeries<float> trcstor(
-				voldp->getTrcStorage(idx,posidx) );
+				voldp.getTrcStorage(idx,posidx) );
 		SampledFunctionImpl<float,const ValueSeries<float> > inputfunc(
                             trcstor, nrinpsamp, inpzrg.start_, inpzrg.step_ );
 		inputfunc.setHasUdfs( true );
@@ -147,7 +139,7 @@ bool SeisDataPackZAxisTransformer::doWork(
 	    }
 	    else
 	    {
-		Array1DSlice<float> arr1dslice( voldp->data(idx) );
+		Array1DSlice<float> arr1dslice( voldp.data(idx) );
 		arr1dslice.setPos( 0, lineidx );
 		arr1dslice.setPos( 1, trcidx );
 		arr1dslice.setDimMap( 0, 2 );
@@ -177,8 +169,7 @@ bool SeisDataPackZAxisTransformer::doWork(
 
 bool SeisDataPackZAxisTransformer::doFinish( bool success )
 {
-    outputdp_->setZDomain( transform_.toZDomainInfo() );
+    outputdp_->setZDomain( transform_->toZDomainInfo() );
     outputdp_->setName( inputdp_->name() );
-    dpm_.add( outputdp_ );
     return true;
 }

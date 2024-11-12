@@ -821,7 +821,7 @@ void uiOD2DLineTreeItem::getNewData( CallBacker* )
     const TrcKeyZSampling tkzs = seis2ddisplay->getTrcKeyZSampling( false );
     const TypeSet<Attrib::SelSpec>& as = *seis2ddisplay->getSelSpecs( attribnr);
 
-    ConstRefMan<RegularSeisDataPack> newdp;
+    ConstRefMan<RegularSeisDataPack> regsdp;
     uiTaskRunner uitr( getUiParent() );
     if ( as[0].id().asInt() == Attrib::SelSpec::cOtherAttrib().asInt() )
     {
@@ -833,19 +833,19 @@ void uiOD2DLineTreeItem::getNewData( CallBacker* )
 	    return;
 	}
 
-	newdp = calc->createAttrib( tkzs, &uitr );
+	regsdp = calc->createAttrib( tkzs, &uitr );
     }
     else
     {
 	applMgr()->attrServer()->setTargetSelSpecs( as );
-	newdp = applMgr()->attrServer()->createOutput( tkzs, nullptr );
+	regsdp = applMgr()->attrServer()->createOutput( tkzs, nullptr );
     }
 
-    if ( !newdp )
+    if ( !regsdp )
 	return;
 
     ((visSurvey::SurveyObject*) seis2ddisplay.ptr())->
-		setSeisDataPack( attribnr, newdp.getNonConstPtr(), &uitr );
+		setVolumeDataPack( attribnr, regsdp.getNonConstPtr(), &uitr );
     seis2ddisplay->showPanel( true );
 }
 
@@ -1153,9 +1153,9 @@ bool uiOD2DLineSetAttribItem::displayStoredData( const char* attribnm,
 	as[idx].setDefString( defstring );
     }
 
-    ConstRefMan<RegularSeisDataPack> rsdp =
+    ConstRefMan<RegularSeisDataPack> regsdp =
 			Seis::PLDM().get<RegularSeisDataPack>( key, geomid );
-    if ( !rsdp )
+    if ( !regsdp )
     {
 	attrserv->setTargetSelSpecs( as );
 	const RefMan<visSurvey::Scene> scene = visserv->getScene( sceneID() );
@@ -1171,17 +1171,17 @@ bool uiOD2DLineSetAttribItem::displayStoredData( const char* attribnm,
 	    return false;
 	}
 
-	rsdp = rdr.getDataPack();
+	regsdp = rdr.getDataPack();
     }
 
-    if ( !rsdp )
+    if ( !regsdp )
 	return false;
 
     MouseCursorChanger cursorchgr( MouseCursor::Wait );
     s2d->setSelSpecs( attribNr(), as );
     applMgr()->useDefColTab( displayID(), attribNr() );
     ((visSurvey::SurveyObject*) s2d)->
-	setSeisDataPack( attribNr(), rsdp.getNonConstPtr(), &taskrunner );
+	setVolumeDataPack( attribNr(), regsdp.getNonConstPtr(), &taskrunner );
     s2d->showPanel( true );
     s2d->enableAttrib( attribNr(), true );
 
@@ -1205,15 +1205,15 @@ void uiOD2DLineSetAttribItem::setAttrib( const Attrib::SelSpec& myas,
 	return;
 
     applMgr()->attrServer()->setTargetSelSpec( myas );
-    ConstRefMan<RegularSeisDataPack> regsd =
+    ConstRefMan<RegularSeisDataPack> regsdp =
 	applMgr()->attrServer()->createOutput( s2d->getTrcKeyZSampling(false),
 					       nullptr );
-    if ( !regsd )
+    if ( !regsdp )
 	return;
 
     s2d->setSelSpecs( attribNr(), TypeSet<Attrib::SelSpec>(1,myas) );
     ((visSurvey::SurveyObject*) s2d)->
-	setSeisDataPack( attribNr(), regsd.getNonConstPtr(), nullptr );
+	setVolumeDataPack( attribNr(), regsdp.getNonConstPtr(), nullptr );
     s2d->showPanel( true );
 
     updateColumnText(0);

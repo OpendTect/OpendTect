@@ -426,10 +426,10 @@ ConstRefMan<DataPack> SurveyObject::getDisplayedDataPack( int attrib ) const
 }
 
 
-ConstRefMan<SeisDataPack> SurveyObject::getDisplayedSeisDataPack(
+ConstRefMan<VolumeDataPack> SurveyObject::getDisplayedVolumeDataPack(
 							int attrib ) const
 {
-    return getSeisDataPack( attrib );
+    return getVolumeDataPack( attrib );
 }
 
 

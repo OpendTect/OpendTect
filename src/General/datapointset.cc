@@ -1082,23 +1082,17 @@ DataPointSet::RowID DataPointSet::findFirst( const Coord& crd ) const
 
 // DPSFromVolumeFiller
 DPSFromVolumeFiller::DPSFromVolumeFiller( DataPointSet& dps, int firstcol,
-				const SeisDataPack& sdp, int component )
+				const VolumeDataPack& vdp, int component )
     : ParallelTask()
-    , dps_(dps)
-    , sdp_(sdp)
+    , dps_(&dps)
+    , vdp_(&vdp)
     , component_(component)
     , firstcol_(firstcol)
-    , hastrcdata_(false)
-    , hasstorage_(false)
-    , sampling_(0)
 {
-    dps_.ref();
-    sdp_.ref();
-
     const int testcomponent = component==-1 ? 0 : component;
-    if ( !sdp_.isEmpty() )
+    if ( !vdp_->isEmpty() )
     {
-	const Array3DImpl<float>& array = sdp_.data( testcomponent );
+	const Array3DImpl<float>& array = vdp_->data( testcomponent );
 	hastrcdata_ = array.getData();
 	hasstorage_ = array.getStorage();
     }
@@ -1107,8 +1101,6 @@ DPSFromVolumeFiller::DPSFromVolumeFiller( DataPointSet& dps, int firstcol,
 
 DPSFromVolumeFiller::~DPSFromVolumeFiller()
 {
-    dps_.unRef();
-    sdp_.unRef();
 }
 
 
@@ -1126,7 +1118,7 @@ uiString DPSFromVolumeFiller::uiNrDoneText() const
 
 od_int64 DPSFromVolumeFiller::nrIterations() const
 {
-    return dps_.size();
+    return dps_->size();
 }
 
 
@@ -1138,14 +1130,15 @@ void DPSFromVolumeFiller::setSampling( const TrcKeyZSampling* tkzs )
 
 bool DPSFromVolumeFiller::doWork( od_int64 start, od_int64 stop, int thridx )
 {
-    const ZSampling zsamp = sdp_.zRange();
+    const VolumeDataPack& vdp = *vdp_.ptr();
+    const ZSampling zsamp = vdp.zRange();
     const int nrz = zsamp.nrSteps() + 1;
-    const int nrtrcs = sdp_.nrTrcs();
+    const int nrtrcs = vdp.nrTrcs();
     const SamplingData<float> sd( zsamp.start_, zsamp.step_ );
     for ( od_int64 idx=start; idx<=stop; idx++ )
     {
 	const DataPointSet::RowID rid = mCast(int,idx);
-	BinID bid = dps_.binID( rid );
+	BinID bid = dps_->binID( rid );
 
 	if ( sampling_ )
 	{
@@ -1157,9 +1150,7 @@ bool DPSFromVolumeFiller::doWork( od_int64 start, od_int64 stop, int thridx )
 	}
 
 	TrcKey tk;
-	if ( !sdp_.is2D() )
-	    tk = TrcKey( bid );
-	else
+	if ( vdp.is2D() )
 	{
 	    Pos::GeomID geomid;
 	    if ( sampling_ ) // Not sure what to do when sampling_ is null
@@ -1167,22 +1158,24 @@ bool DPSFromVolumeFiller::doWork( od_int64 start, od_int64 stop, int thridx )
 
 	    tk = TrcKey( geomid, bid.trcNr() );
 	}
+	else
+	    tk = TrcKey( bid );
 
-	const int gidx = sdp_.getGlobalIdx( tk );
+	const int gidx = vdp.getGlobalIdx( tk );
 	if ( gidx<0 || gidx>nrtrcs ) continue;
 
-	float* vals = dps_.getValues( rid );
-	const float zval = dps_.z( rid );
+	float* vals = dps_->getValues( rid );
+	const float zval = dps_->z( rid );
 	const float fzidx = sd.getfIndex( zval );
 	int outidx = 0;
-	for ( int cidx=0; cidx<sdp_.nrComponents(); cidx++ )
+	for ( int cidx=0; cidx<vdp.nrComponents(); cidx++ )
 	{
 	    if ( component_!=-1 && component_!=cidx )
 		continue;
 
 	    if ( hastrcdata_ )
 	    {
-		const float* trcdata = sdp_.getTrcData( cidx, gidx );
+		const float* trcdata = vdp.getTrcData( cidx, gidx );
 		SampledFunctionImpl<float,const float*>
 						sampfunc( trcdata, nrz );
 		sampfunc.setHasUdfs( true );
@@ -1191,7 +1184,7 @@ bool DPSFromVolumeFiller::doWork( od_int64 start, od_int64 stop, int thridx )
 	    else if ( hasstorage_ )
 	    {
 		const OffsetValueSeries<float> ovs =
-			sdp_.getTrcStorage( cidx, gidx );
+			vdp.getTrcStorage( cidx, gidx );
 		SampledFunctionImpl<float,ValueSeries<float> >
 						sampfunc( ovs, nrz );
 		sampfunc.setHasUdfs( true );

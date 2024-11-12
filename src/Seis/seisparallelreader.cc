@@ -456,7 +456,7 @@ bool Seis::ParallelReader::doPrepare( int nrthreads )
     else if ( !dp_ )
     {
 	const SeisIOObjInfo seisinfo( ioobj_ );
-	dp_ = new RegularSeisDataPack( SeisDataPack::categoryStr(true,false) );
+	dp_ = new RegularSeisDataPack( VolumeDataPack::categoryStr(true,false));
 	dp_->setName( ioobj_->name() );
 	dp_->setSampling( tkzs_ );
 	dp_->setZDomain( seisinfo.zDomain() );
@@ -677,7 +677,8 @@ bool Seis::ParallelReader2D::init()
     trcnrs_.addIfNew( trcinfo.trcNr() );
     } while ( res==1 );
 
-    dp_ = new RegularSeisDataPack( SeisDataPack::categoryStr(true,true), &dc_ );
+    dp_ = new RegularSeisDataPack( VolumeDataPack::categoryStr(true,true),
+				   &dc_ );
     dp_->setName( ioobj_->name() );
     dp_->setSampling( tkzs_ );
     dp_->setZDomain( info.zDomain() );
@@ -1040,7 +1041,7 @@ bool Seis::SequentialReader::init()
 		tkzs_ = storedtkzs;
 	}
 
-	dp_ = new RegularSeisDataPack( SeisDataPack::categoryStr(true,is2d_),
+	dp_ = new RegularSeisDataPack( VolumeDataPack::categoryStr(true,is2d_),
 				       &dc_);
 	dp_->setName( ioobj_->name() );
 	dp_->setSampling( tkzs_ );

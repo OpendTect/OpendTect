@@ -237,7 +237,7 @@ void uiODViewer2D::makeUpView( FlatDataPack* indp,
 {
     RefMan<FlatDataPack> fdp = indp;
     mDynamicCastGet(const SeisFlatDataPack*,seisfdp,fdp.ptr());
-    mDynamicCastGet(const RegularFlatDataPack*,regfdp,fdp.ptr());
+    mDynamicCastGet(const RegularSeisFlatDataPack*,regfdp,fdp.ptr());
     mDynamicCastGet(const MapDataPack*,mapdp,fdp.ptr());
 
     const bool isnew = !viewwin();
@@ -707,35 +707,37 @@ RefMan<SeisFlatDataPack> uiODViewer2D::createDataPackRM(
 
 
 RefMan<SeisFlatDataPack> uiODViewer2D::createFlatDataPackRM(
-					const SeisDataPack& dp, int comp ) const
+				const VolumeDataPack& voldp, int comp ) const
 {
-    ConstRefMan<SeisDataPack> seisdp( &dp );
-    if ( !seisdp->validComp(comp) )
+    mDynamicCastGet(const SeisVolumeDataPack*,seisvoldpptr,&voldp);
+    if ( !seisvoldpptr || !voldp.validComp(comp) )
 	return nullptr;
 
-    const StringView zdomainkey( seisdp->zDomain().key() );
+    ConstRefMan<SeisVolumeDataPack> seisvoldp = seisvoldpptr;
+    const StringView zdomainkey( voldp.zDomain().key() );
     const bool alreadytransformed =
 	!zdomainkey.isEmpty() && zdomainkey!=ZDomain::SI().key();
     if ( datatransform_ && !alreadytransformed )
     {
 	SeisDataPackZAxisTransformer transformer( *datatransform_ );
-	transformer.setInput( seisdp.ptr() );
+	transformer.setInput( seisvoldp.ptr() );
 	transformer.setInterpolate( true );
 	transformer.execute();
 	if ( transformer.getOutput() )
-	    seisdp = transformer.getOutput();
+	    seisvoldp = transformer.getOutput();
     }
 
-    mDynamicCastGet(const RegularSeisDataPack*,regsdp,seisdp.ptr());
-    mDynamicCastGet(const RandomSeisDataPack*,randsdp,seisdp.ptr());
     RefMan<SeisFlatDataPack> seisfdp;
-    if ( regsdp )
-	seisfdp = new RegularFlatDataPack( *regsdp, comp );
-    else if ( randsdp )
-	seisfdp = new RandomFlatDataPack( *randsdp, comp );
-
-    if ( !seisfdp )
-	return nullptr;
+    if ( seisvoldp->isRegular() )
+    {
+	mDynamicCastGet(const RegularSeisDataPack*,regsdp,seisvoldp.ptr());
+	seisfdp = new RegularSeisFlatDataPack( *regsdp, comp );
+    }
+    else if ( seisvoldp->isRandom() )
+    {
+	mDynamicCastGet(const RandomSeisDataPack*,randsdp,seisvoldp.ptr());
+	seisfdp = new RandomSeisFlatDataPack( *randsdp, comp );
+    }
 
     return seisfdp;
 }
@@ -774,7 +776,7 @@ RefMan<SeisFlatDataPack> uiODViewer2D::createDataPackForTransformedZSliceRM(
 
 
 RefMan<MapDataPack> uiODViewer2D::createMapDataPackRM(
-					    const RegularFlatDataPack& rsdp )
+					const RegularSeisFlatDataPack& rsdp )
 {
     const TrcKeyZSampling& tkzs = rsdp.sampling();
     StepInterval<double> inlrg, crlrg;
@@ -1828,12 +1830,13 @@ DataPackID uiODViewer2D::createFlatDataPack( const SeisDataPack& dp,
 RefMan<SeisFlatDataPack> uiODViewer2D::createFlatDataPackRM(
 					const DataPackID& dpid, int comp ) const
 {
-    const DataPackMgr& dpm = DPM(DataPackMgr::SeisID());
-    ConstRefMan<SeisDataPack> seisdp = dpm.get<SeisDataPack>( dpid );
-    if ( !seisdp )
+    const DataPackMgr& dpm = DPM( DataPackMgr::SeisID() );
+    ConstRefMan<SeisVolumeDataPack> seisvoldp =
+					dpm.get<SeisVolumeDataPack>( dpid );
+    if ( !seisvoldp )
 	return nullptr;
 
-    return createFlatDataPackRM( *seisdp, comp );
+    return createFlatDataPackRM( *seisvoldp, comp );
 }
 
 

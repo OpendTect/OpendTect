@@ -129,7 +129,7 @@ void GapDeconACorrView::createFD2DDataPack( bool isqc, const Data2DHolder& d2dh)
 					d2dh, sampling, SI().zDomain(),&cnames);
     if ( !regsdp ) return;
 
-    RefMan<FlatDataPack> fdp = new RegularFlatDataPack( *regsdp, 0 );
+    RefMan<FlatDataPack> fdp = new RegularSeisFlatDataPack( *regsdp, 0 );
     if ( isqc )
 	fddatapackqc_ = fdp;
     else
@@ -147,9 +147,10 @@ void GapDeconACorrView::createFD3DDataPack( bool isqc, EngineMan* aem,
 			 && SI().zRange(0).includes(tkzs_.zsamp_.stop_, false );
     //if we previously 'faked' a 'normal' cubesampling for the attribute engine
     //we now have to go back to the user specified sampling
-    if ( !csmatchessurv ) output->setSampling( tkzs_ );
+    if ( !csmatchessurv )
+	output->setSampling( tkzs_ );
 
-    RefMan<FlatDataPack> fdp = new RegularFlatDataPack( *output, 0 );
+    RefMan<FlatDataPack> fdp = new RegularSeisFlatDataPack( *output, 0 );
     if ( isqc )
 	fddatapackqc_ = fdp;
     else

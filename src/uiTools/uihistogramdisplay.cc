@@ -79,16 +79,16 @@ bool uiHistogramDisplay::setDataPack( const DataPack& dp, int version )
     BufferString dpversionnm;
     rc_.setEmpty();
 
-    mDynamicCastGet(const SeisDataPack*,seisdp,&dp)
+    mDynamicCastGet(const VolumeDataPack*,voldp,&dp)
     mDynamicCastGet(const FlatDataPack*,fdp,&dp)
     mDynamicCastGet(const DataPointSet*,dps,&dp)
-    if ( seisdp )
+    if ( voldp )
     {
-	if ( seisdp->isEmpty() )
+	if ( voldp->isEmpty() )
 	    return false;
 
-	dpversionnm = seisdp->getComponentName( version );
-	setData( &seisdp->data(version) );
+	dpversionnm = voldp->getComponentName( version );
+	setData( &voldp->data(version) );
     }
     else if ( fdp )
     {

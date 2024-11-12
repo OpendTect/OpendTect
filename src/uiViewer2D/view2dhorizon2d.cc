@@ -49,7 +49,7 @@ void Horizon2D::setEditors()
     for ( int ivwr=0; ivwr<viewerwin_->nrViewers(); ivwr++ )
     {
 	const uiFlatViewer& vwr = viewerwin_->viewer( ivwr );
-	ConstRefMan<RegularFlatDataPack> regfdp =
+	ConstRefMan<RegularSeisFlatDataPack> regfdp =
 					 vwr.getPack( true, true ).get();
 	if ( !regfdp || !regfdp->is2D() )
 	{
@@ -106,7 +106,7 @@ void Horizon2D::draw()
     for ( int ivwr=0; ivwr<viewerwin_->nrViewers(); ivwr++ )
     {
 	uiFlatViewer& vwr = viewerwin_->viewer( ivwr );
-	ConstRefMan<RegularFlatDataPack> regfdp =
+	ConstRefMan<RegularSeisFlatDataPack> regfdp =
 					 vwr.getPack( true, true ).get();
 	if ( !regfdp )
 	    continue;

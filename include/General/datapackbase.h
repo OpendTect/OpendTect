@@ -84,6 +84,7 @@ public:
 				//!< int,int = Array2D position
 				//!< if not overloaded, returns posData() (z=0)
 
+    virtual bool		isVertical() const	{ return true; }
     virtual bool		posDataIsCoord() const	{ return true; }
 				// Alternative positions for dim0
     virtual void		getAltDim0Keys(BufferStringSet&) const	{}
@@ -130,6 +131,7 @@ public:
     void			setDimNames(const char*,const char*,bool forxy);
     const char*			dimName(bool dim0) const override;
 
+    bool			isVertical() const override { return false; }
 				//!< Alternatively, it can be in Inl/Crl
     bool			posDataIsCoord() const override
 				{ return isposcoord_; }
@@ -165,38 +167,7 @@ protected:
 	  inl/crl/z . */
 
 mExpClass(General) VolumeDataPack : public DataPack
-{
-public:
-
-    virtual Array3D<float>&	data();
-    const Array3D<float>&	data() const;
-
-    virtual const char*		dimName(char dim) const;
-    virtual double		getPos(char dim,int idx) const;
-    int				size(char dim) const;
-    float			nrKBytes() const override;
-    void			dumpInfo(StringPairSet&) const override;
-
-
-protected:
-				VolumeDataPack(const char* categry,
-					     Array3D<float>*);
-				//!< Array3D become mine (of course)
-				~VolumeDataPack();
-
-				VolumeDataPack(const char* category);
-				//!< For this you have to overload data()
-				//!< and the destructor
-
-    Array3D<float>*		arr3d_ = nullptr;
-};
-
-
-
-/*!\brief DataPack for volume data. Should be renamed to VolumeDataPack later*/
-
-mExpClass(General) SeisDataPack : public DataPack
-{ mODTextTranslationClass(SeisDataPack)
+{ mODTextTranslationClass(VolumeDataPack)
 public:
 
     virtual bool		is2D() const				= 0;
@@ -236,7 +207,7 @@ public:
     const Array3DImpl<float>&	data(int component=0) const;
     Array3DImpl<float>&		data(int component=0);
 
-    SeisDataPack&		setZDomain(const ZDomain::Info&);
+    VolumeDataPack&		setZDomain(const ZDomain::Info&);
     const ZDomain::Info&	zDomain() const { return *zdomaininfo_; }
     const UnitOfMeasure*	zUnit() const;
     BufferString		unitStr(bool val,bool withparens=false) const;
@@ -266,8 +237,8 @@ public:
 						int defcompidx=-1) const;
 
 protected:
-				SeisDataPack(const char*,const BinDataDesc*);
-				~SeisDataPack();
+				VolumeDataPack(const char*,const BinDataDesc*);
+				~VolumeDataPack();
 
     bool			addArray(int sz0,int sz1,int sz2);
     bool			addArrayNoInit(int sz0,int sz1,int sz2);
@@ -281,3 +252,6 @@ protected:
     const UnitOfMeasure*		valunit_ = nullptr;
     RandomLineID			rdlid_;
 };
+
+// Do not use, only for legacy code
+typedef VolumeDataPack SeisDataPack;

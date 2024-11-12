@@ -125,16 +125,16 @@ bool uiAmplSpectrum::setDataPack( const DataPack& dp, int version )
 {
     BufferString dpversionnm;
 
-    mDynamicCastGet(const SeisDataPack*,seisdp,&dp)
+    mDynamicCastGet(const VolumeDataPack*,voldp,&dp)
     mDynamicCastGet(const FlatDataPack*,fdp,&dp)
-    if ( seisdp )
+    if ( voldp )
     {
-	if ( seisdp->isEmpty() )
+	if ( voldp->isEmpty() )
 	    return false;
 
-	dpversionnm = seisdp->getComponentName( version );
-	setup_.nyqvistspspace_ = seisdp->zRange().step_;
-	setData( seisdp->data(version) );
+	dpversionnm = voldp->getComponentName( version );
+	setup_.nyqvistspspace_ = voldp->zRange().step_;
+	setData( voldp->data(version) );
     }
     else if ( fdp )
     {

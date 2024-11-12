@@ -339,8 +339,8 @@ int MPEClickCatcher::handleAttribute( const MultiTextureSurveyObject& survobj,
     if ( attrib < 0 )
 	return -1;
 
-    ConstRefMan<SeisDataPack> seisdp = survobj.getSeisDataPack( attrib );
-    info().setObjData( seisdp.ptr() );
+    ConstRefMan<VolumeDataPack> voldp = survobj.getVolumeDataPack( attrib );
+    info().setObjData( voldp.ptr() );
     return attrib;
 }
 
@@ -358,8 +358,8 @@ bool MPEClickCatcher::forceAttribute( const Attrib::SelSpec& as )
 	return false;
 
     info().setObjDataSelSpec( as );
-    ConstRefMan<SeisDataPack> seisdp = survobj->getSeisDataPack( attrib );
-    info().setObjData( seisdp.ptr() );
+    ConstRefMan<VolumeDataPack> voldp = survobj->getVolumeDataPack( attrib );
+    info().setObjData( voldp.ptr() );
     return true;
 }
 
@@ -488,18 +488,18 @@ void MPEClickCatcher::sendUnderlyingPlanes(
 	    info().setObjID( pdd->id() );
 	    info().setObjCS( cs );
 
-	    ConstRefMan<SeisDataPack> seisdp;
+	    ConstRefMan<VolumeDataPack> voldp;
 	    int attrib = pdd->nrAttribs();
 	    while ( attrib )
 	    {
 		attrib--;
 		unsigned char transpar = pdd->getAttribTransparency( attrib );
-		seisdp = pdd->getDisplayedSeisDataPack( attrib );
-		if ( seisdp && pdd->isAttribEnabled(attrib) && transpar<198 )
+		voldp = pdd->getDisplayedVolumeDataPack( attrib );
+		if ( voldp && pdd->isAttribEnabled(attrib) && transpar<198 )
 		    break;
 	    }
 
-	    info().setObjData( seisdp.ptr() );
+	    info().setObjData( voldp.ptr() );
 	    info().setObjCS( pdd->getDataPackSampling() );
 	    info().setObjDataSelSpec( *pdd->getSelSpec(attrib) );
 	    allowPickBasedReselection();
@@ -521,21 +521,21 @@ void MPEClickCatcher::sendUnderlyingPlanes(
 	info().setLegalClick( legalclick );
 	info().setObjID( rtd->id() );
 
-	ConstRefMan<SeisDataPack> seisdp;
+	ConstRefMan<VolumeDataPack> voldp;
 	int attrib = rtd->nrAttribs();
 	while ( attrib )
 	{
 	    attrib--;
 	    unsigned char transpar = rtd->getAttribTransparency( attrib );
-	    seisdp = rtd->getDisplayedSeisDataPack( attrib );
-	    if ( seisdp && rtd->isAttribEnabled(attrib) && transpar<198 )
+	    voldp = rtd->getDisplayedVolumeDataPack( attrib );
+	    if ( voldp && rtd->isAttribEnabled(attrib) && transpar<198 )
 		break;
 	}
 
 	info().setObjCS( rtd->getTrcKeyZSampling(false,attrib) );
 	info().setObjTKPath( rtd->getTrcKeyPath() );
 	info().setObjRandomLineID( rtd->getRandomLineID() );
-	info().setObjData( seisdp.ptr() );
+	info().setObjData( voldp.ptr() );
 	info().setObjDataSelSpec( *rtd->getSelSpec(attrib) );
     }
 }
@@ -663,7 +663,7 @@ const TrcKeyZSampling& MPEClickInfo::getObjCS() const
 { return clickedcs_; }
 
 
-ConstRefMan<SeisDataPack> MPEClickInfo::getObjData() const
+ConstRefMan<VolumeDataPack> MPEClickInfo::getObjData() const
 { return attrdata_.get(); }
 
 
@@ -759,8 +759,8 @@ void MPEClickInfo::setObjCS( const TrcKeyZSampling& cs )
 { clickedcs_ = cs; }
 
 
-void MPEClickInfo::setObjData( const SeisDataPack* ad )
-{ attrdata_ = const_cast<SeisDataPack*>( ad ); }
+void MPEClickInfo::setObjData( const VolumeDataPack* ad )
+{ attrdata_ = const_cast<VolumeDataPack*>( ad ); }
 
 
 void MPEClickInfo::setObjDataSelSpec( const Attrib::SelSpec& as )

@@ -12,6 +12,7 @@ ________________________________________________________________________
 
 #include "mousecursor.h"
 #include "odcommonenums.h"
+#include "seisdatapack.h"
 #include "undo.h"
 #include "visdepthtabplanedragger.h"
 #include "visevent.h"
@@ -96,9 +97,9 @@ public:
 						 TaskRunner*) override;
     void			setTrcKeyZSampling(const TrcKeyZSampling&);
 
-    ConstRefMan<SeisDataPack>	getDisplayedSeisDataPack(int attrib)
+    ConstRefMan<VolumeDataPack> getDisplayedVolumeDataPack(int attrib)
 								const override;
-    RefMan<SeisDataPack>	getDisplayedSeisDataPack(int attrib);
+    RefMan<VolumeDataPack>	getDisplayedVolumeDataPack(int attrib);
 
     visBase::GridLines*		gridlines();
 
@@ -171,11 +172,11 @@ protected:
 							  TaskRunner* =nullptr);
 
     bool			usesDataPacks() const override	{ return true; }
-    bool			setSeisDataPack(int attrib,SeisDataPack*,
+    bool			setVolumeDataPack(int attrib,VolumeDataPack*,
 						TaskRunner*) override;
     ConstRefMan<DataPack>	getDataPack(int attrib) const override;
-    ConstRefMan<SeisDataPack>	getSeisDataPack(int attrib) const override;
-    RefMan<SeisDataPack>	getSeisDataPack(int attrib);
+    ConstRefMan<VolumeDataPack> getVolumeDataPack(int attrib) const override;
+    RefMan<VolumeDataPack>	getVolumeDataPack(int attrib);
 
     void			updateMainSwitch();
     void			setScene(Scene*) override;

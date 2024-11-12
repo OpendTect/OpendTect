@@ -348,17 +348,17 @@ const StepInterval<int>& Seis2DDisplay::getMaxTraceNrRange() const
 { return maxtrcnrrg_; }
 
 
-bool Seis2DDisplay::setSeisDataPack( int attrib, SeisDataPack* seisdp,
+bool Seis2DDisplay::setVolumeDataPack( int attrib, VolumeDataPack* voldp,
 				     TaskRunner* taskr )
 {
-    mDynamicCastGet(RegularSeisDataPack*,regseisdp,seisdp);
-    if ( !regseisdp || regseisdp->isEmpty() )
+    mDynamicCastGet(RegularSeisDataPack*,regsdp,voldp);
+    if ( !regsdp || regsdp->isEmpty() )
     {
 	channels_->setUnMappedVSData( attrib, 0, 0, OD::UsePtr, taskr );
 	return false;
     }
 
-    datapacks_.replace( attrib, regseisdp );
+    datapacks_.replace( attrib, regsdp );
 
     createTransformedDataPack( attrib, taskr );
     updateChannels( attrib, taskr );
@@ -370,17 +370,17 @@ bool Seis2DDisplay::setSeisDataPack( int attrib, SeisDataPack* seisdp,
 
 ConstRefMan<DataPack> Seis2DDisplay::getDataPack( int attrib ) const
 {
-    return getSeisDataPack( attrib );
+    return getVolumeDataPack( attrib );
 }
 
 
-ConstRefMan<SeisDataPack> Seis2DDisplay::getSeisDataPack( int attrib ) const
+ConstRefMan<VolumeDataPack> Seis2DDisplay::getVolumeDataPack( int attrib ) const
 {
-    return mSelf().getSeisDataPack( attrib );
+    return mSelf().getVolumeDataPack( attrib );
 }
 
 
-RefMan<SeisDataPack> Seis2DDisplay::getSeisDataPack( int attrib )
+RefMan<VolumeDataPack> Seis2DDisplay::getVolumeDataPack( int attrib )
 {
     if ( !datapacks_.validIdx(attrib) || !datapacks_[attrib] )
 	return nullptr;
@@ -389,14 +389,14 @@ RefMan<SeisDataPack> Seis2DDisplay::getSeisDataPack( int attrib )
 }
 
 
-ConstRefMan<SeisDataPack> Seis2DDisplay::getDisplayedSeisDataPack(
+ConstRefMan<VolumeDataPack> Seis2DDisplay::getDisplayedVolumeDataPack(
 							int attrib) const
 {
-    return mSelf().getDisplayedSeisDataPack( attrib );
+    return mSelf().getDisplayedVolumeDataPack( attrib );
 }
 
 
-RefMan<SeisDataPack> Seis2DDisplay::getDisplayedSeisDataPack( int attrib )
+RefMan<VolumeDataPack> Seis2DDisplay::getDisplayedVolumeDataPack( int attrib )
 {
     if ( datatransform_ && !alreadyTransformed(attrib) )
     {
@@ -406,7 +406,7 @@ RefMan<SeisDataPack> Seis2DDisplay::getDisplayedSeisDataPack( int attrib )
 	return transformedpacks_[attrib];
     }
 
-    return getSeisDataPack( attrib );
+    return getVolumeDataPack( attrib );
 }
 
 
@@ -431,8 +431,8 @@ void Seis2DDisplay::updateTexOriginAndScale( int attrib,
 
 void Seis2DDisplay::updateChannels( int attrib, TaskRunner* taskr )
 {
-    ConstRefMan<SeisDataPack> seisdp = getDisplayedSeisDataPack( attrib );
-    mDynamicCastGet(const RegularSeisDataPack*,regsdp,seisdp.ptr());
+    ConstRefMan<VolumeDataPack> voldp = getDisplayedVolumeDataPack( attrib );
+    mDynamicCastGet(const RegularSeisDataPack*,regsdp,voldp.ptr());
     if ( !regsdp )
 	return;
 
@@ -502,8 +502,8 @@ void Seis2DDisplay::updateChannels( int attrib, TaskRunner* taskr )
 
 void Seis2DDisplay::createTransformedDataPack( int attrib, TaskRunner* taskr )
 {
-    ConstRefMan<SeisDataPack> sdp = getSeisDataPack( attrib );
-    mDynamicCastGet(const RegularSeisDataPack*,regsdp,sdp.ptr());
+    ConstRefMan<VolumeDataPack> voldp = getVolumeDataPack( attrib );
+    mDynamicCastGet(const RegularSeisDataPack*,regsdp,voldp.ptr());
     if ( !regsdp || regsdp->isEmpty() )
 	return;
 
@@ -693,8 +693,8 @@ SurveyObject* Seis2DDisplay::duplicate( TaskRunner* taskr ) const
 	    continue;
 
 	s2dd->setSelSpecs( idx, *selspecs );
-	ConstRefMan<SeisDataPack> regsdp = getSeisDataPack( idx );
-	s2dd->setSeisDataPack( idx, regsdp.getNonConstPtr(), taskr );
+	ConstRefMan<VolumeDataPack> voldp = getVolumeDataPack( idx );
+	s2dd->setVolumeDataPack( idx, voldp.getNonConstPtr(), taskr );
 	const ColTab::MapperSetup* mappersetup = getColTabMapperSetup( idx );
 	if ( mappersetup )
 	    s2dd->setColTabMapperSetup( idx,*mappersetup,taskr );
@@ -897,8 +897,8 @@ void Seis2DDisplay::getObjectInfo( uiString& info ) const
 bool Seis2DDisplay::getCacheValue( int attrib, int version,
 				    const Coord3& pos, float& res ) const
 {
-    ConstRefMan<SeisDataPack> seisdp = getDisplayedSeisDataPack( attrib );
-    mDynamicCastGet(const RegularSeisDataPack*,regsdp,seisdp.ptr());
+    ConstRefMan<VolumeDataPack> voldp = getDisplayedVolumeDataPack( attrib );
+    mDynamicCastGet(const RegularSeisDataPack*,regsdp,voldp.ptr());
     if ( !regsdp || regsdp->isEmpty() )
 	return false;
 

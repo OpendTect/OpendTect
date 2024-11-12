@@ -14,13 +14,12 @@ ________________________________________________________________________
 #include "uimenuhandler.h"
 #include "uivispickretriever.h"
 
-#include "datapack.h"
+#include "datapackbase.h"
 #include "flatview.h"
 #include "keyboardevent.h"
 #include "menuhandler.h"
 #include "mouseevent.h"
 #include "ranges.h"
-#include "seisdatapack.h"
 #include "trckeyzsampling.h"
 #include "thread.h"
 #include "vispolygonselection.h"
@@ -32,6 +31,8 @@ class BufferStringSet;
 class DataPointSet;
 class MouseCursorExchange;
 class PickSet;
+class RandomSeisDataPack;
+class RegularSeisDataPack;
 class SeisTrcBuf;
 class SurfaceInfo;
 class TaskRunner;
@@ -192,9 +193,10 @@ public:
     bool		setRandomSeisDataPack(const VisID&,int attrib,
 					      RandomSeisDataPack*);
     ConstRefMan<FlatDataPack> getFlatDataPack(const VisID&,int attrib) const;
-    ConstRefMan<SeisDataPack> getSeisDataPack(const VisID&,int attrib) const;
-    ConstRefMan<SeisDataPack> getDisplayedSeisDataPack(const VisID&,
-						       int attrib) const;
+    ConstRefMan<VolumeDataPack> getVolumeDataPack(const VisID&,
+						  int attrib) const;
+    ConstRefMan<VolumeDataPack> getDisplayedVolumeDataPack(const VisID&,
+							   int attrib) const;
 
 			//Trace data
     void		getDataTraceBids(const VisID&,TypeSet<BinID>&) const;
@@ -442,8 +444,8 @@ protected:
     void			updateManipulatorStatus(visBase::DataObject*,
 							bool issel) const;
 
-    bool			setSeisDataPack(const VisID&,int attrib,
-						SeisDataPack*);
+    bool			setVolumeDataPack(const VisID&,int attrib,
+						  VolumeDataPack*);
     void			setMarkerPos(const TrcKeyValue&,
 					     const SceneID& dontsetscene);
 

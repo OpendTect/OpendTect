@@ -32,7 +32,7 @@ class uiTreeItem;
 class uiTreeFactorySet;
 
 class MouseCursorExchange;
-class RegularFlatDataPack;
+class RegularSeisFlatDataPack;
 class TaskRunner;
 class DataManager;
 class ZAxisTransform;
@@ -94,19 +94,21 @@ public:
     RefMan<SeisFlatDataPack>	createDataPackRM(const Attrib::SelSpec&)
 									const;
 				/*!< Creates and returns reference to a
-				 RegularFlatDataPack by getting TrcKeyZSampling
-				 from slicepos_. Uses the existing
-				 TrcKeyZSampling, if there is no slicepos_.
+				 RegularSeisFlatDataPack by getting
+				 TrcKeyZSampling from slicepos_.
+				 Uses the existing TrcKeyZSampling,
+				 if there is no slicepos_.
 				 Also transforms data if the 2D Viewer
 				 hasZAxisTransform(). */
-    RefMan<SeisFlatDataPack>	createFlatDataPackRM(const SeisDataPack&,
+    RefMan<SeisFlatDataPack>	createFlatDataPackRM(const VolumeDataPack&,
 						     int comp) const;
 				/*!< Creates a SeisFlatDataPack from a
-				 SeisDataPack. Either a transformed or a
+				 VolumeDataPack. Either a transformed or a
 				 non-transformed datapack can be passed. The
 				 returned datapack will always be in transformed
 				  domain if the viewer hasZAxisTransform(). */
-    RefMan<MapDataPack>		createMapDataPackRM(const RegularFlatDataPack&);
+    RefMan<MapDataPack>		createMapDataPackRM(
+						const RegularSeisFlatDataPack&);
 
     bool			useStoredDispPars(FlatView::Viewer::VwrDest);
     bool			isVertical() const	{ return isvertical_; }
@@ -306,7 +308,7 @@ public:
     DataPackID			createDataPack(bool wva) const;
     mDeprecated("No longer used")
     DataPackID			createDataPack(const Attrib::SelSpec&) const;
-				/*!< Creates RegularFlatDataPack by getting
+				/*!< Creates RegularSeisFlatDataPack by getting
 				TrcKeyZSampling from slicepos_. Uses the
 				existing TrcKeyZSampling, if there is no
 				slicepos_. Also transforms data if the 2D Viewer
@@ -314,7 +316,7 @@ public:
     mDeprecated("No longer used")
     DataPackID			createFlatDataPack(const DataPackID&,
 						   int comp) const;
-				/*!< Creates a FlatDataPack from SeisDataPack.
+				/*!< Creates a FlatDataPack from VolumeDataPack.
 				Either a transformed or a non-transformed
 				datapack can be passed. The returned datapack
 				will always be in transformed domain if the
@@ -327,11 +329,11 @@ public:
 				datapack can be passed. The returned datapack
 				will always be in transformed domain if the
 				viewer hasZAxisTransform(). */
-    mDeprecated("Provide SeisDataPack, not DataPackID")
+    mDeprecated("Provide VolumeDataPack, not DataPackID")
     RefMan<SeisFlatDataPack>	createFlatDataPackRM(const DataPackID&,
 						     int comp) const;
 				/*!< Creates a SeisFlatDataPack from a
-				 SeisDataPack. Either a transformed or a
+				 VolumeDataPack. Either a transformed or a
 				 non-transformed datapack can be passed. The
 				 returned datapack will always be in transformed
 				  domain if the viewer hasZAxisTransform(). */

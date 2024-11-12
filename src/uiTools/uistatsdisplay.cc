@@ -154,13 +154,13 @@ bool uiStatsDisplay::setDataPack( const DataPack& dp, int version )
 						.require(Stats::StdDev)
 						.require(Stats::RMS)) );
 
-	mDynamicCastGet(const SeisDataPack*,seisdp,&dp)
+	mDynamicCastGet(const VolumeDataPack*,voldp,&dp)
 	mDynamicCastGet(const FlatDataPack*,fdp,&dp)
 	mDynamicCastGet(const DataPointSet*,dps,&dp)
 	TypeSet<float> valarr;
-	if ( seisdp )
+	if ( voldp )
 	{
-	    const Array3D<float>& arr3d = seisdp->data( version );
+	    const Array3D<float>& arr3d = voldp->data( version );
 	    if ( !arr3d.isOK() )
 		return false;
 

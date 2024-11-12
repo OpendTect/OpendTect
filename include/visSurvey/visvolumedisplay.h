@@ -12,6 +12,7 @@ ________________________________________________________________________
 
 #include "mousecursor.h"
 #include "ranges.h"
+#include "seisdatapack.h"
 #include "visboxdragger.h"
 #include "visevent.h"
 #include "vismarchingcubessurface.h"
@@ -230,10 +231,10 @@ protected:
 				~VolumeDisplay();
 
     bool			usesDataPacks() const override	{ return true; }
-    bool			setSeisDataPack(int attrib,SeisDataPack*,
+    bool			setVolumeDataPack(int attrib,VolumeDataPack*,
 						TaskRunner*) override;
     ConstRefMan<DataPack>	getDataPack(int attrib) const override;
-    ConstRefMan<SeisDataPack>	getSeisDataPack(int attrib) const override;
+    ConstRefMan<VolumeDataPack> getVolumeDataPack(int attrib) const override;
 
     bool			updateSeedBasedSurface(int,
 						       TaskRunner* =nullptr);

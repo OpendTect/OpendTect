@@ -272,7 +272,7 @@ void VolumeDisplay::dataTransformCB( CallBacker* )
     for ( int attrib=0; attrib<attribs_.size(); attrib++ )
     {
 	if ( attribs_[attrib]->cache_ )
-	    setSeisDataPack( attrib, attribs_[attrib]->cache_.getNonConstPtr(),
+	    setVolumeDataPack( attrib,attribs_[attrib]->cache_.getNonConstPtr(),
 			     nullptr );
     }
 }
@@ -1083,20 +1083,19 @@ TrcKeyZSampling VolumeDisplay::getTrcKeyZSampling( bool displayspace,
 }
 
 
-bool VolumeDisplay::setSeisDataPack( int attrib,
-				     SeisDataPack* seisdp,
-				     TaskRunner* taskr )
+bool VolumeDisplay::setVolumeDataPack( int attrib, VolumeDataPack* voldp,
+				       TaskRunner* taskr )
 {
-    mDynamicCastGet(RegularSeisDataPack*,regseisdp,seisdp);
-    if ( !attribs_.validIdx(attrib) || !regseisdp || regseisdp->isEmpty() )
+    mDynamicCastGet(RegularSeisDataPack*,regsdp,voldp);
+    if ( !attribs_.validIdx(attrib) || !regsdp || regsdp->isEmpty() )
 	return false;
 
-    TrcKeyZSampling tkzs = regseisdp->sampling();
+    TrcKeyZSampling tkzs = regsdp->sampling();
 
     const Array3D<float>* usedarray = nullptr;
     bool arrayismine = true;
     if ( alreadyTransformed(attrib) || !datatransform_ )
-	usedarray = &seisdp->data();
+	usedarray = &regsdp->data();
     else
     {
 	if ( !datatransformer_ )
@@ -1104,7 +1103,7 @@ bool VolumeDisplay::setSeisDataPack( int attrib,
 
 //	datatransformer_->setInterpolate( !isClassification(attrib) );
 	datatransformer_->setInterpolate( true );
-	datatransformer_->setInput( seisdp->data(), tkzs );
+	datatransformer_->setInput( regsdp->data(), tkzs );
 	tkzs.zsamp_ = getTrcKeyZSampling(true,true,0).zsamp_;
 	datatransformer_->setOutputRange( tkzs );
 
@@ -1134,8 +1133,8 @@ bool VolumeDisplay::setSeisDataPack( int attrib,
 					 usedarray->info().getSize(1),
 					 usedarray->info().getSize(0) );
 
-    if ( attribs_[attrib]->cache_.ptr() != regseisdp )
-	attribs_[attrib]->cache_ = regseisdp;
+    if ( attribs_[attrib]->cache_.ptr() != regsdp )
+	attribs_[attrib]->cache_ = regsdp;
 
     isinited_ = true;
     updateAttribEnabling();
@@ -1149,11 +1148,11 @@ bool VolumeDisplay::setSeisDataPack( int attrib,
 
 ConstRefMan<DataPack> VolumeDisplay::getDataPack( int attrib ) const
 {
-    return getSeisDataPack( attrib );
+    return getVolumeDataPack( attrib );
 }
 
 
-ConstRefMan<SeisDataPack> VolumeDisplay::getSeisDataPack( int attrib ) const
+ConstRefMan<VolumeDataPack> VolumeDisplay::getVolumeDataPack( int attrib ) const
 {
     return attribs_.validIdx(attrib) ? attribs_[attrib]->cache_ : nullptr;
 }
@@ -1292,7 +1291,7 @@ SurveyObject* VolumeDisplay::duplicate( TaskRunner* taskr ) const
 	    vd->addAttrib();
 
 	vd->setSelSpecs( attrib, *attribs_[attrib]->selspec_ );
-	vd->setSeisDataPack( attrib,
+	vd->setVolumeDataPack( attrib,
 			     attribs_[attrib]->cache_.getNonConstPtr(), taskr );
 	vd->setColTabMapperSetup( attrib, *getColTabMapperSetup( attrib ),
 				  taskr );

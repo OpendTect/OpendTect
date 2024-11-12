@@ -24,6 +24,7 @@ ________________________________________________________________________
 #include "nladesign.h"
 #include "nlamodel.h"
 #include "ptrman.h"
+#include "seisdatapack.h"
 #include "seisioobjinfo.h"
 #include "seispreload.h"
 #include "seistrctr.h"
@@ -295,20 +296,20 @@ bool SelSpec::isStored() const
 }
 
 
-const BinDataDesc* SelSpec::getPreloadDataDesc( Pos::GeomID geomid ) const
+const BinDataDesc* SelSpec::getPreloadDataDesc( const Pos::GeomID& geomid) const
 {
     const DescSet* descset = DSHolder().getDescSet( false, isStored() );
     if ( !descset || descset->isEmpty() )
-	return 0;
+	return nullptr;
 
     ConstRefMan<Desc> desc = descset->getDesc( id() );
     if ( !desc )
-	return 0;
+	return nullptr;
 
     const MultiID mid = desc->getStoredID();
-    auto sdp = Seis::PLDM().get<SeisDataPack>( mid, geomid );
+    auto sdp = Seis::PLDM().get<SeisVolumeDataPack>( mid, geomid );
 
-    return sdp ? &sdp->getDataDesc() : 0;
+    return sdp ? &sdp->getDataDesc() : nullptr;
 }
 
 

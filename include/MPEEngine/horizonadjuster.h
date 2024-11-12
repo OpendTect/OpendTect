@@ -88,7 +88,7 @@ protected:
 
 private:
 
-    WeakPtr<SeisDataPack> seisdp_;
+    WeakPtr<VolumeDataPack> voldp_;
 
     bool		track(const TrcKey&,const TrcKey&,float&) const;
     void		setHorizonPick(const TrcKey&,float val);

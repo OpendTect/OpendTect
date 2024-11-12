@@ -390,9 +390,9 @@ void uiODDataTreeItem::handleMenuCB( CallBacker* cb )
 	    const bool isselmodeon = visserv_->isSelectionModeOn();
 	    if ( !isselmodeon )
 	    {
-		ConstRefMan<SeisDataPack> seisdp =
-				visserv_->getSeisDataPack( visid, attribid );
-		if ( !seisdp )
+		ConstRefMan<VolumeDataPack> voldp =
+				visserv_->getVolumeDataPack( visid, attribid );
+		if ( !voldp )
 		    return;
 
 		const int version = visserv_->selectedTexture( visid, attribid);
@@ -401,14 +401,15 @@ void uiODDataTreeItem::handleMenuCB( CallBacker* cb )
 		    delete ampspectrumwin_;
 		    ampspectrumwin_ = new uiAmplSpectrum(
 				      applMgr()->applService().parent() );
-		    ampspectrumwin_->setDataPack( *seisdp.ptr(), version );
+		    ampspectrumwin_->setDataPack( *voldp.ptr(), version );
 		    ampspectrumwin_->show();
 		}
 		else
 		{
+		    delete fkspectrumwin_;
 		    fkspectrumwin_ =
 			new uiFKSpectrum( applMgr()->applService().parent() );
-		    fkspectrumwin_->setDataPack( *seisdp.ptr(), version );
+		    fkspectrumwin_->setDataPack( *voldp.ptr(), version );
 		    fkspectrumwin_->show();
 		}
 	    }

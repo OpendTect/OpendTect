@@ -56,8 +56,8 @@ const Attrib::SelSpec* HorizonAdjuster::getAttributeSel( int idx ) const
 
 void HorizonAdjuster::reset()
 {
-    ConstRefMan<SeisDataPack> seisdp = engine().getAttribCacheDP( *attribsel_ );
-    seisdp_ = seisdp.getNonConstPtr();
+    ConstRefMan<VolumeDataPack> voldp = engine().getAttribCacheDP( *attribsel_);
+    voldp_ = voldp.getNonConstPtr();
 }
 
 
@@ -150,8 +150,8 @@ bool HorizonAdjuster::snapToEvent() const
 
 int HorizonAdjuster::nextStep()
 {
-    ConstRefMan<SeisDataPack> sdp = seisdp_.get();
-    if ( !sdp || sdp->isEmpty() )
+    ConstRefMan<VolumeDataPack> vdp = voldp_.get();
+    if ( !vdp || vdp->isEmpty() )
 	return ErrorOccurred();
 
     mDynamicCastGet(EM::Horizon3D*,hor3d,&horizon_)
@@ -206,25 +206,26 @@ int HorizonAdjuster::nextStep()
 bool HorizonAdjuster::track( const TrcKey& from, const TrcKey& to,
 			     float& targetz ) const
 {
-    ConstRefMan<SeisDataPack> sdp = seisdp_.get();
-    if ( !sdp || sdp->isEmpty() )
+    ConstRefMan<VolumeDataPack> vdp = voldp_.get();
+    if ( !vdp || vdp->isEmpty() )
 	return false;
 
-    const Array3D<float>& array = sdp->data();
+    const Array3D<float>& array = vdp->data();
     if ( !array.getStorage() ) return false;
 
     if ( !horizon_.hasZ(to) )
 	return false;
 
-    const int totrcidx = sdp->getGlobalIdx( to );
-    if ( totrcidx < 0 ) return false;
+    const int totrcidx = vdp->getGlobalIdx( to );
+    if ( totrcidx < 0 )
+	return false;
 
-    const OffsetValueSeries<float> tovs = sdp->getTrcStorage( 0, totrcidx );
+    const OffsetValueSeries<float> tovs = vdp->getTrcStorage( 0, totrcidx );
     const float startz = horizon_.getZ( to );
     if ( mIsUdf(startz) )
 	return false;
 
-    const StepInterval<float> zsamp = sdp->zRange();
+    const StepInterval<float> zsamp = vdp->zRange();
     const int nrz = zsamp.nrSteps() + 1;
     const SamplingData<float> sd( zsamp.start_, zsamp.step_ );
     evtracker_.setRangeStep( sd.step_ );
@@ -235,11 +236,11 @@ bool HorizonAdjuster::track( const TrcKey& from, const TrcKey& to,
 	if ( !horizon_.hasZ(from) )
 	    return false;
 
-	const int seedtrcidx = sdp->getGlobalIdx( seedtk_ );
+	const int seedtrcidx = vdp->getGlobalIdx( seedtk_ );
 	if ( seedtrcidx < 0 )
 	    return false;
 
-	OffsetValueSeries<float> seedvs = sdp->getTrcStorage( 0, seedtrcidx );
+	OffsetValueSeries<float> seedvs = vdp->getTrcStorage( 0, seedtrcidx );
 	if ( evtracker_.getCompareMethod() == EventTracker::SeedTrace )
 	{
 	    const float seedz = horizon_.getZ( seedtk_ );
@@ -248,12 +249,12 @@ bool HorizonAdjuster::track( const TrcKey& from, const TrcKey& to,
 	else
 	    evtracker_.setSeed( 0, -1, mUdf(float) );
 
-	const int fromtrcidx = sdp->getGlobalIdx( from );
+	const int fromtrcidx = vdp->getGlobalIdx( from );
 	if ( fromtrcidx < 0 )
 	    return false;
 
 	const OffsetValueSeries<float> fromvs =
-			sdp->getTrcStorage( 0, fromtrcidx );
+			vdp->getTrcStorage( 0, fromtrcidx );
 	const float fromz = horizon_.getZ( from );
 	evtracker_.setSource( &fromvs, nrz, sd.getfIndex(fromz) );
 	if ( !evtracker_.isOK() )
@@ -342,8 +343,9 @@ void HorizonAdjuster::setAttributeSel( int idx, const Attrib::SelSpec& as )
 	attribsel_ = new Attrib::SelSpec;
 
     *attribsel_ = as;
-    ConstRefMan<SeisDataPack> seisdp = engine().getAttribCacheDP( *attribsel_ );
-    seisdp_ = seisdp.getNonConstPtr();
+    ConstRefMan<VolumeDataPack> voldp =
+				engine().getAttribCacheDP( *attribsel_ );
+    voldp_ = voldp.getNonConstPtr();
 }
 
 

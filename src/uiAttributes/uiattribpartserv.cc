@@ -812,7 +812,7 @@ RefMan<RegularSeisDataPack> uiAttribPartServer::createOutputRM(
 	    {
 		const MultiID mid = targetdesc->getStoredID();
 		RefMan<RegularSeisDataPack> sdp = new RegularSeisDataPack(
-				SeisDataPack::categoryStr(false,false) );
+				VolumeDataPack::categoryStr(false,false) );
 
 		const SeisIOObjInfo seisinfo( mid );
 		SeisTrcReader rdr( mid, seisinfo.geomType() );
@@ -880,7 +880,7 @@ RefMan<RegularSeisDataPack> uiAttribPartServer::createOutputRM(
 	{
 	    ArrayValueSeries<float, float> avs( vals.arr(), false, vals.size());
 	    output = new RegularSeisDataPack(
-				SeisDataPack::categoryStr(false,false) );
+				VolumeDataPack::categoryStr(false,false) );
 	    output->setSampling( tkzs );
 	    if ( !output->addComponent(targetspecs_[0].userRef()) ||
 		    !output->data(0).getStorage() )
@@ -1150,7 +1150,7 @@ RefMan<RandomSeisDataPack> uiAttribPartServer::createRdmTrcsOutputRM(
 	return nullptr;
 
     RefMan<RandomSeisDataPack> newpack =
-		new RandomSeisDataPack( SeisDataPack::categoryStr(true,false) );
+	    new RandomSeisDataPack( VolumeDataPack::categoryStr(true,false) );
     if ( !newpack )
 	return nullptr;
 
@@ -1215,7 +1215,7 @@ RefMan<RandomSeisDataPack> uiAttribPartServer::createRdmTrcsOutputRM(
 	return nullptr;
 
     RefMan<RandomSeisDataPack> newpack = new RandomSeisDataPack(
-				SeisDataPack::categoryStr(true,false) );
+				VolumeDataPack::categoryStr(true,false) );
     if ( !newpack )
 	return nullptr;
 
@@ -1369,7 +1369,7 @@ bool doPrepare( int nrthreads ) override
     if ( input_.trcinfoset_.isEmpty() || !sampling_.is2D() )
 	return false;
 
-    outputdp_ = new RegularSeisDataPack( SeisDataPack::categoryStr(true,true) );
+    outputdp_ = new RegularSeisDataPack(VolumeDataPack::categoryStr(true,true));
     outputdp_->setSampling( sampling_ );
     for ( int idx=0; idx<input_.dataset_[0]->validSeriesIdx().size(); idx++ )
     {

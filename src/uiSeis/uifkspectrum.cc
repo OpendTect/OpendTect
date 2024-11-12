@@ -185,24 +185,24 @@ void uiFKSpectrum::mousePressCB( CallBacker* )
 bool uiFKSpectrum::setDataPackID( const DataPackID& dpid,
 				  const DataPackMgr::MgrID& dmid, int version )
 {
-    ConstRefMan<SeisDataPack> seisdp = DPM(dmid).getDP( dpid );
-    return seisdp ? setDataPack( *seisdp.ptr(), version ) : false;
+    ConstRefMan<SeisVolumeDataPack> seisvoldp = DPM(dmid).getDP( dpid );
+    return seisvoldp ? setDataPack( *seisvoldp.ptr(), version ) : false;
 }
 
 
-bool uiFKSpectrum::setDataPack( const SeisDataPack& seisdp, int version )
+bool uiFKSpectrum::setDataPack( const VolumeDataPack& voldp, int version )
 {
-    setCaption( tr("F-K Spectrum for %1").arg( seisdp.name() ) );
+    setCaption( tr("F-K Spectrum for %1").arg( voldp.name() ) );
 
-    if ( seisdp.isEmpty() )
+    if ( voldp.isEmpty() )
 	return false;
 
-    mDynamicCastGet(const RegularSeisDataPack*,regsdp,&seisdp);
+    mDynamicCastGet(const RegularSeisDataPack*,regsdp,&voldp);
     const TrcKeyZSampling::Dir dir = regsdp ?
 	    regsdp->sampling().defaultDir() : TrcKeyZSampling::Inl;
     const int dim0 = dir==TrcKeyZSampling::Inl ? 1 : 0;
 
-    Array2DSlice<float> slice2d( seisdp.data(version) );
+    Array2DSlice<float> slice2d( voldp.data(version) );
     slice2d.setDimMap( 0, dim0 );
     slice2d.setDimMap( 1, 2 );
     slice2d.setPos( dir, 0 );

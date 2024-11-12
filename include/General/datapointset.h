@@ -9,6 +9,7 @@ ________________________________________________________________________
 -*/
 
 #include "generalmod.h"
+
 #include "binidvalset.h"
 #include "color.h"
 #include "datapackbase.h"
@@ -210,10 +211,10 @@ public:
 			//!< columns!
 
     DataPointSet*	getSubselected(int maxsz,
-			    const TypeSet<int>* selected_cols=0,
+			    const TypeSet<int>* selected_cols=nullptr,
 			    bool allow_udf_values=true,
-			    const ObjectSet<Interval<float> >* value_ranges=0)
-							const;
+			    const ObjectSet<Interval<float> >*
+						    value_ranges=nullptr) const;
     void		randomSubselect(int maxsz);
 
     int			bivSetIdx( ColID idx ) const
@@ -237,10 +238,11 @@ public:
     explicit		DataPointSet(bool is2d,bool minimal=false);
     bool		extractPositions(::Pos::Provider&,
 				     const ObjectSet<DataColDef>&,
-				     const ::Pos::Filter* f=0,
-				     TaskRunner* tr=0, bool filterAccept=true);
-    void		addCol(const char* nm,const char* ref=0,
-				const UnitOfMeasure* un=0);
+				     const ::Pos::Filter* =nullptr,
+				     TaskRunner* =nullptr,
+				     bool filterAccept=true);
+    void		addCol(const char* nm,const char* ref=nullptr,
+				const UnitOfMeasure* =nullptr);
 			//!< or use dataSet() to add columns
 
     // DataPack interface impl
@@ -276,7 +278,7 @@ mExpClass(General) DPSFromVolumeFiller : public ParallelTask
 { mODTextTranslationClass(DPSFromVolumeFiller)
 public:
 				DPSFromVolumeFiller(DataPointSet&,int firstcol,
-						    const SeisDataPack&,
+						    const VolumeDataPack&,
 						    int component);
 				~DPSFromVolumeFiller();
 
@@ -285,17 +287,17 @@ public:
 
     void			setSampling(const TrcKeyZSampling*);
 
-protected:
+private:
     od_int64			nrIterations() const override;
     bool			doWork(od_int64 start,
 				       od_int64 stop,int thridx) override;
 
-    DataPointSet&		dps_;
-    const SeisDataPack&		sdp_;
+    RefMan<DataPointSet>	dps_;
+    ConstRefMan<VolumeDataPack> vdp_;
     int				component_;
     int				firstcol_;
 
-    bool			hastrcdata_;
-    bool			hasstorage_;
-    const TrcKeyZSampling*	sampling_;
+    bool			hastrcdata_	= false;
+    bool			hasstorage_	= false;
+    const TrcKeyZSampling*	sampling_	= nullptr;
 };

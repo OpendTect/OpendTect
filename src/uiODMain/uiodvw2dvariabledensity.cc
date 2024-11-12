@@ -249,23 +249,26 @@ void uiODView2DVariableDensityTreeItem::createSelMenu( MenuItem& mnu )
 
     uiAttribPartServer* attrserv = applMgr()->attrServer();
     const Attrib::SelSpec& as = viewer2D()->selSpec( false );
-    MenuItem* subitem = 0;
+    MenuItem* subitem = nullptr;
     attrserv->resetMenuItems();
 
-    mDynamicCastGet(const RegularFlatDataPack*,regfdp,dp.ptr());
+    mDynamicCastGet(const RegularSeisFlatDataPack*,regfdp,dp.ptr());
     const bool is2d = regfdp && regfdp->is2D();
     Pos::GeomID geomid = viewer2D()->geomID();
     subitem = attrserv->storedAttribMenuItem(as,is2d,false);
     if ( is2d )
 	attrserv->filter2DMenuItems( *subitem, as, geomid, true, 0 );
+
     mAddMenuItem( &mnu, subitem, subitem->nrItems(), subitem->checked );
     subitem = attrserv->calcAttribMenuItem( as, is2d, true );
     if ( is2d )
 	attrserv->filter2DMenuItems( *subitem, as, geomid, false, 2 );
+
     mAddMenuItem( &mnu, subitem, subitem->nrItems(), subitem->checked );
     subitem = attrserv->storedAttribMenuItem(as,is2d,true );
     if ( is2d )
 	attrserv->filter2DMenuItems( *subitem, as, geomid, true, 1 );
+
     mAddMenuItem( &mnu, subitem, subitem->nrItems(), subitem->checked );
 }
 
@@ -282,7 +285,7 @@ bool uiODView2DVariableDensityTreeItem::handleSelMenu( int mnuid )
     dousemulticomp = stored = steering = false;
 
     BufferString attrbnm;
-    mDynamicCastGet(const RegularFlatDataPack*,regfdp,dp.ptr());
+    mDynamicCastGet(const RegularSeisFlatDataPack*,regfdp,dp.ptr());
     if ( regfdp && regfdp->is2D() )
 	attrserv->info2DAttribSubMenu( mnuid, attrbnm, steering, stored );
 
@@ -330,8 +333,8 @@ RefMan<SeisFlatDataPack> uiODView2DVariableDensityTreeItem::createDataPackRM(
     uiAttribPartServer* attrserv = applMgr()->attrServer();
     attrserv->setTargetSelSpec( selas );
 
-    mDynamicCastGet(const RegularFlatDataPack*,regfdp,dp.ptr());
-    mDynamicCastGet(const RandomFlatDataPack*,randfdp,dp.ptr());
+    mDynamicCastGet(const RegularSeisFlatDataPack*,regfdp,dp.ptr());
+    mDynamicCastGet(const RandomSeisFlatDataPack*,randfdp,dp.ptr());
     if ( regfdp && regfdp->is2D() )
     {
 	if ( stored )

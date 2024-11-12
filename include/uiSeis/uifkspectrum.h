@@ -18,7 +18,7 @@ namespace Fourier { class CC; }
 template <class T> class Array2D;
 namespace FlatView { class AuxData; }
 class FlatDataPack;
-class SeisDataPack;
+class VolumeDataPack;
 class uiGenInput;
 class uiToolButton;
 
@@ -28,7 +28,8 @@ public:
 				uiFKSpectrum(uiParent*,bool setbp=false);
 				~uiFKSpectrum();
 
-    bool			setDataPack(const SeisDataPack&,int version=0);
+    bool			setDataPack(const VolumeDataPack&,
+					    int version=0);
     mDeprecated("Use setDataPack")
     bool			setDataPackID(const DataPackID&,
 					      const DataPackMgr::MgrID&,

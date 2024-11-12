@@ -67,7 +67,7 @@ public:
 					      const Attrib::SelSpec&,
 					      const FlatView::DataDispPars::VD&,
 					      FlatView::Viewer::VwrDest);
-    Viewer2DID			displayIn2DViewer(const SeisDataPack&,
+    Viewer2DID			displayIn2DViewer(const VolumeDataPack&,
 					      const Attrib::SelSpec&,
 					      const FlatView::DataDispPars::VD&,
 					      FlatView::Viewer::VwrDest);

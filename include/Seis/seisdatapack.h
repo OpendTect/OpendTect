@@ -16,14 +16,36 @@ ________________________________________________________________________
 #include "trckeyzsampling.h"
 
 class BinIDValueSet;
+class DataCharacteristics;
 class TraceData;
 namespace PosInfo { class CubeData; }
 
+
+/*!\brief Seis Volume DataPack base class. */
+
+mExpClass(Seis) SeisVolumeDataPack : public VolumeDataPack
+{
+public:
+
+    bool		isFullyCompat(const ZSampling&,
+				      const DataCharacteristics&) const;
+
+			// following will just fill with all available data
+    void		fillTrace(const TrcKey&,SeisTrc&) const;
+    void		fillTraceInfo(const TrcKey&,SeisTrcInfo&) const;
+    void		fillTraceData(const TrcKey&,TraceData&) const;
+
+protected:
+			SeisVolumeDataPack(const char* cat,const BinDataDesc*);
+			~SeisVolumeDataPack();
+
+};
+
 /*!
-\brief SeisDataPack for 2D and 3D seismic data.
+\brief SeisVolumeDataPack for 2D and 3D seismic data.
 */
 
-mExpClass(Seis) RegularSeisDataPack : public SeisDataPack
+mExpClass(Seis) RegularSeisDataPack : public SeisVolumeDataPack
 {
 public:
 				RegularSeisDataPack(const char* cat,
@@ -70,10 +92,6 @@ public:
 				as the	z-component is not used. \param nms is
 				for passing component names. */
 
-    void			fillTrace(const TrcKey&,SeisTrc&) const;
-    void			fillTraceInfo(const TrcKey&,SeisTrcInfo&) const;
-    void			fillTraceData(const TrcKey&,TraceData&) const;
-
 protected:
 				~RegularSeisDataPack();
 
@@ -98,10 +116,10 @@ public:
 
 
 /*!
-\brief SeisDataPack for random lines.
+\brief SeisVolumeDataPack for random lines.
 */
 
-mExpClass(Seis) RandomSeisDataPack : public SeisDataPack
+mExpClass(Seis) RandomSeisDataPack : public SeisVolumeDataPack
 {
 public:
 				RandomSeisDataPack(const char* cat,
@@ -167,7 +185,7 @@ public:
 
 
 /*!
-\brief Base class for RegularFlatDataPack and RandomFlatDataPack.
+\brief Base class for RegularSeisFlatDataPack and RandomSeisFlatDataPack.
 */
 
 mExpClass(Seis) SeisFlatDataPack : public FlatDataPack
@@ -177,12 +195,12 @@ public:
     int				nrTrcs() const;
     TrcKey			getTrcKey(int trcidx) const;
     DataPackID			getSourceID() const;
-    ConstRefMan<SeisDataPack>	getSource() const;
+    ConstRefMan<SeisVolumeDataPack> getSource() const;
     int				getSourceGlobalIdx(const TrcKey&) const;
 
     bool			is2D() const;
 
-    virtual bool		isVertical() const			= 0;
+    bool			isVertical() const override		= 0;
     virtual const TrcKeyPath&	getPath() const				= 0;
 				//!< Will be empty if isVertical() is false
 				//!< Eg: Z-slices. Or if the data corresponds
@@ -202,7 +220,8 @@ public:
 
 protected:
 
-				SeisFlatDataPack(const SeisDataPack&,int comp);
+				SeisFlatDataPack(const SeisVolumeDataPack&,
+						 int comp);
 				~SeisFlatDataPack();
 
     virtual void		setSourceData()				= 0;
@@ -212,7 +231,7 @@ protected:
 				 as X1 and X2 posData. Assumes getPath() is
 				 not empty. */
 
-    ConstRefMan<SeisDataPack>	source_;
+    ConstRefMan<SeisVolumeDataPack> source_;
     int				comp_;
     const StepInterval<float>	zsamp_;
 
@@ -225,11 +244,12 @@ protected:
 \brief FlatDataPack for 2D and 3D seismic data.
 */
 
-mExpClass(Seis) RegularFlatDataPack : public SeisFlatDataPack
+mExpClass(Seis) RegularSeisFlatDataPack : public SeisFlatDataPack
 {
 public:
-				RegularFlatDataPack(const RegularSeisDataPack&,
-						    int component);
+				RegularSeisFlatDataPack(
+						const RegularSeisDataPack&,
+						int component);
 
     bool			isVertical() const override
 				{ return dir_ != TrcKeyZSampling::Z; }
@@ -243,7 +263,7 @@ public:
     const char*			dimName(bool dim0) const override;
 
 protected:
-				~RegularFlatDataPack();
+				~RegularSeisFlatDataPack();
 
     void			setSourceDataFromMultiCubes();
     void			setSourceData() override;
@@ -261,11 +281,12 @@ protected:
 \brief FlatDataPack for random lines.
 */
 
-mExpClass(Seis) RandomFlatDataPack : public SeisFlatDataPack
+mExpClass(Seis) RandomSeisFlatDataPack : public SeisFlatDataPack
 {
 public:
-				RandomFlatDataPack(const RandomSeisDataPack&,
-						   int component);
+				RandomSeisFlatDataPack(
+						const RandomSeisDataPack&,
+						int component);
 
     bool			isVertical() const override	{ return true; }
     int				getNearestGlobalIdx(const TrcKey&) const;
@@ -278,7 +299,7 @@ public:
 				{ return dim0 ? "Distance" : "Z"; }
 
 protected:
-				~RandomFlatDataPack();
+				~RandomSeisFlatDataPack();
 
     void			setSourceData() override;
     void			setRegularizedPosData();
@@ -288,3 +309,7 @@ protected:
     void			setTrcInfoFlds() override;
     const TrcKeyPath&		path_;
 };
+
+// Do not use, only for legacy code
+typedef RegularSeisFlatDataPack RegularFlatDataPack;
+typedef RandomSeisFlatDataPack RandomFlatDataPack;

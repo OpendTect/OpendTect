@@ -109,7 +109,7 @@ RefMan<FlatDataPack> uiAttribPanel::createFDPack(const Data2DHolder& d2dh) const
 
     auto rsdp = uiAttribPartServer::createDataPackFor2DRM( d2dh, sampling,
 							   SI().zDomain() );
-    return rsdp ? new RegularFlatDataPack(*rsdp,-1) : nullptr;
+    return rsdp ? new RegularSeisFlatDataPack(*rsdp,-1) : nullptr;
 }
 
 
@@ -117,7 +117,7 @@ RefMan<FlatDataPack> uiAttribPanel::createFDPack( EngineMan* aem,
 						  Processor* proc ) const
 {
     ConstRefMan<RegularSeisDataPack> output = aem->getDataPackOutput( *proc );
-    return output ? new RegularFlatDataPack(*output,-1) : nullptr;
+    return output ? new RegularSeisFlatDataPack(*output,-1) : nullptr;
 }
 
 

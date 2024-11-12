@@ -11,12 +11,12 @@ ________________________________________________________________________
 #include "vissurveymod.h"
 
 #include "attribsel.h"
+#include "datapackbase.h"
 #include "factory.h"
 #include "gendefs.h"
 #include "multiid.h"
 #include "position.h"
 #include "ranges.h"
-#include "seisdatapack.h"
 #include "survinfo.h"
 #include "trckeyzsampling.h"
 #include "vissurvscene.h"
@@ -298,12 +298,13 @@ public:
 						int attrib=-1) const;
 				/*!<\returns the volume in world survey
 				     coordinates. */
-    virtual bool		setSeisDataPack(int attrib,SeisDataPack*,
-						TaskRunner*)
+    virtual bool		setVolumeDataPack(int attrib,VolumeDataPack*,
+						  TaskRunner*)
 				{ return false; }
-    virtual ConstRefMan<SeisDataPack> getSeisDataPack(int attr) const
+    virtual ConstRefMan<VolumeDataPack> getVolumeDataPack(int attr) const
 				{ return nullptr; }
-    virtual ConstRefMan<SeisDataPack> getDisplayedSeisDataPack(int attr) const;
+    virtual ConstRefMan<VolumeDataPack>
+				getDisplayedVolumeDataPack(int attr) const;
 
 				//Trace-data
     virtual void		getTraceKeyPath(TrcKeyPath&,

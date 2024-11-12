@@ -30,21 +30,12 @@ public:
 		Regular2RandomDataCopier( RandomSeisDataPack& ransdp,
 					  const RegularSeisDataPack& regsdp,
 					  int rancompidx )
-		    : ransdp_( ransdp )
-		    , regsdp_( regsdp )
+		    : ransdp_(&ransdp)
+		    , regsdp_(&regsdp)
+		    , ranidx_(rancompidx)
 		    , path_( const_cast<const RandomSeisDataPack&>( ransdp )
 								.getPath() )
-		    , regidx_( -1 )
-		    , ranidx_( rancompidx )
-		    , domemcopy_( false )
 		    , samplebytes_( sizeof(float) )
-		    , srcptr_( 0 )
-		    , dstptr_( 0 )
-		    , srctrcbytes_( 0 )
-		    , dsttrcbytes_( 0 )
-		    , srclnbytes_( 0 )
-		    , bytestocopy_( 0 )
-		    , idzoffset_( 0 )
 		{}
 
     od_int64	nrIterations() const override		{ return path_.size(); }
@@ -53,68 +44,70 @@ public:
     bool	doWork(od_int64 start,od_int64 stop,int thread) override;
 
 
-protected:
+private:
 
-    RandomSeisDataPack&		ransdp_;
-    const RegularSeisDataPack&	regsdp_;
+    RefMan<RandomSeisDataPack>	ransdp_;
+    ConstRefMan<RegularSeisDataPack> regsdp_;
     const TrcKeyPath&		path_;
-    int				regidx_;
+    int				regidx_		= -1;
     int				ranidx_;
-    bool			domemcopy_;
+    bool			domemcopy_	= false;
     int				samplebytes_;
-    const unsigned char*	srcptr_;
-    unsigned char*		dstptr_;
-    od_int64			srctrcbytes_;
-    od_int64			dsttrcbytes_;
-    od_int64			srclnbytes_;
-    od_int64			bytestocopy_;
-    int				idzoffset_;
+    const unsigned char*	srcptr_		= nullptr;
+    unsigned char*		dstptr_		= nullptr;
+    od_int64			srctrcbytes_	= 0;
+    od_int64			dsttrcbytes_	= 0;
+    od_int64			srclnbytes_	= 0;
+    od_int64			bytestocopy_	= 0;
+    int				idzoffset_	= 0;
 };
 
 
 bool Regular2RandomDataCopier::doPrepare( int nrthreads )
 {
-    regidx_ = regsdp_.getComponentIdx( ransdp_.getComponentName(ranidx_),
+    const RegularSeisDataPack& regsdp = *regsdp_.ptr();
+    RandomSeisDataPack& ransdp = *ransdp_.ptr();
+    regidx_ = regsdp.getComponentIdx( ransdp.getComponentName(ranidx_),
 				       ranidx_ );
 
-    if ( !regsdp_.validComp(regidx_) || !ransdp_.validComp(ranidx_) )
+    if ( !regsdp.validComp(regidx_) || !ransdp.validComp(ranidx_) )
 	return false;
 
-    if ( !regsdp_.zRange().overlaps(ransdp_.zRange()) )
+    if ( !regsdp.zRange().overlaps(ransdp.zRange()) )
 	return false;
 
-    idzoffset_ = regsdp_.zRange().nearestIndex( ransdp_.zRange().start_ );
+    idzoffset_ = regsdp.zRange().nearestIndex( ransdp.zRange().start_ );
 
-    if ( !regsdp_.zRange().isCompatible(ransdp_.zRange(),1e-3) )
+    if ( !regsdp.zRange().isCompatible(ransdp.zRange(),1e-3) )
     {
 	pErrMsg( "Unexpected incompatibility of datapack Z-ranges" );
 	return false;
     }
 
-    if ( regsdp_.getDataDesc() != ransdp_.getDataDesc() )
+    if ( regsdp.getDataDesc() != ransdp.getDataDesc() )
 	return true;
 
-    srcptr_ = mCast( const unsigned char*, regsdp_.data(regidx_).getData() );
+    srcptr_ = mCast( const unsigned char*, regsdp.data(regidx_).getData() );
     mDynamicCastGet( const ConvMemValueSeries<float>*, regstorage,
-		     regsdp_.data(regidx_).getStorage() );
+		     regsdp.data(regidx_).getStorage() );
     if ( regstorage )
     {
 	srcptr_ = mCast( const unsigned char*, regstorage->storArr() );
-	samplebytes_ = regsdp_.getDataDesc().nrBytes();
+	samplebytes_ = regsdp.getDataDesc().nrBytes();
     }
 
-    dstptr_ = mCast( unsigned char*, ransdp_.data(ranidx_).getData() );
+    dstptr_ = mCast( unsigned char*, ransdp.data(ranidx_).getData() );
     mDynamicCastGet( const ConvMemValueSeries<float>*, ranstorage,
-		     ransdp_.data(ranidx_).getStorage() );
+		     ransdp.data(ranidx_).getStorage() );
     if ( ranstorage )
 	dstptr_ = mCast( unsigned char*, ranstorage->storArr() );
 
     if ( !srcptr_ || !dstptr_ )
 	return true;
 
-    srctrcbytes_ = samplebytes_ * regsdp_.sampling().size(TrcKeyZSampling::Z);
-    srclnbytes_ = srctrcbytes_ * regsdp_.sampling().size(TrcKeyZSampling::Crl);
-    dsttrcbytes_ = samplebytes_ * (ransdp_.zRange().nrSteps()+1);
+    srctrcbytes_ = samplebytes_ * regsdp.sampling().size(TrcKeyZSampling::Z);
+    srclnbytes_ = srctrcbytes_ * regsdp.sampling().size(TrcKeyZSampling::Crl);
+    dsttrcbytes_ = samplebytes_ * (ransdp.zRange().nrSteps()+1);
 
     bytestocopy_ = dsttrcbytes_;
 
@@ -126,8 +119,8 @@ bool Regular2RandomDataCopier::doPrepare( int nrthreads )
     else
 	srcptr_ += samplebytes_ * idzoffset_;
 
-    const int stopoffset = regsdp_.zRange().nrSteps() -
-			regsdp_.zRange().nearestIndex( ransdp_.zRange().stop_ );
+    const int stopoffset = regsdp.zRange().nrSteps() -
+			regsdp.zRange().nearestIndex( ransdp.zRange().stop_ );
 
     if ( stopoffset < 0 )
 	bytestocopy_ += samplebytes_ * stopoffset;
@@ -140,9 +133,11 @@ bool Regular2RandomDataCopier::doPrepare( int nrthreads )
 bool Regular2RandomDataCopier::doWork( od_int64 start, od_int64 stop,
 				       int thread )
 {
+    const RegularSeisDataPack& regsdp = *regsdp_.ptr();
+    RandomSeisDataPack& ransdp = *ransdp_.ptr();
     for ( int idx=mCast(int,start); idx<=mCast(int,stop); idx++ )
     {
-	const TrcKeySampling& hsamp = regsdp_.sampling().hsamp_;
+	const TrcKeySampling& hsamp = regsdp.sampling().hsamp_;
 	if ( !hsamp.lineRange().includes(path_[idx].lineNr(),true) ||
 	     !hsamp.trcRange().includes(path_[idx].trcNr(),true) )
 	    continue;
@@ -163,14 +158,14 @@ bool Regular2RandomDataCopier::doWork( od_int64 start, od_int64 stop,
 	    continue;
 	}
 
-	for ( int newidz=0; newidz<=ransdp_.zRange().nrfSteps(); newidz++ )
+	for ( int newidz=0; newidz<=ransdp.zRange().nrfSteps(); newidz++ )
 	{
 	    const int oldidz = newidz + idzoffset_;
 	    const float val =
-		regsdp_.data(regidx_).info().validPos(inlidx,crlidx,oldidz) ?
-		regsdp_.data(regidx_).get(inlidx,crlidx,oldidz) : mUdf(float);
+		regsdp.data(regidx_).info().validPos(inlidx,crlidx,oldidz) ?
+		regsdp.data(regidx_).get(inlidx,crlidx,oldidz) : mUdf(float);
 
-	    ransdp_.data(ranidx_).set( 0, idx, newidz, val );
+	    ransdp.data(ranidx_).set( 0, idx, newidz, val );
 	}
     }
 
@@ -180,11 +175,87 @@ bool Regular2RandomDataCopier::doWork( od_int64 start, od_int64 stop,
 
 //=============================================================================
 
+
+// SeisVolumeDataPack
+
+SeisVolumeDataPack::SeisVolumeDataPack( const char* cat,
+					const BinDataDesc* bdd )
+    : VolumeDataPack(cat,bdd)
+{
+}
+
+
+SeisVolumeDataPack::~SeisVolumeDataPack()
+{
+}
+
+
+bool SeisVolumeDataPack::isFullyCompat( const ZSampling& zrg,
+					const DataCharacteristics& dc ) const
+{
+    return dc == getDataDesc() && zRange().isEqual(zrg,1e-6f);
+}
+
+
+void SeisVolumeDataPack::fillTrace( const TrcKey& tk, SeisTrc& trc ) const
+{
+    fillTraceInfo( tk, trc.info() );
+    fillTraceData( tk, trc.data() );
+}
+
+
+void SeisVolumeDataPack::fillTraceInfo( const TrcKey& tk,
+					SeisTrcInfo& sti ) const
+{
+    const ZSampling zrg = zRange();
+    sti.sampling_.start_ = zrg.start_;
+    sti.sampling_.step_ = zrg.step_;
+    sti.setTrcKey( tk );
+    sti.coord_ = tk.getCoord();
+    sti.offset_ = 0.f;
+}
+
+
+void SeisVolumeDataPack::fillTraceData( const TrcKey& tk, TraceData& td ) const
+{
+    DataCharacteristics dc;
+    if ( !scaler_ )
+	dc = DataCharacteristics( getDataDesc() );
+
+    td.convertTo( dc, false );
+
+    const int trcsz = zRange().nrSteps() + 1;
+    td.reSize( trcsz );
+
+    const int globidx = getGlobalIdx( tk );
+    if ( globidx < 0 )
+	{ td.zero(); return; }
+
+    Array1DImpl<float> copiedtrc( trcsz );
+    const int nrcomps = nrComponents();
+    for ( int icomp=0; icomp<nrcomps; icomp++ )
+    {
+	const float* vals = getTrcData( icomp, globidx );
+	if ( !vals && !getCopiedTrcData(icomp,globidx,copiedtrc) )
+	    { td.zero(); return; }
+
+	float* copiedtrcptr = copiedtrc.getData();
+	for ( int isamp=0; isamp<trcsz; isamp++ )
+	{
+	    const float val = vals ? vals[isamp] : copiedtrcptr
+						  ? copiedtrcptr[isamp]
+						  : copiedtrc.get( isamp );
+	    td.setValue( isamp, val, icomp );
+	}
+    }
+}
+
+
 // RegularSeisDataPack
 
 RegularSeisDataPack::RegularSeisDataPack( const char* cat,
 					  const BinDataDesc* bdd )
-    : SeisDataPack(cat,bdd)
+    : SeisVolumeDataPack(cat,bdd)
 {
     sampling_.init( false );
 }
@@ -296,7 +367,7 @@ bool RegularSeisDataPack::addComponentNoInit( const char* nm )
 
 void RegularSeisDataPack::dumpInfo( StringPairSet& infoset ) const
 {
-    SeisDataPack::dumpInfo( infoset );
+    SeisVolumeDataPack::dumpInfo( infoset );
 
     const TrcKeySampling& tks = sampling_.hsamp_;
     if ( is2D() )
@@ -335,7 +406,7 @@ RefMan<RegularSeisDataPack> RegularSeisDataPack::createDataPackForZSliceRM(
 	return nullptr;
 
     RefMan<RegularSeisDataPack> regsdp = new RegularSeisDataPack(
-					SeisDataPack::categoryStr(false,true) );
+				VolumeDataPack::categoryStr(false,true) );
     regsdp->setSampling( tkzs );
     for ( int idx=1; idx<bivset->nrVals(); idx++ )
     {
@@ -356,59 +427,6 @@ RefMan<RegularSeisDataPack> RegularSeisDataPack::createDataPackForZSliceRM(
 
     regsdp->setZDomain( zinfo );
     return regsdp;
-}
-
-
-void RegularSeisDataPack::fillTrace( const TrcKey& tk, SeisTrc& trc ) const
-{
-    fillTraceInfo( tk, trc.info() );
-    fillTraceData( tk, trc.data() );
-}
-
-
-void RegularSeisDataPack::fillTraceInfo( const TrcKey& tk,
-					 SeisTrcInfo& sti ) const
-{
-    const auto zrg = zRange();
-    sti.sampling_.start_ = zrg.start_;
-    sti.sampling_.step_ = zrg.step_;
-    sti.setTrcKey( tk );
-    sti.coord_ = tk.getCoord();
-    sti.offset_ = 0.f;
-}
-
-
-void RegularSeisDataPack::fillTraceData( const TrcKey& tk, TraceData& td ) const
-{
-    DataCharacteristics dc;
-    if ( !scaler_ )
-	dc = DataCharacteristics( getDataDesc() );
-    td.convertTo( dc, false );
-
-    const int trcsz = zRange().nrSteps() + 1;
-    td.reSize( trcsz );
-
-    const int globidx = getGlobalIdx( tk );
-    if ( globidx < 0 )
-	{ td.zero(); return; }
-
-    Array1DImpl<float> copiedtrc( trcsz );
-    const int nrcomps = nrComponents();
-    for ( int icomp=0; icomp<nrcomps; icomp++ )
-    {
-	const float* vals = getTrcData( icomp, globidx );
-	if ( !vals && !getCopiedTrcData(icomp,globidx,copiedtrc) )
-	    { td.zero(); return; }
-
-	float* copiedtrcptr = copiedtrc.getData();
-	for ( int isamp=0; isamp<trcsz; isamp++ )
-	{
-	    const float val = vals ? vals[isamp] : copiedtrcptr
-						  ? copiedtrcptr[isamp]
-						  : copiedtrc.get( isamp );
-	    td.setValue( isamp, val, icomp );
-	}
-    }
 }
 
 
@@ -433,7 +451,7 @@ DataPackID RegularSeisDataPack::createDataPackForZSlice(
 
 RandomSeisDataPack::RandomSeisDataPack( const char* cat,
 					const BinDataDesc* bdd )
-    : SeisDataPack(cat,bdd)
+    : SeisVolumeDataPack(cat,bdd)
 {
 }
 
@@ -479,7 +497,7 @@ RefMan<RandomSeisDataPack> RandomSeisDataPack::createDataPackFromRM(
 	return nullptr;
 
     RefMan<RandomSeisDataPack> randsdp = new RandomSeisDataPack(
-		SeisDataPack::categoryStr(true,false), &regsdp.getDataDesc() );
+	    VolumeDataPack::categoryStr(true,false), &regsdp.getDataDesc() );
     randsdp->setRandomLineID( rdmlineid );
     if ( regsdp.getScaler() )
 	randsdp->setScaler( *regsdp.getScaler() );
@@ -545,7 +563,7 @@ RefMan<RandomSeisDataPack> RandomSeisDataPack::createDataPackFromRM(
 	return nullptr;
 
     RefMan<RandomSeisDataPack> randsdp = new RandomSeisDataPack(
-		SeisDataPack::categoryStr(true,false),&regsdp.getDataDesc() );
+		VolumeDataPack::categoryStr(true,false),&regsdp.getDataDesc() );
     randsdp->setPath( path );
     if ( regsdp.getScaler() )
 	randsdp->setScaler( *regsdp.getScaler() );
@@ -642,7 +660,7 @@ DataPackID RandomSeisDataPack::createDataPackFrom(
 
 // SeisFlatDataPack
 
-SeisFlatDataPack::SeisFlatDataPack( const SeisDataPack& source, int comp )
+SeisFlatDataPack::SeisFlatDataPack( const SeisVolumeDataPack& source, int comp )
     : FlatDataPack(source.category())
     , source_(&source)
     , comp_(comp)
@@ -676,7 +694,7 @@ DataPackID SeisFlatDataPack::getSourceID() const
 }
 
 
-ConstRefMan<SeisDataPack> SeisFlatDataPack::getSource() const
+ConstRefMan<SeisVolumeDataPack> SeisFlatDataPack::getSource() const
 {
     return source_;
 }
@@ -738,7 +756,7 @@ void SeisFlatDataPack::getAuxInfo( int i0, int i1, IOPar& iop ) const
     iop.set( mKeyCoordX, crd.x_ );
     iop.set( mKeyCoordY, crd.y_ );
     iop.set( sKey::ZCoord(), (int)(crd.z_*zDomain().userFactor()) );
-    mDynamicCastGet(RegularFlatDataPack*,rseisdp,
+    mDynamicCastGet(RegularSeisFlatDataPack*,rseisdp,
 					   const_cast<SeisFlatDataPack*>(this));
     iop.setYN( FlatView::Viewer::sKeyIsZSlice(),
 				    rseisdp ? rseisdp->isVertical() : false );
@@ -825,7 +843,9 @@ RandomLineID SeisFlatDataPack::getRandomLineID() const
 #define mIsStraight ((getTrcKey(0).distTo(getTrcKey(nrTrcs()-1))/ \
 	posdata_.position(true,nrTrcs()-1))>0.99)
 
-RegularFlatDataPack::RegularFlatDataPack(
+// RegularSeisFlatDataPack
+
+RegularSeisFlatDataPack::RegularSeisFlatDataPack(
 		const RegularSeisDataPack& source, int comp )
     : SeisFlatDataPack(source,comp)
     , sampling_(source.sampling())
@@ -840,12 +860,12 @@ RegularFlatDataPack::RegularFlatDataPack(
 }
 
 
-RegularFlatDataPack::~RegularFlatDataPack()
+RegularSeisFlatDataPack::~RegularSeisFlatDataPack()
 {
 }
 
 
-Coord3 RegularFlatDataPack::getCoord( int i0, int i1 ) const
+Coord3 RegularSeisFlatDataPack::getCoord( int i0, int i1 ) const
 {
     const int trcidx = isVertical() ? (hassingletrace_ ? 0 : i0)
 				    : i0*sampling_.nrTrcs()+i1;
@@ -855,7 +875,7 @@ Coord3 RegularFlatDataPack::getCoord( int i0, int i1 ) const
 }
 
 
-void RegularFlatDataPack::setTrcInfoFlds()
+void RegularSeisFlatDataPack::setTrcInfoFlds()
 {
     if ( hassingletrace_ )
 	{ pErrMsg( "Trace info fields set for single trace display." ); return;}
@@ -881,7 +901,7 @@ void RegularFlatDataPack::setTrcInfoFlds()
 }
 
 
-const char* RegularFlatDataPack::dimName( bool dim0 ) const
+const char* RegularSeisFlatDataPack::dimName( bool dim0 ) const
 {
     if ( dim0 && hassingletrace_ ) return sKey::Series();
     if ( is2D() )
@@ -893,7 +913,7 @@ const char* RegularFlatDataPack::dimName( bool dim0 ) const
 }
 
 
-void RegularFlatDataPack::setSourceDataFromMultiCubes()
+void RegularSeisFlatDataPack::setSourceDataFromMultiCubes()
 {
     const int nrcomps = source_->nrComponents();
     const int nrz = sampling_.zsamp_.nrSteps() + 1;
@@ -907,7 +927,7 @@ void RegularFlatDataPack::setSourceDataFromMultiCubes()
 }
 
 
-void RegularFlatDataPack::setSourceData()
+void RegularSeisFlatDataPack::setSourceData()
 {
     const bool isz = dir_==TrcKeyZSampling::Z;
     if ( !isz )
@@ -941,7 +961,7 @@ void RegularFlatDataPack::setSourceData()
 }
 
 
-float RegularFlatDataPack::getPosDistance( bool dim0, float posfidx) const
+float RegularSeisFlatDataPack::getPosDistance( bool dim0, float posfidx ) const
 {
     const int posidx = mCast(int,floor(posfidx));
     const float dfposidx = posfidx - posidx;
@@ -970,28 +990,30 @@ float RegularFlatDataPack::getPosDistance( bool dim0, float posfidx) const
 }
 
 
-RandomFlatDataPack::RandomFlatDataPack( const RandomSeisDataPack& source,
-					int comp )
-    : SeisFlatDataPack(source,comp)
-    , path_(source.getPath())
+// RandomSeisFlatDataPack
+
+RandomSeisFlatDataPack::RandomSeisFlatDataPack( const RandomSeisDataPack& src,
+						int comp )
+    : SeisFlatDataPack(src,comp)
+    , path_(src.getPath())
 {
     rdlid_ = getRandomLineID();
     setSourceData();
 }
 
 
-RandomFlatDataPack::~RandomFlatDataPack()
+RandomSeisFlatDataPack::~RandomSeisFlatDataPack()
 {
 }
 
 
-int RandomFlatDataPack::getNearestGlobalIdx( const TrcKey& tk ) const
+int RandomSeisFlatDataPack::getNearestGlobalIdx( const TrcKey& tk ) const
 {
     return source_->getNearestGlobalIdx( tk );
 }
 
 
-Coord3 RandomFlatDataPack::getCoord( int i0, int i1 ) const
+Coord3 RandomSeisFlatDataPack::getCoord( int i0, int i1 ) const
 {
     const Coord coord = path_.validIdx(i0) ? Survey::GM().toCoord(path_[i0])
 					   : Coord::udf();
@@ -999,7 +1021,7 @@ Coord3 RandomFlatDataPack::getCoord( int i0, int i1 ) const
 }
 
 
-void RandomFlatDataPack::setTrcInfoFlds()
+void RandomSeisFlatDataPack::setTrcInfoFlds()
 {
     if ( !mIsStraight )
 	return;
@@ -1011,7 +1033,7 @@ void RandomFlatDataPack::setTrcInfoFlds()
 }
 
 
-void RandomFlatDataPack::setSourceData()
+void RandomSeisFlatDataPack::setSourceData()
 {
     setRegularizedPosData();
     auto* slice2d = new Array2DSlice<float>( source_->data(comp_) );
@@ -1024,7 +1046,7 @@ void RandomFlatDataPack::setSourceData()
 }
 
 
-void RandomFlatDataPack::setRegularizedPosData()
+void RandomSeisFlatDataPack::setRegularizedPosData()
 {
     const TrcKeyPath& path = getPath();
     const int nrtrcs = path.size();
@@ -1081,7 +1103,7 @@ void RandomFlatDataPack::setRegularizedPosData()
 }
 
 
-float RandomFlatDataPack::getPosDistance( bool dim0, float posfidx ) const
+float RandomSeisFlatDataPack::getPosDistance( bool dim0, float posfidx ) const
 {
     const int posidx = mCast(int,floor(posfidx));
     const float dfposidx = posfidx - posidx;

@@ -19,6 +19,7 @@ ________________________________________________________________________
 #include "mouseevent.h"
 #include "od_helpids.h"
 #include "oddirs.h"
+#include "seisdatapack.h"
 #include "separstr.h"
 #include "survinfo.h"
 #include "zaxistransform.h"
@@ -792,7 +793,7 @@ bool uiVisPartServer::setRegularSeisDataPack( const VisID& id, int attrib,
     if ( !pdd && !s2dd && !vdd )
 	return false;
 
-    return setSeisDataPack( id, attrib, seisdp );
+    return setVolumeDataPack( id, attrib, seisdp );
 }
 
 
@@ -801,28 +802,28 @@ bool uiVisPartServer::setRandomSeisDataPack( const VisID& id, int attrib,
 {
     const visBase::DataObject* visobj = getObject( id );
     mDynamicCastGet(const visSurvey::RandomTrackDisplay*,rtd,visobj);
-    return rtd ? setSeisDataPack( id, attrib, randsdp ) : false;
+    return rtd ? setVolumeDataPack( id, attrib, randsdp ) : false;
 }
 
 
-bool uiVisPartServer::setSeisDataPack( const VisID& id, int attrib,
-				       SeisDataPack* seisdp )
+bool uiVisPartServer::setVolumeDataPack( const VisID& id, int attrib,
+					 VolumeDataPack* voldp )
 {
     mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(id));
     if ( !so )
 	return false;
 
     uiTaskRunner taskrunner( appserv().parent() );
-    const bool res = so->setSeisDataPack( attrib, seisdp, &taskrunner );
+    const bool res = so->setVolumeDataPack( attrib, voldp, &taskrunner );
 /*
    enable only in release branches:
     DataPackMgr& seisdpmgr = DPM( DataPackMgr::SeisID() );
-    if ( !OD::InDebugMode() && seisdp && !seisdpmgr.isPresent(seisdp->id()) )
-	seisdpmgr.add( seisdp );
+    if ( !OD::InDebugMode() && voldp && !seisdpmgr.isPresent(voldp->id()) )
+	seisdpmgr.add( voldp );
 */
-    const DataPackID dpid = seisdp ? seisdp->id() : DataPack::cNoID();
+    const DataPackID dpid = voldp ? voldp->id() : DataPack::cNoID();
     if ( res && multirgeditwin_ && id == mapperrgeditordisplayid_ )
-	multirgeditwin_->setDataPack( attrib, seisdp,
+	multirgeditwin_->setDataPack( attrib, voldp,
 				      so->selectedTexture(attrib) );
 
     return res;
@@ -837,19 +838,19 @@ ConstRefMan<FlatDataPack> uiVisPartServer::getFlatDataPack(
 }
 
 
-ConstRefMan<SeisDataPack> uiVisPartServer::getSeisDataPack(
+ConstRefMan<VolumeDataPack> uiVisPartServer::getVolumeDataPack(
 					    const VisID& id, int attrib ) const
 {
     mDynamicCastGet(const visSurvey::SurveyObject*,so,getObject(id));
-    return so ? so->getSeisDataPack( attrib ) : nullptr;
+    return so ? so->getVolumeDataPack( attrib ) : nullptr;
 }
 
 
-ConstRefMan<SeisDataPack> uiVisPartServer::getDisplayedSeisDataPack(
+ConstRefMan<VolumeDataPack> uiVisPartServer::getDisplayedVolumeDataPack(
 					    const VisID& id, int attrib ) const
 {
     mDynamicCastGet(const visSurvey::SurveyObject*,so,getObject(id));
-    return so ? so->getDisplayedSeisDataPack( attrib ) : nullptr;
+    return so ? so->getDisplayedVolumeDataPack( attrib ) : nullptr;
 }
 
 

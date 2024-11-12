@@ -66,7 +66,8 @@ void FaultSS2D::setEditors()
     for ( int ivwr=0; ivwr<viewerwin_->nrViewers(); ivwr++ )
     {
 	const uiFlatViewer& vwr = viewerwin_->viewer( ivwr );
-	ConstRefMan<RegularFlatDataPack> regfdp = vwr.getPack( true,true).get();
+	ConstRefMan<RegularSeisFlatDataPack> regfdp =
+						vwr.getPack( true,true).get();
 	if ( !regfdp )
 	{
 	    fsseds_ += nullptr;
@@ -89,7 +90,7 @@ void FaultSS2D::draw()
     for ( int ivwr=0; ivwr<viewerwin_->nrViewers(); ivwr++ )
     {
 	const uiFlatViewer& vwr = viewerwin_->viewer( ivwr );
-	ConstRefMan<RegularFlatDataPack> regfdp =
+	ConstRefMan<RegularSeisFlatDataPack> regfdp =
 					 vwr.getPack( true, true ).get();
 	if ( !regfdp ) continue;
 

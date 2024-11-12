@@ -13,7 +13,6 @@ ________________________________________________________________________
 #include "ctxtioobj.h"
 #include "coltabmapper.h"
 #include "coltabsequence.h"
-#include "datapack.h"
 #include "file.h"
 #include "ioman.h"
 #include "ioobj.h"
@@ -24,6 +23,7 @@ ________________________________________________________________________
 #include "seisbuf.h"
 #include "seisbufadapters.h"
 #include "seiscbvs.h"
+#include "seisdatapack.h"
 #include "seisioobjinfo.h"
 #include "seispreload.h"
 #include "seispsioprov.h"
@@ -859,7 +859,8 @@ void uiSeisPreLoadedDataSel::setInput( const MultiID& inpkey, int compnr )
     if ( selidx < 0 )
 	return;
 
-    ConstRefMan<SeisDataPack> seisdp = PLDM().get<SeisDataPack>(inpkey );
+    ConstRefMan<SeisVolumeDataPack> seisdp =
+				PLDM().get<SeisVolumeDataPack>( inpkey );
     if ( !seisdp )
 	return;
 
@@ -892,11 +893,13 @@ const char* uiSeisPreLoadedDataSel::selectedCompName() const
     if ( selkey_.isUdf() )
 	return nullptr;
 
-    ConstRefMan<SeisDataPack> dp = PLDM().get<SeisDataPack>(selkey_ );
-    if ( !dp || dp->nrComponents()==1 || compnr_ < dp->nrComponents() )
+    ConstRefMan<SeisVolumeDataPack> seisdp =
+				PLDM().get<SeisVolumeDataPack>( selkey_ );
+    if ( !seisdp || seisdp->nrComponents()==1 ||
+	 compnr_ < seisdp->nrComponents() )
 	return nullptr;
 
-    return dp->getComponentName( compnr_ );
+    return seisdp->getComponentName( compnr_ );
 }
 
 
@@ -947,19 +950,20 @@ void uiSeisPreLoadedDataSel::selCB( CallBacker* )
     }
 
     const MultiID selkey = keys_[selidx];
-    ConstRefMan<SeisDataPack> dp = PLDM().get<SeisDataPack>(selkey );
-    if ( !dp )
+    ConstRefMan<SeisVolumeDataPack> seisdp =
+				PLDM().get<SeisVolumeDataPack>( selkey );
+    if ( !seisdp )
 	return;
 
-    if ( dp->nrComponents() == 1 )
+    if ( seisdp->nrComponents() == 1 )
 	compnr_ = 0;
     else // multi-comp
     {
 	BufferStringSet compnms;
-	for ( int idx=0; idx<dp->nrComponents(); idx++ )
-	    compnms.add( dp->getComponentName(idx) );
+	for ( int idx=0; idx<seisdp->nrComponents(); idx++ )
+	    compnms.add( seisdp->getComponentName(idx) );
 
-	uiSelectFromList::Setup su(
+	const uiSelectFromList::Setup su(
 		uiStrings::phrSelect(uiStrings::sComponent()), compnms );
 	uiSelectFromList seldlg( this, su );
 	if ( !seldlg.go() || seldlg.selection() < 0 )
@@ -1006,7 +1010,8 @@ void selCB( CallBacker* )
     if ( !keys_.validIdx(selidx) )
 	return;
 
-    ConstRefMan<SeisDataPack> seisdp = PLDM().get<SeisDataPack>( keys_[selidx]);
+    ConstRefMan<SeisVolumeDataPack> seisdp =
+				PLDM().get<SeisVolumeDataPack>( keys_[selidx] );
     if ( !seisdp )
 	return;
 
