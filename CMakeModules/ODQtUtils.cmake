@@ -7,6 +7,9 @@
 
 macro( OD_FIND_QTDIR )
     if ( NOT DEFINED QTDIR )
+	if ( IS_DIRECTORY "${QT_ROOT}" )
+	    set( QTDIR "${QT_ROOT}" )
+	endif()
 	find_package( QT NAMES Qt6 Qt5 QUIET COMPONENTS Core )
 	if ( EXISTS "${QT_DIR}" AND IS_DIRECTORY "${QT_DIR}" )
 	    get_filename_component( QTDIR ${QT_DIR} DIRECTORY )
@@ -14,8 +17,8 @@ macro( OD_FIND_QTDIR )
 	    get_filename_component( QTDIR ${QTDIR} DIRECTORY )
         else()
 	    unset( QT_DIR CACHE )
-	    set( QTDIR "" CACHE PATH "QT Location" )
-	    message( FATAL_ERROR "QTDIR is not defined" )
+	    set( QT_ROOT "" CACHE PATH "QT Location" )
+	    message( FATAL_ERROR "Neither QT_ROOT nor QT_DIR are defined" )
 	endif()
     elseif ( WIN32 )
         get_filename_component(QTDIR ${QTDIR} ABSOLUTE)
@@ -226,6 +229,7 @@ macro( OD_ADD_QT )
 	OD_ADD_TRANSLATIONS()
 
 	unset( QTDIR CACHE )
+	unset( QT_ROOT CACHE )
 
     endif(OD_NO_QT)
 
