@@ -5,22 +5,20 @@
 #________________________________________________________________________
 #
 
-macro( OD_FIND_QTDIR )
-    if ( NOT DEFINED QTDIR )
+macro( OD_FIND_QT )
+    if ( NOT DEFINED QT_ROOT )
 	find_package( QT NAMES Qt6 Qt5 QUIET COMPONENTS Core GLOBAL )
-	if ( EXISTS "${QT_DIR}" AND IS_DIRECTORY "${QT_DIR}" )
-	    get_filename_component( QTDIR ${QT_DIR} DIRECTORY )
-	    get_filename_component( QTDIR ${QTDIR} DIRECTORY )
-	    get_filename_component( QTDIR ${QTDIR} DIRECTORY )
+	if ( IS_DIRECTORY "${QT_DIR}" )
+	    get_filename_component( QT_ROOT "${QT_DIR}/../../../" ABSOLUTE )
         else()
 	    unset( QT_DIR CACHE )
 	endif()
     elseif ( WIN32 )
-	if ( IS_DIRECTORY "${QTDIR}" )
-	    get_filename_component(QTDIR ${QTDIR} ABSOLUTE)
+	if ( IS_DIRECTORY "${QT_ROOT}" )
+	    get_filename_component( QT_ROOT ${QT_ROOT} ABSOLUTE )
 	endif()
     endif()
-endmacro(OD_FIND_QTDIR)
+endmacro(OD_FIND_QT)
 
 macro(ADD_TO_LIST_IF_NEW LISTNAME ITEMNAME)
     list( FIND ${LISTNAME} "${ITEMNAME}" ITMINDEX )
@@ -30,9 +28,9 @@ macro(ADD_TO_LIST_IF_NEW LISTNAME ITEMNAME)
 endmacro(ADD_TO_LIST_IF_NEW)
 
 macro( QT_INSTALL_PLUGINS )
-    OD_FIND_QTDIR()
+    OD_FIND_QT()
     foreach( QTPLUGIN ${QT_REQ_PLUGINS} )
-	install( DIRECTORY "${QTDIR}/plugins/${QTPLUGIN}"
+	install( DIRECTORY "${QT_ROOT}/plugins/${QTPLUGIN}"
 	     DESTINATION "${OD_RUNTIME_DIRECTORY}/../plugins"
 	     CONFIGURATIONS MinSizeRel;RelWithDebInfo;Release
 	     USE_SOURCE_PERMISSIONS 
@@ -45,7 +43,7 @@ macro( QT_INSTALL_PLUGINS )
 	     PATTERN "*.so.debug" EXCLUDE
 	     PATTERN "*_debug*" EXCLUDE
 	     PATTERN "*.dSYM" EXCLUDE )
-	install( DIRECTORY "${QTDIR}/plugins/${QTPLUGIN}"
+	install( DIRECTORY "${QT_ROOT}/plugins/${QTPLUGIN}"
 	     DESTINATION "${OD_RUNTIME_DIRECTORY}/../plugins"
 	     CONFIGURATIONS Debug
 	     USE_SOURCE_PERMISSIONS 
@@ -62,7 +60,7 @@ macro( QT_INSTALL_PLUGINS )
 endmacro(QT_INSTALL_PLUGINS)
 
 macro( QT_SETUP_CORE_INTERNALS )
-    OD_FIND_QTDIR()
+    OD_FIND_QT()
     set( QTCONFTXT "[Paths]\nPrefix=..\n" )
     if ( APPLE )
 	set( QTCONFTXT "${QTCONFTXT}Translations=Contents/translations\n" )
@@ -71,8 +69,8 @@ macro( QT_SETUP_CORE_INTERNALS )
     install( CODE "
 	     file( WRITE \"${CMAKE_INSTALL_PREFIX_ed}/${OD_RUNTIME_DIRECTORY}/qt.conf\" \"${QTCONFTXT}\" ) " )
 
-    file( GLOB TRANSLATION_FILES ${QTDIR}/translations/qt_*.qm
-				 ${QTDIR}/translations/qtbase_*.qm )
+    file( GLOB TRANSLATION_FILES ${QT_ROOT}/translations/qt_*.qm
+				 ${QT_ROOT}/translations/qtbase_*.qm )
     install( FILES ${TRANSLATION_FILES}
 	     DESTINATION "${OD_RUNTIME_DIRECTORY}/../translations" )
 
@@ -130,23 +128,23 @@ endmacro(QT_SETUP_PRINTSUPPORT_INTERNALS)
 
 macro( QT_SETUP_WEBENGINE_INTERNALS )
 
-    OD_FIND_QTDIR()
+    OD_FIND_QT()
     list( APPEND QT_REQ_PLUGINS position )
     if ( QT_VERSION VERSION_LESS 6 )
 	list( APPEND QT_REQ_PLUGINS bearer )
     endif()
     QT_INSTALL_PLUGINS()
 
-    file( GLOB WEBENGINE_TRANSLATION_FILES "${QTDIR}/translations/qtwebengine_*.qm" )
+    file( GLOB WEBENGINE_TRANSLATION_FILES "${QT_ROOT}/translations/qtwebengine_*.qm" )
     install( FILES ${WEBENGINE_TRANSLATION_FILES}
 	     DESTINATION "${OD_RUNTIME_DIRECTORY}/../translations" )
 
     if ( APPLE )
-	set( WEBENGINE_RESOURCES_DIR "${QTDIR}/lib/QtWebEngineCore.framework/Resources" )
+	set( WEBENGINE_RESOURCES_DIR "${QT_ROOT}/lib/QtWebEngineCore.framework/Resources" )
 	set( WEBENGINE_LOCALES_DIR "${WEBENGINE_RESOURCES_DIR}" )
     else()
-	set( WEBENGINE_RESOURCES_DIR "${QTDIR}/resources" )
-	set( WEBENGINE_LOCALES_DIR "${QTDIR}/translations" )
+	set( WEBENGINE_RESOURCES_DIR "${QT_ROOT}/resources" )
+	set( WEBENGINE_LOCALES_DIR "${QT_ROOT}/translations" )
     endif()
 
     install( DIRECTORY "${WEBENGINE_LOCALES_DIR}/qtwebengine_locales"
@@ -172,13 +170,13 @@ macro( QT_SETUP_WEBENGINE_INTERNALS )
 	     DESTINATION "${OD_RUNTIME_DIRECTORY}/../resources" )
 
     if ( WIN32 )
-	install( PROGRAMS "${QTDIR}/bin/QtWebEngineProcess$<$<CONFIG:Debug>:d>.exe"
+	install( PROGRAMS "${QT_ROOT}/bin/QtWebEngineProcess$<$<CONFIG:Debug>:d>.exe"
 		 DESTINATION "${OD_RUNTIME_DIRECTORY}" )
     elseif ( APPLE )
-	install( DIRECTORY "${QTDIR}/lib/QtWebEngineCore.framework/Helpers/QtWebEngineProcess.app"
+	install( DIRECTORY "${QT_ROOT}/lib/QtWebEngineCore.framework/Helpers/QtWebEngineProcess.app"
 		 DESTINATION "${OD_RUNTIME_DIRECTORY}/../Helpers" )
     else()
-	install( PROGRAMS "${QTDIR}/libexec/QtWebEngineProcess"
+	install( PROGRAMS "${QT_ROOT}/libexec/QtWebEngineProcess"
 		 DESTINATION "${OD_RUNTIME_DIRECTORY}/../libexec" )
     endif()
     # include qwebengine_convert_dict ?
@@ -187,7 +185,7 @@ endmacro(QT_SETUP_WEBENGINE_INTERNALS)
 
 macro( QT_SETUP_CORE_EXTERNALS )
     if ( UNIX AND NOT APPLE )
-        OD_FIND_QTDIR()
+        OD_FIND_QT()
 	if ( QT_VERSION VERSION_GREATER_EQUAL 6.7 )
 	    set( ICU_VERSION_MAJOR "73" )
 	else()
@@ -195,7 +193,7 @@ macro( QT_SETUP_CORE_EXTERNALS )
 	endif()
 	set( LIBNMS i18n data uc )
 	foreach( LIBNM ${LIBNMS} )
-	    set( FILENM "${QTDIR}/lib/libicu${LIBNM}.so.${ICU_VERSION_MAJOR}" )
+	    set( FILENM "${QT_ROOT}/lib/libicu${LIBNM}.so.${ICU_VERSION_MAJOR}" )
 	    if ( EXISTS "${FILENM}" )
 		list ( APPEND QT_CORE_ICU_OBJECTS "${FILENM}" )
 	    endif()
@@ -217,9 +215,9 @@ macro( QT_SETUP_CORE_EXTERNALS )
 endmacro(QT_SETUP_CORE_EXTERNALS)
 
 macro( QT_SETUP_GUI_EXTERNALS )
-    OD_FIND_QTDIR()
+    OD_FIND_QT()
     if ( WIN32 )
-	set( QT_GUI_ADDS "${QTDIR}/bin/d3dcompiler_47.dll" "${QTDIR}/bin/opengl32sw.dll" )
+	set( QT_GUI_ADDS "${QT_ROOT}/bin/d3dcompiler_47.dll" "${QT_ROOT}/bin/opengl32sw.dll" )
     elseif ( UNIX AND NOT APPLE )
 	#Only because of XcbQpa
 	add_fontconfig( QT_GUI_ADDS )
@@ -242,7 +240,7 @@ macro( QT_SETUP_GUI_EXTERNALS )
 endmacro(QT_SETUP_GUI_EXTERNALS)
 
 macro( QT_SETUP_PRINTSUPPORT_EXTERNALS )
-    OD_FIND_QTDIR()
+    OD_FIND_QT()
     if ( APPLE AND QT_VERSION VERSION_GREATER_EQUAL 6 )
 	if ( TARGET Cups::Cups )
 	    list( APPEND INSTMODS Cups::Cups )
@@ -255,14 +253,14 @@ endmacro(QT_SETUP_PRINTSUPPORT_EXTERNALS)
 macro( OD_ADD_QT )
 
     if ( NOT OD_NO_QT )
-	OD_FIND_QTDIR()
+	OD_FIND_QT()
 
-	list ( APPEND CMAKE_PREFIX_PATH "${QTDIR}" )
+	list ( APPEND CMAKE_PREFIX_PATH "${QT_ROOT}" )
 	find_package( QT NAMES Qt6 Qt5 QUIET COMPONENTS Core GLOBAL )
 	if ( QT_VERSION )
 	    find_package( Qt${QT_VERSION_MAJOR} QUIET
 			  COMPONENTS Core LinguistTools
-			  PATHS "${QTDIR}"
+			  PATHS "${QT_ROOT}"
 			  NO_DEFAULT_PATH GLOBAL )
 
 	    if ( WIN32 )
@@ -270,10 +268,10 @@ macro( OD_ADD_QT )
 	    endif()
 	    QT_SETUP_CORE_INTERNALS()
 	    OD_ADD_TRANSLATIONS()
-	    unset( QTDIR CACHE )
+	    unset( QT_ROOT CACHE )
 	else()
 	    unset( QT_DIR CACHE )
-	    set( QTDIR "" CACHE PATH "QT Location" )
+	    set( QT_ROOT "" CACHE PATH "QT Location" )
 	    message( SEND_ERROR "Cannot find/use the Qt installation" )
 	endif()
 

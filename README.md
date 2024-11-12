@@ -80,7 +80,7 @@ The link to HDF5 requires to provide the path to an existing HDF5 installation. 
 ### Windows
 Configure CMake ensuring to set the following variables:
 
-- QTDIR= set this to the Qt install location for the appropriate version of Qt for the OpendTect version
+- QT_ROOT= set this to the Qt install location for the appropriate version of Qt for the OpendTect version
 - OSG_ROOT="OpenSceneGraph install location"
 - PROJ_ROOT="PROJ install location" or OD_NO_PROJ=ON to disable it
 - SQLite3_ROOT="SQLite3 install location" (optional, but required by Proj)
@@ -92,7 +92,7 @@ Start Visual Studio 2022, open the OpendTect solution and build.
 ### Linux
 Configure CMake ensuring to set the following variables:
 
-- QTDIR= set this to the Qt install location for the appropriate version of Qt for the OpendTect version
+- QT_ROOT= set this to the Qt install location for the appropriate version of Qt for the OpendTect version
 - OSG_ROOT="OpenSceneGraph install location"
 - PROJ_ROOT="PROJ install location" or OD_NO_PROJ=ON to disable it
 - SQLite3_ROOT="SQLite3 install location" (optional, but required by Proj)
