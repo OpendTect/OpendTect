@@ -98,7 +98,7 @@ macro( OD_ADD_EXTERNALS )
 	set( EXTPLFTOOLSET "-T v${MSVC_TOOLSET_VERSION}" )
     else()
 	find_program( NINJA_BIN "ninja"
-		PATHS "${QTDIR}" "${QT_DIR}" "${Qt5Core_Dir}" "${Qt6Core_Dir}"
+		PATHS "${QT_DIR}" "${Qt5Core_Dir}" "${Qt6Core_Dir}"
 		PATH_SUFFIXES "../../Tools/Ninja"
 			      "../../../../../Tools/Ninja" )
 	if ( EXISTS "${NINJA_BIN}" )
