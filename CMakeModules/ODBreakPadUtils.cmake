@@ -7,25 +7,29 @@
 
 macro( OD_ADD_BREAKPAD )
    if ( OD_ENABLE_BREAKPAD )
-	set( BREAKPAD_DIR "" CACHE PATH "BREAKPAD Location (upto the 'src' directory)" )
+	set( BREAKPAD_ROOT "" CACHE PATH "BREAKPAD Location (upto the 'src' directory)" )
+	if ( IS_DIRECTORY "${BREAKPAD_DIR}" )
+	    set( BREAKPAD_ROOT "${BREAKPAD_DIR}" )
+	    unset( BREAKPAD_DIR CACHE )
+	endif()
 	if( WIN32 )
 	    find_library( BREAKPADLIB_DEBUG NAMES exception_handler 
-		      PATHS ${BREAKPAD_DIR}/lib/Debug
+		      PATHS ${BREAKPAD_ROOT}/lib/Debug
 		      REQUIRED )
 	    find_library( BREAKPADLIB_RELEASE NAMES exception_handler 
-		PATHS ${BREAKPAD_DIR}/lib/Release
+		PATHS ${BREAKPAD_ROOT}/lib/Release
 		      REQUIRED )
 	    find_library( BREAKPADCOMMONLIB_DEBUG NAMES common 
-		PATHS ${BREAKPAD_DIR}/lib/Debug
+		PATHS ${BREAKPAD_ROOT}/lib/Debug
 		      REQUIRED )
 	    find_library( BREAKPADCOMMONLIB_RELEASE NAMES common 
-		PATHS ${BREAKPAD_DIR}/lib/Release
+		PATHS ${BREAKPAD_ROOT}/lib/Release
 		      REQUIRED )
 	    find_library( BREAKPADCLIENTLIB_DEBUG NAMES crash_generation_client 
-		PATHS ${BREAKPAD_DIR}/lib/Debug
+		PATHS ${BREAKPAD_ROOT}/lib/Debug
 		      REQUIRED )
 	    find_library( BREAKPADCLIENTLIB_RELEASE NAMES crash_generation_client 
-		PATHS ${BREAKPAD_DIR}/lib/Release
+		PATHS ${BREAKPAD_ROOT}/lib/Release
 		      REQUIRED )
 
 	    set(BREAKPADMODULES LIB COMMONLIB CLIENTLIB )
@@ -55,10 +59,10 @@ macro( OD_ADD_BREAKPAD )
 	else() # Linux
 	    set(BREAKPADMODULES LIB CLIENTLIB )
 	    find_library( BREAKPADLIB NAMES breakpad
-		      PATHS ${BREAKPAD_DIR}/lib
+		      PATHS ${BREAKPAD_ROOT}/lib
 		      REQUIRED )
 	    find_library( BREAKPADCLIENTLIB NAMES breakpad_client
-		      PATHS ${BREAKPAD_DIR}/lib
+		      PATHS ${BREAKPAD_ROOT}/lib
 		      REQUIRED )
 	    list(APPEND OD_BREAKPADLIBS ${BREAKPADLIBS} ${BREAKPADCLIENTLIB} )
 	    unset( BREAKPADLIBS CACHE )
@@ -66,11 +70,11 @@ macro( OD_ADD_BREAKPAD )
 	endif()
 
 	find_program( BREAKPAD_DUMPSYMS_EXECUTABLE NAMES dump_syms 
-		  PATHS ${BREAKPAD_DIR}/bin )
+		  PATHS ${BREAKPAD_ROOT}/bin )
 
 	if ( UNIX )
 	    find_program( BREAKPAD_STACKWALK_EXECUTABLE NAMES minidump_stackwalk 
-		  PATHS ${BREAKPAD_DIR}/bin )
+		  PATHS ${BREAKPAD_ROOT}/bin )
 	    OD_INSTALL_PROGRAM( "${BREAKPAD_STACKWALK_EXECUTABLE}" )
 	endif( UNIX )
 	
@@ -89,7 +93,7 @@ macro( OD_SETUP_BREAKPAD )
     if( OD_ENABLE_BREAKPAD )
 
 	list(APPEND OD_MODULE_INCLUDESYSPATH
-		    "${BREAKPAD_DIR}/include/breakpad" )
+		    "${BREAKPAD_ROOT}/include/breakpad" )
 	list(APPEND OD_MODULE_EXTERNAL_LIBS ${OD_BREAKPADLIBS} )
 
 	add_definitions( -DHAS_BREAKPAD )
