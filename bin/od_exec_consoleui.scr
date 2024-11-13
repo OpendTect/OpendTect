@@ -13,7 +13,6 @@
 set SCRIPTDIR = `dirname "$0"`
 set DTECT_APPL = `dirname "${SCRIPTDIR}"`
 setenv XAPPLRESDIR "$DTECT_APPL/data"
-unsetenv QTDIR
 
 if ( `uname` == "Darwin" ) then
 
