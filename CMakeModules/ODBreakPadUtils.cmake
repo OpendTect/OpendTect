@@ -7,8 +7,8 @@
 
 macro( OD_SETUP_BREAKPAD_TARGET TRGT )
 
-    if ( NOT IS_DIRECTORY "${BREAKPAD_DIR}/include/breakpad" )
-	message( SEND_ERROR "Cannot find breakpad header files at ${BREAKPAD_DIR}/include/breakpad" )
+    if ( NOT IS_DIRECTORY "${BREAKPAD_ROOT}/include/breakpad" )
+	message( SEND_ERROR "Cannot find breakpad header files at ${BREAKPAD_ROOT}/include/breakpad" )
     elseif ( (BREAKPAD${MOD}_RELEASE AND EXISTS "${BREAKPAD${MOD}_RELEASE}") OR
 	     (BREAKPAD${MOD}_DEBUG AND EXISTS "${BREAKPAD${MOD}_DEBUG}") )
 	add_library( breakpad::${TRGT} STATIC IMPORTED GLOBAL )
@@ -23,7 +23,7 @@ macro( OD_SETUP_BREAKPAD_TARGET TRGT )
 	endforeach()
 	set_target_properties( breakpad::${TRGT} PROPERTIES
 		IMPORTED_CONFIGURATIONS "${BREAKPAD_CONFIGS}"
-		INTERFACE_INCLUDE_DIRECTORIES "${BREAKPAD_DIR}/include/breakpad" )
+		INTERFACE_INCLUDE_DIRECTORIES "${BREAKPAD_ROOT}/include/breakpad" )
 	od_map_configurations( breakpad::${TRGT} )
 	unset( BREAKPAD_CONFIGS )
     endif()
@@ -46,7 +46,7 @@ endmacro(OD_GENERATE_SYMBOLS)
 macro( OD_ADD_BREAKPAD )
 
    if ( OD_ENABLE_BREAKPAD )
-	set( BREAKPAD_DIR "" CACHE PATH "BREAKPAD Location (upto the 'src' directory)" )
+	set( BREAKPAD_ROOT "" CACHE PATH "BREAKPAD Location (upto the 'src' directory)" )
 	set( BREAKPADMODULES COMMON CLIENT )
 	set( BREAKPADCOMPS breakpad client )
 	if( WIN32 )
@@ -59,16 +59,16 @@ macro( OD_ADD_BREAKPAD )
 
 	foreach( MOD LIBNAME TRGT IN ZIP_LISTS BREAKPADMODULES BREAKPADNAMES BREAKPADCOMPS )
 	    find_library( BREAKPAD${MOD}_RELEASE NAMES ${LIBNAME}
-			  PATHS "${BREAKPAD_DIR}"
+			  PATHS "${BREAKPAD_ROOT}"
 			  PATH_SUFFIXES lib lib/Release )
 	    find_library( BREAKPAD${MOD}_DEBUG NAMES ${LIBNAME}
-			  PATHS "${BREAKPAD_DIR}"
+			  PATHS "${BREAKPAD_ROOT}"
 			  PATH_SUFFIXES lib/Debug )
 	    OD_SETUP_BREAKPAD_TARGET( ${TRGT} )
 	endforeach()
 
 	find_program( BREAKPAD_DUMPSYMS_EXECUTABLE NAMES dump_syms
-		      PATHS ${BREAKPAD_DIR}/bin )
+		      PATHS ${BREAKPAD_ROOT}/bin )
 
 	install( DIRECTORY "${OD_BINARY_BASEDIR}/${OD_RUNTIME_DIRECTORY}/symbols"
 		 DESTINATION "${OD_RUNTIME_DIRECTORY}" )
