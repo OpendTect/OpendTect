@@ -8,10 +8,12 @@ ________________________________________________________________________
 -*/
 
 #include "linesetposinfo.h"
-#include "survinfo.h"
-#include "statruncalc.h"
+
 #include "binidvalset.h"
 #include "binidvalue.h"
+#include "statruncalc.h"
+#include "survgeom2d.h"
+#include "survinfo.h"
 
 
 PosInfo::LineSet2DData::IR::~IR()
@@ -68,18 +70,54 @@ void PosInfo::LineSet2DData::removeLine( const char* lnm )
 
 
 void PosInfo::LineSet2DData::intersect( const BinIDValueSet& bivset,
+					BinIDValueSet& bivset2d ) const
+{
+    BinIDValueSet::SPos pos;
+    while ( bivset.next(pos) )
+    {
+	BinID bid;
+	TypeSet<float> vals;
+	bivset.get( pos, bid, vals );
+	const Coord crd = SI().transform( bid );
+
+	float mindist = mUdf(float);
+	TrcKey mintk;
+	for ( int idx=0; idx<nrLines(); idx++ )
+	{
+	    const char* linenm = lineName( idx );
+	    const auto* geom2d = dCast(const Survey::Geometry2D*,
+				       Survey::GM().getGeometry(linenm));
+	    float dist;
+	    const TrcKey tk = geom2d->nearestTrace( crd, &dist );
+	    if ( dist < mindist )
+	    {
+		mindist = dist;
+		mintk = tk;
+	    }
+	}
+
+	if ( !mIsUdf(mindist) )
+	    bivset2d.add( mintk.binID(), vals );
+    }
+}
+
+
+void PosInfo::LineSet2DData::intersect( const BinIDValueSet& bivset,
 			ObjectSet<PosInfo::LineSet2DData::IR>& resultset ) const
 {
     const int nrvals = bivset.nrVals();
-    BinIDValueSet* globalbivset = new BinIDValueSet( nrvals, true );
+    BinIDValueSet globalbivset( nrvals, true );
     for ( int idx=0; idx<nrLines(); idx++ )
     {
-	BinIDValueSet* newbivset = new BinIDValueSet( nrvals, true );
+	auto* newbivset = new BinIDValueSet( nrvals, true );
 	BinID prevbid(-1,-1);
 	for ( int idy=0; idy<lineData(idx).positions().size(); idy++ )
 	{
-	    BinID bid = SI().transform( lineData(idx).positions()[idy].coord_ );
-	    if ( bid == prevbid ) continue;
+	    const BinID bid =
+		SI().transform( lineData(idx).positions()[idy].coord_ );
+	    if ( bid == prevbid )
+		continue;
+
 	    prevbid = bid;
 	    if ( bivset.includes(bid) )
 	    {
@@ -89,11 +127,12 @@ void PosInfo::LineSet2DData::intersect( const BinIDValueSet& bivset,
 		{
 		    BinIDValues bidvalues( bid, nrvals );
 		    bivset.get( pos, bidvalues, bidvalues.values() );
-		    if ( !globalbivset->includes(bid) )
+		    if ( !globalbivset.includes(bid) )
 		    {
 			newbivset->add( bid, bidvalues.values() );
-			globalbivset->add( bid, bidvalues.values() );
+			globalbivset.add( bid, bidvalues.values() );
 		    }
+
 		    bivset.next( pos );
 		    if ( bid != bivset.getBinID(pos) )
 			break;

@@ -43,10 +43,12 @@ public:
 	BinIDValueSet*	posns_;
     };
     void		intersect(const BinIDValueSet&,ObjectSet<IR>&) const;
+    void		intersect(const BinIDValueSet& bivset,
+				  BinIDValueSet& bivset2d) const;
 
     float		getDistBetwTrcs(bool,const char* linenm =0) const;
     BinID		getElementStepout(const char* linenm) const;
-    void                compDistBetwTrcsStats();
+    void		compDistBetwTrcsStats();
     bool		areStatsComputed() const
 			{ return trcdiststatsperlines_.size(); }
 
@@ -71,16 +73,16 @@ protected:
 				    , mediandist_(mediandist)
 				    , maxdist_( maxdist )               {};
 
-	bool                    operator ==( LineTrcDistStats ltds ) const
+	bool			operator ==( LineTrcDistStats ltds ) const
 				{
 				    return ltds.linename_ == linename_
 					&& ltds.mediandist_ == mediandist_
 					&& ltds.maxdist_ == maxdist_;
 				}
 
-	BufferString            linename_;
-	float                   mediandist_;
-	float                   maxdist_;
+	BufferString		linename_;
+	float			mediandist_;
+	float			maxdist_;
     };
 
     TypeSet<LineTrcDistStats>   trcdiststatsperlines_;
