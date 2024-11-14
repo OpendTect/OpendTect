@@ -37,7 +37,6 @@ protected:
     static uiStepDialog*	createInstance(uiParent*, Step*,bool is2d);
 
     void			volSel(CallBacker*);
-    void			updateFlds(CallBacker*);
     bool			acceptOK(CallBacker*) override;
 
     VolumeReader*		volumereader_;
