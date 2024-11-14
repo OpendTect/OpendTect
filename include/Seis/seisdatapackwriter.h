@@ -29,9 +29,11 @@ public:
 			       const TypeSet<int>& components=TypeSet<int>());
 			~SeisDataPackWriter();
 
+    void		setFullRange(const TrcKeyZSampling&);
     void		setSelection(const TrcKeySampling&,
 				     const Interval<int>&);
     const RegularSeisDataPack* dataPack() const	{ return dp_; }
+    void		releaseDataPack();
     void		setNextDataPack(const RegularSeisDataPack&);
 
     void		setComponentScaler(const Scaler&,int compidx);
@@ -71,7 +73,6 @@ private:
 
     void			getPosInfo();
     void			obtainDP();
-    void			releaseDP();
 
     friend class VolProc::ChainOutput;
 

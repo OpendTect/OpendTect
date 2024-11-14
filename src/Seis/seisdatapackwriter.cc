@@ -68,7 +68,7 @@ SeisDataPackWriter::SeisDataPackWriter( const MultiID& mid,
 
 SeisDataPackWriter::~SeisDataPackWriter()
 {
-    releaseDP();
+    releaseDataPack();
     delete trc_;
     delete writer_;
     deepErase( compscalers_ );
@@ -166,7 +166,7 @@ void SeisDataPackWriter::setNextDataPack( const RegularSeisDataPack& dp )
 {
     if ( dp_ != &dp )
     {
-	releaseDP();
+	releaseDataPack();
 	dp_ = &dp;
 	obtainDP();
     }
@@ -181,7 +181,7 @@ void SeisDataPackWriter::obtainDP()
 {
     if ( !dp_ || !DPM( DataPackMgr::SeisID() ).ref(dp_->id()) )
     {
-	releaseDP();
+	releaseDataPack();
 	return;
     }
 
@@ -189,9 +189,11 @@ void SeisDataPackWriter::obtainDP()
 }
 
 
-void SeisDataPackWriter::releaseDP()
+void SeisDataPackWriter::releaseDataPack()
 {
-    DPM( DataPackMgr::SeisID() ).unRef( dp_->id() );
+    if ( dp_ )
+	DPM( DataPackMgr::SeisID() ).unRef( dp_->id() );
+
     dp_ = nullptr;
     posinfo_ = nullptr;
 }
@@ -218,14 +220,13 @@ void SeisDataPackWriter::setSelection( const TrcKeySampling& hrg,
     iterator_.setSampling( hrg );
     totalnr_ = posinfo_ ? posinfo_->totalSizeInside( hrg )
 			: mCast(int,hrg.totalNr());
-    Seis::SelData* seldata = new Seis::RangeSelData( tks_ );
+}
 
-    // Workaround for v6.2. Not needed in later versions.
-    if ( is2d_ )
-	seldata->setGeomID( Pos::GeomID(tks_.start_.lineNr()) );
 
+void SeisDataPackWriter::setFullRange( const TrcKeyZSampling& tkzs )
+{
     if ( writer_ )
-	writer_->setSelData( seldata );
+	writer_->setSelData( new Seis::RangeSelData(tkzs) );
 }
 
 
