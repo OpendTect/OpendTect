@@ -9,29 +9,27 @@ ________________________________________________________________________
 
 #include "attribstorprovider.h"
 
+#include "attribdataholder.h"
 #include "attribdesc.h"
 #include "attribfactory.h"
 #include "attribparam.h"
-#include "attribdataholder.h"
-#include "datainpspec.h"
 #include "ioman.h"
 #include "ioobj.h"
 #include "linesetposinfo.h"
+#include "posinfo2dsurv.h"
 #include "seis2ddata.h"
 #include "seisbounds.h"
 #include "seisbufadapters.h"
-#include "seiscbvs.h"
 #include "seiscbvs2d.h"
 #include "seiscubeprov.h"
 #include "seisdatapack.h"
 #include "seisioobjinfo.h"
 #include "seispacketinfo.h"
 #include "seisread.h"
-#include "seistrc.h"
 #include "seisselectionimpl.h"
-#include "survinfo.h"
+#include "seistrc.h"
 #include "survgeom2d.h"
-#include "posinfo2dsurv.h"
+#include "survinfo.h"
 
 
 namespace Attrib
@@ -457,7 +455,8 @@ void StorageProvider::setDesBufStepout( const BinID& ns, bool wait )
 
 void StorageProvider::updateStorageReqs( bool )
 {
-    if ( !mscprov_ ) return;
+    if ( !mscprov_ )
+	return;
 
     mscprov_->setStepout( desbufferstepout_.inl(), desbufferstepout_.crl(),
 			  false );
@@ -475,10 +474,12 @@ SeisMSCProvider* StorageProvider::getMSCProvider( bool& needmscprov) const
 
 bool StorageProvider::setMSCProvSelData()
 {
-    if ( !mscprov_ ) return false;
+    if ( !mscprov_ )
+	return false;
 
     SeisTrcReader& reader = mscprov_->reader();
-    if ( reader.psIOProv() ) return false;
+    if ( reader.psIOProv() )
+	return false;
 
     const bool is2d = reader.is2D();
     const bool haveseldata = seldata_ && !seldata_->isAll();
@@ -493,7 +494,8 @@ bool StorageProvider::setMSCProvSelData()
     {
 	for ( int idp=0; idp<parents_.size(); idp++ )
 	{
-	    if ( !parents_[idp] ) continue;
+	    if ( !parents_[idp] )
+		continue;
 
 	    if ( parents_[idp]->getDesiredVolume() )
 	    {
@@ -542,7 +544,8 @@ bool StorageProvider::setMSCProvSelData()
 
 bool StorageProvider::setTableSelData()
 {
-    if ( !isondisc_ ) return false;	//in this case we might not use a table
+    if ( !isondisc_ )
+	return false;	//in this case we might not use a table
 
     Seis::SelData* seldata = seldata_->clone();
     seldata->extendZ( extraz_ );
@@ -558,6 +561,7 @@ bool StorageProvider::setTableSelData()
 	if ( !outputinterest_[idx] && transl->componentInfo().size()>idx )
 	    transl->componentInfo()[idx]->destidx = -1;
     }
+
     return true;
 }
 
@@ -847,10 +851,12 @@ BinID StorageProvider::getStepoutStep() const
 
 void StorageProvider::adjust2DLineStoredVolume()
 {
-    if ( !isondisc_ || !mscprov_ ) return;
+    if ( !isondisc_ || !mscprov_ )
+	return;
 
     const SeisTrcReader& reader = mscprov_->reader();
-    if ( !reader.is2D() ) return;
+    if ( !reader.is2D() )
+	return;
 
     StepInterval<int> trcrg;
     StepInterval<float> zrg;
@@ -946,16 +952,22 @@ void StorageProvider::checkClassType( const SeisTrc* trc,
 
 bool StorageProvider::compDistBetwTrcsStats( bool force )
 {
-    if ( !mscprov_ ) return false;
-    if ( ls2ddata_ && ls2ddata_->areStatsComputed() ) return true;
+    if ( !mscprov_ )
+	return false;
+
+    if ( ls2ddata_ && ls2ddata_->areStatsComputed() )
+	return true;
 
     const SeisTrcReader& reader = mscprov_->reader();
-    if ( !reader.is2D() ) return false;
+    if ( !reader.is2D() )
+	return false;
 
     const Seis2DDataSet* dset = reader.dataSet();
     if ( !dset ) return false;
 
-    if ( ls2ddata_ ) delete ls2ddata_;
+    if ( ls2ddata_ )
+	delete ls2ddata_;
+
     ls2ddata_ = new PosInfo::LineSet2DData();
     for ( int idx=0; idx<dset->nrLines(); idx++ )
     {
@@ -963,7 +975,8 @@ bool StorageProvider::compDistBetwTrcsStats( bool force )
 	const Survey::Geometry* geom =
 		Survey::GM().getGeometry( dset->geomID(idx) );
 	mDynamicCastGet( const Survey::Geometry2D*, geom2d, geom );
-	if ( !geom2d ) continue;
+	if ( !geom2d )
+	    continue;
 
 	linegeom = geom2d->data();
 	if ( linegeom.positions().isEmpty() )

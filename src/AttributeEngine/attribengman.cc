@@ -14,10 +14,10 @@ ________________________________________________________________________
 #include "attribdescset.h"
 #include "attribfactory.h"
 #include "attriboutput.h"
-#include "attribparam.h"
 #include "attribprocessor.h"
 #include "attribprovider.h"
 #include "attribstorprovider.h"
+#include "attribparambase.h"
 
 #include "convmemvalseries.h"
 #include "datacoldef.h"
@@ -32,7 +32,6 @@ ________________________________________________________________________
 #include "seis2ddata.h"
 #include "seisdatapack.h"
 #include "seistrc.h"
-#include "survinfo.h"
 #include "survgeom2d.h"
 #include "uistrings.h"
 #include "unitofmeasure.h"
@@ -394,7 +393,7 @@ DataPackCopier( const RegularSeisDataPack& in, RegularSeisDataPack& out )
 
 od_int64 nrIterations() const override		{ return totalnr_; }
 
-bool doPrepare( int nrthreads ) override
+bool doPrepare( int /*nrthreads*/ ) override
 {
     if ( in_.isEmpty() || out_.isEmpty() )
 	return false;
@@ -450,7 +449,7 @@ bool doPrepare( int nrthreads ) override
 }
 
 
-bool doWork( od_int64 start, od_int64 stop, int threadidx ) override
+bool doWork( od_int64 start, od_int64 stop, int /*threadidx*/ ) override
 {
     if ( totalnr_ == 0 )
 	return true;
@@ -668,7 +667,9 @@ RefMan<RegularSeisDataPack> EngineMan::getDataPackOutput(
 
 
 void EngineMan::setAttribSpecs( const TypeSet<SelSpec>& specs )
-{ attrspecs_ = specs; }
+{
+    attrspecs_.copy( specs );
+}
 
 
 void EngineMan::setAttribSpec( const SelSpec& spec )
@@ -1111,7 +1112,8 @@ void EngineMan::computeIntersect2D( ObjectSet<BinIDValueSet>& bivsets ) const
 			StorageProvider::keyStr())->getStringValue(0) );
     const MultiID key( lk.lineName().buf() );
     PtrMan<IOObj> ioobj = IOM().get( key );
-    if ( !ioobj ) return;
+    if ( !ioobj )
+	return;
 
     const Seis2DDataSet dset( *ioobj );
     PosInfo::LineSet2DData linesetgeom;
@@ -1120,9 +1122,10 @@ void EngineMan::computeIntersect2D( ObjectSet<BinIDValueSet>& bivsets ) const
 	PosInfo::Line2DData& linegeom = linesetgeom.addLine(dset.lineName(idx));
 	Pos::GeomID geomid = Survey::GM().getGeomID( dset.lineName(idx) );
 	const Survey::Geometry* geometry = Survey::GM().getGeometry( geomid );
-	mDynamicCastGet( const Survey::Geometry2D*, geom2d, geometry )
+	mDynamicCastGet(const Survey::Geometry2D*,geom2d,geometry)
 	if ( geom2d )
 	    linegeom = geom2d->data();
+
 	if ( linegeom.positions().isEmpty() )
 	{
 	    linesetgeom.removeLine( dset.lineName(idx) );
@@ -1133,15 +1136,12 @@ void EngineMan::computeIntersect2D( ObjectSet<BinIDValueSet>& bivsets ) const
     ObjectSet<BinIDValueSet> newbivsets;
     for ( int idx=0; idx<bivsets.size(); idx++ )
     {
-	BinIDValueSet* newset = new BinIDValueSet(bivsets[idx]->nrVals(), true);
-	ObjectSet<PosInfo::LineSet2DData::IR> resultset;
-	linesetgeom.intersect( *bivsets[idx], resultset );
-
-	for ( int idy=0; idy<resultset.size(); idy++)
-	    newset->append(*resultset[idy]->posns_);
-
+	auto* newset = new BinIDValueSet( bivsets[idx]->nrVals(), true );
+	newset->setIs2D( true );
+	linesetgeom.intersect( *bivsets[idx], *newset );
 	newbivsets += newset;
     }
+
     bivsets = newbivsets;
 }
 
@@ -1259,7 +1259,8 @@ Executor* EngineMan::getTableExtractor( DataPointSet& datapointset,
 Processor* EngineMan::getTableOutExecutor( DataPointSet& datapointset,
 					   uiString& errmsg, int firstcol )
 {
-    if ( !datapointset.size() ) return 0;
+    if ( datapointset.isEmpty() )
+	return nullptr;
 
     Processor* proc = getProcessor(errmsg);
     if ( !proc )
@@ -1268,11 +1269,16 @@ Processor* EngineMan::getTableOutExecutor( DataPointSet& datapointset,
     ObjectSet<BinIDValueSet> bidsets;
     bidsets += &datapointset.bivSet();
     computeIntersect2D( bidsets );
-    TableOutput* tableout = new TableOutput( datapointset, firstcol );
-    if ( !tableout ) return 0;
+    if ( bidsets.isEmpty() )
+	return nullptr;
+
+    datapointset.bivSet() = *bidsets.first();
+    datapointset.dataChanged();
+    auto* tableout = new TableOutput( datapointset, firstcol );
+    if ( !tableout )
+	return nullptr;
 
     proc->addOutput( tableout );
-
     return proc;
 }
 
@@ -1282,7 +1288,7 @@ Processor* EngineMan::getTableOutExecutor( DataPointSet& datapointset,
 Processor* EngineMan::getProcessor( uiString& errmsg )
 {
     if ( procattrset_ )
-	{ delete procattrset_; procattrset_ = 0; }
+	deleteAndZeroPtr( procattrset_ );
 
     if ( !inpattrset_ || !attrspecs_.size() )
 	mErrRet( tr("No attribute set or input specs") )
