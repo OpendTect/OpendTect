@@ -27,14 +27,15 @@ OpendTect is used worldwide by thousands of open source users, thousands of acad
 - [Contacts and More Information](#contacts-and-more-information)
 
 ## Repository Structure
-The repository contains a number of release branches and 2 development branches. The current stable release branch is [7.0](https://github.com/OpendTect/OpendTect/tree/od7.0)
+The repository contains a number of release branches and 3 development branches. The current stable release branches are [8.0](https://github.com/OpendTect/OpendTect/tree/od8.0) and [7.0](https://github.com/OpendTect/OpendTect/tree/od7.0)
 
 The development branches are:
 
 | BRANCH | DESCRIPTION |
 | -------------| ----------------- |
 | [main](https://github.com/OpendTect/OpendTect/tree/main) | This is the bleeding edge where migration of OpendTect to new versions of its major dependencies, Qt and OpenSceneGraph, is tested and major new functionality is added.  |
-| [od7.0](https://github.com/OpendTect/OpendTect/tree/od7.0)  | This is the main development branch for the next stable release series 7.0. No major new features are currently being added to this branch as it is being prepared for release. |
+| [od8.0](https://github.com/OpendTect/OpendTect/tree/od8.0)  | This is the main development branch for the next stable release series 8.0. No major new features are currently being added to this branch as it is being prepared for release. |
+| [od7.0](https://github.com/OpendTect/OpendTect/tree/od7.0)  | This is the previous development branch for the prevous stable release series 7.0. No major new features are currently being added to this branch as it is reaching end-of-life. |
 
 ## License
 OpendTect is released under the [GPLv3 or higher](https://www.gnu.org/licenses/gpl-3.0.html) license.
@@ -54,7 +55,7 @@ To build the software you need to also download and install/build a few dependen
 
 | BRANCH | DEPENDENCIES |
 | -------------| ----------------- |
-| main | [Qt 6.8.0](https://download.qt.io/archive/qt/6.8/6.8.0/), [OpenSceneGraph 3.6.5](https://github.com/openscenegraph/OpenSceneGraph/archive/OpenSceneGraph-3.6.5.tar.gz), [Proj 9.5.0 (optional)](https://download.osgeo.org/proj/proj-9.5.0.tar.gz), [Sqlite 3.46.1 (optional)](https://www.sqlite.org/download.html), [HDF5 1.14.5 (optional)](https://www.hdfgroup.org/downloads/hdf5) |
+| main, od8.0 | [Qt 6.8.0](https://download.qt.io/archive/qt/6.8/6.8.0/), [OpenSceneGraph 3.6.5](https://github.com/openscenegraph/OpenSceneGraph/archive/OpenSceneGraph-3.6.5.tar.gz), [Proj 9.5.0 (optional)](https://download.osgeo.org/proj/proj-9.5.0.tar.gz), [Sqlite 3.46.1 (optional)](https://www.sqlite.org/download.html), [HDF5 1.14.5 (optional)](https://www.hdfgroup.org/downloads/hdf5) |
 | od7.0_rel, od7.0 | [Qt 5.15.2](https://download.qt.io/archive/qt/5.15/5.15.2/), [OpenSceneGraph 3.6.5](https://github.com/openscenegraph/OpenSceneGraph/archive/OpenSceneGraph-3.6.5.tar.gz), [Proj 9.3.1 (optional)](https://download.osgeo.org/proj/proj-9.3.1.tar.gz), [Sqlite 3.44.2 (optional)](https://www.sqlite.org/download.html), [HDF5 1.14.5 (optional)](https://www.hdfgroup.org/downloads/hdf5) |
 | od6.6_rel, od6.6 | [Qt 5.15.2](https://download.qt.io/archive/qt/5.15/5.15.2/), [OpenSceneGraph 3.6.5](https://github.com/openscenegraph/OpenSceneGraph/archive/OpenSceneGraph-3.6.5.tar.gz), [HDF5 1.12.2 (optional)](https://www.hdfgroup.org/downloads/hdf5) |
 

@@ -25,7 +25,7 @@ macro( OD_ADD_PACKAGES_TARGET )
     if ( "${MAIN_GIT_BRANCH}" STREQUAL "main" )
 	set( OpendTect_INST_DIR "0.0.0" )
     else()
-	set( OpendTect_INST_DIR ${OpendTect_VERSION_MAJOR}.${OpendTect_VERSION_MINOR}.${OpendTect_VERSION_PATCH} )
+	set( OpendTect_INST_DIR "2025.${OpendTect_VERSION_PATCH}" )
     endif()
 
     get_thirdparty_targets( OD_THIRDPARTY_TARGETS ${OD_MODULES} ${OD_PLUGINS} )
