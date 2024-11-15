@@ -11,7 +11,7 @@ cmake_minimum_required ( VERSION 3.24.0 )
 
 set( MAIN_GIT_BRANCH main )
 
-set( OpendTect_VERSION_MAJOR 7 )
+set( OpendTect_VERSION_MAJOR 8 )
 set( OpendTect_VERSION_MINOR 1 )
 if ( NOT DEFINED OpendTect_VERSION_PATCH OR OpendTect_VERSION_PATCH STREQUAL "" )
     set( OpendTect_VERSION_PATCH 0 )
