@@ -33,6 +33,7 @@ enum SliceType
     ZSlice=2
 };
 
+mDeclareNameSpaceEnumUtils(Basic,SliceType);
 
 /*!\brief What to choose from any list-type UI object */
 

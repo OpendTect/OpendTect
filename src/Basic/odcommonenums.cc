@@ -9,6 +9,15 @@ ________________________________________________________________________
 
 #include "odcommonenums.h"
 
+mDefineNameSpaceEnumUtils(OD,SliceType,"Slice Type")
+{
+    "In-line",
+    "Cross-line",
+    "Z-slice",
+    nullptr
+};
+
+
 mDefineNameSpaceEnumUtils(OD,WellType,"Well Type")
 {
     "Unknown",
