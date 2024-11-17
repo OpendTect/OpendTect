@@ -68,7 +68,7 @@ SeisDataPackWriter::SeisDataPackWriter( const MultiID& mid,
 
 SeisDataPackWriter::~SeisDataPackWriter()
 {
-    releaseDataPack();
+    releaseDP();
     delete trc_;
     delete writer_;
     deepErase( compscalers_ );
@@ -166,7 +166,7 @@ void SeisDataPackWriter::setNextDataPack( const RegularSeisDataPack& dp )
 {
     if ( dp_ != &dp )
     {
-	releaseDataPack();
+	releaseDP();
 	dp_ = &dp;
 	obtainDP();
     }
@@ -181,7 +181,7 @@ void SeisDataPackWriter::obtainDP()
 {
     if ( !dp_ || !DPM( DataPackMgr::SeisID() ).ref(dp_->id()) )
     {
-	releaseDataPack();
+	releaseDP();
 	return;
     }
 
@@ -189,7 +189,7 @@ void SeisDataPackWriter::obtainDP()
 }
 
 
-void SeisDataPackWriter::releaseDataPack()
+void SeisDataPackWriter::releaseDP()
 {
     if ( dp_ )
 	DPM( DataPackMgr::SeisID() ).unRef( dp_->id() );
