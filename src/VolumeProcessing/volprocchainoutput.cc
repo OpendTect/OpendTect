@@ -506,7 +506,7 @@ void VolProc::ChainOutput::reportFinished( ChainOutputStorer& storer )
 
     toremstorers_ += &storer;
     storers_ -= &storer;
-    wrr_->releaseDataPack();
+    wrr_->releaseDP();
     if ( !storer.errmsg_.isEmpty() )
     {
 	progresskeeper_.setMessage( storer.errmsg_ );
