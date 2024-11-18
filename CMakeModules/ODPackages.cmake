@@ -22,12 +22,6 @@ macro( OD_ADD_PACKAGES_TARGET )
 	get_filename_component( PACKAGE_DIR "${PACKAGE_DIR}" ABSOLUTE )
     endif()
 
-    if ( "${MAIN_GIT_BRANCH}" STREQUAL "main" )
-	set( OpendTect_INST_DIR "0.0.0" )
-    else()
-	set( OpendTect_INST_DIR ${OpendTect_VERSION_MAJOR}.${OpendTect_VERSION_MINOR}.${OpendTect_VERSION_PATCH} )
-    endif()
-
     get_thirdparty_targets( OD_THIRDPARTY_TARGETS ${OD_MODULES} ${OD_PLUGINS} )
     get_thirdparty_libs( "${OD_THIRDPARTY_TARGETS}" OD_THIRDPARTY_LIBS )
     set( CMAKE_FOLDER "Releases" )

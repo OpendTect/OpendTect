@@ -21,6 +21,9 @@ if ( NOT DEFINED OpendTect_FULL_VERSION )
     set( OpendTect_FULL_VERSION
 	 ${OpendTect_VERSION_MAJOR}.${OpendTect_VERSION_MINOR}.${OpendTect_VERSION_PATCH} )
 endif()
+if ( NOT DEFINED OpendTect_INST_DIR )
+    set( OpendTect_INST_DIR "0.0.0" )
+endif()
 
 if ( POLICY CMP0048 )
     cmake_policy( SET CMP0048 NEW )
