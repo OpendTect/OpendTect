@@ -29,8 +29,8 @@ endif
 
 source "${DTECT_APPL}/bin/mksethdir" "${DTECT_APPL}"
 
-setenv LANG C
-setenv LC_NUMERIC C
+setenv LANG C.UTF-8
+setenv LC_NUMERIC C.UTF-8
 
 #-----------------------------------------------------
 # PATH variables
