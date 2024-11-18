@@ -73,7 +73,7 @@ else
     set odsystemlibsdir = "${bindir}/systemlibs"
     if ( -e ${ldconfig} ) then
         set libstdc = `${ldconfig} -p | grep libstdc++.so.6 | grep 64 | tr ' ' '\n' | grep / | head -n 1`
-	set cxxabiver = 1.3.12
+	set cxxabiver = 1.3.11
 	( which strings ) >& /dev/null
         if ( $status == 0 ) then
 	    set gcccxxabiver = `strings "${libstdc}" | grep -m 1 CXXABI_${cxxabiver}`
