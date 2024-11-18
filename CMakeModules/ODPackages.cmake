@@ -22,8 +22,6 @@ macro( OD_ADD_PACKAGES_TARGET )
 	get_filename_component( PACKAGE_DIR "${PACKAGE_DIR}" ABSOLUTE )
     endif()
 
-    set( OpendTect_INST_DIR "2025" )
-
     get_thirdparty_targets( OD_THIRDPARTY_TARGETS ${OD_MODULES} ${OD_PLUGINS} )
     get_thirdparty_libs( "${OD_THIRDPARTY_TARGETS}" OD_THIRDPARTY_LIBS )
     set( CMAKE_FOLDER "Releases" )
