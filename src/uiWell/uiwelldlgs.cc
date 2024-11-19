@@ -45,6 +45,7 @@ ________________________________________________________________________
 #include "tabledef.h"
 #include "timedepthmodel.h"
 #include "unitofmeasure.h"
+#include "wellcopier.h"
 #include "welld2tmodel.h"
 #include "welldata.h"
 #include "wellimpasc.h"
@@ -1336,7 +1337,8 @@ bool uiD2TModelDlg::updateDtpointDepth( int row )
     const bool inistvdsd = hastvdsd && incol == getTVDSDCol();
 
     const float olddah = newrow ? mUdf(float) : d2t->dah( row );
-    const float oldtvdss = newrow ? mUdf(float) : (float)track.getPos(olddah).z_;
+    const float oldtvdss = newrow ? mUdf(float)
+				  : (float)track.getPos(olddah).z_;
     float oldval = mUdf( float );
     if ( inistvd && !mIsUdf(oldtvdss) )
 	oldval = oldtvdss + kbelev;
@@ -2870,31 +2872,31 @@ void uiCopyWellDlg::inpSelCB( CallBacker* )
 
 bool uiCopyWellDlg::acceptOK( CallBacker* )
 {
-    const IOObj* inioobj = infld_->ioobj();
-    const IOObj* outioobj = outfld_->ioobj();
-    if ( !inioobj || !outioobj )
-	return false;
-
-    RefMan<Well::Data> wdin = new Well::Data;
-    Well::Reader rdr( inioobj->key(), *wdin );
-    if ( !rdr.get() )
+    const MultiID inpid = infld_->key();
+    const BufferString outwellnm = outfld_->getInput();
+    std::pair<const MultiID&,const BufferString> inpoutpair( inpid,
+							      outwellnm );
+    const ObjectSet<std::pair<const MultiID&,
+			      const BufferString>> param( &inpoutpair );
+    MultiWellCopier copier( param );
+    if ( !copier.execute() )
     {
-	uiMSG().error( rdr.errMsg() );
+	uiMSG().error( copier.uiMessage() );
 	return false;
     }
 
-    const Well::Writer wrr( *outioobj, *wdin );
-    if ( !wrr.put() )
+    const TypeSet<MultiID>& copiedids = copier.copiedWellIDs();
+    if ( copiedids.isEmpty() )
     {
-	uiMSG().error( wrr.errMsg() );
+	uiMSG().error( copier.uiMessage() );
 	return false;
     }
 
-    IOM().implUpdated.trigger( outioobj->key() );
     uiString msg = tr("Well successfully copied.\n\n"
 		      "Do you want to copy more Wells?");
     const bool ret =
 	uiMSG().askGoOn( msg, uiStrings::sYes(),tr("No, close window") );
+
     return !ret;
 }
 

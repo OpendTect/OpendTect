@@ -39,8 +39,7 @@ PtrMan<IOObj> Well::Copier::getOutputIOObj()
 	return nullptr;
     }
 
-    PtrMan<IOObj> ioobj = IOM().getLocal( outwellname_,
-				   WellTranslatorGroup::sGroupName() );
+    PtrMan<IOObj> ioobj = IOM().get( mIOObjContext(Well), outwellname_ );
     if ( ioobj )
     {
 	if ( allowoverwrite_ )
@@ -87,6 +86,7 @@ bool Well::Copier::doCopy()
 	return false;
     }
 
+    wdin->setName( outioobj->name() );
     const Well::Writer wrr( *outioobj, *wdin );
     if ( !wrr.put() )
     {
@@ -165,8 +165,14 @@ int MultiWellCopier::nextStep()
     copier.setOverwriteAllowed( allowoverwrite_ );
     if ( !copier.doCopy() )
     {
-	const StringView inpwellnm
-			    = Well::MGR().get(inpid,Well::Inf)->name().str();
+	ConstRefMan<Well::Data> wd = Well::MGR().get( inpid, Well::Inf );
+	if ( !wd )
+	{
+	    errmsg_.append( tr("Could not read input well") ).addNewLine();
+	    return MoreToDo();
+	}
+
+	const StringView inpwellnm = wd->name().buf();
 	if ( !inpwellnm.isEmpty() )
 	    errmsg_.append( ::toUiString(inpwellnm) ).append( tr(": ") );
 
