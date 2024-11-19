@@ -132,15 +132,21 @@ endif
 #
 
 # Remove relicts of previous attempts: links
-
 foreach fil ( init_dtect start_dtect init_dtect_user exec_prog )
+    if ( ! -e "${instdir}"/.$fil ) then
+	continue
+    endif
     sed -e "s/__INST_DIR__/$replaceinstdir/" \
 	-e "s/__DATA_DIR__/$replacedatadir/" \
 	"${instdir}"/.$fil > "${instdir}"/bin/$fil
+    chmod +x "${instdir}"/bin/$fil
 end
-chmod +x "${instdir}"/bin/{start_dtect,init_dtect_user,exec_prog}
+
 #Recreating links to current OpendTect installation
-ln -sf "${instdir}"/bin/{start_dtect,exec_prog} "${instdir}"
+ln -sf "${instdir}"/bin/exec_prog "${instdir}"
+if ( -e "${instdir}"/bin/start_dtect ) then
+    ln -sf "${instdir}"/bin/start_dtect "${instdir}"
+endif
 
 #
 # Generate scripts for added plugins

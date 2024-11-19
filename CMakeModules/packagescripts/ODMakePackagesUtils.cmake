@@ -198,6 +198,23 @@ macro ( CREATE_PACKAGE PACKAGE_NAME )
 	    file( GLOB EXTERNALLIB "${COPYFROMLIBDIR}/lib${LIB}.so*" )
 	    file( COPY ${EXTERNALLIB} DESTINATION ${COPYTOLIBDIR} )
 	endforeach()
+
+	foreach( SPECFILE ${SPECFILES} )
+	     file( COPY ${COPYFROMDATADIR}/${SPECFILE}
+		   DESTINATION ${COPYTODATADIR} )
+	endforeach()
+	foreach( FILES ${ODSCRIPTS} )
+	     file( GLOB SCRIPTS ${COPYFROMDATADIR}/bin/${FILES} )
+	     foreach( SCRIPT ${SCRIPTS} )
+		file( COPY ${SCRIPT}
+		      DESTINATION ${COPYTODATADIR}/bin )
+	     endforeach()
+	endforeach()
+
+	if (UNIX )
+	    file( COPY "${COPYFROMLIBDIR}/../lib"
+		  DESTINATION "${COPYTOLIBDIR}/../" )
+	endif()
     endif()
 
     foreach( EXTERNALLIB ${EXTERNALLIBS} )
@@ -228,8 +245,6 @@ macro ( CREATE_PACKAGE PACKAGE_NAME )
 endmacro( CREATE_PACKAGE )
 
 macro( COPY_BUNDLED_LIBS BUNDLENAME LIBS )
-    message( "LIBS: ${LIBS}" )
-    message( "BUNDLENAME: ${BUNDLENAME}" )
     if( NOT EXISTS ${COPYTOLIBDIR}/${BUNDLENAME} )
 	file( MAKE_DIRECTORY ${COPYTOLIBDIR}/${BUNDLENAME} )
     endif()

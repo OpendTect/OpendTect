@@ -127,21 +127,6 @@ endif
 source bin/init_dtect >&! /dev/null
 
 if ( $?quietmode ) then
-    echo "OpendTect is now installed in the $oddir directory"
-    echo ""
-    echo "* The application can be started using the start_dtect script."
-    echo -n "* Some plugins and packages may need FlexLM license management."
-    echo " for which you could use the 'install.*.license' and 'start.*.lmgrd' scripts."
-    if ( $?DTECT_DATA ) then
-	if ( -d "$DTECT_DATA" ) then
-	    echo ""
-	    echo -n "* You may have to set user ownership and/or permissions on"
-	    echo " $DTECT_DATA."
-	endif
-    endif
-    echo ""
-    echo -n "* Having good graphics hardware and recently updated drivers is ESSENTIAL."
-    echo " See also https://doc.opendtect.org/6.6.0/doc/admindoc/Default.htm#system_requirements.htm"
     exit 0
 endif
 
