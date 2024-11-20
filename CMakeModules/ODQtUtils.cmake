@@ -119,6 +119,9 @@ macro( QT_SETUP_PRINTSUPPORT_INTERNALS )
 	    set_target_properties( Qt${QT_VERSION_MAJOR}::PrintSupport PROPERTIES
 			IMPORTED_LINK_DEPENDENT_LIBRARIES Cups::Cups )
 	    od_map_configurations( Cups::Cups )
+	    string( CONCAT CTEST_CUSTOM_WARNING_EXCEPTION "${CTEST_CUSTOM_WARNING_EXCEPTION}"
+		" \"warning: dylib.*libcups\\\\.dylib.*was built for newer macOS version.*than being linked\"" )
+	    set( CTEST_CUSTOM_WARNING_EXCEPTION ${CTEST_CUSTOM_WARNING_EXCEPTION} PARENT_SCOPE )
 	else()
 	    message( SEND_ERROR "Cannot use the Qt installation: Qt::PrintSupport requires cups to be installed\nPlease set Cups_ROOT to the location of the cups installation\cups may be installed with brew" )
 	endif()
