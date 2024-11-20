@@ -14,13 +14,6 @@ endif()
 
 macro ( OD_SETUP_TEST_FILTER )
 
-    if ( UNIX AND NOT APPLE )
-	set(CTEST_CUSTOM_WARNING_EXCEPTION
-	  ${CTEST_CUSTOM_WARNING_EXCEPTION}
-	    "libssl.so.3"
-	    "libcrypto.so.3" )
-    endif()
-
     if( CTEST_MODEL )
 	if ( ${CTEST_MODEL} STREQUAL "Experimental" )
 	    set ( CTEST_CUSTOM_TESTS_IGNORE
