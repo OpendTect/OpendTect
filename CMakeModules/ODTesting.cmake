@@ -13,6 +13,7 @@ if ( UNIX )
 endif()
 
 macro ( OD_SETUP_TEST_FILTER )
+
     if( CTEST_MODEL )
 	if ( ${CTEST_MODEL} STREQUAL "Experimental" )
 	    set ( CTEST_CUSTOM_TESTS_IGNORE
@@ -25,8 +26,8 @@ macro ( OD_SETUP_TEST_FILTER )
     endif()
 
     configure_file (
-	${OpendTect_DIR}/CMakeModules/templates/CTestCustom.cmake.in
-	${CMAKE_BINARY_DIR}/CTestCustom.cmake @ONLY )
+	"${OpendTect_DIR}/CMakeModules/templates/CTestCustom.cmake.in"
+	"${CMAKE_BINARY_DIR}/CTestCustom.cmake" @ONLY )
 endmacro()
 
 macro( ADD_RUNTIME_PATHS )
