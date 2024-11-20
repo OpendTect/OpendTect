@@ -120,7 +120,7 @@ macro( QT_SETUP_PRINTSUPPORT_INTERNALS )
 			IMPORTED_LINK_DEPENDENT_LIBRARIES Cups::Cups )
 	    od_map_configurations( Cups::Cups )
 	    list( APPEND CTEST_CUSTOM_WARNING_EXCEPTION
-		"\"warning: dylib.*libcups.dylib.*was built for newer macOS version.*than being linked\""
+		"\"warning: dylib.*libcups\.dylib.*was built for newer macOS version.*than being linked\""
 	    )
 	    set( CTEST_CUSTOM_WARNING_EXCEPTION ${CTEST_CUSTOM_WARNING_EXCEPTION} PARENT_SCOPE )
 	else()
