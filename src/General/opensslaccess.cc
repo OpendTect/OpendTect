@@ -166,39 +166,9 @@ static bool findLibraryPath( const char* libnm )
     if ( !__islinux__ )
 	return false;
 
-    OS::MachineCommand mc( "/sbin/ldconfig" );
-    mc.addFlag( "p", OS::OldStyle ).addPipe()
-      .addArg( "grep" ).addArg( libnm );
-
-    if ( !File::exists(mc.program()) )
-	return false;
-
-    BufferString ldoutstr;
-    if ( !mc.execute(ldoutstr) )
-	return false;
-
-    BufferStringSet cmdoutlines, cmdoutlines_x64;
-    cmdoutlines.unCat( ldoutstr.buf() );
-    for ( const auto* cmdoutline : cmdoutlines )
-    {
-      const SeparString cmdoutsep( cmdoutline->buf(), ' ' );
-      if ( cmdoutsep.size() < 4 || !cmdoutsep[1].contains("x86-64") )
-	  continue;
-
-      const char* syslibnm = cmdoutsep[0].buf();
-      if ( *syslibnm == '\t' )
-	  syslibnm++;
-
-      if ( StringView(syslibnm) != libnm )
-	  continue;
-
-      cmdoutlines_x64.add( cmdoutsep[3] );
-    }
-
-    if ( cmdoutlines_x64.isEmpty() )
-	return false;
-
-    return File::exists( cmdoutlines_x64.first()->buf() );
+    const FilePath rhelsslfp( "/lib64", libnm );
+    const FilePath debsslfp( "/lib/x86_64-linux-gnu", libnm );
+    return rhelsslfp.exists() || debsslfp.exists();
 }
 
 } // namespace System
@@ -217,11 +187,22 @@ bool OD::OpenSSLAccess::loadOpenSSL()
     }
 
 #ifdef __OpenSSL_Crypto_LIBRARY__
-    const bool cryptook = loadOpenSSL( __OpenSSL_Crypto_LIBRARY__, true );
+# ifdef __OpenSSL_Crypto_PATH__
+    const bool cryptook = loadOpenSSL( __OpenSSL_Crypto_LIBRARY__,
+				       __OpenSSL_Crypto_PATH__, true );
+# else
+    const bool cryptook = loadOpenSSL( __OpenSSL_Crypto_LIBRARY__, nullptr,
+					 true);
+# endif
     if ( cryptook )
     {
 # ifdef __OpenSSL_SSL_LIBRARY__
-	res = loadOpenSSL( __OpenSSL_SSL_LIBRARY__, false ) ? 1 : 0;
+#  ifdef __OpenSSL_SSL_PATH__
+	res = loadOpenSSL( __OpenSSL_SSL_LIBRARY__,
+			   __OpenSSL_SSL_PATH__, false ) ? 1 : 0;
+#  else
+	res = loadOpenSSL( __OpenSSL_SSL_LIBRARY__, nullptr, false ) ? 1 : 0;
+#  endif
 # else
 	res = 0;
 # endif
@@ -236,11 +217,13 @@ bool OD::OpenSSLAccess::loadOpenSSL()
 }
 
 
-bool OD::OpenSSLAccess::loadOpenSSL( const char* libnm, bool iscrypto )
+bool OD::OpenSSLAccess::loadOpenSSL( const char* libnm, const char* path,
+				     bool iscrypto )
 {
     static PtrMan<RuntimeLibLoader> libcryptosha, libsslsha;
     static int rescrypto = -1;
     static int resssl = -1;
+    static bool isdevbuild = isDeveloperBuild();
     int& res = iscrypto ? rescrypto : resssl;
     PtrMan<RuntimeLibLoader>& libsha = iscrypto ? libcryptosha : libsslsha;
     if ( res < 0 )
@@ -249,8 +232,18 @@ bool OD::OpenSSLAccess::loadOpenSSL( const char* libnm, bool iscrypto )
 	    res = 1;
 	else
 	{
-	    const BufferString subdir( __iswin__ ? "" : "OpenSSL" );
-	    libsha = new RuntimeLibLoader( libnm, subdir.buf() );
+	    FilePath libfp( libnm );
+	    BufferString subdir;
+	    if ( !__iswin__ )
+	    {
+		if ( isdevbuild )
+		    libfp.insert( path );
+		else
+		    subdir.set( "OpenSSL" );
+	    }
+
+	    const BufferString libfnm = libfp.fullPath();
+	    libsha = new RuntimeLibLoader( libfnm.buf(), subdir.buf() );
 	    res = libsha && libsha->isOK() ? 2 : 0;
 	}
     }
