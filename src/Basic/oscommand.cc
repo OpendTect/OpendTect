@@ -369,7 +369,7 @@ static BufferString getUsableWinCmd( const char* fnm, BufferStringSet& args )
        || execnm.contains(".com") || execnm.contains(".COM") )
 	return ret;
 
-    const char* interp = 0;
+    const char* interp = nullptr;
 
     if ( execnm.contains(".csh") || execnm.contains(".CSH") )
 	interp = "tcsh.exe";
@@ -510,7 +510,7 @@ void OS::MachineCommand::addShellIfNeeded()
     if ( !args_.isEmpty() &&
 	 ((__iswin__ && prognm_ == StringView("cmd") &&
 			*args_.first() == StringView("/c")) ||
-	 ( *args_.first() == StringView("/c") &&
+	 ( *args_.first() == StringView("-c") &&
 	   ((__islinux__ && prognm_ == StringView("/bin/sh")) ||
 	    (__ismac__ && prognm_ == StringView("/bin/bash"))) )) )
 	return;
@@ -885,13 +885,13 @@ bool OS::CommandLauncher::doExecute( const MachineCommand& mc,
 
     if ( createstreams )
     {
-	if ( !monitorfnm_.isEmpty() )
-	    process_->setStandardOutputFile( monitorfnm_.buf() );
-	else
+	if ( monitorfnm_.isEmpty() )
 	{
 	    stdinputbuf_ = new qstreambuf( *process_, false, false );
 	    stdinput_ = new od_ostream( new oqstream( stdinputbuf_ ) );
 	}
+	else
+	    process_->setStandardOutputFile( monitorfnm_.buf() );
 
 	if ( pars.stdoutfnm_.isEmpty() )
 	{
