@@ -95,6 +95,9 @@ macro( QT_SETUP_GUI_INTERNALS )
 	list( APPEND QT_REQ_PLUGINS
 		egldeviceintegrations;platforminputcontexts;xcbglintegrations )
     endif()
+    if ( QT_VERSION VERSION_GREATER_EQUAL 6 )
+	list( APPEND QT_REQ_PLUGINS tls )
+    endif()
 
     QT_INSTALL_PLUGINS()
 
