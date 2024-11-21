@@ -83,6 +83,8 @@ private:
     OpenSSLFnSet*		functions_ = nullptr;
 
     static bool		loadOpenSSL(const char* libnm,bool iscrypto);
+    static bool		loadOpenSSL(const char* libnm,const char* path,
+				    bool iscrypto);
 
 };
 
