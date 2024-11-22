@@ -221,6 +221,7 @@ Well::Man::Man()
     mAttachCB( IOM().afterSurveyChange, Man::checkForUndeletedRef );
     mAttachCB( IOM().implUpdated, Man::wellAddedToDB );
     mAttachCB( IOM().entryRemoved, Man::wellEntryRemovedCB );
+    mAttachCB( IOM().entriesRemoved, Man::wellEntriesRemovedCB );
 }
 
 
@@ -258,6 +259,23 @@ void Well::Man::wellEntryRemovedCB( CallBacker* cb )
     {
 	const int idx = dbaddedwellsids_.indexOf( key );
 	dbaddedwellsids_.removeSingle( idx );
+    }
+}
+
+
+void Well::Man::wellEntriesRemovedCB( CallBacker* cb )
+{
+    if (!cb || !cb->isCapsule())
+	return;
+
+    mCBCapsuleUnpack( const TypeSet<MultiID>&, keys, cb );
+    for ( const auto& key : keys )
+    {
+	if ( dbaddedwellsids_.isPresent(key) )
+	{
+	    const int idx = dbaddedwellsids_.indexOf( key );
+	    dbaddedwellsids_.removeSingle( idx );
+	}
     }
 }
 

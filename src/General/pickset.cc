@@ -103,6 +103,7 @@ SetMgr::SetMgr( const char* nm )
     , undo_( *new Undo() )
 {
     mAttachCB( IOM().entryRemoved, SetMgr::objRm );
+    mAttachCB( IOM().entriesRemoved, SetMgr::objectsRm );
     mAttachCB( IOM().surveyToBeChanged, SetMgr::survChg );
     mAttachCB( IOM().applicationClosing, SetMgr::survChg );
 }
@@ -342,9 +343,26 @@ void SetMgr::objRm( CallBacker* cb )
     if ( !cb || !cb->isCapsule() )
 	return;
 
-    mCBCapsuleUnpack( const  MultiID&, ky, cb );
+    mCBCapsuleUnpack( const MultiID&, ky, cb );
     if ( indexOf(ky) >= 0 )
-	set( ky, 0 );
+	set( ky, nullptr );
+}
+
+
+void SetMgr::objectsRm( CallBacker* cb )
+{
+    if ( !cb || !cb->isCapsule() )
+	return;
+
+    mCBCapsuleUnpack( const TypeSet<MultiID>&, keys, cb );
+    if ( keys.isEmpty() )
+	return;
+
+    for ( const auto& ky : keys )
+    {
+	if ( indexOf(ky) >= 0 )
+	    set( ky, nullptr );
+    }
 }
 
 
