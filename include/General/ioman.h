@@ -55,6 +55,8 @@ public:
     bool		implReloc(const MultiID&,const char* newdir);
     bool		implRemove(const MultiID&,
 				   bool rmentry=false,uiRetVal* uirv=nullptr);
+    bool		implRemove(const TypeSet<MultiID>&,
+				   bool rmentry=false,uiRetVal* uirv=nullptr);
     bool		implRemove(const IOObj&,bool deep=true) const;
 
     void		removeUnusable(DBKeySet&);
@@ -107,6 +109,8 @@ public:
     bool		commitChanges(const IOObj&);
     bool		permRemove(const MultiID&);
 				//!< Removes only entry in IODir
+    bool		permRemove(const TypeSet<MultiID>&);
+				//!< Removes only entries in IODir
 
     BufferString	surveyName() const;
 
@@ -132,10 +136,11 @@ public:
 			//!< Need to do this only once per OD run
 			//!< At survey change, dir will automatically be added
 
-    CNotifier<IOMan,const MultiID&>	entryRemoved;
-    CNotifier<IOMan,const MultiID&>	entryAdded;
-    CNotifier<IOMan,const MultiID&>	entryChanged;
-    CNotifier<IOMan,const MultiID&>	implUpdated;
+    CNotifier<IOMan,const MultiID&>		entryRemoved;
+    CNotifier<IOMan,const TypeSet<MultiID>&>	entriesRemoved;
+    CNotifier<IOMan,const MultiID&>		entryAdded;
+    CNotifier<IOMan,const MultiID&>		entryChanged;
+    CNotifier<IOMan,const MultiID&>		implUpdated;
 
     Notifier<IOMan>	newIODir;
     Notifier<IOMan>	prepareSurveyChange;  //!< Prepare, don't tear down

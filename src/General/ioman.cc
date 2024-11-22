@@ -142,6 +142,7 @@ IOMan::CustomDirData::~CustomDirData()
 IOMan::IOMan( const FilePath& rootdir )
     : NamedCallBacker("IO Manager")
     , entryRemoved(this)
+    , entriesRemoved(this)
     , entryAdded(this)
     , entryChanged(this)
     , implUpdated(this)
@@ -1195,12 +1196,53 @@ bool IOMan::implRemove( const MultiID& key, bool rmentry, uiRetVal* uirv )
     if ( !implRemove(*ioobj) && !rmentry )
     {
 	if ( uirv )
-	    *uirv = tr("Could not delete data file(s).");
+	{
+	    const StringView objname = ioobj->name().buf();
+	    uiString errmsg;
+	    if ( !objname.isEmpty() )
+		errmsg.append( tr("%1: ").arg(objname) );
+
+	    errmsg.append( tr("Could not delete data file(s).") );
+	    uirv->add( errmsg );
+	}
 
 	return false;
     }
 
     if ( rmentry && !IOM().permRemove(key) )
+	return false;
+
+    return true;
+}
+
+
+bool IOMan::implRemove( const TypeSet<MultiID>& keys,
+			bool rmentry, uiRetVal* uirv )
+{
+    if ( keys.isEmpty() )
+	return false;
+
+    TypeSet<MultiID> successkeys;
+    for ( const auto& key : keys )
+    {
+	uiRetVal suirv;
+	if ( !implRemove(key,false,&suirv) )
+	{
+	    if ( uirv )
+		uirv->add( suirv );
+	    else
+		msg_.appendPhrase( suirv );
+
+	    continue;
+	}
+
+	successkeys.addIfNew( key );
+    }
+
+    if ( successkeys.isEmpty() )
+	return false;
+
+    if ( rmentry && !permRemove(successkeys) )
 	return false;
 
     return true;
@@ -1346,6 +1388,76 @@ bool IOMan::permRemove( const MultiID& ky )
     {
 	SI().getPars().removeWithKey( defaultkey.buf() );
 	SI().savePars();
+    }
+
+    return true;
+}
+
+
+bool IOMan::permRemove( const TypeSet<MultiID>& keys )
+{
+    if ( keys.isEmpty() )
+	return false;
+
+    TypeSet<MultiID> goodkeys;
+    BoolTypeSet issurvdefset;
+    issurvdefset.setSize( keys.size() );
+    ManagedObjectSet<CompoundKey> defaultkeys;
+    defaultkeys.setNullAllowed( true );
+    for ( const auto& key : keys )
+    {
+	const bool issurvdefault = IOObj::isSurveyDefault( key );
+	PtrMan<IOObj> ioobj = IOM().get( key );
+	if ( !ioobj )
+	{
+	    msg_ = uiStrings::phrCannotFindDBEntry( key );
+	    issurvdefset.add( false );
+	    defaultkeys.add( nullptr );
+	    continue;
+	}
+
+	PtrMan<Translator> trl = ioobj->createTranslator();
+	if ( !trl )
+	{
+	    msg_ = tr("Could not retrieve translator of object '%1'")
+							  .arg( ioobj->name() );
+	    issurvdefset.add( false );
+	    defaultkeys.add( nullptr );
+	    continue;
+	}
+
+	goodkeys.addIfNew( key );
+	auto* defaultkey = new CompoundKey(
+			      trl->group()->getSurveyDefaultKey(ioobj.ptr()) );
+	issurvdefset.add( issurvdefault );
+	defaultkeys.add( defaultkey );
+    }
+
+    if ( goodkeys.isEmpty() )
+	return false;
+
+    Threads::Locker lock( lock_ );
+    if ( !dirptr_ || !dirptr_->permRemove(goodkeys) )
+	return false;
+
+    lock.unlockNow();
+    entriesRemoved.trigger( goodkeys );
+    if ( issurvdefset.isEmpty() )
+    {
+	bool parschanged = false;
+	for ( int idx=0; idx<issurvdefset.size(); idx++ )
+	{
+	    const bool issurvdef = issurvdefset[idx];
+	    const CompoundKey* defaultkey = defaultkeys.get( idx );
+	    if ( issurvdef && defaultkey )
+	    {
+		SI().getPars().removeWithKey( defaultkey->buf() );
+		parschanged = true;
+	    }
+	}
+
+	if ( parschanged )
+	    SI().savePars();
     }
 
     return true;
