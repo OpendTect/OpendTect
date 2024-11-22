@@ -61,6 +61,7 @@ public:
     bool		commitChanges(const IOObj*);
 			    //!< after call, assume pointer will be invalid
     bool		permRemove(const MultiID&);
+    bool		permRemove(const TypeSet<MultiID>&);
     bool		ensureUniqueName(IOObj&);
 
     static IOObj*	getObj(const DBKey&);

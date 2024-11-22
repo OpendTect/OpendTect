@@ -306,6 +306,27 @@ bool IODir::permRemove( const MultiID& ky )
 }
 
 
+bool IODir::permRemove( const TypeSet<MultiID>& keys )
+{
+    if ( keys.isEmpty() )
+	return false;
+
+    update();
+    if ( isBad() )
+	return false;
+
+    int sz = objs_.size();
+    for ( int idx=sz-1; idx>=0; idx-- )
+    {
+	const MultiID& id = objs_[idx]->key();
+	if ( keys.isPresent(id) )
+	    delete objs_.removeSingle( idx );
+    }
+
+    return doWrite();
+}
+
+
 bool IODir::commitChanges( const IOObj* ioobj )
 {
     if ( ioobj->isSubdir() )
