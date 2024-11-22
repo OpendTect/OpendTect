@@ -171,6 +171,7 @@ protected:
 
     void		wellAddedToDB(CallBacker*);
     void		wellEntryRemovedCB(CallBacker*);
+    void		wellEntriesRemovedCB(CallBacker*);
 
     static const UnitOfMeasure*	depthstorageunit_;
     static const UnitOfMeasure*	depthdisplayunit_;

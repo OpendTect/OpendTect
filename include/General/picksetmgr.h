@@ -136,6 +136,7 @@ protected:
 
     void		survChg(CallBacker*);
     void		objRm(CallBacker*);
+    void		objectsRm(CallBacker*);
     void		removeAll();
 };
 
