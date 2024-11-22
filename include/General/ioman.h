@@ -139,6 +139,7 @@ public:
     CNotifier<IOMan,const MultiID&>		entryRemoved;
     CNotifier<IOMan,const TypeSet<MultiID>&>	entriesRemoved;
     CNotifier<IOMan,const MultiID&>		entryAdded;
+    CNotifier<IOMan,const TypeSet<MultiID>&>	entriesAdded;
     CNotifier<IOMan,const MultiID&>		entryChanged;
     CNotifier<IOMan,const MultiID&>		implUpdated;
 
