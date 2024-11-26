@@ -1217,36 +1217,63 @@ bool IOMan::implRemove( const MultiID& key, bool rmentry, uiRetVal* uirv )
 }
 
 
-bool IOMan::implRemove( const TypeSet<MultiID>& keys,
-			bool rmentry, uiRetVal* uirv )
+void IOMan::getIdsByGroup( const TypeSet<MultiID>& keys,
+			   ObjectSet<TypeSet<MultiID>>& grpids )
 {
     if ( keys.isEmpty() )
-	return false;
+	return;
 
-    TypeSet<MultiID> successkeys;
+    std::unordered_map<int,TypeSet<MultiID>> grpidsmap;
     for ( const auto& key : keys )
     {
-	uiRetVal suirv;
-	if ( !implRemove(key,false,&suirv) )
-	{
-	    if ( uirv )
-		uirv->add( suirv );
-	    else
-		msg_.appendPhrase( suirv );
-
-	    continue;
-	}
-
-	successkeys.addIfNew( key );
+	const int grpid = key.groupID();
+	grpidsmap[grpid] += key;
     }
 
-    if ( successkeys.isEmpty() )
+    for ( const auto& pair : grpidsmap )
+    {
+	auto* ids = new TypeSet<MultiID>( pair.second );
+	grpids.add( ids );
+    }
+}
+
+
+bool IOMan::implRemove( const TypeSet<MultiID>& ids,
+			bool rmentry, uiRetVal* uirv )
+{
+    if ( ids.isEmpty() )
 	return false;
 
-    if ( rmentry && !permRemove(successkeys) )
-	return false;
+    ManagedObjectSet<TypeSet<MultiID>> groupkeys;
+    getIdsByGroup( ids, groupkeys );
+    bool allok = true;
+    for ( const auto* keys : groupkeys )
+    {
+	TypeSet<MultiID> successkeys;
+	for ( const auto& key : *keys )
+	{
+	    uiRetVal suirv;
+	    if ( !implRemove(key,false,&suirv) )
+	    {
+		if ( uirv )
+		    uirv->add( suirv );
+		else
+		    msg_.appendPhrase( suirv );
 
-    return true;
+		continue;
+	    }
+
+	    successkeys.addIfNew( key );
+	}
+
+	if ( successkeys.isEmpty() )
+	    allok = false;
+
+	if ( rmentry && !permRemove(successkeys) )
+	    allok = false;
+    }
+
+    return allok;
 }
 
 

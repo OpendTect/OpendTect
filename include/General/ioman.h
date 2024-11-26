@@ -202,6 +202,8 @@ private:
     void		applClosing() { applicationClosing.trigger(); }
     void		getObjEntry(CtxtIOObj&,bool isnew, bool newistmp=false,
 				 int translidxingroup=-1);
+    void		getIdsByGroup(const TypeSet<MultiID>&,
+				      ObjectSet<TypeSet<MultiID>>&);
 
     friend class	SurveyDataTreePreparer;
     friend class	BatchProgram;
