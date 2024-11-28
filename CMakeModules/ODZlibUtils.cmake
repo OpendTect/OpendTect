@@ -177,7 +177,7 @@ endmacro(OD_SETUP_Freetype_TARGET)
 
 macro( OD_FIND_Freetype )
 
-    if ( UNIX AND NOT APPLE AND NOT TARGET PNG::PNG )
+    if ( UNIX AND NOT TARGET PNG::PNG )
 	OD_FIND_PNG()
     endif()
 
