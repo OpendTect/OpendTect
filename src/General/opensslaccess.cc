@@ -238,7 +238,7 @@ bool OD::OpenSSLAccess::loadOpenSSL( const char* libnm, const char* path,
 	    {
 		if ( isdevbuild )
 		    libfp.insert( path );
-		else
+		else if ( __islinux__ )
 		    subdir.set( "OpenSSL" );
 	    }
 
