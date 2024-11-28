@@ -18,6 +18,9 @@ macro( OD_FIND_QT )
 	    get_filename_component( QT_ROOT ${QT_ROOT} ABSOLUTE )
 	endif()
     endif()
+    if ( IS_DIRECTORY "${QT_ROOT}" AND NOT "${QT_ROOT}" IN_LIST CMAKE_PREFIX_PATH )
+	list ( APPEND CMAKE_PREFIX_PATH "${QT_ROOT}" )
+    endif()
 endmacro(OD_FIND_QT)
 
 macro(ADD_TO_LIST_IF_NEW LISTNAME ITEMNAME)
@@ -111,17 +114,9 @@ macro( QT_SETUP_PRINTSUPPORT_INTERNALS )
     endif()
 
     if ( APPLE AND QT_VERSION VERSION_GREATER_EQUAL 6 )
-	find_package( Cups QUIET GLOBAL )
 	if ( TARGET Cups::Cups )
-	    get_filename_component( CUPS_LOCATION "${CUPS_LIBRARIES}" REALPATH )
-	    get_filename_component( CUPS_SONAME "${CUPS_LOCATION}" NAME )
-	    set_target_properties( Cups::Cups PROPERTIES
-		IMPORTED_CONFIGURATIONS "RELEASE"
-		IMPORTED_LOCATION_RELEASE "${CUPS_LOCATION}"
-		IMPORTED_SONAME_RELEASE "${CUPS_SONAME}" )
 	    set_target_properties( Qt${QT_VERSION_MAJOR}::PrintSupport PROPERTIES
 			IMPORTED_LINK_DEPENDENT_LIBRARIES Cups::Cups )
-	    od_map_configurations( Cups::Cups )
 	    string( CONCAT CTEST_CUSTOM_WARNING_EXCEPTION "${CTEST_CUSTOM_WARNING_EXCEPTION}"
 		" \"warning: dylib.*libcups\\\\.dylib.*was built for newer macOS version.*than being linked\"" )
 	    set( CTEST_CUSTOM_WARNING_EXCEPTION ${CTEST_CUSTOM_WARNING_EXCEPTION} PARENT_SCOPE )
@@ -224,12 +219,6 @@ macro( QT_SETUP_GUI_EXTERNALS )
     OD_FIND_QT()
     if ( WIN32 )
 	set( QT_GUI_ADDS "${QT_ROOT}/bin/d3dcompiler_47.dll" "${QT_ROOT}/bin/opengl32sw.dll" )
-    elseif ( UNIX AND NOT APPLE )
-	#Only because of XcbQpa
-	add_fontconfig( QT_GUI_ADDS )
-    endif()
-
-    if ( QT_GUI_ADDS )
 	get_target_property( QT_GUI_IMPORTED_OBJECTS Qt${QT_VERSION_MAJOR}::Gui
 			     IMPORTED_OBJECTS )
 	if ( QT_GUI_IMPORTED_OBJECTS )
@@ -241,8 +230,14 @@ macro( QT_SETUP_GUI_EXTERNALS )
 	list( REMOVE_DUPLICATES QT_GUI_IMPORTED_OBJECTS )
 	set_target_properties( Qt${QT_VERSION_MAJOR}::Gui PROPERTIES
 		    IMPORTED_OBJECTS "${QT_GUI_IMPORTED_OBJECTS}" )
+	unset( QT_GUI_IMPORTED_OBJECTS )
+    elseif( UNIX AND NOT APPLE )
+	#Only because of XcbQpa
+	add_fontconfig( QT_GUI_ADDS )
+	set_target_properties( Qt${QT_VERSION_MAJOR}::Gui PROPERTIES
+	    IMPORTED_LINK_DEPENDENT_LIBRARIES "${QT_GUI_ADDS}" )
+	unset( QT_GUI_ADDS )
     endif()
-    unset( QT_GUI_IMPORTED_OBJECTS )
 endmacro(QT_SETUP_GUI_EXTERNALS)
 
 macro( QT_SETUP_PRINTSUPPORT_EXTERNALS )
@@ -261,7 +256,6 @@ macro( OD_ADD_QT )
     if ( NOT OD_NO_QT )
 	OD_FIND_QT()
 
-	list ( APPEND CMAKE_PREFIX_PATH "${QT_ROOT}" )
 	find_package( QT NAMES Qt6 Qt5 QUIET COMPONENTS Core GLOBAL )
 	if ( QT_VERSION )
 	    find_package( Qt${QT_VERSION_MAJOR} QUIET
@@ -271,6 +265,9 @@ macro( OD_ADD_QT )
 
 	    if ( WIN32 )
 		 cmake_policy( SET CMP0020 NEW )
+	    endif()
+	    if ( UNIX AND QT_VERSION VERSION_GREATER_EQUAL 6 AND NOT OD_NO_QPRINTSUPPORT )
+		OD_FIND_Cups()
 	    endif()
 	    QT_SETUP_CORE_INTERNALS()
 	    OD_ADD_TRANSLATIONS()

@@ -95,18 +95,37 @@ else
 	endif
     endif
 
-    # png16 library compatibility check
-    set odpng16libdir = "${bindir}/png16"
+    # zlib library compatibility check
+    set odzliblibdir = "${bindir}/zlib"
     if ( -e ${ldconfig} ) then
-	set syslibpng16 = `${ldconfig} -p | grep libpng16.so.16 | grep 64 | tr ' ' '\n' | grep / | head -n 1`
+	set syslibzlib = `${ldconfig} -p | grep libz.so.1 | grep 64 | tr ' ' '\n' | grep / | head -n 1`
+    else if ( -e "/lib/x86_64-linux-gnu/libz.so.1" ) then
+	set syslibzlib = "/lib/x86_64-linux-gnu/libz.so.1"
     else
-	set syslibpng16 = "/usr/lib64/libpng16.so.16"
+	set syslibzlib = "/usr/lib64/libz.so.1"
     endif
-    if ( ! -e "${syslibpng16}" && -e "${odpng16libdir}" ) then
+    if ( ! -e "${syslibzlib}" && -e "${odzliblibdir}" ) then
 	if ( $?LD_LIBRARY_PATH ) then
-	    setenv LD_LIBRARY_PATH "${odpng16libdir}":${LD_LIBRARY_PATH}
+	    setenv LD_LIBRARY_PATH "${odzliblibdir}":${LD_LIBRARY_PATH}
 	else
-	    setenv LD_LIBRARY_PATH "${odpng16libdir}"
+	    setenv LD_LIBRARY_PATH "${odzliblibdir}"
+	endif
+    endif
+
+    # png library compatibility check
+    set odpnglibdir = "${bindir}/png"
+    if ( -e ${ldconfig} ) then
+	set syslibpng = `${ldconfig} -p | grep libpng16.so.16 | grep 64 | tr ' ' '\n' | grep / | head -n 1`
+    else if ( -e "/lib/x86_64-linux-gnu/libpng16.so.16" ) then
+	set syslibpng = "/lib/x86_64-linux-gnu/libpng16.so.16"
+    else
+	set syslibpng = "/usr/lib64/libpng16.so.16"
+    endif
+    if ( ! -e "${syslibpng}" && -e "${odpnglibdir}" ) then
+	if ( $?LD_LIBRARY_PATH ) then
+	    setenv LD_LIBRARY_PATH "${odpnglibdir}":${LD_LIBRARY_PATH}
+	else
+	    setenv LD_LIBRARY_PATH "${odpnglibdir}"
 	endif
     endif
 
@@ -114,6 +133,8 @@ else
     set odfreetypelibdir = "${bindir}/freetype"
     if ( -e ${ldconfig} ) then
 	set syslibfreetype = `${ldconfig} -p | grep libfreetype.so.6 | grep 64 | tr ' ' '\n' | grep / | head -n 1`
+    else if ( -e "/lib/x86_64-linux-gnu/libfreetype.so.6" ) then
+	set syslibfreetype = "/lib/x86_64-linux-gnu/libfreetype.so.6"
     else
 	set syslibfreetype = "/usr/lib64/libfreetype.so.6"
     endif
@@ -129,6 +150,8 @@ else
     set odfontconfiglibdir = "${bindir}/fontconfig"
     if ( -e ${ldconfig} ) then
 	set syslibfontconfig = `${ldconfig} -p | grep libfontconfig.so.1 | grep 64 | tr ' ' '\n' | grep / | head -n 1`
+    else if ( -e "/lib/x86_64-linux-gnu/libfontconfig.so.1" ) then
+	set syslibfontconfig = "/lib/x86_64-linux-gnu/libfontconfig.so.1"
     else
 	set syslibfontconfig = "/usr/lib64/libfontconfig.so.1"
     endif

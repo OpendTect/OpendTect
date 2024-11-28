@@ -12,8 +12,8 @@ SET( INCLUDES
     ODPlatformUtils
     ODUtils
     ODQtUtils
-    ODOsgUtils
     ODZlibUtils
+    ODOsgUtils
     ODProjUtils
     ODOpenSSLUtils
     ODSqliteUtils
