@@ -432,7 +432,7 @@ macro( CREATE_DOCPACKAGE PACKAGE_NAME )
 	    file( COPY ${FILES}
 		  DESTINATION "${COPYTODIR}/doc" )
 	endif()
-	execute_process( COMMAND "${USERDOC_SCRIPT_LOCATION}" ${PACKAGE_NAME}
+	execute_process( COMMAND "${USERDOC_SCRIPT_LOCATION}" ${PACKAGE_NAME} --reldir "${REL_DIR}"
 			 WORKING_DIRECTORY "${PACKAGE_DIR}" )
     else()
 	if( ${PACKAGE_NAME} STREQUAL "classdoc" )
