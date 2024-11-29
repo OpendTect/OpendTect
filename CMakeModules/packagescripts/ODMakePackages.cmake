@@ -77,7 +77,7 @@ foreach ( PACKAGE ${PACKAGELIST} )
 	CREATE_DEVELPACKAGES()
     elseif( ${PACK} STREQUAL "classdoc" )
 	CREATE_DOCPACKAGES( classdoc )
-	execute_process( COMMAND "${CLASSDOC_SCRIPT_LOCATION}"
+	execute_process( COMMAND "${CLASSDOC_SCRIPT_LOCATION}" --reldir "${OpendTect_INST_DIR}" --ver ${FULLVER_NAME}
 			 WORKING_DIRECTORY "${PACKAGE_DIR}" )
     endif()
 
@@ -87,11 +87,11 @@ foreach ( PACKAGE ${PACKAGELIST} )
 
     if( ${PACK} STREQUAL "doc" )
 	CREATE_DOCPACKAGES( doc )
-	execute_process( COMMAND "${USERDOC_SCRIPT_LOCATION}" ${PACK}
+	execute_process( COMMAND "${USERDOC_SCRIPT_LOCATION}" ${PACK} --reldir "${OpendTect_INST_DIR}"
 			 WORKING_DIRECTORY "${PACKAGE_DIR}" )
     elseif( ${PACK} STREQUAL "dgbdoc" )
 	CREATE_DOCPACKAGES( dgbdoc )
-	execute_process( COMMAND "${USERDOC_SCRIPT_LOCATION}" ${PACK}
+	execute_process( COMMAND "${USERDOC_SCRIPT_LOCATION}" ${PACK} --reldir "${OpendTect_INST_DIR}"
 			 WORKING_DIRECTORY "${PACKAGE_DIR}" )
     else()
 	CREATE_PACKAGE( ${PACK} )
