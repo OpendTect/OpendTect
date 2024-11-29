@@ -80,10 +80,10 @@ foreach ( PACKAGE ${PACKAGELIST} )
     ZIPPACKAGE( "${PACKAGE_FILENAME}" "${REL_DIR}" "${PACKAGE_DIR}" )
     if( "${PACK}" MATCHES "doc$" )
 	if( UNIX AND NOT APPLE AND ${PACK} STREQUAL "classdoc" )
-	    execute_process( COMMAND "${CLASSDOC_SCRIPT_LOCATION}" --reldir ${REL_DIR} --ver ${FULLVER_NAME}
+	    execute_process( COMMAND "${CLASSDOC_SCRIPT_LOCATION}" --reldir ${OpendTect_INST_DIR} --ver ${FULLVER_NAME}
                              WORKING_DIRECTORY "${PACKAGE_DIR}" )
 	elseif( WIN32 AND ("${PACKAGE}" STREQUAL "doc" OR "${PACKAGE}" STREQUAL "dgbdoc") )
-	    execute_process( COMMAND "${USERDOC_SCRIPT_LOCATION}" ${PACK} --reldir "${REL_DIR}"
+	    execute_process( COMMAND "${USERDOC_SCRIPT_LOCATION}" ${PACK} --reldir "${OpendTect_INST_DIR}"
 			     WORKING_DIRECTORY "${PACKAGE_DIR}" )
 	endif()
     endif()
