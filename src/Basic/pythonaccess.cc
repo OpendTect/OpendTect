@@ -163,8 +163,8 @@ void OD::PythonAccess::updatePythonPath() const
 void OD::PythonAccess::initClass()
 {
     GetEnvVarDirList( sKeyPythonPathEnvStr(), pystartpath_, true );
-#ifdef __odpy_dir__
     FilePath pythonmodsfp;
+#ifdef __odpy_dir__
     if ( isDeveloperBuild() )
 	pythonmodsfp.set( __odpy_dir__ );
     else
