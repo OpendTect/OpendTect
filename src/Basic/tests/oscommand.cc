@@ -13,7 +13,6 @@ ________________________________________________________________________
 #include "oddirs.h"
 #include "od_iostream.h"
 #include "oscommand.h"
-#include "separstr.h"
 #include "testprog.h"
 #include "timer.h"
 
@@ -47,18 +46,25 @@ public:
     {
         if ( clParser().hasKey("testpipes") )
         {
-            testServer();
-            CallBack::addToMainThread( mCB(this,TestClass,closeTesterCB) );
-            return;
+            retval_ = testServer() ? 0 : 1;
+	}
+	else
+	{
+	    retval_ = testCmds() &&
+		      testAllPipes() &&
+		      runCommandWithSpace() &&
+		      runCommandWithLongOutput()
+		      ? 0 : 1;
         }
 
-        retval_ = testCmds() && testAllPipes() && runCommandWithSpace() &&
-            runCommandWithLongOutput() ? 0 : 1;
-        CallBack::addToMainThread( mCB( this, TestClass, closeTesterCB ) );
+        CallBack::addToMainThread( mCB(this,TestClass,closeTesterCB) );
     }
 
     void closeTesterCB( CallBacker* )
     {
+        if ( clParser().hasKey("testpipes") )
+	    Threads::sleep( 10 );
+
         ApplicationData::exit( retval_ );
     }
 
@@ -73,6 +79,7 @@ static bool testCmds()
 	machcomm.addFileRedirect( "/dev/null" );
     else
 	machcomm.addPipe().addArg( "head" ).addArg( "-10" );
+
     mRunStandardTest( machcomm.execute(OS::Wait4Finish),
 		      "OS::MachineCommand::execute wait4finish" );
     OS::CommandExecPars execpars( OS::RunInBG );
@@ -93,8 +100,11 @@ static bool testAllPipes()
     OS::CommandExecPars cp( OS::RunInBG );
     cp.createstreams( true );
 
-    mRunStandardTest( cl.execute( cp ), "Launching triple pipes" );
+    mRunStandardTest( cl.execute(cp), "Launching triple pipes" );
     mRunStandardTest( cl.processID(), "Launched process has valid PID" );
+
+    Threads::sleep( 3. );
+
     *cl.getStdInput() << mGoodMessage << " ";
     cl.getStdInput()->flush();
 
@@ -156,16 +166,23 @@ static bool runCommandWithLongOutput()
     //
     const FilePath scriptfp( GetSoftwareDir(0), "testscripts",
 				 "count_to_1000.csh" );
-    BufferString output;
+    BufferString output, errmsg;
     OS::MachineCommand machcomm( scriptfp.fullPath() );
-    machcomm.execute( output );
+    mRunStandardTestWithError( machcomm.execute(output,&errmsg),
+		"Executing count_to_1000.csh script", errmsg );
+    mRunStandardTest( output.size() == 3892,
+		      "Output has expected size" );
 
-    SeparString parsedoutput( output.buf(), '\n' );
-    bool res = true;
+    BufferStringSet parsedoutput;
+    parsedoutput.unCat( output.buf() );
+    bool res = parsedoutput.size() == 1000;
     for ( int idx=0; idx<1000; idx++ )
     {
-	if ( parsedoutput[idx]!=toString( idx+1 ) )
-	    { res = false; break; }
+	if ( parsedoutput.get(idx) != toString(idx+1) )
+	{
+	    res = false;
+	    break;
+	}
     }
 
     mRunStandardTest( res, "Correctly reading long input stream" );
@@ -174,7 +191,7 @@ static bool runCommandWithLongOutput()
 }
 
 
-static void testServer()
+static bool testServer()
 {
     Threads::sleep( 0.5 );
 
@@ -188,12 +205,12 @@ static void testServer()
     {
 	out << mGoodReply << od_endl;
 	od_cerr() << mWrongReply << od_endl;
+	return true;
     }
-    else
-    {
-	out << "I received: " << input.buf() << od_endl;
-	od_cerr() << "Error" << od_endl;
-    }
+
+    out << "I received: " << input.buf() << od_endl;
+    od_cerr() << "Error" << od_endl;
+    return false;
 }
 
 Timer   timer_;
