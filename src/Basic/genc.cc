@@ -36,6 +36,7 @@ ________________________________________________________________________
 #include <string.h>
 
 #include <math.h>
+#include <memory>
 #include <stdlib.h>
 #ifdef __win__
 # include <float.h>
