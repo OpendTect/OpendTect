@@ -183,6 +183,10 @@ public:
     bool		isRowStretchable(int) const;
     void		setSortable(bool);
 
+    void		setCellAlignment(const RowCol&,const Alignment&);
+    void		setColumnAlignment(int col,const Alignment&);
+    void		setTableAlignment(const Alignment&);
+
     void		setTableReadOnly(bool);
     bool		isTableReadOnly() const;
 
