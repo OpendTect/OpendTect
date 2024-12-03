@@ -1145,6 +1145,65 @@ void uiTable::setSortable( bool yn )
 }
 
 
+static Qt::Alignment getQAlignment( const Alignment& al )
+{
+    Qt::AlignmentFlag hal = Qt::AlignHCenter;
+    Qt::AlignmentFlag val = Qt::AlignVCenter;
+    if ( al.hPos() == Alignment::Left )
+	hal = Qt::AlignLeft;
+    else if ( al.hPos() == Alignment::Right )
+	hal = Qt::AlignRight;
+
+    if ( al.vPos() == Alignment::Top )
+	hal = Qt::AlignTop;
+    else if ( al.vPos() == Alignment::Bottom )
+	hal = Qt::AlignBottom;
+
+    return hal | val;
+}
+
+
+void uiTable::setCellAlignment( const RowCol& rc, const Alignment& al )
+{
+    auto* itm = body_->getItem( rc );
+    if ( !itm )
+	return;
+
+    Qt::Alignment flag = getQAlignment( al );
+    itm->setTextAlignment( flag );
+}
+
+
+void uiTable::setColumnAlignment( int col, const Alignment& al )
+{
+    Qt::Alignment flag = getQAlignment( al );
+
+    RowCol rc( 0, col );
+    for ( rc.row()=0; rc.row()<nrRows(); rc.row()++ )
+    {
+	auto* itm = body_->getItem( rc );
+	if ( itm )
+	    itm->setTextAlignment( flag );
+    }
+}
+
+
+void uiTable::setTableAlignment( const Alignment& al )
+{
+    Qt::Alignment flag = getQAlignment( al );
+    RowCol rc;
+    for ( rc.row()=0; rc.row()<nrRows(); rc.row()++ )
+    {
+	for ( rc.col()=0; rc.col()<nrCols(); rc.col()++ )
+	{
+	    auto* itm = body_->getItem( rc );
+	    if ( itm )
+		itm->setTextAlignment( flag );
+	}
+    }
+}
+
+
 void uiTable::setPixmap( const RowCol& rc, const uiPixmap& pm )
 {
     mBlockCmdRec;
