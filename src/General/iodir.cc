@@ -18,7 +18,6 @@ ________________________________________________________________________
 #include "separstr.h"
 #include "surveydisklocation.h"
 
-
 IODir::IODir( const char* dirnm )
     : dirname_(dirnm)
 {
@@ -71,7 +70,7 @@ bool IODir::build()
 
 IOObj* IODir::getMain( const char* dirnm )
 {
-    return doRead( dirnm, 0, 1 );
+    return doRead( dirnm, nullptr, 1 );
 }
 
 
@@ -148,7 +147,11 @@ IOObj* IODir::readOmf( od_istream& strm, const char* dirnm,
     while ( astream.type() != ascistream::EndOfFile )
     {
 	IOObj* obj = IOObj::get(astream,dirnm,dirky.groupID());
-	if ( !obj || obj->isBad() ) { delete obj; continue; }
+	if ( !obj || obj->isBad() )
+	{
+	    delete obj;
+	    continue;
+	}
 
 	const int id = obj->myKey();
 	if ( dirptr )
@@ -184,7 +187,7 @@ IOObj* IODir::getIOObj( const char* _dirnm, const MultiID& ky )
     if ( ky.isUdf() || dirnm.isEmpty() || !File::isDirectory(dirnm) )
 	return nullptr;
 
-    IOObj* subdirobj = doRead( dirnm, 0, ky.groupID() );
+    IOObj* subdirobj = doRead( dirnm, nullptr, ky.groupID() );
     if ( !subdirobj || ky.objectID()==0 )
 	return subdirobj;
 
@@ -248,14 +251,14 @@ bool IODir::isPresent( const MultiID& ky ) const
 IOObj* IODir::get( const MultiID& ky )
 {
     const int idxof = indexOf( ky );
-    return idxof < 0 ? 0 : objs_[idxof];
+    return idxof < 0 ? nullptr : objs_[idxof];
 }
 
 
 const IOObj* IODir::get( const MultiID& ky ) const
 {
     const int idxof = indexOf( ky );
-    return idxof < 0 ? 0 : objs_[idxof];
+    return idxof < 0 ? nullptr : objs_[idxof];
 }
 
 
@@ -334,6 +337,7 @@ bool IODir::commitChanges( const IOObj* ioobj )
 	IOObj* obj = get( ioobj->key() );
 	if ( obj != ioobj )
 	    obj->copyFrom( ioobj );
+
 	return doWrite();
     }
 
@@ -368,6 +372,42 @@ bool IODir::commitChanges( const IOObj* ioobj )
 }
 
 
+bool IODir::commitChanges( const ObjectSet<const IOObj>& objs )
+{
+    if ( objs.isEmpty() )
+	return false;
+
+    update();
+    if ( isBad() )
+	return false;
+
+    for ( const auto* obj : objs )
+    {
+	PtrMan<IOObj> clone = obj->clone();
+	if ( !clone )
+	    return false;
+
+	int sz = objs_.size();
+	bool found = false;
+	for ( int idx=0; idx<sz; idx++ )
+	{
+	    IOObj* ioobj = objs_[idx];
+	    if ( ioobj->key() == clone->key() )
+	    {
+		delete objs_.replace( idx, clone.release() );
+		found = true;
+		break;
+	    }
+	}
+
+	if ( !found )
+	    objs_ += clone.release();
+    }
+
+    return doWrite();
+}
+
+
 void IODir::addObjNoChecks( IOObj* ioobj )
 {
     objs_ += ioobj;
@@ -375,8 +415,22 @@ void IODir::addObjNoChecks( IOObj* ioobj )
 }
 
 
+void IODir::addObjectNoWrite( IOObj* ioobj )
+{
+    if ( ioobj->key().isUdf() || objs_[ioobj] || isPresent(ioobj->key()) )
+	ioobj->setKey( newKey() );
+
+    ensureUniqueName( *ioobj );
+    objs_ += ioobj;
+    setDirName( *ioobj, dirName() );
+}
+
+
 bool IODir::addObj( IOObj* ioobj, bool persist )
 {
+    if ( !ioobj )
+	return false;
+
     if ( persist )
     {
 	update();
@@ -384,12 +438,25 @@ bool IODir::addObj( IOObj* ioobj, bool persist )
 	    return false;
     }
 
-    if ( ioobj->key().isUdf() || objs_[ioobj] || isPresent(ioobj->key()) )
-	ioobj->setKey( newKey() );
+    addObjectNoWrite( ioobj );
+    return persist ? doWrite() : true;
+}
 
-    ensureUniqueName( *ioobj );
-    objs_ += ioobj;
-    setDirName( *ioobj, dirName() );
+
+bool IODir::addObjects( ObjectSet<IOObj>& objs, bool persist )
+{
+    if ( objs.isEmpty() )
+	return false;
+
+    if ( persist )
+    {
+	update();
+	if ( isBad() )
+	    return false;
+    }
+
+    for ( auto* obj : objs )
+	addObjectNoWrite( obj );
 
     return persist ? doWrite() : true;
 }

@@ -32,5 +32,6 @@ set( OD_MODULE_SOURCES
 
 set( OD_MODULE_BATCHPROGS od_process_volume.cc )
 set( OD_TEST_PROGS volprocchain.cc )
+set( OD_BATCH_TEST_PROGS bulkdbio.cc )
 
 OD_INIT_MODULE()

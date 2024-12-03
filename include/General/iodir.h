@@ -58,8 +58,10 @@ public:
 
     bool		addObj(IOObj*,bool immediate_store=true);
 			    //!< after call, IOObj is mine
+    bool		addObjects(ObjectSet<IOObj>&,bool immediate_store=true);
     bool		commitChanges(const IOObj*);
 			    //!< after call, assume pointer will be invalid
+    bool		commitChanges(const ObjectSet<const IOObj>&);
     bool		permRemove(const MultiID&);
     bool		permRemove(const TypeSet<MultiID>&);
     bool		ensureUniqueName(IOObj&);
@@ -94,6 +96,7 @@ private:
     bool		wrOmf(od_ostream&) const;
     IOObj*		get( int idx )		{ return objs_[idx]; }
     IOObj*		get(const MultiID&);
+    void		addObjectNoWrite(IOObj*);
     void		addObjNoChecks(IOObj*);
 
     MultiID		newKey() const;

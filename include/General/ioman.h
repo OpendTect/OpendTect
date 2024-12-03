@@ -106,7 +106,10 @@ public:
     void		getNewEntry(CtxtIOObj&,bool newistmp=false,
 				 int translidxingroup=-1);
 				//!< will create a new entry if necessary
+    void		getNewEntries(ObjectSet<CtxtIOObj>&,bool newistmp=false,
+				 int translidxingroup=-1);
     bool		commitChanges(const IOObj&);
+    bool		commitChanges(const ObjectSet<const IOObj>&);
     bool		permRemove(const MultiID&);
 				//!< Removes only entry in IODir
     bool		permRemove(const TypeSet<MultiID>&);
@@ -167,16 +170,17 @@ public:
 
 private:
 
-    enum State		{ Bad, NeedInit, Good };
+    enum State		    { Bad, NeedInit, Good };
 
-    SurveyDiskLocation	rootdir_;
-    SurveyDiskLocation* prevrootdir_ = nullptr;
-    State		state_ = NeedInit;
-    IODir*		dirptr_ = nullptr;
-    int			curlvl_;
-    uiString		msg_;
-    bool		survchgblocked_ = false;
-    mutable Threads::Lock lock_;
+    SurveyDiskLocation	    rootdir_;
+    SurveyDiskLocation*     prevrootdir_ = nullptr;
+    State		    state_ = NeedInit;
+    IODir*		    dirptr_ = nullptr;
+    ManagedObjectSet<IODir> dirptrs_;
+    int			    curlvl_;
+    uiString		    msg_;
+    bool		    survchgblocked_ = false;
+    mutable Threads::Lock   lock_;
 
 			IOMan(const FilePath& rootdir);
 			~IOMan();
@@ -198,12 +202,20 @@ private:
     bool		doReloc(const MultiID&,Translator*,
 				IOStream&,IOStream&);
     IOObj*		crWriteIOObj(const CtxtIOObj&,const MultiID&,int) const;
+    const IOObj*	getIOObjFromCtxt(const CtxtIOObj&,bool isnew,
+					 bool newistmp,int translidxingroup);
     static bool		writeSettingsSurveyFile(const char* dirnm,uiRetVal&);
     void		applClosing() { applicationClosing.trigger(); }
     void		getObjEntry(CtxtIOObj&,bool isnew, bool newistmp=false,
 				 int translidxingroup=-1);
+    void		getObjEntries(const ObjectSet<CtxtIOObj>&,bool isnew,
+				 bool newistmp=false,int translidxingroup=-1);
     void		getIdsByGroup(const TypeSet<MultiID>&,
 				      ObjectSet<TypeSet<MultiID>>&);
+    void		getObjsByGroup(const ObjectSet<const IOObj>&,
+				      ObjectSet<ObjectSet<const IOObj>>&);
+    void		getCtxtObjsByGroup(const ObjectSet<CtxtIOObj>&,
+				      ObjectSet<ObjectSet<CtxtIOObj>>&);
 
     friend class	SurveyDataTreePreparer;
     friend class	BatchProgram;
