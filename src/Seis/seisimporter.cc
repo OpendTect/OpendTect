@@ -31,14 +31,14 @@ SeisImporter::SeisImporter( SeisImporter::Reader* r, SeisTrcWriter& w,
     : Executor("Importing seismic data")
     , rdr_(r)
     , wrr_(w)
-    , geomtype_(gt)
+    , maxqueuesize_(100) // arbitrary, but more seems to lower performance
+    , lock_(*new Threads::ConditionVar)
     , buf_(*new SeisTrcBuf(false))
     , trc_(*new SeisTrc)
-    , state_( Seis::isPS(gt) ? ReadWrite : ReadBuf )
-    , sortanal_(new BinIDSortingAnalyser(Seis::is2D(gt)))
     , prevbid_(*new BinID(mUdf(int),mUdf(int)))
-    , lock_(*new Threads::ConditionVar)
-    , maxqueuesize_(100) // arbitrary, but more seems to lower performance
+    , sortanal_(new BinIDSortingAnalyser(Seis::is2D(gt)))
+    , geomtype_(gt)
+    , state_( Seis::isPS(gt) ? ReadWrite : ReadBuf )
 {
     queueid_ = Threads::WorkManager::twm().addQueue(
 					Threads::WorkManager::SingleThread,
@@ -371,8 +371,8 @@ bool SeisImporter::sortingOk( const SeisTrc& trc )
 
 SeisStdImporterReader::SeisStdImporterReader( const SeisStoreAccess::Setup& su,
 					      const char* nm )
-    : rdr_(*new SeisTrcReader(su))
-    , name_(nm)
+    : name_(nm)
+    , rdr_(*new SeisTrcReader(su))
 {
     totalnr_ = rdr_.expectedNrTraces();
 }

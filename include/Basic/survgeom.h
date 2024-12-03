@@ -101,11 +101,10 @@ public:
 
 /*!\brief Makes geometries accessible from a geometry ID, or a MultiID.  */
 
-mExpClass(Basic) GeometryManager
+mExpClass(Basic) GeometryManager : public CallBacker
 {
 mODTextTranslationClass(GeometryManager)
 public:
-
 				GeometryManager();
 				~GeometryManager();
 
@@ -140,7 +139,9 @@ public:
     Pos::GeomID			findRelated(const Geometry&,
 					    Geometry::RelationType&,
 					    bool usezrg) const;
-				//!<Returns cUndefGeomID() if none found
+				//!<Returns GeomID::udf() if none found
+
+    Notifier<GeometryManager>	geometryRead;
 
     mDeprecated("Use Pos::GeomID::udf()")
     static Pos::GeomID		cUndefGeomID()	{ return Pos::GeomID::udf(); }
@@ -199,6 +200,7 @@ public:
 						{ return OD::Geom3D; }
 
 private:
+
     std::unordered_map<std::string,int>		namemap_;
     std::unordered_map<int,int>			geomidmap_;
 };

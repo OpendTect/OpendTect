@@ -90,7 +90,6 @@ public:
     const TrcKeyZSampling*		getPossibleVolume() const
 				{ return possiblevolume_; }
     int				getTotalNrPos(bool) const;
-    void			setCurLineName(const char*);
     virtual void		adjust2DLineStoredVolume();
     virtual Pos::GeomID		getGeomID() const;
     virtual void		setGeomID(Pos::GeomID);
@@ -174,10 +173,8 @@ public:
 				//!<input cubes and thus not delivering
 				//!<adequate cs automaticly
     virtual void		updateCSIfNeeded(TrcKeyZSampling&) const {}
-    virtual bool		compDistBetwTrcsStats(bool force=false);
     float			getApplicableCrlDist(bool) const;
-    virtual float		getDistBetwTrcs(bool,
-						const char* linenm =0) const;
+    float			getDistBetwTrcs(const Pos::GeomID&) const;
     BinID			getElementStepout() const;
 
 protected:

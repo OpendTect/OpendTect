@@ -22,6 +22,7 @@ set( OD_MODULE_SOURCES
 	faultsticksurface.cc
 	geeditor.cc
 	geeditorimpl.cc
+	geom2dinit.cc
 	geom2dintersections.cc
 	geomelement.cc
 	horizon2dline.cc

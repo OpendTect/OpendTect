@@ -122,6 +122,12 @@ NotSavedPrompter::NotSavedPrompter()
 }
 
 
+NotSavedPrompter::~NotSavedPrompter()
+{
+    detachAllNotifiers();
+}
+
+
 void NotSavedPrompter::closeQueueCB( CallBacker* cb )
 {
     Threads::WorkManager::twm().removeQueue( queueid_, false );

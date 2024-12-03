@@ -543,7 +543,6 @@ void uiSeis2DLineNameSel::fillWithAll()
 
     BufferStringSet lnms;
     TypeSet<Pos::GeomID> geomids;
-    Survey::GMAdmin().updateGeometries( nullptr );
     Survey::GM().getList( lnms, geomids, true );
     lnms.sort();
     fld_->addItems( lnms );
@@ -665,8 +664,10 @@ uiSeis2DMultiLineSelDlg::uiSeis2DMultiLineSelDlg( uiParent* p,
 				OD::ChoiceMode cm )
     : uiDialog( p, uiDialog::Setup(tr("Select 2D Lines"),mNoDlgTitle,
 				   mODHelpKey(mSeis2DMultiLineSelDlgHelpID) ) )
-    , maxtrcrgs_(maxtrcrgs), maxzrgs_(maxzrgs)
-    , trcrgs_(maxtrcrgs), zrgs_(maxzrgs)
+    , trcrgs_(maxtrcrgs)
+    , zrgs_(maxzrgs)
+    , maxtrcrgs_(maxtrcrgs)
+    , maxzrgs_(maxzrgs)
 {
     uiListBox::Setup su( cm, tr("Select Lines") );
     lnmsfld_ = new uiListBox( this, su, "linenames" );

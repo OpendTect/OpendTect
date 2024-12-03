@@ -14,6 +14,7 @@ ________________________________________________________________________
 #include "binidvalset.h"
 #include "seisinfo.h"
 #include "seisselectionimpl.h"
+#include "survgeom2d.h"
 
 #include <limits.h>
 
@@ -21,7 +22,7 @@ ________________________________________________________________________
 namespace Attrib
 {
 
-Processor::Processor( Desc& desc , const char* lk, uiString& err )
+Processor::Processor( Desc& desc , const Pos::GeomID& geomid, uiString& err )
     : Executor("Attribute Processor")
     , moveonly(this)
     , desc_(&desc)
@@ -33,7 +34,7 @@ Processor::Processor( Desc& desc , const char* lk, uiString& err )
 
     is2d_ = desc_->is2D();
     if ( is2d_ )
-	provider_->setCurLineName( lk );
+	provider_->setGeomID( geomid );
 }
 
 
@@ -58,10 +59,10 @@ void Processor::addOutput( Output* output )
 }
 
 
-void Processor::setLineName( const char* lnm )
+void Processor::setGeomID( const Pos::GeomID& geomid )
 {
     if ( provider_ && is2d_ )
-	provider_->setCurLineName( lnm );
+	provider_->setGeomID( geomid );
 }
 
 
@@ -262,20 +263,21 @@ void Processor::init()
     if ( is2d_ )
     {
 	provider_->adjust2DLineStoredVolume();
-	provider_->compDistBetwTrcsStats();
-	float maxdist = provider_->getDistBetwTrcs(true);
+	const Pos::GeomID geomid = provider_->getGeomID();
+	mDynamicCastGet(const Survey::Geometry2D*,geom2d,
+			Survey::GM().getGeometry(geomid))
+	const float avgdist = geom2d ? geom2d->averageTrcDist() : mUdf(float);
 	mDynamicCastGet( Trc2DVarZStorOutput*, trcvarzoutp, outputs_[0] );
 	if ( trcvarzoutp )
-	    if ( trcvarzoutp ) trcvarzoutp->setMaxDistBetwTrcs( maxdist );
+	    trcvarzoutp->setMaxDistBetwTrcs( avgdist );
 	mDynamicCastGet( TableOutput*, taboutp, outputs_[0] );
 	if ( taboutp )
 	{
-	    taboutp->setMaxDistBetwTrcs( maxdist );
-	    float mediandist = provider_->getDistBetwTrcs(false);
-	    taboutp->setMedianDistBetwTrcs( mediandist );
+	    taboutp->setMaxDistBetwTrcs( avgdist );
+	    taboutp->setMedianDistBetwTrcs( avgdist );
 	}
-
     }
+
     computeAndSetRefZStepAndZ0();
     provider_->prepPriorToBoundsCalc();
 

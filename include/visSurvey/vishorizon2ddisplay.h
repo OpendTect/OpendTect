@@ -23,7 +23,6 @@ ________________________________________________________________________
 namespace EM { class Horizon2D; }
 class ZAxisTransform;
 class Line2DInterSection;
-class Line2DInterSectionSet;
 
 namespace visSurvey
 {
@@ -112,12 +111,6 @@ protected:
     void			fillPar(IOPar&) const override;
     bool			usePar(const IOPar&) override;
 
-    bool			calcLine2DIntersections(
-						const TypeSet<Pos::GeomID>&,
-						    Line2DInterSectionSet&);
-
-    void			calcLine2DInterSectionSet();
-
     void			updateIntersectionMarkers(
 					const ObjectSet<const Seis2DDisplay>&);
     void			updateIntersectionPoint(const Pos::GeomID,
@@ -133,7 +126,6 @@ protected:
     RefMan<visBase::MarkerSet>		intersectmkset_;
     bool				updateintsectmarkers_	= true;
     int					nr2dlines_		= 0;
-    Line2DInterSectionSet*		ln2dset_		= nullptr;
     RefMan<visBase::PointSet>		selections_;
 
     RefMan<mVisTrans>			translation_;

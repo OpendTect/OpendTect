@@ -9,42 +9,40 @@ ________________________________________________________________________
 
 #include "horflatvieweditor2d.h"
 
-#include "attribstorprovider.h"
 #include "emhorizon2d.h"
 #include "emhorizonpainter2d.h"
-#include "emobject.h"
 #include "emmanager.h"
+#include "emobject.h"
 #include "emseedpicker.h"
 #include "emtracker.h"
 #include "flatauxdataeditor.h"
 #include "horizon2dseedpicker.h"
 #include "ioman.h"
-#include "ioobj.h"
-#include "linesetposinfo.h"
-#include "mouseevent.h"
+#include "keyboardevent.h"
 #include "mousecursor.h"
+#include "mouseevent.h"
 #include "mpeengine.h"
 #include "posinfo2d.h"
 #include "sectionadjuster.h"
 #include "sectiontracker.h"
 #include "survgeom2d.h"
 #include "survinfo.h"
-#include "undo.h"
 #include "uiflatviewer.h"
 #include "uigraphicsview.h"
-#include "keyboardevent.h"
 #include "uimsg.h"
 #include "uistrings.h"
+#include "undo.h"
+
 
 namespace MPE
 {
 
 HorizonFlatViewEditor2D::HorizonFlatViewEditor2D( FlatView::AuxDataEditor* ed,
 						  const EM::ObjectID& emid )
-    : editor_(ed)
+    : updseedpkingstatus_(this)
     , emid_(emid)
     , horpainter_(new EM::HorizonPainter2D(ed->viewer(),emid))
-    , updseedpkingstatus_(this)
+    , editor_(ed)
 {
     curcs_.setEmpty();
     mAttachCB( horpainter_->abouttorepaint_,
@@ -155,7 +153,6 @@ bool HorizonFlatViewEditor2D::seedEnable() const
 
 void HorizonFlatViewEditor2D::paint()
 {
-    horpainter_->setLine2DInterSectionSet( line2dintersectionset_ );
     horpainter_->paint();
     fillAuxInfoContainer();
 }

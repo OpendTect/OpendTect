@@ -11,7 +11,7 @@ ________________________________________________________________________
 #include "geometrymod.h"
 
 #include "bufstringset.h"
-#include "executor.h"
+#include "geometry.h"
 #include "posgeomid.h"
 #include "paralleltask.h"
 #include "threadlock.h"
@@ -29,25 +29,24 @@ public:
 };
 
 
-mExpClass(Geometry) BendPointFinder2DGeomSet : public Executor
+mExpClass(Geometry) BendPointFinder2DGeomSet : public ParallelTask
 { mODTextTranslationClass(BendPointFinder2DGeomSet)
 public:
 			BendPointFinder2DGeomSet(const TypeSet<Pos::GeomID>&,
 						 ObjectSet<BendPoints>&);
 			~BendPointFinder2DGeomSet();
 
-    od_int64		nrDone() const override;
-    od_int64		totalNr() const override;
+    od_int64		nrIterations() const override;
     uiString		uiMessage() const override;
     uiString		uiNrDoneText() const override;
 
 protected:
 
-    int			nextStep() override;
+    bool		doWork(od_int64,od_int64,int) override;
 
+    Threads::Lock	lock_;
     const TypeSet<Pos::GeomID>&	geomids_;
     ObjectSet<BendPoints>&	bendptset_;
-    int				curidx_				= 0;
 };
 
 
@@ -130,10 +129,38 @@ protected:
     ObjectSet<const Survey::Geometry2D>	geoms_;
     const ObjectSet<BendPoints>&	bendptset_;
     Line2DInterSectionSet&		lsintersections_;
+    TypeSet<Geom::Rectangle<double>>	bboxs_;
 
     bool		doWork(od_int64 start,
 			       od_int64 stop,int threadid) override;
     bool		doFinish(bool success) override;
     Threads::Lock	lock_;
     int			counter_;
+};
+
+
+mExpClass(Basic) Line2DIntersectionManager final
+{
+public:
+    virtual			~Line2DIntersectionManager();
+//				mOD_DisableCopy(Line2DIntersectionManager)
+
+    static const Line2DIntersectionManager&	instance();
+    static Line2DIntersectionManager&	instanceAdmin();
+
+    bool				computeBendpoints(TaskRunner* =nullptr);
+    bool				compute(TaskRunner* =nullptr);
+    const Line2DInterSectionSet&	intersections() const;
+    const ObjectSet<BendPoints>&	bendpoints() const;
+
+    int				indexOf(const Pos::GeomID&) const;
+    const BendPoints*		getBendPoints(const Pos::GeomID&) const;
+    const Line2DInterSection*	getIntersection(const Pos::GeomID&) const;
+
+private:
+					Line2DIntersectionManager();
+
+    Line2DInterSectionSet		intersections_;
+    ManagedObjectSet<BendPoints>	bendpointset_;
+    std::unordered_map<int,int>		geomidmap_;
 };

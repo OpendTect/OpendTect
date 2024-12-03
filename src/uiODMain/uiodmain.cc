@@ -46,6 +46,7 @@ ________________________________________________________________________
 #include "file.h"
 #include "filepath.h"
 #include "genc.h"
+#include "geom2dinit.h"
 #include "ioman.h"
 #include "ioobj.h"
 #include "moddepmgr.h"
@@ -679,6 +680,8 @@ void uiODMain::afterStartupCB( CallBacker* )
 {
     uiServiceClientMgr::setFor( *this );
     checkUpdateAvailable();
+    auto& geom2dinit = Geom2DInit::getInstance();
+    geom2dinit.start();
 }
 
 

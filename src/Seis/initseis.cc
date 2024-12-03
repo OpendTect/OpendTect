@@ -42,7 +42,7 @@ namespace Seis
 
 static void seisUpdateGeoms( CallBacker* )
 {
-    Survey::GMAdmin().updateGeometries( nullptr );
+//    Survey::GMAdmin().updateGeometries( nullptr );
     //Those using a transl from Seis.
 }
 

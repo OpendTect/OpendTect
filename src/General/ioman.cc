@@ -269,7 +269,6 @@ uiRetVal IOMan::init( SurveyInfo* nwsi )
 	to( MultiID::udf(), true );
     }
 
-    Survey::GMAdmin().fillGeometries( nullptr );
     return uirv;
 }
 

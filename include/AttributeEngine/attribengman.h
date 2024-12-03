@@ -48,10 +48,11 @@ public:
     Processor*		usePar(const IOPar&,DescSet&,
 			       const char* linename,uiString&);
 
-    static Processor*	createProcessor(const DescSet&,const char*,
+    static Processor*	createProcessor(const DescSet&,const Pos::GeomID&,
 					const DescID&,uiString& errmsg);
     static bool		getPossibleVolume(DescSet&,TrcKeyZSampling&,
-					  const char* linename,const DescID&);
+					  const Pos::GeomID& geomid,
+					  const DescID&);
     static void		addNLADesc(const char*,DescID&,DescSet&,int,
 				   const NLAModel*,uiString&);
 

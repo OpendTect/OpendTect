@@ -10,14 +10,11 @@ ________________________________________________________________________
 #include "vishorizon2ddisplay.h"
 
 #include "bendpointfinder.h"
-#include "ctxtioobj.h"
 #include "emhorizon2d.h"
 #include "emioobjinfo.h"
 #include "emmanager.h"
 #include "geom2dintersections.h"
-#include "iodir.h"
 #include "iopar.h"
-#include "keystrs.h"
 #include "rowcolsurface.h"
 #include "seisioobjinfo.h"
 #include "selector.h"
@@ -60,7 +57,6 @@ Horizon2DDisplay::~Horizon2DDisplay()
 
     removeEMStuff();
     intersectmkset_ = nullptr;
-    delete ln2dset_;
     selections_ = nullptr;
     translation_ = nullptr;
     emchangedata_.clearData();
@@ -171,7 +167,7 @@ void Horizon2DDisplay::setLineStyle( const OD::LineStyle& lst )
 }
 
 
-bool Horizon2DDisplay::addSection( const EM::SectionID& sid, TaskRunner* taskr )
+bool Horizon2DDisplay::addSection( const EM::SectionID& sid, TaskRunner* )
 {
     RefMan<visBase::PolyLine3D> pl = visBase::PolyLine3D::create();
     pl->setDisplayTransformation( transformation_.ptr() );
@@ -230,12 +226,12 @@ Horizon2DDisplayUpdater( const Geometry::RowColSurface* rcs,
 		ZAxisTransform* zaxt, const TypeSet<Pos::GeomID>& geomids,
 		TypeSet<int>& volumeofinterestids)
     : surf_(rcs)
+    , lineranges_(lr)
     , lines_(shape)
     , points_(points)
-    , lineranges_(lr)
-    , scale_(1,1,SI().zScale())
     , zaxt_(zaxt)
     , geomids_(geomids)
+    , scale_(1,1,SI().zScale())
     , crdidx_(0)
     , volumeofinterestids_(volumeofinterestids)
 {
@@ -297,7 +293,7 @@ bool doFinish( bool res ) override
 }
 
 
-bool doWork( od_int64 start, od_int64 stop, int ) override
+bool doWork( od_int64 /*start*/, od_int64 /*stop*/, int ) override
 {
     RowCol rc;
     while ( true )
@@ -597,11 +593,6 @@ void Horizon2DDisplay::updateIntersectionMarkers(
 			    const ObjectSet<const Seis2DDisplay>& seis2dlist )
 {
     intersectmkset_->clearMarkers();
-    calcLine2DInterSectionSet();
-
-    if ( !ln2dset_ )
-	return;
-
     mDynamicCastGet( const EM::Horizon2D*, hor2d, emobject_.ptr() )
     if ( !hor2d )
 	return;
@@ -611,9 +602,11 @@ void Horizon2DDisplay::updateIntersectionMarkers(
     for ( int idx=0; idx<nrlns; idx++ )
 	geomids += hor2d->geometry().geomID(idx);
 
-    for ( int idx=0; idx<ln2dset_->size(); idx++ )
+    const auto& l2dim = Line2DIntersectionManager::instanceAdmin();
+    const auto& ln2dset = l2dim.intersections();
+    for ( int idx=0; idx<ln2dset.size(); idx++ )
     {
-	const Line2DInterSection* intsect = (*ln2dset_)[idx];
+	const Line2DInterSection* intsect = ln2dset[idx];
 	if ( !intsect )
 	    continue;
 
@@ -668,40 +661,6 @@ void Horizon2DDisplay::updateIntersectionPoint( const Pos::GeomID lngid,
 		hor2d->getPosAttrMarkerStyle(EM::EMObject::sSeedNode()).size_;
 	intersectmkset_->setScreenSize( mCast(float,sz) );
     }
-}
-
-
-bool Horizon2DDisplay::calcLine2DIntersections(
-					const TypeSet<Pos::GeomID>& geom2dids,
-					Line2DInterSectionSet& intsectset )
-{
-    ManagedObjectSet<BendPoints> bendpoints;
-    BendPointFinder2DGeomSet bpfinder( geom2dids, bendpoints );
-    bpfinder.execute();
-    intsectset.erase();
-    Line2DInterSectionFinder intfinder( bendpoints, intsectset );
-    intfinder.execute();
-
-    return intsectset.size()>0;
-}
-
-
-void Horizon2DDisplay::calcLine2DInterSectionSet()
-{
-    const IODir iodir( IOObjContext::getStdDirData(IOObjContext::Geom)->id_ );
-    const ObjectSet<IOObj>& ioobjs = iodir.getObjs();
-    const bool needcalc = nr2dlines_ != ioobjs.size() ? true : false;
-    nr2dlines_ = ioobjs.size();
-
-    if ( !needcalc )
-	return;
-
-    BufferStringSet lnms;
-    TypeSet<Pos::GeomID> geom2dids;
-    SeisIOObjInfo::getLinesWithData( lnms, geom2dids );
-    delete ln2dset_;
-    ln2dset_ = new Line2DInterSectionSet;
-    calcLine2DIntersections( geom2dids, *ln2dset_ );
 }
 
 
@@ -865,7 +824,7 @@ bool Horizon2DDisplay::activateTracker()
 
 
 bool Horizon2DDisplay::setZAxisTransform( ZAxisTransform* zat,
-					  TaskRunner* taskr )
+					  TaskRunner* )
 {
     if ( zaxistransform_ )
     {

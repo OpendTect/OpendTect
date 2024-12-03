@@ -49,9 +49,6 @@ public:
 					RegularSeisDataPack*) const override;
     bool		needStoredInput() const override	{ return true; }
     void		getCompNames(BufferStringSet&) const override;
-    float		getDistBetwTrcs(bool,
-					const char* linenm =0) const override;
-    bool		compDistBetwTrcsStats(bool force=false) override;
     BinID		getElementStepoutStoredSpecial() const;
 
 protected:

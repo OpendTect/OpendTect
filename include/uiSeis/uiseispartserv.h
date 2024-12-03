@@ -52,12 +52,12 @@ public:
     MultiID		getDefaultDataID(bool is2d) const;
     bool		select2DSeis(MultiID&);
     bool		select2DLines(TypeSet<Pos::GeomID>&,int& action);
-    static void		get2DStoredAttribs(const char* linenm,
+    static void		get2DStoredAttribs(const Pos::GeomID&,
 				       BufferStringSet& attribs,int steerpol=2);
-    void		get2DZdomainAttribs(const char* linenm,
+    void		get2DZdomainAttribs(const Pos::GeomID&,
 					    const char* zdomainstr,
 					    BufferStringSet& attribs);
-    bool		create2DOutput(const MultiID&,const char* linekey,
+    bool		create2DOutput(const MultiID&,const Pos::GeomID&,
 				       TrcKeyZSampling&,SeisTrcBuf&);
     void		getStoredGathersList(bool for3d,BufferStringSet&) const;
     void		storeRlnAs2DLine(const Geometry::RandomLine&) const;

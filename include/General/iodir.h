@@ -104,6 +104,8 @@ private:
     friend class	IOMan;
     friend class	IOObj;
 
+    std::unordered_map<int,int>		objidmap_;
+
 public:
 
     void		update();

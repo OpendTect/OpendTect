@@ -7,14 +7,16 @@ ________________________________________________________________________
 
 -*/
 
+#include "survgeom.h"
 #include "survgeom2d.h"
-#include "posinfo2dsurv.h"
 
 #include "genc.h"
 #include "keystrs.h"
 #include "multiid.h"
+#include "posinfo2dsurv.h"
 #include "survinfo.h"
 #include "task.h"
+#include "threadwork.h"
 
 
 namespace Survey
@@ -177,13 +179,16 @@ const Geometry2D* Geometry::as2D() const
 
 
 GeometryManager::GeometryManager()
-    : hasduplnms_(false)
+    : geometryRead(this)
+    , hasduplnms_(false)
 {}
+
 
 GeometryManager::~GeometryManager()
 {
     deepUnRef( geometries_ );
 }
+
 
 int GeometryManager::nrGeometries() const
 {
@@ -647,6 +652,7 @@ bool GeometryManager::fillGeometries( TaskRunner* taskr )
 	geomidmap_[geom->getID().asInt()] = idx;
     }
 
+    geometryRead.trigger();
     return true;
 }
 

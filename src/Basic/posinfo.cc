@@ -28,7 +28,8 @@ int PosInfo::LineData::nearestSegment( double x ) const
     if ( segments_.size() < 1 )
 	return -1;
 
-    int ret = 0; float mindist = mUdf(float);
+    int ret = 0;
+    float mindist = mUdf(float);
     for ( int iseg=0; iseg<segments_.size(); iseg++ )
     {
 	const PosInfo::LineData::Segment& seg = segments_[iseg];
@@ -36,16 +37,24 @@ int PosInfo::LineData::nearestSegment( double x ) const
 	const bool isrev = seg.step_ < 0;
 	const float hstep = (float)seg.step_ * 0.5f;
 	float dist;
-	if ( (isrev && x > seg.start_+hstep) || (!isrev && x < seg.start_-hstep) )
+	if ( (isrev && x>seg.start_+hstep) || (!isrev && x<seg.start_-hstep) )
 	    dist = (float)( x - seg.start_ );
 	else if ( (isrev && x<seg.stop_-hstep) || (!isrev && x>seg.stop_+hstep))
 	    dist = (float)( x - seg.stop_ );
 	else
-	    { ret = iseg; break; }
+	{
+	    ret = iseg;
+	    break;
+	}
 
-	if ( dist < 0 ) dist = -dist;
+	if ( dist < 0 )
+	    dist = -dist;
+
 	if ( dist < mindist )
-	    { ret = iseg; mindist = dist; }
+	{
+	    ret = iseg;
+	    mindist = dist;
+	}
     }
 
     return ret;
@@ -73,7 +82,8 @@ int PosInfo::LineData::segmentOf( int nr ) const
 
 Interval<int> PosInfo::LineData::range() const
 {
-    if ( segments_.isEmpty() ) return Interval<int>( mUdf(int), mUdf(int) );
+    if ( segments_.isEmpty() )
+	return Interval<int>( mUdf(int), mUdf(int) );
 
     Interval<int> ret( segments_[0].start_, segments_[0].start_ );
     for ( int idx=0; idx<segments_.size(); idx++ )
@@ -175,6 +185,42 @@ void PosInfo::LineData::merge( const PosInfo::LineData& ld1, bool inc )
 }
 
 
+// PosInfo::CubeData
+PosInfo::CubeData::CubeData()
+{}
+
+
+PosInfo::CubeData::CubeData( const BinID& start, const BinID& stop,
+			     const BinID& step )
+{
+    generate(start,stop,step);
+}
+
+
+PosInfo::CubeData::CubeData( const TrcKeySampling& hs )
+{
+    generate( hs.start_, hs.stop_, hs.step_ );
+}
+
+
+PosInfo::CubeData::CubeData( const CubeData& cd )
+    : ManagedObjectSet<LineData>()
+{
+    *this = cd;
+}
+
+
+PosInfo::CubeData::~CubeData()
+{}
+
+
+PosInfo::CubeData& PosInfo::CubeData::operator=( const CubeData& cd )
+{
+    copyContents(cd);
+    return *this;
+}
+
+
 void PosInfo::CubeData::generate( BinID start, BinID stop, BinID step,
 				  bool allowreversed )
 {
@@ -234,7 +280,8 @@ int PosInfo::CubeData::totalSizeInside( const TrcKeySampling& hrg ) const
 	    const PosInfo::LineData::Segment& segment =
 		linedata->segments_[idy];
 
-	    for ( int crl=segment.start_; crl<=segment.stop_; crl+=segment.step_ )
+	    for ( int crl=segment.start_; crl<=segment.stop_;
+					  crl+=segment.step_ )
 	    {
 		if ( hrg.crlOK(crl) )
 		    totalsize ++;
@@ -251,6 +298,7 @@ int PosInfo::CubeData::indexOf( int lnr, int* newidx ) const
     for ( int idx=0; idx<size(); idx++ )
 	if ( (*this)[idx]->linenr_ == lnr )
 	    return idx;
+
     return -1;
 }
 
@@ -259,7 +307,12 @@ int PosInfo::SortedCubeData::indexOf( int reqlnr, int* newidx ) const
 {
     const int nrld = size();
     if ( nrld < 1 )
-	{ if ( newidx ) *newidx = 0; return -1; }
+    {
+	if ( newidx )
+	    *newidx = 0;
+
+	return -1;
+    }
 
     int loidx = 0;
     int lnr = (*this)[loidx]->linenr_;
@@ -269,7 +322,12 @@ int PosInfo::SortedCubeData::indexOf( int reqlnr, int* newidx ) const
 	return reqlnr == lnr ? loidx : -1;
     }
     else if ( nrld == 1 )
-	{ if ( newidx ) *newidx = 1; return -1; }
+    {
+	if ( newidx )
+	    *newidx = 1;
+
+	return -1;
+    }
 
     int hiidx = nrld - 1;
     lnr = (*this)[hiidx]->linenr_;
@@ -279,7 +337,12 @@ int PosInfo::SortedCubeData::indexOf( int reqlnr, int* newidx ) const
 	return reqlnr == lnr ? hiidx : -1;
     }
     else if ( nrld == 2 )
-	{ if ( newidx ) *newidx = 1; return -1; }
+    {
+	if ( newidx )
+	    *newidx = 1;
+
+	return -1;
+    }
 
     while ( hiidx - loidx > 1 )
     {
@@ -308,7 +371,10 @@ void PosInfo::CubeData::limitTo( const TrcKeySampling& hsin )
     {
 	PosInfo::LineData* ld = (*this)[iidx];
 	if ( !hs.inlOK(ld->linenr_) )
-	{ removeSingle( iidx ); continue; }
+	{
+	    removeSingle( iidx );
+	    continue;
+	}
 
 	int nrvalidsegs = 0;
 	for ( int iseg=ld->segments_.size()-1; iseg>=0; iseg-- )
@@ -318,14 +384,20 @@ void PosInfo::CubeData::limitTo( const TrcKeySampling& hsin )
 	    int segstart = is2d && isrev ? seg.stop_ : seg.start_;
 	    int segstop = is2d && isrev ? seg.start_ : seg.stop_;
 	    if ( segstart > hs.stop_.crl() || segstop < hs.start_.crl() )
-	    { ld->segments_.removeSingle( iseg ); continue; }
+	    {
+		ld->segments_.removeSingle( iseg );
+		continue;
+	    }
 
 	    if ( is2d && isrev )
 		seg.step_ = -1*seg.step_;
 
 	    seg.step_ = Math::LCMOf( seg.step_, hs.step_.crl() );
 	    if ( !seg.step_ )
-	    { ld->segments_.removeSingle( iseg ); continue; }
+	    {
+		ld->segments_.removeSingle( iseg );
+		continue;
+	    }
 
 	    if ( segstart < hs.start_.crl() )
 	    {
@@ -382,10 +454,14 @@ bool PosInfo::CubeData::includes( const BinID& bid ) const
 
 bool PosInfo::CubeData::includes( int lnr, int crl ) const
 {
-    int ilnr = indexOf( lnr ); if ( ilnr < 0 ) return false;
+    const int ilnr = indexOf( lnr );
+    if ( ilnr < 0 )
+	return false;
+
     for ( int iseg=0; iseg<(*this)[ilnr]->segments_.size(); iseg++ )
 	if ( (*this)[ilnr]->segments_[iseg].includes(crl,false) )
 	    return true;
+
     return false;
 }
 
@@ -423,15 +499,21 @@ bool PosInfo::CubeData::getInlRange( StepInterval<int>& rg,
 				     bool wantsorted ) const
 {
     const int sz = size();
-    if ( sz < 1 ) return false;
+    if ( sz < 1 )
+	return false;
+
     rg.start_ = rg.stop_ = (*this)[0]->linenr_;
     if ( sz == 1 )
-	{ rg.step_ = 1; return true; }
+    {
+	rg.step_ = 1;
+	return true;
+    }
 
     int prevlnr = rg.stop_ = (*this)[1]->linenr_;
     rg.step_ = rg.stop_ - rg.start_;
     bool isreg = rg.step_ != 0;
-    if ( !isreg ) rg.step_ = 1;
+    if ( !isreg )
+	rg.step_ = 1;
 
     for ( int idx=2; idx<sz; idx++ )
     {
@@ -459,7 +541,8 @@ bool PosInfo::CubeData::getCrlRange( StepInterval<int>& rg,
 				     bool wantsorted ) const
 {
     const int sz = size();
-    if ( sz < 1 ) return false;
+    if ( sz < 1 )
+	return false;
 
     const PosInfo::LineData* ld = (*this)[0];
     rg = ld->segments_.size() ? ld->segments_[0] : StepInterval<int>(0,0,1);
@@ -505,9 +588,11 @@ bool PosInfo::CubeData::isValid( const PosInfo::CubeDataPos& cdp ) const
 {
     if ( cdp.lidx_ < 0 || cdp.lidx_ >= size() )
 	return false;
+
     const TypeSet<LineData::Segment>& segs( (*this)[cdp.lidx_]->segments_ );
     if ( cdp.segnr_ < 0 || cdp.segnr_ >= segs.size() )
 	return false;
+
     return cdp.sidx_ >= 0 && cdp.sidx_ <= segs[cdp.segnr_].nrSteps();
 }
 
@@ -534,21 +619,20 @@ bool PosInfo::CubeData::toNext( PosInfo::CubeDataPos& cdp ) const
 	cdp.toStart();
 	return isValid(cdp);
     }
-    else
+
+    cdp.sidx_++;
+    if ( cdp.sidx_ > (*this)[cdp.lidx_]->segments_[cdp.segnr_].nrSteps() )
     {
-	cdp.sidx_++;
-	if ( cdp.sidx_ > (*this)[cdp.lidx_]->segments_[cdp.segnr_].nrSteps() )
+	cdp.segnr_++; cdp.sidx_ = 0;
+	if ( cdp.segnr_ >= (*this)[cdp.lidx_]->segments_.size() )
 	{
-	    cdp.segnr_++; cdp.sidx_ = 0;
-	    if ( cdp.segnr_ >= (*this)[cdp.lidx_]->segments_.size() )
-	    {
-		cdp.lidx_++; cdp.segnr_ = 0;
-		if ( cdp.lidx_ >= size() )
-		    return false;
-	    }
+	    cdp.lidx_++; cdp.segnr_ = 0;
+	    if ( cdp.lidx_ >= size() )
+		return false;
 	}
-	return true;
     }
+
+    return true;
 }
 
 
@@ -566,6 +650,7 @@ PosInfo::CubeDataPos PosInfo::CubeData::cubeDataPos( const BinID& bid ) const
     cdp.lidx_ = indexOf( bid.inl() );
     if ( cdp.lidx_ < 0 )
 	return cdp;
+
     const TypeSet<LineData::Segment>& segs( (*this)[cdp.lidx_]->segments_ );
     for ( int iseg=0; iseg<segs.size(); iseg++ )
     {
@@ -580,6 +665,7 @@ PosInfo::CubeDataPos PosInfo::CubeData::cubeDataPos( const BinID& bid ) const
 	    break;
 	}
     }
+
     return cdp;
 }
 
@@ -587,11 +673,13 @@ PosInfo::CubeDataPos PosInfo::CubeData::cubeDataPos( const BinID& bid ) const
 bool PosInfo::CubeData::isFullyRectAndReg() const
 {
     const int sz = size();
-    if ( sz < 1 ) return true;
+    if ( sz < 1 )
+	return true;
 
     const PosInfo::LineData* ld = (*this)[0];
     if ( ld->segments_.isEmpty() )
 	return sz == 1;
+
     const PosInfo::LineData::Segment seg = ld->segments_[0];
 
     int lnrstep = mUdf(int);
@@ -612,6 +700,51 @@ bool PosInfo::CubeData::isFullyRectAndReg() const
     }
 
     return true;
+}
+
+
+
+// PosInfo::SortedCubeData
+PosInfo::SortedCubeData::SortedCubeData()
+{}
+
+
+PosInfo::SortedCubeData::SortedCubeData( const BinID& start, const BinID& stop,
+					 const BinID& step )
+    : CubeData(start,stop,step)
+{}
+
+
+PosInfo::SortedCubeData::SortedCubeData( const SortedCubeData& cd )
+    : CubeData( cd )
+{
+    *this = cd;
+}
+
+
+PosInfo::SortedCubeData::SortedCubeData( const CubeData& cd )
+{
+    *this = cd;
+}
+
+
+PosInfo::SortedCubeData::~SortedCubeData()
+{}
+
+
+PosInfo::SortedCubeData&
+	PosInfo::SortedCubeData::operator =( const SortedCubeData& scd )
+{
+    copyContents(scd);
+    return *this;
+}
+
+
+PosInfo::SortedCubeData&
+	PosInfo::SortedCubeData::operator =( const CubeData& cd )
+{
+    copyContents(cd);
+    return *this;
 }
 
 
@@ -825,7 +958,8 @@ bool PosInfo::CubeData::write( od_ostream& strm, bool asc ) const
 	{
 	    const PosInfo::LineData::Segment& seg = inlinf.segments_[icrl];
 	    if ( asc )
-		strm << ' ' << seg.start_ << ' ' << seg.stop_ << ' ' << seg.step_;
+		strm << ' ' << seg.start_ << ' ' << seg.stop_
+		     << ' ' << seg.step_;
 	    else
 	    {
 		strm.addBin( &seg.start_, intsz );

@@ -119,9 +119,13 @@ public:
 			    { return targetspecs_; }
 
     ConstRefMan<RegularSeisDataPack> createOutput(const TrcKeyZSampling&,
-				 const RegularSeisDataPack* prevslcs=nullptr);
+				    const RegularSeisDataPack* cache=nullptr);
     RefMan<RegularSeisDataPack> createOutputRM(const TrcKeyZSampling&,
-				 const RegularSeisDataPack* prevslcs=nullptr);
+				    const RegularSeisDataPack* cache=nullptr);
+    ConstRefMan<RegularSeisDataPack> create2DOutputRM(const TrcKeyZSampling&,
+				    const RegularSeisDataPack* cache=nullptr,
+				    TaskRunner* = nullptr);
+
     bool		createOutput(DataPointSet&,int firstcol=0,
 				     bool showprogress=true);
     bool		createOutput(ObjectSet<DataPointSet>&,
@@ -132,6 +136,7 @@ public:
     bool		createOutput(const BinIDValueSet&,SeisTrcBuf&,
 				     const TypeSet<BinID>& trueknotspos,
 				     const TypeSet<BinID>& snappedpos);
+
     RefMan<RandomSeisDataPack>	createRdmTrcsOutputRM(
 					    const Interval<float>& zrg,
 					    const RandomLineID&);

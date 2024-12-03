@@ -56,14 +56,15 @@ EngineMan::~EngineMan()
 
 
 bool EngineMan::getPossibleVolume( DescSet& attribset, TrcKeyZSampling& cs,
-				   const char* linename, const DescID& outid )
+				   const Pos::GeomID& geomid,
+				   const DescID& outid )
 {
     TypeSet<DescID> desiredids(1,outid);
 
     uiString errmsg;
     DescID evalid = createEvaluateADS( attribset, desiredids, errmsg );
     PtrMan<Processor> proc =
-			createProcessor( attribset, linename, evalid, errmsg );
+			createProcessor( attribset, geomid, evalid, errmsg );
     if ( !proc ) return false;
 
     proc->computeAndSetRefZStepAndZ0();
@@ -106,7 +107,7 @@ Processor* EngineMan::usePar( const IOPar& iopar, DescSet& attribset,
     }
 
     DescID evalid = createEvaluateADS( attribset, ids, errmsg );
-    Processor* proc = createProcessor( attribset, linename, evalid, errmsg );
+    Processor* proc = createProcessor( attribset, geomid_, evalid, errmsg );
     if ( !proc )
 	return nullptr;
 
@@ -177,7 +178,8 @@ Processor* EngineMan::usePar( const IOPar& iopar, DescSet& attribset,
 
 
 Processor* EngineMan::createProcessor( const DescSet& attribset,
-				       const char* linename,const DescID& outid,
+				       const Pos::GeomID& geomid,
+				       const DescID& outid,
 				       uiString& errmsg )
 {
     ConstRefMan<Desc> tdesc = attribset.getDesc( outid );
@@ -186,7 +188,7 @@ Processor* EngineMan::createProcessor( const DescSet& attribset,
 	return nullptr;
 
     targetdesc->updateParams();
-    auto* processor = new Processor( *targetdesc, linename, errmsg );
+    auto* processor = new Processor( *targetdesc, geomid, errmsg );
     if ( !processor->isOK() )
     {
 	delete processor;
@@ -1314,8 +1316,7 @@ Processor* EngineMan::getProcessor( uiString& errmsg )
 	outid = nlaid;
     }
 
-    Processor* proc = createProcessor(*procattrset_,
-			Survey::GM().getName(geomid_), outid, errmsg);
+    Processor* proc = createProcessor(*procattrset_, geomid_, outid, errmsg);
     setExecutorName( proc );
     if ( !proc )
 	mErrRet( errmsg )

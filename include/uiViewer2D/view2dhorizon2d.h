@@ -42,11 +42,6 @@ public:
 
     void		setSeedPicking(bool ison);
     void		setTrackerSetupActive(bool ison );
-    void		setLine2DInterSectionSet(const Line2DInterSectionSet*
-							ln2dintersectionset)
-			{ line2dintersectionset_ = ln2dintersectionset; }
-    const Line2DInterSectionSet* getLine2DInterSectionSet() const
-					    { return line2dintersectionset_; }
 
     void		getHorEditors(
 			  ObjectSet<const MPE::HorizonFlatViewEditor2D>&) const;
@@ -64,7 +59,6 @@ private:
 
     ObjectSet<MPE::HorizonFlatViewEditor2D>	horeds_;
     Notifier<Horizon2D>			deselected_;
-    const Line2DInterSectionSet*	line2dintersectionset_;
 };
 
 } // namespace View2D
