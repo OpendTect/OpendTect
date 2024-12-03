@@ -345,7 +345,6 @@ bool IODir::commitChanges( const IOObj* ioobj )
 	return false;
     }
 
-    const int sz = objs_.size();
     const int idx = indexOf( clone->key() );
     if ( objs_.validIdx(idx) )
 	delete objs_.replace( idx, clone );

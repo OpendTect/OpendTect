@@ -962,7 +962,6 @@ const IOObj* IOMan::getIOObjFromCtxt( const CtxtIOObj& ctio, bool isnew,
     if ( ioobj && ctio.ctxt_.trgroup_->groupName() != ioobj->group() )
 	ioobj = nullptr;
 
-    bool needstrigger = false;
     if ( !ioobj || (isnew && !mktmp) )
     {
 	MultiID newkey( mktmp ? ctio.ctxt_.getSelKey() : dirptr_->newKey() );

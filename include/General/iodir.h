@@ -14,6 +14,8 @@ ________________________________________________________________________
 #include "namedobj.h"
 #include "od_iosfwd.h"
 
+#include <unordered_map>
+
 class DBKey;
 class IOObj;
 
