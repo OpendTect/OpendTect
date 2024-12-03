@@ -16,6 +16,8 @@ ________________________________________________________________________
 #include "paralleltask.h"
 #include "threadlock.h"
 
+#include <unordered_map>
+
 namespace Survey { class Geometry2D; }
 
 mExpClass(Geometry) BendPoints
