@@ -609,8 +609,8 @@ bool IOMan::to( const MultiID& ky, bool forcereread )
 	if ( !refioobj )
 	    dirkey.setUdf();
     }
-    delete refioobj;
 
+    delete refioobj;
     auto* newdir = dirkey.isUdf() ? new IODir( rootdir_.fullPath().buf() )
 				  : new IODir( dirkey );
     if ( !newdir || newdir->isBad() )
@@ -622,11 +622,10 @@ bool IOMan::to( const MultiID& ky, bool forcereread )
     bool needtrigger = dirptr_;
     if ( dirptr_ )
 	delete dirptr_;
+
     dirptr_ = newdir;
     curlvl_ = levelOf( curDirName() );
-
     lock.unlockNow();
-
     if ( needtrigger )
 	newIODir.trigger();
 
@@ -924,6 +923,62 @@ void IOMan::getNewEntry( CtxtIOObj& ctio, bool mktmp, int translidx )
 }
 
 
+void IOMan::getNewEntries( ObjectSet<CtxtIOObj>& ctios, bool mktmp, int tridx )
+{
+    if ( ctios.isEmpty() )
+	return;
+
+    ManagedObjectSet<ObjectSet<CtxtIOObj>> groupctios;
+    getCtxtObjsByGroup( ctios, groupctios );
+    if ( groupctios.isEmpty() )
+	return;
+
+    for ( auto* ctxtios : groupctios )
+    {
+	bool dirptrset = false;
+	for ( const auto* ctio : *ctxtios )
+	{
+	    Threads::Locker lock( lock_ );
+	    if ( to(ctio->ctxt_.getSelKey()) )
+	    {
+		dirptrset = true;
+		break;
+	    }
+	}
+
+	if ( !dirptrset )
+	    continue;
+
+	getObjEntries( *ctxtios, true, mktmp, tridx );
+    }
+}
+
+
+const IOObj* IOMan::getIOObjFromCtxt( const CtxtIOObj& ctio, bool isnew,
+				      bool mktmp, int translidx )
+{
+    const IOObj* ioobj = dirptr_->get( ctio.ctxt_.name(),
+				       ctio.ctxt_.trgroup_->groupName() );
+    ctio.ctxt_.fillTrGroup();
+    if ( ioobj && ctio.ctxt_.trgroup_->groupName() != ioobj->group() )
+	ioobj = nullptr;
+
+    if ( !ioobj || (isnew && !mktmp) )
+    {
+	MultiID newkey( mktmp ? ctio.ctxt_.getSelKey() : dirptr_->newKey() );
+	if ( mktmp )
+	    newkey.setObjectID( IOObj::tmpID() );
+
+	ioobj = crWriteIOObj( ctio, newkey, translidx );
+	if ( !ioobj )
+	    return nullptr;
+    }
+
+    ioobj->pars().merge( ctio.ctxt_.toselect_.require_ );
+    return ioobj;
+}
+
+
 void IOMan::getObjEntry( CtxtIOObj& ctio, bool isnew, bool mktmp,
 								int translidx )
 {
@@ -935,28 +990,14 @@ void IOMan::getObjEntry( CtxtIOObj& ctio, bool isnew, bool mktmp,
     if ( !to(ctio.ctxt_.getSelKey()) || !dirptr_ )
 	return;
 
-    const IOObj* ioobj = dirptr_->get( ctio.ctxt_.name(),
-					ctio.ctxt_.trgroup_->groupName() );
-    ctio.ctxt_.fillTrGroup();
-    if ( ioobj && ctio.ctxt_.trgroup_->groupName() != ioobj->group() )
-	ioobj = nullptr;
-
+    const IOObj* ioobj = getIOObjFromCtxt( ctio, isnew, mktmp, translidx );
     bool needstrigger = false;
-    if ( !ioobj || (isnew && !mktmp) )
+    if ( ioobj )
     {
-	MultiID newkey( mktmp ? ctio.ctxt_.getSelKey() : dirptr_->newKey() );
-	if ( mktmp )
-	    newkey.setObjectID( IOObj::tmpID() );
+	if ( !dirptr_->addObj((IOObj*)ioobj) )
+	    return;
 
-	ioobj = crWriteIOObj( ctio, newkey, translidx );
-	if ( ioobj )
-	{
-	    ioobj->pars().merge( ctio.ctxt_.toselect_.require_ );
-	    if ( !dirptr_->addObj((IOObj*)ioobj) )
-		return;
-
-	    needstrigger = true;
-	}
+	needstrigger = true;
     }
 
     ctio.setObj( ioobj ? ioobj->clone() : nullptr );
@@ -967,6 +1008,56 @@ void IOMan::getObjEntry( CtxtIOObj& ctio, bool isnew, bool mktmp,
 	const MultiID mid = ioobj->key();
 	entryAdded.trigger( mid );
     }
+}
+
+
+void IOMan::getObjEntries( const ObjectSet<CtxtIOObj>& ctios, bool isnew,
+			   bool mktmp, int translidx )
+{
+    if ( ctios.isEmpty() )
+	return;
+
+    ObjectSet<IOObj> objs;
+    ObjectSet<std::pair<CtxtIOObj&,IOObj*>> successctioobjpairs;
+    for ( auto* ctio : ctios )
+    {
+	ctio->setObj( nullptr );
+	if ( ctio->ctxt_.name().isEmpty() )
+	    continue;
+
+	Threads::Locker lock( lock_ );
+	const IOObj* ioobj = getIOObjFromCtxt( *ctio, isnew,
+						mktmp, translidx );
+	lock.unlockNow();
+	if ( !ioobj )
+	    continue;
+
+	objs.add( (IOObj*)ioobj );
+	auto* pair = new std::pair<CtxtIOObj&,IOObj*>( *ctio, (IOObj*)ioobj );
+	successctioobjpairs.add( pair );
+    }
+
+    if ( !dirptr_ || objs.isEmpty() )
+	return;
+
+    Threads::Locker lock( lock_ );
+    if ( !dirptr_->addObjects(objs) )
+	return;
+
+    lock.unlockNow();
+    TypeSet<MultiID> addedids;
+    for ( const auto* pair : successctioobjpairs )
+    {
+	IOObj* ioobj = pair->second;
+	if ( !ioobj )
+	    continue;
+
+	CtxtIOObj& ctxtio = pair->first;
+	ctxtio.setObj( ioobj->clone() );
+	addedids.add( ioobj->key() );
+    }
+
+    entriesAdded.trigger( addedids );
 }
 
 
@@ -987,7 +1078,8 @@ IOObj* IOMan::crWriteIOObj( const CtxtIOObj& ctio, const MultiID& newkey,
 			  "' is empty." );
 	msg.add( ".\nCannot create a default write IOObj for " )
 	   .add( ctio.ctxt_.name() );
-	pErrMsg( msg ); return nullptr;
+	pErrMsg( msg );
+	return nullptr;
     }
 
     const Translator* templtr = nullptr;
@@ -996,11 +1088,12 @@ IOObj* IOMan::crWriteIOObj( const CtxtIOObj& ctio, const MultiID& newkey,
 	templtr = ctio.ctxt_.trgroup_->templates()[translidx];
     else if ( !ctio.ctxt_.deftransl_.isEmpty() )
 	templtr = ctio.ctxt_.trgroup_->getTemplate(ctio.ctxt_.deftransl_,true);
+
     if ( !templtr )
     {
 	translidx = ctio.ctxt_.trgroup_->defTranslIdx();
 	if ( mIsValidTransl(templs[translidx]) )
-	templtr = templs[translidx];
+	    templtr = templs[translidx];
 	else
 	{
 	    for ( int idx=0; idx<templs.size(); idx++ )
@@ -1238,6 +1331,48 @@ void IOMan::getIdsByGroup( const TypeSet<MultiID>& keys,
 }
 
 
+void IOMan::getObjsByGroup( const ObjectSet<const IOObj>& objs,
+			    ObjectSet<ObjectSet<const IOObj>>& groupedobjs )
+{
+    if ( objs.isEmpty() )
+	return;
+
+    std::unordered_map<int,ObjectSet<const IOObj>> grpobjsmap;
+    for ( const auto* obj : objs )
+    {
+	const int group = obj->key().groupID();
+	grpobjsmap[group].add( obj );
+    }
+
+    for ( auto& pair : grpobjsmap )
+    {
+	auto* objects = new ManagedObjectSet<const IOObj>( pair.second );
+	groupedobjs.add( objects );
+    }
+}
+
+
+void IOMan::getCtxtObjsByGroup( const ObjectSet<CtxtIOObj>& ctxts,
+				ObjectSet<ObjectSet<CtxtIOObj>>& groupedctxts )
+{
+    if ( ctxts.isEmpty() )
+	return;
+
+    std::unordered_map<int,ObjectSet<CtxtIOObj>> grpctxtsmap;
+    for ( auto* ctio : ctxts )
+    {
+	const int group = ctio->ctxt_.getSelKey().groupID();
+	grpctxtsmap[group].add( ctio );
+    }
+
+    for ( auto& pair : grpctxtsmap )
+    {
+	auto* objects = new ObjectSet<CtxtIOObj>( pair.second );
+	groupedctxts.add( objects );
+    }
+}
+
+
 bool IOMan::implRemove( const TypeSet<MultiID>& ids,
 			bool rmentry, uiRetVal* uirv )
 {
@@ -1249,9 +1384,20 @@ bool IOMan::implRemove( const TypeSet<MultiID>& ids,
     bool allok = true;
     for ( const auto* keys : groupkeys )
     {
-	TypeSet<MultiID> successkeys;
+	bool dirptrset = false;
 	for ( const auto& key : *keys )
 	{
+	    if ( !dirptrset )
+	    {
+		if ( !to(key.mainID()) )
+		{
+		    allok = false;
+		    continue;
+		}
+
+		dirptrset = true;
+	    }
+
 	    uiRetVal suirv;
 	    if ( !implRemove(key,false,&suirv) )
 	    {
@@ -1262,14 +1408,9 @@ bool IOMan::implRemove( const TypeSet<MultiID>& ids,
 
 		continue;
 	    }
-
-	    successkeys.addIfNew( key );
 	}
 
-	if ( successkeys.isEmpty() )
-	    allok = false;
-
-	if ( rmentry && !permRemove(successkeys) )
+	if ( rmentry && !permRemove(*keys) )
 	    allok = false;
     }
 
@@ -1382,6 +1523,50 @@ bool IOMan::commitChanges( const IOObj& ioobj )
     to( clone->key() );
 
     return dirptr_ ? dirptr_->commitChanges( clone.ptr() ) : false;
+}
+
+
+bool IOMan::commitChanges( const ObjectSet<const IOObj>& objs )
+{
+    if ( objs.isEmpty() )
+	return false;
+
+    ManagedObjectSet<ObjectSet<const IOObj>> grpobjs;
+    getObjsByGroup( objs, grpobjs );
+    bool allok = true;
+    for ( const auto* objects : grpobjs )
+    {
+	if ( objects->isEmpty() )
+	    continue;
+
+	bool dirptrset = false;
+	ObjectSet<const IOObj> objstocommit;
+	for ( const auto* object : *objects )
+	{
+	    if ( !object || object->isBad() )
+		continue;
+
+	    if ( !dirptrset )
+	    {
+		Threads::Locker lock( lock_ );
+		dirptrset = to( objects->first()->key() );
+	    }
+
+	    objstocommit.add( object->clone() );
+	}
+
+	if ( objstocommit.isEmpty() )
+	{
+	    allok = false;
+	    continue;
+	}
+
+	Threads::Locker lock( lock_ );
+	if ( !dirptr_ || !dirptr_->commitChanges(objstocommit) )
+	    allok = false;
+    }
+
+    return allok;
 }
 
 
