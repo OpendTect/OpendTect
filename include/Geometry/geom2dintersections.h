@@ -141,7 +141,7 @@ protected:
 };
 
 
-mExpClass(Basic) Line2DIntersectionManager final
+mExpClass(Geometry) Line2DIntersectionManager final
 {
 public:
     virtual			~Line2DIntersectionManager();
