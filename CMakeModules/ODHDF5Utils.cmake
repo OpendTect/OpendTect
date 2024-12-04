@@ -149,17 +149,19 @@ endmacro(OD_FIND_HDF5)
 macro( OD_SETUP_HDF5 )
 
     if ( HDF5_FOUND AND TARGET hdf5::hdf5-shared AND TARGET hdf5::hdf5_cpp-shared )
-	OD_GET_LINKLIBS()
-	list ( APPEND OD_MODULE_EXTERNAL_LIBS
-		hdf5::hdf5-shared
-		hdf5::hdf5_cpp-shared )
+	if ( NOT hdf5::hdf5_cpp-shared IN_LIST OD_MODULE_EXTERNAL_LIBS )
+	    OD_GET_LINKLIBS()
+	    list ( APPEND OD_MODULE_EXTERNAL_LIBS
+		    hdf5::hdf5-shared
+		    hdf5::hdf5_cpp-shared )
 
-	if ( WIN32 )
-	    GETHDF5COMPDEF()
-	    list( APPEND OD_MODULE_COMPILE_DEFINITIONS "${HDF5_COMPILEDEF}" )
-	    if ( HDF5_VERSION VERSION_GREATER_EQUAL 1.12 AND
-		 CMAKE_CXX_COMPILER_ID STREQUAL "MSVC" )
-		list( APPEND OD_MODULE_COMPILE_OPTIONS "/wd4268" )
+	    if ( WIN32 )
+		GETHDF5COMPDEF()
+		list( APPEND OD_MODULE_COMPILE_DEFINITIONS "${HDF5_COMPILEDEF}" )
+		if ( HDF5_VERSION VERSION_GREATER_EQUAL 1.12 AND
+		     CMAKE_CXX_COMPILER_ID STREQUAL "MSVC" )
+		    list( APPEND OD_MODULE_COMPILE_OPTIONS "/wd4268" )
+		endif()
 	    endif()
 	endif()
     else()
