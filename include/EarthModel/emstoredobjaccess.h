@@ -58,7 +58,7 @@ public:
 protected:
 
     ObjectSet<StoredObjAccessData>	data_;
-    SurfaceIODataSelection*		surfiodsel_;
+    SurfaceIODataSelection*		surfiodsel_	= nullptr;
     StoredObjAccessData*		get(const MultiID&);
 
 };

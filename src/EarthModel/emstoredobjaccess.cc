@@ -30,9 +30,9 @@ public:
     bool		isErr() const	{ return !errmsg_.isEmpty(); }
 
     MultiID		key_;
-    EM::EMObject*	obj_;
-    Executor*		rdr_;
-    Threads::Work*	work_;
+    RefMan<EM::EMObject> obj_;
+    Executor*		rdr_	= nullptr;
+    Threads::Work*	work_	= nullptr;
     uiString		errmsg_;
 
     EMObject*		getEMObjFromEMM();
@@ -53,20 +53,20 @@ EM::EMObject* EM::StoredObjAccessData::getEMObjFromEMM()
 EM::StoredObjAccessData::StoredObjAccessData( const MultiID& ky,
 				    const EM::SurfaceIODataSelection* siods )
     : key_(ky)
-    , obj_(0)
-    , rdr_(0)
-    , work_(0)
 {
     EMObject* obj = getEMObjFromEMM();
     if ( obj && obj->isFullyLoaded() )
     {
-	obj_ = obj; obj_->ref();
+	obj_ = obj;
     }
     else
     {
 	rdr_ = EMM().objectLoader( key_, siods );
 	if ( !rdr_ )
-	    { errmsg_ = tr("No loader for %1").arg(key_); return; }
+	{
+	     errmsg_ = tr("No loader for %1").arg(key_);
+	     return;
+	}
 
 	work_ = new Threads::Work( *rdr_, false );
 	CallBack finishedcb( mCB(this,StoredObjAccessData,workFinished) );
@@ -77,9 +77,6 @@ EM::StoredObjAccessData::StoredObjAccessData( const MultiID& ky,
 
 EM::StoredObjAccessData::~StoredObjAccessData()
 {
-    if ( obj_ )
-	obj_->unRef();
-
     if ( work_ )
 	Threads::WorkManager::twm().removeWork( *work_ );
 
@@ -104,16 +101,17 @@ void EM::StoredObjAccessData::workFinished( CallBacker* cb )
 	if ( !obj || !obj->isFullyLoaded() )
 	    errmsg_ = tr("Could not get object from EMM");
 	else
-	    { obj_ = obj; obj_->ref(); }
+	    obj_ = obj;
     }
-    delete work_; work_ = 0;
-    delete rdr_; rdr_ = 0;
+
+    deleteAndNullPtr( work_ );
+    deleteAndNullPtr( rdr_ );
 }
 
 
+// EM::StoredObjAccess
 
 EM::StoredObjAccess::StoredObjAccess()
-    : surfiodsel_(0)
 {
 }
 
@@ -146,7 +144,8 @@ EM::StoredObjAccessData* EM::StoredObjAccess::get( const MultiID& ky )
 	if ( data->key_ == ky )
 	    return data;
     }
-    return 0;
+
+    return nullptr;
 }
 
 
@@ -155,9 +154,13 @@ bool EM::StoredObjAccess::set( const MultiID& ky )
     StoredObjAccessData* data = get( ky );
     if ( data )
 	data_ -= data;
+
     deepErase( data_ );
     if ( data )
-	{ data_ += data; return true; }
+    {
+	data_ += data;
+	return true;
+    }
 
     return add( ky );
 }
@@ -169,7 +172,7 @@ bool EM::StoredObjAccess::add( const MultiID& ky )
     if ( data )
 	return true;
 
-    StoredObjAccessData* newdata = new StoredObjAccessData( ky, surfiodsel_ );
+    auto* newdata = new StoredObjAccessData( ky, surfiodsel_ );
     data_ += newdata;
     return !newdata->isErr();
 }
@@ -188,13 +191,13 @@ void EM::StoredObjAccess::dismiss( const MultiID& ky )
 
 EM::EMObject* EM::StoredObjAccess::object( int iobj )
 {
-    return data_.validIdx(iobj) ? data_[iobj]->obj_ : 0;
+    return data_.validIdx(iobj) ? data_[iobj]->obj_.ptr() : nullptr;
 }
 
 
 const EM::EMObject* EM::StoredObjAccess::object( int iobj ) const
 {
-    return const_cast<EM::StoredObjAccess*>(this)->object( iobj );
+    return mSelf().object( iobj );
 }
 
 
@@ -205,6 +208,7 @@ bool EM::StoredObjAccess::isReady( int iobj ) const
 	for ( int idx=0; idx<size(); idx++ )
 	    if ( !isReady(idx) )
 		return false;
+
 	return true;
     }
 
@@ -223,6 +227,7 @@ bool EM::StoredObjAccess::isError( int iobj ) const
 	for ( int idx=0; idx<size(); idx++ )
 	    if ( isError(idx) )
 		return true;
+
 	return false;
     }
 
