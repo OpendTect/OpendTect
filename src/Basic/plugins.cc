@@ -760,7 +760,7 @@ void PluginManager::loadAuto( bool late, bool withfilter )
 	if ( !data.sla_ || !data.sla_->isOK() || data.autosource_==Data::None )
 	    continue;
 
-	if ( data.autotype_ != pitype )
+	if ( data.autotype_ != pitype || data.isloaded_ )
 	    continue;
 
 	const BufferString modnm = data.getBaseName();
