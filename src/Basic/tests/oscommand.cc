@@ -62,9 +62,6 @@ public:
 
     void closeTesterCB( CallBacker* )
     {
-        if ( clParser().hasKey("testpipes") )
-	    Threads::sleep( 10 );
-
         ApplicationData::exit( retval_ );
     }
 
@@ -102,8 +99,6 @@ static bool testAllPipes()
 
     mRunStandardTest( cl.execute(cp), "Launching triple pipes" );
     mRunStandardTest( cl.processID(), "Launched process has valid PID" );
-
-    Threads::sleep( 3. );
 
     *cl.getStdInput() << mGoodMessage << " ";
     cl.getStdInput()->flush();
