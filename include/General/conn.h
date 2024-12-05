@@ -51,7 +51,6 @@ public:
     static const bool	Write;	// false
 
 protected:
-
 			Conn();
 
     MultiID		ioobjid_;
@@ -78,7 +77,7 @@ public:
     bool		isBad() const override
 			{ return conn_ ? conn_->isBad() : true; }
     const char*		creationMessage() const override
-			{ return conn_ ? conn_->creationMessage() : 0; }
+			{ return conn_ ? conn_->creationMessage() : nullptr; }
     bool		forRead() const override
 			{ return conn_ && conn_->forRead(); }
     bool		forWrite() const override
@@ -86,19 +85,22 @@ public:
     void		close() override
 			{ if ( conn_ ) conn_->close(); }
     StreamConn*		getStream() override
-			{ return conn_ ? conn_->getStream() : 0; }
+			{ return conn_ ? conn_->getStream() : nullptr; }
 
     void		setConn( Conn* c, bool becomesmine=true )
-			{ if ( mine_ ) delete conn_;
-			  conn_ = c; mine_ = becomesmine; }
+			{
+			    if ( mine_ ) delete conn_;
+			    conn_ = c;
+			    mine_ = becomesmine;
+			}
 
     const char*		connType() const override	{ return sType(); }
     static const char*	sType();
 
 protected:
 
-    Conn*		conn_;
-    bool		mine_;
+    Conn*		conn_	= nullptr;
+    bool		mine_	= true;
 
     Conn*		gtConn() const override
 			{ return const_cast<Conn*>(conn_); }

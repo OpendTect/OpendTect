@@ -78,8 +78,8 @@ include( OD_SetupOD )
 # Make sure dependent modules are *after* the ones that they depend upon.
 set( OD_MODULES
 	Basic Algo General
-	Strat Network Batch
-	Geometry EarthModel Well MMProc Seis
+	Geometry Strat Network Batch
+	EarthModel Well MMProc Seis
 	NLA AttributeEngine Velocity
 	VolumeProcessing PreStackProcessing Attributes
 	MPEEngine EMAttrib WellAttrib

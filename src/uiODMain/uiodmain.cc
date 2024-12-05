@@ -680,8 +680,6 @@ void uiODMain::afterStartupCB( CallBacker* )
 {
     uiServiceClientMgr::setFor( *this );
     checkUpdateAvailable();
-    auto& geom2dinit = Geom2DInit::getInstance();
-    geom2dinit.start();
 }
 
 

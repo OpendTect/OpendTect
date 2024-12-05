@@ -93,6 +93,7 @@ static void setBatchPriority( int argc, char** argv, float priority, int pid )
 
 void Execute_batch( int* pargc, char** argv )
 {
+    OD::ModDeps().ensureLoaded( "Geometry" );
     OD::ModDeps().ensureLoaded( "Network" );
     if ( !BP().init() )
 	return;

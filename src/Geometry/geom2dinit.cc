@@ -12,21 +12,36 @@ ________________________________________________________________________
 
 #include "survgeom.h"
 #include "geom2dintersections.h"
+#include "odruncontext.h"
 #include "threadwork.h"
 
 
 Geom2DInit::Geom2DInit()
     : queueid_(Threads::WorkManager::twm().addQueue(
 			Threads::WorkManager::SingleThread,"Geom2DInit"))
+    , lock_(false)
 {
-    auto& twm = Threads::WorkManager::twm();
-    mAttachCB( twm.isShuttingDown, Geom2DInit::closeQueueCB );
+    mAttachCB( Survey::GM().closing, Geom2DInit::closeQueueCB );
 }
 
 
 void Geom2DInit::start()
 {
+    Survey::GMAdmin().ensureSIPresent();
+    if ( OD::InTestProgRunContext() || OD::InBatchProgRunContext() )
+    {
+	//TODO fix when this class works within a SurveyChanger for loop
+	Geom2DInit::readGeomCB( nullptr );
+	Geom2DInit::computeBendpointsCB( nullptr );
+	Geom2DInit::computeIntersectionsCB( nullptr );
+	return;
+    }
+
+    Threads::Locker locker( lock_ );
     auto& twm = Threads::WorkManager::twm();
+    if ( queueid_ >= 0 )
+	twm.emptyQueue( queueid_, true );
+
     const CallBack cb1 = mCB(this,Geom2DInit,readGeomCB);
     const CallBack cb2 = mCB(this,Geom2DInit,computeBendpointsCB);
     const CallBack cb3 = mCB(this,Geom2DInit,computeIntersectionsCB);
@@ -73,4 +88,10 @@ void Geom2DInit::closeQueueCB( CallBacker* )
 {
     Threads::WorkManager::twm().removeQueue( queueid_, false );
     queueid_ = -1;
+}
+
+
+void Geom2DInit::Start()
+{
+    getInstance().start();
 }

@@ -132,7 +132,6 @@ public:
     TrcKey			nearestTrace(const TypeSet<Pos::GeomID>&,
 					const Coord&,float* dist=nullptr) const;
 
-    bool			fillGeometries(TaskRunner*);
     bool			getList(BufferStringSet& names,
 					TypeSet<Pos::GeomID>& ids,
 					bool is2d) const;
@@ -149,7 +148,6 @@ public:
 protected:
 
     const Geometry*		getGeometry(OD::GeomSystem) const  = delete;
-    void			ensureSIPresent() const;
     void			addGeometry(Geometry&);
 
     int				indexOf(const Pos::GeomID&) const;
@@ -158,12 +156,14 @@ protected:
     Threads::Lock		lock_;
     ObjectSet<Geometry>		geometries_;
 
-    bool			hasduplnms_;
+    bool			hasduplnms_	= false;
 
 public:
 
     /*! Admin functions:
       Use the following functions only when you know what you are doing. */
+    bool			fillGeometries(TaskRunner*);
+    void			ensureSIPresent();
 
     Geometry*			getGeometry(const Pos::GeomID&);
     Geometry2D&			get2D(const Pos::GeomID&);
@@ -179,6 +179,8 @@ public:
     bool			fetchFrom2DGeom(uiString& errmsg);
 				//converts od4 geometries to od5 geometries.
     bool			updateGeometries(TaskRunner*);
+
+    Notifier<GeometryManager>	closing;
 
 public:
 

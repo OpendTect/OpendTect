@@ -249,11 +249,11 @@ int IOStream::connIdxFor( int nr ) const
 Conn* IOStream::getConn( bool forread ) const
 {
     if ( isBad() )
-	const_cast<IOStream*>(this)->genFileName();
+	mSelf().genFileName();
     else if ( !forread && transl_ == "Blocks" )
-	return 0; // protect 6.X users against removing their data
+	return nullptr; // protect 6.X users against removing their data
 
-    StreamConn*	ret = new StreamConn( mainFileName(), forread );
+    auto* ret = new StreamConn( mainFileName(), forread );
     if ( ret )
 	ret->setLinkedTo( key() );
 

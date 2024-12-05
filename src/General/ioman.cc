@@ -32,6 +32,16 @@ ________________________________________________________________________
 
 extern "C" { mGlobal(Basic) void SetCurBaseDataDir(const char*); }
 
+using voidFromVoidFn = void(*)(void);
+static voidFromVoidFn geom2dinitfn_ = nullptr;
+
+mGlobal(General) void setGlobal_General_Fns(voidFromVoidFn);
+void setGlobal_General_Fns( voidFromVoidFn geom2dinitfn )
+{
+    geom2dinitfn_ = geom2dinitfn;
+}
+
+
 class IOMManager : public CallBacker
 {
 public:
@@ -267,6 +277,14 @@ uiRetVal IOMan::init( SurveyInfo* nwsi )
     {
 	dirptr_->doWrite();
 	to( MultiID::udf(), true );
+    }
+
+    if ( geom2dinitfn_ )
+	(*geom2dinitfn_)();
+    else
+    {
+	pErrMsg("The Geometry module is not loaded, "
+		"did you forgot to call ensureLoaded(Geometry)?");
     }
 
     return uirv;

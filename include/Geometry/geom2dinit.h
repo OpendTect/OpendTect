@@ -17,16 +17,19 @@ mExpClass(Geometry) Geom2DInit final : public CallBacker
 public:
 			~Geom2DInit();
 
-    static Geom2DInit&	getInstance();
-    void		start();
+    static void		Start();
 
 private:
 			Geom2DInit();
 
+    void		start();
     void		readGeomCB(CallBacker*);
     void		computeBendpointsCB(CallBacker*);
     void		computeIntersectionsCB(CallBacker*);
 
     void		closeQueueCB(CallBacker*);
     int			queueid_;
+    Threads::Lock	lock_;
+
+    static Geom2DInit&	getInstance();
 };

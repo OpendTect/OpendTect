@@ -19,14 +19,49 @@ const char* XConn::sType() { return "X-Group"; }
 
 #define mInitList(s,ismine) strm_(s), mine_(ismine)
 
-StreamConn::StreamConn() : mInitList(0,true) {}
-StreamConn::StreamConn( od_istream* s ) : mInitList(s,true) { fillCrMsg(s); }
-StreamConn::StreamConn( od_ostream* s ) : mInitList(s,true) { fillCrMsg(s); }
-StreamConn::StreamConn( od_istream& s ) : mInitList(&s,false) { fillCrMsg(&s); }
-StreamConn::StreamConn( od_ostream& s ) : mInitList(&s,false) { fillCrMsg(&s); }
-StreamConn::StreamConn( const char* fnm, bool forread ) : mInitList(0,false)
-{ setFileName( fnm, forread ); }
+StreamConn::StreamConn()
+{}
 
+
+StreamConn::StreamConn( od_istream* s )
+    : strm_(s)
+    , mine_(true)
+{
+    fillCrMsg( s );
+}
+
+
+StreamConn::StreamConn( od_ostream* s )
+    : strm_(s)
+    , mine_(true)
+{
+    fillCrMsg( s );
+}
+
+StreamConn::StreamConn( od_istream& s )
+    : strm_(&s)
+    , mine_(false)
+{
+    fillCrMsg( &s );
+}
+
+
+StreamConn::StreamConn( od_ostream& s )
+    : strm_(&s)
+    , mine_(false)
+{
+    fillCrMsg( &s );
+}
+
+
+StreamConn::StreamConn( const char* fnm, bool forread )
+    : mine_(false)
+{
+    setFileName( fnm, forread );
+}
+
+
+// Conn
 
 Conn::Conn()
 {}
@@ -36,8 +71,9 @@ Conn::~Conn()
 {}
 
 
+// XConn
+
 XConn::XConn()
-    : conn_(0), mine_(true)
 {}
 
 
@@ -92,7 +128,7 @@ bool StreamConn::forWrite() const
 void StreamConn::close()
 {
     if ( strm_ && mine_ )
-	{ delete strm_; strm_ = 0; }
+	deleteAndNullPtr( strm_ );
 }
 
 
@@ -100,6 +136,7 @@ od_stream& StreamConn::odStream()
 {
     if ( strm_ )
 	return *strm_;
+
     return od_istream::nullStream();
 }
 

@@ -8,6 +8,7 @@ ________________________________________________________________________
 -*/
 
 #include "indexedshape.h"
+#include "geom2dinit.h"
 #include "moddepmgr.h"
 #include "picksettr.h"
 #include "polyposprovider.h"
@@ -15,6 +16,9 @@ ________________________________________________________________________
 #include "probdenfunctr.h"
 #include "randomlinetr.h"
 #include "tableposprovider.h"
+
+using voidFromVoidFn = void(*)(void);
+mGlobal(General) void setGlobal_General_Fns(voidFromVoidFn);
 
 mDefModInitFn(Geometry)
 {
@@ -35,4 +39,6 @@ mDefModInitFn(Geometry)
 
     Geometry::PrimitiveSetCreator::setCreator(
 				new Geometry::PrimitiveSetCreatorDefImpl );
+
+    setGlobal_General_Fns( Geom2DInit::Start );
 }
