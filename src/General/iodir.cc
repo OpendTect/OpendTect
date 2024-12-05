@@ -311,12 +311,15 @@ bool IODir::permRemove( const TypeSet<MultiID>& keys )
     if ( isBad() )
 	return false;
 
-    int sz = objs_.size();
+    const int sz = objs_.size();
     for ( int idx=sz-1; idx>=0; idx-- )
     {
-	const MultiID& id = objs_[idx]->key();
-	if ( keys.isPresent(id) )
+	const MultiID ky = objs_[idx]->key();
+	if ( keys.isPresent(ky) )
+	{
 	    delete objs_.removeSingle( idx );
+	    objidmap_.erase( ky.objectID() );
+	}
     }
 
     return doWrite();
