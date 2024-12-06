@@ -49,14 +49,15 @@ public:
     bool		getAllRows(IOPar&) const;
 
     int			size() const;
-    BufferString	data(int) const;
-    int			iValue(int) const;
-    unsigned int	uiValue(int) const;
-    od_int64		i64Value(int) const;
-    od_uint64		ui64Value(int) const;
-    float		fValue(int) const;
-    double		dValue(int) const;
-    bool		isTrue(int) const;
+    bool		isNull(int column) const;
+    BufferString	data(int column) const;
+    int			iValue(int column) const;
+    unsigned int	uiValue(int column) const;
+    od_int64		i64Value(int column) const;
+    od_uint64		ui64Value(int column) const;
+    float		fValue(int column) const;
+    double		dValue(int column) const;
+    bool		isTrue(int column) const;
 
     static BufferString	getInsertString(const BufferStringSet& colnms,
 					const BufferStringSet& values,
