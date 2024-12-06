@@ -116,7 +116,9 @@ void uiManipButGrp::useAlternative( uiToolButton* button, bool yn )
 	if ( normbd->but == button )
 	{
 	    uiManipButGrp::ButData* altbd = altbutdata[idx];
-	    if ( yn && !altbd ) return;
+	    if ( yn && !altbd )
+		return;
+
 	    uiManipButGrp::ButData& bd = yn ? *altbd : *normbd;
 	    button->setIcon( bd.pmnm );
 	    button->setToolTip( bd.tt );
@@ -126,6 +128,34 @@ void uiManipButGrp::useAlternative( uiToolButton* button, bool yn )
 }
 
 
+void uiManipButGrp::setButtonCB( Type tp, const CallBack& cb )
+{
+    BufferString pm;
+    switch ( tp )
+    {
+	case FileLocation:	pm = "filelocation";	break;
+	case Rename:		pm = "renameobj";	break;
+	case Remove:		pm = "trashcan";	break;
+	case ReadOnly:		pm = "readonly";	break;
+	default:		pm = "";
+				pErrMsg("Unknown toolbut typ");
+    }
+
+    if ( pm.isEmpty() )
+	return;
+
+    for ( auto* data : butdata )
+    {
+	if ( pm != data->pmnm )
+	    continue;
+
+	data->but->activated.cbs_.erase();
+	data->but->activated.notify( cb );
+    }
+}
+
+
+// uiIOObjManipGroup
 uiIOObjManipGroup::uiIOObjManipGroup( uiIOObjManipGroupSubj& s, bool withreloc,
 				      bool withremove )
 	: uiManipButGrp(s.obj_->parent())

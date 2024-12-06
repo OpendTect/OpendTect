@@ -33,6 +33,7 @@ public:
     void		setAlternative(uiToolButton*,const char* icfnm,
 				       const uiString& ttip);
     void		useAlternative(uiToolButton*,bool);
+    void		setButtonCB(Type,const CallBack&);
 
 protected:
 
