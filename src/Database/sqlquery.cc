@@ -105,16 +105,22 @@ int SqlDB::Query::size() const
 }
 
 
-BufferString SqlDB::Query::data( int colid ) const
+bool SqlDB::Query::isNull( int column ) const
 {
-    return BufferString( qsqlquery_->value(colid).toString().toLatin1().data());
+    return qsqlquery_->isNull( column );
+}
+
+
+BufferString SqlDB::Query::data( int column ) const
+{
+    return BufferString( qsqlquery_->value(column).toString() );
 }
 
 
 #define mDefQueryNumbFn(typ,valfn,qfn) \
-typ SqlDB::Query::valfn( int columnid ) const \
+typ SqlDB::Query::valfn( int column ) const \
 { \
-    return qsqlquery_->value(columnid).qfn(); \
+    return qsqlquery_->value(column).qfn(); \
 }
 
 mDefQueryNumbFn(int,iValue,toInt)
