@@ -33,13 +33,13 @@ class Provider;
 mExpClass(AttributeEngine) Processor : public Executor
 { mODTextTranslationClass(Processor)
 public:
-				Processor(Desc&,const char* linenm,
+				Processor(Desc&,const Pos::GeomID&,
 					  uiString& errmsg);
 				~Processor();
 
     virtual bool		isOK() const;
     void			addOutput(Output*);
-    void			setLineName(const char*);
+    void			setGeomID(const Pos::GeomID&);
 
     int				nextStep() override;
     void			init();
@@ -95,7 +95,13 @@ protected:
     bool		showdataavailabilityerrors_	= true;
 
 public:
+			mDeprecated("Use the one with Pos::GeomID&")
+			Processor(Desc&,const char* linenm,
+				  uiString& errmsg);
     void		showDataAvailabilityErrors(bool yn);
+
+    mDeprecated("Use the one with Pos::GeomID&")
+    void		setLineName(const char*);
 };
 
 

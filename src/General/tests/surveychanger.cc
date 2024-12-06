@@ -296,7 +296,7 @@ int mTestMainFnName( int argc, char** argv )
 {
     mInitTestProgDR();
 
-    OD::ModDeps().ensureLoaded("General");
+    OD::ModDeps().ensureLoaded("Geometry");
 
     clParser().setKeyHasValue( "datadir" );
     FilePath basedatadirfp;

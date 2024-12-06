@@ -121,15 +121,15 @@ public:
 		   \note Only valid during a call from a cb given in
 			  addObject() */
     		
-		NotSavedPrompter();
-		~NotSavedPrompter() { detachAllNotifiers(); }
+		~NotSavedPrompter();
     bool	doTrigger(uiParent*,bool withcancel,const uiString& actiontype);
     		//!<Invoke the system. Returns false if cancel has been pressed.
 
 protected:
     friend class uiNotSavedDlg;
 
-    void  	closeQueueCB(CallBacker* cb);
+		NotSavedPrompter();
+    void	closeQueueCB(CallBacker*);
 
     ObjectSet<NotSavedPrompterData>		objects_;
     uiNotSavedDlg*				dlg_;

@@ -155,6 +155,7 @@ public:
     inline void		include(const Point2D<T>&);
     inline void		limitTo(const Rectangle<T>&);
     inline void		translate(const Point2D<T>&);
+    inline bool		intersects(const Rectangle<T>&) const;
 
     inline bool		operator >(const Rectangle<T>&) const;
 
@@ -965,8 +966,14 @@ inline void Rectangle<T>::include( const Rectangle<T>& r )
 template <class T>
 inline void Rectangle<T>::include( const Point2D<T>& p )
 {
-    if ( !p.isDefined() ) return;
-    if ( !isDefined() ) topleft_ = bottomright_ = p;
+    if ( !p.isDefined() )
+	return;
+
+    if ( !isDefined() )
+    {
+	topleft_ = bottomright_ = p;
+	return;
+    }
 
     if ( revX() )
     {
@@ -989,5 +996,18 @@ inline void Rectangle<T>::include( const Point2D<T>& p )
 	if ( p.y_ > top() ) topleft_.y_ = p.y_;
     }
 }
+
+template <class T>
+bool Rectangle<T>::intersects( const Rectangle<T>& oth ) const
+{
+    if ( left() > oth.right() || right() < oth.left() )
+	return false;
+
+    if ( top() < oth.bottom() || bottom() > oth.top() )
+	return false;
+
+    return true;
+}
+
 
 } // namespace Geom

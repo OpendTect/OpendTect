@@ -942,40 +942,6 @@ void StorageProvider::checkClassType( const SeisTrc* trc,
 }
 
 
-bool StorageProvider::compDistBetwTrcsStats( bool force )
-{
-    if ( !mscprov_ ) return false;
-    if ( ls2ddata_ && ls2ddata_->areStatsComputed() ) return true;
-
-    const SeisTrcReader& reader = mscprov_->reader();
-    if ( !reader.is2D() ) return false;
-
-    const Seis2DDataSet* dset = reader.dataSet();
-    if ( !dset ) return false;
-
-    if ( ls2ddata_ ) delete ls2ddata_;
-    ls2ddata_ = new PosInfo::LineSet2DData();
-    for ( int idx=0; idx<dset->nrLines(); idx++ )
-    {
-	PosInfo::Line2DData& linegeom = ls2ddata_->addLine(dset->lineName(idx));
-	const Survey::Geometry* geom =
-		Survey::GM().getGeometry( dset->geomID(idx) );
-	mDynamicCastGet( const Survey::Geometry2D*, geom2d, geom );
-	if ( !geom2d ) continue;
-
-	linegeom = geom2d->data();
-	if ( linegeom.positions().isEmpty() )
-	{
-	    ls2ddata_->removeLine( dset->lineName(idx) );
-	    return false;
-	}
-    }
-
-    ls2ddata_->compDistBetwTrcsStats();
-    return true;
-}
-
-
 void StorageProvider::getCompNames( BufferStringSet& nms ) const
 {
     updateDescAndGetCompNms( mSelf().getDesc(), &nms );
@@ -1001,21 +967,8 @@ bool StorageProvider::useInterTrcDist() const
 }
 
 
-float StorageProvider::getDistBetwTrcs( bool ismax, const char* linenm ) const
-{
-    if ( !ls2ddata_ )
-	const_cast<StorageProvider*>(this)->compDistBetwTrcsStats( true );
-
-    return ls2ddata_ ? ls2ddata_->getDistBetwTrcs( ismax, linenm )
-		     : mUdf(float);
-}
-
-
 BinID StorageProvider::getElementStepoutStoredSpecial() const
 {
-    if ( !ls2ddata_ )	//huh? should never happen, on the safe side anyway
-	const_cast<StorageProvider*>(this)->compDistBetwTrcsStats( true );
-
     return ls2ddata_
 		? ls2ddata_->getElementStepout( Survey::GM().getName(geomid_) )
 		: BinID(1,1);

@@ -92,15 +92,14 @@ The LineData's are not sorted.
 mExpClass(Basic) CubeData : public ManagedObjectSet<LineData>
 {
 public:
+			CubeData();
+			CubeData(const BinID& start,const BinID& stop,
+				 const BinID& step);
+			CubeData(const TrcKeySampling&);
+			CubeData(const CubeData&);
+			~CubeData();
 
-			CubeData()		{}
-			CubeData( BinID start, BinID stop, BinID step )
-						{ generate(start,stop,step); }
-			CubeData( const CubeData& cd )
-			    : ManagedObjectSet<LineData>()
-						{ *this = cd; }
-    CubeData&		operator =( const CubeData& cd )
-			{ copyContents(cd); return *this; }
+    CubeData&		operator =( const CubeData& cd );
 
     int			totalSize() const;
     int			totalSizeInside(const TrcKeySampling& hrg) const;
@@ -156,18 +155,15 @@ The LineData's are sorted.
 mExpClass(Basic) SortedCubeData : public CubeData
 {
 public:
-			SortedCubeData()				{}
-			SortedCubeData( const BinID& start, const BinID& stop,
-				  const BinID& step )
-			    : CubeData(start,stop,step)		{}
-			SortedCubeData( const SortedCubeData& cd )
-			    : CubeData( cd )
-								{ *this = cd; }
-			SortedCubeData( const CubeData& cd )	{ *this = cd; }
-    SortedCubeData&	operator =( const SortedCubeData& scd )
-			{ copyContents(scd); return *this; }
-    SortedCubeData&	operator =( const CubeData& cd )
-			{ copyContents(cd); return *this; }
+			SortedCubeData();
+			SortedCubeData(const BinID& start,const BinID& stop,
+				       const BinID& step);
+			SortedCubeData(const SortedCubeData&);
+			SortedCubeData(const CubeData&);
+			~SortedCubeData();
+
+    SortedCubeData&	operator =(const SortedCubeData&);
+    SortedCubeData&	operator =(const CubeData&);
 
     int			indexOf(int inl,int* newidx=0) const override;
 			//!< newidx only filled if not null and -1 is returned

@@ -13,6 +13,7 @@ ________________________________________________________________________
 #include "emhorizon2d.h"
 #include "emmanager.h"
 #include "emobject.h"
+#include "geom2dintersections.h"
 #include "zaxistransform.h"
 
 namespace EM
@@ -66,7 +67,7 @@ HorizonPainter2D::~HorizonPainter2D()
 
 
 void HorizonPainter2D::setTrcKeyZSampling( const TrcKeyZSampling& cs,
-    bool update )
+					   bool update )
 {
     tkzs_ = cs;
 }
@@ -75,13 +76,6 @@ void HorizonPainter2D::setTrcKeyZSampling( const TrcKeyZSampling& cs,
 void HorizonPainter2D::setGeomID( const Pos::GeomID& geomid )
 {
     geomid_ = geomid;
-}
-
-
-void HorizonPainter2D::setLine2DInterSectionSet(
-			const Line2DInterSectionSet* ln2dintersectionset )
-{
-    intsectset_ = ln2dintersectionset;
 }
 
 
@@ -235,55 +229,57 @@ void HorizonPainter2D::horChangeCB( CallBacker* cb )
 
 void HorizonPainter2D::updateIntersectionMarkers()
 {
-    if ( !intsectset_ || intsectset_->isEmpty() )
+    const Line2DIntersectionManager& l2dim =
+				Line2DIntersectionManager::instance();
+    const Line2DInterSectionSet& intsectset = l2dim.intersections();
+    if ( intsectset.isEmpty() )
 	return;
 
     removeIntersectionMarkers();
     EM::EMObject* emobj = EM::EMM().getObject( id_ );
     mDynamicCastGet( EM::Horizon2D*, hor2d, emobj )
-    if ( !hor2d ) return;
+    if ( !hor2d )
+	return;
 
     TypeSet<Pos::GeomID> geomids;
     const int nrlns = hor2d->geometry().nrLines();
     for ( int idx=0; idx<nrlns; idx++ )
 	geomids += hor2d->geometry().geomID(idx);
 
-    for ( const Line2DInterSection* intsect : *intsectset_ )
+    const Line2DInterSection* intsect = intsectset.getByGeomID( geomid_ );
+    if ( !intsect )
+	return;
+
+    for ( int idy=0; idy<geomids.size(); idy++ )
     {
-	if ( !intsect || intsect->geomID() != geomid_ )
-	    continue;
-
-	for ( int idy=0; idy<geomids.size(); idy++ )
+	for ( int idz=0; idz<intsect->size(); idz++ )
 	{
-	    for ( int idz=0; idz<intsect->size(); idz++ )
+	    const Line2DInterSection::Point& intpoint =
+		intsect->getPoint(idz);
+	    int trcnr = geomids[idy] !=
+		geomid_ ? intpoint.linetrcnr : intpoint.mytrcnr;
+	    if ( geomids[idy] != geomid_ )
 	    {
-		const Line2DInterSection::Point& intpoint =
-		    intsect->getPoint(idz);
-		int trcnr = geomids[idy] !=
-		    geomid_ ? intpoint.linetrcnr : intpoint.mytrcnr;
-		if ( geomids[idy] != geomid_ )
-		{
-		    if ( intpoint.line != geomids[idy] )
-			continue;
-		}
+		if ( intpoint.line != geomids[idy] )
+		    continue;
+	    }
 
-		float x = .0f;
-		const TrcKey tk( geomids[idy], trcnr );
-		Coord3 crd = hor2d->getCoord( tk );
-		ConstRefMan<ZAxisTransform> zat = viewer_.getZAxisTransform();
-                const float z = zat ? zat->transformTrc( tk, (float)crd.z_ )
-                                    : (float)crd.z_;
+	    float x = .0f;
+	    const TrcKey tk( geomids[idy], trcnr );
+	    Coord3 crd = hor2d->getCoord( tk );
+	    ConstRefMan<ZAxisTransform> zat = viewer_.getZAxisTransform();
+	    const float z = zat ? zat->transformTrc( tk, (float)crd.z_ )
+				: (float)crd.z_;
 
-		const int didx = trcnos_.indexOf( intpoint.mytrcnr );
-		if ( didx>0 && didx<distances_.size() )
-		    x = distances_[didx];
-		if ( !mIsUdf(z) && x!=.0f )
-		{
-		    Marker2D* intsecmarker = create2DMarker( x, z );
-		    intsecmarker->marker_->markerstyles_.first().color_ =
-						    emobj->preferredColor();
-		    intsectmarks_ += intsecmarker;
-		}
+	    const int didx = trcnos_.indexOf( intpoint.mytrcnr );
+	    if ( didx>0 && didx<distances_.size() )
+		x = distances_[didx];
+	    if ( !mIsUdf(z) && x!=.0f )
+	    {
+		Marker2D* intsecmarker = create2DMarker( x, z );
+		intsecmarker->marker_->markerstyles_.first().color_ =
+						emobj->preferredColor();
+		intsectmarks_ += intsecmarker;
 	    }
 	}
     }
@@ -438,7 +434,8 @@ void HorizonPainter2D::displaySelections( const
 	const Coord3 pos = emobj->getPos( pointselections[idx] );
 	const TrcKey tk = tkzs_.hsamp_.toTrcKey( pos.coord() );
 	ConstRefMan<ZAxisTransform> zat = viewer_.getZAxisTransform();
-        const float z = zat ? zat->transformTrc(tk,(float)pos.z_) : (float)pos.z_;
+	const float z =
+		zat ? zat->transformTrc(tk,(float)pos.z_) : (float)pos.z_;
 
 	const int didx = trcnos_.indexOf( tk.trcNr() );
 
@@ -481,10 +478,12 @@ void HorizonPainter2D::updateSelectionColor()
 {
     EM::EMObject* emobj = EM::EMM().getObject( id_ );
     mDynamicCastGet( const EM::Horizon2D*, hor2d, emobj );
-    if ( !hor2d ) return;
+    if ( !hor2d )
+	return;
 
     if ( !selectionpoints_ )
 	return;
+
     TypeSet<MarkerStyle2D>& markerstyles =
 		selectionpoints_->marker_->markerstyles_;
 

@@ -1203,7 +1203,6 @@ bool SeisIOObjInfo::isFullyRectAndRegular() const
 void SeisIOObjInfo::getLinesWithData( BufferStringSet& lnms,
 				      TypeSet<Pos::GeomID>& gids )
 {
-    Survey::GMAdmin().updateGeometries( nullptr );
     Survey::GM().getList( lnms, gids, true );
     BoolTypeSet hasdata( gids.size(), false );
 

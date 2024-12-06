@@ -351,13 +351,13 @@ void Provider::setDesiredVolume( const TrcKeyZSampling& ndv )
 	    desiredvolume_->hsamp_.start_.crl() =
 		desiredvolume_->hsamp_.start_.crl() < ndv.hsamp_.start_.crl() ?
 		desiredvolume_->hsamp_.start_.crl() : ndv.hsamp_.start_.crl();
-            desiredvolume_->zsamp_.start_ =
-                    desiredvolume_->zsamp_.start_ < ndv.zsamp_.start_?
-                        desiredvolume_->zsamp_.start_ : ndv.zsamp_.start_;
-            desiredvolume_->zsamp_.stop_ =
-                    desiredvolume_->zsamp_.stop_ >ndv.zsamp_.stop_
-                    ? desiredvolume_->zsamp_.stop_
-                    : ndv.zsamp_.stop_;
+	    desiredvolume_->zsamp_.start_ =
+		    desiredvolume_->zsamp_.start_ < ndv.zsamp_.start_?
+			desiredvolume_->zsamp_.start_ : ndv.zsamp_.start_;
+	    desiredvolume_->zsamp_.stop_ =
+		    desiredvolume_->zsamp_.stop_ >ndv.zsamp_.stop_
+		    ? desiredvolume_->zsamp_.stop_
+		    : ndv.zsamp_.stop_;
 	}
     }
 
@@ -466,15 +466,15 @@ bool Provider::getPossibleVolume( int output, TrcKeyZSampling& res )
 		const Interval<float>* zrg = reqZMargin(inp,out);
 		if ( zrg )
 		{
-                    inputcs.zsamp_.start_ -= zrg->start_;
-                    inputcs.zsamp_.stop_ -= zrg->stop_;
+		    inputcs.zsamp_.start_ -= zrg->start_;
+		    inputcs.zsamp_.stop_ -= zrg->stop_;
 		}
 
 		const Interval<int>* zrgsamp = reqZSampMargin(inp,out);
 		if ( zrgsamp )
 		{
-                    inputcs.zsamp_.start_ -= zrgsamp->start_*refstep_;
-                    inputcs.zsamp_.stop_ -= zrgsamp->stop_*refstep_;
+		    inputcs.zsamp_.start_ -= zrgsamp->start_*refstep_;
+		    inputcs.zsamp_.stop_ -= zrgsamp->stop_*refstep_;
 		}
 
 		res.limitToWithUdf( inputcs );
@@ -723,8 +723,8 @@ int Provider::alignInputs( ObjectSet<Provider>& movinginputs )
 
 //TODO: compare line name in 2d
 int Provider::comparePosAndAlign( Provider* input1, bool inp1_is_on_newline,
-	                          Provider* input2, bool inp2_is_on_newline,
-	                          bool inp1moved )
+				  Provider* input2, bool inp2_is_on_newline,
+				  bool inp1moved )
 {
     bool inp2moved = false;
     while ( true )
@@ -867,7 +867,7 @@ void Provider::addLocalCompZIntervals( const TypeSet< Interval<int> >& intvs )
 
     const float dz = mIsZero(refstep_,mDefEps) ? SI().zStep() : refstep_;
     const Interval<int> possintv( mNINT32(possiblevolume_->zsamp_.start_/dz),
-                                  mNINT32(possiblevolume_->zsamp_.stop_/dz) );
+				  mNINT32(possiblevolume_->zsamp_.stop_/dz) );
 
     const int nrintvs = intvs.size();
     if ( nrintvs < 1 )
@@ -878,17 +878,17 @@ void Provider::addLocalCompZIntervals( const TypeSet< Interval<int> >& intvs )
     for ( int idx=0; idx<nrintvs; idx++ )
     {
 	BasicInterval<int> reqintv = intvs[idx];
-        if ( reqintv.start_ > possintv.stop_ || reqintv.stop_ < possintv.start_ )
+	if ( reqintv.start_>possintv.stop_ || reqintv.stop_<possintv.start_ )
 	{
 	    for ( int inp=0; inp<nrinps; inp++ )
 		inputranges.set( inp, idx, Interval<int>(mUdf(int),mUdf(int)) );
 	    continue;
 	}
 
-        if ( possintv.start_ > reqintv.start_ )
-            reqintv.start_ = possintv.start_;
-        if ( possintv.stop_ < reqintv.stop_ )
-            reqintv.stop_ = possintv.stop_;
+	if ( possintv.start_ > reqintv.start_ )
+	    reqintv.start_ = possintv.start_;
+	if ( possintv.stop_ < reqintv.stop_ )
+	    reqintv.stop_ = possintv.stop_;
 
 	if ( !isUsedMultTimes() )
 	    localcomputezintervals_ += reqintv;
@@ -912,7 +912,7 @@ void Provider::addLocalCompZIntervals( const TypeSet< Interval<int> >& intvs )
 	for ( int idx=0; idx<nrintvs; idx++ )
 	{
 	    const BasicInterval<int> rg = inputranges.get( inp, idx );
-            if ( mIsUdf(rg.start_) || mIsUdf(rg.stop_) )
+	    if ( mIsUdf(rg.start_) || mIsUdf(rg.stop_) )
 		continue;
 	    inpranges += rg;
 	}
@@ -950,10 +950,10 @@ void Provider::fillInputRangesArray(
 	    BasicInterval<int> zrgsamp( 0, 0 );
 	    mUseMargins(int,Samp,samp);
 
-            inputrange.start_ += mNINT32(zrg.start_/dz);
-            inputrange.start_ += zrgsamp.start_;
-            inputrange.stop_ += mNINT32(zrg.stop_/dz);
-            inputrange.stop_ += zrgsamp.stop_;
+	    inputrange.start_ += mNINT32(zrg.start_/dz);
+	    inputrange.start_ += zrgsamp.start_;
+	    inputrange.stop_ += mNINT32(zrg.stop_/dz);
+	    inputrange.stop_ += zrgsamp.stop_;
 
 	    inputranges.set( inp, idx, inputrange );
 	}
@@ -1015,8 +1015,9 @@ const DataHolder* Provider::getData( const BinID& relpos, int idi )
 
     if ( !linebuffer_ )
 	linebuffer_ = new DataHolderLineBuffer;
+
     DataHolder* outdata =
-            linebuffer_->createDataHolder( currentbid_+relpos, loczinterval.start_,
+	linebuffer_->createDataHolder( currentbid_+relpos, loczinterval.start_,
 				      loczinterval.width()+1 );
     if ( !outdata || !getInputData(relpos, idi) )
     {
@@ -1270,11 +1271,11 @@ void Provider::computeDesInputCube( int inp, int out, TrcKeyZSampling& res,
 	Interval<int> zrgsamp(0,0);
 	mUseMargins(int,Samp,samp)
 
-                zrg.include( Interval<float>( zrgsamp.start_*refstep_,
-                                              zrgsamp.stop_*refstep_ ) );
+	zrg.include( Interval<float>( zrgsamp.start_*refstep_,
+				      zrgsamp.stop_*refstep_ ) );
 
-        Interval<float> extraz = Interval<float>(extraz_.start_ + zrg.start_,
-                                                 extraz_.stop_ + zrg.stop_);
+	Interval<float> extraz = Interval<float>(extraz_.start_ + zrg.start_,
+						 extraz_.stop_ + zrg.stop_);
 	const_cast<Provider*>(inputs_[inp])->setSelData( seldata_ );
 	const_cast<Provider*>(inputs_[inp])->setExtraZ( extraz );
     }
@@ -1312,8 +1313,8 @@ void Provider::computeDesInputCube( int inp, int out, TrcKeyZSampling& res,
 
     Interval<int> zrgsamp(0,0);
     mUseMargins(int,Samp,samp)
-            zrg.include(Interval<float>( zrgsamp.start_*refstep_,
-                                         zrgsamp.stop_*refstep_ ));
+	    zrg.include(Interval<float>( zrgsamp.start_*refstep_,
+					 zrgsamp.stop_*refstep_ ));
 
     res.zsamp_.start_ += zrg.start_;
     res.zsamp_.stop_ += zrg.stop_;
@@ -1391,7 +1392,7 @@ int Provider::getTotalNrPos( bool is2d ) const
 	const Pos::GeomID geomid = getGeomID();
 	const Survey::Geometry* geometry = Survey::GM().getGeometry( geomid );
 	mDynamicCastGet( const Survey::Geometry2D*, geom2d, geometry );
-        cs.hsamp_.step_.crl() = geom2d ? geom2d->data().trcNrRange().step_ : 1;
+	cs.hsamp_.step_.crl() = geom2d ? geom2d->data().trcNrRange().step_ : 1;
 	return cs.nrCrl();
     }
 
@@ -1440,17 +1441,6 @@ void Provider::setRefZ0( float z0 )
 }
 
 
-void Provider::setCurLineName( const char* linename )
-{
-    geomid_ = Survey::GM().getGeomID( linename );
-    for ( int idx=0; idx<inputs_.size(); idx++ )
-    {
-	if ( !inputs_[idx] ) continue;
-	inputs_[idx]->setCurLineName( linename );
-    }
-}
-
-
 void Provider::adjust2DLineStoredVolume()
 {
     for ( int idx=0; idx<inputs_.size(); idx++ )
@@ -1467,12 +1457,12 @@ Pos::GeomID Provider::getGeomID() const
     Pos::GeomID geomid;
     for ( int idx=0; idx<inputs_.size(); idx++ )
     {
-        if ( !inputs_[idx] )
-            continue;
+	if ( !inputs_[idx] )
+	    continue;
 
-        geomid = inputs_[idx]->getGeomID();
+	geomid = inputs_[idx]->getGeomID();
 	if ( geomid.isValid() )
-            return geomid;
+	    return geomid;
     }
 
     return geomid;
@@ -1536,8 +1526,10 @@ float Provider::lineDist() const
 
 float Provider::trcDist() const
 {
-    return is2D() && useInterTrcDist() ?
-     getDistBetwTrcs(false, Survey::GM().getName(geomid_)) : SI().crlDistance();
+    if ( is2D() && useInterTrcDist() )
+	return getDistBetwTrcs( getGeomID() );
+
+    return SI().crlDistance();
 }
 
 uiString Provider::errMsg() const
@@ -1701,31 +1693,6 @@ void Provider::getCompOutputIDs( TypeSet<int>& ids ) const
 }
 
 
-float Provider::getDistBetwTrcs( bool ismax, const char* linenm ) const
-{
-    for ( int idx=0; idx<inputs_.size(); idx++ )
-    {
-	if ( !inputs_[idx] ) continue;
-	const float distval = inputs_[idx]->getDistBetwTrcs( ismax, linenm );
-	if ( !mIsUdf(distval) )
-	    return distval;
-    }
-
-    return mUdf(float);
-}
-
-
-bool Provider::compDistBetwTrcsStats( bool force )
-{
-    bool allright = false;
-    for ( int idx=0; idx<inputs_.size(); idx++ )
-	if ( inputs_[idx] && inputs_[idx]->compDistBetwTrcsStats() )
-	    allright = true;
-
-    return allright;
-}
-
-
 //Cannot make it a virtual function in 6.0
 BinID Provider::getElementStepout() const
 {
@@ -1825,10 +1792,21 @@ bool Provider::useInterTrcDist() const
 }
 
 
+float Provider::getDistBetwTrcs( const Pos::GeomID& geomid ) const
+{
+    if ( !is2D() )
+	return SI().crlDistance();
+
+    mDynamicCastGet(const Survey::Geometry2D*,geom2d,
+		    Survey::GM().getGeometry(geomid))
+    return geom2d ? geom2d->averageTrcDist() : mUdf(float);
+}
+
+
 float Provider::getApplicableCrlDist( bool dependoninput ) const
 {
     if ( is2D() && ( !dependoninput || useInterTrcDist() ) )
-	return getDistBetwTrcs( false, Survey::GM().getName(geomid_) );
+	return getDistBetwTrcs( geomid_ );
 
     return crlDist();
 }

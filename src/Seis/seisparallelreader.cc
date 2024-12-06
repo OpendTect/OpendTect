@@ -816,7 +816,7 @@ ConstRefMan<RegularSeisDataPack> Seis::ParallelReader2D::getDataPack() const
 Seis::SequentialReader::SequentialReader( const IOObj& ioobj,
 					  const TrcKeyZSampling* tkzs,
 					  const TypeSet<int>* comps )
-    : Executor("Volume Reader")
+    : Executor("Reading Data")
     , ioobj_(ioobj.clone())
     , rdr_(*new SeisTrcReader(ioobj))
     , dc_(DataCharacteristics::Auto)
@@ -1062,12 +1062,19 @@ bool Seis::SequentialReader::init()
 	return false;
     }
 
-    PosInfo::CubeData cubedata;
-    if ( rdr_.get3DGeometryInfo(cubedata) )
-	dp_->setTrcsSampling( new PosInfo::SortedCubeData(cubedata) );
+    if ( is2d_ )
+    {
+	auto* cubedata = new PosInfo::CubeData( tkzs_.hsamp_ );
+	dp_->setTrcsSampling( cubedata );
+    }
+    else
+    {
+	PosInfo::CubeData cubedata;
+	if ( rdr_.get3DGeometryInfo(cubedata) )
+	    dp_->setTrcsSampling( new PosInfo::SortedCubeData(cubedata) );
+    }
 
     nrdone_ = 0;
-
     seistkzs.hsamp_.limitTo( tkzs_.hsamp_ );
     seistkzs.hsamp_.step_ = tkzs_.hsamp_.step_;
     rdr_.setSelData( new Seis::RangeSelData(seistkzs) );

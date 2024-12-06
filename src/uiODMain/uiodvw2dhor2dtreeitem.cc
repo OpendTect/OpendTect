@@ -31,7 +31,6 @@ ________________________________________________________________________
 #include "emhorizon2d.h"
 #include "emmanager.h"
 #include "ioman.h"
-#include "ioobj.h"
 #include "mouseevent.h"
 #include "view2ddataman.h"
 #include "view2dhorizon2d.h"
@@ -329,8 +328,6 @@ uiODView2DHor2DTreeItem::~uiODView2DHor2DTreeItem()
 
 bool uiODView2DHor2DTreeItem::init()
 {
-    const Line2DInterSectionSet* intersectionset =
-			ODMainWin()->viewer2DMgr().getLine2DInterSectionSet();
     EM::EMObject* emobj = nullptr;
     if ( displayid_.isValid() )
     {
@@ -382,9 +379,7 @@ bool uiODView2DHor2DTreeItem::init()
     if ( viewer2D()->geomID().isValid() )
 	horview_->setGeomID( viewer2D()->geomID() );
 
-    horview_->setLine2DInterSectionSet( intersectionset );
     horview_->draw();
-
     NotifierAccess* deselnotify = horview_->deSelection();
     if ( deselnotify )
 	mAttachCB( deselnotify, uiODView2DHor2DTreeItem::deSelCB );

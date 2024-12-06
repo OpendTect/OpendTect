@@ -42,7 +42,7 @@ int mTestMainFnName( int argc, char** argv )
 {
     mInitTestProg();
 
-    OD::ModDeps().ensureLoaded( "General" );
+    OD::ModDeps().ensureLoaded( "Geometry" );
 
     const bool managed = !clParser().hasKey( "keep" );
 

@@ -523,7 +523,7 @@ bool IOX::implExists( bool i ) const
 
 Conn* IOX::getConn( bool forread ) const
 {
-    XConn* ret = 0;
+    XConn* ret = nullptr;
 
     IOObj* ioobj = getIOObj();
     if ( ioobj )

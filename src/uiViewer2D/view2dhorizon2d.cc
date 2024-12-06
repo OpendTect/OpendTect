@@ -9,8 +9,6 @@ ________________________________________________________________________
 
 #include "view2dhorizon2d.h"
 
-#include "emseedpicker.h"
-#include "flatauxdataeditor.h"
 #include "flatposdata.h"
 #include "horflatvieweditor2d.h"
 #include "mpeengine.h"
@@ -21,7 +19,8 @@ ________________________________________________________________________
 #include "uiflatviewer.h"
 #include "uiflatauxdataeditor.h"
 #include "uigraphicsscene.h"
-#include "uirgbarraycanvas.h"
+#include "uigraphicsview.h"
+
 
 namespace View2D
 {
@@ -61,7 +60,6 @@ void Horizon2D::setEditors()
 
 	auto* hored = new MPE::HorizonFlatViewEditor2D(
 	     const_cast<uiFlatViewAuxDataEditor*>(auxdataeditors_[ivwr]),emid_);
-	hored->setLine2DInterSectionSet( line2dintersectionset_ );
 	horeds_ += hored;
     }
 }
@@ -126,7 +124,6 @@ void Horizon2D::draw()
 	    dists += mCast(float,regfdp->posData().position(true,idx));
 	}
 
-	horeds_[ivwr]->setLine2DInterSectionSet( line2dintersectionset_ );
 	horeds_[ivwr]->paint();
 	horeds_[ivwr]->enableSeed( trackerenbed );
 	horeds_[ivwr]->enableIntersectionMarker( true );

@@ -54,8 +54,8 @@ public:
 
 private:
 
-    od_stream*		strm_;
-    bool		mine_;
+    od_stream*		strm_	= nullptr;
+    bool		mine_	= true;
 
     BufferString	creationmsg_;
 

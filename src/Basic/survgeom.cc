@@ -7,14 +7,16 @@ ________________________________________________________________________
 
 -*/
 
+#include "survgeom.h"
 #include "survgeom2d.h"
-#include "posinfo2dsurv.h"
 
 #include "genc.h"
 #include "keystrs.h"
 #include "multiid.h"
+#include "posinfo2dsurv.h"
 #include "survinfo.h"
 #include "task.h"
+#include "threadwork.h"
 
 
 namespace Survey
@@ -177,13 +179,18 @@ const Geometry2D* Geometry::as2D() const
 
 
 GeometryManager::GeometryManager()
-    : hasduplnms_(false)
+    : geometryRead(this)
+    , lock_(false)
+    , closing(this)
 {}
+
 
 GeometryManager::~GeometryManager()
 {
+    closing.trigger();
     deepUnRef( geometries_ );
 }
+
 
 int GeometryManager::nrGeometries() const
 {
@@ -211,8 +218,13 @@ bool GeometryManager::has2D() const
     return false;
 }
 
-void GeometryManager::ensureSIPresent() const
+
+void GeometryManager::ensureSIPresent()
 {
+    Threads::Locker locker( lock_ );
+    deepUnRef( geometries_ );
+    namemap_.clear();
+    geomidmap_.clear();
     bool has3d = false;
     for ( int idx=0; idx<geometries_.size(); idx++ )
     {
@@ -456,6 +468,7 @@ void GeometryManager::addGeometry( Survey::Geometry& geom )
 
 bool GeometryManager::fetchFrom2DGeom( uiString& errmsg )
 {
+    ensureSIPresent();
     fillGeometries( nullptr );
     if ( nrGeometries() > 1 ) // Already have new 2D geoms
 	return true;
@@ -510,7 +523,10 @@ bool GeometryManager::fetchFrom2DGeom( uiString& errmsg )
     }
 
     if ( fetchedgeometry )
+    {
+	ensureSIPresent();
 	fillGeometries( nullptr );
+    }
 
     return true;
 }
@@ -629,10 +645,6 @@ int GeometryManager::indexOf( const Pos::GeomID& geomid ) const
 bool GeometryManager::fillGeometries( TaskRunner* taskr )
 {
     Threads::Locker locker( lock_ );
-    deepUnRef( geometries_ );
-    namemap_.clear();
-    geomidmap_.clear();
-    ensureSIPresent();
     hasduplnms_ = hasDuplicateLineNames();
     PtrMan<GeometryReader> geomreader =
 		GeometryReader::factory().create(sKey::TwoD());
@@ -647,6 +659,7 @@ bool GeometryManager::fillGeometries( TaskRunner* taskr )
 	geomidmap_[geom->getID().asInt()] = idx;
     }
 
+    geometryRead.trigger();
     return true;
 }
 

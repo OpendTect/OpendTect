@@ -48,10 +48,10 @@ public:
     Processor*		usePar(const IOPar&,DescSet&,
 			       const char* linename,uiString&);
 
-    static Processor*	createProcessor(const DescSet&,const char*,
+    static Processor*	createProcessor(const DescSet&,const Pos::GeomID&,
 					const DescID&,uiString& errmsg);
     static bool		getPossibleVolume(DescSet&,TrcKeyZSampling&,
-					  const char* linename,const DescID&);
+					  const Pos::GeomID&,const DescID&);
     static void		addNLADesc(const char*,DescID&,DescSet&,int,
 				   const NLAModel*,uiString&);
 
@@ -144,6 +144,14 @@ private:
 
 public:
     bool		hasCache() const		{ return cache_; }
+
+    mDeprecated("Use the one with Pos::GeomID& as argument")
+    static Processor*	createProcessor(const DescSet&,const char*,
+					const DescID&,uiString& errmsg);
+
+    mDeprecated("Use the one with Pos::GeomID& as argument")
+    static bool		getPossibleVolume(DescSet&,TrcKeyZSampling&,
+					const char* linename,const DescID&);
 };
 
 } // namespace Attrib

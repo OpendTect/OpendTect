@@ -35,6 +35,7 @@ ________________________________________________________________________
 #include "seisbuf.h"
 #include "seisdatapack.h"
 #include "seisioobjinfo.h"
+#include "seisparallelreader.h"
 #include "seispreload.h"
 #include "seisread.h"
 #include "seisselectionimpl.h"
@@ -769,7 +770,68 @@ ConstRefMan<RegularSeisDataPack> uiAttribPartServer::createOutput(
 					    const TrcKeyZSampling& tkzs,
 					    const RegularSeisDataPack* cache )
 {
+    if ( tkzs.is2D() )
+	return create2DOutputRM( tkzs, cache );
+
     return createOutputRM( tkzs, cache );
+}
+
+
+ConstRefMan<RegularSeisDataPack> uiAttribPartServer::create2DOutputRM(
+				const TrcKeyZSampling& tkzs,
+				const RegularSeisDataPack* cache,
+				TaskRunner* taskr )
+{
+    const Pos::GeomID geomid = tkzs.hsamp_.getGeomID();
+    const bool isstored = targetspecs_[0].isStored();
+    const DescSet* curds = DSHolder().getDescSet( true, isstored );
+    if ( curds )
+    {
+	ConstRefMan<Desc> targetdesc = curds->getDesc( targetID(true) );
+	if ( targetdesc )
+	{
+	    const MultiID mid = targetdesc->getStoredID();
+	    ConstRefMan<RegularSeisDataPack> regsdp =
+			Seis::PLDM().get<RegularSeisDataPack>( mid, geomid );
+	    if ( regsdp )
+		return regsdp;
+
+	    ConstPtrMan<IOObj> ioobj = IOM().get( mid );
+	    Seis::SequentialReader rdr( *ioobj, &tkzs );
+	    if ( !TaskRunner::execute(taskr,rdr) )
+	    {
+		uiMSG().error( rdr.uiMessage() );
+		return nullptr;
+	    }
+
+	    regsdp = rdr.getDataPack();
+	    if ( regsdp )
+		return regsdp;
+	}
+    }
+
+    PtrMan<EngineMan> aem = createEngMan( &tkzs, geomid );
+    if ( !aem )
+	return nullptr;
+
+    uiString errmsg;
+    RefMan<Data2DHolder> data2d = new Data2DHolder;
+    PtrMan<Processor> process = aem->createScreenOutput2D( errmsg, *data2d );
+    if ( !process )
+    {
+	uiMSG().error(errmsg);
+	return nullptr;
+    }
+
+    if ( !TaskRunner::execute(taskr,*process) )
+	return nullptr;
+
+    BufferStringSet userrefs;
+    for ( int idx=0; idx<targetspecs_.size(); idx++ )
+	userrefs.add( targetspecs_[idx].userRef() );
+
+    return createDataPackFor2DRM( *data2d, tkzs,
+	    ZDomain::Def::get(targetspecs_[0].zDomainKey()), &userrefs );
 }
 
 
@@ -914,7 +976,7 @@ RefMan<RegularSeisDataPack> uiAttribPartServer::createOutputRM(
 		return nullptr;
 
 	    const bool haspossvol = aem->getPossibleVolume( *targetdescset,
-					posstkzs, nullptr, targetdesc->id() );
+			posstkzs, Survey::default3DGeomID(), targetdesc->id() );
 	    if ( !haspossvol )
 		return nullptr;
 	}
@@ -1768,9 +1830,8 @@ void uiAttribPartServer::filter2DMenuItems(
 	childitemnms.add( subitem.getItem(idx)->text.getFullString() );
 
     subitem.removeItems();
-    StringView linenm( Survey::GM().getName(geomid) );
     BufferStringSet attribnms;
-    uiSeisPartServer::get2DStoredAttribs( linenm, attribnms, steerpol );
+    uiSeisPartServer::get2DStoredAttribs( geomid, attribnms, steerpol );
     for ( int idx=0; idx<childitemnms.size(); idx++ )
     {
 	StringView childnm( childitemnms.get(idx).buf() );

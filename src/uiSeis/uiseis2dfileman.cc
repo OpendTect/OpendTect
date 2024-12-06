@@ -40,11 +40,9 @@ mDefineInstanceCreatedNotifierAccess(uiSeis2DFileMan)
 
 uiSeis2DFileMan::uiSeis2DFileMan( uiParent* p, const IOObj& ioobj )
     : uiDialog(p,uiDialog::Setup(uiStrings::phrManage( tr("2D Seismic Lines")),
-                                 mNoDlgTitle,
-				 mODHelpKey(mSeis2DManHelpID) ))
+				mNoDlgTitle, mODHelpKey(mSeis2DManHelpID) ))
 {
     setCtrlStyle( CloseOnly );
-    Survey::GMAdmin().updateGeometries( nullptr );
 
     objinfo_ = new uiSeisIOObjInfo( ioobj );
     dataset_ = new Seis2DDataSet( ioobj );

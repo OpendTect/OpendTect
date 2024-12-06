@@ -101,11 +101,10 @@ public:
 
 /*!\brief Makes geometries accessible from a geometry ID, or a MultiID.  */
 
-mExpClass(Basic) GeometryManager
+mExpClass(Basic) GeometryManager : public CallBacker
 {
 mODTextTranslationClass(GeometryManager)
 public:
-
 				GeometryManager();
 				~GeometryManager();
 
@@ -133,14 +132,15 @@ public:
     TrcKey			nearestTrace(const TypeSet<Pos::GeomID>&,
 					const Coord&,float* dist=nullptr) const;
 
-    bool			fillGeometries(TaskRunner*);
     bool			getList(BufferStringSet& names,
 					TypeSet<Pos::GeomID>& ids,
 					bool is2d) const;
     Pos::GeomID			findRelated(const Geometry&,
 					    Geometry::RelationType&,
 					    bool usezrg) const;
-				//!<Returns cUndefGeomID() if none found
+				//!<Returns GeomID::udf() if none found
+
+    Notifier<GeometryManager>	geometryRead;
 
     mDeprecated("Use Pos::GeomID::udf()")
     static Pos::GeomID		cUndefGeomID()	{ return Pos::GeomID::udf(); }
@@ -148,7 +148,6 @@ public:
 protected:
 
     const Geometry*		getGeometry(OD::GeomSystem) const  = delete;
-    void			ensureSIPresent() const;
     void			addGeometry(Geometry&);
 
     int				indexOf(const Pos::GeomID&) const;
@@ -157,12 +156,14 @@ protected:
     Threads::Lock		lock_;
     ObjectSet<Geometry>		geometries_;
 
-    bool			hasduplnms_;
+    bool			hasduplnms_	= false;
 
 public:
 
     /*! Admin functions:
       Use the following functions only when you know what you are doing. */
+    bool			fillGeometries(TaskRunner*);
+    void			ensureSIPresent();
 
     Geometry*			getGeometry(const Pos::GeomID&);
     Geometry2D&			get2D(const Pos::GeomID&);
@@ -178,6 +179,8 @@ public:
     bool			fetchFrom2DGeom(uiString& errmsg);
 				//converts od4 geometries to od5 geometries.
     bool			updateGeometries(TaskRunner*);
+
+    Notifier<GeometryManager>	closing;
 
 public:
 
@@ -199,6 +202,7 @@ public:
 						{ return OD::Geom3D; }
 
 private:
+
     std::unordered_map<std::string,int>		namemap_;
     std::unordered_map<int,int>			geomidmap_;
 };

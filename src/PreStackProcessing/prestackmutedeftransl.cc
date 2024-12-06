@@ -103,10 +103,12 @@ bool MuteDefTranslator::store( const PreStack::MuteDef& md, const IOObj* ioobj,
     msg.setEmpty();
     PtrMan<Conn> conn = ioobj->getConn( Conn::Write );
     if ( !conn )
+    {
 	msg = uiStrings::phrCannotOpen(toUiString(ioobj->fullUserExpr(false)));
-    else
-	msg = mdtrl->write( md, *conn );
+	return false;
+    }
 
+    msg = mdtrl->write( md, *conn );
     return msg.isEmpty();
 }
 
@@ -121,9 +123,10 @@ dgbMuteDefTranslator::dgbMuteDefTranslator( const char* nm, const char* unm )
 
 uiString dgbMuteDefTranslator::read( PreStack::MuteDef& md, Conn& conn )
 {
-    if ( !conn.forRead() || !conn.isStream() )
+    if ( conn.isBad() || !conn.forRead() || !conn.isStream() )
     {
-	pErrMsg("Internal error: bad connection");
+	pErrMsg(BufferString("Internal error: bad connection:\n",
+		    conn.creationMessage()));
 	return uiStrings::phrCannotConnectToDB();
     }
 
@@ -249,9 +252,10 @@ bool dgbMuteDefTranslator::hasIOPar(int majorversion, int minorversion )
 
 uiString dgbMuteDefTranslator::write( const PreStack::MuteDef& md,Conn& conn)
 {
-    if ( !conn.forWrite() || !conn.isStream() )
+    if ( conn.isBad() || !conn.forWrite() || !conn.isStream() )
     {
-	pErrMsg("Internal error: bad connection");
+	pErrMsg(BufferString("Internal error: bad connection:\n",
+		    conn.creationMessage()));
 	return uiStrings::phrCannotConnectToDB();
     }
 

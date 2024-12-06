@@ -34,12 +34,8 @@ public:
     struct SelectedAuxAnnot
     {
 				SelectedAuxAnnot(int auxposidx=-1,
-					bool isx1=true,bool selected=false)
-				    : auxposidx_(auxposidx)
-				    , isx1_(isx1)
-				    , oldauxpos_(mUdf(float))
-				    , isselected_(selected)	{}
-				~SelectedAuxAnnot()		{}
+					bool isx1=true,bool selected=false);
+				~SelectedAuxAnnot();
 
 	int			auxposidx_;
 	bool			isx1_;
@@ -92,36 +88,36 @@ public:
     uiTreeFactorySet*		treeItemFactorySet3D()	{ return tifs3d_; }
 
     //3D Horizons
-    void			getHor3DVwr2DIDs(EM::ObjectID,
+    void			getHor3DVwr2DIDs(const EM::ObjectID&,
 						 TypeSet<Vis2DID>&) const;
-    void			removeHorizon3D(EM::ObjectID);
+    void			removeHorizon3D(const EM::ObjectID&);
     void			addHorizon3Ds(const TypeSet<EM::ObjectID>&);
-    void			addNewTrackingHorizon3D(EM::ObjectID);
+    void			addNewTrackingHorizon3D(const EM::ObjectID&);
     void			getLoadedHorizon3Ds(
 					TypeSet<EM::ObjectID>&) const;
     // 2D Horizons
-    void			getHor2DVwr2DIDs(EM::ObjectID,
+    void			getHor2DVwr2DIDs(const EM::ObjectID&,
 						 TypeSet<Vis2DID>&) const;
-    void			removeHorizon2D(EM::ObjectID);
+    void			removeHorizon2D(const EM::ObjectID&);
     void			getLoadedHorizon2Ds(
 					TypeSet<EM::ObjectID>&) const;
     void			addHorizon2Ds(const TypeSet<EM::ObjectID>&);
-    void			addNewTrackingHorizon2D(EM::ObjectID);
+    void			addNewTrackingHorizon2D(const EM::ObjectID&);
 
     //Faults
-    void			removeFault(EM::ObjectID);
+    void			removeFault(const EM::ObjectID&);
     void			addFaults(const TypeSet<EM::ObjectID>&);
-    void			addNewTempFault(EM::ObjectID);
+    void			addNewTempFault(const EM::ObjectID&);
     void			getLoadedFaults( TypeSet<EM::ObjectID>&) const;
-    void			getFaultVwr2DIDs(EM::ObjectID emid,
+    void			getFaultVwr2DIDs(const EM::ObjectID& emid,
 						 TypeSet<Vis2DID>&) const;
 
     //FaultStickSet
-    void			getFaultSSVwr2DIDs(EM::ObjectID,
+    void			getFaultSSVwr2DIDs(const EM::ObjectID&,
 						   TypeSet<Vis2DID>&) const;
-    void			removeFaultSS(EM::ObjectID);
+    void			removeFaultSS(const EM::ObjectID&);
     void			addFaultSSs(const TypeSet<EM::ObjectID>&);
-    void			addNewTempFaultSS(EM::ObjectID);
+    void			addNewTempFaultSS(const EM::ObjectID&);
     void			getLoadedFaultSSs(TypeSet<EM::ObjectID>&) const;
 
 
@@ -140,9 +136,6 @@ public:
     static const char*		sKeyAttrID()		{ return "Attrib ID"; }
     static const char*		sKeyWVA()		{ return "WVA"; }
 
-    const Line2DInterSectionSet* getLine2DInterSectionSet()
-						{ return l2dintersections_; }
-
     CNotifier<uiODViewer2DMgr,Vis2DID>	vw2dObjAdded;
     CNotifier<uiODViewer2DMgr,Vis2DID>	vw2dObjToBeRemoved;
 
@@ -155,9 +148,9 @@ protected:
     void			remove2DViewer(int id,bool byvisid);
 
     ObjectSet<uiODViewer2D>	viewers2d_;
-    Line2DInterSectionSet*	l2dintersections_		= nullptr;
     SelectedAuxAnnot		selauxannot_;
     TypeSet<Pos::GeomID>	geom2dids_;
+    Line2DIntersectionManager&	l2dim_;
 
     uiTreeFactorySet*		tifs2d_;
     uiTreeFactorySet*		tifs3d_;
@@ -190,8 +183,7 @@ protected:
     void			attachNotifiersAndSetAuxData(uiODViewer2D*);
     Line2DInterSection::Point	intersectingLineID(const uiODViewer2D*,
 						   float pos) const;
-    int				intersection2DIdx(Pos::GeomID) const;
-    void			reCalc2DIntersetionIfNeeded(Pos::GeomID);
+    void			reCalc2DIntersetionIfNeeded(const Pos::GeomID&);
     void			setAllIntersectionPositions();
     void			setVWR2DIntersectionPositions(uiODViewer2D*);
     void			handleLeftClick(uiODViewer2D*);
@@ -212,12 +204,12 @@ public:
     bool			isItemPresent(const uiTreeItem*) const;
 
     //FaultStickSet2D
-    void			removeFaultSS2D(EM::ObjectID emid);
+    void			removeFaultSS2D(const EM::ObjectID&);
     void			addFaultSS2Ds(const TypeSet<EM::ObjectID>&);
-    void			addNewTempFaultSS2D(EM::ObjectID mid);
+    void			addNewTempFaultSS2D(const EM::ObjectID&);
     void			getLoadedFaultSS2Ds(
 					 TypeSet<EM::ObjectID>&) const;
-    void			getFaultSS2DVwr2DIDs(EM::ObjectID emid,
+    void			getFaultSS2DVwr2DIDs(const EM::ObjectID&,
 						    TypeSet<Vis2DID>&) const;
 
     void			addNewTrackingHorizon3D(const EM::ObjectID&,

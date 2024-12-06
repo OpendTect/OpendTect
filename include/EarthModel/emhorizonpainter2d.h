@@ -9,10 +9,10 @@ ________________________________________________________________________
 -*/
 
 #include "earthmodelmod.h"
+
 #include "trckeyzsampling.h"
 #include "emposid.h"
 #include "flatview.h"
-#include "geom2dintersections.h"
 
 
 namespace EM
@@ -56,12 +56,8 @@ public:
     void		removeSelections();
     void		updatePreferColors();
 
-
     Notifier<HorizonPainter2D>	abouttorepaint_;
     Notifier<HorizonPainter2D>	repaintdone_;
-    void		setLine2DInterSectionSet(const Line2DInterSectionSet*);
-    const Line2DInterSectionSet* getLine2DInterSectionSet()
-					    { return intsectset_; }
 
 protected:
 
@@ -91,13 +87,12 @@ protected:
     typedef ObjectSet<Marker2D>		SectionMarker2DLine;
     ObjectSet<SectionMarker2DLine>	markerline_;
     Marker2D*				markerseeds_;
-    const Line2DInterSectionSet*	intsectset_		= nullptr;
 
     bool		linenabled_;
     bool		seedenabled_;
     bool		intersection_;
-    ObjectSet<Marker2D>   intsectmarks_;
-    Marker2D*		  selectionpoints_;
+    ObjectSet<Marker2D> intsectmarks_;
+    Marker2D*		selectionpoints_;
 
 private:
     Marker2D*		create2DMarker();

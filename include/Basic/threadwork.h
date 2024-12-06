@@ -61,7 +61,7 @@ public:
 				/*!<Runs all jobs in a que. Only for manual
 				    queues */
 
-    void			addWork(const Work&,CallBack* finished =0,
+    void			addWork(const Work&,CallBack* finished =nullptr,
 					int queueid=cDefaultQueueID(),
 					bool putfirstinline=false,
 					bool discardduplicates=false,
@@ -119,9 +119,6 @@ public:
 
     static Threads::WorkManager& twm();
 
-    Notifier<WorkManager>	isShuttingDown;
-    void			shutdown();
-
 protected:
 
     int				queueSizeNoLock(int queueid) const;
@@ -151,6 +148,13 @@ protected:
 
     int				freeid_;
     const int			twmid_; //!<Only for debugging
+
+public:
+
+    //! Admin functions, automatically called/triggered on application exit
+    Notifier<WorkManager>	isShuttingDown;
+    void			shutdown();
+
 };
 
 

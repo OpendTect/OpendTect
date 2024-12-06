@@ -60,9 +60,24 @@ ________________________________________________________________________
 #include "vispicksetdisplay.h"
 #include "visrandomtrackdisplay.h"
 
+
+uiODViewer2DMgr::SelectedAuxAnnot::SelectedAuxAnnot( int auxposidx,
+				bool isx1, bool selected )
+    : auxposidx_(auxposidx)
+    , isx1_(isx1)
+    , isselected_(selected)
+    , oldauxpos_(mUdf(float))
+{}
+
+
+uiODViewer2DMgr::SelectedAuxAnnot::~SelectedAuxAnnot()
+{}
+
+
 uiODViewer2DMgr::uiODViewer2DMgr( uiODMain* a )
     : vw2dObjAdded(this)
     , vw2dObjToBeRemoved(this)
+    , l2dim_(Line2DIntersectionManager::instanceAdmin())
     , tifs2d_(new uiTreeFactorySet)
     , tifs3d_(new uiTreeFactorySet)
     , appl_(*a)
@@ -93,7 +108,6 @@ uiODViewer2DMgr::uiODViewer2DMgr( uiODMain* a )
 uiODViewer2DMgr::~uiODViewer2DMgr()
 {
     detachAllNotifiers();
-    delete l2dintersections_;
     deepErase( viewers2d_ );
     delete tifs2d_;
     delete tifs3d_;
@@ -106,7 +120,6 @@ int uiODViewer2DMgr::nr2DViewers() const
 
 void uiODViewer2DMgr::cleanup()
 {
-    deleteAndNullPtr( l2dintersections_ );
     deepErase( viewers2d_ );
     geom2dids_.erase();
 }
@@ -295,8 +308,8 @@ Viewer2DID uiODViewer2DMgr::displayIn2DViewer( Viewer2DPosDataSel& posdatasel,
 					float initialx1pospercm,
 					float initialx2pospercm )
 {
-    const FlatView::Viewer::VwrDest dest = FlatView::Viewer::getDest( dowva,
-								      !dowva );
+    const FlatView::Viewer::VwrDest dest =
+		FlatView::Viewer::getDest( dowva, !dowva );
     return displayIn2DViewer( posdatasel, dest, initialx1pospercm,
 			      initialx2pospercm);
 }
@@ -368,8 +381,8 @@ Viewer2DID uiODViewer2DMgr::displayIn2DViewer( Viewer2DPosDataSel& posdatasel,
 void uiODViewer2DMgr::displayIn2DViewer( const VisID& visid, int attribid,
 					 bool dowva )
 {
-    const FlatView::Viewer::VwrDest dest = FlatView::Viewer::getDest( dowva,
-								      !dowva );
+    const FlatView::Viewer::VwrDest dest =
+		FlatView::Viewer::getDest( dowva, !dowva );
     displayIn2DViewer( visid, attribid, dest );
 }
 
@@ -506,8 +519,8 @@ void uiODViewer2DMgr::mouseMoveCB( CallBacker* cb )
 
 	const StepInterval<double> xrg =
 	    curvwr2d->viewwin()->viewer().posRange( selauxannot_.isx1_ );
-	const int newposidx = xrg.nearestIndex( selauxannot_.isx1_
-                                                ? wp.x_ : wp.y_);
+	const int newposidx = xrg.nearestIndex(
+					selauxannot_.isx1_ ? wp.x_ : wp.y_);
 	const float newpos = mCast(float, xrg.atIndex(newposidx) );
 	selauxannot.pos_ = newpos;
 	TrcKeyZSampling::Dir vwr2ddir =
@@ -691,7 +704,7 @@ void uiODViewer2DMgr::mouseClickCB( CallBacker* cb )
 	if ( x1auxposidx>=0 &&
 	     curvwr.appearance().annot_.x1_.auxannot_[x1auxposidx].isNormal() )
 	{
-            intpoint2d = intersectingLineID( curvwr2d, sCast(float,wp.x_) );
+	    intpoint2d = intersectingLineID( curvwr2d, sCast(float,wp.x_) );
 	    if ( !intpoint2d.line.is2D() )
 		return;
 
@@ -744,7 +757,7 @@ void uiODViewer2DMgr::mouseClickCB( CallBacker* cb )
 	    const PosInfo::Line2DData& l2ddata = geom2d->data();
 	    const StepInterval<int> trcnrrg = l2ddata.trcNrRange();
 	    const float trcdist =
-                    l2ddata.distBetween( trcnrrg.start_, intpoint2d.linetrcnr );
+		l2ddata.distBetween( trcnrrg.start_, intpoint2d.linetrcnr );
 	    if ( mIsUdf(trcdist) )
 		return;
 
@@ -851,29 +864,13 @@ void uiODViewer2DMgr::attachNotifiersAndSetAuxData( uiODViewer2D* vwr2d )
 }
 
 
-void uiODViewer2DMgr::reCalc2DIntersetionIfNeeded( Pos::GeomID geomid )
+void uiODViewer2DMgr::reCalc2DIntersetionIfNeeded( const Pos::GeomID& geomid )
 {
-    if ( intersection2DIdx(geomid) >= 0 )
+    if ( l2dim_.intersections().getByGeomID(geomid) )
 	return;
 
-    deleteAndNullPtr( l2dintersections_ );
-
-    if ( geom2dids_.isEmpty() )
-    {
-	BufferStringSet lnms;
-	SeisIOObjInfo::getLinesWithData( lnms, geom2dids_ );
-    }
-    if ( geom2dids_.isEmpty() )
-	return;
-
-    ManagedObjectSet<BendPoints> bendpoints;
-    BendPointFinder2DGeomSet bpfinder( geom2dids_, bendpoints );
-    if ( !bpfinder.execute() )
-	return;
-
-    l2dintersections_ = new Line2DInterSectionSet;
-    Line2DInterSectionFinder intfinder( bendpoints, *l2dintersections_ );
-    intfinder.execute();
+    uiTaskRunner uitr( &appl_ );
+    l2dim_.compute( &uitr );
 }
 
 
@@ -1026,15 +1023,12 @@ void uiODViewer2DMgr::setVWR2DIntersectionPositions( uiODViewer2D* vwr2d )
     TypeSet<PlotAnnotation>& x1auxannot = vwr.appearance().annot_.x1_.auxannot_;
     TypeSet<PlotAnnotation>& x2auxannot = vwr.appearance().annot_.x2_.auxannot_;
     x1auxannot.erase(); x2auxannot.erase();
-
-    if ( vwr2d->geomID().is2D() )
+    const Pos::GeomID geomid = vwr2d->geomID();
+    if ( geomid.is2D() )
     {
-	reCalc2DIntersetionIfNeeded( vwr2d->geomID() );
-	const int intscidx = intersection2DIdx( vwr2d->geomID() );
-	if ( intscidx<0 )
-	    return;
-
-	const Line2DInterSection* intsect = (*l2dintersections_)[intscidx];
+	reCalc2DIntersetionIfNeeded( geomid );
+	const Line2DInterSection* intsect =
+		l2dim_.intersections().getByGeomID( geomid );
 	if ( !intsect )
 	    return;
 
@@ -1085,18 +1079,18 @@ void uiODViewer2DMgr::setVWR2DIntersectionPositions( uiODViewer2D* vwr2d )
 		if ( idxvwrdir==TrcKeyZSampling::Crl )
 		{
 		    newannot.pos_ =
-                            mCast(float,idxvwrtkzs.hsamp_.crlRange().start_);
+			mCast(float,idxvwrtkzs.hsamp_.crlRange().start_);
 		    newannot.txt_ = tr( "CRL %1" )
 				     .arg( idxvwrtkzs.hsamp_.crlRange().start_);
-                    intersecbid = BinID( tkzs.hsamp_.inlRange().start_,
+		    intersecbid = BinID( tkzs.hsamp_.inlRange().start_,
 					 mNINT32(newannot.pos_) );
 		    x1auxannot += newannot;
 		}
 		else
 		{
-                    newannot.pos_ = mCast( float, idxvwrtkzs.zsamp_.start_ );
+		    newannot.pos_ = mCast( float, idxvwrtkzs.zsamp_.start_ );
 		    newannot.txt_ =
-                            tr( "ZSlice %1" ).arg( idxvwrtkzs.zsamp_.start_*
+			    tr( "ZSlice %1" ).arg( idxvwrtkzs.zsamp_.start_*
 					       SI().showZ2UserFactor() );
 		    x2auxannot += newannot;
 		}
@@ -1106,19 +1100,19 @@ void uiODViewer2DMgr::setVWR2DIntersectionPositions( uiODViewer2D* vwr2d )
 		if ( idxvwrdir==TrcKeyZSampling::Inl )
 		{
 		    newannot.pos_ =
-                            mCast( float, idxvwrtkzs.hsamp_.inlRange().start_ );
+			    mCast( float, idxvwrtkzs.hsamp_.inlRange().start_ );
 		    newannot.txt_ = tr( "INL %1" )
 				     .arg( idxvwrtkzs.hsamp_.inlRange().start_);
 		    x1auxannot += newannot;
 		    intersecbid = BinID( mNINT32(newannot.pos_),
-                                         tkzs.hsamp_.crlRange().start_ );
+					 tkzs.hsamp_.crlRange().start_ );
 		}
 		else
 		{
 		    newannot.pos_ =
-                            mCast( float, idxvwrtkzs.zsamp_.start_ );
+			mCast( float, idxvwrtkzs.zsamp_.start_ );
 		    newannot.txt_ =
-                            tr( "ZSlice %1" ).arg( idxvwrtkzs.zsamp_.start_*
+			tr( "ZSlice %1" ).arg( idxvwrtkzs.zsamp_.start_*
 					       SI().showZ2UserFactor() );
 		    x2auxannot += newannot;
 		}
@@ -1128,17 +1122,17 @@ void uiODViewer2DMgr::setVWR2DIntersectionPositions( uiODViewer2D* vwr2d )
 		if ( idxvwrdir==TrcKeyZSampling::Inl )
 		{
 		    newannot.pos_ =
-                            mCast( float, idxvwrtkzs.hsamp_.inlRange().start_ );
+			mCast( float, idxvwrtkzs.hsamp_.inlRange().start_ );
 		    newannot.txt_ = tr( "INL %1" )
-				     .arg( idxvwrtkzs.hsamp_.inlRange().start_);
+				.arg( idxvwrtkzs.hsamp_.inlRange().start_);
 		    x1auxannot += newannot;
 		}
 		else
 		{
 		    newannot.pos_ =
-                            mCast( float, idxvwrtkzs.hsamp_.crlRange().start_ );
+			mCast( float, idxvwrtkzs.hsamp_.crlRange().start_ );
 		    newannot.txt_ = tr( "CRL %1" )
-				     .arg( idxvwrtkzs.hsamp_.crlRange().start_);
+				.arg( idxvwrtkzs.hsamp_.crlRange().start_);
 		    x2auxannot += newannot;
 		}
 	    }
@@ -1171,33 +1165,14 @@ void uiODViewer2DMgr::setAllIntersectionPositions()
 }
 
 
-int uiODViewer2DMgr::intersection2DIdx( Pos::GeomID newgeomid ) const
-{
-    if ( !l2dintersections_ )
-	return -1;
-
-    for ( int lidx=0; lidx<l2dintersections_->size(); lidx++ )
-    {
-	if ( (*l2dintersections_)[lidx] &&
-	     (*l2dintersections_)[lidx]->geomID()==newgeomid )
-	    return lidx;
-    }
-
-    return -1;
-}
-
-
 Line2DInterSection::Point uiODViewer2DMgr::intersectingLineID(
 			    const uiODViewer2D* vwr2d, float pos ) const
 {
     Line2DInterSection::Point udfintpoint( Pos::GeomID::udf(),
 					   mUdf(int), mUdf(int) );
 
-    const int intsecidx = intersection2DIdx( vwr2d->geomID() );
-    if ( intsecidx<0 )
-	return udfintpoint;
-
-    const Line2DInterSection* int2d = (*l2dintersections_)[intsecidx];
+    const Line2DInterSection* int2d =
+		l2dim_.intersections().getByGeomID( vwr2d->geomID() );
     if ( !int2d )
 	return udfintpoint;
 
@@ -1205,7 +1180,7 @@ Line2DInterSection::Point uiODViewer2DMgr::intersectingLineID(
 	vwr2d->viewwin()->viewer().posRange( true );
     StepInterval<int> vwrtrcrg = vwr2d->getTrcKeyZSampling().hsamp_.trcRange();
     const LinScaler x2trc( vwrxrg.start_, vwrtrcrg.start_,
-                           vwrxrg.stop_, vwrtrcrg.stop_ );
+			   vwrxrg.stop_, vwrtrcrg.stop_ );
     const double trcnrd = x2trc.scale( pos );
     const int trcnr = mNINT32( trcnrd );
     if ( !vwrtrcrg.includes(trcnr,false) )
@@ -1351,7 +1326,7 @@ void uiODViewer2DMgr::getVwr2DObjIDs( TypeSet<Vis2DID>& vw2dobjids ) const
 }
 
 
-void uiODViewer2DMgr::getHor3DVwr2DIDs( EM::ObjectID emid,
+void uiODViewer2DMgr::getHor3DVwr2DIDs( const EM::ObjectID& emid,
 					TypeSet<Vis2DID>& vw2dobjids ) const
 {
     for ( int vwridx=0; vwridx<viewers2d_.size(); vwridx++ )
@@ -1359,7 +1334,7 @@ void uiODViewer2DMgr::getHor3DVwr2DIDs( EM::ObjectID emid,
 }
 
 
-void uiODViewer2DMgr::removeHorizon3D( EM::ObjectID emid )
+void uiODViewer2DMgr::removeHorizon3D( const EM::ObjectID& emid )
 {
     for ( int vwridx=0; vwridx<viewers2d_.size(); vwridx++ )
 	viewers2d_[vwridx]->removeHorizon3D( emid );
@@ -1380,7 +1355,7 @@ void uiODViewer2DMgr::addHorizon3Ds( const TypeSet<EM::ObjectID>& emids )
 }
 
 
-void uiODViewer2DMgr::addNewTrackingHorizon3D( EM::ObjectID emid )
+void uiODViewer2DMgr::addNewTrackingHorizon3D( const EM::ObjectID& emid )
 {
     addNewTrackingHorizon3D( emid, SceneID::udf() );
 }
@@ -1400,7 +1375,7 @@ void uiODViewer2DMgr::addNewTrackingHorizon3D( const EM::ObjectID& emid,
 }
 
 
-void uiODViewer2DMgr::getHor2DVwr2DIDs( EM::ObjectID emid,
+void uiODViewer2DMgr::getHor2DVwr2DIDs( const EM::ObjectID& emid,
 					TypeSet<Vis2DID>& vw2dobjids ) const
 {
     for ( int vwridx=0; vwridx<viewers2d_.size(); vwridx++ )
@@ -1408,7 +1383,7 @@ void uiODViewer2DMgr::getHor2DVwr2DIDs( EM::ObjectID emid,
 }
 
 
-void uiODViewer2DMgr::removeHorizon2D( EM::ObjectID emid )
+void uiODViewer2DMgr::removeHorizon2D( const EM::ObjectID& emid )
 {
     for ( int vwridx=0; vwridx<viewers2d_.size(); vwridx++ )
 	viewers2d_[vwridx]->removeHorizon2D( emid );
@@ -1429,7 +1404,7 @@ void uiODViewer2DMgr::addHorizon2Ds( const TypeSet<EM::ObjectID>& emids )
 }
 
 
-void uiODViewer2DMgr::addNewTrackingHorizon2D( EM::ObjectID emid )
+void uiODViewer2DMgr::addNewTrackingHorizon2D( const EM::ObjectID& emid )
 {
     addNewTrackingHorizon2D( emid, SceneID::udf() );
 }
@@ -1449,7 +1424,7 @@ void uiODViewer2DMgr::addNewTrackingHorizon2D( const EM::ObjectID& emid,
 }
 
 
-void uiODViewer2DMgr::getFaultVwr2DIDs( EM::ObjectID emid,
+void uiODViewer2DMgr::getFaultVwr2DIDs( const EM::ObjectID& emid,
 					TypeSet<Vis2DID>& vw2dobjids) const
 {
     for ( int vwridx=0; vwridx<viewers2d_.size(); vwridx++ )
@@ -1457,7 +1432,7 @@ void uiODViewer2DMgr::getFaultVwr2DIDs( EM::ObjectID emid,
 }
 
 
-void uiODViewer2DMgr::removeFault( EM::ObjectID emid )
+void uiODViewer2DMgr::removeFault( const EM::ObjectID& emid )
 {
     for ( int vwridx=0; vwridx<viewers2d_.size(); vwridx++ )
 	viewers2d_[vwridx]->removeFault( emid );
@@ -1478,7 +1453,7 @@ void uiODViewer2DMgr::addFaults( const TypeSet<EM::ObjectID>& emids )
 }
 
 
-void uiODViewer2DMgr::addNewTempFault( EM::ObjectID emid )
+void uiODViewer2DMgr::addNewTempFault( const EM::ObjectID& emid )
 {
     addNewTempFault( emid, SceneID::udf() );
 }
@@ -1498,7 +1473,7 @@ void uiODViewer2DMgr::addNewTempFault( const EM::ObjectID& emid,
 }
 
 
-void uiODViewer2DMgr::getFaultSSVwr2DIDs( EM::ObjectID emid,
+void uiODViewer2DMgr::getFaultSSVwr2DIDs( const EM::ObjectID& emid,
 					TypeSet<Vis2DID>& vw2dobjids ) const
 {
     for ( int vwridx=0; vwridx<viewers2d_.size(); vwridx++ )
@@ -1507,7 +1482,7 @@ void uiODViewer2DMgr::getFaultSSVwr2DIDs( EM::ObjectID emid,
 
 
 
-void uiODViewer2DMgr::removeFaultSS( EM::ObjectID emid )
+void uiODViewer2DMgr::removeFaultSS( const EM::ObjectID& emid )
 {
     for ( int vwridx=0; vwridx<viewers2d_.size(); vwridx++ )
 	viewers2d_[vwridx]->removeFaultSS( emid );
@@ -1528,7 +1503,7 @@ void uiODViewer2DMgr::addFaultSSs( const TypeSet<EM::ObjectID>& emids )
 }
 
 
-void uiODViewer2DMgr::addNewTempFaultSS( EM::ObjectID emid )
+void uiODViewer2DMgr::addNewTempFaultSS( const EM::ObjectID& emid )
 {
     addNewTempFaultSS( emid, SceneID::udf() );
 }
@@ -1548,7 +1523,7 @@ void uiODViewer2DMgr::addNewTempFaultSS( const EM::ObjectID& emid,
 }
 
 
-void uiODViewer2DMgr::getFaultSS2DVwr2DIDs( EM::ObjectID emid,
+void uiODViewer2DMgr::getFaultSS2DVwr2DIDs( const EM::ObjectID& emid,
 					TypeSet<Vis2DID>& vw2dobjids ) const
 {
     for ( int vwridx=0; vwridx<viewers2d_.size(); vwridx++ )
@@ -1556,7 +1531,7 @@ void uiODViewer2DMgr::getFaultSS2DVwr2DIDs( EM::ObjectID emid,
 }
 
 
-void uiODViewer2DMgr::removeFaultSS2D( EM::ObjectID emid )
+void uiODViewer2DMgr::removeFaultSS2D( const EM::ObjectID& emid )
 {
     for ( int vwridx=0; vwridx<viewers2d_.size(); vwridx++ )
 	viewers2d_[vwridx]->removeFaultSS2D( emid );
@@ -1577,7 +1552,7 @@ void uiODViewer2DMgr::addFaultSS2Ds( const TypeSet<EM::ObjectID>& emids )
 }
 
 
-void uiODViewer2DMgr::addNewTempFaultSS2D( EM::ObjectID emid )
+void uiODViewer2DMgr::addNewTempFaultSS2D( const EM::ObjectID& emid )
 {
     addNewTempFaultSS2D( emid, SceneID::udf() );
 }

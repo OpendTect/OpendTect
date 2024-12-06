@@ -46,6 +46,7 @@ ________________________________________________________________________
 #include "file.h"
 #include "filepath.h"
 #include "genc.h"
+#include "geom2dinit.h"
 #include "ioman.h"
 #include "ioobj.h"
 #include "moddepmgr.h"

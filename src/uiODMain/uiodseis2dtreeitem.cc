@@ -936,18 +936,16 @@ void uiOD2DLineSetAttribItem::createMenu( MenuHandler* menu, bool istb )
     uiAttribPartServer* attrserv = applMgr()->attrServer();
     Attrib::SelSpec as = *visserv_->getSelSpec( displayID(), attribNr() );
     as.set2DFlag();
-    const uiString uiobjnm = visserv_->getUiObjectName( displayID() );
-    const BufferString objnm = uiobjnm.getFullString();
 
+    const Pos::GeomID geomid = s2d->getGeomID();
     BufferStringSet datasets;
-    seisserv->get2DStoredAttribs( objnm, datasets, 0 );
+    seisserv->get2DStoredAttribs( geomid, datasets, 0 );
     const Attrib::DescSet* ads = attrserv->curDescSet(true);
     ConstRefMan<Attrib::Desc> desc = ads->getDesc( as.id() );
     const bool isstored = desc && desc->isStored();
 
     selattrmnuitem_.removeItems();
 
-    const Pos::GeomID geomid = s2d->getGeomID();
     bool docheckparent = false;
     storeditm_.removeItems();
     for ( int idx=0; idx<datasets.size(); idx++ )
@@ -976,7 +974,7 @@ void uiOD2DLineSetAttribItem::createMenu( MenuHandler* menu, bool istb )
     // TODO attrserv->filter2DMenuItems( *nla, as, s2d->getGeomID(), false, 0 );
 
     BufferStringSet steerdatanames;
-    seisserv->get2DStoredAttribs( objnm, steerdatanames, 1 );
+    seisserv->get2DStoredAttribs( geomid, steerdatanames, 1 );
     docheckparent = false;
     steeringitm_.removeItems();
     for ( int idx=0; idx<steerdatanames.size(); idx++ )
@@ -998,7 +996,7 @@ void uiOD2DLineSetAttribItem::createMenu( MenuHandler* menu, bool istb )
 	zattritm_.text = toUiString("%1 %2").arg(scene->zDomainKey())
 					    .arg(uiStrings::sData());
 	BufferStringSet zattribnms;
-	seisserv->get2DZdomainAttribs( objnm, scene->zDomainKey(), zattribnms );
+	seisserv->get2DZdomainAttribs( geomid, scene->zDomainKey(), zattribnms);
 	if ( zattribnms.size() )
 	{
 	    mAddMenuItem( &selattrmnuitem_, &zattritm_, true, false )

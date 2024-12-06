@@ -483,28 +483,45 @@ bool uiSeisPartServer::select2DLines( TypeSet<Pos::GeomID>& selids,
 }
 
 
-void uiSeisPartServer::get2DStoredAttribs( const char* linenm,
+void uiSeisPartServer::get2DStoredAttribs( const char*linename,
+					   BufferStringSet& datasets,
+					   int steerpol )
+{
+    Pos::GeomID geomid;
+    geomid.fromString( linename );
+    get2DStoredAttribs( geomid, datasets,steerpol );
+}
+
+
+void uiSeisPartServer::get2DStoredAttribs( const Pos::GeomID& geomid,
 					   BufferStringSet& datasets,
 					   int steerpol )
 {
     SeisIOObjInfo::Opts2D o2d; o2d.steerpol_ = steerpol;
-    const Pos::GeomID geomid = Survey::GM().getGeomID( linenm );
     SeisIOObjInfo::getDataSetNamesForLine( geomid, datasets, o2d );
 }
 
 
-bool uiSeisPartServer::create2DOutput( const MultiID& mid, const char* linekey,
+bool uiSeisPartServer::create2DOutput( const MultiID& mid,
+				       const char* linename,
+				       TrcKeyZSampling& cs, SeisTrcBuf& buf )
+{
+    Pos::GeomID geomid;
+    geomid.fromString( linename );
+    return create2DOutput( mid, geomid, cs, buf );
+}
+
+
+bool uiSeisPartServer::create2DOutput( const MultiID& mid,
+				       const Pos::GeomID& geomid,
 				       TrcKeyZSampling& cs, SeisTrcBuf& buf )
 {
     mGet2DDataSet(false)
 
-    const int lidx = dataset.indexOf( linekey );
-    if ( lidx < 0 ) return false;
-
     StepInterval<int> trcrg;
-    dataset.getRanges( dataset.geomID(lidx), trcrg, cs.zsamp_ );
+    dataset.getRanges( geomid, trcrg, cs.zsamp_ );
     cs.hsamp_.setCrlRange( trcrg );
-    PtrMan<Executor> exec = dataset.lineFetcher( dataset.geomID(lidx), buf );
+    PtrMan<Executor> exec = dataset.lineFetcher( geomid, buf );
     uiTaskRunner dlg( parent() );
     return TaskRunner::execute( &dlg, *exec );
 }
@@ -569,12 +586,20 @@ void uiSeisPartServer::createMultiCubeDataStore() const
 }
 
 
-void uiSeisPartServer::get2DZdomainAttribs( const char* linenm,
+void uiSeisPartServer::get2DZdomainAttribs( const char* linename,
+			const char* zdomainstr, BufferStringSet& attribs )
+{
+    Pos::GeomID geomid;
+    geomid.fromString( linename );
+    get2DZdomainAttribs( geomid, zdomainstr, attribs );
+}
+
+
+void uiSeisPartServer::get2DZdomainAttribs( const Pos::GeomID& geomid,
 			const char* zdomainstr, BufferStringSet& attribs )
 {
     SeisIOObjInfo::Opts2D o2d;
     o2d.zdomky_ = zdomainstr;
-    const Pos::GeomID geomid = Survey::GM().getGeomID( linenm );
     SeisIOObjInfo::getDataSetNamesForLine( geomid, attribs, o2d );
 }
 
