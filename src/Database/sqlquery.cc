@@ -64,6 +64,7 @@ public:
     bool	isActive() const			{ return false; }
     void	finish() const				{}
     int		size() const				{ return 0; }
+    bool	isNull(int) const			{ return false; }
 
     static od_int64	retidx_;
     static od_int64	idx()				{ return retidx_++; }
