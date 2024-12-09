@@ -24,16 +24,16 @@ if ( NOT DEFINED SYM_DUMP_EXECUTABLE )
     message( FATAL_ERROR "SYM_DUMP_EXECUTABLE not defined" )
 endif()
 
-if ( NOT EXISTS ${LIBRARY} )
-    message( FATAL_ERROR "${LIBRARY} does not exist" )
+if ( NOT EXISTS "${LIBRARY}" )
+    message( FATAL_ERROR "Runtime library ${LIBRARY} does not exist" )
 endif()
 
-if ( NOT EXISTS ${SYM_DUMP_EXECUTABLE} )
+if ( NOT EXISTS "${SYM_DUMP_EXECUTABLE}" )
     message( FATAL_ERROR "${SYM_DUMP_EXECUTABLE} does not exist" )
 endif()
 
 #Get library location and name
-get_filename_component( LIBDIR ${LIBRARY} PATH )
+get_filename_component( LIBDIR "${LIBRARY}" PATH )
 
 if ( WIN32 )
     get_filename_component( LIBNAME ${LIBRARY} NAME_WE )
@@ -41,18 +41,20 @@ else()
     get_filename_component( LIBNAME ${LIBRARY} NAME )
 endif()
 
-set ( OUTDIR ${LIBDIR}/symbols )
-
-if ( NOT EXISTS ${OUTDIR} )
-    file( MAKE_DIRECTORY ${OUTDIR} )
+if ( NOT DEFINED OUTDIR )
+    set ( OUTDIR "${LIBDIR}/symbols" )
 endif()
 
-if ( NOT EXISTS ${OUTDIR} )
+if ( NOT EXISTS "${OUTDIR}" )
+    file( MAKE_DIRECTORY "${OUTDIR}" )
+endif()
+
+if ( NOT IS_DIRECTORY "${OUTDIR}" )
     message( FATAL_ERROR "Cannot create ${OUTDIR}" )
 endif()
 
 #Create symbols, store them in SYMBOL STRING
-execute_process( COMMAND ${SYM_DUMP_EXECUTABLE} ${LIBRARY}
+execute_process( COMMAND "${SYM_DUMP_EXECUTABLE}" "${LIBRARY}"
 		RESULT_VARIABLE RESULT
 		OUTPUT_VARIABLE SYMBOL_STRING
 		ERROR_VARIABLE ERRORS )
@@ -74,15 +76,15 @@ endif()
 
 list ( GET SYMBOL_LIST 3 CHECKSUM )
 
-set ( DIRNAME ${OUTDIR}/${LIBNAME} )
+set ( DIRNAME "${OUTDIR}/${LIBNAME}" )
 if ( WIN32 )
-    set ( DIRNAME ${OUTDIR}/${LIBNAME}.pdb )
+    set ( DIRNAME "${OUTDIR}/${LIBNAME}.pdb" )
 endif()
 
 #Remove old symbols
-if ( EXISTS ${DIRNAME} )
-    file( REMOVE_RECURSE ${DIRNAME} )
+if ( EXISTS "${DIRNAME}" )
+    file( REMOVE_RECURSE "${DIRNAME}" )
 endif()
 
 #Write out new symbols to correct location
-file ( WRITE ${DIRNAME}/${CHECKSUM}/${LIBNAME}.sym ${SYMBOL_STRING} )
+file ( WRITE "${DIRNAME}/${CHECKSUM}/${LIBNAME}.sym" ${SYMBOL_STRING} )
