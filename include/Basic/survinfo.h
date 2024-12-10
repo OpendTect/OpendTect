@@ -339,6 +339,10 @@ public:
     static void		pushSI(SurveyInfo*);
     static SurveyInfo*	popSI();
     static void		deleteInstance()		{ delete popSI(); }
+    static Notifier<SurveyInfo>& rootDirChanged();
+				/*<! The value returned by GetDataDir() is about
+				     to change. Any work dependent on it must
+				     stop				 */
 
 };
 

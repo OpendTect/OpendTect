@@ -16,6 +16,8 @@ class IOSubDir : public IOObj
 public:
 		IOSubDir(const char* subdirnm);
 		IOSubDir(const IOSubDir&);
+		~IOSubDir();
+
     bool	isSubdir() const override	{ return true; }
     bool	isBad() const override		{ return isbad_; }
     void	copyFrom(const IOObj*) override {}

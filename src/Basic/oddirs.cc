@@ -72,8 +72,27 @@ const char* SurveyInfo::surveyFileName()
 }
 
 
+Notifier<SurveyInfo>& SurveyInfo::rootDirChanged()
+{
+    static PtrMan<Notifier<SurveyInfo> > thenotif =
+					new Notifier<SurveyInfo>( nullptr );
+    return *thenotif.ptr();
+}
+
+
+static Threads::Lock& GetSurvChangeLock()
+{
+    static PtrMan<Threads::Lock> lock = new Threads::Lock();
+    return *lock.ptr();
+}
+
+
 void SurveyInfo::setSurveyName( const char* newnm )
 {
+    Threads::Locker lock( GetSurvChangeLock() );
+    if ( StringView(newnm) != cur_survey_name )
+	rootDirChanged().trigger();
+
     cur_survey_name = newnm;
     cur_survey_name.trimBlanks();
 }
@@ -81,6 +100,7 @@ void SurveyInfo::setSurveyName( const char* newnm )
 
 const char* SurveyInfo::curSurveyName()
 {
+    Threads::Locker lock( GetSurvChangeLock() );
     if ( !cur_survey_name.isEmpty() )
 	return cur_survey_name.buf();
 
@@ -117,8 +137,10 @@ static BufferString basedatadir;
 extern "C" { mGlobal(Basic) void SetCurBaseDataDir(const char*); }
 mExternC(Basic) void SetCurBaseDataDir( const char* dirnm )
 {
-    mDefineStaticLocalObject(Threads::Mutex, mutex, );
-    Threads::MutexLocker lock(mutex);
+    Threads::Locker lock( GetSurvChangeLock() );
+    if ( StringView(dirnm) != basedatadir )
+	SurveyInfo::rootDirChanged().trigger();
+
     if ( dirnm && *dirnm )
 	basedatadir.set( dirnm );
     else
@@ -127,6 +149,7 @@ mExternC(Basic) void SetCurBaseDataDir( const char* dirnm )
 
 mExternC(Basic) const char* GetBaseDataDir()
 {
+    Threads::Locker lock( GetSurvChangeLock() );
     if ( !basedatadir.isEmpty() )
 	return basedatadir.buf();
 

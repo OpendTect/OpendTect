@@ -27,9 +27,10 @@ class Translator;
 mExpClass(General) IOObjProducer
 {
 public:
-virtual		~IOObjProducer()		{}
+    virtual		~IOObjProducer()		{}
+
     virtual bool	canMake(const char*) const	= 0;
-    virtual IOObj*	make(const char*,const MultiID&,
+    virtual IOObj*	make(const char*,const DBKey&,
 			     bool fill_defs) const	= 0;
 
 };
@@ -145,11 +146,9 @@ protected:
     BufferString	group_;
     Status		status_				= Status::Unknown;
 
-			mDeprecated("Use with MultiID")
-			IOObj(const char* nm=nullptr,const char* ky=nullptr);
-			IOObj(const char* nm,const MultiID&);
+			IOObj(const char* nm,const DBKey&);
 			IOObj(const IOObj&);
-    static IOObj*	get(ascistream&,const char*,int);
+    static IOObj*	get(ascistream&,const char* dirnm,int grpid);
     bool		put(ascostream&) const;
     virtual bool	getFrom(ascistream&)		= 0;
     virtual bool	putTo(ascostream&) const	= 0;
@@ -159,7 +158,7 @@ private:
 
     friend class	IODir;
 
-    static IOObj*	produce(const char*,const char* nm,const MultiID&,
+    static IOObj*	produce(const char* typ,const char* nm,const DBKey&,
 				bool initdefaults=true);
     void		copyStuffFrom(const IOObj&);
 
@@ -175,6 +174,12 @@ public:
     virtual bool	isSubdir() const		{ return false; }
     static int		addProducer(IOObjProducer*);
 			//!< Factory for IOObj types. Not for casual use.
+
+protected:
+			mDeprecated("Use with DBKey")
+			IOObj(const char* nm,const MultiID&);
+			mDeprecated("Use with DBKey")
+			IOObj(const char* nm,const char* kystr);
 
 };
 

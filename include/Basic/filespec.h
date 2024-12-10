@@ -9,8 +9,11 @@ ________________________________________________________________________
 -*/
 
 #include "basicmod.h"
+
 #include "bufstringset.h"
 #include "ranges.h"
+
+class DBKey;
 
 
 /*!\brief Specification for one or more files.
@@ -25,13 +28,14 @@ mExpClass(Basic) FileSpec
 {
 public:
 
-			FileSpec(const char* fnm=0);
+			FileSpec(const char* fnm=nullptr);
+			FileSpec(const DBKey&);
 			FileSpec(const IOPar&);
-			virtual ~FileSpec();
+    virtual		~FileSpec();
 
     BufferStringSet	fnames_;
     StepInterval<int>	nrs_;
-    int			zeropad_;	//!< left-pad the nrs_ to this length
+    int			zeropad_ = 0;	//!< left-pad the nrs_ to this length
     BufferString	survsubdir_;	//!< For example "Seismics"
 
     bool		isEmpty() const
@@ -71,5 +75,9 @@ public:
 protected:
 
     BufferString	usrstr_;
+
+private:
+
+    BufferString	datadir_;
 
 };

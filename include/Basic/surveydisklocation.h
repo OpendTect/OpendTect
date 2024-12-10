@@ -43,14 +43,14 @@ public:
 			{ return !(*this == oth); }
     SurveyDiskLocation&	operator=(const SurveyDiskLocation&);
 
-    BufferString	basePath() const;
+    BufferString	basePath(bool trysi=true) const;
     void		setBasePath( const char* bp )	{ basepath_ = bp; }
-    BufferString	dirName() const;
+    BufferString	dirName(bool trysi=true) const;
     void		setDirName( const char* dn )	{ dirname_ = dn; }
 
     void		set(const char* fullpath);
     void		set(const FilePath&);
-    BufferString	fullPath() const;
+    BufferString	fullPath(bool trysi=true) const;
     BufferString	surveyName() const;
     BufferString	fullPathFor(const char* fnm) const;
 

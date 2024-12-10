@@ -21,12 +21,8 @@ class StreamProvider;
 mExpClass(General) IOStream : public IOObj
 {
 public:
-			mDeprecated("Use with MultiID")
-			IOStream(const char* nm,const char* id=nullptr,
-				 bool =false);
-			IOStream();
-			IOStream(const char* nm,const MultiID&,
-				 bool =false);
+			IOStream(const char* nm,const DBKey&,
+				 bool mkdef=false);
 			IOStream(const IOStream&);
 			~IOStream();
 
@@ -67,7 +63,7 @@ protected:
     bool		putTo(ascostream&) const override;
 
     FileSpec		fs_;
-    mutable int		curfidx_;
+    mutable int		curfidx_	= 0;
     BufferString	extension_;
     BufferString	specfname_;
 
@@ -78,5 +74,15 @@ public:
 
     void		setDirName(const char*) override;
     virtual void	setAbsDirectory(const char*);
+
+public:
+			mDeprecated("Use with DBKey")
+			IOStream();
+			mDeprecated("Use with DBKey")
+			IOStream(const char* nm,const MultiID&,
+				 bool mkdef=false);
+			mDeprecated("Use with DBKey")
+			IOStream(const char* nm,const char* id=nullptr,
+				 bool mkdef=false);
 
 };

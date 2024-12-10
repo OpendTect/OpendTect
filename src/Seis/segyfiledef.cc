@@ -71,13 +71,14 @@ IOObj* SEGY::FileSpec::getIOObj( bool tmp ) const
     const MultiID seisdirky( mIOObjContext(SeisTrc).getSelKey() );
     if ( tmp )
     {
-	MultiID idstr( seisdirky );
+	DBKey idstr( seisdirky, SI().diskLocation() );
 	idstr.setObjectID( IOObj::tmpID() );
 	iostrm = new IOStream( usrStr(), idstr );
     }
     else
     {
-	iostrm = new IOStream( usrStr(), MultiID::udf() );
+	const DBKey idstr( MultiID::udf(), SI().diskLocation() );
+	iostrm = new IOStream( usrStr(), idstr );
 	iostrm->acquireNewKeyIn( seisdirky );
     }
 

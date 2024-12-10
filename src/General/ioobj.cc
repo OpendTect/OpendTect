@@ -49,7 +49,7 @@ class IOXProducer : public IOObjProducer
     bool	canMake( const char* typ ) const override
 		{ return StringView(typ)==XConn::sType(); }
     IOObj*	make( const char* nm,
-		      const MultiID& ky, bool fd ) const override
+		      const DBKey& ky, bool fd ) const override
 		{ return new IOX(nm,ky,fd); }
 };
 
@@ -57,21 +57,32 @@ class IOXProducer : public IOObjProducer
 int IOX::prodid = IOObj::addProducer( new IOXProducer );
 
 
+// IOObj::IOObj
+
 int IOObj::addProducer( IOObjProducer* prod )
 {
-    if ( !prod ) return -1;
+    if ( !prod )
+	return -1;
+
     ObjectSet<const IOObjProducer>& prods = getProducers();
     prods += prod;
     return prods.size();
 }
 
 
-
-IOObj::IOObj( const char* nm, const char* ky )
+IOObj::IOObj( const char* nm, const DBKey& ky )
     : NamedObject(nm)
+    , key_(ky)
     , pars_(*new IOPar)
 {
-    key_.fromString( ky );
+}
+
+
+IOObj::IOObj( const IOObj& oth )
+    : key_(oth.key_)
+    , pars_(*new IOPar)
+{
+    copyStuffFrom( oth );
 }
 
 
@@ -83,11 +94,11 @@ IOObj::IOObj( const char* nm, const MultiID& ky )
 }
 
 
-IOObj::IOObj( const IOObj& oth )
-	: key_(oth.key_)
-	, pars_(*new IOPar)
+IOObj::IOObj( const char* nm, const char* ky )
+    : NamedObject(nm)
+    , pars_(*new IOPar)
 {
-    copyStuffFrom( oth );
+    key_.fromString( ky );
 }
 
 
@@ -109,7 +120,9 @@ void IOObj::copyStuffFrom( const IOObj& obj )
 
 void IOObj::copyFrom( const IOObj* obj )
 {
-    if ( !obj ) return;
+    if ( !obj )
+	return;
+
     copyStuffFrom( *obj );
 }
 
@@ -119,13 +132,28 @@ IOObj* IOObj::get( ascistream& astream, const char* dirnm, int groupid )
     if ( atEndOfSection(astream) )
 	astream.next();
     if ( atEndOfSection(astream) )
-	return 0;
+	return nullptr;
     if ( *astream.keyWord() == '@' )
 	return IOSubDir::get( astream, dirnm );
 
-    BufferString nm( astream.keyWord() );
+    const BufferString nm( astream.keyWord() );
     FileMultiString fms = astream.value();
     const MultiID objkey( groupid, fms.getIValue(0) );
+    PtrMan<DBKey> objky;
+    if ( groupid == MultiID::udf().groupID() )
+    {
+	const SurveyDiskLocation sdl( nullptr, dirnm );
+	objky = new DBKey( objkey, sdl );
+    }
+    else
+    {
+	FilePath dirfp( dirnm );
+	if ( groupid > 0 )
+	    dirfp.setFileName( nullptr );
+
+	const SurveyDiskLocation sdl( dirfp.fileName(), dirfp.pathOnly() );
+	objky = new DBKey( objkey, sdl );
+    }
 
     astream.next();
     BufferString groupnm( astream.keyWord() );
@@ -136,17 +164,19 @@ IOObj* IOObj::get( ascistream& astream, const char* dirnm, int groupid )
     {
 	TranslatorGroup& grp = TranslatorGroup::getGroup( groupnm );
 	if ( grp.groupName() != groupnm )
-	    return 0;
+	    return nullptr;
+
 	Translator* tr = grp.make( trlnm, true );
 	if ( !tr )
-	    return 0;
+	    return nullptr;
 
 	objtyp = tr->connType();
 	delete tr;
     }
 
-    IOObj* objptr = produce( objtyp, nm, objkey, false );
-    if ( !objptr ) return 0;
+    IOObj* objptr = produce( objtyp, nm, *objky.ptr(), false );
+    if ( !objptr )
+	return nullptr;
 
     objptr->setGroup( groupnm );
     objptr->setTranslator( trlnm );
@@ -175,7 +205,7 @@ IOObj* IOObj::get( ascistream& astream, const char* dirnm, int groupid )
 }
 
 
-IOObj* IOObj::produce( const char* typ, const char* nm, const MultiID& keyin,
+IOObj* IOObj::produce( const char* typ, const char* nm, const DBKey& keyin,
 			bool gendef )
 {
     if ( !nm || !*nm )
@@ -187,15 +217,11 @@ IOObj* IOObj::produce( const char* typ, const char* nm, const MultiID& keyin,
 	return nullptr;
     }
 
-    const ObjectSet<const IOObjProducer>& prods = getProducers();
-    for ( int idx=0; idx<prods.size(); idx++ )
-    {
-	const IOObjProducer& prod = *prods[idx];
-	if ( prod.canMake(typ) )
-	    return prod.make( nm, keyin, gendef );
-    }
+    for ( const auto* prod : getProducers() )
+	if ( prod->canMake(typ) )
+	    return prod->make( nm, keyin, gendef );
 
-    return 0;
+    return nullptr;
 }
 
 
@@ -408,8 +434,10 @@ bool equalIOObj( const MultiID& ky1, const MultiID& ky2 )
 }
 
 
+// IOSubDir
+
 IOSubDir::IOSubDir( const char* subdirnm )
-    : IOObj(subdirnm,MultiID::udf())
+    : IOObj(subdirnm,DBKey(MultiID::udf()))
     , isbad_(false)
 {
 }
@@ -418,6 +446,11 @@ IOSubDir::IOSubDir( const char* subdirnm )
 IOSubDir::IOSubDir( const IOSubDir& oth )
     : IOObj(oth)
     , isbad_(oth.isbad_)
+{
+}
+
+
+IOSubDir::~IOSubDir()
 {
 }
 
@@ -450,17 +483,28 @@ bool IOSubDir::putTo( ascostream& stream ) const
 }
 
 
-mStartAllowDeprecatedSection
-IOX::IOX( const char* nm, const char* ky, bool )
-    : IOObj(nm,ky)
-{
-}
-mStopAllowDeprecatedSection
+// IOX
 
-IOX::IOX( const char* nm, const MultiID& ky, bool )
+IOX::IOX( const char* nm, const DBKey& ky, bool /* mkdefs */ )
     : IOObj(nm,ky)
 {
 }
+
+
+IOX::IOX( const char* nm, const MultiID& ky, bool mkdefs )
+    : IOX(nm,DBKey(ky),mkdefs)
+{
+}
+
+
+mStartAllowDeprecatedSection
+
+IOX::IOX( const char* nm, const char* ky, bool mkdefs )
+    : IOX(nm,DBKey(MultiID(ky)),mkdefs)
+{
+}
+
+mStopAllowDeprecatedSection
 
 
 IOX::~IOX()
@@ -488,7 +532,8 @@ bool IOX::isBad() const
 
 void IOX::copyFrom( const IOObj* obj )
 {
-    if ( !obj ) return;
+    if ( !obj )
+	return;
 
     IOObj::copyFrom(obj);
     mDynamicCastGet(const IOX*,trobj,obj)
@@ -497,42 +542,37 @@ void IOX::copyFrom( const IOObj* obj )
 }
 
 
-const char* IOX::fullUserExpr( bool i ) const
+const char* IOX::fullUserExpr( bool forread ) const
 {
-    IOObj* ioobj = IOM().get( ownkey_ );
+    PtrMan<IOObj> ioobj = IOM().get( ownkey_ );
     if ( !ioobj )
 	return "<invalid>";
 
-    const char* s = ioobj->fullUserExpr(i);
-    delete ioobj;
+    const char* s = ioobj->fullUserExpr( forread );
     return s;
 }
 
 
-bool IOX::implExists( bool i ) const
+bool IOX::implExists( bool forread ) const
 {
-    IOObj* ioobj = IOM().get( ownkey_ );
+    PtrMan<IOObj> ioobj = IOM().get( ownkey_ );
     if ( !ioobj )
 	return false;
 
-    const bool yn = ioobj->implExists(i);
-    delete ioobj;
+    const bool yn = ioobj->implExists( forread );
     return yn;
 }
 
 
 Conn* IOX::getConn( bool forread ) const
 {
-    XConn* ret = nullptr;
+    PtrMan<IOObj> ioobj = getIOObj();
+    if ( !ioobj )
+	return nullptr;
 
-    IOObj* ioobj = getIOObj();
-    if ( ioobj )
-    {
-	ret = new XConn;
-	ret->conn_ = ioobj->getConn( forread );
-	delete ioobj;
-	ret->setLinkedTo( key() );
-    }
+    auto* ret = new XConn;
+    ret->conn_ = ioobj->getConn( forread );
+    ret->setLinkedTo( key() );
 
     return ret;
 }
@@ -563,8 +603,10 @@ bool IOX::putTo( ascostream& stream ) const
 const char* IOX::dirName() const
 {
     IOObj* ioobj = getIOObj();
-    if ( !ioobj ) return dirnm_;
-    const_cast<IOX*>(this)->dirnm_ = ioobj->dirName();
+    if ( !ioobj )
+	return dirnm_.buf();
+
+    mSelf().dirnm_ = ioobj->dirName();
     delete ioobj;
-    return dirnm_;
+    return dirnm_.buf();
 }

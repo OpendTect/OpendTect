@@ -17,12 +17,9 @@ ________________________________________________________________________
 mExpClass(General) IOX : public IOObj
 {
 public:
-			mDeprecated("Use with MultiID")
-			IOX(const char* nm=nullptr,const char* ky=nullptr,
-			    bool =false);
-			IOX(const char* nm,const MultiID&,bool =false);
+			IOX(const char* nm,const DBKey&,bool mkdefs=false);
+			~IOX();
 
-    virtual		~IOX();
     bool		isBad() const override;
 
     void		copyFrom(const IOObj*) override;
@@ -46,4 +43,11 @@ protected:
     bool		putTo(ascostream&) const override;
 
     static int		prodid; //!< for factory implementation
+
+public:
+			mDeprecated("Use with DBKey")
+			IOX(const char* nm,const MultiID&,bool mkdefs=false);
+			mDeprecated("Use with DBKey")
+			IOX(const char* nm=nullptr,const char* ky=nullptr,
+			    bool mkdefs=false);
 };

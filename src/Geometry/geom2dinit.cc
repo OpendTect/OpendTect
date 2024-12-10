@@ -10,9 +10,10 @@ ________________________________________________________________________
 
 #include "geom2dinit.h"
 
-#include "survgeom.h"
 #include "geom2dintersections.h"
 #include "odruncontext.h"
+#include "survgeom.h"
+#include "survinfo.h"
 #include "threadwork.h"
 
 
@@ -21,33 +22,23 @@ Geom2DInit::Geom2DInit()
 			Threads::WorkManager::SingleThread,"Geom2DInit"))
     , lock_(false)
 {
+    mAttachCB( SurveyInfo::rootDirChanged(), Geom2DInit::rootDirChangedCB );
     mAttachCB( Survey::GM().closing, Geom2DInit::closeQueueCB );
 }
 
 
 void Geom2DInit::start()
 {
+    continue_ = true;
     Survey::GMAdmin().ensureSIPresent();
-    if ( OD::InTestProgRunContext() || OD::InBatchProgRunContext() )
-    {
-	//TODO fix when this class works within a SurveyChanger for loop
-	Geom2DInit::readGeomCB( nullptr );
-	Geom2DInit::computeBendpointsCB( nullptr );
-	Geom2DInit::computeIntersectionsCB( nullptr );
-	return;
-    }
-
     Threads::Locker locker( lock_ );
     auto& twm = Threads::WorkManager::twm();
     if ( queueid_ >= 0 )
 	twm.emptyQueue( queueid_, true );
 
-    const CallBack cb1 = mCB(this,Geom2DInit,readGeomCB);
-    const CallBack cb2 = mCB(this,Geom2DInit,computeBendpointsCB);
-    const CallBack cb3 = mCB(this,Geom2DInit,computeIntersectionsCB);
-    twm.addWork( Threads::Work(cb1), nullptr, queueid_, false, false, true );
-    twm.addWork( Threads::Work(cb2), nullptr, queueid_, false, false, true );
-    twm.addWork( Threads::Work(cb3), nullptr, queueid_, false, false, true );
+    const CallBack cb = mCB(this,Geom2DInit,readGeomCB);
+    CallBack cbdone = mCB(this,Geom2DInit,geomReadyCB);
+    twm.addWork( Threads::Work(cb), &cbdone, queueid_, false, false, true );
 }
 
 
@@ -70,6 +61,31 @@ void Geom2DInit::readGeomCB( CallBacker* )
 }
 
 
+void Geom2DInit::geomReadyCB( CallBacker* retcb )
+{
+    auto& twm = Threads::WorkManager::twm();
+    const bool res = twm.getWorkExitStatus( retcb );
+    if ( !res || queueid_ < 0 || !continue_ )
+	return;
+
+    const CallBack cb = mCB(this,Geom2DInit,computeBendpointsCB);
+    CallBack cbdone = mCB(this,Geom2DInit,bendPointsReadyCB);
+    twm.addWork( Threads::Work(cb), &cbdone, queueid_, false, false, true );
+}
+
+
+void Geom2DInit::bendPointsReadyCB( CallBacker* retcb )
+{
+    auto& twm = Threads::WorkManager::twm();
+    const bool res = twm.getWorkExitStatus( retcb );
+    if ( !res || queueid_ < 0 || !continue_ )
+	return;
+
+    const CallBack cb = mCB(this,Geom2DInit,computeIntersectionsCB);
+    twm.addWork( Threads::Work(cb), nullptr, queueid_, false, false, true );
+}
+
+
 void Geom2DInit::computeBendpointsCB( CallBacker* )
 {
     auto& l2dim = Line2DIntersectionManager::instanceAdmin();
@@ -84,10 +100,20 @@ void Geom2DInit::computeIntersectionsCB( CallBacker* )
 }
 
 
+void Geom2DInit::rootDirChangedCB( CallBacker* )
+{
+    Threads::Locker locker( lock_ );
+    continue_ = false;
+}
+
+
 void Geom2DInit::closeQueueCB( CallBacker* )
 {
-    Threads::WorkManager::twm().removeQueue( queueid_, false );
+    Threads::Locker locker( lock_ );
+    const int queueid = queueid_;
     queueid_ = -1;
+    if ( queueid >= 0 )
+	Threads::WorkManager::twm().removeQueue( queueid, true );
 }
 
 
