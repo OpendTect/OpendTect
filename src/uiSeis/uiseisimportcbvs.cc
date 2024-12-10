@@ -20,6 +20,7 @@ ________________________________________________________________________
 #include "ptrman.h"
 #include "seiscbvs.h"
 #include "seisselection.h"
+#include "survinfo.h"
 #include "zdomain.h"
 
 #include "uifileinput.h"
@@ -87,7 +88,7 @@ uiSeisImportCBVS::~uiSeisImportCBVS()
 
 IOObj* uiSeisImportCBVS::getInpIOObj( const char* inp ) const
 {
-    IOStream* iostrm = new IOStream( "_tmp", tmpid_ );
+    auto* iostrm = new IOStream( "_tmp", DBKey(tmpid_,SI().diskLocation()) );
     iostrm->setGroup( mTranslGroupName(SeisTrc) );
     iostrm->setTranslator( CBVSSeisTrcTranslator::translKey() );
     iostrm->setDirName( "Seismics" );

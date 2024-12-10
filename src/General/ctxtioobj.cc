@@ -451,16 +451,16 @@ bool IOObjContext::validObj( const MultiID& mid ) const
 
 
 IOStream* IOObjContext::crDefaultWriteObj( const Translator& transl,
-					    const MultiID& ky ) const
+					   const MultiID& ky ) const
 {
     fillTrGroup();
 
-    auto* iostrm = new IOStream( name(), ky, false );
+    auto* iostrm = new IOStream( name(), DBKey(ky,SI().diskLocation()), false );
     iostrm->setGroup( trgroup_->groupName() );
     iostrm->setTranslator( transl.userName() );
 
     const StdDirData* sdd = getStdDirData( stdseltype_ );
-    const char* dirnm = sdd ? sdd->dirnm_ : 0;
+    const char* dirnm = sdd ? sdd->dirnm_ : nullptr;
     if ( dirnm )
 	iostrm->setDirName( dirnm );
     iostrm->setExt( transl.defExtension() );

@@ -153,7 +153,7 @@ protected:
     int				indexOf(const Pos::GeomID&) const;
     bool			hasDuplicateLineNames();
 
-    Threads::Lock		lock_;
+    mutable Threads::Lock	lock_;
     ObjectSet<Geometry>		geometries_;
 
     bool			hasduplnms_	= false;

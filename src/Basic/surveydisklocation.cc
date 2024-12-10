@@ -76,15 +76,17 @@ SurveyDiskLocation&
 }
 
 
-BufferString SurveyDiskLocation::basePath() const
+BufferString SurveyDiskLocation::basePath( bool trysi ) const
 {
-    return basepath_.isEmpty() ? SI().diskLocation().basepath_ : basepath_;
+    return basepath_.isEmpty() && trysi ? SI().diskLocation().basepath_
+					: basepath_;
 }
 
 
-BufferString SurveyDiskLocation::dirName() const
+BufferString SurveyDiskLocation::dirName( bool trysi ) const
 {
-    return dirname_.isEmpty() ? SI().diskLocation().dirname_ : dirname_;
+    return dirname_.isEmpty() && trysi ? SI().diskLocation().dirname_
+				       : dirname_;
 }
 
 
@@ -204,9 +206,9 @@ bool SurveyDiskLocation::usePar( const IOPar& iop )
 }
 
 
-BufferString SurveyDiskLocation::fullPath() const
+BufferString SurveyDiskLocation::fullPath( bool trysi ) const
 {
-    return FilePath( basePath(), dirName() ).fullPath();
+    return FilePath( basePath(trysi), dirName(trysi) ).fullPath();
 }
 
 

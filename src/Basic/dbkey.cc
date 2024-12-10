@@ -19,7 +19,10 @@ ________________________________________________________________________
 DBKey::DBKey( const MultiID& mid, const SurveyDiskLocation& sdl )
     : MultiID(mid)
 {
-    setSurveyDiskLocation( sdl );
+    if ( mid.groupID() >= 0 )
+	survloc_ = new SurveyDiskLocation( sdl );
+    else
+	survloc_ = new SurveyDiskLocation( nullptr, sdl.basePath() );
 }
 
 

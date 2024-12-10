@@ -24,10 +24,14 @@ private:
 
     void		start();
     void		readGeomCB(CallBacker*);
+    void		geomReadyCB(CallBacker*);
+    void		bendPointsReadyCB(CallBacker*);
     void		computeBendpointsCB(CallBacker*);
     void		computeIntersectionsCB(CallBacker*);
+    void		rootDirChangedCB(CallBacker*);
 
     void		closeQueueCB(CallBacker*);
+    bool		continue_	= true;
     int			queueid_;
     Threads::Lock	lock_;
 

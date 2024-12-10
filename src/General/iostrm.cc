@@ -19,6 +19,7 @@ ________________________________________________________________________
 #include "separstr.h"
 #include "string2.h"
 #include "strmprov.h"
+#include "survinfo.h"
 
 
 static void getFullSpecFileName( BufferString& fnm, BufferString* specfnm )
@@ -61,7 +62,7 @@ class IOStreamProducer : public IOObjProducer
     bool	canMake( const char* typ ) const override
 		{ return StringView(typ)==StreamConn::sType(); }
     IOObj*	make( const char* nm,
-		      const MultiID& ky, bool fd ) const override
+		      const DBKey& ky, bool fd ) const override
 		{ return new IOStream(nm,ky,fd); }
 
     static int	factoryid_;
@@ -70,33 +71,40 @@ class IOStreamProducer : public IOObjProducer
 int IOStreamProducer::factoryid_ = IOObj::addProducer( new IOStreamProducer );
 
 
-mStartAllowDeprecatedSection
-IOStream::IOStream( const char* nm, const char* uid, bool mkdef )
-    : IOObj(nm,uid)
-    , curfidx_(0)
+// IOStream
+
+IOStream::IOStream( const char* nm, const DBKey& ky, bool mkdef )
+    : IOObj(nm,ky)
+    , fs_(ky)
 {
     if ( mkdef )
 	genFileName();
 }
-mStopAllowDeprecatedSection
 
 
 IOStream::IOStream()
-    : IOObj(nullptr,MultiID::udf())
-{}
-
-
-IOStream::IOStream( const char* nm, const MultiID& uid, bool mkdef )
-    : IOObj(nm,uid)
-    , curfidx_(0)
+    : IOStream(nullptr,DBKey(MultiID::udf(),SI().diskLocation()))
 {
-    if ( mkdef )
-	genFileName();
 }
 
 
+IOStream::IOStream( const char* nm, const MultiID& ky, bool mkdef )
+    : IOStream(nm,DBKey(ky,SI().diskLocation()),mkdef)
+{
+}
+
+mStartAllowDeprecatedSection
+
+IOStream::IOStream( const char* nm, const char* uid, bool mkdef )
+    : IOStream(nm,DBKey(MultiID(uid),SI().diskLocation()),mkdef)
+{
+}
+
+mStopAllowDeprecatedSection
+
+
 IOStream::IOStream( const IOStream& oth )
-    : IOObj(nullptr,MultiID::udf())
+    : IOObj(nullptr,DBKey(MultiID::udf()))
 {
     copyFrom( &oth );
 }
@@ -242,6 +250,7 @@ int IOStream::connIdxFor( int nr ) const
 {
     if ( !fs_.isRangeMulti() )
 	return -1;
+
     return fs_.nrs_.nearestIndex( nr );
 }
 

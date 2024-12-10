@@ -560,7 +560,7 @@ bool IOMan::to( const IOSubDir* sd, bool forcereread )
 {
     if ( isBad() )
     {
-	if ( !to(MultiID(0,-1),true) || isBad() )
+	if ( !to(MultiID(0,MultiID::udf().objectID()),true) || isBad() )
 	    return false;
 
 	return to( sd, true );
@@ -605,8 +605,8 @@ bool IOMan::to( const MultiID& ky, bool forcereread )
 	return false;
 
     MultiID key = ky;
-    if ( key.groupID()>100000 && key.objectID()<0 )
-	key.setGroupID(-1).setObjectID(ky.groupID());
+    if ( key.groupID()>MultiID::cFirstDatabaseGrpID() && key.objectID()<0 )
+	key.setGroupID( MultiID::udf().groupID()).setObjectID(ky.groupID());
 
     const bool issamedir = dirptr_ && key.groupID() == dirptr_->key().groupID();
     if ( !forcereread && issamedir )

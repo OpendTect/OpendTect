@@ -8,29 +8,42 @@ ________________________________________________________________________
 -*/
 
 #include "filespec.h"
-#include "iopar.h"
-#include "oddirs.h"
+
 #include "file.h"
 #include "filepath.h"
+#include "iopar.h"
 #include "keystrs.h"
-#include "separstr.h"
+#include "oddirs.h"
 #include "perthreadrepos.h"
+#include "separstr.h"
+#include "surveydisklocation.h"
 
 const char* FileSpec::sKeyFileNrs()	   { return "File numbers"; }
 
 
 FileSpec::FileSpec( const char* fnm )
     : nrs_(mUdf(int),0,1)
-    , zeropad_(0)
 {
     if ( fnm && *fnm )
 	fnames_.add( fnm );
 }
 
 
+FileSpec::FileSpec( const DBKey& ky )
+    : nrs_(mUdf(int),0,1)
+{
+    if ( ky.hasSurveyLocation() && ky.groupID() >= 0 )
+    {
+	const SurveyDiskLocation& sdl = ky.surveyDiskLocation();
+	const BufferString datadir = sdl.fullPath( false );
+	if ( File::exists(datadir) )
+	    datadir_ = datadir;
+    }
+}
+
+
 FileSpec::FileSpec( const IOPar& iop )
     : nrs_(mUdf(int),0,1)
-    , zeropad_(0)
 {
     usePar( iop );
 }
@@ -45,6 +58,7 @@ int FileSpec::nrFiles() const
     const int nrfnms = fnames_.size();
     if ( nrfnms > 1 )
 	return nrfnms;
+
     return mIsUdf(nrs_.start_) ? nrfnms : nrs_.nrSteps() + 1;
 }
 
@@ -69,10 +83,13 @@ const char* FileSpec::fullDirName() const
 {
     FilePath fp( fileName(0) );
     if ( fp.isAbsolute() )
-	fp.setFileName( 0 );
+	fp.setFileName( nullptr );
     else
     {
-	fp.set( GetDataDir() );
+	if ( datadir_.isEmpty() )
+	    { pErrMsg("Should not be reached"); }
+
+	fp.set( datadir_ );
 	if ( !survsubdir_.isEmpty() )
 	    fp.add( survsubdir_ );
     }
@@ -186,7 +203,6 @@ void FileSpec::ensureBaseDir( const char* dirnm )
 		*fnames_[idx] = newfnm;
 	}
     }
-
 }
 
 
@@ -205,6 +221,7 @@ void FileSpec::makeAbsoluteIfRelative( const char* dirnm )
 	FilePath fp( fileName(idx) );
 	if ( fp.isAbsolute() )
 	    continue;
+
 	fp.setPath( dirnm );
 	fnames_.replace( idx, new BufferString(fp.fullPath()) );
     }
@@ -230,6 +247,7 @@ void FileSpec::fillPar( IOPar& iop ) const
 	    fms += nrs_.start_; fms += nrs_.stop_; fms += nrs_.step_;
 	    if ( zeropad_ )
 		fms += zeropad_;
+
 	    iop.set( sKeyFileNrs(), fms );
 	}
     }
@@ -332,7 +350,12 @@ void FileSpec::makePathsRelative( const char* dir )
 	return;
 
     if ( !dir || !*dir )
-	dir = GetDataDir();
+    {
+	if ( datadir_.isEmpty() )
+	    { pErrMsg("Should not be reached"); }
+
+	dir = datadir_;
+    }
 
     const FilePath relfp( dir );
     for ( int ifile=0; ifile<nrfnms; ifile++ )

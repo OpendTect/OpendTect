@@ -35,9 +35,16 @@ public:
 	: Executor( "Loading Files" )
 	, objs_(objs)
 	, geometries_(geometries)
-	, nrdone_(0)
 	, updateonly_(updateonly)
-    {}
+    {
+	mAttachCB( SurveyInfo::rootDirChanged(),
+		   GeomFileReader::rootDirChangedCB );
+    }
+
+    ~GeomFileReader()
+    {
+	detachAllNotifiers();
+    }
 
 
     od_int64 nrDone() const override
@@ -47,9 +54,19 @@ public:
     od_int64 totalNr() const override
     { return objs_.size(); }
 
-protected:
+private:
 
-    int indexOf( Pos::GeomID geomid ) const
+    bool shouldContinue() override
+    {
+	return continue_;
+    }
+
+    void rootDirChangedCB( CallBacker* )
+    {
+	continue_ = false;
+    }
+
+    int indexOf( const Pos::GeomID& geomid ) const
     {
 	for ( int idx=0; idx<geometries_.size(); idx++ )
 	    if ( geometries_[idx]->getID() == geomid )
@@ -105,7 +122,11 @@ protected:
 	mReturn
     }
 
-protected:
+    bool doFinish( bool success, od_ostream* strm ) override
+    {
+	return success && shouldContinue() ? Executor::doFinish( success, strm )
+					   : false;
+    }
 
     bool calcBendPoints( PosInfo::Line2DData& l2d ) const
     {
@@ -117,10 +138,10 @@ protected:
 	return true;
     }
 
-    bool isLoaded( Pos::GeomID geomid ) const
+    bool isLoaded( const Pos::GeomID& geomid ) const
     {
-	for ( int idx=0; idx<geometries_.size(); idx++ )
-	    if ( geometries_[idx]->getID() == geomid )
+	for ( const auto* geom : geometries_ )
+	    if ( geom->getID() == geomid )
 		return true;
 
 	return false;
@@ -128,8 +149,9 @@ protected:
 
     const ObjectSet<IOObj>&	objs_;
     ObjectSet<Geometry>&	geometries_;
-    od_int64			nrdone_;
+    od_int64			nrdone_		= 0;
     bool			updateonly_;
+    bool			continue_	= true;
 
 };
 

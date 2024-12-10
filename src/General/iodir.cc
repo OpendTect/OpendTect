@@ -116,7 +116,7 @@ void IODir::setDirName( IOObj& ioobj, const char* dirnm )
 	ioobj.dirnm_ = dirnm;
     else
     {
-	FilePath fp( dirnm );
+	const FilePath fp( dirnm );
 	ioobj.setDirName( fp.fileName() );
     }
 }
@@ -125,7 +125,7 @@ void IODir::setDirName( IOObj& ioobj, const char* dirnm )
 static Threads::Lock lock_;
 
 IOObj* IODir::readOmf( od_istream& strm, const char* dirnm,
-			IODir* dirptr, int needid )
+		       IODir* dirptr, int needid )
 {
     Threads::Locker locker( lock_ );
 
@@ -147,7 +147,7 @@ IOObj* IODir::readOmf( od_istream& strm, const char* dirnm,
     IOObj* retobj = nullptr;
     while ( astream.type() != ascistream::EndOfFile )
     {
-	IOObj* obj = IOObj::get(astream,dirnm,dirky.groupID());
+	IOObj* obj = IOObj::get( astream, dirnm, dirky.groupID() );
 	if ( !obj || obj->isBad() )
 	{
 	    delete obj;
