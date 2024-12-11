@@ -23,6 +23,7 @@ ________________________________________________________________________
 #ifndef OD_NO_QT
 # include "qstreambuf.h"
 # include <QProcess>
+# include <QVersionNumber>
 #endif
 
 #include <iostream>
@@ -553,7 +554,8 @@ void OS::MachineCommand::addShellIfNeeded()
 	const BufferString cmdstr( args_.cat(" ") );
 	args_.setEmpty();
 	args_.add( "-c" ).add( cmdstr.buf() );
-	// The whole command as one arguments. Quotes will be added automatically
+	/* The whole command as one arguments.
+	   Quotes will be added automatically */
     }
 }
 
@@ -835,6 +837,45 @@ void OS::CommandLauncher::startMonitor()
 }
 
 
+namespace OD
+{
+
+static void checkKernelVersion()
+{
+#if QT_VERSION >= QT_VERSION_CHECK(6,0,0)
+    static bool istested = false;
+    if ( !istested )
+    {
+	istested = true;
+	const QString qkernelver = QSysInfo::kernelVersion();
+	const BufferString kernelver( qkernelver );
+	if ( kernelver.isEmpty() )
+	    return;
+
+	const SeparString kernelverss( kernelver.buf(), '-' );
+	if ( kernelver.size() < 2 )
+	    return;
+
+	const QVersionNumber qnum =
+			QVersionNumber::fromString( kernelverss[0].str() );
+	if ( qnum.majorVersion() > 4 )
+	    return;
+
+	const QVersionNumber qpatch =
+			QVersionNumber::fromString( kernelverss[1].str() );
+	if ( qpatch.majorVersion() > 400 )
+	    return;
+
+	od_ostream::logStream() << "[WARNING] "
+			    "OpendTect may not work reliably on this kernel, "
+			    "please consider upgrading" << od_endl;
+    }
+#endif
+}
+
+} // namespace OD
+
+
 bool OS::CommandLauncher::doExecute( const MachineCommand& mc,
 				     const CommandExecPars& pars )
 {
@@ -867,6 +908,9 @@ bool OS::CommandLauncher::doExecute( const MachineCommand& mc,
 							    HINSTANCE_ERROR;
     }
 #endif
+
+    if ( __islinux__ )
+	OD::checkKernelVersion();
 
     if ( process_ )
     {
