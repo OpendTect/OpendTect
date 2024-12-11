@@ -615,15 +615,18 @@ bool GeometryManager::updateGeometries( TaskRunner* taskr )
 bool GeometryManager::getList( BufferStringSet& names,
 			       TypeSet<Pos::GeomID>& geomids, bool is2d ) const
 {
+    Threads::Lock& lock = getNonConst(*this).lock_;
+    Threads::Locker locker( lock );
     names.erase();
     geomids.erase();
     for ( int idx=0; idx<geometries_.size(); idx++ )
     {
-	if ( geometries_[idx]->is2D() == is2d )
-	{
-	    names.add( geometries_[idx]->getName() );
-	    geomids += geometries_[idx]->getID();
-	}
+	ConstRefMan<Survey::Geometry> geom = geometries_.get( idx );
+	if ( !geom || geom->is2D() != is2d )
+	    continue;
+
+	names.add( geom->getName() );
+	geomids += geom->getID();
     }
 
     return true;
