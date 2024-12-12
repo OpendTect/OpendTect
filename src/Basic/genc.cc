@@ -896,6 +896,27 @@ mExtern(Basic) bool SetProgramArgs( int argc, char** argv, bool ddrequired )
     return true;
 }
 
+
+mExternC(Basic) bool HasDebugPostFix()
+{
+#ifdef __debug_postfix__
+    return true;
+#else
+    return false;
+#endif
+}
+
+
+mExternC(Basic) const char* GetDebugPostFix()
+{
+#ifdef __debug_postfix__
+    return __debug_postfix__;
+#else
+    return nullptr;
+#endif
+}
+
+
 static BufferString execnmoverrule;
 extern "C" { mGlobal(Basic) void SetExecutableNameOverrule(const char*); }
 mExternC(Basic) void SetExecutableNameOverrule( const char* execnm )
@@ -993,6 +1014,30 @@ mExternC(Basic) const char* GetExecutableName( void )
     }
 
     return res;
+}
+
+
+mExternC(Basic) const char* GetODApplicationName( const char* nm )
+{
+    mDeclStaticString( res );
+    if ( !HasDebugPostFix() )
+    {
+	res.set( nm );
+	return res.buf();
+    }
+
+    FilePath fp( nm );
+    BufferString filenm = fp.baseName();
+    filenm.add( GetDebugPostFix() );
+
+    const BufferString extstr = fp.extension();
+    if ( !extstr.isEmpty() )
+	filenm.add( "." ).add( extstr );
+
+    fp.setFileName( filenm.buf() );
+    res = fp.fullPath();
+
+    return res.buf();
 }
 
 

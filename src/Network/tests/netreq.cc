@@ -294,9 +294,10 @@ int mTestMainFnName( int argc, char** argv )
     PID_Type serverpid = -1;
     if ( !clParser().hasKey("noechoapp") )
     {
-	BufferString echoapp = "test_netreqechoserver";
+	BufferString echoapp( "test_netreqechoserver" );
 	clParser().setKeyHasValue( "serverapp" );
 	clParser().getVal( "serverapp", echoapp );
+	echoapp = GetODApplicationName( echoapp );
 
 	OS::MachineCommand mc( echoapp );
 	auth.addTo( mc );

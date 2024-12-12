@@ -29,6 +29,12 @@ mGlobal(Basic) const char* GetLocalAddress(bool ipv4only=true);
 		  Implemented in Network, thus only available if you
 		  link (and init) the Network lib		 */
 
+mGlobal(Basic) bool HasDebugPostFix();
+//!< Returns if the libraries and applications have a debug postfix
+
+mGlobal(Basic) const char* GetDebugPostFix();
+//!< Returns the debug postfix for libraries and applications (default="d")
+
 mGlobal(Basic) const char* GetFullExecutablePath(void);
 		/*!< returns full path to executable. setProgramArgs
 		     must be called for it to work. */
@@ -36,6 +42,11 @@ mGlobal(Basic) const char* GetFullExecutablePath(void);
 mGlobal(Basic) const char* GetExecutableName(void);
 		/*!< returns name of the executable. setProgramArgs
 		     must be called for it to work. */
+
+mGlobal(Basic) const char* GetODApplicationName(const char* basenm);
+		/*!< returns the file name of an OpendTect application,
+		     complemented by the debug postfix if any
+		     (input paths and/or extensions are preserved) */
 
 mGlobal(Basic) const char* GetOSIdentifier(void);
 
