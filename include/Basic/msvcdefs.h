@@ -21,7 +21,6 @@ ________________________________________________________________________
 #endif
 
 #define snprintf	_snprintf
-#define isnan		std::isnan
 
 #define strncasecmp	_strnicmp
 #define strcasecmp	stricmp
