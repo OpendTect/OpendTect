@@ -31,6 +31,8 @@ ________________________________________________________________________________
 #include "wellmarker.h"
 #include "welltrack.h"
 
+#include <cmath>
+
 
 odWell::odWell( const odSurvey& thesurvey, const char* name )
     : odSurveyObject(thesurvey, name, translatorGrp())
@@ -292,11 +294,7 @@ void odWell::putLog( const char* lognm, const float* dah, const float* logdata,
     {
 	const float dep = getConvertedValue( *dah++, zduom, zsuom );
 	float logval = *logdata++;
-#ifdef __win__
-	if ( isnan(logval) )
-#else
 	if ( std::isnan(logval) )
-#endif
 	    logval = mUdf(float);
 
 	outlog->addValue( dep, logval );

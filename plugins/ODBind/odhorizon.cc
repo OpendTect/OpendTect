@@ -35,6 +35,7 @@ ________________________________________________________________________________
 #include "task.h"
 #include "zdomain.h"
 
+#include <cmath>
 #include <string.h>
 
 #include "odsurvey.h"
@@ -417,11 +418,7 @@ void odHorizon3D::putAuxData( const char* name, const float* data,
 //	    if ( tk_.includes(trckey) )
 //	    {
 //		float val = data[idx];
-// #ifdef __win__
-//		if ( !isnan(val) )
-// #else
 //		if ( !std::isnan(val) )
-// #endif
 //		{
 //		    val /= zfac;
 //		    array_->set( tk_.lineIdx(trckey.inl()),
