@@ -77,6 +77,7 @@ set( OD_MODULE_SOURCES
 	uimenuhandler.cc
 	uimnemonicprops.cc
 	uimnemonicsel.cc
+	uinotfinisheddlg.cc
 	uinotsaveddlg.cc
 	uiobjectitemview.cc
 	uiobjectitemviewwin.cc

@@ -24,6 +24,7 @@ ________________________________________________________________________
 #include "uimpepartserv.h"
 #include "uimsg.h"
 #include "uinlapartserv.h"
+#include "uinotfinisheddlg.h"
 #include "uinotsaveddlg.h"
 #include "uiodapplmgr.h"
 #include "uiodmenumgr.h"
@@ -757,11 +758,15 @@ bool uiODMain::askStore( bool& askedanything, const uiString& actiontype )
     if ( !applmgr_->attrServer() )
 	return false;
 
-    if ( !NotSavedPrompter::NSP().doTrigger( uiMainWin::activeWindow(), true,
-					     actiontype ) )
-	return false;
+    if ( !NotSavedPrompter::NSP().doTrigger(uiMainWin::activeWindow(), true,
+								actiontype) )
+		return false;
 
-    bool doask = false;
+	if ( !NotFinishedPrompter::NFP().doTrigger(uiMainWin::activeWindow(),
+							    true, actiontype) )
+		return false;
+
+	bool doask = false;
     Settings::common().getYN( "dTect.Ask store session", doask );
     if ( doask && hasSessionChanged() )
     {
