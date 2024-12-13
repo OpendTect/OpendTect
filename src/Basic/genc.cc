@@ -900,7 +900,7 @@ mExtern(Basic) bool SetProgramArgs( int argc, char** argv, bool ddrequired )
 mExternC(Basic) bool HasDebugPostFix()
 {
 #ifdef __debug_postfix__
-    return true;
+    return OD::InDebugMode();
 #else
     return false;
 #endif

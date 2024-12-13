@@ -21,7 +21,6 @@ list( REMOVE_ITEM EXECLIST ${EXCLUDE_EXECS} )
 #TODO update condition when the debug libraries get an actual debug postfix
 if ( ${PACKAGE_TYPE} STREQUAL "Devel" AND NOT APPLE )
     set( THIRDPARTY_LIBS "${OD_THIRDPARTY_LIBS}" )
-    list( APPEND EXECLIST "qt.conf" )
 endif()
 
 set( PACK devel )

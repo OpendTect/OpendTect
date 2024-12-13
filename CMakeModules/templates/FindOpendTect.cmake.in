@@ -66,6 +66,10 @@ if ( NOT ONLY_SET_VAR )
     link_directories( "${OD_BINARY_BASEDIR}/${OD_LIBRARY_DIRECTORY}" )
 endif()
 
+if ( CMAKE_CONFIGURATION_TYPES AND NOT CMAKE_DEBUG_POSTFIX )
+    set( CMAKE_DEBUG_POSTFIX "@CMAKE_DEBUG_POSTFIX@" )
+endif()
+
 #List of all modules
 set( OD_CORE_MODULE_NAMES_od @OD_CORE_MODULE_NAMES_od@ )
 #List of all OD plugins

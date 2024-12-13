@@ -107,6 +107,10 @@ endmacro()
 
 macro( COPY_THIRDPARTYLIBS )
     foreach( LIBNM ${THIRDPARTY_LIBS} )
+	if ( NOT THIRDPARTY_TARGETS AND "${LIBNM}" MATCHES "Qt.Core" )
+	    file( COPY "${COPYFROMEXEDIR}/qt.conf"
+		  DESTINATION "${COPYTOEXEDIR}" )
+	endif()
 	if ( UNIX AND NOT APPLE )
 	    if( "${LIBNM}" MATCHES "^libssl" OR "${LIBNM}" MATCHES "^libcrypto" )
 		set( _INST_DIR "OpenSSL" )
@@ -267,11 +271,11 @@ macro( CREATE_PACKAGE PACKAGE_NAME )
 
     foreach( LIB IN LISTS LIBLIST PLUGINS SPECMODS )
 	if( WIN32 )
-	    set( LIBNM "${LIB}.dll" )
+	    set( LIBNM "${LIB}${CMAKE_POSTFIX}.dll" )
 	elseif( APPLE )
-	    set( LIBNM "lib${LIB}.dylib" )
+	    set( LIBNM "lib${LIB}${CMAKE_POSTFIX}.dylib" )
 	else()
-	    set( LIBNM "lib${LIB}.so")
+	    set( LIBNM "lib${LIB}${CMAKE_POSTFIX}.so")
 	endif()
 
 	if ( EXISTS "${COPYFROMLOCDIR}/${LIBNM}" )
@@ -280,9 +284,9 @@ macro( CREATE_PACKAGE PACKAGE_NAME )
 	    endif()
 
 	    if ( WIN32 AND "${PACKAGE_NAME}" STREQUAL "devel" )
-		file( COPY "${COPYFROMLIBDIR}/${LIB}.lib"
+		file( COPY "${COPYFROMLIBDIR}/${LIB}${CMAKE_POSTFIX}.lib"
 		      DESTINATION "${COPYTOLIBDIR}" )
-		file( COPY "${COPYFROMLOCDIR}/${LIB}.pdb"
+		file( COPY "${COPYFROMLOCDIR}/${LIB}${CMAKE_POSTFIX}.pdb"
 		      DESTINATION "${COPYTOLOCDIR}" )
 	    endif()
 	endif()
@@ -300,7 +304,7 @@ macro( CREATE_PACKAGE PACKAGE_NAME )
     endif()
 
     foreach( EXEC ${EXECLIST} )
-	set( EXECFILE "${EXEC}" )
+	set( EXECFILE "${EXEC}${CMAKE_POSTFIX}" )
 	if ( WIN32 )
 	    get_filename_component( exec_ext ${EXEC} EXT )
 	    if ( "${exec_ext}" STREQUAL "" )
