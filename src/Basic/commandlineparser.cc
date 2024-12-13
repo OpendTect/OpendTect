@@ -68,12 +68,12 @@ void CommandLineParser::ensureNrArgs( const char* key, int nrvals ) const
     {
 	const int curnrvals = nrvalues_[nrvalsidx];
 	if ( curnrvals < nrvals )
-	    mSelf().nrvalues_[nrvalsidx] = nrvals;
+	    getNonConst(*this).nrvalues_[nrvalsidx] = nrvals;
     }
     else
     {
-	mSelf().keyswithvalue_.add( key );
-	mSelf().nrvalues_.add( nrvals );
+	getNonConst(*this).keyswithvalue_.add( key );
+	getNonConst(*this).nrvalues_.add( nrvals );
     }
 }
 

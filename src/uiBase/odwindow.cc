@@ -1054,7 +1054,7 @@ uiButton* uiDialogBody::button( uiDialog::Button but )
 
 const uiButton* uiDialogBody::button( uiDialog::Button but ) const
 {
-    return mSelf().button( but );
+    return getNonConst(*this).button( but );
 }
 
 

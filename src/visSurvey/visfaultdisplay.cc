@@ -161,7 +161,7 @@ EM::ObjectID FaultDisplay::getEMObjectID() const
 
 const EM::Fault3D* FaultDisplay::emFault() const
 {
-    return mSelf().emFault();
+    return getNonConst(*this).emFault();
 }
 
 

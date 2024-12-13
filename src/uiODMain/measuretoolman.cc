@@ -225,7 +225,7 @@ RefMan<visSurvey::PickSetDisplay> MeasureToolMan::getDisplayObj(
 ConstRefMan<visSurvey::PickSetDisplay> MeasureToolMan::getDisplayObj(
 						const VisID& visid ) const
 {
-    return mSelf().getDisplayObj( visid );
+    return getNonConst(*this).getDisplayObj( visid );
 }
 
 
@@ -241,7 +241,7 @@ RefMan<Pick::Set> MeasureToolMan::getSet( const VisID& visid )
 
 ConstRefMan<Pick::Set> MeasureToolMan::getSet( const VisID& visid ) const
 {
-    return mSelf().getSet( visid );
+    return getNonConst(*this).getSet( visid );
 }
 
 

@@ -105,7 +105,7 @@ Property* Property::get( const IOPar& iop )
 
 bool Property::init( const PropertySet& ) const
 {
-    mSelf().reset();
+    getNonConst(*this).reset();
     return true;
 }
 
@@ -472,9 +472,9 @@ bool MathProperty::init( const PropertySet& ps ) const
     Property::init( ps );
     if ( !isfromrockphys_ && !form_.hasFixedUnits() )
     {
-	if ( ROCKPHYSFORMS().getMatching(mSelf().form_) )
+	if ( ROCKPHYSFORMS().getMatching(getNonConst(*this).form_) )
 	{
-	    mSelf().isfromrockphys_ = true;
+	    getNonConst(*this).isfromrockphys_ = true;
 	    return init( ps );
 	}
     }

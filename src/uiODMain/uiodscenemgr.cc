@@ -366,7 +366,7 @@ void uiODSceneMgr::setSceneName( const SceneID& sceneid, const uiString& nm )
 
 uiString uiODSceneMgr::getSceneName( const SceneID& sceneid ) const
 {
-    return mSelf().visServ().getSceneName( sceneid );
+    return getNonConst(*this).visServ().getSceneName( sceneid );
 }
 
 
@@ -1619,7 +1619,7 @@ uiODSceneMgr::Scene* uiODSceneMgr::getScene( const SceneID& sceneid )
 
 const uiODSceneMgr::Scene* uiODSceneMgr::getScene(
 						const SceneID& sceneid ) const
-{ return mSelf().getScene( sceneid ); }
+{ return getNonConst(*this).getScene( sceneid ); }
 
 
 void uiODSceneMgr::font3DChanged( CallBacker* )

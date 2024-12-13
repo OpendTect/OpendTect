@@ -185,7 +185,7 @@ bool uiElasticModelProvider::getInputMIDs( MultiID& pwmid, MultiID& swmid,
 
     if ( !reasonstr.isEmpty() )
     {
-	mSelf().errmsg_.set( basestr ).append( reasonstr, true );
+	getNonConst(*this).errmsg_.set( basestr ).append( reasonstr, true );
 	return false;
     }
 

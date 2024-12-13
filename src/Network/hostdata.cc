@@ -903,7 +903,7 @@ HostData* HostDataList::findHost( const char* nm )
 
 const HostData* HostDataList::findHost( const char* nm ) const
 {
-    return mSelf().findHost( nm );
+    return getNonConst(*this).findHost( nm );
 }
 
 

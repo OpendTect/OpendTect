@@ -161,7 +161,7 @@ HostNFailInfo* JobRunner::hostNFailInfoFor( const HostData* hd ) const
 
 Network::Authority JobRunner::authority() const
 {
-    if ( !mSelf().iomgr().isReady() )
+    if ( !getNonConst(*this).iomgr().isReady() )
 	return Network::Authority();
 
     return iomgr_->authority();

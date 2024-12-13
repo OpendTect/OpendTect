@@ -771,8 +771,8 @@ Table::AscIO::~AscIO()
 
 void Table::AscIO::emptyVals() const
 {
-    mSelf().vals_.erase();
-    mSelf().units_.erase();
+    getNonConst(*this).vals_.erase();
+    getNonConst(*this).units_.erase();
 }
 
 
@@ -782,8 +782,8 @@ void Table::AscIO::addVal( const char* s, const UnitOfMeasure* mu ) const
     if ( !inpval.isEmpty() )
 	inpval.trimBlanks();
 
-    mSelf().vals_.add( inpval );
-    mSelf().units_.add( mu );
+    getNonConst(*this).vals_.add( inpval );
+    getNonConst(*this).units_.add( mu );
 }
 
 

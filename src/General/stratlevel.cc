@@ -101,7 +101,7 @@ void Strat::LevelSetMgr::setLVLS( LevelSet* ls )
 
 const Strat::LevelSet& Strat::LevelSetMgr::curSet() const
 {
-    return mSelf().curSet();
+    return getNonConst(*this).curSet();
 }
 
 

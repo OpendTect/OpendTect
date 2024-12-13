@@ -410,7 +410,7 @@ visBase::Scene* OD3DViewer::getScene()
 
 const visBase::Scene* OD3DViewer::getScene() const
 {
-    return mSelf().getScene();
+    return getNonConst(*this).getScene();
 }
 
 

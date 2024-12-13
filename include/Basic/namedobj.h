@@ -78,7 +78,7 @@ public:
 			{ return name_ == oth.getName(); }
 
     virtual Notifier<NamedCallBacker>&	objectToBeDeleted() const
-			{ return mSelf().delnotif_; }
+			{ return getNonConst(*this).delnotif_; }
 
 protected:
 

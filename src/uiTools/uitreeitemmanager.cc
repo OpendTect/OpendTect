@@ -293,13 +293,13 @@ void uiTreeItem::updateCheckStatus()
 
 const uiTreeItem* uiTreeItem::findChild( const char* nm ) const
 {
-    return mSelf().findChild( nm );
+    return getNonConst(*this).findChild( nm );
 }
 
 
 const uiTreeItem* uiTreeItem::findChild( int selkey ) const
 {
-    return mSelf().findChild( selkey );
+    return getNonConst(*this).findChild( selkey );
 }
 
 

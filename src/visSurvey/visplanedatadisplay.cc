@@ -805,7 +805,7 @@ ConstRefMan<DataPack> PlaneDataDisplay::getDataPack( int attrib ) const
 ConstRefMan<VolumeDataPack>
 			PlaneDataDisplay::getVolumeDataPack( int attrib ) const
 {
-    return mSelf().getVolumeDataPack( attrib );
+    return getNonConst(*this).getVolumeDataPack( attrib );
 }
 
 
@@ -821,7 +821,7 @@ RefMan<VolumeDataPack> PlaneDataDisplay::getVolumeDataPack( int attrib )
 ConstRefMan<VolumeDataPack> PlaneDataDisplay::getDisplayedVolumeDataPack(
 							int attrib ) const
 {
-    return mSelf().getDisplayedVolumeDataPack( attrib );
+    return getNonConst(*this).getDisplayedVolumeDataPack( attrib );
 }
 
 

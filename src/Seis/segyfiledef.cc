@@ -156,7 +156,7 @@ void SEGY::FilePars::onSurveyChgCB( CallBacker* )
 ConstRefMan<Coords::CoordSystem> SEGY::FilePars::getCoordSys() const
 {
     if ( !coordsys_ )
-	mSelf().coordsys_ = SI().getCoordSystem();
+	getNonConst(*this).coordsys_ = SI().getCoordSystem();
 
     return coordsys_;
 }

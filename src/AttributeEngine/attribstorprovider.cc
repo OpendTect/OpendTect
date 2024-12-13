@@ -944,7 +944,7 @@ void StorageProvider::checkClassType( const SeisTrc* trc,
 
 void StorageProvider::getCompNames( BufferStringSet& nms ) const
 {
-    updateDescAndGetCompNms( mSelf().getDesc(), &nms );
+    updateDescAndGetCompNms( getNonConst(*this).getDesc(), &nms );
 }
 
 

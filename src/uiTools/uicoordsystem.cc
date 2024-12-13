@@ -283,7 +283,7 @@ uiCoordSystemDlg::~uiCoordSystemDlg()
 ConstRefMan<CoordSystem> uiCoordSystemDlg::getCoordSystem() const
 {
     if ( !coordsysselfld_->hasOutputSystem() )
-	mSelf().coordsysselfld_->acceptOK();
+	getNonConst(*this).coordsysselfld_->acceptOK();
 
     return coordsysselfld_->outputSystem();
 }

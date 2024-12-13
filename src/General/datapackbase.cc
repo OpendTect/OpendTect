@@ -462,7 +462,7 @@ const OffsetValueSeries<float> VolumeDataPack::getTrcStorage( int comp,
 
 const float* VolumeDataPack::getTrcData( int comp, int globaltrcidx ) const
 {
-    return mSelf().getTrcData( comp, globaltrcidx );
+    return getNonConst(*this).getTrcData( comp, globaltrcidx );
 }
 
 

@@ -133,7 +133,7 @@ void uiSeisTransfer::showSubselFld( bool yn )
 
 const uiSeisSubSel* uiSeisTransfer::selFld() const
 {
-    return mSelf().selFld();
+    return getNonConst(*this).selFld();
 }
 
 
@@ -151,7 +151,7 @@ uiSeisSubSel* uiSeisTransfer::selFld()
 
 const uiSeis2DSubSel* uiSeisTransfer::selFld2D() const
 {
-    return mSelf().selFld2D();
+    return getNonConst(*this).selFld2D();
 }
 
 
@@ -164,7 +164,7 @@ uiSeis2DSubSel* uiSeisTransfer::selFld2D()
 
 const uiSeis3DSubSel* uiSeisTransfer::selFld3D() const
 {
-    return mSelf().selFld3D();
+    return getNonConst(*this).selFld3D();
 }
 
 
@@ -397,7 +397,7 @@ Executor* uiSeisTransfer::getTrcProc( const IOObj& inobj, const IOObj& outobj,
 {
     if ( selFld()->is2D() && linenm2d && *linenm2d )
     {
-	uiSeis2DSubSel* sel2d = mSelf().selFld2D();
+	uiSeis2DSubSel* sel2d = getNonConst(*this).selFld2D();
 	if ( sel2d && sel2d->isSingLine() )
 	    sel2d->setSelectedLine( linenm2d );
     }

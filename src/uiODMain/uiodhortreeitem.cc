@@ -366,7 +366,7 @@ void uiODHorizonTreeItem::initMenuItems()
 
 ConstRefMan<visSurvey::HorizonDisplay> uiODHorizonTreeItem::getDisplay() const
 {
-    return mSelf().getDisplay();
+    return getNonConst(*this).getDisplay();
 }
 
 
@@ -1133,7 +1133,7 @@ void uiODHorizon2DTreeItem::initMenuItems()
 ConstRefMan<visSurvey::Horizon2DDisplay>
 uiODHorizon2DTreeItem::getDisplay() const
 {
-    return mSelf().getDisplay();
+    return getNonConst(*this).getDisplay();
 }
 
 

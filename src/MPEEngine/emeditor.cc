@@ -285,7 +285,7 @@ mGetFunction( getDirection )
 
 const Geometry::ElementEditor* MPE::ObjectEditor::getEditor() const
 {
-    return mSelf().getEditor();
+    return getNonConst(*this).getEditor();
 }
 
 

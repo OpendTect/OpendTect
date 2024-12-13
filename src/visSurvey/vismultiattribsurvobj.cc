@@ -106,7 +106,7 @@ MultiTextureSurveyObject::setChannels2RGBA( visBase::TextureChannel2RGBA* t )
 const visBase::TextureChannel2RGBA*
 	MultiTextureSurveyObject::getChannels2RGBA() const
 {
-    return mSelf().getChannels2RGBA();
+    return getNonConst(*this).getChannels2RGBA();
 }
 
 
@@ -118,7 +118,7 @@ visBase::TextureChannel2RGBA* MultiTextureSurveyObject::getChannels2RGBA()
 
 const visBase::TextureChannels* MultiTextureSurveyObject::getChannels() const
 {
-    return mSelf().getChannels();
+    return getNonConst(*this).getChannels();
 }
 
 

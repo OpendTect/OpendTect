@@ -398,7 +398,7 @@ bool Desc::setInput_( int input, Desc* nd )
 
 ConstRefMan<Desc> Desc::getInput( int idx ) const
 {
-    return mSelf().getInput( idx );
+    return getNonConst(*this).getInput( idx );
 }
 
 

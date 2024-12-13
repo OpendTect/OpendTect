@@ -95,7 +95,7 @@ DataObject* DataManager::getObject( const Vis2DID& id )
 
 const DataObject* DataManager::getObject( const Vis2DID& id ) const
 {
-    return mSelf().getObject( id );
+    return getNonConst(*this).getObject( id );
 }
 
 

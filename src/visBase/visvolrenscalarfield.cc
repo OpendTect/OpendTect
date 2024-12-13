@@ -559,7 +559,7 @@ TrcKeyZSampling VolumeRenderScalarField::getMultiAttribTrcKeyZSampling() const
 
 const ColTab::Mapper& VolumeRenderScalarField::getColTabMapper( int attr ) const
 {
-    return mSelf().getColTabMapper( attr );
+    return getNonConst(*this).getColTabMapper( attr );
 }
 
 

@@ -165,7 +165,7 @@ bool MPE::SectionTracker::adjust()
 #define mGet( clss, func, name ) \
 clss* MPE::SectionTracker::func() { return name; }  \
 const clss* MPE::SectionTracker::func() const \
-{ return mSelf().func(); }
+{ return getNonConst(*this).func(); }
 
 
 mGet( MPE::SectionSourceSelector, selector, selector_ )

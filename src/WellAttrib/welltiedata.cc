@@ -194,13 +194,13 @@ WellTie::Data::~Data()
 
 const SeisTrc* WellTie::Data::getTrc( bool synth, int ioff ) const
 {
-    return mSelf().getTrc( synth, ioff );
+    return getNonConst(*this).getTrc( synth, ioff );
 }
 
 
 const SeisTrc* WellTie::Data::getRealTrc( int ioff ) const
 {
-    return mSelf().getRealTrc( ioff );
+    return getNonConst(*this).getRealTrc( ioff );
 }
 
 
@@ -431,7 +431,7 @@ void WellTie::WellDataMgr::wellDataDelNotify( CallBacker* )
 
 ConstRefMan<Well::Data> WellTie::WellDataMgr::wellData() const
 {
-    return mSelf().wd();
+    return getNonConst(*this).wd();
 }
 
 
@@ -577,7 +577,7 @@ bool WellTie::Server::setNewWavelet( const MultiID& mid )
     wvlt->reSample( Data::cDefSeisSr() );
     data_->initwvlt_ = *wvlt;
     data_->initwvlt_.setName( wvlt->name() );
-    mSelf().data_->setup().sgp_.setWavelet( *wvlt.ptr() );
+    getNonConst(*this).data_->setup().sgp_.setWavelet( *wvlt.ptr() );
     return updateSynthetics( data_->initwvlt_ );
 }
 

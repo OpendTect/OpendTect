@@ -292,7 +292,7 @@ void uiMultiSynthSeisSel::doParsChanged( IOPar* par )
 
 const uiSynthSeisSel* uiMultiSynthSeisSel::current() const
 {
-    return mSelf().current();
+    return getNonConst(*this).current();
 }
 
 

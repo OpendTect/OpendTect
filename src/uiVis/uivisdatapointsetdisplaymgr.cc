@@ -505,7 +505,7 @@ uiVisDataPointSetDisplayMgr::getInfo( const DispID& dispid )
 const uiVisDataPointSetDisplayMgr::DisplayInfo*
 uiVisDataPointSetDisplayMgr::getInfo( const DispID& dispid ) const
 {
-    return mSelf().getInfo( dispid );
+    return getNonConst(*this).getInfo( dispid );
 }
 
 

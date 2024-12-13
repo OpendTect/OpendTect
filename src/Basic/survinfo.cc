@@ -2046,7 +2046,7 @@ void SurveyInfo::readSavedCoordSystem() const
     if ( !coordsystempar )
 	coordsystempar = pars_.subselect( sKey::CoordSys() );
     if ( coordsystempar )
-	mSelf().coordsystem_ =
+	getNonConst(*this).coordsystem_ =
 		Coords::CoordSystem::createSystem( *coordsystempar );
 
     sfio.closeSuccess();

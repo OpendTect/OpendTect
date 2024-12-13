@@ -742,7 +742,7 @@ void ModelBasedAngleComputer::setRefModel(
 const ModelBasedAngleComputer::ModelTool*
 				ModelBasedAngleComputer::curModelTool() const
 {
-    return mSelf().curModelTool();
+    return getNonConst(*this).curModelTool();
 }
 
 

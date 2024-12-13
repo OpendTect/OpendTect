@@ -679,7 +679,7 @@ bool uiMainWin::grab( const char* filenm, int zoom,
     if ( zoom == 0 )
 	return grabScreen( filenm, format, quality, qscreen );
     else if ( zoom == 1 )
-	mSelf().saveImage( filenm, format, quality );
+	getNonConst(*this).saveImage( filenm, format, quality );
     else
 	activeModalWindow()->saveImage( filenm, format, quality );
 

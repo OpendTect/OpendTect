@@ -1222,7 +1222,7 @@ bool ElasticPropSelection::put( const IOObj* ioobj ) const
     else
 	ErrMsg( "Cannot open elastic property selection file for write" );
 
-    mSelf().storedid_ = ioobj->key();
+    getNonConst(*this).storedid_ = ioobj->key();
 
     return retval;
 }

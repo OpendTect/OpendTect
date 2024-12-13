@@ -173,7 +173,7 @@ DataObject* DataObjectGroup::getObject( int idx )
 
 const DataObject* DataObjectGroup::getObject( int idx ) const
 {
-    return mSelf().getObject( idx );
+    return getNonConst(*this).getObject( idx );
 }
 
 } // namespace visBase

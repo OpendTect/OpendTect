@@ -232,7 +232,7 @@ float ReflectivityModelBase::getSinAngle( int ioff, int idz ) const
 const ReflectivityModelTrace*
 ReflectivityModelBase::getReflectivities( int ioff ) const
 {
-    return mSelf().getReflectivities( ioff );
+    return getNonConst(*this).getReflectivities( ioff );
 }
 
 

@@ -376,7 +376,7 @@ ConstRefMan<DataPack> Seis2DDisplay::getDataPack( int attrib ) const
 
 ConstRefMan<VolumeDataPack> Seis2DDisplay::getVolumeDataPack( int attrib ) const
 {
-    return mSelf().getVolumeDataPack( attrib );
+    return getNonConst(*this).getVolumeDataPack( attrib );
 }
 
 
@@ -392,7 +392,7 @@ RefMan<VolumeDataPack> Seis2DDisplay::getVolumeDataPack( int attrib )
 ConstRefMan<VolumeDataPack> Seis2DDisplay::getDisplayedVolumeDataPack(
 							int attrib) const
 {
-    return mSelf().getDisplayedVolumeDataPack( attrib );
+    return getNonConst(*this).getDisplayedVolumeDataPack( attrib );
 }
 
 

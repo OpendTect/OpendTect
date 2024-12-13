@@ -499,7 +499,7 @@ SynthSpecificPars* getByID( const SynthID& sid )
 
 const SynthSpecificPars* getByID( const SynthID& sid ) const
 {
-    return mSelf().getByID( sid );
+    return getNonConst(*this).getByID( sid );
 }
 
 ConstRefMan<FlatDataPack> find( const SynthID& sid, int lmsidx,
