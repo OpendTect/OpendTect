@@ -45,7 +45,7 @@ public:
     uiTreeItem*		create() const override
 			{ return new uiODPSEventsParentTreeItem;}
     uiTreeItem*		createForVis(const VisID&,uiTreeItem*) const override
-			{ return new uiODPSEventsParentTreeItem; }
+			{ return nullptr; }
 };
 
 
