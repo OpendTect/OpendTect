@@ -200,6 +200,7 @@ int mTestMainFnName( int argc, char** argv )
         BufferString serverapp = "test_netsocketechoserver";
         clParser().setKeyHasValue( "serverapp" );
         clParser().getVal( "serverapp", serverapp, true );
+	serverapp = GetODApplicationName( serverapp );
 
         OS::MachineCommand mc( serverapp );
         auth.addTo( mc );

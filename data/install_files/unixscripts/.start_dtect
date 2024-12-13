@@ -88,8 +88,12 @@ if ( $status == 0 ) then
 	$CSHCMD "$installercmd" --updcheck_startup --instdir "$DTECT_APPL"
 	cd "${curdir}"
     endif
-    
-    set mainapp=od_main
+
+    if ( -e "${bindir}/od_main" ) then
+	set mainapp=od_main
+    else if ( -e "${bindir}/od_maind" ) then
+	set mainapp=od_maind
+    endif
 
     if ( $?DTECT_START_DEBUGGER ) then
 	echo "Original cmd: $CSHCMD $DTECT_APPL/bin/od_exec $mainapp $*"

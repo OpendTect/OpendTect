@@ -150,7 +150,11 @@ static BufferString mkLibName( const char* modnm )
     if ( !__iswin__ )
 	ret.set( "lib" );
 
-    ret.add( modnm ).add( "." );
+    ret.add( modnm );
+    if ( HasDebugPostFix() )
+	ret.add( GetDebugPostFix() );
+
+    ret.add( "." );
     if ( __iswin__ )
 	ret.add( "dll" );
     else if ( __ismac__ )
@@ -210,6 +214,13 @@ static const char* getFileBaseName( const char* libnm )
 	ret.set( filebasenm.str()+3 );
     else
 	ret.set( filebasenm );
+
+    if ( HasDebugPostFix() )
+    {
+	char* suffix = ret.findLast( GetDebugPostFix() );
+	if ( suffix && *suffix )
+	    *suffix = '\0';
+    }
 
     return ret.buf();
 }
@@ -547,7 +558,14 @@ void PluginManager::getALOEntries( const char* dirnm, bool usrdir )
 {
     FilePath fp( dirnm, sPluginDir, GetPlfSubDir() );
     const DirList dl( fp.fullPath(), File::DirListType::FilesInDir );
-    const BufferString prognm = GetExecutableName();
+    BufferString prognm = GetExecutableName();
+    if ( HasDebugPostFix() )
+    {
+	char* suffix = prognm.findLast( GetDebugPostFix() );
+	if ( suffix && *suffix )
+	    *suffix = '\0';
+    }
+
     for ( int idx=0; idx<dl.size(); idx++ )
     {
 	BufferString fnm = dl.get(idx);
