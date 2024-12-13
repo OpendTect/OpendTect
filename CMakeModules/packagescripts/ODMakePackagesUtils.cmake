@@ -107,10 +107,6 @@ endmacro()
 
 macro( COPY_THIRDPARTYLIBS )
     foreach( LIBNM ${THIRDPARTY_LIBS} )
-	if ( NOT THIRDPARTY_TARGETS AND "${LIBNM}" MATCHES "Qt.Core" )
-	    file( COPY "${COPYFROMEXEDIR}/qt.conf"
-		  DESTINATION "${COPYTOEXEDIR}" )
-	endif()
 	if ( UNIX AND NOT APPLE )
 	    if( "${LIBNM}" MATCHES "^libssl" OR "${LIBNM}" MATCHES "^libcrypto" )
 		set( _INST_DIR "OpenSSL" )

@@ -21,6 +21,8 @@ list( REMOVE_ITEM EXECLIST ${EXCLUDE_EXECS} )
 #TODO update condition when the debug libraries get an actual debug postfix
 if ( ${PACKAGE_TYPE} STREQUAL "Devel" AND NOT APPLE )
     set( THIRDPARTY_LIBS "${OD_THIRDPARTY_LIBS}" )
+    list( APPEND OTHERFILES "${CMAKE_INSTALL_PREFIX}/${OD_RUNTIME_DIRECTORY}/qt.conf" )
+    list( APPEND OTHERFILESDEST "${PACKAGE_DIR}/${REL_DIR}/${OD_RUNTIME_DIRECTORY}" )
 endif()
 
 set( PACK devel )
