@@ -92,6 +92,9 @@ public:
     void	addObject(const char* str,const CallBack& stopcb,
 					   const void* dataptr );
 
+    void	removeObject(const uiString&);
+    void	removeObject(const char*);
+
     const void* getCurrentObjectData() const;
 	    /*!<\returns the dataptr of the currently active object.
 	    *	\note Only valid during a call from a cb given in addProcess()

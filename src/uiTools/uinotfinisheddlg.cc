@@ -162,7 +162,7 @@ void NotFinishedPrompter::addObject( const char* str )
 
 
 void NotFinishedPrompter::addObject( const char* str,const CallBack& cb,
-									const void* dataptr )
+				     const void* dataptr )
 {
     objects_ += new NotFinishedPrompterData( toUiString(str), cb, dataptr );
 }
@@ -175,9 +175,28 @@ void NotFinishedPrompter::addObject( const uiString& str )
 
 
 void NotFinishedPrompter::addObject( const uiString& str, const CallBack& cb,
-									  const void* dataptr )
+				     const void* dataptr )
 {
     objects_ += new NotFinishedPrompterData( str, cb, dataptr );
+}
+
+
+void NotFinishedPrompter::removeObject( const uiString& str )
+{
+    for ( int idx=0; idx<objects_.size(); idx++ )
+    {
+	if ( str==objects_[idx]->string_ )
+	{
+	    delete objects_.removeSingle( idx );
+	    break;
+	}
+    }
+}
+
+
+void NotFinishedPrompter::removeObject( const char* str )
+{
+    removeObject( toUiString(str) );
 }
 
 
