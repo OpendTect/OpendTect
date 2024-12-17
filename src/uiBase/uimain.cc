@@ -456,7 +456,7 @@ void uiMain::init( QApplication* qap, int& argc, char **argv )
 	DBG::message( "Constructing QApplication ..." );
 
     if ( __iswin__ )
-	SetEnvVar( "QT_QPA_PLATFORM", "windows:darkmode:0" );
+	SetEnvVar( "QT_QPA_PLATFORM", "windows:darkmode=0" );
 
     preInit();
     app_ = qap ? qap : new QApplication( argc, argv );
