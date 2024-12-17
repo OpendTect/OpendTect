@@ -297,35 +297,13 @@ static void initQApplication()
 }
 
 
-
-static const char* getStyleFromSettings()
+static BufferString getStyleFromSettings()
 {
     BufferString lookpref = Settings::common().find( "dTect.LookStyle" );
     if ( lookpref.isEmpty() )
 	lookpref = GetEnvVar( "OD_LOOK_STYLE" );
 
-#ifndef QT_NO_STYLE_CDE
-    if ( lookpref.isEqual("CDE") )
-	return "cde";
-#endif
-#ifndef QT_NO_STYLE_MOTIF
-    else if ( lookpref.isEqual("Motif") )
-	return "motif";
-#endif
-#ifndef QT_NO_STYLE_WINDOWS
-    else if ( lookpref.isEqual("Windows") )
-	return "windows";
-#endif
-#ifndef QT_NO_STYLE_PLASTIQUE
-    else if ( lookpref.isEqual("Plastique") )
-	return "plastique";
-#endif
-#ifndef QT_NO_STYLE_CLEANLOOKS
-    else if ( lookpref.isEqual("Cleanlooks") )
-	return "cleanlooks";
-#endif
-
-    return nullptr;
+    return lookpref;
 }
 
 
@@ -477,6 +455,9 @@ void uiMain::init( QApplication* qap, int& argc, char **argv )
     if ( DBG::isOn(DBG_UI) && !qap )
 	DBG::message( "Constructing QApplication ..." );
 
+    if ( __iswin__ )
+	SetEnvVar( "QT_QPA_PLATFORM", "windows:darkmode=0" );
+
     preInit();
     app_ = qap ? qap : new QApplication( argc, argv );
 
@@ -496,13 +477,17 @@ void uiMain::init( QApplication* qap, int& argc, char **argv )
     qInstallMsgHandler( qtMessageOutput );
 #endif
 
-    if ( !__iswin__ )
+    const BufferString stylestr = getStyleFromSettings();
+    if ( !stylestr.isEmpty() )
     {
-	BufferString stylestr = getStyleFromSettings();
-	if ( stylestr.isEmpty() )
-	    stylestr = __ismac__ ? "macos" : "cleanlooks";
-
-	QApplication::setStyle( QStyleFactory::create(stylestr.buf()) );
+	QStyle* qstyl = QStyleFactory::create( stylestr.buf() );
+	if ( qstyl )
+	    QApplication::setStyle( qstyl );
+	else
+	{
+	    pErrMsg(BufferString("The requested style '", stylestr,
+		    "' is not available in this installation"));
+	}
     }
 
     BufferString qssfnm = Settings::common().find( "dTect.StyleSheet" );
@@ -511,15 +496,19 @@ void uiMain::init( QApplication* qap, int& argc, char **argv )
 
     if ( File::exists(qssfnm) )
     {
-	QFile file( qssfnm.buf() );
-	file.open( QFile::ReadOnly );
-	QString sheet = QLatin1String( file.readAll() );
-	app_->setStyleSheet( sheet );
+	QFile file( qssfnm.str() );
+	if ( file.open(QFile::ReadOnly | QFile::Text) )
+	{
+	    QTextStream ts( &file );
+	    app_->setStyleSheet( ts.readAll() );
+	}
     }
     else
+    {
 	qApp->setStyleSheet(
 	    QString("[readOnly=\"true\"] { background-color: %0 }")
 	    .arg(qApp->palette().color(QPalette::Window).name(QColor::HexRgb)));
+    }
 
     font_ = nullptr;
     setFont( *font() , true );
