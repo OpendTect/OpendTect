@@ -960,8 +960,19 @@ void uiTreeViewItem::setText( const uiString& txt, int column )
 
 void uiTreeViewItem::setBGColor( int column, const OD::Color& color )
 {
-    qtreeitem_->setBackground( column,
+    if ( color == OD::Color::NoColor() )
+	qtreeitem_->setBackground(column, QBrush() );
+    else
+	qtreeitem_->setBackground( column,
 			QBrush( QColor( color.r(), color.g(), color.b() ) ) );
+}
+
+
+OD::Color uiTreeViewItem::getBGColor( int column ) const
+{
+    const QBrush brush = qtreeitem_->background( column );
+    const QColor qcol = brush.color();
+    return OD::Color( qcol.red(), qcol.green(), qcol.blue(), qcol.alpha() );
 }
 
 
