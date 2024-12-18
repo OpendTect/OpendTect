@@ -18,11 +18,9 @@ ________________________________________________________________________
 #include "uitreeview.h"
 
 #include "applicationdata.h"
-#include "bufstringset.h"
-#include "debug.h"
+#include "commandlineparser.h"
 #include "envvars.h"
 #include "file.h"
-#include "genc.h"
 #include "ioman.h"
 #include "keyboardevent.h"
 #include "mouseevent.h"
@@ -297,14 +295,59 @@ static void initQApplication()
 }
 
 
-static BufferString getStyleFromSettings()
+namespace OD
 {
-    BufferString lookpref = Settings::common().find( "dTect.LookStyle" );
-    if ( lookpref.isEmpty() )
-	lookpref = GetEnvVar( "OD_LOOK_STYLE" );
+
+static BufferString getPlatformArg( const CommandLineParser& parser )
+{
+    BufferString ret;
+    if ( !parser.getVal("platform",ret) )
+    {
+	ret = GetEnvVar( "QT_QPA_PLATFORM" );
+    }
+
+    return ret;
+}
+
+
+static BufferString getStyleFromSettings( const CommandLineParser& parser,
+					  bool& needdisabledarkmode )
+{
+    BufferString lookpref;
+    if ( !parser.getVal("style",lookpref) )
+    {
+	lookpref = Settings::common().find( "dTect.LookStyle" );
+	if ( lookpref.isEmpty() )
+	    lookpref = GetEnvVar( "OD_LOOK_STYLE" );
+    }
+
+    if ( !lookpref.isEmpty() )
+    {
+	if ( lookpref.isEqual("windowsvista",OD::CaseInsensitive) )
+	    needdisabledarkmode = false;
+    }
 
     return lookpref;
 }
+
+
+BufferString appStyle( QApplication& app )
+{
+    /* ! Will always return an empty string after the first call to
+	 QApplication::setStyleSheet  */
+    const QStyle* qstyle = app.style();
+    if ( !qstyle )
+	return BufferString::empty();
+
+#if QT_VERSION >= QT_VERSION_CHECK(6,0,0)
+    const QString qstylestr = qstyle->name();
+#else
+    const QString qstylestr = qstyle->objectName();
+#endif
+    return BufferString( qstylestr );
+}
+
+} // namespace OD
 
 
 #if QT_VERSION >= QT_VERSION_CHECK(5,0,0)
@@ -394,8 +437,17 @@ void uiMain::cleanQtOSEnv()
 }
 
 
-void uiMain::preInit()
+void uiMain::preInit( const CommandLineParser& parser, BufferString& stylestr )
 {
+    bool needdisabledarkmode = !__islinux__;
+    stylestr = OD::getStyleFromSettings( parser, needdisabledarkmode );
+    if ( __iswin__ && needdisabledarkmode )
+    {
+	const BufferString platformstr = OD::getPlatformArg( parser );
+	if ( platformstr.isEmpty() || !platformstr.contains("darkmode") )
+	    SetEnvVar( "QT_QPA_PLATFORM", "windows:darkmode=0" );
+    }
+
     QApplication::setDesktopSettingsAware( true );
 #if QT_VERSION >= QT_VERSION_CHECK(5,6,0) && \
     QT_VERSION < QT_VERSION_CHECK(6,0,0)
@@ -452,13 +504,15 @@ void uiMain::init( QApplication* qap, int& argc, char **argv )
 	{ pErrMsg("You already have a uiMain object!"); return; }
     themain_ = this;
 
+    const CommandLineParser parser( argc, argv );
+    parser.setKeyHasValue( "style" );
+    parser.setKeyHasValue( "platform" );
+
     if ( DBG::isOn(DBG_UI) && !qap )
 	DBG::message( "Constructing QApplication ..." );
 
-    if ( __iswin__ )
-	SetEnvVar( "QT_QPA_PLATFORM", "windows:darkmode=0" );
-
-    preInit();
+    BufferString stylestr;
+    preInit( parser, stylestr );
     app_ = qap ? qap : new QApplication( argc, argv );
 
     KeyboardEventHandler& kbeh = keyboardEventHandler();
@@ -477,12 +531,13 @@ void uiMain::init( QApplication* qap, int& argc, char **argv )
     qInstallMsgHandler( qtMessageOutput );
 #endif
 
-    const BufferString stylestr = getStyleFromSettings();
-    if ( !stylestr.isEmpty() )
+    const BufferString curstyle = OD::appStyle( *app_ );
+    if ( !stylestr.isEmpty() &&
+	 !stylestr.isEqual(curstyle,OD::CaseInsensitive) )
     {
 	QStyle* qstyl = QStyleFactory::create( stylestr.buf() );
 	if ( qstyl )
-	    QApplication::setStyle( qstyl );
+	    app_->setStyle( qstyl );
 	else
 	{
 	    pErrMsg(BufferString("The requested style '", stylestr,
@@ -505,7 +560,7 @@ void uiMain::init( QApplication* qap, int& argc, char **argv )
     }
     else
     {
-	qApp->setStyleSheet(
+	app_->setStyleSheet(
 	    QString("[readOnly=\"true\"] { background-color: %0 }")
 	    .arg(qApp->palette().color(QPalette::Window).name(QColor::HexRgb)));
     }
