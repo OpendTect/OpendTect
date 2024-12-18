@@ -511,6 +511,9 @@ void uiIOObjSel::obtainIOObj()
 
 void uiIOObjSel::processInput()
 {
+    BufferString tmpstr( getInput() );
+    tmpstr.trimBlanks();
+    setInputText( tmpstr.buf() );
     obtainIOObj();
     if ( workctio_.ioobj_ || workctio_.ctxt_.forread_ )
 	updateInput();
