@@ -45,8 +45,8 @@ OpendTect is released under the [GPLv3 or higher](https://www.gnu.org/licenses/g
 
 - A C++ compiler and compilation tool chain:
 	- Windows: msvc2022 64 bit (>= v17.8.4). The free community edition is sufficient.
-	- macOS: SDK 10.15 (deployment version >= 12.0)
-	- Linux: gcc 64 bit version 10.5.0 or higher
+	- macOS: SDK 14 (deployment version >= 12.0)
+	- Linux: gcc 64 bit version 10.3 or higher
 - CMake version 3.24 or higher (3.27 or higher recommended)
 - The c++17 version is enabled by default on all platforms.
 
@@ -55,16 +55,18 @@ To build the software you need to also download and install/build a few dependen
 
 | BRANCH | DEPENDENCIES |
 | -------------| ----------------- |
-| main, od8.0 | [Qt 6.8.0](https://download.qt.io/archive/qt/6.8/6.8.0/), [OpenSceneGraph 3.6.5](https://github.com/openscenegraph/OpenSceneGraph/archive/OpenSceneGraph-3.6.5.tar.gz), [Proj 9.5.0 (optional)](https://download.osgeo.org/proj/proj-9.5.0.tar.gz), [Sqlite 3.46.1 (optional)](https://www.sqlite.org/download.html), [HDF5 1.14.5 (optional)](https://www.hdfgroup.org/downloads/hdf5) |
+| main, od8.0 | [Qt 6.8.1](https://download.qt.io/archive/qt/6.8/6.8.1/), [OpenSceneGraph 3.6.5](https://github.com/openscenegraph/OpenSceneGraph/archive/OpenSceneGraph-3.6.5.tar.gz), [Proj 9.5.0 (optional)](https://download.osgeo.org/proj/proj-9.5.0.tar.gz), [Sqlite 3.46.1 (optional)](https://www.sqlite.org/download.html), [HDF5 1.14.5 (optional)](https://www.hdfgroup.org/downloads/hdf5) |
 | od7.0_rel, od7.0 | [Qt 5.15.2](https://download.qt.io/archive/qt/5.15/5.15.2/), [OpenSceneGraph 3.6.5](https://github.com/openscenegraph/OpenSceneGraph/archive/OpenSceneGraph-3.6.5.tar.gz), [Proj 9.3.1 (optional)](https://download.osgeo.org/proj/proj-9.3.1.tar.gz), [Sqlite 3.44.2 (optional)](https://www.sqlite.org/download.html), [HDF5 1.14.5 (optional)](https://www.hdfgroup.org/downloads/hdf5) |
 | od6.6_rel, od6.6 | [Qt 5.15.2](https://download.qt.io/archive/qt/5.15/5.15.2/), [OpenSceneGraph 3.6.5](https://github.com/openscenegraph/OpenSceneGraph/archive/OpenSceneGraph-3.6.5.tar.gz), [HDF5 1.12.2 (optional)](https://www.hdfgroup.org/downloads/hdf5) |
 
 #### Qt Install
 For the Qt install the following components must be selected depending on your build platform:
 
--  Desktop msvc2022 64- bit (Windows), SDK 13.1 (macOS) or gcc 64 bit (Linux) 
--  QtWebEngine
--  Optionally source code or debug information files
+-  'MSVC 2022 64-bit' (Windows), 'Desktop' (Linux/macOS)
+-  Additional Libraries: Qt Charts, Qt Positioning, Qt WebChannel
+-  Extensions: Qt WebEngine (MSVC 2022 x64/Desktop)
+-  Optionally debug information files (recommended on Windows)
+-  Optionally source code
 
 #### OpenSceneGraph Build
 Configure using CMake, compile and install. 
