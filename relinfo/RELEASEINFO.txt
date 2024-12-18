@@ -1,21 +1,22 @@
-Opendtect 7.X release info
+OpendTect 2025.1 release info
 
 Build platforms/distributions:
 
-Linux   : CentOS Linux release 7.2.1511
-macOS   : macOS 12.10 (Monterey)
-Windows : Windows Server 2012
+Windows : Windows 11 Pro (22H2)
+Linux   : Rocky Linux release 8.7, kernel 4.18.0-425.3.1
+macOS   : macOS 14.2.1 (Sonoma)
 
 
 Compiler:
 
-Linux   : gcc/g++ 9.5.0
-Mac     : SDK 10.15
-Windows : Visual Studio 2022 (version 17.4.3)
+Windows : Visual Studio 2022 Professional (version 17.8.9)
+Linux   : gcc/g++ toolset toolchain 13.3.1, compatible with libstdc++.so.6.0.25 (GCC 8.5.0)
+macOS   : clang15 (XCode 15.4, deployment version 12.0)
 
 
 OpenSource packages/versions used:
 
-Qt: 5.15.2
+Qt: 6.8.1
 OpenSceneGraph: 3.6.5
-HDF5 (optional): 1.14.0
+OpenSSL: 3.3.2
+HDF5 (optional): 1.14.5
