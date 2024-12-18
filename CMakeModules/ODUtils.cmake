@@ -459,7 +459,7 @@ function( od_get_library_filename LIBNM OD_LIBFNM )
     elseif()
 	set( LIBFNM "lib${LIBNM}" )
     endif()
-    set( LIBFNM "${OD_LOCATION_DIRECTORY}/${LIBFNM}.${SHLIB_EXTENSION}" )
+    set( LIBFNM "${OD_LOCATION_DIRECTORY}/${LIBFNM}$<$<CONFIG:Debug>:${CMAKE_DEBUG_POSTFIX}>.${SHLIB_EXTENSION}" )
     set( ${OD_LIBFNM} ${LIBFNM} PARENT_SCOPE ) 
 endfunction()
 
