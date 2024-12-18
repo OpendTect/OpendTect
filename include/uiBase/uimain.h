@@ -20,6 +20,7 @@ mFDQtclass(QtTabletEventFilter)
 class uiMainWin;
 class uiFont;
 class BufferStringSet;
+class CommandLineParser;
 class KeyboardEventHandler;
 class KeyboardEventFilter;
 
@@ -36,7 +37,7 @@ public:
 private:
 			uiMain(mQtclass(QApplication*));
     void		init(mQtclass(QApplication*),int& argc,char **argv);
-    void		preInit();
+    void		preInit(const CommandLineParser&,BufferString& style);
     void		iomReadyCB(CallBacker*);
 
 public:
