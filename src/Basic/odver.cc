@@ -22,11 +22,10 @@ ________________________________________________________________________
 
 mDefineEnumUtils(OD::Platform,Type,"Platform")
 {
-	"Linux",
-	"Windows",
-	"macOS (ARM)",
-	"macOS (Intel)",
-	nullptr
+    "Linux",
+    "Windows",
+    "macOS",
+    nullptr
 };
 
 
