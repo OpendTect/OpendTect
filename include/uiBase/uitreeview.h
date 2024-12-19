@@ -240,6 +240,7 @@ public:
     int			nrChildren() const;
 
     void		setBGColor(int column,const OD::Color&);
+    OD::Color		getBGColor(int column) const;
 
     void		edit(int col);
 
