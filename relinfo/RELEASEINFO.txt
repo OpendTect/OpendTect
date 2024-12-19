@@ -20,3 +20,5 @@ Qt: 6.8.1
 OpenSceneGraph: 3.6.5
 OpenSSL: 3.3.2
 HDF5 (optional): 1.14.5
+SQLite3 (optional): 3.47.2
+PROJ (optional): 9.5.1
