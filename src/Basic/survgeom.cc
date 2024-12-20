@@ -256,7 +256,6 @@ Geometry* GeometryManager::getGeometry( const Pos::GeomID& geomid )
     if ( IsExiting() )
 	return nullptr;
 
-    Threads::Locker locker( lock_ );
     const int idx = indexOf( geomid );
     return idx<0 ? nullptr : geometries_[idx];
 }

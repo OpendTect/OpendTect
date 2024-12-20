@@ -33,7 +33,7 @@ BendPointFinder2DGeomSet::BendPointFinder2DGeomSet(
     , geomids_(geomids)
     , bendptset_(bpts)
 {
-    bendptset_.allowNull();
+    bendptset_.setNullAllowed();
     for ( int idx=0; idx<geomids_.size(); idx++ )
 	bendptset_.add( nullptr );
 }
@@ -243,14 +243,21 @@ Line2DInterSectionFinder::Line2DInterSectionFinder(
     , lsintersections_(lsis)
 {
     deepErase( lsintersections_ );
-    lsintersections_.allowNull();
-    geoms_.allowNull();
+    lsintersections_.setNullAllowed();
+    geoms_.setNullAllowed();
 
     const Geom::Rectangle<double> udfbox( mUdf(double), mUdf(double),
 					  mUdf(double), mUdf(double) );
     bboxs_.setSize( bps.size(), udfbox );
     for ( int idx=0; idx<bps.size(); idx++ )
     {
+	if ( !bps[idx] )
+	{
+	    geoms_ += nullptr;
+	    lsintersections_+= nullptr;
+	    continue;
+	}
+
 	mDynamicCastGet(const Survey::Geometry2D*,geom2d,
 			Survey::GM().getGeometry(bps[idx]->geomid_))
 	if ( !geom2d )
@@ -436,7 +443,7 @@ bool Line2DIntersectionManager::compute( TaskRunner* taskrunner )
 	return false;
 
     Line2DInterSectionFinder finder( bendpointset_, intersections_ );
-    if ( !TaskRunner::execute( taskrunner, finder ) )
+    if ( !TaskRunner::execute(taskrunner,finder) )
 	return false;
 
     return true;
