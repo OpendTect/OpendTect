@@ -9,9 +9,11 @@ ________________________________________________________________________
 -*/
 
 #include "generalmod.h"
+
 #include "enums.h"
 #include "multiid.h"
 #include "namedobj.h"
+#include "oduuid.h"
 #include "uistring.h"
 
 class Conn;
@@ -20,6 +22,39 @@ class CallBack;
 class ascistream;
 class ascostream;
 class Translator;
+
+namespace OD
+{
+
+/*!
+\brief Unique DataSet Identifier, uniquely identifying a dataset regardless of:
+	its (user) name,
+	file implementation,
+	database ID (MultiID/DBKey),
+	project location
+*/
+
+mExpClass(General) DataSetKey final : public Uuid
+{
+public:
+			DataSetKey();
+			DataSetKey(const char* dsidstr);
+			~DataSetKey();
+
+    void		fillPar(IOPar&) const;
+
+    static BufferString create(bool withbraces);
+    static DataSetKey	getFrom(const IOPar&);
+    static const DataSetKey& udf();
+
+    static const char*	sKeyID();
+
+private:
+			DataSetKey(bool undef);
+};
+
+} // namespace OD
+
 
 
 /*\brief factory entry for IOObjs. Should deliver IOObj of certain type. */
@@ -74,7 +109,10 @@ public:
     uiString			uiName() const { return ::toUiString(name()); }
 
     IOObj*			clone() const;
-    virtual const MultiID&	key() const			{ return key_; }
+    virtual const MultiID&	key() const		{ return key_; }
+    virtual bool		hasDSKey() const;
+    virtual const OD::DataSetKey* DSKey() const		{ return dskey_; }
+    virtual void		setDSKey(const OD::DataSetKey&);
 
     virtual			~IOObj();
     virtual bool		isBad() const			= 0;
@@ -88,9 +126,9 @@ public:
     virtual Conn*		getConn(bool forread) const	= 0;
 
     virtual const OD::String&	translator() const	       {return transl_;}
-    virtual void		setTranslator( const char* s ) {transl_ = s; }
+    virtual void		setTranslator( const char* s ) { transl_ = s; }
     virtual const OD::String&	group() const			{return group_;}
-    virtual void		setGroup( const char* s )	{group_ = s; }
+    virtual void		setGroup( const char* s )	{ group_ = s; }
     virtual const char*		fullUserExpr(bool forread=true) const = 0;
     virtual int			nrImpls() const;
     virtual BufferString	mainFileName() const { return fullUserExpr(); }
@@ -142,6 +180,7 @@ protected:
 
     BufferString	dirnm_;
     MultiID		key_;
+    const OD::DataSetKey* dskey_ = nullptr;
     BufferString	transl_;
     BufferString	group_;
     Status		status_				= Status::Unknown;

@@ -197,6 +197,31 @@ IOObj* IODir::getIOObj( const char* _dirnm, const MultiID& ky )
 }
 
 
+IOObj* IODir::getIOObj( const char* _dirnm, const OD::DataSetKey& dsky )
+{
+    BufferString dirnm( _dirnm );
+    if ( dsky.isUdf() || dirnm.isEmpty() || !File::isDirectory(dirnm) )
+	return nullptr;
+
+    for ( int idx=0; idx<IOObjContext::totalNrStdDirs(); idx++ )
+    {
+	const IOObjContext::StdSelType seltyp =
+				    IOObjContext::StdSelType( idx );
+	const IOObjContext::StdDirData* dirdata =
+					IOObjContext::getStdDirData( seltyp );
+	if ( !dirdata )
+	    continue;
+
+	const IODir dir( dirdata->id_ );
+	const IOObj* ioobj = dir.get( dsky );
+	if ( ioobj )
+	    return ioobj->clone();
+    }
+
+    return nullptr;
+}
+
+
 IOObj* IODir::getObj( const DBKey& ky )
 {
     if ( !ky.hasSurveyLocation() )
@@ -213,11 +238,29 @@ IOObj* IODir::getObj( const MultiID& ky )
 }
 
 
+IOObj* IODir::getObj( const OD::DataSetKey& dsky )
+{
+    BufferString dirnm( IOM().rootDir().fullPath() );
+    return getIOObj( dirnm.buf(), dsky );
+}
+
+
+const IOObj* IODir::get( const OD::DataSetKey& dsky ) const
+{
+    for ( const auto* ioobj : objs_ )
+    {
+	if ( ioobj->hasDSKey() && *ioobj->DSKey() == dsky )
+	    return ioobj;
+    }
+
+    return nullptr;
+}
+
+
 const IOObj* IODir::get( const char* objnm, const char* trgrpnm ) const
 {
-    for ( int idx=0; idx<objs_.size(); idx++ )
+    for ( const auto* ioobj : objs_ )
     {
-	const IOObj* ioobj = objs_[idx];
 	if ( ioobj->name() == objnm )
 	{
 	    if ( !trgrpnm || ioobj->group() == trgrpnm )

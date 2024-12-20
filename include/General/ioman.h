@@ -18,6 +18,7 @@ class IOObjContext;
 class IOSubDir;
 class SurveyInfo;
 class SurveyDataTreePreparer;
+namespace OD { class DataSetKey; }
 
 /*!
 \brief manages the 'Meta-'data store for the IOObj's.
@@ -63,6 +64,8 @@ public:
 			//! Next functions return a new (unmanaged) IOObj
     IOObj*		get(const DBKey&) const;
     IOObj*		get(const MultiID&) const;
+    IOObj*		get(const OD::DataSetKey&,
+			    const char* tgname=nullptr) const;
     IOObj*		getLocal(const char* objname,const char* tgname) const;
     IOObj*		getOfGroup(const char* tgname,bool first=true,
 				   bool onlyifsingle=false) const;

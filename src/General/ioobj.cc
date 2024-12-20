@@ -29,6 +29,68 @@ ________________________________________________________________________
 #include "uistrings.h"
 
 
+// OD::DataSetKey
+
+OD::DataSetKey::DataSetKey()
+    : Uuid()
+{}
+
+
+OD::DataSetKey::DataSetKey( const char* dsidstr )
+    : Uuid(dsidstr)
+{}
+
+
+OD::DataSetKey::DataSetKey( bool undef )
+    : Uuid(undef)
+{}
+
+
+OD::DataSetKey::~DataSetKey()
+{}
+
+
+void OD::DataSetKey::fillPar( IOPar& iop ) const
+{
+    if ( isUdf() )
+	iop.removeWithKey( sKeyID() );
+    else
+	iop.set( sKeyID(), toString(false) );
+}
+
+
+BufferString OD::DataSetKey::create( bool withbraces )
+{
+    return Uuid::create( withbraces );
+}
+
+
+OD::DataSetKey OD::DataSetKey::getFrom( const IOPar& iop )
+{
+    const BufferString dsidstr = iop.find( sKeyID() );
+    if ( dsidstr.isEmpty() )
+	return OD::DataSetKey::udf();
+
+    return OD::DataSetKey( dsidstr.buf() );
+}
+
+
+const OD::DataSetKey& OD::DataSetKey::udf()
+{
+    static DataSetKey udfdsid( true );
+    return udfdsid;
+}
+
+
+const char* OD::DataSetKey::sKeyID()
+{
+    static BufferString ret( IOPar::compKey(sKey::DataSet(),sKey::ID()) );
+    return ret.str();
+}
+
+
+// OwnedProducerList
+
 class OwnedProducerList : public ObjectSet<const IOObjProducer>
 {
     public:
@@ -105,6 +167,7 @@ IOObj::IOObj( const char* nm, const char* ky )
 IOObj::~IOObj()
 {
     delete &pars_;
+    delete dskey_;
 }
 
 
@@ -115,6 +178,8 @@ void IOObj::copyStuffFrom( const IOObj& obj )
     setName( obj.name() );
     setDirName( obj.dirName() );
     pars_ = obj.pars_;
+    delete dskey_;
+    dskey_ = obj.dskey_ ? new OD::DataSetKey( *obj.dskey_ ) : nullptr;
 }
 
 
@@ -195,6 +260,14 @@ IOObj* IOObj::get( ascistream& astream, const char* dirnm, int groupid )
 		objptr->pars_.set( astream.keyWord()+1, astream.value() );
 		astream.next();
 	    }
+
+	    if ( !objptr->pars_.isEmpty() )
+	    {
+		const OD::DataSetKey dsky =
+				OD::DataSetKey::getFrom( objptr->pars_ );
+		if ( !dsky.isUdf() )
+		    objptr->setDSKey( dsky );
+	    }
 	}
     }
 
@@ -251,13 +324,41 @@ IOObj* IOObj::clone() const
 	return new IOSubDir( *((IOSubDir*)this) );
 
     if ( key().isUdf() )
-	return 0;
+	return nullptr;
 
     IOObj* ret = produce( connType(), name(), key(), false );
     if ( !ret )
-	{ pErrMsg("Cannot 'produce' IOObj of my own type"); return 0; }
+	{ pErrMsg("Cannot 'produce' IOObj of my own type"); return nullptr; }
+
     ret->copyFrom( this );
     return ret;
+}
+
+
+
+bool IOObj::hasDSKey() const
+{
+    return dskey_ && !dskey_->isUdf();
+}
+
+
+void IOObj::setDSKey( const OD::DataSetKey& dskey )
+{
+    if ( dskey_ && *dskey_ != dskey )
+    {
+	pErrMsg("DataSetKey should never be reassigned");
+	return;
+    }
+
+    deleteAndNullPtr( dskey_ );
+    if ( dskey.isUdf() )
+    {
+	dskey.fillPar( pars_ );
+	return;
+    }
+
+    dskey_ = new OD::DataSetKey( dskey );
+    dskey_->fillPar( pars_ );
 }
 
 
