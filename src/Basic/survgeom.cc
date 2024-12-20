@@ -247,11 +247,7 @@ void GeometryManager::ensureSIPresent()
 
 const Geometry* GeometryManager::getGeometry( const Pos::GeomID& geomid ) const
 {
-    if ( IsExiting() )
-	return nullptr;
-
-    const int idx = indexOf( geomid );
-    return idx<0 ? nullptr : geometries_[idx];
+    return getNonConst(*this).getGeometry( geomid );
 }
 
 
