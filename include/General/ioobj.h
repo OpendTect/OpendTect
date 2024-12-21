@@ -20,6 +20,7 @@ class CallBack;
 class ascistream;
 class ascostream;
 class Translator;
+namespace OD { class DataSetKey; }
 
 
 /*\brief factory entry for IOObjs. Should deliver IOObj of certain type. */
@@ -75,6 +76,9 @@ public:
 
     IOObj*			clone() const;
     virtual const MultiID&	key() const			{ return key_; }
+    virtual bool		hasDSKey() const;
+    virtual const OD::DataSetKey* DSKey() const;
+    virtual void		setDSKey(const OD::DataSetKey&);
 
     virtual			~IOObj();
     virtual bool		isBad() const			= 0;
@@ -142,6 +146,7 @@ protected:
 
     BufferString	dirnm_;
     MultiID		key_;
+    const OD::DataSetKey* dskey_	= nullptr;
     BufferString	transl_;
     BufferString	group_;
     Status		status_				= Status::Unknown;

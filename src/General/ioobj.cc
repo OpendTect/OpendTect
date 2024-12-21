@@ -251,13 +251,31 @@ IOObj* IOObj::clone() const
 	return new IOSubDir( *((IOSubDir*)this) );
 
     if ( key().isUdf() )
-	return 0;
+	return nullptr;
 
     IOObj* ret = produce( connType(), name(), key(), false );
     if ( !ret )
-	{ pErrMsg("Cannot 'produce' IOObj of my own type"); return 0; }
+	{ pErrMsg("Cannot 'produce' IOObj of my own type"); return nullptr; }
+
     ret->copyFrom( this );
     return ret;
+}
+
+
+bool IOObj::hasDSKey() const
+{
+    return false;
+}
+
+
+const OD::DataSetKey* IOObj::DSKey() const
+{
+    return dskey_;
+}
+
+
+void IOObj::setDSKey( const OD::DataSetKey& )
+{
 }
 
 
