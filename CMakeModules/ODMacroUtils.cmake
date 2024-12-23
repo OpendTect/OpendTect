@@ -756,6 +756,12 @@ if ( WIN32 AND OD_MODULE_HAS_LIBRARY )
 		    "$<TARGET_FILE_DIR:${OD_MODULE_NAME}>"
 	    COMMAND_EXPAND_LISTS
 	    COMMENT "\nCopying runtime DLLs of the plugin ${OD_MODULE_NAME}" )
+	add_custom_command( TARGET ${OD_MODULE_NAME} POST_BUILD
+	    COMMAND ${CMAKE_COMMAND}
+			-DDLLFILES="$<TARGET_RUNTIME_DLLS:${OD_MODULE_NAME}>"
+			-DDESTINATION="$<TARGET_FILE_DIR:${OD_MODULE_NAME}>"
+			-P "${OpendTect_DIR}/CMakeModules/CopyPDBs.cmake"
+	    COMMENT "\nCopying runtime PDBs of the plugin ${OD_MODULE_NAME}" )
     endif()
     if ( NOT "${OD_${OD_MODULE_NAME}_EXTERNAL_RUNTIME_LIBS}" STREQUAL "" )
 	foreach( TRGT ${OD_${OD_MODULE_NAME}_EXTERNAL_RUNTIME_LIBS} )
@@ -765,6 +771,12 @@ if ( WIN32 AND OD_MODULE_HAS_LIBRARY )
 			"$<TARGET_FILE_DIR:${OD_MODULE_NAME}>"
 		COMMAND_EXPAND_LISTS
 		COMMENT "\nCopying runtime DLLs of the dependency ${TRGT}" )
+	    add_custom_command( TARGET ${OD_MODULE_NAME} POST_BUILD
+		COMMAND ${CMAKE_COMMAND}
+			    -DDLLFILES="$<TARGET_FILE:${TRGT}>"
+			    -DDESTINATION="$<TARGET_FILE_DIR:${OD_MODULE_NAME}>"
+			    -P "${OpendTect_DIR}/CMakeModules/CopyPDBs.cmake"
+		COMMENT "\nCopying runtime PDBs of the dependency ${TRGT}" )
 	endforeach()
     endif()
 
