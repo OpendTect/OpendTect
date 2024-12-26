@@ -176,7 +176,6 @@ mGlobal(Basic) const BufferString* find(const BufferStringSet&,const char*);
 mExpClass(Basic) StringPairSet
 { mIsContainer( StringPairSet, ManagedObjectSet<StringPair>, entries_ )
 public:
-
 			StringPairSet();
 			StringPairSet(const StringPairSet&);
     virtual		~StringPairSet();
@@ -189,7 +188,7 @@ public:
     bool		validIdx( int i ) const
 						{ return entries_.validIdx(i); }
 
-    StringPair&	get( int idx )	{ return *entries_.get(idx); }
+    StringPair&		get( int idx )	{ return *entries_.get(idx); }
     const StringPair&	get( int idx ) const { return *entries_.get(idx); }
 
     StringPairSet&	add(const char*,const char*);
@@ -199,6 +198,8 @@ public:
     StringPairSet&	add(const StringPair&);
     StringPairSet&	add(const StringPairSet&);
     void		append(const StringPairSet&);
+    void		set(const char*,const char*);
+    const char*		getValue(const char* key) const;
 
     bool		remove(const char* first);
     void		removeSingle( int i ) { entries_.removeSingle(i); }
