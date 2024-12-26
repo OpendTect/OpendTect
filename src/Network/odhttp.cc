@@ -16,10 +16,10 @@ ________________________________________________________________________
 #ifndef OD_NO_QT
 #include "i_odhttpconn.h"
 
-#include <QEventLoop>
-
-#include <QSslError>
 #include <QCoreApplication>
+#include <QEventLoop>
+#include <QSslError>
+#include <QUrlQuery>
 
 #endif
 
@@ -29,14 +29,14 @@ namespace Network
 HttpRequestProcess::HttpRequestProcess( const HttpRequest* request )
     : finished(this)
     , error(this)
-    , uploadProgress(this)
     , downloadDataAvailable(this)
+    , uploadProgress(this)
+    , request_(request)
     , bytesuploaded_(mUdf(od_int64))
     , totalbytestoupload_(mUdf(od_int64))
     , bytesdownloaded_(mUdf(od_int64))
     , totalbytestodownload_(mUdf(od_int64))
     , contentlengthheader_(mUdf(od_int64))
-    , request_(request)
 {
 }
 
@@ -248,7 +248,6 @@ od_int64 HttpRequestProcess::read( char* data, od_int64 bufsize )
 	return 0;
 
     const int readsize = mMIN( bufsize, receiveddata_->length());
-
     memcpy(data, receiveddata_->data(), readsize );
     receiveddata_->remove(0, readsize);
     return readsize;
@@ -268,9 +267,7 @@ bool HttpRequestProcess::waitForDownloadData( int timeout )
     }
 
     const bool res = receiveddata_ && receiveddata_->size();
-
     receiveddatalock_.unLock();
-
     return res;
 }
 
@@ -298,8 +295,8 @@ HttpRequest::HttpRequest( const char* url, AccessType at )
 
 
 HttpRequest::HttpRequest( const HttpRequest& b )
-    : url_( b.url_ )
-    , payload_( b.payload_ ? new QByteArray(*b.payload_) : nullptr  )
+    : payload_( b.payload_ ? new QByteArray(*b.payload_) : nullptr  )
+    , url_( b.url_ )
     , contenttype_( b.contenttype_ )
     , rawheaders_( b.rawheaders_ )
     , accesstype_( b.accesstype_ )
@@ -313,11 +310,17 @@ HttpRequest::~HttpRequest()
 
 
 HttpRequest& HttpRequest::payloadData( const DataBuffer& data )
-{ setPayloadData( data ); return *this; }
+{
+    setPayloadData( data );
+    return *this;
+}
 
 
 HttpRequest& HttpRequest::contentType(const BufferString& type )
-{ setContentType( type ); return *this; }
+{
+    setContentType( type );
+    return *this;
+}
 
 
 void HttpRequest::setPayloadData( const DataBuffer& data )
@@ -339,21 +342,38 @@ void HttpRequest::setRawHeader( const char* key, const char* val )
 }
 
 
+void HttpRequest::setEncodedData( const char* key, const char* val )
+{
+    encodeddata_.set( key, val );
+}
+
+
 void HttpRequest::fillRequest( QNetworkRequest& req ) const
 {
     req.setUrl( QUrl(url_.buf()) );
     if ( !contenttype_.isEmpty() )
 	req.setHeader( QNetworkRequest::ContentTypeHeader, contenttype_.buf() );
 
-    if ( payload_ )
-	req.setHeader( QNetworkRequest::ContentLengthHeader,payload_->size());
-
     IOParIterator iter( rawheaders_ );
     BufferString key, val;
     while ( iter.next(key,val) )
-    {
 	req.setRawHeader( key.buf(), val.buf() );
+
+    if ( !encodeddata_.isEmpty() )
+    {
+	QUrlQuery query;
+	IOParIterator dataiter( encodeddata_ );
+	while ( dataiter.next(key,val) )
+	    query.addQueryItem( key.buf(), val.buf() );
+
+	HttpRequest* self = getNonConst( this );
+	delete self->payload_;
+	self->payload_ =
+		new QByteArray( query.toString(QUrl::FullyEncoded).toUtf8() );
     }
+
+    if ( payload_ )
+	req.setHeader( QNetworkRequest::ContentLengthHeader, payload_->size() );
 }
 
 
