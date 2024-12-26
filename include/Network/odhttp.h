@@ -54,8 +54,12 @@ public:
     void			setContentType(const BufferString&);
     void			setRawHeader(const char* key,
 					     const char* val);
+    void			setEncodedData(const char* key,
+					       const char* val);
+
 protected:
 				~HttpRequest();
+
 private:
 
     friend			class HttpRequestManager;
@@ -65,6 +69,7 @@ private:
     BufferString		url_;
     BufferString		contenttype_;
     IOPar			rawheaders_;
+    IOPar			encodeddata_;
     const AccessType		accesstype_;
 };
 
