@@ -1406,6 +1406,26 @@ void StringPairSet::append( const StringPairSet& oth )
 }
 
 
+void StringPairSet::set( const char* first, const char* second )
+{
+    const int idx = indexOf( first );
+    if ( idx < 0 )
+	add( first, second );
+    else
+	get(idx).second() = second;
+}
+
+
+const char* StringPairSet::getValue( const char* first ) const
+{
+    const int idx = indexOf( first );
+    if ( idx < 0 )
+	return nullptr;
+
+    return get(idx).second().buf();
+}
+
+
 bool StringPairSet::remove( const char* first )
 {
     const int idx = indexOf( first );
