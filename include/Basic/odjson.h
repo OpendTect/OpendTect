@@ -161,6 +161,10 @@ public:
     void			dumpJSon(StringBuilder&) const;
     BufferString		dumpJSon(bool pretty=false) const;
 
+    uiRetVal			read(const char* fnm);
+    static ValueSet*		read(const char* fnm,uiRetVal&);
+    uiRetVal			write(const char* fnm,bool pretty);
+
     uiRetVal			read(od_istream&);
     static ValueSet*		read(od_istream&,uiRetVal&);
     uiRetVal			write(od_ostream&,bool pretty=false);
