@@ -775,6 +775,36 @@ void OD::JSON::ValueSet::dumpJSon( StringBuilder& sb ) const
 }
 
 
+uiRetVal OD::JSON::ValueSet::read( const char* fnm )
+{
+    od_istream istrm( fnm );
+    if ( istrm.isBad() )
+	return uiStrings::phrCannotRead( toUiString(fnm) );
+
+    return read( istrm );
+}
+
+
+OD::JSON::ValueSet* OD::JSON::ValueSet::read( const char* fnm, uiRetVal& uirv )
+{
+    od_istream istrm( fnm );
+    if ( istrm.isBad() )
+    {
+	uirv.set( uiStrings::phrCannotRead( toUiString(fnm) ) );
+	return nullptr;
+    }
+
+    return read( istrm, uirv );
+}
+
+
+uiRetVal OD::JSON::ValueSet::write( const char* fnm, bool pretty )
+{
+    od_ostream ostrm( fnm );
+    return write( ostrm, pretty );
+}
+
+
 uiRetVal OD::JSON::ValueSet::read( od_istream& strm )
 {
     BufferString buf;
