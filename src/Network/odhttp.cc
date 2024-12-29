@@ -323,6 +323,13 @@ HttpRequest& HttpRequest::contentType(const BufferString& type )
 }
 
 
+HttpRequest& HttpRequest::rawHeader( const char* key, const char* val )
+{
+    setRawHeader( key, val );
+    return *this;
+}
+
+
 void HttpRequest::setPayloadData( const DataBuffer& data )
 {
     delete payload_;
