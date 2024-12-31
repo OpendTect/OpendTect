@@ -239,8 +239,8 @@ bool SVNAccess::changeFolder( const char* fnm, const char* fromsubdir,
     const BufferString tofnm( tofp.fullPath() );
 
     OS::MachineCommand machcomm( "svn", "move" );
-    machcomm.addArg( fromfp.fullPath() )
-	    .addArg( tofp.fullPath() ).addArg( "." );
+    machcomm.addArg( fromfnm.buf() )
+	    .addArg( tofnm.buf() );
     return executeCommand( machcomm, dir_ );
 }
 
