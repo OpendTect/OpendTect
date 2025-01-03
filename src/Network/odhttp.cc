@@ -186,6 +186,22 @@ void HttpRequestProcess::reportError()
     status_ = Error;
     const uiString errmsg = toUiString( qnetworkreply_->errorString() );
     errmsgs_.add( errmsg );
+
+#ifdef __debug__
+    qDebug() << "Attributes:";
+    for ( int idx=0; idx<=29; idx++ )
+    {
+	QNetworkRequest::Attribute attr = QNetworkRequest::Attribute(idx);
+	const QVariant value = qnetworkreply_->attribute( attr );
+	if ( value.isValid() )
+	    qDebug() << attr << ": " << value;
+    }
+
+    const auto headers = qnetworkreply_->rawHeaderPairs();
+    for ( const auto& header : headers )
+	qDebug() << header.first << ": " << header.second;
+#endif
+
     statuslock_.signal( true );
     statuslock_.unLock();
 
