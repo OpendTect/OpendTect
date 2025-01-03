@@ -370,7 +370,10 @@ const char* uiFileInput::baseName() const
 
 void uiFileInput::getFileNames( BufferStringSet& list ) const
 {
-    BufferString allfnms = text();
+    const BufferString allfnms = text();
+    if ( allfnms.isEmpty() )
+	return;
+
     uiFileDialog::string2List( allfnms, list );
     for ( int idx=0; idx<list.size(); idx++ )
 	ensureAbsolutePath( list.get(idx) );
