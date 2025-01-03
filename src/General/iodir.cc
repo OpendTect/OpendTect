@@ -291,14 +291,13 @@ bool IODir::isPresent( const MultiID& ky ) const
 IOObj* IODir::get( const MultiID& ky )
 {
     const int idxof = indexOf( ky );
-    return idxof < 0 ? nullptr : objs_[idxof];
+    return objs_.validIdx(idxof) ? objs_[idxof] : nullptr;
 }
 
 
 const IOObj* IODir::get( const MultiID& ky ) const
 {
-    const int idxof = indexOf( ky );
-    return idxof < 0 ? nullptr : objs_[idxof];
+    return getNonConst(*this).get( ky );
 }
 
 
