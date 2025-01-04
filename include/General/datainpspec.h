@@ -654,6 +654,8 @@ public:
     DataInpSpec*	clone() const override;
     uiString		trueFalseTxt(bool tf=true) const;
     void		setTrueFalseTxt(bool,const uiString&);
+    const char*		icon(bool fortrue) const;
+    void		setIcon(const char*,bool fortrue);
 
     bool		checked() const;
     void		setChecked(bool yesno);
@@ -680,6 +682,8 @@ protected:
 
     uiString		truetext_;
     uiString		falsetext_;
+    BufferString	trueicon_;
+    BufferString	falseicon_;
     bool		yn_;
     bool		defaultyn_;
     bool		isset_;

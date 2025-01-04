@@ -278,6 +278,8 @@ BoolInpSpec::BoolInpSpec( const BoolInpSpec& oth )
     : DataInpSpec( oth )
     , truetext_( oth.truetext_ )
     , falsetext_( oth.falsetext_ )
+    , trueicon_( oth.trueicon_ )
+    , falseicon_( oth.falseicon_ )
     , yn_( oth.yn_ )
     , defaultyn_( oth.defaultyn_ )
     , isset_(oth.isset_)
@@ -304,6 +306,21 @@ void BoolInpSpec::setTrueFalseTxt( bool tf, const uiString& txt )
 	falsetext_=txt;
 
     setName( txt.getFullString(), tf ? 0 : 1 );
+}
+
+
+const char* BoolInpSpec::icon( bool fortrue ) const
+{
+    return fortrue ? trueicon_.str() : falseicon_.str();
+}
+
+
+void BoolInpSpec::setIcon( const char* iconname, bool fortrue )
+{
+    if ( fortrue )
+	trueicon_ = iconname;
+    else
+	falseicon_ = iconname;
 }
 
 
