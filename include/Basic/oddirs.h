@@ -178,6 +178,9 @@ UNIX:
 
 */
 
+mGlobal(Basic) const char* GetDownloadsDir(void);
+/*!< User's Downloads directory, typically $HOME/Downloads. */
+
 mGlobal(Basic) const char* GetSettingsDir(void);
 /*!< Directory with the user settings
 
