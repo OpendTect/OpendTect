@@ -21,6 +21,7 @@ ________________________________________________________________________
 #include "thread.h"
 #include "od_istream.h"
 #include <iostream>
+#include <QStandardPaths>
 
 #ifdef __msvc__
 # include <direct.h>
@@ -684,6 +685,25 @@ mExternC(Basic) const char* GetPersonalDir()
     }
 
     return dirnm.buf();
+}
+
+
+mExternC(Basic) const char* GetDownloadsDir()
+{
+    mDeclStaticString( ret );
+    if ( !ret.isEmpty() )
+	return ret.buf();
+
+    ret = QStandardPaths::writableLocation( QStandardPaths::DownloadLocation );
+    if ( !ret.isEmpty() )
+	return ret.buf();
+
+    const FilePath fp( GetPersonalDir(), "Downloads" );
+    ret = fp.fullPath();
+    if ( File::isDirectory(ret) || File::createDir(ret) )
+	return ret.buf();
+
+    return File::getTempPath();
 }
 
 
