@@ -305,6 +305,10 @@ uiGenInputBoolFld::uiGenInputBoolFld(uiParent* p, const DataInpSpec& spec,
 	    rb1_->setName( spec.name(0) );
 	if ( rb2_ && spec.name(1) )
 	    rb2_->setName( spec.name(1) );
+	if ( rb1_ && !StringView(spc->icon(true)).isEmpty() )
+	    rb1_->setIcon( spc->icon(true) );
+	if ( rb2_ && !StringView(spc->icon(false)).isEmpty() )
+	    rb2_->setIcon( spc->icon(false) );
     }
 }
 
