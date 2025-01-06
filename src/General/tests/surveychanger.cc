@@ -211,9 +211,9 @@ static bool testDataSetKey()
     const OD::DataSetKey& udfdsky = OD::DataSetKey::udf();
     const OD::DataSetKey emptydsky;
     const OD::DataSetKey wrongdsky( "some key" );
-    BufferString keystr = OD::DataSetKey::create( false );
+    BufferString keystr = OD::DataSetKey::create( true );
     const OD::DataSetKey dsky1( keystr.buf() );
-    keystr.embed( '{', '}' );
+    keystr.unEmbed( '{', '}' );
     const OD::DataSetKey dsky2( keystr.buf() );
     const OD::DataSetKey dskycp1( dsky1 );
     OD::DataSetKey dskycp2;
