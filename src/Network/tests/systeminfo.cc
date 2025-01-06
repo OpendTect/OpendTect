@@ -184,8 +184,9 @@ private:
 	    const bool isaddr = auth.isAddressBased();
 	    const BufferString& exphostnm = exphostaddrs.get( idx );
 	    const BufferString hostnm = auth.getConnHost( conntypes[idx] );
-	    mRunStandardTest( hostnm == exphostnm && auth.getPort() == port &&
-			      isok == isoks[idx] && isaddr == isaddrs[idx],
+	    mRunStandardTest( hostnm.isEqual(exphostnm,OD::CaseInsensitive) &&
+			auth.getPort() == port && isok == isoks[idx] &&
+			isaddr == isaddrs[idx],
 		BufferString( "Authority for host ", exphostnm ) );
 	}
 
