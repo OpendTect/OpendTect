@@ -20,6 +20,7 @@ ________________________________________________________________________
 #include "keystrs.h"
 #include "msgh.h"
 #include "oddirs.h"
+#include "oddskey.h"
 #include "perthreadrepos.h"
 #include "safefileio.h"
 #include "settings.h"
@@ -678,11 +679,34 @@ IOObj* IOMan::get( const MultiID& k ) const
 }
 
 
+IOObj* IOMan::get( const OD::DataSetKey& dsky, const char* tgname ) const
+{
+    Threads::Locker lock( lock_ );
+    if ( dsky.isUdf() || isBad() )
+	return nullptr;
+
+    /*TODO: use tgname if set to narrow down the search, although this
+	    will only work if the corresponding translator group is loaded */
+
+    /*TODO: not efficient, using the still empty dirptrs_ set
+	    should be better	*/
+    if ( dirptr_ )
+    {
+	const IOObj* ioobj = dirptr_->get( dsky );
+	if ( ioobj )
+	    return ioobj->clone();
+    }
+
+    return IODir::getObj( dsky );
+}
+
+
 IOObj* IOMan::getOfGroup( const char* tgname, bool first,
 			  bool onlyifsingle ) const
 {
     Threads::Locker lock( lock_ );
-    if ( isBad() || !tgname || !dirptr_ ) return nullptr;
+    if ( isBad() || !tgname || !dirptr_ )
+	return nullptr;
 
     const IOObj* ioobj = nullptr;
     for ( int idx=0; idx<dirptr_->size(); idx++ )

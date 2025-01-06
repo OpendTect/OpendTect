@@ -9,15 +9,17 @@ ________________________________________________________________________
 -*/
 
 #include "generalmod.h"
+
 #include "multiid.h"
-#include "objectset.h"
 #include "namedobj.h"
+#include "objectset.h"
 #include "od_iosfwd.h"
 
 #include <unordered_map>
 
 class DBKey;
 class IOObj;
+namespace OD { class DataSetKey; }
 
 
 /*\brief 'Directory' of IOObj objects.
@@ -54,6 +56,7 @@ public:
     bool		isPresent(const MultiID&) const;
     int			indexOf(const MultiID&) const;
     const IOObj*	get(const MultiID&) const;
+    const IOObj*	get(const OD::DataSetKey&) const;
     const IOObj*	get(const char* objnm,
 			    const char* trgrpnm=nullptr) const;
 			// Without trgrpnm, just returns first
@@ -70,6 +73,7 @@ public:
 
     static IOObj*	getObj(const DBKey&);
     static IOObj*	getObj(const MultiID&);
+    static IOObj*	getObj(const OD::DataSetKey&);
     static IOObj*	getMain(const char*);
 
 			// Use this if you know there's no contingency
@@ -93,6 +97,7 @@ private:
     static void		setDirName(IOObj&,const char*);
     static IOObj*	readOmf(od_istream&,const char*,IODir*,int);
     static IOObj*	getIOObj(const char* dirnm,const MultiID&);
+    static IOObj*	getIOObj(const char* dirnm,const OD::DataSetKey&);
 
     bool		build();
     bool		wrOmf(od_ostream&) const;

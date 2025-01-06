@@ -17,6 +17,8 @@ ________________________________________________________________________
 #include "testprog.h"
 #include "unitofmeasure.h"
 
+#include "../oddskey.h"
+
 BufferString basedatadir_;
 const UnitOfMeasure* timeuom_ = nullptr;
 const UnitOfMeasure* timemsuom_ = nullptr;
@@ -199,6 +201,62 @@ static ObjectSet<const UnitOfMeasure>& srdStorageUnits()
 }
 
 
+static const OD::DataSetKey& SeismicKey()
+{
+    static OD::DataSetKey ret( "{f0f4c7c0-7aa9-4d81-b4dd-533a1cb26998}" );
+    return ret;
+}
+
+
+static bool testDataSetKey()
+{
+    const OD::DataSetKey& udfdsky = OD::DataSetKey::udf();
+    const OD::DataSetKey emptydsky;
+    const OD::DataSetKey wrongdsky( "some key" );
+    BufferString keystr = OD::DataSetKey::create( true );
+    const OD::DataSetKey dsky1( keystr.buf() );
+    keystr.unEmbed( '{', '}' );
+    const OD::DataSetKey dsky2( keystr.buf() );
+    const OD::DataSetKey dskycp1( dsky1 );
+    OD::DataSetKey dskycp2;
+    dskycp2 = dsky2;
+
+    mRunStandardTest( udfdsky.isUdf(), "Undefined OD::DataSetKey" );
+    mRunStandardTest( !emptydsky.isUdf(), "Empty key is defined" );
+    mRunStandardTest( wrongdsky.isUdf(), "Invalid key is undefined" );
+    mRunStandardTest( !dsky1.isUdf(), "Valid string (no braces) is defined" );
+    mRunStandardTest( !dsky2.isUdf(), "Valid string (with braces) is defined" );
+    mRunStandardTest( dsky1 == dsky2, "Keys match" );
+    mRunStandardTest( dskycp1 == dsky1, "Copy constructor" );
+    mRunStandardTest( dskycp2 == dsky2, "Copy operator" );
+
+    IOPar par;
+    dsky1.fillPar( par );
+    mRunStandardTest( par.size() == 1, "DataSetKey written to IOPar" );
+    udfdsky.fillPar( par );
+    mRunStandardTest( par.size() == 0, "DataSetKey::udf removed from IOPar" );
+    dsky1.fillPar( par );
+    wrongdsky.fillPar( par );
+    mRunStandardTest( par.size() == 0, "Invalid DataSetKey removed from IOPar");
+
+    dsky1.fillPar( par );
+    BufferString retstr = par.find( OD::DataSetKey::sKeyID() );
+    mRunStandardTest( retstr == keystr, "Retrieve key string in IOPar" );
+
+    const OD::DataSetKey retdsky = OD::DataSetKey::getFrom( par );
+    mRunStandardTest( retdsky == dsky1, "Retrieve key object from IOPar" );
+
+    par.setEmpty();
+    const OD::DataSetKey udfretdsky = OD::DataSetKey::getFrom( par );
+    mRunStandardTest( udfretdsky.isUdf(),
+		      "Undefined key object from empty IOPar" );
+
+    mRunStandardTest( !SeismicKey().isUdf(), "Test program key" );
+
+    return true;
+}
+
+
 #define mMsg(txt) BufferString( SI().name(), ": ", txt )
 
 static bool testSurveyLocation( const SurveyDiskLocation& sdl )
@@ -292,11 +350,36 @@ static bool testSurveyUnits( int isurv )
 }
 
 
+static bool testSurveyDSKey( int isurv )
+{
+    const MultiID seisid( 100010, 2 );
+    PtrMan<IOObj> ioobj = IOM().get( seisid );
+    mRunStandardTestWithError( ioobj, mMsg("Fetched IOObj by MultiID"),
+			       toString(IOM().uiMessage()) );
+
+    const OD::DataSetKey iopdsky = OD::DataSetKey::getFrom( ioobj->pars() );
+    mRunStandardTest( iopdsky == SeismicKey(),
+		      mMsg("Retrieved dataset key from IOObj IOPar") );
+    mRunStandardTest( ioobj->hasDSKey() && *ioobj->DSKey() == SeismicKey(),
+		      mMsg("Retrieved dataset key from IOObj") );
+
+    PtrMan<IOObj> retioobj = IOM().get( SeismicKey() );
+    mRunStandardTestWithError( retioobj,
+			   mMsg("Fetched IOObj from IOM() by OD::DataSetKey"),
+			   toString(IOM().uiMessage()) );
+
+    return true;
+}
+
+
 int mTestMainFnName( int argc, char** argv )
 {
     mInitTestProgDR();
 
     OD::ModDeps().ensureLoaded("Geometry");
+
+    if ( !testDataSetKey() )
+	return 1;
 
     clParser().setKeyHasValue( "datadir" );
     FilePath basedatadirfp;
@@ -326,7 +409,8 @@ int mTestMainFnName( int argc, char** argv )
 	SurveyChanger changer( sdl );
 	if ( !testSurveyLocation(sdl) ||
 	     !testSurveyDefinitions(isurv) ||
-	     !testSurveyUnits(isurv) )
+	     !testSurveyUnits(isurv) ||
+	     !testSurveyDSKey(isurv) )
 	    return 1;
     }
 
