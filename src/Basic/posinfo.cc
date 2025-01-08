@@ -14,6 +14,61 @@ ________________________________________________________________________
 #include "survinfo.h"
 
 
+// Pos::GeomID
+
+Pos::GeomID::GeomID()
+{
+}
+
+
+Pos::GeomID::~GeomID()
+{
+}
+
+
+bool Pos::GeomID::isValid() const
+{
+    return asInt()>=OD::GeomSynth && !isUdf();
+}
+
+
+OD::GeomSystem Pos::GeomID::geomSystem() const
+{
+    if ( isUdf() )
+    {
+	pErrMsg("Undefined Pos::GeomID has no OD::GeomSystem");
+	return OD::GeomSynth;
+    }
+
+    if ( asInt() >= int(OD::Geom2D) )
+	return OD::Geom2D;
+    if ( asInt() == int(OD::GeomSynth) )
+	return OD::GeomSynth;
+
+    return OD::Geom3D;
+}
+
+
+bool Pos::GeomID::is2D() const
+{
+    return !isUdf() && geomSystem() == OD::Geom2D;
+}
+
+
+bool Pos::GeomID::is3D() const
+{
+    return !isUdf() && geomSystem() == OD::Geom3D;
+}
+
+
+bool Pos::GeomID::isSynth() const
+{
+    return !isUdf() && geomSystem() == OD::GeomSynth;
+}
+
+
+// PosInfo::LineData
+
 int PosInfo::LineData::size() const
 {
     int res = 0;

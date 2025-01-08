@@ -21,26 +21,18 @@ mExpClass(Basic) GeomID : public IntegerID<od_int32>
 public:
     using IntegerID::IntegerID;
 
-    inline bool		isValid() const override
-			{ return asInt()>=OD::GeomSynth && !isUdf(); }
+			GeomID();
+			~GeomID();
 
-    inline OD::GeomSystem geomSystem() const
-			{
-			    if ( asInt() >= int(OD::Geom2D) )
-				return OD::Geom2D;
-			    if ( asInt() == int(OD::GeomSynth) )
-				return OD::GeomSynth;
-			    return OD::Geom3D;
-			}
+    bool		isValid() const override;
+
+    OD::GeomSystem	geomSystem() const;
 
     static inline GeomID udf()		{ return GeomID(); }
 
-    inline bool		is2D() const
-			{ return geomSystem() == OD::Geom2D; }
-    inline bool		is3D() const
-			{ return geomSystem() == OD::Geom3D; }
-    inline bool		isSynth() const
-			{ return geomSystem() == OD::GeomSynth; }
+    bool		is2D() const;
+    bool		is3D() const;
+    bool		isSynth() const;
 };
 
 
