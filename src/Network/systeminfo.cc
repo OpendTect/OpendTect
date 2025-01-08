@@ -528,4 +528,11 @@ const char* kernelVersion()
     return str.buf();
 }
 
+
+const IOPar& graphicsInformation()
+{
+    static IOPar ret( "Graphics Information" );
+    return ret;
+}
+
 } // namespace System

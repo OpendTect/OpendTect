@@ -9,6 +9,7 @@ ________________________________________________________________________
 
 #include "moddepmgr.h"
 
+#include "systeminfo.h"
 #include "uimain.h"
 #include "uiosgfont.h"
 #include "uiglinfo.h"
@@ -22,5 +23,8 @@ mDefModInitFn(uiOSG)
     visBase::DataObject::setDefaultPixelDensity( screendpi );
 
     if ( uiMain::reqOpenGL() )
-	uiGLI().createAndShowMessage( true, "dTect.Last GL info" );
+    {
+	IOPar& graphicspar = const_cast<IOPar&>( System::graphicsInformation());
+	uiGLI().createAndShowMessage( true, &graphicspar, "dTect.Last GL info");
+    }
 }

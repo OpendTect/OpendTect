@@ -30,8 +30,6 @@ public:
     const char*		glRenderer() const;
     const char*		glVersion() const;
 
-    BufferStringSet	allInfo() const;
-
 protected:
 
     bool		isok_;
@@ -47,15 +45,19 @@ public:
 			uiGLInfo();
 			~uiGLInfo();
 
-    uiString		getMessage(bool* warning=0);
-    void		showMessage(uiString msg,bool warn=false,
-				    const char* dontshowagainkey=0,
-				    bool onlyonce=false);
     void		createAndShowMessage(bool addwarnings=false,
-				    const char* dontshowagainkey=0);
-protected:
+				    IOPar* graphicspar=nullptr,
+				    const char* dontshowagainkey=nullptr);
+
+private:
+    uiRetVal		getInfo(IOPar&,uiRetVal* warnings,bool needupdate=true);
+    uiString		getMessage(const uiRetVal& error,
+				   const uiRetVal& warnings);
+    void		showMessage(const uiString& msg,bool warn=false,
+				    const char* dontshowagainkey=nullptr,
+				    bool onlyonce=false);
+
     GLInfo		glinfo_;
-    static uiGLInfo*	theinst_;
 };
 
 mGlobal(uiOSG) uiGLInfo& uiGLI();

@@ -71,5 +71,6 @@ namespace System
     mGlobal(Network) const char*	productName();
 					//!<return OS, distribution, etc.
     mGlobal(Network) const char*	kernelVersion();
+    mGlobal(Network) const IOPar&	graphicsInformation();
 
 } // namespace System
