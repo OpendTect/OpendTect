@@ -11,6 +11,7 @@ ________________________________________________________________________
 
 #include "settings.h"
 #include "uimsg.h"
+#include "visosg.h"
 
 #include <osgGeo/GLInfo>
 
@@ -18,13 +19,14 @@ ________________________________________________________________________
 GLInfo::GLInfo()
     : glinfo_( osgGeo::GLInfo::get() )
 {
+    visBase::refOsgPtr( glinfo_ );
     update();
 }
 
 
 GLInfo::~GLInfo()
 {
-    delete glinfo_;
+    visBase::unRefOsgPtr( glinfo_ );
 }
 
 
@@ -35,50 +37,41 @@ void GLInfo::update()
 
 
 bool GLInfo::isOK() const
-{ return isok_; }
-
-
-bool GLInfo::isPlatformSupported() const
-{ return glinfo_ && glinfo_->isPlatformSupported(); }
-
-
-const char* GLInfo::glVendor() const
-{ return glinfo_ ? glinfo_->glVendor() : ""; }
-
-
-const char* GLInfo::glRenderer() const
-{ return glinfo_ ? glinfo_->glRenderer() : ""; }
-
-
-const char* GLInfo::glVersion() const
-{ return glinfo_ ? glinfo_->glVersion() : ""; }
-
-
-BufferStringSet GLInfo::allInfo() const
 {
-    BufferStringSet allinfo;
-
-#ifndef  __mac__
-    allinfo.add( *glVendor() ? glVendor() : "?" );
-    allinfo.add( *glRenderer() ? glRenderer() : "?" );
-    allinfo.add( *glVersion() ? glVersion() : "?" );
-#endif
-
-    return allinfo;
+    return isok_;
 }
 
 
-//============================================================================
+bool GLInfo::isPlatformSupported() const
+{
+    return glinfo_ && glinfo_->isPlatformSupported();
+}
 
 
-uiGLInfo* uiGLInfo::theinst_ = 0;
+const char* GLInfo::glVendor() const
+{
+    return glinfo_ ? glinfo_->glVendor() : "";
+}
+
+
+const char* GLInfo::glRenderer() const
+{
+    return glinfo_ ? glinfo_->glRenderer() : "";
+}
+
+
+const char* GLInfo::glVersion() const
+{
+    return glinfo_ ? glinfo_->glVersion() : "";
+}
+
+
+// uiGLInfo
 
 uiGLInfo& uiGLI()
 {
-    if ( !uiGLInfo::theinst_ )
-	uiGLInfo::theinst_ = new uiGLInfo;
-
-    return *uiGLInfo::theinst_;
+    static PtrMan<uiGLInfo> theinst = new uiGLInfo;
+    return *theinst.ptr();
 }
 
 
@@ -90,83 +83,113 @@ uiGLInfo::~uiGLInfo()
 {}
 
 
-uiString uiGLInfo::getMessage( bool* warning )
+uiRetVal uiGLInfo::getInfo( IOPar& iop, uiRetVal* warnings, bool needupdate )
+{
+    if ( needupdate )
+	glinfo_.update();
+
+    if ( !glinfo_.isPlatformSupported() )
+	return tr("Current platform does not support graphics status messages");
+
+    const BufferString glvendor( glinfo_.glVendor() );
+    const BufferString glrender( glinfo_.glRenderer() );
+    const BufferString glversion( glinfo_.glVersion() );
+    iop.set( "GL-vendor", glvendor.buf() );
+    iop.set( "GL-renderer", glrender.buf() );
+    iop.set( "GL-version", glversion.buf() );
+    if ( !warnings )
+	return uiRetVal::OK();
+
+    if ( !glinfo_.isOK() )
+    {
+	*warnings = tr("Missing all GL info indicates some graphics "
+		       "card problem.");
+    }
+    else if ( glvendor.startsWith("intel",OD::CaseInsensitive) )
+    {
+	warnings->add( tr("Intel card found. If your computer has "
+			  "multiple graphics cards,") )
+		 .add( tr("consider switching from the integrated graphics") );
+    }
+    else if ( glvendor.startsWith("amd",OD::CaseInsensitive) ||
+	      glvendor.startsWith("ati",OD::CaseInsensitive) )
+    {
+	warnings->add(
+	      tr("AMD card found. Video cards by AMD are not supported.") )
+	.add( tr("Your card may work, but OpendTect will likely experience 3D"))
+	.add( tr("visualization issues. If your computer also has an NVIDIA") )
+	.add( tr("card, make sure OpendTect will use this NVIDIA card.") );
+    }
+    else if ( glvendor.startsWith("microsoft",OD::CaseInsensitive) ||
+	      glrender.startsWith("gdi",OD::CaseInsensitive) )
+    {
+	warnings->add(
+	    tr("No graphics card found or no drivers have been installed.") );
+    }
+    else if ( glversion == "?" )
+    {
+	warnings->add(
+	   tr("Missing GL-version indicates a graphics card driver problem.") );
+    }
+
+    return uiRetVal::OK();
+}
+
+
+uiString uiGLInfo::getMessage( const uiRetVal& uirv, const uiRetVal& warnings )
 {
     BufferString msg( "<html>" );
-    glinfo_.update();
 
     const char* url = "https://doc.opendtect.org/7.0.0/doc/admindoc/"
 		      "Default.htm#system_requirements.htm";
     BufferString sysreq( "<br><br>Click <a href=\"" );
     sysreq.add( url ).add( "\">" ).add( "here</a>" )
-	    .add( " for OpendTect's System Requirements." );
+	  .add( " for OpendTect's System Requirements." ).add( "</html>" );
 
-    if ( !glinfo_.isPlatformSupported() )
+    if ( !uirv.isOK() )
     {
-	msg.add("Current platform does not support graphics status messages");
-	msg.add( sysreq );
-	msg.add( "<br></html>" );
-	return toUiString(msg);
-    }
+	const uiPhraseSet msgs = uirv.messages();
+	for ( const auto* phr : msgs )
+	{
+	    BufferString txt;
+	    phr->fillUTF8String( txt );
+	    msg.add( txt ).add( "<br>" );
+	}
 
-    BufferStringSet allinfo = glinfo_.allInfo();
+	msg.add( sysreq );
+	return toUiString( msg );
+    }
 
     msg.add( "<h2>Graphics Card Information</h2><br>" )
-       .add( "GL-vendor: " ).add( allinfo[0]->buf() ).add( "<br>" )
-       .add( "GL-renderer: " ).add( allinfo[1]->buf() ).add( "<br>" )
-       .add( "GL-version: " ).add( allinfo[2]->buf() ).add( "<br>" );
+       .add( "GL-vendor: " ).add( glinfo_.glVendor() ).add( "<br>" )
+       .add( "GL-renderer: " ).add( glinfo_.glRenderer() ).add( "<br>" )
+       .add( "GL-version: " ).add( glinfo_.glVersion() ).add( "<br>" );
 
-    if ( !warning )
+    if ( !warnings.isOK() )
     {
-	msg.add( sysreq ).add( "</html>" );
-	return toUiString(msg);
+	const uiPhraseSet msgs = warnings.messages();
+	for ( const auto* phr : msgs )
+	{
+	    BufferString txt;
+	    phr->fillUTF8String( txt );
+	    msg.add( txt ).add( "<br>" );
+	}
     }
 
-    *warning = true;
+    msg.add( sysreq );
 
-    msg.add( "<br>" );
-    if ( !glinfo_.isOK() )
-    {
-	msg.add( "Missing all GL info indicates some graphics card problem." );
-    }
-    else if ( stringStartsWithCI("intel",allinfo[0]->buf()) )
-    {
-	msg.add(
-	    "Intel card found. If your computer has multiple graphics cards,"
-	    "<br>consider switching from the integrated graphics." );
-    }
-    else if ( stringStartsWithCI("ati",allinfo[0]->buf()) ||
-	      stringStartsWithCI("amd",allinfo[0]->buf()) )
-    {
-	msg.add(
-	    "AMD card found. Video cards by AMD are not supported.<br>"
-	    "Your card may work, but OpendTect will likely experience 3D<br>"
-	    "visualization issues. If your computer also has an NVIDIA<br>"
-	    "card, make sure OpendTect will use this NVIDIA card." );
-    }
-    else if ( stringStartsWithCI("microsoft",allinfo[0]->buf()) ||
-	      stringStartsWithCI("gdi",allinfo[1]->buf()) )
-    {
-	msg.add( "No graphics card found or no drivers have been installed." );
-    }
-    else if ( *allinfo[2] == "?" )
-    {
-	msg.add("Missing GL-version indicates a graphics card driver problem.");
-    }
-    else
-	*warning = false;
-
-    msg.add( sysreq ).add( "</html>" );
     return toUiString( msg );
 }
 
 
-void uiGLInfo::showMessage( uiString msg, bool warn,
+void uiGLInfo::showMessage( const uiString& msg, bool warn,
 			    const char* dontshowagainkey, bool onlyonce )
 {
-    BufferStringSet allinfo = glinfo_.allInfo();
+    const BufferString glvendor( glinfo_.glVendor() );
+    const BufferString glrender( glinfo_.glRenderer() );
+    const BufferString glversion( glinfo_.glVersion() );
+    const BufferStringSet allinfo( glvendor, glrender, glversion );
     BufferStringSet lastinfo;
-
     if ( dontshowagainkey )
     {
 	Settings::common().get( dontshowagainkey, lastinfo );
@@ -174,16 +197,24 @@ void uiGLInfo::showMessage( uiString msg, bool warn,
 	    return;
 
 	// Don't show message at startup for NVidia cards
-	if ( stringStartsWithCI("nvidia",allinfo[0]->buf()) )
+	if ( glvendor.startsWith("nvidia",OD::CaseInsensitive) )
+	{
+	    if ( !lastinfo.isEmpty() )
+	    {
+		Settings::common().reRead();
+		Settings::common().removeWithKey( dontshowagainkey );
+		Settings::common().write( false );
+	    }
+
 	    return;
+	}
     }
 
-    const uiString& es = uiString::emptyString();
+    const uiString& es = uiString::empty();
     const bool askdontshowagain = dontshowagainkey && !onlyonce;
-    const bool showagain = warn ?
-		    !uiMSG().warning( msg, es, es, askdontshowagain ) :
-		    !uiMSG().message( msg, es, es, askdontshowagain );
-
+    const bool showagain = warn
+			 ? !uiMSG().warning( msg, es, es, askdontshowagain )
+			 : !uiMSG().message( msg, es, es, askdontshowagain );
     if ( dontshowagainkey )
     {
 	if ( showagain && !onlyonce )
@@ -191,20 +222,33 @@ void uiGLInfo::showMessage( uiString msg, bool warn,
 	    if ( lastinfo.isEmpty() )
 		return;
 
-	    allinfo.setEmpty();
+	    Settings::common().reRead();
+	    Settings::common().removeWithKey( dontshowagainkey );
+	    Settings::common().write( false );
 	}
-
-	Settings::common().set( dontshowagainkey, allinfo );
-	Settings::common().write();
+	else
+	{
+	    Settings::common().set( dontshowagainkey, allinfo );
+	    Settings::common().write();
+	}
     }
 }
 
 
-void uiGLInfo::createAndShowMessage( bool addwarnings,
+void uiGLInfo::createAndShowMessage( bool addwarnings, IOPar* graphicspar,
 				     const char* dontshowagainkey )
 {
-    bool warning = false;
-    const uiString msg = getMessage( addwarnings ? &warning : 0 );
-    if ( !msg.isEmpty() && glinfo_.isPlatformSupported() )
-	showMessage( msg, warning, dontshowagainkey, addwarnings && !warning );
+    glinfo_.update();
+    if ( !glinfo_.isPlatformSupported() )
+	return;
+
+    IOPar par;
+    uiRetVal warnings;
+    const uiRetVal uirv = getInfo( par, addwarnings ? &warnings : nullptr,
+				   false );
+    const uiString msg = getMessage( uirv, warnings );
+    const bool warnonce = addwarnings && warnings.isEmpty();
+    showMessage( msg, !warnings.isEmpty(), dontshowagainkey, warnonce );
+    if ( graphicspar )
+	*graphicspar = par;
 }
