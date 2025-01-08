@@ -1798,7 +1798,7 @@ bool ZipHandler::readEndOfCentralDirHeader()
 
     offsetofcentraldir_ = *mCast( od_uint32*, headerbuff+mLOffsetCentralDir );
     od_uint16 cumulativefilecount = *mCast(od_uint16*, headerbuff+mLTotalEntry);
-    if ( offsetofcentraldir_ > m32BitSizeLimit ||
+    if ( offsetofcentraldir_ >= mZIP64SizeLimit ||
 	 cumulativefilecount > m16BitDiskLimit )
 	return readZIP64EndOfCentralDirLocator();
 
