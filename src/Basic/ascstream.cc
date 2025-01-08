@@ -368,9 +368,9 @@ bool ascistream::isOfFileType( const char* ftyp ) const
 
 const char* ascistream::version() const
 {
-    const char* vptr = lastOcc( header_.buf(), 'V' );
+    const char* vptr = header_.find( " V" );
     if ( vptr )
-	return vptr + 1;
+	return vptr + 2;
 
     return "0.0.0";
 }
