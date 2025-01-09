@@ -1032,7 +1032,7 @@ void IOMan::getObjEntry( CtxtIOObj& ctio, bool isnew, bool mktmp,
 
     const IOObj* ioobj = getIOObjFromCtxt( ctio, isnew, mktmp, translidx );
     bool needstrigger = false;
-    if ( ioobj )
+    if ( ioobj && !dirptr_->isPresent(ioobj->key()) )
     {
 	if ( !dirptr_->addObj((IOObj*)ioobj) )
 	    return;
