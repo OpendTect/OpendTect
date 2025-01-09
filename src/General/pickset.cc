@@ -901,8 +901,7 @@ bool Set::isPolygon() const
 	    obj->pars().get( sKey::Type(), typ );
     }
 
-    return typ.isEmpty() ? disp_.connect_!=Set::Disp::None
-			 : typ.isEqual( sKey::Polygon() );
+    return typ.isEqual( sKey::Polygon() );
 }
 
 
@@ -1106,10 +1105,8 @@ void Set::setDefaultDispPars()
     disp_.pixsize_ = defPixSz();
     disp_.markertype_ = defMarkerStyle();
     disp_.linestyle_ = defLineStyle();
-    if ( isPolygon() )
+    if ( disp_.connect_==Disp::None && isPolygon() )
 	disp_.connect_ = Disp::Close;
-    else
-	disp_.connect_ = Disp::None;
 }
 
 
