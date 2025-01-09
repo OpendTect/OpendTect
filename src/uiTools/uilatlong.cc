@@ -14,16 +14,15 @@ ________________________________________________________________________
 #include "od_helpids.h"
 #include "survinfo.h"
 
+#include "uibutton.h"
 #include "uibuttongroup.h"
 #include "uicombobox.h"
-#include "uifileinput.h"
 #include "uigeninput.h"
 #include "uilabel.h"
 #include "uilatlong2coord.h"
 #include "uilineedit.h"
 #include "uimsg.h"
 #include "uispinbox.h"
-#include "uitoolbutton.h"
 
 
 #define mErrRet(msg) { uiMSG().error( msg ); return false; }
