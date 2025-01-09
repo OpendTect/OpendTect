@@ -10,6 +10,7 @@ ________________________________________________________________________
 #include "uiioobjmanip.h"
 
 #include "file.h"
+#include "iodir.h"
 #include "ioman.h"
 #include "ioobj.h"
 #include "iostrm.h"
@@ -24,16 +25,13 @@ ________________________________________________________________________
 #include "uimsg.h"
 #include "uitoolbutton.h"
 
-#include "filepath.h"
-
-#include "iodir.h"
 
 // uiManipButGrp::ButData
 uiManipButGrp::ButData::ButData( uiToolButton* b, const char* p,
 				 const uiString& t )
-	: but(b)
-	, pmnm(p)
-	, tt(t)
+	: but_(b)
+	, pmnm_(p)
+	, tt_(t)
 {
 }
 
@@ -47,14 +45,12 @@ uiManipButGrp::ButData::~ButData()
 uiManipButGrp::uiManipButGrp( uiParent* p )
     : uiButtonGroup(p,"ManipButtons",OD::Vertical)
 {
-    altbutdata.allowNull();
+    altbutdata_.allowNull();
 }
 
 
 uiManipButGrp::~uiManipButGrp()
 {
-    deepErase(butdata);
-    deepErase(altbutdata);
 }
 
 
@@ -72,7 +68,12 @@ uiToolButton* uiManipButGrp::addButton( Type tp, const uiString& tooltip,
 				pErrMsg("Unknown toolbut typ");
     }
 
-    return addButton( pm, tooltip, cb );
+    auto* button = new uiToolButton( this, pm, tooltip, cb );
+    auto* butdata = new ButData( button, pm, tooltip );
+    butdata->type_ = tp;
+    butdata_ += butdata;
+    altbutdata_ += nullptr;
+    return button;
 }
 
 
@@ -80,9 +81,9 @@ uiToolButton* uiManipButGrp::addButton( const char* pmnm,
 					const uiString& tooltip,
 					const CallBack& cb )
 {
-    uiToolButton* button = new uiToolButton( this, pmnm, tooltip, cb );
-    butdata += new ButData( button, pmnm, tooltip );
-    altbutdata += 0;
+    auto* button = new uiToolButton( this, pmnm, tooltip, cb );
+    butdata_ += new ButData( button, pmnm, tooltip );
+    altbutdata_ += nullptr;
     return button;
 }
 
@@ -90,16 +91,20 @@ uiToolButton* uiManipButGrp::addButton( const char* pmnm,
 void uiManipButGrp::setAlternative( uiToolButton* button, const char* pm,
 				    const uiString& tt )
 {
-    for ( int idx=0; idx<butdata.size(); idx++ )
+    for ( int idx=0; idx<butdata_.size(); idx++ )
     {
-	if ( butdata[idx]->but == button )
+	if ( butdata_[idx]->but_ == button )
 	{
-	    uiManipButGrp::ButData* bd = altbutdata[idx];
+	    uiManipButGrp::ButData* bd = altbutdata_[idx];
 	    if ( !bd )
-		altbutdata.replace( idx,
+		altbutdata_.replace( idx,
 				    new uiManipButGrp::ButData(button,pm,tt) );
 	    else
-		{ bd->but = button; bd->pmnm = pm; bd->tt = tt; }
+	    {
+		bd->but_ = button;
+		bd->pmnm_ = pm;
+		bd->tt_ = tt;
+	    }
 	}
     }
 }
@@ -107,24 +112,39 @@ void uiManipButGrp::setAlternative( uiToolButton* button, const char* pm,
 
 void uiManipButGrp::useAlternative( uiToolButton* button, bool yn )
 {
-    for ( int idx=0; idx<butdata.size(); idx++ )
+    for ( int idx=0; idx<butdata_.size(); idx++ )
     {
-	uiManipButGrp::ButData* normbd = butdata[idx];
-	if ( normbd->but != button )
+	uiManipButGrp::ButData* normbd = butdata_[idx];
+	if ( normbd->but_ != button )
 	    continue;
 
-	uiManipButGrp::ButData* altbd = altbutdata[idx];
+	uiManipButGrp::ButData* altbd = altbutdata_[idx];
 	if ( yn && !altbd )
 	    return;
 
 	uiManipButGrp::ButData& bd = yn ? *altbd : *normbd;
-	button->setIcon( bd.pmnm );
-	button->setToolTip( bd.tt );
+	button->setIcon( bd.pmnm_ );
+	button->setToolTip( bd.tt_ );
 	break;
     }
 }
 
 
+void uiManipButGrp::setButtonCB( Type tp, const CallBack& cb )
+{
+    for ( auto* data : butdata_ )
+    {
+	if ( data->type_ != tp )
+	    continue;
+
+	data->but_->activated.cbs_.erase();
+	data->but_->activated.notify( cb );
+	break;
+    }
+}
+
+
+// uiIOObjManipGroup
 uiIOObjManipGroup::uiIOObjManipGroup( uiIOObjManipGroupSubj& s, bool withreloc,
 				      bool withremove )
 	: uiManipButGrp(s.obj_->parent())
@@ -310,7 +330,7 @@ void uiIOObjManipGroup::tbPush( CallBacker* c )
 }
 
 
-bool uiIOObjManipGroup::renameEntry(IOObj& ioobj, Translator* trans)
+bool uiIOObjManipGroup::renameEntry( IOObj& ioobj, Translator* trans )
 {
     uiString titl = toUiString("%1 '%2'").arg(uiStrings::sRename())
 					       .arg(ioobj.uiName());

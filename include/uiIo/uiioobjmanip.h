@@ -25,7 +25,7 @@ public:
 			uiManipButGrp(uiParent*);
 			~uiManipButGrp();
 
-    enum Type		{ FileLocation, Rename, Remove, ReadOnly };
+    enum Type		{ FileLocation, Rename, Remove, ReadOnly, Other };
 
     uiToolButton*	addButton(Type,const uiString& ttip,const CallBack&);
     uiToolButton*	addButton(const char* iconfnm,const uiString& ttip,
@@ -33,6 +33,7 @@ public:
     void		setAlternative(uiToolButton*,const char* icfnm,
 				       const uiString& ttip);
     void		useAlternative(uiToolButton*,bool);
+    void		setButtonCB(Type,const CallBack&);
 
 protected:
 
@@ -41,13 +42,14 @@ protected:
 			ButData(uiToolButton*,const char*,const uiString&);
 			~ButData();
 
-	uiToolButton*	but;
-	BufferString	pmnm;
-	uiString	tt;
+	uiToolButton*	but_;
+	BufferString	pmnm_;
+	uiString	tt_;
+	Type		type_			= Other;
     };
 
-    ObjectSet<ButData>	butdata;
-    ObjectSet<ButData>	altbutdata;
+    ManagedObjectSet<ButData>	butdata_;
+    ManagedObjectSet<ButData>	altbutdata_;
 };
 
 
