@@ -38,6 +38,7 @@ public:
     void		finish() const override;
 
     int			size() const override;
+    bool		isNull(int) const override;
     BufferString	data(int) const override;
     int			iValue(int) const override;
     unsigned int	uiValue(int) const override;

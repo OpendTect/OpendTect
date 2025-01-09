@@ -36,6 +36,9 @@ public:
     bool		isOpen() const override;
     BufferString	errMsg() const override;
 
+    void		getColumnNames(const char* tablename,
+				       BufferStringSet&) const override;
+
 protected:
 			AccessImpl(const char* qtyp,const char* dbtype);
 

@@ -14,6 +14,7 @@ ________________________________________________________________________
 
 #include <QSqlDatabase>
 #include <QSqlError>
+#include <QSqlRecord>
 #include <QString>
 
 
@@ -81,6 +82,19 @@ void SqlDB::AccessImpl::close()
 {
     if ( isOK() )
 	qdb_->close();
+}
+
+
+void SqlDB::AccessImpl::getColumnNames( const char* tablename,
+					BufferStringSet& nms ) const
+{
+    QSqlRecord record = qdb_->record( tablename );
+    const int nrrecords = record.count();
+    for ( int idx= 0; idx<nrrecords; idx++ )
+    {
+	const QString nm = record.fieldName( idx );
+	nms.add( nm );
+    }
 }
 
 
