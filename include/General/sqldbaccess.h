@@ -13,6 +13,8 @@ ________________________________________________________________________
 #include "enums.h"
 #include "factory.h"
 
+class BufferStringSet;
+
 /*!\brief SQL Database*/
 
 namespace SqlDB
@@ -46,6 +48,9 @@ public:
     virtual BufferString errMsg() const			= 0;
     const char*		dbType() const		{ return dbtype_.buf(); }
 
+    virtual void	getColumnNames(const char* tablename,
+				       BufferStringSet& columnnames) const = 0;
+
 protected:
 			Access(const char* qtyp,const char* dbtype);
 
@@ -75,6 +80,7 @@ public:;
     virtual bool		getAllRows(IOPar&) const { return false; }
 
     virtual int			size() const			= 0;
+    virtual bool		isNull(int) const		= 0;
     virtual BufferString	data(int) const			= 0;
     virtual int			iValue(int) const		= 0;
     virtual unsigned int	uiValue(int) const		= 0;
