@@ -1326,7 +1326,18 @@ void OD3DViewer::setStartupView()
 	toHomePos();
     else
     {
-	SI().has3D() ? viewPlaneInl( true ) : viewPlaneN( true );
+	if ( SI().has3D() )
+	{
+	    osg::Vec3f inlvec;
+	    getInlCrlVec( inlvec, true );
+	    osg::ref_ptr<osgGeo::TrackballManipulator> manip =
+						getCameraManipulator();
+	    if ( manip )
+		manip->viewAll( view_, inlvec, osg::Vec3f(0,0,1), false );
+	}
+	else
+	    viewPlaneN();
+
 	// animation should be finished before calling viewAll
 	viewalltimer_->start( 1000, true );
     }
