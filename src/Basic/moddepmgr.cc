@@ -34,9 +34,8 @@ OD::ModDepMgr::ModDepMgr( const char* mdfnm )
     od_istream strm( moddepfnm );
     if ( !strm.isOK() )
     {
-	if ( DBG::isOn(DBG_PROGSTART) )
-	    DBG::message( BufferString( "Cannot read module dependencies from ",
-					moddepfnm ) );
+    pErrMsg( BufferString("Cannot read module dependencies from ",
+		moddepfnm ) );
 	return;
     }
 
