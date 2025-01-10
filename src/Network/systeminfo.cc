@@ -50,6 +50,9 @@ static bool isAcceptable( const QHostAddress& addr, bool ipv4only )
     if ( addr.isNull() )
 	return false;
 
+    if ( addr.isInSubnet(QHostAddress("172.16.0.0"),12) )
+	return false;
+
     const QAbstractSocket::NetworkLayerProtocol protocol = addr.protocol();
 #if QT_VERSION >= QT_VERSION_CHECK(5,11,0)
     if ( addr.isGlobal() )
