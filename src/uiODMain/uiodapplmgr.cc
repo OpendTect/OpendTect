@@ -577,14 +577,20 @@ bool uiODApplMgr::getNewData( const VisID& visid, int attrib )
 		}
 
 		uiTaskRunner progm( &appl_ );
+		uiTreeItem* treeitem = sceneMgr().findItem( visid, attrib );
 		newdp = calc->createAttrib( tkzs, regsdp, &progm );
 		if ( !newdp && !calc->errmsg_.isEmpty() )
 		{
 		    if ( ODMainWin()->isRestoringSession() )
 			ODMainWin()->restoreMsgs().add( calc->errmsg_ );
-		    else
-			uiMSG().error( calc->errmsg_ );
+
+		    if ( treeitem )
+			treeitem->setToolTip( uiODSceneMgr::cColorColumn(),
+					      calc->errmsg_ );
 		}
+		else if ( treeitem )
+		    treeitem->setToolTip( uiODSceneMgr::cColorColumn(),
+			    		  uiString::empty() );
 	    }
 	    else
 	    {

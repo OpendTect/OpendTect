@@ -782,13 +782,13 @@ bool PlaneDataDisplay::setVolumeDataPack( int attrib, VolumeDataPack* voldp,
 					TaskRunner* taskr )
 {
     mDynamicCastGet(RegularSeisDataPack*,regseisdp,voldp);
+    datapacks_.replace( attrib, regseisdp );
     if ( !regseisdp || regseisdp->isEmpty() )
     {
 	channels_->setUnMappedData( attrib, 0, 0, OD::UsePtr, nullptr );
 	return false;
     }
 
-    datapacks_.replace( attrib, regseisdp );
     createTransformedDataPack( attrib, taskr );
     updateChannels( attrib, taskr );
     datachanged_.trigger();
