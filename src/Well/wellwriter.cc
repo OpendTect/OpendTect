@@ -736,7 +736,10 @@ int MultiWellWriter::nextStep()
     }
 
     if ( !store(wd->multiID(),*wd,reqs_[nrdone_]) )
+    {
+	failedwellids_.addIfNew( wd->multiID() );
 	allwellswritten_ = false;
+    }
 
     nrdone_++;
     return MoreToDo();
