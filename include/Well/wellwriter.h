@@ -96,9 +96,12 @@ public:
     bool		allWellsWritten() const { return allwellswritten_; }
 				//Can then be used to launch a warning locally
 
+    const TypeSet<MultiID>&  failedWellIds() const   { return failedwellids_; }
+
 protected:
     const ObjectSet<Well::Data>&	wds_;
     const TypeSet<StoreReqs>&		reqs_;
+    TypeSet<MultiID>			failedwellids_;
     od_int64				nrwells_;
     od_int64				nrdone_;
     uiString				msg_;
