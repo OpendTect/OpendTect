@@ -35,7 +35,7 @@ public:
 			//3D
     explicit		TrcKey(const BinID&); // default 3D surv ID
 			//2D
-			TrcKey(Pos::GeomID,Pos::TraceID);
+			TrcKey(const Pos::GeomID&,Pos::TraceID);
 			//2D or 3D (not synthetic)
 			TrcKey(const Pos::IdxPair&,bool is2d);
 			//Any type
@@ -65,11 +65,11 @@ public:
     IdxType		inl() const			{ return pos_.inl(); }
     IdxType		crl() const			{ return pos_.crl(); }
 
-    TrcKey&		setGeomID(Pos::GeomID);
+    TrcKey&		setGeomID(const Pos::GeomID&);
     TrcKey&		setGeomSystem(OD::GeomSystem);
     TrcKey&		setPosition(const BinID&); //3D only
     TrcKey&		setPosition(const Pos::IdxPair&,bool is2d);
-    inline TrcKey&	setPosition( Pos::GeomID gid, IdxType trcnr )
+    inline TrcKey&	setPosition( const Pos::GeomID& gid, IdxType trcnr )
 			{ return setGeomID( gid ).setTrcNr( trcnr ); }
     inline TrcKey&	setIs3D()	{ return setGeomSystem( OD::Geom3D ); }
     inline TrcKey&	setIs2D()	{ return setGeomSystem( OD::Geom2D ); }
@@ -94,7 +94,7 @@ public:
     double		distTo(const TrcKey&) const;
     const Survey::Geometry& geometry() const;
 
-    TrcKey		getFor(Pos::GeomID) const;
+    TrcKey		getFor(const Pos::GeomID&) const;
     TrcKey		getFor3D() const;
     TrcKey		getFor2D( IdxType lnr ) const;
 
