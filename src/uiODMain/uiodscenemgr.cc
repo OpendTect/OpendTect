@@ -1582,6 +1582,23 @@ void uiODSceneMgr::findItems( const char* nm, ObjectSet<uiTreeItem>& items,
 }
 
 
+uiTreeItem* uiODSceneMgr::findItem( const VisID& displayid, int attrib )
+{
+    uiTreeItem* dispitem = findItem( displayid );
+    if ( !dispitem )
+	return nullptr;
+
+    for ( int idx=0; idx<dispitem->nrChildren(); idx++ )
+    {
+	mDynamicCastGet(uiODDataTreeItem*,dataitem,dispitem->getChild(idx))
+	if ( dataitem && dataitem->attribNr()==attrib )
+	    return dataitem;
+    }
+
+    return nullptr;
+}
+
+
 void uiODSceneMgr::displayIn2DViewer( const VisID& visid, int attribid,
 				      bool dowva )
 {

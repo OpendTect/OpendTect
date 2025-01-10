@@ -954,7 +954,7 @@ void uiTreeViewItem::setText( const uiString& txt, int column )
 
     texts_[column] = txt;
     qtreeitem_->setText( column, toQString(txt) );
-    setToolTip( column, txt );
+    updateToolTip( column );
 }
 
 
@@ -1327,14 +1327,15 @@ void uiTreeViewItem::setToolTip( int column, const uiString& txt )
 
 bool uiTreeViewItem::updateToolTip( int column )
 {
-    if ( !tooltips_.validIdx( column ) )
-	return false;
+    const uiString& tooltip =
+	tooltips_.validIdx(column) && !tooltips_[column].isEmpty() ?
+		tooltips_[column]
+		: (texts_.validIdx(column)? texts_[column] : uiString::empty());
 
     if ( uiMain::isNameToolTipUsed() )
 	qtreeitem_->setToolTip( column, "" ); // no name-tooltip for tree items
 
-    qtreeitem_->setToolTip( column, toQString(tooltips_[column]) );
-
+    qtreeitem_->setToolTip( column, toQString(tooltip) );
     return true;
 }
 
