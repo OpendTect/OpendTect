@@ -9,6 +9,43 @@ ________________________________________________________________________
 
 #include "odcommonenums.h"
 
+#include "keystrs.h"
+#include "uistrings.h"
+
+mDefineNameSpaceEnumUtils(OD,Orientation,"Orientation")
+{
+    "Horizontal",
+    "Vertical",
+    nullptr
+};
+
+
+template <>
+void EnumDefImpl<OD::Orientation>::init()
+{
+    uistrings_ += uiStrings::sHorizontal();
+    uistrings_ += uiStrings::sVertical();
+}
+
+
+mDefineNameSpaceEnumUtils(OD,SliceType,"Slice Type")
+{
+    sKey::Inline(),
+    sKey::Crossline(),
+    sKey::ZSlice(),
+    nullptr
+};
+
+
+template <>
+void EnumDefImpl<OD::SliceType>::init()
+{
+    uistrings_ += uiStrings::sInline();
+    uistrings_ += uiStrings::sCrossline();
+    uistrings_ += uiStrings::sZSlice();
+}
+
+
 mDefineNameSpaceEnumUtils(OD,WellType,"Well Type")
 {
     "Unknown",

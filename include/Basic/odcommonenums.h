@@ -23,6 +23,8 @@ enum Orientation
     Vertical=1
 };
 
+mDeclareNameSpaceEnumUtils(Basic,Orientation);
+
 
 /*!\brief OpendTect flat slice types */
 
@@ -32,6 +34,8 @@ enum class SliceType
     Crossline=1,
     Z=2
 };
+
+mDeclareNameSpaceEnumUtils(Basic,SliceType);
 
 
 /*!\brief What to choose from any list-type UI object */
