@@ -253,6 +253,7 @@ bool uiImportLogsDlg::acceptOK( CallBacker* )
     if ( failed )
 	mErrRet( errmsg )
 
+    wd->logschanged.trigger( -1 );
     uiString msg = tr("Well Log successfully imported."
 		      "\n\nDo you want to import more Well Logs?");
     bool ret = uiMSG().askGoOn( msg, uiStrings::sYes(),
