@@ -187,7 +187,13 @@ BufferString ODInst::GetInstallerDir()
     FilePath installerdir( appldir );
     installerdir.setFileName( mInstallerDirNm );
     if ( !File::isDirectory(installerdir.fullPath()) )
-	installerdir = appldir;
+    {
+	installerdir.setFileName( nullptr );
+	installerdir.setFileName( nullptr );
+	installerdir.setFileName( mInstallerDirNm );
+	if ( !File::isDirectory(installerdir.fullPath()) )
+	    installerdir = appldir;
+    }
 
     FilePath relinfosubdir( installerdir );
 #ifdef __mac__
