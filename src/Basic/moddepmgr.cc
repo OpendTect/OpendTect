@@ -34,8 +34,8 @@ OD::ModDepMgr::ModDepMgr( const char* mdfnm )
     od_istream strm( moddepfnm );
     if ( !strm.isOK() )
     {
-    pErrMsg( BufferString("Cannot read module dependencies from ",
-		moddepfnm ) );
+    uiString msg = strm.errMsg();
+    pErrMsg( BufferString("Missing module dependency. ", msg ) );
 	return;
     }
 
