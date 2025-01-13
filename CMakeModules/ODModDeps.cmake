@@ -5,8 +5,7 @@
 #________________________________________________________________________
 #
 
-# OD_WRITE_MODDEP - Marcro that writes all modules and their dependencies to
-#		    a file. 
+# OD_WRITE_MODDEP - Macro that writes all modules and their dependencies to a file. 
 # Input variables:
 # OD_SUBSYSTEM				: "od" or "dgb"
 # OD_CORE_MODULE_NAMES_${OD_SUBSYSTEM}	: List of all modules.
@@ -16,8 +15,9 @@
 
 macro( OD_WRITE_MODDEPS BASEDIR )
 
-set( OD_MODDEPS_FILE ${BASEDIR}/ModDeps.${OD_SUBSYSTEM} )
-install( FILES ${OD_MODDEPS_FILE} DESTINATION ${MISC_INSTALL_PREFIX}/data )
+set( OD_MODDEPS_FILE "${BASEDIR}/ModDeps.${OD_SUBSYSTEM}" )
+install( FILES "${OD_MODDEPS_FILE}"
+	 DESTINATION "${OD_DATA_INSTALL_RELPATH}" )
 
 list( APPEND OD_CORE_MODULE_NAMES_${OD_SUBSYSTEM} "AllNonUi" )
 set( OD_AllNonUi_DEPS MPEEngine WellAttrib VolumeProcessing )
