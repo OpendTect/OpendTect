@@ -232,6 +232,7 @@ void uiFKSpectrum::setData( const Array2D<float>& array )
     if ( !compute(array) )
 	return;
 
+    const bool fkindb = GetEnvVarYN("OD_FK_INDB");
     for ( int idx=0; idx<sz0; idx++ )
     {
 	const int kidx = idx<sz0/2 ? idx+sz0/2 : idx-sz0/2;
@@ -239,7 +240,7 @@ void uiFKSpectrum::setData( const Array2D<float>& array )
 	{
 	    const float power = abs(output_->get(idx,idy));
 	    spectrum_->set( kidx, idy, power );
-	    if ( GetEnvVarYN("OD_FK_INDB") )
+	    if ( fkindb )
 		spectrum_->set( kidx, idy, 20*Math::Log10(power) );
 	}
     }
