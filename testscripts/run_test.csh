@@ -97,7 +97,8 @@ set kernel=`uname -a | awk '{print $1}'`
 if ( "${kernel}" == "Darwin" ) then
     set bindir="${wdir}/Contents/MacOS"
     if ( "${config}" == "Debug" ) then
-    set bindir="${bindir}/Debug"
+	set bindir="${bindir}/Debug"
+    endif
 else
     set bindir="${wdir}/bin/${plf}/${config}"
 endif
