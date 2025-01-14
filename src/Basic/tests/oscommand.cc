@@ -135,8 +135,7 @@ static bool testAllPipes()
 
 static bool runCommandWithSpace()
 {
-    FilePath scriptfp( GetSoftwareDir(0), "testscripts",
-			    "script with space");
+    FilePath scriptfp( GetScriptDir(), "script with space");
 #ifdef __win__
     scriptfp.setExtension( "cmd" );
 #else
@@ -159,8 +158,7 @@ static bool runCommandWithLongOutput()
     //Should be 100% correct, meaning that no bytes have been skipped or
     //inserted.
     //
-    const FilePath scriptfp( GetSoftwareDir(0), "testscripts",
-				 "count_to_1000.csh" );
+    const FilePath scriptfp( GetScriptDir(), "count_to_1000.csh" );
     BufferString output, errmsg;
     OS::MachineCommand machcomm( scriptfp.fullPath() );
     mRunStandardTestWithError( machcomm.execute(output,&errmsg),
