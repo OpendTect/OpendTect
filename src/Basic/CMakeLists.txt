@@ -165,25 +165,27 @@ if ( IS_DIRECTORY "${CMAKE_SOURCE_DIR}/external/safety" )
 	   "__safety_dir__=\"${CMAKE_SOURCE_DIR}/external/safety\"" )
 endif()
 
-if ( NOT ${BUILDINSRC} )
-    if ( UNIX )
-	set( FILEEXT sh )
-    else()
-	set( FILEEXT cmd )
-    endif()
-    file( COPY "${CMAKE_SOURCE_DIR}/testscripts/script with space.${FILEEXT}"
-	  DESTINATION "${PROJECT_BINARY_DIR}/testscripts" )
-    file( COPY "${CMAKE_SOURCE_DIR}/testscripts/count_to_1000.csh"
-	  DESTINATION "${PROJECT_BINARY_DIR}/testscripts" )
+if ( UNIX )
+set( FILEEXT sh )
+else()
+set( FILEEXT cmd )
+endif()
 
+file( COPY "${CMAKE_SOURCE_DIR}/testscripts/script with space.${FILEEXT}"
+  DESTINATION "${PROJECT_BINARY_DIR}/${MISC_INSTALL_PREFIX}/bin" )
+file( COPY "${CMAKE_SOURCE_DIR}/testscripts/count_to_1000.csh"
+  DESTINATION "${PROJECT_BINARY_DIR}/${MISC_INSTALL_PREFIX}/bin" )
+
+if ( NOT ${BUILDINSRC} )
     if ( UNIX )
 	set( FILEEXT sh )
     else()
 	set( FILEEXT bat )
     endif()
     file( COPY "${CMAKE_SOURCE_DIR}/bin/od_external.${FILEEXT}"
-	  DESTINATION "${PROJECT_BINARY_DIR}/bin" )
+	  DESTINATION "${PROJECT_BINARY_DIR}/${MISC_INSTALL_PREFIX}/bin" )
 endif()
+unset( FILEEXT )
 
 OD_INIT_MODULE()
 
