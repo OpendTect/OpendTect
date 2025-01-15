@@ -26,19 +26,18 @@ const char* getLmUtilFilePath( uiString* errmsg )
     mDeclStaticString( ret );
     mIfNotFirstTime( return ret.buf() )
 
-#ifdef __mac__
-    FilePath lmutilfp( GetSoftwareDir( false ), "Resources", "bin",
-		       GetPlfSubDir() );
-#else
-    FilePath lmutilfp( GetSoftwareDir( false ), "bin", GetPlfSubDir() );
-#endif
-    lmutilfp.add( "lm.dgb" ).add( "lmutil" );
-#ifdef __win__
-    lmutilfp.setExtension( "exe" );
-#endif
+    FilePath lmutilfp( GetScriptDir(), GetPlfSubDir(), "lm.dgb", "lmutil" );
+    if ( __iswin__ )
+	lmutilfp.setExtension( "exe" );
 
     if ( !lmutilfp.exists() )
-	lmutilfp.setPath( lmutilfp.dirUpTo(lmutilfp.nrLevels()-3) );
+    {
+	if ( __ismac__ )
+	    lmutilfp.set( GetSoftwareDir(false) ).add( ".." ).add( "bin" )
+		    .add( GetPlfSubDir() ).add( "lmutil" );
+	else
+	    lmutilfp.setPath( lmutilfp.dirUpTo(lmutilfp.nrLevels()-3) );
+    }
 
     const BufferString lmutils( lmutilfp.fullPath() );
     if ( File::exists(lmutils.buf()) )
