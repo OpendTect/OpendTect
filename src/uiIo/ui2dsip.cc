@@ -22,6 +22,7 @@ ________________________________________________________________________
 #include "uitblimpexpdatasel.h"
 
 #include "dirlist.h"
+#include "envvars.h"
 #include "filepath.h"
 #include "hiddenparam.h"
 #include "od_helpids.h"
@@ -290,6 +291,43 @@ bool uiSurvInfoProvider::getRanges( TrcKeyZSampling& cs, Coord crd[3],
 }
 
 
+static bool getFullLibPath( const char* libname, BufferString& fullpath )
+{
+    FilePath instfp( GetLibPlfDir(), libname );
+    if ( instfp.exists() )
+    {
+	fullpath = instfp.fullPath();
+	return true;
+    }
+
+    const BufferString plugindirnm = GetEnvVar( "OD_APPL_PLUGIN_DIR" );
+    if ( !plugindirnm.isEmpty() )
+    {
+	FilePath pluginfp( plugindirnm, "bin", GetPlfSubDir(), GetBinSubDir(),
+			   libname );
+	if ( pluginfp.exists() )
+	{
+	    fullpath = pluginfp.fullPath();
+	    return true;
+	}
+    }
+
+    const BufferString userplugindirnm = GetEnvVar( "OD_USER_PLUGIN_DIR" );
+    if ( !userplugindirnm.isEmpty() )
+    {
+	FilePath userpluginfp( userplugindirnm, "bin", GetPlfSubDir(),
+				GetBinSubDir(), libname );
+	if ( userpluginfp.exists() )
+	{
+	    fullpath = userpluginfp.fullPath();
+	    return true;
+	}
+    }
+
+    return false;
+}
+
+
 void uiSurvInfoProvider::addPluginsInfoProviders()
 {
     const FilePath sipdatafp( mGetSWDirDataDir(), "SurveyProviders" );
@@ -310,11 +348,11 @@ void uiSurvInfoProvider::addPluginsInfoProviders()
 	libname.setEmpty();
 	SharedLibAccess::getLibName( piname.buf(), libname.getCStr(),
 				     libname.bufSize() );
-	const FilePath fp( GetLibPlfDir(), libname );
-	if ( !fp.exists() )
+	BufferString fulllibpath;
+	if ( !getFullLibPath(libname,fulllibpath) )
 	    continue;
 
-	const SharedLibAccess pisha( fp.fullPath() );
+	const SharedLibAccess pisha( fulllibpath );
 	if ( !pisha.isOK() )
 	{
 	    ErrMsg( pisha.errMsg() );
