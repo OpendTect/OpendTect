@@ -124,7 +124,7 @@ public:
     virtual void		setEmpty();
 
     virtual ValueType		valueType(idx_type) const;
-    const BufferString& 	key(idx_type) const;
+    const BufferString&		key(idx_type) const;
     inline bool			isPlainData( idx_type i ) const
 				{ return valueType(i) == Data; }
     inline bool			isArrayChild( idx_type i ) const
@@ -158,8 +158,8 @@ public:
     uiRetVal			parseJSon(char* buf,int bufsz);
     static ValueSet*		getFromJSon(char* buf,int bufsz,uiRetVal&);
     void			dumpJSon(BufferString&,bool pretty=false) const;
-    void			dumpJSon(StringBuilder&) const;
-    BufferString		dumpJSon(bool pretty=false) const;
+    virtual void		dumpJSon(StringBuilder&) const;
+    virtual BufferString	dumpJSon(bool pretty=false) const;
 
     uiRetVal			read(const char* fnm);
     static ValueSet*		read(const char* fnm,uiRetVal&);
@@ -225,6 +225,9 @@ public:
 			// Only available if valType() == Data
     inline ValArr&	valArr()		{ return *valarr_; }
     inline const ValArr& valArr() const		{ return *valarr_; }
+
+    void		dumpJSon(StringBuilder&) const override;
+    BufferString	dumpJSon(bool pretty=false) const override;
 
     Array*		add(Array*);
     Object*		add(Object*);

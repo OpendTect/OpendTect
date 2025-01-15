@@ -1177,6 +1177,21 @@ OD::JSON::Array& OD::JSON::Array::set( const uiStringSet& vals )
 }
 
 
+void OD::JSON::Array::dumpJSon( StringBuilder& sb ) const
+{
+    if ( isData() )
+	valArr().dumpJSon( sb );
+    else
+	ValueSet::dumpJSon( sb );
+}
+
+
+BufferString OD::JSON::Array::dumpJSon( bool pretty ) const
+{
+    return ValueSet::dumpJSon( pretty );
+}
+
+
 //--------- Object
 
 OD::JSON::Object::Object( ValueSet* p )
