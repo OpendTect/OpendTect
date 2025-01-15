@@ -733,8 +733,17 @@ void OD::JSON::ValueSet::dumpJSon( BufferString& bs, bool pretty ) const
 void OD::JSON::ValueSet::dumpJSon( StringBuilder& sb ) const
 {
     const bool isarr = isArray();
-    sb.add( isarr ? '[' : '{' );
+    if ( isarr )
+    {
+	const auto& arr = static_cast<const Array&>( *this );
+	if ( arr.valType() == Data )
+	{
+	    arr.valArr().dumpJSon( sb );
+	    return;
+	}
+    }
 
+    sb.add( isarr ? '[' : '{' );
     for ( int idx=0; idx<values_.size(); idx++ )
     {
 	const Value& val = *values_[idx];
