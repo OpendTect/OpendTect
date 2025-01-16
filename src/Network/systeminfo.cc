@@ -50,11 +50,14 @@ static bool isAcceptable( const QHostAddress& addr, bool ipv4only )
     if ( addr.isNull() )
 	return false;
 
+    if ( addr.isInSubnet(QHostAddress("172.16.0.0"),12) )
+	return false;
+
     const QAbstractSocket::NetworkLayerProtocol protocol = addr.protocol();
 #if QT_VERSION >= QT_VERSION_CHECK(5,11,0)
     if ( addr.isGlobal() )
 	return ipv4only ? protocol == QAbstractSocket::IPv4Protocol
-		: protocol > QAbstractSocket::UnknownNetworkLayerProtocol;
+			: protocol > QAbstractSocket::IPv4Protocol;
 #elif QT_VERSION >= QT_VERSION_CHECK(5,6,0)
     if ( addr.isMulticast() )
 	return false;
@@ -64,17 +67,18 @@ static bool isAcceptable( const QHostAddress& addr, bool ipv4only )
 #endif
 
     return ipv4only ? protocol == QAbstractSocket::IPv4Protocol
-		    : protocol > QAbstractSocket::UnknownNetworkLayerProtocol;
+		    : protocol > QAbstractSocket::IPv4Protocol;
 }
 
 
 od_uint64 macAddressHash()
 {
-    BufferStringSet addresses;
-    BufferStringSet names;
+    BufferStringSet addresses, names;
     macAddresses( names, addresses, true );
+    if ( addresses.isEmpty() )
+	return 0;
 
-    const char* virtboxaddress = "0A:00:27:00:00:00";
+    static const char* virtboxaddress = "0A:00:27:00:00:00";
     const int virtboxidx = addresses.indexOf( virtboxaddress );
     if ( addresses.validIdx(virtboxidx) )
 	addresses.removeSingle( virtboxidx );
@@ -89,7 +93,9 @@ od_uint64 macAddressHash()
 
 
 od_uint64 uniqueSystemID()
-{ return macAddressHash(); }
+{
+    return macAddressHash();
+}
 
 
 const char* localHostName()
@@ -259,6 +265,9 @@ bool isLocalAddressInUse( const char* ipaddr )
 const char* hostName( const char* ip )
 {
     mDeclStaticString( str );
+    if ( StringView(ip) == localAddress() )
+	return localHostName();
+
     const QHostInfo qhi = QHostInfo::fromName( QString(ip) );
     str = qhi.hostName();
     if ( str == ip )
