@@ -73,6 +73,7 @@ static bool testCmds()
 	machcomm.addFileRedirect( "/dev/null" );
     else
 	machcomm.addPipe().addArg( "head" ).addArg( "-10" );
+
     mRunStandardTest( machcomm.execute(OS::Wait4Finish),
 		      "OS::MachineCommand::execute wait4finish" );
     OS::CommandExecPars execpars( OS::RunInBG );
@@ -93,8 +94,9 @@ static bool testAllPipes()
     OS::CommandExecPars cp( OS::RunInBG );
     cp.createstreams( true );
 
-    mRunStandardTest( cl.execute( cp ), "Launching triple pipes" );
+    mRunStandardTest( cl.execute(cp), "Launching triple pipes" );
     mRunStandardTest( cl.processID(), "Launched process has valid PID" );
+
     *cl.getStdInput() << mGoodMessage << " ";
     cl.getStdInput()->flush();
 
@@ -130,8 +132,7 @@ static bool testAllPipes()
 
 static bool runCommandWithSpace()
 {
-    FilePath scriptfp( GetSoftwareDir(0), "testscripts",
-			    "script with space");
+    FilePath scriptfp( GetScriptDir(), "script with space");
 #ifdef __win__
     scriptfp.setExtension( "cmd" );
 #else
@@ -154,8 +155,7 @@ static bool runCommandWithLongOutput()
     //Should be 100% correct, meaning that no bytes have been skipped or
     //inserted.
     //
-    const FilePath scriptfp( GetSoftwareDir(0), "testscripts",
-				 "count_to_1000.csh" );
+    const FilePath scriptfp( GetScriptDir(), "count_to_1000.csh" );
     BufferString output;
     OS::MachineCommand machcomm( scriptfp.fullPath() );
     machcomm.execute( output );

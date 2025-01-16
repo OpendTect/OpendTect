@@ -35,6 +35,8 @@ data/Firewall
 doc/Videos.dgb
 doc/od_userdoc
 test/
+bin/count_to_1000.csh
+bin/script with space.sh
 Contents/
 plugins/lux64
 packages/

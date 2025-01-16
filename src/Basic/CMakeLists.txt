@@ -160,30 +160,26 @@ if ( ITTNOTIFY_FOUND )
     list ( APPEND OD_MODULE_INCLUDESYSPATH ${ITTNOTIFY_INCLUDE_DIR} )
 endif()
 
-if ( NOT (CMAKE_SOURCE_DIR STREQUAL CMAKE_BINARY_DIR) )
-    if ( UNIX )
-	set( FILEEXT sh )
-    else()
-	set( FILEEXT cmd )
-    endif()
-    execute_process(
-                COMMAND ${CMAKE_COMMAND} -E copy_if_different
-		    "${CMAKE_SOURCE_DIR}/testscripts/script with space.${FILEEXT}"
-		    "${PROJECT_BINARY_DIR}/testscripts/script with space.${FILEEXT}" )
-    execute_process(
-                COMMAND ${CMAKE_COMMAND} -E copy_if_different
-                    "${CMAKE_SOURCE_DIR}/testscripts/count_to_1000.csh"
-                    "${PROJECT_BINARY_DIR}/testscripts/count_to_1000.csh" )
+if ( UNIX )
+set( FILEEXT sh )
+else()
+set( FILEEXT cmd )
+endif()
 
+file( COPY "${CMAKE_SOURCE_DIR}/testscripts/script with space.${FILEEXT}"
+  DESTINATION "${PROJECT_BINARY_DIR}/${MISC_INSTALL_PREFIX}/bin" )
+file( COPY "${CMAKE_SOURCE_DIR}/testscripts/count_to_1000.csh"
+  DESTINATION "${PROJECT_BINARY_DIR}/${MISC_INSTALL_PREFIX}/bin" )
+
+if ( NOT (CMAKE_SOURCE_DIR STREQUAL CMAKE_BINARY_DIR) )
     if ( UNIX )
 	set( FILEEXT sh )
     else()
 	set( FILEEXT bat )
     endif()
-    execute_process(
-		COMMAND ${CMAKE_COMMAND} -E copy_if_different
-		    "${CMAKE_SOURCE_DIR}/bin/od_external.${FILEEXT}"
-		    "${PROJECT_BINARY_DIR}/bin/od_external.${FILEEXT}" )
+    file( COPY "${CMAKE_SOURCE_DIR}/bin/od_external.${FILEEXT}"
+	  DESTINATION "${PROJECT_BINARY_DIR}/${MISC_INSTALL_PREFIX}/bin" )
 endif()
+unset( FILEEXT )
 
 OD_INIT_MODULE()
