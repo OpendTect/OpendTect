@@ -184,7 +184,8 @@ void OD::PythonAccess::initClass()
     if ( isDeveloperBuild() )
 	pythonmodsfp.set( __odpy_dir__ );
     else
-	pythonmodsfp.set( GetSoftwareDir(true) ).add( "bin" ).add( "python" );
+	pythonmodsfp.set( GetScriptDir() ).add( "python" );
+
     if ( pythonmodsfp.exists() )
 	PythA().addBasePath( pythonmodsfp );
 #endif
@@ -420,7 +421,7 @@ bool OD::PythonAccess::needCheckRunScript()
     if ( !GetPythonActivatorExe().isEmpty() )
 	return false;
 
-    const FilePath pythonfp( GetSoftwareDir(true), "bin", "python" );
+    const FilePath pythonfp( GetScriptDir(), "python" );
     return pythonfp.exists();
 }
 

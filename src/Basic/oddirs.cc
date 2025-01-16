@@ -42,6 +42,8 @@ static BufferString cur_survey_name;
 
 #define mPrDebug(fn,val) od_debug_message( BufferString(fn,": ",val) );
 
+static const char* sData = "data";
+
 static BufferString sExportToDir;
 static BufferString sImportFromDir;
 static BufferString sPicturesDir;
@@ -264,12 +266,11 @@ mExternC(Basic) const char* GetSoftwareDir( bool acceptnone )
 	for ( int idx=filepath.nrLevels()-1; idx>=0; idx-- )
 	{
 	    const char* relinfostr = "relinfo";
-#ifdef __mac__
-	    const FilePath datapath( filepath.dirUpTo(idx).buf(), "Resources",
-				     relinfostr );
-#else
-	    const FilePath datapath( filepath.dirUpTo(idx).buf(), relinfostr );
-#endif
+	    FilePath datapath( filepath.dirUpTo(idx).buf() );
+	    if ( __ismac__ )
+		datapath.add( "Resources" );
+
+	    datapath.add( relinfostr );
 	    if ( File::isDirectory( datapath.fullPath()) )
 	    {
 		res = filepath.dirUpTo(idx);
@@ -296,8 +297,8 @@ mExternC(Basic) const char* GetSoftwareDir( bool acceptnone )
 
 mExternC(Basic) bool isDeveloperBuild()
 {
-    const FilePath licfp( BufferString( GetSoftwareDir(false) ),
-			  "CMakeCache.txt" );
+    static FilePath licfp( BufferString( GetSoftwareDir(false) ),
+			   __ismac__ ? ".." : "", "CMakeCache.txt" );
     return licfp.exists();
 }
 
@@ -318,7 +319,6 @@ mExternC(Basic) const char* GetApplSetupDir()
     return bs.str();
 }
 
-static const char* sData = "data";
 
 static const char* GetSoftwareDataDir( bool acceptnone )
 {
@@ -326,9 +326,8 @@ static const char* GetSoftwareDataDir( bool acceptnone )
     if ( basedir.isEmpty() )
 	return nullptr;
 
-#ifdef __mac__
-    basedir.add( "Resources" );
-#endif
+    if ( __ismac__ )
+	basedir.add( "Resources" );
 
     basedir.add( sData );
 
@@ -355,7 +354,7 @@ mExternC(Basic) const char* GetSetupDataFileDir( ODSetupLocType lt,
     if ( basedir.isEmpty() )
     {
 	if ( lt==ODSetupLoc_ApplSetupOnly )
-	    return 0;
+	    return nullptr;
 
 	return GetSoftwareDataDir( acceptnone );
     }
@@ -381,7 +380,8 @@ mExternC(Basic) const char* GetSetupDataFileName( ODSetupLocType lt,
     const char* appldir =
 		GetSetupDataFileDir(ODSetupLoc_ApplSetupOnly,acceptnone);
     if ( !appldir )
-	return lt == ODSetupLoc_ApplSetupOnly ? 0
+	return lt == ODSetupLoc_ApplSetupOnly
+	     ? nullptr
 	     : GetSetupDataFileName(ODSetupLoc_SWDirOnly,fnm,acceptnone);
 
     filenm = FilePath(GetSetupDataFileDir(lt,acceptnone),fnm).fullPath();
@@ -409,12 +409,15 @@ mExternC(Basic) const char* GetSetupDataFileName( ODSetupLocType lt,
 mExternC(Basic) const char* GetDocFileDir( const char* filedir )
 {
     mDeclStaticString( dirnm );
-#ifdef __mac__
-    dirnm = FilePath(GetSoftwareDir(0),"Resources","doc",
-		     filedir).fullPath();
-#else
-    dirnm = FilePath(GetSoftwareDir(0),"doc",filedir).fullPath();
-#endif
+    if ( dirnm.isEmpty() )
+    {
+	FilePath fp( GetSoftwareDir(false) );
+	if ( __ismac__ )
+	    fp.add( "Resources" );
+
+	fp.add( "doc" ).add( filedir );
+	dirnm = fp.fullPath();
+    }
 
     return dirnm;
 }
@@ -431,6 +434,7 @@ mExternC(Basic) const char* GetExecPlfDir()
     mDeclStaticString( res );
     if ( res.isEmpty() )
 	res = FilePath( GetFullExecutablePath() ).pathOnly();
+
     return res.buf();
 }
 
@@ -439,11 +443,20 @@ mExternC(Basic) const char* GetLibPlfDir()
 {
     mDeclStaticString( res );
     if ( res.isEmpty() )
-#ifdef __mac__
-	res = FilePath(GetSoftwareDir(0),"Frameworks").fullPath();
-#else
-	res = FilePath( GetFullExecutablePath() ).pathOnly();
-#endif
+    {
+	FilePath fp;
+	if ( __ismac__ )
+	{
+	    fp.set( GetSoftwareDir(false) ).add( "Frameworks" );
+	    res = fp.fullPath();
+	}
+	else
+	{
+	    fp.set( GetFullExecutablePath() );
+	    res = fp.pathOnly();
+	}
+    }
+
     return res.buf();
 }
 
@@ -452,11 +465,15 @@ mExternC(Basic) const char* GetScriptDir()
 {
     mDeclStaticString( res );
     if ( res.isEmpty() )
-#ifdef __mac__
-    res = FilePath(GetSoftwareDir(0), "Resources", "bin").fullPath();
-#else
-    res = FilePath( GetSoftwareDir(0),"bin" ).fullPath();
-#endif
+    {
+	FilePath fp( GetSoftwareDir(false) );
+	if ( __ismac__ )
+	    fp.add( "Resources" );
+
+	fp.add( "bin" );
+	res = fp.fullPath();
+    }
+
     return res.buf();
 }
 
@@ -478,12 +495,12 @@ mExternC(Basic) const char* GetExecScript( int remote )
 #else
 
     const char* basedir = GetApplSetupDir();
-    const char* fnm = 0;
+    const char* fnm = nullptr;
     if ( basedir )
 	fnm = gtExecScript( basedir, remote );
 
     if ( !fnm || !File::exists(fnm) )
-	fnm = gtExecScript( GetSoftwareDir(0), remote );
+	fnm = gtExecScript( GetSoftwareDir(false), remote );
 
     mDeclStaticString( progname );
     progname.set( "'" ).add( fnm ).add( "' " );
@@ -495,17 +512,13 @@ mExternC(Basic) const char* GetExecScript( int remote )
 mExternC(Basic) const char* GetODExternalScript()
 {
     mDeclStaticString( ret );
-    if ( !ret.isEmpty() )
-	return ret;
-
-    FilePath retfp( GetScriptDir(), "od_external" );
-#ifdef __win__
-    retfp.setExtension( "bat" );
-#else
-    retfp.setExtension( "sh" );
-#endif
-    if ( retfp.exists() )
-	ret.set( retfp.fullPath() );
+    if ( ret.isEmpty() )
+    {
+	FilePath retfp( GetScriptDir(), "od_external" );
+	retfp.setExtension( __iswin__ ? "bat" : "sh" );
+	if ( retfp.exists() )
+	    ret.set( retfp.fullPath() );
+    }
 
     return ret;
 }
@@ -513,22 +526,23 @@ mExternC(Basic) const char* GetODExternalScript()
 
 mExternC(Basic) const char* GetSoftwareUser()
 {
-    mDeclStaticString( bs );
-    if ( bs.isEmpty() )
+    mDeclStaticString( ret );
+    if ( ret.isEmpty() )
     {
-	const char* envval = 0;
-#ifdef __win__
-	envval = GetEnvVar( "DTECT_WINUSER" );
-#endif
+	const char* envval = nullptr;
+	if ( __iswin__ )
+	    envval = GetEnvVar( "DTECT_WINUSER" );
+
 	if ( !envval || !*envval )
 	    envval = GetEnvVar( "DTECT_USER" );
+
 	if ( od_debug_isOn(DBG_SETTINGS) )
 	    mPrDebug( "GetSoftwareUser", envval ? envval : "<None>" );
 
-	bs = envval;
+	ret = envval;
     }
 
-    return bs.str();
+    return ret.str();
 }
 
 
@@ -561,10 +575,11 @@ static void getHomeDir( BufferString& homedir )
 {
     const char* dir;
 
-#ifndef __win__
+#ifdef __unix__
 
     dir = GetEnvVar( "DTECT_HOME" );
-    if ( !dir ) dir = GetEnvVar( "HOME" );
+    if ( !dir )
+	dir = GetEnvVar( "HOME" );
 
 #else
 
@@ -610,6 +625,7 @@ static void getHomeDir( BufferString& homedir )
 #ifdef __win__
     if ( !GetEnvVar("DTECT_WINHOME") )
 	SetEnvVar( "DTECT_WINHOME", homedir.buf() );
+
     homedir.replace( '\r', '\0' );
 #endif
 }
@@ -627,6 +643,7 @@ mExternC(Basic) const char* GetBinSubDir()
     return "Debug";
 #endif
 }
+
 
 mExternC(Basic) const char* GetPersonalDir()
 {
@@ -654,12 +671,12 @@ mExternC(Basic) const char* GetSettingsDir()
 
     if ( dirnm.isEmpty() )
     {
-	const char* ptr = 0;
+	const char* ptr = nullptr;
+	ptr = GetOSEnvVar( __iswin__ ? "DTECT_WINSETTINGS"
+				     : "DTECT_SETTINGS" );
 #ifdef __win__
-	ptr = GetOSEnvVar( "DTECT_WINSETTINGS" );
-	if( !ptr ) ptr = getCleanWinPath( GetEnvVar("DTECT_SETTINGS") );
-#else
-	ptr = GetOSEnvVar( "DTECT_SETTINGS" );
+	if ( !ptr )
+	    ptr = getCleanWinPath( GetEnvVar("DTECT_SETTINGS") );
 #endif
 
 	if ( ptr )
@@ -674,12 +691,14 @@ mExternC(Basic) const char* GetSettingsDir()
 	{
 	    if ( File::exists(dirnm) )
 		File::remove( dirnm );
+
 	    if ( !File::createDir(dirnm) )
 	    {
 		std::cerr << "Fatal: Cannot create '.od' folder in home "
 		    "folder:\n" << dirnm.buf() << std::endl;
 		ApplicationData::exit( 1 );
 	    }
+
 	    if ( od_debug_isOn(DBG_SETTINGS) )
 		mPrDebug( "Had to create SettingsDir", dirnm );
 	}

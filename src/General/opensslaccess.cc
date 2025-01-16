@@ -280,8 +280,8 @@ bool OD::OpenSSLAccess::loadOpenSSL( const char* libnm, const char* path,
 			subdir.set( "OpenSSL" );
 		    else // macOS
 		    {
-			libfp.set( GetSoftwareDir(false) ).add( "Contents" )
-			     .add( "Resources" ).add( "OpenSSL" ).add( libnm );
+			libfp.set( GetSoftwareDir(false) ).add( "Resources" )
+			     .add( "OpenSSL" ).add( libnm );
 		    }
 		}
 	    }
