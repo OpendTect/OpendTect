@@ -180,7 +180,7 @@ bool OD::OpenSSLAccess::loadOpenSSL()
     if ( res >= 0 )
 	return res == 1;
 
-    if ( __iswin__ )
+    if ( !__islinux__ )
     {
 	res = 1;
 	return res == 1;
