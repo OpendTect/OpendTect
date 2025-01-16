@@ -57,7 +57,7 @@ static bool isAcceptable( const QHostAddress& addr, bool ipv4only )
 #if QT_VERSION >= QT_VERSION_CHECK(5,11,0)
     if ( addr.isGlobal() )
 	return ipv4only ? protocol == QAbstractSocket::IPv4Protocol
-		: protocol > QAbstractSocket::UnknownNetworkLayerProtocol;
+			: protocol > QAbstractSocket::IPv4Protocol;
 #elif QT_VERSION >= QT_VERSION_CHECK(5,6,0)
     if ( addr.isMulticast() )
 	return false;
@@ -67,7 +67,7 @@ static bool isAcceptable( const QHostAddress& addr, bool ipv4only )
 #endif
 
     return ipv4only ? protocol == QAbstractSocket::IPv4Protocol
-		    : protocol > QAbstractSocket::UnknownNetworkLayerProtocol;
+		    : protocol > QAbstractSocket::IPv4Protocol;
 }
 
 
@@ -266,6 +266,9 @@ bool isLocalAddressInUse( const char* ipaddr )
 const char* hostName( const char* ip )
 {
     mDeclStaticString( str );
+    if ( StringView(ip) == localAddress() )
+	return localHostName();
+
     const QHostInfo qhi = QHostInfo::fromName( QString(ip) );
     str = qhi.hostName();
     if ( str == ip )

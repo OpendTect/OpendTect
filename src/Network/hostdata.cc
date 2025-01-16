@@ -147,12 +147,17 @@ const char* HostData::getHostName( bool full ) const
 {
     mDeclStaticString( str );
     if ( staticip_ )
+    {
 	str.set( System::hostName( ipaddress_ ) );
+	if ( full && !str.find(".") )
+	    str.add( "." ).add( System::localDomainName() );
+    }
     else
 	str.set( hostname_ );
 
     if ( !full )
 	str.replace( '.', '\0' );
+
     return str.buf();
 }
 
