@@ -445,7 +445,7 @@ visBase::Scene* ui3DViewerBody::getScene()
 
 const visBase::Scene* ui3DViewerBody::getScene() const
 {
-    return mSelf().getScene();
+    return getNonConst(*this).getScene();
 }
 
 
@@ -528,7 +528,7 @@ osg::Camera* ui3DViewerBody::getOsgCamera()
 
 const osg::Camera* ui3DViewerBody::getOsgCamera() const
 {
-    return mSelf().getOsgCamera();
+    return getNonConst(*this).getOsgCamera();
 }
 
 #if OSG_VERSION_LESS_THAN(3,3,0)
