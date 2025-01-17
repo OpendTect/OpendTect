@@ -114,7 +114,7 @@ StratSynth::DataMgr* StratSynth::DataMgr::getProdMgr()
 
 const StratSynth::DataMgr* StratSynth::DataMgr::getProdMgr() const
 {
-    return mSelf().getProdMgr();
+    return getNonConst(*this).getProdMgr();
 }
 
 
@@ -1265,19 +1265,19 @@ bool StratSynth::DataMgr::generate( SynthID id, int lmsidx,
     RefLayer::Type checktyp = RefLayer::Acoustic;
     if ( !swaveinfomsgshown_ && sgp.requiredRefLayerType() )
 	checktyp = *sgp.requiredRefLayerType();
-    mSelf().gtDSS( lmsidx ).replace( idx, nullptr );
+    getNonConst(*this).gtDSS( lmsidx ).replace( idx, nullptr );
     bool elmdlchanged = false;
     if ( !ensureElasticModels(lmsidx,checktyp,elmdlchanged,taskrun) )
 	return false;
 
     ConstRefMan<SyntheticData> newds = generateDataSet( sgp, lmsidx, taskrun );
-    mSelf().gtDSS( lmsidx ).replace( idx, newds.ptr() );
+    getNonConst(*this).gtDSS( lmsidx ).replace( idx, newds.ptr() );
     if ( newds )
     {
 	const_cast<SyntheticData&>( *newds.ptr() ).setID( id );
 	ensureLevels( lmsidx );
 	if ( elmdlchanged )
-	    mSelf().elasticModelChanged.trigger();
+	    getNonConst(*this).elasticModelChanged.trigger();
     }
 
     return newds.ptr();
@@ -1751,7 +1751,7 @@ bool StratSynth::DataMgr::ensureAdequatePropSelection( int lmsidx,
 	 !checkElasticPropSel(elpropsel,&reqtype) )
 	return false;
 
-    mSelf().setElasticPropSel( elpropsel );
+    getNonConst(*this).setElasticPropSel( elpropsel );
 
     return true;
 }
@@ -3088,7 +3088,7 @@ bool StratSynth::DataMgr::ensureInstantAttribsDataSet(
 	ConstRefMan<SyntheticData> sd =
 	    new InstAttributeSyntheticData( sgp, insd->synthGenDP(), *dpname );
 	if ( sd )
-	    mSelf().setDataSet( sgp, sd.ptr(), lmsidx );
+	    getNonConst(*this).setDataSet( sgp, sd.ptr(), lmsidx );
 	else
 	    mErrRet( tr(" synthetic data not created."), return false )
     }

@@ -186,7 +186,7 @@ ZSampling HorizonZTransform::getWorkZSampling( const ZSampling& zsamp,
 	return ret;
 
     if ( horchanged_ )
-	mSelf().calculateHorizonRange();
+	getNonConst(*this).calculateHorizonRange();
 
     if ( !isOK() )
 	return ZSampling::udf();

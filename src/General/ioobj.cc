@@ -707,7 +707,7 @@ const char* IOX::dirName() const
     if ( !ioobj )
 	return dirnm_.buf();
 
-    mSelf().dirnm_ = ioobj->dirName();
+    getNonConst(*this).dirnm_ = ioobj->dirName();
     delete ioobj;
     return dirnm_.buf();
 }

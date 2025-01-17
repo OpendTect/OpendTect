@@ -35,7 +35,8 @@ public:
 
     const TrcKeyZSampling& trcKeyZSampling() const	{ return tkzs_; }
     DistribType&	distribution();
-    const DistribType&	distribution() const { return mSelf().distribution(); }
+    const DistribType&	distribution() const
+			{ return getNonConst(*this).distribution(); }
 
     bool		fillPar(IOPar&) const;
 

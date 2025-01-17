@@ -198,7 +198,7 @@ SeisTrcReader* VolumeFunctionSource::getReader()
 
 void VolumeFunctionSource::getAvailablePositions( BinIDValueSet& bids ) const
 {
-    SeisTrcReader* velreader = mSelf().getReader();
+    SeisTrcReader* velreader = getNonConst(*this).getReader();
     if ( !velreader || !velreader->seisTranslator() )
 	return;
 

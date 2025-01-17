@@ -258,7 +258,7 @@ int IOStream::connIdxFor( int nr ) const
 Conn* IOStream::getConn( bool forread ) const
 {
     if ( isBad() )
-	mSelf().genFileName();
+	getNonConst(*this).genFileName();
     else if ( !forread && transl_ == "Blocks" )
 	return nullptr; // protect 6.X users against removing their data
 

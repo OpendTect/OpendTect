@@ -104,7 +104,7 @@ RefMan<visBase::VisualObject> ImageDisplay::createLocation() const
 {
     const StringView fnm = getFileName();
     if ( fnm.isEmpty() )
-	mSelf().needFileName.trigger();
+	getNonConst(*this).needFileName.trigger();
 
     RefMan<visBase::ImageRect> imagerct = visBase::ImageRect::create();
     imagerct->setDisplayTransformation( displaytransform_.ptr() );

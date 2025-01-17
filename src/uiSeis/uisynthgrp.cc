@@ -285,7 +285,7 @@ void uiSynthSeisSel::fillReflPars( IOPar& par ) const
 
 const uiSynthSeis* uiSynthSeisSel::current() const
 {
-    return mSelf().current();
+    return getNonConst(*this).current();
 }
 
 

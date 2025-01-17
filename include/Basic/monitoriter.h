@@ -114,7 +114,7 @@ public:
     inline		MonitorableIter4Write(const MonitorableIter4Write&);
 
     inline MonitoredObject&	edited()
-			{ return getNonConst( mSelf().monitored() ); }
+			{ return getNonConst( getNonConst(*this).monitored() ); }
 
 protected:
 

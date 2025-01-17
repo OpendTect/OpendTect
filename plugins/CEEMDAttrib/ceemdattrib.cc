@@ -218,7 +218,7 @@ bool CEEMD::computeData( const DataHolder& output, const BinID& /* relpos */,
     if ( method_ != mDecompModeEMD && !gen_ )
     {
 	auto* gen = new Stats::NormalRandGen();
-	mSelf().gen_ = gen;
+	getNonConst(*this).gen_ = gen;
     }
 
     const int inpsz = inputdata_->nrsamples_;

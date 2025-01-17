@@ -624,7 +624,7 @@ const ZDomain::Info* uiMultiZSeisSubSel::zDomain() const
 
 const uiSeisSubSel* uiMultiZSeisSubSel::getSelGrp() const
 {
-    return mSelf().getSelGrp();
+    return getNonConst(*this).getSelGrp();
 }
 
 
@@ -643,7 +643,7 @@ uiSeisSubSel* uiMultiZSeisSubSel::getSelGrp()
 const uiSeisSubSel* uiMultiZSeisSubSel::getSelGrp(
 					const ZDomain::Info* zinfo ) const
 {
-    return mSelf().getSelGrp( zinfo );
+    return getNonConst(*this).getSelGrp( zinfo );
 }
 
 

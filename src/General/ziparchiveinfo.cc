@@ -82,7 +82,7 @@ od_int64 ZipArchiveInfo::getFileCompSize( const char* fnm ) const
 	if ( filenm.matches(fileinfo->getFileName()) )
 	    return fileinfo->compsize_;
 
-    mSelf().setFileNotPresentError( fnm );
+    getNonConst(*this).setFileNotPresentError( fnm );
     return -1;
 }
 
@@ -112,7 +112,7 @@ od_int64 ZipArchiveInfo::getFileUnCompSize( const char* fnm ) const
 	if ( filenm.matches(fileinfo->getFileName()) )
 	    return fileinfo->uncompsize_;
 
-    mSelf().setFileNotPresentError( fnm );
+    getNonConst(*this).setFileNotPresentError( fnm );
     return -1;
 }
 
@@ -144,7 +144,7 @@ const ZipFileInfo* ZipArchiveInfo::getInfo( const char* fnm ) const
 	    return fileinfo;
     }
 
-    mSelf().setFileNotPresentError( fnm );
+    getNonConst(*this).setFileNotPresentError( fnm );
     return nullptr;
 }
 

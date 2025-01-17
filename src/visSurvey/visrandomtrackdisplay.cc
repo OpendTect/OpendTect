@@ -662,7 +662,7 @@ ConstRefMan<DataPack> RandomTrackDisplay::getDataPack( int attrib ) const
 ConstRefMan<VolumeDataPack> RandomTrackDisplay::getVolumeDataPack(
 							int attrib ) const
 {
-    return mSelf().getVolumeDataPack( attrib );
+    return getNonConst(*this).getVolumeDataPack( attrib );
 }
 
 
@@ -678,7 +678,7 @@ RefMan<VolumeDataPack> RandomTrackDisplay::getVolumeDataPack( int attrib )
 ConstRefMan<VolumeDataPack> RandomTrackDisplay::getDisplayedVolumeDataPack(
 							    int attrib ) const
 {
-    return mSelf().getDisplayedVolumeDataPack( attrib );
+    return getNonConst(*this).getDisplayedVolumeDataPack( attrib );
 }
 
 

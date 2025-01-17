@@ -995,7 +995,7 @@ void uiMathFormula::setFormMnemonic( const Mnemonic& mn, bool dodisp )
 
 const uiMnemonicsSel* uiMathFormula::getMnSelFld() const
 {
-    return mSelf().getMnSelFld();
+    return getNonConst(*this).getMnSelFld();
 }
 
 
@@ -1011,7 +1011,7 @@ uiMnemonicsSel* uiMathFormula::getMnSelFld()
 
 const uiUnitSel* uiMathFormula::getUnitSelFld() const
 {
-    return mSelf().getUnitSelFld();
+    return getNonConst(*this).getUnitSelFld();
 }
 
 

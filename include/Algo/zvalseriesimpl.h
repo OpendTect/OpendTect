@@ -167,7 +167,8 @@ bool ArrayZValues<AT>::operator !=( const ArrayZValues<AT>& oth ) const
 template <class AT> inline
 ValueSeries<double>* ArrayZValues<AT>::clone() const
 {
-    return new ArrayZValues<AT>( mSelf().storArr(), size(), zDomainInfo() );
+    return new ArrayZValues<AT>( getNonConst(*this).storArr(),
+				 size(), zDomainInfo() );
 }
 
 

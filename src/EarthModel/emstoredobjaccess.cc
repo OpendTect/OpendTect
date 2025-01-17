@@ -197,7 +197,7 @@ EM::EMObject* EM::StoredObjAccess::object( int iobj )
 
 const EM::EMObject* EM::StoredObjAccess::object( int iobj ) const
 {
-    return mSelf().object( iobj );
+    return getNonConst(*this).object( iobj );
 }
 
 

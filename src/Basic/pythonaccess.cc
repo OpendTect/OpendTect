@@ -154,7 +154,7 @@ void OD::PythonAccess::updatePythonPath() const
 	    if ( !fp.exists() )
 		continue;
 
-	    mSelf().addBasePath( fp );
+	    getNonConst(*this).addBasePath( fp );
 	}
     }
 }
@@ -240,7 +240,7 @@ void OD::PythonAccess::initClass()
 BufferString OD::PythonAccess::pyVersion() const
 {
     if ( pythversion_.isEmpty() )
-	mSelf().retrievePythonVersionStr();
+	getNonConst(*this).retrievePythonVersionStr();
 
     return pythversion_;
 }
@@ -278,7 +278,7 @@ uiRetVal OD::PythonAccess::isUsable( bool force, BufferString* stdoutstr,
     uiRetVal ret;
     BufferString tmpstderr;
     BufferString& stderrmsg = stderrstr ? *stderrstr : tmpstderr;
-    if ( !mSelf().isUsable_(force,ret,stdoutstr,&stderrmsg) )
+    if ( !getNonConst(*this).isUsable_(force,ret,stdoutstr,&stderrmsg) )
     {
 	uiRetVal uirv = tr("Python environment is not usable");
 	if ( !ret.isOK() )
@@ -557,7 +557,7 @@ bool OD::PythonAccess::execute( const OS::MachineCommand& cmd,
 				BufferString& stdoutstr, uiRetVal& ret,
 				BufferString* stderrstr ) const
 {
-    if ( !mSelf().isUsable_(!istested_,ret,&stdoutstr,stderrstr) )
+    if ( !getNonConst(*this).isUsable_(!istested_,ret,&stdoutstr,stderrstr) )
 	return false;
 
     ret = doExecute( cmd, nullptr, nullptr, activatefp_, virtenvnm_.buf(),
@@ -572,7 +572,7 @@ bool OD::PythonAccess::execute( const OS::MachineCommand& cmd,
 				BufferString* stdoutstr,
 				BufferString* stderrstr ) const
 {
-    if ( !mSelf().isUsable_(!istested_,ret,stdoutstr,stderrstr) )
+    if ( !getNonConst(*this).isUsable_(!istested_,ret,stdoutstr,stderrstr) )
 	return false;
 
     ret = doExecute( cmd, &pars, pid, activatefp_, virtenvnm_.buf(),
@@ -1717,7 +1717,7 @@ bool OD::PythonAccess::openTerminal( const char* cmdstr, uiRetVal& ret,
 	return false;
     }
 
-    if ( !mSelf().isUsable_(!istested_,ret) )
+    if ( !getNonConst(*this).isUsable_(!istested_,ret) )
 	return false;
 
     BufferString prognm( cmdstr );

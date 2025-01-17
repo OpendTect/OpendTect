@@ -59,8 +59,8 @@ ________________________________________________________________________
   The choice of cNoChange being zero is deliberate; the guarantee is that you
   can use a ChangeType as a boolean to see whether there is any change.
 
-  Lastly, copying of MonitoredObject needs to be done right. For this, you want to
-  use the mDeclMonitorableAssignment and mImplMonitorableAssignment macros:
+  Lastly, copying of MonitoredObject needs to be done right. For this, you want
+  to use the mDeclMonitorableAssignment and mImplMonitorableAssignment macros:
   these provide correct handling and even make your task easier than otherwise.
   To make it work, in the .cc file you have to implement a void
   copyClassData(const clss&) function. It is called already locked, and should
@@ -90,9 +90,9 @@ public:
     virtual MonitoredObject* clone() const	{ return getClone(); }
 
     virtual ChangeDataNotifier&		objectChanged() const
-					{ return mSelf().chgnotif_; }
+					{ return getNonConst(*this).chgnotif_; }
     virtual Notifier<MonitoredObject>&	objectToBeDeleted() const
-					{ return mSelf().delnotif_; }
+					{ return getNonConst(*this).delnotif_; }
     mDeclInstanceCreatedNotifierAccess(	MonitoredObject );
 					//!< defines static instanceCreated()
 
@@ -228,7 +228,8 @@ private:
     T* auxvar = chgdata.auxDataAs<T>()
 
 #define mGetMonitoredChgDataWithCaller(cb,chgdata,caller) \
-    mCBCapsuleUnpackWithCaller( MonitoredObject::ChangeData, chgdata, caller, cb )
+    mCBCapsuleUnpackWithCaller( MonitoredObject::ChangeData, chgdata, \
+				caller, cb )
 
 #define mGetMonitoredChgDataWithAuxAndCaller(cb,chgdata,T,auxvar,caller) \
     mGetMonitoredChgDataWithCaller(cb,chgdata,caller); \
@@ -247,9 +248,9 @@ private:
 
   Compare the locking with thread-locking tools:
 
-  1) The MonitoredObject has (should have) methods that make a method call sort-of
-     atomic. You call it, and are guaranteed the whole operation succeeds safely
-     without interruption.
+  1) The MonitoredObject has (should have) methods that make a method call
+     sort-of atomic. You call it, and are guaranteed the whole operation
+     succeeds safely without interruption.
 
   2) Sometimes operations on MonitoredObject's are dependent on each other. For
      example, when you are iterating through a list. If changes in the list
@@ -320,7 +321,8 @@ protected:
   the ref with another one and make sure you start monitoring the new one,
   and no longer the old one. Like in:
 
-  MonitoredObject::ChangeType ct = replaceMonitoredRef( sequence_, newseq, this );
+  MonitoredObject::ChangeType ct =
+		replaceMonitoredRef( sequence_, newseq, this );
 
   Returns whether any change is made to your ref. It checks whether the new
   object is different from the old one.
@@ -384,8 +386,9 @@ MonitoredObject::ChangeType replaceMonitoredRef( RefMan<Mon>& ref, Mon& newref,
 }
 
 template <class Mon> inline
-MonitoredObject::ChangeType replaceMonitoredRef( RefMan<Mon>& ref, RefMan<Mon>& newref,
-				CallBacker* only_for )
+MonitoredObject::ChangeType replaceMonitoredRef( RefMan<Mon>& ref,
+						 RefMan<Mon>& newref,
+						 CallBacker* only_for )
 {
     return replaceMonitoredRef( ref, newref.ptr(), only_for );
 }

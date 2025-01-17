@@ -342,7 +342,7 @@ RefMan<DataPack> PreLoadDataEntry::getDP()
 
 ConstRefMan<DataPack> PreLoadDataEntry::getDP() const
 {
-    return mSelf().getDP();
+    return getNonConst(*this).getDP();
 }
 
 

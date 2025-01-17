@@ -381,7 +381,7 @@ TimeDepthModel& TimeDepthModelSet::getDefaultModel()
 
 const TimeDepthModel* TimeDepthModelSet::get( int idx ) const
 {
-    return mSelf().get( idx );
+    return getNonConst(*this).get( idx );
 }
 
 

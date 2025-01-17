@@ -510,7 +510,7 @@ RefMan<EMTracker> Engine::getActiveTracker()
 
 ConstRefMan<EMTracker> Engine::getTrackerByID( const EM::ObjectID& emid ) const
 {
-    return mSelf().getTrackerByID( emid );
+    return getNonConst(*this).getTrackerByID( emid );
 }
 
 
@@ -576,7 +576,7 @@ bool Engine::hasEditor( const EM::ObjectID& emid ) const
 
 ConstRefMan<ObjectEditor> Engine::getEditorByID( const EM::ObjectID& id ) const
 {
-    return mSelf().getEditorByID( id );
+    return getNonConst(*this).getEditorByID( id );
 }
 
 

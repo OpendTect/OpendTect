@@ -1193,7 +1193,7 @@ bool Provider::getInputOutput( int input, TypeSet<int>& res ) const
 {
     res.erase();
 
-    RefMan<Desc> inputdesc = mSelf().getDesc().getInput( input );
+    RefMan<Desc> inputdesc = getNonConst(*this).getDesc().getInput( input );
     if ( !inputdesc )
 	return false;
 

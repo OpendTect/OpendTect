@@ -232,10 +232,10 @@ ZSampling ZAxisTransform::getZInterval( bool isfrom, bool makenice,
 
 
 const ZDomain::Info& ZAxisTransform::fromZDomainInfo() const
-{ return mSelf().fromZDomainInfo(); }
+{ return getNonConst(*this).fromZDomainInfo(); }
 
 const ZDomain::Info& ZAxisTransform::toZDomainInfo() const
-{ return mSelf().toZDomainInfo(); }
+{ return getNonConst(*this).toZDomainInfo(); }
 
 const char* ZAxisTransform::fromZDomainKey() const
 { return fromzdomaininfo_.key(); }

@@ -434,19 +434,19 @@ void Well::Data::getCheckShotModelNames( BufferStringSet& names ) const
 
 const Well::D2TModel* Well::Data::d2TModel() const
 {
-    return mSelf().d2TModel();
+    return getNonConst(*this).d2TModel();
 }
 
 
 const Well::D2TModel* Well::Data::d2TModelByName( const char* nm ) const
 {
-    return mSelf().d2TModelByName( nm );
+    return getNonConst(*this).d2TModelByName( nm );
 }
 
 
 const Well::D2TModel* Well::Data::d2TModelByIndex( int idx ) const
 {
-    return mSelf().d2TModelByIndex( idx );
+    return getNonConst(*this).d2TModelByIndex( idx );
 }
 
 
@@ -474,19 +474,19 @@ Well::D2TModel* Well::Data::d2TModelByIndex( int idx )
 
 const Well::D2TModel* Well::Data::checkShotModel() const
 {
-    return mSelf().checkShotModel();
+    return getNonConst(*this).checkShotModel();
 }
 
 
 const Well::D2TModel* Well::Data::checkShotModelByName( const char* nm ) const
 {
-    return mSelf().checkShotModelByName( nm );
+    return getNonConst(*this).checkShotModelByName( nm );
 }
 
 
 const Well::D2TModel* Well::Data::checkShotModelByIndex( int idx ) const
 {
-    return mSelf().checkShotModelByIndex( idx );
+    return getNonConst(*this).checkShotModelByIndex( idx );
 }
 
 

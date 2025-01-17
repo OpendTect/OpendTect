@@ -49,7 +49,7 @@ void uiVisColTabEd::setColTab( const ColTab::Sequence* seq, bool editseq,
 
 ConstRefMan<visBase::DataObject> uiVisColTabEd::getDataObj() const
 {
-    return mSelf().getDataObj();
+    return getNonConst(*this).getDataObj();
 }
 
 

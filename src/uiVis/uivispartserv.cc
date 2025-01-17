@@ -475,7 +475,7 @@ VisID uiVisPartServer::highestID() const
 
 const visBase::DataObject* uiVisPartServer::getObject( const VisID& id ) const
 {
-    return mSelf().getObject( id );
+    return getNonConst(*this).getObject( id );
 }
 
 
@@ -1818,7 +1818,7 @@ visSurvey::Scene* uiVisPartServer::getScene( const SceneID& sceneid )
 
 const visSurvey::Scene* uiVisPartServer::getScene( const SceneID& sceneid) const
 {
-    return mSelf().getScene( sceneid );
+    return getNonConst(*this).getScene( sceneid );
 }
 
 

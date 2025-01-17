@@ -728,7 +728,7 @@ const char* Well::Log::mnemonicLabel() const
 const Mnemonic* Well::Log::mnemonic( bool setifnull ) const
 {
     if ( !mn_ && setifnull )
-	return mSelf().guessMnemonic();
+	return getNonConst(*this).guessMnemonic();
 
     return mn_;
 }
@@ -987,9 +987,10 @@ Well::Log* Well::Log::createSampledLog( const StepInterval<float>& dahrg,
     Well::Log* wl = new Well::Log;
     StepInterval<float> outdahrg( dahrg );
     outdahrg.sort();
-    outdahrg.stop_ = Math::Floor( outdahrg.stop_/outdahrg.step_ ) * outdahrg.step_;
+    outdahrg.stop_ =
+		Math::Floor( outdahrg.stop_/outdahrg.step_ ) * outdahrg.step_;
     outdahrg.start_ =
-            Math::Floor( outdahrg.start_/outdahrg.step_ ) * outdahrg.step_;
+		Math::Floor( outdahrg.start_/outdahrg.step_ ) * outdahrg.step_;
     const int nr = outdahrg.nrSteps() + 1;
     for (int idx=0; idx<nr; idx++ )
     {

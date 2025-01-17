@@ -142,8 +142,6 @@ inline T& getNonConst( const T& t )
 #define rCast(tp,v)		reinterpret_cast< tp >( v )
 #define sCast(tp,v)		static_cast< tp >( v )
 
-#define mSelf()         getNonConst( *this )
-
 #ifdef __win32__
 # define mUseType(scope,typ)            typedef scope::typ typ
 #else

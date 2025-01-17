@@ -41,7 +41,7 @@ void uiZAxisTransform::enableTargetSampling()
 
 bool uiZAxisTransform::fillPar( IOPar& par ) const
 {
-    ConstRefMan<ZAxisTransform> transf = mSelf().getSelection();
+    ConstRefMan<ZAxisTransform> transf = getNonConst(*this).getSelection();
     if ( !transf )
 	return false;
 

@@ -84,7 +84,7 @@ VisID DataManager::highestID() const
 
 const DataObject* DataManager::getObject( const VisID& id ) const
 {
-    return mSelf().getObject( id );
+    return getNonConst(*this).getObject( id );
 }
 
 
@@ -179,7 +179,7 @@ int DataManager::nrObjects() const
 
 const DataObject* DataManager::getIndexedObject( int idx ) const
 {
-    return mSelf().getIndexedObject( idx );
+    return getNonConst(*this).getIndexedObject( idx );
 }
 
 

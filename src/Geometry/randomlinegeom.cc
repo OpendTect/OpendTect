@@ -781,7 +781,7 @@ RandomLine* RandomLineManager::get( const RandomLineID& id )
 
 
 const RandomLine* RandomLineManager::get( const RandomLineID& id ) const
-{ return mSelf().get( id ); }
+{ return getNonConst(*this).get( id ); }
 
 
 bool RandomLineManager::isLoaded( const MultiID& mid ) const

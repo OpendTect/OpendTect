@@ -559,7 +559,7 @@ RefMan<visSurvey::EMObjectDisplay> uiVisEMObject::getDisplay()
 ConstRefMan<visSurvey::HorizonDisplay>
 uiVisEMObject::getHorizon3DDisplay() const
 {
-    return mSelf().getHorizon3DDisplay();
+    return getNonConst(*this).getHorizon3DDisplay();
 }
 
 
@@ -575,7 +575,7 @@ RefMan<visSurvey::HorizonDisplay> uiVisEMObject::getHorizon3DDisplay()
 ConstRefMan<visSurvey::Horizon2DDisplay>
 uiVisEMObject::getHorizon2DDisplay() const
 {
-    return mSelf().getHorizon2DDisplay();
+    return getNonConst(*this).getHorizon2DDisplay();
 }
 
 
