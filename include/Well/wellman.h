@@ -105,6 +105,7 @@ public:
     WeakPtrSet<Data>&	wells()			{ return wells_; }
 
     bool		deleteLogs(const MultiID&,const BufferStringSet&);
+    bool		deleteMarkers(const MultiID&,const BufferStringSet&);
     static bool		renameLog(const TypeSet<MultiID>&,const char* oldnm,
 							  const char* newnm);
     static bool		getWellKeys(TypeSet<MultiID>&,bool onlyloaded=false);

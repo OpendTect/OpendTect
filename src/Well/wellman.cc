@@ -701,6 +701,37 @@ bool Well::Man::deleteLogs( const MultiID& key,
 }
 
 
+bool Well::Man::deleteMarkers( const MultiID& key,
+			    const BufferStringSet& markerstodel )
+{
+    const LoadReqs loadreq( Mrkrs );
+    RefMan<Data> wd = get( key, loadreq );
+    if ( !wd )
+	return false;
+
+    MarkerSet& markers = wd->markers();
+    for ( const auto* markernm : markerstodel )
+    {
+	const int idx = markers.indexOf( *markernm );
+	if ( idx < 0 )
+	    continue;
+
+	NotifyStopper ns( wd->markerschanged );
+	delete markers.removeSingle( idx );
+    }
+
+    Writer wwr( wd->multiID(), *wd );
+    if ( !wwr.putMarkers() )
+    {
+	errmsg_ = wwr.errMsg();
+	return false;
+    }
+
+    wd->markerschanged.trigger();
+    return true;
+}
+
+
 bool Well::Man::getAllLogNames( BufferStringSet& lognms, bool onlyloaded )
 {
     lognms.setEmpty();
