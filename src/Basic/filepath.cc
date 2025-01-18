@@ -537,7 +537,7 @@ BufferString FilePath::dirUpTo( int lvl ) const
 	ret.set( prefix_ );
 	if ( isuri )
 	    ret.add( uriProtocolSeparator() ).add( domain_ );
-	else
+	else if ( !isServerPath(prefix_.buf()) )
 	    ret.add( sPrefSep );
     }
     if ( lvl < 0 )
