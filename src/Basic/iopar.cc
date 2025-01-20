@@ -1329,8 +1329,8 @@ void IOPar::getFrom( ascistream& strm )
     }
 
     majorversion_ = strm.majorVersion();
-    minorversion_ = strm.minorVersion();
-    patchversion_ = strm.patchVersion();
+    minorversion_ = mIsUdf(strm.minorVersion()) ? 0 : strm.minorVersion();
+    patchversion_ = mIsUdf(strm.patchVersion()) ? 0 : strm.patchVersion();
 }
 
 
