@@ -142,8 +142,9 @@ int SEGY::TxtHeader::setGeneralInfo( const char* datanm )
     int lnr = 0;
     BufferString str;
     str = "SEG-Y exported from OpendTect "; str += GetFullODVersion();
-    str += " at "; str += Time::getDateTimeString(Time::defDateTimeTzFmt());
     putAt( ++lnr, sDefStartPos, 75, str );
+    putAt( ++lnr, sDefStartPos, 75, "Date:" );
+    putAt( lnr, 21, 75, Time::getDateTimeString(Time::defDateTimeTzFmt()) );
     putAt( ++lnr, sDefStartPos, 75, "Survey:" );
     putAt( lnr, 21, 75, SI().name() );
 
