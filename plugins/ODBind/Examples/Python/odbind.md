@@ -7,7 +7,7 @@ jupyter:
       extension: .md
       format_name: markdown
       format_version: '1.3'
-      jupytext_version: 1.14.0
+      jupytext_version: 1.14.5
   kernelspec:
     display_name: Python 3 (ipykernel)
     language: python
@@ -41,8 +41,7 @@ f3demo = Survey('F3_Demo_2020')
 dsmf = Seismic3D(f3demo, '4 Dip steered median filter')
 
 fig, axs = plt.subplots(figsize=(25,5), ncols=3)
-for iln, ax in zip(dsmf.iline[200:400:100],axs):
-    xriln = dsmf.as_xarray(*iln)
+for xriln, ax in zip(dsmf.iline[200:400:100],axs):
     xr.plot.imshow(xriln['mdf2'], ax=ax, x='xline', y='twt', yincrease=False, cmap='Greys')
 ```
 
@@ -52,7 +51,7 @@ Well.names(f3demo)
 ```
 
 ```python
-Well.infos_dataframe(f3demo)
+Well.infos(f3demo)
 ```
 
 ```python

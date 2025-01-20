@@ -36,20 +36,20 @@ odGeom2D::odGeom2D( const odSurvey& survey, const char* name, bool overwrite )
     : odSurveyObject(survey, name, nullptr, overwrite)
 {
     Pos::GeomID geomid = Survey::GM().getGeomID( name );
-    if (  !geomid.isValid() )
+    if ( geomid.isUdf() )
     {
 	auto* l2d = new PosInfo::Line2DData( name );
-	auto* newgeom = new Survey::Geometry2D( l2d );
+	RefMan<Survey::Geometry2D> newgeom = new Survey::Geometry2D( l2d );
 	uiString msg;
-	geomid = Survey::GMAdmin().addNewEntry( newgeom, msg );
+	geomid = Survey::GMAdmin().addNewEntry( newgeom.ptr(), msg );
 	if ( !Survey::is2DGeom(geomid) )
 	    errmsg_ = BufferString( "Cannot add new geometry: ",
 				    msg.getString() );
     }
     else if ( overwrite )
     {
-	mDynamicCastGet( Survey::Geometry2D*, geom2d,
-			 Survey::GMAdmin().getGeometry(geomid) );
+	RefMan<Survey::Geometry2D> geom2d = static_cast<Survey::Geometry2D*>(
+					Survey::GMAdmin().getGeometry(geomid) );
 	if ( geom2d )
 	{
 	    geom2d->dataAdmin().setEmpty();
@@ -149,7 +149,7 @@ void odGeom2D::putData( int32_t numpos, const int32_t* trcnrs,
     geom2d->touch();
 
     uiString errmsg;
-    if ( !Survey::GMAdmin().write(*geom2d,errmsg) )
+    if ( !Survey::GMAdmin().write(*geom2d, errmsg) )
 	errmsg_ = errmsg.getString();
 
 }

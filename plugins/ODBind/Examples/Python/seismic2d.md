@@ -6,7 +6,7 @@ jupyter:
       extension: .md
       format_name: markdown
       format_version: '1.3'
-      jupytext_version: 1.14.0
+      jupytext_version: 1.14.5
   kernelspec:
     display_name: Python 3 (ipykernel)
     language: python
@@ -85,7 +85,7 @@ data.line_names
 ```
 
 ### Seismic2D.line_info functions
-This returns a Pandas DataFrame or a list of dictionaries (depending on the value od Seismic2D.use_dataframe) with basic information for the listed lines (or all lines if no list provided) in this 2D dataset.
+This returns a Pandas DataFrame or a list of dictionaries (depending on the value of Seismic2D.use_dataframe) with basic information for the listed lines (or all lines if no list provided) in this 2D dataset.
 
 ```python
 data.line_info()
@@ -136,17 +136,26 @@ Geom2D.names(f3demo)
 
 ## Static methods
 A number of methods are provided to get information either for all or a selected number of 2D seismic datasets in the user provided survey.
+### Seismic2D.names() function
+Return a list of the 2D seismic datasets in the given survey.
 
 ```python
 datasets = Seismic2D.names(f3demo)
 datasets
 ```
 
-### Seismic2D.infos() and Seismic2D.infos_dataframe() functions
-These return a dictionary and a Pandas DataFrame respectively with basic information for the listed 2D seismic datasets (or all datasets if no list provided) in the given survey.
+### Seismic2D.infos() function
+These return a dictionary or a Pandas DataFrame (depending on the value of Seismic2D.use_dataframe) with basic information for the listed 2D seismic datasets (or all datasets if no list provided) in the given survey.
 
 ```python
 Seismic2D.infos(f3demo)
+```
+
+### Seismic2D.names_for_line
+Returna list of the Seismic2D datasets in the given survey containing the given line
+
+```python
+Seismic2D.names_for_line(f3demo, 'SSIS-Grid-Strike1')
 ```
 
 ### Seismic2D.features() function

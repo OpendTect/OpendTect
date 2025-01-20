@@ -57,7 +57,7 @@ Fault3D.names(f3demo)
 ```
 
 ```python
-Fault3D.infos_dataframe(f3demo)
+Fault3D.infos(f3demo)
 ```
 
 ```python

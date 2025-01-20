@@ -45,6 +45,7 @@ public:
     odSeismic2D& operator= (const odSeismic2D&) = delete;
 
     void		close();
+    bool		isPresent(const char*) const;
     int			getNrLines() const;
     BufferStringSet*	getLineNames() const;
     void		getLineInfo(OD::JSON::Array&,
@@ -61,6 +62,7 @@ public:
     void		getPoints(OD::JSON::Array&, bool towgs) const override;
 
     static const char*	translatorGrp()		{return "2D Seismic Data";}
+    static BufferStringSet*	namesForLine(const odSurvey&, const char* line);
 
 protected:
     Seis2DDataSet*		seisdata_ptr() const;
@@ -90,7 +92,7 @@ mExternC(ODBind) void		seismic2d_putdata(hSeismic2D, const char*,
 						  const int32_t* trcnrs);
 mExternC(ODBind) bool		seismic2d_deletelines(hSeismic2D,
 						      const hStringSet);
-
+mExternC(ODBind) hStringSet	seismic2d_names_for(hSurvey, const char* line);
 
 
 

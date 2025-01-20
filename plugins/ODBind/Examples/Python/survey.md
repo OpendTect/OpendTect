@@ -6,7 +6,7 @@ jupyter:
       extension: .md
       format_name: markdown
       format_version: '1.3'
-      jupytext_version: 1.14.0
+      jupytext_version: 1.14.5
   kernelspec:
     display_name: Python 3 (ipykernel)
     language: python
@@ -25,7 +25,7 @@ If this notebook is not opened from OpendTect then the following paths should be
 #sys.path.insert(0,odpy_path)
 ```
 
-```python tags=[]
+```python
 import odbind as odb
 from odbind.survey import Survey
 ```
@@ -58,7 +58,8 @@ penobscot = Survey('Penobscot')
 Returns basic information for a survey in a Python dictionary
 
 ```python
-print(f'F3Demo: {f3demo.info()} \nPenobscot: {penobscot.info()}')
+print(f'F3Demo: {f3demo.info()}')
+print(f'Penobscot: {penobscot.info()}')
 ```
 
 ### Survey.bin(), Survey.bincoords() and Survey.coords() functions
@@ -132,6 +133,10 @@ features_map
 ```
 
 ## Object Interface
+
+```python
+Survey.trgroups()
+```
 
 ```python
 f3demo.get_object_names('Well')

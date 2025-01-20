@@ -6,7 +6,7 @@ jupyter:
       extension: .md
       format_name: markdown
       format_version: '1.3'
-      jupytext_version: 1.14.0
+      jupytext_version: 1.14.5
   kernelspec:
     display_name: Python 3 (ipykernel)
     language: python
@@ -20,6 +20,7 @@ jupyter:
 
 ```python
 #import os
+#os.environ['DTECT_DEBUG'] = 'Y'
 #import sys
 #odpy_path = '/home/wayne/Work/WMSeismicSolutions/dGB/Development/Build/bin/odmain/bin/python'
 #sys.path.insert(0,odpy_path)
@@ -43,13 +44,14 @@ The user must create a **Geom2D** object to access a specific 2D seismic line ge
 
 ```python
 f3demo = Survey('F3_Demo_2020')
+f3demo.info()
 ```
 
 ### Geom2D.info() function
 Returns basic information for a 2D seismic line in a Python dictionary
 
 ```python
-line = Geom2D(f3demo, 'SSIS-Grid-Dip1')
+line = Geom2D(f3demo, 'SSIS-Grid-Dip2')
 line.info()
 ```
 
@@ -63,7 +65,7 @@ feature
 
 ```python
 import folium
-datamap = folium.Map(location=[52.3,8.0], tiles="openstreetmap", zoom_start = 6, min_lat=-90, max_lat=90, min_lon=-180, max_lon=180, max_bounds=True, maxBoundsViscosity=1)
+datamap = folium.Map(location=[52.3,8.0], zoom_start = 6, min_lat=-90, max_lat=90, min_lon=-180, max_lon=180, max_bounds=True, maxBoundsViscosity=1)
 folium.GeoJson(feature, popup=folium.GeoJsonPopup(fields=['name'])).add_to(datamap)
 datamap
 ```
@@ -83,11 +85,11 @@ datasets = Geom2D.names(f3demo)
 datasets
 ```
 
-### Geom2D.infos() and Geom2D.infos_dataframe() functions
-These return a dictionary and a Pandas DataFrame respectively with basic information for the listed 2D seismic line geometries (or all lines if no list provided) in the given survey.
+### Geom2D.infos() function
+This returns a dictionary or a Pandas DataFrame (depending on the value of Geom2D.use_dataframe) with basic information for the listed 2D seismic line geometries (or all lines if no list provided) in the given survey.
 
 ```python
-Geom2D.infos_dataframe(f3demo)
+Geom2D.infos(f3demo)
 ```
 
 ### Geom2D.features() function
@@ -104,4 +106,8 @@ import folium
 datamap = folium.Map(location=[52.3,8.0], tiles="openstreetmap", zoom_start = 6, min_lat=-90, max_lat=90, min_lon=-180, max_lon=180, max_bounds=True, maxBoundsViscosity=1)
 folium.GeoJson(features, popup=folium.GeoJsonPopup(fields=['name'])).add_to(datamap)
 datamap
+```
+
+```python
+
 ```

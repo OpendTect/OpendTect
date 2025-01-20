@@ -184,8 +184,10 @@ def test_Seismic3D_class(survey):
     with Seismic3D.create(survey, 'pytest_create', inlrg, crlrg, zrg, data_info['comp'], 'CBVS', zistime, True) as trctest:
         trctest.trace[:] = test.trace[idx:stop]
     trctest = Seismic3D(survey, 'pytest_create')
-    xrtest = trctest.volume[:,:,:]
-    xr.testing.assert_allclose(xrdata.sel(iline=xrtest.iline, xline=xrtest.xline), xrtest)
+    for xrtrc in test.trace[idx:stop]:
+        inl = int(xrtrc.iline.data[()])
+        crl = int(xrtrc.xline.data[()])
+        xr.testing.assert_allclose(xrtrc, trctest.trace[inl,crl])
 
     inl0 = random.randint(inlrg[0], inlrg[1])
     inl1 = min(inl0+5*inlrg[2], inlrg[1])

@@ -137,6 +137,7 @@ mExternC(ODBind) void		survey_createobj(hSurvey, const char* name,
 						 bool overwrite);
 mExternC(ODBind) hStringSet	survey_getobjnames(hSurvey,
 						   const char* trgrpnm);
+mExternC(ODBind) hStringSet	survey_trgroups();
 
 mExternC(ODBind) const char*	survey_info(hSurvey);
 mExternC(ODBind) const char*	survey_errmsg(hSurvey);

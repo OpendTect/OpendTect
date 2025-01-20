@@ -57,7 +57,7 @@ FaultStickSet.names(f3demo)
 ```
 
 ```python
-FaultStickSet.infos_dataframe(f3demo)
+FaultStickSet.infos(f3demo)
 ```
 
 ```python

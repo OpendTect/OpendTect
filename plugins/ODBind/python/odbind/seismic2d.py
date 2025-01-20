@@ -27,6 +27,7 @@ class Seismic2D(_SurveyObject):
                     ]
         clss._putdata = wrap_function(LIBODB, f'{bindnm}_putdata', None, putdataargs)
         clss._dellines = wrap_function(LIBODB, f'{bindnm}_deletelines', ct.c_bool, [ct.c_void_p, ct.c_void_p])
+        clss._namesfor = wrap_function(LIBODB, f'{bindnm}_names_for', ct.c_void_p, [ct.c_void_p, ct.c_char_p])
 
     def __init__(self, survey: Survey, name: str):
         """Initialise an OpendTect 2D seismic dataset object
@@ -353,9 +354,21 @@ class Seismic2D(_SurveyObject):
         stringset_del(linenmsptr)
         return res
 
+    @classmethod
+    def names_for_line(clss, survey: Survey, line: str) ->list[str]:
+        """Return the Seismic2D names with the given line name
+        Parameters
+        ----------
+        survey : Survey
+            the target survey
+        line : str
+            the target line name
 
-
-
+        Returns
+        -------
+        list[str] : the Seismic2D names contianing the line
+        """
+        return pystrlist(clss._namesfor(survey._handle, line.encode()))
 
 Seismic2D._initbindings('seismic2d')
 

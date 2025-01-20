@@ -6,7 +6,7 @@ jupyter:
       extension: .md
       format_name: markdown
       format_version: '1.3'
-      jupytext_version: 1.16.1
+      jupytext_version: 1.14.5
   kernelspec:
     display_name: Python 3 (ipykernel)
     language: python
@@ -41,7 +41,7 @@ The user must create a **Seismic3D** object to access a specific volume. There a
 
 
 ```python
-f3demo = Survey('F3_Demo_2020')
+f3demo = Survey('F3_Demo_2023')
 ```
 
 ### Seismic3D.info() function
@@ -244,4 +244,8 @@ import folium
 volmap = folium.Map(location=[54.2,5.0], zoom_start = 8)
 folium.GeoJson(features, popup=folium.GeoJsonPopup(fields=['name'])).add_to(volmap)
 volmap
+```
+
+```python
+
 ```
