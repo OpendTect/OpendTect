@@ -136,14 +136,14 @@ odHorizon3D::~odHorizon3D()
 }
 
 
-EM::Horizon3D* odHorizon3D::getHorizonObj( bool create)
+EM::Horizon3D* odHorizon3D::getHorizonObj( bool create )
 {
     ConstPtrMan<IOObj> ioobj( ioobj_ptr() );
     if ( !ioobj )
 	return nullptr;
 
     const EM::IOObjInfo eminfo( ioobj.ptr() );
-    EM::Horizon3D* hor3d;
+    EM::Horizon3D* hor3d = nullptr;
     if ( eminfo.isOK() && EM::isHorizon(eminfo.type()) )
     {
 	const MultiID hor3dkey = ioobj->key();
