@@ -79,7 +79,7 @@ def test_Well_class():
                                     'FS1',
                                     'MMU'
                                 ]
-    assert well.marker_info(['FS6']) == [{'name': 'FS6', 'color': '#ffffff', 'dah': 856.0800170898438}]
+    assert well.marker_info(['FS6']) == [{'name': 'FS6', 'color': '#ffaa00', 'dah': 856.0800170898438}]
     assert well.track()['tvdss'][9] == pytest.approx(965.8301, rel=0.01)
     assert well.track()['x'][9] == pytest.approx(623255.70, rel=0.01)
     assert well.track()['y'][9] == pytest.approx(6082596.34, rel=0.01)
