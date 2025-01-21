@@ -135,11 +135,6 @@ set( OD_MODULE_GUI_PROGS
 	od_uiReportIssue.cc
 )
 
-if( WIN32 )
-    list( APPEND OD_ELEVATED_PERMISSIONS_GUI_PROGS od_runinst.cc )
-    set( RC_od_runinst_DESC "OpendTect Installer" )
-endif( WIN32 )
-
 if ( OD_ENABLE_BREAKPAD )
     list ( APPEND OD_MODULE_TESTPROGS test_breakpad.cc )
 endif()
