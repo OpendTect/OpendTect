@@ -25,6 +25,7 @@ ________________________________________________________________________
 #include "uifileinput.h"
 #include "uimsg.h"
 #include "trckeyzsampling.h"
+#include "genc.h"
 #include "keystrs.h"
 #include "ioman.h"
 #include "oddirs.h"
@@ -69,7 +70,7 @@ uiMadagascarMain::uiMadagascarMain( uiParent* p )
     batchfld_ = new uiBatchJobDispatcherSel( this, false,
 					     Batch::JobSpec::NonODBase );
     batchfld_->attach( ensureBelow, maingrp );
-    batchfld_->jobSpec().prognm_ = "od_madexec";
+    batchfld_->jobSpec().prognm_ = GetODApplicationName( "od_madexec" );
     batchfld_->setJobName( "Mad_Proc" );
 
     updateCaption();

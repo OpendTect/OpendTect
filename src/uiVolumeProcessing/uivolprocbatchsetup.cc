@@ -30,11 +30,24 @@ ________________________________________________________________________
 #include "uitaskrunner.h"
 #include "uivolprocchain.h"
 
+namespace Batch
+{
+
+VolMMProgDef::VolMMProgDef()
+  : MMProgDef( "od_SeisMMBatch" )
+{}
+
+
+VolMMProgDef::~VolMMProgDef()
+{}
+
+} // namespace Batch
 
 namespace VolProc
 {
 
-uiBatchSetup::uiBatchSetup( uiParent* p, const IOObj* initialsetup, bool is2d )
+    uiBatchSetup::uiBatchSetup( uiParent* p,
+				    const IOObj* initialsetup, bool is2d )
     : uiDialog(p,uiDialog::Setup(tr("Volume Builder %1: Create output")
 				   .arg(is2d?"2D":"3D"),
 				 mNoDlgTitle,

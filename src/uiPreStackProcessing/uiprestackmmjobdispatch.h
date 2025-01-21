@@ -17,7 +17,8 @@ namespace Batch
 class PreStackMMProgDef : public MMProgDef
 {
 public:
-			PreStackMMProgDef() : MMProgDef("od_PreStackMMBatch") {}
+			PreStackMMProgDef();
+			~PreStackMMProgDef();
 
     bool		isSuitedFor(const char*) const override;
     bool		canHandle(const JobSpec&) const override;

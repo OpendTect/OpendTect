@@ -21,7 +21,7 @@ namespace SEGY
 
 namespace IO
 {
-    inline const char* sProgname()	{ return "od_process_segyio"; }
+    inline const char* sProgname();
     inline const char* sKeyExport()	{ return "Export"; }
     inline const char* sKeyImport()	{ return "Import"; }
     inline const char* sKeyIndexPS()	{ return "Index Pre-Stack"; }

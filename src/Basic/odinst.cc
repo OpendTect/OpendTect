@@ -12,6 +12,7 @@ ________________________________________________________________________
 #include "dirlist.h"
 #include "file.h"
 #include "filepath.h"
+#include "genc.h"
 #include "oddirs.h"
 #include "odplatform.h"
 #include "envvars.h"
@@ -39,6 +40,81 @@ ________________________________________________________________________
 #  include <QProcess>
 # endif
 #endif
+
+namespace ODIsnt
+{
+
+const char* sKeyODExecNm( bool addexe )
+{
+    mDeclStaticString(ret);
+    ret = GetODApplicationName( "od_main" );
+    if ( addexe )
+	ret += ".exe";
+
+    return ret.str();
+}
+
+
+const char* sKeyODInstMgrExecNm( bool addexe )
+{
+    mDeclStaticString(ret);
+    ret = GetODApplicationName( "od_instmgr" );
+    if ( addexe )
+	ret += ".exe";
+
+    return ret.str();
+}
+
+
+const char* sKeyODBatchHostsExecNm( bool addexe )
+{
+    mDeclStaticString(ret);
+    ret = GetODApplicationName( "od_BatchHosts" );
+    if ( addexe )
+	ret += ".exe";
+
+    return ret.str();
+}
+
+
+const char* sKeyODLicInstallExecNm( bool addexe )
+{
+    mDeclStaticString(ret);
+    ret = GetODApplicationName( "od_LicInstall" );
+    if ( addexe )
+	ret += ".exe";
+
+    return ret.str();
+}
+
+
+const char* sKeyODRemSerMgrExecNm( bool addexe )
+{
+    mDeclStaticString( ret );
+    ret = GetODApplicationName( "od_RemoteServiceMgr" );
+    if ( addexe )
+	ret += ".exe";
+
+    return ret.str();
+}
+
+
+const char* sKeyODFirewallExecNm()
+{
+    mDeclStaticString( ret );
+    ret = GetODApplicationName( "od_FirewallProcSetter.exe" );
+    return ret.str();
+}
+
+
+const char* sKeyODProgressViewerExecNm()
+{
+    mDeclStaticString( ret );
+    ret = GetODApplicationName( "od_ProgressViewer" );
+    return ret.str();
+}
+
+}
 
 mDefineNameSpaceEnumUtils(ODInst,AutoInstType,"Auto update")
 { "Manager", "Inform", "Full", "None", 0 };
@@ -118,17 +194,17 @@ static OS::MachineCommand getFullMachComm( const char* reldir )
     FilePath installerfp( getInstallerPlfDir() );
     if ( !File::isDirectory(installerfp.fullPath()) )
 	return mc;
-    if ( __iswin__ )
-	installerfp.add( "od_instmgr.exe" );
+    if (__iswin__)
+	installerfp.add( ODInst::sKeyODInstMgrExecNm(true) );
     else if( __ismac__ )
-	installerfp.add( "od_instmgr" );
+	installerfp.add( ODInst::sKeyODInstMgrExecNm() );
     else if ( __islinux__ )
     {
 	installerfp.add( "run_installer" );
 	if ( !installerfp.exists() )
 	{
 	    FilePath odinstmgrfp( installerfp );
-	    odinstmgrfp.setFileName( "od_instmgr" );
+	    odinstmgrfp.setFileName( ODInst::sKeyODInstMgrExecNm() );
 	    if ( odinstmgrfp.exists() )
 		installerfp = odinstmgrfp;
 	}

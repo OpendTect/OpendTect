@@ -37,6 +37,7 @@ ________________________________________________________________________
 #endif
 
 #include "oddirs.h"
+#include "odinst.h"
 
 static const char* sKeyPrimaryHost()
 { return OS::MachineCommand::sKeyPrimaryHost(); }
@@ -312,8 +313,10 @@ bool BatchProgram::initLogging()
 
     if ( hasviewprogress && res.isEqual("window") )
     {
+	const BufferString odprogviewerappnm =
+				    ODInst::sKeyODProgressViewerExecNm();
 	OS::MachineCommand mc(
-	    FilePath(GetExecPlfDir()).add("od_ProgressViewer").fullPath() );
+	    FilePath(GetExecPlfDir()).add(odprogviewerappnm).fullPath() );
 	mc.addArg( GetPID() );
 	//TODO: make this work, it won't work without an actual log file
 

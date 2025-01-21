@@ -21,6 +21,7 @@ ________________________________________________________________________
 #include "commandlineparser.h"
 #include "envvars.h"
 #include "file.h"
+#include "genc.h"
 #include "ioman.h"
 #include "keyboardevent.h"
 #include "mouseevent.h"
@@ -867,7 +868,7 @@ bool uiMain::directRendering()
     if ( directrendering )
 	return directrendering == 1;
 
-    OS::MachineCommand cmd( "od_glxinfo" );
+    OS::MachineCommand cmd( GetODApplicationName("od_glxinfo") );
     BufferString stdoutstr;
     if ( !cmd.execute(stdoutstr) || stdoutstr.isEmpty() )
 	return false;

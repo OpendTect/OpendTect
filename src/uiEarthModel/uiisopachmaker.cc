@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "emsurfaceauxdata.h"
 #include "emsurfacetr.h"
 #include "executor.h"
+#include "genc.h"
 #include "iopar.h"
 #include "isopachmaker.h"
 #include "multiid.h"
@@ -137,7 +138,7 @@ uiIsochronMakerBatch::uiIsochronMakerBatch( uiParent* p )
     batchfld_ = new uiBatchJobDispatcherSel( this, false,
 					     Batch::JobSpec::NonODBase );
     batchfld_->attach( alignedBelow, grp_ );
-    batchfld_->jobSpec().prognm_ = "od_isopach";
+    batchfld_->jobSpec().prognm_ = GetODApplicationName( "od_isopach" );
 }
 
 

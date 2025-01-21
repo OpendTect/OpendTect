@@ -17,7 +17,9 @@ namespace Batch
 class SeisMMProgDef : public MMProgDef
 { mODTextTranslationClass(SeisMMProgDef)
 public:
-			SeisMMProgDef() : MMProgDef("od_SeisMMBatch")	{}
+			SeisMMProgDef();
+			~SeisMMProgDef();
+
     bool		isSuitedFor(const char*) const override;
     bool		canHandle(const JobSpec&) const override;
     bool		canResume(const JobSpec&) const override;

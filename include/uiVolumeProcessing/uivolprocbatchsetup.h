@@ -66,7 +66,8 @@ namespace Batch
 class VolMMProgDef : public MMProgDef
 {
 public:
-			VolMMProgDef() : MMProgDef( "od_SeisMMBatch" )	{}
+			VolMMProgDef();
+			~VolMMProgDef();
     bool		isSuitedFor(const char*) const override;
     bool		canHandle(const JobSpec&) const override;
     static const char*	sKeyNeedsFullVolYN()	{ return "NeedsFullVol"; }

@@ -9,6 +9,7 @@ ________________________________________________________________________
 
 #include "uiseiscopy.h"
 
+#include "genc.h"
 #include "ioman.h"
 #include "keystrs.h"
 #include "od_helpids.h"
@@ -27,8 +28,12 @@ ________________________________________________________________________
 #include "uiseistransf.h"
 #include "uitaskrunner.h"
 
-static const char* sProgName = "od_copy_seis";
-
+const char* uiSeisCopyCube::copyCubeProgName()
+{
+    mDeclStaticString( ret );
+    ret = GetODApplicationName( "od_copy_seis" );
+    return ret.str();
+}
 
 uiSeisCopyCube::uiSeisCopyCube( uiParent* p, const IOObj* startobj )
     : uiDialog(p,Setup(tr("Copy cube"),mNoDlgTitle,mODHelpKey(mSeisCopyHelpID)))
@@ -60,7 +65,7 @@ uiSeisCopyCube::uiSeisCopyCube( uiParent* p, const IOObj* startobj )
     outfld_ = new uiSeisSel( this, outctxt, sssu );
     outfld_->attach( alignedBelow, transffld_ );
 
-    Batch::JobSpec js( sProgName );
+    Batch::JobSpec js( copyCubeProgName() );
     js.execpars_.needmonitor_ = true;
     batchfld_ = new uiBatchJobDispatcherSel( this, true, js );
     batchfld_->attach( alignedBelow, outfld_ );
@@ -242,7 +247,8 @@ uiSeisCopy2DDataSet::uiSeisCopy2DDataSet( uiParent* p, const IOObj* obj,
     outpfld_ = new uiSeisSel( this, ioctxt, sssu );
     outpfld_->attach( alignedBelow, scalefld_ );
 
-    Batch::JobSpec js( sProgName ); js.execpars_.needmonitor_ = true;
+    Batch::JobSpec js( uiSeisCopyCube::copyCubeProgName() );
+    js.execpars_.needmonitor_ = true;
     batchfld_ = new uiBatchJobDispatcherSel( this, true, js );
     batchfld_->attach( alignedBelow, outpfld_ );
 

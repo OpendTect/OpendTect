@@ -14,7 +14,7 @@ ________________________________________________________________________
 #include "filepath.h"
 #include "keystrs.h"
 #include "oddirs.h"
-
+#include "odinst.h"
 
 mDefineEnumUtils(ProcDesc::DataEntry,Type,"Type")
 { ProcDesc::DataEntry::sKeyODv6(), ProcDesc::DataEntry::sKeyPython(), 0 };
@@ -260,7 +260,7 @@ void ProcDesc::Data::getProcData( BufferStringSet& nms, uiStringSet& descs,
 
     if ( type == DataEntry::OD )
     {
-	int idx = nms.indexOf( sKeyODExecNm() );
+	int idx = nms.indexOf( ODInst::sKeyODExecNm() );
 
 	if ( idx <  0 )
 	    return;

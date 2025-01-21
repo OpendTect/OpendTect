@@ -21,6 +21,7 @@ ________________________________________________________________________
 #include "executor.h"
 #include "file.h"
 #include "filepath.h"
+#include "genc.h"
 #include "ioman.h"
 #include "iopar.h"
 #include "iostrm.h"
@@ -367,7 +368,9 @@ bool uiClusterJobProv::acceptOK( CallBacker* )
 	execmsg.append( tr("Execute now?"), true );
 	if ( uiMSG().askGoOn(execmsg) )
 	{
-	    OS::MachineCommand machcomm( "od_ClusterProc" );
+	    OS::MachineCommand machcomm(
+		GetODApplicationName("od_ClusterProc")
+	    );
 	    machcomm.addFlag( "dosubmit" );
 	    machcomm.addKeyedArg( "parfile", parfnm_ );
 	    OS::CommandLauncher cl( machcomm );

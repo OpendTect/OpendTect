@@ -22,6 +22,13 @@ namespace ODInst
 {
     mGlobal(Basic) const char*	sKeyHasUpdate();
     mGlobal(Basic) const char*	sKeyHasNoUpdate();
+    mGlobal(Basic) const char*	sKeyODExecNm(bool addexe=false);
+    mGlobal(Basic) const char*	sKeyODInstMgrExecNm(bool addexe=false);
+    mGlobal(Basic) const char*	sKeyODBatchHostsExecNm(bool addexe=false);
+    mGlobal(Basic) const char*	sKeyODLicInstallExecNm(bool addexe=false);
+    mGlobal(Basic) const char*	sKeyODRemSerMgrExecNm(bool addexe);
+    mGlobal(Basic) const char*	sKeyODFirewallExecNm();
+    mGlobal(Basic) const char*	sKeyODProgressViewerExecNm();
 
     mGlobal(Basic) BufferString GetInstallerDir();
     mGlobal(Basic) BufferString GetRelInfoDir();

@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "emioobjinfo.h"
 #include "emmanager.h"
 #include "emsurfacetr.h"
+#include "genc.h"
 #include "stratamp.h"
 #include "survinfo.h"
 #include "trckeyzsampling.h"
@@ -99,7 +100,7 @@ uiStratAmpCalc::uiStratAmpCalc( uiParent* p )
     batchfld_ = new uiBatchJobDispatcherSel( this, false,
 					     Batch::JobSpec::NonODBase );
     batchfld_->attach( alignedBelow, attribnamefld_ );
-    batchfld_->jobSpec().prognm_ = "od_stratamp";
+    batchfld_->jobSpec().prognm_ = GetODApplicationName( "od_stratamp" );
     setParFileName();
 
     mAttachCB( postFinalize(), uiStratAmpCalc::choiceSel );

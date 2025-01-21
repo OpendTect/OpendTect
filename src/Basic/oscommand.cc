@@ -16,6 +16,8 @@ ________________________________________________________________________
 #include "genc.h"
 #include "od_iostream.h"
 #include "oddirs.h"
+#include "odinst.h"
+#include "perthreadrepos.h"
 #include "pythonaccess.h"
 #include "separstr.h"
 #include "uistrings.h"
@@ -35,8 +37,16 @@ ________________________________________________________________________
 # include <stdlib.h>
 #endif
 
+static const char* odRemExecCmd()
+{
+    mDeclStaticString( ret );
+    ret = GetODApplicationName( "od_remexec" );
+    return ret.str();
+}
+
 BufferString OS::MachineCommand::defremexec_( "ssh" );
-static const char* sODProgressViewerProgName = "od_ProgressViewer";
+
+
 static const char* sKeyExecPars = "ExecPars";
 static const char* sKeyMonitor = "Monitor";
 static const char* sKeyProgType = "ProgramType";
@@ -603,8 +613,8 @@ BufferString OS::MachineCommand::runAndCollectOutput( BufferString* errmsg )
 // OS::CommandLauncher
 
 OS::CommandLauncher::CommandLauncher( const OS::MachineCommand& mc )
-    : odprogressviewer_(FilePath(GetExecPlfDir(),sODProgressViewerProgName)
-			    .fullPath())
+    : odprogressviewer_(FilePath(GetExecPlfDir(),
+			ODInst::sKeyODProgressViewerExecNm()).fullPath())
     , machcmd_(mc)
 {
 }
@@ -1232,7 +1242,7 @@ bool OS::CommandLauncher::openTerminal( const char* cmdstr,
 
 void OD::DisplayErrorMessage( const char* msg )
 {
-    OS::MachineCommand machcomm( "od_DispMsg" );
+    OS::MachineCommand machcomm( GetODApplicationName("od_DispMsg") );
     machcomm.addKeyedArg( "err", msg );
     machcomm.execute( OS::RunInBG );
 }

@@ -10,6 +10,7 @@ ________________________________________________________________________
 #include "remjobexec.h"
 
 #include "envvars.h"
+#include "genc.h"
 #include "iopar.h"
 #include "oddirs.h"
 #include "oscommand.h"
@@ -20,6 +21,13 @@ ________________________________________________________________________
 
 
 using namespace MMPStr;
+
+const char* RemoteJobExec::remoteHandlerName()
+{
+    mDeclStaticString( ret );
+    ret = GetODApplicationName( "od_remoteservice" );
+    return ret.str();
+}
 
 RemoteJobExec::RemoteJobExec( const Network::Authority& auth )
     : auth_(auth)

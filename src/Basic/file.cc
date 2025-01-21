@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "executor.h"
 #include "filepath.h"
 #include "filesystemaccess.h"
+#include "genc.h"
 #include "nrbytes2string.h"
 #include "od_iostream.h"
 #include "oddirs.h"
@@ -1149,7 +1150,7 @@ bool launchViewer( const char* fnm, const ViewPars& vp )
     if ( !exists(fnm) )
 	return false;
 
-    OS::MachineCommand mc( "od_FileBrowser" );
+    OS::MachineCommand mc( GetODApplicationName("od_FileBrowser") );
     mc.addKeyedArg( ViewPars::sKeyFile(), fnm );
     mc.addKeyedArg( ViewPars::sKeyMaxLines(), vp.maxnrlines_ );
     mc.addKeyedArg( ViewPars::sKeyStyle(), toString(vp.style_) );

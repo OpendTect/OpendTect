@@ -148,15 +148,13 @@ public:
 
     static const char*	defaultRemExec()	{ return defremexec_; }
     static void		setDefaultRemExec( const char* s ) { defremexec_ = s; }
-
-    static const char*	odRemExecCmd()		{ return "od_remexec"; }
     static const char*	sKeyRemoteHost()	{ return "machine"; }
+    static const char*	odRemExecCmd();
     static const char*	sKeyRemoteCmd()		{ return "cmd"; }
     static const char*	sKeyPrimaryHost()	{ return "primaryhost"; }
     static const char*	sKeyPrimaryPort()	{ return "primaryport"; }
     static const char*	sKeyJobID()		{ return "jobid"; }
     static const char*	sKeyIsolationScript()	{ return "isolatefnm"; }
-
     bool		execute(LaunchType lt=Wait4Finish,
 				const char* workdir=nullptr);
     bool		execute(BufferString& output_stdout,

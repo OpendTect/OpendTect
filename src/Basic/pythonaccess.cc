@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "envvars.h"
 #include "file.h"
 #include "filepath.h"
+#include "genc.h"
 #include "keystrs.h"
 #include "oddirs.h"
 #include "odplatform.h"
@@ -1797,7 +1798,7 @@ static const char* sKeyNvidia() { return "NVIDIA"; }
 static bool usesNvidiaCard( BufferString* glversionstr )
 {
     bool ret = false;
-    OS::MachineCommand cmd( "od_glxinfo" );
+    OS::MachineCommand cmd( GetODApplicationName("od_glxinfo") );
     BufferString stdoutstr;
     if ( !cmd.execute(stdoutstr) || stdoutstr.isEmpty() )
 	return false;

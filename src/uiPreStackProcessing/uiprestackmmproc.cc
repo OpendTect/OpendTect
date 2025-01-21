@@ -27,6 +27,19 @@ ________________________________________________________________________
 #include "uimsg.h"
 
 
+namespace Batch
+{
+
+PreStackMMProgDef::PreStackMMProgDef()
+  : MMProgDef( "od_PreStackMMBatch" )
+{}
+
+
+PreStackMMProgDef::~PreStackMMProgDef()
+{}
+
+} // namespace Batch
+
 bool Batch::PreStackMMProgDef::isSuitedFor( const char* pnm ) const
 {
     StringView prognm = pnm;
@@ -94,6 +107,7 @@ bool uiPreStackMMProc::initWork( bool retry )
     dp->setNrInlsPerJob( 1 );
 
     delete jobrunner_;
-    jobrunner_ = new JobRunner( dp, "od_process_prestack" );
+    jobrunner_ = new JobRunner( dp,
+		    Batch::JobSpec::progNameFor(Batch::JobSpec::PreStack) );
     return true;
 }

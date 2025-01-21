@@ -30,6 +30,8 @@ public:
 			uiSeisCopyCube(uiParent*,const IOObj*);
 			~uiSeisCopyCube();
 
+static const char*	copyCubeProgName();
+
 protected:
 
     uiSeisSel*		inpfld_;

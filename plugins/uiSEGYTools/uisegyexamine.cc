@@ -25,6 +25,7 @@ ________________________________________________________________________
 #include "envvars.h"
 #include "file.h"
 #include "filepath.h"
+#include "genc.h"
 #include "ioman.h"
 #include "ioobj.h"
 #include "iopar.h"
@@ -328,7 +329,7 @@ int uiSEGYExamine::getRev( const SeisTrcReader& rdr )
 
 bool uiSEGYExamine::launch( const uiSEGYExamine::Setup& su )
 {
-    OS::MachineCommand cmd( "od_SEGYExaminer" );
+    OS::MachineCommand cmd( GetODApplicationName("od_SEGYExaminer") );
     Seis::putInMC( su.geomtype_, cmd );
     cmd.addKeyedArg( "nrtrcs", su.nrtrcs_ );
     if ( su.fp_.ns_ > 0 ) cmd.addKeyedArg( "ns", su.fp_.ns_ );

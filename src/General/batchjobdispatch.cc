@@ -10,6 +10,7 @@ ________________________________________________________________________
 #include "batchjobdispatch.h"
 #include "keystrs.h"
 #include "filepath.h"
+#include "genc.h"
 #include "oddirs.h"
 #include "ascstream.h"
 #include "dirlist.h"
@@ -106,25 +107,44 @@ void Batch::JobSpec::setDefaultPythonArgs()
 
 const char* Batch::JobSpec::progNameFor( ProcType pt )
 {
+    mDeclStaticString( ret );
     switch ( pt )
     {
-#	define mHandlePTCase(typ,pnm) \
-	case typ: return "od_process_" # pnm
-	mHandlePTCase(Attrib,attrib);
-	mHandlePTCase(AttribEM,attrib_em);
-	mHandlePTCase(Grid2D,2dgrid);
-	mHandlePTCase(PreStack,prestack);
-	mHandlePTCase(SEGY,segyio);
-	mHandlePTCase(T2D,time2depth);
-	mHandlePTCase(TwoDto3D,2dto3d);
-	mHandlePTCase(VelConv,velocityconv);
-	mHandlePTCase(Vol,volume);
-	case NonODBase:
-	    return "";
-	default:
+    case Attrib:
+	    ret = "od_process_attrib";
+	    break;
+    case AttribEM:
+	    ret = "od_process_attrib_em";
+	    break;
+    case Grid2D:
+	    ret = "od_process_2dgrid";
+	    break;
+    case PreStack:
+	    ret = "od_process_prestack";
+	    break;
+    case SEGY:
+	    ret = "od_process_segyio";
+	    break;
+    case T2D:
+	    ret = "od_process_time2depth";
+	    break;
+    case TwoDto3D:
+	    ret = "od_process_2dto3d";
+	    break;
+    case VelConv:
+	    ret = "od_process_velocityconv";
+	    break;
+    case Vol:
+	    ret = "od_process_volume";
+	    break;
+    case NonODBase:
+	    return nullptr;
+    default:
 	    pFreeFnErrMsg("switch case not added");
-	    return 0;
+	    return nullptr;
     }
+    ret = GetODApplicationName( ret.str() );
+    return ret.str();
 }
 
 
@@ -135,7 +155,7 @@ Batch::JobSpec::ProcType Batch::JobSpec::procTypeFor( const char* odpnm )
 
     const StringView pnm( odpnm + 11 );
 #   define mRetForName(typ,str) \
-    if ( pnm == #str ) return typ
+    if ( pnm.startsWith(#str) ) return typ
 
     mRetForName(Attrib,attrib);
     mRetForName(AttribEM,attrib_em);

@@ -13,6 +13,7 @@ ________________________________________________________________________
 #include "ctxtioobj.h"
 #include "datapointset.h"
 #include "filepath.h"
+#include "genc.h"
 #include "ioobj.h"
 #include "oddirs.h"
 #include "odinst.h"
@@ -689,7 +690,8 @@ void uiODApplMgrDispatcher::process2D3D( int opt )
 void uiODApplMgrDispatcher::setupBatchHosts()
 {
     OS::MachineCommand mc(
-		FilePath(GetExecPlfDir(), "od_BatchHosts").fullPath());
+		FilePath(GetExecPlfDir(),
+			 ODInst::sKeyODBatchHostsExecNm()).fullPath());
     const OS::CommandExecPars pars( OS::RunInBG );
     mc.execute(pars);
 }

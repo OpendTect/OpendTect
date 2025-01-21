@@ -9,14 +9,15 @@ ________________________________________________________________________
 
 #include "mmbatchjobdispatch.h"
 #include "envvars.h"
+#include "genc.h"
 #include "oddirs.h"
 #include "sets.h"
 
 // Batch::MMProgDef
 
 Batch::MMProgDef::MMProgDef( const char* mmpnm )
-    : mmprognm_(mmpnm)
 {
+    mmprognm_ = GetODApplicationName( mmpnm );
 }
 
 

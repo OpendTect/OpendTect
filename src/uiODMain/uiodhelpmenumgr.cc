@@ -21,6 +21,7 @@ ________________________________________________________________________
 
 #include "buildinfo.h"
 #include "file.h"
+#include "genc.h"
 #include "legal.h"
 #include "oddirs.h"
 #include "odver.h"
@@ -154,7 +155,8 @@ void uiODHelpMenuMgr::showShortKeys()
 	return;
 
     const BufferString title( "Keyboard Shortcuts and Mouse Controls" );
-    OS::MachineCommand machcomm( "od_ImageViewer", imgpath, title );
+    OS::MachineCommand machcomm( GetODApplicationName("od_ImageViewer"),
+	imgpath, title );
     OS::CommandLauncher cl( machcomm );
     if ( !cl.execute(OS::RunInBG) )
 	uiMSG().error( cl.errorMsg() );

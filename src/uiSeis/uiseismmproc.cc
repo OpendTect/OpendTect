@@ -28,6 +28,18 @@ ________________________________________________________________________
 #include "uigeninput.h"
 #include "od_helpids.h"
 
+namespace Batch
+{
+
+SeisMMProgDef::SeisMMProgDef()
+  : MMProgDef( "od_SeisMMBatch" )
+{}
+
+
+SeisMMProgDef::~SeisMMProgDef()
+{}
+
+} // namespace Batch
 
 bool Batch::SeisMMProgDef::isSuitedFor( const char* pnm ) const
 {

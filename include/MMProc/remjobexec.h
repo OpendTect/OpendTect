@@ -36,7 +36,7 @@ public:
     mDeprecated("Use getLocalHandlerPort")
     static PortNr_Type	remoteHandlerPort()
 					    { return mCast(PortNr_Type,5050); }
-    static const char*	remoteHandlerName()	{ return "od_remoteservice"; }
+    static const char*	remoteHandlerName();
     static bool		remoteHostOK(const Network::Authority&);
 
 protected:

@@ -8,6 +8,7 @@ ________________________________________________________________________
 -*/
 
 #include "filepath.h"
+#include "genc.h"
 #include "moddepmgr.h"
 #include "oddirs.h"
 #include "odruncontext.h"
@@ -115,5 +116,6 @@ mDefModInitFn(uiBase)
 			PI_AUTO_INIT_LATE );
     }
 
-    System::CrashDumper::getInstance().setSendAppl( "od_uiReportIssue" );
+    System::CrashDumper::
+	getInstance().setSendAppl( GetODApplicationName("od_uiReportIssue") );
 }

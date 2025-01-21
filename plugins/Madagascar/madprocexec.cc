@@ -9,6 +9,7 @@ ________________________________________________________________________
 
 #include "envvars.h"
 #include "filepath.h"
+#include "genc.h"
 #include "iopar.h"
 #include "keystrs.h"
 #include "madprocexec.h"
@@ -176,11 +177,14 @@ bool ODMad::ProcExec::init()
 
 #ifdef __win__
     #define mAddNewExec \
-        BufferString fname = FilePath::getTempFullPath( "madexec", "par" ); \
+	const BufferString fname = \
+			FilePath::getTempFullPath( "madexec", "par" ); \
+	const BufferString odmadexecappnm = \
+				    GetODApplicationName( "od_madexec" ); \
 	pars_.write( fname, sKey::Pars() ); \
 	ret += FilePath(rsfroot).add("bin").add("sfdd").fullPath(); \
 	ret += " form=ascii_float | \""; \
-	ret += FilePath(GetExecPlfDir()).add("od_madexec").fullPath(); \
+	ret += FilePath(GetExecPlfDir()).add(odmadexecappnm).fullPath(); \
 	ret += "\" "; ret += fname
 #else
     #define mAddNewExec \
@@ -188,7 +192,7 @@ bool ODMad::ProcExec::init()
 						sParFileExtension() ); \
 	pars_.write( fname, sKey::Pars() ); \
 	ret += GetExecScript( false ); ret += " "; \
-	ret += "od_madexec"; ret += " "; ret += fname
+	ret += GetODApplicationName( "od_madexec" ); ret += " "; ret += fname
 #endif
 
 const char* ODMad::ProcExec::getProcString()
@@ -344,7 +348,7 @@ od_int64 ODMad::ProcExec::totalNr() const
 
 #define mWriteToStream(strm) \
     if ( madstream_->isBinary() ) \
-        strm->addBin( (const char*) &val, sizeof(val)); \
+	strm->addBin( (const char*) &val, sizeof(val)); \
     else \
 	*strm << val << " ";
 

@@ -12,6 +12,7 @@ ________________________________________________________________________
 
 #include "commandlineparser.h"
 #include "file.h"
+#include "genc.h"
 #include "moddepmgr.h"
 #include "oscommand.h"
 #include "prog.h"
@@ -20,7 +21,7 @@ ________________________________________________________________________
 static void printBatchUsage()
 {
     od_ostream& strm = od_ostream::logStream();
-    strm << "Usage: " << "od_FileBrowser";
+    strm << "Usage: " << GetODApplicationName( "od_FileBrowser" );
     strm << " [OPTION]... [FILE]...\n";
     strm << "Opens an examine window for a text file argument, ";
     strm << "optionaly editable.\n";

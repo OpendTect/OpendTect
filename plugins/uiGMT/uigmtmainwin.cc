@@ -11,6 +11,7 @@ ________________________________________________________________________
 
 #include "file.h"
 #include "filepath.h"
+#include "genc.h"
 #include "gmtclip.h"
 #include "gmtpar.h"
 #include "gmtprocflow.h"
@@ -120,7 +121,7 @@ uiGMTMainWin::uiGMTMainWin( uiParent* p )
     flowgrp_->attach( ensureLeftOf, sep );
     batchfld_ = new uiBatchJobDispatcherSel( rightgrp, true,
 					     Batch::JobSpec::NonODBase );
-    batchfld_->jobSpec().prognm_ = "od_gmtexec";
+    batchfld_->jobSpec().prognm_ = GetODApplicationName( "od_gmtexec" );
     batchfld_->setJobName( "GMT_Proc" );
     batchfld_->display( false );
 

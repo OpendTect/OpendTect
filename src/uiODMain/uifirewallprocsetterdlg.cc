@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "dirlist.h"
 #include "file.h"
 #include "filepath.h"
+#include "genc.h"
 #include "iopar.h"
 #include "keystrs.h"
 #include "oddirs.h"
@@ -388,7 +389,8 @@ bool uiFirewallProcSetter::acceptOK( CallBacker* )
 	return false;
     }
 
-    const FilePath exepath( exepath_, "od_Setup_Firewall.exe" );
+    const FilePath exepath( exepath_,
+			    GetODApplicationName("od_Setup_Firewall.exe") );
 
     bool errocc = false;
     IOPar pars;
