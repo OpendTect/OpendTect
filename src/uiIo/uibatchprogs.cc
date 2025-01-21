@@ -24,6 +24,7 @@ ________________________________________________________________________
 #include "dirlist.h"
 #include "envvars.h"
 #include "file.h"
+#include "genc.h"
 #include "manobjectset.h"
 #include "od_helpids.h"
 #include "od_istream.h"
@@ -343,7 +344,7 @@ bool uiBatchProgLaunch::acceptOK( CallBacker* )
 	firstinp = 1;
     }
 
-    OS::MachineCommand mc( prognm );
+    OS::MachineCommand mc( GetODApplicationName(prognm)	);
     for ( int iinp=firstinp; iinp<inplst.size(); iinp++ )
     {
 	uiGroup* curinp = inplst[iinp];
