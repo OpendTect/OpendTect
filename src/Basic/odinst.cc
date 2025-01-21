@@ -41,10 +41,8 @@ ________________________________________________________________________
 # endif
 #endif
 
-namespace ODIsnt
-{
 
-const char* sKeyODExecNm( bool addexe )
+const char* ODInst::sKeyODExecNm( bool addexe )
 {
     mDeclStaticString(ret);
     ret = GetODApplicationName( "od_main" );
@@ -55,7 +53,7 @@ const char* sKeyODExecNm( bool addexe )
 }
 
 
-const char* sKeyODInstMgrExecNm( bool addexe )
+const char* ODInst::sKeyODInstMgrExecNm( bool addexe )
 {
     mDeclStaticString(ret);
     ret = GetODApplicationName( "od_instmgr" );
@@ -66,7 +64,7 @@ const char* sKeyODInstMgrExecNm( bool addexe )
 }
 
 
-const char* sKeyODBatchHostsExecNm( bool addexe )
+const char* ODInst::sKeyODBatchHostsExecNm( bool addexe )
 {
     mDeclStaticString(ret);
     ret = GetODApplicationName( "od_BatchHosts" );
@@ -77,7 +75,7 @@ const char* sKeyODBatchHostsExecNm( bool addexe )
 }
 
 
-const char* sKeyODLicInstallExecNm( bool addexe )
+const char* ODInst::sKeyODLicInstallExecNm( bool addexe )
 {
     mDeclStaticString(ret);
     ret = GetODApplicationName( "od_LicInstall" );
@@ -88,7 +86,7 @@ const char* sKeyODLicInstallExecNm( bool addexe )
 }
 
 
-const char* sKeyODRemSerMgrExecNm( bool addexe )
+const char* ODInst::sKeyODRemSerMgrExecNm( bool addexe )
 {
     mDeclStaticString( ret );
     ret = GetODApplicationName( "od_RemoteServiceMgr" );
@@ -99,7 +97,7 @@ const char* sKeyODRemSerMgrExecNm( bool addexe )
 }
 
 
-const char* sKeyODFirewallExecNm()
+const char* ODInst::sKeyODFirewallExecNm()
 {
     mDeclStaticString( ret );
     ret = GetODApplicationName( "od_FirewallProcSetter.exe" );
@@ -107,17 +105,16 @@ const char* sKeyODFirewallExecNm()
 }
 
 
-const char* sKeyODProgressViewerExecNm()
+const char* ODInst::sKeyODProgressViewerExecNm()
 {
     mDeclStaticString( ret );
     ret = GetODApplicationName( "od_ProgressViewer" );
     return ret.str();
 }
 
-}
 
 mDefineNameSpaceEnumUtils(ODInst,AutoInstType,"Auto update")
-{ "Manager", "Inform", "Full", "None", 0 };
+{ "Manager", "Inform", "Full", "None", nullptr };
 
 
 mDefineNameSpaceEnumUtils(ODInst,RelType,"Release type")
@@ -128,17 +125,18 @@ mDefineNameSpaceEnumUtils(ODInst,RelType,"Release type")
 	"Pre-Release Development",
 	"Old Version",
 	"Other",
-	0
+	nullptr
 };
 
 
 BufferString ODInst::GetRelInfoDir()
 {
-#ifdef __mac__
-    return FilePath( GetSoftwareDir(true), "Resources", "relinfo" ).fullPath();
-#else
-    return FilePath( GetSoftwareDir(true), "relinfo" ).fullPath();
-#endif
+    FilePath ret( GetSoftwareDir(true) );
+    if ( __ismac__ )
+	ret.add( "Resources" );
+
+    ret.add( "relinfo" );
+    return ret.fullPath();
 }
 
 

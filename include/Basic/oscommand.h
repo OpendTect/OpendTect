@@ -148,8 +148,8 @@ public:
 
     static const char*	defaultRemExec()	{ return defremexec_; }
     static void		setDefaultRemExec( const char* s ) { defremexec_ = s; }
-    static const char*	sKeyRemoteHost()	{ return "machine"; }
     static const char*	odRemExecCmd();
+    static const char*	sKeyRemoteHost()	{ return "machine"; }
     static const char*	sKeyRemoteCmd()		{ return "cmd"; }
     static const char*	sKeyPrimaryHost()	{ return "primaryhost"; }
     static const char*	sKeyPrimaryPort()	{ return "primaryport"; }

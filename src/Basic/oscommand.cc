@@ -37,7 +37,7 @@ ________________________________________________________________________
 # include <stdlib.h>
 #endif
 
-static const char* odRemExecCmd()
+const char* OS::MachineCommand::odRemExecCmd()
 {
     mDeclStaticString( ret );
     ret = GetODApplicationName( "od_remexec" );

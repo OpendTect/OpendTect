@@ -17,18 +17,6 @@ ________________________________________________________________________
 
 #include "procdescdata.h"
 
-namespace Batch
-{
-
-SeisMMProgDef::SeisMMProgDef()
-  : MMProgDef( "od_SeisMMBatch" )
-{}
-
-
-SeisMMProgDef::~SeisMMProgDef()
-{}
-
-} // namespace Batch
 
 mDefModInitFn(uiSeis)
 {

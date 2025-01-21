@@ -38,15 +38,6 @@ extern void Seis_Convert_2DLineSets_To_2DDataSets(uiString&,TaskRunner*);
 uiString SeisTrcTranslatorGroup::sTypeName( int num )
 { return uiStrings::sVolDataName(false,true,false,false,false); }
 
-namespace IO
-{
-    static const char* sProgName()
-    {
-	mDeclStaticString( ret );
-	ret = GetODApplicationName( "od_process_segyio" );
-	return ret.str();
-    }
-} // namespace IO
 
 namespace Seis
 {
