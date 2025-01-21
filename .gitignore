@@ -37,7 +37,7 @@ doc/Videos.dgb
 doc/od_userdoc
 test/
 bin/count_to_1000.csh
-bin/script with space.sh
+bin/script with space.*
 Contents/
 plugins/lux64
 packages/
