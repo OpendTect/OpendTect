@@ -9,9 +9,35 @@ ________________________________________________________________________
 -*/
 
 #include "uitoolsmod.h"
+
 #include "namedobj.h"
-class uiParent;
+
 class uiApplPartServer;
+class uiApplService;
+class uiMainWin;
+class uiParent;
+
+
+/*! \brief Base class for an application level manager */
+
+mExpClass(uiTools) uiApplMgr : public CallBacker
+{
+public:
+			~uiApplMgr();
+
+    virtual bool	handleEvent(const uiApplPartServer*,int evid)	= 0;
+    virtual void*	deliverObject(const uiApplPartServer*,int evid) = 0;
+
+    uiApplService&	applService()	{ return applservice_; }
+
+    static uiApplMgr*	instance(const char* servicenm=nullptr);
+
+protected:
+			uiApplMgr(uiMainWin&,uiApplService&);
+			//!< uiApplService object becomes mine
+
+    uiApplService&	applservice_;
+};
 
 
 /*! \brief Services from application level to 'Part servers' */
@@ -19,15 +45,20 @@ class uiApplPartServer;
 mExpClass(uiTools) uiApplService : public NamedObject
 {
 public:
-			uiApplService( const char* nm = 0 );
+			uiApplService(uiParent*,uiApplMgr&,
+				      const char* nm=nullptr);
 			//!< The name is the application name
 			~uiApplService();
 
-    virtual uiParent*	parent() const					= 0;
-    virtual bool	eventOccurred(const uiApplPartServer*,int evid)	= 0;
+    virtual uiParent*	parent() const;
+    virtual bool	eventOccurred(const uiApplPartServer*,int evid);
 			//!< The evid will be specific for each partserver
-    virtual void*	getObject(const uiApplPartServer*,int)		= 0;
+    virtual void*	getObject(const uiApplPartServer*,int);
 			//!< The actual type is a protocol with the partserver
+
+protected:
+    uiParent*		par_;
+    uiApplMgr&		applman_;
 };
 
 
@@ -58,12 +89,12 @@ protected:
 
     uiParent*		parent() const;
 
-    bool		sendEvent( int evid ) const;
-    void*		getObject( int objid ) const;
+    bool		sendEvent(int evid) const;
+    void*		getObject(int objid) const;
 
 private:
 
     uiApplService&	uias_;
-    uiParent*		parent_;
+    uiParent*		parent_ = nullptr;
 
 };

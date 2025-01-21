@@ -14,6 +14,7 @@ ________________________________________________________________________
 #include "datapointset.h"
 #include "filepath.h"
 #include "ioobj.h"
+#include "od_helpids.h"
 #include "oddirs.h"
 #include "odinst.h"
 #include "odsession.h"
@@ -63,12 +64,10 @@ ________________________________________________________________________
 #include "uiseispartserv.h"
 #include "uiwellattribpartserv.h"
 #include "uiwellpartserv.h"
-#include "od_helpids.h"
 
 
 uiODApplService::uiODApplService( uiParent* p, uiODApplMgr& am )
-    : par_(p)
-    , applman_(am)
+    : uiApplService(p,am,"OpendTect")
 {}
 
 
@@ -76,25 +75,8 @@ uiODApplService::~uiODApplService()
 {}
 
 
-bool uiODApplService::eventOccurred( const uiApplPartServer* ps, int evid )
-{
-    return applman_.handleEvent( ps, evid );
-}
-
-
-void* uiODApplService::getObject( const uiApplPartServer* ps, int evid )
-{
-    return applman_.deliverObject( ps, evid );
-}
-
-
-uiParent* uiODApplService::parent() const
-{
-    return par_;
-}
-
-
 //uiODApplMgrDispatcher
+
 uiODApplMgrDispatcher::uiODApplMgrDispatcher( uiODApplMgr& a, uiParent* p )
     : am_(a)
     , par_(p)
@@ -144,6 +126,13 @@ void uiODApplMgrDispatcher::doOperation( int iot, int iat, int opt )
     const uiODApplMgr::ObjType ot = (uiODApplMgr::ObjType)iot;
     const uiODApplMgr::ActType at = (uiODApplMgr::ActType)iat;
 
+    uiEMPartServer& emserv = *am_.EMServer();
+    uiPickPartServer& pickserv = *am_.pickServer();
+    uiSeisPartServer& seisserv = *am_.seisServer();
+    uiWellPartServer& wellserv = *am_.wellServer();
+    uiAttribPartServer& attrserv = *am_.attrServer();
+    uiEMAttribPartServer& emattrserv = *am_.EMAttribServer();
+
     switch ( ot )
     {
     case uiODApplMgr::NrObjTypes:
@@ -151,9 +140,9 @@ void uiODApplMgrDispatcher::doOperation( int iot, int iat, int opt )
     case uiODApplMgr::Seis:
 	switch ( at )
 	{
-	case uiODApplMgr::Exp:	am_.seisserv_->exportSeis( opt );	break;
-	case uiODApplMgr::Man:	am_.seisserv_->manageSeismics( opt );	break;
-	case uiODApplMgr::Imp:	am_.seisserv_->importSeis( opt );	break;
+	case uiODApplMgr::Exp:	seisserv.exportSeis( opt );	break;
+	case uiODApplMgr::Man:	seisserv.manageSeismics( opt ); break;
+	case uiODApplMgr::Imp:	seisserv.importSeis( opt );	break;
 	}
     break;
     case uiODApplMgr::Hor:
@@ -161,34 +150,36 @@ void uiODApplMgrDispatcher::doOperation( int iot, int iat, int opt )
 	{
 	case uiODApplMgr::Imp:
 	    if ( opt == 0 )
-		am_.emserv_->import3DHorGeom();
+		emserv.import3DHorGeom();
 	    else if ( opt == 1 )
-		am_.emserv_->import3DHorAttr();
+		emserv.import3DHorAttr();
 	    else if ( opt == 2 )
-		am_.emattrserv_->import2DHorizon();
+		emattrserv.import2DHorizon();
 	    else if ( opt == 3 )
-		am_.emserv_->import3DHorGeom( true );
+		emserv.import3DHorGeom( true );
 	    else if ( opt == 4 )
-		am_.emserv_->importBulk2DHorizon();
+		emserv.importBulk2DHorizon();
 	    else if ( opt == 5 )
-		am_.emserv_->importHorFromZMap();
+		emserv.importHorFromZMap();
 	break;
 	case uiODApplMgr::Exp:
 	    if ( opt == 0 )
-		am_.emserv_->export3DHorizon();
+		emserv.export3DHorizon();
 	    else if ( opt == 1 )
-		am_.emserv_->export2DHorizon();
+		emserv.export2DHorizon();
 	    else if ( opt == 2 )
-		am_.emserv_->export3DHorizon(true);
+		emserv.export3DHorizon(true);
 	    else if ( opt == 3 )
-		am_.emserv_->export2DHorizon(true);
+		emserv.export2DHorizon(true);
 	break;
 	case uiODApplMgr::Man:
-	    if ( opt == 0 ) opt = SI().has3D() ? 2 : 1;
+	    if ( opt == 0 )
+		opt = SI().has3D() ? 2 : 1;
+
 	    if ( opt == 1 )
-		am_.emserv_->manage2DHorizons();
+		emserv.manage2DHorizons();
 	    else if ( opt == 2 )
-		am_.emserv_->manage3DHorizons();
+		emserv.manage3DHorizons();
 	break;
 	}
     break;
@@ -196,18 +187,22 @@ void uiODApplMgrDispatcher::doOperation( int iot, int iat, int opt )
 	switch( at )
 	{
 	case uiODApplMgr::Imp:
-	    if ( opt==0 ) am_.emserv_->importFault();
-	    if ( opt==1 ) am_.emserv_->importBulkFaults();
+	    if ( opt==0 )
+		emserv.importFault();
+	    else if ( opt==1 )
+		emserv.importBulkFaults();
 	break;
 	case uiODApplMgr::Exp:
-	    am_.emserv_->exportFault( opt==0 );
+	    emserv.exportFault( opt==0 );
 	break;
 	case uiODApplMgr::Man:
-	    if ( opt == 0 ) opt = SI().has3D() ? 2 : 1;
+	    if ( opt == 0 )
+		opt = SI().has3D() ? 2 : 1;
+
 	    if ( opt == 1 )
-		am_.emserv_->manageFaultStickSets();
+		emserv.manageFaultStickSets();
 	    else if ( opt == 2 )
-		am_.emserv_->manage3DFaults();
+		emserv.manage3DFaults();
 	break;
 	}
     break;
@@ -216,16 +211,16 @@ void uiODApplMgrDispatcher::doOperation( int iot, int iat, int opt )
 	{
 	    case uiODApplMgr::Imp:
 	    if ( opt == 0 )
-		am_.emserv_->importFaultStickSet();
+		emserv.importFaultStickSet();
 	    else if ( opt == 1 )
-		am_.emserv_->import2DFaultStickset();
+		emserv.import2DFaultStickset();
 	    else if ( opt == 2 )
-		am_.emserv_->importBulkFaultStickSet();
+		emserv.importBulkFaultStickSet();
 	    else if ( opt == 3 )
-		am_.emserv_->importBulk2DFaultStickset();
+		emserv.importBulk2DFaultStickset();
 	    break;
 	    case uiODApplMgr::Exp:
-		am_.emserv_->exportFaultStickSet( opt==0 );
+		emserv.exportFaultStickSet( opt==0 );
 	    break;
 	    default:
 		break;
@@ -235,13 +230,13 @@ void uiODApplMgrDispatcher::doOperation( int iot, int iat, int opt )
 	switch( at )
 	{
 	case uiODApplMgr::Imp:
-	    am_.emserv_->importFaultSet();
+	    emserv.importFaultSet();
 	break;
 	case uiODApplMgr::Exp:
-	    am_.emserv_->exportFaultSet();
+	    emserv.exportFaultSet();
 	break;
 	case uiODApplMgr::Man:
-	    am_.emserv_->manageFaultSets();
+	    emserv.manageFaultSets();
 	break;
 	}
     break;
@@ -250,31 +245,31 @@ void uiODApplMgrDispatcher::doOperation( int iot, int iat, int opt )
 	{
 	case uiODApplMgr::Imp:
 	    if ( opt == 0 )
-		am_.wellserv_->importTrack();
+		wellserv.importTrack();
 	    else if ( opt == 1 )
-		am_.wellserv_->importLogs();
+		wellserv.importLogs();
 	    else if ( opt == 2 )
-		am_.wellserv_->importMarkers();
+		wellserv.importMarkers();
 	    else if ( opt == 4 )
-		am_.wellserv_->createSimpleWells();
+		wellserv.createSimpleWells();
 	    else if ( opt == 5 )
-		am_.wellserv_->bulkImportTrack();
+		wellserv.bulkImportTrack();
 	    else if ( opt == 6 )
-		am_.wellserv_->bulkImportLogs();
+		wellserv.bulkImportLogs();
 	    else if ( opt == 7 )
-		am_.wellserv_->bulkImportMarkers();
+		wellserv.bulkImportMarkers();
 	    else if ( opt == 8 )
-		am_.wellserv_->bulkImportD2TModel();
+		wellserv.bulkImportD2TModel();
 	    else if ( opt == 9 )
-		am_.wellserv_->bulkImportDirectional();
+		wellserv.bulkImportDirectional();
 	break;
 	case uiODApplMgr::Exp:
 	    if ( opt == 0 )
-		am_.wellserv_->exportWellData();
+		wellserv.exportWellData();
 	    else if ( opt == 1 )
-		am_.wellserv_->exportLogToLAS();
+		wellserv.exportLogToLAS();
 	break;
-	case uiODApplMgr::Man:	am_.wellserv_->manageWells();
+	case uiODApplMgr::Man:	wellserv.manageWells();
 	break;
 	default:	break;
 	}
@@ -282,13 +277,13 @@ void uiODApplMgrDispatcher::doOperation( int iot, int iat, int opt )
     case uiODApplMgr::Attr:
 	switch( at )
 	{
-	case uiODApplMgr::Man: am_.attrserv_->manageAttribSets(opt==1);
+	case uiODApplMgr::Man: attrserv.manageAttribSets( opt==1 );
 	break;
 	case uiODApplMgr::Imp:
 	    if ( opt == 0 )
-		am_.attrserv_->importAttrSetFromFile();
+		attrserv.importAttrSetFromFile();
 	    else if ( opt == 1 )
-		am_.attrserv_->importAttrSetFromOtherSurvey();
+		attrserv.importAttrSetFromOtherSurvey();
 	break;
 	default:	break;
 	}
@@ -296,17 +291,17 @@ void uiODApplMgrDispatcher::doOperation( int iot, int iat, int opt )
     case uiODApplMgr::Pick:
 	switch ( at )
 	{
-	case uiODApplMgr::Imp:	am_.pickserv_->importSet();		break;
-	case uiODApplMgr::Exp:	am_.pickserv_->exportSet();		break;
-	case uiODApplMgr::Man:	am_.pickserv_->managePickSets();	break;
+	case uiODApplMgr::Imp:	pickserv.importSet();		break;
+	case uiODApplMgr::Exp:	pickserv.exportSet();		break;
+	case uiODApplMgr::Man:	pickserv.managePickSets();	break;
 	}
     break;
     case uiODApplMgr::Wvlt:
 	switch ( at )
 	{
-	case uiODApplMgr::Imp:	am_.seisserv_->importWavelets();	break;
-	case uiODApplMgr::Exp:	am_.seisserv_->exportWavelets();	break;
-	default:	am_.seisserv_->manageWavelets();	break;
+	case uiODApplMgr::Imp:	seisserv.importWavelets();	break;
+	case uiODApplMgr::Exp:	seisserv.exportWavelets();	break;
+	default:		seisserv.manageWavelets();	break;
 	}
     break;
     case uiODApplMgr::MDef:
@@ -427,7 +422,7 @@ void uiODApplMgrDispatcher::doOperation( int iot, int iat, int opt )
     break;
     case uiODApplMgr::Body:
 	if ( at == uiODApplMgr::Man )
-	    am_.emserv_->manageBodies();
+	    emserv.manageBodies();
     break;
     case uiODApplMgr::Props:
 	if ( at == uiODApplMgr::Man )
@@ -480,10 +475,10 @@ void uiODApplMgrDispatcher::manPreLoad( int iot )
     switch ( ot )
     {
 	case uiODApplMgr::Seis:
-	    am_.seisserv_->managePreLoad();
+	    am_.seisServer()->managePreLoad();
 	break;
 	case uiODApplMgr::Hor:
-	    am_.emserv_->managePreLoad();
+	    am_.EMServer()->managePreLoad();
 	break;
 	default:
 	break;
@@ -602,12 +597,8 @@ void uiODApplMgrDispatcher::setAutoUpdatePol()
     const ODInst::AutoInstType curait = ODInst::getAutoInstType();
     BufferStringSet options, alloptions;
     alloptions = ODInst::autoInstTypeUserMsgs();
-#ifndef __win__
-    options = alloptions;
-#else
     options.add( alloptions.get( (int)ODInst::InformOnly) );
     options.add( alloptions.get( (int)ODInst::NoAuto) );
-#endif
 
     uiGetChoice dlg( par_, options,
 			tr("Select policy for auto-update"), true,
@@ -617,12 +608,14 @@ void uiODApplMgrDispatcher::setAutoUpdatePol()
     dlg.setDefaultChoice( idx < 0 ? 0 : idx );
     if ( !dlg.go() )
 	return;
+
     ODInst::AutoInstType newait = (ODInst::AutoInstType)
 				alloptions.indexOf( options.get(dlg.choice()));
     if ( newait != curait )
 	ODInst::setAutoInstType( newait );
+
     if ( newait == ODInst::InformOnly )
-	am_.appl_.updateCaption();
+	am_.updateCaption();
 }
 
 
@@ -636,12 +629,15 @@ void uiODApplMgrDispatcher::processPreStack( bool is2d )
     const OD::GeomSystem gs = is2d ? OD::Geom2D : OD::Geom3D;
     if ( is2d )
     {
-#ifdef __debug__
-	mPreStackBatchdlg(batchprocps2ddlg_)
-#else
-	uiMSG().message( tr("Coming soon") );
-	return;
-#endif
+	if ( OD::InDebugMode() )
+	{
+	    mPreStackBatchdlg( batchprocps2ddlg_ )
+	}
+	else
+	{
+	    uiMSG().message( tr("Coming soon") );
+	    return;
+	}
     }
     else
     { mPreStackBatchdlg(batchprocps3ddlg_) }
@@ -661,12 +657,12 @@ void uiODApplMgrDispatcher::pluginMan()
 void uiODApplMgrDispatcher::manageShortcuts()
 { uiShortcutsDlg dlg( par_, "ODScene" ); dlg.go(); }
 void uiODApplMgrDispatcher::createCubeFromWells()
-{ am_.wellattrserv_->createLogCube( MultiID::udf() ); }
+{ am_.wellAttribServer()->createLogCube( MultiID::udf() ); }
 
 void uiODApplMgrDispatcher::process2D3D( int opt )
 {
     if ( opt==0 )
-	am_.emattrserv_->create2DGrid( nullptr );
+	am_.EMAttribServer()->create2DGrid( nullptr );
     else if ( opt==1 )
     {
 	uiSeis2DFrom3D dlg( par_ );

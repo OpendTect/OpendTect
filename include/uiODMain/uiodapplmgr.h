@@ -10,18 +10,16 @@ ________________________________________________________________________
 
 #include "uiodmainmod.h"
 
+#include "uiapplserv.h"
 #include "uiodmain.h"
 #include "survinfo.h"
 
 class MouseCursorExchange;
-class uiApplPartServer;
-class uiApplService;
 class uiAttribPartServer;
 class uiEMAttribPartServer;
 class uiEMPartServer;
 class uiMPEPartServer;
 class uiNLAPartServer;
-class uiODApplService;
 class uiPickPartServer;
 class uiSeisPartServer;
 class uiTreeItem;
@@ -51,7 +49,7 @@ namespace Pick { class Set; }
 
  */
 
-mExpClass(uiODMain) uiODApplMgr : public CallBacker
+mExpClass(uiODMain) uiODApplMgr : public uiApplMgr
 { mODTextTranslationClass(uiODApplMgr);
 public:
 
@@ -80,10 +78,9 @@ public:
     const uiMPEPartServer*	mpeServer() const	{ return mpeserv_; }
     const uiNLAPartServer*	nlaServer() const	{ return nlaserv_; }
 
-    void			setNlaServer(uiNLAPartServer* s);
-    uiApplService&		applService()
-				{ return (uiApplService&)applservice_; }
+    void			setNlaServer(uiNLAPartServer*);
 
+    uiVisColTabEd&		colTabEd()	{ return appl_.colTabEd(); }
 
     // Survey menu operations
     int				selectSurvey(uiParent*);
@@ -220,6 +217,7 @@ public:
     void			enableSceneManipulation(bool);
 				/*!<Turns on/off viewMode and enables/disables
 				    the possibility to go to actMode. */
+    void			updateCaption() { appl_.updateCaption(); }
 
     Notifier<uiODApplMgr>	getOtherFormatData;
 				/*!<Is triggered when the vispartserver wants
@@ -240,12 +238,10 @@ public:
     static void			showReleaseNotes(bool isonline);
 
 protected:
-
 				uiODApplMgr(uiODMain&);
 				~uiODApplMgr();
 
     uiODMain&			appl_;
-    uiODApplService&		applservice_;
 
     uiPickPartServer*		pickserv_;
     uiVisPartServer*		visserv_;
@@ -278,8 +274,10 @@ protected:
     static int			manSurv(uiParent*);
     bool			survChgReqAttrUpdate();
 
-    bool			handleEvent(const uiApplPartServer*,int);
-    void*			deliverObject(const uiApplPartServer*,int);
+    bool			handleEvent(const uiApplPartServer*,
+					    int evid) override;
+    void*			deliverObject(const uiApplPartServer*,
+					      int evid) override;
 
     bool			handleMPEServEv(int);
     bool			handleWellServEv(int);
@@ -307,8 +305,6 @@ protected:
     void			process2D3D(int opt); /*!<opt=0: create 2D grid,
 							  1:3D->2D, 2:2D->3D */
 
-    friend class		uiODApplService;
-
     inline uiODSceneMgr&	sceneMgr()	{ return appl_.sceneMgr(); }
 
     VisID			otherformatvisid_;
@@ -317,8 +313,6 @@ protected:
     uiVisDataPointSetDisplayMgr* visdpsdispmgr_		= nullptr;
 
     friend class		uiODMain;
-    friend class		uiODApplMgrDispatcher;
-    friend class		uiODApplMgrAttrVisHandler;
 
 public:
     void			launch2DViewer(CallBacker*);
