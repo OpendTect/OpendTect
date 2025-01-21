@@ -1293,6 +1293,10 @@ bool OD::PythonAccess::getInternalEnvironmentLocation( FilePath& fp,
     }
 
     fp.set( GetSoftwareDir(false) );
+    
+    if (__ismac__)
+        fp.set( fp.pathOnly() );
+    
     DirList dl( fp.pathOnly(), File::DirListType::DirsInDir );
     const BufferStringSet::idx_type defidx = dl.nearestMatch( "Python" );
     if ( dl.validIdx(defidx) )
