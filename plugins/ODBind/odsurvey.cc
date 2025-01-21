@@ -29,6 +29,7 @@ ________________________________________________________________________________
 #include "iopar.h"
 #include "keystrs.h"
 #include "latlong.h"
+#include "moddepmgr.h"
 #include "odjson.h"
 #include "settings.h"
 #include "surveyfile.h"
@@ -335,6 +336,10 @@ IOObj* odSurvey::createObj( const char* objname, const char* trgrpnm,
 	 !TranslatorGroup::getGroup(trgrpnm).getTemplate(translkey,true) )
 	return nullptr;
 
+    IOObjContext ctxt = TranslatorGroup::getGroup(trgrpnm).ioCtxt();
+    ctxt.forread_ = false;
+    ctxt.deftransl_ = translkey;
+    IOM().to( ctxt.getSelKey() );
     if ( isObjPresent(objname, trgrpnm) )
     {
 	if ( overwrite )
@@ -355,10 +360,6 @@ IOObj* odSurvey::createObj( const char* objname, const char* trgrpnm,
 	}
     }
 
-    IOObjContext ctxt = TranslatorGroup::getGroup(trgrpnm).ioCtxt();
-    ctxt.forread_ = false;
-    ctxt.deftransl_ = translkey;
-    IOM().to( ctxt.getSelKey() );
     CtxtIOObj ctio( ctxt );
     ctio.setName( objname );
     IOM().getEntry( ctio, false );
@@ -399,7 +400,7 @@ void odSurvey::removeObj( const char* objname, const char* trgrpnm ) const
 
     PtrMan<IOObj> ioobj = IOM().get( objname, trgrpnm );
     if ( !ioobj || !IOM().to(ioobj->key()) ||
-					!IOM().implRemove(ioobj->key(), true) )
+				!IOM().implRemove(ioobj->key(), true) )
 	errmsg_ = "cannot remove object";
 }
 
@@ -418,6 +419,12 @@ extern "C" { mGlobal(General) const char* setDBMDataSource(const char*, bool); }
 
 bool odSurvey::activate() const
 {
+    if( DBG::isOn(DBG_PROGSTART) )
+    {
+	BufferString msg( "Activate: ", survey_ );
+	DBG::message( msg );
+    }
+
     const bool hasiom = IOMan::isOK();
     if ( basedir_==curbasedir_ && survey_==cursurvey_ && hasiom )
 	return true;
@@ -425,7 +432,10 @@ bool odSurvey::activate() const
     const char* uirv = setDBMDataSource(
 			  FilePath(basedir_, survey_).fullPath(), hasiom );
     if ( uirv && *uirv )
+    {
+	errmsg_ = BufferString( "survey activation failed: ", uirv );
 	return false;
+    }
 
     curbasedir_ = basedir_;
     cursurvey_ = survey_;
@@ -698,6 +708,16 @@ hStringSet survey_getobjnames( hSurvey self, const char* trgrpnm )
 {
     const auto* p = static_cast<odSurvey*>(self);
     return p->getObjNames( trgrpnm );
+}
+
+hStringSet survey_trgroups()
+{
+    const ObjectSet<TranslatorGroup>& grps = TranslatorGroup::groups();
+    auto* res = new BufferStringSet;
+    for ( const auto* grp : grps )
+	res->add( BufferString(grp->groupName().buf(), " - ",
+			       grp->typeName().getString()) );
+    return res;
 }
 
 const char* survey_info( hSurvey self )

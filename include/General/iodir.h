@@ -105,6 +105,7 @@ private:
     IOObj*		get(const MultiID&);
     void		addObjectNoWrite(IOObj*);
     void		addObjNoChecks(IOObj*);
+    void		rebuild_objidmap();
 
     MultiID		newKey() const;
 

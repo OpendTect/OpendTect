@@ -76,7 +76,7 @@ gbase.linenames()
 Return the line name for the given lineid
 
 ```python
-gbase.linename(3)
+gbase.linename(4)
 ```
 
 ### Horizon2D.getz(lineid), Horizon2D.getxy(lineid) and Horizon2D.get_xarray(lineid) functions
@@ -100,7 +100,7 @@ gbase.feature()
 
 ```python
 import folium
-survmap = folium.Map(location=[52.3,8.0], tiles="Stamen Terrain", zoom_start = 6, min_lat=-90, max_lat=90, min_lon=-180, max_lon=180, max_bounds=True, maxBoundsViscosity=1)
+survmap = folium.Map(location=[52.3,8.0], zoom_start = 6, min_lat=-90, max_lat=90, min_lon=-180, max_lon=180, max_bounds=True, maxBoundsViscosity=1)
 folium.GeoJson(gbase.feature(), popup=folium.GeoJsonPopup(fields=['name'])).add_to(survmap)
 survmap
 ```
@@ -113,11 +113,11 @@ hors = Horizon2D.names(f3demo)
 hors
 ```
 
-### Horizon2D.infos() and Horizon2D.infos_dataframe() functions
-These return a dictionary and a Pandas DataFrame respectively with basic information for the listed horizons (or all horizons if no list provided) in the given survey.
+### Horizon2D.infos() function
+This returns a dictionary or a Pandas DataFrame (depending on the value of Horizon2D.use_dataframe) with basic information for the listed horizons (or all horizons if no list provided) in the given survey.
 
 ```python
-Horizon2D.infos_dataframe(f3demo)
+Horizon2D.infos(f3demo)
 ```
 
 ### Horizon2D.features() function

@@ -237,8 +237,8 @@ void odWell::getLogs( hAllocator allocator, const BufferStringSet& lognms,
 		float* dah_data = static_cast<float*>(
 						allocator(ndim, dims, 'f') );
 		for ( int idx=0; idx<outlog->size(); idx++ )
-		    *dah_data++ = getConvertedValue( outlog->dah(idx), zsuom,
-						     zduom );
+		    *dah_data++ = getConvertedValue( outlog->dah(idx),
+						     zsuom, zduom );
 
 		first = false;
 		jsuomobj.set( "dah",
@@ -249,7 +249,7 @@ void odWell::getLogs( hAllocator allocator, const BufferStringSet& lognms,
 						allocator(ndim, dims, 'f') );
 	    for ( int idx=0; idx<outlog->size();idx++ )
 		*log_data++ = mIsUdf(outlog->value(idx)) ? nanf("") :
-							    outlog->value(idx);
+						    outlog->value(idx);
 
 	    jsuomobj.set( lognm->buf(), log->unitMeasLabel() );
 	}

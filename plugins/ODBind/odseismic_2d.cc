@@ -69,6 +69,16 @@ void odSeismic2D::close()
 }
 
 
+bool odSeismic2D::isPresent( const char* line ) const
+{
+    PtrMan<Seis2DDataSet> seisdata( seisdata_ptr() );
+    if ( seisdata )
+	return seisdata->isPresent( line );
+
+    return false;
+}
+
+
 int odSeismic2D::getNrLines() const
 {
     PtrMan<Seis2DDataSet> seisdata( seisdata_ptr() );
@@ -249,7 +259,8 @@ void odSeismic2D::putData( const char* linenm, const float** data,
 	if ( !trc )
 	    return;
 
-	trc->setNrComponents( components_.size(), DataCharacteristics::F32 );
+	trc->setNrComponents( components_.size(),
+				    DataCharacteristics::F32 );
 	trc->info().setTrcKey( trckey );
 	trc->info().coord_ = trckey.getCoord();
 	trc->info().sampling_ = sd;
@@ -321,6 +332,7 @@ void odSeismic2D::getInfo( OD::JSON::Object& jsobj ) const
     const SeisIOObjInfo seisinfo( ioobj.ptr() );
     const ZDomain::Def& zdef = seisinfo.zDomainDef();
     jsobj.set( "name", getName().buf() );
+    jsobj.set( "data_type", seisdata_ptr()->dataType() );
     jsobj.set( "line_count", getNrLines() );
     jsobj.set( "zunit", zdef.unitStr() );
     jsobj.set( "comp_count", getNrComponents() );
@@ -361,6 +373,27 @@ void odSeismic2D::getPoints( OD::JSON::Array& jsarr, bool towgs ) const
 	survey_.makeCoordsList( *jscoords, coords, towgs );
 	jsarr.add( jscoords );
     }
+}
+
+
+BufferStringSet* odSeismic2D::namesForLine( const odSurvey& survey,
+					    const char* line )
+{
+    BufferStringSet* res = nullptr;
+    PtrMan<BufferStringSet> names = odSurveyObject::getNames<odSeismic2D>(
+								    survey );
+    for ( const auto* name : *names )
+    {
+	const auto seis2d = odSeismic2D( survey, *name );
+	if ( seis2d.isPresent(line) )
+	{
+	    if ( !res )
+		res = new BufferStringSet;
+
+	    res->add( *name );
+	}
+    }
+    return res;
 }
 
 
@@ -460,3 +493,10 @@ bool seismic2d_deletelines( hSeismic2D self, const hStringSet linenms )
 }
 
 
+hStringSet seismic2d_names_for( hSurvey survey, const char* line )
+{
+    auto* p = static_cast<odSurvey*>(survey);
+    if ( !p || !line ) return nullptr;
+
+    return odSeismic2D::namesForLine( *p, line );
+}

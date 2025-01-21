@@ -136,14 +136,14 @@ odHorizon3D::~odHorizon3D()
 }
 
 
-RefMan<EM::Horizon3D> odHorizon3D::getHorizonObj( bool create)
+EM::Horizon3D* odHorizon3D::getHorizonObj( bool create )
 {
     ConstPtrMan<IOObj> ioobj( ioobj_ptr() );
     if ( !ioobj )
 	return nullptr;
 
     const EM::IOObjInfo eminfo( ioobj.ptr() );
-    RefMan<EM::Horizon3D> hor3d;
+    EM::Horizon3D* hor3d = nullptr;
     if ( eminfo.isOK() && EM::isHorizon(eminfo.type()) )
     {
 	const MultiID hor3dkey = ioobj->key();
@@ -158,7 +158,11 @@ RefMan<EM::Horizon3D> odHorizon3D::getHorizonObj( bool create)
     }
     else if ( create )
     {
-	hor3d = EM::Horizon3D::create( name_);
+	hor3d = static_cast<EM::Horizon3D*>(
+			EM::EMM().createTempObject(EM::Horizon3D::typeStr()) );
+	if ( !hor3d )
+	    return nullptr;
+
 	if ( hor3d )
 	    hor3d->setMultiID( ioobj->key() );
     }
@@ -181,8 +185,9 @@ void odHorizon3D::save()
 
 	if ( hor3d->setArray2D(array_.ptr(),tk_.start_,tk_.step_) )
 	{
+	    hor3d->setFullyLoaded( true );
 	    PtrMan<Executor> saver = hor3d->saver();
-	    if (!saver || !TaskRunner::execute(nullptr, *saver.ptr()) )
+	    if (!saver || !TaskRunner::execute(nullptr, *saver) )
 	    {
 		errmsg_ = "odHorizon3D::save - error during save.";
 		return;
@@ -358,7 +363,8 @@ void odHorizon3D::putZ( const float* data, const TrcKeySampling& tk )
 	else
 	    val /= zfac;
 
-	array_->set( tk_.lineIdx(trckey.inl()), tk_.trcIdx(trckey.crl()), val );
+	array_->set( tk_.lineIdx(trckey.inl()), tk_.trcIdx(trckey.crl()),
+			   val );
 	writecount_++;
     }
 
@@ -512,7 +518,7 @@ odHorizon2D::~odHorizon2D()
 //	if ( hor3d->setArray2D(array_, tk_.start_, tk_.step_) )
 //	{
 //	    PtrMan<Executor> saver = hor3d->saver();
-//	    if (!saver || !TaskRunner::execute(nullptr, *saver.ptr()) )
+//	    if (!saver || !TaskRunner::execute(nullptr, *saver) )
 //		throw( pybind11::value_error("failed during horizon save") );
 //	}
 //     }

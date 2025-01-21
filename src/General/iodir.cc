@@ -328,6 +328,17 @@ void IODir::reRead()
 }
 
 
+void IODir::rebuild_objidmap()
+{
+    objidmap_.clear();
+    for (int idx=0; idx<objs_.size(); idx++ )
+    {
+	const IOObj* ioobj = objs_[idx];
+	objidmap_[ioobj->key_.objectID()] = idx;
+    }
+}
+
+
 bool IODir::permRemove( const MultiID& ky )
 {
     update();
@@ -339,7 +350,7 @@ bool IODir::permRemove( const MultiID& ky )
 	return false;
 
     delete objs_.removeSingle( idx );
-    objidmap_.erase( ky.objectID() );
+    rebuild_objidmap();
     return doWrite();
 }
 
@@ -358,12 +369,10 @@ bool IODir::permRemove( const TypeSet<MultiID>& keys )
     {
 	const MultiID ky = objs_[idx]->key();
 	if ( keys.isPresent(ky) )
-	{
 	    delete objs_.removeSingle( idx );
-	    objidmap_.erase( ky.objectID() );
-	}
     }
 
+    rebuild_objidmap();
     return doWrite();
 }
 

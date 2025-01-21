@@ -188,7 +188,7 @@ bool SeisTrc2DTranslator::implRemove( const IOObj* ioobj, bool ) const
     if ( !ioobj )
 	return true;
 
-    return File::remove( ioobj->fullUserExpr(true) );
+    return File::removeDir( ioobj->fullUserExpr(true) );
 }
 
 

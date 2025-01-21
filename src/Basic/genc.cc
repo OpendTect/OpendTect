@@ -1110,6 +1110,7 @@ mExternC(Basic) bool SetBindings( const char* odbindir, int argc, char** argv,
     delete [] newargv;
 
     OD::ModDeps().ensureLoaded( "Network" );
+    OD::ModDeps().ensureLoaded( "Geometry" );
 
     return ret;
 }

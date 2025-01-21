@@ -79,7 +79,7 @@ protected:
     PtrMan<Array2D<float>>	array_;
     size_t			writecount_ = 0;
 
-    RefMan<EM::Horizon3D>	getHorizonObj(bool create=false);
+    EM::Horizon3D*		getHorizonObj(bool create=false);
     void			save();
 
 };

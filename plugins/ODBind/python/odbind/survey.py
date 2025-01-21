@@ -32,6 +32,7 @@ class Survey(object):
     _path = wrap_function(LIBODB, 'survey_path', ct.POINTER(ct.c_char_p), [ct.c_void_p])
     _type = wrap_function(LIBODB, 'survey_survtype', ct.POINTER(ct.c_char_p), [ct.c_void_p])
     _zrange = wrap_function(LIBODB, 'survey_zrange', None, [ct.c_void_p, ct.POINTER(ct.c_float)])
+    _trgroups = wrap_function(LIBODB, 'survey_trgroups', ct.c_void_p, [])
 
     def __init__(self, survey_name: str, basedir: str=None):
         """Initialise an OpendTect survey object
@@ -396,6 +397,14 @@ class Survey(object):
         stringset_del(fornmsptr)
         return res
 
+    @staticmethod
+    def trgroups() -> list[str]:
+        """ Returns a list of the translator group names and translator type names
+            in the format 'Tranlator Groupname' - 'Translator Typename'
+        """
+
+        return pystrlist(Survey._trgroups())
+    
 import odbind as odb
 import ctypes as ct
 

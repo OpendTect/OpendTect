@@ -6,7 +6,7 @@ jupyter:
       extension: .md
       format_name: markdown
       format_version: '1.3'
-      jupytext_version: 1.14.0
+      jupytext_version: 1.14.5
   kernelspec:
     display_name: Python 3 (ipykernel)
     language: python
@@ -131,11 +131,12 @@ wells = Well.names(f3demo)
 wells
 ```
 
-### Well.infos() and Well.infos_dataframe() functions
-These return a dictionary and a Pandas DataFrame respectively with basic information for the listed wells (or all wells if no list provided) in the given survey.
+### Well.infos() functions
+This returns a dictionary or a Pandas DataFrame (depending on the value of Well.use_dataframe) with basic information for the listed wells (or all wells if no list provided) in the given survey.
 
 ```python
-Well.infos_dataframe(f3demo)
+Well.use_dataframe = True
+Well.infos(f3demo)
 ```
 
 ### Well.features() function
@@ -149,7 +150,7 @@ features
 
 ```python
 import folium
-wellmap = folium.Map(location=[52.3,8.0], tiles="Stamen Terrain", zoom_start = 6, min_lat=-90, max_lat=90, min_lon=-180, max_lon=180, max_bounds=True, maxBoundsViscosity=1)
+wellmap = folium.Map(location=[52.3,8.0], zoom_start = 6, min_lat=-90, max_lat=90, min_lon=-180, max_lon=180, max_bounds=True, maxBoundsViscosity=1)
 folium.GeoJson(features, popup=folium.GeoJsonPopup(fields=['name'])).add_to(wellmap)
 wellmap
 ```

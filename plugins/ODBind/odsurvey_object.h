@@ -193,6 +193,12 @@ void odSurveyObject::removeObjects( const odSurvey& survey,
 #define mDefineBaseBindings(classnm, bindnm) \
     h##classnm bindnm##_newin( hSurvey survey, const char* name ) \
     { \
+	if( DBG::isOn(DBG_PROGSTART) ) \
+	{ \
+	    BufferString msg( "Connect to ",#classnm, ": " ); \
+	    msg.add( name ); \
+	    DBG::message( msg ); \
+	} \
 	const auto* surv = static_cast<odSurvey*>(survey); \
 	return surv && name ? new od##classnm( *surv, name ) : nullptr; \
     } \

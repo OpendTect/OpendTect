@@ -62,6 +62,7 @@ def test_Seismic2D_class(survey):
     assert 'pytest' in Seismic2D.names(survey)
     info = {
                 'name': 'pytest',
+                'data_type': '',
                 'line_count': 1,
                 'zunit': si['zunit'],
                 'comp_count': len(data_info['comp']),

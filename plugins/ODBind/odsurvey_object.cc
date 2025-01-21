@@ -72,7 +72,10 @@ IOObj*	odSurveyObject::ioobj_ptr() const
     survey_.activate();
     IOObj* ioobj = IOM().get( name_, tgname_ );
     if ( !ioobj )
+    {
+	errmsg_ = IOM().message();
 	errmsg_.insertAt( 0, "IO object read error - " );
+    }
 
     return ioobj;
 }
