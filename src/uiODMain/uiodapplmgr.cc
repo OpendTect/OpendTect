@@ -77,10 +77,10 @@ ________________________________________________________________________
 
 
 uiODApplMgr::uiODApplMgr( uiODMain& a )
-    : attribSetChg(this)
+    : uiApplMgr(a,*new uiODApplService(&a,*this))
+    , attribSetChg(this)
     , getOtherFormatData(this)
     , appl_(a)
-    , applservice_(*new uiODApplService(&a,*this))
     , dispatcher_(*new uiODApplMgrDispatcher(*this,&appl_))
     , attrvishandler_(*new uiODApplMgrAttrVisHandler(*this,&appl_))
     , mousecursorexchange_( *new MouseCursorExchange )
@@ -137,7 +137,6 @@ uiODApplMgr::~uiODApplMgr()
     delete emattrserv_;
     delete wellserv_;
     delete wellattrserv_;
-    delete &applservice_;
     delete &dispatcher_;
     delete visdpsdispmgr_;
 
@@ -509,8 +508,8 @@ bool uiODApplMgr::getNewData( const VisID& visid, int attrib )
     if ( !as || as->isEmpty() )
     {
 	uiString msg( tr("Cannot calculate attribute on this object") );
-	if ( ODMainWin()->isRestoringSession() )
-	    ODMainWin()->restoreMsgs().add( msg );
+	if ( isRestoringSession() )
+	    appl_.restoreMsgs().add( msg );
 	else
 	    uiMSG().error( msg );
 
@@ -533,8 +532,8 @@ bool uiODApplMgr::getNewData( const VisID& visid, int attrib )
 	{
 	    uiString msg( tr("Cannot find selected attribute: %1").
 						    arg(myas[idx].userRef()) );
-	    if ( ODMainWin()->isRestoringSession() )
-		ODMainWin()->restoreMsgs().add( msg );
+	    if ( isRestoringSession() )
+		appl_.restoreMsgs().add( msg );
 	    else
 		uiMSG().error( msg );
 
@@ -568,8 +567,8 @@ bool uiODApplMgr::getNewData( const VisID& visid, int attrib )
 		{
 		    uiString msg(tr("Attribute not in the set,"
 				"cannot create: '%1'").arg(myas[0].userRef()));
-		    if ( ODMainWin()->isRestoringSession() )
-			ODMainWin()->restoreMsgs().add( msg );
+		    if ( isRestoringSession() )
+			appl_.restoreMsgs().add( msg );
 		    else
 			uiMSG().error( msg );
 
@@ -581,8 +580,8 @@ bool uiODApplMgr::getNewData( const VisID& visid, int attrib )
 		newdp = calc->createAttrib( tkzs, regsdp, &progm );
 		if ( !newdp && !calc->errmsg_.isEmpty() )
 		{
-		    if ( ODMainWin()->isRestoringSession() )
-			ODMainWin()->restoreMsgs().add( calc->errmsg_ );
+		    if ( isRestoringSession() )
+			appl_.restoreMsgs().add( calc->errmsg_ );
 
 		    if ( treeitem )
 			treeitem->setToolTip( uiODSceneMgr::cColorColumn(),
@@ -590,7 +589,7 @@ bool uiODApplMgr::getNewData( const VisID& visid, int attrib )
 		}
 		else if ( treeitem )
 		    treeitem->setToolTip( uiODSceneMgr::cColorColumn(),
-			    		  uiString::empty() );
+					  uiString::empty() );
 	    }
 	    else
 	    {
@@ -887,7 +886,8 @@ bool uiODApplMgr::evaluate2DAttribute( const VisID& visid, int attrib )
 
 bool uiODApplMgr::handleEvent( const uiApplPartServer* aps, int evid )
 {
-    if ( !aps ) return true;
+    if ( !aps )
+	return true;
 
     if ( aps == pickserv_ )
 	return handlePickServEv(evid);
@@ -924,7 +924,8 @@ void* uiODApplMgr::deliverObject( const uiApplPartServer* aps, int id )
 	{
 	    if ( nlaserv_ )
 		nlaserv_->set2DEvent( isnlamod2d );
-	    return nlaserv_ ? (void*)(&nlaserv_->getModel()) : 0;
+
+	    return nlaserv_ ? (void*)(&nlaserv_->getModel()) : nullptr;
 	}
     }
     else
@@ -932,7 +933,7 @@ void* uiODApplMgr::deliverObject( const uiApplPartServer* aps, int id )
 	pErrMsg("deliverObject for unsupported part server");
     }
 
-    return 0;
+    return nullptr;
 }
 
 
@@ -2000,7 +2001,9 @@ void uiODApplMgr::MiscSurvInfo::refresh()
 
 
 bool uiODApplMgr::isRestoringSession() const
-{ return appl_.isRestoringSession(); }
+{
+    return appl_.isRestoringSession();
+}
 
 
 void uiODApplMgr::showReleaseNotes( bool isonline )

@@ -52,153 +52,170 @@ void uiODApplMgrAttrVisHandler::survChg( bool before )
 
 bool uiODApplMgrAttrVisHandler::editNLA( bool is2d )
 {
-    if ( !am_.nlaserv_ ) return false;
+    uiNLAPartServer* nlaserv = am_.nlaServer();
+    if ( !nlaserv )
+	return false;
 
-    am_.nlaserv_->set2DEvent( is2d );
-    const bool res = am_.nlaserv_->go();
-    if ( !res ) am_.attrserv_->setNLAName( am_.nlaserv_->modelName() );
+    nlaserv->set2DEvent( is2d );
+    const bool res = nlaserv->go();
+    if ( !res )
+	am_.attrServer()->setNLAName( nlaserv->modelName() );
+
     return res;
 }
 
 
 bool uiODApplMgrAttrVisHandler::uvqNLA( bool is2d )
 {
-    if ( !am_.nlaserv_ ) return false;
+    uiNLAPartServer* nlaserv = am_.nlaServer();
+    if ( !nlaserv )
+	return false;
 
-    am_.nlaserv_->set2DEvent( is2d );
-    const bool res = am_.nlaserv_->doUVQ();
+    nlaserv->set2DEvent( is2d );
+    const bool res = nlaserv->doUVQ();
     return res;
 }
 
 
 void uiODApplMgrAttrVisHandler::createHorOutput( int tp, bool is2d )
 {
-    am_.emattrserv_->setDescSet( am_.attrserv_->curDescSet(is2d) );
+    uiEMAttribPartServer* emattrserv = am_.EMAttribServer();
+    uiNLAPartServer* nlaserv = am_.nlaServer();
+    emattrserv->setDescSet( am_.attrServer()->curDescSet(is2d) );
     MultiID nlaid;
     const NLAModel* nlamdl = nullptr;
-    if ( am_.nlaserv_ )
+    if ( nlaserv )
     {
-	am_.nlaserv_->set2DEvent( is2d );
-	nlaid = am_.nlaserv_->modelId();
-	nlamdl = &am_.nlaserv_->getModel();
+	nlaserv->set2DEvent( is2d );
+	nlaid = nlaserv->modelId();
+	nlamdl = &nlaserv->getModel();
     }
-    am_.emattrserv_->setNLA( nlamdl, nlaid );
 
+    emattrserv->setNLA( nlamdl, nlaid );
     const auto type = sCast(uiEMAttribPartServer::HorOutType,tp);
-    am_.emattrserv_->createHorizonOutput( type );
+    emattrserv->createHorizonOutput( type );
 }
 
 
 void uiODApplMgrAttrVisHandler::saveNLA(CallBacker*)
 {
-    if ( am_.nlaserv_ )
-	am_.nlaserv_->doStore();
+    uiNLAPartServer* nlaserv = am_.nlaServer();
+    if ( nlaserv )
+	nlaserv->doStore();
 }
-
 
 
 void uiODApplMgrAttrVisHandler::createVol( bool is2d, bool multiattrib )
 {
     MultiID nlaid;
-    if ( am_.nlaserv_ )
+    uiNLAPartServer* nlaserv = am_.nlaServer();
+    if ( nlaserv )
     {
-	am_.nlaserv_->set2DEvent( is2d );
-	nlaid = am_.nlaserv_->modelId();
+	nlaserv->set2DEvent( is2d );
+	nlaid = nlaserv->modelId();
     }
-    am_.attrserv_->outputVol( nlaid, is2d, multiattrib );
-    mAttachCB( am_.attrserv_->needSaveNLA,uiODApplMgrAttrVisHandler::saveNLA );
+
+    am_.attrServer()->outputVol( nlaid, is2d, multiattrib );
+    mAttachCB( am_.attrServer()->needSaveNLA,
+	       uiODApplMgrAttrVisHandler::saveNLA );
 }
 
 
 void uiODApplMgrAttrVisHandler::doXPlot()
 {
-    const Attrib::DescSet* ads = am_.attrserv_->getUserPrefDescSet();
-    if ( !ads ) return;
+    const Attrib::DescSet* ads = am_.attrServer()->getUserPrefDescSet();
+    if ( !ads )
+	return;
 
-    am_.wellattrserv_->setAttribSet( *ads );
-    am_.wellattrserv_->doXPlot();
+    am_.wellAttribServer()->setAttribSet( *ads );
+    am_.wellAttribServer()->doXPlot();
 }
 
 
 void uiODApplMgrAttrVisHandler::crossPlot()
 {
-    const Attrib::DescSet* ads = am_.attrserv_->getUserPrefDescSet();
-    if ( !ads ) return;
+    const Attrib::DescSet* ads = am_.attrServer()->getUserPrefDescSet();
+    if ( !ads )
+	return;
 
-    am_.attrserv_->set2DEvent( ads->is2D() );
-    am_.attrserv_->showXPlot(0);
+    am_.attrServer()->set2DEvent( ads->is2D() );
+    am_.attrServer()->showXPlot( nullptr );
 }
 
 
 void uiODApplMgrAttrVisHandler::setZStretch()
 {
-    am_.visserv_->setZStretch();
+    am_.visServer()->setZStretch();
 }
 
 
 bool uiODApplMgrAttrVisHandler::selectAttrib( const VisID& id, int attrib )
 {
-    if ( am_.appl_.isRestoringSession() ) return false;
+    if ( am_.isRestoringSession() )
+	return false;
 
     if ( !id.isValid() )
 	return false;
 
-    const Attrib::SelSpec* as = am_.visserv_->getSelSpec( id, attrib );
-    if ( !as ) return false;
+    uiVisPartServer* visserv = am_.visServer();
+    const Attrib::SelSpec* as = visserv->getSelSpec( id, attrib );
+    if ( !as )
+	return false;
 
     if ( as->id()==Attrib::SelSpec::cAttribNotSel() &&
-	 !am_.visserv_->isAttribEnabled( id, attrib ) )
+	 !visserv->isAttribEnabled( id, attrib ) )
 	return false;
 
     uiString attribposname;
-    am_.visserv_->getAttribPosName( id, attrib, attribposname );
+    visserv->getAttribPosName( id, attrib, attribposname );
 
-    const Pos::GeomID geomid = am_.visserv_->getGeomID( id );
-    const ZDomain::Info* zdinf =
-	am_.visserv_->zDomainInfo( am_.visserv_->getSceneID(id) );
+    const Pos::GeomID geomid = visserv->getGeomID( id );
+    const ZDomain::Info* zdinf = visserv->zDomainInfo( visserv->getSceneID(id));
     const bool issi = !zdinf || zdinf->def_.isSI();
     Attrib::SelSpec myas( *as );
-    const bool selok = am_.attrserv_->selectAttrib( myas, issi ? 0 : zdinf,
+    const bool selok = am_.attrServer()->selectAttrib( myas, issi ? 0 : zdinf,
 						    geomid, attribposname);
-    const TypeSet<Attrib::SelSpec>& ass = am_.attrserv_->getTargetSelSpecs();
+    const TypeSet<Attrib::SelSpec>& ass = am_.attrServer()->getTargetSelSpecs();
     if ( selok && !ass.isEmpty() )
-	am_.visserv_->setSelSpecs( id, attrib, ass );
+	visserv->setSelSpecs( id, attrib, ass );
+
     return selok;
 }
 
 
 void uiODApplMgrAttrVisHandler::setHistogram( const VisID& visid, int attrib )
 {
-    am_.appl_.colTabEd().setHistogram(
-		am_.visserv_->getHistogram(visid,attrib) );
+    am_.colTabEd().setHistogram( am_.visServer()->getHistogram(visid,attrib) );
 }
 
 
 bool uiODApplMgrAttrVisHandler::setRandomPosData( const VisID& visid,
 					int attrib, const DataPointSet& data )
 {
-    ConstRefMan<DataPack> cachedp = am_.visserv_->getDataPack( visid, attrib );
+    ConstRefMan<DataPack> cachedp =
+				am_.visServer()->getDataPack( visid, attrib );
     if ( !cachedp )
 	am_.useDefColTab( visid, attrib );
 
-    return am_.visserv_->setRandomPosData( visid, attrib, &data );
+    return am_.visServer()->setRandomPosData( visid, attrib, &data );
 }
 
 
 void uiODApplMgrAttrVisHandler::pageUpDownPressed( bool pageup )
 {
-    const VisID visid = am_.visserv_->getEventObjId();
-    const int attrib = am_.visserv_->getSelAttribNr();
-    if ( attrib<0 || attrib>=am_.visserv_->getNrAttribs(visid) )
+    uiVisPartServer* visserv = am_.visServer();
+    const VisID visid = visserv->getEventObjId();
+    const int attrib = visserv->getSelAttribNr();
+    if ( attrib<0 || attrib>=visserv->getNrAttribs(visid) )
 	return;
 
-    int texture = am_.visserv_->selectedTexture( visid, attrib );
-    if ( texture<am_.visserv_->nrTextures(visid,attrib)-1 && !pageup )
+    int texture = visserv->selectedTexture( visid, attrib );
+    if ( texture<visserv->nrTextures(visid,attrib)-1 && !pageup )
 	texture++;
     else if ( texture && pageup )
 	texture--;
 
-    am_.visserv_->selectTexture( visid, attrib, texture );
+    visserv->selectTexture( visid, attrib, texture );
     updateColorTable( visid, attrib );
 }
 
@@ -206,22 +223,23 @@ void uiODApplMgrAttrVisHandler::pageUpDownPressed( bool pageup )
 void uiODApplMgrAttrVisHandler::updateColorTable( const VisID& visid,
 						  int attrib  )
 {
-    if ( attrib<0 || attrib>=am_.visserv_->getNrAttribs(visid) )
+    uiVisPartServer* visserv = am_.visServer();
+    if ( attrib<0 || attrib>=visserv->getNrAttribs(visid) )
     {
-	am_.appl_.colTabEd().setColTab( 0, false, 0, false );
+	am_.colTabEd().setColTab( 0, false, 0, false );
 	return;
     }
 
     mDynamicCastGet( visSurvey::SurveyObject*, so,
-	am_.visserv_->getObject( visid ) );
+		     visserv->getObject( visid ) );
     if ( so )
-	am_.appl_.colTabEd().setColTab( so, attrib, mUdf(int) );
+	am_.colTabEd().setColTab( so, attrib, mUdf(int) );
     else
     {
-	am_.appl_.colTabEd().setColTab(
-	    am_.visserv_->getColTabSequence( visid, attrib ),
-	    true, am_.visserv_->getColTabMapperSetup(visid,attrib),
-	    am_.visserv_->canHandleColTabSeqTrans(visid,attrib) );
+	am_.colTabEd().setColTab(
+	    visserv->getColTabSequence( visid, attrib ), true,
+	    visserv->getColTabMapperSetup(visid,attrib),
+	    visserv->canHandleColTabSeqTrans(visid,attrib) );
     }
 
     setHistogram( visid, attrib );
@@ -230,78 +248,77 @@ void uiODApplMgrAttrVisHandler::updateColorTable( const VisID& visid,
 
 void uiODApplMgrAttrVisHandler::colMapperChg()
 {
-    ConstRefMan<visBase::DataObject> dataobj =
-					     am_.appl_.colTabEd().getDataObj();
+    uiVisPartServer* visserv = am_.visServer();
+    ConstRefMan<visBase::DataObject> dataobj = am_.colTabEd().getDataObj();
     const VisID visid = dataobj ? dataobj->id()
-				: am_.visserv_->getSelObjectId();
-    int attrib = dataobj ? am_.appl_.colTabEd().getChannel()
-			 : am_.visserv_->getSelAttribNr();
+				: visserv->getSelObjectId();
+    int attrib = dataobj ? am_.colTabEd().getChannel()
+			 : visserv->getSelAttribNr();
     if ( attrib == -1 )
 	attrib = 0;
 
-    am_.visserv_->setColTabMapperSetup( visid, attrib,
-				am_.appl_.colTabEd().getColTabMapperSetup() );
+    visserv->setColTabMapperSetup( visid, attrib,
+				   am_.colTabEd().getColTabMapperSetup());
     setHistogram( visid, attrib );
 
     //Autoscale may have changed ranges, so update.
     mDynamicCastGet( visSurvey::SurveyObject*, so,
-		     am_.visserv_->getObject(visid) );
+		     visserv->getObject(visid) );
     if ( so )
-	am_.appl_.colTabEd().setColTab( so, attrib, mUdf(int) );
+	am_.colTabEd().setColTab( so, attrib, mUdf(int) );
     else
     {
-	am_.appl_.colTabEd().setColTab(
-	    am_.visserv_->getColTabSequence( visid, attrib ),
-	    true, am_.visserv_->getColTabMapperSetup(visid,attrib),
-	    am_.visserv_->canHandleColTabSeqTrans(visid,attrib) );
+	am_.colTabEd().setColTab(
+	    visserv->getColTabSequence( visid, attrib ), true,
+	    visserv->getColTabMapperSetup(visid,attrib),
+	    visserv->canHandleColTabSeqTrans(visid,attrib) );
     }
 }
 
 
 void uiODApplMgrAttrVisHandler::colSeqChg()
 {
-    ConstRefMan<visBase::DataObject> dataobj =
-					     am_.appl_.colTabEd().getDataObj();
-    const VisID visid =
-		dataobj ? dataobj->id() : am_.visserv_->getSelObjectId();
-    int attrib = dataobj ? am_.appl_.colTabEd().getChannel()
-			 : am_.visserv_->getSelAttribNr();
+    uiVisPartServer* visserv = am_.visServer();
+    ConstRefMan<visBase::DataObject> dataobj = am_.colTabEd().getDataObj();
+    const VisID visid = dataobj ? dataobj->id() : visserv->getSelObjectId();
+    int attrib = dataobj ? am_.colTabEd().getChannel()
+			 : visserv->getSelAttribNr();
 
     if ( attrib == -1 )
 	attrib = 0;
 
     setHistogram( visid, attrib );
-    am_.visserv_->setColTabSequence( visid, attrib,
-				     am_.appl_.colTabEd().getColTabSequence() );
+    visserv->setColTabSequence( visid, attrib,
+				am_.colTabEd().getColTabSequence() );
 }
 
 
 NotifierAccess* uiODApplMgrAttrVisHandler::colorTableSeqChange()
 {
-    return &am_.appl_.colTabEd().seqChange();
+    return &am_.colTabEd().seqChange();
 }
 
 
 void uiODApplMgrAttrVisHandler::useDefColTab( const VisID& visid, int attrib )
 {
-    if ( am_.appl_.isRestoringSession() )
+    if ( am_.isRestoringSession() )
 	return;
 
-    const Attrib::SelSpec* as = am_.visserv_->getSelSpec( visid, attrib );
+    uiVisPartServer* visserv = am_.visServer();
+    const Attrib::SelSpec* as = visserv->getSelSpec( visid, attrib );
     if ( !as || as->id().asInt() < 0 )
 	return;
 
-    PtrMan<IOObj> ioobj = am_.attrserv_->getIOObj( *as );
+    PtrMan<IOObj> ioobj = am_.attrServer()->getIOObj( *as );
 
     ColTab::Sequence seq;
-    const ColTab::Sequence* ctseq =
-		am_.visserv_->getColTabSequence( visid, attrib );
+    const ColTab::Sequence* ctseq = visserv->getColTabSequence( visid, attrib );
     if ( ctseq )
 	seq = *ctseq;
 
     ColTab::MapperSetup mapper;
     const ColTab::MapperSetup* ctmap =
-		am_.visserv_->getColTabMapperSetup( visid, attrib );
+			    visserv->getColTabMapperSetup( visid, attrib );
     if ( ctmap )
 	mapper = *ctmap;
 
@@ -326,24 +343,26 @@ void uiODApplMgrAttrVisHandler::useDefColTab( const VisID& visid, int attrib )
 	}
     }
 
-    am_.visserv_->setColTabMapperSetup( visid, attrib, mapper );
-    am_.visserv_->setColTabSequence( visid, attrib, seq );
-    am_.appl_.colTabEd().colTab().setMapperSetup( &mapper );
-    am_.appl_.colTabEd().colTab().setSequence( &seq, true );
+    visserv->setColTabMapperSetup( visid, attrib, mapper );
+    visserv->setColTabSequence( visid, attrib, seq );
+    am_.colTabEd().colTab().setMapperSetup( &mapper );
+    am_.colTabEd().colTab().setSequence( &seq, true );
     updateColorTable( visid, attrib );
 }
 
 
 void uiODApplMgrAttrVisHandler::saveDefColTab( const VisID& visid, int attrib )
 {
-    const Attrib::SelSpec* as = am_.visserv_->getSelSpec(visid,attrib);
-    PtrMan<IOObj> ioobj = am_.attrserv_->getIOObj( *as );
-    if ( !ioobj ) return;
+    uiVisPartServer* visserv = am_.visServer();
+    const Attrib::SelSpec* as = visserv->getSelSpec(visid,attrib);
+    PtrMan<IOObj> ioobj = am_.attrServer()->getIOObj( *as );
+    if ( !ioobj )
+	return;
 
     const ColTab::Sequence* ctseq =
-		am_.visserv_->getColTabSequence( visid, attrib );
+			    visserv->getColTabSequence( visid, attrib );
     const ColTab::MapperSetup* mapper =
-		am_.visserv_->getColTabMapperSetup( visid, attrib );
+			    visserv->getColTabMapperSetup( visid, attrib );
 
     if ( mIsUdf(mapper->range_.start_) || mIsUdf(mapper->range_.stop_) )
 	return;
