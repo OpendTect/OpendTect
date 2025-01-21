@@ -84,6 +84,7 @@ set( OD_MODULE_GUI_PROGS
 
 if( WIN32 )
     set( RC_od_BatchHosts_DESC "Set up Distributed Computing" )
+    set( RC_od_RemoteServiceMgr_DESC "OpendTect Remote Service Manager" )
 endif()
 
 OD_INIT_MODULE()
