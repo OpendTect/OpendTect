@@ -11,6 +11,7 @@ ________________________________________________________________________
 #include "uiemattribmod.h"
 #include "uidialog.h"
 #include "uigroup.h"
+#include "batchjobdispatch.h"
 #include "grid2d.h"
 
 class BufferStringSet;
@@ -152,6 +153,7 @@ protected:
     uiBatchJobDispatcherSel*	batchfld_;
 
     TrcKeyZSampling&		tkzs_;
+    Batch::ID			jobid_;
 
     void			horCheckCB(CallBacker*);
     void			inpSelCB(CallBacker*);
@@ -160,6 +162,8 @@ protected:
     void			subSelCB(CallBacker*);
     void			gridChgCB(CallBacker*);
     void			finalizeCB(CallBacker*);
+    void			batchStartedCB(CallBacker*);
+    void			batchDoneCB(CallBacker*);
 
     void			fillSeisPar(IOPar&);
     void			fillHorPar(IOPar&);
