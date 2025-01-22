@@ -48,7 +48,7 @@ Geom2DInit::~Geom2DInit()
 }
 
 
-Geom2DInit& Geom2DInit::getInstance()
+Geom2DInit& Geom2DInit::instance()
 {
     static PtrMan<Geom2DInit> mgr = new Geom2DInit;
     return *mgr;
@@ -119,5 +119,5 @@ void Geom2DInit::closeQueueCB( CallBacker* )
 
 void Geom2DInit::Start()
 {
-    getInstance().start();
+    instance().start();
 }
