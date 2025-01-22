@@ -9,11 +9,13 @@ ________________________________________________________________________
 -*/
 
 #include "uiseismod.h"
+
+#include "datapackbase.h"
+#include "multiid.h"
+#include "pickretriever.h"
+#include "trckeyzsampling.h"
 #include "uidialog.h"
 #include "uigroup.h"
-#include "trckeyzsampling.h"
-#include "multiid.h"
-#include "datapackbase.h"
 
 class uiLabeledSpinBox;
 class uiSpinBox;
@@ -22,7 +24,6 @@ class uiToolButton;
 class uiSlider;
 class uiComboBox;
 class uiGenInput;
-class PickRetriever;
 class FlatDataPack;
 namespace PosInfo { class Line2DData; }
 
@@ -34,12 +35,15 @@ public:
 				~uiFlatDPPosSel();
 
     double			getPos() const;
-protected:
-    uiSlider*			possldr_;
-    uiComboBox*			altdimnmflds_;
-    uiGenInput*			posvalfld_;
+
+private:
+
+    uiSlider*			possldr_	= nullptr;
+    uiComboBox*			altdimnmflds_	= nullptr;
+    uiGenInput*			posvalfld_	= nullptr;
     RefMan<FlatDataPack>	fdp_;
 
+    void			initGrp(CallBacker*);
     void			sldrPosChangedCB(CallBacker*);
 };
 
@@ -47,10 +51,10 @@ mExpClass(uiSeis) uiTrcPositionDlg : public uiDialog
 {  mODTextTranslationClass(uiTrcPositionDlg);
 public:
 				uiTrcPositionDlg(uiParent*,
-						 const DataPack::FullID&);
-				uiTrcPositionDlg(uiParent*,
 						 const TrcKeyZSampling&,
 						 bool,const MultiID&);
+				uiTrcPositionDlg(uiParent*,
+						 const DataPack::FullID&);
 				~uiTrcPositionDlg();
 
     TrcKeyZSampling		getTrcKeyZSampling() const;
@@ -63,7 +67,9 @@ public:
     uiFlatDPPosSel*		fdpposfld_			= nullptr;
     MultiID			mid_;
 
-protected:
+private:
+
+    void			initDlg(CallBacker*);
     void			lineSel(CallBacker*);
     void			getPosCB(CallBacker*);
     void			pickRetrievedCB(CallBacker*);
@@ -71,5 +77,5 @@ protected:
 
     StepInterval<float>		zrg_;
     uiToolButton*		getposbut_			= nullptr;
-    PickRetriever*		pickretriever_			= nullptr;
+    WeakPtr<PickRetriever>	pickretriever_;
 };

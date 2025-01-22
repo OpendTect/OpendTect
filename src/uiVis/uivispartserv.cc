@@ -121,7 +121,7 @@ uiVisPartServer::uiVisPartServer( uiApplService& a )
 	       uiVisPartServer::updateSelObjCB );
 
     vismgr_ = new uiVisModeMgr(this);
-    PickRetriever::setInstance( pickretriever_.ptr() );
+    PickRetriever::instance( pickretriever_.ptr() );
 }
 
 
@@ -815,12 +815,6 @@ bool uiVisPartServer::setVolumeDataPack( const VisID& id, int attrib,
 
     uiTaskRunner taskrunner( appserv().parent() );
     const bool res = so->setVolumeDataPack( attrib, voldp, &taskrunner );
-/*
-   enable only in release branches:
-    DataPackMgr& seisdpmgr = DPM( DataPackMgr::SeisID() );
-    if ( !OD::InDebugMode() && voldp && !seisdpmgr.isPresent(voldp->id()) )
-	seisdpmgr.add( voldp );
-*/
     const DataPackID dpid = voldp ? voldp->id() : DataPack::cNoID();
     if ( res && multirgeditwin_ && id == mapperrgeditordisplayid_ )
 	multirgeditwin_->setDataPack( attrib, voldp,
@@ -1442,7 +1436,6 @@ void uiVisPartServer::updateDraggers()
 	}
     }
 }
-
 
 
 void uiVisPartServer::setZStretch()

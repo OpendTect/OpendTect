@@ -8,6 +8,7 @@ ________________________________________________________________________
 -*/
 
 #include "uifingerprintattrib.h"
+
 #include "uifingerprintcalcobj.h"
 #include "fingerprintattrib.h"
 
@@ -19,7 +20,6 @@ ________________________________________________________________________
 #include "ioman.h"
 #include "ioobj.h"
 #include "od_helpids.h"
-#include "pickretriever.h"
 #include "picksettr.h"
 #include "posinfo2d.h"
 #include "ptrman.h"
@@ -58,7 +58,7 @@ mInitAttribUI(uiFingerPrintAttrib,FingerPrint,"FingerPrint",sKeyPatternGrp())
 
 class uiFPAdvancedDlg: public uiDialog
 { mODTextTranslationClass(uiFPAdvancedDlg);
-    public:
+public:
 			uiFPAdvancedDlg(uiParent*,calcFingParsObject*,
 					const BufferStringSet&);
 			~uiFPAdvancedDlg();
@@ -83,8 +83,6 @@ class uiFPAdvancedDlg: public uiDialog
 
 uiFingerPrintAttrib::uiFingerPrintAttrib( uiParent* p, bool is2d )
     : uiAttrDescEd(p,is2d, mODHelpKey(mFingerPrintAttribHelpID) )
-    , refposfld_(0)
-    , linefld_(0)
 {
     calcobj_ = new calcFingParsObject( this );
 
@@ -118,8 +116,13 @@ uiFingerPrintAttrib::uiFingerPrintAttrib( uiParent* p, bool is2d )
     getposbut_ = new uiToolButton( this, "pick", tr("Point in 3D scene"),
 				   mCB(this,uiFingerPrintAttrib,getPosPush) );
     getposbut_->attach( rightOf, refposzfld_ );
-    pickretriever_ = PickRetriever::getInstance();
-    mAttachCB( pickretriever_->finished(), uiFingerPrintAttrib::pickRetrieved );
+    pickretriever_ = PickRetriever::instance();
+    RefMan<PickRetriever> pickretriever = pickretriever_.get();
+    if ( pickretriever && pickretriever->finished() )
+    {
+	mAttachCB( *pickretriever->finished(),
+		   uiFingerPrintAttrib::pickRetrieved );
+    }
 
     if ( is2d_ )
     {
@@ -421,6 +424,7 @@ bool uiFingerPrintAttrib::getInput( Desc& desc )
 	attribflds_[idx]->processInput();
 	fillInp( attribflds_[idx], desc, idx );
     }
+
     return true;
 }
 
@@ -433,6 +437,7 @@ void uiFingerPrintAttrib::refSel( CallBacker* )
     refposzfld_->display( refbutchecked );
     if ( is2d_ )
 	linefld_->display( refbutchecked );
+
     getposbut_->display( refbutchecked );
     picksetfld_->display( pickbutchecked );
     statsfld_->display( pickbutchecked );
@@ -442,7 +447,10 @@ void uiFingerPrintAttrib::refSel( CallBacker* )
 
 void uiFingerPrintAttrib::getPosPush(CallBacker*)
 {
-    pickretriever_->enable( 0 );
+    RefMan<PickRetriever> pickretriever = pickretriever_.get();
+    if ( pickretriever )
+	pickretriever->enable( nullptr );
+
     getposbut_->setSensitive( false );
 }
 
@@ -452,21 +460,25 @@ void uiFingerPrintAttrib::pickRetrieved( CallBacker* )
     if ( getposbut_->sensitive() )
 	return;
 
-    Coord3 crd = pickretriever_->getPos();
-    if ( !is2d_ )
+    RefMan<PickRetriever> pickretriever = pickretriever_.get();
+    if ( !pickretriever )
+	return;
+
+    Coord3 crd = pickretriever->getPos();
+    if ( is2d_ )
+    {
+	refposfld_->setValue( pickretriever->getTrcNr() );
+	linefld_->setSelLine( pickretriever->getGeomID() );
+    }
+    else
     {
 	const BinID bid = SI().transform( crd );
 	refposfld_->setValue( bid );
     }
-    else
-    {
-	refposfld_->setValue( pickretriever_->getTrcNr() );
-	linefld_->setSelLine( pickretriever_->getGeomID() );
-    }
 
     refposzfld_->setValue( crd.z_*SI().zDomain().userFactor() );
     getposbut_->setSensitive( true );
-    pickretriever_->reset();
+    pickretriever->reset();
 }
 
 
