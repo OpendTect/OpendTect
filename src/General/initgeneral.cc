@@ -81,6 +81,8 @@ mDefModInitFn(General)
     odSimpleTimeDepthModelTranslator::initClass();
     SimpleT2DTransform::initClass();
     SimpleD2TTransform::initClass();
+    SimpleMeterFeetTransform::initClass();
+    SimpleFeetMeterTransform::initClass();
 
     ImageDefTranslatorGroup::initClass();
     ODImageDefTranslator::initClass();

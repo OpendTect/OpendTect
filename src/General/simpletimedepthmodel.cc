@@ -378,3 +378,125 @@ bool SimpleTimeDepthAscIO::get( od_istream& strm,
     mdl.setRawData( tvals, dvals );
     return true;
 }
+
+
+// SimpleDepthTransform
+
+SimpleDepthTransform::SimpleDepthTransform( bool frommetertofeet )
+    : ZAxisTransform(ZDomain::Depth(),ZDomain::Depth())
+{
+    const ZDomain::DepthType metertyp = ZDomain::DepthType::Meter;
+    const ZDomain::DepthType feettyp = ZDomain::DepthType::Feet;
+    fromZDomainInfo().setDepthUnit( frommetertofeet ? metertyp : feettyp );
+    toZDomainInfo().setDepthUnit( frommetertofeet ? feettyp : metertyp );
+}
+
+
+SimpleDepthTransform::~SimpleDepthTransform()
+{
+}
+
+
+bool SimpleDepthTransform::isOK() const
+{
+    return ZAxisTransform::isOK();
+}
+
+
+void SimpleDepthTransform::fillPar( IOPar& par ) const
+{
+    ZAxisTransform::fillPar( par );
+    par.merge( tozdomaininfo_.pars_ );
+}
+
+
+bool SimpleDepthTransform::usePar( const IOPar& par )
+{
+    return ZAxisTransform::usePar( par );
+}
+
+
+void SimpleDepthTransform::transformTrc( const TrcKey&,
+				    const SamplingData<float>& sd,
+				    int sz, float* res ) const
+{
+    doTransform( sd, fromZDomainInfo(), sz, res );
+}
+
+
+void SimpleDepthTransform::transformTrcBack( const TrcKey&,
+					const SamplingData<float>& sd,
+					int sz, float* res ) const
+{
+    doTransform( sd, toZDomainInfo(), sz, res );
+}
+
+
+void SimpleDepthTransform::doTransform( const SamplingData<float>& sd,
+					const ZDomain::Info& sdzinfo,
+					int sz, float* res ) const
+{
+    if ( sd.isUdf() )
+    {
+	OD::sysMemValueSet( res, mUdf(float), sz );
+	return;
+    }
+
+    if ( sdzinfo.isDepthMeter() )
+    {
+	for ( od_int64 idx=0; idx<sz; idx++ )
+	    res[idx] *= mFromFeetFactorF;
+    }
+    else if ( sdzinfo.isDepthFeet() )
+    {
+	for ( od_int64 idx=0; idx<sz; idx++ )
+	    res[idx] /= mFromFeetFactorF;
+    }
+}
+
+
+ZSampling SimpleDepthTransform::getWorkZSampling( const ZSampling& zsamp,
+					const ZDomain::Info& from,
+					const ZDomain::Info& to ) const
+{
+    if ( !isOK() )
+	return ZSampling::udf();
+
+    ZSampling ret = zsamp;
+    if ( from.isDepthMeter() && to.isDepthFeet() )
+    {
+	ret.start_ *= mFromFeetFactorF;
+	ret.stop_ *= mFromFeetFactorF;
+	ret.step_ *= mFromFeetFactorF;
+    }
+    else if ( from.isDepthFeet() && to.isDepthMeter() )
+    {
+	ret.start_ /= mFromFeetFactorF;
+	ret.stop_ /= mFromFeetFactorF;
+	ret.step_ /= mFromFeetFactorF;
+    }
+
+    return ret;
+}
+
+
+// SimpleMeterFeetTransform
+
+SimpleMeterFeetTransform::SimpleMeterFeetTransform()
+    : SimpleDepthTransform(true)
+{}
+
+
+SimpleMeterFeetTransform::~SimpleMeterFeetTransform()
+{}
+
+
+// SimpleFeetMeterTransform
+
+SimpleFeetMeterTransform::SimpleFeetMeterTransform()
+    : SimpleDepthTransform(false)
+{}
+
+
+SimpleFeetMeterTransform::~SimpleFeetMeterTransform()
+{}

@@ -140,3 +140,67 @@ public:
 
     bool			get(od_istream&,SimpleTimeDepthModel&) const;
 };
+
+
+/*!
+\brief ZAxisTransform that uses a SimpleTimeDepthModel.
+*/
+
+mExpClass(General) SimpleDepthTransform : public ZAxisTransform
+{ mODTextTranslationClass(SimpleDepthTransform)
+public:
+
+    bool			isOK() const override;
+
+protected:
+				SimpleDepthTransform(bool frommetertofeet);
+				~SimpleDepthTransform();
+
+private:
+
+    void			fillPar(IOPar&) const override;
+    bool			usePar(const IOPar&) override;
+
+    void			transformTrc(const TrcKey&,
+					const SamplingData<float>&,
+					int sz,float* res) const override;
+    void			transformTrcBack(const TrcKey&,
+					const SamplingData<float>&,
+					int sz,float* res) const override;
+    void			doTransform(const SamplingData<float>& sd,
+					    const ZDomain::Info& sdzinfo,
+					    int sz,float*) const;
+
+    bool			canTransformSurv(OD::GeomSystem) const override
+				{ return true; }
+
+    ZSampling			getWorkZSampling(const ZSampling&,
+					const ZDomain::Info& from,
+					const ZDomain::Info& to) const override;
+};
+
+
+mExpClass(General) SimpleMeterFeetTransform : public SimpleDepthTransform
+{ mODTextTranslationClass(SimpleMeterFeetTransform)
+public:
+
+    mDefaultFactoryInstantiation( ZAxisTransform, SimpleMeterFeetTransform,
+			  "SimpleMeterToFeet", toUiString(sFactoryKeyword()));
+
+				SimpleMeterFeetTransform();
+protected:
+				~SimpleMeterFeetTransform();
+};
+
+
+mExpClass(General) SimpleFeetMeterTransform : public SimpleDepthTransform
+{ mODTextTranslationClass(SimpleFeetMeterTransform)
+public:
+
+    mDefaultFactoryInstantiation( ZAxisTransform, SimpleFeetMeterTransform,
+			  "SimpleFeetToMeter", toUiString(sFactoryKeyword()));
+
+				SimpleFeetMeterTransform();
+protected:
+				~SimpleFeetMeterTransform();
+};

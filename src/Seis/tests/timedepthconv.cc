@@ -210,6 +210,7 @@ bool testTime2DepthStretcher( const MultiID& mid )
     mRunStandardTest( stretcher->fromZDomainInfo().def_.isTime() &&
 		      stretcher->toZDomainInfo().def_.isDepth(),
 		      mMsg("Time-to-depth stretcher from-to domains") );
+
     const ZSampling zrgfrom = stretcher->getZInterval( true, false );
     const ZSampling zrgto = stretcher->getZInterval( false, false );
     mRunStandardTest( !zrgfrom.isUdf() && !zrgto.isUdf(),
@@ -282,6 +283,50 @@ static bool testVelocityModelScanner( const MultiID& mid )
 }
 
 
+static bool testMeter2FeetStretcher()
+{
+    ConstRefMan<ZAxisTransform> stretcher = new SimpleMeterFeetTransform();
+    mRunStandardTest( stretcher->isOK(), "Meter-to-Feet stretcher" );
+    mRunStandardTest( stretcher->fromZDomainInfo().isDepthMeter() &&
+		      stretcher->toZDomainInfo().isDepthFeet(),
+		      "Meter-to-Feet stretcher from-to domains" );
+    const ZSampling zrgfrom( 0.f, 2100.f, 5.f );
+    const ZSampling zrgto = stretcher->getZInterval( false, false, &zrgfrom );
+    mRunStandardTest( !zrgfrom.isUdf() && !zrgto.isUdf() &&
+		      mIsEqual(zrgto.stop_,6889.76f,1e-2f) &&
+		      mIsEqual(zrgto.step_,16.4042f,1e-6f),
+		      "Meter-to-Feet stretcher ranges" );
+    mPrintWorkZrg()
+
+    return true;
+}
+
+
+static bool testFeet2MeterStretcher()
+{
+    ConstRefMan<ZAxisTransform> stretcher = new SimpleFeetMeterTransform();
+    mRunStandardTest( stretcher->isOK(), "Feet-to-Meter stretcher" );
+    mRunStandardTest( stretcher->fromZDomainInfo().isDepthFeet() &&
+		      stretcher->toZDomainInfo().isDepthMeter(),
+		      "Feet-to-Meter stretcher from-to domains" );
+    const ZSampling zrgfrom( 0.f, 7000.f, 15.f );
+    const ZSampling zrgto = stretcher->getZInterval( false, false, &zrgfrom );
+    mRunStandardTest( !zrgfrom.isUdf() && !zrgto.isUdf() &&
+		      mIsEqual(zrgto.stop_,2133.6f,1e-2f) &&
+		      mIsEqual(zrgto.step_,4.572f,1e-6f),
+		      "Feet-to-Meter stretcher ranges" );
+    mPrintWorkZrg()
+
+    return true;
+}
+
+
+static bool testSimpleDepthModel()
+{
+    return testMeter2FeetStretcher() && testFeet2MeterStretcher();
+}
+
+
 int mTestMainFnName( int argc, char** argv )
 {
     mInitTestProgDR();
@@ -324,6 +369,9 @@ int mTestMainFnName( int argc, char** argv )
 
 	isurv++;
     }
+
+    if ( !testSimpleDepthModel() )
+	return 1;
 
     return 0;
 }
