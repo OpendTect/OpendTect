@@ -25,7 +25,7 @@ int mProgMainFnName( int argc, char** argv )
 
 #ifdef mUseCrashDumper
     //Disable IssueReporter for IssueReporter itself.
-    System::CrashDumper::getInstance().setSendAppl( "" );
+    System::CrashDumper::instance().setSendAppl( "" );
 #endif
 
     System::IssueReporter reporter;

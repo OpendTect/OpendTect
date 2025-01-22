@@ -117,5 +117,5 @@ mDefModInitFn(uiBase)
     }
 
     System::CrashDumper::
-	getInstance().setSendAppl( GetODApplicationName("od_uiReportIssue") );
+	instance().setSendAppl( GetODApplicationName("od_uiReportIssue") );
 }

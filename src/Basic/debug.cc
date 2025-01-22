@@ -593,7 +593,7 @@ static bool MinidumpCB( LPCWSTR dump_path, LPCWSTR id,
     const BufferString dmpid( QString::fromWCharArray(id) );
     FilePath dmpfp( dmppath, dmpid );
     dmpfp.setExtension( "dmp" );
-    CrashDumper::getInstance().sendDump( dmpfp.fullPath() );
+    CrashDumper::instance().sendDump( dmpfp.fullPath() );
     return succeeded;
 }
 # elif __lux__
@@ -604,7 +604,7 @@ static bool MinidumpCB( const google_breakpad::MinidumpDescriptor& minidumpdesc,
 	return succeeded;
 
     FilePath dmpfp( minidumpdesc.path() );
-    System::CrashDumper::getInstance().sendDump( dmpfp.fullPath() );
+    System::CrashDumper::instance().sendDump( dmpfp.fullPath() );
     return succeeded;
 }
 # endif
@@ -662,7 +662,7 @@ void CrashDumper::sendDump( const char* filename )
 }
 
 
-CrashDumper& CrashDumper::getInstance()
+CrashDumper& CrashDumper::instance()
 {
     if ( !theinst_ )
     {

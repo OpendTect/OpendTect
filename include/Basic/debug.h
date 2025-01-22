@@ -76,7 +76,7 @@ namespace System
 mExpClass(Basic) CrashDumper
 {
 public:
-    static CrashDumper& getInstance();
+    static CrashDumper& instance();
 			//!Creates and installs at first run.
 
     bool		isOK() const { return handler_; }
