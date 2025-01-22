@@ -31,8 +31,11 @@ ________________________________________________________________________
 #include "ui2dgeomman.h"
 
 #include "axislayout.h"
+#include "callback.h"
+#include "clientservicebase.h"
 #include "trckeyzsampling.h"
 #include "emsurfacetr.h"
+#include "geom2dinit.h"
 #include "gridcreator.h"
 #include "randomlinegeom.h"
 #include "randomlinetr.h"
@@ -797,6 +800,55 @@ bool uiCreate2DGrid::acceptOK( CallBacker* )
 	return false;
 
     batchfld_->setJobName( outfld_->ioobj()->name() );
-    batchfld_->start();
+    BatchServiceClientMgr& mgr = BatchServiceClientMgr::getMgr();
+    if ( mgr.isOK() )
+	mAttachCBIfNotAttached( mgr.batchStarted,
+				uiCreate2DGrid::batchStartedCB );
+
+    jobid_ = Batch::JobDispatcher::getInvalid();
+    batchfld_->start( &jobid_ );
     return false;
+}
+
+
+void uiCreate2DGrid::batchStartedCB( CallBacker* cb )
+{
+    if ( !cb || !cb->isCapsule() )
+	return;
+
+    BatchServiceClientMgr& mgr = BatchServiceClientMgr::getMgr();
+    mCBCapsuleUnpack(Network::Service::ID,servid,cb);
+    if ( !mgr.isPresent(servid) )
+	return;
+
+    const Network::Service::SubID jobid = mgr.serviceSubID( servid );
+    if ( jobid != jobid_ )
+	return;
+
+    mAttachCBIfNotAttached( mgr.batchKilled, uiCreate2DGrid::batchDoneCB );
+    mAttachCBIfNotAttached( mgr.batchFinished, uiCreate2DGrid::batchDoneCB );
+    mAttachCBIfNotAttached( mgr.batchEnded, uiCreate2DGrid::batchDoneCB );
+}
+
+
+void uiCreate2DGrid::batchDoneCB( CallBacker* cb )
+{
+    mEnsureExecutedInMainThread(uiCreate2DGrid::batchDoneCB);
+    if ( !cb || !cb->isCapsule() )
+	return;
+
+    BatchServiceClientMgr& mgr = BatchServiceClientMgr::getMgr();
+    mCBCapsuleUnpack(Network::Service::ID,servid,cb);
+    if ( !mgr.isPresent(servid) )
+	return;
+
+    const Network::Service::SubID jobid = mgr.serviceSubID( servid );
+    if ( jobid != jobid_ )
+	return;
+
+    jobid_ = Batch::JobDispatcher::getInvalid();
+    mDetachCB( mgr.batchKilled, uiCreate2DGrid::batchDoneCB );
+    mDetachCB( mgr.batchFinished, uiCreate2DGrid::batchDoneCB );
+    mDetachCB( mgr.batchEnded, uiCreate2DGrid::batchDoneCB );
+    Geom2DInit::Start();
 }
