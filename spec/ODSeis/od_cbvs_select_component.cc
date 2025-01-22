@@ -50,7 +50,7 @@ int mProgMainFnName( int argc, char** argv )
 
     const int selcomp = toInt( argv[1] );
 
-    PtrMan<CBVSSeisTrcTranslator> tri = CBVSSeisTrcTranslator::getInstance();
+    PtrMan<CBVSSeisTrcTranslator> tri = CBVSSeisTrcTranslator::instance();
     if ( !tri->initRead(new StreamConn(fname,Conn::Read)) )
         { std::cerr << tri->errMsg() << std::endl; return 1; }
 
@@ -65,7 +65,7 @@ int mProgMainFnName( int argc, char** argv )
     if ( !fp.isAbsolute() ) { fp.insert( File::getCurrentPath() ); }
     fname = fp.fullPath();
 
-    PtrMan<CBVSSeisTrcTranslator> tro = CBVSSeisTrcTranslator::getInstance();
+    PtrMan<CBVSSeisTrcTranslator> tro = CBVSSeisTrcTranslator::instance();
     SeisTrc trc;
     SeisTrc& outtrc = selcomp < 0 ? *new SeisTrc : trc;
     int nrwr = 0;

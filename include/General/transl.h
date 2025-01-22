@@ -267,7 +267,7 @@ public: \
 						    userName().buf()); \
 	trans->setGroup( group_ ); return trans; \
     } \
-    static spec##clss##Translator* getInstance(); \
+    static spec##clss##Translator* instance(); \
     static const char* translKey(); \
     static void initClass()
 
@@ -288,7 +288,7 @@ mImplTranslatorGroupTheInst( clss )
 
 //! In the source file of a Translator class
 #define defineTranslator(spec,clss,usrnm) \
-spec##clss##Translator* spec##clss##Translator::getInstance() \
+spec##clss##Translator* spec##clss##Translator::instance() \
 { return new spec##clss##Translator(#spec,usrnm); } \
 const char* spec##clss##Translator::translKey() { return usrnm; } \
 void spec##clss##Translator::initClass() \

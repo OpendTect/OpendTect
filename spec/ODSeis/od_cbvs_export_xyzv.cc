@@ -50,7 +50,7 @@ int mProgMainFnName( int argc, char** argv )
     BufferString fname=fp.fullPath();
 
 
-    PtrMan<CBVSSeisTrcTranslator> tri = CBVSSeisTrcTranslator::getInstance();
+    PtrMan<CBVSSeisTrcTranslator> tri = CBVSSeisTrcTranslator::instance();
     if ( !tri->initRead( new StreamConn(fname,Conn::Read) ) )
 	{ std::cerr << tri->errMsg() << std::endl; return 1; }
 

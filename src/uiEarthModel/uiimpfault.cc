@@ -264,7 +264,7 @@ bool uiImportFault::handleLMKAscii()
 	mErrRet( uiStrings::phrCannotCreate(uiStrings::sFault()) );
 
     PtrMan<lmkEMFault3DTranslator> transl =
-	lmkEMFault3DTranslator::getInstance();
+			    lmkEMFault3DTranslator::instance();
     Conn* conn = new StreamConn( infld_->fileName(), true );
 
     PtrMan<Executor> exec =

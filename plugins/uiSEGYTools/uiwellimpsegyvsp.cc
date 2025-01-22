@@ -306,7 +306,7 @@ bool uiWellImportSEGYVSP::acceptOK( CallBacker* )
 
 bool uiWellImportSEGYVSP::fetchTrc( SeisTrc& trc )
 {
-    PtrMan<SEGYSeisTrcTranslator> trans = SEGYSeisTrcTranslator::getInstance();
+    PtrMan<SEGYSeisTrcTranslator> trans = SEGYSeisTrcTranslator::instance();
     trans->usePar( sgypars_ );
     SEGY::FileSpec fs; fs.usePar( sgypars_ );
     PtrMan<IOObj> ioobj = fs.getIOObj( true );

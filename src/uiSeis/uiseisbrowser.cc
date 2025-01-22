@@ -62,7 +62,7 @@ public:
 	const FilePath fp( outioobj->fullUserExpr(true) );
 	safeio_ = new SafeFileIO( fp.fullPath() );
 
-	tro_ = CBVSSeisTrcTranslator::getInstance();
+	tro_ = CBVSSeisTrcTranslator::instance();
 	tro_->set2D( Seis::is2D(setup.geom_) );
 
 	uiString errmsg;

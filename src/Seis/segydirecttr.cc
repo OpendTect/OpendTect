@@ -505,7 +505,7 @@ bool SEGYDirectSeisTrcTranslator::initWrite_( const SeisTrc& trc )
 
     segydeffilename_ = strmconn->fileName();
     delete tr_;
-    tr_ = SEGYSeisTrcTranslator::getInstance();
+    tr_ = SEGYSeisTrcTranslator::instance();
     tr_->usePar( segypars_ );
     FilePath outfp( segydeffilename_ );
     outfp.setExtension( tr_->defExtension() );
@@ -931,7 +931,7 @@ void SEGYDirectSeisTrcTranslator::usePar( const IOPar& iop )
 
 void SEGYDirectSeisTrcTranslator::toSupported( DataCharacteristics& dc ) const
 {
-    SEGYSeisTrcTranslator* tmptr = SEGYSeisTrcTranslator::getInstance();
+    SEGYSeisTrcTranslator* tmptr = SEGYSeisTrcTranslator::instance();
     tmptr->toSupported( dc );
     delete tmptr;
 }
@@ -961,7 +961,7 @@ od_int64 SEGYDirectSeisTrcTranslator::getFileSize() const
 	SEGY::FileSpec fs( fname );
 	PtrMan<IOObj> obj = fs.getIOObj( true );
 	PtrMan<SEGYSeisTrcTranslator> trl =
-				SEGYSeisTrcTranslator::getInstance();
+				SEGYSeisTrcTranslator::instance();
 	if ( !trl->initRead( obj->getConn(Conn::Read)) )
 	    continue;
 
