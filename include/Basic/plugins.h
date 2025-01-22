@@ -86,8 +86,6 @@ public:
 
 				~PluginManager();
 
-    static PluginManager&	getInstance();
-
     void			loadAuto(bool late,bool withfilter=false);
 				//!< see class comments
     bool			load(const char* libnm);
