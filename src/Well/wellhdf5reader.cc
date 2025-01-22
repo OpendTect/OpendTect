@@ -379,7 +379,7 @@ bool Well::HDF5Reader::getMarkers() const
     MarkerSet& ms = wd_.markers();
 
     dsky.setDataSetName( sMDsDSName() );
-    TypeSet<float> mds;
+    TypeSet<double> mds;
     uiRetVal uirv = rdr_->get( dsky, mds );
     mErrRetIfUiRvNotOK( uirv );
     IOPar mdiop;
