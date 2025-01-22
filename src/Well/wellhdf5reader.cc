@@ -307,12 +307,36 @@ Well::Log* Well::HDF5Reader::getWL( const HDF5::DataSetKey& dsky ) const
     if ( iop.get(Log::sKeyUnitLbl(),uomlbl) )
 	wl->setUnitMeasLabel( uomlbl );
 
+    BufferString mnemlbl;
+    if ( iop.get(Log::sKeyMnemLbl(),mnemlbl) )
+	wl->setMnemonicLabel( mnemlbl );
+
+    Interval<float> dahrange;
+    if ( iop.get(Log::sKeyDahRange(),dahrange) );
+    {
+	wl->addValue( dahrange.start_, mUdf(float) );
+	wl->addValue( dahrange.stop_, mUdf(float) );
+	wl->dahRange().set( dahrange.start_, dahrange.stop_ );
+    }
+
+    Interval<float> logrange;
+    if ( iop.get(Log::sKeyLogRange(),logrange) )
+	wl->setValueRange( logrange );
+
     iop.removeWithKey( sKey::Name() );
     iop.removeWithKey( sKey::DepthUnit() );
     iop.removeWithKey( Log::sKeyUnitLbl() );
+    iop.removeWithKey( Log::sKeyMnemLbl() );
+    iop.removeWithKey( Log::sKeyDahRange() );
+    iop.removeWithKey( Log::sKeyLogRange() );
+    bool havehdrinfo = false;
+    if ( iop.getYN(Log::sKeyHdrInfo(),havehdrinfo) && havehdrinfo )
+	wl->pars().merge( iop );
     // TODO_HDF5Reader
+    // I think this is done, please confirm and I will remove the comment.
     // wl->setPars( iop );
 
+    iop.removeWithKey( Log::sKeyHdrInfo() );
     return wl;
 }
 

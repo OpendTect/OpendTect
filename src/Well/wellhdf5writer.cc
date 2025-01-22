@@ -388,13 +388,34 @@ bool Well::HDF5Writer::setLogAttribs( const HDF5::DataSetKey& dsky,
     if ( wl )
     {
 	iop = wl->pars();
+	const bool havepars = !iop.isEmpty();
+	iop.set( sKey::Name(), wl->name() );
 	const BufferString uomlbl = wl->unitMeasLabel();
 	if ( uomlbl.isEmpty() )
 	    iop.removeWithKey( Log::sKeyUnitLbl() );
 	else
 	    iop.set( Log::sKeyUnitLbl(), uomlbl );
-	iop.set( sKey::Name(), wl->name() );
+
+	const bool havemnemonics = !StringView(wl->mnemonicLabel()).isEmpty();
+	if ( havemnemonics )
+	    iop.set( Log::sKeyMnemLbl(), wl->mnemonicLabel());
+	else
+	    iop.removeWithKey( Log::sKeyMnemLbl() );
+
+	iop.set( Log::sKeyHdrInfo(), havepars );
+	const Interval<float>& dahrange = wl->dahRange();
+	if ( dahrange.isUdf() )
+	    iop.removeWithKey( Log::sKeyDahRange() );
+	else
+	    iop.set( Log::sKeyDahRange(), dahrange.start_, dahrange.stop_ );
+
+	const Interval<float> logrange = wl->valueRange();
+	if ( logrange.isUdf() )
+	    iop.removeWithKey( Log::sKeyLogRange() );
+	else
+	    iop.set( Log::sKeyLogRange(), logrange.start_, logrange.stop_ );
     }
+
     iop.setYN( sKeyLogDel(), !wl );
 
     auto& wrr = cCast(HDF5::Writer&,*wrr_);
