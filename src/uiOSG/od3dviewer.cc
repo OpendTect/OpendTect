@@ -41,6 +41,7 @@ ________________________________________________________________________
 #include <osg/Switch>
 #include <osgGeo/ThumbWheel>
 #include <osgGeo/TrackballManipulator>
+#include <osgViewer/CompositeViewer>
 #include <osgViewer/ViewerEventHandlers>
 
 
@@ -75,7 +76,7 @@ protected:
 };
 
 
-void TrackBallManipulatorMessenger::operator()( osg::Node* node,
+void TrackBallManipulatorMessenger::operator()( osg::Node* /*node*/,
 						osg::NodeVisitor* nv )
 {
     if ( nv && viewerbody_ )
@@ -103,6 +104,8 @@ void TrackBallManipulatorMessenger::operator()( osg::Node* node,
 
 
 // OD3DViewer
+
+static osg::ref_ptr<osgViewer::CompositeViewer> compositeviewer = nullptr;
 
 OD3DViewer::OD3DViewer( ui3DViewer& h, uiParent* parnt )
     : uiObjectBody(parnt,0)
@@ -133,9 +136,24 @@ OD3DViewer::OD3DViewer( ui3DViewer& h, uiParent* parnt )
     swapcallback_->ref();
     glwidget_->getGraphicsWindow()->setSwapCallback( swapcallback_ );
 
+    if ( !compositeviewer )
+    {
+	compositeviewer = new osgViewer::CompositeViewer;
+	compositeviewer->setThreadingModel(
+				osgViewer::ViewerBase::SingleThreaded );
+	compositeviewer->getEventVisitor()->setTraversalMask(
+				visBase::cEventTraversalMask() );
+	compositeviewer->setRunFrameScheme( osgViewer::ViewerBase::ON_DEMAND );
+	compositeviewer->setKeyEventSetsDone( 0 );
+	visBase::DataObject::setCommonViewer( compositeviewer );
+    }
+
     setupHUD();
     setupView();
     setupTouch();
+
+    compositeviewer->addView( hudview_ );
+    compositeviewer->addView( view_ );
 
     PtrMan<IOPar> homepospar = SI().pars().subselect( sKeyHomePos() );
     if ( homepospar )
@@ -146,7 +164,7 @@ OD3DViewer::OD3DViewer( ui3DViewer& h, uiParent* parnt )
     mAttachCB( eventfilter_.eventhappened, OD3DViewer::qtEventCB );
     mAttachCB( uiMain::keyboardEventHandler().keyPressed,
 	       OD3DViewer::setFocusCB );
-   mAttachCB( viewalltimer_->tick, OD3DViewer::viewAllCB );
+    mAttachCB( viewalltimer_->tick, OD3DViewer::viewAllCB );
 }
 
 
@@ -166,6 +184,12 @@ OD3DViewer::~OD3DViewer()
     visBase::unRefOsgPtr( offscreenrenderswitch_ );
     visBase::unRefOsgPtr( offscreenrenderhudswitch_ );
     visBase::unRefOsgPtr( swapcallback_ );
+
+    compositeviewer->removeView( hudview_ );
+    compositeviewer->removeView( view_ );
+
+    visBase::unRefOsgPtr( hudview_ );
+    visBase::unRefOsgPtr( view_ );
 }
 
 
@@ -212,6 +236,7 @@ void OD3DViewer::setupHUD()
     hudscene_ = visBase::DataObjectGroup::create();
 
     hudview_ = new ODOSGViewer( glwidget_ );
+    visBase::refOsgPtr( hudview_ );
     hudview_->setCamera( hudcamera );
     hudview_->doInit();
     offscreenrenderhudswitch_->removeChild(
@@ -348,6 +373,7 @@ void OD3DViewer::setupView()
     osgcamera->setNearFarRatio( 0.002 );	// default is 0.0005
 
     view_ = new ODOSGViewer( glwidget_ );
+    visBase::refOsgPtr( view_ );
     view_->setCamera( osgcamera );
     view_->doInit();
     view_->setSceneData( offscreenrenderswitch_ );
