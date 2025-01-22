@@ -312,7 +312,7 @@ Well::Log* Well::HDF5Reader::getWL( const HDF5::DataSetKey& dsky ) const
 	wl->setMnemonicLabel( mnemlbl );
 
     Interval<float> dahrange;
-    if ( iop.get(Log::sKeyDahRange(),dahrange) );
+    if ( iop.get(Log::sKeyDahRange(),dahrange) )
     {
 	wl->addValue( dahrange.start_, mUdf(float) );
 	wl->addValue( dahrange.stop_, mUdf(float) );
