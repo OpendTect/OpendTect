@@ -51,19 +51,20 @@ public:
 
     virtual			~uiSurvInfoProvider();
 
-    virtual const char*		usrText() const		= 0;
-    virtual uiDialog*		dialog(uiParent*)	= 0;
+    virtual bool		providesTDInfo() const			= 0;
+    virtual const char*		usrText() const				= 0;
+    virtual uiDialog*		dialog(uiParent*)			= 0;
     virtual uiDialog*		launchSurveyImportDlg(uiParent*)
 						     { return nullptr;}
     virtual bool		hasSurveyImportDlg() { return false; }
     virtual bool		getInfo(uiDialog*,TrcKeyZSampling&,
-					Coord crd[3])	= 0;
+					Coord crd[3])			= 0;
     virtual bool		getLatLongAnchor(Coord&,LatLong&)
 							{ return false; }
     virtual bool		getSRD(float&)		{ return false; }
 				//!< return value must be in SI units (meters)
 
-    virtual void		fillPar(IOPar&) const		{}
+    virtual void		fillPar(IOPar&) const			{}
     virtual void		fillLogPars(IOPar&) const;
     virtual bool		isAvailable() const	{ return true; }
 
@@ -73,7 +74,7 @@ public:
     virtual const char*		iconName() const	{ return 0; }
 
     virtual IOPar*		getImportPars() const	{ return 0; }
-    virtual void		startImport(uiParent*,const IOPar&) {}
+    virtual void		startImport(uiParent*,const IOPar&)	{}
     virtual const char*		importAskQuestion() const
 				{ return "Proceed to import?"; }
 

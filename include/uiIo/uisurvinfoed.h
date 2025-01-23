@@ -160,6 +160,7 @@ public:
 			uiCopySurveySIP();
 			~uiCopySurveySIP();
 
+    bool		providesTDInfo() const override { return true; }
     const char*		usrText() const override
 			    { return "Copy from other survey"; }
     uiDialog*		dialog(uiParent*) override;
@@ -193,6 +194,7 @@ public:
 			uiSurveyFileSIP();
 			~uiSurveyFileSIP();
 
+    bool		providesTDInfo() const override { return true; }
     const char*		usrText() const override;
     uiDialog*		dialog(uiParent*) override;
     bool		getInfo(uiDialog*,

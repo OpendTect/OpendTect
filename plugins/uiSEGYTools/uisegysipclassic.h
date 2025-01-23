@@ -23,6 +23,7 @@ public:
 			uiSEGYClassicSurvInfoProvider()
 			    : xyinft_(false)	{}
 
+    bool		providesTDInfo() const override { return false; }
     const char*		usrText() const	{ return "Classic SEG-Y scanner"; }
     uiDialog*		dialog(uiParent*);
     bool		getInfo(uiDialog*,TrcKeyZSampling&,Coord crd[3]);

@@ -9,6 +9,7 @@ ________________________________________________________________________
 
 #include "ui2dsip.h"
 
+#include "uicombobox.h"
 #include "uicoordsystem.h"
 #include "uidialog.h"
 #include "uifileinput.h"
@@ -90,13 +91,16 @@ ui2DDefSurvInfoDlg( uiParent* p )
     zrglbl->attach( leftBorder );
     zrglbl->attach( ensureBelow, optsep );
 
-    const uiString zunitlbl( UnitOfMeasure::surveyDefZUnitAnnot(true,true) );
-    zfld_ = new uiGenInput( this, tr( "Z range %1").arg( zunitlbl),
+    zfld_ = new uiGenInput( this, tr( "Z range"),
 			DoubleInpIntervalSpec(true).setName("Z Start",0)
 						   .setName("Z Stop",1)
 						   .setName("Z step",2) );
     zfld_->attach( alignedBelow, crsfld_ );
     zfld_->attach( ensureBelow, zrglbl );
+
+    const char* zunitstrs[] = { "millisecond", "meter", "feet", 0 };
+    zunitfld_ = new uiComboBox( this, zunitstrs, "Z unit" );
+    zunitfld_->attach( rightOf, zfld_ );
 }
 
 
@@ -123,11 +127,22 @@ bool acceptOK( CallBacker* ) override
     return true;
 }
 
+
+uiSurvInfoProvider::TDInfo tdInfo() const
+{
+    const int zidx = zunitfld_->currentItem();
+    return zidx==0 ? uiSurvInfoProvider::Time
+		   : (zidx==1 ? uiSurvInfoProvider::Depth
+			      : uiSurvInfoProvider::DepthFeet);
+}
+
+
     uiGenInput*			grdspfld_;
     uiGenInput*			xrgfld_;
     uiGenInput*			yrgfld_;
     Coords::uiCoordSystemSel*	crsfld_;
     uiGenInput*			zfld_;
+    uiComboBox*			zunitfld_;
 
 };
 
@@ -148,7 +163,6 @@ uiDialog* ui2DSurvInfoProvider::dialog( uiParent* p )
 bool ui2DSurvInfoProvider::getInfo( uiDialog* din, TrcKeyZSampling& cs,
 				    Coord crd[3] )
 {
-    xyft_ = false;
     mDynamicCastGet(ui2DDefSurvInfoDlg*,dlg,din)
     if ( !dlg )
     {
@@ -167,15 +181,19 @@ bool ui2DSurvInfoProvider::getInfo( uiDialog* din, TrcKeyZSampling& cs,
     if ( !uiSurvInfoProvider::getRanges(cs,crd,c0,c1,grdsp) )
 	return false;
 
+    tdinfo_ = dlg->tdInfo();
+    const bool zistime = tdinfo_ == uiSurvInfoProvider::Time;
+    const bool zinfeet = tdinfo_ == uiSurvInfoProvider::DepthFeet;
+
     const StepInterval<float> zrg = dlg->zfld_->getFStepInterval();
     const bool hasstart = !mIsUdf(zrg.start);
     const bool hasstop = !mIsUdf(zrg.stop);
     const bool hasstep = !mIsUdf(zrg.step);
     const float start = hasstart ? zrg.start : 0.f;
-    if ( SI().zIsTime() )
+    if ( zistime )
 	cs.zsamp_.set( start/1000, hasstop ? zrg.stop/1000 : cDefaultZMaxS,
 			hasstep ? zrg.step/1000 : cDefaultSrS );
-    else if ( SI().zInFeet() )
+    else if ( zinfeet )
 	cs.zsamp_.set( start, hasstop ? zrg.stop : cDefaultZMaxF,
 		hasstep ? zrg.step : cDefaultSrF );
     else
@@ -185,13 +203,18 @@ bool ui2DSurvInfoProvider::getInfo( uiDialog* din, TrcKeyZSampling& cs,
     auto crs = dlg->crsfld_->getCoordSystem();
     if ( crs )
     {
-	xyft_ = crs->isFeet();
 	auto* crspar = new IOPar;
 	crs->fillPar( *crspar );
 	hp_2dsip.setParam( this, crspar );
     }
 
     return true;
+}
+
+
+uiSurvInfoProvider::TDInfo ui2DSurvInfoProvider::tdInfo() const
+{
+    return tdinfo_;
 }
 
 
@@ -328,14 +351,16 @@ uiNavReadDlg( uiParent* p )
     zrglbl->attach( leftBorder );
     zrglbl->attach( ensureBelow, optsep );
 
-    const uiString zunitlbl( UnitOfMeasure::surveyDefZUnitAnnot(true,true) );
-    zfld_ = new uiGenInput( this, tr( "Z range %1").arg( zunitlbl),
+    zfld_ = new uiGenInput( this, tr( "Z range"),
 			DoubleInpIntervalSpec(true).setName("Z Start",0)
 						   .setName("Z Stop",1)
 						   .setName("Z step",2) );
     zfld_->attach( alignedBelow, crsfld_ );
     zfld_->attach( ensureBelow, zrglbl );
 
+    const char* zunitstrs[] = { "millisecond", "meter", "feet", nullptr };
+    zunitfld_ = new uiComboBox( this, zunitstrs, "Z unit" );
+    zunitfld_->attach( rightOf, zfld_ );
 }
 
 
@@ -356,11 +381,23 @@ bool fillGeom2D( ObjectSet<Survey::Geometry2D>& geoms )
 }
 
 
+uiSurvInfoProvider::TDInfo tdInfo() const
+{
+    const int zidx = zunitfld_->currentItem();
+    return zidx==0 ? uiSurvInfoProvider::Time
+		   : (zidx==1 ? uiSurvInfoProvider::Depth
+			      : uiSurvInfoProvider::DepthFeet);
+}
+
+
 bool acceptOK( CallBacker* ) override
 {
     fname_ = fnmfld_->fileName();
     if ( !File::exists(fname_) || File::isEmpty(fname_) )
-    { uiMSG().error(uiStrings::sInvInpFile()); return false; }
+    {
+	uiMSG().error(uiStrings::sInvInpFile());
+	return false;
+    }
 
     const bool isll = geomfd_->bodyinfos_.last()->selection_.form_ == 1;
     if ( isll && !crsfld_->getCoordSystem()->isProjection() )
@@ -376,7 +413,7 @@ bool acceptOK( CallBacker* ) override
     BufferString		fname_;
     Coords::uiCoordSystemSel*	crsfld_;
     uiGenInput*			zfld_;
-
+    uiComboBox*			zunitfld_;
 };
 
 
@@ -438,15 +475,19 @@ bool uiNavSurvInfoProvider::getInfo( uiDialog* dlg, TrcKeyZSampling& tkzs,
     if ( !uiSurvInfoProvider::getRanges(tkzs,crd,c0,c1,grdsp) )
 	return false;
 
+    tdinfo_ = navdlg->tdInfo();
+    const bool zistime = tdinfo_ == uiSurvInfoProvider::Time;
+    const bool zinfeet = tdinfo_ == uiSurvInfoProvider::DepthFeet;
+
     const StepInterval<float> zrg = navdlg->zfld_->getFStepInterval();
     const bool hasstart = !mIsUdf(zrg.start);
     const bool hasstop = !mIsUdf(zrg.stop);
     const bool hasstep = !mIsUdf(zrg.step);
     const float start = hasstart ? zrg.start : 0.f;
-    if ( SI().zIsTime() )
+    if ( zistime )
 	tkzs.zsamp_.set( start/1000, hasstop ? zrg.stop/1000 : cDefaultZMaxS,
 			hasstep ? zrg.step/1000 : cDefaultSrS );
-    else if ( SI().zInFeet() )
+    else if ( zinfeet )
 	tkzs.zsamp_.set( start, hasstop ? zrg.stop : cDefaultZMaxF,
 		hasstep ? zrg.step : cDefaultSrF );
     else
@@ -454,6 +495,12 @@ bool uiNavSurvInfoProvider::getInfo( uiDialog* dlg, TrcKeyZSampling& tkzs,
 		hasstep ? zrg.step : cDefaultSrM );
 
     return true;
+}
+
+
+uiSurvInfoProvider::TDInfo uiNavSurvInfoProvider::tdInfo() const
+{
+    return tdinfo_;
 }
 
 

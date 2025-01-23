@@ -24,6 +24,7 @@ public:
 
 			mOD_DisableCopy(uiSEGYSurvInfoProvider);
 
+    bool		providesTDInfo() const override { return false; }
     const char*		usrText() const override { return "Scan SEG-Y file(s)";}
     uiDialog*		dialog(uiParent*) override;
     bool		getInfo(uiDialog*,TrcKeyZSampling&,

@@ -20,22 +20,22 @@ public:
 			ui2DSurvInfoProvider();
 			~ui2DSurvInfoProvider();
 
+    bool		providesTDInfo() const override { return true; }
     const char*		usrText() const override
 			{ return "Enter X/Y ranges"; }
     uiDialog*		dialog(uiParent*) override;
     bool		getInfo(uiDialog*,TrcKeyZSampling&,
 				Coord crd[3]) override;
+    TDInfo		tdInfo() const override;
 
     void		fillLogPars(IOPar&) const override;
     IOPar*		getCoordSystemPars() const override;
 
-    bool		xyInFeet() const override	{ return xyft_; }
     const char*		iconName() const override
 			{ return "seismicline2dcollection"; }
 
 protected:
-
-    bool		xyft_		= false;
+    TDInfo		tdinfo_			= Uknown;
 };
 
 
@@ -46,11 +46,13 @@ public:
 			uiNavSurvInfoProvider();
     virtual		~uiNavSurvInfoProvider();
 
+    bool		providesTDInfo() const override { return true; }
     const char*		usrText() const override;
     uiDialog*		dialog(uiParent*) override;
     bool		getInfo(uiDialog*,TrcKeyZSampling&,
 				Coord crd[3]) override;
     const char*		iconName() const override;
+    TDInfo		tdInfo() const override;
 
     void		fillLogPars(IOPar&) const override;
     IOPar*		getImportPars() const override;
@@ -60,7 +62,8 @@ public:
     IOPar*		getCoordSystemPars() const override;
 
 protected:
-    RefMan<Coords::CoordSystem>		coordsystem_;
+    TDInfo				tdinfo_			= Uknown;
+    ConstRefMan<Coords::CoordSystem>	coordsystem_;
     ObjectSet<Survey::Geometry2D>	geoms_;
     BufferString			filename_;
 };

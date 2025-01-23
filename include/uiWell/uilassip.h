@@ -28,6 +28,7 @@ public:
 					const uiLASSurvInfoProvider&) =delete;
     uiLASSurvInfoProvider&	operator=(const uiLASSurvInfoProvider&) =delete;
 
+    bool			providesTDInfo() const override { return true; }
     const char*			usrText() const override;
     uiDialog*			dialog(uiParent*) override;
     bool			getInfo(uiDialog*,TrcKeyZSampling&,
