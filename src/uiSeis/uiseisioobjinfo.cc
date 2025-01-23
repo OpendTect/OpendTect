@@ -137,7 +137,7 @@ bool uiSeisIOObjInfo::checkSpaceLeft( const SeisIOObjInfo::SpaceInfo& si ) const
 	}
     }
 
-    const double avszmb = System::getFreeMBOnDisk( *ioObj() );
+    const int avszmb = System::getFreeMBOnDisk( *ioObj() );
     if ( avszmb == 0 )
     {
 	if ( !doerrs_ )
