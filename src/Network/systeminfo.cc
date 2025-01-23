@@ -428,6 +428,9 @@ const char* fileSystemType( const char* path )
 int getFreeMBOnDisk( const char* path )
 {
     const QStorageInfo storageinfo( path );
+    if ( !storageinfo.isReady() || !storageinfo.isValid() )
+	return mUdf(int);
+
     const od_int64 bytesavail = storageinfo.bytesAvailable();
     return (int)(bytesavail/1024/1024);
 }
