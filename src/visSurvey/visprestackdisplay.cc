@@ -18,10 +18,11 @@ ________________________________________________________________________
 #include "prestackprocessor.h"
 #include "seispsioprov.h"
 #include "seispsread.h"
-#include "seispsioprov.h"
 #include "sorting.h"
+#include "survgeom2d.h"
 #include "survinfo.h"
-
+#include "uistrings.h"
+#include "unitofmeasure.h"
 #include "visdataman.h"
 #include "vismaterial.h"
 
@@ -307,6 +308,17 @@ bool PreStackDisplay::updateData()
     if ( gather_ )
     {
 	const bool canupdate = flatviewer_->enableChange( false );
+	if ( !flatviewer_->zDomain(false) )
+	{
+	    const ZDomain::Info& datazdom = gather_->zDomain();
+	    const ZDomain::Info* displayzdom = datazdom.isDepth()
+					? &ZDomain::DefaultDepth( true )
+					: nullptr;
+	    flatviewer_->setZDomain( datazdom, false );
+	    if ( displayzdom )
+		flatviewer_->setZDomain( *displayzdom, true );
+	}
+
 	flatviewer_->setVisible( FlatView::Viewer::VD, true );
 	flatviewer_->enableChange( canupdate );
 	flatviewer_->setPack( FlatView::Viewer::VD, gather_.ptr(), !haddata );
@@ -949,20 +961,20 @@ void PreStackDisplay::finishedCB( CallBacker* )
 
 
 void PreStackDisplay::getMousePosInfo( const visBase::EventInfo& ei,
-				      Coord3& pos, BufferString& val,
-				      uiString& info ) const
+				       Coord3& pos, BufferString& val,
+				       uiString& info ) const
 {
     val.setEmpty();
     info.setEmpty();
     if ( !flatviewer_  )
 	return;
 
-    ConstRefMan<FlatDataPack> fdp = flatviewer_->getPack( false ).get();
-    if ( !fdp || !fdp->isOK() )
+    ConstRefMan<PreStack::Gather> gather = flatviewer_->getPack( false ).get();
+    if ( !gather || !gather->isOK() )
 	return;
 
-    const int nrtrcs = fdp->size( true );
-    const FlatPosData& posdata = fdp->posData();
+    const int nrtrcs = gather->size( true );
+    const FlatPosData& posdata = gather->posData();
 
     int trcidx = -1;
     Coord disppos;
@@ -989,26 +1001,65 @@ void PreStackDisplay::getMousePosInfo( const visBase::EventInfo& ei,
     else if ( trcidx>=nrtrcs )
 	trcidx = nrtrcs-1;
 
-    IOPar ipar; float offset = mUdf(float), azimuth = mUdf(float);
-    fdp->getAuxInfo( trcidx, 0, ipar );
-    ipar.get( sKey::Offset(), offset );
-    ipar.get( sKey::Azimuth(), azimuth );
+    const TrcKey tk = getTrcKey();
+    const float offset = gather->getOffset( trcidx );
+    const float azimuth = gather->getAzimuth( trcidx );
 
-    pos = Coord3( disppos, pos.z_ );
-
-    if ( seis2d_ )
+    if ( tk.is3D() )
     {
-	const uiString str = toUiString( "TrcNr: %1" ).arg(trcnr_);
-	info.append( str );
-	info.addSpace();
+	if ( isOrientationInline() )
+	    info.set( uiStrings::sInline() ).addMoreInfo( tk.inl() );
+	else
+	    info.set( uiStrings::sCrossline() ).addMoreInfo( tk.crl() );
+    }
+    else
+    {
+	info.set( uiStrings::sLine() ).addMoreInfo( lineName() );
+	uiString trcmsg = toUiString( "TrcNr" );
+	trcmsg.addMoreInfo( trcnr_ );
+	info.appendPhrase( trcmsg, uiString::Comma, uiString::OnSameLine );
+	if ( tk.is2D() )
+	{
+	    const Pos::GeomID gid = tk.geomID();
+	    ConstRefMan<Survey::Geometry> geom = Survey::GM().getGeometry(gid);
+	    if ( geom && geom->is2D() )
+	    {
+		Coord crd2d; float spnr = mUdf(float);
+		if ( geom->as2D()->getPosByTrcNr(tk.trcNr(),crd2d,spnr) &&
+		     !mIsUdf(spnr) && !mIsEqual(spnr,-1.f,1e-5f) )
+		{
+		    uiString spmsg = toUiString( "SP" );
+		    spmsg.addMoreInfo( toUiString(spnr,0,'f',2) );
+		    info.appendPhrase( spmsg, uiString::Comma,
+				       uiString::OnSameLine );
+		}
+	    }
+	}
     }
 
-    info.append( tr("Offset: %1").arg(offset) ).addSpace();
-    if ( !mIsUdf(azimuth) )
-	info.append( tr("Azimuth: %1").arg(mNINT32(azimuth*360/M_PI)) );
+    if ( !mIsUdf(offset) )
+    {
+	const UnitOfMeasure* offsuom =
+			UnitOfMeasure::offsetUnit( gather->offsetType() );
+	uiString offmsg = gather->isOffsetAngle() ? uiStrings::sAngle()
+						  : uiStrings::sOffset();
+	offmsg.constructWordWith( offsuom->getUiLabel(), true )
+	      .addMoreInfo( toUiStringDec(offset,0) );
+	info.appendPhrase( offmsg, uiString::Comma, uiString::OnSameLine );
+    }
 
+    if ( !mIsUdf(azimuth) )
+    {
+	const float azideg = azimuth * mRad2DegF;
+	uiString azimsg = uiStrings::sAzimuth();
+	azimsg.constructWordWith( UnitOfMeasure::degreesUnit()->getUiLabel() )
+	      .addMoreInfo( toUiStringDec(azideg,0) );
+	info.appendPhrase( azimsg, uiString::Comma, uiString::OnSameLine );
+    }
+
+    pos = Coord3( disppos, pos.z_ );
     const int zsample = posdata.range(false).nearestIndex( pos.z_ );
-    val = fdp->data().get( trcidx, zsample );
+    val.set( gather->data().get( trcidx, zsample ) );
 }
 
 

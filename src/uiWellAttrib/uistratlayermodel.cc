@@ -286,13 +286,13 @@ void uiStratLayerModel::helpCB( CallBacker* )
 
 void uiStratLayerModel::synthInfoChangedCB( CallBacker* cb )
 {
-    if ( !cb )
+    if ( !cb || !cb->isCapsule() )
 	return;
 
-    mCBCapsuleUnpack( IOPar, iop, cb );
-    BufferString todisp;
-    synthdisp_->makeInfoMsg( todisp, iop );
-    statusBar()->message( mToUiStringTodo(todisp.buf()) );
+    mCBCapsuleUnpack(const IOPar&,iop,cb);
+    uiString msg;
+    synthdisp_->makeInfoMsg( iop, msg );
+    statusBar()->message( msg );
 }
 
 

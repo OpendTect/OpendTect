@@ -251,7 +251,8 @@ RegularSeisDataPack* DataPackOutput::getDataPack( float refstep )
 
 void DataPackOutput::init( float refstep, const BinDataDesc* bdd )
 {
-    output_ = new RegularSeisDataPack( sKey::EmptyString(), bdd );
+    const char* category = VolumeDataPack::categoryStr( dcsampling_ );
+    output_ = new RegularSeisDataPack( category, bdd );
     output_->setSampling( dcsampling_ );
     const_cast<StepInterval<float>& >(output_->sampling().zsamp_).step_=refstep;
 }

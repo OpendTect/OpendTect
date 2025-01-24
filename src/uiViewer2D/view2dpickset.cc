@@ -100,7 +100,7 @@ void PickSet::pickAddChgCB( CallBacker* cb )
 	{
 	    const FlatPosData& pd = seisdp->posData();
             const IndexInfo ix = pd.indexInfo( true, selpt.x_ );
-	    const TrcKey trckey = seisdp->getTrcKey( ix.nearest_ );
+	    const TrcKey trckey = seisdp->getTrcKey( ix.nearest_, 0 );
 	    newloc.setTrcKey( trckey );
 	}
     }
@@ -295,7 +295,7 @@ void PickSet::drawAll()
 		    if ( trcidx<0 )
 			continue;
 
-		    distance = regfdp->getAltDim0Value( -1, trcidx );
+		    distance = regfdp->getAltDimValue( -1, true, trcidx );
 		}
 
 		const bool oninl = regfdp->is2D() ||

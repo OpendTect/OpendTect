@@ -26,6 +26,7 @@ ________________________________________________________________________
 #include "threadwork.h"
 #include "trckeyzsampling.h"
 #include "uistrings.h"
+#include "zdomain.h"
 
 #include <string.h>
 
@@ -453,23 +454,34 @@ bool Seis::ParallelReader::doPrepare( int nrthreads )
 	    }
 	}
     }
-    else if ( !dp_ )
+    else
     {
 	const SeisIOObjInfo seisinfo( ioobj_ );
-	dp_ = new RegularSeisDataPack( VolumeDataPack::categoryStr(true,false));
-	dp_->setName( ioobj_->name() );
-	dp_->setSampling( tkzs_ );
-	dp_->setZDomain( seisinfo.zDomain() );
-	if ( trcssampling_ )
-	    dp_->setTrcsSampling( new PosInfo::SortedCubeData(*trcssampling_) );
-
-	uiString errmsg;
-	if ( !addComponents(*dp_,*ioobj_,components_,errmsg) )
+	const ZDomain::Info& zdomdata = seisinfo.zDomain();
+	if ( dp_ )
 	{
-	    dp_ = nullptr;
-	    errmsg_ = allocprob;
-	    errmsg_.append( errmsg, true );
-	    return false;
+	    if ( dp_->zDomain() != zdomdata )
+		dp_->setZDomain( zdomdata );
+	}
+	else
+	{
+	    dp_ = new RegularSeisDataPack(
+				VolumeDataPack::categoryStr(tkzs_) );
+	    dp_->setName( ioobj_->name() );
+	    dp_->setSampling( tkzs_ );
+	    dp_->setZDomain( zdomdata );
+	    if ( trcssampling_ )
+		dp_->setTrcsSampling(
+				new PosInfo::SortedCubeData(*trcssampling_) );
+
+	    uiString errmsg;
+	    if ( !addComponents(*dp_,*ioobj_,components_,errmsg) )
+	    {
+		dp_ = nullptr;
+		errmsg_ = allocprob;
+		errmsg_.append( errmsg, true );
+		return false;
+	    }
 	}
     }
 
@@ -677,7 +689,7 @@ bool Seis::ParallelReader2D::init()
     trcnrs_.addIfNew( trcinfo.trcNr() );
     } while ( res==1 );
 
-    dp_ = new RegularSeisDataPack( VolumeDataPack::categoryStr(true,true),
+    dp_ = new RegularSeisDataPack( VolumeDataPack::categoryStr(tkzs_),
 				   &dc_ );
     dp_->setName( ioobj_->name() );
     dp_->setSampling( tkzs_ );
@@ -1017,7 +1029,13 @@ bool Seis::SequentialReader::init()
     }
 
     adjustDPDescToScalers( datasetdc );
-    if ( !dp_ )
+    const ZDomain::Info& zdomdata = seisinfo.zDomain();
+    if ( dp_ )
+    {
+	if ( dp_->zDomain() != zdomdata )
+	    dp_->setZDomain( zdomdata );
+    }
+    else
     {
 	if ( is2d_ )
 	{
@@ -1041,11 +1059,11 @@ bool Seis::SequentialReader::init()
 		tkzs_ = storedtkzs;
 	}
 
-	dp_ = new RegularSeisDataPack( VolumeDataPack::categoryStr(true,is2d_),
+	dp_ = new RegularSeisDataPack( VolumeDataPack::categoryStr(tkzs_),
 				       &dc_);
 	dp_->setName( ioobj_->name() );
 	dp_->setSampling( tkzs_ );
-	dp_->setZDomain( seisinfo.zDomain() );
+	dp_->setZDomain( zdomdata );
 	if ( scaler_ && !scaler_->isEmpty() )
 	    dp_->setScaler( *scaler_ );
 

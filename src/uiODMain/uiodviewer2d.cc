@@ -55,12 +55,11 @@ ________________________________________________________________________
 #include "survinfo.h"
 #include "view2ddata.h"
 #include "view2ddataman.h"
-#include "zaxistransform.h"
 #include "zaxistransformutils.h"
 
 
 static void initSelSpec( Attrib::SelSpec& as )
-{ as.set( 0, Attrib::SelSpec::cNoAttrib(), false, 0 ); }
+{ as.set( nullptr, Attrib::SelSpec::cNoAttrib(), false, nullptr ); }
 
 mDefineInstanceCreatedNotifierAccess( uiODViewer2D )
 
@@ -95,8 +94,9 @@ uiODViewer2D::uiODViewer2D( uiODMain& appl, const VisID& visid )
 		appl_.applMgr().visServer()->getZAxisTransform( sceneid );
 	    const ZDomain::Info* scnzdomaininfo =
 		appl_.applMgr().visServer()->zDomainInfo( sceneid );
-	    if ( datatransform_==scntransform ||
-		 (scnzdomaininfo && scnzdomaininfo->def_==zDomain()) )
+	    if ( datatransform_.ptr() == scntransform ||
+		 (scnzdomaininfo &&
+		  &scnzdomaininfo->def_ == &zDomain(false).def_) )
 	    {
 		syncsceneid_ = sceneid;
 		break;
@@ -127,16 +127,16 @@ uiODViewer2D::~uiODViewer2D()
     {
 	if ( voiidx_ != -1 )
 	    datatransform_->removeVolumeOfInterest( voiidx_ );
+
 	voiidx_ = -1;
-	datatransform_->unRef();
     }
 
+    datatransform_ = nullptr;
     if ( viewwin() )
     {
 	removeAvailablePacks();
 	viewwin()->viewer(0).removeAuxData( marker_ );
     }
-
 
     delete &wvaselspec_;
     delete &vdselspec_;
@@ -177,10 +177,39 @@ Pos::GeomID uiODViewer2D::geomID() const
 }
 
 
-const ZDomain::Def& uiODViewer2D::zDomain() const
+const ZDomain::Def& uiODViewer2D::zDomainDef() const
 {
-    return datatransform_ ? datatransform_->toZDomainInfo().def_
-			  : SI().zDomain();
+    return zDomain( false ).def_;
+}
+
+
+const ZDomain::Info& uiODViewer2D::zDomain( bool display ) const
+{
+    if ( datatransform_ )
+	return datatransform_->zDomain( false );
+
+    if ( !viewwin() || viewwin()->nrViewers() < 1 )
+	return SI().zDomainInfo();
+
+    const uiFlatViewer& vwr = viewwin()->viewer();
+    const ZDomain::Info* zdom = vwr.zDomain( display );
+    return zdom ? *zdom : SI().zDomainInfo();
+}
+
+
+int uiODViewer2D::nrXYDec( int idx ) const
+{
+    return viewwin() && viewwin()->validIdx(idx)
+		? viewwin()->viewer( idx ).nrXYDec()
+		: SI().nrXYDecimals();
+}
+
+
+int uiODViewer2D::nrZDec( int idx ) const
+{
+    return viewwin() && viewwin()->validIdx(idx)
+		? viewwin()->viewer( idx ).nrZDec()
+		: SI().nrZDecimals();
 }
 
 
@@ -203,8 +232,6 @@ void uiODViewer2D::setUpAux()
 	    vwrannot.x2_.showauxannot_ = false;
 	    vwrannot.x1_.auxlabel_ = intersection;
 	    vwrannot.x1_.auxlabel_.arg( tr("2D Line") );
-	    viewwin()->viewer().setAnnotChoice(
-		SeisTrcInfo::toString(SeisTrcInfo::TrcNr) );
 	}
 	else
 	{
@@ -252,19 +279,21 @@ void uiODViewer2D::makeUpView( FlatDataPack* indp,
 	if ( regfdp )
 	    setTrcKeyZSampling( regfdp->sampling() );
 
-	createViewWin( isvertical_, regfdp && !regfdp->is2D() );
+	createViewWin( isvertical_, regfdp && !regfdp->is2D(),
+		       fdp ? &fdp->zDomain() : nullptr );
     }
 
     if ( regfdp )
     {
-	const TrcKeyZSampling& cs = regfdp->sampling();
-	if ( tkzs_.isFlat() || !cs.includes(tkzs_) )
+	const TrcKeyZSampling& tkzs = regfdp->sampling();
+	if ( tkzs_.isFlat() || !tkzs.includes(tkzs_) )
 	{
 	    int nrtrcs;
 	    if ( tkzs_.defaultDir()==TrcKeyZSampling::Inl )
-		nrtrcs = cs.hsamp_.nrTrcs();
+		nrtrcs = tkzs.hsamp_.nrTrcs();
 	    else
-		nrtrcs = cs.hsamp_.nrLines();
+		nrtrcs = tkzs.hsamp_.nrLines();
+
 	    //nrTrcs() or nrLines() return value 1 means start=stop
 	    if ( nrtrcs < 2 )
 	    {
@@ -273,16 +302,21 @@ void uiODViewer2D::makeUpView( FlatDataPack* indp,
 		return;
 	    }
 	}
-	if ( tkzs_ != cs ) { removeAvailablePacks(); setTrcKeyZSampling( cs ); }
+
+	if ( tkzs_ != tkzs )
+	{
+	    removeAvailablePacks();
+	    setTrcKeyZSampling( tkzs );
+	}
     }
 
     if ( !isVertical() && !mapdp && regfdp )
     {
 	viewwin()->viewer().appearance().annot_.x2_.reversed_ = false;
-	setDataPack( createMapDataPackRM(*regfdp).ptr(), dst, isnew);
+	setDataPack( createMapDataPackRM(*regfdp).ptr(), dst, isnew );
     }
     else
-	setDataPack( fdp.ptr(), dst, isnew);
+	setDataPack( fdp.ptr(), dst, isnew );
 
     adjustOthrDisp( dst, isnew );
 
@@ -299,7 +333,6 @@ void uiODViewer2D::makeUpView( FlatDataPack* indp,
 
     if ( viewwin()->dockParent() )
 	viewwin()->dockParent()->raise();
-
 }
 
 
@@ -358,15 +391,21 @@ void uiODViewer2D::setDataPack( FlatDataPack* indp, bool wva,
 }
 
 
+ZAxisTransform* uiODViewer2D::getZAxisTransform()
+{
+    return datatransform_.ptr();
+}
+
+
+const ZAxisTransform* uiODViewer2D::getZAxisTransform() const
+{
+    return datatransform_.ptr();
+}
+
+
 bool uiODViewer2D::setZAxisTransform( ZAxisTransform* zat )
 {
-    if ( datatransform_ )
-	datatransform_->unRef();
-
     datatransform_ = zat;
-    if ( datatransform_ )
-	datatransform_->ref();
-
     return true;
 }
 
@@ -402,15 +441,19 @@ void uiODViewer2D::setTrcKeyZSampling( const TrcKeyZSampling& tkzs,
 	}
     }
 
-    if ( tkzs.isFlat() ) setWinTitle( false );
+    setWinTitle( false );
 }
 
 
-void uiODViewer2D::createViewWin( bool isvert, bool needslicepos )
+void uiODViewer2D::createViewWin( bool isvert, bool needslicepos,
+				  const ZDomain::Info* zdomain )
 {
     bool wantdock = false;
     Settings::common().getYN( "FlatView.Use Dockwin", wantdock );
     uiParent* controlparent = nullptr;
+    const ZDomain::Info& datazom = zdomain ? *zdomain : SI().zDomainInfo();
+    const ZDomain::Info* displayzdom = datazom.isDepth()
+				     ? &ZDomain::DefaultDepth( true ) : nullptr;
     if ( wantdock )
     {
 	auto* dwin = new uiFlatViewDockWin( &appl_,
@@ -426,29 +469,33 @@ void uiODViewer2D::createViewWin( bool isvert, bool needslicepos )
 					uiFlatViewMainWin::Setup(basetxt_) );
 	mAttachCB( fvmw->windowClosed, uiODViewer2D::winCloseCB );
 	mAttachCB( appl_.windowClosed, uiODViewer2D::applClosed );
+	viewwin_ = fvmw;
 	if ( needslicepos )
 	{
-	    slicepos_ = new uiSlicePos2DView( fvmw, ZDomain::Info(zDomain()) );
+	    slicepos_ = new uiSlicePos2DView( fvmw, datazom );
 	    slicepos_->setTrcKeyZSampling( tkzs_ );
+	    //TODO make slicepos_ aware of zscale
 	    mAttachCB( slicepos_->positionChg, uiODViewer2D::posChg );
 	}
 
-	viewwin_ = fvmw;
 	createTree( fvmw );
     }
 
     viewwin_->setInitialSize( 700, 400 );
-    if ( tkzs_.isFlat() )
-	setWinTitle( false );
-
     for ( int ivwr=0; ivwr<viewwin_->nrViewers(); ivwr++ )
     {
 	uiFlatViewer& vwr = viewwin()->viewer( ivwr);
-	vwr.setZAxisTransform( datatransform_ );
+	vwr.setZDomain( datazom, false );
+	if ( displayzdom )
+	    vwr.setZDomain( *displayzdom, true );
+
+	vwr.setZAxisTransform( getZAxisTransform() );
 	vwr.appearance().setDarkBG( wantdock );
-	vwr.appearance().setGeoDefaults(isvert);
+	vwr.appearance().setGeoDefaults( isvert );
 	vwr.appearance().annot_.setAxesAnnot(true);
     }
+
+    setWinTitle( false );
 
     const float initialx2pospercm = isvert ? initialx2pospercm_
 					   : initialx1pospercm_;
@@ -525,7 +572,7 @@ void uiODViewer2D::createTree( uiMainWin* mw )
 	treetp_->addChild( tifs_->getFactory(fidx)->create(), true );
     }
 
-    treetp_->setZAxisTransform( datatransform_ );
+    treetp_->setZAxisTransform( getZAxisTransform() );
     lv->display( true );
     mw->addDockWindow( *treedoc, uiMainWin::Left );
     treedoc->display( true );
@@ -574,6 +621,7 @@ void uiODViewer2D::dispPropChangedCB( CallBacker* )
     FlatView::Annotation& vwrannot = viewwin()->viewer().appearance().annot_;
     if ( vwrannot.dynamictitle_ )
 	vwrannot.title_ = getInfoTitle().getFullString();
+
     viewwin()->viewer().handleChange( FlatView::Viewer::Annot );
 }
 
@@ -685,9 +733,10 @@ RefMan<SeisFlatDataPack> uiODViewer2D::createDataPackRM(
 					const Attrib::SelSpec& selspec ) const
 {
    TrcKeyZSampling tkzs = slicepos_ ? slicepos_->getTrcKeyZSampling() : tkzs_;
-    if ( !tkzs.isFlat() ) return nullptr;
+    if ( !tkzs.isFlat() )
+	return nullptr;
 
-    RefMan<ZAxisTransform> zat = getZAxisTransform();
+    RefMan<ZAxisTransform> zat = datatransform_.getNonConstPtr();
     if ( zat && !selspec.isZTransformed() )
     {
 	if ( tkzs.nrZ() == 1 )
@@ -698,7 +747,8 @@ RefMan<SeisFlatDataPack> uiODViewer2D::createDataPackRM(
 
     uiAttribPartServer* attrserv = appl_.applMgr().attrServer();
     attrserv->setTargetSelSpec( selspec );
-    auto dp = attrserv->createOutput( tkzs, nullptr );
+    ConstRefMan<RegularSeisDataPack> dp =
+				     attrserv->createOutput( tkzs, nullptr );
     if ( !dp )
 	return nullptr;
 
@@ -717,9 +767,10 @@ RefMan<SeisFlatDataPack> uiODViewer2D::createFlatDataPackRM(
     const StringView zdomainkey( voldp.zDomain().key() );
     const bool alreadytransformed =
 	!zdomainkey.isEmpty() && zdomainkey!=ZDomain::SI().key();
-    if ( datatransform_ && !alreadytransformed )
+    if ( hasZAxisTransform() && !alreadytransformed )
     {
-	SeisDataPackZAxisTransformer transformer( *datatransform_ );
+	SeisDataPackZAxisTransformer transformer(
+					*datatransform_.getNonConstPtr() );
 	transformer.setInput( seisvoldp.ptr() );
 	transformer.setInterpolate( true );
 	transformer.execute();
@@ -751,13 +802,14 @@ RefMan<SeisFlatDataPack> uiODViewer2D::createDataPackForTransformedZSliceRM(
 
     const TrcKeyZSampling& tkzs = slicepos_ ? slicepos_->getTrcKeyZSampling()
 					    : tkzs_;
-    if ( tkzs.nrZ() != 1 ) return nullptr;
+    if ( tkzs.nrZ() != 1 )
+	return nullptr;
 
     uiAttribPartServer* attrserv = appl_.applMgr().attrServer();
     attrserv->setTargetSelSpec( selspec );
 
     RefMan<DataPointSet> data = new DataPointSet(false,true);
-    ZAxisTransformPointGenerator generator( *datatransform_ );
+    ZAxisTransformPointGenerator generator( *datatransform_.getNonConstPtr() );
     generator.setInput( tkzs );
     generator.setOutputDPS( *data );
     generator.execute();
@@ -783,8 +835,9 @@ RefMan<MapDataPack> uiODViewer2D::createMapDataPackRM(
     inlrg.setFrom( tkzs.hsamp_.inlRange() );
     crlrg.setFrom( tkzs.hsamp_.crlRange() );
 
-    BufferStringSet dimnames;
-    dimnames.add("X").add("Y").add(sKey::Inline()).add(sKey::Crossline());
+    uiStringSet dimnames;
+    dimnames.add( uiStrings::sXcoordinate() ).add( uiStrings::sYcoordinate() )
+	    .add( uiStrings::sInline() ).add( uiStrings::sCrossline() );
 
     Array2DSlice<float> slice2d( rsdp.data() );
     slice2d.setDimMap( 0, 0 );
@@ -799,6 +852,8 @@ RefMan<MapDataPack> uiODViewer2D::createMapDataPackRM(
 
     mdp->setName( rsdp.name() );
     mdp->setProps( inlrg, crlrg, true, &dimnames );
+    mdp->setZVal( tkzs.zsamp_.start_ );
+    mdp->setZDomain( rsdp.zDomain() );
     return mdp;
 }
 
@@ -982,27 +1037,27 @@ uiString uiODViewer2D::getInfoTitle() const
 	const Geometry::RandomLine* rdmline =
 			Geometry::RLM().get( rdmlineid_ );
 	if ( rdmline )
-	    info = toUiString( rdmline->name() );
+	    info.arg( uiStrings::sRandomLine() ).arg( rdmline->name() );
     }
     else if ( tkzs_.is2D() )
     {
-	info.arg( tr("Line") )
-	    .arg( toUiString( Survey::GM().getName(geomID()) ) );
+	info.arg( uiStrings::sLine() ).arg( Survey::GM().getName(geomID()) );
     }
     else if ( tkzs_.defaultDir() == TrcKeyZSampling::Inl )
     {
-	info.arg( uiStrings::sInline() )
-	    .arg( tkzs_.hsamp_.start_.inl() );
+	info.arg( uiStrings::sInline() ).arg( tkzs_.hsamp_.start_.inl() );
     }
     else if ( tkzs_.defaultDir() == TrcKeyZSampling::Crl )
     {
-	info.arg( uiStrings::sCrossline() )
-	    .arg( tkzs_.hsamp_.start_.crl() );
+	info.arg( uiStrings::sCrossline() ).arg( tkzs_.hsamp_.start_.crl() );
     }
-    else
+    else if ( tkzs_.defaultDir() == TrcKeyZSampling::Z )
     {
-	info.arg( zDomain().userName() )
-		.arg( mNINT32(tkzs_.zsamp_.start_ * zDomain().userFactor()) );
+	double zval = tkzs_.zsamp_.start_;
+	if (  viewwin() && viewwin()->validIdx(0) )
+	    zval *= viewwin()->viewer().annotUserFactor();
+
+	info.arg( zDomain(true).getLabel() ).arg( toUiStringDec(zval,nrZDec()));
     }
 
     return info;
@@ -1012,9 +1067,7 @@ uiString uiODViewer2D::getInfoTitle() const
 void uiODViewer2D::setWinTitle( bool fromvisobjinfo )
 {
     uiString info;
-    if ( !fromvisobjinfo )
-	info = getInfoTitle();
-    else
+    if ( fromvisobjinfo )
     {
 	uiString objectinfo;
 	appl_.applMgr().visServer()->getObjectInfo( visid_, objectinfo );
@@ -1023,9 +1076,10 @@ void uiODViewer2D::setWinTitle( bool fromvisobjinfo )
 	else
 	    info = objectinfo;
     }
+    else
+	info = getInfoTitle();
 
-    const uiString title = toUiString("%1%2").arg( basetxt_ )
-				       .arg( info );
+    const uiString title = toUiString("%1%2").arg( basetxt_ ).arg( info );
     if ( !viewwin() )
 	return;
 
@@ -1124,7 +1178,8 @@ void uiODViewer2D::mouseCursorCB( CallBacker* cb )
     ConstRefMan<FlatDataPack> fdp = vwr.getPack( false, true ).get();
     mDynamicCastGet(const SeisFlatDataPack*,seisfdp,fdp.ptr());
     mDynamicCastGet(const MapDataPack*,mapdp,fdp.ptr());
-    if ( !seisfdp && !mapdp ) return;
+    if ( !seisfdp && !mapdp )
+	return;
 
     const TrcKeyValue& trkv = info.trkv_;
     FlatView::Point& pt = marker_->poly_[0];
@@ -1134,8 +1189,8 @@ void uiODViewer2D::mouseCursorCB( CallBacker* cb )
 	if ( seisfdp->isVertical() )
 	{
             pt.x_ = fdp->posData().range(true).atIndex( gidx );
-            pt.y_ = datatransform_ ?
-		   datatransform_->transformTrc( trkv.tk_, trkv.val_ ) :
+	    pt.y_ = hasZAxisTransform() ?
+		   getZAxisTransform()->transformTrc( trkv.tk_, trkv.val_ ) :
 		   trkv.val_;
 	}
 	else
@@ -1156,46 +1211,42 @@ void uiODViewer2D::mouseCursorCB( CallBacker* cb )
 
 void uiODViewer2D::mouseMoveCB( CallBacker* cb )
 {
+    if ( !cb || !cb->isCapsule() )
+	return;
+
+    mCBCapsuleUnpack(const IOPar&,pars,cb);
+
     Coord3 mousepos( Coord3::udf() );
-    mCBCapsuleUnpack(IOPar,pars,cb);
-
-    BufferString valstr = pars.find( "X" );
-    if ( valstr.isEmpty() )
-	valstr = pars.find( "X-coordinate" );
-
-    if ( !valstr.isEmpty() )
-        mousepos.x_ = valstr.toDouble();
-
-    valstr = pars.find( "Y" );
-    if ( valstr.isEmpty() )
-	valstr = pars.find( "Y-coordinate" );
-
-    if ( !valstr.isEmpty() )
-        mousepos.y_ = valstr.toDouble();
-
-    valstr = pars.find( "Z" );
-    if ( valstr.isEmpty() )
-	valstr = pars.find( "Z-Coord" );
-
-    if ( !valstr.isEmpty() )
+    pars.get( sKey::Coordinate(), mousepos );
+    if ( !mIsUdf(mousepos.z_) )
     {
-        mousepos.z_ = valstr.toFloat() / zDomain().userFactor();
-	if ( datatransform_ )
-            mousepos.z_ = datatransform_->transformBack( mousepos );
+	if ( hasZAxisTransform() )
+	    mousepos.z_ = getZAxisTransform()->transformBack( mousepos );
     }
 
     if ( mousecursorexchange_ )
     {
+	TrcKey tk; BinID bid;
+	if ( pars.get(sKey::Position(),bid) )
+	    tk.setPosition( bid );
+	else if ( pars.get(sKey::TraceNr(),bid.crl()) )
+	{
+	    Pos::GeomID gid;
+	    if ( pars.get(sKey::GeomID(),gid) )
+		tk.setGeomID( gid );
+
+	    tk.setTrcNr( bid.crl() );
+	}
+
 	const TrcKeyValue trckeyval =
-	    mousepos.isDefined() ? TrcKeyValue(
-		    TrcKey( SI().transform(mousepos.coord()) ),
-                                       mCast(float,mousepos.z_))
+	    mousepos.isDefined() ? TrcKeyValue( tk, mCast(float,mousepos.z_ ) )
 				 : TrcKeyValue::udf();
 
 	MouseCursorExchange::Info info( trckeyval );
 	mousecursorexchange_->notifier.trigger( info, this );
     }
 }
+
 
 bool uiODViewer2D::isItemPresent( const uiTreeItem* item ) const
 {

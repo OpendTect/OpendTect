@@ -967,14 +967,6 @@ Interval<float> uiVisPartServer::getDataTraceRange( const VisID& id ) const
 }
 
 
-Coord3 uiVisPartServer::getMousePos() const
-{ return xytmousepos_; }
-
-
-BufferString uiVisPartServer::getMousePosVal() const
-{ return mouseposval_; }
-
-
 uiString uiVisPartServer::getInteractionMsg( const VisID& id ) const
 {
     mDynamicCastGet(const visSurvey::SurveyObject*,so,getObject(id))
@@ -2238,9 +2230,9 @@ void uiVisPartServer::mouseMoveCB( CallBacker* cb )
     mousecursorexchange_->notifier.trigger( info, this );
 
     eventmutex_.lock();
+    mousescene_ = sceneeventsrc_->getID();
     mouseposval_ = sceneeventsrc_->getMousePosValue();
     mouseposstr_ = sceneeventsrc_->getMousePosString();
-    zfactor_ = sceneeventsrc_->zDomainUserFactor();
     sendEvent( evMouseMove() );
     sceneeventsrc_ = nullptr;
 }

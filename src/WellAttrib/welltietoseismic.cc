@@ -550,10 +550,11 @@ bool WellTie::DataPlayer::doFullSynthetics( const Wavelet& wvlt )
     const Seis::OffsetType offstyp = SI().xyInFeet()
 				   ? Seis::OffsetType::OffsetFeet
 				   : Seis::OffsetType::OffsetMeter;
+    const OD::AngleType azityp = OD::AngleType::Degrees;
     const ZDomain::DepthType depthtype = SI().depthType();
     ConstRefMan<ReflectivityModelSet> refmodels =
 	Seis::RaySynthGenerator::getRefModels( aimodels, *sgp.reflPars(),
-		       msg, taskrunner, srd, offstyp, depthtype,
+		       msg, taskrunner, srd, offstyp, azityp, depthtype,
 		       forcedtdmodels.isEmpty() ? nullptr : &forcedtdmodels );
     if ( !refmodels )
 	mErrRet( uiStrings::phrCannotCreate(tr("synthetic: %1").arg(msg)) );

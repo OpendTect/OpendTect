@@ -585,6 +585,12 @@ uiString MadStream::errMsg() const
 }
 
 
+const ZDomain::Info& MadStream::zDomain() const
+{
+    return seisrdr_ ? seisrdr_->zDomain() : SI().zDomainInfo();
+}
+
+
 bool MadStream::putHeader( od_ostream& strm )
 {
     if (!headerpars_)

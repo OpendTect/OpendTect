@@ -55,9 +55,8 @@ void Horizon2D::setEditors()
 	    horeds_ += nullptr;
 	    continue;
 	}
-	else
-	    geomid_ = regfdp->getTrcKey(0).geomID();
 
+	geomid_ = regfdp->getTrcKey(0,0).geomID();
 	auto* hored = new MPE::HorizonFlatViewEditor2D(
 	     const_cast<uiFlatViewAuxDataEditor*>(auxdataeditors_[ivwr]),emid_);
 	horeds_ += hored;
@@ -112,14 +111,14 @@ void Horizon2D::draw()
 	horeds_[ivwr]->setTrcKeyZSampling( regfdp->sampling() );
 	horeds_[ivwr]->setSelSpec( wvaselspec_, true );
 	horeds_[ivwr]->setSelSpec( vdselspec_, false );
-	horeds_[ivwr]->setGeomID( regfdp->getTrcKey(0).geomID() );
+	horeds_[ivwr]->setGeomID( regfdp->getTrcKey(0,0).geomID() );
 
 	TypeSet<int>& trcnrs = horeds_[ivwr]->getPaintingCanvTrcNos();
 	TypeSet<float>& dists = horeds_[ivwr]->getPaintingCanDistances();
 	trcnrs.erase(); dists.erase();
 	for ( int idx=0; idx<regfdp->nrTrcs(); idx++ )
 	{
-	    const TrcKey tk = regfdp->getTrcKey(idx);
+	    const TrcKey tk = regfdp->getTrcKey(idx,0);
 	    trcnrs += tk.trcNr();
 	    dists += mCast(float,regfdp->posData().position(true,idx));
 	}

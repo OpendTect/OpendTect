@@ -128,6 +128,17 @@ void IOObjSelConstraints::requireType( const char* typstr, bool allowempty )
 }
 
 
+void IOObjSelConstraints::requireZDef( const ZDomain::Def& zdef,
+				       bool allowempty )
+{
+    FileMultiString fms( zdef.key() );
+    if ( allowempty )
+	fms.add( " " );
+
+    require_.set( ZDomain::sKey(), fms.str() );
+}
+
+
 void IOObjSelConstraints::requireZDomain( const ZDomain::Info& zinfo,
 					  bool allowempty )
 {
@@ -145,6 +156,19 @@ void IOObjSelConstraints::requireZDomain( const ZDomain::Info& zinfo,
 }
 
 
+const ZDomain::Def* IOObjSelConstraints::requiredZDef() const
+{
+    IOPar iop;
+    FileMultiString fms;
+    if ( require_.get(ZDomain::sKey(),fms) && !fms.isEmpty() )
+	iop.set( ZDomain::sKey(), fms[0] );
+    else
+	return nullptr;
+
+    return &ZDomain::Def::get( iop );
+}
+
+
 const ZDomain::Info* IOObjSelConstraints::requiredZDomain() const
 {
     IOPar iop;
@@ -156,7 +180,7 @@ const ZDomain::Info* IOObjSelConstraints::requiredZDomain() const
     if ( require_.get(ZDomain::sKeyUnit(),fms) && !fms.isEmpty() )
 	iop.set( ZDomain::sKeyUnit(), fms[0] );
 
-    return ZDomain::get( iop );
+    return ZDomain::Info::getFrom( iop );
 }
 
 
@@ -535,9 +559,21 @@ void IOObjContext::requireType( const char* typstr, bool allowempty )
 }
 
 
+void IOObjContext::requireZDef( const ZDomain::Def& zdef, bool allowempty )
+{
+    toselect_.requireZDef( zdef, allowempty );
+}
+
+
 void IOObjContext::requireZDomain( const ZDomain::Info& zinfo, bool allowempty )
 {
     toselect_.requireZDomain( zinfo, allowempty );
+}
+
+
+const ZDomain::Def* IOObjContext::requiredZDef() const
+{
+    return toselect_.requiredZDef();
 }
 
 

@@ -44,7 +44,7 @@ EMObjectDisplay::EMObjectDisplay()
     , hasmoved(this)
     , locknotifier(this)
     , em_(EM::EMM())
-    , zdominfo_(new ZDomain::Info(SI().zDomainInfo()))
+    , zdominfo_(&SI().zDomainInfo())
 {
     ref();
     drawstyle_ = visBase::DrawStyle::create();
@@ -79,18 +79,16 @@ EMObjectDisplay::~EMObjectDisplay()
 
     posattribmarkers_.erase();
     clearSelections();
-    delete zdominfo_;
     emchangedata_.clearData();
 }
 
 
 void EMObjectDisplay::setZDomain( const ZDomain::Info& zinfo )
 {
-    if ( *zdominfo_ == zinfo )
+    if ( &zinfo == zdominfo_ )
 	return;
 
-    delete zdominfo_;
-    zdominfo_ = new ZDomain::Info( zinfo );
+    zdominfo_ = &zinfo;
 }
 
 
@@ -103,7 +101,7 @@ const ZDomain::Info& EMObjectDisplay::zDomain() const
 bool EMObjectDisplay::isAlreadyTransformed() const
 {
     return zaxistransform_ &&
-	( zaxistransform_->toZDomainInfo().def_ == zdominfo_->def_ );
+	( &zaxistransform_->toZDomainInfo().def_ == &zDomain().def_ );
 }
 
 
@@ -606,12 +604,7 @@ void EMObjectDisplay::handleEmChange( const EM::EMObjectCallbackData& cbdata )
 
 void EMObjectDisplay::getObjectInfo( uiString& info ) const
 {
-    info.setEmpty();
-    if ( !emobject_ )
-	return;
-
-    const BufferString infostr( emobject_->getTypeStr(), ": ", name() );
-    info = toUiString( infostr );
+    info.set( emobject_->getUserTypeStr() ).addMoreInfo( name() );
 }
 
 
@@ -624,9 +617,9 @@ void EMObjectDisplay::getMousePosInfo( const visBase::EventInfo& eventinfo,
     if ( !emobject_ )
 	return;
 
-    info = toUiString( emobject_->getTypeStr() );
-    info.appendPhrase( toUiString(name()), uiString::MoreInfo,
-						    uiString::OnSameLine );
+    info = ::toUiString( emobject_->getTypeStr() );
+    info.appendPhrase( ::toUiString(name()), uiString::MoreInfo,
+		       uiString::OnSameLine );
     if ( emobject_->nrSections()==1 )
 	return;
 

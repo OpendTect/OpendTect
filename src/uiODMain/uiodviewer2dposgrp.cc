@@ -46,20 +46,16 @@ void EnumDefImpl<Viewer2DPosDataSel::PosType>::init()
 
 
 Viewer2DPosDataSel::Viewer2DPosDataSel()
+    : postype_(SI().has3D() ? Viewer2DPosDataSel::InLine
+			    : Viewer2DPosDataSel::Line2D)
+    , tkzs_(true)
 {
-    clean();
 }
 
 
-Viewer2DPosDataSel::Viewer2DPosDataSel( const Viewer2DPosDataSel& sd )
+Viewer2DPosDataSel::Viewer2DPosDataSel( const Viewer2DPosDataSel& oth )
 {
-    postype_		= sd.postype_;
-    selspec_		= sd.selspec_;
-    tkzs_		= sd.tkzs_;
-    rdmlineid_		= sd.rdmlineid_;
-    rdmlinemultiid_	= sd.rdmlinemultiid_;
-    geomid_		= sd.geomid_;
-    selectdata_		= sd.selectdata_;
+    *this = oth;
 }
 
 
@@ -67,13 +63,31 @@ Viewer2DPosDataSel::~Viewer2DPosDataSel()
 {}
 
 
+Viewer2DPosDataSel&
+Viewer2DPosDataSel::operator =( const Viewer2DPosDataSel& oth )
+{
+    if ( &oth == this )
+	return *this;
+
+    postype_		= oth.postype_;
+    selspec_		= oth.selspec_;
+    tkzs_		= oth.tkzs_;
+    rdmlineid_		= oth.rdmlineid_;
+    rdmlinemultiid_	= oth.rdmlinemultiid_;
+    geomid_		= oth.geomid_;
+    selectdata_		= oth.selectdata_;
+
+    return *this;
+}
+
+
 void Viewer2DPosDataSel::clean()
 {
     postype_ = SI().has3D() ? Viewer2DPosDataSel::InLine
 			    : Viewer2DPosDataSel::Line2D;
     selspec_ = Attrib::SelSpec();
-    tkzs_ = TrcKeyZSampling(true);
-    rdmlinemultiid_ = MultiID::udf();
+    tkzs_.init();
+    rdmlinemultiid_.setUdf();
     rdmlineid_.setUdf();
     geomid_.setUdf();
     selectdata_	= true;
@@ -156,6 +170,7 @@ uiODViewer2DPosGrp::uiODViewer2DPosGrp( uiParent* p,
 	createSliceSel( uiSliceSel::Crl );
 	if ( !onlyvertical_ )
 	    createSliceSel( uiSliceSel::Tsl );
+
 	rdmlinefld_ = new uiIOObjSel( this, mIOObjContext(RandomLineSet),
 				      tr("Input Random line") );
 	rdmlinefld_->attach( alignedBelow, inp3dfld_ );
@@ -169,8 +184,7 @@ uiODViewer2DPosGrp::uiODViewer2DPosGrp( uiParent* p,
 	setHAlignObj( inp3dfld_ );
     }
 
-    updatePosFlds();
-    updateDataSelFld();
+    mAttachCB( postFinalize(), uiODViewer2DPosGrp::initGrp );
 }
 
 
@@ -178,6 +192,13 @@ uiODViewer2DPosGrp::~uiODViewer2DPosGrp()
 {
     detachAllNotifiers();
     delete posdatasel_;
+}
+
+
+void uiODViewer2DPosGrp::initGrp( CallBacker* )
+{
+    updateFlds();
+    commitSel( false );
 }
 
 
@@ -215,6 +236,24 @@ void uiODViewer2DPosGrp::setApplSceneMgr( uiODMain& appl )
 bool uiODViewer2DPosGrp::is2D() const
 {
     return posdatasel_->postype_ == Viewer2DPosDataSel::Line2D;
+}
+
+
+bool uiODViewer2DPosGrp::isVertical() const
+{
+    return posdatasel_->postype_ != Viewer2DPosDataSel::ZSlice;
+}
+
+
+const ZDomain::Info& uiODViewer2DPosGrp::zDomain( bool display ) const
+{
+    const ZDomain::Info& zdom = ZDomain::Info::getFrom(
+				 posdatasel_->selspec_.zDomainKey(),
+				 posdatasel_->selspec_.zDomainUnit() );
+    if ( !display || !zdom.isDepth() )
+	return zdom;
+
+    return ZDomain::DefaultDepth( display );
 }
 
 
@@ -356,7 +395,6 @@ void uiODViewer2DPosGrp::updateDataSelFld()
 	if ( posdatasel_->selspec_.id().isValid() )
 	    attrsel->setSelSpec( &posdatasel_->selspec_ );
     }
-
 }
 
 
@@ -407,7 +445,8 @@ void uiODViewer2DPosGrp::gen2DLine( CallBacker* )
 
 void uiODViewer2DPosGrp::genRdmLine( CallBacker* )
 {
-    if ( !applmgr_ ) return;
+    if ( !applmgr_ )
+	return;
 
     applmgr_->wellServer()->selectWellCoordsForRdmLine();
     mAttachCBIfNotAttached(applmgr_->wellServer()->randLineDlgClosed,
@@ -431,8 +470,8 @@ void uiODViewer2DPosGrp::inpSel( CallBacker* cb )
 {
     if ( postypefld_ )
     {
-	const char* txtofinp = postypefld_->box()->text();
-	Viewer2DPosDataSel::parseEnum( txtofinp, posdatasel_->postype_ );
+	const BufferString txtofinp = postypefld_->box()->text();
+	Viewer2DPosDataSel::parseEnum( txtofinp.buf(), posdatasel_->postype_ );
     }
 
     updatePosFlds();
@@ -441,6 +480,8 @@ void uiODViewer2DPosGrp::inpSel( CallBacker* cb )
 	getSelAttrSamp( posdatasel_->tkzs_ );
 	updateTrcKeySampFld();
     }
+
+    commitSel( false );
 
     inpSelected.trigger();
 }
@@ -453,7 +494,7 @@ void uiODViewer2DPosGrp::updatePosFlds()
 	inp2dfld_->display( is2D() && posdatasel_->selectdata_ );
 	subsel2dfld_->display( is2D() );
 	gen2dlinebut_->display( is2D() && applmgr_ );
-	attr2DSelected(0);
+	attr2DSelected( nullptr );
     }
 
     if ( SI().has3D() )

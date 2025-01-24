@@ -376,26 +376,30 @@ uiString uiODPlaneDataTreeItem::createDisplayName() const
 	return res;
 
     ConstRefMan<visSurvey::PlaneDataDisplay> pdd = getDisplay();
-    const TrcKeyZSampling cs = pdd->getTrcKeyZSampling(true,true);
+    const TrcKeyZSampling tkzs = pdd->getTrcKeyZSampling(true,true);
     const OD::SliceType orientation = pdd->getOrientation();
 
     if ( orientation==OD::SliceType::Inline )
-	res = toUiString(cs.hsamp_.start_.inl());
+	res = toUiString( tkzs.hsamp_.start_.inl() );
     else if ( orientation==OD::SliceType::Crossline )
-	res = toUiString(cs.hsamp_.start_.crl());
+	res = toUiString( tkzs.hsamp_.start_.crl() );
     else
     {
 	ConstRefMan<visSurvey::Scene> scene = visserv_->getScene( sceneID() );
 	if ( scene )
 	{
-	    const ZDomain::Def& zdef = scene->zDomainInfo().def_;
-	    const int nrdec =
-		Math::NrSignificantDecimals( cs.zsamp_.step_*zdef.userFactor());
-            const float zval = cs.zsamp_.start_ * zdef.userFactor();
-	    res = toUiString( zval, nrdec );
+	    const ZDomain::Info& datazdom = scene ? scene->zDomainInfo()
+						  : SI().zDomainInfo();
+	    const ZDomain::Info& displayzdom = datazdom.isDepth()
+					     ? ZDomain::DefaultDepth( true )
+					     : datazdom;
+	    const float zval = tkzs.zsamp_.start_ *
+			   FlatView::Viewer::userFactor( datazdom,&displayzdom);
+	    const int nrzdec = displayzdom.nrDecimals( mUdf(float) );
+	    res = toUiStringDec( zval, nrzdec );
 	}
 	else
-            res = toUiString(cs.zsamp_.start_);
+	    res = toUiString( tkzs.zsamp_.start_ );
     }
 
     return res;

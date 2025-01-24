@@ -454,32 +454,34 @@ void uiODViewer2DMgr::displayIn2DViewer( const VisID& visid, int attribid,
 
 #define sEPSPixWidth 5.0f
 
-#define mGetAuxAnnotIdx \
-    uiODViewer2D* curvwr2d = find2DViewer( *meh ); \
-    if ( !curvwr2d ) return; \
-    uiFlatViewer& curvwr = curvwr2d->viewwin()->viewer( 0 ); \
-    const uiWorldPoint wp = curvwr.getWorld2Ui().transform(meh->event().pos());\
-    const Coord3 coord = curvwr.getCoord( wp );\
-    if ( coord.isUdf() ) return;\
-    const uiWorldPoint wperpixel = curvwr.getWorld2Ui().worldPerPixel(); \
-    const float x1eps  = mCast(float,wperpixel.x_) * sEPSPixWidth; \
-    const int x1auxposidx = \
-	curvwr.appearance().annot_.x1_.auxPosIdx( mCast(float,wp.x_), x1eps ); \
-    const float x2eps  = mCast(float,wperpixel.y_) * sEPSPixWidth; \
-    const int x2auxposidx = \
-	curvwr.appearance().annot_.x2_.auxPosIdx( mCast(float,wp.y_), x2eps );
-
 void uiODViewer2DMgr::mouseMoveCB( CallBacker* cb )
 {
     mDynamicCastGet(const MouseEventHandler*,meh,cb);
     if ( !meh || !meh->hasEvent() )
 	return;
 
-    mGetAuxAnnotIdx
+    uiODViewer2D* curvwr2d = find2DViewer( *meh );
+    if ( !curvwr2d )
+	return;
+
+    uiFlatViewer& curvwr = curvwr2d->viewwin()->viewer( 0 );
+    const uiWorldPoint wp = curvwr.getWorld2Ui().transform(meh->event().pos());
+    const Coord3 coord = curvwr.getCoord( wp );
+    if ( coord.isUdf() )
+	return;
+
+    const uiWorldPoint wperpixel = curvwr.getWorld2Ui().worldPerPixel();
+    const float x1eps  = mCast(float,wperpixel.x_) * sEPSPixWidth;
+    const int x1auxposidx =
+	curvwr.appearance().annot_.x1_.auxPosIdx( mCast(float,wp.x_), x1eps );
+    const float x2eps  = mCast(float,wperpixel.y_) * sEPSPixWidth;
+    const int x2auxposidx =
+	curvwr.appearance().annot_.x2_.auxPosIdx( mCast(float,wp.y_), x2eps );
 
     if ( !selauxannot_.isselected_ )
     {
-	if ( curvwr.appearance().annot_.editable_ ) return;
+	if ( curvwr.appearance().annot_.editable_ )
+	    return;
 
 	if ( x1auxposidx<0 && x2auxposidx<0 && selauxannot_.auxposidx_<0 )
 	    return;
@@ -534,7 +536,8 @@ void uiODViewer2DMgr::mouseMoveCB( CallBacker* cb )
 	else if ( (vwr2ddir==TrcKeyZSampling::Inl && !selauxannot_.isx1_) ||
 		  (vwr2ddir==TrcKeyZSampling::Crl && !selauxannot_.isx1_) )
 	    selauxannot.txt_ = tr( "ZSlice %1" ).arg(
-		    toString(newpos*curvwr2d->zDomain().userFactor()) );
+		    toString(newpos*curvwr2d->zDomain(false).userFactor()) );
+	    //TODO adjust zscale
     }
 
     setAuxAnnotLineStyles( curvwr, true );
@@ -721,7 +724,9 @@ void uiODViewer2DMgr::mouseClickCB( CallBacker* cb )
 	const uiString showcrltxt
 			= m3Dots(tr("Show Cross-line %1")).arg( bid.crl());
 	const uiString showztxt = m3Dots(tr("Show Z-slice %1"))
-		.arg( mNINT32(samplecrdz*curvwr2d->zDomain().userFactor()) );
+		.arg( mNINT32(samplecrdz*
+			      curvwr2d->zDomain(false).userFactor()) );
+			//TODO adjust zscale
 
 	const bool isflat = tkzs.isFlat();
 	const TrcKeyZSampling::Dir dir = tkzs.defaultDir();
@@ -797,7 +802,8 @@ void uiODViewer2DMgr::create2DViewer( const uiODViewer2D& curvwr2d,
 		       FlatView::Viewer::WVA );
     vwr2d->setSelSpec( &curvwr2d.selSpec(FlatView::Viewer::VD),
 		       FlatView::Viewer::VD );
-    vwr2d->setZAxisTransform( curvwr2d.getZAxisTransform() );
+    vwr2d->setZAxisTransform( const_cast<ZAxisTransform*>(
+					curvwr2d.getZAxisTransform() ) );
     uiTaskRunner taskr( const_cast<uiODViewer2D&>(curvwr2d).viewerParent() );
     vwr2d->setTrcKeyZSampling( newsampling, &taskr );
 

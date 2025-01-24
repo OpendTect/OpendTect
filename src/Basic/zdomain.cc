@@ -9,9 +9,11 @@ ________________________________________________________________________
 
 #include "zdomain.h"
 
-#include "iopar.h"
+#include "compoundkey.h"
 #include "keystrs.h"
+#include "odruncontext.h"
 #include "perthreadrepos.h"
+#include "settings.h"
 #include "survinfo.h"
 #include "uistrings.h"
 
@@ -21,6 +23,7 @@ const char* ZDomain::sKeyNoAll()	{ return "ZDomainNoAll"; }
 const char* ZDomain::sKeyTime()		{ return "TWT"; }
 const char* ZDomain::sKeyDepth()	{ return "Depth"; }
 const char* ZDomain::sKeyUnit()		{ return "ZDomain.Unit"; }
+const char* ZDomain::sKeyDec()		{ return "Nr Decimals"; }
 
 //Must match data/UnitsOfMeasure:
 static const char* sKeySeconds = "Seconds";
@@ -118,15 +121,24 @@ static bool zIsTime( const IOPar& iop, bool* isfound =nullptr )
     return ::SI().zIsTime();
 }
 
-} // namespace ZDomain
 
-
-const ZDomain::Info* ZDomain::get( const IOPar& iop )
+static const ZDomain::Info* get( const IOPar& iop )
 {
     bool isfound = false;
     const bool zit = zIsTime( iop, &isfound );
     if ( !isfound )
-	return Info::getFrom( iop );
+    {
+	const ObjectSet<const Info>& otherzdoms = ZDOMAINS();
+	const BufferString keystr( iop.find(sKey()) );
+	if ( keystr.isEmpty() )
+	    return nullptr;
+
+	for ( const auto* zinfo : otherzdoms )
+	    if ( keystr == zinfo->key() )
+		return zinfo;
+
+	return nullptr;
+    }
 
     // Below: time or depth only
     if ( zit )
@@ -137,21 +149,35 @@ const ZDomain::Info* ZDomain::get( const IOPar& iop )
 	if ( !iop.get(sKey::ZUnit(),unitstr) || unitstr.isEmpty() )
 	    return ::SI().depthsInFeet() ? &DepthFeet() : &DepthMeter();
 
-    const Info zinfo( Depth(), unitstr.buf() );
-    if ( zinfo.isDepthMeter() )
+    if ( unitstr.isEqual(sKeyMeter,OD::CaseInsensitive) ||
+	 unitstr.isEqual(sKeyMeterSymbol,OD::CaseInsensitive) )
 	return &DepthMeter();
-    if ( zinfo.isDepthFeet() )
+    else if ( unitstr.isEqual(sKeyFeet,OD::CaseInsensitive) ||
+	      unitstr.isEqual(sKeyFeetSymbol,OD::CaseInsensitive) )
 	return &DepthFeet();
 
     return ::SI().depthsInFeet() ? &DepthFeet() : &DepthMeter();
 }
 
+} // namespace ZDomain
 
-const ZDomain::Info* ZDomain::Info::getFrom( const char* zdomkey,
+
+const ZDomain::Info& ZDomain::Info::getFrom( const ZDomain::Info& oth )
+{
+    const ObjectSet<const Info>& zinfos = sAll();
+    for ( const auto* zinfo : zinfos )
+	if ( zinfo->isCompatibleWith(oth) )
+	    return *zinfo;
+
+    return ::SI().zDomainInfo();
+}
+
+
+const ZDomain::Info& ZDomain::Info::getFrom( const char* zdomkey,
 					     const char* zunitstr )
 {
     if ( !zdomkey || !*zdomkey )
-	return &::SI().zDomainInfo();
+	return ::SI().zDomainInfo();
 
     IOPar iop;
     iop.set( sKey(), zdomkey );
@@ -159,13 +185,13 @@ const ZDomain::Info* ZDomain::Info::getFrom( const char* zdomkey,
 	iop.set( sKeyUnit(), zunitstr );
 
     const Info* ret = getFrom( iop );
-    return ret ? ret : &::SI().zDomainInfo();
+    return ret ? *ret : ::SI().zDomainInfo();
 }
 
 
 const ZDomain::Info* ZDomain::Info::getFrom( const IOPar& iop )
 {
-    const BufferString keystr( iop.find(sKey() ) );
+    const BufferString keystr( iop.find(sKey()) );
     if ( keystr.isEmpty() )
 	return nullptr;
 
@@ -369,8 +395,10 @@ bool ZDomain::Def::add( ZDomain::Def* newdef )
 	if ( def->key_ == newdef->key_ )
 	    { delete newdef; return false; }
 
+    ObjectSet<const ZDomain::Info>& allinfos = getNonConst( sAll() );
     defs.add( newdef );
     ZDOMAINS().add( new ZDomain::Info(*newdef) );
+    allinfos.add( ZDOMAINS().last() );
     return true;
 }
 
@@ -412,6 +440,18 @@ const ZDomain::Info& ZDomain::DepthFeet()
 }
 
 
+const ZDomain::Info& ZDomain::DefaultDepth( bool display,
+					    const SurveyInfo* extsi )
+{
+    const SurveyInfo& si = extsi ? *extsi : ::SI();
+    const bool zistime = si.zIsTime();
+    const bool depthinft = si.depthsInFeet();
+    const bool zinft = zistime ? depthinft : si.zInFeet();
+    return display ? (depthinft ? DepthFeet() : DepthMeter())
+		   : (zinft ? DepthFeet() : DepthMeter());
+}
+
+
 const ObjectSet<const ZDomain::Info>& ZDomain::sAll()
 {
     static ObjectSet<const ZDomain::Info> zinfos;
@@ -433,12 +473,16 @@ ZDomain::Info::Info( const Def& def, const char* unitstr )
 	pars_.set( sKeyUnit(), unitstr );
     else
 	setDefaultUnit();
+
+    createNrDecStr();
 }
 
 
 ZDomain::Info::Info( const ZDomain::Info& oth )
     : def_(oth.def_)
     , pars_(*new IOPar(oth.pars_))
+    , nrdecstr_(oth.nrdecstr_)
+    , nrdec_(oth.nrdec_)
 {
 }
 
@@ -450,6 +494,8 @@ ZDomain::Info::Info( const IOPar& iop )
     pars_.removeWithKey( sKey() );
     if ( !pars_.isPresent(sKeyUnit()) )
 	setDefaultUnit();
+
+    createNrDecStr();
 }
 
 
@@ -480,6 +526,19 @@ void ZDomain::Info::setDefaultUnit()
 	pars_.set( sKeyUnit(), sKeySeconds );
     else if ( isDepth() )
 	setDepthUnit( ::SI().depthType() );
+}
+
+
+void ZDomain::Info::createNrDecStr()
+{
+    CompoundKey keystr( sKey() );
+    keystr += key();
+    const StringView unitstr( unitStr() );
+    if ( !unitstr.isEmpty() )
+	keystr += unitStr();
+
+    keystr += sKeyDec();
+    nrdecstr_ = keystr.buf();
 }
 
 
@@ -674,8 +733,14 @@ bool ZDomain::Info::isCompatibleWith( const Info& inf ) const
 
 bool ZDomain::Info::isCompatibleWith( const IOPar& iop ) const
 {
-    const ZDomain::Info inf( iop );
-    return isCompatibleWith( inf );
+    const Info* info = get( iop );
+    return info ? isCompatibleWith( *info ) : false;
+}
+
+
+const char* ZDomain::Info::sKeyNrDec() const
+{
+    return nrdecstr_.str();
 }
 
 
@@ -730,4 +795,51 @@ ZSampling ZDomain::Info::getReasonableZSampling( bool work, bool foruser ) const
 	zrg.scale( userFactor() );
 
     return zrg;
+}
+
+
+int ZDomain::Info::nrDecimals( float zstepfp, bool usepref ) const
+{
+    const bool hasstep = !mIsUdf(zstepfp);
+    if ( !hasstep )
+    {
+	const ZSampling zrg = getReasonableZSampling( true );
+	zstepfp = mIsUdf(zrg.step_) ? 1.f : zrg.step_;
+    }
+
+    if ( !mIsUdf(nrdec_) && usepref )
+	return nrdec_;
+
+    if ( usepref && (OD::InNormalRunContext() || OD::InStandAloneRunContext()) )
+    {
+	int nrdecsett = mUdf(int);
+	if ( Settings::common().get(sKeyNrDec(),nrdecsett) &&
+	     !mIsUdf(nrdecsett) )
+	{
+	    getNonConst(*this).nrdec_ = nrdecsett;
+	    return nrdec_;
+	}
+    }
+
+    const double zstep = sCast( double, zstepfp * userFactor() );
+    int nrdec = 0;
+    double decval = zstep;
+    while ( decval > Math::Floor(decval) &&
+	    !mIsZero(decval,1e-4) && !mIsEqual(decval,1.,1e-4) )
+    {
+	nrdec++;
+	decval = decval*10 - Math::Floor(decval*10);
+    }
+
+    if ( !hasstep )
+	nrdec++;
+
+    return nrdec;
+}
+
+
+void ZDomain::Info::setPreferredNrDec( int nrdec )
+{
+    if ( !mIsUdf(nrdec) )
+	nrdec_ = nrdec;
 }

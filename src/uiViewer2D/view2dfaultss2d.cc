@@ -101,7 +101,7 @@ void FaultSS2D::draw()
 	    trcnrs.erase(); dists.erase();
 	    for ( int idx=0; idx<regfdp->nrTrcs(); idx++ )
 	    {
-		const TrcKey tk = regfdp->getTrcKey(idx);
+		const TrcKey tk = regfdp->getTrcKey( idx, 0 );
 		trcnrs += tk.trcNr();
 		dists += mCast(float,regfdp->posData().position(true,idx));
 	    }

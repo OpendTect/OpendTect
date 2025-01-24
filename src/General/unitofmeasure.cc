@@ -227,6 +227,12 @@ const UnitOfMeasure* UnitOfMeasure::surveyDefOffsetUnit()
 }
 
 
+const UnitOfMeasure* UnitOfMeasure::surveyDefAzimuthUnit()
+{
+    return degreesUnit();
+}
+
+
 const UnitOfMeasure* UnitOfMeasure::surveyDefXYUnit()
 {
     return SI().xyInFeet() ? feetUnit() : meterUnit();
@@ -285,6 +291,32 @@ const UnitOfMeasure* UnitOfMeasure::degreesUnit()
 {
     static const UnitOfMeasure* ret = UoMR().get( degreesKey );
     return ret;
+}
+
+
+const UnitOfMeasure* UnitOfMeasure::offsetUnit( Seis::OffsetType typ )
+{
+    if ( typ == Seis::OffsetType::OffsetMeter )
+	return meterUnit();
+    if ( typ == Seis::OffsetType::OffsetFeet )
+	return feetUnit();
+    if ( typ == Seis::OffsetType::AngleRadians )
+	return radiansUnit();
+    if ( typ == Seis::OffsetType::AngleDegrees )
+	return degreesUnit();
+
+    return nullptr;
+}
+
+
+const UnitOfMeasure* UnitOfMeasure::angleUnit( OD::AngleType typ )
+{
+    if ( typ == OD::AngleType::Radians )
+	return radiansUnit();
+    if ( typ == OD::AngleType::Degrees )
+	return degreesUnit();
+
+    return nullptr;
 }
 
 
@@ -349,6 +381,16 @@ uiString UnitOfMeasure::surveyDefVelUnitAnnot( bool symb, bool withparens )
 const char* UnitOfMeasure::getLabel() const
 {
     return symbol_.isEmpty() ? name().str() : symbol();
+}
+
+
+uiString UnitOfMeasure::getUiLabel( bool symbol, bool withparens ) const
+{
+    uiString ret = toUiString( symbol ? getLabel() : getName().str() );
+    if ( withparens )
+	ret.parenthesize();
+
+    return ret;
 }
 
 
@@ -670,4 +712,143 @@ const UnitOfMeasure* UnitOfMeasureRepository::getDefault( const char* ky,
     if ( !ret )
 	ret = getCurDefaultFor( Mnemonic::toString(st) );
     return ret ? ret : getInternalFor( st );
+}
+
+
+namespace PreStack
+{
+
+static const char* sKeyIsAngleGather = "Angle Gather";
+static const char* sKeyIsCorr = "Is Corrected";
+
+} // namespace PreStack
+
+
+const char* Seis::sKeyOffsetUnit()
+{
+    return "Offset-Unit";
+}
+
+
+const char* Seis::sKeyAzimuthUnit()
+{
+    return "Azimuth-Unit";
+}
+
+
+bool Seis::getGatherCorrectedYN( const IOPar& par, bool& yn )
+{
+    bool iscorr;
+    if ( !par.getYN(PreStack::sKeyIsCorr,iscorr) &&
+	 !par.getYN("Is NMO Corrected",iscorr) )
+	return false;
+
+    yn = iscorr;
+    return true;
+}
+
+
+bool Seis::getOffsetType( const IOPar& par, Seis::OffsetType& typ )
+{
+    BufferString offsetunit;
+    const bool hasunit = par.get( sKeyOffsetUnit(), offsetunit ) &&
+			 !offsetunit.isEmpty();
+    if ( !hasunit )
+    {
+	bool offsetisangle = false;
+	if ( !par.getYN(PreStack::sKeyIsAngleGather,offsetisangle) )
+	    return false;
+
+	typ = Seis::OffsetType::AngleDegrees;
+	//Most usual case, but actually we do not know
+	return true;
+    }
+
+    const UnitOfMeasure* offsuom = UoMR().get( Mnemonic::Dist,
+					       offsetunit.str() );
+    if ( offsuom && offsuom == UnitOfMeasure::meterUnit() )
+    {
+	typ = Seis::OffsetType::OffsetMeter;
+	return true;
+    }
+    else if ( offsuom && offsuom == UnitOfMeasure::feetUnit() )
+    {
+	typ = Seis::OffsetType::OffsetFeet;
+	return true;
+    }
+
+    const UnitOfMeasure* anguom = UoMR().get( Mnemonic::Ang,
+					      offsetunit.str() );
+    if ( anguom && anguom == UnitOfMeasure::radiansUnit() )
+    {
+	typ = Seis::OffsetType::AngleRadians;
+	return true;
+    }
+    else if ( anguom && anguom == UnitOfMeasure::degreesUnit() )
+    {
+	typ = Seis::OffsetType::AngleDegrees;
+	return true;
+    }
+
+    return false;
+}
+
+
+bool Seis::getAzimuthType( const IOPar& par, OD::AngleType& typ )
+{
+    BufferString azimuthunit;
+    const bool hasunit = par.get( sKeyAzimuthUnit(), azimuthunit ) &&
+			 !azimuthunit.isEmpty();
+    if ( !hasunit )
+    {
+	typ = OD::AngleType::Degrees;
+	//Most usual case, but actually we do not know
+	return true;
+    }
+
+    const UnitOfMeasure* anguom = UoMR().get( Mnemonic::Ang,
+					      azimuthunit.str() );
+    if ( anguom && anguom == UnitOfMeasure::radiansUnit() )
+    {
+	typ = OD::AngleType::Radians;
+	return true;
+    }
+    else if ( anguom && anguom == UnitOfMeasure::degreesUnit() )
+    {
+	typ = OD::AngleType::Degrees;
+	return true;
+    }
+
+    return false;
+}
+
+
+void Seis::setGathersAreCorrected( bool yn, IOPar& par )
+{
+    par.setYN( PreStack::sKeyIsCorr, yn );
+}
+
+
+void Seis::setGatherOffsetType( Seis::OffsetType typ, IOPar& par )
+{
+    const bool isdist = Seis::isOffsetDist( typ );
+    const bool isangle = Seis::isOffsetAngle( typ );
+    if ( isdist || isangle )
+    {
+	const UnitOfMeasure* uom = UnitOfMeasure::offsetUnit( typ );
+	par.set( sKeyOffsetUnit(), uom ? uom->name().str() : nullptr );
+    }
+
+    // For backward compatibility mainly:
+    if ( isangle )
+	par.setYN( PreStack::sKeyIsAngleGather, true );
+    else
+	par.removeWithKey( PreStack::sKeyIsAngleGather );
+}
+
+
+void Seis::setGatherAzimuthType( OD::AngleType typ, IOPar& par )
+{
+    const UnitOfMeasure* uom = UnitOfMeasure::angleUnit( typ );
+    par.set( sKeyAzimuthUnit(), uom ? uom->name().str() : nullptr );
 }

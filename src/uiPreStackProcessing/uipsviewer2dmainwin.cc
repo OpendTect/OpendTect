@@ -67,9 +67,7 @@ PSViewAppearance::~PSViewAppearance()
 
 static void setAnnotationPars( FlatView::Annotation& annot )
 {
-    annot.x1_.name_ = "Offset";
     annot.x1_.reversed_ = false;
-    annot.x2_.name_ = SI().zIsTime() ? "TWT" : "Depth";
     annot.x2_.reversed_ = true;
     annot.x1_.showauxannot_ = false;
     annot.x2_.showauxannot_ = false;
@@ -194,7 +192,9 @@ void uiViewer2DMainWin::preprocessingCB( CallBacker* )
 
 
 void uiViewer2DMainWin::applyPreProcCB( CallBacker* )
-{ setUpView(); }
+{
+    setUpView();
+}
 
 
 void uiViewer2DMainWin::setUpView()
@@ -227,7 +227,7 @@ void uiViewer2DMainWin::setUpView()
 	control_->setGatherInfos( gatherinfos_ );
 
     displayMutes();
-    reSizeSld(0);
+    reSizeSld( nullptr );
 }
 
 
@@ -375,6 +375,7 @@ PreStack::Gather* uiViewer2DMainWin::getAngleGather(
     anglefp.setRange( false, x2rg );
 
     auto* anglegather = new PreStack::Gather( anglefp, angledata.offsetType(),
+					      angledata.azimuthAngleType(),
 					      angledata.zDomain() );
     const int offsetsize = fp.nrPts( true );
     const int zsize = fp.nrPts( false );
@@ -431,11 +432,15 @@ void uiStoredViewer2DMainWin::convAngleDataToDegrees(
 
 void uiViewer2DMainWin::displayInfo( CallBacker* cb )
 {
-    mCBCapsuleUnpack(IOPar,pars,cb);
-    BufferString mesg;
-    makeInfoMsg( mesg, pars );
-    statusBar()->message( toUiString(mesg.buf()) );
+    if ( !cb || !cb->isCapsule() )
+	return;
+
+    mCBCapsuleUnpack(const IOPar&,pars,cb);
+    uiString msg;
+    makeInfoMsg( pars, msg );
+    statusBar()->message( msg );
 }
+
 
 BufferString getSettingsKey( bool isstored )
 {
@@ -610,6 +615,9 @@ void uiViewer2DMainWin::setGatherView( uiGatherDisplay* gd,
 	}
     }
 
+    const uiString x1name = fv->appearance().annot_.x1_.name_;
+    const uiString x2name = fv->appearance().annot_.x2_.name_;
+
     PSViewAppearance dummypsapp;
     dummypsapp.datanm_ = gdi->getDataName();
     const int actappidx = appearances_.indexOf( dummypsapp );
@@ -617,6 +625,8 @@ void uiViewer2DMainWin::setGatherView( uiGatherDisplay* gd,
 	actappidx<0 ? control_->dispPars() : appearances_[actappidx].ddpars_;
     fv->appearance().annot_ =
 	actappidx<0 ? control_->annot() : appearances_[actappidx].annot_;
+    fv->appearance().annot_.x1_.name_ = x1name;
+    fv->appearance().annot_.x2_.name_ = x2name;
     fv->appearance().annot_.x1_.showannot_ = true;
     fv->appearance().annot_.x2_.showannot_ = vwrs_.size()==1;
     setAnnotationPars( fv->appearance().annot_ );
@@ -683,7 +693,8 @@ void uiViewer2DMainWin::getStartupPositions( const TrcKey& tk,
 	    return;
     }
 
-    for ( int trcnr=starttrcnr-approxstep; trcnr>=trcrg.start_;trcnr-=approxstep)
+    for ( int trcnr=starttrcnr-approxstep; trcnr>=trcrg.start_;
+	      trcnr-=approxstep )
     {
 	const int trcidx = trcrg.nearestIndex( trcnr );
 	const int acttrcnr = trcrg.atIndex( trcidx );
@@ -854,7 +865,7 @@ void uiViewer2DMainWin::setGatherforPreProc( const BinID& relbid,
 	const ElasticModel* model = getModel( inputginfo.tk_ );
 	preprocmgr_->setInput( relbid,
 			       inputginfo.vddp_ ? inputginfo.wvadp_.ptr()
-			       			: inputginfo.vddp_.ptr() );
+						: inputginfo.vddp_.ptr() );
 	preprocmgr_->setModel( relbid, model );
     }
 }
@@ -1267,7 +1278,7 @@ void uiStoredViewer2DMainWin::setGather( const GatherInfo& gatherinfo )
 
 	ppgather = ppgather ? ppgather : ConstRefMan<PreStack::Gather>(gather);
 	ConstRefMan<PreStack::Gather> anglegather =
-	    	getAngleData( ppgather.ptr() );
+					    getAngleData( ppgather.ptr() );
 	gd->setVDGather( hasangledata_ ? anglegather.ptr() : ppgather.ptr() );
 	gd->setWVAGather( hasangledata_ ? ppgather.ptr() : nullptr );
         if ( mIsUdf( zrg.start_ ) )
@@ -1399,7 +1410,6 @@ uiSyntheticViewer2DMainWin::setGathers( const TypeSet<GatherInfo>& dps,
     prepareNewAppearances( oldgathernms, newgathernms );
     tkzs_ = tkzs;
     setUpView();
-    reSizeSld( nullptr );
 
     return *this;
 }
@@ -1419,8 +1429,8 @@ void uiSyntheticViewer2DMainWin::setGather( const GatherInfo& ginfo )
 	return;
 
     auto* gd = new uiGatherDisplay( nullptr );
-    auto vdgather = ginfo.vddp_;
-    auto wvagather = ginfo.wvadp_;
+    ConstRefMan<PreStack::Gather> vdgather = ginfo.vddp_;
+    ConstRefMan<PreStack::Gather> wvagather = ginfo.wvadp_;
 
     if ( !vdgather && !wvagather  )
     {
@@ -1437,9 +1447,9 @@ void uiSyntheticViewer2DMainWin::setGather( const GatherInfo& ginfo )
 	ppgather = getPreProcessed( ginfo );
 
     gd->setVDGather( !vdgather ? (ppgather ? ppgather.ptr() : wvagather.ptr())
-	    			: vdgather.ptr() );
+				: vdgather.ptr() );
     gd->setWVAGather( vdgather ? (ppgather ? ppgather.ptr() : wvagather.ptr())
-	    			: nullptr );
+				: nullptr );
     auto* gdi = new uiGatherDisplayInfoHeader( nullptr );
     setGatherInfo( gdi, ginfo );
     gdi->setOffsetRange( gd->getOffsetRange() );

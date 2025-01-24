@@ -18,6 +18,7 @@ ________________________________________________________________________
 #include "uimultiflatviewcontrol.h"
 #include "uipsviewer2dmainwin.h"
 #include "uislider.h"
+#include "uistratlaymoddisp.h"
 #include "uistratlaymodtools.h"
 #include "uistratsynthexport.h"
 #include "uisynthgendlg.h"
@@ -38,6 +39,7 @@ ________________________________________________________________________
 #include "stratlith.h"
 #include "survinfo.h"
 #include "syntheticdataimpl.h"
+#include "unitofmeasure.h"
 #include "wavelet.h"
 
 using namespace StratSynth;
@@ -756,7 +758,7 @@ void uiStratSynthDisp::createViewer( uiGroup* vwrgrp )
     vwr_->rgbCanvas().disableImageSave();
     vwr_->setInitialSize( initialsz_ );
     vwr_->setStretch( 2, 2 );
-    vwr_->setZDomain( ZDomain::Time() );
+    vwr_->setZDomain( ZDomain::TWT(), false );
     setDefaultAppearance( vwr_->appearance() );
 
     uiFlatViewStdControl::Setup fvsu( this );
@@ -1788,8 +1790,9 @@ void uiStratSynthDisp::offsSliderChgCB( CallBacker* )
 
 void uiStratSynthDisp::updateOffSliderTxt()
 {
-    offsslider_->setToolTip( toUiString("%1: %2")
-			     .arg( uiStrings::sOffset() ).arg( curoffs_ ) );
+    uiString offmsg( uiStrings::sOffset() );
+    offmsg.addMoreInfo( curoffs_ );
+    offsslider_->setToolTip( offmsg );
 }
 
 
@@ -1946,18 +1949,18 @@ uiFlatViewer* uiStratSynthDisp::getViewerClone( uiParent* p ) const
     vwr->rgbCanvas().disableImageSave();
     vwr->setInitialSize( initialsz_ );
     vwr->setStretch( 2, 2 );
-    vwr->setZDomain( ZDomain::Time() );
+    vwr->setZDomain( ZDomain::TWT(), false );
     vwr->appearance() = vwr_->appearance();
-    auto wvadp = vwr_->getPack(true).get();
-    auto vddp = vwr_->getPack(false).get();
+    RefMan<FlatDataPack> wvadp = vwr_->getPack(true).get();
+    RefMan<FlatDataPack> vddp = vwr_->getPack(false).get();
     if ( wvadp.ptr() == vddp.ptr() )
-	vwr->setPack( FlatView::Viewer::Both, wvadp.ptr(), false);
+	vwr->setPack( FlatView::Viewer::Both, wvadp.ptr(), false );
     else
     {
 	const bool canupdate = vwr_->enableChange( false );
-	vwr->setPack( FlatView::Viewer::WVA, wvadp.ptr(), false);
+	vwr->setPack( FlatView::Viewer::WVA, wvadp.ptr(), false );
 	vwr_->enableChange( canupdate );
-	vwr->setPack( FlatView::Viewer::VD, vddp.ptr(), false);
+	vwr->setPack( FlatView::Viewer::VD, vddp.ptr(), false );
     }
 
     return vwr;
@@ -1970,35 +1973,35 @@ void uiStratSynthDisp::setDefaultAppearance( FlatView::Appearance& app )
     app.setDarkBG( false );
     app.annot_.allowuserchangereversedaxis_ = false;
     app.annot_.title_.setEmpty();
+    app.annot_.x1_.name_.setEmpty();
+    app.annot_.x2_.name_.setEmpty();
     app.annot_.x1_.showAll( true );
     app.annot_.x2_.showAll( true );
-    app.annot_.x1_.name_ = uiStrings::sTraceNumber();
-    app.annot_.x1_.annotinint_ = true;
-    app.annot_.x2_.name_ = uiStrings::sTWT();
     app.ddpars_.show( true, true );
     app.ddpars_.wva_.allowuserchangedata_ = false;
     app.ddpars_.vd_.allowuserchangedata_ = false;
 }
 
 
-void uiStratSynthDisp::makeInfoMsg( BufferString& mesg, IOPar& pars )
+void uiStratSynthDisp::makeInfoMsg( const IOPar& pars, uiString& msg )
 {
-    BufferString valstr = pars.find( sKey::TraceNr() );
-    if ( valstr.isEmpty() )
+    if ( !viewer() )
 	return;
 
-    const int modelidx = toInt( valstr );
+    const FlatView::Viewer& vwr = *viewer();
+    int modelidx = mUdf(int);
+    if ( !pars.get(sKey::TraceNr(),modelidx) )
+	return;
+
     const int seqidx = modelidx-1;
     if ( seqidx<0 || seqidx>=datamgr_.layerModel().size() )
 	return;
 
-    BufferString modelnrstr( 24, true );
-    od_sprintf( modelnrstr.getCStr(), modelnrstr.bufSize(),
-		"Model Number:%5d", modelidx );
-    mesg.add( modelnrstr );
-    valstr = pars.find( sKey::Z() );
-    if ( valstr.isEmpty() )
-	valstr = pars.find( "Z-Coord" );
+    msg.constructWordWith( uiStratLayerModelDisp::sModelNumber() )
+       .addMoreInfo( toUiString(modelidx,(od_uint16)6) );
+
+    Coord3 crd( Coord3::udf() );
+    pars.get( sKey::Coordinate(), crd );
 
     ConstRefMan<SyntheticData> sd;
     if ( !wvaselfld_->isNoneSelected() )
@@ -2013,82 +2016,117 @@ void uiStratSynthDisp::makeInfoMsg( BufferString& mesg, IOPar& pars )
 	    sd = datamgr_.getDataSet( validids.first() );
     }
 
-    float zval = mUdf(float);
-    if ( !valstr.isEmpty() )
+    int nrinfos = 0;
+#define mAddSep() if ( nrinfos++ ) msg.appendPhrase( uiString::empty(), \
+				   uiString::SemiColon, uiString::OnSameLine );
+
+    if ( !mIsUdf(crd.z_) )
     {
-	BufferString depthstr( 16, true );
-	zval = toFloat( valstr );
-	od_sprintf( depthstr.getCStr(), depthstr.bufSize(),
-		    "TWT : %6.0f", zval );
-	depthstr.add( SI().getZUnitString() );
-	mesg.addSpace().add( depthstr );
+	const double zval = crd.z_ * vwr.annotUserFactor();
+	const int width = 5 + (vwr.nrZDec() > 0 ? vwr.nrZDec()+1 : 0);
+	msg.constructWordWith( vwr.zDomain(true)->getLabel(), true )
+	   .addMoreInfo( toUiString(zval,width,'f',vwr.nrZDec()) );
 
 	if ( sd && sd->isPS() )
 	{
-	    BufferString offsetstr( 16, true );
-	    zval = offsslider_->getFValue();
-	    od_sprintf( offsetstr.getCStr(), offsetstr.bufSize(),
-			"Offset : %6.0f", zval );
-	    offsetstr.add( SI().getXYUnitString() );
-	    mesg.addSpace().add( offsetstr );
+	    mAddSep()
+	    float offset = mUdf(float);
+	    if ( pars.get(sKey::Offset(),offset) && !mIsUdf(offset) )
+	    {
+		mAddSep()
+		Seis::OffsetType offstyp = SI().xyInFeet()
+					 ? Seis::OffsetType::OffsetFeet
+					 : Seis::OffsetType::OffsetMeter;
+		Seis::getOffsetType( pars, offstyp );
+		const UnitOfMeasure* uom = UnitOfMeasure::offsetUnit( offstyp );
+		msg.constructWordWith( Seis::isOffsetDist(offstyp)
+					? uiStrings::sOffset()
+					: uiStrings::sAngle(), true )
+		   .constructWordWith( uom->getUiLabel(), true )
+		   .addMoreInfo( toUiString(offset,5,'f',0) );
+	    }
+
+	    float azimuth = mUdf(float);
+	    if ( pars.get(sKey::Azimuth(),azimuth) && !mIsUdf(azimuth) )
+	    {
+		mAddSep()
+		OD::AngleType azityp = OD::AngleType::Degrees;
+		Seis::getAzimuthType( pars, azityp );
+		const UnitOfMeasure* uom = UnitOfMeasure::angleUnit( azityp );
+		msg.constructWordWith( uiStrings::sAzimuth(), true )
+		   .constructWordWith( uom->getUiLabel(), true )
+		   .addMoreInfo( toUiString(azimuth,4,'f',0) );
+	    }
 	}
     }
 
-    if ( mIsUdf(zval) )
+    if ( mIsUdf(crd.z_) )
 	return;
 
-    mesg.addSpace();
-    int nrinfos = 0;
-#define mAddSep() if ( nrinfos++ ) mesg += ";\t";
-    BufferString vdstr = pars.find( "Variable density data" );
-    BufferString wvastr = pars.find( "Wiggle/VA data" );
-    BufferString vdvalstr = pars.find( "VD Value" );
-    BufferString wvavalstr = pars.find( "WVA Value" );
-    const bool issame = !vdstr.isEmpty() && !wvastr.isEmpty() && vdstr==wvastr;
-    if ( !vdvalstr.isEmpty() )
+    float val = mUdf(float);
+    BufferString wvastr = pars.find( FlatView::Viewer::sKeyWVAData() );
+    BufferString vdstr = pars.find( FlatView::Viewer::sKeyVDData() );
+    const BufferString wvavalstr = pars.find( FlatView::Viewer::sKeyWVAVal() );
+    const BufferString vdvalstr = pars.find( FlatView::Viewer::sKeyVDVal() );
+    const bool issame = vdstr.isEqual( wvastr );
+    if ( !wvavalstr.isEmpty() )
     {
 	mAddSep();
-	if ( issame )
-	    { if ( vdstr.isEmpty() ) vdstr = wvastr; }
-	else
-	    { if ( vdstr.isEmpty() ) vdstr = "VD Val"; }
-	float val = !vdvalstr.isEmpty() ? vdvalstr.toFloat() : mUdf(float);
-	mesg += "Val="; mesg += mIsUdf(val) ? "undef" : vdvalstr.buf();
-	mesg += " ("; mesg += vdstr; mesg += ")";
+	if ( issame && wvastr.isEmpty() )
+	    wvastr = vdstr;
+	else if ( !issame && wvastr.isEmpty() )
+	    wvastr = FlatView::Viewer::sKeyWVAVal();
+
+	val = wvavalstr.isEmpty() ? mUdf(float) : wvavalstr.toFloat();
+	uiString valstr = toUiString( "%1 = %2" )
+				.arg( uiStrings::sValue() )
+				.arg( mIsUdf(val) ? "undef" : wvavalstr.buf() );
+	msg.appendPhrase( valstr, uiString::Tab, uiString::OnSameLine );
+	valstr = toUiString( wvastr );
+	valstr.parenthesize();
+	msg.appendPhrase( valstr, uiString::Space, uiString::OnSameLine );
     }
 
-    if ( !wvavalstr.isEmpty() && !issame )
+    if ( !vdvalstr.isEmpty() && !issame )
     {
 	mAddSep();
-	float val = !wvavalstr.isEmpty() ? wvavalstr.toFloat() : mUdf(float);
-	mesg += "Val="; mesg += mIsUdf(val) ? "undef" : wvavalstr.buf();
-	if ( wvastr.isEmpty() ) wvastr = "WVA Val";
-	mesg += " ("; mesg += wvastr; mesg += ")";
-    }
+	val = vdvalstr.isEmpty() ? mUdf(float) : vdvalstr.toFloat();
+	uiString valstr = toUiString( "%1 = %2" )
+				.arg( uiStrings::sValue() )
+				.arg( mIsUdf(val) ? "undef" : vdvalstr.buf() );
+	msg.appendPhrase( valstr, uiString::Tab, uiString::OnSameLine );
+	if ( vdstr.isEmpty() )
+	    vdstr = FlatView::Viewer::sKeyVDVal();
 
-    float val;
-    if ( pars.get(sKey::Offset(),val) && !mIsUdf(val) )
-    {
-	mAddSep(); mesg += "Offs="; mesg += val;
-	mesg += " "; mesg += SI().getXYUnitString();
+	valstr = toUiString( vdstr );
+	valstr.parenthesize();
+	msg.appendPhrase( valstr, uiString::Space, uiString::OnSameLine );
     }
 
     const TimeDepthModel* d2tmdl = sd ? sd->getTDModel( seqidx ) : nullptr;
     const Strat::LayerModel& laymod = datamgr_.layerModel();
     if ( d2tmdl )
     {
-	const float realzval = zval / SI().showZ2UserFactor();
-	const float depth = d2tmdl->getDepth( realzval );
+	const float depth = d2tmdl->getDepth( (float)crd.z_ );
 	const Strat::LayerSequence& curseq = laymod.sequence( seqidx );
 	for ( int lidx=0; lidx<curseq.size(); lidx++ )
 	{
 	    const Strat::Layer& layer = *curseq.layers().get( lidx );
 	    if ( layer.zTop()<=depth && layer.zBot()>depth )
 	    {
-		mesg.addTab().add( "Layer:" ).add( layer.name() );
-		mesg.add( "; Lithology:" ).add( layer.lithology().name() );
+		mAddSep();
+		msg.constructWordWith( uiStrings::sLayer(), true )
+		   .addMoreInfo( layer.name().str() );
+		mAddSep();
+		msg.constructWordWith( uiStrings::sLithology(), true )
+		   .addMoreInfo( layer.lithology().name().str() );
 		if ( !layer.content().isUnspecified() )
-		    mesg.add( "; Content:" ).add( layer.content().name() );
+		{
+		    mAddSep();
+		    msg.constructWordWith( uiStrings::sContent(), true )
+		       .addMoreInfo( layer.content().name().str() );
+		}
+
 		break;
 	    }
 	}

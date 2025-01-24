@@ -30,7 +30,7 @@ Function::Function( FunctionSource& vfs )
     , geomid_(Survey::default3DGeomID())
     , desiredrg_(SI().zRange(true))
     , desc_(*new VelocityDesc)
-    , zdomaininfo_(new ZDomain::Info(SI().zDomainInfo()))
+    , zdomaininfo_(&SI().zDomainInfo())
 {
     desc_.setUnit( UnitOfMeasure::surveyDefVelUnit() );
     source_.ref();
@@ -43,7 +43,6 @@ Function::~Function()
     source_.removeFunction( this );
     source_.unRef();
     delete &desc_;
-    delete zdomaininfo_;
 }
 
 
@@ -93,11 +92,10 @@ Function& Function::setGeomID( const Pos::GeomID& geomid )
 
 Function& Function::setZDomain( const ZDomain::Info& zinfo )
 {
-    if ( (!zinfo.isTime() && !zinfo.isDepth()) || zinfo == zDomain() )
+    if ( (!zinfo.isTime() && !zinfo.isDepth()) || &zinfo == &zDomain() )
 	return *this;
 
-    delete zdomaininfo_;
-    zdomaininfo_ = new ZDomain::Info( zinfo );
+    zdomaininfo_ = &zinfo;
     desiredrg_.setUdf();
 
     return *this;
@@ -128,7 +126,7 @@ float Function::getVelocity( float z ) const
 	cachesd_ = RegularZValues::getDoubleSamplingData(
 					SamplingData<float>( sampling ) );
         const int zstart = mNINT32( cachesd_.start_ / cachesd_.step_ );
-        const int zstop = mNINT32( mCast(double,sampling.stop_)/cachesd_.step_ );
+	const int zstop = mNINT32( mCast(double,sampling.stop_)/cachesd_.step_);
 	mTryAlloc( cache_, TypeSet<float>( zstop-zstart+1, mUdf(float) ) );
 	if ( !cache_ )
 	    return mUdf(float);
@@ -187,13 +185,12 @@ mImplFactory1Param( FunctionSource, const MultiID&, FunctionSource::factory );
 
 
 FunctionSource::FunctionSource()
-    : zdomaininfo_(new ZDomain::Info(SI().zDomainInfo()))
+    : zdomaininfo_(&SI().zDomainInfo())
 {}
 
 
 FunctionSource::~FunctionSource()
 {
-    delete zdomaininfo_;
 }
 
 
@@ -233,11 +230,10 @@ const UnitOfMeasure* FunctionSource::velUnit() const
 
 FunctionSource& FunctionSource::setZDomain( const ZDomain::Info& zinfo )
 {
-    if ( (!zinfo.isTime() && !zinfo.isDepth()) || zinfo == zDomain() )
+    if ( (!zinfo.isTime() && !zinfo.isDepth()) || &zinfo == &zDomain() )
 	return *this;
 
-    delete zdomaininfo_;
-    zdomaininfo_ = new ZDomain::Info( zinfo );
+    zdomaininfo_ = &zinfo;
 
     return *this;
 }

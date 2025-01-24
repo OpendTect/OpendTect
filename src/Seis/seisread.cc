@@ -27,6 +27,7 @@ ________________________________________________________________________
 #include "posinfo.h"
 #include "posinfo2d.h"
 #include "scaler.h"
+#include "seisdatapack.h"
 #include "streamconn.h"
 #include "survinfo.h"
 #include "survgeom2d.h"
@@ -584,6 +585,8 @@ bool SeisTrcReader::getDataPack( RegularSeisDataPack& sdp, TaskRunner* taskr )
 	errmsg_ = strl()->errMsg();
 	return false;
     }
+
+    sdp.setZDomain( zDomain() );
 
     return true;
 }

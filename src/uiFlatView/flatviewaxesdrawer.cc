@@ -8,7 +8,9 @@ ________________________________________________________________________
 -*/
 
 #include "flatviewaxesdrawer.h"
+
 #include "flatposdata.h"
+#include "keystrs.h"
 #include "survinfo.h"
 #include "zaxistransform.h"
 
@@ -19,45 +21,21 @@ ________________________________________________________________________
 #include "uigraphicsscalebar.h"
 #include "uigraphicsscene.h"
 #include "uigraphicsview.h"
-
-
-static bool isVertical( const uiFlatViewer& vwr )
-{
-    const bool usewva = !vwr.isVisible( false );
-    const WeakPtr<FlatDataPack> datapack = vwr.getPack( usewva, true );
-    if ( !datapack )
-	return true;
-
-    ConstRefMan<FlatDataPack> fdp = datapack.get();
-    StringView x2dimnm( fdp->dimName(false) );
-    StringView vwrzdomstr( vwr.zDomain().userName().getFullString().buf() );
-    return x2dimnm == vwrzdomstr ||
-	   stringStartsWithCI("Time",x2dimnm.buf()) ||
-	   stringStartsWithCI("TWT",x2dimnm.buf()) ||
-	   stringStartsWithCI("Z",x2dimnm.buf());
-}
-
+#include "uistrings.h"
 
 
 AxesDrawer::AxesDrawer( uiFlatViewer& vwr )
     : uiGraphicsSceneAxisMgr(vwr.rgbCanvas())
     , vwr_(vwr)
-    , rectitem_(nullptr)
-    , titletxt_(nullptr)
-    , scalebaritem_(nullptr)
-    , colorbaritem_(nullptr)
 {}
 
 
-#define mRemoveAnnotItem( item )\
-{ view_.scene().removeItem( item ); deleteAndNullPtr( item ); }
-
 AxesDrawer::~AxesDrawer()
 {
-    deleteAndNullPtr( rectitem_ );
-    deleteAndNullPtr( titletxt_ );
-    deleteAndNullPtr( scalebaritem_ );
-    deleteAndNullPtr( colorbaritem_ );
+    delete rectitem_;
+    delete titletxt_;
+    delete scalebaritem_;
+    delete colorbaritem_;
 }
 
 
@@ -73,11 +51,6 @@ void AxesDrawer::updateScene()
     axis(OD::Left)->setup().nogridline( !annot.x2_.showgridlines_ );
     axis(OD::Right)->setup().nogridline( !annot.x2_.showgridlines_ );
 
-    uiString x2axisstr( toUiString(annot.x2_.name_) );
-    if ( isVertical(vwr_) )
-	x2axisstr.addSpace().append( vwr_.zDomain().uiUnitStr(true) );
-    axis(OD::Left)->setup().caption( x2axisstr );
-
     if ( annot.x1_.name_.isEmpty() )
     {
 // Hack
@@ -86,10 +59,12 @@ void AxesDrawer::updateScene()
     }
     else
     {
-	axis(OD::Bottom)->setup().caption( toUiString(annot.x1_.name_) );
+	axis(OD::Bottom)->setup().caption( annot.x1_.name_ );
 	axis(OD::Bottom)->setup().noannot( !annot.x1_.showannot_ );
 	axis(OD::Bottom)->setup().nogridline( !annot.x1_.showgridlines_ );
     }
+
+    axis(OD::Left)->setup().caption( annot.x2_.name_ );
 
     updateViewRect();
     uiGraphicsSceneAxisMgr::updateScene();
@@ -257,23 +232,25 @@ void AxesDrawer::transformAndSetAuxAnnotation( bool forx1 )
 	return;
 
     ConstRefMan<FlatDataPack> fdp = datapack.get();
-    const float userfac = mCast(float,vwr_.zDomain().userFactor());
     const TypeSet<PlotAnnotation>& xannot =
-	forx1 ? vwr_.appearance().annot_.x1_.auxannot_
-	      : vwr_.appearance().annot_.x2_.auxannot_;
+			forx1 ? vwr_.appearance().annot_.x1_.auxannot_
+			      : vwr_.appearance().annot_.x2_.auxannot_;
     TypeSet<PlotAnnotation> auxannot = xannot;
     const StepInterval<double> xrg = fdp->posData().range( forx1 );
+    const bool scalex2 = !forx1 && vwr_.isVertical();
+    const float userfac = scalex2 ? vwr_.annotUserFactor() : mUdf(float);
+    const int altdim = forx1 ? altdim0_ : altdim1_;
     for ( int idx=0; idx<xannot.size(); idx++ )
     {
 	if ( !xrg.includes(xannot[idx].pos_,false) )
 	    continue;
 
 	const int annotposidx = xrg.getIndex( xannot[idx].pos_ );
-	auxannot[idx].pos_ = altdim0_>=0 && forx1
-	    ? mCast(float,fdp->getAltDim0Value(altdim0_,annotposidx))
+	auxannot[idx].pos_ = altdim>=0 && forx1
+	    ? mCast(float,fdp->getAltDimValue(altdim,forx1,annotposidx))
 	    : xannot[idx].pos_;
 
-	if ( isVertical(vwr_) && !forx1 )
+	if ( scalex2 )
 	    auxannot[idx].pos_ *= userfac;
     }
 
@@ -288,12 +265,13 @@ void AxesDrawer::setWorldCoords( const uiWorldRect& wr )
     transformAndSetAuxAnnotation( true );
     transformAndSetAuxAnnotation( false );
     setScaleBarWorld2UI( wr );
-    const float userfac = mCast(float,vwr_.zDomain().userFactor());
+    const bool isvertical = vwr_.isVertical();
+    const float userfac = vwr_.annotUserFactor();
 
     if ( !fdp || altdim0_<0 )
     {
 	uiWorldRect altwr = wr;
-	if ( fdp && isVertical(vwr_) )
+	if ( fdp && isvertical )
 	{
 	    altwr.setTop( altwr.top() * userfac );
 	    altwr.setBottom( altwr.bottom() * userfac );
@@ -303,29 +281,43 @@ void AxesDrawer::setWorldCoords( const uiWorldRect& wr )
 	return;
     }
 
-    const StepInterval<double> dim0rg1 = fdp->posData().range( true );
-    const double altdim0start = fdp->getAltDim0Value( altdim0_, 0 );
+    bool dim0 = true;
+    const StepInterval<double> dim0rg1 = fdp->posData().range( dim0 );
+    const double altdim0start = fdp->getAltDimValue( altdim0_, dim0, 0 );
     const double altdim0stop =
-	fdp->getAltDim0Value( altdim0_,dim0rg1.nrSteps() );
-    const double altdimdiff = altdim0stop - altdim0start;
+		    fdp->getAltDimValue( altdim0_, dim0, dim0rg1.nrSteps() );
+    double altdimdiff = altdim0stop - altdim0start;
     const double altdim0step =
 	mIsZero(altdimdiff,mDefEps) || mIsZero(dim0rg1.nrSteps(),mDefEps)
 	? 1.0 : altdimdiff/dim0rg1.nrSteps();
     StepInterval<double> dim0rg2( altdim0start, altdim0stop, altdim0step );
-    const float startindex = dim0rg1.getfIndex( wr.left() );
-    const float stopindex = dim0rg1.getfIndex( wr.right() );
+    float startindex = dim0rg1.getfIndex( wr.left() );
+    float stopindex = dim0rg1.getfIndex( wr.right() );
     dim0rg2.start_ = altdim0start + dim0rg2.step_*startindex;
     dim0rg2.stop_ = altdim0start + dim0rg2.step_*stopindex;
-    Interval<double> dim1rg( wr.top(), wr.bottom() );
-    if ( isVertical(vwr_) )
+
+    dim0 = false;
+    const StepInterval<double> dim1rg1 = fdp->posData().range( dim0 );
+    const double altdim1start = fdp->getAltDimValue( altdim1_, dim0, 0 );
+    const double altdim1stop =
+		    fdp->getAltDimValue( altdim1_, dim0, dim1rg1.nrSteps() );
+    altdimdiff = altdim1stop - altdim1start;
+    const double altdim1step =
+	mIsZero(altdimdiff,mDefEps) || mIsZero(dim1rg1.nrSteps(),mDefEps)
+	? 1.0 : altdimdiff/dim1rg1.nrSteps();
+    StepInterval<double> dim1rg2( altdim1start, altdim1stop, altdim1step );
+    startindex = dim1rg1.getfIndex( wr.top() );
+    stopindex = dim1rg1.getfIndex( wr.bottom() );
+    dim1rg2.start_ = altdim1start + dim1rg2.step_*startindex;
+    dim1rg2.stop_ = altdim1start + dim1rg2.step_*stopindex;
+    if ( isvertical ) //TODO UPDATE ?
     {
-	dim1rg.start_ *= userfac;
-	dim1rg.stop_ *= userfac;
+	dim1rg2.start_ *= userfac;
+	dim1rg2.stop_ *= userfac;
     }
 
-
-    const uiWorldRect altwr( dim0rg2.start_, dim1rg.start_,
-			     dim0rg2.stop_, dim1rg.stop_ );
+    const uiWorldRect altwr( dim0rg2.start_, dim1rg2.start_,
+			     dim0rg2.stop_, dim1rg2.stop_ );
     uiGraphicsSceneAxisMgr::setWorldCoords( altwr );
 }
 

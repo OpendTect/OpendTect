@@ -44,7 +44,7 @@ class uiAttrVolOut;
 class uiImpAttrSet;
 namespace ColTab { class MapperSetup; }
 namespace Pick { class Set; }
-namespace ZDomain { class Info; class Def; }
+namespace ZDomain { class Def; class Info; }
 
 /*!
 \brief Service provider for application level - Attributes
@@ -147,7 +147,7 @@ public:
     static RefMan<RegularSeisDataPack> createDataPackFor2DRM(
 					    const Attrib::Data2DHolder& input,
 					    const TrcKeyZSampling& outputsamp,
-					    const ZDomain::Def& zdef,
+					    const ZDomain::Info&,
 				    const BufferStringSet* compnames=nullptr);
 
     Attrib::DescID	getStoredID(const MultiID&,bool is2d,

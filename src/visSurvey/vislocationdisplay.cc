@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "picksettr.h"
 #include "selector.h"
 #include "survgeom2d.h"
+#include "uistrings.h"
 #include "vismaterial.h"
 #include "visplanedatadisplay.h"
 #include "visrandomtrackdisplay.h"
@@ -827,15 +828,18 @@ void LocationDisplay::removePick( int removeidx, bool setundo )
 
 uiString LocationDisplay::getManipulationString() const
 {
-    uiString str = set_ && set_->isPolygon() ? tr("Polygon: %1")
-					     : tr("PointSet: %1");
-    str.arg( getName() );
+    uiString str;
+    getObjectInfo( str );
     return str;
 }
 
 
 void LocationDisplay::getObjectInfo( uiString& info ) const
-{ info = getManipulationString(); }
+{
+    info.set( set_ && set_->isPolygon() ? uiStrings::sPolygon()
+					: uiStrings::sPointSet() )
+	.addMoreInfo( getName() );
+}
 
 
 void LocationDisplay::getMousePosInfo( const visBase::EventInfo&,

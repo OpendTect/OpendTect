@@ -282,7 +282,7 @@ void uiODApplMgr::survChanged()
 bool uiODApplMgr::survChgReqAttrUpdate()
 {
     return !( SI().xyUnit() == tmpprevsurvinfo_.xyunit_ &&
-		SI().zUnit() == tmpprevsurvinfo_.zunit_ &&
+		SI().zUnit( true ) == tmpprevsurvinfo_.zunit_ &&
 		mIsEqual( SI().zStep(),tmpprevsurvinfo_.zstep_, 1e-6 ) );
 }
 
@@ -423,16 +423,16 @@ void uiODApplMgr::addTimeDepthScene( bool is2d )
 	    .arg( ztrans->factoryDisplayName() );
 
     sceneMgr().tile();
-    const SceneID sceneid = sceneMgr().addScene( true, ztrans.ptr(), snm);
-    if ( sceneid.isValid() )
-    {
-	const float zscale = ztrans->zScale();
-	RefMan<visSurvey::Scene> scene = visserv_->getScene( sceneid );
-	TrcKeyZSampling cs = SI().sampling( true );
-	cs.zsamp_ = zsampling;
-	scene->setTrcKeyZSampling( cs );
-	scene->setZScale( zscale );
-    }
+    const SceneID sceneid = sceneMgr().addScene( true, ztrans.ptr(), snm );
+    if ( !sceneid.isValid() )
+	return;
+
+    const float zscale = ztrans->zScale();
+    RefMan<visSurvey::Scene> scene = visserv_->getScene( sceneid );
+    TrcKeyZSampling cs = SI().sampling( true );
+    cs.zsamp_ = zsampling;
+    scene->setTrcKeyZSampling( cs );
+    scene->setZScale( zscale );
 }
 
 
@@ -580,9 +580,18 @@ bool uiODApplMgr::getNewData( const VisID& visid, int attrib )
 			treeitem->setToolTip( uiODSceneMgr::cColorColumn(),
 					      calc->errmsg_ );
 		}
-		else if ( treeitem )
-		    treeitem->setToolTip( uiODSceneMgr::cColorColumn(),
-					  uiString::empty() );
+		else
+		{
+		    const ZDomain::Info& zdomain =
+			ZDomain::Info::getFrom( myas[0].zDomainKey(),
+						myas[0].zDomainUnit() );
+		    if ( &zdomain != &newdp->zDomain() )
+			newdp.getNonConstPtr()->setZDomain( zdomain );
+
+		    if ( treeitem )
+			treeitem->setToolTip( uiODSceneMgr::cColorColumn(),
+					      uiString::empty() );
+		}
 	    }
 	    else
 	    {
@@ -1990,7 +1999,7 @@ void uiODApplMgr::process2D3D( int opt )
 void uiODApplMgr::MiscSurvInfo::refresh()
 {
     xyunit_ = SI().xyUnit();
-    zunit_ = SI().zUnit();
+    zunit_ = SI().zUnit( true );
     zstep_ = SI().zStep();
 }
 

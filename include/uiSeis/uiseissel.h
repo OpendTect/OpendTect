@@ -31,6 +31,7 @@ public:
     public:
 	enum SteerPol	{ NoSteering=0, OnlySteering=1, InclSteer=2 };
 	enum CompNrPol	{ SingleCompOnly=0, MultiCompOnly=1, Both=2};
+	enum DomainPol	{ SIDomain, SIDef, All };
 
 			Setup(Seis::GeomType);
 			Setup(bool is2d,bool isps);
@@ -39,6 +40,7 @@ public:
 	mDefSetupMemb(Seis::GeomType,geom)
 	mDefSetupMemb(bool,allowsetdefault) //!< Fill with def cube/line? True
 	mDefSetupMemb(bool,enabotherdomain) //!< write only: T vs Depth False
+	mDefSetupMemb(DomainPol,domainpol)  //!< SIDomain (only)
 	mDefSetupMemb(CompNrPol,compnrpol)  //!< Both
 	mDefSetupMemb(SteerPol,steerpol)    //!< NoSteering
 	mDefSetupMemb(bool,allowsetsurvdefault) //!< False

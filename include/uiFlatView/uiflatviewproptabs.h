@@ -32,11 +32,12 @@ mExpClass(uiFlatView) uiFlatViewPropTab : public uiDlgGroup
 public:
 			~uiFlatViewPropTab();
 
-    virtual void	putToScreen()		= 0;
+    virtual void	putToScreen()			= 0;
+    virtual void	fillCommonPar(IOPar&) const	{}
 
 protected:
 			uiFlatViewPropTab(uiParent*,FlatView::Viewer&,
-					  uiString);
+					  const uiString&);
 
     FlatView::Viewer&	vwr_;
     FlatView::Appearance& app_;
@@ -67,14 +68,14 @@ protected:
     virtual FlatView::DataDispPars::Common& commonPars()	= 0;
     virtual BufferString	dataName() const		= 0;
 
-    uiComboBox*		dispfld_;
+    uiComboBox*		dispfld_		= nullptr;
     uiGenInput*		useclipfld_;
     uiGenInput*		symclipratiofld_;
     uiGenInput*		assymclipratiofld_;
     uiGenInput*		symmidvalfld_;
     uiGenInput*		usemidvalfld_;
     uiGenInput*		rgfld_;
-    uiGenInput*		blockyfld_;
+    uiGenInput*		blockyfld_		= nullptr;
     bool		showdisplayfield_;
 
     uiObject*		lastcommonfld_;
@@ -86,6 +87,7 @@ protected:
     virtual void	handleFieldDisplay(bool)	= 0;
 
     void		putCommonToScreen();
+    void		fillCommonPar(IOPar&) const override;
     bool		acceptOK() override;
     void		doSetData(bool);
 
@@ -103,6 +105,7 @@ public:
 			~uiFVWVAPropTab();
 
     void		putToScreen() override;
+    void		fillCommonPar(IOPar&) const override;
     bool		acceptOK() override;
     void		setData() override		{ doSetData(true); }
 
@@ -138,6 +141,7 @@ public:
 			~uiFVVDPropTab();
 
     void		putToScreen() override;
+    void		fillCommonPar(IOPar&) const override;
     bool		acceptOK() override;
     void		setData() override		{ doSetData(false); }
 
@@ -166,20 +170,25 @@ mExpClass(uiFlatView) uiFVAnnotPropTab : public uiFlatViewPropTab
 public:
 
 			uiFVAnnotPropTab(uiParent*,FlatView::Viewer&,
-					 const BufferStringSet* annots);
+					 const uiStringSet* annotsdim0,
+					 const uiStringSet* annotsdim1,
+					 int selannotdim0,int selannotdim1);
 			~uiFVAnnotPropTab();
 
     void		putToScreen() override;
+    void		fillCommonPar(IOPar&) const override;
     bool		acceptOK() override;
 
-    int			getSelAnnot() const	{ return x1_->getSelAnnot(); }
-    void		setSelAnnot( int i )	{ x1_->setSelAnnot( i ); }
+    int			getSelAnnot(bool dim0) const;
+    void		setSelAnnot(int i,bool dim0);
+    int			nrZDecimals() const;
     void		fillPar(IOPar&) const;
 
 protected:
 
     void		annotChgdCB(CallBacker*);
     void		auxNmFldCB(CallBacker*);
+
     void		getFromAuxFld(int);
     void		updateAuxFlds(int);
 
@@ -190,8 +199,8 @@ protected:
     public:
 			AxesGroup(uiParent*,OD::Orientation,
 				  FlatView::Annotation::AxisData&,
-				  const BufferStringSet* annots=nullptr,
-				  bool dorevert=true);
+				  const uiStringSet* annots=nullptr,
+				  int selannotdim=-1,bool dorevert=true);
 			~AxesGroup();
 
 	void		putToScreen();
@@ -208,8 +217,8 @@ protected:
 	uiCheckBox*	showauxannotfld_;
 	uiSelLineStyle*	auxlinestylefld_;
 	uiLabel*	auxlblfld_;
-	uiCheckBox*	reversedfld_;
-	uiGenInput*	annotselfld_;
+	uiCheckBox*	reversedfld_	= nullptr;
+	uiGenInput*	annotselfld_	= nullptr;
 
 	void		showAuxCheckedCB(CallBacker*);
 	void		showAuxLineCheckedCB(CallBacker*);
@@ -217,11 +226,11 @@ protected:
     };
 
     uiColorInput*       colfld_;
-    uiGenInput*		viewnrdeczfld_;
     AxesGroup*		x1_;
     AxesGroup*		x2_;
+    uiGenInput*		viewnrdeczfld_	= nullptr;
 
-    uiGenInput*		auxnamefld_;
+    uiGenInput*		auxnamefld_	= nullptr;
     uiSelLineStyle*	linestylefld_;
     uiSelLineStyle*	linestylenocolorfld_;
     uiColorInput*	fillcolorfld_;
@@ -236,5 +245,5 @@ protected:
     TypeSet<MarkerStyle2D>				markerstyles_;
     TypeSet<Interval<double> >				x1rgs_;
     TypeSet<Interval<double> >				x2rgs_;
-    int							currentaux_;
+    int							currentaux_	= 0;
 };

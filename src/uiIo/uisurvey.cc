@@ -1205,22 +1205,14 @@ void uiSurvey::putToScreen()
 
     if ( !hassurveys || !cursurvinfo_ )
     {
-	notesfld_->setText( uiString::emptyString() );
-	infofld_->setText( uiString::emptyString() );
-	logfld_->setText( uiString::emptyString() );
+	notesfld_->setText( uiString::empty() );
+	infofld_->setText( uiString::empty() );
+	logfld_->setText( uiString::empty() );
 	return;
     }
 
-    BufferString inlinfo;
-    BufferString crlinfo;
-    BufferString zkey, zinfo;
-    BufferString srdinfo;
-    BufferString bininfo;
-    BufferString crsinfo;
-    BufferString areainfo;
-    BufferString survtypeinfo;
-    BufferString orientinfo;
-    BufferString locinfo;
+    BufferString inlinfo, crlinfo, zkey, zinfo, srdinfo, displaydepthinfo,
+		 bininfo, crsinfo, areainfo, survtypeinfo, orientinfo, locinfo;
 
     const SurveyInfo& si = *cursurvinfo_;
     areainfo.add( getAreaString(si.getArea(false),si.xyInFeet(),
@@ -1239,10 +1231,10 @@ void uiSurvey::putToScreen()
 
     logfld_->setText( logtxt );
 
-    zkey.set( "Z range (" )
-	.add( si.zIsTime() ? ZDomain::Time().unitStr()
-			   : getDistUnitString(si.zInFeet(), false) )
-	.add( ")" );
+    zkey.set( sKey::ZRange() ).addSpace()
+	.add( si.zIsTime() ? ZDomain::Time().unitStr(true)
+		       : (si.zInMeter() ? ZDomain::DepthMeter().unitStr(true)
+					: ZDomain::DepthFeet().unitStr(true)) );
 
     if ( si.getCoordSystem() )
 	crsinfo.add( si.getCoordSystem()->summary() );
@@ -1266,10 +1258,10 @@ void uiSurvey::putToScreen()
 
     StepInterval<float> sizrg( si.zRange(false) );
     sizrg.scale( si.zDomain().userFactor() );
-    const int nrdec = si.nrZDecimals();
+    const int nrdec = si.nrZDecimals( false );
     zinfo.addDec( sizrg.start_, nrdec ).add( " - " )
-	    .addDec( sizrg.stop_, nrdec ).add( " [" )
-	    .addDec( sizrg.step_, nrdec ).add( "]" );
+	 .addDec( sizrg.stop_, nrdec ).add( " [" )
+	 .addDec( sizrg.step_, nrdec ).add( "]" );
     zinfo.add( "; Total: ").add( sizrg.nrSteps()+1 );
 
     float srd = si.seismicReferenceDatum();
@@ -1277,6 +1269,10 @@ void uiSurvey::putToScreen()
 	srd *= mToFeetFactorF;
     srdinfo.addDec( srd, 2 ).addSpace()
 	   .add( getDistUnitString(si.depthsInFeet(),true) );
+
+    if ( si.zIsTime() || (si.zInMeter() && si.depthsInFeet())
+		      || (si.zInFeet() && !si.depthsInFeet()) )
+	displaydepthinfo.set( ZDomain::toString(si.depthType() ) );
 
     survtypeinfo.add( SurveyInfo::toString(si.survDataType()) );
 
@@ -1294,6 +1290,8 @@ void uiSurvey::putToScreen()
     infoset_.add( zkey, zinfo );
     if ( !mIsZero(srd,1e-1) )
 	infoset_.add( SurveyInfo::sKeySeismicRefDatum(), srdinfo );
+    if ( !displaydepthinfo.isEmpty() )
+	infoset_.add( "Depth display unit", displaydepthinfo.str() );
     infoset_.add( "Inl/Crl bin size", bininfo );
     infoset_.add( "CRS", crsinfo );
     infoset_.add( "Area", areainfo );

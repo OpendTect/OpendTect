@@ -9,17 +9,19 @@ ________________________________________________________________________
 -*/
 
 #include "uiflatviewmod.h"
-#include "uiflatviewcontrol.h"
-#include "uidialog.h"
-#include "menuhandler.h"
+
 #include "helpview.h"
+#include "menuhandler.h"
+#include "uidialog.h"
+#include "uiflatviewcontrol.h"
 
 class uiCheckBox;
-class uiMenuHandler;
 class uiFlatViewColTabEd;
 class uiGenInput;
+class uiMenuHandler;
 class uiPushButton;
 class uiToolBar;
+namespace ZDomain { class Info; }
 
 
 mExpClass(uiFlatView) uiFlatViewZoomLevelDlg : public uiDialog
@@ -28,7 +30,9 @@ public:
 			uiFlatViewZoomLevelDlg(uiParent*,
 					float x1start,float x2start,
 					float x1pospercm,float x2pospercm,
-					bool isvertical);
+					bool isvertical,
+				    const ZDomain::Info* datazdom=nullptr,
+				    const ZDomain::Info* displayzdom =nullptr);
 			~uiFlatViewZoomLevelDlg();
 
     void		getNrPosPerCm(float& x1,float& x2) const;
@@ -39,6 +43,8 @@ protected:
     float		x1pospercm_;
     float		x2pospercm_;
     bool		isvertical_;
+    const ZDomain::Info* datazdom_;
+    const ZDomain::Info* displayzdom_;
 
     uiGenInput*		x1startfld_		= nullptr;
     uiGenInput*		x2startfld_		= nullptr;
@@ -49,6 +55,7 @@ protected:
 
     uiString		getFieldLabel(bool x1,bool incm) const;
     void		computeZoomValues();
+
     void		finalizeDoneCB(CallBacker*);
     void		unitChgCB(CallBacker*);
     void		applyCB(CallBacker*);

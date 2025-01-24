@@ -63,8 +63,8 @@ public:
     int			inlStep() const;
     int			crlStep() const;
     float		zStep() const;
-    int			nrZDecimals() const;
     int			nrXYDecimals() const;
+    int			nrZDecimals(bool usepref=true) const;
     float		inlDistance() const; //!< distance for one increment
     float		crlDistance() const;
     float		getArea(const Interval<int>& inl,
@@ -92,17 +92,15 @@ public:
 			{ return float(zDomain().userFactor()); }
 
     bool		zIsTime() const;
-    inline bool		zInMeter() const
-			{ return zDomain().isDepth() && !depthsInFeet();}
-    inline bool		zInFeet() const
-			{ return zDomain().isDepth() && depthsInFeet();}
+    bool		zInMeter() const;
+    bool		zInFeet() const;
     const char*		getZUnitString(bool withparens=true) const
 			{ return zDomain().unitStr( withparens ); }
     const uiString	getUiZUnitString(bool withparens=true) const
 			{ return zDomain().uiUnitStr( withparens ); }
     enum Unit		{ Second, Meter, Feet };
     OD::XYType		xyUnit() const;
-    Unit		zUnit() const;
+    Unit		zUnit(bool display) const;
 
     Coord		minCoord(bool work) const;
     Coord		maxCoord(bool work) const;
@@ -160,9 +158,9 @@ protected:
 
     SurveyDiskLocation	disklocation_;
 
-    ZDomain::Def&	zdef_;
-    OD::XYType		xytype_			= OD::XYType::Meter;
-    ZDomain::DepthType	depthtype_		= ZDomain::DepthType::Meter;
+    const ZDomain::Info* zdomain_	= &ZDomain::TWT();
+    OD::XYType		xytype_		= OD::XYType::Meter;
+    ZDomain::DepthType	depthtype_	= ZDomain::DepthType::Meter; //Display
     TrcKeyZSampling&	tkzs_;
     TrcKeyZSampling&	wcs_;
     float		seisrefdatum_		= 0.f;
@@ -242,12 +240,14 @@ public:
 			/*!< It's the angle between the X-axis (East) and
 			     a Crossline */
     void		setXYInFeet(bool yn=true);
-    void		setDepthInFeet(bool yn=true);
     void		setZUnit(bool istime,bool infeet=false);
+			//*!< Survey domain
+    void		setDepthInFeet(bool yn=true);
+			//*!< Display domain
     static float	defaultXYtoZScale(Unit,OD::XYType);
 			/*!<Gives a ballpark figure of how to scale XY to
 			    make it comparable to Z. */
-    float		zScale() const;
+    float		zScale(bool display=true) const;
 			/*!<Gives a ballpark figure of how to scale Z to
 			    make it comparable to XY. */
 
@@ -295,13 +295,13 @@ public:
     static SurveyInfo&	empty();
 
     Pos::IdxPair2Coord&	getBinID2Coord() const
-			{ return const_cast<SurveyInfo*>(this)->b2c_; }
+			{ return getNonConst(*this).b2c_; }
     LatLong2Coord&	getLatlong2Coord() const
-			{ return const_cast<SurveyInfo*>(this)->ll2c_; }
+			{ return getNonConst(*this).ll2c_; }
     IOPar&		getPars() const
-			{ return const_cast<SurveyInfo*>(this)->pars_; }
+			{ return getNonConst(*this).pars_; }
     IOPar&		getLogPars() const
-			{ return const_cast<SurveyInfo*>(this)->logpars_; }
+			{ return getNonConst(*this).logpars_; }
 
     bool		write(const char* basedir=nullptr,
 						    bool isjson=false) const;
@@ -349,7 +349,7 @@ public:
 
 mGlobal(Basic) const SurveyInfo& SI();
 mGlobal(Basic) inline SurveyInfo& eSI()
-			{ return const_cast<SurveyInfo&>(SI()); }
+			{ return getNonConst(SI()); }
 
 mExternC(Basic) const char* GetSurveyName(void);
 			//!< Survey directory name (not a full path)

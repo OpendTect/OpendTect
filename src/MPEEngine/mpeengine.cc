@@ -848,6 +848,7 @@ RefMan<FlatDataPack> Engine::getSeedPosDataPack( const TrcKey& tk, float z,
     RefMan<FlatDataPack> fdp = new FlatDataPack( "Seismics", seeddata );
     fdp->posData().setRange( true, trcrg );
     fdp->posData().setRange( false, zrg );
+    fdp->setZDomain( *voldp.ptr() );
     return fdp;
 }
 

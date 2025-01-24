@@ -62,7 +62,6 @@ AngleComputer::AngleComputer()
 
 AngleComputer::~AngleComputer()
 {
-    delete zdomaininfo_;
 }
 
 
@@ -130,11 +129,10 @@ void AngleComputer::setSmoothingPars( const IOPar& smpar )
 AngleComputer& AngleComputer::setZDomain( const ZDomain::Info& zinfo )
 {
     if ( (!zinfo.isTime() && !zinfo.isDepth()) ||
-	  (zdomaininfo_ && zinfo == *zDomain()) )
+	  (zdomaininfo_ && &zinfo == zDomain()) )
 	return *this;
 
-    delete zdomaininfo_;
-    zdomaininfo_ = new ZDomain::Info( zinfo );
+    zdomaininfo_ = &zinfo;
     return *this;
 }
 
@@ -422,7 +420,7 @@ RefMan<Gather> AngleComputer::computeAngleData()
 	return nullptr;
 
     RefMan<Gather> gather = new Gather( outputsampling_, rtsu_.offsettype_,
-					*zDomain() );
+					OD::AngleType::Degrees, *zDomain() );
     gather->setTrcKey( trckey_ );
     Array2D<float>& angledata = gather->data();
 

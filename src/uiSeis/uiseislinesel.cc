@@ -681,12 +681,6 @@ uiSeis2DMultiLineSelDlg::uiSeis2DMultiLineSelDlg( uiParent* p,
 
     if ( selsu.withz_ )
     {
-	const ZDomain::Info* zinfo =
-				ZDomain::Info::getFrom( selsu.zdomkey_.buf(),
-							selsu.zunitstr_.buf() );
-	if ( !zinfo )
-	    zinfo = &SI().zDomainInfo();
-
 	zrgfld_ = new uiSelZRange( this, selsu.withstep_,
 				   selsu.zdomkey_.buf(), selsu.zunitstr_.buf());
 	mAttachCB( zrgfld_->rangeChanged, uiSeis2DMultiLineSelDlg::zRgChanged );

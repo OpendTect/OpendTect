@@ -31,9 +31,7 @@ uiGatherDisplay::uiGatherDisplay( uiParent* p  )
     viewer_->appearance().setDarkBG( false );
     viewer_->appearance().annot_.color_ = OD::Color::Black();
     viewer_->appearance().annot_.x1_.showannot_ = true;
-    viewer_->appearance().annot_.x1_.name_ = "Offset";
     viewer_->appearance().annot_.x2_.showannot_ = false;
-    viewer_->appearance().annot_.x2_.name_ = "Depth";
     viewer_->appearance().ddpars_.wva_.show_ = false;
     viewer_->appearance().ddpars_.vd_.show_ = true;
     viewer_->appearance().ddpars_.vd_.lininterp_ = true;

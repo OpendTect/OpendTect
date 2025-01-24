@@ -31,6 +31,49 @@ ________________________________________________________________________
 #include "survinfo.h"
 
 
+class FKDataPack : public FlatDataPack
+{ mODTextTranslationClass(FKDataPack)
+public:
+
+FKDataPack( const char* categry, Array2D<float>* arr )
+    : FlatDataPack(categry,arr)
+{}
+
+private:
+
+uiString dimName( bool dim0 ) const override
+{
+    return dim0 ? tr("K")
+		: (SI().zIsTime() ? tr("F") : tr("Kz"));
+}
+
+
+uiString dimUnitLbl( bool dim0, bool display, bool abbreviated,
+		     bool withparentheses ) const override
+{
+    uiString ret;
+    if ( dim0 )
+	ret = toUiString( SI().xyInFeet() ? "/ft" : "/m" );
+    else
+	ret = SI().zIsTime() ? toUiString( "Hz" )
+			     : (SI().zInMeter() ? toUiString("/m")
+						: toUiString("/ft"));
+
+    if ( withparentheses )
+	ret.parenthesize();
+
+    return ret;
+}
+
+
+const UnitOfMeasure* dimUnit( bool dim0, bool display ) const override
+{
+    return nullptr;
+}
+
+};
+
+
 uiFKSpectrum::uiFKSpectrum( uiParent* p, bool setbp )
     : uiFlatViewMainWin(p,Setup(tr("FK Spectrum")))
 {
@@ -40,9 +83,6 @@ uiFKSpectrum::uiFKSpectrum( uiParent* p, bool setbp )
     app.setDarkBG( false );
     app.setGeoDefaults( false );
     app.annot_.setAxesAnnot(true);
-    app.annot_.x1_.name_ = SI().xyInFeet() ? "K (/ft)" : "K (/m)";
-    app.annot_.x2_.name_ = SI().zIsTime() ? "F (Hz)" :
-		SI().zInMeter() ? "Kz (/m)" : "Kz (/ft)";
     app.ddpars_.wva_.allowuserchange_ = false;
     app.ddpars_.vd_.show_ = true;
     app.ddpars_.vd_.mappersetup_.cliprate_ = Interval<float>(0.005,0.005);
@@ -117,11 +157,15 @@ FlatView::AuxData* uiFKSpectrum::initAuxData()
 
 
 float uiFKSpectrum::getMinValue() const
-{ return minfld_ ? minfld_->getFValue() : mUdf(float); }
+{
+    return minfld_ ? minfld_->getFValue() : mUdf(float);
+}
+
 
 float uiFKSpectrum::getMaxValue() const
-{ return maxfld_ ? maxfld_->getFValue() : mUdf(float); }
-
+{
+    return maxfld_ ? maxfld_->getFValue() : mUdf(float);
+}
 
 
 static void updateTB( uiToolButton& tb, bool quietmode )
@@ -161,7 +205,8 @@ void uiFKSpectrum::mouseMoveCB( CallBacker* )
 
 void uiFKSpectrum::mousePressCB( CallBacker* )
 {
-    if ( !minvelitm_ ) return;
+    if ( !minvelitm_ )
+	return;
 
     if ( minsetbut_->isOn() )
     {
@@ -170,6 +215,7 @@ void uiFKSpectrum::mousePressCB( CallBacker* )
 	updateTB( *minsetbut_, true );
 	minsetbut_->setOn( false );
     }
+
     if ( maxsetbut_->isOn() )
     {
 	maxvelitm_->poly_ = lineitm_->poly_;
@@ -230,14 +276,14 @@ bool uiFKSpectrum::setData( const Array2D<float>& array )
 	const int kidx = idx<sz0/2 ? idx+sz0/2 : idx-sz0/2;
 	for ( int idy=0; idy<sz1/2; idy++ )
 	{
-	    const float power = abs(output_->get(idx,idy));
+	    const float power = abs( output_->get(idx,idy) );
 	    spectrum_->set( kidx, idy, power );
 	    if ( fkindb )
 		spectrum_->set( kidx, idy, 20*Math::Log10(power) );
 	}
     }
 
-    return view( *spectrum_ );
+    return view();
 }
 
 
@@ -252,20 +298,25 @@ bool uiFKSpectrum::initFFT( int nrtrcs, int nrsamples )
     fft_->setInputInfo( Array2DInfoImpl(xsz,zsz) );
     fft_->setDir( true );
 
+    delete input_;
     input_ = new Array2DImpl<float_complex>( xsz, zsz );
     input_->setAll( float_complex(0,0) );
+
+    delete output_;
     output_ = new Array2DImpl<float_complex>( xsz, zsz );
     output_->setAll( float_complex(0,0) );
 
+    delete spectrum_;
     spectrum_ = new Array2DImpl<float>( xsz, zsz/2 );
     spectrum_->setAll( 0 );
-    return true;
+
+    return input_->isOK() && output_->isOK() && spectrum_->isOK();
 }
 
 
 bool uiFKSpectrum::compute( const Array2D<float>& array )
 {
-    if ( !output_ )
+    if ( !input_ || !output_ )
 	return false;
 
     const int sz0 = array.info().getSize( 0 );
@@ -281,27 +332,33 @@ bool uiFKSpectrum::compute( const Array2D<float>& array )
 
     fft_->setInput( input_->getData() );
     fft_->setOutput( output_->getData() );
-    fft_->run( true );
+    if ( !fft_->run(true) )
+	return false;
+
+    deleteAndNullPtr( input_ );
 
     return true;
 }
 
 
-bool uiFKSpectrum::view( Array2D<float>& array )
+bool uiFKSpectrum::view()
 {
-    RefMan<FlatDataPack> datapack = new FlatDataPack( sKey::Attribute(),
-						      &array );
-    datapack->setName( "Power" );
-    const int nrk = array.info().getSize( 0 );
-    const int nrtrcs = input_->info().getSize( 0 );
+    const int nrk = spectrum_->getSize( 0 );
+    const int nrtrcs = output_->getSize( 0 );
     const float dk = fft_->getDf( SI().crlDistance(), nrtrcs );
     const StepInterval<double> krg( -dk*(nrk-1)/2, dk*(nrk-1)/2, dk );
 
-    const int nrf = array.info().getSize( 1 );
-    const int nrz = input_->info().getSize( 1 );
+    const int nrf = spectrum_->getSize( 1 );
+    const int nrz = output_->getSize( 1 );
     const float df = fft_->getDf( SI().zStep(), nrz );
     const StepInterval<double> frg( 0, df*(nrf-1), df );
 
+    deleteAndNullPtr( output_ );
+
+    RefMan<FlatDataPack> datapack = new FKDataPack( sKey::Attribute().str(),
+						    spectrum_ );
+    spectrum_ = nullptr;
+    datapack->setName( "Power" );
     datapack->posData().setRange( true, krg );
     datapack->posData().setRange( false, frg );
     vddp_ = datapack;

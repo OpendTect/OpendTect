@@ -115,6 +115,14 @@ bool isOptional( OD::ChoiceMode cm )
 }
 
 
+mDefineNameSpaceEnumUtils(OD,AngleType,"Angles Type")
+{
+    "Radians",
+    "Degrees",
+    nullptr
+};
+
+
 mDefineNameSpaceEnumUtils(OD,XYType,"Coordinates Type")
 {
     "Meter",

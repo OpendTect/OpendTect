@@ -20,7 +20,10 @@ ________________________________________________________________________
 #include "posinfo.h"
 #include "randomlinegeom.h"
 #include "seistrc.h"
+#include "survgeom2d.h"
 #include "survinfo.h"
+#include "uistrings.h"
+#include "unitofmeasure.h"
 
 #include <limits.h>
 
@@ -273,7 +276,6 @@ RegularSeisDataPack* RegularSeisDataPack::clone() const
     if ( getTrcsSampling() )
 	ret->setTrcsSampling( new PosInfo::SortedCubeData(*getTrcsSampling()) );
 
-    ret->setZDomain( zDomain() );
     ret->setValUnit( valUnit() );
     ret->setRefNrs( refnrs_ );
     ret->setDataDesc( getDataDesc() );
@@ -289,6 +291,7 @@ RegularSeisDataPack* RegularSeisDataPack::getSimilar() const
 {
     auto* ret = new RegularSeisDataPack( category(), &desc_ );
     ret->setSampling( sampling() );
+    ret->setZDomain( *this );
     return ret;
 }
 
@@ -323,10 +326,15 @@ const PosInfo::CubeData* RegularSeisDataPack::getTrcsSampling() const
 
 
 TrcKey RegularSeisDataPack::getTrcKey( int globaltrcidx ) const
-{ return sampling_.hsamp_.trcKeyAt( globaltrcidx ); }
+{
+    return sampling_.hsamp_.trcKeyAt( globaltrcidx );
+}
+
 
 bool RegularSeisDataPack::is2D() const
-{ return sampling_.is2D(); }
+{
+    return sampling_.is2D();
+}
 
 
 int RegularSeisDataPack::getGlobalIdx( const TrcKey& tk ) const
@@ -384,13 +392,13 @@ void RegularSeisDataPack::dumpInfo( StringPairSet& infoset ) const
     if ( !zrg.isUdf() )
     {
 	const ZDomain::Info& zinfo = zDomain();
-        const int nrdec = zinfo.def_.nrZDecimals( zrg.step_ );
+	const int nrzdec = zinfo.nrDecimals( zrg.step_, false );
 	zrg.scale( zinfo.userFactor() );
 	const BufferString keystr = toString( zinfo.getRange() );
 	BufferString valstr;
-        valstr.addDec( zrg.start_, nrdec )
-                .add( " - " ).addDec( zrg.stop_, nrdec )
-                .add( " [" ).addDec( zrg.step_, nrdec ).add( "]" );
+	valstr.addDec( zrg.start_, nrzdec )
+	      .add( " - " ).addDec( zrg.stop_, nrzdec )
+	      .add( " [" ).addDec( zrg.step_, nrzdec ).add( "]" );
 	infoset.add( keystr, valstr );
     }
 }
@@ -406,13 +414,14 @@ RefMan<RegularSeisDataPack> RegularSeisDataPack::createDataPackForZSliceRM(
 	return nullptr;
 
     RefMan<RegularSeisDataPack> regsdp = new RegularSeisDataPack(
-				VolumeDataPack::categoryStr(false,true) );
+				VolumeDataPack::categoryStr(tkzs) );
     regsdp->setSampling( tkzs );
+    regsdp->setZDomain( zinfo );
     for ( int idx=1; idx<bivset->nrVals(); idx++ )
     {
 	const char* name = names && names->validIdx(idx-1)
 			 ? names->get(idx-1).buf()
-			 : sKey::EmptyString().buf();
+			 : nullptr;
 	regsdp->addComponent( name );
 	BinIDValueSet::SPos pos;
 	BinID bid;
@@ -425,7 +434,6 @@ RefMan<RegularSeisDataPack> RegularSeisDataPack::createDataPackForZSliceRM(
 	}
     }
 
-    regsdp->setZDomain( zinfo );
     return regsdp;
 }
 
@@ -651,13 +659,6 @@ DataPackID RandomSeisDataPack::createDataPackFrom(
 }
 
 
-#define mKeyInl		SeisTrcInfo::toString(SeisTrcInfo::BinIDInl)
-#define mKeyCrl		SeisTrcInfo::toString(SeisTrcInfo::BinIDCrl)
-#define mKeyCoordX	SeisTrcInfo::toString(SeisTrcInfo::CoordX)
-#define mKeyCoordY	SeisTrcInfo::toString(SeisTrcInfo::CoordY)
-#define mKeyTrcNr	SeisTrcInfo::toString(SeisTrcInfo::TrcNr)
-#define mKeyRefNr	SeisTrcInfo::toString(SeisTrcInfo::RefNr)
-
 // SeisFlatDataPack
 
 SeisFlatDataPack::SeisFlatDataPack( const SeisVolumeDataPack& source, int comp )
@@ -668,6 +669,7 @@ SeisFlatDataPack::SeisFlatDataPack( const SeisVolumeDataPack& source, int comp )
     , rdlid_(source.getRandomLineID())
 {
     setName( source_->getComponentName(comp_) );
+    setZDomain( source );
 }
 
 
@@ -682,7 +684,7 @@ int SeisFlatDataPack::nrTrcs() const
 }
 
 
-TrcKey SeisFlatDataPack::getTrcKey( int trcidx ) const
+TrcKey SeisFlatDataPack::getTrcKey_( int trcidx ) const
 {
     return source_->getTrcKey( trcidx );
 }
@@ -712,82 +714,111 @@ bool SeisFlatDataPack::is2D() const
 }
 
 
-bool SeisFlatDataPack::dimValuesInInt( const char* keystr ) const
+bool SeisFlatDataPack::isStraight() const
 {
-    const StringView key( keystr );
-    return key==mKeyInl || key==mKeyCrl || key==mKeyTrcNr ||
-	   key==sKey::Series();
+    const int nrtrcs = nrTrcs();
+    if ( nrtrcs < 2 )
+	return true;
+
+    const TrcKey firsttk = getTrcKey_(0);
+    const TrcKey lasttk = getTrcKey_(nrTrcs()-1);
+    return firsttk.distTo( lasttk ) / posdata_.position(true,nrtrcs-1)>0.99;
 }
 
 
-void SeisFlatDataPack::getAltDim0Keys( BufferStringSet& keys ) const
+void SeisFlatDataPack::getAltDimKeys( uiStringSet& keys, bool dim0 ) const
 {
-    if ( !isVertical() )
+    if ( !isVertical() || !dim0 )
 	return;
 
-    for ( int idx=0; idx<tiflds_.size(); idx++ )
-	keys.add( SeisTrcInfo::toString(tiflds_[idx]) );
+    for ( const auto& fld : tiflds_ )
+    {
+	if ( fld == SeisTrcInfo::TrcNr )
+	    keys.add( uiStrings::sTraceNumber() );
+	else if ( fld == SeisTrcInfo::RefNr )
+	    keys.add( uiStrings::sSPNumber() );
+	else
+	    keys.add( SeisTrcInfo::toUiString(fld) );
+    }
+
+    if ( dim0 && isRandom() && !isStraight() )
+	keys.add( uiStrings::sDistance() );
 }
 
 
-double SeisFlatDataPack::getAltDim0Value( int ikey, int i0 ) const
+void SeisFlatDataPack::getAltDimKeysUnitLbls( uiStringSet& ss, bool dim0,
+				bool abbreviated, bool withparentheses ) const
 {
-    if ( !tiflds_.validIdx(ikey) )
-	return posdata_.position( true, i0 );
+    if ( !isVertical() || !dim0 )
+	return;
+
+    for ( const auto& fld : tiflds_ )
+    {
+	switch ( fld )
+	{
+	    case SeisTrcInfo::BinIDInl: case SeisTrcInfo::BinIDCrl:
+	    case SeisTrcInfo::TrcNr:	case SeisTrcInfo::RefNr:
+		ss.add( uiString::empty() ); break;
+	    case SeisTrcInfo::CoordX:	case SeisTrcInfo::CoordY:
+		ss.add( SI().getUiXYUnitString(abbreviated,withparentheses) );
+		break;
+	    default:
+		ss.add( uiString::empty() ); break;
+	}
+    }
+
+    if ( dim0 && isRandom() && !isStraight() )
+	ss.add( SI().getUiXYUnitString(abbreviated,withparentheses) );
+}
+
+
+double SeisFlatDataPack::getAltDimValue( int ikey, bool dim0, int i ) const
+{
+    if ( !tiflds_.validIdx(ikey) || !dim0 )
+	return posdata_.position( dim0, i );
+
+    const int idx = dim0 ? i : 0;
+    const int idy = dim0 ? 0 : i;
+    const TrcKey tk = getTrcKey( idx, idy );
 
     switch ( tiflds_[ikey] )
     {
-	case SeisTrcInfo::BinIDInl:	return SI().transform(
-						getCoord(i0,0)).inl();
-	case SeisTrcInfo::BinIDCrl:	return SI().transform(
-						getCoord(i0,0)).crl();
-        case SeisTrcInfo::CoordX:	return getCoord(i0,0).x_;
-        case SeisTrcInfo::CoordY:	return getCoord(i0,0).y_;
-	case SeisTrcInfo::TrcNr:	return getPath()[i0].trcNr();
-	case SeisTrcInfo::RefNr:	return source_->getRefNr(i0);
-	default:			return posdata_.position(true,i0);
+	case SeisTrcInfo::BinIDInl:	return tk.inl();
+	case SeisTrcInfo::BinIDCrl:	return tk.crl();
+	case SeisTrcInfo::CoordX:	return tk.getCoord().x_;
+	case SeisTrcInfo::CoordY:	return tk.getCoord().y_;
+	case SeisTrcInfo::TrcNr:	return tk.trcNr();
+	case SeisTrcInfo::RefNr:	return source_->getRefNr(i);
+	default:			return posdata_.position(dim0,i);
     }
 }
 
 
-void SeisFlatDataPack::getAuxInfo( int i0, int i1, IOPar& iop ) const
+bool SeisFlatDataPack::dimValuesInInt( const uiString& keystr,
+				       bool dim0 ) const
 {
-    const Coord3 crd = getCoord( i0, i1 );
-    iop.set( mKeyCoordX, crd.x_ );
-    iop.set( mKeyCoordY, crd.y_ );
-    iop.set( sKey::ZCoord(), (int)(crd.z_*zDomain().userFactor()) );
-    mDynamicCastGet(RegularSeisFlatDataPack*,rseisdp,
-					   const_cast<SeisFlatDataPack*>(this));
-    iop.setYN( FlatView::Viewer::sKeyIsZSlice(),
-				    rseisdp ? rseisdp->isVertical() : false );
+    if ( !dim0 )
+	return false;
 
-    if ( is2D() )
-    {
-	const int trcidx = nrTrcs()==1 ? 0 : i0;
-	const TrcKey tk = getTrcKey( trcidx );
-	iop.set( mKeyTrcNr, tk.trcNr() );
-	const float refnr = source_->getRefNr( trcidx );
-	if ( !mIsUdf(refnr) )
-	    iop.set( mKeyRefNr, refnr );
-    }
-    else
-    {
-	const BinID bid = SI().transform( crd );
-	iop.set( mKeyInl, bid.inl() );
-	iop.set( mKeyCrl, bid.crl() );
-    }
+    if ( keystr == uiStrings::Series() || keystr == uiStrings::sTraceNumber() )
+	return true;
+
+    if ( keystr == uiStrings::sSPNumber() )
+	return false;
+
+    const uiStringSet& flddefstrings = SeisTrcInfo::FldDef().strings();
+    const int idx = flddefstrings.indexOf( keystr );
+    if ( !flddefstrings.validIdx(idx) )
+	return false;
+
+    const SeisTrcInfo::Fld fld = SeisTrcInfo::FldDef().getEnumForIndex(idx);
+    return fld == SeisTrcInfo::BinIDInl || SeisTrcInfo::BinIDCrl;
 }
 
 
 const Scaler* SeisFlatDataPack::getScaler() const
 {
     return source_->getScaler();
-}
-
-
-const ZDomain::Info& SeisFlatDataPack::zDomain() const
-{
-    return source_->zDomain();
 }
 
 
@@ -840,9 +871,6 @@ RandomLineID SeisFlatDataPack::getRandomLineID() const
 }
 
 
-#define mIsStraight ((getTrcKey(0).distTo(getTrcKey(nrTrcs()-1))/ \
-	posdata_.position(true,nrTrcs()-1))>0.99)
-
 // RegularSeisFlatDataPack
 
 RegularSeisFlatDataPack::RegularSeisFlatDataPack(
@@ -865,13 +893,25 @@ RegularSeisFlatDataPack::~RegularSeisFlatDataPack()
 }
 
 
-Coord3 RegularSeisFlatDataPack::getCoord( int i0, int i1 ) const
+TrcKey RegularSeisFlatDataPack::getTrcKey( int i0, int i1 ) const
 {
     const int trcidx = isVertical() ? (hassingletrace_ ? 0 : i0)
 				    : i0*sampling_.nrTrcs()+i1;
-    const Coord crd( Survey::GM().toCoord( getTrcKey(trcidx) ) );
-    return Coord3( crd.x_, crd.y_,
-		   sampling_.zsamp_.atIndex(isVertical() ? i1 : 0) );
+    return getTrcKey_( trcidx );
+}
+
+
+Coord3 RegularSeisFlatDataPack::getCoord( int i0, int i1 ) const
+{
+    const TrcKey tk = getTrcKey( i0, i1 );
+    const Coord crd = tk.getCoord();
+    return Coord3( crd.x_, crd.y_, getZ(i0,i1) );
+}
+
+
+double RegularSeisFlatDataPack::getZ( int /* i0 */, int i1 ) const
+{
+    return sampling_.zsamp_.atIndex( isVertical() ? i1 : 0 );
 }
 
 
@@ -882,8 +922,23 @@ void RegularSeisFlatDataPack::setTrcInfoFlds()
 
     if ( is2D() )
     {
+	const TrcKey tk = getTrcKey( 0, 0 );
+	if ( tk.is2D() )
+	{
+	    ConstRefMan<Survey::Geometry> geom =
+					Survey::GM().getGeometry( tk.geomID() );
+	    if ( geom && geom->is2D() )
+	    {
+		const TypeSet<float>& spnrs = geom->as2D()->spnrs();
+		if ( !spnrs.isEmpty() && !mIsUdf(spnrs.first()) &&
+		     !mIsEqual(spnrs.first(),-1.f,1e-6f) &&
+		     !mIsUdf(spnrs.last()) &&
+		     !mIsEqual(spnrs.last(),-1.f,1e-6f) )
+		    tiflds_ += SeisTrcInfo::RefNr;
+	    }
+	}
+
 	tiflds_ += SeisTrcInfo::TrcNr;
-	tiflds_ += SeisTrcInfo::RefNr;
     }
     else
     {
@@ -893,7 +948,7 @@ void RegularSeisFlatDataPack::setTrcInfoFlds()
 	    tiflds_ += SeisTrcInfo::BinIDCrl;
     }
 
-    if ( is2D() && !mIsStraight )
+    if ( is2D() && !isStraight() )
 	return;
 
     tiflds_ += SeisTrcInfo::CoordX;
@@ -901,15 +956,60 @@ void RegularSeisFlatDataPack::setTrcInfoFlds()
 }
 
 
-const char* RegularSeisFlatDataPack::dimName( bool dim0 ) const
+uiString RegularSeisFlatDataPack::dimName( bool dim0 ) const
 {
-    if ( dim0 && hassingletrace_ ) return sKey::Series();
-    if ( is2D() )
-	return dim0 ? "Distance" : zDomain().userName().getFullString();
+    if ( dim0 && hassingletrace_ )
+	return uiStrings::Series();
 
-    return dim0 ? (dir_==TrcKeyZSampling::Inl ? mKeyCrl : mKeyInl)
-		: (dir_==TrcKeyZSampling::Z
-			? mKeyCrl : zDomain().userName().getFullString());
+    if ( is2D() )
+    {
+	return dim0 ? (tiflds_.isPresent(SeisTrcInfo::RefNr)
+			? uiStrings::sSPNumber()
+			: uiStrings::sTraceNumber())
+		    : zDomain().userName();
+    }
+
+    if ( dim0 )
+	return dir_==TrcKeyZSampling::Inl ? uiStrings::sCrossline()
+					  : uiStrings::sInline();
+    else if ( dir_==TrcKeyZSampling::Z )
+	return uiStrings::sCrossline();
+    else
+	return zDomain().userName();
+}
+
+
+uiString RegularSeisFlatDataPack::dimUnitLbl( bool dim0, bool display,
+					      bool abbreviated,
+					      bool withparentheses ) const
+{
+    if ( dim0 && hassingletrace_ )
+	return uiString::empty();
+
+    if ( is2D() )
+	return dim0 ? uiString::empty()
+		    : zDomain( display ).uiUnitStr( withparentheses );
+
+    if ( dim0 || dir_==TrcKeyZSampling::Z )
+	return uiString::empty();
+
+    return zDomain( display ).uiUnitStr( withparentheses );
+}
+
+
+const UnitOfMeasure* RegularSeisFlatDataPack::dimUnit( bool dim0,
+						       bool display ) const
+{
+    if ( dim0 && hassingletrace_ )
+	return nullptr;
+
+    if ( is2D() )
+	return dim0 ? nullptr : zUnit( display );
+
+    if ( dim0 || dir_==TrcKeyZSampling::Z )
+	return nullptr;
+
+    return zUnit( display );
 }
 
 
@@ -967,7 +1067,7 @@ float RegularSeisFlatDataPack::getPosDistance( bool dim0, float posfidx ) const
     const float dfposidx = posfidx - posidx;
     if ( dim0 )
     {
-	TrcKey idxtrc = getTrcKey( posidx );
+	TrcKey idxtrc = getTrcKey_( posidx );
 	if ( !idxtrc.is2D() )
 	{
 	    const bool isinl = dir_ == TrcKeyZSampling::Inl;
@@ -1013,23 +1113,84 @@ int RandomSeisFlatDataPack::getNearestGlobalIdx( const TrcKey& tk ) const
 }
 
 
-Coord3 RandomSeisFlatDataPack::getCoord( int i0, int i1 ) const
+TrcKey RandomSeisFlatDataPack::getTrcKey( int itrc, int /* isamp */ ) const
 {
-    const Coord coord = path_.validIdx(i0) ? Survey::GM().toCoord(path_[i0])
-					   : Coord::udf();
-    return Coord3( coord, zsamp_.atIndex(i1) );
+    return getTrcKey_( itrc );
+}
+
+
+Coord3 RandomSeisFlatDataPack::getCoord( int itrc, int isamp ) const
+{
+    const TrcKey tk = getTrcKey( itrc, isamp );
+    const Coord coord = tk.isUdf() ? Coord::udf() : tk.getCoord();
+    return Coord3( coord, getZ(itrc,isamp) );
+}
+
+
+double RandomSeisFlatDataPack::getZ( int /* itrc */, int isamp ) const
+{
+    return zsamp_.atIndex( isamp );
 }
 
 
 void RandomSeisFlatDataPack::setTrcInfoFlds()
 {
-    if ( !mIsStraight )
-	return;
+    if ( isStraight() && !getPath().isEmpty() )
+    {
+	const TrcKey& firsttk = getPath().first();
+	const TrcKey& lasttk = getPath().last();
+	if ( lasttk.crl() != firsttk.crl() )
+	    tiflds_ += SeisTrcInfo::BinIDCrl;
 
-    tiflds_ +=	SeisTrcInfo::BinIDInl;
-    tiflds_ +=	SeisTrcInfo::BinIDCrl;
+	if ( lasttk.inl() != firsttk.inl() )
+	    tiflds_ += SeisTrcInfo::BinIDInl;
+    }
+
     tiflds_ +=	SeisTrcInfo::CoordX;
     tiflds_ +=	SeisTrcInfo::CoordY;
+}
+
+
+uiString RandomSeisFlatDataPack::dimName( bool dim0 ) const
+{
+    if ( !dim0 )
+	return zDomain().userName();
+
+    if ( tiflds_.isPresent(SeisTrcInfo::BinIDCrl) )
+	return SeisTrcInfo::toUiString( SeisTrcInfo::BinIDCrl );
+    else if ( tiflds_.isPresent(SeisTrcInfo::BinIDInl) )
+	return SeisTrcInfo::toUiString( SeisTrcInfo::BinIDInl );
+
+    return uiStrings::sDistance();
+}
+
+
+uiString RandomSeisFlatDataPack::dimUnitLbl( bool dim0, bool display,
+					     bool abbreviated,
+					     bool withparentheses ) const
+{
+    if ( !dim0 )
+	return zDomain( display ).uiUnitStr( withparentheses );
+
+    if ( tiflds_.isPresent(SeisTrcInfo::BinIDCrl) ||
+	 tiflds_.isPresent(SeisTrcInfo::BinIDInl) )
+	return uiString::empty();
+
+    return SI().getUiXYUnitString( abbreviated, withparentheses );
+}
+
+
+const UnitOfMeasure* RandomSeisFlatDataPack::dimUnit( bool dim0,
+						      bool display ) const
+{
+    if ( !dim0 )
+	return zUnit( display );
+
+    if ( tiflds_.isPresent(SeisTrcInfo::BinIDCrl) ||
+	 tiflds_.isPresent(SeisTrcInfo::BinIDInl) )
+	return nullptr;
+
+    return UnitOfMeasure::surveyDefXYUnit();
 }
 
 

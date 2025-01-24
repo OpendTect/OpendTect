@@ -131,7 +131,7 @@ void ui2DGeomManageDlg::mkFileInfo()
 	    sprg.set( geom2d->spnrs().first(), geom2d->spnrs().last() );
 	const ZDomain::Info& zinfo = SI().zDomainInfo();
 	ZSampling zrg = geom2d->zRange();
-	const int nrzdec = zinfo.def_.nrZDecimals( zrg.step_ );
+	const int nrzdec = zinfo.nrDecimals( zrg.step_, false );
 	if ( !zrg.isUdf() )
 	    zrg.scale( zinfo.userFactor() );
 

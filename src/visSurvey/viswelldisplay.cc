@@ -669,9 +669,12 @@ void WellDisplay::getMousePosInfo( const visBase::EventInfo&,
 
     const float dah = track.nearestDah( mouseworldpos );
 
-    info = tr("Well: %1, MD (%2): %3").arg(wd->name())
-			.arg(zinfeet_ || SI().depthsInFeet() ? "ft" : "m)")
-			.arg(mNINT32(dah*zfac));
+    info.set( uiStrings::sWell() ).addMoreInfo( wd->name().str() );
+    uiString depthmsg = uiStrings::sMD();
+    depthmsg.constructWordWith(
+		    UnitOfMeasure::surveyDefDepthUnitAnnot(true,true), true )
+	    .addMoreInfo( toUiStringDec(dah*zfac,0) );
+    info.appendPhrase( depthmsg, uiString::Comma, uiString::OnSameLine );
 
     setLogInfo( info, val, dah, visBase::Well::Left );
     setLogInfo( info, val, dah, visBase::Well::Center );
@@ -681,47 +684,45 @@ void WellDisplay::getMousePosInfo( const visBase::EventInfo&,
     const float zstep2 = zfactor*SI().zStep()/2;
     for ( int idx=0; idx<wd->markers().size(); idx++ )
     {
-	Well::Marker* wellmarker = wd->markers()[idx];
+	const Well::Marker* wellmarker = wd->markers()[idx];
 	if ( !wellmarker || !mIsEqual(wellmarker->dah(),dah,zstep2) )
 	    continue;
 
-	info.appendPhrase( uiStrings::sMarker(), uiString::Comma,
-	    uiString::OnSameLine );
-	info.appendPhrase( toUiString(wellmarker->name()), uiString::MoreInfo,
-	    uiString::OnSameLine );
+	uiString markermsg = uiStrings::sMarker();
+	markermsg.addMoreInfo( wellmarker->name() );
+	info.appendPhrase( markermsg, uiString::Comma, uiString::OnSameLine );
 	break;
     }
 }
 
 
 void WellDisplay::setLogInfo( uiString& info, BufferString& val,
-				float dah, visBase::Well::Side side ) const
+			      float dah, visBase::Well::Side side ) const
 {
     mGetWD(return);
 
-    BufferString lognm( mGetLogPar(side,name_) );
-    if ( !lognm.isEmpty() && !lognm.isEqual("None") && !lognm.isEqual("none") )
+    const BufferString lognm( mGetLogPar(side,name_) );
+    const Well::Log* log = wd->logs().getLog( lognm.buf() );
+    if ( log )
     {
+	uiString logmsg;
 	if ( side==visBase::Well::Left )
-	    info.appendPhrase( uiStrings::sLeft(), uiString::Comma,
-							uiString::OnSameLine );
+	    logmsg.set( uiStrings::sLeft() );
 	else if ( side==visBase::Well::Center )
-	    info.appendPhrase( uiStrings::sCenter(), uiString::Comma,
-		uiString::OnSameLine );
+	    logmsg.set( uiStrings::sCenter() );
 	else
-	    info.appendPhrase( uiStrings::sRight(), uiString::Comma,
-		uiString::OnSameLine );
+	    logmsg.set( uiStrings::sRight() );
 
-	info.appendPhrase( toUiString(lognm), uiString::MoreInfo,
-		uiString::OnSameLine );
-	const Well::Log* log = wd->logs().getLog( lognm.buf() );
-	if (log)
-	{
-	    if ( val.size() ) val += " / ";
-	    val += toString( log->getValue( dah ) );
-	    val += " ";
-	    val += log->unitMeasLabel();
-	}
+	logmsg.addMoreInfo( lognm );
+	info.appendPhrase( logmsg, uiString::Comma, uiString::OnSameLine );
+
+	if ( !val.isEmpty() )
+	    val.add( " / " );
+
+	val.add( log->getValue( dah ) );
+	const UnitOfMeasure* loguom = log->unitOfMeasure();
+	if ( loguom )
+	    val.addSpace().add( loguom->getLabel() );
     }
 }
 

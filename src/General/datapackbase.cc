@@ -12,15 +12,98 @@ ________________________________________________________________________
 #include "arrayndimpl.h"
 #include "convmemvalseries.h"
 #include "flatposdata.h"
+#include "flatview.h"
 #include "interpol2d.h"
 #include "iopar.h"
 #include "keystrs.h"
 #include "scaler.h"
 #include "separstr.h"
+#include "survgeom2d.h"
 #include "survinfo.h"
+#include "uistrings.h"
 #include "unitofmeasure.h"
 
+
+// ZDataPack
+
+ZDataPack::ZDataPack( const char* categry )
+    : DataPack(categry)
+    , zdomaininfo_(&SI().zDomainInfo())
+{
+}
+
+
+ZDataPack::ZDataPack( const ZDataPack& oth )
+    : DataPack(oth)
+    , zdomaininfo_(oth.zdomaininfo_)
+{
+}
+
+
+ZDataPack::~ZDataPack()
+{
+}
+
+
+ZDataPack& ZDataPack::setZDomain( const ZDomain::Info& zinfo )
+{
+    if ( &zinfo == &zDomain() )
+	return *this;
+
+    zdomaininfo_ = &zinfo;
+    return *this;
+}
+
+
+ZDataPack& ZDataPack::setZDomain( const ZDataPack& oth )
+{
+    setZDomain( oth.zDomain() );
+    return *this;
+}
+
+
+const ZDomain::Info& ZDataPack::zDomain( bool display ) const
+{
+    if ( !display || !zDomain().isDepth() )
+	return zDomain();
+
+    return SI().depthsInFeet() ? ZDomain::DepthFeet()
+			       : ZDomain::DepthMeter();
+}
+
+
+const UnitOfMeasure* ZDataPack::zUnit( bool display ) const
+{
+    return UnitOfMeasure::zUnit( zDomain(display), !display );
+}
+
+
+const UnitOfMeasure* ZDataPack::zUnit() const
+{
+    return zUnit( false );
+}
+
+
+bool ZDataPack::zIsTime() const
+{
+    return zDomain().isTime();
+}
+
+
+bool ZDataPack::zInMeter() const
+{
+    return zDomain().isDepthMeter();
+}
+
+
+bool ZDataPack::zInFeet() const
+{
+    return zDomain().isDepthFeet();
+}
+
+
 // MapDataPackXYRotator
+
 class MapDataPackXYRotator : public ParallelTask
 {
 public:
@@ -140,10 +223,10 @@ protected:
 };
 
 
-
 // PointDataPack
+
 PointDataPack::PointDataPack( const char* categry )
-    : DataPack( categry )
+    : ZDataPack(categry)
 {
 }
 
@@ -159,10 +242,10 @@ Coord PointDataPack::coord( int idx ) const
 }
 
 
-
 // FlatDataPack
+
 FlatDataPack::FlatDataPack( const char* cat, Array2D<float>* arr )
-    : DataPack(cat)
+    : ZDataPack(cat)
     , arr2d_(arr ? arr : new Array2DImpl<float>(1,1))
     , posdata_(*new FlatPosData)
 {
@@ -171,18 +254,26 @@ FlatDataPack::FlatDataPack( const char* cat, Array2D<float>* arr )
 
 
 FlatDataPack::FlatDataPack( const FlatDataPack& fdp )
-    : DataPack( fdp )
+    : ZDataPack(fdp)
     , arr2d_( fdp.arr2d_ ? new Array2DImpl<float>( *fdp.arr2d_ ) : nullptr )
     , posdata_( *new FlatPosData(fdp.posdata_) )
-{ }
+{
+}
 
 
 FlatDataPack::FlatDataPack( const char* cat )
-    : DataPack(cat)
+    : ZDataPack(cat)
     , posdata_(*new FlatPosData)
 {
     // We cannot call init() here: size() does not dispatch virtual here
     // Subclasses with no arr3d_ will have to do a position init 'by hand'
+}
+
+
+FlatDataPack::~FlatDataPack()
+{
+    delete arr2d_;
+    delete &posdata_;
 }
 
 
@@ -196,23 +287,89 @@ void FlatDataPack::init()
 }
 
 
-FlatDataPack::~FlatDataPack()
+bool FlatDataPack::isOK() const
 {
-    delete arr2d_;
-    delete &posdata_;
+    return arr2d_ && arr2d_->isOK();
+}
+
+
+const Array2D<float>& FlatDataPack::data() const
+{
+    return getNonConst(*this).data();
+}
+
+
+const FlatPosData& FlatDataPack::posData() const
+{
+    return getNonConst(*this).posData();
+}
+
+
+uiString FlatDataPack::dimName( bool dim0 ) const
+{
+    return dim0 ? uiStrings::sX1() : uiStrings::sX2();
+}
+
+
+uiString FlatDataPack::dimUnitLbl( bool /* dim0 */, bool /* display */,
+				   bool /* abbreviated */,
+				   bool /* withparentheses */ ) const
+{
+    return uiString::empty();
 }
 
 
 Coord3 FlatDataPack::getCoord( int i0, int i1 ) const
 {
     return Coord3( posData().range(true).atIndex(i0),
-		   posData().range(false).atIndex(i1), mUdf(double) );
+		   posData().range(false).atIndex(i1), getZ(i0,i1) );
 }
 
 
-double FlatDataPack::getAltDim0Value( int ikey, int idim0 ) const
+double FlatDataPack::getAltDimValue( int /*ikey*/, bool dim0, int idim0 ) const
 {
-    return posdata_.position( true, idim0 );
+    return posdata_.position( dim0, idim0 );
+}
+
+
+void FlatDataPack::getAuxInfo( int idim0, int idim1, IOPar& par ) const
+{
+    const Coord3 crd = getCoord( idim0, idim1 );
+    par.set( sKey::Coordinate(), crd );
+
+    const TrcKey tk = getTrcKey( idim0, idim1 );
+    if ( tk.is3D() )
+    {
+	par.set( sKey::Position(), tk.position() );
+	par.removeWithKey( sKey::TraceNr() );
+	par.removeWithKey( sKey::GeomID() );
+	par.removeWithKey( sKey::Shotpoint() );
+    }
+    else
+    {
+	par.set( sKey::TraceNr(), tk.trcNr() );
+	par.removeWithKey( sKey::Position() );
+	if ( tk.is2D() )
+	{
+	    par.set( sKey::GeomID(), tk.geomID() );
+	    const Pos::GeomID gid = tk.geomID();
+	    ConstRefMan<Survey::Geometry> geom = Survey::GM().getGeometry(gid);
+	    if ( geom && geom->is2D() )
+	    {
+		Coord crd2d; float spnr = mUdf(float);
+		if ( geom->as2D()->getPosByTrcNr(tk.trcNr(),crd2d,spnr) &&
+		     !mIsUdf(spnr) && !mIsEqual(spnr,-1.f,1e-5f) )
+		    par.set( sKey::Shotpoint(), spnr );
+		else
+		    par.removeWithKey( sKey::Shotpoint() );
+	    }
+	}
+	else
+	{
+	    par.removeWithKey( sKey::GeomID() );
+	    par.removeWithKey( sKey::Shotpoint() );
+	}
+    }
 }
 
 
@@ -233,7 +390,7 @@ void FlatDataPack::dumpInfo( StringPairSet& infoset ) const
     for ( int idim=0; idim<2; idim++ )
     {
 	const bool isdim0 = idim == 0;
-	FileMultiString fms( dimName( isdim0 ) );
+	FileMultiString fms( toString(dimName( isdim0 )) );
 	fms += size( isdim0 );
 	infoset.add( IOPar::compKey("Dimension",idim), fms );
     }
@@ -258,13 +415,15 @@ int FlatDataPack::size( bool dim0 ) const
 }
 
 
-
 // MapDataPack
+
 MapDataPack::MapDataPack( const char* cat, Array2D<float>* arr )
     : FlatDataPack(cat,arr)
     , xyrotposdata_(*new FlatPosData)
-    , axeslbls_(4,"")
 {
+    axesunits_.setSize( 4 );
+    axeslbls_.add( uiString::empty() ).add( uiString::empty() )
+	     .add( uiString::empty() ).add( uiString::empty() );
 }
 
 
@@ -272,21 +431,6 @@ MapDataPack::~MapDataPack()
 {
     delete xyrotarr2d_;
     delete &xyrotposdata_;
-}
-
-
-void MapDataPack::getAuxInfo( int idim0, int idim1, IOPar& par ) const
-{
-    const Coord3 pos = getCoord( idim0, idim1 );
-    const Coord coord = isposcoord_ ? pos.coord()
-				    : SI().transform(BinID(mNINT32(pos.x_),
-							   mNINT32(pos.y_)));
-    const BinID bid = isposcoord_ ? SI().transform(pos)
-                                  : BinID(mNINT32(pos.x_),mNINT32(pos.y_));
-    par.set( axeslbls_[0], coord.x_ );
-    par.set( axeslbls_[1], coord.y_ );
-    par.set( axeslbls_[2], bid.inl() );
-    par.set( axeslbls_[3], bid.crl() );
 }
 
 
@@ -299,6 +443,26 @@ float MapDataPack::getValAtIdx( int idx, int idy ) const
 }
 
 
+TrcKey MapDataPack::getTrcKey( int idx, int idy ) const
+{
+    const Coord3 pos = getCoord( idx, idy );
+    const BinID bid = isposcoord_ ? SI().transform(pos)
+                                  : BinID(mNINT32(pos.x_),mNINT32(pos.y_));
+    return TrcKey( bid );
+}
+
+
+double MapDataPack::getZ( int idx, int idy ) const
+{
+    if ( mIsUdf(zval_) )
+	return zval_;
+    else if ( mIsUdf(-zval_) )
+	return ((const FlatDataPack&)(*this)).data().get( idx, idy );
+
+    return zval_;
+}
+
+
 void MapDataPack::setPosCoord( bool isposcoord )
 {
     isposcoord_ = isposcoord;
@@ -307,7 +471,7 @@ void MapDataPack::setPosCoord( bool isposcoord )
 
 void MapDataPack::setProps( StepInterval<double> inlrg,
 			    StepInterval<double> crlrg,
-			    bool isposcoord, BufferStringSet* dimnames )
+			    bool isposcoord, const uiStringSet* dimnames )
 {
     posdata_.setRange( true, inlrg );
     posdata_.setRange( false, crlrg );
@@ -319,6 +483,12 @@ void MapDataPack::setProps( StepInterval<double> inlrg,
     }
 
     setPosCoord( isposcoord );
+}
+
+
+void MapDataPack::setZVal( double zval )
+{
+    zval_ = zval;
 }
 
 
@@ -358,33 +528,61 @@ FlatPosData& MapDataPack::posData()
 }
 
 
-void MapDataPack::setDimNames( const char* xlbl, const char* ylbl, bool forxy )
+void MapDataPack::setDimNames( const uiString& xlbl, const uiString& ylbl,
+			       bool forxy )
 {
     if ( forxy )
     {
-	axeslbls_[0] = xlbl;
-	axeslbls_[1] = ylbl;
+	axeslbls_.get(0) = xlbl;
+	axeslbls_.get(1) = ylbl;
+	axesunits_.replace( 0, UnitOfMeasure::surveyDefXYUnit() );
+	axesunits_.replace( 1, UnitOfMeasure::surveyDefXYUnit() );
     }
     else
     {
-	axeslbls_[2] = xlbl;
-	axeslbls_[3] = ylbl;
+	axeslbls_.get(2) = xlbl;
+	axeslbls_.get(3) = ylbl;
     }
 }
 
 
-const char* MapDataPack::dimName( bool dim0 ) const
+uiString MapDataPack::dimName( bool dim0 ) const
 {
-    return dim0 ? isposcoord_ ? axeslbls_[0].buf() : axeslbls_[2].buf()
-		: isposcoord_ ? axeslbls_[1].buf() : axeslbls_[3].buf();
+    return dim0 ? isposcoord_ ? axeslbls_.get(0) : axeslbls_.get(2)
+		: isposcoord_ ? axeslbls_.get(1) : axeslbls_.get(3);
+}
+
+
+uiString MapDataPack::dimUnitLbl( bool dim0, bool /*display*/, bool abbreviated,
+				  bool withparentheses ) const
+{
+    if ( !isposcoord_ )
+	return uiString::empty();
+
+    return SI().getUiXYUnitString( abbreviated, withparentheses );
+}
+
+
+const UnitOfMeasure* MapDataPack::dimUnit( bool dim0, bool /* display */ ) const
+{
+    return dim0 ? isposcoord_ ? axesunits_.get(0) : axesunits_.get(2)
+		: isposcoord_ ? axesunits_.get(1) : axesunits_.get(3);
+}
+
+
+bool MapDataPack::dimValuesInInt( const uiString& key, bool /* dim0 */ ) const
+{
+    if ( isposcoord_ )
+	return false;
+
+    return key == uiStrings::sInline() || key == uiStrings::sCrossline();
 }
 
 
 // VolumeDataPack
 
 VolumeDataPack::VolumeDataPack( const char* cat, const BinDataDesc* bdd )
-    : DataPack(cat)
-    , zdomaininfo_(new ZDomain::Info(SI().zDomainInfo()))
+    : ZDataPack(cat)
     , desc_( bdd ? *bdd : BinDataDesc(false,true,sizeof(float)) )
 {
 }
@@ -393,14 +591,7 @@ VolumeDataPack::VolumeDataPack( const char* cat, const BinDataDesc* bdd )
 VolumeDataPack::~VolumeDataPack()
 {
     deepErase( arrays_ );
-    delete zdomaininfo_;
     delete scaler_;
-}
-
-
-const UnitOfMeasure* VolumeDataPack::zUnit() const
-{
-    return UnitOfMeasure::zUnit( *zdomaininfo_ );
 }
 
 
@@ -580,6 +771,14 @@ int VolumeDataPack::getComponentIdx( const char* nm, int defcompidx ) const
 }
 
 
+const char* VolumeDataPack::categoryStr( const TrcKeyZSampling& tkzs )
+{
+    const bool ishorizontal = tkzs.isFlat() &&
+			      tkzs.defaultDir()==TrcKeyZSampling::Z;
+    return categoryStr( !ishorizontal, tkzs.is2D() );
+}
+
+
 const char* VolumeDataPack::categoryStr( bool isvertical, bool is2d )
 {
     mDeclStaticString( vret );
@@ -592,17 +791,6 @@ const char* VolumeDataPack::categoryStr( bool isvertical, bool is2d )
 float VolumeDataPack::getRefNr( int globaltrcidx ) const
 {
     return refnrs_.validIdx(globaltrcidx) ? refnrs_[globaltrcidx] : mUdf(float);
-}
-
-
-VolumeDataPack& VolumeDataPack::setZDomain( const ZDomain::Info& zinfo )
-{
-    if ( zinfo == zDomain() )
-	return *this;
-
-    delete zdomaininfo_;
-    zdomaininfo_ = new ZDomain::Info( zinfo );
-    return *this;
 }
 
 
@@ -631,7 +819,9 @@ void VolumeDataPack::setDataDesc( const BinDataDesc& dc )
 float VolumeDataPack::nrKBytes() const
 {
     const int nrcomps = nrComponents();
-    if ( nrcomps == 0 ) return 0.0f;
+    if ( nrcomps == 0 )
+	return 0.0f;
+
     return nrcomps * arrays_[0]->info().getTotalSz() * desc_.nrBytes() / 1024.f;
 }
 

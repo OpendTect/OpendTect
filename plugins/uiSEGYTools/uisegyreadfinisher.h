@@ -54,7 +54,7 @@ private:
     BufferString	objname_;
     MultiID		outputid_;
     Coords::CoordSystem* coordsys_		= nullptr;
-    ZDomain::Info*	zdomain_;
+    const ZDomain::Info* zdomain_;
 
     uiIOObjSel*		outwllfld_		= nullptr;
     uiComboBox*		lognmfld_		= nullptr;

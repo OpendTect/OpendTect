@@ -8,8 +8,8 @@ ________________________________________________________________________
 -*/
 
 #include "uiflatviewstdcontrol.h"
-#include "uibitmapdisplay.h"
 
+#include "uibitmapdisplay.h"
 #include "uicolortable.h"
 #include "uiflatviewcoltabed.h"
 #include "uiflatviewer.h"
@@ -40,27 +40,36 @@ static const char* sKeyVW2DZPerCM()	{ return "Viewer2D.ZSamplesPerCM"; }
 
 uiFlatViewZoomLevelDlg::uiFlatViewZoomLevelDlg( uiParent* p,
 			float x1start, float x2start,
-			float x1pospercm, float x2pospercm, bool isvertical )
+			float x1pospercm, float x2pospercm, bool isvertical,
+			const ZDomain::Info* datazdom,
+			const ZDomain::Info* displayzdom )
     : uiDialog(p,uiDialog::Setup(tr("Set Zoom Level"),mNoDlgTitle,mNoHelpKey)
 				.applybutton(true))
     , x1pospercm_(x1pospercm)
     , x2pospercm_(x2pospercm)
     , isvertical_(isvertical)
+    , datazdom_(datazdom)
+    , displayzdom_(displayzdom)
 {
     setCtrlStyle( CloseOnly );
 
     uiSeparator* sep = nullptr;
-    if ( isvertical && !mIsUdf(x1start) && !mIsUdf(x2start) )
+    if ( isvertical_ && !mIsUdf(x1start) && !mIsUdf(x2start) )
     {
-	uiString x1lbl = tr("First %1").arg(
-		    isvertical ? uiStrings::sTrace() : uiStrings::sInline() );
+	const uiString x1lbl = tr("First %1").arg(
+		    isvertical_ ? uiStrings::sTrace() : uiStrings::sInline() );
 	x1startfld_ = new uiGenInput( this, x1lbl, IntInpSpec() );
 	x1startfld_->setElemSzPol( uiObject::Medium );
 	x1startfld_->setValue( mNINT32(x1start) );
 
-	uiString x2lbl = tr("First Z (%1)").arg( SI().zDomain().uiUnitStr() );
+	const ZDomain::Info& zdom = displayzdom_ ? *displayzdom_ : *datazdom_;
+	const uiString x2lbl = tr("First Z (%1)").arg( zdom.uiUnitStr() );
+	float zstart = x2start;
+	if ( datazdom_ )
+	    zstart *= FlatView::Viewer::userFactor(*datazdom_,displayzdom_ );
+
 	x2startfld_ = new uiGenInput( this, x2lbl, FloatInpSpec() );
-	x2startfld_->setValue( x2start*SI().zDomain().userFactor() );
+	x2startfld_->setValue( zstart );
 	x2startfld_->attach( alignedBelow, x1startfld_ );
 
 	sep = new uiSeparator( this, "Hor Sep" );
@@ -81,7 +90,7 @@ uiFlatViewZoomLevelDlg::uiFlatViewZoomLevelDlg( uiParent* p,
     x1fld_ = new uiGenInput( this, getFieldLabel(true,usesi), FloatInpSpec() );
     x1fld_->attach( alignedBelow, unitflds_ );
 
-    if ( isvertical )
+    if ( isvertical_ )
     {
 	x2fld_ = new uiGenInput( this, getFieldLabel(false,usesi),
 				 FloatInpSpec() );
@@ -89,7 +98,7 @@ uiFlatViewZoomLevelDlg::uiFlatViewZoomLevelDlg( uiParent* p,
     }
 
     saveglobalfld_ = new uiCheckBox( this, tr("Use for all new viewers") );
-    saveglobalfld_->attach( alignedBelow, isvertical ? x2fld_ : x1fld_ );
+    saveglobalfld_->attach( alignedBelow, isvertical_ ? x2fld_ : x1fld_ );
 
     mAttachCB( applyPushed, uiFlatViewZoomLevelDlg::applyCB );
     mAttachCB( postFinalize(), uiFlatViewZoomLevelDlg::finalizeDoneCB );
@@ -102,11 +111,11 @@ uiFlatViewZoomLevelDlg::~uiFlatViewZoomLevelDlg()
 }
 
 
-uiString uiFlatViewZoomLevelDlg::getFieldLabel(bool x1, bool incm) const
+uiString uiFlatViewZoomLevelDlg::getFieldLabel( bool x1, bool incm ) const
 {
     uiString lbl = toUiString("%1 %2")
-	.arg( x1 ? "Traces per" : "Z Samples per" )
-	.arg( incm ? "cm" : "inch" );
+			    .arg( x1 ? "Traces per" : "Z Samples per" )
+			    .arg( incm ? "cm" : "inch" );
     return lbl;
 }
 
@@ -117,8 +126,12 @@ void uiFlatViewZoomLevelDlg::finalizeDoneCB( CallBacker* )
     if ( x2fld_ )
 	x2fld_->setNrDecimals( 2 );
 
-    if ( x2startfld_ )
-	x2startfld_->setNrDecimals( SI().nrZDecimals() );
+    if ( x2startfld_ && isvertical_ && datazdom_ )
+    {
+	const ZDomain::Info& zdom = displayzdom_ ? *displayzdom_
+						 : *datazdom_;
+	x2startfld_->setNrDecimals( FlatView::Viewer::nrDec(zdom) );
+    }
 
     unitChgCB( nullptr );
 }
@@ -174,10 +187,9 @@ void uiFlatViewZoomLevelDlg::getNrPosPerCm( float &x1, float &x2 ) const
 void uiFlatViewZoomLevelDlg::getStartPos( float& x1, float& x2 ) const
 {
     x1 = x1startfld_ ? x1startfld_->getFValue() : mUdf(float);
-
-    float factor = 1;
-    if ( isvertical_ )
-	factor = SI().zDomain().userFactor();
+    const float factor = isvertical_ && datazdom_
+		       ? FlatView::Viewer::userFactor(*datazdom_,displayzdom_)
+		       : 1.f;
 
     x2 = x2startfld_ ? x2startfld_->getFValue()/factor : mUdf(float);
 }
@@ -255,7 +267,7 @@ uiFlatViewStdControl::uiFlatViewStdControl( uiFlatViewer& vwr,
 					optcb,"man_homezoom"), sManHZIdx );
 	tb_->setButtonMenu( sethomezoombut_, mnu, uiToolButton::InstantPopup );
 	gotohomezoombut_ = mDefBut("homezoom",cb(gotoHomeZoomCB),
-		tr("Go to home zoom"), false )
+				    tr("Go to home zoom"), false )
 	tb_->setSensitive( gotohomezoombut_, !mIsUdf(defx1pospercm_) &&
 					     !mIsUdf(defx2pospercm_) );
     }
@@ -279,13 +291,11 @@ uiFlatViewStdControl::uiFlatViewStdControl( uiFlatViewer& vwr,
 			tr("Display Scale Bar"),true)
     }
 
-#ifdef __debug__
-    if ( setup.withcoltabinview_ )
+    if ( OD::InDebugMode() && setup.withcoltabinview_ )
     {
 	coltabbut_ = mDefBut("colorbar",cb(displayColTabCB),
-			tr("Display Color Bar"),true)
+			     tr("Display Color Bar"),true)
     }
-#endif
 
     tb_->addSeparator();
     parsbut_ = mDefBut("2ddisppars",cb(parsCB),
@@ -293,7 +303,7 @@ uiFlatViewStdControl::uiFlatViewStdControl( uiFlatViewer& vwr,
 
     if ( setup.withcoltabed_ )
     {
-	uiColorTableToolBar* coltabtb = new uiColorTableToolBar( mainwin() );
+	auto* coltabtb = new uiColorTableToolBar( mainwin() );
 	ctabed_ = new uiFlatViewColTabEd( *coltabtb, setup.managecoltab_ );
 	coltabtb->display( vwr.rgbCanvas().prefHNrPics()>=400 );
 	if ( setup.managecoltab_ )
@@ -569,9 +579,12 @@ void uiFlatViewStdControl::homeZoomOptSelCB( CallBacker* cb )
 	x1start_ = mNINT32( curview.left() );
 	x2start_ = curview.top();
 
+	const ZDomain::Info* datazdom = vwrs_[0]->zDomain( false );
+	const ZDomain::Info* displayzdom = vwrs_[0]->zDomain( true );
 	uiFlatViewZoomLevelDlg zoomlvldlg( this, x1start_, x2start_,
 					   x1pospercm, x2pospercm,
-					   setup_.isvertical_ );
+					   setup_.isvertical_,
+					   datazdom, displayzdom );
 	mAttachCB( zoomlvldlg.applyPushed, uiFlatViewStdControl::zoomApplyCB );
 	zoomlvldlg.go();
     }

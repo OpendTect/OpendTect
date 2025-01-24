@@ -1425,17 +1425,16 @@ void uiIOObjSelGrp::ctxtZDomainChgCB( CallBacker* cb )
 	    ctio_.ctxt_.toselect_.require_.removeWithKey( withctxtfilter );
 	else
 	    ctio_.ctxt_.require( withctxtfilter, filterval.str() );
+
+	if ( withctxtfilter == ZDomain::sKey() )
+	    ctio_.ctxt_.toselect_.require_.removeWithKey( ZDomain::sKeyUnit() );
     }
     else
     {
 	const BufferString curzdom( ctxtfiltfld->textOfItem( curitm ));
 	IOPar iop;
 	iop.set( ZDomain::sKey(), curzdom );
-	const ZDomain::Info* zdom = ZDomain::get( iop );
-	if ( zdom )
-	    ctio_.ctxt_.requireZDomain( *zdom, *zdom == SI().zDomain() );
-	else
-	    ctio_.ctxt_.require( withctxtfilter, curzdom.buf() );
+	ctio_.ctxt_.require( withctxtfilter, curzdom.buf() );
     }
 
     fullUpdate( -2 );

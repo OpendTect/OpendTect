@@ -19,7 +19,7 @@ class IOObjContext;
 class uiIOObjRetDlg;
 class uiIOObjInserter;
 class uiIOObjSelWriteTranslator;
-namespace ZDomain { class Info; }
+namespace ZDomain { class Def; class Info; }
 
 
 /*!
@@ -46,7 +46,8 @@ public:
 	mDefSetupMemb(bool,confirmoverwr) //!< true
 	mDefSetupMemb(bool,withinserters) //!< true, only if forread
 	mDefSetupMemb(bool,withwriteopts) //!< true, only if !forread
-	mDefSetupMemb(bool,filldef)	  //!< true, only if forread and !ctio.ioobj
+	mDefSetupMemb(bool,filldef)	  /*!< true, only if forread and
+							     !ctio.ioobj */
 	mDefSetupMemb(BufferString,withctxtfilter);  //!< empty (no filter)
 	mDefSetupMemb(BufferStringSet,trsnotallwed); //!< empty (all allowed)
 
@@ -77,8 +78,10 @@ public:
     void		require(const char* key,const char* typ,
 				bool allowempty=false);
     void		requireType(const char*,bool allowempty=false);
+    void		requireZDef(const ZDomain::Def&,bool allowempty=true);
     void		requireZDomain(const ZDomain::Info&,
 				       bool allowempty=true);
+    const ZDomain::Def* requiredZDef() const;
     const ZDomain::Info* requiredZDomain() const;
 
     virtual void	updateInput();	//!< a.o. updates from CtxtIOObj

@@ -966,7 +966,7 @@ ConstRefMan<ReflectivityModelSet>
 RaySynthGenerator::getRefModels( const ElasticModelSet& emodels,
 				 const IOPar& reflpars, uiString& msg,
 				 TaskRunner* taskrun, float srd,
-				 Seis::OffsetType offstyp,
+				 Seis::OffsetType offstyp, OD::AngleType azityp,
 				 ZDomain::DepthType depthtype,
 			 const ObjectSet<const TimeDepthModel>* forcedtdmodels )
 {
@@ -975,7 +975,7 @@ RaySynthGenerator::getRefModels( const ElasticModelSet& emodels,
 	return nullptr;
 
     if ( ReflCalc1D::factory().hasName(refltype.str()) )
-    {
+    { //TODO: use azityp ?
 	ReflCalc1D::Setup rfsu;
 	rfsu.startdepth( -srd ).depthtype( depthtype );
 	return ReflCalcRunner::getRefModels( emodels, reflpars, msg, &rfsu,
@@ -1593,6 +1593,7 @@ void RaySynthGenerator::SynthRes::setTraces( const ZSampling& zrg,
 	info.setGeomSystem( OD::GeomSynth ).setTrcNr( seqnr+1 ).calcCoord();
 	info.sampling_ = zrg;
 	info.offset_ = offsets[itrc];
+	info.azimuth_ = mUdf(float);
 	info.seqnr_ = seqnr+1;
 	outtrcs_.add( newtrc );
     }

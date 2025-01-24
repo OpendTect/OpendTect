@@ -62,9 +62,9 @@ static const char* sKeyZScale()		{ return "Z Scale"; }
 
 Scene::Scene()
     : visBase::Scene(true)
-    , zscale_( SI().zScale() )
+    , zscale_( SI().zScale(false) )
     , infopar_(*new IOPar)
-    , zdomaininfo_(new ZDomain::Info(ZDomain::SI()))
+    , zdomaininfo_(&SI().zDomainInfo())
     , mouseposchange(this)
     , mousecursorchange(this)
     , keypressed(this)
@@ -97,7 +97,6 @@ Scene::~Scene()
     }
 
     delete coordselector_;
-    delete zdomaininfo_;
     delete &infopar_;
 }
 
@@ -122,8 +121,18 @@ void Scene::updateAnnotationText()
     if ( SI().zRange(true).width() )
 	annot_->setText( 2, zDomainUserName() );
 
-    annot_->setScaleFactor( 2,
-	    zdomaininfo_ ? zdomaininfo_->userFactor() : 1 );
+    const ZDomain::Info& zdom = zDomainInfo();
+    if ( zdom.isDepth() &&
+	 ((zdom.isDepthMeter() && SI().depthsInFeet()) ||
+	  (zdom.isDepthFeet() && !SI().depthsInFeet())) )
+    {
+	if ( zdom.isDepthMeter() )
+	    annot_->setScaleFactor( 2, mToFeetFactorD );
+	else if ( zdom.isDepthFeet() )
+	    annot_->setScaleFactor( 2, mFromFeetFactorD );
+    }
+    else
+	annot_->setScaleFactor( 2, zdom.userFactor() );
 }
 
 
@@ -155,7 +164,7 @@ void Scene::setup()
     {
 	const float dist = Math::Sqrt( SI().getArea(false) );
 	curzstretch_ = 2.f * dist / SI().zRange().width();
-	curzstretch_ /= zdomaininfo_->userFactor();
+	curzstretch_ /= zDomainInfo().userFactor();
     }
 
     const TrcKeyZSampling& tkzs = SI().sampling(true);
@@ -193,7 +202,7 @@ void Scene::updateTransforms( const TrcKeyZSampling& cs )
     RefMan<mVisTrans> newinlcrlscale = mVisTrans::create();
 
     float zfactor = -1 * zscale_ * curzstretch_;
-    if ( zdomaininfo_->def_.isTime() )
+    if ( zDomainInfo().isTime() )
 	zfactor /= 2;
     // -1 to compensate for that we want z to increase with depth
 
@@ -256,31 +265,32 @@ bool Scene::isRightHandSystem() const
 
 
 const ZDomain::Info& Scene::zDomainInfo() const
-{ return *zdomaininfo_; }
+{
+    return *zdomaininfo_;
+}
 
 
 void Scene::setZDomainInfo( const ZDomain::Info& zdinf )
 {
-    delete zdomaininfo_;
-    zdomaininfo_ = new ZDomain::Info( zdinf );
+    zdomaininfo_ = &zdinf;
     updateAnnotationText();
 }
 
 
 const char* Scene::zDomainKey() const
-{ return zdomaininfo_->key(); }
+{ return zDomainInfo().key(); }
 
 uiString Scene::zDomainUserName() const
-{ return toUiString(zdomaininfo_->userName()); }
+{ return toUiString(zDomainInfo().userName()); }
 
 const char* Scene::zDomainUnitStr( bool withparens ) const
-{ return zdomaininfo_->unitStr( withparens ); }
+{ return zDomainInfo().unitStr( withparens ); }
 
 int Scene::zDomainUserFactor() const
-{ return zdomaininfo_->userFactor(); }
+{ return zDomainInfo().userFactor(); }
 
 const MultiID Scene::zDomainID() const
-{ return zdomaininfo_->getID(); }
+{ return zDomainInfo().getID(); }
 
 
 void Scene::getAllowedZDomains( BufferString& dms ) const
@@ -522,7 +532,7 @@ float Scene::getApparentVelocity( float zstretch ) const
         depthat1sec *= mFromFeetFactorF;
 
     //in depth units
-    if ( SI().depthsInFeet() )
+    if ( SI().zInFeet() && SI().depthsInFeet() )
         depthat1sec *= mToFeetFactorF;
 
     //compensate for twt
@@ -861,7 +871,7 @@ void Scene::mouseCB( CallBacker* cb )
 	{
 	    if ( !xytmousepos_.isUdf() )
 		mousetrckey_ = TrcKey( SI().transform(
-                                           Coord(xytmousepos_.x_,xytmousepos_.y_) ) );
+				   Coord(xytmousepos_.x_,xytmousepos_.y_) ) );
 
 	    mouseposchange.trigger();
 	    return;
@@ -908,7 +918,7 @@ void Scene::mouseCB( CallBacker* cb )
 	    }
 	    if ( mousetrckey_.isUdf() )
 		mousetrckey_ = TrcKey( SI().transform(
-                                           Coord(xytmousepos_.x_,xytmousepos_.y_) ) );
+				   Coord(xytmousepos_.x_,xytmousepos_.y_) ) );
 	}
     }
 
@@ -1165,8 +1175,8 @@ void Scene::fillPar( IOPar& par ) const
     }
     else
     {
-	zdomaininfo_->def_.set( par );
-	par.mergeComp( zdomaininfo_->pars_, ZDomain::sKey() );
+	zDomainInfo().def_.set( par );
+	par.mergeComp( zDomainInfo().pars_, ZDomain::sKey() );
     }
 
     tkzs_.fillPar( par );
@@ -1259,8 +1269,9 @@ bool Scene::usePar( const IOPar& par )
 	if ( par.get(sKey::Scale(),zscale) )
 	{
 	    setZScale( zscale );
-	    delete zdomaininfo_;
-	    zdomaininfo_ = new ZDomain::Info( par );
+	    const ZDomain::Info* newzinfo = ZDomain::Info::getFrom( par );
+	    if ( newzinfo )
+		zdomaininfo_ = newzinfo;
 	}
     }
 
@@ -1501,7 +1512,8 @@ Coord3 Scene::getTopBottomIntersection( const visBase::EventInfo& eventinfo,
 
     for ( int top=0; top<=1; top++ )
     {
-        const double z = top ? s3dgeom->zRange().start_ : s3dgeom->zRange().stop_;
+	const double z = top ? s3dgeom->zRange().start_
+			     : s3dgeom->zRange().stop_;
 
         Coord3 p0( s3dgeom->toCoord(inlrg.start_,crlrg.start_), z );
 	utm2disptransform_->transform( p0 );

@@ -9,15 +9,16 @@ ________________________________________________________________________
 -*/
 
 #include "generalmod.h"
-#include "namedobj.h"
-#include "multiid.h"
+
 #include "enums.h"
 #include "ioobj.h"
 #include "iopar.h"
+#include "multiid.h"
+#include "namedobj.h"
 
 class TranslatorGroup;
 class IOStream;
-namespace ZDomain { class Info; }
+namespace ZDomain { class Def; class Info; }
 
 /*!
 \brief Holds constraints on IOObj selection.
@@ -45,8 +46,10 @@ public:
     void		require(const char* key,const char* typ,
 				bool allowempty=false);
     void		requireType(const char*,bool allowempty=false);
+    void		requireZDef(const ZDomain::Def&,bool allowempty=true);
     void		requireZDomain(const ZDomain::Info&,
 				       bool allowempty=true);
+    const ZDomain::Def* requiredZDef() const; //!< nullptr if not restricted
     const ZDomain::Info* requiredZDomain() const; //!< nullptr if not restricted
 
 };
@@ -130,8 +133,10 @@ public:
     void		require(const char* key,const char* typ,
 				bool allowempty=false);
     void		requireType(const char*,bool allowempty=false);
+    void		requireZDef(const ZDomain::Def&,bool allowempty=true);
     void		requireZDomain(const ZDomain::Info&,
 				       bool allowempty=true);
+    const ZDomain::Def* requiredZDef() const;
     const ZDomain::Info* requiredZDomain() const;
 
     mDeprecated("Use stdseltype_")	StdSelType&		stdseltype;

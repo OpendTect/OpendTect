@@ -169,7 +169,7 @@ bool SeisDataPackZAxisTransformer::doWork(
 
 bool SeisDataPackZAxisTransformer::doFinish( bool success )
 {
-    outputdp_->setZDomain( transform_->toZDomainInfo() );
+    outputdp_->setZDomain( transform_->zDomain(false) );
     outputdp_->setName( inputdp_->name() );
     return true;
 }

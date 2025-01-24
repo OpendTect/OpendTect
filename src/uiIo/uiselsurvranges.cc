@@ -28,12 +28,9 @@ static const float cMaxUnsnappedZStep = 0.999f;
 uiSelZRange::uiSelZRange( uiParent* p, bool wstep, const char* domky,
 			  const char* zunitstr )
     : uiGroup(p,"Z range selection")
-    , zinfo_(ZDomain::Info::getFrom(domky,zunitstr))
+    , zinfo_(&ZDomain::Info::getFrom(domky,zunitstr))
     , rangeChanged(this)
 {
-    if ( !zinfo_ )
-	zinfo_ = &SI().zDomainInfo();
-
     makeInpFields( wstep );
 }
 
@@ -84,7 +81,7 @@ bool uiSelZRange::isSIDomain() const
 bool uiSelZRange::canSnap() const
 {
     return isSIDomain() &&
-            SI().zRange(false).step_ > cMaxUnsnappedZStep / zDomain().userFactor();
+	SI().zRange(false).step_ > cMaxUnsnappedZStep / zDomain().userFactor();
 }
 
 
@@ -127,9 +124,10 @@ void uiSelZRange::makeInpFields( bool wstep )
 
     const bool cansnap = canSnap();
     const int nrdecimals = cansnap ? 0
-                                   : zDomain().def_.nrZDecimals( limitrg.step_ );
+			 : zDomain().nrDecimals( limitrg.step_, false );
     const StepInterval<int> izrg( mNINT32(limitrg.start_),
-                                  mNINT32(limitrg.stop_), mNINT32(limitrg.step_));
+				  mNINT32(limitrg.stop_),
+				  mNINT32(limitrg.step_) );
 
     startfld_ = new uiSpinBox( this, nrdecimals, "Z start" );
     startfld_->attach( rightOf, lblfld_ );
@@ -156,10 +154,11 @@ void uiSelZRange::makeInpFields( bool wstep )
 					 "Z step" );
 	if ( nrdecimals==0 )
 	    stepfld_->box()->setInterval(
-                        StepInterval<int>(izrg.step_,izrg.width(),izrg.step_) );
+		StepInterval<int>(izrg.step_,izrg.width(),izrg.step_) );
 	else
 	    stepfld_->box()->setInterval(
-                        StepInterval<float>(limitrg.step_,limitrg.width(),limitrg.step_));
+	     StepInterval<float>(limitrg.step_,limitrg.width(),limitrg.step_));
+
 	stepfld_->box()->doSnap( cansnap );
 	stepfld_->attach( rightOf, stopfld_ );
     }
@@ -244,8 +243,8 @@ void uiSelZRange::setRange( const ZSampling& inpzrg )
     ZSampling newzrg;
     adaptRangeToLimits<float>( zrg, limitrg, newzrg );
 
-    const int nrdecimals = canSnap() ? 0
-                                     : zDomain().def_.nrZDecimals( limitrg.step_ );
+    const int nrdecimals = canSnap()
+			 ? 0 : zDomain().nrDecimals( limitrg.step_, false );
     if ( nrdecimals==0 )
     {
         startfld_->setValue( mNINT32(newzrg.start_) );
@@ -391,9 +390,10 @@ void uiSelNrRange::makeInpFields( StepInterval<int> limitrg, bool wstep,
     {
 	stepfld_ = new uiLabeledSpinBox( this, uiStrings::sStep(), 0,
 					 BufferString(lbltxt," step") );
-        stepfld_->box()->setInterval( StepInterval<int>(limitrg.step_,
-                                                        limitrg.width() ? limitrg.width() : limitrg.step_,
-                                                        limitrg.step_) );
+	stepfld_->box()->setInterval( StepInterval<int>(
+			limitrg.step_,
+			limitrg.width() ? limitrg.width() : limitrg.step_,
+			limitrg.step_) );
 	stepfld_->box()->doSnap( true );
 	stepfld_->box()->valueChanging.notify( cb );
 	if ( stopfld )

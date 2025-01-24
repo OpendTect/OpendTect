@@ -160,7 +160,7 @@ void uiSeis2DFileMan::lineSel( CallBacker* )
 		   .arg( lastpos.coord_.toPrettyString(nrxydec) ).addNewLine();
 
 	    const ZDomain::Info& zinfo = objinfo_->zDomain();
-	    const int nrzdec = zinfo.def_.nrZDecimals( zrg.step_ );
+	    const int nrzdec = zinfo.nrDecimals( zrg.step_, false );
 	    zrg.scale( zinfo.userFactor() );
 	    const uiString rgstr = tr("%1: %2 - %3 [%4]")
 				.arg( zinfo.getRange() )

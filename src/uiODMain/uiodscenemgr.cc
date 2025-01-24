@@ -267,7 +267,7 @@ SceneID uiODSceneMgr::addScene( bool maximized, ZAxisTransform* zt,
     if ( name.isSet() )
 	setSceneName( sceneid, name );
 
-    visServ().setZAxisTransform( sceneid, zt, 0 );
+    visServ().setZAxisTransform( sceneid, zt, nullptr );
     visServ().turnSelectionModeOn( visServ().isSelectionModeOn() );
 
     scn.vwr3d_->setStartupView();
@@ -552,16 +552,22 @@ void uiODSceneMgr::updateStatusBar()
     uiString msg;
     if ( haspos  )
     {
+	const SceneID sceneid = visServ().getMouseSceneID();
+	const ZDomain::Info* datazdom = visServ().zDomainInfo( sceneid );
+	if ( !datazdom )
+	    datazdom = &SI().zDomainInfo();
+
+	const ZDomain::Info& displayzdom = datazdom->isDepth()
+				    ? ZDomain::DefaultDepth( true ) : *datazdom;
+	const double zfact = FlatView::Viewer::userFactor( *datazdom,
+							   &displayzdom );
+	const Coord3 crd( xytpos, xytpos.z_ * zfact );
+	const int nrxydec = SI().nrXYDecimals();
+	const int nrzdec = displayzdom.nrDecimals( mUdf(float) );
         const BinID bid( SI().transform( Coord(xytpos.x_,xytpos.y_) ) );
-	const float zfact = mCast(float,visServ().zFactor());
-        const float zval = (float) (zfact * xytpos.z_);
-	const int nrdec = SI().nrZDecimals()+1; // get from settings
-	const BufferString zvalstr = toString( zval, nrdec );
-	msg = toUiString("%1    (%2, %3, %4)")
-	    .arg( bid.toString() )
-              .arg( mNINT32(xytpos.x_) )
-              .arg( mNINT32(xytpos.y_) )
-	    .arg( zvalstr );
+	msg = toUiString("%1	%2")
+			    .arg( bid )
+			    .arg( toUiString(crd,nrxydec,nrzdec) );
     }
 
     appl_.statusBar()->message( msg, mPosField );
@@ -569,23 +575,28 @@ void uiODSceneMgr::updateStatusBar()
     const BufferString valstr = visServ().getMousePosVal();
     if ( haspos )
     {
-	msg = valstr.isEmpty()
-		? uiString::emptyString()
-		: tr("Value = %1").arg( valstr );
+	if ( valstr.isEmpty() )
+	    msg.setEmpty();
+	else
+	    msg = toUiString( "%1 = %2" ).arg( uiStrings::sValue() )
+					 .arg( valstr );
     }
     else
 	msg.setEmpty();
 
     appl_.statusBar()->message( msg, mValueField );
 
-    msg = haspos
-	    ? mToUiStringTodo(visServ().getMousePosString())
-	    : uiString::emptyString();
+    if ( haspos )
+	msg = mToUiStringTodo(visServ().getMousePosString() );
+    else
+	msg.setEmpty();
+
     if ( msg.isEmpty() )
     {
 	const VisID selid = visServ().getSelObjectId();
 	msg = mToUiStringTodo(visServ().getInteractionMsg( selid ) );
     }
+
     appl_.statusBar()->message( msg, mNameField );
 
     BufferString bsmsg;

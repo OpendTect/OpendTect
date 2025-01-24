@@ -381,6 +381,7 @@ bool BatchProgram::doWork( od_ostream& strm )
 
     const TrcKey tk( BinID(426,800) );
     const MultiID muteid( 100070, 5 );
+    const OD::AngleType azityp = OD::AngleType::Degrees;
 
     SurveyDiskLocation sdl( IOM().rootDir() );
     int isurv = 0;
@@ -414,6 +415,7 @@ bool BatchProgram::doWork( od_ostream& strm )
 	offsetrange = StepInterval<double>( 200., 2000., 100. );
 	if ( offsetsinfeet )
 	    offsetrange.scale( mToFeetFactorF );
+
 	TypeSet<double> offsets;
 	for ( int ioff=0; ioff<offsetrange.nrSteps()+1; ioff++ )
 	    offsets += offsetrange.atIndex( ioff );
@@ -422,7 +424,7 @@ bool BatchProgram::doWork( od_ostream& strm )
 	fpmute.setRange( true, offsetrange );
 	fpmute.setRange( false, zrange );
 	RefMan<PreStack::Gather> input = new PreStack::Gather( fpmute, offstyp,
-							       zinfo );
+							       azityp, zinfo );
 	input->setTrcKey( tk );
 	input->setCorrected( true );
 

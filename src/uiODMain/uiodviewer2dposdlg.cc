@@ -47,14 +47,16 @@ void uiODViewer2DPosDlg::zoomLevelCB( CallBacker* )
     const TrcKeyZSampling tkzs = pds.tkzs_;
     uiFlatViewZoomLevelDlg zoomlvldlg( this,
 		pds.tkzs_.hsamp_.start_.inl(), pds.tkzs_.hsamp_.start_.crl(),
-		initialx1pospercm_, initialx2pospercm_, true );
+		initialx1pospercm_, initialx2pospercm_, posgrp_->isVertical(),
+		&posgrp_->zDomain( false ),
+		&posgrp_->zDomain( true ) );
     zoomlvldlg.go();
 }
 
 
 bool uiODViewer2DPosDlg::acceptOK( CallBacker* )
 {
-    if ( !posgrp_->commitSel( true ) )
+    if ( !posgrp_->commitSel(true) )
 	return false;
 
     IOPar seldatapar;

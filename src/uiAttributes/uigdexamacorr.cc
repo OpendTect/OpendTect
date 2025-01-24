@@ -125,9 +125,11 @@ void GapDeconACorrView::createFD2DDataPack( bool isqc, const Data2DHolder& d2dh)
 
     BufferStringSet cnames;
     cnames.add( "autocorrelation" );
-    auto regsdp = uiAttribPartServer::createDataPackFor2DRM(
-					d2dh, sampling, SI().zDomain(),&cnames);
-    if ( !regsdp ) return;
+    RefMan<RegularSeisDataPack> regsdp =
+	uiAttribPartServer::createDataPackFor2DRM( d2dh, sampling,
+					SI().zDomainInfo(), &cnames );
+    if ( !regsdp )
+	return;
 
     RefMan<FlatDataPack> fdp = new RegularSeisFlatDataPack( *regsdp, 0 );
     if ( isqc )

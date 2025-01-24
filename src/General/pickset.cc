@@ -748,7 +748,7 @@ mDefineEnumUtils( Pick::Set::Disp, Connection, "Connection" )
 Set::Set( const char* nm, bool ispolygon )
     : SharedObject(nm)
     , pars_(*new IOPar)
-    , zdomaininfo_(new ZDomain::Info(SI().zDomainInfo()))
+    , zdomaininfo_(&SI().zDomainInfo())
 {
     setDefaultDispPars( ispolygon );
 }
@@ -756,7 +756,7 @@ Set::Set( const char* nm, bool ispolygon )
 
 Set::Set( const Set& oth )
     : pars_(*new IOPar)
-    , zdomaininfo_(new ZDomain::Info(SI().zDomainInfo()))
+    , zdomaininfo_(&SI().zDomainInfo())
 {
     *this = oth;
 }
@@ -765,7 +765,6 @@ Set::Set( const Set& oth )
 Set::~Set()
 {
     delete &pars_;
-    delete zdomaininfo_;
 }
 
 
@@ -984,11 +983,10 @@ const UnitOfMeasure* Set::zUnit() const
 Set& Set::setZDomain( const ZDomain::Info& zinfo )
 {
     if ( readonly_ || (!zinfo.isTime() && !zinfo.isDepth()) ||
-	 zinfo == zDomain() )
+	 &zinfo == &zDomain() )
 	return *this;
 
-    delete zdomaininfo_;
-    zdomaininfo_ = new ZDomain::Info( zinfo );
+    zdomaininfo_ = &zinfo;
     return *this;
 }
 
@@ -1128,7 +1126,7 @@ bool Set::usePar( const IOPar& par )
     if ( !startidx.isEmpty() )
 	startidxs_ = startidx;
 
-    const ZDomain::Info* zinfo = ZDomain::get( par );
+    const ZDomain::Info* zinfo = ZDomain::Info::getFrom( par );
     if ( zinfo )
 	setZDomain( *zinfo );
 

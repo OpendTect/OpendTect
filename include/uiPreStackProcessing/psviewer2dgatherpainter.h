@@ -43,6 +43,7 @@ public:
 				{ return inputwvagather_ || inputvdgather_; }
 
 protected:
+    void			ensureHasZDomain(const PreStack::Gather&);
     void			getGatherRange(const PreStack::Gather*,
 					       SamplingData<float>&,
 					       int& nrsamp) const;

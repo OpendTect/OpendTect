@@ -43,7 +43,7 @@ private:
 
     bool			initFFT(int,int);
     bool			compute(const Array2D<float>&);
-    bool			view(Array2D<float>&);
+    bool			view();
     FlatView::AuxData*		initAuxData();
     void			setVelCB(CallBacker*);
     void			mouseMoveCB(CallBacker*);

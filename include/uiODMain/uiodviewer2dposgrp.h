@@ -33,16 +33,21 @@ class uiSliceSel;
 
 namespace Geometry { class RandomLine; }
 
-mStruct(uiODMain) Viewer2DPosDataSel
+mExpClass(uiODMain) Viewer2DPosDataSel
 {
+public:
     enum PosType	{InLine=0, CrossLine=1, Line2D=2, ZSlice=3, RdmLine=4 };
 			mDeclareEnumUtils(PosType);
 
 			Viewer2DPosDataSel();
-			Viewer2DPosDataSel(const Viewer2DPosDataSel& sd);
+			Viewer2DPosDataSel(const Viewer2DPosDataSel&);
     virtual		~Viewer2DPosDataSel();
 
+    Viewer2DPosDataSel& operator =(const Viewer2DPosDataSel&);
+
     virtual void	clean();
+    virtual void	fillPar(IOPar&) const;
+    virtual void	usePar(const IOPar&);
 
     PosType		postype_;
     Attrib::SelSpec	selspec_;
@@ -50,14 +55,12 @@ mStruct(uiODMain) Viewer2DPosDataSel
     Pos::GeomID		geomid_;
     MultiID		rdmlinemultiid_;
     RandomLineID	rdmlineid_;
-    bool		selectdata_;
+    bool		selectdata_	= true;
 
     static const char*	sKeyRdmLineMultiID(){ return "Random Line MultiID"; }
     static const char*  sKeyRdmLineID()	    { return "Random Line ID"; }
     static const char*	sKeySelectData()    { return "Select Data"; }
 
-    virtual void	fillPar(IOPar&) const;
-    virtual void	usePar(const IOPar&);
 };
 
 
@@ -70,10 +73,11 @@ public:
 						   bool onlyvertical,
 						   bool withpostype=false);
 				// Viewer2DPosDataSel objects becomes mine
-
 				~uiODViewer2DPosGrp();
 
     bool			is2D() const;
+    bool			isVertical() const;
+    const ZDomain::Info&	zDomain(bool display) const;
     Viewer2DPosDataSel::PosType selPosType() const
 				{ return posdatasel_->postype_; }
     void			showDataSelField(bool yn);
@@ -82,7 +86,7 @@ public:
     virtual void		usePar(const IOPar&);
     Viewer2DPosDataSel&		posDataSel()		{ return *posdatasel_; }
     const Viewer2DPosDataSel&	posDataSel() const	{ return *posdatasel_; }
-    virtual bool		commitSel( bool emiterror );
+    virtual bool		commitSel(bool emiterror);
 
     Notifier<uiODViewer2DPosGrp> inpSelected;
 
@@ -105,18 +109,17 @@ protected:
     uiGroup*		botgrp_		= nullptr;
 
     IOObj*		get2DObj();
-    void		init(bool);
     void		updateFlds();
     void		updateDataSelFld();
     void		updatePosFlds();
     void		updateTrcKeySampFld();
     void		createSliceSel(uiSliceSel::Type);
+    void		getSelAttrSamp(TrcKeyZSampling&);
 
+    void		initGrp(CallBacker*);
     void		gen2DLine(CallBacker*);
     void		genRdmLine(CallBacker*);
     void		rdmLineDlgClosed(CallBacker*);
     void		inpSel(CallBacker*);
     void		attr2DSelected(CallBacker*);
-
-    void		getSelAttrSamp(TrcKeyZSampling&);
 };

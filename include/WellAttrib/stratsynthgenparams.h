@@ -65,6 +65,7 @@ public:
     bool		isCorrected() const;
 			//<! Only for PS gathers
     Seis::OffsetType	offsetType() const;
+    OD::AngleType	azimuthAngleType() const;
     bool		isPSBased() const
 			{ return synthtype_==AngleStack ||
 				 synthtype_==AVOGradient; }

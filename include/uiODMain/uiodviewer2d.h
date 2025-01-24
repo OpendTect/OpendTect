@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "integerid.h"
 #include "seisdatapack.h"
 #include "trckeyzsampling.h"
+#include "zaxistransform.h"
 
 #include "uigeom.h"
 #include "uistring.h"
@@ -31,11 +32,10 @@ class uiToolBar;
 class uiTreeItem;
 class uiTreeFactorySet;
 
+class DataManager;
 class MouseCursorExchange;
 class RegularSeisFlatDataPack;
 class TaskRunner;
-class DataManager;
-class ZAxisTransform;
 
 namespace Attrib	{ class SelSpec; }
 namespace View2D	{ class DataManager; class DataObject; }
@@ -113,8 +113,8 @@ public:
     bool			useStoredDispPars(FlatView::Viewer::VwrDest);
     bool			isVertical() const	{ return isvertical_; }
 
-    ZAxisTransform*		getZAxisTransform() const
-				{ return datatransform_; }
+    ZAxisTransform*		getZAxisTransform();
+    const ZAxisTransform*	getZAxisTransform() const;
     bool			setZAxisTransform(ZAxisTransform*);
     bool			hasZAxisTransform() const
 				{ return datatransform_; }
@@ -143,7 +143,11 @@ public:
 				{ return viewstdcontrol_; }
     uiSlicePos2DView*		slicePos()
 				{ return slicepos_; }
-    const ZDomain::Def&		zDomain() const;
+				mDeprecated("Use zDomain")
+    const ZDomain::Def&		zDomainDef() const;
+    const ZDomain::Info&	zDomain(bool display) const;
+    int				nrXYDec(int vwridx=0) const;
+    int				nrZDec(int vwridx=0) const;
     SceneID			getSyncSceneID() const;
 
     virtual void		usePar(const IOPar&);
@@ -242,7 +246,7 @@ protected:
     uiFlatViewWin*		viewwin_			= nullptr;
     MouseCursorExchange*	mousecursorexchange_		= nullptr;
     FlatView::AuxData*		marker_				= nullptr;
-    ZAxisTransform*		datatransform_			= nullptr;
+    RefMan<ZAxisTransform>	datatransform_;
     TrcKeyZSampling		tkzs_;
     uiString			basetxt_;
     uiODMain&			appl_;
@@ -261,7 +265,8 @@ protected:
 
     RefMan<SeisFlatDataPack>	createDataPackForTransformedZSliceRM(
 						const Attrib::SelSpec&) const;
-    virtual void		createViewWin(bool isvert,bool needslicepos);
+    virtual void		createViewWin(bool isvert,bool needslicepos,
+					      const ZDomain::Info*);
     virtual void		createTree(uiMainWin*);
     virtual void		createPolygonSelBut(uiToolBar*);
     void			createViewWinEditors();

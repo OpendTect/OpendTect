@@ -17,6 +17,7 @@ class uiParent;
 class uiMainWin;
 class uiFlatViewer;
 class uiFlatViewControl;
+namespace FlatView { class Viewer; }
 
 /*!
 \brief Base class for windows containing one or more uiFlatViewer(s).
@@ -33,6 +34,7 @@ public:
 
     uiFlatViewer&	viewer( int idx=0 )	{ return *vwrs_[idx]; }
     const uiFlatViewer&	viewer( int idx=0 ) const { return *vwrs_[idx]; }
+    bool		validIdx(int) const;
     int			nrViewers() const	{ return vwrs_.size(); }
 
     void		setDarkBG(bool);
@@ -46,8 +48,8 @@ public:
     virtual void	setInitialSize(int w,int h);
     virtual void	fillPar(IOPar&) const		{}
     virtual void	usePar(const IOPar&)		{}
-    static void		makeInfoMsg(BufferString&,IOPar&);
-
+    static void		makeInfoMsg(const FlatView::Viewer&,const IOPar&,
+				    uiString&);
 protected:
 
     ObjectSet<uiFlatViewer>	vwrs_;
@@ -56,4 +58,5 @@ protected:
     void			cleanUp();
 
     virtual void		handleNewViewer(uiFlatViewer*)	{}
+    void			makeInfoMsg(const IOPar&,uiString&);
 };

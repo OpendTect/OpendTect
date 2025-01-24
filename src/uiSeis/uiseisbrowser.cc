@@ -818,13 +818,15 @@ void uiSeisBrowser::dispTracesPush( CallBacker* )
 	trcbufvwr_->start();
     else
     {
-	uiSeisTrcBufViewer::Setup stbvsetup( uiString::emptyString() );
+	const uiSeisTrcBufViewer::Setup stbvsetup( uiString::empty() );
 	trcbufvwr_ = new uiSeisTrcBufViewer( this, stbvsetup );
 	trcbufvwr_->selectDispTypes( true, false );
+	const SeisIOObjInfo info( setup_.inpmid_ );
 	mAttachCB( trcbufvwr_->windowClosed,
-					uiSeisBrowser::trcbufViewerClosed );
-	trcbufvwr_->setTrcBuf( &tbuf_, setup_.geom_, "Browsed seismic data",
-				    IOM().nameOf(setup_.inpmid_), compnr_ );
+		   uiSeisBrowser::trcbufViewerClosed );
+	trcbufvwr_->setTrcBuf( &tbuf_, info.geomType(), "Browsed seismic data",
+			       IOM().nameOf(setup_.inpmid_), info.zDomain(),
+			       compnr_ );
 	trcbufvwr_->start(); trcbufvwr_->handleBufChange();
 
 	if ( (tbuf_.isEmpty()) )
@@ -896,8 +898,10 @@ void uiSeisBrowser::nrTracesChgCB( CallBacker* )
     doSetPos( curBinID(), true );
     if ( trcbufvwr_ )
     {
-	trcbufvwr_->setTrcBuf( &tbuf_, setup_.geom_, "Browsed seismic data",
-				    IOM().nameOf(setup_.inpmid_), compnr_ );
+	const SeisIOObjInfo info( setup_.inpmid_ );
+	trcbufvwr_->setTrcBuf( &tbuf_, info.geomType(), "Browsed seismic data",
+				    IOM().nameOf(setup_.inpmid_),
+				    info.zDomain(), compnr_ );
 	trcbufvwr_->handleBufChange();
     }
 }

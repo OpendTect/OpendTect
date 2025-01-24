@@ -24,6 +24,7 @@ ________________________________________________________________________
 #include "selector.h"
 #include "settings.h"
 #include "survinfo.h"
+#include "uistrings.h"
 
 #include "visplanedatadisplay.h"
 #include "vismaterial.h"
@@ -435,8 +436,8 @@ void MarchingCubesDisplay::getMousePosInfo(const visBase::EventInfo&,
 			    Coord3& xyzpos, BufferString& val,
 			    uiString& info) const
 {
-    val = sKey::EmptyString();
-    info = tr("Geobody: %1").arg(name());
+    val.setEmpty();
+    info.set( uiStrings::sGeobody() ).addMoreInfo( name() );
 
     int valididx = -1;
     for ( int idx=0; idx<datapacks_.size(); idx++ )

@@ -9,8 +9,9 @@ ________________________________________________________________________
 -*/
 
 #include "madagascarmod.h"
-#include "position.h"
+
 #include "od_iostream.h"
+#include "position.h"
 #include "uistring.h"
 
 class SeisTrcReader;
@@ -21,6 +22,7 @@ class SeisPSWriter;
 
 namespace PosInfo { class CubeData; class CubeDataIterator; class Line2DData; }
 namespace Seis { class SelData; }
+namespace ZDomain { class Info; }
 
 namespace ODMad
 {
@@ -28,7 +30,7 @@ namespace ODMad
 mExpClass(Madagascar) MadStream
 { mODTextTranslationClass(MadStream);
 public:
-    				MadStream(IOPar&);
+				MadStream(IOPar&);
 				~MadStream();
 
     const IOPar*		getHeaderPars()		{ return headerpars_; }
@@ -44,6 +46,7 @@ public:
     bool			isBinary() const	{ return isbinary_; }
     bool			is2D() const		{ return is2d_; }
     bool			isPS() const		{ return isps_; }
+    const ZDomain::Info&	zDomain() const;
     void			setStorBufMine( bool yn )
 				{ stortrcbufismine_ = yn; }
 

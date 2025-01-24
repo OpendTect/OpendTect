@@ -99,7 +99,8 @@ EngineMan* uiAttribPanel::createEngineMan()
 }
 
 
-RefMan<FlatDataPack> uiAttribPanel::createFDPack(const Data2DHolder& d2dh) const
+RefMan<FlatDataPack> uiAttribPanel::createFDPack(
+					const Data2DHolder& d2dh ) const
 {
     if ( d2dh.dataset_.isEmpty() )
 	return nullptr;
@@ -107,8 +108,9 @@ RefMan<FlatDataPack> uiAttribPanel::createFDPack(const Data2DHolder& d2dh) const
     TrcKeyZSampling sampling = d2dh.getTrcKeyZSampling();
     sampling.hsamp_.setGeomID( geomid_ );
 
-    auto rsdp = uiAttribPartServer::createDataPackFor2DRM( d2dh, sampling,
-							   SI().zDomain() );
+    RefMan<RegularSeisDataPack> rsdp =
+	uiAttribPartServer::createDataPackFor2DRM( d2dh, sampling,
+						   SI().zDomainInfo() );
     return rsdp ? new RegularSeisFlatDataPack(*rsdp,-1) : nullptr;
 }
 

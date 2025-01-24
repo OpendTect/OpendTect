@@ -385,9 +385,21 @@ void uiIOObjSel::requireType( const char* typ, bool allowempty )
 }
 
 
+void uiIOObjSel::requireZDef( const ZDomain::Def& zdef, bool allowempty )
+{
+    workctio_.ctxt_.requireZDef( zdef, allowempty );
+}
+
+
 void uiIOObjSel::requireZDomain( const ZDomain::Info& zinfo, bool allowempty )
 {
     workctio_.ctxt_.requireZDomain( zinfo, allowempty );
+}
+
+
+const ZDomain::Def* uiIOObjSel::requiredZDef() const
+{
+    return workctio_.ctxt_.requiredZDef();
 }
 
 

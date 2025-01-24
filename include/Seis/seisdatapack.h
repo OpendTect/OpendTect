@@ -193,28 +193,32 @@ mExpClass(Seis) SeisFlatDataPack : public FlatDataPack
 public:
 
     int				nrTrcs() const;
-    TrcKey			getTrcKey(int trcidx) const;
     DataPackID			getSourceID() const;
     ConstRefMan<SeisVolumeDataPack> getSource() const;
     int				getSourceGlobalIdx(const TrcKey&) const;
 
-    bool			is2D() const;
-
     bool			isVertical() const override		= 0;
+    bool			is2D() const;
+    virtual bool		isRandom() const	{ return false; }
+    bool			isStraight() const;
+
     virtual const TrcKeyPath&	getPath() const				= 0;
 				//!< Will be empty if isVertical() is false
 				//!< Eg: Z-slices. Or if the data corresponds
 				//!< to a single trace.
     ZSampling			zRange() const		{ return zsamp_; }
 
-    bool			dimValuesInInt(
-					const char* keystr) const override;
-    void			getAltDim0Keys(BufferStringSet&) const override;
-    double			getAltDim0Value(int ikey,int i0) const override;
-    void			getAuxInfo(int i0,int i1,IOPar&) const override;
+    void			getAltDimKeys(uiStringSet&,
+					      bool dim0) const override;
+    void			getAltDimKeysUnitLbls(uiStringSet&,bool dim0,
+				   bool abbreviated=true,
+				   bool withparentheses=true) const override;
+    double			getAltDimValue(int ikey,bool dim0,
+					       int i0) const override;
+    bool			dimValuesInInt(const uiString& keystr,
+					       bool dim0) const override;
 
     const Scaler*		getScaler() const;
-    const ZDomain::Info&	zDomain() const;
     float			nrKBytes() const override;
     RandomLineID		getRandomLineID() const;
 
@@ -230,6 +234,8 @@ protected:
 				/*!< Sets distances from start and Z-values
 				 as X1 and X2 posData. Assumes getPath() is
 				 not empty. */
+
+    TrcKey			getTrcKey_(int trcidx) const;
 
     ConstRefMan<SeisVolumeDataPack> source_;
     int				comp_;
@@ -258,9 +264,15 @@ public:
 					       float trcfidx) const override;
 
     const TrcKeyZSampling&	sampling() const	{ return sampling_; }
+    TrcKey			getTrcKey(int i0,int i1) const override;
     Coord3			getCoord(int i0,int i1) const override;
+    double			getZ(int i0,int i1) const override;
 
-    const char*			dimName(bool dim0) const override;
+    uiString			dimName(bool dim0) const override;
+    uiString			dimUnitLbl(bool dim0,bool display,
+					   bool abbreviated=true,
+				    bool withparentheses=true) const override;
+    const UnitOfMeasure*	dimUnit(bool dim0,bool display) const override;
 
 protected:
 				~RegularSeisFlatDataPack();
@@ -289,14 +301,21 @@ public:
 						int component);
 
     bool			isVertical() const override	{ return true; }
+    bool			isRandom() const override	{ return true; }
+
     int				getNearestGlobalIdx(const TrcKey&) const;
     const TrcKeyPath&		getPath() const override   { return path_; }
-    Coord3			getCoord(int i0,int i1) const override;
+    TrcKey			getTrcKey(int i0,int i1) const override;
+    Coord3			getCoord(int itrc,int isamp) const override;
+    double			getZ(int itrc,int isamp) const override;
     float			getPosDistance(bool dim0,
 					       float trcfidx) const override;
 
-    const char*			dimName( bool dim0 ) const override
-				{ return dim0 ? "Distance" : "Z"; }
+    uiString			dimName(bool dim0) const override;
+    uiString			dimUnitLbl(bool dim0,bool display,
+					   bool abbreviated=true,
+				    bool withparentheses=true) const override;
+    const UnitOfMeasure*	dimUnit(bool dim0,bool display) const override;
 
 protected:
 				~RandomSeisFlatDataPack();
@@ -305,8 +324,8 @@ protected:
     void			setRegularizedPosData();
 				/*!< Sets distances from start and Z-values
 				 as X1 and X2 posData after regularizing. */
-
     void			setTrcInfoFlds() override;
+
     const TrcKeyPath&		path_;
 };
 

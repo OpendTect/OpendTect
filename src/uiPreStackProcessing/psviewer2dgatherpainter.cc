@@ -9,8 +9,9 @@ ________________________________________________________________________
 
 #include "psviewer2dgatherpainter.h"
 
-#include "prestackgather.h"
 #include "flatview.h"
+#include "prestackgather.h"
+#include "zdomain.h"
 
 namespace PreStackView
 {
@@ -52,6 +53,7 @@ void Viewer2DGatherPainter::setVDGather( const PreStack::Gather* vddp )
     if ( vddp )
     {
 	inputvdgather_ = vddp;
+	ensureHasZDomain( *vddp );
 	viewer_.setPack( FlatView::Viewer::VD,
 			 const_cast<PreStack::Gather*>(vddp), !hadpack );
     }
@@ -75,6 +77,7 @@ void Viewer2DGatherPainter::setWVAGather( const PreStack::Gather* wvagather )
     if ( wvagather )
     {
 	inputwvagather_ = wvagather;
+	ensureHasZDomain( *wvagather );
 	viewer_.setPack( FlatView::Viewer::WVA,
 			 const_cast<PreStack::Gather*>(wvagather), !hadpack );
     }
@@ -100,6 +103,7 @@ void Viewer2DGatherPainter::setVDGather( DataPackID vdid )
     if ( vdgather )
     {
 	inputvdgather_ = vdgather;
+	ensureHasZDomain( *vdgather );
 	viewer_.setPack( FlatView::Viewer::VD, vdgather.ptr(), !hadpack );
     }
 }
@@ -122,8 +126,24 @@ void Viewer2DGatherPainter::setWVAGather( DataPackID wvaid )
     if ( wvagather )
     {
 	inputwvagather_ = wvagather;
+	ensureHasZDomain( *wvagather );
 	viewer_.setPack( FlatView::Viewer::WVA, wvagather.ptr(), !hadpack );
     }
+}
+
+
+void Viewer2DGatherPainter::ensureHasZDomain( const PreStack::Gather& gather )
+{
+    if ( viewer_.zDomain(false) )
+	return;
+
+    const ZDomain::Info& datazdom = gather.zDomain();
+    const ZDomain::Info* displayzdom = datazdom.isDepth()
+				     ? &ZDomain::DefaultDepth( true )
+				     : nullptr;
+    viewer_.setZDomain( datazdom, false );
+    if ( displayzdom )
+	viewer_.setZDomain( *displayzdom, true );
 }
 
 } // namespace PreStackView

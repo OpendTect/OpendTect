@@ -38,11 +38,12 @@ ________________________________________________________________________
 #include "stratlith.h"
 #include "stratreftree.h"
 #include "strattransl.h"
+#include "unitofmeasure.h"
 #include "zdomain.h"
 
 
 uiStratLayerModelDisp::uiStratLayerModelDisp( uiStratLayModEditTools& t,
-					  const Strat::LayerModelSuite& lms)
+					  const Strat::LayerModelSuite& lms )
     : uiGroup(t.parent(),"LayerModel display")
     , sequenceSelected(this)
     , genNewModelNeeded(this)
@@ -52,12 +53,13 @@ uiStratLayerModelDisp::uiStratLayerModelDisp( uiStratLayModEditTools& t,
     , lms_(lms)
     , tools_(t)
     , vwr_(*new uiFlatViewer(this))
-    , depthlbl_( " (", PropertyRef::thickness().disp_.getUnitLbl(), ")" )
+    , depthlbl_( "(", PropertyRef::thickness().disp_.getUnitLbl(), ")" )
 {
     vwr_.setInitialSize( initialSize() );
     vwr_.setStretch( 2, 2 );
     vwr_.disableStatusBarUpdate();
-    vwr_.setZDomain( ZDomain::Depth() );
+    vwr_.setZDomain( ZDomain::DefaultDepth(false), false );
+    vwr_.setZDomain( ZDomain::DefaultDepth(true), true );
 
     const int fontheight = vwr_.getAxesDrawer().getNeededHeight();
     vwr_.setExtraBorders( uiSize(0,-fontheight), uiSize(0,-fontheight) );
@@ -66,10 +68,10 @@ uiStratLayerModelDisp::uiStratLayerModelDisp( uiStratLayModEditTools& t,
     app.setGeoDefaults( true );
     app.setDarkBG( false );
     app.annot_.title_.setEmpty();
+    app.annot_.x1_.name_.setEmpty();
+    app.annot_.x2_.name_.setEmpty();
     app.annot_.x1_.showAll( true );
     app.annot_.x2_.showAll( true );
-    app.annot_.x1_.name_ = "Model Nr";
-    app.annot_.x2_.name_ = "Depth";
     app.ddpars_.wva_.allowuserchange_ = false;
     app.ddpars_.vd_.allowuserchange_ = false;
     app.ddpars_.wva_.allowuserchangedata_ = false;
@@ -239,7 +241,8 @@ uiFlatViewer* uiStratLayerModelDisp::getViewerClone( uiParent* p ) const
     vwr->rgbCanvas().disableImageSave();
     vwr->setInitialSize( initialSize() );
     vwr->setStretch( 2, 2 );
-    vwr_.setZDomain( ZDomain::Depth() );
+    vwr_.setZDomain( ZDomain::DefaultDepth(false), false );
+    vwr_.setZDomain( ZDomain::DefaultDepth(true), true );
     vwr->appearance() = vwr_.appearance();
     auto wvadp = vwr_.getPack( true ).get();
     auto vddp = vwr_.getPack( false ).get();
@@ -726,22 +729,15 @@ Strat::Layer* uiStratLayerModelDisp::usrPointedLayer( int& layidx ) const
 }
 
 
-static uiString getKeyValStr( const char* key, const char* val )
-{
-    return toUiString( "%1: %2" ).arg( key ).arg( val );
-}
-
-
 void uiStratLayerModelDisp::mouseMovedCB( CallBacker* )
 {
     const int selseq = usrPointedModelNr();
     if ( selseq<0 || selseq>=layerModel().size() )
 	return;
 
-    uiString statusbarmsg;
-    BufferString modelnrstr( 16, true );
-    od_sprintf( modelnrstr.getCStr(), modelnrstr.bufSize(), "%5d", selseq+1 );
-    statusbarmsg.append( getKeyValStr("Model Number",modelnrstr) );
+    uiString msg;
+    msg.constructWordWith( sModelNumber() )
+       .addMoreInfo( toUiString(selseq+1,(od_uint16)5) );
 
     int layidx;
     const Strat::Layer* lay = usrPointedLayer( layidx );
@@ -759,29 +755,45 @@ void uiStratLayerModelDisp::mouseMovedCB( CallBacker* )
 	}
     }
 
-    BufferString depthstr( 16, true );
-    od_sprintf( depthstr.getCStr(), depthstr.bufSize(), "%6.0f", depth );
-    depthstr.add( depthlbl_ );
-    statusbarmsg.append( getKeyValStr("TVDSS Depth",depthstr) );
+    msg.constructWordWith( tr("TVDSS Depth"), true )
+       .appendPlainText( depthlbl_.str(), true )
+       .addMoreInfo( toUiString(depth,6,'f',0) );
+
+    int nrinfos = 0;
+#define mAddSep() if ( nrinfos++ ) msg.appendPhrase( uiString::empty(), \
+				   uiString::SemiColon, uiString::OnSameLine );
 
     const Strat::LayerSequence& seq = layerModel().sequence( selseq );
     const int disppropidx = tools_.selPropIdx()+1;
     if ( lay && seq.propertyRefs().validIdx(disppropidx) )
     {
 	const PropertyRef& pr = *seq.propertyRefs()[disppropidx];
-	BufferString valstr( getLayerPropValue(*lay,pr,disppropidx) );
-	valstr.addSpace().add( pr.disp_.getUnitLbl() );
-	statusbarmsg.append( getKeyValStr(pr.name(),valstr) );
-	statusbarmsg.append( getKeyValStr("Layer",lay->name()) );
+	const float layval = getLayerPropValue( *lay, pr, disppropidx );
+	uiString unitlbl = toUiString( pr.disp_.getUnitLbl() );
+	unitlbl.parenthesize();
+	mAddSep();
+	msg.appendPlainText( pr.name(), true )
+	   .constructWordWith( unitlbl, true )
+	   .addMoreInfo( layval );
+	mAddSep();
+	msg.constructWordWith( uiStrings::sLayer(), true )
+	   .addMoreInfo( lay->name() );
 	if ( !lay->lithology().isUdf() )
-	    statusbarmsg.append(
-		    getKeyValStr("Lithology",lay->lithology().name()) );
+	{
+	    mAddSep();
+	    msg.constructWordWith( uiStrings::sLithology(), true )
+	       .addMoreInfo( lay->lithology().name().str() );
+	}
+
 	if ( !lay->content().isUnspecified() )
-	    statusbarmsg.append(
-		    getKeyValStr("Content",lay->content().name()) );
+	{
+	    mAddSep();
+	    msg.constructWordWith( uiStrings::sContent(), true )
+	       .addMoreInfo( lay->content().name().str() );
+	}
     }
 
-    infoChanged.trigger( &statusbarmsg, this );
+    infoChanged.trigger( &msg, this );
 }
 
 
@@ -806,11 +818,37 @@ public:
 
 uiSSLMFlatViewDataPack()
     : FlatDataPack( "Empty uiSSLM", new Array2DImpl<float>(0,0) )
-{}
+{
+    setZDomain( ZDomain::DefaultDepth(false) );
+}
 
 
-const char* dimName( bool dim0 ) const override
-{ return dim0 ? "Model Nr" : "Depth"; }
+uiString dimName( bool dim0 ) const override
+{
+    return dim0 ? uiStratLayerModelDisp::sModelNumber()
+		: zDomain().userName();
+}
+
+
+uiString dimUnitLbl( bool dim0, bool display,
+		     bool abbreviated, bool withparentheses ) const override
+{
+    return dim0 ? uiString::empty()
+		: zDomain( display ).uiUnitStr( withparentheses );
+}
+
+
+const UnitOfMeasure* dimUnit( bool dim0, bool display ) const override
+{
+    return dim0 ? nullptr
+		: UnitOfMeasure::zUnit( zDomain(display) );
+}
+
+
+bool dimValuesInInt( const uiString& key, bool dim0 ) const override
+{
+    return dim0 && key == dimName( true );
+}
 
 protected:
 
@@ -1140,8 +1178,8 @@ void uiStratSimpleLayerModelDisp::updateSelSeqAuxData()
 
     StepInterval<double> yrg = fvdp_->posData().range( false );
     selseqad_->poly_.erase();
-    selseqad_->poly_ += FlatView::Point( mCast(double,selseqidx_+1), yrg.start_);
-    selseqad_->poly_ += FlatView::Point( mCast(double,selseqidx_+1), yrg.stop_ );
+    selseqad_->poly_ += FlatView::Point( mCast(double,selseqidx_+1),yrg.start_);
+    selseqad_->poly_ += FlatView::Point( mCast(double,selseqidx_+1),yrg.stop_ );
 }
 
 
@@ -1244,7 +1282,8 @@ void uiStratSimpleLayerModelDisp::updateLayerAuxData()
     const bool isallcontents = cntnm == sKey::All();
     Interval<float> vrg( curproprg_ );
     if ( mIsZero(vrg.width(),
-                 Math::Abs(vrg.start_)>1e-6f ? Math::Abs(vrg.start_)*1e-6f : 1e-9f) )
+		 Math::Abs(vrg.start_)>1e-6f ? Math::Abs(vrg.start_)*1e-6f
+					     : 1e-9f) )
     { vrg.start_ -= 1.f; vrg.stop_ += 1.f; }
 
     const float vwdth = vrg.width();
@@ -1364,7 +1403,8 @@ void uiStratSimpleLayerModelDisp::updateDataPack()
     const Strat::LayerModel& lm = layerModel();
     const int nrseqs = lm.size();
 
-    const StepInterval<double> zrg( zrg_.start_, zrg_.stop_, zrg_.width() * 0.2 );
+    const StepInterval<double> zrg( zrg_.start_, zrg_.stop_,
+				    zrg_.width() * 0.2 );
     fvdp_->posData().setRange( true,
 			StepInterval<double>( 1, nrseqs<2 ? 1 : nrseqs, 1 ) );
     fvdp_->posData().setRange( false, zrg );

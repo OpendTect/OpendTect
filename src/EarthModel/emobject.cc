@@ -134,7 +134,7 @@ EMObject::EMObject( EMManager& emm )
 	*new MarkerStyle3D(MarkerStyle3D::Cube,2,OD::Color::White()))
     , posattribmarkerstyle_(*new MarkerStyle3D(MarkerStyle3D::Cube,2,
 			    preferredcolor_.complementaryColor()))
-    , zdominfo_(new ZDomain::Info(SI().zDomainInfo()))
+    , zdominfo_(&SI().zDomainInfo())
 {
     mDefineStaticLocalObject( Threads::Atomic<int>, oid, (0) );
     id_.set( oid++ );
@@ -156,7 +156,6 @@ EMObject::~EMObject()
     delete &preferredlinestyle_;
     delete &preferredmarkerstyle_;
     delete &posattribmarkerstyle_;
-    delete zdominfo_;
 
     id_.set( -2 );	//To check easier if it has been deleted
 }
@@ -182,17 +181,16 @@ void EMObject::setNewName()
 
 const UnitOfMeasure* EMObject::zUnit() const
 {
-    return UnitOfMeasure::zUnit( *zdominfo_, true );
+    return UnitOfMeasure::zUnit( zDomain(), true );
 }
 
 
 EMObject& EMObject::setZDomain( const ZDomain::Info& zinfo )
 {
-    if ( (!zinfo.isTime() && !zinfo.isDepth()) || zinfo == zDomain() )
+    if ( (!zinfo.isTime() && !zinfo.isDepth()) || &zinfo == &zDomain() )
 	return *this;
 
-    delete zdominfo_;
-    zdominfo_ = new ZDomain::Info( zinfo );
+    zdominfo_ = &zinfo;
     return *this;
 }
 
@@ -806,11 +804,9 @@ bool EMObject::usePar( const IOPar& par )
 	}
     }
 
-    const ZDomain::Info* dominfo = ZDomain::get( par );
+    const ZDomain::Info* dominfo = ZDomain::Info::getFrom( par );
     if ( dominfo )
-    {
 	setZDomain( *dominfo );
-    }
 
     return true;
 }
@@ -847,7 +843,7 @@ void EMObject::fillPar( IOPar& par ) const
     }
 
     par.set( nrposattrstr(), keyid );
-    zdominfo_->fillPar( par );
+    zDomain().fillPar( par );
 }
 
 
@@ -991,7 +987,7 @@ Interval<float> EMObject::getZRange( bool docompute ) const
 
 bool EMObject::isZInDepth() const
 {
-    return zdominfo_->isDepth();
+    return zDomain().isDepth();
 }
 
 } // namespace EM

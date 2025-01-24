@@ -47,6 +47,7 @@ public:
     const char*		symbol() const		{ return symbol_.buf(); }
     const char*		getLabel() const;
 			//!< Symbol or name if no symbol, for IOPar I/O
+    uiString		getUiLabel(bool symbol=true,bool withparens=true) const;
     PropType		propType(int idx=0) const;
     int			nrTypes() const		{ return proptypes_.size(); }
     const LinScaler&	scaler() const		{ return scaler_; }
@@ -89,6 +90,10 @@ public:
     static const UnitOfMeasure* surveyDefOffsetUnit();
 				/*!<Default offset unit for real datasets (m,ft)
 				    Not used for synthetic gathers */
+    static const UnitOfMeasure* surveyDefAzimuthUnit();
+				/*!<Default offset unit for real datasets
+				    (radians,degrees).
+				    Not used for synthetic gathers */
     static const UnitOfMeasure* surveyDefXYUnit();
 				/*!<Default X,Y unit (m,ft)*/
     static const UnitOfMeasure* secondsUnit();
@@ -99,6 +104,8 @@ public:
     static const UnitOfMeasure* feetSecondUnit();
     static const UnitOfMeasure* radiansUnit();
     static const UnitOfMeasure* degreesUnit();
+    static const UnitOfMeasure* offsetUnit(Seis::OffsetType);
+    static const UnitOfMeasure* angleUnit(OD::AngleType);
     static const UnitOfMeasure* zUnit(const ZDomain::Info&,bool storage=true);
 
     static uiString	surveyDefZUnitAnnot(bool symbol,bool withparens);
@@ -214,6 +221,22 @@ private:
 
 };
 
+
+namespace Seis
+{
+
+mGlobal(General) bool getGatherCorrectedYN(const IOPar&,bool& yn);
+mGlobal(General) bool getOffsetType(const IOPar&,Seis::OffsetType&);
+mGlobal(General) bool getAzimuthType(const IOPar&,OD::AngleType&);
+
+mGlobal(General) void setGathersAreCorrected(bool yn,IOPar&);
+mGlobal(General) void setGatherOffsetType(Seis::OffsetType,IOPar&);
+mGlobal(General) void setGatherAzimuthType(OD::AngleType,IOPar&);
+
+mGlobal(General) const char* sKeyOffsetUnit();
+mGlobal(General) const char* sKeyAzimuthUnit();
+
+} // namespace Seis
 
 
 template <class T> inline T UnitOfMeasure::internalValue( T inp ) const

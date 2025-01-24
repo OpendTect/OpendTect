@@ -33,7 +33,7 @@ const ZDomain::Info& flattenedZDomain()
 {
     IOPar flatiop;
     flatiop.set( ZDomain::sKey(), getZDom().key() );
-    return *ZDomain::get( flatiop );
+    return *ZDomain::Info::getFrom( flatiop );
 }
 
 

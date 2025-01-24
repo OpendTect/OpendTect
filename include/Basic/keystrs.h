@@ -46,6 +46,7 @@ namespace sKey
     inline StringView Components()	{ return "Components"; }
     inline StringView Content()		{ return "Content"; }
     inline StringView CoordSys()	{ return "Coordinate System"; }
+    inline StringView Coordinate()	{ return "Coordinate"; }
     inline StringView CrlRange()	{ return "Cross-line range"; }
     inline StringView Crossline()	{ return "Cross-line"; }
     inline StringView Cube()		{ return "Cube"; }
@@ -236,12 +237,14 @@ namespace sKey
     inline StringView Well()		{ return "Well"; }
     inline StringView X()		{ return "X"; }
     inline StringView XCoord()		{ return "X-Coord"; }
+    inline StringView XCoordinate()	{ return "X-coordinate"; }
     inline StringView XCoords()		{ return "X-Coords"; }
     inline StringView XOffset()		{ return "X Offset"; }
     inline StringView XRange()		{ return "X range"; }
     inline StringView Y()		{ return "Y"; }
     inline StringView Y2()		{ return "Y2"; }
     inline StringView YCoord()		{ return "Y-Coord"; }
+    inline StringView YCoordinate()	{ return "Y-coordinate"; }
     inline StringView YCoords()		{ return "Y-Coords"; }
     inline StringView YOffset()		{ return "Y Offset"; }
     inline StringView YRange()		{ return "Y range"; }

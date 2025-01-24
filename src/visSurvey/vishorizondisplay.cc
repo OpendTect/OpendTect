@@ -23,6 +23,7 @@ ________________________________________________________________________
 #include "emobjectposselector.h"
 #include "emsurfaceauxdata.h"
 #include "isocontourtracer.h"
+#include "keystrs.h"
 #include "mpeengine.h"
 #include "posvecdataset.h"
 #include "settings.h"
@@ -1133,8 +1134,9 @@ void HorizonDisplay::createDisplayDataPacks(
 
     RefObjectSet<MapDataPack> datapacks;
     const char* catnm = "Horizon Data";
-    BufferStringSet dimnames;
-    dimnames.add("X").add("Y").add("In-line").add("Cross-line");
+    uiStringSet dimnames;
+    dimnames.add( uiStrings::sXcoordinate() ).add( uiStrings::sYcoordinate() )
+	    .add( uiStrings::sInline() ).add( uiStrings::sCrossline() );
 
     for ( int idx=0; idx<nrversions; idx++ )
     {
@@ -1152,6 +1154,10 @@ void HorizonDisplay::createDisplayDataPacks(
 	    mapdp->setName( as->userRef() );
 
 	mapdp->setProps( inlrg, crlrg, true, &dimnames );
+	mapdp->setZDomain( data->zDomain() );
+	if ( StringView(as->userRef())==sKeyZValues() )
+	    mapdp->setZVal( -mUdf(double) );
+
 	datapacks.add( mapdp.ptr() );
     }
 

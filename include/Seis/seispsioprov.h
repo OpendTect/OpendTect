@@ -112,17 +112,11 @@ public:
     static const char*		sKeyCubeID;
 
     static const UnitOfMeasure* offsetUnit(const IOObj*,bool& isfound);
-    static const UnitOfMeasure* offsetUnit(Seis::OffsetType);
-    static bool			getGatherOffsetType(const IOPar&,
-						    Seis::OffsetType&);
-    static bool			getGatherCorrectedYN(const IOPar&,bool& yn);
+    static const UnitOfMeasure* azimuthUnit(const IOObj*,bool& isfound);
 
-    static void			setGatherOffsetType(Seis::OffsetType,IOPar&);
-    static bool			setGatherOffsetType(Seis::OffsetType,IOObj&);
-    static void			setGathersAreCorrected(bool yn,IOPar&);
     static bool			setGathersAreCorrected(bool yn,IOObj&);
-
-    static const char*		sKeyOffsetUnit() { return "Offset-Unit"; }
+    static bool			setGatherOffsetType(Seis::OffsetType,IOObj&);
+    static bool			setGatherAzimuthType(OD::AngleType,IOObj&);
 
 protected:
 

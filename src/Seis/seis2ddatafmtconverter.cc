@@ -388,9 +388,9 @@ BufferString OD_2DLineSetTo2DDataSetConverter::getAttrFolderPath(
 	if ( iop.get(sKey::DataType(),datatype) && !datatype.isEmpty() )
 	    ctio.ctxt_.requireType( datatype );
 
-	const ZDomain::Info* zinfo = ZDomain::get( iop );
+	const ZDomain::Info* zinfo = ZDomain::Info::getFrom( iop );
 	if ( zinfo )
-	    ctio.ctxt_.requireZDomain( *zinfo, *zinfo == SI().zDomainInfo() );
+	    ctio.ctxt_.requireZDomain( *zinfo, zinfo == &SI().zDomainInfo() );
     }
 
     BufferString attribnm = iop.find( sKey::Attribute() );

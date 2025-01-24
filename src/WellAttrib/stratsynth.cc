@@ -1892,10 +1892,11 @@ ConstRefMan<SyntheticData> StratSynth::DataMgr::generateDataSet(
 		const Seis::OffsetType offstyp = SI().xyInFeet()
 				    ? Seis::OffsetType::OffsetFeet
 				    : Seis::OffsetType::OffsetMeter;
+		const OD::AngleType azityp = OD::AngleType::Degrees;
 		const ZDomain::DepthType depthtype = SI().depthType();
 		refmodels = Seis::RaySynthGenerator::getRefModels( elmdls,
 					    *sgp.reflPars(), msg, taskrun,
-					    srd, offstyp, depthtype );
+					    srd, offstyp, azityp, depthtype );
 	    }
 	    if ( !refmodels )
 		return nullptr;
@@ -2077,7 +2078,8 @@ ConstRefMan<SyntheticData> StratSynth::DataMgr::genPSPostProcDataSet(
 
     auto* retdp = new SeisTrcBufDataPack( tbuf.release(), Seis::Line,
 				SeisTrcInfo::TrcNr,
-				PostStackSyntheticData::sDataPackCategory() );
+				PostStackSyntheticData::sDataPackCategory(),
+				ZDomain::TWT() );
 
     ConstRefMan<SyntheticData> ret;
     if ( isanglestack )
@@ -2269,7 +2271,8 @@ bool doPrepare( int /* nrthreads */ ) override
 	SeisTrcBuf* trcbuf = trcbufs[iprop];
 	auto* seisbuf =
 	    new SeisTrcBufDataPack( trcbuf, Seis::Line, SeisTrcInfo::TrcNr,
-				  PostStackSyntheticData::sDataPackCategory() );
+				  PostStackSyntheticData::sDataPackCategory(),
+				  ZDomain::TWT() );
 	seisbufdps_.add( seisbuf );
     }
 
@@ -2988,7 +2991,8 @@ ConstRefMan<SyntheticData> StratSynth::DataMgr::createFiltered(
 
     auto* dpname = new SeisTrcBufDataPack( seistrcbuf, Seis::Line,
 					   SeisTrcInfo::TrcNr,
-			       PostStackSyntheticData::sDataPackCategory() );
+				PostStackSyntheticData::sDataPackCategory(),
+				ZDomain::TWT() );
 
     ConstRefMan<SyntheticData> ret = new FilteredSyntheticData(
 							synthgenpar,
@@ -3014,8 +3018,9 @@ ConstRefMan<SyntheticData> StratSynth::DataMgr::createAttribute(
     }
 
     auto* dpname = new SeisTrcBufDataPack( seistrcbufs[0],
-				 Seis::Line, SeisTrcInfo::TrcNr,
-				 PostStackSyntheticData::sDataPackCategory() );
+				Seis::Line, SeisTrcInfo::TrcNr,
+				PostStackSyntheticData::sDataPackCategory(),
+				ZDomain::TWT() );
 
     ConstRefMan<SyntheticData> ret =
 	new InstAttributeSyntheticData( synthgenpar, pssd.synthGenDP(),
@@ -3083,8 +3088,9 @@ bool StratSynth::DataMgr::ensureInstantAttribsDataSet(
 
 	const SynthGenParams& sgp = *retsgp;
 	auto* dpname = new SeisTrcBufDataPack( seistrcbufs[idx],
-				 Seis::Line, SeisTrcInfo::TrcNr,
-				 PostStackSyntheticData::sDataPackCategory() );
+				Seis::Line, SeisTrcInfo::TrcNr,
+				PostStackSyntheticData::sDataPackCategory(),
+				ZDomain::TWT() );
 	ConstRefMan<SyntheticData> sd =
 	    new InstAttributeSyntheticData( sgp, insd->synthGenDP(), *dpname );
 	if ( sd )

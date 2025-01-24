@@ -90,30 +90,30 @@ public:
 protected:
 
     uiGraphicsScene*	scene_;
-    uiTextItem*		nameitm_;
-    uiTextItem*		endannotitm_;
-    uiLineItem*		axislineitm_;
+    uiTextItem*		nameitm_	= nullptr;
+    uiTextItem*		endannotitm_	= nullptr;
+    uiLineItem*		axislineitm_	= nullptr;
 
     StepInterval<float> datarg_;
-    float		annotstart_;
+    float		annotstart_	= 0.f;
     uiBorder		border_;
     int			ticsz_;
     int			height_;
     int			width_;
     int			reqnrchars_;
-    const uiAxisHandler* beghndlr_;
-    const uiAxisHandler* endhndlr_;
+    const uiAxisHandler* beghndlr_	= nullptr;
+    const uiAxisHandler* endhndlr_	= nullptr;
 
     int			pxsizeinotherdir_;
     uiAHPlotAnnotSet&	annots_;
     TypeSet<PlotAnnotation> auxannots_;
     float		endpos_;
-    int			devsz_;
-    int			axsz_;
+    int			devsz_		= 0;
+    int			axsz_		= 0;
     bool		rgisrev_;
-    bool		ynmtxtvertical_;
+    bool		ynmtxtvertical_ = false;
     float		rgwidth_;
-    float		epsilon_;
+    float		epsilon_	= 1e-5f;
     StepInterval<float> annotrg_;
     int			nrsteps_;
 

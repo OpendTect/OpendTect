@@ -14,6 +14,7 @@ ________________________________________________________________________
 #include "randcolor.h"
 #include "settings.h"
 #include "survinfo.h"
+#include "uistrings.h"
 #include "zaxistransform.h"
 
 #define mNrExtraZDec 3
@@ -47,7 +48,7 @@ const char* DataDispPars::sKeyOverlap()  { return "Overlap"; }
 const char* DataDispPars::sKeySymMidValue()  { return "Sym Mid value"; }
 const char* DataDispPars::sKeyRefLineValue() { return "Ref Line value"; }
 
-const char* Viewer::sKeyIsZSlice() { return "isZSlice"; };
+const char* Viewer::sKeyDefCategory() { return "General"; };
 const char* Viewer::sKeyWVAData() { return "Wiggle/VA data"; };
 const char* Viewer::sKeyVDData() { return "Variable density data"; };
 const char* Viewer::sKeyWVAVal() { return "WVA Value"; };
@@ -253,8 +254,8 @@ int FlatView::Annotation::AxisData::auxPosIdx( float atpos, float eps ) const
 FlatView::Annotation::Annotation( bool drkbg )
     : color_(drkbg ? OD::Color::White() :OD:: Color::Black())
 {
-    x1_.name_ = "X1";
-    x2_.name_ = "X2";
+    x1_.name_ = uiStrings::sX1();
+    x2_.name_ = uiStrings::sX2();
 }
 
 
@@ -516,7 +517,6 @@ FlatView::Viewer& vwr_;
 FlatView::Viewer::Viewer()
     : cbrcvr_(new FlatView_CB_Rcvr(*this))
     , dpm_(DPM(DataPackMgr::FlatID()))
-    , zdinfo_(new ZDomain::Info(ZDomain::SI()))
 {
     dpm_.packToBeRemoved.notifyIfNotNotified(
 			    mCB(cbrcvr_,FlatView_CB_Rcvr,theCB) );
@@ -530,7 +530,6 @@ FlatView::Viewer::~Viewer()
     delete cbrcvr_;
 
     unRefPtr( datatransform_ );
-    delete zdinfo_;
 }
 
 
@@ -544,25 +543,39 @@ bool FlatView::Viewer::setZAxisTransform( ZAxisTransform* zat )
 }
 
 
-void FlatView::Viewer::setZDomain( const ZDomain::Def& zdef )
+void FlatView::Viewer::setZDomain( const ZDomain::Info& zinfo, bool display )
 {
-    delete zdinfo_;
-    zdinfo_ = new ZDomain::Info( zdef );
+    if ( display )
+	displayzdinfo_ = &zinfo;
+    else
+	zdinfo_ = &zinfo;
 }
 
 
-const ZDomain::Info& FlatView::Viewer::zDomain() const
+const ZDomain::Info* FlatView::Viewer::zDomain( bool display ) const
 {
-    return datatransform_ ? datatransform_->toZDomainInfo()
-			  : *zdinfo_;
+    if ( display && displayzdinfo_ )
+    {
+	if ( datatransform_ )
+	{
+	    const ZDomain::Info& transzinfo = datatransform_->zDomain( false );
+	    if ( transzinfo.isDepth() )
+		return SI().depthsInFeet() ? &ZDomain::DepthFeet()
+					   : &ZDomain::DepthMeter();
+
+	    return &transzinfo;
+	}
+
+	return displayzdinfo_;
+    }
+
+    return datatransform_ ? &datatransform_->zDomain( false )
+			  : zdinfo_;
 }
 
 
 void FlatView::Viewer::getAuxInfo( const Point& pt, IOPar& iop ) const
 {
-    BufferString txt( appearance().annot_.x1_.name_ );
-    txt += " vs "; txt += appearance().annot_.x2_.name_;
-    iop.set( "Positioning", txt );
     addAuxInfo( true, pt, iop );
     addAuxInfo( false, pt, iop );
 }
@@ -589,30 +602,72 @@ void FlatView::Viewer::addAuxInfo( bool iswva, const Point& pt,
     const IndexInfo ix = pd.indexInfo( true, pt.x_ );
     const IndexInfo iy = pd.indexInfo( false, pt.y_ );
 
-    if ( !info.validPos(ix.nearest_, iy.nearest_) )
+    if ( !info.validPos(ix.nearest_,iy.nearest_) )
 	return;
 
     const float val = arr.get( ix.nearest_, iy.nearest_ );
     iop.set( iswva ? sKeyWVAVal() : sKeyVDVal(), val );
     dp->getAuxInfo( ix.nearest_, iy.nearest_, iop );
-    bool isvertical = false;
-    iop.getYN( sKeyIsZSlice(), isvertical );
-    if ( isvertical )
-    {
-	int nrdec = nrDec();
-	iop.get( sKeyViewZnrDec(), nrdec );
-	BufferString zstr;
-        zstr.set( mCast(float,pt.y_*zDomain().userFactor()), nrdec );
-	iop.set( sKey::ZCoord(), zstr );
-    }
 }
 
 
-int FlatView::Viewer::nrDec() const
+bool FlatView::Viewer::isVertical() const
 {
-    const float zstep = SI().zStep() * SI().zDomain().userFactor();
-    if ( zstep > 1 ) return 0;
-    return Math::NrSignificantDecimals( zstep ) + 1;
+    const bool usewva = !isVisible( false );
+    const WeakPtr<FlatDataPack> datapack = getPack( usewva, true );
+    if ( !datapack )
+	return true;
+
+    ConstRefMan<FlatDataPack> fdp = datapack.get();
+    return fdp ? fdp->isVertical() : true;
+}
+
+
+float FlatView::Viewer::annotUserFactor( bool x2 ) const
+{
+    if ( !x2 )
+	return 1.f;
+
+    const ZDomain::Info* datazdom = zDomain( false );
+    const ZDomain::Info* displayzdom = zDomain( true );
+    return datazdom ? userFactor( *datazdom, displayzdom ) : 1.f;
+}
+
+
+int FlatView::Viewer::nrXYDec() const
+{
+    return SI().nrXYDecimals();
+}
+
+
+int FlatView::Viewer::nrZDec() const
+{
+    const ZDomain::Info* datazdom = zDomain( false );
+    const ZDomain::Info* displayzdom = zDomain( true );
+    return nrDec( displayzdom ? *displayzdom
+			      : (datazdom ? *datazdom : SI().zDomainInfo()) );
+}
+
+
+int FlatView::Viewer::nrDec( const ZDomain::Info& zdom )
+{
+    return zdom.nrDecimals( mUdf(float) );
+}
+
+
+float FlatView::Viewer::userFactor( const ZDomain::Info& datazdom,
+				    const ZDomain::Info* displayzdom )
+{
+    if ( !displayzdom || displayzdom == &datazdom || !datazdom.isDepth() )
+	return mCast(float,datazdom.userFactor());
+
+    float userfac = mCast(float,displayzdom->userFactor());
+    if ( displayzdom->isDepthMeter() )
+	userfac *= mFromFeetFactorF;
+    else if ( displayzdom->isDepthFeet() )
+	userfac *= mToFeetFactorF;
+
+    return userfac;
 }
 
 
@@ -667,6 +722,67 @@ void FlatView::Viewer::removeAuxDatas( ObjectSet<AuxData>& ads )
 	if ( !ismanaged ) delete ad;
     }
     ads.erase();
+}
+
+
+bool FlatView::Viewer::setAnnotChoiceByIdx( int sel, bool dim0 )
+{
+    ConstRefMan<FlatDataPack> fdp = getPack( false, true ).get();
+    if ( !fdp )
+	return false;
+
+    FlatView::Annotation::AxisData& axisdata = dim0 ? appearance().annot_.x1_
+						    : appearance().annot_.x2_;
+    uiStringSet altdimkeys, altdimunitlbls;
+    fdp->getAltDimKeys( altdimkeys, dim0 );
+    fdp->getAltDimKeysUnitLbls( altdimunitlbls, dim0 );
+    axisdata.name_ = altdimkeys.validIdx(sel) ? altdimkeys.get( sel )
+					      : fdp->dimName( dim0 );
+    axisdata.annotinint_ = fdp->dimValuesInInt( axisdata.name_, dim0 );
+    axisdata.altdim_ = altdimkeys.isPresent( axisdata.name_ )
+		     ? altdimkeys.indexOf( axisdata.name_ ) : sel;
+
+    const uiString unitlbl = altdimunitlbls.validIdx(sel)
+			   ? altdimunitlbls.get( sel )
+			   : fdp->dimUnitLbl( dim0, true );
+    if ( !unitlbl.isEmpty() )
+	axisdata.name_.appendPhrase( unitlbl, uiString::Space,
+				     uiString::OnSameLine );
+
+    return true;
+}
+
+
+bool FlatView::Viewer::setAnnotChoice( const uiString& annotnm, bool dim0 )
+{
+    uiStringSet nms;
+    getAnnotChoices( nms, dim0 );
+    const int annotidx = nms.indexOf( annotnm );
+    return setAnnotChoiceByIdx( annotidx, dim0 );
+}
+
+
+int FlatView::Viewer::getAnnotChoices( uiStringSet& ss, bool dim0 ) const
+{
+    ConstRefMan<FlatDataPack> fdp = getPack( false, true ).get();
+    if ( fdp )
+	fdp->getAltDimKeys( ss, dim0 );
+
+    const uiString firstdimnm = fdp->dimName( dim0 );
+    if ( !ss.isEmpty() && !ss.isPresent(firstdimnm) )
+	{ pErrMsg("Should not happen"); }
+
+    const uiString& xuinm = dim0 ? appearance().annot_.x1_.name_
+				 : appearance().annot_.x2_.name_;
+    const BufferString xnm = xuinm.getString();
+    for ( int idx=0; idx<ss.size(); idx++ )
+    {
+	const BufferString optstr = ss.get(idx).getString();
+	if ( xnm.startsWith(optstr) )
+	    return idx;
+    }
+
+    return -1;
 }
 
 
@@ -767,18 +883,11 @@ void FlatView::Viewer::setPack( VwrDest dest, FlatDataPack* fdp,
 	useStoredDefaults( fdp->category() );
 
     FlatView::Annotation& annot = appearance().annot_;
-    if ( annot.x1_.name_.isEmpty() || annot.x1_.name_ == "X1" )
-    {
-	annot.x1_.name_ = fdp->dimName( true );
-	BufferStringSet altdimnms; fdp->getAltDim0Keys( altdimnms );
-	setAnnotChoice( altdimnms.indexOf(annot.x1_.name_) );
-    }
+    if ( annot.x1_.name_.isEmpty() || annot.x1_.name_ == uiStrings::sX1() )
+	setAnnotChoiceByIdx( -1, true );
 
-    if ( annot.x2_.name_.isEmpty() || annot.x2_.name_ == "X2" )
-    {
-	annot.x2_.name_ = fdp->dimName( false );
-	annot.x2_.annotinint_ = fdp->dimValuesInInt( annot.x2_.name_ );
-    }
+    if ( annot.x2_.name_.isEmpty() || annot.x2_.name_ == uiStrings::sX2() )
+	setAnnotChoiceByIdx( -1, false );
 
     handleChange( BitmapData );
 }
@@ -845,8 +954,9 @@ bool FlatView::Viewer::setVisible( VwrDest dest, bool visibility,
 void FlatView::Viewer::storeDefaults( const char* ky ) const
 {
     Settings& setts = Settings::fetch( "flatview" );
-    IOPar iop; fillAppearancePar( iop );
-    setts.mergeComp( iop, ky );
+    IOPar iop;
+    fillAppearancePar( iop );
+    setts.mergeComp( iop, ky ? ky : sKeyDefCategory() );
     setts.write();
 }
 
@@ -854,10 +964,12 @@ void FlatView::Viewer::storeDefaults( const char* ky ) const
 void FlatView::Viewer::useStoredDefaults( const char* ky )
 {
     Settings& setts = Settings::fetch( "flatview" );
-    IOPar* iop = setts.subselect( ky );
+    PtrMan<IOPar> iop = setts.subselect( ky );
+    if ( !iop || iop->isEmpty() )
+	iop = setts.subselect( sKeyDefCategory() );
+
     if ( iop && iop->size() )
 	useAppearancePar( *iop );
-    delete iop;
 }
 
 
