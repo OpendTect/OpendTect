@@ -456,18 +456,30 @@ int getFreeMBOnDisk( const IOObj& ioobj )
 
 void getFreeMBOnDiskMsg( int mb, uiString& str )
 {
+    str = od_static_tr( "getFreeMBOnDiskMsg",
+			"Free space on disk: %1");
+    if ( mIsUdf(mb) )
+    {
+	str.arg( "unknown" );
+	return;
+    }
+
     od_uint64 bytes = mb;
     bytes <<= 20;
     NrBytesToStringCreator converter( bytes );
-    str = od_static_tr( "getFreeMBOnDiskMsg",
-			"Free space on disk: %1")
-	.arg( converter.getString( bytes ) );
+    str.arg( converter.getString( bytes ) );
 }
 
 
 void getFreeMBOnDiskMsg( int mb, BufferString& bs )
 {
     bs = "Free space on disk: ";
+    if ( mIsUdf(mb) )
+    {
+	bs.add( "unknown" );
+	return;
+    }
+
     od_uint64 bytes = mb;
     bytes <<= 20;
     NrBytesToStringCreator converter( bytes );
