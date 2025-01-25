@@ -463,7 +463,7 @@ void uiODViewer2D::createViewWin( bool isvert, bool needslicepos )
 					.initialx2pospercm(initialx2pospercm)
 					.initialcentre(initialcentre_)
 					.withscalebarbut(true)
-					.managecoltab(!tifs_) );
+					.managecoltab(true) );
     mAttachCB( mainvwr.dispPropChanged, uiODViewer2D::dispPropChangedCB );
     mAttachCB( viewstdcontrol_->infoChanged, uiODViewer2D::mouseMoveCB );
     if ( viewstdcontrol_->editPushed() )
