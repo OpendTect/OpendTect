@@ -21,7 +21,8 @@ class uiColorTableToolBar;
 mExpClass(uiFlatView) uiFlatViewColTabEd : public CallBacker
 {
 public:
-			uiFlatViewColTabEd(uiColorTableToolBar&);
+			uiFlatViewColTabEd(uiColorTableToolBar&,
+					   bool enabmanage);
 			~uiFlatViewColTabEd();
 
     void		setColTab(const FlatView::DataDispPars::VD&);

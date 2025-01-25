@@ -13,11 +13,12 @@ ________________________________________________________________________
 #include "uicolortable.h"
 
 
-uiFlatViewColTabEd::uiFlatViewColTabEd( uiColorTableToolBar& ctab )
+uiFlatViewColTabEd::uiFlatViewColTabEd( uiColorTableToolBar& ctab,
+					bool enabmanage )
     : colTabChgd(this)
     , uicoltab_(ctab)
 {
-    uicoltab_.enableManage( false );
+    uicoltab_.enableManage( enabmanage );
     mAttachCB( uicoltab_.seqChanged, uiFlatViewColTabEd::colTabChanged );
     mAttachCB( uicoltab_.scaleChanged, uiFlatViewColTabEd::colTabChanged );
 }
