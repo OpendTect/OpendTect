@@ -818,7 +818,7 @@ RefMan<RegularSeisDataPack> uiAttribPartServer::createOutputRM(
 	    cache = nullptr;
 
 	const bool isz = tkzs.isFlat()&&tkzs.defaultDir() == TrcKeyZSampling::Z;
-	if ( !preloadeddatapack && isz )
+	if ( !preloadeddatapack )
 	{
 	    if ( targetdesc->isStored() )
 	    {
@@ -836,20 +836,23 @@ RefMan<RegularSeisDataPack> uiAttribPartServer::createOutputRM(
 		    return sdp;
 	    }
 
-	    uiString errmsg;
-	    Desc* nonconsttargetdesc = const_cast<Desc*>( targetdesc );
-	    RefMan<Provider> tmpprov =
-			Provider::create( *nonconsttargetdesc, errmsg );
-	    if ( !tmpprov )
-		return nullptr;
+	    if ( isz )
+	    {
+		uiString errmsg;
+		Desc* nonconsttargetdesc = const_cast<Desc*>( targetdesc );
+		RefMan<Provider> tmpprov =
+			    Provider::create( *nonconsttargetdesc, errmsg );
+		if ( !tmpprov )
+		    return nullptr;
 
-	    tmpprov->computeRefStep();
-	    tmpprov->computeRefZ0();
-	    const float floatres = (tkzs.zsamp_.start - tmpprov->getRefZ0()) /
-				    tmpprov->getRefStep();
-	    const int intres = mNINT32( floatres );
-	    if ( Math::Abs(floatres-intres) > 1e-2 )
-		atsamplepos = false;
+		tmpprov->computeRefStep();
+		tmpprov->computeRefZ0();
+		const float fres = (tkzs.zsamp_.start - tmpprov->getRefZ0()) /
+					tmpprov->getRefStep();
+		const int intres = mNINT32( fres );
+		if ( Math::Abs(fres-intres) > 1e-2 )
+		    atsamplepos = false;
+	    }
 	}
     }
 

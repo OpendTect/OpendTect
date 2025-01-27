@@ -81,6 +81,7 @@ public:
     void		shareObject(SceneID,VisID);
     void		findObject(const std::type_info&,TypeSet<VisID>&);
     void		findObject(const MultiID&, TypeSet<VisID>& );
+    bool		findAttribObject(const DataPackID&,VisID&,int& attrnr);
     void		removeObject(visBase::DataObject*,SceneID);
     void		removeObject(VisID,SceneID);
     void		setUiObjectName(VisID,const uiString&);

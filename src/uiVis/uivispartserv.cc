@@ -486,6 +486,33 @@ void uiVisPartServer::findObject( const MultiID& mid, TypeSet<VisID>& res )
 }
 
 
+bool uiVisPartServer::findAttribObject( const DataPackID& dpid, VisID& visid,
+					int& attrnr )
+{
+    if ( !dpid.isValid() )
+	return false;
+
+    for ( int idx=visBase::DM().nrObjects()-1; idx>=0; idx-- )
+    {
+	const visBase::DataObject* datobj = visBase::DM().getIndexedObject(idx);
+	mDynamicCastGet( const visSurvey::SurveyObject*, survobj, datobj );
+	if ( !survobj )
+	    continue;
+
+	for ( int attridx=0; attridx<survobj->nrAttribs(); attridx++ )
+	{
+	    if ( survobj->getDataPackID(attridx) == dpid )
+	    {
+		visid = datobj->id();
+		attrnr = attridx;
+		return true;
+	    }
+	}
+    }
+
+    return false;
+}
+
 VisID uiVisPartServer::highestID() const
 {
     return visBase::DM().highestID();
