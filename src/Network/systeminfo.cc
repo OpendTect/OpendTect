@@ -427,6 +427,9 @@ const char* fileSystemType( const char* path )
 int getFreeMBOnDisk( const char* path )
 {
     const QStorageInfo storageinfo( path );
+    if ( !storageinfo.isReady() || !storageinfo.isValid() )
+	return mUdf(int);
+
     const od_int64 bytesavail = storageinfo.bytesAvailable();
     return (int)(bytesavail/1024/1024);
 }
@@ -448,18 +451,30 @@ int getFreeMBOnDisk( const IOObj& ioobj )
 
 void getFreeMBOnDiskMsg( int mb, uiString& str )
 {
+    str = od_static_tr( "getFreeMBOnDiskMsg",
+			"Free space on disk: %1");
+    if ( mIsUdf(mb) )
+    {
+	str.arg( "unknown" );
+	return;
+    }
+
     od_uint64 bytes = mb;
     bytes <<= 20;
     NrBytesToStringCreator converter( bytes );
-    str = od_static_tr( "getFreeMBOnDiskMsg",
-			"Free space on disk: %1")
-	.arg( converter.getString( bytes ) );
+    str.arg( converter.getString( bytes ) );
 }
 
 
 void getFreeMBOnDiskMsg( int mb, BufferString& bs )
 {
     bs = "Free space on disk: ";
+    if ( mIsUdf(mb) )
+    {
+	bs.add( "unknown" );
+	return;
+    }
+
     od_uint64 bytes = mb;
     bytes <<= 20;
     NrBytesToStringCreator converter( bytes );
