@@ -412,28 +412,29 @@ void uiODViewer2DMgr::displayIn2DViewer( VisID visid, int attribid,
 
 #define sEPSPixWidth 5.0f
 
-#define mGetAuxAnnotIdx \
-    uiODViewer2D* curvwr2d = find2DViewer( *meh ); \
-    if ( !curvwr2d ) return; \
-    uiFlatViewer& curvwr = curvwr2d->viewwin()->viewer( 0 ); \
-    const uiWorldPoint wp = curvwr.getWorld2Ui().transform(meh->event().pos());\
-    const Coord3 coord = curvwr.getCoord( wp );\
-    if ( coord.isUdf() ) return;\
-    const uiWorldPoint wperpixel = curvwr.getWorld2Ui().worldPerPixel(); \
-    const float x1eps  = mCast(float,wperpixel.x) * sEPSPixWidth; \
-    const int x1auxposidx = \
-	curvwr.appearance().annot_.x1_.auxPosIdx( mCast(float,wp.x), x1eps ); \
-    const float x2eps  = mCast(float,wperpixel.y) * sEPSPixWidth; \
-    const int x2auxposidx = \
-	curvwr.appearance().annot_.x2_.auxPosIdx( mCast(float,wp.y), x2eps );
-
 void uiODViewer2DMgr::mouseMoveCB( CallBacker* cb )
 {
     mDynamicCastGet(const MouseEventHandler*,meh,cb);
     if ( !meh || !meh->hasEvent() )
 	return;
 
-    mGetAuxAnnotIdx
+    uiODViewer2D* curvwr2d = find2DViewer( *meh );
+    if ( !curvwr2d )
+	return;
+
+    uiFlatViewer& curvwr = curvwr2d->viewwin()->viewer( 0 );
+    const uiWorldPoint wp = curvwr.getWorld2Ui().transform(meh->event().pos());
+    const Coord3 coord = curvwr.getCoord( wp );
+    if ( coord.isUdf() )
+	return;
+
+    const uiWorldPoint wperpixel = curvwr.getWorld2Ui().worldPerPixel();
+    const float x1eps  = mCast(float,wperpixel.x) * sEPSPixWidth;
+    const int x1auxposidx =
+	curvwr.appearance().annot_.x1_.auxPosIdx( mCast(float,wp.x), x1eps );
+    const float x2eps  = mCast(float,wperpixel.y) * sEPSPixWidth;
+    const int x2auxposidx =
+	curvwr.appearance().annot_.x2_.auxPosIdx( mCast(float,wp.y), x2eps );
 
     if ( !selauxannot_.isselected_ )
     {
