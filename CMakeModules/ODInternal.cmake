@@ -236,3 +236,47 @@ if ( NOT ${BUILDINSRC} )
 			    PATTERN "*.ico" PATTERN "*.rc" PATTERN "*.txt"
 			    EXCLUDE PATTERN CMakeFiles EXCLUDE )
 endif()
+
+if ( APPLE )
+
+	set(LIBRARY_DESTINATION "${CMAKE_BINARY_DIR}/Contents/Frameworks/debug")
+	file(MAKE_DIRECTORY ${LIBRARY_DESTINATION})
+
+	if (TARGET Freetype::Freetype)
+		get_target_property(FREETYPE_LIBRARY Freetype::Freetype IMPORTED_LOCATION)
+		get_filename_component(FREETYPE_LIB_NAME ${FREETYPE_LIBRARY} NAME)
+		add_custom_command(
+			OUTPUT ${LIBRARY_DESTINATION}/${FREETYPE_LIB_NAME}
+			COMMAND ${CMAKE_COMMAND} -E copy_if_different
+				${FREETYPE_LIBRARY} ${LIBRARY_DESTINATION}
+			COMMENT "Copying ${FREETYPE_LIB_NAME} to ${LIBRARY_DESTINATION}"
+		)
+		add_custom_target(CopyFreetype ALL DEPENDS ${LIBRARY_DESTINATION}/${FREETYPE_LIB_NAME})
+	endif()
+
+	if (TARGET PNG::PNG)
+		get_target_property(PNG_LIBRARY PNG::PNG IMPORTED_LOCATION)
+		get_filename_component(PNG_LIB_NAME ${PNG_LIBRARY} NAME)
+		add_custom_command(
+			OUTPUT ${LIBRARY_DESTINATION}/${PNG_LIB_NAME}
+			COMMAND ${CMAKE_COMMAND} -E copy_if_different
+				${PNG_LIBRARY} ${LIBRARY_DESTINATION}
+			COMMENT "Copying ${PNG_LIB_NAME} to ${LIBRARY_DESTINATION}"
+		)
+		add_custom_target(CopyPNG ALL DEPENDS ${LIBRARY_DESTINATION}/${PNG_LIB_NAME})
+	endif()
+
+	if (TARGET Fontconfig::Fontconfig)
+		get_target_property(FONTCONFIG_LIBRARY Fontconfig::Fontconfig IMPORTED_LOCATION)
+		get_filename_component(FONTCONFIG_LIB_NAME ${FONTCONFIG_LIBRARY} NAME)
+		add_custom_command(
+			OUTPUT ${LIBRARY_DESTINATION}/${FONTCONFIG_LIB_NAME}
+			COMMAND ${CMAKE_COMMAND} -E copy_if_different
+				${FONTCONFIG_LIBRARY} ${LIBRARY_DESTINATION}
+			COMMENT "Copying ${FONTCONFIG_LIB_NAME} to ${LIBRARY_DESTINATION}"
+		)
+		add_custom_target(CopyFontconfig ALL DEPENDS ${LIBRARY_DESTINATION}/${FONTCONFIG_LIB_NAME})
+	endif()
+
+	unset(LIBRARY_DESTINATION)
+endif()
