@@ -784,18 +784,18 @@ endif()
 
 if ( APPLE AND OD_MODULE_HAS_LIBRARY )
     if ( NOT "${OD_${OD_MODULE_NAME}_EXTERNAL_LIBS}" STREQUAL "" )
-        foreach(LIB ${OD_${OD_MODULE_NAME}_EXTERNAL_LIBS})
-			get_target_property(LIB_TYPE ${LIB} TYPE)
-			if(NOT LIB_TYPE STREQUAL "")
-				add_custom_command(TARGET ${OD_MODULE_NAME} POST_BUILD
-					COMMAND ${CMAKE_COMMAND} -E copy_if_different
-						"$<TARGET_SONAME_FILE:${LIB}>"
-						"$<TARGET_FILE_DIR:${OD_MODULE_NAME}>/"
-					COMMAND_EXPAND_LISTS
-					COMMENT "Copying ${LIB} symlink to Frameworks/Debug"
-				)
-			endif()
-		endforeach()				
+    foreach(LIB ${OD_${OD_MODULE_NAME}_EXTERNAL_LIBS})
+        get_target_property(LIB_TYPE ${LIB} TYPE)
+        if(NOT LIB_TYPE STREQUAL "")
+        add_custom_command(TARGET ${OD_MODULE_NAME} POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different
+            "$<TARGET_FILE:${LIB}>"
+            "$<TARGET_SONAME_FILE:${LIB}>"
+            "$<TARGET_FILE_DIR:${OD_MODULE_NAME}>/"
+        COMMAND_EXPAND_LISTS
+        COMMENT "Copying runtime libraries of the plugin ${OD_MODULE_NAME}")
+        endif()
+    endforeach()				
     endif()
 endif()
 
@@ -919,23 +919,6 @@ macro( ADD_TARGET_PROPERTIES TARGETNM )
 	target_link_options( ${TARGETNM} PRIVATE
 			     ${OD_MODULE_LINK_OPTIONS} )
     endif()
-
-	if(APPLE)
-		
-		set(RUNTIME_DIRS "")
-
-		foreach(tgt ${OD_MODULE_EXTERNAL_LIBS})            
-			list ( APPEND RUNTIME_DIRS $<TARGET_FILE_DIR:${tgt}> )
-		endforeach()
-
-		if ( NOT "${RUNTIME_DIRS}" STREQUAL "" ) 
-			list(REMOVE_DUPLICATES RUNTIME_DIRS)
-
-			set_target_properties(${OD_MODULE_NAME} PROPERTIES BUILD_RPATH "${RUNTIME_DIRS}")
-		endif()
-
-		unset(RUNTIME_DIRS)
-	endif()
 
 endmacro()
 
