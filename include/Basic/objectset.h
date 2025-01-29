@@ -51,6 +51,9 @@ public:
     inline void			setNullAllowed(bool yn=true);
     inline size_type		size() const		{ return vec_.size(); }
     inline od_int64		nrItems() const override { return size(); }
+    inline int			getCapacity() const;
+    inline bool			setCapacity(int sz,bool withmargin);
+				/*!<Allocates mem only, no size() change */
 
     inline bool			validIdx(od_int64) const override;
     inline virtual bool		isPresent(const T*) const;
@@ -370,9 +373,26 @@ void ObjectSet<T>::setNullAllowed( bool yn )
     }
 }
 
+
+template <class T> inline
+int ObjectSet<T>::getCapacity() const
+{
+    return vec_.getCapacity();
+}
+
+
+template <class T> inline
+bool ObjectSet<T>::setCapacity( int sz, bool withmargin )
+{
+    return vec_.setCapacity( sz, withmargin );
+}
+
+
 template <class T> inline
 bool ObjectSet<T>::validIdx( od_int64 vidx ) const
-{ return vidx>=0 && vidx<size(); }
+{
+    return vidx>=0 && vidx<size();
+}
 
 template <class T> inline
 T* ObjectSet<T>::get( idx_type vidx )
