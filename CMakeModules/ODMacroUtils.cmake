@@ -782,6 +782,24 @@ if ( WIN32 AND OD_MODULE_HAS_LIBRARY )
 
 endif()
 
+if ( APPLE AND OD_MODULE_HAS_LIBRARY )
+    set (ALL_OD_MODULE_EXTERNAL_LIBS ${OD_${OD_MODULE_NAME}_EXTERNAL_LIBS})
+    if ( NOT "${ALL_OD_MODULE_EXTERNAL_LIBS}" STREQUAL "" )
+    OD_MACOS_ADD_EXTERNAL_LIBS( "${ALL_OD_MODULE_EXTERNAL_LIBS}" )
+    foreach(LIB ${ALL_OD_MODULE_EXTERNAL_LIBS})
+        add_custom_command(TARGET ${OD_MODULE_NAME} POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different
+            "$<TARGET_FILE:${LIB}>"
+            "$<TARGET_SONAME_FILE:${LIB}>"
+            "$<TARGET_FILE_DIR:${OD_MODULE_NAME}>/"
+        COMMAND_EXPAND_LISTS
+        COMMENT "Copying runtime libraries of the plugin ${OD_MODULE_NAME}")
+    endforeach()				
+    endif()
+    unset(ALL_OD_MODULE_EXTERNAL_LIBS)
+endif()
+
+
 endmacro( OD_INIT_MODULE )
 
 # OD_GET_ALL_DEPS( MODULE LISTNAME ) - dumps all deps to MODULE into LISTNAME
