@@ -2603,3 +2603,64 @@ private:
 
     const od_int64		totalnr_;
 };
+
+
+/*!\brief Deletes the content of an ObjectSet using multiple threads */
+
+template <class T>
+mClass(Algo) ObjectSetDeleter : public ParallelTask
+{ mODTextTranslationClass(ObjectSetDeleter)
+public:
+			ObjectSetDeleter( ObjectSet<T>& vec, bool keepsz=false)
+			    : ParallelTask("ObjectSet eraser")
+			    , vec_(vec)
+			    , keepsz_(keepsz)
+			{
+			    vec_.setNullAllowed();
+			}
+			~ObjectSetDeleter() {}
+
+    void		setKeepSize( bool yn )	    { keepsz_ = yn; }
+
+    uiString		uiMessage() const override
+			{
+			    return tr("Deleting ObjectSet elements");
+			}
+    uiString		uiNrDoneText() const override
+			{
+			    return tr("Nr elements done");
+			}
+
+private:
+
+    od_int64		nrIterations() const override { return vec_.size(); }
+
+    bool		doWork( od_int64 start, od_int64 stop,
+				int /* ithread */ ) override
+			{
+			    const bool ismanaged = vec_.isManaged();
+			    if ( ismanaged )
+			    {
+				for ( int idx=start; idx<stop; idx++ )
+				    vec_.replace( idx, nullptr );
+			    }
+			    else
+			    {
+				for ( int idx=start; idx<stop; idx++ )
+				    delete vec_.replace( idx, nullptr );
+			    }
+
+			    return true;
+			}
+
+    bool		doFinish( bool success ) override
+			{
+			    if ( success && !keepsz_ )
+				vec_.setEmpty();
+
+			    return success;
+			}
+
+    ObjectSet<T>&	vec_;
+    bool		keepsz_;
+};
