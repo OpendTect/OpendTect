@@ -783,10 +783,10 @@ if ( WIN32 AND OD_MODULE_HAS_LIBRARY )
 endif()
 
 if ( APPLE AND OD_MODULE_HAS_LIBRARY )
-    if ( NOT "${OD_${OD_MODULE_NAME}_EXTERNAL_LIBS}" STREQUAL "" )
-    foreach(LIB ${OD_${OD_MODULE_NAME}_EXTERNAL_LIBS})
-        get_target_property(LIB_TYPE ${LIB} TYPE)
-        if(NOT LIB_TYPE STREQUAL "")
+    set (ALL_OD_MODULE_EXTERNAL_LIBS ${OD_${OD_MODULE_NAME}_EXTERNAL_LIBS})
+    if ( NOT "${ALL_OD_MODULE_EXTERNAL_LIBS}" STREQUAL "" )
+    OD_MACOS_ADD_EXTERNAL_LIBS( "${ALL_OD_MODULE_EXTERNAL_LIBS}" )
+    foreach(LIB ${ALL_OD_MODULE_EXTERNAL_LIBS})
         add_custom_command(TARGET ${OD_MODULE_NAME} POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy_if_different
             "$<TARGET_FILE:${LIB}>"
@@ -794,9 +794,9 @@ if ( APPLE AND OD_MODULE_HAS_LIBRARY )
             "$<TARGET_FILE_DIR:${OD_MODULE_NAME}>/"
         COMMAND_EXPAND_LISTS
         COMMENT "Copying runtime libraries of the plugin ${OD_MODULE_NAME}")
-        endif()
     endforeach()				
     endif()
+    unset(ALL_OD_MODULE_EXTERNAL_LIBS)
 endif()
 
 

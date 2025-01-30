@@ -495,51 +495,24 @@ macro( GET_OD_BASE_EXECUTABLES )
 endmacro()
 
 
-function(copy_target_libs library_target)
-    if(APPLE)
-	set(LIBRARY_DESTINATION "${CMAKE_BINARY_DIR}/${OD_LIBRARY_DIRECTORY}")
-	set(copy_target_name "copy_${library_target}")
-	string(REPLACE "::" "_" copy_target_name "${copy_target_name}")
-	
-	add_custom_target(${copy_target_name} ALL
-	COMMAND ${CMAKE_COMMAND} -E copy_if_different
-            "$<TARGET_FILE:${library_target}>"
-            "$<TARGET_SONAME_FILE:${library_target}>"
-            "${LIBRARY_DESTINATION}/"
-	COMMENT "Copying ${library_target} and SONAME to ${LIBRARY_DESTINATION}"
-	VERBATIM)
-	unset(LIBRARY_DESTINATION)
-	unset(copy_target_name)
-    endif()
-endfunction()
-
 function( add_fontconfig _var )
 
     set( _libs )
 
     if ( TARGET Fontconfig::Fontconfig )
 	list ( APPEND _libs Fontconfig::Fontconfig )
-	if (APPLE)
-	    copy_target_libs(Fontconfig::Fontconfig)
-	endif()
     else()
 	message( FATAL_ERROR "Required system library not found: libfontconfig" )
     endif()
 
     if ( TARGET Freetype::Freetype )
 	list ( APPEND _libs Freetype::Freetype )
-	if (APPLE)
-	    copy_target_libs(Freetype::Freetype)
-	endif()
     else()
 	message( FATAL_ERROR "Required system library not found: libfreetype" )
     endif()
 
     if ( TARGET PNG::PNG )
 	list ( APPEND _libs PNG::PNG )
-	if (APPLE)
-	    copy_target_libs(PNG::PNG)
-	endif()
 	if ( TARGET ZLIB::ZLIB )
 	    list ( APPEND _libs ZLIB::ZLIB )
 	endif()
