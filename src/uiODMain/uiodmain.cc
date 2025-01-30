@@ -741,7 +741,9 @@ void uiODMain::autoloadSessionCB( CallBacker* )
 void uiODMain::afterStartupCB( CallBacker* )
 {
     uiServiceClientMgr::setFor( *this );
-    checkUpdateAvailable();
+    const ODInst::AutoInstType ait = ODInst::getAutoInstType();
+    if ( ait != ODInst::NoAuto )
+	checkUpdateAvailable();
 }
 
 
