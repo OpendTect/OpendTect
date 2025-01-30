@@ -625,7 +625,8 @@ uiRetVal ServiceMgrBase::sendRequest_( const Network::Authority& auth,
     ConstRefMan<Network::RequestPacket> receivedpacket =
 		    conn.pickupPacket( packet->requestID(), 5000 );
     if ( !receivedpacket )
-	return uiRetVal(tr("Did not receive response from %1").arg(servicenm));
+	return uiRetVal(tr("No response from: %1 for request:\n %2")
+				    .arg(servicenm).arg(request.dumpJSon()));
 
     OD::JSON::Object response;
     uiRetVal uirv = receivedpacket->getPayload( response );
