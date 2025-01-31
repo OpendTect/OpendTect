@@ -59,6 +59,7 @@ MR: MuRho`Pressure-Weight`Lin`5`60`5`60`GPa.g/cm3`100`255`150
 PP: Pressure`Pressure`lin`0`200`0`200`bar`0`0`255`PRES
 CB: Compressibility Bulk`Compressibility`lin`0`0.002`0`0.1`1/GigaPascal`100`150`250`BT`Comp
 BMK: Bulk modulus`Pressure`lin`0`500`0`100`GPa`100`255`155`Incompressibility
+SMG: Shear modulus`Pressure`lin`0`500`0`100`GPa`100`255`155`Rigidity
 YME: Young's modulus`Pressure`lin`0`100`0`50`GPa`100`255`155`Young Modulus
 TWT: Two-way traveltime`Time`lin`````ms````Time
 OWT: One-way traveltime`Time`lin`````ms````
