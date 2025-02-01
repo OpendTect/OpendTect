@@ -191,6 +191,44 @@ static bool testBigVector()
 }
 
 
+static bool testDeleteArraySet()
+{
+    ObjectSet<Array3D<double> > arrayset;
+    ObjectSetDeleter<Array3D<double> > deleter( arrayset );
+
+    mRunStandardTestWithError( deleter.execute() && arrayset.isEmpty(),
+			      "ObjectSet deleter on an empty array",
+				toString(deleter.uiMessage()) );
+
+    const int nrelems = 100000;
+    arrayset.setSize( nrelems );
+    deleter.setKeepSize( true );
+    mRunStandardTestWithError( deleter.execute() && arrayset.size() == nrelems,
+			       "ObjectSet deleter on an array of nulls",
+			       toString(deleter.uiMessage()) );
+
+    for ( int idx=0; idx<nrelems; idx++ )
+	delete arrayset.replace( idx, new Array3DImpl<double>(10,10,10) );
+
+    deleter.setKeepSize( false );
+    mRunStandardTestWithError( deleter.execute() && arrayset.isEmpty(),
+			       "ObjectSet deleter on an array of 3D arrays",
+			       toString(deleter.uiMessage()) );
+
+    ManagedObjectSet<Array3D<double> > manarrayset;
+    manarrayset.setSize( nrelems );
+    for ( int idx=0; idx<nrelems; idx++ )
+	manarrayset.replace( idx, new Array3DImpl<double>(10,10,10) );
+
+    ObjectSetDeleter<Array3D<double> > deleter2( manarrayset );
+    mRunStandardTestWithError( deleter2.execute() && manarrayset.isEmpty(),
+			  "ObjectSet deleter on a managed array of 3D arrays",
+			  toString(deleter2.uiMessage()) );
+
+    return true;
+}
+
+
 int mTestMainFnName( int argc, char** argv )
 {
     mInitTestProg();
@@ -198,7 +236,9 @@ int mTestMainFnName( int argc, char** argv )
     const int sz = 12;
     Array1DImpl<float> prices( sz ), milage( sz );
 
-    if ( !testSmallFloatArray(prices,milage) || !testBigVector() )
+    if ( !testSmallFloatArray(prices,milage) ||
+	 !testBigVector() ||
+	 !testDeleteArraySet() )
 	return 1;
 
     return 0;

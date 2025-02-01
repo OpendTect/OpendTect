@@ -51,6 +51,14 @@ public:
     inline void			setNullAllowed(bool yn=true);
     inline size_type		size() const		{ return vec_.size(); }
     inline od_int64		nrItems() const override { return size(); }
+    inline virtual size_type	getCapacity() const;
+    inline virtual bool		setSize(size_type);
+				/*!< Implies setNullAllowed(true) :
+				     fills the vector with sz nullptr
+				     If not empty, consider calling deepErase
+				     first			     */
+    inline virtual bool		setCapacity(size_type,bool withmargin);
+				//!< Allocates mem only, no size() change
 
     inline bool			validIdx(od_int64) const override;
     inline virtual bool		isPresent(const T*) const;
@@ -77,7 +85,6 @@ public:
     inline void			swapItems( od_int64 i1, od_int64 i2 ) override
 				{ swap( (idx_type)i1, (idx_type)i2 ); }
     inline void			reverse() override;
-
 
     inline void			erase() override	{ plainErase(); }
     inline virtual T*		pop();
@@ -370,9 +377,43 @@ void ObjectSet<T>::setNullAllowed( bool yn )
     }
 }
 
+
+template <class T> inline
+bool ObjectSet<T>::setSize( size_type sz )
+{
+    if ( !isEmpty() && !isManaged() )
+    {
+	pErrMsg( "ObjectSet::setSize should not be used on an"
+		 "unmanaged non-empty set. Make empty before" );
+	return false;
+    }
+
+    setNullAllowed();
+    erase();
+    return vec_.setSize( sz, nullptr );
+}
+
+
+template <class T> inline
+typename ObjectSet<T>::size_type ObjectSet<T>::getCapacity() const
+{
+    return vec_.getCapacity();
+}
+
+
+template <class T> inline
+bool ObjectSet<T>::setCapacity( size_type sz, bool withmargin )
+{
+    return vec_.setCapacity( sz, withmargin );
+}
+
+
 template <class T> inline
 bool ObjectSet<T>::validIdx( od_int64 vidx ) const
-{ return vidx>=0 && vidx<size(); }
+{
+    return vidx>=0 && vidx<size();
+}
+
 
 template <class T> inline
 T* ObjectSet<T>::get( idx_type vidx )

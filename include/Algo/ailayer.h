@@ -418,7 +418,7 @@ public:
 			ElasticModelSet();
 			~ElasticModelSet();
 
-    bool		setSize(int);
+    bool		setSize(int) override;
 
     bool		getTimeSampling(Interval<float>&,
 					bool usevs=false) const;

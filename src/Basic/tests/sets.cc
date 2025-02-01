@@ -9,6 +9,7 @@ ________________________________________________________________________
 
 #include "testprog.h"
 
+#include "arrayndimpl.h"
 #include "manobjectset.h"
 #include "typeset.h"
 
@@ -215,17 +216,56 @@ static int testObjSetEqual()
 }
 
 
-bool testSetCapacity()
+static bool testTypeSetCapacity()
 {
     TypeSet<int> vec;
     mRunStandardTest( vec.setCapacity( 4, true ) &&
-		      vec.getCapacity()==4, "Set capacity 4" );
+		      vec.getCapacity()==4 && vec.isEmpty(),
+		      "TypeSet capacity 4");
 
     mRunStandardTest( vec.setCapacity( 5, true ) &&
-		      vec.getCapacity()==8, "Set capacity 5" );
+		      vec.getCapacity()==8 && vec.isEmpty(),
+		      "TypeSet capacity 5" );
 
     mRunStandardTest( vec.setCapacity( 4, true ) &&
-		      vec.getCapacity()==8, "re-set capacity 4" );
+		      vec.getCapacity()==8 && vec.isEmpty(),
+		      "re-TypeSet capacity 4" );
+    return true;
+}
+
+
+static bool testObjectSetCapacity()
+{
+    ObjectSet<Array2D<float> > vec;
+    mRunStandardTest( vec.setCapacity( 4, true ) &&
+		      vec.getCapacity() == 4 && vec.isEmpty(),
+		      "ObjectSet capacity 4" );
+
+    mRunStandardTest( vec.setCapacity( 5, true ) &&
+		      vec.getCapacity() == 8 && vec.isEmpty(),
+		      "ObjectSet capacity 5" );
+
+    mRunStandardTest( vec.setCapacity( 4, true ) &&
+		      vec.getCapacity() == 8 && vec.isEmpty(),
+		      "re-ObjectSet capacity 4" );
+
+    mRunStandardTest( vec.setSize( 10 ) && vec.size() == 10 &&
+		      !vec.get(9), "ObjectSize size 10 with nulls" );
+
+    vec.setEmpty();
+    mRunStandardTest( vec.setSize( 4 ) && vec.size() == 4 &&
+		      !vec.get(3), "ObjectSize re-size 4 with nulls" );
+
+    vec.setCapacity( 5 , true );
+    delete vec.replace( 1, new Array2DImpl<float>(3,5) );
+    delete vec.replace( 3, new Array2DImpl<float>(2,6) );
+    mRunStandardTest( vec.size() == 4 && vec.getCapacity() == 8 &&
+		      !vec.get(0) && vec.get(1) && !vec.get(2) && vec.get(3),
+		      "Vector with some nulls and some non-nulls" );
+    deepErase( vec );
+
+    mRunStandardTest( vec.isEmpty() && vec.getCapacity() == 0,
+		      "Erased ObjectSet without size and capacity 0" );
 
     return true;
 }
@@ -238,24 +278,23 @@ class TestClass
 	    : deleted_( deletedflag )
 	{}
 
-    ~TestClass()
-    {
-	deleted_ = true;
-    }
+	~TestClass()
+	{
+	    deleted_ = true;
+	}
 
     bool& deleted_;
 };
 
 
-bool testManagedObjectSet()
+static bool testManagedObjectSet()
 {
-
     bool delflag = false;
     {
 	ManagedObjectSet<ManagedObjectSet<TestClass> > set1;
 
-	TestClass* tc = new TestClass( delflag );
-	ManagedObjectSet<TestClass>* set2 = new ManagedObjectSet<TestClass>();
+	auto* tc = new TestClass( delflag );
+	auto* set2 = new ManagedObjectSet<TestClass>();
 	set2->push( tc );
 	set1.push( set2 );
 
@@ -330,7 +369,6 @@ static bool testMove()
 }
 
 
-
 int mTestMainFnName( int argc, char** argv )
 {
     mInitTestProg();
@@ -339,7 +377,8 @@ int mTestMainFnName( int argc, char** argv )
     res += testTypeSetSetFns();
     res += testObjSetFind();
     res += testObjSetEqual();
-    res += testSetCapacity() ? 0 : 1;
+    res += testTypeSetCapacity() ? 0 : 1;
+    res += testObjectSetCapacity() ? 0 : 1;
     res += testManagedObjectSet() ? 0 : 1;
     res += testMove() ? 0 : 1;
 
