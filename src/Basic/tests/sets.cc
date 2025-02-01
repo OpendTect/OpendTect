@@ -252,6 +252,7 @@ static bool testObjectSetCapacity()
     mRunStandardTest( vec.setSize( 10 ) && vec.size() == 10 &&
 		      !vec.get(9), "ObjectSize size 10 with nulls" );
 
+    vec.setEmpty();
     mRunStandardTest( vec.setSize( 4 ) && vec.size() == 4 &&
 		      !vec.get(3), "ObjectSize re-size 4 with nulls" );
 
