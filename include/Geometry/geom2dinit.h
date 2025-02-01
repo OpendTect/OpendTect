@@ -35,5 +35,7 @@ private:
     int			queueid_;
     Threads::Lock	lock_;
 
-    static Geom2DInit&	getInstance();
+    static Geom2DInit&	instance();
+			mDeprecated("Use instance()")
+    static Geom2DInit&	getInstance()	{ return instance(); }
 };
