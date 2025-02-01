@@ -115,5 +115,5 @@ mDefModInitFn(uiBase)
 			PI_AUTO_INIT_LATE );
     }
 
-    System::CrashDumper::getInstance().setSendAppl( "od_uiReportIssue" );
+    System::CrashDumper::instance().setSendAppl( "od_uiReportIssue" );
 }

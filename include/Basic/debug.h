@@ -76,7 +76,9 @@ namespace System
 mExpClass(Basic) CrashDumper
 {
 public:
-    static CrashDumper& getInstance();
+    static CrashDumper& instance();
+			mDeprecated("Use instance()")
+    static CrashDumper& getInstance() { return instance(); }
 			//!Creates and installs at first run.
 
     bool		isOK() const { return handler_; }
