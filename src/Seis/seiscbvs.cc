@@ -62,7 +62,7 @@ CBVSSeisTrcTranslator* CBVSSeisTrcTranslator::make( const char* fnm,
 	return nullptr;
     }
 
-    CBVSSeisTrcTranslator* tr = CBVSSeisTrcTranslator::getInstance();
+    CBVSSeisTrcTranslator* tr = CBVSSeisTrcTranslator::instance();
     tr->set2D( is2d );
     tr->setForceUseCBVSInfo( forceusecbvsinf );
     if ( msg )

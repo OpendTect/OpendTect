@@ -359,7 +359,7 @@ SeisCBVS2DLinePutter::SeisCBVS2DLinePutter( const IOObj& obj,
 					    Pos::GeomID geomid )
     : nrwr_(0)
     , fname_(SeisCBVS2DLineIOProvider::getFileName(obj,geomid))
-    , tr_(CBVSSeisTrcTranslator::getInstance())
+    , tr_(CBVSSeisTrcTranslator::instance())
     , preseldt_(DataCharacteristics::Auto)
 {
     tr_->set2D( true );

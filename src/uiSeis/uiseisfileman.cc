@@ -436,7 +436,7 @@ static BufferString getInfoText( const IOObj& ioobj )
     BufferString dsstr = pars.find( sKey::DataStorage() );
     if ( iscbvs )
     {
-	CBVSSeisTrcTranslator* tri = CBVSSeisTrcTranslator::getInstance();
+	CBVSSeisTrcTranslator* tri = CBVSSeisTrcTranslator::instance();
 	if ( tri->initRead( new StreamConn(ioobj.fullUserExpr(true),
 				Conn::Read) ) )
 	{

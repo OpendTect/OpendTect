@@ -622,7 +622,7 @@ bool SeisCBVSPS3DWriter::newInl( const SeisTrc& trc )
     if ( tr_ )
 	delete tr_;
 
-    tr_ = CBVSSeisTrcTranslator::getInstance();
+    tr_ = CBVSSeisTrcTranslator::instance();
     return startWrite( fnm, trc );
 }
 
@@ -802,7 +802,7 @@ bool SeisCBVSPS2DWriter::ensureTr( const SeisTrc& trc )
     if ( tr_ )
 	return true;
 
-    tr_ = CBVSSeisTrcTranslator::getInstance();
+    tr_ = CBVSSeisTrcTranslator::instance();
     tr_->setCoordPol( true, true );
     return startWrite( get2DFileName(lnm_), trc );
 }

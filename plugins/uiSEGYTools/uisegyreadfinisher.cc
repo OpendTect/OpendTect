@@ -349,7 +349,7 @@ bool uiSEGYReadFinisher::doVSP()
     if ( lognm.isEmpty() )
 	mErrRet(uiStrings::phrEnter(tr("a valid name for the new log")))
 
-    PtrMan<SEGYSeisTrcTranslator> trl = SEGYSeisTrcTranslator::getInstance();
+    PtrMan<SEGYSeisTrcTranslator> trl = SEGYSeisTrcTranslator::instance();
     trl->filePars() = fs_.pars_; trl->fileReadOpts() = fs_.readopts_;
     PtrMan<IOObj> seisioobj = fs_.spec_.getIOObj( true );
     SeisTrc trc;

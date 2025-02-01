@@ -79,7 +79,7 @@ int mProgMainFnName( int argc, char** argv )
 
     od_cout() << "Browsing '" << fname << "'\n" << od_endl;
 
-    PtrMan<CBVSSeisTrcTranslator> tri = CBVSSeisTrcTranslator::getInstance();
+    PtrMan<CBVSSeisTrcTranslator> tri = CBVSSeisTrcTranslator::instance();
     if ( !tri->initRead( new StreamConn(fname,Conn::Read) ) )
 	{ od_cout() << tri->errMsg() << od_endl;  return 1; }
 
