@@ -86,6 +86,7 @@ public:
 
 				~PluginManager();
 
+				mDeprecated("Use PIM()")
     static PluginManager&	getInstance();
 
     void			loadAuto(bool late,bool withfilter=false);
