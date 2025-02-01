@@ -118,7 +118,7 @@ uiFingerPrintAttrib::uiFingerPrintAttrib( uiParent* p, bool is2d )
     getposbut_ = new uiToolButton( this, "pick", tr("Point in 3D scene"),
 				   mCB(this,uiFingerPrintAttrib,getPosPush) );
     getposbut_->attach( rightOf, refposzfld_ );
-    pickretriever_ = PickRetriever::getInstance();
+    pickretriever_ = PickRetriever::instance();
     mAttachCB( pickretriever_->finished(), uiFingerPrintAttrib::pickRetrieved );
 
     if ( is2d_ )

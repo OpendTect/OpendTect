@@ -16,7 +16,7 @@ ________________________________________________________________________
 
 /*!Interface to when an application wants a pick somewere in a 3D environment.
    There should normally only be one instance in memory, and that should
-   be accessed via PickRetriever::getInstance(). */
+   be accessed via PickRetriever::instance(). */
 
 mExpClass(General) PickRetriever : public SharedObject
 {
@@ -39,7 +39,9 @@ public:
     virtual SceneID		getSceneID() const			= 0;
     virtual const TypeSet<VisID>& getPickedObjIDs() const		= 0;
 
-    static PickRetriever*	getInstance();
+    static PickRetriever*	instance();
+				mDeprecated("Use instance()")
+    static PickRetriever*	getInstance()	{ return instance();  }
     				/*!<Main access function. */
 
     static void			setInstance(PickRetriever*);

@@ -108,6 +108,7 @@ uiCEEMDAttrib::uiCEEMDAttrib( uiParent* p, bool is2d )
 uiCEEMDAttrib::~uiCEEMDAttrib()
 {
     detachAllNotifiers();
+    delete positiondlg_;
     delete panelview_;
 }
 
@@ -271,11 +272,9 @@ void uiCEEMDAttrib::panelTFPush( CallBacker* )
     TrcKeyZSampling tzs;
     inpfld_->getRanges( tzs );
     if ( positiondlg_ )
-    {
 	mDetachCB( positiondlg_->windowClosed, uiCEEMDAttrib::viewPanelCB );
-	delete positiondlg_;
-    }
 
+    delete positiondlg_;
     positiondlg_ = new uiTrcPositionDlg( this, tzs, is2d_, mid );
     setPrevSel();
     positiondlg_->show();

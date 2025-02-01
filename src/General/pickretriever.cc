@@ -9,7 +9,7 @@ ________________________________________________________________________
 
 #include "pickretriever.h"
 
-RefMan<PickRetriever> PickRetriever::instance_ = 0;
+RefMan<PickRetriever> PickRetriever::instance_;
 
 PickRetriever::PickRetriever()	
     : buttonstate_(OD::NoButton)
@@ -20,5 +20,5 @@ PickRetriever::~PickRetriever()	{}
 void PickRetriever::setInstance( PickRetriever* npr )
 { instance_ = npr; }
 
-PickRetriever* PickRetriever::getInstance()
+PickRetriever* PickRetriever::instance()
 { return instance_.ptr(); }
