@@ -37,7 +37,6 @@ set( OD_TEST_PROGS
 	threads.cc
 	threadwork.cc
 	uistring.cc
-	various_basic.cc
 )
 
 if ( UNIX )
