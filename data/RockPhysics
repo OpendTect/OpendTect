@@ -63,7 +63,7 @@ Constant.1.Default: 0.25
 !
 Gardner equation - P-wave: RHOB
 Description: Compute density from P-wave velocity
-Formula: c0 * Pwave^c1
+Formula: c0 * Vp^c1
 Unit: Gram/cm3
 Variable.0.Type: PVEL
 Variable.0.Name: Vp
@@ -91,7 +91,7 @@ Constant.1.Typical Range: 0.5`1.2
 !
 Extended elastic density using CHI angle: RHOB
 Description: Compute elastic density from Density, P-wave velocity and S-wave velocity
-Formula: (c0*c1*((velp/c0)^(cos(c2*PI/180)+sin(c2*PI/180)))*((vels/c3)^(-8*((c3/c0)^2)*sin(c2*PI/180)))*((den/c1)^(cos(c2*PI/180)-4*((c3/c0)^2)*sin(c2*PI/180))))/velp
+Formula: (c0*c1*((Vp/c0)^(cos(c2*PI/180)+sin(c2*PI/180)))*((Vs/c3)^(-8*((c3/c0)^2)*sin(c2*PI/180)))*((den/c1)^(cos(c2*PI/180)-4*((c3/c0)^2)*sin(c2*PI/180))))/Vp
 Unit: Kg/m3
 Variable.0.Type: PVEL
 Variable.0.Name: Vp
@@ -137,7 +137,7 @@ Constant.1.Default: 0.25
 !
 Gardner equation - Density spliced with longer P-wave: RHOB
 Description: Extend exisiting density log with longer P-wave velocity
-Formula: den == undef ? c0 * Pwave^c1 : den
+Formula: den == undef ? c0 * Vp^c1 : den
 Unit: Gram/cm3
 Variable.0.Type: RHOB
 Variable.0.Name: Rhob
@@ -154,7 +154,7 @@ Constant.1.Default: 0.25
 !
 Poisson's ratio from Velocity logs: PR
 Description: Poisson's ratio
-Formula: ( (velp/vels)^2 - 2 ) / ( 2* ( (velp/vels)^2 - 1 ) )
+Formula: ( (Vp/Vs)^2 - 2 ) / ( 2* ( (Vp/Vs)^2 - 1 ) )
 Unit: Ratio
 Variable.0.Type: PVEL
 Variable.0.Name: Vp
@@ -167,7 +167,7 @@ Variable.1.Unit: Meter/second
 !
 Vp/Vs ratio from Velocity curves: VPVS
 Description: Vp/Vs ratio
-Formula: velp / vels
+Formula: Vp / Vs
 Unit: Ratio
 Variable.0.Type: PVEL
 Variable.0.Name: Vp
@@ -180,7 +180,7 @@ Variable.1.Unit: Meter/second
 !
 Vs/Vp ratio from Velocity curves: VSVP
 Description: Vs/Vp ratio
-Formula: vels / velp
+Formula: Vs / Vp
 Unit: Ratio
 Variable.0.Type: SVEL
 Variable.0.Name: Vs
@@ -258,7 +258,7 @@ Variable.1.Unit: Seconds/meter
 !
 Acoustic Impedance from P-wave velocity: AI
 Description: Compute acoustic impedance from P-wave velocity and density
-Formula: velp * den
+Formula: Vp * den
 Unit: Meter/second x Kg/m3
 Variable.0.Type: PVEL
 Variable.0.Name: Vp
@@ -271,7 +271,7 @@ Variable.1.Unit: Kg/m3
 !
 Shear Impedance from S-wave velocity: SI
 Description: Compute shear impedance from S-wave velocity and density
-Formula: vels * den
+Formula: Vs * den
 Unit: Meter/second x Kg/m3
 Variable.0.Type: SVEL
 Variable.0.Name: Vs
@@ -284,7 +284,7 @@ Variable.1.Unit: Kg/m3
 !
 Extended elastic impedance using CHI angle: EI
 Description: Compute elastic impedance from Density, P-wave velocity and S-wave velocity
-Formula: c0*c1*((velp/c0)^(cos(c2*PI/180)+sin(c2*PI/180)))*((vels/c3)^(-8*((c3/c0)^2)*sin(c2*PI/180)))*((den/c1)^(cos(c2*PI/180)-4*((c3/c0)^2)*sin(c2*PI/180)))
+Formula: c0*c1*((Vp/c0)^(cos(c2*PI/180)+sin(c2*PI/180)))*((Vs/c3)^(-8*((c3/c0)^2)*sin(c2*PI/180)))*((den/c1)^(cos(c2*PI/180)-4*((c3/c0)^2)*sin(c2*PI/180)))
 Unit: Meter/second x Kg/m3
 Variable.0.Type: PVEL
 Variable.0.Name: Vp
@@ -371,7 +371,7 @@ Variable.0.Unit: Meter/second x Kg/m3
 !
 Sonic from velocity: DT
 Description: Conversion from velocity to sonic travel time
-Formula: 1 / vel
+Formula: 1 / Vp
 Unit: Seconds/meter
 Variable.0.Type: PVEL
 Variable.0.Name: Velocity
@@ -380,7 +380,7 @@ Variable.0.Unit: Meter/second
 !
 Shear Sonic from shear velocity: DTS
 Description: Conversion from shear velocity to shear sonic travel time
-Formula: 1 / vel
+Formula: 1 / Vs
 Unit: Seconds/meter
 Variable.0.Type: SVEL
 Variable.0.Name: Shear Velocity
@@ -655,7 +655,7 @@ Variable.1.Unit: Kg/m3
 !
 S-wave velocity from P-wave velocity and Vp/Vs ratio: SVEL
 Description: Compute S-wave velocity from P-wave velocity and Vp/Vs ratio
-Formula: velp / vpvs_ratio
+Formula: Vp / VpVs_ratio
 Unit: Meter/second
 Variable.0.Type: PVEL
 Variable.0.Name: Vp
@@ -668,7 +668,7 @@ Variable.1.Unit: Ratio
 !
 S-wave velocity from P-wave velocity and Vs/Vp ratio: SVEL
 Description: Compute S-wave velocity from P-wave velocity and Vs/Vp ratio
-Formula: velp * vsvp_ratio
+Formula: Vp * VsVp_ratio
 Unit: Meter/second
 Variable.0.Type: PVEL
 Variable.0.Name: Vp
@@ -681,7 +681,7 @@ Variable.1.Unit: Ratio
 !
 S-wave velocity from Sonic and Vp/Vs ratio: SVEL
 Description: Compute S-wave velocity from Sonic and Vp/Vs ratio
-Formula: 1 / ( dt * vpvs_ratio )
+Formula: 1 / ( dt * VpVs_ratio )
 Unit: Meter/second
 Variable.0.Type: DT
 Variable.0.Name: DT
@@ -694,7 +694,7 @@ Variable.1.Unit: Ratio
 !
 S-wave velocity from Vs/Vp ratio and Sonic: SVEL
 Description: Compute S-wave velocity from Vs/Vp ratio and Sonic
-Formula: vsvp_ratio / dt
+Formula: VsVp_ratio / dt
 Unit: Meter/second
 Variable.0.Type: VSVP
 Variable.0.Name: Vs/Vp
@@ -707,7 +707,7 @@ Variable.1.Unit: Seconds/meter
 !
 P-wave velocity from S-wave velocity and Vp/Vs ratio: PVEL
 Description: Compute P-wave velocity from S-wave velocity and Vp/Vs ratio
-Formula: vels * vpvs_ratio
+Formula: Vs * VpVs_ratio
 Unit: Meter/second
 Variable.0.Type: SVEL
 Variable.0.Name: Vs
@@ -720,7 +720,7 @@ Variable.1.Unit: Ratio
 !
 P-wave velocity from S-wave velocity and Vs/Vp ratio: PVEL
 Description: Compute P-wave velocity from S-wave velocity and Vs/Vp ratio
-Formula: vels / vsvp_ratio
+Formula: Vs / VsVp_ratio
 Unit: Meter/second
 Variable.0.Type: SVEL
 Variable.0.Name: Vs
@@ -733,7 +733,7 @@ Variable.1.Unit: Ratio
 !
 P-wave velocity from Vp/Vs ratio and Shear Sonic: PVEL
 Description: Compute P-wave velocity from Vp/Vs ratio and Shear Sonic
-Formula: vpvs_ratio / dts
+Formula: VpVs_ratio / dts
 Unit: Meter/second
 Variable.0.Type: VPVS
 Variable.0.Name: Vp/Vs
@@ -746,7 +746,7 @@ Variable.1.Unit: Seconds/meter
 !
 P-wave velocity from Vs/Vp ratio and Shear Sonic: PVEL
 Description: Compute P-wave velocity from Vs/Vp ratio and Shear Sonic
-Formula: 1 / ( vsvp_ratio * dts )
+Formula: 1 / ( VsVp_ratio * dts )
 Unit: Meter/second
 Variable.0.Type: VSVP
 Variable.0.Name: Vs/Vp
@@ -759,7 +759,7 @@ Variable.1.Unit: Seconds/meter
 !
 Young Modulus: YME
 Description: Compute the Young Modulus from Density, P-wave velocity and S-wave velocity
-Formula: ((4*velp*velp-3*vels*vels)/(velp*velp-vels-vels))*den*vels*vels
+Formula: ((4*Vp^2-3*Vs^2)/(Vp^2-Vs^2))*den*Vs^2
 Unit: Pa
 Variable.0.Type: PVEL
 Variable.0.Name: Vp
