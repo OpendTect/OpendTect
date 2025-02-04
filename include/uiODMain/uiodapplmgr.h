@@ -53,32 +53,20 @@ mExpClass(uiODMain) uiODApplMgr : public uiApplMgr
 { mODTextTranslationClass(uiODApplMgr);
 public:
 
-    uiPickPartServer*		pickServer()		{ return pickserv_; }
-    uiVisPartServer*		visServer()		{ return visserv_; }
-    uiSeisPartServer*		seisServer()		{ return seisserv_; }
-    uiAttribPartServer*		attrServer()		{ return attrserv_; }
-    uiVolProcPartServer*	volprocServer()		{ return volprocserv_; }
-    uiEMPartServer*		EMServer()		{ return emserv_; }
-    uiEMAttribPartServer*	EMAttribServer()	{ return emattrserv_; }
-    uiWellPartServer*		wellServer()		{ return wellserv_; }
-    uiWellAttribPartServer*	wellAttribServer()	{ return wellattrserv_;}
-    uiMPEPartServer*		mpeServer()		{ return mpeserv_; }
-    uiNLAPartServer*		nlaServer()		{ return nlaserv_; }
-
-    const uiPickPartServer*	pickServer() const	{ return pickserv_; }
-    const uiVisPartServer*	visServer() const	{ return visserv_; }
-    const uiSeisPartServer*	seisServer() const	{ return seisserv_; }
-    const uiAttribPartServer*	attrServer() const	{ return attrserv_; }
-    const uiVolProcPartServer*	volprocServer() const	{ return volprocserv_; }
-    const uiEMPartServer*	EMServer() const	{ return emserv_; }
-    const uiEMAttribPartServer*	EMAttribServer() const	{ return emattrserv_; }
-    const uiWellPartServer*	wellServer() const	{ return wellserv_; }
-    const uiWellAttribPartServer* wellAttribServer() const
+    uiEMPartServer*		EMServer() override	{ return emserv_; }
+    uiPickPartServer*		pickServer() override	{ return pickserv_; }
+    uiSeisPartServer*		seisServer() override	{ return seisserv_; }
+    uiWellPartServer*		wellServer() override	{ return wellserv_; }
+    uiVisPartServer*		visServer() override	{ return visserv_; }
+    uiAttribPartServer*		attrServer() override	{ return attrserv_; }
+    uiVolProcPartServer*	volprocServer() override{ return volprocserv_; }
+    uiEMAttribPartServer*	EMAttribServer() override{ return emattrserv_; }
+    uiWellAttribPartServer*	wellAttribServer() override
 							{ return wellattrserv_;}
-    const uiMPEPartServer*	mpeServer() const	{ return mpeserv_; }
-    const uiNLAPartServer*	nlaServer() const	{ return nlaserv_; }
+    uiMPEPartServer*		mpeServer() override	{ return mpeserv_; }
+    uiNLAPartServer*		nlaServer() override	{ return nlaserv_; }
 
-    void			setNlaServer(uiNLAPartServer*);
+    void			setNlaServer(uiNLAPartServer*) override;
 
     uiVisColTabEd&		colTabEd()	{ return appl_.colTabEd(); }
 
@@ -290,9 +278,6 @@ protected:
     bool			handleAttribServEv(int);
     bool			handleVolProcServEv(int);
 
-    void			prepareSurveyChange(CallBacker*);
-    void			surveyToBeChanged(CallBacker*);
-    void			surveyChanged(CallBacker*);
     void			colSeqChg(CallBacker*);
     void			colMapperChg(CallBacker*);
     void			setHistogram(const VisID&,int attrib);
@@ -313,6 +298,12 @@ protected:
     uiVisDataPointSetDisplayMgr* visdpsdispmgr_		= nullptr;
 
     friend class		uiODMain;
+
+private:
+
+    void			prepSurveyChange() override;
+    void			survToBeChanged() override;
+    void			survChanged() override;
 
 public:
     void			launch2DViewer(CallBacker*);

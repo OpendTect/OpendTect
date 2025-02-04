@@ -17,6 +17,18 @@ class uiApplService;
 class uiMainWin;
 class uiParent;
 
+class uiEMPartServer;
+class uiPickPartServer;
+class uiSeisPartServer;
+class uiWellPartServer;
+class uiVisPartServer;
+class uiAttribPartServer;
+class uiVolProcPartServer;
+class uiEMAttribPartServer;
+class uiWellAttribPartServer;
+class uiMPEPartServer;
+class uiNLAPartServer;
+
 
 /*! \brief Base class for an application level manager */
 
@@ -32,9 +44,44 @@ public:
 
     static uiApplMgr*	instance(const char* servicenm=nullptr);
 
+    virtual uiEMPartServer*		EMServer()			= 0;
+    virtual uiPickPartServer*		pickServer()			= 0;
+    virtual uiSeisPartServer*		seisServer()			= 0;
+    virtual uiWellPartServer*		wellServer()			= 0;
+
+    virtual uiVisPartServer*		visServer()	    { return nullptr; }
+    virtual uiAttribPartServer*		attrServer()	    { return nullptr; }
+    virtual uiVolProcPartServer*	volprocServer()     { return nullptr; }
+    virtual uiEMAttribPartServer*	EMAttribServer()    { return nullptr; }
+    virtual uiWellAttribPartServer*	wellAttribServer()  { return nullptr; }
+    virtual uiMPEPartServer*		mpeServer()	    { return nullptr; }
+    virtual uiNLAPartServer*		nlaServer()	    { return nullptr; }
+
+    const uiPickPartServer*		pickServer() const;
+    const uiVisPartServer*		visServer() const;
+    const uiSeisPartServer*		seisServer() const;
+    const uiAttribPartServer*		attrServer() const;
+    const uiVolProcPartServer*		volprocServer() const;
+    const uiEMPartServer*		EMServer() const;
+    const uiEMAttribPartServer*		EMAttribServer() const;
+    const uiWellPartServer*		wellServer() const;
+    const uiWellAttribPartServer*	wellAttribServer() const;
+    const uiMPEPartServer*		mpeServer() const;
+    const uiNLAPartServer*		nlaServer() const;
+
+    virtual void			setNlaServer(uiNLAPartServer*)	{}
+
 protected:
 			uiApplMgr(uiMainWin&,uiApplService&);
 			//!< uiApplService object becomes mine
+
+    void		prepareSurveyChange(CallBacker*);
+    void		surveyToBeChanged(CallBacker*);
+    void		surveyChanged(CallBacker*);
+
+    virtual void	prepSurveyChange()				{}
+    virtual void	survToBeChanged()				{}
+    virtual void	survChanged()					{}
 
     uiApplService&	applservice_;
 };
