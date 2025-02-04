@@ -108,23 +108,15 @@ uiODApplMgr::uiODApplMgr( uiODMain& a )
 	attrserv_->setAttrsNeedUpdt();
 	tmpprevsurvinfo_.refresh();
     }
-
-    IOM().prepareSurveyChange.notify(
-			mCB(this,uiODApplMgr,prepareSurveyChange),true );
-    IOM().surveyToBeChanged.notify(
-			mCB(this,uiODApplMgr,surveyToBeChanged),true );
-    IOM().surveyChanged.notify( mCB(this,uiODApplMgr,surveyChanged) );
 }
 
 
 uiODApplMgr::~uiODApplMgr()
 {
     visdpsdispmgr_->clearDisplays();
-    dispatcher_.survChg(true); attrvishandler_.survChg(true);
-    IOM().prepareSurveyChange.remove(
-			mCB(this,uiODApplMgr,prepareSurveyChange) );
-    IOM().surveyToBeChanged.remove( mCB(this,uiODApplMgr,surveyToBeChanged) );
-    IOM().surveyChanged.remove( mCB(this,uiODApplMgr,surveyToBeChanged) );
+    dispatcher_.survChg(true);
+    attrvishandler_.survChg(true);
+
     delete mpeserv_;
     delete pickserv_;
     delete nlaserv_;
@@ -234,7 +226,7 @@ void uiODApplMgr::addVisDPSChild( CallBacker* cb )
 }
 
 
-void uiODApplMgr::prepareSurveyChange( CallBacker* )
+void uiODApplMgr::prepSurveyChange()
 {
     bool anythingasked = false;
     if ( !appl_.askStore(anythingasked,tr("Survey change")) )
@@ -242,7 +234,7 @@ void uiODApplMgr::prepareSurveyChange( CallBacker* )
 }
 
 
-void uiODApplMgr::surveyToBeChanged( CallBacker* )
+void uiODApplMgr::survToBeChanged()
 {
     visdpsdispmgr_->clearDisplays();
     dispatcher_.survChg(true);
@@ -261,7 +253,7 @@ void uiODApplMgr::surveyToBeChanged( CallBacker* )
 }
 
 
-void uiODApplMgr::surveyChanged( CallBacker* )
+void uiODApplMgr::survChanged()
 {
     dispatcher_.survChg(false);
     attrvishandler_.survChg(false);
@@ -668,11 +660,13 @@ bool uiODApplMgr::getNewData( const VisID& visid, int attrib )
 
 bool uiODApplMgr::getDefaultDescID( Attrib::DescID& descid, bool is2d ) const
 {
-    const MultiID mid = seisServer()->getDefaultDataID( is2d );
+    const MultiID mid = static_cast<const uiApplMgr&>(*this)
+			    .seisServer()->getDefaultDataID( is2d );
     if ( mid.isUdf() )
 	return false;
 
-    descid = attrServer()->getStoredID( mid, is2d );
+    descid = static_cast<const uiApplMgr&>(*this)
+			    .attrServer()->getStoredID( mid, is2d );
     return descid.isValid();
 }
 

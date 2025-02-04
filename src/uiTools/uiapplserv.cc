@@ -9,6 +9,8 @@ ________________________________________________________________________
 
 #include "uiapplserv.h"
 
+#include "ioman.h"
+
 namespace OD
 {
 
@@ -26,11 +28,15 @@ uiApplMgr::uiApplMgr( uiMainWin& uimw, uiApplService& applserv )
     : applservice_(applserv)
 {
     OD::applmgrs().add( this );
+    mAttachCB( IOM().prepareSurveyChange, uiApplMgr::prepareSurveyChange );
+    mAttachCB( IOM().surveyToBeChanged, uiApplMgr::surveyToBeChanged );
+    mAttachCB( IOM().surveyChanged, uiApplMgr::surveyChanged );
 }
 
 
 uiApplMgr::~uiApplMgr()
 {
+    detachAllNotifiers();
     OD::applmgrs() -= this;
     delete &applservice_;
 }
@@ -49,6 +55,89 @@ uiApplMgr* uiApplMgr::instance( const char* servicenm )
     }
 
     return mgrs.isEmpty() ? nullptr : mgrs.first();
+}
+
+const uiPickPartServer* uiApplMgr::pickServer() const
+{
+    return getNonConst(*this).pickServer();
+}
+
+
+const uiVisPartServer* uiApplMgr::visServer() const
+{
+    return getNonConst(*this).visServer();
+}
+
+
+const uiSeisPartServer* uiApplMgr::seisServer() const
+{
+    return getNonConst(*this).seisServer();
+}
+
+
+const uiAttribPartServer* uiApplMgr::attrServer() const
+{
+    return getNonConst(*this).attrServer();
+}
+
+
+const uiVolProcPartServer* uiApplMgr::volprocServer() const
+{
+    return getNonConst(*this).volprocServer();
+}
+
+
+const uiEMPartServer* uiApplMgr::EMServer() const
+{
+    return getNonConst(*this).EMServer();
+}
+
+
+const uiEMAttribPartServer* uiApplMgr::EMAttribServer() const
+{
+    return getNonConst(*this).EMAttribServer();
+}
+
+
+const uiWellPartServer* uiApplMgr::wellServer() const
+{
+    return getNonConst(*this).wellServer();
+}
+
+
+const uiWellAttribPartServer* uiApplMgr::wellAttribServer() const
+{
+    return getNonConst(*this).wellAttribServer();
+}
+
+
+const uiMPEPartServer* uiApplMgr::mpeServer() const
+{
+    return getNonConst(*this).mpeServer();
+}
+
+
+const uiNLAPartServer* uiApplMgr::nlaServer() const
+{
+    return getNonConst(*this).nlaServer();
+}
+
+
+void uiApplMgr::prepareSurveyChange(CallBacker*)
+{
+    prepSurveyChange();
+}
+
+
+void uiApplMgr::surveyToBeChanged(CallBacker*)
+{
+    survToBeChanged();
+}
+
+
+void uiApplMgr::surveyChanged(CallBacker*)
+{
+    survChanged();
 }
 
 
