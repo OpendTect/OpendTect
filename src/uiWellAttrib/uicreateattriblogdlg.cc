@@ -37,7 +37,7 @@ uiCreateAttribLogDlg::uiCreateAttribLogDlg( uiParent* p,
 					    bool singlewell )
     : uiDialog(p,uiDialog::Setup(tr("Create Attribute Log"),mNoDlgTitle,
 				 mODHelpKey(mCreateAttribLogDlgHelpID)))
-    , attribfld_(0)
+    , attribfld_(nullptr)
     , wellnames_(wellnames)
     , sellogidx_(-1)
     , singlewell_(singlewell)
@@ -58,7 +58,7 @@ uiCreateAttribLogDlg::uiCreateAttribLogDlg( uiParent* p,
     attribfld_->setNLAModel( datasetup_.nlamodel_ );
     mAttachCB( attribfld_->selectionDone, uiCreateAttribLogDlg::selDone );
 
-    uiSeparator* sep1 = new uiSeparator( this, "Attrib/Well Sep" );
+    auto* sep1 = new uiSeparator( this, "Attrib/Well Sep" );
     sep1->attach( stretchedBelow, attribfld_ );
 
     if ( !singlewell )
@@ -77,7 +77,7 @@ uiCreateAttribLogDlg::uiCreateAttribLogDlg( uiParent* p,
     else
 	zrangeselfld_->attach( alignedBelow, welllistfld_ );
 
-    uiSeparator* sep2 = new uiSeparator( this, "Z Sel/Log Sep" );
+    auto* sep2 = new uiSeparator( this, "Z Sel/Log Sep" );
     sep2->attach( stretchedBelow, zrangeselfld_ );
 
     lognmfld_ = new uiGenInput( this, tr("Log name") );
@@ -124,89 +124,135 @@ void uiCreateAttribLogDlg::selDone( CallBacker* )
 }
 
 
-#define mErrRet(msg) { uiMSG().error(msg); return false; }
 bool uiCreateAttribLogDlg::acceptOK( CallBacker* )
 {
-    if ( !attribfld_ ) return true;
+    if ( !attribfld_ )
+	return true;
+
+    const Attrib::DescID seldescid = attribfld_->attribID();
+    const int outputnr = attribfld_->outputNr();
+    if ( seldescid.asInt() < 0 && (datasetup_.nlamodel_ && outputnr<0) )
+    {
+	uiMSG().error( tr("No valid attribute selected") );
+	return false;
+    }
+
+    Attrib::SelSpec selspec;
+    datasetup_.selspec_ = &selspec;
+    attribfld_->fillSelSpec( *datasetup_.selspec_ );
 
     BufferStringSet selwells;
     if ( !singlewell_ )
     {
 	if ( welllistfld_->nrChosen() < 1 )
 	    return true;
+
 	welllistfld_->getChosen( selwells );
     }
     else
 	selwells.add( wellnames_.get(0) );
 
-
     uiString errmsg;
-    if ( !datasetup_.extractparams_->isOK( &errmsg ) )
-	mErrRet( errmsg );
+    if ( !datasetup_.extractparams_->isOK(&errmsg) )
+    {
+	uiMSG().error( errmsg );
+	return false;
+    }
 
     datasetup_.lognm_ = lognmfld_->text();
-    Attrib::SelSpec selspec;
-    datasetup_.selspec_ = &selspec;
-    attribfld_->fillSelSpec( *datasetup_.selspec_ );
+    if ( datasetup_.lognm_.isEmpty() )
+    {
+	uiMSG().error( tr("Please provide an output log name") );
+	return false;
+    }
 
-    Well::LoadReqs lreq( Well::Trck, Well::D2T, Well::LogInfos );
+    uiTaskRunner taskrunner( this );
+    datasetup_.tr_ = &taskrunner;
+
+    const Well::LoadReqs lreq( Well::Trck, Well::D2T, Well::LogInfos );
+    bool dontaskagain = false;
+    uiRetVal uirv;
     for ( int idx=0; idx<selwells.size(); idx++ )
     {
+	const char* wellnm = selwells.get(idx).buf();
+	const char* lognm = datasetup_.lognm_.str();
 	PtrMan<IOObj> ioobj = Well::findIOObj( selwells.get(idx), nullptr );
 	if ( !ioobj )
-	    mErrRet(tr("Cannot find well in object manager"))
+	{
+	    uirv.add( tr("%1 '%2': %3")
+		    .arg( uiStrings::phrCannotFindDBEntry(uiStrings::sWell()))
+		    .arg( wellnm ).arg( Well::MGR().errMsg() ) );
+	    continue;
+	}
 
 	RefMan<Well::Data> wd = Well::MGR().get( ioobj->key(), lreq );
 	if ( !wd )
-	    continue;
-
-	if ( !inputsOK(*wd) )
-	    return false;
-
-	PtrMan<uiTaskRunner> taskrunner = new uiTaskRunner( this );
-	datasetup_.tr_ = taskrunner.ptr();
-	AttribLogCreator attriblog( datasetup_, sellogidx_ );
-	if ( !attriblog.doWork( *wd, errmsg ) )
-	    mErrRet( errmsg )
-
-	Well::Writer wtr( *ioobj, *wd );
-
-	const Well::Log& newlog = wd->logs().getLog(sellogidx_);
-	if ( !wtr.putLog(newlog) )
 	{
-	    errmsg = tr("Cannot write log '%1'.\nCheck the permissions "
-			"of the *.wll file").arg(newlog.name());
-	    uiMSG().error( errmsg );
-	    return false;
+	    uirv.add( tr("%1 '%2': %3")
+		    .arg( uiStrings::phrCannotRead(uiStrings::sWell()) )
+		    .arg( wellnm ).arg( Well::MGR().errMsg() ) );
+	    continue;
 	}
-	wd->logschanged.trigger( -1 );
+
+	if ( SI().zIsTime() && !wd->d2TModel() )
+	{
+	    uirv.add( tr("No depth to time model defined for well '%1'")
+			.arg( wellnm ) );
+	    continue;
+	}
+
+	if ( wd->logs().isPresent(lognm) && !dontaskagain )
+	{
+	    const uiString msg = tr("Log: '%1' is already present.\n"
+				    "Do you wish to overwrite this log?" )
+					.arg( lognm );
+	    if ( !uiMSG().askGoOn(msg,true,&dontaskagain) )
+		continue;
+	}
+
+	int sellogidx = wd->logs().indexOf( lognm ); //not used
+	AttribLogCreator attriblog( datasetup_, sellogidx );
+	if ( !attriblog.doWork(*wd,errmsg) )
+	{
+	    uirv.add( errmsg );
+	    continue;
+	}
+
+	sellogidx = wd->logs().indexOf( lognm );
+	PtrMan<Well::Log> newlog = wd->logs().remove( sellogidx );
+	if ( !newlog )
+	{
+	    pErrMsg("Should not happen");
+	    continue;
+	}
+
+	const MultiID dbkey = ioobj->key();
+	if ( !Well::MGR().writeAndRegister(dbkey,newlog) )
+	{
+	    uirv.add( toUiString(Well::MGR().errMsg()) );
+	    continue;
+	}
     }
+
+    if ( uirv.isOK() )
+	return true;
+
+    if ( uirv.messages().size() == selwells.size() )
+    {
+	uiMSG().errorWithDetails( uirv, tr("Could not process a single well") );
+	return false;
+    }
+    else
+    {
+	uiMSG().errorWithDetails( uirv, tr("Could not process all wells") );
+	return false;
+    }
+
     return true;
 }
 
 
-bool uiCreateAttribLogDlg::inputsOK( Well::Data& wdin )
+bool uiCreateAttribLogDlg::inputsOK( Well::Data& )
 {
-    RefMan<Well::Data> wd( &wdin );
-    if ( SI().zIsTime() && !wd->d2TModel() )
-	mErrRet( tr("No depth to time model defined") );
-
-    const Attrib::DescID seldescid = attribfld_->attribID();
-    const int outputnr = attribfld_->outputNr();
-    if ( seldescid.asInt() < 0 && (datasetup_.nlamodel_ && outputnr<0) )
-	mErrRet( tr("No valid attribute selected") );
-
-    datasetup_.lognm_ = lognmfld_->text();
-    if ( datasetup_.lognm_.isEmpty() )
-	mErrRet( tr("Please provide logname") );
-
-    sellogidx_ = wd->logs().indexOf( datasetup_.lognm_ );
-    if ( sellogidx_ >= 0 )
-    {
-	uiString msg = tr("Log: '%1' is already present.\nDo you wish to "
-			  "overwrite this log?").arg(datasetup_.lognm_);
-	if ( !uiMSG().askOverwrite(msg) ) return false;
-    }
-
-    return true;
+    return false;
 }
