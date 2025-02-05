@@ -705,6 +705,7 @@ bool VolProc::ChainExecutor::Epoch::doPrepare( ProgressMeter* progmeter )
 	if ( !newtask )
 	{
 	    pErrMsg("Could not create task");
+	    errmsg_ = currentstep->errMsg();
 	    return false;
 	}
 
