@@ -29,6 +29,13 @@ public:
 	    addCmd( "cmd.exe", tr("Command Prompt"), "cmd.png",
 		    tr("Command Prompt"), paths );
 	}
+    else if ( __ismac__)
+    {
+        addCmd( "Terminal", tr("Terminal"), "terminal.png",
+            tr("Terminal"), paths );
+        addCmd( "macterm", tr("MacTerm"), "terminal-mac.png",
+            tr("MacTerm"), paths );
+    }
 	else
 	{
 	    addCmd( "konsole", tr("KDE Konsole"), "terminal-kde.png",
@@ -43,8 +50,6 @@ public:
 			tr("Yakuake"), paths);
 	    addCmd( "tilda", tr("Tilda"), "terminal-tilda.png",
 			tr("Tilda"), paths );
-	    addCmd( "macterm", tr("MacTerm"), "terminal-mac.png",
-			tr("MacTerm"), paths );
 	    addCmd( "Terminal", tr("Terminal"), "terminal.png",
 			tr("Terminal"), paths );
 	    addCmd( "xterm", tr("X Terminal"), "terminal-xterm.png",
@@ -156,10 +161,14 @@ void CommandDefs::addApplication( const char* appnm,
     }
     else if ( __ismac__ )
     {
-	prognames_.add( "open" );
-	if ( !args )
-	    args = new BufferStringSet();
-	args->add( "-a" ).add( appnm ).add( GetPersonalDir() );
+        prognames_.add("osascript");
+        if ( !args )
+        args = new BufferStringSet();
+        args->add("-e");
+    
+        BufferString script;
+        script.add("tell app \"" + std::string(appnm) + "\" to do script \"export PATH='$PATH'\"");
+        args->add(script);
     }
     else
 	prognames_.add( appnm );
