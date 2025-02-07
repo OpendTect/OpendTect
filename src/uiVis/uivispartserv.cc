@@ -822,9 +822,12 @@ bool uiVisPartServer::setVolumeDataPack( const VisID& id, int attrib,
 	seisdpmgr.add( voldp );
 */
     const DataPackID dpid = voldp ? voldp->id() : DataPack::cNoID();
-    if ( res && multirgeditwin_ && id == mapperrgeditordisplayid_ )
+    if ( res && multirgeditwin_ && !multirgeditwin_->isHidden()
+	 && id==mapperrgeditordisplayid_ )
+    {
 	multirgeditwin_->setDataPack( attrib, voldp,
 				      so->selectedTexture(attrib) );
+    }
 
     return res;
 }
@@ -1013,7 +1016,8 @@ void uiVisPartServer::setColTabMapperSetup( const VisID& id, int attrib,
     if ( so->getScene() && so->getScene()->getSceneColTab() )
 	so->getScene()->getSceneColTab()->setColTabMapperSetup( ms );
 
-    if ( multirgeditwin_ && id==mapperrgeditordisplayid_ )
+    if ( multirgeditwin_ && !multirgeditwin_->isHidden()
+	 && id==mapperrgeditordisplayid_ )
     {
 	if ( mapperrgeditinact_ )
 	    mapperrgeditinact_ = false;
@@ -1057,7 +1061,8 @@ void uiVisPartServer::setColTabSequence( const VisID& id, int attrib,
     if ( so->getScene() && so->getScene()->getSceneColTab() )
 	so->getScene()->getSceneColTab()->setColTabSequence( seq );
 
-    if ( multirgeditwin_ && id == mapperrgeditordisplayid_ )
+    if ( multirgeditwin_ && !multirgeditwin_->isHidden()
+	 && id==mapperrgeditordisplayid_ )
     {
 	if ( mapperrgeditinact_ )
 	    mapperrgeditinact_ = false;
@@ -2594,7 +2599,8 @@ bool uiVisPartServer::setDataPackID( const VisID& id, int attrib,
 
     uiTaskRunner taskrunner( appserv().parent() );
     const bool res = so->setDataPackID( attrib, dpid, &taskrunner );
-    if ( res && multirgeditwin_ && id == mapperrgeditordisplayid_ )
+    if ( res && multirgeditwin_ && !multirgeditwin_->isHidden()
+	 && id==mapperrgeditordisplayid_ )
     {
 	const DataPackMgr::MgrID dpmid = getDataPackMgrID( id );
 	multirgeditwin_->setDataPackID( attrib, dpid, dpmid,
