@@ -19,6 +19,7 @@ class NLAModel;
 class uiAttrSel;
 class uiListBox;
 class uiGenInput;
+class uiMnemonicSel;
 class uiWellExtractParams;
 
 mExpClass(uiWellAttrib) uiCreateAttribLogDlg : public uiDialog
@@ -33,16 +34,16 @@ public:
 
 protected:
 
-    uiAttrSel*			attribfld_;
+    uiAttrSel*			attribfld_			= nullptr;
     uiListBox*			welllistfld_;
     uiGenInput*			lognmfld_;
+    uiMnemonicSel*		mnemfld_			= nullptr;
     uiWellExtractParams*	zrangeselfld_;
     const BufferStringSet&	wellnames_;
-    int				sellogidx_;
+    int				sellogidx_			= -1;
     bool			singlewell_;
     AttribLogCreator::Setup	datasetup_;
 
-    bool			inputsOK(Well::Data&);
     bool			acceptOK(CallBacker*) override;
     void			init(CallBacker*);
     void			selDone(CallBacker*);
