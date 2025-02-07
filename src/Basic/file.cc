@@ -902,7 +902,11 @@ od_int64 getFileSize( const char* fnm, bool followlink )
 
 od_int64 getKbSize( const char* fnm )
 {
-    od_int64 kbsz = getFileSize( fnm ) / mDef1KB;
+    const od_int64 filesz = getFileSize( fnm );
+    if ( mIsUdf(filesz) || filesz<0 )
+	return mUdf(od_int64);
+
+    const od_int64 kbsz = filesz / mDef1KB;
     return kbsz;
 }
 
@@ -910,7 +914,7 @@ od_int64 getKbSize( const char* fnm )
 BufferString getFileSizeString( od_int64 fileszbytes, File::SizeUnit fsu )
 {
     BufferString szstr;
-    if ( fileszbytes < 0 )
+    if ( mIsUdf(fileszbytes) || fileszbytes<0 )
     {
 	szstr = "File not found";
 	return szstr;
