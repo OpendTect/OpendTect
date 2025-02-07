@@ -33,16 +33,15 @@ public:
 
 protected:
 
-    uiAttrSel*			attribfld_;
+    uiAttrSel*			attribfld_			= nullptr;
     uiListBox*			welllistfld_;
     uiGenInput*			lognmfld_;
     uiWellExtractParams*	zrangeselfld_;
     const BufferStringSet&	wellnames_;
-    int				sellogidx_;
+    int				sellogidx_			= -1;
     bool			singlewell_;
     AttribLogCreator::Setup	datasetup_;
 
-    bool			inputsOK(Well::Data&);
     bool			acceptOK(CallBacker*) override;
     void			init(CallBacker*);
     void			selDone(CallBacker*);

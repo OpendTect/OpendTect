@@ -37,9 +37,7 @@ uiCreateAttribLogDlg::uiCreateAttribLogDlg( uiParent* p,
 					    bool singlewell )
     : uiDialog(p,uiDialog::Setup(tr("Create Attribute Log"),mNoDlgTitle,
 				 mODHelpKey(mCreateAttribLogDlgHelpID)))
-    , attribfld_(nullptr)
     , wellnames_(wellnames)
-    , sellogidx_(-1)
     , singlewell_(singlewell)
     , datasetup_(AttribLogCreator::Setup(attrib,0))
 {
@@ -249,10 +247,4 @@ bool uiCreateAttribLogDlg::acceptOK( CallBacker* )
     }
 
     return true;
-}
-
-
-bool uiCreateAttribLogDlg::inputsOK( Well::Data& )
-{
-    return false;
 }
