@@ -590,6 +590,10 @@ bool Horizon3DSeedPicker::interpolateSeeds( bool setmanualnode )
 {
     mGetHorizon( hor3d, false )
 
+    const int nrseeds = seedlist_.size();
+    if ( nrseeds<2 )
+	return true;
+
     BinID dir;
     const TrcKeyPath* rdlpath = nullptr;
     RandomLineID rdlid;
@@ -599,10 +603,6 @@ bool Horizon3DSeedPicker::interpolateSeeds( bool setmanualnode )
 	rdlid = engine().activeRandomLineID();
     }
 
-    const int nrseeds = seedlist_.size();
-    if ( nrseeds<2 )
-	return true;
-
     TrcKeyPath nodes;
     RefMan<Geometry::RandomLine> rlgeom = nullptr;
     if ( rdlpath && rdlid.isValid() )
@@ -610,6 +610,8 @@ bool Horizon3DSeedPicker::interpolateSeeds( bool setmanualnode )
 	rlgeom = Geometry::RLM().get( rdlid );
 	if ( rlgeom )
 	    rlgeom->allNodePositions( nodes );
+	if ( nodes.isEmpty() )
+	    return true;
     }
 
     mAllocVarLenArr( int, sortval, nrseeds );
@@ -618,14 +620,11 @@ bool Horizon3DSeedPicker::interpolateSeeds( bool setmanualnode )
     for ( int idx=0; idx<nrseeds; idx++ )
     {
 	const TrcKey& seed = seedlist_[idx];
-	if ( !nodes.isEmpty() )
+	if ( rdlpath )
 	{
 	    const int sortvalidx = Geometry::RandomLine::getNearestPathPosIdx(
 						    nodes, *rdlpath, seed );
-	    if ( sortvalidx<0 )
-		continue;
-
-	    sortval[idx] = sortvalidx;
+	    sortval[idx] = sortvalidx<0 ? mUdf(int) : sortvalidx;
 	}
 	else
 	    sortval[idx] = dir.inl() ? seed.lineNr() : seed.trcNr();
@@ -639,6 +638,10 @@ bool Horizon3DSeedPicker::interpolateSeeds( bool setmanualnode )
     const int step = rdlpath ? 1 : dir.inl() ? dir.inl() : dir.crl();
     for ( int vtx=0; vtx<nrseeds-1; vtx++ )
     {
+	if ( rdlpath &&
+	     (mIsUdf(sortval[vtx+1]) || mIsUdf(sortval[vtx])) )
+	    continue;
+
 	const int diff = sortval[vtx+1] - sortval[vtx];
 	if ( fltdataprov_ )
 	{
@@ -669,7 +672,7 @@ bool Horizon3DSeedPicker::interpolateSeeds( bool setmanualnode )
 		    continue;
 
 		tk = (*rdlpath)[ startidx + idx ];
-                const double interpz = (1-frac) * seed1.z_ + frac  * seed2.z_;
+		const double interpz = (1-frac) * seed1.z_ + frac  * seed2.z_;
 		interpos = Coord3( SI().transform(tk.position()), interpz );
 	    }
 	    else
@@ -684,7 +687,7 @@ bool Horizon3DSeedPicker::interpolateSeeds( bool setmanualnode )
 	    const EM::EMObject::NodeSourceType type = setmanualnode ?
 		EM::EMObject::Manual :
 		EM::EMObject::Auto;
-            hor3d->setZAndNodeSourceType( tk, (float)interpos.z_, true, type );
+	    hor3d->setZAndNodeSourceType( tk, (float)interpos.z_, true, type );
 	    hor3d->setAttrib( tk, EM::EMObject::sSeedNode(), false, true );
 
 	    if ( trackmode_ != DrawBetweenSeeds )
