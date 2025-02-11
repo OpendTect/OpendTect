@@ -16,7 +16,6 @@ ________________________________________________________________________
 #include "multiid.h"
 #include "emposid.h"
 #include "emundo.h"
-#include "enums.h"
 
 class Undo;
 class IOObj;
@@ -33,23 +32,6 @@ namespace EM
 class EMObject;
 class SurfaceIOData;
 class SurfaceIODataSelection;
-
-enum class ObjectType
-{
-    Unknown	= 0,
-    Hor2D	= 1,
-    Hor3D	= 2,
-    AnyHor	= 3,
-    Flt3D	= 4,
-    FltSS2D	= 5,
-    FltSS3D	= 6,
-    FltSS2D3D	= 7,
-    FltSet	= 8,
-    Body	= 9
-};
-
-mDeclareNameSpaceEnumUtils(EarthModel,ObjectType)
-
 
 /*!
 \brief Manages the loaded/half loaded EM objects in OpendTect.

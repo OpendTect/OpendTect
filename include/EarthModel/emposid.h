@@ -9,13 +9,32 @@ ________________________________________________________________________
 -*/
 
 #include "earthmodelmod.h"
-
 #include "integerid.h"
+
+#include "enums.h"
 #include "rowcol.h"
 
 
 namespace EM
 {
+
+enum class ObjectType
+{
+    Unknown	= 0,
+    Hor2D	= 1,
+    Hor3D	= 2,
+    AnyHor	= 3,
+    Flt3D	= 4,
+    FltSS2D	= 5,
+    FltSS3D	= 6,
+    FltSS2D3D	= 7,
+    FltSet	= 8,
+    Body	= 9
+};
+
+mDeclareNameSpaceEnumUtils(EarthModel,ObjectType)
+
+
 
 mExpClass(EarthModel) ObjectID : public IntegerID<od_int32>
 {
