@@ -293,7 +293,7 @@ static EMSurfaceTranslator* getTranslator( Horizon& horizon )
     if ( !transl || !transl->startRead(*ioobj) )
     {
 	horizon.setErrMsg( transl ? transl->errMsg()
-				  : toUiString("Cannot find Translator") );
+				  : ::toUiString("Cannot find Translator") );
 	delete transl;
 	return nullptr;
     }
