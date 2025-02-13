@@ -13,6 +13,7 @@ ________________________________________________________________________
 #include "keystrs.h"
 #include "nrbytes2string.h"
 #include "odcomplex.h"
+#include "odmemory.h"
 #include "perthreadrepos.h"
 #include "survinfo.h"
 #include "undefval.h"
@@ -34,75 +35,6 @@ ________________________________________________________________________
 #endif
 
 #define mToSqMileFactorD	3.58700642792e-8 // ft^2 to mile^2
-
-
-static const char* getStringFromInt( od_int32 val )
-{
-    mDeclStaticString( ret );
-    if ( ret.bufSize() < 128 )
-	ret.setMinBufSize( 128 );
-    od_sprintf( ret.getCStr(), ret.bufSize(), "%d", val );
-    return ret.buf();
-}
-
-
-static const char* getStringFromUInt( od_uint32 val )
-{
-    mDeclStaticString( ret );
-    if ( ret.bufSize() < 128 )
-	ret.setMinBufSize( 128 );
-    od_sprintf( ret.getCStr(), ret.bufSize(), "%u", val );
-    return ret;
-}
-
-
-/* Made the mkUIntStr function because %lld doesn't work on Windows */
-
-static void mkUIntStr( char* buf, od_uint64 val, int isneg )
-{
-    if ( !val )
-	{ buf[0] = '0'; buf[1] = '\0'; return; }
-
-    /* Fill the string with least significant first, i.e. reversed: */
-    char* pbuf = buf;
-    while ( val )
-    {
-	int restval = val % 10;
-	val /= 10;
-	*pbuf++ = '0' + (char) restval;
-    }
-    if ( isneg ) *pbuf++ = '-';
-    *pbuf = '\0';
-
-    /* Reverse to normal: */
-    pbuf--;
-    char* pbuf2 = buf;
-    while ( pbuf > pbuf2 )
-    {
-	char tmp = *pbuf; *pbuf = *pbuf2; *pbuf2 = tmp;
-	pbuf--; pbuf2++;
-    }
-}
-
-
-static const char* getStringFromInt64( od_int64 val, char* str )
-{
-    mDeclStaticString( retstr );
-    char* ret = str ? str : retstr.getCStr();
-    const bool isneg = val < 0 ? 1 : 0;
-    if ( isneg ) val = -val;
-    mkUIntStr( ret, (od_uint64)val, isneg );
-    return ret;
-}
-
-
-static const char* getStringFromUInt64( od_uint64 val, char* str )
-{
-    mDeclStaticString( retstr );
-    char* ret = str ? str : retstr.getCStr();
-    mkUIntStr( ret, val, 0 );
-    return ret;
-}
 
 
 static void rmSingleCharFromString( char* ptr )
@@ -130,60 +62,6 @@ static void cleanupMantissa( char* ptrdot, char* ptrend )
 
     if ( *(ptrdot+1) == '\0' || *(ptrdot+1) == 'e' )
 	rmSingleCharFromString( ptrdot );
-}
-
-
-static bool isZeroInt( const char* start, const char* end )
-{
-    while ( start != end )
-    {
-	if ( *start != '0' && *start != '-' && *start != '+' )
-	    return false;
-	else
-	    start++;
-    }
-    return true;
-}
-
-
-static int findUglyRoundOff( char* str, bool isdouble )
-{
-    char* ptrdot = firstOcc( str, '.' );
-    if ( !ptrdot )
-	return -1;
-
-    char* ptrend = firstOcc( ptrdot, 'e' );
-    if ( !ptrend )
-    {
-	ptrend = firstOcc( ptrdot, 'E' );
-	if ( !ptrend )
-	    ptrend = ptrdot + StringView(ptrdot).size();
-    }
-
-    char* decstartptr = ptrdot + 1;
-    if ( isZeroInt(str,ptrdot) )
-    {
-	while ( *decstartptr && *decstartptr == '0' )
-	    decstartptr++;
-	if ( !*decstartptr )
-	    return -1;
-    }
-
-    char* hit = lastOcc( decstartptr, isdouble ? "000" : "000" );
-    if ( !hit )
-    {
-	hit = lastOcc( decstartptr, isdouble ? "999" : "999" );
-	if ( !hit )
-	    return -1;
-    }
-
-    if ( hit > ptrend )
-	return -1;
-
-    int nrdec = int( hit - ptrdot );
-    if ( *hit == '9' ) nrdec--;
-    if ( nrdec < 0 ) nrdec = 0;
-    return nrdec;
 }
 
 
@@ -243,103 +121,6 @@ static void finalCleanupNumberString( char* str )
 
     if ( !*str )
 	mSetStrTo0(str,return)
-}
-
-
-template <class T>
-static const char* getStringFromNumber( T val, char format, int precision )
-{
-#ifdef OD_NO_QT
-    return toString( val );
-#else
-    mDeclStaticString( retstr );
-    retstr = QString::number( val, format, precision );
-    return retstr.getCStr();
-#endif
-}
-
-
-#define mDetermineValueProps() \
-    const bool scientific = (val > (T)-0.001 && val < (T)0.001) \
-                        || val < (T)(-1.e8) || val >= (T)(1.e8); \
-    const char fmt = scientific ? 'g' : 'f'
-
-template <class T>
-static const char* getPreciseStringFromFPNumber( T val, bool isdouble )
-{
-    mDeclStaticString( retstr );
-    char* str = retstr.getCStr();
-    if ( !val )
-        mSetStrTo0( str, return str )
-    else if ( mIsUdf(val) || mIsUdf(-val) )
-        return sKey::FloatUdf();
-
-    mDetermineValueProps();
-    const int prec = isdouble ? 15 : 7;
-    retstr = getStringFromNumber( val, fmt, prec );
-    finalCleanupNumberString( str );
-    BufferString qcstr( retstr );
-    char* qcstrptr = qcstr.getCStr();
-    char* expptr = firstOcc( qcstrptr, 'e' );
-    if ( !expptr )
-	expptr = firstOcc( qcstrptr, 'E' );
-    if ( expptr )
-	*expptr = '\0';
-
-    if ( !qcstr.isEmpty() && qcstr.size() >= prec+1 )
-    {
-	const char& secondlastchar = qcstr[qcstr.size()-2];
-	if ( secondlastchar == '0' || secondlastchar == '9' )
-	{
-	    retstr = getStringFromNumber( val, fmt, prec-1 );
-	    finalCleanupNumberString( str );
-	}
-    }
-
-    return str;
-}
-
-
-template <class T>
-static const char* getStringFromFPNumber( T val, bool isdouble )
-{
-    mDeclStaticString( retstr );
-    retstr = getPreciseStringFromFPNumber( val, isdouble );
-    char* str = retstr.getCStr();
-
-    const int nrdec = findUglyRoundOff( str, isdouble );
-    if ( nrdec >= 0 )
-    {
-        mDetermineValueProps();
-        retstr = getStringFromNumber( val, fmt, nrdec+1 );
-    }
-
-    finalCleanupNumberString( str );
-    return str;
-}
-
-
-template <class T>
-static const char* getStringFromFPNumber( T inpval, int nrdec, bool isdouble )
-{
-#ifdef OD_NO_QT
-    return getStringFromFPNumber( inpval, isdouble );
-#else
-    mDeclStaticString( retstr );
-    char* str = retstr.getCStr();
-
-    if ( !inpval )
-	mSetStrTo0(str,return str)
-
-    const bool isneg = inpval < 0;
-    const T val = isneg ? -inpval : inpval;
-    if ( mIsUdf(val) )
-	return sKey::FloatUdf();
-
-    const char* fmtend = val < (T)0.001 || val >= (T)1e8 ? "g" : "f";
-    retstr = QString::number( inpval, *fmtend, nrdec );
-    return str;
-#endif
 }
 
 
@@ -793,44 +574,39 @@ int getIndexInStringArrCI( const char* text, const BufferStringSet& nameset,
 
 
 const char* getLimitedDisplayString( const char* inp, int nrchars,
-				     bool trimright )
+				     bool trimright, const char* padbuf )
 {
     if ( nrchars < 1 || !inp || !*inp ) return "";
     const int inplen = strlen( inp );
     if ( inplen < nrchars )
 	return inp;
 
-    mDefineStaticLocalObject( Threads::Lock, lock, (true) );
-    Threads::Locker locker ( lock );
+    BufferString tmpstr( nrchars, false );
+    char* ptr = tmpstr.getCStr();
 
-    mDefineStaticLocalObject( char*, ret, = 0 );
-    delete [] ret; ret = new char [nrchars+1];
-    char* ptr = ret;
-
-    const char* dots = "...";
-    if ( !trimright )
+    const StringView padstr( padbuf );
+    const int padsz = padstr.size();
+    if ( !trimright && padsz > 0 )
     {
-	inp += inplen - nrchars + 3;
-#ifdef __win__
-	strcpy_s( ret,  nrchars+1, dots );
-#else
-	strcpy( ret,  dots );
-#endif
-	ptr = ret + 3;
+	inp += inplen - nrchars + padsz;
+	OD::sysMemCopy( ptr, padbuf, padsz );
+	ptr += padsz;
     }
 
-    for( int idx=0; idx<nrchars-3; idx++ )
-	*ptr++ = *inp++;
+    OD::sysMemCopy( ptr, inp, nrchars-padsz );
+    ptr += nrchars-padsz;
+
+    if ( trimright && padsz > 0 )
+    {
+	OD::sysMemCopy( ptr, padbuf, padsz );
+	ptr += padsz;
+    }
+
     *ptr = '\0';
 
-    if ( trimright )
-#ifdef __win__
-	strcat_s( ret, nrchars+1, dots );
-#else
-	strcat( ret, dots );
-#endif
-
-    return ret;
+    mDeclStaticString( retstr );
+    retstr = tmpstr.buf();
+    return retstr.buf();
 }
 
 
@@ -911,118 +687,58 @@ const char* getAreaString( float area, bool xyinfeet, int precision,
 }
 
 
-// toString functions.
-const char* toString( od_int32 i )
-{ return getStringFromInt( i ); }
-
-const char* toString( od_uint32 i )
-{ return getStringFromUInt( i ); }
-
-const char* toString( od_int64 i )
-{ return getStringFromInt64( i, 0 ); }
-
-const char* toString( od_uint64 i )
-{ return getStringFromUInt64(i, 0); }
-
-const char* toHexString( od_uint32 i, bool padded )
+template <class T>
+static const char* toStringImpl( T val, BufferString& retstr,
+				 const char* cformat, int minbufsz,
+				 char* extstr )
 {
-    mDeclStaticString( retstr );
-    if ( padded )
-	retstr.set( "0x" );
-    else
-	retstr.setEmpty();
+    if ( !extstr && retstr.bufSize() < minbufsz )
+	retstr.setMinBufSize( minbufsz );
 
-    std::stringstream stream;
-    stream << std::hex << i;
-    const std::string hexstr( stream.str() );
-    if ( padded )
-    {
-	const int len = hexstr.size();
-	for ( int idx=0; idx<8-len; idx++ )
-	    retstr.add( "0" );
-    }
-
-    retstr.add( hexstr.c_str() );
-    return retstr.buf();
+    const int bufsz = extstr ? minbufsz : retstr.bufSize();
+    char* ret = extstr ? extstr : retstr.getCStr();
+    od_sprintf( ret, bufsz, cformat, val );
+    return ret;
 }
 
-const char* toString( float f )
-{ return getStringFromFPNumber( f, false ); }
-
-const char* toString( float f, int nrdec )
-{ return getStringFromFPNumber( f, nrdec, false ); }
-
-const char* toString( float f, char format, int precision )
-{ return getStringFromNumber( f, format, precision ); }
-
-const char* toString( double d )
-{ return getStringFromFPNumber( d, true ); }
-
-const char* toString( double d, int nrdec )
-{ return getStringFromFPNumber( d, nrdec, true ); }
-
-const char* toString( double d, char format, int precision )
-{ return getStringFromNumber( d, format, precision ); }
-
-const char* toString( short i )
-{ return getStringFromInt((int)i); }
-
-const char* toString( unsigned short i )
-{ return getStringFromUInt( (unsigned int)i ); }
-
-const char* toString( unsigned char c )
-{ return toString( ((unsigned short)c) ); }
-
-const char* toString( const OD::String& ods )
-{ return ods.buf(); }
-
-const char* toString( const CompoundKey& key )
-{ return key.buf(); }
-
-const char* toString( const MultiID& key )
-{
-    mDeclStaticString( retstr );
-    retstr = key.toString();
-    return retstr.buf();
-}
-
-const char* toStringPrecise( float f )
-{ return getPreciseStringFromFPNumber( f, false ); }
-
-const char* toStringPrecise( double d )
-{ return getPreciseStringFromFPNumber( d, true ); }
 
 template <class T>
 static const char* toStringLimImpl( T val, int maxtxtwdth )
 {
-    StringView simptostr = toString(val);
-    const int simpsz = simptostr.size();
+    mDeclStaticString( ret );
+    if ( ret.bufSize() < 128 )
+	ret.setMinBufSize( 128 );
+
+    ret = toStringPrecise(val);
+    const int simpsz = ret.size();
     if ( maxtxtwdth < 1 || simpsz <= maxtxtwdth )
-	return simptostr;
+	return ret.buf();
 
     if ( mIsUdf(val) || mIsUdf(-val) )
 	return sKey::FloatUdf();
 
-    mDeclStaticString( ret );
-    if ( ret.bufSize() < 128 )
-	ret.setMinBufSize( 128 );
     char* str = ret.getCStr();
-
     // First try to simply remove digits from mantissa
-    BufferString numbstr( simptostr );
+    BufferString numbstr( ret );
     char* ptrdot = numbstr.find( '.' );
     if ( ptrdot )
     {
 	char* ptrend = firstOcc( ptrdot, 'e' );
 	if ( !ptrend )
 	    ptrend = ptrdot + StringView(ptrdot).size();
+
 	const int nrcharsav = int(ptrend - ptrdot);
 	if ( nrcharsav >= simpsz - maxtxtwdth )
 	{
 	    for ( int irm=simpsz - maxtxtwdth; irm>0; irm--)
 		rmSingleCharFromString( --ptrend );
+
+	    if ( ptrend == ptrdot+1 )
+		rmSingleCharFromString( --ptrend );
+
 	    if ( numbstr[maxtxtwdth-1] == '.' )
 		numbstr[maxtxtwdth-1] = '\0';
+
 	    ret = numbstr;
 	    return ret.buf();
 	}
@@ -1052,25 +768,159 @@ static const char* toStringLimImpl( T val, int maxtxtwdth )
     return str;
 }
 
-const char* toStringLim( double d, int mw )
-{ return toStringLimImpl( d, mw ); }
 
-const char* toStringLim( float f, int mw )
-{ return toStringLimImpl( f, mw ); }
-
-
-const char* toString( const char* str )
+// toString functions.
+const char* toString( signed char c, od_uint16 width, int minbufsz,
+		      char* extstr )
 {
-    return str ? str : "";
+    mDeclStaticString( retstr );
+    const BufferString format = cformat( 'c', width );
+    return toStringImpl( c, retstr, format.str(), minbufsz, extstr );
 }
 
 
-const char* toString( signed char c )
+const char* toString( unsigned char c, od_uint16 width, int minbufsz,
+		      char* extstr )
 {
     mDeclStaticString( retstr );
-    char* buf = retstr.getCStr();
-    buf[0] = (char)c; buf[1] = '\0';
-    return buf;
+    const BufferString format = cformat( 'c', width );
+    return toStringImpl( c, retstr, format.str(), minbufsz, extstr );
+}
+
+
+const char* toString( short i, od_uint16 width, int minbufsz, char* extstr )
+{
+    mDeclStaticString( retstr );
+    const BufferString format = cformat( 'd', width );
+    return toStringImpl( i, retstr, format.str(), minbufsz, extstr );
+}
+
+
+const char* toString( unsigned short i, od_uint16 width, int minbufsz,
+		      char* extstr )
+{
+    mDeclStaticString( retstr );
+    const BufferString format = cformat( 'u', width );
+    return toStringImpl( i, retstr, format.str(), minbufsz, extstr );
+}
+
+
+const char* toString( od_int32 i, od_uint16 width, int minbufsz, char* extstr )
+{
+    mDeclStaticString( retstr );
+    const BufferString format = cformat( 'd', width );
+    return toStringImpl( i, retstr, format.str(), minbufsz, extstr );
+}
+
+
+const char* toString( od_uint32 i, od_uint16 width, int minbufsz, char* extstr )
+{
+    mDeclStaticString( retstr );
+    const BufferString format = cformat( 'u', width );
+    return toStringImpl( i, retstr, format.str(), minbufsz, extstr );
+}
+
+
+const char* toString( od_int64 i, od_uint16 width, int minbufsz, char* extstr )
+{
+    mDeclStaticString( retstr );
+    const BufferString format = cformat( 'd', width, 0, nullptr, "ll" );
+    return toStringImpl( i, retstr, format.str(), minbufsz, extstr );
+}
+
+
+const char* toString( od_uint64 i, od_uint16 width, int minbufsz, char* extstr )
+{
+    mDeclStaticString( retstr );
+    const BufferString format = cformat( 'u', width, 0, nullptr, "ll" );
+    return toStringImpl( i, retstr, format.str(), minbufsz, extstr );
+}
+
+
+const char* toString( float f, char specifier, od_uint16 width,
+		      od_uint16 precision,
+		      const char* length, const char* flags,
+		      int minbufsz, char* extstr )
+{
+    mDeclStaticString( retstr );
+    const BufferString format = cformat( specifier, width, precision,
+					 length, flags );
+    return toStringImpl( f, retstr, format.buf(), minbufsz, extstr );
+}
+
+
+const char* toString( double d, char specifier, od_uint16 width,
+		      od_uint16 precision,
+		      const char* length, const char* flags,
+		      int minbufsz, char* extstr )
+{
+    mDeclStaticString( retstr );
+    const BufferString format = cformat( specifier, width, precision,
+					 length, flags );
+    return toStringImpl( d, retstr, format.buf(), minbufsz, extstr );
+}
+
+
+const char* toString( float f, const char* cformat, int minbufsz,
+		      char* extstr )
+{
+    mDeclStaticString( retstr );
+    return toStringImpl( f, retstr, cformat, minbufsz, extstr );
+}
+
+
+const char* toString( double d, const char* cformat, int minbufsz,
+		      char* extstr )
+{
+    mDeclStaticString( retstr );
+    return toStringImpl( d, retstr, cformat, minbufsz, extstr );
+}
+
+const char* toString( float f, int nrdec )
+{ return toString( f, 'g', 0, nrdec ); }
+
+const char* toString( float f, char format, int precision )
+{ return toString( f, format, 0, precision ); }
+
+const char* toStringLim( float f, int maxtxtwidth )
+{ return toStringLimImpl( f, maxtxtwidth ); }
+
+const char* toStringPrecise( float f )
+{ return toString( f, 'g', 0, 6 ); }
+
+const char* toString( double d, int nrdec )
+{ return toString( d, 'g', 0, nrdec ); }
+
+const char* toString( double d, char format, int precision )
+{ return toString( d, format, 0, precision ); }
+
+const char* toStringLim( double d, int maxtxtwidth )
+{ return toStringLimImpl( d, maxtxtwidth ); }
+
+const char* toStringPrecise( double d )
+{ return toString( d, 'g', 0, 15 ); }
+
+
+const char* toHexString( od_uint32 i, bool padded )
+{
+    mDeclStaticString( retstr );
+    if ( padded )
+	retstr.set( "0x" );
+    else
+	retstr.setEmpty();
+
+    std::stringstream stream;
+    stream << std::hex << i;
+    const std::string hexstr( stream.str() );
+    if ( padded )
+    {
+	const int len = hexstr.size();
+	for ( int idx=0; idx<8-len; idx++ )
+	    retstr.add( "0" );
+    }
+
+    retstr.add( hexstr.c_str() );
+    return retstr.buf();
 }
 
 
@@ -1078,6 +928,23 @@ const char* toString( bool b )
 {
     const char* res = getYesNoString(b);
     return res;
+}
+
+
+const char* toString( const char* str )
+{ return str ? str : ""; }
+
+const char* toString( const OD::String& ods )
+{ return ods.buf(); }
+
+const char* toString( const CompoundKey& key )
+{ return key.buf(); }
+
+const char* toString( const MultiID& key )
+{
+    mDeclStaticString( retstr );
+    retstr = key.toString();
+    return retstr.buf();
 }
 
 
@@ -1314,14 +1181,17 @@ const char* cformat( char specifier, od_uint16 width, od_uint16 precision,
 		     const char* length, const char* flags )
 {
 // %[flags][width][.precision][length]specifier
+    BufferString tmpstr;
+    tmpstr.set( '%' );
+    if ( flags )	tmpstr.add( flags );
+    if ( width>0 )	tmpstr.add( width );
+    if ( precision>0 )	tmpstr.add( "." ).add( precision );
+    if ( length )	tmpstr.add( length );
+    tmpstr.add( specifier );
+
     mDeclStaticString( ret );
-    ret.set( '%' );
-    if ( flags )	ret.add( flags );
-    if ( width>0 )	ret.add( width );
-    if ( precision>0 )	ret.add( "." ).add( precision );
-    if ( length )	ret.add( length );
-    ret.add( specifier );
-    return ret;
+    ret = tmpstr;
+    return ret.buf();
 }
 
 
@@ -1389,7 +1259,7 @@ BufferString toUserString( const Interval<double>& intv, int precision )
 const char* getDimensionString( int sz1, int sz2, int sz3 )
 {
     mDeclStaticString( ret );
-    ret = sz1; 
+    ret = sz1;
     ret.add( " x " ).add( sz2 );
     if ( sz3 > 0 )
 	ret.add( " x " ).add( sz3 );

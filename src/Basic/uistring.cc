@@ -938,84 +938,94 @@ uiString toUiString( const uiString& var ) { return var; }
 uiString toUiString( const OD::String& str ) { return toUiString( str.str() ); }
 
 
-template <class ODT,class QT> inline
-static uiString toUiStringWithPrecisionImpl( ODT v, int prec )
+static bool useNumberLocale()
 {
-#ifndef OD_NO_QT
-    const QLocale* locale = TrMgr().getQLocale();
-    if ( locale && locale->script()==QLocale::ArabicScript )
-    {
-        uiString res;
-        res.setFrom( locale->toString((QT) v, 'g', prec) );
-        return res;
-    }
-#endif
+    static bool ret = GetEnvVarYN( "OD_USE_LOCALE_NUMBERS" );
+    return ret;
+}
 
-    return uiString().set( toString(v, prec ) );
+static const char* getNumberLocArg()
+{
+    return useNumberLocale() ? "%L1" : "%1";
 }
 
 
 template <class ODT,class QT> inline
-static uiString toUiStringImpl( ODT v )
+static uiString toUiStringImpl( ODT v, od_uint16 width )
 {
-#ifndef OD_NO_QT
-    const QLocale* locale = TrMgr().getQLocale();
-    if ( locale && locale->script()==QLocale::ArabicScript )
-    {
-	uiString res;
-	res.setFrom( locale->toString((QT) v ) );
-	return res;
-    }
-#endif
-
+#ifdef OD_NO_QT
     return uiString().set( toString(v) );
+#else
+    const QString ret = QString( getNumberLocArg() ).arg( v, width );
+    uiString res;
+    res.setFrom( ret );
+    return res;
+#endif
 }
+
+
+template <class ODT,class QT> inline
+static uiString toUiStringWithPrecisionImpl( ODT v, int width, char format,
+					     int precision, char fillchar )
+{
+#ifdef OD_NO_QT
+    return uiString().set( toString(v, precision ) );
+#else
+    const QString ret = QString( getNumberLocArg() ).arg( v, width, format,
+							  precision, fillchar );
+    uiString res;
+    res.setFrom( ret );
+    return res;
+#endif
+}
+
 
 #ifdef OD_NO_QT
+typedef short qint16;
+typedef unsigned short quint16;
 typedef od_uint32 uint;
-typedef od_int64 ulonglong;
 typedef od_uint32 qulonglong;
+typedef od_int64 ulonglong;
+typedef od_uint64 qulonglong;
 #endif
 
 
-uiString toUiString( od_int32 v )
-{ return toUiStringImpl<od_int32,int>( v ); }
+uiString toUiString( short v, od_uint16 width )
+{ return toUiStringImpl<short,qint16>(v,width); }
 
 
-uiString toUiString( od_uint32 v )
-{ return toUiStringImpl<od_int32,uint>( v ); }
+uiString toUiString( unsigned short v, od_uint16 width )
+{ return toUiStringImpl<unsigned short,quint16>(v,width); }
 
 
-uiString toUiString( od_int64 v )
-{ return toUiStringImpl<od_int64,qlonglong>( v ); }
+uiString toUiString( od_int32 v, od_uint16 width )
+{ return toUiStringImpl<od_int32,int>(v,width); }
 
 
-uiString toUiString( od_uint64 v )
-{ return toUiStringImpl<od_uint64,qulonglong>( v ); }
+uiString toUiString( od_uint32 v, od_uint16 width )
+{ return toUiStringImpl<od_uint32,uint>(v,width); }
 
 
-uiString toUiString( float v )
-{ return toUiStringImpl<float,float>( v ); }
+uiString toUiString( od_int64 v, od_uint16 width )
+{ return toUiStringImpl<od_int64,qlonglong>(v,width); }
 
 
-uiString toUiString( double v )
-{ return toUiStringImpl<double,double>( v ); }
+uiString toUiString( od_uint64 v, od_uint16 width )
+{ return toUiStringImpl<od_uint64,qulonglong>(v,width); }
 
 
-uiString toUiString( float v, int prec )
-{ return toUiStringWithPrecisionImpl<float,float>( v, prec ); }
+uiString toUiString( float v, int width, char format, int prec, char fillchar )
+{
+    return toUiStringWithPrecisionImpl<float,float>( v, width, format,
+						     prec, fillchar );
+}
 
 
-uiString toUiString( double v, int prec )
-{ return toUiStringWithPrecisionImpl<double,double>( v, prec ); }
-
-
-uiString toUiString( float v, char format, int precision )
-{ return uiString().set( toString(v,format,precision) ); }
-
-
-uiString toUiString( double v, char format, int precision )
-{ return uiString().set( toString(v,format,precision) ); }
+uiString toUiString( double v, int width, char format, int prec, char fillchar )
+{
+    return toUiStringWithPrecisionImpl<double,double>( v, width, format,
+						       prec, fillchar );
+}
 
 
 uiString toUiString( const Coord& c )

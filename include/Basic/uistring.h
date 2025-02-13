@@ -311,16 +311,16 @@ typedef uiString uiPhrase;
 mGlobal(Basic) uiString toUiString(const uiString&);
 mGlobal(Basic) uiString toUiString(const char*);
 mGlobal(Basic) uiString toUiString(const OD::String&);
-mGlobal(Basic) uiString toUiString(od_int32);
-mGlobal(Basic) uiString toUiString(od_int64);
-mGlobal(Basic) uiString toUiString(od_uint32);
-mGlobal(Basic) uiString toUiString(od_uint64);
-mGlobal(Basic) uiString toUiString(float);
-mGlobal(Basic) uiString toUiString(double);
-mGlobal(Basic) uiString toUiString(float,int nrdec);
-mGlobal(Basic) uiString toUiString(double,int nrdec);
-mGlobal(Basic) uiString toUiString(float,char format,int precision);
-mGlobal(Basic) uiString toUiString(double,char format,int precision);
+mGlobal(Basic) uiString toUiString(short,od_uint16 width=0);
+mGlobal(Basic) uiString toUiString(unsigned short,od_uint16 width=0);
+mGlobal(Basic) uiString toUiString(od_int32,od_uint16 width=0);
+mGlobal(Basic) uiString toUiString(od_uint32,od_uint16 width=0);
+mGlobal(Basic) uiString toUiString(od_int64,od_uint16 width=0);
+mGlobal(Basic) uiString toUiString(od_uint64,od_uint16 width=0);
+mGlobal(Basic) uiString toUiString(float,int width=0,char format='g',
+				   int precision=-1,char fillchar=u' ');
+mGlobal(Basic) uiString toUiString(double,int width=0,char format='g',
+				   int precision=-1,char fillchar=u' ');
 mGlobal(Basic) uiString toUiString(const Coord&); //!< no decimals
 mGlobal(Basic) uiString toUiString(const BufferStringSet&);
 mGlobal(Basic) uiString toUiString(const MultiID&);

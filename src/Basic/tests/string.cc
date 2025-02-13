@@ -99,11 +99,62 @@ static bool testBytes2String()
 
 
 template <class T>
+static bool doTestStringPrecisionIntegers( T val, od_uint16 width,
+					   const char* strval, const char* desc)
+{
+    const BufferString bstostring = toString( val, width );
+    BufferString testname( "Number string for ", desc );
+    testname.addSpace().add( val );
+
+    T retval;
+    Conv::set<T>( retval, bstostring.buf() );
+    mRunStandardTest( bstostring == strval && retval==val, testname.str() );
+
+    return true;
+}
+
+#define mTestStringPrecisionI(val,strval,desc) \
+    if ( !doTestStringPrecisionIntegers(val,width,strval,desc) ) return false
+
+static bool testStringPrecisionIntegers()
+{
+    const short psval =  31245;
+    const short msval = -31245;
+    const unsigned short usval = 51235;
+    const od_int32 pi32val =  2147483640;
+    const od_int32 mi32val = -2147483640;
+    const od_uint32 ui32val = 4294967290;
+    const od_int64 pi64val =  9223372036854775703LL;
+    const od_int64 mi64val = -9223372036854775703LL;
+    const od_uint64 ui64val = 18446744073709551610ULL;
+
+    od_uint16 width = 0;
+    mTestStringPrecisionI( psval, "31245", "positive short" );
+    mTestStringPrecisionI( msval, "-31245", "negative short" );
+    mTestStringPrecisionI( usval, "51235", "unsigned short" );
+    mTestStringPrecisionI( pi32val, "2147483640", "positive signed int" );
+    mTestStringPrecisionI( mi32val, "-2147483640", "negative signed int" );
+    mTestStringPrecisionI( ui32val, "4294967290", "unsigned int" );
+    mTestStringPrecisionI( pi64val, "9223372036854775703",
+			   "positive signed long long int" );
+    mTestStringPrecisionI( mi64val, "-9223372036854775703",
+			   "negative signed long long int" );
+    mTestStringPrecisionI( ui64val, "18446744073709551610",
+			   "unsigned long long int" );
+
+    width = 8;
+    mTestStringPrecisionI( msval, "  -31245", "negative short with padding" );
+
+    return true;
+}
+
+
+template <class T>
 static bool doTestStringPrecisionInAscII( T val, const char* strval, bool flt )
 {
-    const BufferString bstostring = toString( val );
+    const BufferString bstostring = toStringPrecise( val );
     const BufferString testname( flt ? "Float precision " : "Double precision ",
-				 val);
+				 strval );
     T retval;
     Conv::set<T>( retval, bstostring );
     mRunTest( testname.buf(), bstostring == strval && retval==val )
@@ -129,34 +180,77 @@ static bool testStringPrecisionInAscII()
     mTestStringPrecisionF( 0.001f, "0.001" );
     mTestStringPrecisionF( 0.023f, "0.023" );
     mTestStringPrecisionF( 0.0001f, "0.0001" );
-    mTestStringPrecisionF( 0.00001f, "1e-5" );
-    mTestStringPrecisionF( 0.00000001f, "1e-8" );
+    mTestStringPrecisionF( 0.00001f, "1e-05" );
+    mTestStringPrecisionF( 0.00000001f, "1e-08" );
     mTestStringPrecisionF( 12.345, "12.345" );
     mTestStringPrecisionF( -123456., "-123456" );
-    mTestStringPrecisionF( -1.2345e11, "-1.2345e11" );
-    mTestStringPrecisionF( 1.2345e11, "1.2345e11" );
+    mTestStringPrecisionF( -1.2345e11, "-1.2345e+11" );
+    mTestStringPrecisionF( 1.2345e11, "1.2345e+11" );
     mTestStringPrecisionD( 0, "0" );
     mTestStringPrecisionD( 0.1, "0.1" );
     mTestStringPrecisionD( 0.05, "0.05" );
     mTestStringPrecisionD( 0.001, "0.001" );
     mTestStringPrecisionD( 0.023, "0.023" );
     mTestStringPrecisionD( 0.0001, "0.0001" );
-    mTestStringPrecisionD( 0.00001, "1e-5" );
-    mTestStringPrecisionD( 0.00000001, "1e-8" );
+    mTestStringPrecisionD( 0.00001, "1e-05" );
+    mTestStringPrecisionD( 0.00000001, "1e-08" );
     mTestStringPrecisionD( 12.345, "12.345" );
     mTestStringPrecisionD( -123456., "-123456" );
     mTestStringPrecisionD( -1.2345e11, "-123450000000" );
     mTestStringPrecisionD( 1.2345e11, "123450000000" );
-    mTestStringPrecisionD( 1.2345e16, "1.2345e16" );
-    mTestStringPrecisionD( 1.6e-5, "1.6e-5" );
-    mTestStringPrecisionD( 1.5e-5, "1.5e-5" );
+    mTestStringPrecisionD( 1.2345e16, "1.2345e+16" );
+    mTestStringPrecisionD( 1.6e-5, "1.6e-05" );
+    mTestStringPrecisionD( 1.5e-5, "1.5e-05" );
     mTestStringPrecisionD( 55.0554844553, "55.0554844553" );
     mTestStringPrecisionD( 55.05548445533, "55.05548445533" );
     mTestStringPrecisionD( 55.05548445535, "55.05548445535" );
     mTestStringPrecisionD( 55.055484455333, "55.055484455333" );
     mTestStringPrecisionD( 55.055484455335, "55.055484455335" );
     mTestStringPrecisionD( 55.0554844553334, "55.0554844553334" );
-    mTestStringPrecisionD( 5.50554844553e50, "5.50554844553e50" );
+    mTestStringPrecisionD( 5.50554844553e50, "5.50554844553e+50" );
+    return true;
+}
+
+
+template <class T>
+static bool doTestStringCPrecisionInAscII( T val, const char* fmt,
+					   const char* strval, bool flt )
+{
+    const BufferString bstostring = toString( val, fmt, 32 );
+    const BufferString testname( flt ? "Float c-format precision "
+				     : "Double c-format precision ",
+				 val );
+    BufferString errmsg( "Expected: ", strval, "; Received: " );
+    errmsg.add( bstostring );
+    mRunStandardTestWithError( bstostring == strval, testname, errmsg );
+
+    return true;
+}
+
+#undef mTestStringPrecisionF
+#define mTestStringPrecisionF(val,cformat,strval) \
+    fval = (float)val; \
+    if ( !doTestStringCPrecisionInAscII(fval,cformat,strval,true) ) return false
+#undef mTestStringPrecisionD
+#define mTestStringPrecisionD(val,cformat,strval) \
+    dval = val; \
+    if ( !doTestStringCPrecisionInAscII(dval,cformat,strval,false)) return false
+
+static bool testStringCPrecisionInAscII()
+{
+    float fval; double dval;
+
+    mTestStringPrecisionF( 0.023f, "%f", "0.023000" );
+    mTestStringPrecisionF( 0.023f, "%6.2f", "  0.02" );
+    mTestStringPrecisionF( 1245.23f, "%f", "1245.229980" );
+    mTestStringPrecisionF( 1245.23f, "%7.2f", "1245.23" );
+    mTestStringPrecisionF( 1245.23f, "%10.2f", "   1245.23" );
+    mTestStringPrecisionD( 0.023, "%f", "0.023000" );
+    mTestStringPrecisionD( 0.023, "%6.2f", "  0.02" );
+    mTestStringPrecisionD( 1245.23, "%f", "1245.230000" );
+    mTestStringPrecisionD( 1245.23, "%7.2f", "1245.23" );
+    mTestStringPrecisionD( 1245.23, "%10.2f", "   1245.23" );
+
     return true;
 }
 
@@ -252,7 +346,8 @@ static bool testOccFns()
 
 static bool testLimFToStringFns()
 {
-    if ( quiet_ ) return true;
+    if ( quiet_ )
+	return true;
 
     struct floatVarDef { float v_; const char* desc_; };
     struct doubleVarDef { double v_; const char* desc_; };
@@ -365,7 +460,9 @@ int mTestMainFnName( int argc, char** argv )
     if ( !testBuilder()
       || !testWords()
       || !testBytes2String()
+      || !testStringPrecisionIntegers()
       || !testStringPrecisionInAscII()
+      || !testStringCPrecisionInAscII()
       || !testTruncate()
       || !testBufferStringFns()
       || !testOccFns()

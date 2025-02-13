@@ -29,26 +29,48 @@ class BufferStringSet;
 class CompoundKey;
 class MultiID;
 
-mGlobal(Basic) const char* toString(od_int32);
-mGlobal(Basic) const char* toString(od_uint32);
-mGlobal(Basic) const char* toString(od_int64);
-mGlobal(Basic) const char* toString(od_uint64);
-mGlobal(Basic) const char* toHexString(od_uint32,bool padded=true);
-mGlobal(Basic) const char* toString(float);
+mGlobal(Basic) const char* toString(signed char,od_uint16 width=0,
+				    int minbufsz=128,char* extbuf=nullptr);
+mGlobal(Basic) const char* toString(unsigned char,od_uint16 width=0,
+				    int minbufsz=128,char* extbuf=nullptr);
+mGlobal(Basic) const char* toString(short,od_uint16 width=0,
+				    int minbufsz=128,char* extbuf=nullptr);
+mGlobal(Basic) const char* toString(unsigned short,od_uint16 width=0,
+				    int minbufsz=128,char* extbuf=nullptr);
+mGlobal(Basic) const char* toString(od_int32,od_uint16 width=0,
+				    int minbufsz=128,char* extbuf=nullptr);
+mGlobal(Basic) const char* toString(od_uint32,od_uint16 width=0,
+				    int minbufsz=128,char* extbuf=nullptr);
+mGlobal(Basic) const char* toString(od_int64,od_uint16 width=0,
+				    int minbufsz=128,char* extbuf=nullptr);
+mGlobal(Basic) const char* toString(od_uint64,od_uint16 width=0,
+				    int minbufsz=128,char* extbuf=nullptr);
+mGlobal(Basic) const char* toString(float,char format='g',od_uint16 width=0,
+				    od_uint16 precision=6,
+				    const char* length=nullptr,
+				    const char* flags=nullptr,
+				    int minbufsz=128,char* extbuf=nullptr);
+mGlobal(Basic) const char* toString(double,char format='g',od_uint16 width=0,
+				    od_uint16 precision=6,
+				    const char* length=nullptr,
+				    const char* flags=nullptr,
+				    int minbufsz=128,char* extbuf=nullptr);
+mGlobal(Basic) const char* toString(float,const char* cformat,
+				    int minbufsz=128,char* extbuf=nullptr);
+mGlobal(Basic) const char* toString(double,const char* cformat,
+				    int minbufsz=128,char* extbuf=nullptr);
+
 mGlobal(Basic) const char* toString(float,int nrdec);
 mGlobal(Basic) const char* toString(float,char format,int precision);
 mGlobal(Basic) const char* toStringLim(float,int maxtxtwdth);
 mGlobal(Basic) const char* toStringPrecise(float);
-mGlobal(Basic) const char* toString(double);
 mGlobal(Basic) const char* toString(double,int nrdec);
 mGlobal(Basic) const char* toString(double,char format,int precision);
 mGlobal(Basic) const char* toStringLim(double,int maxtxtwdth);
 mGlobal(Basic) const char* toStringPrecise(double);
+
+mGlobal(Basic) const char* toHexString(od_uint32,bool padded=true);
 mGlobal(Basic) const char* toString(bool);
-mGlobal(Basic) const char* toString(signed char);
-mGlobal(Basic) const char* toString(unsigned char);
-mGlobal(Basic) const char* toString(short);
-mGlobal(Basic) const char* toString(unsigned short);
 mGlobal(Basic) const char* toString(const char*);
 mGlobal(Basic) const char* toString(const OD::String&);
 mGlobal(Basic) const char* toString(const CompoundKey&);
@@ -162,8 +184,10 @@ mGlobal(Basic) const char* getRankPostFix(int);
 mGlobal(Basic) const char* getBytesString(od_uint64);
 	/*!< returns a nicely, readable size, in bytes, KB, MB, GB, or TB */
 mGlobal(Basic) const char* getLimitedDisplayString(const char*,int nrchars,
-					    bool trimright);
-	/*!< returns a string for display, never larger than nrchars */
+				    bool trimright,const char* padstr="...");
+	/*!< returns a string for display, never larger than nrchars
+	     Not appropriate for number strings, as the exponent may
+	     get cropped	 */
 
 mGlobal(Basic) int getIndexInStringArrCI(const char*,const char* const* arr,
 				  int startnr=0,int nr_chars_to_match=0,

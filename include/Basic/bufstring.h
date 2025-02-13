@@ -97,6 +97,17 @@ public:
     BufferString&	set( const OD::String& s )	{ return set(s.str()); }
     template <class T>
     BufferString&	set(const T&);
+    template <class T>
+    BufferString&	set(const T&,od_uint16 width,char specifier='g',
+			    od_uint16 precision=6,const char* length=nullptr,
+			    const char* flags=nullptr);
+			/*!< number types only.
+			     The object should be set with an appropriate
+			     buffer size. specifier, precision, length and
+			     flags are not used for integer types*/
+    template <class T>
+    BufferString&	set(const T&,const char* cformat,int minbufsz);
+			//!< single/double floating-point only
     BufferString&	set(float,int nrdec);
     BufferString&	set(double,int nrdec);
     BufferString&	setLim(float,int maxnrchars);
@@ -131,9 +142,9 @@ public:
     BufferString&	trimBlanks(); //!< removes front and back whitespaces
 
     BufferString&	insertAt(int idx, const char*);
-				//< If idx >= size(), pads spaces
+				//!< If idx >= size(), pads spaces
     BufferString&	replaceAt(int idx, const char*,bool cutoff=true);
-				//< If idx >= size(), pads spaces
+				//!< If idx >= size(), pads spaces
     BufferString&	toLower();
     BufferString&	toUpper();
     BufferString&	toTitleCase();
@@ -232,6 +243,84 @@ inline const char* BufferString::findLast( const char* s ) const
 
 template <class T> inline BufferString& BufferString::operator=( const T& t )
 { return set( t ); }
+
+template <class T> inline
+BufferString& BufferString::set( const T& t, od_uint16 width,
+				 char /*specifier*/, od_uint16 /*precision*/,
+				 const char* /*length*/, const char* /*flags*/ )
+{
+    if ( width > 0 && bufSize() <= width )
+	setMinBufSize( width+1 );
+
+    setEmpty();
+    toString( t, width, bufSize(), getCStr() );
+    return *this;
+}
+
+template <> inline
+BufferString& BufferString::set( const float& fval, od_uint16 width,
+				 char specifier, od_uint16 precision,
+				 const char* length, const char* flags )
+{
+    if ( width > 0 && bufSize() <= width )
+	setMinBufSize( width+1 );
+
+    setEmpty();
+    toString( fval, specifier, width, precision, length, flags,
+	      bufSize(), getCStr() );
+    return *this;
+}
+
+
+template <> inline
+BufferString& BufferString::set( const double& dval, od_uint16 width,
+				 char specifier, od_uint16 precision,
+				 const char* length, const char* flags )
+{
+    if ( width > 0 && bufSize() <= width )
+	setMinBufSize( width+1 );
+
+    setEmpty();
+    toString( dval, specifier, width, precision, length, flags,
+	      bufSize(), getCStr() );
+    return *this;
+}
+
+
+template <class T> inline
+BufferString& BufferString::set( const T& /* t */, const char* /* cformat */,
+				 int /* expbufsize */ )
+{
+    pErrMsg("Should not be used");
+    return *this;
+}
+
+
+template <> inline
+BufferString& BufferString::set( const float& fval, const char* cformat,
+				 int expbufsize )
+{
+    if ( bufSize() <= expbufsize )
+	setMinBufSize( expbufsize+1 );
+
+    setEmpty();
+    toString( fval, cformat, bufSize(), getCStr() );
+    return *this;
+}
+
+
+template <> inline
+BufferString& BufferString::set( const double& dval, const char* cformat,
+				 int expbufsize )
+{
+    if ( bufSize() <= expbufsize )
+	setMinBufSize( expbufsize+1 );
+
+    setEmpty();
+    toString( dval, cformat, bufSize(), getCStr() );
+    return *this;
+}
+
 
 template <class T> inline BufferString& BufferString::add( const T& t )
 { return add( toString(t) ); }
