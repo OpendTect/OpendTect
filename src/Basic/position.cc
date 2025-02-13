@@ -293,7 +293,9 @@ const char* Coord::toString() const
     if ( isUdf() )
 	ret.set( "<undef>" );
     else
-        ret.set( "(" ).add( x_ ).add( "," ).add( y_ ).add( ")" );
+        ret.set( "(" ).add( toStringPrecise( x_ ) )
+	   .add( "," ).add( toStringPrecise( y_ ) ).add( ")" );
+
     return ret.buf();
 }
 

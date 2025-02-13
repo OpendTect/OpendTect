@@ -103,7 +103,8 @@ LatLong LatLong::transform( const Coord& c, bool towgs84,
 const char* LatLong::toString() const
 {
     mDeclStaticString( ret );
-    ret.set( "[" ).add( lat_ ).add( "," ).add( lng_ ).add( "]" );
+    ret.set( "[" ).add( toStringPrecise(lat_) )
+       .add( "," ).add( toStringPrecise(lng_) ).add( "]" );
     return ret.buf();
 }
 

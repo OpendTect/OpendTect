@@ -168,21 +168,21 @@ bool testIntegersNumberStrings()
     const od_uint64 ui64val = 18446744073709551610ULL;
 
     od_uint16 width = 0;
-    mTestStringPrecisionI( psval, "31,245", "positive short" );
-    mTestStringPrecisionI( msval, "-31,245", "negative short" );
-    mTestStringPrecisionI( usval, "51,235", "unsigned short" );
-    mTestStringPrecisionI( pi32val, "2,147,483,640", "positive signed int" );
-    mTestStringPrecisionI( mi32val, "-2,147,483,640", "negative signed int" );
-    mTestStringPrecisionI( ui32val, "4,294,967,290", "unsigned int" );
-    mTestStringPrecisionI( pi64val, "9,223,372,036,854,775,703",
+    mTestStringPrecisionI( psval, "31245", "positive short" );
+    mTestStringPrecisionI( msval, "-31245", "negative short" );
+    mTestStringPrecisionI( usval, "51235", "unsigned short" );
+    mTestStringPrecisionI( pi32val, "2147483640", "positive signed int" );
+    mTestStringPrecisionI( mi32val, "-2147483640", "negative signed int" );
+    mTestStringPrecisionI( ui32val, "4294967290", "unsigned int" );
+    mTestStringPrecisionI( pi64val, "9223372036854775703",
                            "positive signed long long int" );
-    mTestStringPrecisionI( mi64val, "-9,223,372,036,854,775,703",
+    mTestStringPrecisionI( mi64val, "-9223372036854775703",
                            "negative signed long long int" );
-    mTestStringPrecisionI( ui64val, "18,446,744,073,709,551,610",
+    mTestStringPrecisionI( ui64val, "18446744073709551610",
                            "unsigned long long int" );
 
     width = 8;
-    mTestStringPrecisionI( msval, " -31,245", "negative short with padding" );
+    mTestStringPrecisionI( msval, "  -31245", "negative short with padding" );
 
     return true;
 }
@@ -256,20 +256,20 @@ static bool testFPNumberStringsFormat()
 
     fval = 1245.23f;
     string = toUiString( fval ); bstr = string.getString();
-    mRunStandardTest( bstr=="1,245.23", "Float number string" );
+    mRunStandardTest( bstr=="1245.23", "Float number string" );
     string = toUiString( fval, 0, 'f', 2 ); bstr = string.getString();
-    mRunStandardTest( bstr=="1,245.23", "Number string with precision 2" );
+    mRunStandardTest( bstr=="1245.23", "Number string with precision 2" );
     string = toUiString( fval, 10, 'f', 2 ); bstr = string.getString();
-    mRunStandardTest( bstr=="  1,245.23",
+    mRunStandardTest( bstr=="   1245.23",
 		      "Float number string with width 10 and precision 2" );
 
     dval = 1245.23;
     string = toUiString( dval ); bstr = string.getString();
-    mRunStandardTest( bstr=="1,245.23", "Double number string" );
+    mRunStandardTest( bstr=="1245.23", "Double number string" );
     string = toUiString( dval, 0, 'f', 2 ); bstr = string.getString();
-    mRunStandardTest( bstr=="1,245.23", "Number string with precision 2" );
+    mRunStandardTest( bstr=="1245.23", "Number string with precision 2" );
     string = toUiString( dval, 10, 'f', 2 ); bstr = string.getString();
-    mRunStandardTest( bstr=="  1,245.23",
+    mRunStandardTest( bstr=="   1245.23",
 		      "Double Number string with width 10 and precision 2" );
 
     return true;
@@ -281,12 +281,12 @@ bool testLargeNumberStrings()
     uiString string = toUiString( 12500 );
     QString qstr; string.fillQString( qstr );
     BufferString bstr( qstr );
-    mRunStandardTest( bstr=="12,500", "Large number string" );
+    mRunStandardTest( bstr=="12500", "Large number string" );
 
     ArrPtrMan<wchar_t> wbuf = string.createWCharString();
     qstr = QString::fromWCharArray( wbuf.ptr() );
     bstr = BufferString( qstr );
-    mRunStandardTest( bstr=="12,500", "Large number string from wchar" );
+    mRunStandardTest( bstr=="12500", "Large number string from wchar" );
 
     return true;
 }
@@ -388,7 +388,7 @@ int mTestMainFnName( int argc, char** argv )
 {
     mInitTestProg();
 
-    SetEnvVar( "OD_USE_LOCALE_NUMBERS", "Yes" );
+    SetEnvVar( "OD_USE_LOCALE_NUMBERS", "No" );
 
     if ( !testArg() ||
 	 !testSharedData() ||

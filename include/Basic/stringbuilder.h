@@ -41,8 +41,8 @@ public:
     StringBuilder&	add(const char*);
     StringBuilder&	add(char,int nr=1);
     StringBuilder&	add(const QString&);
-    template <class T>	inline
-    StringBuilder&	add( const T& t )	{ return add( toString(t) ); }
+    template <class T>
+    StringBuilder&	add(const T&);
 
     StringBuilder&	addSpace( int nr=1 )	{ return add(' ',nr); }
     StringBuilder&	addTab( int nr=1 )	{ return add('\t',nr); }
@@ -57,3 +57,25 @@ protected:
     bool		setBufSz(int,bool cp_old);
 
 };
+
+
+template <class T> inline
+StringBuilder& StringBuilder::add( const T& t )
+{
+    return add( toString(t) );
+}
+
+
+template <> inline
+StringBuilder& StringBuilder::add( const float& f )
+{
+    return add( toStringPrecise(f) );
+}
+
+
+template <> inline
+StringBuilder& StringBuilder::add( const double& d )
+{
+    return add( toStringPrecise(d) );
+}
+
