@@ -19,11 +19,13 @@ ________________________________________________________________________
 #include "welllogset.h"
 #include "welllog.h"
 #include "wellmarker.h"
+#include "wellreader.h"
 #include "wellwriter.h"
 
 #include "uiattrsel.h"
 #include "uigeninput.h"
 #include "uilistbox.h"
+#include "uimnemonicsel.h"
 #include "uimsg.h"
 #include "uimultiwelllogsel.h"
 #include "uiseparator.h"
@@ -78,10 +80,14 @@ uiCreateAttribLogDlg::uiCreateAttribLogDlg( uiParent* p,
     auto* sep2 = new uiSeparator( this, "Z Sel/Log Sep" );
     sep2->attach( stretchedBelow, zrangeselfld_ );
 
+    uiMnemonicsSel::Setup su( nullptr, tr("Output log mnemonic") );
+    mnemfld_ = new uiMnemonicsSel( this, su );
+    mnemfld_->attach( ensureBelow, sep2 );
+    mnemfld_->attach( alignedBelow, zrangeselfld_);
+
     lognmfld_ = new uiGenInput( this, tr("Log name") );
     lognmfld_->setElemSzPol( uiObject::Wide );
-    lognmfld_->attach( ensureBelow, sep2 );
-    lognmfld_->attach( alignedBelow, zrangeselfld_);
+    lognmfld_->attach( alignedBelow, mnemfld_);
 
     mAttachCB( postFinalize(), uiCreateAttribLogDlg::init  );
 }
@@ -112,6 +118,9 @@ void uiCreateAttribLogDlg::init( CallBacker* )
     BufferStringSet allmarkernames;
     Well::Man::getAllMarkerNames( allmarkernames, wds );
     zrangeselfld_->setMarkers( allmarkernames );
+    const Mnemonic* defmnem = MNC().getByName( "SEIS" );
+    if ( defmnem )
+	mnemfld_->setMnemonic( *defmnem );
 }
 
 
@@ -164,72 +173,61 @@ bool uiCreateAttribLogDlg::acceptOK( CallBacker* )
 	return false;
     }
 
-    uiTaskRunner taskrunner( this );
-    datasetup_.tr_ = &taskrunner;
-
+    const char* lognm = datasetup_.lognm_.str();
     const Well::LoadReqs lreq( Well::Trck, Well::D2T, Well::LogInfos );
-    bool dontaskagain = false;
+    RefObjectSet<Well::Data> wds;
+    TypeSet<MultiID> keys;
     uiRetVal uirv;
     for ( int idx=0; idx<selwells.size(); idx++ )
     {
 	const char* wellnm = selwells.get(idx).buf();
-	const char* lognm = datasetup_.lognm_.str();
-	PtrMan<IOObj> ioobj = Well::findIOObj( selwells.get(idx), nullptr );
+	PtrMan<IOObj> ioobj = Well::findIOObj( wellnm, nullptr );
 	if ( !ioobj )
 	{
 	    uirv.add( tr("%1 '%2': %3")
-		    .arg( uiStrings::phrCannotFindDBEntry(uiStrings::sWell()))
-		    .arg( wellnm ).arg( Well::MGR().errMsg() ) );
+		.arg( uiStrings::phrCannotFindDBEntry(uiStrings::sWell()))
+		.arg( wellnm ).arg( Well::MGR().errMsg() ) );
 	    continue;
 	}
 
-	RefMan<Well::Data> wd = Well::MGR().get( ioobj->key(), lreq );
-	if ( !wd )
-	{
-	    uirv.add( tr("%1 '%2': %3")
-		    .arg( uiStrings::phrCannotRead(uiStrings::sWell()) )
-		    .arg( wellnm ).arg( Well::MGR().errMsg() ) );
-	    continue;
-	}
+	keys += ioobj->key();
+    }
 
-	if ( SI().zIsTime() && !wd->d2TModel() )
-	{
-	    uirv.add( tr("No depth to time model defined for well '%1'")
-			.arg( wellnm ) );
-	    continue;
-	}
+    MultiWellReader mwr( keys, wds, lreq );
+    uiTaskRunner mwrtr( this );
+    if ( !mwrtr.execute(mwr) )
+    {
+	uiMSG().error( tr("Could not load any wells") );
+	return false;
+    }
 
-	if ( wd->logs().isPresent(lognm) && !dontaskagain )
-	{
-	    const uiString msg = tr("Log: '%1' is already present.\n"
-				    "Do you wish to overwrite this log?" )
-					.arg( lognm );
-	    if ( !uiMSG().askGoOn(msg,true,&dontaskagain) )
-		continue;
-	}
+    bool dooverwrite = false;
+    uiString logpresentques = tr( "Following wells already have a '%1' log."
+				  "Do you want to overwrite them?" )
+			      .arg( lognm );
+    uiStringSet wellnms;
+    for ( int idx=0; idx<wds.size(); idx++ )
+    {
+	ConstRefMan<Well::Data> wd = wds.get( idx );
+	if ( wd && wd->logs().isPresent(lognm) )
+	    wellnms.add( tr(wd->name().buf()) );
+    }
 
-	int sellogidx = wd->logs().indexOf( lognm ); //not used
-	AttribLogCreator attriblog( datasetup_, sellogidx );
-	if ( !attriblog.doWork(*wd,errmsg) )
-	{
-	    uirv.add( errmsg );
-	    continue;
-	}
+    if ( !wellnms.isEmpty() )
+	dooverwrite = uiMSG().askGoOnWithDetails( logpresentques, wellnms,
+						  tr("Overwrite"),
+						  tr("Ignore") );
 
-	sellogidx = wd->logs().indexOf( lognm );
-	PtrMan<Well::Log> newlog = wd->logs().remove( sellogidx );
-	if ( !newlog )
-	{
-	    pErrMsg("Should not happen");
-	    continue;
-	}
+    const Mnemonic* outmn = mnemfld_->mnemonic();
+    if ( !outmn )
+	outmn = &Mnemonic::undef();
 
-	const MultiID dbkey = ioobj->key();
-	if ( !Well::MGR().writeAndRegister(dbkey,newlog) )
-	{
-	    uirv.add( toUiString(Well::MGR().errMsg()) );
-	    continue;
-	}
+    uiTaskRunner uitr( this );
+    BulkAttribLogCreator balc( datasetup_, wds, *outmn, uirv, dooverwrite );
+    if ( !uitr.execute(balc) )
+    {
+	uiMSG().error( balc.uiMessage() );
+	return false;
     }
 
     if ( uirv.isOK() )

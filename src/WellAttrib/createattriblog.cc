@@ -11,6 +11,7 @@ ________________________________________________________________________
 
 #include "attribengman.h"
 #include "attribprocessor.h"
+#include "ioobj.h"
 #include "survinfo.h"
 #include "welldata.h"
 #include "welld2tmodel.h"
@@ -61,10 +62,12 @@ bool AttribLogExtractor::fillPositions( const StepInterval<float>& dahintv )
 	float md = dahintv.atIndex( idx );
 	Coord3 pos = wd_->track().getPos( md );
 	const BinID bid = SI().transform( pos );
-	if ( !bid.inl() && !bid.crl() ) continue;
+	if ( !bid.inl() && !bid.crl() )
+	    continue;
 
 	if ( SI().zIsTime() && wd_->d2TModel() )
             pos.z_ = wd_->d2TModel()->getTime( md, wd_->track() );
+
         bidset_.add( bid, (float) pos.z_, (float)idx );
 	depths_ += md;
 	positions_ += BinIDValueSet::SPos(0,0);
@@ -89,7 +92,7 @@ AttribLogCreator::Setup::Setup( const Attrib::DescSet* attr,
     : nlamodel_(nullptr)
     , attrib_(attr)
     , selspec_(nullptr)
-    , tr_(nullptr)
+    , taskr_(nullptr)
     , extractparams_(wep)
 {
 }
@@ -135,7 +138,7 @@ bool AttribLogCreator::doWork( Well::Data& wdin, uiString& errmsg )
 	mErrRet(msg)
     }
 
-    if ( !ale.extractData( aem, setup_.tr_ ) )
+    if ( !ale.extractData( aem, setup_.taskr_ ) )
     {
 	msg.arg(tr("No data extracted")).arg(wd->name());
 	mErrRet(msg)
@@ -184,4 +187,109 @@ bool AttribLogCreator::createLog( Well::Data& wdin,
 	delete newlog;
     }
     return true;
+}
+
+
+BulkAttribLogCreator::BulkAttribLogCreator( const AttribLogCreator::Setup& su,
+				    ObjectSet<Well::Data>& selwells,
+				    const Mnemonic& outmn, uiRetVal& uirv,
+				    bool overwrite )
+    : SequentialTask("Creating log attribute")
+    , datasetup_(su)
+    , selwells_(selwells)
+    , outmn_(outmn)
+    , msgs_(uirv)
+    , overwrite_(overwrite)
+{
+    msg_ = tr( "Creating attribute logs" );
+}
+
+
+BulkAttribLogCreator::~BulkAttribLogCreator()
+{}
+
+
+od_int64 BulkAttribLogCreator::nrDone() const
+{
+    return nrdone_;
+}
+
+
+od_int64 BulkAttribLogCreator::totalNr() const
+{
+    return selwells_.size();
+}
+
+
+uiString BulkAttribLogCreator::uiNrDoneText() const
+{
+    return tr( "Wells processed" );
+}
+
+
+uiString BulkAttribLogCreator::uiMessage() const
+{
+    return msg_;
+}
+
+
+int BulkAttribLogCreator::nextStep()
+{
+    if ( nrdone_ >= selwells_.size() )
+	return Finished();
+
+    const char* lognm = datasetup_.lognm_.str();
+    RefMan<Well::Data> wd = selwells_.get( nrdone_ );
+    if ( !wd )
+    {
+	nrdone_++;
+	return MoreToDo();
+    }
+
+    if ( SI().zIsTime() && !wd->d2TModel() )
+    {
+	msgs_.add( tr("No depth to time model defined for well '%1'")
+		   .arg(wd->name()) );
+	nrdone_++;
+	return MoreToDo();
+    }
+
+    if ( wd->logs().isPresent(lognm) && !overwrite_ )
+    {
+	msgs_.add( tr("Log: '%1' is already present in '%2'.\n")
+				  .arg(lognm).arg(wd->name().buf()) );
+	nrdone_++;
+	return MoreToDo();
+    }
+
+    int sellogidx = wd->logs().indexOf( lognm ); //not used
+    AttribLogCreator attriblog( datasetup_, sellogidx );
+    uiString errmsg;
+    if ( !attriblog.doWork(*wd,errmsg) )
+    {
+	msgs_.add( errmsg );
+	nrdone_++;
+	return MoreToDo();
+    }
+
+    sellogidx = wd->logs().indexOf( lognm );
+    PtrMan<Well::Log> newlog = wd->logs().remove( sellogidx );
+    if ( !newlog )
+    {
+	pErrMsg("Should not happen");
+	nrdone_++;
+	return MoreToDo();
+    }
+
+    newlog->setMnemonic( outmn_ );
+    const MultiID dbkey = wd->multiID();
+    if ( !Well::MGR().writeAndRegister(dbkey,newlog) )
+    {
+	msgs_.add( toUiString(Well::MGR().errMsg()) );
+	nrdone_++;
+	return MoreToDo();
+    }
+
+    nrdone_++;
+    return MoreToDo();
 }

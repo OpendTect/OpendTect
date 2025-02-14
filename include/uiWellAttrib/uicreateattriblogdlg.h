@@ -18,6 +18,7 @@ namespace Attrib { class DescSet; }
 class NLAModel;
 class uiAttrSel;
 class uiListBox;
+class uiMnemonicsSel;
 class uiGenInput;
 class uiWellExtractParams;
 
@@ -36,6 +37,7 @@ protected:
     uiAttrSel*			attribfld_			= nullptr;
     uiListBox*			welllistfld_;
     uiGenInput*			lognmfld_;
+    uiMnemonicsSel*		mnemfld_;
     uiWellExtractParams*	zrangeselfld_;
     const BufferStringSet&	wellnames_;
     int				sellogidx_			= -1;
