@@ -944,7 +944,7 @@ static bool useNumberLocale()
     return ret;
 }
 
-const char* getNumberLocArg( int idx )
+static const char* getNumberLocArg( int idx=1 )
 {
     BufferString tmpstr;
     tmpstr.set( "%" );
