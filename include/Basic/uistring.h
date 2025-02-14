@@ -338,7 +338,8 @@ mGlobal(Basic) const char* getNumberLocArg(int idx=1);
 template <class T1,class T2>
 uiString toUiString( const std::pair<T1,T2>& pair )
 {
-    const BufferString fmtstr( getNumberLocArg(1), "/", getNumberLocArg(2) );
+    BufferString fmtstr( getNumberLocArg(1) );
+    fmtstr.add( "/" ).add( getNumberLocArg(2) );
     return toUiString( fmtstr.str() ).arg( pair.first ).arg( pair.second );
 }
 

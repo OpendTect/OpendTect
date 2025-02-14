@@ -1067,7 +1067,7 @@ uiString toUiString( const Coord& crd, int precision, int width, char format,
 {
     const char fmt = precision <= 0 ? 'd' : format;
     const int prec = precision <= 0 ? 0 : precision;
-    BufferString qfmt = getNumberLocArg(1);
+    BufferString qfmt( getNumberLocArg(1) );
     qfmt.add( ", " ).add( getNumberLocArg(2) );
     if ( withparenthesis )
 	qfmt.embed('(',')');
@@ -1088,7 +1088,7 @@ uiString toUiString( const Coord3& crd, int xyprecision, int zprecision,
     const char zfmt = zprecision <= 0 ? 'd' : format;
     const int xyprec = xyprecision <= 0 ? 0 : xyprecision;
     const int zprec = zprecision <= 0 ? 0 : zprecision;
-    BufferString qfmt = getNumberLocArg(1);
+    BufferString qfmt( getNumberLocArg(1) );
     qfmt.add( ", " ).add( getNumberLocArg(2) )
         .add( ", " ).add( getNumberLocArg(3) );
     if ( withparenthesis )
