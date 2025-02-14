@@ -15,6 +15,7 @@ ________________________________________________________________________
 
 namespace Attrib { class DescSet; class SelSpec; class EngineMan; }
 namespace Well { class Data; class ExtractParams; }
+class Mnemonic;
 class NLAModel;
 class TaskRunner;
 
@@ -58,7 +59,7 @@ public:
 	mDefSetupMemb(Attrib::SelSpec*,selspec)
 	mDefSetupMemb(BufferString,lognm)
 	mDefSetupMemb(const Well::ExtractParams*,extractparams)
-	mDefSetupMemb(TaskRunner*,tr) //optional
+	mDefSetupMemb(TaskRunner*,taskr) //optional
     };
 
 
@@ -77,4 +78,34 @@ protected:
     bool			createLog(Well::Data&,
 					  const AttribLogExtractor&);
 
+};
+
+
+mExpClass(WellAttrib) BulkAttribLogCreator : public SequentialTask
+{mODTextTranslationClass(BulkAttribLogCreator)
+public:
+
+			BulkAttribLogCreator(const AttribLogCreator::Setup&,
+					ObjectSet<Well::Data>& selwells,
+					const Mnemonic& outmn,uiRetVal&,
+					bool overwrite);
+			~BulkAttribLogCreator();
+
+    od_int64		nrDone() const override;
+    od_int64		totalNr() const override;
+    uiString		uiNrDoneText() const override;
+    uiString		uiMessage() const override;
+
+private:
+
+    int			nextStep() override;
+
+    const AttribLogCreator::Setup&  datasetup_;
+    ObjectSet<Well::Data>&	    selwells_;
+    const Mnemonic&		    outmn_;
+    uiString			    msg_;
+    uiRetVal&			    msgs_;
+    const bool			    overwrite_;
+
+    od_int64			    nrdone_			= 0;
 };

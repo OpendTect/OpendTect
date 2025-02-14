@@ -18,6 +18,7 @@ namespace Attrib { class DescSet; }
 class NLAModel;
 class uiAttrSel;
 class uiListBox;
+class uiMnemonicsSel;
 class uiGenInput;
 class uiMnemonicSel;
 class uiWellExtractParams;
