@@ -11,6 +11,7 @@ ________________________________________________________________________
 #include "wellattribmod.h"
 #include "binidvalset.h"
 #include "bufstring.h"
+#include "task.h"
 #include "uistring.h"
 
 namespace Attrib { class DescSet; class SelSpec; class EngineMan; }
