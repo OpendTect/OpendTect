@@ -858,9 +858,7 @@ void uiSEGYReadStartInfo::setScanInfoTexts( const SEGY::ScanInfoSet& sis )
     setCellTxt( mQSResCol, mZRangeRow, txt );
 
     const SEGY::ScanRangeInfo& rgs = sis.ranges();
-    BufferString uifmtstr( getNumberLocArg(1) );
-    uifmtstr.add( " - " ).add( getNumberLocArg(2) );
-    const char* rgstr = uifmtstr.str();
+    const char* rgstr = "%1 - %2";
     inlinfotxt_.set( rgstr ).arg( rgs.inls_.start_ ).arg( rgs.inls_.stop_ );
     crlinfotxt_.set( rgstr ).arg( rgs.crls_.start_ ).arg( rgs.crls_.stop_ );
     trcnrinfotxt_.set( rgstr ).arg( rgs.trcnrs_.start_ )
