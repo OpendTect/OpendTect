@@ -460,7 +460,7 @@ static void setValue( uiLineEdit* fld, float val )
     if ( mIsUdf(val) )
 	fld->setText( "" );
     else
-	fld->setValue( toString(val,sNumberFormat,sNumberPrecision) );
+	fld->setValue( toStringSpec(val,sNumberFormat,sNumberPrecision) );
 }
 
 

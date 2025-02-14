@@ -198,13 +198,13 @@ BufferString& BufferString::add( const std::wstring& wstdstr )
 
 BufferString& BufferString::add( float f, int nrdec )
 {
-    return add( toString( f, nrdec ) );
+    return add( toStringDec( f, nrdec ) );
 }
 
 
 BufferString& BufferString::add( double d, int nrdec )
 {
-    return add( toString( d, nrdec ) );
+    return add( toStringDec( d, nrdec ) );
 }
 
 

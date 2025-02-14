@@ -158,3 +158,17 @@ public:
 			{ return add( ods.buf() ); }
 
 };
+
+
+template <> inline
+SeparString& SeparString::add( float f )
+{
+    return add( toStringPrecise(f) );
+}
+
+
+template <> inline
+SeparString& SeparString::add( double d )
+{
+    return add( toStringPrecise(d) );
+}

@@ -216,10 +216,10 @@ template <class T>
 static bool doTestStringCPrecisionInAscII( T val, const char* fmt,
 					   const char* strval, bool flt )
 {
-    const BufferString bstostring = toString( val, fmt, 32 );
+    const BufferString bstostring = toStringCFmt( val, fmt );
     const BufferString testname( flt ? "Float c-format precision "
 				     : "Double c-format precision ",
-				 val );
+				 strval );
     BufferString errmsg( "Expected: ", strval, "; Received: " );
     errmsg.add( bstostring );
     mRunStandardTestWithError( bstostring == strval, testname, errmsg );
@@ -250,6 +250,76 @@ static bool testStringCPrecisionInAscII()
     mTestStringPrecisionD( 1245.23, "%f", "1245.230000" );
     mTestStringPrecisionD( 1245.23, "%7.2f", "1245.23" );
     mTestStringPrecisionD( 1245.23, "%10.2f", "   1245.23" );
+
+    return true;
+}
+
+template <class T>
+static bool doTestStringCPrecisionNrDec( T val, int nrdec,
+					 const char* strval, bool flt )
+{
+    const BufferString bstostring = toStringDec( val, nrdec );
+    BufferString testname( flt ? "Float nrdec: "
+			       : "Double nrdec: ", nrdec );
+    testname.add( "; For: " ).add( strval );
+    BufferString errmsg( "Expected: ", strval, "; Received: " );
+    errmsg.add( bstostring );
+    mRunStandardTestWithError( bstostring == strval, testname, errmsg );
+
+    return true;
+}
+
+#undef mTestStringPrecisionF
+#define mTestStringPrecisionF(val,nrdec,strval) \
+    fval = (float)val; \
+    if ( !doTestStringCPrecisionNrDec(fval,nrdec,strval,true) ) return false
+#undef mTestStringPrecisionD
+#define mTestStringPrecisionD(val,nrdec,strval) \
+    dval = val; \
+    if ( !doTestStringCPrecisionNrDec(dval,nrdec,strval,false)) return false
+
+static bool testStringCPrecisionNrDec()
+{
+    float fval; double dval;
+
+    mTestStringPrecisionF( 0.023f, 0, "0" );
+    mTestStringPrecisionF( 0.023f, 1, "0.0" );
+    mTestStringPrecisionF( 0.023f, 2, "0.02" );
+    mTestStringPrecisionF( 0.023f, 3, "0.023" );
+    mTestStringPrecisionF( 0.023f, 4, "0.0230" );
+    mTestStringPrecisionF( 1245.23f, 0, "1245" );
+    mTestStringPrecisionF( 1245.23f, 1, "1245.2" );
+    mTestStringPrecisionF( 1245.23f, 2, "1245.23" );
+    mTestStringPrecisionF( 1245.23f, 3, "1245.230" );
+    mTestStringPrecisionF( -1.23456e-5f, 0, "-1e-05" );
+    mTestStringPrecisionF( -1.23456e-5f, 1, "-1.2e-05" );
+    mTestStringPrecisionF( -1.23456e-5f, 2, "-1.23e-05" );
+    mTestStringPrecisionF( -1.23456e-5f, 3, "-1.235e-05" );
+    mTestStringPrecisionF( -1.23456e-5f, 4, "-1.2346e-05" );
+    mTestStringPrecisionF( 1234523.789f, 0, "1e+06" );
+    mTestStringPrecisionF( 1234523.789f, 1, "1.2e+06" );
+    mTestStringPrecisionF( 1234523.789f, 2, "1.23e+06" );
+    mTestStringPrecisionF( 1234523.789f, 3, "1.235e+06" );
+    mTestStringPrecisionF( 1234523.789f, 4, "1.2345e+06" );
+    mTestStringPrecisionD( 0.023, 0, "0" );
+    mTestStringPrecisionD( 0.023, 1, "0.0" );
+    mTestStringPrecisionD( 0.023, 2, "0.02" );
+    mTestStringPrecisionD( 0.023, 3, "0.023" );
+    mTestStringPrecisionD( 0.023, 4, "0.0230" );
+    mTestStringPrecisionD( 1245.23, 0, "1245" );
+    mTestStringPrecisionD( 1245.23, 1, "1245.2" );
+    mTestStringPrecisionD( 1245.23, 2, "1245.23" );
+    mTestStringPrecisionD( 1245.23, 3, "1245.230" );
+    mTestStringPrecisionD( -1.23456e-5, 0, "-1e-05" );
+    mTestStringPrecisionD( -1.23456e-5, 1, "-1.2e-05" );
+    mTestStringPrecisionD( -1.23456e-5, 2, "-1.23e-05" );
+    mTestStringPrecisionD( -1.23456e-5, 3, "-1.235e-05" );
+    mTestStringPrecisionD( -1.23456e-5, 4, "-1.2346e-05" );
+    mTestStringPrecisionD( 1234523.789, 0, "1e+06" );
+    mTestStringPrecisionD( 1234523.789, 1, "1.2e+06" );
+    mTestStringPrecisionD( 1234523.789, 2, "1.23e+06" );
+    mTestStringPrecisionD( 1234523.789, 3, "1.235e+06" );
+    mTestStringPrecisionD( 1234523.789, 4, "1.2345e+06" );
 
     return true;
 }
@@ -463,6 +533,7 @@ int mTestMainFnName( int argc, char** argv )
       || !testStringPrecisionIntegers()
       || !testStringPrecisionInAscII()
       || !testStringCPrecisionInAscII()
+      || !testStringCPrecisionNrDec()
       || !testTruncate()
       || !testBufferStringFns()
       || !testOccFns()

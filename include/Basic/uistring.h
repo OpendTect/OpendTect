@@ -158,10 +158,7 @@ public:
 
     template <class T>
     inline uiString&	arg(const T&);
-    inline uiString&	arg(float,int nrdecimals);
-    inline uiString&	arg(double,int nrdecimals);
     uiString&		arg(const uiString&);
-
 
 			/*! appendXX() functions should be used to concatenate
 			    entire sentences. You cannot just mix&match words
@@ -319,23 +316,35 @@ mGlobal(Basic) uiString toUiString(od_int64,od_uint16 width=0);
 mGlobal(Basic) uiString toUiString(od_uint64,od_uint16 width=0);
 mGlobal(Basic) uiString toUiString(float,int width=0,char format='g',
 				   int precision=-1,char fillchar=u' ');
+				   //!< precision = nrdec for 'f' format
+mGlobal(Basic) uiString toUiStringDec(float,int nrdec);
 mGlobal(Basic) uiString toUiString(double,int width=0,char format='g',
-				   int precision=-1,char fillchar=u' ');
-mGlobal(Basic) uiString toUiString(const Coord&); //!< no decimals
+				  int precision=-1,char fillchar=u' ');
+				   //!< precision = nrdec for 'f' format
+mGlobal(Basic) uiString toUiStringDec(double,int nrdec);
+mGlobal(Basic) uiString toUiString(const Coord&,int precision=0,
+				   int width=0,char format='f',
+				   bool withparentheses=true);
+mGlobal(Basic) uiString toUiString(const Coord3&,int xyprecision=0,
+				   int zprecision=0,int xywidth=0,
+				   int zwidth=0,char format='f',
+				   bool withparentheses=true);
 mGlobal(Basic) uiString toUiString(const BufferStringSet&);
 mGlobal(Basic) uiString toUiString(const MultiID&);
 
 
-mGlobal(Basic) const char* toString(const uiString&);
+mGlobal(Basic) const char* getNumberLocArg(int idx=1);
 
 template <class T1,class T2>
 uiString toUiString( const std::pair<T1,T2>& pair )
 {
-    return toUiString( "%1/%2" ).arg( pair.first ).arg( pair.second );
+    const BufferString fmtstr( getNumberLocArg(1), "/", getNumberLocArg(2) );
+    return toUiString( fmtstr.str() ).arg( pair.first ).arg( pair.second );
 }
 
 mGlobal(Basic) uiString toUiString(const mQtclass(QString)&);
 
+mGlobal(Basic) const char* toString(const uiString&);
 
 inline uiString& uiString::appendPhraseSameLine( const uiString& str )
 { return appendPhrase( str, CloseLine, OnSameLine ); }
@@ -380,16 +389,6 @@ template <class T> inline
 uiString& uiString::arg( const T& var )
 {
     return arg( toUiString(var) );
-}
-
-inline uiString& uiString::arg( float val, int nrdec )
-{
-    return arg( toUiString(val,nrdec) );
-}
-
-inline uiString& uiString::arg( double val, int nrdec )
-{
-    return arg( toUiString(val,nrdec) );
 }
 
 

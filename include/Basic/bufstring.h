@@ -266,7 +266,7 @@ BufferString& BufferString::set( const float& fval, od_uint16 width,
 	setMinBufSize( width+1 );
 
     setEmpty();
-    toString( fval, specifier, width, precision, length, flags,
+    toString( fval, width, specifier, precision, length, flags,
 	      bufSize(), getCStr() );
     return *this;
 }
@@ -281,7 +281,7 @@ BufferString& BufferString::set( const double& dval, od_uint16 width,
 	setMinBufSize( width+1 );
 
     setEmpty();
-    toString( dval, specifier, width, precision, length, flags,
+    toString( dval, width, specifier, precision, length, flags,
 	      bufSize(), getCStr() );
     return *this;
 }
@@ -304,7 +304,7 @@ BufferString& BufferString::set( const float& fval, const char* cformat,
 	setMinBufSize( expbufsize+1 );
 
     setEmpty();
-    toString( fval, cformat, bufSize(), getCStr() );
+    toStringCFmt( fval, cformat, bufSize(), getCStr() );
     return *this;
 }
 
@@ -317,13 +317,19 @@ BufferString& BufferString::set( const double& dval, const char* cformat,
 	setMinBufSize( expbufsize+1 );
 
     setEmpty();
-    toString( dval, cformat, bufSize(), getCStr() );
+    toStringCFmt( dval, cformat, bufSize(), getCStr() );
     return *this;
 }
 
 
 template <class T> inline BufferString& BufferString::add( const T& t )
 { return add( toString(t) ); }
+
+template <> inline BufferString& BufferString::add( const float& f )
+{ return add( toStringPrecise(f) ); }
+
+template <> inline BufferString& BufferString::add( const double& d )
+{ return add( toStringPrecise(d) ); }
 
 inline BufferString& BufferString::set( const char* s )
 { setEmpty(); return add( s ); }

@@ -45,29 +45,29 @@ mGlobal(Basic) const char* toString(od_int64,od_uint16 width=0,
 				    int minbufsz=128,char* extbuf=nullptr);
 mGlobal(Basic) const char* toString(od_uint64,od_uint16 width=0,
 				    int minbufsz=128,char* extbuf=nullptr);
-mGlobal(Basic) const char* toString(float,char format='g',od_uint16 width=0,
+mGlobal(Basic) const char* toString(float,od_uint16 width=0,char format='g',
 				    od_uint16 precision=6,
 				    const char* length=nullptr,
 				    const char* flags=nullptr,
 				    int minbufsz=128,char* extbuf=nullptr);
-mGlobal(Basic) const char* toString(double,char format='g',od_uint16 width=0,
+mGlobal(Basic) const char* toString(double,od_uint16 width=0,char format='g',
 				    od_uint16 precision=6,
 				    const char* length=nullptr,
 				    const char* flags=nullptr,
-				    int minbufsz=128,char* extbuf=nullptr);
-mGlobal(Basic) const char* toString(float,const char* cformat,
-				    int minbufsz=128,char* extbuf=nullptr);
-mGlobal(Basic) const char* toString(double,const char* cformat,
 				    int minbufsz=128,char* extbuf=nullptr);
 
-mGlobal(Basic) const char* toString(float,int nrdec);
-mGlobal(Basic) const char* toString(float,char format,int precision);
-mGlobal(Basic) const char* toStringLim(float,int maxtxtwdth);
 mGlobal(Basic) const char* toStringPrecise(float);
-mGlobal(Basic) const char* toString(double,int nrdec);
-mGlobal(Basic) const char* toString(double,char format,int precision);
-mGlobal(Basic) const char* toStringLim(double,int maxtxtwdth);
+mGlobal(Basic) const char* toStringDec(float,int nrdec);
+mGlobal(Basic) const char* toStringSpec(float,char specifier,int precision);
+mGlobal(Basic) const char* toStringCFmt(float,const char* cformat,
+				       int minbufsz=128,char* extbuf=nullptr);
+mGlobal(Basic) const char* toStringLim(float,int maxtxtwdth);
 mGlobal(Basic) const char* toStringPrecise(double);
+mGlobal(Basic) const char* toStringDec(double,int nrdec);
+mGlobal(Basic) const char* toStringSpec(double,char specifier,int precision);
+mGlobal(Basic) const char* toStringCFmt(double,const char* cformat,
+					int minbufsz=128,char* extbuf=nullptr);
+mGlobal(Basic) const char* toStringLim(double,int maxtxtwdth);
 
 mGlobal(Basic) const char* toHexString(od_uint32,bool padded=true);
 mGlobal(Basic) const char* toString(bool);

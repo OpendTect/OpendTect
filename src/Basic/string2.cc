@@ -11,6 +11,7 @@ ________________________________________________________________________
 
 #include "compoundkey.h"
 #include "keystrs.h"
+#include "math2.h"
 #include "nrbytes2string.h"
 #include "odcomplex.h"
 #include "odmemory.h"
@@ -837,7 +838,7 @@ const char* toString( od_uint64 i, od_uint16 width, int minbufsz, char* extstr )
 }
 
 
-const char* toString( float f, char specifier, od_uint16 width,
+const char* toString( float f, od_uint16 width, char specifier,
 		      od_uint16 precision,
 		      const char* length, const char* flags,
 		      int minbufsz, char* extstr )
@@ -849,7 +850,7 @@ const char* toString( float f, char specifier, od_uint16 width,
 }
 
 
-const char* toString( double d, char specifier, od_uint16 width,
+const char* toString( double d, od_uint16 width, char specifier,
 		      od_uint16 precision,
 		      const char* length, const char* flags,
 		      int minbufsz, char* extstr )
@@ -861,44 +862,62 @@ const char* toString( double d, char specifier, od_uint16 width,
 }
 
 
-const char* toString( float f, const char* cformat, int minbufsz,
-		      char* extstr )
+const char* toStringPrecise( float f )
+{ return toString( f, 0, 'g', 6 ); }
+
+const char* toStringDec( float f, int nrdec )
+{
+    const float absval = Math::Abs( f );
+    const bool needgeneric = absval < 1e-4f || absval >= 1e6f;
+    if ( nrdec <=0 && !needgeneric )
+	return toString( mNINT64(f) );
+
+    const char specifier = needgeneric ? 'g' : 'f';
+    const int precision = needgeneric ? nrdec <=0 ? 1 : nrdec+1 : nrdec;
+    return toString( f, 0, specifier, precision );
+}
+
+const char* toStringSpec( float f, char specifier, int precision )
+{ return toString( f, 0, specifier, precision ); }
+
+const char* toStringCFmt( float f, const char* cformat, int minbufsz,
+			  char* extstr )
 {
     mDeclStaticString( retstr );
     return toStringImpl( f, retstr, cformat, minbufsz, extstr );
 }
 
+const char* toStringLim( float f, int maxtxtwidth )
+{ return toStringLimImpl( f, maxtxtwidth ); }
 
-const char* toString( double d, const char* cformat, int minbufsz,
+
+const char* toStringPrecise( double d )
+{ return toString( d, 0, 'g', 15 ); }
+
+const char* toStringDec( double d, int nrdec )
+{
+    const float absval = Math::Abs( d );
+    const bool needgeneric = absval < 1e-4f || absval >= 1e6f;
+    if ( nrdec <=0 && !needgeneric )
+	return toString( mNINT64(d) );
+
+    const char specifier = needgeneric ? 'g' : 'f';
+    const int precision = needgeneric ? nrdec <=0 ? 1 : nrdec+1 : nrdec;
+    return toString( d, 0, specifier, precision );
+}
+
+const char* toStringSpec( double d, char specifier, int precision )
+{ return toString( d, 0, specifier, precision ); }
+
+const char* toStringCFmt( double d, const char* cformat, int minbufsz,
 		      char* extstr )
 {
     mDeclStaticString( retstr );
     return toStringImpl( d, retstr, cformat, minbufsz, extstr );
 }
 
-const char* toString( float f, int nrdec )
-{ return toString( f, 'g', 0, nrdec ); }
-
-const char* toString( float f, char format, int precision )
-{ return toString( f, format, 0, precision ); }
-
-const char* toStringLim( float f, int maxtxtwidth )
-{ return toStringLimImpl( f, maxtxtwidth ); }
-
-const char* toStringPrecise( float f )
-{ return toString( f, 'g', 0, 6 ); }
-
-const char* toString( double d, int nrdec )
-{ return toString( d, 'g', 0, nrdec ); }
-
-const char* toString( double d, char format, int precision )
-{ return toString( d, format, 0, precision ); }
-
 const char* toStringLim( double d, int maxtxtwidth )
 { return toStringLimImpl( d, maxtxtwidth ); }
-
-const char* toStringPrecise( double d )
-{ return toString( d, 'g', 0, 15 ); }
 
 
 const char* toHexString( od_uint32 i, bool padded )
@@ -1125,7 +1144,7 @@ StringView NrBytesToStringCreator::getUnitString() const
 
 StringView NrBytesToStringCreator::toString(NrBytesToStringCreator::Unit unit )
 {
-    const char* units[] = { "bytes", "kB", "MB", "GB", "TB", "PB", 0 };
+    const char* units[] = { "bytes", "kB", "MB", "GB", "TB", "PB", nullptr };
     return units[ int(unit) ];
 }
 
@@ -1211,18 +1230,19 @@ BufferString toUserString( const Interval<int>& intv )
 }
 
 
-static BufferString toUserString( const Interval<float>& intv, char format,
+static BufferString toUserString( const Interval<float>& intv, char specifier,
 				  int precision )
 {
     BufferString ret;
-    ret = toString(intv.start_,format,precision);
-    ret.add( " - " ).add( toString(intv.stop_,format,precision) );
+    ret = toStringSpec( intv.start_, specifier, precision );
+    ret.add( " - " ).add( toStringSpec( intv.stop_, specifier, precision ) );
     if ( intv.hasStep() )
     {
 	mDynamicCastGet(const StepInterval<float>*,sintv,&intv);
 	if ( sintv )
-	    ret.add( " [" ).add( toString(sintv->step_,format,precision) )
-	       .add("]");
+	    ret.add( " [" )
+	       .add( toStringSpec( sintv->step_, specifier, precision ) )
+	       .add( "]" );
     }
 
     return ret;
@@ -1243,13 +1263,15 @@ BufferString toUserStringF( const Interval<float>& intv, int nrdec )
 BufferString toUserString( const Interval<double>& intv, int precision )
 {
     BufferString ret;
-    ret = toString(intv.start_,'g',precision);
-    ret.add( " - " ).add( toString(intv.stop_,'g',precision) );
+    ret = toStringSpec( intv.start_, 'g', precision );
+    ret.add( " - " ).add( toStringSpec( intv.stop_, 'g', precision ) );
     if ( intv.hasStep() )
     {
 	mDynamicCastGet(const StepInterval<double>*,sintv,&intv);
 	if ( sintv )
-	    ret.add( " [" ).add( toString(sintv->step_,'g',precision) ).add("]");
+	    ret.add( " [" )
+	       .add( toStringSpec( sintv->step_, 'g', precision ) )
+	       .add( "]" );
     }
 
     return ret;
