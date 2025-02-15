@@ -38,8 +38,6 @@ namespace visSurvey
 PreStackDisplay::PreStackDisplay()
     : visBase::VisualObjectImpl(true)
     , draggermoving(this)
-    , bid_(-1,-1)
-    , draggerpos_(-1,-1)
     , width_(mDefaultWidth)
     , offsetrange_(0,mDefaultWidth)
     , zrg_(SI().zRange(true))
@@ -728,8 +726,8 @@ void PreStackDisplay::setTraceNr( int trcnr )
 {
     if ( seis2d_ )
     {
-	RefMan<PreStack::Gather> gather = new PreStack::Gather;
 	const TrcKey tk( seis2d_->getGeomID(), trcnr );
+	RefMan<PreStack::Gather> gather = new PreStack::Gather;
 	if ( !ioobj_ || !reader_ || !gather->readFrom(*ioobj_,*reader_,tk) )
 	{
 	    mDefineStaticLocalObject( bool, show2d, = false );
@@ -753,7 +751,10 @@ void PreStackDisplay::setTraceNr( int trcnr )
 	    }
 	}
 	else
+	{
+	    gather_ = gather.ptr();
 	    trcnr_ = trcnr;
+	}
     }
     else
 	trcnr_ = trcnr;
