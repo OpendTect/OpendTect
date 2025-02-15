@@ -577,23 +577,26 @@ int getIndexInStringArrCI( const char* text, const BufferStringSet& nameset,
 const char* getLimitedDisplayString( const char* inp, int nrchars,
 				     bool trimright, const char* padbuf )
 {
-    if ( nrchars < 1 || !inp || !*inp ) return "";
-    const int inplen = strlen( inp );
+    const StringView inpstr( inp );
+    if ( nrchars < 1 || inpstr.isEmpty() )
+	return nullptr;
+
+    const int inplen = inpstr.size();
     if ( inplen < nrchars )
 	return inp;
 
-    BufferString tmpstr( nrchars, false );
+    BufferString tmpstr( nrchars+1, false );
     char* ptr = tmpstr.getCStr();
 
     const StringView padstr( padbuf );
     const int padsz = padstr.size();
     if ( !trimright && padsz > 0 )
     {
-	inp += inplen - nrchars + padsz;
 	OD::sysMemCopy( ptr, padbuf, padsz );
 	ptr += padsz;
     }
 
+    inp += inplen - nrchars + padsz;
     OD::sysMemCopy( ptr, inp, nrchars-padsz );
     ptr += nrchars-padsz;
 
