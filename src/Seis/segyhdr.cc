@@ -172,7 +172,7 @@ static BufferString pointTxt( int idx, const BinID& bid,
     if ( needsconversion )
 	crd = crs->convertFrom( crd, *SI().getCoordSystem() );
     BufferString txt( "Corner ", idx, ":  " );
-    txt.add( "X: " ).add( crd.x_, 2 ).add( "  Y: " ).add( crd.y_, 2 );
+    txt.add( "X: " ).addDec( crd.x_, 2 ).add( "  Y: " ).addDec( crd.y_, 2 );
     txt.add( "  IL: " ).add( bid.inl() ).add( "  XL: " ).add( bid.crl() );
     return txt;
 }
@@ -202,7 +202,7 @@ int SEGY::TxtHeader::setSurveySetupInfo( int firstlnr,
 	putAt( ++lnr, sDefStartPos, 75, pointTxt(4,bid,crs).buf() );
 
 	const float inldist = SI().inlDistance(), crldist = SI().crlDistance();
-	str.set("Bin size:  ").add(inldist,2).add(" x ").add(crldist,2)
+	str.set("Bin size:  ").addDec(inldist,2).add(" x ").addDec(crldist,2)
 	   .addSpace().add( SI().getXYUnitString() );
 	putAt( ++lnr, sDefStartPos, 75, str );
     }
@@ -320,7 +320,7 @@ int SEGY::TxtHeader::setPosInfo( int firstlinenr, const SEGY::TrcHeaderDef& thd)
     BufferString key = sKey::Z();
     key.addSpace().add( SI().getZUnitString() ).add(":");
     putAt( zrglinenr, sDefStartPos, 20, key );
-    txt.set(zrg.start_,nrdec).add("-").add(zrg.stop_,nrdec);
+    txt.setDec(zrg.start_,nrdec).add("-").addDec(zrg.stop_,nrdec);
     putAt( zrglinenr, 21, 32, txt );
     putAt( zrglinenr, 33, 75, BufferString("inc: ",zrg.step_) );
 

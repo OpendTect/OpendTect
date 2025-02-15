@@ -132,8 +132,8 @@ void HorizonScanner::report( IOPar& iopar ) const
 	Interval<float> zrg = valranges_[0];
 	zrg.scale( zinfo_.userFactor() );
 	BufferString zrgstr;
-	zrgstr.add( zrg.start_, SI().nrZDecimals() ).add( " - " )
-		.add( zrg.stop_, SI().nrZDecimals() );
+	zrgstr.addDec( zrg.start_, SI().nrZDecimals() ).add( " - " )
+	      .addDec( zrg.stop_, SI().nrZDecimals() );
 	iopar.set( zrgkey, zrgstr );
     }
 

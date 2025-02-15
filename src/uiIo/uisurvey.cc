@@ -1018,7 +1018,7 @@ void uiSurvey::utilButPush( CallBacker* cb )
 static BufferString pointTxt( int idx, const BinID& bid, const Coord& crd )
 {
     BufferString txt( "Corner ", idx, ":\t" );
-    txt.add( "X: " ).add( crd.x_, 2 ).add( "  Y: " ).add( crd.y_, 2 );
+    txt.add( "X: " ).addDec( crd.x_, 2 ).add( "  Y: " ).addDec( crd.y_, 2 );
     txt.add( "  IL: " ).add( bid.inl() ).add( "  XL: " ).add( bid.crl() );
     txt.addNewLine();
     return txt;
@@ -1258,7 +1258,7 @@ void uiSurvey::putToScreen()
 	crlinfo.add( "; Total: ").add( si.sampling(false).nrCrl() );
 
 	const float inldist = si.inlDistance(), crldist = si.crlDistance();
-	bininfo.add( inldist, 2 ).add( " / " ).add( crldist, 2 );
+	bininfo.addDec( inldist, 2 ).add( " / " ).addDec( crldist, 2 );
 	bininfo.add( " (" ).add( si.getXYUnitString(false) )
 	       .add( "/line)" );
     }
@@ -1266,15 +1266,15 @@ void uiSurvey::putToScreen()
     StepInterval<float> sizrg( si.zRange(false) );
     sizrg.scale( si.zDomain().userFactor() );
     const int nrdec = si.nrZDecimals();
-    zinfo.add( sizrg.start_, nrdec ).add( " - " )
-	    .add( sizrg.stop_, nrdec ).add( " [" )
-	    .add( sizrg.step_, nrdec ).add( "]" );
+    zinfo.addDec( sizrg.start_, nrdec ).add( " - " )
+	    .addDec( sizrg.stop_, nrdec ).add( " [" )
+	    .addDec( sizrg.step_, nrdec ).add( "]" );
     zinfo.add( "; Total: ").add( sizrg.nrSteps()+1 );
 
     float srd = si.seismicReferenceDatum();
     if ( si.zIsTime() && si.depthsInFeet() )
 	srd *= mToFeetFactorF;
-    srdinfo.add( srd, 2 ).addSpace()
+    srdinfo.addDec( srd, 2 ).addSpace()
 	   .add( getDistUnitString(si.depthsInFeet(),true) );
 
     survtypeinfo.add( SurveyInfo::toString(si.survDataType()) );

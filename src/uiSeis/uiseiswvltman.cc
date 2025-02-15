@@ -256,7 +256,7 @@ void uiSeisWvltMan::mkFileInfo()
 		.add( "/" ).add( extremevals.stop_ ).addNewLine();
 	float avgphase = wvltattrib.getAvgPhase( true );
 	if ( mIsZero(avgphase,1e-3f) ) avgphase = 0.f;
-	msg.add( "Average phase (deg): ").add( avgphase, 0 ).addNewLine();
+	msg.add( "Average phase (deg): ").addDec( avgphase, 0 ).addNewLine();
 	msg.add( "Polarity: ").add( wvltattrib.isNormalPolarity()
 					? "Normal" : "Reverse" ).addNewLine();
 	txt.add( msg );

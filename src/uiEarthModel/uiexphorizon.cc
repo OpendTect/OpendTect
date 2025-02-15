@@ -218,7 +218,7 @@ int Write3DHorASCII::nextStep()
 
     str.setEmpty();
     if ( setup_.doxy_ )
-        str.add( crd.x_, 2 ).addTab().add( crd.y_, 2 );
+        str.addDec( crd.x_, 2 ).addTab().addDec( crd.y_, 2 );
 
     if ( setup_.doxy_ && setup_.doic_ )
 	str.addTab();

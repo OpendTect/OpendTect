@@ -631,7 +631,7 @@ void uiDataPointSetCrossPlotter::mouseMoveCB( CallBacker* )
 	    bool makeabs = false;
 	    if ( linepar.ax )
 	    {
-		linestr.add( linepar.ax, 4 ).add( " * X" );
+		linestr.addDec( linepar.ax, 4 ).add( " * X" );
 		if ( linepar.a0 > 0 )
 		    linestr.add( " + " );
 		else
@@ -641,7 +641,7 @@ void uiDataPointSetCrossPlotter::mouseMoveCB( CallBacker* )
 		}
 	    }
 
-	    linestr.add( makeabs ? Math::Abs(linepar.a0) : linepar.a0, 4 );
+	    linestr.addDec( makeabs ? Math::Abs(linepar.a0) : linepar.a0, 4 );
 	}
 
 	TypeSet<uiWorldPoint> linepts;

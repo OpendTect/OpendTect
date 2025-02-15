@@ -149,6 +149,72 @@ BufferString& BufferString::assignTo( const char* s )
 }
 
 
+BufferString& BufferString::set( const char* s )
+{
+    setEmpty();
+    return add( s );
+}
+
+
+BufferString& BufferString::set( const OD::String& str )
+{
+    setEmpty();
+    return add( str.buf() );
+}
+
+
+BufferString& BufferString::setDec( float f, int nrdec )
+{
+    setEmpty();
+    return addDec( f, nrdec );
+}
+
+
+BufferString& BufferString::setLim( float f, int maxnrchars )
+{
+    setEmpty();
+    return addLim( f, maxnrchars );
+}
+
+
+BufferString& BufferString::setCFmt( float fval, const char* cformat,
+				     int expbufsize )
+{
+    if ( bufSize() <= expbufsize )
+	setMinBufSize( expbufsize + 1 );
+
+    setEmpty();
+    toStringCFmt( fval, cformat, bufSize(), getCStr() );
+    return *this;
+}
+
+
+BufferString& BufferString::setDec( double d, int nrdec )
+{
+    setEmpty();
+    return addDec( d, nrdec );
+}
+
+
+BufferString& BufferString::setLim( double d, int maxnrchars )
+{
+    setEmpty();
+    return addLim( d, maxnrchars );
+}
+
+
+BufferString& BufferString::setCFmt( double dval, const char* cformat,
+				     int expbufsize )
+{
+    if ( bufSize() <= expbufsize )
+	setMinBufSize( expbufsize + 1 );
+
+    setEmpty();
+    toStringCFmt( dval, cformat, bufSize(), getCStr() );
+    return *this;
+}
+
+
 BufferString& BufferString::add( char s )
 {
     char tmp[2];
@@ -170,6 +236,12 @@ BufferString& BufferString::add( const char* s )
 	*ptr = '\0';
     }
     return *this;
+}
+
+
+BufferString& BufferString::add( const OD::String& str )
+{
+    return add( str.buf() );
 }
 
 
@@ -196,21 +268,21 @@ BufferString& BufferString::add( const std::wstring& wstdstr )
 }
 
 
-BufferString& BufferString::add( float f, int nrdec )
+BufferString& BufferString::addDec( float f, int nrdec )
 {
     return add( toStringDec( f, nrdec ) );
-}
-
-
-BufferString& BufferString::add( double d, int nrdec )
-{
-    return add( toStringDec( d, nrdec ) );
 }
 
 
 BufferString& BufferString::addLim( float f, int maxnrchars )
 {
     return add( toStringLim( f, maxnrchars ) );
+}
+
+
+BufferString& BufferString::addDec( double d, int nrdec )
+{
+    return add( toStringDec( d, nrdec ) );
 }
 
 

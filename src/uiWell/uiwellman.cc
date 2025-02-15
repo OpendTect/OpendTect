@@ -1006,7 +1006,7 @@ void uiWellMan::mkFileInfo()
 	    if ( !mIsZero(rdelev,1e-4) && !mIsUdf(rdelev) )
 	    {
 		txt.add(Well::Info::sKeyKBElev()).add(colonstr);
-		txt.add( zun ? zun->userValue(rdelev) : rdelev, 2 );
+		txt.addDec( zun ? zun->userValue(rdelev) : rdelev, 2 );
 		if ( zun ) txt.add( zun->symbol() );
 		txt.addNewLine();
 	    }
@@ -1015,7 +1015,7 @@ void uiWellMan::mkFileInfo()
 	    if ( !mIsZero(td,1e-3f) && !mIsUdf(td) )
 	    {
 		txt.add(Well::Info::sKeyTD()).add( colonstr );
-		txt.add( zun ? zun->userValue(td) : td, 2 );
+		txt.addDec( zun ? zun->userValue(td) : td, 2 );
 		if ( zun ) txt.add( zun->symbol() );
 		txt.addNewLine();
 	    }
@@ -1024,7 +1024,7 @@ void uiWellMan::mkFileInfo()
 	    if ( !mIsZero(srd,1e-4) )
 	    {
 		txt.add( SurveyInfo::sKeySeismicRefDatum() ).add( colonstr );
-		txt.add( zun ? zun->userValue(srd) : srd, 2 );
+		txt.addDec( zun ? zun->userValue(srd) : srd, 2 );
 		if ( zun ) txt.add( zun->symbol() );
 		txt.addNewLine();
 	    }
@@ -1043,7 +1043,7 @@ void uiWellMan::mkFileInfo()
 	    if ( !mIsUdf(groundelev) )
 	    {
 		txt.add(Well::Info::sKeyGroundElev()).add(colonstr);
-		txt.add( zun ? zun->userValue(groundelev) : groundelev, 2 );
+		txt.addDec( zun ? zun->userValue(groundelev) : groundelev, 2 );
 		if ( zun ) txt.add( zun->symbol() );
 		txt.addNewLine();
 	    }

@@ -369,9 +369,9 @@ static BufferString getInfoText( const IOObj& ioobj )
 	    const BufferString keystr = toString( zinfo.getRange() );
 	    txt.addNewLine()
 	       .add( keystr.str() )
-		    .add( ": " ).add( zrg.start_, nrdec )
-		    .add( " - " ).add( zrg.stop_, nrdec )
-		    .add( " [" ).add( zrg.step_, nrdec ).add( "]" );
+		    .add( ": " ).addDec( zrg.start_, nrdec )
+		    .add( " - " ).addDec( zrg.stop_, nrdec )
+		    .add( " [" ).addDec( zrg.step_, nrdec ).add( "]" );
 
 	    SeisIOObjInfo::SpaceInfo spcinfo;
 	    double area;
@@ -423,9 +423,9 @@ static BufferString getInfoText( const IOObj& ioobj )
 		    keystr.addSpace().add( unitstr );
 		    txt.addNewLine()
 		       .add( keystr.buf() )
-			    .add( ": " ).add( zrg.start_, nrdec )
-			    .add( " - " ).add( zrg.stop_, nrdec )
-			    .add( " [" ).add( zrg.step_,nrdec ).add( "]" );
+			    .add( ": " ).addDec( zrg.start_, nrdec )
+			    .add( " - " ).addDec( zrg.stop_, nrdec )
+			    .add( " [" ).addDec( zrg.step_,nrdec ).add( "]" );
 		}
 	    }
 	}

@@ -149,9 +149,9 @@ void ui2DGeomManageDlg::mkFileInfo()
 	{
 	    txt.addNewLine()
 	       .add( zinfo.getRange() )
-		    .add( ": " ).add( zrg.start_, nrzdec )
-		    .add( " - " ).add( zrg.stop_, nrzdec )
-		    .add( " [" ).add( zrg.step_, nrzdec ).add( "]" );
+		    .add( ": " ).addDec( zrg.start_, nrzdec )
+		    .add( " - " ).addDec( zrg.stop_, nrzdec )
+		    .add( " [" ).addDec( zrg.step_, nrzdec ).add( "]" );
 	}
 
 	const UnitOfMeasure* uomfrom = UoMR().get(SI().getXYUnitString(false));

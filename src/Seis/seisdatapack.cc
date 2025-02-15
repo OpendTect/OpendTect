@@ -388,9 +388,9 @@ void RegularSeisDataPack::dumpInfo( StringPairSet& infoset ) const
 	zrg.scale( zinfo.userFactor() );
 	const BufferString keystr = toString( zinfo.getRange() );
 	BufferString valstr;
-        valstr.add( zrg.start_, nrdec )
-                .add( " - " ).add( zrg.stop_, nrdec )
-                .add( " [" ).add( zrg.step_, nrdec ).add( "]" );
+        valstr.addDec( zrg.start_, nrdec )
+                .add( " - " ).addDec( zrg.stop_, nrdec )
+                .add( " [" ).addDec( zrg.step_, nrdec ).add( "]" );
 	infoset.add( keystr, valstr );
     }
 }
