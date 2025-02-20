@@ -1102,6 +1102,30 @@ void Trc2DVarZStorOutput::collectData( const DataHolder& data, float refstep,
 
 
 TypeSet< Interval<int> > Trc2DVarZStorOutput::getLocalZRanges(
+						    const TrcKey& tk,
+						    float zstep,
+						    TypeSet<float>& ) const
+{
+    TypeSet< Interval<int> > sampleinterval;
+    DataPointSet::RowID rowid = poszvalues_->findFirst( tk );
+    if ( rowid < 0 )
+	return sampleinterval;
+
+    Interval<int> interval( mNINT32(poszvalues_->z(rowid)/zstep),
+			    mNINT32(poszvalues_->value(0,rowid)/zstep) );
+    sampleinterval += interval;
+
+    return sampleinterval;
+}
+
+
+bool Trc2DVarZStorOutput::wantsOutput( const TrcKey& tk ) const
+{
+    return poszvalues_->findFirst( tk ) > -1;
+}
+
+
+TypeSet< Interval<int> > Trc2DVarZStorOutput::getLocalZRanges(
 						    const Coord& coord,
 						    float zstep,
 						    TypeSet<float>& ) const
