@@ -229,6 +229,10 @@ public:
     void			set2D(bool) override		{}
     bool			useCoords() const override	{ return true; }
 
+    bool			wantsOutput(const TrcKey&) const;
+    TypeSet< Interval<int> >	getLocalZRanges(const TrcKey&,float,
+						TypeSet<float>&) const;
+
     bool			wantsOutput(const Coord&) const override;
     TypeSet< Interval<int> >	getLocalZRanges(const Coord&,float,
 						TypeSet<float>&) const override;
