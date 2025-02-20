@@ -15,8 +15,6 @@ ________________________________________________________________________
 #include "attribprovider.h"
 #include "seisinfo.h"
 #include "seisselectionimpl.h"
-#include "survgeom2d.h"
-#include "survinfo.h"
 #include "binidvalset.h"
 
 #include <limits.h>
@@ -27,13 +25,13 @@ namespace Attrib
 
 Processor::Processor( Desc& desc , const char* lk, uiString& err )
     : Executor("Attribute Processor")
+    , moveonly(this)
     , desc_(desc)
     , provider_(Provider::create(desc,err))
     , nriter_(0)
     , nrdone_(0)
     , isinited_(false)
     , useshortcuts_(false)
-    , moveonly(this)
     , prevbid_(BinID::udf())
     , sd_(0)
     , showdataavailabilityerrors_(true)
@@ -478,33 +476,49 @@ bool Processor::setZIntervals(
     //TODO: Smarter way if output's intervals don't intersect
     bool isset = false;
     TypeSet<float> exactz;
-    mDynamicCastGet( Trc2DVarZStorOutput*, trc2dvarzoutp, outputs_[0] );
 
     for ( int idx=0; idx<outputs_.size(); idx++ )
     {
-	mDynamicCastGet( TableOutput*, taboutp, outputs_[idx] );
-	mDynamicCastGet( LocationOutput*, locoutp, outputs_[idx] );
-	bool wantsout = !tkey.isUdf() && taboutp && is2d_
-			   ? taboutp->wantsOutput(tkey)
-			   : outputs_[idx]->useCoords() || locoutp
-				? outputs_[idx]->wantsOutput(curcoords)
-				: outputs_[idx]->wantsOutput(curbid);
-
-	if ( trc2dvarzoutp && is2d_ )		//tmp patch -> ??
-	    wantsout = true;
+	mDynamicCastGet(TableOutput*,taboutp,outputs_[idx])
+	mDynamicCastGet(Trc2DVarZStorOutput*,trc2dvarzoutp,outputs_[idx])
+	mDynamicCastGet(LocationOutput*,locoutp,outputs_[idx])
+	bool wantsout = false;
+	if ( is2d_ && !tkey.isUdf() && (taboutp || trc2dvarzoutp) )
+	{
+	    if ( taboutp )
+		wantsout = taboutp->wantsOutput( tkey );
+	    if ( trc2dvarzoutp )
+		wantsout = trc2dvarzoutp->wantsOutput( tkey );
+	}
+	else
+	{
+	    wantsout = outputs_[idx]->useCoords() || locoutp
+			? outputs_[idx]->wantsOutput(curcoords)
+			: outputs_[idx]->wantsOutput(curbid);
+	}
 
 	if ( !wantsout || (curbid == prevbid_ && !is2d_) ) //!is2d = tmp patch
 	    continue;
 
 	const float refzstep = provider_->getRefStep();
-	TypeSet< Interval<int> > localzrange = !tkey.isUdf() && taboutp && is2d_
-	    ? taboutp->getLocalZRanges( tkey, refzstep, exactz )
-	    : outputs_[idx]->useCoords() || locoutp
+	TypeSet< Interval<int> > localzrange;
+	if ( is2d_ && !tkey.isUdf() && (taboutp || trc2dvarzoutp) )
+	{
+	    if ( taboutp )
+		localzrange = taboutp->getLocalZRanges( tkey, refzstep, exactz);
+	    if ( trc2dvarzoutp )
+		localzrange =
+		    trc2dvarzoutp->getLocalZRanges( tkey, refzstep, exactz );
+	}
+	else
+	{
+	    localzrange = outputs_[idx]->useCoords() || locoutp
 		? outputs_[idx]->getLocalZRanges( curcoords, refzstep, exactz )
 		: outputs_[idx]->getLocalZRanges( curbid, refzstep, exactz );
+	}
 
 	if ( isset )
-	    localintervals.append ( localzrange );
+	    localintervals.append( localzrange );
 	else
 	{
 	    localintervals = localzrange;

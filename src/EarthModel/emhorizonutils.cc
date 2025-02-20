@@ -200,10 +200,11 @@ void HorizonUtils::getExactCoords( od_ostream& strm, const MultiID& id,
 	BufferStringSet nms;
 	res = new DataPointSet( pts, nms, true );
 	data += res;
-	for ( int idx=hsamp.start_.crl(); idx<=hsamp.stop_.crl(); idx++ )
+	for ( int trc=hsamp.start_.crl(); trc<=hsamp.stop_.crl();
+	      trc += hsamp.step_.crl() )
 	{
-	    Coord3 coords = hor2d->getCoord( TrcKey(geomid,idx) );
-	    DataPointSet::Pos newpos( coords );
+	    const float z = hor2d->getZ( TrcKey(geomid,trc) );
+	    DataPointSet::Pos newpos( geomid, trc, z );
 	    DataPointSet::DataRow dtrow( newpos );
 	    res->addRow( dtrow );
 	}
@@ -422,20 +423,21 @@ void HorizonUtils::getWantedPos2D( od_ostream& strm,
     {
 	for (int ptsurf0=0; ptsurf0<possurf0[secsurf0]->size(); ptsurf0++)
 	{
-	    const Coord coordsurf0 = possurf0[secsurf0]->coord( ptsurf0 );
+	    const TrcKey tksurf0 = possurf0[secsurf0]->trcKey( ptsurf0 );
 	    if ( use2hor )
 	    {
 		for ( int secsurf1=0; secsurf1<possurf1.size(); secsurf1++ )
 		{
-		    DataPointSet::RowID rid = possurf1[secsurf1]->
-						findFirst( coordsurf0 );
+		    const DataPointSet::RowID rid =
+				possurf1[secsurf1]->findFirst( tksurf0 );
 		    if ( rid > -1 )
 		    {
 			const float z0 = possurf0[secsurf0]->z( ptsurf0 );
 			const float z1 = possurf1[secsurf1]->z( rid );
 			const float ztop = (z0>z1 ? z1 : z0) + extraz.start;
 			const float zbot = (z0>z1 ? z0 : z1) + extraz.stop;
-			DataPointSet::Pos pos( coordsurf0, ztop );
+			DataPointSet::Pos pos( tksurf0.geomID(),
+					       tksurf0.trcNr(), ztop );
 			DataPointSet::DataRow dtrow( pos );
 			dtrow.data_ += zbot;
 			dtps->addRow( dtrow );
@@ -448,7 +450,7 @@ void HorizonUtils::getWantedPos2D( od_ostream& strm,
 		const float z0 = possurf0[secsurf0]->z( ptsurf0 );
 		const float ztop = z0 + extraz.start;
 		const float zbot = z0 + extraz.stop;
-		DataPointSet::Pos pos( coordsurf0, ztop );
+		DataPointSet::Pos pos( tksurf0.geomID(), tksurf0.trcNr(), ztop);
 		DataPointSet::DataRow dtrow( pos );
 		dtrow.data_ += zbot;
 		dtps->addRow( dtrow );
