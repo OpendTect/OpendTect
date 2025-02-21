@@ -896,7 +896,6 @@ int uiVisPartServer::nrTextures( VisID id, int attrib ) const
 
 void uiVisPartServer::selectTexture( VisID id, int attrib, int textureidx )
 {
-    MouseCursorChanger cursorlock( MouseCursor::Wait );
     mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(id));
     if ( so && isAttribEnabled(id,attrib) )
 	so->selectTexture( attrib, textureidx );
