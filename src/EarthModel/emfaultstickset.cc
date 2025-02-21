@@ -732,7 +732,11 @@ bool FaultStickSetGeometry::GeomGroupUpdater::doWork(
 	{
 	    const int sticknr = geomgrp->sticknrs_[idx];
 
-	    Geometry::FaultStick* fss = faultstickset_.getStick( sticknr );
+	    Geometry::FaultStick* fss =
+			faultstickset_.getStick( sticknr, true );
+	    if ( !fss )
+		continue;
+
 	    const int fsssz = fss->size();
 	    for ( int kidx=0; kidx<fsssz; kidx++ )
 	    {
