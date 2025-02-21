@@ -91,7 +91,7 @@ void DBKey::setSurveyDiskLocation( const SurveyDiskLocation& sdl )
 
 const SurveyDiskLocation& DBKey::surveyDiskLocation() const
 {
-    static const SurveyDiskLocation emptysdl_( 0, 0 );
+    static const SurveyDiskLocation emptysdl_;
     return survloc_ ? *survloc_ : emptysdl_;
 }
 
