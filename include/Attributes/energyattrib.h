@@ -58,11 +58,9 @@ protected:
     bool		computeData(const DataHolder&,const BinID& relpos,
 			    int t0,int nrsamples,int threadid) const override;
 
-    const Interval<float>* reqZMargin(int input,int output) const override
-			   { return &gate_; }
-    const Interval<int>* desZSampMargin(int input,int output) const override
-			   { return &dessampgate_; }
-    
+    const Interval<float>* reqZMargin(int input,int output) const override;
+    const Interval<int>* desZSampMargin(int input,int output) const override;
+
     Interval<float>	gate_;
     Interval<int>	dessampgate_;
     bool		dograd_;
