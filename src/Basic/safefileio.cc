@@ -84,11 +84,11 @@ bool SafeFileIO::openRead( bool ignorelock )
     mkLock( true );
 
     const char* toopen = filenm_.buf();
-    if ( File::isEmpty(toopen) )
+    if ( !File::exists(toopen) || File::isEmpty(toopen) )
     {
 	if ( usebakwhenmissing_ )
 	    toopen = bakfnm_.buf();
-	if ( File::isEmpty(toopen) )
+	if ( !File::exists(toopen) || File::isEmpty(toopen) )
 	{
 	    errmsg_.set( "Input file '" ).add( filenm_ )
 		   .add( "' is not present or empty" );
