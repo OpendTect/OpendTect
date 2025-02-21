@@ -296,6 +296,9 @@ mExternC(Basic) const char* GetSoftwareDir( bool acceptnone )
 		datapath.add( "Resources" );
 
 	    datapath.add( relinfostr );
+	    if ( !datapath.exists() )
+		continue;
+
 	    if ( File::isDirectory( datapath.fullPath()) )
 	    {
 		res = filepath.dirUpTo(idx);

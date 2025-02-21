@@ -1080,7 +1080,7 @@ bool FileSystemAccess::isFile( const char* uri ) const
 
 bool FileSystemAccess::isDirectory( const char* uri ) const
 {
-    return File::isDirectory( uri );
+    return File::exists(uri) && File::isDirectory( uri );
 }
 
 
