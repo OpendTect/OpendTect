@@ -601,10 +601,11 @@ void MultiTextureSurveyObject::getValueString( const Coord3& pos,
 	if ( !mIsUdf(fval) )
 	    val = fval;
 
-	if ( nrAttribs()>1 )
+	const auto* ss = getSelSpec( idx );
+	if ( nrAttribs()>1 && ss )
 	{
 	    BufferString attribstr = "(";
-	    attribstr += getSelSpec(idx)->userRef();
+	    attribstr += ss->userRef();
 	    attribstr += ")";
 	    val.replaceAt( cValNameOffset(), (const char*)attribstr);
 	}
@@ -612,6 +613,5 @@ void MultiTextureSurveyObject::getValueString( const Coord3& pos,
 	return;
     }
 }
-
 
 } // namespace visSurvey
