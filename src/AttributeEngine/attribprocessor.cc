@@ -497,30 +497,32 @@ bool Processor::setZIntervals(
     //TODO: Smarter way if output's intervals don't intersect
     bool isset = false;
     TypeSet<float> exactz;
-    mDynamicCastGet( Trc2DVarZStorOutput*, trc2dvarzoutp, outputs_[0] );
-
     for ( int idx=0; idx<outputs_.size(); idx++ )
     {
-	mDynamicCastGet( TableOutput*, taboutp, outputs_[idx] );
-	mDynamicCastGet( LocationOutput*, locoutp, outputs_[idx] );
-	bool wantsout = !tkey.isUdf() && taboutp && is2d_
-			   ? taboutp->wantsOutput(tkey)
-			   : outputs_[idx]->useCoords() || locoutp
-				? outputs_[idx]->wantsOutput(curcoords)
-				: outputs_[idx]->wantsOutput(curbid);
-
-	if ( trc2dvarzoutp && is2d_ )		//tmp patch -> ??
-	    wantsout = true;
+	bool wantsout = false;
+	if ( tkey.isUdf() && is2d_ )
+	    wantsout = outputs_[idx]->wantsOutput(tkey);
+	else
+	{
+	    wantsout = outputs_[idx]->useCoords()
+				? outputs_[idx]->wantsOutput( curcoords )
+				: outputs_[idx]->wantsOutput( tkey );
+	}
 
 	if ( !wantsout || (curbid == prevbid_ && !is2d_) ) //!is2d = tmp patch
 	    continue;
 
 	const float refzstep = provider_->getRefStep();
-	TypeSet< Interval<int> > localzrange = !tkey.isUdf() && taboutp && is2d_
-	    ? taboutp->getLocalZRanges( tkey, refzstep, exactz )
-	    : outputs_[idx]->useCoords() || locoutp
+	TypeSet< Interval<int> > localzrange;
+	if ( tkey.isUdf() && is2d_ )
+	    localzrange =
+		outputs_[idx]->getLocalZRanges( tkey, refzstep, exactz );
+	else
+	{
+	    localzrange = outputs_[idx]->useCoords()
 		? outputs_[idx]->getLocalZRanges( curcoords, refzstep, exactz )
-		: outputs_[idx]->getLocalZRanges( curbid, refzstep, exactz );
+		: outputs_[idx]->getLocalZRanges( tkey, refzstep, exactz );
+	}
 
 	if ( isset )
 	    localintervals.append ( localzrange );

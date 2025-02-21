@@ -59,32 +59,6 @@ Output::~Output()
 }
 
 
-bool Output::wantsOutput( const BinID& bid ) const
-{
-    return wantsOutput( SI().transform( bid ) );
-}
-
-
-bool Output::wantsOutput( const Coord& c ) const
-{
-    return wantsOutput( SI().transform( c ) );
-}
-
-
-TypeSet<Interval<int> > Output::getLocalZRanges( const BinID& bid, float f,
-						 TypeSet<float>& ts ) const
-{
-    return getLocalZRanges( SI().transform(bid), f, ts );
-}
-
-
-TypeSet<Interval<int> > Output::getLocalZRanges( const Coord& c, float f,
-						 TypeSet<float>& ts ) const
-{
-    return getLocalZRanges( SI().transform(c), f, ts );
-}
-
-
 void Output::ensureSelType( Seis::SelType st )
 {
     if ( seldata_->type() != st )
@@ -98,7 +72,8 @@ void Output::ensureSelType( Seis::SelType st )
 
 void Output::doSetGeometry( const TrcKeyZSampling& cs )
 {
-    if ( cs.isEmpty() ) return;
+    if ( cs.isEmpty() )
+	return;
 
     ensureSelType( Seis::Range );
     ((Seis::RangeSelData*)seldata_)->cubeSampling() = cs;
@@ -106,7 +81,9 @@ void Output::doSetGeometry( const TrcKeyZSampling& cs )
 
 
 Pos::GeomID Output::curGeomID() const
-{ return seldata_->geomID(); }
+{
+    return seldata_->geomID();
+}
 
 
 
@@ -125,14 +102,31 @@ DataPackOutput::~DataPackOutput()
 
 
 bool DataPackOutput::getDesiredVolume( TrcKeyZSampling& cs ) const
-{ cs=desiredvolume_; return true; }
+{
+    cs = desiredvolume_;
+    return true;
+}
 
 
-bool DataPackOutput::wantsOutput( const BinID& bid ) const
-{ return desiredvolume_.hsamp_.includes(bid); }
+bool DataPackOutput::useCoords() const
+{
+    return false;
+}
 
 
-TypeSet<Interval<int> > DataPackOutput::getLocalZRanges( const BinID&,
+bool DataPackOutput::wantsOutput( const Coord& crd ) const
+{
+    return desiredvolume_.hsamp_.includes( SI().transform(crd) );
+}
+
+
+bool DataPackOutput::wantsOutput( const TrcKey& tk ) const
+{
+    return desiredvolume_.hsamp_.includes( tk.binID() );
+}
+
+
+TypeSet<Interval<int> > DataPackOutput::getLocalZRanges( const TrcKey&,
 							 float zstep,
 							 TypeSet<float>& ) const
 {
@@ -142,6 +136,22 @@ TypeSet<Interval<int> > DataPackOutput::getLocalZRanges( const BinID&,
 				mNINT32(desiredvolume_.zsamp_.stop_ / zstep) );
 	const_cast<DataPackOutput*>(this)->sampleinterval_ += interval;
     }
+
+    return sampleinterval_;
+}
+
+
+TypeSet<Interval<int> > DataPackOutput::getLocalZRanges( const Coord&,
+							 float zstep,
+							 TypeSet<float>& ) const
+{
+    if ( sampleinterval_.size() ==0 )
+    {
+	Interval<int> interval( mNINT32(desiredvolume_.zsamp_.start_ / zstep),
+				mNINT32(desiredvolume_.zsamp_.stop_ / zstep) );
+	const_cast<DataPackOutput*>(this)->sampleinterval_ += interval;
+    }
+
     return sampleinterval_;
 }
 
@@ -275,10 +285,23 @@ bool SeisTrcStorOutput::getDesiredVolume( TrcKeyZSampling& cs ) const
 }
 
 
-bool SeisTrcStorOutput::wantsOutput( const BinID& bid ) const
+bool SeisTrcStorOutput::useCoords() const
 {
-    return desiredvolume_.hsamp_.includes(bid);
+    return false;
 }
+
+
+bool SeisTrcStorOutput::wantsOutput( const Coord& crd ) const
+{
+    return desiredvolume_.hsamp_.includes( SI().transform(crd) );
+}
+
+
+bool SeisTrcStorOutput::wantsOutput( const TrcKey& tk ) const
+{
+    return desiredvolume_.hsamp_.includes( tk.binID() );
+}
+
 
 
 bool SeisTrcStorOutput::setStorageID( const MultiID& storid )
@@ -393,7 +416,7 @@ bool SeisTrcStorOutput::doInit()
 class COGeomIDProvider : public Pos::GeomIDProvider
 {
 public:
-COGeomIDProvider( Pos::GeomID geomid )
+COGeomIDProvider( const Pos::GeomID& geomid )
     : geomid_( geomid ) {}
 
 Pos::GeomID geomID() const override
@@ -470,7 +493,7 @@ void SeisTrcStorOutput::collectData( const DataHolder& data, float refstep,
 	{
 	    for ( int isamp=0; isamp<nrsamps; isamp++ )
 	    {
-                float t = reqzrg.start_ + isamp * reqzrg.step_;
+		const float t = reqzrg.start_ + isamp * reqzrg.step_;
 		trc_->set( isamp, temptrc.getValue(t,icomp), icomp );
 	    }
 	}
@@ -539,16 +562,33 @@ bool SeisTrcStorOutput::writeTrc()
 
 
 TypeSet< Interval<int> > SeisTrcStorOutput::getLocalZRanges(
-						    const BinID& bid,
+						    const TrcKey&,
 						    float zstep,
 						    TypeSet<float>& ) const
 {
     if ( sampleinterval_.size() == 0 )
     {
         Interval<int> interval( mNINT32(desiredvolume_.zsamp_.start_/zstep),
-                                mNINT32(desiredvolume_.zsamp_.stop_/zstep) );
+				mNINT32(desiredvolume_.zsamp_.stop_/zstep) );
 	const_cast<SeisTrcStorOutput*>(this)->sampleinterval_ += interval;
     }
+
+    return sampleinterval_;
+}
+
+
+TypeSet< Interval<int> > SeisTrcStorOutput::getLocalZRanges(
+						    const Coord&,
+						    float zstep,
+						    TypeSet<float>& ) const
+{
+    if ( sampleinterval_.size() == 0 )
+    {
+	Interval<int> interval( mNINT32(desiredvolume_.zsamp_.start_/zstep),
+				mNINT32(desiredvolume_.zsamp_.stop_/zstep) );
+	const_cast<SeisTrcStorOutput*>(this)->sampleinterval_ += interval;
+    }
+
     return sampleinterval_;
 }
 
@@ -588,9 +628,22 @@ TwoDOutput::~TwoDOutput()
 }
 
 
-bool TwoDOutput::wantsOutput( const BinID& bid ) const
+bool TwoDOutput::useCoords() const
 {
-    return seldata_->crlRange().includes(bid.crl(),true);
+    return false;
+}
+
+
+bool TwoDOutput::wantsOutput( const TrcKey& tk ) const
+{
+    return seldata_->crlRange().includes( tk.trcNr(), true );
+}
+
+
+bool TwoDOutput::wantsOutput( const Coord& ) const
+{
+    pErrMsg( "Use wantsOutput with a TrcKey" );
+    return false;
 }
 
 
@@ -650,7 +703,7 @@ void TwoDOutput::setOutput( Data2DHolder& no )
 }
 
 
-TypeSet< Interval<int> > TwoDOutput::getLocalZRanges( const BinID& bid,
+TypeSet< Interval<int> > TwoDOutput::getLocalZRanges( const TrcKey&,
 						      float zstep,
 						      TypeSet<float>& ) const
 {
@@ -658,11 +711,19 @@ TypeSet< Interval<int> > TwoDOutput::getLocalZRanges( const BinID& bid,
     {
 	Interval<float> zrg( seldata_->zRange() );
         Interval<int> interval( mNINT32(zrg.start_/zstep),
-                                mNINT32(zrg.stop_/zstep) );
+				mNINT32(zrg.stop_/zstep) );
 	const_cast<TwoDOutput*>(this)->sampleinterval_ += interval;
     }
 
     return sampleinterval_;
+}
+
+
+TypeSet< Interval<int> > TwoDOutput::getLocalZRanges( const Coord&,
+						      float zstep,
+						      TypeSet<float>& set) const
+{
+    return getLocalZRanges( TrcKey(), zstep, set );
 }
 
 
@@ -734,21 +795,34 @@ void LocationOutput::computeAndSetVals( const DataHolder& data, float refstep,
 }
 
 
-bool LocationOutput::wantsOutput( const BinID& bid ) const
+bool LocationOutput::useCoords() const
 {
-    BinIDValueSet::SPos pos = bidvalset_.find( bid );
+    return false;
+}
+
+
+bool LocationOutput::wantsOutput( const TrcKey& tk ) const
+{
+    BinIDValueSet::SPos pos = bidvalset_.find( tk.binID() );
     return pos.isValid();
 }
 
 
+bool LocationOutput::wantsOutput( const Coord& ) const
+{
+    pErrMsg( "Use wantsOutput with TrcKey" );
+    return false;
+}
+
+
 TypeSet< Interval<int> > LocationOutput::getLocalZRanges(
-						const BinID& bid, float zstep,
+						const TrcKey& tk, float zstep,
 						TypeSet<float>& exactz) const
 {
     //TODO not 100% optimized, case of picksets for instance->find better algo
     TypeSet< Interval<int> > sampleinterval;
 
-    BinIDValueSet::SPos pos = bidvalset_.find( bid );
+    BinIDValueSet::SPos pos = bidvalset_.find( tk.binID() );
     while ( pos.isValid() )
     {
 	const float* vals = bidvalset_.getVals( pos );
@@ -757,18 +831,28 @@ TypeSet< Interval<int> > LocationOutput::getLocalZRanges(
 	Interval<int> interval( zidx, zidx );
 	if ( arebiddupl_ )
 	{
-            interval.start_ = zidx - 1;
-            interval.stop_ =  zidx + 2;
+	    interval.start_ = zidx - 1;
+	    interval.stop_ =  zidx + 2;
 	}
-	bool intvadded = sampleinterval.addIfNew( interval );
+
+	const bool intvadded = sampleinterval.addIfNew( interval );
 	if ( intvadded )
 	    exactz += vals[0];
 
 	bidvalset_.next( pos );
-	if ( bid != bidvalset_.getBinID(pos) )
+	if ( tk.binID() != bidvalset_.getBinID(pos) )
 	    break;
     }
 
+    return sampleinterval;
+}
+
+
+TypeSet< Interval<int> > LocationOutput::getLocalZRanges(
+						const Coord&, float ,
+						TypeSet<float>& ) const
+{
+    TypeSet< Interval<int> > sampleinterval;
     return sampleinterval;
 }
 
@@ -787,10 +871,7 @@ bool LocationOutput::areBIDDuplicated() const
 TrcSelectionOutput::TrcSelectionOutput( const BinIDValueSet& bidvalset,
 					float outval )
     : bidvalset_(bidvalset)
-    , outpbuf_(0)
     , outval_(outval)
-    , stdstarttime_(mUdf(float))
-    , stdtrcsz_(mUdf(float))
 {
     delete seldata_;
     Seis::TableSelData& sd = *new Seis::TableSelData( bidvalset );
@@ -873,8 +954,25 @@ void TrcSelectionOutput::collectData( const DataHolder& data, float refstep,
 }
 
 
-bool TrcSelectionOutput::wantsOutput( const BinID& bid ) const
+bool TrcSelectionOutput::useCoords() const
 {
+    return false;
+}
+
+
+bool TrcSelectionOutput::wantsOutput( const TrcKey& tk ) const
+{
+    BinIDValueSet::SPos pos = bidvalset_.find( tk.binID() );
+    return pos.isValid();
+}
+
+
+bool TrcSelectionOutput::wantsOutput( const Coord& crd ) const
+{
+    if ( is2d_ )
+	return false;
+
+    const BinID bid = SI().transform( crd );
     BinIDValueSet::SPos pos = bidvalset_.find( bid );
     return pos.isValid();
 }
@@ -888,7 +986,7 @@ void TrcSelectionOutput::setOutput( SeisTrcBuf* outp_ )
 }
 
 
-void TrcSelectionOutput::setTrcsBounds( Interval<float> intv )
+void TrcSelectionOutput::setTrcsBounds( const Interval<float>& intv )
 {
     stdstarttime_ = intv.start_;
     stdtrcsz_ = intv.stop_ - intv.start_;
@@ -903,10 +1001,10 @@ void TrcSelectionOutput::setGeomID( const Pos::GeomID& geomid )
 
 
 TypeSet< Interval<int> > TrcSelectionOutput::getLocalZRanges(
-						const BinID& bid, float zstep,
+						const TrcKey& tk, float zstep,
 						TypeSet<float>&	) const
 {
-    BinIDValueSet::SPos pos = bidvalset_.find( bid );
+    BinIDValueSet::SPos pos = bidvalset_.find( tk.binID() );
     BinID binid;
     TypeSet<float> values;
     bidvalset_.get( pos, binid, values );
@@ -929,6 +1027,19 @@ TypeSet< Interval<int> > TrcSelectionOutput::getLocalZRanges(
     }
 
     return sampleinterval;
+}
+
+
+TypeSet< Interval<int> > TrcSelectionOutput::getLocalZRanges(
+						const Coord& crd, float zstep,
+						TypeSet<float>& exactz ) const
+{
+    TypeSet< Interval<int> > sampleinterval;
+    if ( is2d_ )
+	return sampleinterval;
+
+    const TrcKey tk( SI().transform(crd) );
+    return getLocalZRanges( tk, zstep, exactz );
 }
 
 
@@ -990,7 +1101,7 @@ Trc2DVarZStorOutput::~Trc2DVarZStorOutput()
 {}
 
 
-void Trc2DVarZStorOutput::setTrcsBounds( Interval<float> intv )
+void Trc2DVarZStorOutput::setTrcsBounds( const Interval<float>& intv )
 {
     stdstarttime_ = intv.start_;
     stdtrcsz_ = intv.stop_ - intv.start_;
@@ -1092,62 +1203,47 @@ void Trc2DVarZStorOutput::collectData( const DataHolder& data, float refstep,
 
 
 TypeSet< Interval<int> > Trc2DVarZStorOutput::getLocalZRanges(
-						    const Coord& coord,
-						    float zstep,
-						    TypeSet<float>& ) const
+						const TrcKey& tk, float zstep,
+						TypeSet<float>& ) const
 {
     TypeSet< Interval<int> > sampleinterval;
-    DataPointSet::RowID rowid = poszvalues_->findFirst( coord );
+    DataPointSet::RowID rowid = poszvalues_->findFirst( tk );
+    if ( rowid < 0 )
+	return sampleinterval;
 
-    if ( rowid< 0 )
-    {
-	for ( int idx=0; idx<poszvalues_->size()-1; idx++ )
-	{
-	    if ( coord > poszvalues_->coord( idx )
-		&& coord < poszvalues_->coord( idx+1 ) )
-	    {
-		const double distn = coord.distTo( poszvalues_->coord(idx) );
-		const double distnp1 = coord.distTo(poszvalues_->coord(idx+1));
-		if ( distn<distnp1 && distn<=maxdisttrcs_/2 )
-		    { rowid = idx; break; }
-		else if ( distnp1<distn && distnp1<=maxdisttrcs_/2 )
-		    { rowid = idx+1; break; }
-	    }
-	}
-    }
-
-    if ( rowid< 0 ) return sampleinterval;
-
-    const BinID bid = poszvalues_->binID(rowid);
-    for ( int idx=rowid; idx<poszvalues_->size(); idx++ )
-    {
-	if ( poszvalues_->binID( idx ) != bid ) break;
-        if ( mIsEqual( poszvalues_->coord(idx).x_, coord.x_, 1e-3 )
-             &&mIsEqual( poszvalues_->coord(idx).y_, coord.y_, 1e-3 ) )
-	{
-	    Interval<int> interval( mNINT32(poszvalues_->z(idx)/zstep),
-				    mNINT32(poszvalues_->value(0,idx)/zstep) );
-	    sampleinterval += interval;
-	    const int nrextrazintv = (poszvalues_->nrCols()-1)/2;
-	    for ( int idi=0; idi<nrextrazintv; idi+=2 ) //to keep it general
-	    {
-		Interval<int> intv(
-			mNINT32(poszvalues_->value(idi+1,idx)/zstep),
-			mNINT32(poszvalues_->value(idi+2,idx)/zstep));
-		sampleinterval += intv;
-	    }
-	}
-    }
-
+    Interval<int> interval( mNINT32(poszvalues_->z(rowid)/zstep),
+			    mNINT32(poszvalues_->value(0,rowid)/zstep) );
+    sampleinterval += interval;
     return sampleinterval;
 }
 
 
-bool Trc2DVarZStorOutput::wantsOutput( const Coord& coord ) const
+TypeSet< Interval<int> > Trc2DVarZStorOutput::getLocalZRanges(
+						const Coord&, float,
+						TypeSet<float>& ) const
 {
-    //TODO : for some reason horizon coords in 2D are now rounded, check why
-    Coord roundedcoord( (int)coord.x_, (int)coord.y_ );
-    return poszvalues_->findFirst( roundedcoord ) > -1;
+    pErrMsg( "Use getLocalZRanges with TrcKey");
+    TypeSet< Interval<int> > sampleinterval;
+    return sampleinterval;
+}
+
+
+bool Trc2DVarZStorOutput::useCoords() const
+{
+    return false;
+}
+
+
+bool Trc2DVarZStorOutput::wantsOutput( const TrcKey& tk ) const
+{
+    return poszvalues_->findFirst( tk ) > -1;
+}
+
+
+bool Trc2DVarZStorOutput::wantsOutput( const Coord& ) const
+{
+    pErrMsg( "Use wantsOutput with TrcKey" );
+    return false;
 }
 
 
@@ -1242,13 +1338,6 @@ void TableOutput::computeAndSetVals( const DataHolder& data, float refstep,
 }
 
 
-bool TableOutput::wantsOutput( const BinID& bid ) const
-{
-    BinIDValueSet::SPos pos = dps_->bivSet().find( bid );
-    return pos.isValid();
-}
-
-
 bool TableOutput::wantsOutput( const Coord& coord ) const
 {
     return dps_->findFirst( coord ) > -1;
@@ -1266,27 +1355,6 @@ bool TableOutput::wantsOutput( const TrcKey& tkey ) const
 bool TableOutput::useCoords() const
 {
     return false;
-}
-
-
-TypeSet< Interval<int> > TableOutput::getLocalZRanges(
-						const BinID& bid, float zstep,
-						TypeSet<float>& exactz ) const
-{
-    TypeSet< Interval<int> > sampleinterval;
-
-    const BinIDValueSet& bvs = dps_->bivSet();
-    BinIDValueSet::SPos pos = bvs.find( bid );
-
-    DataPointSet::RowID rid = dps_->getRowID( pos );
-    while ( pos.isValid() && bid == bvs.getBinID(pos) )
-    {
-	addLocalInterval( sampleinterval, exactz, rid, zstep );
-	dps_->bivSet().next( pos );
-	rid++;
-    }
-
-    return sampleinterval;
 }
 
 
