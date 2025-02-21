@@ -797,16 +797,19 @@ ConstRefMan<RegularSeisDataPack> uiAttribPartServer::create2DOutputRM(
 		return regsdp;
 
 	    ConstPtrMan<IOObj> ioobj = IOM().get( mid );
-	    Seis::SequentialReader rdr( *ioobj, &tkzs );
-	    if ( !TaskRunner::execute(taskr,rdr) )
+	    if ( ioobj )
 	    {
-		uiMSG().error( rdr.uiMessage() );
-		return nullptr;
-	    }
+		Seis::SequentialReader rdr( *ioobj, &tkzs );
+		if ( !TaskRunner::execute(taskr,rdr) )
+		{
+		    uiMSG().error( rdr.uiMessage() );
+		    return nullptr;
+		}
 
-	    regsdp = rdr.getDataPack();
-	    if ( regsdp )
-		return regsdp;
+		regsdp = rdr.getDataPack();
+		if ( regsdp )
+		    return regsdp;
+	    }
 	}
     }
 
