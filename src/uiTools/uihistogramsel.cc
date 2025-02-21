@@ -77,8 +77,11 @@ bool uiHistogramSel::setDataPack( const DataPack& dp, int version )
 {
     const bool retval = histogramdisp_->setDataPack( dp, version );
     const bool nodata = histogramdisp_->xVals().isEmpty();
-    cliprg_ = datarg_ = nodata ? Interval<float>(0,1)
+    datarg_ = nodata ? Interval<float>(0,1)
 			       : histogramdisp_->setup().xrg_;
+    if ( nodata )
+	cliprg_ = datarg_;
+
     if ( retval )
 	drawAgain();
 
