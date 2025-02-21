@@ -526,7 +526,7 @@ protected:
     RefMan<uiVisPickRetriever>	pickretriever_;
     Notifier<uiVisPartServer>	nrscenesChange;
 
-    MouseCursorExchange*	mousecursorexchange_;
+    MouseCursorExchange*	mousecursorexchange_	= nullptr;
 
     uiDirLightDlg*		dirlightdlg_		= nullptr;
 
