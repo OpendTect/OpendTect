@@ -1310,7 +1310,8 @@ void SeisIOObjInfo::getCommonUserInfo( uiStringSet& inf ) const
 	    }
 
 	    inf.addKeyValue( uiStrings::sArea(),
-		     getAreaString(float(area),SI().xyInFeet(),2,true) );
+		     getAreaString(float(area),SI().xyInFeet(),
+				   SI().nrXYDecimals(),true) );
 
 	    ZSampling zrg = cs.zsamp_;
             const int nrdec = zinfo.def_.nrZDecimals( zrg.step_ );

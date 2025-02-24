@@ -196,7 +196,8 @@ void uiPickSetMan::mkFileInfo()
 		if ( !mIsUdf(area) )
 		{
 		    txt.add( ", area: " )
-		       .add( getAreaString(area,SI().xyInFeet(),2,true) );
+		       .add( getAreaString(area,SI().xyInFeet(),
+					   SI().nrXYDecimals(),true) );
 		}
 	    }
 	}

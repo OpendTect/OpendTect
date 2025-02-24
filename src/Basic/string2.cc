@@ -616,24 +616,11 @@ const char* getLimitedDisplayString( const char* inp, int nrchars,
 
 const char* getAreaString( float area, bool parensonunit, char* str, int sz )
 {
-    const BufferString areastr( getAreaString(area,SI().xyInFeet(),
-					      mUdf(int),parensonunit) );
-
-    mDeclStaticString( retstr );
-    if ( !str && retstr.bufSize() < 128 )
-	retstr.setMinBufSize( 128 );
-    char* ret = str ? str : retstr.getCStr();
-#ifdef __win__
-    const int bufsz = str ? sz : retstr.bufSize();
-    strcpy_s( ret, bufsz, areastr.buf() );
-#else
-    strcpy( ret, areastr.buf() );
-#endif
-    return ret;
+    return getAreaString( area, SI().xyInFeet(), 0, parensonunit, str, sz );
 }
 
 
-const char* getAreaString( float area, bool xyinfeet, int precision,
+const char* getAreaString( float area, bool xyinfeet, int nrdecimals,
 			   bool parensonunit, char* str, int sz )
 {
     StringView unit;
@@ -662,13 +649,10 @@ const char* getAreaString( float area, bool xyinfeet, int precision,
     }
 
     BufferString valstr;
-    if ( mIsUdf(precision) || val < 0.1 )
-	valstr.setLim( val, 6 );
-    else
-    {
-	valstr.set( val, precision );
-    }
+    if ( mIsUdf(nrdecimals) )
+	nrdecimals = 0;
 
+    valstr.set( val,  0, 'f', nrdecimals );
     valstr.add( " " );
     if ( parensonunit )
 	valstr.add( "(" );

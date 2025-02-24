@@ -386,7 +386,8 @@ static BufferString getInfoText( const IOObj& ioobj )
 						 cs.hsamp_.crlRange()));
 	    }
 	    txt.add("\nArea: ")
-	       .add( getAreaString(sCast(float,area),SI().xyInFeet(),2,true) );
+	       .add( getAreaString(sCast(float,area),SI().xyInFeet(),
+				   SI().nrXYDecimals(),true) );
 	}
     }
 

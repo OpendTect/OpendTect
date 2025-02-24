@@ -199,9 +199,10 @@ mGlobal(Basic) int getIndexInStringArrCI(const char*,const BufferStringSet& set,
 				  int notfoundidx=-1);
 	/*!< Finds a string in string array, case insensitive */
 
+mDeprecated("Use the one with nrdecimals and bool xyinfeet")
 mGlobal(Basic) const char* getAreaString(float m2,bool parensonunit,
 					 char* str=nullptr,int sz=0);
-mGlobal(Basic) const char* getAreaString(float m2,bool xyinfeet,int precision,
+mGlobal(Basic) const char* getAreaString(float m2,bool xyinfeet,int nrdecimals,
 					 bool parensonunit,
 					 char* str=nullptr,int sz=0);
 	/*!<Returns a string with an area and its unit, depending on survey and

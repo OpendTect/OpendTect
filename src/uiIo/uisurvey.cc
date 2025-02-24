@@ -1223,7 +1223,8 @@ void uiSurvey::putToScreen()
     BufferString locinfo;
 
     const SurveyInfo& si = *cursurvinfo_;
-    areainfo.add( getAreaString(si.getArea(false),si.xyInFeet(),2,true) );
+    areainfo.add( getAreaString(si.getArea(false),si.xyInFeet(),
+				si.nrXYDecimals(),true) );
     notesfld_->setText( si.comment() );
 
     BufferString logtxt;

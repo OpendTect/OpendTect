@@ -768,7 +768,8 @@ void PickSetDisplay::getPickingMessage( BufferString& str ) const
     if ( hasarea )
     {
 	areastring.set( "Area: " )
-		  .add( getAreaString(area,SI().xyInFeet(),2,false) );
+		  .add( getAreaString(area,SI().xyInFeet(),
+				      SI().nrXYDecimals(),false) );
     }
 
     str = isPainting() ? "Painting " : "Picking ";
