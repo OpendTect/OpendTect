@@ -1017,6 +1017,7 @@ void uiODSceneMgr::initTree( Scene& scn, int vwridx )
     }
 
     scn.dw_->setVisible( treeShown() );
+    sceneitm->select();
 }
 
 
