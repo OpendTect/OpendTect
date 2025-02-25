@@ -307,8 +307,8 @@ const char* Coord::toPrettyString( int nrdec ) const
 	ret.set( "<undef>" );
     else
     {
-        BufferString xstr = ::toString( x_, nrdec );
-        BufferString ystr = ::toString( y_, nrdec );
+	BufferString xstr = ::toString( x_, 0, 'f', nrdec);
+	BufferString ystr = ::toString( y_, 0, 'f', nrdec);
 	ret.set( "(" ).add( xstr ).add( "," ).add( ystr ).add( ")" );
     }
     return ret.buf();
