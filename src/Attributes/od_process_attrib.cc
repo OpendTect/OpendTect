@@ -209,7 +209,10 @@ bool BatchProgram::doWork( od_ostream& strm )
     if ( alllinenames.isEmpty() && !is2d )	//all other cases
 	alllinenames.add("");
 
-    TextStreamProgressMeter progressmeter( strm );
+    PtrMan<ProgressMeter> pm = ReportingTask::getTextProgressMeter( strm,
+								    &pars() );
+    ProgressMeter& progressmeter = *pm;
+
     for ( int idx=0; idx<alllinenames.size(); idx++ )
     {
 	uiString errmsg;

@@ -10,11 +10,13 @@ ________________________________________________________________________
 
 #include "basicmod.h"
 #include "namedobj.h"
+#include "ptrman.h"
 #include "objectset.h"
 #include "threadlock.h"
 #include "uistring.h"
 
 class ProgressMeter;
+class od_ostream;
 namespace Threads { class ConditionVar; }
 
 
@@ -41,7 +43,8 @@ public:
     virtual od_int64	totalNr() const			{ return -1; }
 			/*!\note totalNr is only used for displaying
 				 progress. */
-    virtual uiRetVal	errorWithDetails() const { return uiRetVal(uiMessage()); }
+    virtual uiRetVal	errorWithDetails() const
+			{ return uiRetVal(uiMessage()); }
 
     static uiString	stdNrDoneText() { return tr("Nr Done"); }
     static uiString	uiStdNrDoneText() { return tr("Nr Done"); }
@@ -85,6 +88,15 @@ public:
 
     void		getProgress(const ReportingTask&);
 
+    void		setSimpleMeter(bool yn, int repperc);
+    bool		useSimpleMeter() const;
+    int			simpleMeterStep() const;
+    static PtrMan<ProgressMeter> getTextProgressMeter(od_ostream&,
+						      const IOPar* iop=nullptr);
+    static bool		needSimpleLogging(const IOPar&);
+    static const char*	sKeySimpleLogging();
+    static const char*	sKeySimpleLoggingStep();
+
     Notifier<ReportingTask>	progressUpdated;
 
 protected:
@@ -105,6 +117,8 @@ private:
 
     ProgressMeter*	progressmeter_ = nullptr;
     int			lastupdate_;
+    bool		simplemeter_ = false;
+    int			repperc_ = 5;
 };
 
 
@@ -184,6 +198,8 @@ protected:
 		    \note if function returns a value greater than cMoreToDo(),
 			  it should be interpreted as cMoreToDo(). */
 
+    bool&	simplemeter_();
+    int&	repperc_();
 };
 
 
