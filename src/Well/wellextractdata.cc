@@ -953,6 +953,9 @@ float Well::LogDataExtracter::calcVal( const Log& wl, float dah,
 				   float winsz, Stats::UpscaleType samppol,
 				   float maxholesz, bool logisvel )
 {
+    if ( wl.isEmpty() )
+	return mUdf(float);
+
     if ( samppol == Stats::TakeNearest )
 	return wl.getValue( dah, true );
 
@@ -961,6 +964,7 @@ float Well::LogDataExtracter::calcVal( const Log& wl, float dah,
     int startidx = wl.indexOf( rg.start );
     if ( startidx < 0 )
 	startidx = 0;
+
     for ( int idx=startidx; idx<wl.size(); idx++ )
     {
 	const float curdah = wl.dah( idx );
