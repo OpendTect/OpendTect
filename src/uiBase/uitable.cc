@@ -1414,14 +1414,14 @@ void uiTable::setValue( const RowCol& rc, float val )
 void uiTable::setValue( const RowCol& rc, float val, int nrdec )
 {
     setText( rc, mIsUdf(val) ? ""
-			: (nrdec<0 ? toString(val) : toString(val,nrdec)) );
+			: (nrdec<0 ? toString(val) : toStringDec(val,nrdec)) );
 }
 void uiTable::setValue( const RowCol& rc, double val )
 { setValue( rc, val, -1 ); }
 void uiTable::setValue( const RowCol& rc, double val, int nrdec )
 {
     setText( rc, mIsUdf(val) ? ""
-			: (nrdec<0 ? toString(val) : toString(val,nrdec)) );
+			: (nrdec<0 ? toString(val) : toStringDec(val,nrdec)) );
 }
 
 

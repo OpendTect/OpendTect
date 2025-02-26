@@ -95,11 +95,11 @@ inline void set( const char*& _to, const bool& b )
 
 template <>
 inline void set( const char*& _to, const float& f )
-    { _to = toString(f); }
+    { _to = toStringPrecise(f); }
 
 template <>
 inline void set( const char*& _to, const double& d )
-    { _to = toString(d); }
+    { _to = toStringPrecise(d); }
 
 
 //----- specializations 2: floating point types -> integer types

@@ -118,9 +118,8 @@ void uiColTabItem::setColTabMapperSetup( const ColTab::MapperSetup& ms )
 {
     ctms_ = ms;
 
-    BufferString precision;
-    minvalitm_->setPlainText( toUiString(precision.set(ms.range_.start_,2)) );
-    maxvalitm_->setPlainText( toUiString(precision.set(ms.range_.stop_,2)) );
+    minvalitm_->setPlainText( toUiString(ms.range_.start_,0,'f',2) );
+    maxvalitm_->setPlainText( toUiString(ms.range_.stop_,0,'f',2) );
 }
 
 

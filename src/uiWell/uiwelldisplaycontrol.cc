@@ -144,7 +144,7 @@ void uiWellDisplayControl::getPosInfo( BufferString& info ) const
     const uiWellDahDisplay::Data& zdata = seldisp_->zData();
     const BufferString depthunitstr = UnitOfMeasure::surveyDefDepthUnitAnnot(
 						true, false ).getString();
-    info += toString( getConvertedValue(dah_, zsuom, zduom), 2 );
+    info += toString( getConvertedValue(dah_, zsuom, zduom), 0, 'f', 2 );
     info += depthunitstr;
 
     const Well::Track* track = zdata.track();
@@ -153,17 +153,17 @@ void uiWellDisplayControl::getPosInfo( BufferString& info ) const
 	info += "  TVD:";
         const float tvdss = mCast(float,track->getPos(dah_).z_);
 	const float tvd = track->getKbElev() + tvdss;
-	info += toString( getConvertedValue(tvd, zsuom, zduom), 2 );
+	info += toString( getConvertedValue(tvd, zsuom, zduom), 0, 'f', 2 );
 	info += depthunitstr;
 	info += "  TVDSS:";
-	info += toString( getConvertedValue(tvdss, zsuom, zduom), 2 );
+	info += toString( getConvertedValue(tvdss, zsuom, zduom), 0, 'f', 2 );
 	info += depthunitstr;
     }
 
     if ( zdata.zistime_ )
     {
 	info += "  TWT:";
-	info += toString( time_, 2 );
+	info += toString( time_, 0, 'f', 2 );
 	info += SI().zDomain().unitStr();
     }
 }

@@ -107,7 +107,7 @@ void uiImplBodyCalDlg::unitChgCB( CallBacker* )
     if ( uom && !mIsUdf(volumeinm3_) )
     {
 	const float newval = uom->getUserValueFromSI( volumeinm3_ );
-	txt.set( newval, 4 );
+	txt.setDec( newval, 4 );
     }
 
     volfld_->setText( txt );

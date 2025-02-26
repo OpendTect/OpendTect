@@ -173,7 +173,7 @@ bool Well::ElasticModelComputer::computeFromLogs()
 	warnmsg_ = tr("Invalid log values found.\n"
 		      "First occurence at MD: %1%2\n"
 		      "Invalid values will be interpolated.")
-		  .arg( toString(depth,2) )
+		  .arg( toUiString(depth,0,'f',2) )
 		  .arg( UnitOfMeasure::surveyDefDepthUnitAnnot(true,false) );
     }
 

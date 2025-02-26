@@ -527,7 +527,7 @@ void uiSeisBrowser::fillTable()
     BufferString zvalstr;
     for ( int idx=0; idx<info.nrsamples_; idx++ )
     {
-	zvalstr.set( info.sd_.atIndex(idx)*zfac, nrdec );
+	zvalstr.set( info.sd_.atIndex(idx)*zfac, 0, 'f', nrdec );
 	tbl_->setRowLabel( idx, toUiString(zvalstr) );
 	uiString tt;
         tt = toUiString("%1%2 sample at %3").arg(idx+1)
@@ -1031,9 +1031,9 @@ void uiSeisBrowserInfoVwr::setTrace( const SeisTrc& trc )
     const int nrdec =
 	    Math::NrSignificantDecimals( trc.info().sampling_.step_*zfac );
     BufferString zvalstr;
-    zvalstr.set( peakzs.start_*zfac, nrdec );
+    zvalstr.set( peakzs.start_*zfac, 0, 'f', nrdec );
     minamplatfld_->setText( zvalstr );
-    zvalstr.set( peakzs.stop_*zfac, nrdec );
+    zvalstr.set( peakzs.stop_*zfac, 0, 'f', nrdec );
     maxamplatfld_->setText( zvalstr );
 
     setup_.nyqvistspspace_ = trc.info().sampling_.step_;

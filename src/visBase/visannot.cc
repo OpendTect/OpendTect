@@ -198,7 +198,7 @@ void Annotation::firstTraversal( CallBacker* )
 	       "{\n"
 	       "    gl_FragDepth = gl_FragCoord.z";
 
-	code.add(" * ").add(toString(factor,1) );
+	code.add(" * ").add(toStringDec(factor,1) );
 	code.add(";\n");
 	code.add(""
 		 "    if ( gl_FragDepth>0.999999 ) gl_FragDepth = 0.999999; \n"

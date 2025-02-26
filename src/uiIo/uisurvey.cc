@@ -1281,7 +1281,7 @@ void uiSurvey::putToScreen()
     locinfo.add( fp.fullPath() );
 
     const float usrang = Math::degFromNorth( si.angleXInl() );
-    orientinfo.add( toString(usrang,2) ).add( " Degrees from N" );
+    orientinfo.add( toStringDec(usrang,2) ).add( " Degrees from N" );
 
     infoset_.setEmpty();
     infoset_.add( sKey::Name(), cursurvinfo_->name() );

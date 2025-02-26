@@ -601,14 +601,10 @@ static void addZRangeTxt( const ZDomain::Info& zinfo, ZSampling zrange,
     const int nrdec = zrange.step_;
     const float zuserfac = zinfo.userFactor();
     zrange.scale( zuserfac );
-    const uiString unitstr = zinfo.uiUnitStr();
-    uiString keystr = zinfo.def_.getRange();
-    if ( !unitstr.isEmpty() )
-	keystr.withUnit( unitstr );
-    zrngtext.add( keystr.getString() ).add(": ")
+    zrngtext.add( zinfo.getLabel() ).add(": ")
 	    .add( toUiString("%1 - %2")
-                  .arg(toString(zrange.start_,nrdec))
-                  .arg(toString(zrange.stop_,nrdec)).getString() );
+		    .arg( toUiString(zrange.start_,0,'f',nrdec) )
+		    .arg( toUiString(zrange.stop_,0,'f',nrdec)  ) );
 
     txt.add( zrngtext ).addNewLine();
 }

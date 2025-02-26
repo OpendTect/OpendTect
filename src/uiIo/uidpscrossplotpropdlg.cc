@@ -241,11 +241,11 @@ void dataChangedCB( CallBacker* )
 void updateFields()
 {
     const LinStats2D& ls = plotter_.linStats( y1_ );
-    a0fld_->setValue( toString(ls.lp.a0,4) );
-    a1fld_->setValue( toString( ls.lp.ax,4) );
-    d0fld_->setValue( toString( ls.sd.a0,4) );
-    d1fld_->setValue( toString( ls.sd.ax,4) );
-    ccfld_->setValue( toString( ls.corrcoeff,4) );
+    a0fld_->setValue( toStringDec(ls.lp.a0,4) );
+    a1fld_->setValue( toStringDec( ls.lp.ax,4) );
+    d0fld_->setValue( toStringDec( ls.sd.a0,4) );
+    d1fld_->setValue( toStringDec( ls.sd.ax,4) );
+    ccfld_->setValue( toStringDec( ls.corrcoeff,4) );
 
     const uiDataPointSetCrossPlotter::Setup& ps = plotter_.setup();
     ccdispbut_->setChecked( y1_ ? ps.showy1cc_ : ps.showy2cc_ );
@@ -683,7 +683,7 @@ void getRmsError( bool isy2 )
     if ( count != 0 && shwrmserr )
     {
 	const double rmserr = Math::Sqrt(sqsumerr/count);
-	rmserrtxt.set( rmserr, 4 );
+	rmserrtxt.set( rmserr, 0, 'f', 4 );
 	rmsfld->setText( rmserrtxt );
 	errbfrplot = true;
     }
@@ -922,7 +922,7 @@ void nrXBinsChgd( CallBacker* )
     const int nrbins = nrbinsxfld_->getIntValue();
     const float cellwidth = width / nrbins;
     BufferString txt;
-    txt.set( cellwidth, 4 );
+    txt.set( cellwidth, 0, 'f', 4 );
     dxfld_->setText( txt );
 }
 
@@ -933,7 +933,7 @@ void nrYBinsChgd( CallBacker* )
     const int nrbins = nrbinsyfld_->getIntValue();
     const float cellwidth = width / nrbins;
     BufferString txt;
-    txt.set( cellwidth, 4 );
+    txt.set( cellwidth, 0, 'f', 4 );
     dyfld_->setText( txt );
 }
 

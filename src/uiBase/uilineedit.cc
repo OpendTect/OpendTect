@@ -79,7 +79,7 @@ void fixup( QString& input ) const override
     const int nrdec = decimals();
     double val = input.toDouble();
     val = rg.limitValue( val );
-    input = QString::number( val, 'f', nrdec );
+    toUiString( val, 0, 'f', nrdec ).fillQString( input );
 }
 
 };
@@ -256,7 +256,7 @@ void uiLineEdit::setValidator( const uiIntValidator& val )
 
 void uiLineEdit::setValidator( const uiFloatValidator& val )
 {
-    ODDoubleValidator* qdval = new ODDoubleValidator;
+    auto* qdval = new ODDoubleValidator;
     qdval->setRange( val.bottom_, val.top_, val.nrdecimals_ );
     if ( !val.scnotation_ )
 	qdval->setNotation( QDoubleValidator::StandardNotation );

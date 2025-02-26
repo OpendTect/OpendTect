@@ -163,10 +163,10 @@ void uiSeis2DFileMan::lineSel( CallBacker* )
 	    const int nrzdec = zinfo.nrDecimals( zrg.step_, false );
 	    zrg.scale( zinfo.userFactor() );
 	    const uiString rgstr = tr("%1: %2 - %3 [%4]")
-				.arg( zinfo.getRange() )
-				   .arg( toString(zrg.start_,nrzdec) )
-				   .arg( toString(zrg.stop_,nrzdec) )
-				   .arg( toString(zrg.step_,nrzdec) );
+				    .arg( zinfo.getRange() )
+				   .arg( toString(zrg.start_,0,'f',nrzdec) )
+				   .arg( toString(zrg.stop_,0,'f',nrzdec) )
+				   .arg( toString(zrg.step_,0,'f',nrzdec) );
 	    txt.append( rgstr );
 	}
 	else

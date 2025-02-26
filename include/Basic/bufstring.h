@@ -158,6 +158,11 @@ public:
 
     static const BufferString& empty();
 
+    BufferString&	set(float,int nrdec)		= delete;
+    BufferString&	add(float,int nrdec)		= delete;
+    BufferString&	set(double,int nrdec)		= delete;
+    BufferString&	add(double,int nrdec)		= delete;
+
 protected:
 
     char*		buf_;

@@ -439,14 +439,12 @@ void uiSurveyInfoEditor::mkCRSGrp()
 }
 
 
-static void setZValFld( uiGenInput* zfld, int nr, float val, int nrdec )
+static void setZValFld( uiGenInput* zfld, int nr, float val )
 {
     if ( mIsUdf(val) )
-	{ zfld->setText( "", nr ); return; }
-
-    BufferString valstr;
-    valstr.set( val, nrdec );
-    zfld->setText( valstr, nr );
+	zfld->setEmpty( nr );
+    else
+	zfld->setValue( val, nr );
 }
 
 
@@ -460,25 +458,22 @@ void uiSurveyInfoEditor::setValues()
     crlfld_->setValue( crlrg );
     updateLabels();
 
-    const StepInterval<float>& zrg = si_.zRange( false );
-    const float zfac = sCast( float, si_.zDomain().userFactor() );
-    setZValFld( zfld_, 0, zrg.start_*zfac, si_.nrZDecimals() );
-    setZValFld( zfld_, 1, zrg.stop_*zfac, si_.nrZDecimals() );
-    setZValFld( zfld_, 2, zrg.step_*zfac, si_.nrZDecimals() );
+    ZSampling zrg = si_.zRange( false );
+    zrg.scale( sCast( float, si_.zDomain().userFactor() ) );
+    zfld_->setNrDecimals( si_.nrZDecimals( false ) );
+    setZValFld( zfld_, 0, zrg.start_ );
+    setZValFld( zfld_, 1, zrg.stop_ );
+    setZValFld( zfld_, 2, zrg.step_ );
 
-    int nrdec = 4;
+    const int nrx0y0dec = 4;
     x0fld_->setValue( si_.b2c_.getTransform(true).a );
-    x0fld_->setNrDecimals( nrdec );
+    x0fld_->setNrDecimals( nrx0y0dec );
     xinlfld_->setValue( si_.b2c_.getTransform(true).b );
-    xinlfld_->setNrDecimals( nrdec );
     xcrlfld_->setValue( si_.b2c_.getTransform(true).c );
-    xcrlfld_->setNrDecimals( nrdec );
     y0fld_->setValue( si_.b2c_.getTransform(false).a );
-    y0fld_->setNrDecimals( nrdec );
+    y0fld_->setNrDecimals( nrx0y0dec );
     yinlfld_->setValue( si_.b2c_.getTransform(false).b );
-    yinlfld_->setNrDecimals( nrdec );
     ycrlfld_->setValue( si_.b2c_.getTransform(false).c );
-    ycrlfld_->setNrDecimals( nrdec );
 
     Coord c[3]; BinID b[2]; int xline;
     si_.get3Pts( c, b, xline );
@@ -501,7 +496,7 @@ void uiSurveyInfoEditor::setValues()
 	xy1fld_->setValue( c[2] );
 	xy2fld_->setValue( c[1] );
 	xy3fld_->setValue( c4 );
-	nrdec = si_.nrXYDecimals();
+	const int nrdec = si_.nrXYDecimals();
 	xy0fld_->setNrDecimals( nrdec, 0 ); xy0fld_->setNrDecimals( nrdec, 1 );
 	xy1fld_->setNrDecimals( nrdec, 0 ); xy1fld_->setNrDecimals( nrdec, 1 );
 	xy2fld_->setNrDecimals( nrdec, 0 ); xy2fld_->setNrDecimals( nrdec, 1 );
@@ -652,15 +647,11 @@ bool uiSurveyInfoEditor::doApply()
 	x0fld_->setValue( si_.b2c_.getTransform(true).a );
 	x0fld_->setNrDecimals( nrdec );
 	xinlfld_->setValue( si_.b2c_.getTransform(true).b );
-	xinlfld_->setNrDecimals( nrdec );
 	xcrlfld_->setValue( si_.b2c_.getTransform(true).c );
-	xcrlfld_->setNrDecimals( nrdec );
 	y0fld_->setValue( si_.b2c_.getTransform(false).a );
 	y0fld_->setNrDecimals( nrdec );
 	yinlfld_->setValue( si_.b2c_.getTransform(false).b );
-	yinlfld_->setNrDecimals( nrdec );
 	ycrlfld_->setValue( si_.b2c_.getTransform(false).c );
-	ycrlfld_->setNrDecimals( nrdec );
 	overrulefld_->setChecked( false );
     }
     else if ( !setRelation() )

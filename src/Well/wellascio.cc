@@ -151,7 +151,8 @@ bool TrackAscIO::computeMissingValues( TypeSet<Coord3>& pos,
 	    const double hdist = Coord(curpos).distTo( Coord(prevpos) );
 	    if ( dist < hdist )
 	    {
-		const BufferString val = toString( mScaledValue( dah, uom), 2 );
+		BufferString val;
+		val.set( mScaledValue( dah, uom), 0, 'f', 2 );
 		mErrRet( tr("Impossible MD to TVD transformation for MD=%1%2" )
 			 .arg(val)
 			 .arg(uomlbl) )
@@ -164,7 +165,8 @@ bool TrackAscIO::computeMissingValues( TypeSet<Coord3>& pos,
 	    const double dist = curpos.distTo( prevpos );
 	    if ( dist < 0. )
 	    {
-                const BufferString val = toString(mScaledValue(curpos.z_,uom),2);
+                BufferString val;
+		val.set( mScaledValue(curpos.z_,uom), 0, 'f', 2 );
 		mErrRet( tr( "Impossible TVD to MD transformation for Z=%1%2" )
 			  .arg(val)
 			  .arg(uomlbl) )

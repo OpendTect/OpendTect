@@ -136,8 +136,8 @@ void ui2DGeomManageDlg::mkFileInfo()
 	    zrg.scale( zinfo.userFactor() );
 
 	const float linelength = geom2d->lineLength();
-	const BufferString diststr = toString(geom2d->averageTrcDist(),2);
-	const BufferString lengthstr = toString(linelength,0);
+	const BufferString diststr = toStringDec(geom2d->averageTrcDist(),2);
+	const BufferString lengthstr = toString(linelength,0,'f',0);
 	const BufferString unitstr = SI().getXYUnitString();
 	txt.add( "Number of traces: " ).add( trcrg.nrSteps()+1 )
 		.add( "\nTrace range: " ).add( trcrg.start_ ).add( " - " )
@@ -162,7 +162,7 @@ void ui2DGeomManageDlg::mkFileInfo()
 	    uomto = UoMR().get( "kilometer" );
 
 	const float length2 = getConvertedValue( linelength, uomfrom, uomto );
-	const BufferString length2str = toString(length2,2);
+	const BufferString length2str = toString(length2,0,'f',2);
 	const BufferString unit2str = uomto->symbol();
 
 	txt.add( "\nAverage distance: " ).add( diststr ).addSpace().add(unitstr)
