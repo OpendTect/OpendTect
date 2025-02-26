@@ -76,8 +76,10 @@ mGlobal(Basic) const char* toString(const OD::String&);
 mGlobal(Basic) const char* toString(const CompoundKey&);
 mGlobal(Basic) const char* toString(const MultiID&);
 
+#ifdef __unix__
 mGlobal(Basic) const char* toString(float,int nrdec)	= delete;
 mGlobal(Basic) const char* toString(double,int nrdec)	= delete;
+#endif
 
 mGlobal(Basic) bool getFromString(int&,const char*,int udfval);
 mGlobal(Basic) bool getFromString(od_int64&,const char*,od_int64 udfval);
