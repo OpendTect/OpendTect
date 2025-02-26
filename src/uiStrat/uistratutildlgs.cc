@@ -131,6 +131,7 @@ void uiStratUnitEditDlg::getFromScreen()
     unit_.setColor( colfld_->color() );
 
     Interval<float> rg( agestartfld_->getFValue(), agestopfld_->getFValue() );
+    rg.sort();
     unit_.setTimeRange( rg );
 
     lithids_.erase();
