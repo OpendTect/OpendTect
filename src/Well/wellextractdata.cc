@@ -963,7 +963,7 @@ float Well::LogDataExtracter::calcVal( const Log& wl, float dah,
 				   float maxholesz, bool logisvel )
 {
     if ( wl.isEmpty() )
-	return 0; // or mUdf(float)?
+	return mUdf(float);
 
     if ( samppol == Stats::TakeNearest )
 	return wl.getValue( dah, true );
