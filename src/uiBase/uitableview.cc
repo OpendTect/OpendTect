@@ -134,9 +134,11 @@ void paint( QPainter* painter, const QStyleOptionViewItem& option,
 class DoubleItemDelegate : public ODStyledItemDelegate
 {
 public:
-DoubleItemDelegate( TableModel::CellType tp )
+DoubleItemDelegate( TableModel::CellType tp,
+		    char specifier, int precision )
     : ODStyledItemDelegate(tp)
-    , nrdecimals_(2)
+    , specifier_(specifier)
+    , precision_(precision)
 {}
 
 
@@ -147,10 +149,11 @@ QString displayText( const QVariant& val, const QLocale& locale ) const override
     if ( !ok )
 	return QStyledItemDelegate::displayText( val, locale );
 
-    return QString( toString(dval,nrdecimals_) );
+    return QString::number( dval, specifier_, precision_ );
 }
 
-   int		nrdecimals_;
+   int		precision_;
+   char		specifier_;
 };
 
 
@@ -912,35 +915,40 @@ void uiTableView::selectAll()
 }
 
 
-void uiTableView::setColumnValueType( int col, TableModel::CellType tp )
+void uiTableView::setColumnValueType( int col, TableModel::CellType tp,
+				      char format, int precision )
 {
-    ODStyledItemDelegate* coldelegate = getColumnDelegate( col, tp );
+    ODStyledItemDelegate* coldelegate = getColumnDelegate( col, tp,
+							   format, precision );
     if ( coldelegate )
 	odtableview_->setItemDelegateForColumn( col, coldelegate );
 }
 
 
 ODStyledItemDelegate*
-	uiTableView::getColumnDelegate( int col, TableModel::CellType tp )
+	uiTableView::getColumnDelegate( int col, TableModel::CellType tp,
+					char format, int precision )
 {
     if ( columndelegates_.validIdx(col) && columndelegates_[col] &&
-	    columndelegates_[col]->cellType() == tp )
+	 columndelegates_[col]->cellType() == tp )
 	return columndelegates_[col];
 
     while ( columndelegates_.size() <= col )
 	columndelegates_ += nullptr;
 
-    ODStyledItemDelegate* res = createColumnDelegate( col, tp );
+    ODStyledItemDelegate* res = createColumnDelegate( col, tp,
+						      format, precision );
     delete columndelegates_.replace( col, res );
     return res;
 }
 
 
 ODStyledItemDelegate*
-	uiTableView::createColumnDelegate( int col, TableModel::CellType tp )
+	uiTableView::createColumnDelegate( int col, TableModel::CellType tp,
+					   char format, int precision )
 {
     if ( tp==TableModel::NumD || tp==TableModel::NumF )
-	return new DoubleItemDelegate(tp);
+	return new DoubleItemDelegate( tp, format, precision );
     if ( tp==TableModel::Text )
 	return new TextItemDelegate;
     if ( tp==TableModel::Enum )

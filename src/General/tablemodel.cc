@@ -184,11 +184,11 @@ TableModel::CellData::CellData( int val )
     : qvar_(*new QVariant(val))
 {}
 
-TableModel::CellData::CellData( float val, int )
+TableModel::CellData::CellData( float val )
     : qvar_(*new QVariant(val))
 {}
 
-TableModel::CellData::CellData( double val, int )
+TableModel::CellData::CellData( double val )
     : qvar_(*new QVariant(val))
 {}
 
@@ -247,13 +247,36 @@ TableModel::~TableModel()
 
 
 QAbstractTableModel* TableModel::getAbstractModel()
-{ return odtablemodel_; }
+{
+    return odtablemodel_;
+}
+
 
 void TableModel::beginReset()
-{ odtablemodel_->beginReset(); }
+{
+    odtablemodel_->beginReset();
+}
+
 
 void TableModel::endReset()
-{ odtablemodel_->endReset(); }
+{
+    odtablemodel_->endReset();
+}
+
 
 TableModel::CellType TableModel::getColumnCellType( int col ) const
-{ return Text; }
+{
+    return Text;
+}
+
+
+char TableModel::getColumnFormatSpecifier( int col ) const
+{
+    return 'g';
+}
+
+
+int TableModel::getColumnPrecision( int col ) const
+{
+    return 6;
+}
