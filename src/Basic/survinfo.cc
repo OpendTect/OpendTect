@@ -103,8 +103,9 @@ namespace Survey
     }
 
 
-    void fillObjWithDirTransform( const TypeSet<float>& dirx,
-	const TypeSet<float>& diry, OD::JSON::Object& obj )
+    void fillObjWithDirTransform( const TypeSet<double>& dirx,
+				  const TypeSet<double>& diry,
+				  OD::JSON::Object& obj )
     {
 	OD::JSON::Array dirxarr( OD::JSON::Number );
 	dirxarr.add( dirx[0] ).add( dirx[1] ).add( dirx[2] );
@@ -117,21 +118,21 @@ namespace Survey
 	OD::JSON::Object ytransf;
 	trans.set( sKeyYTransf, new OD::JSON::Array(diryarr) );
 	obj.set( SurveyInfo::sKeyTransformation(),
-	    new OD::JSON::Object(trans) );
+		 new OD::JSON::Object(trans) );
     }
 
 
     void fillObjWithDirTransform( const Pos::IdxPair2Coord& b2c,
-	OD::JSON::Object& obj )
+				  OD::JSON::Object& obj )
     {
 	const Pos::IdxPair2Coord::DirTransform& dirx =
 						    b2c.getTransform( true );
-	TypeSet<float> dirxset;
+	TypeSet<double> dirxset;
 	dirxset.add( dirx.a ).add( dirx.b ).add( dirx.c );
 
 	const Pos::IdxPair2Coord::DirTransform& diry =
 						    b2c.getTransform( false );
-	TypeSet<float> diryset;
+	TypeSet<double> diryset;
 	diryset.add( diry.a ).add( diry.b ).add( diry.c );
 
 	fillObjWithDirTransform( dirxset, diryset, obj );
@@ -939,8 +940,8 @@ SurveyInfo* SurveyInfo::readStrm( od_istream& strm, uiRetVal& ret )
     bool zistime = true;
     bool zisfeet = false;
     bool xyinfeet = false;
-    TypeSet<float> dirxset;
-    TypeSet<float> diryset;
+    TypeSet<double> dirxset;
+    TypeSet<double> diryset;
     TypeSet<BinID> bids;
     TypeSet<Coord> crds;
     while ( !atEndOfSection(astream) )
