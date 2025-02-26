@@ -210,7 +210,8 @@ void uiODApplMgr::exportSurveySetup()
 {
     const FilePath outfnm( GetExportToDir(), "surveysetup.txt" );
     uiFileDialog dlg( &appl_, false, outfnm.fullPath() );
-    if ( !dlg.go() ) return;
+    if ( !dlg.go() )
+	return;
 
     const char* fnm = dlg.fileName();
     const FilePath fp( GetDataDir(), SurveyInfo::sKeySetupFileName() );
@@ -222,7 +223,7 @@ void uiODApplMgr::exportSurveySetup()
 	return;
     }
 
-    File::copy( fp.fullPath(), fnm );
+    File::copy( fp.fullPath(), fnm, false );
 }
 
 
