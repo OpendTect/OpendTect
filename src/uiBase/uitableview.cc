@@ -23,6 +23,7 @@ ________________________________________________________________________
 #include <QByteArray>
 #include <QCheckBox>
 #include <QComboBox>
+#include <QDate>
 #include <QHeaderView>
 #include <QItemSelectionModel>
 #include <QKeyEvent>
@@ -70,9 +71,9 @@ TableModel::CellType cellType() const
 
 private:
 
-    TableModel::CellType	celltype_;
+    TableModel::CellType	celltype_	= TableModel::Text;
 
-};
+}; // class ODStyledItemDelegate
 
 
 class DecorationItemDelegate : public ODStyledItemDelegate
@@ -128,7 +129,7 @@ void paint( QPainter* painter, const QStyleOptionViewItem& option,
     ODStyledItemDelegate::paint( painter, option, index );
 }
 
-};
+}; // class DecorationItemDelegate
 
 
 class DoubleItemDelegate : public ODStyledItemDelegate
@@ -157,7 +158,7 @@ QString displayText( const QVariant& val, const QLocale& locale ) const override
    int		precision_;
    char		specifier_;
 
-};
+}; // class DoubleItemDelegate
 
 
 class TextItemDelegate : public ODStyledItemDelegate
@@ -192,7 +193,7 @@ void setModelData( QWidget* editor, QAbstractItemModel* model,
     model->setData( index, txt, Qt::EditRole );
 }
 
-};
+}; // class TextItemDelegate
 
 
 class EnumItemDelegate : public ODStyledItemDelegate
@@ -291,7 +292,24 @@ protected:
 
     const EnumDef*	enumdef_;
 
-};
+}; // class EnumItemDelegate
+
+
+class DateItemDelegate : public ODStyledItemDelegate
+{
+public:
+DateItemDelegate()
+    : ODStyledItemDelegate(TableModel::Date)
+{}
+
+
+QString displayText( const QVariant& value,
+		     const QLocale& locale ) const override
+{
+    return locale.toString( value.toDate(), "dd.MM.yyyy" );
+}
+
+}; // class DateItemDelegate
 
 
 class ODTableView : public uiObjBodyImpl<uiTableView,QTableView>
@@ -959,6 +977,8 @@ ODStyledItemDelegate*
 						 : nullptr );
     if ( tp==TableModel::Color )
 	return new DecorationItemDelegate;
+    if ( tp==TableModel::Date )
+	return new DateItemDelegate;
 
     return nullptr;
 }
