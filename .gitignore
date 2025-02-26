@@ -119,6 +119,7 @@ CTestCustom.cmake
 *.opensdf
 *.db
 .vs/*
+.vscode/*
 qtcsettings.cmake
 .qt/*
 .qtc/*
