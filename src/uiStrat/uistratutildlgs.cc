@@ -131,6 +131,7 @@ void uiStratUnitEditDlg::getFromScreen()
     unit_.setColor( colfld_->color() );
 
     Interval<float> rg( agestartfld_->getFValue(), agestopfld_->getFValue() );
+    rg.sort();
     unit_.setTimeRange( rg );
 
     lithids_.erase();
@@ -150,7 +151,7 @@ void uiStratUnitEditDlg::getFromScreen()
 }
 
 
-bool uiStratUnitEditDlg::checkWrongChar(char* buf)
+bool uiStratUnitEditDlg::checkWrongChar( char* buf )
 {
     uiString strnm;
     char* ptr = buf;
@@ -736,7 +737,7 @@ void uiStratUnitDivideDlg::mouseClick( CallBacker* )
 void uiStratUnitDivideDlg::resetUnits( CallBacker* cb )
 {
     Interval<float> timerg = rootunit_.timeRange();
-    ObjectSet<Strat::LeavedUnitRef> units;
+    ManagedObjectSet<Strat::LeavedUnitRef> units;
     gatherUnits( units );
     const int nrrows = table_->nrRows();
     for ( int idx=0; idx<nrrows; idx++ )
@@ -749,6 +750,7 @@ void uiStratUnitDivideDlg::resetUnits( CallBacker* cb )
 	    code += idx+1;
 	    unit.setCode( code );
 	}
+
 	Interval<float> rg;
 	rg.set( timerg.start_ + (float)idx*timerg.width()/(nrrows),
 		timerg.start_ + (float)(idx+1)*timerg.width()/(nrrows) );
@@ -757,7 +759,7 @@ void uiStratUnitDivideDlg::resetUnits( CallBacker* cb )
 	unit.setColor( unit.color() );
 	addUnitToTable( idx, unit );
     }
-    deepErase( units );
+
     table_->setCellReadOnly( RowCol( 0, cStartCol ), true );
     table_->setCellReadOnly( RowCol( nrrows-1, cStopCol ), true );
 }
@@ -823,10 +825,12 @@ bool uiStratUnitDivideDlg::areTimesOK( ObjectSet<Strat::LeavedUnitRef>& units,
 bool uiStratUnitDivideDlg::acceptOK( CallBacker* )
 {
     BufferStringSet bfs;
-    ObjectSet<Strat::LeavedUnitRef> units;
+    ManagedObjectSet<Strat::LeavedUnitRef> units;
     gatherUnits( units );
     if ( !units.size() )
-	{ mErrRet( tr("No valid unit present in the table "), return false ); }
+    {
+	mErrRet( tr("No valid unit present in the table "), return false );
+    }
 
     for ( int idx=0; idx<units.size(); idx++ )
     {
@@ -837,10 +841,12 @@ bool uiStratUnitDivideDlg::acceptOK( CallBacker* )
 	    errmsg = tr("Empty unit name. ");
 	else
 	{
-	    if(!uiStratUnitEditDlg::checkWrongChar(code.getCStr()))
+	    if ( !uiStratUnitEditDlg::checkWrongChar(code.getCStr()) )
 		return false;
+
 	    units[idx]->setCode( code.buf() );
 	}
+
 	if ( errmsg.isEmpty() && code == rootunit_.code() )
 	{
 	    Strat::UnitRefIter it( Strat::RT() );
@@ -851,25 +857,28 @@ bool uiStratUnitDivideDlg::acceptOK( CallBacker* )
 		    errmsg = tr("Unit name already used. ");
 	    }
 	}
+
 	bfs.addIfNew( code );
 	if ( errmsg.isEmpty() && bfs.size() < idx+1 )
 	     errmsg.append(tr("Unit name previously used in the list. "));
+
 	if ( !errmsg.isEmpty() )
 	{
 	    errmsg.append(tr("Please specify a new name for the unit number %1")
 			.arg(idx+1));
-	    mErrRet( errmsg, deepErase( units); return false )
+	    mErrRet( errmsg, return false )
 	}
     }
+
     uiString errmsg;
     if ( !areTimesOK( units, errmsg ) )
     {
 	if ( errmsg.isEmpty() )
 	    errmsg = tr("No valid times specified");
 
-	mErrRet( errmsg, deepErase(units); return false;) }
+	mErrRet( errmsg, return false;)
+    }
 
-    deepErase( units );
     return true;
 }
 
