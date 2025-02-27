@@ -656,6 +656,18 @@ uiString& uiString::arg( const uiString& newarg )
 }
 
 
+uiString& uiString::arg( float f, int nrdecimals )
+{
+    return arg( toUiString(f,0,'f',nrdecimals) );
+}
+
+
+uiString& uiString::arg( double d, int nrdecimals )
+{
+    return arg( toUiString(d,0,'f',nrdecimals) );
+}
+
+
 uiString& uiString::setArg( int nr, const uiString& newarg )
 {
     Threads::Locker datalocker( datalock_ );
@@ -938,90 +950,169 @@ uiString toUiString( const uiString& var ) { return var; }
 uiString toUiString( const OD::String& str ) { return toUiString( str.str() ); }
 
 
-template <class ODT,class QT> inline
-static uiString toUiStringWithPrecisionImpl( ODT v, int prec )
+static bool useNumberLocale()
 {
-#ifndef OD_NO_QT
-    const QLocale* locale = TrMgr().getQLocale();
-    if ( locale && locale->script()==QLocale::ArabicScript )
-    {
-        uiString res;
-        res.setFrom( locale->toString((QT) v, 'g', prec) );
-        return res;
-    }
-#endif
+    static bool ret = GetEnvVarYN( "OD_USE_LOCALE_NUMBERS" );
+    return ret;
+}
 
-    return uiString().set( toString(v, prec ) );
+static const char* getNumberLocArg( int idx=1 )
+{
+    BufferString tmpstr;
+    tmpstr.set( "%" );
+    if ( useNumberLocale() )
+	tmpstr.add( "L" );
+
+    tmpstr.add( idx );
+    mDeclStaticString( retstr );
+    retstr = tmpstr.str();
+    return retstr.str();
 }
 
 
 template <class ODT,class QT> inline
-static uiString toUiStringImpl( ODT v )
+static uiString toUiStringImpl( ODT v, od_uint16 width )
 {
-#ifndef OD_NO_QT
-    const QLocale* locale = TrMgr().getQLocale();
-    if ( locale && locale->script()==QLocale::ArabicScript )
-    {
-	uiString res;
-	res.setFrom( locale->toString((QT) v ) );
-	return res;
-    }
-#endif
-
+#ifdef OD_NO_QT
     return uiString().set( toString(v) );
+#else
+    const QString ret = QString( getNumberLocArg() ).arg( v, width );
+    uiString res;
+    res.setFrom( ret );
+    return res;
+#endif
 }
+
+
+template <class ODT,class QT> inline
+static uiString toUiStringWithPrecisionImpl( ODT v, int width, char format,
+					     int precision, char fillchar )
+{
+#ifdef OD_NO_QT
+    return uiString().set( toString(v, precision ) );
+#else
+    const QString ret = QString( getNumberLocArg() ).arg( v, width, format,
+							  precision, fillchar );
+    uiString res;
+    res.setFrom( ret );
+    return res;
+#endif
+}
+
 
 #ifdef OD_NO_QT
+typedef short qint16;
+typedef unsigned short quint16;
 typedef od_uint32 uint;
-typedef od_int64 ulonglong;
 typedef od_uint32 qulonglong;
+typedef od_int64 ulonglong;
+typedef od_uint64 qulonglong;
 #endif
 
 
-uiString toUiString( od_int32 v )
-{ return toUiStringImpl<od_int32,int>( v ); }
+uiString toUiString( short v, od_uint16 width )
+{ return toUiStringImpl<short,qint16>(v,width); }
 
 
-uiString toUiString( od_uint32 v )
-{ return toUiStringImpl<od_int32,uint>( v ); }
+uiString toUiString( unsigned short v, od_uint16 width )
+{ return toUiStringImpl<unsigned short,quint16>(v,width); }
 
 
-uiString toUiString( od_int64 v )
-{ return toUiStringImpl<od_int64,qlonglong>( v ); }
+uiString toUiString( od_int32 v, od_uint16 width )
+{ return toUiStringImpl<od_int32,int>(v,width); }
 
 
-uiString toUiString( od_uint64 v )
-{ return toUiStringImpl<od_uint64,qulonglong>( v ); }
+uiString toUiString( od_uint32 v, od_uint16 width )
+{ return toUiStringImpl<od_uint32,uint>(v,width); }
 
 
-uiString toUiString( float v )
-{ return toUiStringImpl<float,float>( v ); }
+uiString toUiString( od_int64 v, od_uint16 width )
+{ return toUiStringImpl<od_int64,qlonglong>(v,width); }
 
 
-uiString toUiString( double v )
-{ return toUiStringImpl<double,double>( v ); }
+uiString toUiString( od_uint64 v, od_uint16 width )
+{ return toUiStringImpl<od_uint64,qulonglong>(v,width); }
 
 
-uiString toUiString( float v, int prec )
-{ return toUiStringWithPrecisionImpl<float,float>( v, prec ); }
-
-
-uiString toUiString( double v, int prec )
-{ return toUiStringWithPrecisionImpl<double,double>( v, prec ); }
-
-
-uiString toUiString( float v, char format, int precision )
-{ return uiString().set( toString(v,format,precision) ); }
-
-
-uiString toUiString( double v, char format, int precision )
-{ return uiString().set( toString(v,format,precision) ); }
-
-
-uiString toUiString( const Coord& c )
+uiString toUiString( float f, int width, char format, int prec, char fillchar )
 {
-    return toUiString( "(%1,%2)" ).arg( mRounded(od_int64,c.x_) )
-            .arg( mRounded(od_int64,c.y_) );
+    return toUiStringWithPrecisionImpl<float,float>( f, width, format,
+						     prec, fillchar );
+}
+
+
+uiString toUiStringDec( float f, int nrdec )
+{
+    const float absval = Math::Abs( f );
+    const bool needgeneric = absval < 1e-4f || absval >= 1e6f;
+    if ( nrdec <0 && !needgeneric )
+        return toUiString( f, 0, 'd', 0 );
+
+    const char specifier = needgeneric ? 'g' : 'f';
+    const int precision = needgeneric ? nrdec <=0 ? 1 : nrdec+1 : nrdec;
+    return toUiString( f, 0, specifier, precision );
+}
+
+
+uiString toUiString( double d, int width, char format, int prec, char fillchar )
+{
+    return toUiStringWithPrecisionImpl<double,double>( d, width, format,
+						       prec, fillchar );
+}
+
+
+uiString toUiStringDec( double d, int nrdec )
+{
+    const float absval = Math::Abs( d );
+    const bool needgeneric = absval < 1e-4f || absval >= 1e6f;
+    if ( nrdec <0 && !needgeneric )
+        return toUiString( d, 0, 'd', 0 );
+
+    const char specifier = needgeneric ? 'g' : 'f';
+    const int precision = needgeneric ? nrdec <=0 ? 1 : nrdec+1 : nrdec;
+    return toUiString( d, 0, specifier, precision );
+}
+
+
+uiString toUiString( const Coord& crd, int precision, int width, char format,
+		     bool withparenthesis )
+{
+    const char fmt = precision <= 0 ? 'd' : format;
+    const int prec = precision <= 0 ? 0 : precision;
+    BufferString qfmt( getNumberLocArg(1) );
+    qfmt.add( ", " ).add( getNumberLocArg(2) );
+    if ( withparenthesis )
+	qfmt.embed('(',')');
+
+    QString qret = QString( qfmt.str() ).arg( crd.x_, width, fmt, prec )
+					.arg( crd.y_, width, fmt, prec );
+
+    uiString res;
+    res.setFrom( qret );
+    return res;
+}
+
+
+uiString toUiString( const Coord3& crd, int xyprecision, int zprecision,
+		     int xywidth, int zwidth, char format, bool withparenthesis)
+{
+    const char xyfmt = xyprecision <= 0 ? 'd' : format;
+    const char zfmt = zprecision <= 0 ? 'd' : format;
+    const int xyprec = xyprecision <= 0 ? 0 : xyprecision;
+    const int zprec = zprecision <= 0 ? 0 : zprecision;
+    BufferString qfmt( getNumberLocArg(1) );
+    qfmt.add( ", " ).add( getNumberLocArg(2) )
+        .add( ", " ).add( getNumberLocArg(3) );
+    if ( withparenthesis )
+	qfmt.embed('(',')');
+
+    QString qret = QString( qfmt.str() ).arg( crd.x_, xywidth, xyfmt, xyprec )
+					.arg( crd.y_, xywidth, xyfmt, xyprec )
+					.arg( crd.z_, zwidth, zfmt, zprec );
+
+    uiString res;
+    res.setFrom( qret );
+    return res;
 }
 
 uiString toUiString( const BufferStringSet& bss )
@@ -1058,6 +1149,18 @@ uiString toUiString( const QString& qs )
     uiString ret;
     ret.setFrom( qs );
     return ret;
+}
+
+
+uiString toUiString( float f, char format, int precision )
+{
+    return toUiString( f, 0, format, precision );
+}
+
+
+uiString toUiString( double d, char format, int precision )
+{
+    return toUiString( d, 0, format, precision );
 }
 
 

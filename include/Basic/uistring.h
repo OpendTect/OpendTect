@@ -158,10 +158,11 @@ public:
 
     template <class T>
     inline uiString&	arg(const T&);
+    mDeprecated("Use toUiStringDec")
     inline uiString&	arg(float,int nrdecimals);
+    mDeprecated("Use toUiStringDec")
     inline uiString&	arg(double,int nrdecimals);
     uiString&		arg(const uiString&);
-
 
 			/*! appendXX() functions should be used to concatenate
 			    entire sentences. You cannot just mix&match words
@@ -311,22 +312,35 @@ typedef uiString uiPhrase;
 mGlobal(Basic) uiString toUiString(const uiString&);
 mGlobal(Basic) uiString toUiString(const char*);
 mGlobal(Basic) uiString toUiString(const OD::String&);
-mGlobal(Basic) uiString toUiString(od_int32);
-mGlobal(Basic) uiString toUiString(od_int64);
-mGlobal(Basic) uiString toUiString(od_uint32);
-mGlobal(Basic) uiString toUiString(od_uint64);
-mGlobal(Basic) uiString toUiString(float);
-mGlobal(Basic) uiString toUiString(double);
-mGlobal(Basic) uiString toUiString(float,int nrdec);
-mGlobal(Basic) uiString toUiString(double,int nrdec);
-mGlobal(Basic) uiString toUiString(float,char format,int precision);
-mGlobal(Basic) uiString toUiString(double,char format,int precision);
-mGlobal(Basic) uiString toUiString(const Coord&); //!< no decimals
+mGlobal(Basic) uiString toUiString(short,od_uint16 width=0);
+mGlobal(Basic) uiString toUiString(unsigned short,od_uint16 width=0);
+mGlobal(Basic) uiString toUiString(od_int32,od_uint16 width=0);
+mGlobal(Basic) uiString toUiString(od_uint32,od_uint16 width=0);
+mGlobal(Basic) uiString toUiString(od_int64,od_uint16 width=0);
+mGlobal(Basic) uiString toUiString(od_uint64,od_uint16 width=0);
+mGlobal(Basic) uiString toUiString(float,int width=0,char format='g',
+				   int precision=-1,char fillchar=u' ');
+				   //!< precision = nrdec for 'f' format
+mGlobal(Basic) uiString toUiStringDec(float,int nrdec);
+mGlobal(Basic) uiString toUiString(double,int width=0,char format='g',
+				  int precision=-1,char fillchar=u' ');
+				   //!< precision = nrdec for 'f' format
+mGlobal(Basic) uiString toUiStringDec(double,int nrdec);
+mGlobal(Basic) uiString toUiString(const Coord&,int precision=0,
+				   int width=0,char format='f',
+				   bool withparentheses=true);
+mGlobal(Basic) uiString toUiString(const Coord3&,int xyprecision=0,
+				   int zprecision=0,int xywidth=0,
+				   int zwidth=0,char format='f',
+				   bool withparentheses=true);
 mGlobal(Basic) uiString toUiString(const BufferStringSet&);
 mGlobal(Basic) uiString toUiString(const MultiID&);
 
+mDeprecated("Use toUiString by providing width as 2nd argument")
+mGlobal(Basic) uiString toUiString(float,char format,int precision);
+mDeprecated("Use toUiString by providing width as 2nd argument")
+mGlobal(Basic) uiString toUiString(double,char format,int precision);
 
-mGlobal(Basic) const char* toString(const uiString&);
 
 template <class T1,class T2>
 uiString toUiString( const std::pair<T1,T2>& pair )
@@ -336,6 +350,7 @@ uiString toUiString( const std::pair<T1,T2>& pair )
 
 mGlobal(Basic) uiString toUiString(const mQtclass(QString)&);
 
+mGlobal(Basic) const char* toString(const uiString&);
 
 inline uiString& uiString::appendPhraseSameLine( const uiString& str )
 { return appendPhrase( str, CloseLine, OnSameLine ); }
@@ -380,16 +395,6 @@ template <class T> inline
 uiString& uiString::arg( const T& var )
 {
     return arg( toUiString(var) );
-}
-
-inline uiString& uiString::arg( float val, int nrdec )
-{
-    return arg( toUiString(val,nrdec) );
-}
-
-inline uiString& uiString::arg( double val, int nrdec )
-{
-    return arg( toUiString(val,nrdec) );
 }
 
 

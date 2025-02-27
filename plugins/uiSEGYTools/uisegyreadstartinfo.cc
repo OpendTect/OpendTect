@@ -18,6 +18,7 @@ ________________________________________________________________________
 #include "uilineedit.h"
 #include "uisegyimptype.h"
 #include "uispinbox.h"
+#include "uistring.h"
 #include "uitable.h"
 
 #define mNrInfoRows 10
@@ -860,12 +861,15 @@ void uiSEGYReadStartInfo::setScanInfoTexts( const SEGY::ScanInfoSet& sis )
     const char* rgstr = "%1 - %2";
     inlinfotxt_.set( rgstr ).arg( rgs.inls_.start_ ).arg( rgs.inls_.stop_ );
     crlinfotxt_.set( rgstr ).arg( rgs.crls_.start_ ).arg( rgs.crls_.stop_ );
-    trcnrinfotxt_.set( rgstr ).arg( rgs.trcnrs_.start_ ).arg( rgs.trcnrs_.stop_ );
+    trcnrinfotxt_.set( rgstr ).arg( rgs.trcnrs_.start_ )
+			      .arg( rgs.trcnrs_.stop_ );
     const int nrdec = SI().nrXYDecimals();
-    xinfotxt_.set( rgstr ).arg( rgs.xrg_.start_, nrdec )
-            .arg( rgs.xrg_.stop_, nrdec );
-    yinfotxt_.set( rgstr ).arg( rgs.yrg_.start_, nrdec )
-            .arg( rgs.yrg_.stop_, nrdec );
+    const uiString xstartuistr = toUiString( rgs.xrg_.start_, 0, 'f', nrdec );
+    const uiString xstopuistr = toUiString( rgs.xrg_.stop_, 0, 'f', nrdec );
+    const uiString ystartuistr = toUiString( rgs.yrg_.start_, 0, 'f', nrdec );
+    const uiString ystopuistr = toUiString( rgs.yrg_.stop_, 0, 'f', nrdec );
+    xinfotxt_.set( rgstr ).arg( xstartuistr ).arg( xstopuistr );
+    yinfotxt_.set( rgstr ).arg( ystartuistr ).arg( ystopuistr );
     offsetinfotxt_.set( rgstr ).arg( rgs.offs_.start_ ).arg( rgs.offs_.stop_ );
     azimuthinfotxt_.set( rgstr ).arg( rgs.azims_.start_*360/M_PI )
             .arg( rgs.azims_.stop_*360/M_PI );
@@ -1078,7 +1082,9 @@ void uiSEGYReadStartInfo::updateZRange( const SamplingData<float>& sd,
         const float step = sd.step_;
 	const int nrdec = Math::NrSignificantDecimals( step );
 	const float endz = start + (nrsamples-1) * step;
-	txt.arg( start, nrdec ).arg( endz, nrdec ).arg( step );
+	txt.arg( toUiStringDec(start,nrdec) )
+	   .arg( toUiStringDec(endz,nrdec) )
+	   .arg( step );
     }
 
     setCellTxt( mQSResCol, mZRangeRow, txt );

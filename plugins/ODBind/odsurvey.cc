@@ -68,6 +68,7 @@ odSurvey::odSurvey( const char* surveynm, const char* basedir)
 	errmsg_ = BufferString( "Named survey does not exist in ", basedir_ );
 	return;
     }
+
     activate();
 }
 
@@ -136,8 +137,8 @@ void odSurvey::makeCoordsList( OD::JSON::Array& points,
 	{
 	    auto* point = new OD::JSON::Array(OD::JSON::DataType::String);
 	    const LatLong ll( LatLong::transform(coord, true, coordsys.ptr()) );
-	    point->add( strdup(toString(ll.lng_, 6)) );
-	    point->add( strdup(toString(ll.lat_, 6)) );
+	    point->add( strdup(toString(ll.lng_, 0, 'f', 6)) );
+	    point->add( strdup(toString(ll.lat_, 0, 'f', 6)) );
 	    points.add(point);
 	}
     }

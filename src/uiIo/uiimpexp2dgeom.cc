@@ -311,10 +311,10 @@ bool uiExp2DGeom::acceptOK( CallBacker* )
 	{
 	    const PosInfo::Line2DPos& pos = allpos[pidx];
 	    const BufferString spstr = spnrs.validIdx(pidx) ?
-			toString(spnrs[pidx],2) : "-999";
+			toString(spnrs[pidx],0,'f',2) : "-999";
 	    outstr.setEmpty();
-            const BufferString xcrdstr = toString(pos.coord_.x_,2);
-            const BufferString ycrdstr = toString(pos.coord_.y_,2);
+            const BufferString xcrdstr = toString(pos.coord_.x_,0,'f',2);
+            const BufferString ycrdstr = toString(pos.coord_.y_,0,'f',2);
 	    outstr.add( data2d.lineName() ).addTab()
 		  .add( pos.nr_ ).addTab()
 		  .add( spstr ).addTab()

@@ -115,7 +115,7 @@ void uiCalcHorVol::unitChgCB( CallBacker* cb )
 	if ( uom && !mIsUdf(volumeinm3_) )
 	{
 	    const float newval = uom->getUserValueFromSI( volumeinm3_ );
-	    txt.set( newval, 4 );
+	    txt.setDec( newval, 4 );
 	}
 
 	volumefld_->setText( txt );
@@ -126,7 +126,7 @@ void uiCalcHorVol::unitChgCB( CallBacker* cb )
 	if ( uom && !mIsUdf(areainm2_) )
 	{
 	    const float newval = uom->getUserValueFromSI( areainm2_ );
-	    txt.set( newval, 4 );
+	    txt.setDec( newval, 4 );
 	}
 
 	areafld_->setText( txt );

@@ -367,11 +367,10 @@ static BufferString getInfoText( const IOObj& ioobj )
 	    const int nrdec = zinfo.def_.nrZDecimals( zrg.step_ );
 	    zrg.scale( zinfo.userFactor() );
 	    const BufferString keystr = toString( zinfo.getRange() );
-	    txt.addNewLine()
-	       .add( keystr.str() )
-		    .add( ": " ).add( zrg.start_, nrdec )
-		    .add( " - " ).add( zrg.stop_, nrdec )
-		    .add( " [" ).add( zrg.step_, nrdec ).add( "]" );
+	    txt.addNewLine().add( keystr.str() )
+	       .add( ": " ).add( toString(zrg.start_,0,'f',nrdec) )
+	       .add( " - " ).add( toString(zrg.stop_,0,'f',nrdec) )
+	       .add( " [" ).add( toString(zrg.step_,0,'f',nrdec) ).add( "]" );
 
 	    SeisIOObjInfo::SpaceInfo spcinfo;
 	    double area;
@@ -386,7 +385,8 @@ static BufferString getInfoText( const IOObj& ioobj )
 						 cs.hsamp_.crlRange()));
 	    }
 	    txt.add("\nArea: ")
-	       .add( getAreaString(sCast(float,area),SI().xyInFeet(),2,true) );
+	       .add( getAreaString(sCast(float,area),SI().xyInFeet(),
+				   SI().nrXYDecimals(),true) );
 	}
     }
 
@@ -421,11 +421,11 @@ static BufferString getInfoText( const IOObj& ioobj )
 		    const BufferString unitstr = todomain.unitStr( true );
 		    BufferString keystr = toString( todomain.def_.getRange() );
 		    keystr.addSpace().add( unitstr );
-		    txt.addNewLine()
-		       .add( keystr.buf() )
-			    .add( ": " ).add( zrg.start_, nrdec )
-			    .add( " - " ).add( zrg.stop_, nrdec )
-			    .add( " [" ).add( zrg.step_,nrdec ).add( "]" );
+		    txt.addNewLine().add( keystr.buf() )
+		       .add( ": " ).add( toString(zrg.start_,0,'f',nrdec) )
+		       .add( " - " ).add( toString(zrg.stop_,0,'f',nrdec) )
+		       .add( " [" ).add( toString(zrg.step_,0,'f',nrdec) )
+		       .add( "]" );
 		}
 	    }
 	}

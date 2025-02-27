@@ -491,11 +491,23 @@ void IOPar::set( const char* keyw, type val ) \
 {\
     set( keyw, toString( val ) );\
 }
+#define mDefSet1ValFP( type ) \
+void IOPar::set( const char* keyw, type val ) \
+{\
+    set( keyw, toStringPrecise( val ) );\
+}
 #define mDefSet2Val( type ) \
 void IOPar::set( const char* keyw, type v1, type v2 ) \
 { \
     FileMultiString fms = toString(v1); \
     fms.add( toString(v2) ); \
+    set( keyw, fms ); \
+}
+#define mDefSet2ValFP( type ) \
+void IOPar::set( const char* keyw, type v1, type v2 ) \
+{ \
+    FileMultiString fms = toStringPrecise(v1); \
+    fms.add( toStringPrecise(v2) ); \
     set( keyw, fms ); \
 }
 #define mDefSet3Val( type ) \
@@ -504,6 +516,14 @@ void IOPar::set( const char* keyw, type v1, type v2, type v3 ) \
     FileMultiString fms = toString(v1); \
     fms.add( toString(v2) ); \
     fms.add( toString(v3) ); \
+    set( keyw, fms ); \
+}
+#define mDefSet3ValFP( type ) \
+void IOPar::set( const char* keyw, type v1, type v2, type v3 ) \
+{ \
+    FileMultiString fms = toStringPrecise(v1); \
+    fms.add( toStringPrecise(v2) ); \
+    fms.add( toStringPrecise(v3) ); \
     set( keyw, fms ); \
 }
 #define mDefSet4Val( type ) \
@@ -515,17 +535,38 @@ void IOPar::set( const char* keyw, type v1, type v2, type v3, type v4 ) \
     fms.add( toString(v4) ); \
     set( keyw, fms ); \
 }
+#define mDefSet4ValFP( type ) \
+void IOPar::set( const char* keyw, type v1, type v2, type v3, type v4 ) \
+{ \
+    FileMultiString fms = toStringPrecise(v1); \
+    fms.add( toStringPrecise(v2) ); \
+    fms.add( toStringPrecise(v3) ); \
+    fms.add( toStringPrecise(v4) ); \
+    set( keyw, fms ); \
+}
 
 #define mDefAdd1Val(type) \
 void IOPar::add( const char* keyw, type val ) \
 {\
     add( keyw, toString( val ) ); \
 }
+#define mDefAdd1ValFP(type) \
+void IOPar::add( const char* keyw, type val ) \
+{\
+    add( keyw, toStringPrecise( val ) ); \
+}
 #define mDefAdd2Val( type ) \
 void IOPar::add( const char* keyw, type v1, type v2 ) \
 { \
     FileMultiString fms = toString(v1); \
     fms.add( toString(v2) ); \
+    add( keyw, fms ); \
+}
+#define mDefAdd2ValFP( type ) \
+void IOPar::add( const char* keyw, type v1, type v2 ) \
+{ \
+    FileMultiString fms = toStringPrecise(v1); \
+    fms.add( toStringPrecise(v2) ); \
     add( keyw, fms ); \
 }
 #define mDefAdd3Val( type ) \
@@ -536,6 +577,14 @@ void IOPar::add( const char* keyw, type v1, type v2, type v3 ) \
     fms.add( toString(v3) ); \
     add( keyw, fms ); \
 }
+#define mDefAdd3ValFP( type ) \
+void IOPar::add( const char* keyw, type v1, type v2, type v3 ) \
+{ \
+    FileMultiString fms = toStringPrecise(v1); \
+    fms.add( toStringPrecise(v2) ); \
+    fms.add( toStringPrecise(v3) ); \
+    add( keyw, fms ); \
+}
 #define mDefAdd4Val( type ) \
 void IOPar::add( const char* keyw, type v1, type v2, type v3, type v4 ) \
 { \
@@ -543,6 +592,15 @@ void IOPar::add( const char* keyw, type v1, type v2, type v3, type v4 ) \
     fms.add( toString(v2) ); \
     fms.add( toString(v3) ); \
     fms.add( toString(v4) ); \
+    add( keyw, fms ); \
+}
+#define mDefAdd4ValFP( type ) \
+void IOPar::add( const char* keyw, type v1, type v2, type v3, type v4 ) \
+{ \
+    FileMultiString fms = toStringPrecise(v1); \
+    fms.add( toStringPrecise(v2) ); \
+    fms.add( toStringPrecise(v3) ); \
+    fms.add( toStringPrecise(v4) ); \
     add( keyw, fms ); \
 }
 
@@ -558,10 +616,10 @@ mDefSet1Val(od_int64)	mDefSet2Val(od_int64)
 mDefSet3Val(od_int64)	mDefSet4Val(od_int64)
 mDefSet1Val(od_uint64)	mDefSet2Val(od_uint64)
 mDefSet3Val(od_uint64)	mDefSet4Val(od_uint64)
-mDefSet1Val(float)	mDefSet2Val(float)
-mDefSet3Val(float)	mDefSet4Val(float)
-mDefSet1Val(double)	mDefSet2Val(double)
-mDefSet3Val(double)	mDefSet4Val(double)
+mDefSet1ValFP(float)	mDefSet2ValFP(float)
+mDefSet3ValFP(float)	mDefSet4ValFP(float)
+mDefSet1ValFP(double)	mDefSet2ValFP(double)
+mDefSet3ValFP(double)	mDefSet4ValFP(double)
 
 mDefAdd1Val(od_int16)	mDefAdd2Val(od_int16)
 mDefAdd3Val(od_int16)	mDefAdd4Val(od_int16)
@@ -575,10 +633,10 @@ mDefAdd1Val(od_int64)	mDefAdd2Val(od_int64)
 mDefAdd3Val(od_int64)	mDefAdd4Val(od_int64)
 mDefAdd1Val(od_uint64)	mDefAdd2Val(od_uint64)
 mDefAdd3Val(od_uint64)	mDefAdd4Val(od_uint64)
-mDefAdd1Val(float)	mDefAdd2Val(float)
-mDefAdd3Val(float)	mDefAdd4Val(float)
-mDefAdd1Val(double)	mDefAdd2Val(double)
-mDefAdd3Val(double)	mDefAdd4Val(double)
+mDefAdd1ValFP(float)	mDefAdd2ValFP(float)
+mDefAdd3ValFP(float)	mDefAdd4ValFP(float)
+mDefAdd1ValFP(double)	mDefAdd2ValFP(double)
+mDefAdd3ValFP(double)	mDefAdd4ValFP(double)
 
 #define mGetStartAllowEmpty(pval) \
     if ( !isPresent(keyw) ) return false; \
@@ -745,6 +803,60 @@ static void iopset_typeset( IOPar& iop, const char* keyw,
 
 	    val = vals[ validx++ ];
 	    fms += toString( val );
+	}
+
+	StringView newkey = keyidx ? IOPar::compKey(keyw,keyidx) : keyw;
+	iop.set( newkey, fms );
+	keyidx++;
+    }
+}
+
+template <>
+void iopset_typeset( IOPar& iop, const char* keyw, const TypeSet<float>& vals )
+{
+    const int nrvals = vals.size();
+
+    int validx = 0;
+    int keyidx = 0;
+
+    while ( validx != nrvals )
+    {
+	float val = vals[ validx++ ];
+	FileMultiString fms( toStringPrecise(val) );
+
+	for ( int cnt=1; cnt<cMaxTypeSetItemsPerLine; cnt++ )
+	{
+	    if ( validx == nrvals ) break;
+
+	    val = vals[ validx++ ];
+	    fms += toStringPrecise( val );
+	}
+
+	StringView newkey = keyidx ? IOPar::compKey(keyw,keyidx) : keyw;
+	iop.set( newkey, fms );
+	keyidx++;
+    }
+}
+
+template <>
+void iopset_typeset( IOPar& iop, const char* keyw, const TypeSet<double>& vals )
+{
+    const int nrvals = vals.size();
+
+    int validx = 0;
+    int keyidx = 0;
+
+    while ( validx != nrvals )
+    {
+	double val = vals[ validx++ ];
+	FileMultiString fms( toStringPrecise(val) );
+
+	for ( int cnt=1; cnt<cMaxTypeSetItemsPerLine; cnt++ )
+	{
+	    if ( validx == nrvals ) break;
+
+	    val = vals[ validx++ ];
+	    fms += toStringPrecise( val );
 	}
 
 	StringView newkey = keyidx ? IOPar::compKey(keyw,keyidx) : keyw;
@@ -935,9 +1047,9 @@ void IOPar::set( const char* keyw, const char* v1, const char* v2,
 
 void IOPar::set( const char* keyw, int i1, int i2, float f )
 {
-    FileMultiString fms = toString( i1 );
+    FileMultiString fms = toString(i1);
     fms.add( toString(i2) );
-    fms.add( toString(f) );
+    fms.add( toStringPrecise(f) );
     set( keyw, fms.buf() );
 }
 

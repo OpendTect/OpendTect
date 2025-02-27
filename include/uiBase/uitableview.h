@@ -91,7 +91,9 @@ public:
     const RowCol&		currentCell() const;
 
     void			setColumnValueType(int col,
-						   TableModel::CellType);
+						   TableModel::CellType,
+						   char format='g',
+						   int precision=6);
     void			setColumnWidth(int col,int width );
 
     TableModel::CellType	getCellType(int col) const;
@@ -105,7 +107,9 @@ public:
 protected:
 
     ODTableView&		mkView(uiParent*,const char*);
-    ODStyledItemDelegate*	getColumnDelegate(int col,TableModel::CellType);
+    ODStyledItemDelegate*	getColumnDelegate(int col,TableModel::CellType,
+						  char format='g',
+						  int precision=6);
 
     TableModel*			tablemodel_	= nullptr;
     ODTableView*		odtableview_;
@@ -115,5 +119,7 @@ protected:
     ObjectSet<ODStyledItemDelegate>	columndelegates_;
 
     virtual ODStyledItemDelegate* createColumnDelegate(int col,
-						       TableModel::CellType);
+						       TableModel::CellType,
+						       char format='g',
+						       int precision=6);
 };

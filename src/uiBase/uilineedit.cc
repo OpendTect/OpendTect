@@ -79,7 +79,7 @@ void fixup( QString& input ) const override
     const int nrdec = decimals();
     double val = input.toDouble();
     val = rg.limitValue( val );
-    input = QString::number( val, 'f', nrdec );
+    toUiString( val, 0, 'f', nrdec ).fillQString( input );
 }
 
 };

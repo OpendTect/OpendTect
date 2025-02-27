@@ -1005,8 +1005,9 @@ void uiWellMan::mkFileInfo()
 	    const UnitOfMeasure* zun = UnitOfMeasure::surveyDefDepthUnit();
 	    if ( !mIsZero(rdelev,1e-4) && !mIsUdf(rdelev) )
 	    {
-		txt.add(Well::Info::sKeyKBElev()).add(colonstr);
-		txt.add( zun ? zun->userValue(rdelev) : rdelev, 2 );
+		txt.add( Well::Info::sKeyKBElev() ).add( colonstr );
+		txt.add( toString(zun ? zun->userValue(rdelev)
+				      : rdelev,0,'f',2) );
 		if ( zun ) txt.add( zun->symbol() );
 		txt.addNewLine();
 	    }
@@ -1015,7 +1016,7 @@ void uiWellMan::mkFileInfo()
 	    if ( !mIsZero(td,1e-3f) && !mIsUdf(td) )
 	    {
 		txt.add(Well::Info::sKeyTD()).add( colonstr );
-		txt.add( zun ? zun->userValue(td) : td, 2 );
+		txt.add( toString(zun ? zun->userValue(td) : td,0,'f',2) );
 		if ( zun ) txt.add( zun->symbol() );
 		txt.addNewLine();
 	    }
@@ -1024,7 +1025,7 @@ void uiWellMan::mkFileInfo()
 	    if ( !mIsZero(srd,1e-4) )
 	    {
 		txt.add( SurveyInfo::sKeySeismicRefDatum() ).add( colonstr );
-		txt.add( zun ? zun->userValue(srd) : srd, 2 );
+		txt.add( toString(zun ? zun->userValue(srd) : srd,0,'f',2) );
 		if ( zun ) txt.add( zun->symbol() );
 		txt.addNewLine();
 	    }
@@ -1032,7 +1033,7 @@ void uiWellMan::mkFileInfo()
 	    const float replvel = info.replvel_;
 	    if ( !mIsUdf(replvel) )
 	    {
-		 txt.add(Well::Info::sKeyReplVel()).add(colonstr);
+		 txt.add( Well::Info::sKeyReplVel() ).add( colonstr );
 		 txt.add( zun ? zun->userValue(replvel) : replvel );
 		 txt.add( UnitOfMeasure::surveyDefVelUnitAnnot(true,false)
 			  .getFullString() );
@@ -1042,8 +1043,9 @@ void uiWellMan::mkFileInfo()
 	    const float groundelev = info.groundelev_;
 	    if ( !mIsUdf(groundelev) )
 	    {
-		txt.add(Well::Info::sKeyGroundElev()).add(colonstr);
-		txt.add( zun ? zun->userValue(groundelev) : groundelev, 2 );
+		txt.add( Well::Info::sKeyGroundElev() ).add( colonstr );
+		txt.add( toString(zun ? zun->userValue(groundelev)
+				      : groundelev,0,'f',2) );
 		if ( zun ) txt.add( zun->symbol() );
 		txt.addNewLine();
 	    }

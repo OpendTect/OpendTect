@@ -602,7 +602,7 @@ void FlatView::Viewer::addAuxInfo( bool iswva, const Point& pt,
 	int nrdec = nrDec();
 	iop.get( sKeyViewZnrDec(), nrdec );
 	BufferString zstr;
-        zstr.set( mCast(float,pt.y_*zDomain().userFactor()), nrdec );
+        zstr.set( mCast(float,pt.y_*zDomain().userFactor()), 0, 'f', nrdec );
 	iop.set( sKey::ZCoord(), zstr );
     }
 }

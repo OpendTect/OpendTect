@@ -56,7 +56,8 @@ uiWriteSurfaceDlg::uiWriteSurfaceDlg( uiParent* p, const EM::Surface& surf,
     {
 	BufferString newnm = hor->name();
 	const float usrshift = shift * SI().zDomain().userFactor();
-	newnm.add(" (").add(usrshift,SI().nrZDecimals()).add(")");
+	newnm.add(" (").add( toString(usrshift,0,'f',SI().nrZDecimals()) )
+	     .add( ")" );
 	iogrp_->getObjSel()->setInputText( newnm.buf() );
     }
 }

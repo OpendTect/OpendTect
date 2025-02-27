@@ -312,12 +312,16 @@ public:
     od_int64		getInt64Value(const RowCol&) const;
     double		getDValue(const RowCol&) const;
     float		getFValue(const RowCol&) const;
-    void		setValue(const RowCol&,int);
-    void		setValue(const RowCol&,od_int64);
-    void		setValue(const RowCol&,float);
-    void		setValue(const RowCol&,float,int nrdec);
-    void		setValue(const RowCol&,double);
-    void		setValue(const RowCol&,double,int nrdec);
+    void		setValue(const RowCol&,int,od_uint16 width=0);
+    void		setValue(const RowCol&,od_int64,od_uint16 width=0);
+    void		setValue(const RowCol&,float,od_uint16 width=0,
+				 char specifier='g',int precision=6,
+				 const char* length=nullptr,
+				 const char* flags=nullptr);
+    void		setValue(const RowCol&,double,od_uint16 width=0,
+				 char specifier='g',int precision=6,
+				 const char* length=nullptr,
+				 const char* flags=nullptr);
 
     void		setSelectionMode(SelectionMode);
     void		setSelectionBehavior(SelectionBehavior);
@@ -394,4 +398,10 @@ public:
 
     mDeprecated		("Use setPrefWidthInChar")
     void	       setPrefWidthInChars(int);
+
+    mDeprecated("Do not set nrdec, or provide width, specifier, precision")
+    void		setValue(const RowCol&,float,int nrdec);
+    mDeprecated("Do not set nrdec, or provide width, specifier, precision")
+    void		setValue(const RowCol&,double,int nrdec);
+
 };

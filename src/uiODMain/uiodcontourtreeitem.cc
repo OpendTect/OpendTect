@@ -366,7 +366,7 @@ bool uiContourTreeItemContourGenerator::generateContours( int contouridx,
 	contourdata.labelranges_.add( lblpositionrg );
 	int nrdec = 0;
 	labelval = getNiceNumber( labelval, nrdec );
-	contourdata.labels_.add( toString(labelval,nrdec) );
+	contourdata.labels_.add( toString(labelval,0,'f',nrdec) );
     }
 
     return true;
@@ -783,9 +783,9 @@ void finalizeCB( CallBacker* cb )
     setInitialDecNr();
     int nrdec=0;
     const float startval = getNiceNumber( contourintv_.start_, nrdec );
-    intvfld_->setText( toString(startval,nrdec), 0 );
+    intvfld_->setText( toString(startval,0,'f',nrdec), 0 );
     const float stopval = getNiceNumber( contourintv_.stop_, nrdec );
-    intvfld_->setText( toString(stopval,nrdec), 1 );
+    intvfld_->setText( toString(stopval,0,'f',nrdec), 1 );
     intvChanged( nullptr );
 }
 

@@ -7,17 +7,19 @@ ________________________________________________________________________
 
 -*/
 
-#include "uistring.h"
+
+#include "coord.h"
+#include "envvars.h"
+#include "oddirs.h"
 #include "testprog.h"
 #include "uistrings.h"
-#include "oddirs.h"
 
-#include <QString>
 #include <QByteArray>
+#include <QString>
 #include <QTranslator>
 
 
-bool testSetEmpty()
+static bool testSetEmpty()
 {
     uiString str = toUiString("Hello");
     str.setEmpty();
@@ -31,7 +33,7 @@ bool testSetEmpty()
 }
 
 
-bool testArg()
+static bool testArg()
 {
     uiString composite = toUiString( "%1 plus %2 is %3")
 		.arg( 4 )
@@ -89,7 +91,7 @@ bool testArg()
 }
 
 
-bool testSharedData()
+static bool testSharedData()
 {
     uiString a = toUiString("Hello %1%2").arg( "World" );
     uiString b = a;
@@ -106,7 +108,7 @@ bool testSharedData()
 }
 
 
-bool testIsEqual()
+static bool testIsEqual()
 {
     const uiString a = toUiString( "A" );
     const uiString a2 = toUiString( "A" );
@@ -124,7 +126,7 @@ bool testIsEqual()
 }
 
 
-bool testQStringAssignment()
+static bool testQStringAssignment()
 {
     const char* message = "Hello World";
     uiString string;
@@ -137,24 +139,222 @@ bool testQStringAssignment()
 }
 
 
-bool testNumberStrings()
+template <class T>
+static bool doTestStringPrecisionIntegers( T val, od_uint16 width,
+                                           const char* strval, const char* desc)
 {
-    uiString string = toUiString( 0.9, 3 );
+    const uiString string = toUiString( val, width );
+    const BufferString bstostring = string.getString();
+    BufferString testname( "Number string for ", desc );
+    testname.addSpace().add( strval );
+
+    mRunStandardTest( bstostring == strval, testname.str() );
+
+    return true;
+}
+
+#define mTestStringPrecisionI(val,strval,desc) \
+    if ( !doTestStringPrecisionIntegers(val,width,strval,desc) ) return false
+
+static bool testIntegersNumberStrings()
+{
+    const short psval =  31245;
+    const short msval = -31245;
+    const unsigned short usval = 51235;
+    const od_int32 pi32val =  2147483640;
+    const od_int32 mi32val = -2147483640;
+    const od_uint32 ui32val = 4294967290;
+    const od_int64 pi64val =  9223372036854775703LL;
+    const od_int64 mi64val = -9223372036854775703LL;
+    const od_uint64 ui64val = 18446744073709551610ULL;
+
+    od_uint16 width = 0;
+    mTestStringPrecisionI( psval, "31245", "positive short" );
+    mTestStringPrecisionI( msval, "-31245", "negative short" );
+    mTestStringPrecisionI( usval, "51235", "unsigned short" );
+    mTestStringPrecisionI( pi32val, "2147483640", "positive signed int" );
+    mTestStringPrecisionI( mi32val, "-2147483640", "negative signed int" );
+    mTestStringPrecisionI( ui32val, "4294967290", "unsigned int" );
+    mTestStringPrecisionI( pi64val, "9223372036854775703",
+                           "positive signed long long int" );
+    mTestStringPrecisionI( mi64val, "-9223372036854775703",
+                           "negative signed long long int" );
+    mTestStringPrecisionI( ui64val, "18446744073709551610",
+                           "unsigned long long int" );
+
+    width = 8;
+    mTestStringPrecisionI( msval, "  -31245", "negative short with padding" );
+
+    return true;
+}
+
+
+static bool testFPNumberStringsPrecision()
+{
+    const float val = 0.9f;
+    const int prec = 3;
+    uiString string = toUiString( val, 0, 'f', prec );
     QString qstr;
     string.fillQString( qstr );
     BufferString bstr( qstr );
-    mRunStandardTest( bstr=="0.900", "Number string" );
+    mRunStandardTest( bstr=="0.900", "Number string from QString" );
 
     ArrPtrMan<wchar_t> wbuf = string.createWCharString();
     qstr = QString::fromWCharArray( wbuf.ptr() );
     bstr = BufferString( qstr );
     mRunStandardTest( bstr=="0.900", "Number string from wchar" );
 
+    bstr = string.getString();
+    mRunStandardTest( bstr=="0.900", "Number string from uiString::getString");
+    bstr = toString( string );
+    mRunStandardTest( bstr=="0.900", "Number string from toString(uiString&)");
+
+    string = toUiString( val, 0, 'g', prec ); bstr = string.getString();
+    mRunStandardTest( bstr=="0.9","Number string with float precision 3 - 'g'");
+
+    const double dval = 0.9;
+    string = toUiString( dval, 0, 'f', prec ); bstr = string.getString();
+    mRunStandardTest( bstr=="0.900", "Number string with double precision 3" );
+
+    string = toUiString( dval, 0, 'g', prec ); bstr = string.getString();
+    mRunStandardTest( bstr=="0.9","Number string with double precision 3 - 'g'");
+
     return true;
 }
 
 
-bool testLargeNumberStrings()
+template <class T>
+static bool doTestStringCPrecisionNrDec( T val, int nrdec,
+                                         const char* strval, bool flt )
+{
+    const uiString string = toUiStringDec( val, nrdec );
+    const BufferString bstostring = string.getString();
+    BufferString testname( flt ? "Float nrdec: "
+                               : "Double nrdec: ", nrdec );
+    testname.add( "; For: " ).add( strval );
+    BufferString errmsg( "Expected: ", strval, "; Received: " );
+    errmsg.add( bstostring );
+    mRunStandardTestWithError( bstostring == strval, testname, errmsg );
+
+    return true;
+}
+
+#undef mTestStringPrecisionF
+#define mTestStringPrecisionF(val,nrdec,strval) \
+    fval = (float)val; \
+    if ( !doTestStringCPrecisionNrDec(fval,nrdec,strval,true) ) return false
+#undef mTestStringPrecisionD
+#define mTestStringPrecisionD(val,nrdec,strval) \
+    dval = val; \
+    if ( !doTestStringCPrecisionNrDec(dval,nrdec,strval,false)) return false
+
+static bool testFPNumberStringsNrDec()
+{
+
+    float fval; double dval;
+
+    mTestStringPrecisionF( 0.023f, 0, "0" );
+    mTestStringPrecisionF( 0.023f, 1, "0.0" );
+    mTestStringPrecisionF( 0.023f, 2, "0.02" );
+    mTestStringPrecisionF( 0.023f, 3, "0.023" );
+    mTestStringPrecisionF( 0.023f, 4, "0.0230" );
+    mTestStringPrecisionF( 1245.23f, 0, "1245" );
+    mTestStringPrecisionF( 1245.23f, 1, "1245.2" );
+    mTestStringPrecisionF( 1245.23f, 2, "1245.23" );
+    mTestStringPrecisionF( 1245.23f, 3, "1245.230" );
+    mTestStringPrecisionF( -1.23456e-5f, 0, "-1e-05" );
+    mTestStringPrecisionF( -1.23456e-5f, 1, "-1.2e-05" );
+    mTestStringPrecisionF( -1.23456e-5f, 2, "-1.23e-05" );
+    mTestStringPrecisionF( -1.23456e-5f, 3, "-1.235e-05" );
+    mTestStringPrecisionF( -1.23456e-5f, 4, "-1.2346e-05" );
+    mTestStringPrecisionF( 1234523.789f, 0, "1e+06" );
+    mTestStringPrecisionF( 1234523.789f, 1, "1.2e+06" );
+    mTestStringPrecisionF( 1234523.789f, 2, "1.23e+06" );
+    mTestStringPrecisionF( 1234523.789f, 3, "1.235e+06" );
+    mTestStringPrecisionF( 1234523.789f, 4, "1.2345e+06" );
+    mTestStringPrecisionD( 0.023, 0, "0" );
+    mTestStringPrecisionD( 0.023, 1, "0.0" );
+    mTestStringPrecisionD( 0.023, 2, "0.02" );
+    mTestStringPrecisionD( 0.023, 3, "0.023" );
+    mTestStringPrecisionD( 0.023, 4, "0.0230" );
+    mTestStringPrecisionD( 1245.23, 0, "1245" );
+    mTestStringPrecisionD( 1245.23, 1, "1245.2" );
+    mTestStringPrecisionD( 1245.23, 2, "1245.23" );
+    mTestStringPrecisionD( 1245.23, 3, "1245.230" );
+    mTestStringPrecisionD( -1.23456e-5, 0, "-1e-05" );
+    mTestStringPrecisionD( -1.23456e-5, 1, "-1.2e-05" );
+    mTestStringPrecisionD( -1.23456e-5, 2, "-1.23e-05" );
+    mTestStringPrecisionD( -1.23456e-5, 3, "-1.235e-05" );
+    mTestStringPrecisionD( -1.23456e-5, 4, "-1.2346e-05" );
+    mTestStringPrecisionD( 1234523.789, 0, "1e+06" );
+    mTestStringPrecisionD( 1234523.789, 1, "1.2e+06" );
+    mTestStringPrecisionD( 1234523.789, 2, "1.23e+06" );
+    mTestStringPrecisionD( 1234523.789, 3, "1.235e+06" );
+    mTestStringPrecisionD( 1234523.789, 4, "1.2345e+06" );
+
+    return true;
+}
+
+
+static bool testFPNumberStringsFormat()
+{
+    BufferString bstr;
+
+    float fval = 0.023f;
+    uiString string = toUiString( fval ); bstr = string.getString();
+    mRunStandardTest( bstr=="0.023", "Float number string" );
+    double dval = 0.023;
+    string = toUiString( dval ); bstr = string.getString();
+    mRunStandardTest( bstr=="0.023", "Double number string" );
+
+    fval = 1245.23f;
+    string = toUiString( fval ); bstr = string.getString();
+    mRunStandardTest( bstr=="1245.23", "Float number string" );
+    string = toUiString( fval, 0, 'f', 2 ); bstr = string.getString();
+    mRunStandardTest( bstr=="1245.23", "Number string with precision 2" );
+    string = toUiString( fval, 10, 'f', 2 ); bstr = string.getString();
+    mRunStandardTest( bstr=="   1245.23",
+		      "Float number string with width 10 and precision 2" );
+
+    dval = 1245.23;
+    string = toUiString( dval ); bstr = string.getString();
+    mRunStandardTest( bstr=="1245.23", "Double number string" );
+    string = toUiString( dval, 0, 'f', 2 ); bstr = string.getString();
+    mRunStandardTest( bstr=="1245.23", "Number string with precision 2" );
+    string = toUiString( dval, 10, 'f', 2 ); bstr = string.getString();
+    mRunStandardTest( bstr=="   1245.23",
+		      "Double Number string with width 10 and precision 2" );
+
+    return true;
+}
+
+
+static bool testCoordStrings()
+{
+    const Coord3 crd( 881810.46, 6212637.27, 1123.45657 );
+
+    uiString string = toUiString( crd.coord() );
+    BufferString bstr = string.getString();
+    mRunStandardTest( bstr=="(881810, 6212637)",
+		      "Coordinate (2D) as integers" );
+
+    string = toUiString( crd.coord(), 2 ); bstr = string.getString();
+    mRunStandardTest( bstr=="(881810.46, 6212637.27)",
+		      "Coordinate (2D) with 2 decimals" );
+
+    string = toUiString( crd ); bstr = string.getString();
+    mRunStandardTest( bstr=="(881810, 6212637, 1123)",
+		      "Coordinate (3D) as integers" );
+
+    string = toUiString( crd, 2, 1 ); bstr = string.getString();
+    mRunStandardTest( bstr=="(881810.46, 6212637.27, 1123.5)",
+		      "Coordinate (3D) with xy=2/z=1 decimals" );
+
+    return true;
+}
+
+
+static bool testLargeNumberStrings()
 {
     uiString string = toUiString( 12500 );
     QString qstr; string.fillQString( qstr );
@@ -170,7 +370,7 @@ bool testLargeNumberStrings()
 }
 
 
-bool testToLower()
+static bool testToLower()
 {
     uiString string = uiStrings::phrInput( uiStrings::sHorizon().toLower() );
     BufferString bstr = toString( string );
@@ -185,7 +385,7 @@ bool testToLower()
 }
 
 
-bool testOptionStrings()
+static bool testOptionStrings()
 {
     uiStringSet options;
     options.add( toUiString( "One" ) )
@@ -221,7 +421,7 @@ bool testOptionStrings()
 }
 
 
-bool testHexEncoding()
+static bool testHexEncoding()
 {
     uiString str;
     mRunStandardTest( str.setFromHexEncoded("517420697320677265617421") &&
@@ -244,7 +444,8 @@ bool testHexEncoding()
     return true;
 }
 
-bool fromBufferStringSetToUiStringSet()
+
+static bool fromBufferStringSetToUiStringSet()
 {
     BufferStringSet strset;
     strset.add("A");
@@ -266,10 +467,23 @@ int mTestMainFnName( int argc, char** argv )
 {
     mInitTestProg();
 
-    if ( !testArg() || !testSharedData() || !testQStringAssignment() ||
-	 !testOptionStrings() || !testHexEncoding() || !testIsEqual() ||
-	 !testSetEmpty() || !testNumberStrings() || !testLargeNumberStrings()
-	 || !testToLower() || !fromBufferStringSetToUiStringSet() )
+    SetEnvVar( "OD_USE_LOCALE_NUMBERS", "No" );
+
+    if ( !testArg() ||
+	 !testSharedData() ||
+	 !testQStringAssignment() ||
+	 !testOptionStrings() ||
+	 !testHexEncoding() ||
+	 !testIsEqual() ||
+	 !testSetEmpty() ||
+	 !testIntegersNumberStrings() ||
+	 !testFPNumberStringsPrecision() ||
+	 !testFPNumberStringsNrDec() ||
+	 !testFPNumberStringsFormat() ||
+	 !testCoordStrings() ||
+	 !testLargeNumberStrings() ||
+	 !testToLower() ||
+	 !fromBufferStringSetToUiStringSet() )
 	return 1;
 
     return 0;

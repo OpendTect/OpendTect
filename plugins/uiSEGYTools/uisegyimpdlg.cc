@@ -53,7 +53,8 @@ uiSEGYImpDlg::uiSEGYImpDlg( uiParent* p,
     {
 	ttl.set( "Import " ).add( Seis::nameOf(setup_.geom_) );
 	FileSpec fs; fs.usePar( iop );
-	ttl.add( " " ).add( getLimitedDisplayString(fs.dispName(),40,0) );
+	ttl.add( " " )
+	   .add( getLimitedDisplayString(fs.dispName(),40,false,"...") );
     }
     setTitleText( tr(ttl) );
 

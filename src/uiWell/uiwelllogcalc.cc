@@ -92,7 +92,7 @@ static uiString getDlgTitle( const TypeSet<MultiID>& wllids )
 
     if ( !nmsstr.isEmpty() )
     {
-	nmsstr = getLimitedDisplayString( nmsstr.buf(), 80, true );
+	nmsstr = getLimitedDisplayString( nmsstr.buf(), 80, true, "..." );
 	ret.appendPhrase( toUiString(nmsstr), uiString::NoSep,
 							uiString::OnSameLine );
     }

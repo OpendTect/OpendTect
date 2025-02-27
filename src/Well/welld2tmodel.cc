@@ -701,14 +701,13 @@ void Well::D2TModel::checkReplacementVelocity( Well::Info& info,
 	    const UnitOfMeasure* uomvel = UnitOfMeasure::surveyDefVelUnit();
 	    const uiString veluomlbl(
 		    UnitOfMeasure::surveyDefVelUnitAnnot(true,false) );
-	    const BufferString fileval =
-			       toString(mScaledValue(vreplinfile,uomvel), 2 );
 	    msg = tr("Input error with the %1\n"
 		  "Your time-depth model suggests a %1 of %2%4\n "
 		  "but the %1 was set to: %3%4\n"
 		  "Velocity information from file was overruled.");
-	    msg.arg( replvelbl ).arg( fileval )
-	       .arg( toString(mScaledValue(info.replvel_,uomvel), 2) )
+	    msg.arg( replvelbl )
+	       .arg( toUiString(mScaledValue(vreplinfile,uomvel), 0, 'f', 2 ) )
+	       .arg( toUiString(mScaledValue(info.replvel_,uomvel), 0, 'f', 2) )
 	       .arg( veluomlbl );
 	}
     }
@@ -737,8 +736,8 @@ void Well::D2TModel::shiftTimesIfNecessary( TypeSet<double>& tvals,
 	tr( "\nOpendTect will correct for this error by applying\n"
 		"a time shift of: %1 %2.\n"
 		"The resulting travel-times will differ from the input file."))
-		   .arg( toString(mScaledValue(timeshift,uomz),2) )
-		   .arg(UnitOfMeasure::surveyDefTimeUnitAnnot(true,false) );
+		   .arg( toUiString(mScaledValue(timeshift,uomz),0,'f',2) )
+		   .arg( UnitOfMeasure::surveyDefTimeUnitAnnot(true,false) );
 
     for ( int idz=0; idz<tvals.size(); idz++ )
 	tvals[idz] += timeshift;

@@ -586,6 +586,8 @@ od_istream& od_istream::get( typ& t ) \
     mImplStrmAddFn(typ,t) mImplNumberGetFn(typ)
 #define mImplSimpleAddGetFns(typ) \
     mImplStrmAddFn(typ,toString(t)) mImplNumberGetFn(typ)
+#define mImplSimpleAddGetFnsFP(typ) \
+    mImplStrmAddFn(typ,toStringPrecise(t)) mImplNumberGetFn(typ)
 #define mImplPreciseAddFn(typ) \
     mImplStrmAddPreciseFn(typ,toStringPrecise(t))
 
@@ -606,8 +608,8 @@ mImplSimpleAddGetFnsNoConv(long)
 mImplSimpleAddGetFnsNoConv(unsigned long)
 #endif
 
-mImplSimpleAddGetFns(float)
-mImplSimpleAddGetFns(double)
+mImplSimpleAddGetFnsFP(float)
+mImplSimpleAddGetFnsFP(double)
 mImplPreciseAddFn(float)
 mImplPreciseAddFn(double)
 

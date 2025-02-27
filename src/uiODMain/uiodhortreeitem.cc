@@ -611,7 +611,7 @@ void uiODHorizonTreeItem::createMenu( MenuHandler* menu, bool istb )
         float zpos( pickedpos.z_ );
 	SI().snapZ( zpos );
 	BufferString zposstr;
-	zposstr.set( zpos, SI().nrZDecimals() );
+	zposstr.set( zpos, 0, 'f', SI().nrZDecimals() );
 	addzitm_.text = tr("Add Z-slice %1").arg( zposstr.buf() );
 
 	mAddMenuItem( menu, &addinlitm_, true, false );

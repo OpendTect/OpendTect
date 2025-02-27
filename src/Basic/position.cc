@@ -293,7 +293,9 @@ const char* Coord::toString() const
     if ( isUdf() )
 	ret.set( "<undef>" );
     else
-        ret.set( "(" ).add( x_ ).add( "," ).add( y_ ).add( ")" );
+        ret.set( "(" ).add( toStringPrecise( x_ ) )
+	   .add( "," ).add( toStringPrecise( y_ ) ).add( ")" );
+
     return ret.buf();
 }
 
@@ -305,8 +307,8 @@ const char* Coord::toPrettyString( int nrdec ) const
 	ret.set( "<undef>" );
     else
     {
-        BufferString xstr = ::toString( x_, nrdec );
-        BufferString ystr = ::toString( y_, nrdec );
+	BufferString xstr = ::toString( x_, 0, 'f', nrdec);
+	BufferString ystr = ::toString( y_, 0, 'f', nrdec);
 	ret.set( "(" ).add( xstr ).add( "," ).add( ystr ).add( ")" );
     }
     return ret.buf();

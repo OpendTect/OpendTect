@@ -159,6 +159,7 @@ uiWellTrackDlg::uiWellTrackDlg( uiParent* p, Well::Data& d )
     wellheadxfld_ = new uiGenInput( actgrp,
 				tr("X-Coordinate of well head %1").arg(unitstr),
 				DoubleInpSpec(mUdf(double)) );
+    wellheadxfld_->setNrDecimals( nrXYDecimals() );
     mAddSetBut( wellheadxfld_, updateXpos )
     if ( !writable_ )
 	wellheadxfld_->setReadOnly( true );
@@ -167,12 +168,14 @@ uiWellTrackDlg::uiWellTrackDlg( uiParent* p, Well::Data& d )
 				tr("Y-Coordinate of well head %1").arg(unitstr),
 				DoubleInpSpec(mUdf(double)) );
     wellheadyfld_->attach( alignedBelow, wellheadxfld_ );
+    wellheadyfld_->setNrDecimals( nrXYDecimals() );
     mAddSetBut( wellheadyfld_, updateYpos )
     if ( !writable_ )
 	wellheadyfld_->setReadOnly( true );
 
     kbelevfld_ = new uiGenInput( actgrp, Well::Info::sKBElev(),
 				 FloatInpSpec(mUdf(float)) );
+    kbelevfld_->setNrDecimals( nrZDecimals() );
     mAddSetBut( kbelevfld_, updateKbElev )
     kbelevfld_->attach( alignedBelow, wellheadyfld_ );
     if ( !writable_ )
@@ -180,6 +183,7 @@ uiWellTrackDlg::uiWellTrackDlg( uiParent* p, Well::Data& d )
 
     glfld_ = new uiGenInput( actgrp, Well::Info::sGroundElev(),
 					FloatInpSpec(mUdf(float)) );
+    glfld_->setNrDecimals( nrZDecimals() );
     glfld_->attach( alignedBelow, kbelevfld_ );
     if ( !writable_ )
 	glfld_->setReadOnly( true );
@@ -314,6 +318,18 @@ void uiWellTrackDlg::fillSetFields( CallBacker* )
 }
 
 
+int uiWellTrackDlg::nrXYDecimals() const
+{
+    return SI().nrXYDecimals();
+}
+
+
+int uiWellTrackDlg::nrZDecimals() const
+{
+    return 2;
+}
+
+
 double uiWellTrackDlg::getX( int row ) const
 {
     return tbl_->getDValue( RowCol(row,cXCol) );
@@ -340,25 +356,27 @@ float uiWellTrackDlg::getMD( int row ) const
 
 void uiWellTrackDlg::setX( int row, double x )
 {
-    tbl_->setValue( RowCol(row,cXCol), x, SI().nrXYDecimals() );
+    tbl_->setValue( RowCol(row,cXCol), x, 0, 'f', nrXYDecimals() );
 }
 
 
 void uiWellTrackDlg::setY( int row, double y )
 {
-    tbl_->setValue( RowCol(row,cYCol), y, SI().nrXYDecimals() );
+    tbl_->setValue( RowCol(row,cYCol), y, 0, 'f', nrXYDecimals() );
 }
 
 
 void uiWellTrackDlg::setZ( int row, double z )
 {
-    tbl_->setValue( RowCol(row,cZCol), mConvertVal(z,true), 2 );
+    tbl_->setValue( RowCol(row,cZCol), mConvertVal(z,true), 0, 'f',
+		    nrZDecimals() );
 }
 
 
 void uiWellTrackDlg::setMD( int row, float md )
 {
-    tbl_->setValue( RowCol(row,cMDTrackCol), mConvertVal(md,true), 2 );
+    tbl_->setValue( RowCol(row,cMDTrackCol), mConvertVal(md,true), 0, 'f',
+		    nrZDecimals() );
 }
 
 
@@ -700,7 +718,7 @@ void uiWellTrackDlg::updatePos( bool isx )
 	if ( mIsUdf(tblpos) )
 	    continue;
 
-	tbl_->setValue( RowCol(irow,icol), tblpos+shift, 2 );
+	tbl_->setValue( RowCol(irow,icol), tblpos+shift, 0, 'f', nrZDecimals());
     }
 
     updNow(0); //write the new table data back to the track
@@ -1084,7 +1102,8 @@ void uiD2TModelDlg::setDepthValue( int irow, int icol, float val )
     if ( icol != getVintCol() && !mIsUdf(mdval) )
 	mdvals_[irow] = mdval;
 
-    tbl_->setValue( RowCol(irow,icol), mConvertVal(val,true), 2 );
+    tbl_->setValue( RowCol(irow,icol), mConvertVal(val,true), 0, 'f',
+		    nrZDecimals() );
 }
 
 
@@ -1106,13 +1125,19 @@ void uiD2TModelDlg::setTimeValue( int irow, float val )
 	tvals_[irow] = val;
 
     const double twtval = mConvertTimeVal(val,true);
-    tbl_->setValue( RowCol(irow,getTimeCol()), twtval, 2 );
+    tbl_->setValue( RowCol(irow,getTimeCol()), twtval, 0, 'f', nrZDecimals() );
 }
 
 
 float uiD2TModelDlg::getTimeValue( int irow ) const
 {
     return mConvertTimeVal(tbl_->getFValue(RowCol(irow,getTimeCol())),false);
+}
+
+
+int uiD2TModelDlg::nrZDecimals() const
+{
+    return 2;
 }
 
 #define mGetVel(dah,d2t) \

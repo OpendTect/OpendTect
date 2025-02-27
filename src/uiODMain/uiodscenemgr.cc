@@ -556,7 +556,7 @@ void uiODSceneMgr::updateStatusBar()
 	const float zfact = mCast(float,visServ().zFactor());
         const float zval = (float) (zfact * xytpos.z_);
 	const int nrdec = SI().nrZDecimals()+1; // get from settings
-	const BufferString zvalstr = toString( zval, nrdec );
+	const BufferString zvalstr = toString( zval, 0, 'f', nrdec );
 	msg = toUiString("%1    (%2, %3, %4)")
 	    .arg( bid.toString() )
               .arg( mNINT32(xytpos.x_) )

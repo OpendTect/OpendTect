@@ -305,7 +305,7 @@ bool uiExport2DHorizon::doExport()
 		    if ( zunitout_ )
 			convValue( newz, horzunit, zunitout_ );
 
-		    zstr = toString( newz, nrzdec );
+		    zstr = toString( newz, 0, 'f', nrzdec );
 		}
 
 		survgeom2d->getPosByTrcNr( trcnr, crd, spnr );

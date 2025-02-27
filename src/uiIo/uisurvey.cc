@@ -1018,8 +1018,10 @@ void uiSurvey::utilButPush( CallBacker* cb )
 static BufferString pointTxt( int idx, const BinID& bid, const Coord& crd )
 {
     BufferString txt( "Corner ", idx, ":\t" );
-    txt.add( "X: " ).add( crd.x_, 2 ).add( "  Y: " ).add( crd.y_, 2 );
-    txt.add( "  IL: " ).add( bid.inl() ).add( "  XL: " ).add( bid.crl() );
+    txt.add( "X: " ).add( toString(crd.x_,0,'f',2) )
+       .add( "  Y: " ).add( toString(crd.y_,0,'f',2) )
+       .add( "  IL: " ).add( bid.inl() )
+       .add( "  XL: " ).add( bid.crl() );
     txt.addNewLine();
     return txt;
 }
@@ -1205,25 +1207,18 @@ void uiSurvey::putToScreen()
 
     if ( !hassurveys || !cursurvinfo_ )
     {
-	notesfld_->setText( uiString::emptyString() );
-	infofld_->setText( uiString::emptyString() );
-	logfld_->setText( uiString::emptyString() );
+	notesfld_->setText( uiString::empty() );
+	infofld_->setText( uiString::empty() );
+	logfld_->setText( uiString::empty() );
 	return;
     }
 
-    BufferString inlinfo;
-    BufferString crlinfo;
-    BufferString zkey, zinfo;
-    BufferString srdinfo;
-    BufferString bininfo;
-    BufferString crsinfo;
-    BufferString areainfo;
-    BufferString survtypeinfo;
-    BufferString orientinfo;
-    BufferString locinfo;
+    BufferString inlinfo, crlinfo, zkey, zinfo, srdinfo,
+		 bininfo, crsinfo, areainfo, survtypeinfo, orientinfo, locinfo;
 
     const SurveyInfo& si = *cursurvinfo_;
-    areainfo.add( getAreaString(si.getArea(false),si.xyInFeet(),2,true) );
+    areainfo.add( getAreaString(si.getArea(false),si.xyInFeet(),
+				si.nrXYDecimals(),true) );
     notesfld_->setText( si.comment() );
 
     BufferString logtxt;
@@ -1238,10 +1233,10 @@ void uiSurvey::putToScreen()
 
     logfld_->setText( logtxt );
 
-    zkey.set( "Z range (" )
-	.add( si.zIsTime() ? ZDomain::Time().unitStr()
-			   : getDistUnitString(si.zInFeet(), false) )
-	.add( ")" );
+    zkey.set( sKey::ZRange() ).addSpace()
+	.add( si.zIsTime() ? ZDomain::Time().unitStr(true)
+		       : (si.zInMeter() ? ZDomain::DepthMeter().unitStr(true)
+					: ZDomain::DepthFeet().unitStr(true)) );
 
     if ( si.getCoordSystem() )
 	crsinfo.add( si.getCoordSystem()->summary() );
@@ -1258,7 +1253,7 @@ void uiSurvey::putToScreen()
 	crlinfo.add( "; Total: ").add( si.sampling(false).nrCrl() );
 
 	const float inldist = si.inlDistance(), crldist = si.crlDistance();
-	bininfo.add( inldist, 2 ).add( " / " ).add( crldist, 2 );
+	bininfo.addDec( inldist, 2 ).add( " / " ).addDec( crldist, 2 );
 	bininfo.add( " (" ).add( si.getXYUnitString(false) )
 	       .add( "/line)" );
     }
@@ -1266,15 +1261,15 @@ void uiSurvey::putToScreen()
     StepInterval<float> sizrg( si.zRange(false) );
     sizrg.scale( si.zDomain().userFactor() );
     const int nrdec = si.nrZDecimals();
-    zinfo.add( sizrg.start_, nrdec ).add( " - " )
-	    .add( sizrg.stop_, nrdec ).add( " [" )
-	    .add( sizrg.step_, nrdec ).add( "]" );
+    zinfo.add( toString(sizrg.start_,0,'f',nrdec) ).add( " - " )
+	 .add( toString(sizrg.stop_,0,'f',nrdec) ).add( " [" )
+	 .add( toString(sizrg.step_,0,'f',nrdec) ).add( "]" );
     zinfo.add( "; Total: ").add( sizrg.nrSteps()+1 );
 
     float srd = si.seismicReferenceDatum();
     if ( si.zIsTime() && si.depthsInFeet() )
 	srd *= mToFeetFactorF;
-    srdinfo.add( srd, 2 ).addSpace()
+    srdinfo.add( toString(srd,0,'f',2) ).addSpace()
 	   .add( getDistUnitString(si.depthsInFeet(),true) );
 
     survtypeinfo.add( SurveyInfo::toString(si.survDataType()) );
@@ -1284,7 +1279,7 @@ void uiSurvey::putToScreen()
     locinfo.add( fp.fullPath() );
 
     const float usrang = Math::degFromNorth( si.angleXInl() );
-    orientinfo.add( toString(usrang,2) ).add( " Degrees from N" );
+    orientinfo.add( toStringDec(usrang,2) ).add( " Degrees from N" );
 
     infoset_.setEmpty();
     infoset_.add( sKey::Name(), cursurvinfo_->name() );

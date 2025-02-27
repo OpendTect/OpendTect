@@ -602,7 +602,8 @@ void uiBasicLayerSequenceGenDesc::fillDispUnit( int idx, float totth,
     BufferString dispnm( disp.gen_->name() );
     if ( !disp.gen_->content().isUnspecified() )
 	dispnm.add( "[" ).add( disp.gen_->content().name() ).add( "]" );
-    disp.nm_->setText(toUiString(getLimitedDisplayString(dispnm,25, false)));
+    disp.nm_->setText(
+	    toUiString(getLimitedDisplayString(dispnm,25, false,"...")) );
     midpt.y_ = (disp.topy_ + disp.boty_) / 2;
     disp.nm_->setPos( mCast(float,midpt.x_), mCast(float,midpt.y_-2) );
 	    // the 'y-2' makes the text more nicely centered in the box

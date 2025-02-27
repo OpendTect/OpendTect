@@ -110,8 +110,8 @@ void uiFlatViewWin::makeInfoMsg( BufferString& mesg, IOPar& pars )
 
     if ( !crd.coord().isUdf() )
     {
-        mesg.addTab().add( "(" ).add( toString(crd.x_,mNrXYDec) );
-        mesg.add( ", " ).add( toString(crd.y_,mNrXYDec) );
+        mesg.addTab().add( "(" ).add( toString(crd.x_,0,'f',mNrXYDec) );
+        mesg.add( ", " ).add( toString(crd.y_,0,'f',mNrXYDec) );
     }
 
     if ( !mIsUdf(crd.z_) )

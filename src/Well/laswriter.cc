@@ -114,11 +114,11 @@ static BufferString create( const char* mnem, const char* unit, const char* val,
 bool LASWriter::writeWellInfoSection( od_ostream& strm )
 {
     BufferString zstart, zstop, zstep, xcoord, ycoord;
-    zstart.set( mdrg_.start_, cNrMDDecimals );
-    zstop.set( mdrg_.stop_, cNrMDDecimals );
-    zstep.set( mdrg_.step_, cNrMDDecimals );
-    xcoord.set( wd_->info().surfacecoord_.x_, cNrXYDecimals );
-    ycoord.set( wd_->info().surfacecoord_.y_, cNrXYDecimals );
+    zstart.set( mdrg_.start_, 0, 'f', cNrMDDecimals );
+    zstop.set( mdrg_.stop_, 0, 'f', cNrMDDecimals );
+    zstep.set( mdrg_.step_, 0, 'f', cNrMDDecimals );
+    xcoord.set( wd_->info().surfacecoord_.x_, 0, 'f', cNrXYDecimals );
+    ycoord.set( wd_->info().surfacecoord_.y_, 0, 'f', cNrXYDecimals );
     const char* depthunit = zinfeet_ ? "F" : "M";
     const char* xyunit = SI().xyInFeet() ? "F" : "M";
 
@@ -177,11 +177,11 @@ bool LASWriter::writeParameterInfoSection( od_ostream& strm )
 {
 // optional
     BufferString kbstr, glstr;
-    kbstr.set( wd_->track().getKbElev(), cNrMDDecimals );
+    kbstr.set( wd_->track().getKbElev(), 0, 'f', cNrMDDecimals );
     if ( mIsUdf(wd_->info().groundelev_) )
 	glstr.set( nullvalue_ );
     else
-	glstr.set( wd_->info().groundelev_, cNrMDDecimals );
+	glstr.set( wd_->info().groundelev_, 0, 'f', cNrMDDecimals );
 
     const char* depthunit = zinfeet_ ? "F" : "M";
     strm << "~Parameter Information Section\n";

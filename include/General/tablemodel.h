@@ -33,8 +33,8 @@ public:
 	CellData(const char*);
 	CellData(bool);
 	CellData(int);
-	CellData(float,int nrdec);
-	CellData(double,int nrdec);
+	CellData(float);
+	CellData(double);
 	CellData(const CellData&);
 	~CellData();
 
@@ -76,6 +76,8 @@ public:
 				{ return nullptr; }
 
     virtual CellType		getColumnCellType(int col) const;
+    virtual char		getColumnFormatSpecifier(int col) const;
+    virtual int			getColumnPrecision(int col) const;
 
     QAbstractTableModel*	getAbstractModel();
     void			beginReset();

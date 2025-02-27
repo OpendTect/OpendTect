@@ -1315,11 +1315,14 @@ void SeisIOObjInfo::getCommonUserInfo( uiStringSet& inf ) const
 	    ZSampling zrg = cs.zsamp_;
             const int nrdec = zinfo.def_.nrZDecimals( zrg.step_ );
 	    zrg.scale( zinfo.userFactor() );
+	    const uiString zrgstartuistr = toUiStringDec( zrg.start_, nrdec );
+	    const uiString zrgstopuistr = toUiStringDec( zrg.stop_, nrdec );
+	    const uiString zrgstepuistr = toUiStringDec( zrg.step_, nrdec );
 	    inf.addKeyValue( zinfo.getRange(),
 		    toUiString("%1 - %2 [%3]")
-                             .arg( toString(zrg.start_,nrdec) )
-                             .arg( toString(zrg.stop_,nrdec) )
-                             .arg( toString(zrg.step_,nrdec) ) );
+                             .arg( zrgstartuistr )
+                             .arg( zrgstopuistr )
+                             .arg( zrgstepuistr ) );
 	}
     }
 

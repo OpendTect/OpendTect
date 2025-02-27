@@ -517,10 +517,10 @@ void uiDataPointSet::fillPos( TRowID tid )
     if ( is2D() && showbids_ )
 	tbl_->setText( rc, Survey::GM().getName(dps_->geomID(drid)) );
     else
-	tbl_->setValue( rc, mGetHPosVal(-nrPosCols(),drid), 2 );
+	tbl_->setValue( rc, mGetHPosVal(-nrPosCols(),drid), 0, 'f', 2 );
 
     rc.col()++;
-    tbl_->setValue( rc, mGetHPosVal(-nrPosCols()+1,drid), 2 );
+    tbl_->setValue( rc, mGetHPosVal(-nrPosCols()+1,drid), 0, 'f', 2 );
     rc.col()++;
     if ( mIsUdf(pos.z_) )
 	tbl_->setText( rc, "" );
@@ -528,7 +528,7 @@ void uiDataPointSet::fillPos( TRowID tid )
     {
 	float fz = zfac_ * pos.z_ * 100;
 	int iz = mNINT32(fz);
-	tbl_->setValue( rc, iz * 0.01 );
+	tbl_->setValue( rc, iz * 0.01, 0, 'f', 2 );
     }
 
     BufferString rownm = groupName( dps_->group(dRowID(tid)) );

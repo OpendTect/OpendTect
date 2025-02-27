@@ -99,6 +99,9 @@ protected:
     void		updateYpos(CallBacker*);
     void		updateKbElev(CallBacker*);
 
+    int			nrXYDecimals() const;
+    int			nrZDecimals() const;
+
     double		getX(int row) const;
     double		getY(int row) const;
     double		getZ(int row) const;
@@ -171,6 +174,7 @@ protected:
     float		getDepthValue(int irow,int icol) const;
     void		setTimeValue(int irow,float);
     float		getTimeValue(int irow) const;
+    int			nrZDecimals() const;
 };
 
 

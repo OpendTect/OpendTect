@@ -1198,7 +1198,7 @@ IOObj* uiIOObjSelGrp::updStatusBarInfo( bool setnmfld )
 	if ( setnmfld && nmfld_ )
 	    nmfld_->setText( ret ? ret->name().buf() : "" );
 	info = getLimitedDisplayString( !ret ? "" :
-			 ret->fullUserExpr(ctio_.ctxt_.forread_), 40, false );
+		 ret->fullUserExpr(ctio_.ctxt_.forread_), 40, false, "..." );
     }
 
     triggerStatusMsg( info );
