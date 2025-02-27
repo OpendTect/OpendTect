@@ -754,14 +754,15 @@ static BufferString getRangeStr( T start, T stop, int nrdec )
     BufferString ret;
     T diff = stop - start;
     if ( mIsZero(diff,0.0001) )
-	ret.addDec( start, nrdec ).add( " [all equal]" );
+	ret.add( toString(start,0,'f',nrdec) ).add( " [all equal]" );
     else
     {
 	if ( diff < 0 )
 	    diff = -diff;
 
-	ret.addDec( start, nrdec ).add(" - ").addDec( stop, nrdec );
-	ret.add( " (d=" ).addDec( diff, nrdec ).add( ")" );
+	ret.add( toString(start,0,'f',nrdec) ).add(" - ")
+	   .add( toString(stop,0,'f',nrdec) )
+	   .add( " (d=" ).add( toString(diff,0,'f',nrdec) ).add( ")" );
     }
     return ret;
 }

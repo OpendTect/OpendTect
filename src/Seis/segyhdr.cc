@@ -172,8 +172,9 @@ static BufferString pointTxt( int idx, const BinID& bid,
     if ( needsconversion )
 	crd = crs->convertFrom( crd, *SI().getCoordSystem() );
     BufferString txt( "Corner ", idx, ":  " );
-    txt.add( "X: " ).addDec( crd.x_, 2 ).add( "  Y: " ).addDec( crd.y_, 2 );
-    txt.add( "  IL: " ).add( bid.inl() ).add( "  XL: " ).add( bid.crl() );
+    txt.add( "X: " ).add( toString(crd.x_,0,'f',2 ) )
+       .add( "  Y: " ).add( toString(crd.y_,0,'f',2) )
+       .add( "  IL: " ).add( bid.inl() ).add( "  XL: " ).add( bid.crl() );
     return txt;
 }
 

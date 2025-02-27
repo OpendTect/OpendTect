@@ -147,11 +147,10 @@ void ui2DGeomManageDlg::mkFileInfo()
 		    .add( sprg.stop_ );
 	if ( !zrg.isUdf() )
 	{
-	    txt.addNewLine()
-	       .add( zinfo.getRange() )
-		    .add( ": " ).addDec( zrg.start_, nrzdec )
-		    .add( " - " ).addDec( zrg.stop_, nrzdec )
-		    .add( " [" ).addDec( zrg.step_, nrzdec ).add( "]" );
+	    txt.addNewLine().add( zinfo.getRange() )
+	       .add( ": " ).add( toString(zrg.start_,0,'f',nrzdec) )
+	       .add( " - " ).add( toString(zrg.stop_,0,'f',nrzdec) )
+	       .add( " [" ).add( toString(zrg.step_,0,'f',nrzdec) ).add( "]" );
 	}
 
 	const UnitOfMeasure* uomfrom = UoMR().get(SI().getXYUnitString(false));

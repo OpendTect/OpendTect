@@ -150,7 +150,9 @@ QString displayText( const QVariant& val, const QLocale& locale ) const override
     if ( !ok )
 	return QStyledItemDelegate::displayText( val, locale );
 
-    return QString::number( dval, specifier_, precision_ );
+    QString ret;
+    toUiString( dval, 0, specifier_, precision_ ).fillQString( ret );
+    return ret;
 }
 
    int		precision_;
