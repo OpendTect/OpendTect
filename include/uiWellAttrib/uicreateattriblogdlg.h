@@ -20,7 +20,6 @@ class uiAttrSel;
 class uiListBox;
 class uiMnemonicsSel;
 class uiGenInput;
-class uiMnemonicSel;
 class uiWellExtractParams;
 
 mExpClass(uiWellAttrib) uiCreateAttribLogDlg : public uiDialog
@@ -38,7 +37,7 @@ protected:
     uiAttrSel*			attribfld_			= nullptr;
     uiListBox*			welllistfld_;
     uiGenInput*			lognmfld_;
-    uiMnemonicSel*		mnemfld_			= nullptr;
+    uiMnemonicsSel*		mnemfld_;
     uiWellExtractParams*	zrangeselfld_;
     const BufferStringSet&	wellnames_;
     int				sellogidx_			= -1;
