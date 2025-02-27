@@ -298,6 +298,9 @@ public:
     mDeprecated			("Use fillQString")
     const mQtclass(QString)&	getQString() const;
 
+    uiString&	arg(float,int nrdecimals)		= delete;
+    uiString&	arg(double,int nrdecimals)		= delete;
+
 };
 
 
@@ -331,6 +334,11 @@ mGlobal(Basic) uiString toUiString(const Coord3&,int xyprecision=0,
 				   bool withparentheses=true);
 mGlobal(Basic) uiString toUiString(const BufferStringSet&);
 mGlobal(Basic) uiString toUiString(const MultiID&);
+
+mDeprecated("Use toUiString by providing width as 2nd argument")
+mGlobal(Basic) uiString toUiString(float,char format,int precision);
+mDeprecated("Use toUiString by providing width as 2nd argument")
+mGlobal(Basic) uiString toUiString(double,char format,int precision);
 
 
 template <class T1,class T2>

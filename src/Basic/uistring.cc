@@ -1140,6 +1140,18 @@ uiString toUiString( const QString& qs )
 }
 
 
+uiString toUiString( float f, char format, int precision )
+{
+    return toUiString( f, 0, format, precision );
+}
+
+
+uiString toUiString( double d, char format, int precision )
+{
+    return toUiString( d, 0, format, precision );
+}
+
+
 const char* toString( const uiString& uis )
 {
     mDeclStaticString( retstr );
