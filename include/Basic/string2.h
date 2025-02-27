@@ -19,8 +19,8 @@ ________________________________________________________________________
  */
 
 #include "basicmod.h"
-#include "plftypes.h"
-#include "commondefs.h"
+
+#include "undefval.h"
 #include <ctype.h>
 #include <wctype.h>
 
@@ -222,8 +222,9 @@ mGlobal(Basic) char* truncateString(char* str, int maxlen );
 	/*!<If str is longer than maxlen-4, string will be truncated and a
 	 * " ..." will be appended". */
 
-mGlobal(Basic) const char* cformat(char specifier,od_uint16 width=0,
-				   od_uint16 precision=0,
+mGlobal(Basic) const char* cformat(char specifier,
+				   od_uint16 width=mUdf(od_uint16),
+				   od_uint16 precision=mUdf(od_uint16),
 				   const char* length=nullptr,
 				   const char* flags=nullptr);
 	/*!<Creates a format string for printing:

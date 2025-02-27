@@ -1033,7 +1033,7 @@ uiString toUiStringDec( float f, int nrdec )
 {
     const float absval = Math::Abs( f );
     const bool needgeneric = absval < 1e-4f || absval >= 1e6f;
-    if ( nrdec <=0 && !needgeneric )
+    if ( nrdec <0 && !needgeneric )
         return toUiString( f, 0, 'd', 0 );
 
     const char specifier = needgeneric ? 'g' : 'f';
@@ -1053,7 +1053,7 @@ uiString toUiStringDec( double d, int nrdec )
 {
     const float absval = Math::Abs( d );
     const bool needgeneric = absval < 1e-4f || absval >= 1e6f;
-    if ( nrdec <=0 && !needgeneric )
+    if ( nrdec <0 && !needgeneric )
         return toUiString( d, 0, 'd', 0 );
 
     const char specifier = needgeneric ? 'g' : 'f';

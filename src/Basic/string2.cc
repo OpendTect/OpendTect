@@ -812,7 +812,8 @@ const char* toString( od_uint32 i, od_uint16 width, int minbufsz, char* extstr )
 const char* toString( od_int64 i, od_uint16 width, int minbufsz, char* extstr )
 {
     mDeclStaticString( retstr );
-    const BufferString format = cformat( 'd', width, 0, nullptr, "ll" );
+    const BufferString format = cformat( 'd', width, mUdf(od_uint16),
+					 nullptr, "ll" );
     return toStringImpl( i, retstr, format.str(), minbufsz, extstr );
 }
 
@@ -820,7 +821,8 @@ const char* toString( od_int64 i, od_uint16 width, int minbufsz, char* extstr )
 const char* toString( od_uint64 i, od_uint16 width, int minbufsz, char* extstr )
 {
     mDeclStaticString( retstr );
-    const BufferString format = cformat( 'u', width, 0, nullptr, "ll" );
+    const BufferString format = cformat( 'u', width, mUdf(od_uint16),
+					 nullptr, "ll" );
     return toStringImpl( i, retstr, format.str(), minbufsz, extstr );
 }
 
@@ -856,9 +858,6 @@ const char* toStringDec( float f, int nrdec )
 {
     const float absval = Math::Abs( f );
     const bool needgeneric = absval < 1e-4f || absval >= 1e6f;
-    if ( nrdec <=0 && !needgeneric )
-	return toString( mNINT64(f) );
-
     const char specifier = needgeneric ? 'g' : 'f';
     const int precision = needgeneric ? nrdec <=0 ? 1 : nrdec+1 : nrdec;
     return toString( f, 0, specifier, precision );
@@ -885,9 +884,6 @@ const char* toStringDec( double d, int nrdec )
 {
     const float absval = Math::Abs( d );
     const bool needgeneric = absval < 1e-4f || absval >= 1e6f;
-    if ( nrdec <=0 && !needgeneric )
-	return toString( mNINT64(d) );
-
     const char specifier = needgeneric ? 'g' : 'f';
     const int precision = needgeneric ? nrdec <=0 ? 1 : nrdec+1 : nrdec;
     return toString( d, 0, specifier, precision );
@@ -1203,8 +1199,16 @@ const char* cformat( char specifier, od_uint16 width, od_uint16 precision,
     tmpstr.set( '%' );
     if ( flags )	tmpstr.add( flags );
     if ( width>0 )	tmpstr.add( width );
-    if ( precision>0 )	tmpstr.add( "." ).add( precision );
-    if ( length )	tmpstr.add( length );
+    if ( !mIsUdf(precision) )
+    {
+	tmpstr.add( "." );
+	if ( precision>0 )
+	    tmpstr.add( precision );
+    }
+
+    if ( length )
+	tmpstr.add( length );
+
     tmpstr.add( specifier );
 
     mDeclStaticString( ret );
