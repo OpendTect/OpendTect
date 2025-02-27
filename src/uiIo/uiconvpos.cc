@@ -490,10 +490,13 @@ void uiFileConvGroup::outTypChg( CallBacker* )
 {
     TypeSet<int> selidxs;
     outtypfld_->getChosen( selidxs );
-    const bool hasxy = selidxs.isPresent( 0 );
-    const bool hasll = selidxs.isPresent( 2 );
-    outcrdsysselfld_->display( hasxy );
-    outllsysselfld_->display( hasll );
+    if ( outcrdsysselfld_ && outllsysselfld_ )
+    {
+	const bool hasxy = selidxs.isPresent( 0 );
+	const bool hasll = selidxs.isPresent( 2 );
+	outcrdsysselfld_->display( hasxy );
+	outllsysselfld_->display( hasll );
+    }
 }
 
 
