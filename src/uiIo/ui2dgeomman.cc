@@ -639,11 +639,16 @@ void uiManageLineGeomDlg::setTrcSPNrCB( CallBacker* )
     const LinePars lp = dlg.getRelationship();
     const int fromidx = calcsp ? 0 : 1;
     const int toidx = calcsp ? 1 : 0;
+    const int nrspdec = 3;
     for ( int idx=0; idx<table_->nrRows(); idx++ )
     {
 	const float var = table_->getFValue( RowCol(idx,fromidx) );
 	const float val = lp.getValue( var );
-	table_->setValue( RowCol(idx,toidx), val );
+	if ( calcsp )
+	    table_->setValue( RowCol(idx,toidx), val, 0, 'f', nrspdec );
+	else
+	    table_->setValue( RowCol(idx,toidx), val );
+
     }
 }
 
@@ -660,15 +665,15 @@ void uiManageLineGeomDlg::fillTable( const Survey::Geometry2D& geom2d )
 	const Coord& crd = positions[idx].coord_;
 	table_->setValue( RowCol(idx,0), positions[idx].nr_ );
 	table_->setValue( RowCol(idx,1), spnrs.validIdx(idx) ? spnrs[idx] : -1,
-			  nrspdec );
-        table_->setValue( RowCol(idx,2), crd.x_, nrdec );
-        table_->setValue( RowCol(idx,3), crd.y_, nrdec );
+			  0, 'f', nrspdec );
+        table_->setValue( RowCol(idx,2), crd.x_, 0, 'f', nrdec );
+        table_->setValue( RowCol(idx,3), crd.y_, 0, 'f', nrdec );
 
 	if ( SI().hasProjection() )
 	{
 	    const LatLong ll = LatLong::transform( crd );
-	    table_->setValue( RowCol(idx,4), ll.lat_, 5 );
-	    table_->setValue( RowCol(idx,5), ll.lng_, 5 );
+	    table_->setValue( RowCol(idx,4), ll.lat_, 0, 'f', 5 );
+	    table_->setValue( RowCol(idx,5), ll.lng_, 0, 'f', 5 );
 	}
     }
 }

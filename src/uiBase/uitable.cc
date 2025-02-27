@@ -1405,23 +1405,23 @@ double uiTable::getDValue( const RowCol& rc ) const
 { const char* str = text(rc); return toDouble( str, mUdf(double) ); }
 
 
-void uiTable::setValue( const RowCol& rc, int val )
-{ setText( rc, toString(val) ); }
-void uiTable::setValue( const RowCol& rc, od_int64 val )
-{ setText( rc, toString(val) ); }
-void uiTable::setValue( const RowCol& rc, float val )
-{ setValue( rc, val, -1 ); }
-void uiTable::setValue( const RowCol& rc, float val, int nrdec )
+void uiTable::setValue( const RowCol& rc, int val, od_uint16 width )
+{ setText( rc, toString(val,width) ); }
+void uiTable::setValue( const RowCol& rc, od_int64 val, od_uint16 width )
+{ setText( rc, toString(val,width) ); }
+void uiTable::setValue( const RowCol& rc, float val, od_uint16 width,
+			char specifier, int precision, const char* length,
+			const char* flags )
 {
-    setText( rc, mIsUdf(val) ? ""
-			: (nrdec<0 ? toString(val) : toStringDec(val,nrdec)) );
+    setText( rc, mIsUdf(val) ? nullptr
+		 : toString(val,width,specifier,precision,length,flags) );
 }
-void uiTable::setValue( const RowCol& rc, double val )
-{ setValue( rc, val, -1 ); }
-void uiTable::setValue( const RowCol& rc, double val, int nrdec )
+void uiTable::setValue( const RowCol& rc, double val, od_uint16 width,
+			char specifier, int precision, const char* length,
+			const char* flags )
 {
-    setText( rc, mIsUdf(val) ? ""
-			: (nrdec<0 ? toString(val) : toStringDec(val,nrdec)) );
+    setText( rc, mIsUdf(val) ? nullptr
+		: toString(val,width,specifier,precision,length,flags) );
 }
 
 

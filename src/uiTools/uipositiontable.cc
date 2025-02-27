@@ -46,7 +46,7 @@ uiPositionTable::uiPositionTable( uiParent* p, bool withxy, bool withic,
     collbl->attach( rightTo, pmlvl );
 
     table_ = new uiTable( this, uiTable::Setup().rowdesc("Node")
-	    					.rowgrow(true)
+						.rowgrow(true)
 						.selmode(uiTable::Multi)
 						.defrowlbl(true),
 			  "Pos Table" );
@@ -121,8 +121,8 @@ void uiPositionTable::posChgCB( CallBacker* )
 	const int nrdec = SI().nrXYDecimals();
 	if ( withxy_ )
 	{
-            table_->setValue( RowCol(rc.row(),0), coord.x_, nrdec );
-            table_->setValue( RowCol(rc.row(),1), coord.y_, nrdec );
+            table_->setValue( RowCol(rc.row(),0), coord.x_, 0, 'f', nrdec );
+            table_->setValue( RowCol(rc.row(),1), coord.y_, 0, 'f', nrdec );
 	}
     }
 
@@ -140,8 +140,8 @@ void uiPositionTable::setCoords( const TypeSet<Coord>& coords )
 	const Coord& crd = coords[idx];
 	if ( withxy_ )
 	{
-            table_->setValue( RowCol(idx,getXCol()), crd.x_, nrdec );
-            table_->setValue( RowCol(idx,getYCol()), crd.y_, nrdec );
+            table_->setValue( RowCol(idx,getXCol()), crd.x_, 0, 'f', nrdec );
+            table_->setValue( RowCol(idx,getYCol()), crd.y_, 0, 'f', nrdec );
 	}
 
 	const BinID bid = SI().transform( crd );
@@ -173,8 +173,8 @@ void uiPositionTable::setBinIDs( const TypeSet<BinID>& binids )
 	if ( withxy_ )
 	{
 	    const Coord crd = SI().transform( bid );
-            table_->setValue( RowCol(idx,getXCol()), crd.x_, nrdec );
-            table_->setValue( RowCol(idx,getYCol()), crd.y_, nrdec );
+            table_->setValue( RowCol(idx,getXCol()), crd.x_, 0, 'f', nrdec );
+            table_->setValue( RowCol(idx,getYCol()), crd.y_, 0, 'f', nrdec );
 	}
 
 	if ( withic_ )
@@ -209,7 +209,7 @@ void uiPositionTable::getBinIDs( TypeSet<BinID>& binids ) const
 		continue;
 
 	    Coord coord( table_->getDValue(RowCol(idx,0)),
-		    	 table_->getDValue(RowCol(idx,1)) );
+			 table_->getDValue(RowCol(idx,1)) );
 	    binids += SI().transform( coord );
 	}
     }
@@ -223,7 +223,7 @@ void uiPositionTable::setZRange( const Interval<float>& zrg )
 void uiPositionTable::getZRange( Interval<float>& zrg ) const
 {
     zrg.setFrom( withz_ ? zfld_->getFInterval()
-	    		: (Interval<float>)SI().zRange(false) );
+			: (Interval<float>)SI().zRange(false) );
 }
 
 void uiPositionTable::setRowColor( int rid, bool includes )
