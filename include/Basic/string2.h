@@ -76,7 +76,12 @@ mGlobal(Basic) const char* toString(const OD::String&);
 mGlobal(Basic) const char* toString(const CompoundKey&);
 mGlobal(Basic) const char* toString(const MultiID&);
 
-#ifdef __unix__
+#ifdef __win__
+mDeprecated("Do not set nrdec, or provide width, specifier, precision")
+mGlobal(Basic) const char* toString(float,int nrdec);
+mDeprecated("Do not set nrdec, or provide width, specifier, precision")
+mGlobal(Basic) const char* toString(double,int nrdec);
+#else
 mGlobal(Basic) const char* toString(float,int nrdec)	= delete;
 mGlobal(Basic) const char* toString(double,int nrdec)	= delete;
 #endif
