@@ -611,7 +611,8 @@ bool SeisTrcTranslator::copyDataToTrace( SeisTrc& trc )
 	return false;
 
     TraceDataInterpreter* trcdatainterp = trc.data().getInterpreter( 0 );
-    TraceDataInterpreter* storinterp = storbuf_->getInterpreter( 0 );
+    TraceDataInterpreter* storinterp =
+	storbuf_ ? storbuf_->getInterpreter( 0 ) : nullptr;
     if ( !trcdatainterp || !storinterp )
 	return false;
 
