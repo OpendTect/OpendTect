@@ -57,7 +57,7 @@ uiCEEMDAttrib::uiCEEMDAttrib( uiParent* p, bool is2d )
     setHAlignObj( inpfld_ );
 
     methodfld_ = new uiGenInput( this, tr("Method"),
-		StringListInpSpec(methodStr) );
+				 StringListInpSpec(methodStr) );
     methodfld_->attach( alignedBelow, inpfld_ );
 
     maximffld_ = new uiGenInput( this, tr("Maximum no. IMFs"), IntInpSpec() );
@@ -320,6 +320,7 @@ void uiCEEMDAttrib::setPrevSel()
     positiondlg_->inlfld_->box()->setValue( bid.inl() );
     positiondlg_->crlfld_->setValue( bid.crl() );
 }
+
 
 void uiCEEMDAttrib::viewPanelCB( CallBacker* )
 {

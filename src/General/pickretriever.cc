@@ -9,16 +9,28 @@ ________________________________________________________________________
 
 #include "pickretriever.h"
 
-RefMan<PickRetriever> PickRetriever::instance_;
 
-PickRetriever::PickRetriever()	
+PickRetriever::PickRetriever()
     : buttonstate_(OD::NoButton)
 {}
 
-PickRetriever::~PickRetriever()	{}
 
-void PickRetriever::setInstance( PickRetriever* npr )
-{ instance_ = npr; }
+PickRetriever::~PickRetriever()
+{}
 
-PickRetriever* PickRetriever::instance()
-{ return instance_.ptr(); }
+
+const WeakPtr<PickRetriever>& PickRetriever::instance( PickRetriever* npr )
+{
+    static WeakPtr<PickRetriever> theinst;
+    if ( npr )
+	theinst = npr;
+
+    return theinst;
+}
+
+
+PickRetriever* PickRetriever::getInstance()
+{
+    RefMan<PickRetriever> pickretriever = instance().get();
+    return pickretriever.ptr();
+}

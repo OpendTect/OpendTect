@@ -121,7 +121,7 @@ uiVisPartServer::uiVisPartServer( uiApplService& a )
 	       uiVisPartServer::updateSelObjCB );
 
     vismgr_ = new uiVisModeMgr(this);
-    PickRetriever::setInstance( pickretriever_.ptr() );
+    PickRetriever::instance( pickretriever_.ptr() );
 }
 
 
@@ -1447,7 +1447,6 @@ void uiVisPartServer::updateDraggers()
 	}
     }
 }
-
 
 
 void uiVisPartServer::setZStretch()

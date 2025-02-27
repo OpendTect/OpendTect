@@ -9,10 +9,11 @@ ________________________________________________________________________
 -*/
 
 #include "uiattributesmod.h"
+
+#include "pickretriever.h"
 #include "uiattrdesced.h"
 
 class BinIDValueSet;
-class PickRetriever;
 class calcFingParsObject;
 
 class uiAttrSel;
@@ -42,13 +43,13 @@ protected:
     uiRadioButton*	picksetbut_;
     uiToolButton*	getposbut_;
     uiGenInput*		statsfld_;
-    uiGenInput*		refposfld_;
+    uiGenInput*		refposfld_	= nullptr;
     uiGenInput*		refpos2dfld_;
     uiGenInput*		refposzfld_;
     uiIOObjSel*		picksetfld_;
     uiLabel*		manlbl_;
-    uiSeis2DLineSel*	linefld_;
-   
+    uiSeis2DLineSel*	linefld_	= nullptr;
+
     ObjectSet<uiAttrSel> attribflds_;
 
     uiFPAdvancedDlg*	advanceddlg_;
@@ -67,7 +68,7 @@ protected:
     BinIDValueSet*	createValuesBinIDSet(uiString&) const;
     BinID		get2DRefPos() const;
 
-    PickRetriever*	pickretriever_;
+    WeakPtr<PickRetriever> pickretriever_;
     void		getPosPush(CallBacker*);
     void		pickRetrieved(CallBacker*);
 

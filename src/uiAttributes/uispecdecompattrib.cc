@@ -42,19 +42,15 @@ const char* uiSpecDecompAttrib::sKeyTrcNr() { return "Trace Number"; }
 
 uiSpecDecompAttrib::uiSpecDecompAttrib( uiParent* p, bool is2d )
     : uiAttrDescEd(p,is2d, mODHelpKey(mSpecDecompAttribHelpID) )
-    , nyqfreq_(0)
-    , nrsamples_(0)
-    , ds_(0)
-    , panelview_( new uiSpecDecompPanel(p) )
-    , positiondlg_( nullptr )
+    , panelview_(*new uiSpecDecompPanel(p))
 {
     inpfld_ = createImagInpFld( is2d );
-    inpfld_->selectionDone.notify( mCB(this,uiSpecDecompAttrib,inputSel) );
+    mAttachCB( inpfld_->selectionDone, uiSpecDecompAttrib::inputSel );
 
     typefld_ = new uiGenInput( this, tr("Transform type"),
 			      BoolInpSpec(true,tr("FFT"),tr("CWT")) );
     typefld_->attach( alignedBelow, inpfld_ );
-    typefld_->valueChanged.notify( mCB(this,uiSpecDecompAttrib,typeSel) );
+    mAttachCB( typefld_->valueChanged, uiSpecDecompAttrib::typeSel );
 
     gatefld_ = new uiGenInput( this, gateLabel(),
 			      DoubleInpIntervalSpec().setName("Z start",0)
@@ -77,8 +73,7 @@ uiSpecDecompAttrib::uiSpecDecompAttrib( uiParent* p, bool is2d )
 
     stepfld_ = new uiLabeledSpinBox( this, uiStrings::sStep(), nrdec );
     stepfld_->attach( rightTo, outpfld_ );
-    stepfld_->box()->valueChanged.notify(
-				mCB(this,uiSpecDecompAttrib,stepChg) );
+    mAttachCB( stepfld_->box()->valueChanged, uiSpecDecompAttrib::stepChg );
 
     waveletfld_ = new uiGenInput( this, uiStrings::sWavelet(),
 				 StringListInpSpec(CWT::WaveletTypeNames()) );
@@ -93,8 +88,9 @@ uiSpecDecompAttrib::uiSpecDecompAttrib( uiParent* p, bool is2d )
 
 uiSpecDecompAttrib::~uiSpecDecompAttrib()
 {
+    detachAllNotifiers();
     delete positiondlg_;
-    delete panelview_;
+    delete &panelview_;
 }
 
 
@@ -267,8 +263,7 @@ void uiSpecDecompAttrib::panelTFPush( CallBacker* cb )
 
     if ( positiondlg_ )
     {
-	positiondlg_->windowClosed.remove(
-				mCB(this,uiSpecDecompAttrib,viewPanalCB) );
+	mDetachCB( positiondlg_->windowClosed, uiSpecDecompAttrib::viewPanalCB);
 	delete positiondlg_;
     }
 
@@ -289,8 +284,7 @@ void uiSpecDecompAttrib::panelTFPush( CallBacker* cb )
 
     setPrevSel();
     positiondlg_->show();
-    positiondlg_->windowClosed.notify(
-				mCB(this,uiSpecDecompAttrib,viewPanalCB) );
+    mAttachCB( positiondlg_->windowClosed, uiSpecDecompAttrib::viewPanalCB );
 }
 
 
@@ -304,7 +298,7 @@ void uiSpecDecompAttrib::viewPanalCB( CallBacker* )
     DescSet* dset = ads_ ? new DescSet( *ads_ ) : new DescSet( is2D() );
     DescID specdecompid = createSpecDecompDesc( dset );
     const TrcKeyZSampling cs( positiondlg_->getTrcKeyZSampling() );
-    panelview_->compAndDispAttrib( dset, specdecompid, cs );
+    panelview_.compAndDispAttrib( dset, specdecompid, cs );
 }
 
 

@@ -77,13 +77,13 @@ protected:
     static const char* sKeyLineName();
     static const char* sKeyTrcNr();
 
-    float		nyqfreq_;
-    int			nrsamples_; //!< Nr of samples in selected data
-    float		ds_; //!< Sample spacing of selected data
+    float		nyqfreq_ = 0.f;
+    int			nrsamples_ = 0; //!< Nr of samples in selected data
+    float		ds_ = 0.f; //!< Sample spacing of selected data
 
     uiPushButton*	tfpanelbut_;
-    uiSpecDecompPanel*	panelview_;	//!< Time Frequency panel
-    uiTrcPositionDlg*	positiondlg_;
+    uiSpecDecompPanel&	panelview_;	//!< Time Frequency panel
+    uiTrcPositionDlg*	positiondlg_	= nullptr;
     IOPar		prevpar_;
 
 			mDeclReqAttribUIFns

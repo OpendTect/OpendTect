@@ -13,7 +13,6 @@ ________________________________________________________________________
 #include "flatposdata.h"
 #include "ioobj.h"
 #include "od_helpids.h"
-#include "pickretriever.h"
 #include "posinfo2d.h"
 #include "seisdatapack.h"
 #include "survgeom2d.h"
@@ -28,11 +27,10 @@ ________________________________________________________________________
 #include "uitoolbutton.h"
 
 
+// uiFlatDPPosSel
+
 uiFlatDPPosSel::uiFlatDPPosSel( uiParent* p, const DataPack::FullID& dpfid )
     : uiGroup(p)
-    , possldr_( 0 )
-    , altdimnmflds_( 0 )
-    , posvalfld_( 0 )
 {
     auto fdp = DPM( dpfid.mgrID() ).get<FlatDataPack>( dpfid.packID() );
     if ( !fdp_ )
@@ -44,10 +42,10 @@ uiFlatDPPosSel::uiFlatDPPosSel( uiParent* p, const DataPack::FullID& dpfid )
     BufferStringSet altdimnms;
     fdp_->getAltDim0Keys( altdimnms );
     altdimnmflds_ = new uiComboBox( this, altdimnms, "" );
-    altdimnmflds_->selectionChanged.notify(
-	    mCB(this,uiFlatDPPosSel,sldrPosChangedCB) );
+    mAttachCB( altdimnmflds_->selectionChanged,
+	       uiFlatDPPosSel::sldrPosChangedCB );
     possldr_ = new uiSlider( this, uiSlider::Setup(), "posslider" );
-    possldr_->valueChanged.notify( mCB(this,uiFlatDPPosSel,sldrPosChangedCB) );
+    mAttachCB( possldr_->valueChanged, uiFlatDPPosSel::sldrPosChangedCB );
     StepInterval<double> posdatarg = fdp_->posData().range( true );
     StepInterval<float> floatrg( mCast(float,posdatarg.start_),
 				 mCast(float,posdatarg.stop_),
@@ -57,18 +55,27 @@ uiFlatDPPosSel::uiFlatDPPosSel( uiParent* p, const DataPack::FullID& dpfid )
     posvalfld_ = new uiGenInput( this, uiString::emptyString(),
                                  DoubleInpSpec() );
     posvalfld_->attach( rightOf, possldr_ );
-    sldrPosChangedCB( 0 );
+    mAttachCB( postFinalize(), uiFlatDPPosSel::initGrp );
 }
 
 
 uiFlatDPPosSel::~uiFlatDPPosSel()
 {
+    detachAllNotifiers();
+}
+
+
+void uiFlatDPPosSel::initGrp( CallBacker* )
+{
+    sldrPosChangedCB( nullptr );
 }
 
 
 double uiFlatDPPosSel::getPos() const
 {
-    if ( !posvalfld_ ) return -1.0;
+    if ( !posvalfld_ )
+	return -1.0;
+
     StepInterval<double> x1rg = fdp_->posData().range( true );
     const int idx = x1rg.getIndex( possldr_->getFValue() );
     const double posval = fdp_->getAltDim0Value( 0, idx );
@@ -77,7 +84,9 @@ double uiFlatDPPosSel::getPos() const
 
 void uiFlatDPPosSel::sldrPosChangedCB( CallBacker* )
 {
-    if ( !posvalfld_ ) return;
+    if ( !posvalfld_ )
+	return;
+
     StepInterval<double> x1rg = fdp_->posData().range( true );
     const int idx = x1rg.getIndex( possldr_->getFValue() );
     const double posval =
@@ -86,10 +95,65 @@ void uiFlatDPPosSel::sldrPosChangedCB( CallBacker* )
 }
 
 
+// uiTrcPositionDlg
+
+uiTrcPositionDlg::uiTrcPositionDlg( uiParent* p, const TrcKeyZSampling& cs,
+				    bool is2d, const MultiID& mid )
+    : uiDialog( p, uiDialog::Setup(tr("Attribute trace position"),
+				   uiStrings::sEmptyString(),
+				   mODHelpKey(mTrcPositionDlgHelpID) )
+				   .modal(false) )
+    , mid_( mid )
+{
+    if ( is2d )
+    {
+	BufferStringSet linenames;
+	const uiSeisIOObjInfo objinfo( mid );
+	objinfo.ioObjInfo().getLineNames( linenames );
+	uiString str = tr("Compute attribute on line:");
+	linesfld_ = new uiLabeledComboBox( this, str );
+	for ( int idx=0; idx<linenames.size(); idx++ )
+	    linesfld_->box()->addItem( toUiString(linenames.get(idx)) );
+
+	mAttachCB( linesfld_->box()->selectionChanged,
+		   uiTrcPositionDlg::lineSel );
+	trcnrfld_ = new uiLabeledSpinBox( this, tr("at trace nr:") );
+	trcnrfld_->attach( alignedBelow, linesfld_ );
+    }
+    else
+    {
+	uiString str = tr("Compute attribute at position:");
+	inlfld_ = new uiLabeledSpinBox( this, str );
+	crlfld_ = new uiSpinBox( this );
+	crlfld_->attach( rightTo, inlfld_ );
+	inlfld_->box()->setInterval( cs.hsamp_.inlRange() );
+	inlfld_->box()->setValue( cs.hsamp_.inlRange().snappedCenter() );
+	crlfld_->setInterval( cs.hsamp_.crlRange() );
+	crlfld_->setValue( cs.hsamp_.crlRange().snappedCenter() );
+    }
+
+    getposbut_ = new uiToolButton( this, "pick", tr("Point in 3D scene"),
+				   mCB(this,uiTrcPositionDlg,getPosCB) );
+    getposbut_->setToggleButton( true );
+    if ( trcnrfld_ )
+	getposbut_->attach( rightOf, trcnrfld_ );
+    else
+	getposbut_->attach( rightOf, crlfld_ );
+
+    pickretriever_ = PickRetriever::instance();
+    RefMan<PickRetriever> pickretriever = pickretriever_.get();
+    if ( pickretriever && pickretriever->finished() )
+	mAttachCB( *pickretriever->finished(),
+		   uiTrcPositionDlg::pickRetrievedCB );
+    zrg_ = cs.zsamp_;
+
+    mAttachCB( postFinalize(), uiTrcPositionDlg::initDlg );
+}
+
 
 uiTrcPositionDlg::uiTrcPositionDlg( uiParent* p, const DataPack::FullID& dpfid )
     : uiDialog( p, uiDialog::Setup(tr("Attribute trace position"),
-				    uiStrings::sEmptyString(),
+				    uiString::empty(),
 				    mODHelpKey(mTrcPositionDlgHelpID) )
 				    .modal(false) )
 {
@@ -138,88 +202,49 @@ uiTrcPositionDlg::uiTrcPositionDlg( uiParent* p, const DataPack::FullID& dpfid )
 	zrg_ = cs.zsamp_;
     }
 
-}
-
-
-uiTrcPositionDlg::uiTrcPositionDlg( uiParent* p, const TrcKeyZSampling& cs,
-				    bool is2d, const MultiID& mid )
-    : uiDialog( p, uiDialog::Setup(tr("Attribute trace position"),
-				   uiStrings::sEmptyString(),
-				   mODHelpKey(mTrcPositionDlgHelpID) )
-				   .modal(false) )
-    , mid_( mid )
-{
-    if ( is2d )
-    {
-	BufferStringSet linenames;
-	uiSeisIOObjInfo objinfo( mid );
-	objinfo.ioObjInfo().getLineNames( linenames );
-	uiString str = tr("Compute attribute on line:");
-	linesfld_ = new uiLabeledComboBox( this, str );
-	for ( int idx=0; idx<linenames.size(); idx++ )
-	    linesfld_->box()->addItem( toUiString(linenames.get(idx)) );
-
-	linesfld_->box()->selectionChanged.notify(
-					mCB(this,uiTrcPositionDlg,lineSel) );
-	trcnrfld_ = new uiLabeledSpinBox( this, tr("at trace nr:") );
-	trcnrfld_->attach( alignedBelow, linesfld_ );
-	lineSel(0);
-    }
-    else
-    {
-	uiString str = tr("Compute attribute at position:");
-	inlfld_ = new uiLabeledSpinBox( this, str );
-	crlfld_ = new uiSpinBox( this );
-	crlfld_->attach( rightTo, inlfld_ );
-	inlfld_->box()->setInterval( cs.hsamp_.inlRange() );
-	inlfld_->box()->setValue( cs.hsamp_.inlRange().snappedCenter() );
-	crlfld_->setInterval( cs.hsamp_.crlRange() );
-	crlfld_->setValue( cs.hsamp_.crlRange().snappedCenter() );
-    }
-
-    getposbut_ = new uiToolButton( this, "pick", tr("Point in 3D scene"),
-				   mCB(this,uiTrcPositionDlg,getPosCB) );
-    getposbut_->setToggleButton( true );
-    if ( trcnrfld_ )
-	getposbut_->attach( rightOf, trcnrfld_ );
-    else
-	getposbut_->attach( rightOf, crlfld_ );
-
-    pickretriever_ = PickRetriever::instance();
-    pickretriever_->finished()->notify(
-				mCB(this,uiTrcPositionDlg,pickRetrievedCB) );
-    zrg_ = cs.zsamp_;
+    mAttachCB( postFinalize(), uiTrcPositionDlg::initDlg );
 }
 
 
 uiTrcPositionDlg::~uiTrcPositionDlg()
 {
-    if ( pickretriever_ )
-	pickretriever_->finished()->remove(
-				mCB(this,uiTrcPositionDlg,pickRetrievedCB) );
+    detachAllNotifiers();
+}
+
+
+void uiTrcPositionDlg::initDlg( CallBacker* )
+{
+    if ( trcnrfld_ )
+	lineSel( nullptr );
 }
 
 
 void uiTrcPositionDlg::getPosCB( CallBacker* )
 {
+    RefMan<PickRetriever> pickretriever = pickretriever_.get();
+    if ( !pickretriever )
+	return;
+
     if ( getposbut_->isOn() )
-	pickretriever_->enable( 0 );
+	pickretriever->enable( nullptr );
     else
-	pickretriever_->reset();
+	pickretriever->reset();
 }
 
 
 bool uiTrcPositionDlg::getSelLineGeom( PosInfo::Line2DData& l2ddata )
 {
-    uiSeisIOObjInfo objinfo( mid_ );
+    const uiSeisIOObjInfo objinfo( mid_ );
     const IOObj* obj = objinfo.ioObj();
-    if ( !obj ) return false;
+    if ( !obj )
+	return false;
 
     const char* sellnm = linesfld_->box()->text();
     const Survey::Geometry* geom = Survey::GM().getGeometry( sellnm );
     mDynamicCastGet(const Survey::Geometry2D*,geom2d,geom)
     if ( !geom2d )
 	return false;
+
     l2ddata = geom2d->data();
     return true;
 }
@@ -231,8 +256,12 @@ void uiTrcPositionDlg::pickRetrievedCB( CallBacker* )
 	return;
 
     getposbut_->setOn( false );
-    const Coord3 crd = pickretriever_->getPos();
-    if ( !pickretriever_->success() )
+    RefMan<PickRetriever> pickretriever = pickretriever_.get();
+    if ( !pickretriever )
+	return;
+
+    const Coord3 crd = pickretriever->getPos();
+    if ( !pickretriever->success() )
 	return;
 
     if ( trcnrfld_ )
