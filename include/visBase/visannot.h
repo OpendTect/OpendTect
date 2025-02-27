@@ -73,6 +73,8 @@ public:
 			     axis scale of survey box instead */
     const TrcKeyZSampling& getScale() const;
 
+    void		setScaleFactor(int dim,double scale);
+			mDeprecated("Scale should be a double")
     void		setScaleFactor(int dim,int scale);
 
     void		setText(int dim,const uiString&);
@@ -99,7 +101,7 @@ private:
     void		getAxisCoords(int,osg::Vec3f&,osg::Vec3f&) const;
     void		setCorner( int, float, float, float );
 
-    int				scalefactor_[3];
+    double		scalefactor_[3];
 
     TrcKeyZSampling		tkzs_;
     TrcKeyZSampling		tkzsdefaultscale_;

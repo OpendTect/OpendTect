@@ -122,8 +122,8 @@ void Scene::updateAnnotationText()
     if ( SI().zRange(true).width() )
 	annot_->setText( 2, zDomainUserName() );
 
-    annot_->setScaleFactor( 2,
-	    zdomaininfo_ ? zdomaininfo_->userFactor() : 1 );
+    const double scalefact = zdomaininfo_ ? zdomaininfo_->userFactor() : 1.;
+    annot_->setScaleFactor( 2, scalefact );
 }
 
 
