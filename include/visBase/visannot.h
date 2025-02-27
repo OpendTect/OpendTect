@@ -73,7 +73,7 @@ public:
 			     axis scale of survey box instead */
     const TrcKeyZSampling& getScale() const;
 
-    void		setScaleFactor(int dim,int scale);
+    void		setScaleFactor(int dim,double scale);
 
     void		setText(int dim,const uiString&);
     void		fillPar(IOPar&) const override;
@@ -99,7 +99,7 @@ private:
     void		getAxisCoords(int,osg::Vec3f&,osg::Vec3f&) const;
     void		setCorner( int, float, float, float );
 
-    int				scalefactor_[3];
+    double		scalefactor_[3];
 
     TrcKeyZSampling		tkzs_;
     TrcKeyZSampling		tkzsdefaultscale_;
