@@ -913,18 +913,6 @@ const char* toStringCFmt( double d, const char* cformat, int minbufsz,
 const char* toStringLim( double d, int maxtxtwidth )
 { return toStringLimImpl( d, maxtxtwidth ); }
 
-#ifdef __win__
-const char* toString( float f, int nrdec )
-{
-    return toString( f, 0, 'f', nrdec );
-}
-
-
-const char* toString( double d, int nrdec )
-{
-    return toString( d, 0, 'f', nrdec );
-}
-#endif
 
 const char* toHexString( od_uint32 i, bool padded )
 {
