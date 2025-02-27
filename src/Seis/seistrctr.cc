@@ -235,7 +235,8 @@ bool SeisTrcTranslator::commitSelections()
 {
     errmsg_ = tr("No selected components found");
     const int sz = tarcds_.size();
-    if ( sz < 1 ) return false;
+    if ( sz < 1 )
+	return false;
 
     outsd_ = insd_;
     outnrsamples_ = innrsamples_;
@@ -267,8 +268,11 @@ bool SeisTrcTranslator::commitSelections()
     }
 
     nrout_ = nrsel;
-    if ( nrout_ < 1 ) nrout_ = 1;
-    delete [] inpfor_; inpfor_ = new int [nrout_];
+    if ( nrout_ < 1 )
+	nrout_ = 1;
+
+    delete [] inpfor_;
+    inpfor_ = new int [nrout_];
     if ( nrsel < 1 )
 	inpfor_[0] = 0;
     else if ( nrsel == 1 )
@@ -282,8 +286,10 @@ bool SeisTrcTranslator::commitSelections()
 	    inpfor_[idx] = inpnrs[idx];
     }
 
-    delete [] inpcds_; inpcds_ = new ComponentData* [nrout_];
-    delete [] outcds_; outcds_ = new TargetComponentData* [nrout_];
+    delete [] inpcds_;
+    inpcds_ = new ComponentData* [nrout_];
+    delete [] outcds_;
+    outcds_ = new TargetComponentData* [nrout_];
     for ( int idx=0; idx<nrout_; idx++ )
     {
 	inpcds_[idx] = cds_[ selComp(idx) ];
@@ -332,12 +338,17 @@ void SeisTrcTranslator::enforceBounds()
     // Snap to samples
     float sampdist = (outsd_.start_ - insd_.start_) / insd_.step_;
     int startsamp = (int)(sampdist + 0.0001);
-    if ( startsamp < 0 ) startsamp = 0;
-    if ( startsamp > innrsamples_-1 ) startsamp = innrsamples_-1;
+    if ( startsamp < 0 )
+	startsamp = 0;
+    if ( startsamp > innrsamples_-1 )
+	startsamp = innrsamples_-1;
+
     sampdist = (outstop - insd_.start_) / insd_.step_;
     int endsamp = (int)(sampdist + 0.9999);
-    if ( endsamp < startsamp ) endsamp = startsamp;
-    if ( endsamp > innrsamples_-1 ) endsamp = innrsamples_-1;
+    if ( endsamp < startsamp )
+	endsamp = startsamp;
+    if ( endsamp > innrsamples_-1 )
+	endsamp = innrsamples_-1;
 
     outsd_.start_ = insd_.start_ + startsamp * insd_.step_;
     outnrsamples_ = endsamp - startsamp + 1;
@@ -371,9 +382,13 @@ bool SeisTrcTranslator::write( const SeisTrc& trc )
 
     SeisTrc* newtrc; mTryAlloc( newtrc, SeisTrc(trc) );
     if ( !newtrc )
-	{ errmsg_ = tr("Out of memory"); trcblock_.deepErase(); return false; }
-    trcblock_.add( newtrc );
+    {
+	errmsg_ = tr("Out of memory");
+	trcblock_.deepErase();
+	return false;
+    }
 
+    trcblock_.add( newtrc );
     return true;
 }
 
@@ -471,8 +486,12 @@ bool SeisTrcTranslator::dumpBlock()
     for ( int idx=0; idx<sz; idx++ )
     {
 	if ( !writeTrc_(*trcblock_.get(idx)) )
-	    { rv = false; break; }
+	{
+	    rv = false;
+	    break;
+	}
     }
+
     trcblock_.deepErase();
     blockDumped( sz );
     return rv;
@@ -483,15 +502,17 @@ void SeisTrcTranslator::prepareComponents( SeisTrc& trc, int actualsz ) const
 {
     for ( int idx=0; idx<nrout_; idx++ )
     {
-        TraceData& td = trc.data();
-	if ( !tarcds_.validIdx(idx) ) break;
-        if ( td.nrComponents() <= idx )
+	TraceData& td = trc.data();
+	if ( !tarcds_.validIdx(idx) )
+	    break;
+
+	if ( td.nrComponents() <= idx )
 	    td.addComponent( actualsz, tarcds_[ inpfor_[idx] ]->datachar_ );
-        else
-        {
+	else
+	{
 	    td.setComponent( tarcds_[ inpfor_[idx] ]->datachar_, idx );
-            td.reSize( actualsz, idx );
-        }
+	    td.reSize( actualsz, idx );
+	}
     }
 }
 
@@ -518,7 +539,7 @@ void SeisTrcTranslator::addComp( const DataCharacteristics& dc,
 	}
     }
 
-    ComponentData* newcd = new ComponentData( nm );
+    auto* newcd = new ComponentData( nm );
     newcd->datachar_ = dc;
     newcd->datatype_ = dtype;
     cds_ += newcd;
@@ -550,13 +571,11 @@ bool SeisTrcTranslator::initConn( Conn* c )
 	    {
 		errmsg_ = tr( "File doesn't exist: %1" ).arg( fnm );
 		objstatus_ = IOObj::Status::FileNotPresent;
-
 		return false;
 	    }
 
 	    errmsg_ = tr( "Cannot open file: %1" ).arg( fnm );
 	    objstatus_ = IOObj::Status::ReadPermissionInvalid;
-
 	    return false;
 	}
     }
@@ -581,7 +600,8 @@ SeisTrc* SeisTrcTranslator::getEmpty()
 
 void SeisTrcTranslator::setComponentNames( const BufferStringSet& bss )
 {
-    delete compnms_; compnms_ = new BufferStringSet( bss );
+    delete compnms_;
+    compnms_ = new BufferStringSet( bss );
 }
 
 
@@ -628,7 +648,8 @@ bool SeisTrcTranslator::copyDataToTrace( SeisTrc& trc )
 	return false;
 
     TraceDataInterpreter* trcdatainterp = trc.data().getInterpreter( 0 );
-    TraceDataInterpreter* storinterp = storbuf_->getInterpreter( 0 );
+    TraceDataInterpreter* storinterp =
+	storbuf_ ? storbuf_->getInterpreter( 0 ) : nullptr;
     if ( !trcdatainterp || !storinterp )
 	return false;
 
@@ -829,7 +850,9 @@ bool SeisTrcTranslator::haveWarnings() const
 
 void SeisTrcTranslator::addWarn( int nr, const char* msg )
 {
-    if ( !msg || !*msg || warnnrs_.isPresent(nr) ) return;
+    if ( !msg || !*msg || warnnrs_.isPresent(nr) )
+	return;
+
     warnnrs_ += nr;
     warnings_.add( msg );
 }
