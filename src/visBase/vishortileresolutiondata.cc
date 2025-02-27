@@ -11,8 +11,6 @@ ________________________________________________________________________
 #include "vishorizonsection.h"
 #include "vishorizonsectiontile.h"
 
-#include "binidsurface.h"
-#include "survinfo.h"
 #include "viscoord.h"
 #include "visosg.h"
 
@@ -277,7 +275,8 @@ void TileResolutionData::updatePrimitiveSets()
 
 static void addPointIndex( osg::DrawElementsUShort* geomps, int idx )
 {
-    geomps->push_back( idx );
+    if ( geomps )
+	geomps->push_back( idx );
 }
 
 
@@ -291,6 +290,9 @@ static void addLineIndexes( osg::DrawElementsUShort* geomps, int idx1, int idx2)
 static void addClockwiseTriangleIndexes( osg::DrawElementsUShort* geomps,
 					 int idx0, int idxa, int idxb )
 {
+    if ( !geomps )
+	return;
+
     const int pssize = geomps->getNumIndices();
     const int idx1 = pssize%2 ? idxa : idxb;
     const int idx2 = pssize%2 ? idxb : idxa;
