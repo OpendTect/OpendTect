@@ -12,8 +12,10 @@ ________________________________________________________________________
 #include "attribsel.h"
 #include "coltabmapper.h"
 #include "coltabsequence.h"
+#include "envvars.h"
 #include "flatview.h"
 #include "genc.h"
+#include "ioman.h"
 #include "iopar.h"
 #include "mousecursor.h"
 #include "mouseevent.h"
@@ -119,6 +121,7 @@ uiVisPartServer::uiVisPartServer( uiApplService& a )
 	       uiVisPartServer::deselectObjCB );
     mAttachCB( visBase::DM().selMan().updateselnotifier,
 	       uiVisPartServer::updateSelObjCB );
+    mAttachCB( IOM().implUpdated, uiVisPartServer::datasetUpdatedCB );
 
     vismgr_ = new uiVisModeMgr(this);
     PickRetriever::instance( pickretriever_.ptr() );
@@ -2192,7 +2195,80 @@ void uiVisPartServer::deselectObjCB( CallBacker* cb )
 
 
 void uiVisPartServer::updateSelObjCB( CallBacker* cb )
-{ mUpdateSelObj( cb, id, dataobj ); }
+{
+    mUpdateSelObj( cb, id, dataobj );
+}
+
+
+void uiVisPartServer::datasetUpdatedCB( CallBacker* cb )
+{
+    if ( !cb || !cb->isCapsule() )
+	return;
+
+    static bool disableupdates = GetEnvVarYN( "OD_NO_VIS_AUTOUPDATES" );
+    if ( disableupdates )
+	return;
+
+    mCBCapsuleUnpack(const MultiID&,mid,cb);
+    if ( mid.isUdf() )
+	return;
+
+    const IOObjContext::StdDirData* stddata = nullptr;
+    for ( int idx=0; idx<IOObjContext::totalNrStdDirs(); idx++ )
+    {
+	const IOObjContext::StdSelType seltyp = (IOObjContext::StdSelType)idx;
+	stddata = IOObjContext::getStdDirData( seltyp );
+	if ( stddata && stddata->id_.groupID() == mid.groupID() )
+	    break;
+    } if ( !stddata ) return;
+
+    TypeSet<SceneID> sceneids;
+    getSceneIds( sceneids );
+    if ( sceneids.isEmpty() )
+	return;
+
+    TypeSet<VisID> todoids;
+    for ( const auto& sceneid : sceneids )
+    {
+	TypeSet<VisID> scenevisids;
+	getSceneChildIds( sceneid, scenevisids );
+	for ( const auto& visid : scenevisids )
+	{
+	    mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(visid))
+	    if ( !so )
+		continue;
+
+	    const MultiID vismid = so->getMultiID();
+	    if ( !vismid.isUdf() && vismid == mid )
+	    { // Valid for most data types: EarthModel objects, wells, pre-stack
+		todoids += visid;
+		continue;
+	    }
+
+	    for ( int attrib=0; attrib<so->nrAttribs(); attrib++ )
+	    {
+		const visSurvey::SurveyObject::AttribFormat format =
+					    so->getAttributeFormat( attrib );
+		if ( format != visSurvey::SurveyObject::Cube &&
+		     format != visSurvey::SurveyObject::Traces )
+		    continue;
+
+		const Attrib::SelSpec* selspec = so->getSelSpec( attrib );
+		if ( !selspec || !selspec->isStored() ||
+		     selspec->getStoredMultiID() != mid )
+		{   //TODO support attribs?
+		    continue;
+		}
+
+		calculateAttrib( visid, attrib, false, true );
+	    }
+	}
+    }
+
+    /*TODO: send todoids using a trigger?
+      TODO: use a similar technique to remove tree items
+      on IOM().entryRemoved / IOM().entriesRemoved */
+}
 
 
 void uiVisPartServer::interactionCB( CallBacker* cb )

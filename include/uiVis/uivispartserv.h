@@ -501,6 +501,7 @@ protected:
     void			selectObjCB(CallBacker*);
     void			deselectObjCB(CallBacker*);
     void			updateSelObjCB(CallBacker*);
+    void			datasetUpdatedCB(CallBacker*);
     void			interactionCB(CallBacker*);
     void			mouseMoveCB(CallBacker*);
     void			keyEventCB(CallBacker*);
