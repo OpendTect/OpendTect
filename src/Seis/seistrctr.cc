@@ -168,7 +168,7 @@ void SeisTrcTranslator::cleanUp()
 bool SeisTrcTranslator::close()
 {
     bool ret = true;
-    if ( conn_ && !conn_->forRead() )
+    if ( !forRead() )
     {
 	ret = writeBlock();
 	if ( ret )
