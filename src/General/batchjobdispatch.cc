@@ -61,7 +61,12 @@ void Batch::JobSpec::usePar( const IOPar& iop )
     pars_.removeWithKey( sKeyClArgs );
     execpars_.removeFromPar( pars_ );
 
-    prognm_ = iop.find( sKeyProgramName );
+    const BufferString prognm = iop.find( sKeyProgramName );
+    if ( prognm.isEmpty() )
+	prognm_.setEmpty();
+    else
+	prognm_ = GetODApplicationName( prognm.str() );
+
     iop.get( sKeyClArgs, clargs_ );
     execpars_.usePar( iop );
 }
@@ -70,7 +75,16 @@ void Batch::JobSpec::usePar( const IOPar& iop )
 void Batch::JobSpec::fillPar( IOPar& iop ) const
 {
     iop = pars_;
-    iop.set( sKeyProgramName, prognm_ );
+    BufferString prognm( prognm_ );
+    const StringView debugpostfix( GetDebugPostFix() );
+    if ( OD::InDebugMode() && !debugpostfix.isEmpty() )
+    {
+	const char* ptr = prognm.findLast( debugpostfix.str() );
+	if ( ptr && *ptr )
+	    *((char*)ptr) = '\0';
+    }
+
+    iop.set( sKeyProgramName, prognm.buf() );
     iop.set( sKeyClArgs, clargs_ );
     execpars_.fillPar( iop );
 }
