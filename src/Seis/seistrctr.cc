@@ -171,7 +171,7 @@ bool SeisTrcTranslator::close()
     if ( !forRead() )
     {
 	ret = writeBlock();
-	if ( ret )
+	if ( ret && conn_ )
 	{
 	    PtrMan<IOObj> obj = IOM().get( conn_->linkedTo() );
 	    if ( obj )
