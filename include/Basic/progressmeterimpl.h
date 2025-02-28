@@ -124,3 +124,43 @@ protected:
 
     void		annotate(bool);
 };
+
+
+mExpClass(Basic) SimpleTextStreamProgressMeter : public ProgressMeter
+{
+public:
+
+			SimpleTextStreamProgressMeter(od_ostream&,
+						      int repperc=5);
+			~SimpleTextStreamProgressMeter();
+
+    void		setName(const char*) override;
+    void		setStarted() override;
+    void		setFinished() override;
+    void		setNrDone(od_int64) override;
+    void		setTotalNr(od_int64 t) override;
+
+			/*!<This setting will not reset unless you call it.*/
+    void		skipProgress( bool yn ) override { skipprog_ = yn; }
+
+    void		operator++() override;
+    od_int64		nrDone() const override		{ return nrdone_; }
+
+    void		reset();
+
+private:
+
+    void		addProgress(int);
+
+    od_ostream&		strm_;
+    uiString		message_;
+    BufferString	name_;
+    od_int64		nrdone_;
+    od_int64		totalnr_;
+    int			repperc_;
+    bool		inited_;
+    bool		finished_;
+    Threads::Lock	lock_;
+    bool		skipprog_;
+
+};

@@ -47,9 +47,14 @@ bool Executor::goImpl( od_ostream* strm, bool isfirst, bool islast, int delay )
     if ( isfirst )
 	*strm << GetProjectVersionName() << "\n\n";
 
-    TextStreamProgressMeter progressmeter( *strm );
-    progressmeter.setName( name() );
-    ((Task*)(this))->setProgressMeter( &progressmeter );
+    PtrMan<ProgressMeter> pm;
+    if ( useSimpleMeter() )
+	pm = new SimpleTextStreamProgressMeter( *strm, simpleMeterStep() );
+    else
+	pm = new TextStreamProgressMeter( *strm );
+
+    ((Task*)(this))->setProgressMeter( pm.ptr() );
+    pm->setName( name() );
 
     const bool res = SequentialTask::execute();
     if ( !res )
