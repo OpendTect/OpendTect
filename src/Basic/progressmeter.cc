@@ -316,3 +316,123 @@ void TextStreamProgressMeter::annotate( bool withrate )
 	}
     }
 }
+
+
+SimpleTextStreamProgressMeter::SimpleTextStreamProgressMeter( od_ostream& out,
+							      int repperc )
+: strm_(out)
+, finished_(true)
+, totalnr_(0)
+, repperc_(repperc)
+, name_("unknown")
+{
+    skipprog_ = false;
+    reset();
+}
+
+
+SimpleTextStreamProgressMeter::~SimpleTextStreamProgressMeter()
+{
+    if ( !finished_ )
+	setFinished();
+}
+
+
+void SimpleTextStreamProgressMeter::setFinished()
+{
+    mSetLock();
+    if ( finished_ )
+	return;
+
+    finished_ = true;
+
+    strm_ <<  "Process: " << name_.buf() << " Progress(%): 100"
+	  <<  " At: " << Time::getISODateTimeString(true) << od_endl;
+
+    lock.unlockNow();
+    reset();
+}
+
+
+void SimpleTextStreamProgressMeter::reset()
+{
+    mSetLock();
+    nrdone_ = 0;
+    inited_ = false;
+}
+
+
+void SimpleTextStreamProgressMeter::setStarted()
+{
+    if ( skipprog_ ) return;
+
+    if ( !inited_ )
+    {
+	strm_ <<  "Process: " << name_.buf() << " Progress(%): 0"
+	      << " Total_Number: " << totalnr_
+	      << " At: " << Time::getISODateTimeString(true) << od_endl;
+	strm_.flush();
+
+	finished_ = false;
+	inited_ = true;
+    }
+}
+
+
+void SimpleTextStreamProgressMeter::addProgress( int nr )
+{
+    if ( skipprog_ ) return;
+
+    if ( !inited_ )
+	setStarted();
+
+    const int repint = mNINT32(repperc_/100.0 * totalnr_);
+    for ( int idx=0; idx<nr; idx++ )
+    {
+	nrdone_ ++;
+	if ( !(nrdone_ % repint) )
+	{
+	    const float perc = float(nrdone_)/float(totalnr_) * 100.0;
+	    strm_ << "Process: " << name_.buf() << " Progress(%): "
+		  << mNINT32(perc) << od_endl;
+	    strm_.flush();
+	}
+
+    }
+}
+
+
+void SimpleTextStreamProgressMeter::operator++()
+{
+    mSetLock();
+    addProgress( 1 );
+}
+
+
+void SimpleTextStreamProgressMeter::setNrDone( od_int64 nrdone )
+{
+    mSetLock();
+    if ( finished_ || nrdone<=nrdone_ )
+	return;
+
+    addProgress( (int)(nrdone-nrdone_) );
+}
+
+
+void SimpleTextStreamProgressMeter::setName( const char* newname )
+{
+    if ( !name_.isEmpty() && name_==newname )
+	return;
+
+    name_ = newname;
+    name_.remove( " " );
+    reset();
+}
+
+
+void SimpleTextStreamProgressMeter::setTotalNr(od_int64 t)
+{
+    Threads::Locker lock( lock_ );
+    totalnr_ = t;
+}
+

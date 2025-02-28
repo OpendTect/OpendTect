@@ -9,7 +9,10 @@ ________________________________________________________________________
 
 #include "paralleltask.h"
 
+#include "iopar.h"
+#include "od_ostream.h"
 #include "progressmeter.h"
+#include "progressmeterimpl.h"
 #include "ptrman.h"
 #include "threadwork.h"
 #include "thread.h"
@@ -265,6 +268,17 @@ void TaskGroup::setParallel(bool)
 }
 
 
+const char* ReportingTask::sKeySimpleLogging()
+{
+    return "Simple Logging";
+}
+
+
+const char* ReportingTask::sKeySimpleLoggingStep()
+{
+    return "Simple Logging Step";
+}
+
 
 ReportingTask::ReportingTask( const char* nm )
     : Task(nm)
@@ -344,6 +358,47 @@ void ReportingTask::reportProgressFinished()
 	progressmeter_->setFinished();
 }
 
+
+void ReportingTask::setSimpleMeter( bool yn, int repperc )
+{
+    simplemeter_ = yn;
+    repperc_ = repperc;
+}
+
+
+bool ReportingTask::useSimpleMeter() const
+{
+    return const_cast<ReportingTask*>(this)->simplemeter_;
+}
+
+
+int ReportingTask::simpleMeterStep() const
+{
+    return const_cast<ReportingTask*>(this)->repperc_;
+}
+
+
+PtrMan<ProgressMeter> ReportingTask::getTextProgressMeter( od_ostream& strm,
+							   const IOPar* iop )
+{
+    PtrMan<ProgressMeter> pm;
+    if ( iop  && needSimpleLogging(*iop) )
+    {
+	int repperc = 5;
+	iop->get( sKeySimpleLoggingStep(), repperc );
+	pm = new SimpleTextStreamProgressMeter( strm, repperc );
+    }
+    else
+	pm = new TextStreamProgressMeter( strm );
+
+    return pm;
+}
+
+
+bool ReportingTask::needSimpleLogging( const IOPar& iop )
+{
+    return iop.isTrue( sKeySimpleLogging() );
+}
 
 
 SequentialTask::SequentialTask( const char* nm )

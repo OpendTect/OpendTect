@@ -10,6 +10,7 @@ ________________________________________________________________________
 
 #include "basicmod.h"
 #include "namedobj.h"
+#include "ptrman.h"
 #include "objectset.h"
 #include "threadlock.h"
 #include "uistring.h"
@@ -87,6 +88,15 @@ public:
 
     void		getProgress(const ReportingTask&);
 
+    void		setSimpleMeter(bool yn, int repperc);
+    bool		useSimpleMeter() const;
+    int			simpleMeterStep() const;
+    static PtrMan<ProgressMeter> getTextProgressMeter(od_ostream&,
+						      const IOPar* iop=nullptr);
+    static bool		needSimpleLogging(const IOPar&);
+    static const char*	sKeySimpleLogging();
+    static const char*	sKeySimpleLoggingStep();
+
     Notifier<ReportingTask>	progressUpdated;
 
 protected:
@@ -107,6 +117,8 @@ private:
 
     ProgressMeter*	progressmeter_ = nullptr;
     od_int64		lastupdate_;
+    bool		simplemeter_ = false;
+    int			repperc_ = 5;
 };
 
 

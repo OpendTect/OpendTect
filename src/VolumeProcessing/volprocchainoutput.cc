@@ -94,6 +94,13 @@ void VolProc::ChainOutput::usePar( const IOPar& iop )
        cs_.usePar( *subselpar );
 
     iop.get( "Output.0.Seismic.ID", outid_ );
+
+    const bool repsimple = ReportingTask::needSimpleLogging( iop );
+    int repperc = 5;
+    if ( repsimple )
+	iop.get( ReportingTask::sKeySimpleLoggingStep(), repperc );
+
+    setSimpleMeter( repsimple, repperc );
 }
 
 
@@ -152,6 +159,7 @@ void VolProc::ChainOutput::createNewChainExec()
     chainexec_ = new VolProc::ChainExecutor( *chain_ );
     chainexec_->enableWorkControl( workControlEnabled() );
     ((Task*)chainexec_)->setProgressMeter( progresskeeper_.forwardTo() );
+    chainexec_->setSimpleMeter( useSimpleMeter(), simpleMeterStep() );
     chainexec_->setJobCommunicator( jobcomm_ );
 }
 
@@ -453,6 +461,7 @@ void startWork()
     Threads::WorkManager::twm().addWork( *work_, &finishedcb );*/
 
     ((Task&)wrr).setProgressMeter( co_.progresskeeper_.forwardTo() );
+    wrr.setSimpleMeter( co_.useSimpleMeter(), co_.simpleMeterStep() );
     wrr.execute();
     co_.reportFinished( *this );
 }
