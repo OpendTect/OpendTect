@@ -9,13 +9,16 @@ ________________________________________________________________________
 -*/
 
 #include "seismod.h"
-#include "seisposkey.h"
-#include "samplingdata.h"
+
+#include "enums.h"
 #include "position.h"
 #include "ranges.h"
-#include "enums.h"
-class SeisTrc;
+#include "samplingdata.h"
+#include "seisposkey.h"
+
 class PosAuxInfo;
+class SeisTrc;
+class UnitOfMeasure;
 
 
 /*!\brief Information for a seismic trace, AKA trace header info */
@@ -71,12 +74,14 @@ public:
 			  CoordX, CoordY, BinIDInl, BinIDCrl,
 			  Offset, Azimuth, SeqNr, GeomID };
 			mDeclareEnumUtils(Fld)
-    double		getValue(Fld) const;
+    static uiString	getUnitLbl(const Fld&,bool display,bool abbrevated=true,
+				   bool withparentheses=true);
+    static const UnitOfMeasure* getUnit(const Fld&,bool display);
+    double		getValue(const Fld&) const;
     static void		getAxisCandidates(Seis::GeomType,TypeSet<Fld>&);
     Fld			getDefaultAxisFld(Seis::GeomType,
 					  const SeisTrcInfo* next,
 					  const SeisTrcInfo* last) const;
-    void		getInterestingFlds(Seis::GeomType,IOPar&) const;
     void		setPSFlds(const Coord& rcvpos,const Coord& srcpos,
 				  bool setpos=false);
 

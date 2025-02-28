@@ -7,15 +7,15 @@ ________________________________________________________________________
 
 -*/
 
-#define mNrXYDec 2
-
 #include "uiflatviewmainwin.h"
-#include "uiflatviewdockwin.h"
+
+#include "keystrs.h"
+#include "uistrings.h"
 #include "uiflatviewcontrol.h"
+#include "uiflatviewdockwin.h"
 #include "uiflatviewer.h"
 #include "uistatusbar.h"
 #include "unitofmeasure.h"
-#include "keystrs.h"
 
 
 uiFlatViewWin::uiFlatViewWin()
@@ -44,6 +44,12 @@ void uiFlatViewWin::cleanUp()
 }
 
 
+bool uiFlatViewWin::validIdx( int idx ) const
+{
+    return vwrs_.validIdx( idx );
+}
+
+
 void uiFlatViewWin::setDarkBG( bool yn )
 {
     for ( int idx=0; idx<vwrs_.size(); idx++ )
@@ -57,125 +63,146 @@ void uiFlatViewWin::setDarkBG( bool yn )
 }
 
 
-void uiFlatViewWin::makeInfoMsg( BufferString& mesg, IOPar& pars )
+void uiFlatViewWin::makeInfoMsg( const IOPar& pars, uiString& msg )
 {
-    BufferString valstr = pars.find( sKey::Position() );
-    mesg.setEmpty();
-    if ( !valstr.isEmpty() )
-	mesg.add( valstr ).addTab();
-    else
+    if ( vwrs_.isEmpty() || pars.isEmpty() )
+	return;
+
+    int vieweridx = 0;
+    pars.get( uiFlatViewControl::sKeyViewerIdx(), vieweridx );
+    if ( !validIdx(vieweridx) )
+	vieweridx = 0;
+
+    makeInfoMsg( viewer(vieweridx), pars, msg );
+}
+
+
+void uiFlatViewWin::makeInfoMsg( const FlatView::Viewer& vwr,
+				 const IOPar& pars, uiString& msg )
+{
+    BinID bid = BinID::udf();
+    int trcnr = mUdf(int);
+    float val = mUdf(float);
+    Coord3 crd( Coord3::udf() );
+    pars.get( sKey::Coordinate(), crd );
+
+    uiString posmsg, crdmsg;
+    if ( pars.get(sKey::Position(),bid) )
     {
-	valstr = pars.find( sKey::TraceNr() );
-	if ( !!valstr.isEmpty() )
-	    mesg.add("TrcNr=").add( valstr );
-	else
+	posmsg = toUiString( bid );
+    }
+    else if ( pars.get(sKey::TraceNr(),trcnr) )
+    {
+	float spval = mUdf(float);
+	const bool hassp = pars.get(sKey::Shotpoint(),spval) && !mIsUdf(spval);
+	posmsg = toUiString( "TrcNr" );
+	posmsg.addMoreInfo( trcnr );
+	if ( hassp )
 	{
-	    valstr = pars.find( "Inline" );
-	    if ( valstr.isEmpty() )
-		valstr = pars.find( "In-line" );
-
-	    if ( !valstr.isEmpty() )
-		mesg.add( valstr );
-
-	    valstr = pars.find( "Crossline" );
-	    if ( valstr.isEmpty() )
-		valstr = pars.find( "Cross-line" );
-
-	    if ( !valstr.isEmpty() )
-		mesg.add( "/" ).add( valstr );
+	    uiString spmsg = toUiString( "SP" );
+	    spmsg.addMoreInfo( toUiString(spval,0,'f',2) );
+	    posmsg.appendPhrase( spmsg, uiString::Comma, uiString::OnSameLine );
 	}
     }
 
-    Coord3 crd( Coord3::udf() );
-    valstr = pars.find( "X" );
-    if ( valstr.isEmpty() )
-	valstr = pars.find( "X-coordinate" );
-
-    if ( !valstr.isEmpty() )
-        crd.x_ = toDouble( valstr );
-
-    valstr = pars.find( "Y" );
-    if ( valstr.isEmpty() )
-	valstr = pars.find( "Y-coordinate" );
-
-    if ( !valstr.isEmpty() )
-        crd.y_ = toDouble( valstr );
-
-    valstr = pars.find( "Z" );
-    if ( valstr.isEmpty() )
-	valstr = pars.find( "Z-Coord" );
-
-    if ( !valstr.isEmpty() )
-        crd.z_ = toDouble( valstr );
+    const bool withz = !mIsUdf(crd.z_);
+    if ( withz )
+	crd.z_ *= vwr.annotUserFactor();
 
     if ( !crd.coord().isUdf() )
     {
-        mesg.addTab().add( "(" ).add( toString(crd.x_,0,'f',mNrXYDec) );
-        mesg.add( ", " ).add( toString(crd.y_,0,'f',mNrXYDec) );
+	crdmsg = withz ? toUiString( crd, vwr.nrXYDec(), vwr.nrZDec() )
+		       : toUiString( crd.coord(), vwr.nrXYDec() );
+    }
+    else if ( !mIsUdf(crd.z_) )
+    {
+	const int width = 5 + (vwr.nrZDec() > 0 ? vwr.nrZDec()+1 : 0);
+	crdmsg.set( vwr.zDomain(true)->getLabel() )
+	      .addMoreInfo( toUiString(crd.z_,width,'f',vwr.nrZDec()) );
     }
 
-    if ( !mIsUdf(crd.z_) )
-        mesg.add( ", " ).add( toString(crd.z_) ).add( ")" );
-    else if ( !crd.coord().isUdf() )
-	mesg.add( ")" );
-    //<-- MapDataPack has valid crd.coord() but invalid crd.z.
-
-    mesg.addTab();
+    if ( !posmsg.isEmpty() || !crdmsg.isEmpty() )
+    {
+	msg = !posmsg.isEmpty() && !crdmsg.isEmpty()
+	    ? toUiString("%1	%2").arg( posmsg ).arg( crdmsg )
+	    : (posmsg.isEmpty() ? crdmsg : posmsg);
+    }
 
     int nrinfos = 0;
-#define mAddSep() if ( nrinfos++ ) mesg += ";\t";
+#define mAddSep() if ( nrinfos++ ) msg.appendPhrase( uiString::empty(), \
+				   uiString::SemiColon, uiString::OnSameLine );
 
-    BufferString vdstr = pars.find( FlatView::Viewer::sKeyVDData() );
     BufferString wvastr = pars.find( FlatView::Viewer::sKeyWVAData() );
+    BufferString vdstr = pars.find( FlatView::Viewer::sKeyVDData() );
+    const BufferString wvavalstr = pars.find( FlatView::Viewer::sKeyWVAVal() );
     const BufferString vdvalstr = pars.find( FlatView::Viewer::sKeyVDVal() );
-    const BufferString wvavalstr =
-				pars.find( FlatView::Viewer::sKeyWVAVal() );
     const bool issame = vdstr.isEqual( wvastr );
-    if ( vdvalstr.str() )
+    if ( !wvavalstr.isEmpty() )
     {
 	mAddSep();
-	if ( issame && vdstr.isEmpty() )
-		vdstr = wvastr;
-	else if ( !issame && vdstr.isEmpty() )
-	    vdstr = FlatView::Viewer::sKeyVDVal();
-
-	float val = !vdvalstr.isEmpty() ? vdvalstr.toFloat() : mUdf(float);
-	mesg += "Val="; mesg += mIsUdf(val) ? "undef" : vdvalstr.buf();
-	mesg += " ("; mesg += vdstr; mesg += ")";
-    }
-
-    if ( wvavalstr.str() && !issame )
-    {
-	mAddSep();
-	float val = wvavalstr.str() ? wvavalstr.toFloat() : mUdf(float);
-	mesg += "Val="; mesg += mIsUdf(val) ? "undef" : wvavalstr.buf();
-	if ( wvastr.isEmpty() )
+	if ( issame && wvastr.isEmpty() )
+	    wvastr = vdstr;
+	else if ( !issame && wvastr.isEmpty() )
 	    wvastr = FlatView::Viewer::sKeyWVAVal();
 
-	mesg += " ("; mesg += wvastr; mesg += ")";
+	val = wvavalstr.isEmpty() ? mUdf(float) : wvavalstr.toFloat();
+	uiString valstr = toUiString( "%1 = %2" )
+				.arg( uiStrings::sValue() )
+				.arg( mIsUdf(val) ? "undef" : wvavalstr.buf() );
+	msg.appendPhrase( valstr, uiString::Tab, uiString::OnSameLine );
+	valstr = toUiString( wvastr );
+	valstr.parenthesize();
+	msg.appendPhrase( valstr, uiString::Space, uiString::OnSameLine );
     }
 
-    float val;
-    if ( pars.get(sKey::Offset(),val) )
-    {
-	mAddSep(); mesg += "Offs="; mesg += val;
-	mesg += " "; mesg += SI().getXYUnitString();
-    }
-
-    valstr = pars.find( sKey::Azimuth() );
-    if ( valstr.str() && valstr!="0" )
-	{ mAddSep(); mesg += "Azim="; mesg += valstr; }
-
-    valstr = pars.find( "Ref/SP number" );
-    if ( !valstr.isEmpty() )
+    if ( !vdvalstr.isEmpty() && !issame )
     {
 	mAddSep();
-	mesg += "Ref/SP=";
-	mesg += valstr;
+	val = vdvalstr.isEmpty() ? mUdf(float) : vdvalstr.toFloat();
+	uiString valstr = toUiString( "%1 = %2" )
+				.arg( uiStrings::sValue() )
+				.arg( mIsUdf(val) ? "undef" : vdvalstr.buf() );
+	msg.appendPhrase( valstr, uiString::Tab, uiString::OnSameLine );
+	if ( vdstr.isEmpty() )
+	    vdstr = FlatView::Viewer::sKeyVDVal();
+
+	valstr = toUiString( vdstr );
+	valstr.parenthesize();
+	msg.appendPhrase( valstr, uiString::Space, uiString::OnSameLine );
+    }
+
+    if ( pars.get(sKey::Offset(),val) && !mIsUdf(val) )
+    {
+	mAddSep();
+	Seis::OffsetType offsettype = SI().xyInFeet()
+				    ? Seis::OffsetType::OffsetFeet
+				    : Seis::OffsetType::OffsetMeter;
+	Seis::getOffsetType( pars, offsettype );
+	const UnitOfMeasure* uom = UnitOfMeasure::offsetUnit( offsettype );
+	uiString valstr = toUiString( "%1 %2 = %3" );
+	valstr.arg( Seis::isOffsetDist(offsettype) ? uiStrings::sOffset()
+						   : uiStrings::sAngle() )
+	      .arg( uom->getUiLabel() )
+	      .arg( toUiString(val,5,'f',0) );
+	msg.appendPhrase( valstr, uiString::Tab, uiString::OnSameLine );
+    }
+
+    if ( pars.get(sKey::Azimuth(),val) && !mIsUdf(val) )
+    {
+	mAddSep();
+	OD::AngleType azityp = OD::AngleType::Degrees;
+	Seis::getAzimuthType( pars, azityp );
+	const UnitOfMeasure* uom = UnitOfMeasure::angleUnit( azityp );
+	const uiString valstr = toUiString( "%1 %2 = %3" )
+				.arg( uiStrings::sAzimuth() )
+				.arg( uom->getUiLabel() )
+				.arg( toUiString(val,4,'f',0) );
+	msg.appendPhrase( valstr, uiString::Tab, uiString::OnSameLine );
     }
 }
 
 
+// uiFlatViewMainWin
 
 uiFlatViewMainWin::uiFlatViewMainWin( uiParent* p,
 				      const uiFlatViewMainWin::Setup& setup )
@@ -215,10 +242,13 @@ void uiFlatViewMainWin::setInitialSize( int w, int h )
 
 void uiFlatViewMainWin::displayInfo( CallBacker* cb )
 {
-    mCBCapsuleUnpack(IOPar,pars,cb);
-    BufferString mesg;
-    makeInfoMsg( mesg, pars );
-    statusBar()->message( mToUiStringTodo(mesg.buf()) );
+    if ( !cb || !cb->isCapsule() )
+	return;
+
+    mCBCapsuleUnpack(const IOPar&,pars,cb);
+    uiString msg;
+    makeInfoMsg( pars, msg );
+    statusBar()->message( msg );
 }
 
 

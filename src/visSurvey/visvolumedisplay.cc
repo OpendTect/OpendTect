@@ -13,6 +13,7 @@ ________________________________________________________________________
 #include "arrayndimpl.h"
 #include "attribsel.h"
 #include "color.h"
+#include "flatview.h"
 #include "marchingcubes.h"
 #include "paralleltask.h"
 #include "pickset.h"
@@ -494,7 +495,7 @@ VisID VolumeDisplay::addIsoSurface( TaskRunner* taskr, bool updateisosurface )
     isosurface->setRightHandSystem( righthandsystem_ );
     RefMan<MarchingCubesSurface> surface = new MarchingCubesSurface();
     isosurface->setSurface( *surface, taskr );
-    isosurface->setUiName( toUiString("Iso surface") );
+    isosurface->setUiName( ::toUiString("Iso surface") );
 
     isosurfaces_ += isosurface.ptr();
     IsosurfaceSetting setting;
@@ -930,24 +931,25 @@ uiString VolumeDisplay::getManipulationString() const
 
 void VolumeDisplay::getObjectInfoText( uiString& info, bool compact ) const
 {
-    BufferString formatstr = "%1-%2 / %3-%4 / %5-%6";
+    const TrcKeyZSampling tkzs = getTrcKeyZSampling( true, true, 0 );
+    const BufferString formatstr( compact
+				  ? "%1-%2 / %3-%4 / %5-%6"
+				  : "Inl: %1-%2, Crl: %3-%4, %7: %5-%6");
+    info = ::toUiString( formatstr.str() ).arg( tkzs.hsamp_.start_.inl() )
+					  .arg( tkzs.hsamp_.stop_.inl() )
+					  .arg( tkzs.hsamp_.start_.crl() )
+					  .arg( tkzs.hsamp_.stop_.crl() );
+    const Scene* scene = getScene();
+    const ZDomain::Info& datazdom = scene ? scene->zDomainInfo()
+					  : SI().zDomainInfo();
+    const ZDomain::Info& displayzdom = datazdom.isDepth()
+			? ZDomain::DefaultDepth( true ) : datazdom;
+    ZSampling zrg = tkzs.zsamp_;
+    zrg.scale( FlatView::Viewer::userFactor(datazdom,&displayzdom) );
+    info.arg( ::toUiStringDec(zrg.start_,0) );
+    info.arg( ::toUiStringDec(zrg.stop_,0) );
     if ( !compact )
-	formatstr = "Inl: %1-%2, Crl: %3-%4, %7: %5-%6";
-
-    TrcKeyZSampling cs = getTrcKeyZSampling( true, true, 0 );
-
-    const int userfactor = scene_ ? scene_->zDomainInfo().userFactor() : 1;
-
-    info = toUiString( formatstr.buf() )
-	.arg( cs.hsamp_.start_.inl() )
-	.arg( cs.hsamp_.stop_.inl() )
-	.arg( cs.hsamp_.start_.crl() )
-	.arg( cs.hsamp_.stop_.crl() )
-	   .arg( mNINT32(cs.zsamp_.start_*userfactor) )
-	   .arg( mNINT32(cs.zsamp_.stop_*userfactor) );
-
-    if ( scene_ && !compact )
-	info.arg( scene_->zDomainInfo().userName() );
+	info.arg( displayzdom.getLabel() );
 }
 
 

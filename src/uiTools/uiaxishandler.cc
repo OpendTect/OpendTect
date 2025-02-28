@@ -8,11 +8,13 @@ ________________________________________________________________________
 -*/
 
 #include "uiaxishandler.h"
+
 #include "uigraphicsscene.h"
 #include "uigraphicsitemimpl.h"
 #include "uifont.h"
 #include "draw.h"
 #include "linear.h"
+#include "math2.h"
 #include "axislayout.h"
 
 static const float logof2 = logf(2);
@@ -163,8 +165,22 @@ void uiAHPlotAnnotSet::add( float val, uiAHPlotAnnot::Type type )
 {
     uiAHPlotAnnot pah( type );
     pah.pos_ = val;
-    pah.txt_ = mToUiStringTodo(toStringLim( val, val < 0 ? axh_.reqnrchars_+1
-					 : axh_.reqnrchars_ ));
+    int width = axh_.reqnrchars_;
+    if ( val < 0 )
+	width++;
+
+    //TODO format specifier and precision should be part of the setup
+    const bool isint = setup_.annotinint_ || std::fmod( val, 1.0) == 0.f;
+    if ( isint )
+    {
+	const char specifier = Math::Abs(val) > 1e10f ? 'g' : 'f';
+	pah.txt_ = toUiString( val, width, specifier, 0 );
+    }
+    else
+    {
+	pah.txt_ = toUiString( val, width );
+    }
+
     pah.txtwdth_ = font().width( pah.txt_ );
     pah.linetype_ = PlotAnnotation::Normal;
     *this += pah;
@@ -230,9 +246,10 @@ void uiAHPlotAnnotSet::addItems( const uiAHPlotAnnot& pah, bool docolldet )
     const bool hasendhndlr =
 	axh_.endhndlr_ && !axh_.endhndlr_->setup().noaxisline_;
 
-    const bool overlapswithotheraxis = pah.isAux() ? false :
-                                                     ((hasbeghndlr && pix==axh_.getPix(axh_.range().start_)) ||
-                                                      (hasendhndlr && pix==axh_.getPix(axh_.range().stop_)));
+    const bool overlapswithotheraxis = pah.isAux()
+		    ? false
+		    : ((hasbeghndlr && pix==axh_.getPix(axh_.range().start_)) ||
+		       (hasendhndlr && pix==axh_.getPix(axh_.range().stop_)));
     if ( (!setup_.nogridline_ && !overlapswithotheraxis) || pah.isAux() )
 	addGridLineAt( pix, pah );
 
@@ -309,16 +326,6 @@ uiAxisHandler::uiAxisHandler( uiGraphicsScene* scene,
     , height_(su.height_)
     , width_(su.width_)
     , ticsz_(su.ticsz_)
-    , beghndlr_(nullptr)
-    , endhndlr_(nullptr)
-    , annotstart_(0)
-    , epsilon_(1e-5f)
-    , axsz_(0)
-    , devsz_(0)
-    , nameitm_(nullptr)
-    , endannotitm_(nullptr)
-    , axislineitm_(nullptr)
-    , ynmtxtvertical_(false)
 {
     setRange( StepInterval<float>(0,1,1) );
 }
@@ -492,7 +499,8 @@ float uiAxisHandler::getVal( int pix ) const
 
 float uiAxisHandler::getRelPos( float v ) const
 {
-    float relv = (rgisrev_ ? datarg_.start_ - v : v - datarg_.start_) / rgwidth_;
+    float relv = (rgisrev_ ? datarg_.start_ - v : v - datarg_.start_) /
+		 rgwidth_;
     if ( !setup_.islog_ )
 	return relv;
 

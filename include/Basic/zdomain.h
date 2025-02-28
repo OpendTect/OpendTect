@@ -14,6 +14,8 @@ ________________________________________________________________________
 #include "odcommonenums.h"
 #include "uistring.h"
 
+class SurveyInfo;
+
 
 namespace ZDomain
 {
@@ -35,8 +37,8 @@ mGlobal(Basic) void		setTime(IOPar&);
 mGlobal(Basic) const Info&	TWT();
 mGlobal(Basic) const Info&	DepthMeter();
 mGlobal(Basic) const Info&	DepthFeet();
-mGlobal(Basic) const Info*	get(const IOPar&);
-				// never manage the returned pointer
+mGlobal(Basic) const Info&	DefaultDepth(bool display=true,
+					     const SurveyInfo* =nullptr);
 
 mGlobal(Basic) const ObjectSet<const ZDomain::Info>& sAll();
 
@@ -67,6 +69,7 @@ public:
 			//!<In case of depth, ft or m will come from SurvInfo
     uiString		uiUnitStr(bool withparens=false) const;
 
+			mDeprecated("Use ZDomain::Info::nrDecimals")
     int			nrZDecimals(float zstep) const;
 
     bool		isSI() const;
@@ -122,6 +125,7 @@ public:
     const MultiID	getID() const;
     void		setID(const MultiID&);
     void		setDepthUnit(DepthType);
+    void		setPreferredNrDec(int);
 
     bool		isCompatibleWith(const Info&) const;
     bool		isCompatibleWith(const IOPar&) const;
@@ -144,15 +148,23 @@ public:
     DepthType		depthType() const; // Only valid for Depth
     bool		isDepthMeter() const;
     bool		isDepthFeet() const;
+    int			nrDecimals(float zstep,bool usepref=true) const;
+
+    const char*		sKeyNrDec() const;
 
     mDeprecated("Use MultiID Overloaded function")
     void		setID(const char*);
 
-    static const Info*	getFrom(const char* zdomkey,const char* zunitstr);
+    static const Info&	getFrom(const ZDomain::Info&);
+    static const Info&	getFrom(const char* zdomkey,const char* zunitstr);
     static const Info*	getFrom(const IOPar&);
 
 private:
     void		setDefaultUnit();
+    void		createNrDecStr();
+
+    BufferString	nrdecstr_;
+    int			nrdec_ = mUdf(int);
 };
 
 mGlobal(Basic) const char*	sKey();
@@ -160,5 +172,6 @@ mGlobal(Basic) const char*	sKeyNoAll();
 mGlobal(Basic) const char*	sKeyTime();
 mGlobal(Basic) const char*	sKeyDepth();
 mGlobal(Basic) const char*	sKeyUnit();
+mGlobal(Basic) const char*	sKeyDec();
 
 } // namespace ZDomain

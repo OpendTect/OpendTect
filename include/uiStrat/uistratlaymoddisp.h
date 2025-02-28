@@ -55,6 +55,8 @@ public:
 
     uiFlatViewer*	getViewer()			{ return &vwr_; }
 
+    static uiString	sModelNumber()		{ return tr("Model Nr"); }
+
     Notifier<uiStratLayerModelDisp> sequenceSelected;
     Notifier<uiStratLayerModelDisp> genNewModelNeeded;
     Notifier<uiStratLayerModelDisp> sequencesRead; // precedes modelChanged

@@ -961,7 +961,6 @@ bool MultiTraceSynthGenerator::doFinish( bool success )
 }
 
 
-
 ConstRefMan<ReflectivityModelSet>
 RaySynthGenerator::getRefModels( const ElasticModelSet& emodels,
 				 const IOPar& reflpars, uiString& msg,
@@ -970,12 +969,25 @@ RaySynthGenerator::getRefModels( const ElasticModelSet& emodels,
 				 ZDomain::DepthType depthtype,
 			 const ObjectSet<const TimeDepthModel>* forcedtdmodels )
 {
+    return getRefModels( emodels, reflpars, msg, taskrun, srd, offstyp,
+			OD::AngleType::Degrees, depthtype, forcedtdmodels );
+}
+
+
+ConstRefMan<ReflectivityModelSet>
+RaySynthGenerator::getRefModels( const ElasticModelSet& emodels,
+				 const IOPar& reflpars, uiString& msg,
+				 TaskRunner* taskrun, float srd,
+				 Seis::OffsetType offstyp, OD::AngleType azityp,
+				 ZDomain::DepthType depthtype,
+			 const ObjectSet<const TimeDepthModel>* forcedtdmodels )
+{
     const BufferString refltype = reflpars.find( sKey::Type() );
     if ( refltype.isEmpty() )
 	return nullptr;
 
     if ( ReflCalc1D::factory().hasName(refltype.str()) )
-    {
+    { //TODO: use azityp ?
 	ReflCalc1D::Setup rfsu;
 	rfsu.startdepth( -srd ).depthtype( depthtype );
 	return ReflCalcRunner::getRefModels( emodels, reflpars, msg, &rfsu,
@@ -1593,6 +1605,7 @@ void RaySynthGenerator::SynthRes::setTraces( const ZSampling& zrg,
 	info.setGeomSystem( OD::GeomSynth ).setTrcNr( seqnr+1 ).calcCoord();
 	info.sampling_ = zrg;
 	info.offset_ = offsets[itrc];
+	info.azimuth_ = mUdf(float);
 	info.seqnr_ = seqnr+1;
 	outtrcs_.add( newtrc );
     }

@@ -9,6 +9,7 @@ ________________________________________________________________________
 -*/
 
 #include "uiflatviewmod.h"
+
 #include "uidlggroup.h"
 #include "flatview.h"
 #include "iopar.h"
@@ -28,29 +29,31 @@ mExpClass(uiFlatView) uiFlatViewPropDlg : public uiTabStackDlg
 public:
 			uiFlatViewPropDlg(uiParent*,FlatView::Viewer&,
 					  const CallBack& applcb,
-					  const BufferStringSet* anns=nullptr,
-					  int selann=0,
+					  const uiStringSet* annsdim0=nullptr,
+					  const uiStringSet* annsdim1=nullptr,
+					  int selanndim0=0,int selanndim1=0,
 					  bool withdynamictitle=false);
 			~uiFlatViewPropDlg();
 
-    FlatView::Viewer&	viewer() 			{ return vwr_; }
+    FlatView::Viewer&	viewer()			{ return vwr_; }
 
     void		putAllToScreen();
-    void		getAllFromScreen();
+    void		saveCommonSettings();
 
-    int			selectedAnnot() const		{ return selannot_; }
+    int			selectedAnnot(bool dim0) const;
     void		fillPar(IOPar&) const;
 
 protected:
 
     uiGenInput*		titlefld_;
-    uiGenInput*		titleoptfld_;
-    uiFVWVAPropTab*	wvatab_;
+    uiGenInput*		titleoptfld_	= nullptr;
+    uiFVWVAPropTab*	wvatab_		= nullptr;
     uiFVVDPropTab*	vdtab_;
-    uiFVAnnotPropTab*	annottab_;
+    uiFVAnnotPropTab*	annottab_	= nullptr;
 
     FlatView::Viewer&	vwr_;
-    int			selannot_;
+    int			selannotdim0_;
+    int			selannotdim1_;
 
     void		finalizeCB(CallBacker*);
     void		titleChgCB(CallBacker*);
@@ -60,4 +63,7 @@ protected:
     CallBack		applycb_;
     void		doApply(CallBacker*);
 
+public:
+			mDeprecated("Specify the dimension")
+    int			selectedAnnot() const	{ return selectedAnnot(true); }
 };

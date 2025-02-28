@@ -596,7 +596,7 @@ uiRetVal uiVelSel::get( VelocityDesc& desc,
 
     if ( zdomain )
     {
-	const ZDomain::Info* zinfo = ZDomain::get( obj->pars() );
+	const ZDomain::Info* zinfo = ZDomain::Info::getFrom( obj->pars() );
 	*zdomain = zinfo ? zinfo : &SI().zDomainInfo();
     }
 

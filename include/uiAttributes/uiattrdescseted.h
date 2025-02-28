@@ -91,19 +91,19 @@ public:
 protected:
 
     Attrib::DescSetMan*		inoutadsman_;
-    Attrib::DescSetMan*		adsman_;
-    Attrib::DescSet*		attrset_;
-    Attrib::Desc*		prevdesc_;
+    Attrib::DescSetMan*		adsman_		= nullptr;
+    Attrib::DescSet*		attrset_	= nullptr;
+    Attrib::Desc*		prevdesc_	= nullptr;
     MultiID			setid_;
     ObjectSet<uiAttrDescEd>	desceds_;
     ObjectSet<Attrib::Desc>	attrdescs_;
     BufferStringSet&		userattrnames_;
     CtxtIOObj&			setctio_;
     MultiID			cancelsetid_;
-    bool			updating_fields_;
+    bool			updating_fields_	= false;
     bool			attrsneedupdt_;
     static BufferString		nmprefgrp_;
-    ZDomain::Info*		zdomaininfo_;
+    const ZDomain::Info*	zdomaininfo_	= nullptr;
 
     uiToolBar*			toolbar_;
     uiListBox*			attrlistfld_;

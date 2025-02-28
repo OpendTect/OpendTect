@@ -468,7 +468,8 @@ const UnitOfMeasure* SeisStoreAccess::zUnit() const
 
 const ZDomain::Info& SeisStoreAccess::zDomain( const IOObj* ioobj )
 {
-    const ZDomain::Info* ret = ioobj ? ZDomain::get( ioobj->pars() ) : nullptr;
+    const ZDomain::Info* ret = ioobj ? ZDomain::Info::getFrom( ioobj->pars() )
+				     : nullptr;
     return ret ? *ret : SI().zDomainInfo();
 }
 

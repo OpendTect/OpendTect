@@ -154,8 +154,8 @@ void Seis2DDisplay::setGeomID( const Pos::GeomID& geomid )
     if ( lnm.isEmpty() )
 	lnm.set( geomid.asInt() );
 
-    setUiName( toUiString(lnm) );
-    linename_->text()->setText( toUiString(lnm) );
+    setUiName( ::toUiString(lnm) );
+    linename_->text()->setText( ::toUiString(lnm) );
 
     if ( scene_ )
     {
@@ -874,23 +874,30 @@ void Seis2DDisplay::getMousePosInfo( const visBase::EventInfo&,
     float minsqdist;
     if ( getNearestTrace(pos,dataidx,minsqdist) )
     {
-	info.append( toUiString(", TrcNr: %1")
-			.arg(geometry_.positions()[dataidx].nr_) );
+	uiString trcmsg = toUiString( "TrcNr" );
+	trcmsg.addMoreInfo( geometry_.positions()[dataidx].nr_ );
+	info.appendPhrase( trcmsg, uiString::Comma, uiString::OnSameLine );
 
-	const Survey::Geometry* geom = Survey::GM().getGeometry(geomid_);
+	const Survey::Geometry* geom = Survey::GM().getGeometry( geomid_ );
 	const Survey::Geometry2D* geom2d = geom ? geom->as2D() : nullptr;
 	if ( geom2d && geom2d->spnrs().validIdx(dataidx) )
-	    info.append( toUiString(", SP: %1")
-					    .arg(geom2d->spnrs()[dataidx]) );
+	{
+	    const float spval = geom2d->spnrs()[dataidx];
+	    if ( !mIsUdf(spval) && !mIsEqual(spval,-1.f,1e-5f) )
+	    {
+		uiString spmsg = toUiString( "SP" );
+		trcmsg.addMoreInfo( ::toUiString(spval,0,'f',2) );
+		info.appendPhrase( spmsg, uiString::Comma,
+				   uiString::OnSameLine );
+	    }
+	}
     }
 }
 
 
 void Seis2DDisplay::getObjectInfo( uiString& info ) const
 {
-    info = uiStrings::sLine();
-    info.appendPhrase( toUiString(getLineName()), uiString::MoreInfo,
-					uiString::OnSameLine );
+    info.set( uiStrings::sLine() ).addMoreInfo( getLineName() );
 }
 
 

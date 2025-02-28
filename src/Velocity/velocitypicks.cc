@@ -81,8 +81,7 @@ static const char* sKeyIsTime = "Z is time";
 Picks::Picks( const ZDomain::Info* zdomaininfo )
     : picks_(2,1)
     , snapper_(SI().zRange(true))
-    , zdomaininfo_(new ZDomain::Info(zdomaininfo ? *zdomaininfo
-						 : SI().zDomainInfo()))
+    , zdomaininfo_(zdomaininfo ? zdomaininfo : &SI().zDomainInfo())
     , picktype_((zdomaininfo ? zdomaininfo->isTime() : SI().zIsTime())
 		? RMS : RMO)
     , color_(OD::getRandomColor(false))
@@ -101,7 +100,6 @@ Picks::~Picks()
     VPM().velpicks_ -= this;
     delete smoother_;
     delete undo_;
-    delete zdomaininfo_;
 
     removeHorizons();
 }
@@ -453,11 +451,10 @@ bool Picks::store( const IOObj* ioobjarg )
 
 Picks& Picks::setZDomain( const ZDomain::Info& zinfo )
 {
-    if ( (!zinfo.isTime() && !zinfo.isDepth()) || zinfo == zDomain() )
+    if ( (!zinfo.isTime() && !zinfo.isDepth()) || &zinfo == &zDomain() )
 	return *this;
 
-    delete zdomaininfo_;
-    zdomaininfo_ = new ZDomain::Info( zinfo );
+    zdomaininfo_ = &zinfo;
     return *this;
 }
 
@@ -513,7 +510,7 @@ void Picks::fillPar( IOPar& par ) const
 
 bool Picks::usePar( const IOPar& par )
 {
-    const ZDomain::Info* zinfo = ZDomain::get( par );
+    const ZDomain::Info* zinfo = ZDomain::Info::getFrom( par );
     if ( zinfo && (zinfo->isTime() || zinfo->isDepth()) )
 	setZDomain( *zinfo );
 

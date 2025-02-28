@@ -328,10 +328,12 @@ RefMan<RegularSeisDataPack> EngineMan::getDataPackOutput(const Processor& proc)
 	    output->setComponentName( attrspecs_[idx].userRef(), idx );
 
 	const Attrib::SelSpec& attrspec = attrspecs_.first();
-	const ZDomain::Def& zddef = ZDomain::Def::get( attrspec.zDomainKey() );
-	const ZDomain::Info zdomain( zddef, attrspec.zDomainUnit() );
-	output->setZDomain( zdomain );
 	output->setName( attrspec.userRef() );
+	const ZDomain::Info& zdomain =
+			    ZDomain::Info::getFrom( attrspec.zDomainKey(),
+						    attrspec.zDomainUnit() );
+	output->setZDomain( zdomain );
+
 	return output;
     }
 
@@ -627,10 +629,10 @@ protected:
 RefMan<RegularSeisDataPack> EngineMan::getDataPackOutput(
 			const ObjectSet<const RegularSeisDataPack>& packset )
 {
-    if ( packset.isEmpty() ) return nullptr;
-    const char* category = VolumeDataPack::categoryStr(
-			tkzs_.defaultDir()!=TrcKeyZSampling::Z,
-			tkzs_.is2D() );
+    if ( packset.isEmpty() )
+	return nullptr;
+
+    const char* category = VolumeDataPack::categoryStr( tkzs_ );
     RefMan<RegularSeisDataPack> output =
 		new RegularSeisDataPack(category,&packset[0]->getDataDesc());
     if ( packset[0]->getScaler() )
@@ -663,10 +665,11 @@ RefMan<RegularSeisDataPack> EngineMan::getDataPackOutput(
     }
 
     const Attrib::SelSpec& attrspec = attrspecs_.first();
-    const ZDomain::Def& zddef = ZDomain::Def::get( attrspec.zDomainKey() );
-    const ZDomain::Info zdomain( zddef, attrspec.zDomainUnit() );
-    output->setZDomain( zdomain );
     output->setName( attrspec.userRef() );
+    const ZDomain::Info& zdomain =
+			ZDomain::Info::getFrom( attrspec.zDomainKey(),
+						attrspec.zDomainUnit() );
+    output->setZDomain( zdomain );
 
     for ( const auto* regsdp : packset )
     {

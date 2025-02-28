@@ -493,7 +493,7 @@ Seis::OffsetType SeisIOObjInfo::offsetType() const
     Seis::OffsetType typ = Seis::OffsetType::OffsetMeter;
     mChk(typ);
     if ( isPS() )
-	SeisPSIOProvider::getGatherOffsetType( ioobj_->pars(), typ );
+	Seis::getOffsetType( ioobj_->pars(), typ );
 
     return typ;
 }
@@ -504,7 +504,7 @@ bool SeisIOObjInfo::isCorrected() const
     mChk(true);
     bool iscorr = true;
     if ( isPS() )
-	SeisPSIOProvider::getGatherCorrectedYN( ioobj_->pars(), iscorr );
+	Seis::getGatherCorrectedYN( ioobj_->pars(), iscorr );
 
     return iscorr;
 }
@@ -1314,11 +1314,11 @@ void SeisIOObjInfo::getCommonUserInfo( uiStringSet& inf ) const
 				   SI().nrXYDecimals(),true) );
 
 	    ZSampling zrg = cs.zsamp_;
-            const int nrdec = zinfo.def_.nrZDecimals( zrg.step_ );
+	    const int nrzdec = zinfo.nrDecimals( zrg.step_, false );
 	    zrg.scale( zinfo.userFactor() );
-	    const uiString zrgstartuistr = toUiStringDec( zrg.start_, nrdec );
-	    const uiString zrgstopuistr = toUiStringDec( zrg.stop_, nrdec );
-	    const uiString zrgstepuistr = toUiStringDec( zrg.step_, nrdec );
+	    const uiString zrgstartuistr = toUiStringDec( zrg.start_, nrzdec );
+	    const uiString zrgstopuistr = toUiStringDec( zrg.stop_, nrzdec );
+	    const uiString zrgstepuistr = toUiStringDec( zrg.step_, nrzdec );
 	    inf.addKeyValue( zinfo.getRange(),
 		    toUiString("%1 - %2 [%3]")
                              .arg( zrgstartuistr )

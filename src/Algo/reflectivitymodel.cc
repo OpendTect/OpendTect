@@ -100,6 +100,8 @@ ReflectivityModelBase::ReflectivityModelBase( const ElasticModel& emodel,
 				float* velmax )
     : TimeDepthModelSet(emodel,rmsu,rmsu.offsetdomain_ ? axisvals : nullptr,
 		        velmax)
+    , offsettype_(rmsu.offsettype_)
+    , azimuthtype_(rmsu.azimuthtype_)
 {
     if ( !rmsu.offsetdomain_ && !axisvals )
     {

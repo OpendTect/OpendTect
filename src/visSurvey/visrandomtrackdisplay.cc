@@ -1112,12 +1112,18 @@ uiString RandomTrackDisplay::getManipulationString() const
     for ( int idx=start; idx<=stop; idx++ )
     {
 	const BinID binid = getManipNodePos( idx );
-	const uiString msg( tr("Node %1 Inl/Crl: %2/%3").arg(idx+1)
-					.arg(binid.inl()).arg(binid.crl()) );
+	const uiString msg = tr("Node %1 Inl/Crl: %2")
+				.arg( idx+1 ).arg( binid );
 	str.appendPhrase( msg, uiString::Comma, uiString::OnSameLine );
     }
 
     return str;
+}
+
+
+void RandomTrackDisplay::getObjectInfo( uiString& info ) const
+{
+    info.set( uiStrings::sRandomLine() ).addMoreInfo( getName() );
 }
 
 
@@ -1535,7 +1541,7 @@ void RandomTrackDisplay::getMousePosInfo( const visBase::EventInfo&,
 					  Coord3& pos, BufferString& val,
 					  uiString& info ) const
 {
-    info = toUiString( getName() );
+    getObjectInfo( info );
     getValueString( pos, val );
 }
 

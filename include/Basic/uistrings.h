@@ -231,7 +231,8 @@ public:
     static uiString sAlignment()	{ return tr("Alignment"); }
     static uiString sAll()		{ return tr("All"); }
     static uiString sAlpha()		{ return tr("Alpha"); }
-    static uiString sAmplitude(int n=1){ return tr("Amplitude",0,n); }
+    static uiString sAmplitude(int n=1) { return tr("Amplitude",0,n); }
+    static uiString sAngle(int n=1)	{ return tr("Angle",0,n); }
     static uiString sAnalysis()		{ return tr("Analysis"); }
     static uiString sAnd()		{ return tr("and"); }
     static uiString sApply()		{ return tr("Apply"); }
@@ -489,7 +490,7 @@ public:
     static uiString sObject()		{ return tr("Object"); }
     static uiString sObjectID()		{ return tr("Object ID"); }
     static uiString sOff()		{ return tr("Off","not in action"); }
-    static uiString sOffset()		{ return tr("Offset"); }
+    static uiString sOffset(int n=1)	{ return tr("Offset",0,n); }
     static uiString sOk()		{ return tr("OK"); }
     static uiString sOn()		{ return tr("On","in action"); }
     static uiString sOnlyAtSections()	{ return tr("Only at Sections"); }
@@ -591,6 +592,7 @@ public:
     static uiString sSelectIcon()	{ return tr("Select icon"); }
     static uiString sSelectPos()	{ return tr("Select position"); }
     static uiString sSelOutpFile()	{ return tr("Select output file"); }
+    static uiString Series()		{ return tr("Series"); }
     static uiString sSession(int n=1)	{ return tr("Session",0,n); }
     static uiString sSet(int n=1)	{ return tr("Set",0,n); }
     static uiString sSetAs()		{ return tr("Set as"); }
@@ -700,6 +702,9 @@ public:
     static uiString sWrite()		{ return tr("Write"); }
     static uiString sWriting()		{ return tr("Writing"); }
     static uiString sX()		{ return tr("X"); }
+    static uiString sX0()		{ return tr("X0"); }
+    static uiString sX1()		{ return tr("X1"); }
+    static uiString sX2()		{ return tr("X2"); }
     static uiString sXcoordinate()	{ return tr("X-coordinate"); }
     static uiString sY()		{ return tr("Y"); }
     static uiString sY1()		{ return tr("Y1"); }

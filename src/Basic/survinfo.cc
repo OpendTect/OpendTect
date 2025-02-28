@@ -96,8 +96,9 @@ namespace Survey
 	zobj.add( tkzs.zsamp_.step_ );
 	OD::JSON::Object zdef;
 	zdef.set( sKey::Range(), new OD::JSON::Array(zobj) );
-	zdef.set( SurveyInfo::sKeyDomain(), zistime ? sKey::Time().str() :
-				depthisfeet ? "Feet" : sKey::Depth().str() );
+	zdef.set( SurveyInfo::sKeyDomain(), zistime
+			? sKey::Time().str()
+			: depthisfeet ? "Feet" : sKey::Depth().str() );
 	jsonobj.set( SurveyInfo::sKeyZAxis(), new OD::JSON::Object(zdef) );
     }
 
@@ -616,8 +617,7 @@ SurveyInfo* SurveyInfo::popSI()
 mDefineInstanceCreatedNotifierAccess(SurveyInfo)
 
 SurveyInfo::SurveyInfo()
-    : zdef_(*new ZDomain::Def(ZDomain::Time()) )
-    , tkzs_(*new TrcKeyZSampling(false))
+    : tkzs_(*new TrcKeyZSampling(false))
     , wcs_(*new TrcKeyZSampling(false))
     , pars_(*new IOPar(sKeySurvDefs))
     , ll2c_(*new LatLong2Coord)
@@ -643,7 +643,6 @@ SurveyInfo::SurveyInfo()
 
 SurveyInfo::SurveyInfo( const SurveyInfo& si )
     : NamedCallBacker( si.name() )
-    , zdef_(*new ZDomain::Def(si.zDomain()) )
     , tkzs_(*new TrcKeyZSampling(false))
     , wcs_(*new TrcKeyZSampling(false))
     , pars_(*new IOPar(sKeySurvDefs))
@@ -664,7 +663,6 @@ SurveyInfo::~SurveyInfo()
     delete &ll2c_;
     delete &tkzs_;
     delete &wcs_;
-    delete &zdef_;
 
     Survey::Geometry3D* old = work_s3dgeom_.setToNull();
     if ( old ) old->unRef();
@@ -680,7 +678,7 @@ SurveyInfo& SurveyInfo::operator =( const SurveyInfo& oth )
 	return *this;
 
     setName( oth.name() );
-    zdef_ = oth.zdef_;
+    zdomain_ = &oth.zDomainInfo();
     disklocation_ = oth.disklocation_;
     coordsystem_ = oth.coordsystem_;
     xytype_ = oth.xytype_;
@@ -719,10 +717,10 @@ bool SurveyInfo::operator==( const SurveyInfo& oth ) const
     if ( name() != oth.name() ||
 	survdatatype_ != oth.survdatatype_ ||
 	survdatatypeknown_ != oth.survdatatypeknown_ ||
+	zdomain_ != oth.zdomain_ ||
 	xytype_ != oth.xytype_ ||
 	depthtype_ != oth.depthtype_ ||
 	disklocation_ != oth.disklocation_ ||
-	zdef_ != oth.zdef_ ||
 	b2c_ != oth.b2c_ ||
 	tkzs_ != oth.tkzs_ ||
 	wcs_ != oth.wcs_ ||
@@ -888,16 +886,10 @@ SurveyInfo* SurveyInfo::readJSON( const OD::JSON::Object& obj, uiRetVal& )
 	}
     }
 
-    if ( si->zIsTime() )
-    {
-	bool depthinft = false;
-	if ( si->xyInFeet() )
-	    depthinft = true;
-	else
-	    si->getPars().getYN( sKeyDpthInFt(), depthinft );
-
-	si->setDepthInFeet( depthinft );
-    }
+    bool depthinft = si->zIsTime() ? si->xyInFeet()
+				   : si->zInFeet();
+    si->getPars().getYN( sKeyDpthInFt(), depthinft );
+    si->setDepthInFeet( depthinft );
 
     const BufferString comments = obj.getStringValue( sKeyComments() );
     if ( !comments.isEmpty() )
@@ -959,27 +951,28 @@ SurveyInfo* SurveyInfo::readStrm( od_istream& strm, uiRetVal& ret )
 	    obj.set( sKey::Name(), astream.value() );
 	else if ( keyw == sKeyInlRange() )
 	{
-	    FileMultiString fms( astream.value() );
+	    const FileMultiString fms( astream.value() );
 	    samp.hsamp_.start_.inl() = fms.getIValue( 0 );
 	    samp.hsamp_.stop_.inl() = fms.getIValue( 1 );
 	    samp.hsamp_.step_.inl() = fms.getIValue( 2 );
 	}
 	else if ( keyw == sKeyCrlRange() )
 	{
-	    FileMultiString fms( astream.value() );
+	    const FileMultiString fms( astream.value() );
 	    samp.hsamp_.start_.crl() = fms.getIValue( 0 );
 	    samp.hsamp_.stop_.crl() = fms.getIValue( 1 );
 	    samp.hsamp_.step_.crl() = fms.getIValue( 2 );
 	}
 	else if ( keyw == sKeyZRange() )
 	{
-	    FileMultiString fms( astream.value() );
+	    const FileMultiString fms( astream.value() );
 	    samp.zsamp_.start_ = fms.getFValue( 0 );
 	    samp.zsamp_.stop_ = fms.getFValue( 1 );
 	    samp.zsamp_.step_ = fms.getFValue( 2 );
-	    if ( Values::isUdf(samp.zsamp_.step_)
-	      || mIsZero(samp.zsamp_.step_,mDefEps) )
+	    if ( Values::isUdf(samp.zsamp_.step_) ||
+		 mIsZero(samp.zsamp_.step_,mDefEps) )
 		samp.zsamp_.step_ = 0.004;
+
 	    if ( fms.size() > 3 )
 	    {
 		if ( *fms[3] == 'T' )
@@ -996,24 +989,18 @@ SurveyInfo* SurveyInfo::readStrm( od_istream& strm, uiRetVal& ret )
 	else if ( keyw == sKeyXYInFt() )
 	    xyinfeet = astream.getYN();
 	else if ( keyw == sKeySeismicRefDatum() )
-	{
-	    float refval = astream.getFValue();
-	    /*if ( zisfeet )
-		refval *= mToFeetFactorF;*/
-
-	    obj.set( sKeySeismicRefDatum(), refval );
-	}
+	    obj.set( sKeySeismicRefDatum(), astream.getFValue() );
 	else if ( keyw == sKeyXTransf )
 	{
-	    FileMultiString fms( astream.value() );
+	    const FileMultiString fms( astream.value() );
 	    dirxset.add( fms.getDValue(0) ).add( fms.getDValue(1) )
-						    .add( fms.getDValue(2) );
+		   .add( fms.getDValue(2) );
 	}
 	else if ( keyw == sKeyYTransf )
 	{
-	    FileMultiString fms( astream.value() );
+	    const FileMultiString fms( astream.value() );
 	    diryset.add( fms.getDValue(0) ).add( fms.getDValue(1) )
-		.add( fms.getDValue(2) );
+		   .add( fms.getDValue(2) );
 	}
 	else if ( keyw.startsWith(sKey::CoordSys()) )
 	    coordsystempar.add( keyw, astream.value() );
@@ -1032,7 +1019,7 @@ SurveyInfo* SurveyInfo::readStrm( od_istream& strm, uiRetVal& ret )
 	    if ( ptidx > 3 )
 		ptidx = 2;
 
-	    FileMultiString fms( astream.value() );
+	    const FileMultiString fms( astream.value() );
 	    if ( fms.size() < 2 )
 		return nullptr;
 
@@ -1100,7 +1087,7 @@ bool SurveyInfo::wrapUpRead()
 
 
 void SurveyInfo::handleTransformData( const BufferString& keyw,
-							    const char* val )
+				      const char* val )
 {
     if ( keyw == sKeyXTransf )
 	setTr( rdxtr_, val );
@@ -1121,7 +1108,7 @@ void SurveyInfo::handleTransformData( const BufferString& keyw,
 	if ( ptidx > 3 )
 	    ptidx = 2;
 
-	FileMultiString fms( val );
+	const FileMultiString fms( val );
 	if ( fms.size() < 2 )
 	    return;
 
@@ -1173,6 +1160,8 @@ int SurveyInfo::inlStep() const
 {
     return tkzs_.hsamp_.step_.inl();
 }
+
+
 int SurveyInfo::crlStep() const
 {
     return tkzs_.hsamp_.step_.crl();
@@ -1192,7 +1181,7 @@ float SurveyInfo::crlDistance() const
 
 
 float SurveyInfo::getArea( const Interval<int>& inlrg,
-			       const Interval<int>& crlrg ) const
+			   const Interval<int>& crlrg ) const
 {
     const BinID step = sampling(false).hsamp_.step_;
     const Coord c00 = transform( BinID(inlrg.start_,crlrg.start_) );
@@ -1213,12 +1202,8 @@ float SurveyInfo::getArea( bool work ) const
 
 
 float SurveyInfo::zStep() const
-{ return tkzs_.zsamp_.step_; }
-
-
-int SurveyInfo::nrZDecimals() const
 {
-    return zDomain().nrZDecimals( zStep() );
+    return tkzs_.zsamp_.step_;
 }
 
 
@@ -1227,6 +1212,12 @@ int SurveyInfo::nrXYDecimals() const
     int nrdec = 2;
     getPars().get( "Nr XY decimals", nrdec );
     return nrdec;
+}
+
+
+int SurveyInfo::nrZDecimals( bool usepref ) const
+{
+    return zDomainInfo().nrDecimals( zStep(), usepref );
 }
 
 
@@ -1424,7 +1415,19 @@ bool SurveyInfo::includes( const BinID& bid, const float z, bool work ) const
 
 bool SurveyInfo::zIsTime() const
 {
-    return zdef_.isTime();
+    return zDomain().isTime();
+}
+
+
+bool SurveyInfo::zInMeter() const
+{
+    return zDomainInfo().isDepthMeter();
+}
+
+
+bool SurveyInfo::zInFeet() const
+{
+    return zDomainInfo().isDepthFeet();
 }
 
 
@@ -1434,12 +1437,13 @@ OD::XYType SurveyInfo::xyUnit() const
 }
 
 
-SurveyInfo::Unit SurveyInfo::zUnit() const
+SurveyInfo::Unit SurveyInfo::zUnit( bool display ) const
 {
     if ( zIsTime() )
 	return Second;
 
-    return depthtype_ == ZDomain::DepthType::Meter ? Meter : Feet;
+    return display ? (depthsInFeet() ? Feet : Meter)
+		   : (zInMeter() ? Meter : Feet);
 }
 
 
@@ -1451,19 +1455,19 @@ ZDomain::DepthType SurveyInfo::depthType() const
 
 void SurveyInfo::putZDomain( IOPar& iop ) const
 {
-    zdef_.set( iop );
+    zDomain().set( iop );
 }
 
 
 const ZDomain::Def& SurveyInfo::zDomain() const
-{ return zdef_; }
+{
+    return zDomainInfo().def_;
+}
 
 
 const ZDomain::Info& SurveyInfo::zDomainInfo() const
 {
-    return zIsTime() ? ZDomain::TWT()
-		     : (zInMeter() ? ZDomain::DepthMeter()
-				   : ZDomain::DepthFeet() );
+    return zdomain_ ? *zdomain_ : ZDomain::TWT();
 }
 
 
@@ -1485,22 +1489,30 @@ uiString SurveyInfo::getUiXYUnitString( bool abbrvt, bool wb ) const
 }
 
 
-void SurveyInfo::setZUnit( bool istime, bool infeet )
-{
-    zdef_ = istime ? ZDomain::Time() : ZDomain::Depth();
-    setDepthInFeet( infeet );
-}
-
-
 void SurveyInfo::setXYInFeet( bool yn )
 {
     xytype_ = yn ? OD::XYType::Feet : OD::XYType::Meter;
 }
 
 
+void SurveyInfo::setZUnit( bool istime, bool infeet )
+{
+    if ( (zIsTime() && istime) ||
+	 (zInMeter() && !istime && !infeet) ||
+	 (zInFeet() && !istime && infeet) )
+	return; // No change
+
+    const ZDomain::Info& newzdom = istime ? ZDomain::TWT()
+					  : (infeet ? ZDomain::DepthFeet()
+						    : ZDomain::DepthMeter());
+    zdomain_ = &newzdom;
+}
+
+
 void SurveyInfo::setDepthInFeet( bool yn )
 {
     depthtype_ = yn ? ZDomain::DepthType::Feet : ZDomain::DepthType::Meter;
+    pars_.setYN( sKeyDpthInFt(), yn );
 }
 
 
@@ -1526,9 +1538,9 @@ float SurveyInfo::defaultXYtoZScale( Unit zunit, OD::XYType xyunit )
 }
 
 
-float SurveyInfo::zScale() const
+float SurveyInfo::zScale( bool display ) const
 {
-    return defaultXYtoZScale( zUnit(), xyUnit() );
+    return defaultXYtoZScale( zUnit(display), xyUnit() );
 }
 
 
@@ -1631,8 +1643,10 @@ void SurveyInfo::snapZ( float& z, int dir ) const
 
 void SurveyInfo::setTr( Pos::IdxPair2Coord::DirTransform& tr, const char* str )
 {
-    FileMultiString fms( str );
-    tr.a = fms.getDValue(0); tr.b = fms.getDValue(1); tr.c = fms.getDValue(2);
+    const FileMultiString fms( str );
+    tr.a = fms.getDValue(0);
+    tr.b = fms.getDValue(1);
+    tr.c = fms.getDValue(2);
 }
 
 
@@ -1720,7 +1734,7 @@ bool SurveyInfo::write( const char* basedir, bool isjson ) const
 	fms += tkzs_.zsamp_.start_;
 	fms += tkzs_.zsamp_.stop_;
 	fms += tkzs_.zsamp_.step_;
-	fms += zIsTime() ? "T" : ( depthsInFeet() ? "F" : "D" );
+	fms += zIsTime() ? "T" : ( zInFeet() ? "F" : "D" );
 	astream.put( sKeyZRange(), fms );
 
 	writeSpecLines( &astream );
@@ -1841,16 +1855,11 @@ void SurveyInfo::writeSpecLines( ascostream* astream,
     if ( obj )
     {
 	Survey::fillObjWithSetPts( bids, crds, *obj );
-	float seisrefval = seisrefdatum_;
-	/*if ( zInFeet() )
-	    seisrefval *= mToFeetFactorF;*/
-
-	obj->set( sKeySeismicRefDatum(), seisrefval );
+	obj->set( sKeySeismicRefDatum(), seisrefdatum_ );
 	Survey::fillObjWithUnit( getXYUnitString(false),
 			    getUiZUnitString(false).getFullString(), *obj );
 	if ( ll2c_.isOK() )
 	    obj->set( sKeyLatLongAnchor, ll2c_.toString() );
-
     }
     else if ( astream )
     {
@@ -1940,10 +1949,10 @@ bool SurveyInfo::has3D() const
 void SurveyInfo::update3DGeometry()
 {
     if ( s3dgeom_ )
-	s3dgeom_->setGeomData( b2c_, sampling(false), zScale() );
+	s3dgeom_->setGeomData( b2c_, sampling(false), zScale(false) );
 
     if ( work_s3dgeom_ )
-	work_s3dgeom_->setGeomData( b2c_, sampling(true), zScale() );
+	work_s3dgeom_->setGeomData( b2c_, sampling(true), zScale(false) );
 }
 
 
@@ -1955,9 +1964,9 @@ RefMan<Survey::Geometry3D> SurveyInfo::get3DGeometry( bool work ) const
     if ( !sgeom )
     {
 	RefMan<Survey::Geometry3D> newsgeom
-			= new Survey::Geometry3D( name(), zdef_ );
+			= new Survey::Geometry3D( name(), zDomain() );
 	newsgeom->setID( Survey::default3DGeomID() );
-	newsgeom->setGeomData( b2c_, sampling(work), zScale() );
+	newsgeom->setGeomData( b2c_, sampling(work), zScale(false) );
 	if ( sgeom.setIfEqual(0,newsgeom.ptr()) )
 	    newsgeom.release();
     }
@@ -1968,10 +1977,10 @@ RefMan<Survey::Geometry3D> SurveyInfo::get3DGeometry( bool work ) const
 
 float SurveyInfo::angleXInl() const
 {
-    Coord xy1 = transform( BinID(inlRange(false).start_,
-				 crlRange(false).start_));
-    Coord xy2 = transform( BinID(inlRange(false).start_,
-				 crlRange(false).stop_) );
+    const Coord xy1 = transform( BinID(inlRange(false).start_,
+				       crlRange(false).start_));
+    const Coord xy2 = transform( BinID(inlRange(false).start_,
+				       crlRange(false).stop_) );
     const double xdiff = xy2.x_ - xy1.x_;
     const double ydiff = xy2.y_ - xy1.y_;
     return sCast(float, Math::Atan2( ydiff, xdiff ) );
@@ -1980,10 +1989,10 @@ float SurveyInfo::angleXInl() const
 
 float SurveyInfo::angleXCrl() const
 {
-    Coord xy1 = transform( BinID(inlRange(false).start_,
-				 crlRange(false).start_));
-    Coord xy2 = transform( BinID(inlRange(false).stop_,
-				 crlRange(false).start_) );
+    const Coord xy1 = transform( BinID(inlRange(false).start_,
+				       crlRange(false).start_));
+    const Coord xy2 = transform( BinID(inlRange(false).stop_,
+				       crlRange(false).start_) );
     const double xdiff = xy2.x_ - xy1.x_;
     const double ydiff = xy2.y_ - xy1.y_;
     return sCast(float, Math::Atan2( ydiff, xdiff ) );

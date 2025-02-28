@@ -27,14 +27,8 @@ if ( item ) \
 #define mAnnotZ	100
 
 
-uiGraphicsSceneAxis::uiGraphicsSceneAxis( uiGraphicsScene& scene)
-    : scene_( scene )
-    , itmgrp_( 0 )
-    , txtfactor_( 1 )
-    , drawaxisline_( true )
-    , drawgridlines_( true )
-    , mask_( 0 )
-    , annotinint_( false )
+uiGraphicsSceneAxis::uiGraphicsSceneAxis( uiGraphicsScene& scene )
+    : scene_(scene)
 {
     itmgrp_ = new uiGraphicsItemGroup;
     scene_.addItem( itmgrp_ );
@@ -82,7 +76,7 @@ void uiGraphicsSceneAxis::enableMask( bool yn )
     else
     {
 	itmgrp_->remove( mask_, true );
-	mask_ = 0;
+	mask_ = nullptr;
     }
 }
 
@@ -217,7 +211,8 @@ void uiGraphicsSceneAxis::drawAtPos( float worldpos, bool drawgrid,
 
 void uiGraphicsSceneAxis::reDraw()
 {
-    AxisLayout<double> al( Interval<double>(rg_.start_ ,rg_.stop_), annotinint_ );
+    AxisLayout<double> al( Interval<double>(rg_.start_ ,rg_.stop_),
+			   annotinint_ );
     SamplingData<double> axis = al.sd_;
     Interval<int> axisrg( isx_ ? viewrect_.left() : viewrect_.top(),
 				isx_ ? viewrect_.right() : viewrect_.bottom() );
@@ -265,6 +260,8 @@ void uiGraphicsSceneAxis::reDraw()
 	itmgrp_->remove( texts_.pop(), true );
 }
 
+
+// uiGraphicsSceneAxisMgr
 
 uiGraphicsSceneAxisMgr::uiGraphicsSceneAxisMgr( uiGraphicsView& view )
     : view_( view )
@@ -345,7 +342,7 @@ uiAxisHandler* uiGraphicsSceneAxisMgr::axis( OD::Edge edge )
 
 const uiAxisHandler* uiGraphicsSceneAxisMgr::axis( OD::Edge edge ) const
 {
-    return const_cast<uiGraphicsSceneAxisMgr*>(this)->axis( edge );
+    return getNonConst(*this).axis( edge );
 }
 
 

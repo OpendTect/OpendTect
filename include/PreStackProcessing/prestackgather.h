@@ -39,6 +39,10 @@ public:
 				Gather();
 				Gather(const Gather&);
 				Gather(const FlatPosData&,
+				       Seis::OffsetType,OD::AngleType,
+				       const ZDomain::Info&);
+				mDeprecated("Provide OD::AngleType")
+				Gather(const FlatPosData&,
 				       Seis::OffsetType,
 				       const ZDomain::Info&);
 
@@ -64,8 +68,6 @@ public:
 				//!< Will use the reader geomID
 
     const Coord&		getCoord() const	{ return coord_; }
-    Coord3			getCoord(int,int) const override
-    { return Coord3(coord_.x_,coord_.y_,0); }
 
     void                        detectOuterMutes(int* depths,
 						 int taperlen=0) const;
@@ -93,9 +95,6 @@ public:
 
     bool			isLoaded() const	{ return arr2d_; }
 
-    const char*			dimName(bool dim0) const override;
-    void			getAuxInfo(int,int,IOPar&) const override;
-
     static int			offsetDim()		{ return 0; }
     static int			zDim()			{ return 1; }
 
@@ -108,13 +107,11 @@ public:
     bool			isOffsetInMeters() const;
     bool			isOffsetInFeet() const;
     Seis::OffsetType		offsetType() const;
-    const ZDomain::Info&	zDomain() const;
-    bool			zIsTime() const;
-    bool			zInMeter() const;
-    bool			zInFeet() const;
+    OD::AngleType		azimuthAngleType() const;
     Gather&			setCorrected(bool yn);
     Gather&			setOffsetType(Seis::OffsetType);
-    Gather&			setZDomain(const ZDomain::Info&);
+    Gather&			setAzimuthAngleType(OD::AngleType);
+    Gather&			setZDomain(const ZDomain::Info&) override;
 
     const MultiID&		getVelocityID() const	{ return velocitymid_; }
     const MultiID&		getStorageID() const    { return storagemid_; }
@@ -140,13 +137,32 @@ protected:
 
     bool			iscorr_ = true;
     Seis::OffsetType		offsettype_;
-    const ZDomain::Info*	zdomaininfo_;
+    OD::AngleType		azimuthangletype_ = OD::AngleType::Degrees;
     TrcKey			tk_;
     Coord			coord_;
     TypeSet<float>		azimuths_;
     ZSampling			zrg_;
 
+private:
+    uiString			dimName(bool dim0) const override;
+    uiString			dimUnitLbl(bool dim0,bool display,
+					   bool abbreviated=true,
+				      bool withparentheses=true) const override;
+    const UnitOfMeasure*	dimUnit(bool dim0,bool display) const override;
+
+    TrcKey			getTrcKey(int,int) const override;
+    Coord3			getCoord(int itrc,int isamp) const override;
+    double			getZ(int itrc,int isamp) const override;
+    void			getAuxInfo(int itrc,int idim1,
+					   IOPar&) const override;
+
 public:
+    bool			setFromTrcBuf(SeisTrcBuf&,int comp,
+					    bool iscorrected,
+					    Seis::OffsetType,OD::AngleType,
+					    const ZDomain::Info&,
+					    bool snapzrangetosi=false);
+				mDeprecated("Provide OD::AngleType")
     bool			setFromTrcBuf(SeisTrcBuf&,int comp,
 					    bool iscorrected,
 					    Seis::OffsetType,
@@ -181,7 +197,7 @@ public:
 \brief A DataPack containing a set of gathers.
 */
 
-mExpClass(PreStackProcessing) GatherSetDataPack : public DataPack
+mExpClass(PreStackProcessing) GatherSetDataPack : public ZDataPack
 {
 public:
 				GatherSetDataPack(const char* ctgery);
@@ -224,13 +240,11 @@ public:
     bool			isOffsetInMeters() const;
     bool			isOffsetInFeet() const;
     Seis::OffsetType		offsetType() const;
-    const ZDomain::Info&	zDomain() const;
-    bool			zIsTime() const;
-    bool			zInMeter() const;
-    bool			zInFeet() const;
+    OD::AngleType		azimuthAngleType() const;
     GatherSetDataPack&		setCorrected(bool yn);
     GatherSetDataPack&		setOffsetType(Seis::OffsetType);
-    GatherSetDataPack&		setZDomain(const ZDomain::Info&);
+    GatherSetDataPack&		setAzimuthAngleType(OD::AngleType);
+    GatherSetDataPack&		setZDomain(const ZDomain::Info&) override;
 
     static const char*		sDataPackCategory();
 
@@ -248,7 +262,7 @@ private:
 
     bool			iscorr_ = true;
     Seis::OffsetType		offsettype_;
-    const ZDomain::Info*	zdomaininfo_;
+    OD::AngleType		azimuthangletype_ = OD::AngleType::Degrees;
 
 public:
 

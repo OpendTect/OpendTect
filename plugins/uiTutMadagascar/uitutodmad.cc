@@ -79,7 +79,8 @@ bool uiTutODMad::acceptOK( CallBacker* )
     }
 
     bufdtpack_ = new SeisTrcBufDataPack( trcbuf, geom, seisifld,
-					 "Madagascar data" );
+					 "Madagascar data",
+					 madstream_.zDomain() );
     bufdtpack_->trcBufArr2D().setBufMine( true );
     madstream_.setStorBufMine( false );
     createAndDisplay2DViewer();

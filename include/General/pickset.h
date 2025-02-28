@@ -159,7 +159,7 @@ private:
     bool		readonly_ = false;
 
     TypeSet<Location>	locations_;
-    ZDomain::Info*	zdomaininfo_;
+    const ZDomain::Info* zdomaininfo_;
 
     void		refNotify() const override;
     void		unRefNotify() const override;

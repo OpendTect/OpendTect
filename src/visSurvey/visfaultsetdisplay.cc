@@ -1195,13 +1195,16 @@ void FaultSetDisplay::getMousePosInfo( const visBase::EventInfo& eventinfo,
 		    Coord3& pos, BufferString& val, uiString& info ) const
 {
     info.setEmpty();
-    val = "";
+    val.setEmpty();
     if ( !faultset_ )
 	return;
 
-    EM::FaultID selid = getFaultID( eventinfo );
-    info = tr("FaultSet: %1    ID: %2").arg(faultset_->name())
-				      .arg(selid.asInt());
+    const EM::FaultID selid = getFaultID( eventinfo );
+    uiString faultmsg = uiStrings::sFaultSet();
+    faultmsg.addMoreInfo( faultset_->name() );
+    uiString idmsg = uiStrings::sID();
+    idmsg.addMoreInfo( selid.asInt() );
+    info = ::toUiString( "%1	%2" ).arg( faultmsg ).arg( idmsg );
 }
 
 

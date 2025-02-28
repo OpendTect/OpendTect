@@ -85,6 +85,8 @@ public:
     const char*			toZDomainKey() const;
     const ZDomain::Info&	fromZDomainInfo() const;
     const ZDomain::Info&	toZDomainInfo() const;
+    const ZDomain::Info&	zDomain(bool from) const;
+				//!< Pointer to singleton
     ZDomain::Info&		fromZDomainInfo() { return fromzdomaininfo_; }
     ZDomain::Info&		toZDomainInfo()   { return tozdomaininfo_; }
 

@@ -38,11 +38,9 @@ uiString uiSeisSelDlg::gtSelTxt( const uiSeisSel::Setup& setup, bool forread )
     if ( !setup.seltxt_.isEmpty() )
 	return setup.seltxt_;
 
-    uiString datatype = Seis::dataName(setup.geom_, setup.explprepost_ );
-
-    return forread
-	? uiStrings::phrInput( datatype )
-	: uiStrings::phrOutput( datatype );
+    const uiString datatype = Seis::dataName(setup.geom_, setup.explprepost_ );
+    return forread ? uiStrings::phrInput( datatype )
+		   : uiStrings::phrOutput( datatype );
 }
 
 
@@ -58,8 +56,13 @@ static IOObjContext adaptCtxtWithSetup( const IOObjContext& ct,
     if ( !su.enabotherdomain_ )
 	ctxt.requireZDomain( SI().zDomain() );
 
+    /*if ( su.domainpol_ == uiSeisSel::Setup::SIDomain )
+	ctxt.requireZDomain( SI().zDomainInfo() );
+    else if ( su.domainpol_ == uiSeisSel::Setup::SIDef )
+	ctxt.requireZDef( SI().zDomain() );*/
+
     if ( ctxt.trgroup_ && !ctxt.forread_ &&
-	    su.compnrpol_ == uiSeisSel::Setup::MultiCompOnly )
+	 su.compnrpol_ == uiSeisSel::Setup::MultiCompOnly )
     {
 	const TranslatorGroup& trgrp = *ctxt.trgroup_;
 	const ObjectSet<const Translator>& alltrs = trgrp.templates();
@@ -265,6 +268,7 @@ uiSeisSel::Setup::Setup( Seis::GeomType gt )
     , steerpol_(NoSteering)
     , compnrpol_(Both)
     , enabotherdomain_(false)
+    , domainpol_(SIDomain)
     , allowsetsurvdefault_(false)
     , explprepost_(false)
     , selectcomp_(false)
@@ -350,6 +354,7 @@ void uiSeisSel::initGrpCB( CallBacker* )
 bool uiSeisSel::enableTimeDepthToogle() const
 {
     if ( inctio_.ctxt_.forread_ || !seissetup_.enabotherdomain_ )
+//    if ( inctio_.ctxt_.forread_ || seissetup_.domainpol_ == Setup::SIDomain )
 	return false;
 
     const ZDomain::Info* requiredzdom = requiredZDomain();

@@ -420,15 +420,15 @@ void SEGY::FileReadOpts::getReport( IOPar& iop, bool isrev0 ) const
 		icdef_ == XYOnly ? "Coordinates" : "Inline/Crossline" );
 	if ( isrev0 )
 	{
-	    if ( icdef_ != XYOnly )
-	    {
-		reportHdrEntry( iop, "Inline", thdef_.inl_ );
-		reportHdrEntry( iop, "Crossline", thdef_.crl_ );
-	    }
-	    else
+	    if ( icdef_ == XYOnly )
 	    {
 		reportHdrEntry( iop, "X-coordinate", thdef_.xcoord_ );
 		reportHdrEntry( iop, "Y-coordinate", thdef_.ycoord_ );
+	    }
+	    else
+	    {
+		reportHdrEntry( iop, "Inline", thdef_.inl_ );
+		reportHdrEntry( iop, "Crossline", thdef_.crl_ );
 	    }
 	}
     }

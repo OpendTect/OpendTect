@@ -149,6 +149,15 @@ enum WellType
 mDeclareNameSpaceEnumUtils(Basic,WellType);
 
 
+enum class AngleType
+{
+    Radians=0,
+    Degrees=1
+};
+
+mDeclareNameSpaceEnumUtils(Basic,AngleType)
+
+
 enum class XYType
 {
     Meter=0,

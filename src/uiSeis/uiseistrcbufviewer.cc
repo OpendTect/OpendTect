@@ -12,6 +12,7 @@ ________________________________________________________________________
 #include "seisbufadapters.h"
 #include "seisinfo.h"
 #include "seistrc.h"
+#include "survinfo.h"
 
 #include "uiflatviewer.h"
 #include "uiflatviewstdcontrol.h"
@@ -35,22 +36,16 @@ uiSeisTrcBufViewer::uiSeisTrcBufViewer( uiParent* p,
 
 uiSeisTrcBufViewer::~uiSeisTrcBufViewer()
 {
-    releaseDP();
-}
-
-
-void uiSeisTrcBufViewer::releaseDP()
-{
-    dp_ = nullptr;
 }
 
 
 void uiSeisTrcBufViewer::setBuf( const SeisTrcBuf& tbuf,
 				 Seis::GeomType geom, const char* cat,
-				 const char* dpname, int compnr, bool mine )
+				 const char* dpname, const ZDomain::Info& zdom,
+				 int compnr, bool mine )
 {
-    releaseDP();
-    if ( tbuf.isEmpty() ) return;
+    if ( tbuf.isEmpty() )
+	return;
 
     const int sz = tbuf.size();
     SeisTrcInfo::Fld type = SeisTrcInfo::SeqNr;
@@ -64,9 +59,10 @@ void uiSeisTrcBufViewer::setBuf( const SeisTrcBuf& tbuf,
 
     if ( mine )
 	dp_ = new SeisTrcBufDataPack( const_cast<SeisTrcBuf*>(&tbuf), geom,
-				     type, cat, compnr );
+				     type, cat, zdom, compnr );
     else
-	dp_ = new SeisTrcBufDataPack( tbuf, geom, type, cat, compnr );
+	dp_ = new SeisTrcBufDataPack( tbuf, geom, type, cat, zdom, compnr );
+
     dp_->setName( dpname );
 
     const FlatView::DataDispPars& ddpars = viewer().appearance().ddpars_;
@@ -85,8 +81,17 @@ void uiSeisTrcBufViewer::setTrcBuf( const SeisTrcBuf* tbuf,
 				Seis::GeomType geom, const char* cat,
 				const char* dpname, int compnr )
 {
+    setTrcBuf( tbuf, geom, cat, dpname, SI().zDomainInfo(), compnr );
+}
+
+
+void uiSeisTrcBufViewer::setTrcBuf( const SeisTrcBuf* tbuf,
+				Seis::GeomType geom, const char* cat,
+				const char* dpname, const ZDomain::Info& zdom,
+				int compnr )
+{
     if ( tbuf )
-	setBuf( *tbuf, geom, cat, dpname, compnr, false );
+	setBuf( *tbuf, geom, cat, dpname, zdom, compnr, false );
 }
 
 
@@ -94,7 +99,16 @@ void uiSeisTrcBufViewer::setTrcBuf( const SeisTrcBuf& tbuf,
 				Seis::GeomType geom, const char* cat,
 				const char* dpname, int compnr )
 {
-    setBuf( *new SeisTrcBuf(tbuf), geom, cat, dpname, compnr, true );
+    setTrcBuf( tbuf, geom, cat, dpname, SI().zDomainInfo(), compnr );
+}
+
+
+void uiSeisTrcBufViewer::setTrcBuf( const SeisTrcBuf& tbuf,
+				Seis::GeomType geom, const char* cat,
+				const char* dpname, const ZDomain::Info& zdom,
+				int compnr )
+{
+    setBuf( *new SeisTrcBuf(tbuf), geom, cat, dpname, zdom, compnr, true );
 }
 
 

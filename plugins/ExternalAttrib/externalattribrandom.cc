@@ -26,12 +26,14 @@ namespace ExternalAttrib
 {
 
 void Random::initClass()
-{ Attrib::ExtAttrFact().addCreator( create, 0 ); }
+{
+    Attrib::ExtAttrFact().addCreator( create, nullptr );
+}
 
 
 Attrib::ExtAttribCalc* Random::create( const Attrib::SelSpec& as )
 {
-    Random* res = new Random;
+    auto* res = new Random;
     if ( res->setTargetSelSpec(as) )
 	return res;
 
@@ -71,9 +73,9 @@ Random::createAttrib( const TrcKeyZSampling& tkzs,
 	return nullptr;
 
     RefMan<RegularSeisDataPack> regsdp = new RegularSeisDataPack(
-	    VolumeDataPack::categoryStr(tkzs.isFlat() && tkzs.nrZ()!=1,false) );
+					    VolumeDataPack::categoryStr(tkzs) );
     regsdp->setSampling( tkzs );
-    regsdp->addComponent( uiStrings::sEmptyString() );
+    regsdp->addComponent( uiString::empty() );
 
     for ( int lineidx=0; lineidx<tkzs.nrLines(); lineidx++ )
     {

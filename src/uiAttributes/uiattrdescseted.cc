@@ -102,19 +102,14 @@ uiAttribDescSetEd::uiAttribDescSetEd( uiParent* p, DescSetMan* adsm,
     , inoutadsman_(adsm)
     , userattrnames_(*new BufferStringSet)
     , setctio_(*mMkCtxtIOObj(AttribDescSet))
-    , prevdesc_(0)
-    , attrset_(0)
     , dirshowcb(this)
     , evalattrcb(this)
     , crossevalattrcb(this)
     , xplotcb(this)
     , applycb(this)
-    , adsman_(0)
-    , updating_fields_(false)
     , attrsneedupdt_(attrsneedupdt)
-    , zdomaininfo_(0)
 {
-    setOkCancelText( uiStrings::sClose(), uiString::emptyString() );
+    setOkCancelText( uiStrings::sClose(), uiString::empty() );
     setctio_.ctxt_.requireType( adsm->is2D() ? sKey::TwoD() : sKey::ThreeD() );
 
     createMenuBar();
@@ -128,14 +123,17 @@ uiAttribDescSetEd::uiAttribDescSetEd( uiParent* p, DescSetMan* adsm,
 
 void uiAttribDescSetEd::setZDomainInfo( const ZDomain::Info& info )
 {
-    delete zdomaininfo_; zdomaininfo_ = new ZDomain::Info(info);
+    zdomaininfo_ = &info;
     for ( int idx=0; idx<desceds_.size(); idx++ )
-	if ( desceds_[idx] ) desceds_[idx]->setZDomainInfo( zdomaininfo_ );
+	if ( desceds_[idx] )
+	    desceds_[idx]->setZDomainInfo( zdomaininfo_ );
 }
 
 
 const ZDomain::Info* uiAttribDescSetEd::getZDomainInfo() const
-{ return zdomaininfo_; }
+{
+    return zdomaininfo_;
+}
 
 
 #define mInsertMnuItem( mnu, txt, func, fnm ) \

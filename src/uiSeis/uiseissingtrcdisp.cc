@@ -20,8 +20,6 @@ uiSeisSingleTraceDisplay::uiSeisSingleTraceDisplay( uiParent* p )
     , compnr_(0)
 {
     FlatView::Appearance& app = appearance();
-    app.annot_.x1_.name_ = " ";
-    app.annot_.x2_.name_ = " ";
     app.annot_.setAxesAnnot( true );
     app.setGeoDefaults( true );
     app.ddpars_.show( true, false );
@@ -54,7 +52,10 @@ void uiSeisSingleTraceDisplay::setData( const Wavelet* wvlt )
     if ( wvlt )
     {
 	const int wvltsz = wvlt->size();
-	const float zfac = mCast( float, SI().zDomain().userFactor() );
+	//TODO: update once the wavelet has a ZDomain
+	//const ZDomain::Info& zdomain = wvlt->zDomain();
+	const ZDomain::Info& zdomain = SI().zDomainInfo();
+	const float zfac = mCast( float, zdomain.userFactor() );
 
 	auto* fva2d = new Array2DImpl<float>( 1, wvltsz );
 	dp = new FlatDataPack( "Wavelet", fva2d );
@@ -62,10 +63,9 @@ void uiSeisSingleTraceDisplay::setData( const Wavelet* wvlt )
 	dp->setName( wvlt->name() );
 	StepInterval<double> posns;
 	posns.setFrom( wvlt->samplePositions() );
-	if ( SI().zIsTime() )
-	    posns.scale( zfac );
-
+	posns.scale( zfac );
 	dp->posData().setRange( false, posns );
+	dp->setZDomain( zdomain );
     }
 
     fdp_ = dp;
@@ -76,8 +76,14 @@ void uiSeisSingleTraceDisplay::setData( const Wavelet* wvlt )
     setViewToBoundingBox();
 }
 
-
 void uiSeisSingleTraceDisplay::setData( const SeisTrc* trc, const char* nm )
+{
+    setData( trc, nm, SI().zDomainInfo() );
+}
+
+
+void uiSeisSingleTraceDisplay::setData( const SeisTrc* trc, const char* nm,
+					const ZDomain::Info& zdomain )
 {
     cleanUp();
 
@@ -85,18 +91,20 @@ void uiSeisSingleTraceDisplay::setData( const SeisTrc* trc, const char* nm )
     if ( trc )
     {
 	const int trcsz = trc->size();
-	const float zfac = mCast( float, SI().zDomain().userFactor() );
+	const float zfac = mCast( float, zdomain.userFactor() );
 
 	auto* fva2d = new Array2DImpl<float>( 1, trcsz );
 	dp = new FlatDataPack( "Wavelet", fva2d );
 	float* ptr = fva2d->getData();
 	for ( int idx=0; idx<trcsz; idx++ )
 	    *ptr++ = trc->get( idx, compnr_ );
+
 	dp->setName( nm );
 	StepInterval<double> posns( trc->samplePos(0), trc->samplePos(trcsz-1),
 				    trc->info().sampling_.step_ );
-	if ( SI().zIsTime() ) posns.scale( zfac );
+	posns.scale( zfac );
 	dp->posData().setRange( false, posns );
+	dp->setZDomain( zdomain );
     }
 
     fdp_ = dp;

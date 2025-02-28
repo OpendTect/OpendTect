@@ -73,6 +73,9 @@ public:
     virtual bool	isOffsetDomain() const		{ return false; }
     virtual bool	isAngleDomain() const		{ return false; }
 
+    Seis::OffsetType	getOffsetType() const		{ return offsettype_; }
+    Seis::OffsetType	getAzimuthType() const		{ return azimuthtype_; }
+
 protected:
 
     mExpClass(Algo) Setup : public TimeDepthModelSet::Setup
@@ -85,6 +88,8 @@ protected:
 	mDefSetupMemb(bool,offsetdomain);
 	mDefSetupMemb(bool,withangles);
 	mDefSetupMemb(bool,withreflectivity);
+	mDefSetupMemb(Seis::OffsetType,offsettype);
+	mDefSetupMemb(Seis::OffsetType,azimuthtype);
 
 	void		fillPar(IOPar&) const override;
 	bool		usePar(const IOPar&) override;
@@ -111,6 +116,9 @@ private:
     float*		sini_ = nullptr;
     float**		sinarr_ = nullptr;
     int			nroffs_;
+
+    Seis::OffsetType offsettype_ = Seis::OffsetType::OffsetMeter;
+    Seis::OffsetType azimuthtype_ = Seis::OffsetType::AngleRadians;
 
     friend class RayTracer1D;
     friend class ReflCalc1D;

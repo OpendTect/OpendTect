@@ -83,6 +83,7 @@ uiSEGYReadFinisher::uiSEGYReadFinisher( uiParent* p, const FullSpec& fs,
     : uiDialog(p,uiDialog::Setup(getWinTile(fs),mNoDlgTitle,
 				 mODHelpKey(mSEGYReadFinisherHelpID)))
     , fs_(fs)
+    , zdomain_(zdomaininfo ? zdomaininfo : &SI().zDomainInfo())
 {
     setOkText( uiStrings::sImport() );
     objname_ = FilePath( usrspec ).baseName();
@@ -91,11 +92,6 @@ uiSEGYReadFinisher::uiSEGYReadFinisher( uiParent* p, const FullSpec& fs,
     const bool is2d = Seis::is2D( fs_.geomType() );
     if ( !is2d )
 	objname_.replace( '*', 'x' );
-
-    if ( zdomaininfo )
-	zdomain_ = new ZDomain::Info( *zdomaininfo );
-    else
-	zdomain_ = new ZDomain::Info( ZDomain::SI() );
 
     if ( fs_.isVSP() )
 	crVSPFields();
@@ -215,8 +211,8 @@ void uiSEGYReadFinisher::cr2DCoordSrcFields( uiGroup*& attgrp, bool ismulti )
 	const Coord mincoord( SI().minCoord(true) );
 	coordsfromfld_->addItem( tr("Generate straight line") );
 	coordsstartfld_ = new uiGenInput( this, tr("Start coordinate"),
-                                          DoubleInpSpec(double(mNINT64(mincoord.x_))),
-                                          DoubleInpSpec(double(mNINT64(mincoord.y_))) );
+				  DoubleInpSpec(double(mNINT64(mincoord.x_))),
+				  DoubleInpSpec(double(mNINT64(mincoord.y_))) );
 	coordsstartfld_->attach( alignedBelow, lcb );
 	coordsstartfld_->setElemSzPol( uiObject::Small );
 	coordsstepfld_ = new uiGenInput( this, uiStrings::sStep(),
@@ -259,7 +255,6 @@ void uiSEGYReadFinisher::crVSPFields()
 uiSEGYReadFinisher::~uiSEGYReadFinisher()
 {
     detachAllNotifiers();
-    delete zdomain_;
 }
 
 

@@ -22,13 +22,48 @@ ________________________________________________________________________
 class FlatPosData;
 class Scaler;
 class TaskRunner;
+class TrcKeyZSampling;
 class UnitOfMeasure;
 namespace ZDomain { class Info; }
 
 
+/*!\brief Base class for all DataPack implementations with a ZDomain.
+	  The ZDomain may apply to the datapack space (axis/axes),
+	  or to the values stored in the underlying values of the datapack
+	  The zDomain() might not be relevant in a very small minority of the
+	  datapacks, like in an F-K spectrum, but it will still be set.
+	  Will default to SI().zDomainInfo() if not set.
+*/
+
+mExpClass(General) ZDataPack : public DataPack
+{
+public:
+
+    virtual ZDataPack&		setZDomain(const ZDomain::Info&);
+    ZDataPack&			setZDomain(const ZDataPack&);
+    virtual const ZDomain::Info& zDomain() const { return *zdomaininfo_; }
+
+    const UnitOfMeasure*	zUnit() const;
+    bool			zIsTime() const;
+    bool			zInMeter() const;
+    bool			zInFeet() const;
+
+protected:
+				ZDataPack(const char* categry);
+				ZDataPack(const ZDataPack&);
+				~ZDataPack();
+
+    const ZDomain::Info&	zDomain(bool display) const;
+    const UnitOfMeasure*	zUnit(bool display) const;
+
+private:
+    const ZDomain::Info*	zdomaininfo_;
+};
+
+
 /*!\brief DataPack for point data. */
 
-mExpClass(General) PointDataPack : public DataPack
+mExpClass(General) PointDataPack : public ZDataPack
 {
 public:
 
@@ -44,7 +79,6 @@ public:
 				//!< If yes, one can draw a line between the pts
 
 protected:
-
 				PointDataPack(const char* categry);
 				~PointDataPack();
 
@@ -56,7 +90,7 @@ protected:
 
   */
 
-mExpClass(General) FlatDataPack : public DataPack
+mExpClass(General) FlatDataPack : public ZDataPack
 {
 public:
 				FlatDataPack(const char* categry,
@@ -64,36 +98,45 @@ public:
 				//!< Array2D become mine (of course)
 				FlatDataPack(const FlatDataPack&);
 
-    bool			isOK() const override
-				{ return arr2d_ && arr2d_->isOK(); }
+    bool			isOK() const override;
     virtual Array2D<float>&	data()			{ return *arr2d_; }
-    const Array2D<float>&	data() const
-				{ return const_cast<FlatDataPack*>(this)
-							->data(); }
-    virtual float		getPosDistance(bool dim0,float posfidx) const
+    const Array2D<float>&	data() const;
+
+    virtual float		getPosDistance( bool dim0, float posfidx ) const
 				{ return mUdf(float); }
 
     virtual FlatPosData&	posData()		{ return posdata_; }
-    const FlatPosData&		posData() const
-				{ return const_cast<FlatDataPack*>(this)
-							->posData(); }
-    virtual const char*		dimName( bool dim0 ) const
-				{ return dim0 ? "X1" : "X2"; }
+    const FlatPosData&		posData() const;
 
+    virtual uiString		dimName(bool dim0) const;
+    virtual uiString		dimUnitLbl(bool dim0,bool display,
+					   bool abbreviated=true,
+					   bool withparentheses=true) const;
+    virtual const UnitOfMeasure* dimUnit( bool dim0, bool display ) const
+				 { return nullptr; }
+
+    virtual TrcKey		getTrcKey(int,int) const
+				{ return TrcKey::udf(); }
     virtual Coord3		getCoord(int,int) const;
 				//!< int,int = Array2D position
-				//!< if not overloaded, returns posData() (z=0)
+    virtual double		getZ(int,int) const	{ return mUdf(double); }
+				//!< overload to set Z also in getCoord
 
     virtual bool		isVertical() const	{ return true; }
     virtual bool		posDataIsCoord() const	{ return true; }
 				// Alternative positions for dim0
-    virtual void		getAltDim0Keys(BufferStringSet&) const	{}
+    virtual void		getAltDimKeys(uiStringSet&,bool dim0) const {}
 				//!< First one is 'default'
-    virtual double		getAltDim0Value(int ikey,int idim0) const;
-    virtual bool		dimValuesInInt(const char* key) const
+    virtual void		getAltDimKeysUnitLbls(uiStringSet&,bool dim0,
+					bool abbreviated=true,
+					bool withparentheses=true) const    {}
+    virtual double		getAltDimValue(int ikey,bool dim0,
+					       int idim0) const;
+    virtual bool		dimValuesInInt(const uiString& key,
+					       bool dim0) const
 				{ return false; }
 
-    virtual void		getAuxInfo(int idim0,int idim1,IOPar&) const {}
+    virtual void		getAuxInfo(int idim0,int idim1,IOPar&) const;
 
     float			nrKBytes() const override;
     void			dumpInfo(StringPairSet&) const override;
@@ -101,7 +144,6 @@ public:
     virtual int			size(bool dim0) const;
 
 protected:
-
 				FlatDataPack(const char* category);
 				//!< For this you have to overload data()
 				//!< and the destructor
@@ -128,20 +170,30 @@ public:
     FlatPosData&		posData() override;
     const Array2D<float>&	rawData() const		{ return *arr2d_; }
     const FlatPosData&		rawPosData() const	{ return posdata_; }
-    void			setDimNames(const char*,const char*,bool forxy);
-    const char*			dimName(bool dim0) const override;
+    void			setDimNames(const uiString&,const uiString&,
+					    bool forxy);
+    uiString			dimName(bool dim0) const override;
+    uiString			dimUnitLbl(bool dim0,bool display,
+					   bool abbreviated=true,
+				      bool withparentheses=true) const override;
+    const UnitOfMeasure*	dimUnit(bool dim0,bool display) const override;
+    bool			dimValuesInInt(const uiString& key,
+					       bool dim0) const override;
 
     bool			isVertical() const override { return false; }
 				//!< Alternatively, it can be in Inl/Crl
     bool			posDataIsCoord() const override
 				{ return isposcoord_; }
+    TrcKey			getTrcKey(int,int) const override;
+    double			getZ(int,int) const override;
     void			setPosCoord(bool yn);
 				//!< int,int = Array2D position
-    void			getAuxInfo(int idim0,
-					   int idim1,IOPar&) const override;
     void			setProps(StepInterval<double> inlrg,
 					 StepInterval<double> crlrg,
-					 bool,BufferStringSet*);
+					 bool isposcoord,const uiStringSet*);
+    void			setZVal(double);
+				/*!< pass -mUdf(double) if the array values are
+				     the Z values	*/
     void			initXYRotArray(TaskRunner* =nullptr);
 
     void			setRange( StepInterval<double> dim0rg,
@@ -154,10 +206,12 @@ protected:
     float			getValAtIdx(int,int) const;
     friend class		MapDataPackXYRotator;
 
-    Array2D<float>*		xyrotarr2d_ = nullptr;
+    Array2D<float>*		xyrotarr2d_	= nullptr;
     FlatPosData&		xyrotposdata_;
-    bool			isposcoord_ = false;
-    TypeSet<BufferString>	axeslbls_;
+    double			zval_		= mUdf(double);
+    bool			isposcoord_	= false;
+    uiStringSet			axeslbls_;
+    ObjectSet<const UnitOfMeasure> axesunits_;
     Threads::Lock		initlock_;
 };
 
@@ -166,7 +220,7 @@ protected:
 /*!\brief DataPack for volume data, where the dims correspond to
 	  inl/crl/z . */
 
-mExpClass(General) VolumeDataPack : public DataPack
+mExpClass(General) VolumeDataPack : public ZDataPack
 { mODTextTranslationClass(VolumeDataPack)
 public:
 
@@ -202,14 +256,12 @@ public:
     void			setComponentName(const char*,int comp=0);
     const char*			getComponentName(int comp=0) const;
 
+    static const char*		categoryStr(const TrcKeyZSampling&);
     static const char*		categoryStr(bool isvertical,bool is2d);
 
     const Array3DImpl<float>&	data(int component=0) const;
     Array3DImpl<float>&		data(int component=0);
 
-    VolumeDataPack&		setZDomain(const ZDomain::Info&);
-    const ZDomain::Info&	zDomain() const { return *zdomaininfo_; }
-    const UnitOfMeasure*	zUnit() const;
     BufferString		unitStr(bool val,bool withparens=false) const;
 
     const UnitOfMeasure*	valUnit() const { return valunit_; }
@@ -246,7 +298,6 @@ protected:
     BufferStringSet			componentnames_;
     ObjectSet<Array3DImpl<float> >	arrays_;
     TypeSet<float>			refnrs_;
-    const ZDomain::Info*		zdomaininfo_;
     BinDataDesc				desc_;
     const Scaler*			scaler_ = nullptr;
     const UnitOfMeasure*		valunit_ = nullptr;

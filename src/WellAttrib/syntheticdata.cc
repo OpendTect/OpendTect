@@ -170,7 +170,8 @@ ConstRefMan<SyntheticData> SyntheticData::get( const SynthGenParams& sgp,
 
 	auto* dp =
 	    new SeisTrcBufDataPack( dptrcbuf, Seis::Line, SeisTrcInfo::TrcNr,
-				PostStackSyntheticData::sDataPackCategory() );
+				PostStackSyntheticData::sDataPackCategory(),
+				ZDomain::TWT() );
 	ret = new PostStackSyntheticData( sgp, *genres.ptr(), *dp );
     }
     else if ( genres->isPS() )
@@ -181,13 +182,15 @@ ConstRefMan<SyntheticData> SyntheticData::get( const SynthGenParams& sgp,
 
 	const bool iscorrected = sgp.isCorrected();
 	const Seis::OffsetType offstype = sgp.offsetType();
+	const OD::AngleType azitype = sgp.azimuthAngleType();
 	const ZDomain::Info& zinfo = ZDomain::TWT();
 	RefObjectSet<PreStack::Gather> gatherset;
 	while ( tbufs.size() )
 	{
 	    PtrMan<SeisTrcBuf> tbuf = tbufs.removeSingle( 0 );
 	    RefMan<PreStack::Gather> gather = new PreStack::Gather();
-	    if ( !gather->setFromTrcBuf(*tbuf,0,iscorrected,offstype,zinfo) )
+	    if ( !gather->setFromTrcBuf(*tbuf,0,iscorrected,offstype,azitype,
+					zinfo) )
 		continue;
 
 	    gather->setName( sgp.name_ );
@@ -311,7 +314,8 @@ ConstRefMan<FlatDataPack> PostStackSyntheticData::getFlattenedTrcDP(
     tbuf.getShifted( zrg, *tvals, true, mUdf(float), *dptrcbuf );
     ConstRefMan<FlatDataPack> dp =
 	new SeisTrcBufDataPack( dptrcbuf, Seis::Line, SeisTrcInfo::TrcNr,
-				PostStackSyntheticData::sDataPackCategory() );
+				PostStackSyntheticData::sDataPackCategory(),
+				ZDomain::TWT() );
     dp.getNonConstPtr()->setName( name() );
 
     return dp;
@@ -462,8 +466,8 @@ SeisTrcBuf* PreStackSyntheticData::getTrcBuf( float offset,
 }
 
 
-ConstRefMan<FlatDataPack> PreStackSyntheticData::getTrcDPAtOffset( int offsidx )
-									   const
+ConstRefMan<FlatDataPack>
+    PreStackSyntheticData::getTrcDPAtOffset( int offsidx ) const
 {
     auto* dptrcbuf = new SeisTrcBuf( true );
     const int nrtrcsc = nrPositions();
@@ -482,7 +486,8 @@ ConstRefMan<FlatDataPack> PreStackSyntheticData::getTrcDPAtOffset( int offsidx )
 
     ConstRefMan<FlatDataPack> dp =
 	new SeisTrcBufDataPack( dptrcbuf, Seis::Line, SeisTrcInfo::TrcNr,
-				PostStackSyntheticData::sDataPackCategory() );
+				PostStackSyntheticData::sDataPackCategory(),
+				ZDomain::TWT() );
     dp.getNonConstPtr()->setName( name() );
     return dp;
 }
@@ -527,7 +532,8 @@ ConstRefMan<FlatDataPack> PreStackSyntheticData::getFlattenedTrcDP(
 
     ConstRefMan<FlatDataPack> dp =
 	new SeisTrcBufDataPack( dptrcbuf, Seis::Line, SeisTrcInfo::TrcNr,
-				PostStackSyntheticData::sDataPackCategory() );
+				PostStackSyntheticData::sDataPackCategory(),
+				ZDomain::TWT() );
     dp.getNonConstPtr()->setName( name() );
 
     return dp;

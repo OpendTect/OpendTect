@@ -8,22 +8,26 @@ ________________________________________________________________________
 -*/
 
 #include "seisbuf.h"
+
+#include "arrayndimpl.h"
+#include "bufstringset.h"
+#include "iopar.h"
+#include "flatposdata.h"
+#include "keystrs.h"
+#include "od_iostream.h"
+#include "ptrman.h"
 #include "seisbufadapters.h"
-#include "seistrc.h"
-#include "seistrcprop.h"
 #include "seispacketinfo.h"
 #include "seisread.h"
 #include "seisselection.h"
-#include "ptrman.h"
+#include "seistrc.h"
+#include "seistrcprop.h"
 #include "sorting.h"
-#include "flatposdata.h"
-#include "survinfo.h"
-#include "iopar.h"
-#include "trckeyzsampling.h"
-#include "bufstringset.h"
 #include "strmprov.h"
-#include "arrayndimpl.h"
-#include "od_iostream.h"
+#include "survinfo.h"
+#include "trckeyzsampling.h"
+#include "uistrings.h"
+#include "unitofmeasure.h"
 
 
 SeisTrcBuf::SeisTrcBuf( bool ownr )
@@ -522,6 +526,8 @@ bool validPos( int p0, int p1 ) const override
 };
 
 
+// SeisTrcBufArray2D
+
 SeisTrcBufArray2D::SeisTrcBufArray2D( SeisTrcBuf* tbuf, bool mine, int icomp )
     : buf_(tbuf)
     , comp_(icomp)
@@ -575,49 +581,69 @@ void SeisTrcBufArray2D::set( int itrc, int isamp, float val )
 }
 
 
-void SeisTrcBufArray2D::getAuxInfo( Seis::GeomType gt, int itrc,
-				    IOPar& iop ) const
-{
-    SeisTrc* trc = buf_->get( itrc );
-    if ( trc )
-	trc->info().getInterestingFlds( gt, iop );
-}
-
+// SeisTrcBufDataPack
 
 SeisTrcBufDataPack::SeisTrcBufDataPack( SeisTrcBuf* tbuf,
 					Seis::GeomType gt,
-					SeisTrcInfo::Fld fld,
-					const char* cat, int icomp )
-    : FlatDataPack( cat )
+					SeisTrcInfo::Fld fld, const char* cat,
+					const ZDomain::Info& zdom, int icomp )
+    : FlatDataPack(cat)
     , gt_(gt)
+    , offsettype_(SI().xyInFeet() ? Seis::OffsetType::OffsetFeet
+				  : Seis::OffsetType::OffsetMeter)
     , posfld_(fld)
 {
+    setZDomain( zdom );
     setBuffer( tbuf, gt, fld, icomp, true );
 }
 
 
 SeisTrcBufDataPack::SeisTrcBufDataPack( const SeisTrcBuf& tbuf,
 					Seis::GeomType gt,
-					SeisTrcInfo::Fld fld,
-					const char* cat, int icomp )
-    : FlatDataPack( cat )
+					SeisTrcInfo::Fld fld, const char* cat,
+					const ZDomain::Info& zdom, int icomp )
+    : FlatDataPack(cat)
     , gt_(gt)
+    , offsettype_(SI().xyInFeet() ? Seis::OffsetType::OffsetFeet
+				  : Seis::OffsetType::OffsetMeter)
     , posfld_(fld)
 {
+    setZDomain( zdom );
     setBuffer( const_cast<SeisTrcBuf*>(&tbuf), gt, fld, icomp, false );
 }
 
 
-SeisTrcBufDataPack::SeisTrcBufDataPack( const SeisTrcBufDataPack& b )
-    : FlatDataPack( b.category(), 0 )
+SeisTrcBufDataPack::SeisTrcBufDataPack( SeisTrcBuf* tbuf,
+					Seis::GeomType gt,
+					SeisTrcInfo::Fld fld, const char* cat,
+					int icomp )
+  : SeisTrcBufDataPack(tbuf,gt,fld,cat,SI().zDomainInfo(),icomp)
+{}
+
+
+SeisTrcBufDataPack::SeisTrcBufDataPack( const SeisTrcBuf& tbuf,
+					Seis::GeomType gt,
+					SeisTrcInfo::Fld fld, const char* cat,
+					int icomp )
+  : SeisTrcBufDataPack(tbuf,gt,fld,cat,SI().zDomainInfo(),icomp)
+{}
+
+
+SeisTrcBufDataPack::SeisTrcBufDataPack( const SeisTrcBufDataPack& oth )
+    : FlatDataPack(oth.category(),nullptr)
+    , offsettype_(oth.offsettype_)
+    , azimuthangletype_(oth.azimuthangletype_)
 {
     const bool bufisours =
-		b.arr2d_ && ((SeisTrcBufArray2D*)b.arr2d_)->bufIsMine();
-    auto* buf = const_cast<SeisTrcBuf*>( &b.trcBuf() );
+		oth.arr2d_ && ((SeisTrcBufArray2D*)oth.arr2d_)->bufIsMine();
+    auto* buf = const_cast<SeisTrcBuf*>( &oth.trcBuf() );
     if ( buf && bufisours )
 	buf = buf->clone();
-    setBuffer( buf, b.gt_, b.posfld_, b.trcBufArr2D().getComp(), bufisours );
-    setName( b.name() );
+
+    setZDomain( oth );
+    setBuffer( buf, oth.gt_, oth.posfld_, oth.trcBufArr2D().getComp(),
+	       bufisours );
+    setName( oth.name() );
 }
 
 
@@ -626,81 +652,227 @@ SeisTrcBufDataPack::~SeisTrcBufDataPack()
 }
 
 
-void SeisTrcBufDataPack::setBuffer( SeisTrcBuf* tbuf, Seis::GeomType gt,
-				    SeisTrcInfo::Fld fld, int icomp, bool mine )
+SeisTrcBufDataPack&
+SeisTrcBufDataPack::setBuffer( SeisTrcBuf* tbuf, Seis::GeomType gt,
+			       SeisTrcInfo::Fld fld, int icomp, bool mine )
 {
     Threads::Locker lckr( updateLock() );
 
-    deleteAndNullPtr( arr2d_ );
     posfld_ = fld;
     gt_ = gt;
     const int tbufsz = tbuf ? tbuf->size() : 0;
     FlatPosData& pd = posData();
 
+    delete arr2d_;
     arr2d_ = new SeisTrcBufArray2D( tbuf, mine, icomp );
+    if ( !tbuf )
+	return *this;
 
-    if ( tbuf )
+    flds_.setEmpty();
+    if ( tbuf->isEmpty() || !tbuf->first()->info().trcKey().isSynthetic() )
     {
 	SeisTrcInfo::getAxisCandidates( gt_, flds_ );
-	double ofv; float* hdrvals = tbuf->getHdrVals( posfld_, ofv );
-	pd.setX1Pos( hdrvals, tbufsz, ofv );
-	SeisPacketInfo pinf; tbuf->fill( pinf );
-	StepInterval<double> zrg; assign( zrg, pinf.zrg_ );
-	pd.setRange( false, zrg );
+	if ( !tbuf->isEmpty() )
+	{
+	    const float spnr = tbuf->first()->info().refnr_;
+	    if ( mIsUdf(spnr) || mIsEqual(spnr,1.f,1e-6f) )
+		flds_ -= SeisTrcInfo::RefNr;
+	}
+    }
+    else
+	flds_ += fld;
+
+    double ofv;
+    float* hdrvals = tbuf->getHdrVals( posfld_, ofv );
+    pd.setX1Pos( hdrvals, tbufsz, ofv );
+    SeisPacketInfo pinf;
+    tbuf->fill( pinf );
+    StepInterval<double> zrg;
+    assign( zrg, pinf.zrg_ );
+    pd.setRange( false, zrg );
+
+    return *this;
+}
+
+
+SeisTrcBufDataPack& SeisTrcBufDataPack::setOffsetType( Seis::OffsetType typ )
+{
+    offsettype_ = typ;
+    return *this;
+}
+
+
+SeisTrcBufDataPack& SeisTrcBufDataPack::setAzimuthAngleType( OD::AngleType typ )
+{
+    azimuthangletype_ = typ;
+    return *this;
+}
+
+
+void SeisTrcBufDataPack::getAltDimKeys( uiStringSet& keys, bool dim0 ) const
+{
+    if ( !dim0 )
+	return;
+
+    for ( const auto& fld : flds_ )
+    {
+	if ( fld == SeisTrcInfo::TrcNr )
+	    keys.add( uiStrings::sTraceNumber() );
+	else if ( fld == SeisTrcInfo::RefNr )
+	    keys.add( uiStrings::sSPNumber() );
+	else if ( fld == SeisTrcInfo::Offset )
+	    keys.add( Seis::isOffsetDist(offsetType()) ? uiStrings::sOffset()
+						       : uiStrings::sAngle() );
+	else if ( fld == SeisTrcInfo::Azimuth )
+	    keys.add( uiStrings::sAzimuth() );
+	else
+	    keys.add( SeisTrcInfo::toUiString(fld) );
     }
 }
 
 
-bool SeisTrcBufDataPack::dimValuesInInt( const char* keystr ) const
+void SeisTrcBufDataPack::getAltDimKeysUnitLbls( uiStringSet& ss, bool dim0,
+				bool abbreviated, bool withparentheses ) const
 {
-    StringView key( keystr );
-    return key == SeisTrcInfo::getFldString(SeisTrcInfo::TrcNr) ||
-	   key == SeisTrcInfo::getFldString(SeisTrcInfo::BinIDInl) ||
-	   key == SeisTrcInfo::getFldString(SeisTrcInfo::BinIDCrl);
+    if ( !dim0 )
+	return;
+
+    for ( const auto& fld : flds_ )
+    {
+	switch( fld )
+	{
+	    case SeisTrcInfo::BinIDInl: case SeisTrcInfo::BinIDCrl:
+	    case SeisTrcInfo::TrcNr:	case SeisTrcInfo::RefNr:
+		ss.add( uiString::empty() ); break;
+	    case SeisTrcInfo::CoordX:	case SeisTrcInfo::CoordY:
+		ss.add( SI().getUiXYUnitString(abbreviated,withparentheses) );
+		break;
+	    case SeisTrcInfo::Offset:
+	    {
+		const UnitOfMeasure* uom =
+			UnitOfMeasure::offsetUnit( offsetType() );
+		ss.add( uom ? uom->getUiLabel(abbreviated,withparentheses)
+			    : uiString::empty() );
+		break;
+	    }
+	    case SeisTrcInfo::Azimuth:
+	    {
+		const UnitOfMeasure* uom =
+			UnitOfMeasure::angleUnit( azimuthAngleType() );
+		ss.add( uom ? uom->getUiLabel(abbreviated,withparentheses)
+			    : uiString::empty() );
+		break;
+	    }
+	    default:
+		ss.add( uiString::empty() ); break;
+	}
+    }
 }
 
 
-void SeisTrcBufDataPack::getAltDim0Keys( BufferStringSet& bss ) const
+double SeisTrcBufDataPack::getAltDimValue( int ikey, bool dim0, int idx ) const
 {
-    for ( int idx=0; idx<flds_.size(); idx++ )
-	bss.add( SeisTrcInfo::getFldString(flds_[idx]) );
-}
+    if ( !dim0 )
+	return posdata_.position( dim0, idx );
 
-
-
-double SeisTrcBufDataPack::getAltDim0Value( int ikey, int i0 ) const
-{
     const SeisTrcBuf& buf = trcBuf();
-    return i0 < 0 || i0 >= buf.size() || ikey >= flds_.size()
-	 ? FlatDataPack::getAltDim0Value( ikey, i0 )
-	 : buf.get(i0)->info().getValue( flds_[ikey] );
+    return buf.validIdx( idx ) && !flds_.validIdx( idx )
+		 ? buf.get(idx)->info().getValue( flds_[ikey] )
+		 : FlatDataPack::getAltDimValue( ikey, dim0, idx );
 }
+
+
+bool SeisTrcBufDataPack::dimValuesInInt( const uiString& keystr,
+					 bool dim0 ) const
+{
+    if ( !dim0 || keystr == uiStrings::sSPNumber() )
+	return false;
+
+    if ( keystr == uiStrings::sTraceNumber() )
+	return true;
+
+    const uiStringSet& flddefstrings = SeisTrcInfo::FldDef().strings();
+    const int idx = flddefstrings.indexOf( keystr );
+    if ( !flddefstrings.validIdx(idx) )
+	return false;
+
+    const SeisTrcInfo::Fld fld = SeisTrcInfo::FldDef().getEnumForIndex(idx);
+    return fld == SeisTrcInfo::BinIDInl || fld == SeisTrcInfo::BinIDCrl ||
+	   fld == SeisTrcInfo::SeqNr;
+}
+
 
 
 void SeisTrcBufDataPack::getAuxInfo( int itrc, int isamp, IOPar& iop ) const
 {
     const SeisTrcBuf& buf = trcBuf();
-    const int bufsz = buf.size();
-    if ( itrc >= bufsz || itrc < 0 ) return;
+    if ( buf.isEmpty() )
+	return;
 
+    FlatDataPack::getAuxInfo( itrc, isamp, iop );
+    if ( itrc >= buf.size() ) itrc = buf.size() - 1;
+    if ( itrc < 0 ) itrc = 0;
+    const SeisTrcInfo& trcinfo = buf.get( itrc )->info();
+    if ( mIsUdf(trcinfo.pick_) )
+	iop.removeWithKey( SeisTrcInfo::toString(SeisTrcInfo::Pick) );
+    else
+	iop.set( SeisTrcInfo::toString(SeisTrcInfo::Pick), trcinfo.pick_ );
+
+    if ( mIsUdf(trcinfo.offset_) )
+	iop.removeWithKey( sKey::Offset() );
+    else
+    {
+	iop.set( sKey::Offset(), trcinfo.offset_ );
+	Seis::setGatherOffsetType( offsetType(), iop );
+    }
+
+    if ( mIsUdf(trcinfo.azimuth_) )
+	iop.removeWithKey( sKey::Azimuth() );
+    else
+    {
+	iop.set( sKey::Azimuth(), trcinfo.azimuth_ );
+	Seis::setGatherAzimuthType( azimuthAngleType(), iop );
+    }
+}
+
+
+TrcKey SeisTrcBufDataPack::getTrcKey( int itrc, int /* isamp */ ) const
+{
+    const SeisTrcBuf& buf = trcBuf();
+    if ( buf.isEmpty() )
+	return TrcKey::udf();
+
+    if ( itrc >= buf.size() ) itrc = buf.size() - 1;
+    if ( itrc < 0 ) itrc = 0;
     const SeisTrc* trc = buf.get( itrc );
-    trc->info().getInterestingFlds( gt_, iop );
-
-    float z = trc->info().samplePos(isamp);
-    if ( SI().zIsTime() ) z *= 1000;
-    int z100 = mNINT32(z*100); z = mCast( float, z100 / 100 );
-    iop.set( "Z", z );
+    return trc->info().trcKey();
 }
 
 
 Coord3 SeisTrcBufDataPack::getCoord( int itrc, int isamp ) const
 {
     const SeisTrcBuf& buf = trcBuf();
-    if ( buf.isEmpty() ) return Coord3();
+    if ( buf.isEmpty() )
+	return Coord3::udf();
+
     if ( itrc >= buf.size() ) itrc = buf.size() - 1;
     if ( itrc < 0 ) itrc = 0;
     const SeisTrc* trc = buf.get( itrc );
+	// Not calling getZ to avoid double work
     return Coord3( trc->info().coord_, trc->info().samplePos(isamp) );
+}
+
+
+double SeisTrcBufDataPack::getZ( int itrc, int isamp ) const
+{
+    const SeisTrcBuf& buf = trcBuf();
+    if ( buf.isEmpty() )
+	return mUdf(double);
+
+    if ( itrc >= buf.size() ) itrc = buf.size() - 1;
+    if ( itrc < 0 ) itrc = 0;
+    const SeisTrc* trc = buf.get( itrc );
+    return trc->info().samplePos( isamp );
 }
 
 
@@ -733,12 +905,73 @@ bool SeisTrcBufDataPack::getTrcKeyZSampling( TrcKeyZSampling& tkzs ) const
 }
 
 
-const char* SeisTrcBufDataPack::dimName( bool dim0 ) const
+Seis::OffsetType SeisTrcBufDataPack::offsetType() const
 {
-    return dim0 ? SeisTrcInfo::getFldString(posfld_)
-		: SI().zDomain().userName().getFullString();
+    return offsettype_;
 }
 
+
+OD::AngleType SeisTrcBufDataPack::azimuthAngleType() const
+{
+    return azimuthangletype_;
+}
+
+
+uiString SeisTrcBufDataPack::dimName( bool dim0 ) const
+{
+    if ( !dim0 )
+	return zDomain().userName();
+
+    if ( posfld_ == SeisTrcInfo::TrcNr )
+	return uiStrings::sTraceNumber();
+    else if ( posfld_ == SeisTrcInfo::RefNr )
+	return uiStrings::sSPNumber();
+    else if ( posfld_ == SeisTrcInfo::Offset )
+    {
+	return Seis::isOffsetDist(offsetType()) ? uiStrings::sOffset()
+						: uiStrings::sAngle();
+    }
+    else if ( posfld_ == SeisTrcInfo::Azimuth )
+	return uiStrings::sAzimuth();
+    else
+	return SeisTrcInfo::toUiString( posfld_ );
+}
+
+
+uiString SeisTrcBufDataPack::dimUnitLbl( bool dim0, bool display,
+					 bool abbreviated,
+					 bool withparentheses ) const
+{
+    if ( !dim0 )
+	return zDomain(display).uiUnitStr( withparentheses );
+
+    if ( posfld_ == SeisTrcInfo::Offset || posfld_ == SeisTrcInfo::Azimuth )
+    {
+	const UnitOfMeasure* uom = dimUnit( dim0, display );
+	return uom ? uom->getUiLabel( abbreviated, withparentheses )
+		   : uiString::empty();
+    }
+
+    return SeisTrcInfo::getUnitLbl( posfld_, display,
+				    abbreviated, withparentheses );
+}
+
+
+const UnitOfMeasure* SeisTrcBufDataPack::dimUnit( bool dim0, bool display) const
+{
+    if ( !dim0 )
+	return zUnit( display );
+
+    if ( posfld_ == SeisTrcInfo::Offset )
+	return UnitOfMeasure::offsetUnit( offsetType() );
+    else if ( posfld_ == SeisTrcInfo::Azimuth )
+	return UnitOfMeasure::angleUnit( azimuthAngleType() );
+
+    return SeisTrcInfo::getUnit( posfld_, display );
+}
+
+
+// SeisBufReader
 
 SeisBufReader::SeisBufReader( SeisTrcReader& rdr, SeisTrcBuf& buf )
     : Executor("Collecting traces")

@@ -69,11 +69,13 @@ void IOObjInfo::fillZDomain()
 {
     if ( !ioobj_ )
     {
-	zinfo_ = new ZDomain::Info( SI().zDomainInfo() );
+	zinfo_ = &SI().zDomainInfo();
 	return;
     }
 
-    zinfo_ = new ZDomain::Info( ioobj_->pars() );
+    zinfo_ = ZDomain::Info::getFrom( ioobj_->pars() );
+    if ( !zinfo_ )
+	zinfo_ = &SI().zDomainInfo();
 }
 
 
@@ -100,10 +102,7 @@ IOObjInfo& IOObjInfo::operator =( const IOObjInfo& sii )
 	type_ = sii.type_;
 	const ZDomain::Info& zinfo = sii.zDomain();
 	if ( !zDomain().isCompatibleWith(zinfo) )
-	{
-	    delete zinfo_;
-	    zinfo_ = new ZDomain::Info( zinfo );
-	}
+	    zinfo_ = &zinfo;
     }
 
     return *this;

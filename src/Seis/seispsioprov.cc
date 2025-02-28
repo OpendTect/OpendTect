@@ -31,15 +31,6 @@ ________________________________________________________________________
 
 const char* SeisPSIOProvider::sKeyCubeID = "=Cube.ID";
 
-namespace PreStack
-{
-
-static const char* sKeyIsCorr = "Is Corrected";
-static const char* sKeyIsAngleGather = "Angle Gather";
-
-}
-
-
 Pos::GeomID SeisPS3DReader::geomID() const
 {
     return Survey::default3DGeomID();
@@ -133,115 +124,69 @@ const UnitOfMeasure* SeisPSIOProvider::offsetUnit( const IOObj*, bool& isfound )
 }
 
 
+const UnitOfMeasure* SeisPSIOProvider::azimuthUnit( const IOObj*, bool& isfound)
+{
+    //TODO impl from IOObj
+    isfound = true;
+    return UnitOfMeasure::surveyDefAzimuthUnit();
+}
+
+
+bool SeisPSIOProvider::setGatherOffsetType( Seis::OffsetType typ, IOObj& ioobj )
+{
+    Seis::setGatherOffsetType( typ, ioobj.pars() );
+    return IOM().commitChanges( ioobj );
+}
+
+
+bool SeisPSIOProvider::setGathersAreCorrected( bool yn, IOObj& ioobj )
+{
+    Seis::setGathersAreCorrected( yn, ioobj.pars() );
+    return IOM().commitChanges( ioobj );
+}
+
+
+bool SeisPSIOProvider::setGatherAzimuthType( OD::AngleType typ, IOObj& ioobj )
+{
+    Seis::setGatherAzimuthType( typ, ioobj.pars() );
+    return IOM().commitChanges( ioobj );
+}
+
+
 const UnitOfMeasure* SeisPSIOProvider::offsetUnit( Seis::OffsetType typ )
 {
-    if ( typ == Seis::OffsetType::OffsetMeter )
-	return UnitOfMeasure::meterUnit();
-    if ( typ == Seis::OffsetType::OffsetFeet )
-	return UnitOfMeasure::feetUnit();
-    if ( typ == Seis::OffsetType::AngleRadians )
-	return UnitOfMeasure::radiansUnit();
-    if ( typ == Seis::OffsetType::AngleDegrees )
-	return UnitOfMeasure::degreesUnit();
-
-    return nullptr;
+    return UnitOfMeasure::offsetUnit( typ );
 }
 
 
 bool SeisPSIOProvider::getGatherOffsetType( const IOPar& par,
 					    Seis::OffsetType& typ )
 {
-    BufferString offsetunit;
-    const bool hasunit = par.get( sKeyOffsetUnit(), offsetunit ) &&
-			 !offsetunit.isEmpty();
-    if ( !hasunit )
-    {
-	bool offsetisangle;
-	if ( !par.getYN(PreStack::sKeyIsAngleGather,offsetisangle) )
-	    return false;
-
-	typ = Seis::OffsetType::AngleDegrees;
-	//Most usual case, but actually we do not know
-	return true;
-    }
-
-    const UnitOfMeasure* offsuom = UoMR().get( Mnemonic::Dist,
-					       offsetunit.str() );
-    if ( offsuom && offsuom == UnitOfMeasure::meterUnit() )
-    {
-	typ = Seis::OffsetType::OffsetMeter;
-	return true;
-    }
-    else if ( offsuom && offsuom == UnitOfMeasure::feetUnit() )
-    {
-	typ = Seis::OffsetType::OffsetFeet;
-	return true;
-    }
-
-    const UnitOfMeasure* anguom = UoMR().get( Mnemonic::Ang,
-					      offsetunit.str() );
-    if ( anguom && anguom == UnitOfMeasure::radiansUnit() )
-    {
-	typ = Seis::OffsetType::AngleRadians;
-	return true;
-    }
-    else if ( anguom && anguom == UnitOfMeasure::degreesUnit() )
-    {
-	typ = Seis::OffsetType::AngleDegrees;
-	return true;
-    }
-
-    return false;
+    return Seis::getOffsetType( par, typ );
 }
 
 
 bool SeisPSIOProvider::getGatherCorrectedYN( const IOPar& par, bool& yn )
 {
-    bool iscorr;
-    if ( !par.getYN(PreStack::sKeyIsCorr,iscorr) &&
-	 !par.getYN("Is NMO Corrected",iscorr) )
-	return false;
-
-    yn = iscorr;
-    return true;
+    return Seis::getGatherCorrectedYN( par, yn );
 }
 
 
 void SeisPSIOProvider::setGatherOffsetType( Seis::OffsetType typ, IOPar& par )
 {
-    const bool isdist = Seis::isOffsetDist( typ );
-    const bool isangle = Seis::isOffsetAngle( typ );
-    if ( isdist || isangle )
-    {
-	const UnitOfMeasure* uom = offsetUnit( typ );
-	par.set( sKeyOffsetUnit(), uom ? uom->name().str() : nullptr );
-    }
-
-    // For backward compatibility mainly:
-    if ( isangle )
-	par.setYN( PreStack::sKeyIsAngleGather, true );
-    else
-	par.removeWithKey( PreStack::sKeyIsAngleGather );
-}
-
-
-bool SeisPSIOProvider::setGatherOffsetType( Seis::OffsetType typ, IOObj& ioobj )
-{
-    setGatherOffsetType( typ, ioobj.pars() );
-    return IOM().commitChanges( ioobj );
+    Seis::setGatherOffsetType( typ, par );
 }
 
 
 void SeisPSIOProvider::setGathersAreCorrected( bool yn, IOPar& par )
 {
-    par.setYN( PreStack::sKeyIsCorr, yn );
+    Seis::setGathersAreCorrected( yn, par );
 }
 
 
-bool SeisPSIOProvider::setGathersAreCorrected( bool yn, IOObj& ioobj )
+const char* SeisPSIOProvider::sKeyOffsetUnit()
 {
-    setGathersAreCorrected( yn, ioobj.pars() );
-    return IOM().commitChanges( ioobj );
+    return Seis::sKeyOffsetUnit();
 }
 
 

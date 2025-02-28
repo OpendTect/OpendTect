@@ -136,8 +136,6 @@ WellTie::uiWavelet::~uiWavelet()
 void WellTie::uiWavelet::initWaveletViewer()
 {
     FlatView::Appearance& app = viewer_->appearance();
-    app.annot_.x1_.name_ = "Amplitude";
-    app.annot_.x2_.name_ =  "Time";
     app.annot_.setAxesAnnot( false );
     app.setGeoDefaults( true );
     app.ddpars_.show( true, false );
@@ -211,7 +209,10 @@ void WellTie::uiWavelet::drawWavelet()
     Wavelet wvlt( *wvlt_ );
     wvlt.normalize();
     const int wvltsz = wvlt.size();
-    Array2DImpl<float>* fva2d = new Array2DImpl<float>( 1, wvltsz );
+    //TODO Update
+    //const ZDomain::Info& zdomain = wvlt.zDomain();
+    const ZDomain::Info& zdomain = SI().zDomainInfo();
+    Array2D<float>* fva2d = new Array2DImpl<float>( 1, wvltsz );
     OD::memCopy( fva2d->getData(), wvlt.samples(), wvltsz * sizeof(float) );
     RefMan<FlatDataPack> dp = new FlatDataPack( "Wavelet", fva2d );
     dp->setName( wvlt.name() );
@@ -223,10 +224,10 @@ void WellTie::uiWavelet::drawWavelet()
     viewer_->appearance().ddpars_.wva_.mappersetup_.setAutoScale( true );
     StepInterval<double> posns;
     posns.setFrom( wvlt.samplePositions() );
-    if ( SI().zIsTime() )
-       	posns.scale( SI().zDomain().userFactor() );
+    posns.scale( zdomain.userFactor() );
 
     dp->posData().setRange( false, posns );
+    dp->setZDomain( zdomain );
     viewer_->setViewToBoundingBox();
     viewer_->enableChange( canupdate );
     viewer_->handleChange( sCast(od_uint32,uiFlatViewer::All) );

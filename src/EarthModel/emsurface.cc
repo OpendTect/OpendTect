@@ -38,14 +38,13 @@ namespace EM
 {
 
 SurfaceIOData::SurfaceIOData()
-    : zinfo_(new ZDomain::Info(SI().zDomainInfo()))
+    : zinfo_(&SI().zDomainInfo())
 {}
 
 
 SurfaceIOData::~SurfaceIOData()
 {
     clear();
-    delete zinfo_;
 }
 
 
@@ -67,8 +66,7 @@ void SurfaceIOData::setZDomain( const ZDomain::Info& zinfo )
     if ( zinfo_->isCompatibleWith(zinfo) )
 	return;
 
-    delete zinfo_;
-    zinfo_ = new ZDomain::Info( zinfo );
+    zinfo_ = &zinfo;
 }
 
 

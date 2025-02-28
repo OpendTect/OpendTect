@@ -420,7 +420,16 @@ Seis::OffsetType SynthGenParams::offsetType() const
     if ( raypars_.getYN(RayTracer1D::sKeyOffsetInFeet(),offsetsinfeet) )
 	ret = offsetsinfeet ? Seis::OffsetType::OffsetFeet
 			    : Seis::OffsetType::OffsetMeter;
+    //TODO impl if required for EEI gather type
 
+    return ret;
+}
+
+
+OD::AngleType SynthGenParams::azimuthAngleType() const
+{
+    OD::AngleType ret = OD::AngleType::Degrees;
+    //TODO impl if required
     return ret;
 }
 

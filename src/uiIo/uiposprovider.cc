@@ -503,8 +503,8 @@ void uiPosProvSel::setInputLimit( const TrcKeyZSampling& cs )
 
 const ZDomain::Info* uiPosProvSel::zDomain() const
 {
-    return ZDomain::Info::getFrom( setup_.zdomkey_.buf(),
-				   setup_.zunitstr_.buf() );
+    return &ZDomain::Info::getFrom( setup_.zdomkey_.buf(),
+				    setup_.zunitstr_.buf() );
 }
 
 

@@ -103,8 +103,8 @@ dgbSurfaceReader::dgbSurfaceReader( const char* fulluserexp,
 void dgbSurfaceReader::init( const char* filetype, const char* objname )
 {
     zrange_ = Interval<float>(mUdf(float),mUdf(float));
-    zinfo_ = new ZDomain::Info( SI().zDomainInfo() );
-    linenames_.allowNull();
+    zinfo_ = &SI().zDomainInfo();
+    linenames_.setNullAllowed();
 
     BufferString exnm( "Reading surface '", objname, "'" );
     setName( exnm.buf() );
@@ -335,12 +335,9 @@ bool dgbSurfaceReader::readHeaders( StreamConn& conn, const char* filetype )
     linenames_.setEmpty();
     par_->get( Horizon2DGeometry::sKeyLineNames(), linenames_ );
 
-    const ZDomain::Info* info = ZDomain::get( *par_ );
-    if ( info && !info->isCompatibleWith(*zinfo_) )
-    {
-	delete zinfo_;
-	zinfo_ = new ZDomain::Info( *info );
-    }
+    const ZDomain::Info* info = ZDomain::Info::getFrom( *par_ );
+    if ( info && info != zinfo_ )
+	zinfo_ = info;
 
     TypeSet< StepInterval<int> > trcranges;
     const int res = scanFor2DGeom( trcranges );
@@ -420,8 +417,6 @@ dgbSurfaceReader::~dgbSurfaceReader()
     delete floatinterpreter_;
     if ( surface_ )
 	surface_->geometry().resetChangedFlag();
-
-    delete zinfo_;
 }
 
 

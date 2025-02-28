@@ -78,6 +78,7 @@ protected:
     uiLabel*				nrinlslbl_;
     uiLabel*				nrcrlslbl_;
     uiComboBox*				zunitfld_;
+    int					prevzunititm_ = -1;
     uiComboBox*				pol2dfld_;
 
     uiTabStack*				tabs_;

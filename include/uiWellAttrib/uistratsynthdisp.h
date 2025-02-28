@@ -55,7 +55,7 @@ public:
     uiFlatViewer*	getViewerClone(uiParent*) const;
     void		addViewerToControl(uiFlatViewer&);
 
-    void		makeInfoMsg(BufferString&,IOPar&);
+    void		makeInfoMsg(const IOPar&,uiString&);
 
 protected:
 

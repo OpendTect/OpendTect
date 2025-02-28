@@ -305,6 +305,15 @@ public:
 			getRefModels(const ElasticModelSet&,
 				     const IOPar& reflpar,uiString& msg,
 				     TaskRunner*,float srd,
+				     Seis::OffsetType,OD::AngleType azityp,
+				     ZDomain::DepthType,
+				     const ObjectSet<const TimeDepthModel>*
+						    forcedtdmodels =nullptr);
+			mDeprecated("Provide OD::AngleType azityp")
+    static ConstRefMan<ReflectivityModelSet>
+			getRefModels(const ElasticModelSet&,
+				     const IOPar& reflpar,uiString& msg,
+				     TaskRunner*,float srd,
 				     Seis::OffsetType,ZDomain::DepthType,
 				     const ObjectSet<const TimeDepthModel>*
 						    forcedtdmodels =nullptr);

@@ -26,28 +26,40 @@ mExpClass(uiSeis) uiSeisTrcBufViewer : public uiFlatViewMainWin
 public:
 
 			uiSeisTrcBufViewer(uiParent*,
-				           const uiFlatViewMainWin::Setup&) ;
-    			~uiSeisTrcBufViewer();
+					   const uiFlatViewMainWin::Setup&);
+			~uiSeisTrcBufViewer();
 
     void		setTrcBuf(const SeisTrcBuf*,Seis::GeomType,
-			      const char* dp_cat,const char* nm,int compnr=0);
-    			//!< This uses the buf in-place
+			      const char* dp_cat,const char* nm,
+			      const ZDomain::Info&,int compnr=0);
+			//!< This uses the buf in-place
     void		setTrcBuf(const SeisTrcBuf&,Seis::GeomType,
-			      const char* dp_cat,const char* nm,int compnr=0);
-    			//!< This makes a copy of the buf
-
-    RefMan<SeisTrcBufDataPack>	dataPack()		{ return dp_; }
-    void		handleBufChange();
+			      const char* dp_cat,const char* nm,
+			      const ZDomain::Info&,int compnr=0);
+			//!< This makes a copy of the buf
 
     // Convenience
     void		selectDispTypes(bool wva,bool vd);
 
-protected:
+    void		handleBufChange();
+
+    ConstRefMan<SeisTrcBufDataPack> dataPack() const	{ return dp_; }
+
+private:
+
+    void	setBuf(const SeisTrcBuf&,Seis::GeomType,
+		       const char*,const char* nm,const ZDomain::Info&,
+		       int compnr,bool ismine);
 
     RefMan<SeisTrcBufDataPack>	dp_;
 
-    void	setBuf(const SeisTrcBuf&,Seis::GeomType,
-		       const char*,const char* nm,int compnr,bool);
-    void	releaseDP();
-
+public:
+			mDeprecated("Provide ZDomain::Info")
+    void		setTrcBuf(const SeisTrcBuf*,Seis::GeomType,
+			      const char* dp_cat,const char* nm,int compnr=0);
+    			//!< This uses the buf in-place
+			mDeprecated("Provide ZDomain::Info")
+    void		setTrcBuf(const SeisTrcBuf&,Seis::GeomType,
+			      const char* dp_cat,const char* nm,int compnr=0);
+    			//!< This makes a copy of the buf
 };

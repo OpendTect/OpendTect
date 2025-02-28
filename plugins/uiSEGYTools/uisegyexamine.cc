@@ -214,11 +214,13 @@ uiString uiSEGYExamine::sGetWinTitle()
 
 void uiSEGYExamine::dispSeis( CallBacker* )
 {
-    uiSeisTrcBufViewer* vwr = new uiSeisTrcBufViewer( this,
+    auto* vwr = new uiSeisTrcBufViewer( this,
 				uiSeisTrcBufViewer::Setup(sGetWinTitle()) );
     vwr->selectDispTypes( true, true );
-    vwr->setTrcBuf( tbuf_, Seis::Line, "SEG-Y.Examine", "sample value" );
-    vwr->start(); vwr->handleBufChange();
+    vwr->setTrcBuf( tbuf_, Seis::Line, "SEG-Y.Examine", "sample value",
+		    rdr_->zDomain() );
+    vwr->start();
+    vwr->handleBufChange();
 }
 
 
@@ -226,7 +228,7 @@ void uiSEGYExamine::dispHist( CallBacker* )
 {
     SeisTrcBufArray2D a2d( &tbuf_, 0 );
     uiStatsDisplay::Setup su; su.withname( false );
-    uiStatsDisplayWin* mw = new uiStatsDisplayWin( this, su, 1, false );
+    auto* mw = new uiStatsDisplayWin( this, su, 1, false );
     mw->statsDisplay(0)->setData( &a2d );
     mw->setDeleteOnClose( true );
     mw->setCaption( sGetWinTitle() );

@@ -15,7 +15,7 @@ ________________________________________________________________________
 #include "odsysmem.h"
 #include "posinfo.h"
 #include "seisdatapack.h"
-#include "simpnumer.h" // for getCommonStepInterval
+#include "survinfo.h"
 #include "threadwork.h"
 
 
@@ -657,10 +657,12 @@ bool VolProc::ChainExecutor::Epoch::doPrepare( ProgressMeter* progmeter )
 	    outcube = const_cast<RegularSeisDataPack*>( outfrominp );
 	else
 	{
-	    outcube = new RegularSeisDataPack( 0 );
+	    outcube = new RegularSeisDataPack(
+					VolumeDataPack::categoryStr(csamp) );
 	    outcube->setName( "New VolProc DP" );
 	    DPM( DataPackMgr::SeisID() ).add( outcube );
 	    outcube->setSampling( csamp );
+	    outcube->setZDomain( SI().zDomainInfo() ); //TODO support more?
 	    if ( trcssampling.totalSizeInside( csamp.hsamp_ ) > 0 )
 	    {
 		trcssampling.limitTo( csamp.hsamp_ );

@@ -8,23 +8,26 @@ ________________________________________________________________________
 -*/
 
 #include "uiflatviewpropdlg.h"
-#include "uiflatviewproptabs.h"
 
 #include "uicolor.h"
 #include "uicolortable.h"
 #include "uiflatviewer.h"
+#include "uiflatviewproptabs.h"
 #include "uigeninput.h"
-#include "uimsg.h"
 #include "uilabel.h"
+#include "uimsg.h"
 #include "uisellinest.h"
 #include "uiseparator.h"
-#include "uisellinest.h"
-#include "survinfo.h"
 
 #include "od_helpids.h"
+#include "settings.h"
+#include "survinfo.h"
+
+
+// uiFlatViewPropTab
 
 uiFlatViewPropTab::uiFlatViewPropTab( uiParent* p, FlatView::Viewer& vwr,
-				      uiString lbl )
+				      const uiString& lbl )
     : uiDlgGroup(p,lbl)
     , vwr_(vwr)
     , app_(vwr.appearance())
@@ -34,18 +37,19 @@ uiFlatViewPropTab::uiFlatViewPropTab( uiParent* p, FlatView::Viewer& vwr,
 
 
 uiFlatViewPropTab::~uiFlatViewPropTab()
-{}
+{
+}
 
+
+// uiFlatViewDataDispPropTab
 
 uiFlatViewDataDispPropTab::uiFlatViewDataDispPropTab( uiParent* p,
 		FlatView::Viewer& vwr, const uiString& tablbl, bool show )
     : uiFlatViewPropTab(p,vwr,tablbl)
     , ddpars_(app_.ddpars_)
-    , showdisplayfield_( show )
-    , blockyfld_( 0 )
-    , dispfld_( 0 )
+    , showdisplayfield_(show)
 {
-    uiLabeledComboBox* lcb = 0;
+    uiLabeledComboBox* lcb = nullptr;
     if ( showdisplayfield_ )
     {
 	lcb = new uiLabeledComboBox( this, uiStrings::sDisplay() );
@@ -105,12 +109,14 @@ uiFlatViewDataDispPropTab::uiFlatViewDataDispPropTab( uiParent* p,
 				 BoolInpSpec(true) );
     blockyfld_->attach( alignedBelow, symmidvalfld_ );
 
-    lastcommonfld_ = blockyfld_ ? blockyfld_->attachObj() : 0;
+    lastcommonfld_ = blockyfld_ ? blockyfld_->attachObj() : nullptr;
 }
 
 
 uiFlatViewDataDispPropTab::~uiFlatViewDataDispPropTab()
-{}
+{
+    detachAllNotifiers();
+}
 
 
 void uiFlatViewDataDispPropTab::useMidValSel( CallBacker* )
@@ -131,7 +137,6 @@ void uiFlatViewDataDispPropTab::updateNonclipRange( CallBacker* )
     FlatView::DataDispPars::Common& pars = commonPars();
     pars.mappersetup_.type_ = !clip ? ColTab::MapperSetup::Fixed
 				    : ColTab::MapperSetup::Auto;
-
     if ( clip == 0 )
     {
 	mDynamicCastGet(const uiFVWVAPropTab*,wvatab,this)
@@ -275,6 +280,12 @@ void uiFlatViewDataDispPropTab::putCommonToScreen()
 }
 
 
+void uiFlatViewDataDispPropTab::fillCommonPar( IOPar& par ) const
+{
+    uiFlatViewPropTab::fillCommonPar( par );
+}
+
+
 void uiFlatViewDataDispPropTab::doSetData( bool wva )
 {
     if ( !showdisplayfield_ )
@@ -342,6 +353,8 @@ bool uiFlatViewDataDispPropTab::acceptOK()
     return true;
 }
 
+
+// uiFVWVAPropTab
 
 uiFVWVAPropTab::uiFVWVAPropTab( uiParent* p, FlatView::Viewer& vwr )
     : uiFlatViewDataDispPropTab(p,vwr,tr("Wiggle Variable Area"),
@@ -455,6 +468,12 @@ void uiFVWVAPropTab::putToScreen()
 }
 
 
+void uiFVWVAPropTab::fillCommonPar( IOPar& par ) const
+{
+    uiFlatViewDataDispPropTab::fillCommonPar( par );
+}
+
+
 bool uiFVWVAPropTab::acceptOK()
 {
     if ( !uiFlatViewDataDispPropTab::acceptOK() )
@@ -476,6 +495,8 @@ bool uiFVWVAPropTab::acceptOK()
     return true;
 }
 
+
+// uiFVVDPropTab
 
 uiFVVDPropTab::uiFVVDPropTab( uiParent* p, FlatView::Viewer& vwr )
     : uiFlatViewDataDispPropTab(p,vwr,tr("Variable Density"),
@@ -537,6 +558,12 @@ void uiFVVDPropTab::putToScreen()
 }
 
 
+void uiFVVDPropTab::fillCommonPar( IOPar& par ) const
+{
+    uiFlatViewDataDispPropTab::fillCommonPar( par );
+}
+
+
 bool uiFVVDPropTab::acceptOK()
 {
     if ( !uiFlatViewDataDispPropTab::acceptOK() )
@@ -550,27 +577,29 @@ bool uiFVVDPropTab::acceptOK()
 }
 
 
+// uiFVAnnotPropTab::AxesGroup
+
 uiFVAnnotPropTab::AxesGroup::AxesGroup( uiParent* p, OD::Orientation orient,
 					FlatView::Annotation::AxisData& ad,
-					const BufferStringSet* annotnms,
-					bool dorevertaxis )
+					const uiStringSet* annotnms,
+					int selannotdim, bool dorevertaxis )
     : uiGroup(p,"Axis Data")
     , ad_(ad)
-    , annotselfld_(0)
-    , reversedfld_(0)
 {
     uiString axisstr = orient==OD::Horizontal ? uiStrings::sHorizontal()
 					      : uiStrings::sVertical();
     const bool haveannotchoices = annotnms && annotnms->size() > 1;
     if ( haveannotchoices )
     {
-	uiString lbltxt = toUiString( "On %1 axis, show" ).arg(axisstr);
+	const uiString lbltxt = toUiString( "On %1 axis, show" ).arg(axisstr);
 	annotselfld_ = new uiGenInput( this, lbltxt,
 				       StringListInpSpec(*annotnms) );
+	if ( annotnms->validIdx(selannotdim) )
+	    setSelAnnot( selannotdim );
     }
 
-    uiString lbltxt = tr("%1 axis").arg(axisstr);
-    uiLabel* lbl = new uiLabel( this, lbltxt );
+    const uiString lbltxt = tr("%1 axis").arg(axisstr);
+    auto* lbl = new uiLabel( this, lbltxt );
     showannotfld_ = new uiCheckBox( this, tr("Annotation") );
     lbl->attach( leftOf, showannotfld_ );
     if ( annotselfld_ )
@@ -601,7 +630,9 @@ uiFVAnnotPropTab::AxesGroup::AxesGroup( uiParent* p, OD::Orientation orient,
 
 
 uiFVAnnotPropTab::AxesGroup::~AxesGroup()
-{}
+{
+    detachAllNotifiers();
+}
 
 
 void uiFVAnnotPropTab::AxesGroup::showAuxLineCheckedCB( CallBacker* )
@@ -620,6 +651,7 @@ void uiFVAnnotPropTab::AxesGroup::putToScreen()
 {
     if ( reversedfld_ )
 	reversedfld_->setChecked( ad_.reversed_ );
+
     showannotfld_->setChecked( ad_.showannot_ );
     showgridlinesfld_->setChecked( ad_.showgridlines_ );
     const bool hasauxdata = !ad_.auxannot_.isEmpty();
@@ -638,6 +670,7 @@ void uiFVAnnotPropTab::AxesGroup::getFromScreen()
 {
     if ( reversedfld_ )
 	ad_.reversed_ = reversedfld_->isChecked();
+
     ad_.showannot_ = showannotfld_->isChecked();
     ad_.showgridlines_ = showgridlinesfld_->isChecked();
     ad_.showauxannot_ = showauxannotfld_->isChecked();
@@ -653,44 +686,50 @@ int uiFVAnnotPropTab::AxesGroup::getSelAnnot() const
 
 void uiFVAnnotPropTab::AxesGroup::setSelAnnot( int selannot )
 {
-    if ( annotselfld_ ) annotselfld_->setValue( selannot );
+    if ( annotselfld_ )
+	annotselfld_->setValue( selannot );
 }
 
 
+// uiFVAnnotPropTab
+
 uiFVAnnotPropTab::uiFVAnnotPropTab( uiParent* p, FlatView::Viewer& vwr,
-				    const BufferStringSet* annots )
+				    const uiStringSet* annotsdim0,
+				    const uiStringSet* annotsdim1,
+				    int selannotdim0, int selannotdim1 )
     : uiFlatViewPropTab(p,vwr,tr("Annotation"))
     , annot_(app_.annot_)
-    , auxnamefld_( 0 )
-    , currentaux_( 0 )
 {
     colfld_ = new uiColorInput( this, uiColorInput::Setup(annot_.color_).
 					lbltxt(tr("Annotation color")),
 				"Annotation color" );
 
-    uiSeparator* sep1 = new uiSeparator( this, "Separator 1" );
+    auto* sep1 = new uiSeparator( this, "Separator 1" );
     sep1->attach( stretchedBelow, colfld_ );
 
-    x1_ = new AxesGroup( this, OD::Horizontal, annot_.x1_, annots,
-				annot_.allowuserchangereversedaxis_ );
+    x1_ = new AxesGroup( this, OD::Horizontal, annot_.x1_, annotsdim0,
+			 selannotdim0, annot_.allowuserchangereversedaxis_ );
     x1_->attach( alignedBelow, colfld_ );
     x1_->attach( ensureBelow, sep1 );
 
-    uiSeparator* sep2 = new uiSeparator( this, "Separator 2" );
+    auto* sep2 = new uiSeparator( this, "Separator 2" );
     sep2->attach( stretchedBelow, x1_ );
 
-    x2_ = new AxesGroup( this, OD::Vertical, annot_.x2_, 0,
-				annot_.allowuserchangereversedaxis_ );
+    x2_ = new AxesGroup( this, OD::Vertical, annot_.x2_, annotsdim1,
+			 selannotdim1, annot_.allowuserchangereversedaxis_ );
     x2_->attach( alignedBelow, x1_ );
     x2_->attach( ensureBelow, sep2 );
 
-    uiSeparator* sep3 = new uiSeparator( this, "Separator 3" );
+    auto* sep3 = new uiSeparator( this, "Separator 3" );
     sep3->attach( stretchedBelow, x2_ );
 
-    viewnrdeczfld_ = new uiGenInput( this, tr("Decimal places for Z Value"),
-			       IntInpSpec(vwr_.nrDec(),0,vwr_.nrDec()+2,1) );
-    viewnrdeczfld_->attach( alignedBelow, x2_ );
-    viewnrdeczfld_->attach( ensureBelow, sep3 );
+    if ( vwr_.zDomain(false) )
+    {
+	viewnrdeczfld_ = new uiGenInput( this, tr("Decimal places for Z Value"),
+			       IntInpSpec(vwr_.nrZDec(),0,vwr_.nrZDec()+2,1) );
+	viewnrdeczfld_->attach( alignedBelow, x2_ );
+	viewnrdeczfld_->attach( ensureBelow, sep3 );
+    }
 
     BufferStringSet auxnames;
     for ( int idx=0; idx<vwr_.nrAuxData(); idx++ )
@@ -708,8 +747,8 @@ uiFVAnnotPropTab::uiFVAnnotPropTab( uiParent* p, FlatView::Viewer& vwr,
 	indices_ += idx;
 	fillcolors_ += auxdata.fillcolor_;
 	markerstyles_ += auxdata.markerstyles_.size()
-	    ? auxdata.markerstyles_[0]
-	    : MarkerStyle2D();
+			    ? auxdata.markerstyles_[0]
+			    : MarkerStyle2D();
 	x1rgs_ += auxdata.x1rg_ ? *auxdata.x1rg_ : Interval<double>( 0, 1 );
 	x2rgs_ += auxdata.x2rg_ ? *auxdata.x2rg_ : Interval<double>( 0, 1 );
 	auxnames.add( auxdata.name_.buf() );
@@ -721,14 +760,17 @@ uiFVAnnotPropTab::uiFVAnnotPropTab( uiParent* p, FlatView::Viewer& vwr,
 				      StringListInpSpec( auxnames ) );
 	auxnamefld_->valueChanged.notify(
 			mCB( this, uiFVAnnotPropTab, auxNmFldCB));
-	auxnamefld_->attach( alignedBelow, viewnrdeczfld_ );
+	if ( viewnrdeczfld_ )
+	    auxnamefld_->attach( alignedBelow, viewnrdeczfld_ );
+	else
+	    auxnamefld_->attach( alignedBelow, x2_ );
 
 	linestylefld_ = new uiSelLineStyle( this, linestyles_[0],
 					    tr("Line style") );
 	linestylefld_->attach( alignedBelow, auxnamefld_ );
 
 	uiSelLineStyle::Setup su( tr("Line style") );
-			      su.color( false );
+	su.color( false );
 	linestylenocolorfld_ = new uiSelLineStyle( this, linestyles_[0], su );
 	linestylenocolorfld_->attach( alignedBelow, auxnamefld_ );
 
@@ -752,16 +794,39 @@ uiFVAnnotPropTab::uiFVAnnotPropTab( uiParent* p, FlatView::Viewer& vwr,
 }
 
 
-void uiFVAnnotPropTab::fillPar( IOPar& iopar ) const
-{
-    const int nrdec = viewnrdeczfld_->getIntValue();
-    iopar.set( FlatView::Viewer::sKeyViewZnrDec(), nrdec );
-}
-
-
 uiFVAnnotPropTab::~uiFVAnnotPropTab()
 {
     detachAllNotifiers();
+}
+
+
+int uiFVAnnotPropTab::getSelAnnot( bool dim0 ) const
+{
+    const AxesGroup& ag = dim0 ? *x1_ : *x2_;
+    return ag.getSelAnnot();
+}
+
+
+void uiFVAnnotPropTab::setSelAnnot( int idx, bool dim0 )
+{
+    AxesGroup& ag = dim0 ? *x1_ : *x2_;
+    ag.setSelAnnot( idx );
+}
+
+
+int uiFVAnnotPropTab::nrZDecimals() const
+{
+    return viewnrdeczfld_ ? viewnrdeczfld_->getIntValue() : mUdf(int);
+}
+
+
+void uiFVAnnotPropTab::fillPar( IOPar& iopar ) const
+{
+    if ( viewnrdeczfld_ )
+    {
+	const int nrzdec = nrZDecimals();
+	iopar.set( FlatView::Viewer::sKeyViewZnrDec(), nrzdec );
+    }
 }
 
 
@@ -799,11 +864,26 @@ void uiFVAnnotPropTab::putToScreen()
 }
 
 
+void uiFVAnnotPropTab::fillCommonPar( IOPar& par ) const
+{
+    uiFlatViewPropTab::fillCommonPar( par );
+    if ( viewnrdeczfld_ )
+    {
+	const ZDomain::Info* zdom = vwr_.zDomain( true );
+	if ( zdom )
+	    par.set( zdom->sKeyNrDec(), nrZDecimals() );
+    }
+}
+
+
 bool uiFVAnnotPropTab::acceptOK()
 {
     annot_.color_ = colfld_->color();
     x1_->getFromScreen();
     x2_->getFromScreen();
+    const ZDomain::Info* zdom = vwr_.zDomain( true );
+    if ( viewnrdeczfld_ && zdom )
+	getNonConst(*zdom).setPreferredNrDec( nrZDecimals() );
 
     if ( !auxnamefld_ )
 	return true;
@@ -895,10 +975,13 @@ void uiFVAnnotPropTab::updateAuxFlds( int idx )
 }
 
 
+// uiFlatViewPropDlg
+
 uiFlatViewPropDlg::uiFlatViewPropDlg( uiParent* p, FlatView::Viewer& vwr,
 				      const CallBack& applcb,
-				      const BufferStringSet* annots,
-				      int selannot,
+				      const uiStringSet* annotsdim0,
+				      const uiStringSet* annotsdim1,
+				      int selannotdim0, int selannotdim1,
 				      bool withdynamictitle )
     : uiTabStackDlg(p,uiDialog::Setup(tr("Specify Display Properties"),
 				      mNoDlgTitle,
@@ -906,10 +989,8 @@ uiFlatViewPropDlg::uiFlatViewPropDlg( uiParent* p, FlatView::Viewer& vwr,
 				      .modal(false))
     , vwr_(vwr)
     , applycb_(applcb)
-    , selannot_(selannot)
-    , wvatab_(nullptr)
-    , annottab_(nullptr)
-    , titleoptfld_(nullptr)
+    , selannotdim0_(selannotdim0)
+    , selannotdim1_(selannotdim1)
 {
     const bool wva = vwr_.appearance().ddpars_.wva_.allowuserchange_;
     const bool vd = vwr_.appearance().ddpars_.vd_.allowuserchange_;
@@ -929,11 +1010,13 @@ uiFlatViewPropDlg::uiFlatViewPropDlg( uiParent* p, FlatView::Viewer& vwr,
 
     if ( annot )
     {
-	annottab_ = new uiFVAnnotPropTab( tabParent(), vwr_, annots );
+	annottab_ = new uiFVAnnotPropTab( tabParent(), vwr_,
+					  annotsdim0, annotsdim1,
+					  selannotdim0_, selannotdim1_ );
 	addGroup( annottab_ );
     }
 
-    uiGroup* grp = new uiGroup( this, "Tile group" );
+    auto* grp = new uiGroup( this, "Tile group" );
     grp->attach( centeredAbove, tabObject() );
     titlefld_ = new uiGenInput( grp, tr("Title") );
 
@@ -984,16 +1067,37 @@ void uiFlatViewPropDlg::putAllToScreen()
     for ( int idx=0; idx<nrGroups(); idx++ )
     {
 	mDynamicCastGet(uiFlatViewPropTab*,ptab,&getGroup(idx))
-	if ( ptab ) ptab->putToScreen();
+	if ( ptab )
+	    ptab->putToScreen();
     }
 
     titlefld_->setText( vwr_.appearance().annot_.title_ );
     if ( titleoptfld_ )
 	titleoptfld_->setValue( !vwr_.appearance().annot_.dynamictitle_ );
+
     if ( annottab_ )
-	annottab_->setSelAnnot( selannot_ );
+    {
+	annottab_->setSelAnnot( selannotdim0_, true );
+	annottab_->setSelAnnot( selannotdim1_, false );
+    }
 
     titleChgCB( nullptr );
+}
+
+
+void uiFlatViewPropDlg::saveCommonSettings()
+{
+    IOPar par;
+    wvatab_->fillCommonPar( par );
+    vdtab_->fillCommonPar( par );
+    if ( annottab_ )
+	annottab_->fillCommonPar( par );
+
+    if ( par.isEmpty() )
+	return;
+
+    Settings::common().merge( par );
+    Settings::common().write();
 }
 
 
@@ -1034,11 +1138,19 @@ bool uiFlatViewPropDlg::acceptOK( CallBacker* cb )
 
     if ( annottab_ )
     {
-	selannot_ = annottab_->getSelAnnot();
-	vwr_.setAnnotChoice( selannot_ );
+	selannotdim0_ = annottab_->getSelAnnot( true );
+	selannotdim1_ = annottab_->getSelAnnot( false );
+	vwr_.setAnnotChoiceByIdx( selannotdim0_, true );
+	vwr_.setAnnotChoiceByIdx( selannotdim1_, false );
     }
 
     return true;
+}
+
+
+int uiFlatViewPropDlg::selectedAnnot( bool dim0 ) const
+{
+    return dim0 ? selannotdim0_ : selannotdim1_;
 }
 
 

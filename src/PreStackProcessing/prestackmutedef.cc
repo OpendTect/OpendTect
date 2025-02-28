@@ -12,7 +12,6 @@ ________________________________________________________________________
 #include "genericnumer.h"
 #include "keystrs.h"
 #include "mathfunc.h"
-#include "seispsioprov.h"
 #include "statruncalc.h"
 #include "survinfo.h"
 #include "unitofmeasure.h"
@@ -26,13 +25,13 @@ MuteDef::MuteDef( const char* nm )
     : NamedObject(nm)
     , offsettype_(SI().xyInFeet() ? Seis::OffsetType::OffsetFeet
 				  : Seis::OffsetType::OffsetMeter)
-    , zdomaininfo_(new ZDomain::Info(SI().zDomainInfo()))
+    , zdomaininfo_(&SI().zDomainInfo())
 {
 }
 
 
 MuteDef::MuteDef( const MuteDef& oth )
-    : zdomaininfo_(nullptr)
+    : zdomaininfo_(&SI().zDomainInfo())
 {
     *this = oth;
 }
@@ -41,7 +40,6 @@ MuteDef::MuteDef( const MuteDef& oth )
 MuteDef::~MuteDef()
 {
     deepErase( fns_ );
-    delete zdomaininfo_;
 }
 
 
@@ -115,11 +113,10 @@ MuteDef& MuteDef::setOffsetType( Seis::OffsetType typ )
 
 MuteDef& MuteDef::setZDomain( const ZDomain::Info& zinfo )
 {
-    if ( (!zinfo.isTime() && !zinfo.isDepth()) || zinfo == zDomain() )
+    if ( (!zinfo.isTime() && !zinfo.isDepth()) || &zinfo == &zDomain() )
 	return *this;
 
-    delete zdomaininfo_;
-    zdomaininfo_ = new ZDomain::Info( zinfo );
+    zdomaininfo_ = &zinfo;
     return *this;
 }
 
@@ -132,7 +129,7 @@ void MuteDef::fillPar( IOPar& par ) const
 	par.set( sKeyRefHor(), refhor_ );
 
     zDomain().fillPar( par );
-    SeisPSIOProvider::setGatherOffsetType( offsettype_, par );
+    Seis::setGatherOffsetType( offsettype_, par );
 }
 
 
@@ -140,11 +137,11 @@ bool MuteDef::usePar( const IOPar& par )
 {
     par.get( sKeyRefHor(), refhor_ );
     Seis::OffsetType offsettype;
-    if ( SeisPSIOProvider::getGatherOffsetType(par,offsettype) &&
+    if ( Seis::getOffsetType(par,offsettype) &&
 	 Seis::isOffsetDist(offsettype) )
 	offsettype_ = offsettype;
 
-    const ZDomain::Info* zinfo = ZDomain::get( par );
+    const ZDomain::Info* zinfo = ZDomain::Info::getFrom( par );
     if ( zinfo && (zinfo->isTime() || zinfo->isDepth()) )
 	setZDomain( *zinfo );
 
@@ -160,7 +157,7 @@ const UnitOfMeasure* MuteDef::zUnit() const
 
 const UnitOfMeasure* MuteDef::offsetUnit() const
 {
-    return SeisPSIOProvider::offsetUnit( offsetType() );
+    return UnitOfMeasure::offsetUnit( offsetType() );
 }
 
 
@@ -216,9 +213,9 @@ float MuteDef::value( float offs, const BinID& pos ) const
 	return fns_[0]->getValue( offs );
 
     const Coord si00 = SI().transform(
-                           BinID(SI().inlRange(true).start_,SI().crlRange(true).start_) );
+	       BinID(SI().inlRange(true).start_,SI().crlRange(true).start_) );
     const Coord si11 = SI().transform(
-                           BinID(SI().inlRange(true).stop_,SI().crlRange(true).stop_) );
+	       BinID(SI().inlRange(true).stop_,SI().crlRange(true).stop_) );
 
     const double normalweight = si00.sqDistTo( si11 );
 
@@ -248,9 +245,9 @@ void MuteDef::computeIntervals( float offs, const BinID& pos,
 	return;
 
     const Coord si00 = SI().transform(
-                           BinID(SI().inlRange(true).start_,SI().crlRange(true).start_) );
+	       BinID(SI().inlRange(true).start_,SI().crlRange(true).start_) );
     const Coord si11 = SI().transform(
-                           BinID(SI().inlRange(true).stop_,SI().crlRange(true).stop_) );
+	       BinID(SI().inlRange(true).stop_,SI().crlRange(true).stop_) );
 
     const double normalweight = si00.sqDistTo( si11 );
     const Coord centercrd( SI().transform(pos) );

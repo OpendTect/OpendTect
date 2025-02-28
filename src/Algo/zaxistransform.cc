@@ -244,6 +244,14 @@ const char* ZAxisTransform::toZDomainKey() const
 { return tozdomaininfo_.key(); }
 
 
+const ZDomain::Info& ZAxisTransform::zDomain( bool from ) const
+{
+    const ZDomain::Info& zdom = from ? fromZDomainInfo()
+				     : toZDomainInfo();
+    return ZDomain::Info::getFrom( zdom );
+}
+
+
 void ZAxisTransform::fillPar( IOPar& par ) const
 {
     par.set( sKey::Name(), factoryKeyword() );
@@ -263,7 +271,7 @@ float ZAxisTransform::toZScale() const
 	return SI().defaultXYtoZScale( SurveyInfo::Second, SI().xyUnit() );
     }
 
-    return SI().zScale();
+    return SI().zScale( false );
 }
 
 

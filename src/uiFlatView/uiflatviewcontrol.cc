@@ -17,6 +17,13 @@ ________________________________________________________________________
 #include "keyboardevent.h"
 #include "mouseevent.h"
 
+
+const char* uiFlatViewControl::sKeyViewerIdx()
+{
+    return "Viewer Index";
+}
+
+
 uiFlatViewControl::uiFlatViewControl( uiFlatViewer& vwr, uiParent* p, bool rub )
     : uiGroup(p ? p : vwr.attachObj()->parent(),"Flat viewer control")
     , haverubber_(rub)
@@ -194,10 +201,17 @@ uiWorldRect uiFlatViewControl::getZoomOrPanRect( Geom::Point2D<double> mousepos,
     const double rwdth = newsz.width() / 2.;
     const double thght = newsz.height() / 2.;
 
-    if ( mousepos.x_ - lwdth < bb.left() )      mousepos.x_ = bb.left() + lwdth;
-    if ( mousepos.y_ - bhght < bb.bottom() )    mousepos.y_ = bb.bottom() + bhght;
-    if ( mousepos.x_ + rwdth > bb.right() )     mousepos.x_ = bb.right() - rwdth;
-    if ( mousepos.y_ + thght > bb.top() )       mousepos.y_ = bb.top() - thght;
+    if ( mousepos.x_ - lwdth < bb.left() )
+	mousepos.x_ = bb.left() + lwdth;
+
+    if ( mousepos.y_ - bhght < bb.bottom() )
+	mousepos.y_ = bb.bottom() + bhght;
+
+    if ( mousepos.x_ + rwdth > bb.right() )
+	mousepos.x_ = bb.right() - rwdth;
+
+    if ( mousepos.y_ + thght > bb.top() )
+	mousepos.y_ = bb.top() - thght;
 
     return uiWorldRect( mousepos.x_ - lwdth, mousepos.y_ + thght,
                         mousepos.x_ + rwdth, mousepos.y_ - bhght );
@@ -263,11 +277,14 @@ void uiFlatViewControl::doPropertiesDialog( int vieweridx )
     if ( !propdlg_ || &propdlg_->viewer()!=&vwr )
     {
 	delete propdlg_;
-	BufferStringSet annots;
-	const int selannot = vwr.getAnnotChoices( annots );
+	uiStringSet annotsdim0, annotsdim1;
+	const int selannotdim0 = vwr.getAnnotChoices( annotsdim0, true );
+	const int selannotdim1 = vwr.getAnnotChoices( annotsdim1, false );
 	propdlg_ = new uiFlatViewPropDlg( parent(), vwr,
 			mCB(this,uiFlatViewControl,applyProperties),
-			annots.size() ? &annots : nullptr, selannot, true );
+			annotsdim0.isEmpty() ? nullptr : &annotsdim0,
+			annotsdim1.isEmpty() ? nullptr : &annotsdim1,
+			selannotdim0, selannotdim1, true );
 	mAttachCB( propdlg_->windowClosed, uiFlatViewControl::propDlgClosed );
     }
 
@@ -279,19 +296,24 @@ void uiFlatViewControl::propDlgClosed( CallBacker* )
 {
     if ( propdlg_->uiResult() == 1 )
     {
-	applyProperties(0);
+	applyProperties( nullptr );
 	if ( propdlg_->saveButtonChecked() )
+	{
 	    saveProperties( propdlg_->viewer() );
+	    propdlg_->saveCommonSettings();
+	}
     }
 }
 
 
 void uiFlatViewControl::applyProperties( CallBacker* )
 {
-    if ( !propdlg_ ) return;
+    if ( !propdlg_ )
+	return;
 
     mDynamicCastGet(uiFlatViewer*,vwr,&propdlg_->viewer())
-    if ( !vwr ) return;
+    if ( !vwr )
+	return;
 
     const bool updateonresize = vwr->updatesBitmapsOnResize();
     vwr->updateBitmapsOnResize( true );
@@ -307,7 +329,14 @@ void uiFlatViewControl::applyProperties( CallBacker* )
 void uiFlatViewControl::saveProperties( FlatView::Viewer& vwr )
 {
     ConstRefMan<FlatDataPack> fdp = vwr.getPack( true, true ).get();
-    vwr.storeDefaults( fdp ? fdp->category() : "General" );
+    BufferString keystr;
+    if ( fdp )
+	keystr.set( fdp->category() );
+
+    if ( keystr.isEmpty() )
+	keystr.set( FlatView::Viewer::sKeyDefCategory() );
+
+    vwr.storeDefaults( keystr.str() );
 }
 
 
@@ -337,12 +366,16 @@ int uiFlatViewControl::getViewerIdx( const MouseEventHandler* meh,bool ofscene )
 void uiFlatViewControl::mouseMoveCB( CallBacker* cb )
 {
     mDynamicCastGet( const MouseEventHandler*, meh, cb );
-    if ( !meh || !meh->hasEvent() ) return;
+    if ( !meh || !meh->hasEvent() )
+	return;
 
     const int idx = getViewerIdx( meh, true );
-    if ( idx<0 ) return;
+    if ( !vwrs_.validIdx(idx) )
+	return;
+
     uiFlatViewer* vwr = vwrs_[idx];
-    if ( !vwr->needStatusBarUpdate() ) return;
+    if ( !vwr->needStatusBarUpdate() )
+	return;
 
     const Geom::Point2D<int> mousepos = meh->event().pos();
     const uiWorldPoint wp = vwr->getWorld2Ui().transform( mousepos );
@@ -350,6 +383,7 @@ void uiFlatViewControl::mouseMoveCB( CallBacker* cb )
     IOPar infopar;
     if ( isinsde )
     {
+	infopars_.set( sKeyViewerIdx(), idx );
 	if ( propdlg_ )
 	    propdlg_->fillPar( infopars_ );
 
@@ -357,8 +391,7 @@ void uiFlatViewControl::mouseMoveCB( CallBacker* cb )
 	infopar = infopars_;
     }
 
-    CBCapsule<IOPar> caps( infopar, this );
-    infoChanged.trigger( &caps );
+    infoChanged.trigger( infopar );
 }
 
 

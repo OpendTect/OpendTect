@@ -208,6 +208,7 @@ bool BatchProgram::doWork( od_ostream& strm )
     PtrMan<TaskRunner> taskr = new TextTaskRunner( strm );
     const bool srd = 0.f;
     const Seis::OffsetType offstyp = Seis::OffsetType::OffsetMeter;
+    const OD::AngleType azityp = OD::AngleType::Degrees;
     const ZDomain::DepthType depthtype = ZDomain::DepthType::Meter;
 
     // Run
@@ -222,7 +223,7 @@ bool BatchProgram::doWork( od_ostream& strm )
 	uiString msg;
 	ConstRefMan<ReflectivityModelSet> refmodels =
 		  Seis::RaySynthGenerator::getRefModels( models, *reflpar, msg,
-			  taskr.ptr(), srd, offstyp, depthtype );
+			  taskr.ptr(), srd, offstyp, azityp, depthtype );
 	if ( !refmodels )
 	{
 	    strm << ::toString(msg) << od_endl;

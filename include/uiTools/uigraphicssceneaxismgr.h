@@ -86,13 +86,13 @@ protected:
     bool			inside_;
     bool			isx_;
     bool			istop_;
-    bool			drawaxisline_;
-    bool			drawgridlines_;
-    bool			annotinint_;
+    bool			drawaxisline_	= true;
+    bool			drawgridlines_	= true;
+    bool			annotinint_	= false;
 
     uiGraphicsScene&		scene_;
-    uiGraphicsItemGroup*	itmgrp_;
-    uiRectItem*			mask_;
+    uiGraphicsItemGroup*	itmgrp_		= nullptr;
+    uiRectItem*			mask_		= nullptr;
 
     uiRect			viewrect_;
 
@@ -104,7 +104,7 @@ protected:
     OD::LineStyle		ls_;
     OD::LineStyle		gridls_;
     SamplingData<double>	sampling_;
-    int				txtfactor_;
+    int				txtfactor_	= 1;
     FontData			fontdata_;
 };
 
@@ -156,13 +156,13 @@ public:
 
 protected:
 
+    uiGraphicsView&		view_;
     uiAxisHandler*		xaxis_top_;
     uiAxisHandler*		yaxis_left_;
     uiAxisHandler*		xaxis_bottom_;
     uiAxisHandler*		yaxis_right_;
 
     uiFont&			uifont_;
-    uiGraphicsView&		view_;
     uiRectItem*			topmask_;
     uiRectItem*			bottommask_;
     uiRectItem*			leftmask_;

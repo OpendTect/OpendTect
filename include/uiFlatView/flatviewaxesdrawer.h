@@ -26,7 +26,6 @@ public:
 			AxesDrawer(uiFlatViewer&);
 			~AxesDrawer();
 
-    int			altdim0_	= -1;
     void		updateScene() override;
     void		setZValue(int z) override;
     void		updateViewRect();
@@ -37,13 +36,16 @@ public:
 
     void		setTitleFont(const FontData&);
 
+    int			altdim0_	= -1;
+    int			altdim1_	= -1;
+
 protected:
 
     uiFlatViewer&	vwr_;
-    uiRectItem*		rectitem_;
-    uiTextItem*		titletxt_;
-    uiScaleBarItem*	scalebaritem_;
-    uiColTabItem*	colorbaritem_;
+    uiRectItem*		rectitem_	= nullptr;
+    uiTextItem*		titletxt_	= nullptr;
+    uiScaleBarItem*	scalebaritem_	= nullptr;
+    uiColTabItem*	colorbaritem_	= nullptr;
     uiBorder		extraborder_;
 
     void		transformAndSetAuxAnnotation(bool forx1);

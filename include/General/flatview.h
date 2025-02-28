@@ -9,6 +9,7 @@ ________________________________________________________________________
 -*/
 
 #include "generalmod.h"
+
 #include "coltabmapper.h"
 #include "datapackbase.h"
 #include "draw.h"
@@ -16,7 +17,7 @@ ________________________________________________________________________
 
 class FlatView_CB_Rcvr;
 class ZAxisTransform;
-namespace ZDomain { class Def; class Info; }
+namespace ZDomain { class Info; }
 namespace FlatView
 {
 
@@ -140,19 +141,19 @@ public:
 				AxisData();
 				~AxisData();
 
-	BufferString		name_;
+	uiString		name_;
 	SamplingData<float>	sampling_;
-	bool			hasannot_ = true;	// left, bottom
-	bool			hasannot2_ = true;	// right, top
-	bool			showannot_ = false;	// left, bottom
-	bool			showannot2_ = false;	// right, top
-	bool			showgridlines_ = false;
-	bool			reversed_ = false;
-	bool			annotinint_ = false;
-	int			factor_ = 1;
-	bool			showauxannot_ = true;
+	bool			hasannot_	= true;		// left, bottom
+	bool			hasannot2_	= true;		// right, top
+	bool			showannot_	= false;	// left, bottom
+	bool			showannot2_	= false;	// right, top
+	bool			showgridlines_	= false;
+	bool			reversed_	= false;
+	bool			annotinint_	= false;
+	int			altdim_		= -1;
+	bool			showauxannot_	= true;
 	uiString		auxlabel_;
-	OD::LineStyle		auxlinestyle_ = OD::LineStyle::Dot;
+	OD::LineStyle		auxlinestyle_	= OD::LineStyle::Dot;
 	OD::LineStyle		auxhllinestyle_;
 	TypeSet<PlotAnnotation> auxannot_;
 	int			auxPosIdx(float pos,float eps) const;
@@ -347,6 +348,7 @@ mExpClass(General) Viewer
 public:
 
 			Viewer();
+			mOD_DisableCopy(Viewer);
     virtual		~Viewer();
 
     virtual Appearance&	appearance();
@@ -374,11 +376,11 @@ public:
 			 if the specified display has no datapack. */
     bool		hasPack(bool wva) const;
     void		removePack(VwrDest);
-    void		setPack(VwrDest, FlatDataPack*, bool usedefs=true);
+    void		setPack(VwrDest,FlatDataPack*,bool usedefs=true);
 			//!< add + use the datapack on either wva or vd or both
 
 
-    virtual bool	isVertical() const		{ return true; }
+    virtual bool	isVertical() const;
     bool		isVisible(bool wva) const;
     bool		isVisible(VwrDest) const;
     bool		setVisible(VwrDest,bool visibility,
@@ -421,27 +423,35 @@ public:
     virtual int			nrAuxData() const			= 0;
     virtual AuxData*		getAuxData(int idx)			= 0;
     virtual const AuxData*	getAuxData(int idx) const		= 0;
-    virtual void		addAuxData(AuxData* a)			= 0;
-    virtual AuxData*		removeAuxData(AuxData* a)		= 0;
+    virtual void		addAuxData(AuxData*)			= 0;
+    virtual AuxData*		removeAuxData(AuxData*)			= 0;
     virtual AuxData*		removeAuxData(int idx)			= 0;
     void			removeAuxDatas(ObjectSet<AuxData>&);
     void			removeAllAuxData();
-    virtual void		setAnnotChoice(int selannot)		{}
-    virtual void		setAnnotChoice(const char* selannot)	{}
-    virtual int			getAnnotChoices(BufferStringSet&) const
-				{ return -1; }
+    virtual bool		setAnnotChoiceByIdx(int selannot,bool dim0);
+    virtual bool		setAnnotChoice(const uiString&,bool dim0);
+    virtual int			getAnnotChoices(uiStringSet&,bool dim0) const;
+
     void			enableStatusBarUpdate()
 				{ needstatusbarupd_ = true; }
     void			disableStatusBarUpdate()
 				{ needstatusbarupd_ = false; }
     bool			needStatusBarUpdate() const
 				{ return needstatusbarupd_; }
+
     void			setSeisGeomidsToViewer(TypeSet<Pos::GeomID>&);
     const TypeSet<Pos::GeomID>&	getAllSeisGeomids() const;
-    void			setZDomain(const ZDomain::Def&);
-    const ZDomain::Info&	zDomain() const;
-    int				nrDec() const;
-    static const char*		sKeyIsZSlice();
+    void			setZDomain(const ZDomain::Info&,bool display);
+    const ZDomain::Info*	zDomain(bool display) const;
+    float			annotUserFactor(bool x2=true) const;
+    int				nrXYDec() const;
+    int				nrZDec() const;
+
+    static float		userFactor(const ZDomain::Info& data,
+					   const ZDomain::Info* display);
+    static int			nrDec(const ZDomain::Info&);
+
+    static const char*		sKeyDefCategory();
     static const char*		sKeyWVAData();
     static const char*		sKeyVDData();
     static const char*		sKeyWVAVal();
@@ -451,13 +461,14 @@ public:
 protected:
 
     TypeSet< ::DataPackID>	ids_;
-    Appearance*			defapp_ = nullptr;
+    Appearance*			defapp_			= nullptr;
     DataPackMgr&		dpm_;
-    ZAxisTransform*		datatransform_ = nullptr;
+    ZAxisTransform*		datatransform_		= nullptr;
     FlatView_CB_Rcvr*		cbrcvr_;
     mutable Threads::Lock	lock_;
-    bool			needstatusbarupd_ = true;
-    ZDomain::Info*		zdinfo_;
+    bool			needstatusbarupd_	= true;
+    const ZDomain::Info*	zdinfo_			= nullptr;
+    const ZDomain::Info*	displayzdinfo_		= nullptr;
 
     void			addAuxInfo(bool,const Point&,IOPar&) const;
     bool			shouldHandleChange() const

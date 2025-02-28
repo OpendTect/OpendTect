@@ -9,11 +9,13 @@ ________________________________________________________________________
 -*/
 
 #include "uiseismod.h"
+
 #include "uiflatviewer.h"
 #include "datapack.h"
 class FlatDataPack;
-class Wavelet;
 class SeisTrc;
+class Wavelet;
+namespace ZDomain { class Info; }
 
 
 mExpClass(uiSeis) uiSeisSingleTraceDisplay : public uiFlatViewer
@@ -24,6 +26,10 @@ public:
 
 			// setData will remove all refs
     void		setData(const Wavelet*);
+    void		setData(const SeisTrc*,const char* nm,
+				const ZDomain::Info&);
+			//!< nm=for datapack
+			mDeprecated("Provide ZDomain::Info")
     void		setData(const SeisTrc*,const char* nm);
 			//!< nm=for datapack
 

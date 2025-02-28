@@ -334,40 +334,17 @@ void uiFlatViewer::updateBitmapCB( CallBacker* )
 }
 
 
-int uiFlatViewer::getAnnotChoices( BufferStringSet& bss ) const
+bool uiFlatViewer::setAnnotChoiceByIdx( int sel, bool dim0 )
 {
-    ConstRefMan<FlatDataPack> fdp = getPack( false, true ).get();
-    if ( fdp )
-	fdp->getAltDim0Keys( bss );
-    if ( !bss.isEmpty() )
-	bss.addIfNew( fdp->dimName(true) );
+    if ( !FlatView::Viewer::setAnnotChoiceByIdx(sel,dim0) )
+	return false;
 
-    return bss.indexOf( appearance().annot_.x1_.name_ );
-}
+    FlatView::Annotation::AxisData& axisdata = dim0 ? appearance().annot_.x1_
+						    : appearance().annot_.x2_;
+    int& altdim = dim0 ? axesdrawer_.altdim0_ : axesdrawer_.altdim1_;
+    altdim = axisdata.altdim_;
 
-
-void uiFlatViewer::setAnnotChoice( int sel )
-{
-    ConstRefMan<FlatDataPack> fdp = getPack( false, true ).get();
-    if ( !fdp )
-	return;
-
-    FlatView::Annotation::AxisData& x1axisdata = appearance().annot_.x1_;
-    BufferStringSet altdim0keys; fdp->getAltDim0Keys( altdim0keys );
-    const int altdim0 = altdim0keys.validIdx(sel) ? sel : -1;
-    x1axisdata.name_ = altdim0>=0 ? altdim0keys.get(altdim0).buf()
-				  : fdp->dimName(true);
-    x1axisdata.annotinint_ = fdp->dimValuesInInt( x1axisdata.name_ );
-    axesdrawer_.altdim0_ = altdim0;
-}
-
-
-void uiFlatViewer::setAnnotChoice( const char* annotnm )
-{
-    BufferStringSet nms;
-    getAnnotChoices( nms );
-    const int annotidx = nms.indexOf( annotnm );
-    setAnnotChoice( annotidx );
+    return true;
 }
 
 

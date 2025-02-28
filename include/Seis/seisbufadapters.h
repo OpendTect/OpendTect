@@ -9,9 +9,11 @@ ________________________________________________________________________
 -*/
 
 #include "seismod.h"
-#include "seisbuf.h"
+
 #include "arraynd.h"
 #include "datapackbase.h"
+#include "odcommonenums.h"
+#include "seisbuf.h"
 #include "seisinfo.h"
 
 class TrcKeyZSampling;
@@ -32,8 +34,6 @@ public:
     const Array2DInfo&	info() const override		{ return *info_; }
     void		set(int,int,float) override;
     float		get(int,int) const override;
-
-    void		getAuxInfo(Seis::GeomType,int,IOPar&) const;
 
     SeisTrcBuf&		trcBuf()		{ return *buf_; }
     const SeisTrcBuf&	trcBuf() const		{ return *buf_; }
@@ -61,27 +61,40 @@ protected:
 mExpClass(Seis) SeisTrcBufDataPack : public FlatDataPack
 {
 public:
-
 			SeisTrcBufDataPack(SeisTrcBuf*,Seis::GeomType,
 					   SeisTrcInfo::Fld,const char* categry,
-					   int compnr=0);
+					   const ZDomain::Info&,int compnr=0);
 			//!< buf becomes mine
 			SeisTrcBufDataPack(const SeisTrcBuf&,Seis::GeomType,
 					   SeisTrcInfo::Fld,const char* categry,
-					   int compnr=0);
+					   const ZDomain::Info&,int compnr=0);
 			//!< buf stays yours (and must remain alive!)
 			SeisTrcBufDataPack(const SeisTrcBufDataPack&);
 
-    void		setBuffer(SeisTrcBuf*,Seis::GeomType,SeisTrcInfo::Fld,
+    SeisTrcBufDataPack& setBuffer(SeisTrcBuf*,Seis::GeomType,SeisTrcInfo::Fld,
 				  int icomp=0,bool manage_buf=true);
+    SeisTrcBufDataPack& setOffsetType(Seis::OffsetType);
+    SeisTrcBufDataPack& setAzimuthAngleType(OD::AngleType);
 
     bool		getTrcKeyZSampling(TrcKeyZSampling&) const;
+    Seis::OffsetType	offsetType() const;
+    OD::AngleType	azimuthAngleType() const;
 
-    const char*		dimName(bool) const override;
-    Coord3		getCoord(int,int) const override;
-    void		getAltDim0Keys(BufferStringSet&) const override;
-    bool		dimValuesInInt(const char* key) const override;
-    double		getAltDim0Value(int,int) const override;
+    uiString		dimName(bool) const override;
+    uiString		dimUnitLbl(bool dim0,bool display,bool abbreviated=true,
+				   bool withparentheses=true) const override;
+    const UnitOfMeasure* dimUnit(bool dim0,bool display) const override;
+
+    TrcKey		getTrcKey(int itrc,int isamp) const override;
+    Coord3		getCoord(int itrc,int isamp) const override;
+    double		getZ(int itrc,int isamp) const override;
+    void		getAltDimKeys(uiStringSet&,bool dim0) const override;
+    void		getAltDimKeysUnitLbls(uiStringSet&,bool dim0,
+				    bool abbreviated=true,
+				    bool withparentheses=true) const override;
+    double		getAltDimValue(int key,bool dim0,int i0) const override;
+    bool		dimValuesInInt(const uiString& key,
+				       bool dim0) const override;
     void		getAuxInfo(int,int,IOPar&) const override;
     bool		posDataIsCoord() const override { return false; }
 
@@ -98,7 +111,19 @@ protected:
 			~SeisTrcBufDataPack();
 
     Seis::GeomType		gt_;
+    Seis::OffsetType		offsettype_;
+    OD::AngleType		azimuthangletype_ = OD::AngleType::Degrees;
     SeisTrcInfo::Fld		posfld_;
     TypeSet<SeisTrcInfo::Fld>	flds_;
+
+public:
+			mDeprecated("Provide ZDomain::Info")
+			SeisTrcBufDataPack(SeisTrcBuf*,Seis::GeomType,
+					   SeisTrcInfo::Fld,const char* categry,
+					   int compnr=0);
+			mDeprecated("Provide ZDomain::Info")
+			SeisTrcBufDataPack(const SeisTrcBuf&,Seis::GeomType,
+					   SeisTrcInfo::Fld,const char* categry,
+					   int compnr=0);
 
 };

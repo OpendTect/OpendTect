@@ -135,6 +135,7 @@ public:
     void			getMousePosInfo(const visBase::EventInfo&,
 						Coord3&, BufferString&,
 						uiString&) const override;
+    void			getObjectInfo(uiString&) const override;
 
     int				getSelNodeIdx() const	{ return selnodeidx_; }
 				//!<knotidx>=0, panelidx<0

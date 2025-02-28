@@ -1718,7 +1718,8 @@ void uiEMPartServer::getAllSurfaceInfo( ObjectSet<SurfaceInfo>& hinfos,
 
 	if ( ioobj->group() == groupstr  )
 	{
-	    const ZDomain::Info* objzinfo = ZDomain::get( ioobj->pars() );
+	    const ZDomain::Info* objzinfo =
+				 ZDomain::Info::getFrom( ioobj->pars() );
 	    if ( zinfo )
 	    {
 		if ( objzinfo && zinfo->isCompatibleWith(*objzinfo) )
@@ -1791,7 +1792,8 @@ void uiEMPartServer::getSurfaceDef3D( const TypeSet<EM::ObjectID>& selhorids,
 		{
 		    for ( int z2idx=0; z2idx<z2pos.size(); z2idx++ )
 		    {
-                        float dist_ = (float) (z2pos[z2idx].z_ - z1pos[z1idx].z_);
+			float dist_ =
+			      (float) (z2pos[z2idx].z_ - z1pos[z1idx].z_);
 			if ( fabs(dist_) < dist )
 			{
                             zintv.start_ = (float) z1pos[z1idx].z_;

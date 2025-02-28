@@ -39,9 +39,9 @@ uiFlatDPPosSel::uiFlatDPPosSel( uiParent* p, const DataPack::FullID& dpfid )
 	return;
     }
 
-    BufferStringSet altdimnms;
-    fdp_->getAltDim0Keys( altdimnms );
-    altdimnmflds_ = new uiComboBox( this, altdimnms, "" );
+    uiStringSet altdimnms;
+    fdp_->getAltDimKeys( altdimnms, true );
+    altdimnmflds_ = new uiComboBox( this, altdimnms, nullptr );
     mAttachCB( altdimnmflds_->selectionChanged,
 	       uiFlatDPPosSel::sldrPosChangedCB );
     possldr_ = new uiSlider( this, uiSlider::Setup(), "posslider" );
@@ -78,7 +78,7 @@ double uiFlatDPPosSel::getPos() const
 
     StepInterval<double> x1rg = fdp_->posData().range( true );
     const int idx = x1rg.getIndex( possldr_->getFValue() );
-    const double posval = fdp_->getAltDim0Value( 0, idx );
+    const double posval = fdp_->getAltDimValue( 0, true, idx );
     return posval;
 }
 
@@ -90,7 +90,7 @@ void uiFlatDPPosSel::sldrPosChangedCB( CallBacker* )
     StepInterval<double> x1rg = fdp_->posData().range( true );
     const int idx = x1rg.getIndex( possldr_->getFValue() );
     const double posval =
-	fdp_->getAltDim0Value( altdimnmflds_->currentItem(), idx );
+	fdp_->getAltDimValue( altdimnmflds_->currentItem(), true, idx );
     posvalfld_->setValue( posval );
 }
 

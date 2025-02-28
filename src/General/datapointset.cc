@@ -201,9 +201,9 @@ void DataPointSet::DataRow::setGroup( unsigned short newgrp )
 
 
 DataPointSet::DataPointSet( bool is2d, bool mini )
-	: PointDataPack(sKeyDPS)
-	, data_(*new PosVecDataSet)
-	, mAddMembs(is2d,mini)
+    : PointDataPack(sKeyDPS)
+    , data_(*new PosVecDataSet)
+    , mAddMembs(is2d,mini)
 {
     initPVDS();
 }
@@ -212,9 +212,9 @@ DataPointSet::DataPointSet( bool is2d, bool mini )
 DataPointSet::DataPointSet( const TypeSet<DataPointSet::DataRow>& pts,
 			    const ObjectSet<DataColDef>& dcds, bool is2d,
 			    bool mini )
-	: PointDataPack(sKeyDPS)
-	, data_(*new PosVecDataSet)
-	, mAddMembs(is2d,mini)
+    : PointDataPack(sKeyDPS)
+    , data_(*new PosVecDataSet)
+    , mAddMembs(is2d,mini)
 {
     initPVDS();
     init( pts, dcds );
@@ -223,9 +223,9 @@ DataPointSet::DataPointSet( const TypeSet<DataPointSet::DataRow>& pts,
 
 DataPointSet::DataPointSet( const TypeSet<DataPointSet::DataRow>& pts,
 			    const BufferStringSet& nms, bool is2d, bool mini )
-	: PointDataPack(sKeyDPS)
-	, data_(*new PosVecDataSet)
-	, mAddMembs(is2d,mini)
+    : PointDataPack(sKeyDPS)
+    , data_(*new PosVecDataSet)
+    , mAddMembs(is2d,mini)
 {
     initPVDS();
     ObjectSet<DataColDef> dcds;

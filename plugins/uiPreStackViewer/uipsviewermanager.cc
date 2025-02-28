@@ -468,7 +468,7 @@ uiMainWin* uiViewer3DMgr::createMultiGather2DViewer(
 
     auto* viewwin = new uiStoredViewer2DMainWin( ODMainWin(), title, is2d );
     const StepInterval<int>& trcrg = psv.getTraceRange( psv.getBinID() );
-    const TrcKey& tk = psv.getTrcKey();
+    const TrcKey tk = psv.getTrcKey();
     viewwin->init( mid, tk,  is2d ? true : psv.isOrientationInline(), trcrg );
     viewwin->setDarkBG( false );
     viewwin->setAppearance( psv.flatViewer()->appearance() );

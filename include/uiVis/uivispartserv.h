@@ -290,9 +290,9 @@ public:
     int			selectedTexture(const VisID&,int attrib) const;
 
     static int		evMouseMove();
-    Coord3		getMousePos() const;
-    int			zFactor() const			{ return zfactor_; }
-    BufferString	getMousePosVal() const;
+    SceneID		getMouseSceneID() const		{ return mousescene_; }
+    Coord3		getMousePos() const		{ return xytmousepos_; }
+    BufferString	getMousePosVal() const		{ return mouseposval_; }
     BufferString	getMousePosString() const	{ return mouseposstr_; }
     void		getObjectInfo(const VisID&,uiString&) const;
 
@@ -474,6 +474,7 @@ protected:
     VisID			mapperrgeditordisplayid_;
 
     Coord3			xytmousepos_			= Coord3::udf();
+    SceneID			mousescene_;
     int				zfactor_			= 1;
     BufferString		mouseposval_;
     BufferString		mouseposstr_;
@@ -542,6 +543,8 @@ public:
     DataPackID		getDisplayedDataPackID(const VisID&,int attrib) const;
     mDeprecatedObs
     DataPackMgr::MgrID	getDataPackMgrID(const VisID&) const;
+    mDeprecatedObs
+    int			zFactor() const			{ return zfactor_; }
 };
 
 

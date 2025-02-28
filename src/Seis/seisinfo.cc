@@ -28,6 +28,7 @@ ________________________________________________________________________
 #include "survinfo.h"
 #include "trckeyzsampling.h"
 #include "uistrings.h"
+#include "unitofmeasure.h"
 
 #include <float.h>
 #include <iostream>
@@ -122,7 +123,7 @@ mDefineEnumUtils(SeisEnum,SelType,"Selection type")
 	sKey::Range(),
 	sKey::Table(),
 	sKey::Polygon(),
-	0
+	nullptr
 };
 
 mDefineEnumUtils(SeisEnum,GeomType,"Geometry type")
@@ -131,7 +132,7 @@ mDefineEnumUtils(SeisEnum,GeomType,"Geometry type")
 	"Pre-Stack Volume",
 	"2D Line",
 	"Line 2D Pre-Stack",
-	0
+	nullptr
 };
 
 mDefineEnumUtils(SeisEnum,WaveType,"Wave type")
@@ -140,7 +141,7 @@ mDefineEnumUtils(SeisEnum,WaveType,"Wave type")
 	"Sh",
 	"Sv",
 	"Other",
-	0
+	nullptr
 };
 
 mDefineEnumUtils(SeisEnum,DataType,"Data type")
@@ -153,7 +154,7 @@ mDefineEnumUtils(SeisEnum,DataType,"Data type")
 	"Azimuth",
 	"Classification",
 	"Other",
-	0
+	nullptr
 };
 
 const char* Seis::nameOf( Seis::SelType st )
@@ -257,20 +258,38 @@ bool Seis::isPSGeom( const IOPar& iop )
 }
 
 
-mDefineEnumUtils(SeisTrcInfo,Fld,"Header field") {
-	"Trace number",
+mDefineEnumUtils(SeisTrcInfo,Fld,"Header field")
+{
+	sKey::TraceNr().str(),
 	"Pick position",
 	"Ref/SP number",
-	"X-coordinate",
-	"Y-coordinate",
-	"In-line",
-	"Cross-line",
-	"Offset",
-	"Azimuth",
+	sKey::XCoordinate(),
+	sKey::YCoordinate(),
+	sKey::Inline().str(),
+	sKey::Crossline().str(),
+	sKey::Offset().str(),
+	sKey::Azimuth().str(),
 	"Sequence number",
 	"Geometry ID",
 	nullptr
 };
+
+
+template <>
+void EnumDefImpl<SeisTrcInfo::Fld>::init()
+{
+    uistrings_ += uiStrings::sTrace();
+    uistrings_ += tr("Pick position");
+    uistrings_ += tr("Ref/SP number");
+    uistrings_ += uiStrings::sXcoordinate();
+    uistrings_ += uiStrings::sYcoordinate();
+    uistrings_ += uiStrings::sInline();
+    uistrings_ += uiStrings::sCrossline();
+    uistrings_ += uiStrings::sOffset();
+    uistrings_ += uiStrings::sAzimuth();
+    uistrings_ += tr("Sequence number");
+    uistrings_ += tr("Geometry ID");
+}
 
 
 mStartAllowDeprecatedSection
@@ -319,19 +338,20 @@ SeisTrcInfo::~SeisTrcInfo()
 
 SeisTrcInfo& SeisTrcInfo::operator=( const SeisTrcInfo& oth )
 {
-    if ( this != &oth )
-    {
-	trckey_ = oth.trckey_;
-	sampling_ = oth.sampling_;
-	coord_ = oth.coord_;
-	offset_ = oth.offset_;
-	azimuth_ = oth.azimuth_;
-	refnr_ = oth.refnr_;
-	pick_ = oth.pick_;
-	seqnr_ = oth.seqnr_;
-	zref_ = oth.zref_;
-	new_packet_ = oth.new_packet_;
-    }
+    if ( this == &oth )
+	return *this;
+
+    trckey_ = oth.trckey_;
+    sampling_ = oth.sampling_;
+    coord_ = oth.coord_;
+    offset_ = oth.offset_;
+    azimuth_ = oth.azimuth_;
+    refnr_ = oth.refnr_;
+    pick_ = oth.pick_;
+    seqnr_ = oth.seqnr_;
+    zref_ = oth.zref_;
+    new_packet_ = oth.new_packet_;
+
     return *this;
 }
 
@@ -389,21 +409,62 @@ float SeisTrcInfo::defaultSampleInterval( bool forcetime )
 }
 
 
-double SeisTrcInfo::getValue( SeisTrcInfo::Fld fld ) const
+uiString SeisTrcInfo::getUnitLbl( const Fld& fld, bool display,
+				  bool abbreviated, bool withparent )
+{
+    switch ( fld )
+    {
+	case CoordX: case CoordY:
+	    return SI().getUiXYUnitString( abbreviated, withparent );
+	case BinIDInl: case BinIDCrl: case RefNr: case SeqNr: case GeomID:
+	    return uiString::empty();
+	case Offset: case Azimuth:
+	    return getUnit( fld, display )->getUiLabel(abbreviated,withparent);
+	case Pick:
+	    return UnitOfMeasure::surveyDefZUnitAnnot( abbreviated, withparent);
+	default:
+	    return uiString::empty();
+    }
+}
+
+
+const UnitOfMeasure* SeisTrcInfo::getUnit( const Fld& fld, bool /* display */ )
+{
+    switch ( fld )
+    {
+	case CoordX: case CoordY:
+	    return UnitOfMeasure::surveyDefXYUnit();
+	case BinIDInl: case BinIDCrl: case RefNr: case SeqNr: case GeomID:
+	    return nullptr;
+	case Offset:
+	    return UnitOfMeasure::offsetUnit( SI().xyInFeet()
+					? Seis::OffsetType::OffsetFeet
+					: Seis::OffsetType::OffsetMeter );
+	case Azimuth:
+	    return UnitOfMeasure::angleUnit( OD::AngleType::Degrees );
+	case Pick:
+	    return UnitOfMeasure::surveyDefZStorageUnit();
+	default:
+	    return nullptr;
+    }
+}
+
+
+double SeisTrcInfo::getValue( const Fld& fld ) const
 {
     switch ( fld )
     {
 	case CoordX:	return coord_.x_;
 	case CoordY:	return coord_.y_;
-    case BinIDInl:	return inl();
-    case BinIDCrl:	return crl();
+	case BinIDInl:	return inl();
+	case BinIDCrl:	return crl();
 	case Offset:	return offset_;
 	case Azimuth:	return azimuth_;
-	case RefNr:		return refnr_;
-	case Pick:		return pick_;
-    case SeqNr:		return seqnr_;
-    case GeomID:	return double(geomID().asInt());
-    default:		return trcNr();
+	case RefNr:	return refnr_;
+	case Pick:	return pick_;
+	case SeqNr:	return seqnr_;
+	case GeomID:	return double(geomID().asInt());
+	default:	return trcNr();
     }
 }
 
@@ -411,8 +472,6 @@ double SeisTrcInfo::getValue( SeisTrcInfo::Fld fld ) const
 void SeisTrcInfo::getAxisCandidates( Seis::GeomType gt,
 				     TypeSet<SeisTrcInfo::Fld>& flds )
 {
-    flds.erase();
-
     if ( Seis::is2D(gt) )
 	{ flds += TrcNr; flds += RefNr; }
     else
@@ -459,42 +518,6 @@ SeisTrcInfo::Fld SeisTrcInfo::getDefaultAxisFld( Seis::GeomType gt,
 }
 
 
-#define mIOIOPar(fn,fld,memb) iopar.fn( FldNames()[(int)fld], memb )
-
-void SeisTrcInfo::getInterestingFlds( Seis::GeomType gt, IOPar& iopar ) const
-{
-    const bool is2d = Seis::is2D( gt );
-    const bool isps = Seis::isPS( gt );
-
-    if ( isps )
-    {
-	mIOIOPar( set, Offset, offset_ );
-	mIOIOPar( set, Azimuth, azimuth_ );
-    }
-
-    if ( is2d )
-    {
-	mIOIOPar( set, TrcNr, trcNr() );
-	if ( refnr_ && !mIsUdf(refnr_) )
-	    mIOIOPar( set, RefNr, refnr_ );
-    }
-    else
-    {
-	mIOIOPar( set, BinIDInl, inl() );
-	mIOIOPar( set, BinIDCrl, crl() );
-	iopar.set( sKey::Position(), binID().toString() );
-    }
-
-    mIOIOPar( set, CoordX, coord_.x_ );
-    mIOIOPar( set, CoordY, coord_.y_ );
-
-    if ( pick_ && !mIsUdf(pick_) )
-	mIOIOPar( set, Pick, pick_ );
-    if ( refnr_ && !mIsUdf(refnr_) )
-	mIOIOPar( set, RefNr, refnr_ );
-}
-
-
 void SeisTrcInfo::setPSFlds( const Coord& rcv, const Coord& src, bool setpos )
 {
     offset_ = (float) rcv.distTo( src );
@@ -507,6 +530,8 @@ void SeisTrcInfo::setPSFlds( const Coord& rcv, const Coord& src, bool setpos )
     }
 }
 
+
+#define mIOIOPar(fn,fld,memb) iopar.fn( FldNames()[(int)fld], memb )
 
 void SeisTrcInfo::usePar( const IOPar& iopar )
 {

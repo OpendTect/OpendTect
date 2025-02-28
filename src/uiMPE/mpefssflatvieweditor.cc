@@ -315,9 +315,9 @@ bool FaultStickSetFlatViewEditor::getMousePosInfo(
 
     if ( trcnr )
     {
-	IOPar infopar;
-	dp->getAuxInfo( ix.nearest_, iy.nearest_, infopar );
-	infopar.get( sKey::TraceNr(), *trcnr );
+	const TrcKey tk = dp->getTrcKey( ix.nearest_, iy.nearest_ );
+	if ( !tk.is3D() )
+	    *trcnr = tk.trcNr();
     }
 
     return true;

@@ -59,7 +59,7 @@ public:
 			//!< MouseEventHandler of uiGraphicsScene and false
 			//!< while passing MouseEventHandler of uiGraphicsView.
 
-    Notifier<uiFlatViewControl>  infoChanged;	// CallBacker: CBCapsule<IOPar>
+    CNotifier<uiFlatViewControl,const IOPar&>  infoChanged;
     Notifier<uiFlatViewControl>  viewerAdded;
     Notifier<uiFlatViewControl>  zoomChanged;
     Notifier<uiFlatViewControl>  rubberBandUsed;
@@ -77,6 +77,8 @@ public:
 				panning, pass the view after translation. */
     const FlatView::ZoomMgr&	zoomMgr() const { return zoommgr_; }
     void			reInitZooms();
+
+    static const char*		sKeyViewerIdx();
 
 protected:
 

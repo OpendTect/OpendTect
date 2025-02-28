@@ -14,6 +14,7 @@ ________________________________________________________________________
 #include "array2dresample.h"
 #include "color.h"
 #include "datapointset.h"
+#include "flatview.h"
 #include "seisdatapackzaxistransformer.h"
 #include "settings.h"
 #include "uistrings.h"
@@ -532,9 +533,9 @@ void PlaneDataDisplay::acceptManipulation()
 
 uiString PlaneDataDisplay::getManipulationString() const
 {
-    uiString res;
-    getObjectInfo( res );
-    return res;
+    uiString str;
+    getObjectInfo( str );
+    return str;
 }
 
 
@@ -974,33 +975,27 @@ void PlaneDataDisplay::getObjectInfo( uiString& info ) const
     const TrcKeyZSampling tkzs = getTrcKeyZSampling( true, true );
     if ( orientation_==OD::SliceType::Inline )
     {
-	info = uiStrings::sInline();
-	info.appendPhrase( ::toUiString(tkzs.hsamp_.start_.inl()),
-	    uiString::MoreInfo, uiString::OnSameLine );
+	info.set( uiStrings::sInline() )
+	    .addMoreInfo( tkzs.hsamp_.start_.inl() );
     }
     else if ( orientation_==OD::SliceType::Crossline )
     {
-	info = uiStrings::sCrossline();
-	info.appendPhrase( ::toUiString(tkzs.hsamp_.start_.inl()),
-	    uiString::MoreInfo, uiString::OnSameLine );
+	info.set( uiStrings::sCrossline() )
+	    .addMoreInfo( tkzs.hsamp_.start_.crl() );
     }
-    else
+    else if ( orientation_==OD::SliceType::Z )
     {
-        const float val = tkzs.zsamp_.start_;
-	if ( !scene_ )
-	{
-	    info = ::toUiString(val);
-	    return;
-	}
+	const Scene* scene = getScene();
+	const ZDomain::Info& datazdom = scene ? scene->zDomainInfo()
+					      : SI().zDomainInfo();
+	const ZDomain::Info& displayzdom = datazdom.isDepth()
+			? ZDomain::DefaultDepth( true ) : datazdom;
+	const float zval = tkzs.zsamp_.start_ *
+			   FlatView::Viewer::userFactor( datazdom,&displayzdom);
 
-	const ZDomain::Info& zdinf = scene_->zDomainInfo();
-	info = zdinf.userName();
-
-        const float userval = tkzs.zsamp_.step_ * zdinf.userFactor();
-	const int nrdec = Math::NrSignificantDecimals( userval );
-	const BufferString zstr( val*zdinf.userFactor(), nrdec );
-	info.appendPhrase( ::toUiString(zstr), uiString::MoreInfo,
-						    uiString::OnSameLine );
+	const int nrzdec = displayzdom.nrDecimals( mUdf(float) );
+	info.set( displayzdom.getLabel() )
+	    .addMoreInfo( ::toUiStringDec(zval,nrzdec) );
     }
 }
 
