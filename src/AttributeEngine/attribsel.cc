@@ -296,6 +296,26 @@ bool SelSpec::isStored() const
 }
 
 
+MultiID SelSpec::getStoredMultiID() const
+{
+    if ( !isStored() )
+	return MultiID::udf();
+
+    BufferString retstr = defstring_;
+    if ( !retstr.startsWith("Storage id=") )
+	return MultiID::udf();
+
+    retstr.remove( "Storage id=" );
+    const SeparString retss( retstr.buf(), ' ' );
+    if ( retss.isEmpty() )
+	return MultiID::udf();
+
+    MultiID ret;
+    ret.fromString( retss[0] );
+    return ret;
+}
+
+
 const BinDataDesc* SelSpec::getPreloadDataDesc( const Pos::GeomID& geomid) const
 {
     const DescSet* descset = DSHolder().getDescSet( false, isStored() );

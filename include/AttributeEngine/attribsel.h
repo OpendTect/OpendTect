@@ -95,6 +95,7 @@ public:
 
     bool		isStored() const;
     bool		isZTransformed() const;
+    MultiID		getStoredMultiID() const;
 
     const BinDataDesc*	getPreloadDataDesc(const Pos::GeomID&) const;
 
