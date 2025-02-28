@@ -168,10 +168,10 @@ void SeisTrcTranslator::cleanUp()
 bool SeisTrcTranslator::close()
 {
     bool ret = true;
-    if ( conn_ && !conn_->forRead() )
+    if ( !forRead() )
     {
 	ret = writeBlock();
-	if ( ret )
+	if ( ret && conn_ )
 	{
 	    PtrMan<IOObj> obj = IOM().get( conn_->linkedTo() );
 	    if ( obj )
