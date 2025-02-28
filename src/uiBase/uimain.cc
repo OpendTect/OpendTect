@@ -320,6 +320,17 @@ static BufferString getStyleFromSettings( const CommandLineParser& parser,
 	if ( lookpref.isEmpty() )
 	    lookpref = GetEnvVar( "OD_LOOK_STYLE" );
     }
+    
+    if ( __iswin__ && lookpref.isEmpty() )
+    {
+	const QStringList styles = QStyleFactory::keys();
+	const QString win11style( "Windows11" );
+	static const char* prefwinstyle = "Windows";
+	const QString winstyle( prefwinstyle );
+	if ( styles.front() == win11style &&
+	     styles.contains(winstyle) )
+	    lookpref.set( prefwinstyle );
+    }
 
     if ( !lookpref.isEmpty() )
     {
