@@ -19,21 +19,20 @@ ________________________________________________________________________
 #include "welltrack.h"
 
 const char* Well::Marker::sKeyDah()	{ return "Depth along hole"; }
+const char* Well::Marker::sKeyAgeMa()	{ return "Age in Ma"; }
 
 
 Well::Marker::Marker( const char* nm, float dh, OD::Color c )
     : ::NamedObject(nm)
     , dah_(dh)
     , color_(c)
-    , levelid_(Strat::LevelID::udf())
 {
 }
 
 
-Well::Marker::Marker( Strat::LevelID lvlid, float dh )
+Well::Marker::Marker( const Strat::LevelID& lvlid, float dh )
     : ::NamedObject("")
     , dah_(dh)
-    , color_(OD::Color::Black())
     , levelid_(lvlid)
 {
 }
@@ -53,13 +52,15 @@ Well::Marker::~Marker()
 
 Well::Marker& Well::Marker::operator =( const Well::Marker& oth )
 {
-    if ( this != &oth )
-    {
-	NamedObject::operator=( oth );
-	dah_ = oth.dah_;
-	color_ = oth.color_;
-	levelid_ = oth.levelid_;
-    }
+    if ( &oth == this )
+	return *this;
+
+    NamedObject::operator=( oth );
+    dah_ = oth.dah_;
+    color_ = oth.color_;
+    agema_ = oth.agema_;
+    levelid_ = oth.levelid_;
+
     return *this;
 }
 
@@ -74,19 +75,70 @@ OD::Color Well::Marker::color() const
 }
 
 
+float Well::Marker::getAgeMa( bool start ) const
+{
+    return start ? agema_.start_ : agema_.stop_;
+}
+
+
 Strat::Level Well::Marker::getLevel() const
 {
     return Strat::LVLS().get( levelid_ );
 }
 
 
-void Well::Marker::setNoLevelID()
+Well::Marker& Well::Marker::setDah( float dah )
 {
-    setLevelID( Strat::LevelID::udf() );
+    dah_ = dah;
+    return *this;
+}
+
+
+Well::Marker& Well::Marker::setColor( const OD::Color& col )
+{
+    color_ = col;
+    return *this;
+}
+
+
+Well::Marker& Well::Marker::setAgeMa( float val )
+{
+    agema_.start_ = val;
+    agema_.stop_ = val;
+    return *this;
+}
+
+
+Well::Marker& Well::Marker::setAgeMa( const Interval<float>& agerg )
+{
+    agema_ = agerg;
+    return *this;
+}
+
+
+Well::Marker& Well::Marker::setLevelID( const Strat::LevelID& id )
+{
+    levelid_ = id;
+    return *this;
+}
+
+
+Well::Marker& Well::Marker::setNoLevelID()
+{
+    setLevelID(Strat::LevelID::udf());
+    return *this;
+}
+
+
+Well::Marker& Well::Marker::setID( const MarkerID& id )
+{
+    id_ = id;
+    return *this;
 }
 
 
 // Well::MarkerSet
+
 Well::MarkerSet::MarkerSet()
 {}
 

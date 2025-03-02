@@ -25,7 +25,8 @@ class Track;
 /*!
 \brief Marker, should be attached to Strat level.
 
-  Can be unattached, then uses the fallback name and color.
+  Can be unattached, then uses the fallback name, color, and age
+  The age is an interval, to support unconformities
 */
 
 mExpClass(Well) Marker : public ::NamedObject
@@ -33,9 +34,9 @@ mExpClass(Well) Marker : public ::NamedObject
 public:
 			Marker(const char* nm=nullptr,float dh=0.f,
 			       OD::Color c=OD::Color());
-			Marker(Strat::LevelID,float dh);
+			Marker(const Strat::LevelID&,float dh);
 			Marker(const Marker&);
-    virtual		~Marker();
+			~Marker();
 
     Marker&		operator =(const Marker&);
     inline bool		operator ==( const Marker& m )
@@ -44,27 +45,31 @@ public:
 			{ return dah_ > wm.dah_; }
 
     inline float	dah() const		{ return dah_; }
-    inline void		setDah( float v )	{ dah_ = v; }
     OD::Color		color() const;
+    const Interval<float>& getAgeMa() const	{ return agema_; }
+    float		getAgeMa(bool start) const;
     inline Strat::LevelID levelID() const	{ return levelid_; }
     Strat::Level	getLevel() const;
+    inline const MarkerID& ID() const		{ return id_; }
 
-    static const char*	sKeyDah();
+    /* setName(), setColor(), setAge only used as fallback,
+	if not attached to level  */
+    Marker&		setDah(float);
+    Marker&		setColor(const OD::Color&);
+    Marker&		setAgeMa(float);
+    Marker&		setAgeMa(const Interval<float>&);
+    Marker&		setLevelID(const Strat::LevelID&);
+    Marker&		setNoLevelID();
+    Marker&		setID(const MarkerID&);
 
-    // setName() and setColor() only used as fallback, if not attached to level
-    inline void		setColor( const OD::Color& col )
-			{ color_ = col; }
-    inline void		setLevelID( const Strat::LevelID& id )
-			{ levelid_ = id; }
-    void		setNoLevelID();
-
-    inline void		setID( const MarkerID& id )	{ id_ = id; }
-    inline const MarkerID& ID() const			{ return id_; }
+    static const char* sKeyDah();
+    static const char* sKeyAgeMa();
 
 private:
 
     float		dah_;
-    OD::Color		color_;
+    OD::Color		color_	    = OD::Color::Black();
+    Interval<float>	agema_ = Interval<float>::udf();
     Strat::LevelID	levelid_;
     MarkerID		id_;
 
