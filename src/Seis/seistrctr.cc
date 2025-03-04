@@ -797,8 +797,12 @@ void SeisTrcTranslator::setCurGeomID( Pos::GeomID gid )
 }
 
 
-void SeisTrcTranslator::getAllFileNames( BufferStringSet& filenms ) const
+void SeisTrcTranslator::getAllFileNames( BufferStringSet& filenms,
+					 bool forui ) const
 {
+    if ( forui )
+	return;
+
     if ( havePars() )
     {
 	const BufferString parfilename = getAuxFileName( sParFileExtension() );

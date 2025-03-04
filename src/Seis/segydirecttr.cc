@@ -977,8 +977,8 @@ od_int64 SEGYDirectSeisTrcTranslator::getFileSize() const
 }
 
 
-void SEGYDirectSeisTrcTranslator::getAllFileNames(
-				    BufferStringSet& filenames ) const
+void SEGYDirectSeisTrcTranslator::getAllFileNames( BufferStringSet& filenames,
+						   bool forui ) const
 {
     if ( !def_ || segydeffilename_.isEmpty() )
 	return;
@@ -995,7 +995,7 @@ void SEGYDirectSeisTrcTranslator::getAllFileNames(
     }
 
     filenames.addIfNew( segydeffilename_ );
-    SeisTrcTranslator::getAllFileNames( filenames );
+    SeisTrcTranslator::getAllFileNames( filenames, forui );
 }
 
 

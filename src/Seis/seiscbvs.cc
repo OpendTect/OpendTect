@@ -254,7 +254,8 @@ od_int64 CBVSSeisTrcTranslator::getFileSize() const
 }
 
 
-void CBVSSeisTrcTranslator::getAllFileNames( BufferStringSet& filenames ) const
+void CBVSSeisTrcTranslator::getAllFileNames( BufferStringSet& filenames,
+					     bool forui ) const
 {
     if ( !rdmgr_ )
 	return;
@@ -263,7 +264,7 @@ void CBVSSeisTrcTranslator::getAllFileNames( BufferStringSet& filenames ) const
     if ( !basefname.isEmpty() )
 	filenames.addIfNew( basefname );
 
-    SeisTrcTranslator::getAllFileNames( filenames );
+    SeisTrcTranslator::getAllFileNames( filenames, forui );
 }
 
 

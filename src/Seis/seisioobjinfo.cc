@@ -600,14 +600,15 @@ int SeisIOObjInfo::nrImpls() const
 }
 
 
-void SeisIOObjInfo::getAllFileNames( BufferStringSet& filenames ) const
+void SeisIOObjInfo::getAllFileNames( BufferStringSet& filenames,
+				     bool forui ) const
 {
     mDynamicCast(SeisTrcTranslator*,PtrMan<SeisTrcTranslator> sttr,
 		 ioobj_->createTranslator())
     if ( !checkAndInitTranslRead(sttr.ptr()) )
 	return;
 
-    sttr->getAllFileNames( filenames );
+    sttr->getAllFileNames( filenames, forui );
 }
 
 
