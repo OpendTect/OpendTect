@@ -221,7 +221,8 @@ private:
     void		setCompDataFromInput();
     bool		readData(TraceData* externalbuf) override;
 
-    void		getAllFileNames(BufferStringSet&) const override;
+    void		getAllFileNames(BufferStringSet&,
+					bool forui=false) const override;
     bool		haveAux(const char*) const override;
     BufferString	getAuxFileName(const char*) const override;
 

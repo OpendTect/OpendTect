@@ -534,7 +534,7 @@ void uiSeisFileMan::getBasicFileInfo( BufferString& txt ) const
 	return;
 
     BufferStringSet filenames;
-    seisobjinfo.getAllFileNames( filenames );
+    seisobjinfo.getAllFileNames( filenames, true );
     if ( !filenames.isEmpty() )
     {
 	txt.add( "\nLinked file(s): " );
