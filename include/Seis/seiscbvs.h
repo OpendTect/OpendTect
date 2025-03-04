@@ -115,6 +115,8 @@ private:
     od_int64		getFileSize() const override;
     void		getAllFileNames(BufferStringSet&,
 					bool forui=false) const override;
+    void		implFileNames(const IOObj*,
+					BufferStringSet&) const override;
     bool		haveAux(const char*) const override;
     BufferString	getAuxFileName(const char*) const override;
 };
