@@ -149,7 +149,9 @@ public:
 
     virtual int			nrImpls(const IOObj*) const;
     virtual void		implFileNames(const IOObj*,
-					      BufferStringSet&) const	  {}
+					      BufferStringSet&) const	    {}
+    virtual void		getAllFileNames(BufferStringSet&,
+						bool forui=false) const     {}
 
     virtual const char*		connType() const;
     virtual void		usePar(const IOPar&)	{}

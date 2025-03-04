@@ -268,6 +268,16 @@ void CBVSSeisTrcTranslator::getAllFileNames( BufferStringSet& filenames,
 }
 
 
+void CBVSSeisTrcTranslator::implFileNames( const IOObj* obj,
+					   BufferStringSet& filenames ) const
+{
+    if ( !obj )
+	return;
+
+    filenames.add( obj->fullUserExpr() );
+}
+
+
 bool CBVSSeisTrcTranslator::haveAux( const char* ext ) const
 {
     if ( !rdmgr_ )
