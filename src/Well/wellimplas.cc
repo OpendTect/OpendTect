@@ -93,7 +93,6 @@ uiString Well::LASImporter::getLogInfo( od_istream& strm,
     char section = '-';
     lfi.depthcolnr_ = -1;
     int colnr = 0;
-    LatLong ll = LatLong::udf();
 
     while ( strm.isOK() )
     {
@@ -285,13 +284,13 @@ uiString Well::LASImporter::getLogInfo( od_istream& strm,
 	    {
 		// TODO: use UOM
 		BufferString locx = hasval2 ? val2 : val1;
-                lfi.loc_.x_ = toDouble( locx, mUdf(double) );
+		lfi.loc_.x_ = toDouble( locx, mUdf(double) );
 	    }
 	    if ( mIsKey("YCOORD") || mIsKey("YWELL") || mIsKey("Y") )
 	    {
 		// TODO: use UOM
 		BufferString locy = hasval2 ? val2 : val1;
-                lfi.loc_.y_ = toDouble( locy, mUdf(double) );
+		lfi.loc_.y_ = toDouble( locy, mUdf(double) );
 	    }
 	    if ( mIsKey("LATI") || mIsKey("LAT") || mIsKey("SLAT") )
 	    {
@@ -299,7 +298,7 @@ uiString Well::LASImporter::getLogInfo( od_istream& strm,
 		if ( LatLong::isDMSString(lat) )
 		    lat = BufferString( val1, " ", val2 );
 
-		ll.setFromString( lat, true );
+		lfi.ll_.setFromString( lat, true );
 	    }
 	    if ( mIsKey("LONG") || mIsKey("LON") || mIsKey("SLON") )
 	    {
@@ -307,7 +306,7 @@ uiString Well::LASImporter::getLogInfo( od_istream& strm,
 		if ( LatLong::isDMSString(lon) )
 		    lon = BufferString( val1, " ", val2 );
 
-		ll.setFromString( lon, false );
+		lfi.ll_.setFromString( lon, false );
 	    }
 	break;
 	default:
@@ -315,8 +314,8 @@ uiString Well::LASImporter::getLogInfo( od_istream& strm,
 	}
     }
 
-    if ( lfi.loc_.isUdf() && ll.isDefined() )
-	lfi.loc_ = LatLong::transform( ll );
+    if ( lfi.loc_.isUdf() && lfi.ll_.isDefined() )
+	lfi.loc_ = LatLong::transform( lfi.ll_ );
 
     if ( convs_.isEmpty() )
     {
@@ -424,7 +423,7 @@ void Well::LASImporter::parseLocation( const char* startptr1,
 	    islatlong = true;
 	}
 	else
-            pos.x_ = posd;
+	    pos.x_ = posd;
     }
     else if ( islatlong )
 	ll.setFromString( wordbuf, true );
@@ -450,7 +449,7 @@ void Well::LASImporter::parseLocation( const char* startptr1,
 	    islatlong = true;
 	}
 	else
-            pos.y_ = posd;
+	    pos.y_ = posd;
     }
     else if ( islatlong )
 	ll.setFromString( wordbuf, false );
@@ -460,8 +459,8 @@ void Well::LASImporter::parseLocation( const char* startptr1,
 	pos = LatLong::transform( ll );
 	if ( !pos.isDefined() )
 	{
-            pos.x_ = ll.lat_;
-            pos.y_ = ll.lng_;
+	    pos.x_ = ll.lat_;
+	    pos.y_ = ll.lng_;
 	}
     }
 
@@ -536,7 +535,7 @@ void Well::LASImporter::adjustTrack( const Interval<float>& zrg, bool istvdss,
 	Coord3 lastpos = track.pos( track.size()-1 );
 	const float lastmd = track.td();
 	const double zdiff = zrg.stop_ - (istvdss ? lasttrackz : lastmd);
-        lastpos.z_ += zdiff;
+	lastpos.z_ += zdiff;
 	track.addPoint( lastpos, istvdss ? lastmd + zdiff : zrg.stop_ );
 	changed = true;
     }

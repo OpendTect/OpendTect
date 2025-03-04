@@ -102,6 +102,7 @@ namespace sKey
     inline StringView LastInl()		{ return "Last In-line"; }
     inline StringView LastTrc()		{ return "Last Trace"; }
     inline StringView LastZ()		{ return "Last Z"; }
+    inline StringView LatLong()		{ return "Lat/Long"; }
     inline StringView Level()		{ return "Level"; }
     inline StringView Line()		{ return "Line"; }
     inline StringView LineKey()		{ return "Line key"; }

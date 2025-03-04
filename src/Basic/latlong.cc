@@ -20,6 +20,12 @@ ________________________________________________________________________
 const double cAvgEarthRadius = 6367450;
 
 // LatLong
+LatLong::LatLong()
+{
+    setUdf();
+}
+
+
 LatLong::LatLong( double la, double lo )
     : lat_(la)
     , lng_(lo)
@@ -34,6 +40,17 @@ LatLong::LatLong( const LatLong& ll )
 
 LatLong::~LatLong()
 {}
+
+
+LatLong& LatLong::operator=( const LatLong& oth )
+{
+    if ( this == &oth )
+	return *this;
+
+    lat_ = oth.lat_;
+    lng_ = oth.lng_;
+    return *this;
+}
 
 
 bool LatLong::operator==( const LatLong& oth ) const
@@ -356,7 +373,9 @@ void LatLong2Coord::set( const LatLong& ll, const Coord& c )
 
 LatLong LatLong2Coord::transform( const Coord& c ) const
 {
-    if ( !isOK() ) return reflatlng_;
+    if ( !isOK() )
+	return reflatlng_;
+
     mPrepScaleFac();
 
     Coord coorddist( (c.x_ - refcoord_.x_) * scalefac_,
@@ -381,7 +400,7 @@ Coord LatLong2Coord::transform( const LatLong& ll ) const
     const LatLong latlongdist( ll.lat_ - reflatlng_.lat_,
 			       ll.lng_ - reflatlng_.lng_ );
     return Coord( refcoord_.x_ + latlongdist.lng_ * lngdist_ / scalefac_,
-                  refcoord_.y_ + latlongdist.lat_ * latdist_ / scalefac_ );
+		  refcoord_.y_ + latlongdist.lat_ * latdist_ / scalefac_ );
 }
 
 
@@ -396,16 +415,20 @@ const char* LatLong2Coord::toString() const
 bool LatLong2Coord::fromString( const char* s )
 {
     lngdist_ = mUdf(float);
-    if ( !s || !*s ) return false;
+    if ( !s || !*s )
+	return false;
 
     BufferString str( s );
     char* ptr = str.find( '=' );
-    if ( !ptr ) return false;
+    if ( !ptr )
+	return false;
+
     *ptr++ = '\0';
-    Coord c; LatLong l;
+    Coord c;
+    LatLong l;
     if ( !c.fromString(str) || !l.fromString(ptr) )
 	return false;
-    else if ( mIsZero(c.x_,1e-3) && mIsZero(c.y_,1e-3) )
+   if ( mIsZero(c.x_,1e-3) && mIsZero(c.y_,1e-3) )
 	return false;
 
     set( l, c );

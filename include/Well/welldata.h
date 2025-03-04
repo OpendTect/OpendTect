@@ -11,6 +11,7 @@ ________________________________________________________________________
 #include "wellmod.h"
 
 #include "coord.h"
+#include "latlong.h"
 #include "multiid.h"
 #include "namedobj.h"
 #include "odcommonenums.h"
@@ -72,6 +73,7 @@ public:
     OD::WellType	welltype_		= OD::UnknownWellType;
 
     Coord		surfacecoord_;
+    LatLong		surfacelatlong_;
     float		replvel_;
     float		groundelev_		= mUdf(float);
 
