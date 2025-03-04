@@ -934,6 +934,8 @@ void Well::Info::fillPar( IOPar& par ) const
     par.set( sKeyWellType(), welltype_ );
 
     par.set( sKeyCoord(), surfacecoord_.toString() );
+    if ( surfacelatlong_.isDefined() )
+	par.set( sKey::LatLong(), surfacelatlong_.toString() );
     par.set( sKeyReplVel(), replvel_ );
     par.set( sKeyGroundElev(), groundelev_ );
 }
@@ -954,6 +956,11 @@ void Well::Info::usePar( const IOPar& par )
     par.get( sKeyWellType(), welltype ); welltype_ = (OD::WellType)welltype;
 
     surfacecoord_.fromString( par.find(sKeyCoord()) );
+
+    BufferString latlongstr;
+    if ( par.get(sKey::LatLong(),latlongstr) )
+	surfacelatlong_.fromString( latlongstr.buf() );
+
     par.get( sKeyReplVel(), replvel_ );
     par.get( sKeyGroundElev(), groundelev_ );
 }

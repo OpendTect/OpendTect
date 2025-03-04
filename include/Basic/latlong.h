@@ -22,12 +22,21 @@ namespace Coords { class CoordSystem; }
 mExpClass(Basic) LatLong
 {
 public:
-			LatLong(double la=0,double lo=0);
+			LatLong();			// isUdf()
+			LatLong(double la,double lo);
 			LatLong(const LatLong&);
 			~LatLong();
 
-    bool		operator ==(const LatLong&) const;
-    bool		operator !=(const LatLong&) const;
+    LatLong&		operator=(const LatLong&);
+    bool		operator==(const LatLong&) const;
+    bool		operator!=(const LatLong&) const;
+
+    double		latitude() const		{ return lat_; }
+    void		setLatitude( double lat )	{ lat_ = lat; }
+    double		longitude() const		{ return lng_; }
+    void		setLongitude( double lng )	{ lng_ = lng; }
+    void		set( double lat, double lng )	{ lat_=lat; lng_=lng; }
+    void		setUdf()			{ *this = udf(); }
 
     bool		isNull() const { return lat_==0 && lng_==0; }
     bool		isDefined() const {return !mIsUdf(lat_)&&!mIsUdf(lng_);}

@@ -69,6 +69,7 @@ public:
 	BufferString	srvc_;
 	BufferString	uwi_;
 	Coord		loc_			= Coord::udf();
+	LatLong		ll_;
 	double		kbelev_			= mUdf(double);
 	double		glelev_			= mUdf(double);
     };
