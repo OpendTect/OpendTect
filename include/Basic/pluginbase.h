@@ -47,7 +47,7 @@ extern "C" {
 
 struct PluginInfo
 {
-    enum LicenseType{ GPL, COMMERCIAL };
+    enum LicenseType{ GPL, COMMERCIAL, PROPRIETARY };
 
     PluginInfo(const char* dispname, const char* prodnm, const char* creator,
 	       const char* version, const char* text, LicenseType lt=GPL )
