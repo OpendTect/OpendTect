@@ -50,17 +50,17 @@ static const int cSEGYWarnNonrectCoord = 5;
 static const int cSEGYWarnSuspiciousCoord = 6;
 static const int cSEGYFoundStanzas = 7;
 static const int cSEGYWarnNonFixedLength = 8;
+
 static const int cMaxNrSamples = 1000000;
 static int maxnrconsecutivebadtrcs = -1;
 static const char* sKeyMaxConsBadTrcs = "SEGY.Max Bad Trace Block";
 static const od_stream::Pos cEndTapeHeader = 3600;
-static const od_int64 cTraceHeaderBytes = 240;
-
+static const od_int64 cTraceHeaderBytes = mSEGYTraceHeaderBytes;
 
 SEGYSeisTrcTranslator::SEGYSeisTrcTranslator( const char* nm, const char* unm )
     : SeisTrcTranslator(nm,unm)
-    , trchead_(*new SEGY::TrcHeader(headerbuf_,fileopts_.thdef_,false))
     , binhead_(*new SEGY::BinHeader)
+    , trchead_(*new SEGY::TrcHeader(headerbuf_,fileopts_.thdef_,false))
     , curcoord_(mUdf(float),0)
 {
     if ( maxnrconsecutivebadtrcs < 0 )
@@ -68,8 +68,13 @@ SEGYSeisTrcTranslator::SEGYSeisTrcTranslator( const char* nm, const char* unm )
 	maxnrconsecutivebadtrcs = 50;
 	Settings::common().get( sKeyMaxConsBadTrcs, maxnrconsecutivebadtrcs );
     }
+
     curtrcnr_ = prevtrcnr_ = -1;
-    mSetUdf(curbid_.inl()); mSetUdf(prevbid_.inl());
+    mSetUdf(curbid_.inl());
+    mSetUdf(prevbid_.inl());
+
+    maxnrtrcsinbuffer_ =
+		GetEnvVarIVal( "OD_MAX_NR_TRACES_IN_WRITEBUFFER", 10000 );
 }
 
 
@@ -88,9 +93,15 @@ void SEGYSeisTrcTranslator::cleanUp()
 
     deleteAndNullPtr( bp2c_ );
 
-    mSetUdf(curbid_.inl()); mSetUdf(prevbid_.inl());
+    mSetUdf(curbid_.inl());
+    mSetUdf(prevbid_.inl());
     curtrcnr_ = prevtrcnr_ = -1;
-    prevoffs_ = curoffs_ = -1.f; mSetUdf(curcoord_.x);
+    prevoffs_ = curoffs_ = -1.f;
+    mSetUdf(curcoord_.x);
+
+    deleteAndNullArrPtr( writebuffer_ );
+    writebuffersize_ = 0;
+    nrtrcsinbuffer_ = 0;
 }
 
 
@@ -177,7 +188,7 @@ bool SEGYSeisTrcTranslator::readTapeHeader()
 	filepars_.fmt_ = binhead_.format();
 	if ( filepars_.fmt_ == 4 && read_mode != Seis::PreScan )
 	    mErrRet( tr("SEG-Y format '4' (fixed point/gain code) "
-                        "not supported") )
+			"not supported") )
 	else if ( filepars_.fmt_<1 || filepars_.fmt_>8
 		|| filepars_.fmt_==6 || filepars_.fmt_==7 )
 	{
@@ -574,8 +585,8 @@ bool SEGYSeisTrcTranslator::initRead_()
 
     if ( innrsamples_ <= 0 || innrsamples_ > cMaxNrSamples )
 	mErrRet(tr("Cannot find a reasonable number of samples."
-	           "\nFound: %1.\nPlease 'Overrule' to set something usable")
-              .arg(innrsamples_))
+		   "\nFound: %1.\nPlease 'Overrule' to set something usable")
+		.arg(innrsamples_))
 
     offsetcalc_.set( fileopts_ );
     sConn().iStream().setReadPosition( cEndTapeHeader );
@@ -589,12 +600,13 @@ bool SEGYSeisTrcTranslator::initWrite_( const SeisTrc& trc )
 
     for ( int idx=0; idx<trc.data().nrComponents(); idx++ )
     {
-	DataCharacteristics dc(trc.data().getInterpreter(idx)->dataChar());
+	DataCharacteristics dc( trc.data().getInterpreter(idx)->dataChar() );
 	addComp( dc );
 	toSupported( dc );
 	selectWriteDataChar( dc );
 	tarcds_[idx]->datachar = dc;
-	if ( idx ) tarcds_[idx]->destidx = -1;
+	if ( idx )
+	    tarcds_[idx]->destidx = -1;
     }
 
     return true;
@@ -841,13 +853,39 @@ bool SEGYSeisTrcTranslator::skip( int ntrcs )
 
 bool SEGYSeisTrcTranslator::writeTrc_( const SeisTrc& trc )
 {
+    if ( !writebuffer_ )
+    {
+	tracedatabytes_ = outnrsamples_ * outcd_->datachar.nrBytes();
+	writebuffersize_ =
+		maxnrtrcsinbuffer_ * (cTraceHeaderBytes+tracedatabytes_);
+	writebuffer_ = new unsigned char[writebuffersize_];
+	nrtrcsinbuffer_ = 0;
+    }
+
     OD::memZero( headerbuf_, mSEGYTraceHeaderBytes );
     fillHeaderBuf( trc );
 
-    if ( !sConn().oStream().addBin( headerbuf_, mSEGYTraceHeaderBytes ) )
+    bool res = true;
+    if ( writebuffer_ )
+    {
+	if ( nrtrcsinbuffer_ == maxnrtrcsinbuffer_ )
+	{
+	    res = sConn().oStream().addBin( writebuffer_, writebuffersize_ );
+	    nrtrcsinbuffer_ = 0;
+	}
+
+	const int offset = nrtrcsinbuffer_ * (tracedatabytes_+cTraceHeaderBytes);
+	OD::memCopy( writebuffer_+offset, headerbuf_, mSEGYTraceHeaderBytes );
+    }
+    else
+	res = sConn().oStream().addBin( headerbuf_, mSEGYTraceHeaderBytes );
+
+    if ( !res )
 	mErrRet(tr("Cannot write trace header"))
 
-    return writeData( trc );
+    res = writeData( trc );
+    nrtrcsinbuffer_++;
+    return res;
 }
 
 
@@ -911,6 +949,7 @@ bool SEGYSeisTrcTranslator::writeData( const SeisTrc& trc )
 			      = GetEnvVarYN("OD_SEIS_SEGY_ALLOW_UDF") );
     mDefineStaticLocalObject( float, udfreplaceval,
 		= (float) GetEnvVarDVal( "OD_SEIS_SEGY_UDF_REPLACE", 0 ) );
+
     for ( int idx=0; idx<outnrsamples_; idx++ )
     {
 	float val = trc.getValue( outsd_.atIndex(idx), curcomp );
@@ -919,12 +958,36 @@ bool SEGYSeisTrcTranslator::writeData( const SeisTrc& trc )
 	storbuf_->setValue( idx, val );
     }
 
-    if ( !sConn().oStream().addBin( storbuf_->getComponent()->data(),
-			 outnrsamples_ * outcd_->datachar.nrBytes() ) )
-	mErrRet(tr("Cannot write trace data"))
+    if ( writebuffer_ )
+    {
+	int offset = nrtrcsinbuffer_ * (tracedatabytes_+cTraceHeaderBytes);
+	offset += cTraceHeaderBytes;
+	OD::memCopy( writebuffer_+offset, storbuf_->getComponent()->data(),
+		     tracedatabytes_ );
+    }
+    else
+    {
+	if ( !sConn().oStream().addBin( storbuf_->getComponent()->data(),
+			     outnrsamples_ * outcd_->datachar.nrBytes() ) )
+	    mErrRet(tr("Cannot write trace data"))
+    }
 
     headerdonenew_ = false;
     return true;
+}
+
+
+bool SEGYSeisTrcTranslator::close()
+{
+    bool res = SeisTrcTranslator::close();
+    if ( writebuffer_ )
+    {
+	const int bufsize = nrtrcsinbuffer_*(cTraceHeaderBytes+tracedatabytes_);
+	res = sConn().oStream().addBin( writebuffer_, bufsize );
+	deleteAndNullArrPtr( writebuffer_ );
+    }
+
+    return res;
 }
 
 

@@ -61,6 +61,7 @@ public:
     bool		implRemove( const IOObj*, bool ) const override
 			{ return true; }
 
+    bool		close() override;
     void		cleanUp() override;
 
     void		setIs2D(bool yn) override;
@@ -80,6 +81,12 @@ protected:
 
     bool		useinpsd_ = false;
     unsigned char	headerbuf_[mSEGYTraceHeaderBytes];
+
+    unsigned char*	writebuffer_				= nullptr;
+    int			writebuffersize_			= 0;
+    int			tracedatabytes_				= 0;
+    int			nrtrcsinbuffer_				= 0;
+    int			maxnrtrcsinbuffer_			= 10000;
 
     // Following variables are inited by commitSelections
     ComponentData*	inpcd_ = nullptr;

@@ -160,6 +160,7 @@ bool SeisTrcTranslator::isLineSet( const IOObj& ioobj )
 void SeisTrcTranslator::cleanUp()
 {
     close();
+    deleteAndNullPtr( conn_ );
 
     headerdonenew_ = false;
     datareaddone_ = false;
@@ -181,7 +182,6 @@ bool SeisTrcTranslator::close()
     bool ret = true;
     if ( conn_ && !conn_->forRead() )
 	ret = writeBlock();
-    delete conn_; conn_ = 0;
     return ret;
 }
 
@@ -611,7 +611,8 @@ bool SeisTrcTranslator::copyDataToTrace( SeisTrc& trc )
 	return false;
 
     TraceDataInterpreter* trcdatainterp = trc.data().getInterpreter( 0 );
-    TraceDataInterpreter* storinterp = storbuf_->getInterpreter( 0 );
+    TraceDataInterpreter* storinterp =
+	storbuf_ ? storbuf_->getInterpreter( 0 ) : nullptr;
     if ( !trcdatainterp || !storinterp )
 	return false;
 
