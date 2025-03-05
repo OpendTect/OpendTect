@@ -326,7 +326,7 @@ static BufferString getStyleFromSettings( const CommandLineParser& parser,
     {
 	const QStringList styles = QStyleFactory::keys();
 	const QString win11style( "Windows11" );
-	static const char* prefwinstyle = "Windows";
+	static const char* prefwinstyle = "WindowsVista";
 	const QString winstyle( prefwinstyle );
 	if ( styles.front() == win11style &&
 	     styles.contains(winstyle) )
