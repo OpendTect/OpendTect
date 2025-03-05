@@ -300,7 +300,7 @@ void uiPluginMan::selChg( CallBacker* )
     }
 
     infofld_->setText( piinf.text_ );
-    const bool isfreeplugin = piinf.lictype_ == PluginInfo::GPL;
+    const bool isfreeplugin = piinf.lictype_ == PluginInfo::LicenseType::GPL;
     unloadbut_->setSensitive( isDeveloperBuild() || isfreeplugin );
 
     BufferString licmsg;
