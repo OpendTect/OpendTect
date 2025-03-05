@@ -74,9 +74,9 @@ static const char* dispText()
 static PluginInfo::LicenseType getLicType()
 {
 #ifdef Vendor
-    return PluginInfo::COMMERCIAL;
+    return PluginInfo::LicenseType::COMMERCIAL;
 #else
-    return PluginInfo::GPL;
+    return PluginInfo::LicenseType::GPL;
 #endif
 }
 

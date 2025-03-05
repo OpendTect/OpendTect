@@ -47,10 +47,11 @@ extern "C" {
 
 struct PluginInfo
 {
-    enum LicenseType{ GPL, COMMERCIAL, PROPRIETARY };
+    enum class LicenseType{ GPL, COMMERCIAL, PROPRIETARY };
 
     PluginInfo(const char* dispname, const char* prodnm, const char* creator,
-	       const char* version, const char* text, LicenseType lt=GPL )
+	       const char* version, const char* text,
+	       LicenseType lt=LicenseType::GPL )
 	: dispname_(dispname)
 	, productname_(prodnm)
 	, creator_(creator)
@@ -62,7 +63,7 @@ struct PluginInfo
 
     PluginInfo(const char* dispname, const char* prodnm, const char* creator,
 	       const char* version, const char* text, const char* licmsg,
-	       LicenseType lt=GPL )
+	       LicenseType lt=LicenseType::GPL )
 	: dispname_(dispname)
 	, productname_(prodnm)
 	, creator_(creator)
@@ -79,7 +80,7 @@ struct PluginInfo
 	, version_("v0.0")
 	, text_("Plugin information text")
 	, licmsg_("License message")
-	, lictype_(GPL)
+	, lictype_(LicenseType::GPL)
     {}
 
     // For OpenSource plugins developed by dGB
@@ -90,7 +91,7 @@ struct PluginInfo
 	, version_("=od")
 	, text_(text)
 	, licmsg_("")
-	, lictype_(GPL)
+	, lictype_(LicenseType::GPL)
     {}
 
     const char*	dispname_;
