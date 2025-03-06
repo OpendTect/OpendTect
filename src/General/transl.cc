@@ -477,6 +477,12 @@ int Translator::nrImpls( const IOObj* ioobj ) const
 }
 
 
+od_int64 Translator::getFileSize( const IOObj* /*ioobj*/ ) const
+{
+    return -1;
+}
+
+
 bool Translator::getConfirmRemoveMsg( const IOObj* ioobj, uiString& msg,
 				uiString& canceltxt, uiString& deepremovetxt,
 				uiString& shallowremovetxt ) const

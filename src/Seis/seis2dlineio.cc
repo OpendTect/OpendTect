@@ -329,7 +329,7 @@ bool SeisTrc2DTranslator::getGeometryInfo( PosInfo::CubeData& cd ) const
 }
 
 
-od_int64 SeisTrc2DTranslator::getFileSize() const
+od_int64 SeisTrc2DTranslator::getFileSize( const IOObj* ) const
 {
     PtrMan<IOObj> ioobj = IOM().get( conn_ ? conn_->linkedTo() : MultiID() );
     if ( !ioobj )

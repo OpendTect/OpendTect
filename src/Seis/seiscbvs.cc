@@ -205,7 +205,7 @@ int CBVSSeisTrcTranslator::estimatedNrTraces() const
 }
 
 
-od_int64 CBVSSeisTrcTranslator::getFileSize() const
+od_int64 CBVSSeisTrcTranslator::getFileSize( const IOObj* ) const
 {
     if ( !rdmgr_ )
 	return -1;

@@ -523,7 +523,7 @@ int SEGYSeisTrcTranslator::estimatedNrTraces() const
 }
 
 
-od_int64 SEGYSeisTrcTranslator::getFileSize() const
+od_int64 SEGYSeisTrcTranslator::getFileSize( const IOObj* ) const
 {
     mDynamicCastGet(StreamConn*,sconn,conn_)
     const BufferString filenm = sconn->odStream().fileName();

@@ -226,7 +226,7 @@ private:
     bool		haveAux(const char*) const override;
     BufferString	getAuxFileName(const char*) const override;
 
-    od_int64		getFileSize() const override;
+    od_int64		getFileSize(const IOObj* =nullptr) const override;
     int			nrImpls(const IOObj*) const override;
     void		implFileNames(const IOObj*,
 				      BufferStringSet&) const override;
