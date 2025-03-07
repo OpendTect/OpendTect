@@ -11,7 +11,7 @@ ________________________________________________________________________
 
 #include "file.h"
 #include "filepath.h"
-#include "od_ostream.h"
+#include "od_iostream.h"
 #include "oscommand.h"
 #include "uistrings.h"
 
@@ -138,6 +138,9 @@ private:
     bool	listDirectory(const char*,File::DirListType,
 			      BufferStringSet&,
 			      const char* mask) const override;
+    bool	getContent(const char* fnm,BufferString&) const override;
+    bool	putContent(const char* buf,int sz,
+			   const char* tofnm) const override;
 
     StreamData	createOStream(const char*,bool binary,
 			      bool editmode) const override;
@@ -471,6 +474,37 @@ bool LocalFileSystemAccess::listDirectory( const char* uri,
 	filenames.add( qlist[idx] );
 
     return true;
+}
+
+
+bool LocalFileSystemAccess::getContent( const char* uri,
+					BufferString& txt ) const
+{
+    const BufferString from = withoutProtocol( uri );
+    od_istream strm( from.buf() );
+    if ( !strm.isOK() )
+    {
+	errmsg_ = strm.errMsg();
+	return false;
+    }
+
+    strm.getAll( txt );
+    return true;
+}
+
+
+bool LocalFileSystemAccess::putContent( const char* buf, int sz,
+					const char* touri ) const
+{
+    const BufferString to = withoutProtocol( touri );
+    od_ostream strm( to.buf() );
+    if ( !strm.isOK() )
+    {
+	errmsg_ = strm.errMsg();
+	return false;
+    }
+
+    return strm.addBin( buf, sz );
 }
 
 
