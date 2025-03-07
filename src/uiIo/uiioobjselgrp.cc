@@ -714,8 +714,7 @@ void uiIOObjSelGrp::setIsBad( int idx )
     if ( !listfld_->validIdx(idx) )
 	return;
 
-    const uiPixmap badpm( "warning" );
-    listfld_->setPixmap( idx, badpm, uiListBox::Right );
+    listfld_->setColor( idx, OD::Color::Red().lighter(0.9f) );
 }
 
 
