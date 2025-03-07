@@ -477,10 +477,18 @@ int Translator::nrImpls( const IOObj* ioobj ) const
 }
 
 
+void Translator::implFileNames( const IOObj*, BufferStringSet& ) const
+{}
+
+
 od_int64 Translator::getFileSize( const IOObj* /*ioobj*/ ) const
 {
     return -1;
 }
+
+
+void Translator::getAllFileNames( BufferStringSet&, bool ) const
+{}
 
 
 bool Translator::getConfirmRemoveMsg( const IOObj* ioobj, uiString& msg,
