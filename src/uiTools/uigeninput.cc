@@ -1258,7 +1258,7 @@ mDefuiLineEditGetSet(getFValue,setValue,float)
 mDefuiLineEditGetSet(getBoolValue,setValue,bool)
 
 
-const uiString& uiGenInput::titleText()
+const uiString& uiGenInput::titleText() const
 {
     return titletext_;
 }

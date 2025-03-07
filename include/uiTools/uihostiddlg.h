@@ -9,26 +9,21 @@ ________________________________________________________________________
 -*/
 
 #include "uitoolsmod.h"
-#include "uidialog.h"
+#include "uidlggroup.h"
 
-class uiGenInput;
-class uiLocalHostGrp;
+class uiInfoGroup;
 
-mExpClass(uiTools) uiHostIDDlg : public uiDialog
-{ mODTextTranslationClass(uiHostIDDlg)
+mExpClass(uiTools) uiInformationDlg : public uiTabStackDlg
+{ mODTextTranslationClass(uiInformationDlg)
 public:
-			uiHostIDDlg(uiParent*);
-			~uiHostIDDlg();
+			uiInformationDlg(uiParent*);
+			~uiInformationDlg();
 
-protected:
+private:
     void		finalizeCB(CallBacker*);
     bool		acceptOK(CallBacker*) override;
     void		copyToClipboard();
 
-    uiGenInput*		hostidfld_;
-    uiLocalHostGrp*	localhostgrp_;
-    uiGenInput*		timezonefld_;
-    uiGenInput*		osfld_;
-    uiGenInput*		productnmfld_;
-    uiGenInput*		usernmfld_;
+    ObjectSet<uiInfoGroup> infodlggrp_;
+
 };

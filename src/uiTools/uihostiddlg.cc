@@ -13,6 +13,7 @@ ________________________________________________________________________
 #include "filepath.h"
 #include "generalinfo.h"
 #include "oddirs.h"
+#include "od_helpids.h"
 #include "odplatform.h"
 #include "systeminfo.h"
 
@@ -25,25 +26,29 @@ ________________________________________________________________________
 
 #include <QTimeZone>
 
-uiHostIDDlg::uiHostIDDlg( uiParent* p )
-    : uiDialog(p,Setup(tr("System Information"),mNoDlgTitle,mNoHelpKey))
+
+// uiInfoGrp
+
+class uiInfoGroup : public uiDlgGroup
+{mODTextTranslationClass(uiInfoGroup)
+public:
+		uiInfoGroup( uiParent* p, const uiString& caption )
+		  : uiDlgGroup(p,caption)
+		{}
+		~uiInfoGroup()	{}
+
+    virtual void	addInfo(BufferStringSet&) const  = 0;
+};
+
+
+// uiSystemInfoGrp
+
+class uiSystemInfoGrp : public uiInfoGroup
+{ mODTextTranslationClass( uiSystemInfoGrp )
+public:
+uiSystemInfoGrp( uiParent* p )
+    : uiInfoGroup( p, tr("System Information") )
 {
-    setOkCancelText( tr("Copy to Clipboard"), uiStrings::sClose() );
-
-    BufferStringSet hostids;
-    BufferString errmsg;
-    OD::getHostIDs( hostids, errmsg );
-    if ( hostids.isEmpty() )
-    {
-	setTitleText( uiString::emptyString() );
-	uiString msg;
-	msg.append( errmsg.str(), true );
-	msg.append( tr("No HostID found.\n"
-			"Please contact support@dgbes.com"), true );
-	new uiLabel( this, msg );
-	return;
-    }
-
     hostidfld_ = new uiGenInput( this, tr("HostID(s)") );
     hostidfld_->setReadOnly();
     hostidfld_->setElemSzPol( uiObject::Wide );
@@ -72,29 +77,42 @@ uiHostIDDlg::uiHostIDDlg( uiParent* p )
     usernmfld_->attach( alignedBelow, productnmfld_ );
     usernmfld_->setElemSzPol( uiObject::Wide );
 
-    auto* settingsfld = new uiGenInput( this, tr("OpendTect Settings folder") );
-    settingsfld->setReadOnly();
-    settingsfld->setElemSzPol( uiObject::Wide );
-    settingsfld->attach( alignedBelow, usernmfld_ );
+    if ( __islinux__ )
+    {
+	kernelverfld_ = new uiGenInput( this, tr("Kernel Version") );
+	kernelverfld_->setReadOnly();
+	kernelverfld_->attach( alignedBelow, productnmfld_ );
+	kernelverfld_->setElemSzPol( uiObject::Wide );
+	kernelverfld_->setText( System::kernelVersion() );
+    }
 
-    auto* odinstfld = new uiGenInput( this,
-				      tr("OpendTect Installation folder") );
-    odinstfld->setReadOnly();
-    odinstfld->setElemSzPol( uiObject::Wide );
-    odinstfld->attach( alignedBelow, settingsfld );
+    BufferStringSet hostids;
+    BufferString errmsg;
+    OD::getHostIDs( hostids, errmsg );
+    if ( hostids.isEmpty() )
+    {
+	setCaption( uiString::emptyString() );
+	uiString msg;
+	msg.append( errmsg.str(), true );
+	msg.append( tr("No HostID found.\n"
+		    "Please contact support@dgbes.com"), true );
+	new uiLabel( this, msg );
+	return;
+    }
 
     BufferString hostidstext = hostids.cat( " " );
     if ( hostids.size() > 1 )
 	hostidstext.quote( '"' );
+
     const QTimeZone qloczone = QTimeZone::systemTimeZone();
     const QTimeZone::TimeType ttyp = QTimeZone::GenericTime;
     const QString qloczoneabbr = qloczone.displayName( ttyp,
-						       QTimeZone::ShortName );
+						    QTimeZone::ShortName );
     BufferString zonestr( qloczoneabbr );
     if ( !__iswin__ )
     {
 	const QString qloczoneoffs = qloczone.displayName( ttyp,
-						QTimeZone::OffsetName );
+						    QTimeZone::OffsetName );
 	zonestr.add( " (" ).add( qloczoneoffs ).add( ")" );
     }
 
@@ -103,44 +121,219 @@ uiHostIDDlg::uiHostIDDlg( uiParent* p )
     osfld_->setText( OD::Platform().longName() );
     productnmfld_->setText( System::productName() );
     usernmfld_->setText( GetUserNm() );
-    settingsfld->setText( FilePath::getLongPath(GetSettingsDir()) );
-    odinstfld->setText( FilePath::getLongPath(GetSoftwareDir(true)) );
-
-    mAttachCB( postFinalize(), uiHostIDDlg::finalizeCB );
 }
 
 
-uiHostIDDlg::~uiHostIDDlg()
+~uiSystemInfoGrp()
+{
+}
+
+
+private:
+
+void addInfo( BufferStringSet& infos ) const override
+{
+    const BufferString idstr( "HostIDs: ", hostidfld_->text() );
+    const BufferString namestr( "Host name: ", localhostgrp_->hostname() );
+    const BufferString ipstr( "IP Address: ", localhostgrp_->address() );
+    const BufferString timestr( "Time Zone: ", timezonefld_->text() );
+    const BufferString osstr( "Operating System: ", osfld_->text() );
+    const BufferString productstr( "Product name: ", productnmfld_->text() );
+    const BufferString userstr( "User name: ", usernmfld_->text() );
+
+    infos.add( idstr );
+    infos.add( namestr );
+    infos.add( ipstr );
+    infos.add( timestr );
+    infos.add( osstr );
+    infos.add( productstr );
+    infos.add( userstr );
+
+    if ( kernelverfld_ )
+    {
+	const BufferString kernelstr( "Kernel Version: ",
+						kernelverfld_->text() );
+	infos.add( kernelstr );
+    }
+}
+
+    uiGenInput*		hostidfld_;
+    uiLocalHostGrp*	localhostgrp_;
+    uiGenInput*		timezonefld_;
+    uiGenInput*		osfld_;
+    uiGenInput*		productnmfld_;
+    uiGenInput*		usernmfld_;
+    uiGenInput*		kernelverfld_		= nullptr;
+};
+
+
+// uiOdTInfoGrp
+
+class uiOdTInfoGrp : public uiInfoGroup
+{ mODTextTranslationClass( uiOdTInfoGrp )
+public:
+uiOdTInfoGrp( uiParent* p )
+    : uiInfoGroup( p, tr("OpendTect Information") )
+{
+    interpreternmfld_ = new uiGenInput( this, tr("Interpreter name") );
+    interpreternmfld_->setReadOnly();
+    interpreternmfld_->setElemSzPol( uiObject::Wide );
+    interpreternmfld_->setText( GetInterpreterName() );
+
+    settingsfld_ = new uiGenInput( this, tr("OpendTect Settings folder") );
+    settingsfld_->setReadOnly();
+    settingsfld_->setElemSzPol( uiObject::Wide );
+    settingsfld_->attach( alignedBelow, interpreternmfld_ );
+    settingsfld_->setText( FilePath::getLongPath(GetSettingsDir()) );
+
+    odinstfld_ = new uiGenInput( this, tr("OpendTect Installation folder") );
+    odinstfld_->setReadOnly();
+    odinstfld_->setElemSzPol( uiObject::Wide );
+    odinstfld_->attach( alignedBelow, settingsfld_ );
+    odinstfld_->setText( FilePath::getLongPath(GetSoftwareDir(true)) );
+
+}
+
+
+~uiOdTInfoGrp()
+{
+}
+
+
+private:
+
+void addInfo( BufferStringSet& infos ) const override
+{
+    const BufferString interpreterstr( "Interpreter name: ",
+					interpreternmfld_->text() );
+    const BufferString settingsstr( "OpendTect Settings folder: ",
+					settingsfld_->text() );
+    const BufferString odinststr( "OpendTect Installation folder: ",
+					odinstfld_->text() );
+
+    infos.add( interpreterstr );
+    infos.add( settingsstr );
+    infos.add( odinststr );
+
+}
+
+    uiGenInput*		interpreternmfld_;
+    uiGenInput*		settingsfld_;
+    uiGenInput*		odinstfld_;
+};
+
+
+// uiGraphicInfoGrp
+
+class uiGraphicInfoGrp : public uiInfoGroup
+{ mODTextTranslationClass( uiSystemInfoGrp )
+public:
+uiGraphicInfoGrp( uiParent* p, const IOPar& pars )
+    : uiInfoGroup( p, tr("Graphics Card Information") )
+{
+    const IOPar& graphicsinfo = System::graphicsInformation();
+    BufferStringSet keys_;
+    graphicsinfo.getKeys( keys_ );
+    uiGenInput* prevfld = nullptr;
+    for ( const auto* key : keys_ )
+    {
+	const BufferString value = graphicsinfo.find( key->buf() );
+	auto* inputfld = new uiGenInput( this, toUiString(*key) );
+
+	inputfld->setText( value );
+	inputfld->setReadOnly();
+	inputfld->setElemSzPol( uiObject::Wide );
+
+	if ( prevfld )
+	    inputfld->attach( alignedBelow, prevfld );
+
+	inputfields_ += inputfld;
+	prevfld = inputfld;
+    }
+}
+
+
+~uiGraphicInfoGrp()
+{
+}
+
+
+private:
+
+void addInfo( BufferStringSet& infos ) const override
+{
+    for ( const auto* inpfld : inputfields_ )
+    {
+	const BufferString key = inpfld->titleText().getString();
+	const BufferString value = inpfld->text();
+	const BufferString info( key, ": ", value );
+	infos.add( info );
+    }
+}
+
+    ObjectSet<uiGenInput>	inputfields_;
+};
+
+
+// uiInformationDlg
+
+uiInformationDlg::uiInformationDlg( uiParent* p )
+    : uiTabStackDlg( p, Setup(tr("Information"), mNoDlgTitle,
+	mODHelpKey(mInformationHelpID)) )
+{
+    setOkCancelText( tr("Copy to Clipboard"), uiStrings::sClose() );
+
+    uiGroup* tabgrp = tabstack_->tabGroup();
+    auto* sysinfogrp = new uiSystemInfoGrp( tabgrp );
+    auto* odinfogrp = new uiOdTInfoGrp( tabgrp );
+
+    infodlggrp_.add( sysinfogrp );
+    infodlggrp_.add( odinfogrp );
+
+    const IOPar& graphicspars = System::graphicsInformation();
+    if ( !graphicspars.isEmpty() )
+    {
+	auto* graphicinfogrp = new uiGraphicInfoGrp( tabgrp,  graphicspars );
+	infodlggrp_.add( graphicinfogrp );
+    }
+
+    for ( auto* grp : infodlggrp_ )
+    {
+	grp->attach( hCentered );
+	addGroup( grp );
+    }
+    mAttachCB( postFinalize(), uiInformationDlg::finalizeCB );
+}
+
+
+uiInformationDlg::~uiInformationDlg()
 {
     detachAllNotifiers();
 }
 
 
-void uiHostIDDlg::finalizeCB( CallBacker* )
+void uiInformationDlg::finalizeCB( CallBacker* )
 {
     button(OK)->setIcon( "clipboard" );
 }
 
 
-bool uiHostIDDlg::acceptOK( CallBacker* )
+bool uiInformationDlg::acceptOK( CallBacker* )
 {
     copyToClipboard();
     return false;
 }
 
 
-void uiHostIDDlg::copyToClipboard()
+void uiInformationDlg::copyToClipboard()
 {
-    BufferString txt;
-    txt.add( "HostIDs: " ).add( hostidfld_->text() ).addNewLine()
-       .add( "Host name: " ).add( localhostgrp_->hostname() ).addNewLine()
-       .add( "IP Address: " ).add( localhostgrp_->address() ).addNewLine()
-       .add( "Time Zone: " ).add( timezonefld_->text() ).addNewLine()
-       .add( "Operating System: " ).add( osfld_->text() ).addNewLine()
-       .add( "Product name: " ).add( productnmfld_->text() ).addNewLine()
-       .add( "User name: " ).add( usernmfld_->text() ).addNewLine();
+    BufferStringSet infos;
+    for ( const auto* grp : infodlggrp_ )
+	grp->addInfo( infos );
+
+    const BufferString txt = infos.cat();
     uiClipboard::setText( txt.buf() );
     uiMSG().message( tr("Information copied to clipboard.\n"
-			"When requesting a license, you can now paste the\n"
-			"contents in an email and send to support@dgbes.com") );
+		"When requesting a license, you can now paste the\n"
+		"contents in an email and send to support@dgbes.com") );
 }
