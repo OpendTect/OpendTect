@@ -47,20 +47,22 @@ static bool testEmptyReadContent( const BufferString& tempfile )
     od_ostream stream( tempfile );
     stream.close();
     BufferString buf;
-    mRunStandardTest(File::getContent(tempfile,buf),"Empty file read")
-    mRunStandardTest(buf.isEmpty(),"empty file: No data to be read");
+    mRunStandardTest( File::getContent(tempfile,buf), "Empty file read" );
+    mRunStandardTest( buf.isEmpty(), "empty file: No data to be read" );
     return true;
 }
 
 
 static bool testNonEmptyReadContent( const BufferString& tempfile )
 {
-    BufferString buf;
-    od_ostream stream( tempfile );
-    stream << "test text";
-    stream.close();
-    mRunStandardTest(File::getContent(tempfile,buf),"Non-empty file read")
-    mRunStandardTest(buf.size(),"Valid data read");
+    const BufferString content( "test text" );
+    mRunStandardTest( File::putContent(content,tempfile.str()) &&
+		      File::getFileSize(tempfile) == content.size(),
+		      "Non-empty file write");
+    BufferString retcontent;
+    mRunStandardTest( File::getContent(tempfile,retcontent),
+		      "Non-empty file read" );
+    mRunStandardTest( retcontent == content, "Valid data read" );
     return true;
 }
 

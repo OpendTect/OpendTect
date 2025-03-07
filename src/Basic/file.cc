@@ -17,7 +17,6 @@ ________________________________________________________________________
 #include "filesystemaccess.h"
 #include "genc.h"
 #include "nrbytes2string.h"
-#include "od_iostream.h"
 #include "oddirs.h"
 #include "oscommand.h"
 #include "perthreadrepos.h"
@@ -863,19 +862,29 @@ bool setSystemFileAttrib( const char* fnm, bool yn )
 }
 
 
-bool getContent( const char* fnm, BufferString& bs )
+bool getContent( const char* fnm, BufferString& txt )
 {
-    if ( !isSane(fnm) )
+    if ( !isSane(fnm) || !exists(fnm) || !isFile(fnm) )
 	return false;
 
-    bs.setEmpty();
-    if ( !fnm || !*fnm ) return false;
+    const auto& fsa = OD::FileSystemAccess::get( fnm );
+    return fsa.getContent( fnm, txt );
+}
 
-    od_istream stream( fnm );
-    if ( stream.isBad() )
+
+bool putContent( const OD::String& str, const char* tofnm )
+{
+    return putContent( str.buf(), str.size(), tofnm );
+}
+
+
+bool putContent( const char* buf, int sz, const char* tofnm )
+{
+    if ( !isSane(tofnm) || sz < 0 )
 	return false;
 
-    return !stream.isOK() ? true : stream.getAll( bs );
+    const auto& fsa = OD::FileSystemAccess::get( tofnm );
+    return fsa.putContent( buf, sz, tofnm );
 }
 
 
@@ -1170,13 +1179,10 @@ static bool canApplyScript( const char* scriptfnm )
     if ( !__iswin__ )
 	return true;
 
-    od_ostream strm( scriptfnm );
-    if ( !strm.isOK() )
+    BufferString content( "ECHO OFF" );
+    content.addNewLine().add( "ECHO \'Expected output\'" );
+    if ( !File::putContent(content,scriptfnm) )
 	return false;
-
-    strm.add( "ECHO OFF" ).addNewLine()
-	.add( "ECHO \'Expected output\'");
-    strm.close();
 
     OS::MachineCommand cmd( scriptfnm );
     BufferString stdoutstr, stderrstr;

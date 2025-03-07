@@ -95,6 +95,11 @@ public:
 				      BufferStringSet&,
 				      const char* mask) const
 			{ return false; }
+    virtual bool	getContent(const char* fnm,BufferString&) const
+			{ return false; }
+    virtual bool	putContent(const char* buf,int sz,
+				   const char* tofnm) const
+			{ return false; }
 
     virtual StreamData	createIStream(const char*,bool binary=true) const = 0;
 			/*!< keep binary==true also for text files unless you
