@@ -13,6 +13,7 @@ ________________________________________________________________________
 #include "ctxtioobj.h"
 #include "datapointset.h"
 #include "filepath.h"
+#include "genc.h"
 #include "ioobj.h"
 #include "od_helpids.h"
 #include "oddirs.h"
