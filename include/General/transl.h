@@ -150,6 +150,7 @@ public:
     virtual int			nrImpls(const IOObj*) const;
     virtual void		implFileNames(const IOObj*,
 					      BufferStringSet&) const	    {}
+    virtual od_int64		getFileSize(const IOObj* =nullptr) const;
     virtual void		getAllFileNames(BufferStringSet&,
 						bool forui=false) const     {}
 

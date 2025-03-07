@@ -12,6 +12,8 @@ ________________________________________________________________________
 #include "filepath.h"
 #include "filespec.h"
 #include "ioobj.h"
+#include "oddirs.h"
+#include "transl.h"
 
 #include "uifileinput.h"
 #include "uilabel.h"
@@ -22,7 +24,7 @@ ________________________________________________________________________
 
 uiEditDirectFileDataDlg::uiEditDirectFileDataDlg( uiParent* p,
 						  const IOObj& obj )
-    : uiDialog(p,Setup(tr("SEGYDirect File Editor"),
+    : uiDialog(p,Setup(tr("%1 File Editor").arg(obj.translator()),
 			toUiString(obj.name()),
 			mODHelpKey(mEditSEGYFileDataDlgHelpID)))
     , ioobj_(obj)
@@ -47,17 +49,59 @@ void uiEditDirectFileDataDlg::createInterface()
     if ( filenames_.isEmpty() || firstfnm.isEmpty() )
 	mErrLabelRet(tr("No files linked to %1").arg(ioobj_.name()));
 
+    const int nrfiles = filenames_.size();
     const FilePath fp( firstfnm );
     const FileSpec fs( fp.pathOnly() );
     const BufferString absfnm = fs.absFileName();
-    uiString olddirtxt( tr("Old location of SEGY files:  %1")
-			.arg(absfnm.buf()) );
-    lbl = new uiLabel( this, olddirtxt );
+    ConstPtrMan<Translator> transl = ioobj_.createTranslator();
+    const uiString dispnm = transl->displayName();
+    uiString oldfiletxt;
+    if ( nrfiles > 1 )
+	oldfiletxt = tr( "Current specified location of %1 files:  %2" )
+			 .arg(dispnm).arg(absfnm.buf());
+    else
+	oldfiletxt = tr( "Current selected %1 file:  %2" )
+			 .arg(dispnm).arg(fp.fullPath().buf());
 
-    const int nrfiles = filenames_.size();
+    lbl = new uiLabel( this, oldfiletxt );
     const uiFileDialog::Mode mode = nrfiles > 1 ? uiFileDialog::Directory
 						: uiFileDialog::ExistingFile;
-    selfld_ = new uiFileInput( this, tr("New location"), absfnm.buf() );
+    const uiString newloctxt = nrfiles > 1
+				    ? tr("Specify new location for %1 files")
+					 .arg(dispnm)
+				    : tr("Change/modify selected %1 file to")
+					 .arg(dispnm);
+
+    BufferString fientry;
+    bool lookinsamedir = false;
+    for ( const auto* filenm : filenames_ )
+    {
+	if ( File::exists(filenm->buf()) )
+	{
+	    lookinsamedir = true;
+	    break;
+	}
+    }
+
+    if ( nrfiles > 1 )
+    {
+	if ( lookinsamedir )
+	    fientry = absfnm;
+	else
+	{
+	    const FilePath fpfullpath( fp.pathOnly() );
+	    const FilePath basedatadirfp( GetBaseDataDir() );
+	    if ( fpfullpath.isSubDirOf(basedatadirfp)
+		 || fpfullpath==basedatadirfp )
+		fientry = basedatadirfp.fullPath();
+	    else
+		fientry = FilePath(GetPersonalDir()).fullPath();
+	}
+    }
+    else
+	fientry = fp.fullPath();
+
+    selfld_ = new uiFileInput( this, newloctxt, fientry );
     selfld_->setSelectMode( mode );
     selfld_->setObjType( tr("Location") );
     selfld_->valueChanged.notify( mCB(this,uiEditDirectFileDataDlg,dirSelCB) );

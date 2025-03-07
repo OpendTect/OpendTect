@@ -946,7 +946,7 @@ int SEGYDirectSeisTrcTranslator::estimatedNrTraces() const
 }
 
 
-od_int64 SEGYDirectSeisTrcTranslator::getFileSize() const
+od_int64 SEGYDirectSeisTrcTranslator::getFileSize( const IOObj* ) const
 {
     if ( !def_ )
 	return SeisTrcTranslator::getFileSize();

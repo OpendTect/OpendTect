@@ -10,11 +10,13 @@ ________________________________________________________________________
 #include "uiioobjmanip.h"
 
 #include "file.h"
+#include "filepath.h"
 #include "iodir.h"
 #include "ioman.h"
 #include "ioobj.h"
 #include "iostrm.h"
 #include "mousecursor.h"
+#include "oddirs.h"
 #include "ptrman.h"
 #include "transl.h"
 
@@ -435,8 +437,21 @@ bool uiIOObjManipGroup::relocEntry( IOObj& ioobj,
     }
 
     filefilt += "All Files(*)";
+    BufferString fdfp;
+    BufferStringSet filenms;
+    ioobj.implFileNames( filenms );
+    if ( filenms.isEmpty() )
+	filenms.add( ioobj.fullUserExpr() );
 
-    uiFileDialog dlg( this, uiFileDialog::Directory, oldfnm, filefilt, caption);
+    const FilePath currdirfp( FilePath(filenms.first()->buf()).pathOnly() );
+    const FilePath basedatadirfp( GetBaseDataDir() );
+    if ( currdirfp.isSubDirOf(basedatadirfp) )
+	fdfp = basedatadirfp.fullPath();
+    else
+	fdfp = FilePath(GetPersonalDir()).fullPath();
+
+    uiFileDialog dlg( this, uiFileDialog::Directory,
+		      fdfp.buf(), filefilt, caption);
     if ( dlg.go() != uiDialog::Accepted )
 	return false;
 

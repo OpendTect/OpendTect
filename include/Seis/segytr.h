@@ -134,7 +134,7 @@ private:
 
     bool		readData(TraceData* externalbuf) override;
 
-    od_int64		getFileSize() const override;
+    od_int64		getFileSize(const IOObj* =nullptr) const override;
 
 public:
 
