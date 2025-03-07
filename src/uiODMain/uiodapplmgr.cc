@@ -229,7 +229,7 @@ void uiODApplMgr::addVisDPSChild( CallBacker* cb )
 
 void uiODApplMgr::prepSurveyChange()
 {
-    uiODApplMgr::prepSurveyChange();
+    uiApplMgr::prepSurveyChange();
     bool anythingasked = false;
     if ( !appl_.askStore(anythingasked,tr("Survey change")) )
 	IOM().setChangeSurveyBlocked( true );
