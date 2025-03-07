@@ -983,14 +983,13 @@ mExternC(Basic) const char* GetFullExecutablePath( void )
 		const BufferStringSet paths;
 		const BufferString filenm =
 			File::findExecutable( executable.fileName(), paths );
-		FilePath filepath( filenm.buf() );
-		if ( !filepath.exists() )
+		if ( File::exists(filenm.buf()) )
+		    executable.set( filenm.buf() );
+		else
 		{
 		    //last chance: current directory
-		    filepath.insert( initialdir_.buf() );
+		    executable.insert( initialdir_.buf() );
 		}
-
-		executable = filepath;
 	    }
 
 	    res = getShortPathName( executable.fullPath() );
