@@ -194,8 +194,12 @@ macro(_launcher_process_args)
 
     set(USERFILE_WORKING_DIRECTORY "${WORKING_DIRECTORY}")
     set(USERFILE_COMMAND "${COMMAND}")
-    set(USERFILE_COMMAND_ARGUMENTS "${ARGS}")
-    set(LAUNCHERSCRIPT_COMMAND_ARGUMENTS "${ARGS} ${FWD_ARGS}")
+    string(REPLACE ";" " " USERFILE_COMMAND_ARGUMENTS "${ARGS}" )
+    string(REPLACE ";" " " LAUNCHERSCRIPT_COMMAND_ARGUMENTS "${ARGS} ${FWD_ARGS}")
+    if ( DEFINED ENV{DTECT_BINDIR} AND NOT "${USERFILE_COMMAND}" STREQUAL "" )
+	set( USERFILE_COMMAND
+	    "$ENV{DTECT_BINDIR}/${OD_RUNTIME_DIRECTORY}/${USERFILE_COMMAND}$<$<CONFIG:Debug>:${CMAKE_DEBUG_POSTFIX}>${OD_EXECUTABLE_EXTENSION}" )
+    endif()
 
     if(WIN32)
 	if( _runtime_lib_dirs )
@@ -221,12 +225,18 @@ macro(_launcher_process_args)
     set(USERFILE_ENV_COMMANDS)
     foreach(_arg "${RUNTIME_LIBRARIES_ENVIRONMENT}" ${ENVIRONMENT})
         if(_arg)
-            string(CONFIGURE "@USERFILE_ENVIRONMENT@@LAUNCHER_LINESEP@@_arg@"
-                             USERFILE_ENVIRONMENT @ONLY)
+	    if ( "${USERFILE_ENVIRONMENT}" STREQUAL "" )
+		set( USERFILE_ENVIRONMENT "${LAUNCHER_LINESEP}" )
+	    endif()
+	    string(CONFIGURE "@USERFILE_ENVIRONMENT@@_arg@@LAUNCHER_LINESEP@"
+				USERFILE_ENVIRONMENT @ONLY)
         endif()
         string(CONFIGURE "@USERFILE_ENV_COMMANDS@${_cmdenv}"
                          USERFILE_ENV_COMMANDS @ONLY)
     endforeach()
+    if ( NOT "${USERFILE_ENVIRONMENT}" STREQUAL "" )
+	set( USERFILE_ENVIRONMENT "${USERFILE_ENVIRONMENT}    " )
+    endif()
     set(USERFILE_ENV_COMMANDS_ORIG ${USERFILE_ENV_COMMANDS})
 endmacro()
 
@@ -265,10 +275,6 @@ macro(_launcher_produce_vcproj_user)
                 ${_targetname}
                 PROPERTIES LAUNCHER_USER_ELSE_${USERFILE_CONFIGNAME} ${_temp})
 
-	    if ( DEFINED ENV{DTECT_BINDIR} AND NOT "${USERFILE_COMMAND}" STREQUAL "" )
-		set( USERFILE_${USERFILE_CONFIGNAME}_COMMAND
-			"$ENV{DTECT_BINDIR}/${USERFILE_CONFIGNAME}/${_targetname}.exe" )
-	    endif()
             string(CONFIGURE "${USERFILE_CONFIGSECTIONS}${_temp}"
                              USERFILE_CONFIGSECTIONS ESCAPE_QUOTES)
         endforeach()
@@ -313,8 +319,13 @@ endmacro()
 
 macro(_launcher_configure_executable _src _tmp _target _config)
     if ( DEFINED ENV{DTECT_BINDIR} AND NOT "${USERFILE_COMMAND}" STREQUAL "" )
-	set(RUNTIME_PATH_DTECT
-		    "PATH=$ENV{DTECT_BINDIR}/${_config}${_pathdelim}%PATH%")
+	if ( WIN32 )
+	    set(RUNTIME_PATH_DTECT
+			"PATH=$ENV{DTECT_BINDIR}${_pathdelim}%PATH%")
+	else()
+	    set(RUNTIME_PATH_DTECT
+			"export PATH=$ENV{DTECT_BINDIR}${_pathdelim}\${PATH}")
+	endif()
 	string(CONFIGURE "@USERFILE_ENV_COMMANDS_ORIG@${RUNTIME_PATH_DTECT}"
 		     USERFILE_ENV_COMMANDS @ONLY)
     endif()

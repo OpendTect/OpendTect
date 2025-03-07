@@ -44,27 +44,22 @@ endforeach()
 
 OD_ADD_MODULES( plugins ${PLUGINS} )
 
-#Add the plugins
-foreach ( plugin ${PLUGINS} )
-    get_filename_component( OD_${plugin}_RUNTIMEPATH "${OD_${PLUGIN}_RUNTIMEPATH}" REALPATH CACHE )
-    list( APPEND RUNTIMEPATH ${OD_${plugin}_RUNTIMEPATH} )
-endforeach()
-
-list( APPEND RUNTIMEPATH ${OpendTect_DIR}/${OD_EXEC_OUTPUT_RELPATH} )
-list( APPEND RUNTIMEPATH ${OD_BINARY_BASEDIR}/${OD_EXEC_OUTPUT_RELPATH} )
+list( APPEND RUNTIMEPATH "${OD_BINARY_BASEDIR}/${OD_LIBRARY_DIRECTORY}" )
+list( APPEND RUNTIMEPATH "${CMAKE_BINARY_DIR}/${OD_LIBRARY_DIRECTORY}" )
 list( REMOVE_DUPLICATES RUNTIMEPATH )
 
 if( OD_CREATE_LAUNCHERS )
     set( OD_LAUNCHERS od_main od_process_attrib od_process_volume )
-    set( ENV{DTECT_BINDIR} "${OpendTect_DIR}/${OD_EXEC_OUTPUT_RELPATH}" )
+    set( ENV{DTECT_BINDIR} "${OD_BINARY_BASEDIR}" )
     foreach ( LAUNCHER ${OD_LAUNCHERS} )
 	add_custom_target( ${LAUNCHER} ALL )
 	create_target_launcher( ${LAUNCHER}
-	    COMMAND "${LAUNCHER}${OD_EXECUTABLE_EXTENSION}"
+	    COMMAND ${LAUNCHER}
 	    RUNTIME_LIBRARY_DIRS "${RUNTIMEPATH}"
+	    WORKING_DIRECTORY "${OD_BINARY_BASEDIR}"
 	    ENVIRONMENT
-	    DTECT_APPL=${OpendTect_DIR}
-	    WORK=${OpendTect_DIR} )
+	    DTECT_APPL=${OD_BINARY_BASEDIR}
+	    OD_USER_PLUGIN_DIR=${CMAKE_BINARY_DIR} )
     endforeach()
 endif( OD_CREATE_LAUNCHERS )
 
