@@ -157,11 +157,15 @@ if ( UNIX )
 endif( UNIX )
 if ( IS_DIRECTORY "${CMAKE_SOURCE_DIR}/external/odpy" )
     list ( APPEND OD_MODULE_COMPILE_DEFINITIONS
-	   "__odpy_dir__=\"${CMAKE_SOURCE_DIR}/external/odpy\"" )
+	   "__odpy_dir__=\"${CMAKE_BINARY_DIR}/${MISC_INSTALL_PREFIX}/bin/python/odpy\"" )
 endif()
 if ( IS_DIRECTORY "${CMAKE_SOURCE_DIR}/external/safety" )
     list ( APPEND OD_MODULE_COMPILE_DEFINITIONS
-	   "__safety_dir__=\"${CMAKE_SOURCE_DIR}/external/safety\"" )
+	   "__safety_dir__=\"${CMAKE_BINARY_DIR}/${MISC_INSTALL_PREFIX}/bin/python/safety\"" )
+endif()
+if ( IS_DIRECTORY "${CMAKE_SOURCE_DIR}/external/safety" )
+    list ( APPEND OD_MODULE_COMPILE_DEFINITIONS
+	   "__odbind_dir__=\"${CMAKE_BINARY_DIR}/${MISC_INSTALL_PREFIX}/bin/python\"" )
 endif()
 
 if ( UNIX )

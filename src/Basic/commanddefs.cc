@@ -167,7 +167,7 @@ void CommandDefs::addApplication( const char* appnm,
         args->add("-e");
     
         BufferString script;
-        script.add("tell app \"" + std::string(appnm) + "\" to do script \"export PATH='$PATH'\"");
+        script.add("tell app \"" + std::string(appnm) + "\" to do script \"export PATH='$PATH'; export PYTHONPATH='$PYTHONPATH'; $CMD \"");
         args->add(script);
     }
     else
