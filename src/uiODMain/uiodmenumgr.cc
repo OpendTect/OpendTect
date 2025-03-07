@@ -13,8 +13,6 @@ ________________________________________________________________________
 #include "uicrdevenv.h"
 #include "uidatapackmon.h"
 #include "uifirewallprocsetterdlg.h"
-#include "uiglinfo.h"
-#include "uihostiddlg.h"
 #include "uimain.h"
 #include "uimenu.h"
 #include "uimenuhandler.h"
@@ -26,7 +24,6 @@ ________________________________________________________________________
 #include "uiodscenemgr.h"
 #include "uiodstdmenu.h"
 #include "uipickpartserv.h"
-#include "uiproxydlg.h"
 #include "uipythonsettings.h"
 #include "uiseispartserv.h"
 #include "uistrings.h"
@@ -1065,12 +1062,12 @@ void uiODMenuMgr::fillUtilMenu()
     insertAction( installmnu_, m3Dots(tr("Python Settings")), mSettPython,
 		  "python" );
     insertAction( installmnu_, m3Dots(tr("Connection Settings")),
-		 mInstConnSettsMnuItm );
-    insertAction( installmnu_, m3Dots(tr("Plugins")), mPluginsMnuItm );
+		 mInstConnSettsMnuItm, "internet_connection" );
+    insertAction( installmnu_, m3Dots(tr("Plugins")), mPluginsMnuItm,
+		  "plugin" );
     insertAction( installmnu_, m3Dots(tr("Setup Distributed Computing")),
 		 mSetupBatchItm);
-    insertAction( installmnu_, tr("Graphics Information"), mGraphicsInfoItm );
-    insertAction( installmnu_, tr("System Information"), mHostIDInfoItm );
+    insertAction( installmnu_, tr("Information"), mInformationItm, "info" );
 
     if ( __iswin__ )
 	insertAction( installmnu_, m3Dots(tr("Firewall Management")),
@@ -1704,8 +1701,9 @@ void uiODMenuMgr::handleClick( CallBacker* cb )
     case mBatchProgMnuItm:	applMgr().batchProgs(); break;
     case mPluginsMnuItm:	applMgr().pluginMan(); break;
     case mSetupBatchItm:	applMgr().setupBatchHosts(); break;
-    case mGraphicsInfoItm:	uiGLI().createAndShowMessage( true ); break;
-    case mHostIDInfoItm:	showHostID(); break;
+    case mInformationItm:	applMgr().showInformation(&appl_); break;
+    case mInstConnSettsMnuItm:	applMgr().showProxy(&appl_); break;
+    case mSettLkNFlMnuItm:	applMgr().showSettings(&appl_); break;
     case mPosconvMnuItm:	applMgr().posConversion(); break;
     case mInstMgrMnuItem:	applMgr().startInstMgr(); break;
     case mInstAutoUpdPolMnuItm:	applMgr().setAutoUpdatePol(); break;
@@ -1720,14 +1718,6 @@ void uiODMenuMgr::handleClick( CallBacker* cb )
 	if ( vwr )
 	    vwr->setMapView( true );
     } break;
-    case mInstConnSettsMnuItm: {
-	uiProxyDlg dlg( &appl_ ); dlg.go(); } break;
-
-    case mSettLkNFlMnuItm: {
-	uiSettingsDlg dlg( &appl_ );
-	dlg.go();
-    } break;
-
     case mDumpDataPacksMnuItm: {
 	uiDataPackMonitor::launchFrom( &appl_, 10 );
     } break;
@@ -1944,11 +1934,4 @@ void uiODMenuMgr::updateDTectMnus( CallBacker* )
 
     showtreeitm_->setChecked( true );
     dTectMnuChanged.trigger();
-}
-
-
-void uiODMenuMgr::showHostID()
-{
-    uiHostIDDlg dlg( &appl_ );
-    dlg.go();
 }

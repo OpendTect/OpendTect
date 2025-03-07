@@ -10,6 +10,9 @@ ________________________________________________________________________
 #include "uiapplserv.h"
 
 #include "ioman.h"
+#include "uihostiddlg.h"
+#include "uiproxydlg.h"
+#include "uisettings.h"
 
 namespace OD
 {
@@ -38,6 +41,8 @@ uiApplMgr::~uiApplMgr()
 {
     detachAllNotifiers();
     OD::applmgrs() -= this;
+    delete infodlg_;
+    delete proxydlg_;
     delete &applservice_;
 }
 
@@ -135,9 +140,63 @@ void uiApplMgr::surveyToBeChanged(CallBacker*)
 }
 
 
-void uiApplMgr::surveyChanged(CallBacker*)
+void uiApplMgr::surveyChanged( CallBacker* )
 {
     survChanged();
+}
+
+
+void uiApplMgr::prepSurveyChange()
+{
+}
+
+
+void uiApplMgr::survToBeChanged()
+{
+    closeAndNullPtr( infodlg_ );
+    closeAndNullPtr( proxydlg_ );
+}
+
+
+void uiApplMgr::survChanged()
+{
+}
+
+
+void uiApplMgr::showInformation( uiParent* p )
+{
+    if ( infodlg_ && p != infodlg_->parent() )
+	closeAndNullPtr( infodlg_ );
+
+    if ( !infodlg_ )
+    {
+	infodlg_ = new uiInformationDlg( p );
+	infodlg_->setModal( false );
+    }
+
+    infodlg_->show();
+}
+
+
+void uiApplMgr::showProxy( uiParent* p )
+{
+    if ( proxydlg_ && p != proxydlg_->parent() )
+	closeAndNullPtr( proxydlg_ );
+
+    if ( !proxydlg_ )
+    {
+	proxydlg_ = new uiProxyDlg( p );
+	proxydlg_->setModal( false );
+    }
+
+    proxydlg_->show();
+}
+
+
+void uiApplMgr::showSettings( uiParent* p )
+{
+    uiSettingsDlg dlg( p );
+    dlg.go();
 }
 
 

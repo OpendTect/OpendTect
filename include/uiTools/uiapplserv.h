@@ -14,6 +14,7 @@ ________________________________________________________________________
 
 class uiApplPartServer;
 class uiApplService;
+class uiDialog;
 class uiMainWin;
 class uiParent;
 
@@ -71,6 +72,10 @@ public:
 
     virtual void			setNlaServer(uiNLAPartServer*)	{}
 
+    void				showInformation(uiParent*);
+    void				showProxy(uiParent*);
+    void				showSettings(uiParent*);
+
 protected:
 			uiApplMgr(uiMainWin&,uiApplService&);
 			//!< uiApplService object becomes mine
@@ -79,11 +84,14 @@ protected:
     void		surveyToBeChanged(CallBacker*);
     void		surveyChanged(CallBacker*);
 
-    virtual void	prepSurveyChange()				{}
-    virtual void	survToBeChanged()				{}
-    virtual void	survChanged()					{}
+    virtual void	prepSurveyChange();
+    virtual void	survToBeChanged();
+    virtual void	survChanged();
 
     uiApplService&	applservice_;
+
+    uiDialog*		infodlg_    = nullptr;
+    uiDialog*		proxydlg_   = nullptr;
 };
 
 

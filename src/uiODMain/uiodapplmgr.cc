@@ -229,6 +229,7 @@ void uiODApplMgr::addVisDPSChild( CallBacker* cb )
 
 void uiODApplMgr::prepSurveyChange()
 {
+    uiODApplMgr::prepSurveyChange();
     bool anythingasked = false;
     if ( !appl_.askStore(anythingasked,tr("Survey change")) )
 	IOM().setChangeSurveyBlocked( true );
@@ -251,6 +252,8 @@ void uiODApplMgr::survToBeChanged()
     deleteAndNullPtr( wellserv_ );
     if ( appl_.sceneMgrAvailable() )
 	sceneMgr().cleanUp( false );
+
+    uiApplMgr::survToBeChanged();
 }
 
 
@@ -276,6 +279,8 @@ void uiODApplMgr::survChanged()
     mpeserv_ = new uiMPEPartServer( applservice_ );
     wellserv_ = new uiWellPartServer( applservice_ );
     emattrserv_ = new uiEMAttribPartServer( applservice_ );
+
+    uiApplMgr::survChanged();
 }
 
 

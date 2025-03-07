@@ -205,7 +205,7 @@ Returns true, if changes are accepted.
     uiObject::SzPolicy	elemSzPol() const		{ return elemszpol_; }
     void		setToolTip(const uiString&,int ielem=0);
 
-    virtual const uiString&	titleText();
+    virtual const uiString&	titleText() const;
     virtual void		setTitleText(const uiString&);
 
     void		setChecked(bool yn);

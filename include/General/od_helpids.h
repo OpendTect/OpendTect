@@ -22,6 +22,7 @@ ________________________________________________________________________
 #define		mODSceneMgrsetKeyBindingsHelpID			0x00002007
 #define		mSurveySettingsHelpID				0x00002008
 #define		mPythonSettingsHelpID				0x00002009
+#define		mInformationHelpID				0x00002010
 // General Survey 03
 #define		mSurveyHelpID					0x00003001
 #define		mSurveyInfoEditorHelpID				0x00003002
