@@ -321,10 +321,10 @@ macro(_launcher_configure_executable _src _tmp _target _config)
     if ( DEFINED ENV{DTECT_BINDIR} AND NOT "${USERFILE_COMMAND}" STREQUAL "" )
 	if ( WIN32 )
 	    set(RUNTIME_PATH_DTECT
-			"PATH=$ENV{DTECT_BINDIR}${_pathdelim}%PATH%")
+			"PATH=$ENV{DTECT_BINDIR}/${OD_RUNTIME_DIRECTORY}${_pathdelim}%PATH%")
 	else()
 	    set(RUNTIME_PATH_DTECT
-			"export PATH=$ENV{DTECT_BINDIR}${_pathdelim}\${PATH}")
+			"export PATH=$ENV{DTECT_BINDIR}/${OD_RUNTIME_DIRECTORY}${_pathdelim}\${PATH}")
 	endif()
 	string(CONFIGURE "@USERFILE_ENV_COMMANDS_ORIG@${RUNTIME_PATH_DTECT}"
 		     USERFILE_ENV_COMMANDS @ONLY)
