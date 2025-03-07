@@ -950,9 +950,16 @@ mExternC(Basic) const char* GetFullExecutablePath( void )
 #endif
 	    if ( !executable.isAbsolute() )
 	    {
-		FilePath filepath = initialdir_.buf();
-		filepath.add( GetArgV()[0] );
-		executable = filepath;
+		const BufferStringSet paths;
+		const BufferString filenm =
+			File::findExecutable( executable.fileName(), paths );
+		if ( File::exists(filenm.buf()) )
+		    executable.set( filenm.buf() );
+		else
+		{
+		    //last chance: current directory
+		    executable.insert( initialdir_.buf() );
+		}
 	    }
 
 	    res = getShortPathName( executable.fullPath() );
