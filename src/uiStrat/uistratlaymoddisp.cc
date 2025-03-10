@@ -1178,8 +1178,8 @@ void uiStratSimpleLayerModelDisp::updateSelSeqAuxData()
 
     StepInterval<double> yrg = fvdp_->posData().range( false );
     selseqad_->poly_.erase();
-    selseqad_->poly_ += FlatView::Point( mCast(double,selseqidx_+1),yrg.start_);
-    selseqad_->poly_ += FlatView::Point( mCast(double,selseqidx_+1),yrg.stop_ );
+    selseqad_->poly_ += FlatView::Point(mCast(double,selseqidx_+1),yrg.start_);
+    selseqad_->poly_ += FlatView::Point(mCast(double,selseqidx_+1),yrg.stop_ );
 }
 
 

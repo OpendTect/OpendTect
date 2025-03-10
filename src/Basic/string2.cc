@@ -1119,12 +1119,13 @@ StringView NrBytesToStringCreator::getString( od_uint64 sz, int nrdecimals,
     formatstr.add( "f");
 
     mDeclStaticString( ret );
+
     if ( ret.isEmpty() )
-	ret.setMinBufSize( 16 );
-    od_sprintf( ret.getCStr(), ret.bufSize(), formatstr, fsz );
+    ret.setMinBufSize( 16 );
+    ret.set(fsz, (uint16_t)0, 'f');
 
     if ( withunit )
-	ret.add( " " ).add( getUnitString() );
+    ret.addSpace().add( getUnitString() );
 
     return StringView( ret.str() );
 }

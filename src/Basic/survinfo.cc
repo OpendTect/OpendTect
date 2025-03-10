@@ -1662,9 +1662,13 @@ void SurveyInfo::setTr( double a, double b, double c, bool isx )
 void SurveyInfo::putTr( const Pos::IdxPair2Coord::DirTransform& dirtr,
 			  ascostream& astream, const char* key ) const
 {
-    char buf[1024];
-    od_sprintf( buf, 1024, "%.10lg`%.10lg`%.10lg", dirtr.a, dirtr.b, dirtr.c );
-    astream.put( key, buf );
+    BufferString bufa( 32, false ), bufb( 32, false ), bufc( 32, false );
+    bufa.set( dirtr.a, 0, 'g', 10, "l" );
+    bufb.set( dirtr.b, 0, 'g', 10, "l" );
+    bufc.set( dirtr.c, 0, 'g', 10, "l" );
+    FileMultiString fms;
+    fms.add( bufa.str() ).add( bufb.str() ).add( bufc.str() );
+    astream.put( key, fms.str() );
 }
 
 

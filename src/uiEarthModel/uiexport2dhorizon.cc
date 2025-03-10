@@ -54,6 +54,18 @@ static uiStringSet hdrtyps()
     return hdrtypes;
 }
 
+static BufferString bufstr( const char* horname, const char* hdrlnm,
+     Coord crd, int trcnr, double spnr, const char* zvalstr )
+{
+    BufferString ret, crd_xstr, crd_ystr, trcnr_str, spnr_str;
+    crd_xstr.set( crd.x_, 12, 'f', 2 );
+    crd_ystr.set( crd.y_, 12, 'f', 2 );
+    trcnr_str.set( trcnr, 10, 'd', 0);
+    spnr_str.set( spnr, 10, 'f', 2 );
+    ret.addSpace().add( horname ).add( hdrlnm ).add( crd_xstr ).add( crd_ystr )
+       .add( trcnr_str ).add( spnr_str ).addSpace( 3 ).add( zvalstr );
+    return ret;
+}
 
 uiExport2DHorizon::uiExport2DHorizon( uiParent* p, bool isbulk )
     : uiDialog(p,uiDialog::Setup( uiStrings::phrExport( tr("2D Horizon") ),
@@ -146,7 +158,8 @@ bool uiExport2DHorizon::doExport()
 {
     TypeSet<MultiID> midset;
     if ( !getInputMultiIDs(midset) )
-	mErrRet(tr("Cannot find object in database"))
+	mErrRet( uiStrings::phrSelect(
+		 uiStrings::s2DHorizon(isbulk_ ? mPlural : 1)) );
 
     od_ostream strm( outfld_->fileName() );
     if ( !strm.isOK() )
@@ -268,8 +281,6 @@ bool uiExport2DHorizon::doExport()
 	BufferString horname = hor->name();
 	horname.quote('\"');
 
-	BufferString line( 180, false );
-
 	if ( !strm.isOK() )
 	    mErrRet( uiStrings::sCannotWrite() );
 
@@ -286,9 +297,11 @@ bool uiExport2DHorizon::doExport()
             if ( !survgeom2d || trcrg.isUdf() || !trcrg.step_ )
 		continue;
 
-	    TrcKey tk( geomid, -1 );
-	    Coord crd; float spnr = mUdf(float);
-	    for ( int trcnr=trcrg.start_; trcnr<=trcrg.stop_;trcnr+=trcrg.step_)
+	    TrcKey tk( geomid, (Pos::TraceID)-1 );
+	    Coord crd;
+	    float spnr = mUdf(float);
+	    for ( Pos::TraceID trcnr=trcrg.start_; trcnr<=trcrg.stop_;
+						   trcnr+=trcrg.step_)
 	    {
 		tk.setTrcNr( trcnr );
 		const float z = hor->getZ( tk );
@@ -322,36 +335,26 @@ bool uiExport2DHorizon::doExport()
                     crd.setXY( crd2d.x_, crd2d.y_ );
 		}
 
+		BufferString line;
 		if ( wrhornms && wrlinenms )
 		{
-		    od_sprintf( line.getCStr(), line.bufSize(),
-				controlstr.buf(),
-				horname.buf(), hdrlnm.buf(),
-                                crd.x_, crd.y_,
-				trcnr, double(spnr), zstr.buf() );
+			line = bufstr( horname, hdrlnm,
+				       crd, trcnr, spnr, zstr );
 		}
 		else if ( wrhornms )
 		{
-		    od_sprintf( line.getCStr(), line.bufSize(),
-				controlstr.buf(),
-				horname.buf(),
-                                crd.x_, crd.y_,
-				trcnr, double(spnr), zstr.buf() );
+			line = bufstr( horname, nullptr ,
+				       crd, trcnr, spnr, zstr );
 		}
 		else if ( wrlinenms )
 		{
-		    od_sprintf( line.getCStr(), line.bufSize(),
-				controlstr.buf(),
-				hdrlnm.buf(),
-                                crd.x_, crd.y_,
-				trcnr, double(spnr), zstr.buf() );
+			line = bufstr( nullptr, hdrlnm,
+				       crd, trcnr, spnr, zstr );
 		}
 		else
 		{
-		    od_sprintf( line.getCStr(), line.bufSize(),
-				controlstr.buf(),
-                                crd.x_, crd.y_,
-				trcnr, double(spnr), zstr.buf() );
+			line = bufstr( nullptr, nullptr, crd, trcnr,
+				       spnr, zstr );
 		}
 
 		strm << line << od_newline;
@@ -517,7 +520,7 @@ bool uiExport2DHorizon::getInputMultiIDs( TypeSet<MultiID>& midset )
 	    midset.add( selobj->key() );
     }
 
-    return true;
+    return !midset.isEmpty();
 }
 
 

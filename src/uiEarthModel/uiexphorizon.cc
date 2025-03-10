@@ -167,17 +167,29 @@ od_int64 Write3DHorASCII::totalNr() const
 static void writeGF( od_ostream& strm, const BinID& bid, float z,
 	      float val, const Coord& crd, int segid )
 {
-    char buf[mDataGFLineLen+2];
-    const double crl = double( bid.crl() );
-    const double gfval = double( mIsUdf(val) ? MAXFLOAT : val );
-    const double depth = double( mIsUdf(z) ? MAXFLOAT : z );
-    od_sprintf( buf, mDataGFLineLen+2,
-	  "%16.8E%16.8E%3d%3d%9.2f%10.2f%10.2f%5d%14.7E I%7d %52s\n",
-                crd.x_, crd.y_, segid, 14, depth,
-	  crl, crl, bid.crl(), gfval, bid.inl(),
-	     "" );
-    buf[96] = buf[97] = 'X';
-    strm << buf;
+    const double crl = bid.crl();
+    const float gfval = mIsUdf(val) ? MAXFLOAT : val ;
+    const double depth = mIsUdf(z) ? MAXFLOAT : z ;
+
+    BufferString xval_str, yval_str, segid_str, temp_intstr, depth_str, crl_str,
+			 bid_str, gfval_str, bid_inlstr;
+
+    xval_str.set( crd.x_, 16, 'E', 8 );
+    yval_str.set( crd.y_, 16, 'E', 8 );
+    segid_str.set( segid, (od_uint16)3 );
+    temp_intstr.set( 14, (od_uint16)3 );
+    depth_str.set( depth, 9, 'f', 2 );
+    crl_str.set( crl, 10, 'f', 2 );
+    bid_str.set( bid.crl(), (od_uint16)5 );
+    gfval_str.set( gfval, 14, 'E', 7);
+    bid_inlstr.set( bid.inl(), (od_uint16)7 );
+
+    BufferString tmpstr(mDataGFLineLen+2, false);
+    tmpstr.add( xval_str ).add( yval_str ).add( segid_str ).add( temp_intstr )
+	      .add( depth_str ).add( crl_str ).add( crl_str ).add( bid_str )
+	  .add( gfval_str ).add( " I" ).add( bid_inlstr ).add( " XX" )
+	  .addNewLine();
+    strm << tmpstr;
 }
 
 
@@ -379,19 +391,23 @@ void uiExportHorizon::initGrpCB( CallBacker* )
 static void initGF( od_ostream& strm, const char* hornm,
 		    const char* comment )
 {
-    char gfbuf[mHdr1GFLineLen+2];
-    gfbuf[mHdr1GFLineLen] = '\0';
     BufferString hnm( hornm );
     hnm.clean();
-    od_sprintf( gfbuf, mHdr1GFLineLen+2,
-		"PROFILE %17sTYPE 1  4 %45s3d_ci7m.ifdf     %s ms\n",
-		"", "", SI().getXYUnitString(false) );
-    int sz = hnm.size(); if ( sz > 17 ) sz = 17;
-    OD::memCopy( gfbuf+8, hnm.buf(), sz );
+
+    BufferString tmpstr( mHdr1GFLineLen+2, false );
+    tmpstr.add( "PROFILE" ).addSpace( 17 ).add( "TYPE 1  4" ).addSpace( 45 )
+	  .add( "3d_ci7m.ifdf" ).addSpace( 5 )
+	  .add( SI().getXYUnitString(false) ).add( " ms" ).addNewLine();
+
+    int sz = hnm.size();
+    if ( sz > 17 )
+	sz = 17;
+
+    OD::memCopy( tmpstr.getCStr()+8, hnm.buf(), sz );
     hnm = comment;
     sz = hnm.size(); if ( sz > 45 ) sz = 45;
-    OD::memCopy( gfbuf+35, hnm.buf(), sz );
-    strm << gfbuf << "SNAPPING PARAMETERS 5     0 1" << od_endl;
+    OD::memCopy( tmpstr.getCStr()+35, hnm.buf(), sz );
+    strm << tmpstr << "SNAPPING PARAMETERS 5	 0 1" << od_endl;
 }
 
 
