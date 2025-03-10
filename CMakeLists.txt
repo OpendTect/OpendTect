@@ -77,11 +77,6 @@ option ( OD_ENABLE_BREAKPAD "Use breakpad" OFF )
 
 include( OD_SetupOD )
 
-if ( APPLE )
-    set( CMAKE_MACOSX_RPATH ON )
-    set( CMAKE_INSTALL_RPATH "@loader_path/../Frameworks" )
-endif()
-
 # Note: the order of these modules *IS* important!
 # Make sure dependent modules are *after* the ones that they depend upon.
 set( OD_MODULES
