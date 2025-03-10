@@ -122,6 +122,11 @@ macro( OD_SET_PROG_INSTALL_RPATH )
 
 endmacro( OD_SET_PROG_INSTALL_RPATH )
 
+if ( APPLE )
+    set( CMAKE_INSTALL_RPATH "$<IF:$<CONFIG:Debug>,@loader_path/../../Frameworks/Debug,@loader_path/../Frameworks>" )
+endif()
+
+
 macro( OD_INIT_MODULE )
 
 get_filename_component( OD_MODULE_NAME ${CMAKE_CURRENT_SOURCE_DIR} NAME )
