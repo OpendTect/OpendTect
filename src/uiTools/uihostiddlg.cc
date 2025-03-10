@@ -81,7 +81,7 @@ uiSystemInfoGrp( uiParent* p )
     {
 	kernelverfld_ = new uiGenInput( this, tr("Kernel Version") );
 	kernelverfld_->setReadOnly();
-	kernelverfld_->attach( alignedBelow, productnmfld_ );
+	kernelverfld_->attach( alignedBelow, usernmfld_ );
 	kernelverfld_->setElemSzPol( uiObject::Wide );
 	kernelverfld_->setText( System::kernelVersion() );
     }
