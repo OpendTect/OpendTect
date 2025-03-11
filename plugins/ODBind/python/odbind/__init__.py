@@ -86,11 +86,7 @@ class NumpyAllocator:
         return self.CFUNCTYPE(self)
     cfunc = property(getcfunc)
 
-if odc.isMac():
-    libodbindsrcpath = odc.getMacFrameworkDir()
-else:
-    libodbindsrcpath = odc.getODSoftwareDir()
-libodbind = os.path.join(libodbindsrcpath, get_lib_name('ODBind'))
+libodbind = os.path.join(odc.getLibPlfDir(), get_lib_name('ODBind'))
 try:
   LIBODB = ct.CDLL(libodbind)
 except OSError:
