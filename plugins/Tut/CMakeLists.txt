@@ -17,6 +17,8 @@ set( OD_MODULE_SOURCES
 	tutpi.cc
 )
 set( OD_PLUGIN_ALO_EXEC ${OD_ATTRIB_EXECS} ${OD_VOLUME_EXECS} )
-set( OD_NO_ALO_ENTRY TRUE )
+if ( "${OD_SUBSYSTEM}" STREQUAL "od" )
+    set( OD_NO_ALO_ENTRY TRUE ) # OpendTect SDK internal build
+endif()
 
 OD_INIT_MODULE()
