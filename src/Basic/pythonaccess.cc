@@ -182,15 +182,6 @@ void OD::PythonAccess::initClass()
 	    PythA().addBasePath( pythonmodsfp );
     }
 #endif
-#ifdef __odbind_dir__
-    if ( isDeveloperBuild() )
-    pythonmodsfp.set( __odbind_dir__ );
-    else
-    pythonmodsfp.set( GetScriptDir() ).add( "python" );
-
-    if ( pythonmodsfp.exists() )
-    PythA().addBasePath( pythonmodsfp );
-#endif
 
 #ifdef __win__
     ManagedObjectSet<FilePath> fps;
