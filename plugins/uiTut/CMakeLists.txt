@@ -16,7 +16,9 @@ set( OD_MODULE_SOURCES
 	uitutwelltools.cc
 	uitutpi.cc
 )
-SET( OD_PLUGIN_ALO_EXEC ${OD_MAIN_EXEC} )
-SET( OD_NO_ALO_ENTRY TRUE )
+set( OD_PLUGIN_ALO_EXEC ${OD_MAIN_EXEC} )
+if ( "${OD_SUBSYSTEM}" STREQUAL "od" )
+    set( OD_NO_ALO_ENTRY TRUE ) # OpendTect SDK internal build
+endif()
 
 OD_INIT_MODULE()
