@@ -536,11 +536,36 @@ const BufferString SEGYDirectSeisTrcTranslator::getFileNameKey( int idx ) const
 }
 
 
+bool SEGYDirectSeisTrcTranslator::implIsLink( const IOObj* obj ) const
+{
+    return true;
+}
+
+
 bool SEGYDirectSeisTrcTranslator::implRelocate( const IOObj* obj,
 				const char* newfnm, const char* oldfnm )
 {
     if ( !obj || !newfnm || !*newfnm )
 	return false;
+
+    if ( !File::exists(newfnm) )
+    {
+	if ( !oldfnm || !*oldfnm )
+	{
+	    errmsg_ = tr( "Please provide a SEG-Y file to relocate" );
+	    return false;
+	}
+
+	const bool res = File::rename( oldfnm, newfnm, &errmsg_ );
+	if ( !res )
+	    return false;
+    }
+
+    if ( !File::exists(newfnm) )
+    {
+	errmsg_ = tr( "Specified new file doesn't exist." );
+	return false;
+    }
 
     od_stream_Pos pos = 0;
     IOPar par;
@@ -577,7 +602,8 @@ bool SEGYDirectSeisTrcTranslator::implRelocate( const IOObj* obj,
 		break;
 
 	    const FilePath fp( fnm.buf() );
-	    if ( fp.fileName() == oldfnm )
+	    const FilePath oldfp( oldfnm );
+	    if ( fp.fileName() == oldfp.fileName() )
 	    {
 		matchfound = true;
 		break;
@@ -597,12 +623,11 @@ bool SEGYDirectSeisTrcTranslator::implRelocate( const IOObj* obj,
 
     const bool success =
 	    SEGY::DirectDef::updateFooter( obj->fullUserExpr(false), par, pos );
-    if ( success )
-	errmsg_ = tr( "Could not write new location to SEG-Y  Direct file." );
+    if ( !success )
+	errmsg_ = tr( "Could not write new location to SEG-Y Direct file." );
 
     return success;
 }
-
 
 
 bool SEGYDirectSeisTrcTranslator::commitSelections_()

@@ -227,6 +227,7 @@ private:
     BufferString	getAuxFileName(const char*) const override;
 
     od_int64		getFileSize(const IOObj* =nullptr) const override;
+    bool		implIsLink(const IOObj*) const override;
     int			nrImpls(const IOObj*) const override;
     void		implFileNames(const IOObj*,
 				      BufferStringSet&) const override;

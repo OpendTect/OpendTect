@@ -1305,13 +1305,55 @@ bool IOMan::implReloc( const MultiID& key, const char* newdir )
     }
 
     PtrMan<Translator> trans = ioobj->createTranslator();
+    if ( trans->implIsLink(ioobj.ptr()) )
+    {
+	bool allsuccess = true;
+	BufferStringSet fnms;
+	trans->implFileNames( ioobj.ptr(), fnms);
+	BufferStringSet oldfnms, newfnms;
+	for ( const auto* fnm : fnms )
+	{
+	    const FilePath oldfp( *fnm );
+	    if ( oldfp == FilePath(ioobj->fullUserExpr()) )
+		continue;
+
+	    oldfnms.add( *fnm );
+	    FilePath newfp( *fnm );
+	    newfp.setPath( newdir );
+	    if ( !trans->implRelocate(ioobj.ptr(), newfp.fullPath(),
+					     oldfp.fullPath()) )
+	    {
+		allsuccess = false;
+		oldfnms.removeSingle( oldfnms.size()-1 );
+		break;
+	    }
+
+	    newfnms.add( newfp.fullPath() );
+	}
+
+	if ( !allsuccess )
+	{
+	    msg_ = tr("Some files could not be relocated to the new location");
+	    for ( const auto* newfnm : newfnms )
+	    {
+		const int idx = newfnms.indexOf( newfnm );
+		trans->implRelocate( ioobj.ptr(), oldfnms.get(idx), *newfnm );
+	    }
+	}
+
+	return allsuccess;
+    }
+
     mDynamicCastGet(IOStream*,iostrm,ioobj.ptr())
     BufferString oldfnm( iostrm->fullUserExpr() );
     IOStream chiostrm( *iostrm );
     if ( !File::isDirectory(newdir) )
 	return false;
 
-    FilePath fp( oldfnm ); fp.setPath( newdir );
+    FilePath fp( oldfnm );
+    fp.setPath( newdir );
+    const FilePath defdirfp( curDirName().buf() );
+    fp.makeRelativeTo( defdirfp );
     chiostrm.fileSpec().setFileName( fp.fullPath() );
     if ( !doReloc(key,trans.ptr(),*iostrm,chiostrm) )
 	return false;
