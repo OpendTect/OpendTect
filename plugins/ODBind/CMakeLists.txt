@@ -37,4 +37,8 @@ if ( EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/python" AND
 	      PATTERN "__pycache__" EXCLUDE
 	      PATTERN ".gitignore" EXCLUDE
 	      PATTERN "tests" EXCLUDE )
+
+    # Development only
+    file ( MAKE_DIRECTORY "${CMAKE_BINARY_DIR}/${MISC_INSTALL_PREFIX}/bin/python" )
+    file ( COPY "${CMAKE_CURRENT_SOURCE_DIR}/python/odbind" DESTINATION "${CMAKE_BINARY_DIR}/${MISC_INSTALL_PREFIX}/bin/python" )
 endif()

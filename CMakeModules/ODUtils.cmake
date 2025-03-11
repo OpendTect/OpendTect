@@ -87,9 +87,7 @@ macro (OD_COPY_PYTHON_EXTERNALS)
 	if ( IS_DIRECTORY "${CMAKE_SOURCE_DIR}/external/safety" )
 	    file(COPY "${CMAKE_SOURCE_DIR}/external/safety" DESTINATION "${PYTHON_LIBS_DESTINATION}")
 	endif()
-	if ( IS_DIRECTORY "${CMAKE_SOURCE_DIR}/plugins/ODBind/python/odbind" )
-	    file(COPY "${CMAKE_SOURCE_DIR}/plugins/ODBind/python/odbind" DESTINATION "${PYTHON_LIBS_DESTINATION}")
-	endif()
+unset( PYTHON_LIBS_DESTINATION )
 endmacro(OD_COPY_PYTHON_EXTERNALS)
 
 
