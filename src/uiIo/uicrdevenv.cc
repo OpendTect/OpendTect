@@ -326,10 +326,14 @@ uiRetVal uiCrDevEnv::copyEnv( const char* swdir, const char* envdir )
     BufferString instdirfnm( instdirfp.fullPath() );
     if ( __iswin__ )
     {
-	swdirfnm.replace( FilePath::dirSep(FilePath::Windows),
-			  FilePath::dirSep(FilePath::Unix) );
-	instdirfnm.replace( FilePath::dirSep(FilePath::Windows),
-			    FilePath::dirSep(FilePath::Unix) );
+	BufferString longswdirfnm = FilePath::getLongPath( swdirfnm.buf() );
+	BufferString longinstdirfnm = FilePath::getLongPath( instdirfnm.buf() );
+	longswdirfnm.replace( FilePath::dirSep(FilePath::Windows),
+			      FilePath::dirSep(FilePath::Unix) );
+	longinstdirfnm.replace( FilePath::dirSep(FilePath::Windows),
+			        FilePath::dirSep(FilePath::Unix) );
+	swdirfnm = longswdirfnm;
+	instdirfnm = longinstdirfnm;
     }
 
     strm << "OpendTect_DIR:PATH=" << swdirfnm.str() << od_newline;
