@@ -157,9 +157,33 @@ macro(_launcher_process_args)
             FATAL_ERROR "Syntax error in use of a function in CreateLaunchers!")
     endif()
 
+    if ( DEFINED ENV{DTECT_BINDIR} AND NOT "${COMMAND}" STREQUAL "" )
+	if ( "${CMAKE_BUILD_TYPE}" STREQUAL "Debug" )
+	    if ( EXISTS "$ENV{DTECT_BINDIR}/Debug/${COMMAND}" )
+		set( DTECT_EXECDIR "$ENV{DTECT_BINDIR}/Debug" )
+	    elseif ( EXISTS "$ENV{DTECT_BINDIR}/Release/${COMMAND}" )
+		set( DTECT_EXECDIR "$ENV{DTECT_BINDIR}/Release" )
+	    endif()
+	else()
+	    if ( EXISTS "$ENV{DTECT_BINDIR}/Release/${COMMAND}" )
+		set( DTECT_EXECDIR "$ENV{DTECT_BINDIR}/Release" )
+	    elseif ( EXISTS "$ENV{DTECT_BINDIR}/Debug/${COMMAND}" )
+		set( DTECT_EXECDIR "$ENV{DTECT_BINDIR}/Debug" )
+	    endif()
+	endif()
+    endif()
+
     # Turn into a list of native paths
     set(_runtime_lib_dirs)
     foreach(_dlldir ${RUNTIME_LIBRARY_DIRS})
+	if ( "${_dlldir}" STREQUAL "$ENV{DTECT_BINDIR}"
+	     AND NOT "${DTECT_EXECDIR}" STREQUAL "" )
+	    set( _dlldir "${DTECT_EXECDIR}" )
+	elseif ( "${_dlldir}" STREQUAL "${CMAKE_BINARY_DIR}/${OD_EXEC_OUTPUT_RELPATH}" AND
+		 NOT "${CMAKE_BUILD_TYPE}" STREQUAL ""  )
+	    set( _dlldir "${_dlldir}/${CMAKE_BUILD_TYPE}" )
+	endif()
+
         file(TO_NATIVE_PATH "${_dlldir}" _path)
         if(NOT EXISTS "${_path}") #this is not a file so lets leave it as is
             set(_path ${_dlldir})
@@ -201,9 +225,9 @@ macro(_launcher_process_args)
     set(USERFILE_COMMAND "${COMMAND}")
     string(REPLACE ";" " " USERFILE_COMMAND_ARGUMENTS "${ARGS}" )
     string(REPLACE ";" " " LAUNCHERSCRIPT_COMMAND_ARGUMENTS "${ARGS} ${FWD_ARGS}")
-    if ( DEFINED ENV{DTECT_BINDIR} AND NOT "${USERFILE_COMMAND}" STREQUAL "" )
+    if ( NOT "${DTECT_EXECDIR}" STREQUAL "" )
 	set( USERFILE_COMMAND
-	    "$ENV{DTECT_BINDIR}/${_targetname}${OD_EXECUTABLE_EXTENSION}" )
+	    "${DTECT_EXECDIR}/${_targetname}${OD_EXECUTABLE_EXTENSION}" )
     endif()
 
     if(WIN32)
@@ -326,10 +350,10 @@ macro(_launcher_configure_executable _src _tmp _target _config)
     if ( DEFINED ENV{DTECT_BINDIR} AND NOT "${USERFILE_COMMAND}" STREQUAL "" )
 	if ( WIN32 )
 	    set(RUNTIME_PATH_DTECT
-			"PATH=$ENV{DTECT_BINDIR}/${OD_EXEC_OUTPUT_RELPATH}${_pathdelim}%PATH%")
+			"PATH=$ENV{DTECT_BINDIR}/${_config}${_pathdelim}%PATH%")
 	else()
 	    set(RUNTIME_PATH_DTECT
-			"export PATH=$ENV{DTECT_BINDIR}/${OD_EXEC_OUTPUT_RELPATH}${_pathdelim}\${PATH}")
+			"export PATH=$ENV{DTECT_BINDIR}/${_config}${_pathdelim}\${PATH}")
 	endif()
 	string(CONFIGURE "@USERFILE_ENV_COMMANDS_ORIG@${RUNTIME_PATH_DTECT}"
 		     USERFILE_ENV_COMMANDS @ONLY)
