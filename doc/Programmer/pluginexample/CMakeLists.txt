@@ -43,6 +43,7 @@ foreach( PLUGIN ${PLUGINS} )
     # Made plugin specific
 endforeach()
 
+link_directories( "${CMAKE_BINARY_DIR}/${OD_LIBRARY_DIRECTORY}" )
 OD_ADD_MODULES( plugins ${PLUGINS} )
 
 if( OD_CREATE_LAUNCHERS )
