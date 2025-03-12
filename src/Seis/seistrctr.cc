@@ -9,7 +9,6 @@ ________________________________________________________________________
 
 #include "seistrctr.h"
 
-#include "bufstringset.h"
 #include "dirlist.h"
 #include "envvars.h"
 #include "file.h"
@@ -19,8 +18,10 @@ ________________________________________________________________________
 #include "iopar.h"
 #include "iostrm.h"
 #include "keystrs.h"
+#include "moddepmgr.h"
 #include "od_stream.h"
 #include "oddirs.h"
+#include "plugins.h"
 #include "ptrman.h"
 #include "scaler.h"
 #include "seisbuf.h"
@@ -29,7 +30,6 @@ ________________________________________________________________________
 #include "seisselection.h"
 #include "seistrc.h"
 #include "separstr.h"
-#include "sharedlibs.h"
 #include "sorting.h"
 #include "survinfo.h"
 #include "tracedata.h"
@@ -804,17 +804,33 @@ void SeisTrcTranslator::setCoordSys( const Coords::CoordSystem& crs,
 
 void Seis::addPluginSeisTrcTranslators()
 {
-    const FilePath datafp( mGetSWDirDataDir(), "SeisTrcTranslators" );
-    if ( !datafp.exists() )
-	return;
+    BufferStringSet configfiles;
+    const FilePath datafp( GetSetupDataFileName(ODSetupLoc_SWDirOnly,
+			   "SeisTrcTranslators",false) );
+    if ( datafp.exists() )
+    {
+	const DirList dl( datafp.fullPath(), File::FilesInDir, "*.txt" );
+	for ( int idx=0; idx<dl.size(); idx++ )
+	    configfiles.add( dl.get( idx ).buf() );
+    }
+
+    const FilePath pluginsdatafpdir(
+			GetSetupDataFileName(ODSetupLoc_UserPluginDirOnly,
+					     "SeisTrcTranslators",false) );
+    if ( pluginsdatafpdir.exists() )
+    {
+	const DirList dl( pluginsdatafpdir.fullPath(), File::FilesInDir,
+			  "*.txt" );
+	for ( int idx=0; idx<dl.size(); idx++ )
+	    configfiles.add( dl.get( idx ).buf() );
+    }
 
     using VoidVoidFn = void(*)(void);
-    const DirList dl( datafp.fullPath(), File::FilesInDir, "*.txt" );
     BufferString libname;
     libname.setBufSize( 256 );
-    for ( int idx=0; idx<dl.size(); idx++ )
+    for ( const auto* configfile : configfiles )
     {
-	const FilePath dirname( dl.get( idx ).buf() );
+	const FilePath dirname( configfile->buf() );
 	const BufferString piname = dirname.baseName();
 	if ( piname.isEmpty() )
 	    continue;
@@ -822,7 +838,19 @@ void Seis::addPluginSeisTrcTranslators()
 	libname.setEmpty();
 	SharedLibAccess::getLibName( piname.buf(), libname.getCStr(),
 				     libname.bufSize() );
-	const FilePath fp( GetLibPlfDir(), libname );
+	FilePath fp;
+	const OD::ModDep* moddep = OD::ModDeps().find( piname.str() );
+	if ( moddep )
+	{
+	    fp.set( GetLibPlfDir() ).add( libname.str() );
+	}
+	else
+	{
+	    const PluginManager::Data* pidata = PIM().findData( libname.str() );
+	    if ( pidata )
+		fp.set( PIM().getFileName(*pidata) );
+	}
+
 	if ( !fp.exists() )
 	    continue;
 

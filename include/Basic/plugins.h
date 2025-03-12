@@ -150,8 +150,13 @@ public:
     const char*		getAutoDir( bool usr ) const
 			{ return usr ? userlibdir_ : applibdir_; }
 
+    static const char*	getApplDir();
+    static const char*	getUserDir();
     static const char*	sKeyDontLoad() { return "dTect.Dont load plugins"; }
     void		getNotLoadedByUser(BufferStringSet&) const;
+
+    static const char*	sKeyApplPluginDir();
+    static const char*	sKeyUserPluginDir();
 
 private:
 
