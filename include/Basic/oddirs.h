@@ -59,7 +59,8 @@ typedef enum
     ODSetupLoc_ApplSetupOnly,
     ODSetupLoc_ApplSetupPref, /* Usual choice for GetSetupDataFileName */
     ODSetupLoc_SWDirPref,
-    ODSetupLoc_SWDirOnly
+    ODSetupLoc_SWDirOnly,
+    ODSetupLoc_UserPluginDirOnly,
 } ODSetupLocType;
 
 mGlobal(Basic) const char* GetSetupDataFileDir(ODSetupLocType,bool acceptnone);

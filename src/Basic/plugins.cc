@@ -398,9 +398,41 @@ PluginManager::~PluginManager()
 }
 
 
+const char* PluginManager::sKeyApplPluginDir()
+{
+    return "OD_APPL_PLUGIN_DIR";
+}
+
+
+const char* PluginManager::sKeyUserPluginDir()
+{
+    return "OD_USER_PLUGIN_DIR";
+}
+
+
+const char* PluginManager::getApplDir()
+{
+    mDeclStaticString( ret );
+    if ( ret.isEmpty() )
+	ret = GetEnvVar( sKeyApplPluginDir() );
+
+    return ret.buf();
+}
+
+
+const char* PluginManager::getUserDir()
+{
+    mDeclStaticString( ret );
+    if ( ret.isEmpty() )
+	ret = GetEnvVar( sKeyUserPluginDir() );
+
+    return ret.buf();
+}
+
+
 void PluginManager::getDefDirs()
 {
-    BufferString dnm = GetEnvVar( "OD_APPL_PLUGIN_DIR" );
+    BufferString dnm = getApplDir();
     if ( dnm.isEmpty() )
     {
 	appdir_ = GetSoftwareDir(false);
@@ -417,7 +449,7 @@ void PluginManager::getDefDirs()
 	applibdir_ = fp.fullPath();
     }
 
-    dnm = GetEnvVar( "OD_USER_PLUGIN_DIR" );
+    dnm = getUserDir();
     if ( dnm.isEmpty() )
 	dnm = GetSettingsDir();
 
@@ -835,17 +867,33 @@ PluginManager& PIM()
 
 void initPluginClasses( const char* datadir, const char* func )
 {
-    const FilePath datafp( mGetSWDirDataDir(), datadir );
-    if ( !datafp.exists() )
-	return;
+    BufferStringSet configfiles;
+    const File::DirListType dltyp = File::DirListType::FilesInDir;
+    const FilePath datafp( GetSetupDataFileName(ODSetupLoc_SWDirOnly,
+						datadir,false) );
+    if ( datafp.exists() )
+    {
+	const DirList dl( datafp.fullPath(), dltyp, "*.txt" );
+	for ( int idx=0; idx<dl.size(); idx++ )
+	    configfiles.add( dl.get( idx ).buf() );
+    }
+
+    const FilePath pluginsdatafpdir(
+			GetSetupDataFileName(ODSetupLoc_UserPluginDirOnly,
+					     datadir,false) );
+    if ( pluginsdatafpdir.exists() )
+    {
+	const DirList dl( pluginsdatafpdir.fullPath(), dltyp, "*.txt" );
+	for ( int idx=0; idx<dl.size(); idx++ )
+	    configfiles.add( dl.get( idx ).buf() );
+    }
 
     using VoidVoidFn = void(*)(void);
-    const DirList dl( datafp.fullPath(), File::DirListType::FilesInDir,"*.txt");
     BufferString libname;
     libname.setBufSize( 256 );
-    for ( int idx=0; idx<dl.size(); idx++ )
+    for ( const auto* configfile : configfiles )
     {
-	const FilePath dirname( dl.get( idx ).buf() );
+	const FilePath dirname( configfile->buf() );
 	const BufferString piname = dirname.baseName();
 	if ( piname.isEmpty() )
 	    continue;
@@ -853,7 +901,19 @@ void initPluginClasses( const char* datadir, const char* func )
 	libname.setEmpty();
 	SharedLibAccess::getLibName( piname.buf(), libname.getCStr(),
 				     libname.bufSize() );
-	const FilePath fp( GetLibPlfDir(), libname );
+	FilePath fp;
+	const OD::ModDep* moddep = OD::ModDeps().find( piname.str() );
+	if ( moddep )
+	{
+	    fp.set( GetLibPlfDir() ).add( libname.str() );
+	}
+	else
+	{
+	    const PluginManager::Data* pidata = PIM().findData( libname.str() );
+	    if ( pidata )
+		fp.set( PIM().getFileName(*pidata) );
+	}
+
 	if ( !fp.exists() )
 	    continue;
 
