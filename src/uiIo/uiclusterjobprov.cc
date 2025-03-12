@@ -30,6 +30,7 @@ ________________________________________________________________________
 #include "od_helpids.h"
 #include "od_ostream.h"
 #include "oscommand.h"
+#include "plugins.h"
 #include "settings.h"
 #include "statrand.h"
 #include "systeminfo.h"
@@ -138,9 +139,9 @@ bool writeScriptFile( const char* scrfnm, const char* desc )
 
     strm << "#!/bin/csh -f " << od_endl;
 
-    mSetEnvVar("LD_LIBRARY_PATH")
-    mSetEnvVar("OD_APPL_PLUGIN_DIR")
-    mSetEnvVar("OD_USER_PLUGIN_DIR")
+    mSetEnvVar( "LD_LIBRARY_PATH" )
+    mSetEnvVar( PluginManager::getApplDir() )
+    mSetEnvVar( PluginManager::sKeyUserPluginDir() )
     strm << getExecScript(instdir_) << " " << prognm_ << " \\" << od_endl;
     strm << "--" << CommandLineParser::sDataRootArg();
     strm << " " << dataroot_ << " \\" << od_endl;
