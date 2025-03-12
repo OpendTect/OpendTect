@@ -324,6 +324,20 @@ static bool testStringCPrecisionNrDec()
     return true;
 }
 
+static bool testStringPtr()
+{
+    const double a = 3.14;
+    BufferString ret;
+    ret.setPtr( &a );
+    mRunStandardTest( ret.size() == 16, "BufferString::toStringPtr" );
+
+    const BufferString teststr( "some text" );
+    ret.setEmpty().set( toStringPtr(&teststr) );
+    mRunStandardTest( ret.size() == 16, "Global toStringPtr" );
+
+    return true;
+}
+
 
 static bool testBufferStringFns()
 {
@@ -534,6 +548,7 @@ int mTestMainFnName( int argc, char** argv )
       || !testStringPrecisionInAscII()
       || !testStringCPrecisionInAscII()
       || !testStringCPrecisionNrDec()
+      || !testStringPtr()
       || !testTruncate()
       || !testBufferStringFns()
       || !testOccFns()
