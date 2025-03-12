@@ -365,9 +365,41 @@ PluginManager::~PluginManager()
 }
 
 
+const char* PluginManager::sKeyApplPluginDir()
+{
+    return "OD_APPL_PLUGIN_DIR";
+}
+
+
+const char* PluginManager::sKeyUserPluginDir()
+{
+    return "OD_USER_PLUGIN_DIR";
+}
+
+
+const char* PluginManager::getApplDir()
+{
+    mDeclStaticString( ret );
+    if ( ret.isEmpty() )
+	ret = GetEnvVar( sKeyApplPluginDir() );
+
+    return ret.buf();
+}
+
+
+const char* PluginManager::getUserDir()
+{
+    mDeclStaticString( ret );
+    if ( ret.isEmpty() )
+	ret = GetEnvVar( sKeyUserPluginDir() );
+
+    return ret.buf();
+}
+
+
 void PluginManager::getDefDirs()
 {
-    BufferString dnm = GetEnvVar( "OD_APPL_PLUGIN_DIR" );
+    BufferString dnm = getApplDir();
     if ( dnm.isEmpty() )
     {
 	appdir_ = GetSoftwareDir(false);
@@ -384,7 +416,7 @@ void PluginManager::getDefDirs()
 	applibdir_ = fp.fullPath();
     }
 
-    dnm = GetEnvVar( "OD_USER_PLUGIN_DIR" );
+    dnm = getUserDir();
     if ( dnm.isEmpty() )
 	dnm = GetSettingsDir();
 

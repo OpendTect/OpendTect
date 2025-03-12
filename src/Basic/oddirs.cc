@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "debug.h"
 #include "file.h"
 #include "filepath.h"
+#include "plugins.h"
 #include "pythonaccess.h"
 #include "settings.h"
 #include "survinfo.h"
@@ -281,7 +282,7 @@ mExternC(Basic) const char* GetSoftwareDir( bool acceptnone )
 	if ( res.isEmpty() )
 	{
 	    if ( acceptnone )
-		return 0;
+		return nullptr;
 
 	    std::cerr << "Cannot determine OpendTect location ..." << std::endl;
 	    ApplicationData::exit( 1 );
@@ -337,13 +338,32 @@ static const char* GetSoftwareDataDir( bool acceptnone )
 }
 
 
+static const char* GetUserPluginSoftwareDataDir()
+{
+    FilePath basedir = PluginManager::getUserDir();
+    if ( basedir.isEmpty() )
+	return nullptr;
+
+    if ( __ismac__ )
+	basedir.add( "Resources" );
+
+    basedir.add( sData );
+
+    mDeclStaticString( dirnm );
+    dirnm = basedir.fullPath();
+    return dirnm.str();
+}
+
+
 mExternC(Basic) const char* GetSetupDataFileDir( ODSetupLocType lt,
 						 bool acceptnone )
 {
 
     if ( lt>ODSetupLoc_ApplSetupPref )
     {
-	const char* res = GetSoftwareDataDir( acceptnone ||
+	const char* res = lt == ODSetupLoc_UserPluginDirOnly
+			? GetUserPluginSoftwareDataDir()
+			: GetSoftwareDataDir( acceptnone ||
 					lt==ODSetupLoc_ApplSetupPref );
 	if ( res || lt==ODSetupLoc_SWDirOnly )
 	    return res;
@@ -371,7 +391,7 @@ mExternC(Basic) const char* GetSetupDataFileName( ODSetupLocType lt,
 {
     mDeclStaticString( filenm );
 
-    if ( lt == ODSetupLoc_SWDirOnly )
+    if ( lt == ODSetupLoc_SWDirOnly || lt == ODSetupLoc_UserPluginDirOnly )
     {
 	filenm = FilePath(GetSetupDataFileDir(lt,acceptnone),fnm).fullPath();
 	return filenm.buf();
@@ -381,8 +401,10 @@ mExternC(Basic) const char* GetSetupDataFileName( ODSetupLocType lt,
 		GetSetupDataFileDir(ODSetupLoc_ApplSetupOnly,acceptnone);
     if ( !appldir )
 	return lt == ODSetupLoc_ApplSetupOnly
-	     ? nullptr
-	     : GetSetupDataFileName(ODSetupLoc_SWDirOnly,fnm,acceptnone);
+	 ? nullptr
+	 : ( lt == ODSetupLoc_UserPluginDirOnly
+	     ? GetSetupDataFileName(ODSetupLoc_UserPluginDirOnly,fnm,acceptnone)
+	     : GetSetupDataFileName(ODSetupLoc_SWDirOnly,fnm,acceptnone) );
 
     filenm = FilePath(GetSetupDataFileDir(lt,acceptnone),fnm).fullPath();
 

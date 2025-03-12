@@ -15,9 +15,10 @@ ________________________________________________________________________
 #include "file.h"
 #include "filepath.h"
 #include "filesystemaccess.h"
+#include "moddepmgr.h"
 #include "oddirs.h"
+#include "plugins.h"
 #include "separstr.h"
-#include "sharedlibs.h"
 
 #include "uiparentbody.h"
 #include "uidialog.h"
@@ -289,17 +290,33 @@ uiString uiFileSelToolProvider::userName() const
 
 void uiFileSelToolProvider::addPluginFileSelProviders()
 {
-    const FilePath fsadatafp( mGetSWDirDataDir(), "FileSelProviders" );
-    if ( !fsadatafp.exists() )
-	return;
+    BufferStringSet configfiles;
+    const FilePath datafp( GetSetupDataFileName(ODSetupLoc_SWDirOnly,
+			   "FileSelProviders",false) );
+    if ( datafp.exists() )
+    {
+	const DirList dl( datafp.fullPath(), File::FilesInDir, "*.txt" );
+	for ( int idx=0; idx<dl.size(); idx++ )
+	    configfiles.add( dl.get( idx ).buf() );
+    }
+
+    const FilePath pluginsdatafpdir(
+			GetSetupDataFileName(ODSetupLoc_UserPluginDirOnly,
+					     "FileSelProviders",false) );
+    if ( pluginsdatafpdir.exists() )
+    {
+	const DirList dl( pluginsdatafpdir.fullPath(), File::FilesInDir,
+			  "*.txt" );
+	for ( int idx=0; idx<dl.size(); idx++ )
+	    configfiles.add( dl.get( idx ).buf() );
+    }
 
     using VoidVoidFn = void(*)(void);
-    const DirList dl( fsadatafp.fullPath(), File::FilesInDir, "*.txt" );
     BufferString libname;
     libname.setBufSize( 256 );
-    for ( int idx=0; idx<dl.size(); idx++ )
+    for ( const auto* configfile : configfiles )
     {
-	const FilePath dirname( dl.get( idx ).buf() );
+	const FilePath dirname( configfile->buf() );
 	const BufferString piname = dirname.baseName();
 	if ( piname.isEmpty() )
 	    continue;
@@ -307,7 +324,19 @@ void uiFileSelToolProvider::addPluginFileSelProviders()
 	libname.setEmpty();
 	SharedLibAccess::getLibName( piname.buf(), libname.getCStr(),
 				     libname.bufSize() );
-	const FilePath fp( GetLibPlfDir(), libname );
+	FilePath fp;
+	const OD::ModDep* moddep = OD::ModDeps().find( piname.str() );
+	if ( moddep )
+	{
+	    fp.set( GetLibPlfDir() ).add( libname.str() );
+	}
+	else
+	{
+	    const PluginManager::Data* pidata = PIM().findData( libname.str() );
+	    if ( pidata )
+		fp.set( PIM().getFileName(*pidata) );
+	}
+
 	if ( !fp.exists() )
 	    continue;
 
@@ -324,9 +353,7 @@ void uiFileSelToolProvider::addPluginFileSelProviders()
 	    (*fsainitfn)();
 	//Do NOT close the handle, as the plugin must remain loaded
     }
-
 }
-
 
 
 #include <QFileDialog>

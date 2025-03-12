@@ -22,13 +22,13 @@ ________________________________________________________________________
 #include "uitblimpexpdatasel.h"
 
 #include "dirlist.h"
-#include "envvars.h"
 #include "filepath.h"
 #include "hiddenparam.h"
+#include "moddepmgr.h"
 #include "od_helpids.h"
 #include "oddirs.h"
+#include "plugins.h"
 #include "posinfo2d.h"
-#include "sharedlibs.h"
 #include "survgeom2d.h"
 #include "survinfo.h"
 #include "tabledef.h"
@@ -291,56 +291,35 @@ bool uiSurvInfoProvider::getRanges( TrcKeyZSampling& cs, Coord crd[3],
 }
 
 
-static bool getFullLibPath( const char* libname, BufferString& fullpath )
-{
-    FilePath instfp( GetLibPlfDir(), libname );
-    if ( instfp.exists() )
-    {
-	fullpath = instfp.fullPath();
-	return true;
-    }
-
-    const BufferString plugindirnm = GetEnvVar( "OD_APPL_PLUGIN_DIR" );
-    if ( !plugindirnm.isEmpty() )
-    {
-	FilePath pluginfp( plugindirnm, "bin", GetPlfSubDir(), GetBinSubDir(),
-			   libname );
-	if ( pluginfp.exists() )
-	{
-	    fullpath = pluginfp.fullPath();
-	    return true;
-	}
-    }
-
-    const BufferString userplugindirnm = GetEnvVar( "OD_USER_PLUGIN_DIR" );
-    if ( !userplugindirnm.isEmpty() )
-    {
-	FilePath userpluginfp( userplugindirnm, "bin", GetPlfSubDir(),
-				GetBinSubDir(), libname );
-	if ( userpluginfp.exists() )
-	{
-	    fullpath = userpluginfp.fullPath();
-	    return true;
-	}
-    }
-
-    return false;
-}
-
-
 void uiSurvInfoProvider::addPluginsInfoProviders()
 {
-    const FilePath sipdatafp( mGetSWDirDataDir(), "SurveyProviders" );
-    if ( !sipdatafp.exists() )
-	return;
+    BufferStringSet configfiles;
+    const FilePath datafp( GetSetupDataFileName(ODSetupLoc_SWDirOnly,
+			   "SurveyProviders",false) );
+    if ( datafp.exists() )
+    {
+	const DirList dl( datafp.fullPath(), File::FilesInDir, "*.txt" );
+	for ( int idx=0; idx<dl.size(); idx++ )
+	    configfiles.add( dl.get( idx ).buf() );
+    }
+
+    const FilePath pluginsdatafpdir(
+			GetSetupDataFileName(ODSetupLoc_UserPluginDirOnly,
+					     "SurveyProviders",false) );
+    if ( pluginsdatafpdir.exists() )
+    {
+	const DirList dl( pluginsdatafpdir.fullPath(), File::FilesInDir,
+			  "*.txt" );
+	for ( int idx=0; idx<dl.size(); idx++ )
+	    configfiles.add( dl.get( idx ).buf() );
+    }
 
     using VoidVoidFn = void(*)(void);
-    const DirList dl( sipdatafp.fullPath(), File::FilesInDir, "*.txt" );
     BufferString libname;
     libname.setBufSize( 256 );
-    for ( int idx=0; idx<dl.size(); idx++ )
+    for ( const auto* configfile : configfiles )
     {
-	const FilePath dirname( dl.get( idx ).buf() );
+	const FilePath dirname( configfile->buf() );
 	const BufferString piname = dirname.baseName();
 	if ( piname.isEmpty() )
 	    continue;
@@ -348,11 +327,23 @@ void uiSurvInfoProvider::addPluginsInfoProviders()
 	libname.setEmpty();
 	SharedLibAccess::getLibName( piname.buf(), libname.getCStr(),
 				     libname.bufSize() );
-	BufferString fulllibpath;
-	if ( !getFullLibPath(libname,fulllibpath) )
+	FilePath fp;
+	const OD::ModDep* moddep = OD::ModDeps().find( piname.str() );
+	if ( moddep )
+	{
+	    fp.set( GetLibPlfDir() ).add( libname.str() );
+	}
+	else
+	{
+	    const PluginManager::Data* pidata = PIM().findData( libname.str() );
+	    if ( pidata )
+		fp.set( PIM().getFileName(*pidata) );
+	}
+
+	if ( !fp.exists() )
 	    continue;
 
-	const SharedLibAccess pisha( fulllibpath );
+	const SharedLibAccess pisha( fp.fullPath() );
 	if ( !pisha.isOK() )
 	{
 	    ErrMsg( pisha.errMsg() );
