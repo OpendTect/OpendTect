@@ -725,6 +725,7 @@ FilePath* OD::PythonAccess::getCommand( OS::MachineCommand& cmd,
     BufferString temppath( File::getTempPath() );
     if ( temppath.find(' ') )
 	temppath.quote();
+	BufferString sourcecmd("source ");
 
 #ifdef __win__
     strm.add( "@SETLOCAL" ).add( od_newline );
@@ -742,7 +743,6 @@ FilePath* OD::PythonAccess::getCommand( OS::MachineCommand& cmd,
 #else
     strm.add( "#!/bin/bash" ).add( od_newline ).add( od_newline )
     	.add( "export TMPDIR=" ).add( temppath ).add( od_newline );
-    BufferString sourcecmd("source ");
     sourcecmd.add( activatefp->fullPath() );
     if ( envnm )
     {
