@@ -75,6 +75,8 @@ mGlobal(Basic) const char* toString(const char*);
 mGlobal(Basic) const char* toString(const OD::String&);
 mGlobal(Basic) const char* toString(const CompoundKey&);
 mGlobal(Basic) const char* toString(const MultiID&);
+mGlobal(Basic) const char* toStringPtr(const void*,od_uint16 width=0,
+				       int minbufsz=32,char* extbuf=nullptr);
 
 mDeprecated("Do not set nrdec, or provide width, specifier, precision")
 mGlobal(Basic) const char* toString(float,int nrdec);

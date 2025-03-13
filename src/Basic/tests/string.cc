@@ -324,6 +324,21 @@ static bool testStringCPrecisionNrDec()
     return true;
 }
 
+static bool testStringPtr()
+{
+    const int expsz = __iswin__ ? 16 : 14;
+    const double a = 3.14;
+    BufferString ret;
+    ret.setPtr( &a );
+    mRunStandardTest( ret.size() == expsz, "BufferString::toStringPtr" );
+
+    const BufferString teststr( "some text" );
+    ret.setEmpty().set( toStringPtr(&teststr) );
+    mRunStandardTest( ret.size() == expsz, "Global toStringPtr" );
+
+    return true;
+}
+
 
 static bool testBufferStringFns()
 {
@@ -534,6 +549,7 @@ int mTestMainFnName( int argc, char** argv )
       || !testStringPrecisionInAscII()
       || !testStringCPrecisionInAscII()
       || !testStringCPrecisionNrDec()
+      || !testStringPtr()
       || !testTruncate()
       || !testBufferStringFns()
       || !testOccFns()

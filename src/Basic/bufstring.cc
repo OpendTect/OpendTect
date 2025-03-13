@@ -215,6 +215,19 @@ BufferString& BufferString::setCFmt( double dval, const char* cformat,
 }
 
 
+BufferString& BufferString::setPtr( const void* ptr, od_uint16 width )
+{
+    if ( width > 0 && bufSize() <= width )
+	setMinBufSize( width+1 );
+    else if ( bufSize() < 32 )
+	setMinBufSize( 32 );
+
+    setEmpty();
+    toStringPtr( ptr, width, bufSize(), getCStr() );
+    return *this;
+}
+
+
 BufferString& BufferString::add( char s )
 {
     char tmp[2];

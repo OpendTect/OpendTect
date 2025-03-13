@@ -1056,9 +1056,9 @@ void IOPar::set( const char* keyw, int i1, int i2, float f )
 
 void IOPar::setPtr( const char* keyw, void* ptr )
 {
-    char buf[80];
-    od_sprintf( buf, 80, "%p", ptr );
-    set( keyw, buf );
+    BufferString ptrstr;
+    ptrstr.setPtr( ptr );
+    set( keyw, ptrstr.buf() );
 }
 
 

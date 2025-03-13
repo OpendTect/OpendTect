@@ -957,6 +957,15 @@ const char* toString( const MultiID& key )
 }
 
 
+const char* toStringPtr( const void* ptr, od_uint16 width,
+			 int minbufsz, char* extbuf )
+{
+    mDeclStaticString( retstr );
+    const BufferString format = cformat( 'p', width );
+    return toStringImpl( ptr, retstr, format.str(), minbufsz, extbuf );
+}
+
+
 static float_complex float_complexFromString( const char* str,
 					char** pendptr )
 {

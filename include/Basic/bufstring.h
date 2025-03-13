@@ -111,6 +111,7 @@ public:
     BufferString&	setDec(double, int nrdec);
     BufferString&	setLim(double,int maxnrchars);
     BufferString&	setCFmt(double,const char* cformat,int minbufsz);
+    BufferString&	setPtr(const void*,od_uint16 width=0);
 
     BufferString&	add(char);
     BufferString&	add(const char*);
