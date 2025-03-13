@@ -37,5 +37,4 @@ if ( EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/python" AND
 	      PATTERN "__pycache__" EXCLUDE
 	      PATTERN ".gitignore" EXCLUDE
 	      PATTERN "tests" EXCLUDE )
-
 endif()

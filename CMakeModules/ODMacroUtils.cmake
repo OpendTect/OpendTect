@@ -416,7 +416,7 @@ if ( OD_MODULE_HAS_LIBRARY )
 	       FOLDER "${OD_FOLDER}" )
     endif()
 
-	OD_SET_MODULE_INSTALL_RPATH()
+    OD_SET_MODULE_INSTALL_RPATH()
 
     if ( WIN32 ) #Would be nice to use on Unix too, to get libBasic.so.7.1.0 ...
 	list ( APPEND TARGET_PROPERTIES
