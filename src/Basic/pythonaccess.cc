@@ -741,13 +741,20 @@ FilePath* OD::PythonAccess::getCommand( OS::MachineCommand& cmd,
     strm.add( "@CALL \"" );
 #else
     strm.add( "#!/bin/bash" ).add( od_newline ).add( od_newline )
-	.add( "export TMPDIR=" ).add( temppath ).add( od_newline )
-	.add( "source " );
+    	.add( "export TMPDIR=" ).add( temppath ).add( od_newline );
+    BufferString sourcecmd("source ");
+    sourcecmd.add( activatefp->fullPath() );
+    if ( envnm )
+    {
+        BufferString venvnm( envnm );
+        if ( venvnm.find(' ') )
+            venvnm.quote( '\"' );
+        sourcecmd.add( " " ).add( venvnm ).add( od_newline );
+    }
 #endif
-    strm.add( activatefp->fullPath() );
 #ifdef __win__
+    strm.add( activatefp->fullPath() );
     strm.add( "\"" );
-#endif
     if ( envnm )
     {
 	BufferString venvnm( envnm );
@@ -755,6 +762,9 @@ FilePath* OD::PythonAccess::getCommand( OS::MachineCommand& cmd,
 	    venvnm.quote( '\"' );
 	strm.add( " " ).add( venvnm ).add( od_newline );
     }
+#else
+    strm.add( sourcecmd );
+#endif
 #ifdef __win__
     if (background)
     {
@@ -775,6 +785,10 @@ FilePath* OD::PythonAccess::getCommand( OS::MachineCommand& cmd,
     for ( int idx=0; idx<args.size(); idx++ )
     {
 	auto* arg = args[idx];
+    if ( arg->find("$CMD") )
+    {
+        arg->replace("$CMD", sourcecmd);
+    }
 	if ( arg->find(' ') && arg->firstChar() != '\'' &&
 	     arg->firstChar() != '\"' )
 #ifdef __win__
