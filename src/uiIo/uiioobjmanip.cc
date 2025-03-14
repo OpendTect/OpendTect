@@ -423,6 +423,13 @@ bool uiIOObjManipGroup::relocEntry( IOObj& ioobj,
     if ( dolocate )
 	return locateEntry( ioobj );
 
+    if ( trans->implIsLink(&ioobj) )
+	uiMSG().warning( tr("OpendTect will relocate the actual data linked to "
+			    "this object. Please be aware that continuing with "
+			    "this action may corrupt other objects linked to "
+			    "the actual implementation in this survey or "
+			    " other") );
+
     uiString caption = tr("New file location for '%1'").arg(ioobj.uiName());
     BufferString oldfnm( iostrm.fullUserExpr() );
     BufferString filefilt;
@@ -463,10 +470,17 @@ bool uiIOObjManipGroup::relocEntry( IOObj& ioobj,
 	return false;
     }
 
-    if ( !IOM().implReloc(ioobj.key(), newdir) )
-	return false;
+    FilePath newdirfp( newdir );
+    if ( !IOM().implReloc(ioobj.key(), newdirfp.fullPath()) )
+    {
+	uiString errmsg = tr( "Could not relocate the file to new location." );
+	if ( !IOM().uiMessage().isEmpty() )
+	    errmsg.append( IOM().uiMessage(), true );
 
-    IOM().commitChanges( ioobj );
+	uiMSG().error( errmsg );
+	return false;
+    }
+
     return true;
 }
 

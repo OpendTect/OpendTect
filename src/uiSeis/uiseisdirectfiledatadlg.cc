@@ -222,9 +222,6 @@ bool uiSeisDirectFileDataDlg::acceptOK( CallBacker* )
 	    if ( newfnm.isEmpty() )
 		mErrRet( tr("New file name cannot be empty") );
 
-	    if ( oldfnm == newfnm )
-		continue;
-
 	    const FilePath oldfp( oldfnm );
 	    const FilePath newfp( seldir, newfnm );
 	    if ( !File::exists(newfp.fullPath()) )

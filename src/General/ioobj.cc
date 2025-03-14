@@ -584,7 +584,9 @@ const char* IOSubDir::fullUserExpr( bool ) const
 
 bool IOSubDir::putTo( ascostream& stream ) const
 {
-    if ( isBad() ) return false;
+    if ( isBad() )
+	return false;
+
     const BufferString str( "@", myKey() );
     stream.put( str, name() );
     return true;

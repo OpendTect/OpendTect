@@ -368,7 +368,8 @@ bool IOStream::putTo( ascostream& stream ) const
 
     if ( fs_.isRangeMulti() )
     {
-	FileMultiString fms; const StepInterval<int>& fnrs = fs_.nrs_;
+	FileMultiString fms;
+	const StepInterval<int>& fnrs = fs_.nrs_;
 	fms += fnrs.start_; fms += fnrs.stop_; fms += fnrs.step_;
 	fms += fs_.zeropad_;
 	stream.put( "$Multi", fms );
@@ -377,7 +378,6 @@ bool IOStream::putTo( ascostream& stream ) const
     const FilePath fpsurvsubdir( GetDataDir(), dirName() );
     const BufferString survsubdir( fpsurvsubdir.fullPath() );
     nrfiles = fs_.fnames_.size();
-
     for ( int idx=0; idx<nrfiles; idx++ )
     {
 	FilePath fp( fs_.fnames_.get(idx) );
