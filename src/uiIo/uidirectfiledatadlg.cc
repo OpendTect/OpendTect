@@ -29,9 +29,7 @@ uiEditDirectFileDataDlg::uiEditDirectFileDataDlg( uiParent* p,
 			mODHelpKey(mEditSEGYFileDataDlgHelpID)))
     , ioobj_(obj)
     , isusable_(true)
-{
-    createInterface();
-}
+{}
 
 
 uiEditDirectFileDataDlg::~uiEditDirectFileDataDlg()
@@ -40,11 +38,17 @@ uiEditDirectFileDataDlg::~uiEditDirectFileDataDlg()
 }
 
 
+void uiEditDirectFileDataDlg::prepareFileNames()
+{
+    ioobj_.implFileNames( filenames_ );
+}
+
+
 void uiEditDirectFileDataDlg::createInterface()
 {
     const BufferString deffnm = ioobj_.fullUserExpr( true );
     uiLabel* lbl = nullptr;
-    ioobj_.implFileNames( filenames_ );
+    prepareFileNames();
     const BufferString& firstfnm = *filenames_.first();
     if ( filenames_.isEmpty() || firstfnm.isEmpty() )
 	mErrLabelRet(tr("No files linked to %1").arg(ioobj_.name()));
@@ -107,6 +111,10 @@ void uiEditDirectFileDataDlg::createInterface()
     selfld_->valueChanged.notify( mCB(this,uiEditDirectFileDataDlg,dirSelCB) );
     selfld_->attach( leftAlignedBelow, lbl );
 }
+
+
+void uiEditDirectFileDataDlg::doDirSel()
+{}
 
 
 void uiEditDirectFileDataDlg::dirSelCB( CallBacker* )

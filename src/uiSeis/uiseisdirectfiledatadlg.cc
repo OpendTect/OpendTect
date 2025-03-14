@@ -29,18 +29,21 @@ uiSeisDirectFileDataDlg::uiSeisDirectFileDataDlg( uiParent* p,
 						  const IOObj& obj )
     : uiEditDirectFileDataDlg( p, obj )
 {
+    createInterface();
     if ( filenames_.size() < 2 )
 	return;
 
-    fillFileTable();
-    filetable_->attach( stretchedBelow, selfld_ );
     if ( !isusable_ )
     {
 	const BufferString deffnm = ioobj_.fullUserExpr( true );
 	auto* lbl = new uiLabel( this,
 			tr("Invalid SEG-Y Definition file:\n%1").arg(deffnm) );
 	lbl->attach( alignedBelow, selfld_ );
+	return;
     }
+
+    fillFileTable();
+    filetable_->attach( stretchedBelow, selfld_ );
 }
 
 
@@ -221,9 +224,6 @@ bool uiSeisDirectFileDataDlg::acceptOK( CallBacker* )
 				= filetable_->text( RowCol(idx,cNewNameCol) );
 	    if ( newfnm.isEmpty() )
 		mErrRet( tr("New file name cannot be empty") );
-
-	    if ( oldfnm == newfnm )
-		continue;
 
 	    const FilePath oldfp( oldfnm );
 	    const FilePath newfp( seldir, newfnm );
