@@ -122,6 +122,13 @@ macro( OD_SET_PROG_INSTALL_RPATH )
 
 endmacro( OD_SET_PROG_INSTALL_RPATH )
 
+macro ( OD_SET_MODULE_INSTALL_RPATH )
+	if ( APPLE )
+		list ( APPEND TARGET_PROPERTIES
+			INSTALL_RPATH "$<IF:$<CONFIG:Debug>,@loader_path/../../Frameworks/Debug,@loader_path/../Frameworks>" )
+	endif()
+endmacro( OD_SET_MODULE_INSTALL_RPATH )
+
 macro( OD_INIT_MODULE )
 
 get_filename_component( OD_MODULE_NAME ${CMAKE_CURRENT_SOURCE_DIR} NAME )
@@ -407,6 +414,8 @@ if ( OD_MODULE_HAS_LIBRARY )
 	list ( APPEND TARGET_PROPERTIES
 	       FOLDER "${OD_FOLDER}" )
     endif()
+
+    OD_SET_MODULE_INSTALL_RPATH()
 
     if ( WIN32 ) #Would be nice to use on Unix too, to get libBasic.so.7.1.0 ...
 	list ( APPEND TARGET_PROPERTIES
@@ -793,7 +802,7 @@ endif()
 if ( APPLE AND OD_MODULE_HAS_LIBRARY )
     set (ALL_OD_MODULE_EXTERNAL_LIBS ${OD_${OD_MODULE_NAME}_EXTERNAL_LIBS})
     if ( NOT "${ALL_OD_MODULE_EXTERNAL_LIBS}" STREQUAL "" )
-    OD_MACOS_ADD_EXTERNAL_LIBS( "${ALL_OD_MODULE_EXTERNAL_LIBS}" )
+    OD_MACOS_ADD_EXTERNAL_LIBS( ALL_OD_MODULE_EXTERNAL_LIBS )
     foreach(LIB ${ALL_OD_MODULE_EXTERNAL_LIBS})
         add_custom_command(TARGET ${OD_MODULE_NAME} POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy_if_different

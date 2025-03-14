@@ -86,7 +86,7 @@ class NumpyAllocator:
         return self.CFUNCTYPE(self)
     cfunc = property(getcfunc)
 
-libodbind = os.path.join(odc.getExecPlfDir(), get_lib_name('ODBind'))
+libodbind = os.path.join(odc.getLibPlfDir(), get_lib_name('ODBind'))
 try:
   LIBODB = ct.CDLL(libodbind)
 except OSError:
