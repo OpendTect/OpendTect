@@ -10,6 +10,7 @@ ________________________________________________________________________
 #include "uisettings.h"
 
 #include "bufstring.h"
+#include "commandlineparser.h"
 #include "dirlist.h"
 #include "file.h"
 #include "oddirs.h"
@@ -22,11 +23,13 @@ ________________________________________________________________________
 #include "uicombobox.h"
 #include "uigeninput.h"
 #include "uilabel.h"
+#include "uimain.h"
 #include "uimsg.h"
 #include "uislider.h"
 #include "uistrings.h"
 #include "uitable.h"
 #include "uivirtualkeyboard.h"
+#include <QStyleFactory>
 
 static const char* sKeyCommon = "<general>";
 
@@ -300,7 +303,7 @@ mUpdateSettings( bool, setYN )
 mUpdateSettings( int, set )
 mUpdateSettings( float, set )
 mUpdateSettings( const OD::String&, set )
-
+mUpdateSettings( const char*, set )
 
 
 // uiGeneralSettingsGroup
@@ -310,17 +313,48 @@ uiGeneralSettingsGroup::uiGeneralSettingsGroup( uiParent* p, Settings& setts )
 {
     iconszfld_ = new uiGenInput( this, tr("Icon size"),
 				 IntInpSpec(iconsz_,10,64) );
+    uiObject* lastitm = iconszfld_->attachObj();
+
+    const QStringList styles = QStyleFactory::keys();
+    BufferStringSet stylestrs;
+    for ( const auto& str : styles )
+	stylestrs.add( str );
+
+    const CommandLineParser parser;
+    const BufferString activestyle = uiMain::getStyleFromSettings(parser);
+    const BufferString settingsstyle = setts.find( uiMain::sKeylookstyle() );
+    prevstyle_ = settingsstyle;
+    const bool samestyle = activestyle == settingsstyle;
+    if ( !samestyle )
+    {
+	auto* curstylelbl = new uiLabel( this,
+		    tr( "Active style is not similar to Settings style" ) );
+	curstylelbl->attach( alignedBelow, lastitm );
+	lastitm = curstylelbl;
+    }
+
+    auto* stringstylecb = new uiLabeledComboBox( this,
+				stylestrs, tr("Application style"));
+    stylefld_ = stringstylecb->box();
+    stringstylecb->attach( alignedBelow, lastitm );
+    if ( !prevstyle_.isEmpty() && stylestrs.isPresent(prevstyle_) )
+	stylefld_->setText( prevstyle_ );
+
+    stringstylecb->setSensitive( samestyle );
+    lastitm = stringstylecb->attachObj();
 
     setts_.getYN( uiVirtualKeyboard::sKeyEnabVirtualKeyboard(),
 		  enabvirtualkeyboard_ );
     virtualkeyboardfld_ = new uiGenInput( this,
 		tr("Enable Virtual Keyboard"),
 		BoolInpSpec(enabvirtualkeyboard_) );
-    virtualkeyboardfld_->attach( alignedBelow, iconszfld_ );
+
+    virtualkeyboardfld_->attach( alignedBelow, lastitm );
+    lastitm = virtualkeyboardfld_->attachObj();
 
     auto* lbl = new uiLabel( this,
 	tr("Show progress when loading stored data on:") );
-    lbl->attach( leftAlignedBelow, virtualkeyboardfld_ );
+    lbl->attach( leftAlignedBelow, lastitm);
 
     setts_.getYN( SettingsAccess::sKeyShowInlProgress(), showinlprogress_ );
     showinlprogressfld_ = new uiGenInput( this, uiStrings::sInline(mPlural),
@@ -378,6 +412,13 @@ bool uiGeneralSettingsGroup::acceptOK()
 	theiconsz = newiconsz;
     }
 
+    const BufferString retstyle = stylefld_->text();
+    if( prevstyle_!=retstyle )
+    {
+	uiMain::instance().setStyle( retstyle );
+    }
+
+    updateSettings( prevstyle_, retstyle, uiMain::sKeylookstyle() );
     updateSettings( showinlprogress_, showinlprogressfld_->getBoolValue(),
 		    SettingsAccess::sKeyShowInlProgress() );
     updateSettings( showcrlprogress_, showcrlprogressfld_->getBoolValue(),
@@ -471,8 +512,8 @@ uiVisSettingsGroup::uiVisSettingsGroup( uiParent* p, Settings& setts )
 				BoolInpSpec(usevolshaders_) );
     usevolshadersfld_->attach( alignedBelow, usesurfshadersfld_ );
 
-    uiLabeledComboBox* lcb =
-	new uiLabeledComboBox( this, tr("Default texture resolution") );
+    auto* lcb =
+	    new uiLabeledComboBox( this, tr("Default texture resolution") );
     lcb->attach( alignedBelow, usevolshadersfld_ );
     textureresfactorfld_ = lcb->box();
     textureresfactorfld_->addItem( tr("Standard") );

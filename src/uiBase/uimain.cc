@@ -310,13 +310,32 @@ static BufferString getPlatformArg( const CommandLineParser& parser )
 }
 
 
-static BufferString getStyleFromSettings( const CommandLineParser& parser,
-					  bool& needdisabledarkmode )
+static BufferString appStyle( QApplication& app )
+{
+    /* ! Will always return an empty string after the first call to
+	 QApplication::setStyleSheet  */
+    const QStyle* qstyle = app.style();
+    if ( !qstyle )
+	return BufferString::empty();
+
+#if QT_VERSION >= QT_VERSION_CHECK(6,0,0)
+    const QString qstylestr = qstyle->name();
+#else
+    const QString qstylestr = qstyle->objectName();
+#endif
+    return BufferString( qstylestr );
+}
+
+} // namespace OD
+
+
+BufferString uiMain::getStyleFromSettings( const CommandLineParser& parser,
+					  bool* needdisabledarkmode )
 {
     BufferString lookpref;
     if ( !parser.getVal("style",lookpref) )
     {
-	lookpref = Settings::common().find( "dTect.LookStyle" );
+	lookpref = Settings::common().find( sKeylookstyle() );
 	if ( lookpref.isEmpty() )
 	    lookpref = GetEnvVar( "OD_LOOK_STYLE" );
     }
@@ -334,31 +353,24 @@ static BufferString getStyleFromSettings( const CommandLineParser& parser,
 
     if ( !lookpref.isEmpty() )
     {
-	if ( lookpref.isEqual("windowsvista",OD::CaseInsensitive) )
-	    needdisabledarkmode = false;
+	if ( needdisabledarkmode &&
+	lookpref.isEqual("windowsvista",OD::CaseInsensitive) )
+	    *needdisabledarkmode = false;
     }
 
     return lookpref;
 }
 
-
-BufferString appStyle( QApplication& app )
+const char* uiMain::sKeylookstyle()
 {
-    /* ! Will always return an empty string after the first call to
-	 QApplication::setStyleSheet  */
-    const QStyle* qstyle = app.style();
-    if ( !qstyle )
-	return BufferString::empty();
-
-#if QT_VERSION >= QT_VERSION_CHECK(6,0,0)
-    const QString qstylestr = qstyle->name();
-#else
-    const QString qstylestr = qstyle->objectName();
-#endif
-    return BufferString( qstylestr );
+    return "dTect.LookStyle";
 }
 
-} // namespace OD
+
+BufferString uiMain::appStyle() const
+{
+    return app_ ? OD::appStyle( *app_ ) : BufferString::empty();
+}
 
 
 #if QT_VERSION >= QT_VERSION_CHECK(5,0,0)
@@ -451,7 +463,7 @@ void uiMain::cleanQtOSEnv()
 void uiMain::preInit( const CommandLineParser& parser, BufferString& stylestr )
 {
     bool needdisabledarkmode = !__islinux__;
-    stylestr = OD::getStyleFromSettings( parser, needdisabledarkmode );
+    stylestr = uiMain::getStyleFromSettings( parser, &needdisabledarkmode );
     if ( __iswin__ && needdisabledarkmode )
     {
 	const BufferString platformstr = OD::getPlatformArg( parser );
@@ -545,16 +557,7 @@ void uiMain::init( QApplication* qap, int& argc, char **argv )
     const BufferString curstyle = OD::appStyle( *app_ );
     if ( !stylestr.isEmpty() &&
 	 !stylestr.isEqual(curstyle,OD::CaseInsensitive) )
-    {
-	QStyle* qstyl = QStyleFactory::create( stylestr.buf() );
-	if ( qstyl )
-	    app_->setStyle( qstyl );
-	else
-	{
-	    pErrMsg(BufferString("The requested style '", stylestr,
-		    "' is not available in this installation"));
-	}
-    }
+	setStyle( curstyle.str() );
 
     BufferString qssfnm = Settings::common().find( "dTect.StyleSheet" );
     if ( qssfnm.isEmpty() )
@@ -582,6 +585,19 @@ void uiMain::init( QApplication* qap, int& argc, char **argv )
     if ( OD::InNormalRunContext() || OD::InUiProgRunContext() ||
 	 OD::InSysAdmRunContext() )
 	mAttachCB( IOMan::iomReady(), uiMain::iomReadyCB );
+}
+
+
+void uiMain::setStyle( const char* stylestr )
+{
+    QStyle* qstyl = QStyleFactory::create( stylestr );
+	if ( qstyl )
+	    app_->setStyle( qstyl );
+    else
+    {
+	pErrMsg(BufferString("The requested style '", stylestr,
+	    "' is not available in this installation"));
+    }
 }
 
 

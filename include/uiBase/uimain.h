@@ -54,6 +54,8 @@ public:
     uiMainWin*		topLevel()			{ return mainobj_; }
     void		setFont(const uiFont&,bool passtochildren);
     const uiFont*	font();
+    void		setStyle(const char*);
+    BufferString	appStyle() const;
     OD::Color		windowColor() const;
     static void		setIcon(const char* icid);
 
@@ -87,6 +89,9 @@ public:
     static bool		isNameToolTipUsed();
     static void		formatNameToolTipString(BufferString&);
     static bool		directRendering();
+    static BufferString getStyleFromSettings(const CommandLineParser&,
+				 bool* needdisabledarkmode=nullptr);
+    static const char* sKeylookstyle();
 
 protected:
 
