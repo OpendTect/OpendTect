@@ -80,6 +80,9 @@ protected:
     void		updateSettings(const OD::String& oldval,
 				       const OD::String& newval,
 				       const char* key);
+    void		updateSettings(const char* oldval,
+				       const char* newval,
+				       const char* key);
 
     uiString		errmsg_;
     Settings&		setts_;
@@ -129,6 +132,7 @@ protected:
 			uiGeneralSettingsGroup(uiParent*,Settings&);
 
     uiGenInput*		iconszfld_;
+    uiComboBox*		stylefld_;
     uiGenInput*		showinlprogressfld_;
     uiGenInput*		showcrlprogressfld_;
     uiGenInput*		showzprogressfld_;
@@ -137,11 +141,12 @@ protected:
     uiGenInput*		nrprocfld_;
 
     int			iconsz_;
-    bool		showinlprogress_		= true;
-    bool		showcrlprogress_		= true;
-    bool		showzprogress_			= true;
-    bool		showrdlprogress_		= true;
-    bool		enabvirtualkeyboard_		= false;
+    BufferString	prevstyle_;
+    bool		showinlprogress_	= true;
+    bool		showcrlprogress_	= true;
+    bool		showzprogress_		= true;
+    bool		showrdlprogress_	= true;
+    bool		enabvirtualkeyboard_	= false;
 };
 
 
