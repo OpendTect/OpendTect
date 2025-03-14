@@ -149,6 +149,7 @@ bool SeisTrcTranslator::isLineSet( const IOObj& ioobj )
 void SeisTrcTranslator::cleanUp()
 {
     close();
+    deleteAndNullPtr( conn_ );
 
     headerdonenew_ = false;
     datareaddone_ = false;
@@ -179,7 +180,6 @@ bool SeisTrcTranslator::close()
 	}
     }
 
-    deleteAndNullPtr( conn_ );
     return ret;
 }
 
