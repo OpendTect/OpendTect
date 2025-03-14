@@ -27,7 +27,8 @@ public:
 
 protected:
 
-    virtual void	doDirSel()			{}
+    virtual void	prepareFileNames();
+    virtual void	doDirSel();
     virtual void	createInterface();
 
     const IOObj&	ioobj_;
