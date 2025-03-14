@@ -205,9 +205,6 @@ bool LASWriter::writeOtherSection( od_ostream& strm )
 
 bool LASWriter::writeLogData( od_ostream& strm )
 {
-    const BufferString mdformatstr = cformat( 'f', 12, cNrMDDecimals );
-    const BufferString valformatstr =
-			cformat( 'f', columnwidth_, cNrValDecimals );
     BufferString word( columnwidth_+1, false );
     const int nrz = mdrg_.nrSteps() + 1;
 
@@ -219,8 +216,8 @@ bool LASWriter::writeLogData( od_ostream& strm )
     for ( int idz=0; idz<nrz; idz++ )
     {
 	float md = mdrg_.atIndex( idz );
-	od_sprintf( word.getCStr(), word.bufSize(), mdformatstr.buf(),
-		    double(md) );
+	word.set( md, 12, 'f', cNrMDDecimals );
+
 	strm << word;
 
 	md = getConvertedValue( md, mdunit, storunit );
@@ -229,9 +226,7 @@ bool LASWriter::writeLogData( od_ostream& strm )
 	    float val = logs_.getLog(idx).getValue( md );
 	    if ( mIsUdf(val) )
 		val = toFloat( nullvalue_ );
-
-	    od_sprintf( word.getCStr(), word.bufSize(), valformatstr.buf(),
-			double(val) );
+		word.set(val, columnwidth_, 'f', cNrValDecimals );
 	    strm << word;
 	}
 	strm << od_newline;

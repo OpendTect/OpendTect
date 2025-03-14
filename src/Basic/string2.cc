@@ -1118,17 +1118,13 @@ StringView NrBytesToStringCreator::getString( od_uint64 sz, int nrdecimals,
     float fsz = (float) sz;
     fsz /= nrdecfactor;
 
-    BufferString formatstr = "%.";
-    formatstr.add( nrdecimals );
-    formatstr.add( "f");
-
     mDeclStaticString( ret );
     if ( ret.isEmpty() )
 	ret.setMinBufSize( 16 );
-    od_sprintf( ret.getCStr(), ret.bufSize(), formatstr, fsz );
 
+    ret.set( fsz, 0, 'f', nrdecimals );
     if ( withunit )
-	ret.add( " " ).add( getUnitString() );
+	ret.addSpace().add( getUnitString() );
 
     return StringView( ret.str() );
 }
