@@ -1314,8 +1314,15 @@ bool IOMan::implReloc( const MultiID& key, const char* newdir )
 	for ( const auto* fnm : fnms )
 	{
 	    const FilePath oldfp( *fnm );
-	    if ( oldfp == FilePath(ioobj->fullUserExpr()) )
+	    const FilePath objfp( ioobj->fullUserExpr() );
+	    const BufferString objext = objfp.extension();
+	    const bool isobjdeffile = objext.endsWith( "def" );
+	    if ( isobjdeffile && oldfp == FilePath(ioobj->fullUserExpr()) )
+	    {
+		pErrMsg("Internal error: implFileNames should not include "
+			"the *.*def file.");
 		continue;
+	    }
 
 	    oldfnms.add( *fnm );
 	    FilePath newfp( *fnm );

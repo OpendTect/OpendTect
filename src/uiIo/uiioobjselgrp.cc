@@ -36,6 +36,7 @@ ________________________________________________________________________
 
 
 static const char* NoIconNm = "empty";
+static OD::Color sNotOKColor( OD::Color::Red().lighter(0.9f) );
 
 static bool requireIcon()
 {
@@ -714,7 +715,7 @@ void uiIOObjSelGrp::setIsBad( int idx )
     if ( !listfld_->validIdx(idx) )
 	return;
 
-    listfld_->setColor( idx, OD::Color::Red().lighter(0.9f) );
+    listfld_->setColor( idx, sNotOKColor );
 }
 
 
@@ -724,7 +725,9 @@ bool uiIOObjSelGrp::isEntryOK( const MultiID& mid ) const
     if ( !listfld_->validIdx(idx) )
 	return false;
 
-    return listfld_->isMarked( idx );
+    const bool notok = listfld_->getColor( idx ) == sNotOKColor
+		     || listfld_->isMarked( idx );
+    return !notok;
 }
 
 
