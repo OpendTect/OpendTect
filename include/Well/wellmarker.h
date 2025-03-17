@@ -51,6 +51,8 @@ public:
     inline Strat::LevelID levelID() const	{ return levelid_; }
     Strat::Level	getLevel() const;
     inline const MarkerID& ID() const		{ return id_; }
+    inline const char*	description() const	{ return description_.buf(); }
+    bool		hasDescription() const;
 
     /* setName(), setColor(), setAge only used as fallback,
 	if not attached to level  */
@@ -61,9 +63,10 @@ public:
     Marker&		setLevelID(const Strat::LevelID&);
     Marker&		setNoLevelID();
     Marker&		setID(const MarkerID&);
+    Marker&		setDescription(const char*);
 
-    static const char* sKeyDah();
-    static const char* sKeyAgeMa();
+    static const char*	sKeyDah();
+    static const char*	sKeyAgeMa();
 
 private:
 
@@ -72,6 +75,7 @@ private:
     Interval<float>	agema_ = Interval<float>::udf();
     Strat::LevelID	levelid_;
     MarkerID		id_;
+    BufferString	description_;
 
 };
 
