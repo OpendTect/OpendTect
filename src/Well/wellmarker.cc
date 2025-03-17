@@ -137,6 +137,19 @@ Well::Marker& Well::Marker::setID( const MarkerID& id )
 }
 
 
+Well::Marker& Well::Marker::setDescription( const char* desc )
+{
+    description_ = desc;
+    return *this;
+}
+
+
+bool Well::Marker::hasDescription() const
+{
+    return !description_.isEmpty();
+}
+
+
 // Well::MarkerSet
 
 Well::MarkerSet::MarkerSet()
