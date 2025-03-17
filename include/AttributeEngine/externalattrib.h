@@ -48,6 +48,8 @@ public:
 					     TaskRunner*);
     virtual DataPackID		createAttrib(const TrcKeyZSampling&,
 					     const LineKey&,TaskRunner*);
+    virtual DataPackID		createRdmTrcAttrib(const Interval<float>& zrg,
+	    					   RandomLineID,TaskRunner*);
 
     virtual bool		isIndexes() const	{ return false; }
 

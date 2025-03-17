@@ -646,27 +646,28 @@ bool uiODApplMgr::getNewData( VisID visid, int attrib )
 	case uiVisPartServer::Traces :
 	{
 	    const Interval<float> zrg = visserv_->getDataTraceRange( visid );
-	    TypeSet<BinID> bids;
-	    visserv_->getDataTraceBids( visid, bids );
 	    attrserv_->setTargetSelSpecs( myas );
 	    mDynamicCastGet(visSurvey::RandomTrackDisplay*,rdmtdisp,
-			    visserv_->getObject(visid) );
+			    visserv_->getObject(visid))
+	    if ( !rdmtdisp )
+		break;
+
+	    const RandomLineID rdlid = rdmtdisp->getRandomLineID();
+	    DataPackID newid;
 	    if ( myas[0].id().asInt()==Attrib::SelSpec::cOtherAttrib().asInt() )
 	    {
 		MouseCursorChanger cursorchgr( MouseCursor::Wait );
 		PtrMan<Attrib::ExtAttribCalc> calc =
 			    Attrib::ExtAttrFact().create( 0, myas[0], false );
-		// TODO implement
-		break;
+		newid = calc->createRdmTrcAttrib( zrg, rdlid, nullptr );
 	    }
+	    else
+		newid = attrserv_->createRdmTrcsOutput(	zrg, rdlid );
 
-	    const DataPackID newid = attrserv_->createRdmTrcsOutput(
-		    zrg, rdmtdisp->getRandomLineID() );
-	    res = true;
-	    if ( !newid.isValid() )
-		res = false;
-	    if ( visserv_->setDataPackID(visid, attrib, newid) )
+	    res = newid.isValid();
+	    if ( visserv_->setDataPackID(visid,attrib,newid) )
 		DPM( DataPackMgr::SeisID() ).unRef( newid );
+
 	    break;
 	}
 	case uiVisPartServer::RandomPos :

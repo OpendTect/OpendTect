@@ -46,4 +46,12 @@ DataPackID ExtAttribCalc::createAttrib( const TrcKeyZSampling&,const LineKey&,
 { return DataPack::cNoID(); }
 
 
+DataPackID ExtAttribCalc::createRdmTrcAttrib( const Interval<float>& zrg,
+					      RandomLineID, TaskRunner* )
+{
+    return DataPack::cNoID();
+}
+
+
+
 } // namespace Attrib
