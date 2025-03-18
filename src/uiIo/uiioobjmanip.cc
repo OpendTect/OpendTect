@@ -426,9 +426,9 @@ bool uiIOObjManipGroup::relocEntry( IOObj& ioobj,
     if ( trans->implIsLink(&ioobj) )
 	uiMSG().warning( tr("OpendTect will relocate the actual data linked to "
 			    "this object. Please be aware that continuing with "
-			    "this action may corrupt other objects linked to "
-			    "the actual implementation in this survey or "
-			    " other") );
+			    "this action may result in corruption of other "
+			    "objects linked to this data in this or other "
+			    "surveys.") );
 
     uiString caption = tr("New file location for '%1'").arg(ioobj.uiName());
     BufferString oldfnm( iostrm.fullUserExpr() );
