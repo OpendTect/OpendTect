@@ -38,6 +38,7 @@ ________________________________________________________________________
 #include <QMenu>
 #include <QScreen>
 #include <QStyleFactory>
+#include <QTextStream>
 #include <QToolTip>
 #include <QTreeWidget>
 
@@ -339,7 +340,7 @@ BufferString uiMain::getStyleFromSettings( const CommandLineParser& parser,
 	if ( lookpref.isEmpty() )
 	    lookpref = GetEnvVar( "OD_LOOK_STYLE" );
     }
-    
+
     if ( __iswin__ && lookpref.isEmpty() )
     {
 	const QStringList styles = QStyleFactory::keys();
