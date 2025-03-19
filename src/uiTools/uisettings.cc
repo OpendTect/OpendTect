@@ -323,7 +323,10 @@ uiGeneralSettingsGroup::uiGeneralSettingsGroup( uiParent* p, Settings& setts )
     const CommandLineParser parser;
     const BufferString activestyle = uiMain::getStyleFromSettings(parser);
     const BufferString settingsstyle = setts.find( uiMain::sKeylookstyle() );
-    prevstyle_ = settingsstyle;
+
+    prevstyle_ = settingsstyle.isEmpty() ?
+		 uiMain::instance().getSysDefaultAppStyle() : settingsstyle;
+
     const bool samestyle = activestyle == settingsstyle;
     if ( !samestyle )
     {
@@ -337,8 +340,12 @@ uiGeneralSettingsGroup::uiGeneralSettingsGroup( uiParent* p, Settings& setts )
 				stylestrs, tr("Application style"));
     stylefld_ = stringstylecb->box();
     stringstylecb->attach( alignedBelow, lastitm );
-    if ( !prevstyle_.isEmpty() && stylestrs.isPresent(prevstyle_) )
-	stylefld_->setText( prevstyle_ );
+    const int indexprevstyle = stylestrs.indexOf(prevstyle_,
+						 OD::CaseInsensitive);
+
+    if ( !prevstyle_.isEmpty() &&
+	  stylestrs.isPresent(prevstyle_, OD::CaseInsensitive) )
+	stylefld_->setText( stylestrs.get(indexprevstyle) );
 
     stringstylecb->setSensitive( samestyle );
     lastitm = stringstylecb->attachObj();
@@ -413,12 +420,13 @@ bool uiGeneralSettingsGroup::acceptOK()
     }
 
     const BufferString retstyle = stylefld_->text();
-    if( prevstyle_!=retstyle )
+
+    if ( !retstyle.isEqual(prevstyle_,OD::CaseInsensitive) )
     {
 	uiMain::instance().setStyle( retstyle );
+	updateSettings( prevstyle_, retstyle, uiMain::sKeylookstyle() );
     }
 
-    updateSettings( prevstyle_, retstyle, uiMain::sKeylookstyle() );
     updateSettings( showinlprogress_, showinlprogressfld_->getBoolValue(),
 		    SettingsAccess::sKeyShowInlProgress() );
     updateSettings( showcrlprogress_, showcrlprogressfld_->getBoolValue(),

@@ -39,6 +39,7 @@ private:
     void		init(mQtclass(QApplication*),int& argc,char **argv);
     void		preInit(const CommandLineParser&,BufferString& style);
     void		iomReadyCB(CallBacker*);
+    BufferString	sysdefaultstyle_;
 
 public:
 
@@ -50,6 +51,7 @@ public:
     void*		thread();
 
     void		getCmdLineArgs(BufferStringSet&) const;
+    BufferString	getSysDefaultAppStyle() const;
     void		setTopLevel(uiMainWin*);
     uiMainWin*		topLevel()			{ return mainobj_; }
     void		setFont(const uiFont&,bool passtochildren);

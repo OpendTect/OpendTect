@@ -521,6 +521,12 @@ bool uiMain::reqOpenGL()
 }
 
 
+BufferString uiMain::getSysDefaultAppStyle() const
+{
+    return sysdefaultstyle_;
+}
+
+
 void uiMain::init( QApplication* qap, int& argc, char **argv )
 {
     QLocale::setDefault( QLocale::c() );
@@ -555,10 +561,10 @@ void uiMain::init( QApplication* qap, int& argc, char **argv )
     qInstallMsgHandler( qtMessageOutput );
 #endif
 
-    const BufferString curstyle = OD::appStyle( *app_ );
+    sysdefaultstyle_ = OD::appStyle( *app_ );
     if ( !stylestr.isEmpty() &&
-	 !stylestr.isEqual(curstyle,OD::CaseInsensitive) )
-	setStyle( curstyle.str() );
+	 !stylestr.isEqual(sysdefaultstyle_,OD::CaseInsensitive) )
+	setStyle( sysdefaultstyle_.str() );
 
     BufferString qssfnm = Settings::common().find( "dTect.StyleSheet" );
     if ( qssfnm.isEmpty() )
