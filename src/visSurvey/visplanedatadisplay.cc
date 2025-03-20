@@ -991,9 +991,8 @@ void PlaneDataDisplay::getObjectInfo( uiString& info ) const
 	const ZDomain::Info& displayzdom = datazdom.isDepth()
 			? ZDomain::DefaultDepth( true ) : datazdom;
 	const float zval = tkzs.zsamp_.start_ *
-			   FlatView::Viewer::userFactor( datazdom,&displayzdom);
-
-	const int nrzdec = displayzdom.nrDecimals( mUdf(float) );
+			FlatView::Viewer::userFactor( datazdom, &displayzdom );
+	const int nrzdec = displayzdom.nrDecimals( tkzs.zsamp_.step_ );
 	info.set( displayzdom.getLabel() )
 	    .addMoreInfo( ::toUiStringDec(zval,nrzdec) );
     }

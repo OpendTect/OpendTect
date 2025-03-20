@@ -394,8 +394,8 @@ uiString uiODPlaneDataTreeItem::createDisplayName() const
 					     ? ZDomain::DefaultDepth( true )
 					     : datazdom;
 	    const float zval = tkzs.zsamp_.start_ *
-			   FlatView::Viewer::userFactor( datazdom,&displayzdom);
-	    const int nrzdec = displayzdom.nrDecimals( mUdf(float) );
+			FlatView::Viewer::userFactor( datazdom, &displayzdom );
+	    const int nrzdec = displayzdom.nrDecimals( tkzs.zsamp_.step_ );
 	    res = toUiStringDec( zval, nrzdec );
 	}
 	else
