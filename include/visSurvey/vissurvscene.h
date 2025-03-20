@@ -112,8 +112,10 @@ public:
     void			setAnnotText(int dim,const uiString&);
     void			setAnnotFont(const FontData&);
     const FontData&		getAnnotFont() const;
-    void			setAnnotScale(const TrcKeyZSampling&);
-    const TrcKeyZSampling&	getAnnotScale() const;
+    void			setAnnotScale(const TrcKeyZSampling&,
+					      const double* scalefacs=nullptr,
+					      int nrvals=0);
+    const TrcKeyZSampling&	getAnnotScale(bool getdefault=true) const;
     void			savePropertySettings();
 
     visBase::PolygonSelection*	getPolySelection();

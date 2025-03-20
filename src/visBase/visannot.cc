@@ -55,19 +55,19 @@ static const int* coordindexarr[] =
 
 
 
-static TrcKeyZSampling getDefaultScale( const TrcKeyZSampling& cs )
+static TrcKeyZSampling getNiceScale( const TrcKeyZSampling& tkzs )
 {
-    TrcKeyZSampling scale = cs;
+    TrcKeyZSampling scale = tkzs;
 
-    const AxisLayout<int> inlal( (Interval<int>)cs.hsamp_.inlRange() );
+    const AxisLayout<int> inlal( (Interval<int>)tkzs.hsamp_.inlRange() );
     scale.hsamp_.start_.inl() = inlal.sd_.start_;
     scale.hsamp_.step_.inl() = inlal.sd_.step_;
 
-    const AxisLayout<int> crlal( (Interval<int>)cs.hsamp_.crlRange() );
+    const AxisLayout<int> crlal( (Interval<int>)tkzs.hsamp_.crlRange() );
     scale.hsamp_.start_.crl() = crlal.sd_.start_;
     scale.hsamp_.step_.crl() = crlal.sd_.step_;
 
-    const AxisLayout<float> zal( (Interval<float>)cs.zsamp_ );
+    const AxisLayout<float> zal( (Interval<float>)tkzs.zsamp_ );
     scale.zsamp_.start_ = zal.sd_.start_; scale.zsamp_.step_ = zal.sd_.step_;
 
     return scale;
@@ -84,7 +84,7 @@ Annotation::Annotation()
     ref();
     axisnames_ = Text2::create();
     axisannot_ = Text2::create();
-    tkzsdefaultscale_ = getDefaultScale( tkzs_ );
+    tkzsdefaultscale_ = getNiceScale( tkzs_ );
 
     getStateSet()->setMode( GL_LIGHTING, osg::StateAttribute::OFF );
     refOsgPtr( geode_ );
@@ -261,14 +261,14 @@ void Annotation::setFont( const FontData& fd )
 }
 
 
-void Annotation::setTrcKeyZSampling( const TrcKeyZSampling& cs )
+void Annotation::setTrcKeyZSampling( const TrcKeyZSampling& tkzs )
 {
-    tkzs_ = cs;
-    tkzsdefaultscale_ = getDefaultScale( tkzs_ );
+    tkzs_ = tkzs;
+    tkzsdefaultscale_ = getNiceScale( tkzs_ );
 
-    const Interval<int> inlrg = cs.hsamp_.inlRange();
-    const Interval<int> crlrg = cs.hsamp_.crlRange();
-    const Interval<float>& zrg = cs.zsamp_;
+    const Interval<int> inlrg = tkzs.hsamp_.inlRange();
+    const Interval<int> crlrg = tkzs.hsamp_.crlRange();
+    const Interval<float>& zrg = tkzs.zsamp_;
 
     setCorner( 0, inlrg.start_, crlrg.start_, zrg.start_ );
     setCorner( 1, inlrg.stop_, crlrg.start_, zrg.start_ );
@@ -292,16 +292,24 @@ const TrcKeyZSampling& Annotation::getTrcKeyZSampling() const
 { return tkzs_; }
 
 
-void Annotation::setScale( const TrcKeyZSampling& cs )
+void Annotation::setScale( const TrcKeyZSampling& tkzs,
+			   const double* scalefacs, int nrvals,
+			   bool makescalenice )
 {
-    scale_ = cs;
+    scale_ = makescalenice ? getNiceScale(tkzs) : tkzs;
+    if ( scalefacs && *scalefacs && nrvals==3 )
+	OD::memCopy( scalefactor_, scalefacs, sizeof(double)*nrvals );
+
     updateTextPos();
     updateGridLines();
 }
 
 
-const TrcKeyZSampling& Annotation::getScale() const
-{ return scale_.isEmpty() ? tkzsdefaultscale_ : scale_; }
+const TrcKeyZSampling& Annotation::getScale( bool getdefault ) const
+{
+    return getdefault ? tkzsdefaultscale_
+		      : scale_.isEmpty() ? tkzsdefaultscale_ : scale_;
+}
 
 
 void Annotation::setPixelDensity( float dpi )
@@ -328,7 +336,7 @@ void Annotation::setText( int dim, const uiString& string )
 }
 
 
-static SamplingData<float> getAxisSD( const TrcKeyZSampling& cs, int dim,
+static SamplingData<float> getAxisSD( const TrcKeyZSampling& tkzs, int dim,
 				      int* stopidx=0 )
 {
     SamplingData<float> sd;
@@ -336,18 +344,18 @@ static SamplingData<float> getAxisSD( const TrcKeyZSampling& cs, int dim,
 
     if ( dim==0 )
     {
-	sd.set( AxisLayout<int>(cs.hsamp_.inlRange()).sd_ );
-	stop = cs.hsamp_.inlRange().stop_;
+	sd.set( AxisLayout<int>(tkzs.hsamp_.inlRange()).sd_ );
+	stop = tkzs.hsamp_.inlRange().stop_;
     }
     else if ( dim==1 )
     {
-	sd.set( AxisLayout<int>(cs.hsamp_.crlRange()).sd_ );
-	stop = cs.hsamp_.crlRange().stop_;
+	sd.set( AxisLayout<int>(tkzs.hsamp_.crlRange()).sd_ );
+	stop = tkzs.hsamp_.crlRange().stop_;
     }
     else
     {
-	sd.set( AxisLayout<float>(cs.zsamp_).sd_ );
-	stop = cs.zsamp_.stop_;
+	sd.set( AxisLayout<float>(tkzs.zsamp_).sd_ );
+	stop = tkzs.zsamp_.stop_;
     }
 
     const float eps = 1e-6;
@@ -389,6 +397,7 @@ void Annotation::updateGridLines()
 			       box_->getVertexArray()->getDataPointer());
     for ( int dim=0; dim<3; dim++ )
     {
+	const double currscalefact = scalefactor_[dim];
 	osg::Vec3 p0;
 	osg::Vec3 p1;
 	getAxisCoords( dim, p0, p1 );
@@ -406,19 +415,20 @@ void Annotation::updateGridLines()
 	gridlines_->setLine( dim*2+1, osgGeo::Line3(lstart1, -dir) );
 
 	Interval<float> range( p0[dim], p1[dim] );
+	range.scale( currscalefact );
 
 	int stopidx;
-	const SamplingData<float> sd = getAxisSD( getScale(), dim, &stopidx );
+	const SamplingData<float> sd = getAxisSD( getScale(false),
+						  dim, &stopidx );
 
 	const int* psindexes = psindexarr[dim];
 	const int* cornerarr = coordindexarr[dim];
 
 
-	osg::Vec3f corners[] =
-		{ cornercoords[cornerarr[0]],
-		    cornercoords[cornerarr[1]],
-		    cornercoords[cornerarr[2]],
-		    cornercoords[cornerarr[3]] };
+	osg::Vec3f corners[] = { cornercoords[cornerarr[0]],
+				 cornercoords[cornerarr[1]],
+				 cornercoords[cornerarr[2]],
+				 cornercoords[cornerarr[3]] };
 
 	if ( displaytrans_ )
 	{
@@ -434,8 +444,9 @@ void Annotation::updateGridLines()
 	    if ( val <= range.start_ )		continue;
 	    else if ( val > range.stop_ )	break;
 
+	    const float unscaledval = val / currscalefact;
 	    corners[0][dim] = corners[1][dim] = corners[2][dim] =
-			      corners[3][dim] = val;
+			      corners[3][dim] = unscaledval;
 
 	    const unsigned short firstcoordindex = coords->size();
 	    for ( int idy=0; idy<4; idy++ )
@@ -496,6 +507,7 @@ void Annotation::updateTextPos()
     int curscale = 0;
     for ( int dim=0; dim<3; dim++ )
     {
+	const double currscalefact = scalefactor_[dim];
 	osg::Vec3 p0;
 	osg::Vec3 p1;
 	getAxisCoords( dim, p0, p1 );
@@ -509,9 +521,11 @@ void Annotation::updateTextPos()
 	axisnames_->text(dim)->setPosition( tp );
 
 	Interval<float> range( p0[dim], p1[dim] );
+	range.scale( currscalefact );
 
 	int stopidx;
-	const SamplingData<float> sd = getAxisSD( getScale(), dim, &stopidx );
+	const SamplingData<float> sd = getAxisSD( getScale(false),
+						  dim, &stopidx );
 
 	for ( int idx=0; idx<=stopidx; idx++ )
 	{
@@ -527,13 +541,12 @@ void Annotation::updateTextPos()
 	    Text* text = axisannot_->text(curscale++);
 
 	    osg::Vec3 pos( p0 );
-	    pos[dim] = val;
-	    double displayval = val;
-	    displayval *= scalefactor_[dim];
+	    const double unscaledval = val/currscalefact;
+	    pos[dim] = unscaledval;
 
 	    mVisTrans::transform( displaytrans_.ptr(), pos );
 	    text->setPosition( pos );
-	    text->setText( toUiString(displayval) );
+	    text->setText( toUiString(val) );
 	    text->setColor( col );
 	}
     }
@@ -552,13 +565,6 @@ void Annotation::setScaleFactor( int dim, int nv )
 {
     const double nvd = nv;
     setScaleFactor( dim, nvd );
-}
-
-
-void Annotation::setScaleFactor( int dim, double nv )
-{
-    scalefactor_[dim] = nv;
-    updateTextPos();
 }
 
 

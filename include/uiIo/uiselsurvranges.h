@@ -25,6 +25,7 @@ namespace ZDomain { class Info; }
 mExpClass(uiIo) uiSelZRange : public uiGroup
 { mODTextTranslationClass(uiSelZRange)
 public:
+			uiSelZRange(uiParent*,bool wstep,const ZDomain::Info&);
 			uiSelZRange(uiParent*,bool wstep,
 				    const char* zdomkey=nullptr,
 				    const char* zunitstr=nullptr);
@@ -59,9 +60,9 @@ protected:
     uiLabel*		lblfld_;
     uiSpinBox*		startfld_;
     uiSpinBox*		stopfld_;
-    uiLabeledSpinBox*	stepfld_ = nullptr;
-    bool		isrel_ = false;
-    const ZDomain::Info* zinfo_;
+    uiLabeledSpinBox*	stepfld_			= nullptr;
+    bool		isrel_				= false;
+    const ZDomain::Info* zinfo_				= nullptr;
 
 };
 
@@ -164,6 +165,7 @@ public:
 mExpClass(uiIo) uiSelSubvol : public uiGroup
 {
 public:
+			uiSelSubvol(uiParent*,bool wstep,const ZDomain::Info&);
 			uiSelSubvol(uiParent*,bool wstep,
 				    const char* zdomkey=nullptr,
 				    const char* zunitstr=nullptr);
