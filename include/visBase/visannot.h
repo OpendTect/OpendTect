@@ -68,12 +68,12 @@ public:
 
     void		setTrcKeyZSampling(const TrcKeyZSampling&);
     const TrcKeyZSampling& getTrcKeyZSampling() const;
-    void		setScale(const TrcKeyZSampling&);
+    void		setScale(const TrcKeyZSampling&,
+				 const double* scalefacs=nullptr, int nrvals=0,
+				 bool makescalenice=false);
 			/*<! TrcKeyZSampling(false) as input takes default
 			     axis scale of survey box instead */
-    const TrcKeyZSampling& getScale() const;
-
-    void		setScaleFactor(int dim,double scale);
+    const TrcKeyZSampling& getScale(bool getdefault=true) const;
 
     void		setText(int dim,const uiString&);
     void		fillPar(IOPar&) const override;

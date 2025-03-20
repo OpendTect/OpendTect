@@ -25,14 +25,19 @@ static const float cMaxUnsnappedZStep = 0.999f;
 
 // uiSelZRange
 
-uiSelZRange::uiSelZRange( uiParent* p, bool wstep, const char* domky,
-			  const char* zunitstr )
+uiSelZRange::uiSelZRange( uiParent* p, bool wstep, const ZDomain::Info& zinfo )
     : uiGroup(p,"Z range selection")
-    , zinfo_(&ZDomain::Info::getFrom(domky,zunitstr))
+    , zinfo_(&zinfo)
     , rangeChanged(this)
 {
     makeInpFields( wstep );
 }
+
+
+uiSelZRange::uiSelZRange( uiParent* p, bool wstep, const char* domky,
+			  const char* zunitstr )
+    : uiSelZRange(p,wstep,ZDomain::Info::getFrom( domky,zunitstr ))
+{}
 
 
 uiSelZRange::uiSelZRange( uiParent* p, bool wstep, bool isrel,
@@ -115,7 +120,7 @@ void uiSelZRange::makeInpFields( bool wstep )
 	limitrg = SI().zRange( false );
     else
     {
-	limitrg.set( zDomain().getReasonableZRange(), 1.f );
+	limitrg.set( zDomain().getReasonableZRange(true), 1.f );
 	if ( limitrg.isUdf() )
 	    limitrg.set( -sCast(float,cUnLim), sCast(float,cUnLim), 1.f );
     }
@@ -186,6 +191,7 @@ ZSampling uiSelZRange::getRange() const
     zrg.scale( 1.f / zDomain().userFactor() );
     if ( !stepfld_ && isSIDomain() )
         zrg.step_ = SI().zRange(true).step_;
+
     return zrg;
 }
 
@@ -642,15 +648,20 @@ void uiSelHRange::setLimits( const TrcKeySampling& hs )
 
 // uiSelSubvol
 
-uiSelSubvol::uiSelSubvol( uiParent* p, bool wstep, const char* zdomkey,
-			  const char* zunitstr )
+uiSelSubvol::uiSelSubvol( uiParent* p, bool wstep, const ZDomain::Info& zinfo )
     : uiGroup(p,"Sub vol selection")
     , hfld_(new uiSelHRange(this,wstep))
-    , zfld_(new uiSelZRange(this,wstep,zdomkey,zunitstr))
+    , zfld_(new uiSelZRange(this,wstep,zinfo))
 {
     zfld_->attach( alignedBelow, hfld_ );
     setHAlignObj( hfld_ );
 }
+
+
+uiSelSubvol::uiSelSubvol( uiParent* p, bool wstep, const char* zdomkey,
+			  const char* zunitstr )
+    : uiSelSubvol(p,wstep,ZDomain::Info::getFrom(zdomkey,zunitstr))
+{}
 
 
 uiSelSubvol::~uiSelSubvol()

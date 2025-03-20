@@ -747,7 +747,7 @@ const char* ZDomain::Info::sKeyNrDec() const
 Interval<float> ZDomain::Info::getReasonableZRange( bool foruser ) const
 {
     Interval<float> validrg;
-    if ( def_.isSI() )
+    if ( isCompatibleWith(::SI().zDomainInfo()) )
 	validrg = ::SI().zRange();
     else if ( isDepthFeet() )
     {

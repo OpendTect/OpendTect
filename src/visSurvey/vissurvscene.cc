@@ -122,17 +122,31 @@ void Scene::updateAnnotationText()
 	annot_->setText( 2, zDomainUserName() );
 
     const ZDomain::Info& zdom = zDomainInfo();
+    TrcKeyZSampling scalecs = annot_->getTrcKeyZSampling();
+    TypeSet<double> scalefac( 3, 1. );
     if ( zdom.isDepth() &&
 	 ((zdom.isDepthMeter() && SI().depthsInFeet()) ||
 	  (zdom.isDepthFeet() && !SI().depthsInFeet())) )
     {
 	if ( zdom.isDepthMeter() )
-	    annot_->setScaleFactor( 2, mToFeetFactorD );
+	{
+	    scalecs.zsamp_.scale( mToFeetFactorD );
+	    scalefac[2] = mToFeetFactorD;
+	}
 	else if ( zdom.isDepthFeet() )
-	    annot_->setScaleFactor( 2, mFromFeetFactorD );
+	{
+	    scalecs.zsamp_.scale( mToFeetFactorD );
+	    scalefac[2] = mToFeetFactorD;
+	}
+
+	annot_->setScale( scalecs, scalefac.arr(), scalefac.size(), true);
     }
     else
-	annot_->setScaleFactor( 2, zdom.userFactor() );
+    {
+	scalecs.zsamp_.scale( zdom.userFactor() );
+	scalefac[2] = zdom.userFactor();
+	annot_->setScale( scalecs, scalefac.arr(), scalefac.size(), true );
+    }
 }
 
 
@@ -190,7 +204,7 @@ void Scene::setup()
 }
 
 
-void Scene::updateTransforms( const TrcKeyZSampling& cs )
+void Scene::updateTransforms( const TrcKeyZSampling& tkzs )
 {
     if ( !tempzstretchtrans_ )
     {
@@ -207,7 +221,7 @@ void Scene::updateTransforms( const TrcKeyZSampling& cs )
     // -1 to compensate for that we want z to increase with depth
 
     SceneTransformManager::computeICRotationTransform(*SI().get3DGeometry(true),
-	zfactor, cs.zsamp_.center(), newinlcrlrotation.ptr(),
+	zfactor, tkzs.zsamp_.center(), newinlcrlrotation.ptr(),
 			newinlcrlscale.ptr() );
 
     tempzstretchtrans_->addObject( newinlcrlrotation.ptr() );
@@ -234,7 +248,7 @@ void Scene::updateTransforms( const TrcKeyZSampling& cs )
 
     RefMan<mVisTrans> newutm2disptransform = mVisTrans::create();
     SceneTransformManager::computeUTM2DisplayTransform(
-		    *SI().get3DGeometry(true), zfactor, cs.zsamp_.center(),
+		    *SI().get3DGeometry(true), zfactor, tkzs.zsamp_.center(),
                     newutm2disptransform.ptr() );
 
     if ( utm2disptransform_ )
@@ -332,19 +346,20 @@ const TrcKeyZSampling& Scene::getTrcKeyZSampling( bool workarea ) const
 }
 
 
-void Scene::setAnnotScale( const TrcKeyZSampling& cs )
+void Scene::setAnnotScale( const TrcKeyZSampling& tkzs,
+			   const double* scalefacs, int nrvals )
 {
-    annotscale_ = cs;
+    annotscale_ = tkzs;
     if ( !annot_ )
 	return;
 
-    annot_->setScale( cs );
+    annot_->setScale( tkzs, scalefacs, nrvals, false );
 }
 
 
-const TrcKeyZSampling& Scene::getAnnotScale() const
+const TrcKeyZSampling& Scene::getAnnotScale( bool getdefault ) const
 {
-    return annot_ ? annot_->getScale() : annotscale_;
+    return annot_ ? annot_->getScale( getdefault ) : annotscale_;
 }
 
 
@@ -1014,7 +1029,7 @@ void Scene::setZAxisTransform( ZAxisTransform* zat, TaskRunner* )
     datatransform_ = zat;
 
     bool usedefaultzstretch = false;
-    TrcKeyZSampling cs = SI().sampling( true );
+    TrcKeyZSampling tkzs = SI().sampling( true );
     if ( !zat )
     {
 	setZDomainInfo( ZDomain::Info(ZDomain::SI()) );
@@ -1024,7 +1039,7 @@ void Scene::setZAxisTransform( ZAxisTransform* zat, TaskRunner* )
     {
 	const ZSampling zrg = zat->getZInterval( false );
 	if ( !zrg.isUdf() )
-	    cs.zsamp_ = zrg;
+	    tkzs.zsamp_ = zrg;
 
 	setZDomainInfo( zat->toZDomainInfo() );
 	setZScale( zat->toZScale() );
@@ -1034,7 +1049,7 @@ void Scene::setZAxisTransform( ZAxisTransform* zat, TaskRunner* )
     }
 
     setAnnotScale( TrcKeyZSampling(false) );
-    setTrcKeyZSampling( cs );
+    setTrcKeyZSampling( tkzs );
 
     for ( int idx=0; idx<size(); idx++ )
     {

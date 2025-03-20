@@ -24,6 +24,7 @@ ________________________________________________________________________
 #include "settingsaccess.h"
 #include "vispolygonoffset.h"
 #include "visscenecoltab.h"
+#include "zdomain.h"
 
 
 bool uiScenePropertyDlg::savestatus_ = true;
@@ -55,7 +56,7 @@ uiScenePropertyDlg::uiScenePropertyDlg( uiParent* p,
 	    oldfont_ = scene->getAnnotFont();
 	    hadannotscale_ = scene->isAnnotScaleShown();
 	    hadannotgrid_ = scene->isAnnotGridShown();
-	    oldscale_ = scene->getAnnotScale();
+	    oldscale_ = scene->getAnnotScale( false );
 	    annotcolor_ = scene->getAnnotColor();
 	    oldmarkersize_ = scene->getMarkerSize();
 	    oldmarkercolor_ = scene->getMarkerColor();
@@ -163,11 +164,11 @@ void uiScenePropertyDlg::selAnnotFontCB( CallBacker* )
 class uiScaleDlg : public uiDialog
 { mODTextTranslationClass(uiScaleDlg);
 public:
-uiScaleDlg( uiParent* p, const TrcKeyZSampling& scale, const char* zdomkey,
-	    const char* zunitstr )
+uiScaleDlg( uiParent* p, const TrcKeyZSampling& scale,
+	    const ZDomain::Info& zinfo )
     : uiDialog(p,Setup(tr("Set Annotation Scale"),mNoDlgTitle,mNoHelpKey))
 {
-    rangefld_ = new uiSelSubvol( this, true, zdomkey, zunitstr );
+    rangefld_ = new uiSelSubvol( this, true, zinfo );
     rangefld_->setSampling( scale );
 }
 
@@ -190,12 +191,41 @@ void uiScenePropertyDlg::setAnnotScaleCB( CallBacker* )
     if ( !scene )
 	return;
 
-    uiScaleDlg dlg( this, scene->getAnnotScale(), scene->zDomainKey(),
-		    scene->zDomainUnitStr() );
+    const ZDomain::Info& zdom = scene->zDomainInfo();
+    const ZDomain::Info* zinfo = nullptr;
+    bool usedefaultscale = true;
+    if ( scene->zDomainInfo().isDepth() )
+    {
+	zinfo = &ZDomain::DefaultDepth();
+	usedefaultscale = false;
+    }
+    else
+	zinfo = &zdom;
+
+    uiScaleDlg dlg( this, scene->getAnnotScale(usedefaultscale), *zinfo );
     if ( dlg.go() != uiDialog::Accepted )
 	return;
 
-    scene->setAnnotScale( dlg.newscale_ );
+    TrcKeyZSampling& newscale = dlg.newscale_;
+    TypeSet<double> zscalefacset( 3, 1. );
+    if ( zdom.isDepth() &&
+	 ((zdom.isDepthMeter() && zinfo->isDepthFeet()) ||
+	  (zdom.isDepthFeet() && !zinfo->isDepthFeet())) )
+    {
+	if ( zdom.isDepthMeter() )
+	    zscalefacset[2] = mToFeetFactorD;
+	else if ( zdom.isDepthFeet() )
+	    zscalefacset[2] = mFromFeetFactorD;
+    }
+    else
+    {
+	if ( usedefaultscale )
+	    newscale.zsamp_.scale( zinfo->userFactor() );
+
+	zscalefacset[2] = zinfo->userFactor();
+    }
+
+    scene->setAnnotScale( newscale, zscalefacset.arr(), zscalefacset.size() );
 }
 
 
