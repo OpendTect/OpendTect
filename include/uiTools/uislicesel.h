@@ -30,7 +30,8 @@ public:
     enum Type			{ Inl, Crl, Tsl, Vol, TwoD, Synth };
 
 				uiSliceSel(uiParent*,Type,const ZDomain::Info&,
-					   const Pos::GeomID&);
+					const Pos::GeomID&,
+					const ZDomain::Info* dispzdinf=nullptr);
 				~uiSliceSel();
 
     Type			getType() const { return type_; }
@@ -80,23 +81,28 @@ protected:
     void			setBoxValues(uiSpinBox*,
 					     const StepInterval<int>&,int);
 
-    uiLabeledSpinBox*		inl0fld_ = nullptr;
+    const ZDomain::Info&	zDomain(bool fordisplay) const;
+    float			userFactor();
+    int				nrDec();
+
+    uiLabeledSpinBox*		inl0fld_			= nullptr;
     uiLabeledSpinBox*		crl0fld_;
     uiLabeledSpinBox*		z0fld_;
-    uiSpinBox*			inl1fld_ = nullptr;
+    uiSpinBox*			inl1fld_			= nullptr;
     uiSpinBox*			crl1fld_;
     uiSpinBox*			z1fld_;
-    uiButton*			applybut_ = nullptr;
-    uiButton*			scrollbut_ = nullptr;
+    uiButton*			applybut_			= nullptr;
+    uiButton*			scrollbut_			= nullptr;
 
-    uiSliceScroll*		scrolldlg_ = nullptr;
+    uiSliceScroll*		scrolldlg_			= nullptr;
 
     TrcKeyZSampling		maxcs_;
     TrcKeyZSampling		tkzs_;
-    CallBack*			applycb_ = nullptr;
+    CallBack*			applycb_			= nullptr;
     Type			type_;
     bool			dogeomcheck_;
-    ZDomain::Info		zdominfo_;
+    const ZDomain::Info&	zdominfo_;
+    const ZDomain::Info&	dispzdominfo_;
 
     Threads::Lock		updatelock_;
 };

@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "uispinbox.h"
 #include "uitoolbutton.h"
 
+#include "flatview.h"
 #include "posinfo2dsurv.h"
 #include "survinfo.h"
 #include "survgeom2d.h"
@@ -263,11 +264,12 @@ uiString getTitle( uiSliceSel* ss ) const
 // uiSliceSel
 
 uiSliceSel::uiSliceSel( uiParent* p, Type type, const ZDomain::Info& zi,
-			const Pos::GeomID& gid )
+			const Pos::GeomID& gid, const ZDomain::Info* dispzi )
     : uiGroup(p,"Slice Selection")
     , type_(type)
     , dogeomcheck_(gid.is3D())
     , zdominfo_(zi)
+    , dispzdominfo_(dispzi?*dispzi:(zi.isDepth()?ZDomain::DefaultDepth():zi))
 {
     tkzs_.init( gid );
     maxcs_.init( gid );
@@ -424,7 +426,7 @@ void uiSliceSel::createZFld()
     const bool iszslice = isZSlice();
     uiString label = tr("%1 %2")
 		.arg(iszslice ? uiStrings::sZ() : uiStrings::sZRange())
-		.arg(zdominfo_.uiUnitStr(true));
+		.arg(zDomain(true).uiUnitStr(true));
     z0fld_ = new uiLabeledSpinBox( this, label, 0, iszslice ? "Z" : "Z Start" );
     z1fld_ = new uiSpinBox( this, 0, "Z Stop" );
     z1fld_->attach( rightTo, z0fld_ );
@@ -486,7 +488,7 @@ void uiSliceSel::readInput()
     if ( !isCrl() && crlrg.start_ == crlrg.stop_ )
 	crlrg.stop_ += hs.step_.crl();
 
-    const float zfac( zdominfo_.userFactor() );
+    const float zfac = userFactor();
     Interval<float> zrg;
     zrg.start_ = z0fld_->box()->getFValue() / zfac;
     zrg.start_ = maxcs_.zsamp_.snap( zrg.start_ );
@@ -535,9 +537,8 @@ void uiSliceSel::updateUI()
     setBoxValues( crl0fld_->box(), maxcrlrg, crlrg.start_ );
     setBoxValues( crl1fld_, maxcrlrg, crlrg.stop_ );
 
-    const float zfac( zdominfo_.userFactor() );
-    const int nrdec = Math::NrSignificantDecimals( tkzs_.zsamp_.step_*zfac );
-
+    const float zfac = userFactor();
+    const int nrdec = nrDec();
     if ( nrdec==0 )
     {
 	Interval<int> zrg( mNINT32(tkzs_.zsamp_.start_*zfac),
@@ -683,6 +684,24 @@ void uiSliceSel::usePar( const IOPar& par )
 }
 
 
+const ZDomain::Info& uiSliceSel::zDomain( bool fordisplay ) const
+{
+    return fordisplay ? dispzdominfo_ : zdominfo_;
+}
+
+
+float uiSliceSel::userFactor()
+{
+    return FlatView::Viewer::userFactor( zdominfo_, &dispzdominfo_ );
+}
+
+
+int uiSliceSel::nrDec()
+{
+    return FlatView::Viewer::nrDec( dispzdominfo_ );
+}
+
+
 //uiSliceSelDlg
 
 uiSliceSelDlg::uiSliceSelDlg( uiParent* p, const TrcKeyZSampling& curcs,
@@ -695,7 +714,8 @@ uiSliceSelDlg::uiSliceSelDlg( uiParent* p, const TrcKeyZSampling& curcs,
 		 .modal(type==uiSliceSel::Vol||type==uiSliceSel::TwoD||
 			type==uiSliceSel::Synth))
 {
-    slicesel_ = new uiSliceSel( this, type, zdominfo, curcs.hsamp_.getGeomID());
+    slicesel_ = new uiSliceSel( this, type, zdominfo,
+				curcs.hsamp_.getGeomID() );
     slicesel_->setMaxTrcKeyZSampling( maxcs );
     slicesel_->setTrcKeyZSampling( curcs );
     slicesel_->setApplyCB( acb );
