@@ -92,6 +92,7 @@ mGlobal(Basic) bool getFromString(od_int64&,const char*,od_int64 udfval);
 mGlobal(Basic) bool getFromString(float&,const char*,float udfval);
 mGlobal(Basic) bool getFromString(double&,const char*,double udfval);
 mGlobal(Basic) bool getFromString(bool&,const char*);
+mGlobal(Basic) bool getFromStringPtr(void*&,const char*);
 mGlobal(Basic) bool yesNoFromString(const char*);
 
 inline int toInt( const char* s, int defval=0 )

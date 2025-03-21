@@ -1026,7 +1026,7 @@ bool IOPar::getYN( const char* keyw, bool& i1, bool& i2, bool& i3,
 bool IOPar::getPtr( const char* keyw, void*& res ) const
 {
     mGetStartNotEmpty(pval);
-    return od_sscanf( pval, "%p", &res ) > 0;
+    return getFromStringPtr( res, pval );
 }
 
 
