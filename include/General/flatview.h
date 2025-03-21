@@ -447,6 +447,9 @@ public:
     static const char*		sKeyVDVal();
     static const char*		sKeyViewZnrDec();
 
+    static float		userFactor(const ZDomain::Info& data,
+					   const ZDomain::Info* display);
+
 protected:
 
     TypeSet< ::DataPackID>	ids_;

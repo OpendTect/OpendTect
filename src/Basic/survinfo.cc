@@ -609,9 +609,6 @@ mDefineInstanceCreatedNotifierAccess(SurveyInfo)
 SurveyInfo::SurveyInfo()
     : tkzs_(*new TrcKeyZSampling(false))
     , wcs_(*new TrcKeyZSampling(false))
-    , zdef_(*new ZDomain::Def(ZDomain::Time()) )
-    , depthsinfeet_(false)
-    , xyinfeet_(false)
     , pars_(*new IOPar(sKeySurvDefs))
     , ll2c_(*new LatLong2Coord)
     , workRangeChg(this)
@@ -642,7 +639,6 @@ SurveyInfo::SurveyInfo( const SurveyInfo& si )
     , tkzs_(*new TrcKeyZSampling(false))
     , wcs_(*new TrcKeyZSampling(false))
     , pars_(*new IOPar(sKeySurvDefs))
-    , zdef_(*new ZDomain::Def( si.zDomain() ) )
     , ll2c_(*new LatLong2Coord)
     , workRangeChg(this)
 {
@@ -660,7 +656,6 @@ SurveyInfo::~SurveyInfo()
     delete &ll2c_;
     delete &tkzs_;
     delete &wcs_;
-    delete &zdef_;
 
     Survey::Geometry3D* old = work_s3dgeom_.setToNull();
     if ( old ) old->unRef();
@@ -676,11 +671,11 @@ SurveyInfo& SurveyInfo::operator =( const SurveyInfo& oth )
 	return *this;
 
     setName( oth.name() );
-    zdef_ = oth.zdef_;
+    zdomain_ = &oth.zDomainInfo();
     disklocation_ = oth.disklocation_;
     coordsystem_ = oth.coordsystem_;
-    xyinfeet_ = oth.xyinfeet_;
-    depthsinfeet_ = oth.depthsinfeet_;
+    xytype_ = oth.xytype_;
+    depthtype_ = oth.depthtype_;
     b2c_ = oth.b2c_;
     survdatatype_ = oth.survdatatype_;
     survdatatypeknown_ = oth.survdatatypeknown_;
@@ -715,10 +710,10 @@ bool SurveyInfo::operator==( const SurveyInfo& oth ) const
     if ( name() != oth.name() ||
 	survdatatype_ != oth.survdatatype_ ||
 	survdatatypeknown_ != oth.survdatatypeknown_ ||
-	xyinfeet_ != oth.xyinfeet_ ||
-	depthsinfeet_ != oth.depthsinfeet_ ||
+	zdomain_ != oth.zdomain_ ||
+	xytype_ != oth.xytype_ ||
+	depthtype_ != oth.depthtype_ ||
 	disklocation_ != oth.disklocation_ ||
-	zdef_ != oth.zdef_ ||
 	b2c_ != oth.b2c_ ||
 	tkzs_ != oth.tkzs_ ||
 	wcs_ != oth.wcs_ ||
@@ -896,16 +891,10 @@ SurveyInfo* SurveyInfo::readJSON( const OD::JSON::Object& obj, uiRetVal& ret )
 	}
     }
 
-    if ( si->zIsTime() )
-    {
-	bool depthinft = false;
-	if ( si->xyInFeet() )
-	    depthinft = true;
-	else
-	    si->getPars().getYN( sKeyDpthInFt(), depthinft );
-
-	si->setDepthInFeet( depthinft );
-    }
+    bool depthinft = si->zIsTime() ? si->xyInFeet()
+				   : si->zInFeet();
+    si->getPars().getYN( sKeyDpthInFt(), depthinft );
+    si->setDepthInFeet( depthinft );
 
     const BufferString comments = obj.getStringValue( sKeyComments() );
     if ( !comments.isEmpty() )
@@ -1180,6 +1169,8 @@ int SurveyInfo::inlStep() const
 {
     return tkzs_.hsamp_.step_.inl();
 }
+
+
 int SurveyInfo::crlStep() const
 {
     return tkzs_.hsamp_.step_.crl();
@@ -1220,12 +1211,8 @@ float SurveyInfo::getArea( bool work ) const
 
 
 float SurveyInfo::zStep() const
-{ return tkzs_.zsamp_.step; }
-
-
-int SurveyInfo::nrZDecimals() const
 {
-    return zDomain().nrZDecimals( zStep() );
+    return tkzs_.zsamp_.step;
 }
 
 
@@ -1234,6 +1221,12 @@ int SurveyInfo::nrXYDecimals() const
     int nrdec = 2;
     getPars().get( "Nr XY decimals", nrdec );
     return nrdec;
+}
+
+
+int SurveyInfo::nrZDecimals() const
+{
+    return zDomain().nrZDecimals( zStep() );
 }
 
 
@@ -1430,49 +1423,65 @@ bool SurveyInfo::includes( const BinID& bid, const float z, bool work ) const
 
 bool SurveyInfo::zIsTime() const
 {
-    return zdef_.isTime();
+    return zDomain().isTime();
 }
 
 
-SurveyInfo::Unit SurveyInfo::xyUnit() const
+bool SurveyInfo::zInMeter() const
 {
-    return xyinfeet_ ? Feet : Meter;
+    return zDomainInfo().isDepthMeter();
 }
 
 
-SurveyInfo::Unit SurveyInfo::zUnit() const
+bool SurveyInfo::zInFeet() const
+{
+    return zDomainInfo().isDepthFeet();
+}
+
+
+OD::XYType SurveyInfo::xyUnit() const
+{
+    return xytype_;
+}
+
+
+SurveyInfo::Unit SurveyInfo::zUnit( bool display ) const
 {
     if ( zIsTime() )
 	return Second;
 
-    return depthsinfeet_ ? Feet : Meter;
+    return display ? (depthsInFeet() ? Feet : Meter)
+		   : (zInMeter() ? Meter : Feet);
 }
 
 
 ZDomain::DepthType SurveyInfo::depthType() const
 {
-    return depthsInFeet() ? ZDomain::DepthType::Feet
-			  : ZDomain::DepthType::Meter;
+    return depthtype_;
 }
 
 
 void SurveyInfo::putZDomain( IOPar& iop ) const
 {
-    zdef_.set( iop );
+    zDomain().set( iop );
 }
 
 
 const ZDomain::Def& SurveyInfo::zDomain() const
 {
-    return zdef_;
+    return zDomainInfo().def_;
 }
 
 
 const ZDomain::Info& SurveyInfo::zDomainInfo() const
 {
-    return zIsTime() ? ZDomain::TWT()
-		     : (zInMeter() ? ZDomain::DepthMeter()
-				   : ZDomain::DepthFeet() );
+    return zdomain_ ? *zdomain_ : ZDomain::TWT();
+}
+
+
+bool SurveyInfo::depthsInFeet() const
+{
+    return depthtype_ == ZDomain::DepthType::Feet;
 }
 
 
@@ -1488,27 +1497,48 @@ uiString SurveyInfo::getUiXYUnitString( bool abbrvt, bool wb ) const
 }
 
 
-void SurveyInfo::setZUnit( bool istime, bool infeet )
+void SurveyInfo::setXYInFeet( bool yn )
 {
-    zdef_ = istime ? ZDomain::Time() : ZDomain::Depth();
-    setDepthInFeet( infeet );
+    xytype_ = yn ? OD::XYType::Feet : OD::XYType::Meter;
 }
 
 
-float SurveyInfo::defaultXYtoZScale( Unit zunit, Unit xyunit )
+void SurveyInfo::setZUnit( bool istime, bool infeet )
 {
-    if ( zunit==xyunit )
+    if ( (zIsTime() && istime) ||
+	 (zInMeter() && !istime && !infeet) ||
+	 (zInFeet() && !istime && infeet) )
+	return; // No change
+
+    const ZDomain::Info& newzdom = istime ? ZDomain::TWT()
+					  : (infeet ? ZDomain::DepthFeet()
+						    : ZDomain::DepthMeter());
+    zdomain_ = &newzdom;
+}
+
+
+void SurveyInfo::setDepthInFeet( bool yn )
+{
+    depthtype_ = yn ? ZDomain::DepthType::Feet : ZDomain::DepthType::Meter;
+    pars_.setYN( sKeyDpthInFt(), yn );
+}
+
+
+float SurveyInfo::defaultXYtoZScale( Unit zunit, OD::XYType xyunit )
+{
+    if ( (zunit == Meter && xyunit == OD::XYType::Meter) ||
+	 (zunit == Feet && xyunit == OD::XYType::Feet) )
 	return 1;
 
     if ( zunit==Second )
     {
-	if ( xyunit==Meter )
+	if ( xyunit==OD::XYType::Meter )
 	    return 1000;
 
 	//xyunit==feet
 	return 3048;
     }
-    else if ( zunit==Feet && xyunit==Meter )
+    else if ( zunit==Feet && xyunit==OD::XYType::Meter )
 	return mFromFeetFactorF;
 
     //  zunit==Meter && xyunit==Feet
@@ -1516,9 +1546,9 @@ float SurveyInfo::defaultXYtoZScale( Unit zunit, Unit xyunit )
 }
 
 
-float SurveyInfo::zScale() const
+float SurveyInfo::zScale( bool display ) const
 {
-    return defaultXYtoZScale( zUnit(), xyUnit() );
+    return defaultXYtoZScale( zUnit(display), xyUnit() );
 }
 
 
@@ -1954,10 +1984,10 @@ bool SurveyInfo::has3D() const
 void SurveyInfo::update3DGeometry()
 {
     if ( s3dgeom_ )
-	s3dgeom_->setGeomData( b2c_, sampling(false), zScale() );
+	s3dgeom_->setGeomData( b2c_, sampling(false), zScale(false) );
 
     if ( work_s3dgeom_ )
-	work_s3dgeom_->setGeomData( b2c_, sampling(true), zScale() );
+	work_s3dgeom_->setGeomData( b2c_, sampling(true), zScale(false) );
 }
 
 
@@ -1969,9 +1999,9 @@ RefMan<Survey::Geometry3D> SurveyInfo::get3DGeometry( bool work ) const
     if ( !sgeom )
     {
 	RefMan<Survey::Geometry3D> newsgeom
-			= new Survey::Geometry3D( name(), zdef_ );
+			= new Survey::Geometry3D( name(), zDomain() );
 	newsgeom->setID( Survey::default3DGeomID() );
-	newsgeom->setGeomData( b2c_, sampling(work), zScale() );
+	newsgeom->setGeomData( b2c_, sampling(work), zScale(false) );
 	if ( sgeom.setIfEqual(0,newsgeom) )
 	    newsgeom.release();
     }

@@ -612,6 +612,22 @@ int FlatView::Viewer::nrDec() const
 }
 
 
+float FlatView::Viewer::userFactor( const ZDomain::Info& datazdom,
+				    const ZDomain::Info* displayzdom )
+{
+    if ( !displayzdom || displayzdom == &datazdom || !datazdom.isDepth() )
+	return mCast(float,datazdom.userFactor());
+
+    float userfac = mCast(float,displayzdom->userFactor());
+    if ( displayzdom->isDepthMeter() )
+	userfac *= mFromFeetFactorF;
+    else if ( displayzdom->isDepthFeet() )
+	userfac *= mToFeetFactorF;
+
+    return userfac;
+}
+
+
 Coord3 FlatView::Viewer::getCoord( const Point& wp ) const
 {
     const WeakPtr<FlatDataPack> datapack = getPack( false, true );

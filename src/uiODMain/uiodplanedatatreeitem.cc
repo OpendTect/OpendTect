@@ -399,10 +399,14 @@ uiString uiODPlaneDataTreeItem::createDisplayName() const
 	    res = toUiString(cs.zsamp_.start);
 	else
 	{
-	    const ZDomain::Def& zdef = scene->zDomainInfo().def_;
-	    const int nrdec =
-		Math::NrSignificantDecimals( cs.zsamp_.step*zdef.userFactor() );
-	    const float zval = cs.zsamp_.start * zdef.userFactor();
+	    const ZDomain::Info& datazdom = scene->zDomainInfo();
+	    const ZDomain::Info& displayzdom = datazdom.isDepth()
+					     ? ZDomain::DefaultDepth( true )
+					     : datazdom;
+	    const int nrdec = Math::NrSignificantDecimals(
+				cs.zsamp_.step*datazdom.userFactor() );
+	    const float zval = cs.zsamp_.start *
+			FlatView::Viewer::userFactor( datazdom, &displayzdom );
 	    res = toUiString( zval, nrdec );
 	}
     }

@@ -219,6 +219,7 @@ void uiSurveyInfoEditor::mkSIPFld( uiObject* att )
 	if ( !sips_[idx]->isAvailable() )
 	    { sips_.removeSingle(idx); idx--; }
     }
+
     const int nrprovs = sips_.size();
     if ( nrprovs < 1 ) return;
 
@@ -264,7 +265,7 @@ void uiSurveyInfoEditor::mkRangeGrp()
     iis.setLimits( startstoprg, -1 ).setLimits( steprg, 2 );
     iis.setName("Inl Start",0).setName("Inl Stop",1).setName("Inl step",2);
     inlfld_ = new uiGenInput( rangegrp_, tr("In-line range"), iis );
-    mAttachCB( inlfld_->valuechanged, uiSurveyInfoEditor::rangeChg );
+    mAttachCB( inlfld_->valueChanged, uiSurveyInfoEditor::rangeChg );
     inlfld_->attach( alignedBelow, dummy );
     nrinlslbl_ = new uiLabel( rangegrp_, uiString::empty() );
     nrinlslbl_->setStretch( 2, 0 );
@@ -272,7 +273,7 @@ void uiSurveyInfoEditor::mkRangeGrp()
 
     iis.setName("Crl Start",0).setName("Crl Stop",1).setName("Crl step",2);
     crlfld_ = new uiGenInput( rangegrp_, tr("Cross-line range"), iis );
-    mAttachCB( crlfld_->valuechanged, uiSurveyInfoEditor::rangeChg );
+    mAttachCB( crlfld_->valueChanged, uiSurveyInfoEditor::rangeChg );
     nrcrlslbl_ = new uiLabel( rangegrp_, uiString::empty() );
     nrcrlslbl_->setStretch( 2, 0 );
     nrcrlslbl_->attach( rightTo, crlfld_ );
@@ -281,35 +282,37 @@ void uiSurveyInfoEditor::mkRangeGrp()
 			   DoubleInpIntervalSpec(true).setName("Z Start",0)
 						      .setName("Z Stop",1)
 						      .setName("Z step",2) );
-    mAttachCB( zfld_->valuechanged, uiSurveyInfoEditor::rangeChg );
+    mAttachCB( zfld_->valueChanged, uiSurveyInfoEditor::rangeChg );
     crlfld_->attach( alignedBelow, inlfld_ );
     zfld_->attach( alignedBelow, crlfld_ );
 
-    const bool zistime = si_.zDomain().isTime();
+    const bool zistime = si_.zIsTime();
     const bool depthinft = si_.depthsInFeet();
+    const bool zinft = zistime ? depthinft : si_.zInFeet();
 
-    const char* zunitstrs[] = { "millisecond", "meter", "feet", 0 };
+    const char* zunitstrs[] = { "millisecond", "meter", "feet", nullptr };
     zunitfld_ = new uiComboBox( rangegrp_, zunitstrs, "Z unit" );
     zunitfld_->attach( rightOf, zfld_ );
-    zunitfld_->setCurrentItem( zistime ? 0 : depthinft ? 2 : 1 );
+    prevzunititm_ = zistime ? 0 : zinft ? 2 : 1;
+    zunitfld_->setCurrentItem( prevzunititm_ );
     mAttachCB( zunitfld_->selectionChanged, uiSurveyInfoEditor::updZUnit );
+
+    const float srd = si_.seismicReferenceDatum();
+    const UnitOfMeasure* meteruom = UnitOfMeasure::meterUnit();
+    const UnitOfMeasure* feetuom = UnitOfMeasure::feetUnit();
+    const UnitOfMeasure* datauom = UnitOfMeasure::surveyDefDepthStorageUnit();
+    const UnitOfMeasure* displayuom = zistime ? (depthinft ? feetuom : meteruom)
+					      : datauom;
+    refdatumfld_ = new uiGenInput( rangegrp_,
+		       getSRDString(zistime ? depthinft : zinft),
+		       FloatInpSpec(getConvertedValue(srd,datauom,displayuom)));
+    refdatumfld_->attach( alignedBelow, zfld_ );
 
     depthdispfld_ = new uiGenInput( rangegrp_, tr("Display depths in"),
 	BoolInpSpec(!depthinft,uiStrings::sMeter(),uiStrings::sFeet()) );
-    depthdispfld_->setSensitive( zistime && !si_.xyInFeet() );
-    mAttachCB( depthdispfld_->valuechanged,
+    mAttachCB( depthdispfld_->valueChanged,
 	       uiSurveyInfoEditor::depthDisplayUnitSel );
-    depthdispfld_->attach( alignedBelow, zfld_ );
-
-    const float srd = si_.seismicReferenceDatum();
-    const UnitOfMeasure* datauom = zistime || !depthinft
-				 ? UoMR().get( "Meter" ) : UoMR().get( "Feet" );
-    const UnitOfMeasure* displayuom = depthdispfld_->getBoolValue()
-				    ? UoMR().get( "Meter" )
-				    : UoMR().get( "Feet" );
-    refdatumfld_ = new uiGenInput( rangegrp_, getSRDString(depthinft),
-		       FloatInpSpec(getConvertedValue(srd,datauom,displayuom)));
-    refdatumfld_->attach( alignedBelow, depthdispfld_ );
+    depthdispfld_->attach( alignedBelow, refdatumfld_ );
 
     rangegrp_->setHAlignObj( inlfld_ );
     tabs_->addTab( rangegrp_ );
@@ -497,11 +500,10 @@ void uiSurveyInfoEditor::setValues()
     }
 
     const bool zistime = si_.zDomain().isTime();
-    const bool xyinfeet = si_.xyInFeet();
     const bool zinfeet = si_.depthsInFeet();
-    zunitfld_->setCurrentItem( zistime	? 0 : (zinfeet ? 2 : 1) );
+    const bool zinft = zistime ? zinfeet : si_.zInFeet();
+    zunitfld_->setCurrentItem( zistime	? 0 : (zinft ? 2 : 1) );
     depthdispfld_->setValue( !zinfeet );
-    depthdispfld_->setSensitive( zistime && !xyinfeet );
 
     const float srd = si_.seismicReferenceDatum();
     const UnitOfMeasure* datauom = zistime || !zinfeet ? UoMR().get( "Meter" )
@@ -671,7 +673,6 @@ void uiSurveyInfoEditor::doFinalize( CallBacker* )
     xy3fld_->setReadOnly( true );
 
     sipCB(nullptr);
-    updZUnit(nullptr);
 }
 
 
@@ -1009,9 +1010,10 @@ bool uiSurveyInfoEditor::setRanges()
     if ( hs.step_.crl() < 1 ) hs.step_.crl() = 1;
 
     const bool zistime = zunitfld_->currentItem() == 0;
-    const bool zinfeet = !depthdispfld_->getBoolValue();
+    const bool dispzinfeet = !depthdispfld_->getBoolValue();
+    const bool zinfeet = zistime ? dispzinfeet : zunitfld_->currentItem() == 2;
     si_.setZUnit( zistime, zinfeet );
-    si_.getPars().setYN( SurveyInfo::sKeyDpthInFt(), zinfeet );
+    si_.setDepthInFeet( dispzinfeet );
 
     const float srd = refdatumfld_->getFValue( 0, 0.f );
     const UnitOfMeasure* datauom = zistime || !zinfeet ? UoMR().get( "Meter" )
@@ -1136,7 +1138,8 @@ void uiSurveyInfoEditor::sipCB( CallBacker* )
 	crssel_->fillFrom( *coordsys.ptr() );
     }
 
-    const bool xyinfeet = si_.getCoordSystem()->isFeet();
+    const bool xyinfeet =
+	si_.getCoordSystem() ? si_.getCoordSystem()->isFeet() : false;
     uiSurvInfoProvider::TDInfo tdinfo = sip->tdInfo();
     bool zistime = si_.zIsTime();
     if ( tdinfo != uiSurvInfoProvider::Uknown )
@@ -1180,6 +1183,7 @@ void uiSurveyInfoEditor::sipCB( CallBacker* )
 
     lastsip_ = sip;
     impiop_ = lastsip_->getImportPars();
+    updZUnit( nullptr );
 }
 
 
@@ -1263,6 +1267,10 @@ void uiSurveyInfoEditor::rangeChg( CallBacker* cb )
 
 void uiSurveyInfoEditor::depthDisplayUnitSel( CallBacker* )
 {
+    const bool zistime = zunitfld_->currentItem() == 0;
+    if ( !zistime )
+	return;
+
     const bool showdepthinft = !depthdispfld_->getBoolValue();
     refdatumfld_->setTitleText( getSRDString(showdepthinft) );
     float refdatum = refdatumfld_->getFValue( 0, 0.f );
@@ -1273,31 +1281,24 @@ void uiSurveyInfoEditor::depthDisplayUnitSel( CallBacker* )
 
 void uiSurveyInfoEditor::updZUnit( CallBacker* )
 {
-    const UnitOfMeasure* prevdisplayuom = depthdispfld_->getBoolValue()
-					? UoMR().get( "Meter" )
-					: UoMR().get( "Feet" );
+    const UnitOfMeasure* meteruom = UnitOfMeasure::meterUnit();
+    const UnitOfMeasure* feetuom = UnitOfMeasure::feetUnit();
+    const UnitOfMeasure* prevdisplayuom = prevzunititm_ == 0
+		? (depthdispfld_->getBoolValue() ? meteruom : feetuom)
+		: (prevzunititm_ == 1 ? meteruom : feetuom);
     const float oldsrduser = refdatumfld_->getFValue( 0, 0.f );
-    const bool zintime = zunitfld_->currentItem() == 0;
-    const bool zinft = zunitfld_->currentItem() == 2;
-    const bool xyinft = xyInFeet();
-    depthdispfld_->setSensitive( zintime && !xyinft );
-    if ( zintime )
-    {
-	if ( xyinft )
-	    depthdispfld_->setValue( false );
-    }
-    else
-	depthdispfld_->setValue( !zinft );
 
-    const bool showdepthinft = !depthdispfld_->getBoolValue();
-    const UnitOfMeasure* newdisplayuom = !showdepthinft ? UoMR().get( "Meter" )
-							: UoMR().get( "Feet" );
+    prevzunititm_ = zunitfld_->currentItem();
+    const bool zintime = prevzunititm_ == 0;
+    const bool zinft = prevzunititm_ == 2;
+    const bool showdepthinft = zintime ? !depthdispfld_->getBoolValue()
+				       : zinft;
+    const UnitOfMeasure* newdisplayuom = showdepthinft ? feetuom : meteruom;
     const float newsrduser = getConvertedValue( oldsrduser, prevdisplayuom,
 						newdisplayuom );
     refdatumfld_->setValue( newsrduser );
     refdatumfld_->setTitleText( getSRDString(showdepthinft) );
-    const UnitOfMeasure* datauom = zintime || !zinft ? UoMR().get( "Meter" )
-						     : UoMR().get( "Feet" );
+    const UnitOfMeasure* datauom = zintime || zinft ? feetuom : meteruom;
     si_.setSeismicReferenceDatum( getConvertedValue(newsrduser,newdisplayuom,
 						    datauom) );
 }

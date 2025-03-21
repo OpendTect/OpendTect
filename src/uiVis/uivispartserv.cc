@@ -970,6 +970,12 @@ Interval<float> uiVisPartServer::getDataTraceRange( VisID id ) const
 }
 
 
+SceneID uiVisPartServer::getMouseSceneID() const
+{
+    return sceneeventsrc_ ? sceneeventsrc_->id() : SceneID::udf();
+}
+
+
 Coord3 uiVisPartServer::getMousePos() const
 { return xytmousepos_; }
 

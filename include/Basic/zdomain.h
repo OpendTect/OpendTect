@@ -35,6 +35,9 @@ mGlobal(Basic) void		setTime(IOPar&);
 mGlobal(Basic) const Info&	TWT();
 mGlobal(Basic) const Info&	DepthMeter();
 mGlobal(Basic) const Info&	DepthFeet();
+mGlobal(Basic) const Info&	DefaultDepth(bool display=true,
+					     const SurveyInfo* =nullptr);
+
 mGlobal(Basic) const Info*	get(const IOPar&);
 				// never manage the returned pointer
 

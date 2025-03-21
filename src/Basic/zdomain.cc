@@ -381,6 +381,18 @@ const ZDomain::Info& ZDomain::DepthFeet()
 }
 
 
+const ZDomain::Info& ZDomain::DefaultDepth( bool display,
+					    const SurveyInfo* extsi )
+{
+    const SurveyInfo& si = extsi ? *extsi : ::SI();
+    const bool zistime = si.zIsTime();
+    const bool depthinft = si.depthsInFeet();
+    const bool zinft = zistime ? depthinft : si.zInFeet();
+    return display ? (depthinft ? DepthFeet() : DepthMeter())
+		   : (zinft ? DepthFeet() : DepthMeter());
+}
+
+
 ZDomain::Info::Info( const Def& def )
     : Info(def,nullptr)
 {

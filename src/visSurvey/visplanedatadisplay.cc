@@ -14,6 +14,7 @@ ________________________________________________________________________
 #include "array2dresample.h"
 #include "color.h"
 #include "datapointset.h"
+#include "flatview.h"
 #include "seisdatapackzaxistransformer.h"
 #include "settings.h"
 
@@ -65,12 +66,12 @@ PlaneDataDisplay::PlaneDataDisplay()
     : MultiTextureSurveyObject()
     , dragger_(visBase::DepthTabPlaneDragger::create())
     , gridlines_(visBase::GridLines::create())
-    , curicstep_(s3dgeom_->inlStep(),s3dgeom_->crlStep())
     , csfromsession_(false)
-    , undo_(*new Undo())
+    , curicstep_(s3dgeom_->inlStep(),s3dgeom_->crlStep())
     , moving_(this)
     , movefinished_(this)
     , datachanged_( this )
+    , undo_(*new Undo())
 {
     datapacks_.setNullAllowed();
     transfdatapacks_.setNullAllowed();
@@ -239,7 +240,7 @@ TrcKeyZSampling PlaneDataDisplay::snapPosition( const TrcKeyZSampling& cs,
 }
 
 
-Coord3 PlaneDataDisplay::getNormal( const Coord3& pos  ) const
+Coord3 PlaneDataDisplay::getNormal( const Coord3& ) const
 {
     if ( orientation_==OD::ZSlice )
 	return Coord3(0,0,1);
@@ -312,7 +313,7 @@ float PlaneDataDisplay::maxDist() const
 
 
 bool PlaneDataDisplay::setZAxisTransform( ZAxisTransform* zat,
-					  TaskRunner* taskr )
+					  TaskRunner* )
 {
     const bool haddatatransform = datatransform_ || displaytrans_;
     if ( datatransform_ )
@@ -449,7 +450,7 @@ bool PlaneDataDisplay::updatePlanePos( const TrcKeyZSampling& tkz )
 }
 
 
-void PlaneDataDisplay::draggerRightClick( CallBacker* cb )
+void PlaneDataDisplay::draggerRightClick( CallBacker* )
 {
     triggerRightClick( dragger_->rightClickedEventInfo() );
 }
@@ -878,7 +879,7 @@ void PlaneDataDisplay::setRandomPosDataNoCache( int attrib,
 }
 
 
-void PlaneDataDisplay::updateChannels( int attrib, TaskRunner* taskr )
+void PlaneDataDisplay::updateChannels( int attrib, TaskRunner* )
 {
     ConstRefMan<RegularSeisDataPack> regsdp = getDisplayedDataPack( attrib );
     if ( !regsdp )
@@ -999,12 +1000,16 @@ void PlaneDataDisplay::getObjectInfo( BufferString& info ) const
 	const float val = tkzs.zsamp_.start;
 	if ( !scene_ ) { info = val; return; }
 
-	const ZDomain::Info& zdinf = scene_->zDomainInfo();
-	info = zdinf.userName().getString(); info += ": ";
+	const ZDomain::Info& datazdom = scene_->zDomainInfo();
+	const ZDomain::Info& displayzdom = datazdom.isDepth()
+			? ZDomain::DefaultDepth( true ) : datazdom;
+	const float zval = tkzs.zsamp_.start *
+			   FlatView::Viewer::userFactor( datazdom,&displayzdom);
+	info = datazdom.userName().getString(); info += ": ";
 
-	const float userval = tkzs.zsamp_.step * zdinf.userFactor();
+	const float userval = tkzs.zsamp_.step * datazdom.userFactor();
 	const int nrdec = Math::NrSignificantDecimals( userval );
-	info.add( val*zdinf.userFactor(), nrdec );
+	info.add( zval, nrdec );
     }
 }
 

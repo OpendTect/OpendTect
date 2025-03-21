@@ -246,7 +246,7 @@ protected:
 
     float			curzstretch_ = 2.f;
 
-    ZDomain::Info*		zdomaininfo_;
+    const ZDomain::Info*	zdomaininfo_;
     float			zscale_;
     KeyboardEvent		kbevent_;
     MouseEvent			mouseevent_;

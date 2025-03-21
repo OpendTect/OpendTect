@@ -313,7 +313,7 @@ void uiODApplMgr::surveyChanged( CallBacker* )
 bool uiODApplMgr::survChgReqAttrUpdate()
 {
     return !( SI().xyUnit() == tmpprevsurvinfo_.xyunit_ &&
-		SI().zUnit() == tmpprevsurvinfo_.zunit_ &&
+		SI().zUnit(true) == tmpprevsurvinfo_.zunit_ &&
 		mIsEqual( SI().zStep(),tmpprevsurvinfo_.zstep_, 1e-6 ) );
 }
 
@@ -1999,7 +1999,7 @@ void uiODApplMgr::process2D3D( int opt )
 void uiODApplMgr::MiscSurvInfo::refresh()
 {
     xyunit_ = SI().xyUnit();
-    zunit_ = SI().zUnit();
+    zunit_ = SI().zUnit( true );
     zstep_ = SI().zStep();
 }
 

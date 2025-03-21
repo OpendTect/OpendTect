@@ -544,9 +544,18 @@ void uiODSceneMgr::updateStatusBar()
     uiString msg;
     if ( haspos  )
     {
+	const SceneID sceneid = visServ().getMouseSceneID();
+	const ZDomain::Info* datazdom = visServ().zDomainInfo( sceneid );
+	if ( !datazdom )
+	    datazdom = &SI().zDomainInfo();
+
+	const ZDomain::Info& displayzdom = datazdom->isDepth() ?
+				ZDomain::DefaultDepth( true ) : *datazdom;
+	const double zfact =
+		FlatView::Viewer::userFactor( *datazdom, &displayzdom );
+
 	const BinID bid( SI().transform( Coord(xytpos.x,xytpos.y) ) );
-	const float zfact = mCast(float,visServ().zFactor());
-	const float zval = (float) (zfact * xytpos.z);
+	const float zval = sCast(float,zfact * xytpos.z);
 	const int nrdec = SI().nrZDecimals()+1; // get from settings
 	const BufferString zvalstr = toString( zval, nrdec );
 	msg = toUiString("%1    (%2, %3, %4)")

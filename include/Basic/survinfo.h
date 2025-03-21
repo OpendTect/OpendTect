@@ -63,8 +63,8 @@ public:
     int			inlStep() const;
     int			crlStep() const;
     float		zStep() const;
-    int			nrZDecimals() const;
     int			nrXYDecimals() const;
+    int			nrZDecimals() const;
     float		inlDistance() const; //!< distance for one increment
     float		crlDistance() const;
     float		getArea(const Interval<int>& inl,
@@ -86,23 +86,21 @@ public:
 						    bool withparens=true) const;
     const ZDomain::Def&	zDomain() const;
     const ZDomain::Info& zDomainInfo() const;
-    bool		depthsInFeet() const	{ return depthsinfeet_; }
+    bool		depthsInFeet() const;
     ZDomain::DepthType	depthType() const;
     inline float	showZ2UserFactor() const
 			{ return float(zDomain().userFactor()); }
 
     bool		zIsTime() const;
-    inline bool		zInMeter() const
-			{ return zDomain().isDepth() && !depthsinfeet_;}
-    inline bool		zInFeet() const
-			{ return zDomain().isDepth() && depthsinfeet_;}
+    bool		zInMeter() const;
+    bool		zInFeet() const;
     const char*		getZUnitString(bool withparens=true) const
 			{ return zDomain().unitStr( withparens ); }
     const uiString	getUiZUnitString(bool withparens=true) const
 			{ return zDomain().uiUnitStr( withparens ); }
     enum Unit		{ Second, Meter, Feet };
-    Unit		xyUnit() const;
-    Unit		zUnit() const;
+    OD::XYType		xyUnit() const;
+    Unit		zUnit(bool display) const;
 
     Coord		minCoord(bool work) const;
     Coord		maxCoord(bool work) const;
@@ -160,9 +158,9 @@ protected:
 
     SurveyDiskLocation	disklocation_;
 
-    ZDomain::Def&	zdef_;
-    bool		xyinfeet_;
-    bool		depthsinfeet_;
+    const ZDomain::Info* zdomain_	= &ZDomain::TWT();
+    OD::XYType		xytype_		= OD::XYType::Meter;
+    ZDomain::DepthType	depthtype_	= ZDomain::DepthType::Meter; //Display
     TrcKeyZSampling&	tkzs_;
     TrcKeyZSampling&	wcs_;
     float		seisrefdatum_;
@@ -245,13 +243,15 @@ public:
     float		angleXCrl() const;
 			/*!< It's the angle between the X-axis (East) and
 			     a Crossline */
-    void		setXYInFeet( bool yn=true ) { xyinfeet_ = yn; }
-    void		setDepthInFeet( bool yn=true ) { depthsinfeet_ = yn; }
+    void		setXYInFeet(bool yn=true);
     void		setZUnit(bool istime,bool infeet=false);
-    static float	defaultXYtoZScale(Unit,Unit);
+			//*!< Survey domain
+    void		setDepthInFeet(bool yn=true);
+			//*!< Display domain
+    static float	defaultXYtoZScale(Unit,OD::XYType);
 			/*!<Gives a ballpark figure of how to scale XY to
 			    make it comparable to Z. */
-    float		zScale() const;
+    float		zScale(bool display=true) const;
 			/*!<Gives a ballpark figure of how to scale Z to
 			    make it comparable to XY. */
 

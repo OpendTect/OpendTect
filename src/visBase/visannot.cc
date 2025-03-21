@@ -93,7 +93,7 @@ Annotation::Annotation()
     geode_->ref();
     addChild( geode_ );
 
-    scalefactor_[0] = scalefactor_[1] = scalefactor_[2] = 1;
+    scalefactor_[0] = scalefactor_[1] = scalefactor_[2] = 1.;
 
     annotcolor_ = OD::Color::White();
 
@@ -528,12 +528,12 @@ void Annotation::updateTextPos()
 
 	    osg::Vec3 pos( p0 );
 	    pos[dim] = val;
-	    float displayval = val;
+	    double displayval = val;
 	    displayval *= scalefactor_[dim];
 
 	    mVisTrans::transform( displaytrans_, pos );
 	    text->setPosition( pos );
-	    text->setText( toUiString(displayval) );
+	    text->setText( toUiString(displayval,0) );
 	    text->setColor( col );
 	}
     }
@@ -548,7 +548,7 @@ void Annotation::updateTextPos()
 }
 
 
-void Annotation::setScaleFactor( int dim, int nv )
+void Annotation::setScaleFactor( int dim, double nv )
 {
     scalefactor_[dim] = nv;
     updateTextPos();

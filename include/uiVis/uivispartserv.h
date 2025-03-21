@@ -267,6 +267,7 @@ public:
     int			selectedTexture(VisID,int attrib) const;
 
     static int		evMouseMove();
+    SceneID		getMouseSceneID() const;
     Coord3		getMousePos() const;
     int			zFactor() const			{ return zfactor_; }
     BufferString	getMousePosVal() const;

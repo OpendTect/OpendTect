@@ -71,14 +71,14 @@ static const char* sKeyZScale()		{ return "Z Scale"; }
 
 
 Scene::Scene()
-    : zscale_( SI().zScale() )
-    , infopar_(*new IOPar)
-    , zdomaininfo_(new ZDomain::Info(ZDomain::SI()))
-    , mouseposchange(this)
+    : mouseposchange(this)
     , mousecursorchange(this)
     , keypressed(this)
     , mouseclicked(this)
     , sceneboundingboxupdated(this)
+    , infopar_(*new IOPar)
+    , zdomaininfo_(&SI().zDomainInfo())
+    , zscale_( SI().zScale(false) )
 {
     hp_inittkzs.setParam( this, new TrcKeyZSampling );
 
@@ -113,8 +113,18 @@ void Scene::updateAnnotationText()
     if ( SI().zRange(true).width() )
 	annot_->setText( 2, zDomainUserName() );
 
-    annot_->setScaleFactor( 2,
-	    zdomaininfo_ ? zdomaininfo_->userFactor() : 1 );
+    const ZDomain::Info& zdom = zDomainInfo();
+    if ( zdom.isDepth() &&
+	 ((zdom.isDepthMeter() && SI().depthsInFeet()) ||
+	  (zdom.isDepthFeet() && !SI().depthsInFeet())) )
+    {
+	if ( zdom.isDepthMeter() )
+	    annot_->setScaleFactor( 2, mToFeetFactorD );
+	else if ( zdom.isDepthFeet() )
+	    annot_->setScaleFactor( 2, mFromFeetFactorD );
+    }
+    else
+	annot_->setScaleFactor( 2, zdom.userFactor() );
 }
 
 
@@ -205,7 +215,7 @@ void Scene::updateTransforms( const TrcKeyZSampling& cs )
     RefMan<mVisTrans> newinlcrlscale = mVisTrans::create();
 
     float zfactor = -1 * zscale_ * curzstretch_;
-    if ( zdomaininfo_->def_.isTime() )
+    if ( zDomainInfo().isTime() )
 	zfactor /= 2;
     // -1 to compensate for that we want z to increase with depth
 
@@ -267,31 +277,32 @@ bool Scene::isRightHandSystem() const
 
 
 const ZDomain::Info& Scene::zDomainInfo() const
-{ return *zdomaininfo_; }
+{
+    return *zdomaininfo_;
+}
 
 
 void Scene::setZDomainInfo( const ZDomain::Info& zdinf )
 {
-    delete zdomaininfo_;
-    zdomaininfo_ = new ZDomain::Info( zdinf );
+    zdomaininfo_ = &zdinf;
     updateAnnotationText();
 }
 
 
 const char* Scene::zDomainKey() const
-{ return zdomaininfo_->key(); }
+{ return zDomainInfo().key(); }
 
 uiString Scene::zDomainUserName() const
-{ return mToUiStringTodo(zdomaininfo_->userName()); }
+{ return toUiString(zDomainInfo().userName()); }
 
 const char* Scene::zDomainUnitStr( bool withparens ) const
-{ return zdomaininfo_->unitStr_( withparens ); }
+{ return zDomainInfo().unitStr_( withparens ); }
 
 int Scene::zDomainUserFactor() const
-{ return zdomaininfo_->userFactor(); }
+{ return zDomainInfo().userFactor(); }
 
 const MultiID Scene::zDomainID() const
-{ return zdomaininfo_->getID(); }
+{ return zDomainInfo().getID(); }
 
 
 void Scene::getAllowedZDomains( BufferString& dms ) const
@@ -513,7 +524,7 @@ float Scene::getApparentVelocity( float zstretch ) const
         depthat1sec *= mFromFeetFactorF;
 
     //in depth units
-    if ( SI().depthsInFeet() )
+    if ( SI().zInFeet() && SI().depthsInFeet() )
         depthat1sec *= mToFeetFactorF;
 
     //compensate for twt
@@ -612,12 +623,8 @@ const OD::Color Scene::getAnnotColor() const
 
 const Selector<Coord3>* Scene::getSelector() const
 {
-    if ( !coordselector_ ) return 0;
-
     mDynamicCastGet(const visBase::PolygonCoord3Selector*,sel,coordselector_);
-    if ( !sel ) return 0;
-
-    return coordselector_;
+    return sel ? coordselector_ : nullptr;
 }
 
 
@@ -702,10 +709,12 @@ void Scene::objectMoved( CallBacker* cb )
 			    && !so->isLocked() && dataobj->isOn();
 
 
-void Scene::selChangeCB( CallBacker* cber )
+void Scene::selChangeCB( CallBacker* cb )
 {
-    mCBCapsuleUnpack( VisID, selid, cber );
+    if ( !cb || !cb->isCapsule() )
+	return;
 
+    mCBCapsuleUnpack( VisID, selid, cb );
     for ( int idx=size()-1; idx>=0; idx-- )
     {
 	mGetPosModeManipObjInfo( idx, dataobj, so, canmoveposmodemanip );
@@ -1039,10 +1048,15 @@ void Scene::setZAxisTransform( ZAxisTransform* zat, TaskRunner* )
 
 
 ZAxisTransform* Scene::getZAxisTransform()
-{ return datatransform_; }
+{
+    return datatransform_;
+}
+
 
 const ZAxisTransform* Scene::getZAxisTransform() const
-{ return datatransform_; }
+{
+    return datatransform_;
+}
 
 
 void Scene::setMarkerPos( const TrcKeyValue& trkv, SceneID sceneid )
@@ -1160,8 +1174,8 @@ void Scene::fillPar( IOPar& par ) const
     }
     else
     {
-	zdomaininfo_->def_.set( par );
-	par.mergeComp( zdomaininfo_->pars_, ZDomain::sKey() );
+	zDomainInfo().def_.set( par );
+	par.mergeComp( zDomainInfo().pars_, ZDomain::sKey() );
     }
 
     tkzs_.fillPar( par );
@@ -1253,8 +1267,9 @@ bool Scene::usePar( const IOPar& par )
 	if ( par.get(sKey::Scale(),zscale) )
 	{
 	    setZScale( zscale );
-	    delete zdomaininfo_;
-	    zdomaininfo_ = new ZDomain::Info( par );
+	    const ZDomain::Info* newzinfo = ZDomain::Info::getFrom( par );
+	    if ( newzinfo )
+		zdomaininfo_ = newzinfo;
 	}
     }
 
