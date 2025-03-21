@@ -217,7 +217,12 @@ const char* TableModel::CellData::text() const
 
 
 float TableModel::CellData::getFValue() const
-{ return qvar_.toFloat(); }
+{
+    bool ok = false;
+    const float fval = qvar_.toFloat( &ok );
+    return ok ? fval : mUdf(float);
+}
+
 
 double TableModel::CellData::getDValue() const
 { return qvar_.toDouble(); }
