@@ -561,10 +561,8 @@ void Annotation::updateTextPos()
 }
 
 
-void Annotation::setScaleFactor( int dim, int nv )
+void Annotation::setScaleFactor( int /* dim */, int /*nv */ )
 {
-    const double nvd = nv;
-    setScaleFactor( dim, nvd );
 }
 
 
