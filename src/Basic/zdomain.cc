@@ -829,6 +829,8 @@ int ZDomain::Info::nrDecimals( float zstepfp, bool usepref ) const
     {
 	nrdec++;
 	decval = decval*10 - Math::Floor(decval*10);
+	if ( decval > 0. && decval < 1. )
+	    break;
     }
 
     if ( !hasstep )
