@@ -675,6 +675,14 @@ const char* getAreaString( float area, bool xyinfeet, int nrdecimals,
 }
 
 
+#ifdef __msvc__
+# define od_sprintf	sprintf_s
+# define od_sscanf	sscanf_s
+#else
+# define od_sprintf	snprintf
+# define od_sscanf	sscanf
+#endif
+
 template <class T>
 static const char* toStringImpl( T val, BufferString& retstr,
 				 const char* cformat, int minbufsz,
@@ -1041,6 +1049,12 @@ bool getFromString( bool& b, const char* s )
 
     b = false;
     return false;
+}
+
+
+bool getFromStringPtr( void*& res, const char* buf )
+{
+    return od_sscanf( buf, "%p", &res ) > 0;
 }
 
 

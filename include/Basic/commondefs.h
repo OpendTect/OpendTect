@@ -320,13 +320,3 @@ namespace Threads
 #else
 #define mMaxContiguousMemSize	0x4000000000 // 256 GB (arbitrary)
 #endif
-
-
-// C library functions
-#ifdef __msvc__
-# define od_sprintf	sprintf_s
-# define od_sscanf	sscanf_s
-#else
-# define od_sprintf	snprintf
-# define od_sscanf	sscanf
-#endif
