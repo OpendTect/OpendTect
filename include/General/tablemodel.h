@@ -54,7 +54,7 @@ public:
 				  ItemIsUserCheckable=16, ItemEnabled=32 };
 
     enum CellType		{ Bool, Text, NumI, NumF,
-				  NumD, Color, Date, Enum, Other };
+				  NumD, Color, Date, DateTime, Enum, Other };
 
     virtual			~TableModel();
 				mOD_DisableCopy(TableModel)

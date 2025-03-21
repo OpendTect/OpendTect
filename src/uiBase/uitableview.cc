@@ -306,10 +306,30 @@ DateItemDelegate()
 QString displayText( const QVariant& value,
 		     const QLocale& locale ) const override
 {
-    return locale.toString( value.toDate(), "dd.MM.yyyy" );
+    return locale.toString( value.toDate(),
+			    locale.dateFormat(QLocale::ShortFormat) );
 }
 
 }; // class DateItemDelegate
+
+
+class DateTimeItemDelegate : public ODStyledItemDelegate
+{
+public:
+DateTimeItemDelegate()
+    : ODStyledItemDelegate(TableModel::DateTime)
+{}
+
+
+QString displayText( const QVariant& value,
+		     const QLocale& locale ) const override
+{
+    QDateTime qdt = value.toDateTime().toLocalTime();
+    return locale.toString( qdt,
+			    locale.dateTimeFormat(QLocale::ShortFormat) );
+}
+
+}; // class DateTimeItemDelegate
 
 
 class ODTableView : public uiObjBodyImpl<uiTableView,QTableView>
@@ -580,6 +600,14 @@ void uiTableView::setModel( TableModel* mdl )
     qproxymodel_->setSourceModel( tablemodel_->getAbstractModel() );
     odtableview_->setModel( qproxymodel_ );
     odtableview_->init();
+
+    for ( int idx=0; idx<mdl->nrCols(); idx++ )
+    {
+	const char format = mdl->getColumnFormatSpecifier( idx );
+	const int precision = mdl->getColumnPrecision( idx );
+	setColumnValueType( idx, mdl->getColumnCellType(idx),
+			    format, precision );
+    }
 }
 
 
@@ -979,6 +1007,8 @@ ODStyledItemDelegate*
 	return new DecorationItemDelegate;
     if ( tp==TableModel::Date )
 	return new DateItemDelegate;
+    if ( tp==TableModel::DateTime )
+	return new DateTimeItemDelegate;
 
     return nullptr;
 }
