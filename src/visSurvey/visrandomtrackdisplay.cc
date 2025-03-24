@@ -2035,6 +2035,8 @@ void RandomTrackDisplay::finishNodeMoveInternal()
 	ismanip_ = true;
 
     interactivetexturedisplay_ = false;
+    TrcKeyPath trctks;
+    getDataTraceBids( trctks ); // Will update trcspath_
     updateSel();
 }
 
