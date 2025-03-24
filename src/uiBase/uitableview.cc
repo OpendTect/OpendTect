@@ -23,6 +23,7 @@ ________________________________________________________________________
 #include <QByteArray>
 #include <QCheckBox>
 #include <QComboBox>
+#include <QDate>
 #include <QHeaderView>
 #include <QKeyEvent>
 #include <QLineEdit>
@@ -69,9 +70,9 @@ TableModel::CellType cellType() const
 
 private:
 
-    TableModel::CellType	celltype_;
+    TableModel::CellType	celltype_	= TableModel::Text;
 
-};
+}; // class ODStyledItemDelegate
 
 
 class DecorationItemDelegate : public ODStyledItemDelegate
@@ -127,7 +128,7 @@ void paint( QPainter* painter, const QStyleOptionViewItem& option,
     ODStyledItemDelegate::paint( painter, option, index );
 }
 
-};
+}; // class DecorationItemDelegate
 
 
 class DoubleItemDelegate : public ODStyledItemDelegate
@@ -175,7 +176,7 @@ QString displayText( const QVariant& val, const QLocale& locale ) const override
 }
 
    int		nrdecimals_;
-};
+}; // class DoubleItemDelegate
 
 
 class TextItemDelegate : public ODStyledItemDelegate
@@ -210,7 +211,7 @@ void setModelData( QWidget* editor, QAbstractItemModel* model,
     model->setData( index, txt, Qt::EditRole );
 }
 
-};
+}; // class TextItemDelegate
 
 
 class EnumItemDelegate : public ODStyledItemDelegate
@@ -309,7 +310,44 @@ protected:
 
     const EnumDef*	enumdef_;
 
-};
+}; // class EnumItemDelegate
+
+
+class DateItemDelegate : public ODStyledItemDelegate
+{
+public:
+DateItemDelegate()
+    : ODStyledItemDelegate(TableModel::Date)
+{}
+
+
+QString displayText( const QVariant& value,
+		     const QLocale& locale ) const override
+{
+    return locale.toString( value.toDate(),
+			    locale.dateFormat(QLocale::ShortFormat) );
+}
+
+}; // class DateItemDelegate
+
+
+class DateTimeItemDelegate : public ODStyledItemDelegate
+{
+public:
+DateTimeItemDelegate()
+    : ODStyledItemDelegate(TableModel::DateTime)
+{}
+
+
+QString displayText( const QVariant& value,
+		     const QLocale& locale ) const override
+{
+    QDateTime qdt = value.toDateTime().toLocalTime();
+    return locale.toString( qdt,
+			    locale.dateTimeFormat(QLocale::ShortFormat) );
+}
+
+}; // class DateTimeItemDelegate
 
 
 class ODTableView : public uiObjBodyImpl<uiTableView,QTableView>
@@ -539,6 +577,9 @@ void uiTableView::setModel( TableModel* mdl )
     qproxymodel_->setSourceModel( tablemodel_->getAbstractModel() );
     odtableview_->setModel( qproxymodel_ );
     odtableview_->init();
+
+    for ( int idx=0; idx<mdl->nrCols(); idx++ )
+	setColumnValueType( idx, mdl->getColumnCellType(idx) );
 }
 
 
@@ -841,6 +882,10 @@ ODStyledItemDelegate*
 						 : nullptr );
     if ( tp==TableModel::Color )
 	return new DecorationItemDelegate;
+    if ( tp==TableModel::Date )
+	return new DateItemDelegate;
+    if ( tp==TableModel::DateTime )
+	return new DateTimeItemDelegate;
 
     return nullptr;
 }

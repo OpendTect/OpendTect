@@ -252,13 +252,24 @@ TableModel::~TableModel()
 
 
 QAbstractTableModel* TableModel::getAbstractModel()
-{ return odtablemodel_; }
+{
+    return odtablemodel_;
+}
+
 
 void TableModel::beginReset()
-{ odtablemodel_->beginReset(); }
+{
+    odtablemodel_->beginReset();
+}
+
 
 void TableModel::endReset()
-{ odtablemodel_->endReset(); }
+{
+    odtablemodel_->endReset();
+}
+
 
 TableModel::CellType TableModel::getColumnCellType( int col ) const
-{ return Text; }
+{
+    return Text;
+}
