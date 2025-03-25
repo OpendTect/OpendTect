@@ -54,7 +54,7 @@ static IOObjContext adaptCtxtWithSetup( const IOObjContext& ct,
 	ctxt.requireType( sKey::Steering() );
 
     if ( !su.enabotherdomain_ )
-	ctxt.requireZDomain( SI().zDomain() );
+	ctxt.requireZDomain( SI().zDomainInfo() );
 
     /*if ( su.domainpol_ == uiSeisSel::Setup::SIDomain )
 	ctxt.requireZDomain( SI().zDomainInfo() );
