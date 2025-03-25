@@ -136,6 +136,8 @@ public:
     void		requireZDef(const ZDomain::Def&,bool allowempty=true);
     void		requireZDomain(const ZDomain::Info&,
 				       bool allowempty=true);
+    void		requireZDomain(const ZDomain::Def&,
+				       bool allowempty=true) = delete;
     const ZDomain::Def* requiredZDef() const;
     const ZDomain::Info* requiredZDomain() const;
 
