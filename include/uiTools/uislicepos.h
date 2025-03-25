@@ -53,7 +53,7 @@ protected:
     uiToolButton*	prevbut_;
     uiToolButton*	nextbut_;
     float		laststeps_[3];
-    int			zfactor_;
+    float		zfactor_	= mUdf(float);
     TrcKeyZSampling	curcs_;
     uiStringSet		boxlabels_;
 

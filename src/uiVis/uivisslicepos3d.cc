@@ -76,7 +76,17 @@ void uiSlicePos3DDisp::setDisplay( const VisID& dispid )
     mAttachCB( *so->getMovementNotifier(), uiSlicePos3DDisp::updatePos );
     mAttachCB( *so->getManipulationNotifier(), uiSlicePos3DDisp::updatePos );
 
-    zfactor_ = so->getScene() ? so->getScene()->zDomainUserFactor() : 1;
+    zfactor_ = 1;
+    if ( so->getScene() )
+    {
+	const ZDomain::Info& zdinf = so->getScene()->zDomainInfo();
+	const ZDomain::Info* dispzdinf = nullptr;
+	if ( zdinf.isDepth() )
+	    dispzdinf = &ZDomain::DefaultDepth();
+
+	zfactor_ = FlatView::Viewer::userFactor( zdinf, dispzdinf );
+    }
+
     setBoxLabel( getOrientation() );
     setBoxRanges();
     setPosBoxValue();

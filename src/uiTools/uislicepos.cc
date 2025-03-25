@@ -23,7 +23,6 @@ ________________________________________________________________________
 
 uiSlicePos::uiSlicePos( uiParent* p )
     : positionChg(this)
-    , zfactor_(mUdf(int))
 {
     toolbar_ = new uiToolBar( p, uiStrings::phrJoinStrings(uiStrings::sSlice(),
 			      uiStrings::sPosition()) );
@@ -34,9 +33,9 @@ uiSlicePos::uiSlicePos( uiParent* p )
 
     label_ = new uiLabel( toolbar_, boxlabels_[1] );
     sliceposbox_ = new uiSpinBox( toolbar_, 0, "Slice position" );
-    sliceposbox_->valueChanging.notify( mCB(this,uiSlicePos,slicePosChg) );
+    mAttachCB( sliceposbox_->valueChanging, uiSlicePos::slicePosChg );
 
-    uiLabel* steplabel = new uiLabel( toolbar_, uiStrings::sStep() );
+    auto* steplabel = new uiLabel( toolbar_, uiStrings::sStep() );
 
     slicestepbox_ = new uiSpinBox( toolbar_, 0, "Slice step" );
     slicestepbox_->valueChanging.notify( mCB(this,uiSlicePos,sliceStepChg) );
@@ -56,7 +55,7 @@ uiSlicePos::uiSlicePos( uiParent* p )
     mAttachCB( IOM().surveyChanged, uiSlicePos::initSteps );
     mAttachCB( SCMgr().shortcutsChanged, uiSlicePos::shortcutsChg );
     initSteps();
-    shortcutsChg( 0 );
+    shortcutsChg( nullptr );
 }
 
 
@@ -109,10 +108,15 @@ void uiSlicePos::setSteps( int inl, int crl, float z )
 
 
 float uiSlicePos::getZStep() const
-{ return laststeps_[2]; }
+{
+    return laststeps_[2];
+}
+
 
 void uiSlicePos::setZStep( float step )
-{ laststeps_[2] = step>0 ? step : SI().zStep()*zfactor_; }
+{
+    laststeps_[2] = step>0 ? step : SI().zStep()*zfactor_;
+}
 
 
 void uiSlicePos::setLabels( const uiString& inl, const uiString& crl,
@@ -206,9 +210,11 @@ void uiSlicePos::setBoxRg( uiSlicePos::SliceDir orientation,
     }
     else
     {
-	const int zfac = zfactor_;
-        const int nrdec = Math::NrSignificantDecimals( curcs.zsamp_.step_*zfac );
-        posbox->setInterval( curcs.zsamp_.start_*zfac, curcs.zsamp_.stop_*zfac);
+	const int zfac = zfactor_; //TODO should be float zfac = zfactor_;
+	const int nrdec =
+			Math::NrSignificantDecimals( curcs.zsamp_.step_*zfac );
+	posbox->setInterval( curcs.zsamp_.start_*zfac,
+			     curcs.zsamp_.stop_*zfac );
         stepbox->setInterval( survcs.zsamp_.step_*zfac,
                               (curcs.zsamp_.stop_-curcs.zsamp_.start_)*zfac,
                               curcs.zsamp_.step_*zfac );
@@ -219,17 +225,17 @@ void uiSlicePos::setBoxRg( uiSlicePos::SliceDir orientation,
 
 
 void uiSlicePos::setPosBoxVal( uiSlicePos::SliceDir orientation,
-				const TrcKeyZSampling& cs )
+			       const TrcKeyZSampling& tkzs )
 {
     uiSpinBox* posbox = sliceposbox_;
     NotifyStopper posstop( posbox->valueChanging );
 
     if ( orientation == OD::SliceType::Inline )
-	posbox->setValue( cs.hsamp_.start_.inl() );
+	posbox->setValue( tkzs.hsamp_.start_.inl() );
     else if ( orientation == OD::SliceType::Crossline )
-	posbox->setValue( cs.hsamp_.start_.crl() );
+	posbox->setValue( tkzs.hsamp_.start_.crl() );
     else
-        posbox->setValue( cs.zsamp_.start_*zfactor_ );
+	posbox->setValue( tkzs.zsamp_.start_*zfactor_ );
 }
 
 
