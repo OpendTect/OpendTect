@@ -287,23 +287,39 @@ mExternC(Basic) const char* GetSoftwareDir( bool acceptnone )
 
     if ( res.isEmpty() )
     {
+	const char* relinfostr = "relinfo";
 	//Find the relinfo directory, and set sw dir to its parent
-	const FilePath filepath = GetFullExecutablePath();
-	for ( int idx=filepath.nrLevels()-1; idx>=0; idx-- )
+	const BufferString dtectappl( GetOSEnvVar("DTECT_APPL") );
+	if ( File::exists(dtectappl.buf()) )
 	{
-	    const char* relinfostr = "relinfo";
-	    FilePath datapath( filepath.dirUpTo(idx).buf() );
+	    FilePath datapath( dtectappl );
+	    const int nrlevels = datapath.nrLevels();
 	    if ( __ismac__ )
 		datapath.add( "Resources" );
 
 	    datapath.add( relinfostr );
-	    if ( !datapath.exists() )
-		continue;
+	    if ( datapath.exists() && File::isDirectory( datapath.fullPath() ) )
+		res = datapath.dirUpTo( nrlevels-1 );
+	}
 
-	    if ( File::isDirectory( datapath.fullPath()) )
+	if ( res.isEmpty() )
+	{
+	    const FilePath filepath = GetFullExecutablePath();
+	    for ( int idx=filepath.nrLevels()-1; idx>=0; idx-- )
 	    {
-		res = filepath.dirUpTo(idx);
-		break;
+		FilePath datapath( filepath.dirUpTo(idx).buf() );
+		if ( __ismac__ )
+		    datapath.add( "Resources" );
+
+		datapath.add( relinfostr );
+		if ( !datapath.exists() )
+		    continue;
+
+		if ( File::isDirectory( datapath.fullPath()) )
+		{
+		    res = filepath.dirUpTo(idx);
+		    break;
+		}
 	    }
 	}
 
@@ -483,7 +499,20 @@ mExternC(Basic) const char* GetExecPlfDir()
 {
     mDeclStaticString( res );
     if ( res.isEmpty() )
-	res = FilePath( GetFullExecutablePath() ).pathOnly();
+    {
+	FilePath fp( GetSoftwareDir(false) );
+	if ( __ismac__ )
+	{
+	    fp.add( "MacOS" );
+	}
+	else
+	{
+	    fp.add( "bin" ).add( GetPlfSubDir() );
+	}
+
+	fp.add( GetBinSubDir() );
+	res = fp.fullPath();
+    }
 
     return res.buf();
 }
@@ -494,20 +523,18 @@ mExternC(Basic) const char* GetLibPlfDir()
     mDeclStaticString( res );
     if ( res.isEmpty() )
     {
-	FilePath fp;
+	FilePath fp( GetSoftwareDir(false) );
 	if ( __ismac__ )
 	{
-	    fp.set( GetSoftwareDir(false) ).add( "Frameworks" );
-	    if ( OD::InDebugMode() )
-		fp.add( "Debug" );
-
-	    res = fp.fullPath();
+	    fp.add( "Frameworks" );
 	}
 	else
 	{
-	    fp.set( GetFullExecutablePath() );
-	    res = fp.pathOnly();
+	    fp.add( "bin" ).add( GetPlfSubDir() );
 	}
+
+	fp.add( GetBinSubDir() );
+	res = fp.fullPath();
     }
 
     return res.buf();

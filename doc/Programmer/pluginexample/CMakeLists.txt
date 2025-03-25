@@ -15,6 +15,10 @@ set( PACKAGE_NAME "tutpackage" )
 project( ${PRODUCT_NAME}
 	 VERSION ${PROJECT_VERSION} )
 
+if ( POLICY CMP0144 )
+    cmake_policy( SET CMP0144 NEW )
+endif()
+
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 set_property( GLOBAL PROPERTY USE_FOLDERS ON )
@@ -43,6 +47,7 @@ foreach( PLUGIN ${PLUGINS} )
     # Made plugin specific
 endforeach()
 
+OD_ADD_EXTERNALS()
 link_directories( "${CMAKE_BINARY_DIR}/${OD_LIBRARY_DIRECTORY}" )
 OD_ADD_MODULES( plugins ${PLUGINS} )
 

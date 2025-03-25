@@ -99,10 +99,11 @@ class uiTutMgr :  public uiPluginInitMgr
 { mODTextTranslationClass(uiTutMgr);
 public:
 			uiTutMgr();
+			~uiTutMgr();
 
 private:
 
-    uiVisMenuItemHandler wellmnuitmhandler_;
+    uiVisMenuItemHandler* wellmnuitmhandler_ = nullptr;
 
     void		dTectMenuChanged() override;
 
@@ -117,16 +118,31 @@ private:
 
 uiTutMgr::uiTutMgr()
     : uiPluginInitMgr()
-    , wellmnuitmhandler_(visSurvey::WellDisplay::sFactoryKeyword(),
-		     *appl().applMgr().visServer(),m3Dots(tr("Tut Well Tools")),
-		     mCB(this,uiTutMgr,doWells),nullptr,cTutIdx)
 {
+    if ( ODMainWin() )
+    {
+	wellmnuitmhandler_ = new uiVisMenuItemHandler(
+			visSurvey::WellDisplay::sFactoryKeyword(),
+			*appl().applMgr().visServer(),
+			m3Dots(tr("Tut Well Tools")),
+			mCB(this,uiTutMgr,doWells), nullptr, cTutIdx );
+    }
+
     init();
+}
+
+
+uiTutMgr::~uiTutMgr()
+{
+    delete wellmnuitmhandler_;
 }
 
 
 void uiTutMgr::dTectMenuChanged()
 {
+    if ( !ODMainWin() )
+	return;
+
     auto* mnu = new uiMenu( &appl(), tr( "Tut Tools" ) );
     if ( SI().has2D() && SI().has3D() )
     {
@@ -179,7 +195,7 @@ void uiTutMgr::doHor( CallBacker* )
 
 void uiTutMgr::doWells( CallBacker* )
 {
-    const VisID displayid = wellmnuitmhandler_.getDisplayID();
+    const VisID displayid = wellmnuitmhandler_->getDisplayID();
     mDynamicCastGet(visSurvey::WellDisplay*,wd,
 			appl().applMgr().visServer()->getObject(displayid))
     if ( !wd )
@@ -227,7 +243,7 @@ static HelpProvider* createInstance()
 mDefODInitPlugin(uiTut)
 {
     mDefineStaticLocalObject( PtrMan<uiTutMgr>, theinst_,
-		= new uiTutMgr() );
+			      = new uiTutMgr() );
 
     if ( !theinst_ )
 	return "Cannot instantiate the Tutorial plugin";

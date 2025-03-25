@@ -15,7 +15,8 @@ set( EXCLUDE_PLUGINS Tut uiTut uiQtApp uiCrashMe uiCOLOP )
 list( REMOVE_ITEM PLUGINS ${EXCLUDE_PLUGINS} )
 
 set( EXECLIST @OD_BASE_EXECUTABLE@ )
-set( EXCLUDE_EXECS od_layouttest od_screentest od_sysadmmain )
+set( EXCLUDE_EXECS od_layouttest od_screentest od_sysadmmain
+		   tut_process_batch tut_simple_prog tut_app )
 list( REMOVE_ITEM EXECLIST ${EXCLUDE_EXECS} )
 
 #TODO update condition when the debug libraries get an actual debug postfix
