@@ -22,6 +22,7 @@ ________________________________________________________________________
 #include "thread.h"
 #include "timer.h"
 #include "od_helpids.h"
+#include "zdomain.h"
 
 
 // uiSliceScroll

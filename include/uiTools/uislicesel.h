@@ -15,13 +15,13 @@ ________________________________________________________________________
 #include "trckeyzsampling.h"
 #include "ranges.h"
 #include "threadlock.h"
-#include "zdomain.h"
 
 class uiGenInput;
 class uiLabeledSpinBox;
 class uiScrollDialog;
 class uiSliceScroll;
 class uiSpinBox;
+namespace ZDomain { class Info; }
 
 mExpClass(uiTools) uiSliceSel : public uiGroup
 { mODTextTranslationClass(uiSliceSel);
