@@ -13,6 +13,8 @@ ________________________________________________________________________
 
 #include <QAbstractTableModel>
 #include <QByteArray>
+#include <QDate>
+#include <QDateTime>
 #include <QSortFilterProxyModel>
 
 class ODAbstractTableModel : public QAbstractTableModel
@@ -235,6 +237,18 @@ TableModel::CellData& TableModel::CellData::operator=( const CellData& cd )
 {
     qvar_ = cd.qvar_;
     return *this;
+}
+
+
+void TableModel::CellData::setDate( const char* datestr )
+{
+    qvar_ = QDate::fromString( datestr );
+}
+
+
+void TableModel::CellData::setISODateTime( const char* datestr )
+{
+    qvar_ = QDateTime::fromString( datestr,  Qt::ISODate );
 }
 
 

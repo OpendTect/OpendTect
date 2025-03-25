@@ -43,6 +43,8 @@ public:
 	float		getFValue() const;
 	double		getDValue() const;
 	int		getIntValue() const;
+	void		setDate(const char*);
+	void		setISODateTime(const char*);
 
 	CellData&	operator=(const CellData&);
 
