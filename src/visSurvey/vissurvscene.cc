@@ -1041,7 +1041,7 @@ void Scene::setZAxisTransform( ZAxisTransform* zat, TaskRunner* )
 	if ( !zrg.isUdf() )
 	    tkzs.zsamp_ = zrg;
 
-	setZDomainInfo( zat->toZDomainInfo() );
+	setZDomainInfo( zat->zDomain(false) );
 	setZScale( zat->toZScale() );
 
 	usedefaultzstretch = SI().getPars().get(
@@ -1261,7 +1261,6 @@ bool Scene::usePar( const IOPar& par )
     removeAll();
     setup();
 
-    ZDomain::Info zdomaininfo( ZDomain::SI() );
     PtrMan<IOPar> transpar = par.subselect( sKeyZAxisTransform() );
     if ( transpar )
     {

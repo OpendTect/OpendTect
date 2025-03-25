@@ -19,7 +19,8 @@ ________________________________________________________________________
 mExpClass(uiFlatView) uiSlicePos2DView : public uiSlicePos
 {
 public:
-			uiSlicePos2DView(uiParent*,const ZDomain::Info&);
+			uiSlicePos2DView(uiParent*,const ZDomain::Info&,
+					 const ZDomain::Info* dispzinf=nullptr);
 			~uiSlicePos2DView();
 
     void		setTrcKeyZSampling(const TrcKeyZSampling&);
@@ -38,7 +39,8 @@ protected:
     void		slicePosChg(CallBacker*) override;
     void		sliceStepChg(CallBacker*) override;
 
-    TrcKeyZSampling	limitscs_;
-    SliceDir		curorientation_;
-    ZDomain::Info	zdomaininfo_;
+    TrcKeyZSampling		limitscs_;
+    SliceDir			curorientation_;
+    const ZDomain::Info&	zdomaininfo_;
+    const ZDomain::Info&	dispzdominfo_;
 };

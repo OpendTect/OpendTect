@@ -22,6 +22,7 @@ ________________________________________________________________________
 #include "thread.h"
 #include "timer.h"
 #include "od_helpids.h"
+#include "zdomain.h"
 
 
 // uiSliceScroll
@@ -792,7 +793,7 @@ bool uiLinePosSelDlg::selectPos2D()
 	inputcs.zsamp_ = geom2d->data().zRange();
     }
 
-    const ZDomain::Info info( ZDomain::SI() );
+    const ZDomain::Info& info = SI().zDomainInfo();
     const uiSliceSel::Type tp = uiSliceSel::TwoD;
     posdlg_ = new uiSliceSelDlg( this, inputcs, tkzs_, CallBack(), tp, info );
     posdlg_->grp()->enableApplyButton( false );
@@ -825,7 +826,7 @@ bool uiLinePosSelDlg::selectPos3D()
 	inputcs.zsamp_.start_ = 0;
     }
 
-    const ZDomain::Info info( ZDomain::SI() );
+    const ZDomain::Info info = SI().zDomainInfo();
     const uiSliceSel::Type tp = isinl ? uiSliceSel::Inl : uiSliceSel::Crl;
     posdlg_ = new uiSliceSelDlg( this, inputcs, tkzs_, dummycb, tp, info );
     posdlg_->grp()->enableApplyButton( false );
@@ -839,8 +840,12 @@ bool uiLinePosSelDlg::selectPos3D()
 
 
 const TrcKeyZSampling& uiLinePosSelDlg::getTrcKeyZSampling() const
-{ return posdlg_ ? posdlg_->getTrcKeyZSampling() : tkzs_; }
+{
+    return posdlg_ ? posdlg_->getTrcKeyZSampling() : tkzs_;
+}
 
 
 const char* uiLinePosSelDlg::getLineName() const
-{ return linesfld_ ? linesfld_->text() : ""; }
+{
+    return linesfld_ ? linesfld_->text() : "";
+}

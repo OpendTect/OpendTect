@@ -31,9 +31,9 @@ public:
 
 private:
 
-    WeakPtr<visSurvey::PlaneDataDisplay> curpdd_;
-    WeakPtr<visSurvey::VolumeDisplay>	curvol_;
-    uiVisPartServer*		vispartserv_;
+    WeakPtr<visSurvey::PlaneDataDisplay>	curpdd_;
+    WeakPtr<visSurvey::VolumeDisplay>		curvol_;
+    uiVisPartServer*				vispartserv_;
 
     uiSlicePos::SliceDir	getOrientation() const override;
     TrcKeyZSampling		getSampling() const;

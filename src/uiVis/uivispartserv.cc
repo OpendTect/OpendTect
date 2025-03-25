@@ -370,7 +370,6 @@ void uiVisPartServer::createToolBars()
     toolbar_ = new uiTreeItemTBHandler( appserv().parent() );
     mAttachCB( toolbar_->createnotifier, uiVisPartServer::addToToolBarCB );
     mAttachCB( toolbar_->handlenotifier, uiVisPartServer::handleMenuCB );
-
     slicepostools_ = new uiSlicePos3DDisp( appserv().parent(), this );
 }
 

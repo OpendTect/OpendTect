@@ -9,15 +9,20 @@ ________________________________________________________________________
 
 #include "uiflatviewslicepos.h"
 
+#include "flatview.h"
 #include "survinfo.h"
+
 #include "uispinbox.h"
 
 
-uiSlicePos2DView::uiSlicePos2DView( uiParent* p, const ZDomain::Info& zinfo )
+uiSlicePos2DView::uiSlicePos2DView( uiParent* p, const ZDomain::Info& zinfo,
+				    const ZDomain::Info* dispzdinfo )
     : uiSlicePos( p )
     , zdomaininfo_(zinfo)
+    , dispzdominfo_(dispzdinfo?*dispzdinfo
+			      :(zinfo.isDepth()?ZDomain::DefaultDepth():zinfo))
 {
-    zfactor_ = zinfo.userFactor();
+    zfactor_ = FlatView::Viewer::userFactor( zdomaininfo_, &dispzdominfo_ );
 }
 
 
