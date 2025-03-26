@@ -55,8 +55,8 @@ public:
 
     void		setEmpty()
 			{ fnames_.setEmpty(); mSetUdf(nrs_.start_); }
-    void		setFileName( const char* nm )
-			{ setEmpty(); if ( nm && *nm ) fnames_.add(nm);}
+    void		setBaseDir(const char* dirnm);
+    void		setFileName(const char* fnm);
     void		ensureBaseDir(const char* dirnm);
     void		makeAbsoluteIfRelative(const char* dirnm);
 

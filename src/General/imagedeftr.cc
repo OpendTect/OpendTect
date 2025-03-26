@@ -22,9 +22,39 @@ ImageDef::~ImageDef()
 {}
 
 
+bool ImageDef::isOK() const
+{
+    const BufferString fnm( fs_.absFileName() );
+    return File::exists( fnm.buf() );
+}
+
+
+ImageDef& ImageDef::setBaseDir( const char* basedir )
+{
+    fs_.setBaseDir( basedir );
+    return *this;
+}
+
+
+ImageDef& ImageDef::setFileName( const char* fnm, bool makerelative )
+{
+    fs_.setFileName( fnm );
+    if ( makerelative )
+	fs_.makePathsRelative();
+
+    return *this;
+}
+
+
+const char* ImageDef::getFileName( bool absolute ) const
+{
+    return absolute ? fs_.absFileName() : fs_.fileName();
+}
+
+
 bool ImageDef::fillPar( IOPar& par ) const
 {
-    par.set( sKey::FileName(), filename_ );
+    fs_.fillPar( par );
     par.set( IOPar::compKey(sKey::Position(),0), tlcoord_ );
     par.set( IOPar::compKey(sKey::Position(),1), brcoord_ );
     if ( trcoord_.isDefined() )
@@ -43,12 +73,11 @@ bool ImageDef::usePar( const IOPar& par )
     mSetUdf( trcoord_ );
     mSetUdf( blcoord_ );
 
-    par.get( sKey::FileName(), filename_ );
     par.get( IOPar::compKey(sKey::Position(),0), tlcoord_ );
     par.get( IOPar::compKey(sKey::Position(),1), brcoord_ );
     par.get( IOPar::compKey(sKey::Position(),2), trcoord_ );
     par.get( IOPar::compKey(sKey::Position(),3), blcoord_ );
-    return true;
+    return fs_.usePar( par );
 }
 
 
@@ -69,6 +98,7 @@ uiString ImageDefTranslatorGroup::sTypeName( int num )
     return uiStrings::sImage(num);
 }
 
+
 bool ODImageDefTranslator::read( ImageDef& def, const IOObj& ioobj )
 {
     const BufferString specsfnm = ioobj.fullUserExpr();
@@ -80,9 +110,9 @@ bool ODImageDefTranslator::read( ImageDef& def, const IOObj& ioobj )
     }
 
     def.usePar( specs );
-    if ( !File::exists(def.filename_) )
+    if ( !def.isOK() )
     {
-	errmsg_ = tr("Image file '%1' does not exist.").arg(def.filename_);
+	errmsg_ = tr("Image file '%1' does not exist.").arg(def.getFileName() );
 	return false;
     }
 
