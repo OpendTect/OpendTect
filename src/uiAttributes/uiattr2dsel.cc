@@ -14,6 +14,7 @@ ________________________________________________________________________
 #include "attribsel.h"
 #include "nlamodel.h"
 #include "seisioobjinfo.h"
+#include "survinfo.h"
 #include "zdomain.h"
 
 #include "uibutton.h"
@@ -167,15 +168,13 @@ static void getDataNames( const TypeSet<Pos::GeomID> ids,
 
 void uiAttr2DSelDlg::createSelectionButtons()
 {
-    ZDomain::Info info( ZDomain::SI() );
-    createSelectionButtons( info );
+    createSelectionButtons( SI().zDomainInfo() );
 }
 
 
 void uiAttr2DSelDlg::createSelectionFields()
 {
-    ZDomain::Info info( ZDomain::SI() );
-    createSelectionFields( info );
+    createSelectionFields( SI().zDomainInfo() );
 }
 
 

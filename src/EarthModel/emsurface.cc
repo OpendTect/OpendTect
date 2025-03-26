@@ -402,8 +402,7 @@ IOObjContext Horizon::ioContext( bool is2d, const ZDomain::Info* zinfo,
 
 IOObjContext Horizon::ioContext( bool is2d,  bool forread )
 {
-    ZDomain::Info zinfo( ZDomain::SI() );
-    return ioContext( is2d, &zinfo, forread );
+    return ioContext( is2d, &SI().zDomainInfo(), forread);
 }
 
 } // namespace EM

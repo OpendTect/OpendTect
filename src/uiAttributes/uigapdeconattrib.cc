@@ -731,7 +731,7 @@ void uiGDPositionDlg::popUpPosDlg()
 	inputcs.zsamp_.start_ = 0;
     }
 
-    ZDomain::Info info( ZDomain::SI() );
+    const ZDomain::Info& info = SI().zDomainInfo();
     uiSliceSel::Type tp = is2d ? uiSliceSel::TwoD
 			       : (isinl ? uiSliceSel::Inl : uiSliceSel::Crl);
     posdlg_ = new uiSliceSelDlg( this, inputcs, tkzs_, dummycb, tp, info );
