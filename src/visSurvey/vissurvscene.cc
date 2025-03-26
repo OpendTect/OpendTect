@@ -196,7 +196,6 @@ Scene::~Scene()
     }
 
     mRemoveSelector;
-    delete zdomaininfo_;
     delete &infopar_;
 
     hp_inittkzs.removeAndDeleteParam( this );
