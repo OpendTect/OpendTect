@@ -190,7 +190,7 @@ void uiFreqTaperDlg::previewPushed( CallBacker* )
     else
 	objinfo.getRanges( *tkzs_ );
 
-    ZDomain::Info info( ZDomain::SI() );
+    const ZDomain::Info& info = SI().zDomainInfo();
     uiSliceSel::Type tp = is2d ? uiSliceSel::TwoD
 			       : (lineposdlg.isInl() ? uiSliceSel::Inl
 						     : uiSliceSel::Crl);

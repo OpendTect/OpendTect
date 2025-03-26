@@ -826,7 +826,7 @@ bool uiLinePosSelDlg::selectPos3D()
 	inputcs.zsamp_.start_ = 0;
     }
 
-    const ZDomain::Info info = SI().zDomainInfo();
+    const ZDomain::Info& info = SI().zDomainInfo();
     const uiSliceSel::Type tp = isinl ? uiSliceSel::Inl : uiSliceSel::Crl;
     posdlg_ = new uiSliceSelDlg( this, inputcs, tkzs_, dummycb, tp, info );
     posdlg_->grp()->enableApplyButton( false );

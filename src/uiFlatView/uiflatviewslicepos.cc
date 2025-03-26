@@ -18,11 +18,14 @@ ________________________________________________________________________
 uiSlicePos2DView::uiSlicePos2DView( uiParent* p, const ZDomain::Info& zinfo,
 				    const ZDomain::Info* dispzdinfo )
     : uiSlicePos( p )
-    , zdomaininfo_(zinfo)
-    , dispzdominfo_(dispzdinfo?*dispzdinfo
-			      :(zinfo.isDepth()?ZDomain::DefaultDepth():zinfo))
 {
-    zfactor_ = FlatView::Viewer::userFactor( zdomaininfo_, &dispzdominfo_ );
+    dispzdominfo_ = zdominfo_ = &zinfo;
+    if ( dispzdinfo )
+	dispzdominfo_ = dispzdinfo;
+    else if ( zinfo.isDepth() )
+	dispzdominfo_ = &ZDomain::DefaultDepth();
+
+    zfactor_ = FlatView::Viewer::userFactor( *zdominfo_, dispzdominfo_ );
 }
 
 

@@ -19,6 +19,8 @@ class uiSpinBox;
 class uiToolBar;
 class uiToolButton;
 
+namespace ZDomain { class Info; }
+
 /*! \brief Toolbar for setting slice position _ base class */
 
 mExpClass(uiTools) uiSlicePos : public CallBacker
@@ -56,6 +58,9 @@ protected:
     float		zfactor_	= mUdf(float);
     TrcKeyZSampling	curcs_;
     uiStringSet		boxlabels_;
+
+    const ZDomain::Info*    zdominfo_			= nullptr;
+    const ZDomain::Info*    dispzdominfo_		= nullptr;
 
     virtual SliceDir	getOrientation() const		=0;
     void		setBoxLabel(SliceDir);

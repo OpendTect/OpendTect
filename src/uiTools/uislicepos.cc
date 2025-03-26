@@ -18,6 +18,7 @@ ________________________________________________________________________
 
 #include "trckeyzsampling.h"
 #include "ioman.h"
+#include "flatview.h"
 #include "survinfo.h"
 
 
@@ -103,7 +104,8 @@ void uiSlicePos::setSteps( int inl, int crl, float z )
 {
     laststeps_[0] = inl>0 ? inl : SI().inlStep();
     laststeps_[1] = crl>0 ? crl : SI().crlStep();
-    laststeps_[2] = z>0 ? z : SI().zStep()*zfactor_;
+    const float zfac = mIsUdf(zfactor_) ? 1.f : zfactor_;
+    laststeps_[2] = z>0 ? z : SI().zStep()*zfac;
 }
 
 
@@ -115,7 +117,8 @@ float uiSlicePos::getZStep() const
 
 void uiSlicePos::setZStep( float step )
 {
-    laststeps_[2] = step>0 ? step : SI().zStep()*zfactor_;
+    const float zfac = mIsUdf(zfactor_) ? 1.f : zfactor_;
+    laststeps_[2] = step>0 ? step : SI().zStep()*zfac;
 }
 
 
@@ -161,8 +164,11 @@ void uiSlicePos::slicePosChanged( uiSlicePos::SliceDir orientation,
 		curcs_.hsamp_.stop_.crl() = posbox->getIntValue();
     }
     else
+    {
+	const float zfac = mIsUdf(zfactor_) ? 1.f : zfactor_;
         curcs_.zsamp_.start_ = curcs_.zsamp_.stop_
-			    = posbox->getFValue()/zfactor_;
+			     = posbox->getFValue()/zfac;
+    }
 
     if ( oldcs == curcs_ )
 	return;
@@ -210,14 +216,14 @@ void uiSlicePos::setBoxRg( uiSlicePos::SliceDir orientation,
     }
     else
     {
-	const int zfac = zfactor_; //TODO should be float zfac = zfactor_;
-	const int nrdec =
-			Math::NrSignificantDecimals( curcs.zsamp_.step_*zfac );
+	const float zfac = mIsUdf(zfactor_) ? 1.f : zfactor_;
+	const int nrdec = dispzdominfo_
+			    ? FlatView::Viewer::nrDec( *dispzdominfo_ ) : 0;
 	posbox->setInterval( curcs.zsamp_.start_*zfac,
-			     curcs.zsamp_.stop_*zfac );
-        stepbox->setInterval( survcs.zsamp_.step_*zfac,
-                              (curcs.zsamp_.stop_-curcs.zsamp_.start_)*zfac,
-                              curcs.zsamp_.step_*zfac );
+			      curcs.zsamp_.stop_*zfac );
+	stepbox->setInterval( survcs.zsamp_.step_*zfac,
+			      (curcs.zsamp_.stop_-curcs.zsamp_.start_)*zfac,
+			      curcs.zsamp_.step_*zfac );
 	posbox->setNrDecimals( nrdec );
 	stepbox->setNrDecimals( nrdec );
     }
@@ -235,7 +241,10 @@ void uiSlicePos::setPosBoxVal( uiSlicePos::SliceDir orientation,
     else if ( orientation == OD::SliceType::Crossline )
 	posbox->setValue( tkzs.hsamp_.start_.crl() );
     else
-	posbox->setValue( tkzs.zsamp_.start_*zfactor_ );
+    {
+	const float zfac = mIsUdf(zfactor_) ? 1.f : zfactor_;
+	posbox->setValue( tkzs.zsamp_.start_*zfac );
+    }
 }
 
 

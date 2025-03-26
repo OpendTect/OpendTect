@@ -10,7 +10,6 @@ ________________________________________________________________________
 
 #include "uiflatviewmod.h"
 #include "uislicepos.h"
-#include "zdomain.h"
 
 /*!
 \brief Toolbar for setting slice position _ 2D viewer.
@@ -41,6 +40,4 @@ protected:
 
     TrcKeyZSampling		limitscs_;
     SliceDir			curorientation_;
-    const ZDomain::Info&	zdomaininfo_;
-    const ZDomain::Info&	dispzdominfo_;
 };
