@@ -11,6 +11,7 @@ ________________________________________________________________________
 #include "visbasemod.h"
 
 #include "coord.h"
+#include "imagedeftr.h"
 #include "multiid.h"
 #include "visobject.h"
 #include "vistransform.h"
@@ -41,7 +42,6 @@ public:
 
     void			setImageFilename(const char*);
     const char*			getImageFilename() const;
-    void			setRGBImageFromFile(const char*);
 
     void			setTransparency(float); // 0-1
     float			getTransparency() const; // returns value 0-1
@@ -55,16 +55,17 @@ public:
     void			fillPar(IOPar&) const override;
     bool			usePar(const IOPar&) override;
 
-protected:
+private:
 				~TopBotImage();
 
+    void			setRGBImageFromFile(const char*);
     void			updateCoords();
     void			setRGBImage(const OD::RGBImage&);
 
     ConstRefMan<mVisTrans>	trans_;
     Coord3			pos0_;
     Coord3			pos1_;
-    BufferString		filenm_;
+    ImageDef			imagedef_;
     MultiID			odimageid_;
 
     int				layerid_;

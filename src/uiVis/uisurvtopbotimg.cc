@@ -24,19 +24,19 @@ class uiSurvTopBotImageGrp : public uiGroup
 public:
 
 uiSurvTopBotImageGrp( uiSurvTopBotImageDlg* p, bool istop,
-		      const ZSampling& zrng )
+		      visBase::TopBotImage* img, const ZSampling& zrng )
     : uiGroup(p, istop ? "Top img grp" : "Bot img grp")
     , istop_(istop)
     , dlg_(p)
-    , img_(p->getImage(istop))
+    , img_(img)
     , zrng_(zrng)
 {
     uiImageSel::Setup su( istop_ ? tr("Top image") : tr("Bottom image" ) );
     su.filldef(false).optional( true );
     imagefld_ = new uiImageSel( this, true, su );
     imagefld_->setChecked( img_ ? img_->isOn() : false );
-    mAttachCB( imagefld_->selectionDone, uiSurvTopBotImageGrp::newImage );
-    mAttachCB( imagefld_->optionalChecked, uiSurvTopBotImageGrp::onOff );
+    mAttachCB( imagefld_->selectionDone, uiSurvTopBotImageGrp::newImageCB );
+    mAttachCB( imagefld_->optionalChecked, uiSurvTopBotImageGrp::onOffCB );
 
     uiSlider::Setup slsu( tr("Vertical position (Z)") );
     slsu.sldrsize(150).withedit( true );
@@ -81,12 +81,21 @@ void fillCurrent()
     zposfld_->setValue( mCast(float,img_->topLeft().z_) );
 }
 
-void newImage( CallBacker* )
+void newImageCB( CallBacker* )
 {
+    RefMan<visSurvey::Scene> scene = dlg_->scene_.get();
+    if ( !scene )
+	return;
+
+    RefMan<visBase::TopBotImage> curimage = scene->getTopBotImage( istop_ );
+    if ( !curimage )
+	scene->createTopBotImage( istop_ );
+
+    img_ = scene->getTopBotImage( istop_ );
     dlg_->newImage( istop_, imagefld_->key() );
 }
 
-void onOff( CallBacker* )
+void onOffCB( CallBacker* )
 {
     const bool ison = imagefld_->isChecked();
     if ( !img_ && ison )
@@ -94,7 +103,11 @@ void onOff( CallBacker* )
 	RefMan<visSurvey::Scene> scene	= dlg_->scene_.get();
 	if ( scene )
 	{
-	    scene->createTopBotImage( istop_ );
+	    RefMan<visBase::TopBotImage> curimage =
+					 scene->getTopBotImage( istop_ );
+	    if ( !curimage )
+		scene->createTopBotImage( istop_ );
+
 	    img_ = scene->getTopBotImage( istop_ );
 
 	    const Coord mincrd = SI().minCoord(true);
@@ -153,14 +166,17 @@ uiSurvTopBotImageDlg::uiSurvTopBotImageDlg( uiParent* p,
 	lbl->attach( leftBorder );
     }
 
-    topfld_ = new uiSurvTopBotImageGrp( this, true,
+    RefMan<visBase::TopBotImage> topimg = getImage( true );
+    topfld_ = new uiSurvTopBotImageGrp( this, true, topimg.ptr(),
 					scene.getTrcKeyZSampling().zsamp_ );
     if ( lbl )
 	topfld_->attach( ensureBelow, lbl );
 
     auto* sep = new uiSeparator( this, "Hor sep" );
     sep->attach( stretchedBelow, topfld_ );
-    botfld_ = new uiSurvTopBotImageGrp( this, false,
+
+    RefMan<visBase::TopBotImage> botimg = getImage( false );
+    botfld_ = new uiSurvTopBotImageGrp( this, false, botimg.ptr(),
 					scene.getTrcKeyZSampling().zsamp_ );
     botfld_->attach( alignedBelow, topfld_ );
     botfld_->attach( ensureBelow, sep );
@@ -175,7 +191,7 @@ uiSurvTopBotImageDlg::~uiSurvTopBotImageDlg()
 RefMan<visBase::TopBotImage> uiSurvTopBotImageDlg::getImage( bool istop )
 {
     RefMan<visSurvey::Scene> scene = scene_.get();
-    return scene->getTopBotImage( istop );
+    return scene ? scene->getTopBotImage( istop ) : nullptr;
 }
 
 

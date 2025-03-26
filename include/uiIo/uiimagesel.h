@@ -23,22 +23,21 @@ public:
     mExpClass(uiIo) Setup : public uiIOObjSel::Setup
     {
     public:
-			Setup(const uiString& seltxt=uiString::empty())
-			    : uiIOObjSel::Setup(seltxt)
-			    , withimport_(true)
-			    , withedit_(true)
-			{}
-			~Setup()
-			{}
-			mDefSetupMemb(bool,withimport)
-			mDefSetupMemb(bool,withedit)
+			Setup(const uiString& seltxt=uiString::empty());
+			~Setup();
+
+			mDefSetupMemb(bool,withimport)	//!<true
+			mDefSetupMemb(bool,withedit)	//!<true
     };
 			uiImageSel(uiParent*,bool forread,const Setup& ={});
 			~uiImageSel();
 
 private:
-    void		importCB(CallBacker*);
-    void		editCB(CallBacker*);
+
+    void		doImportCB(CallBacker*);
+    void		doEditCB(CallBacker*);
+    void		importDoneCB(CallBacker*);
+    void		editDoneCB(CallBacker*);
 };
 
 
@@ -48,9 +47,10 @@ public:
 			uiImportImageDlg(uiParent*);
 			~uiImportImageDlg();
 
-    MultiID		getKey() const;
+    CNotifier<uiImportImageDlg,const MultiID&> importDone;
 
 private:
+
     void		finalizeCB(CallBacker*);
     void		fileSelectedCB(CallBacker*);
     bool		acceptOK(CallBacker*) override;
@@ -87,7 +87,10 @@ public:
 			uiEditImageDlg(uiParent*,const IOObj&);
 			~uiEditImageDlg();
 
+    Notifier<uiEditImageDlg> editDone;
+
 private:
+
     void		finalizeCB(CallBacker*);
     bool		acceptOK(CallBacker*) override;
 

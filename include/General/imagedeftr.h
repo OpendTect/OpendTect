@@ -11,9 +11,9 @@ ________________________________________________________________________
 #include "generalmod.h"
 
 #include "coord.h"
+#include "filespec.h"
 #include "transl.h"
 
-class ImageDef;
 
 mExpClass(General) ImageDef
 {
@@ -21,14 +21,23 @@ public:
 			ImageDef();
 			~ImageDef();
 
+    bool		isOK() const;
+
+    ImageDef&		setBaseDir(const char* basedir);
+    ImageDef&		setFileName(const char*,bool makerelative=true);
+    const char*		getFileName(bool absolute=true) const;
+
     bool		fillPar(IOPar&) const;
     bool		usePar(const IOPar&);
 
-    BufferString	filename_;
     Coord3		tlcoord_		= Coord3::udf(); // NW
     Coord3		brcoord_		= Coord3::udf(); // SE
     Coord3		trcoord_		= Coord3::udf();
     Coord3		blcoord_		= Coord3::udf();
+
+private:
+
+    FileSpec		fs_;
 };
 
 

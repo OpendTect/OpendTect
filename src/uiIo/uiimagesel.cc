@@ -23,6 +23,8 @@ ________________________________________________________________________
 #include "uimsg.h"
 
 
+//uiImageSel
+
 uiImageSel::uiImageSel( uiParent* p, bool forread, const Setup& su )
     : uiIOObjSel(p,mRWIOObjContext(ImageDef,forread),su)
 {
@@ -38,21 +40,21 @@ uiImageSel::uiImageSel( uiParent* p, bool forread, const Setup& su )
     {
 	importeditbut = new uiPushButton( this, tr("Import/Edit"), false );
 	auto* mnu = new uiMenu;
-	mnu->insertAction( new uiAction(uiStrings::sCreate(),
-		    mCB(this,uiImageSel,importCB),"import") );
+	mnu->insertAction( new uiAction(uiStrings::sImport(),
+		    mCB(this,uiImageSel,doImportCB),"import") );
 	mnu->insertAction( new uiAction(uiStrings::sEdit(),
-		    mCB(this,uiImageSel,editCB),"edit") );
+		    mCB(this,uiImageSel,doEditCB),"edit") );
 	importeditbut->setMenu( mnu );
     }
     else if ( su.withimport_ )
     {
 	importeditbut = new uiPushButton( this, uiStrings::sImport(), false );
-	mAttachCB( importeditbut->activated, uiImageSel::importCB );
+	mAttachCB( importeditbut->activated, uiImageSel::doImportCB );
     }
     else if ( su.withedit_ )
     {
 	importeditbut = new uiPushButton( this, uiStrings::sEdit(), false );
-	mAttachCB( importeditbut->activated, uiImageSel::editCB );
+	mAttachCB( importeditbut->activated, uiImageSel::doEditCB );
     }
 
     if ( importeditbut )
@@ -66,18 +68,31 @@ uiImageSel::~uiImageSel()
 }
 
 
-void uiImageSel::importCB( CallBacker* )
+void uiImageSel::doImportCB( CallBacker* )
 {
     uiImportImageDlg dlg( this );
-    if ( !dlg.go() )
-	return;
-
-    setInput( dlg.getKey() );
-    selectionDone.trigger();
+    mAttachCB( dlg.importDone, uiImageSel::importDoneCB );
+    dlg.go();
 }
 
 
-void uiImageSel::editCB( CallBacker* )
+void uiImageSel::importDoneCB( CallBacker* cb )
+{
+    if ( !cb || !cb->isCapsule() )
+	return;
+
+    mCBCapsuleUnpack(const MultiID&,dbky,cb);
+    setInput( dbky );
+    selectionDone.trigger();
+    if ( optbox_ )
+    {
+	setChecked( !dbky.isUdf() );
+	optionalChecked.trigger();
+    }
+}
+
+
+void uiImageSel::doEditCB( CallBacker* )
 {
     const IOObj* curioobj = ioobj( true );
     if ( !curioobj )
@@ -87,18 +102,36 @@ void uiImageSel::editCB( CallBacker* )
     }
 
     uiEditImageDlg dlg( this, *curioobj );
-    if ( !dlg.go() )
-	return;
+    mAttachCB( dlg.editDone, uiImageSel::editDoneCB );
+    dlg.go();
+}
 
+
+void uiImageSel::editDoneCB( CallBacker* )
+{
     selectionDone.trigger();
 }
 
+
+// uiImageSel::Setup
+
+uiImageSel::Setup::Setup( const uiString& seltxt )
+    : uiIOObjSel::Setup(seltxt)
+    , withimport_(true)
+    , withedit_(true)
+{}
+
+
+uiImageSel::Setup::~Setup()
+{
+}
 
 
 // uiImportImageDlg
 
 uiImportImageDlg::uiImportImageDlg( uiParent* p )
     : uiDialog(p,Setup(tr("Import Image"),mNoDlgTitle,mTODOHelpKey))
+    , importDone(this)
 {
     setOkCancelText( uiStrings::sImport(), uiStrings::sClose() );
 
@@ -166,7 +199,7 @@ bool uiImportImageDlg::acceptOK( CallBacker* )
 	return false;
 
     ImageDef def;
-    def.filename_ = fnm;
+    def.setBaseDir( IOM().rootDir().fullPath() ).setFileName( fnm );
     def.tlcoord_.coord() = tlcrdfld_->getCoord();
     def.brcoord_.coord() = brcrdfld_->getCoord();
     if ( !imgtr->write(def,*ioobj) )
@@ -174,6 +207,9 @@ bool uiImportImageDlg::acceptOK( CallBacker* )
 
     ioobj->updateCreationPars();
     IOM().commitChanges( *ioobj );
+
+    const MultiID dbky = ioobj->key();;
+    importDone.trigger( dbky );
 
     uiString msg = tr("Image successfully imported."
 		      "\nDo you want to import more Images?");
@@ -188,13 +224,8 @@ void uiImportImageDlg::fileSelectedCB( CallBacker* )
 }
 
 
-MultiID uiImportImageDlg::getKey() const
-{
-    return outputfld_->key();
-}
-
-
 // uiImageCoordGrp
+
 uiImageCoordGrp::uiImageCoordGrp( uiParent* p )
     : uiGroup(p,"Image Coordinate Group")
 {
@@ -218,6 +249,7 @@ uiImageCoordGrp::~uiImageCoordGrp()
 void uiImageCoordGrp::fillCoords( const IOObj& ioobj )
 {
     ImageDef def;
+    def.setBaseDir( IOM().rootDir().fullPath() );
     ODImageDefTranslator::readDef( def, ioobj );
 
     tlcrdfld_->setValue( def.tlcoord_.coord() );
@@ -234,6 +266,7 @@ void uiImageCoordGrp::fillCoords( const IOObj& ioobj )
 bool uiImageCoordGrp::saveCoords( const IOObj& ioobj )
 {
     ImageDef def;
+    def.setBaseDir( IOM().rootDir().fullPath() );
     ODImageDefTranslator::readDef( def, ioobj );
 
     def.tlcoord_.coord() = tlcrdfld_->getCoord();
@@ -261,6 +294,7 @@ bool uiImageCoordGrp::usePar( const IOPar& par )
 uiEditImageDlg::uiEditImageDlg( uiParent* p, const IOObj& ioobj )
     : uiDialog(p,Setup(tr("Edit Image"),mNoDlgTitle,mTODOHelpKey))
     , ioobj_(ioobj)
+    , editDone(this)
 {
     setOkCancelText( uiStrings::sEdit(), uiStrings::sClose() );
 
@@ -284,5 +318,9 @@ void uiEditImageDlg::finalizeCB( CallBacker* )
 
 bool uiEditImageDlg::acceptOK( CallBacker* )
 {
-    return imagegrp_->saveCoords( ioobj_ );
+    const bool res = imagegrp_->saveCoords( ioobj_ );
+    if ( res )
+	editDone.trigger();
+
+    return res;
 }

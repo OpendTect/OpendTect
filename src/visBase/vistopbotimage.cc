@@ -65,11 +65,11 @@ void TopBotImage::setImageID( const MultiID& id )
     if ( !ioobj )
 	return;
 
-    ImageDef def;
-    ODImageDefTranslator::readDef( def, *ioobj );
-    setRGBImageFromFile( def.filename_ );
-    const Coord3 tlcrd( def.tlcoord_.coord(), topLeft().z_ );
-    const Coord3 brcrd( def.brcoord_.coord(), bottomRight().z_ );
+    imagedef_.setBaseDir( IOM().rootDir().fullPath() );
+    ODImageDefTranslator::readDef( imagedef_, *ioobj );
+    setRGBImageFromFile( getImageFilename() );
+    const Coord3 tlcrd( imagedef_.tlcoord_.coord(), topLeft().z_ );
+    const Coord3 brcrd( imagedef_.brcoord_.coord(), bottomRight().z_ );
     setPos( tlcrd, brcrd );
 }
 
@@ -119,7 +119,7 @@ float TopBotImage::getTransparency() const
 
 void TopBotImage::setImageFilename( const char* fnm )
 {
-    filenm_ = fnm;
+    imagedef_.setFileName( fnm );
     osg::ref_ptr<osg::Image> image = osgDB::readImageFile( fnm );
     laytex_->setDataLayerImage( layerid_, image );
     texplane_->setTextureBrickSize( laytex_->maxTextureSize() );
@@ -127,15 +127,16 @@ void TopBotImage::setImageFilename( const char* fnm )
 
 
 const char* TopBotImage::getImageFilename() const
-{ return filenm_.buf(); }
+{
+    return imagedef_.getFileName();
+}
 
 
 void TopBotImage::setRGBImageFromFile( const char* fnm )
 {
-    filenm_ = fnm;
     uiString errmsg;
     PtrMan<OD::RGBImage> rgbimg =
-			    OD::RGBImageLoader::loadRGBImage(filenm_,errmsg);
+			 OD::RGBImageLoader::loadRGBImage( fnm, errmsg );
     if ( !rgbimg )
     {
 	pErrMsg( errmsg.getFullString() );
@@ -246,13 +247,14 @@ void TopBotImage::fillPar( IOPar& iopar ) const
 {
     VisualObjectImpl::fillPar( iopar );
 
+    if ( odimageid_.isUdf() ) // Legacy
+	imagedef_.fillPar( iopar );
+    else
+	iopar.set( sKey::ID(), odimageid_ );
+
     iopar.set( sKeyTopLeftCoord(), pos0_ );
     iopar.set( sKeyBottomRightCoord(), pos1_ );
     iopar.set( sKey::Transparency(), getTransparency() );
-
-    FileSpec fs( filenm_.buf() );
-    fs.makePathsRelative();
-    iopar.set( sKey::FileName(), fs.fileName() );
 }
 
 
@@ -260,25 +262,25 @@ bool TopBotImage::usePar( const IOPar& iopar )
 {
     VisualObjectImpl::usePar( iopar );
 
-    Coord3 ltpos;
-    Coord3 brpos;
-    float transparency = 0;
-    iopar.get( sKeyTopLeftCoord(), ltpos );
-    iopar.get( sKeyBottomRightCoord(), brpos );
-    iopar.get( sKey::Transparency(), transparency );
-
-    filenm_.setEmpty();
-    BufferString relfnm;
-    iopar.get( sKey::FileName(), relfnm  );
-    if ( !relfnm.isEmpty() )
+    MultiID odimageid;
+    if ( iopar.get(sKey::ID(),odimageid) && !odimageid.isUdf() )
+	setImageID( odimageid );
+    else
     {
-	const FileSpec fs( relfnm );
-	filenm_ = fs.absFileName();
+	imagedef_.usePar( iopar );
+	setRGBImageFromFile( imagedef_.getFileName() );
     }
 
+    Coord3 ltpos;
+    Coord3 brpos;
+    iopar.get( sKeyTopLeftCoord(), ltpos );
+    iopar.get( sKeyBottomRightCoord(), brpos );
     setPos( ltpos, brpos );
-    setRGBImageFromFile( filenm_ );
-    setTransparency( transparency );
+
+    float transparency = 0.f;
+    if ( iopar.get(sKey::Transparency(),transparency) )
+	setTransparency( transparency );
+
     return true;
 }
 

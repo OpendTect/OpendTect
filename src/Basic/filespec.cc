@@ -168,6 +168,20 @@ const char* FileSpec::dispName() const
 }
 
 
+void FileSpec::setBaseDir( const char* dirnm )
+{
+    datadir_.set( dirnm );
+}
+
+
+void FileSpec::setFileName( const char* nm )
+{
+    setEmpty();
+    if ( nm && *nm )
+	fnames_.add( nm );
+}
+
+
 void FileSpec::ensureBaseDir( const char* dirnm )
 {
     if ( !dirnm || !*dirnm )
@@ -278,9 +292,7 @@ bool FileSpec::usePar( const IOPar& iop )
     fnames_.add( fnm );
     havemultifnames = iop.hasKey( IOPar::compKey(sKey::FileName(),1) );
 
-    if ( !havemultifnames )
-	getMultiFromString( iop.find(sKeyFileNrs()) );
-    else
+    if ( havemultifnames )
     {
 	for ( int ifile=1; ; ifile++ )
 	{
@@ -292,10 +304,14 @@ bool FileSpec::usePar( const IOPar& iop )
 	    fnames_.add( res );
 	}
     }
+    else
+	getMultiFromString( iop.find(sKeyFileNrs()) );
 
     const BufferString key( sKey::User(), " ", sKey::FileName() );
     usrstr_.setEmpty();
     iop.get( key, usrstr_ );
+    if ( File::isDirectory(datadir_.buf()) )
+	makePathsRelative( datadir_.buf() );
 
     return true;
 }
@@ -358,6 +374,7 @@ void FileSpec::makePathsRelative( const char* dir )
     }
 
     const FilePath relfp( dir );
+    bool hasrelativepaths = false;
     for ( int ifile=0; ifile<nrfnms; ifile++ )
     {
 	const BufferString fnm( fileName(ifile) );
@@ -374,10 +391,16 @@ void FileSpec::makePathsRelative( const char* dir )
 		FilePath newrelfp( relpath, fp.fileName() );
 		relpath = newrelfp.fullPath();
 		if ( relpath != fnm )
+		{
 		    fnames_.get(ifile).set( relpath );
+		    hasrelativepaths = true;
+		}
 	    }
 	}
     }
+
+    if ( datadir_.isEmpty() && hasrelativepaths )
+	datadir_.set( dir );
 }
 
 
