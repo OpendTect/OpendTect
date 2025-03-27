@@ -10,6 +10,7 @@ ________________________________________________________________________
 #include "trckeyzsampling.h"
 
 #include "iopar.h"
+#include "jsonkeystrs.h"
 #include "keystrs.h"
 #include "odjson.h"
 #include "survinfo.h"
@@ -271,18 +272,13 @@ bool TrcKeyZSampling::getIntersection( const TrcKeyZSampling& tkzs,
     normalizeZ( zsamp1 );
     StepInterval<float> zsamp2( zsamp_ );
     normalizeZ( zsamp2 );
-    const bool zintersect = ignoresteps ? intersectFIgnoreSteps( zsamp1.start_,
-								 zsamp1.stop_,
-								 zsamp2.start_,
-								 zsamp2.stop_,
-							     out.zsamp_.start_,
-							     out.zsamp_.stop_ )
-					: intersectF( zsamp1.start_, zsamp1.stop_,
-						      zsamp1.step_, zsamp2.start_,
-						      zsamp2.stop_, zsamp2.step_,
-						      out.zsamp_.start_,
-						      out.zsamp_.stop_,
-						      out.zsamp_.step_ );
+    const bool zintersect = ignoresteps ?
+	intersectFIgnoreSteps( zsamp1.start_, zsamp1.stop_,
+			       zsamp2.start_, zsamp2.stop_,
+			       out.zsamp_.start_, out.zsamp_.stop_ )
+	: intersectF( zsamp1.start_, zsamp1.stop_, zsamp1.step_,
+		      zsamp2.start_, zsamp2.stop_, zsamp2.step_,
+		      out.zsamp_.start_, out.zsamp_.stop_, out.zsamp_.step_ );
     return (nrZ()==1 && tkzs.nrZ()==1 && zsamp1==zsamp2) || zintersect;
 }
 
@@ -480,8 +476,10 @@ void TrcKeyZSampling::shrinkTo( const TrcKeyZSampling& innertkzs, float releps )
 	return;
 
     mSnapStop( zsamp_.start_, zsamp_.stop_, zsamp_.step_, eps );
-    mApproach(tkzs.zsamp_.start_-zsamp_.start_+eps, zsamp_.start_,+=, zsamp_.step_);
-    mApproach(zsamp_.stop_ - tkzs.zsamp_.stop_+eps, zsamp_.stop_, -=, zsamp_.step_);
+    mApproach( tkzs.zsamp_.start_ - zsamp_.start_ + eps,
+	       zsamp_.start_, += , zsamp_.step_ );
+    mApproach( zsamp_.stop_ - tkzs.zsamp_.stop_ + eps,
+	       zsamp_.stop_, -=, zsamp_.step_ );
 }
 
 
@@ -501,8 +499,10 @@ void TrcKeyZSampling::growTo( const TrcKeyZSampling& outertkzs, float releps )
 	return;
 
     mSnapStop( zsamp_.start_, zsamp_.stop_, zsamp_.step_, eps );
-    mApproach(zsamp_.start_-tkzs.zsamp_.start_+eps, zsamp_.start_,-=, zsamp_.step_);
-    mApproach(tkzs.zsamp_.stop_ - zsamp_.stop_+eps, zsamp_.stop_, +=, zsamp_.step_);
+    mApproach( zsamp_.start_ - tkzs.zsamp_.start_ + eps,
+	       zsamp_.start_, -=, zsamp_.step_ );
+    mApproach( tkzs.zsamp_.stop_ - zsamp_.stop_ + eps,
+	       zsamp_.stop_, +=, zsamp_.step_ );
 }
 
 
@@ -606,16 +606,14 @@ void TrcKeyZSampling::removeInfo( IOPar& par )
 void TrcKeyZSampling::fillJSON( OD::JSON::Object& obj ) const
 {
     hsamp_.fillJSON( obj );
-    const BufferString zrgintrvl( sKey::ZRange(), "Interval" );
-    obj.set( zrgintrvl, zsamp_ );
+    obj.set( sJSONKey::ZRange(), zsamp_ );
 }
 
 
 bool TrcKeyZSampling::useJSON( const OD::JSON::Object& obj )
 {
     hsamp_.useJSON( obj );
-    const BufferString zrgintrvl( sKey::ZRange(), "Interval" );
-    obj.get( zrgintrvl, zsamp_ );
+    obj.get( sJSONKey::ZRange(), zsamp_ );
     return true;
 }
 
