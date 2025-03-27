@@ -10,6 +10,7 @@ ________________________________________________________________________
 #include "trckeysampling.h"
 
 #include "iopar.h"
+#include "jsonkeystrs.h"
 #include "keystrs.h"
 #include "odjson.h"
 #include "separstr.h"
@@ -671,20 +672,20 @@ void TrcKeySampling::fillJSON( OD::JSON::Object& obj ) const
 	OD::JSON::Object localobj;
 	const StepInterval<Index_Type> trcrng(
 	    start_.trcNr(), stop_.trcNr(), step_.trcNr() );
-	obj.set( sKey::TrcRange(), trcrng );
-	obj.set( sKey::GeomID(), start_.lineNr() );
+	obj.set( sJSONKey::TrcRange(), trcrng );
+	obj.set( sJSONKey::GeomID(), start_.lineNr() );
     }
     else
     {
 	const StepInterval<Index_Type> inlrng( start_.lineNr(), stop_.lineNr(),
 	    step_.lineNr() );
-	obj.set( sKey::InlRange(), inlrng );
+	obj.set( sJSONKey::InlRange(), inlrng );
 	const StepInterval<Index_Type> crlrng( start_.trcNr(), stop_.trcNr(),
 	    step_.trcNr() );
-	obj.set( sKey::CrlRange(), crlrng );
+	obj.set( sJSONKey::CrlRange(), crlrng );
     }
 
-    obj.set( sKey::SurveyID(), survid_ );
+    obj.set( sJSONKey::SurveyID(), survid_ );
 }
 
 
@@ -693,27 +694,27 @@ bool TrcKeySampling::useJSON( const OD::JSON::Object& obj )
     StepInterval<Index_Type> rng;
     if ( is2D() )
     {
-	obj.get( sKey::TrcRange(), rng );
+	obj.get( sJSONKey::TrcRange(), rng );
 	start_.trcNr() = rng.start_;
 	stop_.trcNr() = rng.stop_;
 	step_.trcNr() = rng.step_;
 
-	start_.lineNr() = obj.getIntValue( sKey::GeomID() );
+	start_.lineNr() = obj.getIntValue( sJSONKey::GeomID() );
     }
     else
     {
-	obj.get( sKey::InlRange(), rng );
+	obj.get( sJSONKey::InlRange(), rng );
 	start_.lineNr() = rng.start_;
 	stop_.lineNr() = rng.stop_;
 	step_.lineNr() = rng.step_;
 
-	obj.get( sKey::CrlRange(), rng );
+	obj.get( sJSONKey::CrlRange(), rng );
 	start_.trcNr() = rng.start_;
 	stop_.trcNr() = rng.stop_;
 	step_.trcNr() = rng.step_;
     }
 
-    const int survid = obj.getIntValue( sKey::SurveyID() );
+    const int survid = obj.getIntValue( sJSONKey::SurveyID() );
     if ( mIsUdf(survid) )
 	survid_ = OD::Geom3D; //Legacy
     else if ( survid >= OD::GeomSynth && survid <= OD::Geom2D )
