@@ -811,18 +811,18 @@ void Seis::addPluginSeisTrcTranslators()
     {
 	const DirList dl( datafp.fullPath(), File::FilesInDir, "*.txt" );
 	for ( int idx=0; idx<dl.size(); idx++ )
-	    configfiles.add( dl.get( idx ).buf() );
+	    configfiles.addIfNew( dl.get( idx ).buf() );
     }
 
     const FilePath pluginsdatafpdir(
 			GetSetupDataFileName(ODSetupLoc_UserPluginDirOnly,
 					     "SeisTrcTranslators",false) );
-    if ( pluginsdatafpdir.exists() )
+    if ( pluginsdatafpdir.exists() && pluginsdatafpdir != datafp )
     {
 	const DirList dl( pluginsdatafpdir.fullPath(), File::FilesInDir,
 			  "*.txt" );
 	for ( int idx=0; idx<dl.size(); idx++ )
-	    configfiles.add( dl.get( idx ).buf() );
+	    configfiles.addIfNew( dl.get( idx ).buf() );
     }
 
     using VoidVoidFn = void(*)(void);
