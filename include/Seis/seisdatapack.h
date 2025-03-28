@@ -135,9 +135,9 @@ public:
     void			setZRange( const StepInterval<float>& zrg )
 				{ zsamp_ = zrg; }
 
-    void			setPath( const TrcKeyPath& path )
+    void			setPath( const TrcKeySet& path )
 				{ path_ = path; }
-    const TrcKeyPath&		getPath() const		{ return path_; }
+    const TrcKeySet&		getPath() const		{ return path_; }
 
     bool			addComponent(const char* nm) override;
 
@@ -149,13 +149,13 @@ public:
 
     static RefMan<RandomSeisDataPack> createDataPackFromRM(
 						const RegularSeisDataPack&,
-						const TrcKeyPath& path,
+						const TrcKeySet& path,
 						const Interval<float>& zrg,
 						const BufferStringSet* nms);
 protected:
 				~RandomSeisDataPack();
 
-    TrcKeyPath			path_;
+    TrcKeySet			path_;
     ZSampling			zsamp_;
 
 public:
@@ -170,16 +170,16 @@ public:
 					       const BufferStringSet* nms);
 
     static DataPackID		createDataPackFrom(const RegularSeisDataPack&,
-						   const TrcKeyPath& path,
+						   const TrcKeySet& path,
 						   const Interval<float>& zrg);
 
     static DataPackID		createDataPackFrom(const RegularSeisDataPack&,
-					       const TrcKeyPath& path,
+					       const TrcKeySet& path,
 					       const Interval<float>& zrg,
 					       const BufferStringSet* nms);
 
     mDeprecated("Use setPath")
-    TrcKeyPath&			getPath()		{ return path_; }
+    TrcKeySet&			getPath()		{ return path_; }
 
 };
 
@@ -202,7 +202,7 @@ public:
     virtual bool		isRandom() const	{ return false; }
     bool			isStraight() const;
 
-    virtual const TrcKeyPath&	getPath() const				= 0;
+    virtual const TrcKeySet&	getPath() const				= 0;
 				//!< Will be empty if isVertical() is false
 				//!< Eg: Z-slices. Or if the data corresponds
 				//!< to a single trace.
@@ -259,7 +259,7 @@ public:
 
     bool			isVertical() const override
 				{ return dir_ != TrcKeyZSampling::Z; }
-    const TrcKeyPath&		getPath() const override { return path_; }
+    const TrcKeySet&		getPath() const override { return path_; }
     float			getPosDistance(bool dim0,
 					       float trcfidx) const override;
 
@@ -281,7 +281,7 @@ protected:
     void			setSourceData() override;
     void			setTrcInfoFlds() override;
 
-    TrcKeyPath			path_;
+    TrcKeySet			path_;
     const TrcKeyZSampling&	sampling_;
     TrcKeyZSampling::Dir	dir_;
     bool			usemulticomps_;
@@ -304,7 +304,7 @@ public:
     bool			isRandom() const override	{ return true; }
 
     int				getNearestGlobalIdx(const TrcKey&) const;
-    const TrcKeyPath&		getPath() const override   { return path_; }
+    const TrcKeySet&		getPath() const override   { return path_; }
     TrcKey			getTrcKey(int i0,int i1) const override;
     Coord3			getCoord(int itrc,int isamp) const override;
     double			getZ(int itrc,int isamp) const override;
@@ -326,7 +326,7 @@ protected:
 				 as X1 and X2 posData after regularizing. */
     void			setTrcInfoFlds() override;
 
-    const TrcKeyPath&		path_;
+    const TrcKeySet&		path_;
 };
 
 // Do not use, only for legacy code

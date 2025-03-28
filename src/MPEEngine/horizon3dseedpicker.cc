@@ -595,7 +595,7 @@ bool Horizon3DSeedPicker::interpolateSeeds( bool setmanualnode )
 	return true;
 
     BinID dir;
-    const TrcKeyPath* rdlpath = nullptr;
+    const TrcKeySet* rdlpath = nullptr;
     RandomLineID rdlid;
     if ( !lineTrackDirection(dir) )
     {
@@ -603,7 +603,7 @@ bool Horizon3DSeedPicker::interpolateSeeds( bool setmanualnode )
 	rdlid = engine().activeRandomLineID();
     }
 
-    TrcKeyPath nodes;
+    TrcKeySet nodes;
     RefMan<Geometry::RandomLine> rlgeom = nullptr;
     if ( rdlpath && rdlid.isValid() )
     {

@@ -199,7 +199,6 @@ public:
 							   int attrib) const;
 
 			//Trace data
-    void		getDataTraceBids(const VisID&,TypeSet<BinID>&) const;
     Interval<float>	getDataTraceRange(const VisID&) const;
 
 			// See visSurvey::SurfaceDisplay for details

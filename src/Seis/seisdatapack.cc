@@ -51,7 +51,7 @@ private:
 
     RefMan<RandomSeisDataPack>	ransdp_;
     ConstRefMan<RegularSeisDataPack> regsdp_;
-    const TrcKeyPath&		path_;
+    const TrcKeySet&		path_;
     int				regidx_		= -1;
     int				ranidx_;
     bool			domemcopy_	= false;
@@ -510,7 +510,7 @@ RefMan<RandomSeisDataPack> RandomSeisDataPack::createDataPackFromRM(
     if ( regsdp.getScaler() )
 	randsdp->setScaler( *regsdp.getScaler() );
 
-    TrcKeyPath knots, path;
+    TrcKeySet knots, path;
     rdmline->allNodePositions( knots );
     Geometry::RandomLine::getPathBids( knots, path );
     if ( path.isEmpty() )
@@ -563,7 +563,7 @@ RefMan<RandomSeisDataPack> RandomSeisDataPack::createDataPackFromRM(
 
 RefMan<RandomSeisDataPack> RandomSeisDataPack::createDataPackFromRM(
 					const RegularSeisDataPack& regsdp,
-					const TrcKeyPath& path,
+					const TrcKeySet& path,
 					const Interval<float>& zrange,
 					const BufferStringSet* compnames )
 {
@@ -635,7 +635,7 @@ DataPackID RandomSeisDataPack::createDataPackFrom(
 
 DataPackID RandomSeisDataPack::createDataPackFrom(
 					const RegularSeisDataPack& regsdp,
-					const TrcKeyPath& path,
+					const TrcKeySet& path,
 					const Interval<float>& zrange )
 {
     return createDataPackFrom( regsdp, path, zrange, nullptr );
@@ -644,7 +644,7 @@ DataPackID RandomSeisDataPack::createDataPackFrom(
 
 DataPackID RandomSeisDataPack::createDataPackFrom(
 					const RegularSeisDataPack& regsdp,
-					const TrcKeyPath& path,
+					const TrcKeySet& path,
 					const Interval<float>& zrange,
 					const BufferStringSet* compnames )
 {
@@ -833,7 +833,7 @@ float SeisFlatDataPack::nrKBytes() const
 
 void SeisFlatDataPack::setPosData()
 {
-    const TrcKeyPath& path = getPath();
+    const TrcKeySet& path = getPath();
     if ( path.isEmpty() )
 	return;
 
@@ -1209,7 +1209,7 @@ void RandomSeisFlatDataPack::setSourceData()
 
 void RandomSeisFlatDataPack::setRegularizedPosData()
 {
-    const TrcKeyPath& path = getPath();
+    const TrcKeySet& path = getPath();
     const int nrtrcs = path.size();
     float* pos = new float[nrtrcs];
     pos[0] = 0;

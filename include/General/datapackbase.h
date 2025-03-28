@@ -233,7 +233,7 @@ public:
     virtual bool		isRegular() const	{ return false; }
     virtual bool		isRandom() const	{ return false; }
 
-    void			getPath(TrcKeyPath&) const;
+    void			getPath(TrcKeySet&) const;
 
     virtual bool		addComponent(const char* nm)		= 0;
 

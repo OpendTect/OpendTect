@@ -219,7 +219,7 @@ void Seis2DDisplay::setGeometry( const PosInfo::Line2DData& geometry )
 }
 
 
-void Seis2DDisplay::getTraceKeyPath( TrcKeyPath& res,TypeSet<Coord>* ) const
+void Seis2DDisplay::getTraceKeyPath( TrcKeySet& res,TypeSet<Coord>* ) const
 {
     if ( trcdisplayinfo_.rg_.isUdf() )
 	return;

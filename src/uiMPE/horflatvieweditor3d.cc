@@ -108,7 +108,7 @@ void HorizonFlatViewEditor3D::setTrcKeyZSampling( const TrcKeyZSampling& cs )
 }
 
 
-void HorizonFlatViewEditor3D::setPath( const TrcKeyPath& path )
+void HorizonFlatViewEditor3D::setPath( const TrcKeySet& path )
 {
     curtkpath_ = &path;
     horpainter_->setPath( path );
@@ -948,7 +948,7 @@ void HorizonFlatViewEditor3D::polygonFinishedCB( CallBacker* )
 	}
 	else if ( randfdp )
 	{
-	    const TrcKeyPath& rdlpath = randfdp->getPath();
+	    const TrcKeySet& rdlpath = randfdp->getPath();
 	    IndexInfo ix = randfdp->posData().indexInfo( true, posx );
 	    bid = rdlpath[ix.nearest_].position();
 	}

@@ -778,10 +778,10 @@ void MPEClickInfo::setObjLineName( const char* str )
 void MPEClickInfo::setObjLineData( const Attrib::Data2DHolder* ad2dh )
 { linedata_ = ad2dh; }
 
-void MPEClickInfo::setObjTKPath( const TrcKeyPath* tkp )
+void MPEClickInfo::setObjTKPath( const TrcKeySet* tkp )
 { rdltkpath_ = tkp; }
 
-const TrcKeyPath* MPEClickInfo::getObjTKPath() const
+const TrcKeySet* MPEClickInfo::getObjTKPath() const
 { return rdltkpath_; }
 
 void MPEClickInfo::setObjRandomLineID( const RandomLineID& rdlid )

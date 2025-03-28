@@ -310,7 +310,7 @@ private:
 				     ObjectSet<IntersectionData>& pool );
 				//!<Return data from pool or creates new
 
-    void			traverseLine(const TrcKeyPath&,
+    void			traverseLine(const TrcKeySet&,
 					     const TypeSet<Coord>&,
 					     const Interval<float>& zrg,
 					     IntersectionData&) const;

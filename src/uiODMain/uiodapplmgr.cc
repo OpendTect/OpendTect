@@ -626,8 +626,6 @@ bool uiODApplMgr::getNewData( const VisID& visid, int attrib )
 	case uiVisPartServer::Traces :
 	{
 	    const Interval<float> zrg = visserv_->getDataTraceRange( visid );
-	    TypeSet<BinID> bids;
-	    visserv_->getDataTraceBids( visid, bids );
 	    attrserv_->setTargetSelSpecs( myas );
 	    mDynamicCastGet(visSurvey::RandomTrackDisplay*,rdmtdisp,
 			    visserv_->getObject(visid) );
@@ -851,8 +849,6 @@ bool uiODApplMgr::evaluateAttribute( const VisID& visid, int attrib )
     else if ( format==uiVisPartServer::Traces )
     {
 	const Interval<float> zrg = visserv_->getDataTraceRange( visid );
-	TypeSet<BinID> bids;
-	visserv_->getDataTraceBids( visid, bids );
 	mDynamicCastGet(visSurvey::RandomTrackDisplay*,rdmtdisp,
 			visserv_->getObject(visid) );
 	if ( !rdmtdisp )

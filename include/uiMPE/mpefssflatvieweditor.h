@@ -36,7 +36,7 @@ public:
     void		updateActStkContainer();
 
     void		setTrcKeyZSampling(const TrcKeyZSampling&) override;
-    void		setPath(const TrcKeyPath&);
+    void		setPath(const TrcKeySet&);
     void		setFlatPosData(const FlatPosData*);
     void		drawFault() override;
     void		enableLine(bool);
@@ -83,7 +83,7 @@ protected:
 				//!< x'=x, y'=v1*x*+v2*y, z'=v3*z
     Coord3			getNormal(const Coord3* mousepos=nullptr) const;
 
-    const TrcKeyPath*		path_		= nullptr;
+    const TrcKeySet*		path_		= nullptr;
 
     EM::FaultStickPainter*	fsspainter_;
     bool			seedhasmoved_	= false;

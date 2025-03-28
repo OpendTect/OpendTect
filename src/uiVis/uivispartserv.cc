@@ -953,15 +953,6 @@ bool uiVisPartServer::getRandomPosCache( const VisID& id, int attrib,
 }
 
 
-void uiVisPartServer::getDataTraceBids( const VisID& id,
-					TypeSet<BinID>& bids ) const
-{
-    mDynamicCastGet(const visSurvey::SurveyObject*,so,getObject(id));
-    if ( so )
-	so->getDataTraceBids( bids );
-}
-
-
 Interval<float> uiVisPartServer::getDataTraceRange( const VisID& id ) const
 {
     mDynamicCastGet(const visSurvey::SurveyObject*,so,getObject(id));

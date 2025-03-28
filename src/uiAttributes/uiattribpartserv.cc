@@ -1202,7 +1202,7 @@ RefMan<RandomSeisDataPack> uiAttribPartServer::createRdmTrcsOutputRM(
 	}
     }
 
-    TrcKeyPath knots, trckeys;
+    TrcKeySet knots, trckeys;
     rdmline->allNodePositions( knots );
     rdmline->getPathBids( knots, trckeys );
 
@@ -1254,7 +1254,7 @@ RefMan<RandomSeisDataPack> uiAttribPartServer::createRdmTrcsOutputRM(
 
 RefMan<RandomSeisDataPack> uiAttribPartServer::createRdmTrcsOutputRM(
 				const Interval<float>& zrg,
-				TrcKeyPath& trckeys, TrcKeyPath& trueknotspos )
+				TrcKeySet& trckeys, TrcKeySet& trueknotspos )
 {
     const bool isstortarget = targetspecs_.size() && targetspecs_[0].isStored();
     const DescSet* attrds = DSHolder().getDescSet(false,isstortarget);
@@ -1317,7 +1317,7 @@ RefMan<RandomSeisDataPack> uiAttribPartServer::createRdmTrcsOutputRM(
 }
 
 
-void uiAttribPartServer::snapToValidRandomTraces( TrcKeyPath& path,
+void uiAttribPartServer::snapToValidRandomTraces( TrcKeySet& path,
 						  const Desc* targetdesc )
 {
     if ( !targetdesc )
@@ -1355,8 +1355,8 @@ void uiAttribPartServer::snapToValidRandomTraces( TrcKeyPath& path,
 
 bool uiAttribPartServer::createOutput( const BinIDValueSet& bidset,
 				       SeisTrcBuf& output,
-				       const TrcKeyPath& tktrueknotspos,
-				       const TrcKeyPath& tksnappedpos )
+				       const TrcKeySet& tktrueknotspos,
+				       const TrcKeySet& tksnappedpos )
 {
     TypeSet<BinID> trueknotspos, snappedpos;
     for ( const auto& tk : tktrueknotspos )
@@ -2566,7 +2566,7 @@ DataPackID uiAttribPartServer::createRdmTrcsOutput( const Interval<float>& zrg,
 
 
 DataPackID uiAttribPartServer::createRdmTrcsOutput(const Interval<float>& zrg,
-				TrcKeyPath& trckeys, TrcKeyPath& trueknotspos )
+				TrcKeySet& trckeys, TrcKeySet& trueknotspos )
 {
     auto dp = createRdmTrcsOutputRM( zrg, trckeys, trueknotspos );
     if ( !dp )
@@ -2581,7 +2581,7 @@ DataPackID uiAttribPartServer::createRdmTrcsOutput(const Interval<float>& zrg,
 DataPackID uiAttribPartServer::createRdmTrcsOutput(const Interval<float>& zrg,
 			    TypeSet<BinID>& path, TypeSet<BinID>& trueknotspos )
 {
-    TrcKeyPath tkpath, tktrueknotspos;
+    TrcKeySet tkpath, tktrueknotspos;
     for ( const auto& bid : path )
 	tkpath += TrcKey( bid );
     for ( const auto& bid : trueknotspos )

@@ -280,7 +280,7 @@ void RandomLine::limitTo( const TrcKeyZSampling& cs )
 }
 
 
-Coord RandomLine::getNormal( const TrcKeyPath& knots, const TrcKey& trcpos )
+Coord RandomLine::getNormal( const TrcKeySet& knots, const TrcKey& trcpos )
 {
     const Coord poscrd = SI().transform( trcpos.position() );
     double minsqdist = mUdf(double);
@@ -315,8 +315,8 @@ Coord RandomLine::getNormal( const TrcKeyPath& knots, const TrcKey& trcpos )
 }
 
 
-int RandomLine::getNearestPathPosIdx( const TrcKeyPath& knots,
-				      const TrcKeyPath& path,
+int RandomLine::getNearestPathPosIdx( const TrcKeySet& knots,
+				      const TrcKeySet& path,
 				      const TrcKey& trcpos )
 {
     int posidx = path.indexOf( trcpos );
@@ -395,11 +395,11 @@ int RandomLine::getNearestPathPosIdx( const TrcKeyPath& knots,
 void RandomLine::getPathBids( const TypeSet<BinID>& knots, TypeSet<BinID>& bids,
 			      bool allowduplicate, TypeSet<int>* segments )
 {
-    TrcKeyPath tkknots;
+    TrcKeySet tkknots;
     for ( const auto& knot : knots )
 	tkknots += TrcKey( knot );
 
-    TrcKeyPath tks;
+    TrcKeySet tks;
     const DuplicateMode dupmode = allowduplicate ? AllDups : NoConsecutiveDups;
     getPathBids( tkknots, tks, dupmode, segments );
     for ( const auto& tk : tks )
@@ -412,11 +412,11 @@ void RandomLine::getPathBids( const TypeSet<BinID>& knots,
 			      TypeSet<BinID>& bids, bool allowduplicate,
 			      TypeSet<int>* segments )
 {
-    TrcKeyPath tkknots;
+    TrcKeySet tkknots;
     for ( const auto& knot : knots )
 	tkknots += TrcKey( gs, (const Pos::IdxPair&)knot );
 
-    TrcKeyPath tks;
+    TrcKeySet tks;
     const DuplicateMode dupmode = allowduplicate ? AllDups : NoConsecutiveDups;
     getPathBids( tkknots, tks, dupmode, segments );
     for ( const auto& tk : tks )
@@ -428,18 +428,18 @@ void RandomLine::getPathBids( const TypeSet<BinID>& knots, OD::GeomSystem gs,
 			      TypeSet<BinID>& bids, DuplicateMode duplicatemode,
 			      TypeSet<int>* segments )
 {
-    TrcKeyPath tkknots;
+    TrcKeySet tkknots;
     for ( const auto& knot : knots )
 	tkknots += TrcKey( gs, (const Pos::IdxPair&)knot );
 
-    TrcKeyPath tks;
+    TrcKeySet tks;
     getPathBids( tkknots, tks, duplicatemode, segments );
     for ( const auto& tk : tks )
 	bids += tk.position();
 }
 
 
-void RandomLine::getPathBids( const TrcKeyPath& knots, TrcKeyPath& tkpath,
+void RandomLine::getPathBids( const TrcKeySet& knots, TrcKeySet& tkpath,
 			    DuplicateMode duplicatemode, TypeSet<int>* segments)
 {
     if ( knots.isEmpty() )
@@ -668,14 +668,14 @@ void RandomLineSet::limitTo( const TrcKeyZSampling& cs )
 void RandomLineSet::getGeometry( const MultiID& rdlsid, TypeSet<BinID>& knots,
 				 StepInterval<float>* zrg )
 {
-    TrcKeyPath tkpath;
+    TrcKeySet tkpath;
     getGeometry( rdlsid, tkpath, zrg );
     for ( const auto& tk : tkpath )
 	knots += tk.position();
 }
 
 
-void RandomLineSet::getGeometry( const MultiID& rdlsid, TrcKeyPath& knots,
+void RandomLineSet::getGeometry( const MultiID& rdlsid, TrcKeySet& knots,
 				 StepInterval<float>* zrg )
 {
     Geometry::RandomLineSet rls;
@@ -693,10 +693,10 @@ void RandomLineSet::getGeometry( const MultiID& rdlsid, TrcKeyPath& knots,
     }
 
 
-    TrcKeyPath rdmlsknots;
+    TrcKeySet rdmlsknots;
     for ( int lidx=0; lidx<rls.size(); lidx++ )
     {
-	TrcKeyPath rdmlknots;
+	TrcKeySet rdmlknots;
 	rls.lines()[lidx]->allNodePositions( rdmlknots );
 	knots.append( rdmlknots );
 	if ( zrg )

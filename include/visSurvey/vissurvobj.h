@@ -307,13 +307,12 @@ public:
 				getDisplayedVolumeDataPack(int attr) const;
 
 				//Trace-data
-    virtual void		getTraceKeyPath(TrcKeyPath&,
+    virtual void		getTraceKeyPath(TrcKeySet&,
 						TypeSet<Coord>* = nullptr) const
 				{}
 				/*!<If Coordinates are different from the
 				    trckeys, they can be delivered in the
 				    TypeSet<Coord>* */
-    virtual void		getDataTraceBids(TypeSet<BinID>&) const	{}
     virtual Interval<float>	getDataTraceRange() const
 				{ return Interval<float>(0.f,0.f); }
 

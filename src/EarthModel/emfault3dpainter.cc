@@ -81,7 +81,7 @@ void Fault3DPainter::setTrcKeyZSampling( const TrcKeyZSampling& cs,bool update )
 { tkzs_ = cs; }
 
 
-void Fault3DPainter::setPath( const TrcKeyPath& path )
+void Fault3DPainter::setPath( const TrcKeySet& path )
 {
     path_ = &path;
 }
@@ -289,7 +289,7 @@ bool Fault3DPainter::paintStickOnRLine( const Geometry::FaultStickSurface& fss,
 	const Coord3 pos = fss.getKnot( rc );
 	bid = SI().transform( pos.coord() );
 	const TrcKey trckey( bid );
-	TrcKeyPath knots;
+	TrcKeySet knots;
 	rlgeom->allNodePositions( knots );
 	Coord3 editnormal( Geometry::RandomLine::getNormal(knots,trckey), 0 );
 	const Coord3 nzednor = editnormal.normalize();

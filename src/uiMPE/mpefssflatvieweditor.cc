@@ -111,7 +111,7 @@ void FaultStickSetFlatViewEditor::setTrcKeyZSampling(const TrcKeyZSampling& cs)
 }
 
 
-void FaultStickSetFlatViewEditor::setPath( const TrcKeyPath& path )
+void FaultStickSetFlatViewEditor::setPath( const TrcKeySet& path )
 {
     path_ = &path;
     fsspainter_->setPath( path );
@@ -381,7 +381,7 @@ Coord3 FaultStickSetFlatViewEditor::getNormal( const Coord3* mousepos ) const
 	if ( !rlgeom || !path_ )
 	    return Coord3::udf();
 
-	TrcKeyPath nodes;
+	TrcKeySet nodes;
 	rlgeom->allNodePositions( nodes );
 	return Coord3( Geometry::RandomLine::getNormal(nodes,mousetk), 0.0f );
     }

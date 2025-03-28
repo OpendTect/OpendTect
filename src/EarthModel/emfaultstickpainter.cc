@@ -60,7 +60,7 @@ const char* FaultStickPainter::getLineName() const
 void FaultStickPainter::setTrcKeyZSampling( const TrcKeyZSampling& cs,bool upd )
 { tkzs_ = cs; }
 
-void FaultStickPainter::setPath( const TrcKeyPath& path )
+void FaultStickPainter::setPath( const TrcKeySet& path )
 { path_ = &path; }
 
 void FaultStickPainter::setRandomLineID( const RandomLineID& rdlid )
@@ -103,7 +103,8 @@ bool FaultStickPainter::addPolyLine()
 	sectionmarkerlines_ += secmarkerlines;
 
 	ConstRefMan<ZAxisTransform> zat = viewer_.getZAxisTransform();
-        for ( rc.row()=rowrg.start_; rc.row()<=rowrg.stop_; rc.row()+=rowrg.step_ )
+	for ( rc.row()=rowrg.start_; rc.row()<=rowrg.stop_;
+						rc.row()+=rowrg.step_ )
 	{
 	    StepInterval<int> colrg = fss->colRange( rc.row() );
 
@@ -141,7 +142,7 @@ bool FaultStickPainter::addPolyLine()
 		    Geometry::RLM().get( rdlid_ );
 		if ( path_ && rlgeom )
 		{
-		    TrcKeyPath knots;
+		    TrcKeySet knots;
 		    rlgeom->allNodePositions( knots );
                     for ( rc.col()=colrg.start_;rc.col()<=colrg.stop_;
                           rc.col()+=colrg.step_ )
@@ -260,7 +261,8 @@ bool FaultStickPainter::addPolyLine()
 
 			const Coord bidf =
 			    bid2crd.transformBackNoSnap( pos.coord() );
-                        stickauxdata->poly_ += FlatView::Point( bidf.x_, bidf.y_);
+			stickauxdata->poly_ +=
+			    FlatView::Point( bidf.x_, bidf.y_);
 		    }
 		}
 	    }

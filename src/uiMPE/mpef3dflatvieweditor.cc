@@ -108,7 +108,7 @@ void Fault3DFlatViewEditor::setTrcKeyZSampling( const TrcKeyZSampling& cs )
 }
 
 
-void Fault3DFlatViewEditor::setPath( const TrcKeyPath& path )
+void Fault3DFlatViewEditor::setPath( const TrcKeySet& path )
 {
     path_ = &path;
     f3dpainter_->setPath( path );
@@ -334,7 +334,7 @@ Coord3 Fault3DFlatViewEditor::getNormal( const Coord3* mousepos ) const
 	if ( !rlgeom || !path_ )
 	    return Coord3::udf();
 
-	TrcKeyPath nodes;
+	TrcKeySet nodes;
 	rlgeom->allNodePositions( nodes );
 	return Coord3( Geometry::RandomLine::getNormal(nodes,mousetk), 0.0f );
     }
