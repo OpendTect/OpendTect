@@ -39,7 +39,7 @@ public:
     void		setTrcKeyZSampling(const TrcKeyZSampling&,bool);
     const TrcKeyZSampling& getTrcKeyZSampling() const	{ return tkzs_; }
 
-    void		setPath(const TrcKeyPath&);
+    void		setPath(const TrcKeySet&);
     void		setRandomLineID(const RandomLineID&);
     void		setFlatPosData(const FlatPosData*);
     void		enableLine(bool);
@@ -96,7 +96,7 @@ protected:
     virtual void	fssChangedCB(CallBacker*);
 
     TrcKeyZSampling	tkzs_;
-    const TrcKeyPath*	path_		= nullptr;
+    const TrcKeySet*	path_		= nullptr;
     const FlatPosData*	flatposdata_	= nullptr;
 
     MarkerStyle2D       markerstyle_;

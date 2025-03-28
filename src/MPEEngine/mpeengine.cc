@@ -91,13 +91,13 @@ void Engine::setValidator( TrackSettingsValidator* val )
 }
 
 
-const TrcKeyPath* Engine::activePath() const
+const TrcKeySet* Engine::activePath() const
 {
     return rdmlinetkpath_;
 }
 
 
-void Engine::setActivePath( const TrcKeyPath* tkp )
+void Engine::setActivePath( const TrcKeySet* tkp )
 {
     rdmlinetkpath_ = tkp;
 }

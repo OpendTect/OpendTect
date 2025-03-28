@@ -102,7 +102,7 @@ protected:
     TrcKeyZSampling			clickedcs_;
     WeakPtr<VolumeDataPack>		attrdata_;
     Attrib::SelSpec			attrsel_;
-    const TrcKeyPath*			rdltkpath_;
+    const TrcKeySet*			rdltkpath_;
     RandomLineID			rdlid_;
     VisID				emvisids_;
 
@@ -110,11 +110,11 @@ protected:
     Pos::GeomID				geomid_;
     BufferString			linename_;
 
-    void			setObjTKPath(const TrcKeyPath*);
+    void			setObjTKPath(const TrcKeySet*);
     void			setObjRandomLineID(const RandomLineID&);
 
 public:
-    const TrcKeyPath*		getObjTKPath() const;
+    const TrcKeySet*		getObjTKPath() const;
     RandomLineID		getObjRandomLineID() const;
 };
 

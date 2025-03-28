@@ -60,7 +60,7 @@ class LockedPointsPathFinder: public ParallelTask
 {
 public:
 			LockedPointsPathFinder(const EM::Horizon3D& hor,
-					       const TrcKeyPath& path,
+					       const TrcKeySet& path,
 					       visBase::PointSet& points,
 					       TypeSet<int>& indexes)
 			    : hor_(hor)
@@ -77,7 +77,7 @@ protected:
     bool		doWork(od_int64 start,od_int64 stop,int) override;
 
     const EM::Horizon3D&	hor_;
-    const TrcKeyPath&		path_;
+    const TrcKeySet&		path_;
     visBase::PointSet&		points_;
     TypeSet<int>&		indexes_;
     Threads::Lock		lock_;
@@ -116,7 +116,7 @@ class HorizonPathIntersector : public ParallelTask
 {
 public:
 		HorizonPathIntersector(const HorizonDisplay& hd,
-				       const TrcKeyPath& path,
+				       const TrcKeySet& path,
 				       const TypeSet<Coord>& crds,
 				       const Interval<float>& zrg,
 				       HorizonDisplay::IntersectionData& res)
@@ -142,7 +142,7 @@ protected:
     static Coord3	endLine()	{ return Coord3(Coord::udf(),1.); }
 
     const HorizonDisplay&		hd_;
-    const TrcKeyPath&			path_;
+    const TrcKeySet&			path_;
     const TypeSet<Coord>&		crds_;
     const Interval<float>&		zrg_;
     HorizonDisplay::IntersectionData&	res_;
@@ -1833,7 +1833,7 @@ void HorizonDisplay::getMousePosInfo( const visBase::EventInfo& eventinfo,
 }
 
 
-void HorizonDisplay::traverseLine( const TrcKeyPath& path,
+void HorizonDisplay::traverseLine( const TrcKeySet& path,
 				   const TypeSet<Coord>& crds,
 				   const Interval<float>& zrg,
 				   HorizonDisplay::IntersectionData& res ) const
@@ -2001,7 +2001,7 @@ void HorizonDisplay::updateIntersectionLines(
 		continue;
 
 	    const TrcKeyZSampling trzs = objs[objidx]->getTrcKeyZSampling();
-	    TrcKeyPath trckeypath;
+	    TrcKeySet trckeypath;
 	    TypeSet<Coord> trccoords;
 	    objs[objidx]->getTraceKeyPath( trckeypath, &trccoords );
 
@@ -2174,10 +2174,10 @@ void HorizonDisplay::updateSectionSeeds(
 	sectionlockedpts_->getMaterial()->clear();
     }
 
-    TrcKeyPath alttrckeys;
+    TrcKeySet alttrckeys;
     for ( int idx=0; idx<verticalsections.size(); idx++ )
     {
-	TrcKeyPath trckeypath;
+	TrcKeySet trckeypath;
 	objs[verticalsections[idx]]->getTraceKeyPath( trckeypath );
 	alttrckeys.append( trckeypath );
     }

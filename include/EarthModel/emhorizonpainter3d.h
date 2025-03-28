@@ -32,7 +32,7 @@ public:
 
     void		setTrcKeyZSampling(
 				const TrcKeyZSampling&,bool upd=false);
-    void		setPath(const TrcKeyPath&);
+    void		setPath(const TrcKeySet&);
     void		setFlatPosData(const FlatPosData*);
 
     void		enableLine(bool);
@@ -90,7 +90,7 @@ protected:
 
     EM::ObjectID	id_;
     TrcKeyZSampling	tkzs_;
-    const TrcKeyPath*	path_;
+    const TrcKeySet*	path_;
     const FlatPosData*	flatposdata_;
 
     OD::LineStyle	markerlinestyle_;

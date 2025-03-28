@@ -684,7 +684,7 @@ void uiODRandomLineTreeItem::handleMenuCB( CallBacker* cb )
 	RefMan<visSurvey::Scene> scene = visserv_->getScene( sceneID() );
 	const bool hasztf = scene && scene->getZAxisTransform();
 
-	TrcKeyPath nodes; rtd->getAllNodePos( nodes );
+	TrcKeySet nodes; rtd->getAllNodePos( nodes );
 	RefMan<Geometry::RandomLine> rln = new Geometry::RandomLine;
 	const Interval<float> rtdzrg = rtd->getDepthInterval();
 	rln->setZRange( hasztf ? SI().zRange(false) : rtdzrg );
@@ -738,7 +738,7 @@ void uiODRandomLineTreeItem::editNodes()
     if ( !rtd || !rtd->getRandomLine() )
 	return;
 
-    TrcKeyPath nodes;
+    TrcKeySet nodes;
     rtd->getRandomLine()->allNodePositions( nodes );
     TypeSet<BinID> bids;
     for ( const auto& tk : nodes )

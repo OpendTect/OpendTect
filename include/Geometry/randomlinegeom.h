@@ -106,12 +106,12 @@ private:
 public:
     mDeprecated("Use TrcKey")
     void		allNodePositions(TypeSet<BinID>&) const;
-    static Coord	getNormal(const TrcKeyPath& knots,const TrcKey& pos);
-    static int		getNearestPathPosIdx(const TrcKeyPath&,
-					     const TrcKeyPath&,const TrcKey&);
+    static Coord	getNormal(const TrcKeySet& knots,const TrcKey& pos);
+    static int		getNearestPathPosIdx(const TrcKeySet&,
+					     const TrcKeySet&,const TrcKey&);
 
     enum		DuplicateMode { NoDups=0, NoConsecutiveDups, AllDups };
-    static void		getPathBids(const TrcKeyPath& knots,TrcKeyPath& path,
+    static void		getPathBids(const TrcKeySet& knots,TrcKeySet& path,
 				    DuplicateMode dupmode=NoConsecutiveDups,
 				    TypeSet<int>* segments=nullptr);
 
@@ -168,9 +168,9 @@ protected:
     void		createParallelLines(const Line2& baseline,double dist);
 
 public:
-    static void		getGeometry(const MultiID&,TrcKeyPath& knots,
+    static void		getGeometry(const MultiID&,TrcKeySet& knots,
 				    StepInterval<float>* zrg=nullptr);
-    mDeprecated("Use TrcKeyPath")
+    mDeprecated("Use TrcKeySet")
     static void		getGeometry(const MultiID&,TypeSet<BinID>& knots,
 				    StepInterval<float>* zrg=nullptr);
 };

@@ -36,7 +36,7 @@ public:
 			~HorizonFlatViewEditor3D();
 
     void		setTrcKeyZSampling(const TrcKeyZSampling&);
-    void		setPath(const TrcKeyPath&);
+    void		setPath(const TrcKeySet&);
     void		setFlatPosData(const FlatPosData*);
     void		setSelSpec(const Attrib::SelSpec*,bool wva);
 
@@ -106,7 +106,7 @@ protected:
     ObjectSet<Hor3DMarkerIdInfo> markeridinfos_;
     MouseEventHandler*		mehandler_		= nullptr;
     TrcKeyZSampling		curcs_;
-    const TrcKeyPath*		curtkpath_		= nullptr;
+    const TrcKeySet*		curtkpath_		= nullptr;
     const Attrib::SelSpec*	vdselspec_		= nullptr;
     const Attrib::SelSpec*	wvaselspec_		= nullptr;
 

@@ -81,7 +81,7 @@ void HorizonPainter3D::setTrcKeyZSampling( const TrcKeyZSampling& cs, bool upd )
 }
 
 
-void HorizonPainter3D::setPath( const TrcKeyPath& path )
+void HorizonPainter3D::setPath( const TrcKeySet& path )
 {
     path_ = &path;
 }
@@ -446,8 +446,9 @@ void HorizonPainter3D::changePolyLinePosition( const EM::PosID& pid )
 	    {
 		if ( path_ )
 		{
-		    auxdata->poly_ += FlatView::Point( flatposdata_->position(
-                                                           true,path_->indexOf(trckey)), crd.z_ );
+		    auxdata->poly_ += FlatView::Point(
+			    flatposdata_->position(true,path_->indexOf(trckey)),
+			    crd.z_ );
 		    continue;
 		}
 		if ( tkzs_.nrInl() == 1 )

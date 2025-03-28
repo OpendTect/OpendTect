@@ -137,8 +137,8 @@ public:
     bool			needRestoredTracker(const MultiID&) const;
     bool			restoreTracker(const EM::ObjectID&);
 
-    const TrcKeyPath*		activePath() const;
-    void			setActivePath(const TrcKeyPath*);
+    const TrcKeySet*		activePath() const;
+    void			setActivePath(const TrcKeySet*);
     RandomLineID		activeRandomLineID() const;
     void			setActiveRandomLineID(const RandomLineID&);
 
@@ -170,7 +170,7 @@ private:
     WeakPtr<EMTracker>		activetracker_;
     TrackSettingsValidator*	validator_			= nullptr;
     int				undoeventid_			= -1;
-    const TrcKeyPath*		rdmlinetkpath_			= nullptr;
+    const TrcKeySet*		rdmlinetkpath_			= nullptr;
     RandomLineID		rdlid_;
 
     mClass(MPEEngine) CacheSpecs

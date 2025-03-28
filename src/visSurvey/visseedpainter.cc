@@ -471,7 +471,7 @@ void SeedPainter::paintSeedsOnRandLine( const RandomTrackDisplay* rtd,
     if ( !scene )
 	return;
 
-    const TrcKeyPath* path = rtd->getTrcKeyPath();
+    const TrcKeySet* path = rtd->getTrcKeyPath();
 
     const Coord3 curpos = curev.worldpickedpos;
     const TrcKey curtk( SI().transform(curpos) );
@@ -859,12 +859,13 @@ void SeedPainter::drawLine( const visBase::EventInfo& eventinfo )
 		getTrcNrStretchPerZSample( *scene, SI().crlDistance() ) : 0;
     for ( int idx=0; idx<circlecoords_.size(); idx++ )
     {
-        const BinID bid( pickedbid.inl() + mNINT32(inlfac*circlecoords_[idx].x_),
-			 pickedbid.crl() + mNINT32(crlfac*
-                                                   (isz? circlecoords_[idx].y_ : circlecoords_[idx].x_)) );
+	const BinID bid( pickedbid.inl()+mNINT32(inlfac*circlecoords_[idx].x_),
+			 pickedbid.crl()+mNINT32(crlfac*
+					(isz ? circlecoords_[idx].y_
+					     : circlecoords_[idx].x_)) );
 	const Coord pt = SI().transform( bid );
         circle_->addPoint( Coord3(pt,isz ? pickedpos.z_
-                                         : (pickedpos.z_+circlecoords_[idx].y_*SI().zStep())) );
+		    : (pickedpos.z_+circlecoords_[idx].y_*SI().zStep())) );
     }
 
     circle_->dirtyCoordinates();
@@ -899,7 +900,7 @@ void SeedPainter::drawLineOnRandLine( const RandomTrackDisplay* rtd,
 
 	const Coord pt = path->get( posidx ).getCoord();
 	circle_->addPoint( Coord3(pt,
-                                  pickedpos.z_+circlecoords_[idx].y_*SI().zStep()) );
+			   pickedpos.z_+circlecoords_[idx].y_*SI().zStep()) );
     }
 
     circle_->dirtyCoordinates();
@@ -943,7 +944,7 @@ void SeedPainter::drawLineOn2DLine( const Seis2DDisplay* s2d,
 	    continue;
 
 	circle_->addPoint( Coord3(l2dpos.coord_,
-                                  pickedpos.z_+circlecoords_[idx].y_*SI().zStep()) );
+			     pickedpos.z_+circlecoords_[idx].y_*SI().zStep()) );
     }
 
     circle_->dirtyCoordinates();

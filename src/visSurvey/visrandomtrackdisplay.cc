@@ -182,7 +182,7 @@ void RandomTrackDisplay::setRandomLineID( const RandomLineID& rlid )
 
     mAttachCB( rl_->nodeChanged, RandomTrackDisplay::geomChangeCB );
     setName( rl_->name() );
-    TrcKeyPath nodes;
+    TrcKeySet nodes;
     rl_->allNodePositions( nodes );
     TypeSet<BinID> bids;
     for ( const auto& tk : nodes )
@@ -244,7 +244,7 @@ TrcKeyZSampling RandomTrackDisplay::getTrcKeyZSampling( bool displayspace,
 							    int attrib ) const
 {
     TrcKeyZSampling cs( false );
-    TrcKeyPath nodes;
+    TrcKeySet nodes;
     getAllNodePos( nodes );
     if ( nodes.isEmpty() )
 	cs.hsamp_.survid_ = OD::Geom3D;
@@ -372,14 +372,14 @@ BinID RandomTrackDisplay::getManipNodePos( int nodeidx ) const
 
 void RandomTrackDisplay::getAllNodePos( TypeSet<BinID>& nodes ) const
 {
-    TrcKeyPath tknodes;
+    TrcKeySet tknodes;
     getAllNodePos( tknodes );
     for ( const auto& tk : tknodes )
 	nodes += tk.position();
 }
 
 
-void RandomTrackDisplay::getAllNodePos( TrcKeyPath& nodes ) const
+void RandomTrackDisplay::getAllNodePos( TrcKeySet& nodes ) const
 {
     const int nrnodes = nrNodes();
     for ( int idx=0; idx<nrnodes; idx++ )
@@ -408,9 +408,10 @@ void RandomTrackDisplay::setNodePos( int nodeidx, const BinID& bid, bool check )
 static bool decoincideNodes( const TypeSet<BinID>& nodes,
 			     TypeSet<BinID>& uniquenodes )
 {
-    uniquenodes.erase();
+    uniquenodes.setEmpty();
     if ( nodes.isEmpty() )
 	return false;
+
     uniquenodes += nodes[0];
 
     for ( int idx=1; idx<nodes.size(); idx++ )
@@ -511,46 +512,38 @@ void RandomTrackDisplay::removeAllNodes()
     for ( int idx=0; idx<nrAttribs(); idx++ )
 	setVolumeDataPack( idx, nullptr, nullptr );
 
-    nodes_.erase();
+    nodes_.setEmpty();
     updatePanelStripPath();
     panelstrip_->turnOn( false );
     moving_.trigger();
 }
 
 
-void RandomTrackDisplay::getTraceKeyPath( TrcKeyPath& path,
+void RandomTrackDisplay::getTraceKeyPath( TrcKeySet& path,
                                           TypeSet<Coord>* crds ) const
 {
-    if ( crds )
-	crds->erase();
+    path = trckeypath_;
+    if ( !crds )
+	return;
 
-    TrcKeyPath nodes;
-    getAllNodePos( nodes );
-
-    TrcKeyPath tkpath;
-    TypeSet<int> segments;
-    Geometry::RandomLine::getPathBids( nodes, tkpath,
-			Geometry::RandomLine::NoConsecutiveDups, &segments );
-
-    path.erase();
+    crds->setEmpty();
+    crds->setCapacity( path.size(), false );
     int curlinesegment = -1;
     Line2 curline;
-    for ( int idx=0; idx<tkpath.size(); idx++ )
+    TrcKeySet nodes;
+    getAllNodePos( nodes );
+    for ( int idx=0; idx<trckeypath_.size(); idx++ )
     {
-	const TrcKey& tk = tkpath[idx];
-	path += tk;
-        if ( !crds )
-            continue;
-
-        if ( curlinesegment!=segments[idx] )
+	const TrcKey& tk = trckeypath_[idx];
+	if ( curlinesegment!=segments_[idx] )
         {
             curlinesegment = -1;
 
-            const int cursegment = segments[idx];
+	    const int cursegment = segments_[idx];
             if ( cursegment<nodes.size()-1 )
             {
-		const TrcKey& startnode = nodes[segments[idx]];
-		const TrcKey& stopnode = nodes[segments[idx]+1];
+		const TrcKey& startnode = nodes[segments_[idx]];
+		const TrcKey& stopnode = nodes[segments_[idx]+1];
 		const Coord startpos = startnode.getCoord();
 		const Coord stoppos = stopnode.getCoord();
 
@@ -572,39 +565,15 @@ void RandomTrackDisplay::getTraceKeyPath( TrcKeyPath& path,
 }
 
 
-void RandomTrackDisplay::getDataTraceBids( TypeSet<BinID>& bids ) const
+void RandomTrackDisplay::updatePath()
 {
-    TrcKeyPath tkpath;
-    getDataTraceBids( tkpath );
-    for ( const auto& tk : tkpath )
-	bids += tk.position();
-}
-
-
-void RandomTrackDisplay::getDataTraceBids( TrcKeyPath& tkpath ) const
-{
-    getDataTraceBids( tkpath, nullptr );
-}
-
-
-void RandomTrackDisplay::getDataTraceBids( TrcKeyPath& tkpath,
-					   TypeSet<int>* segments ) const
-{
-    const_cast<RandomTrackDisplay*>(this)->trcspath_.erase();
-    const_cast<RandomTrackDisplay*>(this)->trckeypath_.erase();
-    TrcKeyPath nodes;
+    trckeypath_.setEmpty();
+    segments_.setEmpty();
+    TrcKeySet nodes;
     getAllNodePos( nodes );
-    Geometry::RandomLine::getPathBids( nodes, tkpath,
-				Geometry::RandomLine::AllDups, segments );
-    for ( int idx=0; idx<tkpath.size(); idx++ )
-    {
-	const TrcKey& tk = tkpath[idx];
-	if ( !idx || tk != trckeypath_.last() )
-	{
-	    const_cast<RandomTrackDisplay*>(this)->trcspath_.add(tk.position());
-	    const_cast<RandomTrackDisplay*>(this)->trckeypath_.add( tk );
-	}
-    }
+    Geometry::RandomLine::getPathBids( nodes, trckeypath_,
+				Geometry::RandomLine::NoConsecutiveDups,
+				&segments_ );
 }
 
 
@@ -755,35 +724,36 @@ void RandomTrackDisplay::updateRanges( bool resetinlcrl, bool resetz )
 bool RandomTrackDisplay::isMappingTraceOfBid( BinID bid, int trcidx,
 					      bool forward ) const
 {
-    if ( !trcspath_.validIdx(trcidx) )
+    if ( !trckeypath_.validIdx(trcidx) )
 	return false;
 
     // Allow round-off differences from elsewhere
-    if ( abs(trcspath_[trcidx].inl()-bid.inl()) > SI().inlStep() )
+    if ( abs(trckeypath_[trcidx].inl()-bid.inl()) > SI().inlStep() )
 	return false;
-    if ( abs(trcspath_[trcidx].crl()-bid.crl()) > SI().crlStep() )
+    if ( abs(trckeypath_[trcidx].crl()-bid.crl()) > SI().crlStep() )
 	return false;
 
-    if ( (!forward && !trcidx) || (forward && trcidx==trcspath_.size()-1) )
+    if ( (!forward && !trcidx) || (forward && trcidx==trckeypath_.size()-1) )
 	return true;
 
     const int dir = forward ? 1 : -1;
-    return trcspath_[trcidx].sqDistTo(bid)<=trcspath_[trcidx+dir].sqDistTo(bid);
+    return trckeypath_[trcidx].position().sqDistTo(bid) <=
+	   trckeypath_[trcidx+dir].position().sqDistTo(bid);
 }
 
 
 void RandomTrackDisplay::updateTexOriginAndScale( int attrib,
-			const TrcKeyPath& path, const ZSampling& zrg )
+			const TrcKeySet& path, const ZSampling& zrg )
 {
     if ( path.size()<2 || zrg.isUdf() )
 	return;
 
     int idx0 = 0;
-    while ( idx0<trcspath_.size() &&
+    while ( idx0<trckeypath_.size() &&
 	    !isMappingTraceOfBid(path.first().position(),idx0,true) )
 	idx0++;
 
-    int idx1 = trcspath_.size()-1;
+    int idx1 = trckeypath_.size()-1;
     while ( idx1>=0 && !isMappingTraceOfBid(path.last().position(),idx1,false) )
 	idx1--;
 
@@ -872,7 +842,7 @@ void RandomTrackDisplay::createTransformedDataPack( int attrib,
     {
 	if ( datatransform_->needsVolumeOfInterest() )
 	{
-	    const TrcKeyPath& path = randsdp->getPath();
+	    const TrcKeySet& path = randsdp->getPath();
 	    TrcKeyZSampling tkzs( false );
 	    for ( int idx=0; idx<path.size(); idx++ )
 		tkzs.hsamp_.include( path[idx] );
@@ -905,16 +875,14 @@ void RandomTrackDisplay::updatePanelStripPath()
     if ( nodes_.size()<2 || getUpdateStageNr() )
 	return;
 
-    TrcKeyPath trctks;
-    getDataTraceBids( trctks ); // Will update trcspath_
-
+    updatePath();
     TypeSet<Coord> pathcrds;
     TypeSet<float> mapping;
     pathcrds.setCapacity( nodes_.size(), false );
     mapping.setCapacity( nodes_.size(), false );
 
     int nodeidx = 0;
-    for ( int trcidx=0; trcidx<trcspath_.size(); trcidx++ )
+    for ( int trcidx=0; trcidx<trckeypath_.size(); trcidx++ )
     {
 	while ( nodeidx<nodes_.size() &&
 		isMappingTraceOfBid(nodes_[nodeidx],trcidx,true) )
@@ -1250,6 +1218,7 @@ void RandomTrackDisplay::movingNodeInternal( int selnodeidx )
 
 	resolution_ = 0;
 	interactivetexturedisplay_ = true;
+	updatePath();
 	updateSel();
     }
 }
@@ -1328,11 +1297,8 @@ Coord3 RandomTrackDisplay::getNormal( const Coord3& pos ) const
     utm2display->transformBack( pos, xytpos );
     BinID binid = SI().transform( Coord(xytpos.x_,xytpos.y_) );
 
-    TrcKeyPath tkpath;
-    TypeSet<int> segments;
-    getDataTraceBids( tkpath, &segments );
     TypeSet<BinID> bids;
-    for ( const auto& tk : tkpath )
+    for ( const auto& tk : trckeypath_ )
 	bids += tk.position();
 
     int idx = bids.indexOf( binid );
@@ -1350,8 +1316,8 @@ Coord3 RandomTrackDisplay::getNormal( const Coord3& pos ) const
     }
 
     const TypeSet<Coord>& coords = panelstrip_->getPath();
-    const Coord pos0 = coords[segments[idx]];
-    const Coord pos1 = coords[segments[idx]+1];
+    const Coord pos0 = coords[segments_[idx]];
+    const Coord pos1 = coords[segments_[idx]+1];
     const BinID bid0( mNINT32(pos0.x_), mNINT32(pos0.y_));
     const BinID bid1( mNINT32(pos1.x_), mNINT32(pos1.y_));
 
@@ -1795,6 +1761,7 @@ void RandomTrackDisplay::mouseCB( CallBacker* cb )
 	    removeNode( nodeidx );
 	    channels_->turnOn( false );
 	    ismanip_ = true;
+	    updatePath();
 	    updateSel();
 	}
 	return;
@@ -1841,6 +1808,7 @@ void RandomTrackDisplay::mouseCB( CallBacker* cb )
 
 	    channels_->turnOn( false );
 	    ismanip_ = true;
+	    updatePath();
 	    updateSel();
 	}
 
@@ -2063,6 +2031,7 @@ void RandomTrackDisplay::finishNodeMoveInternal()
 	ismanip_ = true;
 
     interactivetexturedisplay_ = false;
+    updatePath();
     updateSel();
 }
 

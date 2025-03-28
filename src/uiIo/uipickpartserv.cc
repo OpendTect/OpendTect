@@ -548,7 +548,7 @@ void uiPickPartServer::convert( const Geometry::RandomLine& rl,
     pickset.disp_.linestyle_.color_ = OD::Color::NoColor();
     pickset.disp_.linestyle_.width_ = mUdf(int);
 
-    TrcKeyPath knots;
+    TrcKeySet knots;
     rl.allNodePositions( knots );
     for ( const auto& tk : knots )
     {

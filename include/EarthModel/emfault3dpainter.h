@@ -40,7 +40,7 @@ public:
     void		setTrcKeyZSampling(const TrcKeyZSampling&,bool);
     const TrcKeyZSampling& getTrcKeyZSampling() const	{ return tkzs_; }
 
-    void		setPath(const TrcKeyPath&);
+    void		setPath(const TrcKeySet&);
     void		setFlatPosData(const FlatPosData*);
     void		setRandomLineID(const RandomLineID&);
 
@@ -106,7 +106,7 @@ protected:
     virtual void	fault3DChangedCB(CallBacker*);
 
     TrcKeyZSampling	tkzs_;
-    const TrcKeyPath*	path_;
+    const TrcKeySet*	path_;
     const FlatPosData*  flatposdata_;
     TypeSet<int>	bendpts_;
 

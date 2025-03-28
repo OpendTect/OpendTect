@@ -82,14 +82,7 @@ public:
 
     SurveyObject::AttribFormat	getAttributeFormat(int attrib) const override;
 
-    TypeSet<BinID>*		getPath()		{ return &trcspath_; }
-				//!<BinID-based coding: inner nodes single
-    void			getDataTraceBids(
-						TypeSet<BinID>&) const override;
-    void			getDataTraceBids(TrcKeyPath&) const;
-				//!<Segment-based coding: inner nodes doubled
-
-    void			getTraceKeyPath(TrcKeyPath&,
+    void			getTraceKeyPath(TrcKeySet&,
 						TypeSet<Coord>*) const override;
     Interval<float>		getDataTraceRange() const override;
     TypeSet<Coord>		getTrueCoords() const;
@@ -114,7 +107,7 @@ public:
     void			setNodePos(int,const BinID&);
     BinID			getNodePos(int) const;
     BinID			getManipNodePos(int) const;
-    void			getAllNodePos(TrcKeyPath&) const;
+    void			getAllNodePos(TrcKeySet&) const;
     TypeSet<BinID>*		getNodes()		{ return &nodes_; }
     void			removeNode(int);
     void			removeAllNodes();
@@ -180,7 +173,7 @@ public:
 
     void			annotateNextUpdateStage(bool yn) override;
     void			setPixelDensity(float) override;
-    const TrcKeyPath*		getTrcKeyPath() const { return &trckeypath_; }
+    const TrcKeySet*		getTrcKeyPath() const { return &trckeypath_; }
 
     static const char*		sKeyPanelDepthKey()  { return "PanelDepthKey"; }
     static const char*		sKeyPanelPlaneKey()  { return "PanelPlaneKey"; }
@@ -199,8 +192,6 @@ protected:
     void			emptyCache(int) override;
     bool			hasCache(int) const override;
 
-    void			getDataTraceBids(TrcKeyPath&,
-						 TypeSet<int>* segments) const;
     BinID			proposeNewPos(int node) const;
     void			updateChannels(int attrib,TaskRunner*);
     void			createTransformedDataPack(int attrib,
@@ -254,14 +245,13 @@ protected:
     RefObjectSet<RandomSeisDataPack>	datapacks_;
     RefObjectSet<RandomSeisDataPack>	transfdatapacks_;
 
-    TypeSet<BinID>		trcspath_;
-    TypeSet<BinID>		nodes_;
-
     RefMan<ZAxisTransform>	datatransform_;
     Interval<float>		depthrg_;
     int				voiidx_ = -1;
 
-    TrcKeyPath			trckeypath_;
+    TypeSet<BinID>		nodes_;
+    TrcKeySet			trckeypath_;
+    TypeSet<int>		segments_;
     int				pickstartnodeidx_ = -1;
     bool			ispicking_ = false;
     int				oldstyledoubleclicked_ = 0;
@@ -286,15 +276,13 @@ protected:
     static const char*		sKeyLockGeometry();
 
     void			updateTexOriginAndScale(
-					    int attrib,const TrcKeyPath&,
+					    int attrib,const TrcKeySet&,
 					    const ZSampling&);
 public:
 
     bool			getSelMousePosInfo(const visBase::EventInfo&,
 						   Coord3&, BufferString&,
 						   uiString&) const;
-    mDeprecated("Use TrcKey")
-    const TypeSet<BinID>*	getPath() const		{ return &trcspath_; }
     mDeprecated("Use TrcKey")
     void			getAllNodePos(TypeSet<BinID>&) const;
 
@@ -318,6 +306,7 @@ protected:
 						    bool forward=true) const;
 
     void			snapZRange(Interval<float>&);
+    void			updatePath();
 };
 
 } // namespace visSurvey

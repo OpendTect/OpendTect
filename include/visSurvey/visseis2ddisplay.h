@@ -50,7 +50,7 @@ public:
     void			setZRange(const ZSampling&);
     ZSampling			getZRange(bool displayspace,int att=-1) const;
 
-    void			getTraceKeyPath(TrcKeyPath&,
+    void			getTraceKeyPath(TrcKeySet&,
 						TypeSet<Coord>*) const override;
     Interval<float>		getDataTraceRange() const override;
 

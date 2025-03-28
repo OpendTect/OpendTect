@@ -621,7 +621,7 @@ int VolumeDataPack::getNearestGlobalIdx( const TrcKey& tk ) const
 }
 
 
-void VolumeDataPack::getPath( TrcKeyPath& path ) const
+void VolumeDataPack::getPath( TrcKeySet& path ) const
 {
     path.erase();
     for ( int idx=0; idx<nrTrcs(); idx++ )

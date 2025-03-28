@@ -131,8 +131,8 @@ public:
     bool		createOutput(ObjectSet<DataPointSet>&,
 				     int firstcol =0);
     bool		createOutput(const BinIDValueSet&,SeisTrcBuf&,
-				     const TrcKeyPath& trueknotspos,
-				     const TrcKeyPath& snappedpos);
+				     const TrcKeySet& trueknotspos,
+				     const TrcKeySet& snappedpos);
     bool		createOutput(const BinIDValueSet&,SeisTrcBuf&,
 				     const TypeSet<BinID>& trueknotspos,
 				     const TypeSet<BinID>& snappedpos);
@@ -142,8 +142,8 @@ public:
 					    const RandomLineID&);
     RefMan<RandomSeisDataPack>	createRdmTrcsOutputRM(
 					    const Interval<float>& zrg,
-					    TrcKeyPath& path,
-					    TrcKeyPath& trueknotspos);
+					    TrcKeySet& path,
+					    TrcKeySet& trueknotspos);
     static RefMan<RegularSeisDataPack> createDataPackFor2DRM(
 					    const Attrib::Data2DHolder& input,
 					    const TrcKeyZSampling& outputsamp,
@@ -297,7 +297,7 @@ public:
 					  const Pos::GeomID&,
 					  bool isstored,int steerpol);
 protected:
-    void		snapToValidRandomTraces(TrcKeyPath& path,
+    void		snapToValidRandomTraces(TrcKeySet& path,
 						const Attrib::Desc*);
 
 public:
@@ -326,9 +326,9 @@ public:
 					    const RandomLineID&);
     mDeprecated("createRdmTrcsOutputRM")
     DataPackID		createRdmTrcsOutput(const Interval<float>& zrg,
-					    TrcKeyPath& path,
-					    TrcKeyPath& trueknotspos);
-    mDeprecated("Use TrcKeyPath")
+					    TrcKeySet& path,
+					    TrcKeySet& trueknotspos);
+    mDeprecated("Use TrcKeySet")
     DataPackID	createRdmTrcsOutput(const Interval<float>& zrg,
 				    TypeSet<BinID>& path,
 				    TypeSet<BinID>& trueknotspos);
