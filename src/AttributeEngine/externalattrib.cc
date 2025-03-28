@@ -45,4 +45,12 @@ bool ExtAttribCalc::createAttrib( const BinIDValueSet&, SeisTrcBuf& buf,
 				  TaskRunner* )
 { return false; }
 
+
+ConstRefMan<RandomSeisDataPack>
+ExtAttribCalc::createRdmTrcAttrib( const Interval<float>&,
+				   RandomLineID, TaskRunner* )
+{
+    return nullptr;
+}
+
 } // namespace Attrib
