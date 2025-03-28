@@ -1,0 +1,201 @@
+{
+    "version": 4,
+    "cmakeMinimumRequired": {
+        "major": 3,
+        "minor": 23
+    },
+    "configurePresets": [
+        {
+            "name": "environment",
+            "hidden": true,
+            "environment": {
+                "OD_VERSION": "0.0.0",
+                "QT_VERSION": "6.8.1"
+            }
+        },
+        {
+            "name": "env-win",
+            "hidden": true,
+            "inherits": [
+                "environment"
+            ],
+            "environment": {
+                "OD_INSTALLATION": "C:/Program Files/OpendTect",
+                "DEVTOOLS_DIR": "C:/appman/win64",
+                "QTINST": "msvc2022_64"
+            },
+            "condition": {
+                "type": "equals",
+                "lhs": "${hostSystemName}",
+                "rhs": "Windows"
+            }
+        },
+        {
+            "name": "env-lux",
+            "hidden": true,
+            "inherits": [
+                "environment"
+            ],
+            "environment": {
+                "OD_INSTALLATION": "/auto/d51/OD",
+                "DEVTOOLS_DIR": "/auto/users/appman/lux64",
+                "QTINST": "gcc_64"
+            },
+            "condition": {
+                "type": "equals",
+                "lhs": "${hostSystemName}",
+                "rhs": "Linux"
+              }
+        },
+        {
+            "name": "env-macos",
+            "hidden": true,
+            "inherits": [
+                "environment"
+            ],
+            "environment": {
+                "OD_INSTALLATION": "$env{HOME}/Applications/OpendTect",
+                "DEVTOOLS_DIR": "/Users/Shared/dev/mac",
+                "QTINST": "macos"
+            },
+            "condition": {
+                "type": "equals",
+                "lhs": "${hostSystemName}",
+                "rhs": "Darwin"
+            }
+        },
+        {
+            "name": "common",
+            "hidden": true,
+            "binaryDir": "${sourceDir}/build",
+            "cacheVariables": {
+                "OpendTect_DIR": {
+                    "type": "PATH",
+                    "value": "$env{OD_INSTALLATION}/$env{OD_VERSION}"
+                },
+                "OD_BINARY_BASEDIR": {
+                    "type": "PATH",
+                    "value": "$env{OD_INSTALLATION}/$env{OD_VERSION}"
+                },
+                "CMAKE_INSTALL_PREFIX": {
+                    "type": "PATH",
+                    "value": "${sourceDir}/inst"
+                }
+            }
+        },
+        {
+            "name": "common-win",
+            "hidden": true,
+            "inherits": [
+                "common",
+                "env-win"
+            ],
+            "condition": {
+                "type": "equals",
+                "lhs": "${hostSystemName}",
+                "rhs": "Windows"
+            }
+        },
+        {
+            "name": "common-lux",
+            "hidden": true,
+            "inherits": [
+                "common",
+                "env-lux"
+            ],
+            "condition": {
+                "type": "equals",
+                "lhs": "${hostSystemName}",
+                "rhs": "Linux"
+              }
+        },
+        {
+            "name": "common-macos",
+            "hidden": true,
+            "inherits": [
+                "common",
+                "env-macos"
+            ],
+            "condition": {
+                "type": "equals",
+                "lhs": "${hostSystemName}",
+                "rhs": "Darwin"
+            }
+        },
+        {
+            "name": "msvc17gen",
+            "hidden": true,
+            "generator": "Visual Studio 17 2022",
+            "architecture": "x64"
+        },
+        {
+            "name": "ninja-mc",
+            "hidden": true,
+            "description": "Ninja multi-config generator",
+            "generator": "Ninja Multi-Config",
+            "inherits": [
+                "env-lux"
+            ],
+            "cacheVariables": {
+                "CMAKE_MAKE_PROGRAM": "$env{DEVTOOLS_DIR}/qt/Qt/Tools/Ninja/ninja.exe",
+                "CMAKE_DEFAULT_BUILD_TYPE": "Debug"   
+            }
+        },
+        {
+            "name": "default-msvc",
+            "displayName": "Default Windows settings for MSVC",
+            "inherits": [
+                "common-win",
+                "msvc17gen"
+            ],
+            "condition": {
+                "lhs": "${hostSystemName}",
+                "rhs": "Windows",
+                "type": "equals"
+            }
+        },
+        {
+            "name": "default-vscode",
+            "displayName": "Default Windows settings for VSCODE",
+            "inherits": [
+                "common-win"
+            ],
+            "condition": {
+                "lhs": "${hostSystemName}",
+                "rhs": "Windows",
+                "type": "equals"
+            }
+        },
+        {
+            "name": "ninja-msvc-qtcreator",
+            "inherits": [
+                "common-win"
+            ],
+            "toolset": {
+                "value": "v143,host=x64",
+                "strategy": "external"
+            },
+            "architecture": {
+                "value": "x64",
+                "strategy": "external"
+            },
+            "cacheVariables": {
+                "CMAKE_PREFIX_PATH": "$env{DEVTOOLS_DIR}/qt/Qt/$env{QT_VERSION}/$env{QTINST}"
+            }
+        },
+        {
+            "name": "default-ninja-unix",
+            "displayName": "Default Linux settings",
+            "description": "Defaults Linux",
+            "inherits": [
+                "ninja-mc",
+                "common-lux"
+            ],
+            "condition": {
+                "type": "equals",
+                "lhs": "${hostSystemName}",
+                "rhs": "Linux"
+            }
+        }
+    ]
+}
