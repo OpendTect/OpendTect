@@ -629,18 +629,24 @@ bool uiODApplMgr::getNewData( const VisID& visid, int attrib )
 	    attrserv_->setTargetSelSpecs( myas );
 	    mDynamicCastGet(visSurvey::RandomTrackDisplay*,rdmtdisp,
 			    visserv_->getObject(visid) );
+	    if ( !rdmtdisp )
+		break;
+
+	    const RandomLineID rdlid = rdmtdisp->getRandomLineID();
+	    ConstRefMan<RandomSeisDataPack> newdp;
 	    if ( myas[0].id().asInt()==Attrib::SelSpec::cOtherAttrib().asInt() )
 	    {
 		MouseCursorChanger cursorchgr( MouseCursor::Wait );
 		PtrMan<Attrib::ExtAttribCalc> calc =
 			Attrib::ExtAttrFact().create( nullptr, myas[0], false );
-		// TODO implement
-		break;
-	    }
+		if ( !calc )
+		    break;
 
-	    ConstRefMan<RandomSeisDataPack> newdp =
-		attrserv_->createRdmTrcsOutputRM( zrg,
-						  rdmtdisp->getRandomLineID() );
+		newdp = calc->createRdmTrcAttrib( zrg, rdlid, nullptr );
+	    }
+	    else
+		newdp = attrserv_->createRdmTrcsOutputRM( zrg, rdlid );
+
 	    res = visserv_->setRandomSeisDataPack( visid, attrib,
 						   newdp.getNonConstPtr() );
 	    break;
