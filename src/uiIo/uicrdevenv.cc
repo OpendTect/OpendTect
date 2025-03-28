@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "dirlist.h"
 #include "file.h"
 #include "oddirs.h"
+#include "odjson.h"
 #include "odver.h"
 #include "od_helpids.h"
 #include "od_ostream.h"
@@ -32,7 +33,8 @@ static const char* TutPlugins[] =
 };
 
 
-static bool getTutSources( const char* plugindir, BufferStringSet& srcfiles,
+static bool getTutSources( const char* plugindir,
+			   BufferStringSet& srcfiles,
 			   const char* plugindirout=nullptr,
 			   BufferStringSet* srcfilesout=nullptr )
 {
@@ -54,7 +56,8 @@ static bool getTutSources( const char* plugindir, BufferStringSet& srcfiles,
 	    if ( !pluginfpout.exists() )
 		File::createDir( pluginfpout.fullPath() );
 
-	    srcfilesout->add(FilePath(pluginfpout,"CMakeLists.txt").fullPath());
+	    srcfilesout->add(FilePath(pluginfpout,
+					    "CMakeLists.txt").fullPath());
 	}
 
 	const BufferString plugindirnm = pluginfpin.fullPath();
@@ -67,8 +70,8 @@ static bool getTutSources( const char* plugindir, BufferStringSet& srcfiles,
 	    incldl.remove( deffnm.str() );
 	}
 
-	const DirList srcdl( plugindirnm.buf(), File::DirListType::FilesInDir,
-			     "*.cc" );
+	const DirList srcdl( plugindirnm.buf(),
+			     File::DirListType::FilesInDir, "*.cc" );
 	if ( incldl.isEmpty() || srcdl.isEmpty() )
 	    return false;
 
@@ -138,13 +141,14 @@ static uiRetVal isSoftwareDirOK( const char* swdir, bool quick )
     if ( !cmakelistfp.exists() || !includefp.exists() || !srcfp.exists() ||
 	 !progcmakelistfp.exists() || !progversionfp.exists() ||
 	 !progpluginsfp.exists() )
-	return od_static_tr( "uiCrDevEnv", "The developments package seems "
+	return od_static_tr( "uiCrDevEnv",
+			     "The developments package seems "
 			     "incomplete, try re-installing the package" );
 
     BufferStringSet srcfiles;
     if ( !OD::getTutSources(progpluginsfp.fullPath(),srcfiles) )
-	return od_static_tr("uiCrDevEnv",
-			    "Cannot find the Tutorial source files" );
+	return od_static_tr( "uiCrDevEnv",
+			     "Cannot find the Tutorial source files" );
 
     return uiRetVal::OK();
 }
@@ -271,7 +275,8 @@ uiRetVal uiCrDevEnv::copyEnv( const char* swdir, const char* envdir )
     }
 
     const FilePath cmakemodfpout( envdir, "CMakeModules" );
-    if ( !cmakemodfpout.exists() && !File::createDir(cmakemodfpout.fullPath()) )
+    if ( !cmakemodfpout.exists() &&
+	 !File::createDir(cmakemodfpout.fullPath()) )
 	return uiStrings::phrCannotCreateDirectory(
 				    toUiString( cmakemodfpout.fullPath()) );
 
@@ -284,12 +289,20 @@ uiRetVal uiCrDevEnv::copyEnv( const char* swdir, const char* envdir )
     const FilePath cmakelistsfpin( progfp, "CMakeLists.txt" );
     const FilePath cmakelistsfpout( envdir, "CMakeLists.txt" );
     if ( !File::copy(cmakelistsfpin.fullPath(),cmakelistsfpout.fullPath()) )
-	return uiStrings::phrCannotCopy(toUiString(cmakelistsfpin.fullPath()) );
+	return uiStrings::phrCannotCopy(
+				    toUiString(cmakelistsfpin.fullPath()) );
 
     const FilePath versionsfpin( progfp, "version.h.in" );
     const FilePath versionsfpout( cmakemodfpout, "version.h.in" );
     if ( !File::copy(versionsfpin.fullPath(),versionsfpout.fullPath()) )
 	return uiStrings::phrCannotCopy(toUiString(versionsfpin.fullPath()) );
+
+    const FilePath cmakepresetsfpin( progfp, "CMakeUserPresets.json" );
+    const FilePath cmakepresetsfpout( envdir, "CMakeUserPresets.json" );
+    if ( !File::copy(cmakepresetsfpin.fullPath(),
+	cmakepresetsfpout.fullPath()) )
+	return uiStrings::phrCannotCopy(
+				    toUiString(cmakepresetsfpin.fullPath()) );
 
     FilePath pluginsfpin;
     if ( isDeveloperBuild() )
@@ -307,39 +320,64 @@ uiRetVal uiCrDevEnv::copyEnv( const char* swdir, const char* envdir )
     for ( int idx=0; idx<srcfilesin.size(); idx++ )
     {
 	if ( !File::copy(srcfilesin.get(idx),srcfilesout.get(idx)) )
-	    return od_static_tr( "uiCrDevEnv", "Cannot copy all source files" );
+	    return od_static_tr( "uiCrDevEnv",
+				 "Cannot copy all source files" );
     }
 
-    const FilePath cmakecachefilefp( envdir, "CMakeCache.txt" );
-    const BufferString cmakecachefnm = cmakecachefilefp.fullPath();
-    if ( File::exists(cmakecachefnm.str()) &&
-	 !File::remove(cmakecachefnm.str()) )
-	return uiStrings::phrCannotEdit( toUiString(cmakecachefnm.str())) ;
+    const BufferString cmakepresetsfnm = cmakepresetsfpout.fullPath();
 
-    od_ostream strm( cmakecachefnm.str() );
-    if ( !strm.isOK() )
-	return strm.errMsg();
+    uiRetVal uirv;
+    PtrMan<OD::JSON::ValueSet> cmakepresets =
+			    OD::JSON::ValueSet::read( cmakepresetsfnm, uirv );
+    if ( !uirv.isOK() )
+    {
+	uiMSG().warning( tr("Please fill the CMake Presets manually") );
+	return uiRetVal::OK();
+    }
 
     const FilePath swdirfp( swdir );
-    const FilePath instdirfp( envdir, "inst" );
     BufferString swdirfnm( swdirfp.fullPath() );
-    BufferString instdirfnm( instdirfp.fullPath() );
     if ( __iswin__ )
     {
 	BufferString longswdirfnm = FilePath::getLongPath( swdirfnm.buf() );
-	BufferString longinstdirfnm = FilePath::getLongPath( instdirfnm.buf() );
 	longswdirfnm.replace( FilePath::dirSep(FilePath::Windows),
 			      FilePath::dirSep(FilePath::Unix) );
-	longinstdirfnm.replace( FilePath::dirSep(FilePath::Windows),
-			        FilePath::dirSep(FilePath::Unix) );
 	swdirfnm = longswdirfnm;
-	instdirfnm = longinstdirfnm;
     }
 
-    strm << "OpendTect_DIR:PATH=" << swdirfnm.str() << od_newline;
-    strm << "CMAKE_INSTALL_PREFIX:PATH=" << instdirfnm.str() << od_newline;
-    if ( __ismac__ )
-	strm << "AVOID_CLANG_ERROR:BOOL=ON" << od_newline;
+    OD::JSON::Object& cmakepresetsobj = cmakepresets->asObject();
+    OD::JSON::Array* configpresets = cmakepresetsobj.getArray(
+							"configurePresets" );
+    if ( !configpresets )
+	return uiRetVal::OK();
+
+    OD::JSON::Object* commonpreset = nullptr;
+    for ( int idx = 0; idx < configpresets->size(); idx++ )
+    {
+	if ( configpresets->isObjectChild(idx) )
+	{
+	    OD::JSON::Object& preset = configpresets->object( idx );
+	    BufferString namestr = preset.getStringValue( "name" );
+	    if ( namestr == "common" )
+	    {
+		commonpreset = &preset;
+		break;
+	    }
+	}
+    }
+    if (!commonpreset)
+	return uiRetVal::OK();
+
+    OD::JSON::Object* cachevars = commonpreset->getObject( "cacheVariables") ;
+    if (!cachevars)
+	return uiRetVal::OK();
+
+    OD::JSON::Object* oddir = cachevars->getObject( "OpendTect_DIR" );
+    if (!oddir)
+	return uiRetVal::OK();
+
+    oddir->set( "value", swdirfnm.str() );
+    uirv = cmakepresets->write( cmakepresetsfnm, true );
 
     return uiRetVal::OK();
 }
@@ -362,8 +400,8 @@ bool uiCrDevEnv::acceptOK( CallBacker* )
     const BufferString workdir = workdirfp.fullPath();
     if ( !File::exists(workdir.str()) && __iswin__ &&
 	 workdir.matches("Program Files",OD::CaseInsensitive) )
-	mErrRet(tr("Please do not use 'Program Files'.\n"
-		    "Instead, a folder like 'My Documents' would be OK."))
+	mErrRet( tr("Please do not use 'Program Files'.\n"
+		    "Instead, a folder like 'My Documents' would be OK.") )
 
     return true;
 }
