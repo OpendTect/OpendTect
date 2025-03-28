@@ -88,6 +88,7 @@ set( UITUTFILES ${UITUTHFILES} ${UITUTCCFILES} plugins/uiTut/CMakeLists.txt )
 install( FILES ${UITUTFILES}
 	 DESTINATION "${MISC_INSTALL_PREFIX}/doc/Programmer/pluginexample/plugins/uiTut" )
 install( FILES doc/Programmer/pluginexample/CMakeLists.txt
+	       doc/Programmer/pluginexample/CMakeUserPresets.json
 	       doc/Programmer/pluginexample/version.h.in
 	 DESTINATION "${MISC_INSTALL_PREFIX}/doc/Programmer/pluginexample" )
 
