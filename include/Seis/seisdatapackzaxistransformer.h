@@ -26,8 +26,7 @@ public:
 					SeisVolumeDataPack* outputdp=nullptr);
 				~SeisDataPackZAxisTransformer();
 
-    void			setInput( const SeisVolumeDataPack* dp )
-				{ inputdp_ = dp; }
+    void			setInput(const SeisVolumeDataPack*);
     void			setOutputZRange( const ZSampling& zrg )
 				{ zrange_ = zrg; }
     void			setInterpolate( bool yn )

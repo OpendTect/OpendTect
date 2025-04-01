@@ -87,8 +87,11 @@ public:
     const ZDomain::Info&	toZDomainInfo() const;
     const ZDomain::Info&	zDomain(bool from) const;
 				//!< Pointer to singleton
-    ZDomain::Info&		fromZDomainInfo() { return fromzdomaininfo_; }
-    ZDomain::Info&		toZDomainInfo()   { return tozdomaininfo_; }
+    ZDomain::Info&		fromZDomainInfo();
+    ZDomain::Info&		toZDomainInfo();
+
+    void			setDataFromZDomainInfo(const ZDomain::Info&);
+    void			setDataToZDomainInfo(const ZDomain::Info&);
 
     virtual float		toZScale() const;
 				/*!<\returns the target domain z-scale. */
@@ -124,6 +127,10 @@ protected:
 
     ZDomain::Info&		fromzdomaininfo_;
     ZDomain::Info&		tozdomaininfo_;
+
+    const ZDomain::Info*	datafromzdominfo_	    = nullptr;
+    const ZDomain::Info*	datatozdominfo_		    = nullptr;
+
     mutable uiString		errmsg_;
 
 public: //Legacy stuff

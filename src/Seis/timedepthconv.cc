@@ -414,14 +414,19 @@ bool VelocityStretcher::loadDataIfMissing( int id, TaskRunner* taskr )
 ZSampling VelocityStretcher::getModelZSampling() const
 {
     const ZDomain::Info& twtdef = ZDomain::TWT();
-    const ZDomain::Info& ddef = SI().depthsInFeet() ? ZDomain::DepthFeet()
-	: ZDomain::DepthMeter();
+    const ZDomain::Info& ddef = ZDomain::DefaultDepth();
+    const ZDomain::Info& siddef = SI().zDomainInfo();
     const bool zistime = SI().zIsTime();
     const ZDomain::Info& zrgfrom = zistime ? twtdef : ddef;
     const ZDomain::Info& zrgto = zistime ? ddef : twtdef;
     const ZSampling zsamp = SI().zRange( true );
+    if ( !zistime && siddef != ddef )
+	const_cast<ZSampling&>(zsamp).scale(
+		    siddef.isDepthMeter() ? mToFeetFactorD : mFromFeetFactorD );
+
+    const UnitOfMeasure* velunit = velUnit();
     ZSampling zrg = VelocityStretcher::getWorkZSampling( zsamp,
-			    zrgfrom, zrgto, topvavg_, botvavg_, velUnit() );
+			    zrgfrom, zrgto, topvavg_, botvavg_, velunit );
     if ( zrg.isUdf() )
 	return ZSampling::udf();
 
