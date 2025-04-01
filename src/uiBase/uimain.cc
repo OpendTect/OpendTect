@@ -565,7 +565,7 @@ void uiMain::init( QApplication* qap, int& argc, char **argv )
     sysdefaultstyle_ = OD::appStyle( *app_ );
     if ( !stylestr.isEmpty() &&
 	 !stylestr.isEqual(sysdefaultstyle_,OD::CaseInsensitive) )
-	setStyle( sysdefaultstyle_.str() );
+	setStyle( stylestr.str() );
 
     BufferString qssfnm = Settings::common().find( "dTect.StyleSheet" );
     if ( qssfnm.isEmpty() )
