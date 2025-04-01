@@ -23,6 +23,7 @@ ________________________________________________________________________
 #include "scaler.h"
 #include "seisbuf.h"
 #include "seisinfo.h"
+#include "seisioobjinfo.h"
 #include "seispacketinfo.h"
 #include "seisselection.h"
 #include "seistrc.h"
@@ -243,13 +244,20 @@ bool SeisTrcTranslator::commitSelections()
     if ( seldata_ && !mIsUdf(seldata_->zRange().start_) )
     {
 	Interval<float> selzrg( seldata_->zRange() );
-	const Interval<float> sizrg( SI().sampling(false).zsamp_ );
-	if ( !mIsEqual(selzrg.start_,sizrg.start_,1e-8)
-	     || !mIsEqual(selzrg.stop_,sizrg.stop_,1e-8) )
+	const MultiID seldataid = conn_->linkedTo();
+	const SeisIOObjInfo selinf( seldataid );
+	const ZDomain::Def& seldatazdom = selinf.zDomainDef();
+	if ( seldatazdom != SI().zDomain() )
 	{
-	    outsd_.start_ = selzrg.start_;
-	    const float fnrsteps = (selzrg.stop_-selzrg.start_) / outsd_.step_;
-	    outnrsamples_ = mNINT32(fnrsteps) + 1;
+	    const Interval<float> sizrg( SI().sampling(false).zsamp_ );
+	    if ( !mIsEqual(selzrg.start_,sizrg.start_,1e-8)
+		 || !mIsEqual(selzrg.stop_,sizrg.stop_,1e-8) )
+	    {
+		outsd_.start_ = selzrg.start_;
+		const float fnrsteps = (selzrg.stop_-selzrg.start_)
+					/ outsd_.step_;
+		outnrsamples_ = mNINT32(fnrsteps) + 1;
+	    }
 	}
     }
 

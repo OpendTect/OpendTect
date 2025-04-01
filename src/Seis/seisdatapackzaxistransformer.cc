@@ -30,6 +30,13 @@ SeisDataPackZAxisTransformer::~SeisDataPackZAxisTransformer()
 }
 
 
+void SeisDataPackZAxisTransformer::setInput( const SeisVolumeDataPack* dp )
+{
+    inputdp_ = dp;
+    transform_.getNonConstPtr()->setDataFromZDomainInfo( dp->zDomain() );
+}
+
+
 od_int64 SeisDataPackZAxisTransformer::nrIterations() const
 {
     return inputdp_ ? inputdp_->nrTrcs() : -1;

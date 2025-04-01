@@ -51,6 +51,9 @@ ZAxisTransform::ZAxisTransform( const ZDomain::Def& from,
 	fromzdomaininfo_.setDepthUnit( SI().depthType() );
     if ( to.isDepth() )
 	tozdomaininfo_.setDepthUnit( SI().depthType() );
+
+    datafromzdominfo_ = &ZDomain::Info::getFrom( fromzdomaininfo_ );
+    datatozdominfo_ = &ZDomain::Info::getFrom( tozdomaininfo_ );
 }
 
 
@@ -66,11 +69,14 @@ int ZAxisTransform::addVolumeOfInterest( const TrcKeyZSampling&, bool )
     return -1;
 }
 
+
 void ZAxisTransform::setVolumeOfInterest( int, const TrcKeyZSampling&, bool )
 {}
 
+
 void ZAxisTransform::removeVolumeOfInterest( int )
 {}
+
 
 bool ZAxisTransform::loadDataIfMissing(int,TaskRunner*)
 {
@@ -120,7 +126,9 @@ void ZAxisTransform::transformBack( const BinID& bid,
 
 
 float ZAxisTransform::transform( const Coord3& pos ) const
-{ return transform( BinIDValue(SI().transform(pos),(float) pos.z_) ); }
+{
+    return transform( BinIDValue(SI().transform(pos),(float) pos.z_) );
+}
 
 
 float ZAxisTransform::transform( const BinIDValue& pos ) const
@@ -132,7 +140,9 @@ float ZAxisTransform::transform( const BinIDValue& pos ) const
 
 
 float ZAxisTransform::transformBack( const Coord3& pos ) const
-{ return transformBack( BinIDValue(SI().transform(pos),(float) pos.z_) ); }
+{
+    return transformBack( BinIDValue(SI().transform(pos),(float) pos.z_) );
+}
 
 
 float ZAxisTransform::transformBack( const BinIDValue& pos ) const
@@ -231,17 +241,58 @@ ZSampling ZAxisTransform::getZInterval( bool isfrom, bool makenice,
 }
 
 
+ZDomain::Info& ZAxisTransform::fromZDomainInfo()
+{
+    if ( !datafromzdominfo_ || fromzdomaininfo_==*datafromzdominfo_ )
+	return fromzdomaininfo_;
+
+    return const_cast<ZDomain::Info&>(*datafromzdominfo_);
+}
+
+
 const ZDomain::Info& ZAxisTransform::fromZDomainInfo() const
-{ return getNonConst(*this).fromZDomainInfo(); }
+{
+    return getNonConst(*this).fromZDomainInfo();
+}
+
+
+ZDomain::Info& ZAxisTransform::toZDomainInfo()
+{
+    if ( !datatozdominfo_ || tozdomaininfo_==*datatozdominfo_ )
+	return tozdomaininfo_;
+
+    return const_cast<ZDomain::Info&>(*datatozdominfo_);
+}
+
 
 const ZDomain::Info& ZAxisTransform::toZDomainInfo() const
-{ return getNonConst(*this).toZDomainInfo(); }
+{
+    return getNonConst(*this).toZDomainInfo();
+}
+
 
 const char* ZAxisTransform::fromZDomainKey() const
-{ return fromzdomaininfo_.key(); }
+{
+    return fromzdomaininfo_.key();
+}
+
 
 const char* ZAxisTransform::toZDomainKey() const
-{ return tozdomaininfo_.key(); }
+{
+    return tozdomaininfo_.key();
+}
+
+
+void ZAxisTransform::setDataFromZDomainInfo( const ZDomain::Info& dfzdinf )
+{
+    datafromzdominfo_ = &dfzdinf;
+}
+
+
+void ZAxisTransform::setDataToZDomainInfo( const ZDomain::Info& dtzdinf )
+{
+    datatozdominfo_ = &dtzdinf;
+}
 
 
 const ZDomain::Info& ZAxisTransform::zDomain( bool from ) const
@@ -260,16 +311,14 @@ void ZAxisTransform::fillPar( IOPar& par ) const
 
 float ZAxisTransform::toZScale() const
 {
-    if ( toZDomainInfo().def_.isDepth() )
+    if ( toZDomainInfo().isDepth() )
     {
 	return SI().defaultXYtoZScale(
 		SI().depthsInFeet() ? SurveyInfo::Feet : SurveyInfo::Meter,
 		SI().xyUnit() );
     }
-    else if ( toZDomainInfo().def_.isTime() )
-    {
+    else if ( toZDomainInfo().isTime() )
 	return SI().defaultXYtoZScale( SurveyInfo::Second, SI().xyUnit() );
-    }
 
     return SI().zScale( false );
 }
@@ -300,11 +349,15 @@ ZAxisTransformSampler::ZAxisTransformSampler( const ZAxisTransform& trans,
     , trckey_(Pos::IdxPair(0,0),is2d)
     , sd_(nsd)
     , is2d_(is2d)
-{ transform_.ref(); }
+{
+    transform_.ref();
+}
 
 
 ZAxisTransformSampler::~ZAxisTransformSampler()
-{ transform_.unRef(); }
+{
+    transform_.unRef();
+}
 
 
 void ZAxisTransformSampler::setLineName( const char* lnm )
@@ -317,7 +370,9 @@ void ZAxisTransformSampler::setLineName( const char* lnm )
 
 
 void ZAxisTransformSampler::setTrcNr( int trcnr )
-{ trckey_.setTrcNr(trcnr ); }
+{
+    trckey_.setTrcNr(trcnr );
+}
 
 
 void ZAxisTransformSampler::setBinID( const BinID& bid )
@@ -358,13 +413,9 @@ void ZAxisTransformSampler::computeCache( const Interval<int>& range )
     const SamplingData<float> cachesd( (float)sd_.atIndex(range.start_),
 				       (float)sd_.step_ );
     if ( back_ )
-    {
 	transform_.transformTrcBack( trckey_, cachesd, sz, cache_.arr() );
-    }
     else
-    {
 	transform_.transformTrc( trckey_, cachesd, sz, cache_.arr() );
-    }
 
     firstcachesample_ = range.start_;
 }

@@ -930,6 +930,7 @@ void PlaneDataDisplay::createTransformedDataPack( int attrib, TaskRunner* taskr)
     RefMan<RegularSeisDataPack> transformed;
     if ( datatransform_ && !alreadyTransformed(attrib) )
     {
+	datatransform_->setDataFromZDomainInfo( regsdp->zDomain() );
 	const TrcKeyZSampling tkzs = getTrcKeyZSampling( true, true );
 	if ( datatransform_->needsVolumeOfInterest() )
 	{

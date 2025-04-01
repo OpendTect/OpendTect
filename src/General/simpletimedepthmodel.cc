@@ -385,10 +385,10 @@ bool SimpleTimeDepthAscIO::get( od_istream& strm,
 SimpleDepthTransform::SimpleDepthTransform( bool frommetertofeet )
     : ZAxisTransform(ZDomain::Depth(),ZDomain::Depth())
 {
-    const ZDomain::DepthType metertyp = ZDomain::DepthType::Meter;
-    const ZDomain::DepthType feettyp = ZDomain::DepthType::Feet;
-    fromZDomainInfo().setDepthUnit( frommetertofeet ? metertyp : feettyp );
-    toZDomainInfo().setDepthUnit( frommetertofeet ? feettyp : metertyp );
+    setDataFromZDomainInfo( frommetertofeet ? ZDomain::DepthMeter()
+					    : ZDomain::DepthFeet() );
+    setDataToZDomainInfo( frommetertofeet ? ZDomain::DepthFeet()
+					  : ZDomain::DepthMeter() );
 }
 
 
