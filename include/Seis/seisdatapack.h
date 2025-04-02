@@ -225,7 +225,7 @@ public:
 protected:
 
 				SeisFlatDataPack(const SeisVolumeDataPack&,
-						 int comp);
+						 int comp,const char* ctgy);
 				~SeisFlatDataPack();
 
     virtual void		setSourceData()				= 0;
@@ -255,7 +255,8 @@ mExpClass(Seis) RegularSeisFlatDataPack : public SeisFlatDataPack
 public:
 				RegularSeisFlatDataPack(
 						const RegularSeisDataPack&,
-						int component);
+						int component,
+						const char* category=nullptr);
 
     bool			isVertical() const override
 				{ return dir_ != TrcKeyZSampling::Z; }
@@ -298,7 +299,8 @@ mExpClass(Seis) RandomSeisFlatDataPack : public SeisFlatDataPack
 public:
 				RandomSeisFlatDataPack(
 						const RandomSeisDataPack&,
-						int component);
+						int component,
+						const char* category=nullptr);
 
     bool			isVertical() const override	{ return true; }
     bool			isRandom() const override	{ return true; }

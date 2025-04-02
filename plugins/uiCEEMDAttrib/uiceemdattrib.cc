@@ -435,19 +435,19 @@ uiCEEMDPanel::~uiCEEMDPanel()
 {}
 
 
-const char* uiCEEMDPanel::getProcName()
+const char* uiCEEMDPanel::getProcName() const
 {
     return "Compute all frequencies for a single trace";
 }
 
 
-const char* uiCEEMDPanel::getPackName()
+const char* uiCEEMDPanel::getPackName() const
 {
-    return "Spectral Decomposition time/frequency spectrum";
+    return "CEEMD Spectral Decomposition time/frequency spectrum";
 }
 
 
-const char* uiCEEMDPanel::getPanelName()
+const char* uiCEEMDPanel::getPanelName() const
 {
     return "Time Frequency spectrum";
 }

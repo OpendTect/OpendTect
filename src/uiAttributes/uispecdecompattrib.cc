@@ -528,11 +528,19 @@ uiSpecDecompPanel::~uiSpecDecompPanel()
 {}
 
 
-const char* uiSpecDecompPanel::getProcName()
-{ return "Compute all frequencies for a single trace"; }
+const char* uiSpecDecompPanel::getProcName() const
+{
+    return "Compute all frequencies for a single trace";
+}
 
-const char* uiSpecDecompPanel::getPackName()
-{ return "Spectral Decomposition time/frequency spectrum"; }
 
-const char* uiSpecDecompPanel::getPanelName()
-{ return "Time Frequency spectrum"; }
+const char* uiSpecDecompPanel::getPackName() const
+{
+    return "Spectral Decomposition time/frequency spectrum";
+}
+
+
+const char* uiSpecDecompPanel::getPanelName() const
+{
+    return "Time Frequency spectrum";
+}

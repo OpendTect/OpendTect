@@ -661,8 +661,9 @@ DataPackID RandomSeisDataPack::createDataPackFrom(
 
 // SeisFlatDataPack
 
-SeisFlatDataPack::SeisFlatDataPack( const SeisVolumeDataPack& source, int comp )
-    : FlatDataPack(source.category())
+SeisFlatDataPack::SeisFlatDataPack( const SeisVolumeDataPack& source, int comp,
+				    const char* category )
+    : FlatDataPack(category ? category : source.category())
     , source_(&source)
     , comp_(comp)
     , zsamp_(source.zRange())
@@ -874,8 +875,8 @@ RandomLineID SeisFlatDataPack::getRandomLineID() const
 // RegularSeisFlatDataPack
 
 RegularSeisFlatDataPack::RegularSeisFlatDataPack(
-		const RegularSeisDataPack& source, int comp )
-    : SeisFlatDataPack(source,comp)
+		const RegularSeisDataPack& source, int comp, const char* ctgy )
+    : SeisFlatDataPack(source,comp,ctgy)
     , sampling_(source.sampling())
     , dir_(sampling_.defaultDir())
     , usemulticomps_(comp_==-1)
@@ -1093,8 +1094,8 @@ float RegularSeisFlatDataPack::getPosDistance( bool dim0, float posfidx ) const
 // RandomSeisFlatDataPack
 
 RandomSeisFlatDataPack::RandomSeisFlatDataPack( const RandomSeisDataPack& src,
-						int comp )
-    : SeisFlatDataPack(src,comp)
+						int comp, const char* ctgy )
+    : SeisFlatDataPack(src,comp,ctgy)
     , path_(src.getPath())
 {
     rdlid_ = getRandomLineID();
