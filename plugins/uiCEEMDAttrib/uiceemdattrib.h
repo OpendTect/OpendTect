@@ -25,14 +25,14 @@ class uiSpecDecompPanel;
 class uiTrcPositionDlg;
 class uiLabeledSpinBox;
 
-class uiCEEMDAttrib : public uiAttrDescEd
+mClass(uiCEEMDAttrib) uiCEEMDAttrib : public uiAttrDescEd
 { mODTextTranslationClass(uiCEEMDAttrib)
 public:
 
 			uiCEEMDAttrib(uiParent*,bool);
 			~uiCEEMDAttrib();
 
-protected:
+private:
 
     uiAttrSel*		inpfld_;
     uiGenInput*		methodfld_;
@@ -74,16 +74,16 @@ protected:
 };
 
 
-class uiCEEMDPanel : public uiAttribPanel
-{
+mClass(uiCEEMDAttrib) uiCEEMDPanel : public uiAttribPanel
+{ mODTextTranslationClass(uiCEEMDPanel)
 public:
 				uiCEEMDPanel(uiParent*);
 				~uiCEEMDPanel();
 
 private:
 
-    const char*			getProcName() override;
-    const char*			getPackName() override;
-    const char*			getPanelName() override;
+    const char*			getProcName() const override;
+    const char*			getPackName() const override;
+    const char*			getPanelName() const override;
 
 };

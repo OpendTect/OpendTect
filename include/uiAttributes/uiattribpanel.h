@@ -43,9 +43,9 @@ protected:
     RefMan<FlatDataPack>	createFDPack(Attrib::EngineMan*,
 					     Attrib::Processor*) const;
 
-    virtual const char*		getProcName()	{ return "Computing attribute";}
-    virtual const char*		getPackName()	{ return "Attribute pack"; }
-    virtual const char*		getPanelName()	{ return "Attribute preview"; }
+    virtual const char*		getProcName() const;
+    virtual const char*		getPackName() const;
+    virtual const char*		getPanelName() const;
 
     uiFlatViewMainWin*		flatvwin_	= nullptr;
     TrcKeyZSampling		tkzs_;

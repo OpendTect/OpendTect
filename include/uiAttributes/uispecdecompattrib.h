@@ -35,7 +35,7 @@ public:
     int			getOutputIdx(float) const override;
     float		getOutputValue(int) const override;
 
-protected:
+private:
 
     uiImagAttrSel*	inpfld_;
     uiGenInput*		typefld_;
@@ -96,8 +96,9 @@ public:
 				uiSpecDecompPanel(uiParent*);
 				~uiSpecDecompPanel();
 
-protected:
-    const char*			getProcName() override;
-    const char*			getPackName() override;
-    const char*			getPanelName() override;
+private:
+
+    const char*			getProcName() const override;
+    const char*			getPackName() const override;
+    const char*			getPanelName() const override;
 };

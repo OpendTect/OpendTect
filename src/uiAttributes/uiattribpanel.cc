@@ -70,7 +70,7 @@ RefMan<FlatDataPack> uiAttribPanel::computeAttrib()
 
     proc->setName( getProcName() );
     uiTaskRunner dlg( parent_ );
-    if ( !TaskRunner::execute( &dlg, *proc ) )
+    if ( !TaskRunner::execute(&dlg,*proc) )
 	return nullptr;
 
     RefMan<FlatDataPack> fdpack = is2d ? createFDPack( *d2dh )
@@ -111,7 +111,8 @@ RefMan<FlatDataPack> uiAttribPanel::createFDPack(
     RefMan<RegularSeisDataPack> rsdp =
 	uiAttribPartServer::createDataPackFor2DRM( d2dh, sampling,
 						   SI().zDomainInfo() );
-    return rsdp ? new RegularSeisFlatDataPack(*rsdp,-1) : nullptr;
+    const BufferString category( getPanelName() );
+    return rsdp ? new RegularSeisFlatDataPack(*rsdp,-1,category) : nullptr;
 }
 
 
@@ -119,7 +120,8 @@ RefMan<FlatDataPack> uiAttribPanel::createFDPack( EngineMan* aem,
 						  Processor* proc ) const
 {
     ConstRefMan<RegularSeisDataPack> output = aem->getDataPackOutput( *proc );
-    return output ? new RegularSeisFlatDataPack(*output,-1) : nullptr;
+    const BufferString category( getPanelName() );
+    return output ? new RegularSeisFlatDataPack(*output,-1,category) : nullptr;
 }
 
 
@@ -132,6 +134,9 @@ void uiAttribPanel::createAndDisplay2DViewer()
 	flatvwin_ = new uiFlatViewMainWin( parent_,
 			uiFlatViewMainWin::Setup(toUiString(getPanelName())));
 	uiFlatViewer& vwr = flatvwin_->viewer();
+	if ( vddp_ )
+	    vwr.setZDomain( vddp_->zDomain(), false );
+
 	vwr.setInitialSize( uiSize(400,600) );
 	FlatView::Appearance& app = vwr.appearance();
 	app.annot_.setAxesAnnot( true );
@@ -166,4 +171,22 @@ void uiAttribPanel::compAndDispAttrib( DescSet* dset, const DescID& mpid,
 	createAndDisplay2DViewer();
     else
 	{ pErrMsg("Error during attribute computation"); }
+}
+
+
+const char* uiAttribPanel::getProcName() const
+{
+    return "Computing attribute";
+}
+
+
+const char* uiAttribPanel::getPackName() const
+{
+    return "Attribute pack";
+}
+
+
+const char* uiAttribPanel::getPanelName() const
+{
+    return "Attribute preview";
 }
