@@ -172,8 +172,9 @@ public:
     bool		getStats(IOPar&) const;
     bool		isAvailableIn(const TrcKeySampling&) const;
 
-    RefMan<FloatDistrib> getDataDistribution() const;
+    RefMan<FloatDistrib> getDataDistribution(int icomp=-1) const;
 			//this may take some time, use uiUserShowWait or alike
+    Interval<float>	getDataRange(int icomp=-1) const;
 
     mStruct(Seis) Opts2D
     {

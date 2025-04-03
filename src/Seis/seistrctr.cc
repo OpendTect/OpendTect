@@ -627,6 +627,12 @@ void SeisTrcTranslator::getComponentNames( BufferStringSet& bss ) const
 }
 
 
+Interval<float> SeisTrcTranslator::getDataRange( int /* icomp */ ) const
+{
+    return Interval<float>::udf();
+}
+
+
 bool SeisTrcTranslator::read( SeisTrc& trc )
 {
     if ( !headerdonenew_ && !readInfo(trc.info()) )
