@@ -61,20 +61,24 @@ static IOObjContext adaptCtxtWithSetup( const IOObjContext& ct,
     else if ( su.domainpol_ == uiSeisSel::Setup::SIDef )
 	ctxt.requireZDef( SI().zDomain() );*/
 
-    if ( ctxt.trgroup_ && !ctxt.forread_ &&
-	 su.compnrpol_ == uiSeisSel::Setup::MultiCompOnly )
+    if ( ctxt.trgroup_ )
     {
 	const TranslatorGroup& trgrp = *ctxt.trgroup_;
 	const ObjectSet<const Translator>& alltrs = trgrp.templates();
 	FileMultiString allowedtranlators;
 	for ( const auto* transl : alltrs )
 	{
+	    if ( !transl || !transl->isUserSelectable(ctxt.forread_) )
+		continue;
+
 	    mDynamicCastGet(const SeisTrcTranslator*,seistr,transl);
-	    if ( seistr && seistr->supportsMultiCompTrc() )
-	    {
-		const BufferString nm = transl->typeName();
-		allowedtranlators.add( nm );
-	    }
+	    if ( !seistr || (!ctxt.forread_ &&
+		 su.compnrpol_ == uiSeisSel::Setup::MultiCompOnly &&
+		 !seistr->supportsMultiCompTrc()) )
+		continue;
+
+	    const BufferString nm = transl->typeName();
+	    allowedtranlators.add( nm );
 	}
 
 	if ( allowedtranlators.isEmpty() )
@@ -390,11 +394,9 @@ bool uiSeisSel::outputSupportsMultiComp() const
 {
     const Translator* transl = wrtrselfld_->selectedTranslator();
     mDynamicCastGet(const SeisTrcTranslator*,seistr,transl);
-    if ( !seistr )
-	return false;
-
-    return seistr->supportsMultiCompTrc();
+    return seistr ? seistr->supportsMultiCompTrc() : false;
 }
+
 
 uiSeisSel::Setup uiSeisSel::mkSetup( const uiSeisSel::Setup& su,
 				     const IOObjContext& ctxt )
@@ -612,18 +614,24 @@ void uiSeisSel::updateInput()
 
 void uiSeisSel::updateOutputOpts( bool issteering )
 {
-    BufferStringSet transntallowed;
-    if ( !issteering )
-    {
-	wrtrselfld_->updateTransFld( transntallowed );
-	return;
-    }
-
     CtxtIOObj& ctxt = ctxtIOObj();
     const TranslatorGroup& trgrp = *ctxt.ctxt_.trgroup_;
     const ObjectSet<const Translator>& alltrs = trgrp.templates();
+    BufferStringSet transntallowed;
     for ( const auto* transl : alltrs )
     {
+	if ( !transl )
+	    continue;
+
+	if ( !transl->isUserSelectable(false) )
+	{
+	    transntallowed.add( transl->typeName() );
+	    continue;
+	}
+
+	if ( !issteering )
+	    continue;
+
 	mDynamicCastGet(const SeisTrcTranslator*,seistr,transl);
 	if ( seistr && !seistr->supportsMultiCompTrc() )
 	    transntallowed.add( transl->typeName() );
