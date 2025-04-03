@@ -132,11 +132,11 @@ uiSeisSelDlg::uiSeisSelDlg( uiParent* p, const CtxtIOObj& c,
 	}
     }
 
-    if ( !sssu.seltxt_.isEmpty() )
-	setTitleText( sssu.seltxt_ );
-    else
+    if ( sssu.seltxt_.isEmpty() )
 	setTitleText( tr("Select %1").arg(isps	? tr("Data Store")
 			: (is2d ? tr("Dataset") : uiStrings::sVolume())) );
+    else
+	setTitleText( sssu.seltxt_ );
 
     uiGroup* topgrp = selgrp_->getTopGroup();
     selgrp_->getListField()->selectionChanged.notify(
@@ -446,7 +446,7 @@ void uiSeisSel::newSelection( uiIOObjRetDlg* dlg )
 const char* uiSeisSel::userNameFromKey( const char* txt ) const
 {
     if ( !txt || !*txt )
-	return "";
+	return nullptr;
 
     curusrnm_ = uiIOObjSel::userNameFromKey( StringPair(txt).first().buf() );
     return curusrnm_.buf();
@@ -468,7 +468,7 @@ void uiSeisSel::setCompNr( int nr )
 const char* uiSeisSel::compNameFromKey( const char* txt ) const
 {
     if ( !txt || !*txt )
-	return "";
+	return nullptr;
 
     return uiIOObjSel::userNameFromKey( StringPair(txt).second().buf() );
 }

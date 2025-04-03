@@ -523,7 +523,7 @@ bool uiPosProvSel::isAll() const
 
 void uiPosProvSel::setToAll()
 {
-    if ( !setup_.allownone_ )
+    if ( setup_.allownone_ )
     {
 	iop_.set( sKey::Type(), sKey::None() );
 	mkNewProv( true );

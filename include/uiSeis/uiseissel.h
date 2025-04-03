@@ -120,8 +120,6 @@ protected:
 
     uiLabeledComboBox*	compfld_		= nullptr;
     int			steerpol_;
-    BufferString	notalloweddatatype_;	// 2D only
-    BufferString	zdomainkey_;	// 2D only
 
     void		entrySel(CallBacker*);
     BufferString	getDataType();
