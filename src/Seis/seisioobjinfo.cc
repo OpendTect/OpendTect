@@ -706,25 +706,37 @@ bool SeisIOObjInfo::isAvailableIn( const TrcKeySampling& tks ) const
 }
 
 
-RefMan<FloatDistrib> SeisIOObjInfo::getDataDistribution() const
+RefMan<FloatDistrib> SeisIOObjInfo::getDataDistribution( int icomp ) const
 {
     mChk(nullptr);
     IOPar iop;
     RefMan<FloatDistrib> ret;
+    const bool allcomps = icomp < 0 || (icomp == 0 && nrComponents()==1);
     if ( haveStats() && getStats(iop) )
     {
-	PtrMan<IOPar> dpar = iop.subselect( sKey::Distribution() );
-	if ( dpar && !dpar->isEmpty() )
+	PtrMan<IOPar> comppars;
+	if ( !allcomps )
+	    comppars = iop.subselect( IOPar::compKey(sKey::Component(),icomp) );
+
+	if ( allcomps || (!allcomps && comppars) )
 	{
-	    ret = new FloatDistrib;
-	    DataDistributionChanger<float> chgr( *ret );
-	    chgr.usePar( *dpar );
-	    return ret;
+	    const IOPar& par = allcomps ? iop : *comppars.ptr();
+	    PtrMan<IOPar> dpar = par.subselect( sKey::Distribution() );
+	    if ( dpar && !dpar->isEmpty() )
+	    {
+		ret = new FloatDistrib;
+		DataDistributionChanger<float> chgr( *ret );
+		chgr.usePar( *dpar );
+		return ret;
+	    }
 	}
     }
 
     // No .stats file. Extract stats right now
     SeisTrcReader rdr( *ioobj_ );
+    if ( !allcomps )
+	rdr.setComponent( icomp );
+
     if ( !rdr.prepareWork() )
 	return nullptr;
 
@@ -794,14 +806,45 @@ RefMan<FloatDistrib> SeisIOObjInfo::getDataDistribution() const
     ret = &ssc.distribution();
     if ( !ret->isEmpty() )
     {
-	iop.set( sKey::Source(), "Partial Scan" );
-	ssc.fillPar( iop );
+	IOPar subiop;
+	subiop.set( sKey::Source(), "Partial Scan" );
+	ssc.fillPar( subiop );
+	if ( allcomps )
+	    iop.merge( subiop );
+	else
+	    iop.mergeComp( subiop, IOPar::compKey(sKey::Component(),icomp) );
+
 	FilePath fp( ioobj_->mainFileName() );
 	fp.setExtension( sStatsFileExtension() );
 	iop.write( fp.fullPath(), sKey::Stats() );
     }
 
     return ret;
+}
+
+
+Interval<float> SeisIOObjInfo::getDataRange( int icomp ) const
+{
+    const bool allcomps = icomp < 0 || (icomp == 0 && nrComponents()==1);
+    const int compnr = allcomps ? -1 : icomp;
+    PtrMan<SeisTrcReader> rdr = new SeisTrcReader( *ioobj_ );
+    if ( !allcomps )
+	rdr->setComponent( icomp );
+
+    if ( rdr->prepareWork() )
+    {
+	SeisTrcTranslator* trl = rdr->seisTranslator();
+	if ( trl )
+	{
+	    Interval<float> ret = trl->getDataRange( compnr );
+	    if ( !ret.isUdf() )
+		return ret;
+	}
+    }
+
+    rdr = nullptr;
+    ConstRefMan<FloatDistrib> distrib = getDataDistribution( compnr );
+    return distrib ? distrib->dataRange() : Interval<float>::udf();
 }
 
 

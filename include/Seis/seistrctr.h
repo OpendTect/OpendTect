@@ -260,6 +260,7 @@ public:
 
     void		setComponentNames(const BufferStringSet&);
     void		getComponentNames(BufferStringSet&) const;
+    virtual Interval<float> getDataRange(int icomp=-1) const;
 
     bool		haveWarnings() const;
     const BufferStringSet& warnings() const		{ return warnings_; }
