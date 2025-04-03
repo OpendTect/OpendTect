@@ -37,10 +37,11 @@ mExpClass(uiSeis) uiSeisSubSel : public uiGroup
 public:
 
     static uiSeisSubSel* get(uiParent*,const Seis::SelSetup&);
-    virtual		~uiSeisSubSel();
+			~uiSeisSubSel();
+
+    virtual bool	is2D() const					= 0;
 
     bool		isAll() const;
-    virtual bool	is2D() const					= 0;
     void		getSampling(TrcKeyZSampling&) const;
     void		getSampling(TrcKeySampling&) const;
     void		getZRange(StepInterval<float>&) const;
@@ -49,6 +50,7 @@ public:
     virtual bool	fillPar(IOPar&) const;
     virtual void	usePar(const IOPar&);
 
+    void		setToAll();
     virtual void	clear();
     virtual void	setInput(const IOObj&)				= 0;
     void		setInput(const TrcKeySampling&);
@@ -81,6 +83,7 @@ public:
 			~uiSeis3DSubSel();
 
     bool		is2D() const override	{ return false; }
+    void		clear() override;
 
     void		setInput(const IOObj&) override;
 };

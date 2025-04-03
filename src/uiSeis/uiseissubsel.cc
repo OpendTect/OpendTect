@@ -62,7 +62,9 @@ uiSeisSubSel::~uiSeisSubSel()
 
 
 void uiSeisSubSel::selChangeCB( CallBacker* )
-{ selChange.trigger(); }
+{
+    selChange.trigger();
+}
 
 
 void uiSeisSubSel::afterSurveyChangedCB( CallBacker* )
@@ -77,6 +79,12 @@ void uiSeisSubSel::afterSurveyChangedCB( CallBacker* )
 bool uiSeisSubSel::isAll() const
 {
     return selfld_->isAll();
+}
+
+
+void uiSeisSubSel::setToAll()
+{
+    selfld_->setToAll();
 }
 
 
@@ -106,7 +114,8 @@ const ZDomain::Info* uiSeisSubSel::zDomain() const
 
 bool uiSeisSubSel::fillPar( IOPar& iop ) const
 {
-    selfld_->fillPar(iop); return true;
+    selfld_->fillPar( iop );
+    return true;
 }
 
 
@@ -191,6 +200,12 @@ uiSeis3DSubSel::uiSeis3DSubSel( uiParent* p, const Seis::SelSetup& ss )
 
 uiSeis3DSubSel::~uiSeis3DSubSel()
 {}
+
+
+void uiSeis3DSubSel::clear()
+{
+    uiSeisSubSel::clear();
+}
 
 
 void uiSeis3DSubSel::setInput( const IOObj& ioobj )
