@@ -479,9 +479,11 @@ bool uiWellImportAsc::doWork()
     if ( !wwr.put() )
 	mErrRet( wwr.errMsg() );
 
-    outioobj->pars().update( sKey::CrFrom(), datasrcnms.cat("`") );
-    outioobj->updateCreationPars();
-    IOM().commitChanges( *outioobj );
+    // Writer may have updated the IOObj entry
+    PtrMan<IOObj> newioobj = IOM().get( outioobj->key() );
+    newioobj->pars().update( sKey::CrFrom(), datasrcnms.cat("`") );
+    newioobj->updateCreationPars();
+    IOM().commitChanges( *newioobj );
 
     if ( saveButtonChecked() )
 	importReady.trigger();

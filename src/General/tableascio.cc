@@ -957,7 +957,8 @@ int Table::AscIO::getIntValue( int ifld, int udf ) const
 }
 
 
-float Table::AscIO::getFValue( int ifld, float udf ) const
+float Table::AscIO::getFValue( int ifld, float udf,
+				const UnitOfMeasure* outunit ) const
 {
     if ( !vals_.validIdx(ifld) )
 	return mUdf(float);
@@ -966,16 +967,25 @@ float Table::AscIO::getFValue( int ifld, float udf ) const
     if ( !sval )
 	return mUdf(float);
 
-    const double val = toDouble( sval );
+    double val = toDouble( sval );
     if ( mIsEqual(mCast(float,val),udf,mDefEps) )
 	return mUdf(float);
 
     const UnitOfMeasure* unit = units_.size() > ifld ? units_[ifld] : nullptr;
-    return mCast(float, unit ? unit->getSIValue( val ) : val );
+    if ( unit )
+    {
+	if ( outunit )
+	    convValue( val, unit, outunit );
+	else
+	    val = unit->getSIValue( val );
+    }
+
+    return sCast( float, val );
 }
 
 
-double Table::AscIO::getDValue( int ifld, double udf ) const
+double Table::AscIO::getDValue( int ifld, double udf,
+				const UnitOfMeasure* outunit ) const
 {
     if ( !vals_.validIdx(ifld) )
 	return mUdf(double);
@@ -989,7 +999,15 @@ double Table::AscIO::getDValue( int ifld, double udf ) const
 	return mUdf(double);
 
     const UnitOfMeasure* unit = units_.size() > ifld ? units_[ifld] : nullptr;
-    return unit ? unit->getSIValue( val ) : val;
+    if ( unit )
+    {
+	if ( outunit )
+	    convValue( val, unit, outunit );
+	else
+	    val = unit->getSIValue( val );
+    }
+
+    return val;
 }
 
 
