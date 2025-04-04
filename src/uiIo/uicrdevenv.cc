@@ -352,7 +352,7 @@ uiRetVal uiCrDevEnv::copyEnv( const char* swdir, const char* envdir )
 	return uiRetVal::OK();
 
     OD::JSON::Object* commonpreset = nullptr;
-    for ( int idx = 0; idx < configpresets->size(); idx++ )
+    for ( int idx=0; idx<configpresets->size(); idx++ )
     {
 	if ( configpresets->isObjectChild(idx) )
 	{
@@ -365,21 +365,23 @@ uiRetVal uiCrDevEnv::copyEnv( const char* swdir, const char* envdir )
 	    }
 	}
     }
-    if (!commonpreset)
+
+    if ( !commonpreset )
 	return uiRetVal::OK();
 
     OD::JSON::Object* cachevars = commonpreset->getObject( "cacheVariables") ;
-    if (!cachevars)
-	return uiRetVal::OK();
+    if ( cachevars )
+    {
+	OD::JSON::Object* oddir = cachevars->getObject( "OpendTect_DIR" );
+	if ( oddir )
+	    oddir->set( "value", swdirfnm.str() );
 
-    OD::JSON::Object* oddir = cachevars->getObject( "OpendTect_DIR" );
-    if (!oddir)
-	return uiRetVal::OK();
+	OD::JSON::Object* odbindir = cachevars->getObject("OD_BINARY_BASEDIR");
+	if ( odbindir )
+	    odbindir->set( "value", swdirfnm.str() );
+    }
 
-    oddir->set( "value", swdirfnm.str() );
-    uirv = cmakepresets->write( cmakepresetsfnm, true );
-
-    return uiRetVal::OK();
+    return cmakepresets->write( cmakepresetsfnm, true );
 }
 
 
