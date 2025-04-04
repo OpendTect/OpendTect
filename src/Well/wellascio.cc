@@ -76,12 +76,15 @@ bool TrackAscIO::readTrackData( TypeSet<Coord3>& pos, TypeSet<double>& mdvals,
 	if ( ret < 0 ) return false;
 	if ( ret == 0 ) break;
 
-	Coord3 curpos( getPos3D(0,1,2) );
-	if ( curpos.coord().isUdf() )
+	Coord curpos( getPos(0,1) );
+	if ( curpos.isUdf() )
 	    continue;
 
-	const double dah = getDValue(3);
-        if ( mIsUdf(curpos.z_) && mIsUdf(dah) )
+	const double tvd = getDValue( 2, mUdf(double),
+				UnitOfMeasure::surveyDefDepthStorageUnit() );
+	const double dah = getDValue( 3, mUdf(double),
+				UnitOfMeasure::surveyDefDepthStorageUnit() );
+	if ( mIsUdf(tvd) && mIsUdf(dah) )
 	{
 	    if ( !nozptsfound )
 		warnmsg_.append( nozpts, true );
@@ -91,10 +94,10 @@ bool TrackAscIO::readTrackData( TypeSet<Coord3>& pos, TypeSet<double>& mdvals,
 	    continue;
 	}
 
-	pos += curpos;
+	pos += Coord3( curpos, tvd );
 	mdvals += dah;
-        if ( mIsUdf(kbelevinfile) && !mIsUdf(curpos.z_) && !mIsUdf(dah) )
-            kbelevinfile = dah - curpos.z_;
+	if ( mIsUdf(kbelevinfile) && !mIsUdf(tvd) && !mIsUdf(dah) )
+	    kbelevinfile = dah - tvd;
     }
 
     if ( pos.isEmpty() )
@@ -369,7 +372,8 @@ bool MarkerSetAscIO::get( od_istream& strm, MarkerSet& ms,
 	if ( ret < 0 ) return false;
 	if ( ret == 0 ) break;
 
-	float dah = mCast( float, getDValue( 0 ) );
+	float dah = getFValue( 0, mUdf(double),
+				UnitOfMeasure::surveyDefDepthStorageUnit() );
 	BufferString namepart = getText( 1 );
 	if ( mIsUdf(dah) || namepart.isEmpty() )
 	    continue;
@@ -455,7 +459,8 @@ bool D2TModelAscIO::get( od_istream& strm, D2TModel& d2t,
 	if ( ret < 0 ) return false;
 	if ( ret == 0 ) break;
 
-	double zval = getDValue( 0 );
+	double zval = getDValue( 0, mUdf(double),
+				UnitOfMeasure::surveyDefDepthStorageUnit() );
 	double tval = getDValue( 1 );
 	if ( mIsUdf(zval) || mIsUdf(tval) )
 	    continue;
@@ -714,7 +719,8 @@ bool DirectionalAscIO::readFile( TypeSet<double>& mdvals,
 	if ( ret < 0 ) return false;
 	if ( ret == 0 ) break;
 
-	const double md = getDValue(0);
+	const double md = getDValue( 0, mUdf(double),
+				UnitOfMeasure::surveyDefDepthStorageUnit() );
 	const double incl = getDValue(1);
 	const double azi = getDValue(2);
 
@@ -794,7 +800,8 @@ bool BulkDirectionalAscIO::get( BufferString& wellnm, double& md,
     if ( ret <= 0 ) return false;
 
     wellnm = getText( 0 );
-    md = getDValue( 1 );
+    md = getDValue( 1, mUdf(double),
+		    UnitOfMeasure::surveyDefDepthStorageUnit() );
     incl = getDValue( 2 );
     azi = getDValue( 3 );
     return true;

@@ -244,6 +244,9 @@ template <class T> inline T UnitOfMeasure::internalValue( T inp ) const
     if ( SI().zInFeet() && (isCompatibleWith(*surveyDefDepthUnit()) ||
 			    isCompatibleWith(*surveyDefVelUnit())) )
     {
+	if ( symbol_.startsWith("-") )
+	    inp = -inp;
+
 	if ( name().contains("Feet") )
 	    return inp;
 	else if ( name().contains("Meter") )

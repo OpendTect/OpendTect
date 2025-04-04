@@ -80,26 +80,27 @@ protected:
 
     BufferString		getText(int) const;
     int				getIntValue(int,int udf=mUdf(int)) const;
-    float			getFValue(int,float udf=mUdf(float)) const;
-				/*!< According to getTimeUnit, getDepthUnit
-				     if applicable. */
-    double			getDValue(int,double udf=mUdf(double)) const;
-				/*!< According to getTimeUnit, getDepthUnit
-				     if applicable.
-				     For more, use Conv:: stuff */
+    float			getFValue(int,float udf=mUdf(float),
+				    const UnitOfMeasure* outunit=nullptr) const;
+				/*!< If outunit is null, value is in
+				 * getTimeUnit, getDepthUnit if applicable. */
+    double			getDValue(int,double udf=mUdf(double),
+				    const UnitOfMeasure* outunit=nullptr) const;
+				/*!< If outunit is null, value is in
+				 * getTimeUnit, getDepthUnit if applicable. */
 
-    Coord			 getPos(int xfld,int yfld,
+    Coord			getPos(int xfld,int yfld,
 					double udf=mUdf(double),bool isll=false,
 					ConstRefMan<Coords::CoordSystem> crs=
 					SI().getCoordSystem()) const;
 				//Return CRS converted Coord
-    Coord3			 getPos3D(int xfld,int yfld, int zfld,
-					  double udf=mUdf(double),
-					  bool isll=false,
-					  ConstRefMan<Coords::CoordSystem> crs=
-					  SI().getCoordSystem()) const;
-    BinID			 getBinID(int inlfld,int crlfld,
-					  double udf=mUdf(double)) const;
+    Coord3			getPos3D(int xfld,int yfld, int zfld,
+					 double udf=mUdf(double),
+					 bool isll=false,
+					 ConstRefMan<Coords::CoordSystem> crs=
+					 SI().getCoordSystem()) const;
+    BinID			getBinID(int inlfld,int crlfld,
+					 double udf=mUdf(double)) const;
 
     int				formOf(bool hdr,int iinf) const;
     int				columnOf(bool hdr,int iinf,int ielem) const;
