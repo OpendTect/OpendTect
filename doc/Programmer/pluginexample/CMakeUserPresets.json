@@ -21,8 +21,8 @@
             ],
             "environment": {
                 "OD_INSTALLATION": "C:/Program Files/OpendTect",
-                "DEVTOOLS_DIR": "C:/appman/win64",
-                "QTINST": "msvc2022_64"
+                "QT_DIR": "C:/appman/win64/qt/Qt/$env{QT_VERSION}/msvc2022_64",
+                "NINJA": "C:/appman/win64/qt/Qt/Tools/Ninja/ninja.exe"
             },
             "condition": {
                 "type": "equals",
@@ -38,8 +38,8 @@
             ],
             "environment": {
                 "OD_INSTALLATION": "/auto/d51/OD",
-                "DEVTOOLS_DIR": "/auto/users/appman/lux64",
-                "QTINST": "gcc_64"
+                "QT_DIR": "/auto/users/appman/lux64/qt/Qt/$env{QT_VERSION}/gcc_64",
+                "NINJA": "/auto/users/appman/lux64/qt/Qt/Tools/Ninja/ninja"
             },
             "condition": {
                 "type": "equals",
@@ -55,8 +55,8 @@
             ],
             "environment": {
                 "OD_INSTALLATION": "$env{HOME}/Applications/OpendTect",
-                "DEVTOOLS_DIR": "/Users/Shared/dev/mac",
-                "QTINST": "macos"
+                "QT_DIR": "/Users/Shared/dev/mac/qt/Qt/$env{QT_VERSION}/macos",
+                "NINJA": "/Users/Shared/dev/mac/qt/Qt/Tools/Ninja/ninja"
             },
             "condition": {
                 "type": "equals",
@@ -133,11 +133,7 @@
             "hidden": true,
             "description": "Ninja multi-config generator",
             "generator": "Ninja Multi-Config",
-            "inherits": [
-                "env-lux"
-            ],
             "cacheVariables": {
-                "CMAKE_MAKE_PROGRAM": "$env{DEVTOOLS_DIR}/qt/Qt/Tools/Ninja/ninja.exe",
                 "CMAKE_DEFAULT_BUILD_TYPE": "Debug"   
             }
         },
@@ -180,21 +176,41 @@
                 "strategy": "external"
             },
             "cacheVariables": {
-                "CMAKE_PREFIX_PATH": "$env{DEVTOOLS_DIR}/qt/Qt/$env{QT_VERSION}/$env{QTINST}"
+                "CMAKE_PREFIX_PATH": "$env{QT_DIR}"
             }
         },
         {
-            "name": "default-ninja-unix",
+            "name": "default-ninja-linux",
             "displayName": "Default Linux settings",
             "description": "Defaults Linux",
             "inherits": [
-                "ninja-mc",
-                "common-lux"
+                "common-lux",
+                "ninja-mc"
             ],
+            "cacheVariables":{
+                "CMAKE_MAKE_PROGRAM": "$env{NINJA}"
+            },
             "condition": {
                 "type": "equals",
                 "lhs": "${hostSystemName}",
                 "rhs": "Linux"
+            }
+        },
+        {
+            "name": "default-ninja-macos",
+            "displayName": "Default macOS settings",
+            "description": "Defaults macOS",
+            "inherits": [
+                "common-mac",
+                "ninja-mc"
+            ],
+            "cacheVariables":{
+                "CMAKE_MAKE_PROGRAM": "$env{NINJA}"
+            },
+            "condition": {
+                "type": "equals",
+                "lhs": "${hostSystemName}",
+                "rhs": "Darwin"
             }
         }
     ]
