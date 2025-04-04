@@ -912,6 +912,19 @@ void initPluginClasses( const char* datadir, const char* func )
 	    const PluginManager::Data* pidata = PIM().findData( libname.str() );
 	    if ( pidata )
 		fp.set( PIM().getFileName(*pidata) );
+	    else
+	    {
+		const FilePath userfp( PIM().getAutoDir(true), libname.buf() );
+		if ( userfp.exists() )
+		    fp = userfp;
+		else
+		{
+		    const FilePath applfp( PIM().getAutoDir(false),
+					   libname.buf() );
+		    if ( applfp.exists() )
+			fp = applfp;
+		}
+	    }
 	}
 
 	if ( !fp.exists() )
