@@ -459,7 +459,11 @@ void Scene::addObject( visBase::DataObject* obj )
 	addUTMObject( vo );
 
     if ( so && datatransform_ )
+    {
 	so->setZAxisTransform( datatransform_.ptr(), nullptr );
+	if ( so->getTrcKeyZSampling() != tkzs_ )
+	    so->setTrcKeyZSampling( tkzs_ );
+    }
 
     if ( so && !getMoreObjectsToDoHint() )
 	objectMoved( obj );
@@ -1190,8 +1194,8 @@ void Scene::fillPar( IOPar& par ) const
     }
     else
     {
-	zDomainInfo().def_.set( par );
-	par.mergeComp( zDomainInfo().pars_, ZDomain::sKey() );
+	zDomainInfo().def_.set( zDomainInfo().pars_ );
+	par.merge( zDomainInfo().pars_ );
     }
 
     tkzs_.fillPar( par );

@@ -147,7 +147,7 @@ static const ZDomain::Info* get( const IOPar& iop )
     BufferString unitstr;
     if ( !iop.get(sKeyUnit(),unitstr) || unitstr.isEmpty() )
 	if ( !iop.get(sKey::ZUnit(),unitstr) || unitstr.isEmpty() )
-	    return ::SI().depthsInFeet() ? &DepthFeet() : &DepthMeter();
+	    return &DefaultDepth(false);
 
     if ( unitstr.isEqual(sKeyMeter,OD::CaseInsensitive) ||
 	 unitstr.isEqual(sKeyMeterSymbol,OD::CaseInsensitive) )
@@ -156,7 +156,7 @@ static const ZDomain::Info* get( const IOPar& iop )
 	      unitstr.isEqual(sKeyFeetSymbol,OD::CaseInsensitive) )
 	return &DepthFeet();
 
-    return ::SI().depthsInFeet() ? &DepthFeet() : &DepthMeter();
+    return &DefaultDepth(false);
 }
 
 } // namespace ZDomain

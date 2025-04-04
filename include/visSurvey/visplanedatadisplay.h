@@ -95,7 +95,8 @@ public:
     bool			setRandomPosData(int attrib,
 						 const DataPointSet*,
 						 TaskRunner*) override;
-    void			setTrcKeyZSampling(const TrcKeyZSampling&);
+    void			setTrcKeyZSampling(
+					    const TrcKeyZSampling&) override;
 
     ConstRefMan<VolumeDataPack> getDisplayedVolumeDataPack(int attrib)
 								const override;

@@ -1916,7 +1916,9 @@ bool uiVisPartServer::calculateAttrib( const VisID& id, int attrib,
 	so->acceptManipulation();
 
     const Attrib::SelSpec* as = so->getSelSpec( attrib );
-    if ( !as ) return false;
+    if ( !as )
+	return false;
+
     if ( as->id().asInt()==Attrib::SelSpec::cNoAttrib().asInt() )
 	return true;
 
