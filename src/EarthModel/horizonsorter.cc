@@ -11,6 +11,7 @@ ________________________________________________________________________
 
 #include "arrayndimpl.h"
 #include "emhorizon2d.h"
+#include "emhorizon3d.h"
 #include "emmanager.h"
 #include "ptrman.h"
 #include "uistrings.h"
@@ -245,11 +246,21 @@ int HorizonSorter::nextStep()
 	    }
 	}
 
+	const StringView reqtype = is2d_ ? EM::Horizon2D::typeStr()
+					 : EM::Horizon3D::typeStr();
 	for ( int idx=0; idx<unsortedids_.size(); idx++ )
 	{
 	    EM::EMObject* emobj = EM::EMM().getObject( unsortedids_[idx] );
 	    if ( !emobj )
 		mErrRet( uiStrings::phrCannotLoad(tr("all horizons")) );
+
+	    if ( reqtype != emobj->getTypeStr() )
+	    {
+		const uiString errmsg =  tr("Loaded object is not a %1")
+				.arg( is2d_ ? "2D Horizon" : "3D Horizon" );
+		pErrMsg( errmsg.getString() );
+		mErrRet( errmsg )
+	    }
 
 	    emobj->ref();
 	    mDynamicCastGet(EM::Horizon*,horizon,emobj);
@@ -258,6 +269,7 @@ int HorizonSorter::nextStep()
 		emobj->unRef();
 		mErrRet( tr("Loaded object is not a horizon") );
 	    }
+
 	    horizons_ += horizon;
 	}
 
