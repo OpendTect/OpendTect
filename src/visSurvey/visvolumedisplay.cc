@@ -541,6 +541,12 @@ VisID VolumeDisplay::volRenID() const
     scalarfield_->set##name##Transform( trans, Coord3(0,1,0), M_PI_2, scale ); \
 }
 
+void VolumeDisplay::setTrcKeyZSampling( const TrcKeyZSampling& desiredcs )
+{
+    setTrcKeyZSampling( desiredcs, false );
+}
+
+
 void VolumeDisplay::setTrcKeyZSampling( const TrcKeyZSampling& desiredcs,
 					bool dragmode )
 {

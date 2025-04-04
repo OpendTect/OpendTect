@@ -333,6 +333,7 @@ public:
     virtual Scene*		getScene()		{ return scene_; }
     SceneID			getSceneID() const;
 
+    virtual void		setTrcKeyZSampling(const TrcKeyZSampling&)  {}
     virtual bool		setZAxisTransform(ZAxisTransform*,TaskRunner*)
 				{ return false; }
     virtual const ZAxisTransform* getZAxisTransform() const

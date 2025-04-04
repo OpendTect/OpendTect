@@ -165,8 +165,10 @@ public:
     TrcKeyZSampling		getTrcKeyZSampling(bool manippos,
 						   bool displayspace,
 						   int attrib) const;
+    void			setTrcKeyZSampling(
+					const TrcKeyZSampling&) override;
     void			setTrcKeyZSampling(const TrcKeyZSampling&,
-						bool dragmode=false);
+						bool dragmode);
 
     void			getMousePosInfo( const visBase::EventInfo& ei,
 						 IOPar& iop ) const override
