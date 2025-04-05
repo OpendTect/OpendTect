@@ -1106,6 +1106,7 @@ bool VolumeDisplay::setVolumeDataPack( int attrib, VolumeDataPack* voldp,
 	usedarray = &regsdp->data();
     else
     {
+	datatransform_->setDataFromZDomainInfo( regsdp->zDomain() );
 	if ( !datatransformer_ )
 	    datatransformer_ = new ZAxisTransformer( *datatransform_, true );
 
