@@ -766,8 +766,8 @@ if( OD_USEBATCH )
     list(APPEND OD_MODULE_INCLUDEPATH
 		${OD_Batch_INCLUDEPATH}
 		${OD_Network_INCLUDEPATH}
-		${OD_BINARY_BASEDIR}/include/Batch
-		${OD_BINARY_BASEDIR}/include/Network)
+		${OD_BINARY_BASEDIR}/${MISC_INSTALL_PREFIX}/include/Batch
+		${OD_BINARY_BASEDIR}/${MISC_INSTALL_PREFIX}/include/Network)
 endif( OD_USEBATCH )
 
 #Set current include_path

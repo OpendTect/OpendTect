@@ -27,7 +27,8 @@ else()
     set ( MISC_INSTALL_PREFIX . )
 endif()
 
-set ( OD_SOURCELIST_FILE ${CMAKE_BINARY_DIR}/CMakeModules/sourcefiles_${OD_SUBSYSTEM}.txt )
+set ( OD_CMAKE_MODULES_DIR "${OD_BINARY_BASEDIR}/${MISC_INSTALL_PREFIX}/CMakeModules" )
+set ( OD_SOURCELIST_FILE ${OD_CMAKE_MODULES_DIR}/sourcefiles_${OD_SUBSYSTEM}.txt )
 file ( REMOVE ${OD_SOURCELIST_FILE} )
 
 # As per cmake naming:
@@ -689,6 +690,21 @@ function( get_thirdparty_libs _deps _var )
 
     set( ${_var} "${_libs}" PARENT_SCOPE )
 endfunction(get_thirdparty_libs)
+
+function (get_template_filepath template_name template_filepath)
+	if ( EXISTS "${OpendTect_DIR}/CMakeModules/templates/${template_name}.in" )
+		set( _template_filepath "${OpendTect_DIR}/CMakeModules/templates/${template_name}.in" )
+	else()
+		if ( EXISTS "${OD_BINARY_BASEDIR}/CMakeModules/templates/${template_name}.in" )
+			set( _template_filepath "${OD_BINARY_BASEDIR}/CMakeModules/templates/${template_name}.in" )
+		elseif ( EXISTS "${OD_BINARY_BASEDIR}/Contents/Resources/CMakeModules/templates/${template_name}.in" )
+			set( _template_filepath "${OD_BINARY_BASEDIR}/Contents/Resources/CMakeModules/templates/${template_name}.in" )
+		else()
+			message( FATAL_ERROR "Template file ${template_name} not found" )
+		endif()
+	endif()
+    set( ${template_filepath} "${_template_filepath}" PARENT_SCOPE )
+endfunction(get_template_filepath)
 
 
 macro( testprops tgt )
