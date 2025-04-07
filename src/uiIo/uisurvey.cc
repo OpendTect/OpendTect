@@ -195,6 +195,23 @@ bool acceptOK( CallBacker* ) override
 };
 
 
+static BufferString getInitialSurveyName( const char* dataroot )
+{
+    const BufferString prefix = "New_Survey";
+    BufferString survnm = prefix;
+    FilePath survfp( dataroot, survnm.buf() );
+
+    int nr = 1;
+    while ( survfp.exists() )
+    {
+	nr++;
+	survnm.set( prefix ).add( " (" ).add( nr ).add( ")" );
+	survfp.set(dataroot).add( survnm.buf() );
+    }
+
+    return survnm;
+}
+
 
 // uiStartNewSurveySetup
 uiStartNewSurveySetup::uiStartNewSurveySetup(uiParent* p, const char* dataroot,
@@ -209,7 +226,8 @@ uiStartNewSurveySetup::uiStartNewSurveySetup(uiParent* p, const char* dataroot,
 {
     setOkText( uiStrings::sNext() );
 
-    survnmfld_ = new uiGenInput( this, tr("Survey name") );
+    survnmfld_ = new uiGenInput( this, tr("Survey name"),
+				 getInitialSurveyName(dataroot) );
     survnmfld_->setElemSzPol( uiObject::Wide );
     survnmfld_->setDefaultTextValidator();
 
@@ -1241,6 +1259,7 @@ void uiSurvey::putToScreen()
     BufferString crlinfo;
     BufferString zkey, zinfo;
     BufferString srdinfo;
+    BufferString displaydepthinfo;
     BufferString bininfo;
     BufferString crsinfo;
     BufferString areainfo;
@@ -1264,10 +1283,10 @@ void uiSurvey::putToScreen()
 
     logfld_->setText( logtxt );
 
-    zkey.set( "Z range (" )
-	.add( si.zIsTime() ? ZDomain::Time().unitStr()
-			   : getDistUnitString(si.zInFeet(), false) )
-	.add( ")" );
+    zkey.set( sKey::ZRange() ).addSpace()
+	.add( si.zIsTime() ? ZDomain::Time().unitStr(true)
+		       : (si.zInMeter() ? ZDomain::DepthMeter().unitStr_(true)
+					: ZDomain::DepthFeet().unitStr_(true)) );
 
     if ( si.getCoordSystem() )
 	crsinfo.add( si.getCoordSystem()->summary() );
@@ -1303,6 +1322,10 @@ void uiSurvey::putToScreen()
     srdinfo.add( srd, 2 ).addSpace()
 	   .add( getDistUnitString(si.depthsInFeet(),true) );
 
+    if ( si.zIsTime() || (si.zInMeter() && si.depthsInFeet())
+		      || (si.zInFeet() && !si.depthsInFeet()) )
+	displaydepthinfo.set( ZDomain::toString(si.depthType() ) );
+
     survtypeinfo.add( SurveyInfo::toString(si.survDataType()) );
 
     FilePath fp( si.diskLocation().fullPath() );
@@ -1319,6 +1342,8 @@ void uiSurvey::putToScreen()
     infoset_.add( zkey, zinfo );
     if ( !mIsZero(srd,1e-1) )
 	infoset_.add( SurveyInfo::sKeySeismicRefDatum(), srdinfo );
+    if ( !displaydepthinfo.isEmpty() )
+	infoset_.add( "Depth display unit", displaydepthinfo.str() );
     infoset_.add( "Inl/Crl bin size", bininfo );
     infoset_.add( "CRS", crsinfo );
     infoset_.add( "Area", areainfo );
