@@ -32,5 +32,9 @@ SET( INCLUDES
 )
 
 FOREACH( INC ${INCLUDES} )
-    INCLUDE( ${OpendTect_DIR}/CMakeModules/${INC}.cmake )
+    if ( EXISTS "${OpendTect_DIR}/CMakeModules/${INC}.cmake" )
+        INCLUDE( ${OpendTect_DIR}/CMakeModules/${INC}.cmake )
+    elseif ( EXISTS "${OpendTect_DIR}/Contents/Resources/CMakeModules/${INC}.cmake" )
+        INCLUDE( ${OpendTect_DIR}/Contents/Resources/CMakeModules/${INC}.cmake )
+    endif()
 ENDFOREACH()

@@ -56,7 +56,7 @@ endmacro()
 
 macro( OD_WRITE_FINDFILE )
 
-set( OD_FIND_OD_FILE ${CMAKE_BINARY_DIR}/CMakeModules/FindOpendTect.cmake )
+set( OD_FIND_OD_FILE ${OD_CMAKE_MODULES_DIR}/FindOpendTect.cmake )
 
 install( FILES ${OD_FIND_OD_FILE} DESTINATION ${MISC_INSTALL_PREFIX}/data )
 
