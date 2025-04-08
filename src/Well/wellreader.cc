@@ -1109,22 +1109,35 @@ int MultiWellReader::nextStep()
     bool needsreload = false;
     if ( !wds_.isEmpty() )
     {
-	for ( const auto* wdata : wds_ )
+	for ( int idx=wds_.size()-1; idx>=0; idx-- )
 	{
-	    const int idx  = wds_.indexOf( wdata );
-	    if ( wdata->multiID() == wkey )
-	    {
-		wds_.removeSingle( idx );
-		needsreload = true;
-		break;
-	    }
+	    RefMan<Well::Data> wdata = wds_.get( idx );
+	    if ( !wdata || wdata->multiID() != wkey )
+		continue;
+
+	    wds_.removeSingle( idx );
+	    needsreload = true;
+	    break;
 	}
     }
 
+    bool reloadsuccess = false;
     if ( wkey.isInCurrentSurvey() )
+    {
+	if ( needsreload )
+	{
+	    reloadsuccess = Well::MGR().reload( wkey,reqs_ );
+	    if ( !reloadsuccess )
+		errmsg_.append( Well::MGR().errMsg() ).addNewLine();
+	}
+
 	wd = Well::MGR().get( wkey, reqs_ );
+    }
     else
     {
+	if ( !wd )
+	    wd = new Well::Data;
+
 	Well::Reader rdr( wkey, *wd );
 	if ( reqs_.includes(Well::Inf) && !rdr.getInfo() )
 	{
@@ -1160,6 +1173,6 @@ int MultiWellReader::nextStep()
     }
 
     wds_.addIfNew( wd.ptr() );
-    needsreload ? wellreloadedcount_++ : welladdedcount_++;
+    needsreload && reloadsuccess ? wellreloadedcount_++ : welladdedcount_++;
     return MoreToDo();
 }
