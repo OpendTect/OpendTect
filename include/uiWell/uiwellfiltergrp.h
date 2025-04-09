@@ -138,9 +138,10 @@ protected:
     uiToolButton*		fromwellbut_;
     uiToolButton*		fromlogormnsbut_;
     uiToolButton*		frommarkerbut_;
-    uiComboBox*			seloptionscb_;
+    uiComboBox*			wellseloptionscb_		= nullptr;
+    uiComboBox*			seloptionscb_			= nullptr;
     OD::Orientation		orient_;
     InitDesc			initdesc_;
-    bool			basedonentireset_ = true;
+
 
 };

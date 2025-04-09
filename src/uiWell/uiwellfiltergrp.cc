@@ -25,7 +25,8 @@ ________________________________________________________________________
 #include "wellman.h"
 #include "welltransl.h"
 
-static const int cSelWellsEntireSet = 0;
+static const int cSelWellsEntireSet		= 0;
+static const int cSelCommonLogsMrkrsFromWells	= 0;
 
 uiWellFilterGrp::uiWellFilterGrp( uiParent* p, OD::Orientation orient )
     : uiGroup(p)
@@ -75,17 +76,26 @@ uiWellFilterGrp::uiWellFilterGrp( uiParent* p, OD::Orientation orient )
 	sep->attach( centeredBelow, maingrp_ );
 
 	optionsgrp_ = new uiGroup( this, "Selection options goup" );
-	uiLabel* lbl = new uiLabel( optionsgrp_,
-		    tr( "Make Well selection from Logs/markers based on: " ) );
-	uiStringSet strs( tr( "Entire selected logs/markers set" ),
-			  tr( "Selected logs/markers individually" ) );
-	seloptionscb_ = new uiComboBox( optionsgrp_,
-					strs, "Selection options" );
-	seloptionscb_->setStretch( 0, 0 );
+
+	auto* fromwelllbl = new uiLabel( optionsgrp_,
+			  tr("Arrow selection from Wells returns: ") );
+	uiStringSet fromwellstrs( tr("Logs/Markers in ALL selected wells"),
+			  tr("Logs/Markers in AT LEAST ONE selected wells") );
+	wellseloptionscb_ = new uiComboBox( optionsgrp_,
+			  fromwellstrs, "Well selection options" );
+	wellseloptionscb_->setHSzPol( uiObject::Wide );
 	optionsgrp_->attach( ensureBelow, sep );
-	seloptionscb_->attach( rightOf, lbl );
-	mAttachCB( seloptionscb_->selectionChanged,
-		   uiWellFilterGrp::fromSelTypeChgdCB );
+	wellseloptionscb_->attach( rightOf, fromwelllbl );
+
+	auto* fromlogslbl = new uiLabel( optionsgrp_,
+			  tr("Arrow selection from Logs / Markers returns: ") );
+	uiStringSet towellstrs( tr("Wells with ALL selected objects"),
+			  tr("Wells with at least one selected object") );
+	seloptionscb_ = new uiComboBox( optionsgrp_,
+			  towellstrs, "Log/Marker selection options" );
+	seloptionscb_->setHSzPol( uiObject::Wide );
+	seloptionscb_->attach( rightOf, fromlogslbl );
+	seloptionscb_->attach( alignedBelow, wellseloptionscb_ );
     }
 
     mAttachCB( welllistselgrp->selectionChanged, uiWellFilterGrp::selChgCB );
@@ -490,16 +500,6 @@ void uiWellFilterGrp::logValRangeFilter( const MnemonicSelection& mns,
 }
 
 
-void uiWellFilterGrp::fromSelTypeChgdCB( CallBacker* )
-{
-    const int seloption = seloptionscb_->currentItem();
-    if ( seloption == cSelWellsEntireSet )
-	basedonentireset_ = true;
-    else
-	basedonentireset_ = false;
-}
-
-
 void uiWellFilterGrp::selChgCB( CallBacker* )
 {
     const int selwells = welllist_->nrChosen();
@@ -533,11 +533,16 @@ void uiWellFilterGrp::selButPush( CallBacker* cb )
     BufferStringSet wellnames, lognames, markernames;
     MnemonicSelection mns;
     Well::WellDataFilter wdf( *initdesc_.wds_ );
+    const bool fromwellgetcommon = wellseloptionscb_
+	    ? wellseloptionscb_->currentItem() == cSelCommonLogsMrkrsFromWells
+	    : true;
+    const bool basedonentireset = seloptionscb_
+	    ? seloptionscb_->currentItem() == cSelWellsEntireSet : true ;
     if ( but == fromwellbut_ )
     {
 	welllist_->getChosen( wellnames );
-	wdf.getMarkersLogsMnemsFromWells( wellnames,
-					  lognames, mns, markernames );
+	wdf.getMarkersLogsMnemsFromWells( wellnames, lognames, mns,
+					  markernames, fromwellgetcommon );
 	if ( initdesc_.logmode_ )
 	    logormnslist_->setChosen( lognames );
 	else
@@ -556,7 +561,7 @@ void uiWellFilterGrp::selButPush( CallBacker* cb )
 	if ( initdesc_.logmode_ )
 	{
 	    logormnslist_->getChosen( lognames );
-	    wdf.getWellsFromLogs( lognames, wellnames, basedonentireset_ );
+	    wdf.getWellsFromLogs( lognames, wellnames, basedonentireset );
 	}
 	else
 	{
@@ -565,7 +570,7 @@ void uiWellFilterGrp::selButPush( CallBacker* cb )
 	    for ( const auto* mnnm : mnnms )
 		mns.addIfNew( initdesc_.mns_.getByName(*mnnm) );
 
-	    wdf.getWellsFromMnems( mns, wellnames, basedonentireset_ );
+	    wdf.getWellsFromMnems( mns, wellnames, basedonentireset );
 	}
 
 	welllist_->setChosen( wellnames );
@@ -573,7 +578,7 @@ void uiWellFilterGrp::selButPush( CallBacker* cb )
     else if ( but == frommarkerbut_ )
     {
 	markerlist_->getChosen( markernames );
-	wdf.getWellsFromMarkers( markernames, wellnames, basedonentireset_ );
+	wdf.getWellsFromMarkers( markernames, wellnames, basedonentireset );
 	welllist_->setChosen( wellnames );
     }
 }
