@@ -30,7 +30,16 @@ set( OpendTect_DIR "" CACHE PATH "OpendTect directory" )
 option( OD_BUILD_LOCAL "Build in local directory" ON )
 
 #Find OpendTect
-list(APPEND CMAKE_MODULE_PATH "${OpendTect_DIR}/CMakeModules")
+
+if (IS_DIRECTORY "${OpendTect_DIR}/CMakeModules")
+    list(APPEND CMAKE_MODULE_PATH "${OpendTect_DIR}/CMakeModules")
+elseif (IS_DIRECTORY "${OpendTect_DIR}/Contents/Resources/CMakeModules")
+    list(APPEND CMAKE_MODULE_PATH "${OpendTect_DIR}/Contents/Resources/CMakeModules")
+elseif (IS_DIRECTORY "${OD_BINARY_BASEDIR}/CMakeModules")
+    list(APPEND CMAKE_MODULE_PATH "${OD_BINARY_BASEDIR}/CMakeModules")
+elseif (IS_DIRECTORY "${OD_BINARY_BASEDIR}/Contents/Resources/CMakeModules")
+    list(APPEND CMAKE_MODULE_PATH "${OD_BINARY_BASEDIR}/Contents/Resources/CMakeModules")
+endif()
 find_package( OpendTect )
 get_filename_component( OpendTect_DIR "${OpendTect_DIR}" REALPATH )
 get_filename_component( OD_BINARY_BASEDIR "${OD_BINARY_BASEDIR}" REALPATH )
@@ -72,4 +81,4 @@ if( OD_CREATE_LAUNCHERS )
     unset( CMAKE_FOLDER )
 endif( OD_CREATE_LAUNCHERS )
 
-OD_WRITE_ALOFILES( "${CMAKE_BINARY_DIR}/plugins/${OD_PLFSUBDIR}" )
+OD_WRITE_ALOFILES( "${CMAKE_BINARY_DIR}/${MISC_INSTALL_PREFIX}/plugins/${OD_PLFSUBDIR}" )
