@@ -47,6 +47,12 @@ build/
 src/*/moc_*
 src/*/*_autogen
 plugins/*/*_autogen
+spec/*/*_autogen
+plugins/*/lmstrip-symbol*
+plugins/*/strip_object_files.txt
+plugins/*/vendors
+plugins/*/licversion.h
+plugins/*/pdf3dversion.h
 src/*/resources/*.aps
 src/*/resources/resource.h
 lib*.dylib

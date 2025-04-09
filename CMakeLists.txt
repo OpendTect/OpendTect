@@ -120,6 +120,7 @@ endif()
 
 set( PLUGIN_DIR "" CACHE PATH "Path to eventual extra plugins" )
 if ( EXISTS ${PLUGIN_DIR}/CMakeLists.txt )
+    file( REAL_PATH "${PLUGIN_DIR}" PLUGIN_DIR )
     include ( ${PLUGIN_DIR}/CMakeLists.txt )
 endif()
 
