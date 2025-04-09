@@ -135,6 +135,7 @@ IOObj* IODir::readOmf( od_istream& strm, const char* dirnm,
     const MultiID dirky( fms.getIValue(0), 0 );
     if ( dirptr )
     {
+	dirptr->version_ = astream.version();
 	dirptr->key_ = dirky;
 	const int newid = fms.getIValue( 1 );
 	dirptr->curid_ = mIsUdf(newid) ? 0 : newid;

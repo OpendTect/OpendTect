@@ -46,7 +46,8 @@ public:
     const MultiID&	key() const		{ return key_; }
 
     const IOObj*	main() const;
-    const char*		dirName() const		{ return dirname_; }
+    const char*		dirName() const		{ return dirname_.buf(); }
+    const char*		version() const		{ return version_.buf(); }
 
     int			size() const		{ return objs_.size(); }
     int			isEmpty() const		{ return objs_.isEmpty(); }
@@ -91,6 +92,7 @@ private:
     bool		isok_		= false;
     mutable int		curid_		= 0;
     mutable od_int64	lastmodtime_	= 0;
+    BufferString	version_;
 
 			IODir();
     static IOObj*	doRead(const char*,IODir*,int id=-1);
