@@ -104,7 +104,11 @@ public:
     const char*		getIconName() const;
 
     mQtclass(QMenu)*	getQMenu() { return qmenu_; }
-    mQtclass(QWidget*)	getWidget() override;
+    mQtclass(QWidget)*	getWidget() override;
+
+    void		preventClose(bool yn=true);
+			/*<!Can be used for toolbutton menus with
+				checkable items */
 
 private:
     friend class	uiAction;
@@ -115,9 +119,9 @@ private:
     BufferString	iconnm_;
 
     mQtclass(QMenu)*	qmenu_;
-    uiAction*		submenuaction_;
-    uiAction*		interceptaction_;
-    bool		dointercept_;
+    uiAction*		submenuaction_			= nullptr;
+    uiAction*		interceptaction_		= nullptr;
+    bool		dointercept_			= false;
 
     void		doInsertMenu(mQtclass(QMenu)*,
 				   mQtclass(QAction)* before) override;

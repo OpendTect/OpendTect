@@ -80,7 +80,8 @@ public:
     OD::Orientation	getOrientation() const;
 
     void		setButtonMenu(int,uiMenu*,
-			 uiToolButton::PopupMode=uiToolButton::MenuButtonPopup);
+			 uiToolButton::PopupMode=uiToolButton::MenuButtonPopup,
+			 bool preventmenuclose=false);
 			//!<Menu will be owned by uiToolButton
 
     void		display(bool yn=true,bool s=false,
