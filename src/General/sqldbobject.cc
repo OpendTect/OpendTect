@@ -9,8 +9,10 @@ ________________________________________________________________________
 
 #include "sqldbobject.h"
 
+#include "ascstream.h"
 #include "dateinfo.h"
 #include "keystrs.h"
+#include "oddirs.h"
 #include "separstr.h"
 #include "settings.h"
 #include "perthreadrepos.h"
@@ -19,12 +21,30 @@ ________________________________________________________________________
 
 // SqlDB::ConnectionData
 
-SqlDB::ConnectionData::ConnectionData( const char* dbtype )
+SqlDB::ConnectionData::ConnectionData( const char* key )
 {
-    if ( !dbtype || !*dbtype )
+    if ( StringView(key).isEmpty() )
 	return;
 
-    IOPar* iop = Settings::fetch("DB").subselect( dbtype );
+    const BufferString fnm = mGetSetupFileName( "SqlDB" );
+    od_istream strm( fnm );
+    if ( strm.isOK() )
+    {
+	IOPar dbiopar;
+	ascistream astrm( strm );
+	dbiopar.getFrom( astrm );
+
+	ConstPtrMan<IOPar> iop = dbiopar.subselect( key );
+	if ( iop && usePar(*iop) )
+	    return;
+    }
+
+    Settings& settings = Settings::fetch( "sqldb" );
+    settings.reRead();
+    ConstPtrMan<IOPar> iop = settings.subselect( key );
+    if ( !iop ) // to support old settings name
+	iop = Settings::fetch("DB").subselect( key );
+
     if ( iop )
 	usePar( *iop );
 }
