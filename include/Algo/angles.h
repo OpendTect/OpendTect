@@ -9,7 +9,7 @@ ________________________________________________________________________
 -*/
 
 #include "gendefs.h"
-#include <math.h>
+#include "math2.h"
 
 /*
   Converting degrees, radians and user degrees to one another.
