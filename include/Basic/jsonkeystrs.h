@@ -45,6 +45,7 @@ namespace sJSONKey
     inline StringView Coordinate()	{ return "coordinate"; }
     inline StringView CrlRange()	{ return "crosslineRange"; }
     inline StringView Crossline()	{ return "crossline"; }
+    inline StringView Current()		{ return "current"; }
     inline StringView Data()		{ return "data"; }
     inline StringView DataRoot()	{ return "dataRoot"; }
     inline StringView DataSet()		{ return "dataSet"; }
@@ -57,6 +58,7 @@ namespace sJSONKey
     inline StringView DepthRange()	{ return "depthRange"; }
     inline StringView Desc()		{ return "description"; }
     inline StringView Distribution()	{ return "distribution"; }
+    inline StringView Enable()		{ return "enable"; }
     inline StringView Error()		{ return "error"; }
     inline StringView Examples()	{ return "examples"; }
     inline StringView Factor()		{ return "factor"; }
@@ -119,6 +121,7 @@ namespace sJSONKey
     inline StringView Output()		{ return "output"; }
     inline StringView OutputID()	{ return "outputID"; }
     inline StringView Pars()		{ return "parameters"; }
+    inline StringView Path()		{ return "path"; }
     inline StringView Position()	{ return "position"; }
     inline StringView Property()	{ return "property"; }
     inline StringView RMS()		{ return "rms"; }
@@ -176,12 +179,14 @@ namespace sJSONKey
     inline StringView URI()		{ return "uri"; }
     inline StringView URL()		{ return "url"; }
     inline StringView User()		{ return "user"; }
+    inline StringView UserName()	{ return "username"; }
     inline StringView Value()		{ return "value"; }
     inline StringView ValueRange()	{ return "valueRange"; }
     inline StringView Values()		{ return "values"; }
     inline StringView Variance()	{ return "variance"; }
     inline StringView Velocity()	{ return "velocity"; }
     inline StringView Version()		{ return "version"; }
+    inline StringView Versions()	{ return "versions"; }
     inline StringView Volume()		{ return "volume"; }
     inline StringView WaveletID()	{ return "waveletID"; }
     inline StringView Weight()		{ return "weight"; }
