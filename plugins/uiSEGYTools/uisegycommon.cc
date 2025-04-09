@@ -11,6 +11,7 @@ ________________________________________________________________________
 
 #include "uidialog.h"
 #include "uimsg.h"
+#include "uisegysip.h"
 #include "uitextedit.h"
 
 #include "keystrs.h"
@@ -157,4 +158,5 @@ void uiSEGY::initClasses()
     uiSEGYDirectVolInserter::initClass();
     uiSEGYDirect2DInserter::initClass();
     uiSEGYDirectPS3DInserter::initClass();
+    uiSEGYToolsInitSIP();
 }
