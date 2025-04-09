@@ -21,6 +21,7 @@ ________________________________________________________________________
 
 void uiSEGYToolsInitSIP()
 {
+    mIfNotFirstTime( return );
     uiSurveyInfoEditor::addInfoProvider(new uiSEGYSurvInfoProvider);
     if ( GetEnvVarYN( "OD_ENABLE_SEGY_CLASSIC" ) )
 	uiSurveyInfoEditor::addInfoProvider(new uiSEGYClassicSurvInfoProvider);

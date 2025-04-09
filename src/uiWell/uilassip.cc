@@ -225,5 +225,6 @@ IOPar* uiLASSurvInfoProvider::getCoordSystemPars() const
 
 void uiWellInitSIP()
 {
+    mIfNotFirstTime( return );
     uiSurveyInfoEditor::addInfoProvider(new uiLASSurvInfoProvider);
 }
