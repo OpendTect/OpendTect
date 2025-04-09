@@ -106,11 +106,44 @@ QWidget* uiMenuBar::getWidget()
 
 static CallBackSet& interceptors_ = *new CallBackSet;
 
+
+class ODMenu : public QMenu
+{
+public:
+ODMenu( QWidget* parent )
+    : QMenu(parent)
+{}
+
+
+ODMenu( const QString& title, QWidget* parent )
+    : QMenu(title,parent)
+{}
+
+void preventClose( bool yn=true )
+{
+    preventclose_ = yn;
+}
+
+void mouseReleaseEvent( QMouseEvent* event ) override
+{
+    if ( !preventclose_ )
+	return QMenu::mouseReleaseEvent( event );
+
+    QAction* action = activeAction();
+    if ( action && action->isCheckable() && action->isEnabled() )
+	action->trigger();
+    else
+	QMenu::mouseReleaseEvent( event );
+}
+
+bool preventclose_ = false;
+};
+
+
 uiMenu::uiMenu( uiParent* p, const uiString& txt, const char* pmnm )
     : uiBaseObject( txt.getFullString() )
-    , submenuaction_( 0 )
-    , qmenu_( new mQtclass(QMenu)(toQString(txt),p ? p->getWidget() : 0))
     , text_(txt)
+    , qmenu_(new ODMenu(toQString(txt),p ? p->getWidget() : 0))
 {
     setIcon( pmnm );
     useStyleSheet();
@@ -119,9 +152,8 @@ uiMenu::uiMenu( uiParent* p, const uiString& txt, const char* pmnm )
 
 uiMenu::uiMenu( const uiString& txt, const char* pmnm )
     : uiBaseObject( txt.getFullString() )
-    , submenuaction_( 0 )
-    , qmenu_(new mQtclass(QMenu)(toQString(txt)))
     , text_(txt)
+    , qmenu_(new ODMenu(toQString(txt),nullptr))
 {
     setIcon( pmnm );
     useStyleSheet();
@@ -130,9 +162,8 @@ uiMenu::uiMenu( const uiString& txt, const char* pmnm )
 
 uiMenu::uiMenu( const MenuItem& itm )
     : uiBaseObject(itm.text.getFullString())
-    , submenuaction_( 0 )
-    , qmenu_(new mQtclass(QMenu)(toQString(itm.text)))
     , text_(itm.text)
+    , qmenu_(new ODMenu(toQString(itm.text),nullptr))
 {
     setIcon( itm.iconfnm );
     addItems( itm.getItems() );
@@ -367,4 +398,10 @@ void uiMenu::doRemoveAction( mQtclass(QAction)* action )
 QWidget* uiMenu::getWidget()
 {
     return qmenu_;
+}
+
+
+void uiMenu::preventClose( bool yn )
+{
+    sCast(ODMenu*,qmenu_)->preventClose( yn );
 }

@@ -10,8 +10,10 @@ ________________________________________________________________________
 #include "uitoolbar.h"
 
 #include "uiaction.h"
+#include "uibaseobject.h"
 #include "uimainwin.h"
-#include "uiparentbody.h"
+#include "uimenu.h"
+#include "uiobjbody.h"
 #include "uistrings.h"
 #include "uitoolbutton.h"
 
@@ -254,10 +256,11 @@ void uiToolBar::setIcon( int id, const uiIcon& icon )
 
 
 void uiToolBar::setButtonMenu( int id, uiMenu* mnu,
-			       uiToolButton::PopupMode mode )
+			       uiToolButton::PopupMode mode, bool preventclose )
 {
     mGetAction( return );
     action->setMenu( mnu );
+    mnu->preventClose( preventclose );
     QWidget* qw = qtoolbar_->widgetForAction( action->qaction() );
     mDynamicCastGet(QToolButton*,qtb,qw)
     if ( qtb )
