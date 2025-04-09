@@ -43,6 +43,7 @@ plugins/lux64
 packages/
 __pycache__
 
+build/
 src/*/moc_*
 src/*/*_autogen
 plugins/*/*_autogen

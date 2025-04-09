@@ -20,9 +20,10 @@
                 "environment"
             ],
             "environment": {
-                "OD_INSTALLATION": "C:/Program Files/OpendTect",
-                "QT_DIR": "C:/appman/win64/qt/Qt/$env{QT_VERSION}/msvc2022_64",
-                "NINJA": "C:/appman/win64/qt/Qt/Tools/Ninja/ninja.exe"
+                "OD_INSTALLATION": "$env{ProgramFiles}/OpendTect",
+                "DEVTOOLS_DIR": "C:/appman/win64",
+                "QT_DIR": "$env{DEVTOOLS_DIR}/qt/Qt/$env{QT_VERSION}/msvc2022_64",
+                "NINJA": "$env{DEVTOOLS_DIR}/qt/Qt/Tools/Ninja/ninja.exe"
             },
             "condition": {
                 "type": "equals",
@@ -38,14 +39,15 @@
             ],
             "environment": {
                 "OD_INSTALLATION": "/auto/d51/OD",
-                "QT_DIR": "/auto/users/appman/lux64/qt/Qt/$env{QT_VERSION}/gcc_64",
-                "NINJA": "/auto/users/appman/lux64/qt/Qt/Tools/Ninja/ninja"
+                "DEVTOOLS_DIR": "/auto/users/appman/lux64",
+                "QT_DIR": "$env{DEVTOOLS_DIR}/qt/Qt/$env{QT_VERSION}/gcc_64",
+                "NINJA": "$env{DEVTOOLS_DIR}/qt/Qt/Tools/Ninja/ninja"
             },
             "condition": {
                 "type": "equals",
                 "lhs": "${hostSystemName}",
                 "rhs": "Linux"
-              }
+            }
         },
         {
             "name": "env-macos",
@@ -55,8 +57,9 @@
             ],
             "environment": {
                 "OD_INSTALLATION": "$env{HOME}/Applications/OpendTect",
-                "QT_DIR": "/Users/Shared/dev/mac/qt/Qt/$env{QT_VERSION}/macos",
-                "NINJA": "/Users/Shared/dev/mac/qt/Qt/Tools/Ninja/ninja"
+                "DEVTOOLS_DIR": "/Users/Shared/dev/mac",
+                "QT_DIR": "$env{DEVTOOLS_DIR}/qt/Qt/$env{QT_VERSION}/macos",
+                "NINJA": "$env{DEVTOOLS_DIR}/qt/Qt/Tools/Ninja/ninja"
             },
             "condition": {
                 "type": "equals",
@@ -107,7 +110,7 @@
                 "type": "equals",
                 "lhs": "${hostSystemName}",
                 "rhs": "Linux"
-              }
+            }
         },
         {
             "name": "common-macos",
@@ -116,6 +119,16 @@
                 "common",
                 "env-macos"
             ],
+            "cacheVariables": {
+                "OpendTect_DIR": {
+                    "type": "PATH",
+                    "value": "$env{OD_INSTALLATION}/OpendTect $env{OD_VERSION}.app"
+                },
+                "OD_BINARY_BASEDIR": {
+                    "type": "PATH",
+                    "value": "$env{OD_INSTALLATION}/OpendTect $env{OD_VERSION}.app"
+                }
+            },
             "condition": {
                 "type": "equals",
                 "lhs": "${hostSystemName}",
@@ -134,7 +147,7 @@
             "description": "Ninja multi-config generator",
             "generator": "Ninja Multi-Config",
             "cacheVariables": {
-                "CMAKE_DEFAULT_BUILD_TYPE": "Debug"   
+                "CMAKE_DEFAULT_BUILD_TYPE": "Debug"
             }
         },
         {
@@ -151,19 +164,20 @@
             }
         },
         {
-            "name": "default-vscode",
+            "name": "default-vscode-win",
             "displayName": "Default Windows settings for VSCODE",
             "inherits": [
                 "common-win"
             ],
             "condition": {
+                "type": "equals",
                 "lhs": "${hostSystemName}",
-                "rhs": "Windows",
-                "type": "equals"
+                "rhs": "Windows"
             }
         },
         {
             "name": "ninja-msvc-qtcreator",
+            "displayName": "Default Windows settings for QtCreator (using MSVC)",
             "inherits": [
                 "common-win"
             ],
@@ -180,14 +194,26 @@
             }
         },
         {
+            "name": "default-ninja-win",
+            "displayName": "Default Windows settings using Ninja",
+            "inherits": [
+                "common-win",
+                "ninja-mc"
+            ],
+            "condition": {
+                "type": "equals",
+                "lhs": "${hostSystemName}",
+                "rhs": "Windows"
+            }
+        },
+        {
             "name": "default-ninja-linux",
-            "displayName": "Default Linux settings",
-            "description": "Defaults Linux",
+            "displayName": "Default Linux settings using Ninja",
             "inherits": [
                 "common-lux",
                 "ninja-mc"
             ],
-            "cacheVariables":{
+            "cacheVariables": {
                 "CMAKE_MAKE_PROGRAM": "$env{NINJA}"
             },
             "condition": {
@@ -198,13 +224,12 @@
         },
         {
             "name": "default-ninja-macos",
-            "displayName": "Default macOS settings",
-            "description": "Defaults macOS",
+            "displayName": "Default macOS settings using Ninja",
             "inherits": [
-                "common-mac",
+                "common-macos",
                 "ninja-mc"
             ],
-            "cacheVariables":{
+            "cacheVariables": {
                 "CMAKE_MAKE_PROGRAM": "$env{NINJA}"
             },
             "condition": {
