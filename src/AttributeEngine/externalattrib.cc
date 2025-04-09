@@ -47,8 +47,8 @@ bool ExtAttribCalc::createAttrib( const BinIDValueSet&, SeisTrcBuf& buf,
 
 
 ConstRefMan<RandomSeisDataPack>
-ExtAttribCalc::createRdmTrcAttrib( const Interval<float>&,
-				   RandomLineID, TaskRunner* )
+ExtAttribCalc::createRdmTrcAttrib( const ZGate&, const RandomLineID&,
+				   TaskRunner* )
 {
     return nullptr;
 }

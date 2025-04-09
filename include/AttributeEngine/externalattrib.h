@@ -53,8 +53,9 @@ public:
     virtual bool		createAttrib(const BinIDValueSet&,SeisTrcBuf&,
 					     TaskRunner*);
     virtual ConstRefMan<RandomSeisDataPack>
-				createRdmTrcAttrib(const Interval<float>& zrg,
-						   RandomLineID,TaskRunner*);
+				createRdmTrcAttrib(const ZGate&,
+						   const RandomLineID&,
+						   TaskRunner*);
 
     virtual bool		isIndexes() const	{ return false; }
 
