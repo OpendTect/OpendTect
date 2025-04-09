@@ -25,14 +25,11 @@ mClass(Algo) SectorPartData
 {
 public:
 
-			SectorPartData( float v=0, float p=0.5, int cnt=0 )
-			    : val_(v), pos_(p), count_(cnt)
-			{}
-			SectorPartData( const SectorPartData& oth )
-			    : val_(oth.val_), pos_(oth.pos_), count_(oth.pos_)
-			{}
-    bool		operator ==( const SectorPartData& spd ) const
-			{ return pos_ == spd.pos_; }
+			SectorPartData(float v=0,float p=0.5,int cnt=0);
+			SectorPartData(const SectorPartData&);
+			~SectorPartData();
+
+    bool		operator ==(const SectorPartData&) const;
 
     float		val_;	//!< actual angle or a value of interest
     float		pos_;	//!< 0=center 1=on circle = maximum value
@@ -71,11 +68,11 @@ public:
 	Angle::Type	angletype_;
     };
 
-    inline		DirectionalData(int nrsectors=0,int nrparts=0);
-    inline		DirectionalData(const DirectionalData&);
-    inline		~DirectionalData();
+			DirectionalData(int nrsectors=0,int nrparts=0);
+			DirectionalData(const DirectionalData&);
+			~DirectionalData();
 
-    inline DirectionalData&	operator=(const DirectionalData&);
+    DirectionalData&	operator=(const DirectionalData&);
 
     void		init(int nrsectors,int nrparts);
 
@@ -87,8 +84,9 @@ public:
 			{ return size(); }
     inline int		nrParts( int isect ) const
 			{ return ((*this)[isect])->size(); }
-    inline float	angle(int isect,int bound=0) const;
-    inline float	angle(int isect,Angle::Type,int bound=0) const;
+
+    float		angle(int isect,int bound=0) const;
+    float		angle(int isect,Angle::Type,int bound=0) const;
 			//!< bound: -1=start, 1=stop, 0=center
     int			sector(float ang) const;
     int			sector(float ang,Angle::Type) const;
@@ -97,92 +95,5 @@ public:
     Setup		setup_;
 
 };
-
-
-inline float DirectionalData::angle( int isect, int bound ) const
-{
-    if ( isEmpty() )
-	return mUdf(float);
-
-    float fullc; Angle::getFullCircle( setup_.angletype_, fullc );
-    const float angstep = fullc / size();
-    const float centerang = setup_.angle0_ + angstep * isect;
-    return centerang + bound * angstep * .5f;
-}
-
-
-inline float DirectionalData::angle( int isect, Angle::Type t, int bound ) const
-{
-    const float ang = angle( isect, bound );
-    return Angle::convert( setup_.angletype_, ang, t );
-}
-
-
-inline int DirectionalData::sector( float ang, Angle::Type t ) const
-{
-    return sector( Angle::convert(t,ang,setup_.angletype_) );
-}
-
-
-inline int DirectionalData::sector( float ang ) const
-{
-    if ( mIsUdf(ang) )
-	return 0;
-
-    ang -= setup_.angle0_;
-    const float usrang = Angle::convert(setup_.angletype_,ang,Angle::UsrDeg);
-    const float fsect = size() * (usrang / 360);
-    int sect = mNINT32(fsect);
-    if ( sect >= size() ) sect = 0;
-    return sect;
-}
-
-
-inline int DirectionalData::part( int isect, float pos ) const
-{
-    const int nrparts = nrParts( isect );
-    const float fpart = nrparts * pos / setup_.usrposrg_.width();
-    int prt = (int)fpart;
-    if ( prt<0 ) prt = 0;
-    if ( prt>=nrparts ) prt = nrparts-1;
-    return prt;
-}
-
-
-inline DirectionalData::DirectionalData( const DirectionalData& oth )
-{
-    *this = oth;
-}
-
-
-inline DirectionalData::DirectionalData( int nrsect, int nrparts )
-{
-    init( nrsect, nrparts );
-}
-
-
-inline DirectionalData::~DirectionalData()
-{}
-
-
-inline DirectionalData& DirectionalData::operator=( const DirectionalData& oth )
-{
-    deepCopy( *this, oth );
-    return *this;
-}
-
-
-inline void DirectionalData::init( int nrsect, int nrparts )
-{
-    erase();
-
-    for ( int isect=0; isect<nrsect; isect++ )
-    {
-	SectorData* sd = new SectorData;
-	*this += sd;
-	for ( int ipart=0; ipart<nrparts; ipart++ )
-	    *sd += SectorPartData( 0, (ipart + .5f) / nrparts, 0 );
-    }
-}
 
 } // namespace Stats

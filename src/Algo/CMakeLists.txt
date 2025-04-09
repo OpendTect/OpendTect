@@ -56,6 +56,7 @@ set( OD_MODULE_SOURCES
 	scaler.cc
 	sincinterpolator.cc
 	spectrogram.cc
+	statdirdata.cc
 	stats.cc
 	timedepthmodel.cc
 	timeser.cc

@@ -170,7 +170,8 @@ void uiSelZRange::makeInpFields( bool wstep )
 
     if ( isSIDomain() )
     {
-	const ZSampling workzrg = SI().zRange( true );
+	ZSampling workzrg = SI().zRange( true );
+	workzrg.scale( zfac );
         startfld_->setValue( workzrg.start_ );
         stopfld_->setValue( workzrg.stop_ );
 	if ( wstep )
