@@ -156,7 +156,8 @@ void WellDataFilter::getMarkersLogsMnemsFromWells(
 					const BufferStringSet& wellnms,
 					BufferStringSet& lognms,
 					MnemonicSelection& mns,
-					BufferStringSet& markernms ) const
+					BufferStringSet& markernms,
+					bool getonlycommon ) const
 {
     bool first = true;
     for ( int widx=0; widx<allwds_.size(); widx++ )
@@ -175,19 +176,28 @@ void WellDataFilter::getMarkersLogsMnemsFromWells(
 	}
 	else
 	{
-	    BufferStringSet wdlognms, wdmarkernms, lognms2rm, markernms2rm;
-	    MnemonicSelection wdmns, wdmns2rm;
+	    BufferStringSet wdlognms, wdmarkernms;
+	    MnemonicSelection wdmns;
 	    wd->logs().getNames( wdlognms );
 	    wd->logs().getAllAvailMnems( wdmns );
 	    wd->markers().getNames( wdmarkernms );
-	    for ( int lidx=0; lidx<lognms.size(); lidx++ )
+	    if ( !getonlycommon )
+	    {
+		lognms.add( wdlognms, false );
+		for ( const auto* mn : wdmns )
+		    mns.addIfNew( mn );
+
+		markernms.add( wdmarkernms, false );
+		continue;
+	    }
+
+	    for ( int lidx=lognms.size()-1; lidx>=0; lidx-- )
 	    {
 		const BufferString& lognm = lognms.get( lidx );
 		if ( wdlognms.isPresent(lognm) )
 		    continue;
 
 		lognms.removeSingle( lidx );
-		lidx--;
 	    }
 
 	    for ( int mnidx=mns.size()-1; mnidx>=0; mnidx-- )
@@ -199,14 +209,13 @@ void WellDataFilter::getMarkersLogsMnemsFromWells(
 		mns.removeSingle( mnidx );
 	    }
 
-	    for ( int midx=0; midx<markernms.size(); midx++ )
+	    for ( int midx=markernms.size()-1; midx>=0; midx-- )
 	    {
 		const BufferString& markernm = markernms.get( midx );
 		if ( wdmarkernms.isPresent(markernm) )
 		    continue;
 
 		markernms.removeSingle( midx );
-		midx--;
 	    }
 	}
     }

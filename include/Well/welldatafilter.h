@@ -45,7 +45,8 @@ public:
 					const BufferStringSet& wellnms,
 					BufferStringSet& lognms,
 					MnemonicSelection& mns,
-					BufferStringSet& markernms) const;
+					BufferStringSet& markernms,
+					bool getonlycommon=true) const;
     void			getLogPresence(
 					const BufferStringSet& wellnms,
 					const char* topnm,const char* botnm,
