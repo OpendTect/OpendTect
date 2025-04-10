@@ -21,7 +21,7 @@ namespace Stats
 \brief Part of a data sector.
 */
 
-mClass(Algo) SectorPartData
+mExpClass(Algo) SectorPartData
 {
 public:
 
@@ -51,11 +51,11 @@ using SectorData = TypeSet<SectorPartData>;
   Angles are implicit: we always expect 360 degrees of data.
 */
 
-mClass(Algo) DirectionalData : public ManagedObjectSet<SectorData>
+mExpClass(Algo) DirectionalData : public ManagedObjectSet<SectorData>
 {
 public:
 
-    mClass(Algo) Setup
+    mExpClass(Algo) Setup
     {
     public:
 			Setup()
