@@ -39,12 +39,21 @@ void OD::IconFile::init( const char* identifier )
     ::Settings::common().get( "Icon set name", icsetnm );
     BufferString dirnm( mIconDirStart, icsetnm );
     icdirnm_ = mGetSetupFileName(dirnm);
+    alticdirnm_ = GetSetupDataFileName( ODSetupLoc_UserPluginDirOnly, dirnm,
+					true );
+    if ( alticdirnm_ == icdirnm_ )
+	alticdirnm_.setEmpty();
+
     if ( icsetnm == "Default" )
 	trydeficons_ = false;
     else
     {
 	trydeficons_ = true;
 	deficdirnm_ = mGetSetupFileName( mIconDirStart mIconDirDefault );
+	altdeficdirnm_ = GetSetupDataFileName( ODSetupLoc_UserPluginDirOnly,
+					mIconDirStart mIconDirDefault, true );
+	if ( altdeficdirnm_ == deficdirnm_ )
+	    altdeficdirnm_.setEmpty();
     }
 
     set( identifier );
@@ -83,7 +92,7 @@ void OD::IconFile::set( const char* inp )
     if ( trydeficons_ )
     {
 	if ( findIcons(identifier,true) )
-	return;
+	    return;
     }
 
     pErrMsg(BufferString("No icon found for identifier '",identifier,"'"));
@@ -121,11 +130,27 @@ const char* OD::IconFile::getIdentifier( OD::StdActionType typ )
 
 bool OD::IconFile::findIcons( const char* id, bool indef )
 {
-    const BufferString& dirnm = indef ? deficdirnm_ : icdirnm_;
-    FilePath fp( dirnm, BufferString(id,".png") );
-    const BufferString simplefnm( fp.fullPath() );
-    if ( File::exists(simplefnm) )
-	nms_.add( simplefnm );
+    const BufferString iconfnm( id, sFileNameEnd );
+
+    const BufferString* dirnm = indef ? &deficdirnm_ : &icdirnm_;
+    FilePath fp( dirnm->str(), iconfnm.str() );
+    BufferString simplefnm = fp.fullPath();
+    if ( File::exists(simplefnm.str()) )
+	nms_.add( simplefnm.str() );
+    else
+    {
+	const BufferString& altdirnm = indef ? altdeficdirnm_ : alticdirnm_;
+	if ( !altdirnm.isEmpty() )
+	{
+	    fp.set( altdirnm.str() ).add( iconfnm.str() );
+	    if ( fp.exists() )
+	    {
+		dirnm = &altdirnm;
+		simplefnm = fp.fullPath();
+		nms_.add( simplefnm.str() );
+	    }
+	}
+    }
 
     BufferStringSet iconsubnms;
     ::Settings::common().get( "Icon sizes", iconsubnms );
@@ -133,7 +158,7 @@ bool OD::IconFile::findIcons( const char* id, bool indef )
 
     for ( int idx=0; idx<iconsubnms.size(); idx++ )
     {
-	FilePath fpsz( dirnm );
+	FilePath fpsz( dirnm->buf() );
 	BufferString fnm( id, ".", iconsubnms.get(idx) );
 	fnm.add( sFileNameEnd );
 	fpsz.add( fnm );

@@ -79,7 +79,9 @@ protected:
 
     bool		trydeficons_;
     BufferString	icdirnm_;
+    BufferString	alticdirnm_;
     BufferString	deficdirnm_;
+    BufferString	altdeficdirnm_;
     BufferStringSet	nms_;
 
     bool		findIcons(const char*,bool shortname);
