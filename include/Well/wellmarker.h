@@ -38,6 +38,9 @@ public:
 			Marker(const Marker&);
 			~Marker();
 
+    const OD::String&	name() const override;
+    const OD::String&	getDatabaseName() const;
+    const OD::String&	getStratLvlName() const;
     Marker&		operator =(const Marker&);
     inline bool		operator ==( const Marker& m )
 			{ return m.name() == name(); }
@@ -46,6 +49,7 @@ public:
 
     inline float	dah() const		{ return dah_; }
     OD::Color		color() const;
+    OD::Color		getDatabaseColor() const;
     const Interval<float>& getAgeMa() const	{ return agema_; }
     float		getAgeMa(bool start) const;
     inline Strat::LevelID levelID() const	{ return levelid_; }
@@ -70,12 +74,15 @@ public:
 
 private:
 
-    float		dah_;
-    OD::Color		color_	    = OD::Color::Black();
-    Interval<float>	agema_ = Interval<float>::udf();
-    Strat::LevelID	levelid_;
-    MarkerID		id_;
-    BufferString	description_;
+    float			dah_;
+    OD::Color			color_	    = OD::Color::Black();
+    Interval<float>		agema_ = Interval<float>::udf();
+    Strat::LevelID		levelid_;
+    mutable BufferString	stratlvlnm_;
+    MarkerID			id_;
+    BufferString		description_;
+
+    bool			isValidStratLevelName() const;
 
 };
 
@@ -93,8 +100,10 @@ public:
     MarkerSet&		operator=(const MarkerSet&);
     void		fillWithAll(TaskRunner* tr=0);
 
-    const Marker*	getByName(const char* nm) const { return gtByName(nm); }
-    Marker*		getByName(const char* nm)	{ return gtByName(nm); }
+    const Marker*	getByName(const char* nm,bool isdbnm=false) const
+			{ return gtByName(nm,isdbnm); }
+    Marker*		getByName(const char* nm,bool isdbnm=false)
+			{ return gtByName(nm,isdbnm); }
     const Marker*	getByLvlID(Strat::LevelID id) const
 			{ return gtByLvlID(id);}
     Marker*		getByLvlID(Strat::LevelID id)
@@ -103,15 +112,16 @@ public:
     int			getIdxBelow(float z,const Well::Track* trck=0) const;
 			//!< is trck provided, compares TVDs
 
-    bool		isPresent(const char* n) const	{ return getByName(n); }
-    int			indexOf(const char*) const;
+    bool		isPresent(const char* n,bool isdbnm=false) const
+			{ return getByName(n,isdbnm); }
+    int			indexOf(const char*,bool isdbnm=false) const;
     void		sortByDAH();
     bool		insertNew(Well::Marker*); //becomes mine
     void		addSameWell(const ObjectSet<Marker>&);
     bool		addSameWell(const Marker&);
     void		mergeOtherWell(const ObjectSet<Marker>&);
     virtual void	append( const ObjectSet<Marker>& ms ) override
-							{ mergeOtherWell(ms); }
+			{ mergeOtherWell(ms); }
 
     int			indexOf( const Marker* m ) const override
 			{ return ObjectSet<Marker>::indexOf(m); }
@@ -119,6 +129,7 @@ public:
 			{ return ObjectSet<Marker>::isPresent(m); }
 
     void		getNames(BufferStringSet&) const;
+    void		getDatabaseNames(BufferStringSet&) const;
     void		getColors(TypeSet<OD::Color>&) const;
     void		getNamesColorsMDs(BufferStringSet&,TypeSet<OD::Color>&,
 					  TypeSet<float>& mds) const;
@@ -128,7 +139,7 @@ public:
 protected:
 
     virtual ObjectSet<Marker>& doAdd(Marker*) override;
-    Marker*		gtByName(const char*) const;
+    Marker*		gtByName(const char*,bool isdbnm=false) const;
     Marker*		gtByLvlID(Strat::LevelID) const;
     void		addCopy(const ObjectSet<Marker>&,int,float);
     void		alignOrderingWith(const ObjectSet<Marker>&);

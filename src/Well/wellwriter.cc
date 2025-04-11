@@ -602,12 +602,12 @@ bool Well::odWriter::putMarkers( od_ostream& strm ) const
 	if ( mIsUdf(dah) )
 	    continue;
 
-	astrm.put( IOPar::compKey(basekey,sKey::Name()), wm.name() );
+	astrm.put( IOPar::compKey(basekey,sKey::Name()), wm.getDatabaseName() );
 	astrm.put( IOPar::compKey(basekey,Well::Marker::sKeyDah()), dah );
 	astrm.put( IOPar::compKey(basekey,sKey::StratRef()),
 		   wm.levelID().asInt() );
 	BufferString bs;
-	wm.color().fill( bs );
+	wm.getDatabaseColor().fill( bs );
 	astrm.put( IOPar::compKey(basekey,sKey::Color()), bs );
     }
 
