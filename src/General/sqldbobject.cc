@@ -11,6 +11,7 @@ ________________________________________________________________________
 
 #include "ascstream.h"
 #include "dateinfo.h"
+#include "file.h"
 #include "keystrs.h"
 #include "oddirs.h"
 #include "separstr.h"
@@ -26,7 +27,10 @@ SqlDB::ConnectionData::ConnectionData( const char* key )
     if ( StringView(key).isEmpty() )
 	return;
 
-    const BufferString fnm = mGetSetupFileName( "SqlDB" );
+    BufferString fnm = mGetSetupFileName( "SqlDB" );
+    if ( !File::exists(fnm.buf()) )
+	fnm = GetSetupDataFileName(ODSetupLoc_UserPluginDirOnly,"SqlDB",false);
+
     od_istream strm( fnm );
     if ( strm.isOK() )
     {
