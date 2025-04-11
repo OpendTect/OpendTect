@@ -50,6 +50,37 @@ Well::Marker::~Marker()
 }
 
 
+const OD::String& Well::Marker::name() const
+{
+    return isValidStratLevelName() ? stratlvlnm_ : getDatabaseName();
+}
+
+
+const OD::String& Well::Marker::getDatabaseName() const
+{
+    return NamedObject::name();
+}
+
+
+const OD::String& Well::Marker::getStratLvlName() const
+{
+    isValidStratLevelName();
+    return stratlvlnm_;
+}
+
+
+bool Well::Marker::isValidStratLevelName() const
+{
+    const Strat::LevelSet& lvls = Strat::LVLS();
+    if ( levelid_.isValid() && lvls.isPresent(levelid_) )
+	stratlvlnm_ = lvls.nameOf( levelid_ );
+    else
+	stratlvlnm_.setEmpty();
+
+    return !stratlvlnm_.isEmpty();
+}
+
+
 Well::Marker& Well::Marker::operator =( const Well::Marker& oth )
 {
     if ( &oth == this )
@@ -71,6 +102,12 @@ OD::Color Well::Marker::color() const
     if ( levelid_.isValid() && lvls.isPresent(levelid_) )
 	return lvls.colorOf( levelid_ );
 
+    return color_;
+}
+
+
+OD::Color Well::Marker::getDatabaseColor() const
+{
     return color_;
 }
 
@@ -119,6 +156,12 @@ Well::Marker& Well::Marker::setAgeMa( const Interval<float>& agerg )
 Well::Marker& Well::Marker::setLevelID( const Strat::LevelID& id )
 {
     levelid_ = id;
+    const Strat::LevelSet& lvls = Strat::LVLS();
+    if ( levelid_.isValid() && lvls.isPresent(levelid_) )
+	stratlvlnm_ = lvls.nameOf( levelid_ );
+    else
+	stratlvlnm_.setEmpty();
+
     return *this;
 }
 
@@ -126,6 +169,7 @@ Well::Marker& Well::Marker::setLevelID( const Strat::LevelID& id )
 Well::Marker& Well::Marker::setNoLevelID()
 {
     setLevelID(Strat::LevelID::udf());
+    stratlvlnm_.setEmpty();
     return *this;
 }
 
@@ -201,10 +245,10 @@ ObjectSet<Well::Marker>& Well::MarkerSet::doAdd( Well::Marker* mrk )
 }
 
 
-Well::Marker* Well::MarkerSet::gtByName( const char* mname ) const
+Well::Marker* Well::MarkerSet::gtByName( const char* mname, bool isdbnm ) const
 {
-    const int idx = indexOf( mname );
-    return  idx < 0 ? 0 : const_cast<Well::Marker*>((*this)[idx]);
+    const int idx = indexOf( mname, isdbnm );
+    return  idx < 0 ? nullptr : const_cast<Well::Marker*>((*this)[idx]);
 }
 
 
@@ -239,13 +283,16 @@ int Well::MarkerSet::getIdxBelow( float reqz, const Well::Track* trck ) const
 
 
 
-int Well::MarkerSet::indexOf( const char* mname ) const
+int Well::MarkerSet::indexOf( const char* mname, bool isdbnm ) const
 {
     for ( int idx=0; idx<size(); idx++ )
     {
-	if ( (*this)[idx]->name()==mname )
+	const bool found = isdbnm ? (*this)[idx]->getDatabaseName() == mname
+				  : (*this)[idx]->name() == mname;
+	if ( found )
 	    return idx;
     }
+
     return -1;
 }
 
@@ -254,7 +301,6 @@ void Well::MarkerSet::sortByDAH()
 {
     TypeSet<float> dahs; dahs.setSize( size(), mUdf(float) );
     TypeSet<int> idxs; idxs.setSize( size(), -1 );
-
     for ( int imrkr=0; imrkr<size(); imrkr++ )
     {
 	dahs[imrkr] = (*this)[imrkr]->dah();
@@ -265,6 +311,7 @@ void Well::MarkerSet::sortByDAH()
     ObjectSet<Well::Marker> newidxmarkers;
     for ( int idx=0; idx<idxs.size(); idx++ )
 	newidxmarkers.add( (*this)[ idxs[idx] ] );
+
     this->::ObjectSet<Marker>::erase();
     for ( int imrkr=0; imrkr<newidxmarkers.size(); imrkr++ )
 	add( newidxmarkers[imrkr] );
@@ -274,7 +321,10 @@ void Well::MarkerSet::sortByDAH()
 bool Well::MarkerSet::insertNew( Well::Marker* newmrk )
 {
     if ( !newmrk || isPresent(newmrk->name().buf()) )
-	{ delete newmrk; return false; }
+    {
+	delete newmrk;
+	return false;
+    }
 
     int newidx = 0;
     for ( int imrk=0; imrk<size(); imrk++ )
@@ -284,6 +334,7 @@ bool Well::MarkerSet::insertNew( Well::Marker* newmrk )
 	    break;
 	newidx++;
     }
+
     insertAt( newmrk, newidx );
     return true;
 }
@@ -536,6 +587,13 @@ void Well::MarkerSet::getNames( BufferStringSet& nms ) const
 {
     for ( int idx=0; idx<size(); idx++ )
 	nms.add( (*this)[idx]->name() );
+}
+
+
+void Well::MarkerSet::getDatabaseNames( BufferStringSet& nms ) const
+{
+    for ( const auto* marker : *this )
+	nms.add( marker->getDatabaseName() );
 }
 
 
