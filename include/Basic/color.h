@@ -49,6 +49,7 @@ public:
     float		average() const { return ((float) r()+g()+b())/3.0f; }
     Color		complementaryColor() const;
     TypeSet<Color>	complimentaryColors(int) const;
+    TypeSet<Color>	distinctColors(int) const;
     Color		lighter(float fac) const;
     Color		darker( float fac ) const
 					{ return lighter( -fac ); }
@@ -58,9 +59,11 @@ public:
     void		setRgb( unsigned int rgb_  );
     void		setTransparency( unsigned char t_ );
     void		setTransparencyF( float tf );
+//	All components have range 0-255, hue angle in degrees will be h/255*360
     void		setHSV(unsigned char h,unsigned char s,unsigned char v);
-    void		getHSV(unsigned char&,unsigned char&,
-			       unsigned char&) const;
+//	All components have range 0-255, hue angle in degrees will be h/255*360
+    void		getHSV(unsigned char& h,unsigned char& s,
+			       unsigned char& v) const;
     void		setStdStr(const char*); //!< e.g. "#00ff32"
     const char*		getStdStr(bool withhash=true,
 				  int transpopt=0) const;

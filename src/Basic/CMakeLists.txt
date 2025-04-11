@@ -12,6 +12,7 @@ set( OD_USEBREAKPAD TRUE )
 set( OD_TEST_PROGS
 	basic.cc
 	callback.cc
+	color.cc
 	commandlaunchmgr.cc
 	commandlineparser.cc
 	datapack.cc
