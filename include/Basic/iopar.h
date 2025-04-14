@@ -62,7 +62,7 @@ namespace OD
 mExpClass(Basic) IOPar : public NamedObject
 {
 public:
-			IOPar(const char* nm=nullptr); //!< empty
+    explicit		IOPar(const char* nm=nullptr); //!< empty
 			IOPar(ascistream&);
 			IOPar(const IOPar&);
 			~IOPar();
