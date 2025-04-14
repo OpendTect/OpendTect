@@ -228,16 +228,15 @@ void WellDataFilter::getLogPresence( const BufferStringSet& wellnms,
 				     Array2D<int>& presence ) const
 {
     presence.setAll( -1 );
-
     for ( int widx=0; widx<allwds_.size(); widx++ )
     {
-	const Well::Data* wd = allwds_[widx];
+	ConstRefMan<Well::Data> wd = allwds_[widx];
 	const bool haswellnm = wellnms.isPresent( wd->name() );
 	if ( !haswellnm )
 	    continue;
 
-	const Interval<float> markerrg =
-			getDepthRangeFromMarkers( wd, topnm, botnm, false );
+	const Interval<float> markerrg = getDepthRangeFromMarkers( wd.ptr(),
+							   topnm, botnm, false);
 	if ( markerrg.isUdf() )
 	{
 	    for ( int lidx=0; lidx<alllognms.size(); lidx++ )
@@ -281,13 +280,13 @@ void WellDataFilter::getLogPresenceForMnems( const BufferStringSet& wellnms,
 
     for ( int widx=0; widx<allwds_.size(); widx++ )
     {
-	const Well::Data* wd = allwds_[widx];
+	ConstRefMan<Well::Data> wd = allwds_[widx];
 	const bool haswellnm = wellnms.isPresent( wd->name() );
 	if ( !haswellnm )
 	    continue;
 
-	const Interval<float> markerrg =
-			getDepthRangeFromMarkers( wd, topnm, botnm, false );
+	const Interval<float> markerrg = getDepthRangeFromMarkers( wd.ptr(),
+							   topnm, botnm, false);
 	if ( markerrg.isUdf() )
 	{
 	    for ( int mnidx=0; mnidx<mns.size(); mnidx++ )
@@ -333,7 +332,7 @@ void WellDataFilter::getLogPresenceFromValFilter(
     for ( int widx=0; widx<allwds_.size(); widx++ )
     {
 	const int perc = 0;
-	const Well::Data* wd = allwds_[widx];
+	ConstRefMan<Well::Data> wd = allwds_[widx];
 	const bool haswellnm = wellnms.isPresent( wd->name() );
 	if ( !haswellnm )
 	{
@@ -372,13 +371,13 @@ void WellDataFilter::getLogsInMarkerZone( BufferStringSet& wellnms,
 {
     for ( int widx=0; widx<allwds_.size(); widx++ )
     {
-	const Well::Data* wd = allwds_[widx];
+	ConstRefMan<Well::Data> wd = allwds_.get( widx );
 	const bool haswellnm = wellnms.isPresent( wd->name() );
 	if ( !haswellnm )
 	    continue;
 
-	const Interval<float> markerrg = getDepthRangeFromMarkers( wd, topnm,
-							       botnm, false );
+	const Interval<float> markerrg = getDepthRangeFromMarkers( wd.ptr(),
+							  topnm, botnm, false );
 	if ( markerrg.isUdf() )
 	{
 	    wellnms.remove( wd->name() );
@@ -416,13 +415,13 @@ void WellDataFilter::getMnemsInMarkerZone( BufferStringSet& wellnms,
 {
     for ( int widx=0; widx<allwds_.size(); widx++ )
     {
-	const Well::Data* wd = allwds_[widx];
+	ConstRefMan<Well::Data> wd = allwds_.get( widx );
 	const bool haswellnm = wellnms.isPresent( wd->name() );
 	if ( !haswellnm )
 	    continue;
 
-	const Interval<float> markerrg = getDepthRangeFromMarkers( wd, topnm,
-							       botnm, false );
+	const Interval<float> markerrg = getDepthRangeFromMarkers( wd.ptr(),
+							topnm, botnm, false );
 	if ( markerrg.isUdf() )
 	{
 	    wellnms.remove( wd->name() );
