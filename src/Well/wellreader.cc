@@ -1115,7 +1115,6 @@ int MultiWellReader::nextStep()
 	    if ( !wdata || wdata->multiID() != wkey )
 		continue;
 
-	    wds_.removeSingle( idx );
 	    needsreload = true;
 	    break;
 	}
