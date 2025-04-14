@@ -346,17 +346,18 @@ bool Well::HDF5Writer::putLogs() const
     if ( !ensureFileOpen() )
 	return false;
 
-    HDF5::DataSetKey dsky( sLogsGrpName() );
-    dsky.setMaximumSize( 0, nrrowsperblock );
+    HDF5::DataSetKey logdsky( sLogsGrpName() );
+    logdsky.setMaximumSize( 0, nrrowsperblock );
     const LogSet& logs = wd_.logs();
     const int nrlogs = logs.size();
     uiRetVal uirv;
     for ( int idx=0; idx<nrlogs; idx++ )
     {
 	const Log& wl = logs.getLog( idx );
+	HDF5::DataSetKey dsky = logdsky;
 	dsky.setDataSetName( toString(idx) );
-	putLog( wl );
-	if ( !uirv.isOK() )
+	const bool success = putLog( wl );
+	if ( !success || !uirv.isOK() )
 	    mErrRetIfUiRvNotOK( dsky );
     }
 
@@ -368,11 +369,14 @@ bool Well::HDF5Writer::putLogs() const
     }
 
     // remove possible extra data sets (can be there if logs were removed)
-    for ( int idx=nrlogs; ; idx++ )
+    for ( int idx=nrlogs+1; ; idx++ )
     {
+	HDF5::DataSetKey dsky = logdsky;
 	dsky.setDataSetName( toString(idx) );
-	if ( rdr->hasDataSet(dsky) )
-	    setLogAttribs( dsky, nullptr );
+	HDF5::DataSetKey grpkey;
+	grpkey.setGroupName( dsky.fullDataSetName() );
+	if ( rdr->hasGroup(grpkey.fullDataSetName()) )
+	    setLogAttribs( grpkey, nullptr );
 	else
 	    break;
     }

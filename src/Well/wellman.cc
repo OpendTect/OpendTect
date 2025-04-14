@@ -689,13 +689,14 @@ bool Well::Man::deleteLogs( const MultiID& key,
 	delete wls.remove( logidx );
     }
 
-    Writer wwr( wd->multiID(), *wd );
-    if ( !wwr.putLogs() )
+    PtrMan<Writer> wwr = new Writer( wd->multiID(), *wd );
+    if ( !wwr->putLogs() )
     {
-	errmsg_ = wwr.errMsg();
+	errmsg_ = wwr->errMsg();
 	return false;
     }
 
+    wwr.erase();
     wd->logschanged.trigger(-1);
     return true;
 }
