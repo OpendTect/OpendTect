@@ -1130,6 +1130,7 @@ void uiSurveyInfoEditor::sipCB( CallBacker* )
     else if ( tdinfo != uiSurvInfoProvider::Unknown )
 	zinfeet = tdinfo == uiSurvInfoProvider::DepthFeet;
 
+    si_.setDepthInFeet( zinfeet );
     si_.setZUnit( zistime, zinfeet );
     si_.setXYInFeet( xyinfeet );
     xyunitlbl_->setText( getCoordString(xyInFeet()) );
