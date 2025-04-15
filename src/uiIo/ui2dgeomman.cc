@@ -738,6 +738,8 @@ Pos::GeomID Geom2DImpHandler::getGeomID( const char* nm, bool ovwok )
 
     if ( ovwok || confirmOverwrite(nm) )
 	setGeomEmpty( geomid );
+    else
+	return Pos::GeomID::udf();
 
     return geomid;
 }

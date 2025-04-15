@@ -142,10 +142,14 @@ bool uiSeisRandTo2DLineDlg::acceptOK( CallBacker* )
 
     const IOObj* inobj = basegrp_->getInputIOObj();
     const IOObj* outobj = basegrp_->getOutputIOObj();
-    SeisRandLineTo2D exec( *inobj, *outobj, geomid, trcnrstart, *rdl );
+    PtrMan<SeisRandLineTo2D> exec =
+	new SeisRandLineTo2D( *inobj, *outobj, geomid, trcnrstart, *rdl );
     uiTaskRunner dlg( this );
-    if ( !TaskRunner::execute( &dlg, exec ) )
+    if ( !TaskRunner::execute(&dlg,*exec) )
 	return false;
+
+    exec = nullptr; // ensure writing of 2D line is finished
+    Survey::GMAdmin().updateGeometries( &dlg ); // only updates new line
 
     if ( !SI().has2D() )
 	uiMSG().warning( tr("You need to change survey type to 'Both 2D and 3D'"
