@@ -12,6 +12,25 @@ ________________________________________________________________________
 
 #define mBody static_cast<uiDialogBody*>(body_)
 
+uiDialog::Setup::Setup( const uiString& window_title,
+			const uiString& dialog_title,
+			const HelpKey& help_key )
+    : wintitle_(window_title)
+    , dlgtitle_(dialog_title)
+    , helpkey_(help_key)
+{}
+
+
+uiDialog::Setup::Setup( const uiString& window_title, const HelpKey& help_key )
+    : wintitle_(window_title)
+    , helpkey_(help_key)
+{}
+
+
+uiDialog::Setup::~Setup()
+{}
+
+
 uiDialog::uiDialog( uiParent* p, const uiDialog::Setup& s )
     : uiMainWin( s.wintitle_, p )
     , applyPushed(this)

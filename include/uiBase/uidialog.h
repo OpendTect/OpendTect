@@ -45,47 +45,33 @@ public:
     mExpClass(uiBase) Setup
     {
     public:
-			Setup( const uiString& window_title,
-			       const uiString& dialog_title,
-			       const HelpKey& help_key )
-			: wintitle_(window_title)
-			, dlgtitle_(dialog_title)
-			, helpkey_(help_key)
-			, videokey_(HelpKey::emptyHelpKey())
-			, savetext_(uiStrings::sSaveAsDefault())
-			, oktext_( uiStrings::sOk() )
-			, canceltext_( uiStrings::sCancel() )
-			, modal_(true) // if no parent given, always non-modal
-			, applybutton_(false)
-			, applytext_(uiStrings::sApply())
-			, savebutton_(false), savebutispush_(false)
-			, separator_(true), menubar_(false), nrstatusflds_(0)
-			, mainwidgcentered_(false), savechecked_(false)
-			, fixedsize_(false), okcancelrev_(false)
-			{}
-			~Setup()
-			{}
+			Setup(const uiString& window_title,
+			      const uiString& dialog_title,
+			      const HelpKey& help_key);
+			Setup(const uiString& window_title,
+			      const HelpKey& help_key);
+			~Setup();
 
 	mDefSetupMemb(uiString,wintitle)
-	mDefSetupMemb(uiString,dlgtitle)
+	mDefSetupMembInit(uiString,dlgtitle,mNoDlgTitle)
 	mDefSetupMemb(HelpKey,helpkey)
-	mDefSetupMemb(HelpKey,videokey)
-	mDefSetupMemb(uiString,savetext)
-	mDefSetupMemb(uiString,oktext)
-	mDefSetupMemb(uiString,canceltext)
-	mDefSetupMemb(uiString,applytext)
-	mDefSetupMemb(bool,modal)
-	mDefSetupMemb(bool,applybutton)
-	mDefSetupMemb(bool,savebutton)
-	mDefSetupMemb(bool,savebutispush)
-	mDefSetupMemb(bool,separator)
-	mDefSetupMemb(bool,savechecked)
-	mDefSetupMemb(bool,menubar)
-	mDefSetupMemb(bool,mainwidgcentered)
-	mDefSetupMemb(bool,fixedsize)
-	mDefSetupMemb(bool,okcancelrev) //!< used in wizards
-	mDefSetupMemb(int,nrstatusflds)
-	    //! nrstatusflds == -1: Make a statusbar, but don't add msg fields.
+	mDefSetupMembInit(HelpKey,videokey,HelpKey::emptyHelpKey())
+	mDefSetupMembInit(uiString,savetext,uiStrings::sSaveAsDefault())
+	mDefSetupMembInit(uiString,oktext,uiStrings::sOk())
+	mDefSetupMembInit(uiString,canceltext,uiStrings::sCancel())
+	mDefSetupMembInit(uiString,applytext,uiStrings::sApply())
+	mDefSetupMembInit(bool,modal,true) //!< if no parent, always non-modal
+	mDefSetupMembInit(bool,applybutton,false)
+	mDefSetupMembInit(bool,savebutton,false)
+	mDefSetupMembInit(bool,savebutispush,false)
+	mDefSetupMembInit(bool,separator,true)
+	mDefSetupMembInit(bool,savechecked,false)
+	mDefSetupMembInit(bool,menubar,false)
+	mDefSetupMembInit(bool,mainwidgcentered,false)
+	mDefSetupMembInit(bool,fixedsize,false)
+	mDefSetupMembInit(bool,okcancelrev,false) //!< used in wizards
+	mDefSetupMembInit(int,nrstatusflds,0)
+	    //!< nrstatusflds == -1: Make a statusbar, but don't add msg fields.
 
 	private:
 		    Setup(const char*,const char*,int)	    = delete;
