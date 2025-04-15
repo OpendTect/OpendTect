@@ -111,9 +111,9 @@ BufferString uiMnemonicProperties::toString() const
 	.add( getUOMStr() )
 	.add( OD::LineStyle::toString(ls.type_) )
 	.add( ls.width_ )
-	.add( lcol.r() )
-	.add( lcol.g() )
-	.add( lcol.b() );
+	.add( (int)lcol.r() )
+	.add( (int)lcol.g() )
+	.add( (int)lcol.b() );
 
     res = fms;
     return res;

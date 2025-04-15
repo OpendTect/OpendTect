@@ -300,8 +300,16 @@ BufferString Mnemonic::getUserMnemonicsFileName()
 {
     BufferString mnemfile;
     FilePath fp( GetDataDir(), BufferString(sKey::Mnemonics(), "_",
-					    GetUserNm()) );
-    mnemfile = fp.fullPath();
+					    GetInterpreterName()) );
+    if ( fp.exists() )
+	mnemfile = fp.fullPath();
+    else
+    {
+	fp.setPath( GetBaseDataDir() );
+	if ( fp.exists() )
+	    mnemfile = fp.fullPath();
+    }
+
     return mnemfile;
 }
 
