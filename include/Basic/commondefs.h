@@ -154,10 +154,18 @@ inline T& getNonConst( const T& t )
 # define mDynamicCastGet(typ,out,in)	typ mDynamicCast(typ,out,in)
 
 #define mDefSetupClssMemb(clss,typ,memb) \
-	typ	memb##_; \
-	clss&   memb( typ val )		{ memb##_ = val; return *this; }
+    typ		memb##_; \
+    clss&	memb( typ val )		{ memb##_ = val; return *this; }
 
-#define mDefSetupMemb(typ,memb) mDefSetupClssMemb(Setup,typ,memb)
+#define mDefSetupMemb(typ,memb) \
+    mDefSetupClssMemb(Setup,typ,memb)
+
+#define mDefSetupClssMembInit(clss,typ,memb,init) \
+    typ		memb##_			= init; \
+    clss&	memb( typ val )		{ memb##_ = val; return *this; }
+
+#define mDefSetupMembInit(typ,memb,init) \
+    mDefSetupClssMembInit(Setup,typ,memb,init)
 
 #define mOD_DisableCopy(clss) \
     clss( const clss& ) = delete; \
