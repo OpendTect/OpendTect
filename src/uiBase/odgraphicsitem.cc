@@ -9,9 +9,7 @@ ________________________________________________________________________
 
 #include "odgraphicsitem.h"
 
-#include "enums.h"
 #include "envvars.h"
-#include "geometry.h"
 #include "uifont.h"
 #include "uimain.h"
 #include "uipixmap.h"
@@ -94,7 +92,7 @@ QRectF ODGraphicsPointItem::boundingRect() const
 
 void ODGraphicsPointItem::paint( QPainter* painter,
 				 const QStyleOptionGraphicsItem* option,
-				 QWidget* widget )
+				 QWidget* )
 {
     painter->setPen( pen() );
     drawPoint( painter );
@@ -168,7 +166,7 @@ QRectF ODGraphicsMarkerItem::boundingRect() const
 
 void ODGraphicsMarkerItem::paint( QPainter* painter,
 			       const QStyleOptionGraphicsItem* option,
-			       QWidget* widget )
+			       QWidget* )
 {
    /* if ( side_ != 0 )
     pErrMsg( "TODO: implement single-sided markers" );
@@ -274,7 +272,7 @@ QRectF ODGraphicsArrowItem::boundingRect() const
 
 void ODGraphicsArrowItem::paint( QPainter* painter,
 			       const QStyleOptionGraphicsItem* option,
-			       QWidget* widget )
+			       QWidget* )
 {
     painter->setClipRect( option->exposedRect );
     painter->setPen( pen() );
@@ -308,11 +306,12 @@ void ODGraphicsArrowItem::drawArrow( QPainter& painter )
 void ODGraphicsArrowItem::setLineStyle( QPainter& painter,
 					const OD::LineStyle& ls )
 {
-    pen().setStyle( (Qt::PenStyle)ls.type_ );
-    pen().setColor( QColor(QRgb(ls.color_.rgb())) );
-    pen().setWidth( ls.width_ );
+    QPen qpen = pen();
+    qpen.setStyle( (Qt::PenStyle)ls.type_ );
+    qpen.setColor( QColor(QRgb(ls.color_.rgb())) );
+    qpen.setWidth( ls.width_ );
 
-    painter.setPen( pen() );
+    painter.setPen( qpen );
 }
 
 
@@ -608,8 +607,8 @@ QRectF ODGraphicsPolyLineItem::boundingRect() const
 
 
 void ODGraphicsPolyLineItem::paint( QPainter* painter,
-			       const QStyleOptionGraphicsItem* option,
-			       QWidget* widget )
+				    const QStyleOptionGraphicsItem*,
+				    QWidget* )
 {
     const QPolygonF paintpolygon = painter->worldTransform().map( qpolygon_ );
 
@@ -804,6 +803,7 @@ void ODGraphicsMultiColorPolyLineItem::paint( QPainter* painter,
 				const QStyleOptionGraphicsItem*, QWidget* )
 {
     QList<QPolygonF> paintpolygons;
+    paintpolygons.reserve( odlinesegments_.size() );
     for ( int idx=0; idx<odlinesegments_.size(); idx++ )
 	paintpolygons.append(
 		painter->worldTransform().map(odlinesegments_[idx].qpolygon_) );
@@ -988,9 +988,9 @@ bool ODGraphicsDynamicImageItem::isSnapshot() const
 { return issnapshot_; }
 
 
-void ODGraphicsDynamicImageItem::paint(QPainter* painter,
-			      const QStyleOptionGraphicsItem* option,
-			      QWidget* widget )
+void ODGraphicsDynamicImageItem::paint( QPainter* painter,
+					const QStyleOptionGraphicsItem*,
+					QWidget* )
 {
     if ( updateResolution(painter) )
     {
@@ -1232,8 +1232,8 @@ QRectF ODGraphicsWellSymbolItem::boundingRect() const
 
 
 void ODGraphicsWellSymbolItem::paint( QPainter* painter,
-			       const QStyleOptionGraphicsItem* option,
-			       QWidget* widget )
+				      const QStyleOptionGraphicsItem* option,
+				      QWidget* )
 {
     drawWellSymbol( *painter );
     drawLabels( *painter );
