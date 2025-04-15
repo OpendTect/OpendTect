@@ -1032,8 +1032,16 @@ void ODGraphicsDynamicImageItem::paint(QPainter* painter,
 	{
 	    if ( dynmirror )
 	    {
-		mImage2Pixmap( dynamicimage_.mirrored( revx, revy ),
-			       dynamicpixmap_ );
+#if QT_VERSION >= QT_VERSION_CHECK(6,9,0)
+		QImage qimage;
+		if ( revx )
+		    qimage = dynamicimage_.flipped( Qt::Horizontal );
+		if ( revy  )
+		    qimage = dynamicimage_.flipped( Qt::Vertical );
+#else
+		QImage qimage = dynamicimage_.mirrored( revx, revy );
+#endif
+		mImage2Pixmap( qimage, dynamicpixmap_ );
 		dynamicrev_[0] = revx;
 		dynamicrev_[1] = revy;
 	    }
@@ -1071,7 +1079,16 @@ void ODGraphicsDynamicImageItem::paint(QPainter* painter,
 	{
 	    if ( basemirror )
 	    {
-		mImage2Pixmap( baseimage_.mirrored( revx, revy ), basepixmap_ );
+#if QT_VERSION >= QT_VERSION_CHECK(6,9,0)
+		QImage qimage;
+		if ( revx )
+		    qimage = dynamicimage_.flipped( Qt::Horizontal );
+		if ( revy  )
+		    qimage = dynamicimage_.flipped( Qt::Vertical );
+#else
+		QImage qimage = dynamicimage_.mirrored( revx, revy );
+#endif
+		mImage2Pixmap( qimage, basepixmap_ );
 
 		baserev_[0] = revx;
 		baserev_[1] = revy;
