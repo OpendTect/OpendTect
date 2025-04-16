@@ -160,7 +160,12 @@ void uiMnemonicSettings::importCB( CallBacker* )
     if ( fdlg.go() )
     {
 	IOPar par;
-	par.read( fdlg.fileName(), nullptr );
+	if ( !par.read(fdlg.fileName(), sKey::Mnemonics(), true) )
+	{
+	    uiMSG().error( uiStrings::phrCannotImport(
+						    uiStrings::sMnemonics()) );
+	    return;
+	}
 	mnemsetts_.merge( par );
 	BufferString cursel = mnemonicsfld_->getText();
 	fillMnemonicList();
@@ -183,5 +188,5 @@ void uiMnemonicSettings::exportCB( CallBacker* )
     uiFileDialog fdlg( this, false, nullptr, nullptr,
 		       tr("Export Mnemonic Overrides") );
     if ( fdlg.go() )
-	mnemsetts_.write( fdlg.fileName(), nullptr );
+	mnemsetts_.write( fdlg.fileName(), sKey::Mnemonics() );
 }
