@@ -299,15 +299,18 @@ const char* Mnemonic::description() const
 BufferString Mnemonic::getUserMnemonicsFileName()
 {
     BufferString mnemfile;
-    FilePath fp( GetDataDir(), BufferString(sKey::Mnemonics(), "_",
-					    GetInterpreterName()) );
-    if ( fp.exists() )
-	mnemfile = fp.fullPath();
+    FilePath dd_fp( GetDataDir(), BufferString(sKey::Mnemonics(), "_",
+					       GetInterpreterName()) );
+    if ( dd_fp.exists() )
+	mnemfile = dd_fp.fullPath();
     else
     {
-	fp.setPath( GetBaseDataDir() );
-	if ( fp.exists() )
-	    mnemfile = fp.fullPath();
+	FilePath bdd_fp( dd_fp );
+	bdd_fp.setPath( GetBaseDataDir() );
+	if ( bdd_fp.exists() )
+	    mnemfile = bdd_fp.fullPath();
+	else
+	    mnemfile = dd_fp.fullPath();
     }
 
     return mnemfile;
