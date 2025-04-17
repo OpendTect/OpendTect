@@ -16,9 +16,9 @@ macOS   : clang15 (XCode 15.4, deployment version 12.0)
 
 OpenSource packages/versions used:
 
-Qt: 6.8.1
+Qt: 6.9.0
 OpenSceneGraph: 3.6.5
-OpenSSL: 3.3.2
-HDF5 (optional): 1.14.5
-SQLite3 (optional): 3.47.2
-PROJ (optional): 9.5.1
+OpenSSL: 3.5.0
+HDF5 (optional): 1.14.6
+SQLite3 (optional): 3.49.1
+PROJ (optional): 9.6.0
