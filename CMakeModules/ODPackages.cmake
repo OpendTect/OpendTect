@@ -8,12 +8,12 @@
 macro( OD_CREATE_PACKAGE_DEFINITION )
     GET_OD_BASE_EXECUTABLES()
     configure_file( "${CMAKE_SOURCE_DIR}/CMakeModules/packagescripts/develdefs.cmake.in"
-		    "${CMAKE_BINARY_DIR}/CMakeModules/packagescripts/develdefs.cmake"
-		    @ONLY )
+	                "${OD_CMAKE_MODULES_DIR}/packagescripts/develdefs.cmake"
+                   @ONLY )
 
     configure_file( "${CMAKE_SOURCE_DIR}/CMakeModules/packagescripts/basedefs.cmake.in"
-		    "${CMAKE_BINARY_DIR}/CMakeModules/packagescripts/basedefs.cmake"
-		    @ONLY )
+	                "${OD_CMAKE_MODULES_DIR}/packagescripts/basedefs.cmake"
+                   @ONLY )
 endmacro()
 
 macro( OD_ADD_PACKAGES_TARGET )
