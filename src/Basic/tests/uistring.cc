@@ -140,7 +140,7 @@ static bool testQStringAssignment()
 
 
 template <class T>
-static bool doTestStringPrecisionIntegers( T val, od_uint16 width,
+static bool doTestStringPrecisionIntegers( T val, int width,
                                            const char* strval, const char* desc)
 {
     const uiString string = toUiString( val, width );
@@ -168,7 +168,7 @@ static bool testIntegersNumberStrings()
     const od_int64 mi64val = -9223372036854775703LL;
     const od_uint64 ui64val = 18446744073709551610ULL;
 
-    od_uint16 width = 0;
+    int width = 0;
     mTestStringPrecisionI( psval, "31245", "positive short" );
     mTestStringPrecisionI( msval, "-31245", "negative short" );
     mTestStringPrecisionI( usval, "51235", "unsigned short" );
@@ -217,7 +217,8 @@ static bool testFPNumberStringsPrecision()
     mRunStandardTest( bstr=="0.900", "Number string with double precision 3" );
 
     string = toUiString( dval, 0, 'g', prec ); bstr = string.getString();
-    mRunStandardTest( bstr=="0.9","Number string with double precision 3 - 'g'");
+    mRunStandardTest( bstr=="0.9",
+		      "Number string with double precision 3 - 'g'" );
 
     return true;
 }
