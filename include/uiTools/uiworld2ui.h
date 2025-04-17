@@ -20,16 +20,20 @@ class SurveyInfo;
 mExpClass(uiTools) World2UiData
 {
 public:
-		World2UiData();
-		World2UiData( uiSize s, const uiWorldRect& w );
-		World2UiData( const uiWorldRect& w, uiSize s );
-    virtual	~World2UiData();
+			World2UiData();
+			World2UiData(const uiSize&,const uiWorldRect&);
+			World2UiData(const uiWorldRect&,const uiSize&);
+    virtual		~World2UiData();
 
-    bool	operator ==( const World2UiData& w2ud ) const;
-    bool	operator !=( const World2UiData& w2ud ) const;
+    bool		operator ==(const World2UiData&) const;
+    bool		operator !=(const World2UiData&) const;
 
-    uiSize	sz;
-    uiWorldRect	wr;
+    const uiSize&	size() const		{ return sz_; }
+    const uiWorldRect&	rect() const		{ return wr_; }
+
+private:
+    uiSize		sz_;
+    uiWorldRect		wr_;
 };
 
 
@@ -53,48 +57,49 @@ mExpClass(uiTools) uiWorld2Ui
 {
 public:
 			uiWorld2Ui();
-			uiWorld2Ui( const uiSize& sz, const uiWorldRect& wr );
-			uiWorld2Ui( const uiRect& rc, const uiWorldRect& wr );
-			uiWorld2Ui( const uiWorldRect& wr, const uiSize& sz );
-			uiWorld2Ui( const World2UiData& w );
+			uiWorld2Ui(const uiSize&,const uiWorldRect&);
+			uiWorld2Ui(const uiRect&,const uiWorldRect&);
+			uiWorld2Ui(const uiWorldRect&,const uiSize&);
+			uiWorld2Ui(const World2UiData&);
     virtual		~uiWorld2Ui();
 
-    bool		operator==(const uiWorld2Ui& ) const;
+    bool		operator==(const uiWorld2Ui&) const;
+    uiWorld2Ui&		operator=(const uiWorld2Ui&);
 
-    void		set( const World2UiData& w );
-    void		set( const uiWorldRect& wr, const uiSize& sz );
-    void		set( const uiSize& sz, const uiWorldRect& wr );
-    void		set( const uiRect& rc, const uiWorldRect& wr );
-    void		set( uiRect rc, const SurveyInfo& si );
+    void		set(const World2UiData&);
+    void		set(const uiWorldRect&,const uiSize&);
+    void		set(const uiSize& sz,const uiWorldRect&);
+    void		set(const uiRect& rc,const uiWorldRect&);
+    void		set(const uiRect& rc,const SurveyInfo&);
 			//! Quite useful for survey level maps.
 
-    void		setRemap( const uiSize& sz, const uiWorldRect& wrdrc );
-    void		setRemap( const uiRect& rc, const uiWorldRect& wrdrc );
+    void		setRemap(const uiSize&,const uiWorldRect&);
+    void		setRemap(const uiRect&,const uiWorldRect&);
 			//! For most cases we are dealing with cartesian coord.
 			//! system. Just pass the X/Y range to set up
-    void		setCartesianRemap( const uiSize& sz,
-			    float minx, float maxx, float miny, float maxy );
-    void		setCartesianRemap( const uiRect& rc,
-			    float minx, float maxx, float miny, float maxy );
+    void		setCartesianRemap(const uiSize&,
+			    float minx,float maxx,float miny,float maxy);
+    void		setCartesianRemap(const uiRect&,
+			    float minx,float maxx,float miny,float maxy);
 
 			//! The following reset...() functions must be called
 			//! ONLY AFTER a call to set...() is made.
-    void		resetUiRect( const uiRect& rc );
+    void		resetUiRect(const uiRect&);
 
     const World2UiData&	world2UiData() const;
 
 
-    uiWorldPoint	transform( uiPoint p ) const;
-    uiWorldRect		transform( uiRect area ) const;
-    uiPoint		transform( uiWorldPoint p ) const;
-    uiRect		transform( uiWorldRect area ) const;
+    uiWorldPoint	transform(const uiPoint&) const;
+    uiWorldRect		transform(const uiRect&) const;
+    uiPoint		transform(const uiWorldPoint&) const;
+    uiRect		transform(const uiWorldRect&) const;
 			// Since the compiler will be confused if two functions
 			// only differ in return type, Geom::Point2D<float> is
 			// set rather than be returned.
-    void		transform(const uiPoint& upt,
-				  Geom::Point2D<float>& pt) const;
-    void		transform(const Geom::Point2D<float>& pt,
-				  uiPoint& upt) const;
+    void		transform(const uiPoint&,
+				  Geom::Point2D<float>&) const;
+    void		transform(const Geom::Point2D<float>&,
+				  uiPoint&) const;
 
     int			toUiX(float wrdx) const;
     int			toUiY(float wrdy) const;
@@ -120,14 +125,14 @@ public:
 
 protected:
 
-    World2UiData	w2ud;
+    World2UiData	w2ud_;
 
-    uiWorldPoint	p0;
-    uiWorldPoint	fac;
+    uiWorldPoint	p0_;
+    uiWorldPoint	fac_;
 
     uiWorldRect		wrdrect_; //!< the world rect used for coord. conv.
     uiSize		uisize_;
-    uiPoint		uiorigin;
+    uiPoint		uiorigin_;
 
 private:
 			void getAppropriateRange( float min, float max,
@@ -139,18 +144,18 @@ template <class TT,class FT>
 TT uiWorld2Ui::transformX( FT x, bool toworld ) const
 {
     if ( toworld )
-        return p0.x_ + (x-uiorigin.x_)*fac.x_;
+	return p0_.x_ + (x-uiorigin_.x_)*fac_.x_;
     else
-        return (x-p0.x_)/fac.x_ + uiorigin.x_;
+	return (x-p0_.x_)/fac_.x_ + uiorigin_.x_;
 }
 
 template <class TT,class FT>
 TT uiWorld2Ui::transformY( FT y, bool toworld ) const
 {
     if ( toworld )
-        return p0.y_ + (y-uiorigin.y_)*fac.y_;
+	return p0_.y_ + (y-uiorigin_.y_)*fac_.y_;
     else
-        return (y-p0.y_)/fac.y_ + uiorigin.y_;
+	return (y-p0_.y_)/fac_.y_ + uiorigin_.y_;
 }
 
 

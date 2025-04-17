@@ -17,13 +17,15 @@ World2UiData::World2UiData()
 {}
 
 
-World2UiData::World2UiData( uiSize s, const uiWorldRect& w )
-    : sz(s), wr(w)
+World2UiData::World2UiData( const uiSize& s, const uiWorldRect& w )
+    : sz_(s)
+    , wr_(w)
 {}
 
 
-World2UiData::World2UiData( const uiWorldRect& w, uiSize s )
-    : sz(s), wr(w)
+World2UiData::World2UiData( const uiWorldRect& w, const uiSize& s )
+    : sz_(s)
+    , wr_(w)
 {}
 
 
@@ -37,9 +39,9 @@ inline static Coord crd( const Geom::Point2D<double>& p )
 
 bool World2UiData::operator ==( const World2UiData& w2ud ) const
 {
-    return sz == w2ud.sz
-	    && crd(wr.topLeft()) == crd(w2ud.wr.topLeft())
-	    && crd(wr.bottomRight()) == crd(w2ud.wr.bottomRight());
+    return sz_ == w2ud.sz_
+	    && crd(wr_.topLeft()) == crd(w2ud.wr_.topLeft())
+	    && crd(wr_.bottomRight()) == crd(w2ud.wr_.bottomRight());
 }
 
 
@@ -48,27 +50,49 @@ bool World2UiData::operator !=( const World2UiData& w2ud ) const
 
 
 uiWorld2Ui::uiWorld2Ui()
-{ };
+{};
 
 
 uiWorld2Ui::uiWorld2Ui( const uiSize& sz, const uiWorldRect& wr )
-{ set(sz,wr); }
+{
+    set(sz,wr);
+}
 
 
 uiWorld2Ui::uiWorld2Ui( const uiRect& rc, const uiWorldRect& wr )
-{ set( rc, wr ); }
+{
+    set( rc, wr );
+}
 
 
 uiWorld2Ui::uiWorld2Ui( const uiWorldRect& wr, const uiSize& sz )
-{ set(sz,wr); }
+{
+    set( sz, wr );
+}
 
 
 uiWorld2Ui::uiWorld2Ui( const World2UiData& w )
-{ set( w.sz, w.wr ); }
+{
+    set( w.size(), w.rect() );
+}
 
 
 uiWorld2Ui::~uiWorld2Ui()
 {}
+
+
+uiWorld2Ui& uiWorld2Ui::operator=( const uiWorld2Ui& oth )
+{
+    w2ud_ = oth.w2ud_;
+    p0_ = oth.p0_;
+    fac_ = oth.fac_;
+
+    wrdrect_ = oth.wrdrect_;
+    uisize_ = oth.uisize_;
+    uiorigin_ = oth.uiorigin_;
+
+    return *this;
+}
 
 
 bool uiWorld2Ui::operator==( const uiWorld2Ui& ) const
@@ -79,18 +103,23 @@ bool uiWorld2Ui::operator==( const uiWorld2Ui& ) const
 
 
 void uiWorld2Ui::set( const World2UiData& w )
-{ set( w.sz, w.wr ); }
+{
+    set( w.size(), w.rect() );
+}
 
 
 void uiWorld2Ui::set( const uiWorldRect& wr, const uiSize& sz )
-{ set( sz, wr ); }
-
-
-void uiWorld2Ui::set( uiRect rc, const SurveyInfo& si )
 {
-    if ( !rc.hNrPics() || !rc.vNrPics() )
+    set( sz, wr );
+}
+
+
+void uiWorld2Ui::set( const uiRect& rcin, const SurveyInfo& si )
+{
+    if ( !rcin.hNrPics() || !rcin.vNrPics() )
 	return;
 
+    uiRect rc = rcin;
     Coord mincoord = si.minCoord( false );
     Coord maxcoord = si.maxCoord( false );
     Coord diff = maxcoord - mincoord;
@@ -116,15 +145,15 @@ void uiWorld2Ui::set( uiRect rc, const SurveyInfo& si )
 
 void uiWorld2Ui::set( const uiSize& sz, const uiWorldRect& wr )
 {
-    w2ud = World2UiData( sz, wr );
-    p0 = wr.topLeft();
-    fac.setXY( wr.width()/(sz.hNrPics()-1),
+    w2ud_ = World2UiData( sz, wr );
+    p0_ = wr.topLeft();
+    fac_.setXY( wr.width()/(sz.hNrPics()-1),
     wr.height()/(sz.vNrPics()-1));
-    if ( wr.left() > wr.right() ) fac.x_ = -fac.x_;
-    if ( wr.top() > wr.bottom() ) fac.y_ = -fac.y_;
+    if ( wr.left() > wr.right() ) fac_.x_ = -fac_.x_;
+    if ( wr.top() > wr.bottom() ) fac_.y_ = -fac_.y_;
     wrdrect_ = wr;
     uisize_ = sz;
-    uiorigin.x_ = 0; uiorigin.y_ = 0;
+    uiorigin_.x_ = 0; uiorigin_.y_ = 0;
 }
 
 
@@ -135,7 +164,7 @@ void uiWorld2Ui::set( const uiRect& rc, const uiWorldRect& wr )
 
     uiSize sz( rc.hNrPics(), rc.vNrPics() );
     set( sz, wr );
-    uiorigin = rc.topLeft();
+    uiorigin_ = rc.topLeft();
 }
 
 
@@ -159,7 +188,7 @@ void uiWorld2Ui::setRemap( const uiRect& rc, const uiWorldRect& wrdrc )
 {
     const uiSize sz( rc.hNrPics(), rc.vNrPics() );
     setRemap( sz, wrdrc );
-    uiorigin = rc.topLeft();
+    uiorigin_ = rc.topLeft();
 }
 
 
@@ -184,29 +213,29 @@ void uiWorld2Ui::resetUiRect( const uiRect& rc )
 
 
 const World2UiData& uiWorld2Ui::world2UiData() const
-{ return w2ud; }
+{ return w2ud_; }
 
 
-uiWorldPoint uiWorld2Ui::transform( uiPoint p ) const
+uiWorldPoint uiWorld2Ui::transform( const uiPoint& p ) const
 {
     return uiWorldPoint( toWorldX( p.x_ ), toWorldY( p.y_ ) );
 }
 
 
-uiWorldRect uiWorld2Ui::transform( uiRect area ) const
+uiWorldRect uiWorld2Ui::transform( const uiRect& area ) const
 {
     return uiWorldRect( transform(area.topLeft()),
 			transform(area.bottomRight()) );
 }
 
 
-uiPoint uiWorld2Ui::transform( uiWorldPoint p ) const
+uiPoint uiWorld2Ui::transform( const uiWorldPoint& p ) const
 {
     return uiPoint( toUiX( (float) p.x_ ), toUiY( (float) p.y_ ) );
 }
 
 
-uiRect uiWorld2Ui::transform( uiWorldRect area ) const
+uiRect uiWorld2Ui::transform( const uiWorldRect& area ) const
 {
     return uiRect( transform(area.topLeft()),
 		   transform(area.bottomRight()) );
@@ -227,27 +256,27 @@ void uiWorld2Ui::transform( const Geom::Point2D<float>& pt, uiPoint& upt) const
 
 
 int uiWorld2Ui::toUiX( float wrdx ) const
-{ return (int)((wrdx-p0.x_)/fac.x_+uiorigin.x_+.5); }
+{ return (int)((wrdx-p0_.x_)/fac_.x_+uiorigin_.x_+.5); }
 
 
 int uiWorld2Ui::toUiY( float wrdy ) const
-{ return (int)((wrdy-p0.y_)/fac.y_+uiorigin.y_+.5); }
+{ return (int)((wrdy-p0_.y_)/fac_.y_+uiorigin_.y_+.5); }
 
 
 float uiWorld2Ui::toWorldX( int uix ) const
-{ return (float)( p0.x_ + (uix-uiorigin.x_)*fac.x_ ); }
+{ return (float)( p0_.x_ + (uix-uiorigin_.x_)*fac_.x_ ); }
 
 
 float uiWorld2Ui::toWorldY( int uiy ) const
-{ return (float)( p0.y_ + (uiy-uiorigin.y_)*fac.y_ ); }
+{ return (float)( p0_.y_ + (uiy-uiorigin_.y_)*fac_.y_ ); }
 
 
 uiWorldPoint uiWorld2Ui::origin() const
-{ return p0; }
+{ return p0_; }
 
 
 uiWorldPoint uiWorld2Ui::worldPerPixel() const
-{ return fac; }
+{ return fac_; }
 
 
 void uiWorld2Ui::getWorldXRange( float& xmin, float& xmax ) const
