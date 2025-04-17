@@ -52,6 +52,10 @@ vol = Seismic3D(f3demo, '4 Dip steered median filter')
 vol.info()
 ```
 
+```python
+vol.bin_steps()
+```
+
 ### Seismic3D.feature function
 Return a GeoJSON feature collection with the bounding box of the 3D seismic volume. This can be used in map displays.
 

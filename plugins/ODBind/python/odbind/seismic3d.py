@@ -37,6 +37,7 @@ class Seismic3D(_SurveyObject):
         clss._getzval = wrap_function(LIBODB, f'{bindnm}_getzval', ct.c_float, [ct.c_void_p, ct.c_int])
         clss._gettrcidx = wrap_function(LIBODB, f'{bindnm}_gettrcidx', ct.c_int, [ct.c_void_p, ct.c_int, ct.c_int])
         clss._getinlcrl = wrap_function(LIBODB, f'{bindnm}_getinlcrl', None, [ct.c_void_p, ct.c_int, ct.POINTER(ct.c_int), ct.POINTER(ct.c_int)])
+        clss._getinlcrldist = wrap_function(LIBODB, f'{bindnm}_getinlcrldist', None, [ct.c_void_p, ct.POINTER(ct.c_float)])
         clss._shape = wrap_function(LIBODB, f'{bindnm}_shape', None, [ct.c_void_p, ct.POINTER(ct.c_int)])
         clss._ranges = wrap_function(LIBODB, f'{bindnm}_ranges', None, [ct.c_void_p, ct.POINTER(ct.c_int), ct.POINTER(ct.c_int), ct.POINTER(ct.c_float)])
         clss._zrange = wrap_function(LIBODB, f'{bindnm}_zrange', None, [ct.c_void_p, ct.POINTER(ct.c_float)])
@@ -357,6 +358,21 @@ class Seismic3D(_SurveyObject):
             raise IndexError(self.errmsg)
 
         return (inline.value, crline.value)
+
+    def bin_steps(self) ->tuple[float]:
+        """Return a tuple with the inline and crossline spacing in this seismic volume
+
+        Returns
+        -------
+        tuple[float] : with the inline and crossline spacing
+
+        """
+        ct_dist = (ct.c_float * 2)()
+        self._getinlcrldist(self._handle, ct_dist)
+        if not self.isok:
+            raise IndexError(self.errmsg)
+
+        return tuple(ct_dist)
 
     def getdata(self, inlrg: list[int], crlrg: list[int], zrg: list[float]):
         """Read a rectangular block of data from the 3D seismic volume
