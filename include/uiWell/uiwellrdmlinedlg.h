@@ -80,7 +80,8 @@ protected:
 mExpClass(uiWell) uiWell2RandomLineDlg : public uiDialog
 { mODTextTranslationClass(uiWell2RandomLineDlg);
 public:
-			uiWell2RandomLineDlg(uiParent*,uiWellPartServer* ps=0);
+			uiWell2RandomLineDlg(uiParent*,
+					     uiWellPartServer* =nullptr);
 			~uiWell2RandomLineDlg();
 
     void		getCoordinates(TypeSet<Coord>&);

@@ -452,7 +452,8 @@ void uiWell2RandomLineDlg::extendLine( TypeSet<Coord>& coords )
         const Coord d0( oldcrds[1].x_ - oldcrds[0].x_,
                 oldcrds[1].y_ - oldcrds[0].y_ );
 	float p = (float) Math::Sqrt( extradist * extradist / d0.sqAbs() );
-        const Coord newc0( oldcrds[0].x_ - p * d0.x_, oldcrds[0].y_ - p * d0.y_ );
+	const Coord newc0( oldcrds[0].x_ - p * d0.x_,
+			   oldcrds[0].y_ - p * d0.y_ );
         const Coord d1( oldcrds[nrcoords-1].x_ - oldcrds[nrcoords-2].x_,
                 oldcrds[nrcoords-1].y_ - oldcrds[nrcoords-2].y_ );
 	p = (float) Math::Sqrt( extradist * extradist / d1.sqAbs() );
@@ -469,7 +470,8 @@ void uiWell2RandomLineDlg::extendLine( TypeSet<Coord>& coords )
 
 void uiWell2RandomLineDlg::previewPush( CallBacker* )
 {
-    wellserv_->sendPreviewEvent();
+    if ( wellserv_ )
+	wellserv_->sendPreviewEvent();
 }
 
 
