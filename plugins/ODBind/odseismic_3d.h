@@ -102,6 +102,8 @@ mExternC(ODBind) int		seismic3d_getzidx(hSeismic3D, float);
 mExternC(ODBind) float		seismic3d_getzval(hSeismic3D, int32_t);
 mExternC(ODBind) void		seismic3d_getinlcrl(hSeismic3D, size_t,
 						    int32_t*, int32_t*);
+mExternC(ODBind) void		seismic3d_getinlcrldist(hSeismic3D,
+							float dist[2]);
 mExternC(ODBind) od_int64	seismic3d_gettrcidx(hSeismic3D, int32_t,
 						    int32_t);
 mExternC(ODBind) od_int64	seismic3d_nrbins(hSeismic3D);

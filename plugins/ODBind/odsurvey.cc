@@ -94,6 +94,8 @@ void odSurvey::getInfo( OD::JSON::Object& jsobj) const
     jsobj.set( "xyunit", info.getXYUnitString(false) );
     jsobj.set( "zunit", info.getZUnitString(false) );
     jsobj.set( "srd", info.seismicReferenceDatum() );
+    jsobj.set( "inl_step", info.inlDistance() );
+    jsobj.set( "crl_step", info.crlDistance() );
 }
 
 

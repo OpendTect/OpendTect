@@ -452,6 +452,9 @@ void odSeismic3D::getInfo( OD::JSON::Object& jsobj ) const
     jsobj.set( "nrsamp", tkz_.nrZ() );
     jsobj.set( "bin_count", tkz_.hsamp_.totalNr() );
     jsobj.set( "trc_count", getNrTraces() );
+    const BinID& step = tkz_.hsamp_.step_;
+    jsobj.set( "inl_step", step.inl()*survey().si().inlDistance() );
+    jsobj.set( "crl_step", step.crl()*survey().si().crlDistance() );
 }
 
 
@@ -527,6 +530,17 @@ void seismic3d_getinlcrl( hSeismic3D self, size_t traceidx, int32_t* inl,
     const BinID bid = p->getBinID( traceidx );
     *inl = bid.inl();
     *crl = bid.crl();
+}
+
+
+void seismic3d_getinlcrldist( hSeismic3D self, float dist[2] )
+{
+    const auto* p = static_cast<odSeismic3D*>(self);
+    if ( !p ) return;
+
+    const auto& tkz = p->tkz();
+    dist[0] = tkz.hsamp_.step_.inl() * p->survey().si().inlDistance();
+    dist[1] = tkz.hsamp_.step_.crl() * p->survey().si().crlDistance();
 }
 
 
