@@ -74,7 +74,6 @@ if(SQLite3_FOUND)
     if(NOT TARGET SQLite::SQLite3)
         add_library(SQLite::SQLite3 SHARED IMPORTED)
         set_target_properties(SQLite::SQLite3 PROPERTIES
-	    IMPORTED_LOCATION		  "${SQLite3_LIBRARY}"
             INTERFACE_INCLUDE_DIRECTORIES "${SQLite3_INCLUDE_DIR}")
 	if ( WIN32 )
 	    od_get_dll( "${SQLite3_LIBRARY}" SQLITE_LOCATION )
@@ -84,6 +83,8 @@ if(SQLite3_FOUND)
 	    unset( SQLITE_LOCATION )
 	else()
 	    get_filename_component( SQLITE_SONAME "${SQLite3_LIBRARY}" REALPATH )
+	    set_target_properties( SQLite::SQLite3 PROPERTIES
+		IMPORTED_LOCATION "${SQLITE_SONAME}" )
 	    get_filename_component( SQLITE_LIBDIR "${SQLite3_LIBRARY}" DIRECTORY )
 	    if ( APPLE )
 		get_filename_component( SQLITE_SONAME "${SQLITE_SONAME}" NAME_WE )
