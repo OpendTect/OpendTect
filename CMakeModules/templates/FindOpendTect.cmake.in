@@ -64,16 +64,20 @@ endif()
 if ( NOT DEFINED OD_BINARY_BASEDIR )
 	set ( OD_BINARY_BASEDIR ${OpendTect_DIR} )
 endif()
+
 if ( NOT ONLY_SET_VAR )
-    #Include all OpendTect Utility macros
     if ( EXISTS "${OpendTect_DIR}/CMakeModules/OD_SetupOD.cmake" )
         include( "${OpendTect_DIR}/CMakeModules/OD_SetupOD.cmake" ) 
     elseif ( EXISTS "${OpendTect_DIR}/Contents/Resources/CMakeModules/OD_SetupOD.cmake" )
         include( "${OpendTect_DIR}/Contents/Resources/CMakeModules/OD_SetupOD.cmake" ) 
-    elseif ( EXISTS "${OD_BINARY_BASEDIR}/Contents/Resources/CMakeModules/OD_SetupOD.cmake" )
-        include( "${OD_BINARY_BASEDIR}/Contents/Resources/CMakeModules/OD_SetupOD.cmake" ) 
-    elseif( EXISTS "${OD_BINARY_BASEDIR}/CMakeModules/OD_SetupOD.cmake")
-        include( "${OD_BINARY_BASEDIR}/CMakeModules/OD_SetupOD.cmake" ) 
+    endif()
+
+    if ( NOT "${OpendTect_DIR}" STREQUAL "${OD_BINARY_BASEDIR}")
+        if( EXISTS "${OD_BINARY_BASEDIR}/CMakeModules/OD_SetupOD.cmake")
+            include( "${OD_BINARY_BASEDIR}/CMakeModules/OD_SetupOD.cmake" ) 
+        elseif ( EXISTS "${OD_BINARY_BASEDIR}/Contents/Resources/CMakeModules/OD_SetupOD.cmake" )
+            include( "${OD_BINARY_BASEDIR}/Contents/Resources/CMakeModules/OD_SetupOD.cmake" ) 
+        endif()
     endif()
 
     #Set the linker path to OpendTect's libraries
