@@ -311,12 +311,12 @@ typedef uiString uiPhrase;
 mGlobal(Basic) uiString toUiString(const uiString&);
 mGlobal(Basic) uiString toUiString(const char*);
 mGlobal(Basic) uiString toUiString(const OD::String&);
-mGlobal(Basic) uiString toUiString(short,od_uint16 width=0);
-mGlobal(Basic) uiString toUiString(unsigned short,od_uint16 width=0);
-mGlobal(Basic) uiString toUiString(od_int32,od_uint16 width=0);
-mGlobal(Basic) uiString toUiString(od_uint32,od_uint16 width=0);
-mGlobal(Basic) uiString toUiString(od_int64,od_uint16 width=0);
-mGlobal(Basic) uiString toUiString(od_uint64,od_uint16 width=0);
+mGlobal(Basic) uiString toUiString(short,int width=0);
+mGlobal(Basic) uiString toUiString(unsigned short,int width=0);
+mGlobal(Basic) uiString toUiString(od_int32,int width=0);
+mGlobal(Basic) uiString toUiString(od_uint32,int width=0);
+mGlobal(Basic) uiString toUiString(od_int64,int width=0);
+mGlobal(Basic) uiString toUiString(od_uint64,int width=0);
 mGlobal(Basic) uiString toUiString(float,int width=0,char format='g',
 				   int precision=-1,char fillchar=u' ');
 				   //!< precision = nrdec for 'f' format

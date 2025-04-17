@@ -959,7 +959,7 @@ static const char* getNumberLocArg( int idx=1 )
 
 
 template <class ODT,class QT> inline
-static uiString toUiStringImpl( ODT v, od_uint16 width )
+static uiString toUiStringImpl( ODT v, int width )
 {
 #ifdef OD_NO_QT
     return uiString().set( toString(v) );
@@ -998,27 +998,27 @@ typedef od_uint64 qulonglong;
 #endif
 
 
-uiString toUiString( short v, od_uint16 width )
+uiString toUiString( short v, int width )
 { return toUiStringImpl<short,qint16>(v,width); }
 
 
-uiString toUiString( unsigned short v, od_uint16 width )
+uiString toUiString( unsigned short v, int width )
 { return toUiStringImpl<unsigned short,quint16>(v,width); }
 
 
-uiString toUiString( od_int32 v, od_uint16 width )
+uiString toUiString( od_int32 v, int width )
 { return toUiStringImpl<od_int32,int>(v,width); }
 
 
-uiString toUiString( od_uint32 v, od_uint16 width )
+uiString toUiString( od_uint32 v, int width )
 { return toUiStringImpl<od_uint32,uint>(v,width); }
 
 
-uiString toUiString( od_int64 v, od_uint16 width )
+uiString toUiString( od_int64 v, int width )
 { return toUiStringImpl<od_int64,qlonglong>(v,width); }
 
 
-uiString toUiString( od_uint64 v, od_uint16 width )
+uiString toUiString( od_uint64 v, int width )
 { return toUiStringImpl<od_uint64,qulonglong>(v,width); }
 
 
