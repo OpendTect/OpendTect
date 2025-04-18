@@ -93,8 +93,13 @@ void uiDataPointSetPickDlg::winCloseCB( CallBacker* )
 }
 
 
-void uiDataPointSetPickDlg::objSelCB( CallBacker* )
+void uiDataPointSetPickDlg::objSelCB( CallBacker* cb )
 {
+    mCBCapsuleUnpack(VisID,sel,cb);
+    visBase::DataObject* dobj = visBase::DM().getObject( sel );
+    if ( dobj == psd_.ptr() )
+	return;
+
     tb_->turnOn( pickbutid_, false );
 }
 
@@ -118,7 +123,7 @@ void uiDataPointSetPickDlg::cleanUp()
 }
 
 
-static MultiID getMultiID( SceneID sceneid )
+static MultiID getMultiID( const SceneID& sceneid )
 {
     // Create dummy multiid, I don't want to save these picks
     return MultiID( 9999, sceneid.asInt() );
@@ -161,10 +166,12 @@ void uiDataPointSetPickDlg::openCB( CallBacker* )
     CtxtIOObj ctio( PosVecDataSetTranslatorGroup::ioContext() );
     ctio.ctxt_.forread_ = true;
     uiIOObjSelDlg dlg( this, ctio );
-    if ( !dlg.go() ) return;
+    if ( !dlg.go() )
+	return;
 
     const IOObj* ioobj = dlg.ioObj();
-    if ( !ioobj ) return;
+    if ( !ioobj )
+	return;
 
     PosVecDataSet pvds;
     uiString errmsg;
@@ -209,11 +216,15 @@ void uiDataPointSetPickDlg::openCB( CallBacker* )
 
 
 void uiDataPointSetPickDlg::saveCB( CallBacker* )
-{ doSave( false ); }
+{
+    doSave( false );
+}
 
 
 void uiDataPointSetPickDlg::saveasCB( CallBacker* )
-{ doSave( true ); }
+{
+    doSave( true );
+}
 
 
 void uiDataPointSetPickDlg::doSave( bool saveas )
@@ -221,17 +232,22 @@ void uiDataPointSetPickDlg::doSave( bool saveas )
     CtxtIOObj ctio( PosVecDataSetTranslatorGroup::ioContext() );
     ctio.ctxt_.forread_ = false;
     uiIOObjSelDlg dlg( this, ctio );
-    if ( !dlg.go() ) return;
+    if ( !dlg.go() )
+	return;
 
     const IOObj* ioobj = dlg.ioObj();
-    if ( !ioobj ) return;
+    if ( !ioobj )
+	return;
 
     PosVecDataSet pvds;
     uiString errmsg;
     const bool rv = dps_->dataSet().putTo( ioobj->fullUserExpr(true),
 					  errmsg, false );
     if ( !rv )
-	{ uiMSG().error( errmsg ); return; }
+    {
+	uiMSG().error( errmsg );
+	return;
+    }
 
     setCaption( toUiString(ioobj->name()) );
     changed_ = false;
@@ -306,7 +322,8 @@ void uiDataPointSetPickDlg::locChgCB( CallBacker* cb )
 void uiDataPointSetPickDlg::pickCB( CallBacker* cb )
 {
     mDynamicCastGet(Pick::SetMgr::ChangeData*,cd,cb);
-    if ( !cd || !cd->set_ ) return;
+    if ( !cd || !cd->set_ )
+	return;
 
     changed_ = true;
     updateDPS();
@@ -379,7 +396,6 @@ uiEMDataPointSetPickDlg::uiEMDataPointSetPickDlg( uiParent* p,
     : uiDataPointSetPickDlg(p,vispartserv,sceneid)
     , readyForDisplay(this)
     , emdps_(new DataPointSet(false,true))
-    , emid_(emid)
 {
     setCaption( toUiString("Surface data picking") );
 
@@ -395,8 +411,7 @@ uiEMDataPointSetPickDlg::uiEMDataPointSetPickDlg( uiParent* p,
     emdps_->dataSet().add( new DataColDef("Section ID") );
     emdps_->dataSet().add( new DataColDef("AuxData") );
 
-    EM::EMObject* emobj = EM::EMM().getObject( emid_ );
-    unRefPtr( emobj ); //TODO Wrong!
+    emobj_ = EM::EMM().getObject( emid );
 }
 
 
@@ -409,19 +424,17 @@ uiEMDataPointSetPickDlg::~uiEMDataPointSetPickDlg()
 void uiEMDataPointSetPickDlg::cleanUp()
 {
     uiDataPointSetPickDlg::cleanUp();
-
-    EM::EMObject* emobj = EM::EMM().getObject( emid_ );
-    unRefPtr( emobj ); //TODO Wrong!
-
     emdps_ = nullptr;
+    emobj_ = nullptr;
 }
 
 
 int uiEMDataPointSetPickDlg::addSurfaceData()
 {
     emdps_->clearData();
-    EM::EMObject* emobj = EM::EMM().getObject( emid_ );
-    mDynamicCastGet(EM::Horizon3D*,hor3d,emobj)
+    mDynamicCastGet(EM::Horizon3D*,hor3d,emobj_.ptr())
+    if ( !hor3d )
+	return -1;
 
     float auxvals[3];
     tks_ = hor3d->range();
@@ -454,6 +467,8 @@ void uiEMDataPointSetPickDlg::interpolateCB( CallBacker* )
 
     if ( dataidx_ < 0 )
 	dataidx_ = addSurfaceData();
+    if ( dataidx_ < 0 )
+	return;
 
     int nrinl = tks_.nrInl();
     int nrcrl = tks_.nrCrl();
