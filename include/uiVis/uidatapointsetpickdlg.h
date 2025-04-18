@@ -11,6 +11,7 @@ ________________________________________________________________________
 #include "uivismod.h"
 
 #include "datapointset.h"
+#include "emobject.h"
 #include "emposid.h"
 #include "uidialog.h"
 #include "vispicksetdisplay.h"
@@ -80,7 +81,7 @@ public:
 protected:
 
     RefMan<DataPointSet> emdps_;
-    EM::ObjectID	emid_;
+    RefMan<EM::EMObject> emobj_;
     Array2DInterpol*	interpol_				= nullptr;
 
     int			addSurfaceData();
