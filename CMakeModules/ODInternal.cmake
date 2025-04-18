@@ -7,7 +7,7 @@
 
 #Configure odversion.h
 configure_file ( ${CMAKE_SOURCE_DIR}/include/Basic/odversion.h.in
-		 ${CMAKE_BINARY_DIR}/include/Basic/odversion.h )
+		 ${CMAKE_BINARY_DIR}/${MISC_INSTALL_PREFIX}/include/Basic/odversion.h )
 
 configure_file (${CMAKE_SOURCE_DIR}/CMakeModules/templates/.arcconfig.in
 		${CMAKE_SOURCE_DIR}/.arcconfig @ONLY )
@@ -42,6 +42,7 @@ if ( NOT ${BUILDINSRC} )
 	  DESTINATION "${CMAKE_BINARY_DIR}/${MISC_INSTALL_PREFIX}" )
     file( COPY "${CMAKE_SOURCE_DIR}/bin/${OD_PLFSUBDIR}/${LMUTIL}"
 	  DESTINATION "${CMAKE_BINARY_DIR}/${MISC_INSTALL_PREFIX}/bin/${OD_PLFSUBDIR}/lm.dgb" )
+
 elseif( APPLE )
     execute_process(COMMAND ${CMAKE_COMMAND} -E make_directory
 		    ${MISC_INSTALL_PREFIX}
@@ -63,7 +64,7 @@ set( CMAKE_FILES ${CMAKE_FILES} ${TEMPLATE_FILES} )
 OD_ADD_SOURCE_FILES( ${CMAKE_FILES} )
 
 #Install cmake things.
-install ( FILES "${CMAKE_BINARY_DIR}/CMakeModules/FindOpendTect.cmake"
+install ( FILES "${OD_CMAKE_MODULES_DIR}/FindOpendTect.cmake"
 	  DESTINATION "${MISC_INSTALL_PREFIX}/CMakeModules" )
 install ( DIRECTORY CMakeModules
 	  DESTINATION "${MISC_INSTALL_PREFIX}"
@@ -97,7 +98,12 @@ install( DIRECTORY doc/Programmer/batchprogexample
 
 string(TIMESTAMP YEAR %Y)
 configure_file( ${CMAKE_SOURCE_DIR}/CMakeModules/templates/license.txt.in
-		${CMAKE_BINARY_DIR}/CMakeModules/license.txt @ONLY )
+		${CMAKE_BINARY_DIR}/${MISC_INSTALL_PREFIX}/LICENSE.txt @ONLY )
+install( FILES "${CMAKE_BINARY_DIR}/${MISC_INSTALL_PREFIX}/LICENSE.txt"
+	 DESTINATION "${MISC_INSTALL_PREFIX}" )
+install( FILES "${CMAKE_SOURCE_DIR}/LICENSE"
+	 DESTINATION "${MISC_INSTALL_PREFIX}"
+	 RENAME GNU_GENERAL_PUBLIC_LICENSE.txt )
 
 file( GLOB FLEXNETFILES doc/*.html )
 foreach( FLEXNETFILE ${FLEXNETFILES} )
@@ -159,10 +165,10 @@ if( APPLE )
     set( BUNDLESTRING "OpendTect" )
     set( BUNDLENAME "${BUNDLESTRING}" )
     set( BUNDLEVERSION "${OpendTect_VERSION_MAJOR}.${OpendTect_VERSION_MINOR}.${OpendTect_VERSION_PATCH}" )
-    set( INFOFILE CMakeModules/Info.plist )
-    configure_file( ${CMAKE_SOURCE_DIR}/CMakeModules/templates/Info.plist.in
-		    ${CMAKE_BINARY_DIR}/${INFOFILE} @ONLY )
-    install( FILES ${CMAKE_BINARY_DIR}/${INFOFILE}
+    set( INFOFILE Info.plist )
+    configure_file( "${CMAKE_SOURCE_DIR}/CMakeModules/templates/Info.plist.in"
+		    "${CMAKE_BINARY_DIR}/Contents/${INFOFILE}" @ONLY )
+    install( FILES "${CMAKE_BINARY_DIR}/Contents/${INFOFILE}"
 	     DESTINATION "Contents" )
 endif( APPLE )
 
@@ -210,7 +216,7 @@ install( FILES ${CMAKE_SOURCE_DIR}/bin/macterm.in DESTINATION ${MISC_INSTALL_PRE
 
 string(TIMESTAMP DATE "%a %d %b %Y %H:%M:%S UTC" UTC )
 configure_file( ${CMAKE_SOURCE_DIR}/CMakeModules/templates/buildinfo.h.in
-		${CMAKE_BINARY_DIR}/include/Basic/buildinfo.h @ONLY )
+		${CMAKE_BINARY_DIR}/${MISC_INSTALL_PREFIX}/include/Basic/buildinfo.h @ONLY )
 
 #Installing source
 install( DIRECTORY "${CMAKE_SOURCE_DIR}/src"
@@ -226,10 +232,10 @@ install( DIRECTORY "${CMAKE_SOURCE_DIR}/src"
 
 #Installing cmake generated files from CMAKE_BINARY_DIR directory
 if ( NOT ${BUILDINSRC} )
-    install( DIRECTORY "${CMAKE_BINARY_DIR}/src"
-		       "${CMAKE_BINARY_DIR}/include"
-		       "${CMAKE_BINARY_DIR}/plugins"
-		       "${CMAKE_BINARY_DIR}/spec"
+    install( DIRECTORY "${CMAKE_BINARY_DIR}/${MISC_INSTALL_PREFIX}/src"
+		       "${CMAKE_BINARY_DIR}/${MISC_INSTALL_PREFIX}/include"
+		       "${CMAKE_BINARY_DIR}/${MISC_INSTALL_PREFIX}/plugins"
+		       "${CMAKE_BINARY_DIR}/${MISC_INSTALL_PREFIX}/spec"
 	     DESTINATION "${MISC_INSTALL_PREFIX}"
 	     CONFIGURATIONS Debug
 	     FILE_PERMISSIONS OWNER_READ OWNER_WRITE GROUP_READ WORLD_READ

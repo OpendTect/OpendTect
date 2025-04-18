@@ -13,7 +13,8 @@ external/*
 .arcconfig
 CMakeModules/FindOpendTect.cmake
 CMakeModules/Info.plist
-CMakeModules/license.txt
+LICENSE.txt
+Contents/Resources/LICENSE.txt
 CMakeModules/sourcefiles_od.txt
 CMakeModules/sourcefiles_dgb.txt
 data/ModDeps.od

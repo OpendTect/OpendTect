@@ -129,6 +129,7 @@ macro ( OD_SET_MODULE_INSTALL_RPATH )
 	endif()
 endmacro( OD_SET_MODULE_INSTALL_RPATH )
 
+
 macro( OD_INIT_MODULE )
 
 get_filename_component( OD_MODULE_NAME ${CMAKE_CURRENT_SOURCE_DIR} NAME )
@@ -765,8 +766,8 @@ if( OD_USEBATCH )
     list(APPEND OD_MODULE_INCLUDEPATH
 		${OD_Batch_INCLUDEPATH}
 		${OD_Network_INCLUDEPATH}
-		${OD_BINARY_BASEDIR}/include/Batch
-		${OD_BINARY_BASEDIR}/include/Network)
+		${OD_BINARY_BASEDIR}/${MISC_INSTALL_PREFIX}/include/Batch
+		${OD_BINARY_BASEDIR}/${MISC_INSTALL_PREFIX}/include/Network)
 endif( OD_USEBATCH )
 
 #Set current include_path
@@ -900,7 +901,7 @@ macro ( OD_ADD_SOURCE_FILES )
     foreach ( THEFILE ${ARGV} )
 	get_filename_component( PATH ${THEFILE} ABSOLUTE )
 	file ( RELATIVE_PATH RELPATH "${CMAKE_BINARY_DIR}" ${PATH} ) 
-	file ( APPEND ${OD_SOURCELIST_FILE} ${RELPATH} "\n" )
+        file ( APPEND ${OD_SOURCELIST_FILE} ${RELPATH} "\n" )
     endforeach()
 endmacro()
 
