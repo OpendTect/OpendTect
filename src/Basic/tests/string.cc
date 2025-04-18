@@ -326,7 +326,7 @@ static bool testStringCPrecisionNrDec()
 
 static bool testStringPtr()
 {
-    const int expsz = __iswin__ ? 16 : 14;
+    const int expsz = __iswin__ ? 16 : (__ismac__ ? 11 : 14);
     const double a = 3.14;
     BufferString ret;
     ret.setPtr( &a );
