@@ -204,8 +204,9 @@ ZSampling ZAxisTransform::getZInterval( const ZSampling& zsamp,
     if ( makenice && from != to )
     {
 	const int userfac = to.def_.userFactor();
-	float zstep = ret.step_;
-	zstep = zstep<1e-3f ? 1.0f : mNINT32(zstep*userfac);
+	float zstep = ret.step_*userfac;
+	zstep = zstep > 0.5 ? mNINT32( zstep )
+			    : Math::NiceNumber( zstep, true );
 	zstep /= userfac;
 	ret.step_ = zstep;
 
