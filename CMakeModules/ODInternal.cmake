@@ -166,10 +166,10 @@ if( APPLE )
     set( BUNDLENAME "${BUNDLESTRING}" )
     set( BUNDLEVERSION "${OpendTect_VERSION_MAJOR}.${OpendTect_VERSION_MINOR}.${OpendTect_VERSION_PATCH}" )
     set( INFOFILE Info.plist )
-    configure_file( ${CMAKE_SOURCE_DIR}/CMakeModules/templates/Info.plist.in
-		    ${CMAKE_BINARY_DIR}/${INFOFILE} @ONLY )
-    install( FILES ${CMAKE_BINARY_DIR}/${INFOFILE}
-	     DESTINATION "." )
+    configure_file( "${CMAKE_SOURCE_DIR}/CMakeModules/templates/Info.plist.in"
+		    "${CMAKE_BINARY_DIR}/Contents/${INFOFILE}" @ONLY )
+    install( FILES "${CMAKE_BINARY_DIR}/Contents/${INFOFILE}"
+	     DESTINATION "Contents" )
 endif( APPLE )
 
 if( WIN32 )

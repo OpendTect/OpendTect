@@ -26,9 +26,9 @@ if ( APPLE )
 else()
     set ( MISC_INSTALL_PREFIX . )
 endif()
-
 set ( OD_CMAKE_MODULES_DIR "${OD_BINARY_BASEDIR}/${MISC_INSTALL_PREFIX}/CMakeModules" )
-set ( OD_SOURCELIST_FILE ${OD_CMAKE_MODULES_DIR}/sourcefiles_${OD_SUBSYSTEM}.txt )
+
+set ( OD_SOURCELIST_FILE "${CMAKE_BINARY_DIR}/Testing/sourcefiles_${OD_SUBSYSTEM}.txt" )
 file ( REMOVE ${OD_SOURCELIST_FILE} )
 
 # As per cmake naming:
