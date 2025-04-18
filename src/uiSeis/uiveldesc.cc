@@ -617,10 +617,8 @@ uiRetVal uiVelSel::isOK() const
     if ( desc.isUdf() )
 	uirv.add( tr("The velocity model type is undefined.") );
     else if ( onlyvelocity_ && !desc.isVelocity() )
-    {
 	uirv.add( tr("The velocity type for this velocity model is not "
 		     "allowed for this workflow") );
-    }
 
     if ( !uirv.isOK() )
 	uirv.add( tr("Please edit the velocity model information") );
@@ -823,13 +821,16 @@ void uiVelModelZAxisTransform::doInitGrp()
 }
 
 
-void uiVelModelZAxisTransform::setZRangeCB( CallBacker* )
+void uiVelModelZAxisTransform::setZRangeCB( CallBacker* cb )
 {
     if ( !rangefld_ )
 	return;
 
-    ConstRefMan<ZAxisTransform> trans = getSelection();
     ZSampling zrg;
+    if ( !cb && !velsel_->ioobj(true) )
+	return;
+
+    ConstRefMan<ZAxisTransform> trans = getSelection();
     if ( trans )
 	zrg = trans->getModelZSampling();
 
