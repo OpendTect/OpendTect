@@ -32,13 +32,24 @@ This module will set the following variables if found:
 
 #]=======================================================================]
 
+cmake_policy(PUSH)
+cmake_policy(SET CMP0159 NEW) # file(STRINGS) with REGEX updates CMAKE_MATCH_<n>
+
+find_package(PkgConfig QUIET)
+pkg_check_modules(PC_SQLite3 QUIET sqlite3)
+
 # Look for the necessary header
-find_path(SQLite3_INCLUDE_DIR NAMES sqlite3.h)
+find_path(SQLite3_INCLUDE_DIR NAMES sqlite3.h
+  HINTS
+    ${PC_SQLite3_INCLUDE_DIRS}
+)
 mark_as_advanced(SQLite3_INCLUDE_DIR)
 
 # Look for the necessary library
-find_library(SQLite3_LIBRARY NAMES sqlite3 sqlite)
-get_filename_component( SQLite3_LIBRARY "${SQLite3_LIBRARY}" REALPATH )
+find_library(SQLite3_LIBRARY NAMES sqlite3 sqlite
+  HINTS
+    ${PC_SQLite3_LIBRARY_DIRS}
+)
 mark_as_advanced(SQLite3_LIBRARY)
 
 # Extract version information from the header file
@@ -50,7 +61,6 @@ if(SQLite3_INCLUDE_DIR)
            SQLite3_VERSION "${_ver_line}")
     unset(_ver_line)
 endif()
-
 
 include(${CMAKE_ROOT}/Modules/FindPackageHandleStandardArgs.cmake)
 find_package_handle_standard_args(SQLite3
@@ -72,19 +82,26 @@ if(SQLite3_FOUND)
 		IMPORTED_IMPLIB "${SQLite3_LIBRARY}" )
 	    unset( SQLITE_LOCATION )
 	else()
-	    set_target_properties( SQLite::SQLite3 PROPERTIES
-		IMPORTED_LOCATION "${SQLite3_LIBRARY}" )
 	    get_filename_component( SQLITE_SONAME "${SQLite3_LIBRARY}" REALPATH )
+	    set_target_properties( SQLite::SQLite3 PROPERTIES
+		IMPORTED_LOCATION "${SQLITE_SONAME}" )
+	    get_filename_component( SQLITE_LIBDIR "${SQLite3_LIBRARY}" DIRECTORY )
 	    if ( APPLE )
 		get_filename_component( SQLITE_SONAME "${SQLITE_SONAME}" NAME_WE )
 		set( SQLITE_SONAME "@rpath/${SQLITE_SONAME}.dylib" )
 	    else()
 		get_filename_component( SQLITE_SONAME "${SQLITE_SONAME}" NAME_WLE )
 		get_filename_component( SQLITE_SONAME "${SQLITE_SONAME}" NAME_WLE )
+		if ( NOT EXISTS "${SQLITE_LIBDIR}/${SQLITE_SONAME}" AND EXISTS "${SQLITE_LIBDIR}/libsqlite3.so.0" )
+		    set( SQLITE_SONAME "libsqlite3.so.0" )
+		endif()
 	    endif()
+	    unset( SQLITE_LIBDIR )
 	    set_target_properties( SQLite::SQLite3 PROPERTIES
 		IMPORTED_SONAME "${SQLITE_SONAME}" )
 	    unset( SQLITE_SONAME )
 	endif()
     endif()
 endif()
+
+cmake_policy(POP)
