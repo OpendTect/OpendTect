@@ -9,7 +9,7 @@ include/Basic/buildinfo.h
 src/*/launch-*.cmd
 plugins/*/launch-*.cmd
 spec/*/launch-*.cmd
-external/*
+external/
 .arcconfig
 CMakeModules/FindOpendTect.cmake
 CMakeModules/Info.plist
@@ -56,6 +56,8 @@ plugins/*/licversion.h
 plugins/*/pdf3dversion.h
 src/*/resources/*.aps
 src/*/resources/resource.h
+plugins/*/resources/resource.h
+spec/*/resources/resource.h
 lib*.dylib
 Testing/
 install_manifest.txt
