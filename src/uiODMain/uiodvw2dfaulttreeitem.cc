@@ -75,7 +75,7 @@ bool uiODView2DFaultParentTreeItem::handleSubMenu( int mnuid )
     }
     else if ( isAddItem(mnuid,true) || isAddItem(mnuid,false) )
     {
-	ObjectSet<EM::EMObject> objs;
+	RefObjectSet<EM::EMObject> objs;
 	applMgr()->EMServer()->selectFaults( objs, false, getUiParent() );
 	TypeSet<EM::ObjectID> emids;
 	for ( int idx=0; idx<objs.size(); idx++ )
@@ -88,8 +88,6 @@ bool uiODView2DFaultParentTreeItem::handleSubMenu( int mnuid )
 	}
 	else
 	    addFaults( emids );
-
-	deepUnRef( objs );
     }
 
     return true;

@@ -119,7 +119,7 @@ bool uiODBodyDisplayParentTreeItem::showSubMenu()
 
 void uiODBodyDisplayParentTreeItem::loadBodies()
 {
-    ObjectSet<EM::EMObject> objs;
+    RefObjectSet<EM::EMObject> objs;
     applMgr()->EMServer()->selectBodies( objs );
     TypeSet<EM::ObjectID> oids;
 
@@ -158,8 +158,7 @@ void uiODBodyDisplayParentTreeItem::loadBodies()
 	    EM::EMM().loadIfNotFullyLoaded( dlg.getBodyMid() );
 	if ( emobj )
 	{
-	    emobj->ref();
-	    objs.replace( idx, emobj )->unRef();
+	    objs.replace( idx, emobj );
 	    oids[idx] = emobj->id();
 	}
     }
@@ -170,8 +169,6 @@ void uiODBodyDisplayParentTreeItem::loadBodies()
 	setMoreObjectsToDoHint( idx<oids.size()-1 );
 	addChild( new uiODBodyDisplayTreeItem(oids[idx]), false );
     }
-
-    deepUnRef( objs );
 }
 
 
