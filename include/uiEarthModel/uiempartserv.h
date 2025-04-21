@@ -116,23 +116,23 @@ public:
     void		setHorizon3DDisplayRange(const TrcKeySampling&);
 			/*!<Users can change the display range, hor 3D only. */
 
-    void		selectHorizons(ObjectSet<EM::EMObject>&,bool is2d,
+    void		selectHorizons(RefObjectSet<EM::EMObject>&,bool is2d,
 					uiParent* =nullptr,
 					const ZDomain::Info* =nullptr);
 			//!<Returned set is reffed and must be unrefed by caller
-    void		selectFaults(ObjectSet<EM::EMObject>&,bool is2d,
+    void		selectFaults(RefObjectSet<EM::EMObject>&,bool is2d,
 					uiParent* =nullptr,
 					const ZDomain::Info* =nullptr);
 			//!<Returned set is reffed and must be unrefed by caller
-    void		selectFaultStickSets(ObjectSet<EM::EMObject>&,
+    void		selectFaultStickSets(RefObjectSet<EM::EMObject>&,
 					uiParent* =nullptr,
 					const ZDomain::Info* =nullptr);
 			//!<Returned set is reffed and must be unrefed by caller
-    void		selectFaultSets(ObjectSet<EM::EMObject>&,
+    void		selectFaultSets(RefObjectSet<EM::EMObject>&,
 					uiParent* =nullptr,
 					const ZDomain::Info* =nullptr);
 			//!<Returned set is reffed and must be unrefed by caller
-    void		selectBodies(ObjectSet<EM::EMObject>&,
+    void		selectBodies(RefObjectSet<EM::EMObject>&,
 					uiParent* =nullptr);
 			//!<Returned set is reffed and must be unrefed by caller
     bool		showLoadAuxDataDlg(const EM::ObjectID&);
@@ -222,7 +222,7 @@ public:
 protected:
     void		cleanup();
 
-    void		selectSurfaces(uiParent*,ObjectSet<EM::EMObject>&,
+    void		selectSurfaces(uiParent*,RefObjectSet<EM::EMObject>&,
 					const char* type,const ZDomain::Info*);
     bool		loadAuxData(const EM::ObjectID&,const TypeSet<int>&,
 				    bool removeold=true);
