@@ -729,15 +729,15 @@ bool uiEMPartServer::askUserToSave( const EM::ObjectID& emid,
 }
 
 
-void uiEMPartServer::selectHorizons( ObjectSet<EM::EMObject>& objs, bool is2d,
-				uiParent* p, const ZDomain::Info* zinfo )
+void uiEMPartServer::selectHorizons( RefObjectSet<EM::EMObject>& objs,
+			bool is2d, uiParent* p, const ZDomain::Info* zinfo )
 {
     selectSurfaces( p, objs, is2d ? EMHorizon2DTranslatorGroup::sGroupName()
 			: EMHorizon3DTranslatorGroup::sGroupName(), zinfo );
 }
 
 
-void uiEMPartServer::selectFaults( ObjectSet<EM::EMObject>& objs, bool is2d,
+void uiEMPartServer::selectFaults( RefObjectSet<EM::EMObject>& objs, bool is2d,
 				   uiParent* p, const ZDomain::Info* zinfo )
 {
     if ( !is2d )
@@ -746,7 +746,7 @@ void uiEMPartServer::selectFaults( ObjectSet<EM::EMObject>& objs, bool is2d,
 }
 
 
-void uiEMPartServer::selectFaultStickSets( ObjectSet<EM::EMObject>& objs,
+void uiEMPartServer::selectFaultStickSets( RefObjectSet<EM::EMObject>& objs,
 				    uiParent* p, const ZDomain::Info* zinfo )
 {
     selectSurfaces( p, objs,
@@ -754,7 +754,7 @@ void uiEMPartServer::selectFaultStickSets( ObjectSet<EM::EMObject>& objs,
 }
 
 
-static void selectEMObjects( uiParent* p, ObjectSet<EM::EMObject>& objs,
+static void selectEMObjects( uiParent* p, RefObjectSet<EM::EMObject>& objs,
 			    const IOObjContext& ctxt, const char* exectext,
 			     const ZDomain::Info* zinfo )
 {
@@ -792,7 +792,6 @@ static void selectEMObjects( uiParent* p, ObjectSet<EM::EMObject>& objs,
 	if ( !object )
 	    continue;
 
-	object->ref();
 	object->setMultiID( mids[idx] );
 	objs += object;
 	loaders.add( object->loader() );
@@ -800,14 +799,11 @@ static void selectEMObjects( uiParent* p, ObjectSet<EM::EMObject>& objs,
 
     uiTaskRunner execdlg( p );
     if ( !TaskRunner::execute( &execdlg, loaders ) )
-    {
-	deepUnRef( objs );
-	return;
-    }
+	objs.setEmpty();
 }
 
 
-void uiEMPartServer::selectFaultSets( ObjectSet<EM::EMObject>& objs,
+void uiEMPartServer::selectFaultSets( RefObjectSet<EM::EMObject>& objs,
 				      uiParent* p, const ZDomain::Info* zinfo )
 {
     if ( !p )
@@ -818,7 +814,8 @@ void uiEMPartServer::selectFaultSets( ObjectSet<EM::EMObject>& objs,
 }
 
 
-void uiEMPartServer::selectBodies( ObjectSet<EM::EMObject>& objs, uiParent* p )
+void uiEMPartServer::selectBodies( RefObjectSet<EM::EMObject>& objs,
+				   uiParent* p )
 {
     if ( !p )
 	p = parent();
@@ -828,7 +825,8 @@ void uiEMPartServer::selectBodies( ObjectSet<EM::EMObject>& objs, uiParent* p )
 }
 
 
-void uiEMPartServer::selectSurfaces( uiParent* p, ObjectSet<EM::EMObject>& objs,
+void uiEMPartServer::selectSurfaces( uiParent* p,
+				RefObjectSet<EM::EMObject>& objs,
 				const char* typ, const ZDomain::Info* zinfo )
 {
     if ( !p )
@@ -862,14 +860,13 @@ void uiEMPartServer::selectSurfaces( uiParent* p, ObjectSet<EM::EMObject>& objs,
 	if ( !obj )
 	    continue;
 
-	obj->ref();
 	objs += obj;
     }
 
     if ( objs.isEmpty() )
 	return;
 
-    ObjectSet<EM::EMObject> objstobeloaded;
+    RefObjectSet<EM::EMObject> objstobeloaded;
     for ( int idx=0; idx<idstobeloaded.size(); idx++ )
     {
 	EM::EMObject* obj = EM::EMM().getObject( idstobeloaded[idx] );
@@ -877,21 +874,18 @@ void uiEMPartServer::selectSurfaces( uiParent* p, ObjectSet<EM::EMObject>& objs,
 	    continue;
 
 	obj->setBurstAlert( true );
-	obj->ref();
 	objstobeloaded += obj;
     }
 
     if ( exec )
     {
 	uiTaskRunner execdlg( p );
-	if ( !TaskRunner::execute( &execdlg, *exec ) )
-	    deepUnRef( objs );
+	if ( !TaskRunner::execute(&execdlg,*exec) )
+	    objs.setEmpty();
     }
 
     for ( int idx=0; idx<objstobeloaded.size(); idx++ )
 	objstobeloaded[idx]->setBurstAlert( false );
-
-    deepUnRef( objstobeloaded );
 }
 
 
