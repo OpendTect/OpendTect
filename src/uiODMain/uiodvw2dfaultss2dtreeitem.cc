@@ -77,7 +77,7 @@ bool uiODView2DFaultSS2DParentTreeItem::handleSubMenu( int mnuid )
     }
     else if ( isAddItem(mnuid,true) || isAddItem(mnuid,false) )
     {
-	ObjectSet<EM::EMObject> objs;
+	RefObjectSet<EM::EMObject> objs;
 	applMgr()->EMServer()->selectFaultStickSets( objs, getUiParent() );
 	TypeSet<EM::ObjectID> emids;
 	for ( int idx=0; idx<objs.size(); idx++ )
@@ -90,8 +90,6 @@ bool uiODView2DFaultSS2DParentTreeItem::handleSubMenu( int mnuid )
 	}
 	else
 	    addFaultSS2Ds( emids );
-
-	deepUnRef( objs );
     }
 
     return true;
