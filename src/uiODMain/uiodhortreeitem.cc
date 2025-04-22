@@ -977,7 +977,7 @@ bool uiODHorizon2DParentTreeItem::showSubMenu()
     const int mnuid = mnu.exec();
     if ( mnuid == 0 )
     {
-	RefObjectSet<EM::EMObject> objs;
+	ObjectSet<EM::EMObject> objs;
 	const ZDomain::Info* zinfo = nullptr;
 	if ( !hastransform )
 	    zinfo = &SI().zDomainInfo();
@@ -996,6 +996,8 @@ bool uiODHorizon2DParentTreeItem::showSubMenu()
 
 	    addChld( new uiODHorizon2DTreeItem( emid ), false, false );
 	}
+
+	deepUnRef( objs );
     }
     else if ( mnuid == 1 )
     {

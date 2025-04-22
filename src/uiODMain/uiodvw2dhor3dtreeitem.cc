@@ -159,7 +159,7 @@ bool uiODView2DHor3DParentTreeItem::handleSubMenu( int mnuid )
 	if ( !hastransform )
 	    zinfo = &SI().zDomainInfo();
 
-	RefObjectSet<EM::EMObject> objs;
+	ObjectSet<EM::EMObject> objs;
 	applMgr()->EMServer()->selectHorizons( objs, false, getUiParent(),
 								    zinfo );
 	TypeSet<EM::ObjectID> emids;
@@ -173,6 +173,8 @@ bool uiODView2DHor3DParentTreeItem::handleSubMenu( int mnuid )
 	}
 	else
 	    addHorizon3Ds( emids );
+
+	deepUnRef( objs );
     }
 
     return true;

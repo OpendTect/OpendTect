@@ -151,7 +151,7 @@ bool uiODView2DHor2DParentTreeItem::handleSubMenu( int mnuid )
 	if ( !hastransform )
 	    zinfo = &SI().zDomainInfo();
 
-	RefObjectSet<EM::EMObject> objs;
+	ObjectSet<EM::EMObject> objs;
 	applMgr()->EMServer()->selectHorizons( objs, true, getUiParent(),
 								    zinfo );
 	TypeSet<EM::ObjectID> emids;
@@ -165,6 +165,8 @@ bool uiODView2DHor2DParentTreeItem::handleSubMenu( int mnuid )
 	}
 	else
 	    addHorizon2Ds( emids );
+
+	deepUnRef( objs );
     }
 
     return true;

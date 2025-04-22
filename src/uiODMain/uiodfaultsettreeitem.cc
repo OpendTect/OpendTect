@@ -114,7 +114,7 @@ bool uiODFaultSetParentTreeItem::showSubMenu()
 	else
 	    zinfo = &SI().zDomainInfo();
 
-	RefObjectSet<EM::EMObject> objs;
+	ObjectSet<EM::EMObject> objs;
 	applMgr()->EMServer()->selectFaultSets( objs, getUiParent(), zinfo );
 	MouseCursorChanger mcc( MouseCursor::Wait );
 	for ( int idx=0; idx<objs.size(); idx++ )
@@ -122,6 +122,8 @@ bool uiODFaultSetParentTreeItem::showSubMenu()
 	    setMoreObjectsToDoHint( idx<objs.size()-1 );
 	    addChild( new uiODFaultSetTreeItem(objs[idx]->id()), false );
 	}
+
+	deepUnRef( objs );
     }
     else if ( mnuid>=mDispInFull && mnuid<=mDispAtBoth )
     {

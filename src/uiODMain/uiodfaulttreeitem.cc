@@ -131,7 +131,7 @@ bool uiODFaultParentTreeItem::showSubMenu()
     const int mnuid = mnu.exec();
     if ( mnuid==mAddMnuID )
     {
-	RefObjectSet<EM::EMObject> objs;
+	ObjectSet<EM::EMObject> objs;
 	const ZDomain::Info* zinfo = nullptr;
 	const ZAxisTransform* transform = scene->getZAxisTransform();
 	if ( transform )
@@ -146,6 +146,8 @@ bool uiODFaultParentTreeItem::showSubMenu()
 	    setMoreObjectsToDoHint( idx<objs.size()-1 );
 	    addChild( new uiODFaultTreeItem(objs[idx]->id()), false );
 	}
+
+	deepUnRef( objs );
     }
     else if ( mnuid == mNewMnuID )
     {
@@ -547,7 +549,7 @@ bool uiODFaultStickSetParentTreeItem::showSubMenu()
     const int mnuid = mnu.exec();
     if ( mnuid==mAddMnuID )
     {
-	RefObjectSet<EM::EMObject> objs;
+	ObjectSet<EM::EMObject> objs;
 	const ZDomain::Info* zinfo = nullptr;
 	const ZAxisTransform* transform = scene->getZAxisTransform();
 	if ( transform )
@@ -562,6 +564,7 @@ bool uiODFaultStickSetParentTreeItem::showSubMenu()
 	    setMoreObjectsToDoHint( idx<objs.size()-1 );
 	    addChild( new uiODFaultStickSetTreeItem(objs[idx]->id()), false );
 	}
+	deepUnRef( objs );
     }
     else if ( mnuid == mNewMnuID )
     {
