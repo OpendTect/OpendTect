@@ -1454,12 +1454,12 @@ bool DAGTetrahedraTree::getTetrahedras( TypeSet<int>& result ) const
 }
 
 
-bool DAGTetrahedraTree::getSurfaceTriangles( TypeSet<int>& result) const
+bool DAGTetrahedraTree::getSurfaceTriangles( TypeSet<int>& result ) const
 {
     for ( int idx=0; idx<tetrahedras_.size(); idx++ )
     {
 	mValidTetrahedra()
-	if ( (c[0]<0) + (c[1]<0) + (c[2]<0) + (c[3]<0)!=1 )
+	if ( (c[0]<0)+(c[1]<0)+(c[2]<0)+(c[3]<0) != 1 )
 	    continue;
 
 	if ( c[0]<0 )
@@ -1474,6 +1474,25 @@ bool DAGTetrahedraTree::getSurfaceTriangles( TypeSet<int>& result) const
 
     return result.size();
 }
+
+
+bool DAGTetrahedraTree::getAllTriangles( TypeSet<int>& result ) const
+{
+    for ( int idx = 0; idx < tetrahedras_.size(); ++idx )
+    {
+	mValidTetrahedra();
+	if ( c[0] < 0 || c[1] < 0 || c[2] < 0 || c[3] < 0 )
+	    continue;
+
+	addTriangle(c[1], c[2], c[3], result); // Opposite c[0]
+	addTriangle(c[0], c[2], c[3], result); // Opposite c[1]
+	addTriangle(c[0], c[1], c[3], result); // Opposite c[2]
+	addTriangle(c[0], c[1], c[2], result); // Opposite c[3]
+    }
+
+    return result.size();
+}
+
 
 
 bool DAGTetrahedraTree::getConnections( int vertex, TypeSet<int>& result ) const
