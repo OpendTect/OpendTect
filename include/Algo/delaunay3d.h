@@ -65,6 +65,10 @@ public:
 			/*<Coord indices are sorted in threes, i.e.
 			   ci[0], ci[1], ci[2] is the first triangle
 			   ci[3], ci[4], ci[5] is the second triangle. */
+    bool		getAllTriangles(TypeSet<int>&) const;
+			/*<Coord indices are sorted in threes, i.e.
+			   ci[0], ci[1], ci[2] is the first triangle
+			   ci[3], ci[4], ci[5] is the second triangle. */
     void		setEpsilon(double err)	{ epsilon_ = err; }
     static char		cNoVertex()	{ return -1; }
 

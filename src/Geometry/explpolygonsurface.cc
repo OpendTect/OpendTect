@@ -81,13 +81,21 @@ bool ExplPolygonSurface::update( bool forceall, TaskRunner* tr )
 	return true;
     
     samples_.erase();
-    TypeSet<int> plgcrdindices; 
+    plgsamplesidxs_.erase();
+    TypeSet<int> plgcrdindices;
+    const int nrplgs = surface_->nrPolygons();
+    ManagedObjectSet<TypeSet<Coord3>> plgsamples;
+    for ( int idx=0; idx<nrplgs; idx++ )
+	plgsamples += new TypeSet<Coord3>();
+
     int prevnrknots = 0;
     for ( int plg=rrg.start_; plg<=rrg.stop_; plg += rrg.step_ )
     {
+	const int currplgnormalisedidx = plg+nrplgs-1;
 	prevnrknots = samples_.size();
-        surface_->getCubicBezierCurve( plg, samples_, (float)scalefacs_.z_ );
-
+	TypeSet<Coord3> currsamps;
+	surface_->getCubicBezierCurve( plg, currsamps, (float)scalefacs_.z_ );
+	plgsamples.get(currplgnormalisedidx)->append( currsamps );
 	if ( displaypolygons_ )
 	{
     	    for ( int knotidx=prevnrknots; knotidx<samples_.size(); knotidx++ )
@@ -95,6 +103,12 @@ bool ExplPolygonSurface::update( bool forceall, TaskRunner* tr )
 	    
     	    plgcrdindices += prevnrknots;
 	}
+    }
+
+    for ( const auto* samps : plgsamples )
+    {
+	plgsamplesidxs_.add( samples_.size() );
+	samples_.append( *samps );
     }
 
     for ( int idx=0; idx<samples_.size(); idx++ )
@@ -115,6 +129,7 @@ bool ExplPolygonSurface::update( bool forceall, TaskRunner* tr )
     return true;
 }
 
+
 void ExplPolygonSurface::addToTrianglePrimitiveSet(Geometry::PrimitiveSet* ps,
     int idx1, int idx2, int idx3 )
 {
@@ -133,6 +148,19 @@ void ExplPolygonSurface::addToTrianglePrimitiveSet(Geometry::PrimitiveSet* ps,
     idxps->append( idx2 );
     idxps->append( endidx );
 }
+
+
+int ExplPolygonSurface::getPolygonIdx(int sampidx )
+{
+    for ( int idx=1; idx<plgsamplesidxs_.size(); idx++ )
+    {
+	if ( sampidx < plgsamplesidxs_[idx] )
+	    return idx - 1;
+    }
+
+    return plgsamplesidxs_.size() - 1;
+}
+
 
 bool ExplPolygonSurface::updateBodyDisplay()
 {
@@ -167,8 +195,7 @@ bool ExplPolygonSurface::updateBodyDisplay()
 	return false;
 
     sampleindices_.erase();
-    tetrahedratree_->getSurfaceTriangles( sampleindices_ );
-    
+    tetrahedratree_->getAllTriangles( sampleindices_ );
     const int nrindices = sampleindices_.size();
     TypeSet<int> invalidknots;
     for ( int idx=0; idx<pts.size(); idx++ )
@@ -189,16 +216,26 @@ bool ExplPolygonSurface::updateBodyDisplay()
     bool allvalid = !invalidknots.size();
     for ( int idx=0; idx<nrindices/3; idx++ )
     {
-	if ( !allvalid && ( invalidknots.validIdx(sampleindices_[3*idx]) ||
-		    	    invalidknots.validIdx(sampleindices_[3*idx+1]) ||
-			    invalidknots.validIdx(sampleindices_[3*idx+2]) ) )
+	const int sampidx0 = sampleindices_[3*idx];
+	const int sampidx1 = sampleindices_[3*idx+1];
+	const int sampidx2 = sampleindices_[3*idx+2];
+	if ( !allvalid && ( invalidknots.validIdx(sampidx0) ||
+			    invalidknots.validIdx(sampidx1) ||
+			    invalidknots.validIdx(sampidx2) ) )
+	    continue;
+
+	int pidx0 = getPolygonIdx( sampidx0 );
+	int pidx1 = getPolygonIdx( sampidx1 );
+	int pidx2 = getPolygonIdx( sampidx2 );
+	int pmin = std::min({pidx0, pidx1, pidx2});
+	int pmax = std::max({pidx0, pidx1, pidx2});
+	if ( pmax - pmin > 1 )
 	    continue;
 
 	TypeSet<int> triangleidxs;
 	for ( int triangleidx = 3*idx; triangleidx < (3*idx+3); triangleidx++)
-	{
 	    triangleidxs += sampleindices_[triangleidx];
-	}
+
 	bodytriangle_->appendCoordIndices( triangleidxs );
 	//calcNormals( idx, sampleindices_[3*idx],sampleindices_[3*idx+1],
 	//    sampleindices_[3*idx+2] );

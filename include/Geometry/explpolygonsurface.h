@@ -67,7 +67,7 @@ protected:
 						  int,int,int);
     void		calcNormals(int nrtriangles,int idx1,int idx2,int idx3);
 
-
+    int			getPolygonIdx(int);
 
     bool		displaypolygons_;
     bool		displaybody_;
@@ -77,6 +77,7 @@ protected:
     DAGTetrahedraTree*		tetrahedratree_; 
     TypeSet<Coord3>		samples_;
     TypeSet<int>		sampleindices_;
+    TypeSet<int>		plgsamplesidxs_;
     const PolygonSurface*	surface_;
     IndexedGeometry*		bodytriangle_;
     IndexedGeometry*		polygondisplay_;
