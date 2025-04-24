@@ -58,8 +58,8 @@ uiKeyDesc::uiKeyDesc( QKeyEvent* ev )
 
 
 uiKeyDesc::uiKeyDesc( const char* str1, const char* str2 )
-    : state_(OD::NoButton)
-    , key_(0)
+    : key_(0)
+    , state_(OD::NoButton)
 {
     set( str1, str2 );
 }
@@ -288,7 +288,8 @@ bool uiShortcutsList::getSCProperties( const IOPar& par, int scutidx,
 {
     BufferString propnm = IOPar::compKey( toString(scutidx), sKey::Property() );
     BufferString propv = IOPar::compKey( toString(scutidx), sKey::Value() );
-    return par.get( propnm.buf(), proplbl ) && par.get( propv.buf(), propval );
+    return par.get( propnm.buf(), proplbl, false ) &&
+	   par.get( propv.buf(), propval );
 }
 
 

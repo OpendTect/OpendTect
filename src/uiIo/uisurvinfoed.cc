@@ -244,7 +244,7 @@ void uiSurveyInfoEditor::mkSIPFld( uiObject* att )
     for ( int idx=0; idx<nrprovs; idx++ )
     {
 	uiSurvInfoProvider& sip = *sips_[idx];
-	sipfld_->addItem( mToUiStringTodo(sip.usrText()) );
+	sipfld_->addItem( sip.usrText() );
 	const char* icnm = sip.iconName();
 	if ( icnm && *icnm )
 	    sipfld_->setIcon( sipfld_->size()-1, icnm );
@@ -1307,7 +1307,7 @@ uiSurvInfoProvider* uiSurveyInfoEditor::getSIP()
 void uiSurvInfoProvider::fillLogPars( IOPar& par ) const
 {
     par.setStdCreationEntries();
-    par.set( sKey::Type(), usrText() );
+    par.set( sKey::Type(), usrText(), false );
 }
 
 

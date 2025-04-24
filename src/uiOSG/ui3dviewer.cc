@@ -382,7 +382,7 @@ void ui3DViewer::savePropertySettings() const
 
 void ui3DViewer::fillPar( IOPar& par ) const
 {
-    par.set( sKey::Name(), getScene()->uiName() );
+    par.set( sKey::Name(), getScene()->uiName(), true );
     par.set( sKeySceneID(), getScene()->id() );
     par.set( sKeyBGColor(), (int)getBackgroundColor().rgb() );
     par.set( sKeyStereo(), toString( getStereoType() ) );
@@ -413,7 +413,7 @@ bool ui3DViewer::usePar( const IOPar& par )
 	return false;
 
     uiString scenenm;
-    if ( par.get(sKey::Name(),scenenm) )
+    if ( par.get(sKey::Name(),scenenm,true) )
 	scene->setUiName( scenenm );
 
     int col;

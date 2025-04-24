@@ -30,10 +30,10 @@ uiToolBarCommandEditor::uiToolBarCommandEditor( uiParent* p,
 						bool withcheck,
 						bool mkinvisible )
     : uiGroup(p)
-    , commands_(*new CommandDefs(commands))
-    , mkinvisible_(mkinvisible)
     , checked(this)
     , changed(this)
+    , mkinvisible_(mkinvisible)
+    , commands_(*new CommandDefs(commands))
 {
     initui( seltxt, BufferStringSet(), withcheck );
 }
@@ -45,10 +45,10 @@ uiToolBarCommandEditor::uiToolBarCommandEditor( uiParent* p,
 						bool withcheck,
 						bool mkinvisible )
     : uiGroup(p)
-    , commands_(*new CommandDefs)
-    , mkinvisible_(mkinvisible)
     , checked(this)
     , changed(this)
+    , mkinvisible_(mkinvisible)
+    , commands_(*new CommandDefs)
 {
     for ( auto* exenm : exenms )
 	commands_.addCmd( *exenm, toUiString( *exenm ), *exenm,
@@ -166,7 +166,7 @@ void uiToolBarCommandEditor::updateCmdList( const CommandDefs& commands )
 void uiToolBarCommandEditor::clear()
 {
     setCommand( BufferString::empty() );
-    setToolTip( BufferString::empty() );
+    setToolTip( uiString::empty() );
     setIconFile( "programmer" );
 }
 
@@ -184,9 +184,10 @@ BufferString uiToolBarCommandEditor::getCommand() const
 }
 
 
-BufferString uiToolBarCommandEditor::getToolTip() const
+uiString uiToolBarCommandEditor::getToolTip() const
 {
-    return tooltipfld_->text();
+    // TODO: add uiString support to uiGenInput
+    return toUiString( tooltipfld_->text() );
 }
 
 
@@ -196,19 +197,19 @@ BufferString uiToolBarCommandEditor::getIconFile() const
 }
 
 
-void uiToolBarCommandEditor::setCommand( const BufferString& cmd )
+void uiToolBarCommandEditor::setCommand( const char* cmd )
 {
     commandfld_->setFileName( cmd );
 }
 
 
-void uiToolBarCommandEditor::setToolTip( const BufferString& tip )
+void uiToolBarCommandEditor::setToolTip( const uiString& tip )
 {
-    tooltipfld_->setText( tip );
+    tooltipfld_->setText( tip.getString() );
 }
 
 
-void uiToolBarCommandEditor::setIconFile( const BufferString& iconfile )
+void uiToolBarCommandEditor::setIconFile( const char* iconfile )
 {
     iconfld_->setIcon( iconfile );
     iconfile_ = iconfile;
@@ -283,9 +284,9 @@ void uiToolBarCommandEditor::exeSelChgCB( CallBacker* )
     {
 	advSetSensitive( false );
 	advDisplay( !mkinvisible_ );
-	setCommand( commands_.get( current ) );
-	setToolTip( commands_.getToolTip( current ).getString() );
-	setIconFile( commands_.getIconName( current ) );
+	setCommand( commands_.get(current) );
+	setToolTip( commands_.getToolTip(current) );
+	setIconFile( commands_.getIconName(current) );
 	commandChgCB( nullptr );
     }
     else if ( !isChecked() )
@@ -327,7 +328,7 @@ void uiToolBarCommandEditor::fillPar( IOPar& par ) const
     if ( isChecked() && current==commands_.size() )
     {
 	par.set( sKey::Command(), getCommand() );
-	par.set( sKey::ToolTip(), toUiString(getToolTip()) );
+	par.set( sKey::ToolTip(), getToolTip(), true );
 	par.set( sKey::IconFile(), getIconFile() );
     }
     else if ( isChecked() && !commands_.isEmpty() )
@@ -338,7 +339,7 @@ void uiToolBarCommandEditor::fillPar( IOPar& par ) const
 void uiToolBarCommandEditor::usePar( const IOPar& par )
 {
     BufferString exenm, cmd, iconfile;
-    uiString tip;
+    uiString tooltip;
     if ( par.get( sKey::ExeName(), exenm ) && !exenm.isEmpty() && exeselfld_ )
     {
 	int idx = commands_.indexOf( exenm );
@@ -347,13 +348,13 @@ void uiToolBarCommandEditor::usePar( const IOPar& par )
     }
     else if ( par.get( sKey::Command(), cmd ) && !cmd.isEmpty() )
     {
-	par.get( sKey::ToolTip(), tip );
+	par.get( sKey::ToolTip(), tooltip, true );
 	par.get( sKey::IconFile(), iconfile );
 	if ( exeselfld_ )
 	    exeselfld_->setCurrentItem( "Other" );
 
 	setCommand( cmd );
-	setToolTip( tip.getString() );
+	setToolTip( tooltip );
 	setIconFile( iconfile );
 	setChecked( true );
     }

@@ -33,13 +33,16 @@ namespace sKey {
 mExpClass(uiTools) uiToolBarCommandEditor : public uiGroup
 {  mODTextTranslationClass(uiToolBarCommandEditor);
 public:
-    uiToolBarCommandEditor(uiParent*, const uiString&, const CommandDefs&,
-			   bool withcheck=true, bool mkinvisible=false);
-    uiToolBarCommandEditor(uiParent*, const uiString&,
-			   const BufferStringSet& paths,
-			   const BufferStringSet& exenms,
-			   bool withcheck=true, bool mkinvisible=false);
-    ~uiToolBarCommandEditor();
+			uiToolBarCommandEditor(uiParent*,const uiString& seltxt,
+					       const CommandDefs&,
+					       bool withcheck=true,
+					       bool mkinvisible=false);
+			uiToolBarCommandEditor(uiParent*,const uiString& seltxt,
+					       const BufferStringSet& paths,
+					       const BufferStringSet& exenms,
+					       bool withcheck=true,
+					       bool mkinvisible=false);
+			~uiToolBarCommandEditor();
 
     void		setChecked(bool);
     bool		isChecked() const;
@@ -47,11 +50,11 @@ public:
     void		updateCmdList(const CommandDefs&);
     void		clear();
     BufferString	getCommand() const;
-    BufferString	getToolTip() const;
+    uiString		getToolTip() const;
     BufferString	getIconFile() const;
-    void		setCommand(const BufferString&);
-    void		setToolTip(const BufferString&);
-    void		setIconFile(const BufferString&);
+    void		setCommand(const char*);
+    void		setToolTip(const uiString&);
+    void		setIconFile(const char*);
 
     void		advSetSensitive(bool);
     void		advDisplay(bool);
@@ -79,5 +82,4 @@ protected:
     void		exeSelChgCB(CallBacker*);
     void		initGrp(CallBacker*);
     void		iconSelCB(CallBacker*);
-
 };

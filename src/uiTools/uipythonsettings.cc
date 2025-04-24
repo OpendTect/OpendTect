@@ -1138,7 +1138,7 @@ void uiSettingsMgr::updateUserCmdToolBar()
 	prognms_.add( cmd );
 	progargs_.add( nullptr );
 	idepar->get( sKey::IconFile(), iconnm );
-	idepar->get( sKey::ToolTip(), tooltip );
+	idepar->get( sKey::ToolTip(), tooltip, true );
 	uiname = tooltip;
     }
     else
@@ -1202,7 +1202,7 @@ void uiSettingsMgr::updateUserCmdToolBar()
 	prognms_.add( cmd );
 	progargs_.add( nullptr );
 	termpar->get( sKey::IconFile(), iconnm );
-	termpar->get( sKey::ToolTip(), tooltip );
+	termpar->get( sKey::ToolTip(), tooltip, true );
 	uiname = tooltip;
     }
     else

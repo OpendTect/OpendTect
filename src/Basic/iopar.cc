@@ -1141,8 +1141,18 @@ bool IOPar::get( const char* keyw, BufferString& bs ) const
 }
 
 
-bool IOPar::get( const char* keyw, uiString& uis ) const
+bool IOPar::get( const char* keyw, uiString& uis, bool fromhex ) const
 {
+    if ( !fromhex )
+    {
+	BufferString res;
+	if ( !get(keyw,res) )
+	    return false;
+
+	uis.set( res.buf() );
+	return true;
+    }
+
     BufferString hex;
     uiString res;
     if ( !get( keyw, hex ) || !res.setFromHexEncoded( hex.buf() ) )
@@ -1299,11 +1309,16 @@ void IOPar::set( const char* keyw, const SeparString& ss )
 }
 
 
-void IOPar::set( const char* keyw, const uiString& uis )
+void IOPar::set( const char* keyw, const uiString& uis, bool tohex )
 {
-    BufferString buf;
-    uis.getHexEncoded( buf );
-    set( keyw, buf );
+    if ( !tohex )
+	set( keyw, uis.getString().buf() );
+    else
+    {
+	BufferString buf;
+	uis.getHexEncoded( buf );
+	set( keyw, buf.buf() );
+    }
 }
 
 

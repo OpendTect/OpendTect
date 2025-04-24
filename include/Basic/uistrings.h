@@ -639,7 +639,7 @@ public:
     static uiString sTmpStor()	{ return tr("Temporary storage location"); }
     static uiString sToolbar()		{ return tr("Toolbar"); }
     static uiString sTools()		{ return tr("Tools"); }
-    static uiString sTooltip()		{ return tr("Tool Tip"); }
+    static uiString sTooltip()		{ return tr("Tooltip"); }
     static uiString sTop()		{ return tr("Top"); }
     static uiString sTopHor()		{ return tr("Top Horizon"); }
     static uiString sTrace(int n=1)	{ return tr("Trace",0,n); }
