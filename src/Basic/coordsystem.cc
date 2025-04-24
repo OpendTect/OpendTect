@@ -90,7 +90,7 @@ void CoordSystem::getSystemNames( bool orthogonalonly,
 
 	const char* factorykey = factorynames.get( idx ).buf();
 	systempar->set( sKeyFactoryName(), factorykey );
-	systempar->set( sKeyUiName(), factoryuinames[idx] );
+	systempar->set( sKeyUiName(), factoryuinames[idx], true );
 	if ( projectiononly )
 	{
 	    ConstRefMan<CoordSystem> projsystem = factory().create( factorykey);
@@ -117,7 +117,7 @@ void CoordSystem::getSystemNames( bool orthogonalonly,
 
 	uiString uiname;
 	BufferString factoryname;
-	if ( !systempar->get(sKeyUiName(),uiname) ||
+	if ( !systempar->get(sKeyUiName(),uiname,true) ||
 	     !systempar->get(sKeyFactoryName(),factoryname) )
 	    continue;
 

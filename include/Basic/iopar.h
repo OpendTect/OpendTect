@@ -185,7 +185,7 @@ public:
     bool		get(const char*,DBKey&) const;
     bool		get(const char*,OD::Color&) const;
     bool		get(const char*,SeparString&) const;
-    bool		get(const char*,uiString&) const;
+    bool		get(const char*,uiString&,bool fromhex) const;
     bool		get(const char*,BufferString&) const;
     bool		get(const char*,BufferString&,BufferString&) const;
     bool		get(const char*,BufferString&,BufferString&,
@@ -280,7 +280,7 @@ public:
     void		set(const char*,const DBKey&);
     void		set(const char*,const OD::Color&);
     void		set(const char*,const SeparString&);
-    void		set(const char*,const uiString&);
+    void		set(const char*,const uiString&,bool tohex);
     void		set(const char*,const OD::String&);
     void		set(const char*,const OD::String&,
 					const OD::String&);
