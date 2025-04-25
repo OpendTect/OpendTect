@@ -1110,17 +1110,23 @@ Well::SimpleTrackSampler::~SimpleTrackSampler()
 
 int Well::SimpleTrackSampler::nextStep()
 {
-    float zval = extrintv_.atIndex( nrdone_ );
-    float dah = d2t_ ? d2t_->getDah( zval, track_ ) : track_.getDahForTVD(zval);
-
+    const float zval = extrintv_.atIndex( nrdone_ );
     if ( zval > extrintv_.stop_ )
-	return Executor::Finished();
+	return Finished();
+
+    const float dah = d2t_ ? d2t_->getDah( zval, track_ )
+			   : track_.getDahForTVD(zval);
+    if ( mIsUdf(dah) )
+    {
+	nrdone_++;
+	return MoreToDo();
+    }
 
     Coord3 pos = track_.getPos( dah );
     pos.z_ = zval;
 
     BinID bid = SI().transform( pos );
-    const bool withintrack = tracklimits_.includes(zval,true);
+    const bool withintrack = tracklimits_.includes( zval, true );
     if ( withintrack || extrapolate_ )
     {
 	if ( extrapolate_ && !withintrack )
@@ -1130,15 +1136,20 @@ int Well::SimpleTrackSampler::nextStep()
             pos.z_ = zval;
 	    bid = SI().transform( pos );
 	}
-	if ( ( isinsidesurvey_ && !SI().includes( bid, zval, false ) )
-		|| !SI().isReasonable( bid ))
-	    { nrdone_++; return Executor::MoreToDo(); }
 
-	bidset_ += bid; coords_ += pos;
+	if ( ( isinsidesurvey_ && !SI().includes(bid,zval,false) )
+		|| !SI().isReasonable( bid ))
+	{
+	    nrdone_++;
+	    return MoreToDo();
+	}
+
+	bidset_ += bid;
+	coords_ += pos;
     }
 
     nrdone_ ++;
-    return Executor::MoreToDo();
+    return MoreToDo();
 }
 
 
@@ -1154,7 +1165,8 @@ Well::LogSampler::LogSampler( const Data& wd,const ExtractParams& pars,
     for ( int idx=0; idx<lognms.size(); idx++ )
     {
 	const Log* log = wd_->getLog( lognms.get( idx ) );
-	if ( log ) logset_ += log;
+	if ( log )
+	    logset_ += log;
     }
 }
 
@@ -1171,7 +1183,8 @@ Well::LogSampler::LogSampler( const Data& wd, const Interval<float>& zrg,
     for ( int idx=0; idx<lognms.size(); idx++ )
     {
 	const Log* log = wd_->getLog( lognms.get( idx ) );
-	if ( log ) logset_ += log;
+	if ( log )
+	    logset_ += log;
     }
 }
 
@@ -1202,7 +1215,8 @@ Well::LogSampler::LogSampler( const Data& wd,
     for ( auto* lognm : lognms )
     {
 	const Log* log = logset.getLog( lognm->buf() );
-	if ( log ) logset_ += log;
+	if ( log )
+	    logset_ += log;
     }
 }
 
