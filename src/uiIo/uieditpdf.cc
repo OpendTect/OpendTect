@@ -37,10 +37,10 @@ ________________________________________________________________________
 
 uiEditProbDenFunc::uiEditProbDenFunc( uiParent* p, ProbDenFunc& pdf, bool ed )
     : uiGroup(p,"ProbDenFunc editor")
-    , inpdf_(pdf)
-    , editable_(ed)
     , pdf_(*pdf.clone())
+    , inpdf_(pdf)
     , nrdims_(pdf.nrDims())
+    , editable_(ed)
 {
     mustsave_ = getMustSave();
 }
@@ -619,6 +619,14 @@ void uiEditSampledProbDenFunc::viewPDF( CallBacker* )
 	    app.ddpars_.vd_.mappersetup_.range_ = Interval<float>(0.f,maxval);
 	    FlatView::Annotation& ann = app.annot_;
 	    ann.setAxesAnnot( true );
+	    const UnitOfMeasure* xpdfuom = UoMR().get( pdf_.getUOMSymbol(0) );
+	    const UnitOfMeasure* ypdfuom = UoMR().get( pdf_.getUOMSymbol(1) );
+	    ann.x1_.name_.set( pdf_.dimName(0) );
+	    if ( xpdfuom )
+		ann.x1_.name_.append( xpdfuom->getUiLabel() );
+	    ann.x2_.name_.set( pdf_.dimName(1) );
+	    if ( ypdfuom )
+		ann.x2_.name_.append( ypdfuom->getUiLabel() );
 	    mAttachCB( vwwinnd_->windowClosed,
 		       uiEditSampledProbDenFunc::vwWinClose );
 	}
@@ -941,14 +949,18 @@ uiEditGaussianProbDenFunc::~uiEditGaussianProbDenFunc()
 
 void uiEditGaussianProbDenFunc::mkCorrTabFlds( uiGroup* ccgrp )
 {
+    defcorrsfld_ = new uiListBox( ccgrp, "Defined Correlations" );
+    defcorrsfld_->setStretch( 2, 2 );
+    mAttachCB( defcorrsfld_->selectionChanged,
+	       uiEditGaussianProbDenFunc::corrSel );
+
     if ( editable_ )
     {
 	auto* topgrp = new uiGroup( ccgrp, "CC top group" );
-	topgrp->setFrame( true );
 	var1fld_ = new uiComboBox( topgrp, "Var 1" );
 	var2fld_ = new uiComboBox( topgrp, "Var 2" );
 	ccfld_ = new uiGenInput( topgrp, uiStrings::sEmptyString(),
-							      FloatInpSpec(0));
+				 FloatInpSpec(0) );
 	var2fld_->attach( rightOf, var1fld_ );
 	ccfld_->attach( rightOf, var2fld_ );
 	mAttachCB( var1fld_->selectionChanged,
@@ -967,17 +979,9 @@ void uiEditGaussianProbDenFunc::mkCorrTabFlds( uiGroup* ccgrp )
 	addsetbut_->attach( centeredBelow, topgrp );
 	mAttachCB( ccfld_->updateRequested,
 		   uiEditGaussianProbDenFunc::addSetPush );
-    }
 
-    defcorrsfld_ = new uiListBox( ccgrp, "Defined Correlations" );
-    if ( editable_ )
 	defcorrsfld_->attach( centeredBelow, addsetbut_ );
-    defcorrsfld_->setStretch( 2, 2 );
-    mAttachCB( defcorrsfld_->selectionChanged,
-	       uiEditGaussianProbDenFunc::corrSel );
 
-    if ( editable_ )
-    {
 	rmbut_ = new uiToolButton( ccgrp, "remove",
 				uiStrings::phrRemove(uiStrings::phrJoinStrings(
 				tr("Selected"),uiStrings::sCorrelation())),
@@ -999,8 +1003,6 @@ int uiEditGaussianProbDenFunc::findCorr() const
 
 void uiEditGaussianProbDenFunc::updateCorrList( int cursel )
 {
-    if ( !editable_ ) return;
-
     NotifyStopper stopper( defcorrsfld_->selectionChanged );
     defcorrsfld_->setEmpty();
     if ( pdfnd_->corrs_.isEmpty() )
@@ -1027,10 +1029,12 @@ void uiEditGaussianProbDenFunc::updateCorrList( int cursel )
     defcorrsfld_->setCurrentItem( cursel );
 }
 
+
 void uiEditGaussianProbDenFunc::initGrp( CallBacker* )
 {
     updateCorrList( 0 );
 }
+
 
 void uiEditGaussianProbDenFunc::tabChg( CallBacker* )
 {
@@ -1087,7 +1091,8 @@ void uiEditGaussianProbDenFunc::unitChgCB( CallBacker* cb )
 
 void uiEditGaussianProbDenFunc::corrSel( CallBacker* )
 {
-    if ( !editable_ ) return;
+    if ( !editable_ )
+	return;
 
     const int selidx = defcorrsfld_->currentItem();
     rmbut_->setSensitive( selidx >= 0 );
@@ -1103,13 +1108,15 @@ void uiEditGaussianProbDenFunc::corrSel( CallBacker* )
 }
 
 
-void uiEditGaussianProbDenFunc::varSel( CallBacker* cb )
+void uiEditGaussianProbDenFunc::varSel( CallBacker* )
 {
-    if ( !editable_ ) return;
+    if ( !editable_ )
+	return;
 
     const int icorr = findCorr();
     addsetbut_->setText( var1fld_->currentItem() == var2fld_->currentItem()
-    ? toUiString("-") : (icorr < 0 ? uiStrings::sAdd() : uiStrings::sSet() ) );
+		? toUiString("-")
+		: (icorr < 0 ? uiStrings::sAdd() : uiStrings::sSet() ) );
 }
 
 
@@ -1133,11 +1140,16 @@ void uiEditGaussianProbDenFunc::addSetPush( CallBacker* )
     const int idx1 = var2fld_->currentItem();
     if ( idx0 == idx1 )
 	return;
+
     const float cc = getCC();
     if ( mIsUdf(cc) )
 	return;
+
     else if ( cc == 0 )
-    { uiMSG().error(tr("A zero correlation is not a correlation")); return; }
+    {
+	uiMSG().error( tr("A zero correlation is not a correlation") );
+	return;
+    }
 
     int icorr = findCorr();
     if ( icorr >= 0 )
