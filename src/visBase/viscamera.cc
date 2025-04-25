@@ -49,6 +49,7 @@ Camera::Camera()
     , postdraw_(new DrawCallback(*this))
     , predraw_(new DrawCallback(*this))
 {
+    ref();
     refOsgPtr( predraw_ );
     refOsgPtr( postdraw_ );
 
@@ -58,6 +59,7 @@ Camera::Camera()
     camera_->setPreDrawCallback( predraw_ );
     camera_->setPostDrawCallback( postdraw_ );
     setOsgNode( camera_ );
+    unRefNoDelete();
 }
 
 

@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "integerid.h"
 #include "sets.h"
 #include <typeinfo>
+#include <unordered_map>
 
 namespace osg { class Node; }
 
@@ -63,6 +64,8 @@ private:
     void		removeObject(DataObject*);
 
     mutable WeakPtrSet<DataObject> objects_;
+
+    std::unordered_map<DataObject*,int> objidxmap_;
 
     int				freeid_ = 0;
     SelectionManager&		selman_;
