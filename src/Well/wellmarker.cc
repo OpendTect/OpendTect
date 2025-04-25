@@ -428,6 +428,9 @@ void Well::MarkerSet::insertNewAfter( int aftidx,
     }
     mrkrs.erase();
 
+    if ( idxs.stop_ >= size() )
+	idxs.stop_ = size()-1;
+
     if ( idxs.start_ > 0 )
 	dahbounds.start_ = (*this)[idxs.start_-1]->dah();
     else if ( idxs.stop_ < size()-1 )
