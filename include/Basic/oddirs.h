@@ -70,6 +70,8 @@ mGlobal(Basic) const char* GetSetupDataFileDir(ODSetupLocType,bool acceptnone);
 */
 #define mGetApplSetupDataDir() GetSetupDataFileDir(ODSetupLoc_ApplSetupOnly,0)
 #define mGetSWDirDataDir() GetSetupDataFileDir(ODSetupLoc_SWDirOnly,0)
+#define mGetUserPluginDataDir() \
+			   GetSetupDataFileDir(ODSetupLoc_UserPluginDirOnly,0)
 
 mGlobal(Basic) const char* GetSetupDataFileName(ODSetupLocType,const char*,
 					 bool acceptnone);
