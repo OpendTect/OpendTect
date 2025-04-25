@@ -37,11 +37,13 @@ DataManager::DataManager()
     : selman_(*new SelectionManager)
     , removeallnotify(this)
 {
+    objidxmap_[nullptr] = -1;
 }
 
 
 DataManager::~DataManager()
 {
+    objidxmap_.clear();
     delete &selman_;
 #ifdef __debug__
     const RefCount::WeakPtrSetBase::CleanupBlocker cleanupblock( objects_ );
@@ -134,12 +136,9 @@ VisID DataManager::getID( const osg::Node* node ) const
 void DataManager::addObject( DataObject* obj )
 {
     const RefCount::WeakPtrSetBase::CleanupBlocker cleanupblock( objects_ );
-    const int idx = objects_.indexOf( obj );
-    if ( objects_.validIdx(idx) )
-	return;
-
     objects_ += obj;
     obj->setID( VisID(freeid_++) );
+    objidxmap_[obj] = objects_.size() - 1;
 }
 
 
@@ -164,9 +163,12 @@ void DataManager::getIDs( const std::type_info& ti, TypeSet<VisID>& res ) const
 void DataManager::removeObject( DataObject* dobj )
 {
     const RefCount::WeakPtrSetBase::CleanupBlocker cleanupblock( objects_ );
-    const int idx = objects_.indexOf( dobj );
+    const int idx = objidxmap_[dobj];
     if ( objects_.validIdx(idx) )
+    {
 	objects_.removeSingle( idx );
+	objidxmap_.erase( dobj );
+    }
 }
 
 
