@@ -1117,20 +1117,27 @@ static void gtDefaultAttribsets( const char* dirnm, bool is2d,
 				 BufferStringSet& attribfiles,
 				 BufferStringSet& attribnames )
 {
-    if ( !dirnm || !File::exists(dirnm) )
+    if ( !File::isDirectory(dirnm) )
 	return;
 
     const DirList attrdl( dirnm, File::DirListType::DirsInDir, "*Attribs" );
     for ( int idx=0; idx<attrdl.size(); idx++ )
     {
-	FilePath fp( dirnm, attrdl.get(idx), "index" );
-	od_istream strm( fp.fullPath() );
-	ascistream astream( strm, true );
+	const FilePath fp( dirnm, attrdl.get(idx), "index" );
+	const BufferString indexfnm = fp.fullPath();
+	if ( !File::exists(indexfnm.buf()) )
+	    continue;
 
+	od_istream strm( indexfnm.str() );
+	if ( !strm.isOK() )
+	    continue;
+
+	ascistream astream( strm, true );
 	if ( atEndOfSection(astream) )
 	    astream.next();
 
-	const char* typeprefix = is2d ? "2D" : "3D";
+	const BufferString typeprefix( is2d ? "2D" : "3D" );
+	const int offs = typeprefix.size()+1;
 	while ( !atEndOfSection(astream) )
 	{
 	    const char* attribsetnm = astream.keyWord();
@@ -1140,22 +1147,23 @@ static void gtDefaultAttribsets( const char* dirnm, bool is2d,
 		continue;
 	    }
 
-	    const BufferString attrsetnm( attribsetnm + 3 );
+	    const BufferString attrsetnm( attribsetnm + offs );
 	    BufferString attrfnm = astream.value();
 	    if ( !FilePath(attrfnm).isAbsolute() )
 	    {
-		fp.setFileName( attrfnm );
-		attrfnm = fp.fullPath();
+		const FilePath attribfp( fp.pathOnly(), attrfnm );
+		attrfnm = attribfp.fullPath();
 	    }
 
-	    if ( !File::exists(attrfnm) )
+	    if ( !File::exists(attrfnm.buf()) )
 	    {
 		astream.next();
 		continue;
 	    }
 
-	    attribnames.add( attrsetnm );
-	    attribfiles.add( attrfnm );
+	    if ( attribfiles.addIfNew(attrfnm) )
+		attribnames.add( attrsetnm );
+
 	    astream.next();
 	}
     }
@@ -1168,7 +1176,11 @@ void uiAttribDescSetEd::getDefaultAttribsets( BufferStringSet& attribfiles,
     const bool is2d = adsman_ ? adsman_->is2D() : attrset_->is2D();
     gtDefaultAttribsets( mGetApplSetupDataDir(), is2d, attribfiles,
 			 attribnames );
-    gtDefaultAttribsets( mGetSWDirDataDir(), is2d, attribfiles, attribnames );
+    const BufferString swdatadir( mGetSWDirDataDir() );
+    gtDefaultAttribsets( swdatadir, is2d, attribfiles, attribnames );
+    const BufferString userpldatadir( mGetUserPluginDataDir() );
+    if ( userpldatadir != swdatadir )
+	gtDefaultAttribsets( userpldatadir, is2d, attribfiles, attribnames );
 }
 
 
