@@ -331,8 +331,8 @@ Constant.0.Name: a
 Constant.0.Default: 2
 Constant.0.Typical Range: 2`2.5
 !
-Mhu: PP
-Description: Mhu from Is and density
+Mu: PP
+Description: Mu from Is and density
 Formula: Is^2 / den
 Unit: Pascal
 Variable.0.Type: SI
@@ -360,8 +360,8 @@ Constant.0.Name: a
 Constant.0.Default: 2
 Constant.0.Typical Range: 2`2.5
 !
-Mhu-Rho: MR
-Description: Mhu-Rho from Is
+Mu-Rho: MR
+Description: Mu-Rho from Is
 Formula: Is^2
 Unit: Pascal.Kg/m3
 Variable.0.Type: SI
@@ -493,8 +493,8 @@ Constant.0.Default: 0.8619
 Constant.1.Name: b
 Constant.1.Default: -1172
 !
-P-wave velocity from Lambda-Mhu and density: PVEL
-Description: Compute P-wave velocity from Lambda-Mhu and density
+P-wave velocity from Lambda-Mu and density: PVEL
+Description: Compute P-wave velocity from Lambda-Mu and density
 Formula: sqrt ( ( lambda+2*mhu )  / den )
 Unit: Meter/second
 Variable.0.Type: PP
@@ -502,21 +502,21 @@ Variable.0.Name: Lambda
 Variable.0.Description: Lame parameter 'Lambda'
 Variable.0.Unit: Pascal
 Variable.1.Type: PP
-Variable.1.Name: Mhu
-Variable.1.Description: Lame parameter 'Mhu'
+Variable.1.Name: Mu
+Variable.1.Description: Lame parameter 'Mu'
 Variable.1.Unit: Pascal
 Variable.2.Type: RHOB
 Variable.2.Name: Rhob
 Variable.2.Description: Density
 Variable.2.Unit: Kg/m3
 !
-S-wave velocity from Mhu and density: SVEL
-Description: Compute P-wave velocity from Mhu and density
+S-wave velocity from Mu and density: SVEL
+Description: Compute P-wave velocity from Mu and density
 Formula: sqrt ( mhu / den )
 Unit: Meter/second
 Variable.0.Type: PP
-Variable.0.Name: Mhu
-Variable.0.Description: Lame parameter 'Mhu'
+Variable.0.Name: Mu
+Variable.0.Description: Lame parameter 'Mu'
 Variable.0.Unit: Pascal
 Variable.1.Type: RHOB
 Variable.1.Name: Rhob
