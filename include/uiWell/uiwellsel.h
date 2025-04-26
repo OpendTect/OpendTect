@@ -50,10 +50,10 @@ public:
 protected:
 
     void		doDlg(CallBacker*);
+    void		dlgPoppedUp(CallBacker*);
     BufferString	getSummary() const override;
 
     TypeSet<MultiID>	selids_;
-    IOPar&		iopar_;
 };
 
 

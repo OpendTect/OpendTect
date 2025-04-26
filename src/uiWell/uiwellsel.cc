@@ -66,7 +66,6 @@ uiWellSel::~uiWellSel()
 
 uiWellParSel::uiWellParSel( uiParent* p )
     : uiCompoundParSel(p,uiStrings::sWell(mPlural))
-    , iopar_(*new IOPar)
     , selDone(this)
 {
     butPush.notify( mCB(this,uiWellParSel,doDlg) );
@@ -75,7 +74,7 @@ uiWellParSel::uiWellParSel( uiParent* p )
 
 uiWellParSel::~uiWellParSel()
 {
-    delete &iopar_;
+    detachAllNotifiers();
 }
 
 
@@ -87,7 +86,9 @@ void uiWellParSel::setSelected( const TypeSet<MultiID>& ids )
 
 
 void uiWellParSel::getSelected( TypeSet<MultiID>& ids ) const
-{ ids = selids_; }
+{
+    ids = selids_;
+}
 
 
 void uiWellParSel::doDlg( CallBacker* )
@@ -96,37 +97,48 @@ void uiWellParSel::doDlg( CallBacker* )
     uiIOObjSelDlg::Setup sdsu( tr("Select Wells") );
     sdsu.multisel( true );
     uiIOObjSelDlg dlg( this, sdsu, ctxt );
-    uiIOObjSelGrp* selgrp = dlg.selGrp();
-    selgrp->usePar( iopar_ );
-    if ( !dlg.go() ) return;
+    mAttachCB( dlg.afterPopup, uiWellParSel::dlgPoppedUp );
+    if ( !dlg.go() )
+	return;
 
     selids_.erase();
-    selgrp->getChosen( selids_ );
-    iopar_.setEmpty();
-    selgrp->fillPar( iopar_ );
-
+    dlg.getChosen( selids_ );
     selDone.trigger();
 }
 
 
+void uiWellParSel::dlgPoppedUp( CallBacker* cb )
+{
+    mDynamicCastGet(uiIOObjSelDlg*,dlg,cb)
+    if ( dlg )
+	dlg->selGrp()->setChosen( selids_ );
+}
+
+
 void uiWellParSel::fillPar( IOPar& iop ) const
-{ iop.mergeComp( iopar_, sKey::Well() ); }
+{
+    IOPar wellpar;
+    wellpar.set( sKey::Size(), selids_.size() );
+    for ( int idx=0; idx<selids_.size(); idx++ )
+	wellpar.set( IOPar::compKey(sKey::ID(),idx), selids_[idx] );
+
+    iop.mergeComp( wellpar, sKey::Well() );
+}
+
 
 bool uiWellParSel::usePar( const IOPar& iop )
 {
     selids_.erase();
-    iopar_.setEmpty();
     PtrMan<IOPar> subsel = iop.subselect( sKey::Well() );
-    if ( !subsel ) return false;
+    if ( !subsel )
+	return false;
 
-    iopar_ = *subsel;
-
-    int nrids;
-    iopar_.get( sKey::Size(), nrids );
+    int nrids = 0;
+    subsel->get( sKey::Size(), nrids );
+    MultiID mid;
     for ( int idx=0; idx<nrids; idx++ )
     {
-	MultiID mid;
-	if ( iopar_.get(IOPar::compKey(sKey::ID(),idx),mid) )
+	if ( subsel->get(IOPar::compKey(sKey::ID(),idx),mid) )
 	    selids_ += mid;
     }
 
@@ -137,16 +149,19 @@ bool uiWellParSel::usePar( const IOPar& iop )
 
 BufferString uiWellParSel::getSummary() const
 {
-    BufferStringSet names;
-    for ( int idx=0; idx<selids_.size(); idx++ )
-    {
-	PtrMan<IOObj> ioobj = IOM().get( selids_[idx] );
-	if ( !ioobj ) continue;
+    if ( selids_.isEmpty() )
+	return "No Wells selected";
 
-	names.add( ioobj->name() );
+    if ( selids_.size() == 1 )
+    {
+	PtrMan<IOObj> ioobj = IOM().get( selids_.first() );
+	if ( !ioobj )
+	    return "Invalid selection"; //unlikely
+
+	return ioobj->name();
     }
 
-    return names.getDispString( -1, false );
+    return BufferString( toString(selids_.size()), " Wells selected" );
 }
 
 
