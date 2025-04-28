@@ -105,13 +105,13 @@ class uiContourTreeItemContourData
 { mODTextTranslationClass(uiContourTreeItemContourData);
 public:
 
-    TypeSet<Coord3>			   contourcoords_;
-    TypeSet< Interval<int> >		   contourcoordrgs_;
-    ObjectSet<Geometry::RangePrimitiveSet> contourprimitivesets_;
-    TypeSet<Coord3>			   labelpositions_;
-    TypeSet<int>			   labelcontourlen_;
-    TypeSet<BufferString>		   labels_;
-    TypeSet<Interval<int> >		   labelranges_;
+    TypeSet<Coord3>				contourcoords_;
+    TypeSet< Interval<int> >			contourcoordrgs_;
+    RefObjectSet<Geometry::RangePrimitiveSet>	contourprimitivesets_;
+    TypeSet<Coord3>				labelpositions_;
+    TypeSet<int>				labelcontourlen_;
+    TypeSet<BufferString>			labels_;
+    TypeSet<Interval<int> >			labelranges_;
 };
 
 
@@ -298,7 +298,7 @@ void uiContourTreeItemContourGenerator::addContourData(
     if ( contourdata_.labelranges_.size() )
     {
 	const int lastlblidx =
-                contourdata_.labelranges_[contourdata_.labelranges_.size()-1].stop_;
+	    contourdata_.labelranges_[contourdata_.labelranges_.size()-1].stop_;
 	for ( int idx=0; idx<newcontourdata.labelranges_.size(); idx++ )
 	    newcontourdata.labelranges_[idx] +=
 	    Interval<int>(lastlblidx,lastlblidx);
@@ -436,7 +436,8 @@ bool uiContourTreeItemContourGenerator::addDisplayCoord(
 
     vrtxcoord.z_ += uicitem_->zshift_;
 
-    visBase::Transformation::transform( displaytrans_.ptr(), vrtxcoord, vrtxcoord);
+    visBase::Transformation::transform( displaytrans_.ptr(),
+					vrtxcoord, vrtxcoord );
     contourdata.contourcoords_.add( vrtxcoord );
     lastvrtxidx++;
     return true;
@@ -1385,7 +1386,7 @@ bool uiContourTreeItem::computeUICContourSteps( const Array2D<float>& field )
 	AxisLayout<float> al( contoursteprange_ );
 	SamplingData<float> sd = al.sd_;
         sd.step_ /= 5;
-        const float offset = ( sd.start_ - contoursteprange_.start_ ) / sd.step_;
+	const float offset = (sd.start_-contoursteprange_.start_) / sd.step_;
 	if ( offset < 0 || offset > 1 )
 	{
 	    const int nrsteps = mNINT32( Math::Floor(offset) );
