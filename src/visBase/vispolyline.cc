@@ -119,12 +119,14 @@ void PolyLine::setDisplayTransformation( const mVisTrans* trans)
 
 
 PolyLine3D::PolyLine3D()
-    : VertexShape( Geometry::PrimitiveSet::Other, false )
+    : VertexShape( Geometry::PrimitiveSet::Other, false, false )
     , pixeldensity_( getDefaultPixelDensity() )
 {
     node_ = osgpoly_ = new osgGeo::PolyLineNode;
     refOsgPtr( osgpoly_ );
     setOsgNode( node_ );
+    setupOsgNode();
+    setPrimitiveType( Geometry::PrimitiveSet::Other );
     osgpoly_->setVertexArray( coords_->osgArray() );
 }
 

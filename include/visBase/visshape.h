@@ -151,7 +151,13 @@ public:
 
 protected:
 			VertexShape(Geometry::PrimitiveSet::PrimitiveType,
-				    bool creategeode);
+				    bool creategeode,bool createnode=true);
+			    /*!<If the derived class is creating osg::Node,
+				then "createnode" should be false, and the
+				derived class must then call setupOsgNode and
+				setPrimitiveType functions in the constructor.
+				The derived should manage "node_".*/
+
 			~VertexShape();
 
     void		setupOsgNode();
@@ -168,28 +174,29 @@ protected:
     void		setUpdateVar(bool& var,bool yn);
 			//!<Will trigger redraw request if necessary
 
-    bool		needstextureupdate_ = false;
+    bool		needstextureupdate_			= false;
 			// Only set via setUpdateVar(.)
 
     RefMan<Normals>	normals_;
     RefMan<Coordinates> coords_;
     RefMan<TextureCoords> texturecoords_;
 
-    osg::Node*		node_ = nullptr;
+    osg::Node*		node_					= nullptr;
     osg::Geode*		geode_;
-    osg::Geometry*	osggeom_ = nullptr;
+    osg::Geometry*	osggeom_				= nullptr;
 
-    bool		useosgsmoothnormal_ = false;
-    bool		usecoordinateschangedcb_ = true;
+    bool		useosgsmoothnormal_			= false;
+    bool		usecoordinateschangedcb_		= true;
 
     BindType		colorbindtype_;
     BindType		normalbindtype_;
 
     RefMan<TextureChannels>	channels_;
-    NodeCallbackHandler*	nodecallbackhandler_ = nullptr;
-    TextureCallbackHandler*	texturecallbackhandler_ = nullptr;
+    NodeCallbackHandler*	nodecallbackhandler_		= nullptr;
+    TextureCallbackHandler*	texturecallbackhandler_		= nullptr;
     Threads::Lock		redrawlock_;
-    bool			isredrawing_ = false;
+    bool			isredrawing_			= false;
+    bool			ownsnodeptr_			= true;
 
     Geometry::PrimitiveSet::PrimitiveType	primitivetype_;
 
