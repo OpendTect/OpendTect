@@ -281,13 +281,18 @@ VertexShape::VertexShape()
 
 
 VertexShape::VertexShape( Geometry::IndexedPrimitiveSet::PrimitiveType tp,
-			  bool creategeode )
+			  bool creategeode, bool createnode )
     : geode_(creategeode ? new osg::Geode : nullptr)
     , primitivetype_(Geometry::PrimitiveSet::Other)
+    , ownsnodeptr_(createnode)
 {
     ref();
-    setupOsgNode();
-    setPrimitiveType( tp );
+    if ( createnode )
+    {
+	setupOsgNode();
+	setPrimitiveType( tp );
+    }
+
     if ( coords_ )
 	mAttachCB( coords_->change, VertexShape::coordinatesChangedCB );
 
@@ -310,9 +315,20 @@ void VertexShape::setMaterial( Material* mt )
 
 void VertexShape::setupOsgNode()
 {
-    node_ = new osg::Group;	// Needed because pushStateSet() applied in
-    refOsgPtr( node_ );		// nodecallbackhandler_ has no effect on geodes
-    setOsgNode( node_ );
+    if ( ownsnodeptr_ )
+    {
+	node_ = new osg::Group; // Needed because pushStateSet() applied in
+	refOsgPtr( node_ );	// nodecallbackhandler_ has no effect on geodes
+	setOsgNode( node_ );
+    }
+
+    if ( !node_ )
+    {
+	pErrMsg( "Please review the construction of objects. "
+		 "\"node_\" shouldn't be null" );
+	return;
+    }
+
     nodecallbackhandler_ = new NodeCallbackHandler( *this );
     refOsgPtr( nodecallbackhandler_ );
     node_->setCullCallback( nodecallbackhandler_ );
@@ -417,7 +433,8 @@ VertexShape::~VertexShape()
     unRefOsgPtr( nodecallbackhandler_ );
     setCoordinates( nullptr );
     unRefOsgPtr( geode_ );
-    unRefOsgPtr( node_ );
+    if ( ownsnodeptr_ )
+	unRefOsgPtr( node_ );
 }
 
 
