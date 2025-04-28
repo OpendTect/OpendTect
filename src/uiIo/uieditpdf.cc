@@ -619,14 +619,6 @@ void uiEditSampledProbDenFunc::viewPDF( CallBacker* )
 	    app.ddpars_.vd_.mappersetup_.range_ = Interval<float>(0.f,maxval);
 	    FlatView::Annotation& ann = app.annot_;
 	    ann.setAxesAnnot( true );
-	    const UnitOfMeasure* xpdfuom = UoMR().get( pdf_.getUOMSymbol(0) );
-	    const UnitOfMeasure* ypdfuom = UoMR().get( pdf_.getUOMSymbol(1) );
-	    ann.x1_.name_.set( pdf_.dimName(0) );
-	    if ( xpdfuom )
-		ann.x1_.name_.append( xpdfuom->getUiLabel() );
-	    ann.x2_.name_.set( pdf_.dimName(1) );
-	    if ( ypdfuom )
-		ann.x2_.name_.append( ypdfuom->getUiLabel() );
 	    mAttachCB( vwwinnd_->windowClosed,
 		       uiEditSampledProbDenFunc::vwWinClose );
 	}
