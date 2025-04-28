@@ -128,7 +128,7 @@ public:
 			//! item last notified. See notifiers below
     uiTreeViewItem*	itemNotified()		{ return lastitemnotified_; }
     int			columnNotified()	{ return column_; }
-    void		unNotify()		{ lastitemnotified_ = 0; }
+    void		unNotify()		{ lastitemnotified_ = nullptr; }
 
     void		setNotifiedItem(mQtclass(QTreeWidgetItem*));
     void		setNotifiedColumn(int col)	{ column_ = col; }

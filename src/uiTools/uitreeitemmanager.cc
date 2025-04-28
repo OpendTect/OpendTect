@@ -627,26 +627,6 @@ void uiTreeTopItem::removeItem( uiTreeViewItem* itm )
 }
 
 
-void uiTreeTopItem::handleSelectionChanged( bool frombutclick )
-{
-    if ( disabselcngresp_ && !frombutclick )
-	return;
-
-    if ( disabanyclick_ || !listview_->itemNotified() ) return;
-
-    const bool oldstatus = disabanyclick_;
-    disabanyclick_ = true;
-    anyButtonClick( listview_->itemNotified() );
-    disabanyclick_ = oldstatus;
-}
-
-
-void uiTreeTopItem::selectionChanged( CallBacker* )
-{
-    handleSelectionChanged( false );
-}
-
-
 void uiTreeTopItem::itemRenamed( CallBacker* )
 {
     if ( !listview_->itemNotified() )
@@ -657,19 +637,42 @@ void uiTreeTopItem::itemRenamed( CallBacker* )
 }
 
 
-void uiTreeTopItem::rightClickCB( CallBacker* )
+void uiTreeTopItem::handleSelectionChanged( bool frombutclick )
 {
-    if ( disabanyclick_ || disabrightclick_ || !listview_->itemNotified() )
+    if ( disabselcngresp_ && !frombutclick )
 	return;
 
-    if ( rightClick( listview_->itemNotified() ) )
+    if ( disabanyclick_ || !listview_->itemNotified() )
+	return;
+
+    const bool oldstatus = disabanyclick_;
+    disabanyclick_ = true;
+    if ( anyButtonClick(listview_->itemNotified()) )
 	listview_->unNotify();
+
+    disabanyclick_ = oldstatus;
+}
+
+
+void uiTreeTopItem::selectionChanged( CallBacker* )
+{
+    handleSelectionChanged( false );
 }
 
 
 void uiTreeTopItem::anyButtonClickCB( CallBacker* )
 {
     handleSelectionChanged( true );
+}
+
+
+void uiTreeTopItem::rightClickCB( CallBacker* )
+{
+    if ( disabanyclick_ || disabrightclick_ || !listview_->itemNotified() )
+	return;
+
+    if ( rightClick(listview_->itemNotified()) )
+	listview_->unNotify();
 }
 
 
