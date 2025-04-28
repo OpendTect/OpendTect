@@ -1115,8 +1115,6 @@ void uiODSceneMgr::updateItemToolbar( const VisID& id )
 void uiODSceneMgr::updateSelectedTreeItem()
 {
     const VisID id = visServ().getSelObjectId();
-    updateItemToolbar( id );
-
     if ( id.isValid() )
     {
 	resetStatusBar( id );
@@ -1127,10 +1125,16 @@ void uiODSceneMgr::updateSelectedTreeItem()
 	    visServ().updateDisplay( true, id );
     }
 
-    mDoAllScenes(itemmanager_,updateSelection,id.asInt());
-    mDoAllScenes(itemmanager_,updateSelTreeColumnText,cNameColumn());
-    mDoAllScenes(itemmanager_,updateSelTreeColumnText,cColorColumn());
+    const int visidasint = id.asInt();
+    for ( auto* scene : scenes_ )
+    {
+	auto* itmmgr = scene->itemmanager_;
+	itmmgr->updateSelection( visidasint );
+	itmmgr->updateSelTreeColumnText( cNameColumn() );
+	itmmgr->updateSelTreeColumnText( cColorColumn() );
+    }
 
+    updateItemToolbar( id );
     if ( !applMgr().attrServer() )
 	return;
 

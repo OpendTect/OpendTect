@@ -89,20 +89,7 @@ uiODDisplayTreeItem::uiODDisplayTreeItem()
 
 uiODDisplayTreeItem::~uiODDisplayTreeItem()
 {
-    MenuHandler* menu = visserv_->getMenuHandler();
-    if ( menu )
-    {
-	menu->initnotifier.remove(mCB(this,uiODDisplayTreeItem,createMenuCB));
-	menu->handlenotifier.remove(mCB(this,uiODDisplayTreeItem,handleMenuCB));
-    }
-
-    MenuHandler* tb = visserv_->getToolBarHandler();
-    if ( tb )
-    {
-	tb->createnotifier.remove(mCB(this,uiODDisplayTreeItem,addToToolBarCB));
-	tb->handlenotifier.remove( mCB(this,uiODDisplayTreeItem,handleMenuCB) );
-    }
-
+    detachAllNotifiers();
     if ( ODMainWin() )
 	ODMainWin()->viewer2DMgr().remove2DViewer( displayid_ );
 }
@@ -144,9 +131,10 @@ uiODDataTreeItem* uiODDisplayTreeItem::addAttribItem()
 
 bool uiODDisplayTreeItem::init()
 {
-    if ( !uiTreeItem::init() ) return false;
+    if ( !uiTreeItem::init() )
+	return false;
 
-    if ( visserv_->hasAttrib( displayid_ ) )
+    if ( visserv_->hasAttrib(displayid_) )
     {
 	for ( int attrib=0; attrib<visserv_->getNrAttribs(displayid_); attrib++)
 	{
@@ -160,24 +148,28 @@ bool uiODDisplayTreeItem::init()
 	}
     }
 
-    if ( getMoreObjectsToDoHint() )
-	 ODMainWin()->sceneMgr().getTree(sceneID())->triggerUpdate();
-    else
-	visserv_->setSelObjectId( displayid_ );
+    if ( checkStatusChange() )
+	mAttachCB( *checkStatusChange(), uiODDisplayTreeItem::checkCB );
 
-    setChecked( visserv_->isOn(displayid_) );
-    checkStatusChange()->notify( mCB(this,uiODDisplayTreeItem,checkCB) );
-    keyPressed()->notify( mCB(this,uiODDisplayTreeItem,keyPressCB) );
+    if ( keyPressed() )
+	mAttachCB( *keyPressed(), uiODDisplayTreeItem::keyPressCB );
 
     name_ = createDisplayName();
 
     MenuHandler* menu = visserv_->getMenuHandler();
-    menu->initnotifier.notify( mCB(this,uiODDisplayTreeItem,createMenuCB) );
-    menu->handlenotifier.notify( mCB(this,uiODDisplayTreeItem,handleMenuCB) );
+    mAttachCB( menu->initnotifier, uiODDisplayTreeItem::createMenuCB );
+    mAttachCB( menu->handlenotifier, uiODDisplayTreeItem::handleMenuCB );
 
     MenuHandler* tb = visserv_->getToolBarHandler();
-    tb->createnotifier.notify( mCB(this,uiODDisplayTreeItem,addToToolBarCB) );
-    tb->handlenotifier.notify( mCB(this,uiODDisplayTreeItem,handleMenuCB) );
+    mAttachCB( tb->createnotifier, uiODDisplayTreeItem::addToToolBarCB );
+    mAttachCB( tb->handlenotifier, uiODDisplayTreeItem::handleMenuCB );
+
+    if ( getMoreObjectsToDoHint() )
+	 ODMainWin()->sceneMgr().getTree( sceneID() )->triggerUpdate();
+    else
+	visserv_->setSelObjectId( displayid_ );
+
+    setChecked( visserv_->isOn(displayid_) );
 
     return true;
 }
