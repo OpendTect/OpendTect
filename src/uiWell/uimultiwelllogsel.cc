@@ -112,12 +112,14 @@ uiWellZRangeSelector::uiWellZRangeSelector( uiParent* p, const Setup& s )
 
     abovefld_ = new uiGenInput( this, txt, FloatInpSpec(0).setName("above") );
     abovefld_->setElemSzPol( uiObject::Medium );
+    abovefld_->setToolTip( tr("Positive uphole") );
     abovefld_->valueChanged.notify( cb );
     abovefld_->attach( alignedBelow, zselectionflds_[0] );
 
     belowfld_ = new uiGenInput( this, uiString::emptyString(),
 				FloatInpSpec(0).setName("below") );
     belowfld_->setElemSzPol( uiObject::Medium );
+    belowfld_->setToolTip( tr("Positive downhole") );
     belowfld_->attach( rightOf, abovefld_ );
     belowfld_->valueChanged.notify( cb );
 
@@ -134,8 +136,6 @@ uiWellZRangeSelector::~uiWellZRangeSelector()
 void uiWellZRangeSelector::onFinalize( CallBacker* )
 {
     putToScreen();
-    abovefld_->setToolTip( tr("Positive uphole") );
-    belowfld_->setToolTip( tr("Positive downhole") );
 }
 
 

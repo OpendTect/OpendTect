@@ -87,12 +87,22 @@ uiGapDeconAttrib::uiGapDeconAttrib( uiParent* p, bool is2d )
     lagfld_ = new uiGenInput( this, lagstr, FloatInpSpec() );
     lagfld_->attach( alignedBelow, gatefld_ );
 
+    uiString lagtt = tr("Lag size:\nWindow length within the auto-correlation "
+			"function that is unaffected by the filter.\n"
+			"This window contains the wavelet-shape information.");
+    lagfld_->setToolTip( lagtt );
+
     uiString gapstr = tr("Gap size %1").arg(SI().getUiZUnitString());
     gapfld_ = new uiGenInput( this, gapstr, FloatInpSpec() );
     gapfld_->attach( alignedBelow, lagfld_ );
 
+    uiString gaptt = tr("Gap size:\nWindow length in the auto-correlation "
+			"function that the filter aims to blank.\nThis window "
+			"contains repetitive (multiple) information.");
+    gapfld_->setToolTip( gaptt );
+
     noiselvlfld_ = new uiGenInput( this, tr("Random noise added"),
-                                  IntInpSpec() );
+				   IntInpSpec() );
     noiselvlfld_->attach( alignedBelow, gapfld_ );
     uiLabel* percentlbl = new uiLabel( this, toUiString("%") );
     percentlbl->attach( rightOf, noiselvlfld_ );
@@ -121,7 +131,6 @@ uiGapDeconAttrib::uiGapDeconAttrib( uiParent* p, bool is2d )
     qcbut_->attach( alignedBelow, isoutzerophasefld_ );
 
     setHAlignObj( gatefld_ );
-
     postFinalize().notify( mCB(this,uiGapDeconAttrib,finalizeCB) );
 }
 
@@ -134,14 +143,6 @@ uiGapDeconAttrib::~uiGapDeconAttrib()
 
 void uiGapDeconAttrib::finalizeCB( CallBacker* )
 {
-    uiString lagtt = tr("Lag size:\nWindow length within the auto-correlation "
-			"function that is unaffected by the filter.\n"
-			"This window contains the wavelet-shape information.");
-    uiString gaptt = tr("Gap size:\nWindow length in the auto-correlation "
-			"function that the filter aims to blank.\nThis window "
-			"contains repetitive (multiple) information.");
-    lagfld_->setToolTip( lagtt );
-    gapfld_->setToolTip( gaptt );
 }
 
 
