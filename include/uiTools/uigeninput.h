@@ -244,6 +244,7 @@ protected:
 
     uiLabel*		labl_				= nullptr;
     uiString		titletext_;
+    uiStringSet		tooltips_;
     uiCheckBox*		cbox_				= nullptr;
     uiButton*		selbut_				= nullptr;
     uiTextValidator*	textvl_				= nullptr;

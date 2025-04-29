@@ -44,6 +44,7 @@ uiStratEditLayer::uiStratEditLayer( uiParent* p, Strat::Layer& lay,
     const uiString thtxt = tr("Top depth (%1)")
 			    .arg( PropertyRef::thickness().disp_.getUnitLbl() );
     topfld_ = new uiGenInput( this, thtxt, FloatInpSpec(lay_.zTop()) );
+    topfld_->setToolTip( tr("TVDSS depth at the top of this layer") );
     topfld_->attach( alignedBelow, lithfld_ );
     topfld_->setReadOnly();
 
@@ -91,8 +92,6 @@ void uiStratEditLayer::initDlg( CallBacker* )
 {
     if ( !topfld_->finalized() )
 	topfld_->preFinalize().trigger();
-
-    topfld_->setToolTip( tr("TVDSS depth at the top of this layer") );
 }
 
 

@@ -192,12 +192,16 @@ uiOverburdenGrp::uiOverburdenGrp( uiParent* p, float topdepth,
 		.arg( PropertyRef::thickness().disp_.getUnitLbl() );
     topdepthfld_ = new uiGenInput( this, zlbltxt, FloatInpSpec(topdepth) );
     topdepthfld_->setElemSzPol( uiObject::Small );
+    topdepthfld_->setToolTip( tr("TVDSS depth assigned to the first layer "
+				 "of each pseudowell") );
 
     const uiString vellbltxt = tr("Overburden velocity (%1)")
 			.arg(UnitOfMeasure::surveyDefVelUnitAnnot(true,false));
     velocityfld_ = new uiGenInput( this, vellbltxt,FloatInpSpec(velocityabove));
     velocityfld_->setElemSzPol( uiObject::Small );
     velocityfld_->attach( alignedBelow, topdepthfld_ );
+    velocityfld_->setToolTip( tr("Interval velocity to be used above the "
+				 "first layer of each pseudowell") );
 
     mAttachCB( postFinalize(), uiOverburdenGrp::initGrp );
 }
@@ -216,11 +220,6 @@ void uiOverburdenGrp::initGrp( CallBacker* )
 	topdepthfld_->preFinalize().trigger();
     if ( !velocityfld_->finalized() )
 	velocityfld_->preFinalize().trigger();
-
-    topdepthfld_->setToolTip( tr("TVDSS depth assigned to the first layer "
-				 "of each pseudowell") );
-    velocityfld_->setToolTip( tr("Interval velocity to be used above the "
-				 "first layer of each pseudowell") );
 }
 
 
@@ -774,9 +773,10 @@ void setFrom( const Property& prop )
 	typfld_->setCurrentItem( 1 );
         setFldVal( rgfld_, rgprop->rg_.start_, un, 0 );
         setFldVal( rgfld_, rgprop->rg_.stop_, un, 1 );
-        const float val =  mIsUdf(rgprop->rg_.start_)	? rgprop->rg_.stop_
-                                                        : (mIsUdf(rgprop->rg_.stop_)	? rgprop->rg_.start_
-							: rgprop->rg_.center());
+	const float val = mIsUdf(rgprop->rg_.start_)
+		? rgprop->rg_.stop_
+		: (mIsUdf(rgprop->rg_.stop_) ? rgprop->rg_.start_
+					     : rgprop->rg_.center());
 	setFldVal( valfld_, val, un, 0 );
     }
     else

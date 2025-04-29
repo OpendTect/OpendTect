@@ -180,8 +180,8 @@ uiAngleCompAdvParsDlg::uiAngleCompAdvParsDlg( uiParent* p,
     : uiDialog(p, uiDialog::Setup(tr("Advanced Parameter"),
 				  tr("Advanced angle parameters"),
                                   mODHelpKey(mAngleCompAdvParsDlgHelpID) ))
-    , params_(pars)
     , isformute_(isformute)
+    , params_(pars)
 {
     uiRayTracer1D::Setup rtsu;
     rtsu.dooffsets( dooffsets ).doreflectivity( false )
@@ -231,11 +231,15 @@ void uiAngleCompAdvParsDlg::createAngleCompFields()
 
     freqf3fld_ = new uiGenInput( this, tr("Frequency F3"), FloatInpSpec() );
     freqf3fld_->attach( alignedBelow, smoothtypefld_ );
+    freqf3fld_->setToolTip(tr("Frequency where the cosine tapering "
+			      "window starts: Amplitude=input"));
     freqf3lbl_ = new uiLabel( this, tr("Hz") );
     freqf3lbl_->attach( rightOf, freqf3fld_ );
 
     freqf4fld_ = new uiGenInput( this, tr("Frequency F4"), FloatInpSpec() );
     freqf4fld_->attach( alignedBelow, freqf3fld_ );
+    freqf4fld_->setToolTip(tr("Frequency where the cosine tapering "
+			      "window stops: Amplitude=0"));
     freqf4lbl_ = new uiLabel( this, tr("Hz") );
     freqf4lbl_->attach( rightOf, freqf4fld_ );
 }
@@ -374,10 +378,6 @@ void uiAngleCompAdvParsDlg::finalizeCB( CallBacker* )
     if ( isformute_ )
 	return;
 
-    freqf3fld_->setToolTip(tr("Frequency where the cosine tapering "
-			      "window starts: Amplitude=input"));
-    freqf4fld_->setToolTip(tr("Frequency where the cosine tapering "
-			      "window stops: Amplitude=0"));
     smoothTypeSel(0);
 }
 
