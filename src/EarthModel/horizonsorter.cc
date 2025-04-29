@@ -20,13 +20,8 @@ ________________________________________________________________________
 HorizonSorter::HorizonSorter( const TypeSet<EM::ObjectID>& ids, bool is2d )
     : Executor("Sort horizons")
     , unsortedids_(ids)
-    , totalnr_(-1)
-    , nrdone_(0)
-    , iterator_(0)
-    , result_(0)
     , is2d_(is2d)
     , message_(tr("Sorting"))
-    , taskrun_(0)
 {
 }
 
@@ -34,20 +29,16 @@ HorizonSorter::HorizonSorter( const TypeSet<EM::ObjectID>& ids, bool is2d )
 HorizonSorter::HorizonSorter( const TypeSet<MultiID>& keys, bool is2d )
     : Executor("Sort horizons")
     , unsortedkeys_(keys)
-    , totalnr_(-1)
-    , nrdone_(0)
-    , iterator_(0)
-    , result_(0)
     , is2d_(is2d)
     , message_(tr("Sorting"))
-    , taskrun_(0)
 {
 }
 
 
 HorizonSorter::~HorizonSorter()
 {
-    delete result_;
+    delete resultcount_;
+    delete resultzsum_;
     delete iterator_;
     deepUnRef( horizons_ );
 }
@@ -70,9 +61,15 @@ void HorizonSorter::init()
 	iterator_ = new TrcKeySamplingIterator( tks_ );
     }
 
-    delete result_;
-    result_ = new Array3DImpl<int>( horizons_.size(), horizons_.size(), 2 );
-    result_->setAll( 0 );
+    delete resultcount_;
+    resultcount_ =
+	new Array3DImpl<int>( horizons_.size(), horizons_.size(), 2 );
+    resultcount_->setAll( 0 );
+
+    delete resultzsum_;
+    resultzsum_ =
+	new Array3DImpl<double>( horizons_.size(), horizons_.size(), 2 );
+    resultzsum_->setAll( 0 );
 }
 
 
@@ -132,20 +129,23 @@ void HorizonSorter::sort()
 	{
 	    for ( int idy=idx+1; idy<nrhors; idy++ )
 	    {
-		const int nrabove = result_->get( idx, idy, 0 );
-		const int nrbelow = result_->get( idx, idy, 1 );
+		const double sumabove = resultzsum_->get( idx, idy, 0 );
+		const double sumbelow = resultzsum_->get( idx, idy, 1 );
 		const int idx0 = sortedids_.indexOf( unsortedids_[idx] );
 		const int idx1 = sortedids_.indexOf( unsortedids_[idy] );
-		if ( nrbelow > nrabove && idx0 > idx1 ) continue;
-		if ( nrbelow < nrabove && idx0 < idx1 ) continue;
+		if ( sumbelow > sumabove && idx0 > idx1 )
+		    continue;
 
-		if ( nrbelow > nrabove )
+		if ( sumbelow < sumabove && idx0 < idx1 )
+		    continue;
+
+		if ( sumbelow > sumabove )
 		{
 		    EM::ObjectID id = sortedids_[idx0];
 		    sortedids_.removeSingle( idx0 );
 		    sortedids_.insert( idx1, id );
 		}
-		else if ( nrbelow < nrabove )
+		else if ( sumbelow < sumabove )
 		{
 		    EM::ObjectID id = sortedids_[idx1];
 		    sortedids_.removeSingle( idx1 );
@@ -191,8 +191,8 @@ int HorizonSorter::getNrCrossings( const MultiID& mid1,
 {
     const int idx1 = unsortedkeys_.indexOf( mid1 );
     const int idx2 = unsortedkeys_.indexOf( mid2 );
-    const int nrabove = result_->get( mMIN(idx1,idx2), mMAX(idx1,idx2), 0 );
-    const int nrbelow = result_->get( mMIN(idx1,idx2), mMAX(idx1,idx2), 1 );
+    const int nrabove = resultcount_->get( mMIN(idx1,idx2), mMAX(idx1,idx2), 0);
+    const int nrbelow = resultcount_->get( mMIN(idx1,idx2), mMAX(idx1,idx2), 1);
     return mMIN(nrabove,nrbelow);
 }
 
@@ -202,8 +202,8 @@ int HorizonSorter::getNrCrossings( const EM::ObjectID id1,
 {
     const int idx1 = unsortedids_.indexOf( id1 );
     const int idx2 = unsortedids_.indexOf( id2 );
-    const int nrabove = result_->get( mMIN(idx1,idx2), mMAX(idx1,idx2), 0 );
-    const int nrbelow = result_->get( mMIN(idx1,idx2), mMAX(idx1,idx2), 1 );
+    const int nrabove = resultcount_->get( mMIN(idx1,idx2), mMAX(idx1,idx2), 0);
+    const int nrbelow = resultcount_->get( mMIN(idx1,idx2), mMAX(idx1,idx2), 1);
     return mMIN(nrabove,nrbelow);
 }
 
@@ -325,11 +325,19 @@ int HorizonSorter::nextStep()
 
 	    for ( int idy=idx+1; idy<nrhors; idy++ )
 	    {
-		if ( mIsUdf(depths[idy]) ) continue;
+		if ( mIsUdf(depths[idy]) ||
+			mIsEqual(depths[idx],depths[idy],mDefEps) )
+		    continue;
 
-		const int resultidx = depths[idx] <= depths[idy] ? 0 : 1;
-		int val = result_->get( idx, idy, resultidx ); val++;
-		result_->set( idx, idy, resultidx, val );
+		const int resultidx = depths[idx] < depths[idy] ? 0 : 1;
+		int curcount = resultcount_->get( idx, idy, resultidx );
+		curcount++;
+		resultcount_->set( idx, idy, resultidx, curcount );
+
+		double cursum = resultzsum_->get( idx, idy, resultidx );
+		cursum += resultidx==0 ? depths[idy]-depths[idx]
+				    : depths[idx]-depths[idy];
+		resultzsum_->set( idx, idy, resultidx, cursum );
 	    }
 	}
     }

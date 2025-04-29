@@ -57,23 +57,24 @@ protected:
     void			init();
     void			sort();
 
-    int				totalnr_;
-    int				nrdone_;
+    int				totalnr_	= -1;
+    int				nrdone_		= 0;
 
     bool			is2d_;
     TypeSet<Pos::GeomID>	geomids_;
     TypeSet<StepInterval<int> >	trcrgs_;
 
-    TrcKeySamplingIterator*	iterator_;
+    TrcKeySamplingIterator*	iterator_	= nullptr;
     BinID			binid_;
     TrcKeySampling		tks_;
     ObjectSet<EM::Horizon>	horizons_;
-    Array3D<int>*		result_;
+    Array3D<int>*		resultcount_	= nullptr;
+    Array3D<double>*		resultzsum_	= nullptr;
     TypeSet<EM::ObjectID>	unsortedids_;
     TypeSet<EM::ObjectID>	sortedids_;
     TypeSet<MultiID>		unsortedkeys_;
     TypeSet<MultiID>		sortedkeys_;
-    TaskRunner*			taskrun_;
+    TaskRunner*			taskrun_	= nullptr;
 
     uiString			message_;
 };
