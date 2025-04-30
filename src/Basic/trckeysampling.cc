@@ -195,8 +195,8 @@ TrcKey TrcKeySampling::toTrcKey( const Coord& pos, float* distance ) const
 Coord TrcKeySampling::toCoord( const BinID& bid ) const
 {
     const Survey::Geometry& geom = is2D()
-		     ? (Survey::Geometry&)Survey::GM().get2D( getGeomID() )
-		     : Survey::Geometry::default3D();
+	     ? (const Survey::Geometry&) Survey::GM().get2D( getGeomID() )
+	     : (const Survey::Geometry&) Survey::Geometry3D::instance();
     return geom.toCoord( bid );
 }
 

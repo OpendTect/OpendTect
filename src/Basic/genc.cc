@@ -1151,6 +1151,7 @@ mExternC(Basic) bool InitBindings( const char** moddeps, bool forgui )
 
 mExternC(Basic) void CloseBindings()
 {
+    is_exiting_ = true;
     NotifyExitProgram( (PtrAllVoidFn)(-1) );
     PIM().unLoadAll();
     const_cast<OD::ModDepMgr&>( OD::ModDeps() ).closeAll();

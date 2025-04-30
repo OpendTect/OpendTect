@@ -66,12 +66,12 @@ public:
     static GeometryReader*	create2DReader()
 				{ return new GeometryReader2D; }
     static void			initClass();
-    bool			read(ObjectSet<Geometry>&,
+    bool			read(RefObjectSet<Geometry>&,
 				     TaskRunner*) const override;
-    bool			read(ObjectSet<Geometry>&,
+    bool			read(RefObjectSet<Geometry>&,
 				     const ObjectSet<IOObj>&,
 				     TaskRunner*) const override;
-    bool			updateGeometries(ObjectSet<Geometry>&,
+    bool			updateGeometries(RefObjectSet<Geometry>&,
 						 TaskRunner*) const override;
 
 };

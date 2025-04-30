@@ -60,9 +60,15 @@ mDefineEnumUtils(SurveyInfo,Pol2D3D,"Survey Type")
 #define mXYInFeet() (coordsystem_ && coordsystem_->isFeet())
 #define mXYUnit() (mXYInFeet() ? Feet : Meter)
 
+const Survey::Geometry3D& Survey::Geometry3D::instance()
+{
+    return *GM().getGeometry( default3DGeomID() )->as3D();
+}
+
+
 Survey::Geometry3D& Survey::Geometry3D::current()
 {
-    return const_cast<Geometry3D&>(*Geometry::default3D().as3D());
+    return const_cast<Survey::Geometry3D&>( instance() );
 }
 
 
@@ -663,12 +669,6 @@ SurveyInfo::~SurveyInfo()
     delete &ll2c_;
     delete &tkzs_;
     delete &wcs_;
-
-    Survey::Geometry3D* old = work_s3dgeom_.setToNull();
-    if ( old ) old->unRef();
-
-    old = s3dgeom_.setToNull();
-    if ( old ) old->unRef();
 }
 
 
@@ -1620,23 +1620,21 @@ void SurveyInfo::gen3Pts()
 
 void SurveyInfo::snap( BinID& binid, const BinID& rounding ) const
 {
-    RefMan<Survey::Geometry3D> geom = get3DGeometry( false );
+    ConstRefMan<Survey::Geometry3D> geom = get3DGeometry( false );
     geom->snap( binid, rounding );
 }
 
 
 void SurveyInfo::snapStep( BinID& step, const BinID& rounding ) const
 {
-    RefMan<Survey::Geometry3D> geom = get3DGeometry( true );
+    ConstRefMan<Survey::Geometry3D> geom = get3DGeometry( true );
     geom->snapStep( step, rounding );
 }
 
 
-
-
 void SurveyInfo::snapZ( float& z, int dir ) const
 {
-    RefMan<Survey::Geometry3D> geom = get3DGeometry( true );
+    ConstRefMan<Survey::Geometry3D> geom = get3DGeometry( true );
     geom->snapZ( z, dir );
 }
 
@@ -1952,30 +1950,40 @@ bool SurveyInfo::has3D() const
 
 void SurveyInfo::update3DGeometry()
 {
-    if ( s3dgeom_ )
-	s3dgeom_->setGeomData( b2c_, sampling(false), zScale(false) );
+    RefMan<Survey::Geometry> s3dgeom =
+		    Survey::GMAdmin().getGeometry( Survey::default3DGeomID() );
+    if ( s3dgeom && !s3dgeom->is2D() )
+	s3dgeom->as3D()->setGeomData( b2c_, sampling(false), zScale(false) );
 
     if ( work_s3dgeom_ )
 	work_s3dgeom_->setGeomData( b2c_, sampling(true), zScale(false) );
 }
 
 
-RefMan<Survey::Geometry3D> SurveyInfo::get3DGeometry( bool work ) const
+ConstRefMan<Survey::Geometry3D> SurveyInfo::get3DGeometry( bool work ) const
 {
-    Threads::AtomicPointer<Survey::Geometry3D>& sgeom
-			= work ? work_s3dgeom_ : s3dgeom_;
+    return getNonConst(*this).get3DGeometry( work );
+}
 
-    if ( !sgeom )
+
+RefMan<Survey::Geometry3D> SurveyInfo::get3DGeometry( bool work )
+{
+    RefMan<Survey::Geometry3D> ret;
+    if ( work )
+	ret = work_s3dgeom_;
+    else
+	ret = Survey::GMAdmin().getGeometry( Survey::default3DGeomID() );
+
+    if ( !ret )
     {
 	RefMan<Survey::Geometry3D> newsgeom
 			= new Survey::Geometry3D( name(), zDomain() );
 	newsgeom->setID( Survey::default3DGeomID() );
 	newsgeom->setGeomData( b2c_, sampling(work), zScale(false) );
-	if ( sgeom.setIfEqual(0,newsgeom.ptr()) )
-	    newsgeom.release();
+	ret = newsgeom.ptr();
     }
 
-    return RefMan<Survey::Geometry3D>( sgeom );
+    return ret;
 }
 
 

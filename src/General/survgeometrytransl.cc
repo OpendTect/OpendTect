@@ -63,21 +63,20 @@ IOObj* SurvGeom2DTranslator::createEntry( const char* name, const char* trkey )
 }
 
 
-Survey::Geometry* dgbSurvGeom2DTranslator::readGeometry( const IOObj& ioobj,
-							uiString& errmsg ) const
+RefMan<Survey::Geometry>
+dgbSurvGeom2DTranslator::readGeometry( const IOObj& ioobj,
+				       uiString& errmsg ) const
 {
     od_istream strm( ioobj.fullUserExpr() );
     if ( !strm.isOK() )
-	return 0;
+	return nullptr;
 
     int version = 1;
     float avgtrcdist = mUdf(float);
     float linelength = mUdf(float);
     ascistream astrm( strm );
     const bool hasheader = astrm.hasStandardHeader();
-    if ( !hasheader )
-	strm.setReadPosition( 0 );
-    else
+    if ( hasheader )
     {
 	if ( astrm.atEOS() )
 	    astrm.next();
@@ -97,14 +96,17 @@ Survey::Geometry* dgbSurvGeom2DTranslator::readGeometry( const IOObj& ioobj,
 	    astrm.next();
 	}
     }
+    else
+	strm.setReadPosition( 0 );
 
-    PosInfo::Line2DData* data = new PosInfo::Line2DData;
+    PtrMan<PosInfo::Line2DData> dataman = new PosInfo::Line2DData;
+    PosInfo::Line2DData* data = dataman.ptr();
     if ( !data->read(strm,false) )
-	{ delete data; return nullptr; }
+	return nullptr;
 
     const Pos::GeomID geomid = getGeomID( ioobj );
     data->setLineName( ioobj.name() );
-    Survey::Geometry2D* geom = new Survey::Geometry2D( data );
+    RefMan<Survey::Geometry2D> geom = new Survey::Geometry2D(dataman.release());
     geom->setID( geomid );
     geom->spnrs().setSize( data->size(), -1 );
     geom->setAverageTrcDist( avgtrcdist );

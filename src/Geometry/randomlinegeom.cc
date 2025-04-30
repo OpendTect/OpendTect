@@ -245,7 +245,7 @@ void RandomLine::limitTo( const TrcKeyZSampling& cs )
 	return;
 
     ConstRefMan<Survey::Geometry3D> geom =
-				Survey::GM().getGeometry3D( OD::Geom3D );
+				&Survey::Geometry3D::instance();
 
     Coord svert[4];
     svert[0] = geom->transform( hs.start_ );
@@ -582,7 +582,7 @@ void RandomLineSet::insertLine( RandomLine& rl, int idx )
 void RandomLineSet::createParallelLines( const Line2& baseline,
 					 double dist )
 {
-    const Survey::Geometry3D& geom = *Survey::Geometry::default3D().as3D();
+    const Survey::Geometry3D& geom = Survey::Geometry3D::instance();
     const TrcKeySampling hs( geom.sampling().hsamp_ );
     Coord svert[4];
     svert[0] = geom.transform( hs.start_ );

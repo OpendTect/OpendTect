@@ -104,11 +104,12 @@ protected:
 mExpClass(Seis) SEGYDirectSurvGeom2DTranslator : public SurvGeom2DTranslator
 {
 			isTranslator(SEGYDirect,SurvGeom2D);
-public:
+private:
 			SEGYDirectSurvGeom2DTranslator(const char*,const char*);
 			~SEGYDirectSurvGeom2DTranslator();
 
-    Survey::Geometry*	readGeometry(const IOObj&,uiString&) const override;
+    RefMan<Survey::Geometry> readGeometry(const IOObj&,
+					  uiString&) const override;
     bool		writeGeometry(IOObj&,Survey::Geometry&,
 				      uiString&) const override;
     bool		isUserSelectable(bool fr) const override { return fr; }

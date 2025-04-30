@@ -220,7 +220,8 @@ void Scene::updateTransforms( const TrcKeyZSampling& tkzs )
 	zfactor /= 2;
     // -1 to compensate for that we want z to increase with depth
 
-    SceneTransformManager::computeICRotationTransform(*SI().get3DGeometry(true),
+    ConstRefMan<Survey::Geometry3D> s3dgeom = SI().get3DGeometry( true );
+    SceneTransformManager::computeICRotationTransform( *s3dgeom.ptr(),
 	zfactor, tkzs.zsamp_.center(), newinlcrlrotation.ptr(),
 			newinlcrlscale.ptr() );
 
@@ -248,7 +249,7 @@ void Scene::updateTransforms( const TrcKeyZSampling& tkzs )
 
     RefMan<mVisTrans> newutm2disptransform = mVisTrans::create();
     SceneTransformManager::computeUTM2DisplayTransform(
-		    *SI().get3DGeometry(true), zfactor, tkzs.zsamp_.center(),
+		    *s3dgeom.ptr(), zfactor, tkzs.zsamp_.center(),
                     newutm2disptransform.ptr() );
 
     if ( utm2disptransform_ )
@@ -427,7 +428,10 @@ void Scene::addInlCrlZObject( visBase::DataObject* obj )
 {
     mDynamicCastGet(SurveyObject*,so,obj);
     if ( so )
-	so->set3DSurvGeom( SI().get3DGeometry(true).ptr() );
+    {
+	ConstRefMan<Survey::Geometry3D> s3dgeom = SI().get3DGeometry( true );
+	so->set3DSurvGeom( s3dgeom.ptr() );
+    }
 
     obj->setDisplayTransformation( inlcrlscale_.ptr() );
     inlcrlrotation_->addObject( obj );
@@ -441,7 +445,8 @@ void Scene::addObject( visBase::DataObject* obj )
 
     if ( so )
     {
-	so->set3DSurvGeom( SI().get3DGeometry(true).ptr() );
+	ConstRefMan<Survey::Geometry3D> s3dgeom = SI().get3DGeometry( true );
+	so->set3DSurvGeom( s3dgeom.ptr() );
 	mAttachCB( so->getMovementNotifier(), Scene::objectMoved );
 
 	so->setScene( this );
@@ -1521,7 +1526,7 @@ void Scene::savePropertySettings()
 Coord3 Scene::getTopBottomIntersection( const visBase::EventInfo& eventinfo,
 				bool outerside, bool ignoreocclusion ) const
 {
-    ConstRefMan<Survey::Geometry3D> s3dgeom( SI().get3DGeometry( true ).ptr() );
+    ConstRefMan<Survey::Geometry3D> s3dgeom = SI().get3DGeometry( true );
     if ( !s3dgeom || !utm2disptransform_ || !tempzstretchtrans_ )
 	return Coord3::udf();
 
@@ -1587,7 +1592,7 @@ Coord3 Scene::getTopBottomSurveyPos( const visBase::EventInfo& eventinfo,
 			    bool outerside, bool ignoreocclusion,
 			    bool inlcrlspace ) const
 {
-    ConstRefMan<Survey::Geometry3D> s3dgeom( SI().get3DGeometry( true ).ptr() );
+    ConstRefMan<Survey::Geometry3D> s3dgeom = SI().get3DGeometry( true );
     const Coord3 pos =
 	    getTopBottomIntersection( eventinfo, outerside, ignoreocclusion );
 

@@ -9,6 +9,7 @@ ________________________________________________________________________
 -*/
 
 #include "generalmod.h"
+
 #include "survgeom.h"
 #include "transl.h"
 
@@ -28,7 +29,8 @@ mExpClass(General) SurvGeom2DTranslator : public Translator
 public:
 				mDefEmptyTranslatorBaseConstructor(SurvGeom2D);
 
-    virtual Survey::Geometry*	readGeometry(const IOObj&,uiString&) const = 0;
+    virtual RefMan<Survey::Geometry> readGeometry(const IOObj&,
+						  uiString&) const = 0;
     virtual bool		writeGeometry(IOObj&,Survey::Geometry&,
 					      uiString&) const		   = 0;
 
@@ -43,12 +45,13 @@ public:
 mExpClass(General) dgbSurvGeom2DTranslator : public SurvGeom2DTranslator
 {
 			isTranslator(dgb,SurvGeom2D);
-public:
+private:
 			dgbSurvGeom2DTranslator(const char* s1,const char* s2)
 			    : SurvGeom2DTranslator(s1,s2)	{}
 
     const char*		defExtension() const override	{ return "geom"; }
-    Survey::Geometry*	readGeometry(const IOObj&,uiString&) const override;
+    RefMan<Survey::Geometry> readGeometry(const IOObj&,
+					  uiString&) const override;
     bool		writeGeometry(IOObj&,Survey::Geometry&,
 				      uiString&) const override;
     bool		implRename(const IOObj*,const char*) const override;

@@ -12,6 +12,7 @@ ________________________________________________________________________
 #include "bendpointfinder.h"
 #include "ctxtioobj.h"
 #include "executor.h"
+#include "genc.h"
 #include "iodir.h"
 #include "ioman.h"
 #include "keystrs.h"
@@ -31,7 +32,7 @@ class GeomFileReader : public Executor
 public:
 
     GeomFileReader( const ObjectSet<IOObj>& objs,
-		    ObjectSet<Geometry>& geometries, bool updateonly )
+		    RefObjectSet<Geometry>& geometries, bool updateonly )
 	: Executor( "Loading Files" )
 	, objs_(objs)
 	, geometries_(geometries)
@@ -58,7 +59,7 @@ private:
 
     bool shouldContinue() override
     {
-	return continue_;
+	return continue_ && !IsExiting();
     }
 
     void rootDirChangedCB( CallBacker* )
@@ -72,6 +73,14 @@ private:
 	    if ( geometries_[idx]->getID() == geomid )
 		return idx;
 	return -1;
+    }
+
+    bool doPrepare( od_ostream* strm ) override
+    {
+	if ( !shouldContinue() )
+	    return false;
+
+	return Executor::doPrepare( strm );
     }
 
     int nextStep() override
@@ -103,20 +112,15 @@ private:
 	    mReturn
 
 	uiString errmsg;
-	Geometry* geom = geomtransl->readGeometry( *ioobj, errmsg );
-	mDynamicCastGet(Geometry2D*,geom2d,geom)
+	RefMan<Geometry> geom = geomtransl->readGeometry( *ioobj, errmsg );
+	mDynamicCastGet(Geometry2D*,geom2d,geom.ptr())
 	if ( geom2d )
 	{
-	    geom->ref();
 	    calcBendPoints( geom2d->dataAdmin() );
 	    if ( doupdate )
-	    {
-		Geometry* prevgeom = geometries_.replace( geomidx, geom );
-		if ( prevgeom )
-		    prevgeom->unRef();
-	    }
+		geometries_.replace( geomidx, geom.ptr() );
 	    else
-		geometries_ += geom;
+		geometries_.add( geom.ptr() );;
 	}
 
 	mReturn
@@ -148,7 +152,7 @@ private:
     }
 
     const ObjectSet<IOObj>&	objs_;
-    ObjectSet<Geometry>&	geometries_;
+    RefObjectSet<Geometry>&	geometries_;
     od_int64			nrdone_		= 0;
     bool			updateonly_;
     bool			continue_	= true;
@@ -241,14 +245,15 @@ GeometryReader2D::~GeometryReader2D()
 {}
 
 
-bool GeometryReader2D::read( ObjectSet<Geometry>& geometries,
+bool GeometryReader2D::read( RefObjectSet<Geometry>& geometries,
 			const ObjectSet<IOObj>& objs, TaskRunner* tr ) const
 {
     GeomFileReader gfr( objs, geometries, false );
     return TaskRunner::execute( tr, gfr );
 }
 
-bool GeometryReader2D::read( ObjectSet<Geometry>& geometries,
+
+bool GeometryReader2D::read( RefObjectSet<Geometry>& geometries,
 			     TaskRunner* tr ) const
 {
     const IOObjContext& iocontext = mIOObjContext(SurvGeom2D);
@@ -261,7 +266,7 @@ bool GeometryReader2D::read( ObjectSet<Geometry>& geometries,
 }
 
 
-bool GeometryReader2D::updateGeometries( ObjectSet<Geometry>& geometries,
+bool GeometryReader2D::updateGeometries( RefObjectSet<Geometry>& geometries,
 					 TaskRunner* tskr ) const
 {
     const IOObjContext& iocontext = mIOObjContext(SurvGeom2D);

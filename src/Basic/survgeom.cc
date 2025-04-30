@@ -26,6 +26,8 @@ mImplFactory(GeometryReader,GeometryReader::factory);
 mImplFactory(GeometryWriter,GeometryWriter::factory);
 
 
+// GeometryReader
+
 GeometryReader::GeometryReader()
 {}
 
@@ -34,12 +36,58 @@ GeometryReader::~GeometryReader()
 {}
 
 
+bool GeometryReader::read( RefObjectSet<Geometry>&, TaskRunner* ) const
+{
+    return false;
+}
+
+
+bool GeometryReader::read( RefObjectSet<Geometry>&, const ObjectSet<IOObj>&,
+			   TaskRunner*) const
+{
+    return false;
+}
+
+
+bool GeometryReader::updateGeometries( RefObjectSet<Geometry>&,
+				       TaskRunner*) const
+{
+    return false;
+}
+
+
+// GeometryWriter
+
 GeometryWriter::GeometryWriter()
 {}
 
 
 GeometryWriter::~GeometryWriter()
 {}
+
+
+bool GeometryWriter::write( Geometry&, uiString&, const char* crfromstr ) const
+{
+    return false;
+}
+
+
+IOObj* GeometryWriter::createEntry( const char* ) const
+{
+    return nullptr;
+}
+
+
+Pos::GeomID GeometryWriter::createNewGeomID( const char* ) const
+{
+    return Pos::GeomID::udf();
+}
+
+
+bool GeometryWriter::removeEntry( const char* ) const
+{
+    return false;
+}
 
 
 static PtrMan<GeometryManager>* thegeommgr = nullptr;
@@ -122,7 +170,7 @@ Geometry::~Geometry()
 
 const Geometry& Geometry::default3D()
 {
-    return *GM().getGeometry( default3DGeomID() );
+    return Geometry3D::instance();
 }
 
 
@@ -188,7 +236,6 @@ GeometryManager::GeometryManager()
 GeometryManager::~GeometryManager()
 {
     closing.trigger();
-    deepUnRef( geometries_ );
 }
 
 
@@ -222,9 +269,9 @@ bool GeometryManager::has2D() const
 void GeometryManager::ensureSIPresent()
 {
     Threads::Locker locker( lock_ );
-    deepUnRef( geometries_ );
     namemap_.clear();
     geomidmap_.clear();
+    geometries_.setEmpty();
     bool has3d = false;
     for ( int idx=0; idx<geometries_.size(); idx++ )
     {
@@ -238,9 +285,9 @@ void GeometryManager::ensureSIPresent()
 
     if ( !has3d )
     {
-	RefMan<Geometry3D> survicsys = SI().get3DGeometry( false );
-	survicsys->setID( default3DGeomID() );
-	const_cast<GeometryManager*>(this)->addGeometry( *survicsys );
+	ConstRefMan<Geometry3D> survicsys = SI().get3DGeometry( false );
+	if ( survicsys )
+	    addGeometry( *survicsys.getNonConstPtr() );
     }
 }
 
@@ -263,8 +310,7 @@ Geometry* GeometryManager::getGeometry( const Pos::GeomID& geomid )
 
 const Geometry3D* GeometryManager::getGeometry3D( OD::GeomSystem /*gs*/ ) const
 {
-    const Geometry* geom = getGeometry( default3DGeomID() );
-    return geom ? geom->as3D() : nullptr;
+    return &Geometry3D::instance();
 }
 
 
@@ -455,8 +501,7 @@ TrcKey GeometryManager::nearestTrace( const TypeSet<Pos::GeomID>& geomids,
 
 void GeometryManager::addGeometry( Survey::Geometry& geom )
 {
-    geom.ref();
-    geometries_ += &geom;
+    geometries_.add( &geom );
     namemap_[geom.getName()] = geometries_.size()-1;
     geomidmap_[geom.getID().asInt()] = geometries_.size()-1;
 }
@@ -481,19 +526,16 @@ bool GeometryManager::fetchFrom2DGeom( uiString& errmsg )
 	S2DPOS().setCurLineSet( lsnames.get(lsidx).buf() );
 	for ( int lidx=0; lidx<lnames.size(); lidx++ )
 	{
-	    Pos::GeomID geomid = GM().getGeomID( lsnames.get(lsidx),
-						 lnames.get(lidx) );
+	    const Pos::GeomID geomid = GM().getGeomID( lsnames.get(lsidx),
+						       lnames.get(lidx) );
 	    if ( geomid.isValid() )
 		continue;
 
 	    fetchedgeometry = true;
-	    PosInfo::Line2DData* data = new PosInfo::Line2DData;
+	    PtrMan<PosInfo::Line2DData> data = new PosInfo::Line2DData;
 	    data->setLineName( lnames.get(lidx) );
-	    if ( !S2DPOS().getGeometry( *data ) )
-	    {
-		delete data;
+	    if ( !S2DPOS().getGeometry(*data) )
 		continue;
-	    }
 
 	    if ( hasduplnms_ )
 	    {
@@ -503,7 +545,7 @@ bool GeometryManager::fetchFrom2DGeom( uiString& errmsg )
 		data->setLineName( newlnm );
 	    }
 
-	    RefMan<Geometry2D> geom2d = new Geometry2D( data );
+	    RefMan<Geometry2D> geom2d = new Geometry2D( data.release() );
 	    uiString errormsg;
 	    PosInfo::Line2DKey l2dkey =
 		S2DPOS().getLine2DKey( lsnames.get(lsidx), lnames.get(lidx) );
@@ -555,25 +597,20 @@ bool GeometryManager::hasDuplicateLineNames()
 
 bool GeometryManager::write( Geometry& geom, uiString& errmsg )
 {
-    if ( geom.is2D() )
-    {
-	PtrMan<GeometryWriter> geomwriter =
-			GeometryWriter::factory().create( sKey::TwoD() );
-	geom.ref();
-	if ( !geomwriter->write(geom,errmsg) )
-	{
-	    geom.unRef();
-	    return false;
-	}
-
-	if ( indexOf(geom.getID()) < 0 )
-	    addGeometry( geom );
-	geom.unRef();
-
-	return true;
-    }
-    else
+    if ( !geom.is2D() )
 	return false;
+
+    RefMan<Geometry> keepgeom( &geom );
+    PtrMan<GeometryWriter> geomwriter =
+		    GeometryWriter::factory().create( sKey::TwoD() );
+    if ( !geomwriter->write(geom,errmsg) )
+	return false;
+
+    Threads::Locker locker( lock_ );
+    if ( indexOf(geom.getID()) < 0 )
+	addGeometry( geom );
+
+    return true;
 }
 
 
@@ -590,7 +627,7 @@ Pos::GeomID GeometryManager::addNewEntry( Geometry* geom, uiString& errmsg )
 	return geomid;
 
     PtrMan<GeometryWriter> geomwriter =
-	GeometryWriter::factory().create( sKey::TwoD() );
+			    GeometryWriter::factory().create( sKey::TwoD() );
 
     Threads::Locker locker( lock_ );
     geomid = geomwriter->createNewGeomID( geom->getName() );
@@ -603,18 +640,17 @@ Pos::GeomID GeometryManager::addNewEntry( Geometry* geom, uiString& errmsg )
 
 bool GeometryManager::removeGeometry( const Pos::GeomID& geomid )
 {
+    Threads::Locker locker( lock_ );
     const int index = indexOf( geomid );
     if ( geometries_.validIdx(index) )
     {
-	Geometry* geom = geometries_[ index ];
+	RefMan<Geometry> geom = geometries_.get( index );
 	if ( !geom )
 	    return false;
 
-	geometries_.removeSingle( index );
 	namemap_.erase( geom->getName() );
 	geomidmap_.erase( geom->getID().asInt() );
-
-	geom->unRef();
+	geometries_.removeSingle( index );
 	return true;
     }
 
@@ -643,17 +679,14 @@ bool GeometryManager::fillGeometries( TaskRunner* taskr )
     Threads::Locker locker( lock_ );
     hasduplnms_ = hasDuplicateLineNames();
     PtrMan<GeometryReader> geomreader =
-		GeometryReader::factory().create(sKey::TwoD());
-    const bool res = geomreader && geomreader->read( geometries_, taskr );
+			    GeometryReader::factory().create( sKey::TwoD() );
+    RefObjectSet<Geometry> geometries;
+    const bool res = geomreader && geomreader->read( geometries, taskr );
     if ( !res )
 	return false;
 
-    for ( int idx=0; idx<geometries_.size(); idx++ )
-    {
-	const auto* geom = geometries_[idx];
-	namemap_[geom->getName()] = idx;
-	geomidmap_[geom->getID().asInt()] = idx;
-    }
+    for ( int idx=0; idx<geometries.size(); idx++ )
+	addGeometry( *geometries.get(idx) );
 
     geometryRead.trigger();
     return true;
@@ -664,7 +697,7 @@ bool GeometryManager::updateGeometries( TaskRunner* taskr )
 {
     Threads::Locker locker( lock_ );
     PtrMan<GeometryReader> geomreader =
-		GeometryReader::factory().create(sKey::TwoD());
+		GeometryReader::factory().create( sKey::TwoD() );
     return geomreader && geomreader->updateGeometries( geometries_, taskr );
 }
 
@@ -689,14 +722,14 @@ bool GeometryManager::getList( BufferStringSet& names,
 }
 
 
-Pos::GeomID GeometryManager::findRelated( const Geometry& ref,
+Pos::GeomID GeometryManager::findRelated( const Geometry& geomref,
 					  Geometry::RelationType& reltype,
 					  bool usezrg ) const
 {
     int identicalidx=-1, supersetidx=-1, subsetidx=-1, relatedidx=-1;
     for ( int idx=0; identicalidx<0 && idx<geometries_.size(); idx++ )
     {
-	Geometry::RelationType rt = geometries_[idx]->compare( ref, usezrg );
+	Geometry::RelationType rt = geometries_[idx]->compare( geomref, usezrg);
 	switch(rt)
 	{
 	    case Geometry::Identical : identicalidx = idx; break;

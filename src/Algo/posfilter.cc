@@ -434,16 +434,18 @@ Pos::Provider3D::Provider3D()
 
 bool Pos::Provider3D::includes( const Coord& c, float z ) const
 {
-    ConstRefMan<Survey::Geometry3D> geom = Survey::GM().getGeometry3D(survID());
-    return includes( geom->transform(c), z );
+    return includes( Survey::Geometry3D::instance().transform(c), z );
 }
 
 
 Coord Pos::Provider3D::curCoord() const
 {
-    ConstRefMan<Survey::Geometry> geom = Survey::GM().getGeometry3D( survID() );
     const BinID curbid = curBinID();
-    return geom && !curbid.isUdf() ? geom->toCoord( curBinID() ) : Coord::udf();
+    if ( curbid.isUdf() )
+	return Coord::udf();
+
+    const Survey::Geometry& geom = Survey::Geometry3D::instance();
+    return geom.toCoord( curbid );
 }
 
 

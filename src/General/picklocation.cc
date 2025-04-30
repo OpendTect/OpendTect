@@ -309,11 +309,11 @@ bool Pick::Location::fromString( const char* s )
     // Sometimes, we have a stored GeomID. We always want to set the TrcKey.
     mSkipBlanks(str);
     const Pos::GeomID geomid( getNextInt(str) );
-    const Survey::Geometry* geom = nullptr;
+    ConstRefMan<Survey::Geometry> geom;
     if ( geomid.isValid() )
 	geom = Survey::GM().getGeometry( geomid );
     if ( !geom )
-	geom = &Survey::Geometry::default3D();
+	geom = &Survey::Geometry3D::instance();
 
     trckey_.setGeomID( geom->getID() );
     trckey_.setFrom( pos_ );

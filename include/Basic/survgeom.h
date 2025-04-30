@@ -9,10 +9,10 @@ ________________________________________________________________________
 -*/
 
 #include "basicmod.h"
-#include "refcount.h"
 
 #include "coord.h"
 #include "factory.h"
+#include "refcount.h"
 #include "trckey.h"
 #include "trckeyzsampling.h"
 #include "threadlock.h"
@@ -46,6 +46,8 @@ public:
 
     virtual bool	is2D() const			= 0;
     OD::GeomSystem	geomSystem() const;
+
+    mDeprecated("Use Survey::Geometry3D::instance()")
     static const Geometry& default3D();
 
     Pos::GeomID		getID() const			{ return id_; }
@@ -74,7 +76,7 @@ public:
     virtual RelationType	compare(const Geometry&,bool usezrg) const
 				{ return UnRelated; }
 
-    //Convenience functions for the most commone geometries
+    //Convenience functions for the most common geometries
     virtual Geometry2D*		as2D()			{ return nullptr; }
     const Geometry2D*		as2D() const;
 
@@ -112,6 +114,7 @@ public:
     const Geometry*		getGeometry(const char*) const;
     const Geometry*		getGeometry(const MultiID&) const;
 
+    mDeprecated("Use Survey::Geometry3D::instance()")
     const Geometry3D*		getGeometry3D(OD::GeomSystem) const;
 
     const Geometry2D&		get2D(const Pos::GeomID&) const;
@@ -154,7 +157,7 @@ protected:
     bool			hasDuplicateLineNames();
 
     mutable Threads::Lock	lock_;
-    ObjectSet<Geometry>		geometries_;
+    RefObjectSet<Geometry>	geometries_;
 
     bool			hasduplnms_	= false;
 
@@ -230,12 +233,11 @@ public:
 
 			mDefineFactoryInClass(GeometryReader,factory)
 
-    virtual bool	read(ObjectSet<Geometry>&,TaskRunner*) const
-							{ return true; }
-    virtual bool	read(ObjectSet<Geometry>&,const ObjectSet<IOObj>&,
-				    TaskRunner*) const { return true; }
-    virtual bool	updateGeometries(ObjectSet<Geometry>&,TaskRunner*) const
-							{ return true; }
+    virtual bool	read(RefObjectSet<Geometry>&,TaskRunner*) const;
+    virtual bool	read(RefObjectSet<Geometry>&,const ObjectSet<IOObj>&,
+			     TaskRunner*) const;
+    virtual bool	updateGeometries(RefObjectSet<Geometry>&,
+					 TaskRunner*) const;
 
 protected:
 			GeometryReader();
@@ -252,11 +254,10 @@ public:
 			mDefineFactoryInClass(GeometryWriter,factory)
 
     virtual bool	write(Geometry&,uiString&,
-			      const char* crfromstr=0) const { return true; }
-    virtual IOObj*	createEntry(const char*) const	{ return 0; }
-    virtual Pos::GeomID createNewGeomID(const char*) const
-			{ return Pos::GeomID::udf(); }
-    virtual bool	removeEntry(const char*) const	{ return 0; }
+			      const char* crfromstr=nullptr) const;
+    virtual IOObj*	createEntry(const char*) const;
+    virtual Pos::GeomID createNewGeomID(const char*) const;
+    virtual bool	removeEntry(const char*) const;
 
 protected:
 			GeometryWriter();
