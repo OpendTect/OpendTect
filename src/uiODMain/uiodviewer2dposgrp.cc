@@ -331,28 +331,34 @@ bool uiODViewer2DPosGrp::commitSel( bool emiterror )
     switch ( posdatasel_->postype_ )
     {
 	case Viewer2DPosDataSel::Line2D :
+	    if ( !subsel2dfld_ )
+		return false;
 	    posdatasel_->geomid_ =
 		Survey::GM().getGeomID( subsel2dfld_->selectedLine() );
 	    subsel2dfld_->getSampling( posdatasel_->tkzs_,
 				       posdatasel_->geomid_ );
 	    break;
 	case Viewer2DPosDataSel::InLine:
-	    if ( !sliceselflds_.validIdx(0) ) return false;
+	    if ( !sliceselflds_.validIdx(0) )
+		return false;
 	    sliceselflds_[0]->acceptOK();
 	    posdatasel_->tkzs_ = sliceselflds_[0]->getTrcKeyZSampling();
 	    break;
 	case Viewer2DPosDataSel::CrossLine:
-	    if ( !sliceselflds_.validIdx(1) ) return false;
+	    if ( !sliceselflds_.validIdx(1) )
+		return false;
 	    sliceselflds_[1]->acceptOK();
 	    posdatasel_->tkzs_ = sliceselflds_[1]->getTrcKeyZSampling();
 	    break;
 	case Viewer2DPosDataSel::ZSlice:
-	    if ( !sliceselflds_.validIdx(2) ) return false;
+	    if ( !sliceselflds_.validIdx(2) )
+		return false;
 	    sliceselflds_[2]->acceptOK();
 	    posdatasel_->tkzs_ = sliceselflds_[2]->getTrcKeyZSampling();
 	    break;
 	case Viewer2DPosDataSel::RdmLine:
-	    const IOObj* rdlobj = rdmlinefld_->ioobj(!emiterror);
+	    const IOObj* rdlobj = rdmlinefld_ ? rdmlinefld_->ioobj(!emiterror)
+					      : nullptr;
 	    if ( !rdlobj )
 		return false;
 	    posdatasel_->rdmlinemultiid_ = rdlobj->key();
@@ -405,22 +411,29 @@ void uiODViewer2DPosGrp::updateTrcKeySampFld()
     {
 	case Viewer2DPosDataSel::Line2D :
 	{
-	    subsel2dfld_->setSelectedLine(
-		    Survey::GM().getName(posdatasel_->geomid_) );
-	    subsel2dfld_->uiSeisSubSel::setInput( seltkzs.hsamp_ );
+	    if ( subsel2dfld_ )
+	    {
+		subsel2dfld_->setSelectedLine(
+			Survey::GM().getName(posdatasel_->geomid_) );
+		subsel2dfld_->uiSeisSubSel::setInput( seltkzs.hsamp_ );
+	    }
 	    break;
 	}
 	case Viewer2DPosDataSel::InLine:
-	    sliceselflds_[0]->setTrcKeyZSampling( seltkzs );
+	    if ( sliceselflds_.validIdx(0) )
+		sliceselflds_[0]->setTrcKeyZSampling( seltkzs );
 	    break;
 	case Viewer2DPosDataSel::CrossLine:
-	    sliceselflds_[1]->setTrcKeyZSampling( seltkzs );
+	    if ( sliceselflds_.validIdx(1) )
+		sliceselflds_[1]->setTrcKeyZSampling( seltkzs );
 	    break;
 	case Viewer2DPosDataSel::ZSlice:
-	    sliceselflds_[2]->setTrcKeyZSampling( seltkzs );
+	    if ( sliceselflds_.validIdx(2) )
+		sliceselflds_[2]->setTrcKeyZSampling( seltkzs );
 	    break;
 	case Viewer2DPosDataSel::RdmLine:
-	    rdmlinefld_->setInput( posdatasel_->rdmlinemultiid_ );
+	    if ( rdmlinefld_ )
+		rdmlinefld_->setInput( posdatasel_->rdmlinemultiid_ );
 	    break;
     }
 }
