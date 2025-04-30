@@ -12,13 +12,11 @@ ________________________________________________________________________
 
 #include "bufstringset.h"
 #include "geometry.h"
-#include "posgeomid.h"
 #include "paralleltask.h"
-#include "threadlock.h"
+#include "survgeom2d.h"
 
 #include <unordered_map>
 
-namespace Survey { class Geometry2D; }
 
 mExpClass(Geometry) BendPoints
 {
@@ -38,13 +36,16 @@ public:
 						 ObjectSet<BendPoints>&);
 			~BendPointFinder2DGeomSet();
 
-    od_int64		nrIterations() const override;
     uiString		uiMessage() const override;
     uiString		uiNrDoneText() const override;
 
-protected:
+private:
 
+    od_int64		nrIterations() const override;
+    bool		shouldContinue() override;
+    bool		doPrepare(int) override;
     bool		doWork(od_int64,od_int64,int) override;
+    bool		doFinish(bool) override;
 
     Threads::Lock	lock_;
     const TypeSet<Pos::GeomID>&	geomids_;
@@ -89,11 +90,11 @@ public:
     const Line2DInterSection::Point&
 			getPoint(int idx) const	{ return points_[idx]; }
 
-    bool		getIntersectionTrcNrs(Pos::GeomID,int& mytrcnr,
+    bool		getIntersectionTrcNrs(const Pos::GeomID&,int& mytrcnr,
 					      int& crosstrcnr) const;
 			//!<Returns false when not found
 
-    void		addPoint(Pos::GeomID id,int mynr,int linenr);
+    void		addPoint(const Pos::GeomID&,int mynr,int linenr);
     void		sort();
 
 protected:
@@ -110,7 +111,7 @@ public:
 				Line2DInterSectionSet();
 				~Line2DInterSectionSet();
 
-    const Line2DInterSection*	getByGeomID(Pos::GeomID) const;
+    const Line2DInterSection*	getByGeomID(const Pos::GeomID&) const;
     void		getAll(TypeSet<Line2DInterSection::Point>&) const;
 };
 
@@ -122,19 +123,20 @@ public:
 						 Line2DInterSectionSet&);
 			~Line2DInterSectionFinder();
 
-    od_int64		nrIterations() const override;
     uiString		uiMessage() const override;
     uiString		uiNrDoneText() const override;
 
-protected:
+private:
 
-    ObjectSet<const Survey::Geometry2D>	geoms_;
+    RefObjectSet<const Survey::Geometry2D> geoms_;
     const ObjectSet<BendPoints>&	bendptset_;
     Line2DInterSectionSet&		lsintersections_;
     TypeSet<Geom::Rectangle<double>>	bboxs_;
 
-    bool		doWork(od_int64 start,
-			       od_int64 stop,int threadid) override;
+    od_int64		nrIterations() const override;
+    bool		shouldContinue() override;
+    bool		doPrepare(int) override;
+    bool		doWork(od_int64,od_int64,int) override;
     bool		doFinish(bool success) override;
     Threads::Lock	lock_;
     int			counter_;

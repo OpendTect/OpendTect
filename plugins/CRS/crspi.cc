@@ -12,6 +12,8 @@ ________________________________________________________________________
 #include "crssystem.h"
 #include "genc.h"
 #include "legal.h"
+#include "survinfo.h"
+
 
 mDefODPluginEarlyLoad(CRS)
 mDefODPluginInfo(CRS)
@@ -39,6 +41,7 @@ static mUnusedVar uiString* sqliteLegalText()
 }
 
 
+
 namespace Coords
 { extern "C" { mGlobal(Basic) void SetWGS84(const char*,CoordSystem*); } }
 
@@ -56,6 +59,37 @@ const char* initCRSPlugin()
 }
 
 
+namespace Coords
+{
+
+static bool needcleansi_ = false;
+
+void SetCleanSIFlag( CallBacker* )
+{
+    needcleansi_ = true;
+}
+
+
+void UnsetCleanSIFlag()
+{
+    needcleansi_ = false;
+}
+
+
+void CleanupCRSPlugin()
+{
+    SetWGS84( nullptr, nullptr );
+    if ( needcleansi_ )
+    {
+	ConstRefMan<CoordSystem> sicrs = SI().getCoordSystem();
+	if ( sicrs && sicrs->isProjection() )
+	    eSI().setCoordSystem( nullptr );
+    }
+}
+
+} // namespace Coords
+
+
 mDefODInitPlugin(CRS)
 {
     if ( !NeedDataBase() )
@@ -63,6 +97,10 @@ mDefODInitPlugin(CRS)
 
     legalInformation().addCreator( projLegalText, "PROJ" );
     legalInformation().addCreator( sqliteLegalText, "SQLite" );
+
+    SurveyInfo::instanceCreated().notify( mSCB(Coords::SetCleanSIFlag) );
+    NotifyExitProgram( &Coords::UnsetCleanSIFlag );
+    std::atexit( Coords::CleanupCRSPlugin );
 
     return initCRSPlugin();
 }

@@ -10,7 +10,7 @@ ________________________________________________________________________
 #include "geom2dintersections.h"
 
 #include "bendpointfinder.h"
-#include "survgeom2d.h"
+#include "genc.h"
 #include "trigonometry.h"
 
 
@@ -18,6 +18,7 @@ using namespace PosInfo;
 
 
 // BendPointFinder2DGeomSet
+
 BendPoints::BendPoints()
 {}
 
@@ -25,6 +26,8 @@ BendPoints::BendPoints()
 BendPoints::~BendPoints()
 {}
 
+
+// BendPointFinder2DGeomSet
 
 BendPointFinder2DGeomSet::BendPointFinder2DGeomSet(
 					const TypeSet<Pos::GeomID>& geomids,
@@ -43,20 +46,41 @@ BendPointFinder2DGeomSet::~BendPointFinder2DGeomSet()
 {}
 
 
-od_int64 BendPointFinder2DGeomSet::nrIterations() const
-{ return geomids_.size(); }
-
 uiString BendPointFinder2DGeomSet::uiMessage() const
-{ return tr("Analyzing 2D Line geometries" ); }
+{
+    return tr("Analyzing 2D Line geometries" );
+}
+
 
 uiString BendPointFinder2DGeomSet::uiNrDoneText() const
-{ return tr("Lines done"); }
+{
+    return tr("Lines done");
+}
+
+
+od_int64 BendPointFinder2DGeomSet::nrIterations() const
+{
+    return geomids_.size();
+}
+
+
+bool BendPointFinder2DGeomSet::shouldContinue()
+{
+    return !IsExiting();
+}
+
+
+bool BendPointFinder2DGeomSet::doPrepare( int /* nrthreads */ )
+{
+    return shouldContinue();
+}
 
 
 bool BendPointFinder2DGeomSet::doWork( od_int64 start, od_int64 stop,
 				       int threadid )
 {
-    for ( auto idx=start; idx<=stop; idx++, addToNrDone(1) )
+    for ( od_int64 idx=start; idx<=stop && shouldContinue();
+		   idx++,addToNrDone(1) )
     {
 	mDynamicCastGet(const Survey::Geometry2D*,geom2d,
 			Survey::GM().getGeometry(geomids_[idx]))
@@ -82,8 +106,13 @@ bool BendPointFinder2DGeomSet::doWork( od_int64 start, od_int64 stop,
 }
 
 
+bool BendPointFinder2DGeomSet::doFinish( bool success )
+{
+    return success && shouldContinue();
+}
 
-// Line2DInterSection
+
+// Line2DInterSection::Point
 
 Line2DInterSection::Point::Point( const Pos::GeomID& myid,
 				  const Pos::GeomID& lineid,
@@ -124,6 +153,8 @@ bool Line2DInterSection::Point::isOpposite( const Point& pt ) const
 }
 
 
+// Line2DInterSection
+
 Line2DInterSection::Line2DInterSection( const Pos::GeomID& geomid )
     : geomid_(geomid)
 {}
@@ -148,7 +179,7 @@ void Line2DInterSection::sort()
 }
 
 
-bool Line2DInterSection::getIntersectionTrcNrs( Pos::GeomID geomid,
+bool Line2DInterSection::getIntersectionTrcNrs( const Pos::GeomID& geomid,
 						int& mytrcnr,
 						int& crosstrcnr ) const
 {
@@ -162,7 +193,8 @@ bool Line2DInterSection::getIntersectionTrcNrs( Pos::GeomID geomid,
 	}
     }
 
-    if ( index < 0 ) return false;
+    if ( index < 0 )
+	return false;
 
     mytrcnr = points_[index].mytrcnr;
     crosstrcnr = points_[index].linetrcnr;
@@ -170,14 +202,15 @@ bool Line2DInterSection::getIntersectionTrcNrs( Pos::GeomID geomid,
 }
 
 
-void Line2DInterSection::addPoint( Pos::GeomID geomid, int mynr, int linenr )
+void Line2DInterSection::addPoint( const Pos::GeomID& geomid,
+				   int mynr, int linenr )
 {
     points_ += Point( geomid_, geomid, mynr, linenr );
 }
 
 
-
 // Line2DInterSectionSet
+
 Line2DInterSectionSet::Line2DInterSectionSet()
 {}
 
@@ -187,26 +220,24 @@ Line2DInterSectionSet::~Line2DInterSectionSet()
 
 
 const Line2DInterSection* Line2DInterSectionSet::getByGeomID(
-						Pos::GeomID geomid ) const
+					    const Pos::GeomID& geomid ) const
 {
-    for ( int idx=0; idx<size(); idx++ )
+    for ( const auto* isect : *this )
     {
-	const Line2DInterSection* isect = (*this)[idx];
 	if ( isect && isect->geomID() == geomid )
 	    return isect;
     }
 
-    return 0;
+    return nullptr;
 }
 
 
 static bool hasOpposite( const TypeSet<Line2DInterSection::Point>& pts,
 			 const Line2DInterSection::Point& pt )
 {
-    for ( int idx=0; idx<pts.size(); idx++ )
+    for ( const auto& isect : pts )
     {
-	const bool isopp = pts[idx].isOpposite( pt );
-	if ( isopp )
+	if ( isect.isOpposite(pt) )
 	    return true;
     }
 
@@ -218,10 +249,10 @@ void Line2DInterSectionSet::getAll(
 			TypeSet<Line2DInterSection::Point>& pts ) const
 {
     pts.erase();
-    for ( int idx=0; idx<size(); idx++ )
+    for ( const auto* isect : *this )
     {
-	const Line2DInterSection* isect = (*this)[idx];
-	if ( !isect ) continue;
+	if ( !isect )
+	    continue;
 
 	const int nrpts = isect->size();
 	for ( int pidx=0; pidx<nrpts; pidx++ )
@@ -234,8 +265,8 @@ void Line2DInterSectionSet::getAll(
 }
 
 
-
 // Line2DInterSectionFinder
+
 Line2DInterSectionFinder::Line2DInterSectionFinder(
 		const ObjectSet<BendPoints>& bps, Line2DInterSectionSet& lsis )
     : ParallelTask("Finding Intersections")
@@ -249,28 +280,32 @@ Line2DInterSectionFinder::Line2DInterSectionFinder(
     const Geom::Rectangle<double> udfbox( mUdf(double), mUdf(double),
 					  mUdf(double), mUdf(double) );
     bboxs_.setSize( bps.size(), udfbox );
-    for ( int idx=0; idx<bps.size(); idx++ )
+    int idx = 0;
+    for ( const auto* bp : bps )
     {
-	if ( !bps[idx] )
+	if ( !bp )
 	{
 	    geoms_ += nullptr;
 	    lsintersections_+= nullptr;
+	    idx++;
 	    continue;
 	}
 
 	mDynamicCastGet(const Survey::Geometry2D*,geom2d,
-			Survey::GM().getGeometry(bps[idx]->geomid_))
+			Survey::GM().getGeometry(bp->geomid_))
 	if ( !geom2d )
 	{
 	    geoms_ += nullptr;
 	    lsintersections_+= nullptr;
+	    idx++;
 	    continue;
 	}
 
 	geoms_ += geom2d;
-	lsintersections_ += new Line2DInterSection( bps[idx]->geomid_ );
-	for ( const auto& bpidx : bps[idx]->idxs_ )
+	lsintersections_ += new Line2DInterSection( bp->geomid_ );
+	for ( const auto& bpidx : bp->idxs_ )
 	    bboxs_[idx].include( geom2d->data().positions()[bpidx].coord_ );
+	idx++;
     }
 }
 
@@ -279,14 +314,34 @@ Line2DInterSectionFinder::~Line2DInterSectionFinder()
 {}
 
 
-od_int64 Line2DInterSectionFinder::nrIterations() const
-{ return bendptset_.size()-1; }
-
 uiString Line2DInterSectionFinder::uiMessage() const
-{ return tr("Finding intersections" ); }
+{
+    return tr("Finding intersections" );
+}
+
 
 uiString Line2DInterSectionFinder::uiNrDoneText() const
-{ return tr("Lines done"); }
+{
+    return tr("Lines done");
+}
+
+
+od_int64 Line2DInterSectionFinder::nrIterations() const
+{
+    return bendptset_.size()-1;
+}
+
+
+bool Line2DInterSectionFinder::shouldContinue()
+{
+    return !IsExiting();
+}
+
+
+bool Line2DInterSectionFinder::doPrepare( int /* nrthreads */ )
+{
+    return shouldContinue();
+}
 
 
 bool Line2DInterSectionFinder::doWork( od_int64 start, od_int64 stop, int tid )
@@ -296,7 +351,7 @@ bool Line2DInterSectionFinder::doWork( od_int64 start, od_int64 stop, int tid )
 	return false;
 
     for ( int curidx=mCast(int,start); curidx<=stop && shouldContinue();
-				    curidx++, addToNrDone(1) )
+	      curidx++, addToNrDone(1) )
     {
 	if ( !geoms_[curidx] )
 	    continue;
@@ -309,8 +364,6 @@ bool Line2DInterSectionFinder::doWork( od_int64 start, od_int64 stop, int tid )
 
 	const Pos::GeomID& curgeomid = curbpts->geomid_;
 	const int curbpsize = curbpts->idxs_.size();
-
-
 	for ( int lineidx=curidx+1; lineidx<nrlines; lineidx++ )
 	{
 	    if ( !bboxs_[curidx].intersects(bboxs_[lineidx]) )
@@ -382,6 +435,9 @@ bool Line2DInterSectionFinder::doWork( od_int64 start, od_int64 stop, int tid )
 
 bool Line2DInterSectionFinder::doFinish( bool success )
 {
+    if ( !success || !shouldContinue() )
+	return false;
+
     for ( int idx=0; idx<lsintersections_.size(); idx++ )
 	if ( lsintersections_[idx] )
 	    lsintersections_[idx]->sort();
@@ -390,15 +446,14 @@ bool Line2DInterSectionFinder::doFinish( bool success )
 }
 
 
-
 // Line2DIntersectionManager
+
 Line2DIntersectionManager::Line2DIntersectionManager()
 {}
 
 
 Line2DIntersectionManager::~Line2DIntersectionManager()
-{
-}
+{}
 
 
 const Line2DIntersectionManager& Line2DIntersectionManager::instance()

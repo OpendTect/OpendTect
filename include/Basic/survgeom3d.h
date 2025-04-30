@@ -9,6 +9,7 @@ ________________________________________________________________________
 -*/
 
 #include "basicmod.h"
+
 #include "survgeom.h"
 #include "trckeyzsampling.h"
 #include "posidxpair2coord.h"
@@ -26,7 +27,7 @@ mExpClass(Basic) Geometry3D : public Survey::Geometry
 public:
 			Geometry3D(const char* nm,const ZDomain::Def& zd );
 
-    static Geometry3D&	current();
+    static const Geometry3D& instance();
 
     bool		is2D() const override		{ return false; }
     const char*		getName() const override	{ return name_; }
@@ -87,6 +88,11 @@ protected:
     Pos::IdxPair2Coord	b2c_;
 
     float		zscale_ = 0.f;
+
+public:
+
+    mDeprecated("Use instance()")
+    static Geometry3D&	current();
 };
 
 } // namespace Survey

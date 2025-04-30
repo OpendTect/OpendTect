@@ -25,7 +25,8 @@ mImplFactory( SurveyObject, SurveyObject::factory );
 
 SurveyObject::SurveyObject()
 {
-    set3DSurvGeom( SI().get3DGeometry(true).ptr() );
+    ConstRefMan<Survey::Geometry3D> s3dgeom = SI().get3DGeometry( true );
+    set3DSurvGeom( s3dgeom.ptr() );
 }
 
 
@@ -387,7 +388,7 @@ void SurveyObject::getMousePosInfo( const visBase::EventInfo& info,
 	return;
 
     const MultiID mid = getMultiID();
-    const Survey::Geometry& geom =  Survey::Geometry::default3D();
+    const Survey::Geometry& geom =  Survey::Geometry3D::instance();
 
     const Coord pos( xytmousepos.x_, xytmousepos.y_ );
     const TrcKey trck = geom.nearestTrace( pos );

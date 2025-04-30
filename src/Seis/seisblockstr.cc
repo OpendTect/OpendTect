@@ -69,7 +69,7 @@ bool BlocksSeisTrcTranslator::initRead_()
 	return false;
     }
     else if ( read_mode == Seis::Prod
-	  && !rdr_->hGeom()->isCompatibleWith( Survey::Geometry::default3D() ) )
+	  && !rdr_->hGeom()->isCompatibleWith(Survey::Geometry3D::instance()) )
     {
 	errmsg_ = tr("The cube is not compatible with the survey setup");
 	return false;

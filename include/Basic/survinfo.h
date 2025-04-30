@@ -10,7 +10,6 @@ ________________________________________________________________________
 
 #include "basicmod.h"
 
-#include "atomic.h"
 #include "namedobj.h"
 #include "ranges.h"
 #include "surveydisklocation.h"
@@ -141,7 +140,8 @@ public:
 			//!<Return survey creation log
     void		putZDomain(IOPar&) const;
 
-    RefMan<Survey::Geometry3D> get3DGeometry(bool work) const;
+    ConstRefMan<Survey::Geometry3D> get3DGeometry(bool work) const;
+    RefMan<Survey::Geometry3D> get3DGeometry(bool work);
     RefMan<Coords::CoordSystem>	getCoordSystem();
     ConstRefMan<Coords::CoordSystem> getCoordSystem() const;
     bool		hasProjection() const;
@@ -170,8 +170,7 @@ protected:
     IOPar		logpars_;
     ConstRefMan<Coords::CoordSystem> coordsystem_;
 
-    mutable Threads::AtomicPointer<Survey::Geometry3D>	s3dgeom_;
-    mutable Threads::AtomicPointer<Survey::Geometry3D>	work_s3dgeom_;
+    RefMan<Survey::Geometry3D> work_s3dgeom_;
 
     Pos::IdxPair2Coord	b2c_;
     LatLong2Coord&	ll2c_;

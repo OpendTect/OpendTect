@@ -681,8 +681,8 @@ double TrcKey::distTo( const TrcKey& oth ) const
 
 const Survey::Geometry& TrcKey::geometry() const
 {
-    return is2D() ? Survey::GM().get2D( geomID() )
-		  : Survey::Geometry::default3D();
+    return is2D() ? (const Survey::Geometry&) Survey::GM().get2D( geomID() )
+		  : (const Survey::Geometry&)Survey::Geometry3D::instance();
 }
 
 

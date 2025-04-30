@@ -405,7 +405,7 @@ SEGYDirectSurvGeom2DTranslator::~SEGYDirectSurvGeom2DTranslator()
 {}
 
 
-Survey::Geometry* SEGYDirectSurvGeom2DTranslator::readGeometry(
+RefMan<Survey::Geometry> SEGYDirectSurvGeom2DTranslator::readGeometry(
 				const IOObj& ioobj, uiString& errmsg ) const
 {
     MultiID segydirectid;
@@ -424,11 +424,13 @@ Survey::Geometry* SEGYDirectSurvGeom2DTranslator::readGeometry(
     if ( ld.isEmpty() )
 	return nullptr;
 
-    auto* data = new PosInfo::Line2DData( ld );
+    PtrMan<PosInfo::Line2DData> dataman = new PosInfo::Line2DData( ld );
+    PosInfo::Line2DData* data = dataman.ptr();
     data->setLineName( ioobj.name() );
-    auto* geom = new Survey::Geometry2D( data );
+    RefMan<Survey::Geometry2D> geom = new Survey::Geometry2D(dataman.release());
     geom->setID( geomid );
     geom->touch();
+
     return geom;
 }
 
