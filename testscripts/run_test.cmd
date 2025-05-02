@@ -69,7 +69,12 @@ if NOT EXIST "%bindir%" (
     exit /b 1
 )
 
-set fullcommand=%bindir%\%cmd%.exe
+if EXIST "%cmd%.exe" (
+    set fullcommand=%cmd%.exe
+) ELSE (
+    set fullcommand=%bindir%\%cmd%.exe
+)
+
 if NOT EXIST "%fullcommand%" ( 
     echo %fullcommand% does not exist!
     exit /b 1
