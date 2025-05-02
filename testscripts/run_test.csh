@@ -120,6 +120,12 @@ if ( "$datadir" != "" ) then
     set args = "${args} --datadir ${datadir}"
 endif
 
+if ( -e "${cmd}" ) then
+    set cmdexec = "${cmd}"
+else
+    set cmdexec = "${bindir}/${cmd}"
+endif
+
 if ( "${valgrind}" != "" ) then
     set suppression = `ls ${wdir}/testscripts/suppressions/*.supp | awk '{ print "--suppressions" "=" $1 }'`
     ${valgrind} \
@@ -134,14 +140,14 @@ if ( "${valgrind}" != "" ) then
 	"--num-callers=50" \
 	"--track-origins=yes" \
 	"--error-exitcode=1" \
-	"${bindir}/${cmd}" ${args}
+	"${cmdexec}" ${args}
     set result = ${status}
     if ( "${result}" != "${expret}" ) then
 	echo "Test program ${cmd} failed memory test".
 	exit 1
     endif
 else
-    "${bindir}/${cmd}" ${args}
+    "${cmdexec}" ${args}
     set result = ${status}
     if ( "${result}" != "${expret}" ) then
 	echo "Test program ${cmd} returned ${result}, while ${expret} was expected"

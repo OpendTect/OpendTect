@@ -58,7 +58,11 @@ macro ( ADD_TEST_PROGRAM TEST_NAME )
     else()
 	set ( TEST_COMMAND "${OpendTect_DIR}/testscripts/run_test.csh" )
     endif()
-    set ( TEST_ARGS --command "${TEST_NAME}$<$<CONFIG:Debug>:${CMAKE_DEBUG_POSTFIX}>" )
+    if ( DEFINED TEST_CMD )
+	set ( TEST_ARGS --command "${TEST_CMD}" )
+    else()
+	set ( TEST_ARGS --command "${TEST_NAME}$<$<CONFIG:Debug>:${CMAKE_DEBUG_POSTFIX}>" )
+    endif()
 
     list ( APPEND TEST_ARGS --wdir "${PROJECT_OUTPUT_DIR}"
 		    --config "$<IF:$<CONFIG:Debug>,Debug,Release>" --plf ${OD_PLFSUBDIR}
