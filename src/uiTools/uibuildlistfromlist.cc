@@ -127,8 +127,11 @@ void uiEditObjectList::manButSt()
     const int curidx = currentItem();
     edbut_->setSensitive( curidx >= 0 );
     rmbut_->setSensitive( curidx >= 0 );
-    upbut_->setSensitive( curidx > 0 );
-    downbut_->setSensitive( curidx < listfld_->size() - 1 );
+    if ( upbut_ && downbut_ )
+    {
+	upbut_->setSensitive( curidx > 0 );
+	downbut_->setSensitive( curidx < listfld_->size() - 1 );
+    }
 }
 
 
