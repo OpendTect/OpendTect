@@ -75,6 +75,7 @@ public:
     int				editCurrentSurvey(uiParent*);
     static int			manageSurvey()		{ return manSurv(0); }
     void			exportSurveySetup();
+    void			openSurveyFolder();
 
     enum ObjType		{ Seis, Hor, Flt, Fltss, FltSet, Wll, Attr, NLA,
 				  Pick, Sess, Strat, Wvlt, MDef, Vel, PDF, PVDS,

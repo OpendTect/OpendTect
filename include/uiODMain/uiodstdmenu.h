@@ -35,6 +35,7 @@ ________________________________________________________________________
 #define mFilePreLoadMnu		(mFileMnu + 800)
 
 #define mManSurveyMnuItm	(mFileMnu + 10)
+#define mOpenFolderMnuItm	(mFileMnu + 18)
 #define mRestartMnuItm		(mFileMnu + 19)
 #define mExitMnuItm		(mFileMnu + 20)
 #define mCurrSurvUpdItm		(mFileMnu + 25)

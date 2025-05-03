@@ -11,6 +11,7 @@ ________________________________________________________________________
 
 #include "uiactiverunningproc.h"
 #include "uiattribpartserv.h"
+#include "uidesktopservices.h"
 #include "uiemattribpartserv.h"
 #include "uiempartserv.h"
 #include "uifiledlg.h"
@@ -215,6 +216,16 @@ void uiODApplMgr::exportSurveySetup()
     }
 
     File::copy( fp.fullPath(), fnm, false );
+}
+
+
+void uiODApplMgr::openSurveyFolder()
+{
+// Attribs folder is usually the top most folder when sorted alpabetically
+    const auto* dirdata = IOObjContext::getStdDirData( IOObjContext::Attr );
+    const FilePath fp( GetDataDir(), dirdata ? dirdata->dirnm_
+					     : ".survey" );
+    uiDesktopServices::showInFolder( fp.fullPath() );
 }
 
 
