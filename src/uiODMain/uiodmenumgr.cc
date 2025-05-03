@@ -254,8 +254,10 @@ void uiODMenuMgr::fillSurveyMenu()
     surveymnu_->addMenu( preloadmnu_ );
 
     surveymnu_->insertSeparator();
+    insertAction( surveymnu_, tr("Open Survey Folder"),
+			mOpenFolderMnuItm, "folder" );
     insertAction( surveymnu_, uiStrings::sRestart(),
-		       mRestartMnuItm, "restart" );
+			mRestartMnuItm, "restart" );
     insertAction( surveymnu_, uiStrings::sExit(), mExitMnuItm, "exit" );
 }
 
@@ -1651,6 +1653,7 @@ void uiODMenuMgr::handleClick( CallBacker* cb )
 
     case mPreLoadSeisMnuItm:	applMgr().manPreLoad(uiODApplMgr::Seis); break;
     case mPreLoadHorMnuItm:	applMgr().manPreLoad(uiODApplMgr::Hor); break;
+    case mOpenFolderMnuItm:	applMgr().openSurveyFolder(); break;
     case mRestartMnuItm:	appl_.restart(); break;
     case mExitMnuItm:		appl_.exit(); break;
     case mEditAttrMnuItm:	applMgr().editAttribSet(); break;
