@@ -38,8 +38,8 @@ protected:
     uiButton*		addbut_;
     uiButton*		edbut_;
     uiButton*		rmbut_;
-    uiButton*		upbut_;
-    uiButton*		downbut_;
+    uiButton*		upbut_		= nullptr;
+    uiButton*		downbut_	= nullptr;
 
     virtual void	editReq(bool isadd)	= 0;
     virtual void	removeReq()		= 0;
