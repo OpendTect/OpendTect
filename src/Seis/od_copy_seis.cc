@@ -12,6 +12,7 @@ ________________________________________________________________________
 #include "seiscopy.h"
 #include "seissingtrcproc.h"
 #include "seisioobjinfo.h"
+#include "seisselection.h"
 #include "iopar.h"
 #include "ioman.h"
 #include "ioobj.h"
@@ -90,9 +91,23 @@ bool BatchProgram::doWork( od_ostream& strm )
 	return copier.go( &strm, false, true );
     }
 
-    PtrMan<SeisSingleTraceProc> stp = new SeisSingleTraceProc( *inioobj,
-			*outioobj, "Copying 3D Cube", nullptr,
-			uiString::emptyString() );
+    int compnr = -1; // all components
+    inpar->get( sKey::Component(), compnr );
+    Seis::GeomType geomtype = Seis::Vol;
+    SeisStoreAccess::Setup inpsu( *inioobj, &geomtype );
+    inpsu.compnr( compnr );
+    SeisStoreAccess::Setup outsu( *outioobj, &geomtype );
+
+    PtrMan<Seis::SelData> seldata = Seis::SelData::get( *outpar );
+    if ( seldata && !seldata->isAll() )
+    {
+	inpsu.seldata( seldata.ptr() );
+	outsu.seldata( seldata.ptr() );
+    }
+
+    PtrMan<SeisSingleTraceProc> stp = new SeisSingleTraceProc( inpsu, outsu,
+						"Copying 3D Cube",
+						uiString::emptyString() );
     if ( !stp->isOK() )
     {
 	strm << stp->errMsg();
@@ -100,8 +115,6 @@ bool BatchProgram::doWork( od_ostream& strm )
     }
 
     stp->setProcPars( procpars, false );
-    int compnr = -1; // all components
-    inpar->get( sKey::Component(), compnr );
     SeisCubeCopier copier( stp.release(), compnr );
     return copier.go( &strm, false, true );
 }
