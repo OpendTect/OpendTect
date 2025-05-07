@@ -216,13 +216,15 @@ void uiODTreeItem::handleStandardItems( int mnuid )
 	const uiString msg = tr("All %1 items will be removed from the tree."
 				"\n\nDo you want to continue?")
 			   .arg(name());
-	if ( !uiMSG().askRemove(msg) ) return;
+	if ( !uiMSG().askRemove(msg) )
+	    return;
 
 	while ( children_.size() )
 	{
 	    setMoreObjectsToDoHint( children_.size()>1 );
 	    mDynamicCastGet(uiODDisplayTreeItem*,itm,children_[0])
-	    if ( !itm ) continue;
+	    if ( !itm )
+		continue;
 	    itm->prepareForShutdown();
 	    applMgr()->visServer()->removeObject( itm->displayID(), sceneID() );
 	    removeChild( itm );
