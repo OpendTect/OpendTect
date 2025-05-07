@@ -309,19 +309,29 @@ bool uiODLine2DParentTreeItem::handleSubMenu( int mnuid )
     {
 	const uiAction* itm = removeattritm_->findAction( mnuid );
 	BufferString attrnm = itm->text().getString();
-	if ( attrnm == sKeyUnselected() ) attrnm = sKeyRightClick();
+	if ( attrnm == sKeyUnselected() )
+	    attrnm = sKeyRightClick();
 	for ( int idx=0; idx<children_.size(); idx++ )
 	{
 	    mDynamicCastGet(uiOD2DLineTreeItem*,lineitm,children_[idx])
-	    if ( lineitm ) lineitm->removeAttrib( attrnm );
+	    if ( lineitm )
+		lineitm->removeAttrib( attrnm );
 	}
     }
     else if ( ( dispattritm_ && dispattritm_->findAction(mnuid) ) ||
 	      ( hideattritm_ && hideattritm_->findAction(mnuid) ) )
     {
-	const uiAction* itm = dispattritm_->findAction( mnuid );
+	const uiAction* itm = dispattritm_ ? dispattritm_->findAction( mnuid )
+					   : nullptr;
 	const bool disp = itm;
-	if ( !itm ) itm = hideattritm_->findAction( mnuid );
+	if ( !itm )
+	{
+	    if ( hideattritm_ )
+		itm = hideattritm_->findAction( mnuid );
+	    if ( !itm )
+		return true;
+	}
+
 	const BufferString attrnm = itm->text().getString();
 	ObjectSet<uiTreeItem> set;
 	findChildren( attrnm, set );
@@ -888,14 +898,16 @@ void uiOD2DLineTreeItem::removeAttrib( const char* attribnm )
     for ( int idx=0; idx<children_.size(); idx++ )
     {
 	mDynamicCastGet(uiOD2DLineSetAttribItem*,item,children_[idx])
-	if ( item ) nrattribitms++;
+	if ( item )
+	    nrattribitms++;
     }
 
     for ( int idx=0; idx<children_.size(); idx++ )
     {
 	mDynamicCastGet(uiODDataTreeItem*,dataitem,children_[idx])
 	mDynamicCastGet(uiOD2DLineSetAttribItem*,attribitem,children_[idx])
-	if ( !dataitem || itemnm!=dataitem->name().getFullString() ) continue;
+	if ( !dataitem || itemnm!=dataitem->name().getFullString() )
+	    continue;
 
 	if ( attribitem && nrattribitms<=1 )
 	{
@@ -930,7 +942,8 @@ void uiOD2DLineSetAttribItem::createMenu( MenuHandler* menu, bool istb )
     uiODAttribTreeItem::createMenu( menu, istb );
     mDynamicCastGet(visSurvey::Seis2DDisplay*,s2d,
 		    visserv_->getObject( displayID() ))
-    if ( !menu || !s2d || istb ) return;
+    if ( !menu || !s2d || istb )
+	return;
 
     uiSeisPartServer* seisserv = applMgr()->seisServer();
     uiAttribPartServer* attrserv = applMgr()->attrServer();
@@ -957,7 +970,8 @@ void uiOD2DLineSetAttribItem::createMenu( MenuHandler* menu, bool istb )
 	if ( Seis::PLDM().isPresent(mid,geomid) )
 	    item->iconfnm = "preloaded";
 	const bool docheck = isstored && nm==as.userRef();
-	if ( docheck ) docheckparent=true;
+	if ( docheck )
+	    docheckparent=true;
 	mAddManagedMenuItem( &storeditm_,item,true,docheck)
     }
 
@@ -982,7 +996,8 @@ void uiOD2DLineSetAttribItem::createMenu( MenuHandler* menu, bool istb )
 	StringView nm = steerdatanames.get(idx).buf();
 	auto* item = new MenuItem( toUiString(nm) );
 	const bool docheck = isstored && nm==as.userRef();
-	if ( docheck ) docheckparent=true;
+	if ( docheck )
+	    docheckparent=true;
 	mAddManagedMenuItem( &steeringitm_,item,true,docheck)
     }
 
@@ -1005,7 +1020,8 @@ void uiOD2DLineSetAttribItem::createMenu( MenuHandler* menu, bool istb )
 		StringView nm = zattribnms.get(idx).buf();
 		MenuItem* item = new MenuItem( toUiString(nm) );
 		const bool docheck = isstored && nm==as.userRef();
-		if ( docheck ) docheckparent=true;
+		if ( docheck )
+		    docheckparent=true;
 		mAddManagedMenuItem( &zattritm_, item, true, docheck )
 	    }
 
