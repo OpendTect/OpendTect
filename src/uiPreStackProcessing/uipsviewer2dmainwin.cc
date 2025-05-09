@@ -131,8 +131,7 @@ class uiPSPreProcessingDlg : public uiDialog
 public:
 uiPSPreProcessingDlg( uiParent* p, PreStack::ProcessManager& ppmgr,
 		      const CallBack& cb )
-    : uiDialog(p,uiDialog::Setup(tr("Preprocessing"),uiString::emptyString(),
-                                 mODHelpKey(mPreStackProcSelHelpID) ) )
+    : uiDialog(p,Setup(tr("Preprocessing"),mODHelpKey(mPreStackProcSelHelpID)))
     , cb_(cb)
 {
     preprocgrp_ = new PreStack::uiProcessorManager( this, ppmgr );
@@ -458,8 +457,7 @@ class uiPSMultiPropDlg : public uiDialog
 public:
 uiPSMultiPropDlg( uiParent* p, ObjectSet<uiFlatViewer>& vwrs,
 		  const CallBack& cb, bool stored )
-    : uiDialog(p,uiDialog::Setup(tr("Set properties for data"),
-				 uiString::emptyString(),mNoHelpKey))
+    : uiDialog(p,Setup(tr("Set properties for data"),mNoHelpKey))
     , vwrs_(vwrs)
     , cb_(cb)
     , forstored_(stored)
@@ -1140,9 +1138,8 @@ public:
 
 uiAngleCompParDlg( uiParent* p, PreStack::AngleCompParams& acp,
 		   OD::GeomSystem gs, bool isag )
-    : uiDialog(p,uiDialog::Setup(uiString::emptyString(),
-				 uiString::emptyString(),
-			      mODHelpKey(mViewer2DPSMainWindisplayAngleHelpID)))
+    : uiDialog(p,Setup(uiString::emptyString(),
+		       mODHelpKey(mViewer2DPSMainWindisplayAngleHelpID)))
 {
     uiString windowtitle = isag ? tr("Angle Gather Display")
 				: tr("Angle Data Display");

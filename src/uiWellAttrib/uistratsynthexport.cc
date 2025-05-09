@@ -64,8 +64,8 @@ uiStratSynthOutSel( uiParent* p, const uiString& seltxt,
 
 void selItems( CallBacker* )
 {
-    uiDialog::Setup su( uiStrings::phrSelect(nm_), mNoDlgTitle,
-			mODHelpKey(mStartSynthOutSelHelpID) );
+    uiDialog::Setup su(uiStrings::phrSelect(nm_),mNoDlgTitle,
+		       mODHelpKey(mStartSynthOutSelHelpID));
     uiDialog dlg( parent(), su );
     auto* lb = new uiListBox( &dlg, nm_.getFullString(), OD::ChooseAtLeastOne );
     lb->addItems( nms_ );
@@ -143,9 +143,8 @@ BufferString getSummary() const override
 
 uiStratSynthExport::uiStratSynthExport( uiParent* p,
 					const StratSynth::DataMgr& dm )
-    : uiDialog(p,uiDialog::Setup(tr("Save Synthetic Seismic Data and Horizons"),
-				 mNoDlgTitle,
-				 mODHelpKey(mStratSynthExportHelpID) ) )
+    : uiDialog(p,Setup(tr("Save Synthetic Seismic Data and Horizons"),
+		       mODHelpKey(mStratSynthExportHelpID)))
     , datamgr_(dm.getProdMgr())
 {
     crnewfld_ = new uiGenInput( this, tr("2D Line"),

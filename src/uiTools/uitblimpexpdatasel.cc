@@ -465,9 +465,8 @@ protected:
 
 uiTableFormatDescFldsEd::uiTableFormatDescFldsEd( uiTableImpDataSel* ds,
 						  const HelpKey& helpkey )
-	: uiDialog(ds,uiDialog::Setup(tr("Format Definition"),
-				      tr("Specify Necessary Information"),
-				      helpkey)
+	: uiDialog(ds,Setup(tr("Format Definition"),
+			    tr("Specify Necessary Information"),helpkey)
 		      .savebutton(true).savebutispush(true)
 		      .savetext(tr("Save format")))
 	, ds_(*ds)

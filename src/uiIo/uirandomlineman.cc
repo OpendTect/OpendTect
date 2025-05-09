@@ -24,11 +24,11 @@ ________________________________________________________________________
 mDefineInstanceCreatedNotifierAccess(uiRandomLineMan)
 
 uiRandomLineMan::uiRandomLineMan( uiParent* p )
-    : uiObjFileMan(p,uiDialog::Setup(
-             uiStrings::phrManage( uiStrings::sRandomLine(mPlural)),mNoDlgTitle,
-                 mODHelpKey(mRandomLineManHelpID) )
-                 .nrstatusflds(1).modal(false),
-		   RandomLineSetTranslatorGroup::ioContext())
+    : uiObjFileMan(p,Setup(
+			  uiStrings::phrManage(uiStrings::sRandomLine(mPlural)),
+			  mODHelpKey(mRandomLineManHelpID))
+				.nrstatusflds(1).modal(false),
+			  RandomLineSetTranslatorGroup::ioContext())
 {
     createDefaultUI();
     addExtraButton( uiGISExpStdFld::strIcon(),

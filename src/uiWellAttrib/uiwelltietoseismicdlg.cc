@@ -436,8 +436,8 @@ void WellTie::uiTieWin::matchHorMrks( CallBacker* )
 	controlview_->loadHorizons( nullptr );
     }
     pmgr.clearAllPicks();
-    uiDialog matchdlg( this, uiDialog::Setup(uiStrings::sSettings(),mNoDlgTitle,
-                                             mNoHelpKey) );
+    uiDialog matchdlg( this, uiDialog::Setup(uiStrings::sSettings(),
+					     mNoHelpKey));
     uiGenInput* matchinpfld = new uiGenInput( &matchdlg, tr("Match same"),
 				BoolInpSpec(true,uiStrings::sName(),
                                             tr("Regional marker")) );
@@ -550,10 +550,8 @@ static const char* sKeyStopMrkrName = "Stop Marker Name";
 #define mMinWvltLength	20
 
 WellTie::uiInfoDlg::uiInfoDlg( uiParent* p, Server& server )
-	: uiDialog(p,uiDialog::Setup(tr("Cross-checking parameters"),
-				     uiString::emptyString(),
-				     mODHelpKey(mWellTieInfoDlgHelpID) )
-				.modal(false))
+	: uiDialog(p,Setup(tr("Cross-checking parameters"),
+			   mODHelpKey(mWellTieInfoDlgHelpID)).modal(false))
     , redrawNeeded(this)
     , server_(server)
     , data_(server_.data())

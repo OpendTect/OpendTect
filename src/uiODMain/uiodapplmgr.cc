@@ -402,8 +402,8 @@ void uiODApplMgr::fltsetTimeDepthConvCB( CallBacker* )
 void uiODApplMgr::addTimeDepthScene( bool is2d )
 {
     uiDialog::Setup setup(tr("Velocity model"),
-		tr("Select velocity model to base scene on"),
-		mODHelpKey(mODApplMgraddTimeDepthSceneHelpID) );
+			  tr("Select velocity model to base scene on"),
+			  mODHelpKey(mODApplMgraddTimeDepthSceneHelpID));
 
     uiSingleGroupDlg dlg( &appl_, setup );
     const OD::Pol2D3D poltype = is2d ? OD::Only2D : OD::Only3D;

@@ -38,12 +38,12 @@ ________________________________________________________________________
 
 
 uiPreStackMergeDlg::uiPreStackMergeDlg( uiParent* p )
-    : uiDialog(p,uiDialog::Setup(tr("Merge Prestack Data"),
-				 tr("Select data stores to merge into one"),
-				 mODHelpKey(mPreStackMergeDlgHelpID) ))
+    : uiDialog(p,Setup(tr("Merge Prestack Data"),
+		       tr("Select data stores to merge into one"),
+		       mODHelpKey(mPreStackMergeDlgHelpID)))
 {
-    uiGroup* topgrp = new uiGroup( this, "selection group" );
-    uiGroup* selbuttons = new uiGroup( topgrp, "select buttons" );
+    auto* topgrp = new uiGroup( this, "selection group" );
+    auto* selbuttons = new uiGroup( topgrp, "select buttons" );
     movebuttons_ = new uiGroup( topgrp, "move buttons" );
     createSelectButtons( selbuttons );
     createMoveButtons( movebuttons_ );
@@ -386,9 +386,8 @@ bool uiPreStackOutputGroup::go()
 
 
 uiPreStackCopyDlg::uiPreStackCopyDlg( uiParent* p, const MultiID& key )
-    : uiDialog(p,uiDialog::Setup(tr("Copy Prestack Data"),
-				 uiString::emptyString(),
-                                 mODHelpKey(mPreStackCopyDlgHelpID) ))
+    : uiDialog(p,Setup(tr("Copy Prestack Data"),
+		       mODHelpKey(mPreStackCopyDlgHelpID)))
 {
     const CallBack selcb( mCB(this,uiPreStackCopyDlg,objSel) );
     inpfld_ = new uiIOObjSel( this, mIOObjContext(SeisPS3D),

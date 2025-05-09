@@ -35,10 +35,8 @@ uiHorizonShiftDialog::uiHorizonShiftDialog( uiParent* p,
 					    const Attrib::DescSet& descset,
 					    float initialshift,
 					    bool cancalcattrib )
-    : uiDialog(p,uiDialog::Setup(tr("%1 shift").arg(uiStrings::sHorizon()),
-				mNoDlgTitle,
-				mODHelpKey(mHorizonShiftDialogHelpID) )
-				.modal(false) )
+    : uiDialog(p,Setup(tr("%1 shift").arg(uiStrings::sHorizon()),
+		       mODHelpKey(mHorizonShiftDialogHelpID)).modal(false))
     , calcAttribPushed(this)
     , horShifted(this)
     , calcshiftrg_(mUdf(float),mUdf(float),mUdf(float))

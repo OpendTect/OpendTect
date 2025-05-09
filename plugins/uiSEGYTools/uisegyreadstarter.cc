@@ -56,12 +56,12 @@ static BufferString sImportFromPath;
 
 uiSEGYReadStarter::uiSEGYReadStarter( uiParent* p, bool forsurvsetup,
 					const SEGY::ImpType* imptyp )
-    : uiDialog(p,uiDialog::Setup(forsurvsetup
-	    ? tr("Extract Survey Setup from SEG-Y") : tr("Import SEG-Y Data"),
-	    imptyp ? tr("Import %1").arg(imptyp->dispText())
-		   : mNoDlgTitle,
-	    mODHelpKey(mSEGYReadStarterHelpID)).nrstatusflds(1)
-					       .modal(forsurvsetup))
+    : uiDialog(p,Setup(forsurvsetup ? tr("Extract Survey Setup from SEG-Y")
+				    : tr("Import SEG-Y Data"),
+		       imptyp ? tr("Import %1").arg(imptyp->dispText())
+			      : mNoDlgTitle,
+		       mODHelpKey(mSEGYReadStarterHelpID)).nrstatusflds(1)
+		.modal(forsurvsetup))
     , forsurvsetup_(forsurvsetup)
     , userfilename_("_") // any non-empty non-existing
     , loaddef_(imptyp ? imptyp->is2D() : false,forsurvsetup)
@@ -807,9 +807,8 @@ public:
 
 uiSEGYHdrEntrySettings( uiParent* p )
     : uiDialog(p,Setup(tr("SEG-Y byte location scanning settings"),
-			mNoDlgTitle,
-			mODHelpKey(mSEGYHdrEntrySettingsHelpID))
-	       .savebutton(true))
+		       mODHelpKey(mSEGYHdrEntrySettingsHelpID))
+		    .savebutton(true))
 {
     const SEGY::HdrEntryConstraints& hec = SEGY::HdrEntryConstraints::get();
     inlrgfld_ = new uiGenInput( this, tr("Usable In-line number range"),

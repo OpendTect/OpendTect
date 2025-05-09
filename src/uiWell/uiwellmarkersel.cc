@@ -328,22 +328,20 @@ void uiWellMarkerSel::mrkSel( CallBacker* callingcb )
 uiWellMarkersDlg::uiWellMarkersDlg( uiParent* p,
 				    const uiWellMarkersDlg::Setup& su )
     : uiDialog(p,uiDialog::Setup(tr("Select well markers"),
-		isMultiChoice( su.markerschoicemode_ )
-		    ? tr("Select markers from one or more wells")
-		    : tr("Select a well marker"),
-		mODHelpKey(mWellMarkersDlgHelpID)))
+				 isMultiChoice( su.markerschoicemode_ )
+				   ? tr("Select markers from one or more wells")
+				   : tr("Select a well marker"),
+				 mODHelpKey(mWellMarkersDlgHelpID)))
 {
-    uiGroup* mrkrgrp = new uiGroup( this, "Marker group" );
-    uiLabel* markerstxt =
-		new uiLabel( mrkrgrp, uiStrings::sMarker(mPlural) );
+    auto* mrkrgrp = new uiGroup( this, "Marker group" );
+    auto* markerstxt = new uiLabel( mrkrgrp, uiStrings::sMarker(mPlural) );
     markersselgrp_ = new uiListBox( mrkrgrp, "Markers", su.markerschoicemode_ );
     BufferStringSet markernms;
     Well::MGR().getAllMarkerNames( markernms );
     markernms.sort();
     markersselgrp_->addItems( markernms );
 
-    uiGenInput* filtfld = new uiGenInput( markersselgrp_,
-					  uiStrings::sFilter(), "*" );
+    auto* filtfld = new uiGenInput( markersselgrp_, uiStrings::sFilter(), "*" );
     filtfld->updateRequested.notify(
 				mCB(this,uiWellMarkersDlg,fltrMarkerNamesCB) );
     markersselgrp_->box()->attach( centeredBelow, filtfld );
@@ -353,7 +351,7 @@ uiWellMarkersDlg::uiWellMarkersDlg( uiParent* p,
     if ( !su.withwellfilter_ )
 	return;
 
-    uiSeparator* sep = new uiSeparator( this, "Well to markers" );
+    auto* sep = new uiSeparator( this, "Well to markers" );
     sep->attach( stretchedBelow, mrkrgrp );
 
     wellselgrp_ = new uiIOObjSelGrp( this, mIOObjContext(Well),
@@ -361,7 +359,7 @@ uiWellMarkersDlg::uiWellMarkersDlg( uiParent* p,
     wellselgrp_->attach( alignedBelow, mrkrgrp );
     wellselgrp_->attach( ensureBelow, sep );
 
-    uiLabel* txt = new uiLabel( this, uiStrings::sWells() );
+    auto* txt = new uiLabel( this, uiStrings::sWells() );
     txt->attach( leftBorder );
     txt->attach( ensureBelow, sep );
 }

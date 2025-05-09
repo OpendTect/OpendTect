@@ -245,10 +245,10 @@ bool getData( BufferString& hornm, BufferString& linenm, Coord3& crd,
 
 
 uiBulk2DHorizonImport::uiBulk2DHorizonImport( uiParent* p )
-    : uiDialog(p,uiDialog::Setup(uiStrings::phrImport(
-				 tr("Multiple 2D Horizons")), mNoDlgTitle,
-				 mODHelpKey(mBulkHorizonImportHelpID) )
-			    .modal(false))
+    : uiDialog(p,Setup(uiStrings::phrImport(
+		       tr("Multiple 2D Horizons")),
+		       mODHelpKey(mBulkHorizonImportHelpID))
+		    .modal(false))
     , fd_(BulkHorizon2DAscIO::getDesc(SI().zDomain()))
 {
     setOkText( uiStrings::sImport() );

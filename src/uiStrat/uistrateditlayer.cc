@@ -27,9 +27,8 @@ ________________________________________________________________________
 
 uiStratEditLayer::uiStratEditLayer( uiParent* p, Strat::Layer& lay,
 			const Strat::LayerSequence& ls, bool editable )
-    : uiDialog(p,Setup(tr("Layer properties"),
-		       tr("Layer: '%1'").arg(lay.name()),
-                       mODHelpKey(mStratEditLayerHelpID) ))
+    : uiDialog(p,Setup(tr("Layer properties"),tr("Layer: '%1'").arg(lay.name()),
+		       mODHelpKey(mStratEditLayerHelpID)))
     , editable_(editable)
     , lay_(lay)
     , worklay_(*new Strat::Layer(lay))

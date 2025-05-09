@@ -20,9 +20,8 @@ using namespace Attrib;
 
 uiWellAttribCrossPlot::uiWellAttribCrossPlot( uiParent* p,
 					      const Attrib::DescSet* d )
-    : uiDialog(p,uiDialog::Setup(tr("Attribute/Well Cross-plotting"),
-		 mNoDlgTitle,
-		 mODHelpKey(mWellAttribCrossPlotHelpID) ).modal(false))
+    : uiDialog(p,Setup(tr("Attribute/Well Cross-plotting"),
+		       mODHelpKey(mWellAttribCrossPlotHelpID)).modal(false))
 {
     setOkText( uiStrings::sNext() );
 

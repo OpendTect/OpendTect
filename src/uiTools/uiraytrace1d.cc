@@ -25,7 +25,7 @@ mImplFactory2Param( uiRayTracer1D, uiParent*, const uiRayTracer1D::Setup&,
 // uiRayTracerSel
 
 uiRayTracerSel::uiRayTracerSel( uiParent* p, const uiRayTracer1D::Setup& su )
-    : uiGroup( p, "Ray Tracer Selector" )
+    : uiGroup(p,"Ray Tracer Selector")
     , parsChanged(this)
 {
     Factory2Param<uiRayTracer1D,uiParent*,const uiRayTracer1D::Setup&>&
@@ -202,9 +202,9 @@ private:
 
 
 uiRayTracerAdvancedDlg::uiRayTracerAdvancedDlg( uiRayTracer1D& uirt )
-    : uiDialog( &uirt, Setup(tr("Ray tracing advanced options"),
-		tr("Specify advanced options"),
-		mODHelpKey(mRayTracerAdvancedDlgHelpID)) )
+    : uiDialog(&uirt,Setup(tr("Ray tracing advanced options"),
+			   tr("Specify advanced options"),
+			   mODHelpKey(mRayTracerAdvancedDlgHelpID)))
     , parsChanged(this)
 {
     advgrp_ = uirt.getAvancedGrp( this );
@@ -430,7 +430,7 @@ bool uiRayTracer1D::usePar( const IOPar& par )
 	offsetfld_->setValue( offsetrg );
 	const float step = offsets.size() > 1
 	     ? offsets[1]-offsets[0]
-                           : RayTracer1D::sDefOffsetRange( defOffsetType() ).step_;
+	     : RayTracer1D::sDefOffsetRange( defOffsetType() ).step_;
 	offsetstepfld_->setValue( step );
     }
 

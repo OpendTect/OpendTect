@@ -20,9 +20,9 @@ ________________________________________________________________________
 
 uiSEGYMultiLineSel::uiSEGYMultiLineSel( uiParent* p, const SEGY::FileSpec& fs,
 					int& wcidx, BufferStringSet& linenames )
-    : uiDialog(p,uiDialog::Setup(tr("Select Line names"),
-				 tr("Review/Edit Line names"),
-				 mNoHelpKey))
+    : uiDialog(p,Setup(tr("Select Line names"),
+		       tr("Review/Edit Line names"),
+		       mNoHelpKey))
     , filespec_(fs)
     , linenames_(linenames)
     , selwcidx_(wcidx)

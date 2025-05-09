@@ -101,10 +101,9 @@ bool getData( BufferString& hornm, Coord3& crd )
 
 
 uiBulkHorizonImport::uiBulkHorizonImport( uiParent* p )
-    : uiDialog(p,uiDialog::Setup(uiStrings::phrImport(
-				tr("Multiple Horizons")), mNoDlgTitle,
-				 mODHelpKey(mBulkHorizonImportHelpID) )
-			    .modal(false))
+    : uiDialog(p,Setup(uiStrings::phrImport(
+		       tr("Multiple Horizons")),
+		       mODHelpKey(mBulkHorizonImportHelpID)).modal(false))
     , fd_(BulkHorizonAscIO::getDesc(SI().zDomain()))
 {
     setOkCancelText( uiStrings::sImport(), uiStrings::sClose() );

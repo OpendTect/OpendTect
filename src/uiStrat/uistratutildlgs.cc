@@ -38,9 +38,9 @@ static const char* sNoLevelTxt      = "--Undefined--";
 
 #define mErrRet(msg,act) uiMSG().error(msg); act;
 uiStratUnitEditDlg::uiStratUnitEditDlg( uiParent* p, Strat::NodeUnitRef& unit )
-    : uiDialog(p,uiDialog::Setup(tr("Stratigraphic Unit Editor"),
-				 tr("Edit the unit properties"),
-				 mODHelpKey(mStratUnitDlgHelpID) ))
+    : uiDialog(p,Setup(tr("Stratigraphic Unit Editor"),
+		       tr("Edit the unit properties"),
+		       mODHelpKey(mStratUnitDlgHelpID)))
     , unit_(unit)
     , entrancename_(unit.code())
 {
@@ -297,9 +297,8 @@ void uiStratLithoBox::fillLiths( CallBacker* )
 // uiStratLithoDlg
 
 uiStratLithoDlg::uiStratLithoDlg( uiParent* p )
-    : uiDialog(p,uiDialog::Setup(
-	     uiStrings::phrManage( uiStrings::sLithology(mPlural)),mNoDlgTitle,
-	    mODHelpKey(mStratLithoDlgHelpID) ))
+    : uiDialog(p,Setup(uiStrings::phrManage(uiStrings::sLithology(mPlural)),
+		       mODHelpKey(mStratLithoDlgHelpID)))
 {
     setCtrlStyle( CloseOnly );
 
@@ -482,9 +481,10 @@ class uiStratSingleContentDlg : public uiDialog
 public:
 
 uiStratSingleContentDlg( uiParent* p, Strat::Content& c, bool isadd, bool& chg)
-    : uiDialog(p,uiDialog::Setup(isadd ? tr("Add content") : tr("Edit Content"),
-		isadd ? tr("Add content") : tr("Edit content properties"),
-				  mODHelpKey(mStratContentsDlgHelpID) ))
+    : uiDialog(p,Setup(isadd ? tr("Add content") : tr("Edit Content"),
+		       isadd ? tr("Add content") : tr("Edit content "
+						      "properties"),
+		       mODHelpKey(mStratContentsDlgHelpID)))
     , cont_(c)
     , anychg_(chg)
 {
@@ -606,9 +606,9 @@ void itemSwitch( bool up ) override
 // uiStratContentsDlg
 
 uiStratContentsDlg::uiStratContentsDlg( uiParent* p )
-    : uiDialog(p,uiDialog::Setup(uiStrings::phrManage( tr("Contents")),
-		tr("Define special layer contents"),
-		mODHelpKey(mStratContentsDlgHelpID) ))
+    : uiDialog(p,Setup(uiStrings::phrManage(tr("Contents")),
+		       tr("Define special layer contents"),
+		       mODHelpKey(mStratContentsDlgHelpID)))
 {
     setCtrlStyle( CloseOnly );
     (void)new uiStratContentsEd( this, anychg_ );
@@ -623,8 +623,8 @@ uiStratContentsDlg::~uiStratContentsDlg()
 // uiStratLevelDlg
 
 uiStratLevelDlg::uiStratLevelDlg( uiParent* p )
-    : uiDialog(p,uiDialog::Setup(tr("Create/Edit level"),mNoDlgTitle,
-				 mODHelpKey(mStratLevelDlgHelpID) ))
+    : uiDialog(p,Setup(tr("Create/Edit level"),
+		       mODHelpKey(mStratLevelDlgHelpID)))
 {
     lvlnmfld_ = new uiGenInput( this, uiStrings::sName(), StringInpSpec() );
     lvlcolfld_ = new uiColorInput( this,
@@ -686,8 +686,8 @@ void uiStratUnitDivideDlg::uiDivideTable::popupMenu( CallBacker* cb )
 uiStratUnitDivideDlg::uiStratUnitDivideDlg( uiParent* p,
 					    const Strat::LeavedUnitRef& unit )
     : uiDialog(p,Setup(tr("Subdivide Stratigraphic Unit"),
-			tr("Specify number and properties of the new units"),
-			mODHelpKey(mStratUnitDivideDlgHelpID)))
+		       tr("Specify number and properties of the new units"),
+		       mODHelpKey(mStratUnitDivideDlgHelpID)))
     , rootunit_(unit)
 {
     table_ = new uiDivideTable( this, uiTable::Setup()
@@ -887,8 +887,8 @@ bool uiStratUnitDivideDlg::acceptOK( CallBacker* )
 
 uiStratLinkLvlUnitDlg::uiStratLinkLvlUnitDlg( uiParent* p,
 					      Strat::LeavedUnitRef& ur )
-    : uiDialog(p,uiDialog::Setup(uiString::emptyString(),
-		mNoDlgTitle, mODHelpKey(mStratLinkLvlUnitDlgHelpID) ))
+    : uiDialog(p,Setup(uiString::emptyString(),
+		       mODHelpKey(mStratLinkLvlUnitDlgHelpID)))
     , lvlid_(Strat::LevelID::udf())
     , unit_(ur)
 {

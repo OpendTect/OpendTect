@@ -31,9 +31,8 @@ ________________________________________________________________________
 
 // uiImp2DGeom
 uiImp2DGeom::uiImp2DGeom( uiParent* p, const char* lnm, bool forsurveysetup )
-    : uiDialog(p,uiDialog::Setup(tr("Import New Line Geometry"),
-				 mNoDlgTitle,
-				 mODHelpKey(mGeom2DImpDlgHelpID)))
+    : uiDialog(p,Setup(tr("Import New Line Geometry"),
+		       mODHelpKey(mGeom2DImpDlgHelpID)))
     , singlemultifld_(0)
     , linefld_(0)
     , linenm_(lnm)
@@ -69,7 +68,7 @@ uiImp2DGeom::uiImp2DGeom( uiParent* p, const char* lnm, bool forsurveysetup )
 	    linefld_ = new uiGeom2DSel( this, false );
     }
 
-    dataselfld_ = new uiTableImpDataSel( this, *geomfd_, mNoHelpKey );
+    dataselfld_ = new uiTableImpDataSel( this, *geomfd_,mNoHelpKey );
     dataselfld_->attach( alignedBelow, attachobj );
 
     if ( linefld_ )
@@ -230,7 +229,7 @@ bool uiImp2DGeom::fillGeom( Survey::Geometry2D& geom )
 // uiExp2DGeom
 uiExp2DGeom::uiExp2DGeom( uiParent* p, const TypeSet<Pos::GeomID>* geomidset,
 				      bool ismodal )
-    : uiDialog(p,Setup(uiStrings::phrExport( tr("2D Geometry")),mNoDlgTitle,
+    : uiDialog(p,Setup(uiStrings::phrExport(tr("2D Geometry")),
 		       mODHelpKey(mExp2DGeomHelpID)).modal(ismodal))
 {
     createUI();

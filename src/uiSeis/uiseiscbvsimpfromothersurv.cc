@@ -31,7 +31,7 @@ uiSeisImpCBVSFromOtherSurveyDlg::uiSeisImpCBVSFromOtherSurveyDlg( uiParent* p )
     : uiDialog(p,Setup(tr("Import CBVS cube from other survey"),
 		       tr("Specify import parameters"),
 		       mODHelpKey(mSeisImpCBVSFromOtherSurveyDlgHelpID))
-		 .modal(false))
+		    .modal(false))
     , import_(nullptr)
 {
     setOkCancelText( uiStrings::sImport(), uiStrings::sClose() );

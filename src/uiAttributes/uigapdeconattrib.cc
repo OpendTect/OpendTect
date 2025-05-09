@@ -665,8 +665,7 @@ void uiGapDeconAttrib::getInputMID( MultiID& mid ) const
 
 uiGDPositionDlg::uiGDPositionDlg( uiParent* p, const TrcKeyZSampling& cs,
 				  bool is2d, const MultiID& mid )
-    : uiDialog( p, uiDialog::Setup(tr("Gap Decon viewer position"),
-                                   mNoDlgTitle, mNoHelpKey) )
+    : uiDialog( p, Setup(tr("Gap Decon viewer position"),mNoHelpKey) )
     , inlcrlfld_(0)
     , linesfld_(0)
     , tkzs_( cs )

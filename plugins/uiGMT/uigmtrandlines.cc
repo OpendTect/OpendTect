@@ -105,7 +105,7 @@ void uiGMTRandLinesGrp::objSel( CallBacker* )
     {
 	uiDialog dlg( this, uiDialog::Setup(tr("Select lines"),
                                             tr("Select lines"),
-                                            mNoHelpKey) );
+					    mNoHelpKey));
 	uiListBox* lb = new uiListBox( &dlg, "Linelist", OD::ChooseAtLeastOne);
 	for ( int idx=0; idx<inprls.size(); idx++ )
 	    lb->addItem( inprls.lines()[idx]->name() );

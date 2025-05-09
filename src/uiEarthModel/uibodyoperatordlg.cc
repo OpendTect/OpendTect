@@ -35,8 +35,8 @@ ________________________________________________________________________
 
 
 uiBodyOperatorDlg::uiBodyOperatorDlg( uiParent* p )
-    : uiDialog(p,uiDialog::Setup(tr("Apply Geobody Operations"),mNoDlgTitle,
-				mODHelpKey(mBodyOperatorDlgHelpID) ) )
+    : uiDialog(p,Setup(tr("Apply Geobody Operations"),
+		       mODHelpKey(mBodyOperatorDlgHelpID)))
 {
     setCtrlStyle( RunAndClose );
 
@@ -417,8 +417,8 @@ bool uiBodyOperatorDlg::BodyOperand::isOK() const
 //uiImplicitBodyValueSwitchDlg
 uiImplicitBodyValueSwitchDlg::uiImplicitBodyValueSwitchDlg( uiParent* p,
 	const IOObj* ioobj )
-    : uiDialog(p,uiDialog::Setup(tr("Geobody conversion - inside-out"),
-		mNoDlgTitle, mODHelpKey(mImplicitBodyValueSwitchDlgHelpID) ) )
+    : uiDialog(p,Setup(tr("Geobody conversion - inside-out"),
+		       mODHelpKey(mImplicitBodyValueSwitchDlgHelpID)))
 {
     setCtrlStyle( RunAndClose );
 

@@ -55,7 +55,7 @@ uiLaySeqAttribEd::uiLaySeqAttribEd( uiParent* p, Strat::LaySeqAttrib& lsa,
     : uiDialog(p,uiDialog::Setup(edsu.isnew_ ? tr("Add attribute")
 					     : tr("Edit attribute"),
 				 mToUiStringTodo(gtDlgTitle(lsa,edsu.isnew_)),
-				 mODHelpKey(mLaySeqAttribEdHelpID) ))
+				 mODHelpKey(mLaySeqAttribEdHelpID)))
     , attr_(lsa)
     , reftree_(rt)
 {

@@ -1466,11 +1466,11 @@ bool uiEMPartServer::changeAuxData( const EM::ObjectID& oid,
     if ( interpolate )
     {
 	uiSingleGroupDlg dlg( parent(),
-		uiDialog::Setup( tr("Interpolate horizon Data"),
-				 tr("Interpolation parameters"),
-				  mNoHelpKey ) );
+		uiDialog::Setup(tr("Interpolate horizon Data"),
+				tr("Interpolation parameters"),
+				mNoHelpKey) );
 
-	uiArray2DInterpolSel* settings =
+	auto* settings =
 	    new uiArray2DInterpolSel( &dlg, false, false, true, 0 );
 
 	dlg.setGroup( settings );
@@ -1652,7 +1652,6 @@ ZAxisTransform* uiEMPartServer::getHorizonZAxisTransform( bool is2d ) const
 {
     uiDialog dlg( parent(),
 		 uiDialog::Setup(uiStrings::phrSelect(uiStrings::sHorizon()),
-				 mNoDlgTitle,
 				 mODHelpKey(mgetHorizonZAxisTransformHelpID)) );
     const IOObjContext ctxt = is2d
 	? EMHorizon2DTranslatorGroup::ioContext()

@@ -15,8 +15,8 @@ ________________________________________________________________________
 
 uiMarkerStyleDlg::uiMarkerStyleDlg( uiParent* p, const uiString& title,
 				    bool withnone )
-	: uiDialog(p,uiDialog::Setup(title,mNoDlgTitle,mNoHelpKey)
-		   .canceltext(uiString::emptyString()))
+	: uiDialog(p,Setup(title,mNoHelpKey)
+			.canceltext(uiString::emptyString()))
 {
     if ( withnone )
 	stylefld_ = new uiMarkerStyle3D( this, true, Interval<int>(1,15) );

@@ -42,12 +42,12 @@ static const char* filters[] =
 
 
 uiWindowGrabDlg::uiWindowGrabDlg( uiParent* p, bool desktop )
-    : uiDialog(p,uiDialog::Setup( (desktop ? tr("Desktop grabber") :
-					     tr("Window grabber")),
-				  (desktop ? tr("Specify image file") :
-					   tr("Specify window and image file")),
-		 desktop ? mODHelpKey(mWindowGrabDlgDesktopHelpID) :
-			   mODHelpKey(mWindowGrabDlgWindowHelpID) ) )
+    : uiDialog(p,Setup((desktop ? tr("Desktop grabber")
+				: tr("Window grabber")),
+		       (desktop ? tr("Specify image file")
+				: tr("Specify window and image file")),
+			desktop ? mODHelpKey(mWindowGrabDlgDesktopHelpID)
+				: mODHelpKey(mWindowGrabDlgWindowHelpID)))
     , windowfld_(0)
 {
     getTopLevelWindows( windowlist_ );

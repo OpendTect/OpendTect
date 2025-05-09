@@ -43,9 +43,8 @@ class uiNotFinishedDlg : public uiDialog
 public:
     uiNotFinishedDlg(uiParent* p, NotFinishedPrompter& prompter,
 		     bool withcancel, const uiString& actiontype )
-    : uiDialog(p, uiDialog::Setup(tr("Not Finished"),
-				  tr("The following processes are running"),
-				  mNoHelpKey))
+    : uiDialog(p,Setup(tr("Not Finished"),
+		       tr("The following processes are running"),mNoHelpKey))
     , prompter_(prompter)
     {
 	buttons_.setNullAllowed();

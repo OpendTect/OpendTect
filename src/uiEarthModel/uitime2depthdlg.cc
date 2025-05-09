@@ -35,7 +35,7 @@ namespace EM
 {
 static HelpKey getHelpKey( ObjectType objtype )
 {
-    HelpKey key = mNoHelpKey;
+    HelpKey key =mNoHelpKey;
     switch( objtype )
     {
 	case ObjectType::Hor3D:
@@ -61,8 +61,7 @@ static HelpKey getHelpKey( ObjectType objtype )
 }
 
 uiTime2DepthDlg::uiTime2DepthDlg( uiParent* p, ObjectType objtype )
-    : uiDialog(p,uiDialog::Setup(getDlgTitle(objtype),mNoDlgTitle,
-					getHelpKey(objtype)).modal(false))
+    : uiDialog(p,Setup(getDlgTitle(objtype),getHelpKey(objtype)).modal(false))
     , objtype_(objtype)
 {
     setCtrlStyle( RunAndClose );

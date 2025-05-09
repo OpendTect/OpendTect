@@ -28,8 +28,8 @@ ________________________________________________________________________
 
 
 uiBatchTime2DepthSetup::uiBatchTime2DepthSetup( uiParent* p, bool is2d )
-    : uiDialog(p,Setup(uiString::emptyString(),mNoDlgTitle,
-			mODHelpKey(mBatchTime2DepthSetupHelpID)))
+    : uiDialog(p,Setup(uiString::emptyString(),
+		       mODHelpKey(mBatchTime2DepthSetupHelpID)))
 {
     const uiString capt = tr("Time - Depth Conversion %1")
 			.arg( is2d ? uiStrings::s2D() : uiStrings::s3D() );

@@ -44,9 +44,9 @@ uiString uiGenRanLinesByContour::sDlgTitle()
 { return uiStrings::phrCreate( uiStrings::sRandomLine() ); }
 
 uiGenRanLinesByContour::uiGenRanLinesByContour( uiParent* p )
-    : uiDialog( p, Setup(uiGenRanLinesByContour::sDlgTitle(),
-			 uiGenRanLinesByContour::sSpecGenPar(),
-			 mODHelpKey(mGenRanLinesByContourHelpID) ) )
+    : uiDialog(p,Setup(uiGenRanLinesByContour::sDlgTitle(),
+		       uiGenRanLinesByContour::sSpecGenPar(),
+		       mODHelpKey(mGenRanLinesByContourHelpID)))
 {
     infld_ = new uiHorizon3DSel( this, true );
 
@@ -199,9 +199,9 @@ bool uiGenRanLinesByContour::acceptOK( CallBacker* )
 
 
 uiGenRanLinesByShift::uiGenRanLinesByShift( uiParent* p )
-    : uiDialog( p, Setup(uiGenRanLinesByContour::sDlgTitle(),
-			 uiGenRanLinesByContour::sSpecGenPar(),
-			 mODHelpKey(mGenRanLinesByShiftHelpID) ) )
+    : uiDialog(p,Setup(uiGenRanLinesByContour::sDlgTitle(),
+		       uiGenRanLinesByContour::sSpecGenPar(),
+		       mODHelpKey(mGenRanLinesByShiftHelpID)))
 {
     IOObjContext ctxt = mIOObjContext( RandomLineSet );
     infld_ = new uiIOObjSel( this, ctxt,
@@ -294,9 +294,9 @@ bool uiGenRanLinesByShift::acceptOK( CallBacker* )
 
 
 uiGenRanLineFromPolygon::uiGenRanLineFromPolygon( uiParent* p )
-    : uiDialog( p, Setup(uiGenRanLinesByContour::sDlgTitle(),
-			 uiGenRanLinesByContour::sSpecGenPar(),
-			 mODHelpKey(mGenRanLinesFromPolygonHelpID) ) )
+    : uiDialog(p,Setup(uiGenRanLinesByContour::sDlgTitle(),
+		       uiGenRanLinesByContour::sSpecGenPar(),
+		       mODHelpKey(mGenRanLinesFromPolygonHelpID)))
 {
     IOObjContext psctxt = mIOObjContext( PickSet );
     PickSetTranslator::fillConstraints( psctxt, true );

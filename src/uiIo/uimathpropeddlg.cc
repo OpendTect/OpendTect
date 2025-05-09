@@ -21,8 +21,9 @@ ________________________________________________________________________
 uiMathPropEdDlg::uiMathPropEdDlg( uiParent* p, MathProperty& pr,
 				  const PropertyRefSelection& prs )
     : uiDialog( p, Setup(tr("Math property"),
-		tr("Value generation by formula for %1")
-		.arg(toUiString(pr.name())), mODHelpKey(mMathPropEdDlgHelpID)) )
+			 tr("Value generation by formula for %1")
+			    .arg(toUiString(pr.name())),
+			 mODHelpKey(mMathPropEdDlgHelpID)) )
     , prop_(pr)
     , prs_(*new PropertyRefSelection(prs))
 {
@@ -64,8 +65,8 @@ uiMathPropEdDlg::~uiMathPropEdDlg()
 void uiMathPropEdDlg::rockPhysReq( CallBacker* )
 {
     uiDialog dlg( this, uiDialog::Setup(uiStrings::sRockPhy(),
-		  tr("Use a rock physics formula"),
-		  mODHelpKey(mRockPhysFormHelpID)) );
+					tr("Use a rock physics formula"),
+					mODHelpKey(mRockPhysFormHelpID)) );
     auto* rpffld = new uiRockPhysForm( &dlg, prop_.mn() );
     const uiRetVal uirv = rpffld->isOK();
     if ( !uirv.isOK() )

@@ -46,8 +46,8 @@ Array2DFilterPars uiArr2DFilterPars::getInput() const
 
 uiArr2DFilterParsDlg::uiArr2DFilterParsDlg( uiParent* p,
 					    const Array2DFilterPars* prs )
-    : uiDialog(p,uiDialog::Setup(tr("Filter parameters"),mNoDlgTitle,
-				 mODHelpKey(mArr2DFilterParsDlgHelpID)))
+    : uiDialog(p,Setup(tr("Filter parameters"),
+		       mODHelpKey(mArr2DFilterParsDlgHelpID)))
 {
     fld = new uiArr2DFilterPars( this, prs );
 }

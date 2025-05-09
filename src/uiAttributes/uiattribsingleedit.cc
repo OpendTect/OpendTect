@@ -22,8 +22,8 @@ ________________________________________________________________________
 
 uiSingleAttribEd::uiSingleAttribEd( uiParent* p, Attrib::Desc& ad, bool isnew )
     : uiDialog(p,Setup(isnew ? tr("Add attribute") : tr("Edit attribute"),
-		    tr("Define attribute parameters"),
-                    mODHelpKey(mSingleAttribEdHelpID) ))
+		       tr("Define attribute parameters"),
+		       mODHelpKey(mSingleAttribEdHelpID)))
     , desc_(ad)
     , setman_(new Attrib::DescSetMan(ad.is2D(),ad.descSet(),false))
     , nmchgd_(false)

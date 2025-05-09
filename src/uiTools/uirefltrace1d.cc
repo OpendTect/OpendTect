@@ -23,7 +23,7 @@ mImplFactory2Param( uiReflCalc1D, uiParent*, const uiReflCalc1D::Setup&,
 // uiReflCalcSel
 
 uiReflCalcSel::uiReflCalcSel( uiParent* p, const uiReflCalc1D::Setup& su )
-    : uiGroup( p, "EI Calc Selector" )
+    : uiGroup(p,"EI Calc Selector")
     , parsChanged(this)
 {
     Factory2Param<uiReflCalc1D,uiParent*,const uiReflCalc1D::Setup&>&
@@ -201,9 +201,9 @@ private:
 
 
 uiReflCalcAdvancedDlg::uiReflCalcAdvancedDlg( uiReflCalc1D& uirt )
-    : uiDialog( &uirt, Setup(tr("EI Calculation advanced options"),
-		tr("Specify advanced options"),
-		mODHelpKey(mEICalcAdvancedDlgHelpID)) )
+    : uiDialog(&uirt,Setup(tr("EI Calculation advanced options"),
+			   tr("Specify advanced options"),
+			   mODHelpKey(mEICalcAdvancedDlgHelpID)))
     , parsChanged(this)
 {
     advgrp_ = uirt.getAvancedGrp( this );

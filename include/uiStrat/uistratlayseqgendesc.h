@@ -116,7 +116,7 @@ public: \
     static const char*	typeStr()			{ return typstr; } \
     const char*		factoryKeyword() const override { return typeStr(); } \
     const uiParent*	getUiParent() const override	{ return parent(); } \
-    static uiLayerSequenceGenDesc* create( uiParent* p, \
+    static uiLayerSequenceGenDesc* create( uiParent* p,\
 					   Strat::LayerSequenceGenDesc& gd ) \
 						    { return new clss(p,gd); } \
     static void		initClass() { factory().addCreator(create,typeStr()); }

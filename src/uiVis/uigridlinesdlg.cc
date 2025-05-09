@@ -32,8 +32,7 @@ ________________________________________________________________________
 
 
 uiGridLinesDlg::uiGridLinesDlg( uiParent* p, visSurvey::PlaneDataDisplay* pdd )
-    : uiDialog(p,uiDialog::Setup(tr("Set Grid Lines"),mNoDlgTitle,
-				 mODHelpKey(mGridLinesDlgHelpID) ))
+    : uiDialog(p,Setup(tr("Set Grid Lines"),mODHelpKey(mGridLinesDlgHelpID)))
     , pdd_( pdd )
     , inlfld_( 0 )
     , crlfld_( 0 )

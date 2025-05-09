@@ -158,9 +158,8 @@ class uiPresMakerSettings : public uiTabStackDlg
 { mODTextTranslationClass(uiPresMakerSettings)
 public:
 uiPresMakerSettings( uiParent* p, PresentationSpec& spec )
-    : uiTabStackDlg(p,uiDialog::Setup(tr("Presentation Maker Settings"),
-				      mNoDlgTitle,
-				      mODHelpKey(mSlideLayoutDlgHelpID)))
+    : uiTabStackDlg(p,Setup(tr("Presentation Maker Settings"),
+			    mODHelpKey(mSlideLayoutDlgHelpID)))
 {
     addGroup( new uiSlideLayoutGrp(tabParent(),spec) );
 }
@@ -169,8 +168,8 @@ uiPresMakerSettings( uiParent* p, PresentationSpec& spec )
 
 
 uiPresentationMakerDlg::uiPresentationMakerDlg( uiParent* p )
-    : uiDialog(p,Setup(tr("Presentation Maker"),mNoDlgTitle,
-		mODHelpKey(mPresentationMakerDlgHelpID)).modal(false))
+    : uiDialog(p,Setup(tr("Presentation Maker"),
+		       mODHelpKey(mPresentationMakerDlgHelpID)).modal(false))
 {
     setCtrlStyle( CloseOnly );
 

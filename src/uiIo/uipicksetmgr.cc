@@ -182,9 +182,9 @@ class uiMergePickSets : public uiDialog
 public:
 
 uiMergePickSets( uiParent* p, MultiID& mid )
-    : uiDialog(p,uiDialog::Setup(uiStrings::phrMerge(uiStrings::sPointSet()),
-				 tr("Specify sets to merge"),
-				 mODHelpKey(mMergePickSetsHelpID) ))
+    : uiDialog(p,Setup(uiStrings::phrMerge(uiStrings::sPointSet()),
+		       tr("Specify sets to merge"),
+		       mODHelpKey(mMergePickSetsHelpID)))
     , ctioin_( PickSetTranslatorGroup::ioContext() )
     , ctioout_( PickSetTranslatorGroup::ioContext() )
     , mid_(mid)
@@ -293,9 +293,9 @@ void uiPickSetMgr::keyPressedCB( CallBacker* )
 
 // uiPickSetMgrInfoDlg
 uiPickSetMgrInfoDlg::uiPickSetMgrInfoDlg( uiParent* p )
-    : uiDialog(p,uiDialog::Setup(tr("Pick::SetMgr Information"),
-		mNoDlgTitle,mNoHelpKey).applybutton(true)
-				.applytext(uiStrings::sReload()).modal(false))
+    : uiDialog(p,Setup(tr("Pick::SetMgr Information"),mNoHelpKey)
+		    .applybutton(true)
+		    .applytext(uiStrings::sReload()).modal(false))
 {
     setCtrlStyle( uiDialog::CloseOnly );
 

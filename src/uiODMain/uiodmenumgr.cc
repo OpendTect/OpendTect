@@ -1730,7 +1730,7 @@ void uiODMenuMgr::handleClick( CallBacker* cb )
 	BufferString text;
 	meminfo.dumpPretty( text );
 	uiDialog dlg( &appl_,
-	     uiDialog::Setup(tr("Memory Information"),mNoDlgTitle,mNoHelpKey) );
+		      uiDialog::Setup(tr("Memory Information"),mNoHelpKey));
 	auto* browser = new uiTextBrowser( &dlg );
 	browser->setText( text.buf() );
 	dlg.setCancelText( uiString::empty() );

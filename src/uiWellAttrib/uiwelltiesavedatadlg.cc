@@ -37,9 +37,9 @@ ________________________________________________________________________
 // WellTie::uiSaveDataDlg
 
 WellTie::uiSaveDataDlg::uiSaveDataDlg( uiParent* p, Server& wdserv )
-    : uiDialog(p,uiDialog::Setup(tr("Save current data"),
-			tr("Check the items to be saved"),
-			mODHelpKey(mWellTieSaveDataDlgHelpID)))
+    : uiDialog(p,Setup(tr("Save current data"),
+		       tr("Check the items to be saved"),
+		       mODHelpKey(mWellTieSaveDataDlgHelpID)))
     , dataserver_(wdserv)
 {
     setOkCancelText( uiStrings::sSave(), uiStrings::sClose() );

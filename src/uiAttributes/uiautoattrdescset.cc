@@ -33,9 +33,9 @@ using namespace Attrib;
 
 
 uiAutoAttrSelDlg::uiAutoAttrSelDlg( uiParent* p, bool is2d )
-        : uiDialog(p,uiDialog::Setup(tr("Auto-load Attribute Set"),
-		                     tr("Set auto-load Attribute-Set"),
-				     mODHelpKey(mAutoAttrSelDlgHelpID) ))
+	: uiDialog(p,Setup(tr("Auto-load Attribute Set"),
+			   tr("Set auto-load Attribute-Set"),
+			   mODHelpKey(mAutoAttrSelDlgHelpID)))
         , ctio_(*mMkCtxtIOObj(AttribDescSet))
 	, is2d_(is2d)
 {
@@ -130,9 +130,9 @@ bool uiAutoAttrSelDlg::acceptOK( CallBacker* )
 
 uiAutoAttrSetOpen::uiAutoAttrSetOpen( uiParent* p, BufferStringSet& afl,
 				BufferStringSet& anm)
-	: uiDialog(p,uiDialog::Setup(tr("Open Attribute Set"),
+	: uiDialog(p,Setup(tr("Open Attribute Set"),
 	                   uiStrings::phrSelect(tr("an Attribute-Set to open")),
-                           mNoHelpKey))
+			   mNoHelpKey))
         , ctio_(*mMkCtxtIOObj(AttribDescSet))
 	, attribfiles_(afl)
 	, attribnames_(anm)

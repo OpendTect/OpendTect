@@ -25,8 +25,8 @@ mDefineInstanceCreatedNotifierAccess(uiSeisPreStackMan)
 #define mHelpID is2d ? mODHelpKey(mSeisPrestackMan2DHelpID) \
 		     : mODHelpKey(mSeisPrestackMan3DHelpID)
 uiSeisPreStackMan::uiSeisPreStackMan( uiParent* p, bool is2d )
-    : uiObjFileMan(p,uiDialog::Setup(createCaption(is2d),mNoDlgTitle,mHelpID)
-		     .nrstatusflds(1).modal(false),
+    : uiObjFileMan(p,Setup(createCaption(is2d),mHelpID).nrstatusflds(1)
+			.modal(false),
 		   is2d ? SeisPS2DTranslatorGroup::ioContext()
 		        : SeisPS3DTranslatorGroup::ioContext())
     , is2d_(is2d)
@@ -152,9 +152,10 @@ void uiSeisPreStackMan::mkFileInfo()
 	    const ZDomain::Def& zddef = objinf.zDomainDef();
 #	    define mAddZValTxt(memb) .add(zistm ? mNINT32(1000*memb) : memb)
 	    txt.add(zddef.userName().getFullString()).add(" range ")
-                    .add(zddef.unitStr(true)).add(": ") mAddZValTxt(cs.zsamp_.start_)
-                    .add(" - ") mAddZValTxt(cs.zsamp_.stop_)
-                    .add(" [") mAddZValTxt(cs.zsamp_.step_) .add("]\n");
+		    .add(zddef.unitStr(true))
+		    .add(": ") mAddZValTxt(cs.zsamp_.start_)
+		    .add(" - ") mAddZValTxt(cs.zsamp_.stop_)
+		    .add(" [") mAddZValTxt(cs.zsamp_.step_).add("]\n");
 	}
     }
 

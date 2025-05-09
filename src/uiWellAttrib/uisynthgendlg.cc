@@ -912,10 +912,8 @@ bool uiSynthParsGrp::getFromScreen( SynthGenParams& sgp )
 //uiSynthGenDlg
 
 uiSynthGenDlg::uiSynthGenDlg( uiParent* p, StratSynth::DataMgr& gp )
-    : uiDialog(p,uiDialog::Setup(tr("Specify Synthetic Parameters"),
-				mNoDlgTitle,
-				 mODHelpKey(mRayTrcParamsDlgHelpID) )
-				.modal(false))
+    : uiDialog(p,Setup(tr("Specify Synthetic Parameters"),
+		       mODHelpKey(mRayTrcParamsDlgHelpID)).modal(false))
 {
     setCtrlStyle( CloseOnly );
 

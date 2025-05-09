@@ -46,10 +46,11 @@ public:
 
 
 uiSeisMultiCubePS::uiSeisMultiCubePS( uiParent* p, const MultiID& ky )
-	: uiDialog(p,uiDialog::Setup(
-		   !ky.isUdf() ? tr("Edit/Create MultiCube Prestack data store")
-			     : tr("Create MultiCube Prestack data store"),
-		   mNoDlgTitle, mODHelpKey(mSeisMultiCubePSHelpID) ))
+	: uiDialog(p,Setup(!ky.isUdf() ? tr("Edit/Create "
+					    "MultiCube Prestack data store")
+				       : tr("Create "
+					    "MultiCube Prestack data store"),
+			    mODHelpKey(mSeisMultiCubePSHelpID)))
 {
     fillEntries();
     if ( entries_.isEmpty() )
@@ -70,7 +71,7 @@ uiSeisMultiCubePS::uiSeisMultiCubePS( uiParent* p, const MultiID& ky )
     allcompfld_->setSensitive( false );
     allcompfld_->attach( alignedBelow, cubefld_ );
 
-    uiButtonGroup* bgrp = new uiButtonGroup( this, "Buttons", OD::Vertical );
+    auto* bgrp = new uiButtonGroup( this, "Buttons", OD::Vertical );
     new uiToolButton( bgrp, uiToolButton::RightArrow,uiStrings::sAdd(),
 				mCB(this,uiSeisMultiCubePS,addCube) );
     new uiToolButton( bgrp, uiToolButton::LeftArrow, tr("Don't use"),
@@ -89,7 +90,7 @@ uiSeisMultiCubePS::uiSeisMultiCubePS( uiParent* p, const MultiID& ky )
     compfld_->attach( alignedBelow, selfld_ );
     compfld_->setSensitive( false );
 
-    uiSeparator* sep = new uiSeparator( this, "Hor sep", OD::Horizontal, false);
+    auto* sep = new uiSeparator( this, "Hor sep", OD::Horizontal, false);
     sep->attach( stretchedBelow, compfld_ );
     sep->attach( ensureBelow, allcompfld_ );
 

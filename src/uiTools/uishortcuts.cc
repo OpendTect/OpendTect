@@ -20,9 +20,9 @@ static const char* sSupportedStates[] =
 	{ "----", "Shift", "Control", 0 };
 
 uiShortcutsDlg::uiShortcutsDlg( uiParent* p, const char* selkey )
-    : uiDialog( p,uiDialog::Setup( tr("Set up shortcuts"),
-				   tr("Select keys used as shortcuts"),
-                                   mODHelpKey(mShortcutsDlgHelpID) ) )
+    : uiDialog(p,Setup(tr("Set up shortcuts"),
+		       tr("Select keys used as shortcuts"),
+		       mODHelpKey(mShortcutsDlgHelpID)))
     , scl_(*new uiShortcutsList(SCMgr().getList(selkey)))
 {
     lblspinboxes_.allowNull();
@@ -32,15 +32,14 @@ uiShortcutsDlg::uiShortcutsDlg( uiParent* p, const char* selkey )
 	const uiKeyDesc* kd = scl_.keyDescs()[idx];
 	const uiString& nm = toUiString(scl_.names().get( idx ));
 
-	uiLabeledComboBox* lcbox
-	    	= new uiLabeledComboBox( this, sSupportedStates, nm );
+	auto* lcbox = new uiLabeledComboBox( this, sSupportedStates, nm );
 	lcbox->box()->setCurrentItem( kd->stateStr() );
 	stateboxes_ += lcbox->box();
 	if ( prevlcbox )
 	    lcbox->attach( alignedBelow, prevlcbox );
 	prevlcbox = lcbox;
 
-	uiComboBox* box = new uiComboBox( this, uiKeyDesc::sKeyKeyStrs(),
+	auto* box = new uiComboBox( this, uiKeyDesc::sKeyKeyStrs(),
 					  BufferString("Keys",idx).buf() );
 	box->setCurrentItem( kd->keyStr() );
 	keyboxes_ += box;
@@ -50,7 +49,7 @@ uiShortcutsDlg::uiShortcutsDlg( uiParent* p, const char* selkey )
 	mDynamicCastGet( uiExtraIntKeyDesc*, eikd, nonconstkd )
 	if ( eikd )
 	{
-	    uiLabeledSpinBox* lsb = new uiLabeledSpinBox(this,eikd->getLabel());
+	    auto* lsb = new uiLabeledSpinBox(this,eikd->getLabel());
 	    lsb->box()->setMinValue( 1 );
 	    lsb->box()->setValue( eikd->getIntValue() );
 	    lblspinboxes_ += lsb;
@@ -77,7 +76,7 @@ bool uiShortcutsDlg::acceptOK( CallBacker* )
 	uiComboBox* keycb = keyboxes_[idx];
 	if ( lblspinboxes_[idx] )
 	{
-	    uiExtraIntKeyDesc* uieikd = new uiExtraIntKeyDesc( statecb->text(),
+	    auto* uieikd = new uiExtraIntKeyDesc( statecb->text(),
 	    			keycb->text(),
 				lblspinboxes_[idx]->box()->getIntValue() );
 	    uieikd->setIntLabel( lblspinboxes_[idx]->label()->text() );

@@ -39,8 +39,8 @@ ________________________________________________________________________
 
 
 uiWellImportAsc::uiWellImportAsc( uiParent* p )
-    : uiDialog(p,uiDialog::Setup(tr("Import Well Track"),mNoDlgTitle,
-			   mODHelpKey(mWellImportAscHelpID)).modal(false))
+    : uiDialog(p,Setup(tr("Import Well Track"),
+		       mODHelpKey(mWellImportAscHelpID)).modal(false))
     , fd_(*Well::TrackAscIO::getDesc())
     , dirfd_(*Well::DirectionalAscIO::getDesc())
     , wd_(*new Well::Data)
@@ -203,8 +203,8 @@ class uiWellImportAscOptDlg : public uiDialog
 public:
 
 uiWellImportAscOptDlg( uiWellImportAsc* impasc )
-    : uiDialog(impasc,uiDialog::Setup(tr("Import well: Advanced/Optional"),
-				mNoDlgTitle,mODHelpKey(mWellImpPptDlgHelpID)))
+    : uiDialog(impasc,Setup(tr("Import well: Advanced/Optional"),
+			    mODHelpKey(mWellImpPptDlgHelpID)))
     , uwia_(impasc)
     , zun_(UnitOfMeasure::surveyDefDepthUnit())
 {

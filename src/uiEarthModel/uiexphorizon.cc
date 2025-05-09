@@ -286,8 +286,8 @@ int Write3DHorASCII::nextStep()
 // uiExportHorizon
 
 uiExportHorizon::uiExportHorizon( uiParent* p, bool isbulk )
-    : uiDialog(p,uiDialog::Setup( uiStrings::phrExport(uiStrings::sHorizon()),
-			mNoDlgTitle,mODHelpKey(mExportHorizonHelpID)))
+    : uiDialog(p,Setup(uiStrings::phrExport(uiStrings::sHorizon()),
+		       mODHelpKey(mExportHorizonHelpID)))
     , isbulk_(isbulk)
 {
     setOkCancelText( uiStrings::sExport(), uiStrings::sClose() );
@@ -699,7 +699,7 @@ void uiExportHorizon::settingsCB( CallBacker* )
 	return;
 
     uiDialog dlg( this, uiDialog::Setup(tr("IESX details"),
-					mNoDlgTitle,mNoHelpKey) );
+					mNoHelpKey) );
     uiGenInput* namefld = new uiGenInput( &dlg, tr("Horizon name in file") );
     uiGenInput* commentfld = new uiGenInput( &dlg, tr("[Comment]") );
     commentfld->attach( alignedBelow, namefld );

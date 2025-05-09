@@ -60,8 +60,8 @@ public:
 
 uiSeisFmtScaleDlg( uiParent* p, Seis::GeomType gt, uiSeisFmtScaleData& d,
 		   bool fixedfmtscl, bool withext )
-    : uiDialog(p,uiDialog::Setup(tr("Format / Scaling"),mNoDlgTitle,
-				 mODHelpKey(mSeisFmtScaleDlgHelpID) ))
+    : uiDialog(p,Setup(tr("Format / Scaling"),
+		       mODHelpKey(mSeisFmtScaleDlgHelpID)))
     , optimfld_(0)
     , trcgrowfld_(0)
     , data_(d)

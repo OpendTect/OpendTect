@@ -384,8 +384,9 @@ public:
 				  DataPack3D=3 };
 
 uiSelectPositionDlg( uiParent* p,const DataPack::FullID& dpfid )
-    : uiDialog(p,uiDialog::Setup(uiStrings::phrSelect(
-	      uiStrings::sData().toLower()),tr("For gain analysis"),mNoHelpKey))
+    : uiDialog(p,Setup(uiStrings::phrSelect(uiStrings::sData().toLower()),
+		       tr("For gain analysis"),
+		       mNoHelpKey))
     , dpfid_(dpfid)
 {
     const DataPack::MgrID dpmid = dpfid.mgrID();
@@ -401,8 +402,9 @@ uiSelectPositionDlg( uiParent* p,const DataPack::FullID& dpfid )
 
 
 uiSelectPositionDlg( uiParent* p,const MultiID& mid, bool is2d )
-    : uiDialog(p,uiDialog::Setup(uiStrings::phrSelect(
-	      uiStrings::sData().toLower()),tr("For gain analysis"),mNoHelpKey))
+    : uiDialog(p,Setup(uiStrings::phrSelect(uiStrings::sData().toLower()),
+		       tr("For gain analysis"),
+		       mNoHelpKey))
     , mid_(mid)
 {
     createSelFields( is2d ? Stored2D : Stored3D );

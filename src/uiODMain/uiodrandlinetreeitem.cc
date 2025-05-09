@@ -69,9 +69,9 @@ class uiRandomLinePolyLineDlg : public uiDialog
 public:
 uiRandomLinePolyLineDlg( uiParent* p, visSurvey::RandomTrackDisplay* rtd )
     : uiDialog(p,Setup(tr("Create Random Line from Polyline"),
-			uiString::emptyString(),
-			mODHelpKey(mRandomLinePolyLineDlgHelpID) )
-		 .modal(false))
+		       uiString::emptyString(),
+		       mODHelpKey(mRandomLinePolyLineDlgHelpID))
+		    .modal(false))
     , rtd_(rtd)
 {
     showAlwaysOnTop();
@@ -746,8 +746,8 @@ void uiODRandomLineTreeItem::editNodes()
 
     uiDialog dlg( getUiParent(),
 	  uiDialog::Setup(uiStrings::sRandomLine(mPlural),
-	      tr("Specify node positions"),
-	      mODHelpKey(mODRandomLineTreeItemHelpID) ) );
+			  tr("Specify node positions"),
+			  mODHelpKey(mODRandomLineTreeItemHelpID)) );
     auto* table = new uiPositionTable( &dlg, true, true, true );
     table->setBinIDs( bids );
 

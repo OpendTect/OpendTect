@@ -539,8 +539,9 @@ void uiPosProvSel::setToAll()
 void uiPosProvSel::doDlg( CallBacker* )
 {
     uiDialog dlg( this, uiDialog::Setup(uiStrings::sPosition(mPlural),
-			   uiStrings::phrSpecify(uiStrings::sPosition(mPlural)),
-			   mODHelpKey(mPosProvSelHelpID) ) );
+					uiStrings::phrSpecify(
+					   uiStrings::sPosition(mPlural)),
+					mODHelpKey(mPosProvSelHelpID)) );
     auto* pp = new uiPosProvider( &dlg, setup_ );
     pp->usePar( iop_ );
     if ( dlg.go() )
@@ -575,7 +576,7 @@ void uiPosProvSel::fillPar( IOPar& iop ) const
 
 // uiPosProvDlg
 uiPosProvDlg::uiPosProvDlg( uiParent* p, const Setup& su, const uiString& title)
-    : uiDialog(p,uiDialog::Setup(title,mNoDlgTitle,mNoHelpKey))
+    : uiDialog(p,uiDialog::Setup(title,mNoHelpKey))
 {
     selfld_ = new uiPosProvider( this, su );
     selfld_->setSampling( SI().sampling(su.useworkarea_) );

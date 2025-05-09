@@ -902,10 +902,11 @@ class uiMathFormulaEdRec : public uiDialog
 public:
 
 uiMathFormulaEdRec( uiParent* p, Math::Formula& form, const char* s_if_2 )
-    : uiDialog( this, Setup(
-	tr("Recursion start value %1").arg(toUiString(s_if_2)),
-	tr("Recursive formula: Starting value %1").arg(toUiString(s_if_2)),
-	mNoHelpKey) )
+    : uiDialog( this, Setup(tr("Recursion start value %1")
+				.arg(toUiString(s_if_2)),
+			    tr("Recursive formula: Starting value %1")
+				.arg(toUiString(s_if_2)),
+			    mNoHelpKey) )
     , form_(form)
 {
     for ( int idx=0; idx<form_.maxRecShift(); idx++ )

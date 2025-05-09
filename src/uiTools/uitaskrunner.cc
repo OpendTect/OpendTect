@@ -38,8 +38,7 @@ static uiParent* getTRParent( uiParent* p )
 
 
 uiTaskRunner::uiTaskRunner( uiParent* prnt, bool dispmsgonerr )
-    : uiDialog( getTRParent(prnt),
-		uiDialog::Setup(tr("Executing"),mNoDlgTitle,mNoHelpKey)
+    : uiDialog(getTRParent(prnt),Setup(tr("Executing"),mNoHelpKey)
 	.nrstatusflds( -1 )
 	.oktext(uiStrings::sPause().appendPlainText("   "))
 	.canceltext(uiStrings::sAbort()) )

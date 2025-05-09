@@ -31,17 +31,15 @@ class uiHorizonAuxDataDlg: public uiDialog
 public:
 uiHorizonAuxDataDlg( uiParent* p,
 		     const uiHorizonAuxDataSel::HorizonAuxDataInfo& info )
-    : uiDialog( p
-    , uiDialog::Setup(toUiString("%1 %2 %3").arg(uiStrings::sHorizon())
-					    .arg(uiStrings::sData())
-					    .arg(uiStrings::sSelection())
-					    , mNoDlgTitle
-					    , mNoHelpKey ))
+    : uiDialog(p,Setup(toUiString("%1 %2 %3").arg(uiStrings::sHorizon())
+					       .arg(uiStrings::sData())
+					       .arg(uiStrings::sSelection()),
+			 mNoHelpKey) )
     , auxidx_( 0 )
     , auxinfo_( new uiHorizonAuxDataSel::HorizonAuxDataInfo(info) )
 {
-    uiGroup* grp = new uiGroup( this, "Group" );
-    uiLabel* horlabel = new uiLabel(grp,
+    auto* grp = new uiGroup( this, "Group" );
+    auto* horlabel = new uiLabel(grp,
 				    uiStrings::sHorizon(mPlural));
     horlistfld_ = new uiListBox( grp, "horizons" );
     horlistfld_->addItems( auxinfo_->hornms_ );
@@ -56,7 +54,7 @@ uiHorizonAuxDataDlg( uiParent* p,
     datalistfld_->selectionChanged.notify(
 	    mCB(this, uiHorizonAuxDataDlg, auxidxChg) );
 
-    uiLabel* directlabel = new uiLabel( grp, tr("Available data") );
+    auto* directlabel = new uiLabel( grp, tr("Available data") );
     directlabel->attach( alignedAbove, datalistfld_ );
     directlabel->attach( rightTo, horlabel );
 }

@@ -29,8 +29,7 @@ class uiLASReadDlg : public uiDialog
 { mODTextTranslationClass(uiLASReadDlg)
 public:
 uiLASReadDlg( uiParent* p )
-    : uiDialog(p,uiDialog::Setup(tr("LAS well data selection"),
-				 mNoDlgTitle,mNoHelpKey ).modal(true))
+    : uiDialog(p,Setup(tr("LAS well data selection"),mNoHelpKey).modal(true))
 {
     setOkCancelText( uiStrings::sContinue(), uiStrings::sCancel() );
 

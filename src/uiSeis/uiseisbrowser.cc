@@ -189,8 +189,7 @@ protected:
 
 
 uiSeisBrowser::Setup::Setup( const MultiID& ky, Seis::GeomType gt )
-    : uiDialog::Setup(uiString::emptyString(),mNoDlgTitle,
-		      mODHelpKey(mSeisBrowserHelpID) )
+    : uiDialog::Setup(uiString::emptyString(),mODHelpKey(mSeisBrowserHelpID))
     , inpmid_(ky)
     , outmid_(ky)
     , geom_(gt)
@@ -571,9 +570,8 @@ class uiSeisBrowserGoToDlg : public uiDialog
 public:
 
 uiSeisBrowserGoToDlg( uiParent* p, BinID cur, bool is2d, bool isps=false )
-    : uiDialog( p, uiDialog::Setup(tr("Reposition"),
-				   tr("Specify a new position"),
-				   mNoHelpKey) )
+    : uiDialog(p,Setup(tr("Reposition"),tr("Specify a new position"),
+		       mNoHelpKey))
 {
     PositionInpSpec inpspec(
 	    PositionInpSpec::Setup(false,is2d,isps).binid(cur) );

@@ -59,9 +59,8 @@ class uiDPSDispPropDlg : public uiDialog
 public:
 uiDPSDispPropDlg( uiParent* p, const uiDataPointSetCrossPlotter& plotter,
 		  const DataPointSetDisplayProp* prevdispprop )
-    : uiDialog(p,uiDialog::Setup(mJoinUiStrs(sDisplay(),sProperties()),
-				    uiStrings::sEmptyString(),
-				    mNoHelpKey).modal(false))
+    : uiDialog(p,Setup(mJoinUiStrs(sDisplay(),sProperties()),
+		       uiStrings::sEmptyString(),mNoHelpKey).modal(false))
     , plotter_(plotter)
 {
     BoolInpSpec binp( prevdispprop ? prevdispprop->showSelected() : false,
@@ -136,7 +135,7 @@ const ColTab::MapperSetup& ctMapperSetup() const
 
 uiDataPointSet::Setup::Setup( const uiString& wintitl, bool ismodal )
     : uiDialog::Setup( wintitl.isSet() ? wintitl : tr("Extracted data"),
-		       mNoDlgTitle, mODHelpKey(mDataPointSetHelpID) )
+		      mODHelpKey(mDataPointSetHelpID) )
     , isconst_(false)
     , canaddrow_(false)
     , directremove_(true)
@@ -715,8 +714,8 @@ class uiSelectPosDlg : public uiDialog
 { mODTextTranslationClass(uiSelectPosDlg);
 public:
 uiSelectPosDlg( uiParent* p, const BufferStringSet& grpnames )
-    : uiDialog( p, uiDialog::Setup(uiStrings::phrSelectPos(tr("for new row")),
-				   mNoDlgTitle,mNoHelpKey) )
+    : uiDialog( p, Setup(uiStrings::phrSelectPos(tr("for new row")),
+				   mNoHelpKey))
     , grpfld_(0)
 {
     seltypefld_ = new uiGenInput( this, mJoinUiStrs(sPosition(), sType()),

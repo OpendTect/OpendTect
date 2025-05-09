@@ -127,8 +127,7 @@ static float uiMarkerDlgzFactor( uiCheckBox* cb=0 )
 // -> uiMarkerList class
 uiRegionalMarkersFromWellMarkersDlg::uiRegionalMarkersFromWellMarkersDlg(
 					    uiParent* p, Well::MarkerSet& mset )
-    : uiDialog(p,uiDialog::Setup(tr("Select Regional Markers"),
-				 mNoDlgTitle,mTODOHelpKey))
+    : uiDialog(p,Setup(tr("Select Regional Markers"),mTODOHelpKey))
     , mset_(mset)
 {
     list_ = new uiListBox( this, "Markers", OD::ChooseAtLeastOne );
@@ -241,8 +240,7 @@ void uiMarkerDlg::exportMarkerSet( uiParent* p, const Well::MarkerSet& mset,
 
 uiMarkerDlg::uiMarkerDlg( uiParent* p, const Well::Track& t,
 			  const Well::D2TModel* d2t )
-    : uiDialog(p,uiDialog::Setup(tr("Edit Well Markers"),mNoDlgTitle,
-				 mODHelpKey(mMarkerDlgHelpID)))
+    : uiDialog(p,Setup(tr("Edit Well Markers"),mODHelpKey(mMarkerDlgHelpID)))
     , track_(t)
     , d2tmodel_(d2t)
 {
@@ -630,8 +628,7 @@ class uiReadMarkerFile : public uiDialog
 public:
 
 uiReadMarkerFile( uiParent* p )
-    : uiDialog(p,uiDialog::Setup(tr("Import Markers"),mNoDlgTitle,
-				 mODHelpKey(mReadMarkerFileHelpID) ))
+    : uiDialog(p,Setup(tr("Import Markers"),mODHelpKey(mReadMarkerFileHelpID)))
     , fd_(*Well::MarkerSetAscIO::getDesc())
 {
     setOkText( uiStrings::sImport() );
@@ -1016,7 +1013,7 @@ float uiMarkerDlg::getOldMarkerVal( Well::Marker* marker ) const
 
 
 uiMarkerViewDlg::uiMarkerViewDlg( uiParent* p, const Well::Data& wd )
-    : uiDialog(p,Setup(mJoinUiStrs(sWell(),sMarker(mPlural)),mNoDlgTitle,
+    : uiDialog(p,Setup(mJoinUiStrs(sWell(),sMarker(mPlural)),
 		       mODHelpKey(mMarkerViewDlgHelpID)))
     , wd_(&wd)
 {

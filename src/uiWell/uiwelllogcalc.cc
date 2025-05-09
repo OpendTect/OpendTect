@@ -103,8 +103,8 @@ static uiString getDlgTitle( const TypeSet<MultiID>& wllids )
 
 uiWellLogCalc::uiWellLogCalc( uiParent* p, const TypeSet<MultiID>& wllids,
 			      bool rockphysmode )
-    : uiDialog(p,uiDialog::Setup(tr("Calculate New Logs"),getDlgTitle(wllids),
-				 mODHelpKey(mWellLogCalcHelpID) ))
+    : uiDialog(p,Setup(tr("Calculate New Logs"),getDlgTitle(wllids),
+		       mODHelpKey(mWellLogCalcHelpID)))
     , logschanged(this)
     , superwls_(*new Well::LogSet)
     , form_(*new Math::Formula(true,getSpecVars()))
@@ -269,9 +269,9 @@ class uiWellLogCalcRockPhys : public uiDialog
 public:
 
 uiWellLogCalcRockPhys( uiParent* p, Mnemonic::StdType typ )
-    : uiDialog(p, uiDialog::Setup(uiStrings::sRockPhy(),
-				  tr("Use a rock physics formula"),
-				  mODHelpKey(mWellLogCalcRockPhysHelpID) ))
+    : uiDialog(p,Setup(uiStrings::sRockPhy(),
+		       tr("Use a rock physics formula"),
+		       mODHelpKey(mWellLogCalcRockPhysHelpID)))
 {
     formgrp_ = typ == Mnemonic::Other ? new uiRockPhysForm( this )
 				      : new uiRockPhysForm( this, typ );

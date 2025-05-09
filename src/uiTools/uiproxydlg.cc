@@ -20,8 +20,7 @@ ________________________________________________________________________
 #include "od_helpids.h"
 
 uiProxyDlg::uiProxyDlg( uiParent* p )
-    : uiDialog(p,Setup(tr("Connection Settings"),mNoDlgTitle,
-    mODHelpKey(mProxyDlgHelpID) ))
+    : uiDialog(p,Setup(tr("Connection Settings"),mODHelpKey(mProxyDlgHelpID)))
 {
     useproxyfld_ = new uiGenInput( this, tr("Use proxy"), BoolInpSpec(true) );
     useproxyfld_->valueChanged.notify( mCB(this,uiProxyDlg,useProxyCB) );

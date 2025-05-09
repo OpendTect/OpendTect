@@ -80,8 +80,7 @@ uiString uiSEGYReadFinisher::getDlgTitle( const char* usrspec )
 uiSEGYReadFinisher::uiSEGYReadFinisher( uiParent* p, const FullSpec& fs,
 					const char* usrspec,
 					const ZDomain::Info* zdomaininfo )
-    : uiDialog(p,uiDialog::Setup(getWinTile(fs),mNoDlgTitle,
-				 mODHelpKey(mSEGYReadFinisherHelpID)))
+    : uiDialog(p,Setup(getWinTile(fs),mODHelpKey(mSEGYReadFinisherHelpID)))
     , fs_(fs)
     , zdomain_(zdomaininfo ? zdomaininfo : &SI().zDomainInfo())
 {
@@ -711,10 +710,10 @@ bool uiSEGYReadFinisher::handleExistingGeometry( const char* lnm, bool morelns,
     int choice = overwr ? 1 : 2;
     if ( overwr_warn )
     {
-	uiDialog::Setup dsu( tr("Overwrite geometry?"),
-		tr("Geometry of Line '%1' is already present."
-		"\n\nDo you want to overwrite it?").arg(lnm),
-		mODHelpKey(mhandleExistingGeometryHelpID));
+	uiDialog::Setup dsu(tr("Overwrite geometry?"),
+			    tr("Geometry of Line '%1' is already present."
+			    "\n\nDo you want to overwrite it?").arg(lnm),
+			    mODHelpKey(mhandleExistingGeometryHelpID));
 	uiDialog dlg( this, dsu );
 	uiCheckList* optfld = new uiCheckList( &dlg, uiCheckList::OneOnly );
 	optfld->addItem( tr("Cancel: stop the import"), "cancel" );

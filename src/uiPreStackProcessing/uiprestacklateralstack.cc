@@ -37,8 +37,8 @@ uiDialog* uiLateralStack::create( uiParent* p, Processor* sgp )
 
 
 uiLateralStack::uiLateralStack( uiParent* p, LateralStack* sgvs )
-    : uiDialog( p, uiDialog::Setup(tr("Super Gather setup"),mNoDlgTitle,
-                                    mODHelpKey(mPreStackVerticalStackHelpID) ) )
+    : uiDialog(p,Setup(tr("Super Gather setup"),
+		       mODHelpKey(mPreStackVerticalStackHelpID)))
     , processor_(sgvs)
 {
     const bool is3d = ::is3D( processor_->getGeomSystem() );

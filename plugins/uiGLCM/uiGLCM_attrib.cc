@@ -264,8 +264,7 @@ class uiSubSelForAnalysis : public uiDialog
 { mODTextTranslationClass(uiSubSelForAnalysis);
 public:
 uiSubSelForAnalysis( uiParent* p, const MultiID& mid, bool is2d )
-    : uiDialog(p,uiDialog::Setup(tr("Select data"),tr("For analysis"),
-				 mNoHelpKey))
+    : uiDialog(p,Setup(tr("Select data"),tr("For analysis"),mNoHelpKey))
 {
     nrtrcfld_ = new uiGenInput( this, tr("Nr of Traces for Examination"),
 				IntInpSpec(100) );

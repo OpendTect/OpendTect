@@ -32,8 +32,7 @@ ________________________________________________________________________
 
 #define mErrRet(msg,act) { uiMSG().error( msg ); act; }
 uiAddEditMrkrDlg::uiAddEditMrkrDlg( uiParent* p, Well::Marker& mrk, bool edit )
-    : uiDialog(p,uiDialog::Setup(edit ? tr("Edit Marker"): tr("Add Marker"),
-					mNoDlgTitle,mNoHelpKey))
+    : uiDialog(p,Setup(edit ? tr("Edit Marker") : tr("Add Marker"),mNoHelpKey))
     , marker_(mrk)
 {
     namefld_ = new uiGenInput( this, uiStrings::sName(),
@@ -87,10 +86,8 @@ void uiAddEditMrkrDlg::putToScreen()
 
 
 uiDispEditMarkerDlg::uiDispEditMarkerDlg( uiParent* p )
-    : uiDialog(p,uiDialog::Setup(tr("Edit Markers Dialog"),
-				 mNoDlgTitle, mODHelpKey(
-				     mDispEditMarkerDlgHelpID) )
-				.modal(false))
+    : uiDialog(p,Setup(tr("Edit Markers Dialog"),
+		       mODHelpKey(mDispEditMarkerDlgHelpID)).modal(false))
     , curmrk_(0)
     , hasedited_(false)
     , needsave_(false)
@@ -112,7 +109,7 @@ uiDispEditMarkerDlg::uiDispEditMarkerDlg( uiParent* p )
     pickbut_->setToggleButton( true );
     pickbut_->setOn( true );
 
-    uiSeparator* modesep = new uiSeparator( toolgrp_, "Mode Sep" );
+    auto* modesep = new uiSeparator( toolgrp_, "Mode Sep" );
     modesep->attach( stretchedBelow, pickbut_ );
 
     addbut_ = new uiToolButton( toolgrp_, "plus", tr("Add Marker"), butcb );

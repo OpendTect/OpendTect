@@ -29,8 +29,8 @@ namespace PreStack
 {
 
 uiEventImport::uiEventImport( uiParent* p )
-    : uiDialog( p, uiDialog::Setup(tr("Import Prestack Events"),mNoDlgTitle,
-				   mODHelpKey(mPreStackEventImportHelpID) ) )
+    : uiDialog(p,Setup(tr("Import Prestack Events"),
+		       mODHelpKey(mPreStackEventImportHelpID)))
     , fd_(*EventAscIO::getDesc())
 {
     setOkCancelText( uiStrings::sImport(), uiStrings::sClose() );

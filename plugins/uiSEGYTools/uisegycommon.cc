@@ -138,8 +138,8 @@ void uiSEGY::displayReport( uiParent* p, const IOPar& rep, const char* fnm )
 	uiMSG().warning( toUiString("Cannot write report to specified file") );
 
     const uiString caption = toUiString( rep.name() );
-    uiDialog* dlg = new uiDialog( p,
-	    uiDialog::Setup(caption,mNoDlgTitle,mNoHelpKey).modal(false) );
+    auto* dlg = new uiDialog( p,
+			     uiDialog::Setup(caption,mNoHelpKey).modal(false) );
     dlg->setCtrlStyle( uiDialog::CloseOnly );
     od_ostrstream strstrm; rep.dumpPretty( strstrm );
     uiTextEdit* te = new uiTextEdit( dlg, rep.name() );

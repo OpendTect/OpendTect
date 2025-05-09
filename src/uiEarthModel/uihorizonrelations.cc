@@ -38,8 +38,8 @@ ________________________________________________________________________
 
 
 uiHorizonRelationsDlg::uiHorizonRelationsDlg( uiParent* p, bool is2d )
-    : uiDialog(p,Setup(tr("Horizon relations"),mNoDlgTitle,
-		       mODHelpKey(mHorizonRelationsDlgHelpID) ))
+    : uiDialog(p,Setup(tr("Horizon relations"),
+		       mODHelpKey(mHorizonRelationsDlgHelpID)))
     , is2d_( is2d )
 {
     uiListBox::Setup su( OD::ChooseOnlyOne, tr("Order (top to bottom)"),
@@ -128,8 +128,7 @@ public:
 HorizonModifyDlg( uiParent* p, const MultiID& mid1, const MultiID& mid2,
 		  bool is2d, int nrcross )
     : uiDialog(p,Setup(tr("Horizon relations (Solve crossings)"),
-		       uiString::emptyString(),
-			mODHelpKey(HorizonModifyDlgHelpID) ))
+		       mODHelpKey(HorizonModifyDlgHelpID)))
     , is2d_(is2d)
     , mid1_(mid1)
     , mid2_(mid2)

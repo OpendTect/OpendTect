@@ -109,8 +109,8 @@ void uiAttrSelData::fillSelSpec( SelSpec& as ) const
 
 
 #define mImplInitVar \
-	: uiDialog(p,uiDialog::Setup(uiStrings::sEmptyString(),mNoDlgTitle, \
-					mODHelpKey(mAttrSelDlgNo_NNHelpID))) \
+	: uiDialog(p,uiDialog::Setup(uiStrings::sEmptyString(), \
+				     mODHelpKey(mAttrSelDlgNo_NNHelpID))) \
 	, attrdata_(atd) \
 	, usedasinput_(stp.isinp4otherattrib_) \
 	, showsteerdata_(stp.showsteeringdata_) \

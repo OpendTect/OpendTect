@@ -214,8 +214,8 @@ class uiSEGYReadPreScanner : public uiDialog
 public:
 
 uiSEGYReadPreScanner( uiParent* p, Seis::GeomType gt, const IOPar& pars )
-    : uiDialog(p,uiDialog::Setup(tr("SEG-Y Scan"),mNoDlgTitle,
-                                 mODHelpKey(mSEGYReadPreScannerHelpID) ))
+    : uiDialog(p,Setup(tr("SEG-Y Scan"),
+		       mODHelpKey(mSEGYReadPreScannerHelpID) ))
     , pars_(pars)
     , geom_(gt)
     , scanner_(0)

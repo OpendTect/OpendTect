@@ -46,8 +46,8 @@ class uiSEGYBinHdrEdDlg : public uiDialog
 public:
 
 uiSEGYBinHdrEdDlg( uiParent* p, SEGY::BinHeader& h )
-    : uiDialog(p,Setup(tr("SEG-Y Binary Header"),mNoDlgTitle,
-                        mODHelpKey(mSEGYBinHdrEdDlgHelpID) ))
+    : uiDialog(p,Setup(tr("SEG-Y Binary Header"),
+		       mODHelpKey(mSEGYBinHdrEdDlgHelpID) ))
     , hdr_(h)
     , def_(SEGY::BinHeader::hdrDef())
     , orgns_(h.nrSamples())
@@ -186,9 +186,9 @@ void doDlg( CallBacker* )
 
 
 uiSEGYFileManip::uiSEGYFileManip( uiParent* p, const char* fnm )
-    : uiDialog(p,uiDialog::Setup(tr("Manipulate SEG-Y File"),
-				  tr("Manipulate '%1'").arg(fnm),
-				  mODHelpKey(mSEGYFileManipHelpID) ) )
+    : uiDialog(p,Setup(tr("Manipulate SEG-Y File"),
+		       tr("Manipulate '%1'").arg(fnm),
+		       mODHelpKey(mSEGYFileManipHelpID) ) )
     , fname_(fnm)
     , txthdr_(*new SEGY::TxtHeader)
     , binhdr_(*new SEGY::BinHeader)
@@ -436,7 +436,7 @@ uiSEGYFileManipHdrCalcEd( uiParent* p, SEGY::HdrCalc& hc, SEGY::HdrCalcSet& cs )
     : uiDialog(p,Setup(tr("Header Calculation"),cs.indexOf(hc.he_.name()) < 0
 		     ? tr("Add header calculation")
 		     : tr("Edit header calculation"),
-			mODHelpKey(mSEGYFileManipHdrCalcEdHelpID) ) )
+		       mODHelpKey(mSEGYFileManipHdrCalcEdHelpID) ) )
     , hc_(hc)
     , calcset_(cs)
 {

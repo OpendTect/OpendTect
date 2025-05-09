@@ -216,7 +216,7 @@ void uiProjectionBasedSystem::infoCB( CallBacker* )
 	return;
 
     const uiString nm = crsinfolist_->getDispString( dispidxs_[selidx] );
-    uiDialog infodlg( this, uiDialog::Setup(nm,mNoDlgTitle,mNoHelpKey) );
+    uiDialog infodlg( this, uiDialog::Setup(nm,mNoHelpKey));
     infodlg.setCtrlStyle( uiDialog::CloseOnly );
     auto* txtfld = new uiTextEdit( &infodlg );
     txtfld->setText( crsinfolist_->getDescString(dispidxs_[selidx]) );

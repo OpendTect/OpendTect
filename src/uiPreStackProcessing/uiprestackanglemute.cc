@@ -177,9 +177,8 @@ void uiAngleCompGrp::advPushButCB( CallBacker* )
 uiAngleCompAdvParsDlg::uiAngleCompAdvParsDlg( uiParent* p,
 					      PreStack::AngleCompParams& pars,
 					      bool dooffsets, bool isformute )
-    : uiDialog(p, uiDialog::Setup(tr("Advanced Parameter"),
-				  tr("Advanced angle parameters"),
-                                  mODHelpKey(mAngleCompAdvParsDlgHelpID) ))
+    : uiDialog(p,Setup(tr("Advanced Parameter"),tr("Advanced angle parameters"),
+		       mODHelpKey(mAngleCompAdvParsDlgHelpID)))
     , isformute_(isformute)
     , params_(pars)
 {
@@ -405,8 +404,7 @@ uiDialog* uiAngleMute::create( uiParent* p, Processor* sgp )
 
 
 uiAngleMute::uiAngleMute( uiParent* p, AngleMute* rt, bool withadvanced )
-    : uiDialog( p, uiDialog::Setup(tr("AngleMute setup"),mNoDlgTitle,
-                                    mODHelpKey(mAngleMuteHelpID) ) )
+    : uiDialog(p,Setup(tr("AngleMute setup"),mODHelpKey(mAngleMuteHelpID)))
     , processor_(rt)
 {
     anglecompgrp_ = new uiAngleCompGrp( this, processor_->params(),

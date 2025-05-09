@@ -27,9 +27,8 @@ ________________________________________________________________________
 
 
 uiColTabExport::uiColTabExport( uiParent* p )
-    : uiDialog(p,uiDialog::Setup(uiStrings::phrExport(
-						uiStrings::sColorTable(2)),
-				  mNoDlgTitle, mODHelpKey(mColTabExportHelpID)))
+    : uiDialog(p,Setup(uiStrings::phrExport(uiStrings::sColorTable(2)),
+		       mODHelpKey(mColTabExportHelpID)))
 {
     setOkText( uiStrings::sExport() );
     choicefld_ = new uiGenInput( this, tr("Export format"),

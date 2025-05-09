@@ -26,10 +26,9 @@ ________________________________________________________________________
 // uiGISExportSurvey
 
 uiGISExportSurvey::uiGISExportSurvey( uiParent* p, const SurveyInfo& si )
-    : uiDialog(p,
-       uiDialog::Setup(uiStrings::phrExport( tr("Survey boundaries to GIS")),
-		      tr("Specify output parameters"),
-		      mODHelpKey(mGoogleExportSurveyHelpID) ) )
+    : uiDialog(p,Setup(uiStrings::phrExport(tr("Survey boundaries to GIS")),
+		       tr("Specify output parameters"),
+		       mODHelpKey(mGoogleExportSurveyHelpID)))
     , si_(si)
 {
     const OD::LineStyle ls( OD::LineStyle::Solid, 20,
@@ -140,8 +139,7 @@ int uiGISExportDlg::getHelpKey( Type typ )
 
 uiGISExportDlg::uiGISExportDlg( uiParent* p, Type typ,
 				const ObjectSet<const Pick::Set>& gisdatas )
-    : uiDialog(p,uiDialog::Setup(getDlgTitle(typ),
-			   mNoDlgTitle,mODHelpKey(getHelpKey(typ))) )
+    : uiDialog(p,Setup(getDlgTitle(typ),mODHelpKey(getHelpKey(typ))))
     , typ_(typ)
     , data_(gisdatas)
 {

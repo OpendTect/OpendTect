@@ -458,18 +458,17 @@ bool uiSeisPartServer::select2DLines( TypeSet<Pos::GeomID>& selids,
 {
     selids.erase();
 
-    uiDialog::Setup dsu( tr("Select 2D Lines"), mNoDlgTitle,
-			 mODHelpKey(mSeisPartServerselect2DLinesHelpID) );
+    uiDialog::Setup dsu(tr("Select 2D Lines"),
+			mODHelpKey(mSeisPartServerselect2DLinesHelpID));
     uiDialog dlg( parent(), dsu );
     MouseCursorChanger cursorchgr( MouseCursor::Wait );
-    uiSeis2DLineChoose* lchfld =
-		new uiSeis2DLineChoose( &dlg, OD::ChooseAtLeastOne );
+    auto* lchfld = new uiSeis2DLineChoose( &dlg, OD::ChooseAtLeastOne );
     BufferStringSet options;
     options.add( "Display projection lines only" )
 	   .add( "Load default data" )
 	   .add( "Select attribute" )
 	   .add( "Color blended" );
-    uiGenInput* optfld =
+    auto* optfld =
 	new uiGenInput( &dlg, tr("On OK"), StringListInpSpec(options) );
     optfld->setValue( seis2dloadaction );
     optfld->attach( alignedBelow, lchfld );

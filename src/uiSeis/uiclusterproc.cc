@@ -211,8 +211,8 @@ protected:
 
 
 uiClusterProc::uiClusterProc( uiParent* p, const IOPar& iop )
-    : uiDialog(p,uiDialog::Setup(tr("Cluster Processing"),tr("Progress window"),
-                                 mNoHelpKey))
+    : uiDialog(p,Setup(tr("Cluster Processing"),tr("Progress window"),
+		       mNoHelpKey))
     , pars_(iop)
     , scriptdirnm_(iop.find(uiClusterProc::sKeyScriptDir()))
     , proc_(*new ClusterProc(iop))

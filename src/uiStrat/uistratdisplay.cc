@@ -131,8 +131,7 @@ class uiColViewerDlg : public uiDialog
 { mODTextTranslationClass(uiColViewerDlg)
 public :
     uiColViewerDlg( uiParent* p, uiStratDrawer& drawer, StratDispData& ad )
-	: uiDialog(p,uiDialog::Setup(tr("View Columns"),
-				     uiString::emptyString(), mNoHelpKey))
+	: uiDialog(p,Setup(tr("View Columns"),mNoHelpKey))
 	, drawer_(drawer)
 	, data_(ad)
     {

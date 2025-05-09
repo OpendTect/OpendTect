@@ -14,7 +14,7 @@ ________________________________________________________________________
 
 
 uiFreqFilterSelFreq::uiFreqFilterSelFreq( uiParent* p)
-    : uiGroup( p, "Frequency Filter Selection")
+    : uiGroup(p,"Frequency Filter Selection")
     , parchanged(this)
 {
     const bool zistime = SI().zDomain().isTime();
@@ -106,7 +106,7 @@ void uiFreqFilterSelFreq::set( float minf, float maxf, FFTFilter::Type tp )
 
 
 uiFreqFilter::uiFreqFilter( uiParent* p )
-    : uiGroup( p, "Frequency Filter Selection")
+    : uiGroup(p,"Frequency Filter Selection")
     , valueChanged(this)
 {
     const char** typestrs = FFTFilter::TypeNames();

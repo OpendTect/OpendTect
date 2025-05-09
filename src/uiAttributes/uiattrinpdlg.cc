@@ -22,10 +22,10 @@ ________________________________________________________________________
 
 uiAttrInpDlg::uiAttrInpDlg( uiParent* p, const BufferStringSet& refset,
 			    bool issteer, bool is2d, const char* prevrefnm )
-    : uiDialog(p,uiDialog::Setup(tr("Attribute set definition"),
+    : uiDialog(p,Setup(tr("Attribute set definition"),
 		       issteer ? tr("Select Steering input")
 			       : tr("Select Seismic input"),
-				 mODHelpKey(mAttrInpDlgHelpID) ))
+		       mODHelpKey(mAttrInpDlgHelpID)))
     , multiinpcube_(true)
     , is2d_(is2d)
 {
@@ -72,12 +72,12 @@ uiAttrInpDlg::uiAttrInpDlg( uiParent* p, const BufferStringSet& refset,
 
 uiAttrInpDlg::uiAttrInpDlg( uiParent* p, const BufferStringSet& seisinpnms,
 			    const BufferStringSet& steeringinpnms, bool is2d )
-    : uiDialog(p,uiDialog::Setup(tr("Attribute set definition"),
-		 steeringinpnms.size()
-		    ? (seisinpnms.size() ? tr("Select Seismic & Steering input")
-					 : tr("Select Steering input"))
-		    : tr("Select Seismic input"),
-		 mODHelpKey(mAttrInpDlgHelpID) ))
+    : uiDialog(p,Setup(tr("Attribute set definition"),
+		       steeringinpnms.size() ? (seisinpnms.size() ?
+					tr("Select Seismic & Steering input")
+					       : tr("Select Steering input") )
+					     : tr("Select Seismic input"),
+		       mODHelpKey(mAttrInpDlgHelpID)))
     , multiinpcube_(false)
     , is2d_(is2d)
 {

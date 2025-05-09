@@ -137,7 +137,7 @@ uiSynthToRealScale::uiSynthToRealScale( uiParent* p, bool is2d,
 					const StratSynth::DataMgr& synthmgr,
 					const MultiID& wid )
     : uiDialog(p,Setup(tr("Create Synthetic Data Scaling Wavelet"),
-			mNoDlgTitle,mODHelpKey(mSynthToRealScaleHelpID) ))
+		       mODHelpKey(mSynthToRealScaleHelpID)))
     , is2d_(is2d)
     , stratsynth_(synthmgr)
     , inpwvltid_(wid)

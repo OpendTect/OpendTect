@@ -32,12 +32,11 @@ ________________________________________________________________________
 
 uiWellDispPropDlg::uiWellDispPropDlg( uiParent* p, const MultiID& wid,
 				      bool is2d, OD::Color bkCol )
-    : uiDialog(p,uiDialog::Setup(
-			tr("Display properties of: %1").arg(IOM().nameOf(wid)),
-			mNoDlgTitle, mODHelpKey(mWellDispPropDlgHelpID) )
-			    .savebutton(true).savechecked(false)
-			    .applybutton(true).modal(false)
-			    .applytext(uiStrings::sReset()))
+    : uiDialog(p,Setup(tr("Display properties of: %1").arg(IOM().nameOf(wid)),
+		       mODHelpKey(mWellDispPropDlgHelpID))
+		    .savebutton(true).savechecked(false)
+		    .applybutton(true).modal(false)
+		    .applytext(uiStrings::sReset()))
     , is2ddisplay_(is2d)
     , bkcol_(bkCol)
     , saveReq(this)
@@ -54,12 +53,11 @@ uiWellDispPropDlg::uiWellDispPropDlg( uiParent* p, const MultiID& wid,
 
 uiWellDispPropDlg::uiWellDispPropDlg( uiParent* p, Well::Data* wd,
 				      bool is2d, OD::Color bkCol )
-    : uiDialog(p,uiDialog::Setup(
-			tr("Display properties of: %1").arg(wd->name()),
-			mNoDlgTitle, mODHelpKey(mWellDispPropDlgHelpID) )
-			    .savebutton(true).savechecked(false)
-			    .applybutton(true).modal(false)
-			    .applytext(uiStrings::sReset()))
+    : uiDialog(p,Setup(tr("Display properties of: %1").arg(wd->name()),
+		       mODHelpKey(mWellDispPropDlgHelpID))
+		    .savebutton(true).savechecked(false)
+		    .applybutton(true).modal(false)
+		    .applytext(uiStrings::sReset()))
     , wd_(wd)
     , is2ddisplay_(is2d)
     , saveReq(this)

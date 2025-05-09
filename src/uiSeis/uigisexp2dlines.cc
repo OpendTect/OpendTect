@@ -29,9 +29,8 @@ ________________________________________________________________________
 
 uiGISExport2DLines::uiGISExport2DLines( uiParent* p,
 					const TypeSet<Pos::GeomID>* geomids )
-    : uiDialog(p,uiDialog::Setup(
-		 uiStrings::phrExport( tr("2D Line geometries to GIS") ),
-		 mNoDlgTitle,mODHelpKey(mGoogleExport2DSeisHelpID)) )
+    : uiDialog(p,Setup(uiStrings::phrExport(tr("2D Line geometries to GIS")),
+		       mODHelpKey(mGoogleExport2DSeisHelpID)))
 {
     setOkCancelText( uiStrings::sExport(), uiStrings::sClose() );
 

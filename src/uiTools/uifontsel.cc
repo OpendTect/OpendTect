@@ -131,7 +131,7 @@ HelpKey uiFontSettingsGroup::helpKey() const
 // uiSelFonts
 uiSelFonts::uiSelFonts( uiParent* p, const uiString& title,
 			const HelpKey& helpkey )
-	: uiDialog(p,uiDialog::Setup(tr("Fonts"),title,helpkey))
+	: uiDialog(p,Setup(tr("Fonts"),title,helpkey))
 {
     FontList().listKeys( ids_ );
 }

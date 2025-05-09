@@ -48,10 +48,9 @@ namespace VolProc
 
     uiBatchSetup::uiBatchSetup( uiParent* p,
 				    const IOObj* initialsetup, bool is2d )
-    : uiDialog(p,uiDialog::Setup(tr("Volume Builder %1: Create output")
-				   .arg(is2d?"2D":"3D"),
-				 mNoDlgTitle,
-				 mODHelpKey(mVolProcBatchSetupHelpID)))
+    : uiDialog(p,Setup(tr("Volume Builder %1: Create output")
+			    .arg(is2d?"2D":"3D"),
+		       mODHelpKey(mVolProcBatchSetupHelpID)))
     , chain_(0)
     , is2d_(is2d)
 {

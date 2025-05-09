@@ -20,8 +20,7 @@ ________________________________________________________________________
 
 
 uiSEGYReadDlg::Setup::Setup( Seis::GeomType gt )
-    : uiDialog::Setup(tr("SEG-Y Scan"),mNoDlgTitle,
-                      mODHelpKey(mSEGYReadDlgHelpID) )
+    : uiDialog::Setup(tr("SEG-Y Scan"),mODHelpKey(mSEGYReadDlgHelpID) )
     , geom_(gt)
     , rev_(uiSEGYRead::Rev0)
 {

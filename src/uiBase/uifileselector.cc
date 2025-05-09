@@ -369,7 +369,7 @@ bool uiLocalFileSelTool::doSelection()
     {
 	uiDialog dlg( parent_, uiDialog::Setup(tr("Specify file name"),
 				tr("System file selection unavailable!"),
-				mNoHelpKey) );
+				mNoHelpKey));
 	uiLineEdit* le = new uiLineEdit( &dlg, "File name" );
 	le->setText( dirname );
 	new uiLabel( &dlg, tr("File name"), le );

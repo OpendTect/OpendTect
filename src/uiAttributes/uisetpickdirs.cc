@@ -42,9 +42,9 @@ using namespace Attrib;
 
 uiSetPickDirs::uiSetPickDirs( uiParent* p, Pick::Set& s,
 			      const DescSet* a, const NLAModel* n, float vel )
-    : uiDialog(p,uiDialog::Setup(tr("Add direction to PointSet"),
-				 tr("Specify directions for points"),
-				 mODHelpKey(mSetPickDirsHelpID) ))
+    : uiDialog(p,Setup(tr("Add direction to PointSet"),
+		       tr("Specify directions for points"),
+		       mODHelpKey(mSetPickDirsHelpID)))
     , ps_( s )
     , ads_( a ? new DescSet(*a) : new DescSet(false) )
     , createdset_( 0 )

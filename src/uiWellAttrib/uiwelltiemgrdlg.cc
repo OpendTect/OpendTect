@@ -45,12 +45,12 @@ ________________________________________________________________________
 
 WellTie::uiTieWinMGRDlg::uiTieWinMGRDlg( uiParent* p,
 					 const WellTie::Setup& wtsetup )
-    : uiDialog(p,uiDialog::Setup(tr("Tie Well To Seismic"),
-	    tr("Select Data to tie Well to Seismic"),
-	    mODHelpKey(mWellTiMgrDlemgHelpID) )
-	    .savebutton(true)
-	    .savechecked(false)
-	    .modal(false))
+    : uiDialog(p,Setup(tr("Tie Well To Seismic"),
+		       tr("Select Data to tie Well to Seismic"),
+		       mODHelpKey(mWellTiMgrDlemgHelpID))
+		    .savebutton(true)
+		    .savechecked(false)
+		    .modal(false))
     , wtsetup_(*new WellTie::Setup(wtsetup))
     , elpropsel_(*new ElasticPropSelection(RefLayer::Acoustic))
 					   //TODO: QC for S-wave

@@ -1071,7 +1071,7 @@ bool uiAttribPartServer::createOutput( DataPointSet& posvals, int firstcol,
 	    if ( !usepldata )
 	    {
 		uiDialog dlg( parent(),
-		    uiDialog::Setup(tr("Question"),mNoDlgTitle,mNoHelpKey) );
+			      uiDialog::Setup(tr("Question"),mNoHelpKey) );
 		uiString msg( tr("Pre-loaded data does not cover the "
 				"full requested area.\n"
 				"Please choose one of the following options:"));

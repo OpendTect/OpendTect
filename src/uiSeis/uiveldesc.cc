@@ -47,7 +47,7 @@ uiVelocityDesc::Setup::~Setup()
 // uiVelocityDesc
 
 uiVelocityDesc::uiVelocityDesc( uiParent* p, const uiVelocityDesc::Setup& vsu )
-    : uiGroup( p, "Velocity type selector" )
+    : uiGroup(p,"Velocity type selector")
     , vsu_(vsu)
     , veltypedef_(OD::VelocityTypeDef())
 {
@@ -258,8 +258,8 @@ bool uiVelocityDesc::updateAndCommit( IOObj& ioobj, bool disperr )
 
 uiVelocityDescDlg::uiVelocityDescDlg( uiParent* p, const IOObj* sel,
 				      const uiVelocityDesc::Setup& vsu )
-    : uiDialog( p, uiDialog::Setup(tr("Specify velocity information"),
-				    mNoDlgTitle, mODHelpKey(mVelocityDescDlg)))
+    : uiDialog(p,Setup(tr("Specify velocity information"),
+		       mODHelpKey(mVelocityDescDlg)))
     , toprange_(Interval<float>::udf())
     , bottomrange_(Interval<float>::udf())
 {

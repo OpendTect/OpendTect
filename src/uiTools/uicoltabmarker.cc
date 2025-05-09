@@ -36,9 +36,9 @@ static const int sColorCol = 1;
 #define mEps 0.00001
 
 uiColTabMarkerDlg::uiColTabMarkerDlg( uiParent* p, ColTab::Sequence& ctab )
-    : uiDialog(p,uiDialog::Setup(uiStrings::phrManage( uiStrings::sMarker() ),
-				tr("Add, Remove, Change Anchors"),
-				 mODHelpKey(mColTabMarkerDlgHelpID) ))
+    : uiDialog(p,Setup(uiStrings::phrManage(uiStrings::sMarker()),
+		       tr("Add, Remove, Change Anchors"),
+		       mODHelpKey(mColTabMarkerDlgHelpID)))
     , markersChanged(this)
     , ctab_(ctab)
 {

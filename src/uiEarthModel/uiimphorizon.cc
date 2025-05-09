@@ -57,9 +57,8 @@ ________________________________________________________________________
 
 
 uiImportHorizon::uiImportHorizon( uiParent* p, bool isgeom )
-    : uiDialog(p,uiDialog::Setup(uiString::emptyString(),mNoDlgTitle,
-				 mODHelpKey(mImportHorAttribHelpID) )
-				 .modal(false))
+    : uiDialog(p,Setup(uiString::emptyString(),
+		       mODHelpKey(mImportHorAttribHelpID)).modal(false))
     , importReady(this)
     , fd_(*EM::Horizon3DAscIO::getDesc())
     , isgeom_(isgeom)
@@ -195,7 +194,7 @@ void uiImportHorizon::zDomainCB( CallBacker* )
 void uiImportHorizon::interpolSettingsCB( CallBacker* )
 {
     uiSingleGroupDlg dlg( this, uiDialog::Setup(tr("Interpolation settings"),
-			  uiStrings::sEmptyString(), mNoHelpKey ) );
+			  uiStrings::sEmptyString(),mNoHelpKey ) );
 
     uiArray2DInterpolSel* arr2dinterpfld =
 	new uiArray2DInterpolSel( &dlg, true, true, false, interpol_ );
@@ -726,9 +725,8 @@ EM::Horizon3D* uiImportHorizon::loadHor()
 
 // uiImpHorFromZMap
 uiImpHorFromZMap::uiImpHorFromZMap( uiParent* p )
-    : uiDialog(p,uiDialog::Setup(tr("Import Horizon from ZMap"),
-				 mNoDlgTitle,mODHelpKey(mFromZMap) )
-				 .modal(false))
+    : uiDialog(p,Setup(tr("Import Horizon from ZMap"),mODHelpKey(mFromZMap))
+		    .modal(false))
     , importReady(this)
     , crsfld_(nullptr)
 {

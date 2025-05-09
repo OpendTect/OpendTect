@@ -35,13 +35,12 @@ class uiImpTimeDepthTable : public uiDialog
 public:
 
 uiImpTimeDepthTable( uiParent* p, SimpleTimeDepthModel& mdl )
-    : uiDialog(p,uiDialog::Setup(tr("Read Time-Depth data"),
-				mNoDlgTitle,mNoHelpKey))
+    : uiDialog(p,Setup(tr("Read Time-Depth data"),mNoHelpKey))
     , fd_(*SimpleTimeDepthAscIO::getDesc(true))
     , mdl_(mdl)
 {
     filefld_ = new uiASCIIFileInput( this, true );
-    fmtfld_ = new uiTableImpDataSel( this, fd_, mNoHelpKey );
+    fmtfld_ = new uiTableImpDataSel( this, fd_,mNoHelpKey );
     fmtfld_->attach( alignedBelow, filefld_ );
 }
 
@@ -71,8 +70,8 @@ class uiSimpleTimeDepthTable : public uiDialog
 { mODTextTranslationClass(uiSimpleTimeDepthTable);
 public:
 uiSimpleTimeDepthTable( uiParent* p, const MultiID& mid )
-    : uiDialog(p,uiDialog::Setup(tr("Simple Time-Depth Model"),mNoDlgTitle,
-				mODHelpKey(mSimpleTimeDepthTableHelpID)))
+    : uiDialog(p,Setup(tr("Simple Time-Depth Model"),
+		       mODHelpKey(mSimpleTimeDepthTableHelpID)))
     , mid_(mid)
 {
     uiTable::Setup tblsu( mDefNrRows, 2 );

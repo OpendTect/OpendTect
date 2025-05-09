@@ -17,7 +17,7 @@ ________________________________________________________________________
 
 
 uiWindowFunctionSel::uiWindowFunctionSel( uiParent* p, const Setup& su )
-    : uiGroup( p, "Window function selector" )
+    : uiGroup(p,"Window function selector")
     , onlytaper_(su.onlytaper_)
     , winfuncseldlg_(0)
 {

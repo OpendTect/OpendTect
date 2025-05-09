@@ -77,8 +77,8 @@ class uiDZTImporter : public uiDialog
 public:
 
 uiDZTImporter( uiParent* p )
-    : uiDialog(p,Setup(uiStrings::phrImport(tr("GPR-DZT Seismics")),mNoDlgTitle,
-                        mODHelpKey(mDZTImporterHelpID) ))
+    : uiDialog(p,Setup(uiStrings::phrImport(tr("GPR-DZT Seismics")),
+		       mODHelpKey(mDZTImporterHelpID)))
 {
     setOkText( uiStrings::sImport() );
 

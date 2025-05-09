@@ -61,9 +61,9 @@ class ui2DDefSurvInfoDlg : public uiDialog
 public:
 
 ui2DDefSurvInfoDlg( uiParent* p )
-    : uiDialog(p,uiDialog::Setup(tr("Survey Setup: Enter X/Y Ranges"),
-				 toUiString(dlgtitle),
-				 mODHelpKey(m2DDefSurvInfoDlgHelpID) ))
+    : uiDialog(p,Setup(tr("Survey Setup: Enter X/Y Ranges"),
+		       toUiString(dlgtitle),
+		       mODHelpKey(m2DDefSurvInfoDlgHelpID)))
 {
     DoubleInpSpec dis;
     xrgfld_ = new uiGenInput( this, uiStrings::phrXcoordinate(

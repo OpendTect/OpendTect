@@ -1519,8 +1519,7 @@ bool uiVisPartServer::setWorkingArea( const SceneID& sceneid )
     const TrcKeyZSampling& tkzs = scene->getTrcKeyZSampling( false );
     const TrcKeyZSampling& workarea = scene->getTrcKeyZSampling( true );
     const char* zdomkey = scene->zDomainKey();
-    uiDialog dlg( parent(), uiDialog::Setup(tr("Set Work Area"),
-					    mNoDlgTitle,mNoHelpKey) );
+    uiDialog dlg( parent(), uiDialog::Setup(tr("Set Work Area"),mNoHelpKey));
     auto* subvolfld = new uiSelSubvol( &dlg, false, zdomkey );
     subvolfld->setSampling( workarea );
     subvolfld->setLimits( tkzs );

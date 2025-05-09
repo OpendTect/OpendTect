@@ -57,8 +57,8 @@ using namespace Seis;
 const char* cannotloadstr = "Cannot load ";
 
 uiSeisPreLoadMgr::uiSeisPreLoadMgr( uiParent* p )
-    : uiDialog(p,Setup(tr("Seismic Data Pre-load Manager"),mNoDlgTitle,
-			mODHelpKey(mSeisPreLoadMgrHelpID) ))
+    : uiDialog(p,Setup(tr("Seismic Data Pre-load Manager"),
+		       mODHelpKey(mSeisPreLoadMgrHelpID)))
 {
     setCtrlStyle( CloseOnly );
     auto* topgrp = new uiGroup( this, "Top group" );
@@ -472,10 +472,8 @@ void uiSeisPreLoadMgr::savePush( CallBacker* )
 
 uiSeisPreLoadSel::uiSeisPreLoadSel( uiParent* p, GeomType geom,
 				    const MultiID& input )
-    : uiDialog(p,uiDialog::Setup(uiStrings::sEmptyString(),
-				 mNoDlgTitle,
-				 mODHelpKey(mSeisPreLoad2D3DDataHelpID))
-	      .nrstatusflds(1))
+    : uiDialog(p,Setup(uiStrings::sEmptyString(),
+		       mODHelpKey(mSeisPreLoad2D3DDataHelpID)).nrstatusflds(1))
     , scaler_(new LinScaler())
     , gen_(*new Stats::RandGen())
 {

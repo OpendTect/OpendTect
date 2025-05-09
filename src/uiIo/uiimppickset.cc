@@ -48,14 +48,10 @@ static const char* zoptions[] =
 
 
 uiImpExpPickSet::uiImpExpPickSet(uiParent* p, uiPickPartServer* pps, bool imp )
-    : uiDialog(p,uiDialog::Setup(imp
-				     ? uiStrings::phrImport(sPicksetPolygon())
-				     : uiStrings::phrExport(sPicksetPolygon()),
-				 mNoDlgTitle,
-				 imp
-					? mODHelpKey(mImpPickSetHelpID)
-					: mODHelpKey(mExpPickSetHelpID) )
-				.modal(false))
+    : uiDialog(p,Setup(imp ? uiStrings::phrImport(sPicksetPolygon() )
+			   : uiStrings::phrExport(sPicksetPolygon() ),
+		       imp ? mODHelpKey(mImpPickSetHelpID)
+			   : mODHelpKey(mExpPickSetHelpID)).modal(false))
     , serv_(pps)
     , import_(imp)
     , fd_(*PickSetAscIO::getDesc(true))

@@ -94,9 +94,9 @@ using namespace Attrib;
 
 uiAttribDescSetEd::uiAttribDescSetEd( uiParent* p, DescSetMan* adsm,
 				      const char* prefgrp, bool attrsneedupdt )
-    : uiDialog(p,uiDialog::Setup( adsm && adsm->is2D() ? tr("Attribute Set 2D")
-					: tr("Attribute Set 3D"),mNoDlgTitle,
-					mODHelpKey(mAttribDescSetEdHelpID) )
+    : uiDialog(p,Setup( adsm && adsm->is2D() ? tr("Attribute Set 2D")
+					     : tr("Attribute Set 3D"),
+			mODHelpKey(mAttribDescSetEdHelpID) )
 	.savebutton(true).savetext(tr("Save on Close"))
 	.menubar(true).modal(false))
     , inoutadsman_(adsm)
@@ -1413,8 +1413,8 @@ class uiWhereIsDotDlg : public uiDialog
 { mODTextTranslationClass(uiWhereIsDotDlg)
 public:
 uiWhereIsDotDlg( uiParent* p )
-    : uiDialog(p,Setup(tr("Graphviz/Dot "),mNoDlgTitle,
-			mODHelpKey(mWhereIsDotDlgHelpID)))
+    : uiDialog(p,Setup(tr("Graphviz/Dot "),
+		       mODHelpKey(mWhereIsDotDlgHelpID)))
 {
     uiString txt = tr("To display the attribute graph an installation of "
 	"Graphviz is required.\nGraphviz can be downloaded from: "

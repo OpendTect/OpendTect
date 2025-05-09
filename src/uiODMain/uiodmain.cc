@@ -447,8 +447,8 @@ class uiODMainAutoSessionDlg : public uiDialog
 public:
 
 uiODMainAutoSessionDlg( uiParent* p )
-    : uiDialog(p,uiDialog::Setup(tr("Auto-load Session"),mNoDlgTitle,
-				 mODHelpKey(mODMainAutoSessionDlgHelpID) ))
+    : uiDialog(p,Setup(tr("Auto-load Session"),
+		       mODHelpKey(mODMainAutoSessionDlgHelpID)))
 {
     bool douse = false;
     MultiID id;

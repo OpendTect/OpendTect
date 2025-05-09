@@ -31,8 +31,8 @@ namespace PreStack
 {
 
 uiImportMute::uiImportMute( uiParent* p )
-    : uiDialog( p,uiDialog::Setup(tr("Import Mute Function"),mNoDlgTitle,
-				  mODHelpKey(mPreStackImportMuteHelpID)) )
+    : uiDialog(p,Setup(tr("Import Mute Function"),
+		       mODHelpKey(mPreStackImportMuteHelpID)))
     , fd_( *MuteAscIO::getDesc() )
 {
     setOkCancelText( uiStrings::sImport(), uiStrings::sClose() );

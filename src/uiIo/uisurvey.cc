@@ -101,9 +101,8 @@ class uiNewSurveyByCopy : public uiDialog
 public:
 
 uiNewSurveyByCopy( uiParent* p, const char* dataroot, const char* dirnm )
-	: uiDialog(p,uiDialog::Setup(uiStrings::phrCopy(uiStrings::sSurvey()),
-				     mNoDlgTitle,
-				     mODHelpKey(mNewSurveyByCopyHelpID)))
+	: uiDialog(p,Setup(uiStrings::phrCopy(uiStrings::sSurvey()),
+			   mODHelpKey(mNewSurveyByCopyHelpID)))
 	, dataroot_(dataroot)
 {
     BufferString curfnm;
@@ -339,8 +338,8 @@ BufferString uiStartNewSurveySetup::survName() const
 //--- uiSurvey
 
 uiSurvey::uiSurvey( uiParent* p )
-    : uiDialog(p,uiDialog::Setup(tr("Survey Setup and Selection"),
-				 mNoDlgTitle,mODHelpKey(mSurveyHelpID)))
+    : uiDialog(p,Setup(tr("Survey Setup and Selection"),
+		       mODHelpKey(mSurveyHelpID)))
     , orgdataroot_(GetBaseDataDir())
     , dataroot_(GetBaseDataDir())
     , initialsurveyname_(GetSurveyName())
@@ -920,16 +919,15 @@ void uiSurvey::exportButPushed( CallBacker* )
     const char* survnm( selectedSurveyDir() );
     const uiString title = tr("Compress %1 survey as zip archive")
 						.arg(survnm);
-    uiDialog dlg( this,
-    uiDialog::Setup(title,mNoDlgTitle,
-		    mODHelpKey(mSurveyCompressButPushedHelpID) ));
-    uiFileInput* fnmfld = new uiFileInput( &dlg,uiStrings::phrSelect(
+    uiDialog dlg( this, Setup(title,
+			      mODHelpKey(mSurveyCompressButPushedHelpID)));
+    auto* fnmfld = new uiFileInput( &dlg,uiStrings::phrSelect(
 		    uiStrings::phrOutput(tr("Destination"))),
 		    uiFileInput::Setup().directories(false).forread(false)
 		    .allowallextensions(false));
     fnmfld->setDefaultExtension( "zip" );
     fnmfld->setFilter( sZipFileMask );
-    uiLabel* sharfld = new uiLabel( &dlg,
+    auto* sharfld = new uiLabel( &dlg,
 			  tr("You can share surveys to Open Seismic Repository."
 			   "To know more ") );
     sharfld->attach( leftAlignedBelow,  fnmfld );

@@ -24,9 +24,9 @@ ________________________________________________________________________
 
 
 uiSrchProcFiles::uiSrchProcFiles( uiParent* p, CtxtIOObj& c, const char* iopky )
-    : uiDialog(p,uiDialog::Setup(tr("Find job specification file"),
-			       tr("Select appropriate job specification file"),
-				 mNoHelpKey).nrstatusflds(1))
+    : uiDialog(p,Setup(tr("Find job specification file"),
+		       tr("Select appropriate job specification file"),
+		       mNoHelpKey).nrstatusflds(1))
     , ctio_(c)
     , iopkey_(iopky)
 {
@@ -40,7 +40,7 @@ uiSrchProcFiles::uiSrchProcFiles( uiParent* p, CtxtIOObj& c, const char* iopky )
 							    "data to find")) );
     objfld->attach( alignedBelow, maskfld );
     objfld->selectionDone.notify( mCB(this,uiSrchProcFiles,srchDir) );
-    uiSeparator* sep = new uiSeparator( this, "sep" );
+    auto* sep = new uiSeparator( this, "sep" );
     sep->attach( stretchedBelow, objfld );
     fnamefld = new uiGenInput( this, tr("-> File name found"),
 			       FileNameInpSpec("") );

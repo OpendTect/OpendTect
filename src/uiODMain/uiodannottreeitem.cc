@@ -397,7 +397,7 @@ void uiODAnnotSubItem::handleMenuCB( CallBacker* cb )
 	menu->setIsHandled(true);
 	uiDialog dlg( getUiParent(), uiDialog::Setup(tr("Set Size"),
 						     uiStrings::sSize(),
-						     mNoHelpKey) );
+						     mNoHelpKey));
 	uiSlider* sliderfld = new uiSlider( &dlg,
 		    uiSlider::Setup(uiStrings::sSize()).nrdec(1).logscale(true),
 			"Size" );

@@ -39,8 +39,8 @@ mDefineInstanceCreatedNotifierAccess(uiSeis2DFileMan)
 
 
 uiSeis2DFileMan::uiSeis2DFileMan( uiParent* p, const IOObj& ioobj )
-    : uiDialog(p,uiDialog::Setup(uiStrings::phrManage( tr("2D Seismic Lines")),
-				mNoDlgTitle, mODHelpKey(mSeis2DManHelpID) ))
+    : uiDialog(p,Setup(uiStrings::phrManage(tr("2D Seismic Lines")),
+		       mODHelpKey(mSeis2DManHelpID)))
 {
     setCtrlStyle( CloseOnly );
 

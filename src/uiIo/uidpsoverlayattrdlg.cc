@@ -18,9 +18,8 @@ ________________________________________________________________________
 
 uiDPSOverlayPropDlg::uiDPSOverlayPropDlg( uiParent* p,
 					  uiDataPointSetCrossPlotter& pltr )
-    : uiDialog(p,uiDialog::Setup(tr("Overlay Properties"),
-				 mNoDlgTitle,
-				 mODHelpKey(mDPSOverlayPropDlgHelpID)))
+    : uiDialog(p,Setup(tr("Overlay Properties"),
+		       mODHelpKey(mDPSOverlayPropDlgHelpID)))
     , plotter_(pltr)
 {
     setCtrlStyle( CloseOnly );

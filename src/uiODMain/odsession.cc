@@ -340,10 +340,10 @@ mDefineInstanceCreatedNotifierAccess(uiSessionMan)
 
 
 uiSessionMan::uiSessionMan( uiParent* p )
-: uiObjFileMan(p,uiDialog::Setup(uiStrings::phrManage(tr("Sessions")),
-		    mNoDlgTitle, mODHelpKey(mSessionManHelpID))
-			       .nrstatusflds(1).modal(false),
-		   ODSessionTranslatorGroup::ioContext())
+: uiObjFileMan(p,Setup(uiStrings::phrManage(tr("Sessions")),
+		       mODHelpKey(mSessionManHelpID))
+		    .nrstatusflds(1).modal(false),
+		 ODSessionTranslatorGroup::ioContext())
 {
     createDefaultUI();
     mTriggerInstanceCreatedNotifier();

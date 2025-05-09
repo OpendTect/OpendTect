@@ -40,8 +40,8 @@ ________________________________________________________________________
 uiDataPointSetPickDlg::uiDataPointSetPickDlg( uiParent* p,
 					      uiVisPartServer* vispartserv,
 					      const SceneID& sceneid )
-    : uiDialog(p,Setup(tr("DataPointSet picking"),mNoDlgTitle,
-			mODHelpKey(mDataPointSetPickDlgHelpID)).modal(false))
+    : uiDialog(p,Setup(tr("DataPointSet picking"),
+		       mODHelpKey(mDataPointSetPickDlgHelpID)).modal(false))
     , vispartserv_(vispartserv)
     , sceneid_(sceneid)
     , dps_(new DataPointSet(false,false))
@@ -502,8 +502,8 @@ void uiEMDataPointSetPickDlg::interpolateCB( CallBacker* )
 void uiEMDataPointSetPickDlg::settCB( CallBacker* )
 {
     uiSingleGroupDlg dlg( this,
-		uiDialog::Setup( tr("Interpolate Horizon Data"),
-		mNoDlgTitle,mODHelpKey(muiEMDataPointSetPickDlgHelpID)) );
+		uiDialog::Setup(tr("Interpolate Horizon Data"),
+				mODHelpKey(muiEMDataPointSetPickDlgHelpID)));
     auto* settings =
 	new uiArray2DInterpolSel( &dlg, false, false, true, interpol_, false );
     settings->setDistanceUnit( SI().xyInFeet() ? tr("[ft]") : tr("[m]") );

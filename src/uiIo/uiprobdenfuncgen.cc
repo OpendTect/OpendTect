@@ -109,8 +109,7 @@ public:
 uiProbDenFuncGen::uiProbDenFuncGen( uiParent* p,
 				    const MnemonicSelection* mns,
 				    const BufferStringSet* fullnms, int defidx )
-    : uiDialog(p,Setup(tr("Generate a PDF"),mNoDlgTitle,
-		 mODHelpKey(mProbGenFuncGenHelpID) ))
+    : uiDialog(p,Setup(tr("Generate a PDF"),mODHelpKey(mProbGenFuncGenHelpID)))
     , defidx_(defidx)
 {
 
@@ -240,7 +239,7 @@ uiProbDenFuncGenSampled::uiProbDenFuncGenSampled( uiParent* p, int nrdim,
 						  bool isgauss, MultiID& ky,
 						  const MnemonicSelection& mns,
 						  const BufferStringSet& varnms)
-    : uiDialog(p,Setup(tr("Generate editable PDF"),mNoDlgTitle,
+    : uiDialog(p,Setup(tr("Generate editable PDF"),
 		       mODHelpKey(mProbDenFuncGenSampledHelpID)))
     , nrdims_(nrdim)
     , ioobjky_(ky)
@@ -617,8 +616,8 @@ uiProbDenFuncGenGaussian::uiProbDenFuncGenGaussian( uiParent* p, int nrdim,
 						MultiID& ky,
 						const MnemonicSelection& mns,
 						const BufferStringSet& varnms )
-    : uiDialog(p,Setup(tr("Generate Gaussian PDF"),mNoDlgTitle,
-			mODHelpKey(mProbDenFuncGenGaussianHelpID)))
+    : uiDialog(p,Setup(tr("Generate Gaussian PDF"),
+		       mODHelpKey(mProbDenFuncGenGaussianHelpID)))
     , ioobjky_(ky)
 {
     if ( nrdim == 1 )

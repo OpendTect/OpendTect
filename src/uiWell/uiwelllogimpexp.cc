@@ -39,8 +39,7 @@ ________________________________________________________________________
 static const float defundefval = -999.25;
 
 uiImportLogsDlg::uiImportLogsDlg( uiParent* p, const IOObj* ioobj, bool wtable )
-    : uiDialog(p,uiDialog::Setup(tr("Import Well Logs"),mNoDlgTitle,
-				 mODHelpKey(mImportLogsHelpID)))
+    : uiDialog(p,Setup(tr("Import Well Logs"),mODHelpKey(mImportLogsHelpID)))
 {
     setOkText( uiStrings::sImport() );
 
@@ -302,9 +301,9 @@ uiString uiExportLogs::getDlgTitle( const ObjectSet<Well::Data>& wds,
 
 uiExportLogs::uiExportLogs( uiParent* p, const ObjectSet<Well::Data>& wds,
 			  const BufferStringSet& logsel )
-    : uiDialog(p,uiDialog::Setup( uiStrings::phrExport( uiStrings::sWellLog() ),
-				  getDlgTitle(wds,logsel),
-				  mODHelpKey(mExportLogsHelpID)))
+    : uiDialog(p,Setup(uiStrings::phrExport(uiStrings::sWellLog()),
+		       getDlgTitle(wds,logsel),
+		       mODHelpKey(mExportLogsHelpID)))
     , wds_(wds)
     , logsel_(logsel)
     , multiwellsnamefld_(nullptr)

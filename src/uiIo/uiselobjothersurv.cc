@@ -60,7 +60,7 @@ bool getIOObjList( ObjectSet<IOObj>& objs, const SurveyDiskLocation& sdl,
 
 
 uiSelObjFromOtherSurvey::uiSelObjFromOtherSurvey( uiParent* p, CtxtIOObj& ctio )
-    : uiDialog(p,Setup(tr("Select survey"),mNoDlgTitle,
+    : uiDialog(p,Setup(tr("Select survey"),
 		       mODHelpKey(mSelObjFromOtherSurveyHelpID)))
     , ctio_(ctio)
 {

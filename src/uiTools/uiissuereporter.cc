@@ -33,8 +33,7 @@ static StringView sKeyAskBeforeSending()
 
 uiIssueReporterDlg::uiIssueReporterDlg( uiParent* p,
 					System::IssueReporter& rep )
-    : uiDialog( p, uiDialog::Setup(tr("Problem reporter"),
-		mNoDlgTitle,mNoHelpKey) )
+    : uiDialog(p,Setup(tr("Problem reporter"),mNoHelpKey))
     , reporter_(rep)
 {
     auto* infolbl = new uiLabel( this,
@@ -138,7 +137,7 @@ bool uiIssueReporterDlg::allowSending() const
 void uiIssueReporterDlg::proxySetCB( CallBacker* )
 {
     uiProxyDlg dlg( this );
-    dlg.setHelpKey( mNoHelpKey );
+    dlg.setHelpKey(mNoHelpKey );
     dlg.go();
 }
 

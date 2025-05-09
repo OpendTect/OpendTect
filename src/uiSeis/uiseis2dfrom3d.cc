@@ -19,7 +19,7 @@ ________________________________________________________________________
 
 
 uiSeis2DFrom3D::uiSeis2DFrom3D( uiParent* p )
-    : uiDialog(p,Setup(tr("Extract 2D data from 3D"),mNoDlgTitle,
+    : uiDialog(p,Setup(tr("Extract 2D data from 3D"),
 		       mODHelpKey(mSeis2DExtractFrom3DHelpID)))
 {
     data3dfld_ = new uiSeisSel( this, uiSeisSel::ioContext(Seis::Vol,true),

@@ -123,9 +123,9 @@ class uiSEGYImpSimilarDlg : public uiDialog
 public:
 
 uiSEGYImpSimilarDlg( uiSEGYImpDlg* p, const IOObj& iio, const IOObj& oio )
-	: uiDialog(p,uiDialog::Setup(tr("2D SEG-Y multi-import"),
-				     tr("Specify file details"),
-                                     mODHelpKey(mSEGYImpSimilarDlgHelpID) ))
+	: uiDialog(p,Setup(tr("2D SEG-Y multi-import"),
+			   tr("Specify file details"),
+			   mODHelpKey(mSEGYImpSimilarDlgHelpID) ))
 	, inioobj_(iio)
 	, outioobj_(oio)
 	, impdlg_(p)

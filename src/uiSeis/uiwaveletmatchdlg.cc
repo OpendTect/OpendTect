@@ -27,7 +27,7 @@ static const int sDispHeight = 150;
 
 
 uiWaveletMatchDlg::uiWaveletMatchDlg( uiParent* p )
-    : uiDialog(p,uiDialog::Setup(tr("Match Wavelets"),mNoDlgTitle,mNoHelpKey))
+    : uiDialog(p,Setup(tr("Match Wavelets"),mNoHelpKey))
     , wvltid_(MultiID::udf())
     , outputwvlt_(*new Wavelet)
 {

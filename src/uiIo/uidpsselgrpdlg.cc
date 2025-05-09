@@ -22,13 +22,12 @@ ________________________________________________________________________
 
 uiDPSSelGrpDlg::uiDPSSelGrpDlg( uiDataPointSetCrossPlotter& p,
 				const BufferStringSet& colnames )
-    : uiDialog( p.parent(), uiDialog::Setup(uiStrings::phrJoinStrings(
-				     uiStrings::sSelection(),tr("Settings")),
-				     uiStrings::sEmptyString(),
-				     mODHelpKey(mSelectionSettDlgHelpID) )
-				    .savebutton(!p.isADensityPlot())
-				    .savetext(uiStrings::phrSelect(tr("on OK")))
-				    .modal(false) )
+    : uiDialog( p.parent(), Setup(uiStrings::phrJoinStrings(
+				  uiStrings::sSelection(),tr("Settings")),
+				  mODHelpKey(mSelectionSettDlgHelpID))
+				.savebutton(!p.isADensityPlot())
+				.savetext(uiStrings::phrSelect(tr("on OK")))
+				.modal(false) )
     , plotter_( p )
     , selgrps_(p.selectionGrps())
 {

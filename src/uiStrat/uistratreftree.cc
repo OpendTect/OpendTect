@@ -705,7 +705,8 @@ void uiStratRefTree::setNodesDefaultTimes( const NodeUnitRef& startnode )
 		if ( !nur ) break;
 		Interval<float> rg = nur->timeRange();
                 rg.start_ = timerg.start_ + (float)idx*timerg.width()/(nrrefs);
-                rg.stop_ = timerg.start_ +(float)(idx+1)*timerg.width()/(nrrefs);
+		rg.stop_ = timerg.start_ + (float)(idx+1)*timerg.width()/
+								    (nrrefs);
 		nur->setTimeRange( rg );
 	    }
 	}
@@ -802,7 +803,8 @@ void uiStratRefTree::ensureUnitTimeOK( NodeUnitRef& unit )
 	Interval<float> timerg = noderef->timeRange();
 	if ( timerg.overlaps( mytimerg ) )
 	{
-            if ( timerg.stop_==mytimerg.start_ || timerg.start_==mytimerg.stop_ )
+	    if ( timerg.stop_==mytimerg.start_
+		 || timerg.start_==mytimerg.stop_ )
 		continue;
             if ( timerg.start_ < mytimerg.start_ )
                 timerg.stop_ = mytimerg.start_;

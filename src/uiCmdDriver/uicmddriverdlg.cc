@@ -96,7 +96,7 @@ const char* optstrs[] = { "Run", "Record", 0 };
 
 uiCmdDriverDlg::uiCmdDriverDlg( uiParent* p, CmdDriver& d, CmdRecorder& r,
 			    const char* defscriptsdir, const char* deflogdir )
-        : uiDialog( p, Setup( mToUiStringTodo(controllerTitle()),
+	: uiDialog( p, Setup( mToUiStringTodo(controllerTitle()),
 			      tr("Specify your command script"),
 			      mODHelpKey(mmcmddriverimpsHelpID) ).modal(false))
     , inpfldsurveycheck_(false)
@@ -563,7 +563,7 @@ mODTextTranslationClass(uiScriptRunnerSettings)
 public:
 
 uiScriptRunnerSettings( uiParent* p )
-    : uiDialog(p,Setup(tr("Command Driver Settings"),mNoDlgTitle,mNoHelpKey))
+    : uiDialog(p,Setup(tr("Command Driver Settings"),mNoHelpKey))
 {
     scriptsdirfld_ = new uiFileInput( this,
 			tr("Scripts folder"),
@@ -763,7 +763,7 @@ void cleanLogFiles()
 
 uiScriptRunnerDlg::uiScriptRunnerDlg( uiParent* p, CmdDriver& driver )
     : uiDialog(p,Setup(tr("Run Command Driver Script"),
-		       mNoDlgTitle,mODHelpKey(mCmdDriverScriptRunnerHelpID)))
+		       mODHelpKey(mCmdDriverScriptRunnerHelpID)))
     , drv_(driver)
 {
     setCtrlStyle( CloseOnly );

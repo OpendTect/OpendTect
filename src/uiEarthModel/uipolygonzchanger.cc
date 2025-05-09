@@ -20,8 +20,8 @@ ________________________________________________________________________
 
 
 uiPolygonZChanger::uiPolygonZChanger( uiParent* p, Pick::Set& ps )
-    : uiDialog(p,uiDialog::Setup(tr("Change Z value of polygon"),
-				 toUiString("'%1'").arg(ps.name()),mNoHelpKey))
+    : uiDialog(p,Setup(tr("Change Z value of polygon"),
+		       toUiString("'%1'").arg(ps.name()),mNoHelpKey))
     , set_(ps)
 {
     isconstzfld_ = new uiGenInput( this, uiStrings::sUse(),
@@ -32,7 +32,8 @@ uiPolygonZChanger::uiPolygonZChanger( uiParent* p, Pick::Set& ps )
     uiString constzlbl =
 		    tr("Z value").addSpace().append( SI().getUiZUnitString() );
     zvalfld_ = new uiGenInput( this, constzlbl,
-                               FloatInpSpec(SI().zRange(true).start_*SI().zDomain().userFactor()) );
+			       FloatInpSpec(SI().zRange(true).start_*SI()
+						.zDomain().userFactor()) );
     zvalfld_->attach( alignedBelow, isconstzfld_ );
 
     horinpfld_ = new uiHorizon3DSel( this, true,

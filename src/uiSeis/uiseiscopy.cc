@@ -36,7 +36,7 @@ const char* uiSeisCopyCube::copyCubeProgName()
 }
 
 uiSeisCopyCube::uiSeisCopyCube( uiParent* p, const IOObj* startobj )
-    : uiDialog(p,Setup(tr("Copy cube"),mNoDlgTitle,mODHelpKey(mSeisCopyHelpID)))
+    : uiDialog(p,Setup(tr("Copy cube"),mODHelpKey(mSeisCopyHelpID)))
     , ismc_(false)
 {
     setCtrlStyle( RunAndClose );

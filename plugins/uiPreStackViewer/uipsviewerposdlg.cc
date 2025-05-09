@@ -25,9 +25,8 @@ namespace PreStackView
 
 uiViewer3DPositionDlg::uiViewer3DPositionDlg( uiParent* p,
 					      visSurvey::PreStackDisplay& vwr )
-    : uiDialog( p, Setup(toUiString(vwr.getObjectName()),mNoDlgTitle,
-                         mODHelpKey(mViewer3DPositionsDlgHelpID) )
-			.modal(false) )
+    : uiDialog( p, Setup(toUiString(vwr.getObjectName()),
+			 mODHelpKey(mViewer3DPositionsDlgHelpID)).modal(false) )
     , viewer_(vwr)
     , applybox_(0)
     , applybut_(0)
@@ -49,7 +48,8 @@ uiViewer3DPositionDlg::uiViewer3DPositionDlg( uiParent* p,
     stepfld_ = new uiLabeledSpinBox(this,uiStrings::sStep(),0,"Step");
     stepfld_->attach( rightOf, posfld_ );
     stepfld_->box()->setInterval( StepInterval<int>(posspos.step_,
-                                                    posspos.stop_-posspos.start_,posspos.step_) );
+						    posspos.stop_-posspos
+						       .start_,posspos.step_) );
     stepfld_->box()->valueChanged.notify(
 			mCB(this,uiViewer3DPositionDlg,stepCB) );
 

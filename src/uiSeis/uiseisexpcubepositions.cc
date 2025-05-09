@@ -27,8 +27,7 @@ ________________________________________________________________________
 uiSeisExpCubePositionsDlg::uiSeisExpCubePositionsDlg( uiParent* p )
     : uiDialog(p,Setup(tr("Export cube positions"),
 		       tr("Specify export parameters"),
-		       mODHelpKey(mSeisExpCubePosDlgHelpID))
-		 .modal(false))
+		       mODHelpKey(mSeisExpCubePosDlgHelpID)).modal(false))
 {
     setOkCancelText( uiStrings::sExport(), uiStrings::sClose() );
     setModal( false );

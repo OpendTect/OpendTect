@@ -40,7 +40,7 @@ CNotifier<uiPropertiesDlg,VisID>& uiPropertiesDlg::closeNotifier()
 
 uiPropertiesDlg::uiPropertiesDlg( uiParent* p, visSurvey::SurveyObject* so )
     : uiTabStackDlg(p,uiDialog::Setup(tr("Display properties"),
-				mNoDlgTitle,mODHelpKey(mPropertiesDlgHelpID)))
+				      mODHelpKey(mPropertiesDlgHelpID)))
     , survobj_(so)
 {
     if ( !survobj_ )

@@ -29,8 +29,8 @@ class uiTutAppDlg : public uiDialog
 {
 public:
     uiTutAppDlg( uiParent* p )
-	: uiDialog(p,uiDialog::Setup(toUiString("Tutorial application"),
-				     mNoDlgTitle,mNoHelpKey))
+	: uiDialog(p,Setup(toUiString("Tutorial application"),
+			   mNoHelpKey))
     {
 	setCtrlStyle( CloseOnly );
 	new uiLabel( this, toUiString("Hello World!") );

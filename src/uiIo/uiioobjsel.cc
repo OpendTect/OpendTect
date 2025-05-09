@@ -50,9 +50,8 @@ static HelpKey getHelpKey( bool forread )
 uiIOObjSelDlg::uiIOObjSelDlg( uiParent* p, const IOObjContext& ctxt,
 			      const Setup& setup )
     : uiIOObjRetDlg(p,uiDialog::Setup(selTxt(ctxt.forread_),
-				      mNoDlgTitle,
 				      getHelpKey(ctxt.forread_))
-			.nrstatusflds(1))
+				    .nrstatusflds(1) )
     , setup_(setup)
 {
     CtxtIOObj ctio( ctxt );
@@ -64,7 +63,6 @@ uiIOObjSelDlg::uiIOObjSelDlg( uiParent* p, const IOObjContext& ctxt,
 uiIOObjSelDlg::uiIOObjSelDlg( uiParent* p, const CtxtIOObj& ctio,
 				const uiString& ttxt )
     : uiIOObjRetDlg(p,uiDialog::Setup(selTxt(ctio.ctxt_.forread_),
-				      mNoDlgTitle,
 				      getHelpKey(ctio.ctxt_.forread_))
 			.nrstatusflds(1))
     , setup_( ttxt )
@@ -76,7 +74,6 @@ uiIOObjSelDlg::uiIOObjSelDlg( uiParent* p, const CtxtIOObj& ctio,
 uiIOObjSelDlg::uiIOObjSelDlg( uiParent* p, const uiIOObjSelDlg::Setup& su,
 				const CtxtIOObj& ctio )
     : uiIOObjRetDlg(p,uiDialog::Setup(selTxt(ctio.ctxt_.forread_),
-				      mNoDlgTitle,
 				      getHelpKey(ctio.ctxt_.forread_))
 			.nrstatusflds(1))
     , setup_( su )

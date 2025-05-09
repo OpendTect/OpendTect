@@ -140,11 +140,12 @@ private:
 
 
 uiEditPropRef::uiEditPropRef( uiParent* p, PropertyRef& pr, bool isadd )
-    : uiDialog(p,uiDialog::Setup(tr("Property definition"),
-				 toUiString("%1 '%2' property").arg(isadd ?
-				 uiStrings::sAdd():uiStrings::sEdit()).
-				 arg( Mnemonic::toString(pr.stdType())),
-				 mODHelpKey(mEditPropRefHelpID) ))
+    : uiDialog(p,Setup(tr("Property definition"),
+		       toUiString("%1 '%2' property")
+			    .arg(isadd		  ?
+				uiStrings::sAdd() : uiStrings::sEdit())
+			    .arg(Mnemonic::toString(pr.stdType())),
+		       mODHelpKey(mEditPropRefHelpID)))
     , pr_(pr)
     , defaultmathprop_(pr)
     , definitionmathprop_(pr)
@@ -509,9 +510,9 @@ void uiBuildPROPS::itemSwitch( const char* nm1, const char* nm2 )
 
 
 uiManPROPS::uiManPROPS( uiParent* p )
-    : uiDialog(p,uiDialog::Setup(tr("Manage Layer Properties"),
-				 tr("Define possible layer properties"),
-				 mODHelpKey(mManPROPSHelpID)))
+    : uiDialog(p,Setup(tr("Manage Layer Properties"),
+		       tr("Define possible layer properties"),
+		       mODHelpKey(mManPROPSHelpID)))
 {
     setCtrlStyle( CloseOnly );
     buildfld_ = new uiBuildPROPS( this, ePROPS() );
@@ -559,11 +560,11 @@ bool uiManPROPS::haveUserChange() const
 
 uiSelectPropRefs::uiSelectPropRefs( uiParent* p, PropertyRefSelection& prs,
 							const uiString& lbl )
-    : uiDialog(p,uiDialog::Setup(toUiString("%1 %2 - %3")
-		.arg(uiStrings::sLayer()).arg(uiStrings::sProperties())
-		.arg(uiStrings::sSelection()),
-		uiStrings::phrSelect(tr("layer properties to use")),
-		mODHelpKey(mSelectPropRefsHelpID) ))
+    : uiDialog(p,Setup(toUiString("%1 %2 - %3")
+			.arg(uiStrings::sLayer()).arg(uiStrings::sProperties())
+			.arg(uiStrings::sSelection()),
+		       uiStrings::phrSelect(tr("layer properties to use")),
+		       mODHelpKey(mSelectPropRefsHelpID)))
 {
     proprefgrp_ = new uiSelectPropRefsGrp( this, prs, lbl );
 }
@@ -582,14 +583,15 @@ bool uiSelectPropRefs::acceptOK( CallBacker* )
 uiSelectPropRefsVWDlg::uiSelectPropRefsVWDlg(
 	uiParent* p, PropertyRefSelection& prs, IOPar& pars, int pos,
 	const uiString& lbl )
-    : uiVarWizardDlg(p,uiDialog::Setup(toUiString("%1 %2 - %3")
-	    .arg(uiStrings::sLayer()).arg(uiStrings::sProperties())
-	    .arg(uiStrings::sSelection()),
-	    tr("You will be modeling layer properties, we have pre-selected"
-		" essential ones.\nAdd properties only if you are interested in"
-		" modeling those."),
-	    mODHelpKey(mSelectPropRefsHelpID)),
-	    pars, (uiVarWizardDlg::Position)pos )
+    : uiVarWizardDlg(p,Setup(toUiString("%1 %2 - %3").arg(uiStrings::sLayer())
+				    .arg(uiStrings::sProperties())
+				    .arg(uiStrings::sSelection()),
+			     tr("You will be modeling layer properties, "
+				"we have pre-selected essential ones.\n"
+				"Add properties only if you are interested "
+				"in modeling those."),
+			     mODHelpKey(mSelectPropRefsHelpID)),
+		     pars,(uiVarWizardDlg::Position)pos)
 {
     proprefgrp_ = new uiSelectPropRefsGrp( this, prs, lbl );
 }

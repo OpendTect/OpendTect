@@ -47,7 +47,7 @@ ________________________________________________________________________
 
 
 uiWellZRangeSelector::uiWellZRangeSelector( uiParent* p, const Setup& s )
-    : uiGroup( p, "Select Z Range" )
+    : uiGroup(p,"Select Z Range")
     , ztimefac_(SI().showZ2UserFactor())
     , params_(new Well::ZRangeSelector())
 {

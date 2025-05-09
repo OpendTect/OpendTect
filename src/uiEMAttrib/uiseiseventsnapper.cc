@@ -36,8 +36,8 @@ ________________________________________________________________________
 
 uiSeisEventSnapper::uiSeisEventSnapper( uiParent* p, const IOObj* inp,
 					bool is2d )
-    : uiDialog(p,Setup(tr("Snap horizon to seismic event"),mNoDlgTitle,
-		       mODHelpKey(mSnapToEventHelpID) ).modal(false))
+    : uiDialog(p,Setup(tr("Snap horizon to seismic event"),
+		       mODHelpKey(mSnapToEventHelpID)).modal(false))
     , is2d_(is2d)
     , readyForDisplay(this)
 {

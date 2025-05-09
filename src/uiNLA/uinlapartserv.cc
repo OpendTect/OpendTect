@@ -141,8 +141,8 @@ class uiPrepNLAData : public uiDialog
 public:
 
 uiPrepNLAData( uiParent* p, const DataPointSet& dps )
-    : uiDialog(p,uiDialog::Setup(uiStrings::phrData(tr("preparation")),
-	       gtTitle(dps), mODHelpKey(mPrepNLADataHelpID)))
+    : uiDialog(p,Setup(uiStrings::phrData(tr("preparation")),gtTitle(dps),
+		       mODHelpKey(mPrepNLADataHelpID)))
     , statsfld_(0)
 {
     const BinIDValueSet& bvs = dps.dataSet().data();
@@ -156,7 +156,7 @@ uiPrepNLAData( uiParent* p, const DataPointSet& dps )
     }
     sort_array( datavals.arr(), datavals.size() );
 
-    uiGroup* graphgrp = new uiGroup( this, "Graph group" );
+    auto* graphgrp = new uiGroup( this, "Graph group" );
     uiStatsDisplay::Setup su; su.withtext(false);
     statsfld_ = new uiStatsDisplay( graphgrp, su );
     statsfld_->setData( datavals.arr(), datavals.size() );
@@ -165,7 +165,7 @@ uiPrepNLAData( uiParent* p, const DataPointSet& dps )
 		  statsfld_->funcDisp()->nrClasses() : 1;
     statsfld_->setMarkValue( mCast(float,bsetup_.nrptsperclss), false );
 
-    uiGroup* datagrp = new uiGroup( this, "Data group" );
+    auto* datagrp = new uiGroup( this, "Data group" );
     dobalfld = new uiGenInput( datagrp, tr("Balance data"), BoolInpSpec(true) );
     dobalfld->valueChanged.notify( mCB(this,uiPrepNLAData,doBalChg) );
 
@@ -297,10 +297,9 @@ public:
 
 uiLithCodeMan( uiParent* p, const TypeSet<int>& codes, BufferStringSet& usels,
 		const char* lognm )
-	: uiDialog(p,uiDialog::Setup(uiStrings::phrManage(uiStrings::sCode(2)),
-				     uiStrings::phrSpecify(tr(
-				     "how to handle codes")),
-				     mODHelpKey(mLithCodeManHelpID)))
+	: uiDialog(p,Setup(uiStrings::phrManage(uiStrings::sCode(2)),
+			   uiStrings::phrSpecify(tr("how to handle codes")),
+			   mODHelpKey(mLithCodeManHelpID)))
 	, usrsels(usels)
 {
     BufferStringSet opts;
@@ -311,11 +310,11 @@ uiLithCodeMan( uiParent* p, const TypeSet<int>& codes, BufferStringSet& usels,
 	const int curcode = codes[icode];
 	uiString txt = uiStrings::phrJoinStrings(uiStrings::sCode(),
 							   toUiString(curcode));
-	uiLabeledComboBox* optlcb = new uiLabeledComboBox( this, opts, txt );
+	auto* optlcb = new uiLabeledComboBox( this, opts, txt );
 	uiComboBox* optbox = optlcb->box();
 	BufferString nm( lognm ); nm += " ["; nm += curcode; nm += "]";
-	uiGenInput* nmfld = new uiGenInput( this, uiStrings::sName(), nm );
-	uiLabeledComboBox* codelcb = new uiLabeledComboBox( this, uiStrings::
+	auto* nmfld = new uiGenInput( this, uiStrings::sName(), nm );
+	auto* codelcb = new uiLabeledComboBox( this, uiStrings::
 								       sCode());
 	for ( int ic=0; ic<codes.size(); ic++ )
 	{

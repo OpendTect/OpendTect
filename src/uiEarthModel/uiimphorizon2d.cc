@@ -184,8 +184,8 @@ void interpolateAndSetVals( int hidx, Pos::GeomID geomid, int curtrcnr,
 // uiImportHorizon2D
 
 uiImportHorizon2D::uiImportHorizon2D( uiParent* p )
-    : uiDialog(p,uiDialog::Setup(tr("Import 2D Horizon"),mNoDlgTitle,
-		mODHelpKey(mImportHorizon2DHelpID) ).modal(false))
+    : uiDialog(p,Setup(tr("Import 2D Horizon"),
+		       mODHelpKey(mImportHorizon2DHelpID)).modal(false))
     , readyForDisplay(this)
     , fd_(*EM::Horizon2DAscIO::getDesc(SI().zDomain()))
 {

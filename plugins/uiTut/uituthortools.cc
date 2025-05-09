@@ -26,9 +26,9 @@ ________________________________________________________________________
 
 
 uiTutHorTools::uiTutHorTools( uiParent* p )
-    : uiDialog( p, Setup( tr("Tut Horizon tools"),
-	tr("Specify process parameters"),
-	HelpKey("tut","hor") ) )
+    : uiDialog( p ,Setup( tr("Tut Horizon tools"),
+			  tr("Specify process parameters"),
+			  HelpKey("tut","hor") ) )
 {
     taskfld_= new uiGenInput( this, tr("Task"),
 	BoolInpSpec(true,tr("Thickness between two horizons"),

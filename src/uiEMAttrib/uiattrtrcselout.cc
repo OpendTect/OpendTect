@@ -103,8 +103,7 @@ void uiAttrTrcSelOut::createSingleHorUI()
 
 void uiAttrTrcSelOut::createTwoHorUI()
 {
-    xparsdlg_ = new uiDialog( pargrp_, uiDialog::Setup(
-				tr("Set Extra Options"),mNoDlgTitle,
+    xparsdlg_ = new uiDialog( pargrp_, uiDialog::Setup(tr("Set Extra Options"),
 				mODHelpKey(mAttrTrcSelOutBetweenHelpID)) );
     xparsdlg_->postFinalize().notify( mCB(this,uiAttrTrcSelOut,extraDlgDone) );
 

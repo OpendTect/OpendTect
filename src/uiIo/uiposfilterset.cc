@@ -85,7 +85,7 @@ uiPosFilterSet::uiPosFilterSet( uiParent* p, const uiPosFilterSet::Setup& su )
 
     if ( nms.size() == 1 )
     {
-	uiLabel* nmlbl = new uiLabel( this, nms[0] );
+	auto* nmlbl = new uiLabel( this, nms[0] );
 	new uiLabel( this, tr("Filter: "), nmlbl );
 	ynfld_ = new uiGenInput( this, uiStrings::sUse(), BoolInpSpec(false) );
 	ynfld_->attach( alignedBelow, nmlbl );
@@ -223,8 +223,8 @@ void uiPosFilterSetSel::doDlg( CallBacker* )
 {
     uiDialog dlg( this, uiDialog::Setup(uiStrings::sFilters(),
 					mJoinUiStrs(sSpecify(),sFilters()),
-					mODHelpKey(mPosFilterSetSelHelpID) ) );
-    uiPosFilterSet* pfs = new uiPosFilterSet( &dlg, setup_ );
+					mODHelpKey(mPosFilterSetSelHelpID)) );
+    auto* pfs = new uiPosFilterSet( &dlg, setup_ );
     pfs->usePar( iop_ );
     if ( dlg.go() )
 	pfs->fillPar( iop_ );

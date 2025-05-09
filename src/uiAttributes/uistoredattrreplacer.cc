@@ -311,7 +311,7 @@ public:
 uiDataPackReplacerDlg( uiParent* p,
 		  TypeSet<uiStoredAttribReplacer::StoredEntry>& storedids,
 		  const TypeSet<DataPack::FullID>& dpids )
-    : uiDialog(p,uiDialog::Setup(tr("Select data for input"),tr(""),mNoHelpKey))
+    : uiDialog(p,Setup(tr("Select data for input"),tr(""),mNoHelpKey))
     , storedids_(storedids)
     , attrset_(0)
     , attrdspar_(0)

@@ -37,9 +37,9 @@ public:
 
 uiAutoRangeClipDlg( uiParent* p, ColTab::MapperSetup& ms,
 		    Notifier<uiColorTable>& nf, bool enabsave )
-    : uiDialog(p,uiDialog::Setup(tr("Ranges/Clipping"),mNoDlgTitle,
-				 mODHelpKey(mAutoRangeClipDlgHelpID) )
-				.modal(false).savebutton(enabsave))
+    : uiDialog(p,Setup(tr("Ranges/Clipping"),
+		       mODHelpKey(mAutoRangeClipDlgHelpID))
+		    .modal(false).savebutton(enabsave))
     , formatChanged(this)
     , scaleChanged(nf)
     , ms_(ms)

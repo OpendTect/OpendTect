@@ -30,8 +30,7 @@ ________________________________________________________________________
 
 uiChangeHorizonDlg::uiChangeHorizonDlg( uiParent* p, EM::Horizon* hor,
 					bool is2d, const uiString& txt )
-    : uiDialog(p,Setup(txt,mNoDlgTitle,
-			mODHelpKey(mChangeSurfaceDlgHelpID)))
+    : uiDialog(p,Setup(txt,mODHelpKey(mChangeSurfaceDlgHelpID)))
     , horReadyForDisplay(this)
     , inputfld_(nullptr)
     , parsgrp_(nullptr)

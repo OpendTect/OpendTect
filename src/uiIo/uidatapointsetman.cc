@@ -34,9 +34,9 @@ uiString uiDataPointSetMan::sSelDataSetEmpty()
 
 uiDataPointSetMan::uiDataPointSetMan( uiParent* p )
     : uiObjFileMan(p,
-	uiDialog::Setup(uiStrings::phrManage( tr("Cross-plot Data")),
-			mNoDlgTitle,mODHelpKey(mDataPointSetManHelpID))
-				.nrstatusflds(1).modal(false),
+		   uiDialog::Setup(uiStrings::phrManage(tr("Cross-plot Data")),
+				   mODHelpKey(mDataPointSetManHelpID))
+				    .nrstatusflds(1).modal(false),
 	PosVecDataSetTranslatorGroup::ioContext())
 {
     createDefaultUI();

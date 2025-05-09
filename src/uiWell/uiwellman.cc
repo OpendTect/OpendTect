@@ -46,12 +46,12 @@ mDefineInstanceCreatedNotifierAccess(uiWellMan)
 
 
 uiWellMan::uiWellMan( uiParent* p )
-    : uiObjFileMan(p,uiDialog::Setup(
-		uiStrings::phrManage( uiStrings::sWell(mPlural)),mNoDlgTitle,
-				      mODHelpKey(mWellManHelpID))
-				     .nrstatusflds(1).modal(false),
-				    WellTranslatorGroup::ioContext(),
-				    WellTranslatorGroup::sGroupName()  )
+    : uiObjFileMan(p,uiDialog::Setup(uiStrings::phrManage(uiStrings::sWell(
+								      mPlural)),
+				     mODHelpKey(mWellManHelpID))
+				.nrstatusflds(1).modal(false),
+		   WellTranslatorGroup::ioContext(),
+		   WellTranslatorGroup::sGroupName())
 {
     createDefaultUI();
     setPrefWidth( 50 );

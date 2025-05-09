@@ -72,14 +72,12 @@ TaperData::~TaperData()
 
 // uiFreqTaperDlg
 uiFreqTaperDlg::uiFreqTaperDlg( uiParent* p, const FreqTaperSetup& freqtapsu )
-    : uiDialog( p, uiDialog::Setup(
-			SI().zDomain().isTime() ?
-			    tr("Frequency taper") :
-			    tr("Wavenumber taper"),
-			SI().zDomain().isTime() ?
+    : uiDialog(p,Setup(SI().zDomain().isTime() ?
+			 tr("Frequency taper") : tr("Wavenumber taper"),
+		       SI().zDomain().isTime() ?
 			    tr("Select taper parameters at cut-off frequency") :
 			    tr("Select taper parameters at cut-off wavenumber"),
-			mODHelpKey(mFreqTaperDlgHelpID) ))
+		       mODHelpKey(mFreqTaperDlgHelpID)))
     , funcvals_(0)
     , seisnm_(freqtapsu.seisnm_)
     , attrnm_(freqtapsu.attrnm_)
@@ -129,8 +127,8 @@ class uiFreqTaperSelLineDlg : public uiDialog
 public:
 
 uiFreqTaperSelLineDlg( uiParent* p, const SeisIOObjInfo& objinfo )
-	: uiDialog(p,uiDialog::Setup(uiStrings::phrSelect(tr("line from Data"))
-	, uiStrings::sEmptyString(),mNoHelpKey))
+	: uiDialog(p,Setup(uiStrings::phrSelect(tr("line from Data")),
+			   mNoHelpKey))
 	, objinfo_(objinfo)
 	, linesfld_(0)
 {

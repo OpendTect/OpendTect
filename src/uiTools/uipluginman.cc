@@ -42,8 +42,8 @@ static const FilePath& getProdListFP( const FilePath* newfp )
 }
 
 uiPluginMan::uiPluginMan( uiParent* p )
-	: uiDialog(p,Setup(tr("Plugin Management"), mNoDlgTitle,
-			    mODHelpKey(mPluginManHelpID) ) )
+	: uiDialog(p,Setup(tr("Plugin Management"),
+			   mODHelpKey(mPluginManHelpID)))
 {
     setCtrlStyle( uiDialog::CloseOnly );
     auto* leftgrp = new uiGroup( this, "Left group" );

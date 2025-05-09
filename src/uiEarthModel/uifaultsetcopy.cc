@@ -26,7 +26,7 @@ ________________________________________________________________________
 
 
 uiFault2FaultSet::uiFault2FaultSet( uiParent* p )
-    : uiDialog(p,Setup(tr("Copy Faults to FaultSet"),mNoDlgTitle,
+    : uiDialog(p,Setup(tr("Copy Faults to FaultSet"),
 		       mODHelpKey(mFault2FaultSelHeplID)))
 {
     uiIOObjSelGrp::Setup su( OD::ChooseAtLeastOne );
@@ -118,7 +118,7 @@ bool uiFault2FaultSet::acceptOK( CallBacker* )
 
 // uiCopyFaultSet
 uiCopyFaultSet::uiCopyFaultSet( uiParent* p, const IOObj& ioobj )
-    : uiDialog(p,Setup(uiStrings::phrCopy(uiStrings::sFaultSet()),mNoDlgTitle,
+    : uiDialog(p,Setup(uiStrings::phrCopy(uiStrings::sFaultSet()),
 		       mODHelpKey(mCopyFaultSetHelpID)))
 {
     IOObjContext ctxt = mIOObjContext(EMFaultSet3D);

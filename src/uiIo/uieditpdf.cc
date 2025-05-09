@@ -227,11 +227,13 @@ uiEditProbDenFuncDlg::uiEditProbDenFuncDlg( uiParent* p, ProbDenFunc& pdf,
 					    bool ed, bool isnew,
 					    const MnemonicSelection* mns,
 					    const BufferStringSet* varnms )
-    : uiDialog(p,uiDialog::Setup(toUiString("%1 %2").arg(ed ? tr("Edit") :
-	     tr("Browse")).arg(tr("Probability Density Function")),
-	     toUiString("%1 '%2'").arg(ed ? "Edit" : "Browse").arg(pdf.name()
-	     .isEmpty() ? tr("PDF") : toUiString(pdf.name())),
-	     mODHelpKey(mEditProbDenFuncHelpID) ))
+    : uiDialog(p,Setup(toUiString("%1 %2").arg(ed ? tr("Edit") :
+		       tr("Browse")).arg(tr("Probability Density Function")),
+		       toUiString("%1 '%2'").arg(ed ? "Edit" : "Browse")
+			    .arg(pdf.name()
+			    .isEmpty() ? tr("PDF")
+				       : toUiString(pdf.name())),
+		       mODHelpKey(mEditProbDenFuncHelpID)))
 {
     if ( ed )
 	setOkCancelText( uiStrings::sSave(), uiStrings::sClose() );
@@ -556,8 +558,7 @@ class uiPDF1DViewWin : public uiDialog
 public:
 
 uiPDF1DViewWin( uiParent* p, const float* xvals, const float* yvals, int sz )
-    : uiDialog(p,uiDialog::Setup(tr("1D PDF Viewer"), uiStrings::sEmptyString(),
-				 mNoHelpKey).modal(false) )
+	: uiDialog(p,Setup(tr("1D PDF Viewer"),mNoHelpKey).modal(false))
 {
     setCtrlStyle( uiDialog::CloseOnly );
     disp_ = new uiFunctionDisplay( this, uiFunctionDisplay::Setup() );

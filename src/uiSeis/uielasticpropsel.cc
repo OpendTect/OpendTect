@@ -140,7 +140,7 @@ uiElasticPropSelGrp::uiElasticPropSelGrp( uiParent* p,
 					const PropertyRefSelection& prs,
 					ElasticPropertyRef& elprop,
 				    const ObjectSet<const ElasticFormula>& el )
-    : uiGroup( p, "Elastic Prop Sel Grp" )
+    : uiGroup( p,"Elastic Prop Sel Grp" )
     , prs_(prs)
     , elpropref_(elprop)
     , availableformulas_(el)
@@ -333,10 +333,10 @@ static const char** props = ElasticFormula::TypeNames();
 uiElasticPropSelDlg::uiElasticPropSelDlg( uiParent* p,
 					const PropertyRefSelection& prs,
 					ElasticPropSelection& elsel )
-    : uiDialog(p,uiDialog::Setup(tr("Elastic Model"),
-	       tr("Specify how to obtain density and "
-		  "p-wave and s-wave velocities")
-		,mODHelpKey(mElasticPropSelDlgHelpID) ))
+    : uiDialog(p,Setup(tr("Elastic Model"),
+		       tr("Specify how to obtain density and "
+			  "p-wave and s-wave velocities"),
+		       mODHelpKey(mElasticPropSelDlgHelpID)))
     , ctio_(*mMkCtxtIOObj(ElasticPropSelection))
     , prs_(prs)
     , elpropsel_(elsel)

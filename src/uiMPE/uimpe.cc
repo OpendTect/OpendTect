@@ -97,7 +97,7 @@ bool uiTrackSettingsValidator::checkPreloadedData( const MultiID& key ) const
 
     uiMain& uimain = uiMain::instance();
     uiDialog dlg( uimain.topLevel(),
-	uiDialog::Setup(tr("Pre-load Data"),mNoDlgTitle,mTODOHelpKey) );
+	uiDialog::Setup(tr("Pre-load Data"),mTODOHelpKey) );
     auto* lbl1 = new uiLabel( &dlg,
 	tr("Seeds have been picked on '%1'.").arg(IOM().nameOf(key)) );
     auto* lbl2 = new uiLabel( &dlg,

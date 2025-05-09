@@ -23,10 +23,9 @@ mDefineInstanceCreatedNotifierAccess(uiAttrSetMan)
 
 
 uiAttrSetMan::uiAttrSetMan( uiParent* p, bool is2d )
-    : uiObjFileMan(p,uiDialog::Setup(uiStrings::phrManage(tr("Attribute Sets")),
-				     mNoDlgTitle,
-				     mODHelpKey(mAttrSetManHelpID) )
-			       .nrstatusflds(1).modal(false),
+    : uiObjFileMan(p,Setup(uiStrings::phrManage(tr("Attribute Sets")),
+			   mODHelpKey(mAttrSetManHelpID))
+			.nrstatusflds(1).modal(false),
 		   AttribDescSetTranslatorGroup::ioContext())
 {
     ctxt_.toselect_.dontallow_.set( sKey::Type(), is2d ? "3D" : "2D" );

@@ -68,8 +68,9 @@ class uiHelloMsgBringer : public uiDialog
 public:
 
 uiHelloMsgBringer( uiParent* p )
-    : uiDialog(p,Setup(tr("Hello Message Window"),tr("Specify hello message"),
-			mNoHelpKey))
+    : uiDialog(p,Setup(tr("Hello Message Window"),
+		       tr("Specify hello message"),
+		       mNoHelpKey))
 {
     txtfld_ = new uiGenInput( this, tr("Hello message"),
 				StringInpSpec("Hello world") );

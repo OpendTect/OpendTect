@@ -23,8 +23,9 @@ static const Repos::Source cSrcToManage = Repos::Data;
 
 
 uiSEGYImpParsDlg::uiSEGYImpParsDlg( uiParent* p, bool isread, const char* dfnm )
-    : uiDialog(p,Setup(isread?tr("Read SEG-Y setup"):tr("Store SEG-Y setup"),
-			mNoDlgTitle,mNoHelpKey))
+    : uiDialog(p,Setup(isread ? tr("Read SEG-Y setup") :
+				tr("Store SEG-Y setup"),
+		       mNoHelpKey))
     , parset_(*new Repos::IOParSet("SEGYSetups"))
     , parname_(dfnm)
     , setchgd_(false)

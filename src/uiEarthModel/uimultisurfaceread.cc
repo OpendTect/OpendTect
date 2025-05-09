@@ -37,10 +37,9 @@ uiString getDispType(BufferString type)
 
 uiMultiSurfaceReadDlg::uiMultiSurfaceReadDlg( uiParent* p, const char* type,
 						const ZDomain::Info* zinfo )
-   : uiDialog(p,uiDialog::Setup( uiStrings::phrSelect(getDispType(type)),
-				 mNoDlgTitle,
-				 mODHelpKey(mMultiSurfaceReadDlgHelpID) )
-				 .nrstatusflds(1) )
+   : uiDialog(p,Setup(uiStrings::phrSelect(getDispType(type)),
+		      mODHelpKey(mMultiSurfaceReadDlgHelpID))
+		    .nrstatusflds(1))
 {
     surfacefld_ = new uiMultiSurfaceRead( this, type, zinfo );
     surfacefld_->objselGrp()->newStatusMsg.notify(
@@ -208,9 +207,8 @@ void uiMultiSurfaceRead::getSurfaceSelection(
 	return;
 
     uiDialog dlg( const_cast<uiParent*>(parent()),
-	    uiDialog::Setup(uiStrings::phrSelect(tr("section(s)"))
-			    ,mNoDlgTitle,mNoHelpKey) );
-    uiListBox* lb = new uiListBox( &dlg, "Patches", OD::ChooseAtLeastOne );
+	    uiDialog::Setup(uiStrings::phrSelect(tr("section(s)")),mNoHelpKey));
+    auto* lb = new uiListBox( &dlg, "Patches", OD::ChooseAtLeastOne );
     lb->addItems( sd.sections );
     lb->chooseAll( true );
     if ( dlg.go() )

@@ -669,8 +669,8 @@ class uiFSS2DLineSelDlg : public uiDialog
 { mODTextTranslationClass(uiFSS2DLineSelDlg)
 public:
     uiFSS2DLineSelDlg( uiParent* p, const TypeSet<Pos::GeomID>& geomids )
-	: uiDialog(p,uiDialog::Setup(tr("FaultStickSet selection"),
-		    tr("Available for 2D lines"),mNoHelpKey))
+	: uiDialog(p,Setup(tr("FaultStickSet selection"),
+			   tr("Available for 2D lines"),mNoHelpKey))
     {
 	PtrMan<CtxtIOObj> ctio = mMkCtxtIOObj(EMFaultStickSet);
 	const IODir iodir( ctio->ctxt_.getSelKey() );
@@ -759,13 +759,13 @@ class uiFaultOptSel: public uiDialog
 { mODTextTranslationClass(uiFaultOptSel)
 public:
     uiFaultOptSel( uiParent* p, uiFaultParSel& fltpar )
-	: uiDialog(p,uiDialog::Setup(
-		    tr( "%1 selection" ).arg(
+	: uiDialog(p,Setup(
+		    tr("%1 selection").arg(
 			fltpar.type() == EM::ObjectType::Flt3D
 			 ? uiStrings::sFault()
 			 : (EM::isFaultStickSet( fltpar.type() )
 			     ? uiStrings::sFaultStickSet()
-			     : uiStrings::sFaultSet()) ), mNoDlgTitle,
+			     : uiStrings::sFaultSet())),
 		    mODHelpKey(mFaultOptSelHelpID)))
 	, fltpar_(fltpar)
     {
@@ -1246,7 +1246,7 @@ void uiAuxDataSel::objSelCB( CallBacker* )
 void uiAuxDataSel::auxSelCB( CallBacker* )
 {
     uiDialog dlg( this,
-	uiDialog::Setup(tr("Select Horizon Data"),mNoDlgTitle,mTODOHelpKey) );
+	uiDialog::Setup(tr("Select Horizon Data"),mTODOHelpKey));
     auto* grp = new uiAuxDataGrp( &dlg, forread_ );
     grp->setKey( key_ );
     BufferString datanm = auxdatafld_->getInput();

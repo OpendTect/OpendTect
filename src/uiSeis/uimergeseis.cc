@@ -32,9 +32,9 @@ ________________________________________________________________________
 
 
 uiMergeSeis::uiMergeSeis( uiParent* p )
-    : uiDialog(p,uiDialog::Setup(tr("Seismic file merging"),
-				 tr("Specify input/output seismics"),
-				 mODHelpKey(mMergeSeisHelpID) ))
+    : uiDialog(p,Setup(tr("Seismic file merging"),
+		       tr("Specify input/output seismics"),
+		       mODHelpKey(mMergeSeisHelpID)))
 {
     IOObjContext ctxt( uiSeisSel::ioContext( Seis::Vol, true ) );
     uiIOObjSelGrp::Setup sgsu( OD::ChooseZeroOrMore );

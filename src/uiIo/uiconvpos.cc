@@ -144,9 +144,10 @@ bool uiConvPosAscIO::getData( Coord& crd,
 
 //Conversion Position Window
 uiConvertPos::uiConvertPos( uiParent* p, const SurveyInfo& si, bool mod )
-    : uiDialog(p, uiDialog::Setup(tr("Convert Positions"),
-	mNoDlgTitle, mODHelpKey(mConvertPosHelpID)).modal(mod)
-	.oktext(uiString::emptyString()).canceltext(uiStrings::sClose()))
+    : uiDialog(p,Setup(tr("Convert Positions"),
+		       mODHelpKey(mConvertPosHelpID)).modal(mod)
+		    .oktext(uiString::emptyString())
+		    .canceltext(uiStrings::sClose()))
 {
     tabstack_ = new uiTabStack( this, "Tab" );
 

@@ -54,8 +54,9 @@ static void getOutputIDs( const Desc& desc, TypeSet<int>& ids )
 
 uiMultOutSel::uiMultOutSel( uiParent* p, const Desc& desc, bool isisnglesel )
     : uiDialog(p,Setup(tr("Multiple attributes selection"),
-		tr("Add other attributes, if required.\nPress OK to compute."),
-			mODHelpKey(mMultOutSelHelpID) ))
+		       tr("Add other attributes, if required.\n"
+			  "Press OK to compute."),
+		       mODHelpKey(mMultOutSelHelpID)))
 {
     BufferStringSet outnames;
     RefMan<Desc> tmpdesc = new Desc( desc );

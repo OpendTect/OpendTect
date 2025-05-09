@@ -359,7 +359,7 @@ void uiODVolrenAttribTreeItem::handleMenuCB( CallBacker* cb )
 	const int surfidx = vd->getNrIsoSurfaces()-1;
 	visBase::MarchingCubesSurface* mcs = vd->getIsoSurface(surfidx);
 	uiSingleGroupDlg dlg( applMgr()->applService().parent(),
-		uiDialog::Setup(tr("Iso value selection"),mNoDlgTitle,
+		uiDialog::Setup(tr("Iso value selection"),
 				mODHelpKey(mVolrenTreeItemHelpID)) );
 	dlg.setGroup( new uiVisIsoSurfaceThresholdDlg(&dlg,mcs,vd,attribNr()) );
 	if ( !dlg.go() )
@@ -551,8 +551,8 @@ void uiODVolrenSubTreeItem::handleMenuCB( CallBacker* cb )
 			visserv_->getObject(getParentDisplayID()));
 
 	uiSingleGroupDlg dlg( getUiParent(),
-	uiDialog::Setup( tr("Iso Value Selection"), mNoDlgTitle,
-			     mNoHelpKey ) );
+			      uiDialog::Setup(tr("Iso Value Selection"),
+					      mNoHelpKey) );
 	dlg.setGroup( new uiVisIsoSurfaceThresholdDlg(&dlg, isosurface, vd,
 						      getParentAttribNr()) );
 	if ( dlg.go() )

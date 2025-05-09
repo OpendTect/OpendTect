@@ -32,10 +32,8 @@ class uiSliceScroll : public uiDialog
 public:
 
 uiSliceScroll( uiSliceSel* ss )
-    : uiDialog(ss,uiDialog::Setup(tr("Scrolling"),
-				  mToUiStringTodo(getTitle(ss)),
-				  mODHelpKey(mSliceScrollHelpID) )
-				  .modal(false))
+    : uiDialog(ss,Setup(tr("Scrolling"),mToUiStringTodo(getTitle(ss)),
+			mODHelpKey(mSliceScrollHelpID) ).modal(false))
     , slcsel_(ss)
     , zfact_(ss->zdominfo_.userFactor())
 {
@@ -709,11 +707,10 @@ uiSliceSelDlg::uiSliceSelDlg( uiParent* p, const TrcKeyZSampling& curcs,
 			const TrcKeyZSampling& maxcs,
 			const CallBack& acb, uiSliceSel::Type type,
 			const ZDomain::Info& zdominfo )
-    : uiDialog(p,uiDialog::Setup(tr("Positioning"),
-				 tr("Specify the element's position"),
-				 mODHelpKey(mSliceSelHelpID) )
-		 .modal(type==uiSliceSel::Vol||type==uiSliceSel::TwoD||
-			type==uiSliceSel::Synth))
+    : uiDialog(p,Setup(tr("Positioning"),tr("Specify the element's position"),
+		       mODHelpKey(mSliceSelHelpID))
+		    .modal(type==uiSliceSel::Vol || type==uiSliceSel::TwoD ||
+			   type==uiSliceSel::Synth))
 {
     slicesel_ = new uiSliceSel( this, type, zdominfo,
 				curcs.hsamp_.getGeomID() );
@@ -737,8 +734,7 @@ bool uiSliceSelDlg::acceptOK( CallBacker* )
 // uiLinePosSelDlg
 
 uiLinePosSelDlg::uiLinePosSelDlg( uiParent* p )
-    : uiDialog( p, uiDialog::Setup(tr("Select line position"),
-				   mNoDlgTitle,mNoHelpKey) )
+    : uiDialog(p,Setup(tr("Select line position"),mNoHelpKey))
     , tkzs_(Survey::getDefault2DGeomID())
 {
     BufferStringSet linenames;
@@ -754,8 +750,7 @@ uiLinePosSelDlg::uiLinePosSelDlg( uiParent* p )
 
 
 uiLinePosSelDlg::uiLinePosSelDlg( uiParent* p, const TrcKeyZSampling& tkzs )
-    : uiDialog( p, uiDialog::Setup(tr("Select line position"),
-				   mNoDlgTitle,mNoHelpKey) )
+    : uiDialog(p,Setup(tr("Select line position"),mNoHelpKey))
     , tkzs_(tkzs)
 {
     inlcrlfld_ = new uiGenInput( this, tr("Compute on:"),

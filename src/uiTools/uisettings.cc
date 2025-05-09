@@ -69,9 +69,8 @@ static void getGrps( BufferStringSet& grps )
 
 
 uiSettings::uiSettings( uiParent* p, const char* nm, const char* settskey )
-	: uiDialog(p,uiDialog::Setup(toUiString(nm),
-				     tr("Set User Settings value"),
-				     mODHelpKey(mSettingsHelpID)) )
+	: uiDialog(p,Setup(toUiString(nm),tr("Set User Settings value"),
+			   mODHelpKey(mSettingsHelpID)))
 	, issurvdefs_(StringView(settskey)==sKeySurveyDefs())
 	, grpfld_(0)
 {
@@ -612,8 +611,8 @@ bool uiVisSettingsGroup::acceptOK()
 
 // uiSettingsDlg
 uiSettingsDlg::uiSettingsDlg( uiParent* p )
-    : uiTabStackDlg(p,uiDialog::Setup(tr("OpendTect Settings"),mNoDlgTitle,
-				      mODHelpKey(mLooknFeelSettingsHelpID)))
+    : uiTabStackDlg(p,uiDialog::Setup(tr("OpendTect Settings"),
+			    mODHelpKey(mLooknFeelSettingsHelpID)))
     , setts_(Settings::common())
     , changed_(false)
     , needsrestart_(false)

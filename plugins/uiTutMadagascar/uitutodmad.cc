@@ -23,7 +23,7 @@ ________________________________________________________________________
 
 uiTutODMad::uiTutODMad( uiParent* p )
     : uiDialog( p, Setup(tr("Display Madagascar data dialog"),
-			 tr("Specify data settings"), mNoHelpKey) )
+			 tr("Specify data settings"),mNoHelpKey) )
     , iop_("Madagascar display parameters")
 {
     uiFileInput::Setup fisu;

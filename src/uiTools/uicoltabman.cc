@@ -43,10 +43,9 @@ ________________________________________________________________________
 
 uiColorTableMan::uiColorTableMan( uiParent* p, ColTab::Sequence& ctab,
        				  bool enabletrans )
-    : uiDialog(p,
-	uiDialog::Setup(uiStrings::phrManage(uiStrings::sColorTable(mPlural)),
-				 tr("Add, remove, change color tables"),
-				 mODHelpKey(mColorTableManHelpID) ))
+    : uiDialog(p,Setup(uiStrings::phrManage(uiStrings::sColorTable(mPlural)),
+		       tr("Add, remove, change color tables"),
+		       mODHelpKey(mColorTableManHelpID)))
     , tableAddRem(this)
     , tableChanged(this)
     , ctab_(ctab)

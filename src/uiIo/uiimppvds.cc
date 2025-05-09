@@ -32,9 +32,8 @@ ________________________________________________________________________
 
 
 uiImpPVDS::uiImpPVDS( uiParent* p, bool is2d )
-    : uiDialog(p,uiDialog::Setup(tr("Import Cross-plot Data"),
-				 mNoDlgTitle, mODHelpKey(mImpPVDSHelpID))
-			   .modal(false))
+    : uiDialog(p,Setup(tr("Import Cross-plot Data"),mODHelpKey(mImpPVDSHelpID))
+		    .modal(false))
     , fd_(*new Table::FormatDesc("Cross-plot data"))
     , is2d_(is2d)
 {

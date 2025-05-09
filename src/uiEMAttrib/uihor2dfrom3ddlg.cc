@@ -27,10 +27,10 @@ ________________________________________________________________________
 
 
 uiHor2DFrom3DDlg::uiHor2DFrom3DDlg( uiParent* p )
-    : uiDialog(p,uiDialog::Setup(uiStrings::phrCreate(tr("%1 from %2")
+    : uiDialog(p,Setup(uiStrings::phrCreate(tr("%1 from %2")
 			  .arg(uiStrings::phrJoinStrings(uiStrings::s2D(),
 			  uiStrings::sHorizon().toLower()))
-			  .arg(uiStrings::s3D())), mNoDlgTitle,
+			  .arg(uiStrings::s3D())),
 			  mODHelpKey(mHor2DFrom3DDlgHelpID)))
 {
     hor3dselfld_ = new uiHorizonParSel( this, false, true );

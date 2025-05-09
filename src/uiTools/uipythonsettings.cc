@@ -76,7 +76,7 @@ private:
 
 
 uiSafetyCheckDlg::uiSafetyCheckDlg( uiParent* p )
-    : uiDialog(p,Setup(tr("Scan for Vulnerabilities"),mNoDlgTitle,mTODOHelpKey))
+    : uiDialog(p,Setup(tr("Scan for Vulnerabilities"),mTODOHelpKey))
 {
     setCtrlStyle( CloseOnly );
 
@@ -261,8 +261,9 @@ void uiSafetyCheckDlg::saveCB( CallBacker* )
 // uiPythonSettings
 
 uiPythonSettings::uiPythonSettings(uiParent* p, const char* nm )
-		: uiDialog(p, uiDialog::Setup(toUiString(nm),
-		tr("Set Python environment"),mODHelpKey(mPythonSettingsHelpID)))
+    : uiDialog(p,Setup(toUiString(nm),
+		       tr("Set Python environment"),
+		       mODHelpKey(mPythonSettingsHelpID)))
 {
     setIcon( uiPixmap("python") );
     pythonsrcfld_ = new uiGenInput(this, tr("Python environment"),
@@ -582,8 +583,7 @@ void uiPythonSettings::testPythonModules()
 	modstrs.add( mod->displayStr() );
 
     usw.readyNow();
-    uiDialog dlg( this, uiDialog::Setup(tr("Python Installation"),mNoDlgTitle,
-					mNoHelpKey) );
+    uiDialog dlg( this, Setup(tr("Python Installation"),mNoHelpKey) );
     dlg.setCtrlStyle( uiDialog::CloseOnly );
     auto* pythfld = new uiGenInput( &dlg, tr("Using") );
     pythfld->setText( OD::PythA().pyVersion() );
@@ -645,7 +645,7 @@ class uiCloneEnvDlg : public uiDialog
 mODTextTranslationClass(uiCloneEnvDlg)
 public:
 uiCloneEnvDlg( uiParent* p, const FilePath& envpath )
-    : uiDialog(p,Setup(tr("Clone Python Environment"),mNoDlgTitle,mTODOHelpKey))
+    : uiDialog(p,Setup(tr("Clone Python Environment"),mTODOHelpKey))
 {
     sourcefld_ = new uiGenInput( this, uiStrings::sSource() );
     sourcefld_->setFilename( envpath.fullPath().buf() );

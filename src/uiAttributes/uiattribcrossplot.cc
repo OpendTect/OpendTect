@@ -37,9 +37,9 @@ ________________________________________________________________________
 using namespace Attrib;
 
 uiAttribCrossPlot::uiAttribCrossPlot( uiParent* p, const Attrib::DescSet& d )
-    : uiDialog(p,uiDialog::Setup(tr("Attribute cross-plotting"),
-		 tr("Select attributes and locations for cross-plot")
-		 ,mODHelpKey(mAttribCrossPlotHelpID) ).modal(false))
+    : uiDialog(p,Setup(tr("Attribute cross-plotting"),
+		       tr("Select attributes and locations for cross-plot"),
+		       mODHelpKey(mAttribCrossPlotHelpID) ).modal(false) )
     , ads_(*new Attrib::DescSet(d.is2D()))
 {
     uiGroup* attrgrp = new uiGroup( this, "Attribute group" );

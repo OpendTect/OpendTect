@@ -26,9 +26,8 @@ ________________________________________________________________________
 
 
 uiSeisWvltSliderDlg::uiSeisWvltSliderDlg( uiParent* p, Wavelet& wvlt )
-    : uiDialog(p,uiDialog::Setup(uiString::emptyString(),
-				 uiString::emptyString(),
-				 mODHelpKey(mSeisWvltSliderDlgHelpID) ))
+    : uiDialog(p,Setup(uiString::emptyString(),
+		       mODHelpKey(mSeisWvltSliderDlgHelpID)))
     , acting(this)
     , wvltattr_(new WaveletAttrib(wvlt))
     , sliderfld_(0)
@@ -263,9 +262,9 @@ void uiSeisWvltTaperDlg::setFreqData()
 
 //Wavelet display property dialog
 uiWaveletDispPropDlg::uiWaveletDispPropDlg( uiParent* p, const Wavelet& w )
-	    : uiDialog(p,Setup(toUiString(w.name()),uiString::emptyString(),
-			       mODHelpKey(mWaveletDispPropDlgHelpID) )
-			 .modal(false))
+	    : uiDialog(p,Setup(toUiString(w.name()),
+			       mODHelpKey(mWaveletDispPropDlgHelpID))
+			    .modal(false))
 {
     setCtrlStyle( CloseOnly );
     properties_ = new uiWaveletDispProp( this, w );
@@ -282,7 +281,8 @@ uiWaveletDispProp::uiWaveletDispProp( uiParent* p, const Wavelet& wvlt )
     , wvltsz_(wvlt.size())
     , wvltattr_(new WaveletAttrib(wvlt))
 {
-    timerange_.set( wvlt.samplePositions().start_, wvlt.samplePositions().stop_);
+    timerange_.set( wvlt.samplePositions().start_,
+		    wvlt.samplePositions().stop_);
     timerange_.scale( SI().showZ2UserFactor() );
     const float maxfreq = 1.f / (2.f * wvlt.sampleRate());
     const float zfac = getFreqXAxisScaler();

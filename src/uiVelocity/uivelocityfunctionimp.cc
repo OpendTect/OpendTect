@@ -34,10 +34,8 @@ namespace Vel
 {
 
 uiImportVelFunc::uiImportVelFunc( uiParent* p, bool is2d )
-    : uiDialog( p,uiDialog::Setup(tr("Import Velocity Function"),
-				  mNoDlgTitle,
-				  mODHelpKey(mImportVelFuncHelpID) )
-			    .modal(false))
+    : uiDialog(p,Setup(tr("Import Velocity Function"),
+		       mODHelpKey(mImportVelFuncHelpID)).modal(false))
     , fd_(*FunctionAscIO::getDesc(is2d))
     , is2d_(is2d)
 {

@@ -25,8 +25,8 @@ ________________________________________________________________________
 
 
 uiImplBodyCalDlg::uiImplBodyCalDlg( uiParent* p, const EM::Body& eb )
-    : uiDialog(p,Setup(tr("Calculate Geobody Volume"),mNoDlgTitle,
-		       mODHelpKey(mImplBodyCalDlgHelpID) ))
+    : uiDialog(p,Setup(tr("Calculate Geobody Volume"),
+		       mODHelpKey(mImplBodyCalDlgHelpID)))
     , embody_(eb)
     , velfld_(0)
     , volfld_(0)

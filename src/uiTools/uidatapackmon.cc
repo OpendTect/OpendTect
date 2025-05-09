@@ -26,8 +26,8 @@ static uiDataPackMonitor* uidpmondlg_ = nullptr;
 
 
 uiDataPackMonitor::uiDataPackMonitor( uiParent* p, int repeatinsec )
-    : uiDialog(p,Setup(tr("DataPack Information"),mNoDlgTitle,mNoHelpKey)
-	    .applybutton(true).applytext(uiStrings::sReload()).modal(false))
+    : uiDialog(p,Setup(tr("DataPack Information"),mNoHelpKey)
+		.applybutton(true).applytext(uiStrings::sReload()).modal(false))
     , updatetimer_(*new Timer("Update"))
     , updateinmssec_(repeatinsec*1000)
 {

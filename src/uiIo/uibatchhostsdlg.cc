@@ -73,9 +73,9 @@ void EnumDefImpl<uiBatchHostsDlg::Status>::init()
 
 
 uiBatchHostsDlg::uiBatchHostsDlg( uiParent* p )
-    : uiDialog(p,Setup(tr("Setup Distributed Computing"),mNoDlgTitle,
+    : uiDialog(p,Setup(tr("Setup Distributed Computing"),
 		       mODHelpKey(mBatchHostsDlgHelpID))
-			.nrstatusflds(p ? 0 : 1))
+		    .nrstatusflds(p ? 0 : 1))
     , hostdatalist_(*new HostDataList(true))
 {
     const HostData* localhd = hostdatalist_.localHost();
@@ -218,8 +218,7 @@ void uiBatchHostsDlg::initUI( CallBacker* )
 
 void uiBatchHostsDlg::advbutCB( CallBacker* )
 {
-    uiDialog dlg( this,
-	uiDialog::Setup(tr("Advanced Settings"),mNoDlgTitle,mNoHelpKey) );
+    uiDialog dlg( this, Setup(tr("Advanced Settings"),mNoHelpKey) );
 
     if ( readonly_ )
 	dlg.setCtrlStyle( CloseOnly );

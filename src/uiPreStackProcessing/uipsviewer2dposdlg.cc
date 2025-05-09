@@ -40,9 +40,8 @@ GatherInfo::~GatherInfo()
 
 uiViewer2DPosDlg::uiViewer2DPosDlg( uiParent* p, const TrcKeyZSampling& tkzs,
 				    const BufferStringSet& gathernms )
-    : uiDialog(p,uiDialog::Setup(tr("Prestack Gather display positions"),
-			      mNoDlgTitle, mODHelpKey(mViewer2DPSPosDlgHelpID) )
-			.modal(false))
+    : uiDialog(p,Setup(tr("Prestack Gather display positions"),
+		       mODHelpKey(mViewer2DPSPosDlgHelpID)).modal(false))
     , okpushed_(this)
 {
     setCtrlStyle( RunAndClose );
@@ -191,7 +190,8 @@ void uiGatherPosSliceSel::reDoTable()
 	    const RowCol rc( rowidx, colidx );
             const int limitstep = useTrcNr() ? cs.hsamp_.trcRange().step_
                                              : cs.hsamp_.inlRange().step_;
-            const StepInterval<int> limitrg( trcrg.start_, trcrg.stop_,limitstep);
+	    const StepInterval<int> limitrg( trcrg.start_, trcrg.stop_,
+					     limitstep);
 	    auto* inpfld = new uiGenInput( nullptr, lbl,
 					   IntInpSpec(trcrg.atIndex(rowidx))
 							.setLimits(limitrg) );
@@ -465,9 +465,8 @@ void uiGatherPosSliceSel::resetDispGatherInfos()
 uiViewer2DSelDataDlg::uiViewer2DSelDataDlg( uiParent* p,
 					    const BufferStringSet& gnms,
 						  BufferStringSet& selgnms )
-    : uiDialog(p,uiDialog::Setup(tr("Select gather data"),
-				 tr("Add PS Gather"),
-				 mODHelpKey(mViewer2DPSSelDataDlgHelpID) ))
+    : uiDialog(p,Setup(tr("Select gather data"),tr("Add PS Gather"),
+		       mODHelpKey(mViewer2DPSSelDataDlgHelpID)))
     , selgathers_(selgnms)
 {
     allgatherfld_ = new uiListBox( this, "Available gathers",

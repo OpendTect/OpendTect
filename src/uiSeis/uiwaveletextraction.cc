@@ -38,8 +38,8 @@ ________________________________________________________________________
 
 
 uiWaveletExtraction::uiWaveletExtraction( uiParent* p, bool is2d )
-    : uiDialog(p,Setup(tr("Extract Wavelet"),mNoDlgTitle,
-			mODHelpKey(mWaveletExtractionHelpID) ).modal(false) )
+    : uiDialog(p,Setup(tr("Extract Wavelet"),
+		       mODHelpKey(mWaveletExtractionHelpID)).modal(false))
     , extractionDone(this)
     , seisselfld_(0)
     , linesel2dfld_(0)

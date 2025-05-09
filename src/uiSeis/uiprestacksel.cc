@@ -19,7 +19,7 @@ ________________________________________________________________________
 uiPreStackDataPackSelDlg::uiPreStackDataPackSelDlg( uiParent* p,
 			const TypeSet<DataPack::FullID>& dpfids,
 			const MultiID& selid )
-    : uiDialog(p,uiDialog::Setup(tr("Select Data"),mNoDlgTitle,mNoHelpKey))
+    : uiDialog(p,Setup(tr("Select Data"),mNoHelpKey))
     , dpfids_(dpfids)
     , selid_(selid)
 {

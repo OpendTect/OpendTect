@@ -20,9 +20,10 @@ class uiActiveRunningProcDlg : public uiDialog
 { mODTextTranslationClass(uiActiveRunningProcDlg);
 public:
     uiActiveRunningProcDlg( uiParent* p, const uiStringSet& descs )
-	: uiDialog(p,uiDialog::Setup(tr("Active Batch Processes"),
-	  tr("The Batch processes will keep running in the background,\n"
-	     "even after OpendTect is closed"),mNoHelpKey))
+	: uiDialog(p,Setup(tr("Active Batch Processes"),
+			   tr("The Batch processes will keep running "
+			      "in the background,\n"
+			      "even after OpendTect is closed"),mNoHelpKey))
     {
 	setCtrlStyle( CtrlStyle::CloseOnly );
 

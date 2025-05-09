@@ -28,9 +28,8 @@ namespace PreStack
 {
 
 uiExportMute::uiExportMute( uiParent* p )
-    : uiDialog(p,uiDialog::Setup( uiStrings::phrExport( tr("Mute Function") ),
-				 mNoDlgTitle,
-				 mODHelpKey(mPreStackExportMuteHelpID) ))
+    : uiDialog(p,Setup(uiStrings::phrExport(tr("Mute Function")),
+		       mODHelpKey(mPreStackExportMuteHelpID)))
 {
     setOkCancelText( uiStrings::sExport(), uiStrings::sClose() );
 

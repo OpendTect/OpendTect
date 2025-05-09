@@ -194,8 +194,8 @@ class uiSubSelForAnalysis : public uiDialog
 { mODTextTranslationClass(uiSubSelForAnalysis);
 public:
 uiSubSelForAnalysis( uiParent* p,const MultiID& mid, bool is2d )
-    : uiDialog(p,uiDialog::Setup(uiStrings::phrSelect(tr("data for analysis")),
-				 mNoDlgTitle,mNoHelpKey))
+    : uiDialog(p,Setup(uiStrings::phrSelect(tr("data for analysis")),
+		       mNoHelpKey))
     , subvolfld_(0)
     , linesfld_(0)
 {

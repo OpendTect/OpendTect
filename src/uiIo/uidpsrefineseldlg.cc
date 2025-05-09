@@ -21,17 +21,17 @@ ________________________________________________________________________
 #include "mathexpression.h"
 
 uiDPSRefineSelDlg::uiDPSRefineSelDlg( uiDataPointSetCrossPlotter& p )
-    : uiDialog(p.parent(),uiDialog::Setup(tr("Refine selection"),
+    : uiDialog(p.parent(),Setup(tr("Refine selection"),
 					  tr("Define mathematical operation"),
-					  mODHelpKey(mSelectionSettDlgHelpID) )
+					  mODHelpKey(mSelectionSettDlgHelpID))
 			    .savebutton(!p.isADensityPlot())
-			    .savetext(tr("Select on OK")).modal(false) )
+			    .savetext(tr("Select on OK")).modal(false))
     , plotter_(p)
     , mathobj_(0)
     , mathexprstring_(plotter_.mathObjStr())
     , dcolids_(plotter_.modifiedColIds())
 {
-    uiLabel* label =
+    auto* label =
 	new uiLabel( this, tr("Ranges (e.g. 0>x0 && x0>1.5 && -6125<x1)") );
 
     inpfld_ = new uiGenInput( this, tr("Enter Ranges") );
@@ -44,7 +44,7 @@ uiDPSRefineSelDlg::uiDPSRefineSelDlg( uiDataPointSetCrossPlotter& p )
     setbut_->activated.notify( mCB(this,uiDPSRefineSelDlg,parsePush) );
     setbut_->attach( rightTo, inpfld_ );
 
-    uiGroup* tblgrp = new uiGroup( this );
+    auto* tblgrp = new uiGroup( this );
     tblgrp->attach( alignedBelow, inpfld_ );
     vartable_ = new uiTable( tblgrp,uiTable::Setup(2,1).rowdesc(uiStrings::sX())
 					.minrowhgt(1.5) .maxrowhgt(2)

@@ -30,9 +30,8 @@ namespace PreStack
 {
 
 uiAngleMuteComputer::uiAngleMuteComputer( uiParent* p )
-    : uiDialog( p, uiDialog::Setup(tr("Angle Mute Computer"),
-				mNoDlgTitle,
-				mODHelpKey(mAngleMuteComputerHelpID) ) )
+    : uiDialog(p,Setup(tr("Angle Mute Computer"),
+		       mODHelpKey(mAngleMuteComputerHelpID)))
     , processor_(new AngleMuteComputer)
 {
     const OD::GeomSystem gs = OD::Geom3D;

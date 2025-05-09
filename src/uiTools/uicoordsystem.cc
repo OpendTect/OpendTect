@@ -266,9 +266,9 @@ void uiCoordSystemSelGrp::fillFrom( const Coords::CoordSystem& crs )
 uiCoordSystemDlg::uiCoordSystemDlg( uiParent* p, bool orthogonal,
 			bool projectiononly, const SurveyInfo* si,
 			const CoordSystem* coordsys )
-    : uiDialog(p,uiDialog::Setup(orthogonal ? tr("Coordinate Reference System")
-					    : tr("Lat-Long System"),
-			mNoDlgTitle,mODHelpKey(mLatLong2CoordDlgHelpID) ))
+    : uiDialog(p,Setup(orthogonal ? tr("Coordinate Reference System")
+				  : tr("Lat-Long System"),
+		       mODHelpKey(mLatLong2CoordDlgHelpID)))
 {
     coordsysselfld_ = new Coords::uiCoordSystemSelGrp( this, orthogonal,
 						projectiononly, si, coordsys );

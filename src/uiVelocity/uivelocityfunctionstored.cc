@@ -41,7 +41,7 @@ uiFunctionSettings* uiStoredFunction::create( uiParent* p, FunctionSource* vs )
 
 
 uiStoredFunction::uiStoredFunction( uiParent* p, StoredFunctionSource* s )
-    : uiFunctionSettings( p, "Stored" )
+    : uiFunctionSettings(p,"Stored")
     , source_( s )
 {
     IOObjContext context = StoredFunctionSource::ioContext();

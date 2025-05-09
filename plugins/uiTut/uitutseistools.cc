@@ -30,9 +30,9 @@ static const char* actions[] = { "Scale", "Square", "Smooth",
 // Exactly the order of the Tut::SeisTools::Action enum
 
 uiTutSeisTools::uiTutSeisTools( uiParent* p, Seis::GeomType gt )
-    : uiDialog( p, Setup( tr("Tut seismic tools"),
-			    tr("Specify process parameters"),
-			    HelpKey("tut","seis") ) )
+    : uiDialog( p ,Setup( tr("Tut seismic tools"),
+			  tr("Specify process parameters"),
+			  HelpKey("tut","seis") ) )
     , geom_(gt)
     , tst_(*new Tut::SeisTools)
 {

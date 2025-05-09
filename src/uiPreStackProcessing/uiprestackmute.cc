@@ -36,8 +36,7 @@ uiDialog* uiMute::create( uiParent* p, Processor* proc )
 
 
 uiMute::uiMute( uiParent* p, Mute* mute )
-    : uiDialog(p,uiDialog::Setup(tr("Mute setup"),mNoDlgTitle,
-				 mODHelpKey(mPreStackMuteHelpID)))
+    : uiDialog(p,Setup(tr("Mute setup"),mODHelpKey(mPreStackMuteHelpID)))
     , processor_(mute)
 {
     uiIOObjSel::Setup mutesu( tr("Mute Definition") );
