@@ -20,10 +20,22 @@ extern "C"
 {
     mGlobal(Basic) const char*	getCleanUnixPath(const char* path);
     mGlobal(Basic) const char*	getCleanWinPath(const char* path);
-    mGlobal(Basic) const char*	GetSpecialFolderLocation(int csidl);
 }
 
+mGlobal(Basic) bool		readRegKeyVal(const char* ky,const char* varnm,
+					      BufferString&);
+mGlobal(Basic) bool		setRegKeyVal(const char* ky, const char* vanrnm,
+					     const char *val);
+mGlobal(Basic) bool		removeRegKey(const char*);
+mGlobal(Basic) bool		removeRegKeyVal(const char* ky,
+						const char* varnm);
+
 #ifdef __win__
+
+extern "C"
+{
+    mGlobal(Basic) const char*	GetSpecialFolderLocation(int csidl);
+}
 
 mGlobal(Basic) bool		winCopy(const char* from,const char* to,
 					bool isfile,bool ismove=false);
@@ -82,9 +94,7 @@ mGlobal(Basic) bool		getDefaultApplication( const char* scheme,
 					BufferString& cmd,
 					BufferString& errmsg);
 
-mGlobal(Basic)	bool		setRegKeyVal(const char* ky, const char* vanrnm,
-					     const char *val);
-mGlobal(Basic) bool		removeRegKey(const char*);
+mDeprecated("Use readRegKeyVal")
 mGlobal(Basic) bool		readKey(const HKEY,const char* path,
 					const char* ky,BufferString&,
 					LPDWORD dwFlags=NULL,

@@ -17,6 +17,8 @@ ________________________________________________________________________
 #include "perthreadrepos.h"
 #include "string2.h"
 
+#include <QSettings>
+
 #ifdef __win__
 #include "dirlist.h"
 #include "file.h"
@@ -33,7 +35,6 @@ ________________________________________________________________________
 # include <winreg.h>
 
 # include <iostream>
-# include <QSettings>
 #endif
 
 
@@ -94,6 +95,45 @@ const char* getCleanWinPath( const char* path )
 
     ret.replace( '/', '\\' );
     return ret;
+}
+
+
+bool readRegKeyVal( const char* ky, const char* varnm, BufferString& val )
+{
+    const QSettings regkey( ky, QSettings::NativeFormat );
+    const QVariant qvar = regkey.value( varnm );
+    if ( qvar.isNull() )
+	return false;
+
+    val = qvar.toString();
+    return !val.isEmpty();
+}
+
+
+bool setRegKeyVal( const char* ky, const char* varnm, const char *val )
+{
+    QSettings regkey( ky, QSettings::NativeFormat );
+    regkey.setValue( varnm, val );
+    regkey.sync();
+    const bool ret = regkey.status() == QSettings::NoError;
+    return ret;
+}
+
+bool removeRegKey( const char* ky )
+{
+    QSettings regkey( ky, QSettings::NativeFormat );
+    regkey.clear();
+    regkey.sync();
+    return regkey.status() == QSettings::NoError;
+}
+
+
+bool removeRegKeyVal( const char* ky, const char* varnm )
+{
+    QSettings regkey( ky, QSettings::NativeFormat );
+    regkey.remove( varnm );
+    regkey.sync();
+    return regkey.status() == QSettings::NoError;
 }
 
 
@@ -476,6 +516,9 @@ static bool isWindows11()
 
 } // namespace WinUtils
 
+#define HKLMCV \
+    "HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion"
+
 
 const char* getWinVersion()
 {
@@ -486,14 +529,9 @@ const char* getWinVersion()
 	    ret = 11;
 	else
 	{
-	    DWORD dwFlagsRet = RRF_RT_REG_DWORD;
-	    if ( !readKey(HKEY_LOCAL_MACHINE,
-			"SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion",
-			"CurrentMajorVersionNumber",ret,&dwFlagsRet) )
+	    if ( !readRegKeyVal(HKLMCV,"CurrentMajorVersionNumber",ret) )
 	    {
-		if ( readKey(HKEY_LOCAL_MACHINE,
-		    "SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion",
-		    "CurrentVersion",ret,&dwFlagsRet) )
+		if ( readRegKeyVal(HKLMCV,"CurrentVersion",ret) )
 		{
 		    const SeparString ss( ret.buf(), '.' );
 		    if ( ss.size() > 0 )
@@ -515,14 +553,9 @@ const char* getWinMinorVersion()
     mDeclStaticString( ret );
     if ( ret.isEmpty() )
     {
-	DWORD dwFlagsRet = RRF_RT_REG_DWORD;
-	if ( !readKey(HKEY_LOCAL_MACHINE,
-	    "SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion",
-	    "CurrentMinorVersionNumber",ret,&dwFlagsRet) )
+	if ( !readRegKeyVal(HKLMCV,"CurrentMinorVersionNumber",ret) )
 	{
-	    if ( readKey(HKEY_LOCAL_MACHINE,
-		"SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion",
-		"CurrentVersion",ret,&dwFlagsRet) )
+	    if ( readRegKeyVal(HKLMCV,"CurrentVersion",ret) )
 	    {
 		const SeparString ss( ret.buf(), '.' );
 		if ( ss.size() > 1 )
@@ -543,9 +576,7 @@ const char* getWinBuildNumber()
     mDeclStaticString( ret );
     if ( ret.isEmpty() )
     {
-	if ( !readKey(HKEY_LOCAL_MACHINE,
-	    "SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion",
-	    "CurrentBuildNumber",ret) )
+	if ( !readRegKeyVal(HKLMCV,"CurrentBuildNumber",ret) )
 	    ret.set( "Unknown build number" );
     }
 
@@ -580,9 +611,7 @@ const char* getWinDisplayName()
     mDeclStaticString( ret );
     if ( ret.isEmpty() )
     {
-	if ( !readKey(HKEY_LOCAL_MACHINE,
-	    "SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion",
-	    "DisplayVersion",ret ) )
+	if ( !readRegKeyVal(HKLMCV,"DisplayVersion",ret ) )
 	    ret.set( "Unknown display name" );
     }
 
@@ -595,9 +624,7 @@ const char* getWinEdition()
     mDeclStaticString( ret );
     if ( ret.isEmpty() )
     {
-	if ( !readKey(HKEY_LOCAL_MACHINE,
-		      "SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion",
-		      "EditionID",ret) )
+	if ( !readRegKeyVal(HKLMCV,"EditionID",ret) )
 	    ret.set( "Unknown edition" );
     }
 
@@ -610,9 +637,7 @@ const char* getWinProductName()
     mDeclStaticString( ret );
     if ( ret.isEmpty() )
     {
-	if ( !readKey(HKEY_LOCAL_MACHINE,
-		      "SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion",
-		      "ProductName",ret) )
+	if ( !readRegKeyVal(HKLMCV,"ProductName",ret) )
 	    ret.set( "Unknown product name" );
 
 	if ( WinUtils::isWindows11() )
@@ -630,9 +655,7 @@ bool IsWindowsServer()
     {
 	res = 0;
 	BufferString ret;
-	if ( readKey(HKEY_LOCAL_MACHINE,
-	     "SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion",
-	     "InstallationType",ret) && ret == "Server" )
+	if ( readRegKeyVal(HKLMCV,"InstallationType",ret) && ret == "Server" )
 	    res = 1;
     }
 
@@ -761,78 +784,32 @@ mStopAllowDeprecatedSection
 bool getDefaultApplication( const char* filetype,
 			    BufferString& cmd, BufferString& errmsg )
 {
-    cmd = errmsg = "";
-
-    HKEY handle;
-    LONG res = 0;
-    const BufferString subkey( filetype, "\\Shell\\Open\\Command" );
-    const std::wstring wsubkey = subkey.toStdWString();
-    res = RegOpenKeyEx( HKEY_CLASSES_ROOT, wsubkey.c_str(), 0,
-			KEY_READ, &handle );
-    if ( res != ERROR_SUCCESS )
-    {
-	errmsg = "Cannot open registry";
-	return false;
-    }
-
-    CHAR value[512];
-    DWORD bufsz = sizeof( value );
-    res = RegQueryValueEx( handle, NULL, NULL, NULL, (LPBYTE)value, &bufsz );
-    if ( res != ERROR_SUCCESS )
+    const FilePath hkeyfp( "HKEY_CLASSES_ROOT", filetype,
+			   "shell", "open", "command" );
+    const bool res = readRegKeyVal( hkeyfp.fullPath(), "Default", cmd );
+    if ( !res )
     {
 	errmsg =  "Cannot query registry for default application";
 		  " with file type ";
 	errmsg.add( filetype );
-	return false;
     }
 
-    cmd = value;
-    RegCloseKey( handle );
-    return true;
+    return res;
 }
 
 
 bool getDefaultBrowser( BufferString& cmd, BufferString& errmsg )
 {
-    BufferString appkey = "HTTP";
-    HKEY handle;
-    LONG res = 0;
-    const BufferString subkey = "SOFTWARE\\Microsoft\\Windows\\Shell\\"
-		"Associations\\UrlAssociations\\http\\UserChoice";
-    const std::wstring wsubkey = subkey.toStdWString();
-    res = RegOpenKeyEx( HKEY_CURRENT_USER, wsubkey.c_str(), 0,
-			KEY_READ, &handle );
-    if ( res == ERROR_SUCCESS )
-    {
-	CHAR value[512];
-	DWORD bufsz = sizeof( value );
-	res = RegQueryValueEx( handle, L"ProgId", NULL, NULL,
-			       (LPBYTE)value, &bufsz );
-	if ( res == ERROR_SUCCESS )
-	    appkey = value;
-	RegCloseKey( handle );
-    }
+    FilePath hkeyfp( "HKEY_CURRENT_USER", "Software", "Microsoft", "Windows",
+		     "Shell" );
+    hkeyfp.add( "Associations" ).add( "UrlAssociations" ).add( "http" )
+	  .add( "UserChoice" );
+    BufferString appkey;
+    const bool res = readRegKeyVal( hkeyfp.fullPath(), "ProgId", appkey );
+    if ( !res )
+	appkey = "HTTP";
 
     return getDefaultApplication( appkey, cmd, errmsg );
-}
-
-
-bool setRegKeyVal( const char* ky, const char* vanrnm, const char *val )
-{
-    QSettings regkey( ky, QSettings::NativeFormat );
-    regkey.setValue("Default", "");
-    regkey.setValue( vanrnm, val );
-    regkey.sync();
-    const bool ret = regkey.status() == QSettings::NoError;
-    return ret;
-}
-
-bool removeRegKey( const char* ky )
-{
-    QSettings regkey( ky, QSettings::NativeFormat );
-    regkey.clear();
-    regkey.sync();
-    return regkey.status() == QSettings::NoError;
 }
 
 
