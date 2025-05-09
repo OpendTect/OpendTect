@@ -17,11 +17,46 @@ ________________________________________________________________________
 #include "uiraytrace1d.h"
 #include "uirefltrace1d.h"
 
+#include "file.h"
 #include "filepath.h"
 #include "genc.h"
 #include "oddirs.h"
+#include "odiconfile.h"
 #include "plugins.h"
 #include "procdescdata.h"
+#include "settings.h"
+
+
+namespace OD
+{
+
+static void addODIconFolders()
+{
+    const StringView icsetnm( IconFile::getIconSubFolderName() );
+    const BufferString icdirnm = mGetSetupFileName( icsetnm.buf() );
+    addIconsFolder( icdirnm.buf() );
+
+    const BufferString pluginsicdirnm =
+	    GetSetupDataFileName( ODSetupLoc_UserPluginDirOnly, icsetnm, true );
+    if ( pluginsicdirnm != icdirnm )
+	addIconsFolder( pluginsicdirnm.buf() );
+
+    const StringView deficsetnm( IconFile::getDefaultIconSubFolderName() );
+    if ( deficsetnm == icsetnm )
+	return;
+
+    const BufferString deficdirnm = mGetSetupFileName( deficsetnm.buf() );
+    addIconsFolder( deficdirnm.buf() );
+
+    const BufferString pluginsdeficdirnm =
+			GetSetupDataFileName( ODSetupLoc_UserPluginDirOnly,
+					      deficsetnm.buf(), true );
+    if ( pluginsdeficdirnm != deficdirnm )
+	addIconsFolder( pluginsdeficdirnm.buf() );
+}
+
+} // namespace OD
+
 
 mDefModInitFn(uiTools)
 {
@@ -40,6 +75,7 @@ mDefModInitFn(uiTools)
     uiGeneralSettingsGroup::initClass();
     uiVisSettingsGroup::initClass();
     uiFontSettingsGroup::initClass();
+    OD::addODIconFolders();
 
     if ( !NeedDataBase() )
 	return;

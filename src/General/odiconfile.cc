@@ -9,16 +9,41 @@ ________________________________________________________________________
 
 #include "odiconfile.h"
 
+#include "dirlist.h"
 #include "file.h"
 #include "filepath.h"
 #include "oddirs.h"
-#include "dirlist.h"
-#include "settings.h"
 #include "perthreadrepos.h"
+#include "settings.h"
 
 static const char* sFileNameEnd = ".png";
 #define mIconDirStart "icons."
 #define mIconDirDefault "Default"
+
+namespace OD
+{
+
+const BufferStringSet& getIconDirs()
+{
+    static PtrMan<BufferStringSet> ret = new BufferStringSet();
+    return *ret.ptr();
+}
+
+
+const BufferStringSet& getIconSubNames()
+{
+    static PtrMan<BufferStringSet> ret = new BufferStringSet();
+    if ( ret->isEmpty() )
+    {
+	BufferStringSet& iconsubnms = *ret.ptr();
+	::Settings::common().get( "Icon sizes", iconsubnms );
+	iconsubnms.addIfNew( "small" );
+    }
+
+    return *ret.ptr();
+}
+
+} // namespace OD
 
 
 OD::IconFile::IconFile( OD::StdActionType typ )
@@ -33,29 +58,33 @@ OD::IconFile::IconFile( const char* identifier )
 }
 
 
-void OD::IconFile::init( const char* identifier )
+const char* OD::IconFile::getIconSubFolderName()
 {
-    BufferString icsetnm( mIconDirDefault );
-    ::Settings::common().get( "Icon set name", icsetnm );
-    BufferString dirnm( mIconDirStart, icsetnm );
-    icdirnm_ = mGetSetupFileName(dirnm);
-    alticdirnm_ = GetSetupDataFileName( ODSetupLoc_UserPluginDirOnly, dirnm,
-					true );
-    if ( alticdirnm_ == icdirnm_ )
-	alticdirnm_.setEmpty();
-
-    if ( icsetnm == "Default" )
-	trydeficons_ = false;
-    else
+    mDeclStaticString( ret );
+    if ( ret.isEmpty() )
     {
-	trydeficons_ = true;
-	deficdirnm_ = mGetSetupFileName( mIconDirStart mIconDirDefault );
-	altdeficdirnm_ = GetSetupDataFileName( ODSetupLoc_UserPluginDirOnly,
-					mIconDirStart mIconDirDefault, true );
-	if ( altdeficdirnm_ == deficdirnm_ )
-	    altdeficdirnm_.setEmpty();
+	ret.set( mIconDirStart );
+	BufferString icsetnm( mIconDirDefault );
+	::Settings::common().get( "Icon set name", icsetnm );
+	ret.add( icsetnm );
     }
 
+    return ret.str();
+}
+
+
+const char* OD::IconFile::getDefaultIconSubFolderName()
+{
+    mDeclStaticString( ret );
+    if ( ret.isEmpty() )
+	ret.set( mIconDirStart ).add( mIconDirDefault );
+
+    return ret.str();
+}
+
+
+void OD::IconFile::init( const char* identifier )
+{
     set( identifier );
 }
 
@@ -86,14 +115,8 @@ void OD::IconFile::set( const char* inp )
 	identifier = inpstr;
     }
 
-    if ( findIcons(identifier,false) )
+    if ( findIcons(identifier) )
 	return;
-
-    if ( trydeficons_ )
-    {
-	if ( findIcons(identifier,true) )
-	    return;
-    }
 
     pErrMsg(BufferString("No icon found for identifier '",identifier,"'"));
 }
@@ -128,42 +151,33 @@ const char* OD::IconFile::getIdentifier( OD::StdActionType typ )
 }
 
 
-bool OD::IconFile::findIcons( const char* id, bool indef )
+bool OD::IconFile::findIcons( const char* id )
 {
     const BufferString iconfnm( id, sFileNameEnd );
-
-    const BufferString* dirnm = indef ? &deficdirnm_ : &icdirnm_;
-    FilePath fp( dirnm->str(), iconfnm.str() );
-    BufferString simplefnm = fp.fullPath();
-    if ( File::exists(simplefnm.str()) )
-	nms_.add( simplefnm.str() );
-    else
+    const BufferStringSet& icondirs = getIconDirs();
+    for ( const auto* icondir : icondirs )
     {
-	const BufferString& altdirnm = indef ? altdeficdirnm_ : alticdirnm_;
-	if ( !altdirnm.isEmpty() )
-	{
-	    fp.set( altdirnm.str() ).add( iconfnm.str() );
-	    if ( fp.exists() )
-	    {
-		dirnm = &altdirnm;
-		simplefnm = fp.fullPath();
-		nms_.add( simplefnm.str() );
-	    }
-	}
+	const FilePath fp( icondir->str(), iconfnm.str() );
+	const BufferString simplefnm = fp.fullPath();
+	if ( !File::exists(simplefnm.str()) )
+	    continue;
+
+	nms_.add( simplefnm.str() );
+	break;
     }
 
-    BufferStringSet iconsubnms;
-    ::Settings::common().get( "Icon sizes", iconsubnms );
-    iconsubnms.addIfNew( "small" );
-
-    for ( int idx=0; idx<iconsubnms.size(); idx++ )
+    const BufferStringSet& iconsubnms = getIconSubNames();
+    for ( const auto* icondir : icondirs )
     {
-	FilePath fpsz( dirnm->buf() );
-	BufferString fnm( id, ".", iconsubnms.get(idx) );
-	fnm.add( sFileNameEnd );
-	fpsz.add( fnm );
-	if ( fpsz.exists() )
-	    nms_.add( fpsz.fullPath() );
+	for ( const auto* iconsubnm : iconsubnms )
+	{
+	    FilePath fpsz( icondir->buf() );
+	    BufferString fnm( id, ".", iconsubnm->buf() );
+	    fnm.add( sFileNameEnd );
+	    fpsz.add( fnm );
+	    if ( fpsz.exists() )
+		nms_.add( fpsz.fullPath() );
+	}
     }
 
     return nms_.size();
@@ -184,11 +198,21 @@ const char* OD::IconFile::notFoundIconFileName()
     if ( ret.isEmpty() )
     {
 	OD::IconFile icf( "iconnotfound" );
-	if ( !icf.haveData() )
-	    ret = mGetSetupFileName("od.png");
+	if ( icf.haveData() )
+	    ret = icf.nms_.first();
 	else
-	    ret = icf.nms_.get(0);
+	    ret = mGetSetupFileName("od.png");
     }
 
     return ret.str();
+}
+
+
+bool OD::addIconsFolder( const char* path )
+{
+    if ( !File::isDirectory(path) )
+	return false;
+
+    auto& icondirs = const_cast<BufferStringSet&>( getIconDirs() );
+    return icondirs.addIfNew( path );
 }

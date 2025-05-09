@@ -10,6 +10,7 @@ ________________________________________________________________________
 
 #include "generalmod.h"
 #include "namedobj.h"
+
 #include "bufstringset.h"
 #include "odcommonenums.h"
 
@@ -74,22 +75,22 @@ public:
     const BufferStringSet& fileNames() const	{ return nms_; }
 
     static const char*	notFoundIconFileName();
+    static const char*	getIconSubFolderName();
+    static const char*	getDefaultIconSubFolderName();
 
 protected:
 
-    bool		trydeficons_;
-    BufferString	icdirnm_;
-    BufferString	alticdirnm_;
-    BufferString	deficdirnm_;
-    BufferString	altdeficdirnm_;
     BufferStringSet	nms_;
 
-    bool		findIcons(const char*,bool shortname);
+    bool		findIcons(const char*);
 
 private:
 
     void		init(const char*);
 
 };
+
+
+mGlobal(General) bool addIconsFolder(const char* path);
 
 } // namespace OD
