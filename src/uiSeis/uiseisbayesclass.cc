@@ -104,10 +104,10 @@ class uiSeisBayesPDFInp : public uiVarWizardDlg
 public:
 
 uiSeisBayesPDFInp( uiParent* p, IOPar& pars )
-    : uiVarWizardDlg(p,uiDialog::Setup(uiStrings::phrJoinStrings(sKeyBayesClss()
-				,tr("- PDFs")), tr("[1] Specify PDF input"),
-				 mODHelpKey(mSeisBayesPDFInpHelpID) ),
-                                 pars,Start)
+    : uiVarWizardDlg(p,Setup(uiStrings::phrJoinStrings(sKeyBayesClss(),
+						       tr("- PDFs")),
+			     tr("[1] Specify PDF input"),
+			     mODHelpKey(mSeisBayesPDFInpHelpID)),pars,Start)
     , nrdisp_(1)
 {
     rmbuts_.allowNull(); addbuts_.allowNull();
@@ -252,9 +252,10 @@ class uiSeisBayesNorm : public uiVarWizardDlg
 public:
 
 uiSeisBayesNorm( uiParent* p, IOPar& pars )
-    : uiVarWizardDlg(p,uiDialog::Setup(uiStrings::phrJoinStrings(sKeyBayesClss()
-			 ,tr("- Scaling")), tr("[2] Normalization/Scaling"),
-			 mODHelpKey(mSeisBayesNormHelpID) ), pars, Middle )
+    : uiVarWizardDlg(p,Setup(uiStrings::phrJoinStrings(sKeyBayesClss(),
+						       tr("- Scaling")),
+			     tr("[2] Normalization/Scaling"),
+			     mODHelpKey(mSeisBayesNormHelpID)),pars,Middle)
     , is2d_(pars[sKey::Type()].firstChar() == '2')
     , nrpdfs_(0)
     , prenormfld_(nullptr)
@@ -426,10 +427,10 @@ class uiSeisBayesSeisInp : public uiVarWizardDlg
 public:
 
 uiSeisBayesSeisInp( uiParent* p, IOPar& pars )
-    : uiVarWizardDlg(p, uiDialog::Setup(tr("%1- Seismic").arg(sKeyBayesClss()),
-					tr("[3] Specify Seismic input"),
-					mODHelpKey(mSeisBayesSeisInpHelpID) ),
-					pars,Middle)
+    : uiVarWizardDlg(p,uiDialog::Setup(tr("%1- Seismic").arg(sKeyBayesClss()),
+				       tr("[3] Specify Seismic input"),
+				       mODHelpKey(mSeisBayesSeisInpHelpID)),
+		     pars,Middle)
     , is2d_(pars[sKey::Type()].firstChar() == '2')
 {
     uiString emsg;
@@ -524,10 +525,10 @@ class uiSeisBayesOut : public uiVarWizardDlg
 public:
 
 uiSeisBayesOut( uiParent* p, IOPar& pars )
-    : uiVarWizardDlg(p, uiDialog::Setup(tr("%1- Output").arg(sKeyBayesClss()),
-					tr("[4] Select and specify output"),
-					mODHelpKey(mSeisBayesOutHelpID) ),
-					pars,DoWork)
+    : uiVarWizardDlg(p,uiDialog::Setup(tr("%1- Output").arg(sKeyBayesClss()),
+				       tr("[4] Select and specify output"),
+				       mODHelpKey(mSeisBayesOutHelpID)),
+		     pars,DoWork)
     , is2d_(pars[sKey::Type()].firstChar() == '2')
     , haveclass_(true)
 {

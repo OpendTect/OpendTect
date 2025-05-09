@@ -30,7 +30,7 @@ ________________________________________________________________________
 
 
 uiHorizonSortDlg::uiHorizonSortDlg( uiParent* p, bool is2d, bool loadneeded )
-    : uiDialog(p,Setup(tr("Select Horizons"),mNoDlgTitle,mNoHelpKey))
+    : uiDialog(p,Setup(tr("Select Horizons"),mNoHelpKey))
     , is2d_( is2d )
     , loadneeded_(loadneeded)
 {

@@ -25,9 +25,8 @@ ________________________________________________________________________
 
 
 uiSeis2DTo3D::uiSeis2DTo3D( uiParent* p )
-	: uiDialog( p, Setup( tr("Create 3D cube from to 2DDataSet"),
-			      mNoDlgTitle,
-			      mODHelpKey(mSeis2DTo3DHelpID) ) )
+	: uiDialog(p,Setup(tr("Create 3D cube from to 2DDataSet"),
+			   mODHelpKey(mSeis2DTo3DHelpID)))
 {
     inpfld_ = new uiSeisSel( this, uiSeisSel::ioContext(Seis::Line,true),
 			     uiSeisSel::Setup(Seis::Line) );

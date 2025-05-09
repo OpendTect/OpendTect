@@ -43,8 +43,7 @@ uiFlatViewZoomLevelDlg::uiFlatViewZoomLevelDlg( uiParent* p,
 			float x1pospercm, float x2pospercm, bool isvertical,
 			const ZDomain::Info* datazdom,
 			const ZDomain::Info* displayzdom )
-    : uiDialog(p,uiDialog::Setup(tr("Set Zoom Level"),mNoDlgTitle,mNoHelpKey)
-				.applybutton(true))
+    : uiDialog(p,Setup(tr("Set Zoom Level"),mNoHelpKey).applybutton(true))
     , x1pospercm_(x1pospercm)
     , x2pospercm_(x2pospercm)
     , isvertical_(isvertical)

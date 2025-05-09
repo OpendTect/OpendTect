@@ -30,7 +30,7 @@ ________________________________________________________________________
 
 uiFlatUnflatCube::uiFlatUnflatCube( uiParent* p )
     : uiDialog(p,Setup(tr("Flatten / Unflatten Seismic Data"),
-		       mNoDlgTitle,mODHelpKey(mFlatUnflatCubeHelpID)))
+		       mODHelpKey(mFlatUnflatCubeHelpID)))
 {
     setCtrlStyle( RunAndClose );
 

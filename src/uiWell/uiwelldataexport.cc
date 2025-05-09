@@ -57,8 +57,8 @@ static const UnitOfMeasure* getDisplayUnit( uiGenInput* ztype )
 
 uiWellExportFacility::uiWellExportFacility( uiParent* p,
 						    uiWellPartServer& wps )
-    : uiDialog(p,uiDialog::Setup(tr("Well Export Facility"),
-				    uiString::empty(),mODHelpKey(mWellExpDlg)))
+    : uiDialog(p,Setup(tr("Well Export Facility"),uiString::empty(),
+		       mODHelpKey(mWellExpDlg) ) )
     , wellpartserver_(wps)
 {
     setModal( false );

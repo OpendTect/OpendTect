@@ -53,7 +53,7 @@ class uiGMTIntro : public uiDialog
 public:
 
 uiGMTIntro( uiParent* p )
-    : uiDialog(p,uiDialog::Setup(tr("GMT Mapping Tool"),mNoDlgTitle,mNoHelpKey))
+    : uiDialog(p,Setup(tr("GMT Mapping Tool"),mNoHelpKey))
 {
     setOkText( uiStrings::sContinue() );
 

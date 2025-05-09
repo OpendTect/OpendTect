@@ -644,8 +644,8 @@ Array2D<unsigned char>*				bidinplg_;
 
 
 uiBodyRegionDlg::uiBodyRegionDlg( uiParent* p )
-    : uiDialog(p,Setup(tr("Build Geobody Region"),mNoDlgTitle,
-		       mODHelpKey(mBodyRegionDlgHelpID) ) )
+    : uiDialog(p,Setup(tr("Build Geobody Region"),
+		       mODHelpKey(mBodyRegionDlgHelpID)))
     , singlehoradded_(false)
 {
     setCtrlStyle( RunAndClose );

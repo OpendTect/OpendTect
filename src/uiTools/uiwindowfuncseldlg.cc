@@ -327,8 +327,7 @@ const char* uiFuncSelDraw::getCurrentListName() const
 
 uiWindowFuncSelDlg::uiWindowFuncSelDlg( uiParent* p, const char* winname,
 					float variable )
-    : uiDialog( p, uiDialog::Setup(tr("Window/Taper display"),
-				   uiStrings::sEmptyString(),mNoHelpKey) )
+    : uiDialog(p,Setup(tr("Window/Taper display"),mNoHelpKey))
     , variable_(variable)
 {
     setCtrlStyle( CloseOnly );

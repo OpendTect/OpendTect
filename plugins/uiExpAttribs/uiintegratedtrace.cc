@@ -19,7 +19,7 @@ mInitAttribUI(uiIntegratedTrace,IntegratedTrace,
 		"Integrated Trace","Experimental")
 
 uiIntegratedTrace::uiIntegratedTrace( uiParent* p, bool is2d )
-	: uiAttrDescEd(p,is2d, mNoHelpKey )
+	: uiAttrDescEd(p,is2d,mNoHelpKey )
 {
     inpfld_ = createInpFld( is2d );
     setHAlignObj( inpfld_ );

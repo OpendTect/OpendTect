@@ -356,9 +356,9 @@ void uiWellSelGrp::ptsSel( CallBacker* )
 
 
 uiWell2RandomLineDlg::uiWell2RandomLineDlg( uiParent* p, uiWellPartServer* ws )
-    : uiDialog(p,uiDialog::Setup(tr("Create Random line"),
-		tr("Select wells to set up the random line path"),
-		mODHelpKey(mWell2RandomLineDlgHelpID)).modal(false))
+    : uiDialog(p,Setup(tr("Create Random line"),
+		       tr("Select wells to set up the random line path"),
+		       mODHelpKey(mWell2RandomLineDlgHelpID)).modal(false))
     , wellserv_(ws)
 {
     selgrp_ = new uiWellSelGrp( this );

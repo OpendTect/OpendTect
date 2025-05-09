@@ -84,9 +84,9 @@ int WellTie::uiCheckShotEdit::DriftCurve::indexOfCurrentPoint( float dh,
 // WellTie::uiCheckShotEdit
 
 WellTie::uiCheckShotEdit::uiCheckShotEdit(uiParent* p, Server& server )
-    : uiDialog(p,uiDialog::Setup(tr("Apply Checkshot correction"),
-		tr("Edit depth/time model based on checkshot"),
-		mODHelpKey(mCheckShotEditHelpID) ).nrstatusflds(1))
+    : uiDialog(p,Setup(tr("Apply Checkshot correction"),
+		       tr("Edit depth/time model based on checkshot"),
+		       mODHelpKey(mCheckShotEditHelpID)).nrstatusflds(1))
     , server_(server)
     , wd_(*server.wd())
     , d2t_(wd_.d2TModel())
@@ -324,7 +324,8 @@ void WellTie::uiCheckShotEdit::drawDahObj( const Well::DahObj* d, bool first,
     if ( SI().depthsInFeet() ) zfac = mToFeetFactorF;
     float startpos = -SI().seismicReferenceDatum();
     const float stoppos = (orgcs_->dahRange().stop_ > orgd2t_->dahRange().stop_)
-                          ? orgcs_->dahRange().stop_ : orgd2t_->dahRange().stop_;
+			  ? orgcs_->dahRange().stop_
+			  : orgd2t_->dahRange().stop_;
     Interval<float> zrg( startpos*zfac, stoppos*zfac );
     disp->setZRange(zrg);
     dahdata.drawaspoints_ = d == tkzs_ || d == &newdriftcurve_;
@@ -368,7 +369,8 @@ void WellTie::uiCheckShotEdit::drawDrift()
 
     float startpos = -SI().seismicReferenceDatum();
     const float stoppos = (orgcs_->dahRange().stop_ > orgd2t_->dahRange().stop_)
-                          ? orgcs_->dahRange().stop_ : orgd2t_->dahRange().stop_;
+			  ? orgcs_->dahRange().stop_
+			  : orgd2t_->dahRange().stop_;
     float zfac = 1.f;
     if ( SI().depthsInFeet() ) zfac = mToFeetFactorF;
 

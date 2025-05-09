@@ -14,8 +14,7 @@ ________________________________________________________________________
 
 uiAttribTransDlg::uiAttribTransDlg( uiParent* p, visSurvey::SurveyObject& so,
 				    int attrib )
-    : uiDialog( p, uiDialog::Setup(tr("Attribute transparency"),
-		mNoDlgTitle,mNoHelpKey) )
+    : uiDialog(p,Setup(tr("Attribute transparency"),mNoHelpKey))
     , so_( so )
     , attrib_( attrib )
     , initaltrans_( so.getAttribTransparency(attrib) )

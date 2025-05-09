@@ -26,7 +26,7 @@ mImplFactory2Param( uiSynthSeis, uiParent*, const uiSynthSeis::Setup&,
 // uiSynthSeisSel
 
 uiSynthSeisSel::uiSynthSeisSel( uiParent* p, const uiSynthSeis::Setup& su )
-    : uiGroup( p, "Synth Seis Selector" )
+    : uiGroup(p,"Synth Seis Selector" )
     , parsChanged(this)
 {
     Factory2Param<uiSynthSeis,uiParent*,const uiSynthSeis::Setup&>&
@@ -342,8 +342,8 @@ private:
 
 uiSynthSeisAdvancedDlg::uiSynthSeisAdvancedDlg( uiSynthSeis& uisg )
     : uiDialog( &uisg, Setup(tr("Synthetic generation advanced options"),
-		tr("Specify advanced options"),
-		mODHelpKey(mSynthGenAdvancedDlgHelpID)) )
+			     tr("Specify advanced options"),
+			     mODHelpKey(mSynthGenAdvancedDlgHelpID)) )
     , parsChanged(this)
 {
     advgrp_ = uisg.getAvancedGrp( this );
@@ -653,7 +653,7 @@ mDefineEnumUtils(uiSynthSeisAdvancedGrp,ConvDomain,"Convolution Domain")
 
 
 uiSynthSeisAdvancedGrp::uiSynthSeisAdvancedGrp( uiParent* p, bool withnmo )
-    : uiGroup( p, "Synthetic generation advanced parameters" )
+    : uiGroup(p,"Synthetic generation advanced parameters")
     , parsChanged(this)
 {
     const bool dofreq = Seis::SynthGenBase::cDefIsFrequency();

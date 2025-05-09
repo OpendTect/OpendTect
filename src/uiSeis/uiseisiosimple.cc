@@ -62,10 +62,9 @@ mDefData(ps,VolPS)
 
 
 uiSeisIOSimple::uiSeisIOSimple( uiParent* p, Seis::GeomType gt, bool imp )
-    : uiDialog( p, Setup(uiStrings::sEmptyString(), mNoDlgTitle,
-			  imp ? mODHelpKey(mSeisIOSimpleImpHelpID)
-			      : mODHelpKey(mSeisIOSimpleExpHelpID) )
-		    .modal(false))
+    : uiDialog(p,Setup(uiStrings::sEmptyString(),
+		       imp ? mODHelpKey(mSeisIOSimpleImpHelpID)
+			   : mODHelpKey(mSeisIOSimpleExpHelpID)).modal(false))
     , geom_(gt)
     , isimp_(imp)
 {
@@ -191,8 +190,10 @@ uiSeisIOSimple::uiSeisIOSimple( uiParent* p, Seis::GeomType gt, bool imp )
 	    nrdeffld_ = new uiGenInput( this,
 		    tr("%1 definition: start, step")
 			.arg( uiStrings::sTraceNumber() ),
-                                        IntInpSpec(data().nrdef_.start_).setName("Trc def start"),
-                                        IntInpSpec(data().nrdef_.step_).setName("Trc def step") );
+					IntInpSpec(data().nrdef_.start_)
+					   .setName("Trc def start"),
+					IntInpSpec(data().nrdef_.step_)
+					   .setName("Trc def step") );
 	    nrdeffld_->attach( alignedBelow, havenrfld_ );
 	    startposfld_ = new uiGenInput( this,
 				tr("Start position (X, Y, Trace number)"),
@@ -227,10 +228,14 @@ uiSeisIOSimple::uiSeisIOSimple( uiParent* p, Seis::GeomType gt, bool imp )
 	    const float stopoffs =
 			data().offsdef_.atIndex(data().nroffsperpos_-1);
 	    offsdeffld_ = new uiGenInput( this,
-			   tr("Offset definition: start, stop, step"),
-                                          FloatInpSpec(data().offsdef_.start_).setName("Start"),
-			   FloatInpSpec(stopoffs).setName("Stop"),
-                                          FloatInpSpec(data().offsdef_.step_).setName("Step") );
+					  tr("Offset definition: start, "
+					     "stop, step"),
+					  FloatInpSpec(data().offsdef_.start_)
+					     .setName("Start"),
+					  FloatInpSpec(stopoffs)
+					     .setName("Stop"),
+					  FloatInpSpec(data().offsdef_.step_)
+					     .setName("Step"));
 	    offsdeffld_->attach( alignedBelow, haveoffsbut_ );
 	    attachobj = offsdeffld_->attachObj();
 	}
@@ -254,9 +259,12 @@ uiSeisIOSimple::uiSeisIOSimple( uiParent* p, Seis::GeomType gt, bool imp )
 	if ( SI().zIsTime() )
         { sd.start_ *= 1000; sd.step_ *= 1000; }
 	sdfld_ = new uiGenInput( this, txt,
-                                 DoubleInpSpec(sd.start_).setName("SampInfo start"),
-                                 DoubleInpSpec(sd.step_).setName("SampInfo step"),
-			IntInpSpec(data().nrsamples_).setName("Nr samples") );
+				 DoubleInpSpec(sd.start_)
+				    .setName("SampInfo start"),
+				 DoubleInpSpec(sd.step_)
+				    .setName("SampInfo step"),
+				 IntInpSpec(data().nrsamples_)
+				    .setName("Nr samples"));
 	sdfld_->attach( alignedBelow, havesdfld_ );
 	sep = mkDataManipFlds();
 	if ( !isps )

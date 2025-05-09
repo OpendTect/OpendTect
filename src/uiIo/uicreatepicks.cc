@@ -54,10 +54,10 @@ RandLocGenPars::~RandLocGenPars()
 // uiCreatePicks
 uiCreatePicks::uiCreatePicks( uiParent* p, bool aspoly, bool addstdflds,
 			      bool zvalreq )
-    : uiDialog(p,uiDialog::Setup(
+    : uiDialog(p,Setup(
 	aspoly ? uiStrings::phrCreateNew(uiStrings::sPolygon()).toTitleCase()
 	       : uiStrings::phrCreateNew(uiStrings::sPointSet()).toTitleCase(),
-			       mNoDlgTitle,mODHelpKey(mFetchPicksHelpID)))
+	mODHelpKey(mFetchPicksHelpID)))
     , picksetReady(this)
     , aspolygon_(aspoly)
     , iszvalreq_(zvalreq)
@@ -189,7 +189,8 @@ bool uiCreatePicks::calcZValAccToSurvDepth()
 
     uiMSG().error( tr("Input Z Value lies outside the survey range.\n"
 		      "Survey range is: %1-%2 %3")
-                   .arg(zrg.start_).arg(zrg.stop_).arg(SI().zDomain().uiUnitStr()));
+		    .arg(zrg.start_).arg(zrg.stop_).arg(SI().zDomain()
+		    .uiUnitStr()));
 
     return false;
 }

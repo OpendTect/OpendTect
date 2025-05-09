@@ -37,8 +37,8 @@ class uiNotSavedDlg : public uiDialog
 public:
 uiNotSavedDlg(uiParent* p, NotSavedPrompter& prompter, bool withcancel,
 	      const uiString& actiontype )
-    : uiDialog( p, uiDialog::Setup( tr("Not Saved"),
-		tr("The following objects are not saved"), mNoHelpKey ) )
+    : uiDialog(p,Setup(tr("Not Saved"),
+		       tr("The following objects are not saved"),mNoHelpKey))
     , prompter_( prompter )
 {
     if ( !withcancel )

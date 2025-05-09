@@ -26,9 +26,8 @@ static const BufferStringSet emptylnms;
 
 
 uiSeisDump2DGeom::uiSeisDump2DGeom( uiParent* p, const IOObj* ioobj )
-    : uiDialog(p,uiDialog::Setup(tr("Dump 2D line geometry to file"),
-				 mNoDlgTitle,
-				 mODHelpKey(mSeisDump2DGeomHelpID)))
+    : uiDialog(p,Setup(tr("Dump 2D line geometry to file"),
+		       mODHelpKey(mSeisDump2DGeomHelpID)))
 {
     const CallBack cb( mCB(this,uiSeisDump2DGeom,seisSel) );
     if ( ioobj )

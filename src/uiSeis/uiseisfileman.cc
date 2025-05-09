@@ -94,13 +94,12 @@ static const IOStream* getIOStream( const IOObj& ioobj )
 #define mHelpID is2d ? mODHelpKey(mSeisFileMan2DHelpID) : \
 		       mODHelpKey(mSeisFileMan3DHelpID)
 uiSeisFileMan::uiSeisFileMan( uiParent* p, bool is2d )
-    : uiObjFileMan(p,uiDialog::Setup(is2d
+    : uiObjFileMan(p,Setup(is2d
 	    ? uiStrings::phrManage(tr("2D Seismic Data"))
-	    : uiStrings::phrManage(tr("3D Seismic Data")),
-				    mNoDlgTitle,mHelpID)
-				    .nrstatusflds(1).modal(false),
-		  SeisTrcTranslatorGroup::ioContext(),
-		  Seis::getManagerContextFilter(is2d) )
+	    : uiStrings::phrManage(tr("3D Seismic Data")),mHelpID)
+			.nrstatusflds(1).modal(false),
+		   SeisTrcTranslatorGroup::ioContext(),
+		   Seis::getManagerContextFilter(is2d))
     , is2d_(is2d)
 {
     if ( !cbvsbrowsermgr_ )

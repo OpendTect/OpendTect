@@ -66,8 +66,7 @@ class uiSetSizeDlg : public uiDialog
 { mODTextTranslationClass(uiSetSizeDlg)
 public:
 uiSetSizeDlg( uiParent * p, visSurvey::PointSetDisplay* disp )
-    : uiDialog( p, uiDialog::Setup(tr("Set size of points"),
-		mNoDlgTitle, mNoHelpKey) )
+    : uiDialog(p,Setup(tr("Set size of points"),mNoHelpKey))
     , pointsetdisp_(disp)
 {
     setCtrlStyle( uiDialog::CloseOnly );
@@ -135,8 +134,7 @@ class uiCreateBodyDlg : public uiDialog
 { mODTextTranslationClass(uiCreateBodyDlg)
 public:
 uiCreateBodyDlg( uiParent* p, const DataPointSetDisplayProp& dispprop )
-    : uiDialog(p,uiDialog::Setup(tr("Create New Geobody"),mNoDlgTitle,
-				 mNoHelpKey))
+    : uiDialog(p,Setup(tr("Create New Geobody"),mNoHelpKey))
 {
     if ( dispprop.showSelected() )
     {

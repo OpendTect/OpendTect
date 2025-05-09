@@ -154,8 +154,7 @@ class uiPathEditorDlg : public uiDialog
 { mODTextTranslationClass(uiPathEditorDlg)
 public:
     uiPathEditorDlg( uiParent* p, const BufferStringSet& paths )
-    : uiDialog(p,uiDialog::Setup(uiStrings::phrManage(tr("Paths")),
-				 mNoDlgTitle, mNoHelpKey ))
+    : uiDialog(p,Setup(uiStrings::phrManage(tr("Paths")),mNoHelpKey))
     {
 	setCtrlStyle( CloseOnly );
 	uiple_ = new uiPathListEditor( this, paths );

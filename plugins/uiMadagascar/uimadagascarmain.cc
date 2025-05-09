@@ -35,9 +35,8 @@ ________________________________________________________________________
 const char* sKeySeisOutIDKey = "Output Seismics Key";
 
 uiMadagascarMain::uiMadagascarMain( uiParent* p )
-	: uiDialog(p,Setup(tr("Madagascar processing"),mNoDlgTitle,
-                            mODHelpKey(mMadagascarMainHelpID) )
-			   .modal(false) )
+	: uiDialog(p,Setup(tr("Madagascar processing"),
+			   mODHelpKey(mMadagascarMainHelpID)).modal(false))
 	, ctio_(*mMkCtxtIOObj(ODMadProcFlow))
 	, bldfld_(0)
 	, procflow_(*new ODMad::ProcFlow())

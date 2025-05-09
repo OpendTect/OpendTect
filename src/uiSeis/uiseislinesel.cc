@@ -465,8 +465,7 @@ void uiSeis2DLineSel::selPush( CallBacker* )
 	mErrRet( tr("No 2D lines available") )
 
     const TypeSet<int> curselidxs = selidxs_;
-    uiDialog dlg( this,
-		  uiDialog::Setup(tr("Line selection"),mNoDlgTitle,mNoHelpKey));
+    uiDialog dlg( this, uiDialog::Setup(tr("Line selection"),mNoHelpKey) );
     auto* lchfld = new uiSeis2DLineChoose( &dlg, geomids_,
 		    ismultisel_ ? OD::ChooseAtLeastOne : OD::ChooseOnlyOne );
     TypeSet<Pos::GeomID> chosenids;
@@ -662,8 +661,8 @@ uiSeis2DMultiLineSelDlg::uiSeis2DMultiLineSelDlg( uiParent* p,
 				const TypeSet<StepInterval<float> >& maxzrgs,
 				const uiSeis2DMultiLineSel::Setup& selsu,
 				OD::ChoiceMode cm )
-    : uiDialog( p, uiDialog::Setup(tr("Select 2D Lines"),mNoDlgTitle,
-				   mODHelpKey(mSeis2DMultiLineSelDlgHelpID) ) )
+    : uiDialog(p,Setup(tr("Select 2D Lines"),
+		       mODHelpKey(mSeis2DMultiLineSelDlgHelpID)))
     , trcrgs_(maxtrcrgs)
     , zrgs_(maxzrgs)
     , maxtrcrgs_(maxtrcrgs)

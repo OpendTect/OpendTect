@@ -104,9 +104,8 @@ bool uiMMBatchJobDispatcher::initMMProgram( int argc, char** argv,
 
 uiMMBatchJobDispatcher::uiMMBatchJobDispatcher( uiParent* p, const IOPar& iop,
 						const HelpKey& helpkey )
-    : uiDialog(p,uiDialog::Setup(uiStrings::sEmptyString(),mNoDlgTitle,helpkey)
-		.nrstatusflds(-1)
-		.fixedsize(true))
+    : uiDialog(p,Setup(uiStrings::sEmptyString(),helpkey).nrstatusflds(-1)
+		    .fixedsize(true))
     , jobpars_(*new IOPar(iop))
     , hdl_(*new const HostDataList(false))
     , basecaption_(tr("Distributed Computing"))

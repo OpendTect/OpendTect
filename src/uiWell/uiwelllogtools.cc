@@ -74,7 +74,7 @@ uiWellLogToolWinMgr::uiWellLogToolWinMgr( uiParent* p,
 					  const BufferStringSet* welllnms,
 					  const BufferStringSet* lognms )
 	: uiDialog(p,Setup(tr("Select Well(s) and Log(s) for Editing"),
-		     mNoDlgTitle,mODHelpKey(mWellLogToolWinMgrHelpID)))
+			   mODHelpKey(mWellLogToolWinMgrHelpID)))
 {
     setOkText( uiStrings::sContinue() );
     uiWellExtractParams::Setup su;
@@ -483,7 +483,8 @@ void uiWellLogToolWin::applyPushedCB( CallBacker* )
 		const Well::Track& track = wd->track();
 		const float startdah = outplog.dahRange().start_;
 		const float stopdah = outplog.dahRange().stop_;
-                const float zstart = sCast( float, track.getPos( startdah ).z_ );
+		const float zstart = sCast( float,
+					    track.getPos( startdah ).z_ );
                 const float zstop = sCast( float, track.getPos( stopdah ).z_ );
 		const Interval<float> zrg( zstart, zstop );
 		ObjectSet<const Well::Log> reslogs;
@@ -645,8 +646,7 @@ bool uiWellLogToolWin::saveLogs()
 
 // uiWellLogEditor
 uiWellLogEditor::uiWellLogEditor( uiParent* p, Well::Log& log )
-    : uiDialog(p,Setup(tr("Edit Well log"),mNoDlgTitle,
-		       mODHelpKey(mWellLogEditorHelpID)))
+    : uiDialog(p,Setup(tr("Edit Well log"),mODHelpKey(mWellLogEditorHelpID)))
     , valueChanged(this)
     , log_(log)
 {

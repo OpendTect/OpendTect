@@ -90,7 +90,7 @@ uiString getDlgTitle( const MultiID& wllky )
 }
 
 #define mGetDlgSetup(wd,objtyp,hid) \
-    uiDialog::Setup( getWinTitle(objtyp,wd.multiID(),writable_), \
+    uiDialog::Setup( getWinTitle(objtyp,wd.multiID(), writable_), \
 		     getDlgTitle(wd.multiID()), mODHelpKey(hid) )
 #define mTDName(iscksh) iscksh ? uiWellTrackDlg::sCkShotData() \
 			       : uiWellTrackDlg::sTimeDepthModel()
@@ -386,8 +386,8 @@ class uiWellTrackReadDlg : public uiDialog
 public:
 
 uiWellTrackReadDlg( uiParent* p, Well::Data& wd )
-    : uiDialog(p,uiDialog::Setup(tr("Import New Well Track"),mNoDlgTitle,
-				 mODHelpKey(mWellTrackReadDlgHelpID)))
+    : uiDialog(p,Setup(tr("Import New Well Track"),
+		       mODHelpKey(mWellTrackReadDlgHelpID)))
     , wd_(wd)
     , track_(wd.track())
     , fd_(*Well::TrackAscIO::getDesc())
@@ -1641,8 +1641,8 @@ class uiD2TModelReadDlg : public uiDialog
 public:
 
 uiD2TModelReadDlg( uiParent* p, Well::Data& wd, bool cksh )
-	: uiDialog(p,uiDialog::Setup( mTDOpName(uiStrings::sImport(),cksh),
-		     mNoDlgTitle, mODHelpKey(mD2TModelReadDlgHelpID) ))
+	: uiDialog(p,Setup(mTDOpName(uiStrings::sImport(),cksh),
+			   mODHelpKey(mD2TModelReadDlgHelpID)))
 	, wd_(wd)
 	, cksh_(cksh)
 {
@@ -2022,8 +2022,7 @@ uiWellLogUOMDlg::uiWellLogUOMDlg( uiParent* p,
 				  ObjectSet<ObjectSet<Well::Log>>& wls,
 				  TypeSet<MultiID>& keys,
 				  const BufferStringSet& wellnms )
-    : uiDialog(p,uiDialog::Setup(tr("Set units of measure for logs"),
-				 mNoDlgTitle,mNoHelpKey))
+    : uiDialog(p,Setup(tr("Set units of measure for logs"),mNoHelpKey))
     , wls_(wls)
     , keys_(keys)
 {
@@ -2195,8 +2194,7 @@ uiWellLogMnemDlg::uiWellLogMnemDlg( uiParent* p,
 				    ObjectSet<ObjectSet<Well::Log>>& wls,
 				    TypeSet<MultiID>& keys,
 				    const BufferStringSet& wellnms )
-    : uiDialog(p,uiDialog::Setup(tr("Set mnemonic for logs"),
-				 mNoDlgTitle,mNoHelpKey))
+    : uiDialog(p,Setup(tr("Set mnemonic for logs"),mNoHelpKey))
     , wls_( wls )
     , keys_( keys )
 {
@@ -2557,9 +2555,8 @@ void uiWellDefMnemLogDlg::Tables::getSuitableLogNamesForMnems(
 uiWellDefMnemLogDlg::uiWellDefMnemLogDlg( uiParent* p,
 					  const TypeSet<MultiID>& keys,
 					  const MnemonicSelection* mns )
-    : uiDialog(p,uiDialog::Setup(tr("Set/Edit default Logs for a mnemonic"),
-				 mNoDlgTitle,
-				 mODHelpKey(mWellDefaultMnemonicLogHelpID)))
+    : uiDialog(p,Setup(tr("Set/Edit default Logs for a mnemonic"),
+		       mODHelpKey(mWellDefaultMnemonicLogHelpID)))
 {
     RefObjectSet<Well::Data> wds;
     Well::LoadReqs loadreqs( Well::LogInfos );
@@ -2715,8 +2712,8 @@ bool uiWellDefMnemLogDlg::rejectOK( CallBacker* )
 // uiSetD2TFromOtherWell
 
 uiSetD2TFromOtherWell::uiSetD2TFromOtherWell( uiParent* p )
-    : uiDialog(p,Setup(tr("Set Depth-Time Model"),mNoDlgTitle,
-		 mODHelpKey(mSetD2TFromOtherWellHelpID)))
+    : uiDialog(p,Setup(tr("Set Depth-Time Model"),
+		       mODHelpKey(mSetD2TFromOtherWellHelpID)))
 {
     inpwellfld_ = new uiWellSel( this, true, tr("Use D2T model from"), false );
     mAttachCB( inpwellfld_->selectionDone, uiSetD2TFromOtherWell::inpSelCB );
@@ -2731,7 +2728,7 @@ uiSetD2TFromOtherWell::uiSetD2TFromOtherWell( uiParent* p )
     wellfld_ = new uiMultiWellSel( this, false, &su );
     wellfld_->allowIOObjManip( false );
     wellfld_->attach( alignedBelow, replvelfld_ );
-    uiLabel* lbl = new uiLabel( this, tr("Apply to") );
+    auto* lbl = new uiLabel( this, tr("Apply to") );
     lbl->attach( centeredLeftOf, wellfld_ );
 
     mAttachCB( postFinalize(), uiSetD2TFromOtherWell::inpSelCB );
@@ -2856,7 +2853,7 @@ bool uiSetD2TFromOtherWell::acceptOK( CallBacker* )
 
 // uiCopyWellDlg
 uiCopyWellDlg::uiCopyWellDlg( uiParent* p )
-    : uiDialog(p,Setup(tr("Copy Well"),mNoDlgTitle,mODHelpKey(mWellCopyHelpID)))
+    : uiDialog(p,Setup(tr("Copy Well"),mODHelpKey(mWellCopyHelpID)))
 {
     setOkText( uiStrings::sCopy() );
 
@@ -2931,9 +2928,8 @@ bool uiCopyWellDlg::acceptOK( CallBacker* )
 
 // uiWellMgrInfoDlg
 uiWellMgrInfoDlg::uiWellMgrInfoDlg( uiParent* p )
-    : uiDialog(p,uiDialog::Setup(tr("Well::MGR Information"),
-		mNoDlgTitle,mNoHelpKey).applybutton(true)
-				.applytext(uiStrings::sReload()).modal(false))
+    : uiDialog(p,Setup(tr("Well::MGR Information"),mNoHelpKey).applybutton(true)
+		    .applytext(uiStrings::sReload()).modal(false))
 {
     setCtrlStyle( uiDialog::CloseOnly );
 

@@ -52,8 +52,9 @@ static float defaultRadius()
 
 uiHorizonInterpolDlg::uiHorizonInterpolDlg( uiParent* p, EM::Horizon* hor,
 					    bool is2d )
-    : uiDialog(p,uiDialog::Setup(tr("Horizon Gridding"),mNoDlgTitle,
-		mODHelpKey(mInverseDistanceArray2DInterpolHelpID)).modal(true))
+    : uiDialog(p,Setup(tr("Horizon Gridding"),
+		       mODHelpKey(mInverseDistanceArray2DInterpolHelpID))
+		    .modal(true))
     , horizon_(hor)
     , is2d_(is2d)
     , inputhorsel_(nullptr)

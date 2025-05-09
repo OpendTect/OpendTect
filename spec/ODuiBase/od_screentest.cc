@@ -86,7 +86,7 @@ protected:
 
 
 uiScreenDlg::uiScreenDlg( uiParent* p )
-    : uiDialog(p,Setup(toUiString("Layout Test"),mNoDlgTitle,mTODOHelpKey))
+    : uiDialog(p,Setup(toUiString("Layout Test"),mTODOHelpKey))
 {
     QList<QScreen*> screens = QApplication::screens();
     uiGroup* prevgrp = nullptr;

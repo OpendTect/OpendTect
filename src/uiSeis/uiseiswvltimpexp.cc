@@ -32,8 +32,7 @@ ________________________________________________________________________
 
 
 uiSeisWvltImp::uiSeisWvltImp( uiParent* p )
-    : uiDialog(p,uiDialog::Setup(tr("Import Wavelet"),mNoDlgTitle,
-				 mODHelpKey(mSeisWvltImpHelpID) ))
+    : uiDialog(p,Setup(tr("Import Wavelet"),mODHelpKey(mSeisWvltImpHelpID)))
     , fd_(*WaveletAscIO::getDesc())
 {
     setOkCancelText( uiStrings::sImport(), uiStrings::sClose() );
@@ -42,7 +41,7 @@ uiSeisWvltImp::uiSeisWvltImp( uiParent* p )
     inpfld_->setExamStyle( File::ViewStyle::Table );
     mAttachCB( inpfld_->valueChanged, uiSeisWvltImp::inputChgd );
 
-    uiSeparator* sep = new uiSeparator( this, "H sep" );
+    auto* sep = new uiSeparator( this, "H sep" );
     sep->attach( stretchedBelow, inpfld_ );
 
     dataselfld_ = new uiTableImpDataSel( this, fd_,
@@ -147,9 +146,8 @@ MultiID uiSeisWvltImp::selKey() const
 
 // uiSeisWvltExp
 uiSeisWvltExp::uiSeisWvltExp( uiParent* p )
-    : uiDialog(p,uiDialog::Setup( uiStrings::phrExport( uiStrings::sWavelet() ),
-				  mNoDlgTitle,
-				  mODHelpKey(mSeisWvltImpHelpID) ))
+    : uiDialog(p,Setup(uiStrings::phrExport(uiStrings::sWavelet()),
+		       mODHelpKey(mSeisWvltImpHelpID)))
 {
     setOkText( uiStrings::sExport() );
 
@@ -230,8 +228,7 @@ bool uiSeisWvltExp::acceptOK( CallBacker* )
 
 // uiSeisWvltCopy
 uiSeisWvltCopy::uiSeisWvltCopy( uiParent* p, const IOObj* inioobj )
-    : uiDialog(p,Setup(uiStrings::phrCopy(uiStrings::sWavelet()),
-		       mNoDlgTitle,mTODOHelpKey))
+    : uiDialog(p,Setup(uiStrings::phrCopy(uiStrings::sWavelet()),mTODOHelpKey))
 {
     setOkText( uiStrings::sCopy() );
 

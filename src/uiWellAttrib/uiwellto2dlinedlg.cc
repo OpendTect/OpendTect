@@ -27,9 +27,9 @@ ________________________________________________________________________
 #include "od_helpids.h"
 
 uiWellTo2DLineDlg::uiWellTo2DLineDlg( uiParent* p )
-    : uiDialog(p,uiDialog::Setup(tr("Create 2D line"),
-				 tr("Select wells to set up the 2D line path"),
-				 mODHelpKey(mWellto2DLineDlgHelpID)))
+    : uiDialog(p,Setup(tr("Create 2D line"),
+		       tr("Select wells to set up the 2D line path"),
+		       mODHelpKey(mWellto2DLineDlgHelpID)))
     , wantspreview_(this)
     , wellselgrp_(new uiWellSelGrp(this))
 {
@@ -117,14 +117,15 @@ void uiWellTo2DLineDlg::extendLine( TypeSet<Coord>& coords )
 	TypeSet<Coord> oldcrds( coords );
 	coords.erase();
         const Coord d0( oldcrds[1].x_ - oldcrds[0].x_,
-                oldcrds[1].y_ - oldcrds[0].y_ );
+			oldcrds[1].y_ - oldcrds[0].y_ );
 	float p = (float) Math::Sqrt( extradist * extradist / d0.sqAbs() );
-        const Coord newc0( oldcrds[0].x_ - p * d0.x_, oldcrds[0].y_ - p * d0.y_ );
+	const Coord newc0( oldcrds[0].x_ - p * d0.x_,
+			   oldcrds[0].y_ - p * d0.y_ );
         const Coord d1( oldcrds[nrcoords-1].x_ - oldcrds[nrcoords-2].x_,
-                oldcrds[nrcoords-1].y_ - oldcrds[nrcoords-2].y_ );
+			oldcrds[nrcoords-1].y_ - oldcrds[nrcoords-2].y_ );
 	p = (float) Math::Sqrt( extradist * extradist / d1.sqAbs() );
         const Coord newc1( oldcrds[nrcoords-1].x_ + p * d1.x_,
-                oldcrds[nrcoords-1].y_ + p * d1.y_ );
+			   oldcrds[nrcoords-1].y_ + p * d1.y_ );
 
 	coords += newc0;
 	for ( int idx=0; idx<oldcrds.size(); idx++ )

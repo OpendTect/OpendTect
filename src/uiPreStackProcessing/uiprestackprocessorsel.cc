@@ -193,8 +193,8 @@ void uiProcSel::editPushCB( CallBacker* )
 				  .arg(uiStrings::sPreStack().toLower())
 				  .arg(uiStrings::sProcessing().toLower());
 
-    uiDialog dlg( this, uiDialog::Setup( title, mNoDlgTitle,
-                                        mODHelpKey(mPreStackProcSelHelpID) ) );
+    uiDialog dlg( this, uiDialog::Setup(title,
+					mODHelpKey(mPreStackProcSelHelpID)));
     dlg.enableSaveButton(tr("Save on OK"));
     dlg.setSaveButtonChecked( true );
 

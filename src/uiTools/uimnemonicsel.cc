@@ -143,8 +143,8 @@ void uiMnemonicsSel::setMnemonic( const Mnemonic& mn )
 uiMultiMnemonicsSel::uiMultiMnemonicsSel( uiParent* p,
 					  MnemonicSelection& mns,
 					  const MnemonicSelection* mnsel )
-    : uiDialog( p, uiDialog::Setup(tr("Multi-Mnemonic Selection"),
-		mNoDlgTitle,mODHelpKey(mMultiMnemonicsSelHelpID)) )
+    : uiDialog(p,Setup(tr("Multi-Mnemonic Selection"),
+		       mODHelpKey(mMultiMnemonicsSelHelpID)))
     , mns_(mns)
 {
     mnemlist_ = new uiListBox( this, "mnemonics", OD::ChooseZeroOrMore );
@@ -399,8 +399,7 @@ const Mnemonic& getTemplateMn() const
 // uiCustomMnemonicsSel
 
 uiCustomMnemonicsSel::uiCustomMnemonicsSel( uiParent* p )
-    : uiDialog(p,uiDialog::Setup(tr("Project specific mnemonics"),
-				 mNoDlgTitle,mTODOHelpKey))
+    : uiDialog(p,Setup(tr("Project specific mnemonics"),mTODOHelpKey))
     , originalcustommns_(nullptr)
 {
     setOkText( uiStrings::sSave() );

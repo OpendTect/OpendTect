@@ -15,8 +15,7 @@ ________________________________________________________________________
 
 
 uiMultCompDlg::uiMultCompDlg( uiParent* p, const BufferStringSet& complist )
-	: uiDialog(p,uiDialog::Setup(tr("Multi-Attribute selection"),
-                                     uiStrings::sEmptyString(), mNoHelpKey) )
+	: uiDialog(p,Setup(tr("Multi-Attribute selection"),mNoHelpKey))
 	, compfld_(0)
 {
     uiString instructions( tr("Workflow :-\n"
@@ -119,8 +118,7 @@ BufferString uiMultCompSel::getSummary() const
 
 
 uiMultCompSel::MCompDlg::MCompDlg( uiParent* p, const BufferStringSet& names )
-    : uiDialog( p, uiDialog::Setup(tr("Components selection dialog"),
-				   uiString::emptyString(),mNoHelpKey) )
+    : uiDialog(p,Setup(tr("Components selection dialog"),mNoHelpKey))
 {
     useallfld_ = new uiGenInput( this, tr("Components to use:"),
 				 BoolInpSpec( true, uiStrings::sAll(),

@@ -170,8 +170,8 @@ bool uiPickPropDlg::acceptOK( CallBacker* )
 
 uiSeedPainterDlg::uiSeedPainterDlg( uiParent* p,
 				    visSurvey::LocationDisplay* psd )
-    : uiDialog(p,uiDialog::Setup(tr("Painting %1").arg(psd->name()),
-				 mNoDlgTitle,mNoHelpKey).modal(false))
+    : uiDialog(p,Setup(tr("Painting %1").arg(psd->name()),mNoHelpKey)
+		    .modal(false))
     , seedpainter_(psd->getPainter())
 {
     setCtrlStyle( CloseOnly );

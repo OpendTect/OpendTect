@@ -28,8 +28,7 @@ ________________________________________________________________________
 
 
 uiLASWriter::uiLASWriter( uiParent* p )
-    : uiDialog(p,Setup(tr("Export to LAS"),mNoDlgTitle,
-		 mODHelpKey(mLASWriterHelpID)))
+    : uiDialog(p,Setup(tr("Export to LAS"),mODHelpKey(mLASWriterHelpID)))
 {
     setOkText( uiStrings::sExport() );
 

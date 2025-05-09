@@ -97,7 +97,7 @@ void uiAttrSurfaceOut::settingsCB( CallBacker* )
 {
     uiSingleGroupDlg dlg( this, uiDialog::Setup(tr("Interpolation"),
 						tr("Interpolation Settings"),
-						mNoHelpKey) );
+						mNoHelpKey));
     uiArray2DInterpolSel* interpolsel =
 		new uiArray2DInterpolSel( &dlg, true, true, false, interpol_ );
     dlg.setGroup( interpolsel );

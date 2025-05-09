@@ -205,9 +205,8 @@ void DPSMergerProp::setColid( int primarycolid, int secondarycolid )
 
 uiDataPointSetMerger::uiDataPointSetMerger( uiParent* p, DataPointSet* mdps,
 					    DataPointSet* sdps )
-    : uiDialog(p,uiDialog::Setup(uiStrings::phrCrossPlot(uiStrings::phrData(
-				 tr("merging"))), uiString::emptyString(),
-                                 mODHelpKey(mDataPointSetMergerHelpID) ) )
+    : uiDialog(p,Setup(uiStrings::phrCrossPlot(uiStrings::phrData(
+		       tr("merging"))),mODHelpKey(mDataPointSetMergerHelpID)))
     , mdps_(mdps)
     , sdps_(sdps)
 {

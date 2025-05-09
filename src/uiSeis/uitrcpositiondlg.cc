@@ -99,10 +99,8 @@ void uiFlatDPPosSel::sldrPosChangedCB( CallBacker* )
 
 uiTrcPositionDlg::uiTrcPositionDlg( uiParent* p, const TrcKeyZSampling& cs,
 				    bool is2d, const MultiID& mid )
-    : uiDialog( p, uiDialog::Setup(tr("Attribute trace position"),
-				   uiStrings::sEmptyString(),
-				   mODHelpKey(mTrcPositionDlgHelpID) )
-				   .modal(false) )
+    : uiDialog(p,Setup(tr("Attribute trace position"),
+		       mODHelpKey(mTrcPositionDlgHelpID)).modal(false))
     , mid_( mid )
 {
     if ( is2d )
@@ -152,10 +150,8 @@ uiTrcPositionDlg::uiTrcPositionDlg( uiParent* p, const TrcKeyZSampling& cs,
 
 
 uiTrcPositionDlg::uiTrcPositionDlg( uiParent* p, const DataPack::FullID& dpfid )
-    : uiDialog( p, uiDialog::Setup(tr("Attribute trace position"),
-				    uiString::empty(),
-				    mODHelpKey(mTrcPositionDlgHelpID) )
-				    .modal(false) )
+    : uiDialog(p,Setup(tr("Attribute trace position"),
+		       mODHelpKey(mTrcPositionDlgHelpID)).modal(false))
 {
     const DataPack::MgrID dpmid = dpfid.mgrID();
     if ( dpmid!=DataPackMgr::FlatID() && dpmid!=DataPackMgr::SeisID() )

@@ -25,19 +25,17 @@ ________________________________________________________________________
 
 
 uiODSysAdmColorTabs::uiODSysAdmColorTabs( uiParent* p )
-    : uiDialog(p,uiDialog::Setup(
-         uiStrings::phrManage( uiStrings::sColorTable(mPlural)),
-	 uiString::emptyString(),mNoHelpKey))
+    : uiDialog(p,Setup(uiStrings::phrManage(uiStrings::sColorTable(mPlural)),
+		       mNoHelpKey))
 {
     listfld = new uiListBox( this, "Color tables" );
     fillList( true );
 
-    uiPushButton* addbut = new uiPushButton( this, uiStrings::sAdd(), false );
+    auto* addbut = new uiPushButton( this, uiStrings::sAdd(), false );
     addbut->activated.notify( mCB(this,uiODSysAdmColorTabs,addPush) );
     addbut->attach( alignedBelow, listfld );
 
-    uiPushButton* rmbut = new uiPushButton( this, uiStrings::sRemove(),
-                                            true );
+    auto* rmbut = new uiPushButton( this, uiStrings::sRemove(), true );
     rmbut->activated.notify( mCB(this,uiODSysAdmColorTabs,rmPush) );
     rmbut->attach( rightOf, addbut );
 }

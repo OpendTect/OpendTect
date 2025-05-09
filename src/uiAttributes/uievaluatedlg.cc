@@ -288,11 +288,11 @@ void AttribParamGroup::updateDesc( Attrib::Desc& desc, int idx )
 static const StepInterval<int> cSliceIntv(2,30,1);
 
 uiEvaluateDlg::uiEvaluateDlg( uiParent* p, uiAttrDescEd& ade, bool store )
-    : uiDialog(p,uiDialog::Setup(tr("Evaluate attribute"),tr("Set parameters")
-				,mODHelpKey(mEvaluateDlgHelpID) )
-		.modal(false)
-	        .oktext(tr("Accept"))
-		.canceltext(uiString::emptyString()))
+    : uiDialog(p,Setup(tr("Evaluate attribute"),tr("Set parameters"),
+		       mODHelpKey(mEvaluateDlgHelpID))
+		    .modal(false)
+		    .oktext(tr("Accept"))
+		    .canceltext(uiString::emptyString()))
     , calccb(this)
     , showslicecb(this)
     , seldesc_(0)

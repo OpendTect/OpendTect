@@ -24,7 +24,7 @@ ________________________________________________________________________
 // uiDataPointSetSave
 uiDataPointSetSave::uiDataPointSetSave( uiParent* p, const uiString& caption,
 					HelpKey key, const DataPointSet* dps )
-    : uiDialog(p,Setup(caption,mNoDlgTitle,key))
+    : uiDialog(p,Setup(caption, key))
 {
     dps_ = dps;
 }

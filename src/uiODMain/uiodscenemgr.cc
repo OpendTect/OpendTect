@@ -738,9 +738,9 @@ protected:
 
 
 uiSnapshotDlg::uiSnapshotDlg( uiParent* p )
-    : uiDialog( p, uiDialog::Setup(tr("Specify snapshot"),
-		   tr("Select area to take snapshot"),
-				   mODHelpKey(mSnapshotDlgHelpID) ) )
+    : uiDialog( p, Setup(tr("Specify snapshot"),
+			 tr("Select area to take snapshot"),
+			 mODHelpKey(mSnapshotDlgHelpID)) )
 {
     butgrp_ = new uiButtonGroup( this, "Area type", OD::Vertical );
     butgrp_->setExclusive( true );

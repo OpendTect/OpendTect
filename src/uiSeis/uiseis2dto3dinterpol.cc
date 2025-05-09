@@ -25,9 +25,7 @@ ________________________________________________________________________
 
 
 uiSeis2DTo3DInterPol::uiSeis2DTo3DInterPol(uiParent* p, uiString& titletext)
-	: uiDialog( p, Setup( titletext,
-			      mNoDlgTitle,
-			      mODHelpKey(mSeis2DTo3DHelpID) ) )
+	: uiDialog(p,Setup(titletext,mODHelpKey(mSeis2DTo3DHelpID)))
 {
     uiSeisSel::Setup sssu( Seis::Line );
     sssu.steerpol( uiSeisSel::Setup::InclSteer );

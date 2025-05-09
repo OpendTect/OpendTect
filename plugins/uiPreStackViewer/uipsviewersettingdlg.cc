@@ -25,9 +25,9 @@ namespace PreStackView
 uiViewer3DSettingDlg::uiViewer3DSettingDlg( uiParent* p,
 	visSurvey::PreStackDisplay& viewer, uiViewer3DMgr& mgr )
     : uiTabStackDlg( p, uiDialog::Setup(tr("Prestack display properties"),
-			          toUiString(viewer.getObjectName()),
-                                  mODHelpKey(mPSViewerSettingDlgHelpID)
-                                  ).modal(false) )
+					toUiString(viewer.getObjectName()),
+					mODHelpKey(mPSViewerSettingDlgHelpID) )
+				    .modal(false) )
 {
     shapetab_ = new uiViewer3DShapeTab( tabParent(), viewer, mgr );
     addGroup( shapetab_ );

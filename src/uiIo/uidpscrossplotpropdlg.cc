@@ -967,7 +967,6 @@ uiDataPointSetCrossPlotterPropDlg::uiDataPointSetCrossPlotterPropDlg(
 		uiDataPointSetCrossPlotter* p )
 	: uiTabStackDlg( p->parent(),
 			 uiDialog::Setup(uiStrings::sSettings(),
-			 mNoDlgTitle,
 			 mODHelpKey(mDataPointSetCrossPlotterPropDlgHelpID))
 			 .modal(false) )
 	, plotter_(*p)

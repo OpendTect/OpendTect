@@ -181,9 +181,8 @@ void uiFunctionSel::colorChanged(CallBacker*)
 
 // uiAddFunction
 uiAddFunction::uiAddFunction( uiParent* p )
-    : uiDialog(p, uiDialog::Setup(uiStrings::phrAdd(
-				  tr("velocity function source")),
-				  mNoDlgTitle,	mODHelpKey(mAddFunctionHelpID)))
+    : uiDialog(p,Setup(uiStrings::phrAdd(tr("velocity function source")),
+		       mODHelpKey(mAddFunctionHelpID)))
     , typesel_( 0 )
 {
     const BufferStringSet& sourceclasses =
@@ -239,8 +238,8 @@ bool uiAddFunction::acceptOK(CallBacker*)
 
 // uiEditFunction
 uiEditFunction::uiEditFunction( uiParent* p, FunctionSource* vfs )
-    : uiDialog( p, uiDialog::Setup(uiStrings::phrEdit(tr("velocity functions")),
-			     mNoDlgTitle, mODHelpKey(mEditFunctionHelpID)) )
+    : uiDialog(p,Setup(uiStrings::phrEdit(tr("velocity functions")),
+		       mODHelpKey(mEditFunctionHelpID)))
     , dlggrp_( 0 )
 {
     dlggrp_ = uiFunctionSettings::factory().create( 0, this, vfs, false );

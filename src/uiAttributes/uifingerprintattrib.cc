@@ -647,9 +647,9 @@ bool uiFingerPrintAttrib::areUIParsOK()
 
 uiFPAdvancedDlg::uiFPAdvancedDlg( uiParent* p, calcFingParsObject* calcobj,
 				  const BufferStringSet& attrrefset )
-    : uiDialog( p, uiDialog::Setup(tr("FingerPrint attribute advanced options"),
+    : uiDialog( p, Setup(tr("FingerPrint attribute advanced options"),
 				   tr("Specify advanced options"),
-				   mODHelpKey(mFPAdvancedDlgHelpID) ) )
+				   mODHelpKey(mFPAdvancedDlgHelpID)) )
     , calcobj_(*calcobj)
 {
     rangesgrp_ = new uiButtonGroup( this, "Get ranges from", OD::Horizontal );

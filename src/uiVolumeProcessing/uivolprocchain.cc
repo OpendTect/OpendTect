@@ -46,7 +46,7 @@ mImplFactory3Param( uiStepDialog, uiParent*, Step*, bool,
 // uiStepDialog
 uiStepDialog::uiStepDialog( uiParent* p, const uiString& stepnm, Step* step,
 			    bool is2d )
-    : uiDialog( p, uiDialog::Setup(tr("Edit step"),stepnm,mNoHelpKey) )
+    : uiDialog(p,Setup(tr("Edit step"),stepnm,mNoHelpKey))
     , step_(step)
     , multiinpfld_(0)
     , is2d_(is2d)
@@ -236,9 +236,8 @@ bool getNamesFromFactory( uiStringSet& uinms, BufferStringSet& nms, bool is2d )
 				: VolProcessingTranslatorGroup::ioContext();
 
 uiChain::uiChain( uiParent* p, Chain& chn, bool withprocessnow, bool is2d )
-    : uiDialog( p, uiDialog::Setup(tr("Volume Builder: Setup"),
-				   mNoDlgTitle, mODHelpKey(mChainHelpID) )
-	    .modal(!withprocessnow) )
+    : uiDialog(p,Setup(tr("Volume Builder: Setup"),mODHelpKey(mChainHelpID))
+		    .modal(!withprocessnow))
     , chain_(chn)
     , is2d_(is2d)
 {
@@ -250,12 +249,12 @@ uiChain::uiChain( uiParent* p, Chain& chn, bool withprocessnow, bool is2d )
 	  tb_->addButton( "save", tr("Save setup"),mCB(this,uiChain,savePush) );
     tb_->addButton( "saveas", tr("Save setup as"),mCB(this,uiChain,saveAsPush));
 
-    uiGroup* flowgrp = new uiGroup( this, "Flow group" );
+    auto* flowgrp = new uiGroup( this, "Flow group" );
 
     uiStringSet uinames;
     getNamesFromFactory( uinames, factorysteptypes_, is2d_ );
     const CallBack addcb( mCB(this,uiChain,addStepPush) );
-    uiLabel* availablelabel = new uiLabel( flowgrp, tr("Available steps") );
+    auto* availablelabel = new uiLabel( flowgrp, tr("Available steps") );
     factorylist_ = new uiListBox( flowgrp, "Processing methods" );
     factorylist_->addItems( uinames );
     factorylist_->resizeHeightToContents();
@@ -280,7 +279,7 @@ uiChain::uiChain( uiParent* p, Chain& chn, bool withprocessnow, bool is2d )
     steplist_->selectionChanged.notify( mCB(this,uiChain,stepClickCB) );
     steplist_->doubleClicked.notify( mCB(this,uiChain,stepDoubleClickCB) );
 
-    uiLabel* label = new uiLabel( flowgrp, tr("Used steps") );
+    auto* label = new uiLabel( flowgrp, tr("Used steps") );
     label->attach( alignedAbove, steplist_ );
     label->attach( rightTo, availablelabel );
 

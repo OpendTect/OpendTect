@@ -30,10 +30,10 @@ static const StepInterval<int> cSliceIntv(2,30,1);
 
 uiCrossAttrEvaluateDlg::uiCrossAttrEvaluateDlg( uiParent* p,
 	uiAttribDescSetEd& uads, bool store )
-    : uiDialog(p,uiDialog::Setup(tr("Cross attribute parameter evaluation"),
-				mNoDlgTitle, mODHelpKey(mEvaluateDlgHelpID) )
-				.modal(false).oktext(tr("Accept"))
-				.canceltext(uiString::emptyString()))
+    : uiDialog(p,Setup(tr("Cross attribute parameter evaluation"),
+		       mODHelpKey(mEvaluateDlgHelpID))
+		    .modal(false).oktext(tr("Accept"))
+		    .canceltext(uiString::emptyString()))
     , calccb(this)
     , showslicecb(this)
     , srcid_(-1,true)

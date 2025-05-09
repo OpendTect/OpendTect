@@ -43,9 +43,9 @@ static IOObjContext mkCtxt()
 }
 
 ui2DGeomManageDlg::ui2DGeomManageDlg( uiParent* p )
-    : uiObjFileMan(p,uiDialog::Setup(uiStrings::phrManage( tr("2D Geometry")),
-			       mNoDlgTitle, mODHelpKey(m2DGeomManageDlgHelpID))
-			       .nrstatusflds(1).modal(false),mkCtxt())
+    : uiObjFileMan(p,Setup(uiStrings::phrManage( tr("2D Geometry")),
+			   mODHelpKey(m2DGeomManageDlgHelpID))
+			.nrstatusflds(1).modal(false),mkCtxt())
 {
     ctxt_.toselect_.allownonuserselectable_ = false;
     createDefaultUI( false, false );
@@ -223,8 +223,7 @@ class uiInterpolateGeomDlg : public uiDialog
 mODTextTranslationClass(uiInterpolateGeomDlg)
 public:
 uiInterpolateGeomDlg( uiParent* p, const Survey::Geometry2D& geom2d )
-    : uiDialog(p,Setup(tr("Interpolate Geometry" ),
-		       mNoDlgTitle,mODHelpKey(mTrc2SPHelpID)))
+    : uiDialog(p,Setup(tr("Interpolate Geometry"),mODHelpKey(mTrc2SPHelpID)))
     , geom2d_(geom2d)
 {
     const Interval<int> trcrg = geom2d.data().trcNrRange();
@@ -322,8 +321,8 @@ class uiTrc2SPDlg : public uiDialog
 { mODTextTranslationClass(uiTrc2SPDlg)
 public:
 uiTrc2SPDlg( uiParent* p, const Survey::Geometry2D& geom2d )
-    : uiDialog(p,Setup(tr("Set Trace Number vs SP Number Relationship" ),
-		       mNoDlgTitle,mODHelpKey(mTrc2SPHelpID)))
+    : uiDialog(p,Setup(tr("Set Trace Number vs SP Number Relationship"),
+		       mODHelpKey(mTrc2SPHelpID)))
     , geom2d_(geom2d)
 {
     dirfld_ = new uiGenInput( this, tr("Calculate"),
@@ -393,8 +392,7 @@ class uiRelDlg : public uiDialog
 mODTextTranslationClass(uiRelDlg)
 public:
 uiRelDlg( uiParent* p, const Survey::Geometry2D& geom2d )
-    : uiDialog(p,Setup(tr("Linear Relation Calculator"),
-		       mNoDlgTitle,mTODOHelpKey))
+    : uiDialog(p,Setup(tr("Linear Relation Calculator"),mTODOHelpKey))
 {
     pt1fld_ = new uiGenInput( this, tr("First trace (TrcNr/SP)"),
 			      IntInpSpec(), FloatInpSpec() );
@@ -473,8 +471,8 @@ bool acceptOK( CallBacker* ) override
 // uiManageLineGeomDlg
 uiManageLineGeomDlg::uiManageLineGeomDlg( uiParent* p,
 			const TypeSet<Pos::GeomID>& geomidset, bool readonly )
-    : uiDialog(p,uiDialog::Setup(tr("Edit Line Geometry"),mNoDlgTitle,
-				  mODHelpKey(mManageLineGeomDlgHelpID)))
+    : uiDialog(p,Setup(tr("Edit Line Geometry"),
+		       mODHelpKey(mManageLineGeomDlgHelpID)))
     , geomidset_(geomidset)
     , readonly_(readonly)
 {

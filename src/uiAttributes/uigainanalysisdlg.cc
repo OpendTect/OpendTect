@@ -23,7 +23,7 @@ ________________________________________________________________________
 
 uiGainAnalysisDlg::uiGainAnalysisDlg( uiParent* p, const SeisTrcBuf& traces,
       TypeSet<float>& zvals, TypeSet<float>& scalefac )
-    : uiDialog(p,uiDialog::Setup(tr("Analyze Gain"), mNoDlgTitle, mNoHelpKey))
+    : uiDialog(p,Setup(tr("Analyze Gain"),mNoHelpKey))
     , zvals_(zvals)
     , scalefactors_(scalefac)
     , trcbuf_(traces)

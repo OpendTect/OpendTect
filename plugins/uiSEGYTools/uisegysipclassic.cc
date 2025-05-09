@@ -63,7 +63,7 @@ void atEnd( CallBacker* )
 
 uiDialog* uiSEGYClassicSurvInfoProvider::dialog( uiParent* p )
 {
-    uiDialog::Setup su( tr("Survey setup (SEG-Y)"), mNoDlgTitle, mNoHelpKey );
+    uiDialog::Setup su( tr("Survey setup (SEG-Y)"),mNoHelpKey );
     su.oktext(uiString::emptyString()).canceltext(uiString::emptyString());
     xyinft_ = false;
     return new uiSEGYClassicSIPMgrDlg( this, p, su );

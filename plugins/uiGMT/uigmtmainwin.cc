@@ -37,9 +37,8 @@ ________________________________________________________________________
 
 
 uiGMTMainWin::uiGMTMainWin( uiParent* p )
-    : uiDialog(p,uiDialog::Setup(getCaptionStr(),mNoDlgTitle,
-                                 mODHelpKey(mGMTMainWinHelpID) )
-				.modal(false) )
+    : uiDialog(p,Setup(getCaptionStr(),mODHelpKey(mGMTMainWinHelpID))
+		    .modal(false))
     , addbut_(0)
     , editbut_(0)
     , ctio_(*mMkCtxtIOObj(ODGMTProcFlow))

@@ -35,7 +35,7 @@ uiEMAuxDataSel::~uiEMAuxDataSel()
 void uiEMAuxDataSel::butPushCB( CallBacker* )
 {
     uiDialog dlg( this, uiDialog::Setup(tr("Horizon/Attributes Selection"),
-					uiStrings::sEmptyString(),mNoHelpKey) );
+					uiStrings::sEmptyString(),mNoHelpKey));
     PtrMan<uiSurfaceRead> surfacefld = new uiSurfaceRead( &dlg,
 		  uiSurfaceRead::Setup(EMHorizon3DTranslatorGroup::sGroupName())
 				 .withsectionfld(false)

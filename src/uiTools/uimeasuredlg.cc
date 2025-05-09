@@ -32,8 +32,8 @@ ________________________________________________________________________
 static const char* sKeyLineStyle = "Measure LineStyle";
 
 uiMeasureDlg::uiMeasureDlg( uiParent* p )
-    : uiDialog(p,Setup(tr("Measure Distance"),mNoDlgTitle,
-		       mODHelpKey(mMeasureDlgHelpID)).modal(false))
+    : uiDialog(p,Setup(tr("Measure Distance"),mODHelpKey(mMeasureDlgHelpID))
+		    .modal(false))
     , ls_(*new OD::LineStyle(OD::LineStyle::Solid,3))
     , appvelfld_(0)
     , zdist2fld_(0)
@@ -52,7 +52,7 @@ uiMeasureDlg::uiMeasureDlg( uiParent* p )
     if ( !str.isEmpty() )
 	ls_.fromString( str.buf() );
 
-    uiGroup* topgrp = new uiGroup( this, "Info fields" );
+    auto* topgrp = new uiGroup( this, "Info fields" );
     uiString hdistlbl = uiStrings::phrJoinStrings(uiStrings::sHorizontal(),
 			uiStrings::phrJoinStrings(uiStrings::sDistance(),
 			SI().getUiXYUnitString()) );
@@ -177,8 +177,7 @@ void uiMeasureDlg::clearCB( CallBacker* cb )
 
 void uiMeasureDlg::stylebutCB( CallBacker* )
 {
-    uiDialog dlg( this, uiDialog::Setup(tr("Line Style"),mNoDlgTitle,
-					mNoHelpKey) );
+    uiDialog dlg( this, Setup(tr("Line Style"),mNoHelpKey) );
     dlg.setCtrlStyle( uiDialog::CloseOnly );
     auto* linestylefld = new uiSelLineStyle( &dlg, ls_,
 				uiSelLineStyle::Setup().drawstyle(false) );

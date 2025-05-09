@@ -835,9 +835,9 @@ bool uiMPEPartServer::initSetupDlg( EM::EMObject& emobj,
 
     closeSetupDlg();
     auto* setupdlg = new uiDialog( nullptr,
-		uiDialog::Setup(uiString::empty(),mNoDlgTitle,
-				mODHelpKey(mTrackingSetupGroupHelpID) )
-				.modal(false) );
+				   uiDialog::Setup(uiString::empty(),
+					  mODHelpKey(mTrackingSetupGroupHelpID))
+					.modal(false));
     setupdlg->showAlwaysOnTop();
     setupdlg->setCtrlStyle( uiDialog::CloseOnly );
     setupdlg->setVideoKey( hor3d ? mODVideoKey("horint3d")

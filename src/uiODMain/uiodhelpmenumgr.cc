@@ -202,11 +202,10 @@ class uiODLegalInfo : public uiDialog
 public:
 
 uiODLegalInfo(uiParent* p)
-    : uiDialog(p,uiDialog::Setup(tr("Legal information"),
-				 mNoDlgTitle,mNoHelpKey))
+    : uiDialog(p,Setup(tr("Legal information"),mNoHelpKey))
 {
     setCtrlStyle( CloseOnly );
-    uiLabel* label = new uiLabel( this,
+    auto* label = new uiLabel( this,
 	    tr("OpendTect has incorporated code from various "
 	       "open source projects that are licensed under different "
 	       "licenses.") );

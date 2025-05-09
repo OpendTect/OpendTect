@@ -180,9 +180,9 @@ void BatchProgInfoList::getEntries( const char* fnm )
 
 
 uiBatchProgLaunch::uiBatchProgLaunch( uiParent* p )
-    : uiDialog(p,uiDialog::Setup(tr("Run batch program"),
-	       tr("Specify batch program and parameters"),
-	       mODHelpKey(mBatchProgLaunchHelpID) ) )
+    : uiDialog(p,Setup(tr("Run batch program"),
+		       tr("Specify batch program and parameters"),
+		       mODHelpKey(mBatchProgLaunchHelpID)))
     , pil_(*new BatchProgInfoList)
 {
     if ( pil_.size() < 1 )

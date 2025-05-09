@@ -42,8 +42,7 @@ uiDialog* uiTrimStatics::create( uiParent* p, Processor* psp )
 
 
 uiTrimStatics::uiTrimStatics( uiParent* p, TrimStatics* trimstat )
-    : uiDialog(p,uiDialog::Setup(tr("Trim Statics"),mNoDlgTitle,
-				 mODHelpKey(mPreStackMuteHelpID)))
+    : uiDialog(p,Setup(tr("Trim Statics"),mODHelpKey(mPreStackMuteHelpID)))
     , processor_( trimstat )
 {
     uiStringSet collbls;
@@ -68,7 +67,7 @@ uiTrimStatics::uiTrimStatics( uiParent* p, TrimStatics* trimstat )
     outputfld_->setValue( processor_->getOutput() );
     outputfld_->attach( leftAlignedBelow, table_ );
 
-    uiButtonGroup* grp = new uiButtonGroup( this, "Buttons", OD::Vertical );
+    auto* grp = new uiButtonGroup( this, "Buttons", OD::Vertical );
     grp->attach( rightTo, table_ );
     new uiToolButton( grp, "addnew", uiStrings::phrAdd(tr("Iteration")),
 					     mCB(this,uiTrimStatics,addCB) );

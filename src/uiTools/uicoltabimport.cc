@@ -42,8 +42,8 @@ static BufferString sHomePath;
 static BufferString sFilePath;
 
 uiColTabImport::uiColTabImport( uiParent* p )
-    : uiDialog(p,uiDialog::Setup(uiStrings::phrImport(uiStrings::sColorTable()),
-				  mNoDlgTitle, mODHelpKey(mColTabImportHelpID)))
+    : uiDialog(p,Setup(uiStrings::phrImport(uiStrings::sColorTable()),
+		       mODHelpKey(mColTabImportHelpID)))
     , dirfld_(0)
     , dtectusrfld_(0)
 {

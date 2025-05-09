@@ -57,7 +57,7 @@ bool uiVarWizard::mustLeave( uiVarWizardDlg* dlg )
 uiVarWizardDlg::uiVarWizardDlg( uiParent* p, const uiDialog::Setup& su,
 			IOPar& pars, uiVarWizardDlg::Position pos,
 			bool revbuttons )
-    : uiDialog(p,uiDialog::Setup(su).modal(false).okcancelrev(revbuttons))
+    : uiDialog(p,Setup(su).modal(false).okcancelrev(revbuttons))
     , pars_(pars)
     , pos_(pos)
     , leave_(false)

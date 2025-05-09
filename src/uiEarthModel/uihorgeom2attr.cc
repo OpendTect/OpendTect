@@ -122,9 +122,10 @@ bool uiHorGeom2Attr::acceptOK( CallBacker* cb )
 
 uiHorAttr2Geom::uiHorAttr2Geom( uiParent* p, EM::Horizon3D& hor,
        				const DataPointSet& dps, int colid )
-    : uiDialog(p, Setup(tr("Set horizon Z values"),(tr("Set Z values from '%1'")
-			.arg(toUiString(dps.dataSet().colDef(colid).name_)))
-			,mODHelpKey(mHorAttr2GeomHelpID)) )
+    : uiDialog(p,Setup(tr("Set horizon Z values"),
+		      (tr("Set Z values from '%1'")
+			.arg(toUiString(dps.dataSet().colDef(colid).name_))),
+		       mODHelpKey(mHorAttr2GeomHelpID)))
     , hor_(hor)
     , dps_(&dps)
     , colid_(colid-dps.nrFixedCols())
@@ -136,7 +137,7 @@ uiHorAttr2Geom::uiHorAttr2Geom( uiParent* p, EM::Horizon3D& hor,
 		    BoolInpSpec(false,tr("Relative (deltas)"),tr("Absolute")) );
     mAddMSFld(tr("Units"),isdeltafld_)
 
-    uiSeparator* sep = new uiSeparator( this, "HSep" );
+    auto* sep = new uiSeparator( this, "HSep" );
     if ( msfld_ ) sep->attach( stretchedBelow, msfld_ );
     else sep->attach( stretchedBelow, isdeltafld_ );
 

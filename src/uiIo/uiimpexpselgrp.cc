@@ -297,10 +297,8 @@ class uiRenameDlg : public uiDialog
 { mODTextTranslationClass(uiRenameDlg);
 public:
 uiRenameDlg( uiParent* p, const char* nm )
-    : uiDialog(p,uiDialog::Setup(uiStrings::phrRename(
-				 tr("Selection Group Set")),
-                                 uiStrings::sEmptyString(),
-				 mNoHelpKey) )
+    : uiDialog(p,Setup(uiStrings::phrRename(tr("Selection Group Set")),
+		       mNoHelpKey))
 {
     namefld_ = new uiGenInput( this, tr("Selection Group Set Name") );
     namefld_->setText( nm );
@@ -499,9 +497,9 @@ class uiSGSelDlg : public uiDialog
 public:
 
 uiSGSelDlg( uiParent* p, bool forread )
-    : uiDialog(p,uiDialog::Setup(uiStrings::phrSelect(uiStrings::phrCrossPlot(
-	uiStrings::phrJoinStrings(uiStrings::sSelection(), tr("Groups")))),
-        uiStrings::sEmptyString(), mNoHelpKey))
+    : uiDialog(p,Setup(uiStrings::phrSelect(uiStrings::phrCrossPlot(
+	uiStrings::phrJoinStrings(uiStrings::sSelection(),tr("Groups")))),
+	mNoHelpKey))
     , forread_(forread)
 {
     selgrp_ = new uiSGSelGrp( this, forread );
@@ -617,9 +615,9 @@ const char* uiSGSel::selGrpFileNm()
 
 
 uiReadSelGrp::uiReadSelGrp( uiParent* p, uiDataPointSetCrossPlotter& plotter )
-    : uiDialog(p,uiDialog::Setup(mJoinUiStrs(sOpen(), phrCrossPlot(
-				 uiStrings::sSelection())),mNoDlgTitle,
-				 mODHelpKey(mReadSelGrpHelpID) ))
+    : uiDialog(p,Setup(mJoinUiStrs(sOpen(),
+		       phrCrossPlot(uiStrings::sSelection())),
+		       mODHelpKey(mReadSelGrpHelpID)))
     , y2selfld_(0)
     , plotter_(plotter)
     , selgrpset_(plotter.selectionGrps())
@@ -634,16 +632,14 @@ uiReadSelGrp::uiReadSelGrp( uiParent* p, uiDataPointSetCrossPlotter& plotter )
     inpfld_ = new uiSGSel( this, true );
     inpfld_->selGrpSelected.notify( mCB(this,uiReadSelGrp,selectedCB) );
 
-    uiLabeledComboBox* xselfld =
-	new uiLabeledComboBox( this,
-		    plotter.axisHandler(0)->getCaption() );
+    auto* xselfld = new uiLabeledComboBox( this,
+				    plotter.axisHandler(0)->getCaption() );
     xselfld_ = xselfld->box();
     xselfld->attach( centeredBelow, inpfld_ );
     xselfld_->display( false, false );
 
-    uiLabeledComboBox* yselfld =
-	new uiLabeledComboBox( this,
-		    plotter.axisHandler(1)->getCaption() );
+    auto* yselfld = new uiLabeledComboBox( this,
+				    plotter.axisHandler(1)->getCaption() );
     yselfld_ = yselfld->box();
     yselfld->attach( alignedBelow, xselfld );
     yselfld_->display( false, false );
@@ -655,9 +651,8 @@ uiReadSelGrp::uiReadSelGrp( uiParent* p, uiDataPointSetCrossPlotter& plotter )
 
     if ( hasy2 )
     {
-	uiLabeledComboBox* y2selfld =
-	    new uiLabeledComboBox( this,
-			plotter.axisHandler(2)->getCaption() );
+	auto* y2selfld = new uiLabeledComboBox( this,
+					plotter.axisHandler(2)->getCaption() );
 	y2selfld_ = y2selfld->box();
 	y2selfld->attach( alignedBelow, yselfld );
 	y2selfld_->display( false, false );
@@ -996,9 +991,9 @@ uiExpSelectionArea::uiExpSelectionArea( uiParent* p,
 					const ObjectSet<SelectionGrp>& selgrps,
 					uiExpSelectionArea::Setup su )
     : uiDialog(p,uiDialog::Setup(uiStrings::phrSave(uiStrings::phrJoinStrings(
-				 uiStrings::sSelection(), tr("Area"))),
-				 mJoinUiStrs(sSpecify(), sParameter(mPlural)),
-				mODHelpKey(mExpSelectionAreaHelpID) ))
+				 uiStrings::sSelection(),tr("Area"))),
+				 mJoinUiStrs(sSpecify(),sParameter(mPlural)),
+				 mODHelpKey(mExpSelectionAreaHelpID)))
     , setup_(su)
     , selgrps_(selgrps)
 {

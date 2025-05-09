@@ -157,8 +157,8 @@ static uiRetVal isSoftwareDirOK( const char* swdir, bool quick )
 
 
 uiCrDevEnv::uiCrDevEnv( uiParent* p, const FilePath& workdirfp )
-    : uiDialog(p,uiDialog::Setup(tr("Create Development Environment"),
-				 mNoDlgTitle,mODHelpKey(mCreateDevEnvHelpID)))
+    : uiDialog(p,Setup(tr("Create Development Environment"),
+		       mODHelpKey(mCreateDevEnvHelpID)))
 {
     auto* lbl = new uiLabel( this,
 		    tr("Specify OpendTect plugin development location.\n") );

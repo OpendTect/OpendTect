@@ -37,8 +37,8 @@ uiCreateAttribLogDlg::uiCreateAttribLogDlg( uiParent* p,
 					    const Attrib::DescSet* attrib ,
 					    const NLAModel* mdl,
 					    bool singlewell )
-    : uiDialog(p,uiDialog::Setup(tr("Create Attribute Log"),mNoDlgTitle,
-				 mODHelpKey(mCreateAttribLogDlgHelpID)))
+    : uiDialog(p,Setup(tr("Create Attribute Log"),
+		       mODHelpKey(mCreateAttribLogDlgHelpID)))
     , wellnames_(wellnames)
     , singlewell_(singlewell)
     , datasetup_(AttribLogCreator::Setup(attrib,0))

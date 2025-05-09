@@ -34,8 +34,7 @@ uiDialog* uiAGC::create( uiParent* p, Processor* sgp )
 
 
 uiAGC::uiAGC( uiParent* p, AGC* sgagc )
-    : uiDialog( p, uiDialog::Setup(tr("AGC setup"),mNoDlgTitle,
-                                    mODHelpKey(mPreStackAGCHelpID) ) )
+    : uiDialog(p,Setup(tr("AGC setup"),mODHelpKey(mPreStackAGCHelpID)))
     , processor_( sgagc )
 {
     BufferString unit;

@@ -19,9 +19,9 @@ ________________________________________________________________________
 
 
 uiODViewer2DPosDlg::uiODViewer2DPosDlg( uiODMain& appl )
-    : uiDialog(&appl,uiDialog::Setup(tr("2D Viewer Launcher"),
-				     tr("Select Position and Data"),
-				     mODHelpKey(mODViewer2DPosDlgHelpID)))
+    : uiDialog( &appl, Setup(tr("2D Viewer Launcher"),
+			     tr("Select Position and Data"),
+			     mODHelpKey(mODViewer2DPosDlgHelpID)) )
     , odappl_(appl)
     , initialx1pospercm_(mUdf(float))
     , initialx2pospercm_(mUdf(float))

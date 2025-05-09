@@ -31,8 +31,8 @@ ________________________________________________________________________
 
 uiHor3DFrom2DDlg::uiHor3DFrom2DDlg( uiParent* p, const EM::Horizon2D& h2d,
 				    uiEMPartServer* ems )
-    : uiDialog( p, Setup(tr("Derive 3D Horizon"),mNoDlgTitle,
-			 mODHelpKey(mHor3DFrom2DDlgHelpID)) )
+    : uiDialog( p, Setup(tr("Derive 3D Horizon"),
+			 mODHelpKey(mHor3DFrom2DDlgHelpID)))
     , hor2d_( h2d )
     , emserv_( ems )
     , hor3d_( 0 )

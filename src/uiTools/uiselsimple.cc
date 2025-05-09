@@ -129,8 +129,7 @@ bool uiGetObjectName::acceptOK( CallBacker* )
 
 uiGetChoice::uiGetChoice( uiParent* p, const uiString& qn, bool wcncl,
 			  const HelpKey& helpkey )
-    : uiDialog(p,uiDialog::Setup(uiStrings::sSpecify(),qn,
-	       helpkey))
+    : uiDialog(p,Setup(uiStrings::sSpecify(),qn,helpkey))
     , allowcancel_(wcncl)
 {
     inpfld_ = new uiCheckList( this, uiCheckList::OneOnly );
@@ -140,8 +139,7 @@ uiGetChoice::uiGetChoice( uiParent* p, const uiString& qn, bool wcncl,
 uiGetChoice::uiGetChoice( uiParent* p, const BufferStringSet& opts,
 			  const uiString& qn, bool wcncl,
 			  const HelpKey& helpkey )
-    : uiDialog(p,uiDialog::Setup(uiStrings::sSpecify(),qn,
-	       helpkey))
+    : uiDialog(p,Setup(uiStrings::sSpecify(),qn,helpkey))
     , allowcancel_(wcncl)
 {
     inpfld_ = new uiCheckList( this, uiCheckList::OneOnly );

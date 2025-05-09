@@ -17,9 +17,8 @@ mImplFactory1Param( uiSemblanceAlgorithm, uiParent*,
 		    uiSemblanceAlgorithm::factory);
 
 uiSemblanceAlgorithm::uiSemblanceAlgorithm( uiParent* p, const HelpKey& helpkey)
-    : uiDialog( p,
-	  uiDialog::Setup(uiStrings::sSetup(),tr("Semblance parameters"),
-                          helpkey).canceltext(uiStrings::sEmptyString()))
+    : uiDialog(p,Setup(uiStrings::sSetup(),tr("Semblance parameters"),helpkey)
+		    .canceltext(uiStrings::sEmptyString()))
 {}
 
 

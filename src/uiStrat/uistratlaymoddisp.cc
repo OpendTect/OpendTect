@@ -336,10 +336,9 @@ public:
 
 uiStratLayerModelDispIO( uiParent* p, const Strat::LayerModel& lm,
 			 bool doread )
-    : uiDialog( p, Setup(doread ? tr("Read pseudo-wells")
-				: tr("Save pseudo-wells"),
-			 mNoDlgTitle,
-			 mODHelpKey(mStratLayerModelDispIOHelpID)) )
+    : uiDialog(p,Setup(doread ? tr("Read pseudo-wells")
+			      : tr("Save pseudo-wells"),
+		       mODHelpKey(mStratLayerModelDispIOHelpID)))
     , lm_(lm)
     , doread_(doread)
 {
@@ -1006,11 +1005,11 @@ void uiStratSimpleLayerModelDisp::handleRightClick( int seqidx )
     }
     else
     {
-	uiDialog dlg( this, uiDialog::Setup( uiStrings::phrRemove(
+	uiDialog dlg( this, uiDialog::Setup(uiStrings::phrRemove(
 				  uiStrings::sLayer().toLower()),
 				  uiStrings::phrRemove(toUiString("'%1'")
-				  .arg(lay->name())),
-				  mODHelpKey(mStratSimpleLayerModDispHelpID)));
+					.arg(lay->name())),
+				  mODHelpKey(mStratSimpleLayerModDispHelpID)) );
 	auto* gi = new uiGenInput( &dlg, uiStrings::sRemove(),
 				     BoolInpSpec(true,
 				     tr("Only this layer"),

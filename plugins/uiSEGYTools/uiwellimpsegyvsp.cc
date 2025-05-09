@@ -124,9 +124,8 @@ BufferString getSummary() const override
 
 
 uiWellImportSEGYVSP::uiWellImportSEGYVSP( uiParent* p )
-    : uiDialog(p,uiDialog::Setup(tr("Import Zero-offset VSP"),
-				 mNoDlgTitle,
-				 mODHelpKey(mWellImpSegyVspHelpID) ) )
+    : uiDialog(p,Setup(tr("Import Zero-offset VSP"),
+		       mODHelpKey(mWellImpSegyVspHelpID) ) )
     , istimefld_(0)
     , unitfld_(0)
     , dispinpsamp_(mUdf(float),1)

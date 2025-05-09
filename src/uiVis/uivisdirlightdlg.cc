@@ -28,12 +28,12 @@ ________________________________________________________________________
 #define mInitAmbIntensity	50
 
 uiDirLightDlg::uiDirLightDlg( uiParent* p, uiVisPartServer* visserv )
-    : uiDialog(p,uiDialog::Setup(tr("Light options"),
-				 tr("Set light options"),
-				mODHelpKey(mDirLightDlgHelpID) ).modal(false))
+    : uiDialog(p,Setup(tr("Light options"),tr("Set light options"),
+		       mODHelpKey(mDirLightDlgHelpID)).modal(false))
     , visserv_(visserv)
-    , pddlg_(new uiDialog(this, uiDialog::Setup(tr("Polar diagram"),
-		    tr("Set azimuth and dip"), mNoHelpKey).modal(false)))
+    , pddlg_(new uiDialog( this, Setup(tr("Polar diagram"),
+				       tr("Set azimuth and dip"),
+				       mNoHelpKey).modal(false) ))
 {
     pddlg_->setCtrlStyle( CloseOnly );
     mAttachCB( pddlg_->postFinalize(), uiDirLightDlg::pdDlgDoneCB );

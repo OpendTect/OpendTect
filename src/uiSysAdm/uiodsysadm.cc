@@ -68,8 +68,7 @@ int ODSysAdmMain( uiMain& app )
 
 
 uiODSysAdm::uiODSysAdm( uiMain& a )
-    : uiDialog(nullptr,uiDialog::Setup(tr("OpendTect System Administration"),
-				 mNoDlgTitle, mNoHelpKey))
+    : uiDialog(nullptr,Setup(tr("OpendTect System Administration"),mNoHelpKey))
 	// The order of the following has to match the header file's!
     , swdir_(GetSoftwareDir(0))
     , asdir_(GetApplSetupDir())

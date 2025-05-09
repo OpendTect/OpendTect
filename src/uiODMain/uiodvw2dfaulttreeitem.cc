@@ -363,7 +363,7 @@ bool uiODView2DFaultTreeItem::showSubMenu()
     if ( mnuid == mPropID )
     {
 	uiDialog dlg( getUiParent(), uiDialog::Setup(uiStrings::sProperties(),
-						     mNoDlgTitle,mNoHelpKey) );
+						     mNoHelpKey) );
 	dlg.setCtrlStyle( uiDialog::CloseOnly );
 	uiSelLineStyle::Setup lssu;
 	lssu.drawstyle(false);

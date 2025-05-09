@@ -27,8 +27,8 @@ ________________________________________________________________________
 
 
 uiHorizonMergeDlg::uiHorizonMergeDlg( uiParent* p, bool is2d )
-    : uiDialog(p,Setup(tr("Merge 3D Horizons"),uiString::emptyString(),
-                       mODHelpKey(mHorizonMergeDlgHelpID) ))
+    : uiDialog(p,Setup(tr("Merge 3D Horizons"),
+		       mODHelpKey(mHorizonMergeDlgHelpID)))
 {
     horselfld_ = new uiHorizon3DSelGrp( this );
 

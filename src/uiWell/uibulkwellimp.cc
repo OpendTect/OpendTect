@@ -47,10 +47,8 @@ using namespace Well;
 
 // uiBulkTrackImport
 uiBulkTrackImport::uiBulkTrackImport( uiParent* p )
-    : uiDialog(p,uiDialog::Setup(tr("Multi-Well Import: Well Tracks"),
-				 mNoDlgTitle,
-				 mODHelpKey(mBulkTrackImportHelpID) )
-			   .modal(false))
+    : uiDialog(p,Setup(tr("Multi-Well Import: Well Tracks"),
+		       mODHelpKey(mBulkTrackImportHelpID)).modal(false))
     , fd_(BulkTrackAscIO::getDesc())
     , velocityfld_(0)
 {
@@ -334,10 +332,8 @@ bool uiBulkTrackImport::acceptOK( CallBacker* )
 
 // uiBulkLogImport
 uiBulkLogImport::uiBulkLogImport( uiParent* p )
-    : uiDialog(p,uiDialog::Setup(tr("Multi-Well Import: Logs"),
-				 mNoDlgTitle,
-				 mODHelpKey(mBulkLogImportHelpID))
-			   .modal(false))
+    : uiDialog(p,Setup(tr("Multi-Well Import: Logs"),
+		       mODHelpKey(mBulkLogImportHelpID)).modal(false))
 {
     setOkCancelText( uiStrings::sImport(), uiStrings::sClose() );
 
@@ -623,10 +619,8 @@ bool uiBulkLogImport::acceptOK( CallBacker* )
 
 // uiBulkMarkerImport
 uiBulkMarkerImport::uiBulkMarkerImport( uiParent* p )
-    : uiDialog(p,uiDialog::Setup(tr("Multi-Well Import: Markers"),
-				 mNoDlgTitle,
-				 mODHelpKey(mBulkMarkerImportHelpID))
-			   .modal(false))
+    : uiDialog(p,Setup(tr("Multi-Well Import: Markers"),
+		       mODHelpKey(mBulkMarkerImportHelpID)).modal(false))
     , fd_(BulkMarkerAscIO::getDesc())
 {
     setOkCancelText( uiStrings::sImport(), uiStrings::sClose() );
@@ -760,7 +754,7 @@ D2TModelData( const char* wellnm )
 
 // uiBulkD2TModelImport
 uiBulkD2TModelImport::uiBulkD2TModelImport( uiParent* p )
-    : uiDialog(p,Setup(tr("Multi-Well Import: D2TModel"),mNoDlgTitle,
+    : uiDialog(p,Setup(tr("Multi-Well Import: D2TModel"),
 		       mODHelpKey(mBulkD2TModelImportHelpID)).modal(false))
     , fd_(BulkD2TModelAscIO::getDesc())
 {
@@ -910,10 +904,8 @@ DirData( const char* wellnm )
 
 
 uiBulkDirectionalImport::uiBulkDirectionalImport( uiParent* p )
-    : uiDialog(p,uiDialog::Setup(tr("Multi-Well Import: Directional Surveys"),
-				 mNoDlgTitle,
-				 mODHelpKey(mBulkDirectionalImportHelpID))
-			.modal(false))
+    : uiDialog(p,Setup(tr("Multi-Well Import: Directional Surveys"),
+		       mODHelpKey(mBulkDirectionalImportHelpID)).modal(false))
     , fd_(BulkDirectionalAscIO::getDesc())
 {
     setOkCancelText( uiStrings::sImport(), uiStrings::sClose() );
@@ -926,8 +918,7 @@ uiBulkDirectionalImport::uiBulkDirectionalImport( uiParent* p )
 				mODHelpKey(mTableImpDataSelwellsHelpID) );
     dataselfld_->attach( alignedBelow, inpfld_ );
 
-    uiPushButton* applybut =
-	new uiPushButton( this, uiStrings::sApply(), true );
+    auto* applybut = new uiPushButton( this, uiStrings::sApply(), true );
     applybut->setIcon( "apply" );
     applybut->attach( alignedBelow, dataselfld_ );
     mAttachCB( applybut->activated, uiBulkDirectionalImport::applyCB );

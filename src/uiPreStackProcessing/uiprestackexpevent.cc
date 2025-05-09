@@ -28,10 +28,8 @@ namespace PreStack
 {
 
 uiEventExport::uiEventExport( uiParent* p, const MultiID* mid )
-    : uiDialog( p, uiDialog::Setup(
-			uiStrings::phrExport( uiStrings::sPreStackEvents() ),
-			mNoDlgTitle,
-			mODHelpKey(mPreStackEventExportHelpID) ) )
+    : uiDialog(p,Setup(uiStrings::phrExport(uiStrings::sPreStackEvents()),
+		       mODHelpKey(mPreStackEventExportHelpID)))
 {
     setOkCancelText( uiStrings::sExport(), uiStrings::sClose() );
 

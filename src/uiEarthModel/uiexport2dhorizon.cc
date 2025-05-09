@@ -68,8 +68,8 @@ static BufferString bufstr( const char* horname, const char* hdrlnm,
 }
 
 uiExport2DHorizon::uiExport2DHorizon( uiParent* p, bool isbulk )
-    : uiDialog(p,uiDialog::Setup( uiStrings::phrExport( tr("2D Horizon") ),
-	       mNoDlgTitle, mODHelpKey(mExportHorizonHelpID) ))
+    : uiDialog(p,Setup(uiStrings::phrExport( tr("2D Horizon") ),
+		       mODHelpKey(mExportHorizonHelpID)))
     , isbulk_(isbulk)
 {
     setOkCancelText( uiStrings::sExport(), uiStrings::sClose() );

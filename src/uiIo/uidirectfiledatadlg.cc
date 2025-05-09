@@ -25,8 +25,8 @@ ________________________________________________________________________
 uiEditDirectFileDataDlg::uiEditDirectFileDataDlg( uiParent* p,
 						  const IOObj& obj )
     : uiDialog(p,Setup(tr("%1 File Editor").arg(obj.translator()),
-			toUiString(obj.name()),
-			mODHelpKey(mEditSEGYFileDataDlgHelpID)))
+		       toUiString(obj.name()),
+		       mODHelpKey(mEditSEGYFileDataDlgHelpID)))
     , ioobj_(obj)
     , isusable_(true)
 {}

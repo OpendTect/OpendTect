@@ -25,8 +25,8 @@ ________________________________________________________________________
 
 
 uiGISExportWells::uiGISExportWells( uiParent* p, const TypeSet<MultiID>* mids )
-    : uiDialog(p,uiDialog::Setup(uiStrings::phrExport( tr("Wells to GIS")),
-			   mNoDlgTitle,mODHelpKey(mGoogleExportWellsHelpID)))
+    : uiDialog(p,Setup(uiStrings::phrExport(tr("Wells to GIS")),
+		       mODHelpKey(mGoogleExportWellsHelpID)))
 {
     setOkCancelText( uiStrings::sExport(), uiStrings::sClose() );
 

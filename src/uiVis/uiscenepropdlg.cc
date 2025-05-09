@@ -31,9 +31,8 @@ bool uiScenePropertyDlg::savestatus_ = true;
 
 uiScenePropertyDlg::uiScenePropertyDlg( uiParent* p,
 		const ObjectSet<ui3DViewer>& viewers, int curvwridx )
-    : uiDialog(p,uiDialog::Setup(tr("Scene properties"),
-				 uiString::emptyString(),
-                                 mODHelpKey(mScenePropertyDlgHelpID) ))
+    : uiDialog(p,Setup(tr("Scene properties"),
+		       mODHelpKey(mScenePropertyDlgHelpID)))
     , viewers_(viewers)
     , curvwridx_(curvwridx)
 {
@@ -166,7 +165,7 @@ class uiScaleDlg : public uiDialog
 public:
 uiScaleDlg( uiParent* p, const TrcKeyZSampling& scale,
 	    const ZDomain::Info& zinfo )
-    : uiDialog(p,Setup(tr("Set Annotation Scale"),mNoDlgTitle,mNoHelpKey))
+    : uiDialog(p,Setup(tr("Set Annotation Scale"),mNoHelpKey))
 {
     rangefld_ = new uiSelSubvol( this, true, zinfo );
     rangefld_->setSampling( scale );

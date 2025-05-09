@@ -130,7 +130,7 @@ uiImageSel::Setup::~Setup()
 // uiImportImageDlg
 
 uiImportImageDlg::uiImportImageDlg( uiParent* p )
-    : uiDialog(p,Setup(tr("Import Image"),mNoDlgTitle,mTODOHelpKey))
+    : uiDialog(p,Setup(tr("Import Image"),mTODOHelpKey))
     , importDone(this)
 {
     setOkCancelText( uiStrings::sImport(), uiStrings::sClose() );
@@ -292,7 +292,7 @@ bool uiImageCoordGrp::usePar( const IOPar& par )
 // uiEditImageDlg
 
 uiEditImageDlg::uiEditImageDlg( uiParent* p, const IOObj& ioobj )
-    : uiDialog(p,Setup(tr("Edit Image"),mNoDlgTitle,mTODOHelpKey))
+    : uiDialog(p,Setup(tr("Edit Image"),mTODOHelpKey))
     , ioobj_(ioobj)
     , editDone(this)
 {

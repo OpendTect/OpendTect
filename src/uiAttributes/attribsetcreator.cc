@@ -35,9 +35,9 @@ public:
 uiSelExternalAttrInps( uiParent* p, DescSet* ads,
 		const BufferStringSet& indirinps,
 		const BufferStringSet& dirinps )
-    : uiDialog(p,uiDialog::Setup(tr("Specify inputs"),
-		     tr("Network without attributes: definitions"),
-		     mNoHelpKey))
+    : uiDialog(p,Setup(tr("Specify inputs"),
+		       tr("Network without attributes: definitions"),
+		       mNoHelpKey))
     , attrset_(ads)
     , nrindir_(indirinps.size())
 {

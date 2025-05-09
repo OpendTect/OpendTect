@@ -278,8 +278,7 @@ void addInfo( BufferStringSet& infos ) const override
 // uiInformationDlg
 
 uiInformationDlg::uiInformationDlg( uiParent* p )
-    : uiTabStackDlg( p, Setup(tr("Information"), mNoDlgTitle,
-	mODHelpKey(mInformationHelpID)) )
+    : uiTabStackDlg(p,Setup(tr("Information"),mODHelpKey(mInformationHelpID)))
 {
     setOkCancelText( tr("Copy to Clipboard"), uiStrings::sClose() );
 

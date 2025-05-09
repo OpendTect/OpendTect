@@ -19,8 +19,7 @@ ________________________________________________________________________
 #include "mathexpression.h"
 
 uiDPSAddColumnDlg::uiDPSAddColumnDlg( uiParent* p, bool withmathop )
-    : uiDialog(p,uiDialog::Setup(uiStrings::phrAdd(tr("Column")),
-				 mNoDlgTitle, mNoHelpKey))
+    : uiDialog(p,Setup(uiStrings::phrAdd(tr("Column")),mNoHelpKey))
     , mathobj_(nullptr)
     , inpfld_(nullptr)
     , setbut_(nullptr)

@@ -70,8 +70,7 @@ class uiBatchProgClosePrompter : public uiDialog
 public:
 uiBatchProgClosePrompter( uiParent* p,
 			    const TypeSet<Network::Service::ID>& servids )
-    : uiDialog(p, uiDialog::Setup(tr("Batch Program Information"), mNoDlgTitle,
-	mNoHelpKey))
+    : uiDialog(p,Setup(tr("Batch Program Information"),mNoHelpKey))
 {
     setTitleText( tr("There are batch processes currently running.\n"
 	"Please close these processes before proceeding.\n"
@@ -118,10 +117,8 @@ uiLabel*    label_;
 
 uiSurveyInfoEditor::uiSurveyInfoEditor( uiParent* p, SurveyInfo& si,
 					bool isnew, bool iscurr )
-    : uiDialog(p,uiDialog::Setup(tr("Edit Survey Parameters"),
-				 mNoDlgTitle,
-				 mODHelpKey(mSurveyInfoEditorHelpID))
-				    .nrstatusflds(1))
+    : uiDialog(p,Setup(tr("Edit Survey Parameters"),
+		       mODHelpKey(mSurveyInfoEditorHelpID)).nrstatusflds(1))
     , survParChanged(this)
     , si_(si)
     , orgdirname_(si_.getDirName().buf())
@@ -1408,7 +1405,7 @@ class uiSurveyFileDlg : public uiDialog
 public:
 uiSurveyFileDlg( uiParent* p )
     : uiDialog(p,Setup(tr("Select Survey Setup file"),
-			mNoDlgTitle,mODHelpKey(mSurveyFileDlgHelpID)))
+		       mODHelpKey(mSurveyFileDlgHelpID)))
 {
     inpfld_ = new uiFileInput( this, uiStrings::sSelect(),
 		uiFileInput::Setup().defseldir(GetBaseDataDir())

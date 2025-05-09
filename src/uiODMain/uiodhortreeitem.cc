@@ -735,9 +735,8 @@ void uiODHorizonTreeItem::handleMenuCB( CallBacker* cb )
 	setup.tkzs_ = maxcs;
 
 	uiDialog dlg( getUiParent(),
-	uiDialog::Setup( uiStrings::sPosition(mPlural),
-			    tr("Specify positions"),
-				mODHelpKey(mPosProvSelHelpID) ) );
+	uiDialog::Setup(uiStrings::sPosition(mPlural),tr("Specify positions"),
+			mODHelpKey(mPosProvSelHelpID)));
 	uiPosProvider pp( &dlg, setup );
 
 	IOPar displaypar;

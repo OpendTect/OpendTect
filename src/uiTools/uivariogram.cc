@@ -35,9 +35,9 @@ ________________________________________________________________________
 #include <math.h>
 
 uiVariogramDlg::uiVariogramDlg( uiParent* p, bool isvert )
-    : uiDialog(p,uiDialog::Setup(tr("Semi-variogram parameters"),
-				 tr("Specify semi-variogram parameters"),
-				 mODHelpKey(mVariogramDlgHelpID) ) )
+    : uiDialog(p,Setup(tr("Semi-variogram parameters"),
+		       tr("Specify semi-variogram parameters"),
+		       mODHelpKey(mVariogramDlgHelpID)))
 {
     const int dxmin = SI().inlDistance() <= SI().crlDistance() ?
 		(int)SI().inlDistance() : (int)SI().crlDistance();
@@ -58,7 +58,7 @@ uiVariogramDlg::uiVariogramDlg( uiParent* p, bool isvert )
     uiString unitstr =
 		isvert ? SI().getUiZUnitString() : SI().getUiXYUnitString();
     uiString lbl( tr("Maximum range %1").arg(unitstr) );
-    uiLabeledSpinBox* lblmaxrgfld = new uiLabeledSpinBox( this, lbl, 0 );
+    auto* lblmaxrgfld = new uiLabeledSpinBox( this, lbl, 0 );
     maxrgfld_ = lblmaxrgfld->box();
     maxrgfld_->doSnap( true );
     maxrgfld_->setInterval( minrgval, maxrgval, defstep );
@@ -66,7 +66,7 @@ uiVariogramDlg::uiVariogramDlg( uiParent* p, bool isvert )
 
     uiString lbl2(
 	uiStrings::phrJoinStrings(uiStrings::sStep(),tr("%1").arg(unitstr)) );
-    uiLabeledSpinBox* lblstepfld = new uiLabeledSpinBox( this, lbl2, 0 );
+    auto* lblstepfld = new uiLabeledSpinBox( this, lbl2, 0 );
     stepfld_ = lblstepfld->box();
     stepfld_->setInterval( minstepval, maxstepval, defstep );
     stepfld_->setValue( defstep );
@@ -76,7 +76,7 @@ uiVariogramDlg::uiVariogramDlg( uiParent* p, bool isvert )
 
     uiString lbl3 = tr("%1 number of pairs per lag distance")
 		    .arg(isvert ? tr("Min") : tr("Max"));
-    uiLabeledSpinBox* lblfoldfld = new uiLabeledSpinBox( this, lbl3, 0 );
+    auto* lblfoldfld = new uiLabeledSpinBox( this, lbl3, 0 );
     foldfld_ = lblfoldfld->box();
     foldfld_->setInterval( minfldval, maxfldval, deffldstep );
     foldfld_->setValue( deffldval );
@@ -128,10 +128,8 @@ uiVariogramDisplay::uiVariogramDisplay ( uiParent* p, Array2D<float>* data,
 					 Array2D<float>* axes,
 					 BufferStringSet* labels,
 					 int maxrg, bool ishor )
-	: uiDialog(p,uiDialog::Setup(tr("Variogram analysis"),
-				     tr("Variogram analysis"),
-				     mODHelpKey(mVariogramDisplayHelpID) )
-                                     .modal(false))
+	: uiDialog(p,Setup(tr("Variogram analysis"),tr("Variogram analysis"),
+			   mODHelpKey(mVariogramDisplayHelpID)).modal(false))
 	, maxrg_(maxrg)
 {
     if ( !data || ! axes || !labels ) return;

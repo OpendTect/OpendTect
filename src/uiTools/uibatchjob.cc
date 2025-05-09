@@ -408,7 +408,7 @@ uiSingleBatchJobDispatcherPars( uiParent* p, const HostDataList& hdl,
 				Batch::JobSpec& js )
     : uiDialog(p,Setup(tr("Batch execution parameters"),
 		       tr("Options for '%1' program").arg(js.prognm_),
-                       mODHelpKey(mSingleBatchJobDispatcherParsHelpID)))
+		       mODHelpKey(mSingleBatchJobDispatcherParsHelpID)))
     , sjd_(sjd)
     , execpars_(js.execpars_)
     , hdl_(hdl)
@@ -545,7 +545,7 @@ void uiSingleBatchJobDispatcherLauncher::editOptions( uiParent* p )
 
 uiBatchProcDlg::uiBatchProcDlg( uiParent* p, const uiString& dlgnm,
 				bool optional, ProcType pt )
-    : uiDialog(p,Setup(dlgnm, mNoDlgTitle, mNoHelpKey).modal(false))
+    : uiDialog(p,Setup(dlgnm,mNoHelpKey).modal(false) )
 {
     setCtrlStyle( RunAndClose );
 

@@ -80,8 +80,8 @@ class uiSEGYExpTxtHeaderDlg : public uiDialog
 public:
 
 uiSEGYExpTxtHeaderDlg( uiParent* p, BufferString& hdr, bool& ag )
-    : uiDialog(p,Setup(tr("Edit SEG-Y Text Header"),mNoDlgTitle,
-			mODHelpKey(mSEGYExpTxtHeaderDlgHelpID) ))
+    : uiDialog(p,Setup(tr("Edit SEG-Y Text Header"),
+		       mODHelpKey(mSEGYExpTxtHeaderDlgHelpID) ))
     , hdr_(hdr)
     , autogen_(ag)
     , resetPushed(this)
@@ -380,8 +380,8 @@ BufferString getSummary() const override
 
 
 uiSEGYExp::uiSEGYExp( uiParent* p, Seis::GeomType gt )
-    : uiDialog(p,uiDialog::Setup(tr("Export Seismic Data to SEG-Y"),
-				 mNoDlgTitle,mNoHelpKey).modal(false))
+    : uiDialog(p,Setup(tr("Export Seismic Data to SEG-Y"),
+		       mNoHelpKey).modal(false))
     , geom_(gt)
     , autogentxthead_(true)
     , morebox_(nullptr)
@@ -550,9 +550,9 @@ class uiSEGYExpMore : public uiDialog
 public:
 
 uiSEGYExpMore( uiSEGYExp* p, const IOObj& ii, const IOObj& oi )
-    : uiDialog(p,uiDialog::Setup(tr("2D SEG-Y multi-export"),
-				 tr("Specify file details"),
-				 mODHelpKey(mSEGYExpMoreHelpID) ))
+    : uiDialog(p,Setup(tr("2D SEG-Y multi-export"),
+		       tr("Specify file details"),
+		       mODHelpKey(mSEGYExpMoreHelpID) ))
     , segyexp_(p)
     , inioobj_(ii)
     , outioobj_(oi)

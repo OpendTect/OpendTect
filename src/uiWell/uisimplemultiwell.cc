@@ -57,10 +57,10 @@ public:
 #define mDefNrRows 10
 
 uiSimpleMultiWellCreate::uiSimpleMultiWellCreate( uiParent* p )
-    : uiDialog(p,Setup(tr("Import Well Locations"),mNoDlgTitle,
-		       mODHelpKey(mSimpleMultiWellCreateHelpID) )
-		 .savebutton(true).savetext(tr("Display after import"))
-		 .modal(false))
+    : uiDialog(p,Setup(tr("Import Well Locations"),
+		       mODHelpKey(mSimpleMultiWellCreateHelpID))
+		    .savebutton(true).savetext(tr("Display after import"))
+		    .modal(false))
     , velfld_(nullptr)
     , zinft_(SI().depthsInFeet())
     , zun_(UnitOfMeasure::surveyDefDepthUnit())
@@ -181,9 +181,9 @@ class uiSimpleMultiWellCreateReadData : public uiDialog
 public:
 
 uiSimpleMultiWellCreateReadData( uiSimpleMultiWellCreate& p )
-    : uiDialog(&p,uiDialog::Setup(tr("Multi-well creation"),
-				  uiStrings::phrCreate(tr("multiple wells")),
-			    mODHelpKey(mSimpleMultiWellCreateReadDataHelpID)))
+    : uiDialog(&p,Setup(tr("Multi-well creation"),
+			uiStrings::phrCreate(tr("multiple wells")),
+			mODHelpKey(mSimpleMultiWellCreateReadDataHelpID)))
     , dlg_(p)
     , fd_("Simple multi-welldata")
 {

@@ -25,12 +25,11 @@ ________________________________________________________________________
 #include "od_helpids.h"
 
 uiMultiMapperRangeEditWin::uiMultiMapperRangeEditWin( uiParent* p, int nr )
-    : uiDialog( p,uiDialog::Setup(uiStrings::sHistogram(),
-				mNoDlgTitle,
-				mODHelpKey(mMultiMapperRangeEditWinHelpID) )
-				.nrstatusflds(1)
-				.modal(false)
-				.menubar(true) )
+    : uiDialog(p,Setup(uiStrings::sHistogram(),
+		       mODHelpKey(mMultiMapperRangeEditWinHelpID))
+		    .nrstatusflds(1)
+		    .modal(false)
+		    .menubar(true))
     , rangeChange(this)
     , sequenceChange(this)
 {

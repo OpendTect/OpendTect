@@ -93,9 +93,9 @@ static void addDataRootIfNew( BufferStringSet& dataroots, const char* newdr )
 
 
 uiSetDataDir::uiSetDataDir( uiParent* p )
-    : uiDialog(p,uiDialog::Setup(tr("Set OpendTect's Survey Data Root"),
-				     tr("Specify a Data Root folder"),
-				     mODHelpKey(mSetDataDirHelpID) ))
+    : uiDialog(p,Setup(tr("Set OpendTect's Survey Data Root"),
+		       tr("Specify a Data Root folder"),
+		       mODHelpKey(mSetDataDirHelpID)))
     , curdatadir_(GetBaseDataDir())
 {
     const uiRetVal uirv = IOMan::isValidDataRoot( curdatadir_ );

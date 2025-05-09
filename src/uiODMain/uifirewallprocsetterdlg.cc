@@ -46,8 +46,8 @@ uiString getDialogTitle( ProcDesc::DataEntry::ActionType typ )
 
 
 uiFirewallProcSetter::uiFirewallProcSetter( uiParent* p )
-    : uiDialog(p, Setup(getWindowTitle(),mNoDlgTitle,
-			mODHelpKey(mBatchHostsDlgHelpID)).nrstatusflds(-1))
+    : uiDialog(p,Setup(getWindowTitle(),mODHelpKey(mBatchHostsDlgHelpID))
+		    .nrstatusflds(-1))
     , addremfld_(nullptr)
     , pythonproclistbox_(nullptr)
     , odproclistbox_(nullptr)
@@ -58,8 +58,8 @@ uiFirewallProcSetter::uiFirewallProcSetter( uiParent* p )
 uiFirewallProcSetter::uiFirewallProcSetter( uiParent* p,
 			ProcDesc::DataEntry::ActionType acttyp,
 			const BufferString* path, const BufferString* pypath )
-    : uiDialog(p, Setup(getWindowTitle(),mNoDlgTitle,
-			mODHelpKey(mBatchHostsDlgHelpID)).nrstatusflds(-1))
+    : uiDialog(p,Setup(getWindowTitle(),mODHelpKey(mBatchHostsDlgHelpID))
+		    .nrstatusflds(-1))
 {
     initUI( path, pypath, acttyp );
 }

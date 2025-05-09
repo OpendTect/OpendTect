@@ -222,10 +222,9 @@ static const char* sKeyClusterInstDir()
 uiClusterJobProv::uiClusterJobProv( uiParent* p, const IOPar& iop,
 				    const char* prognm, const char* parfnm,
 				    Batch::ID* batchid )
-    : uiDialog(p,uiDialog::Setup(tr("Cluster job generator"),
-				 uiString::emptyString(),
-				 mODHelpKey(mClusterJobProvHelpID))
-			.oktext(uiStrings::sContinue()))
+    : uiDialog(p,Setup(tr("Cluster job generator"),
+		       mODHelpKey(mClusterJobProvHelpID))
+		    .oktext(uiStrings::sContinue()))
     , iopar_(*new IOPar(iop))
     , prognm_(prognm)
     , tempstordir_(getDefTempStorDir())

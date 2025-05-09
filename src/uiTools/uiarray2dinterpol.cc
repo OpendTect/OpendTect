@@ -520,8 +520,7 @@ bool uiExtensionArray2DInterpol::acceptOK()
 uiInvDistInterpolPars::uiInvDistInterpolPars( uiParent* p, bool cornersfirst,
 					      int stepsz, int nrsteps )
     : uiDialog(p,Setup(tr("Inverse distance - parameters"),
-		       mNoDlgTitle,
-		       mODHelpKey(mInverseDistanceArray2DInterpolHelpID) ) )
+		       mODHelpKey(mInverseDistanceArray2DInterpolHelpID)))
 {
     cornersfirstfld_ = new  uiGenInput( this, tr("Compute corners first"),
 					BoolInpSpec(cornersfirst) );

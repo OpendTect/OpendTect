@@ -16,20 +16,19 @@ ________________________________________________________________________
 
 uiSceneColorbarMgr::uiSceneColorbarMgr( uiParent* p,
 					visBase::SceneColTab* coltab )
-    : uiDialog(p,uiDialog::Setup(tr("Color Bar Settings"),
-                                 mNoDlgTitle,mNoHelpKey))
+    : uiDialog(p,Setup(tr("Color Bar Settings"),mNoHelpKey))
     , scenecoltab_(coltab)
 {
     setCtrlStyle( CloseOnly );
 
-    uiLabeledSpinBox* wfld = new uiLabeledSpinBox( this, tr("Width") );
+    auto* wfld = new uiLabeledSpinBox( this, tr("Width") );
     widthfld_ = wfld->box();
     widthfld_->setMaxValue( 500 );
     widthfld_->setValue( scenecoltab_->getSize().width() );
     widthfld_->valueChanging.notify(
 			mCB(this,uiSceneColorbarMgr,sizeChangedCB) );
 
-    uiLabeledSpinBox* hfld = new uiLabeledSpinBox( this, tr("Height") );
+    auto* hfld = new uiLabeledSpinBox( this, tr("Height") );
     heightfld_ = hfld->box();
     heightfld_->setMaxValue( 1000 );
     heightfld_->setValue( scenecoltab_->getSize().height() );

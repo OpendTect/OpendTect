@@ -50,27 +50,27 @@ uiEMPreLoadDlg::~uiEMPreLoadDlg()
 
 // uiHorizonPreLoadDlg
 uiHorizonPreLoadDlg::uiHorizonPreLoadDlg( uiParent* p )
-    : uiEMPreLoadDlg( p,uiDialog::Setup( tr("Horizon Pre-load Manager"),
-		     mNoDlgTitle, mODHelpKey(mHorizonPreLoadDlgHelpID)) )
+    : uiEMPreLoadDlg( p, Setup(tr("Horizon Pre-load Manager"),
+			       mODHelpKey(mHorizonPreLoadDlgHelpID)) )
 {
     setCtrlStyle( CloseOnly );
-    uiGroup* topgrp = new uiGroup( this, "Top group" );
+    auto* topgrp = new uiGroup( this, "Top group" );
     listfld_ = new uiListBox( topgrp, "Loaded entries", OD::ChooseAtLeastOne );
     listfld_->selectionChanged.notify(mCB(this,uiHorizonPreLoadDlg,selCB) );
 
-    uiButtonGroup* butgrp = new uiButtonGroup( listfld_, "Manip buttons",
+    auto* butgrp = new uiButtonGroup( listfld_, "Manip buttons",
 					       OD::Vertical );
     butgrp->attach( rightOf, listfld_->box() );
 
     if ( SI().has2D() )
     {
-	uiPushButton* add2dbut =
+	auto* add2dbut =
 	    new uiPushButton( butgrp, uiStrings::phrLoad(uiStrings::s2D()),
 			      mCB(this,uiHorizonPreLoadDlg,add2DPushCB), false);
 	add2dbut->setIcon( "tree-horizon2d" );
     }
 
-    uiPushButton* add3dbut =
+    auto* add3dbut =
 	new uiPushButton( butgrp, uiStrings::phrLoad(uiStrings::s3D()),
 			  mCB(this,uiHorizonPreLoadDlg,add3DPushCB), false );
     add3dbut->setIcon( "tree-horizon3d" );
@@ -86,11 +86,11 @@ uiHorizonPreLoadDlg::uiHorizonPreLoadDlg( uiParent* p )
 	tr("Retrieve pre-loads"), mCB(this,uiHorizonPreLoadDlg,openPushCB) );
     opentb->attach( leftOf, savebut_ );
 
-    uiGroup* infogrp = new uiGroup( this, "Info Group" );
+    auto* infogrp = new uiGroup( this, "Info Group" );
     infofld_ = new uiTextEdit( infogrp, "Info", true );
     infofld_->setPrefHeightInChar( 7 );
 
-    uiSplitter* spl = new uiSplitter( this, "Splitter", false );
+    auto* spl = new uiSplitter( this, "Splitter", false );
     spl->addGroup( topgrp );
     spl->addGroup( infogrp );
 

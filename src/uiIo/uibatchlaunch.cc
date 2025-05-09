@@ -83,11 +83,11 @@ bool uiProcSettings::acceptOK()
 
 // uiStartBatchJobDialog
 uiStartBatchJobDialog::uiStartBatchJobDialog( uiParent* p )
-    : uiDialog(p,Setup(tr("Start/ReStart a batch job"),mNoDlgTitle,
-                        mODHelpKey(mRestartBatchDialogHelpID) ))
+    : uiDialog(p,Setup(tr("Start/ReStart a batch job"),
+		       mODHelpKey(mRestartBatchDialogHelpID)))
     , canresume_(false)
 {
-    uiGroup* topgrp = new uiGroup( this, "Top Group" );
+    auto* topgrp = new uiGroup( this, "Top Group" );
 
     jobsfld_ = new uiListBox( topgrp, "Stored Batch Job" );
     jobsfld_->box()->setPrefHeightInChar( 10 );
@@ -106,7 +106,7 @@ uiStartBatchJobDialog::uiStartBatchJobDialog( uiParent* p )
     topgrp->setFrame( true );
     topgrp->setHAlignObj( jobsfld_ );
 
-    uiGroup* botgrp = new uiGroup( this, "Bottom Group" );
+    auto* botgrp = new uiGroup( this, "Bottom Group" );
     invalidsellbl_ = new uiLabel( botgrp, sKeyNoParFiles() );
 
     batchfld_ = new uiBatchJobDispatcherSel( botgrp, false,

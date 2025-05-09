@@ -130,8 +130,8 @@ const char* uiIsochronMakerGrp::attrName() const
 
 //uiIsochronMakerBatch
 uiIsochronMakerBatch::uiIsochronMakerBatch( uiParent* p )
-    : uiDialog(p,Setup(tr("Create Isochron"),mNoDlgTitle,
-		 mODHelpKey(mIsochronMakerBatchHelpID)) )
+    : uiDialog(p,Setup(tr("Create Isochron"),
+		       mODHelpKey(mIsochronMakerBatchHelpID)))
 {
     grp_ = new uiIsochronMakerGrp( this, EM::ObjectID::udf() );
     batchfld_ = new uiBatchJobDispatcherSel( this, false,
@@ -192,8 +192,7 @@ bool uiIsochronMakerBatch::acceptOK( CallBacker* )
 
 //uiIsochronMakerDlg
 uiIsochronMakerDlg::uiIsochronMakerDlg( uiParent* p, EM::ObjectID emid )
-    : uiDialog(p,Setup(tr("Create Isochron"),mNoDlgTitle,
-			mODHelpKey(mIsopachMakerHelpID)))
+    : uiDialog(p,Setup(tr("Create Isochron"),mODHelpKey(mIsopachMakerHelpID)))
     , dps_( new DataPointSet(false,true) )
 {
     grp_ = new uiIsochronMakerGrp( this, emid );

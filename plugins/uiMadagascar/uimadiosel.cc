@@ -30,10 +30,10 @@ ________________________________________________________________________
 static const char* sKeyScons = "Scons";
 
 uiMadIOSelDlg::uiMadIOSelDlg( uiParent* p, IOPar& iop, bool isinp )
-        : uiDialog(p, Setup(tr("Processing %1").arg(isinp?"input":"output"),
+	: uiDialog(p, Setup(tr("Processing %1").arg(isinp ? "input" : "output"),
 			    tr("Specify the %1 the processing flow").arg(isinp?
 			    tr("input to"):tr("output of")),
-                                         mODHelpKey(mMadIOSelDlgHelpID) ) )
+			    mODHelpKey(mMadIOSelDlgHelpID)))
 	, seis3dfld_(0), seis2dfld_(0), seisps3dfld_(0), seisps2dfld_(0)
 	, subsel3dfld_(0), subsel2dfld_(0), subsel2dpsfld_(0)
 	, idx3d_(-1), idx2d_(-1)

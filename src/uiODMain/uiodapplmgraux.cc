@@ -537,7 +537,7 @@ void uiODApplMgrDispatcher::openXPlot()
     RefMan<DataPointSet> newdps = new DataPointSet( pvds, false );
     newdps->setName( seldlg.ioObj()->name() );
     DPM(DataPackMgr::PointID()).add( newdps );
-    uiDataPointSet* uidps =
+    auto* uidps =
 	new uiDataPointSet( ODMainWin(), *newdps,
 	uiDataPointSet::Setup(tr("Cross-plot Data: %1").arg(newdps->name())),
 	ODMainWin()->applMgr().visDPSDispMgr() );
@@ -558,8 +558,7 @@ protected:
 
 
 uiUpdateInfoDlg::uiUpdateInfoDlg( uiParent* p, uiString& infomsg )
-    : uiDialog( p, uiDialog::Setup(tr("Information"),infomsg,
-				   "mNoHelpID"))
+    : uiDialog(p,Setup(tr("Information"),infomsg,"mNoHelpID"))
 {
     setCancelText( uiString::emptyString() );
     relnotesbut_ = new uiCheckBox( this, tr("Show release notes") );

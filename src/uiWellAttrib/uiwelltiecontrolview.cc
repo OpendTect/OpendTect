@@ -197,14 +197,13 @@ class uiMrkDispDlg : public uiDialog
 public :
 
     uiMrkDispDlg( uiParent* p, DispParams& pms )
-	: uiDialog(p,uiDialog::Setup(tr("Display Markers/Horizons"),
-				     uiString::emptyString(),mNoHelpKey)
-		.modal(false))
+	: uiDialog(p,Setup(tr("Display Markers/Horizons"),mNoHelpKey)
+			.modal(false))
 	, redrawneeded_(this)
 	, pms_(pms)
     {
 	setCtrlStyle( CloseOnly );
-	uiGroup* topgrp = new uiGroup( this, "top group" );
+	auto* topgrp = new uiGroup( this, "top group" );
 	dispmrkfld_ = new uiCheckBox( topgrp, tr("display markers"));
 	dispmrkfld_->setChecked( pms_.isvwrmarkerdisp_ );
 	dispmrkfld_->activated.notify( mCB(this,uiMrkDispDlg,dispChged) );
@@ -224,7 +223,7 @@ public :
 			    pms_.isvwrhordisp_ && pms_.disphorfullnames_ );
 	disphorfullnamefld_->activated.notify(mCB(this,uiMrkDispDlg,dispChged));
 
-	uiSeparator* sep = new uiSeparator( this, "Well2Seismic Sep" );
+	auto* sep = new uiSeparator( this, "Well2Seismic Sep" );
 	sep->attach( stretchedBelow, topgrp );
 
 	mrkdispfld_ = new uiWellMarkersDispProperties( this,

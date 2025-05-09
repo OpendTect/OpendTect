@@ -46,8 +46,7 @@ const char* uiSEGYExamine::Setup::sKeyNrTrcs = "Examine.Number of traces";
 
 
 uiSEGYExamine::Setup::Setup( Seis::GeomType gt, int nrtraces )
-    : uiDialog::Setup(tr("SEG-Y Examiner"),mNoDlgTitle,
-                      mODHelpKey(mSEGYExamineHelpID) )
+    : uiDialog::Setup(tr("SEG-Y Examiner"),mODHelpKey(mSEGYExamineHelpID) )
     , geomtype_(gt)
     , nrtrcs_(nrtraces)
     , fp_(true)

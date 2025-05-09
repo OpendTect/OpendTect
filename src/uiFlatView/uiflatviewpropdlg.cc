@@ -983,10 +983,8 @@ uiFlatViewPropDlg::uiFlatViewPropDlg( uiParent* p, FlatView::Viewer& vwr,
 				      const uiStringSet* annotsdim1,
 				      int selannotdim0, int selannotdim1,
 				      bool withdynamictitle )
-    : uiTabStackDlg(p,uiDialog::Setup(tr("Specify Display Properties"),
-				      mNoDlgTitle,
-				      mODHelpKey(mODViewer2DPropDlgHelpID))
-				      .modal(false))
+    : uiTabStackDlg(p,Setup(tr("Specify Display Properties"),
+			     mODHelpKey(mODViewer2DPropDlgHelpID)).modal(false))
     , vwr_(vwr)
     , applycb_(applcb)
     , selannotdim0_(selannotdim0)

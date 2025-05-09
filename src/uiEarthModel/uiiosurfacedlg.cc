@@ -39,8 +39,8 @@ ________________________________________________________________________
 
 uiWriteSurfaceDlg::uiWriteSurfaceDlg( uiParent* p, const EM::Surface& surf,
 				      float shift )
-    : uiDialog(p,uiDialog::Setup( uiStrings::sOutputSelection(),mNoDlgTitle,
-				 mODHelpKey(mWriteSurfaceDlgHelpID) ))
+    : uiDialog(p,Setup(uiStrings::sOutputSelection(),
+		       mODHelpKey(mWriteSurfaceDlgHelpID)))
     , surface_(surf)
 {
     mDynamicCastGet(const EM::Horizon*,hor,&surface_);
@@ -94,8 +94,7 @@ bool uiWriteSurfaceDlg::replaceInTree() const
 
 //Not used anymore, keep it?
 uiReadSurfaceDlg::uiReadSurfaceDlg( uiParent* p, const char* typ )
-    : uiDialog(p,uiDialog::Setup( uiStrings::sInputSelection(),
-	       mNoDlgTitle,mNoHelpKey))
+    : uiDialog(p,Setup(uiStrings::sInputSelection(),mNoHelpKey))
 {
     iogrp_ = new uiSurfaceRead( this,
 	    uiSurfaceRead::Setup(typ).withattribfld(false) );
@@ -125,9 +124,9 @@ void uiReadSurfaceDlg::getSelection( EM::SurfaceIODataSelection& sels )
 
 
 uiStoreAuxData::uiStoreAuxData( uiParent* p, const EM::Horizon3D& surf )
-    : uiDialog(p,uiDialog::Setup( uiStrings::sOutputSelection(),
-				 tr("Specify attribute name"),
-				 mODHelpKey(mStoreAuxDataHelpID) ))
+    : uiDialog(p,Setup(uiStrings::sOutputSelection(),
+		       tr("Specify attribute name"),
+		       mODHelpKey(mStoreAuxDataHelpID)))
     , surface_(surf)
 {
     attrnmfld_ = new uiGenInput( this, uiStrings::sAttribute() );
@@ -215,7 +214,7 @@ bool uiStoreAuxData::checkIfAlreadyPresent( const char* attrnm )
 
 uiCopySurface::uiCopySurface( uiParent* p, const IOObj& ioobj,
 			      const uiSurfaceRead::Setup& su )
-    : uiDialog(p,Setup(mGetWinStr(ioobj),mNoDlgTitle,mGetHelpID(ioobj)))
+    : uiDialog(p,Setup(mGetWinStr(ioobj),mGetHelpID(ioobj)))
     , ctio_(*mkCtxtIOObj(ioobj))
 {
     inpfld = new uiSurfaceRead( this, su );

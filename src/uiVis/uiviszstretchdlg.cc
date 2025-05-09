@@ -24,9 +24,9 @@ ________________________________________________________________________
 
 
 uiZStretchDlg::uiZStretchDlg( uiParent* p, uiVisPartServer* vispartserv )
-    : uiDialog(p,uiDialog::Setup(tr("Z Scaling"),tr("Set Z scaling factor"),
-				 mODHelpKey(mZScaleDlgHelpID) )
-	      .canceltext(uiString::emptyString()))
+    : uiDialog(p,Setup(tr("Z Scaling"),tr("Set Z scaling factor"),
+		       mODHelpKey(mZScaleDlgHelpID))
+		    .canceltext(uiString::emptyString()))
     , vispartserv_(vispartserv)
 {
     vispartserv->getSceneIds( sceneids_ );

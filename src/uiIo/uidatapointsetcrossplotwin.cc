@@ -330,8 +330,8 @@ public:
 
 uiSelColorDlg( uiParent* p, const BufferStringSet& names,
 	TypeSet<OD::Color>& y1cols, TypeSet<OD::Color>& y2cols, bool isy2shwn )
-    : uiDialog( p, uiDialog::Setup(tr("Select color for Y1 and Y2"),
-				   mNoDlgTitle,mODHelpKey(mSelColorDlgHelpID)) )
+    : uiDialog( p, Setup(tr("Select color for Y1 and Y2"),
+				 mODHelpKey(mSelColorDlgHelpID)) )
     , y1cols_(y1cols)
     , y2cols_(y2cols)
     , names_(names)

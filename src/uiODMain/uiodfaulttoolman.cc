@@ -64,10 +64,10 @@ uiFaultStickTransferDlg::Setup::~Setup()
 
 uiFaultStickTransferDlg::uiFaultStickTransferDlg( uiODMain& appl,
 						  const Setup& su )
-    : uiDialog( &appl, uiDialog::Setup(tr("Faultstick transfer"),
+    : uiDialog(&appl,uiDialog::Setup(tr("Faultstick transfer"),
 				       tr("Transfer settings"),
-				      mODHelpKey(mFaultStickTransferDlgHelpID))
-					.modal(false) )
+				       mODHelpKey(mFaultStickTransferDlgHelpID))
+				    .modal(false))
     , displayifnot_( su.displayifnot_ )
     , saveifdisplayed_( su.saveifdisplayed_ )
     , colormodechg( this )

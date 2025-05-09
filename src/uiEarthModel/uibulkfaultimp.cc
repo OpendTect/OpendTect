@@ -168,9 +168,8 @@ static const char* sKeySlopeThres()	{ return "Slope threshold"; }
 
 
 uiBulkFaultImport::uiBulkFaultImport(uiParent* p)
-    : uiDialog(p, uiDialog::Setup(tr("Import Multiple Faults"), mNoDlgTitle,
-	    mODHelpKey(mBulkFaultImportHelpID))
-	    .modal(false))
+    : uiDialog(p,Setup(tr("Import Multiple Faults"),
+		       mODHelpKey(mBulkFaultImportHelpID)).modal(false))
     , fd_(BulkFaultAscIO::getDesc(EM::ObjectType::Flt3D,false,SI().zDomain()))
     , isfss_(false)
     , is2dfss_(false)
@@ -182,11 +181,11 @@ uiBulkFaultImport::uiBulkFaultImport(uiParent* p)
 
 uiBulkFaultImport::uiBulkFaultImport( uiParent* p, const char* type,
 								    bool is2d )
-    : uiDialog(p,uiDialog::Setup(mGet( type, (is2d
+    : uiDialog(p,Setup(mGet( type, (is2d
 			      ? tr("Import Multiple FaultStickSets 2D")
 			      : tr("Import Multiple FaultStickSets")),
 				tr("Import Multiple Faults"),
-				tr("Import FaultSet")),mNoDlgTitle,
+				tr("Import FaultSet")),
 				mGetHelpKey(type)).modal(false))
     , fd_(BulkFaultAscIO::getDesc(mGetType(type),is2d,SI().zDomain()))
     , isfss_(mGet(type,true,false,false))

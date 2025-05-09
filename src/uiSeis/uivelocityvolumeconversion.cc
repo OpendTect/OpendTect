@@ -25,9 +25,8 @@ ________________________________________________________________________
 #include "od_helpids.h"
 
 Vel::uiBatchVolumeConversion::uiBatchVolumeConversion( uiParent* p )
-    : uiDialog( p, uiDialog::Setup(tr("Velocity conversion"),
-			tr("Velocity conversion"),
-			mODHelpKey(mVelBatchVolumeConversionHelpID) ) )
+    : uiDialog(p,Setup(tr("Velocity conversion"),tr("Velocity conversion"),
+		       mODHelpKey(mVelBatchVolumeConversionHelpID)))
 {
     input_ = new uiVelSel( this, tr("Input velocity model") );
     mAttachCB( input_->selectionDone, uiBatchVolumeConversion::inputChangeCB );

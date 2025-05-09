@@ -73,9 +73,9 @@ static float getFreqScaler()
 }
 
 uiSeisWvltGen::uiSeisWvltGen( uiParent* p )
-    : uiSeisWvltCreate(p,uiDialog::Setup(tr("Create Wavelet"),
-				 tr("Specify wavelet creation parameters"),
-				 mODHelpKey(mSeisWvltManCrWvltHelpID) ))
+    : uiSeisWvltCreate(p,Setup(tr("Create Wavelet"),
+			       tr("Specify wavelet creation parameters"),
+			       mODHelpKey(mSeisWvltManCrWvltHelpID)))
 {
     isrickfld_ = new uiGenInput( this, tr("Wavelet type"),
 				BoolInpSpec(true,tr("Ricker"),tr("Bandpass")) );
@@ -190,8 +190,8 @@ bool uiSeisWvltGen::acceptOK( CallBacker* )
 
 static const char* centernms[] = { "Maximum amplitude", "Maximum energy", 0 };
 uiSeisWvltMerge::uiSeisWvltMerge( uiParent* p, const char* curwvltnm )
-    : uiSeisWvltCreate(p,uiDialog::Setup(tr("Stack Wavelets"),
-		       mNoDlgTitle,mODHelpKey(mSeisWvltMergeHelpID)))
+    : uiSeisWvltCreate(p,Setup(tr("Stack Wavelets"),
+			       mODHelpKey(mSeisWvltMergeHelpID)))
     , maxwvltsize_(0)
     , stackedwvlt_(nullptr)
     , curwvltnm_(curwvltnm)

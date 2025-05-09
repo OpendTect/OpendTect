@@ -51,7 +51,7 @@ static uiLineEdit* createFld( uiParent* p, const char* txt )
 
 
 uiLayoutDlg::uiLayoutDlg( uiParent* p )
-    : uiDialog(p,Setup(toUiString("Layout Test"),mNoDlgTitle,mTODOHelpKey))
+    : uiDialog(p,Setup(toUiString("Layout Test"),mTODOHelpKey))
 {
     smallfld_ = createFld( this, "Small" );
     smallfld_->setHSzPol( uiObject::Small );

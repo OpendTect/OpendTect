@@ -27,9 +27,9 @@ ________________________________________________________________________
 static const int cPrefWidth = 75;
 
 uiProbDenFuncMan::uiProbDenFuncMan( uiParent* p )
-    : uiObjFileMan(p,uiDialog::Setup(
-		uiStrings::phrManage( uiStrings::sProbDensFunc(false,mPlural)),
-		mNoDlgTitle,mODHelpKey(mProbDenFuncManHelpID))
+    : uiObjFileMan(p,Setup(uiStrings::phrManage(
+				uiStrings::sProbDensFunc(false,mPlural)),
+			   mODHelpKey(mProbDenFuncManHelpID))
 			.nrstatusflds(1).modal(false),
 		   ProbDenFuncTranslatorGroup::ioContext())
 {

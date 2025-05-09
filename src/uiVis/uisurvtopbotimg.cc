@@ -149,8 +149,8 @@ void transpChg( CallBacker* )
 
 uiSurvTopBotImageDlg::uiSurvTopBotImageDlg( uiParent* p,
 					    visSurvey::Scene& scene )
-    : uiDialog(p,uiDialog::Setup(tr("Set Top/Bottom Images"),
-			mNoDlgTitle,mODHelpKey(mSurvTopBotImageDlgHelpID)))
+    : uiDialog(p,Setup(tr("Set Top/Bottom Images"),
+		       mODHelpKey(mSurvTopBotImageDlgHelpID)))
     , scene_(&scene)
 {
     setCtrlStyle( CloseOnly );

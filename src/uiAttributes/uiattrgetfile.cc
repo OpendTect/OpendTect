@@ -33,11 +33,11 @@ ________________________________________________________________________
 using namespace Attrib;
 
 uiGetFileForAttrSet::uiGetFileForAttrSet( uiParent* p, bool isads, bool is2d )
-    : uiDialog(p,uiDialog::Setup(
-      isads ? tr("Get Attribute Set") : tr("Get attributes from job file"),
-      isads ? tr("Select file containing an attribute set")
-	    : tr("Select job specification file"),
-	      mODHelpKey(mGetFileForAttrSetHelpID) ))
+    : uiDialog(p,Setup( isads ? tr("Get Attribute Set")
+			      : tr("Get attributes from job file"),
+			isads ? tr("Select file containing an attribute set")
+			     : tr("Select job specification file"),
+			mODHelpKey(mGetFileForAttrSetHelpID) ))
     , attrset_(*new DescSet(is2d))
     , isattrset_(isads)
 {
@@ -158,7 +158,7 @@ uiAttrSrchProcFiles::~uiAttrSrchProcFiles()
 static BufferString sImportDir;
 
 uiImpAttrSet::uiImpAttrSet( uiParent* p )
-    : uiDialog(p,Setup(tr("Import Attribute Set"),mNoDlgTitle,
+    : uiDialog(p,Setup(tr("Import Attribute Set"),
 		       mODHelpKey(mImpAttrSetHelpID)).modal(false))
 {
     setOkCancelText( uiStrings::sImport(), uiStrings::sClose() );

@@ -120,9 +120,9 @@ static HelpKey getHelpID( EM::ObjectType typ )
 
 
 uiSurfaceMan::uiSurfaceMan( uiParent* p, EM::ObjectType typ )
-    : uiObjFileMan(p,uiDialog::Setup(getActStr(typ,tr("Manage")),
-			    mNoDlgTitle, getHelpID(typ)).nrstatusflds(1)
-			    .modal(false), getIOCtxt(typ), ZDomain::sKey() )
+    : uiObjFileMan(p,Setup(getActStr(typ,tr("Manage")),
+			   getHelpID(typ)).nrstatusflds(1).modal(false),
+		   getIOCtxt(typ),ZDomain::sKey())
     , type_(typ)
     , attribfld_(nullptr)
     , man2dbut_(0)
@@ -690,7 +690,8 @@ void uiSurfaceMan::mkFileInfo()
 	txt += "Cross-line range: ";
 	addInlCrlRangeTxt( txt, range );
 	const ZSampling zrg( eminfo.getZRange(),
-                             eminfo.zDomain().getReasonableZSampling(false,false).step_ );
+			     eminfo.zDomain()
+				.getReasonableZSampling(false,false).step_ );
 	addZRangeTxt( eminfo.zDomain(), eminfo.getZRange(), txt);
     }
 
@@ -759,9 +760,8 @@ int uiSurfaceMan::getNrFiles( const char* filenm ) const
 class uiSurfaceStratDlg : public uiDialog
 { mODTextTranslationClass(uiSurfaceStratDlg);
 public:
-uiSurfaceStratDlg( uiParent* p,  const TypeSet<MultiID>& ids )
-    : uiDialog(p,uiDialog::Setup(uiStrings::sStratigraphy(),mNoDlgTitle,
-                                 mNoHelpKey))
+uiSurfaceStratDlg( uiParent* p, const TypeSet<MultiID>& ids )
+    : uiDialog(p,Setup(uiStrings::sStratigraphy(),mNoHelpKey))
     , objids_(ids)
 {
     tbl_ = new uiTable( this, uiTable::Setup(ids.size(),3),
@@ -776,7 +776,7 @@ uiSurfaceStratDlg( uiParent* p,  const TypeSet<MultiID>& ids )
     tbl_->setPrefWidth( 400 );
     tbl_->doubleClicked.notify( mCB(this,uiSurfaceStratDlg,doCol) );
 
-    uiToolButton* sb = new uiToolButton( this, "man_strat",
+    auto* sb = new uiToolButton( this, "man_strat",
 				      tr("Edit Stratigraphy to define Markers"),
 				      mCB(this,uiSurfaceStratDlg,doStrat) );
     sb->attach( rightOf, tbl_ );
@@ -885,14 +885,14 @@ class uiSurface2DMan : public uiDialog
 public:
 
 uiSurface2DMan( uiParent* p, const EM::IOObjInfo& info )
-    :uiDialog(p,uiDialog::Setup(tr("2D Horizons management"),
-        uiStrings::phrManage( EMHorizon2DTranslatorGroup::sTypeName(mPlural)),
-        mODHelpKey(mSurface2DManHelpID) ))
+    :uiDialog(p,Setup(tr("2D Horizons management"),
+	uiStrings::phrManage(EMHorizon2DTranslatorGroup::sTypeName(mPlural)),
+	mODHelpKey(mSurface2DManHelpID)))
     , eminfo_(info)
 {
     setCtrlStyle( CloseOnly );
 
-    uiGroup* topgrp = new uiGroup( this, "Top" );
+    auto* topgrp = new uiGroup( this, "Top" );
     uiListBox::Setup su( OD::ChooseOnlyOne, tr("2D lines"),
 			 uiListBox::AboveMid );
     linelist_ = new uiListBox( topgrp, su, "linenames" );
@@ -901,12 +901,12 @@ uiSurface2DMan( uiParent* p, const EM::IOObjInfo& info )
     linelist_->addItems( linenames );
     linelist_->selectionChanged.notify( mCB(this,uiSurface2DMan,lineSel) );
 
-    uiGroup* botgrp = new uiGroup( this, "Bottom" );
+    auto* botgrp = new uiGroup( this, "Bottom" );
     infofld_ = new uiTextEdit( botgrp, "File Info", true );
     infofld_->setPrefHeightInChar( 8 );
     infofld_->setPrefWidthInChar( 50 );
 
-    uiSplitter* splitter = new uiSplitter( this, "Splitter", false );
+    auto* splitter = new uiSplitter( this, "Splitter", false );
     splitter->addGroup( topgrp );
     splitter->addGroup( botgrp );
 
@@ -954,15 +954,15 @@ class uiFltSetMan : public uiDialog
 { mODTextTranslationClass(uiFltSetMan)
 public:
 uiFltSetMan( uiParent* p, const IOObj& ioobj )
-    :uiDialog(p,uiDialog::Setup(tr("FaultSet management"),
-	uiStrings::phrManage( uiStrings::sFault(mPlural)),
-			      mODHelpKey(mFltSetManHelpID) ))
+    :uiDialog(p,Setup(tr("FaultSet management"),
+		      uiStrings::phrManage( uiStrings::sFault(mPlural)),
+		      mODHelpKey(mFltSetManHelpID)))
     , ioobj_(ioobj)
     , dl_(ioobj.fullUserExpr(),File::DirListType::FilesInDir,"*.flt")
 {
     setCtrlStyle( CloseOnly );
 
-    uiGroup* topgrp = new uiGroup( this, "Top" );
+    auto* topgrp = new uiGroup( this, "Top" );
     uiListBox::Setup su( OD::ChooseAtLeastOne, uiStrings::sFault(mPlural),
 			 uiListBox::AboveMid );
     fltlist_ = new uiListBox( topgrp, su, "inputfaults" );

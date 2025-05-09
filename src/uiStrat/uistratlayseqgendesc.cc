@@ -239,9 +239,9 @@ float uiOverburdenGrp::getVelocity() const
 
 uiOverburdenDlg::uiOverburdenDlg( uiParent* p,
 				  Strat::LayerSequenceGenDesc& desc )
-    : uiDialog(p,uiDialog::Setup(uiStrings::sParameter(mPlural),
-			     tr("Specify overburden settings for each model"),
-			     mODHelpKey(mStratOverburdenParametersHelpID)))
+    : uiDialog(p,Setup(uiStrings::sParameter(mPlural),
+		       tr("Specify overburden settings for each model"),
+		       mODHelpKey(mStratOverburdenParametersHelpID)))
     , desc_(desc)
 {
     ovgrp_ = new uiOverburdenGrp( this, desc_.startDepth(),
@@ -855,9 +855,9 @@ uiSingleLayerGeneratorEd( uiParent* p, Strat::LayerGenerator* inpun,
 			  const Strat::RefTree& rt,
 			  const PropertyRefSelection& proprefs,
 			  const Strat::SingleLayerGenerator* nearun=0 )
-    : uiDialog(p,uiDialog::Setup(inpun ? tr("Edit layer") : tr("Create layer"),
-				 tr("Define layer generation"),
-				 mODHelpKey(mSingleLayerGeneratorEdHelpID) ))
+    : uiDialog(p,Setup(inpun ? tr("Edit layer") : tr("Create layer"),
+		       tr("Define layer generation"),
+		       mODHelpKey(mSingleLayerGeneratorEdHelpID)))
     , inpun_(inpun)
     , rt_(rt)
     , anychg_(true) //TODO really keep track of changes
@@ -881,7 +881,7 @@ uiSingleLayerGeneratorEd( uiParent* p, Strat::LayerGenerator* inpun,
 	unfld_->setExpanded();
     }
 
-    uiGroup* propgrp = new uiGroup( this, "Property edit" );
+    auto* propgrp = new uiGroup( this, "Property edit" );
     const PropertySet& props = edun_->properties();
     propflds_.allowNull( true );
     uiSimpPropertyEd* prevfld = 0;

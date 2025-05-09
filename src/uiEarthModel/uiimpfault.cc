@@ -48,11 +48,10 @@ ________________________________________________________________________
     mODHelpKey(mImportFaultHelpID) )
 
 uiImportFault::uiImportFault( uiParent* p, const char* type, bool is2d )
-    : uiDialog(p,uiDialog::Setup(
-			mGet(type,(is2d ? tr("Import FaultStickSet 2D")
-					: tr("Import FaultStickSet")),
-			     tr("Import Fault") ),
-		mNoDlgTitle,mGetHelpKey(type)).modal(false))
+    : uiDialog(p,Setup(mGet(type,(is2d ? tr("Import FaultStickSet 2D")
+				       : tr("Import FaultStickSet")),
+			    tr("Import Fault")),
+		       mGetHelpKey(type)).modal(false))
     , isfss_(mGet(type,true,false))
     , fd_(0)
     , type_(type)

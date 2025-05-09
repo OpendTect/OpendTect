@@ -41,9 +41,8 @@ static const char* sKeyFirstYBin = "Y Bin 0";
 
 
 uiImpRokDocPDF::uiImpRokDocPDF( uiParent* p )
-    : uiDialog(p,uiDialog::Setup(tr("Import Probability Density Function"),
-				 mNoDlgTitle, mODHelpKey(mImpRokDocPDFHelpID))
-			   .modal(false))
+    : uiDialog(p,Setup(tr("Import Probability Density Function"),
+		       mODHelpKey(mImpRokDocPDFHelpID)).modal(false))
 {
     setOkCancelText( uiStrings::sImport(), uiStrings::sClose() );
 
@@ -58,7 +57,7 @@ uiImpRokDocPDF::uiImpRokDocPDF( uiParent* p )
 	    tr("Extend one row/col outward"), mCB(this,uiImpRokDocPDF,extPDF) );
     extendbut_->attach( rightOf, varnmsfld_ );
 
-    uiGroup* grp = new uiGroup( this, "Output PDF sampling" );
+    auto* grp = new uiGroup( this, "Output PDF sampling" );
     xrgfld_ = new uiGenInput( grp, tr("Output var1 range"),
 			      FloatInpIntervalSpec());
     uiUnitSel::Setup uusu( Mnemonic::Other );
@@ -509,12 +508,11 @@ bool uiImpRokDocPDF::acceptOK( CallBacker* )
 
 
 uiExpRokDocPDF::uiExpRokDocPDF( uiParent* p )
-    : uiDialog(p,uiDialog::Setup(uiStrings::phrExport(
-	   uiStrings::sProbDensFunc(false,1) ),
-	   mNoDlgTitle, mODHelpKey(mExpRokDocPDFHelpID) )
-				 .savetext(tr("With units"))
-				 .savebutton(true).savechecked(true)
-				 .modal(false))
+    : uiDialog(p,Setup(uiStrings::phrExport(uiStrings::sProbDensFunc(false,1)),
+		       mODHelpKey(mExpRokDocPDFHelpID))
+		    .savetext(tr("With units"))
+		    .savebutton(true).savechecked(true)
+		    .modal(false))
 {
     setOkCancelText( uiStrings::sExport(), uiStrings::sClose() );
 

@@ -533,9 +533,9 @@ public:
 uiContourParsDlg( uiParent* p, const char* attrnm, const Interval<float>& rg,
 		  const StepInterval<float>& intv, const OD::LineStyle& ls,
 		  const SceneID& sceneid )
-    : uiDialog(p,Setup(tr("Contour Display Options"),mNoDlgTitle,
-			mODHelpKey(mContourParsDlgHelpID) )
-		.modal(false).nrstatusflds(1))
+    : uiDialog(p,Setup(tr("Contour Display Options"),
+		       mODHelpKey(mContourParsDlgHelpID))
+		    .modal(false).nrstatusflds(1))
     , propertyChanged(this)
     , intervalChanged(this)
     , rg_(rg)
@@ -1048,7 +1048,7 @@ void uiContourTreeItem::handleMenuCB( CallBacker* cb )
 	getZVSAreaValues( zvals, areas );
 
 	uiDialog dlg( ODMainWin(), uiDialog::Setup(tr("Contour areas"),
-						   mNoDlgTitle,mNoHelpKey ) );
+						   mNoHelpKey) );
 	dlg.setCancelText( uiString::emptyString() );
 
 	RefMan<visSurvey::Scene> scene =
@@ -1061,7 +1061,7 @@ void uiContourTreeItem::handleMenuCB( CallBacker* cb )
 
 	const ZDomain::Info& zinfo = scene->zDomainInfo();
 
-	uiTable* table = new uiTable( &dlg, uiTable::Setup(areas.size(),2),
+	auto* table = new uiTable( &dlg, uiTable::Setup(areas.size(),2),
 				      "Area table");
 
 	table->setColumnLabel( 0, zinfo.getLabel() );
@@ -1494,8 +1494,8 @@ BufferString uiContourTreeItem::selectAttribute( uiParent* p,
     if ( attrnms.size() == 1 )
 	return sKeyZValue();
 
-    uiDialog dlg( p, uiDialog::Setup(tr("Select Attribute to contour"),
-				     mNoDlgTitle,mNoHelpKey) );
+    uiDialog dlg(p,uiDialog::Setup(tr("Select Attribute to contour"),
+				   mNoHelpKey));
     uiListBox::Setup su( OD::ChooseOnlyOne, toUiString(eminfo.name()),
 			 uiListBox::AboveMid );
     auto* attrlb = new uiListBox( &dlg, su, "horizondata" );

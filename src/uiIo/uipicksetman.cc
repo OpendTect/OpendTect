@@ -45,13 +45,11 @@ static IOObjContext getIOObjContext( const char* fixedtrkey )
 
 
 uiPickSetMan::uiPickSetMan( uiParent* p, const char* fixedtrkey )
-    : uiObjFileMan(p,uiDialog::Setup(
-             uiStrings::phrManage( toUiString("%1/%2")
-                .arg( uiStrings::sPointSet(mPlural) )
-                .arg( uiStrings::sPolygon(mPlural))),
-	    mNoDlgTitle,
-	    mODHelpKey(mPickSetManHelpID) )
-	    .nrstatusflds(1).modal(false),
+    : uiObjFileMan(p,Setup(uiStrings::phrManage( toUiString("%1/%2")
+				.arg(uiStrings::sPointSet(mPlural))
+				.arg(uiStrings::sPolygon(mPlural))),
+			   mODHelpKey(mPickSetManHelpID))
+			.nrstatusflds(1).modal(false),
 	    getIOObjContext(fixedtrkey),sKey::Type())
 {
     createDefaultUI();

@@ -23,7 +23,7 @@ ________________________________________________________________________
 
 
 uiCreateHorizon::uiCreateHorizon( uiParent* p, bool is2d )
-    : uiDialog(p,Setup(tr("Create Constant Z Horizon"),mNoDlgTitle,
+    : uiDialog(p,Setup(tr("Create Constant Z Horizon"),
 		       mODHelpKey(mCreateHorizonHelpID)).modal(false))
     , zfld_(0)
     , ready(this)

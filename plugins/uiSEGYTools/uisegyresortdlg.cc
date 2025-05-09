@@ -26,8 +26,8 @@ ________________________________________________________________________
 
 uiResortSEGYDlg::uiResortSEGYDlg( uiParent* p )
     : uiDialog( p, uiDialog::Setup(tr("Re-sort SEG-Y scanned"),
-		tr("Produce new SEG-Y file from scanned data"),
-                                    mODHelpKey(mResortSEGYDlg) ) )
+			     tr("Produce new SEG-Y file from scanned data"),
+			     mODHelpKey(mResortSEGYDlg) ) )
     , geomfld_(0)
     , volfld_(0)
     , ps3dfld_(0)

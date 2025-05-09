@@ -25,8 +25,8 @@ ________________________________________________________________________
 uiODEditAttribColorDlg::uiODEditAttribColorDlg( uiParent* p,
 						ObjectSet<uiTreeItem>& set,
 						const char* attrnm )
-    : uiDialog(p,uiDialog::Setup(tr("Color Settings"),mNoDlgTitle,
-				mODHelpKey(mODEditAttribColorDlgHelpID) ))
+    : uiDialog(p,Setup(tr("Color Settings"),
+		       mODHelpKey(mODEditAttribColorDlgHelpID)))
     , items_(set)
     , uicoltab_( 0 )
 {
