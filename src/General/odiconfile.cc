@@ -199,7 +199,7 @@ const char* OD::IconFile::notFoundIconFileName()
     {
 	OD::IconFile icf( "iconnotfound" );
 	if ( icf.haveData() )
-	    ret = icf.nms_.first();
+	    ret = icf.nms_.first()->buf();
 	else
 	    ret = mGetSetupFileName("od.png");
     }
