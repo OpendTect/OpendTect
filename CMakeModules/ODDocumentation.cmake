@@ -108,6 +108,7 @@ macro( OD_BUILD_USERDOCUMENTATION )
 		    "MadCap Flare 18/Flare.app"
 		    "MadCap Flare 19/Flare.app"
       		    "MadCap Flare 20/Flare.app"
+		    "MadCap Flare 21/Flare.app"
 		  DOC "Madcap Flare Executable"
              	  NO_DEFAULT_PATH )
 
