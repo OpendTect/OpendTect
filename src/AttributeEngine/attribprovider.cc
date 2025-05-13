@@ -91,7 +91,7 @@ RefMan<Provider> Provider::create( Desc& desc, uiString& errstr )
 
     prov->allexistingprov_.erase();
     for ( auto* exist : existing )
-	prov->allexistingprov_.add( exist );
+	prov->allexistingprov_ += exist;
 
     return prov;
 }
@@ -186,7 +186,7 @@ RefMan<Provider> Provider::internalCreate( Desc& desc,
 	}
 
 	newprov->setInput( idx, inputprovider.ptr() );
-	inputprovider->addParent( newprov.ptr() );
+	newprov->addParent( inputprovider.ptr() );
 	issame = false;
     }
 
@@ -1405,8 +1405,8 @@ void Provider::computeRefStep()
     for( int idx=0; idx<allexistingprov_.size(); idx++ )
     {
 	float step = 0;
-	bool isstored = allexistingprov_[idx]->getZStepStoredData(step);
-	if ( isstored )
+	ConstRefMan<Provider> prov = allexistingprov_[idx];
+	if ( prov && prov->getZStepStoredData(step) )
 	    refstep_ = ( refstep_ != 0 && refstep_ < step )? refstep_ : step;
 
     }
@@ -1417,7 +1417,11 @@ void Provider::setRefStep( float step )
 {
     refstep_ = step;
     for ( int idx=0; idx<allexistingprov_.size(); idx++ )
-	const_cast<Provider*>(allexistingprov_[idx])->refstep_ = refstep_;
+    {
+	RefMan<Provider> prov = allexistingprov_[idx];
+	if (prov )
+	    prov->refstep_ = refstep_;
+    }
 }
 
 
@@ -1426,8 +1430,8 @@ void Provider::computeRefZ0()
     for( int idx=0; idx<allexistingprov_.size(); idx++ )
     {
 	float z0 = 0;
-	bool isstored = allexistingprov_[idx]->getZ0StoredData(z0);
-	if ( isstored )
+	ConstRefMan<Provider> prov = allexistingprov_[idx];
+	if ( prov && prov->getZ0StoredData(z0) )
 	    refz0_ = ( refz0_ < z0 )? refz0_ : z0;
     }
 }
@@ -1437,7 +1441,11 @@ void Provider::setRefZ0( float z0 )
 {
     refz0_ = z0;
     for ( int idx=0; idx<allexistingprov_.size(); idx++ )
-	const_cast<Provider*>(allexistingprov_[idx])->refz0_ = refz0_;
+    {
+	RefMan<Provider> prov = allexistingprov_[idx];
+	if ( prov )
+	    prov->refz0_ = refz0_;
+    }
 }
 
 
