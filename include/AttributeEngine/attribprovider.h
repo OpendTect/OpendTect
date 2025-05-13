@@ -369,7 +369,7 @@ protected:
     TrcKeyZSampling*		desiredvolume_			= nullptr;
     TrcKeyZSampling*		possiblevolume_			= nullptr;
     TypeSet< Interval<int> >	localcomputezintervals_;
-    RefObjectSet<Provider>	allexistingprov_;
+    WeakPtrSet<Provider>	allexistingprov_;
     TypeSet<float>		exactz_;
 				// only used for outputs which require
 				// data at exact z values not placed
