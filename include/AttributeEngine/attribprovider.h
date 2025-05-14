@@ -361,7 +361,7 @@ protected:
     void			stdPrepSteering(const BinID&);
 
     RefObjectSet<Provider>	inputs_;
-    RefObjectSet<Provider>	parents_;
+    WeakPtrSet<Provider>	parents_;
     RefMan<Desc>		desc_;
     TypeSet<int>		outputinterest_;
     BinID			desbufferstepout_;
