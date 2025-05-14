@@ -186,7 +186,7 @@ RefMan<Provider> Provider::internalCreate( Desc& desc,
 	}
 
 	newprov->setInput( idx, inputprovider.ptr() );
-	newprov->addParent( inputprovider.ptr() );
+	inputprovider->addParent( newprov.ptr() );
 	issame = false;
     }
 
@@ -989,10 +989,11 @@ BinID Provider::getStepoutStep() const
 
     for ( int idx=0; idx<parents_.size(); idx++ )
     {
-	if ( !parents_[idx] )
+	ConstRefMan<Provider> prov = parents_[idx];
+	if ( !prov )
 	    continue;
 
-	BinID bid = parents_[idx]->getStepoutStep();
+	BinID bid = prov->getStepoutStep();
 	if ( bid.inl()!=0 && bid.crl()!=0 )
 	    return bid;
     }
