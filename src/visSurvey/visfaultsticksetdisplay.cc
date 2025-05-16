@@ -929,7 +929,7 @@ bool FaultStickSetDisplay::removeSelections( TaskRunner* taskr )
 
     fault_->geometry().removeSelectedSticks( true );
     fault_->setChangedFlag();
-    return true;
+    return SurveyObject::removeSelections( taskr );
 }
 
 

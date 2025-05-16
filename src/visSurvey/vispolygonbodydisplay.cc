@@ -330,7 +330,7 @@ bool PolygonBodyDisplay::removeSelections( TaskRunner* )
 	return false;
 
     polygonsurfeditor_->removeSelection( *selector );
-    return true;
+    return SurveyObject::removeSelections( nullptr );;
 }
 
 

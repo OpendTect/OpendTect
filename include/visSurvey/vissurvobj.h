@@ -237,7 +237,7 @@ public:
     virtual const TypeSet<float>* getHistogram(int attrib) const { return 0; }
 
     virtual bool		canRemoveSelection() const	{ return false;}
-    virtual bool		removeSelections(TaskRunner*)	{ return false;}
+    virtual bool		removeSelections(TaskRunner*);
     virtual void		clearSelections()		{}
 
     virtual void		setSelSpec(int,const Attrib::SelSpec&);

@@ -39,7 +39,6 @@ ________________________________________________________________________
 #include "vistransform.h"
 #include "vistexturechannels.h"
 
-
 namespace visSurvey
 {
 
@@ -365,7 +364,8 @@ bool FaultDisplay::removeSelections( TaskRunner* )
 
     fault_->geometry().removeSelectedSticks( true );
     fault_->setChangedFlag();
-    return true;
+    visBase::DM().runCleanup();
+    return SurveyObject::removeSelections( nullptr );
 }
 
 
@@ -1730,8 +1730,11 @@ void FaultDisplay::updateEditorMarkers()
 	EM::Fault3D* fault3d = emFault();
 	if ( fault3d )
 	{
-	    if ( StickSetDisplay::markerStyle() && viseditor_ )
-		viseditor_->setMarkerStyle( fault_->getPosAttrMarkerStyle(0) );
+	    const MarkerStyle3D& faultmarkerstyle
+					    = fault_->getPosAttrMarkerStyle(0);
+	    if ( StickSetDisplay::markerStyle() && viseditor_
+		 && (*viseditor_->markerStyle()!=faultmarkerstyle) )
+		viseditor_->setMarkerStyle( faultmarkerstyle );
 
 	    Geometry::FaultStickSet* fs =
 					fault3d->geometry().geometryElement();

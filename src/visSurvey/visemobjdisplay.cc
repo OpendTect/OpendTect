@@ -814,7 +814,7 @@ bool EMObjectDisplay::removeSelections( TaskRunner* taskr )
 
     updateAuxData();
     clearSelections();
-    return true;
+    return SurveyObject::removeSelections( taskr );
 }
 
 

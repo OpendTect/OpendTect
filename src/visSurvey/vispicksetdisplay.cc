@@ -976,6 +976,9 @@ bool PickSetDisplay::removeSelections( TaskRunner* )
 			    Pick::Mgr().undo().currentEventID() );
 
     unSelectAll();
+    if ( changed )
+	SurveyObject::removeSelections( nullptr );
+
     return changed;
 }
 

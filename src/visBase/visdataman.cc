@@ -44,6 +44,7 @@ DataManager::DataManager()
 DataManager::~DataManager()
 {
     objidxmap_.clear();
+    visidobjmap_.clear();
     delete &selman_;
 #ifdef __debug__
     const RefCount::WeakPtrSetBase::CleanupBlocker cleanupblock( objects_ );
@@ -92,15 +93,7 @@ const DataObject* DataManager::getObject( const VisID& id ) const
 
 DataObject* DataManager::getObject( const VisID& id )
 {
-    const int sz = nrObjects();
-    for ( int idx=0; idx<sz; idx++ )
-    {
-	RefMan<DataObject> dataobj = objects_[idx];
-	if ( dataobj && dataobj->id() == id )
-	    return dataobj.ptr();
-    }
-
-    return nullptr;
+    return visidobjmap_[id.asInt()];
 }
 
 
@@ -135,9 +128,10 @@ VisID DataManager::getID( const osg::Node* node ) const
 
 void DataManager::addObject( DataObject* obj )
 {
-    const RefCount::WeakPtrSetBase::CleanupBlocker cleanupblock( objects_ );
     objects_ += obj;
-    obj->setID( VisID(freeid_++) );
+    const VisID visid( freeid_++ );
+    obj->setID( visid );
+    visidobjmap_[visid.asInt()] = obj;
     objidxmap_[obj] = objects_.size() - 1;
 }
 
@@ -160,6 +154,24 @@ void DataManager::getIDs( const std::type_info& ti, TypeSet<VisID>& res ) const
 }
 
 
+void DataManager::runCleanup()
+{
+    objidxmap_.clear();
+    visidobjmap_.clear();
+    objects_.cleanupNullPtrs();
+    objidxmap_[nullptr] = -1;
+    for ( int idx=0; idx<objects_.size(); idx++ )
+    {
+	RefMan<DataObject> obj = objects_[idx];
+	if ( !obj || objidxmap_.find(obj.ptr())!=objidxmap_.end() )
+	    continue;
+
+	objidxmap_[obj.ptr()] = idx;
+	visidobjmap_[obj->id().asInt()] = obj.ptr();
+    }
+}
+
+
 void DataManager::removeObject( DataObject* dobj )
 {
     const RefCount::WeakPtrSetBase::CleanupBlocker cleanupblock( objects_ );
@@ -167,6 +179,7 @@ void DataManager::removeObject( DataObject* dobj )
     if ( objects_.validIdx(idx) )
     {
 	objects_.removeSingle( idx );
+	visidobjmap_.erase( dobj->id().asInt() );
 	objidxmap_.erase( dobj );
     }
 }
