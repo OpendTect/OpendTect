@@ -267,7 +267,7 @@ bool PointSetDisplay::removeSelections( TaskRunner* taskr )
     }
 
     update( taskr );
-    return changed;
+    return SurveyObject::removeSelections( taskr );;
 }
 
 

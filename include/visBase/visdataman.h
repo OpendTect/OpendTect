@@ -65,7 +65,8 @@ private:
 
     mutable WeakPtrSet<DataObject> objects_;
 
-    std::unordered_map<DataObject*,int> objidxmap_;
+    std::unordered_map<DataObject*,int>     objidxmap_;
+    std::unordered_map<int,DataObject*>     visidobjmap_;
 
     int				freeid_ = 0;
     SelectionManager&		selman_;
@@ -73,6 +74,10 @@ private:
 
     static const char*		sKeyFreeID();
     static const char*		sKeySelManPrefix();
+
+public:
+
+    void		runCleanup();
 };
 
 mGlobal(visBase) DataManager& DM();

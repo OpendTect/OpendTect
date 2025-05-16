@@ -323,9 +323,8 @@ public:
     typedef int				idx_type;
     typedef int				size_type;
 
-    bool		operator+=(const WeakPtr<T>&);
-			//Returns if added (i.e. not duplicate)
-    bool		operator+=(RefMan<T>&);
+    void		operator+=(const WeakPtr<T>&);
+    void		operator+=(RefMan<T>&);
 			//Returns if added (i.e. not duplicate)
     size_type		size() const;
     bool		validIdx(idx_type) const;
@@ -336,8 +335,16 @@ public:
     RefMan<T>		operator[](idx_type);
     ConstRefMan<T>	operator[](idx_type) const;
 
-    idx_type		indexOf(const T*) const;
+    void		add(const WeakPtr<T>&);
+    void		add(RefMan<T>&);
+    bool		addIfNew(const WeakPtr<T>&);
+			//Returns if added (i.e. not duplicate)
+    bool		addIfNew(RefMan<T>&);
+			//Returns if added (i.e. not duplicate)
 
+
+
+    idx_type		indexOf(const T*) const;
 
 private:
 
@@ -572,10 +579,25 @@ RefMan<T> WeakPtr<T>::get() const
 
 
 template <class T> inline
-bool WeakPtrSet<T>::operator+=( RefMan<T>& toadd )
+void WeakPtrSet<T>::operator+=( RefMan<T>& toadd )
+{
+    add( toadd );
+}
+
+
+template <class T> inline
+bool WeakPtrSet<T>::addIfNew( RefMan<T>& toadd )
 {
     T* ptr = toadd.ptr();
-    return WeakPtrSet<T>::operator+=( WeakPtr<T>(ptr) );
+    return WeakPtrSet<T>::addIfNew( WeakPtr<T>(ptr) );
+}
+
+
+template <class T> inline
+void WeakPtrSet<T>::add( RefMan<T>& toadd )
+{
+    T* ptr = toadd.ptr();
+    WeakPtrSet<T>::add( WeakPtr<T>(ptr) );
 }
 
 
@@ -600,7 +622,7 @@ void WeakPtrSet<T>::cleanupNullPtrs()
 
 
 template <class T> inline
-bool WeakPtrSet<T>::operator+=( const WeakPtr<T>& toadd )
+bool WeakPtrSet<T>::addIfNew( const WeakPtr<T>& toadd )
 {
     lock_.lock();
 
@@ -627,6 +649,22 @@ bool WeakPtrSet<T>::operator+=( const WeakPtr<T>& toadd )
     lock_.unLock();
 
     return true;
+}
+
+
+template <class T> inline
+void WeakPtrSet<T>::operator+=( const WeakPtr<T>& toadd )
+{
+    add( toadd );
+}
+
+
+template <class T> inline
+void WeakPtrSet<T>::add( const WeakPtr<T>& toadd )
+{
+    lock_.lock();
+    ptrs_ += new WeakPtr<T>( toadd );
+    lock_.unLock();
 }
 
 

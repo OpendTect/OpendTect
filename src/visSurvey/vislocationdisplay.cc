@@ -1002,8 +1002,11 @@ bool LocationDisplay::removeSelections( TaskRunner* )
     }
 
     if ( changed )
+    {
 	Pick::Mgr().undo().setUserInteractionEnd(
 				Pick::Mgr().undo().currentEventID() );
+	SurveyObject::removeSelections( nullptr );
+    }
 
     return changed;
 }

@@ -235,7 +235,6 @@ protected:
 };
 
 
-
 mExpClass(uiTools) uiTreeTopItem : public uiTreeItem
 {
 public:

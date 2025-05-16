@@ -490,4 +490,14 @@ bool SurveyObject::showsTexture() const
     return canShowTexture() && usesTexture();
 }
 
+
+bool SurveyObject::removeSelections( TaskRunner* )
+{
+    if ( !canRemoveSelection() )
+	return false;
+
+    visBase::DM().runCleanup();
+    return true;
+}
+
 } // namespace visSurvey

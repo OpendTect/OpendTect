@@ -495,6 +495,8 @@ void Scene::removeObject( int idx )
 
     if ( so && !getMoreObjectsToDoHint() )
 	objectMoved( nullptr );
+
+    visBase::DM().runCleanup();
 }
 
 
@@ -1262,6 +1264,7 @@ void Scene::removeAll()
     curzstretch_ = -1;
 
     hoveredposmodemanipobjids_.erase();
+    visBase::DM().runCleanup();
 }
 
 
