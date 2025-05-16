@@ -417,9 +417,14 @@ void uiBulkLogImport::lasSel( CallBacker* )
     wellstable_->setNrRows( filenms.size() );
 
     BufferStringSet wellnms;
-    wellnms.add( "-- (Do not import)" );
-    getWellNames( wellnms, true );
+    BufferStringSet welldisplaynms;
+    welldisplaynms.add( "-- (Do not import)" );
+    welldisplaynms.add( "++ (Import as new well)" );
+    wellnms = welldisplaynms; // ensure same size
+    getWellNames( wellnms, false );
+    getWellNames( welldisplaynms, true );
     const bool useuwiasnm = welluwinmfld_->getBoolValue();
+    OD::CaseSensitivity cs = OD::CaseInsensitive;
     for ( int idx=0; idx<filenms.size(); idx++ )
     {
 	const BufferString& fnm = filenms.get( idx );
@@ -430,22 +435,19 @@ void uiBulkLogImport::lasSel( CallBacker* )
 	wellstable_->setText( RowCol(idx,0), info.wellnm_ );
 	wellstable_->setText( RowCol(idx,1), info.uwi_ );
 
-	BufferStringSet listwellnms( wellnms );
-	if ( !info.wellnm_.isEmpty() )
-	    listwellnms.addIfNew( info.wellnm_ );
-
-	if ( !info.uwi_.isEmpty() )
-	    listwellnms.addIfNew( info.uwi_ );
-
 	auto* wellsbox = new uiComboBox( 0, "Select Well" );
-	wellsbox->addItems( listwellnms );
+	wellsbox->addItems( welldisplaynms );
 	wellstable_->setCellObject( RowCol(idx,2), wellsbox );
 
 	const BufferString& welllasnm = useuwiasnm ? info.uwi_ : info.wellnm_;
 	const BufferString& othwellnm = useuwiasnm ? info.wellnm_ : info.uwi_;
 	const BufferString wellnm = welllasnm.isEmpty() ? othwellnm : welllasnm;
-	const int selidx = listwellnms.nearestMatch( wellnm );
-	wellsbox->setCurrentItem( selidx<0 ? 0 : selidx );
+	unsigned int matchdist = mUdf(unsigned int);
+	int selidx = wellnms.nearestMatch( wellnm, cs, &matchdist );
+	const float diff_ratio = float(matchdist)/wellnm.size();
+	if ( diff_ratio > 0.75 )
+	    selidx = -1;
+	wellsbox->setCurrentItem( selidx<0 ? 1 : selidx );
     }
 
     wellstable_->resizeColumnToContents( 0 );
@@ -561,9 +563,12 @@ bool uiBulkLogImport::acceptOK( CallBacker* )
 	if ( cb && cb->currentItem()==0 )
 	    continue;
 
-	const BufferString wellnm = cb ? cb->text()
-				       : (useuwiasnm ? info.uwi_.buf()
-						     : info.wellnm_.buf() );
+	BufferString wellnm;
+	if ( !cb || cb->currentItem()==1 )
+	    wellnm = useuwiasnm ? info.uwi_.buf() : info.wellnm_.buf();
+	else
+	    wellnm = cb->text();
+
 	PtrMan<IOObj> ioobj = findIOObj( wellnm, info.uwi_ );
 	if ( !ioobj )
 	{
