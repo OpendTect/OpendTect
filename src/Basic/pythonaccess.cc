@@ -1315,8 +1315,7 @@ bool OD::PythonAccess::getInternalEnvironmentLocation( FilePath& fp,
 	    return true;
     }
 
-    fp.set( GetSetupDataFileName(ODSetupLoc_ApplSetupPref,"Python_envs.txt",
-				 false) );
+    fp.set( GetSetupShareFileName("Python_envs.txt") );
     BufferString pythonloc;
     if ( fp.exists() )
     {
@@ -1481,20 +1480,17 @@ void OD::PythonAccess::verifyEnvironmentCB( CallBacker* cb )
     deepCopy( moduleinfos, moduleinfos_ );
     locker.unlockNow();
 
-    FilePath fp( mGetSWDirDataDir() );
-    fp.add( "Python" );
     const char* piname = pyenvwk->getPIName();
-    BufferString genericName( piname );
-    genericName.add( "_requirements" );
-    BufferString platSpecificName( piname );
-    platSpecificName.add( "_requirements_" )
-		    .add( Platform::local().shortName() );
-
-    fp.add( platSpecificName ).setExtension( "txt" );
+    BufferString platspecificname( piname );
+    platspecificname.add( "_requirements_" )
+		    .add( Platform::local().shortName() )
+		    .add( ".txt" );
+    FilePath fp( GetSetupShareFileInDir("Python",platspecificname.str(),true) );
     if ( !fp.exists() )
     {
-	fp.setFileName( genericName );
-	fp.setExtension( "txt" );
+	BufferString genericname( piname );
+	genericname.add( "_requirements" ).add( ".txt" );
+	fp.set( GetSetupShareFileInDir("Python",genericname.str(),true) );
 	if ( !fp.exists() )
 	{
 	    ret = uiStrings::phrFileDoesNotExist( fp.fullPath() );

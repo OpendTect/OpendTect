@@ -1113,17 +1113,17 @@ void uiAttribDescSetEd::loadDefaultAttrSet( const char* attribsetnm )
 }
 
 
-static void gtDefaultAttribsets( const char* dirnm, bool is2d,
+static void gtDefaultAttribsets( bool is2d,
 				 BufferStringSet& attribfiles,
 				 BufferStringSet& attribnames )
 {
-    if ( !File::isDirectory(dirnm) )
+    BufferStringSet dirnms;
+    if ( !GetSetupShareDirNames("*Attribs",dirnms) )
 	return;
 
-    const DirList attrdl( dirnm, File::DirListType::DirsInDir, "*Attribs" );
-    for ( int idx=0; idx<attrdl.size(); idx++ )
+    for ( const auto* dirnm : dirnms )
     {
-	const FilePath fp( dirnm, attrdl.get(idx), "index" );
+	const FilePath fp( dirnm->str(), "index" );
 	const BufferString indexfnm = fp.fullPath();
 	if ( !File::exists(indexfnm.buf()) )
 	    continue;
@@ -1174,13 +1174,7 @@ void uiAttribDescSetEd::getDefaultAttribsets( BufferStringSet& attribfiles,
 					      BufferStringSet& attribnames )
 {
     const bool is2d = adsman_ ? adsman_->is2D() : attrset_->is2D();
-    gtDefaultAttribsets( mGetApplSetupDataDir(), is2d, attribfiles,
-			 attribnames );
-    const BufferString swdatadir( mGetSWDirDataDir() );
-    gtDefaultAttribsets( swdatadir, is2d, attribfiles, attribnames );
-    const BufferString userpldatadir( mGetUserPluginDataDir() );
-    if ( userpldatadir != swdatadir )
-	gtDefaultAttribsets( userpldatadir, is2d, attribfiles, attribnames );
+    gtDefaultAttribsets( is2d, attribfiles, attribnames );
 }
 
 

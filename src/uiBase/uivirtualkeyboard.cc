@@ -66,7 +66,7 @@ uiVirtualKeyboard::uiVirtualKeyboard( uiObject& inpobj, int x, int y )
 					    arg(toUiString(inputobj_.name()));
     setCaption( wintitle );
 
-    const BufferString pmfnm = mGetSetupFileName( "virtualkeyboard.png" );
+    const BufferString pmfnm = GetSWSetupShareFileName( "virtualkeyboard.png" );
     uiPixmap pixmap( pmfnm.buf() );
     const float keyboardwidth = keyboardscale_ * pixmap.width();
     const float keyboardheight = keyboardscale_ * pixmap.height();
@@ -241,7 +241,7 @@ void uiVirtualKeyboard::clickCB( CallBacker* )
 
     char str[2]; str[1] = '\0';
     str[0] = mousePress2Key( mNINT32( ev.x()/keyboardscale_ ),
-	    		     mNINT32( ev.y()/keyboardscale_ ),
+			     mNINT32( ev.y()/keyboardscale_ ),
 			     capslock_, shiftstatus );
     restoreSelection();
 

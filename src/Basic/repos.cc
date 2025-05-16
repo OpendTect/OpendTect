@@ -107,10 +107,10 @@ BufferString Repos::FileProvider::fileName( Repos::Source src ) const
 	mSetRet(GetSettingsDir,false);
     } break;
     case Repos::ApplSetup: {
-	ret = GetSetupDataFileName( ODSetupLoc_ApplSetupOnly, basenm_, 0 );
+	ret = GetSetupShareFileName( basenm_.buf(), ODSetupLoc_ApplSetupOnly );
     } break;
     case Repos::Rel: {
-	ret = GetSetupDataFileName( ODSetupLoc_SWDirOnly, basenm_, 0 );
+	ret = GetSetupShareFileName( basenm_.buf(), ODSetupLoc_SWDirOnly );
     } break;
     }
 
@@ -141,7 +141,7 @@ Repos::IOParSet::IOParSet( const char* basenm )
 	ascistream astrm( sfio.istrm(), true );
 	while ( sfio.istrm().isOK() )
 	{
-	    IOPar* par = new IOPar( rfp.source() );
+	    auto* par = new IOPar( rfp.source() );
 	    par->getFrom( astrm );
 	    if ( par->isEmpty() )
 		{ delete par; continue; }

@@ -23,11 +23,6 @@ ________________________________________________________________________
 # include "keystrs.h"
 #endif
 
-void TextTranslateMgr::GetLocalizationDir( FilePath& res )
-{
-    res = FilePath( mGetSWDirDataDir(), "localizations" );
-}
-
 
 TextTranslatorLanguage::TextTranslatorLanguage( const char* localename )
     : loaded_( false )
@@ -39,22 +34,17 @@ TextTranslatorLanguage::TextTranslatorLanguage( const char* localename )
 {
     translators_.setNullAllowed();
     const BufferString filename = BufferString()
-	.add(uiString::sODLocalizationApplication())
-	.add(TextTranslateMgr::cApplicationEnd())
-	.add(localename)
-	.add(".qm");
+		    .add( uiString::sODLocalizationApplication() )
+		    .add( TextTranslateMgr::cApplicationEnd() )
+		    .add( localename )
+		    .add( ".qm" );
 
-    FilePath locdir;
-    TextTranslateMgr::GetLocalizationDir(locdir);
-    const FilePath odfile( locdir, filename );
+    const FilePath odfile = GetSetupShareFileInDir( "localizations",
+						    filename.str(), true );
 
 #ifndef OD_NO_QT
     QTranslator maintrans;
-    if ( !maintrans.load(odfile.fullPath().buf()) )
-    {
-	*languagename_ = localename;
-    }
-    else
+    if ( maintrans.load(odfile.fullPath().buf()) )
     {
 	uiString name = tr("Language Name",0,1);
 	name.addLegacyVersion( uiString(name.getString(),
@@ -62,6 +52,10 @@ TextTranslatorLanguage::TextTranslatorLanguage( const char* localename )
 			       uiString::sODLocalizationApplication(),0,1) );
 	name.translate( maintrans, *languagename_ );
 	//Force be a part of the plural setup
+    }
+    else
+    {
+	*languagename_ = localename;
     }
 
     locale_->setNumberOptions( QLocale::OmitGroupSeparator );
@@ -118,34 +112,25 @@ bool TextTranslatorLanguage::load()
 	.add( localename_ )
 	.add( ".qm" );
 
-    FilePath basedir;
-    TextTranslateMgr::GetLocalizationDir(basedir);
-    const DirList dl( basedir.fullPath(), File::DirListType::FilesInDir,
-		      filenamesearch.buf() );
-    for( int idx=0; idx<dl.size(); idx++ )
+    BufferStringSet locdirfnms;
+    GetSetupShareFilesInDir( "localizations", filenamesearch.str(), locdirfnms,
+			     true );
+    for ( const auto* filename : locdirfnms )
     {
-	const FilePath filepath = dl.fullPath( idx );
-	BufferString filename = filepath.baseName();
-
 	BufferString application;
-	char* applicationend =
-		filename.find(TextTranslateMgr::cApplicationEnd());
+	const char* applicationend =
+		filename->find(TextTranslateMgr::cApplicationEnd());
 	if ( !applicationend )
 	    continue;
 
-	application = filename;
+	application = filename->str();
 	*application.find(TextTranslateMgr::cApplicationEnd()) = 0;
 
-	BufferString language = applicationend+1;
-
-	QTranslator* trans = new QTranslator;
-	if ( !trans->load(filepath.fullPath().buf()) )
-	{
-	    delete trans;
+	PtrMan<QTranslator> trans = new QTranslator;
+	if ( !trans->load(filename->str()) )
 	    continue;
-	}
 
-	translators_ += trans;
+	translators_.add( trans.release() );
 	applications_.add( application );
     }
 
@@ -350,41 +335,38 @@ static void languageChange( CallBacker* )
 
 void loadLocalization()
 {
-    FilePath basedir;
-    TextTranslateMgr::GetLocalizationDir( basedir );
-    const DirList dl( basedir.fullPath(), File::DirListType::FilesInDir,"*.qm");
-
-    QList<QLocale> allLocales = QLocale::matchingLocales(
-            QLocale::AnyLanguage,
-            QLocale::AnyScript,
-            QLocale::AnyCountry);
-
+    const QList<QLocale> allLocales = QLocale::matchingLocales(
+					QLocale::AnyLanguage,
+					QLocale::AnyScript,
+					QLocale::AnyCountry );
     BufferStringSet accepted_languages;
     for  ( int i=0; i<allLocales.size(); i++ )
     {
-	QString localenm = allLocales[i].name();
-	BufferString str(localenm);
-	accepted_languages.add(localenm);
+	const QString localenm = allLocales[i].name();
+	accepted_languages.add( localenm );
     }
 
     //This should really be done on build-level, buy as od6 is released,
     //the installer will not remove those qm-files.
 
-    for( int idx=0; idx<dl.size(); idx++ )
+    BufferStringSet locfilenms;
+    GetSetupShareFilesInDir( "localizations", "*.qm", locfilenms, true );
+    for ( const auto* fnm : locfilenms )
     {
-	const FilePath path = dl.fullPath( idx );
+	const FilePath path( fnm->str() );
 	const BufferString filename = path.baseName();
 	const char* applicationend =
-		filename.find( TextTranslateMgr::cApplicationEnd() );
+			filename.find( TextTranslateMgr::cApplicationEnd() );
 	if ( !applicationend )
 	    continue;
 
 	const BufferString locale = applicationend+1;
-	if ( getIndexInStringArrCI(locale.buf(),accepted_languages,0,0,-1)==-1 )
+	if ( getIndexInStringArrCI(locale.buf(),accepted_languages,
+				   0,0,-1)==-1 )
 	    continue;
 
 	RefMan<TextTranslatorLanguage> trans =
-		new TextTranslatorLanguage( locale );
+				new TextTranslatorLanguage( locale );
 	TrMgr().addLanguage( trans.ptr() );
     }
 

@@ -34,7 +34,7 @@ ________________________________________________________________________
 
 static const FilePath& getProdListFP( const FilePath* newfp )
 {
-    static FilePath prodlistfp_( mGetSWDirDataDir(), "prodlist.txt" );
+    static FilePath prodlistfp_( GetSWSetupShareFileName("prodlist.txt") );
     if ( newfp && newfp->exists() )
 	prodlistfp_ = *newfp;
 

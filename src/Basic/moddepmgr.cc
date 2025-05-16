@@ -19,7 +19,8 @@ ________________________________________________________________________
 
 const OD::ModDepMgr& OD::ModDeps()
 {
-    mDefineStaticLocalObject( PtrMan<ModDepMgr>, mgr, = new ModDepMgr );
+    mDefineStaticLocalObject( PtrMan<ModDepMgr>, mgr,
+				= new ModDepMgr("ModDeps.od") );
     return *mgr;
 }
 
@@ -27,20 +28,21 @@ const OD::ModDepMgr& OD::ModDeps()
 OD::ModDepMgr::ModDepMgr( const char* mdfnm )
 {
     if ( !mdfnm || !*mdfnm )
-	mdfnm = "ModDeps.od";
+	return;
 
-    const FilePath moddepfp( mGetSWDirDataDir(), mdfnm );
+    const FilePath moddepfp( GetSWSetupShareFileName(mdfnm) );
     const BufferString moddepfnm = moddepfp.fullPath();
     od_istream strm( moddepfnm );
     if ( !strm.isOK() )
     {
-    uiString msg = strm.errMsg();
-    pErrMsg( BufferString("Missing module dependency. ", msg ) );
+	const uiString msg = strm.errMsg();
+	pErrMsg( BufferString("Missing module dependency. ", msg ) );
 	return;
     }
 
     if ( DBG::isOn(DBG_PROGSTART) )
 	DBG::message( BufferString("Starting reading ",moddepfnm,".") );
+
     readDeps( strm );
     if ( DBG::isOn(DBG_PROGSTART) )
 	DBG::message( BufferString("Reading ",moddepfnm," done.") );

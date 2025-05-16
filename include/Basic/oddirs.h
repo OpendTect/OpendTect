@@ -13,6 +13,8 @@ ________________________________________________________________________
 #include "gendefs.h"
 #endif
 
+class BufferStringSet;
+
 extern "C" {
 
 /* Functions delivering files/directories in the 'survey data' scope */
@@ -41,18 +43,14 @@ mGlobal(Basic) const char* GetSoftwareDir(bool acceptnone);
 
 mGlobal(Basic) bool isDeveloperBuild();
 /*!< This is running from a developers build. Checks the presence of
-     CMakeCache.txt file at the location of GetSoftwareDir */
+     CMakeCache.txt/CMakeFiles/external at the location of GetSoftwareDir */
+
+mGlobal(Basic) bool isDeveloperInstallation();
+/*!< This is running from an installed developers build. Checks the presence of
+     CMakeCache.txt/CMakeFiles/external at the location of GetSoftwareDir */
 
 mGlobal(Basic) const char* GetBinSubDir(void);
 /*!< Directory for the release-type, i.e. Debug, Release, ... */
-
-mGlobal(Basic) const char* GetApplSetupDir(void);
-/*!< Directory with setup files and scripts overruling current software
-     release's default setup files.
-
-    Tied to environment DTECT_[WIN]APPL_SETUP. If
-    the environment is not set (see GetEnvVar), this function returns null.
-*/
 
 typedef enum
 {
@@ -60,32 +58,66 @@ typedef enum
     ODSetupLoc_ApplSetupPref, /* Usual choice for GetSetupDataFileName */
     ODSetupLoc_SWDirPref,
     ODSetupLoc_SWDirOnly,
-    ODSetupLoc_UserPluginDirOnly,
+    ODSetupLoc_UserPluginDirOnly
 } ODSetupLocType;
 
-mGlobal(Basic) const char* GetSetupDataFileDir(ODSetupLocType,bool acceptnone);
-/*!< Returns the name of the "data" subdir of the release or the
+mGlobal(Basic) bool addCustomShareFolder(const char* path);
+/*!< Adds a share folder that is treated as an additional lookup folder for
+     the enum values ODSetupLoc_SWDirPref and ODSetupLoc_SWDirOnly */
+
+mGlobal(Basic) const char* GetSetupDataFileDir(
+					ODSetupLocType=ODSetupLoc_ApplSetupPref,
+					bool acceptnone=false);
+/*!< Returns the name of the "share" subdir of the release or the
      site setup directory.
      If acceptnone is false, program will terminate if none is found.
 */
-#define mGetApplSetupDataDir() GetSetupDataFileDir(ODSetupLoc_ApplSetupOnly,0)
-#define mGetSWDirDataDir() GetSetupDataFileDir(ODSetupLoc_SWDirOnly,0)
-#define mGetUserPluginDataDir() \
-			   GetSetupDataFileDir(ODSetupLoc_UserPluginDirOnly,0)
 
-mGlobal(Basic) const char* GetSetupDataFileName(ODSetupLocType,const char*,
-					 bool acceptnone);
-/*!< Returns the name of a file in the "data" subdir of the release or the
-     appl setup directory.
+mGlobal(Basic) const char* GetSWDirDataDir();
+//!< GetSetupDataFileDir for ODSetupLoc_SWDirOnly
+mGlobal(Basic) const char* GetApplSetupDataDir();
+//!< GetSetupDataFileDir for ODSetupLoc_ApplSetupOnly
+mGlobal(Basic) const char* GetUserPluginDataDir();
+//!< GetSetupDataFileDir for ODSetupLoc_UserPluginDirOnly
 
-     For the 'Pref' types, it returns the first existing
-     file.
+mGlobal(Basic) const char* GetSetupShareFileName(const char* filenm,
+				ODSetupLocType=ODSetupLoc_ApplSetupPref,
+				bool acceptnone=true);
+/*!< Returns the name of a file or directory in the "share" subdir of the
+     release or the appl setup directory.
+     By default, first look in ApplSetup, if not there, look in release .
 
+     For the 'Pref' types, it returns the first existing file.
      If acceptnone is false, program will terminate if none is found.
 */
-#define mGetSetupFileName(x) GetSetupDataFileName(ODSetupLoc_ApplSetupPref,x,0)
-/*!< Usual choice: first look in ApplSetup, if not there, look in release */
 
+mGlobal(Basic) const char* GetSWSetupShareFileName(const char* filenm,
+						   bool acceptnone=false);
+/*!< GetSetupShareFileName for ODSetupLoc_SWDirOnly
+     Exclusively for resource files which are no configuration */
+
+mGlobal(Basic) bool GetSetupShareFileNames( const char* searchkey,
+					    BufferStringSet&,
+					    bool acceptnone=false);
+//!< Returns a list of file names matching a pattern in the 'share' directories
+
+mGlobal(Basic) bool GetSetupShareDirNames( const char* searchkey,
+					   BufferStringSet&,
+					   bool acceptnone=false);
+//!< Returns a list of folder names matching a pattern in the 'share' dirs
+
+mGlobal(Basic) const char* GetSetupShareFileInDir( const char* subdir,
+						   const char* filenm,
+						   bool acceptnone=false);
+/*!< Returns the name of a file or folder in a subfolder
+     of the 'share' directories */
+
+mGlobal(Basic) bool GetSetupShareFilesInDir( const char* subdir,
+					     const char* searchkey,
+					     BufferStringSet&,
+					     bool acceptnone=false);
+/*!< Returns a list of files names matching a pattern in a sub directory of
+     the 'share' directories */
 
 mGlobal(Basic) const char* GetPlfSubDir(void);
 /*!< Platform subdirectory for platforms
@@ -126,13 +158,11 @@ mGlobal(Basic) inline const char* GetBinPlfDir(void)
 { return GetExecPlfDir(); }
 //!<Old don't use
 
-mGlobal(Basic) const char* GetDocDir();
+mGlobal(Basic) bool addCustomDocFolder(const char* path);
+/*!< Add a custom location for the Documentation */
+
 mGlobal(Basic) const char* GetDocFileDir(const char* filedir);
 /*!< Location of Documentation */
-#define mGetUserDocDir()	GetDocFileDir("userdoc")
-#define mGetProgrammerDocDir()	GetDocFileDir("Programmer")
-#define mGetSysAdmDocDir()	GetDocFileDir("SysAdm")
-
 
 mGlobal(Basic) const char* GetExecScript(int remote);
 /*!< Location of launch script for external programs
@@ -215,5 +245,31 @@ mGlobal(Basic) const char* GetPicturesDir();
 mGlobal(Basic) void SetPicturesDir(const char*);
 mGlobal(Basic) void ResetDefaultDirs();
 
+
+// Deprecated functions and macros
+
+mDeprecated("Use GetApplSetupDataDir()")
+mGlobal(Basic) const char* GetApplSetupDir(void);
+/*!< Directory with setup files and scripts overruling current software
+     release's default setup files.
+
+    Tied to environment DTECT_[WIN]APPL_SETUP. If
+    the environment is not set (see GetEnvVar), this function returns null.
+*/
+
+mDeprecated("Use GetSetupShareFileName")
+mGlobal(Basic) const char* GetSetupDataFileName(ODSetupLocType,const char*,
+					 bool acceptnone);
+
+#define mGetSWDirDataDir() GetSWDirDataDir()
+#define mGetApplSetupDataDir() GetApplSetupDataDir()
+#define mGetUserPluginDataDir() GetUserPluginDataDir()
+
+#define mGetSetupFileName(x) GetSetupDataFileName(ODSetupLoc_ApplSetupPref,x,0)
+/*!< Old macro, use GetSetupShareFileName */
+
+#define mGetUserDocDir()	GetDocFileDir("userdoc")
+#define mGetProgrammerDocDir()	GetDocFileDir("Programmer")
+#define mGetSysAdmDocDir()	GetDocFileDir("SysAdm")
 
 } // extern "C"

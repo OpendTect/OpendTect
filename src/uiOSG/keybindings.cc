@@ -56,10 +56,11 @@ EventButton::~EventButton()
 KeyBindMan::KeyBindMan()
     : curkeybinding_( "Default" )
 {
-    od_istream strm( mGetSetupFileName("MouseControls") );
-    if ( !strm.isOK() ) return;
-    ascistream astrm( strm );
+    od_istream strm( GetSetupShareFileName("MouseControls") );
+    if ( !strm.isOK() )
+	return;
 
+    ascistream astrm( strm );
     if ( atEndOfSection(astrm) ) astrm.next();
     if ( astrm.hasKeyword("Default") )
     {

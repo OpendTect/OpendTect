@@ -636,7 +636,7 @@ mExtern(Basic) const char* GetEnvVar( const char* env )
     if ( insysadmmode_ )
 	return GetOSEnvVar( env );
 
-    mDefineStaticLocalObject( bool, filesread, = false )
+    static bool filesread = false;
     if ( !filesread )
     {
 	if ( !AreProgramArgsSet() )
@@ -647,9 +647,19 @@ mExtern(Basic) const char* GetEnvVar( const char* env )
 	}
 
 	filesread = true;
-	loadEntries(GetSettingsFileName("envvars") );
-	loadEntries(GetSetupDataFileName(ODSetupLoc_ApplSetupOnly,"EnvVars",1));
-	loadEntries(GetSetupDataFileName(ODSetupLoc_SWDirOnly,"EnvVars",1) );
+	BufferStringSet envvarsfnms;
+	const BufferString envvarsettsfnm = GetSettingsFileName("envvars");
+	if ( File::exists(envvarsettsfnm.buf()) )
+	    envvarsfnms.add( envvarsettsfnm.str() );
+
+	GetSetupShareFileNames( "EnvVars", envvarsfnms, true );
+	for ( const auto* fnm : envvarsfnms )
+	    loadEntries( fnm->str() );
+
+	const BufferString pimenvvars =
+	    GetSetupShareFileName( "EnvVars",ODSetupLoc_UserPluginDirOnly,true);
+	if ( !pimenvvars.isEmpty() && !envvarsfnms.isPresent(pimenvvars.buf()) )
+	    loadEntries( pimenvvars.str() );
     }
 
     BufferString res = sEnvVarEntries().find( env );
@@ -829,9 +839,9 @@ mExtern(Basic) bool WriteEnvVar( const char* env, const char* val )
 
     Threads::Locker lock( getEnvVarLock() );
 
-    BufferString fnm( insysadmmode_
-	    ? GetSetupDataFileName(ODSetupLoc_SWDirOnly,"EnvVars",1)
-	    : GetSettingsFileName("envvars") );
+    const BufferString fnm( insysadmmode_
+			    ? GetSWSetupShareFileName( "EnvVars", true )
+			    : GetSettingsFileName( "envvars" ) );
     IOPar iop;
     loadEntries( fnm, &iop );
     iop.set( env, val );

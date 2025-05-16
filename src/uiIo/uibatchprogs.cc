@@ -21,7 +21,6 @@ ________________________________________________________________________
 #include "uitextfile.h"
 
 #include "ascstream.h"
-#include "dirlist.h"
 #include "envvars.h"
 #include "file.h"
 #include "genc.h"
@@ -103,27 +102,19 @@ public:
 
 BatchProgInfoList::BatchProgInfoList()
 {
-    const char* fromenv = GetEnvVar( "OD_BATCH_PROGRAMS_FILE" );
-    if ( fromenv && *fromenv )
-	getEntries( fromenv );
-    else
+    const BufferString fromenv = GetEnvVar( "OD_BATCH_PROGRAMS_FILE" );
+    if ( File::exists(fromenv.buf()) )
     {
-	const char* searchkey = "BatchPrograms*";
-
-	BufferString dirnm = mGetApplSetupDataDir();
-	if ( !dirnm.isEmpty() )
-	{
-	    const DirList dlsite( dirnm, File::DirListType::FilesInDir,
-				  searchkey );
-	    for ( int idx=0; idx<dlsite.size(); idx++ )
-		getEntries( dlsite.fullPath(idx) );
-	}
-
-	dirnm = mGetSWDirDataDir();
-	const DirList dlrel( dirnm, File::DirListType::FilesInDir, searchkey );
-	for ( int idx=0; idx<dlrel.size(); idx++ )
-	    getEntries( dlrel.fullPath(idx) );
+	getEntries( fromenv );
+	return;
     }
+
+    BufferStringSet batchprogfms;
+    if ( !GetSetupShareFileNames("BatchPrograms*",batchprogfms) )
+	return;
+
+    for ( const auto* fnm : batchprogfms )
+	getEntries( fnm->str() );
 }
 
 
@@ -301,7 +292,7 @@ void uiBatchProgLaunch::exButPush( CallBacker* )
     if ( bpi.exampleinput_.isEmpty() )
 	{ pErrMsg("In CB that shouldn't be called for entry"); return; }
 
-    BufferString sourceex( mGetSetupFileName(bpi.exampleinput_) );
+    BufferString sourceex( GetSetupShareFileName(bpi.exampleinput_) );
     if ( File::isEmpty(sourceex) )
 	{ pErrMsg("Installation problem"); return; }
 

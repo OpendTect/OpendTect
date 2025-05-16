@@ -58,7 +58,7 @@ public:
     TaskEntry*		getTaskEntry(GroupEntry*,const char*);
 
     const BufferString	swdir_;		//!< GetSoftwareDir()
-    const BufferString	asdir_;		//!< GetApplSetupDir()
+    const BufferString	asdir_;		//!< GetApplSetupDataDir()
     const bool		haveas_;	//!< Does asdir_ exist?
     const bool		swwritable_;	//!< Is swdir_ writable?
     const bool		aswritable_;	//!< Is asdir_ writable?

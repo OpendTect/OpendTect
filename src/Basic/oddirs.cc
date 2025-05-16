@@ -7,20 +7,23 @@ ________________________________________________________________________
 
 -*/
 
-#include "applicationdata.h"
-#include "genc.h"
 #include "oddirs.h"
-#include "envvars.h"
-#include "winutils.h"
+
+#include "applicationdata.h"
 #include "debug.h"
+#include "dirlist.h"
+#include "envvars.h"
+#include "genc.h"
 #include "file.h"
 #include "filepath.h"
+#include "od_istream.h"
 #include "plugins.h"
 #include "pythonaccess.h"
 #include "settings.h"
 #include "survinfo.h"
 #include "thread.h"
-#include "od_istream.h"
+#include "winutils.h"
+
 #include <iostream>
 #include <QStandardPaths>
 
@@ -45,7 +48,9 @@ static BufferString cur_survey_name;
 
 #define mPrDebug(fn,val) od_debug_message( BufferString(fn,": ",val) );
 
-static const char* sData = "data";
+static const char* sShare = "share";
+static const char* sDoc = "doc";
+static const char* sResources = "Resources";
 
 static BufferString sExportToDir;
 static BufferString sImportFromDir;
@@ -295,7 +300,7 @@ mExternC(Basic) const char* GetSoftwareDir( bool acceptnone )
 	    FilePath datapath( dtectappl );
 	    const int nrlevels = datapath.nrLevels();
 	    if ( __ismac__ )
-		datapath.add( "Resources" );
+		datapath.add( sResources );
 
 	    datapath.add( relinfostr );
 	    if ( datapath.exists() && File::isDirectory( datapath.fullPath() ) )
@@ -309,7 +314,7 @@ mExternC(Basic) const char* GetSoftwareDir( bool acceptnone )
 	    {
 		FilePath datapath( filepath.dirUpTo(idx).buf() );
 		if ( __ismac__ )
-		    datapath.add( "Resources" );
+		    datapath.add( sResources );
 
 		datapath.add( relinfostr );
 		if ( !datapath.exists() )
@@ -342,26 +347,76 @@ mExternC(Basic) const char* GetSoftwareDir( bool acceptnone )
 
 mExternC(Basic) bool isDeveloperBuild()
 {
-    static FilePath licfp( BufferString( GetSoftwareDir(false) ),
-			   __ismac__ ? ".." : "", "CMakeCache.txt" );
-    return licfp.exists();
+    static int ret = -1;
+    if ( ret < 0 )
+    {
+	FilePath fp( BufferString( GetSoftwareDir(false) ),
+				   __ismac__ ? ".." : "", "CMakeCache.txt" );
+	if ( fp.exists() )
+	{
+	    fp.setFileName( "CMakeFiles" );
+	    if ( File::isDirectory(fp.fullPath()) )
+	    {
+		fp.setFileName( "external" );
+		ret = File::isDirectory(fp.fullPath()) ? 1 : 0;
+	    }
+	    else
+		ret = 0;
+	}
+	else
+	    ret = 0;
+    }
+
+    return ret == 1;
 }
 
 
-mExternC(Basic) const char* GetApplSetupDir()
+mExternC(Basic) bool isDeveloperInstallation()
+{
+    static int ret = -1;
+    if ( ret < 0 )
+    {
+	if ( isDeveloperBuild() )
+	    ret = 0;
+	else
+	{
+	    const FilePath fp( BufferString( GetSoftwareDir(false) ),
+			       __ismac__ ? "Resources" : "", "CMakeModules" );
+	    ret = File::isDirectory( fp.fullPath() ) ? 1 : 0;
+	}
+    }
+
+    return ret == 1;
+}
+
+
+static const char* GetODProjectSourceDir()
+{
+    mDeclStaticString( ret );
+#ifdef __FILE__
+    if ( ret.isEmpty() )
+    {
+	const FilePath odsrcdir( __FILE__ );
+	ret = odsrcdir.dirUpTo( odsrcdir.nrLevels()-4 );
+    }
+#endif
+    return ret.buf();
+}
+
+
+static	const char* GetApplSetupDir_()
 {
     mDeclStaticString( bs );
     if ( bs.isEmpty() )
     {
+	if ( __iswin__ )
+	    bs = GetEnvVar( "DTECT_WINAPPL_SETUP" );
 
-#ifdef __win__
-	bs = GetEnvVar( "DTECT_WINAPPL_SETUP" );
-#endif
 	if ( bs.isEmpty() )
 	    bs = GetEnvVar( "DTECT_APPL_SETUP" );
-
     }
-    return bs.str();
+
+    return bs.buf();
 }
 
 
@@ -372,9 +427,9 @@ static const char* GetSoftwareDataDir( bool acceptnone )
 	return nullptr;
 
     if ( __ismac__ )
-	basedir.add( "Resources" );
+	basedir.add( sResources );
 
-    basedir.add( sData );
+    basedir.add( sShare );
 
     mDeclStaticString( dirnm );
     dirnm = basedir.fullPath();
@@ -389,9 +444,9 @@ static const char* GetUserPluginSoftwareDataDir()
 	return nullptr;
 
     if ( __ismac__ )
-	basedir.add( "Resources" );
+	basedir.add( sResources );
 
-    basedir.add( sData );
+    basedir.add( sShare );
 
     mDeclStaticString( dirnm );
     dirnm = basedir.fullPath();
@@ -399,103 +454,360 @@ static const char* GetUserPluginSoftwareDataDir()
 }
 
 
+namespace OD
+{
+
+const BufferStringSet& getCustomShareDirs()
+{
+    static PtrMan<BufferStringSet> ret = new BufferStringSet();
+    if ( ret->isEmpty() )
+    {
+	if ( isDeveloperBuild() )
+	{
+	    const FilePath fp( GetODProjectSourceDir(), sShare );
+	    ret->add( fp.fullPath() );
+	}
+	else
+	{ //old location, compatibility with external plugins
+	    const FilePath fp( GetSoftwareDir(true), "data" );
+	    ret->add( fp.fullPath() );
+	}
+    }
+
+    return *ret.ptr();
+}
+
+
+const BufferStringSet& getCustomDocDirs()
+{
+    static PtrMan<BufferStringSet> ret = new BufferStringSet();
+    if ( ret->isEmpty() )
+    {
+	if ( isDeveloperBuild() )
+	{
+	    const FilePath fp( GetODProjectSourceDir(), sDoc );
+	    ret->add( fp.fullPath() );
+	}
+	else
+	{ //old location, compatibility with external plugins
+	    const FilePath fp( GetSoftwareDir(true), sDoc );
+	    ret->add( fp.fullPath() );
+	}
+    }
+
+    return *ret.ptr();
+}
+
+} // namespace OD
+
+
+mExternC(Basic) bool addCustomShareFolder( const char* path )
+{
+    if ( !File::isDirectory(path) )
+	return false;
+
+    auto& customsharedirs =
+		    const_cast<BufferStringSet&>( OD::getCustomShareDirs() );
+    return customsharedirs.addIfNew( path );
+}
+
+
 mExternC(Basic) const char* GetSetupDataFileDir( ODSetupLocType lt,
 						 bool acceptnone )
 {
-
-    if ( lt>ODSetupLoc_ApplSetupPref )
+    FilePath fp;
+    if ( lt == ODSetupLoc_ApplSetupOnly || lt == ODSetupLoc_SWDirOnly ||
+	 lt == ODSetupLoc_UserPluginDirOnly )
     {
-	const char* res = lt == ODSetupLoc_UserPluginDirOnly
-			? GetUserPluginSoftwareDataDir()
-			: GetSoftwareDataDir( acceptnone ||
-					lt==ODSetupLoc_ApplSetupPref );
-	if ( res || lt==ODSetupLoc_SWDirOnly )
-	    return res;
+	if ( lt == ODSetupLoc_ApplSetupOnly )
+	    fp.set( GetApplSetupDir_() );
+	else if ( lt == ODSetupLoc_SWDirOnly )
+	    fp.set( GetSoftwareDataDir(acceptnone) );
+	else if ( lt == ODSetupLoc_UserPluginDirOnly )
+	    fp.set( GetUserPluginSoftwareDataDir() );
+    }
+    else
+    {
+	if ( lt == ODSetupLoc_ApplSetupPref )
+	    fp.set( GetApplSetupDir_() );
+	else if ( lt == ODSetupLoc_SWDirPref )
+	    fp.set( GetSoftwareDataDir(true) );
+
+	if ( !fp.exists() )
+	{
+	    if ( lt == ODSetupLoc_ApplSetupPref )
+		fp.set( GetSoftwareDataDir(true) );
+	    else if ( lt == ODSetupLoc_SWDirPref )
+		fp.set( GetApplSetupDir_() );
+
+	    if ( !fp.exists() )
+		fp.set( GetUserPluginSoftwareDataDir() );
+
+	    if ( !fp.exists() )
+		fp.set( nullptr );
+	}
     }
 
-    FilePath basedir = GetApplSetupDir();
-
-    if ( basedir.isEmpty() )
-    {
-	if ( lt==ODSetupLoc_ApplSetupOnly )
-	    return nullptr;
-
-	return GetSoftwareDataDir( acceptnone );
-    }
-
-    basedir.add( sData );
     mDeclStaticString( dirnm );
-    dirnm = basedir.fullPath();
+    dirnm = fp.fullPath();
     return dirnm.buf();
 }
 
 
-mExternC(Basic) const char* GetSetupDataFileName( ODSetupLocType lt,
-				const char* fnm, bool acceptnone )
+mExternC(Basic) const char* GetSWDirDataDir()
 {
-    mDeclStaticString( filenm );
-
-    if ( lt == ODSetupLoc_SWDirOnly || lt == ODSetupLoc_UserPluginDirOnly )
-    {
-	filenm = FilePath(GetSetupDataFileDir(lt,acceptnone),fnm).fullPath();
-	return filenm.buf();
-    }
-
-    const char* appldir =
-		GetSetupDataFileDir(ODSetupLoc_ApplSetupOnly,acceptnone);
-    if ( !appldir )
-	return lt == ODSetupLoc_ApplSetupOnly
-	 ? nullptr
-	 : ( lt == ODSetupLoc_UserPluginDirOnly
-	     ? GetSetupDataFileName(ODSetupLoc_UserPluginDirOnly,fnm,acceptnone)
-	     : GetSetupDataFileName(ODSetupLoc_SWDirOnly,fnm,acceptnone) );
-
-    filenm = FilePath(GetSetupDataFileDir(lt,acceptnone),fnm).fullPath();
-
-    if ( (lt == ODSetupLoc_ApplSetupPref || lt == ODSetupLoc_SWDirPref)
-	&& !File::exists(filenm) )
-    {
-	/* try 'other' file */
-	GetSetupDataFileName( lt == ODSetupLoc_ApplSetupPref
-		? ODSetupLoc_SWDirOnly : ODSetupLoc_ApplSetupOnly, fnm,
-				acceptnone );
-	if ( File::exists(filenm) )
-	    return filenm.buf();
-
-	/* 'other' file also doesn't exist: revert */
-	GetSetupDataFileName( lt == ODSetupLoc_ApplSetupPref
-		? ODSetupLoc_ApplSetupOnly : ODSetupLoc_SWDirOnly, fnm,
-				acceptnone );
-    }
-
-    return filenm.buf();
+    return GetSetupDataFileDir( ODSetupLoc_SWDirOnly, false );
 }
 
 
-mExternC(Basic) const char* GetDocDir()
+mExternC(Basic) const char* GetApplSetupDataDir()
 {
-    mDeclStaticString( docdirnm );
-    if ( docdirnm.isEmpty() )
-    {
-	FilePath fp( GetSoftwareDir(false) );
-	if ( __ismac__ )
-	    fp.add( "Resources" );
+    return GetSetupDataFileDir( ODSetupLoc_ApplSetupOnly, true );
+}
 
-	fp.add( "doc" );
-	docdirnm = fp.fullPath();
+
+mExternC(Basic) const char* GetUserPluginDataDir()
+{
+    return GetSetupDataFileDir( ODSetupLoc_ApplSetupOnly, true );
+}
+
+
+mExternC(Basic) const char* GetSetupShareFileName( const char* fnm,
+					  ODSetupLocType lt, bool acceptnone )
+{
+    acceptnone = acceptnone || lt != ODSetupLoc_SWDirOnly;
+    mDeclStaticString( ret );
+    FilePath fp;
+    if ( lt == ODSetupLoc_ApplSetupOnly || lt == ODSetupLoc_SWDirOnly ||
+	 lt == ODSetupLoc_UserPluginDirOnly )
+    {
+	fp.set( GetSetupDataFileDir(lt,acceptnone) ).add(fnm );
+    }
+    else
+    {
+	if ( lt == ODSetupLoc_ApplSetupPref )
+	    fp.set( GetSetupDataFileDir(ODSetupLoc_ApplSetupOnly,acceptnone) );
+	else if ( lt == ODSetupLoc_SWDirPref )
+	    fp.set( GetSetupDataFileDir(ODSetupLoc_SWDirOnly,acceptnone) );
+
+	fp.add( fnm );
+	if ( !fp.exists() )
+	{
+	    if ( lt == ODSetupLoc_ApplSetupPref )
+		fp.set( GetSetupDataFileDir(ODSetupLoc_SWDirOnly,
+					    acceptnone) );
+	    else if ( lt == ODSetupLoc_SWDirPref )
+		fp.set( GetSetupDataFileDir(ODSetupLoc_ApplSetupOnly,
+					    acceptnone) );
+	    fp.add( fnm );
+	    if ( !fp.exists() )
+	    {
+		fp.set( GetSetupDataFileDir(ODSetupLoc_UserPluginDirOnly,
+					    acceptnone) ).add( fnm );
+		if ( !fp.exists() )
+		    fp.set( nullptr );
+	    }
+	}
     }
 
-    return docdirnm;
+    if ( fp.exists() )
+	ret = fp.fullPath();
+    else
+    {
+	ret.setEmpty();
+	if ( lt == ODSetupLoc_SWDirPref || lt == ODSetupLoc_SWDirOnly )
+	{
+	    for ( const auto* dir : OD::getCustomShareDirs() )
+	    {
+		fp.set( dir->str() ).add( fnm );
+		if ( !fp.exists() )
+		    continue;
+
+		ret = fp.fullPath();
+		break;
+	    }
+	}
+    }
+
+    if ( ret.isEmpty() && !acceptnone )
+    {
+	const BufferString msg( "Cannot find configuration file '", fnm,
+				"' in the share folder(s) " );
+	pFreeFnErrMsg( msg.str() );
+    }
+
+    return ret.buf();
+}
+
+
+mExternC(Basic) const char* GetSWSetupShareFileName( const char* fnm,
+						     bool acceptnone )
+{
+    return GetSetupShareFileName( fnm, ODSetupLoc_SWDirOnly, acceptnone );
+}
+
+
+static bool GetSetupShareFileNames( const char* searchkey,
+				    File::DirListType dltype,
+				    BufferStringSet& ret, bool acceptnone )
+{
+    BufferStringSet sharedirnms;
+    BufferString sharedirnm =
+			GetSetupDataFileDir( ODSetupLoc_ApplSetupOnly, true );
+    if ( File::isDirectory(sharedirnm.buf()) )
+	sharedirnms.addIfNew( sharedirnm.str() );
+
+    sharedirnm = GetSetupDataFileDir( ODSetupLoc_SWDirOnly, true );
+    if ( File::isDirectory(sharedirnm.buf()) )
+	sharedirnms.addIfNew( sharedirnm.str() );
+
+    sharedirnm = GetSetupDataFileDir( ODSetupLoc_UserPluginDirOnly, true );
+    if ( File::isDirectory(sharedirnm.buf()) )
+	sharedirnms.addIfNew( sharedirnm.str() );
+
+    for ( const auto* dir : OD::getCustomShareDirs() )
+	sharedirnms.addIfNew( dir->str() );
+
+    for ( const auto* dirnm : sharedirnms )
+    {
+	const DirList dl( dirnm->str(), dltype, searchkey );
+	for ( int idx=0; idx<dl.size(); idx++ )
+	{
+	    const BufferString filenm = dl.fullPath( idx );
+	    ret.addIfNew( filenm.str() );
+	}
+    }
+
+    if ( ret.isEmpty() && !acceptnone )
+    {
+	BufferString msg( "Cannot find any matching '", searchkey,
+			  "' " );
+	msg.add( dltype == File::DirListType::FilesInDir
+			? "file(s)" : "folder(s)" )
+	   .add( " in the share folder(s)" );
+	pFreeFnErrMsg( msg.str() );
+    }
+
+    return !ret.isEmpty();
+}
+
+
+mExternC(Basic) bool GetSetupShareFileNames( const char* searchkey,
+					     BufferStringSet& ret,
+					     bool acceptnone )
+{
+    return GetSetupShareFileNames( searchkey,File::DirListType::FilesInDir, ret,
+				   acceptnone );
+}
+
+
+mExternC(Basic) bool GetSetupShareDirNames( const char* searchkey,
+					    BufferStringSet& ret,
+					    bool acceptnone )
+{
+    return GetSetupShareFileNames( searchkey,File::DirListType::DirsInDir, ret,
+				   acceptnone );
+}
+
+
+mExternC(Basic) const char* GetSetupShareFileInDir( const char* subdir,
+						    const char* filenm,
+						    bool acceptnone )
+{
+    mDeclStaticString( ret );
+    ret.setEmpty();
+
+    BufferStringSet dirnms;
+    if ( GetSetupShareDirNames(subdir,dirnms,acceptnone) )
+    {
+	for ( const auto* dirnm : dirnms )
+	{
+	    const FilePath fp( dirnm->str(), filenm );
+	    if ( !fp.exists() )
+		continue;
+
+	    ret = fp.fullPath();
+	    break;
+	}
+    }
+
+    if ( ret.isEmpty() && !acceptnone )
+    {
+	BufferString msg( "Cannot find configuration file '", filenm,
+			  "' in the subdir '");
+	msg.add( subdir ).add( "' share folder(s)" );
+	pFreeFnErrMsg( msg.str() );
+    }
+
+    return ret.buf();
+}
+
+mExternC(Basic) bool GetSetupShareFilesInDir( const char* subdir,
+					      const char* searchkey,
+					      BufferStringSet& ret,
+					      bool acceptnone )
+{
+    BufferStringSet dirnms;
+    if ( GetSetupShareDirNames(subdir,dirnms,acceptnone) )
+    {
+	const File::DirListType dltyp = File::DirListType::FilesInDir;
+	for ( const auto* dirnm : dirnms )
+	{
+	    const DirList dl( dirnm->str(), dltyp, searchkey );
+	    for ( int idx=0; idx<dl.size(); idx++ )
+	    {
+		const BufferString filenm = dl.fullPath( idx );
+		ret.addIfNew( filenm.str() );
+	    }
+	}
+    }
+
+    if ( ret.isEmpty() && !acceptnone )
+    {
+	BufferString msg( "Cannot find any matching '", searchkey,
+			  "' files in the subdir '" );
+	msg.add( subdir ).add( "' of the share folder(s)" );
+	pFreeFnErrMsg( msg.str() );
+    }
+
+    return !ret.isEmpty();
+}
+
+
+mExternC(Basic) bool addCustomDocFolder( const char* path )
+{
+    if ( !File::isDirectory(path) )
+	return false;
+
+    auto& customdocdirs =
+		    const_cast<BufferStringSet&>( OD::getCustomDocDirs() );
+    return customdocdirs.addIfNew( path );
 }
 
 
 mExternC(Basic) const char* GetDocFileDir( const char* file_or_dir )
 {
-    mDeclStaticString( res );
+    mDeclStaticString( dirnm );
+    FilePath fp( GetSoftwareDir(false) );
+    if ( __ismac__ )
+	fp.add( sResources );
 
-    FilePath fp( GetDocDir(), file_or_dir );
-    res = fp.fullPath();
-    return res;
+    fp.add( sDoc ).add( file_or_dir );
+    dirnm = fp.fullPath();
+    if ( !File::exists(dirnm.buf()) )
+    {
+	for ( const auto* dir : OD::getCustomDocDirs() )
+	{
+	    fp.set( dir->str() ).add( file_or_dir );
+	    if ( !fp.exists() )
+		continue;
+
+	    dirnm = fp.fullPath();
+	    break;
+	}
+    }
+
+    return dirnm.buf();
 }
 
 
@@ -558,7 +870,7 @@ mExternC(Basic) const char* GetScriptDir()
     {
 	FilePath fp( GetSoftwareDir(false) );
 	if ( __ismac__ )
-	    fp.add( "Resources" );
+	    fp.add( sResources );
 
 	fp.add( "bin" );
 	res = fp.fullPath();
@@ -579,18 +891,15 @@ static const char* gtExecScript( const char* basedir, int remote )
 
 mExternC(Basic) const char* GetExecScript( int remote )
 {
-
 #ifdef __msvc__
-    return "";
+    return nullptr;
 #else
 
-    const char* basedir = GetApplSetupDir();
-    const char* fnm = nullptr;
-    if ( basedir )
-	fnm = gtExecScript( basedir, remote );
-
-    if ( !fnm || !File::exists(fnm) )
-	fnm = gtExecScript( GetSoftwareDir(false), remote );
+    const BufferString basedir =
+			GetSetupDataFileDir( ODSetupLoc_ApplSetupPref, false );
+    BufferString fnm;
+    if ( File::exists(basedir.buf()) )
+	fnm = gtExecScript( basedir.str(), remote );
 
     mDeclStaticString( progname );
     progname.set( "'" ).add( fnm ).add( "' " );
@@ -933,4 +1242,19 @@ mExternC(Basic) void ResetDefaultDirs()
     sImportFromDir.setEmpty();
     sExportToDir.setEmpty();
     sPicturesDir.setEmpty();
+}
+
+
+// Deprecated implementations
+
+mExternC(Basic) const char* GetApplSetupDir()
+{
+    return GetApplSetupDir_();
+}
+
+
+mExternC(Basic) const char* GetSetupDataFileName( ODSetupLocType lt,
+				const char* fnm, bool acceptnone )
+{
+    return GetSetupShareFileName( fnm, lt, acceptnone );
 }

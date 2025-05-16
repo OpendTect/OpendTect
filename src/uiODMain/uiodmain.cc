@@ -228,8 +228,9 @@ int ODMain( uiMain& app )
     }
 
     SetProgramRestarter( ODMainProgramRestarter );
-    const uiPixmap pm( "../splash" );
-    PtrMan<uiSplashScreen> splash = new uiSplashScreen( pm );
+    const BufferString pmfnm = GetSWSetupShareFileName( "splash.png" );
+    const uiPixmap pixmap( pmfnm.buf() );
+    PtrMan<uiSplashScreen> splash = new uiSplashScreen( pixmap );
     splash->show();
     splash->showMessage( "Loading plugins ..." );
 

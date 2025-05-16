@@ -225,6 +225,7 @@ public:
     Notifier<uiMainWin> activatedone;
     Notifier<uiMainWin> ctrlCPressed;
     Notifier<uiMainWin> afterPopup;
+    static Notifier<uiMainWin>& iconSetChanged();
     void		copyToClipBoard();
 
     Notifier<uiMainWin> runScriptRequest;

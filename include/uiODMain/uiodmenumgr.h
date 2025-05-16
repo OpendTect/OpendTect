@@ -194,8 +194,7 @@ protected:
     void		showLogFile();
     void		showFirewallProcDlg();
     void		mkViewIconsMnu();
-    void		addIconMnuItems(const DirList&,uiMenu*,
-					BufferStringSet&);
+    void		addIconMnuItems(const BufferStringSet&,uiMenu*);
 
 public:
     void		createFaultToolMan();

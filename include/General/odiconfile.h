@@ -62,7 +62,7 @@ public:
 
     typedef OD::StdActionType StdActionType;
 
-			IconFile(const char* identifier=0);
+			IconFile(const char* identifier=nullptr);
 			IconFile(StdActionType);
 
     void		set(const char* identifier);
@@ -74,6 +74,7 @@ public:
     bool		haveData() const	{ return !nms_.isEmpty(); }
     const BufferStringSet& fileNames() const	{ return nms_; }
 
+    static void		getIconSubFolderNames(BufferStringSet&);
     static const char*	notFoundIconFileName();
     static const char*	getIconSubFolderName();
     static const char*	getDefaultIconSubFolderName();
@@ -87,6 +88,9 @@ protected:
 private:
 
     void		init(const char*);
+
+public:
+    static void		reInit();
 
 };
 

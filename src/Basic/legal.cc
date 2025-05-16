@@ -29,12 +29,12 @@ static PtrMan< ::Factory<uiString> > inst;
 
 uiString* legalText( const char* libnm_or_legaltxtpath )
 {
-    uiString* res = new uiString;
+    auto* res = new uiString;
     FilePath fp( libnm_or_legaltxtpath );
     if ( !fp.exists() ) // it's a libnm only. Look in default location
     {
-	fp.set( mGetSWDirDataDir() )
-	  .add( "Legal" ).add( libnm_or_legaltxtpath ).add( "LICENSE.txt" );
+	fp.set( GetSetupShareFileInDir("Legal",libnm_or_legaltxtpath,true) )
+	  .add( "LICENSE.txt" );
 	if ( !fp.exists() )
 	    return res;
     }

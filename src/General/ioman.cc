@@ -192,7 +192,8 @@ uiRetVal IOMan::init( SurveyInfo* nwsi )
 	    return tr("Warning: Invalid '.omf' found in:\n%1.\n"
 		      "This survey is corrupt.").arg( rootdirnm.str() );
 
-        FilePath basicfp( mGetSetupFileName(SurveyInfo::sKeyBasicSurveyName()),
+	FilePath basicfp(
+		GetSWSetupShareFileName(SurveyInfo::sKeyBasicSurveyName()),
 			  ".omf" );
         File::copy( basicfp.fullPath(),surveyfp.fullPath() );
 	if ( !to(MultiID::udf(),true) )
@@ -229,7 +230,8 @@ uiRetVal IOMan::init( SurveyInfo* nwsi )
 
 	// Oops, a data directory required is missing
 	// We'll try to recover by using the 'Basic Survey' in the app
-	FilePath basicfp( mGetSetupFileName(SurveyInfo::sKeyBasicSurveyName()),
+	FilePath basicfp(
+		    GetSWSetupShareFileName(SurveyInfo::sKeyBasicSurveyName()),
 			  "X" );
 	basicfp.setFileName( dd->dirnm_ );
 	if ( !basicfp.exists() )
@@ -1949,7 +1951,7 @@ uiRetVal IOMan::isValidDataRoot( const char* basedatadir )
 
 bool IOMan::prepareDataRoot( const char* dirnm )
 {
-    const BufferString stdomf( mGetSetupFileName("omf") );
+    const BufferString stdomf( GetSWSetupShareFileName("omf") );
     const BufferString datarootomf = FilePath( dirnm ).add( ".omf" ).fullPath();
     if ( !File::copy(stdomf,datarootomf) )
        return false;

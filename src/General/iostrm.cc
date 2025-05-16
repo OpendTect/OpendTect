@@ -42,7 +42,7 @@ static void getFullSpecFileName( BufferString& fnm, BufferString* specfnm )
     else if ( dirnm == "DTECT_APPL" )
 	dirnm = GetSoftwareDir(true);
     else if ( dirnm == "DTECT_APPL_SETUP" )
-	dirnm = GetApplSetupDir();
+	dirnm = GetApplSetupDataDir();
     else if ( dirnm == "DTECT_SETTINGS" )
 	dirnm = GetSettingsDir();
     else

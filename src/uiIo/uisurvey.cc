@@ -530,7 +530,8 @@ bool uiSurvey::rootDirWritable() const
 static void copyFolderIconIfMissing( const char* basedir, const char* survdir )
 {
     const FilePath survfp( basedir, survdir );
-    const FilePath fp( mGetSWDirDataDir(), SurveyInfo::sKeyBasicSurveyName() );
+    const FilePath fp(
+		GetSWSetupShareFileName(SurveyInfo::sKeyBasicSurveyName()) );
     FilePath dest( survfp, "desktop.ini" );
     if ( !dest.exists() )
     {
@@ -767,7 +768,8 @@ void uiSurvey::newButPushed( CallBacker* )
     if ( !rootDirWritable() )
 	return;
 
-    const FilePath fp( mGetSWDirDataDir(), SurveyInfo::sKeyBasicSurveyName());
+    const FilePath fp(
+		GetSWSetupShareFileName(SurveyInfo::sKeyBasicSurveyName()) );
     PtrMan<SurveyInfo> newsurvinfo =
 				    SurveyInfo::readDirectory( fp.fullPath() );
     if ( !newsurvinfo )
@@ -786,8 +788,8 @@ void uiSurvey::newButPushed( CallBacker* )
     const BufferString storagedir = FilePath( dataroot_ ).add( orgdirname )
 							    .fullPath();
     if ( !uiSurveyInfoEditor::copySurv(
-		mGetSetupFileName(SurveyInfo::sKeyBasicSurveyName()),0,
-				  dataroot_,orgdirname) )
+		GetSWSetupShareFileName(SurveyInfo::sKeyBasicSurveyName()),
+		nullptr,dataroot_,orgdirname) )
 	mErrRetVoid( tr("Cannot make a copy of the default survey") );
 
     setCurrentSurvInfo( newsurvinfo.release(), false );
