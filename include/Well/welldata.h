@@ -62,13 +62,17 @@ public:
     void		fillPar(IOPar&) const;
     void		usePar(const IOPar&);
 
-    BufferString	uwid_;
-    BufferString	oper_;
-    BufferString	field_;
-    BufferString	county_;
-    BufferString	state_;
-    BufferString	province_;
-    BufferString	country_;
+    BufferString	uwid_;		// UWI
+    BufferString	api_;		// API
+    BufferString	oper_;		// SRVC - Service Company
+    BufferString	field_;		// FLD - Field
+    BufferString	county_;	// CNTY - County
+    BufferString	state_;		// STAT - State
+    BufferString	province_;	// PROV - Province
+    BufferString	country_;	// CTRY - Country
+    BufferString	company_;	// COMP - Company
+    BufferString	license_;	// LIC - License number
+    BufferString	date_;		// DATE
     BufferString	source_; //!< filename for OD storage
     OD::WellType	welltype_		= OD::UnknownWellType;
 
@@ -80,12 +84,15 @@ public:
     static const char*	sKeyDepthUnit();
     static const char*	sKeyDepthType();
     static const char*	sKeyUwid();
+    static const char*	sKeyAPI();
     static const char*	sKeyOper();
     static const char*	sKeyField();
     static const char*	sKeyCounty();
     static const char*	sKeyState();
     static const char*	sKeyProvince();
     static const char*	sKeyCountry();
+    static const char*	sKeyCompany();
+    static const char*	sKeyLicense();
     static const char*	sKeyCoord();
     static const char*	sKeyKBElev();
     static const char*	sKeyTD();
@@ -99,12 +106,15 @@ public:
     static int		legacyLogWidthFactor();
 
     static uiString	sUwid();
+    static uiString	sAPI();
     static uiString	sOper();
     static uiString	sField();
     static uiString	sCounty();
     static uiString	sState();
     static uiString	sProvince();
     static uiString	sCountry();
+    static uiString	sCompany();
+    static uiString	sLicense();
     static uiString	sCoord();
     static uiString	sKBElev();
     static uiString	sTD();

@@ -171,7 +171,7 @@ uiString Well::LASImporter::getLogInfo( od_istream& strm,
 	    {
 		BufferString curve( keyw );
 		BufferString lognm( info );
-		if ( *lognm.buf() >= '0' && *lognm.buf() <= '9' )
+		if ( isDigit(lognm.first()) )
 		{
 		    // Leading curve number. Remove it.
 		    BufferString newnm( lognm );
@@ -239,7 +239,6 @@ uiString Well::LASImporter::getLogInfo( od_istream& strm,
 		lfi.kbelev_ = toDouble(val2);
 	    if ( mIsKey("EGL") )
 		lfi.glelev_ = toDouble(val2);
-	    // TODO: Country and State are two different things. Need to split
 	    if ( mIsKey("CTRY") && lfi.country_.isEmpty() && hasval1 )
 	    {
 		lfi.country_ = val1;
@@ -272,14 +271,37 @@ uiString Well::LASImporter::getLogInfo( od_istream& strm,
 		if ( hasval2 )
 		    lfi.uwi_.addSpace().add( val2 );
 	    }
-	    if ( mIsKey("API") && lfi.uwi_.isEmpty() )
-		lfi.uwi_ = val1;
+	    if ( mIsKey("API") )
+	    {
+		lfi.api_ = val1;
+		if ( hasval2 )
+		    lfi.api_.addSpace().add( val2 );
+	    }
 	    if ( mIsKey("SRVC") )
 	    {
 		lfi.srvc_ = val1;
 		if ( hasval2 )
 		    lfi.srvc_.addSpace().add( val2 );
 	    }
+	    if ( mIsKey("LIC") )
+	    {
+		lfi.license_ = val1;
+		if ( hasval2 )
+		    lfi.license_.addSpace().add( val2 );
+	    }
+	    if ( mIsKey("FLD") )
+	    {
+		lfi.field_ = val1;
+		if ( hasval2 )
+		    lfi.field_.addSpace().add( val2 );
+	    }
+	    if ( mIsKey("DATE") )
+	    {
+		lfi.date_ = val1;
+		if ( hasval2 )
+		    lfi.date_.addSpace().add( val2 );
+	    }
+
 	    if ( mIsKey("XCOORD") || mIsKey("XWELL") || mIsKey("X") )
 	    {
 		// TODO: use UOM
@@ -486,12 +508,16 @@ void Well::LASImporter::copyInfo( const FileInfo& inf, bool& changed )
 
     Well::Info& winf = wd_->info();
     update( inf.uwi_, winf.uwid_, changed );
+    update( inf.api_, winf.api_, changed );
     update( inf.field_, winf.field_, changed );
     update( inf.county_, winf.county_, changed );
     update( inf.state_, winf.state_, changed );
     update( inf.province_, winf.province_, changed );
     update( inf.country_, winf.country_, changed );
     update( inf.srvc_, winf.oper_, changed );
+    update( inf.comp_, winf.company_, changed );
+    update( inf.license_, winf.license_, changed );
+    update( inf.date_, winf.date_, changed );
 
     if ( !mIsUdf(inf.glelev_) && !mIsZero(inf.glelev_,1e-2f) &&
 	  mIsUdf(winf.groundelev_) )

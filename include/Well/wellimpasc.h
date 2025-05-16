@@ -9,15 +9,16 @@ ________________________________________________________________________
 -*/
 
 #include "wellmod.h"
+#include "tableascio.h"
 
 #include "bufstringset.h"
 #include "coord.h"
-#include "ranges.h"
-#include "tableascio.h"
-#include "typeset.h"
 #include "od_iosfwd.h"
+#include "ranges.h"
+#include "typeset.h"
 #include "uistring.h"
 #include "welldata.h"
+
 
 namespace Table { class FormatDesc; }
 class UnitOfMeasure;
@@ -67,7 +68,10 @@ public:
 	BufferString	province_;
 	BufferString	country_;
 	BufferString	srvc_;
+	BufferString	date_;
+	BufferString	license_;
 	BufferString	uwi_;
+	BufferString	api_;
 	Coord		loc_			= Coord::udf();
 	LatLong		ll_;
 	double		kbelev_			= mUdf(double);

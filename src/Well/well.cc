@@ -29,12 +29,15 @@ ________________________________________________________________________
 const char* Well::Info::sKeyDepthUnit() { return sKey::DepthUnit(); }
 const char* Well::Info::sKeyDepthType() { return "Depth type"; }
 const char* Well::Info::sKeyUwid()	{ return "Unique Well ID"; }
+const char* Well::Info::sKeyAPI()	{ return "API"; }
 const char* Well::Info::sKeyOper()	{ return "Operator"; }
 const char* Well::Info::sKeyField()	{ return "Field"; }
 const char* Well::Info::sKeyCounty()	{ return "County"; }
 const char* Well::Info::sKeyState()	{ return "State"; }
 const char* Well::Info::sKeyProvince()	{ return "Province"; }
 const char* Well::Info::sKeyCountry()	{ return "Country"; }
+const char* Well::Info::sKeyCompany()	{ return "Company"; }
+const char* Well::Info::sKeyLicense()	{ return "License"; }
 const char* Well::Info::sKeyCoord()	{ return "Surface coordinate"; }
 const char* Well::Info::sKeyWellType()	{ return "WellType"; }
 const char* Well::Info::sKeyTD()	{ return "Total Depth [TD]"; }
@@ -52,12 +55,15 @@ const char* Well::Info::sKeyMarkerDepth()
 
 // Strings for GUI
 uiString Well::Info::sUwid()		{ return tr("Unique Well ID"); }
+uiString Well::Info::sAPI()		{ return tr("API"); }
 uiString Well::Info::sOper()		{ return tr("Operator"); }
 uiString Well::Info::sField()		{ return tr("Field"); }
 uiString Well::Info::sCounty()		{ return tr("County"); }
 uiString Well::Info::sState()		{ return tr("State"); }
 uiString Well::Info::sProvince()	{ return tr("Province"); }
 uiString Well::Info::sCountry()		{ return tr("Country"); }
+uiString Well::Info::sCompany()		{ return tr("Company"); }
+uiString Well::Info::sLicense()		{ return tr("License"); }
 uiString Well::Info::sCoord()		{ return tr("Surface coordinate"); }
 uiString Well::Info::sKBElev()
 	{ return tr("Reference Datum Elevation [KB]"); }
@@ -925,12 +931,15 @@ void Well::Info::fillPar( IOPar& par ) const
 {
     par.set( mName, name() );
     par.set( sKeyUwid(), uwid_ );
+    par.set( sKeyAPI(), api_ );
     par.set( sKeyOper(), oper_ );
     par.set( sKeyField(), field_ );
     par.set( sKeyCounty(), county_ );
     par.set( sKeyState(), state_ );
     par.set( sKeyProvince(), province_ );
     par.set( sKeyCountry(), country_ );
+    par.set( sKeyCompany(), company_ );
+    par.set( sKeyLicense(), license_ );
     par.set( sKeyWellType(), welltype_ );
 
     par.set( sKeyCoord(), surfacecoord_.toString() );
@@ -945,12 +954,15 @@ void Well::Info::usePar( const IOPar& par )
 {
     setName( par.find(mName) );
     par.get( sKeyUwid(), uwid_ );
+    par.get( sKeyAPI(), api_ );
     par.get( sKeyOper(), oper_ );
     par.get( sKeyField(), field_ );
     par.get( sKeyCounty(), county_ );
     par.get( sKeyState(), state_ );
     par.get( sKeyProvince(), province_ );
     par.get( sKeyCountry(), country_ );
+    par.get( sKeyCompany(), company_ );
+    par.get( sKeyLicense(), license_ );
 
     int welltype = 0;
     par.get( sKeyWellType(), welltype ); welltype_ = (OD::WellType)welltype;
