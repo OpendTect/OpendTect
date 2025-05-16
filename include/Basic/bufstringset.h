@@ -82,7 +82,8 @@ public:
     BufferStringSet&	addWordsFrom(const char*);
 
     idx_type		nearestMatch(const char*,
-			    OD::CaseSensitivity cs=OD::CaseInsensitive) const;
+				OD::CaseSensitivity cs=OD::CaseInsensitive,
+				unsigned int* distance=nullptr) const;
     idx_type		nearestMatch(const char*,bool caseinsens) const;
     TypeSet<idx_type>	getMatches(const char* globexpr,
 			    OD::CaseSensitivity cs=OD::CaseInsensitive) const;

@@ -820,7 +820,8 @@ idx_type BufferStringSet::nearestMatch( const char* str, bool caseinsens ) const
 
 
 idx_type BufferStringSet::nearestMatch( const char* str,
-					OD::CaseSensitivity cs ) const
+					OD::CaseSensitivity cs,
+					unsigned int* distance ) const
 {
     const size_type sz = size();
     if ( sz < 2 )
@@ -862,6 +863,9 @@ idx_type BufferStringSet::nearestMatch( const char* str,
 	if ( idx == 0 || curdist < mindist  )
 	    { mindist = curdist; minidx = myidx; }
     }
+
+    if ( distance )
+	*distance = mindist;
 
     return minidx;
 }
