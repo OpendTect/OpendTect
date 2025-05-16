@@ -14,6 +14,7 @@ ________________________________________________________________________
 #include "uifontsel.h"
 #include "uigridder2d.h"
 #include "uiinterpollayermodel.h"
+#include "uimainwin.h"
 #include "uiraytrace1d.h"
 #include "uirefltrace1d.h"
 
@@ -30,29 +31,26 @@ ________________________________________________________________________
 namespace OD
 {
 
-static void addODIconFolders()
+static void addODIconFolders( CallBacker* )
 {
     const StringView icsetnm( IconFile::getIconSubFolderName() );
-    const BufferString icdirnm = mGetSetupFileName( icsetnm.buf() );
-    addIconsFolder( icdirnm.buf() );
-
-    const BufferString pluginsicdirnm =
-	    GetSetupDataFileName( ODSetupLoc_UserPluginDirOnly, icsetnm, true );
-    if ( pluginsicdirnm != icdirnm )
-	addIconsFolder( pluginsicdirnm.buf() );
+    BufferStringSet icondirnms;
+    if ( GetSetupShareDirNames(icsetnm.buf(),icondirnms,true) )
+    {
+	for ( const auto* dirnm : icondirnms )
+	    addIconsFolder( dirnm->str() );
+    }
 
     const StringView deficsetnm( IconFile::getDefaultIconSubFolderName() );
     if ( deficsetnm == icsetnm )
 	return;
 
-    const BufferString deficdirnm = mGetSetupFileName( deficsetnm.buf() );
-    addIconsFolder( deficdirnm.buf() );
-
-    const BufferString pluginsdeficdirnm =
-			GetSetupDataFileName( ODSetupLoc_UserPluginDirOnly,
-					      deficsetnm.buf(), true );
-    if ( pluginsdeficdirnm != deficdirnm )
-	addIconsFolder( pluginsdeficdirnm.buf() );
+    icondirnms.setEmpty();
+    if ( GetSetupShareDirNames(deficsetnm.buf(),icondirnms) )
+    {
+	for ( const auto* dirnm : icondirnms )
+	    addIconsFolder( dirnm->str() );
+    }
 }
 
 } // namespace OD
@@ -75,7 +73,8 @@ mDefModInitFn(uiTools)
     uiGeneralSettingsGroup::initClass();
     uiVisSettingsGroup::initClass();
     uiFontSettingsGroup::initClass();
-    OD::addODIconFolders();
+    OD::addODIconFolders( nullptr );
+    uiMainWin::iconSetChanged().notify( mSCB(OD::addODIconFolders) );
 
     if ( !NeedDataBase() )
 	return;

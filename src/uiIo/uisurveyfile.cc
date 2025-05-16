@@ -59,7 +59,8 @@ bool uiSurveyFile::newFile()
 	return false;
     }
 
-    const FilePath fp( mGetSWDirDataDir(), SurveyInfo::sKeyBasicSurveyName() );
+    const FilePath fp(
+		GetSWSetupShareFileName(SurveyInfo::sKeyBasicSurveyName()) );
     PtrMan<SurveyInfo> newsurvinfo =
 			    SurveyInfo::readDirectory( fp.fullPath() );
     if ( !newsurvinfo )
@@ -79,8 +80,8 @@ bool uiSurveyFile::newFile()
 
     const BufferString orgdirname = newsurvinfo->getDirName().buf();
     if ( !uiSurveyInfoEditor::copySurv(
-	mGetSetupFileName(SurveyInfo::sKeyBasicSurveyName()), 0, dataroot,
-								   orgdirname) )
+		    GetSWSetupShareFileName(SurveyInfo::sKeyBasicSurveyName()),
+		    nullptr,dataroot,orgdirname) )
     {
 	uiMSG().error( tr("Cannot make a copy of the default survey") );
 	return false;

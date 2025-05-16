@@ -687,28 +687,28 @@ bool Strat::LevelSet::writeTo( const char* fnm ) const
 
 BufferString Strat::getStdFileName( const char* inpnm, const char* basenm )
 {
+    BufferString filenm( basenm );
     BufferString nm( inpnm );
     nm.replace( ' ', '_' );
-    FilePath fp( GetSetupDataFileName(ODSetupLoc_ApplSetupPref,"Strat",1) );
-    if ( basenm )
-	fp.add( basenm );
-
     if ( !nm.isEmpty()	)
-	fp.setExtension( nm );
+	filenm.add( "." ).add( nm );
 
-    return fp.fullPath();
+    const BufferString ret = GetSetupShareFileInDir( "Strat", filenm.buf() );
+    return ret;
 }
 
 
 void Strat::LevelSet::getStdNames( BufferStringSet& nms )
 {
-    const DirList dl( getStdFileName(0,0), File::DirListType::FilesInDir,
-		      "Levels.*" );
-    for ( int idx=0; idx<dl.size(); idx++ )
+    BufferStringSet levelfnms;
+    if ( !GetSetupShareFilesInDir("Strat","Levels.*",levelfnms,true) )
+	return;
+
+    for ( const auto* fnm : levelfnms )
     {
-	BufferString fnm( dl.get(idx) );
-	BufferString nm( fnm.buf() + 7 );
-	nm.replace( ' ', '_' );
+	const FilePath fp( fnm->str() );
+	BufferString nm( fp.extension() );
+	nm.replace( '_', ' ' );
 	nms.add( nm );
     }
 }

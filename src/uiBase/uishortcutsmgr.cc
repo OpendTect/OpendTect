@@ -354,26 +354,24 @@ uiShortcutsMgr::~uiShortcutsMgr()
 IOPar* uiShortcutsMgr::getStored( const char* subsel )
 {
     Settings& setts = Settings::fetch( sFileKey );
-    IOPar* ret = setts.subselect( subsel );
+    PtrMan<IOPar> ret = setts.subselect( subsel );
     if ( ret && ret->size() )
-	return ret;
-    delete ret;
+	return ret.release();
 
-    od_istream strm( mGetSetupFileName("ShortCuts") );
+    od_istream strm( GetSetupShareFileName("ShortCuts") );
     if ( !strm.isOK() )
-	return 0;
+	return nullptr;
 
     ascistream astrm( strm );
-    IOPar* iop = new IOPar( astrm );
+    PtrMan<IOPar> iop = new IOPar( astrm );
     if ( iop && iop->isEmpty() )
-	{ delete iop; return 0; }
+	return nullptr;
 
     ret = iop->subselect( subsel );
-    delete iop;
     if ( ret && ret->isEmpty() )
-	{ delete ret; return 0; }
+	return nullptr;
 
-    return ret;
+    return ret.release();
 }
 
 

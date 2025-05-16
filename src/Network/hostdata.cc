@@ -468,8 +468,8 @@ HostDataList::HostDataList( bool foredit )
     if ( GetEnvVar("DTECT_BATCH_HOSTS_FILENAME") )
 	bhfnm = GetEnvVar("DTECT_BATCH_HOSTS_FILENAME");
 
-    BufferString fname( GetSetupDataFileName(ODSetupLoc_ApplSetupPref,
-				bhfnm.buf(),true) );
+    BufferString fname( GetSetupShareFileName(bhfnm.buf(),
+			ODSetupLoc_ApplSetupPref,true) );
     if ( GetEnvVar("DTECT_BATCH_HOSTS_FILEPATH") )
 	fname = GetEnvVar("DTECT_BATCH_HOSTS_FILEPATH");
 

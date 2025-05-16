@@ -20,9 +20,10 @@ ________________________________________________________________________
 const OD::ModDepMgr& OD::ModDeps()
 {
     static PtrMan<ModDepMgr> mgr =
-	 new ModDepMgr( FilePath(mGetSWDirDataDir(),
-		     BufferString("ModDeps.od").str()).fullPath(),
-			GetLibPlfDir() );
+	 new ModDepMgr(
+		 FilePath(GetSWSetupShareFileName(
+			    BufferString("ModDeps.od").str())).fullPath(),
+		 GetLibPlfDir() );
     return *mgr;
 }
 
@@ -38,9 +39,8 @@ OD::ModDepMgr::ModDepMgr( const char* mdfnm, const char* libplfdir )
     od_istream strm( mdfnm );
     if ( !strm.isOK() )
     {
-	if ( DBG::isOn(DBG_PROGSTART) )
-	    DBG::message( BufferString( "Cannot read module dependencies from ",
-					mdfnm ) );
+	const uiString msg = strm.errMsg();
+	pErrMsg( BufferString("Missing module dependency. ", msg ) );
 	return;
     }
 

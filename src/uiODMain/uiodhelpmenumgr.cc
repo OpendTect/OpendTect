@@ -148,8 +148,7 @@ void uiODHelpMenuMgr::handle( int id )
 
 void uiODHelpMenuMgr::showShortKeys()
 {
-    const BufferString imgpath =
-	GetSetupDataFileName( ODSetupLoc_SWDirOnly, "shortkeys.png", false );
+    const BufferString imgpath = GetSWSetupShareFileName( "shortkeys.png" );
     if ( !File::exists(imgpath.buf()) )
 	return;
 

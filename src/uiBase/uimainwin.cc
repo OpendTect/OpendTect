@@ -882,3 +882,11 @@ void uiMainWin::saveAsPDF( const char* filename, int w, int h, int res )
     if ( qwin )
 	saveAsPDF( *qwin, filename, w, h, res );
 }
+
+
+Notifier<uiMainWin>& uiMainWin::iconSetChanged()
+{
+    static PtrMan<Notifier<uiMainWin> > thenotif_ =
+					new Notifier<uiMainWin>( nullptr );
+    return *thenotif_.ptr();
+}

@@ -320,8 +320,8 @@ static BufferString getInstalledDemoSurvey()
     BufferString ret;
     if ( ODInst::getPkgVersion("demosurvey") )
     {
-	FilePath demosurvfp( mGetSWDirDataDir(), "DemoSurveys",
-			     "F3_Start.zip" );
+	const FilePath demosurvfp( GetSWSetupShareFileName( "DemoSurveys" ),
+				   "F3_Start.zip" );
 	ret = demosurvfp.fullPath();
     }
 
@@ -349,7 +349,7 @@ bool uiSetDataDir::setRootDataDir( uiParent* par, const char* inpdatadir )
 	return true;
     }
 
-    const BufferString stdomf( mGetSetupFileName("omf") );
+    const BufferString stdomf( GetSWSetupShareFileName("omf") );
 
 #define mCrOmfFname FilePath( datadir ).add( ".omf" ).fullPath()
     BufferString omffnm = mCrOmfFname;

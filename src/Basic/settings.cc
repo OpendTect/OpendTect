@@ -175,7 +175,7 @@ bool Settings::doRead( bool ext )
 
 	BufferString tmplfname( iscommon ? "od" : name().buf() );
 	tmplfname += "Settings";
-	tmplfname = mGetSetupFileName(tmplfname);
+	tmplfname = GetSetupShareFileName( tmplfname.str() );
 	bool okaftercopy = false;
 	if ( File::exists(tmplfname) )
 	{

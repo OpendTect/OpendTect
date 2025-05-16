@@ -677,7 +677,7 @@ const char* Coords::initCRSDatabase()
     {
 #ifdef __PROJ_DB_FILEPATH__
 	const FilePath projdbfp( __PROJ_DB_FILEPATH__ );
-	FilePath fp( mGetSetupFileName("CRS"), projdbfp.fileName() );
+	FilePath fp( GetSWSetupShareFileName("CRS",true), projdbfp.fileName() );
 	if ( !fp.exists() )
 	{
 	    if ( !isDeveloperBuild() || !projdbfp.exists() )

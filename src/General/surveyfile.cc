@@ -408,7 +408,7 @@ EmptyTempSurvey::~EmptyTempSurvey()
 bool EmptyTempSurvey::createSurvey( TaskRunner* taskrun )
 {
     const BufferString basicsurv =
-			mGetSetupFileName( SurveyInfo::sKeyBasicSurveyName() );
+		GetSWSetupShareFileName( SurveyInfo::sKeyBasicSurveyName() );
     if ( !File::exists(basicsurv) )
     {
 	lasterrs_ = uiStrings::phrCannotRead( basicsurv.buf() );

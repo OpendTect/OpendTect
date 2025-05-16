@@ -33,12 +33,9 @@ const BufferStringSet& getIconDirs()
 const BufferStringSet& getIconSubNames()
 {
     static PtrMan<BufferStringSet> ret = new BufferStringSet();
-    if ( ret->isEmpty() )
-    {
-	BufferStringSet& iconsubnms = *ret.ptr();
-	::Settings::common().get( "Icon sizes", iconsubnms );
-	iconsubnms.addIfNew( "small" );
-    }
+    BufferStringSet& iconsubnms = *ret.ptr();
+    ::Settings::common().get( "Icon sizes", iconsubnms );
+    iconsubnms.addIfNew( "small" );
 
     return *ret.ptr();
 }
@@ -61,13 +58,10 @@ OD::IconFile::IconFile( const char* identifier )
 const char* OD::IconFile::getIconSubFolderName()
 {
     mDeclStaticString( ret );
-    if ( ret.isEmpty() )
-    {
-	ret.set( mIconDirStart );
-	BufferString icsetnm( mIconDirDefault );
-	::Settings::common().get( "Icon set name", icsetnm );
-	ret.add( icsetnm );
-    }
+    ret.set( mIconDirStart );
+    BufferString icsetnm( mIconDirDefault );
+    ::Settings::common().get( "Icon set name", icsetnm );
+    ret.add( icsetnm );
 
     return ret.str();
 }
@@ -201,10 +195,33 @@ const char* OD::IconFile::notFoundIconFileName()
 	if ( icf.haveData() )
 	    ret = icf.nms_.first()->buf();
 	else
-	    ret = mGetSetupFileName("od.png");
+	    ret = GetSWSetupShareFileName( "od.png" );
     }
 
     return ret.str();
+}
+
+
+void OD::IconFile::getIconSubFolderNames( BufferStringSet& ret )
+{
+    for ( const auto* dirnm : getIconDirs() )
+    {
+	const FilePath fp( dirnm->str() );
+	const BufferString parentdir = fp.pathOnly();
+	const DirList dl( parentdir.buf(), File::DirListType::DirsInDir,
+			  "icons.*" );
+	for ( int idx=0; idx<dl.size(); idx++ )
+	{
+	    const FilePath dirfp( dl.get(idx) );
+	    ret.addIfNew( dirfp.extension() );
+	}
+    }
+}
+
+
+void OD::IconFile::reInit()
+{
+    const_cast<BufferStringSet&>( getIconDirs() ).setEmpty();
 }
 
 

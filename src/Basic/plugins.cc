@@ -330,10 +330,10 @@ static bool loadOpenSSLIfNeeded( const char* libbasenm )
 	return res == 1;
     }
 
-    FilePath opensslfp( GetSetupDataFileName(ODSetupLoc_SWDirOnly,
-					     "OpenSSL", false), libbasenm );
-    opensslfp.setExtension( "txt" );
-    if ( !opensslfp.exists() )
+    const BufferString filenm( libbasenm, ".txt" );
+    const BufferString sslfilenm =
+		GetSetupShareFileInDir( "OpenSSL", filenm.str(), true);
+    if ( sslfilenm.isEmpty() )
 	return false;
 
     res = localsslfn_ && (*localsslfn_)() ? 1 : 0;
@@ -658,7 +658,7 @@ bool PluginManager::load( const char* libnm, Data::AutoSource src,
     FilePath fp( libnm );
     const BufferString libnmonly( fp.fileName() );
 
-    Data* data = new Data( libnmonly );
+    auto* data = new Data( libnmonly );
     loadOpenSSLIfNeeded( data->getBaseName() );
     data->sla_ = new SharedLibAccess( libnm );
     if ( !data->sla_->isOK() )
@@ -868,33 +868,16 @@ PluginManager& PIM()
 void initPluginClasses( const char* datadir, const char* func )
 {
     BufferStringSet configfiles;
-    const File::DirListType dltyp = File::DirListType::FilesInDir;
-    const FilePath datafp( GetSetupDataFileName(ODSetupLoc_SWDirOnly,
-						datadir,false) );
-    if ( datafp.exists() )
-    {
-	const DirList dl( datafp.fullPath(), dltyp, "*.txt" );
-	for ( int idx=0; idx<dl.size(); idx++ )
-	    configfiles.addIfNew( dl.get( idx ).buf() );
-    }
-
-    const FilePath pluginsdatafpdir(
-			GetSetupDataFileName(ODSetupLoc_UserPluginDirOnly,
-					     datadir,false) );
-    if ( pluginsdatafpdir.exists() && pluginsdatafpdir != datafp )
-    {
-	const DirList dl( pluginsdatafpdir.fullPath(), dltyp, "*.txt" );
-	for ( int idx=0; idx<dl.size(); idx++ )
-	    configfiles.addIfNew( dl.get( idx ).buf() );
-    }
+    if ( !GetSetupShareFilesInDir(datadir,"*.txt",configfiles,true) )
+	return;
 
     using VoidVoidFn = void(*)(void);
     BufferString libname;
     libname.setBufSize( 256 );
     for ( const auto* configfile : configfiles )
     {
-	const FilePath dirname( configfile->buf() );
-	const BufferString piname = dirname.baseName();
+	const FilePath configfp( configfile->str() );
+	const BufferString piname = configfp.baseName();
 	if ( piname.isEmpty() )
 	    continue;
 

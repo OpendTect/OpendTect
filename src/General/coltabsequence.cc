@@ -14,7 +14,6 @@ ________________________________________________________________________
 #include "ascstream.h"
 #include "bendpointfinder.h"
 #include "bufstringset.h"
-#include "dirlist.h"
 #include "file.h"
 #include "filepath.h"
 #include "iopar.h"
@@ -613,28 +612,18 @@ void ColTab::SeqMgr::refresh()
 void ColTab::SeqMgr::readColTabs()
 {
     IOPar iop;
-    const BufferString fnm = mGetSetupFileName("ColTabs");
-    od_istream strm( fnm );
-    if ( strm.isOK() )
-    {
-	ascistream astrm( strm );
-	iop.getFrom( astrm );
-	if ( !iop.isEmpty() )
-	    addFromPar( iop, true );
-    }
+    BufferStringSet coltabfnms;
+    if ( !GetSetupShareFileNames("ColTabs*",coltabfnms) )
+	return;
 
-    // Read additional ColTabs.* files typically coming from plugin vendors
-    FilePath defcoltabfp( fnm );
-    const DirList auxfiles( defcoltabfp.pathOnly(),
-			    File::DirListType::FilesInDir, "ColTabs.*" );
-    for ( int idx=0; idx<auxfiles.size(); idx++ )
+    for ( const auto* fnm : coltabfnms )
     {
-	od_istream auxstrm( auxfiles.fullPath(idx) );
-	if ( auxstrm.isOK() )
+	od_istream strm( fnm->str() );
+	if ( strm.isOK() )
 	{
-	    ascistream auxastrm( auxstrm );
+	    ascistream astrm( strm );
 	    iop.setEmpty();
-	    iop.getFrom( auxastrm );
+	    iop.getFrom( astrm );
 	    if ( !iop.isEmpty() )
 		addFromPar( iop, true );
 	}
@@ -786,9 +775,9 @@ bool ColTab::SeqMgr::write( bool sys, bool applsetup )
 	return setts.write( false );
     }
 
-    const BufferString fnm( applsetup
-	    ? GetSetupDataFileName(ODSetupLoc_ApplSetupOnly,"ColTabs",0)
-	    : GetSetupDataFileName(ODSetupLoc_SWDirOnly,"ColTabs",0) );
+    const FilePath fp( applsetup ? GetApplSetupDataDir() : GetSWDirDataDir(),
+		       "ColTabs" );
+    const BufferString fnm = fp.fullPath();
     if ( File::exists(fnm) && !File::isWritable(fnm) &&
 	 !File::setWritable(fnm,true) )
     {

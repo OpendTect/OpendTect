@@ -772,8 +772,7 @@ void uiMainWinBody::readSettings()
 void uiMainWinBody::restoreDefaultState()
 {
     const char* deffnm = "qtdefaultstate.ini";
-    const BufferString fp =
-	    GetSetupDataFileName(ODSetupLoc_ApplSetupPref,deffnm,true);
+    const BufferString fp = GetSetupShareFileName( deffnm );
     if ( !File::exists(fp) )
 	return;
 

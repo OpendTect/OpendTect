@@ -17,44 +17,23 @@ if ( WIN32 )
     set( LMUTIL "${LMUTIL}.exe" )
 endif()
 
-if ( NOT ${BUILDINSRC} )
+if ( NOT ${BUILDINSRC} OR APPLE )
     if ( UNIX )
-	if ( APPLE )
-	    if ( NOT EXISTS "${CMAKE_BINARY_DIR}/Contents/Resources" )
-		file( MAKE_DIRECTORY "${CMAKE_BINARY_DIR}/Contents/Resources" )
-	    endif()
-	    execute_process(COMMAND ${CMAKE_COMMAND} -E create_symlink
-			    ${CMAKE_SOURCE_DIR}/relinfo
-			    ${CMAKE_BINARY_DIR}/Contents/Resources/relinfo )
-	else()
-	    execute_process(COMMAND ${CMAKE_COMMAND} -E create_symlink
-                            ${CMAKE_SOURCE_DIR}/relinfo
-			    ${CMAKE_BINARY_DIR}/relinfo )
+	if ( NOT IS_DIRECTORY "${CMAKE_BINARY_DIR}/${MISC_INSTALL_PREFIX}" )
+	    file( MAKE_DIRECTORY "${CMAKE_BINARY_DIR}/${MISC_INSTALL_PREFIX}" )
 	endif()
+	file( CREATE_LINK "${CMAKE_SOURCE_DIR}/relinfo"
+			  "${CMAKE_BINARY_DIR}/${MISC_INSTALL_PREFIX}/relinfo"
+	      SYMBOLIC )
     else()
 	file( COPY "${CMAKE_SOURCE_DIR}/relinfo"
 	      DESTINATION "${CMAKE_BINARY_DIR}" )
     endif()
 
-    #Copy data as we generate stuff into the data directory, and that cannot
-    #be in the source-dir
-    file( COPY "${CMAKE_SOURCE_DIR}/data"
-	  DESTINATION "${CMAKE_BINARY_DIR}/${MISC_INSTALL_PREFIX}" )
+    #TODO remove, take from source directory
     file( COPY "${CMAKE_SOURCE_DIR}/bin/${OD_PLFSUBDIR}/${LMUTIL}"
 	  DESTINATION "${CMAKE_BINARY_DIR}/${MISC_INSTALL_PREFIX}/bin/${OD_PLFSUBDIR}/lm.dgb" )
 
-elseif( APPLE )
-    execute_process(COMMAND ${CMAKE_COMMAND} -E make_directory
-		    ${MISC_INSTALL_PREFIX}
-		    WORKING_DIRECTORY ${CMAKE_BINARY_DIR} )
-    execute_process(COMMAND ${CMAKE_COMMAND} -E create_symlink
-		    ${CMAKE_SOURCE_DIR}/data
-		    ${MISC_INSTALL_PREFIX}/data
-		    WORKING_DIRECTORY ${CMAKE_BINARY_DIR} )
-    execute_process(COMMAND ${CMAKE_COMMAND} -E create_symlink
-		    ${CMAKE_SOURCE_DIR}/relinfo
-		    ${MISC_INSTALL_PREFIX}/relinfo
-		    WORKING_DIRECTORY ${CMAKE_BINARY_DIR} )
 endif()
 
 
@@ -114,13 +93,13 @@ endforeach()
 install( DIRECTORY doc/Scripts
 	 DESTINATION "${MISC_INSTALL_PREFIX}/doc" )
 
-#Install data
-install ( DIRECTORY "${CMAKE_BINARY_DIR}/${OD_DATA_INSTALL_RELPATH}"
-      DESTINATION "${MISC_INSTALL_PREFIX}"
-      USE_SOURCE_PERMISSIONS
-      PATTERN "install_files" EXCLUDE
-      PATTERN "icons.Classic" EXCLUDE
-      PATTERN ".gitignore" EXCLUDE )
+set( OD_SHARE_SOURCE_PATH "${CMAKE_SOURCE_DIR}/share" )
+
+#Install share
+install( DIRECTORY "${OD_SHARE_SOURCE_PATH}"
+	 DESTINATION "${MISC_INSTALL_PREFIX}"
+	 USE_SOURCE_PERMISSIONS
+	 PATTERN "install_files" EXCLUDE )
 
 file( GLOB RELINFOFILES "${CMAKE_SOURCE_DIR}/relinfo/*.txt" )
 install ( FILES ${RELINFOFILES}
@@ -141,11 +120,12 @@ endif()
 install( FILES CMakeLists.txt
 	 DESTINATION "${MISC_INSTALL_PREFIX}" )
 
-file( GLOB TEXTFILES ${CMAKE_SOURCE_DIR}/data/install_files/unixscripts/*.txt )
+set( OD_INSTALLFILE_SOURCE_PATH "${OD_SHARE_SOURCE_PATH}/install_files" )
+file( GLOB TEXTFILES ${OD_INSTALLFILE_SOURCE_PATH}/unixscripts/*.txt )
 if( UNIX )
-    file( GLOB PROGRAMS ${CMAKE_SOURCE_DIR}/data/install_files/unixscripts/* )
+    file( GLOB PROGRAMS ${OD_INSTALLFILE_SOURCE_PATH}/unixscripts/* )
     list( REMOVE_ITEM PROGRAMS
-	  ${CMAKE_SOURCE_DIR}/data/install_files/unixscripts/makeself )
+	  "${OD_INSTALLFILE_SOURCE_PATH}/unixscripts/makeself" )
     foreach( TEXTFILE ${TEXTFILES} )
         list( REMOVE_ITEM PROGRAMS ${TEXTFILE} )
     endforeach()
@@ -157,8 +137,8 @@ install( FILES ${TEXTFILES}
 	 DESTINATION "${MISC_INSTALL_PREFIX}" )
 
 if( APPLE )
-    install( DIRECTORY data/install_files/macscripts/Contents
-	     DESTINATION . )
+    install( DIRECTORY "${OD_INSTALLFILE_SOURCE_PATH}/macscripts/Contents"
+	     DESTINATION "${CMAKE_INSTALL_PREFIX}" )
     set( BUNDLEEXEC "od_main" )
     set( BUNDLEICON "od.icns" )
     set( BUNDLEID "com.dgbes.opendtect" )

@@ -27,10 +27,7 @@ SqlDB::ConnectionData::ConnectionData( const char* key )
     if ( StringView(key).isEmpty() )
 	return;
 
-    BufferString fnm = mGetSetupFileName( "SqlDB" );
-    if ( !File::exists(fnm.buf()) )
-	fnm = GetSetupDataFileName(ODSetupLoc_UserPluginDirOnly,"SqlDB",false);
-
+    const BufferString fnm = GetSetupShareFileName( "SqlDB" );
     od_istream strm( fnm );
     if ( strm.isOK() )
     {

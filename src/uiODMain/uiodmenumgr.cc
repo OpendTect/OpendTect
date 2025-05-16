@@ -42,6 +42,7 @@ ________________________________________________________________________
 #include "ioman.h"
 #include "measuretoolman.h"
 #include "oddirs.h"
+#include "odiconfile.h"
 #include "odinst.h"
 #include "odsysmem.h"
 #include "od_ostream.h"
@@ -970,51 +971,42 @@ void uiODMenuMgr::toggleTreeMode( CallBacker* cb )
 }
 
 
-void uiODMenuMgr::addIconMnuItems( const DirList& dl, uiMenu* iconsmnu,
-				   BufferStringSet& nms )
+void uiODMenuMgr::addIconMnuItems( const BufferStringSet& nms, uiMenu* iconsmnu)
 {
-    for ( int idx=0; idx<dl.size(); idx++ )
+    int idx = 0;
+    for ( const auto* nm : nms )
     {
-	const BufferString nm( dl.get( idx ).buf() + 6 );
-	if ( nm.isEmpty() || nms.isPresent(nm) )
-	    continue;
-
-	BufferString mnunm( "&" ); mnunm += nm;
-    insertAction( iconsmnu, toUiString(mnunm), mViewIconsMnuItm+nms.size() );
-	nms.add( nm );
+	const BufferString mnunm( "&", nm->str() );
+	insertAction( iconsmnu, toUiString(mnunm), mViewIconsMnuItm+(idx++));
     }
 }
 
 
 void uiODMenuMgr::mkViewIconsMnu()
 {
-    const DirList dlsett( GetSettingsDir(),
-			  File::DirListType::DirsInDir, "icons.*" );
-    const DirList dlsite( mGetApplSetupDataDir(),
-			  File::DirListType::DirsInDir, "icons.*" );
-    const DirList dlrel( mGetSWDirDataDir(),
-			 File::DirListType::DirsInDir, "icons.*" );
-    if ( dlsett.size() + dlsite.size() + dlrel.size() < 2 )
+    BufferStringSet nms;
+    OD::IconFile::getIconSubFolderNames( nms );
+    if ( nms.size() < 2 )
 	return;
+
+    static const char* defaultstr = "Default";
+    if ( nms.isPresent(defaultstr) )
+    {
+	nms.remove( defaultstr );
+	nms.insertAt( new BufferString(defaultstr), 0 );
+    }
 
     auto* iconsmnu = new uiMenu( &appl_, tr("Icons") );
     viewmnu_->addMenu( iconsmnu );
-    insertAction( iconsmnu, tr("Default"), mViewIconsMnuItm+0 );
-    BufferStringSet nms; nms.add( "Default" );
-    addIconMnuItems( dlsett, iconsmnu, nms );
-    addIconMnuItems( dlsite, iconsmnu, nms );
-    addIconMnuItems( dlrel, iconsmnu, nms );
+    addIconMnuItems( nms, iconsmnu );
 }
 
 
 void uiODMenuMgr::fillUtilMenu()
 {
-#ifdef __mac__
     // Qt disables the 'Settings' menu on Mac, hence a different text
-    settmnu_ = new uiMenu( &appl_, tr("User Settings") );
-#else
-    settmnu_ = new uiMenu( &appl_, uiStrings::sSettings() );
-#endif
+    settmnu_ = new uiMenu( &appl_, __ismac__ ? tr("User Settings")
+					     : uiStrings::sSettings() );
 
     utilmnu_->addMenu( settmnu_ );
 
@@ -1788,10 +1780,13 @@ void uiODMenuMgr::handleClick( CallBacker* cb )
 	{
 	    Settings::common().set( sKeyIconSetNm,
 				    itm->text().getFullString().buf() + 1 );
+	    OD::IconFile::reInit();
+	    uiMainWin::iconSetChanged().trigger();
 	    for ( int idx=0; idx<uiToolBar::toolBars().size(); idx++ )
 		uiToolBar::toolBars()[idx]->reloadIcons();
 	    Settings::common().write();
 	}
+
 	if ( id > mHelpMnu )
 	    helpmgr_->handle( id );
 
