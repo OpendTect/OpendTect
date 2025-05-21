@@ -1019,13 +1019,7 @@ RefMan<RegularSeisDataPack> uiAttribPartServer::createOutputRM(
 
 	if ( aem->getNrOutputsToBeProcessed(*process) != 0 )
 	{
-	    if ( !hideprogress )
-	    {
-		uiTaskRunner taskrunner( parent() );
-		taskrunner.displayMsgOnError( false );
-		success = TaskRunner::execute( &taskrunner, *process );
-	    }
-	    else
+	    if ( hideprogress )
 	    {
 		MouseCursorChanger cursorchgr( MouseCursor::Wait );
 		if ( !process->execute() )
@@ -1034,6 +1028,12 @@ RefMan<RegularSeisDataPack> uiAttribPartServer::createOutputRM(
 		    // ToDo: use this message as a tree tooltip
 		    return nullptr;
 		}
+	    }
+	    else
+	    {
+		uiTaskRunner taskrunner( parent() );
+		taskrunner.displayMsgOnError( false );
+		success = TaskRunner::execute( &taskrunner, *process );
 	    }
 	}
 

@@ -26,6 +26,8 @@ ________________________________________________________________________
 #include "vistexturechannels.h"
 #include "vistopbotimage.h"
 
+#include <QTimer>
+
 
 namespace visSurvey
 {
@@ -2002,10 +2004,13 @@ void RandomTrackDisplay::draggerMoveFinished( CallBacker* cb )
 {
     Interval<float> zrg = dragger_->getDepthRange();
     snapZRange( zrg );
-    dragger_->setDepthRange( zrg );
-    finishNodeMoveInternal();
-    selnodeidx_ = mUdf(int);
+    QTimer::singleShot( 0, [this, zrg] {
+	dragger_->setDepthRange( zrg );
+	finishNodeMoveInternal();
+	selnodeidx_ = mUdf( int );
+    });
 }
+
 
 void RandomTrackDisplay::snapZRange( Interval<float>& zrg )
 {
