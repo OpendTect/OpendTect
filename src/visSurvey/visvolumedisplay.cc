@@ -25,6 +25,8 @@ ________________________________________________________________________
 #include "visselman.h"
 #include "zaxistransformer.h"
 
+#include <QTimer>
+
 /* OSG-TODO: Port VolrenDisplay volren_ and set of OrthogonalSlice slices_
    to OSG in case of prolongation. */
 
@@ -363,33 +365,40 @@ void VolumeDisplay::draggerMoveCB( CallBacker* )
     if ( scene_ )
 	cs.limitTo( scene_->getTrcKeyZSampling() );
 
-    const Coord3 center( (cs.hsamp_.start_.inl() + cs.hsamp_.stop_.inl())/2.0,
-			 (cs.hsamp_.start_.crl() + cs.hsamp_.stop_.crl())/2.0,
-			 (cs.zsamp_.start_ + cs.zsamp_.stop_)/2.0 );
+    QTimer::singleShot( 0, [this, cs] {
 
-    const Coord3 width( cs.hsamp_.stop_.inl() - cs.hsamp_.start_.inl(),
-			cs.hsamp_.stop_.crl() - cs.hsamp_.start_.crl(),
-			cs.zsamp_.stop_ - cs.zsamp_.start_ );
+	const Coord3 center(
+	    ( cs.hsamp_.start_.inl() + cs.hsamp_.stop_.inl() ) / 2.0,
+	    ( cs.hsamp_.start_.crl() + cs.hsamp_.stop_.crl() ) / 2.0,
+	    ( cs.zsamp_.start_ + cs.zsamp_.stop_ ) / 2.0 );
 
-    boxdragger_->setCenter( center );
-    boxdragger_->setWidth( width );
+	const Coord3 width(
+	    cs.hsamp_.stop_.inl() - cs.hsamp_.start_.inl(),
+	    cs.hsamp_.stop_.crl() - cs.hsamp_.start_.crl(),
+	    cs.zsamp_.stop_ - cs.zsamp_.start_ );
 
-    setTrcKeyZSampling( cs, true );
-    if ( keepdraggerinsidetexture_ )
-    {
-	boxdragger_->setBoxTransparency( 1.0 );
-	boxdragger_->showScaleTabs( false );
-    }
+	boxdragger_->setCenter( center );
+	boxdragger_->setWidth( width );
 
-    boxMoving.trigger();
-    ismanip_ = true;
+	setTrcKeyZSampling( cs, true );
+	if ( keepdraggerinsidetexture_ )
+	{
+	    boxdragger_->setBoxTransparency( 1.0 );
+	    boxdragger_->showScaleTabs( false );
+	}
+
+	boxMoving.trigger();
+	ismanip_ = true;
+    });
 }
 
 
 void VolumeDisplay::draggerFinishCB( CallBacker* )
 {
-    boxdragger_->setBoxTransparency( mDefaultBoxTransparency );
-    boxdragger_->showScaleTabs( true );
+    QTimer::singleShot( 0, [this] {
+	boxdragger_->setBoxTransparency( mDefaultBoxTransparency );
+	boxdragger_->showScaleTabs( true );
+    });
 }
 
 

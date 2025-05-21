@@ -23,6 +23,8 @@ ________________________________________________________________________
 #include "vistexturechannels.h"
 #include "zaxistransformutils.h"
 
+#include <QTimer>
+
 
 namespace visSurvey {
 
@@ -403,27 +405,30 @@ void PlaneDataDisplay::draggerFinish( CallBacker* )
     const TrcKeyZSampling cs = getTrcKeyZSampling(true,true);
     const TrcKeyZSampling snappedcs = snapPosition( cs );
 
-    if ( cs!=snappedcs )
-	setDraggerPos( snappedcs );
+    QTimer::singleShot(0, [this, cs, snappedcs] {
 
-    if ( originalresolution_ >= 0 )
-    {
-	setResolution( originalresolution_, 0 );
-	originalresolution_ = -1;
-    }
+	if ( cs!=snappedcs )
+	    setDraggerPos( snappedcs );
 
-    if ( interactivetexturedisplay_ )
-	forcemanipupdate_ = true;
+	if ( originalresolution_ >= 0 )
+	{
+	    setResolution( originalresolution_, nullptr );
+	    originalresolution_ = -1;
+	}
 
-    interactivetexturedisplay_ = false;
-    updateSel();
-    forcemanipupdate_ = false;
+	if ( interactivetexturedisplay_ )
+	    forcemanipupdate_ = true;
 
-    PlaneDataMoveUndoEvent* undoevent =
-	new PlaneDataMoveUndoEvent( this, startmovepos_, snappedcs );
+	interactivetexturedisplay_ = false;
+	updateSel();
+	forcemanipupdate_ = false;
 
-    undo_.addEvent( undoevent, 0 );
-    undo_.setUserInteractionEnd( undo_.currentEventID() );
+	auto* undoevent =
+	    new PlaneDataMoveUndoEvent( this, startmovepos_, snappedcs );
+
+	undo_.addEvent( undoevent, nullptr );
+	undo_.setUserInteractionEnd( undo_.currentEventID() );
+    });
 }
 
 

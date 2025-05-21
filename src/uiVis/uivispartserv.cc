@@ -1806,12 +1806,11 @@ const visSurvey::Scene* uiVisPartServer::getScene( const SceneID& sceneid) const
 
 void uiVisPartServer::removeObject( const VisID& id, const SceneID& sceneid )
 {
-    removeConnections( id );
-
     RefMan<visSurvey::Scene> scene = getScene( sceneid );
     if ( !scene )
 	return;
 
+    removeConnections( id );
     const int idx = scene->getFirstIdx( id );
     if ( idx==-1 )
 	return;
