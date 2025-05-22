@@ -306,7 +306,7 @@ void uiWaveletDispProp::addAttrDisp( int attridx )
 {
     uiFuncDispBase::Setup fdsu;
     attrarrays_ += new Array1DImpl<float>( wvltsz_ );
-    fdsu.ywidth( 2 ).noy2axis(true).noy2gridline(true);
+    fdsu.noy2axis(true).noy2gridline(true);
     fdsu.canvaswidth(400).canvasheight(300);
 
     const uiString xname = attridx==0
