@@ -262,7 +262,7 @@ void uiFunctionDisplay::drawYCurve( const TypeSet<uiPoint>& ptlist )
 	    ypolygonitem_ = scene().addPolygon( ptlist, setup_.fillbelow_ );
 	else
 	    ypolygonitem_->setPolygon( ptlist );
-	ypolygonitem_->setFillColor( setup_.ycol_ );
+	ypolygonitem_->setFillColor( setup_.ylinestyle_.color_ );
 	ypolyitem_ = ypolygonitem_;
 	polydrawn = true;
     }
@@ -278,10 +278,7 @@ void uiFunctionDisplay::drawYCurve( const TypeSet<uiPoint>& ptlist )
 
     if ( polydrawn )
     {
-	OD::LineStyle ls;
-	ls.width_ = setup_.ywidth_;
-	ls.color_ = setup_.ycol_;
-	ypolyitem_->setPenStyle( ls );
+	ypolyitem_->setPenStyle( setup_.ylinestyle_ );
 	ypolyitem_->setZValue( setup_.curvzvaly_ );
 	ypolyitem_->setVisible( true );
     }
@@ -301,7 +298,8 @@ void uiFunctionDisplay::drawY2Curve( const TypeSet<uiPoint>& ptlist,
 	else
 	    y2polygonitem_->setPolygon( ptlist );
 	y2polygonitem_->setFillColor(
-		setup_.fillbelowy2_ ? setup_.y2col_ : OD::Color::NoColor());
+		setup_.fillbelowy2_ ? setup_.y2linestyle_.color_
+				    : OD::Color::NoColor() );
 	y2polyitem_ = y2polygonitem_;
 	polydrawn = true;
     }
@@ -317,10 +315,7 @@ void uiFunctionDisplay::drawY2Curve( const TypeSet<uiPoint>& ptlist,
 
     if ( polydrawn )
     {
-	OD::LineStyle ls;
-	ls.width_ = setup_.y2width_;
-	ls.color_ = setup_.y2col_;
-	y2polyitem_->setPenStyle( ls );
+	y2polyitem_->setPenStyle( setup_.y2linestyle_ );
 	y2polyitem_->setZValue( setup_.curvzvaly2_ );
 	y2polyitem_->setVisible( true );
     }

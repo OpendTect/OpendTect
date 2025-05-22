@@ -84,9 +84,8 @@ public:
 				yaxcaption_ = tr("Amplitude");
 				noxgridline_ = true;
 				noygridline_ = true;
-				ywidth_ = 2;
-				ycol_.set(200,0,0);
-				y2col_.set(0,0,220);
+				ylinestyle_.color_.set( 200, 0, 0 );
+				y2linestyle_.color_.set( 0, 0, 220 );
 			    }
 			~Setup()
 			{}

@@ -31,10 +31,10 @@ public:
 				    , yrg_(mUdf(float),mUdf(float))
 				    , y2rg_(mUdf(float),mUdf(float))
 				    , bgcol_(OD::Color::White())
-				    , ycol_(200,160,140)
-				    , y2col_(140,160,200)
-				    , ywidth_(2)
-				    , y2width_(2)
+				    , ylinestyle_(OD::LineStyle::Solid,2,
+						  OD::Color(200,160,140))
+				    , y2linestyle_(OD::LineStyle::Solid,2,
+						   OD::Color(140,160,200))
 				    , canvaswidth_(400)
 				    , canvasheight_(250)
 				    , border_(20,20,20,10)
@@ -57,9 +57,9 @@ public:
 				    , drawscattery1_(false)
 				    , drawscattery2_(false)
 				    , markerstyley1_(MarkerStyle2D::Square,3,
-						     ycol_)
+						     OD::Color(200,160,140))
 				    , markerstyley2_(MarkerStyle2D::Square,3,
-						     y2col_)
+						     OD::Color(140,160,200))
 				    , markerfilly1_(false)
 				    , markerfilly2_(false)
 				    , drawborder_(false)
@@ -76,10 +76,8 @@ public:
 	mDefSetupMemb(Interval<float>,yrg)	//!< if fixed start or end
 	mDefSetupMemb(Interval<float>,y2rg)	//!< if fixed start or end
 	mDefSetupMemb(OD::Color,bgcol)		//!< Canvas background
-	mDefSetupMemb(OD::Color,ycol)
-	mDefSetupMemb(OD::Color,y2col)
-	mDefSetupMemb(int,ywidth)
-	mDefSetupMemb(int,y2width)
+	mDefSetupMemb(OD::LineStyle,ylinestyle)
+	mDefSetupMemb(OD::LineStyle,y2linestyle)
 	mDefSetupMemb(int,canvaswidth)
 	mDefSetupMemb(int,canvasheight)
 	mDefSetupMemb(uiBorder,border)

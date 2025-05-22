@@ -70,8 +70,10 @@ uiColorTableMan::uiColorTableMan( uiParent* p, ColTab::Sequence& ctab,
     uiFunctionDisplay::Setup su;
     su.border(uiBorder(2,5,3,5)).xrg(Interval<float>(0,1)).editable(true)
       .yrg(Interval<float>(0,255)).canvaswidth(mTransWidth).closepolygon(true)
-      .canvasheight(mTransHeight).drawscattery1(true) .ycol(OD::Color(255,0,0))
-      .y2col(OD::Color(190,190,190)).drawliney2(false).fillbelowy2(true)
+      .canvasheight(mTransHeight).drawscattery1(true)
+      .ylinestyle(OD::LineStyle(OD::LineStyle::Solid,2,OD::Color(255,0,0)))
+      .y2linestyle(OD::LineStyle(OD::LineStyle::Solid,2,OD::Color(190,190,190)))
+      .drawliney2(false).fillbelowy2(true)
       .pointsz(3).ptsnaptol(0.08).noxaxis(true).noxgridline(true).noyaxis(true)
       .noygridline(true).noy2axis(true).noy2gridline(true).drawborder(true)
       .borderstyle(ls);
