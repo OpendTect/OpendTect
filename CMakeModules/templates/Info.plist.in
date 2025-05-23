@@ -17,7 +17,8 @@
 	<key>CFBundleShortVersionString</key>
 	<string>@BUNDLEVERSION@</string>
 	<key>NSHumanReadableCopyright</key>
-	<key>NSRequiresAquaSystemAppearance</key>
 	<string>© @YEAR@, dGB Beheer B.V.</string>
+	<key>NSRequiresAquaSystemAppearance</key>
+	<true/>
 </dict>
 </plist>
