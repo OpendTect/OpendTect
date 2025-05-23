@@ -820,7 +820,10 @@ FilePath* OD::PythonAccess::getCommand( OS::MachineCommand& cmd,
 	strm.add( "echo $! > " ).add( pidfile.quote() );
 #endif
     }
-    strm.add( od_newline );
+
+    strm.add( od_newline )
+	.add( "SET \"RETVAL=%ERRORLEVEL%\"" ).add( od_newline )
+	.add( "EXIT /B %RETVAL%" ).add( od_newline );
 
     strm.close();
 #ifdef __unix__
@@ -986,7 +989,7 @@ uiRetVal OD::PythonAccess::doExecute( const OS::MachineCommand& cmd,
     }
 
     uiRetVal ret;
-    if ( res && execpars && stdoutstr && cl->getStdOutput() )
+    if ( execpars && stdoutstr && cl->getStdOutput() )
 	cl->getStdOutput()->getAll( *stdoutstr );
 
     if ( !res && !cl->errorMsg().isEmpty() )
@@ -995,10 +998,14 @@ uiRetVal OD::PythonAccess::doExecute( const OS::MachineCommand& cmd,
     if ( cl->getStdError() )
     {
 	BufferString stderrorret;
-	if ( stderrstr )
+	if ( stderrstr && !execpars )
 	    stderrorret.set( stderrstr->buf() );
 	else
+	{
 	    cl->getStdError()->getAll( stderrorret );
+	    if ( stderrstr )
+		stderrstr->set( stderrorret.buf() );
+	}
 
 #ifdef __debug__
     if ( stderrorret.contains("(PE) HiddenParam") )

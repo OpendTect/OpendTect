@@ -101,8 +101,8 @@ void qstreambuf::detachDevice( bool readall )
 	delete iodevice_; 
     }
 
-    iodevice_ = 0;
-    process_ = 0;
+    iodevice_ = nullptr;
+    process_ = nullptr;
 }
 
 
