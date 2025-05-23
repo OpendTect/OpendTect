@@ -1021,7 +1021,6 @@ bool OS::CommandLauncher::doExecute( const MachineCommand& mc,
 	}
 
 	deleteAndNullPtr( process_ );
-
 	return res;
     }
 #endif

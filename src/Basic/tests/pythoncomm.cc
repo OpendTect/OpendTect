@@ -96,6 +96,77 @@ static bool testHasModules()
 }
 
 
+constexpr int sucessretcode	    = 0;
+constexpr int failretcode	    = 1;
+constexpr int exceptionretcode	    = 2;
+
+bool testPythonMachineCommand()
+{
+    FilePath pyscriptfp( __FILE__ );
+    pyscriptfp.setFileName( "pythonexitcodetest" ).setExtension( "py" );
+    BufferString foundstr( "Python script found" );
+    mRunStandardTestWithError( File::exists(pyscriptfp.fullPath()),
+			       foundstr.add(": ").add(pyscriptfp.fullPath()),
+			       "Python script not found" )
+
+    BufferString stdoutstr, stderrstr;
+    uiRetVal uirv;
+    OS::MachineCommand mc( OD::PythonAccess::sPythonExecNm(true) );
+    mc.addArg( pyscriptfp.fullPath() ).addArg( sucessretcode );
+
+    BufferString teststr( "Running ", mc.toString() );
+    teststr.add( ": expected ret code ").add( sucessretcode );
+    bool ret = OD::PythA().execute( mc, uirv, true, &stdoutstr, &stderrstr );
+    mRunStandardTestWithError( (ret && uirv.isOK()),
+			       teststr.buf(), stderrstr.buf() )
+    bool isstdoutok = !stdoutstr.isEmpty() &&
+		      stdoutstr==StringView("Success argument passed");
+    mRunStandardTestWithError( isstdoutok,
+			       "Valid std output string received",
+			       "Wrong std output string" );
+
+    const_cast<BufferStringSet&>(mc.args()).get(1) = failretcode;
+    teststr.setEmpty().add( "Running " )
+	   .add( mc.toString() ).add( ": expected ret code " )
+	   .add( failretcode );
+    stdoutstr.setEmpty();
+    stderrstr.setEmpty();
+    ret = OD::PythA().execute( mc, uirv, true, &stdoutstr, &stderrstr );
+    mRunStandardTestWithError( (!ret ||!uirv.isOK()),
+			       teststr.buf(), "Should return false" )
+    isstdoutok = !stdoutstr.isEmpty() &&
+		 stdoutstr==StringView("Error argument passed");
+    mRunStandardTestWithError( isstdoutok,
+			       "Valid std output string received",
+			       "Wrong std output string" );
+    const bool isstderrvalid = !stderrstr.isEmpty() &&
+			       stderrstr==StringView("Fail return");
+    mRunStandardTestWithError( isstderrvalid,
+			       "Expected error string received",
+			       "Expected \"Fail return\" error string" )
+
+    const_cast<BufferStringSet&>(mc.args()).get(1) = exceptionretcode;
+    teststr.setEmpty().add( "Running " )
+	   .add( mc.toString() ).add( ": expected ret code ")
+	   .add( failretcode );
+    stdoutstr.setEmpty();
+    stderrstr.setEmpty();
+    ret = OD::PythA().execute( mc, uirv, true, &stdoutstr, &stderrstr );
+    mRunStandardTestWithError( (!ret || !uirv.isOK()),
+			       teststr.buf(), "Should return false" )
+    isstdoutok = !stdoutstr.isEmpty() &&
+		 stdoutstr==StringView("Exception argument passed");
+    mRunStandardTestWithError( isstdoutok,
+			       "Valid std output string received",
+			       "Wrong std output string" );
+    mRunStandardTestWithError( !stderrstr.isEmpty(),
+			       "Exception raised, received call stack",
+			       "Should receive a non-empty exception error" )
+
+    return true;
+}
+
+
 int mTestMainFnName( int argc, char** argv )
 {
     mInitTestProg();
@@ -117,6 +188,9 @@ int mTestMainFnName( int argc, char** argv )
 	return 1;
 
     if ( !testHasModules() )
+	return 1;
+
+    if ( !testPythonMachineCommand() )
 	return 1;
 
     return 0;
