@@ -709,11 +709,8 @@ FilePath* OD::PythonAccess::getCommand( OS::MachineCommand& cmd,
     auto* ret = new FilePath( FilePath::getTempFullPath("runpython",nullptr) );
     if ( !ret )
 	return nullptr;
-#ifdef __win__
-    ret->setExtension( "bat" );
-#else
-    ret->setExtension( "sh" );
-#endif
+
+    ret->setExtension( __iswin__ ? "bat" : "sh" );
     od_ostream strm( *ret );
     if ( !strm.isOK() )
     {
@@ -724,48 +721,57 @@ FilePath* OD::PythonAccess::getCommand( OS::MachineCommand& cmd,
     BufferString temppath( File::getTempPath() );
     if ( temppath.find(' ') )
 	temppath.quote();
-	BufferString sourcecmd("source ");
 
-#ifdef __win__
-    strm.add( "@SETLOCAL" ).add( od_newline );
-    strm.add( "@ECHO OFF" ).add( od_newline ).add( od_newline );
+    BufferString sourcecmd( "source ");
+    if ( __iswin__ )
+    {
+	strm.add( "@SETLOCAL" ).add( od_newline );
+	strm.add( "@ECHO OFF" ).add( od_newline ).add( od_newline );
 
-    strm.add( "SET TMPDIR=" ).add( temppath ).add( od_newline );
-    if ( background )
-    {
-	strm.add( "SET procnm=%~n0" ).add( od_newline );
-	strm.add( "SET proctitle=%procnm%_children" ).add( od_newline );
-	strm.add( "SET pidfile=\"%~dpn0.pid\"" )
-	    .add( od_newline ).add( od_newline);
+	strm.add( "SET TMPDIR=" ).add( temppath ).add( od_newline );
+	if ( background )
+	{
+	    strm.add( "SET procnm=%~n0" ).add( od_newline );
+	    strm.add( "SET proctitle=%procnm%_children" ).add( od_newline );
+	    strm.add( "SET pidfile=\"%~dpn0.pid\"" )
+		.add( od_newline ).add( od_newline );
+	}
+
+	strm.add( "@CALL \"" );
     }
-    strm.add( "@CALL \"" );
-#else
-    strm.add( "#!/bin/bash" ).add( od_newline ).add( od_newline )
-    	.add( "export TMPDIR=" ).add( temppath ).add( od_newline );
-    sourcecmd.add( activatefp->fullPath() );
-    if ( envnm )
+    else
     {
-        BufferString venvnm( envnm );
-        if ( venvnm.find(' ') )
-            venvnm.quote( '\"' );
-        sourcecmd.add( " " ).add( venvnm ).add( od_newline );
+	strm.add( "#!/bin/bash" ).add( od_newline ).add( od_newline )
+	    .add( "export TMPDIR=" ).add( temppath ).add( od_newline );
+	sourcecmd.add( activatefp->fullPath() );
+	if ( envnm )
+	{
+	    BufferString venvnm( envnm );
+	    if ( venvnm.find(' ') )
+		venvnm.quote( '\"' );
+	    sourcecmd.add( " " ).add( venvnm ).add( od_newline );
+	}
     }
-#endif
-#ifdef __win__
-    strm.add( activatefp->fullPath() );
-    strm.add( "\"" );
-    if ( envnm )
+
+    if ( __iswin__ )
     {
-	BufferString venvnm( envnm );
-	if ( venvnm.find(' ') )
-	    venvnm.quote( '\"' );
-	strm.add( " " ).add( venvnm ).add( od_newline );
+	strm.add( activatefp->fullPath() );
+	strm.add( "\"" );
+	if ( envnm )
+	{
+	    BufferString venvnm( envnm );
+	    if ( venvnm.find(' ') )
+		venvnm.quote( '\"' );
+
+	    strm.add( " " ).add( venvnm ).add( od_newline );
+	}
     }
-#else
-    strm.add( sourcecmd );
-#endif
-#ifdef __win__
-    if (background)
+    else
+    {
+	strm.add( sourcecmd );
+    }
+
+    if ( __iswin__ && background )
     {
 	const BufferString prognm( cmd.program() );
 	if ( prognm.startsWith("cmd", OD::CaseInsensitive) ||
@@ -775,60 +781,67 @@ FilePath* OD::PythonAccess::getCommand( OS::MachineCommand& cmd,
 	else
 	    strm.add("Start \"%proctitle%\" /MIN ");
     }
-#endif
+
     BufferStringSet args( cmd.args() );
-#ifdef __unix__
-    const bool isscript = args.size() > 1 && args.get(0) == "-c";
-#endif
+    const bool isscript = __iswin__ ? true
+			: args.size() > 1 && args.get(0) == "-c";
     args.insertAt( new BufferString( cmd.program() ), 0 );
     for ( int idx=0; idx<args.size(); idx++ )
     {
 	auto* arg = args[idx];
-    if ( arg->find("$CMD") )
-    {
-        arg->replace("$CMD", sourcecmd);
-    }
+	if ( __iswin__ && arg->find("$CMD") )
+	    arg->replace("$CMD", sourcecmd);
+
 	if ( arg->find(' ') && arg->firstChar() != '\'' &&
 	     arg->firstChar() != '\"' )
-#ifdef __win__
-	    arg->quote('\"');
-#else
 	{
-	    if ( isscript && idx > 0 )
+	    if ( __iswin__ )
 		arg->quote('\"');
 	    else
-		arg->quote();
+	    {
+		if ( isscript && idx > 0 )
+		    arg->quote('\"');
+		else
+		    arg->quote();
+	    }
 	}
-#endif
     }
+
     strm.add( args.cat(" ") );
     if ( background )
     {
-#ifdef __win__
-	strm.add( od_newline );
-	strm.add( "timeout 2 > nul" ).add( od_newline );
-	strm.add( "FOR /F \"tokens=* USEBACKQ\" %%g IN (`tasklist /FI" );
-	strm.add( " \"WINDOWTITLE eq %proctitle%\" /FO CSV /NH`) DO " );
-	strm.add( "(SET \"PROCRET=%%g\")" ).add( od_newline );
-	strm.add( "FOR /F \"tokens=2 delims=,\" %%g IN (\"%PROCRET%\") DO (" );
-	strm.add( "SET \"PIDRET=%%g\")" ).add( od_newline );
-	strm.add( "ECHO %PIDRET:\"=% > %PIDFILE%" );
-#else
-	strm.add( " 2>/dev/null" );
-	strm.add( " &" ).add( od_newline );
-	BufferString pidfile( getPIDFilePathStr(*ret) );
-	strm.add( "echo $! > " ).add( pidfile.quote() );
-#endif
+	if ( __iswin__ )
+	{
+	    strm.add( od_newline );
+	    strm.add( "timeout 2 > nul" ).add( od_newline );
+	    strm.add( "FOR /F \"tokens=* USEBACKQ\" %%g IN (`tasklist /FI" );
+	    strm.add( " \"WINDOWTITLE eq %proctitle%\" /FO CSV /NH`) DO " );
+	    strm.add( "(SET \"PROCRET=%%g\")" ).add( od_newline );
+	    strm.add( "FOR /F \"tokens=2 delims=,\" %%g IN"
+		      " (\"%PROCRET%\") DO (" );
+	    strm.add( "SET \"PIDRET=%%g\")" ).add( od_newline );
+	    strm.add( "ECHO %PIDRET:\"=% > %PIDFILE%" );
+	}
+	else
+	{
+	    strm.add( " 2>/dev/null" );
+	    strm.add( " &" ).add( od_newline );
+	    BufferString pidfile( getPIDFilePathStr(*ret) );
+	    strm.add( "echo $! > " ).add( pidfile.quote() );
+	}
     }
 
-    strm.add( od_newline )
-	.add( "SET \"RETVAL=%ERRORLEVEL%\"" ).add( od_newline )
-	.add( "EXIT /B %RETVAL%" ).add( od_newline );
+    if ( __iswin__ )
+    {
+	strm.add( od_newline )
+	    .add( "SET \"RETVAL=%ERRORLEVEL%\"" ).add( od_newline )
+	    .add( "EXIT /B %RETVAL%" );
+    }
 
-    strm.close();
-#ifdef __unix__
-    File::setExecutable( ret->fullPath(), true );
-#endif
+    strm.add( od_newline ).close();
+    if ( !__iswin__ )
+	File::setExecutable( ret->fullPath(), true );
+
     cmd = OS::MachineCommand( ret->fullPath(), true );
 
     return ret;
@@ -1313,14 +1326,15 @@ bool OD::PythonAccess::getInternalEnvironmentLocation( FilePath& fp,
     }
 
     fp.set( GetSoftwareDir(false) );
-    
+
     if (__ismac__)
         fp.set( fp.pathOnly() );
-    
+
     DirList dl( fp.pathOnly(), File::DirListType::DirsInDir );
     const BufferStringSet::idx_type defidx = dl.nearestMatch( "Python" );
     if ( dl.validIdx(defidx) )
 	dl.swap( 0, defidx );
+
     for ( int idx=0; idx<dl.size(); idx++ )
     {
 	const FilePath pythfp( dl.fullPath(idx) );
