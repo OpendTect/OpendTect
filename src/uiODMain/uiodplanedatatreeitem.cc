@@ -276,7 +276,12 @@ bool uiODPlaneDataTreeItem::displayGuidance()
 
 	RefMan<visSurvey::PlaneDataDisplay> pdd = getDisplay();
 	if ( !pdd )
-	    return false;
+	{
+	    mDynamicCast(visSurvey::PlaneDataDisplay*,pdd,
+			 visserv_->getObject(displayid_));
+	    if ( !pdd )
+		return false;
+	}
 
 	return displayDataFromOther( pdd->id() );
     }
@@ -518,7 +523,7 @@ void uiODPlaneDataTreeItem::handleMenuCB( CallBacker* cb )
     const OD::SliceType slicetype =
 	mnuid==addcrlitem_.id ? OD::SliceType::Crossline
 			      : (mnuid==addzitem_.id ? OD::SliceType::Z
-				      		     : OD::SliceType::Inline);
+						     : OD::SliceType::Inline);
     RefMan<visSurvey::PlaneDataDisplay> newpdd =
 		pdd->createTransverseSection( uimh->getPickedPos(), slicetype );
     if ( !newpdd )
