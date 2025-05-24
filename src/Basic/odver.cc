@@ -32,24 +32,20 @@ mDefineEnumUtils(OD::Platform,Type,"Platform")
 extern "C" const char* GetFullODVersion()
 {
     mDeclStaticString( ret );
-    if ( !ret.isEmpty() )
-	return ret.buf();
+    if ( !ret.isEmpty() ) return ret.buf();
 
-    GetSpecificODVersion( "custom", ret );
-    if ( !ret.isEmpty() )
-	return ret.buf();
-
-    GetSpecificODVersion( "basedata", ret );
-    if ( !ret.isEmpty() )
-	return ret.buf();
-
-    const char* pvnm = GetProjectVersionName();
-    pvnm = lastOcc( pvnm, 'V' );
-    if ( pvnm )
-	ret = pvnm + 1;
+    GetSpecificODVersion( nullptr, ret );
 
     if ( ret.isEmpty() )
-	ret = "0.0.0";
+    {
+	const char* pvnm = GetProjectVersionName();
+	pvnm = lastOcc( pvnm, 'V' );
+	if ( pvnm )
+	    ret = pvnm + 1;
+
+	if ( ret.isEmpty() )
+	    ret = "0.0.0";
+    }
 
     return ret.buf();
 }
