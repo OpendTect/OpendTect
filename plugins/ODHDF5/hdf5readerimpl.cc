@@ -8,11 +8,14 @@ ________________________________________________________________________
 -*/
 
 #include "hdf5readerimpl.h"
-#include "uistrings.h"
+
 #include "arrayndinfo.h"
 #include "file.h"
 #include "iopar.h"
+#include "od_ostream.h"
 #include "odjson.h"
+#include "uistrings.h"
+
 
 #define mCatchErrDuringRead() \
     mCatchAdd2uiRv( uiStrings::phrErrDuringRead(fileName()) )
@@ -41,7 +44,10 @@ HDF5::ReaderImpl::~ReaderImpl()
 void HDF5::ReaderImpl::openFile( const char* fnm, uiRetVal& uirv, bool )
 {
     if ( !File::exists(fnm) )
-	{ uirv.add( uiStrings::phrCannotOpenForRead( fnm ) ); return; }
+    {
+	uirv.add( uiStrings::phrCannotOpenForRead( fnm ) );
+	return;
+    }
 
     try
     {
@@ -49,6 +55,14 @@ void HDF5::ReaderImpl::openFile( const char* fnm, uiRetVal& uirv, bool )
 	closeFile();
 	myfile_ = true;
 	file_ = newfile;
+#ifdef __debug__
+	if ( DBG::isOn(DGB_HDF5) )
+	{
+	    od_cout() << "ROpen: " << newfile->getId() << " "
+		      << newfile->getFileName().c_str() << od_endl;
+	}
+#endif
+
     }
     mCatchAdd2uiRv( uiStrings::phrErrDuringRead(fnm) )
 }
@@ -95,6 +109,22 @@ void HDF5::ReaderImpl::getGroups( BufferStringSet& nms ) const
 }
 
 
+void HDF5::ReaderImpl::getSubGroupsImpl( const Reader& rdr, const char* grpnm,
+					 BufferStringSet& nms )
+{
+    mDynamicCastGet(const ReaderImpl*,rdrimpl,&rdr);
+    if ( !rdrimpl )
+	return;
+
+    const H5::H5Object* group = rdrimpl->selectGroup( grpnm );
+    if ( !group )
+	return;
+
+    nms.setEmpty();
+    rdrimpl->listObjs( *group, nms, true );
+}
+
+
 void HDF5::ReaderImpl::getDataSets( const char* grpnm,
 				    BufferStringSet& nms ) const
 {
@@ -104,6 +134,69 @@ void HDF5::ReaderImpl::getDataSets( const char* grpnm,
 
     nms.setEmpty();
     listObjs( *group, nms, false );
+}
+
+
+void HDF5::ReaderImpl::gtCommentImpl( const H5::H5Object& h5obj,
+				      const char* name,
+				      BufferString& txt, uiRetVal& uirv )
+{
+    static size_t bufsz = 2048;
+    mDeclStaticString(buf);
+    buf.setEmpty().setBufSize( bufsz );
+    const BufferString nm( "/", name );
+    try
+    {
+	const mUnusedVar ssize_t outsz =
+			    h5obj.getComment( nm.buf(), bufsz, buf.getCStr() );
+    }
+    catch ( H5::Exception& exc ) {
+	const char* exc_msg = exc.getCDetailMsg();
+	uirv.add( sHDF5Err(toUiString(exc_msg)) );
+    }
+    catch ( std::exception& exc ) {
+	const char* exc_msg = exc.what();
+	const BufferString filenm( h5obj.getFileName().c_str() );
+	uirv.add( uiStrings::phrErrDuringWrite( filenm.buf() )
+	    .addMoreInfo( toUiString(exc_msg)) );
+    }
+    catch (...) {
+	const char* exc_msg = "Unexpected non-std exception";
+	const BufferString filenm( h5obj.getFileName().c_str() );
+	uirv.add( uiStrings::phrErrDuringWrite(filenm.buf() )
+	    .addMoreInfo( toUiString(exc_msg)) );
+    }
+
+    txt.set( buf.buf() );
+}
+
+
+unsigned HDF5::ReaderImpl::gtVersionImpl( const H5::H5Object& h5obj,
+					  uiRetVal& uirv )
+{
+    unsigned version = 0;
+    try
+    {
+	version = h5obj.objVersion();
+    }
+    catch ( H5::Exception& exc ) {
+	const char* exc_msg = exc.getCDetailMsg();
+	uirv.add( sHDF5Err(toUiString(exc_msg)) );
+    }
+    catch ( std::exception& exc ) {
+	const char* exc_msg = exc.what();
+	const BufferString filenm( h5obj.getFileName().c_str() );
+	uirv.add( uiStrings::phrErrDuringWrite( filenm.buf() )
+	    .addMoreInfo( toUiString(exc_msg)) );
+    }
+    catch (...) {
+	const char* exc_msg = "Unexpected non-std exception";
+	const BufferString filenm( h5obj.getFileName().c_str() );
+	uirv.add( uiStrings::phrErrDuringWrite(filenm.buf() )
+	    .addMoreInfo( toUiString(exc_msg)) );
+    }
+
+    return version;
 }
 
 
@@ -143,8 +236,11 @@ ArrayNDInfo* HDF5::ReaderImpl::gtDataSizes( const H5::DataSet& h5ds ) const
     ArrayNDInfo* ret = nullptr;
     if ( !file_ )
 	mRetNoFile( return ret )
-    else if ( nrdims_ < 1 )
-	{ ErrMsg( "HDF5: Empty dataspace found" ); return nullptr; }
+    if ( nrdims_ < 1 )
+    {
+	ErrMsg( "HDF5: Empty dataspace found" );
+	return nullptr;
+    }
 
     try
     {
@@ -230,7 +326,8 @@ void HDF5::ReaderImpl::gtValues( const H5::DataSet& h5ds,
 	    for ( dim_idx_type idim=0; idim<nrdims_; idim++ )
 		hdfcoordarr[arroffs + idim] = posbuf[idim];
 	}
-	inputdataspace.selectElements( H5S_SELECT_SET, nrpts, hdfcoordarr );
+	inputdataspace.selectElements( H5S_SELECT_SET, nrpts,
+					mVarLenArr(hdfcoordarr) );
 
 	H5::DataSpace outputdataspace( 1, &nrpts );
 	h5ds.read( data, h5DataType( h5ds ), outputdataspace, inputdataspace);
@@ -245,6 +342,7 @@ bool HDF5::ReaderImpl::hasAttribute( const char* attrnm,
     const H5::H5Object* h5scope = getScope( dsky );
     if ( !h5scope )
 	return false;
+
     try
     {
 	return h5scope->attrExists( attrnm );
@@ -259,6 +357,7 @@ int HDF5::ReaderImpl::getNrAttributes( const DataSetKey* dsky ) const
     const H5::H5Object* h5scope = getScope( dsky );
     if ( !h5scope )
 	return 0;
+
     try
     {
 	return h5scope->getNumAttrs();
@@ -295,7 +394,8 @@ void HDF5::ReaderImpl::gtAttribNames( const H5::H5Object& h5obj,
 				      BufferStringSet& nms ) const
 {
     H5::H5Object& h5objed = const_cast<H5::H5Object&>( h5obj );
-    try {
+    try
+    {
 	h5objed.iterateAttrs( add_attr_valstr, NULL, &nms );
     }
     catch( ... ) {}
@@ -354,6 +454,7 @@ bool HDF5::ReaderImpl::getAttribute( const char* attrnm, double& res,
     BufferString resstr;
     if ( !getAttribute(attrnm,resstr,dsky) )
 	return false;
+
     res = resstr.toDouble();
     return true;
 }
@@ -364,7 +465,8 @@ void HDF5::ReaderImpl::gtInfo( const H5::H5Object& h5obj, IOPar& iop,
 {
     iop.setEmpty();
     H5::H5Object& h5objed = const_cast<H5::H5Object&>( h5obj );
-    try {
+    try
+    {
 	h5objed.iterateAttrs( add_attr_iop, NULL, &iop );
     }
     mCatchUnexpected( return );
@@ -396,7 +498,6 @@ uiRetVal HDF5::ReaderImpl::readJSonAttribute( const char* attrnm,
     const H5::Attribute attr = getScope( dsky )->openAttribute( attrnm );
     std::string valstr;
     attr.read( attr.getDataType(), valstr );
-    uirv = vs.parseJSon( const_cast<char*>( valstr.c_str() ),
-							    valstr.size() );
+    uirv = vs.parseJSon( const_cast<char*>( valstr.c_str() ), valstr.size() );
     return uirv;
 }

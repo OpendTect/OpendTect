@@ -8,7 +8,7 @@ ________________________________________________________________________
 -*/
 
 #include "odplugin.h"
-#include "hdf5accessimpl.h"
+#include "hdf5readerimpl.h"
 #include "hdf5writerimpl.h"
 #include "legal.h"
 
@@ -16,9 +16,18 @@ ________________________________________________________________________
 namespace HDF5
 {
 
+using voidFromReaderStringStringSetFn = void(*)(const Reader&,const char*,
+					     BufferStringSet&);
+using voidFromH5StringBufferStringFn = void(*)(const H5::H5Object&,const char*,
+					BufferString&,uiRetVal&);
+using unsignedfromH5Fn = unsigned(*)(const H5::H5Object&,uiRetVal&);
 using voidFromH5StringPairFn = void(*)(const H5::H5Object&,const char* from,
 				       const char* to,uiRetVal&);
-mGlobal(General) void setGlobal_General_Fns(voidFromH5StringPairFn);
+mGlobal(General) void setGlobal_General_Fns(voidFromReaderStringStringSetFn,
+					    voidFromH5StringBufferStringFn,
+					    unsignedfromH5Fn,
+					    voidFromH5StringPairFn,
+					    voidFromH5StringPairFn);
 
 } // namespace HDF5
 
@@ -52,6 +61,11 @@ mDefODInitPlugin(ODHDF5)
 {
     HDF5::AccessProviderImpl::initHDF5();
     legalInformation().addCreator( legalText, "HDF5" );
-    HDF5::setGlobal_General_Fns( HDF5::WriterImpl::renObjImpl );
+    HDF5::setGlobal_General_Fns(
+			    HDF5::ReaderImpl::getSubGroupsImpl,
+			    HDF5::ReaderImpl::gtCommentImpl,
+			    HDF5::ReaderImpl::gtVersionImpl,
+			    HDF5::WriterImpl::stCommentImpl,
+			    HDF5::WriterImpl::renObjImpl );
     return nullptr;
 }

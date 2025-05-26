@@ -264,3 +264,5 @@ inline const char* sPickSetType()	{ return "PickSets"; }
 inline const char* sWellType()		{ return "Wells"; }
 
 } // namespace HDF5
+
+#define DGB_HDF5       0x0400  // HDF5 debug flag
