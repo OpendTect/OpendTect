@@ -7,11 +7,12 @@ ________________________________________________________________________
 
 -*/
 
+#include "hdf5accessimpl.h"
+
 #include "envvars.h"
-#include "file.h"
 #include "hdf5readerimpl.h"
 #include "hdf5writerimpl.h"
-#include "uistrings.h"
+#include "od_ostream.h"
 
 
 HDF5::Reader* HDF5::AccessProviderImpl::getReader() const
@@ -269,7 +270,15 @@ void HDF5::AccessImpl::doCloseFile( Access& acc )
     acc.file_ = nullptr;
     try
     {
-	H5Fclose( h5file->getId() );
+	const auto fid = h5file->getId();
+#ifdef __debug__
+	if ( DBG::isOn(DGB_HDF5) )
+	{
+	    od_cout() << "Close: " << fid << " "
+		      << h5file->getFileName().c_str() << od_endl;
+	}
+#endif
+	H5Fclose( fid );
 	delete h5file;
     }
     mCatchUnexpected( return )
@@ -304,8 +313,8 @@ void HDF5::AccessImpl::selectSlab( H5::DataSpace& ds, const SlabSpec& spec,
     TypeSet<hsize_t> counts, offss, strides;
     if ( !pcounts )
 	pcounts = &counts;
-	const Access::nr_dims_type nrdims
-		= mCast(Access::nr_dims_type,spec.size());
+
+    const Access::nr_dims_type nrdims = mCast(Access::nr_dims_type,spec.size());
     mGetDataSpaceDims( dimsizes, nrdims, ds );
 
     for ( Access::dim_idx_type idim=0; idim<nrdims; idim++ )

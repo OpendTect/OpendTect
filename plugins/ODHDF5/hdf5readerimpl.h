@@ -93,6 +93,14 @@ private:
     uiRetVal		readJSonAttribute(const char*,OD::JSON::ValueSet&,
 				  const DataSetKey* =nullptr) const override;
 
+public:
+
+    static void		getSubGroupsImpl(const Reader&,const char* grpnm,
+					 BufferStringSet&);
+    static void		gtCommentImpl(const H5::H5Object&,const char* name,
+				      BufferString&,uiRetVal&);
+    static unsigned	gtVersionImpl(const H5::H5Object&,uiRetVal&);
+
 };
 
 } // namespace HDF5

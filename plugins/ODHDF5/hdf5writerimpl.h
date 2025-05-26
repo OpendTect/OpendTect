@@ -89,6 +89,9 @@ private:
     unsigned		compressionlvl_ = 1;
 
 public:
+
+    static void		stCommentImpl(const H5::H5Object&,const char* name,
+				      const char* comment,uiRetVal&);
     static void		renObjImpl(const H5::H5Object&,const char* from,
 				   const char* to,uiRetVal&);
 

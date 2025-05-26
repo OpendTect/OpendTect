@@ -147,6 +147,14 @@ static bool testReadInfo( HDF5::Reader& rdr )
     mRunStandardTestWithError( grps.size()==8, "Groups in file",
 			       BufferString("nrgrps=",grps.size()) );
 
+    BufferStringSet subgrps;
+    rdr.getSubGroups( "MainGroup", subgrps );
+    mRunStandardTestWithError( subgrps.size()==2 &&
+				subgrps.get(0) == "/GroupA" &&
+				subgrps.get(1) == "/GroupB",
+				"Sub groups in file",
+				BufferString("nrgrps=",subgrps.size()) );
+
     BufferStringSet dsnms;
     rdr.getDataSets( grps.get(0), dsnms );
     mRunStandardTestWithError( dsnms.size()==nrblocks_, "Datasets in group",
@@ -344,6 +352,14 @@ static bool testReadData( HDF5::Reader& rdr )
 				BufferString("v3_11=",v3_11) )
     mRunStandardTestWithError( v3_31==431,"Correct Slabby value [3,31]",
 				BufferString("v3_31=",v3_31) )
+    BufferString comment;
+    uirv = rdr.getComment( dsky, comment );
+    mRunStandardTestWithError( comment == "Comment on a dataset",
+				"Dataset has comment", toString(uirv) );
+    dsky.setDataSetName( "" );
+    uirv = rdr.getComment( dsky, comment );
+    mRunStandardTestWithError( comment == "Comment on a group",
+			       "Group has comment", toString(uirv) );
 
     HDF5::DataSetKey dsky2( "", "ShortArr" );
     TypeSet<short> shortvals;
@@ -354,6 +370,13 @@ static bool testReadData( HDF5::Reader& rdr )
 				BufferString("sz=",shortvals.size()) )
     mRunStandardTestWithError( shortvals[0]==10, "Correct ShortArr value [0]",
 				BufferString("v[0]=",shortvals[0]) )
+    uirv = rdr.getComment( dsky2, comment );
+    mRunStandardTestWithError( comment.isEmpty(), "Group has no comment",
+				toString(uirv) );
+    unsigned version = 0;
+    uirv = rdr.getVersion( dsky2, version );
+    mRunStandardTestWithError( uirv.isOK() && version == 1, "DataSet version",
+			       toString(uirv) );
 
     dsky2.setDataSetName( "Strings" );
     BufferStringSet bss;
@@ -468,6 +491,8 @@ static bool testWrite()
     dsky.setDataSetName( "Slabby Data" );
     uirv = iarrtoolx2.createDataSet( *wrr, dsky );
     mAddTestResult( "Create Slabby DataSet" );
+    uirv = wrr->setComment( dsky, "Comment on a dataset" );
+    mAddTestResult( "Add comment to 'Slabby/Slabby Data' Dataset" );
     HDF5::SlabSpec slabspec; HDF5::SlabDimSpec dimspec;
     dimspec.start_ = 0; dimspec.step_ = 1; dimspec.count_ = dim1_;
     slabspec += dimspec;
@@ -482,6 +507,8 @@ static bool testWrite()
     mAddTestResult( "Write Slabby Second Slab" );
     dsky.setDataSetName( "" );
     wrr->setAttribute( "slabby key", "slabby value", &dsky );
+    uirv = wrr->setComment( dsky, "Comment on a group" );
+    mAddTestResult( "Add comment to Slabby group" );
 
     mRunStandardTest( !wrr->hasGroup("Yo"), "Does not have an invalid group" );
     dsky.setGroupName( "Component 1" );

@@ -59,7 +59,7 @@ public:
 				const ArrayNDInfo& addedsz,
 				const ArrayNDInfo& changedir,
 				PtrMan<ArrayNDInfo>* existsinfo =nullptr);
-			//!<param changedir: Array reshaping behaviour
+			//!<param changedir: Array reshaping behavior
 			//! for each dimension: -1 = shrink, 0 = no change
 			//! 1 = grow
     uiRetVal		createDataSetIfMissing(const DataSetKey&,ODDataType,
@@ -77,6 +77,7 @@ public:
     uiRetVal		put(const DataSetKey&,const TypeSet<T>&);
     uiRetVal		put(const DataSetKey&,const BufferStringSet&);
 
+    uiRetVal		setComment(const DataSetKey&,const char*);
 			// null = root scope
     virtual void	setAttribute(const char* ky,const char* val,
 				     const DataSetKey* =nullptr)	= 0;
@@ -120,6 +121,8 @@ private:
 				  H5::Group&,H5::DataSet*,
 				  const char* dsnm,uiRetVal&) = 0;
     virtual void	rmAttrib(const char*,H5::H5Object&)		= 0;
+    void		stComment(const H5::H5Object&,const char* name,
+				  const char* comment,uiRetVal&);
     virtual void	rmAllAttribs(H5::H5Object&)			= 0;
 
     virtual void	ptInfo(const IOPar&,H5::H5Object&,uiRetVal&)	= 0;

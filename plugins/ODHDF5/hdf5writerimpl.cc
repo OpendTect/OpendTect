@@ -12,9 +12,9 @@ ________________________________________________________________________
 #include "datachar.h"
 #include "envvars.h"
 #include "hdf5readerimpl.h"
-#include "uistrings.h"
-#include "arrayndimpl.h"
 #include "iopar.h"
+#include "od_ostream.h"
+#include "uistrings.h"
 
 static unsigned gzip_pixels_per_block = 16;
 		    // can be an even number [2,32]
@@ -58,11 +58,18 @@ void HDF5::WriterImpl::openFile( const char* fnm, uiRetVal& uirv, bool edit )
 {
     try
     {
-	H5::H5File* newfile = new H5::H5File( fnm, edit ? H5F_ACC_RDWR
-							: H5F_ACC_TRUNC );
+	auto* newfile = new H5::H5File( fnm, edit ? H5F_ACC_RDWR
+						  : H5F_ACC_TRUNC );
 	closeFile();
 	myfile_ = true;
 	file_ = newfile;
+#ifdef __debug__
+	if ( DBG::isOn(DGB_HDF5) )
+	{
+	    od_cout() << "WOpen: " << newfile->getId() << " "
+		      << newfile->getFileName().c_str() << od_endl;
+	}
+#endif
     }
     mCatchAdd2uiRv( uiStrings::phrCannotOpenForWrite(fnm) )
 }
@@ -72,7 +79,8 @@ H5::Group* HDF5::WriterImpl::ensureGroup( const char* grpnm, uiRetVal& uirv )
 {
     if ( !selectGroup(grpnm) )
     {
-	try {
+	try
+	{
 	    group_ = file_->createGroup( grpnm );
 	}
 	mCatchAdd2uiRv( tr("Cannot create Group '%1'").arg(grpnm) )
@@ -186,6 +194,14 @@ H5::DataSet* HDF5::WriterImpl::crDS( const DataSetKey& dsky,
 	    if ( allowshuffle && compressionlvl_ > 0 )
 		proplist.setShuffle();
 	}
+
+#ifdef __debug__
+	if ( DBG::isOn(DGB_HDF5) )
+	{
+	    od_cout() << "Create DataSet: "
+		      << dsky.fullDataSetName() << od_endl;
+	}
+#endif
 	dataset_ = group_.createDataSet( dsky.dataSetName(), h5dt,
 					 dataspace, proplist );
     }
@@ -199,13 +215,26 @@ H5::DataSet* HDF5::WriterImpl::crTxtDS( const DataSetKey& dsky, uiRetVal& uirv )
     if ( !ensureGroup(dsky.groupName(),uirv) )
 	return nullptr;
 
-    hsize_t dims[1]; dims[0] = 1;
-    const char data = '\0';
+    hsize_t dims[1] = { 1 };
+    hsize_t maxsz[1] = { 1024 }; // { H5S_UNLIMITED };
+    hsize_t chunksz[1] = { 1024 }; // { H5S_UNLIMITED };
+    H5std_string data;
     const H5DataType h5dt = H5::PredType::C_S1;
     try
     {
+	H5::DataSpace dataspace( 1, dims, maxsz );
+	H5::DSetCreatPropList proplist;
+	proplist.setChunk( 1, chunksz );
+
+#ifdef __debug__
+	if ( DBG::isOn(DGB_HDF5) )
+	{
+	    od_cout() << "Create DataSet: "
+		      << dsky.fullDataSetName() << od_endl;
+	}
+#endif
 	dataset_ = group_.createDataSet( dsky.dataSetName(),
-					 h5dt, H5::DataSpace(1,dims) );
+					 h5dt, dataspace, proplist );
 	dataset_.write( &data, h5dt );
     }
     mCatchErrDuringWrite()
@@ -240,7 +269,8 @@ void HDF5::WriterImpl::reSzDS( const ArrayNDInfo& info, H5::DataSet& h5ds,
     if ( !havechg )
 	return;
 
-    try {
+    try
+    {
 	h5ds.extend( newdims.arr() );
     }
     mCatchErrDuringWrite();
@@ -297,6 +327,7 @@ void HDF5::WriterImpl::ptStrings( const BufferStringSet& bss,
 
     for ( int istr=0; istr<nrstrs; istr++ )
 	strs[istr] = (char*)bss.get( istr ).buf();
+
     hsize_t dims[1] = { nrstrs };
     hsize_t maxdims[1] = { H5S_UNLIMITED };
 
@@ -360,7 +391,8 @@ void HDF5::WriterImpl::rmAttrib( const char* nm, H5::H5Object& h5obj )
     if ( !h5obj.attrExists(nm) )
 	return;
 
-    try {
+    try
+    {
 	H5Adelete( h5obj.getId(), nm );
     }
 
@@ -373,7 +405,8 @@ void HDF5::WriterImpl::rmAllAttribs( H5::H5Object& h5obj )
     const int nrattrs = h5obj.getNumAttrs();
     for ( int idx=nrattrs-1; idx>=0; idx-- )
     {
-	try {
+	try
+	{
 	    const H5::Attribute attr = h5obj.openAttribute( (unsigned int)idx );
 	    const H5std_string attrnm = attr.getName();
 	    H5Adelete( h5obj.getId(), attrnm.c_str() );
@@ -400,6 +433,37 @@ void HDF5::WriterImpl::setAttribute( const char* ky, const char* val,
     if ( !h5scope )
 	return;
     setAttribute( ky, val, *h5scope );
+}
+
+
+void HDF5::WriterImpl::stCommentImpl( const H5::H5Object& h5obj,
+				      const char* name,
+				      const char* comment, uiRetVal& uirv )
+{
+    const BufferString nm( "/", name );
+    try
+    {
+	if ( !comment || !*comment )
+	    h5obj.removeComment( nm.buf() );
+	else
+	    h5obj.setComment( nm.buf(), comment );
+    }
+    catch ( H5::Exception& exc ) {
+	const char* exc_msg = exc.getCDetailMsg();
+	uirv.add( sHDF5Err(toUiString(exc_msg)) );
+    }
+    catch ( std::exception& exc ) {
+	const char* exc_msg = exc.what();
+	const BufferString filenm( h5obj.getFileName().c_str() );
+	uirv.add( uiStrings::phrErrDuringWrite( filenm.buf() )
+	    .addMoreInfo( toUiString(exc_msg)) );
+    }
+    catch (...) {
+	const char* exc_msg = "Unexpected non-std exception";
+	const BufferString filenm( h5obj.getFileName().c_str() );
+	uirv.add( uiStrings::phrErrDuringWrite(filenm.buf() )
+	    .addMoreInfo( toUiString(exc_msg)) );
+    }
 }
 
 

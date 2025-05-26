@@ -7,12 +7,14 @@ ________________________________________________________________________
 
 -*/
 
-#include "arrayndimpl.h"
+#include "hdf5access.h"
+#include "hdf5reader.h"
+#include "hdf5writer.h"
+
 #include "envvars.h"
 #include "file.h"
 #include "filepath.h"
 #include "genc.h"
-#include "hdf5arraynd.h"
 #include "iopar.h"
 #include "od_istream.h"
 #include "settings.h"
@@ -169,7 +171,7 @@ bool HDF5::Access::isHDF5File( const char* fnm )
 	return false;
 
     od_istream strm( fnm );
-    od_int64 magicnumb = 0;
+    od_uint64 magicnumb = 0;
     strm.getBin( magicnumb );
     if ( __islittle__ )
 	SwapBytes( &magicnumb, sizeof(magicnumb) );
@@ -196,12 +198,13 @@ HDF5::AccessProvider* HDF5::AccessProvider::mkProv( int idx )
 HDF5::Reader* HDF5::AccessProvider::mkReader( int idx )
 {
     AccessProvider* prov = mkProv( idx );
-    Reader* rdr = 0;
+    Reader* rdr = nullptr;
     if ( prov )
     {
 	rdr = prov->getReader();
 	delete prov;
     }
+
     return rdr;
 }
 
@@ -209,12 +212,13 @@ HDF5::Reader* HDF5::AccessProvider::mkReader( int idx )
 HDF5::Writer* HDF5::AccessProvider::mkWriter( int idx )
 {
     AccessProvider* prov = mkProv( idx );
-    Writer* wrr = 0;
+    Writer* wrr = nullptr;
     if ( prov )
     {
 	wrr = prov->getWriter();
 	delete prov;
     }
+
     return wrr;
 }
 
@@ -477,13 +481,17 @@ uiRetVal HDF5::Reader::getValues( const DataSetKey& dsky,
     uiRetVal uirv;
     if ( !file_ )
 	mRetNoFileInUiRv()
+
     if ( pts.isEmpty() )
 	return uirv;
+
     if ( !data )
 	mRetNoDataInUiRv()
+
     const H5::DataSet* dsscope = getDSScope( dsky );
     if ( !dsscope )
 	mRetNoScopeInUiRv()
+
     const auto nrdims = nrDims();
     if ( nrdims < 1 )
 	mRetDataSpaceBad()
@@ -492,6 +500,36 @@ uiRetVal HDF5::Reader::getValues( const DataSetKey& dsky,
     return uirv;
 }
 
+
+uiRetVal HDF5::Reader::getComment( const DataSetKey& dsky,
+				   BufferString& txt ) const
+{
+    uiRetVal uirv;
+    if ( !file_ )
+	mRetNoFileInUiRv()
+
+    const H5::H5Object* h5scope = getScope( &dsky );
+    if ( !h5scope )
+	mRetNoScopeInUiRv()
+
+    gtComment( *h5scope, dsky.fullDataSetName().buf(), txt, uirv );
+    return uirv;
+}
+
+
+uiRetVal HDF5::Reader::getVersion( const DataSetKey& dsky,
+				   unsigned& ver ) const
+{
+    uiRetVal uirv;
+    if ( !file_ )
+	mRetNoFileInUiRv()
+    const H5::H5Object* h5scope = getScope( &dsky );
+    if ( !h5scope )
+	mRetNoScopeInUiRv()
+
+    ver = gtVersion( *h5scope, uirv );
+    return uirv;
+}
 
 
 uiRetVal HDF5::Writer::open4Edit( const char* fnm )
@@ -611,7 +649,9 @@ uiRetVal HDF5::Writer::createTextDataSet( const DataSetKey& dsky )
     if ( !file_ )
 	mRetNoFileInUiRv()
 
-    crTxtDS( dsky, uirv );
+    if ( !hasDataSet(dsky) )
+	crTxtDS( dsky, uirv );
+
     return uirv;
 }
 
@@ -624,6 +664,7 @@ uiRetVal HDF5::Writer::resizeDataSet( const DataSetKey& dsky,
 	mRetNoFileInUiRv()
     else if ( inf.getTotalSz() < 1 )
 	{ pErrMsg("zero dims"); }
+
     H5::DataSet* dsscope = setDSScope( dsky );
     if ( !dsscope )
 	mRetNoScopeInUiRv()
@@ -724,11 +765,11 @@ uiRetVal HDF5::Writer::renameObject( const DataSetKey& oldky,
     const BufferString from = oldky.fullDataSetName();
     const BufferString to = newky.fullDataSetName();
     const DataSetKey* dsky = nullptr;
-    const H5::H5Object* h5obj = getScope( dsky );
-    if ( !h5obj )
+    const H5::H5Object* h5scope = getScope( dsky );
+    if ( !h5scope )
 	mRetNoScopeInUiRv()
 
-    renObj( *h5obj, from.buf(), to.buf(), uirv );
+    renObj( *h5scope, from.buf(), to.buf(), uirv );
     if ( !uirv.isOK() )
 	return uirv;
 
@@ -762,11 +803,30 @@ uiRetVal HDF5::Reader::get( IOPar& iop, const DataSetKey* dsky ) const
     uiRetVal uirv;
     if ( !file_ )
 	mRetNoFileInUiRv()
+
     const H5::H5Object* h5scope = getScope( dsky );
     if ( !h5scope )
 	mRetNoScopeInUiRv()
 
     gtInfo( *h5scope, iop, uirv );
+    return uirv;
+}
+
+
+
+uiRetVal HDF5::Writer::setComment( const DataSetKey& dsky_, const char* txt )
+{
+    const DataSetKey* dsky = &dsky_;
+    uiRetVal uirv;
+    if ( !file_ )
+	mRetNoFileInUiRv()
+
+    const H5::H5Object* h5scope = getScope( dsky );
+    if ( !h5scope )
+	mRetNoScopeInUiRv()
+
+    stComment( *h5scope, dsky->fullDataSetName().buf(), txt, uirv );
+
     return uirv;
 }
 
@@ -820,23 +880,99 @@ uiRetVal HDF5::Writer::removeAllAttributes( const DataSetKey* dsky )
 
 namespace HDF5 {
 
+static void NoGetSubGroupsFn(const Reader&,const char*,BufferStringSet&)
+{
+    pFreeFnErrMsg("getSubGroups function not available; "
+		  "Probably the ODHDF5 plugin is not loaded");
+}
+
+static void NoGetCommentFn( const H5::H5Object&, const char*,
+			    BufferString&, uiRetVal& uirv )
+{
+    uirv = uiStrings::phrInternalErr( "getComment function not available,"
+				"Probably the ODHDF5 plugin is not loaded" );
+}
+
+static unsigned NoGetVersionFn( const H5::H5Object& ,uiRetVal& uirv )
+{
+    uirv = uiStrings::phrInternalErr( "getVersion function not available,"
+				"Probably the ODHDF5 plugin is not loaded" );
+    return 0;
+}
+
+static void NoSetCommentFn( const H5::H5Object&, const char*, const char*,
+			    uiRetVal& uirv )
+{
+    uirv = uiStrings::phrInternalErr( "setComment function not available,"
+				"Probably the ODHDF5 plugin is not loaded" );
+}
+
 static void NoRenameFn( const H5::H5Object&, const char*, const char*,
 			uiRetVal& uirv )
 {
     uirv = uiStrings::phrInternalErr( "Rename function not available,"
-				   "Probably the ODHDF5 plugin is not loaded" );
+				"Probably the ODHDF5 plugin is not loaded" );
 }
+
+using voidFromReaderStringStringSetFn = void(*)(const Reader&,const char*,
+						BufferStringSet&);
+using voidFromH5StringBufferStringFn = void(*)(const H5::H5Object&,const char*,
+					BufferString&,uiRetVal&);
+using unsignedfromH5Fn = unsigned(*)(const H5::H5Object&,uiRetVal&);
 using voidFromH5StringPairFn = void(*)(const H5::H5Object&,const char* from,
 				       const char* to,uiRetVal&);
+static voidFromReaderStringStringSetFn getsubgrpsfnobj_ = NoGetSubGroupsFn;
+static voidFromH5StringBufferStringFn getcommentfnobj_ = NoGetCommentFn;
+static unsignedfromH5Fn getversionfnobj_ = NoGetVersionFn;
+static voidFromH5StringPairFn setcommentfnobj_ = NoSetCommentFn;
 static voidFromH5StringPairFn renamefnobj_ = NoRenameFn;
 
-mGlobal(General) void setGlobal_General_Fns(voidFromH5StringPairFn);
-void setGlobal_General_Fns( voidFromH5StringPairFn renamefn )
+mGlobal(General) void setGlobal_General_Fns(voidFromReaderStringStringSetFn,
+					    voidFromH5StringBufferStringFn,
+					    unsignedfromH5Fn,
+					    voidFromH5StringPairFn,
+					    voidFromH5StringPairFn);
+void setGlobal_General_Fns( voidFromReaderStringStringSetFn getsubgrpsfn,
+			    voidFromH5StringBufferStringFn gtcommentfn,
+			    unsignedfromH5Fn gtversionfn,
+			    voidFromH5StringPairFn stcommentfn,
+			    voidFromH5StringPairFn renamefn )
 {
+    getsubgrpsfnobj_ = getsubgrpsfn;
+    getcommentfnobj_ = gtcommentfn;
+    getversionfnobj_ = gtversionfn;
+    setcommentfnobj_ = stcommentfn;
     renamefnobj_ = renamefn;
 }
 
 } // namespace HDF5
+
+void HDF5::Reader::getSubGroups( const char* grpnm, BufferStringSet& ret ) const
+{
+    (*getsubgrpsfnobj_)( *this, grpnm, ret );
+}
+
+
+void HDF5::Reader::gtComment( const H5::H5Object& h5obj, const char* name,
+			      BufferString& txt, uiRetVal& uirv ) const
+{
+    (*getcommentfnobj_)( h5obj, name, txt, uirv );
+}
+
+
+unsigned HDF5::Reader::gtVersion( const H5::H5Object& h5obj,
+				  uiRetVal& uirv ) const
+{
+    return (*getversionfnobj_)( h5obj, uirv );
+}
+
+
+void HDF5::Writer::stComment( const H5::H5Object& h5obj, const char* name,
+			      const char* comment, uiRetVal& uirv )
+{
+    (*setcommentfnobj_)( h5obj, name, comment, uirv );
+}
+
 
 void HDF5::Writer::renObj( const H5::H5Object& h5obj, const char* from,
 			   const char* to, uiRetVal& uirv )
