@@ -142,7 +142,6 @@ void HDF5::ReaderImpl::gtComment( const H5::H5Location& h5loc, const char* name,
     const BufferString nm( "/", name );
     try
     {
-
 	const mUnusedVar ssize_t outsz =
 			    h5loc.getComment( nm.buf(), bufsz, buf.getCStr() );
     }
