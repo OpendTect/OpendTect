@@ -147,6 +147,14 @@ static bool testReadInfo( HDF5::Reader& rdr )
     mRunStandardTestWithError( grps.size()==8, "Groups in file",
 			       BufferString("nrgrps=",grps.size()) );
 
+    BufferStringSet subgrps;
+    rdr.getSubGroups( "MainGroup", subgrps );
+    mRunStandardTestWithError( subgrps.size()==2 &&
+				subgrps.get(0) == "/GroupA" &&
+				subgrps.get(1) == "/GroupB",
+				"Sub groups in file",
+				BufferString("nrgrps=",subgrps.size()) );
+
     BufferStringSet dsnms;
     rdr.getDataSets( grps.get(0), dsnms );
     mRunStandardTestWithError( dsnms.size()==nrblocks_, "Datasets in group",

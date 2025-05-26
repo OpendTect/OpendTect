@@ -510,13 +510,17 @@ uiRetVal HDF5::Reader::getValues( const DataSetKey& dsky,
     uiRetVal uirv;
     if ( !file_ )
 	mRetNoFileInUiRv()
+
     if ( pts.isEmpty() )
 	return uirv;
+
     if ( !data )
 	mRetNoDataInUiRv()
+
     const H5::DataSet* dsscope = getDSScope( dsky );
     if ( !dsscope )
 	mRetNoScopeInUiRv()
+
     const auto nrdims = nrDims();
     if ( nrdims < 1 )
 	mRetDataSpaceBad()
@@ -532,6 +536,7 @@ uiRetVal HDF5::Reader::getComment( const DataSetKey& dsky,
     uiRetVal uirv;
     if ( !file_ )
 	mRetNoFileInUiRv()
+
     const H5::H5Location* h5loc = getLocation( &dsky );
     if ( !h5loc )
 	mRetNoScopeInUiRv()
@@ -688,6 +693,7 @@ uiRetVal HDF5::Writer::resizeDataSet( const DataSetKey& dsky,
 	mRetNoFileInUiRv()
     else if ( inf.getTotalSz() < 1 )
 	{ pErrMsg("zero dims"); }
+
     H5::DataSet* dsscope = setDSScope( dsky );
     if ( !dsscope )
 	mRetNoScopeInUiRv()
@@ -826,6 +832,7 @@ uiRetVal HDF5::Reader::get( IOPar& iop, const DataSetKey* dsky ) const
     uiRetVal uirv;
     if ( !file_ )
 	mRetNoFileInUiRv()
+
     const H5::H5Object* h5scope = getScope( dsky );
     if ( !h5scope )
 	mRetNoScopeInUiRv()
@@ -835,12 +842,14 @@ uiRetVal HDF5::Reader::get( IOPar& iop, const DataSetKey* dsky ) const
 }
 
 
+
 uiRetVal HDF5::Writer::setComment( const DataSetKey& dsky_, const char* txt )
 {
     const DataSetKey* dsky = &dsky_;
     uiRetVal uirv;
     if ( !file_ )
 	mRetNoFileInUiRv()
+
     const H5::H5Location* h5loc = setLocation( dsky );
     if ( !h5loc )
 	mRetNoScopeInUiRv()
