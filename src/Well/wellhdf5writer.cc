@@ -12,16 +12,20 @@
 #include "filepath.h"
 #include "ioman.h"
 #include "iostrm.h"
+#include "jsonkeystrs.h"
 #include "keystrs.h"
 #include "oddirs.h"
+#include "odjson.h"
 #include "welld2tmodel.h"
 #include "welldata.h"
 #include "welldisp.h"
+#include "wellio.h"
 #include "welllog.h"
 #include "welllogset.h"
 #include "wellmarker.h"
 #include "wellreader.h"
 #include "welltrack.h"
+#include "welltransl.h"
 
 
 namespace Well
@@ -75,10 +79,21 @@ bool Well::HDF5Writer::useHDF5( const IOObj& ioobj, uiString& emsg )
     emsg.setEmpty();
     if ( !File::isEmpty(fnm) )
     {
-	usehdf = HDF5::isHDF5File(fnm);
-	if ( usehdf && !HDF5::isAvailable() )
-	    emsg = HDF5::Access::sHDF5NotAvailable( fnm );
+	if ( File::exists(fnm) )
+	{
+	    usehdf = HDF5::isHDF5File( fnm );
+	    if ( usehdf && !HDF5::isAvailable() )
+		emsg = HDF5::Access::sHDF5NotAvailable( fnm );
+	}
+	else
+	{
+	    const FilePath fp( fnm );
+	    const Translator* hdfwelltr = hdfWellTranslator::instance();
+	    usehdf = hdfwelltr &&
+		     StringView(fp.extension()) == hdfwelltr->defExtension();
+	}
     }
+
     return usehdf;
 }
 
@@ -381,7 +396,36 @@ bool Well::HDF5Writer::putLogs() const
 	    break;
     }
 
-    return true;
+    return putDefLogs();
+}
+
+
+bool Well::HDF5Writer::putDefLogs() const
+{
+    IOPar defiop;
+    wd_.logs().defaultLogFillPar( defiop );
+    PtrMan<IOPar> defmniop = defiop.subselect( Well::LogSet::sKeyDefMnem() );
+    if ( !defmniop )
+	return true;
+
+    const HDF5::DataSetKey dsky( sLogsGrpName(), nullptr );
+    if ( !ensureFileOpen() )
+	return false;
+
+    auto& wrr = cCast(HDF5::Writer&,*wrr_);
+    OD::JSON::Array jsonarr( true );
+    IOParIterator iter( *defmniop.ptr() );
+    BufferString key, val;
+    while( iter.next(key,val) )
+    {
+	OD::JSON::Object* subobj = jsonarr.add( new OD::JSON::Object );
+	subobj->set( sJSONKey::Mnemonic(), key.buf() );
+	subobj->set( sJSONKey::Log(), val.buf() );
+    }
+
+    const uiRetVal uirv = wrr.writeJSonAttribute( Well::LogSet::sKeyDefMnem(),
+						  jsonarr, &dsky );
+    return uirv.isOK();
 }
 
 
@@ -425,7 +469,7 @@ bool Well::HDF5Writer::setLogAttribs( const HDF5::DataSetKey& dsky,
     auto& wrr = cCast(HDF5::Writer&,*wrr_);
 
     putDepthUnit( iop );
-    uiRetVal uirv = wrr.set( iop, &dsky );
+    const uiRetVal uirv = wrr.set( iop, &dsky );
     return uirv.isOK();
 }
 
@@ -444,7 +488,6 @@ int Well::HDF5Writer::getLogIndex( const char* lognm ) const
     logidx++;
     return logidx;
 }
-
 
 
 bool Well::HDF5Writer::putLog( const Log& wl ) const

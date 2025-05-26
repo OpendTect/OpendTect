@@ -9,13 +9,8 @@ ________________________________________________________________________
 -*/
 
 #include "wellmod.h"
+
 #include "transl.h"
-
-class BufferStringSet;
-class Executor;
-class WellDataIOProvider;
-
-namespace Well { class Data; }
 
 /*!\brief Well TranslatorGroup */
 
@@ -24,7 +19,6 @@ mExpClass(Well) WellTranslatorGroup : public TranslatorGroup
 {			    isTranslatorGroup(Well)
 public:
 			mDefEmptyTranslatorGroupConstructor(Well)
-    const char*		defExtension() const override { return "well"; }
 };
 
 
@@ -35,19 +29,43 @@ mExpClass(Well) WellTranslator : public Translator
 public:
 			mDefEmptyTranslatorBaseConstructor(Well)
 
-    virtual const WellDataIOProvider&	getProv() const			= 0;
+protected:
+
+    bool		implRename(const IOObj*,const char*) const override;
 
 };
 
 
-/*!\brief WellTranslator for 'dGB' stored wells, OD's default well format. */
+/*!\brief WellTranslator for 'HDF5' stored wells, OD's newest well format. */
+
+mExpClass(Well) hdfWellTranslator : public WellTranslator
+{				isTranslator(hdf,Well)
+public:
+			mDefEmptyTranslatorConstructor(hdf,Well)
+
+private:
+
+    const char*		iconName() const override;
+    const char*		defExtension() const override;
+    bool		isUserSelectable(bool forread) const override;
+
+    bool		implRename(const IOObj*,const char*) const override;
+
+};
+
+
+/*!\brief WellTranslator for 'dGB' stored wells, OD's legacy well format. */
 
 mExpClass(Well) odWellTranslator : public WellTranslator
 {				isTranslator(od,Well)
 public:
-				mDefEmptyTranslatorConstructor(od,Well)
+			mDefEmptyTranslatorConstructor(od,Well)
 
-    const WellDataIOProvider&	getProv() const override;
+private:
+
+    const char*		iconName() const override;
+    const char*		defExtension() const override;
+    bool		isUserSelectable(bool forread) const override;
 
     bool		implRemove(const IOObj*,bool) const override;
     bool		implRename(const IOObj*,const char*) const override;

@@ -14,6 +14,7 @@ ________________________________________________________________________
 #include "iopar.h"
 #include "keystrs.h"
 #include "ptrman.h"
+#include "separstr.h"
 #include "welltransl.h"
 
 #include "uilistbox.h"
@@ -25,11 +26,12 @@ ________________________________________________________________________
 				  : ( forread ? "Input Well" : "Output Well" )
 
 uiIOObjSel::Setup uiWellSel::getSetup( bool forread, const uiString& seltxt,
-					bool withinserters ) const
+				       bool withinserters ) const
 {
     uiString st = seltxt;
     if ( st.isEmpty() )
 	st = forread ? tr("Input Well") : tr("Output Well");
+
     uiIOObjSel::Setup su( st );
     su.withinserters( withinserters );
     return su;
@@ -40,13 +42,19 @@ IOObjContext uiWellSel::getContext( bool forread, bool withinserters ) const
 {
     IOObjContext ret( mRWIOObjContext(Well,forread) );
     if ( !withinserters )
-	ret.fixTranslator( "dGB" );
+    {
+	FileMultiString fms;
+	fms.add( hdfWellTranslator::translKey() );
+	fms.add( odWellTranslator::translKey() );
+	ret.fixTranslator( fms.str() );
+    }
+
     return ret;
 }
 
 
 uiWellSel::uiWellSel( uiParent* p, bool forread, const uiString& seltxt,
-			bool withinserters )
+		      bool withinserters )
     : uiIOObjSel(p,getContext(forread,withinserters),
 		 getSetup(forread,seltxt,withinserters))
 {

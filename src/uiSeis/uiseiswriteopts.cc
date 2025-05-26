@@ -21,6 +21,8 @@ ________________________________________________________________________
 #define mCBVSPS3DTranslInstance mTranslTemplInstance(SeisPS3D,CBVS)
 
 
+// uiCBVSVolOpts
+
 uiCBVSVolOpts::uiCBVSVolOpts( uiParent* p )
     : uiIOObjTranslatorWriteOpts(p,mCBVSVolTranslInstance)
 {
@@ -39,7 +41,7 @@ uiCBVSVolOpts::~uiCBVSVolOpts()
 {}
 
 
-void uiCBVSVolOpts::use( const IOPar& iop )
+void uiCBVSVolOpts::usePar( const IOPar& iop )
 {
     BufferString res = iop.find( sKey::DataStorage() );
     BufferString firstchar(res[0]);
@@ -56,7 +58,7 @@ void uiCBVSVolOpts::use( const IOPar& iop )
 }
 
 
-bool uiCBVSVolOpts::fill( IOPar& iop ) const
+bool uiCBVSVolOpts::fillPar( IOPar& iop ) const
 {
     const int dctyp = stortypfld_->getIntValue();
     iop.set( sKey::DataStorage(), DataCharacteristics::UserTypeNames()[dctyp] );
@@ -66,11 +68,19 @@ bool uiCBVSVolOpts::fill( IOPar& iop ) const
 }
 
 
+uiIOObjTranslatorWriteOpts* uiCBVSVolOpts::create( uiParent* p )
+{
+    return new uiCBVSVolOpts( p );
+}
+
+
 void uiCBVSVolOpts::initClass()
 {
     factory().addCreator( create, mCBVSVolTranslInstance.getDisplayName() );
 }
 
+
+// uiCBVSPS3DOpts
 
 uiCBVSPS3DOpts::uiCBVSPS3DOpts( uiParent* p )
     : uiIOObjTranslatorWriteOpts(p,mCBVSPS3DTranslInstance)
@@ -86,7 +96,7 @@ uiCBVSPS3DOpts::~uiCBVSPS3DOpts()
 {}
 
 
-void uiCBVSPS3DOpts::use( const IOPar& iop )
+void uiCBVSPS3DOpts::usePar( const IOPar& iop )
 {
     const BufferString res = iop.find( sKey::DataStorage() );
     const char* charstrs = res.str();
@@ -96,11 +106,17 @@ void uiCBVSPS3DOpts::use( const IOPar& iop )
 }
 
 
-bool uiCBVSPS3DOpts::fill( IOPar& iop ) const
+bool uiCBVSPS3DOpts::fillPar( IOPar& iop ) const
 {
     const int dctyp = stortypfld_->getIntValue();
     iop.set( sKey::DataStorage(), DataCharacteristics::UserTypeNames()[dctyp] );
     return true;
+}
+
+
+uiIOObjTranslatorWriteOpts* uiCBVSPS3DOpts::create( uiParent* p )
+{
+    return new uiCBVSPS3DOpts( p );
 }
 
 

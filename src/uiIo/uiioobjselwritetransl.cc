@@ -20,6 +20,7 @@ ________________________________________________________________________
 
 
 // uiIOObjTranslatorWriteOpts
+
 mImplFactory1Param(uiIOObjTranslatorWriteOpts,uiParent*,
 		   uiIOObjTranslatorWriteOpts::factory);
 
@@ -37,8 +38,20 @@ uiIOObjTranslatorWriteOpts::~uiIOObjTranslatorWriteOpts()
 {}
 
 
+void uiIOObjTranslatorWriteOpts::useObj( const IOObj& ioobj )
+{
+    usePar( ioobj.pars() );
+}
+
+
+bool uiIOObjTranslatorWriteOpts::fillObj( IOObj& ioobj ) const
+{
+    return fillPar( ioobj.pars() );
+}
+
 
 // uiIOObjSelWriteTranslator
+
 uiIOObjSelWriteTranslator::uiIOObjSelWriteTranslator( uiParent* p,
 			const CtxtIOObj& ctio,
 			const BufferStringSet& transltoavoid, bool withopts )
@@ -73,20 +86,20 @@ uiIOObjSelWriteTranslator::uiIOObjSelWriteTranslator( uiParent* p,
     if ( trs_.size() > 1 )
 	mkSelFld( ctio, withopts );
 
-    uiIOObjTranslatorWriteOpts* firstoptfld = 0;
+    uiIOObjTranslatorWriteOpts* firstoptfld = nullptr;
     if ( withopts )
     {
 	for ( int idx=0; idx<trs_.size(); idx++ )
 	{
-	    uiIOObjTranslatorWriteOpts* fld =
-		uiIOObjTranslatorWriteOpts::create( this, *trs_[idx] );
-	    optflds_ += fld;
+	    auto* fld = uiIOObjTranslatorWriteOpts::create( this, *trs_[idx] );
+	    optflds_.add( fld );
 	    if ( fld )
 	    {
 		mAttachCB( fld->suggestedNameAvailble,
 			   uiIOObjSelWriteTranslator::nmAvCB );
 		if ( !firstoptfld )
 		    firstoptfld = fld;
+
 		if ( selfld_ )
 		    fld->attach( alignedBelow, selfld_ );
 	    }
@@ -200,6 +213,7 @@ int uiIOObjSelWriteTranslator::translIdx() const
 	if ( selidx >= 0 )
 	    translidx = ctxt_.trgroup_->templates().indexOf( trs_[selidx] );
     }
+
     return translidx;
 }
 
@@ -231,6 +245,24 @@ const Translator* uiIOObjSelWriteTranslator::selectedTranslator() const
 	translidx = ctxt_.trgroup_->defTranslIdx();
 	if ( translidx < 0 )
 	    { pErrMsg( "Huh" ); translidx = 0; }
+
+	if ( !ctxt_.trgroup_->templates()[translidx]
+				->isUserSelectable(ctxt_.forread_) )
+	{
+	    translidx = -1;
+	    for ( int idx=0; idx<ctxt_.trgroup_->templates().size(); idx++ )
+	    {
+		const Translator* transl = ctxt_.trgroup_->templates()[idx];
+		if ( !transl->isUserSelectable(ctxt_.forread_) )
+		    continue;
+
+		translidx = idx;
+		break;
+	    }
+
+	    if ( translidx < 0 )
+		{ pErrMsg( "Huh" ); translidx = 0; }
+	}
     }
 
     return ctxt_.trgroup_->templates()[ translidx ];
@@ -284,27 +316,13 @@ void uiIOObjSelWriteTranslator::selChg( CallBacker* )
 IOObj* uiIOObjSelWriteTranslator::mkEntry( const char* nm ) const
 {
     CtxtIOObj ctio( ctxt_ );
-    ctio.ioobj_ = 0; ctio.setName( nm );
+    ctio.ioobj_ = nullptr;
+    ctio.setName( nm );
     ctio.fillObj( false, translIdx() );
     if ( ctio.ioobj_ )
 	updatePars( *ctio.ioobj_ );
+
     return ctio.ioobj_;
-}
-
-
-void uiIOObjSelWriteTranslator::updatePars( IOObj& ioobj ) const
-{
-    uiIOObjTranslatorWriteOpts* fld = getCurOptFld();
-    if ( fld )
-    {
-	if ( !fld->fill(ioobj.pars()) )
-	{
-	    uiMSG().error( mToUiStringTodo(fld->errMsg()) );
-	    return;
-	}
-
-	IOM().commitChanges( ioobj );
-    }
 }
 
 
@@ -317,8 +335,8 @@ bool uiIOObjSelWriteTranslator::hasSameWriteOpts(
 	return true;
 
     IOPar thiswritepars, othwritepars;
-    fld->fill( thiswritepars );
-    othfld->fill( othwritepars );
+    fld->fillPar( thiswritepars );
+    othfld->fillPar( othwritepars );
 
     return thiswritepars == othwritepars;
 }
@@ -337,8 +355,8 @@ void uiIOObjSelWriteTranslator::resetPars()
 	return;
 
     IOPar par;
-    defwriteopts->fill( par );
-    fld->use( par );
+    defwriteopts->fillPar( par );
+    fld->usePar( par );
 }
 
 
@@ -349,7 +367,23 @@ void uiIOObjSelWriteTranslator::use( const IOObj& ioobj )
 
     uiIOObjTranslatorWriteOpts* fld = getCurOptFld();
     if ( fld )
-	fld->use( ioobj.pars() );
+	fld->useObj( ioobj );
 
     selChg( nullptr );
+}
+
+
+void uiIOObjSelWriteTranslator::updatePars( IOObj& ioobj ) const
+{
+    uiIOObjTranslatorWriteOpts* fld = getCurOptFld();
+    if ( fld )
+    {
+	if ( !fld->fillObj(ioobj) )
+	{
+	    uiMSG().error( mToUiStringTodo(fld->errMsg()) );
+	    return;
+	}
+
+	IOM().commitChanges( ioobj );
+    }
 }

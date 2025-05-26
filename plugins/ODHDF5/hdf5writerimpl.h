@@ -89,6 +89,9 @@ private:
     void		rmAttrib(const char*,H5::H5Object&) override;
     void		rmAllAttribs(H5::H5Object&) override;
     void		ptInfo(const IOPar&,H5::H5Object&,uiRetVal&) override;
+    uiRetVal		writeJSonAttribute(const char*,
+				    const OD::JSON::ValueSet&,
+				    const DataSetKey* =nullptr) override;
 
     bool		rmObj(const DataSetKey&) override;
     void		renObj(const H5::H5Location&,const char* from,

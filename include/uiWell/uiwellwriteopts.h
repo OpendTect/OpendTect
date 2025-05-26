@@ -21,11 +21,16 @@ public:
 			uiODWellWriteOpts(uiParent*);
 			~uiODWellWriteOpts();
 
-    mDecluiIOObjTranslatorWriteOptsStdFns(uiODWellWriteOpts);
+private:
 
-protected:
+    void		usePar(const IOPar&) override;
+    bool		fillPar(IOPar&) const override;
+
+    static uiIOObjTranslatorWriteOpts* create(uiParent*);
 
     uiGenInput*		wrlogbinfld_;
-    bool		defbinwrite_;
+
+public:
+    static void		initClass();
 
 };

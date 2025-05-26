@@ -13,8 +13,8 @@ ________________________________________________________________________
 #include "factory.h"
 #include "transl.h"
 
-class IOObj;
 class CtxtIOObj;
+class IOObj;
 class IOObjContext;
 class uiLabel;
 class uiComboBox;
@@ -28,7 +28,7 @@ public:
 			~uiIOObjTranslatorWriteOpts();
 
     mDefineFactory1ParamInClasswKW( uiIOObjTranslatorWriteOpts, uiParent*,
-			factory, transl_.getDisplayName() )
+				    factory, transl_.getDisplayName() )
 
     static bool		isPresent( const Translator& t )
 			{ return factory().hasName(t.getDisplayName()); }
@@ -36,8 +36,10 @@ public:
     static uiIOObjTranslatorWriteOpts* create( uiParent* p, const Translator& t)
 			{ return factory().create(t.getDisplayName(),p); }
 
-    virtual void	use(const IOPar&)	= 0;
-    virtual bool	fill(IOPar&) const	= 0;
+    virtual void	useObj(const IOObj&);
+    virtual void	usePar(const IOPar&)	= 0;
+    virtual bool	fillObj(IOObj&) const;
+    virtual bool	fillPar(IOPar&) const	= 0;
     virtual const char* errMsg() const		{ return errmsg_; }
 
     const Translator&	translator() const	{ return transl_; }
@@ -56,19 +58,14 @@ public:
     void		suggestedNameChanged(CallBacker*)
 					{ suggestedNameAvailble.trigger(); }
 
+    mDeprecated("Provide IOObj")
+    virtual void	use( const IOPar& par )
+			{ usePar( par ); }
+    mDeprecated("Provide IOObj")
+    virtual bool	fill( IOPar& par ) const
+			{ return fillPar( par ); }
+
 };
-
-
-//! For subclasses of uiIOObjTranslatorWriteOpts
-
-#define mDecluiIOObjTranslatorWriteOptsStdFns(clssnm) \
-    void		use(const IOPar&) override; \
-    bool		fill(IOPar&) const override; \
- \
-    static uiIOObjTranslatorWriteOpts* create( uiParent* p ) \
-			{ return new clssnm(p); } \
-    static void		initClass()
-
 
 
 /*!\brief Group for selecting output translator */
@@ -117,3 +114,14 @@ protected:
     uiIOObjTranslatorWriteOpts*		getCurOptFld() const;
 
 };
+
+
+//! For subclasses of uiIOObjTranslatorWriteOpts, obsolete macro, do not use
+
+#define mDecluiIOObjTranslatorWriteOptsStdFns(clssnm) \
+    void		usePar(const IOPar&) override; \
+    bool		fillPar(IOPar&) const override; \
+ \
+    static uiIOObjTranslatorWriteOpts* create( uiParent* p ) \
+			{ return new clssnm(p); } \
+    static void		initClass()

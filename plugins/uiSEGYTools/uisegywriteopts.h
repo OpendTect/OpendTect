@@ -19,29 +19,19 @@ class uiSEGYFilePars;
 mExpClass(uiSEGYTools) uiSEGYDirectVolOpts : public uiIOObjTranslatorWriteOpts
 { mODTextTranslationClass(uiSEGYDirectVolOpts);
 public:
-
 			uiSEGYDirectVolOpts(uiParent*);
 
-    mDecluiIOObjTranslatorWriteOptsStdFns(uiSEGYDirectVolOpts);
+private:
 
-protected:
+    void		usePar(const IOPar&) override;
+    bool		fillPar(IOPar&) const override;
+
+    static uiIOObjTranslatorWriteOpts* create(uiParent*);
 
     uiSEGYFilePars*	parsfld_;
 
-};
-
-
-mExpClass(uiSEGYTools) uiCBVSPS3DOpts : public uiIOObjTranslatorWriteOpts
-{ mODTextTranslationClass(uiCBVSPS3DOpts);
 public:
-
-			uiCBVSPS3DOpts(uiParent*);
-
-    mDecluiIOObjTranslatorWriteOptsStdFns(uiCBVSPS3DOpts);
-
-protected:
-
-    uiGenInput*		stortypfld_;
+    static void		initClass();
 
 };
 
@@ -52,11 +42,17 @@ public:
 
 			uiSEGYDirectPS3DOpts(uiParent*);
 
-    mDecluiIOObjTranslatorWriteOptsStdFns(uiSEGYDirectPS3DOpts);
+private:
 
-protected:
+    void		usePar(const IOPar&) override;
+    bool		fillPar(IOPar&) const override;
+
+    static uiIOObjTranslatorWriteOpts* create(uiParent*);
 
     uiSEGYFilePars*	parsfld_;
     uiGenInput*		nrinlpfilefld_;
+
+public:
+    static void		initClass();
 
 };

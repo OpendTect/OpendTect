@@ -182,6 +182,26 @@ bool HDF5::Access::isHDF5File( const char* fnm )
 }
 
 
+const char* HDF5::Access::sSettingsEnabKey()
+{
+    return "dTect.Use HDF5";
+}
+
+
+const char* HDF5::Access::sFileExtension()
+{
+    return "h5";
+}
+
+
+const char* HDF5::Access::sIconName()
+{
+    return "hdf";
+}
+
+
+// HDF5::AccessProvider
+
 HDF5::AccessProvider* HDF5::AccessProvider::mkProv( int idx )
 {
     const FactoryBase& hdf5fact = factory();
@@ -282,7 +302,7 @@ uiString HDF5::Access::sHDF5NotAvailable()
 }
 
 
-uiString HDF5::Access::sHDF5FileNoLongerAccessibe()
+uiString HDF5::Access::sHDF5FileNoLongerAccessible()
 {
     return tr("HDF5 file no longer accesible");
 }

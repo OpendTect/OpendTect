@@ -13,6 +13,7 @@ ________________________________________________________________________
 #include "envvars.h"
 #include "hdf5readerimpl.h"
 #include "iopar.h"
+#include "odjson.h"
 #include "od_ostream.h"
 #include "uistrings.h"
 
@@ -498,4 +499,22 @@ void HDF5::WriterImpl::ptInfo( const IOPar& iop, H5::H5Object& h5obj,
 	    setAttribute( key.str(), val.str(), h5obj );
     }
     mCatchErrDuringWrite()
+}
+
+
+uiRetVal HDF5::WriterImpl::writeJSonAttribute( const char* attrnm,
+					const OD::JSON::ValueSet& jsonobj,
+					const DataSetKey* dsky )
+{
+    uiRetVal uirv;
+    if ( !attrnm || !*attrnm )
+    {
+	uirv.set( tr("Valid attribute name required") );
+	return uirv;
+    }
+
+    BufferString jsonstr;
+    jsonobj.dumpJSon( jsonstr );
+    setAttribute( attrnm, jsonstr.buf(), dsky );
+    return uiRetVal::OK();
 }

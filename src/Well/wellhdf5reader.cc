@@ -8,11 +8,14 @@
 #include "wellhdf5reader.h"
 #include "wellhdf5writer.h"
 
+#include "file.h"
 #include "filepath.h"
 #include "hdf5arraynd.h"
 #include "ioobj.h"
+#include "jsonkeystrs.h"
 #include "keystrs.h"
 #include "oddirs.h"
+#include "odjson.h"
 #include "welld2tmodel.h"
 #include "welldata.h"
 #include "welldisp.h"
@@ -88,6 +91,8 @@ void Well::HDF5Reader::init( const char* fnm )
 {
     if ( !HDF5::isAvailable() )
 	mErrRet( HDF5::Access::sHDF5NotAvailable(fnm) )
+    if ( !File::exists(fnm) )
+	mErrRet( uiStrings::phrFileDoesNotExist(fnm) )
     if ( !HDF5::isHDF5File(fnm) )
 	mErrRet( HDF5::Access::sNotHDF5File(fnm) )
 
@@ -112,13 +117,18 @@ bool Well::HDF5Reader::ensureFileOpen() const
     if ( rdr_ && rdr_->isOpen() )
 	return true;
 
-    errmsg_.set( HDF5::Access::sHDF5FileNoLongerAccessibe() );
+    if ( errmsg_.isEmpty() )
+	errmsg_.set( HDF5::Access::sHDF5FileNoLongerAccessible() );
+
     return false;
 }
 
 
 bool Well::HDF5Reader::getInfo() const
 {
+    if ( !ensureFileOpen() )
+	return false;
+
     infoiop_.setEmpty();
     uiRetVal uirv = rdr_->get( infoiop_ );
     mErrRetIfUiRvNotOK( uirv );
@@ -130,6 +140,9 @@ bool Well::HDF5Reader::getInfo() const
 
 bool Well::HDF5Reader::getTrack() const
 {
+    if ( !ensureFileOpen() )
+	return false;
+
     HDF5::DataSetKey dsky( sTrackGrpName(), "" );
     dsky.setDataSetName( sCoordsDSName() );
 
@@ -166,6 +179,9 @@ bool Well::HDF5Reader::getTrack() const
 
 bool Well::HDF5Reader::doGetD2T( bool csmdl ) const
 {
+    if ( !ensureFileOpen() )
+	return false;
+
     D2TModel* d2t = csmdl ? wd_.checkShotModel(): wd_.d2TModel();
     if ( !d2t )
 	d2t = new D2TModel;
@@ -244,7 +260,7 @@ bool Well::HDF5Reader::getLogs( bool needjustinfo ) const
 	logs.add( wl );
     }
 
-    return errmsg_.isEmpty();
+    return errmsg_.isEmpty() && getDefLogs();
 }
 
 
@@ -259,7 +275,7 @@ bool Well::HDF5Reader::getLogPars( const HDF5::DataSetKey& dsky,
 
     uiRetVal uirv = rdr_->get( iop, &dsky );
     mErrRetIfUiRvNotOK( uirv )
-    return !iop.isTrue( sKeyLogDel() );
+    return !iop.isTrue( sKeyLogDel() ) && getDefLogs();
 }
 
 
@@ -343,6 +359,9 @@ Well::Log* Well::HDF5Reader::getWL( const HDF5::DataSetKey& dsky ) const
 
 bool Well::HDF5Reader::getLog( const char* reqlognm ) const
 {
+    if ( !ensureFileOpen() )
+	return false;
+
     HDF5::DataSetKey dsky( sLogsGrpName() );
     BufferStringSet loggrps;
     rdr_->getSubGroups( sLogsGrpName(), loggrps );
@@ -365,6 +384,9 @@ bool Well::HDF5Reader::getLog( const char* reqlognm ) const
 
 bool Well::HDF5Reader::getLogByID( const LogID& id ) const
 {
+    if ( !ensureFileOpen() )
+	return false;
+
     HDF5::DataSetKey dsky( sLogsGrpName() );
     dsky.setDataSetName( toString(id.asInt()) );
     HDF5::DataSetKey grpkey;
@@ -380,6 +402,9 @@ bool Well::HDF5Reader::getLogByID( const LogID& id ) const
 
 void Well::HDF5Reader::getLogInfo( BufferStringSet& nms ) const
 {
+    if ( !ensureFileOpen() )
+	return;
+
     HDF5::DataSetKey dsky( sLogsGrpName() );
     for ( int ilog=1; ; ilog++ )
     {
@@ -394,11 +419,45 @@ void Well::HDF5Reader::getLogInfo( BufferStringSet& nms ) const
 	iop.get( sKey::Name(), lognm );
 	nms.add( lognm );
     }
+
+    getDefLogs();
+}
+
+
+bool Well::HDF5Reader::getDefLogs() const
+{
+    if ( !ensureFileOpen() )
+	return false;
+
+    const HDF5::DataSetKey dsky( sLogsGrpName(), nullptr );
+    OD::JSON::Array jsonarr( true );
+    const uiRetVal uirv = rdr_->readJSonAttribute( Well::LogSet::sKeyDefMnem(),
+						   jsonarr, &dsky );
+    if ( !uirv.isOK() || jsonarr.size() < 1 )
+	return true; //do not return false if missing, this can happen
+
+    IOPar defmniop;
+    for ( int idx=0; idx<jsonarr.size(); idx++ )
+    {
+	const OD::JSON::Object& subobj = jsonarr.object( idx );
+	const BufferString key = subobj.getStringValue( sJSONKey::Mnemonic() );
+	const BufferString val = subobj.getStringValue( sJSONKey::Log() );
+	defmniop.set( key.buf(), val.buf() );
+    }
+
+    IOPar defiop;
+    defiop.mergeComp( defmniop, Well::LogSet::sKeyDefMnem() );
+    wd_.logs().defaultLogUsePar( defiop );
+
+    return true;
 }
 
 
 bool Well::HDF5Reader::getMarkers() const
 {
+    if ( !ensureFileOpen() )
+	return false;
+
     HDF5::DataSetKey dsky( sMarkersGrpName(), "" );
     MarkerSet& ms = wd_.markers();
 
@@ -447,6 +506,9 @@ bool Well::HDF5Reader::getMarkers() const
 
 bool Well::HDF5Reader::getDispProps() const
 {
+    if ( !ensureFileOpen() )
+	return false;
+
     const char* usernm = GetInterpreterName();
     const HDF5::DataSetKey dsky( sDispParsGrpName(), usernm );
     if ( !rdr_->hasDataSet(dsky) )

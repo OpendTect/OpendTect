@@ -95,6 +95,7 @@ namespace sJSONKey
     inline StringView LineName()	{ return "lineName"; }
     inline StringView LineNames()	{ return "lineNames"; }
     inline StringView LineStyle()	{ return "lineStyle"; }
+    inline StringView Log()		{ return "log"; }
     inline StringView LogFile()		{ return "logFile"; }
     inline StringView MD()		{ return "md"; }
     inline StringView Marker()		{ return "marker"; }
@@ -103,6 +104,7 @@ namespace sJSONKey
     inline StringView Maximum()		{ return "maximum"; }
     inline StringView Median()		{ return "median"; }
     inline StringView Minimum()		{ return "minimum"; }
+    inline StringView Mnemonic()	{ return "mnemonic"; }
     inline StringView Mnemonics()	{ return "mnemonics"; }
     inline StringView Mode()		{ return "mode"; }
     inline StringView Model()		{ return "model"; }

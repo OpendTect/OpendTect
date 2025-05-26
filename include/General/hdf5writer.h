@@ -11,6 +11,12 @@ ________________________________________________________________________
 #include "hdf5access.h"
 
 
+namespace OD {
+    namespace JSON {
+	class ValueSet;
+    };
+};
+
 namespace HDF5
 {
 
@@ -97,6 +103,9 @@ public:
 			mHDF5DeclFns(set,double);
 #undef mHDF5DeclFns
     uiRetVal		set(const IOPar&,const DataSetKey* =nullptr);
+    virtual uiRetVal	writeJSonAttribute(const char*,
+					   const OD::JSON::ValueSet&,
+					   const DataSetKey* =nullptr) = 0;
 
     uiRetVal		renameObject(const DataSetKey& oldky,
 				     const DataSetKey& newky);

@@ -28,16 +28,22 @@ uiSEGYDirectVolOpts::uiSEGYDirectVolOpts( uiParent* p )
 }
 
 
-void uiSEGYDirectVolOpts::use( const IOPar& iop )
+void uiSEGYDirectVolOpts::usePar( const IOPar& iop )
 {
     parsfld_->usePar( iop );
 }
 
 
-bool uiSEGYDirectVolOpts::fill( IOPar& iop ) const
+bool uiSEGYDirectVolOpts::fillPar( IOPar& iop ) const
 {
     parsfld_->fillPar( iop );
     return true;
+}
+
+
+uiIOObjTranslatorWriteOpts* uiSEGYDirectVolOpts::create( uiParent* p )
+{
+    return new uiSEGYDirectVolOpts( p );
 }
 
 
@@ -62,7 +68,7 @@ uiSEGYDirectPS3DOpts::uiSEGYDirectPS3DOpts( uiParent* p )
 }
 
 
-void uiSEGYDirectPS3DOpts::use( const IOPar& iop )
+void uiSEGYDirectPS3DOpts::usePar( const IOPar& iop )
 {
     parsfld_->usePar( iop );
     int nrinl = nrinlpfilefld_->getIntValue();
@@ -71,11 +77,17 @@ void uiSEGYDirectPS3DOpts::use( const IOPar& iop )
 }
 
 
-bool uiSEGYDirectPS3DOpts::fill( IOPar& iop ) const
+bool uiSEGYDirectPS3DOpts::fillPar( IOPar& iop ) const
 {
     parsfld_->fillPar( iop );
     iop.set( mNrInlKey, nrinlpfilefld_->getIntValue() );
     return true;
+}
+
+
+uiIOObjTranslatorWriteOpts* uiSEGYDirectPS3DOpts::create( uiParent* p )
+{
+    return new uiSEGYDirectPS3DOpts( p );
 }
 
 
