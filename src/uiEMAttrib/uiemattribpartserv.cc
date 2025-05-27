@@ -27,6 +27,7 @@ ________________________________________________________________________
 #include "ioman.h"
 #include "ioobj.h"
 #include "mousecursor.h"
+#include "nlamodel.h"
 #include "paralleltask.h"
 #include "posvecdataset.h"
 #include "typeset.h"
@@ -44,6 +45,9 @@ uiEMAttribPartServer::uiEMAttribPartServer( uiApplService& a )
 
 uiEMAttribPartServer::~uiEMAttribPartServer()
 {
+    delete descset_;
+    delete nlamodel_;
+
     delete horshiftdlg_;
     delete aroundhor2ddlg_;
     delete aroundhor3ddlg_;
@@ -54,6 +58,30 @@ uiEMAttribPartServer::~uiEMAttribPartServer()
     delete crgriddlg_;
     delete stratampdlg_;
     delete flattendlg_;
+}
+
+
+void uiEMAttribPartServer::setNLAModel( const NLAModel* mdl, const MultiID& id )
+{
+    deleteAndNullPtr( nlamodel_ );
+    if ( mdl )
+	nlamodel_ = mdl->clone();
+
+    nlaid_ = id;
+    if ( horshiftdlg_ )
+	horshiftdlg_->setNLAModel( nlamodel_ );
+}
+
+
+void uiEMAttribPartServer::setDescSet( const Attrib::DescSet* ads )
+{
+    if ( !ads || ads->is2D() )
+	return;
+
+    delete descset_;
+    descset_ = new Attrib::DescSet( *ads );
+    if ( horshiftdlg_ )
+	horshiftdlg_->setDescSet( descset_ );
 }
 
 
@@ -231,10 +259,10 @@ StepInterval<float> uiEMAttribPartServer::shiftRange() const
 
 
 void uiEMAttribPartServer::showHorShiftDlg( const EM::ObjectID& id,
-					    VisID visid,
+					    const VisID& visid,
 					    const BoolTypeSet& attrenabled,
 					    float initialshift,
-					    bool canaddattrib)
+					    bool canaddattrib )
 {
     initialshift_ = initialshift;
     initialattribstatus_ = attrenabled;

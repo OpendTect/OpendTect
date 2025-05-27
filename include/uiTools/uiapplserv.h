@@ -131,6 +131,7 @@ mExpClass(uiTools) uiApplPartServer : public CallBacker
 {
 public:
 			~uiApplPartServer();
+			mOD_DisableCopy(uiApplPartServer)
 
     virtual const char*	name() const		= 0;
 

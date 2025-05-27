@@ -1567,6 +1567,7 @@ bool uiODApplMgr::handleNLAServEv( int evid )
 
 	attrserv_->replaceSet( nlaserv_->modelPars(), nlaserv_->is2DEvent() );
 	wellattrserv_->setNLAModel( &nlaserv_->getModel() );
+	emattrserv_->setNLAModel( &nlaserv_->getModel(), nlaserv_->modelId() );
     }
     else if ( evid == uiNLAPartServer::evGetInputNames() )
     {
@@ -1694,8 +1695,10 @@ bool uiODApplMgr::handleAttribServEv( int evid )
     else if ( evid==uiAttribPartServer::evNewAttrSet() )
     {
 	attribSetChg.trigger();
-	mpeserv_->setCurrentAttribDescSet(
-				attrserv_->curDescSet(attrserv_->is2DEvent()) );
+	const Attrib::DescSet* ads =
+		attrserv_->curDescSet( attrserv_->is2DEvent() );
+	mpeserv_->setCurrentAttribDescSet( ads );
+	emattrserv_->setDescSet( ads );
     }
     else if ( evid==uiAttribPartServer::evAttrSetDlgClosed() )
     {
@@ -1806,7 +1809,7 @@ bool uiODApplMgr::handleAttribServEv( int evid )
 }
 
 
-bool uiODApplMgr::handleVolProcServEv( int evid )
+bool uiODApplMgr::handleVolProcServEv( int /*evid*/ )
 {
     return true;
 }

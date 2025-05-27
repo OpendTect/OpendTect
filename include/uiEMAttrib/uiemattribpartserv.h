@@ -61,13 +61,11 @@ public:
     void			snapHorizon(const EM::ObjectID&,bool is2d);
     void			computeStratAmp();
 
-    void			setNLA( const NLAModel* mdl, const MultiID& id )
-				{ nlamodel_ = mdl; nlaid_ = id; }
-    void			setDescSet( const Attrib::DescSet* ads )
-				{ descset_ = ads; }
+    void			setNLAModel(const NLAModel*,const MultiID&);
+    void			setDescSet(const Attrib::DescSet*);
 
     void			showHorShiftDlg(const EM::ObjectID&,
-						VisID visid,
+						const VisID& visid,
 						const BoolTypeSet& attrenabled,
 						float initialshift,
 						bool canaddattrib);
@@ -80,7 +78,7 @@ public:
     float			initialShift() const { return initialshift_; }
 
     float			getShift() const;
-    void			setAttribID( Attrib::DescID id )
+    void			setAttribID( const Attrib::DescID& id )
 				{ attribid_ = id; }
     VisID			getShiftedObjectVisID() const;
     void			setAttribIdx(int);
@@ -96,10 +94,14 @@ public:
 
     const TypeSet<EM::ObjectID>& getEMObjIDs() const	{ return emobjids_; }
 
+    mDeprecated("Use setNLAModel")
+    void			setNLA( const NLAModel* mdl, const MultiID& id )
+				{ setNLAModel( mdl, id ); }
+
 protected:
 
-    const NLAModel*		nlamodel_		= nullptr;
-    const Attrib::DescSet*	descset_		= nullptr;
+    NLAModel*			nlamodel_		= nullptr;
+    Attrib::DescSet*		descset_		= nullptr;
     MultiID			nlaid_;
     uiHorizonShiftDialog*	horshiftdlg_		= nullptr;
     uiSeisEventSnapper*		uiseisevsnapdlg_	= nullptr;

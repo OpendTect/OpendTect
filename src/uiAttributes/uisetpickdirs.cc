@@ -261,14 +261,14 @@ bool uiSetPickDirs::getNLAIds( TypeSet<DescID>& ids )
     EngineMan aem;
     aem.setNLAModel( nlamdl_ );
 
-    SelInfo selinfo( 0, nlamdl_ );
+    SelInfo selinfo( nullptr, nlamdl_ );
     const int nrnlaouts = selinfo.nlaoutnms_.size();
     for ( int idx=0; idx<nrnlaouts; idx++ )
     {
 	if ( !idx )
 	{
 	    SelSpec tmpspec( selinfo.nlaoutnms_.get( idx ) );
-	    tmpspec.setIDFromRef(nlamdl_);
+	    tmpspec.setIDFromRef( *nlamdl_ );
 	    aem.setAttribSpec( tmpspec );
 	    DescID nlaid(-1, false);
 	    uiString errmsg;

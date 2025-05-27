@@ -10,11 +10,9 @@ ________________________________________________________________________
 
 #include "uidialog.h"
 #include "attribdescid.h"
-#include "bufstringset.h"
-#include "datapack.h"
 #include "emposid.h"
-#include "position.h"
 
+class NLAModel;
 class uiAttrSel;
 class uiCheckBox;
 class uiGenInput;
@@ -26,12 +24,15 @@ namespace Attrib { class DescSet; }
 mClass(uiEMAttrib) uiHorizonShiftDialog : public uiDialog
 { mODTextTranslationClass(uiHorizonShiftDialog);
 public:
-			uiHorizonShiftDialog(uiParent*,const EM::ObjectID& id,
-					     VisID visid,
+			uiHorizonShiftDialog(uiParent*,const EM::ObjectID&,
+					     const VisID&,
 					     const Attrib::DescSet&,
 					     float initialshift,
 					     bool cancalcattrib);
 			~uiHorizonShiftDialog();
+
+    void			setDescSet(const Attrib::DescSet*);
+    void			setNLAModel(const NLAModel*);
 
     StepInterval<float>		shiftRg() const;
     int				nrSteps() const;
@@ -67,7 +68,7 @@ protected:
 
     StepInterval<float>		shiftrg_;
     StepInterval<float>		calcshiftrg_;
-    EM::Horizon*		horizon_		= nullptr;
+    RefMan<EM::Horizon>		horizon_;
     EM::ObjectID		emid_;
     VisID			visid_;
 };
