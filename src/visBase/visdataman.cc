@@ -10,8 +10,6 @@ ________________________________________________________________________
 #include "visdataman.h"
 #include "visdata.h"
 #include "visselman.h"
-#include "separstr.h"
-#include "envvars.h"
 #include "iopar.h"
 #include "ptrman.h"
 
@@ -34,8 +32,8 @@ DataManager& DM()
 
 
 DataManager::DataManager()
-    : selman_(*new SelectionManager)
-    , removeallnotify(this)
+    : removeallnotify(this)
+    , selman_(*new SelectionManager)
 {
     objidxmap_[nullptr] = -1;
 }
@@ -85,6 +83,17 @@ VisID DataManager::highestID() const
 }
 
 
+void DataManager::updateID( const VisID& oldid, const VisID& newid )
+{
+    auto it = visidobjmap_.find( oldid.asInt() );
+    if ( it != visidobjmap_.end() )
+    {
+	visidobjmap_[newid.asInt()] = it->second;
+	visidobjmap_.erase( it );
+    }
+}
+
+
 const DataObject* DataManager::getObject( const VisID& id ) const
 {
     return getNonConst(*this).getObject( id );
@@ -93,7 +102,11 @@ const DataObject* DataManager::getObject( const VisID& id ) const
 
 DataObject* DataManager::getObject( const VisID& id )
 {
-    return visidobjmap_[id.asInt()];
+    auto it = visidobjmap_.find( id.asInt() );
+    if ( it != visidobjmap_.end() )
+	return visidobjmap_[id.asInt()];
+
+    return nullptr;
 }
 
 
