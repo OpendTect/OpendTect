@@ -85,6 +85,13 @@ bool uiAttrSelData::is2D() const
 }
 
 
+void uiAttrSelData::setAttrSet( const Attrib::DescSet* ds )
+{
+    if ( ds )
+	attrset_ = ds;
+}
+
+
 void uiAttrSelData::fillSelSpec( SelSpec& as ) const
 {
     const bool isnla = !attribid_.isValid() && outputnr_ >= 0;

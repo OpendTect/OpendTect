@@ -50,8 +50,7 @@ public:
 
     bool			is2D() const;
     const Attrib::DescSet&	attrSet() const		{ return *attrset_; }
-    void			setAttrSet( const Attrib::DescSet* ds )
-						{ if ( ds ) attrset_ = ds; }
+    void			setAttrSet(const Attrib::DescSet*);
     void			fillSelSpec(Attrib::SelSpec&) const;
 
 protected:

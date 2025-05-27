@@ -16,9 +16,7 @@ ________________________________________________________________________
 #include "ioobj.h"
 #include "iopar.h"
 #include "keystrs.h"
-#include "scaler.h"
 #include "seisioobjinfo.h"
-#include "survinfo.h"
 #include "zdomain.h"
 
 #include "uiattribpartserv.h"
@@ -30,7 +28,6 @@ ________________________________________________________________________
 #include "uiviscoltabed.h"
 #include "uivispartserv.h"
 #include "uiwellattribpartserv.h"
-#include "visseis2ddisplay.h"
 #include "vissurvobj.h"
 
 
@@ -45,7 +42,7 @@ uiODApplMgrAttrVisHandler::~uiODApplMgrAttrVisHandler()
 {}
 
 
-void uiODApplMgrAttrVisHandler::survChg( bool before )
+void uiODApplMgrAttrVisHandler::survChg( bool /*before*/ )
 {
 }
 
@@ -80,10 +77,10 @@ bool uiODApplMgrAttrVisHandler::uvqNLA( bool is2d )
 void uiODApplMgrAttrVisHandler::createHorOutput( int tp, bool is2d )
 {
     uiEMAttribPartServer* emattrserv = am_.EMAttribServer();
-    uiNLAPartServer* nlaserv = am_.nlaServer();
     emattrserv->setDescSet( am_.attrServer()->curDescSet(is2d) );
     MultiID nlaid;
     const NLAModel* nlamdl = nullptr;
+    uiNLAPartServer* nlaserv = am_.nlaServer();
     if ( nlaserv )
     {
 	nlaserv->set2DEvent( is2d );
@@ -91,7 +88,7 @@ void uiODApplMgrAttrVisHandler::createHorOutput( int tp, bool is2d )
 	nlamdl = &nlaserv->getModel();
     }
 
-    emattrserv->setNLA( nlamdl, nlaid );
+    emattrserv->setNLAModel( nlamdl, nlaid );
     const auto type = sCast(uiEMAttribPartServer::HorOutType,tp);
     emattrserv->createHorizonOutput( type );
 }

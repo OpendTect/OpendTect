@@ -10,19 +10,18 @@ ________________________________________________________________________
 #include "uihorizonshiftdlg.h"
 
 #include "commondefs.h"
+#include "emhorizon.h"
 #include "emmanager.h"
 #include "emobject.h"
-#include "emsurfaceauxdata.h"
-#include "emhorizon3d.h"
+#include "od_helpids.h"
 #include "ranges.h"
 #include "survinfo.h"
+
 #include "uiattrsel.h"
-#include "uicombobox.h"
 #include "uibutton.h"
 #include "uigeninput.h"
-#include "uislider.h"
 #include "uimsg.h"
-#include "od_helpids.h"
+#include "uislider.h"
 
 
 const char* uiHorizonShiftDialog::sDefaultAttribName()
@@ -31,7 +30,7 @@ const char* uiHorizonShiftDialog::sDefaultAttribName()
 
 uiHorizonShiftDialog::uiHorizonShiftDialog( uiParent* p,
 					    const EM::ObjectID& emid,
-					    VisID visid,
+					    const VisID& visid,
 					    const Attrib::DescSet& descset,
 					    float initialshift,
 					    bool cancalcattrib )
@@ -43,13 +42,13 @@ uiHorizonShiftDialog::uiHorizonShiftDialog( uiParent* p,
     , emid_(emid)
     , visid_(visid)
 {
-    const float curshift = initialshift*SI().zDomain().userFactor();
+    const float curshift =
+		initialshift * sCast(float,SI().zDomain().userFactor());
     shiftrg_.set( curshift-100, curshift+100, 10 );
 
     uiString lbl = tr("Shift Range %1").arg(SI().getUiZUnitString());
     rangeinpfld_ = new uiGenInput( this, lbl, FloatInpIntervalSpec(shiftrg_) );
-    rangeinpfld_->valueChanged.notify(
-	    mCB(this,uiHorizonShiftDialog,rangeChangeCB) );
+    mAttachCB( rangeinpfld_->valueChanged, uiHorizonShiftDialog::rangeChangeCB);
 
     lbl = tr("Shift %1").arg(SI().getUiZUnitString());
     slider_ = new uiSlider(
@@ -60,13 +59,12 @@ uiHorizonShiftDialog::uiHorizonShiftDialog( uiParent* p,
     slider_->setScale( shiftrg_.step_, shiftrg_.start_ );
     slider_->setInterval( shiftrg_ );
     slider_->setValue( curshift );
-    slider_->valueChanged.notify( mCB(this,uiHorizonShiftDialog,shiftCB) );
+    mAttachCB( slider_->valueChanged, uiHorizonShiftDialog::shiftCB );
 
     EM::EMObject* emobj = EM::EMM().getObject( emid_ );
-    mDynamicCast(EM::Horizon*,horizon_,emobj)
+    horizon_ = dCast(EM::Horizon*,emobj);
     if ( horizon_ )
     {
-	horizon_->ref();
 	uiString title = toUiString("%1 - %2").arg(setup().wintitle_)
 					      .arg(horizon_->name());
 	setCaption( title );
@@ -77,19 +75,20 @@ uiHorizonShiftDialog::uiHorizonShiftDialog( uiParent* p,
 	attrinpfld_ = new uiAttrSel( this, descset,
 			uiStrings::phrSelect(uiStrings::sAttribute()) );
 	attrinpfld_->attach( alignedBelow, slider_ );
-	attrinpfld_->selectionDone.notify(
-		mCB(this,uiHorizonShiftDialog,attribChangeCB) );
+	mAttachCB( attrinpfld_->selectionDone,
+		   uiHorizonShiftDialog::attribChangeCB );
 
 	calbut_ = new uiPushButton( this, uiStrings::sCalculate(), false );
 	calbut_->attach( rightTo, attrinpfld_ );
-	calbut_->activated.notify( mCB(this,uiHorizonShiftDialog,calcAttrib) );
+	mAttachCB( calbut_->activated,
+		   uiHorizonShiftDialog::calcAttrib );
 
 	storefld_ = new uiCheckBox( this,
 		tr("Save attributes as Horizon Data on pressing OK") );
 	storefld_->attach( alignedBelow, attrinpfld_ );
 	storefld_->setChecked( false );
-	storefld_->activated.notify(
-		mCB(this,uiHorizonShiftDialog,setNameFldSensitive) );
+	mAttachCB( storefld_->activated,
+		   uiHorizonShiftDialog::setNameFldSensitive );
 
 	namefld_ = new uiGenInput( this, tr("Attribute Basename"),
 				   StringInpSpec() );
@@ -101,34 +100,48 @@ uiHorizonShiftDialog::uiHorizonShiftDialog( uiParent* p,
 
 uiHorizonShiftDialog::~uiHorizonShiftDialog()
 {
-    if ( horizon_ )
-	horizon_->unRef();
+    detachAllNotifiers();
+}
+
+
+void uiHorizonShiftDialog::setDescSet( const Attrib::DescSet* ds )
+{
+    if ( attrinpfld_ )
+	attrinpfld_->setDescSet( ds );
+}
+
+
+void uiHorizonShiftDialog::setNLAModel( const NLAModel* nlamodel )
+{
+    if ( attrinpfld_ )
+	attrinpfld_->setNLAModel( nlamodel );
 }
 
 
 int uiHorizonShiftDialog::nrSteps() const
-{ return shiftrg_.nrSteps()+1; }
+{
+    return shiftrg_.nrSteps()+1;
+}
 
 
 StepInterval<float> uiHorizonShiftDialog::shiftRg() const
 {
     StepInterval<float> res = shiftrg_;
-    res.start_ /= SI().zDomain().userFactor();
-    res.stop_ /= SI().zDomain().userFactor();
-    res.step_ /= SI().zDomain().userFactor();
-
+    res.scale( sCast(float,1.f/SI().zDomain().userFactor()) );
     return res;
 }
 
 
 bool uiHorizonShiftDialog::doStore() const
-{ return storefld_ ? storefld_->isChecked() : false; }
+{
+    return storefld_ ? storefld_->isChecked() : false;
+}
 
 
 void uiHorizonShiftDialog::setNameFldSensitive( CallBacker* )
 {
     namefld_->setSensitive( storefld_->isChecked() &&
-		       (attrinpfld_ || attrinpfld_->attribID().isValid() ) );
+			    attrinpfld_ && attrinpfld_->attribID().isValid() );
 }
 
 
@@ -203,7 +216,7 @@ float uiHorizonShiftDialog::getShift() const
     if ( mIsUdf(curshift) )
 	curshift = slider_->getFValue();
 
-    return curshift / SI().zDomain().userFactor();
+    return curshift / sCast(float,SI().zDomain().userFactor());
 }
 
 
@@ -215,7 +228,8 @@ void uiHorizonShiftDialog::shiftCB( CallBacker* )
 
 int uiHorizonShiftDialog::curShiftIdx() const
 {
-    const float curshift = getShift() * SI().zDomain().userFactor();
+    const float curshift =
+		getShift() * sCast(float,SI().zDomain().userFactor());
     const int curshiftidx = shiftrg_.getIndex( curshift );
     if ( curshiftidx<0 || curshiftidx>=nrSteps() )
 	return mUdf(int);
@@ -225,7 +239,9 @@ int uiHorizonShiftDialog::curShiftIdx() const
 
 
 const char* uiHorizonShiftDialog::getAttribName() const
-{ return attrinpfld_->getInput(); }
+{
+    return attrinpfld_->getInput();
+}
 
 
 const char* uiHorizonShiftDialog::getAttribBaseName() const
@@ -254,6 +270,5 @@ bool uiHorizonShiftDialog::acceptOK( CallBacker* )
     }
 
     shiftCB( 0 );
-
     return true;
 }

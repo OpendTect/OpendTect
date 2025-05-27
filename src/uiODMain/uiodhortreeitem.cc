@@ -776,11 +776,12 @@ void uiODHorizonTreeItem::handleMenuCB( CallBacker* cb )
 	for ( int idx=0; idx<nrattrib; idx++ )
 	    isenabled += visserv_->isAttribEnabled( visid, idx );
 
-        float curshift = sCast(float,visserv_->getTranslation( visid ).z_);
+	float curshift = sCast(float,visserv_->getTranslation( visid ).z_);
 	if ( mIsUdf(curshift) )
 	    curshift = 0;
 
-	emattrserv->setDescSet( attrserv->curDescSet(false) );
+	const Attrib::DescSet* ads = attrserv->curDescSet( false );
+	emattrserv->setDescSet( ads );
 	emattrserv->showHorShiftDlg( emid_, visid, isenabled, curshift,
 				     visserv_->canAddAttrib(visid,1) );
     }

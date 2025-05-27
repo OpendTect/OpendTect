@@ -32,8 +32,8 @@ class SelSpec;
 mExpClass(AttributeEngine) DescSet : public CallBacker
 { mODTextTranslationClass( Attrib::DescSet )
 public:
-			DescSet(bool is2d);
-			DescSet(const DescSet&);
+    explicit		DescSet(bool is2d);
+    explicit		DescSet(const DescSet&);
 			~DescSet();
 
     DescSet&		operator =(const DescSet&);
