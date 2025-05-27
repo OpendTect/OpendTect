@@ -2452,7 +2452,13 @@ void uiVisPartServer::initMPEStuff()
     for ( const auto& id : visids )
     {
 	mDynamicCastGet(visSurvey::EMObjectDisplay*,emod,getObject(id))
-	emod->updateFromMPE();
+	if ( emod )
+	    emod->updateFromMPE();
+	else
+	{
+	    pErrMsg( "Error: Some EM related VisIDs, as stored in session, "
+		     "are not present in visBase::DataManager." );
+	}
     }
 
     mpetools_->initFromDisplay();

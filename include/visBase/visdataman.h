@@ -36,6 +36,7 @@ public:
 
     void		getIDs(const std::type_info&,TypeSet<VisID>&) const;
     VisID		highestID() const;
+    void		updateID(const VisID& oldid,const VisID& newid);
 
     DataObject*		getObject(const VisID&);
     const DataObject*	getObject(const VisID&) const;

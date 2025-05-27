@@ -171,6 +171,9 @@ osg::StateSet* DataObject::getStateSet()
 
 void DataObject::setID( const VisID& newid )
 {
+    if ( id_.isValid() && id_!=newid )
+	DM().updateID( id_, newid );
+
     id_ = newid;
     updateOsgNodeData();
 }
