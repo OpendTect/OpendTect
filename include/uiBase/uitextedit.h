@@ -10,6 +10,8 @@ ________________________________________________________________________
 
 #include "uibasemod.h"
 #include "uiobj.h"
+
+#include "odcommonenums.h"
 #include "undefval.h"
 
 class uiLabel;
@@ -47,13 +49,18 @@ public:
     void		allowTextSelection(bool);
 
     void		hideFrame();
-    void		hideScrollBar(bool vertical);
     void		scrollToBottom();
+    void		showScrollBar(OD::Orientation,bool alwayson=false);
+			//!<alwayson=false means showAsNeeded
+    void		hideScrollBar(OD::Orientation);
 
     Notifier<uiTextEditBase>	textChanged;
     Notifier<uiTextEditBase>	sliderPressed;
     Notifier<uiTextEditBase>	sliderReleased;
     CNotifier<uiTextEditBase,bool>	copyAvailable;
+
+    mDeprecated("Use hideScrollBar(OD::Orientation)")
+    void		hideScrollBar(bool vertical);
 
 protected:
 			uiTextEditBase(uiParent*,const char*,uiObjectBody&);

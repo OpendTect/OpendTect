@@ -34,7 +34,8 @@ ________________________________________________________________________
 #include "ioman.h"
 #include "iostrm.h"
 #include "od_helpids.h"
-#include "od_iostream.h"
+#include "od_istream.h"
+#include "od_ostream.h"
 #include "oddirs.h"
 #include "seisstor.h"
 #include "segybatchio.h"
@@ -105,7 +106,7 @@ uiSEGYExpTxtHeaderDlg( uiParent* p, BufferString& hdr, bool& ag )
     linehdrfld1->setPrefWidthInChar( mLineHdrWidth );
     linehdrfld1->setPrefHeightInChar( mNrEditorLines );
     linehdrfld1->hideFrame();
-    linehdrfld1->hideScrollBar( true );
+    linehdrfld1->hideScrollBar( OD::Vertical );
     linehdrfld1->ignoreWheelEvents( true );
     BufferString txt;
     for ( int idx=0; idx<mNrEditorLines; idx++ )
@@ -118,7 +119,7 @@ uiSEGYExpTxtHeaderDlg( uiParent* p, BufferString& hdr, bool& ag )
     linehdrfld2->setPrefWidthInChar( mLineHdrWidth );
     linehdrfld2->setPrefHeightInChar( mNrFooterLines );
     linehdrfld2->hideFrame();
-    linehdrfld2->hideScrollBar( true );
+    linehdrfld2->hideScrollBar( OD::Vertical );
     linehdrfld2->ignoreWheelEvents( true );
     txt.setEmpty();
     for ( int idx=mNrEditorLines; idx<mNrTxtHdrLines; idx++ )
@@ -133,7 +134,7 @@ uiSEGYExpTxtHeaderDlg( uiParent* p, BufferString& hdr, bool& ag )
     edfld_->setPrefHeightInChar( mNrEditorLines );
     edfld_->setLineWrapColumn( mEditorWidth );
     edfld_->hideFrame();
-    edfld_->hideScrollBar( true );
+    edfld_->hideScrollBar( OD::Vertical );
     edfld_->ignoreWheelEvents( true );
     edfld_->attach( rightOf, linehdrfld1 );
 
@@ -143,7 +144,7 @@ uiSEGYExpTxtHeaderDlg( uiParent* p, BufferString& hdr, bool& ag )
     footerfld_->setPrefHeightInChar( mNrFooterLines );
     footerfld_->setLineWrapColumn( mEditorWidth );
     footerfld_->hideFrame();
-    footerfld_->hideScrollBar( true );
+    footerfld_->hideScrollBar( OD::Vertical );
     footerfld_->ignoreWheelEvents( true );
     footerfld_->attach( alignedBelow, edfld_, 0 );
 
