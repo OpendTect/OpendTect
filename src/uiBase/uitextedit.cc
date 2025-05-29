@@ -113,12 +113,29 @@ void uiTextEditBase::scrollToBottom()
 }
 
 
-void uiTextEditBase::hideScrollBar( bool vertical )
+void uiTextEditBase::showScrollBar( OD::Orientation odor, bool alwayson )
 {
-    if ( vertical )
+    const Qt::ScrollBarPolicy pol =
+		alwayson ? Qt::ScrollBarAlwaysOn : Qt::ScrollBarAsNeeded;
+    if ( odor == OD::Vertical )
+	qte().setVerticalScrollBarPolicy( pol );
+    else
+	qte().setHorizontalScrollBarPolicy( pol );
+}
+
+
+void uiTextEditBase::hideScrollBar( OD::Orientation odor )
+{
+    if ( odor == OD::Vertical )
 	qte().setVerticalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
     else
 	qte().setHorizontalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
+}
+
+
+void uiTextEditBase::hideScrollBar( bool vertical )
+{
+    hideScrollBar( vertical ? OD::Vertical : OD::Horizontal );
 }
 
 
