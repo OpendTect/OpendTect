@@ -245,7 +245,6 @@ bool Well::HDF5Reader::getLogs( bool needjustinfo ) const
     if ( !ensureFileOpen() )
 	return false;
 
-    LogSet& logs = wd_.logs();
     HDF5::DataSetKey dsky( sLogsGrpName() );
     errmsg_.setEmpty();
     for ( int ilog=1; ; ilog++ )
@@ -254,10 +253,9 @@ bool Well::HDF5Reader::getLogs( bool needjustinfo ) const
 	HDF5::DataSetKey grpkey;
 	grpkey.setGroupName( dsky.fullDataSetName() );
 	Log* wl = getWL( grpkey );
+	addToLogSet( wl, needjustinfo );
 	if ( !wl )
 	    break;
-
-	logs.add( wl );
     }
 
     return errmsg_.isEmpty() && getDefLogs();
@@ -377,7 +375,10 @@ bool Well::HDF5Reader::getLog( const char* reqlognm ) const
 	BufferString lognm;
 	iop.get( sKey::Name(), lognm );
 	if ( lognm == reqlognm )
-	    return getWL( grpkey );
+	{
+	    Log* wl = getWL( grpkey );
+	    return addToLogSet( wl );
+	}
     }
 }
 
@@ -396,7 +397,8 @@ bool Well::HDF5Reader::getLogByID( const LogID& id ) const
     if ( !getLogPars(grpkey,iop) )
 	return false;
 
-    return getWL( grpkey );
+    Log* wl = getWL( grpkey );
+    return addToLogSet( wl );
 }
 
 
