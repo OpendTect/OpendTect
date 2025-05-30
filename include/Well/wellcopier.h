@@ -35,7 +35,6 @@ private:
 
     PtrMan<IOObj>	getOutputIOObj();
 
-
     bool		allowoverwrite_			= false;
     MultiID		outputid_;
     const MultiID	inpid_;
@@ -54,7 +53,6 @@ public:
 			~MultiWellCopier();
 
     void		setOverwriteAllowed(bool);
-
 
     uiString		uiMessage() const override;
     uiString		uiNrDoneText() const override;

@@ -2890,20 +2890,29 @@ void uiCopyWellDlg::inpSelCB( CallBacker* )
 	return;
 
     BufferString nm = ioobj->name();
-    nm.add( "_copy" );
+    nm.add( " copy" );
     outfld_->setInputText( nm );
 }
 
 
 bool uiCopyWellDlg::acceptOK( CallBacker* )
 {
-    const MultiID inpid = infld_->key();
+    const IOObj* inpioobj = infld_->ioobj();
+    if ( !inpioobj )
+	return false;
+
+    const IOObj* outioobj = outfld_->ioobj();
+    if ( !outioobj )
+	return false;
+
+    const MultiID inpid = infld_->key( true );
     const BufferString outwellnm = outfld_->getInput();
     std::pair<const MultiID&,const BufferString> inpoutpair( inpid,
-							      outwellnm );
+							     outwellnm );
     const ObjectSet<std::pair<const MultiID&,
 			      const BufferString>> param( &inpoutpair );
     MultiWellCopier copier( param );
+    copier.setOverwriteAllowed( true );
     if ( !copier.execute() )
     {
 	uiMSG().error( copier.uiMessage() );
@@ -2917,7 +2926,7 @@ bool uiCopyWellDlg::acceptOK( CallBacker* )
 	return false;
     }
 
-    uiString msg = tr("Well successfully copied.\n\n"
+    const uiString msg = tr("Well successfully copied.\n\n"
 		      "Do you want to copy more Wells?");
     const bool ret =
 	uiMSG().askGoOn( msg, uiStrings::sYes(),tr("No, close window") );

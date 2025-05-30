@@ -168,7 +168,7 @@ static void getBasicInfo( Well::Reader& rdr )
 void uiWellMan::getCurrentWells()
 {
     curfnms_.erase();
-    deepUnRef( curwds_ );
+    curwds_.erase();
     curmultiids_.erase();
 
     if ( !curioobj_ )
@@ -178,12 +178,13 @@ void uiWellMan::getCurrentWells()
     for ( int idx=0; idx<nrsel; idx++ )
     {
 	const IOObj* obj = IOM().get( selgrp_->chosenID(idx) );
-	if ( !obj ) continue;
+	if ( !obj )
+	    continue;
 
 	curmultiids_ += obj->key();
 	curfnms_.add( BufferString( obj->fullUserExpr( true ) ) );
-	Well::Data* wd = new Well::Data;
-	curwds_ += wd;
+	RefMan<Well::Data> wd = new Well::Data;
+	curwds_.add( wd.ptr() );
 	Well::Reader rdr( *obj, *wd );
 	getBasicInfo( rdr );
     }
@@ -224,7 +225,6 @@ void uiWellMan::fillLogsFld()
     RefMan<Well::Data> wd0 = curwds_.first();
     Well::Reader rdr0( key0, *wd0 );
     rdr0.getLogInfo( availablelognms_ );
-    rdr0.getDefLogs();
     wd0->logs().getDefaultLogs( defaultlognms_ );
     for ( int idx=1; idx<curwds_.size(); idx++ )
     {
@@ -233,7 +233,6 @@ void uiWellMan::fillLogsFld()
 	BufferStringSet lognms, deflognms;
 	Well::Reader rdr( key, *wd );
 	rdr.getLogInfo( lognms );
-	rdr.getDefLogs();
 	wd->logs().getDefaultLogs( deflognms );
 	for ( int idy=0; idy<availablelognms_.size(); )
 	{

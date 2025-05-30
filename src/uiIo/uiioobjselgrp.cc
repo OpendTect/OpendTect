@@ -138,7 +138,7 @@ EntryDataSet& EntryDataSet::add( const MultiID& mid, const BufferString& objnm,
 	    icnnm = transl->iconName();
     }
 
-    EntryData* data = new EntryData( mid, objnm, dispnm, icnnm, isdef );
+    auto* data = new EntryData( mid, objnm, dispnm, icnnm, isdef );
     *this += data;
     livemids_.add( mid );
     if ( isdef )

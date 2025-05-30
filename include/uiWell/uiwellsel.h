@@ -26,7 +26,7 @@ public:
 
 protected:
 
-    Setup		getSetup(bool,const uiString&,bool) const;
+    Setup		getSetup(bool,const uiString&,bool withinserters) const;
     IOObjContext	getContext(bool,bool) const;
 
 };

@@ -61,6 +61,8 @@ public:
 			HDF5Reader(const HDF5Writer&,Data&,uiString& errmsg);
 			~HDF5Reader();
 
+private:
+
     bool		getInfo() const override;
     bool		getTrack() const override;
     bool		getLogs(bool needjustinfo) const override;
@@ -72,16 +74,10 @@ public:
     bool		getLog(const char* lognm) const override;
     bool		getLogByID(const LogID&) const override;
     void		getLogInfo(BufferStringSet&) const override;
-
+    bool		getDefLogs() const override;
     bool		getDispProps() const override;
 
     const		uiString& errMsg() const override    { return errmsg_; }
-
-protected:
-
-    uiString&		errmsg_;
-    PtrMan<HDF5::Reader> rdr_				= nullptr;
-    mutable IOPar	infoiop_;
 
     void		init(const char*);
     bool		ensureFileOpen() const;
@@ -90,6 +86,11 @@ protected:
     Log*		getWL(const HDF5::DataSetKey&) const;
 
     bool		get() const override		{ return true; }
+
+    uiString&		errmsg_;
+    PtrMan<HDF5::Reader> rdr_;
+    mutable IOPar	infoiop_;
+
 };
 
 

@@ -8,24 +8,43 @@ ________________________________________________________________________
 -*/
 
 #include "uiwellwriteopts.h"
+
+#include "filepath.h"
+#include "iostrm.h"
 #include "settings.h"
-#include "welllog.h"
 #include "welltransl.h"
 #include "wellodwriter.h"
+
 #include "uigeninput.h"
 #include "uistrings.h"
 
 #define mODWellTranslInstance mTranslTemplInstance(Well,od)
 
+static int cDefBinIdx = 0;
+static int cDefAsciiIdx = 1;
+
+
+static const int& cDefIdx()
+{
+    static int defidx = -1;
+    if ( defidx < 0 )
+    {
+	bool defbinwrite = true;
+	mSettUse(getYN,"dTect.Well logs","Binary format",defbinwrite);
+	defidx = defbinwrite ? cDefBinIdx : cDefAsciiIdx;
+    }
+
+    return defidx;
+}
+
 
 uiODWellWriteOpts::uiODWellWriteOpts( uiParent* p )
     : uiIOObjTranslatorWriteOpts(p,mODWellTranslInstance)
-    , defbinwrite_(true)
 {
-    mSettUse(getYN,"dTect.Well logs","Binary format",defbinwrite_);
     wrlogbinfld_ = new uiGenInput( this, tr("%1 storage")
-		       .arg(uiStrings::sWellLog()), BoolInpSpec(defbinwrite_,
-		       tr("Binary"),uiStrings::sASCII()) );
+		       .arg(uiStrings::sWellLog()),
+			BoolInpSpec(cDefIdx() == cDefBinIdx,
+				uiStrings::sBinary(),uiStrings::sASCII()) );
 
     setHAlignObj( wrlogbinfld_ );
 }
@@ -35,22 +54,31 @@ uiODWellWriteOpts::~uiODWellWriteOpts()
 {}
 
 
-void uiODWellWriteOpts::use( const IOPar& iop )
+void uiODWellWriteOpts::usePar( const IOPar& iop )
 {
-    const BufferString res = iop.find( Well::odWriter::sKeyLogStorage() );
-    bool binwr = defbinwrite_;
-    if ( !res.isEmpty() )
-	binwr = res.firstChar() != 'A';
-
-    wrlogbinfld_->setValue( binwr );
+    BufferString res;
+    if ( iop.get(Well::odWriter::sKeyLogStorage(),res) )
+    {
+	const bool binwr = !res.isEmpty() && res.firstChar() != 'A';
+	wrlogbinfld_->setValue( binwr );
+    }
+    else
+	wrlogbinfld_->setValue( true );
 }
 
 
-bool uiODWellWriteOpts::fill( IOPar& iop ) const
+bool uiODWellWriteOpts::fillPar( IOPar& iop ) const
 {
     const bool wantbin = wrlogbinfld_->getBoolValue();
     iop.set( Well::odWriter::sKeyLogStorage(), wantbin ? "Binary" : "Ascii" );
+
     return true;
+}
+
+
+uiIOObjTranslatorWriteOpts* uiODWellWriteOpts::create( uiParent* p )
+{
+    return new uiODWellWriteOpts( p );
 }
 
 

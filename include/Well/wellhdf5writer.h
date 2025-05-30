@@ -41,6 +41,7 @@ private:
     bool		putInfo() const override;
     bool		putTrack() const override;
     bool		putLogs() const override;
+    bool		putDefLogs() const override;
     bool		putMarkers() const override;
     bool		putD2T() const override;
     bool		putCSMdl() const override;
@@ -48,7 +49,7 @@ private:
 
     const uiString&	errMsg() const override		{ return errmsg_; }
 
-    PtrMan<HDF5::Writer> wrr_				= nullptr;
+    PtrMan<HDF5::Writer> wrr_;
     BufferString	filename_;
     uiString&		errmsg_;
 

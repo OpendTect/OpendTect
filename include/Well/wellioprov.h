@@ -12,11 +12,9 @@ ________________________________________________________________________
 
 #include "bufstring.h"
 #include "manobjectset.h"
-#include "wellreadaccess.h"
-#include "wellwriteaccess.h"
 
 class IOObj;
-namespace Well { class Data; }
+namespace Well { class Data; class ReadAccess; class WriteAccess; }
 
 
 /*!\brief Well::Data and sub-objects provider from data stores */
@@ -27,21 +25,21 @@ public:
 
     virtual			~WellDataIOProvider();
 
-    virtual bool		canWrite() const	{ return false; }
+    virtual bool		canWrite() const	{ return true; }
 
     virtual Well::ReadAccess*	makeReadAccess(const IOObj&,Well::Data&,
 					       uiString&) const
-				{ return 0; }
+				{ return nullptr; }
     virtual Well::WriteAccess*	makeWriteAccess(const IOObj&,
 						const Well::Data&,
 						uiString&) const
-				{ return 0; }
+				{ return nullptr; }
 
     const OD::String&		type() const		{ return type_; }
 
 protected:
-
 				WellDataIOProvider(const char* type);
+				//!< Type should be the translator user name
 
     const BufferString		type_;
 
@@ -53,21 +51,25 @@ mExpClass(Well) WellDataIOProviderFactory
 public:
 				~WellDataIOProviderFactory();
 
-    int				add( WellDataIOProvider* prov )
-				{ provs_ += prov; return provs_.size() - 1; }
-    const ObjectSet<WellDataIOProvider>& providers() const
-				{ return provs_; }
+    void			add(WellDataIOProvider*);
+
+    const WellDataIOProvider*	provider(const char* typ) const;
+				//!< Type should be the translator user name
 
     // Convenience functions
-    const WellDataIOProvider*	provider(const char* typ) const;
     Well::ReadAccess*		getReadAccess(const IOObj&,Well::Data&,
 					      uiString&) const;
     Well::WriteAccess*		getWriteAccess(const IOObj&,const Well::Data&,
 					       uiString&) const;
 
-protected:
+private:
 
     ManagedObjectSet<WellDataIOProvider> provs_;
+
+public:
+    mDeprecatedObs
+    const ObjectSet<WellDataIOProvider>& providers() const
+				{ return provs_; }
 
 };
 

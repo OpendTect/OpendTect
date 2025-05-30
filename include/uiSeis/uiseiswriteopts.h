@@ -23,12 +23,18 @@ public:
 			uiCBVSVolOpts(uiParent*);
 			~uiCBVSVolOpts();
 
-    mDecluiIOObjTranslatorWriteOptsStdFns(uiCBVSVolOpts);
+private:
 
-protected:
+    void		usePar(const IOPar&) override;
+    bool		fillPar(IOPar&) const override;
+
+    static uiIOObjTranslatorWriteOpts* create(uiParent*);
 
     uiGenInput*		stortypfld_;
     uiCheckBox*		optimdirfld_;
+
+public:
+    static void		initClass();
 
 };
 
@@ -39,10 +45,16 @@ public:
 			uiCBVSPS3DOpts(uiParent*);
 			~uiCBVSPS3DOpts();
 
-    mDecluiIOObjTranslatorWriteOptsStdFns(uiCBVSPS3DOpts);
+private:
 
-protected:
+    void		usePar(const IOPar&) override;
+    bool		fillPar(IOPar&) const override;
+
+    static uiIOObjTranslatorWriteOpts* create(uiParent*);
 
     uiGenInput*		stortypfld_;
+
+public:
+    static void		initClass();
 
 };

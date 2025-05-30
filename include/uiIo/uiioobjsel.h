@@ -107,6 +107,7 @@ protected:
     Setup		setup_;
     HelpKey		helpkey_;
     bool		inctiomine_;
+    bool		overwrdontshowagain_	= false;
     ObjectSet<uiIOObjInserter> inserters_;
 
     void		preFinalizeCB(CallBacker*);

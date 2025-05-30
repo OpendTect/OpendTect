@@ -31,6 +31,7 @@ ________________________________________________________________________
 #include "welllogset.h"
 #include "wellmarker.h"
 #include "welltrack.h"
+#include "uistrings.h"
 
 
 bool Well::Writer::isFunctional( const MultiID& ky )
@@ -99,20 +100,14 @@ bool Well::Writer::fnnm() const { return wa_ ? wa_->fnnm() : false; }
 mImplSimpleWWFn(put)
 mImplSimpleWWFn(putInfo)
 mImplSimpleWWFn(putTrack)
-mImplSimpleWWFn(putLogs)
 mImplSimpleWWFn(putMarkers)
 mImplSimpleWWFn(putD2T)
 mImplSimpleWWFn(putCSMdl)
 mImplSimpleWWFn(putDispProps)
+mImplSimpleWWFn(putDefLogs)
 mImplSimpleWWFn(isFunctional)
 
 mImplWWFn(bool,putLog,const Log&,wl,false)
-
-
-bool Well::Writer::putInfoAndTrack() const
-{
-    return put( StoreReqs(Well::Inf,Well::Trck) );
-}
 
 
 bool Well::Writer::put( const StoreReqs& reqs ) const
@@ -130,23 +125,35 @@ bool Well::Writer::put( const StoreReqs& reqs ) const
 
     if ( reqs.includes(Well::D2T) )
 	putD2T();
+
     if ( reqs.includes(Well::Mrkrs) )
 	putMarkers();
-    if ( reqs.includes(Well::Logs) )
+
+    if ( reqs.includes(Well::Logs) || reqs.includes(Well::LogInfos) )
 	putLogs();
-    if ( reqs.includes(Well::LogInfos) )
-	putLogs();
+
     if ( reqs.includes(Well::CSMdl) )
 	putCSMdl();
+
     if ( reqs.includes(Well::DispProps2D) || reqs.includes(Well::DispProps3D) )
 	putDispProps();
 
     return true;
 }
 
-bool Well::Writer::putDefLogs() const
+
+bool Well::Writer::putInfoAndTrack() const
 {
-    return wa_ ? wa_->putDefLogs() : false;
+    return put( StoreReqs(Well::Inf,Well::Trck) );
+}
+
+
+bool Well::Writer::putLogs() const
+{
+    if ( wa_ )
+	return wa_->putLogs() && wa_->putDefLogs();
+
+    return false;
 }
 
 
@@ -360,7 +367,7 @@ bool Well::odWriter::putLogs() const
 	    return false;
     }
 
-    return true;
+    return putDefLogs();
 }
 
 

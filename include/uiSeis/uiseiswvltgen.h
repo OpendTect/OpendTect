@@ -26,12 +26,15 @@ class uiFuncSelDraw;
 mExpClass(uiSeis) uiSeisWvltCreate : public uiDialog
 { mODTextTranslationClass(uiSeisWvltCreate);
 public:
-			uiSeisWvltCreate(uiParent*,uiDialog::Setup);
+
 			~uiSeisWvltCreate();
 
-    MultiID		storeKey() const;
+    MultiID		storeKey(bool noerr=false) const;
 
 protected:
+			uiSeisWvltCreate(uiParent*,uiDialog::Setup);
+
+    bool		acceptOK(CallBacker*) override;
 
     bool		putWvlt(const Wavelet&);
 
@@ -45,7 +48,7 @@ public:
 			uiSeisWvltGen(uiParent*);
 			~uiSeisWvltGen();
 
-protected:
+private:
 
     uiGenInput*		isrickfld_;
     uiGenInput*		freqfld_;
@@ -69,20 +72,21 @@ public:
 			~WvltMathFunction();
 
 	StepInterval<float> samppos_;
-	int 		size_;
+	int		size_;
 	const float*    samples_;
 	float		getValue(float) const override;
-	float 		getIntValue(float) const;
-	virtual float 	getValue( const float* p ) const
-	    		{ return getValue(*p); }
+	float		getIntValue(float) const;
+	virtual float	getValue( const float* p ) const
+			{ return getValue(*p); }
     };
 
-			uiSeisWvltMerge(uiParent*,const char* curwvltnm=0);
+			uiSeisWvltMerge(uiParent*,
+					const char* curwvltnm=nullptr);
 			~uiSeisWvltMerge();
 
-protected:
+private:
 
-    BufferString 	curwvltnm_;
+    BufferString	curwvltnm_;
     int			maxwvltsize_;
     StepInterval<float> wvltsampling_;
 
@@ -96,17 +100,17 @@ protected:
     uiCheckBox*		centerfld_;
     uiLabeledComboBox*	centerchoicefld_;
 
-    void 		constructDrawer(bool);
+    void		constructDrawer(bool);
     void		clearStackedWvlt(uiFuncSelDraw*);
     uiFuncSelDraw*	getCurrentDrawer();
     void		centerToMaxEnergyPos(Wavelet&);
     void		centerToMaxAmplPos(Wavelet&);
     void		makeStackedWvlt();
-    void 		reloadWvlts();
-    void 		reloadFunctions();
+    void		reloadWvlts();
+    void		reloadFunctions();
 
     bool		acceptOK(CallBacker*) override;
-    void 		centerChged(CallBacker*);
+    void		centerChged(CallBacker*);
     void		funcSelChg(CallBacker*);
-    void 		reloadAll(CallBacker*);
+    void		reloadAll(CallBacker*);
 };

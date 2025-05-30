@@ -187,19 +187,20 @@ public:
     static uiString	sHDF5NotAvailable();
     static uiString	sHDF5NotAvailable(const char* fnm);
     static uiString	sNotHDF5File(const char*);
-    static uiString	sHDF5FileNoLongerAccessibe();
+    static uiString	sHDF5FileNoLongerAccessible();
     uiString		sCantSetScope(const DataSetKey&) const;
     static uiString	sDataSetNotFound(const DataSetKey&);
     static uiString	sCannotReadDataSet(const DataSetKey&);
-    static const char*	sFileExtension()	{ return mDefHDF5FileExt; }
 
-    static bool		isEnabled(const char* fortype=0);
-    static bool		isEnvBlocked(const char* fortype=0);
+    static bool		isEnabled(const char* fortype=nullptr);
+    static bool		isEnvBlocked(const char* fortype=nullptr);
     static bool		isHDF5File(const char*);
-    static const char*	sSettingsEnabKey()	{ return "dTect.Use HDF5"; }
+
+    static const char*	sFileExtension();
+    static const char*	sIconName();
+    static const char*	sSettingsEnabKey();
 
 protected:
-
 			Access();
 
     H5::H5File*		file_;
@@ -256,12 +257,13 @@ inline const char* sFileExtension() { return Access::sFileExtension(); }
 
 inline bool isAvailable()
 { return !AccessProvider::factory().isEmpty(); }
-inline bool isEnabled( const char* typ=0 )
+inline bool isEnabled( const char* typ=nullptr )
 { return Access::isEnabled(typ); }
-inline bool isEnvBlocked( const char* typ=0 )
+inline bool isEnvBlocked( const char* typ=nullptr )
 { return Access::isEnvBlocked(typ);}
 inline bool isHDF5File( const char* fnm )
 { return Access::isHDF5File(fnm); }
+//!< Always false for non-existing file, even for an 'file.h5' string
 
 inline const char* sSeismicsType()	{ return "Seismics"; }
 inline const char* sPickSetType()	{ return "PickSets"; }
