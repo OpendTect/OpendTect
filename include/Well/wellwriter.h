@@ -32,6 +32,7 @@ class WriteAccess;
 mExpClass(Well) Writer
 { mODTextTranslationClass(Well::Writer);
 public:
+    using StoreReqs = Well::LoadReqs;
 
 			Writer(const MultiID&,const Data&);
 			Writer(const IOObj&,const Data&);
@@ -39,6 +40,7 @@ public:
     bool		isUsable() const	{ return wa_; }
 
     bool		put() const;		//!< Just write all
+    bool		put(const StoreReqs&) const;
 
     bool		putInfoAndTrack() const;//!< Write Info and track
     bool		putLogs() const;	//!< Write logs only

@@ -28,6 +28,8 @@ public:
     virtual			~WellDataIOProvider();
 
     virtual bool		canWrite() const	{ return false; }
+				/*!< Not used (yet) in this branch,
+					will become true */
 
     virtual Well::ReadAccess*	makeReadAccess(const IOObj&,Well::Data&,
 					       uiString&) const
@@ -42,6 +44,7 @@ public:
 protected:
 
 				WellDataIOProvider(const char* type);
+				//!< Type should be the translator user name
 
     const BufferString		type_;
 
@@ -55,11 +58,14 @@ public:
 
     int				add( WellDataIOProvider* prov )
 				{ provs_ += prov; return provs_.size() - 1; }
+
+    mDeprecatedObs
     const ObjectSet<WellDataIOProvider>& providers() const
 				{ return provs_; }
 
     // Convenience functions
     const WellDataIOProvider*	provider(const char* typ) const;
+				//!< Type should be the translator user name
     Well::ReadAccess*		getReadAccess(const IOObj&,Well::Data&,
 					      uiString&) const;
     Well::WriteAccess*		getWriteAccess(const IOObj&,const Well::Data&,

@@ -860,3 +860,19 @@ bool Well::D2TModel::ensureValid( const Well::Data& wll, uiString& msg,
 
     return isok;
 }
+
+
+void Well::D2TModel::fillHeaderPar( IOPar& par ) const
+{
+    putNameInPar( par );
+    par.set( sKey::Desc(), desc );
+    par.set( sKeyDataSrc(), datasource );
+}
+
+
+void Well::D2TModel::useHeaderPar( const IOPar& par )
+{
+    getNameFromPar( par );
+    par.get( sKey::Desc(), desc );
+    par.get( sKeyDataSrc(), datasource );
+}

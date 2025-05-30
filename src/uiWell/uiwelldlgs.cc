@@ -90,7 +90,7 @@ uiString getDlgTitle( const MultiID& wllky )
 }
 
 #define mGetDlgSetup(wd,objtyp,hid) \
-    uiDialog::Setup( getWinTitle(objtyp,wd.multiID(),writable_), \
+    uiDialog::Setup( getWinTitle(objtyp,wd.multiID(), writable_), \
 		     getDlgTitle(wd.multiID()), mODHelpKey(hid) )
 #define mTDName(iscksh) iscksh ? uiWellTrackDlg::sCkShotData() \
 			       : uiWellTrackDlg::sTimeDepthModel()
@@ -2832,6 +2832,7 @@ bool uiSetD2TFromOtherWell::acceptOK( CallBacker* )
 	Well::Writer wtr( selkey, *wd );
 	if ( chgreplvel )
 	    wtr.putInfoAndTrack();
+
 	wtr.putD2T();
     }
 
@@ -2884,7 +2885,7 @@ void uiCopyWellDlg::inpSelCB( CallBacker* )
 	return;
 
     BufferString nm = ioobj->name();
-    nm.add( "_copy" );
+    nm.add( " copy" );
     outfld_->setInputText( nm );
 }
 
@@ -2892,8 +2893,11 @@ void uiCopyWellDlg::inpSelCB( CallBacker* )
 bool uiCopyWellDlg::acceptOK( CallBacker* )
 {
     const IOObj* inioobj = infld_->ioobj();
+    if ( !inioobj )
+	return false;
+
     const IOObj* outioobj = outfld_->ioobj();
-    if ( !inioobj || !outioobj )
+    if ( !outioobj )
 	return false;
 
     RefMan<Well::Data> wdin = new Well::Data;
@@ -2911,11 +2915,12 @@ bool uiCopyWellDlg::acceptOK( CallBacker* )
 	return false;
     }
 
-    IOM().implUpdated().trigger(outioobj->key());
-    uiString msg = tr("Well successfully copied.\n\n"
+    IOM().implUpdated().trigger( outioobj->key()) ;
+    const uiString msg = tr("Well successfully copied.\n\n"
 		      "Do you want to copy more Wells?");
     const bool ret =
 	uiMSG().askGoOn( msg, uiStrings::sYes(),tr("No, close window") );
+
     return !ret;
 }
 

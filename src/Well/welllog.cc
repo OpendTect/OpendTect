@@ -28,7 +28,7 @@ const char* Well::Log::sKeyStorage()	{ return "Storage type"; }
 const char* Well::Log::sKeyDahRange()	{ return "Dah range"; }
 const char* Well::Log::sKeyLogRange()	{ return "Log range"; }
 
-static const char* sKeyDefMnem()	{ return "Default Mnemonic"; }
+const char* Well::LogSet::sKeyDefMnem() { return "Default Mnemonic"; }
 
 // ---- Well::LogSet
 
