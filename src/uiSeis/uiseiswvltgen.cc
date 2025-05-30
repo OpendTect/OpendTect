@@ -32,6 +32,7 @@ ________________________________________________________________________
 uiSeisWvltCreate::uiSeisWvltCreate( uiParent* p, uiDialog::Setup su )
 	: uiDialog(p,su)
 {
+    setCtrlStyle( RunAndClose );
     wvltfld_ = new uiWaveletSel( this, false );
 }
 
@@ -196,6 +197,10 @@ void uiSeisWvltGenerator::typeChgCB( CallBacker* )
 
 bool uiSeisWvltGenerator::acceptOK( CallBacker* )
 {
+    const IOObj* outioobj = wvltfld_->ioobj();
+    if ( !outioobj )
+	return false;
+
     const bool isrick = isrickfld_->getBoolValue();
     const int nrfreq = isrick ? 1 : 4;
     TypeSet<float> freq;
@@ -238,7 +243,15 @@ bool uiSeisWvltGenerator::acceptOK( CallBacker* )
 	res = putWvlt( wvlt );
     }
 
-    return res;
+    if ( !res )
+	return res;
+
+    const uiString msg = tr("Wavelet successfully created.\n\n"
+		      "Do you want to create more Wavelets?");
+    const bool ret =
+	uiMSG().askGoOn( msg, uiStrings::sYes(),tr("No, close window") );
+
+    return !ret;
 }
 
 
@@ -551,6 +564,10 @@ void uiSeisWvltMerge::centerChged( CallBacker* )
 
 bool uiSeisWvltMerge::acceptOK( CallBacker* )
 {
+    const IOObj* outioobj = wvltfld_->ioobj();
+    if ( !outioobj )
+	return false;
+
     if ( !stackedwvlt_ )
 	mErrRet( tr("There is no stacked wavelet to be saved") );
 
@@ -574,7 +591,15 @@ bool uiSeisWvltMerge::acceptOK( CallBacker* )
     if ( sr != wvlt.sampleRate() )
 	wvlt.reSample( sr );
 
-    return putWvlt( wvlt );
+    if ( !putWvlt(wvlt) )
+	return false;
+
+    const uiString msg = tr("Wavelets successfully merged.\n\n"
+		      "Do you want to merge more Wavelets?");
+    const bool ret =
+	uiMSG().askGoOn( msg, uiStrings::sYes(),tr("No, close window") );
+
+    return !ret;
 }
 
 
