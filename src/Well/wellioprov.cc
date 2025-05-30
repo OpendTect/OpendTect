@@ -8,12 +8,12 @@ ________________________________________________________________________
 -*/
 
 #include "wellioprov.h"
-#include "wellodreader.h"
-#include "wellodwriter.h"
-#include "welltransl.h"
+
+#include "transl.h"
 
 
 // WellDataIOProvider
+
 WellDataIOProvider::WellDataIOProvider( const char* tp )
     : type_(tp)
 {}
@@ -24,6 +24,7 @@ WellDataIOProvider::~WellDataIOProvider()
 
 
 // WellDataIOProviderFactory
+
 WellDataIOProviderFactory& WDIOPF()
 {
     mDefineStaticLocalObject( WellDataIOProviderFactory, theinst, );
@@ -39,15 +40,19 @@ const WellDataIOProvider* WellDataIOProviderFactory::provider(
 						const char* typ ) const
 {
     if ( provs_.isEmpty() )
-	return 0;
-    else if ( !typ || !*typ || StringView(typ) == "dGB" )
-	return provs_[0];
+	return nullptr;
 
-    for ( int idx=0; idx<provs_.size(); idx++ )
-	if ( provs_[idx]->type() == typ )
-	    return provs_[idx];
+    const StringView typstr( typ );
+    if ( typstr.isEmpty() )
+	return provs_.first();
 
-    return 0;
+    for ( const auto* prov : provs_ )
+    {
+	if ( prov->type() == typ )
+	    return prov;
+    }
+
+    return nullptr;
 }
 
 
@@ -55,7 +60,7 @@ Well::ReadAccess* WellDataIOProviderFactory::getReadAccess( const IOObj& ioobj,
 	    Well::Data& wd, uiString& errmsg ) const
 {
     const WellDataIOProvider* prov = provider( ioobj.translator().str() );
-    return prov ? prov->makeReadAccess(ioobj,wd,errmsg) : 0;
+    return prov ? prov->makeReadAccess(ioobj,wd,errmsg) : nullptr;
 }
 
 
@@ -63,31 +68,7 @@ Well::WriteAccess* WellDataIOProviderFactory::getWriteAccess(
 	    const IOObj& ioobj, const Well::Data& wd, uiString& errmsg ) const
 {
     const WellDataIOProvider* prov = provider( ioobj.translator().str() );
-    return prov ? prov->makeWriteAccess(ioobj,wd,errmsg) : 0;
+    return prov ? prov->makeWriteAccess(ioobj,wd,errmsg) : nullptr;
 }
 
-
-class odWellDataIOProvider : public WellDataIOProvider
-{
-public:
-			odWellDataIOProvider()
-			    : WellDataIOProvider("OpendTect")	{}
-
-    Well::ReadAccess*	makeReadAccess( const IOObj& ioobj,
-			    Well::Data& wd, uiString& errmsg ) const override
-			{ return new Well::odReader(ioobj,wd,errmsg); }
-    Well::WriteAccess*	makeWriteAccess( const IOObj& ioobj,
-					 const Well::Data& wd,
-					 uiString& errmsg ) const override
-			{ return new Well::odWriter(ioobj,wd,errmsg); }
-
-    static int		factid_;
-};
-
-int odWellDataIOProvider::factid_ = WDIOPF().add( new odWellDataIOProvider );
-
-
-const WellDataIOProvider& odWellTranslator::getProv() const
-{
-    return *WDIOPF().providers()[odWellDataIOProvider::factid_];
-}
+// Base implementations are in welltransl.cc

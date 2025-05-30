@@ -95,6 +95,8 @@ public:
     Notifier<LogSet>	logAdded;
     Notifier<LogSet>	logRemoved;
 
+    static const char*	sKeyDefMnem();
+
 protected:
 
     ObjectSet<Log>	logs_;

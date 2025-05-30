@@ -82,6 +82,9 @@ public:
 			//!< Returns corrected model if necessary
 			//!< May eventually also correct info().replvel
 
+    void		fillHeaderPar(IOPar&) const;
+    void		useHeaderPar(const IOPar&);
+
 protected:
 
     TypeSet<float>	t_;

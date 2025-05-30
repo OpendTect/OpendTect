@@ -193,12 +193,13 @@ void uiWellMan::getCurrentWells()
     for ( int idx=0; idx<nrsel; idx++ )
     {
 	const IOObj* obj = IOM().get( selgrp_->chosenID(idx) );
-	if ( !obj ) continue;
+	if ( !obj )
+	    continue;
 
 	curmultiids_ += obj->key();
 	curfnms_.add( BufferString( obj->fullUserExpr( true ) ) );
-	Well::Data* wd = new Well::Data;
-	curwds_ += wd;
+	auto* wd = new Well::Data;
+	curwds_.add( wd );
 	currdrs_ += new Well::Reader( *obj, *curwds_[idx] );
 	getBasicInfo( currdrs_[idx] );
     }
@@ -236,7 +237,6 @@ void uiWellMan::fillLogsFld()
     availablelognms_.erase();
     defaultlognms_.erase();
     currdrs_[0]->getLogInfo( availablelognms_ );
-    currdrs_[0]->getDefLogs();
     curwds_[0]->logs().getDefaultLogs( defaultlognms_ );
     if ( currdrs_.size() > 1 )
     {
@@ -244,7 +244,6 @@ void uiWellMan::fillLogsFld()
 	{
 	    BufferStringSet lognms, deflognms;
 	    currdrs_[idx]->getLogInfo( lognms );
-	    currdrs_[idx]->getDefLogs();
 	    curwds_[idx]->logs().getDefaultLogs( deflognms );
 	    for ( int idy=0; idy<availablelognms_.size(); )
 	    {

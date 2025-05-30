@@ -152,7 +152,6 @@ void Well::ReadAccess::adjustTrackIfNecessary( bool frommarkers ) const
 }
 
 
-
 Well::Reader::Reader( const IOObj& ioobj, Data& wd )
 {
     init( ioobj, wd );
@@ -194,40 +193,12 @@ Well::Reader::~Reader()
 }
 
 
-#define mImplWRFn(rettyp,fnnm,typ,arg,udf) \
-rettyp Well::Reader::fnnm( typ arg ) const \
-{ return ra_ ? ra_->fnnm(arg) : udf; }
-#define mImplSimpleWRFn(fnnm) \
-bool Well::Reader::fnnm() const { return ra_ ? ra_->fnnm() : false; }
-
-mImplSimpleWRFn(getInfo)
-mImplSimpleWRFn(getMarkers)
-mImplSimpleWRFn(getDispProps)
-mImplWRFn(bool,getLogs,bool,needjustinfo,false)
-
-
-bool Well::Reader::getDefLogs() const
-{
-    return ra_ ? ra_->getDefLogs() : false;
-}
-
-
-bool Well::Reader::getTrack() const
-{
-    const bool trackloaded = ra_ && ra_->getTrack();
-    if ( trackloaded )
-	const_cast<Track&>( data()->track() ).updateDahRange();
-
-    return trackloaded;
-}
-
-
 bool Well::Reader::get() const
 {
     if ( !ra_ )
 	return false;
 
-    Data* wd = const_cast<Data*>( data() );
+    auto* wd = const_cast<Data*>( data() );
     if ( !wd )
 	return false;
 
@@ -253,6 +224,28 @@ bool Well::Reader::get() const
 }
 
 
+bool Well::Reader::getInfo() const
+{
+    return ra_ ? ra_->getInfo() : false;
+}
+
+
+bool Well::Reader::getTrack() const
+{
+    const bool trackloaded = ra_ && ra_->getTrack();
+    if ( trackloaded )
+	const_cast<Track&>( data()->track() ).updateDahRange();
+
+    return trackloaded;
+}
+
+
+bool Well::Reader::getMarkers() const
+{
+    return ra_ ? ra_->getMarkers() : false;
+}
+
+
 bool Well::Reader::getD2T() const
 {
     if ( data() && (!getInfo() || (data()->track().isEmpty() && !getTrack())) )
@@ -271,11 +264,44 @@ bool Well::Reader::getCSMdl() const
 }
 
 
-mImplWRFn(bool,getLog,const char*,lognm,false)
-void Well::Reader::getLogInfo( BufferStringSet& logname ) const
-{ if ( ra_ ) ra_->getLogInfo( logname ); }
+bool Well::Reader::getLogs( bool needjustinfo ) const
+{
+    return ra_ ? ra_->getLogs( needjustinfo ) && ra_->getDefLogs() : false;
+}
+
+
+bool Well::Reader::getLog( const char* nm ) const
+{
+    return ra_ ? ra_->getLog( nm ) : false;
+}
+
+
+void Well::Reader::getLogInfo( BufferStringSet& lognms ) const
+{
+    if ( ra_ )
+    {
+	ra_->getLogInfo( lognms );
+	ra_->getDefLogs();
+    }
+}
+
+
+bool Well::Reader::getDefLogs() const
+{
+    return ra_ ? ra_->getDefLogs() : false;
+}
+
+
+bool Well::Reader::getDispProps() const
+{
+    return ra_ ? ra_->getDispProps() : false;
+}
+
+
 Well::Data* Well::Reader::data()
-{ return ra_ ? &ra_->data() : nullptr; }
+{
+    return ra_ ? &ra_->data() : nullptr;
+}
 
 
 bool Well::Reader::getMapLocation( Coord& coord ) const
@@ -658,7 +684,6 @@ bool Well::odReader::getLogs( bool needjustinfo ) const
 	}
     }
 
-    getDefLogs();
     if ( rv )
 	adjustTrackIfNecessary();
 
@@ -734,7 +759,7 @@ bool Well::odReader::addLog( od_istream& strm, bool needjustinfo ) const
     const bool addedok = addToLogSet( newlog, needjustinfo );
     Log* wl = const_cast<LogSet&>(data().logs()).
 						getLog( newlog->name().buf() );
-    if (addedok && udfranges)
+    if ( addedok && udfranges )
     {
 	Writer wrr( data().multiID(), data() );
 	wrr.putLog( *wl );
@@ -757,7 +782,6 @@ bool Well::odReader::addLog( od_istream& strm, bool needjustinfo ) const
 
 void Well::odReader::readLogData( Log& wl, od_istream& strm, int bintype ) const
 {
-
     float v[2];
     while ( strm.isOK() )
     {
@@ -1054,10 +1078,23 @@ int MultiWellReader::nextStep()
 	}
     }
 
+    bool reloadsuccess = false;
     if ( wkey.isInCurrentSurvey() )
+    {
+	if ( needsreload )
+	{
+	    reloadsuccess = Well::MGR().reload( wkey,reqs_ );
+	    if ( !reloadsuccess )
+		errmsg_.append( Well::MGR().errMsg() ).addNewLine();
+	}
+
 	wd = Well::MGR().get( wkey, reqs_ );
+    }
     else
     {
+	if ( !wd )
+	    wd = new Well::Data;
+
 	Well::Reader rdr( wkey, *wd );
 	if ( reqs_.includes(Well::Inf) && !rdr.getInfo() )
 	{
@@ -1076,7 +1113,7 @@ int MultiWellReader::nextStep()
 	if ( reqs_.includes(Well::Mrkrs) )
 	    rdr.getMarkers();
 	if ( reqs_.includes(Well::Logs) )
-	    rdr.getLogs();
+	    rdr.getLogs( false );
 	else if ( reqs_.includes(Well::LogInfos) )
 	    rdr.getLogs( true );
 	if ( reqs_.includes(Well::CSMdl) )
@@ -1087,7 +1124,10 @@ int MultiWellReader::nextStep()
     }
 
     if ( !wd && wkey.isInCurrentSurvey() )
+    {
 	errmsg_.append( Well::MGR().errMsg() ).addNewLine();
+	return MoreToDo();
+    }
 
     wds_.addIfNew( wd );
     needsreload ? wellreloadedcount++ : welladdedcount++;

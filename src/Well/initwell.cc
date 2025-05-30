@@ -8,6 +8,7 @@ ________________________________________________________________________
 -*/
 
 #include "moddepmgr.h"
+
 #include "wellt2dtransform.h"
 #include "wellposprovider.h"
 #include "welltransl.h"
@@ -19,10 +20,19 @@ mDefModInitFn(Well)
 
     WellTranslatorGroup::initClass();
     odWellTranslator::initClass();
+    inithdfWellTranslator();
     TranslatorGroup& welltrgrp = WellTranslatorGroup::theInst();
-    welltrgrp.setDefTranslIdx(
-		welltrgrp.getTemplateIdx(odWellTranslator::getInstance()) );
-    
+    for ( int idx=0; idx<welltrgrp.templates().size(); idx++ )
+    {
+	const Translator& transl = *welltrgrp.templates().get( idx );
+	if ( transl.isUserSelectable(true) &&
+	     transl.isUserSelectable(false) )
+	{
+	    welltrgrp.setDefTranslIdx( idx );
+	    break;
+	}
+    }
+
     WellT2DTransform::initClass();
     Pos::WellProvider3D::initClass();
 }

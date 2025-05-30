@@ -9,6 +9,7 @@ ________________________________________________________________________
 -*/
 
 #include "wellmod.h"
+
 #include "transl.h"
 
 class Executor;
@@ -38,15 +39,19 @@ public:
 
     virtual const WellDataIOProvider&	getProv() const			= 0;
 
+protected:
+
+    bool		implRename_(const IOObj*,const char*) const;
+
 };
 
 
-/*!\brief WellTranslator for 'dGB' stored wells, OD's default well format. */
+/*!\brief WellTranslator for 'dGB' stored wells, OD's legacy well format. */
 
 mExpClass(Well) odWellTranslator : public WellTranslator
 {				isTranslator(od,Well)
 public:
-				mDefEmptyTranslatorConstructor(od,Well)
+			mDefEmptyTranslatorConstructor(od,Well)
 
     const WellDataIOProvider&	getProv() const override;
 
@@ -55,3 +60,5 @@ public:
     bool		implSetReadOnly(const IOObj*,bool) const override;
 
 };
+
+mGlobal(Well) void inithdfWellTranslator();
