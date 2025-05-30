@@ -718,20 +718,23 @@ bool uiIOObjSel::doCommitInput( bool& alreadyerr )
 		mErrRet( tr("Cannot change the output format "
 			 "for an already existing entry") )
 
-	    const bool isalreadyok = inctio_.ioobj_
-			    && inctio_.ioobj_->key() == workctio_.ioobj_->key();
-	    if ( !alreadyerr && !isalreadyok && !workctio_.ctxt_.forread_ )
+	    if ( !alreadyerr && !workctio_.ctxt_.forread_ )
 	    {
 		const bool exists = workctio_.ioobj_->implExists( false );
 		if ( exists )
 		{
 		    if ( workctio_.ioobj_->implReadOnly() )
+		    {
 			mErrRet(tr("'%1' exists and is read-only").arg(
 				getInput()))
-		    if ( setup_.confirmoverwr_ && !uiMSG().askGoOn(
-				tr("'%1' already exists. Overwrite?")
-				.arg(getInput())) )
-			mErrRet(uiStrings::sEmptyString())
+		    }
+		    else if ( setup_.confirmoverwr_ )
+		    {
+			if ( !uiMSG().askGoOn(tr("'%1' already exists."
+						 " Overwrite?")
+						.arg(getInput()),true) )
+			    mErrRet(uiStrings::sEmptyString())
+		    }
 		}
 	    }
 

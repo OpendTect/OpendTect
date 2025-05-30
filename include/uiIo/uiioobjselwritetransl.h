@@ -37,7 +37,9 @@ public:
     static uiIOObjTranslatorWriteOpts* create( uiParent* p, const Translator& t)
 			{ return factory().create(t.getDisplayName(),p); }
 
+    void		useObj(const IOObj&);
     virtual void	use(const IOPar&)	= 0;
+    bool		fillObj(IOObj&) const;
     virtual bool	fill(IOPar&) const	= 0;
     virtual const char* errMsg() const		{ return errmsg_; }
 
