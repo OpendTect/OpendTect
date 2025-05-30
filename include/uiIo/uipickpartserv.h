@@ -65,7 +65,8 @@ public:
     void			fetchHors(bool);
     RefMan<Pick::Set>		loadSet(const MultiID&);
     bool			reLoadSet(const MultiID&);
-    bool			loadSets(TypeSet<MultiID>&,bool ispolygon);
+    bool			loadSets(TypeSet<MultiID>&,bool ispolygon,
+					 uiParent* =nullptr);
 				//!< Load set(s) by user sel
     void			createEmptySet(bool aspolygon);
     void			create3DGenSet();
