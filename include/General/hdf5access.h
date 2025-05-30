@@ -185,11 +185,13 @@ public:
     static uiString	sHDF5NotAvailable();
     static uiString	sHDF5NotAvailable(const char* fnm);
     static uiString	sNotHDF5File(const char*);
+    static uiString	sHDF5FileNoLongerAccessible();
     static uiString	sHDF5FileNoLongerAccessibe();
     uiString		sCantSetScope(const DataSetKey&) const;
     static uiString	sDataSetNotFound(const DataSetKey&);
     static uiString	sCannotReadDataSet(const DataSetKey&);
     static const char*	sFileExtension()	{ return mDefHDF5FileExt; }
+    static const char*	sIconName();
 
     static bool		isEnabled(const char* fortype=0);
     static bool		isEnvBlocked(const char* fortype=0);
@@ -258,6 +260,7 @@ inline bool isEnvBlocked( const char* typ=0 )
 { return Access::isEnvBlocked(typ);}
 inline bool isHDF5File( const char* fnm )
 { return Access::isHDF5File(fnm); }
+//!< Always false for non-existing file, even for an 'file.h5' string
 
 inline const char* sSeismicsType()	{ return "Seismics"; }
 inline const char* sPickSetType()	{ return "PickSets"; }

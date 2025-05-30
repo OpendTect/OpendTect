@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "filepath.h"
 #include "genc.h"
 #include "iopar.h"
+#include "odjson.h"
 #include "od_istream.h"
 #include "settings.h"
 #include "uistrings.h"
@@ -179,6 +180,14 @@ bool HDF5::Access::isHDF5File( const char* fnm )
 }
 
 
+const char* HDF5::Access::sIconName()
+{
+    return "hdf";
+}
+
+
+// HDF5::AccessProvider
+
 HDF5::AccessProvider* HDF5::AccessProvider::mkProv( int idx )
 {
     const FactoryBase& hdf5fact = factory();
@@ -273,9 +282,15 @@ uiString HDF5::Access::sHDF5NotAvailable()
 }
 
 
-uiString HDF5::Access::sHDF5FileNoLongerAccessibe()
+uiString HDF5::Access::sHDF5FileNoLongerAccessible()
 {
     return tr("HDF5 file no longer accesible");
+}
+
+
+uiString HDF5::Access::sHDF5FileNoLongerAccessibe()
+{
+    return sHDF5FileNoLongerAccessible();
 }
 
 
@@ -844,6 +859,24 @@ uiRetVal HDF5::Writer::set( const IOPar& iop, const DataSetKey* dsky )
 	ptInfo( iop, *h5scope, uirv );
 
     return uirv;
+}
+
+
+uiRetVal HDF5::Writer::writeJSonAttribute( const char* attrnm,
+					const OD::JSON::ValueSet& jsonobj,
+					const DataSetKey* dsky )
+{
+    uiRetVal uirv;
+    if ( !attrnm || !*attrnm )
+    {
+        uirv.set( tr("Valid attribute name required") );
+        return uirv;
+    }
+
+    BufferString jsonstr;
+    jsonobj.dumpJSon( jsonstr );
+    setAttribute( attrnm, jsonstr.buf(), dsky );
+    return uiRetVal::OK();
 }
 
 
