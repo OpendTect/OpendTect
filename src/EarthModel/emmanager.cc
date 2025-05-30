@@ -405,7 +405,8 @@ EMObject* EMManager::loadIfNotFullyLoaded( const MultiID& mid,
     if ( !emobj || !emobj->isFullyLoaded() )
 	return nullptr;
 
-    return emobj.release();
+    emobj.setNoDelete( true );
+    return emobj.ptr();
 }
 
 
