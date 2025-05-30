@@ -267,8 +267,15 @@ bool uiWaveletExtraction::acceptOK( CallBacker* )
     if ( outputwvltfld_->existingTyped() )
 	outputwvltfld_->setConfirmOverwrite( true );
 
-    doProcess( *seisioobj, *wvltioobj, inputpars, surfacepars );
-    return false;
+    if ( !doProcess(*seisioobj,*wvltioobj,inputpars,surfacepars) )
+	return false;
+
+    const uiString msg = tr("Wavelet successfully extracted.\n\n"
+		      "Do you want to extract more Wavelets?");
+    const bool ret =
+	uiMSG().askGoOn( msg, uiStrings::sYes(),tr("No, close window") );
+
+    return !ret;
 }
 
 
