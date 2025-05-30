@@ -69,7 +69,8 @@ bool uiODView2DPickSetParentTreeItem::handleSubMenu( int menuid )
     if ( menuid == 0 )
     {
 	TypeSet<MultiID> pickmidstoadd;
-	const bool res = applMgr()->pickServer()->loadSets(pickmidstoadd,false);
+	const bool res = applMgr()->pickServer()->loadSets(pickmidstoadd,false,
+							   getUiParent());
 	if ( res )
 	    addPickSets( pickmidstoadd );
 
