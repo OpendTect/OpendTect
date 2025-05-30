@@ -58,10 +58,10 @@ public:
     void		suggestedNameChanged(CallBacker*)
 					{ suggestedNameAvailble.trigger(); }
 
-    mDeprecated("Provide IOObj")
+    mDeprecated("Use usePar")
     virtual void	use( const IOPar& par )
 			{ usePar( par ); }
-    mDeprecated("Provide IOObj")
+    mDeprecated("Use fillPar")
     virtual bool	fill( IOPar& par ) const
 			{ return fillPar( par ); }
 

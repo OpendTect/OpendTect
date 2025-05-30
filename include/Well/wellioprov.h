@@ -54,6 +54,7 @@ public:
     void			add(WellDataIOProvider*);
 
     const WellDataIOProvider*	provider(const char* typ) const;
+				//!< Type should be the translator user name
 
     // Convenience functions
     Well::ReadAccess*		getReadAccess(const IOObj&,Well::Data&,
