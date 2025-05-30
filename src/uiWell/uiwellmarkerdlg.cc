@@ -1032,6 +1032,7 @@ uiMarkerViewDlg::uiMarkerViewDlg( uiParent* p, const Well::Data& wd )
 
     const float zfac = uiMarkerDlgzFactor();
     const Well::Track& trck = wd_->track();
+    const Well::D2TModel* d2tmodel = wd_->d2TModel();
     const float kbelev = trck.getKbElev();
 
     for ( int irow=0; irow<nrmrks; irow++ )
@@ -1046,8 +1047,14 @@ uiMarkerViewDlg::uiMarkerViewDlg( uiParent* p, const Well::Data& wd )
 	table_->setValue( RowCol(irow,cTVDCol), (tvdss+kbelev)*zfac, 0, 'f',
 			  cNrZDec );
 	table_->setValue( RowCol(irow,cTVDSSCol), tvdss*zfac, 0, 'f', cNrZDec);
+	if ( SI().zIsTime() && d2tmodel )
+	{
+	    const float twt = d2tmodel->getTime( dah, trck );
+	    table_->setValue( RowCol(irow,cTWTCol),
+			      twt * SI().zDomain().userFactor(),
+			      0, 'f', cNrZDec );
+	}
     }
-
 
     auto* expbut = new uiPushButton( this, uiStrings::sExport(),
 				    mCB(this,uiMarkerViewDlg,exportCB), false );
