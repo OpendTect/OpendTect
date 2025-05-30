@@ -664,8 +664,12 @@ Interval<float> VelocityStretcherNew::getDefaultVAvg(
 					const UnitOfMeasure* veluom )
 {
     Interval<float> res( 1350.f, 4500.f );
-    res.start = veluom->getUserValueFromSI( res.start );
-    res.stop = veluom->getUserValueFromSI( res.stop );
+    if ( veluom )
+    {
+	res.start = veluom->getUserValueFromSI( res.start );
+	res.stop = veluom->getUserValueFromSI( res.stop );
+    }
+
     return res;
 }
 
