@@ -413,7 +413,7 @@ void Well::HDF5Reader::getLogInfo( BufferStringSet& nms ) const
 	grpkey.setGroupName( dsky.fullDataSetName() );
 	IOPar iop;
 	if ( !getLogPars(grpkey,iop) )
-	    return;
+	    break;
 
 	BufferString lognm;
 	iop.get( sKey::Name(), lognm );
