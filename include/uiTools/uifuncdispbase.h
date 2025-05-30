@@ -70,7 +70,8 @@ public:
 				    , useyscalefory2_(false)
 				    , xannotinint_(false)
 				    , yannotinint_(false)
-				    , drawliney2_(true) {}
+				    , drawliney2_(true)
+				    , showlegend_(false) {}
 
 	mDefSetupMemb(Interval<float>,xrg)	//!< if fixed start or end
 	mDefSetupMemb(Interval<float>,yrg)	//!< if fixed start or end
@@ -78,6 +79,8 @@ public:
 	mDefSetupMemb(OD::Color,bgcol)		//!< Canvas background
 	mDefSetupMemb(OD::LineStyle,ylinestyle)
 	mDefSetupMemb(OD::LineStyle,y2linestyle)
+	mDefSetupMemb(BufferString,yseriesname) //!< for legend when supported
+	mDefSetupMemb(BufferString,y2seriesname)//!< for legend when supported
 	mDefSetupMemb(int,canvaswidth)
 	mDefSetupMemb(int,canvasheight)
 	mDefSetupMemb(uiBorder,border)
@@ -112,6 +115,7 @@ public:
 	mDefSetupMemb(bool,fixdrawrg)
 	mDefSetupMemb(bool,xannotinint)
 	mDefSetupMemb(bool,yannotinint)
+	mDefSetupMemb(bool,showlegend)		//!< when supported
 
 	Setup&		drawline( bool yn )
 			{ drawliney_ = drawliney2_ = yn; return *this; }
