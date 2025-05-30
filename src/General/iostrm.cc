@@ -182,7 +182,8 @@ bool IOStream::implExists( bool fr ) const
 
 bool IOStream::implReadOnly() const
 {
-    return File::exists( mainFileName() ) && !File::isWritable( mainFileName());
+    return File::exists( mainFileName() ) &&
+	(!File::isWritable( mainFileName()) || !isUserSelectable(false) );
 }
 
 
