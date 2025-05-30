@@ -160,6 +160,7 @@ bool SeisTrcTranslator::isLineSet( const IOObj& ioobj )
 void SeisTrcTranslator::cleanUp()
 {
     close();
+    deleteAndNullPtr( conn_ );
 
     headerdonenew_ = false;
     datareaddone_ = false;
@@ -179,9 +180,9 @@ void SeisTrcTranslator::cleanUp()
 bool SeisTrcTranslator::close()
 {
     bool ret = true;
-    if ( conn_ && !conn_->forRead() )
+    if ( !forRead() )
 	ret = writeBlock();
-    delete conn_; conn_ = 0;
+
     return ret;
 }
 
@@ -370,9 +371,13 @@ bool SeisTrcTranslator::write( const SeisTrc& trc )
 
     SeisTrc* newtrc; mTryAlloc( newtrc, SeisTrc(trc) );
     if ( !newtrc )
-	{ errmsg_ = tr("Out of memory"); trcblock_.deepErase(); return false; }
-    trcblock_.add( newtrc );
+    {
+	errmsg_ = tr("Out of memory");
+	trcblock_.deepErase();
+	return false;
+    }
 
+    trcblock_.add( newtrc );
     return true;
 }
 
@@ -470,8 +475,12 @@ bool SeisTrcTranslator::dumpBlock()
     for ( int idx=0; idx<sz; idx++ )
     {
 	if ( !writeTrc_(*trcblock_.get(idx)) )
-	    { rv = false; break; }
+	{
+	    rv = false;
+	    break;
+	}
     }
+
     trcblock_.deepErase();
     blockDumped( sz );
     return rv;
