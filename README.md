@@ -67,7 +67,10 @@ For the Qt install the following components must be selected depending on your b
 -  Additional Libraries: Qt Charts, Qt Positioning, Qt WebChannel
 -  Extensions: Qt WebEngine (MSVC 2022 x64/Desktop)
 -  Optionally debug information files (recommended on Windows)
--  Optionally source code
+-  Optionally Qt source code is available for all the versions in use:
+	- [Qt 6.9.0](https://dgbearthsciences.sharefile.com/public/share/web-scea7367143a64252a651d5da19352d81)
+	- [Qt 6.8.3](https://dgbearthsciences.sharefile.com/public/share/web-sad64fa4ce9974762a877a682d9d1a679)
+	- [Qt 5.15.2](https://dgbearthsciences.sharefile.com/public/share/web-s519e08d71a7044b8934d9b0f2b4563eb)
 
 #### OpenSceneGraph Build
 Configure using CMake, compile and install. 
