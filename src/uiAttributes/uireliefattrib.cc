@@ -216,7 +216,7 @@ static DescID addInstantaneousAttrib( DescSet& ds, const DescID& realid,
     mDynamicCastGet(FloatParam*,param,
 		    newdesc->getParam(Instantaneous::rotateAngle()))
     if ( param )
-	param->setValue( 90.f );
+	param->setValue( -90.f );
 
     newdesc->setUserRef( usrref );
     return ds.addDesc( newdesc.ptr() );
