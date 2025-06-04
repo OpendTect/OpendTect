@@ -61,6 +61,7 @@ bool ImageDisplay::setFileName( const char* fnm )
     }
 
     setRGBImage( img );
+    updateCoords();
     return true;
 }
 
@@ -133,33 +134,42 @@ int ImageDisplay::clickedMarkerIndex(const visBase::EventInfo& evi)const
 }
 
 
+static void getScaledImageDimensions( const OD::RGBImage* image,
+			       double& width, double& height, int size )
+{
+    const double relsize( size );
+    if ( !image )
+    {
+	width = height = relsize;
+	return;
+    }
+
+    height = sCast(double,image->getSize(false));
+    width = sCast(double,image->getSize(true));
+    const double factor = mMAX( height, width ) / relsize;
+    height /= factor;
+    width /= factor;
+}
+
+
 void ImageDisplay::setPosition( int idx, const Pick::Location& pick, bool add )
 {
-    const int size = set_ ? set_->disp_.pixsize_ : 100;
-
-    const Coord3 topleft(-size,0,size);
-    const Coord3 bottomright(size,0,-size);
-
     mDynamicCastGet(visBase::ImageRect*,imagerect,group_->getObject(idx));
-    if ( imagerect )
+    if ( !imagerect )
     {
+	imagerect = sCast(visBase::ImageRect*,createLocation());
+	group_->addObject( imagerect );
+    }
+
+    const int size = set_ ? set_->disp_.pixsize_ : 100;
+    double width, height;
+    getScaledImageDimensions( rgbimage_, width, height, size );
+    const Coord3 topleft(-width,0,height);
+    const Coord3 bottomright(width,0,-height);
+    imagerect->setCornerPos( topleft, bottomright );
+    imagerect->setPick( pick );
+    if ( rgbimage_ )
 	imagerect->setRGBImage( *rgbimage_ );
-	imagerect->setPick( pick );
-	imagerect->setCornerPos( topleft, bottomright );
-    }
-    else
-    {
-	visBase::ImageRect* imgrect =
-	    static_cast<visBase::ImageRect*>( createLocation() );
-
-	if ( !rgbimage_ )
-	    return;
-
-	imgrect->setRGBImage( *rgbimage_ );
-	imgrect->setPick( pick );
-	imgrect->setCornerPos( topleft, bottomright );
-	group_->addObject( imgrect );
-    }
 }
 
 
@@ -172,12 +182,14 @@ void ImageDisplay::removePosition( int idx )
 }
 
 
-void ImageDisplay::updateCoords(CallBacker*)
+void ImageDisplay::updateCoords( CallBacker* )
 {
     const int size = set_ ? set_->disp_.pixsize_ : 100;
 
-    const Coord3 topleft(-size,0,size);
-    const Coord3 bottomright(size,0,-size);
+    double width, height;
+    getScaledImageDimensions( rgbimage_, width, height, size );
+    const Coord3 topleft(-width,0,height);
+    const Coord3 bottomright(width,0,-height);
 
     for ( int idx=0; idx<group_->size(); idx++ )
     {

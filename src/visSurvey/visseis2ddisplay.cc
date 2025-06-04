@@ -220,6 +220,14 @@ void Seis2DDisplay::setGeometry( const PosInfo::Line2DData& geometry )
     setZRange( geometry_.zRange() );
 
     updateRanges( false, true );
+
+    if ( scene_ )
+    {
+	setAnnotColor( scene_->getAnnotColor() );
+	linename_->text()->setFontData( scene_->getAnnotFont(),
+					getPixelDensity() );
+    }
+
     geomchanged_.trigger();
 }
 
