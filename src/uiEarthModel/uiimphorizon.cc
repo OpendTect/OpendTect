@@ -531,7 +531,7 @@ bool uiImportHorizon::acceptOK( CallBacker* )
 
     if ( isgeom_ )
     {
-	const IOObj* ioobj = outputfld_->ioobj();
+	const IOObj* ioobj = outputfld_->ioobj( true );
 	if ( ioobj )
 	{
 	    EM::EMManager& em = EM::EMM();
@@ -589,10 +589,12 @@ bool uiImportHorizon::checkInpFlds()
     if ( !outpnm || !*outpnm )
 	mErrRet( tr("Please select output horizon") )
 
-    if ( !outputfld_->ioobj() )
+    outputfld_->reset();
+    const IOObj* ioobj = outputfld_->ioobj();
+    if ( !ioobj )
 	return false;
 
-    const EM::IOObjInfo ioobjinfo( outputfld_->key() );
+    const EM::IOObjInfo ioobjinfo( ioobj->key() );
     BufferStringSet attribnms, chosennms, existingnms;
     ioobjinfo.getAttribNames( attribnms );
     attrlistfld_->getChosen( chosennms );
@@ -776,7 +778,7 @@ uiImpHorFromZMap::~uiImpHorFromZMap()
 
 MultiID uiImpHorFromZMap::getSelID() const
 {
-    const MultiID mid = outputfld_->key();
+    const MultiID mid = outputfld_->key( true );
     return mid;
 }
 
@@ -826,6 +828,11 @@ bool uiImpHorFromZMap::acceptOK( CallBacker* )
 	return false;
     }
 
+    outputfld_->reset();
+    const IOObj* ioobj = outputfld_->ioobj();
+    if ( !ioobj )
+	return false;
+
     const UnitOfMeasure* zuom = unitfld_->getUnit();
 
     uiTaskRunner uitr( this );
@@ -860,13 +867,9 @@ bool uiImpHorFromZMap::acceptOK( CallBacker* )
 	return false;
     }
 
-    const IOObj* ioobj = outputfld_->ioobj();
-    if ( ioobj )
-    {
-	ioobj->pars().update( sKey::CrFrom(), inpfld_->fileName() );
-	ioobj->updateCreationPars();
-	IOM().commitChanges( *ioobj );
-    }
+    ioobj->pars().update( sKey::CrFrom(), inpfld_->fileName() );
+    ioobj->updateCreationPars();
+    IOM().commitChanges( *ioobj );
 
     if ( saveButtonChecked() )
     {

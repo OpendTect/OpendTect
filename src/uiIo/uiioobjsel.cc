@@ -569,15 +569,22 @@ void uiIOObjSel::setInput( const IOObj& ioobj )
 
 void uiIOObjSel::updateInput()
 {
-    setInput( workctio_.ioobj_ ? workctio_.ioobj_->key() : MultiID("") );
+    setInput( workctio_.ioobj_ ? workctio_.ioobj_->key() : MultiID::udf() );
 }
 
 
 void uiIOObjSel::setEmpty()
 {
     uiIOSelect::setEmpty();
-    workctio_.setObj( 0 ); inctio_.setObj( 0 );
+    workctio_.setObj( nullptr );
+    inctio_.setObj( nullptr );
     updateInput();
+}
+
+
+void uiIOObjSel::reset()
+{
+    inctio_.setObj( nullptr );
 }
 
 
@@ -596,7 +603,10 @@ void uiIOObjSel::obtainIOObj()
     LineKey lk( getInput() );
     const BufferString inp( lk.lineName() );
     if ( inp.isEmpty() )
-	{ workctio_.setObj( 0 ); return; }
+    {
+	workctio_.setObj( nullptr );
+	return;
+    }
 
     int selidx = getCurrentItem();
     if ( selidx >= 0 )
@@ -617,6 +627,9 @@ void uiIOObjSel::obtainIOObj()
 
 void uiIOObjSel::processInput()
 {
+    BufferString tmpstr( getInput() );
+    tmpstr.trimBlanks();
+    setInputText( tmpstr.buf() );
     obtainIOObj();
     if ( workctio_.ioobj_ || workctio_.ctxt_.forread_ )
 	updateInput();
@@ -667,14 +680,16 @@ const IOObj* uiIOObjSel::ioobj( bool noerr ) const
 IOObj* uiIOObjSel::getIOObj( bool noerr )
 {
     doCommit( noerr );
-    IOObj* ret = inctio_.ioobj_; inctio_.ioobj_ = 0;
+    IOObj* ret = inctio_.ioobj_;
+    inctio_.ioobj_ = nullptr;
     return ret;
 }
 
 
 bool uiIOObjSel::commitInput()
 {
-    bool dum = false; return doCommitInput( dum );
+    bool dum = false;
+    return doCommitInput( dum );
 }
 
 
@@ -702,7 +717,8 @@ bool uiIOObjSel::doCommitInput( bool& alreadyerr )
 	    return false;
 	}
 
-	workctio_.setObj( 0 ); inctio_.setObj( 0 );
+	workctio_.setObj( nullptr );
+	inctio_.setObj( nullptr );
 	commitSucceeded();
 	return true;
     }
@@ -718,7 +734,9 @@ bool uiIOObjSel::doCommitInput( bool& alreadyerr )
 		mErrRet( tr("Cannot change the output format "
 			 "for an already existing entry") )
 
-	    if ( !alreadyerr && !workctio_.ctxt_.forread_ )
+	    const bool isalreadyok = inctio_.ioobj_ &&
+				inctio_.ioobj_->key()==workctio_.ioobj_->key();
+	    if ( !alreadyerr && !isalreadyok && !workctio_.ctxt_.forread_ )
 	    {
 		const bool exists = workctio_.ioobj_->implExists( false );
 		if ( exists )
@@ -801,9 +819,10 @@ void uiIOObjSel::objInserted( CallBacker* cb )
 
 void uiIOObjSel::objSel()
 {
-    const char* ky = getKey();
-    if ( !ky || !*ky )
-	workctio_.setObj( 0 );
+    MultiID ky;
+    ky.fromString( getKey() );
+    if ( ky.isUdf() )
+	workctio_.setObj( nullptr );
     else
 	workctio_.setObj( IOM().get(ky) );
 }

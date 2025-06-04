@@ -66,6 +66,7 @@ public:
     void		setInput(const IOObj&);
     void		setInput(const MultiID&);
     void		setEmpty() override;
+    void		reset();
 
     MultiID		key(bool noerr=false) const;
     const IOObj*	ioobj(bool noerr=false) const;

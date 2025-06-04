@@ -1443,7 +1443,10 @@ uiFaultSel::uiFaultSel( uiParent* p, EM::IOObjInfo::ObjectType type,
     : uiIOObjSel(p,ioContext(isforread,type,zinfo),su)
 {
     if ( su.seltxt_.isEmpty() )
-	setLabelText( getLabelText(isforread,type) );
+    {
+	setup_.seltxt_ = getLabelText( isforread, type );
+	setLabelText( setup_.seltxt_ );
+    }
 
     fillEntries();
 }
