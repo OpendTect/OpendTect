@@ -126,6 +126,7 @@ mGlobal(Basic) inline const char* GetBinPlfDir(void)
 { return GetExecPlfDir(); }
 //!<Old don't use
 
+mGlobal(Basic) const char* GetDocDir();
 mGlobal(Basic) const char* GetDocFileDir(const char* filedir);
 /*!< Location of Documentation */
 #define mGetUserDocDir()	GetDocFileDir("userdoc")
