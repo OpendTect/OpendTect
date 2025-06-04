@@ -354,10 +354,12 @@ bool uiImportFault::handleAscii()
     const bool res = getFromAscIO( strm, *fault );
     if ( !res )
 	mErrRet( uiStrings::phrImport(tp));
+
     PtrMan<Executor> exec = fault->saver();
-    bool isexec = exec->execute();
+    const bool isexec = exec && exec->execute();
     if ( !isexec )
 	mErrRet( uiStrings::phrCannotSave(tp) );
+
     if ( saveButtonChecked() )
     {
 	importReady.trigger();
@@ -429,6 +431,7 @@ bool uiImportFault::checkInpFlds()
 	}
     }
 
+    getValidOutFld()->reset();
     if ( !getValidOutFld()->ioobj())
 	return false;
 
@@ -441,7 +444,7 @@ bool uiImportFault::checkInpFlds()
 
 MultiID uiImportFault::getSelID() const
 {
-    return getValidOutFld()->key(false);
+    return getValidOutFld()->key( true );
 }
 
 
@@ -460,7 +463,8 @@ uiImportFault3D::~uiImportFault3D()
 
 bool uiImportFault3D::acceptOK( CallBacker* )
 {
-    if ( !checkInpFlds() ) return false;
+    if ( !checkInpFlds() )
+	return false;
 
     if ( typefld_ && typefld_->getIntValue()!=0 )
 	return handleLMKAscii();
