@@ -753,7 +753,8 @@ bool DirectionalAscIO::getData( Data& wdin, float kb ) const
 
     TypeSet<Coord3> track;
     Well::DirectionalSurvey dirsurvey( wd->info().surfacecoord_, kb );
-    dirsurvey.calcTrack( mdvals, incls, azis, track );
+    if ( !dirsurvey.calcTrack(mdvals,incls,azis,track) )
+	mErrRet( tr("Cannot create well track") )
 
     wd->track().setEmpty();
     for ( int idz=0; idz<mdvals.size(); idz++ )

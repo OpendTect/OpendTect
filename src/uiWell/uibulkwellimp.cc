@@ -1019,7 +1019,11 @@ bool uiBulkDirectionalImport::acceptOK( CallBacker* )
 	TypeSet<Coord3> track;
 	const float kb = wd->track().getKbElev();
 	DirectionalSurvey dirsurvey( wd->info().surfacecoord_, kb );
-	dirsurvey.calcTrack( dd->mds_, dd->incls_, dd->azis_, track );
+	if ( !dirsurvey.calcTrack(dd->mds_,dd->incls_,dd->azis_,track) )
+	{
+	    errors.add(tr("%1: Cannot create well track").arg(wellnm));
+	    continue;
+	}
 
 	wd->track().setEmpty();
 	for ( int idz=0; idz<dd->mds_.size(); idz++ )

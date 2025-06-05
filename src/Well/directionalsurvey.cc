@@ -75,11 +75,14 @@ static void getDevTangential( double md1, double md2,
 }
 
 
-void DirectionalSurvey::calcTrack( const TypeSet<double>& mds,
+bool DirectionalSurvey::calcTrack( const TypeSet<double>& mds,
 				   const TypeSet<double>& incls,
 				   const TypeSet<double>& azis,
 				   TypeSet<Coord3>& track )
 {
+    if ( mds.isEmpty() || incls.size()!=mds.size() || azis.size()!=mds.size() )
+	return false;
+
     Coord3 curpos( surfacecoord_, -kb_ );
     track.add( curpos );
     const bool xyinfeet = SI().xyInFeet();
@@ -109,6 +112,8 @@ void DirectionalSurvey::calcTrack( const TypeSet<double>& mds,
 	curpos += delta;
 	track.add( curpos );
     }
+
+    return true;
 }
 
 } // namespace Well
