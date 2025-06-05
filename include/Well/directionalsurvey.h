@@ -23,7 +23,7 @@ public:
 			DirectionalSurvey(const Coord& surfacecrd,double kb=0);
 			~DirectionalSurvey();
 
-    void		calcTrack(const TypeSet<double>& mds,
+    bool		calcTrack(const TypeSet<double>& mds,
 				  const TypeSet<double>& incls,
 				  const TypeSet<double>& azis,
 				  TypeSet<Coord3>& track);
