@@ -725,45 +725,42 @@ FilePath* OD::PythonAccess::getCommand( OS::MachineCommand& cmd,
     BufferString sourcecmd( "source ");
     if ( __iswin__ )
     {
-	strm.add( "@SETLOCAL" ).add( od_newline );
-	strm.add( "@ECHO OFF" ).add( od_newline ).add( od_newline );
-
-	strm.add( "SET TMPDIR=" ).add( temppath ).add( od_newline );
+	strm.add( "@ECHO OFF" ).addNewLine()
+	    .add( "SETLOCAL" ).addNewLine().addNewLine()
+	    .add( "SET TMPDIR=" ).add( temppath ).addNewLine();
 	if ( background )
 	{
-	    strm.add( "SET procnm=%~n0" ).add( od_newline );
-	    strm.add( "SET proctitle=%procnm%_children" ).add( od_newline );
-	    strm.add( "SET pidfile=\"%~dpn0.pid\"" )
-		.add( od_newline ).add( od_newline );
+	    strm.add( "SET procnm=%~n0" ).addNewLine()
+		.add( "SET proctitle=%procnm%_children" ).addNewLine()
+		.add( "SET PIDFILE=\"%~dpn0.pid\"" ).addNewLine().addNewLine();
 	}
 
 	strm.add( "@CALL \"" );
     }
     else
     {
-	strm.add( "#!/bin/bash" ).add( od_newline ).add( od_newline )
-	    .add( "export TMPDIR=" ).add( temppath ).add( od_newline );
+	strm.add( "#!/bin/bash" ).addNewLine().addNewLine()
+	    .add( "export TMPDIR=" ).add( temppath ).addNewLine();
 	sourcecmd.add( activatefp->fullPath() );
 	if ( envnm )
 	{
 	    BufferString venvnm( envnm );
 	    if ( venvnm.find(' ') )
 		venvnm.quote( '\"' );
-	    sourcecmd.add( " " ).add( venvnm ).add( od_newline );
+	    sourcecmd.add( " " ).add( venvnm ).addNewLine();
 	}
     }
 
     if ( __iswin__ )
     {
-	strm.add( activatefp->fullPath() );
-	strm.add( "\"" );
+	strm.add( activatefp->fullPath() ).add( "\"" );
 	if ( envnm )
 	{
 	    BufferString venvnm( envnm );
 	    if ( venvnm.find(' ') )
 		venvnm.quote( '\"' );
 
-	    strm.add( " " ).add( venvnm ).add( od_newline );
+	    strm.add( od_space ).add( venvnm ).addNewLine();
 	}
     }
     else
@@ -773,13 +770,13 @@ FilePath* OD::PythonAccess::getCommand( OS::MachineCommand& cmd,
 
     if ( __iswin__ && background )
     {
-	const BufferString prognm( cmd.program() );
-	if ( prognm.startsWith("cmd", OD::CaseInsensitive) ||
-	     prognm.startsWith("powershell", OD::CaseInsensitive) ||
-	     prognm.startsWith("wt", OD::CaseInsensitive))
-	    strm.add("Start \"%proctitle%\" ");
-	else
-	    strm.add("Start \"%proctitle%\" /MIN ");
+	strm.add( "Start \"%proctitle%\" ");
+	const FilePath progfp( cmd.program() );
+	const OD::String& prognm = progfp.fileName();
+	if ( !prognm.startsWith("cmd",OD::CaseInsensitive) &&
+	     !prognm.startsWith("powershell",OD::CaseInsensitive) &&
+	     !prognm.startsWith("wt",OD::CaseInsensitive) )
+	    strm.add("/MIN ");
     }
 
     BufferStringSet args( cmd.args() );
@@ -807,38 +804,47 @@ FilePath* OD::PythonAccess::getCommand( OS::MachineCommand& cmd,
 	}
     }
 
-    strm.add( args.cat(" ") );
+    strm.add( args.cat(" ") ).addNewLine();
     if ( background )
     {
 	if ( __iswin__ )
 	{
-	    strm.add( od_newline );
-	    strm.add( "timeout 2 > nul" ).add( od_newline );
-	    strm.add( "FOR /F \"tokens=* USEBACKQ\" %%g IN (`tasklist /FI" );
-	    strm.add( " \"WINDOWTITLE eq %proctitle%\" /FO CSV /NH`) DO " );
-	    strm.add( "(SET \"PROCRET=%%g\")" ).add( od_newline );
-	    strm.add( "FOR /F \"tokens=2 delims=,\" %%g IN"
-		      " (\"%PROCRET%\") DO (" );
-	    strm.add( "SET \"PIDRET=%%g\")" ).add( od_newline );
-	    strm.add( "ECHO %PIDRET:\"=% > %PIDFILE%" );
+	    strm.add( "SET \"RETVAL=%ERRORLEVEL%\"" ).addNewLine()
+		.add( "timeout 2 > nul" ).addNewLine()
+		.add( "FOR /F \"tokens=* USEBACKQ\" %%g IN (`tasklist /FI"
+		      " \"WINDOWTITLE eq %proctitle%\" /FO CSV /NH`) DO "
+		      "(SET \"PROCRET=%%g\")" ).addNewLine()
+		.add( "echo %PROCRET% | findstr /C:\"INFO: "
+		      "No tasks are running which match\" >nul" ).addNewLine()
+		.add( "IF %ERRORLEVEL% NEQ 1 (" ).addNewLine()
+		.add( "GOTO :end" ).addNewLine()
+		.add( ")" ).addNewLine()
+		.addNewLine()
+		.add( "FOR /F \"tokens=2 delims=,\" %%g IN"
+		      " (\"%PROCRET%\") DO ("
+		      "SET \"PIDRET=%%g\")" ).addNewLine()
+		.add( "ECHO %PIDRET:\"=% > %PIDFILE%" ).addNewLine()
+		.addNewLine()
+		.add( ":end" ).addNewLine();
+
 	}
 	else
 	{
-	    strm.add( " 2>/dev/null" );
-	    strm.add( " &" ).add( od_newline );
+	    strm.add( " 2>/dev/null &" ).addNewLine();
 	    BufferString pidfile( getPIDFilePathStr(*ret) );
-	    strm.add( "echo $! > " ).add( pidfile.quote() );
+	    strm.add( "echo $! > " ).add( pidfile.quote() ).addNewLine();
 	}
     }
 
     if ( __iswin__ )
     {
-	strm.add( od_newline )
-	    .add( "SET \"RETVAL=%ERRORLEVEL%\"" ).add( od_newline )
-	    .add( "EXIT /B %RETVAL%" );
+	if ( !background )
+	    strm.add( "SET \"RETVAL=%ERRORLEVEL%\"" ).addNewLine();
+
+	strm.add( "EXIT /B %RETVAL%" ).addNewLine();
     }
 
-    strm.add( od_newline ).close();
+    strm.close();
     if ( !__iswin__ )
 	File::setExecutable( ret->fullPath(), true );
 
@@ -1761,13 +1767,45 @@ bool OD::PythonAccess::openTerminal( const char* cmdstr, uiRetVal& ret,
 
     BufferString prognm( cmdstr );
     bool iswindowsterminal = false;
-    if ( prognm == "wt.exe" )
+    if ( __iswin__ && prognm.startsWith("wt",OD::CaseInsensitive) )
     {
 	iswindowsterminal = true;
 	const BufferStringSet paths;
 	const BufferString progfp = File::findExecutable( prognm.buf(), paths );
 	if ( File::exists(progfp.buf()) )
 	    prognm = progfp;
+
+	if ( args )
+	{
+	    for ( int idx=0; idx<args->size()-1; idx++ )
+	    {
+		if ( args->get(idx) == "--title" &&
+		     args->get(idx+1) == "OpendTect" )
+		{
+		    const BufferString promptnm( virtenvnm_.isEmpty()
+						 ? "base"
+						 : virtenvnm_.str() );
+		    getNonConst(args->get(idx+1)) = promptnm.str();
+		}
+	    }
+	}
+    }
+    else if ( __iswin__ && prognm.startsWith("cmd",OD::CaseInsensitive) )
+    {
+	if ( args )
+	{
+	    for ( const auto* argstr : *args )
+	    {
+		if ( argstr->startsWith("prompt $COpendTect$F") )
+		{
+		    const BufferString promptnm( "$C",
+			    virtenvnm_.isEmpty() ? "base" : virtenvnm_.str(),
+			    "$F" );
+		    getNonConst( argstr )->replace( "$COpendTect$F",
+						    promptnm.str() );
+		}
+	    }
+	}
     }
 
     OS::MachineCommand mc( prognm.buf() );
