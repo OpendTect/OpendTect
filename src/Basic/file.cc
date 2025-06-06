@@ -923,22 +923,17 @@ od_int64 getKbSize( const char* fnm )
 
 BufferString getFileSizeString( od_int64 fileszbytes, File::SizeUnit fsu )
 {
-    BufferString szstr;
-    if ( mIsUdf(fileszbytes) || fileszbytes<0 )
-    {
-	szstr = "File not found";
-	return szstr;
-    }
+    if ( mIsUdf(fileszbytes) )
+	return "Unknown";
+
+    if ( fileszbytes<0 )
+	return "File not found";
 
     if ( fileszbytes < 1 )
-    {
-	szstr = "empty";
-	return szstr;
-    }
+	return "empty";
 
     NrBytesToStringCreator converter( fileszbytes );
-    szstr.add( converter.getString(fileszbytes) );
-    return szstr;
+    return converter.getString( fileszbytes );
 }
 
 

@@ -1064,9 +1064,12 @@ int SeisIOObjInfo::getComponentInfo( const Pos::GeomID& geomid,
     {
 	mDynamicCast(SeisTrcTranslator*,PtrMan<SeisTrcTranslator> sttr,
 		     ioobj_->createTranslator())
-	const bool supportsmulticomp = sttr && sttr->supportsMultiCompTrc();
-	if ( !supportsmulticomp )
+	if ( !sttr )
 	    return ret;
+
+	const bool supportsmulticomp = sttr->supportsMultiCompTrc();
+	if ( !supportsmulticomp )
+	    return 1; // Just 1 component in this case
 
 	if ( !checkAndInitTranslRead(sttr.ptr()) )
 	    return ret;
