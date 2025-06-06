@@ -406,6 +406,37 @@ bool testArray2D()
 }
 
 
+bool testMixedArray()
+{
+    {
+	Array jsarr( Mixed );
+	jsarr.add("Added String").add(4).add(3.56).add(0==1);
+	const bool allequal = jsarr.getStringValue(0)=="Added String" &&
+			      jsarr.getIntValue(1)==4 &&
+			      jsarr.getDoubleValue(2)==3.56 &&
+			      jsarr.getBoolValue(3)==false;
+	mRunStandardTest(allequal, "Add values to mixed value type array OK");
+    }
+
+    {
+	Array jsarr( Mixed );
+	BufferString inp("[9,true,\"String\",-3.142]");
+	jsarr.parseJSon( BufferString(inp).getCStr(), inp.size() );
+
+	const bool allequal = jsarr.getIntValue(0)==9 &&
+			      jsarr.getBoolValue(1)==true &&
+			      jsarr.getStringValue(2)=="String" &&
+			      jsarr.getDoubleValue(3)==-3.142;
+	mRunStandardTest(allequal,
+			 "Parse mixed value type array from string OK");
+	BufferString jsStr = jsarr.dumpJSon();
+	mRunStandardTest(inp==jsStr,
+			 "Mixed value type array - dumped JSON == input JSON");
+    }
+    return true;
+}
+
+
 int mTestMainFnName( int argc, char** argv )
 {
     mInitTestProg();
@@ -418,6 +449,7 @@ int mTestMainFnName( int argc, char** argv )
       || !testInterval()
       || !testArray1D()
       || !testArray2D()
+      || !testMixedArray()
     )
 	return 1;
 

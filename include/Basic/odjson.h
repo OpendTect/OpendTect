@@ -36,7 +36,7 @@ class Value;
 
 enum DataType
 {
-    Boolean, Number, String
+    Boolean, Number, String, Mixed
 };
 
 typedef double NumberType;
@@ -216,11 +216,14 @@ public:
     void		setEmpty() override;
     bool		isEmpty() const override;
     bool		isData() const;
+    bool		isMixed() const;
 
     ValueType		valueType(idx_type) const override
 			{ return valtype_; }
     ValueType		valType() const		{ return valtype_; }
     size_type		size() const override;
+    DataType		dataType() const;
+
 
 			// Only available if valType() == Data
     inline ValArr&	valArr()		{ return *valarr_; }

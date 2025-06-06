@@ -79,6 +79,7 @@ Value* clone( ValueSet* parent ) const
 	    case Boolean:	newval->setValue( boolVal() );	break;
 	    case Number:	newval->setValue( val() );	break;
 	    case String:	newval->setValue( str() );	break;
+	    case Mixed:		break;
 	}
     }
     return newval;
@@ -211,6 +212,7 @@ OD::JSON::ValArr::ValArr( DataType typ )
 	case Boolean:	set_ = new BSet;	break;
 	case Number:	set_ = new NSet;	break;
 	case String:	set_ = new SSet;	break;
+	case Mixed:	break;
 	default:	{ pErrMsg("Unknown type"); type_ = String; }
     }
 }
@@ -224,6 +226,7 @@ OD::JSON::ValArr::ValArr( const ValArr& oth )
 	case Boolean:	bools() = oth.bools();		break;
 	case Number:	vals() = oth.vals();		break;
 	case String:	strings() = oth.strings();	break;
+	case Mixed:	break;
     }
 }
 
@@ -273,6 +276,8 @@ void OD::JSON::ValArr::dumpJSon( StringBuilder& sb ) const
 		const BufferString toadd( "\"", strings().get(idx), "\"" );
 		sb.add( toadd );
 	    } break;
+	    case Mixed:
+		break;
 	}
 	if ( idx != sz-1 )
 	    sb.add( "," );
@@ -574,8 +579,10 @@ void OD::JSON::ValueSet::use( const GasonNode& gasonnode )
 	    const double val = gasonval.toNumber();
 	    if ( isobj )
 		values_ += new KeyedValue( ky, val );
-	    else
+	    else if ( asArray().isData() && !asArray().isMixed() )
 		asArray().valArr().vals() += val;
+	    else
+		values_ += new Value( val );
 	} break;
 
 	case Gason::JSON_STRING:
@@ -583,8 +590,10 @@ void OD::JSON::ValueSet::use( const GasonNode& gasonnode )
 	    const char* val = gasonval.toString();
 	    if ( isobj )
 		values_ += new KeyedValue( gasonnode.key, val );
-	    else
+	    else if ( asArray().isData()  && !asArray().isMixed() )
 		asArray().valArr().strings().add( val );
+	    else
+		values_ += new Value( val );
 	} break;
 
 	case Gason::JSON_TRUE:
@@ -593,8 +602,10 @@ void OD::JSON::ValueSet::use( const GasonNode& gasonnode )
 	    const bool val = tag == Gason::JSON_TRUE;
 	    if ( isobj )
 		values_ += new KeyedValue( gasonnode.key, val );
-	    else
+	    else if ( asArray().isData()  && !asArray().isMixed() )
 		asArray().valArr().bools() += val;
+	    else
+		values_ += new Value( val );
 	} break;
 
 	case Gason::JSON_ARRAY:
@@ -749,6 +760,8 @@ void OD::JSON::ValueSet::dumpJSon( StringBuilder& sb ) const
 	    const ValueSet& vset = *val.vSet();
 	    if ( !vset.isArray() || vset.asArray().valType() != Data )
 		vset.dumpJSon( sb );
+	    else if ( vset.asArray().isMixed() )
+		vset.dumpJSon( sb );
 	    else
 		vset.asArray().valArr().dumpJSon( sb );
 	}
@@ -758,13 +771,15 @@ void OD::JSON::ValueSet::dumpJSon( StringBuilder& sb ) const
 	    {
 		case Boolean:
 		    sb.add( val.boolVal() ? "true" : "false" );
-		break;
+		    break;
 		case Number:
 		    sb.add( val.val() );
-		break;
+		    break;
 		case String:
 		    sb.add( "\"" ).add( val.str() ).add( "\"" );
-		break;
+		    break;
+		case Mixed:
+		    break;
 	    }
 	}
 	if ( &val != values_.last() )
@@ -866,7 +881,7 @@ OD::JSON::Array::Array( bool objs, ValueSet* p )
 OD::JSON::Array::Array( DataType dt, ValueSet* p )
     : ValueSet(p)
     , valtype_(Data)
-    , valarr_(new ValArr(dt))
+    , valarr_(dt<DataType::Mixed ? new ValArr(dt) : nullptr)
 {
 }
 
@@ -902,15 +917,27 @@ bool OD::JSON::Array::isData() const
 }
 
 
+bool OD::JSON::Array::isMixed() const
+{
+    return isData() && !valarr_;
+}
+
+
 bool OD::JSON::Array::isEmpty() const
 {
-    return isData() ? valArr().isEmpty() : ValueSet::isEmpty();
+    return isData() && !isMixed() ? valArr().isEmpty() : ValueSet::isEmpty();
 }
 
 
 OD::JSON::ValueSet::size_type OD::JSON::Array::size() const
 {
-    return isData() ? valArr().size() : ValueSet::size();
+    return isData() && !isMixed() ? valArr().size() : ValueSet::size();
+}
+
+
+OD::JSON::DataType OD::JSON::Array::dataType() const
+{
+    return !isMixed() ? valarr_->dataType() : DataType::Mixed;
 }
 
 
@@ -944,7 +971,7 @@ OD::JSON::Object* OD::JSON::Array::add( Object* obj )
 
 bool OD::JSON::Array::getBoolValue( idx_type idx ) const
 {
-    if ( !isData() )
+    if ( !isData() || isMixed() )
 	return ValueSet::getBoolValue( idx );
 
     return valArr().validIdx( idx ) ? static_cast<bool>(valArr().bools()[idx])
@@ -954,7 +981,7 @@ bool OD::JSON::Array::getBoolValue( idx_type idx ) const
 
 od_int64 OD::JSON::Array::getIntValue( idx_type idx ) const
 {
-    if ( !isData() )
+    if ( !isData() || isMixed())
 	return ValueSet::getIntValue( idx );
 
     return valArr().validIdx( idx ) ? valArr().vals()[idx] : mUdf(od_int64);
@@ -963,7 +990,7 @@ od_int64 OD::JSON::Array::getIntValue( idx_type idx ) const
 
 double OD::JSON::Array::getDoubleValue( idx_type idx ) const
 {
-    if ( !isData() )
+    if ( !isData() || isMixed() )
 	return ValueSet::getDoubleValue( idx );
 
     return valArr().validIdx( idx ) ? valArr().vals()[idx] : mUdf(double);
@@ -972,7 +999,7 @@ double OD::JSON::Array::getDoubleValue( idx_type idx ) const
 
 BufferString OD::JSON::Array::getStringValue( idx_type idx ) const
 {
-    if ( !isData() )
+    if ( !isData() || isMixed() )
 	return ValueSet::getStringValue( idx );
 
     BufferString ret;
@@ -993,8 +1020,8 @@ BufferString OD::JSON::Array::getStringValue( idx_type idx ) const
 
 FilePath OD::JSON::Array::getFilePath( idx_type idx ) const
 {
-    return isData() ? valArr().getFilePath( idx )
-		    : ValueSet::getFilePath( idx );
+    return isData() && !isMixed() ? valArr().getFilePath( idx )
+				  : ValueSet::getFilePath( idx );
 }
 
 
@@ -1003,10 +1030,12 @@ static const char* addarrnonvalstr = "add value to non-value Array";
 #define mDefArrayAddVal(inptyp,fn,valtyp) \
 OD::JSON::Array& OD::JSON::Array::add( inptyp val ) \
 { \
-    if ( valtype_ != Data ) \
-	{ pErrMsg(addarrnonvalstr); } \
-    else \
+    if ( isMixed() ) \
+	values_ += new Value( (valtyp)val ); \
+    else if ( isData() ) \
 	valarr_->fn().add( (valtyp)val ); \
+    else \
+	{ pErrMsg(addarrnonvalstr); } \
     return *this; \
 }
 
@@ -1057,6 +1086,7 @@ OD::JSON::Array& OD::JSON::Array::setVals( const TypeSet<T>& vals )
     setEmpty();
     valtype_ = Data;
     delete valarr_; valarr_ = new ValArr( Number );
+    ValueSet::setEmpty();
     copy( valarr_->vals(), vals );
     return *this;
 }
@@ -1068,6 +1098,7 @@ OD::JSON::Array& OD::JSON::Array::setVals( const T* vals, size_type sz )
     setEmpty();
     valtype_ = Data;
     delete valarr_; valarr_ = new ValArr( Number );
+    ValueSet::setEmpty();
     valarr_->vals().setSize( sz );
     OD::memCopy( valarr_->vals().arr(), vals, sz*sizeof(T) );
     return *this;
@@ -1128,6 +1159,7 @@ OD::JSON::Array& OD::JSON::Array::set( const BoolTypeSet& vals )
     setEmpty();
     valtype_ = Data;
     delete valarr_; valarr_ = new ValArr( Boolean );
+    ValueSet::setEmpty();
     valarr_->bools() = vals;
     return *this;
 }
@@ -1138,6 +1170,7 @@ OD::JSON::Array& OD::JSON::Array::set( const bool* vals, size_type sz )
     setEmpty();
     valtype_ = Data;
     delete valarr_; valarr_ = new ValArr( Boolean );
+    ValueSet::setEmpty();
     for ( auto idx=0; idx<sz; idx++ )
 	valarr_->bools().add( vals[idx] );
 
@@ -1150,6 +1183,7 @@ OD::JSON::Array& OD::JSON::Array::set( const BufferStringSet& vals )
     setEmpty();
     valtype_ = Data;
     delete valarr_; valarr_ = new ValArr( String );
+    ValueSet::setEmpty();
     valarr_->strings() = vals;
     return *this;
 }
@@ -1179,7 +1213,7 @@ OD::JSON::Array& OD::JSON::Array::set( const uiStringSet& vals )
 
 void OD::JSON::Array::dumpJSon( StringBuilder& sb ) const
 {
-    if ( isData() )
+    if ( isData() && !isMixed() )
 	valArr().dumpJSon( sb );
     else
 	ValueSet::dumpJSon( sb );
