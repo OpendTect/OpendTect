@@ -16,7 +16,7 @@ ________________________________________________________________________
 
 
 class TerminalCommands : public CommandDefs
-{ mODTextTranslationClass(TerminalCommands);
+{ mODTextTranslationClass(TerminalCommands)
 public:
     TerminalCommands( const BufferStringSet& paths )
     {
@@ -29,13 +29,13 @@ public:
 	    addCmd( "cmd.exe", tr("Command Prompt"), "cmd.png",
 		    tr("Command Prompt"), paths );
 	}
-    else if ( __ismac__)
-    {
-        addCmd( "Terminal", tr("Terminal"), "terminal.png",
-            tr("Terminal"), paths );
-        addCmd( "macterm", tr("MacTerm"), "terminal-mac.png",
-            tr("MacTerm"), paths );
-    }
+	else if ( __ismac__)
+	{
+	    addCmd( "Terminal", tr("Terminal"), "terminal.png",
+		    tr("Terminal"), paths );
+	    addCmd( "macterm", tr("MacTerm"), "terminal-mac.png",
+		    tr("MacTerm"), paths );
+	}
 	else
 	{
 	    addCmd( "konsole", tr("KDE Konsole"), "terminal-kde.png",
@@ -118,7 +118,6 @@ void CommandDefs::erase()
     tooltips_.setEmpty();
     prognames_.setEmpty();
     deepErase( progargs_ );
-
 }
 
 
@@ -153,22 +152,35 @@ void CommandDefs::addApplication( const char* appnm,
 	{
 	    if ( !args )
 		args = new BufferStringSet();
+
 	    args->add( "/D" ).add( "/K" );
 	    const BufferString cmdstring(
 		"prompt $COpendTect$F $P$G && title Command Prompt");
 	    args->add( cmdstring );
 	}
+	else if ( StringView(appnm).startsWith("wt",OD::CaseInsensitive) )
+	{
+	    if ( !args )
+		args = new BufferStringSet();
+
+	    args->add( "--inheritEnvironment" )
+		 .add( "--title" ).add( "OpendTect" );
+	}
     }
     else if ( __ismac__ )
     {
-        prognames_.add("osascript");
-        if ( !args )
-        args = new BufferStringSet();
-        args->add("-e");
-    
-        BufferString script;
-        script.add("tell app \"" + std::string(appnm) + "\" to do script \"export PATH='$PATH'; export PYTHONPATH='$PYTHONPATH'; $CMD \"");
-        args->add(script);
+	prognames_.add( "osascript" );
+	if ( !args )
+	    args = new BufferStringSet();
+
+	args->add( "-e" );
+	BufferString script;
+	script.add( "tell app \"" ).add(  appnm )
+	      .add( "\" to do script \"" )
+	      .add( "export PATH='$PATH'; " )
+	      .add( "export PYTHONPATH='$PYTHONPATH'; " )
+	      .add( "$CMD \"" );
+	args->add( script.str() );
     }
     else
 	prognames_.add( appnm );
