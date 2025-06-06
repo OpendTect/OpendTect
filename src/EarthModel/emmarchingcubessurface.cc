@@ -72,9 +72,9 @@ public:
 	SamplingData<int> inlsampling;
 	SamplingData<int> crlsampling;
 	SamplingData<float> zsampling;
-        if ( !par.get( sKeyInlSampling(),inlsampling.start_,inlsampling.step_) ||
-             !par.get( sKeyCrlSampling(),crlsampling.start_,crlsampling.step_) ||
-             !par.get( sKeyZSampling(),zsampling.start_,zsampling.step_ ) )
+	if ( !par.get(sKeyInlSampling(),inlsampling.start_,inlsampling.step_) ||
+	     !par.get(sKeyCrlSampling(),crlsampling.start_,crlsampling.step_) ||
+	     !par.get(sKeyZSampling(),zsampling.start_,zsampling.step_ ) )
 	{
 	    errmsg_ = ::toUiString("Invalid filetype");
 	    return;
@@ -235,14 +235,13 @@ void MarchingCubesSurface::initClass()
 
 EMObject* MarchingCubesSurface::create( EMManager& emm ) \
 {
-    EMObject* obj = new MarchingCubesSurface( emm );
+    RefMan<EMObject> obj = new MarchingCubesSurface( emm );
     if ( !obj )
 	return nullptr;
 
-    obj->ref();
-    emm.addObject( obj );
-    obj->unRefNoDelete();
-    return obj;
+    emm.addObject( obj.ptr() );
+    obj.setNoDelete( true );
+    return obj.ptr();
 }
 
 
@@ -445,8 +444,8 @@ ImplicitBody* MarchingCubesSurface::createImplicitBody( TaskRunner* taskrunner,
 	delete res; return 0;
     }
 
-    MarchingCubes2Implicit m2i( *mcsurface_, *intarr,
-                                inlrg.start_, crlrg.start_, zrg.start_, !smooth );
+    MarchingCubes2Implicit m2i( *mcsurface_, *intarr, inlrg.start_,
+				crlrg.start_, zrg.start_,!smooth );
     const bool execres = TaskRunner::execute( taskrunner, m2i );
     if ( !execres )
     {

@@ -411,12 +411,11 @@ void clss::initClass() \
  \
 EMObject* clss::create( EM::EMManager& emm ) \
 { \
-    EMObject* obj = new clss( emm ); \
-    if ( !obj ) return 0; \
-    obj->ref();		\
-    emm.addObject( obj ); \
-    obj->unRefNoDelete(); \
-    return obj; \
+    RefMan<EMObject> obj = new clss( emm ); \
+    if ( !obj ) return nullptr; \
+    emm.addObject( obj.ptr() ); \
+    obj.setNoDelete( true ); \
+    return obj.ptr(); \
 } \
 \
 clss* clss::create( const char* nm ) \

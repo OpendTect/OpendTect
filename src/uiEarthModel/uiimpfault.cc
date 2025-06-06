@@ -283,7 +283,7 @@ bool uiImportFault::handleLMKAscii()
     if ( saveButtonChecked() )
     {
 	importReady.trigger();
-	fault->unRefNoDelete();
+	fault.setNoDelete( true );
     }
 
     const char* tp = fault3d ? "FaultSets" : "FaultStickSets";
@@ -327,7 +327,7 @@ bool uiImportFault::handleAscii()
     if ( saveButtonChecked() )
     {
 	importReady.trigger();
-	fault->unRefNoDelete();
+	fault.setNoDelete( true );
     }
 
     uiString msg = tr("%1 successfully imported."
