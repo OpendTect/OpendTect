@@ -418,17 +418,6 @@ void uiImportHorizon::stratLvlChg( CallBacker* )
 }
 
 #define mErrRet(s) { uiMSG().error(s); return 0; }
-#define mErrRetUnRef(s) { horizon->unRef(); mErrRet(s) }
-#define mSave(taskrunner) \
-    if ( !exec ) \
-    { \
-	delete exec; \
-	horizon->unRef(); \
-	return false; \
-    } \
-    rv = TaskRunner::execute( &taskrunner, *exec ); \
-    delete exec;
-
 bool uiImportHorizon::doImport()
 {
     BufferStringSet attrnms;
@@ -443,40 +432,37 @@ bool uiImportHorizon::doImport()
     if ( attrnms.isEmpty() )
 	mErrRet( tr("No Attributes Selected") );
 
-    EM::Horizon3D* horizon = isgeom_ ? createHor() : loadHor();
+    RefMan<EM::Horizon3D> horizon = isgeom_ ? createHor() : loadHor();
     if ( !horizon )
 	return false;
 
     if ( !scanner_ && !doScan() )
-    {
-	horizon->unRef();
 	return false;
-    }
 
     if ( scanner_->nrPositions() == 0 )
     {
 	uiString msg( tr("No valid positions found\n"
 		      "Please re-examine input file and format definition") );
-	mErrRetUnRef( msg );
+	mErrRet( msg );
     }
 
     ManagedObjectSet<BinIDValueSet> sections;
     deepCopy( sections, scanner_->getSections() );
 
     if ( sections.isEmpty() )
-	mErrRetUnRef( tr("Nothing to import") );
+	mErrRet( tr("Nothing to import") );
 
     const bool dofill = filludffld_ && filludffld_->getBoolValue();
     if ( dofill )
     {
 	if ( !interpol_ )
-	    mErrRetUnRef( tr("No interpolation selected") );
+	    mErrRet( tr("No interpolation selected") );
 	fillUdfs( sections );
     }
 
     TrcKeySampling hs = subselfld_->envelope().hsamp_;
     if ( hs.lineRange().step_==0 || hs.trcRange().step_==0 )
-	mErrRetUnRef( tr("Cannot have '0' as a step value") )
+	mErrRet( tr("Cannot have '0' as a step value") )
 
     ExecutorGroup importer( "Importing horizon" );
     importer.setNrDoneText( tr("Nr positions done") );
@@ -494,29 +480,26 @@ bool uiImportHorizon::doImport()
     uiTaskRunner taskrunner( this );
     const bool success = TaskRunner::execute( &taskrunner, importer );
     if ( !success )
-	mErrRetUnRef(tr("Cannot import horizon"))
+	mErrRet(tr("Cannot import horizon"))
 
     horizon->setZDomain( zDomain() );
-    bool rv;
+    PtrMan<Executor> exec;
     if ( isgeom_ )
     {
-	Executor* exec = horizon->saver();
-	mSave(taskrunner);
 	horizon->setPreferredColor( colbut_->color() );
+	exec = horizon->saver();
     }
     else
-    {
-	mDynamicCastGet(ExecutorGroup*,exec,
-			horizon->auxdata.auxDataSaver(-1,true))
-	mSave(taskrunner);
-    }
+	exec = horizon->auxdata.auxDataSaver( -1, true );
 
+    if ( !exec || !TaskRunner::execute(&taskrunner,*exec) )
+	return false;
+
+    exec = nullptr;
     if ( saveButtonChecked() )
-	horizon->unRefNoDelete();
-    else
-	horizon->unRef();
+	horizon.setNoDelete( true );
 
-    return rv;
+    return true;
 }
 
 
@@ -842,13 +825,12 @@ bool uiImpHorFromZMap::acceptOK( CallBacker* )
 	return false;
     }
 
-    EM::Horizon3D* hor3d = createHor();
+    RefMan<EM::Horizon3D> hor3d = createHor();
     hor3d->setArray2D( conv.getOutput(), tks.start_, tks.step_, false );
     PtrMan<Executor> saver = hor3d->saver();
     if ( !saver || !uitr.execute(*saver) )
     {
 	uiMSG().error( tr("Can not save output horizon.") );
-	hor3d->unRef();
 	return false;
     }
 
@@ -862,11 +844,9 @@ bool uiImpHorFromZMap::acceptOK( CallBacker* )
 
     if ( saveButtonChecked() )
     {
+	hor3d.setNoDelete( true );
 	importReady.trigger();
-	hor3d->unRefNoDelete();
     }
-    else
-	hor3d->unRef();
 
     uiString msg = tr("ZMap grid successfully imported."
 		      "\n\nDo you want to import more grids?");

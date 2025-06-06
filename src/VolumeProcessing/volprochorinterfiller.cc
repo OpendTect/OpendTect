@@ -51,7 +51,8 @@ bool HorInterFiller::setTopHorizon( const MultiID* tmid )
     }
 
     RefMan<EM::Horizon> newhor = tmid ? loadHorizon( *tmid ) : 0;
-    if ( !newhor ) return false;
+    if ( !newhor )
+	return false;
 
     tophorizon_ = newhor;
     return true;
@@ -127,7 +128,8 @@ bool HorInterFiller::setBottomHorizon( const MultiID* bmid )
     }
 
     RefMan<EM::Horizon> newhor = bmid ? loadHorizon( *bmid ) : 0;
-    if ( !newhor ) return false;
+    if ( !newhor )
+	return false;
 
     bottomhorizon_ = newhor;
     return true;
@@ -138,11 +140,10 @@ EM::Horizon* HorInterFiller::loadHorizon( const MultiID& mid ) const
 {
     RefMan<EM::EMObject> emobj = EM::EMM().loadIfNotFullyLoaded( mid );
     mDynamicCastGet( EM::Horizon*, newhor, emobj.ptr() );
-    if ( !newhor ) return 0;
+    if ( !newhor )
+	return nullptr;
 
-    newhor->ref();
-    emobj = 0;
-    newhor->unRefNoDelete();
+    emobj.setNoDelete( true );
     return newhor;
 }
 
@@ -185,10 +186,12 @@ bool HorInterFiller::computeBinID( const BinID& bid, int )
     }
 
     const double topdepth = tophorizon_
-                            ? tophorizon_->getPos( topsubid ).z_ : SI().zRange(true).start_;
+			    ? tophorizon_->getPos( topsubid ).z_
+			    : SI().zRange(true).start_;
 
     const double bottomdepth = bottomhorizon_
-                               ? bottomhorizon_->getPos( botsubid ).z_ : SI().zRange(true).stop_;
+			       ? bottomhorizon_->getPos( botsubid ).z_
+			       : SI().zRange(true).stop_;
 
     const SamplingData<double>
 	zsampling( output->sampling().zsamp_ );

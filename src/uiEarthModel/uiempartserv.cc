@@ -1581,7 +1581,7 @@ bool uiEMPartServer::loadSurface( const MultiID& mid, bool force,
     if ( !force && EM::EMM().getObject(EM::EMM().getObjectID(mid)) )
 	return true;
 
-    Executor* exec = EM::EMM().objectLoader( mid, newsel );
+    PtrMan<Executor> exec = EM::EMM().objectLoader( mid, newsel );
     if ( !exec )
     {
 	PtrMan<IOObj> ioobj = IOM().get(mid);
@@ -1592,17 +1592,14 @@ bool uiEMPartServer::loadSurface( const MultiID& mid, bool force,
 	return false;
     }
 
-    EM::EMObject* obj = EM::EMM().getObject( EM::EMM().getObjectID(mid) );
-    obj->ref();
+    RefMan<EM::EMObject> obj =
+	EM::EMM().getObject( EM::EMM().getObjectID(mid) );
     uiTaskRunner exdlg( parent() );
-    if ( !TaskRunner::execute( &exdlg, *exec ) )
-    {
-	obj->unRef();
+    if ( !TaskRunner::execute(&exdlg,*exec) )
 	return false;
-    }
 
-    delete exec;
-    obj->unRefNoDelete();
+    exec = nullptr;
+    obj.setNoDelete( true );
     return true;
 }
 
