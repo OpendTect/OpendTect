@@ -28,6 +28,7 @@ static const char* sKeySEGYDirID()		{ return "SEGYDirect"; }
 static const int sCBVSSize			= 21102400;
 static const int sZSliceCBVSSize		= 254588;
 static const int s2DSize			= 2724740;
+static const int sSEGYSizeImpl			= 37584;
 static const int sSEGYSize			= 39651;
 
 static const int sNrFilesZSlice			= 19;
@@ -182,8 +183,8 @@ bool testSEGYDirectSize( const IOObj& obj, od_ostream& strm )
     mCheckSeisIOObjInfo( seisobj, obj )
     const od_int64 dssize = seisobj.getFileSize();
     BufferString dserrmsg( "Dataset size: ", dssize );
-    dserrmsg.add( "; Actual size: " ).add( sSEGYSize );
-    mRunStandardTestWithError( dssize == sSEGYSize,
+    dserrmsg.add( "; Actual size: " ).add( sSEGYSizeImpl );
+    mRunStandardTestWithError( dssize == sSEGYSizeImpl,
 			       "SEG-Y Direct dataset size from SeisIOObjInfo",
 			       dserrmsg )
 

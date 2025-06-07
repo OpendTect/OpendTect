@@ -976,8 +976,7 @@ od_int64 SEGYDirectSeisTrcTranslator::getFileSize( const IOObj* ) const
     if ( !def_ )
 	return SeisTrcTranslator::getFileSize();
 
-    const od_int64 sizedeffile = File::getFileSize( segydeffilename_ );
-    od_int64 totalsz = sizedeffile;
+    od_int64 totalsz = 0;
     const SEGY::FileDataSet& fds = def_->fileDataSet();
     const int nrfiles = fds.nrFiles();
     for ( int idx=0; idx<nrfiles; idx++ )
@@ -987,16 +986,11 @@ od_int64 SEGYDirectSeisTrcTranslator::getFileSize( const IOObj* ) const
 	PtrMan<IOObj> obj = fs.getIOObj( true );
 	PtrMan<SEGYSeisTrcTranslator> trl =
 				SEGYSeisTrcTranslator::instance();
-	if ( !trl->initRead( obj->getConn(Conn::Read)) )
+	if ( !trl || !trl->initRead(obj->getConn(Conn::Read)) )
 	    continue;
 
 	totalsz += trl->getFileSize();
     }
-
-    BufferStringSet filenames;
-    SeisTrcTranslator::getAllFileNames( filenames );
-    for ( const auto* nm : filenames )
-	totalsz += File::getFileSize( nm->buf() );
 
     return totalsz;
 }
