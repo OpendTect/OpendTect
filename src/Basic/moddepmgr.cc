@@ -19,20 +19,24 @@ ________________________________________________________________________
 
 const OD::ModDepMgr& OD::ModDeps()
 {
-    mDefineStaticLocalObject( PtrMan<ModDepMgr>, mgr,
-				= new ModDepMgr("ModDeps.od") );
+    static PtrMan<ModDepMgr> mgr =
+	 new ModDepMgr(
+		 FilePath(GetSWSetupShareFileName(
+			    BufferString("ModDeps.od").str())).fullPath(),
+		 GetLibPlfDir() );
     return *mgr;
 }
 
 
-OD::ModDepMgr::ModDepMgr( const char* mdfnm )
+OD::ModDepMgr::ModDepMgr( const char* mdfnm, const char* libplfdir )
+    : libplfdir_(libplfdir)
 {
-    if ( !mdfnm || !*mdfnm )
+    if ( !File::exists(mdfnm) )
 	return;
 
-    const FilePath moddepfp( GetSWSetupShareFileName(mdfnm) );
-    const BufferString moddepfnm = moddepfp.fullPath();
-    od_istream strm( moddepfnm );
+    const FilePath moddepfp( mdfnm );
+    prefix_ = moddepfp.extension();
+    od_istream strm( mdfnm );
     if ( !strm.isOK() )
     {
 	const uiString msg = strm.errMsg();
@@ -41,11 +45,11 @@ OD::ModDepMgr::ModDepMgr( const char* mdfnm )
     }
 
     if ( DBG::isOn(DBG_PROGSTART) )
-	DBG::message( BufferString("Starting reading ",moddepfnm,".") );
+	DBG::message( BufferString("Starting reading ",mdfnm,".") );
 
     readDeps( strm );
     if ( DBG::isOn(DBG_PROGSTART) )
-	DBG::message( BufferString("Reading ",moddepfnm," done.") );
+	DBG::message( BufferString("Reading ",mdfnm," done.") );
 
     if ( !File::exists( GetExecPlfDir()) )
 	{ ErrMsg( BufferString( "Cannot find ", GetExecPlfDir() ) ); return; }
@@ -89,7 +93,7 @@ void OD::ModDepMgr::readDeps( od_istream& strm )
 	    { ErrMsg( mkErrMsg(strm,"Invalid line found",word) ); continue; }
 	word[wordlen-1] = '\0';
 
-	ModDep* newdep = new ModDep( word ) ;
+	auto* newdep = new ModDep( word );
 
 	BufferStringSet filedeps;
 	while ( strm.getWord(word,false) )
@@ -110,6 +114,9 @@ void OD::ModDepMgr::readDeps( od_istream& strm )
 		{ depmods.add( modnm ); continue; }
 
 	    const ModDep* depdep = find( modnm );
+	    if ( !depdep && this != &ModDeps() )
+		depdep = ModDeps().find( modnm );
+
 	    if ( !depdep )
 		{ ErrMsg( mkErrMsg(strm,"Moddep not found",modnm) ); continue; }
 
@@ -120,6 +127,7 @@ void OD::ModDepMgr::readDeps( od_istream& strm )
 		    depmods.add( depdepmod );
 	    }
 	}
+
 	if ( depmods.size() < 1 )
 	    { delete newdep; continue; }
 
@@ -138,10 +146,15 @@ const OD::ModDep* OD::ModDepMgr::find( const char* nm ) const
 
 void OD::ModDepMgr::ensureLoaded( const char* nm ) const
 {
-    if ( !nm || !*nm ) return;
+    if ( !nm || !*nm )
+	return;
 
     const OD::ModDep* md = find( nm );
-    if ( !md ) return;
+    if ( !md && this != &ModDeps() )
+	md = ModDeps().find( nm );
+
+    if ( !md )
+	return;
 
     for ( int idep=md->mods_.size()-1; idep>=0; idep-- )
     {
@@ -155,8 +168,19 @@ void OD::ModDepMgr::ensureLoaded( const char* nm ) const
 
 	BufferString libnm( 256, false );
 	SharedLibAccess::getLibName( md->mods_.get(idep),
-			libnm.getCStr(), libnm.bufSize() );
-	FilePath fp( GetLibPlfDir(), libnm );
+				     libnm.getCStr(), libnm.bufSize() );
+	BufferString prefix( prefix_ );
+	FilePath fp( libplfdir_, libnm );
+	if ( !fp.exists() )
+	{
+	    const FilePath odfp( ModDeps().getLibPlfDir(), libnm );
+	    if ( odfp.exists() )
+	    {
+		fp.set( odfp.fullPath() );
+		prefix = ModDeps().getPrefix();
+	    }
+	}
+
 	auto* sla = new SharedLibAccess( fp.fullPath() );
 	if ( !sla->isOK() )
 	    { ErrMsg( sla->errMsg() ); delete sla; continue; }
@@ -164,7 +188,7 @@ void OD::ModDepMgr::ensureLoaded( const char* nm ) const
 	loadedmods_.add( modnm );
 	shlibaccs_ += sla;
 
-	BufferString fnnm( "od_" );
+	BufferString fnnm( prefix.buf(), "_" );
 	fnnm.add( modnm ).add( "_initStdClasses" );
 
 	using ModuleInitFn = void(*)(void);
