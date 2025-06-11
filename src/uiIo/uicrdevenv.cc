@@ -15,6 +15,7 @@ ________________________________________________________________________
 
 #include "dirlist.h"
 #include "file.h"
+#include "jsonkeystrs.h"
 #include "oddirs.h"
 #include "odjson.h"
 #include "odver.h"
@@ -345,40 +346,71 @@ uiRetVal uiCrDevEnv::copyEnv( const char* swdir, const char* envdir )
 	swdirfnm = longswdirfnm;
     }
 
+    BufferString srcdir( swdirfnm.buf() );
+    if ( isDeveloperBuild() )
+    {
+	const FilePath odsrcdir( __FILE__ );
+	srcdir = odsrcdir.dirUpTo( odsrcdir.nrLevels()-4 );
+	if ( __iswin__ )
+	{
+	    BufferString longsrcdir = FilePath::getLongPath( srcdir.buf() );
+	    longsrcdir.replace( FilePath::dirSep(FilePath::Windows),
+				FilePath::dirSep(FilePath::Unix) );
+	    srcdir = longsrcdir;
+	}
+    }
+
     OD::JSON::Object& cmakepresetsobj = cmakepresets->asObject();
     OD::JSON::Array* configpresets = cmakepresetsobj.getArray(
 							"configurePresets" );
     if ( !configpresets )
 	return uiRetVal::OK();
 
+    OD::JSON::Object* envpreset = nullptr;
     OD::JSON::Object* commonpreset = nullptr;
+    const BufferString commonnm( __ismac__ ? "common-macos" : "common" );
     for ( int idx=0; idx<configpresets->size(); idx++ )
     {
-	if ( configpresets->isObjectChild(idx) )
+	if ( !configpresets->isObjectChild(idx) )
+	    continue;
+
+	OD::JSON::Object& preset = configpresets->object( idx );
+	const BufferString namestr = preset.getStringValue( sJSONKey::Name() );
+	if ( namestr == "environment" )
+	    envpreset = &preset;
+	else if ( namestr == commonnm.str() )
+	    commonpreset = &preset;
+	else
+	    continue;
+
+	if ( envpreset && commonpreset )
+	    break;
+    }
+
+    if ( envpreset )
+    {
+	OD::JSON::Object* envobj = envpreset->getObject( "environment" );
+	if ( envobj )
 	{
-	    OD::JSON::Object& preset = configpresets->object( idx );
-	    BufferString namestr = preset.getStringValue( "name" );
-	    if ( namestr == "common" )
-	    {
-		commonpreset = &preset;
-		break;
-	    }
+	    if ( envobj->isPresent("QT_VERSION") )
+		envobj->set( "QT_VERSION", GetQtVersion() );
 	}
     }
 
-    if ( !commonpreset )
-	return uiRetVal::OK();
-
-    OD::JSON::Object* cachevars = commonpreset->getObject( "cacheVariables") ;
-    if ( cachevars )
+    if ( commonpreset )
     {
-	OD::JSON::Object* oddir = cachevars->getObject( "OpendTect_DIR" );
-	if ( oddir )
-	    oddir->set( "value", swdirfnm.str() );
+	OD::JSON::Object* cachevars = commonpreset->getObject("cacheVariables");
+	if ( cachevars )
+	{
+	    OD::JSON::Object* oddir = cachevars->getObject( "OpendTect_DIR" );
+	    if ( oddir )
+		oddir->set( sJSONKey::Value(), srcdir.str() );
 
-	OD::JSON::Object* odbindir = cachevars->getObject("OD_BINARY_BASEDIR");
-	if ( odbindir )
-	    odbindir->set( "value", swdirfnm.str() );
+	    OD::JSON::Object* odbindir =
+				cachevars->getObject( "OD_BINARY_BASEDIR" );
+	    if ( odbindir )
+		odbindir->set( sJSONKey::Value(), swdirfnm.str() );
+	}
     }
 
     return cmakepresets->write( cmakepresetsfnm, true );

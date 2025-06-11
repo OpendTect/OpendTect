@@ -9,8 +9,8 @@
             "name": "environment",
             "hidden": true,
             "environment": {
-                "OD_VERSION": "0.0.0",
-                "QT_VERSION": "6.9.1"
+                "OD_VERSION": "2025",
+                "QT_VERSION": "6.8.3"
             }
         },
         {
