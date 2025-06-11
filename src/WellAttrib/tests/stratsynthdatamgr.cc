@@ -55,7 +55,7 @@ static bool loadStdTree()
     BufferStringSet opts;
     Strat::RefTree::getStdNames( opts );
     mRunStandardTest( opts.size() > 2, "Has standard tree names" );
-    const char* stdtreenm = "International_Standard_Chronostratigraphic_Chart";
+    const char* stdtreenm = "International Standard Chronostratigraphic Chart";
     mRunStandardTest( opts.isPresent(stdtreenm), "Has standard framework name");
 
     Strat::LevelSet* ls = Strat::LevelSet::createStd( stdtreenm );
