@@ -17,23 +17,16 @@ LICENSE.txt
 Contents/Resources/LICENSE.txt
 CMakeModules/sourcefiles_od.txt
 CMakeModules/sourcefiles_dgb.txt
-data/ModDeps.od
-data/ModDeps.dgb
-data/SequenceModels
-data/dgbAttribs/
-data/localizations/*.qm
-data/localizations/generated
-data/Python_envs.txt
-data/Python/dgbpro_requirements.txt
-data/Python/machine_learning_requirements.txt
-data/Python/machine_learning_requirements_optional.txt
-data/Python/odpybind_requirements.txt
-data/EMTranslators
-data/FileSelProviders
-data/OpenSSL
-data/SeisTrcTranslators
-data/SurveyProviders
-data/Firewall
+share/ModDeps.od
+share/localizations/*.qm
+share/localizations/generated
+share/Python_envs.txt
+share/EMTranslators
+share/FileSelProviders
+share/OpenSSL
+share/SeisTrcTranslators
+share/SurveyProviders
+share/Firewall
 doc/Videos.dgb
 doc/od_userdoc
 test/
@@ -145,7 +138,6 @@ qtcsettings.cmake
 .ipynb_checkpoints
 
 #Other
-data/DemoSurveys/
 relinfo/ver.*
 
 #Platform dependent files
