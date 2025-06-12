@@ -155,12 +155,10 @@ void uiStratLvlList::lvlSetChgCB( CallBacker* )
 	const BufferString lvlnm = currlvl.name();
 	const BufferString listlvlnm = textOfItem( idx );
 	const OD::Color lvlcol = currlvl.color();
-	const OD::Color listlvlcol = getColor( idx );
 	if ( listlvlnm != lvlnm )
 	    setItemText( idx, toUiString(lvlnm) );
 
-	if ( listlvlcol != lvlcol )
-	    setColor( idx, lvlcol );
+	setPixmap( idx, lvlcol );
     }
 
     for ( int idx=0; idx<lvlsz; idx++ )
