@@ -377,6 +377,8 @@ bool Line2DInterSectionFinder::doWork( od_int64 start, od_int64 stop, int tid )
 
 	    const Pos::GeomID& geomid = bpts->geomid_;
 	    const int bpsize = bpts->idxs_.size();
+	    const Geom::Rectangle<double> udfbox( mUdf(double), mUdf(double),
+						  mUdf(double), mUdf(double) );
 
 	    for ( int bpidx=1; bpidx<curbpsize; bpidx++ )
 	    {
@@ -389,6 +391,9 @@ bool Line2DInterSectionFinder::doWork( od_int64 start, od_int64 stop, int tid )
 		const Coord& curstart = curposns[curposidx1].coord_;
 		const Coord& curstop = curposns[curposidx2].coord_;
 		const Line2 curline( curstart, curstop );
+		Geom::Rectangle<double> curbbox = udfbox;
+		curbbox.include(curstart);
+		curbbox.include(curstop);
 
 		for ( int bpidx2=1; bpidx2<bpsize; bpidx2++ )
 		{
@@ -400,11 +405,10 @@ bool Line2DInterSectionFinder::doWork( od_int64 start, od_int64 stop, int tid )
 
 		    const auto& linestart = posns[posidx1].coord_;
 		    const auto& linestop = posns[posidx2].coord_;
-
-		    if ( linestart.x_ > curstop.x_ ||
-			 curstart.x_ > linestop.x_ ||
-			 linestart.y_ < curstop.y_ ||
-			 curstart.y_ < linestop.y_ )
+		    Geom::Rectangle<double> bbox = udfbox;
+		    bbox.include(linestart);
+		    bbox.include(linestop);
+		    if ( !curbbox.intersects(bbox) )
 			continue;
 
 		    const Line2 line( linestart, linestop );
