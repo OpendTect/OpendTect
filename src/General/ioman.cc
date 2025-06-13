@@ -467,7 +467,7 @@ bool IOMan::validSurveySetup( BufferString& errmsg )
 		"or provided the command line (--dataroot dir), "
 		"or provided using the environment variable DTECT_DATA")
     else if ( !File::exists(basedatadir) )
-	mErrRetNotODDir(nullptr)
+	mErrRetNotODDir("")
     else if ( !validOmf(basedatadir) )
 	mErrRetNotODDir(".omf")
 
