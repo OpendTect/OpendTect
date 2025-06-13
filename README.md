@@ -55,7 +55,7 @@ To build the software you need to also download and install/build a few dependen
 
 | BRANCH | DEPENDENCIES |
 | -------------| ----------------- |
-| main | [Qt 6.9.0](https://download.qt.io/archive/qt/6.9/6.9.0/), [OpenSceneGraph 3.6.5](https://github.com/openscenegraph/OpenSceneGraph/archive/OpenSceneGraph-3.6.5.tar.gz), [Proj 9.6.0 (optional)](https://download.osgeo.org/proj/proj-9.6.0.tar.gz), [Sqlite 3.49.1 (optional)](https://www.sqlite.org/download.html), [HDF5 1.14.6 (optional)](https://www.hdfgroup.org/downloads/hdf5) |
+| main | [Qt 6.9.1](https://download.qt.io/archive/qt/6.9/6.9.1/), [OpenSceneGraph 3.6.5](https://github.com/openscenegraph/OpenSceneGraph/archive/OpenSceneGraph-3.6.5.tar.gz), [Proj 9.6.0 (optional)](https://download.osgeo.org/proj/proj-9.6.0.tar.gz), [Sqlite 3.49.1 (optional)](https://www.sqlite.org/download.html), [HDF5 1.14.6 (optional)](https://www.hdfgroup.org/downloads/hdf5) |
 | od8.0 | [Qt 6.8.3](https://download.qt.io/archive/qt/6.8/6.8.3/), [OpenSceneGraph 3.6.5](https://github.com/openscenegraph/OpenSceneGraph/archive/OpenSceneGraph-3.6.5.tar.gz), [Proj 9.6.0 (optional)](https://download.osgeo.org/proj/proj-9.6.0.tar.gz), [Sqlite 3.49.1 (optional)](https://www.sqlite.org/download.html), [HDF5 1.14.6 (optional)](https://www.hdfgroup.org/downloads/hdf5) |
 | od7.0_rel, od7.0 | [Qt 5.15.2](https://download.qt.io/archive/qt/5.15/5.15.2/), [OpenSceneGraph 3.6.5](https://github.com/openscenegraph/OpenSceneGraph/archive/OpenSceneGraph-3.6.5.tar.gz), [Proj 9.6.0 (optional)](https://download.osgeo.org/proj/proj-9.6.0.tar.gz), [Sqlite 3.44.2 (optional)](https://www.sqlite.org/download.html), [HDF5 1.14.5 (optional)](https://www.hdfgroup.org/downloads/hdf5) |
 | od6.6_rel, od6.6 | [Qt 5.15.2](https://download.qt.io/archive/qt/5.15/5.15.2/), [OpenSceneGraph 3.6.5](https://github.com/openscenegraph/OpenSceneGraph/archive/OpenSceneGraph-3.6.5.tar.gz), [HDF5 1.12.2 (optional)](https://www.hdfgroup.org/downloads/hdf5) |
@@ -68,7 +68,7 @@ For the Qt install the following components must be selected depending on your b
 -  Extensions: Qt WebEngine (MSVC 2022 x64/Desktop)
 -  Optionally debug information files (recommended on Windows)
 -  Optionally Qt source code is available for all the versions in use:
-	- [Qt 6.9.0](https://dgbearthsciences.sharefile.com/public/share/web-scea7367143a64252a651d5da19352d81) : main
+	- [Qt 6.9.1](https://dgbearthsciences.sharefile.com/public/share/web-scea7367143a64252a651d5da19352d81) : main
 	- [Qt 6.8.3](https://dgbearthsciences.sharefile.com/public/share/web-sad64fa4ce9974762a877a682d9d1a679) : od8.0
 	- [Qt 5.15.2](https://dgbearthsciences.sharefile.com/public/share/web-s519e08d71a7044b8934d9b0f2b4563eb) : od7.0
 
