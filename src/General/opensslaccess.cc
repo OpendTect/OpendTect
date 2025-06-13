@@ -223,7 +223,7 @@ bool OD::OpenSSLAccess::loadOpenSSL( const char* libnm, const char* path,
     static PtrMan<RuntimeLibLoader> libcryptosha, libsslsha;
     static int rescrypto = -1;
     static int resssl = -1;
-    static bool isdevbuild = isDeveloperBuild();
+    static bool isdevbuild = OD::isDeveloperBuild();
     int& res = iscrypto ? rescrypto : resssl;
     PtrMan<RuntimeLibLoader>& libsha = iscrypto ? libcryptosha : libsslsha;
     if ( res < 0 )

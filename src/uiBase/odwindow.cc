@@ -699,7 +699,7 @@ void uiMainWinBody::renewToolbarsMenu()
 static BufferString getSettingsFileName()
 {
     BufferString fnm( "qtsettings_", (int)mODVersion );
-    if ( isDeveloperBuild() )
+    if ( OD::isDeveloperBuild() || OD::isDeveloperInstallation() )
 	fnm.add( "_dev" );
 
     FilePath fp( GetSettingsDir(), fnm );

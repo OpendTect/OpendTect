@@ -41,6 +41,13 @@ mGlobal(Basic) const char* GetSoftwareDir(bool acceptnone);
  If acceptnone is false, program will terminate if none is found.
 */
 
+mGlobal(Basic) const char* GetLibraryFnm(const void* fn);
+/*!< returns the full path to the runtime library implementing a function
+     Should not be called/used when building a static library */
+
+namespace OD
+{
+
 mGlobal(Basic) bool isDeveloperBuild();
 /*!< This is running from a developers build. Checks the presence of
      CMakeCache.txt/CMakeFiles/external at the location of GetSoftwareDir */
@@ -48,6 +55,8 @@ mGlobal(Basic) bool isDeveloperBuild();
 mGlobal(Basic) bool isDeveloperInstallation();
 /*!< This is running from an installed developers build. Checks the presence of
      CMakeCache.txt/CMakeFiles/external at the location of GetSoftwareDir */
+
+} // namespace OD
 
 mGlobal(Basic) const char* GetBinSubDir(void);
 /*!< Directory for the release-type, i.e. Debug, Release, ... */

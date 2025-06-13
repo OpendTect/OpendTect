@@ -59,6 +59,17 @@ enum CheckState
 };
 
 
+/*!\brief Type of software folder */
+
+enum class DevType
+{
+    Src=0,
+    Binary=1,
+    Inst=2,
+    Deployed=3
+};
+
+
 /*!\brief How to select files or directories */
 
 enum FileSelectionMode

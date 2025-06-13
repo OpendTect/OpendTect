@@ -31,13 +31,14 @@ ________________________________________________________________________
 # include <direct.h>
 # include <Lmcons.h>
 #endif
-#ifndef __win__
-# define sDirSep	"/"
-static const char* lostinspace = "/tmp";
-#else
+#ifdef __win__
+#include "windows.h"
 # define sDirSep	"\\"
 static const char* lostinspace = "C:\\";
-
+#else
+# include <dlfcn.h>
+# define sDirSep	"/"
+static const char* lostinspace = "/tmp";
 #endif
 
 #ifdef __mac__
@@ -345,26 +346,100 @@ mExternC(Basic) const char* GetSoftwareDir( bool acceptnone )
 }
 
 
+mExternC(Basic) const char* GetLibraryFnm( const void* fn )
+{
+    mDeclStaticString( res );
+#ifdef __win__
+    HMODULE hModule = NULL;
+    if ( GetModuleHandleEx(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS,(LPCTSTR)fn,
+			   &hModule) )
+    {
+	TCHAR path[MAX_PATH];
+	const DWORD length = GetModuleFileName( hModule, path, MAX_PATH );
+	if ( length > 0 && length < MAX_PATH )
+	    res.set( path );
+    }
+#else
+    Dl_info info;
+    if ( dladdr(fn,&info) )
+	res.set( info.dli_fname );
+#endif
+
+    return  res.buf();
+}
+
+
+namespace OD
+{
+
+static const char* GetProjectSourceDir()
+{
+    mDeclStaticString( ret );
+#ifdef __FILE__
+    if ( ret.isEmpty() )
+    {
+	const FilePath srcdir( __FILE__ );
+	ret = srcdir.dirUpTo( srcdir.nrLevels()-4 );
+    }
+#endif
+    return ret.buf();
+}
+
+
+static const char* GetProjectBinaryDir()
+{
+    mDeclStaticString( ret );
+#ifdef __od_build_dir__
+    if ( ret.isEmpty() )
+    {
+	const FilePath bindir( __od_build_dir__ );
+	ret = bindir.fullPath();
+    }
+#endif
+    return ret.buf();
+}
+
+
+static const char* GetProjectInstDir()
+{
+    mDeclStaticString( ret );
+#ifdef __od_install_dir__
+    if ( ret.isEmpty() )
+    {
+	const FilePath instdir( __od_install_dir__ );
+	ret = instdir.fullPath();
+    }
+#endif
+    return ret.buf();
+}
+
+
+static const char* GetCurrentLibraryFnm()
+{
+    mDeclStaticString( ret );
+    if ( ret.isEmpty() )
+	ret = GetLibraryFnm( (const void*)GetCurrentLibraryFnm );
+
+    return ret;
+}
+
+
 mExternC(Basic) bool isDeveloperBuild()
 {
     static int ret = -1;
     if ( ret < 0 )
     {
-	FilePath fp( BufferString( GetSoftwareDir(false) ),
-				   __ismac__ ? ".." : "", "CMakeCache.txt" );
-	if ( fp.exists() )
-	{
-	    fp.setFileName( "CMakeFiles" );
-	    if ( File::isDirectory(fp.fullPath()) )
-	    {
-		fp.setFileName( "external" );
-		ret = File::isDirectory(fp.fullPath()) ? 1 : 0;
-	    }
-	    else
-		ret = 0;
-	}
-	else
+	const StringView libfnm( GetCurrentLibraryFnm() );
+	if ( libfnm.isEmpty() )
 	    ret = 0;
+	else
+	{
+	    FilePath projfp( GetProjectBinaryDir() );
+	    FilePath libfp( libfnm.buf() );
+	    projfp.makeCanonical();
+	    libfp.makeCanonical();
+	    ret = projfp.exists() && libfp.isSubDirOf( projfp ) ? 1 : 0;
+	}
     }
 
     return ret == 1;
@@ -376,32 +451,23 @@ mExternC(Basic) bool isDeveloperInstallation()
     static int ret = -1;
     if ( ret < 0 )
     {
-	if ( isDeveloperBuild() )
+	const StringView libfnm( GetCurrentLibraryFnm() );
+	if ( libfnm.isEmpty() )
 	    ret = 0;
 	else
 	{
-	    const FilePath fp( BufferString( GetSoftwareDir(false) ),
-			       __ismac__ ? "Resources" : "", "CMakeModules" );
-	    ret = File::isDirectory( fp.fullPath() ) ? 1 : 0;
+	    FilePath projfp( GetProjectInstDir() );
+	    FilePath libfp( libfnm.buf() );
+	    projfp.makeCanonical();
+	    libfp.makeCanonical();
+	    ret = projfp.exists() && libfp.isSubDirOf( projfp ) ? 1 : 0;
 	}
     }
 
     return ret == 1;
 }
 
-
-static const char* GetODProjectSourceDir()
-{
-    mDeclStaticString( ret );
-#ifdef __FILE__
-    if ( ret.isEmpty() )
-    {
-	const FilePath odsrcdir( __FILE__ );
-	ret = odsrcdir.dirUpTo( odsrcdir.nrLevels()-4 );
-    }
-#endif
-    return ret.buf();
-}
+} // namespace OD
 
 
 static	const char* GetApplSetupDir_()
@@ -464,7 +530,7 @@ const BufferStringSet& getCustomShareDirs()
     {
 	if ( isDeveloperBuild() )
 	{
-	    const FilePath fp( GetODProjectSourceDir(), sShare );
+	    const FilePath fp( GetProjectSourceDir(), sShare );
 	    ret->add( fp.fullPath() );
 	}
 	else
@@ -485,13 +551,14 @@ const BufferStringSet& getCustomDocDirs()
     {
 	if ( isDeveloperBuild() )
 	{
-	    const FilePath fp( GetODProjectSourceDir(), sDoc );
+	    const FilePath fp( GetProjectSourceDir(), sDoc );
 	    ret->add( fp.fullPath() );
 	}
 	else
 	{ //old location, compatibility with external plugins
 	    const FilePath fp( GetSoftwareDir(true), sDoc );
-	    ret->add( fp.fullPath() );
+	    if ( fp.exists() )
+		ret->add( fp.fullPath() );
 	}
     }
 
