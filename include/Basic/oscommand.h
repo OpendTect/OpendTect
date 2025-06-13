@@ -116,7 +116,7 @@ public:
     MachineCommand&	addArg(const char*);
     MachineCommand&	addArgs(const BufferStringSet&);
     MachineCommand&	addFlag( const char* flg, KeyStyle ks=NewStyle )
-			{ return addKeyedArg(flg,nullptr,ks); }
+			{ return addKeyedArg(flg,(const char*)nullptr,ks); }
     MachineCommand&	addKeyedArg(const char* ky,const char* valstr,
 				    KeyStyle ks=NewStyle);
     MachineCommand&	addPipe()	{ return addArg("|"); }
@@ -131,7 +131,7 @@ public:
     MachineCommand&	addArg( const T& t )	{ return addArg(::toString(t));}
     template <class T>
     MachineCommand&	addKeyedArg( const char* ky, const T& t,
-				     KeyStyle ks=NewStyle )
+					KeyStyle ks=NewStyle )
 			{ return addKeyedArg(ky,::toString(t),ks);}
 
     bool		hostIsWindows() const		{ return hostiswin_; }

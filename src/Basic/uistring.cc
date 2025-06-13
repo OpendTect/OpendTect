@@ -1168,7 +1168,7 @@ const char* toString( const uiString& uis )
 {
     mDeclStaticString( retstr );
     retstr = uis.getString();
-    return retstr.getCStr();
+    return retstr.buf();
 }
 
 

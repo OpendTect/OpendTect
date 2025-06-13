@@ -72,6 +72,9 @@ mGlobal(Basic) const char* toStringLim(double,int maxtxtwdth);
 mGlobal(Basic) const char* toHexString(od_uint32,bool padded=true);
 mGlobal(Basic) const char* toString(bool);
 mGlobal(Basic) const char* toString(const char*);
+#ifdef __win__
+mGlobal(Basic) const char* toString(const wchar_t*);
+#endif
 mGlobal(Basic) const char* toString(const OD::String&);
 mGlobal(Basic) const char* toString(const CompoundKey&);
 mGlobal(Basic) const char* toString(const MultiID&);
