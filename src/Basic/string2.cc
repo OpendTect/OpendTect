@@ -956,6 +956,15 @@ const char* toString( bool b )
 const char* toString( const char* str )
 { return str ? str : ""; }
 
+#ifdef __win__
+const char* toString( const wchar_t* wstr )
+{
+    mDeclStaticString( retstr );
+    retstr.set( wstr );
+    return retstr.buf();
+}
+#endif
+
 const char* toString( const OD::String& ods )
 { return ods.buf(); }
 

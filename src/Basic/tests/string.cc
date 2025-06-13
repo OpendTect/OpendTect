@@ -14,6 +14,10 @@ ________________________________________________________________________
 #include "iopar.h"
 #include "dbkey.h"
 
+#ifdef __win__
+# include "windows.h"
+#endif
+
 
 #undef mRunTest
 #define mRunTest( desc, test ) mRunStandardTest( test, desc );
@@ -382,10 +386,25 @@ static bool testBufferStringFns()
     mSetBSToInit(); bs.clean( BufferString::NoFileSeps );
     mRunTest("BufferString clean NoFileSeps",bs == "\nXX_.YY___ Z\t");
     mSetBSToInit(); bs.clean( BufferString::NoSpecialChars );
-#ifndef __win__
-    mRunTest("BufferString clean NoSpecialChars",bs == "\nXX_.YY/__ Z\t");
-#else
+#ifdef __win__
     mRunTest("BufferString clean NoSpecialChars",bs == "\nXX_.YY_:\\ Z\t");
+    const TCHAR path[] = __TEXT( "C:\\temp\\this is a path" );
+    BufferString retpath( path );
+    mRunTest( "TCHAR to BufferString using constructor",
+	      retpath == "C:\\temp\\this is a path" );
+    retpath.set( "New content" ).set( path );
+    mRunTest( "TCHAR to BufferString using set (from non-empty)",
+	      retpath == "C:\\temp\\this is a path" );
+    const TCHAR addedpath[] = __TEXT( "\\my folder\\dir" );
+    retpath.add( addedpath );
+    mRunTest( "TCHAR to BufferString using add function (from non-empty)",
+	      retpath == "C:\\temp\\this is a path\\my folder\\dir" );
+    retpath.setEmpty();
+    retpath = toString( path );
+    mRunTest( "TCHAR to BufferString using toString global function",
+	       retpath == "C:\\temp\\this is a path" );
+#else
+    mRunTest("BufferString clean NoSpecialChars",bs == "\nXX_.YY/__ Z\t");
 #endif
     return true;
 }

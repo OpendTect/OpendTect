@@ -44,7 +44,8 @@ BufferString::BufferString( const BufferString& bs )
     , len_(0)
     , minlen_(bs.minlen_)
 {
-    if ( !bs.buf_ || !bs.len_ ) return;
+    if ( !bs.buf_ || !bs.len_ )
+	return;
 
     mTryAlloc( buf_, char [bs.len_] );
     if ( buf_ )
@@ -138,15 +139,44 @@ BufferString& BufferString::setEmpty()
 
 BufferString& BufferString::assignTo( const char* s )
 {
-    if ( buf_ == s ) return *this;
+    if ( buf_ == s )
+	return *this;
 
-    if ( !s ) s = "";
-    setBufSize( sCast( unsigned int, (strlen(s) + 1) ) );
-    char* ptr = buf_;
-    while ( *s ) *ptr++ = *s++;
-    *ptr = '\0';
+    if ( s )
+    {
+	if ( setBufSize( sCast(unsigned int,strlen(s)+1) ) && buf_ )
+	{
+#ifdef __win__
+	    strcpy_s( buf_, len_, s );
+#else
+	    strcpy( buf_, s );
+#endif
+	}
+	else
+	{
+	    pErrMsg( "Cannot copy string" );
+	}
+    }
+    else
+	setEmpty();
+
     return *this;
 }
+
+
+#ifdef __win__
+BufferString& BufferString::assignTo( const wchar_t* s )
+{
+    setEmpty();
+    if ( s )
+    {
+	const std::wstring wstr( s );
+	add( wstr );
+    }
+
+    return *this;
+}
+#endif
 
 
 BufferString& BufferString::set( const char* s )
@@ -154,6 +184,15 @@ BufferString& BufferString::set( const char* s )
     setEmpty();
     return add( s );
 }
+
+
+#ifdef __win__
+BufferString& BufferString::set( const wchar_t* s )
+{
+    setEmpty();
+    return add( s );
+}
+#endif
 
 
 BufferString& BufferString::set( const OD::String& str )
@@ -240,16 +279,40 @@ BufferString& BufferString::add( const char* s )
 {
     if ( s && *s )
     {
-	const unsigned int newsize = strlen(s) + (buf_ ? strlen(buf_) : 0) +1;
-	setBufSize( newsize );
-
-	char* ptr = buf_;
-	while ( *ptr ) ptr++;
-	while ( *s ) *ptr++ = *s++;
-	*ptr = '\0';
+	const unsigned int oldsize = size();
+	const unsigned int addedsize = strlen(s);
+	const unsigned int newsize = oldsize + addedsize +1;
+	if ( setBufSize(newsize) && buf_ )
+	{
+	    char* ptr = buf_ + oldsize;
+#ifdef __win__
+	    strcpy_s( ptr, len_-oldsize, s );
+#else
+	    strcpy( ptr, s );
+#endif
+	}
+	else
+	{
+	    pErrMsg( "Cannot add to string" );
+	}
     }
+
     return *this;
 }
+
+
+#ifdef __win__
+BufferString& BufferString::add( const wchar_t* s )
+{
+    if ( s && *s )
+    {
+	const std::wstring wstr( s );
+	add( wstr );
+    }
+
+    return *this;
+}
+#endif
 
 
 BufferString& BufferString::add( const OD::String& str )

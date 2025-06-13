@@ -39,6 +39,9 @@ mExpClass(Basic) BufferString : public OD::String
 public:
     inline		BufferString();
     inline		BufferString(const char*);
+#ifdef __win__
+    inline explicit	BufferString(const wchar_t*);
+#endif
 			BufferString(const OD::String&);
 			BufferString(int minlen,bool setnull);
 			BufferString(const BufferString&);
@@ -56,6 +59,10 @@ public:
 						{ return assignTo(b.buf_); }
     inline BufferString& operator=( const char* s )
 						{ return assignTo(s); }
+#ifdef __win__
+    inline BufferString& operator=( const wchar_t* s )
+						{ return assignTo(s); }
+#endif
     inline BufferString& operator=( const StringView& s )
 						{ return assignTo(s.str()); }
     inline BufferString& operator=( const OD::String& s )
@@ -94,6 +101,9 @@ public:
 
     BufferString&	setEmpty();
     BufferString&	set(const char*);
+#ifdef __win__
+    BufferString&	set(const wchar_t*);
+#endif
     BufferString&	set(const OD::String&);
     template <class T>
     BufferString&	set(const T&);
@@ -115,6 +125,9 @@ public:
 
     BufferString&	add(char);
     BufferString&	add(const char*);
+#ifdef __win__
+    BufferString&	add(const wchar_t*);
+#endif
     BufferString&	add(const OD::String&);
     BufferString&	add(const QString&);
     BufferString&	add(const std::string&);
@@ -171,6 +184,9 @@ protected:
     const unsigned int	minlen_;
 
     BufferString&	assignTo(const char*);
+#ifdef __win__
+    BufferString&	assignTo(const wchar_t*);
+#endif
 
     const char*		gtBuf() const override;
     inline const char*	gtStr() const override;
@@ -185,6 +201,9 @@ public:
 
     // use add instead
     inline BufferString& operator+=( const char* s )	{ return add( s ); }
+#ifdef __win__
+    inline BufferString& operator+=( const wchar_t* s ) { return add( s ); }
+#endif
     inline BufferString& operator+=( const OD::String& s )
 							{ return add(s.str()); }
     template <class T>
@@ -204,6 +223,10 @@ inline BufferString::BufferString()
     : mBufferStringSimpConstrInitList	{}
 inline BufferString::BufferString( const char* s )
     : mBufferStringSimpConstrInitList	{ assignTo(s); }
+#ifdef __win__
+inline BufferString::BufferString( const wchar_t* s )
+    : mBufferStringSimpConstrInitList	{ assignTo(s); }
+#endif
 inline BufferString::BufferString( const OD::String& s )
     : mBufferStringSimpConstrInitList	{ assignTo(s.str()); }
 
