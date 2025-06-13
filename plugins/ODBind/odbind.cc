@@ -96,7 +96,7 @@ const char* stringset_get( hStringSet self, int idx )
 void ODBind::initDeveloperPythonPath()
 {
 #ifdef __odbind_dir__
-    if ( !isDeveloperBuild() ) //Installed project: do not add build dir
+    if ( !OD::isDeveloperBuild() ) //Installed project: do not add build dir
 	return;
 
     const FilePath odbindfp( __odbind_dir__ );

@@ -113,7 +113,7 @@ static uiRetVal isSoftwareDirOK( const char* swdir, bool quick )
 	return od_static_tr( "uiCrDevEnv",
 		    "Cannot find the OpendTect SDK at '%1'").arg( swdir );
 
-    const bool isdevbuild = isDeveloperBuild();
+    const bool isdevbuild = OD::isDeveloperBuild();
     if ( !isdevbuild )
     {
 	BufferString develverstr;
@@ -306,7 +306,7 @@ uiRetVal uiCrDevEnv::copyEnv( const char* swdir, const char* envdir )
 				    toUiString(cmakepresetsfpin.fullPath()) );
 
     FilePath pluginsfpin;
-    if ( isDeveloperBuild() )
+    if ( OD::isDeveloperBuild() )
 	pluginsfpin.set( swdir );
     else
 	pluginsfpin = progfp;
@@ -347,7 +347,7 @@ uiRetVal uiCrDevEnv::copyEnv( const char* swdir, const char* envdir )
     }
 
     BufferString srcdir( swdirfnm.buf() );
-    if ( isDeveloperBuild() )
+    if ( OD::isDeveloperBuild() )
     {
 	const FilePath odsrcdir( __FILE__ );
 	srcdir = odsrcdir.dirUpTo( odsrcdir.nrLevels()-4 );

@@ -165,7 +165,7 @@ void OD::PythonAccess::initClass()
     GetEnvVarDirList( sKeyPythonPathEnvStr(), pystartpath_, true );
     FilePath pythonmodsfp;
 #ifdef __odpy_dir__
-    if ( isDeveloperBuild() )
+    if ( OD::isDeveloperBuild() )
 	pythonmodsfp.set( __odpy_dir__ );
     else
 	pythonmodsfp.set( GetScriptDir() ).add( "python" );
@@ -174,7 +174,7 @@ void OD::PythonAccess::initClass()
 	PythA().addBasePath( pythonmodsfp );
 #endif
 #ifdef __safety_dir__
-    if ( isDeveloperBuild() )
+    if ( OD::isDeveloperBuild() )
     {
 	pythonmodsfp.set( __safety_dir__ );
 	if ( pythonmodsfp.exists() )

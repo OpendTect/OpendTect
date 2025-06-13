@@ -680,7 +680,7 @@ const char* Coords::initCRSDatabase()
 	FilePath fp( GetSWSetupShareFileName("CRS",true), projdbfp.fileName() );
 	if ( !fp.exists() )
 	{
-	    if ( !isDeveloperBuild() || !projdbfp.exists() )
+	    if ( !OD::isDeveloperBuild() || !projdbfp.exists() )
 		msg.set( "Cannot load the proj database" );
 	    else
 		fp = projdbfp;
