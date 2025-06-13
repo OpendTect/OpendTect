@@ -10,7 +10,7 @@
             "hidden": true,
             "environment": {
                 "OD_VERSION": "0.0.0",
-                "QT_VERSION": "6.9.0"
+                "QT_VERSION": "6.9.1"
             }
         },
         {
