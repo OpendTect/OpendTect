@@ -360,29 +360,14 @@ endmacro(CREATE_PACKAGE)
 macro( CREATE_BASEPACKAGE PACKAGE_NAME )
     if( ${PACKAGE_NAME} STREQUAL "basedata" )
 	set( ODDGBSTR "od" )
+	file( COPY "${COPYFROMDATADIR}/localizations/od_en_US.qm"
+	      DESTINATION "${COPYTODATADIR}/localizations" )
 	file( COPY "${COPYFROMDIR}/relinfo/README.txt"
 	      DESTINATION "${COPYTODIR}/relinfo" )
 	file( COPY "${COPYFROMDIR}/relinfo/RELEASEINFO.txt"
 	      DESTINATION "${COPYTODIR}/doc/ReleaseInfo" )
     elseif( ${PACKAGE_NAME} STREQUAL "dgbbasedata" )
 	set( ODDGBSTR "dgb" )
-	#add the base translation to basedata, not dgbbasedata
-	if ( IS_DIRECTORY "${DESTINATION_DIR}" )
-	    file( RENAME "${DESTINATION_DIR}" "${DESTINATION_DIR}_TMP" )
-	endif()
-	if( APPLE )
-	    set( BASEDATAPACKAGE "basedata_mac.zip" )
-	else()
-	    set( BASEDATAPACKAGE "basedata.zip" )
-	endif()
-	file( COPY "${COPYFROMDATADIR}/localizations/od_en_US.qm"
-	      DESTINATION "${COPYTODATADIR}/localizations" )
-	ZIPPACKAGE( "${BASEDATAPACKAGE}" "${REL_DIR}" "${PACKAGE_DIR}" )
-	unset( BASEDATAPACKAGE )
-	if ( IS_DIRECTORY "${DESTINATION_DIR}_TMP" )
-	    file( RENAME "${DESTINATION_DIR}_TMP" "${DESTINATION_DIR}" )
-	endif()
-
 	file( GLOB QMFILES ${COPYFROMDATADIR}/localizations/*.qm )
 	foreach( QMFILE ${QMFILES} )
 	    get_filename_component( QMFILENM ${QMFILE} NAME )
