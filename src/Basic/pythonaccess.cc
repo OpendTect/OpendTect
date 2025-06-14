@@ -804,12 +804,13 @@ FilePath* OD::PythonAccess::getCommand( OS::MachineCommand& cmd,
 	}
     }
 
-    strm.add( args.cat(" ") ).addNewLine();
+    strm.add( args.cat(" ") );
     if ( background )
     {
 	if ( __iswin__ )
 	{
-	    strm.add( "SET \"RETVAL=%ERRORLEVEL%\"" ).addNewLine()
+	    strm.addNewLine()
+		.add( "SET \"RETVAL=%ERRORLEVEL%\"" ).addNewLine()
 		.add( "timeout 2 > nul" ).addNewLine()
 		.add( "FOR /F \"tokens=* USEBACKQ\" %%g IN (`tasklist /FI"
 		      " \"WINDOWTITLE eq %proctitle%\" /FO CSV /NH`) DO "
@@ -835,6 +836,8 @@ FilePath* OD::PythonAccess::getCommand( OS::MachineCommand& cmd,
 	    strm.add( "echo $! > " ).add( pidfile.quote() ).addNewLine();
 	}
     }
+    else
+	strm.addNewLine();
 
     if ( __iswin__ )
     {
