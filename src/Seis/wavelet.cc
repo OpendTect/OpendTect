@@ -157,8 +157,8 @@ IOObj* Wavelet::getIOObj( const char* waveletnm )
     if ( !waveletnm || !*waveletnm || !IOMan::isOK() )
 	return nullptr;
 
-    const IOObjContext ctxt( mIOObjContext(Wavelet) );
-    return IOM().to( ctxt.getSelKey() )
+    const IOObjContext& wvltctxt = WaveletTranslatorGroup::ioContext();
+    return IOM().to( wvltctxt.getSelKey() )
 		? IOM().getLocal( waveletnm, mTranslGroupName(Wavelet) )
 		: nullptr;
 }
