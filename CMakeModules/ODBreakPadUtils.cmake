@@ -38,7 +38,6 @@ macro ( OD_GENERATE_SYMBOLS TRGT )
 			-DLIBRARY=$<TARGET_FILE:${TRGT}>
 			-DSYM_DUMP_EXECUTABLE=${BREAKPAD_DUMPSYMS_EXECUTABLE}
 			-P ${OpendTect_DIR}/CMakeModules/GenerateSymbols.cmake
-		DEPENDS ${TRGT}
 		COMMENT "Generating symbols for ${TRGT}" )
     endif()
 endmacro(OD_GENERATE_SYMBOLS)
