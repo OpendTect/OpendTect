@@ -18,6 +18,7 @@ ________________________________________________________________________
 #include "threadwork.h"
 #include "timer.h"
 
+#include <functional>
 #include <time.h>
 
 
@@ -503,7 +504,7 @@ void handler(int sig)
 }
 
 
-bool testMulthThreadChaos()
+bool testMultiThreadChaos()
 {
     mRunStandardTest( true, "Multithreaded chaos start" );
 
@@ -527,6 +528,41 @@ bool testMulthThreadChaos()
 }
 
 
+bool testLambdaCallback()
+{
+    PtrMan<ClassWithNotifier> notifier = new ClassWithNotifier;
+    NotifierAccess* naccess = &notifier->notifier;
+    mRunStandardTest( naccess->cbs_.isEmpty(), "CallBack set is empty" );
+
+    int var = 0;
+    PtrMan<LambdaCallBacker> cbhandler = new LambdaCallBacker( [&var]() {
+	    var++;
+    });
+
+    const CallBack cb = cbhandler->cb();
+    naccess->notify( cb );
+    mRunStandardTest( naccess->cbs_.size() == 1, "CallBack set has CB" );
+    notifier->notifier.trigger(); //Would normally be done outside
+    mRunStandardTest( var == 1, "Lambda callback has set var to 1" );
+    naccess->remove( cb );
+    mRunStandardTest( naccess->cbs_.isEmpty(), "CallBack set is empty" );
+
+    mRunStandardTest( cbhandler->attachCB( *naccess ),
+		      "Lambda callback is attached" );
+    notifier->notifier.trigger(); //Would normally be done outside
+    mRunStandardTest( var == 2, "Lambda callback has set var" );
+    cbhandler->detachCB( *naccess ); //explicit detach
+    mRunStandardTest( naccess->cbs_.isEmpty(), "CallBack set is empty" );
+
+    mRunStandardTest( cbhandler->attachCB( *naccess ),
+		      "Lambda callback is attached a second time" );
+    cbhandler = nullptr; //implicit detach (from destructor)
+    notifier = nullptr;
+
+    return true;
+}
+
+
 
 int mTestMainFnName( int argc, char** argv )
 {
@@ -537,7 +573,8 @@ int mTestMainFnName( int argc, char** argv )
       || !testLateDetach()
       || !testEarlyDetach()
       || !testDetachBeforeRemoval()
-      || !testMulthThreadChaos() )
+      || !testLambdaCallback()
+      || !testMultiThreadChaos() )
 	return 1;
 
     ApplicationData ad;
