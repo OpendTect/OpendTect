@@ -12,6 +12,8 @@ ________________________________________________________________________
 
 #include "thread.h"
 
+#include <functional>
+
 
 #define mOneMilliSecond 0.001
 
@@ -385,13 +387,71 @@ bool CallBacker::notifyShutdown( const NotifierAccess* na, bool wait ) const
 }
 
 
+//---- LambdaCallBacker
+
+LambdaCallBacker::LambdaCallBacker( std::function<void()> fn )
+    : fnptr_(std::make_shared<std::function<void()>>(std::move(fn)))
+{}
+
+
+LambdaCallBacker::~LambdaCallBacker()
+{
+    detachAllNotifiers();
+}
+
+
+CallBack LambdaCallBacker::cb() const
+{
+    return mCB(getNonConst(this),LambdaCallBacker,call);
+}
+
+
+bool LambdaCallBacker::attachCB( const NotifierAccess& na,bool onlyifnew ) const
+{
+    return CallBacker::attachCB( na, cb(), onlyifnew );
+}
+
+
+void LambdaCallBacker::detachCB( const NotifierAccess& na ) const
+{
+    CallBacker::detachCB( na, cb() );
+}
+
+
+void LambdaCallBacker::call( CallBacker* )
+{
+    if ( fnptr_ )
+	(*fnptr_)();
+}
+
+
 //---- CallBack
 ThreadID CallBack::mainthread_ = 0;
 
 
-bool CallBack::operator==( const CallBack& c ) const
+CallBack::CallBack()
+{}
+
+
+CallBack::CallBack( CallBacker* cber, CallBackFunction fn )
+    : cberobj_(cber)
+    , fn_(fn)
+{}
+
+
+CallBack::CallBack( StaticCallBackFunction sfn )
+    : sfn_(sfn)
+{}
+
+
+CallBack::~CallBack()
+{}
+
+
+
+bool CallBack::operator==( const CallBack& oth ) const
 {
-    return cberobj_ == c.cberobj_ && fn_ == c.fn_ && sfn_ == c.sfn_;
+    return cberobj_ == oth.cberobj_ && fn_ == oth.fn_ && sfn_ == oth.sfn_;
 }
 
 

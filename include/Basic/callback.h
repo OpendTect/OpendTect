@@ -13,6 +13,9 @@ ________________________________________________________________________
 #include "sets.h"
 #include "threadlock.h"
 class NotifierAccess;
+namespace std { template <class T> class function; }
+
+#include <memory>
 
 /*!
   In any OO system callbacks to an unknown client must be possible. To be able
@@ -57,16 +60,11 @@ using StaticCallBackFunction = void(*)(CallBacker*);
 mExpClass(Basic) CallBack
 {
 public:
-    static void		initClass();
-			CallBack()
-			    : cberobj_(nullptr), fn_(nullptr), sfn_(nullptr)
-			{}
-			CallBack( CallBacker* o, CallBackFunction f )
-			    : cberobj_(o), fn_(f), sfn_(nullptr)
-			{}
-			CallBack( StaticCallBackFunction f )
-			    : cberobj_(nullptr), fn_(nullptr), sfn_(f)
-			{}
+			CallBack();
+			CallBack(CallBacker*,CallBackFunction);
+			CallBack(StaticCallBackFunction);
+			~CallBack();
+
     bool		operator==(const CallBack&) const;
     bool		operator!=(const CallBack&) const;
 
@@ -108,16 +106,17 @@ public:
 
 private:
 
-    CallBacker*				cberobj_;
-    CallBackFunction			fn_;
-    StaticCallBackFunction		sfn_;
+    CallBacker*				cberobj_	= nullptr;
+    CallBackFunction			fn_		= nullptr;
+    StaticCallBackFunction		sfn_		= nullptr;
     mutable Threads::Atomic<int>	disablecount_;
     static Threads::ThreadID		mainthread_;
 
 public:
 
-    // Usually only called from mEnsureExecutedInMainThread:
+    static void		initClass();
 
+    // Usually only called from mEnsureExecutedInMainThread:
     static bool			queueIfNotInMainThread(CallBack,
 						CallBacker* =nullptr);
 				/*!< If not in main thread, queue it.
@@ -239,6 +238,40 @@ public:
 					    createReceiverForCurrentThread()
 					    in the thread. */
 
+};
+
+
+/*!\CallBacker implementation for using a Lamda expression.
+    Typical usage, assuming an object 'obj' with a Notifier 'buttonClicked'
+
+    bool isset = false;
+    PtrMan<LambdaCallBacker> cbhandler = new LambdaCallBacker( [&isset]() {
+	isset = true;
+    });
+
+    cbhandler->attachCB( obj->buttonClicked );
+    (external event: someobj->buttonClicked.trigger() );
+    isset is now set to true;
+*/
+
+mExpClass(Basic) LambdaCallBacker : public CallBacker
+{
+public:
+				LambdaCallBacker(std::function<void()>);
+				~LambdaCallBacker();
+
+    bool			attachCB(const NotifierAccess&,
+					 bool onlyifnew=false) const;
+    void			detachCB(const NotifierAccess&) const;
+
+    CallBack			cb() const;
+				//!< use with care, do not forget to remove
+
+private:
+
+    void			call(CallBacker*);
+
+    std::shared_ptr<std::function<void()>> fnptr_;
 };
 
 
