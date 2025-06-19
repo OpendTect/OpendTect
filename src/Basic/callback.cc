@@ -12,9 +12,6 @@ ________________________________________________________________________
 
 #include "thread.h"
 
-#include <functional>
-
-
 #define mOneMilliSecond 0.001
 
 #ifndef OD_NO_QT
