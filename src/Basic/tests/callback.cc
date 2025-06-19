@@ -18,7 +18,6 @@ ________________________________________________________________________
 #include "threadwork.h"
 #include "timer.h"
 
-#include <functional>
 #include <time.h>
 
 

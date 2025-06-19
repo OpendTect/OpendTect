@@ -12,10 +12,11 @@ ________________________________________________________________________
 #include "refcount.h"
 #include "sets.h"
 #include "threadlock.h"
-class NotifierAccess;
-namespace std { template <class T> class function; }
 
+#include <functional>
 #include <memory>
+
+class NotifierAccess;
 
 /*!
   In any OO system callbacks to an unknown client must be possible. To be able
