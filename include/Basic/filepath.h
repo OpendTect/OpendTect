@@ -32,17 +32,32 @@ mExpClass(Basic) FilePath
 public:
     enum Style		{ Local, Unix, Windows };
 
-			FilePath(const char* fullinp=0);
-			FilePath(const char* p1,const char* p2,const char* p3=0,
-				 const char* p4=0,const char* p5=0);
-			FilePath( const FilePath& fp )	{ *this = fp; }
+			FilePath(const char* fullinp=nullptr);
+			FilePath(const OD::String&);
+			FilePath(const char* p1,const char* p2,
+				 const char* p3=nullptr,
+				 const char* p4=nullptr,const char* p5=nullptr);
+			FilePath(const OD::String& p1,const char* p2,
+				 const char* p3=nullptr,
+				 const char* p4=nullptr,const char* p5=nullptr);
+			FilePath(const char* p1,const OD::String& p2,
+				 const char* p3=nullptr,
+				 const char* p4=nullptr,const char* p5=nullptr);
+			FilePath(const OD::String& p1,const OD::String& p2,
+				 const char* p3=nullptr,
+				 const char* p4=nullptr,const char* p5=nullptr);
 			FilePath(const FilePath&,const char* p2,
-				 const char* p3=0,const char* p4=0,
-				 const char* p5=0);
+				 const char* p3=nullptr,const char* p4=nullptr,
+				 const char* p5=nullptr);
+			FilePath(const FilePath&,const OD::String& p2,
+				 const char* p3=nullptr,const char* p4=nullptr,
+				 const char* p5=nullptr);
+			FilePath(const FilePath&);
 			~FilePath();
 
     FilePath&		operator =(const FilePath&);
     FilePath&		operator =(const char* fullinp);
+    FilePath&		operator =(const OD::String& fullinp);
     bool		operator ==(const FilePath&) const;
     bool		operator ==(const char* fnm) const;
     bool		operator !=(const FilePath&) const;
@@ -50,11 +65,14 @@ public:
     bool		isEmpty() const;
 
     FilePath&		set(const char* fullinp);
+    FilePath&		set(const OD::String& fullinp);
     FilePath&		add(const char*);	//!< at end
     FilePath&		insert(const char*);	//!< after prefix at start
     FilePath&		setFileName(const char*); //!< pass null to remove level
     FilePath&		setPath(const char*);	//!< including prefix
     FilePath&		setExtension(const char*,bool replace=true);
+    FilePath&		setEmpty();
+    FilePath&		erase();
 						//!< !replace => add
     bool		exists() const;
 

@@ -35,6 +35,18 @@ SurveyDiskLocation::SurveyDiskLocation( const char* dirnm, const char* bp )
 }
 
 
+SurveyDiskLocation::SurveyDiskLocation( const OD::String& dirnm,
+					const char* bp )
+    : SurveyDiskLocation(dirnm.buf(),bp)
+{}
+
+
+SurveyDiskLocation::SurveyDiskLocation( const OD::String& dirnm,
+					const OD::String& bp )
+    : SurveyDiskLocation(dirnm.buf(),bp.buf())
+{}
+
+
 SurveyDiskLocation::SurveyDiskLocation( const FilePath& fp )
 {
     set( fp );
@@ -90,19 +102,28 @@ BufferString SurveyDiskLocation::dirName( bool trysi ) const
 }
 
 
-void SurveyDiskLocation::set( const char* fullpath )
+SurveyDiskLocation& SurveyDiskLocation::set( const char* fullpath )
 {
     if ( !fullpath || !*fullpath )
 	setEmpty();
     else
 	set( FilePath(fullpath) );
+
+    return *this;
 }
 
 
-void SurveyDiskLocation::set( const FilePath& fp )
+SurveyDiskLocation& SurveyDiskLocation::set( const OD::String& fullpath )
+{
+    return set( fullpath.buf() );
+}
+
+
+SurveyDiskLocation& SurveyDiskLocation::set( const FilePath& fp )
 {
     basepath_ = fp.pathOnly();
     dirname_ = fp.fileName();
+    return *this;
 }
 
 

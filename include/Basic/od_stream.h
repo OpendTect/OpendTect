@@ -102,6 +102,7 @@ protected:
 
 			od_stream();
 			od_stream(const char*,bool,bool editmode=false);
+			od_stream(const OD::String&,bool,bool editmode=false);
 			od_stream(const FilePath&,bool,bool editmode=false);
 			od_stream(const OS::MachineCommand&,const char* workdir,
 				  bool editmode=false);

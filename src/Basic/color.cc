@@ -618,17 +618,18 @@ static const ColorDescriptionData cColDD[] = {
 };
 
 
-static const char* getApproxDesc( const char* nm )
+static const OD::String& getApproxDesc( const char* nm )
 {
     mDeclStaticString( ret );
     ret = "~";
     ret += nm;
-    return ret.buf();
+    return ret;
 }
 
 
-const char* Color::getDescription() const
+const OD::String& Color::getDescription() const
 {
+    mDeclStaticString( ret );
     int minsqdist = 16581376; int minidx = -1;
     for ( int idx=0; idx<cNrColDD; idx++ )
     {
@@ -638,12 +639,16 @@ const char* Color::getDescription() const
 	const int bdist = b() - cdd.b_;
 	const int distsq = rdist*rdist + gdist*gdist + bdist*bdist;
 	if ( distsq < 4 )
-	    return distsq ? getApproxDesc(cdd.nm_) : cdd.nm_;
+	{
+	    ret = distsq ? getApproxDesc(cdd.nm_) : cdd.nm_;
+	    return ret;
+	}
 	else if ( distsq < minsqdist )
 	    { minsqdist = distsq; minidx = idx; }
     }
 
-    return getApproxDesc( cColDD[minidx].nm_ );
+    ret = getApproxDesc( cColDD[minidx].nm_ );
+    return ret;
 }
 
 
@@ -708,7 +713,7 @@ const TypeSet<Color>& Color::descriptionCenters()
 { return *cols.createIfNull( descCenterCreator ); }
 
 
-const char* Color::largeUserInfoString() const
+const OD::String& Color::largeUserInfoString() const
 {
     mDeclStaticString( ret );
 
@@ -731,7 +736,7 @@ const char* Color::largeUserInfoString() const
 	ret.add( "%" );
     }
 
-    return ret.buf();
+    return ret;
 }
 
 }

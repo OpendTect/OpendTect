@@ -18,7 +18,8 @@ mExpClass(Basic) od_istrstream : public od_istream
 {
 public:
 
-    			od_istrstream(const char*);
+			od_istrstream(const char*);
+			~od_istrstream();
 
     const char*		input() const;
 
@@ -33,7 +34,8 @@ mExpClass(Basic) od_ostrstream : public od_ostream
 {
 public:
 
-    			od_ostrstream();
+			od_ostrstream();
+			~od_ostrstream();
 
     const char*		result() const;
 

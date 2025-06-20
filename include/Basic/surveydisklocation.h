@@ -33,7 +33,12 @@ mExpClass(Basic) SurveyDiskLocation
 {
 public:
 			SurveyDiskLocation(); //!< current
-			SurveyDiskLocation(const char* dirnm,const char* bp=0);
+			SurveyDiskLocation(const char* dirnm,
+					   const char* bp=nullptr);
+			SurveyDiskLocation(const OD::String& dirnm,
+					   const char* bp=nullptr);
+			SurveyDiskLocation(const OD::String& dirnm,
+					   const OD::String& bp);
 			SurveyDiskLocation(const FilePath& fulldir);
 			SurveyDiskLocation(const SurveyDiskLocation&);
 			~SurveyDiskLocation();
@@ -48,8 +53,9 @@ public:
     BufferString	dirName(bool trysi=true) const;
     void		setDirName( const char* dn )	{ dirname_ = dn; }
 
-    void		set(const char* fullpath);
-    void		set(const FilePath&);
+    SurveyDiskLocation& set(const char* fullpath);
+    SurveyDiskLocation& set(const OD::String& fullpath);
+    SurveyDiskLocation& set(const FilePath&);
     BufferString	fullPath(bool trysi=true) const;
     BufferString	surveyName() const;
     BufferString	fullPathFor(const char* fnm) const;

@@ -24,19 +24,17 @@ mExpClass(Basic) od_ostream : public od_stream
 {
 public:
 
-			od_ostream()				{}
-			od_ostream( const char* fnm, bool useexist=false )
-			    : od_stream(fnm,true,useexist)	{}
-			od_ostream( const FilePath& fp, bool useexist=false )
-			    : od_stream(fp,true,useexist)	{}
-			od_ostream( const OS::MachineCommand& mc,
-				    const char* workdir=nullptr )
-			    : od_stream(mc,workdir,true)	{}
-			od_ostream( std::ostream* s )
-			    : od_stream(s)			{}
-			od_ostream( std::ostream& s )
-			    : od_stream(s)			{}
+			od_ostream();
+			od_ostream(const char* fnm,bool useexist=false);
+			od_ostream(const OD::String& fnm,bool useexist=false);
+			od_ostream(const FilePath& fp,bool useexist=false);
+			od_ostream(const OS::MachineCommand& mc,
+				   const char* workdir=nullptr);
+			od_ostream(std::ostream*);
+			od_ostream(std::ostream&);
 			od_ostream(od_ostream&&);
+			~od_ostream();
+
     od_ostream&		operator=(od_ostream&&);
 
     bool		open(const char*,bool useexist=false);
@@ -98,11 +96,7 @@ private:
 
 
 //!< common access to the user log file, or std::cout in other than od_main
-inline od_ostream& od_cout()
-{
-    return od_ostream::logStream();
-}
-
+mGlobal(Basic) od_ostream& od_cout();
 
 //!< Never redirected
 mGlobal(Basic) od_ostream& od_cerr();
