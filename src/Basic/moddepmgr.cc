@@ -194,7 +194,17 @@ void OD::ModDepMgr::ensureLoaded( const char* nm ) const
 	using ModuleInitFn = void(*)(void);
 	ModuleInitFn fn = (ModuleInitFn)sla->getFunction( fnnm );
 	if ( fn )
+	{
 	    (*fn)();
+	}
+	else if ( fnnm.startsWith(prefix_) )
+	{
+	    const BufferString curprefix( prefix.buf(), "_" );
+	    fnnm.replace( curprefix.buf(), "od_" );
+	    fn = (ModuleInitFn)sla->getFunction( fnnm );
+	    if ( fn )
+		(*fn)();
+	}
     }
 }
 
