@@ -682,7 +682,8 @@ mExternC(Basic) const char* GetSetupShareFileName( const char* fnm,
     else
     {
 	ret.setEmpty();
-	if ( lt == ODSetupLoc_SWDirPref || lt == ODSetupLoc_SWDirOnly )
+	if ( lt == ODSetupLoc_ApplSetupPref ||
+	     lt == ODSetupLoc_SWDirPref || lt == ODSetupLoc_SWDirOnly )
 	{
 	    for ( const auto* dir : OD::getCustomShareDirs() )
 	    {
