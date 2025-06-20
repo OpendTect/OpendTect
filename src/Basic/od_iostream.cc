@@ -316,6 +316,12 @@ od_istream::od_istream( const OD::String& fnm )
 {}
 
 
+od_istream::od_istream( od_istream&& o )
+{
+    sd_ = std::move( o.sd_ );
+}
+
+
 od_istream& od_istream::operator=( od_istream&& o )
 {
     sd_ = std::move( o.sd_ );
@@ -612,6 +618,12 @@ od_istream& od_cin()
 od_ostream::od_ostream( const OD::String& fnm, bool useexist )
     : od_ostream(fnm.buf(),useexist)
 {}
+
+
+od_ostream::od_ostream( od_ostream&& o )
+{
+    sd_ = std::move( o.sd_ );
+}
 
 
 od_ostream& od_ostream::operator=( od_ostream&& o )
