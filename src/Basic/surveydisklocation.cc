@@ -35,6 +35,18 @@ SurveyDiskLocation::SurveyDiskLocation( const char* dirnm, const char* bp )
 }
 
 
+SurveyDiskLocation::SurveyDiskLocation( const OD::String& dirnm,
+					const char* bp )
+    : SurveyDiskLocation(dirnm.buf(),bp)
+{}
+
+
+SurveyDiskLocation::SurveyDiskLocation( const OD::String& dirnm,
+					const OD::String& bp )
+    : SurveyDiskLocation(dirnm.buf(),bp.buf())
+{}
+
+
 SurveyDiskLocation::SurveyDiskLocation( const FilePath& fp )
 {
     set( fp );
@@ -96,6 +108,12 @@ void SurveyDiskLocation::set( const char* fullpath )
 	setEmpty();
     else
 	set( FilePath(fullpath) );
+}
+
+
+void SurveyDiskLocation::set( const OD::String& fullpath )
+{
+    set( fullpath.buf() );
 }
 
 

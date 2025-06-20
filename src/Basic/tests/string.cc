@@ -7,16 +7,37 @@ ________________________________________________________________________
 
 -*/
 
-#include "nrbytes2string.h"
-#include "testprog.h"
 #include "bufstringset.h"
-#include "stringbuilder.h"
-#include "iopar.h"
 #include "dbkey.h"
+#include "iopar.h"
+#include "nrbytes2string.h"
+#include "perthreadrepos.h"
+#include "stringbuilder.h"
+#include "testprog.h"
 
 #ifdef __win__
 # include "windows.h"
 #endif
+
+
+static const char* getStringUsingBuf()
+{
+    mDeclStaticString(ret);
+    if ( ret.isEmpty() )
+	ret.add( "Some content" );
+
+    return ret.str();
+}
+
+
+static const OD::String& getStringFromRef()
+{
+    mDeclStaticString(ret);
+    if ( ret.isEmpty() )
+	ret.add( "Some content" );
+
+    return ret;
+}
 
 
 #undef mRunTest
@@ -557,6 +578,26 @@ bool testGetFromString()
 }
 
 
+bool testStaticString()
+{
+    FilePath fp1;
+    fp1.set( getStringUsingBuf() );
+    mRunStandardTest( !fp1.isEmpty(),
+		      "Static const char* to buf" );
+
+    FilePath fp2;
+    fp2.set( getStringFromRef().buf() );
+    mRunStandardTest( !fp2.isEmpty(), "Static buf of const OD::String& to buf");
+
+    //new syntax
+    FilePath fp3;
+    fp3.set( getStringFromRef() );
+    mRunStandardTest( !fp3.isEmpty(), "Static const OD::String& to buf" );
+
+    return true;
+}
+
+
 int mTestMainFnName( int argc, char** argv )
 {
     mInitTestProg();
@@ -575,7 +616,8 @@ int mTestMainFnName( int argc, char** argv )
       || !testLimFToStringFns()
       || !testEmptyStringComparison()
       || !testStringContentType()
-      || !testGetFromString() )
+      || !testGetFromString()
+      || !testStaticString() )
 	return 1;
 
     BufferStringSet strs;

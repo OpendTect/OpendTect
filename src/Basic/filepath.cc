@@ -32,6 +32,11 @@ FilePath::FilePath( const char* fnm )
 }
 
 
+FilePath::FilePath( const OD::String& fnm )
+    : FilePath(fnm.buf())
+{}
+
+
 FilePath::FilePath( const char* p1, const char* p2, const char* p3,
 		    const char* p4, const char* p5 )
 {
@@ -41,12 +46,40 @@ FilePath::FilePath( const char* p1, const char* p2, const char* p3,
 }
 
 
+FilePath::FilePath( const OD::String& p1, const char* p2, const char* p3,
+		    const char* p4, const char* p5 )
+    : FilePath(p1.buf(),p2,p3,p4,p5)
+{
+}
+
+
+FilePath::FilePath( const char* p1, const OD::String& p2, const char* p3,
+		    const char* p4, const char* p5 )
+    : FilePath(p1,p2.buf(),p3,p4,p5)
+{
+}
+
+
+FilePath::FilePath( const OD::String& p1, const OD::String& p2, const char* p3,
+		    const char* p4, const char* p5 )
+    : FilePath(p1.buf(),p2.buf(),p3,p4,p5)
+{
+}
+
+
 FilePath::FilePath( const FilePath& fp, const char* p2, const char* p3,
 		    const char* p4, const char* p5 )
 {
     *this = fp;
     addPart( p2 ); addPart( p3 ); addPart( p4 ); addPart( p5 );
     compress();
+}
+
+
+FilePath::FilePath( const FilePath& fp, const OD::String& p2, const char* p3,
+		    const char* p4, const char* p5 )
+    : FilePath(fp,p2.buf(),p3,p4,p5)
+{
 }
 
 
@@ -67,7 +100,15 @@ FilePath& FilePath::operator =( const FilePath& oth )
 
 
 FilePath& FilePath::operator =( const char* fnm )
-{ return (*this = FilePath(fnm)); }
+{
+    return operator=( FilePath(fnm) );
+}
+
+
+FilePath& FilePath::operator =( const OD::String& fnm )
+{
+    return operator=( FilePath(fnm.buf()) );
+}
 
 
 bool FilePath::operator ==( const FilePath& oth ) const
@@ -154,7 +195,13 @@ BufferString FilePath::getShortPath( const char* longpath,
 }
 
 
-FilePath& FilePath::set( const char* inpfnm )
+FilePath& FilePath::setEmpty()
+{
+    return erase();
+}
+
+
+FilePath& FilePath::erase()
 {
     lvls_.erase();
     prefix_.setEmpty();
@@ -162,6 +209,19 @@ FilePath& FilePath::set( const char* inpfnm )
     domain_.setEmpty();
     isabs_ = false;
     isuri_ = false;
+    return *this;
+}
+
+
+FilePath& FilePath::set( const OD::String& inpfnm )
+{
+    return set( inpfnm.buf() );
+}
+
+
+FilePath& FilePath::set( const char* inpfnm )
+{
+    erase();
     if ( !inpfnm || !*inpfnm )
 	return *this;
 

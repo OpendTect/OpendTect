@@ -82,6 +82,11 @@ HostData::HostData( const char* nm )
 { init( nm ); }
 
 
+HostData::HostData( const OD::String& nm )
+    : HostData(nm.buf())
+{}
+
+
 HostData::HostData( const char* nm, const OD::Platform& plf )
     : platform_(plf)
 { init( nm ); }
@@ -92,6 +97,12 @@ HostData::HostData( const char* nm, const HostData& localhost,
     : platform_(plf)
     , localhd_(&localhost)
 { init( nm ); }
+
+
+HostData::HostData( const OD::String& nm, const HostData& localhost,
+		    const OD::Platform& plf )
+    : HostData(nm.buf(),localhost,plf)
+{}
 
 
 HostData::HostData( const HostData& oth )
@@ -346,8 +357,17 @@ static FilePath getReplacePrefix( const FilePath& dir_,
 FilePath HostData::convPath( PathType pt, const FilePath& fp,
 			     const HostData* from ) const
 {
-    if ( !from ) from = &localHost();
+    if ( !from )
+	from = &localHost();
+
     return getReplacePrefix( fp, from->prefixFilePath(pt), prefixFilePath(pt) );
+}
+
+
+FilePath HostData::convPath( PathType pt, const OD::String& fnm,
+			     const HostData* from ) const
+{
+    return convPath(pt, FilePath(fnm), from );
 }
 
 

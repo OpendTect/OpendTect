@@ -30,48 +30,6 @@ const char* od_stream::sStdIO()		{ return StreamProvider::sStdIO(); }
 const char* od_stream::sStdErr()	{ return StreamProvider::sStdErr(); }
 
 
-od_istream& od_istream::nullStream()
-{
-    mDefineStaticLocalObject( PtrMan<od_istream>, ret, = nullptr );
-    if ( !ret )
-    {
-#ifdef __win__
-	auto* newret = new od_istream( "NUL" );
-#else
-	auto* newret = new od_istream( "/dev/null" );
-#endif
-	newret->setNoClose();
-	ret.setIfNull(newret,true);
-    }
-    return *ret;
-}
-
-
-od_ostream& od_ostream::nullStream()
-{
-    mDefineStaticLocalObject( PtrMan<od_ostream>, ret, = nullptr );
-    if ( !ret )
-    {
-#ifdef __win__
-	auto* newret = new od_ostream( "NUL" );
-#else
-	auto* newret = new od_ostream( "/dev/null" );
-#endif
-	newret->setNoClose();
-
-	ret.setIfNull(newret,true);
-    }
-    return *ret;
-}
-
-namespace OD { extern Export_Basic od_ostream& logMsgStrm(); }
-
-od_ostream& od_ostream::logStream()
-{
-    return OD::logMsgStrm();
-}
-
-
 static bool isCommand( const char* nm )
 {
     if ( !nm || !*nm )
@@ -90,23 +48,10 @@ static bool isCommand( const char* nm )
 }
 
 
+// od_stream
 
 od_stream::od_stream()
-{
-}
-
-
-od_istream::od_istream( od_istream&& o )
-{
-    sd_ = std::move( o.sd_ );
-}
-
-
-od_istream& od_istream::operator=( od_istream&& o )
-{
-    sd_ = std::move( o.sd_ );
-    return *this;
-}
+{}
 
 
 od_stream::od_stream( const char* fnm, bool forwrite, bool useexist )
@@ -126,8 +71,13 @@ od_stream::od_stream( const char* fnm, bool forwrite, bool useexist )
 }
 
 
+od_stream::od_stream( const OD::String& fnm, bool forwrite, bool useexist )
+    : od_stream(fnm.buf(),forwrite,useexist)
+{}
+
+
 od_stream::od_stream( const FilePath& fp, bool forwrite, bool useexist )
-    : od_stream( fp.fullPath(), forwrite, useexist )
+    : od_stream(fp.fullPath(),forwrite,useexist)
 {}
 
 
@@ -195,12 +145,6 @@ bool od_stream::isBad() const
 }
 
 
-bool od_istream::atEOF() const
-{
-    return !sd_.iStrm() || sd_.iStrm()->eof();
-}
-
-
 uiString od_stream::errMsg() const
 {
     if ( errmsg_.isEmpty() )
@@ -235,8 +179,6 @@ void od_stream::addErrMsgTo( uiRetVal& uirv ) const
     if ( !msg.isEmpty() )
 	uirv.add( msg );
 }
-
-
 
 
 bool od_stream::setFromCommand( const OS::MachineCommand& mc,
@@ -278,54 +220,6 @@ void od_stream::setPosition( od_stream::Pos pos, od_stream::Ref ref )
 }
 
 
-void od_istream::setReadPosition( od_stream::Pos pos, od_stream::Ref ref )
-{
-    if ( sd_.iStrm() )
-    {
-	if ( ref == Abs )
-	    StrmOper::seek( *sd_.iStrm(), pos );
-	else if ( ref == Rel && pos >= 0 )
-	    sd_.iStrm()->ignore( pos );
-	else
-	    StrmOper::seek( *sd_.iStrm(), pos, getSeekdir(ref) );
-    }
-}
-
-
-void od_ostream::setWritePosition( od_stream::Pos pos, od_stream::Ref ref )
-{
-    if ( sd_.oStrm() )
-    {
-	if ( ref == Abs )
-	    StrmOper::seek( *sd_.oStrm(), pos );
-	else
-	    StrmOper::seek( *sd_.oStrm(), pos, getSeekdir(ref) );
-    }
-}
-
-
-od_stream::Pos od_istream::endPosition() const
-{
-    const Pos curpos = position();
-    od_istream& self = *const_cast<od_istream*>( this );
-    self.setReadPosition( 0, End );
-    const Pos ret = position();
-    self.setReadPosition( curpos, Abs );
-    return ret;
-}
-
-
-od_stream::Pos od_ostream::lastWrittenPosition() const
-{
-    const Pos curpos = position();
-    od_ostream& self = *const_cast<od_ostream*>( this );
-    self.setWritePosition( 0, End );
-    const Pos ret = position();
-    self.setWritePosition( curpos, Abs );
-    return ret;
-}
-
-
 const char* od_stream::fileName() const
 {
     if ( sd_.fileName() )
@@ -359,7 +253,7 @@ bool od_stream::forWrite() const
 bool od_stream::isLocal() const
 {
     std::streambuf* sb = sd_.iStrm() ? sd_.iStrm()->rdbuf()
-		      : (sd_.oStrm() ? sd_.oStrm()->rdbuf() : 0);
+		      : (sd_.oStrm() ? sd_.oStrm()->rdbuf() : nullptr);
     if ( !sb )
 	return true;
 
@@ -385,72 +279,10 @@ BufferString od_stream::noStdStreamPErrMsg() const
 }
 
 
-std::istream& od_istream::stdStream()
-{
-    if ( sd_.iStrm() )
-	return *sd_.iStrm();
-
-    BufferString msg( noStdStreamPErrMsg(), "\nFile " );
-    const BufferString fnm( sd_.fileName() );
-    if ( fnm.isEmpty() || !File::exists(fnm) )
-	msg.add( "does not exist.\n" );
-    else
-	msg.add( "exists.\n" );
-    pErrMsg( msg );
-    return nullStream().stdStream();
-}
-
-
-std::ostream& od_ostream::stdStream()
-{
-    if ( sd_.oStrm() )
-	return *sd_.oStrm();
-    pErrMsg( noStdStreamPErrMsg() );
-    return nullStream().stdStream();
-}
-
-
-od_istream& od_cin()
-{
-    mDefineStaticLocalObject( PtrMan<od_istream>, ret, = nullptr );
-    if ( !ret )
-    {
-	auto* newret = new od_istream( std::cin );
-	newret->setNoClose();
-	ret.setIfNull(newret,true);
-    }
-    return *ret;
-}
-
-
-bool od_istream::open( const char* fnm )
-{
-    sd_ = OD::FileSystemAccess::get( fnm ).createIStream( fnm );
-    return isOK();
-}
-
-
-bool od_istream::reOpen()
-{
-    if ( noclose_ )
-	return true;
-
-    close();
-    return open( fileName() );
-}
-
-
-bool od_ostream::open( const char* fnm, bool useexist )
-{
-    sd_ = OD::FileSystemAccess::get( fnm ).createOStream( fnm, true, useexist );
-    return isOK();
-}
-
-
 od_stream* od_stream::create( const char* fnm, bool forread,
 			      uiString& errmsg )
 {
-    od_stream* ret = 0;
+    od_stream* ret = nullptr;
     if ( !fnm || !*fnm )
     {
 	if ( forread )
@@ -470,17 +302,55 @@ od_stream* od_stream::create( const char* fnm, bool forread,
     {
 	errmsg = uiStrings::phrCannotOpen( fnm, forread );
 	ret->addErrMsgTo( errmsg );
-	delete ret; return 0;
+	delete ret; return nullptr;
     }
 
     return ret;
 }
 
 
-void od_ostream::flush()
+// od_istream
+
+od_istream::od_istream( const OD::String& fnm )
+    : od_istream(fnm.buf())
+{}
+
+
+od_istream& od_istream::operator=( od_istream&& o )
 {
-    if ( sd_.oStrm() )
-	sd_.oStrm()->flush();
+    sd_ = std::move( o.sd_ );
+    return *this;
+}
+
+
+bool od_istream::atEOF() const
+{
+    return !sd_.iStrm() || sd_.iStrm()->eof();
+}
+
+
+void od_istream::setReadPosition( od_stream::Pos pos, od_stream::Ref ref )
+{
+    if ( sd_.iStrm() )
+    {
+	if ( ref == Abs )
+	    StrmOper::seek( *sd_.iStrm(), pos );
+	else if ( ref == Rel && pos >= 0 )
+	    sd_.iStrm()->ignore( pos );
+	else
+	    StrmOper::seek( *sd_.iStrm(), pos, getSeekdir(ref) );
+    }
+}
+
+
+od_stream::Pos od_istream::endPosition() const
+{
+    const Pos curpos = position();
+    od_istream& self = *const_cast<od_istream*>( this );
+    self.setReadPosition( 0, End );
+    const Pos ret = position();
+    self.setReadPosition( curpos, Abs );
+    return ret;
 }
 
 
@@ -488,7 +358,41 @@ od_stream::Count od_istream::lastNrBytesRead() const
 {
     if ( sd_.iStrm() )
 	return StrmOper::lastNrBytesRead( *sd_.iStrm() );
+
     return 0;
+}
+
+
+std::istream& od_istream::stdStream()
+{
+    if ( sd_.iStrm() )
+	return *sd_.iStrm();
+
+    BufferString msg( noStdStreamPErrMsg(), "\nFile " );
+    const BufferString fnm( sd_.fileName() );
+    if ( fnm.isEmpty() || !File::exists(fnm) )
+	msg.add( "does not exist.\n" );
+    else
+	msg.add( "exists.\n" );
+    pErrMsg( msg );
+    return nullStream().stdStream();
+}
+
+
+bool od_istream::open( const char* fnm )
+{
+    sd_ = OD::FileSystemAccess::get( fnm ).createIStream( fnm );
+    return isOK();
+}
+
+
+bool od_istream::reOpen()
+{
+    if ( noclose_ )
+	return true;
+
+    close();
+    return open( fileName() );
 }
 
 
@@ -566,59 +470,9 @@ while ( true ) \
 return rv
 
 
-#define mImplStrmAddFn(typ,tostrm) \
-od_ostream& od_ostream::add( typ t ) \
-{ \
-    mAddWithRetry( strm << tostrm, *this ); \
-}
-
-#define mImplStrmAddPreciseFn(typ,tostrm) \
-od_ostream& od_ostream::addPrecise( typ t ) \
-{ \
-    mAddWithRetry( strm << tostrm, *this ); \
-}
-
 #define mImplNumberGetFn(typ) \
 od_istream& od_istream::get( typ& t ) \
 { getNumberWithRetry(*this,t,errmsg_); return *this; }
-
-#define mImplSimpleAddGetFnsNoConv(typ) \
-    mImplStrmAddFn(typ,t) mImplNumberGetFn(typ)
-#define mImplSimpleAddGetFns(typ) \
-    mImplStrmAddFn(typ,toString(t)) mImplNumberGetFn(typ)
-#define mImplSimpleAddGetFnsFP(typ) \
-    mImplStrmAddFn(typ,toStringPrecise(t)) mImplNumberGetFn(typ)
-#define mImplPreciseAddFn(typ) \
-    mImplStrmAddPreciseFn(typ,toStringPrecise(t))
-
-mImplSimpleAddGetFnsNoConv(char)
-mImplSimpleAddGetFnsNoConv(unsigned char)
-mImplSimpleAddGetFns(od_int16)
-mImplSimpleAddGetFns(od_uint16)
-mImplSimpleAddGetFns(od_int32)
-mImplSimpleAddGetFns(od_uint32)
-mImplSimpleAddGetFns(od_int64)
-mImplSimpleAddGetFns(od_uint64)
-
-#ifdef __lux64__
-mImplSimpleAddGetFnsNoConv(long long)
-mImplSimpleAddGetFnsNoConv(unsigned long long)
-#else
-mImplSimpleAddGetFnsNoConv(long)
-mImplSimpleAddGetFnsNoConv(unsigned long)
-#endif
-
-mImplSimpleAddGetFnsFP(float)
-mImplSimpleAddGetFnsFP(double)
-mImplPreciseAddFn(float)
-mImplPreciseAddFn(double)
-
-mImplStrmAddFn(const char*,t)
-
-od_ostream& od_ostream::add( const OD::String& ods )
-    { return ods.str() ? add( ods.str() ) : *this; }
-od_ostream& od_ostream::add( const uiString& ods )
-    { return ods.isSet() ? add( ods.getFullString() ) : *this; }
 
 
 od_istream& od_istream::getC( char* str, int sz, int maxnrch )
@@ -647,57 +501,30 @@ bool od_istream::getBin( void* buf, od_stream::Count nrbytes )
 }
 
 
-od_ostream::od_ostream( od_ostream&& o )
-{
-    sd_ = std::move( o.sd_ );
-}
-
-
-od_ostream& od_ostream::operator=( od_ostream&& o )
-{
-    if ( mine_ && !noclose_ )
-	sd_.close();
-    sd_ = std::move( o.sd_ );
-    return *this;
-}
-
-
-bool od_ostream::addBin( const void* buf, od_stream::Count nrbytes )
-{
-    return nrbytes <= 0 || !buf ? true
-	: StrmOper::writeBlock( stdStream(), buf, nrbytes );
-}
-
-
-od_ostream& od_ostream::add( const void* ptr )
-{
-    pErrMsg( "od_ostream::add(void*) called. If intentional, use addPtr" );
-    return addPtr( ptr );
-}
-
-
-od_ostream& od_ostream::addPtr( const void* ptr )
-{
-    if ( ptr )
-	{ mAddWithRetry( strm << ((const int*)ptr), *this ); }
-    else
-	{ mAddWithRetry( strm << "(null)", *this ); }
-}
-
-
-od_ostream& od_ostream::add( od_istream& strm )
-{
-    char c;
-    while ( strm.getBin(&c,1) && isOK())
-	addBin( &c, 1 );
-
-    return *this;
-}
-
-
 bool od_istream::getWord( BufferString& bs, bool allownl )
 {
     return StrmOper::readWord( stdStream(), allownl, &bs );
+}
+
+
+od_istream& od_istream::get( SeparString& ss )
+{
+    BufferString bs; get( bs ); ss = bs.buf();
+    return *this;
+}
+
+
+od_istream& od_istream::get( CompoundKey& ck )
+{
+    BufferString bs; get( bs ); ck = bs.buf();
+    return *this;
+}
+
+
+od_istream& od_istream::get( IOPar& iop )
+{
+    ascistream astrm( *this, false );
+    mGetWithRetry( iop.getFrom( astrm ), *this );
 }
 
 
@@ -753,11 +580,139 @@ bool od_istream::skipLine()
 }
 
 
-od_istream& od_istream::get( IOPar& iop )
+od_istream& od_istream::nullStream()
 {
-    ascistream astrm( *this, false );
-    mGetWithRetry( iop.getFrom( astrm ), *this );
+    mDefineStaticLocalObject( PtrMan<od_istream>, ret, = nullptr );
+    if ( !ret )
+    {
+	auto* newret = new od_istream( __iswin__ ? "NUL" : "/dev/null" );
+	newret->setNoClose();
+	ret.setIfNull(newret,true);
+    }
+
+    return *ret;
 }
+
+
+od_istream& od_cin()
+{
+    mDefineStaticLocalObject( PtrMan<od_istream>, ret, = nullptr );
+    if ( !ret )
+    {
+	auto* newret = new od_istream( std::cin );
+	newret->setNoClose();
+	ret.setIfNull(newret,true);
+    }
+    return *ret;
+}
+
+
+// od_ostream
+
+od_ostream::od_ostream( const OD::String& fnm, bool useexist )
+    : od_ostream(fnm.buf(),useexist)
+{}
+
+
+od_ostream& od_ostream::operator=( od_ostream&& o )
+{
+    if ( mine_ && !noclose_ )
+	sd_.close();
+    sd_ = std::move( o.sd_ );
+    return *this;
+}
+
+
+std::ostream& od_ostream::stdStream()
+{
+    if ( sd_.oStrm() )
+	return *sd_.oStrm();
+    pErrMsg( noStdStreamPErrMsg() );
+    return nullStream().stdStream();
+}
+
+
+bool od_ostream::open( const char* fnm, bool useexist )
+{
+    sd_ = OD::FileSystemAccess::get( fnm ).createOStream( fnm, true, useexist );
+    return isOK();
+}
+
+
+void od_ostream::flush()
+{
+    if ( sd_.oStrm() )
+	sd_.oStrm()->flush();
+}
+
+
+void od_ostream::setWritePosition( od_stream::Pos pos, od_stream::Ref ref )
+{
+    if ( sd_.oStrm() )
+    {
+	if ( ref == Abs )
+	    StrmOper::seek( *sd_.oStrm(), pos );
+	else
+	    StrmOper::seek( *sd_.oStrm(), pos, getSeekdir(ref) );
+    }
+}
+
+
+od_stream::Pos od_ostream::lastWrittenPosition() const
+{
+    const Pos curpos = position();
+    od_ostream& self = *const_cast<od_ostream*>( this );
+    self.setWritePosition( 0, End );
+    const Pos ret = position();
+    self.setWritePosition( curpos, Abs );
+    return ret;
+}
+
+
+bool od_ostream::addBin( const void* buf, od_stream::Count nrbytes )
+{
+    return nrbytes <= 0 || !buf ? true
+	: StrmOper::writeBlock( stdStream(), buf, nrbytes );
+}
+
+
+od_ostream& od_ostream::add( const void* ptr )
+{
+    pErrMsg( "od_ostream::add(void*) called. If intentional, use addPtr" );
+    return addPtr( ptr );
+}
+
+
+od_ostream& od_ostream::addPtr( const void* ptr )
+{
+    if ( ptr )
+	{ mAddWithRetry( strm << ((const int*)ptr), *this ); }
+    else
+	{ mAddWithRetry( strm << "(null)", *this ); }
+}
+
+
+od_ostream& od_ostream::add( od_istream& strm )
+{
+    char c;
+    while ( strm.getBin(&c,1) && isOK())
+	addBin( &c, 1 );
+
+    return *this;
+}
+
+
+od_ostream& od_ostream::add( const OD::String& ods )
+{
+    return ods.str() ? add( ods.str() ) : *this;
+}
+
+
+od_ostream& od_ostream::add( const uiString& ods )
+{
+    return ods.isSet() ? add( ods.getFullString() ) : *this;
+}
+
 
 od_ostream& od_ostream::add( const IOPar& iop )
 {
@@ -766,29 +721,90 @@ od_ostream& od_ostream::add( const IOPar& iop )
 }
 
 
+#define mImplStrmAddFn(typ,tostrm) \
+od_ostream& od_ostream::add( typ t ) \
+{ \
+    mAddWithRetry( strm << tostrm, *this ); \
+}
+
+#define mImplStrmAddPreciseFn(typ,tostrm) \
+od_ostream& od_ostream::addPrecise( typ t ) \
+{ \
+    mAddWithRetry( strm << tostrm, *this ); \
+}
+
+#define mImplSimpleAddGetFnsNoConv(typ) \
+    mImplStrmAddFn(typ,t) mImplNumberGetFn(typ)
+#define mImplSimpleAddGetFns(typ) \
+    mImplStrmAddFn(typ,toString(t)) mImplNumberGetFn(typ)
+#define mImplSimpleAddGetFnsFP(typ) \
+    mImplStrmAddFn(typ,toStringPrecise(t)) mImplNumberGetFn(typ)
+#define mImplPreciseAddFn(typ) \
+    mImplStrmAddPreciseFn(typ,toStringPrecise(t))
+
+mImplSimpleAddGetFnsNoConv(char)
+mImplSimpleAddGetFnsNoConv(unsigned char)
+mImplSimpleAddGetFns(od_int16)
+mImplSimpleAddGetFns(od_uint16)
+mImplSimpleAddGetFns(od_int32)
+mImplSimpleAddGetFns(od_uint32)
+mImplSimpleAddGetFns(od_int64)
+mImplSimpleAddGetFns(od_uint64)
+
+#ifdef __lux64__
+mImplSimpleAddGetFnsNoConv(long long)
+mImplSimpleAddGetFnsNoConv(unsigned long long)
+#else
+mImplSimpleAddGetFnsNoConv(long)
+mImplSimpleAddGetFnsNoConv(unsigned long)
+#endif
+
+mImplSimpleAddGetFnsFP(float)
+mImplSimpleAddGetFnsFP(double)
+mImplPreciseAddFn(float)
+mImplPreciseAddFn(double)
+
+mImplStrmAddFn(const char*,t)
 mImplStrmAddFn(const SeparString&,t.buf())
-od_istream& od_istream::get( SeparString& ss )
-{
-    BufferString bs; get( bs ); ss = bs.buf();
-    return *this;
-}
-
 mImplStrmAddFn(const CompoundKey&,t.buf())
-od_istream& od_istream::get( CompoundKey& ck )
-{
-    BufferString bs; get( bs ); ck = bs.buf();
-    return *this;
-}
-
 mImplStrmAddFn(const MultiID&,t.toString().buf())
 
 
+od_ostream& od_ostream::nullStream()
+{
+    mDefineStaticLocalObject( PtrMan<od_ostream>, ret, = nullptr );
+    if ( !ret )
+    {
+	auto* newret = new od_ostream( __iswin__ ? "NUL" : "/dev/null" );
+	newret->setNoClose();
+	ret.setIfNull(newret,true);
+    }
+
+    return *ret;
+}
+
+
+namespace OD { extern Export_Basic od_ostream& logMsgStrm(); }
+
+od_ostream& od_ostream::logStream()
+{
+    return OD::logMsgStrm();
+}
+
+
+od_ostream& od_cerr()
+{
+    mDefineStaticLocalObject( PtrMan<od_ostream>, cerr,
+			      = new od_ostream( std::cerr ) );
+    return *cerr;
+}
+
 
 // od_istrstream
+
 od_istrstream::od_istrstream( const char* str )
     : od_istream(new std::istringstream(str))
-{
-}
+{}
 
 
 const char* od_istrstream::input() const
@@ -812,10 +828,10 @@ void od_istrstream::setInput( const char* inp )
 
 
 // od_ostrstream
+
 od_ostrstream::od_ostrstream()
     : od_ostream(new std::ostringstream)
-{
-}
+{}
 
 
 const char* od_ostrstream::result() const
@@ -835,12 +851,4 @@ void od_ostrstream::setEmpty()
     strm.str( "" );
     strm.clear();
     errmsg_.setEmpty();
-}
-
-
-od_ostream& od_cerr()
-{
-    mDefineStaticLocalObject( PtrMan<od_ostream>, cerr,
-			     (new od_ostream( std::cerr )) );
-    return *cerr;
 }

@@ -27,6 +27,7 @@ public:
 			od_ostream()				{}
 			od_ostream( const char* fnm, bool useexist=false )
 			    : od_stream(fnm,true,useexist)	{}
+			od_ostream(const OD::String& fnm,bool useexist=false);
 			od_ostream( const FilePath& fp, bool useexist=false )
 			    : od_stream(fp,true,useexist)	{}
 			od_ostream( const OS::MachineCommand& mc,
