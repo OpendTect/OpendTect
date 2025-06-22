@@ -210,6 +210,8 @@ int ODMain( uiMain& app )
 
     uiDialog::setTitlePos( uiDialog::LeftSide );
 
+    PtrMan<ApplicationData> bapp = new ApplicationData();
+
     const CommandLineParser clp;
     uiRetVal uirv = IOMan::setDataSource( clp );
     mIfIOMNotOK( return 1 )
@@ -228,20 +230,20 @@ int ODMain( uiMain& app )
     SetProgramRestarter( ODMainProgramRestarter );
     const BufferString pmfnm = GetSWSetupShareFileName( "splash.png" );
     const uiPixmap pixmap( pmfnm.buf() );
-    uiSplashScreen splash( pixmap );
-    splash.show();
-    splash.showMessage( "Loading plugins ..." );
+    PtrMan<uiSplashScreen> splash = new uiSplashScreen( pixmap );
+    splash->show();
+    splash->showMessage( "Loading plugins ..." );
 
     PIM().loadAuto( false, !skippluginsel );
     OD::ModDeps().ensureLoaded( "uiODMain" );
     PtrMan<uiODMain> odmain = new uiODMain( app );
     manODMainWin( odmain.ptr(), true );
-    splash.finish( odmain.ptr() );
 
     PIM().loadAuto( true, !skippluginsel );
 
-    splash.showMessage( "Initializing Scene ..." );
+    splash->showMessage( "Initializing Scene ..." );
     odmain->initScene();
+    splash = nullptr;
     odmain->setActivateOnFirstShow();
 
     return odmain->go() ? 0 : 1;
@@ -726,8 +728,7 @@ void uiODMain::memTimerCB( CallBacker* )
 
 bool uiODMain::go()
 {
-    if ( failed_ )
-	return false;
+    if ( failed_ ) return false;
 
     show();
 
@@ -768,7 +769,7 @@ bool uiODMain::askStore( bool& askedanything, const uiString& actiontype )
 							    true, actiontype) )
 		return false;
 
-    bool doask = false;
+	bool doask = false;
     Settings::common().getYN( "dTect.Ask store session", doask );
     if ( doask && hasSessionChanged() )
     {
