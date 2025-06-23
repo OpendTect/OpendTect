@@ -11,6 +11,7 @@ ________________________________________________________________________
 
 #include "applicationdata.h"
 #include "commandlineparser.h"
+#include "debug.h"
 #include "filepath.h"
 #include "ioman.h"
 #include "keystrs.h"
@@ -248,18 +249,24 @@ void ServiceMgrBase::stopServer( bool islocal )
     {
         if ( islocal )
         {
-            if ( localserver_ )
-                pFDebugMsg( DGB_SERVICES,
-                    BufferString( "Stopping listening to: ",
-                        getAuthority( true ).toString() ) );
+            if ( localserver_ && DBG::isOn(DGB_SERVICES) && !IsExiting() )
+	    {
+		DBG::message( DGB_SERVICES,
+			BufferString( "Stopping listening to: ",
+			    getAuthority( true ).toString() ) );
+	    }
+
 	    deleteAndNullPtr( localserver_ );
         }
         else
         {
-            if ( tcpserver_ )
-                pFDebugMsg( DGB_SERVICES,
-                    BufferString( "Stopping listening to: ",
-                        getAuthority( false ).toString() ) );
+            if ( tcpserver_ && DBG::isOn(DGB_SERVICES) && !IsExiting() )
+	    {
+		DBG::message( DGB_SERVICES,
+			BufferString( "Stopping listening to: ",
+			    getAuthority( false ).toString() ) );
+	    }
+
 	    deleteAndNullPtr( tcpserver_ );
         }
     }
