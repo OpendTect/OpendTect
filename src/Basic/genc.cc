@@ -65,7 +65,7 @@ ________________________________________________________________________
 
 static BufferString		initialdir_;
 static int			argc_ = -1;
-static std::unique_ptr<char*>	argv_ = nullptr;
+static std::unique_ptr<char*[]>	argv_;
 static bool			needdataroot_ = true;
 int& GetArgC()			{ return argc_; }
 char** GetArgV()		{ return argv_.get(); }
@@ -875,7 +875,7 @@ mExtern(Basic) bool SetProgramArgs( int argc, char** argv, bool ddrequired )
     if ( argv != argv_.get() )
     {
 	argc_ = argc;
-	argv_ = std::unique_ptr<char*>( new char*[argc_] );
+	argv_ = std::make_unique<char*[]>(argc_);
 	char** newargv = argv_.get();
 	for ( int idx=0; idx<argc_; idx++ )
 	    newargv[idx] = argv[idx];
