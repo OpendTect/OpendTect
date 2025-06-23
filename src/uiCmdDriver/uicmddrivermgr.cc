@@ -59,10 +59,7 @@ uiCmdDriverMgr::uiCmdDriverMgr( bool fullodmode )
     mAttachCB( drv_->executeFinished, uiCmdDriverMgr::executeFinishedCB );
 
     if ( !applwin_.finalized() )
-    {
 	mAttachCB( applwin_.postFinalize(), uiCmdDriverMgr::delayedStartCB );
-	mAttachCB( tim_->tick, uiCmdDriverMgr::timerCB );
-    }
 }
 
 
@@ -245,12 +242,14 @@ void uiCmdDriverMgr::initCmdLog( const char* cmdlognm )
 
 void uiCmdDriverMgr::delayedStartCB( CallBacker* )
 {
+    mAttachCB( tim_->tick, uiCmdDriverMgr::timerCB );
     tim_->start( 500, true );
 }
 
 
 void uiCmdDriverMgr::timerCB( CallBacker* )
 {
+    mDetachCB( tim_->tick, uiCmdDriverMgr::timerCB );
     int bufsize = 0;
     mSettUse( get, "dTect", "User history buffer", bufsize );
     if ( bufsize )
