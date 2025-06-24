@@ -23,6 +23,7 @@ ________________________________________________________________________
 #include "genc.h"
 #include "keystrs.h"
 #include "debug.h"
+#include "moddepmgr.h"
 #include "ptrman.h"
 #include "od_ostream.h"
 #include "odruncontext.h"
@@ -66,6 +67,7 @@ static inline CommandLineParser& clParser()
     od_init_test_program( argc, argv, withdataroot ); \
     the_testprog_parser_ = new CommandLineParser; \
     quiet_ = clParser().hasKey( sKey::Quiet() ); \
+    OD::ModDeps().ensureLoaded( "Basic" ); \
 
 # define mInitCompositeTestProg(mod) \
     mTestProgInits(); \
