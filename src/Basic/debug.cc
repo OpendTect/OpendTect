@@ -18,7 +18,6 @@ ________________________________________________________________________
 #include "keystrs.h"
 #include "legal.h"
 #include "math2.h"
-#include "moddepmgr.h"
 #include "msgh.h"
 #include "od_ostream.h"
 #include "odcomplex.h"
@@ -130,8 +129,6 @@ void od_init_test_program( int argc, char** argv, bool withdatabase )
 
     signal( SIGSEGV, od_test_prog_crash_handler );
     DBG::setCrashOnProgError( true );
-
-    OD::ModDeps().ensureLoaded( "Basic" );
 }
 
 
