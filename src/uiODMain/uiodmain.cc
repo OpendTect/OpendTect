@@ -68,10 +68,19 @@ ________________________________________________________________________
 #include "timer.h"
 #include "visdata.h"
 
+#include <QTimer>
+
 
 extern "C"
 {
-    mGlobal(uiTools) bool doProductSelection(bool&,uiRetVal&);
+    mGlobal(uiTools) bool doProductSelection(bool&,uiDialog*&,uiRetVal&);
+}
+
+
+extern "C++"
+{
+    mGlobal(uiODMain) void ODMain(std::unique_ptr<uiDialog>&,
+				  std::unique_ptr<uiODMain>&);
 }
 
 
@@ -203,50 +212,94 @@ void ODMainProgramRestarter()
 }
 
 
-int ODMain( uiMain& app )
+mExternCPP(uiODMain) void ODMain( std::unique_ptr<uiDialog>& prodseldlgman,
+				  std::unique_ptr<uiODMain>& odmain )
 {
     OD::ModDeps().ensureLoaded( "AllNonUi" );
     OD::ModDeps().ensureLoaded( "uiIo" );
 
     uiDialog::setTitlePos( uiDialog::LeftSide );
 
-    PtrMan<ApplicationData> bapp = new ApplicationData();
-
-    const CommandLineParser clp;
-    uiRetVal uirv = IOMan::setDataSource( clp );
-    mIfIOMNotOK( return 1 )
-
-    checkScreenRes();
-    uirv.setOK();
-    bool skippluginsel = false;
-    if ( !doProductSelection(skippluginsel,uirv) )
+    auto closedhandler = std::make_shared<LambdaCallBacker>();
+    auto starthandler = std::make_shared<LambdaCallBacker>();
+    auto prodselnotif = std::make_shared<Notifier<uiDialog>>( nullptr );
+    auto skippluginsel = std::make_shared<bool>( false );
+    QTimer::singleShot(0, [&prodseldlgman,closedhandler,starthandler,
+			   prodselnotif,skippluginsel]
     {
-	if ( !uirv.isOK() )
-	    uiMSG().error( uirv );
+	uiMain& app = uiMain::instance();
+	const CommandLineParser clp;
+	uiRetVal uirv = IOMan::setDataSource( clp );
+	mIfIOMNotOK( { app.exit(1); return; } )
 
-	return 1;
-    }
+	checkScreenRes();
+	(*skippluginsel) = false;
+	uiDialog* prodseldlg = nullptr;
+	uirv.setOK();
+	if ( !doProductSelection((*skippluginsel),prodseldlg,uirv) )
+	{
+	    closeAndNullPtr( prodseldlg );
+	    if ( !uirv.isOK() )
+		uiMSG().error( uirv );
 
-    SetProgramRestarter( ODMainProgramRestarter );
-    const BufferString pmfnm = GetSWSetupShareFileName( "splash.png" );
-    const uiPixmap pixmap( pmfnm.buf() );
-    PtrMan<uiSplashScreen> splash = new uiSplashScreen( pixmap );
-    splash->show();
-    splash->showMessage( "Loading plugins ..." );
+	    app.exit(1);
+	    return;
+	}
 
-    PIM().loadAuto( false, !skippluginsel );
-    OD::ModDeps().ensureLoaded( "uiODMain" );
-    PtrMan<uiODMain> odmain = new uiODMain( app );
-    manODMainWin( odmain.ptr(), true );
+	if ( prodseldlg && !(*skippluginsel) )
+	{
+	    prodseldlgman.reset( prodseldlg );
+	    prodseldlg->setDeleteOnClose( false );
+	    closedhandler->set( [&prodseldlgman,closedhandler,
+				 starthandler,prodselnotif]()
+	    {
+		uiDialog* seldlg = prodseldlgman.get();
+		const bool accepted = seldlg->uiResult() == uiDialog::Accepted;
+		closedhandler->detachCB( seldlg->windowClosed );
+		seldlg->close();
+		if ( accepted )
+		    prodselnotif->trigger();
+		else
+		    uiMain::instance().exit(1);
 
-    PIM().loadAuto( true, !skippluginsel );
+		return;
+	    });
 
-    splash->showMessage( "Initializing Scene ..." );
-    odmain->initScene();
-    splash = nullptr;
-    odmain->setActivateOnFirstShow();
+	    closedhandler->attachCB( prodseldlg->windowClosed );
+	    prodseldlg->show();
+	}
+	else
+	    prodselnotif->trigger();
+    });
 
-    return odmain->go() ? 0 : 1;
+    starthandler->set( [&,starthandler,prodselnotif,skippluginsel]()
+    {
+	starthandler->detachCB( *prodselnotif.get() );
+	prodseldlgman.reset( nullptr );
+
+	SetProgramRestarter( ODMainProgramRestarter );
+	const BufferString pmfnm = GetSWSetupShareFileName( "splash.png" );
+	const uiPixmap pixmap( pmfnm.buf() );
+	uiSplashScreen splash( pixmap );
+	splash.show();
+	uiMain::instance().processEvents();
+	splash.showMessage( "Loading plugins ..." );
+
+	PIM().loadAuto( false, !(*skippluginsel) );
+	OD::ModDeps().ensureLoaded( "uiODMain" );
+	odmain = std::make_unique<uiODMain>( uiMain::instance() );
+	manODMainWin( odmain.get(), true );
+
+	PIM().loadAuto( true, !(*skippluginsel) );
+
+	splash.showMessage( "Initializing Scene ..." );
+	odmain->initScene();
+	odmain->setActivateOnFirstShow();
+	odmain->go();
+	splash.finish( odmain.get() );
+    });
+
+    starthandler->attachCB( *prodselnotif.get() );
 }
 
 
@@ -726,18 +779,19 @@ void uiODMain::memTimerCB( CallBacker* )
 }
 
 
-bool uiODMain::go()
+void uiODMain::go()
 {
-    if ( failed_ ) return false;
+    if ( failed_ )
+    {
+	uiapp_.exit(1);
+	return;
+    }
 
     show();
 
     Timer tm( "Handle startup session" );
     mAttachCB( tm.tick, uiODMain::afterSurveyChgCB );
     tm.start( 200, true );
-
-    const int rv = uiapp_.exec();
-    return rv ? false : true;
 }
 
 
@@ -979,7 +1033,7 @@ void uiODMain::restart( bool withinteraction, bool doconfirm )
 }
 
 
-void uiODMain::exit( bool withinteraction, bool doconfirm )
+void uiODMain::exit( bool withinteraction, bool doconfirm, int retcode )
 {
     if ( withinteraction || doconfirm )
     {
@@ -987,7 +1041,7 @@ void uiODMain::exit( bool withinteraction, bool doconfirm )
 	    return;
     }
 
-    uiapp_.exit(0);
+    uiapp_.exit( retcode );
 }
 
 

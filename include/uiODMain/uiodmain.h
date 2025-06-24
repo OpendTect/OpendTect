@@ -43,9 +43,10 @@ public:
 			uiODMain(uiMain&);
 			~uiODMain();
 
-    bool		go();
+    void		go();
     void		restart(bool interact=true,bool doconfirm=true);
-    void		exit(bool interact=true,bool doconfirm=true);
+    void		exit(bool interact=true,bool doconfirm=true,
+			     int retcode=0);
 
     uiODApplMgr&	applMgr()	{ return *applmgr_; }
     uiODMenuMgr&	menuMgr()	{ return *menumgr_; } //!< + toolbar
@@ -116,10 +117,7 @@ protected:
 
 private:
 
-    mGlobal(uiODMain) friend int ODMain(uiMain&);
-
     bool		buildUI();
-    void		initScene();
 
     CtxtIOObj*		getUserSessionIOData(bool);
     bool		updateSession();
@@ -145,6 +143,7 @@ private:
 
 public:
 
+    void		initScene();
     bool		sceneMgrAvailable() const	{ return scenemgr_; }
     bool		menuMgrAvailable() const	{ return menumgr_; }
     bool		viewer2DMgrAvailable() const	{ return viewer2dmgr_; }
