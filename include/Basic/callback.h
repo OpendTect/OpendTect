@@ -258,9 +258,12 @@ public:
 mExpClass(Basic) LambdaCallBacker : public CallBacker
 {
 public:
-				LambdaCallBacker(std::function<void()>);
+				LambdaCallBacker();
+    explicit			LambdaCallBacker(std::function<void()>);
 				~LambdaCallBacker();
 
+    void			set(std::function<void()>);
+    void			clear();
     bool			attachCB(const NotifierAccess&,
 					 bool onlyifnew=false) const;
     void			detachCB(const NotifierAccess&) const;

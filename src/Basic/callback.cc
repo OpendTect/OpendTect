@@ -386,6 +386,10 @@ bool CallBacker::notifyShutdown( const NotifierAccess* na, bool wait ) const
 
 //---- LambdaCallBacker
 
+LambdaCallBacker::LambdaCallBacker()
+{}
+
+
 LambdaCallBacker::LambdaCallBacker( std::function<void()> fn )
     : fnptr_(std::make_shared<std::function<void()>>(std::move(fn)))
 {}
@@ -397,9 +401,15 @@ LambdaCallBacker::~LambdaCallBacker()
 }
 
 
-CallBack LambdaCallBacker::cb() const
+void LambdaCallBacker::set( std::function<void()> fn )
 {
-    return mCB(getNonConst(this),LambdaCallBacker,call);
+    fnptr_ = std::make_shared<std::function<void()>>( std::move(fn) );
+}
+
+
+void LambdaCallBacker::clear()
+{
+    fnptr_.reset();
 }
 
 
@@ -412,6 +422,12 @@ bool LambdaCallBacker::attachCB( const NotifierAccess& na,bool onlyifnew ) const
 void LambdaCallBacker::detachCB( const NotifierAccess& na ) const
 {
     CallBacker::detachCB( na, cb() );
+}
+
+
+CallBack LambdaCallBacker::cb() const
+{
+    return mCB(getNonConst(this),LambdaCallBacker,call);
 }
 
 
