@@ -396,7 +396,8 @@ bool uiPluginMan::rejectOK( CallBacker* )
 
 static SharedLibAccess* prodloader_ = nullptr;
 
-static bool doBasicProdSelFn( bool& skippluginsel, uiRetVal& msgs )
+static bool doBasicProdSelFn( bool& skippluginsel, uiDialog*& /* seldlg */,
+			      uiRetVal& msgs )
 {
     BufferString libnm( 256, false );
     SharedLibAccess::getLibName( "uidGBTools", libnm.getCStr(),libnm.bufSize());
@@ -418,6 +419,7 @@ static bool doBasicProdSelFn( bool& skippluginsel, uiRetVal& msgs )
 	    msgs.add( toUiString(prodloader_->errMsg()) );
 	    prodloader_->close();
 	}
+
 	deleteAndNullPtr( prodloader_ );
 	return false;
     }
@@ -431,34 +433,35 @@ static bool doBasicProdSelFn( bool& skippluginsel, uiRetVal& msgs )
 	msgs.add( od_static_tr("doBasicProdSelFn",
 		    "Cannot load uidGBTools library") );
 
-    return preinitfn;
+    return (bool)preinitfn;
 }
 
 
-using boolFrombooluiRetValFn = bool(*)(bool&,uiRetVal&);
-static boolFrombooluiRetValFn prodselfn_ = doBasicProdSelFn;
+using boolFromboolDlguiRetValFn = bool(*)(bool&,uiDialog*&,uiRetVal&);
+static boolFromboolDlguiRetValFn prodselfn_ = doBasicProdSelFn;
 
-mGlobal(uiTools) void setGlobal_uiTools_Fns(boolFrombooluiRetValFn);
-void setGlobal_uiTools_Fns( boolFrombooluiRetValFn prodselfn )
+mGlobal(uiTools) void setGlobal_uiTools_Fns(boolFromboolDlguiRetValFn);
+void setGlobal_uiTools_Fns( boolFromboolDlguiRetValFn prodselfn )
 {
     prodselfn_ = prodselfn;
 }
 
 
 extern "C" {
-    mGlobal(uiTools) bool doProductSelection(bool&,uiRetVal&);
+    mGlobal(uiTools) bool doProductSelection(bool&,uiDialog*&,uiRetVal&);
 }
 
-mExternC(uiTools) bool doProductSelection( bool& skippluginsel,
+mExternC(uiTools) bool doProductSelection( bool& skippluginsel, uiDialog*& dlg,
 					   uiRetVal& msgs )
 {
-    if ( !doBasicProdSelFn(skippluginsel,msgs) )
+    if ( !doBasicProdSelFn(skippluginsel,dlg,msgs) )
 	return false;
 
     const bool res = prodselfn_ == doBasicProdSelFn
-		   ? true : (*prodselfn_)(skippluginsel,msgs);
+		   ? true : (*prodselfn_)( skippluginsel, dlg, msgs );
     if ( prodloader_ )
 	prodloader_->close();
+
     deleteAndNullPtr( prodloader_ );
 
     return res;

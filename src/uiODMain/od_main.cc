@@ -7,24 +7,28 @@ ________________________________________________________________________
 
 -*/
 
+#include "uiodmainmod.h"
+
 #include "prog.h"
 #include "envvars.h"
 #include "odver.h"
 #include "msgh.h"
 #include "stringview.h"
+#include "uidialog.h"
 #include "uimain.h"
+#include "uiodmain.h"
 
 #ifdef __mac__
-#include "envvars.h"
-#include "file.h"
-#include "filepath.h"
-#include "oddirs.h"
+# include "envvars.h"
+# include "file.h"
+# include "filepath.h"
+# include "oddirs.h"
 #endif
 
 #include <iostream>
 
-extern int ODMain(uiMain&);
-
+mGlobal(uiODMain) void ODMain(std::unique_ptr<uiDialog>&,
+			      std::unique_ptr<uiODMain>&);
 
 int mProgMainFnName( int argc, char** argv )
 {
@@ -51,5 +55,8 @@ int mProgMainFnName( int argc, char** argv )
     OD::SetGlobalLogFile( nullptr );
     std::cout << msg;
 
-    return ODMain( app );
+    std::unique_ptr<uiDialog> prodseldlg;
+    std::unique_ptr<uiODMain> odmain;
+    ODMain( prodseldlg, odmain );
+    return app.exec();
 }

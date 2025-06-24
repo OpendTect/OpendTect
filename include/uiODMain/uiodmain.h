@@ -43,9 +43,12 @@ public:
 			uiODMain(uiMain&);
 			~uiODMain();
 
+    mDeprecated("Use go_void, 'go' will become void in the next branch")
     bool		go();
+    void		go_void();
     void		restart(bool interact=true,bool doconfirm=true);
-    void		exit(bool interact=true,bool doconfirm=true);
+    void		exit(bool interact=true,bool doconfirm=true,
+			     int retcode=0);
 
     uiODApplMgr&	applMgr()	{ return *applmgr_; }
     uiODMenuMgr&	menuMgr()	{ return *menumgr_; } //!< + toolbar
@@ -116,7 +119,7 @@ protected:
 
 private:
 
-    mGlobal(uiODMain) friend int ODMain(uiMain&);
+    mGlobal(uiODMain) friend int ODMain(uiMain&); //deprecated
 
     bool		buildUI();
     void		initScene();
@@ -145,6 +148,7 @@ private:
 
 public:
 
+    void		initScene_()			{ initScene(); }
     bool		sceneMgrAvailable() const	{ return scenemgr_; }
     bool		menuMgrAvailable() const	{ return menumgr_; }
     bool		viewer2DMgrAvailable() const	{ return viewer2dmgr_; }
