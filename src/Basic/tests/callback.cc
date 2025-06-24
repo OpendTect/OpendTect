@@ -534,8 +534,9 @@ bool testLambdaCallback()
     mRunStandardTest( naccess->cbs_.isEmpty(), "CallBack set is empty" );
 
     int var = 0;
-    PtrMan<LambdaCallBacker> cbhandler = new LambdaCallBacker( [&var]() {
-	    var++;
+    PtrMan<LambdaCallBacker> cbhandler = new LambdaCallBacker( [&var]()
+    {
+	var++;
     });
 
     const CallBack cb = cbhandler->cb();
@@ -549,13 +550,29 @@ bool testLambdaCallback()
     mRunStandardTest( cbhandler->attachCB( *naccess ),
 		      "Lambda callback is attached" );
     notifier->notifier.trigger(); //Would normally be done outside
-    mRunStandardTest( var == 2, "Lambda callback has set var" );
+    mRunStandardTest( var == 2, "Lambda callback has set var to 2" );
     cbhandler->detachCB( *naccess ); //explicit detach
     mRunStandardTest( naccess->cbs_.isEmpty(), "CallBack set is empty" );
 
     mRunStandardTest( cbhandler->attachCB( *naccess ),
 		      "Lambda callback is attached a second time" );
     cbhandler = nullptr; //implicit detach (from destructor)
+
+     /* Here we define an empty lambda, attach it to the notifier, and only
+	thereafter set the actual lambda */
+    cbhandler = new LambdaCallBacker();
+    mRunStandardTest( cbhandler->attachCB( *naccess ),
+		      "Empty lambda callback is attached" );
+    notifier->notifier.trigger();
+    mRunStandardTest( var == 2, "Empty lambda callback does not change var" );
+    cbhandler->set( [&var]()
+    {
+	var++;
+    });
+    notifier->notifier.trigger();
+    mRunStandardTest( var == 3, "Lambda callback has set var to 3" );
+    cbhandler->detachCB( *naccess );
+
     notifier = nullptr;
 
     return true;
