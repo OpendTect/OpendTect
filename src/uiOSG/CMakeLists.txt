@@ -6,7 +6,7 @@
 #
 
 set( OD_MODULE_DEPS visSurvey uiTools )
-set( OD_FOLDER "Base (GUI)" )
+set( OD_FOLDER "Visualization (3D)" )
 set( OD_USEQT OpenGL )
 set( OD_USEOSG TRUE )
 
