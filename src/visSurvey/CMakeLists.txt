@@ -6,7 +6,7 @@
 #
 
 set( OD_MODULE_DEPS visBase EarthModel MPEEngine Well PreStackProcessing )
-set( OD_FOLDER "Base" )
+set( OD_FOLDER "Visualization (3D)" )
 
 set( OD_MODULE_SOURCES
 	initvissurvey.cc

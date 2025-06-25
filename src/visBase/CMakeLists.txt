@@ -6,7 +6,7 @@
 #
 
 set( OD_MODULE_DEPS Geometry )
-set( OD_FOLDER "Base" )
+set( OD_FOLDER "Visualization (3D)" )
 set( OD_USEOSG TRUE )
 
 set( OD_MODULE_SOURCES

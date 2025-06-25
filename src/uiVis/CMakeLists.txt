@@ -6,7 +6,7 @@
 #
 
 set( OD_MODULE_DEPS uiOSG uiMPE )
-set( OD_FOLDER "Base (GUI)" )
+set( OD_FOLDER "Visualization (3D)" )
 
 set( OD_MODULE_SOURCES
 	inituivis.cc
