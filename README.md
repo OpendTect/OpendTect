@@ -68,7 +68,7 @@ For the Qt install the following components must be selected depending on your b
 -  Extensions: Qt WebEngine (MSVC 2022 x64/Desktop)
 -  Optionally debug information files (recommended on Windows)
 -  Optionally Qt source code is available for all the versions in use:
-	- [Qt 6.9.1](https://dgbearthsciences.sharefile.com/public/share/web-scea7367143a64252a651d5da19352d81) : main
+	- [Qt 6.9.1](https://dgbearthsciences.sharefile.com/public/share/web-sf90c630af7624eeea3c2d455543377a9) : main
 	- [Qt 6.8.3](https://dgbearthsciences.sharefile.com/public/share/web-sad64fa4ce9974762a877a682d9d1a679) : od8.0
 	- [Qt 5.15.2](https://dgbearthsciences.sharefile.com/public/share/web-s519e08d71a7044b8934d9b0f2b4563eb) : od7.0
 
