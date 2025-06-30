@@ -88,7 +88,7 @@ uiMultiSurfaceRead::uiMultiSurfaceRead( uiParent* p, const char* typ,
 	uiIOObjSelGrp::Setup(OD::ChooseAtLeastOne).allowsetdefault(true) );
     mAttachCB( ioobjselgrp_->selectionChanged, uiMultiSurfaceRead::selCB );
     mAttachCB( ioobjselgrp_->getListField()->doubleClicked,
-						uiMultiSurfaceRead::dClck );
+		uiMultiSurfaceRead::doubleClickCB );
     mkRangeFld();
     rgfld_->attach( leftAlignedBelow, ioobjselgrp_ );
 
@@ -110,13 +110,23 @@ uiMultiSurfaceRead::~uiMultiSurfaceRead()
 }
 
 
-void uiMultiSurfaceRead::dClck( CallBacker* )
+void uiMultiSurfaceRead::doubleClickCB( CallBacker* )
 {
     singleSurfaceSelected.trigger();
 }
 
 
-void uiMultiSurfaceRead::selCB( CallBacker* cb )
+void uiMultiSurfaceRead::update()
+{
+    if ( !ioobjselgrp_ )
+	return;
+
+    const int sel = ioobjselgrp_->currentItem();
+    ioobjselgrp_->fullUpdate( sel );
+}
+
+
+void uiMultiSurfaceRead::selCB( CallBacker* )
 {
     if ( !rgfld_->mainObject() || !rgfld_->mainObject()->isDisplayed() ) return;
 

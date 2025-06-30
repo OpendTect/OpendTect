@@ -366,6 +366,7 @@ uiExportHorizon::uiExportHorizon( uiParent* p, bool isbulk )
     outfld_->attach( alignedBelow, udffld_ );
 
     mAttachCB( postFinalize(), uiExportHorizon::initGrpCB );
+    mAttachCB( this->afterPopup, uiExportHorizon::onPopupCB );
 }
 
 
@@ -382,6 +383,16 @@ void uiExportHorizon::initGrpCB( CallBacker* )
 	zDomainTypeChg( nullptr );
     else
 	inpSel( nullptr );
+}
+
+
+void uiExportHorizon::onPopupCB( CallBacker* )
+{
+    if ( isbulk_ )
+    {
+	multisurfdepthread_->update();
+	multisurftimeread_->update();
+    }
 }
 
 

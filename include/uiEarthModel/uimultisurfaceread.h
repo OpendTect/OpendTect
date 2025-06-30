@@ -25,6 +25,7 @@ public:
 				const ZDomain::Info*);
 			~uiMultiSurfaceRead();
 
+    void		update();
     uiIOObjSelGrp*	objselGrp()		{ return ioobjselgrp_;}
 
     void		getSurfaceIds(TypeSet<MultiID>&) const;
@@ -36,7 +37,7 @@ protected:
 
     uiIOObjSelGrp*	ioobjselgrp_;
 
-    void                dClck(CallBacker*);
+    void		doubleClickCB(CallBacker*);
     void		selCB(CallBacker*);
 };
 
