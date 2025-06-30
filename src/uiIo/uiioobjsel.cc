@@ -251,7 +251,7 @@ void uiIOObjSel::init()
 						     setup_.trsnotallwed_ );
 	extselbuts_.add( insertbut );
 	for ( auto* inserter : inserters_ )
-	    mAttachCB( inserter->objInserterd, uiIOObjSel::objInserted );
+	    mAttachCB( inserter->objInserted, uiIOObjSel::objInserted );
     }
 
     if ( !workctio_.ctxt_.forread_ && setup_.withwriteopts_ )

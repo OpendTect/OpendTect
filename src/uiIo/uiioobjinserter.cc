@@ -23,7 +23,7 @@ ________________________________________________________________________
 mImplFactory(uiIOObjInserter,uiIOObjInserter::factory);
 
 uiIOObjInserter::uiIOObjInserter( const Translator& trl )
-    : objInserterd(this)
+    : objInserted(this)
     , transl_(trl)
     , ctxt_(*new IOObjContext(nullptr))
 {}
@@ -101,8 +101,6 @@ uiButton* uiIOObjInserter::createInsertButton( uiParent* p,
 	    delete inserter;
 	    continue;
 	}
-
-
 
 	inserter->setIOObjCtxt( ctio.ctxt_ );
 	uiToolButtonSetup* tbsu = inserter->getButtonSetup();

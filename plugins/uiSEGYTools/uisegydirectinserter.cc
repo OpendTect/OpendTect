@@ -9,11 +9,10 @@ ________________________________________________________________________
 
 #include "uisegydirectinserter.h"
 
-#include "ioman.h"
 #include "segydirecttr.h"
 #include "seis2dlineio.h"
+
 #include "uibutton.h"
-#include "uimainwin.h"
 #include "uimsg.h"
 #include "uisegyreadstarter.h"
 #include "uistrings.h"
@@ -67,7 +66,7 @@ void uiSEGYDirectVolInserter::startScan( CallBacker* cb )
     if ( outky.isUdf() )
 	return;
 
-    objInserterd.trigger( outky );
+    objInserted.trigger( outky );
 }
 
 
@@ -125,7 +124,7 @@ void uiSEGYDirect2DInserter::startScan( CallBacker* cb )
     if ( outky.isUdf() )
 	return;
 
-    objInserterd.trigger(outky);
+    objInserted.trigger(outky);
 }
 
 
@@ -183,7 +182,7 @@ void uiSEGYDirectPS3DInserter::startScan( CallBacker* cb )
     if ( outky.isUdf() )
 	return;
 
-    objInserterd.trigger(outky);
+    objInserted.trigger(outky);
 }
 
 

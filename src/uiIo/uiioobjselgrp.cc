@@ -609,7 +609,7 @@ void uiIOObjSelGrp::mkManipulators()
     uiButton* but = uiIOObjInserter::createInsertButton( listfld_, ctio_,
 							inserters_, nms );
     for ( auto* inserter : inserters_ )
-	mAttachCB( inserter->objInserterd, uiIOObjSelGrp::objInserted );
+	mAttachCB( inserter->objInserted, uiIOObjSelGrp::objInserted );
 
     if ( but )
 	but->attach( centeredLeftOf, listfld_->box() );

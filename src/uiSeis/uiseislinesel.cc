@@ -50,7 +50,7 @@ uiSeis2DLineChoose::uiSeis2DLineChoose( uiParent* p, OD::ChoiceMode cm )
 	uiButton* but = uiIOObjInserter::createInsertButton( this, *ctio,
 							     inserters_, nms );
 	for ( auto* inserter : inserters_ )
-	    mAttachCB(inserter->objInserterd, uiSeis2DLineChoose::objInserted );
+	    mAttachCB(inserter->objInserted, uiSeis2DLineChoose::objInserted );
 
 	but->attach( centeredLeftOf, listfld_ );
     }
