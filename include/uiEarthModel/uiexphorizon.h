@@ -57,6 +57,7 @@ protected:
     void		writeHeader(od_ostream&);
     void		zDomainTypeChg(CallBacker*);
     void		initGrpCB(CallBacker*);
+    void		onPopupCB(CallBacker*);
 
     bool		writeAscii();
     bool		getInputMIDs(TypeSet<MultiID>&);
