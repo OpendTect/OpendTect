@@ -57,3 +57,10 @@ uiFuncDrawerBase* uiODFunctionDisplayServer::createFunctionDrawer( uiParent* p,
 {
     return new uiFunctionDrawer( p, su );
 }
+
+
+uiMultiFuncDispBase* uiODFunctionDisplayServer::createMultiFunctionDisplay(
+			uiParent* p, const uiMultiFuncDispBase::Setup& su )
+{
+    return nullptr;
+}

@@ -211,3 +211,106 @@ protected:
 
     virtual void		addPoint(const Geom::PointF&);
 };
+
+
+mExpClass(uiTools) FunctionPlotData : public NamedObject
+{
+public:
+    enum PlotType		{ Line, Scatter };
+
+				FunctionPlotData(const char* nm,PlotType typ);
+				~FunctionPlotData();
+
+    TypeSet<float>		xvals_;
+    TypeSet<float>		yvals_;
+    OD::LineStyle		linestyle_;	// For Line
+    MarkerStyle2D		markerstyle_;	// For Scatter
+    BufferString		callouttext_;
+    bool			isvisible_	= true;
+    PlotType			type_;
+};
+
+
+/*!\brief Base class for 2D function displays that can handle multiple X-Y
+ * functions simultaneously, as along as the X and Y domains remain the same
+ * for each of the functions. Each function can be plotted as either
+ * a Line or a Scetter.  */
+
+mExpClass(uiTools) uiMultiFuncDispBase
+{
+public:
+
+    struct Setup
+    {
+				Setup()
+				    : xrg_(mUdf(float),mUdf(float))
+				    , yrg_(mUdf(float),mUdf(float))
+				    , bgcol_(OD::Color::White())
+				    , border_(20,20,20,10)
+				    , borderstyle_(OD::LineStyle()) {}
+
+	mDefSetupMemb(Interval<float>,xrg)	//!< if fixed start or end
+	mDefSetupMemb(Interval<float>,yrg)	//!< if fixed start or end
+	mDefSetupMemb(OD::Color,bgcol)		//!< Canvas background
+	mDefSetupMemb(uiBorder,border)
+	mDefSetupMemb(OD::LineStyle,borderstyle)
+	mDefSetupMembInit(bool,fixdrawrg,true)
+	mDefSetupMembInit(int,canvaswidth,400)
+	mDefSetupMembInit(int,canvasheight,250)
+	mDefSetupMembInit(bool,annotx,true)
+	mDefSetupMembInit(bool,annoty,true)
+	mDefSetupMembInit(bool,noxaxis,false)
+	mDefSetupMembInit(bool,noyaxis,false)
+	mDefSetupMembInit(bool,noxgridline,false)
+	mDefSetupMembInit(bool,noygridline,false)
+	mDefSetupMembInit(bool,drawborder,false)
+	mDefSetupMembInit(bool,xannotinint,false)
+	mDefSetupMembInit(bool,yannotinint,false)
+	mDefSetupMembInit(bool,showlegend,false)	//!< when supported
+	mDefSetupMembInit(bool,showcallout,false)	//!< when supported
+    };
+
+				uiMultiFuncDispBase(const Setup&);
+    virtual			~uiMultiFuncDispBase();
+
+    Setup&			setup()		{ return setup_; }
+
+    int				nrFunctions() const
+				{ return functions_.size(); }
+    virtual void		addFunction(FunctionPlotData*); // becomes mine
+    virtual void		removeFunction(const char* nm);
+
+    virtual bool		isVisible(const char* nm) const;
+    virtual void		setVisible(const char* nm,bool);
+
+    virtual void		setVals(int idx,const float* xvals,
+					const float* yvals,int sz);
+    virtual void		setVals(int idx,const Interval<float>&,
+					const float* yvals,int sz);
+
+    virtual void		setEmpty(); //!< clears all
+
+    uiAxisHandlerBase*		xAxis()		{ return  xax_; }
+    uiAxisHandlerBase*		yAxis()		{ return  yax_; }
+    const uiAxisHandlerBase*	xAxis() const	{ return  xax_; }
+    const uiAxisHandlerBase*	yAxis() const	{ return  yax_; }
+
+    virtual Geom::PointF	mapToPosition(const Geom::PointF&) = 0;
+    virtual Geom::PointF	mapToValue(const Geom::PointF&) = 0;
+
+    virtual void		setTitle(const uiString&) = 0;
+    virtual void		gatherInfo();
+    virtual void		draw() = 0;
+    virtual uiObject*		uiobj() = 0;
+
+protected:
+
+    Setup			setup_;
+
+    uiAxisHandlerBase*		xax_ = nullptr;
+    uiAxisHandlerBase*		yax_ = nullptr;
+
+    ManagedObjectSet<FunctionPlotData>	functions_;
+
+    int				indexOf(const char* nm) const;
+};
