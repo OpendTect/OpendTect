@@ -211,3 +211,191 @@ void uiFuncDispBase::addPoint( const Geom::PointF& pt )
 	}
     }
 }
+
+
+// FunctionPlotData
+FunctionPlotData::FunctionPlotData( const char* nm, PlotType typ )
+    : NamedObject(nm)
+    , type_(typ)
+{}
+
+
+FunctionPlotData::~FunctionPlotData()
+{}
+
+// uiMultiFuncDispBase
+
+uiMultiFuncDispBase::uiMultiFuncDispBase( const Setup& su )
+    : setup_(su)
+{}
+
+
+uiMultiFuncDispBase::~uiMultiFuncDispBase()
+{}
+
+
+void uiMultiFuncDispBase::addFunction( FunctionPlotData* newfunc )
+{
+    functions_.add( newfunc );
+}
+
+
+int uiMultiFuncDispBase::indexOf( const char* nm ) const
+{
+    int index = -1;
+    for ( int idx=0; idx<functions_.size(); idx++ )
+    {
+	if ( functions_[idx]->name() == nm )
+	{
+	    index = idx;
+	    break;
+	}
+    }
+
+    return index;
+}
+
+
+void uiMultiFuncDispBase::removeFunction( const char* nm )
+{
+    const int index = indexOf( nm );
+    if ( index < 0 )
+	return;
+
+    functions_.removeSingle( index );
+}
+
+
+bool uiMultiFuncDispBase::isVisible( const char* nm ) const
+{
+    const int index = indexOf( nm );
+    return functions_.validIdx(index) && functions_[index]->isvisible_;
+}
+
+
+void uiMultiFuncDispBase::setVisible( const char* nm, bool yn )
+{
+    const int index = indexOf( nm );
+    if ( functions_.validIdx(index) )
+    {
+	functions_[index]->isvisible_ = yn;
+	draw();
+    }
+}
+
+
+void uiMultiFuncDispBase::setVals( int funcidx, const float* xvals,
+				   const float* yvals, int sz )
+{
+    if ( !functions_.validIdx(funcidx) )
+	return;
+
+    FunctionPlotData& funcdata = *functions_.get( funcidx );
+    funcdata.xvals_.erase();
+    funcdata.yvals_.erase();
+    if ( sz > 0 )
+    {
+	for ( int idx=0; idx<sz; idx++ )
+	{
+	    if ( mIsUdf(xvals[idx]) || mIsUdf(yvals[idx]) )
+		continue;
+
+	    funcdata.xvals_ += xvals[idx];
+	    funcdata.yvals_ += yvals[idx];
+	}
+    }
+
+    gatherInfo();
+    draw();
+}
+
+
+void uiMultiFuncDispBase::setVals( int funcidx, const Interval<float>& xrg,
+				   const float* yv, int sz )
+{
+    if ( sz<0 )
+	return;
+
+    StepInterval<float> xint( xrg );
+    xint.step_ = (xrg.stop_-xrg.start_) / (sz-1);
+    float* xv = new float[sz];
+    for ( int idx=0; idx<sz; idx++ )
+	xv[idx] = xint.atIndex( idx );
+
+    setVals( funcidx, xv, yv, sz );
+    delete [] xv;
+}
+
+
+void uiMultiFuncDispBase::setEmpty()
+{
+    for ( auto* func : functions_ )
+    {
+	func->xvals_.erase();
+	func->yvals_.erase();
+    }
+}
+
+
+static void calcAxisRange( const TypeSet<float>& vals, Interval<float>& rg )
+{
+    for ( int idx=0; idx<vals.size(); idx++ )
+    {
+	if ( mIsUdf(vals[idx]) )
+	    continue;
+
+	rg.include( vals[idx], false );
+    }
+}
+
+
+void uiMultiFuncDispBase::gatherInfo()
+{
+    if ( !xax_ || !yax_ )
+	return;
+
+    bool calcxrg = true;
+    bool calcyrg = true;
+    Interval<float> xrg, yrg;
+    if ( setup_.fixdrawrg_ )
+    {
+	if ( !setup_.xrg_.isUdf() )
+	{
+	    xrg = setup_.xrg_;
+	    calcxrg = false;
+	}
+
+	if ( !setup_.yrg_.isUdf() )
+	{
+	    yrg = setup_.yrg_;
+	    calcyrg = false;
+	}
+
+	if ( !calcxrg && !calcyrg )
+	    return;
+    }
+
+    if ( calcxrg )
+    {
+	xrg.start_ = mUdf(float);
+	xrg.stop_ = -mUdf(float);
+    }
+
+    if ( calcyrg )
+    {
+	yrg.start_ = mUdf(float);
+	yrg.stop_ = -mUdf(float);
+    }
+
+    for ( const auto* func : functions_ )
+    {
+	if ( calcxrg )
+	    calcAxisRange( func->xvals_, xrg );
+
+	if ( calcyrg )
+	    calcAxisRange( func->yvals_, yrg );
+    }
+
+    xax_->setBounds( xrg );
+    yax_->setBounds( yrg );
+}

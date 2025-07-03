@@ -24,6 +24,8 @@ public:
 					const uiFuncDispBase::Setup&) = 0;
     virtual uiFuncDrawerBase*	createFunctionDrawer(uiParent*,
 					const uiFuncDrawerBase::Setup&) = 0;
+    virtual uiMultiFuncDispBase* createMultiFunctionDisplay(uiParent*,
+					const uiMultiFuncDispBase::Setup&) = 0;
 
     virtual bool	isBasic() const { return false; }
 };
@@ -39,6 +41,8 @@ public:
 				    const uiFuncDispBase::Setup&) override;
     uiFuncDrawerBase*	createFunctionDrawer(uiParent*,
 				    const uiFuncDrawerBase::Setup&) override;
+    uiMultiFuncDispBase* createMultiFunctionDisplay(uiParent*,
+				const uiMultiFuncDispBase::Setup&) override;
 
     bool		isBasic() const override	{ return true; }
 };
