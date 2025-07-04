@@ -274,3 +274,166 @@ void uiStratLvlList::editLevel( bool create )
     lvls.set( lvl );
     anychange_ = true;
 }
+
+
+uiRegMarkerList::uiRegMarkerList( uiParent* p )
+    : uiListBox(p,Setup(OD::ChooseOnlyOne,tr("Regional markers"),
+			uiListBox::AboveMid),"regionalmarkers")
+    , regMarkersRemoved(this)
+{
+    setStretch( 2, 2 );
+    setFieldWidth( 15 );
+
+    auto* grp = new uiButtonGroup( this, "Tools", OD::Vertical );
+    grp->attach( rightTo, box() );
+    new uiToolButton( grp, "remove", uiStrings::sRemove(),
+		      mCB(this,uiRegMarkerList,removeCB) );
+    new uiToolButton( grp, "clear", uiStrings::phrRemove(uiStrings::sAll()),
+		      mCB(this,uiRegMarkerList,removeAllCB) );
+
+    setHAlignObj( box() );
+    setHCenterObj( box() );
+    Strat::RegMarkerSet& regms = Strat::eRGMLVLS();
+    mAttachCB( regms.levelChanged, uiRegMarkerList::updateLevelCB );
+    mAttachCB( regms.levelAdded, uiRegMarkerList::levelAddedCB );
+    mAttachCB( regms.levelToBeRemoved, uiRegMarkerList::levelRemovedCB );
+    fill();
+}
+
+
+uiRegMarkerList::~uiRegMarkerList()
+{
+    detachAllNotifiers();
+}
+
+
+void uiRegMarkerList::fill()
+{
+    setEmpty();
+    fillStratLevels();
+    if ( isEmpty() )
+	addItem( toUiString("--- %1 ---").arg(uiStrings::sNone()) );
+
+    sortItems();
+}
+
+
+void uiRegMarkerList::fillStratLevels()
+{
+    const Strat::LevelSet& lvls = Strat::LVLS();
+    BufferStringSet lvlnms;
+    TypeSet<OD::Color> lvlcolors;
+    TypeSet<Strat::LevelID> lvlids;
+    for ( int idx=0; idx<lvls.size(); idx++ )
+    {
+	const Strat::Level lvl = lvls.getByIdx( idx );
+	lvlnms.add( lvl.name() );
+	lvlcolors += lvl.color();
+	lvlids += lvl.id();
+    }
+
+    for ( int idx=0; idx<lvlnms.size(); idx++ )
+	addItem( toUiString( lvlnms[idx]->buf()),
+		 lvlcolors[idx], lvlids[idx].asInt() );
+}
+
+
+void uiRegMarkerList::updateLevelCB( CallBacker* cb )
+{
+    mCBCapsuleUnpack( Strat::LevelID, regmid, cb );
+    if ( regmid.isUdf() || !Strat::RegMarker::isRegMarker(regmid) )
+	return;
+
+    const int idx = getItemIdx( regmid.asInt() );
+    if ( !validIdx(idx) )
+	return;
+
+    const Strat::RegMarker& regm = Strat::RGMLVLS().get( regmid );
+    removeItem( idx );
+    addRegMarker( regm );
+}
+
+
+void uiRegMarkerList::removeCB( CallBacker* cb )
+{
+    mCheckEmptyList;
+    uiString msg = tr("This will remove the selected Level.");
+    if ( !uiMSG().askRemove(msg) )
+	return;
+
+    Strat::RegMarkerSet& regmset = Strat::eRGMLVLS();
+    const char* regmnm = getText();
+    if ( !regmset.isPresent(regmnm) )
+    {
+	uiMSG().error( tr("The selected level appears to be a stratigraphy "
+			  "level. To remove it, please use the stratigraphy "
+			  "manager.") );
+	return;
+    }
+
+    const Strat::RegMarker& regm = regmset.getByName( regmnm );
+    if ( !Strat::RegMarker::isRegMarker(regm) || regm.isUndef() )
+	return;
+
+    regmset.remove( regm.id() );
+}
+
+
+void uiRegMarkerList::removeAllCB( CallBacker* cb )
+{
+    mCheckEmptyList;
+    uiString msg = tr("This will remove all the Regional Markers present in "
+		      "the list, do you want to continue ?");
+    if ( !uiMSG().askRemove(msg) )
+	return;
+
+    regMarkersRemoved.trigger();
+    Strat::eRGMLVLS().setEmpty();
+    fill();
+}
+
+
+void uiRegMarkerList::levelAddedCB( CallBacker* cb )
+{
+    mCBCapsuleUnpack( Strat::LevelID, regmid, cb );
+    if ( regmid.isUdf() || !Strat::RegMarker::isRegMarker(regmid) )
+	return;
+
+    const Strat::RegMarker& regm = Strat::RGMLVLS().get( regmid );
+    addRegMarker( regm );
+}
+
+
+void uiRegMarkerList::levelRemovedCB( CallBacker* cb )
+{
+    mCBCapsuleUnpack( Strat::LevelID, regmid, cb );
+    if ( regmid.isUdf() || !Strat::RegMarker::isRegMarker(regmid) )
+	return;
+
+    const Strat::RegMarker& regm = Strat::RGMLVLS().get( regmid );
+    removeRegMarker( regm );
+}
+
+
+void uiRegMarkerList::addRegMarker( const Strat::RegMarker& regm )
+{
+    const BufferString regmnm = regm.name();
+    if ( regmnm.isEmpty() )
+	return;
+
+    const OD::Color regmclr = regm.color();
+    if ( size()==1 && StringView(textOfItem(0))==StringView(sNoLevelTxt()) )
+	setEmpty();
+
+    addItem( toUiString(regmnm), regmclr, regm.id().asInt() );
+    sortItems();
+}
+
+
+void uiRegMarkerList::removeRegMarker( const Strat::RegMarker& regm )
+{
+    const int idx = indexOf( regm.name() );
+    removeItem( idx );
+    if ( isEmpty() )
+	addItem( toUiString("--- %1 ---").arg(uiStrings::sNone()) );
+}

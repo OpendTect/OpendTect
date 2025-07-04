@@ -17,6 +17,7 @@ set( OD_MODULE_SOURCES
 	uilaswriter.cc
 	uimnemonicsettings.cc
 	uimultiwelllogsel.cc
+	uiregmarkermgr.cc
 	uisimplemultiwell.cc
 	uiwelldahdisplay.cc
 	uiwelldisplay.cc

@@ -36,7 +36,9 @@ uiStratLevelSel::uiStratLevelSel( uiParent* p, bool withudf,
     mAttachCB( Strat::lvlSetMgr().curChanged, uiStratLevelSel::curSetChgCB );
     mAttachCB( Strat::eLVLS().setChanged, uiStratLevelSel::extChgCB );
     mAttachCB( Strat::eLVLS().levelAdded, uiStratLevelSel::extChgCB );
+    mAttachCB( Strat::eRGMLVLS().levelAdded, uiStratLevelSel::extChgCB );
     mAttachCB( Strat::eLVLS().levelToBeRemoved, uiStratLevelSel::extChgCB );
+    mAttachCB( Strat::eRGMLVLS().levelAdded, uiStratLevelSel::extChgCB );
     setStretch( 1, 0 );
     setHAlignObj( fld_ );
 }

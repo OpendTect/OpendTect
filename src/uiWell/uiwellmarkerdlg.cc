@@ -153,7 +153,7 @@ bool uiRegionalMarkersFromWellMarkersDlg::acceptOK( CallBacker* )
     for ( int idx=0; idx<selitems.size(); idx++ )
     {
 	const int selidx = selitems[idx];
-	if ( lvls.isPresent(mset_[selidx]->name()) )
+	if ( lvls.isPresent(mset_[selidx]->getDatabaseName()) )
 	{
 	    msg = tr( "'%1' %2" ).arg( mset_[selidx]->name() );
 	    mid++;
@@ -171,6 +171,7 @@ bool uiRegionalMarkersFromWellMarkersDlg::acceptOK( CallBacker* )
     }
 
     const int inpsz = mset_.size();
+    Strat::RegMarkerSet& regms = Strat::eRGMLVLS();
     for ( int idx=inpsz-1; idx>=0; idx-- )
     {
 	if ( !selitems.isPresent(idx) )
@@ -179,12 +180,12 @@ bool uiRegionalMarkersFromWellMarkersDlg::acceptOK( CallBacker* )
 	    continue;
 	}
 
-	const Strat::LevelID lvlid = lvls.add( mset_[idx]->name(),
-						 mset_[idx]->color() );
+	const Strat::LevelID lvlid = regms.add( mset_[idx]->name(),
+						mset_[idx]->color() );
 	mset_[idx]->setLevelID( lvlid );
     }
 
-    lvls.write();
+    regms.save();
     return true;
 }
 
