@@ -34,8 +34,8 @@ public:
 private:
 
     void			initDlg(CallBacker*);
-    bool			acceptOK(CallBacker*);
-    bool			rejectOK(CallBacker*);
+    bool			acceptOK(CallBacker*) override;
+    bool			rejectOK(CallBacker*) override;
 
     void			regMarkerSelectedCB(CallBacker*);
     void			regMarkerRemovedCB(CallBacker*);
@@ -128,7 +128,7 @@ public:
 
 private:
 
-    bool			acceptOK(CallBacker*);
+    bool			acceptOK(CallBacker*) override;
 
     uiListBox*			list_;
     BufferString		markernm_;
