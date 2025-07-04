@@ -877,7 +877,7 @@ bool Strat::RegMarker::isRegMarker( const Level& lvl )
 }
 
 
-const int Strat::RegMarker::minID()
+int Strat::RegMarker::minID()
 {
     return cRegMarkerIDStart;
 }

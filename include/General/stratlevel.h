@@ -102,7 +102,7 @@ public:
 
     static bool		isRegMarker(const Level&);
     static bool		isRegMarker(const LevelID);
-    static const int	minID();
+    static int		minID();
 
 private:
 
