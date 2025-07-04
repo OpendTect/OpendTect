@@ -89,7 +89,7 @@ private:
 
 /*! \brief Dialog for Regional marker selction */
 mExpClass(uiWell) uiRegionalMarkersFromWellMarkersDlg : public uiDialog
-{ mODTextTranslationClass(uiMarkersList)
+{ mODTextTranslationClass(uiRegionalMarkersFromWellMarkersDlg)
 public:
 
 				uiRegionalMarkersFromWellMarkersDlg(uiParent*,

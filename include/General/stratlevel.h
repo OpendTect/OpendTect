@@ -54,7 +54,6 @@ public:
     bool		operator ==(const Level&) const;
     bool		operator !=(const Level&) const;
     bool		isDifferentFrom(const Level&) const;
-			//!< checks all but ID
 
     LevelID		id() const		{ return id_; }
     OD::Color		color() const		{ return color_; }
@@ -88,6 +87,26 @@ protected:
 
     friend class	LevelSet;
 
+};
+
+
+mExpClass(General) RegMarker : public Level
+{
+public:
+			RegMarker(const char* nm,const OD::Color&,
+				  LevelID =LevelID::udf());
+			RegMarker(const RegMarker&);
+			~RegMarker();
+
+    RegMarker&		setID(LevelID);
+
+    static bool		isRegMarker(const Level&);
+    static bool		isRegMarker(const LevelID);
+    static const int	minID();
+
+private:
+
+    friend class	RegMarkerSet;
 };
 
 
@@ -134,8 +153,9 @@ public:
     LevelID		add(const char*,const OD::Color&);
     void		remove(LevelID);
 
-    LevelID		set(const Level&); //!< copy stuff, but new ID/name
-    LevelID		add(const Level& lvl)		{ return set( lvl ); }
+    LevelID		set(const Level&);
+			//!< copy stuff, but new ID/name
+    LevelID		add(const Level& lvl)	    { return set( lvl ); }
     void		add(const BufferStringSet&,const TypeSet<OD::Color>&);
 
     Notifier<LevelSet>			setChanged;
@@ -151,12 +171,17 @@ public:
     static LevelSet*	read(const MultiID&);
     static bool		write(const LevelSet&,const MultiID&);
 
+    void		removeAllRegMarkers();
+
 protected:
 
-    ObjectSet<Level>	lvls_;
-    mutable Threads::Atomic<int> curlevelid_;
-    MultiID		dbky_;
+    ObjectSet<Level>		    lvls_;
+    mutable Threads::Atomic<int>    curlevelid_;
+    MultiID			    dbky_;
 
+    void		addRegMarkers();
+    void		regMarkerAdded(CallBacker*);
+    void		regMarkerRemoved(CallBacker*);
     int			gtIdxOf(const char*,LevelID) const;
     Level		gtLvl(int) const;
     void		doSetEmpty();
@@ -171,10 +196,72 @@ public:
 
 };
 
+
+mExpClass(General) RegMarkerSet : public CallBacker
+{
+public:
+    typedef int		ChangeType;
+
+			RegMarkerSet();
+			~RegMarkerSet();
+
+    int			size() const;
+    bool		isEmpty() const;
+    void		setEmpty();
+
+    const RegMarker&	get(const LevelID&) const;
+    RegMarker&		get(const LevelID&);
+    const RegMarker&	getByIdx(int) const;
+    RegMarker&		getByIdx(int);
+    const RegMarker&	getByName(const char*) const;
+    RegMarker&		getByName(const char*);
+
+    bool		isPresent(const LevelID&) const;
+    bool		isPresent(const char* nm) const;
+    int			indexOf(const LevelID&) const;
+    int			indexOf(const char* nm) const;
+
+    LevelID		add(const char*,const OD::Color&);
+    void		remove(const LevelID&);
+
+    LevelID		set(const RegMarker&);
+			//!< copy stuff, but new ID/name
+    LevelID		add(const RegMarker& regm)	{ return set( regm ); }
+    void		add(const BufferStringSet&,
+			    const TypeSet<OD::Color>&);
+
+    void		reset();
+    bool		save() const;
+
+    CNotifier<RegMarkerSet,LevelID>		levelChanged;
+    CNotifier<RegMarkerSet,LevelID>		levelAdded;
+    CNotifier<RegMarkerSet,LevelID>		levelToBeRemoved;
+
+private:
+
+    ManagedObjectSet<RegMarker>     rgmlvls_;
+    mutable Threads::Atomic<int>    curregmid_	    = Strat::RegMarker::minID();
+
+    RegMarkerSet&	operator=(const RegMarkerSet&) = delete;
+    int			gtIdxOf(const char* nm,const LevelID&) const;
+    const RegMarker&	getRegMarker(int idx) const;
+    LevelID		doSet(const RegMarker&,bool* isnew=nullptr);
+    void		readRegMarkers();
+    bool		writeRegMarkers() const;
+
+    void		iomReadyCB(CallBacker*);
+    void		surveyChangedCB(CallBacker*);
+    void		applClosingCB(CallBacker*);
+};
+
+
 mGlobal(General) const LevelSet& LVLS();
 inline LevelSet& eLVLS()	{ return const_cast<LevelSet&>(LVLS()); }
 inline BufferString levelNameOf( const LevelID& id )
 				{ return LVLS().nameOf(id); }
+
+mGlobal(General) const RegMarkerSet& RGMLVLS();
+inline RegMarkerSet& eRGMLVLS() { return const_cast<RegMarkerSet&>(RGMLVLS()); }
 
 // From here: do not use, you will not need it.
 // Needless to say that if you push, make sure you pop (so afterwards the real

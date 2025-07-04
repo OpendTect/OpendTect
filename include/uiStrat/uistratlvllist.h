@@ -11,7 +11,7 @@ ________________________________________________________________________
 #include "uistratmod.h"
 #include "uilistbox.h"
 
-namespace Strat { class Level; }
+namespace Strat { class Level; class RegMarker; }
 
 mExpClass(uiStrat) uiStratLvlList : public uiListBox
 { mODTextTranslationClass(uiStratLvlList)
@@ -52,4 +52,31 @@ protected:
 private:
 
     static const char*	sNoLevelTxt()		{return "--- None ---"; }
+};
+
+
+mExpClass(uiStrat) uiRegMarkerList : public uiListBox
+{ mODTextTranslationClass(uiRegMarkerList)
+public:
+		uiRegMarkerList(uiParent*);
+		~uiRegMarkerList();
+
+    Notifier<uiRegMarkerList>	regMarkersRemoved;
+
+private:
+
+    void	fill();
+    void	fillStratLevels();
+
+    void	removeCB(CallBacker*);
+    void	removeAllCB(CallBacker*);
+    void	updateLevelCB(CallBacker*);
+    void	levelAddedCB(CallBacker*);
+    void	levelRemovedCB(CallBacker*);
+
+    void	addRegMarker(const Strat::RegMarker&);
+    void	removeRegMarker(const Strat::RegMarker&);
+
+    static const char*	sNoLevelTxt()		{return "--- None ---"; }
+
 };

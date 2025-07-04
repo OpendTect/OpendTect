@@ -29,6 +29,9 @@ namespace Strat
 
 static const char* sLevelExt = "stratlevels";
 static const char* sUndefName = "<Undefined>";
+static const char* sRegMarkerFnm = "well.regm";
+
+static const int cRegMarkerIDStart = 10000;
 
 const Level& Level::undef()
 {
@@ -171,12 +174,12 @@ Strat::LevelSetMgr& Strat::lvlSetMgr()
     return *lssmgr_.ptr();
 }
 
+
 const Strat::LevelSet& Strat::LVLS()
 {
     const LevelSetMgr& mgr = lvlSetMgr();
     return mgr.curSet();
 }
-
 
 
 Strat::Level::Level( const char* nm, const OD::Color& col, LevelID newid )
@@ -335,6 +338,10 @@ Strat::LevelSet::LevelSet( int idnr )
     , levelToBeRemoved(this)
     , curlevelid_(idnr)
 {
+    const Strat::RegMarkerSet& regmset = RGMLVLS();
+    mAttachCB( regmset.levelAdded, Strat::LevelSet::regMarkerAdded );
+    mAttachCB( regmset.levelToBeRemoved, Strat::LevelSet::regMarkerRemoved );
+    addRegMarkers();
 }
 
 
@@ -350,7 +357,45 @@ Strat::LevelSet::LevelSet( const LevelSet& oth )
 
 Strat::LevelSet::~LevelSet()
 {
+    detachAllNotifiers();
     deepErase( lvls_ );
+}
+
+
+void Strat::LevelSet::addRegMarkers()
+{
+    const Strat::RegMarkerSet& regmset = RGMLVLS();
+    for ( int idx=0; idx<regmset.size(); idx++ )
+    {
+	const Level& lvl = regmset.getByIdx( idx );
+	lvls_.add( new Level(lvl) );
+    }
+}
+
+
+void Strat::LevelSet::regMarkerAdded( CallBacker* cb )
+{
+    mCBCapsuleUnpack( Strat::LevelID, regmid, cb );
+    if ( regmid.isUdf() || !RegMarker::isRegMarker(regmid)
+			|| isPresent(regmid) )
+	return;
+
+    const Level& regm = Strat::RGMLVLS().get( regmid );
+    lvls_.add( new Level(regm) );
+}
+
+
+void Strat::LevelSet::regMarkerRemoved( CallBacker* cb )
+{
+    mCBCapsuleUnpack( Strat::LevelID, regmid, cb );
+    if ( regmid.isUdf() || !RegMarker::isRegMarker(regmid) )
+	return;
+
+    const int idx = indexOf( regmid );
+    if ( !lvls_.validIdx(idx) || lvls_[idx]->id()!=regmid )
+	return;
+
+    lvls_.removeSingle( idx );
 }
 
 
@@ -392,7 +437,14 @@ int Strat::LevelSet::size() const
 
 void Strat::LevelSet::doSetEmpty()
 {
-    deepErase( lvls_ );
+    for ( int idx=lvls_.size()-1; idx>=0; idx-- )
+    {
+	const LevelID lvlid = lvls_.get(idx)->id();
+	if ( lvlid.isValid() && RegMarker::isRegMarker(lvlid) )
+	    continue;
+
+	delete lvls_.removeSingle( idx );
+    }
 }
 
 
@@ -433,7 +485,7 @@ Strat::LevelID Strat::LevelSet::getIDByIdx( int idx ) const
 
 int Strat::LevelSet::indexOf( LevelID id ) const
 {
-    return gtIdxOf( 0, id );
+    return gtIdxOf( nullptr, id );
 }
 
 
@@ -519,9 +571,14 @@ void Strat::LevelSet::getNames( BufferStringSet& nms ) const
 }
 
 
-Strat::LevelID Strat::LevelSet::doSet( const Strat::Level& lvl,
-					 bool* isnew )
+Strat::LevelID Strat::LevelSet::doSet( const Strat::Level& lvl, bool* isnew )
 {
+    if ( RegMarker::isRegMarker(lvl) )
+    {
+	pErrMsg( "Please use RGMLVLS to set Regional markers" );
+	return Strat::LevelID::udf();
+    }
+
     const int idx = indexOf( lvl.name().buf() );
     Level* chglvl;
     if ( lvls_.validIdx(idx) )
@@ -566,7 +623,7 @@ Strat::LevelID Strat::LevelSet::add( const char* nm, const OD::Color& col )
 
 void Strat::LevelSet::remove( LevelID id )
 {
-    if ( !isPresent(id) )
+    if ( !isPresent(id) || RegMarker::isRegMarker(id) )
 	return;
 
     levelToBeRemoved.trigger( id );
@@ -638,6 +695,7 @@ bool Strat::LevelSet::readFrom( const char* fnm )
 }
 
 
+
 Repos::Source Strat::LevelSet::readOldRepos()
 {
     Repos::FileProvider rfp( "StratUnits" );
@@ -676,7 +734,11 @@ bool Strat::LevelSet::writeTo( const char* fnm ) const
     for ( int ilvl=0; ilvl<lvls_.size(); ilvl++ )
     {
 	const Level& lvl = *lvls_[ilvl];
-	IOPar iop; lvl.fillPar( iop );
+	if ( RegMarker::isRegMarker(lvl) )
+	    continue;
+
+	IOPar iop;
+	lvl.fillPar( iop );
 	iop.putTo( astrm );
     }
 
@@ -744,7 +806,7 @@ Strat::LevelSet* Strat::LevelSet::read( const MultiID& key )
 
 bool Strat::LevelSet::write() const
 {
-    return dbky_.isUdf() ? false : write( *this, dbky_ );
+    return dbky_.isUdf() ? false : write(*this, dbky_);
 }
 
 
@@ -758,4 +820,358 @@ bool Strat::LevelSet::write( const LevelSet& ls, const MultiID& key )
     fp.setExtension( sLevelExt );
 
     return ls.writeTo( fp.fullPath() );
+}
+
+
+void Strat::LevelSet::removeAllRegMarkers()
+{
+    for ( int idx=lvls_.size()-1; idx>=0; idx-- )
+    {
+	const Strat::LevelID lvlid = lvls_.get(idx)->id();
+	if ( lvlid.isValid() && !RegMarker::isRegMarker(lvlid) )
+	    continue;
+
+	lvls_.removeSingle( idx );
+    }
+}
+
+
+Strat::RegMarker::RegMarker( const char* nm, const OD::Color& col, LevelID id )
+    : Level(nm,col,id)
+{}
+
+
+Strat::RegMarker::RegMarker( const RegMarker& oth )
+    : Level(oth.name().buf(),oth.color(),oth.id())
+{
+    *this = oth;
+}
+
+
+Strat::RegMarker::~RegMarker()
+{}
+
+
+Strat::RegMarker& Strat::RegMarker::setID( LevelID id )
+{
+    if ( id.asInt() < cRegMarkerIDStart )
+	return *this;
+
+    const_cast<LevelID&>( id_ ) = id;
+    return *this;
+}
+
+
+bool Strat::RegMarker::isRegMarker( const LevelID lvlid )
+{
+    if ( lvlid.isUdf() || !lvlid.isValid() )
+	return false;
+
+    return lvlid.asInt() >= cRegMarkerIDStart;
+}
+
+
+bool Strat::RegMarker::isRegMarker( const Level& lvl )
+{
+    return isRegMarker( lvl.id() );
+}
+
+
+const int Strat::RegMarker::minID()
+{
+    return cRegMarkerIDStart;
+}
+
+
+Strat::RegMarkerSet::RegMarkerSet()
+    : levelChanged(this)
+    , levelAdded(this)
+    , levelToBeRemoved(this)
+{
+    if ( IOMan::isOK() )
+	iomReadyCB( nullptr );
+    else
+	mAttachCB( IOMan::iomReady(), RegMarkerSet::iomReadyCB );
+
+    readRegMarkers();
+}
+
+
+Strat::RegMarkerSet::~RegMarkerSet()
+{}
+
+
+int Strat::RegMarkerSet::size() const
+{
+    return rgmlvls_.size();
+}
+
+
+bool Strat::RegMarkerSet::isEmpty() const
+{
+    return size() <= 0;
+}
+
+
+void Strat::RegMarkerSet::setEmpty()
+{
+    Strat::eLVLS().removeAllRegMarkers();
+    rgmlvls_.setEmpty();
+}
+
+
+bool Strat::RegMarkerSet::isPresent( const LevelID& id ) const
+{
+    return rgmlvls_.validIdx( indexOf(id) );
+}
+
+
+bool Strat::RegMarkerSet::isPresent( const char* nm ) const
+{
+    return rgmlvls_.validIdx( indexOf(nm) );
+}
+
+
+int Strat::RegMarkerSet::indexOf( const LevelID& id ) const
+{
+    return gtIdxOf( nullptr, id );
+}
+
+
+int Strat::RegMarkerSet::indexOf( const char* nm ) const
+{
+    return gtIdxOf( nm, LevelID::udf() );
+}
+
+
+const Strat::RegMarker& Strat::RegMarkerSet::get( const LevelID& id ) const
+{
+    return getRegMarker( indexOf(id) );
+}
+
+
+Strat::RegMarker& Strat::RegMarkerSet::get( const LevelID& id )
+{
+    return const_cast<RegMarker&>(
+		    static_cast<const RegMarkerSet&>(*this).get(id) );
+}
+
+
+const Strat::RegMarker& Strat::RegMarkerSet::getByIdx( int idx ) const
+{
+    return getRegMarker(idx);
+}
+
+
+Strat::RegMarker& Strat::RegMarkerSet::getByIdx( int idx )
+{
+    return const_cast<RegMarker&>(
+		    static_cast<const RegMarkerSet&>(*this).getByIdx(idx) );
+}
+
+
+const Strat::RegMarker& Strat::RegMarkerSet::getByName( const char* nm ) const
+{
+    return getRegMarker( indexOf(nm) );
+}
+
+
+Strat::RegMarker& Strat::RegMarkerSet::getByName( const char* nm )
+{
+    return const_cast<RegMarker&>(
+		    static_cast<const RegMarkerSet&>(*this).getByName(nm) );
+}
+
+
+const Strat::RegMarker& Strat::RegMarkerSet::getRegMarker( int idx ) const
+{
+    return rgmlvls_.validIdx(idx) ? *rgmlvls_.get(idx)
+				  : (Strat::RegMarker&)Level::undef();
+}
+
+
+int Strat::RegMarkerSet::gtIdxOf( const char* nm, const LevelID& id ) const
+{
+    const bool useid = id.isValid();
+    const bool usenm = nm && *nm;
+    if ( !useid && !usenm )
+	return -1;
+
+    for ( int ilvl=0; ilvl<rgmlvls_.size(); ilvl++ )
+    {
+	const Level& lvl = *rgmlvls_[ilvl];
+	if ( (useid && lvl.id() == id) || (usenm && lvl.name() == nm) )
+	    return ilvl;
+    }
+
+    return -1;
+}
+
+
+void Strat::RegMarkerSet::readRegMarkers()
+{
+    FilePath regmfp( sRegMarkerFnm );
+    const BufferString modeldir
+		= IOObjContext::getDataDirName( IOObjContext::Mdl, false );
+    regmfp.setPath( modeldir.buf() );
+    if ( !File::exists(regmfp.fullPath()) )
+	return;
+
+    od_istream strm( regmfp );
+    ascistream istrm( strm );
+    if ( !istrm.isOK() )
+	return;
+
+    while ( true )
+    {
+	IOPar iop;
+	iop.getFrom( istrm );
+	if ( iop.isEmpty() )
+	    break;
+
+	RegMarker lvl( nullptr, OD::Color() );
+	lvl.usePar( iop );
+	if ( lvl.id().isUdf() )
+	    lvl.setID( LevelID(++curregmid_) );
+
+	doSet( lvl );
+	curregmid_.setIfLarger( lvl.id().asInt()+1 );
+    }
+}
+
+
+bool Strat::RegMarkerSet::save() const
+{
+    return writeRegMarkers();
+}
+
+
+bool Strat::RegMarkerSet::writeRegMarkers() const
+{
+    FilePath regmfp( sRegMarkerFnm );
+    const BufferString modeldir
+		= IOObjContext::getDataDirName( IOObjContext::Mdl, false );
+    regmfp.setPath( modeldir.buf() );
+    od_ostream strm( regmfp );
+    ascostream ostrm( strm );
+    if ( !ostrm.isOK() )
+	return false;
+
+    if ( !ostrm.putHeader("Regional Marker Levels") )
+	return false;
+
+    for ( int ilvl=0; ilvl<rgmlvls_.size(); ilvl++ )
+    {
+	const RegMarker& lvl = *rgmlvls_[ilvl];
+	IOPar iop;
+	lvl.fillPar( iop );
+	iop.putTo( ostrm );
+    }
+
+    return true;
+}
+
+
+Strat::LevelID Strat::RegMarkerSet::doSet( const Strat::RegMarker& regm,
+					   bool* isnew )
+{
+    const int idx = indexOf( regm.name().buf() );
+    RegMarker* chgregm;
+    if ( rgmlvls_.validIdx(idx) )
+    {
+	if ( isnew )
+	    *isnew = false;
+
+	chgregm = rgmlvls_.get( idx );
+	*chgregm = regm;
+	levelChanged.trigger( chgregm->id() );
+    }
+    else
+    {
+	if ( isnew )
+	    *isnew = true;
+
+	if ( regm.id().isUdf() || regm.id().asInt() < curregmid_ )
+	    const_cast<RegMarker&>( regm ).setID( LevelID(++curregmid_) );
+
+	const LevelID id = regm.id();
+	if ( isPresent(id) )
+	{
+	    remove( id );
+	    levelToBeRemoved.trigger( id );
+	}
+
+	chgregm = new RegMarker( regm );
+	rgmlvls_.add( chgregm );
+	levelAdded.trigger( chgregm->id() );
+    }
+
+    return chgregm->id();
+}
+
+
+Strat::LevelID Strat::RegMarkerSet::add( const char* nm, const OD::Color& col )
+{
+    const LevelID lvlid( curregmid_++ );
+    RegMarker regm( nm, col, lvlid );
+    return doSet( regm );
+}
+
+
+void Strat::RegMarkerSet::remove( const LevelID& id )
+{
+    if ( !isPresent(id) )
+	return;
+
+    levelToBeRemoved.trigger( id );
+    const int idx = indexOf( id );
+    rgmlvls_.removeSingle( idx );
+}
+
+
+Strat::LevelID Strat::RegMarkerSet::set( const RegMarker& regm )
+{
+    return doSet( regm );
+}
+
+
+void Strat::RegMarkerSet::add( const BufferStringSet& lvlnms,
+			       const TypeSet<OD::Color>& cols )
+{
+    for ( int idx=0; idx<lvlnms.size(); idx++ )
+	add( RegMarker(lvlnms.get(idx),cols[idx]) );
+}
+
+
+void Strat::RegMarkerSet::iomReadyCB( CallBacker* )
+{
+    mAttachCB( IOM().surveyChanged, RegMarkerSet::surveyChangedCB );
+    mAttachCB( IOM().applicationClosing, RegMarkerSet::applClosingCB );
+}
+
+
+void Strat::RegMarkerSet::applClosingCB( CallBacker* )
+{
+    rgmlvls_.erase();
+}
+
+
+void Strat::RegMarkerSet::surveyChangedCB( CallBacker* )
+{
+    reset();
+}
+
+
+void Strat::RegMarkerSet::reset()
+{
+    setEmpty();
+    curregmid_ = Strat::RegMarker::minID();
+    readRegMarkers();
+}
+
+
+const Strat::RegMarkerSet& Strat::RGMLVLS()
+{
+    static Strat::RegMarkerSet* regms = new Strat::RegMarkerSet();
+    return *regms;
 }
