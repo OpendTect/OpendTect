@@ -43,6 +43,7 @@ namespace Gason		// --OD added
 	JSON_OBJECT,
 	JSON_TRUE,
 	JSON_FALSE,
+	JSON_MIXED,
 	JSON_NULL = 0xF
     };
 

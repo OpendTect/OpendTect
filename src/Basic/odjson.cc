@@ -110,6 +110,7 @@ void cleanUp()
 	delete vSet();
     else if ( type_ == (int)String )
 	delete [] str();
+
     cont_.val_ = 0;
 }
 
@@ -356,6 +357,20 @@ OD::JSON::ValueSet::ValueType OD::JSON::ValueSet::valueType(
 }
 
 
+OD::JSON::DataType OD::JSON::ValueSet::dType( idx_type idx ) const
+{
+    DataType ret = Boolean;
+    if ( !values_.validIdx(idx) )
+	{ pErrMsg("Idx out of range"); return ret; }
+
+    if ( valueType(idx) != Data )
+	return ret;
+
+    const Value& val = *values_.get( idx );
+    return (DataType)val.type_;
+}
+
+
 const BufferString& OD::JSON::ValueSet::key( idx_type idx ) const
 {
     const Value* val = values_[idx];
@@ -524,53 +539,83 @@ double OD::JSON::ValueSet::getDoubleValue( idx_type idx ) const
 }
 
 
+namespace Gason
+{
+
 #ifdef __msvc__
 #pragma warning(push)
 #pragma warning( disable : 4702)  // ln 376 was unreachable on VS13
 #endif
 
-static Gason::JsonTag getNextTag( const Gason::JsonValue gasonval )
+static JsonTag getNextTag( const JsonValue& gasonval, bool allowmixed )
 {
-    for ( auto gasonnode : gasonval )
-	return gasonnode->value.getTag();
+    JsonTag ret = JSON_NULL;
+    if ( !allowmixed )
+    {
+	for ( auto gasonnode : gasonval )
+	    return gasonnode->value.getTag();
 
-    return Gason::JSON_NULL;
+	return ret;
+    }
+
+    for ( const auto* gasonnode : gasonval )
+    {
+	const JsonTag tag = gasonnode->value.getTag();
+	if ( tag == JSON_NULL )
+	    continue;
+
+	if ( tag != ret && ret != JSON_NULL )
+	    return JSON_MIXED;
+
+	ret = tag;
+    }
+
+    return ret;
 }
 
 #ifdef __msvc__
 #pragma warning(pop)
 #endif
 
+} // namespace Gason
 
-static OD::JSON::ValueSet* getSubVS( OD::JSON::ValueSet* parent,
-		Gason::JsonTag tag, Gason::JsonTag nexttag )
+
+namespace OD
+{
+
+static JSON::ValueSet* getSubVS( JSON::ValueSet* parent,
+				 Gason::JsonTag tag, Gason::JsonTag nexttag )
 {
     if ( tag == Gason::JSON_OBJECT )
-	return new OD::JSON::Object( parent );
+	return new JSON::Object( parent );
     else if ( tag != Gason::JSON_ARRAY )
 	return nullptr;
 
     const bool nextisarr = nexttag == Gason::JSON_ARRAY;
     const bool nextisobj = nexttag == Gason::JSON_OBJECT;
     if ( nextisarr || nextisobj )
-	return new OD::JSON::Array( nextisobj, parent );
+	return new JSON::Array( nextisobj, parent );
 
-    OD::JSON::DataType dt = OD::JSON::Boolean;
+    JSON::DataType dt = JSON::Boolean;
     if ( nexttag == Gason::JSON_NUMBER || nexttag == Gason::JSON_NULL )
-	dt = OD::JSON::Number;
+	dt = JSON::Number;
     else if ( nexttag == Gason::JSON_STRING )
-	dt = OD::JSON::String;
+	dt = JSON::String;
+    else if ( nexttag == Gason::JSON_MIXED )
+	dt = JSON::Mixed;
 
-    return new OD::JSON::Array( dt, parent );
+    return new JSON::Array( dt, parent );
 }
 
+} // namespace OD
 
-void OD::JSON::ValueSet::use( const GasonNode& gasonnode )
+
+void OD::JSON::ValueSet::use( const GasonNode& gasonnode, bool allowmixed )
 {
     const Gason::JsonValue& gasonval = gasonnode.value;
     const Gason::JsonTag tag = gasonval.getTag();
     bool isobj = !isArray();
-    const char* ky = isobj ? gasonnode.key : 0;
+    const char* ky = isobj ? gasonnode.key : nullptr;
 
     switch ( tag )
     {
@@ -590,7 +635,7 @@ void OD::JSON::ValueSet::use( const GasonNode& gasonnode )
 	    const char* val = gasonval.toString();
 	    if ( isobj )
 		values_ += new KeyedValue( gasonnode.key, val );
-	    else if ( asArray().isData()  && !asArray().isMixed() )
+	    else if ( asArray().isData() && !asArray().isMixed() )
 		asArray().valArr().strings().add( val );
 	    else
 		values_ += new Value( val );
@@ -602,7 +647,7 @@ void OD::JSON::ValueSet::use( const GasonNode& gasonnode )
 	    const bool val = tag == Gason::JSON_TRUE;
 	    if ( isobj )
 		values_ += new KeyedValue( gasonnode.key, val );
-	    else if ( asArray().isData()  && !asArray().isMixed() )
+	    else if ( asArray().isData() && !asArray().isMixed() )
 		asArray().valArr().bools() += val;
 	    else
 		values_ += new Value( val );
@@ -610,7 +655,8 @@ void OD::JSON::ValueSet::use( const GasonNode& gasonnode )
 
 	case Gason::JSON_ARRAY:
 	{
-	    const Gason::JsonTag nexttag = getNextTag( gasonval );
+	    const Gason::JsonTag nexttag =
+				Gason::getNextTag( gasonval, allowmixed );
 	    Array* arr = (Array*)getSubVS( this, tag, nexttag );
 	    if ( arr )
 	    {
@@ -622,7 +668,7 @@ void OD::JSON::ValueSet::use( const GasonNode& gasonnode )
 
 	    for ( auto subgasonnode : gasonval )
 		if ( arr )
-		    arr->use( *subgasonnode );
+		    arr->use( *subgasonnode, allowmixed );
 	} break;
 
 	case Gason::JSON_OBJECT:
@@ -634,9 +680,10 @@ void OD::JSON::ValueSet::use( const GasonNode& gasonnode )
 		values_ += new Value( obj );
 
 	    for ( auto subgasonnode : gasonval )
-		obj->use( *subgasonnode );
+		obj->use( *subgasonnode, allowmixed );
 	} break;
 
+	case Gason::JSON_MIXED:
 	case Gason::JSON_NULL:
 	{
 	} break;
@@ -645,6 +692,7 @@ void OD::JSON::ValueSet::use( const GasonNode& gasonnode )
 
 
 OD::JSON::ValueSet* OD::JSON::ValueSet::gtByParse( char* buf, int bufsz,
+			    bool allowmixedarr,
 			    uiRetVal& uirv, ValueSet* intovset )
 {
     uirv.setEmpty();
@@ -693,7 +741,7 @@ OD::JSON::ValueSet* OD::JSON::ValueSet::gtByParse( char* buf, int bufsz,
     else
     {
 	usevset = getSubVS( nullptr, rootgasonval.getTag(),
-			    getNextTag(rootgasonval) );
+			    getNextTag( rootgasonval, allowmixedarr ) );
 	if ( !usevset )
 	{
 	    uirv.set( tr("No meaningful JSON content found") );
@@ -710,23 +758,25 @@ OD::JSON::ValueSet* OD::JSON::ValueSet::gtByParse( char* buf, int bufsz,
     }
 
     for ( auto gasonnode : rootgasonval )
-	usevset->use( *gasonnode );
+	usevset->use( *gasonnode, allowmixedarr );
 
     return usevset;
 }
 
 
 OD::JSON::ValueSet* OD::JSON::ValueSet::getFromJSon( char* buf, int bufsz,
-						     uiRetVal& uirv )
+						     uiRetVal& uirv,
+						     bool allowmixedarr )
 {
-    return gtByParse( buf, bufsz, uirv, nullptr );
+    return gtByParse( buf, bufsz, allowmixedarr, uirv, nullptr );
 }
 
 
-uiRetVal OD::JSON::ValueSet::parseJSon( char* buf, int bufsz )
+uiRetVal OD::JSON::ValueSet::parseJSon( char* buf, int bufsz,
+					bool allowmixedarr )
 {
     uiRetVal uirv;
-    gtByParse( buf, bufsz, uirv, this );
+    gtByParse( buf, bufsz, allowmixedarr, uirv, this );
     return uirv;
 }
 
@@ -801,17 +851,18 @@ void OD::JSON::ValueSet::dumpJSon( StringBuilder& sb ) const
 }
 
 
-uiRetVal OD::JSON::ValueSet::read( const char* fnm )
+uiRetVal OD::JSON::ValueSet::read( const char* fnm, bool allowmixedarr )
 {
     od_istream istrm( fnm );
     if ( istrm.isBad() )
 	return uiStrings::phrCannotRead( toUiString(fnm) );
 
-    return read( istrm );
+    return read( istrm, allowmixedarr );
 }
 
 
-OD::JSON::ValueSet* OD::JSON::ValueSet::read( const char* fnm, uiRetVal& uirv )
+OD::JSON::ValueSet* OD::JSON::ValueSet::read( const char* fnm, uiRetVal& uirv,
+					      bool allowmixedarr )
 {
     od_istream istrm( fnm );
     if ( istrm.isBad() )
@@ -820,7 +871,7 @@ OD::JSON::ValueSet* OD::JSON::ValueSet::read( const char* fnm, uiRetVal& uirv )
 	return nullptr;
     }
 
-    return read( istrm, uirv );
+    return read( istrm, uirv, allowmixedarr );
 }
 
 
@@ -831,11 +882,11 @@ uiRetVal OD::JSON::ValueSet::write( const char* fnm, bool pretty )
 }
 
 
-uiRetVal OD::JSON::ValueSet::read( od_istream& strm )
+uiRetVal OD::JSON::ValueSet::read( od_istream& strm, bool allowmixedarr )
 {
     BufferString buf;
     if ( strm.getAll(buf) )
-	return parseJSon( buf.getCStr(), buf.size() );
+	return parseJSon( buf.getCStr(), buf.size(), allowmixedarr );
 
     uiRetVal uirv( uiStrings::phrCannotRead(toUiString(strm.fileName())) );
     strm.addErrMsgTo( uirv );
@@ -843,11 +894,12 @@ uiRetVal OD::JSON::ValueSet::read( od_istream& strm )
 }
 
 
-OD::JSON::ValueSet* OD::JSON::ValueSet::read( od_istream& strm, uiRetVal& uirv )
+OD::JSON::ValueSet* OD::JSON::ValueSet::read( od_istream& strm, uiRetVal& uirv,
+					      bool allowmixedarr )
 {
     BufferString buf;
     if ( strm.getAll(buf) )
-	return getFromJSon( buf.getCStr(), buf.size(), uirv );
+	return getFromJSon( buf.getCStr(), buf.size(), uirv, allowmixedarr );
 
     uirv.set( uiStrings::phrCannotRead( toUiString(strm.fileName()) ) );
     strm.addErrMsgTo( uirv );
@@ -884,7 +936,6 @@ uiRetVal OD::JSON::ValueSet::writePretty( od_ostream& strm )
 OD::JSON::Array::Array( bool objs, ValueSet* p )
     : ValueSet(p)
     , valtype_(objs ? SubObject : SubArray)
-    , valarr_(0)
 {
 }
 
@@ -892,15 +943,15 @@ OD::JSON::Array::Array( bool objs, ValueSet* p )
 OD::JSON::Array::Array( DataType dt, ValueSet* p )
     : ValueSet(p)
     , valtype_(Data)
-    , valarr_(dt<DataType::Mixed ? new ValArr(dt) : nullptr)
 {
+    if ( dt != DataType::Mixed )
+	valarr_ = new ValArr(dt);
 }
 
 
 OD::JSON::Array::Array( const Array& oth )
     : ValueSet(oth)
     , valtype_(oth.valtype_)
-    , valarr_(0)
 {
     if ( oth.valarr_ )
 	valarr_ = new ValArr( *oth.valarr_ );
@@ -940,6 +991,15 @@ bool OD::JSON::Array::isEmpty() const
 }
 
 
+OD::JSON::DataType OD::JSON::Array::dType( idx_type idx ) const
+{
+    if ( dataType() == OD::JSON::Mixed )
+	return ValueSet::dType( idx );
+
+    return dataType();
+}
+
+
 OD::JSON::ValueSet::size_type OD::JSON::Array::size() const
 {
     return isData() && !isMixed() ? valArr().size() : ValueSet::size();
@@ -948,7 +1008,7 @@ OD::JSON::ValueSet::size_type OD::JSON::Array::size() const
 
 OD::JSON::DataType OD::JSON::Array::dataType() const
 {
-    return !isMixed() ? valarr_->dataType() : DataType::Mixed;
+    return isMixed() ? DataType::Mixed : valarr_->dataType();
 }
 
 

@@ -30,8 +30,8 @@ static const char* jsonstrs[] = {
 "{\"aap\": \"noot\"",
 "{\"aap\": \"noot\"]",
 "{ x: \"y\"}",
+nullptr
 
-0
 };
 
 static const char* sKeyInterval()	{ return  "Interval"; }
@@ -437,7 +437,7 @@ bool testMixedArray()
 {
     {
 	Array jsarr( Mixed );
-	jsarr.add("Added String").add(4).add(3.56).add(0==1);
+	jsarr.add( "Added String" ).add( 4 ).add( 3.56 ).add( 0==1 );
 	const bool allequal = jsarr.getStringValue(0)=="Added String" &&
 			      jsarr.getIntValue(1)==4 &&
 			      jsarr.getDoubleValue(2)==3.56 &&
@@ -449,7 +449,7 @@ bool testMixedArray()
 	Array jsarr( Mixed );
 	BufferString inp("[9,true,\"String\",-3.142]");
 	const uiRetVal uirv =
-		jsarr.parseJSon( BufferString(inp).getCStr(), inp.size() );
+		jsarr.parseJSon( BufferString(inp).getCStr(), inp.size(), true);
 	mRunStandardTestWithError( uirv.isOK(),
 		       "Parsed a mixed array string into a mixed JSON::Array",
 		       uirv.getText());
@@ -460,10 +460,119 @@ bool testMixedArray()
 			      jsarr.getDoubleValue(3)==-3.142;
 	mRunStandardTest(allequal,
 			 "Parse mixed value type array from string OK");
-	BufferString jsStr = jsarr.dumpJSon();
+	const BufferString jsStr = jsarr.dumpJSon();
 	mRunStandardTest(inp==jsStr,
 			 "Mixed value type array - dumped JSON == input JSON");
     }
+
+    {
+	Object jsobj;
+	BufferString inp("{\"array\":[9,true,\"String\",-3.142]}");
+	const uiRetVal uirv =
+		jsobj.parseJSon( BufferString(inp).getCStr(), inp.size(), true);
+	mRunStandardTestWithError( uirv.isOK(),
+		       "Parsed a mixed array string in an object "
+		       "into an object with a mixed JSON::Array",
+		       uirv.getText());
+
+	const Array* jsarr = jsobj.getArray( "array" );
+	mRunStandardTest( jsarr, "Array in json object" );
+	mRunStandardTest( jsarr->isMixed(), "Mixed type array in json object" );
+
+	const bool allequal = jsarr->getIntValue(0)==9 &&
+			      jsarr->getBoolValue(1)==true &&
+			      jsarr->getStringValue(2)=="String" &&
+			      jsarr->getDoubleValue(3)==-3.142;
+	mRunStandardTest(allequal,
+			 "Parse mixed value type array from string OK");
+	const BufferString jsStr = jsobj.dumpJSon();
+	mRunStandardTest(inp==jsStr,
+			 "Mixed value type array - dumped JSON == input JSON");
+    }
+
+    return true;
+}
+
+
+static bool testDataType()
+{
+    Object jsobj;
+    jsobj.set( "boolTrue", true );
+    jsobj.set( "boolFalse", false );
+    jsobj.set( "numberDouble", 3.142 );
+    jsobj.set( "numberInteger", 50 );
+    jsobj.set( "string", "Hello world" );
+    Object* jssubobj = jsobj.set( "subobj", new Object );
+    Array* jsobjarr = jsobj.set( "arrayOfObjects", new Array(true) );
+    Array* jsarrarr = jsobj.set( "arrayOfArrays", new Array(false) );
+    Array* jsboolarr = jsobj.set( "arrayOfBoolean", new Array(Boolean) );
+    Array* jsnumarr = jsobj.set( "arrayOfNumbers", new Array(Number) );
+    Array* jsstringsarr = jsobj.set( "arrayOfStrings", new Array(String) );
+    Array* jsmixedarr = jsobj.set( "mixedArray", new Array(Mixed) );
+
+    //Tested in order they have been set
+    int idx = 0;
+    mRunStandardTest( jsobj.valueType(idx) == ValueSet::Data &&
+		      jsobj.isPlainData(idx) &&
+		      jsobj.dType(idx++) == Boolean,
+		      "Boolean json data object - true" );
+    mRunStandardTest( jsobj.valueType(idx) == ValueSet::Data &&
+		      jsobj.isPlainData(idx) &&
+		      jsobj.dType(idx++) == Boolean,
+		      "Boolean json data object - false" );
+    mRunStandardTest( jsobj.valueType(idx) == ValueSet::Data &&
+		      jsobj.isPlainData(idx) &&
+		      jsobj.dType(idx++) == Number,
+		      "Number json data object - double" );
+    mRunStandardTest( jsobj.valueType(idx) == ValueSet::Data &&
+		      jsobj.isPlainData(idx) &&
+		      jsobj.dType(idx++) == Number,
+		      "Number json data object - integer" );
+    mRunStandardTest( jsobj.valueType(idx) == ValueSet::Data &&
+		      jsobj.isPlainData(idx) &&
+		      jsobj.dType(idx++) == String,
+		      "String json data object - string" );
+    mRunStandardTest( jsobj.valueType(idx) == ValueSet::SubObject &&
+		      jsobj.isObjectChild(idx++) && !jssubobj->isArray(),
+		      "Object json data object - sub object" );
+    mRunStandardTest( jsobj.valueType(idx++) == ValueSet::SubArray &&
+		      jsobj.isArrayChild(idx) && jsobjarr->isArray(),
+		      "Array json data object - sub array of objects" );
+    mRunStandardTest( jsobj.valueType(idx++) == ValueSet::SubArray &&
+		      jsobj.isArrayChild(idx) && jsarrarr->isArray(),
+		      "Array json data object - sub array of arrays" );
+    mRunStandardTest( jsobj.valueType(idx++) == ValueSet::SubArray &&
+		      jsboolarr->isArray() &&
+		      jsboolarr->dataType() == DataType::Boolean,
+		      "Array json data object - sub array of booleans" );
+    mRunStandardTest( jsobj.valueType(idx++) == ValueSet::SubArray &&
+		      jsnumarr->isArray() &&
+		      jsnumarr->dataType() == DataType::Number,
+		      "Array json data object - sub array of numbers" );
+    mRunStandardTest( jsobj.valueType(idx++) == ValueSet::SubArray &&
+		      jsstringsarr->isArray() &&
+		      jsstringsarr->dataType() == DataType::String,
+		      "Array json data object - sub array of strings" );
+    mRunStandardTest( jsobj.valueType(idx++) == ValueSet::SubArray &&
+		      jsmixedarr->isArray() &&
+		      jsmixedarr->dataType() == DataType::Mixed,
+		      "Array json data object - sub array of mixed type" );
+
+    jsmixedarr->add( true ).add( false ).add( 3.142 ).add( 50 )
+	       .add( "Hello again" );
+
+    idx = 0;
+    mRunStandardTest( jsmixedarr->dType(idx++) == DataType::Boolean,
+		      "Boolean data type is mixed array - true" );
+    mRunStandardTest( jsmixedarr->dType(idx++) == DataType::Boolean,
+		      "Boolean data type is mixed array - false" );
+    mRunStandardTest( jsmixedarr->dType(idx++) == DataType::Number,
+		      "Boolean data type is mixed array - double" );
+    mRunStandardTest( jsmixedarr->dType(idx++) == DataType::Number,
+		      "Boolean data type is mixed array - integer" );
+    mRunStandardTest( jsmixedarr->dType(idx++) == DataType::String,
+		      "Boolean data type is mixed array - string" );
+
     return true;
 }
 
@@ -481,6 +590,7 @@ int mTestMainFnName( int argc, char** argv )
       || !testArray1D()
       || !testArray2D()
       || !testMixedArray()
+      || !testDataType()
     )
 	return 1;
 
