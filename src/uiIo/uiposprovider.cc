@@ -264,7 +264,8 @@ void uiPosProvider::setSampling( const TrcKeyZSampling& tkzs )
     }
     else
     {
-	Pos::RangeProvider3D prov; prov.setSampling( tkzs );
+	Pos::RangeProvider3D prov;
+	prov.setSampling( tkzs );
 	prov.fillPar( iop );
     }
 
