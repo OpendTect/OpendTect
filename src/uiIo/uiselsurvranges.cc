@@ -438,6 +438,13 @@ void uiSelNrRange::setStopVal( int nr )
 
 void uiSelNrRange::valChg( CallBacker* cb )
 {
+    if ( stepfld_ && cb == stepfld_->box() )
+    {
+	startfld_->setStep( stepfld_->box()->getIntValue(), true );
+	if ( icstopfld_ )
+	    icstopfld_->setStep( stepfld_->box()->getIntValue(), true );
+    }
+
     if ( startfld_->getIntValue() > getStopVal() )
     {
 	const bool chgstop = cb == startfld_;
@@ -489,21 +496,32 @@ void uiSelNrRange::setRange( const StepInterval<int>& rg )
     startfld_->setValue( newrg.start_ );
     setStopVal( newrg.stop_ );
     if ( stepfld_ )
+    {
         stepfld_->box()->setValue( newrg.step_ );
+	stepfld_->box()->setMinValue( newrg.step_ );
+    }
+
+    startfld_->setStep( newrg.step_, true );
+    if ( icstopfld_ )
+	icstopfld_->setStep( newrg.step_, true );
 }
 
 
 void uiSelNrRange::setLimitRange( const StepInterval<int>& limitrg )
 {
     startfld_->setInterval( limitrg );
+    startfld_->setStep( limitrg.step_, true );
     if ( icstopfld_ )
+    {
 	icstopfld_->setInterval( limitrg );
+	icstopfld_->setStep( limitrg.step_, true );
+    }
+
     if ( stepfld_ )
     {
         stepfld_->box()->setMinValue( limitrg.step_ );
         stepfld_->box()->setMaxValue( mMAX(limitrg.step_,
                                            limitrg.stop_-limitrg.start_) );
-        stepfld_->box()->setStep( limitrg.step_ );
     }
 }
 
