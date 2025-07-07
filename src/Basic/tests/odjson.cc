@@ -259,8 +259,31 @@ bool testArray1D()
 
     logStream() << "\ndump 1D array json:\n" << jsStr << '\n' << od_endl;
 
+    BufferString teststr( "[0,2,4,6]" );
+    OD::JSON::Array jsarr_in( false );
+    uiRetVal uirv = jsarr_in.parseJSon( teststr.getCStr(), teststr.size() );
+    mRunStandardTestWithError( uirv.isOK(),
+			      "Parse an array string into a JSON::Array",
+			      uirv.getText() );
+
     OD::JSON::Object jsobj_in;
-    jsobj_in.parseJSon( jsStr.getCStr(), jsStr.size() );
+    teststr.set( "[0,2,4,6]" );
+    uirv = jsobj_in.parseJSon( teststr.getCStr(), teststr.size() );
+    mRunStandardTestWithError( !uirv.isOK(),
+			       "An array should not parse into a JSON::Object",
+			       uirv.getText() );
+
+    uirv = jsobj_in.parseJSon( jsStr.getCStr(), jsStr.size() );
+    mRunStandardTestWithError( uirv.isOK(),
+			       "Parse an object string into a JSON::Object",
+			       uirv.getText() );
+
+    jsStr = jsobj_out.dumpJSon();
+    OD::JSON::Array jsarr_in2( false );
+    uirv = jsarr_in2.parseJSon( jsStr.getCStr(), jsStr.size() );
+    mRunStandardTestWithError( !uirv.isOK(),
+			       "An object should not parse into a JSON::Array",
+			       uirv.getText() );
 
     Array1DImpl<int> arrin_int(1);
     if ( jsobj_in.get("array1d_int", arrin_int) )
@@ -338,7 +361,11 @@ bool testArray2D()
     logStream() << "\ndump 2D array:\n\n" << jsStr << '\n' << od_endl;
 
     OD::JSON::Object jsobj_in;
-    jsobj_in.parseJSon( jsStr.getCStr(), jsStr.size() );
+    const uiRetVal uirv = jsobj_in.parseJSon( jsStr.getCStr(), jsStr.size() );
+    mRunStandardTestWithError( uirv.isOK(),
+			       "Parsed an object string into a JSON::Object",
+			       uirv.getText() );
+
 
     Array2DImpl<int> arrin_int(1,1);
     if ( jsobj_in.get("array2d_int", arrin_int) )
@@ -421,7 +448,11 @@ bool testMixedArray()
     {
 	Array jsarr( Mixed );
 	BufferString inp("[9,true,\"String\",-3.142]");
-	jsarr.parseJSon( BufferString(inp).getCStr(), inp.size() );
+	const uiRetVal uirv =
+		jsarr.parseJSon( BufferString(inp).getCStr(), inp.size() );
+	mRunStandardTestWithError( uirv.isOK(),
+		       "Parsed a mixed array string into a mixed JSON::Array",
+		       uirv.getText());
 
 	const bool allequal = jsarr.getIntValue(0)==9 &&
 			      jsarr.getBoolValue(1)==true &&

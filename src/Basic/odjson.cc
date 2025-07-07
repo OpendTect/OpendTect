@@ -676,13 +676,24 @@ OD::JSON::ValueSet* OD::JSON::ValueSet::gtByParse( char* buf, int bufsz,
 	return intovset;
     }
 
+    if ( intovset && buf_has_array != intovset->isArray() )
+    {
+	if ( buf_has_array )
+	    uirv = tr("Cannot parse a JSON Array into a JSON Object");
+	else
+	    uirv = tr("Cannot parse a JSON Object into a JSON Array");
+
+	return intovset;
+    }
+
     ValueSet* usevset = intovset;
     bool intoisarray = buf_has_array;
     if ( intovset )
 	intoisarray = intovset->isArray();
     else
     {
-	usevset = getSubVS( 0, rootgasonval.getTag(), getNextTag(rootgasonval));
+	usevset = getSubVS( nullptr, rootgasonval.getTag(),
+			    getNextTag(rootgasonval) );
 	if ( !usevset )
 	{
 	    uirv.set( tr("No meaningful JSON content found") );
@@ -706,9 +717,9 @@ OD::JSON::ValueSet* OD::JSON::ValueSet::gtByParse( char* buf, int bufsz,
 
 
 OD::JSON::ValueSet* OD::JSON::ValueSet::getFromJSon( char* buf, int bufsz,
-						    uiRetVal& uirv )
+						     uiRetVal& uirv )
 {
-    return gtByParse( buf, bufsz, uirv, 0 );
+    return gtByParse( buf, bufsz, uirv, nullptr );
 }
 
 
