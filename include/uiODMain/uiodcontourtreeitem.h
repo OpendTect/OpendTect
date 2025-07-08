@@ -58,6 +58,7 @@ public:
     static uiODDataTreeItem*	create(const Attrib::SelSpec&,const char*);
     void			setAttribName( const char* attrnm )
 				{ attrnm_ = attrnm; }
+    void			show(bool yn) override;
 
     static const char*		sKeyContourDefString();
     static const char*		sKeyZValue();
