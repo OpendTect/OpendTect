@@ -949,11 +949,24 @@ uiODDataTreeItem* uiContourTreeItem::create( const Attrib::SelSpec& as,
 }
 
 
+void uiContourTreeItem::show( bool yn )
+{
+    uiODDataTreeItem::show( yn );
+    if ( lines_ )
+	lines_->turnOn( yn );
+
+    if ( labels_ )
+	labels_->turnOn( yn && showlabels_ );
+}
+
+
 void uiContourTreeItem::checkCB(CallBacker*)
 {
     bool newstatus = uitreeviewitem_->isChecked();
     if ( newstatus && parent_ )
 	newstatus = parent_->isChecked();
+    if ( newstatus && parent_ && parent_->parentTreeItem() )
+	newstatus = parent_->parentTreeItem()->isChecked();
 
     visSurvey::HorizonDisplay* hordisp = getHorDisp();
     if ( !hordisp )
