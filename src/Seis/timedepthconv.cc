@@ -22,6 +22,7 @@ ________________________________________________________________________
 #include "samplfunc.h"
 #include "seisbounds.h"
 #include "seisdatapack.h"
+#include "seisioobjinfo.h"
 #include "seisread.h"
 #include "seispreload.h"
 #include "seispacketinfo.h"
@@ -386,9 +387,18 @@ bool VelocityStretcherNew::loadDataIfMissing( int id, TaskRunner* taskr )
     }
     else
     {
+	PtrMan<Seis::RangeSelData> sd = new Seis::RangeSelData( voi );
+	if ( *velzinfo_ != *voizinfos_[idx] )
+	{
+	    // Work-around to handle ZDomain mismatch
+	    SeisIOObjInfo velinfo( *ioobj );
+	    TrcKeyZSampling veltkzs;
+	    velinfo.getRanges( veltkzs );
+	    sd->setZRange( veltkzs.zsamp_ );
+	}
+
 	delete velreader_;
 	velreader_ = new SeisTrcReader( *ioobj );
-	PtrMan<Seis::SelData> sd = new Seis::RangeSelData( voi );
 	if ( !sd->isAll() )
 	    velreader_->setSelData( sd.release() );
     }
