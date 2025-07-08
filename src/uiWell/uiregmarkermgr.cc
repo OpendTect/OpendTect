@@ -400,7 +400,6 @@ void uiRegionalMarkerMgr::regMarkerRemovedCB( CallBacker* cb )
 	if ( allmarkernames_.isPresent(rgm.name()) )
 	    recoveredmarkers.add( rgm.name() );
 
-	allmarkerlistnames_.add( recoveredmarkers, false );
 	regmarkers_.removeSingle( idx );
 	break;
     }
@@ -408,6 +407,8 @@ void uiRegionalMarkerMgr::regMarkerRemovedCB( CallBacker* cb )
     if ( recoveredmarkers.isEmpty() )
 	return;
 
+    allmarkerlistnames_.add( recoveredmarkers, false );
+    allmarkerlistnames_.sort();
     allmrkrlist_->addItems( recoveredmarkers );
     allmrkrlist_->sortItems();
     regmlist_->setCurrentItem( 0 );
@@ -1017,6 +1018,8 @@ bool uiRegionalMarkerMgr::acceptOK( CallBacker* )
     if ( !isInputOK(errmsg) )
     {
 	uiMSG().error( errmsg );
+	regmarkers_.setEmpty();
+	resetRegMarkers();
 	return true;
     }
 
