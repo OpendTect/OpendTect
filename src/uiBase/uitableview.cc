@@ -646,6 +646,46 @@ void uiTableView::resetHorizontalHeader()
 }
 
 
+void uiTableView::setColumnStretchable( int col, bool yn )
+{
+    QHeaderView* header = odtableview_->horizontalHeader();
+    QHeaderView::ResizeMode mode = yn ? QHeaderView::Stretch
+				      : QHeaderView::Interactive ;
+
+    const int idx = header->logicalIndex( col );
+    if ( idx >= 0 )
+	header->setSectionResizeMode( idx, mode );
+    else
+	header->setSectionResizeMode( mode );
+}
+
+
+void uiTableView::resizeColumnsToContents()
+{
+    odtableview_->resizeColumnsToContents();
+}
+
+
+void uiTableView::resizeColumnToContents( int column )
+{
+    odtableview_->resizeColumnToContents( column );
+}
+
+
+void uiTableView::setRowHeight( int row, int height )
+{
+    if ( row >= 0 )
+	odtableview_->setRowHeight( row, height );
+    else if ( row == -1 )
+    {
+	for ( int idx=0; idx<tablemodel_->nrRows(); idx++ )
+	    odtableview_->setRowHeight( idx, height );
+    }
+
+    odtableview_->setRowHeight( row, height );
+}
+
+
 void uiTableView::setSectionsMovable( bool yn )
 {
     odtableview_->horizontalHeader()->setSectionsMovable( yn );

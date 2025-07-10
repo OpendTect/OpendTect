@@ -40,6 +40,11 @@ public:
     void			setNrFrozenColumns(int nrcols);
     void			setContextMenuEnabled(bool);
 
+    void			setColumnStretchable(int,bool);
+    void			resizeColumnsToContents();
+    void			resizeColumnToContents(int column);
+    void			setRowHeight(int row,int height);
+
     void			setSectionsMovable(bool);
     void			moveColumn(int from,int to);
 
