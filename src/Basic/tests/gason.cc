@@ -60,6 +60,9 @@ static void printGasonValue( od_ostream& strm, const Gason::JsonValue& gsonval )
 	case Gason::JSON_FALSE:
 	    strm << "false,";
 	break;
+	case Gason::JSON_MIXED:
+	    strm << "mixed,";
+	break;
 	case Gason::JSON_NULL:
 	    strm << "null,";
 	break;

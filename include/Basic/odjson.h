@@ -127,6 +127,7 @@ public:
     const BufferString&		key(idx_type) const;
     inline bool			isPlainData( idx_type i ) const
 				{ return valueType(i) == Data; }
+
     inline bool			isArrayChild( idx_type i ) const
 				{ return valueType(i) == SubArray; }
     inline bool			isObjectChild( idx_type i ) const
@@ -156,17 +157,27 @@ public:
     virtual FilePath		getFilePath(idx_type) const;
 
     uiRetVal			parseJSon(char* buf,int bufsz);
+    uiRetVal			parseJSon(char* buf,int bufsz,
+					  bool allowmixedarr);
     static ValueSet*		getFromJSon(char* buf,int bufsz,uiRetVal&);
+    static ValueSet*		getFromJSon(char* buf,int bufsz,uiRetVal&,
+					    bool allowmixedarr);
     void			dumpJSon(BufferString&,bool pretty=false) const;
     virtual void		dumpJSon(StringBuilder&) const;
     virtual BufferString	dumpJSon(bool pretty=false) const;
 
     uiRetVal			read(const char* fnm);
+    uiRetVal			read(const char* fnm,bool allowmixedarr);
     static ValueSet*		read(const char* fnm,uiRetVal&);
+    static ValueSet*		read(const char* fnm,uiRetVal&,
+				     bool allowmixedarr);
     uiRetVal			write(const char* fnm,bool pretty);
 
     uiRetVal			read(od_istream&);
+    uiRetVal			read(od_istream&,bool allowmixedarr);
     static ValueSet*		read(od_istream&,uiRetVal&);
+    static ValueSet*		read(od_istream&,uiRetVal&,
+				     bool allowmixedarr);
     uiRetVal			write(od_ostream&,bool pretty=false);
     uiRetVal			writePretty(od_ostream&);
 
@@ -185,7 +196,10 @@ protected:
     Object*			gtObjectByIdx(idx_type) const;
 
     static ValueSet*		gtByParse(char*,int,uiRetVal&,ValueSet*);
+    static ValueSet*		gtByParse(char*,int,bool allowmixed,
+					  uiRetVal&,ValueSet*);
     void			use(const GasonNode&);
+    void			use(const GasonNode&,bool allowmixed);
 
     friend class		Array;
     friend class		Object;
@@ -220,12 +234,14 @@ public:
 
     ValueType		valueType(idx_type) const override
 			{ return valtype_; }
+    DataType		dType(idx_type) const;
+				//!< Only for ValueType==Data
     ValueType		valType() const		{ return valtype_; }
     size_type		size() const override;
     DataType		dataType() const;
 
-
-			// Only available if valType() == Data
+			/*!< Only available if valType() == Data
+			     and not using mixed-type arrays */
     inline ValArr&	valArr()		{ return *valarr_; }
     inline const ValArr& valArr() const		{ return *valarr_; }
 
@@ -308,6 +324,8 @@ public:
     idx_type		indexOf(const char*) const;
     bool		isPresent( const char* ky ) const
 						{ return indexOf(ky) >= 0; }
+    DataType		dType(idx_type) const;
+				//!< Only for ValueType==Data
 
     inline ValueSet*	getChild( const char* ky )
 			{ return gtChildByKey(ky); }
