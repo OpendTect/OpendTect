@@ -72,10 +72,9 @@ bool uiSeisWvltCreate::acceptOK( CallBacker* )
 
 static float getFreqScaler()
 {
-    return SI().zIsTime() ? 1.f
-			  : SI().depthsInFeet() ? 5280.f : 1000.f;
+    return SI().zIsTime() ? 1.f : 1000.f;
     /*
-       /ft are converted to /miles
+       /ft are converted to /kft
        /m are converted to /km
    */
 }
@@ -95,7 +94,7 @@ uiSeisWvltGen::uiSeisWvltGen( uiParent* p )
     uiString txt = tr("%1 (%2)")
 	.arg( SI().zIsTime() ? uiStrings::sFrequency()
 			     : uiStrings::sWaveNumber() )
-	.arg( SI().zIsTime() ? "Hz" : SI().depthsInFeet() ? "/miles" : "/km" );
+	.arg( SI().zIsTime() ? "Hz" : SI().depthsInFeet() ? "/kft" : "/km" );
     freqfld_ = new uiGenInput( this, txt, FloatInpSpec(deffrq),
 			       FloatInpSpec(deffrq), FloatInpSpec(deffrq));
     freqfld_->addInput( FloatInpSpec(deffrq) );
