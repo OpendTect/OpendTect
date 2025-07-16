@@ -344,7 +344,6 @@ uiODMain::uiODMain( uiMain& a )
 	mAttachCB( newsurvinittimer_.tick, uiODMain::newSurvInitTimerCB );
     }
 
-    mAttachCB( autoloadsessiontimer_.tick, uiODMain::autoloadSessionCB );
     mAttachCB( postFinalize(), uiODMain::afterStartupCB );
 }
 
@@ -788,10 +787,8 @@ void uiODMain::go()
     }
 
     show();
-
-    Timer tm( "Handle startup session" );
-    mAttachCB( tm.tick, uiODMain::afterSurveyChgCB );
-    tm.start( 200, true );
+    mAttachCB( autoloadsessiontimer_.tick, uiODMain::autoloadSessionCB );
+    autoloadsessiontimer_.start( 500, true );
 }
 
 
