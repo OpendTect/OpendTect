@@ -653,6 +653,9 @@ bool FaultStickSetGeometry::usePar( const IOPar& par )
 	    }
 	}
 
+	if ( geomid.isUdf() )
+	    geomid = Survey::default3DGeomID();
+
 	GeomGroup* geomgrp = nullptr;
 	for ( auto* currgeomgrp : geomgroupset_ )
 	{
