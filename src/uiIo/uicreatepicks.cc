@@ -112,6 +112,8 @@ RefMan<Pick::Set> uiCreatePicks::getPickSet() const
     ret->disp_.color_ = colsel_->color();
     ret->disp_.connect_ = aspolygon_ ? Pick::Set::Disp::Open
 				     : Pick::Set::Disp::None;
+    ret->pars_.set( sKey::Type(), aspolygon_ ? sKey::Polygon()
+					     : sKey::PickSet() );
     return ret;
 }
 
