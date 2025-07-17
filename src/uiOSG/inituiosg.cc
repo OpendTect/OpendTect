@@ -9,10 +9,8 @@ ________________________________________________________________________
 
 #include "moddepmgr.h"
 
-#include "systeminfo.h"
 #include "uimain.h"
 #include "uiosgfont.h"
-#include "uiglinfo.h"
 
 mDefModInitFn(uiOSG)
 {
@@ -21,10 +19,4 @@ mDefModInitFn(uiOSG)
     uiOsgFontCreator::initClass();
     const int screendpi = uiMain::getMinDPI();
     visBase::DataObject::setDefaultPixelDensity( screendpi );
-
-    if ( uiMain::reqOpenGL() )
-    {
-	IOPar& graphicspar = const_cast<IOPar&>( System::graphicsInformation());
-	uiGLI().createAndShowMessage( true, &graphicspar, "dTect.Last GL info");
-    }
 }
