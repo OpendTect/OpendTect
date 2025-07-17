@@ -101,6 +101,7 @@ void System::IssueReporter::fillBasicReport()
     report_.setEmpty();
     StringPairSet infoset;
     infoset.add( "OpendTect version", ODInst::getPkgVersion("base") );
+    infoset.add( "User Name", GetUserNm() );
     infoset.add( "Platform", OD::Platform::local().longName() );
     infoset.add( "Operating System", System::productName() );
 
