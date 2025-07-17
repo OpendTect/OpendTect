@@ -1193,6 +1193,9 @@ void Engine::init()
 
 void Engine::applClosingCB( CallBacker* )
 {
+    if ( trackingInProgress() )
+	stopTracking();
+
     for ( int idx=trackers_.size()-1; idx>=0; idx-- )
 	removeTracker( idx );
 }
