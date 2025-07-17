@@ -350,7 +350,6 @@ uiODMain::uiODMain( uiMain& a )
 	mAttachCB( newsurvinittimer_.tick, uiODMain::newSurvInitTimerCB );
     }
 
-    mAttachCB( autoloadsessiontimer_.tick, uiODMain::autoloadSessionCB );
     mAttachCB( postFinalize(), uiODMain::afterStartupCB );
 }
 
@@ -809,10 +808,8 @@ void uiODMain::go_void()
     }
 
     show();
-
-    Timer tm( "Handle startup session" );
-    mAttachCB( tm.tick, uiODMain::afterSurveyChgCB );
-    tm.start( 200, true );
+    mAttachCB( autoloadsessiontimer_.tick, uiODMain::autoloadSessionCB );
+    autoloadsessiontimer_.start( 500, true );
 }
 
 
@@ -844,7 +841,7 @@ bool uiODMain::askStore( bool& askedanything, const uiString& actiontype )
 							    true, actiontype) )
 		return false;
 
-	bool doask = false;
+    bool doask = false;
     Settings::common().getYN( "dTect.Ask store session", doask );
     if ( doask && hasSessionChanged() )
     {
