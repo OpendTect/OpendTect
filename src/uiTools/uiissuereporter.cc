@@ -81,13 +81,13 @@ uiIssueReporterDlg::uiIssueReporterDlg( uiParent* p,
     commentlbl->attach( centeredLeftOf, commentfld_ );
 
     emailfld_ = new uiLineEdit( this, "email" );
-    emailfld_->setPlaceholderText( toUiString("someone@example.com") );
-    emailfld_->setToolTip( tr("Please provide an email address\n"
+    emailfld_->setPlaceholderText( toUiString("yourname@example.com") );
+    emailfld_->setToolTip( tr("Please provide your email address\n"
 			   "for feedback or update on this issue") );
     emailfld_->attach( alignedBelow, commentfld_ );
     emailfld_->setStretch( 2, 1 );
 
-    auto* emaillbl = new uiLabel( this, tr("Email"), emailfld_ );
+    auto* emaillbl = new uiLabel( this, tr("Your email"), emailfld_ );
     emaillbl->setAlignment( Alignment::Right );
 
     uiButton* proxybut = new uiPushButton( this, tr("Proxy settings"),
@@ -137,7 +137,7 @@ bool uiIssueReporterDlg::allowSending() const
 void uiIssueReporterDlg::proxySetCB( CallBacker* )
 {
     uiProxyDlg dlg( this );
-    dlg.setHelpKey(mNoHelpKey );
+    dlg.setHelpKey( mNoHelpKey );
     dlg.go();
 }
 
