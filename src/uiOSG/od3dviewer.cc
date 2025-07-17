@@ -23,6 +23,7 @@ ________________________________________________________________________
 #include "survinfo.h"
 #include "swapbuffercallback.h"
 #include "timer.h"
+#include "uiglinfo.h"
 
 #include "visaxes.h"
 #include "viscamera.h"
@@ -674,22 +675,19 @@ visBase::SceneColTab* OD3DViewer::getSceneColTab()
 
 void OD3DViewer::qtEventCB( CallBacker* )
 {
-#if OSG_VERSION_LESS_THAN(3,3,0)
-    if ( eventfilter_.getCurrentEventType()== uiEventFilter::Gesture )
+    static bool uigliinited = false;
+    const uiEventFilter::EventType evtype = eventfilter_.getCurrentEventType();
+    if ( evtype == uiEventFilter::Show || evtype == uiEventFilter::Resize )
     {
-	QGestureEvent* gestureevent =
-	    static_cast<QGestureEvent*> ( eventfilter_.getCurrentEvent() );
-	handleGestureEvent( gestureevent );
-    }
-#endif
+	if ( !uigliinited )
+	{
+	    uiGLI();
+	    uigliinited = true;
+	}
 
-    if ( eventfilter_.getCurrentEventType()==uiEventFilter::Resize ||
-	 eventfilter_.getCurrentEventType()==uiEventFilter::Show )
-    {
-	reSizeEvent( 0 );
+	reSizeEvent( nullptr );
     }
-
-    if ( eventfilter_.getCurrentEventType() == uiEventFilter::KeyPress )
+    else if ( evtype == uiEventFilter::KeyPress )
     {
 	const QKeyEvent* keyevent =
 	    (const QKeyEvent*) eventfilter_.getCurrentEvent();
@@ -701,6 +699,14 @@ void OD3DViewer::qtEventCB( CallBacker* )
 	if ( keyevent->key()==Qt::Key_PageDown )
 	    handle_.pageupdown.trigger( false );
     }
+#if OSG_VERSION_LESS_THAN(3,3,0)
+    else if ( evtype == uiEventFilter::Gesture )
+    {
+	QGestureEvent* gestureevent =
+	    static_cast<QGestureEvent*> ( eventfilter_.getCurrentEvent() );
+	handleGestureEvent( gestureevent );
+    }
+#endif
 }
 
 

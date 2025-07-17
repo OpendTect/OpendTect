@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "uidockwin.h"
 #include "uiempartserv.h"
 #include "uigeninput.h"
+#include "uiglinfo.h"
 #include "uiioobjsel.h"
 #include "uiioobjseldlg.h"
 #include "uilabel.h"
@@ -65,6 +66,7 @@ ________________________________________________________________________
 #include "settings.h"
 #include "survgeom.h"
 #include "survinfo.h"
+#include "systeminfo.h"
 #include "timer.h"
 #include "visdata.h"
 
@@ -396,6 +398,7 @@ void uiODMain::initScene()
     const bool addscene = !GetEnvVarYN( "OD_NOSCENE_AT_STARTUP" );
     if ( addscene )
 	scenemgr_->initMenuMgrDepObjs();
+
     readSettings();
 
     justBeforeGo.trigger();
@@ -808,6 +811,12 @@ void uiODMain::go_void()
     }
 
     show();
+    if ( uiMain::reqOpenGL() )
+    {
+        IOPar& graphicspar = const_cast<IOPar&>( System::graphicsInformation());
+        uiGLI().createAndShowMessage( true, &graphicspar, "dTect.Last GL info");
+    }
+
     mAttachCB( autoloadsessiontimer_.tick, uiODMain::autoloadSessionCB );
     autoloadsessiontimer_.start( 500, true );
 }
