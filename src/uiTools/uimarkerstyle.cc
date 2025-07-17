@@ -194,7 +194,7 @@ uiMarkerStyle3D::uiMarkerStyle3D( uiParent* p, bool withcolor,
 
     uiObject* alignobj = nullptr;
 
-    typefld_ = new uiGenInput( this, tr("Marker Shape"), str );
+    typefld_ = new uiGenInput( this, tr("Marker style"), str );
     alignobj = typefld_->attachObj();
 
     if ( withcolor )
