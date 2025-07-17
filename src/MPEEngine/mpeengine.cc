@@ -74,6 +74,9 @@ Engine::~Engine()
 
 void Engine::cleanup()
 {
+    if ( trackingInProgress() )
+	stopTracking();
+
     trackers_.erase();
     editors_.erase();
     deepErase( attribcachespecs_ );
