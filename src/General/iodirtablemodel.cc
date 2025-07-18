@@ -17,7 +17,6 @@ ________________________________________________________________________
 #include "timefun.h"
 
 #include "uistrings.h"
-#include <QDate>
 
 
 static const int sNameCol	= 0;
@@ -94,9 +93,9 @@ TableModel::CellData IODirTableModel::getCellData( int row,int col ) const
     {
 	BufferString datestr;
 	ioobj->pars().get( sKey::CrAt(), datestr );
-	QDateTime qdatetime =
-		QDateTime::fromString( datestr.buf(),  Qt::ISODate );
-	return CellData( qdatetime );
+	CellData cd;
+	cd.setISODateTime( datestr.buf() );
+	return cd;
     }
 
     return CellData();
