@@ -476,6 +476,9 @@ void uiMain::preInit( const CommandLineParser& parser, BufferString& stylestr )
 #if QT_VERSION >= QT_VERSION_CHECK(5,6,0) && \
     QT_VERSION < QT_VERSION_CHECK(6,0,0)
     QCoreApplication::setAttribute( Qt::AA_EnableHighDpiScaling );
+#elif QT_VERSION >= QT_VERSION_CHECK(6,0,0)
+    if ( __iswin__ )
+	SetEnvVar( "QT_LOGGING_RULES", "qt.qpa.window=false" );
 #endif
 
 #if QT_VERSION >= QT_VERSION_CHECK(5,4,0)
