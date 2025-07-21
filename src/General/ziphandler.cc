@@ -2224,6 +2224,9 @@ bool ZipHandler::readLocalFileHeader( ZipFileInfo& fileinfo )
     od_uint64& compfilesize = fileinfo.compsize_;
     od_uint32& crc = fileinfo.crc_;
 
+    if ( istrm_->position() != fileinfo.localheaderoffset_ )
+	istrm_->setReadPosition( fileinfo.localheaderoffset_ );
+
     unsigned char headerbuff[1024];
     istrm_->getBin( headerbuff, mLHeaderSize );
     headerbuff[mLHeaderSize] = '\0';
@@ -2239,14 +2242,14 @@ bool ZipHandler::readLocalFileHeader( ZipFileInfo& fileinfo )
 	return false;
     }
 
+    mUnusedVar od_uint16 version =
+			*mCast( od_uint16*, headerbuff + mLVerNeedToExtract );
+
     if ( OD::getBitValue(*(headerbuff+mLGenPurBitFlag),0) )
     {
 	errormsg_ = tr("Encrypted file: Not supported");
 	return false;
     }
-
-    mUnusedVar od_uint16 version =
-			*mCast( od_uint16*, headerbuff + mLVerNeedToExtract );
 
     compmethod = *mCast( od_uint16*, headerbuff + mLCompMethod );
     if ( compmethod != Z_DEFLATED && compmethod != mZ_NOCOMP )
@@ -2266,9 +2269,15 @@ bool ZipHandler::readLocalFileHeader( ZipFileInfo& fileinfo )
 	return false;
     }
 
-    crc = *mCast( od_uint32*, headerbuff + mLCRC32 );
-    compfilesize = *mCast( od_uint32*, headerbuff + mLCompSize );
-    uncompfilesize = *mCast( od_uint32*, headerbuff + mLUnCompSize );
+    const bool hasdatadescriptor =
+		OD::getBitValue( *(headerbuff+mLGenPurBitFlag), 3 );
+    if ( !hasdatadescriptor )
+    {
+	crc = *mCast( od_uint32*, headerbuff + mLCRC32 );
+	compfilesize = *mCast( od_uint32*, headerbuff + mLCompSize );
+	uncompfilesize = *mCast( od_uint32*, headerbuff + mLUnCompSize );
+    }
+
     if ( !fileinfo.hasutcheader_ )
     {
 	fileinfo.setDosTimeDateModified(
