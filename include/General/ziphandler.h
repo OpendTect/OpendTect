@@ -75,6 +75,8 @@ public:
     bool			binary_			= true;
     BufferString		comment_;
     bool			hasutcheader_		= false;
+    bool			hasdatadescriptor_	= false;
+    od_uint32			datadescsz_		= mUdf(od_uint32);
 
 private:
     void			setFileNameInZip(const FilePath& basepath);
