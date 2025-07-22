@@ -142,9 +142,12 @@ public:
     void			fillPar(IOPar&) const override;
     bool			usePar(const IOPar&) override;
     void			setPixelDensity(float) override;
+    void			redraw();
     const char*			errMsg() const  override
 				{ return errmsg_.str(); }
     const visBase::Well*	getWell() const { return well_.ptr(); }
+
+    CNotifier<WellDisplay,TypeSet<Coord3>& > trackDataRequest_;
 
 protected:
 				~WellDisplay();
@@ -152,7 +155,7 @@ protected:
     void			setWell(visBase::Well*);
     void			updateMarkers(CallBacker*);
     void			fullRedraw(CallBacker*);
-    void			getTrackPos(const Well::Data*,TypeSet<Coord3>&);
+    void			getTrackPos(const Well::Data&,TypeSet<Coord3>&);
     void			displayLog(Well::LogDisplayPars*,int);
     void			setLogProperties(visBase::Well::LogParams&);
     void			pickCB(CallBacker* =nullptr);

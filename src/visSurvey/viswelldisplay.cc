@@ -53,6 +53,7 @@ const char* WellDisplay::sKeyWellID		= "Well ID";
 WellDisplay::WellDisplay()
     : visBase::VisualObjectImpl(true)
     , changed_(this)
+    , trackDataRequest_(this)
     , zistime_(SI().zIsTime())
     , zinfeet_(SI().zInFeet())
 {
@@ -212,11 +213,11 @@ void WellDisplay::fillLogParams(
 void WellDisplay::fullRedraw( CallBacker* )
 {
     mGetWD(return);
-    if ( !well_ )
+    if ( !well_ || !wd )
 	return;
 
     TypeSet<Coord3> trackpos;
-    getTrackPos( wd.ptr(), trackpos );
+    getTrackPos( *wd.ptr(), trackpos );
     if ( trackpos.isEmpty() )
 	return;
 
@@ -266,37 +267,34 @@ bool WellDisplay::needsConversionToTime() const
 }
 
 
-void WellDisplay::getTrackPos( const Well::Data* wd,
+void WellDisplay::getTrackPos( const Well::Data& wd,
 			       TypeSet<Coord3>& trackpos )
 {
-    if ( !wd )
-	return;
-
-    trackpos.erase();
-    setName(  wd->name() );
-
-    if ( wd->track().size() < 1 )
+    setName(  wd.name() );
+    if ( wd.track().size() < 1 )
 	return;
 
     const bool needsconversiontotime = needsConversionToTime();
     if ( needsconversiontotime )
     {
-	if ( !timetrack_ )
-	    timetrack_ = new Well::Track( wd->track() );
+	if ( timetrack_ )
+	    *timetrack_ = wd.track();
 	else
-	    *timetrack_ = wd->track();
+	    timetrack_ = new Well::Track( wd.track() );
 
-	timetrack_->toTime( *wd );
+	timetrack_->toTime( wd );
     }
 
+    trackDataRequest_.trigger( trackpos );
     const Well::Track& track = needsconversiontotime
-			     ? *timetrack_ : wd->track();
+			     ? *timetrack_ : wd.track();
+    if ( trackpos.size() == track.size() )
+	return;
 
     Coord3 pt;
     for ( int idx=0; idx<track.size(); idx++ )
     {
 	pt = track.pos( idx );
-
         if ( !mIsUdf(pt.z_) )
 	    trackpos += pt;
     }
@@ -382,6 +380,9 @@ mShowFunction( showLogName, logNameShown )
 
 void WellDisplay::setResolution( int res, TaskRunner* )
 {
+    if ( res == logresolution_ )
+	return;
+
     logresolution_ = res;
     fullRedraw( nullptr );
 }
@@ -990,6 +991,12 @@ const ZAxisTransform* WellDisplay::getZAxisTransform() const
 
 
 void WellDisplay::dataTransformCB( CallBacker* )
+{
+    fullRedraw( nullptr );
+}
+
+
+void WellDisplay::redraw()
 {
     fullRedraw( nullptr );
 }
