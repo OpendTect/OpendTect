@@ -27,6 +27,8 @@ ________________________________________________________________________
 #include "wellmarker.h"
 #include "welld2tmodel.h"
 
+#include "hiddenparam.h"
+
 #define	mPickSz	3
 #define	mPickType 3
 
@@ -50,6 +52,9 @@ static Well::LoadReqs defReqs()
 const char* WellDisplay::sKeyEarthModelID	= "EarthModel ID";
 const char* WellDisplay::sKeyWellID		= "Well ID";
 
+static HiddenParam<WellDisplay,CNotifier<WellDisplay,TypeSet<Coord3>& >* >
+			well3ddispnotifmgr_(nullptr);
+
 WellDisplay::WellDisplay()
     : visBase::VisualObjectImpl(true)
     , changed_(this)
@@ -57,6 +62,8 @@ WellDisplay::WellDisplay()
     , zinfeet_(SI().zInFeet())
 {
     ref();
+    well3ddispnotifmgr_.setParam( this,
+	    new CNotifier<WellDisplay,TypeSet<Coord3>& >( this ) );
     setMaterial( nullptr );
     RefMan<visBase::Well> viswell = visBase::Well::create();
     setWell( viswell.ptr() );
@@ -72,6 +79,13 @@ WellDisplay::~WellDisplay()
     delete dispprop_;
     delete pseudotrack_;
     delete timetrack_;
+    well3ddispnotifmgr_.removeAndDeleteParam( this );
+}
+
+
+CNotifier<WellDisplay,TypeSet<Coord3>& >& WellDisplay::trackDataRequest()
+{
+    return *well3ddispnotifmgr_.getParam( this );
 }
 
 
@@ -212,7 +226,7 @@ void WellDisplay::fillLogParams(
 void WellDisplay::fullRedraw( CallBacker* )
 {
     mGetWD(return);
-    if ( !well_ )
+    if ( !well_ || !wd )
 	return;
 
     TypeSet<Coord3> trackpos;
@@ -269,34 +283,31 @@ bool WellDisplay::needsConversionToTime() const
 void WellDisplay::getTrackPos( const Well::Data* wd,
 			       TypeSet<Coord3>& trackpos )
 {
-    if ( !wd )
-	return;
-
-    trackpos.erase();
     setName(  wd->name() );
-
     if ( wd->track().size() < 1 )
 	return;
 
     const bool needsconversiontotime = needsConversionToTime();
     if ( needsconversiontotime )
     {
-	if ( !timetrack_ )
-	    timetrack_ = new Well::Track( wd->track() );
-	else
+	if ( timetrack_ )
 	    *timetrack_ = wd->track();
+	else
+	    timetrack_ = new Well::Track( wd->track() );
 
 	timetrack_->toTime( *wd );
     }
 
+    trackDataRequest().trigger( trackpos );
     const Well::Track& track = needsconversiontotime
 			     ? *timetrack_ : wd->track();
+    if ( trackpos.size() == track.size() )
+	return;
 
     Coord3 pt;
     for ( int idx=0; idx<track.size(); idx++ )
     {
 	pt = track.pos( idx );
-
         if ( !mIsUdf(pt.z_) )
 	    trackpos += pt;
     }
@@ -382,6 +393,9 @@ mShowFunction( showLogName, logNameShown )
 
 void WellDisplay::setResolution( int res, TaskRunner* )
 {
+    if ( res == logresolution_ )
+	return;
+
     logresolution_ = res;
     fullRedraw( nullptr );
 }
@@ -990,6 +1004,12 @@ const ZAxisTransform* WellDisplay::getZAxisTransform() const
 
 
 void WellDisplay::dataTransformCB( CallBacker* )
+{
+    fullRedraw( nullptr );
+}
+
+
+void WellDisplay::redraw()
 {
     fullRedraw( nullptr );
 }
