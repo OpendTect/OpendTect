@@ -629,7 +629,6 @@ int uiMain::exec()
     if ( !app_ )
 	{ pErrMsg("Huh?") ; return -1; }
 
-    ApplicationData::applicationToBeStarted().trigger();
     const int ret = app_->exec();
     return ret;
 }
