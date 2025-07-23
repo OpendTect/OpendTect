@@ -18,6 +18,7 @@ ________________________________________________________________________
 #include "uistatusbar.h"
 #include "uitoolbar.h"
 
+#include "applicationdata.h"
 #include "msgh.h"
 #include "q_uiimpl.h"
 #include "texttranslator.h"
@@ -153,6 +154,14 @@ uiMenuBar* uiMainWin::menuBar()			{ return body_->uimenubar(); }
 void uiMainWin::show()
 {
     body_->go();
+    static bool doonce = false;
+    if ( !doonce )
+    {
+	if ( !parent() && uiMain::instance().topLevel() == this )
+	    ApplicationData::applicationToBeStarted().trigger();
+
+	doonce = uiMain::instance().topLevel();
+    }
 }
 
 
