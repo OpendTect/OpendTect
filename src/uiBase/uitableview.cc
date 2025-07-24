@@ -376,7 +376,7 @@ void setModel( QAbstractItemModel* tblmodel ) override
 
 void init()
 {
-    setStyleSheet( "selection-background-color: rgba(50, 50, 50, 50);"
+    setStyleSheet( "selection-background-color: rgba(173,216,230,50);"
 		   "selection-color: black;" );
     if ( horizontalHeader() )
 	horizontalHeader()->setDefaultAlignment(

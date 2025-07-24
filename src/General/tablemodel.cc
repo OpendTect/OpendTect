@@ -283,6 +283,30 @@ void TableModel::endReset()
 }
 
 
+OD::Color TableModel::textColor( int row, int col ) const
+{
+    return OD::Color::Black();
+}
+
+
+OD::Color TableModel::cellColor( int row, int col ) const
+{
+    return OD::Color::NoColor();
+}
+
+
+PixmapDesc TableModel::pixmap( int row, int col ) const
+{
+    return PixmapDesc();
+}
+
+
+uiString TableModel::tooltip( int row, int col ) const
+{
+    return uiString::empty();
+}
+
+
 TableModel::CellType TableModel::getColumnCellType( int col ) const
 {
     return Text;

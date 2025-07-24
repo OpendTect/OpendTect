@@ -67,13 +67,13 @@ public:
     virtual void		setCellData(int row,int col,const CellData&) =0;
     virtual CellData		getCellData(int row,int col) const	= 0;
 
-    virtual OD::Color		textColor(int row,int col) const	= 0;
-    virtual OD::Color		cellColor(int row,int col) const	= 0;
-    virtual PixmapDesc		pixmap(int row,int col) const		= 0;
+    virtual OD::Color		textColor(int row,int col) const;
+    virtual OD::Color		cellColor(int row,int col) const;
+    virtual PixmapDesc		pixmap(int row,int col) const;
     virtual void		setChecked(int row,int col,int val)	{}
     virtual int			isChecked(int row,int col) const  { return -1; }
     virtual uiString		headerText(int rowcol,OD::Orientation) const =0;
-    virtual uiString		tooltip(int row,int col) const		= 0;
+    virtual uiString		tooltip(int row,int col) const;
     virtual const EnumDef*	getEnumDef(int col) const
 				{ return nullptr; }
 
