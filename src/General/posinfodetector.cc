@@ -785,6 +785,80 @@ static BufferString getStepRangeStr( T start, T stop, T step )
 }
 
 
+void PosInfo::Detector::report( StringPairSet& report ) const
+{
+    if ( setup_.reqsorting_ )
+    {
+	BufferString sortdesc( errmsg_.getFullString() );
+
+	if ( sortdesc.isEmpty() )
+	     sortdesc = sorting_.description();
+
+	 report.add( "Sorting", sortdesc );
+    }
+
+    report.add( "Total number of positions", nrpos_ );
+    report.add( "Number of unique positions", nruniquepos_ );
+    report.add( "X-Coordinate range",
+		getRangeStr(mincoord_.x_,maxcoord_.x_,SI().nrXYDecimals()) );
+    report.add( "Y-Coordinate range",
+		getRangeStr(mincoord_.y_,maxcoord_.y_,SI().nrXYDecimals()) );
+
+    if ( setup_.is2d_ )
+    {
+	report.add( "Trace numbers",
+		 getStepRangeStr(start_.crl(),stop_.crl(),step_.crl()) );
+	report.add( setup_.isps_ ? "Distance range between gathers"
+			: "Trace distance range", distrg_ );
+	report.add( setup_.isps_ ? "Average gather distance"
+			: "Average trace distance", avgdist_ );
+	report.addYN( "Gaps in trace numbers", crlirreg_ );
+    }
+    else
+    {
+	report.add( "In-lines",
+		getStepRangeStr(start_.inl(),stop_.inl(),step_.inl()) );
+	report.add( "Cross-lines",
+		getStepRangeStr(start_.crl(),stop_.crl(),step_.crl()));
+	report.addYN( "Gaps in in-lines", inlirreg_ );
+	report.addYN( "Gaps in cross-lines", crlirreg_ );
+    }
+
+    if ( setup_.isps_ )
+    {
+	report.add( "Offsets", getRangeStr(offsrg_.start_,offsrg_.stop_,2) );
+	report.add( "Azimuths",
+		    getRangeStr(azimuthrg_.start_,azimuthrg_.stop_,2) );
+	if ( mIsUdf(firstaltnroffs_.binid_.inl()) )
+	    report.add( "Number of traces per gather", nroffsperpos_ );
+	else
+	{
+	    report.addYN( "Varying traces/gather", true );
+	    const char* varstr = "First different traces/gather at";
+	    const CrdBidOffs fao( userCBO(firstaltnroffs_) );
+	    if ( setup_.is2d_ )
+		report.add( varstr, fao.binid_.crl() );
+	    else
+		report.add( varstr, fao.binid_.toString() );
+	}
+    }
+    else
+    {
+	if ( mIsUdf(firstduppos_.binid_.inl()) )
+	    report.add( "Duplicate positions", "None" );
+	else
+	{
+	    const char* fdupstr = "First duplicate position at";
+	    const CrdBidOffs fdp( userCBO(firstduppos_) );
+	    if ( setup_.is2d_ )
+		report.add( fdupstr, fdp.binid_.crl() );
+	    else
+		report.add( fdupstr, fdp.binid_.toString() );
+	}
+    }
+}
+
+
 void PosInfo::Detector::report( IOPar& iop ) const
 {
     if ( setup_.reqsorting_ )

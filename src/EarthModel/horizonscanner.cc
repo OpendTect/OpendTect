@@ -8,19 +8,19 @@ ________________________________________________________________________
 -*/
 
 #include "horizonscanner.h"
-#include "emhorizonascio.h"
+
 #include "binidvalset.h"
-#include "posinfodetector.h"
-#include "ptrman.h"
+#include "emhorizonascio.h"
+#include "file.h"
 #include "iopar.h"
 #include "od_istream.h"
-#include "survinfo.h"
 #include "oddirs.h"
-#include "keystrs.h"
+#include "posinfodetector.h"
+#include "ptrman.h"
+#include "survinfo.h"
 #include "tabledef.h"
 #include "unitofmeasure.h"
 #include "zaxistransform.h"
-#include "file.h"
 
 
 HorizonScanner::HorizonScanner( const BufferStringSet& fnms,
@@ -29,8 +29,8 @@ HorizonScanner::HorizonScanner( const BufferStringSet& fnms,
     , dtctor_(*new PosInfo::Detector(PosInfo::Detector::Setup(false)))
     , isgeom_(isgeom)
     , fd_(fd)
-    , curmsg_(tr("Scanning"))
     , zinfo_(SI().zDomainInfo())
+    , curmsg_(tr("Scanning"))
 {
     filenames_ = fnms;
     init();
@@ -111,6 +111,70 @@ od_int64 HorizonScanner::totalNr() const
 }
 
 
+void HorizonScanner::report( StringPairSet& report ) const
+{
+    report.setEmpty();
+
+    const int firstattribidx = isgeom_ ? 1 : 0;
+    BufferString str = "Report for horizon file(s):\n";
+    for ( int idx=0; idx<filenames_.size(); idx++ )
+    {
+	if ( idx > 0 )
+	    str += "\n";
+
+	str += filenames_.get(idx).buf();
+    }
+
+    report.setName( str.buf() );
+
+    report.add( StringPairSet::sKeyH1(), "Geometry" );
+    dtctor_.report( report );
+    if ( isgeom_ && valranges_.size() > 0 )
+    {
+	BufferString zrgkey( zinfo_.userName().getFullString() );
+	zrgkey.addSpace().add( zinfo_.unitStr(true) );
+	Interval<float> zrg = valranges_[0];
+	zrg.scale( zinfo_.userFactor() );
+	BufferString zrgstr;
+	zrgstr.add( toString(zrg.start_,0,'f',SI().nrZDecimals()) )
+	      .add( " - " ).add( toString(zrg.stop_,0,'f',SI().nrZDecimals()) );
+	report.add( zrgkey, zrgstr );
+    }
+
+    if ( valranges_.size() > firstattribidx )
+    {
+	report.add( StringPairSet::sKeyH2(), "Data values" );
+	for ( int idx=firstattribidx; idx<valranges_.size(); idx++ )
+	{
+	    const char* attrnm = fd_.bodyinfos_[idx+1]->name().buf();
+	    report.add( IOPar::compKey(attrnm,"Minimum value"),
+		       valranges_[idx].start_ );
+	    report.add( IOPar::compKey(attrnm,"Maximum value"),
+		       valranges_[idx].stop_ );
+	}
+    }
+    else
+	report.add( StringPairSet::sKeyH2(), "No attribute data values" );
+
+    if ( nrPositions() == 0 )
+    {
+	report.add( "No Valid positions found",
+		   "Please re-examine input file and format definition" );
+	return;
+    }
+
+    if ( !rejectedlines_.isEmpty() )
+    {
+	report.add( StringPairSet::sKeyH1(), "Warning" );
+	report.add( "These positions were rejected", "" );
+	for ( int idx=0; idx<rejectedlines_.size(); idx++ )
+	    report.add( toString(idx), rejectedlines_.get(idx).buf() );
+    }
+}
+
+
+mStartAllowDeprecatedSection
+
 void HorizonScanner::report( IOPar& iopar ) const
 {
     iopar.setEmpty();
@@ -128,7 +192,7 @@ void HorizonScanner::report( IOPar& iopar ) const
     if ( isgeom_ && valranges_.size() > 0 )
     {
 	BufferString zrgkey( zinfo_.userName().getFullString() );
-	zrgkey.add( zinfo_.unitStr() );
+	zrgkey.addSpace().add( zinfo_.unitStr(true) );
 	Interval<float> zrg = valranges_[0];
 	zrg.scale( zinfo_.userFactor() );
 	BufferString zrgstr;
@@ -168,6 +232,7 @@ void HorizonScanner::report( IOPar& iopar ) const
     }
 }
 
+mStopAllowDeprecatedSection
 
 
 const char* HorizonScanner::defaultUserInfoFile()
@@ -190,9 +255,9 @@ void HorizonScanner::launchBrowser( const char* fnm ) const
     if ( !fnm || !*fnm )
 	fnm = defaultUserInfoFile();
 
-    IOPar iopar;
-    report( iopar );
-    iopar.write( fnm, IOPar::sKeyDumpPretty() );
+    StringPairSet rep;
+    report( rep );
+    rep.write( fnm );
     File::launchViewer( fnm );
 }
 
@@ -305,13 +370,13 @@ bool HorizonScanner::analyzeData()
 	const UnitOfMeasure* selzunit = ascio_->getSelZUnit();
 
 	uiString zmsg = tr("You have selected Z in %1. "
-			   "In this unit many Z values\n"
+			   "In this unit many Z values "
 			   "appear to be outside the survey range.")
 			   .arg( selzunit->name() );
 	if ( curmsg_.isEmpty() )
 	    curmsg_ = zmsg;
 	else
-	    curmsg_.appendPhrase( zmsg );
+	    curmsg_.append( zmsg, true );
     }
 
     isxy_ = selxy_;
@@ -338,6 +403,7 @@ bool HorizonScanner::isInsideSurvey( const BinID& bid, float zval ) const
 
 int HorizonScanner::nextStep()
 {
+    curmsg_.setEmpty();
     if ( fileidx_ >= filenames_.size() )
     {
 	for ( int idx=0; idx<sections_.size(); idx++ )

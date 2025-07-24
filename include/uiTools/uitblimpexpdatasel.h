@@ -45,6 +45,7 @@ public:
     void			updateSummary();
     bool			commit();
     int				nrHdrLines() const; //!< '-1' = variable
+    void			triggerDefinePush();
 
     Notifier<uiTableImpDataSel>	descChanged;
 

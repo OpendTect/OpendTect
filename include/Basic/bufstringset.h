@@ -194,10 +194,24 @@ public:
 
     StringPairSet&	add(const char*,const char*);
     StringPairSet&	add(const char*,int);
+    StringPairSet&	add(const char*,od_int64);
+    StringPairSet&	add(const char*,float);
+    StringPairSet&	add(const char*,double);
     StringPairSet&	add(const char*,const OD::String&);
     StringPairSet&	add(const OD::String&,const OD::String&);
     StringPairSet&	add(const StringPair&);
     StringPairSet&	add(const StringPairSet&);
+    StringPairSet&	addYN(const char*,bool);
+
+    template <class T>
+    StringPairSet&	add( const char* s, const Interval<T>& i )
+			{
+			    BufferString key( ::toString(i.start_) );
+			    key.add( " - " );
+			    key.add( ::toString(i.stop_) );
+			    return add( s, key );
+			}
+
     void		append(const StringPairSet&);
     void		set(const char*,const char*);
     const char*		getValue(const char* key) const;
@@ -212,5 +226,10 @@ public:
 
     void		dumpPretty(od_ostream&) const;
     void		dumpPretty(BufferString&) const;
+    bool		write(const char* filename) const;
+
+    void		setName(const char*);
+    static const char*	sKeyH1()			{ return "<h1>"; }
+    static const char*	sKeyH2()			{ return "<h2>"; }
 };
 

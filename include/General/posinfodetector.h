@@ -104,6 +104,8 @@ public:
     bool		haveGaps( bool inldir=false ) const
 			{ return inldir ? inlirreg_ : crlirreg_; }
 
+    void		report(StringPairSet&) const;
+    mDeprecated("Use with a StringPairSet")
     void		report(IOPar&) const;
 
     const BinIDSorting&	sorting() const		{ return sorting_; }

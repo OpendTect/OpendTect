@@ -51,6 +51,8 @@ public:
 
     static const char*	defaultUserInfoFile();
     void		launchBrowser(const char* fnm=0) const;
+    void		report(StringPairSet&) const;
+    mDeprecated("Use with a StringPairSet")
     void		report(IOPar&) const;
 
     const ObjectSet<BinIDValueSet>& getSections()	{ return sections_; }
