@@ -147,6 +147,7 @@ private:
     static const char*		sKeyMapper();
     static const char*		sKeyResolution();
     static const char*		sKeyTextTrans();
+    static const char*		sKeyInterpolate();
 };
 
 } // namespace visSurvey

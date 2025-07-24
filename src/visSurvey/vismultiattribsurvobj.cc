@@ -31,6 +31,7 @@ const char* MultiTextureSurveyObject::sKeyResolution()	{ return "Resolution"; }
 const char* MultiTextureSurveyObject::sKeyTextTrans()	{ return "Trans"; }
 const char* MultiTextureSurveyObject::sKeySequence()	{ return "Sequence"; }
 const char* MultiTextureSurveyObject::sKeyMapper()	{ return "Mapper"; }
+const char* MultiTextureSurveyObject::sKeyInterpolate() { return "Interpolate";}
 
 
 MultiTextureSurveyObject::MultiTextureSurveyObject()
@@ -498,6 +499,8 @@ void MultiTextureSurveyObject::fillPar( IOPar& par ) const
     SurveyObject::fillPar( par );
     visBase::VisualObjectImpl::fillPar( par );
     par.set( sKeyResolution(), resolution_ );
+    if ( channels_ )
+	par.setYN( sKeyInterpolate(), channels_->textureInterpolationEnabled());
     par.setYN( visBase::VisualObjectImpl::sKeyIsOn(), isOn() );
     for ( int attrib=nrAttribs()-1; attrib>=0; attrib-- )
     {
@@ -544,6 +547,10 @@ bool MultiTextureSurveyObject::usePar( const IOPar& par )
 	return false;
 
     par.get( sKeyResolution(), resolution_ );
+
+    bool hastextureinterpolation = true;
+    if ( channels_ && par.getYN(sKeyInterpolate(),hastextureinterpolation) )
+	channels_->enableTextureInterpolation( hastextureinterpolation );
 
     bool ison = true;
     par.getYN( visBase::VisualObjectImpl::sKeyIsOn(), ison );
