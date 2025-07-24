@@ -18,6 +18,7 @@ ________________________________________________________________________
 #include "uigeninputdlg.h"
 #include "uiioobjsel.h"
 #include "uiiosurface.h"
+#include "uilabel.h"
 #include "uilistbox.h"
 #include "uimsg.h"
 #include "uipossubsel.h"
@@ -327,6 +328,32 @@ uiString uiImportHorizon::goOnMsg()
 }
 
 
+class uiScanMsgDlg : public uiDialog
+{
+mODTextTranslationClass(uiScanMggDlg)
+public:
+uiScanMsgDlg( uiParent* p, const uiString& msg )
+    : uiDialog(p,Setup(uiStrings::sSpecify(),mNoHelpKey))
+{
+    auto* lbl = new uiLabel( this, msg );
+
+    grp_ = new uiButtonGroup( this, "", OD::Vertical );
+    grp_->attach( alignedBelow, lbl );
+    new uiRadioButton( grp_, tr("Continue (I know what I'm doing)") );
+    new uiRadioButton( grp_, tr("I want to change the 'Format definition'") );
+    grp_->selectButton( 1 );
+}
+
+
+bool canContinue() const
+{
+    return grp_->selectedId() == 0;
+}
+
+    uiButtonGroup* grp_;
+
+};
+
 bool uiImportHorizon::doScan()
 {
     BufferStringSet filenms;
@@ -336,11 +363,15 @@ bool uiImportHorizon::doScan()
     scanner_ = new HorizonScanner( filenms, fd_, isgeom_, zDomain() );
     if ( !scanner_->uiMessage().isEmpty() )
     {
-	const bool res = uiMSG().askGoOn( scanner_->uiMessage(),
-				tr("Continue with selected Z unit"),
-				tr("I want to change the Format definition") );
-	if ( !res )
+	uiScanMsgDlg dlg( this, scanner_->uiMessage() );
+	if ( !dlg.go() )
 	    return false;
+
+	if ( !dlg.canContinue() )
+	{
+	    dataselfld_->triggerDefinePush();
+	    return false;
+	}
     }
 
     uiTaskRunner uitr( this );
@@ -354,7 +385,8 @@ bool uiImportHorizon::doScan()
     const StepInterval<int> crg = cs.hsamp_.crlRange();
     if ( irg.start_>nilnrg.stop_ || crg.start_>nclnrg.stop_ ||
 	 irg.stop_<nilnrg.start_ || crg.stop_<nclnrg.start_ )
-	uiMSG().warning( tr("Your horizon is out of the survey range.") );
+	uiMSG().warning(
+		tr("This horizon is outside the defined survey range.") );
     else if ( irg.step_ > 1 )
     {
 	mNotCompatibleRet(i);

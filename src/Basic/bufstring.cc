@@ -1499,6 +1499,14 @@ StringPairSet::~StringPairSet()
 {}
 
 
+static const char* sKeyName()		{ return "<name>"; }
+
+void StringPairSet::setName( const char* nm )
+{
+    entries_.insertAt( new StringPair(sKeyName(),nm), 0 );
+}
+
+
 StringPairSet& StringPairSet::operator=( const StringPairSet& oth )
 {
     setEmpty();
@@ -1522,6 +1530,24 @@ StringPairSet& StringPairSet::add( const char* first, int num )
 }
 
 
+StringPairSet& StringPairSet::add( const char* first, od_int64 num )
+{
+    return add( first, toString(num) );
+}
+
+
+StringPairSet& StringPairSet::add( const char* first, float num )
+{
+    return add( first, toString(num) );
+}
+
+
+StringPairSet& StringPairSet::add( const char* first, double num )
+{
+    return add( first, toString(num) );
+}
+
+
 StringPairSet& StringPairSet::add( const char* first, const OD::String& second )
 {
     entries_.add( new StringPair(first,second.buf()) );
@@ -1534,6 +1560,12 @@ StringPairSet& StringPairSet::add( const OD::String& first,
 {
     entries_.add( new StringPair(first.buf(),second.buf()) );
     return *this;
+}
+
+
+StringPairSet& StringPairSet::addYN( const char* first, bool yn )
+{
+    return add( first, getYesNoString(yn) );
 }
 
 
@@ -1624,6 +1656,7 @@ void StringPairSet::dumpPretty( BufferString& res ) const
     if ( maxlabellen == 0 )
 	return;
 
+    maxlabellen += 2; // left-border
     const int valpos = haveval ? maxlabellen + 3 : 0;
     BufferString valposstr( valpos + 1, true );
     for ( int ispc=0; ispc<valpos; ispc++ )
@@ -1633,6 +1666,22 @@ void StringPairSet::dumpPretty( BufferString& res ) const
     {
 	const BufferString& label = entry->first();
 	BufferString val = entry->second();
+	if ( label == sKeyName() )
+	{
+	    res.add( val ).addNewLine();
+	    continue;
+	}
+	else if ( label == sKeyH1() )
+	{
+	    res.addNewLine(2).add("* ").add(val).add(" *").addNewLine(2);
+	    continue;
+	}
+	else if ( label == sKeyH2() )
+	{
+	    res.addNewLine(1).add("- ").add(val).addNewLine(2);
+	    continue;
+	}
+
 	BufferString labelprint( maxlabellen + 1, true );
 	const int extra = maxlabellen - label.size();
 	for ( int ispc=0; ispc<extra; ispc++ )
@@ -1659,4 +1708,15 @@ void StringPairSet::dumpPretty( BufferString& res ) const
 	}
 	res += "\n";
     }
+}
+
+
+bool StringPairSet::write( const char* fnm ) const
+{
+    od_ostream strm( fnm );
+    if ( !strm.isOK() )
+	return false;
+
+    dumpPretty( strm );
+    return strm.isOK();
 }

@@ -821,3 +821,9 @@ void uiTableImpDataSel::updateSummary()
     fmtdeffld_->updateSummary();
     descChg( 0 );
 }
+
+
+void uiTableImpDataSel::triggerDefinePush()
+{
+    fmtdeffld_->butPush.trigger();
+}
