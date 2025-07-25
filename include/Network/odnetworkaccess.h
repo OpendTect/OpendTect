@@ -106,12 +106,16 @@ public:
     od_int64		getDownloadSize();
 
     uiString		uiMessage() const override;
-    int			nextStep() override;
-    od_int64		nrDone() const override;
     uiString		uiNrDoneText() const override;
-    od_int64		totalNr() const override;
 
-protected:
+private:
+    od_int64		nrDone() const override;
+    od_int64		totalNr() const override;
+    double		progressFactor() const override;
+
+    bool		doPrepare(od_ostream* =nullptr) override;
+    int			nextStep() override;
+    bool		doFinish(bool success,od_ostream* =nullptr) override;
 
     void		setSaveAsPaths(const BufferStringSet&,const char*);
     int			errorOccured();
@@ -144,16 +148,18 @@ public:
 			~DataUploader();
 
     uiString		uiMessage() const override;
-    int			nextStep() override;
-    od_int64		nrDone() const override;
     uiString		uiNrDoneText() const override;
+
+private:
+    od_int64		nrDone() const override;
     od_int64		totalNr() const override;
+    double		progressFactor() const override;
 
-protected:
-
+    bool		doPrepare(od_ostream* =nullptr) override;
+    int			nextStep() override;
     int			errorOccured();
+    bool		doFinish(bool,od_ostream* =nullptr) override;
 
-    bool		init_ = true;
     BufferString	url_;
     BufferString	header_;
 
@@ -161,7 +167,7 @@ protected:
     RefMan<Network::HttpRequestProcess> odnr_;
 
     od_int64		nrdone_ = 0;
-    od_int64		totalnr_ = 0;
+    od_int64		totalnr_ = 1;
     uiString		msg_;
 };
 

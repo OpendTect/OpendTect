@@ -135,6 +135,8 @@ FileDownloader::FileDownloader( const BufferStringSet& urls,
 {
     OD::OpenSSLAccess::loadOpenSSL(); //Keep at the first line
     totalnr_ = getDownloadSize();
+    if ( totalnr_ < 0 )
+	msg_ = tr("Cannot determine download size");
 }
 
 
@@ -145,6 +147,8 @@ FileDownloader::FileDownloader( const char* url, DataBuffer& db )
     OD::OpenSSLAccess::loadOpenSSL(); //Keep at the first line
     urls_.add(url);
     totalnr_ = getDownloadSize();
+    if ( totalnr_ < 0 )
+	msg_ = tr("Cannot determine download size");
 }
 
 
@@ -163,15 +167,18 @@ FileDownloader::~FileDownloader()
 }
 
 
+bool FileDownloader::doPrepare( od_ostream* strm )
+{
+    return SequentialTask::doPrepare( strm );
+}
+
+
 int FileDownloader::nextStep()
 {
-    if ( totalnr_ < 0 )
-	return errorOccured();
-
     if ( initneeded_ )
     {
 	initneeded_ = false;
-	if ( !urls_.validIdx( nrfilesdownloaded_ ) )
+	if ( !urls_.validIdx(nrfilesdownloaded_) )
 	    return Finished();
 
 	const char* url = urls_.get(nrfilesdownloaded_).buf();
@@ -197,6 +204,13 @@ int FileDownloader::nextStep()
     }
 
     return MoreToDo();
+}
+
+
+bool FileDownloader::doFinish( bool success, od_ostream* strm )
+{
+    odnr_ = nullptr;
+    return SequentialTask::doFinish( success, strm );
 }
 
 
@@ -294,16 +308,21 @@ uiString FileDownloader::uiMessage() const
 { return msg_; }
 
 
-od_int64 FileDownloader::nrDone() const
-{return nrdone_/1024;}
-
-
 uiString FileDownloader::uiNrDoneText() const
 { return tr("KBytes downloaded"); }
 
 
+od_int64 FileDownloader::nrDone() const
+{ return nrdone_; }
+
+
 od_int64 FileDownloader::totalNr() const
-{ return totalnr_/1024; }
+{ return totalnr_; }
+
+
+double FileDownloader::progressFactor() const
+{ return 1./mDef1KB; }
+
 
 
 // upload
@@ -429,19 +448,19 @@ DataUploader::~DataUploader()
 }
 
 
+bool DataUploader::doPrepare( od_ostream* strm )
+{
+    RefMan<Network::HttpRequest> req = new Network::HttpRequest( url_,
+					   Network::HttpRequest::Post );
+    req->contentType( header_ );
+    req->payloadData( data_ );
+    odnr_ = Network::HttpRequestManager::instance().request( req.ptr() );
+    return SequentialTask::doPrepare( strm );
+}
+
+
 int DataUploader::nextStep()
 {
-    if ( init_ )
-    {
-	RefMan<Network::HttpRequest> req = new Network::HttpRequest( url_,
-					       Network::HttpRequest::Post );
-	req->contentType( header_ );
-	req->payloadData( data_ );
-
-	odnr_ = Network::HttpRequestManager::instance().request(req.ptr());
-	init_ = false;
-    }
-
     if ( odnr_->isError() )
 	return errorOccured();
     else if ( odnr_->isFinished() )
@@ -475,20 +494,31 @@ int DataUploader::errorOccured()
 }
 
 
+bool DataUploader::doFinish( bool success, od_ostream* strm )
+{
+    odnr_ = nullptr;
+    return SequentialTask::doFinish( success, strm );
+}
+
+
 uiString DataUploader::uiMessage() const
 { return msg_; }
-
-
-od_int64 DataUploader::nrDone() const
-{return nrdone_/1024;}
 
 
 uiString DataUploader::uiNrDoneText() const
 { return tr("KBytes uploaded"); }
 
 
+od_int64 DataUploader::nrDone() const
+{ return nrdone_; }
+
+
 od_int64 DataUploader::totalNr() const
-{ return totalnr_/1024; }
+{ return totalnr_; }
+
+
+double DataUploader::progressFactor() const
+{ return 1./mDef1KB; }
 
 
 void Network::setHttpProxyFromSettings()

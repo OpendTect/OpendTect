@@ -142,8 +142,8 @@ void uiTaskRunner::updateFields()
     uiStatusBar& sb = *statusBar();
 
     Threads::Locker lckr( dispinfolock_ );
-    const int totalnr = mCast( int, task_->totalNr() );
-    const int nrdone = mCast( int, task_->nrDone() );
+    const int totalnr = mCast( int, task_->totalNr()*task_->progressFactor() );
+    const int nrdone = mCast( int, task_->nrDone()*task_->progressFactor() );
     const od_int64 newtime = Time::getMilliSeconds();
     const uiString nrdonetext = task_->uiNrDoneText();
     const uiString message = task_->uiMessage();

@@ -114,13 +114,13 @@ protected:
     od_int64		nrdoneperchar_;
     od_int64		nrdone_;
     od_int64		lastannotatednrdone_;
-    od_int64		totalnr_;
+    od_int64		totalnr_	= 0;
     od_int64		oldtime_;
     int			nrdotsonline_;
     bool		inited_;
-    bool		finished_;
+    bool		finished_	= true;
     Threads::Lock	lock_;
-    bool		skipprog_;
+    bool		skipprog_	= false;
 
     void		annotate(bool);
 };
@@ -138,7 +138,7 @@ public:
     void		setStarted() override;
     void		setFinished() override;
     void		setNrDone(od_int64) override;
-    void		setTotalNr(od_int64 t) override;
+    void		setTotalNr(od_int64) override;
 
 			/*!<This setting will not reset unless you call it.*/
     void		skipProgress( bool yn ) override { skipprog_ = yn; }
@@ -156,11 +156,11 @@ private:
     uiString		message_;
     BufferString	name_;
     od_int64		nrdone_;
-    od_int64		totalnr_;
+    od_int64		totalnr_	= 0;
     int			repperc_;
     bool		inited_;
-    bool		finished_;
+    bool		finished_	= true;
     Threads::Lock	lock_;
-    bool		skipprog_;
+    bool		skipprog_	= false;
 
 };

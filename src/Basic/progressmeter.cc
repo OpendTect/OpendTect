@@ -94,6 +94,7 @@ void ProgressRecorder::setForwardTo( ProgressMeter* pm )
     forwardto_ = pm;
 }
 
+
 void ProgressRecorder::skipProgress( bool yn )
 {}
 
@@ -112,8 +113,8 @@ void ProgressRecorder::setFrom( const Task& t )
 {
     mSetLock();
     name_ = t.name();
-    nrdone_ = t.nrDone();
-    totalnr_ = t.totalNr();
+    nrdone_ = t.nrDone() * t.progressFactor();;
+    totalnr_ = t.totalNr() * t.progressFactor();
     message_ = t.uiMessage();
     nrdonetext_ = t.uiNrDoneText();
     if ( nrdone_ > 0 )
@@ -126,10 +127,7 @@ TextStreamProgressMeter::TextStreamProgressMeter( od_ostream& out,
 						  unsigned short rowlen )
     : strm_(out)
     , rowlen_(rowlen)
-    , finished_(true)
-    , totalnr_(0)
 {
-    skipprog_ = false;
     reset();
 }
 
@@ -320,13 +318,10 @@ void TextStreamProgressMeter::annotate( bool withrate )
 
 SimpleTextStreamProgressMeter::SimpleTextStreamProgressMeter( od_ostream& out,
 							      int repperc )
-: strm_(out)
-, finished_(true)
-, totalnr_(0)
-, repperc_(repperc)
-, name_("unknown")
+  : strm_(out)
+  , repperc_(repperc)
+  , name_("unknown")
 {
-    skipprog_ = false;
     reset();
 }
 

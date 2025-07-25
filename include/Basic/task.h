@@ -44,6 +44,9 @@ public:
     virtual od_int64	totalNr() const			{ return -1; }
 			/*!\note totalNr is only used for displaying
 				 progress. */
+    virtual double	progressFactor() const			{ return 1.; }
+			/*!\note conversion factor used to scale nrDone() and
+				 totalNr() when displayed in the GUI  	*/
     virtual uiRetVal	errorWithDetails() const
 			{ return uiRetVal(uiMessage()); }
 

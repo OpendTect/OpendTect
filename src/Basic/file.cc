@@ -38,7 +38,6 @@ ________________________________________________________________________
 #include <QFileInfo>
 #include <QStandardPaths>
 
-#define mMBFactor (1024*1024)
 const char* not_implemented_str = "Not implemented";
 
 mDefineNameSpaceEnumUtils(File,ViewStyle,"Examine View Style")
@@ -140,13 +139,14 @@ public:
 				totalnr_ += getFileSize( filelist_.get(idx) );
 			}
 
-    od_int64		nrDone() const override	{ return nrdone_ / mMBFactor; }
-    od_int64		totalNr() const override { return totalnr_ / mMBFactor;}
     uiString		uiMessage() const override	{ return msg_; }
     uiString		uiNrDoneText() const override
 			{ return tr("MBytes copied"); }
 
 private:
+    od_int64		nrDone() const override	{ return nrdone_; }
+    od_int64		totalNr() const override { return totalnr_;}
+    double		progressFactor() const override { return 1./mDef1MB; }
 
     bool		doPrepare(od_ostream*) override;
     int			nextStep() override;

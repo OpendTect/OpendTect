@@ -328,8 +328,11 @@ void ReportingTask::updateProgressMeter( bool forced, od_int64* totalnrcache )
 	 (Time::passedSince(lastupdate_) < mDefaultTimeLimit && !forced ) )
 	return;
 
-    progressmeter_->setNrDone( nrDone() );
-    progressmeter_->setTotalNr( totalnrcache ? *totalnrcache : totalNr() );
+    const od_int64 nrdone = nrDone() * progressFactor();
+    const od_int64 totalnr = totalnrcache ? *totalnrcache
+					  : totalNr() * progressFactor();
+    progressmeter_->setNrDone( nrdone );
+    progressmeter_->setTotalNr( totalnr );
     progressmeter_->setNrDoneText( uiNrDoneText() );
     progressmeter_->setMessage( uiMessage() );
     lastupdate_ = Time::getMilliSeconds();
@@ -446,7 +449,8 @@ bool SequentialTask::execute()
     {
 	int res = doStep();
 	success = !res;
-	if ( success || res < 0 ) break;
+	if ( success || res < 0 )
+	    break;
     } while ( shouldContinue() );
 
     success = doFinish( success, strm );

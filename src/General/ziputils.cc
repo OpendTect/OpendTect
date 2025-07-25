@@ -48,10 +48,10 @@ public:
     uiString			uiMessage() const override;
     uiString			uiNrDoneText() const override;
 
+private:
     od_int64			nrDone() const override;
     od_int64			totalNr() const override;
-
-private:
+    double			progressFactor() const override;
 
     bool			doPrepare(od_ostream*) override;
     int				nextStep() override;
@@ -130,11 +130,15 @@ bool Zipper::doFinish( bool success, od_ostream* strm )
 
 
 od_int64 Zipper::nrDone() const
-{ return ziphd_.getNrDoneSize()/mDef1MB; }
+{ return ziphd_.getNrDoneSize(); }
 
 
 od_int64 Zipper::totalNr() const
-{ return ziphd_.getTotalSize()/mDef1MB; }
+{ return ziphd_.getTotalSize(); }
+
+
+double Zipper::progressFactor() const
+{ return 1./mDef1MB; }
 
 
 uiString Zipper::uiNrDoneText() const
@@ -165,12 +169,12 @@ public:
     uiString			uiMessage() const override;
     uiString			uiNrDoneText() const override;
 
-    od_int64			nrDone() const override;
-    od_int64			totalNr() const override;
-
     static void			setFolderAttribs(ObjectSet<const ZipFileInfo>&);
 
 private:
+    od_int64			nrDone() const override;
+    od_int64			totalNr() const override;
+    double			progressFactor() const override;
 
     bool			doPrepare(od_ostream*) override;
     int				nextStep() override;
@@ -252,11 +256,15 @@ void UnZipper::setFolderAttribs( ObjectSet<const ZipFileInfo>& dirinfos )
 
 
 od_int64 UnZipper::nrDone() const
-{ return ziphd_.getNrDoneSize()/mDef1MB; }
+{ return ziphd_.getNrDoneSize(); }
 
 
 od_int64 UnZipper::totalNr() const
-{ return ziphd_.getTotalSize()/mDef1MB; }
+{ return ziphd_.getTotalSize(); }
+
+
+double UnZipper::progressFactor() const
+{ return 1./mDef1MB; }
 
 
 uiString UnZipper::uiNrDoneText() const
@@ -286,7 +294,7 @@ MultiArchiveUnZipper( const BufferStringSet& archvs, const char* destination )
     for ( int idx=0; idx<archives_.size(); idx++ )
     {
 	ZipArchiveInfo info( archives_.get(idx) );
-	totalnr_ += info.getTotalSize(true)/mDef1MB;
+	totalnr_ += info.getTotalSize(true);
     }
 }
 
@@ -325,7 +333,7 @@ int nextStep() override
 	    return ErrorOccurred();
 	}
 
-	const int curnrdone = zh.getNrDoneSize()/mDef1MB;
+	const int curnrdone = zh.getNrDoneSize();
 	nrdone_ += ( curnrdone - prevnrdone );
 	prevnrdone = curnrdone;
     }
@@ -366,8 +374,12 @@ od_int64 totalNr() const override
 { return totalnr_; }
 
 
+double progressFactor() const override
+{ return 1./mDef1MB; }
+
+
 uiString uiNrDoneText() const override
-{ return tr("MBytes Processed: "); }
+{ return tr("MBytes written"); }
 
 
 uiString uiMessage() const override
