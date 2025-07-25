@@ -38,10 +38,12 @@ ________________________________________________________________________
 #include <QKeyEvent>
 #include <QMenu>
 #include <QScreen>
+#include <QSurfaceFormat>
 #include <QStyleFactory>
 #include <QTextStream>
 #include <QToolTip>
 #include <QTreeWidget>
+
 
 #ifdef __mac__
 # include "odlogo128x128.xpm"
@@ -500,6 +502,12 @@ void uiMain::preInit( const CommandLineParser& parser, BufferString& stylestr )
 	 */
     }
 # endif
+
+    QSurfaceFormat format;
+    format.setVersion( 2, 0 );
+    format.setProfile( QSurfaceFormat::CompatibilityProfile );
+    format.setDepthBufferSize( 24 );
+    QSurfaceFormat::setDefaultFormat( format );
 #endif
 }
 
