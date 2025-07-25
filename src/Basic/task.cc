@@ -9,6 +9,7 @@ ________________________________________________________________________
 
 #include "paralleltask.h"
 
+#include "envvars.h"
 #include "iopar.h"
 #include "od_ostream.h"
 #include "progressmeter.h"
@@ -438,6 +439,21 @@ bool SequentialTask::doFinish( bool success, od_ostream* )
 bool SequentialTask::execute()
 {
     control_ = Task::Run;
+#ifdef __debug__
+    if ( totalNr() <= 0 )
+    {
+	static bool checktotalnr =
+			GetEnvVarYN( "DTECT_TRACK_SEQUENTIALTASKS", true );
+	if ( checktotalnr )
+	{
+	    if ( totalNr() < 0 )
+		pErrMsg("totalNr should be more than 0 when a sequential"
+			" task is executed");
+	    return true;
+	}
+    }
+#endif
+
     reportProgressStarted();
     mDynamicCastGet(TextStreamProgressMeter*,tspm,progressMeter())
     od_ostream* strm = tspm ? &tspm->stream() : nullptr;
