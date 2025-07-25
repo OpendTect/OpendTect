@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "genc.h"
 #include "oddirs.h"
 #include "odplatform.h"
+#include "odver.h"
 #include "envvars.h"
 #include "od_iostream.h"
 #include "oscommand.h"
@@ -234,7 +235,17 @@ static bool submitCommand( OS::MachineCommand& mc, const char* reldir )
 void ODInst::getMachComm( const char* reldir, OS::MachineCommand& mc )
 {
     mc = getFullMachComm( reldir );
+    const BufferString odverstr( GetFullODVersion() );
+    if ( odverstr.contains("development") )
+	mc = OS::MachineCommand();
+    else
+    {
+	mc.addFlag( "updcheck_report" )
+	  .addKeyedArg( "relver", odverstr )
+	  .addKeyedArg( "remotedirnm", "0.0.0" );
+    }
 }
+
 
 const char* ODInst::sKeyHasUpdate()
 {
