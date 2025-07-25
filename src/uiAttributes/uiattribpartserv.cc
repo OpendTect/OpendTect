@@ -874,8 +874,8 @@ RefMan<RegularSeisDataPack> uiAttribPartServer::createOutputRM(
 	if ( defstr != targetspecs_[0].defString() )
 	    cache = nullptr;
 
-	const bool isz = tkzs.isFlat()&&tkzs.defaultDir() == TrcKeyZSampling::Z;
-	if ( !preloadeddatapack && isz )
+	const bool isz = tkzs.isFlat() && tkzs.defaultDir()==TrcKeyZSampling::Z;
+	if ( !preloadeddatapack )
 	{
 	    if ( targetdesc->isStored() )
 	    {
@@ -888,25 +888,29 @@ RefMan<RegularSeisDataPack> uiAttribPartServer::createOutputRM(
 		rdr.setSelData( new Seis::RangeSelData(tkzs) );
 
 		uiTaskRunner uitaskr( parent() );
-		TaskRunner* taskr = showzprogress ? &uitaskr : nullptr;
+		TaskRunner* taskr = (isz && showzprogress) ? &uitaskr : nullptr;
 		if ( rdr.getDataPack(*sdp,taskr) )
 		    return sdp;
 	    }
 
-	    uiString errmsg;
-	    Desc* nonconsttargetdesc = const_cast<Desc*>( targetdesc );
-	    RefMan<Provider> tmpprov =
-			Provider::create( *nonconsttargetdesc, errmsg );
-	    if ( !tmpprov )
-		return nullptr;
+	    if ( isz )
+	    {
+		uiString errmsg;
+		Desc* nonconsttargetdesc = const_cast<Desc*>( targetdesc );
+		RefMan<Provider> tmpprov =
+			    Provider::create( *nonconsttargetdesc, errmsg );
+		if ( !tmpprov )
+		    return nullptr;
 
-	    tmpprov->computeRefStep();
-	    tmpprov->computeRefZ0();
-	    const float floatres = (tkzs.zsamp_.start_ - tmpprov->getRefZ0()) /
-				    tmpprov->getRefStep();
-	    const int intres = mNINT32( floatres );
-	    if ( Math::Abs(floatres-intres) > 1e-2 )
-		atsamplepos = false;
+		tmpprov->computeRefStep();
+		tmpprov->computeRefZ0();
+		const float floatres =
+				(tkzs.zsamp_.start_ - tmpprov->getRefZ0()) /
+				tmpprov->getRefStep();
+		const int intres = mNINT32( floatres );
+		if ( Math::Abs(floatres-intres) > 1e-2 )
+		    atsamplepos = false;
+	    }
 	}
     }
 
