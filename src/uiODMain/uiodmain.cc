@@ -905,7 +905,6 @@ void uiODMain::checkUpdateAvailable()
 				    BufferString(GetSoftwareDir(true)) );
     OS::MachineCommand mc;
     ODInst::getMachComm( relrootdir, mc );
-    mc.addFlag( "updcheck_report" );
     if ( mc.isBad() || !File::exists(mc.program()) )
 	return;
 

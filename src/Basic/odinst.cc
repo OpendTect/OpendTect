@@ -14,6 +14,7 @@ ________________________________________________________________________
 #include "filepath.h"
 #include "oddirs.h"
 #include "odplatform.h"
+#include "odver.h"
 #include "envvars.h"
 #include "od_iostream.h"
 #include "oscommand.h"
@@ -41,7 +42,7 @@ ________________________________________________________________________
 #endif
 
 mDefineNameSpaceEnumUtils(ODInst,AutoInstType,"Auto update")
-{ "Manager", "Inform", "Full", "None", 0 };
+{ "Manager", "Inform", "Full", "None", nullptr };
 
 
 mDefineNameSpaceEnumUtils(ODInst,RelType,"Release type")
@@ -52,7 +53,7 @@ mDefineNameSpaceEnumUtils(ODInst,RelType,"Release type")
 	"Pre-Release Development",
 	"Old Version",
 	"Other",
-	0
+	nullptr
 };
 
 
@@ -160,7 +161,20 @@ static bool submitCommand( OS::MachineCommand& mc, const char* reldir )
 void ODInst::getMachComm( const char* reldir, OS::MachineCommand& mc )
 {
     mc = getFullMachComm( reldir );
+    const BufferString odverstr( GetFullODVersion() );
+    if ( odverstr.contains("development") )
+	mc = OS::MachineCommand();
+    else
+    {
+	BufferString remotedirnm( mODMajorVersion );
+	remotedirnm.add( "." ).add( mODMinorVersion )
+		   .add( "." ).add( mODPatchVersion );
+	mc.addFlag( "updcheck_report" )
+	  .addKeyedArg( "relver", odverstr )
+	  .addKeyedArg( "remotedirnm", remotedirnm.str() );
+    }
 }
+
 
 const char* ODInst::sKeyHasUpdate()
 {
