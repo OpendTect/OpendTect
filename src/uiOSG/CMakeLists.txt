@@ -29,6 +29,7 @@ if ( OD_USE_QOPENGL AND QT_VERSION VERSION_GREATER_EQUAL 6 )
 	od3dviewer.cc
     )
     list( APPEND OD_MODULE_COMPILE_DEFINITIONS "OD_USE_QOPENGL" )
+    set( OD_MODULE_PROGS od_osgtestapp.cc )
 else()
     list( APPEND OD_MODULE_SOURCES
 	odgraphicswindow.cc

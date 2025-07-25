@@ -16,8 +16,8 @@ set( EXCLUDE_PLUGINS Hello uiHello Tut uiTut uiDPSDemo uiQtApp
 list( REMOVE_ITEM PLUGINS ${EXCLUDE_PLUGINS} )
 
 set( EXECLIST @OD_BASE_EXECUTABLE@ )
-set( EXCLUDE_EXECS od_layouttest od_screentest od_sysadmmain
-		   tut_process_batch tut_simple_prog tut_app )
+set( EXCLUDE_EXECS od_layouttest od_screentest od_osgtestapp
+		   od_sysadmmain tut_process_batch tut_simple_prog tut_app )
 list( REMOVE_ITEM EXECLIST ${EXCLUDE_EXECS} )
 if ( WIN32 )
     list( APPEND EXECLIST "od_main_debug.bat" )
