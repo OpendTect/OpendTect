@@ -11,20 +11,20 @@ ________________________________________________________________________
 
 #include "arraynd.h"
 #include "atomic.h"
-#include "math2.h"
+#include "bufstringset.h"
 #include "iopar.h"
+#include "math2.h"
 #include "simpnumer.h"
 #include "sorting.h"
 #include "statrand.h"
 #include "undefval.h"
 #include "valseries.h"
-#include "varlenarray.h"
 #include <math.h>
 
 
 DataClipper::DataClipper()
-    : gen_(*new Stats::RandGen())
-    , absoluterg_( mUdf(float), -mUdf(float) )
+    : absoluterg_( mUdf(float), -mUdf(float) )
+    , gen_(*new Stats::RandGen())
 {
 }
 
@@ -92,11 +92,11 @@ public:
     DataClipperDataInserter( const T& input, od_int64 sz,
 			     LargeValVec<float>& samples,
 			     Interval<float>& rg, float prob )
-        : input_( input )
-        , nrvals_( sz )
-        , samples_( samples )
-        , doall_( mIsEqual( prob, 1, 1e-3 ) )
-	, absoluterg_( rg )
+	: nrvals_(sz)
+	, samples_(samples)
+	, input_(input)
+	, doall_(mIsEqual(prob,1,1e-3))
+	, absoluterg_(rg)
     {
 	nrsamples_ = doall_ ? nrvals_ : mNINT64(sz * prob);
     }
@@ -123,7 +123,6 @@ public:
 		const od_int64 sampidx = gen.getIndex( sz );
 		val = input_[sampidx];
 	    }
-
 
 	    mAddValue( localsamples, localrg );
 	}
@@ -154,7 +153,7 @@ protected:
 void DataClipper::putData( const float* vals, od_int64 nrvals )
 {
     DataClipperDataInserter<const float*> inserter( vals, nrvals,
-					samples_, absoluterg_,sampleprob_ );
+					samples_, absoluterg_, sampleprob_ );
 
     inserter.execute();
 }
@@ -370,8 +369,8 @@ void DataClipper::reset()
 
 
 DataClipSampler::DataClipSampler( int ns )
-    : maxnrvals_(ns)
-    , vals_(new float [ns])
+    : vals_(new float [ns])
+    , maxnrvals_(ns)
     , rg_(mUdf(float),0)
     , gen_(*new Stats::RandGen())
 {
@@ -379,8 +378,8 @@ DataClipSampler::DataClipSampler( int ns )
 
 
 DataClipSampler::DataClipSampler(const DataClipSampler& oth )
-    : gen_(*new Stats::RandGen())
-    , vals_(nullptr)
+    : vals_(nullptr)
+    , gen_(*new Stats::RandGen())
 {
     *this = oth;
 }
@@ -507,6 +506,26 @@ BufferString DataClipSampler::getClipRgStr( float pct ) const
     }
 
     return ret.buf();
+}
+
+
+void DataClipSampler::report( StringPairSet& report ) const
+{
+    if ( nrVals() < 3 )
+	report.add( "Not enough values collected", nrVals() );
+    else
+    {
+	report.add( "Value range", getClipRgStr(0) );
+	report.add( "0.1% clipping range", getClipRgStr(0.1) );
+	report.add( "0.25% clipping range", getClipRgStr(0.25) );
+	report.add( "0.5% clipping range", getClipRgStr(0.5) );
+	report.add( "1% clipping range", getClipRgStr(1) );
+	report.add( "2.5% clipping range", getClipRgStr(2.5) );
+	report.add( "5% clipping range", getClipRgStr(5) );
+	report.add( "10% clipping range", getClipRgStr(10) );
+	report.add( "25% clipping range", getClipRgStr(25) );
+	report.add( "Median value", vals_[nrVals()/2] );
+    }
 }
 
 

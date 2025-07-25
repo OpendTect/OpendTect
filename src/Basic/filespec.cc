@@ -317,6 +317,42 @@ bool FileSpec::usePar( const IOPar& iop )
 }
 
 
+void FileSpec::getReport( StringPairSet& report ) const
+{
+    BufferString usrstr = usrStr();
+    if ( usrstr.isEmpty() )
+	usrstr = fileName( 0 );
+
+    report.add( sKey::FileName(), usrstr );
+    const int nrfnms = fnames_.size();
+    const bool hasmultinrs = !mIsUdf(nrs_.start_);
+    if ( nrfnms < 2 && !hasmultinrs )
+	return;
+
+    if ( nrfnms > 1 )
+    {
+	report.add( "Number of additional files: ", nrfnms-1 );
+	if ( nrfnms == 2 )
+	    report.add( "Additional file: ", fileName(1) );
+	else
+	{
+	    report.add( "First additional file: ", fileName(1) );
+	    report.add( "Last additional file: ", fileName(nrfnms-1) );
+	}
+    }
+    else
+    {
+	BufferString str;
+	str += nrs_.start_; str += "-"; str += nrs_.stop_;
+	str += " step "; str += nrs_.step_;
+	if ( zeropad_ )
+	    str.add( "(pad to " ).add( zeropad_ ).add( " zeros)" );
+
+	report.add( "Replace '*' with", str );
+    }
+}
+
+
 void FileSpec::getReport( IOPar& iop ) const
 {
     BufferString usrstr = usrStr();

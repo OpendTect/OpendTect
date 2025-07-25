@@ -39,6 +39,8 @@ public:
     uiString		uiNrDoneText() const override;
     int			nextStep() override;
 
+    void		report(StringPairSet&) const;
+    mDeprecated("Use with a StringPairSet")
     void		report(IOPar&) const;
     bool		getSurvInfo(TrcKeyZSampling&,Coord crd[3]) const;
     			//!< Z range will be exclusive start/end null samples

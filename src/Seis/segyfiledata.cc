@@ -43,16 +43,16 @@ SEGY::FileDataSet::StoredData::StoredData( const char* filename,
 	od_stream_Pos offset,
 	const DataCharacteristics& dc32 )
     : int32di_( DataInterpreter<int>::create( dc32, false ) )
-    , start_( offset )
     , istrm_( new od_istream(filename) )
+    , start_( offset )
     , ostrm_( 0 )
 {}
 
 
 SEGY::FileDataSet::StoredData::StoredData( od_ostream& ostrm )
     : int32di_( 0 )
-    , start_( ostrm.position() )
     , istrm_( 0 )
+    , start_( ostrm.position() )
     , ostrm_( &ostrm )
 {}
 
@@ -117,12 +117,12 @@ bool SEGY::FileDataSet::StoredData::add( const Seis::PosKey& pk, bool usable )
 
 SEGY::FileDataSet::FileDataSet( const IOPar& iop, ascistream& strm )
     : segypars_( iop )
-    , storeddata_( 0 )
     , totalsz_( 0 )
-    , indexer_( 0 )
-    , pos2ds_( 0 )
     , nrusable_( 0 )
     , discardnull_(false)
+    , storeddata_( 0 )
+    , pos2ds_( 0 )
+    , indexer_( 0 )
 {
     readVersion1( strm );
 }
@@ -132,25 +132,25 @@ SEGY::FileDataSet::FileDataSet( const IOPar& iop,
 				const char* filename,od_stream_Pos start,
 				const DataCharacteristics& int32 )
     : segypars_( iop )
-    , storeddata_( new StoredData( filename, start, int32 ) )
-    , totalsz_( 0 )
-    , indexer_( 0 )
-    , pos2ds_( 0 )
     , nrstanzas_( 0 )
+    , totalsz_( 0 )
     , nrusable_( 0 )
     , discardnull_(false)
+    , storeddata_( new StoredData( filename, start, int32 ) )
+    , pos2ds_( 0 )
+    , indexer_( 0 )
 {}
 
 
 SEGY::FileDataSet::FileDataSet( const IOPar& iop )
     : segypars_( iop )
-    , storeddata_( 0 )
-    , totalsz_( 0 )
-    , indexer_( 0 )
-    , pos2ds_( 0 )
     , nrstanzas_( 0 )
+    , totalsz_( 0 )
     , nrusable_( 0 )
     , discardnull_(false)
+    , storeddata_( 0 )
+    , pos2ds_( 0 )
+    , indexer_( 0 )
 {}
 
 
@@ -525,6 +525,88 @@ void SEGY::FileDataSet::setAuxData( const Seis::GeomType& gt,
     sampling_ = tr.inpSD();
     isrev0_ = tr.isRev0();
     nrstanzas_ = tr.binHeader().entryVal( SEGY::BinHeader::EntryRevCode() + 2 );
+}
+
+
+void SEGY::FileDataSet::getReport( StringPairSet& info ) const
+{
+    info.add( StringPairSet::sKeyH2(), "General info" );
+    if ( totalsz_ < 1 )
+    {
+	info.add( "Number of traces found", "0" );
+	return;
+    }
+
+    BufferString nrtrcsstr( "", totalsz_, " (" );
+    if ( nrusable_ == totalsz_ )
+	nrtrcsstr += "all usable)";
+    else
+    {
+	nrtrcsstr += nrusable_;
+	nrtrcsstr += " usable)";
+    }
+
+    info.add( "Number of traces found", nrtrcsstr );
+    info.add( "Number of samples in file", trcsz_ );
+    const Interval<float> zrg( sampling_.interval(trcsz_) );
+    info.add( "Z range in file", zrg );
+    info.add( "Z step in file", sampling_.step_ );
+    info.addYN( "File marked as REV. 1 or higher", !isrev0_ );
+    if ( !isrev0_ && nrstanzas_ > 0 )
+	info.add( "Number of REV.1 extra stanzas", nrstanzas_ );
+
+    TrcKeySampling hs( false );
+    Interval<int> nrrg;
+    Interval<float> offsrg;
+
+    if ( indexer_ )
+    {
+	hs.set( indexer_->inlRange(), indexer_->crlRange() );
+	offsrg = indexer_->offsetRange();
+	nrrg = indexer_->trcNrRange();
+    }
+    else
+    {
+	int firstok = 0;
+	bool usable;
+	Seis::PosKey pk;
+	for ( ; firstok<totalsz_; firstok++ )
+	{
+	    if ( getDetails( firstok, pk, usable ) && usable )
+		break;
+	}
+
+	if ( firstok >= totalsz_ ) return;
+
+	hs.start_ = hs.stop_ = pk.binID();
+	nrrg.start_ = nrrg.stop_ = pk.trcNr();
+	offsrg.start_ = offsrg.stop_ = pk.offset();
+
+	for ( int idx=firstok+1; idx<totalsz_; idx++ )
+	{
+	    if ( !getDetails( idx, pk, usable ) || !usable )
+		continue;
+
+	    hs.include( pk.binID() );
+	    nrrg.include( pk.trcNr() );
+	    offsrg.include( pk.offset() );
+	}
+    }
+
+    info.add( StringPairSet::sKeyH2(), "Ranges" );
+    if ( Seis::is2D(geom_) )
+	info.add( "Trace number range", nrrg );
+    else
+    {
+	info.add( "In-line range", hs.inlRange() );
+	info.add( "Cross-line range", hs.crlRange() );
+    }
+
+    if ( Seis::isPS(geom_) )
+    {
+	BufferString offsetrangestr( "Offset range ", SI().getXYUnitString() );
+	info.add( offsetrangestr, offsrg );
+    }
 }
 
 

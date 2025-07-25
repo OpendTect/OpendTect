@@ -8,33 +8,33 @@ ________________________________________________________________________
 -*/
 
 #include "seisscanner.h"
+
+#include "conn.h"
+#include "file.h"
+#include "ioobj.h"
+#include "iopar.h"
+#include "math2.h"
+#include "oddirs.h"
+#include "perthreadrepos.h"
+#include "posinfodetector.h"
 #include "seisinfo.h"
 #include "seisread.h"
 #include "seistrc.h"
 #include "seistrctr.h"
 #include "trckeyzsampling.h"
-#include "posinfodetector.h"
-#include "sorting.h"
-#include "oddirs.h"
-#include "ioobj.h"
-#include "iopar.h"
-#include "statrand.h"
-#include "perthreadrepos.h"
-#include "conn.h"
-#include "math2.h"
-#include "file.h"
 #include "uistrings.h"
+
 
 SeisScanner::SeisScanner( const IOObj& ioobj, Seis::GeomType gt, int mtr )
     : Executor( "Scan seismic data" )
-    , rdr_(*new SeisTrcReader(ioobj,&gt))
     , trc_(*new SeisTrc)
-    , dtctor_(*new PosInfo::Detector(
-		PosInfo::Detector::Setup(Seis::is2D(gt))
-			.isps(Seis::isPS(gt)).reqsorting(true) ) )
+    , rdr_(*new SeisTrcReader(ioobj,&gt))
     , curmsg_(uiStrings::sScanning())
-    , totalnr_(mtr < 0 ? -2 : mtr)
     , maxnrtrcs_(mtr)
+    , totalnr_(mtr < 0 ? -2 : mtr)
+    , dtctor_(*new PosInfo::Detector(
+		  PosInfo::Detector::Setup(Seis::is2D(gt))
+		  .isps(Seis::isPS(gt)).reqsorting(true) ) )
     , nrnulltraces_(0)
     , invalidsamplenr_(-1)
 {
@@ -102,6 +102,79 @@ bool SeisScanner::getSurvInfo( TrcKeyZSampling& cs, Coord crd[3] ) const
     return true;
 }
 
+
+void SeisScanner::report( StringPairSet& report ) const
+{
+    if ( !rdr_.ioObj() )
+    {
+	report.setEmpty();
+	report.setName( "No scan executed" );
+	return;
+    }
+
+    BufferString str = "Report for "; str += rdr_.ioObj()->translator();
+    str += dtctor_.is2D() ? " line set '" : " cube '";
+    str += rdr_.ioObj()->name(); str += "'\n\n";
+    report.setName( str );
+
+    report.add( StringPairSet::sKeyH1(), "Sampling info" );
+    report.add( "Z step", sampling_.step_ );
+    report.add( "Z start in file", sampling_.start_ );
+    report.add( "Z stop in file", zRange().stop_ );
+
+    report.add( "Number of samples in file", (int)nrsamples_ );
+    if ( nonnullsamplerg_.start_ != 0 )
+	report.add( "First non-zero sample", nonnullsamplerg_.start_ + 1 );
+    if ( nonnullsamplerg_.stop_ != nrsamples_-1 )
+	report.add( "Last non-zero sample", nonnullsamplerg_.stop_ + 1 );
+
+    report.add( StringPairSet::sKeyH1(), "Global stats" );
+    report.add( "Number of null traces", (int)nrnulltraces_ );
+    dtctor_.report( report );
+    if ( !dtctor_.is2D() )
+    {
+	TrcKeyZSampling cs; Coord crd[3];
+	getSurvInfo(cs,crd);
+	report.add( "Z.start", cs.zsamp_.start_ );
+	report.add( "Z.stop", cs.zsamp_.stop_ );
+	report.add( "Z.step", cs.zsamp_.step_ );
+    }
+
+    if ( !mIsUdf(valrg_.start_) )
+    {
+	report.add( StringPairSet::sKeyH1(), "Data values" );
+	report.add( "Minimum value", valrg_.start_ );
+	report.add( "Maximum value", valrg_.stop_ );
+	const float* vals = clipsampler_.vals();
+	const int nrvals = mCast( int, clipsampler_.nrVals() );
+	report.add( "Median value", vals[nrvals/2] );
+	report.add( "1/4 value", vals[nrvals/4] );
+	report.add( "3/4 value", vals[3*nrvals/4] );
+	if ( !mIsUdf(invalidsamplebid_.inl()) )
+	{
+	    report.add( "First invalid value at",
+			invalidsamplebid_.toString() );
+	    report.add( "First invalid value sample number", invalidsamplenr_ );
+	}
+	report.add( "0.1% clip range", getClipRgStr(0.1) );
+	report.add( "0.2% clip range", getClipRgStr(0.2) );
+	report.add( "0.3% clip range", getClipRgStr(0.3) );
+	report.add( "0.5% clip range", getClipRgStr(0.5) );
+	report.add( "1% clip range", getClipRgStr(1) );
+	report.add( "1.5% clip range", getClipRgStr(1.5) );
+	report.add( "2% clip range", getClipRgStr(2) );
+	report.add( "3% clip range", getClipRgStr(3) );
+	report.add( "5% clip range", getClipRgStr(5) );
+	report.add( "10% clip range", getClipRgStr(10) );
+	report.add( "20% clip range", getClipRgStr(20) );
+	report.add( "30% clip range", getClipRgStr(30) );
+	report.add( "50% clip range", getClipRgStr(50) );
+	report.add( "90% clip range", getClipRgStr(90) );
+    }
+}
+
+
+mStartAllowDeprecatedSection
 
 void SeisScanner::report( IOPar& iopar ) const
 {
@@ -172,6 +245,8 @@ void SeisScanner::report( IOPar& iopar ) const
     }
 }
 
+mStopAllowDeprecatedSection
+
 
 const char* SeisScanner::getClipRgStr( float pct ) const
 {
@@ -199,16 +274,21 @@ const char* SeisScanner::getClipRgStr( float pct ) const
 }
 
 
+mStartAllowDeprecatedSection
+
 void SeisScanner::launchBrowser( const IOPar& startpar, const char* fnm ) const
 {
     if ( !fnm || !*fnm )
 	fnm = GetProcFileName( "seisscan_tmp.txt" );
 
-    IOPar iopar( startpar ); report( iopar );
+    IOPar iopar( startpar );
+    report( iopar );
     iopar.write( fnm, IOPar::sKeyDumpPretty() );
 
     File::launchViewer( fnm );
 }
+
+mStopAllowDeprecatedSection
 
 
 int SeisScanner::nextStep()
