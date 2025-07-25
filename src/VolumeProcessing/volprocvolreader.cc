@@ -51,6 +51,18 @@ uiString uiMessage() const override
 { return msg_; }
 
 
+od_int64 nrDone() const override
+{
+    return nrdone_;
+}
+
+
+od_int64 totalNr() const override
+{
+    return 1;
+}
+
+
 protected:
 
 #define mErrRet() \
@@ -77,6 +89,7 @@ int nextStep() override
     if ( !rdr.execute() )
 	mErrRet()
 
+    nrdone_++;
     return Finished();
 }
 
@@ -127,11 +140,12 @@ void adjustSteeringScaler()
     }
 }
 
-const IOObj*	ioobj_;
-const TypeSet<int>& components_;
-const ObjectSet<Scaler>& compscalers_;
-RegularSeisDataPack* output_;
-uiString	msg_;
+    const IOObj*	ioobj_;
+    const TypeSet<int>& components_;
+    const ObjectSet<Scaler>& compscalers_;
+    RegularSeisDataPack* output_;
+    uiString	msg_;
+    od_int64	nrdone_ = 0;
 
 };
 
