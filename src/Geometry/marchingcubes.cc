@@ -34,10 +34,9 @@ public:
 	MarchingCubesSurfaceWriter( od_ostream& strm,
 		const MarchingCubesSurface& s, bool binary )
 	    : Executor("MarchingCubes surface writer")
-	    , surface_( s )
-	    , strm_( strm )
-	    , binary_( binary )
-	    , nrdone_( 0 )
+	    , surface_(s)
+	    , strm_(strm)
+	    , binary_(binary)
 	    {
 		totalnr_= s.models_.totalSize();
 		idx_[0] = -1;
@@ -45,52 +44,55 @@ public:
 		idx_[2] = -1;
 	    }
 
+private:
+
     od_int64	totalNr() const override	{ return totalnr_; }
     od_int64	nrDone() const override		{ return nrdone_; }
     uiString	uiNrDoneText() const override
 		{ return tr("Positions written"); }
 
+    bool doPrepare( od_ostream* strm ) override
+    {
+	writeInt32( totalnr_, '\n' );
+	return SequentialTask::doPrepare( strm );
+    }
+
     int nextStep() override
-		{
-		    if ( !nrdone_ )
-			writeInt32( totalnr_, '\n' );
+    {
+	const MultiDimStorage<MarchingCubesModel>& models = surface_.models_;
+	for ( int idx=0; idx<mWriteChunkSize; idx++ )
+	{
+	    if ( !models.next(idx_) )
+		return Finished();
 
-		    const MultiDimStorage<MarchingCubesModel>& models =
-			surface_.models_;
-		    for ( int idx=0; idx<mWriteChunkSize; idx++ )
-		    {
-			if ( !models.next( idx_ ) )
-			    return Finished();
+	    int pos[3];
+	    if ( !models.getPos( idx_, pos ) )
+		return ErrorOccurred();
 
-			int pos[3];
-			if ( !models.getPos( idx_, pos ) )
-			    return ErrorOccurred();
+	    writeInt32( pos[mX], '\t' );
+	    writeInt32( pos[mY], '\t' );
+	    writeInt32( pos[mZ], '\t' );
 
-			writeInt32( pos[mX], '\t' );
-			writeInt32( pos[mY], '\t' );
-			writeInt32( pos[mZ], '\t' );
+	    if ( !models.getRef(idx_,0).writeTo(strm_,binary_))
+		return ErrorOccurred();
 
-			if ( !models.getRef(idx_,0).writeTo(strm_,binary_))
-			    return ErrorOccurred();
+	    nrdone_++;
+	}
 
-			nrdone_++;
-		    }
+	return MoreToDo();
+    }
 
-		    return MoreToDo();
-		}
+    void    writeInt32( int val, char post )
+    {
+	if ( binary_ )
+	    strm_.addBin( val );
+	else
+	    strm_ << val << post;
+    }
 
-	void    writeInt32( int val, char post )
-		{
-		    if ( binary_ )
-			strm_.addBin( val );
-		    else
-			strm_ << val << post;
-		}
-
-protected:
     int	idx_[3];
-    bool	binary_;
-    int	nrdone_;
+    bool binary_;
+    int	nrdone_	= 0;
     int	totalnr_;
     const MarchingCubesSurface& surface_;
     od_ostream&			strm_;
@@ -104,12 +106,12 @@ public:
 MarchingCubesSurfaceReader( od_istream& strm, MarchingCubesSurface& s,
 			    const DataInterpreter<od_int32>* dt )
     : Executor("MarchingCubes surface writer")
-    , surface_( s )
-    , strm_( strm )
-    , dt_( dt )
-    , nrdone_( 0 )
-    , totalnr_( -1 )
-{}
+    , surface_(s)
+    , strm_(strm)
+    , dt_(dt)
+{
+    totalnr_ = readInt32();
+}
 
 od_int64 totalNr() const override	{ return totalnr_; }
 od_int64 nrDone() const override	{ return nrdone_; }
@@ -117,13 +119,6 @@ uiString uiNrDoneText() const override	{ return tr("Positions read"); }
 
 int nextStep() override
 {
-    if ( !nrdone_ )
-    {
-	totalnr_ = readInt32();
-	if ( !totalnr_ )
-	    return Finished();
-    }
-
     if ( strm_.isBad() )
 	return ErrorOccurred();
 
@@ -140,7 +135,7 @@ int nextStep() override
 
 	Threads::Locker lckr( surface_.modelslock_, Threads::Locker::WriteLock);
 	surface_.models_.add<MarchingCubesModel*,const int*, int*>
-	    ( &model, pos, 0 );
+						    ( &model, pos, 0 );
 	lckr.unlockNow();
 	nrdone_++;
 	if ( nrdone_==totalnr_ )
@@ -169,7 +164,7 @@ int readInt32()
 
 
 protected:
-    Threads::Atomic<int>		nrdone_;
+    Threads::Atomic<int>		nrdone_	= 0;
     int					totalnr_;
     MarchingCubesSurface&		surface_;
     od_istream&				strm_;

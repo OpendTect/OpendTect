@@ -34,19 +34,11 @@ namespace EM
 class MarchingCubesSurfaceReader : public Executor
 { mODTextTranslationClass(MarchingCubesSurfaceReader);
 public:
-    ~MarchingCubesSurfaceReader()
-    {
-	delete conn_;
-	delete int32interpreter_;
-	delete exec_;
-    }
 
     MarchingCubesSurfaceReader( MarchingCubesSurface& surface, Conn* conn )
-	: Executor( "Surface Loader" )
-	, conn_( conn )
-	, int32interpreter_( 0 )
-	, exec_( 0 )
-	, surface_( surface )
+	: Executor("Surface Loader")
+	, conn_(conn)
+	, surface_(surface)
     {
 	if ( !conn_ || !conn_->forRead() )
 	{
@@ -76,7 +68,7 @@ public:
 	     !par.get(sKeyCrlSampling(),crlsampling.start_,crlsampling.step_) ||
 	     !par.get(sKeyZSampling(),zsampling.start_,zsampling.step_ ) )
 	{
-	    errmsg_ = ::toUiString("Invalid filetype");
+	    errmsg_ = tr("Invalid filetype");
 	    return;
 	}
 
@@ -86,6 +78,13 @@ public:
 	surface.usePar( par );
 
 	exec_ = surface.surface().readFrom(strm,int32interpreter_);
+    }
+
+    ~MarchingCubesSurfaceReader()
+    {
+	delete conn_;
+	delete int32interpreter_;
+	delete exec_;
     }
 
     static const char* sKeyInt32DataChar()	{ return "Int32 format"; }
@@ -133,8 +132,8 @@ public:
 protected:
 
     MarchingCubesSurface&	surface_;
-    Executor*			exec_;
-    DataInterpreter<od_int32>*	int32interpreter_;
+    Executor*			exec_		  = nullptr;
+    DataInterpreter<od_int32>*	int32interpreter_ = nullptr;
     Conn*			conn_;
     uiString			errmsg_;
 };
