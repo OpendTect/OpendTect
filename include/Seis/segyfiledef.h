@@ -8,6 +8,8 @@ ________________________________________________________________________
 
 -*/
 
+#include "seismod.h"
+
 #include "binid.h"
 #include "callback.h"
 #include "coord.h"
@@ -81,6 +83,8 @@ public:
 
     void		fillPar(IOPar&) const;
     bool		usePar(const IOPar&);
+    void		getReport(StringPairSet&,bool isrev0) const;
+    mDeprecated("Use with a StringPairSet")
     void		getReport(IOPar&,bool isrev0) const;
     void		setCoordSys( const Coords::CoordSystem* crs )
 							    { coordsys_ = crs; }
@@ -150,6 +154,8 @@ public:
 
     void		fillPar(IOPar&) const;
     bool		usePar(const IOPar&);
+    void		getReport(StringPairSet&,bool isrev0) const;
+    mDeprecated("Use with a StringPairSet")
     void		getReport(IOPar&,bool isrev0) const;
     static void		shallowClear(IOPar&);
 

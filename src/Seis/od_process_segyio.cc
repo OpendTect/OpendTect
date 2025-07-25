@@ -282,7 +282,7 @@ static bool doScan( od_ostream& strm, const IOPar& iop, bool isps,
 	return false;
     }
 
-    IOPar report;
+    StringPairSet report;
     indexer.scanner()->getReport( report );
 
     if ( indexer.scanner()->warnings().size() == 1 )
@@ -291,14 +291,15 @@ static bool doScan( od_ostream& strm, const IOPar& iop, bool isps,
     {
 	for ( int idx=0; idx<indexer.scanner()->warnings().size(); idx++ )
 	{
-	    if ( !idx ) report.add( IOPar::sKeyHdr(), "Warnings" );
+	    if ( !idx )
+		report.add( StringPairSet::sKeyH1(), "Warnings" );
+
 	    report.add( toString(idx+1 ),
 			indexer.scanner()->warnings().get(idx) );
 	}
     }
 
-    report.write( strm, IOPar::sKeyDumpPretty() );
-
+    report.dumpPretty( strm );
     return true;
 }
 

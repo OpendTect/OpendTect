@@ -40,10 +40,10 @@ int SEGY::cMaxReasonableNrSamples()
 
 
 SEGY::FullSpec::FullSpec( Seis::GeomType gt, bool isvsp )
-    : readopts_(gt)
-    , isvsp_(isvsp)
-    , rev_(-1)
+    : rev_(-1)
+    , readopts_(gt)
     , zinfeet_(SI().depthsInFeet())
+    , isvsp_(isvsp)
 {
 }
 
@@ -129,6 +129,21 @@ bool uiSEGY::displayWarnings( const BufferStringSet& warns, bool withstop )
     }
 
     return res;
+}
+
+
+void uiSEGY::displayReport( uiParent* p, const StringPairSet& rep,
+			    const uiString& caption )
+{
+    BufferString report;
+    rep.dumpPretty( report );
+    auto* dlg = new uiDialog( p,
+	    uiDialog::Setup(caption,mNoDlgTitle,mNoHelpKey).modal(false) );
+    dlg->setCtrlStyle( uiDialog::CloseOnly );
+    auto* te = new uiTextEdit( dlg );
+    te->setText( report );
+    dlg->setDeleteOnClose( true );
+    dlg->show();
 }
 
 

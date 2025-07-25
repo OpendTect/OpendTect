@@ -62,6 +62,7 @@ public:
 
     void		fillPar(IOPar&) const;
     bool		usePar(const IOPar&);
+    void		getReport(StringPairSet&) const;
     void		getReport(IOPar&) const;
     static const char*	sKeyFileNrs();
 

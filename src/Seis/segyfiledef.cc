@@ -206,6 +206,25 @@ bool SEGY::FilePars::usePar( const IOPar& iop )
 }
 
 
+void SEGY::FilePars::getReport( StringPairSet& report, bool ) const
+{
+    if ( ns_ > 0 )
+	report.add( "Number of samples used", ns_ );
+    if ( fmt_ > 0 )
+	report.add( forread_ ? "SEG-Y 'format' used" : "SEG-Y 'format'",
+		    nameOfFmt(fmt_,forread_) );
+
+    if ( byteswap_ )
+    {
+	const char* str =
+	    byteswap_ == 2 ? (forread_?"All bytes are":"All bytes will be")
+	 : (byteswap_ == 1 ? (forread_?"Data bytes are":"Data bytes will be")
+		       : (forread_?"Header bytes are":"Header bytes will be") );
+	report.add( str, "swapped" );
+    }
+}
+
+
 void SEGY::FilePars::getReport( IOPar& iop, bool ) const
 {
     if ( ns_ > 0 )
@@ -379,6 +398,81 @@ void SEGY::FileReadOpts::shallowClear( IOPar& iop )
     iop.removeWithKey( sKeyCoordScale() );
     iop.removeWithKey( sKeyTimeShift() );
     iop.removeWithKey( sKeySampleIntv() );
+}
+
+
+static void reportHdrEntry( StringPairSet& report, const char* nm,
+			    const SEGY::HdrEntry& he )
+{
+    BufferString keyw( nm, " byte" );
+    BufferString val;
+    if ( he.isUdf() )
+	val += "<undef>";
+    else
+    {
+	val += (int)he.bytepos_ + 1;
+	val += " (size "; val += he.byteSize(); val += ")";
+	report.add( keyw.buf(), val.buf() );
+    }
+}
+
+
+void SEGY::FileReadOpts::getReport( StringPairSet& report, bool isrev0 ) const
+{
+    if ( !mIsUdf(coordscale_) )
+	report.add( sKeyCoordScale(), coordscale_ );
+    if ( !mIsUdf(timeshift_) )
+	report.add( "Data starts at", timeshift_ );
+    if ( !mIsUdf(sampleintv_) )
+	report.add( "Sample interval used", sampleintv_ );
+
+    if ( Seis::is2D(geom_) )
+    {
+	if ( havetrcnrs_ )
+	    reportHdrEntry( report, sKey::TraceNr(), thdef_.trnr_ );
+	else
+	{
+	    report.add( "First Trace number", trcnrdef_.start_ );
+	    report.add( "Trace number increment", trcnrdef_.step_ );
+	}
+    }
+    else
+    {
+	report.add( "Positioning defined by",
+		icdef_ == XYOnly ? "Coordinates" : "Inline/Crossline" );
+	if ( isrev0 )
+	{
+	    if ( icdef_ != XYOnly )
+	    {
+		reportHdrEntry( report, "Inline", thdef_.inl_ );
+		reportHdrEntry( report, "Crossline", thdef_.crl_ );
+	    }
+	    else
+	    {
+		reportHdrEntry( report, "X-coordinate", thdef_.xcoord_ );
+		reportHdrEntry( report, "Y-coordinate", thdef_.ycoord_ );
+	    }
+	}
+    }
+
+    if ( Seis::isPS(geom_) )
+    {
+	report.add( "Offsets",
+		   psdef_ == UsrDef	? "User defined"
+		: (psdef_ == InFile	? "In file"
+					: "Source/Receiver coordinates") );
+	if ( psdef_ == UsrDef )
+	{
+	    report.add( "First Offset", offsdef_.start_ );
+	    report.add( "Offset increment", offsdef_.step_ );
+	}
+	else if ( psdef_ != SrcRcvCoords )
+	{
+	    reportHdrEntry( report, sKey::Offset(), thdef_.offs_ );
+	    if ( !thdef_.azim_.isUdf() )
+		reportHdrEntry( report, sKey::Azimuth(), thdef_.azim_ );
+	}
+    }
 }
 
 

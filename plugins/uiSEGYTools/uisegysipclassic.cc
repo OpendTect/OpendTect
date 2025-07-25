@@ -87,10 +87,14 @@ void uiSEGYClassicSurvInfoProvider::showReport(
     if ( !strm.isOK() )
 	{ mShowErr( tr("Cannot open temporary file:\n%1").arg(fnm) ); return; }
 
-    IOPar iop;
-    scanner.getReport( iop );
-    if ( !iop.write(strm,IOPar::sKeyDumpPretty()) )
-	{ mShowErr(tr("Cannot write to file:\n%1").arg(fnm)); return; }
+    StringPairSet report;
+    report.setName( "SEG-Y scan report" );
+    scanner.getReport( report );
+    if ( !report.write(fnm) )
+    {
+	mShowErr(tr("Cannot write to file:\n%1").arg(fnm));
+	return;
+    }
 
     File::launchViewer( fnm );
 }
