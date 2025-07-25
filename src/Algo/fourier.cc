@@ -77,7 +77,9 @@ bool CC::setup()
 
 
 void CC::setNormalization( bool yn )
-{ curdim_ = -1; normalize_ = yn; }
+{
+    normalize_ = yn;
+}
 
 
 mType CC::getNyqvist( mType samplespacing )

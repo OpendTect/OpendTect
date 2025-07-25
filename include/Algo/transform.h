@@ -26,8 +26,7 @@ GenericTransformND.
 mExpClass(Algo) GenericTransformND : public SequentialTask
 {
 public:
-			GenericTransformND();
-    virtual		~GenericTransformND();
+			~GenericTransformND();
 
     bool		setInputInfo(const ArrayNDInfo&);
     const ArrayNDInfo&	getInputInfo() const;
@@ -54,8 +53,15 @@ public:
 			//SequentialTask::execute can be used as well
 
 protected:
+				GenericTransformND();
+
+    od_int64			nrDone() const override;
+    od_int64			totalNr() const override;
+
+    bool			doPrepare(od_ostream* =nullptr) override;
     virtual bool		setup();
     int				nextStep() override;
+    bool			doFinish(bool,od_ostream* =nullptr) override;
 
     class			Transform1D;
     virtual Transform1D*	createTransform() const		= 0;
@@ -64,20 +70,19 @@ protected:
     ObjectSet<int>		transforms1dstarts_;
     TypeSet<int>		nr1dtransforms_;
 
-    bool			forward_;
-    int				sampling_;
-    int				batchsampling_;
-    const int*			batchstarts_;
-    int				nr_;
+    bool			forward_	= true;
+    int				sampling_	= 1;
+    int				batchsampling_	= 1;
+    const int*			batchstarts_	= nullptr;
+    int				nr_		= 1;
 
-    ArrayNDInfo*		info_;
-    int				curdim_;
-    bool			parallel_;
+    ArrayNDInfo*		info_		= nullptr;
+    bool			parallel_	= true;
 
-    const float_complex*	cinput_;
-    const float*		rinput_;
-    float_complex*		coutput_;
-    float*			routput_;
+    const float_complex*	cinput_		= nullptr;
+    const float*		rinput_		= nullptr;
+    float_complex*		coutput_	= nullptr;
+    float*			routput_	= nullptr;
 
     mExpClass(Algo) Transform1D
     {
@@ -108,16 +113,19 @@ protected:
 
 				Transform1D();
 
-	int			sz_;
-	bool			forward_;
-	int			sampling_;
-	int			nr_;
-	int			batchsampling_;
-	const int*		batchstarts_;
+	int			sz_		= -1;
+	bool			forward_	= true;
+	int			sampling_	= 1;
+	int			nr_		= 1;
+	int			batchsampling_	= 1;
+	const int*		batchstarts_	= nullptr;
 
-	const float_complex*	cinput_;
-	const float*		rinput_;
-	float_complex*		coutput_;
-	float*			routput_;
+	const float_complex*	cinput_		= nullptr;
+	const float*		rinput_		= nullptr;
+	float_complex*		coutput_	= nullptr;
+	float*			routput_	= nullptr;
     };
+
+private:
+    int				curdim_		= -1;
 };

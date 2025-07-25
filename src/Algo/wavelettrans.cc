@@ -329,7 +329,8 @@ DWT::DWT( WaveletTransform::WaveletType t )
 
 bool DWT::setup()
 {
-    if ( !GenericTransformND::setup() ) return false;
+    if ( !GenericTransformND::setup() )
+	return false;
 
     for ( int idx=0; idx<transforms_.size(); idx++ )
     {
@@ -343,12 +344,13 @@ bool DWT::setup()
 
 bool DWT::FilterWT1D::init()
 {
-    if ( sz_ < 0 ) return false;
+    if ( sz_ < 0 )
+	return false;
 
     TypeSet<float> tcc;
     WaveletTransform::getInfo( wt_, filtersz_, tcc );
 
-    if ( cc_ ) delete [] cc_;
+    delete [] cc_;
     cc_ = new float[filtersz_+1];
 
     float len = 0;

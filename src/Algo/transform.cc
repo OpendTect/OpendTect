@@ -8,22 +8,13 @@ ________________________________________________________________________
 -*/
 
 #include "transform.h"
+
 #include "arraynd.h"
 
 
+// GenericTransformND
+
 GenericTransformND::GenericTransformND()
-    : forward_ ( true )
-    , info_( 0 )
-    , curdim_( -1 )
-    , parallel_( true )
-    , nr_( 1 )
-    , sampling_( 1 )
-    , batchsampling_( 1 )
-    , batchstarts_( 0 )
-    , cinput_( 0 )
-    , rinput_( 0 )
-    , coutput_( 0 )
-    , routput_( 0 )
 {}
 
 
@@ -39,7 +30,6 @@ bool GenericTransformND::setInputInfo( const ArrayNDInfo& ni )
 {
     delete info_;
     info_ = ni.clone();
-    curdim_ = -1;
     return true;
 }
 
@@ -51,7 +41,6 @@ const ArrayNDInfo& GenericTransformND::getInputInfo() const
 bool GenericTransformND::setDir( bool forward )
 {
     forward_ = forward;
-    curdim_ = -1;
     return true;
 }
 
@@ -71,10 +60,11 @@ for ( int idx=0; idx<transforms_.size(); idx++ ) \
 
 void GenericTransformND::setInput( const float_complex* id )
 {
-    if ( !id ) return;
+    if ( !id )
+	return;
 
     cinput_ = id;
-    rinput_ = 0;
+    rinput_ = nullptr;
 
     mSetInputData( id );
 }
@@ -82,10 +72,11 @@ void GenericTransformND::setInput( const float_complex* id )
 
 void GenericTransformND::setInput( const float* id )
 {
-    if ( !id ) return;
+    if ( !id )
+	return;
 
     rinput_ = id;
-    cinput_ = 0;
+    cinput_ = nullptr;
 
     mSetInputData( id );
 }
@@ -94,10 +85,11 @@ void GenericTransformND::setInput( const float* id )
 
 void GenericTransformND::setOutput( float_complex* od )
 {
-    if ( !od ) return;
+    if ( !od )
+	return;
 
     coutput_ = od;
-    routput_ = 0;
+    routput_ = nullptr;
 
     mSetOutputData( od );
 }
@@ -105,10 +97,11 @@ void GenericTransformND::setOutput( float_complex* od )
 
 void GenericTransformND::setOutput( float* od )
 {
-    if ( !od ) return;
+    if ( !od )
+	return;
 
     routput_ = od;
-    coutput_ = 0;
+    coutput_ = nullptr;
 
     mSetOutputData( od );
 }
@@ -121,18 +114,28 @@ void GenericTransformND::setSampling( int sampling )
 
 void GenericTransformND::setScope( int nr, int batchsampling )
 {
-    curdim_ = -1;
     nr_ = nr;
     batchsampling_ = batchsampling;
-    batchstarts_ = 0;
+    batchstarts_ = nullptr;
 }
 
 
 void GenericTransformND::setScope( int nr, const int* batchstarts )
 {
-    curdim_ = -1;
     nr_ = nr;
     batchstarts_ = batchstarts;
+}
+
+
+od_int64 GenericTransformND::nrDone() const
+{
+    return curdim_;
+}
+
+
+od_int64 GenericTransformND::totalNr() const
+{
+    return info_ ? info_->getNDim() : SequentialTask::totalNr();
 }
 
 
@@ -143,31 +146,40 @@ bool GenericTransformND::run( bool parallel )
 }
 
 
+bool GenericTransformND::doPrepare( od_ostream* strm )
+{
+    if ( !setup() )
+	return false;
+
+    return SequentialTask::doPrepare( strm );
+}
+
+
 int GenericTransformND::nextStep()
 {
-    if ( curdim_<0 )
-    {
-	if ( !setup() )
-	return ErrorOccurred();
-    }
-
-    if ( !transforms_[curdim_]->run( parallel_ ) )
+    if ( !transforms_[curdim_]->run(parallel_) )
 	return ErrorOccurred();
 
     curdim_++;
-    if ( curdim_>=info_->getNDim() )
-    {
-	curdim_ = 0;
-	return Finished();
-    }
+    return curdim_>=info_->getNDim() ? Finished() : MoreToDo();
+}
 
-    return MoreToDo();
+
+bool GenericTransformND::doFinish( bool success, od_ostream* strm )
+{
+    deepErase( transforms_ );
+    deepEraseArr( transforms1dstarts_ );
+    nr1dtransforms_.erase();
+
+    return SequentialTask::doFinish( success, strm );
 }
 
 
 bool GenericTransformND::setup()
 {
-    if ( !info_ ) return false;
+    if ( !info_ )
+	return false;
+
     deepEraseArr( transforms1dstarts_ );
     deepErase( transforms_ );
     nr1dtransforms_.erase();
@@ -281,53 +293,49 @@ bool GenericTransformND::setup()
 }
 
 
+// GenericTransformND::Transform1D
+
 GenericTransformND::Transform1D::Transform1D()
-    : sz_( -1 )
-    , sampling_( 1 )
-    , batchsampling_( 1 )
-    , batchstarts_( 0 )
-    , cinput_( 0 )
-    , rinput_( 0 )
-    , coutput_( 0 )
-    , routput_( 0 )
-    , nr_( 1 )
-    , forward_( true )
 {}
 
 
 void GenericTransformND::Transform1D::setInputData(const float_complex* id )
 {
-    if ( !id ) return;
+    if ( !id )
+	return;
 
     cinput_ = id;
-    rinput_ = 0;
+    rinput_ = nullptr;
 }
 
 
 void GenericTransformND::Transform1D::setInputData( const float* id )
 {
-    if ( !id ) return;
+    if ( !id )
+	return;
 
     rinput_ = id;
-    cinput_ = 0;
+    cinput_ = nullptr;
 }
 
 
 void GenericTransformND::Transform1D::setOutputData( float_complex* od )
 {
-    if ( !od ) return;
+    if ( !od )
+	return;
 
     coutput_ = od;
-    routput_ = 0;
+    routput_ = nullptr;
 }
 
 
 void GenericTransformND::Transform1D::setOutputData( float* od )
 {
-    if ( !od ) return;
+    if ( !od )
+	return;
 
     routput_ = od;
-    coutput_ = 0;
+    coutput_ = nullptr;
 }
 
 
@@ -347,7 +355,7 @@ void GenericTransformND::Transform1D::setScope( int nr, int batchsampling )
 {
     nr_ = nr;
     batchsampling_ = batchsampling;
-    batchstarts_ = 0;
+    batchstarts_ = nullptr;
 }
 
 
