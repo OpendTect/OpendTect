@@ -1368,8 +1368,9 @@ int Provider::getTotalNrPos( bool is2d ) const
 	mDynamicCastGet(const Seis::TableSelData*,tsd,seldata_)
 	return mCast( int, tsd->binidValueSet().totalSize() );
     }
+
     if ( !possiblevolume_ || !desiredvolume_ )
-	return false;
+	return 0;
 
     TrcKeyZSampling cs = *desiredvolume_;
     if ( getDesc().isStored() )

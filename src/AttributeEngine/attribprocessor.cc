@@ -518,7 +518,8 @@ bool Processor::setZIntervals(
 
 od_int64 Processor::totalNr() const
 {
-    return provider_ ? provider_->getTotalNrPos(is2d_) : 0;
+    const od_int64 totalnr = provider_ ? provider_->getTotalNrPos(is2d_) : 1;
+    return totalnr > 0 ? totalnr : 1;
 }
 
 
