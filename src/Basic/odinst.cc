@@ -241,7 +241,6 @@ void ODInst::getMachComm( const char* reldir, OS::MachineCommand& mc )
     else
     {
 	mc.addFlag( "updcheck_report" )
-	  .addKeyedArg( "relver", odverstr )
 	  .addKeyedArg( "remotedirnm", "0.0.0" );
     }
 }
