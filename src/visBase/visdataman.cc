@@ -10,6 +10,7 @@ ________________________________________________________________________
 #include "visdataman.h"
 #include "visdata.h"
 #include "visselman.h"
+
 #include "iopar.h"
 #include "ptrman.h"
 
@@ -144,8 +145,10 @@ void DataManager::addObject( DataObject* obj )
     objects_ += obj;
     const VisID visid( freeid_++ );
     obj->setID( visid );
-    visidobjmap_[visid.asInt()] = obj;
-    objidxmap_[obj] = objects_.size() - 1;
+    const int idasint = visid.asInt();
+    visidobjmap_[idasint] = obj;
+    const int objidx = objects_.size() - 1;
+    objidxmap_[obj] = objidx;
 }
 
 
@@ -188,11 +191,12 @@ void DataManager::runCleanup()
 void DataManager::removeObject( DataObject* dobj )
 {
     const RefCount::WeakPtrSetBase::CleanupBlocker cleanupblock( objects_ );
-    const int idx = objidxmap_[dobj];
-    if ( objects_.validIdx(idx) )
+    const int objidx = objidxmap_[dobj];
+    if ( objects_.validIdx(objidx) )
     {
-	objects_.removeSingle( idx );
-	visidobjmap_.erase( dobj->id().asInt() );
+	objects_[objidx] = nullptr;
+	const int idasint = dobj->id().asInt();
+	visidobjmap_.erase( idasint );
 	objidxmap_.erase( dobj );
     }
 }
