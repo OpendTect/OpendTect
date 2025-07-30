@@ -439,6 +439,13 @@ bool SequentialTask::doFinish( bool success, od_ostream* )
 bool SequentialTask::execute()
 {
     control_ = Task::Run;
+
+    reportProgressStarted();
+    mDynamicCastGet(TextStreamProgressMeter*,tspm,progressMeter())
+    od_ostream* strm = tspm ? &tspm->stream() : nullptr;
+    if ( !doPrepare(strm) )
+	return false;
+
 #ifdef __debug__
     if ( totalNr() <= 0 )
     {
@@ -453,12 +460,6 @@ bool SequentialTask::execute()
 	}
     }
 #endif
-
-    reportProgressStarted();
-    mDynamicCastGet(TextStreamProgressMeter*,tspm,progressMeter())
-    od_ostream* strm = tspm ? &tspm->stream() : nullptr;
-    if ( !doPrepare(strm) )
-	return false;
 
     bool success = false;
     do
