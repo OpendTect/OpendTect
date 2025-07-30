@@ -457,7 +457,7 @@ void uiSurveyInfoEditor::setValues()
 
     ZSampling zrg = si_.zRange( false );
     zrg.scale( sCast( float, si_.zDomain().userFactor() ) );
-    zfld_->setNrDecimals( si_.nrZDecimals( false ) );
+//    zfld_->setNrDecimals( si_.nrZDecimals(false) );
     setZValFld( zfld_, 0, zrg.start_ );
     setZValFld( zfld_, 1, zrg.stop_ );
     setZValFld( zfld_, 2, zrg.step_ );

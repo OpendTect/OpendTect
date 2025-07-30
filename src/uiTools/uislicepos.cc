@@ -18,7 +18,6 @@ ________________________________________________________________________
 
 #include "trckeyzsampling.h"
 #include "ioman.h"
-#include "flatview.h"
 #include "survinfo.h"
 
 
@@ -217,8 +216,8 @@ void uiSlicePos::setBoxRg( uiSlicePos::SliceDir orientation,
     else
     {
 	const float zfac = mIsUdf(zfactor_) ? 1.f : zfactor_;
-	const int nrdec = dispzdominfo_
-			    ? FlatView::Viewer::nrDec( *dispzdominfo_ ) : 0;
+	const int nrdec =
+		Math::NrSignificantDecimals( curcs.zsamp_.step_*zfac );
 	posbox->setInterval( curcs.zsamp_.start_*zfac,
 			      curcs.zsamp_.stop_*zfac );
 	stepbox->setInterval( survcs.zsamp_.step_*zfac,

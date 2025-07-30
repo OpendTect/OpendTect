@@ -822,17 +822,7 @@ int ZDomain::Info::nrDecimals( float zstepfp, bool usepref ) const
     }
 
     const double zstep = sCast( double, zstepfp * userFactor() );
-    int nrdec = 0;
-    double decval = zstep;
-    while ( decval > Math::Floor(decval) &&
-	    !mIsZero(decval,1e-4) && !mIsEqual(decval,1.,1e-4) )
-    {
-	nrdec++;
-	decval = decval*10 - Math::Floor(decval*10);
-	if ( decval > 0. && decval < 1. )
-	    break;
-    }
-
+    int nrdec = Math::NrSignificantDecimals( zstep );
     if ( !hasstep )
 	nrdec++;
 
