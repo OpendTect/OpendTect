@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "filesystemaccess.h"
 #include "fixedstreambuf.h"
 #include "iopar.h"
+#include "paralleltask.h"
 #include "separstr.h"
 #include "strmoper.h"
 #include "strmprov.h"
@@ -597,6 +598,108 @@ od_istream& od_istream::nullStream()
     }
 
     return *ret;
+}
+
+
+class AscNrLinesReader : public ParallelTask
+{
+public:
+			AscNrLinesReader(const char* fnm,od_uint64 maxnrlines);
+
+    od_uint64		nrLines() const;
+
+private:
+
+    od_int64		nrIterations() const override;
+    bool		doPrepare(int) override;
+    bool		doWork(od_int64,od_int64,int) override;
+
+    const BufferString	fnm_;
+    od_int64	filesz_;
+    od_uint64 maxnrlines_;
+    od_uint64 maxnrlinesperthread_;
+    Threads::Atomic<od_uint64>	nrlines_;
+};
+
+
+AscNrLinesReader::AscNrLinesReader( const char* fnm, od_uint64 maxnrlines )
+    : ParallelTask("")
+    , fnm_(fnm)
+    , maxnrlines_(maxnrlines)
+{
+    filesz_ = File::getFileSize( fnm );
+}
+
+
+od_uint64 AscNrLinesReader::nrLines() const
+{
+    return nrlines_;
+}
+
+
+od_int64 AscNrLinesReader::nrIterations() const
+{
+    return filesz_;
+}
+
+
+bool AscNrLinesReader::doPrepare( int nrthreads )
+{
+    if ( !File::exists(fnm_) || !File::isReadable(fnm_) )
+	return false;
+
+    nrlines_ = 0;
+    if ( mIsUdf(maxnrlines_) || nrthreads == 1 )
+	maxnrlinesperthread_ = maxnrlines_;
+    else
+	maxnrlinesperthread_ = maxnrlines_/nrthreads;
+
+    return true;
+}
+
+
+bool AscNrLinesReader::doWork( od_int64 start, od_int64 stop, int threadidx )
+{
+    char ch;
+    od_istream strm( fnm_ );
+    if ( !strm.isOK() )
+	return false;
+
+    const od_uint64 maxnrlines = maxnrlinesperthread_;
+    const bool skiptail = !mIsUdf(maxnrlines) && maxnrlines > 0;
+
+    strm.setReadPosition( start );
+    std::istream& stdstrm = strm.stdStream();
+    od_uint64 nrlines = 0;
+    for ( od_int64 idx=start; idx<=stop; idx++ )
+    {
+	stdstrm.get( ch );
+	if ( ch == '\n' )
+	    nrlines++;
+
+	if ( skiptail && nrlines >= maxnrlines )
+	{
+	    nrlines_ += nrlines;
+	    return true;
+	}
+    }
+
+    if ( stop == nrIterations()-1 )
+	nrlines++;
+
+    nrlines_ += nrlines;
+
+    return true;
+}
+
+
+od_uint64 od_istream::getAsciiNrLines( const char* fnm, od_uint64 maxnrlines )
+{
+    if ( !File::exists(fnm) || !File::isReadable(fnm) )
+	return mUdf(od_uint64);
+
+    AscNrLinesReader rdr( fnm, maxnrlines );
+    return rdr.execute() ? rdr.nrLines() : mUdf(od_uint64);
 }
 
 

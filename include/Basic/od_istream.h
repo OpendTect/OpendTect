@@ -98,6 +98,8 @@ public:
 				//!< avoid using it in normal circumstances
 
     static od_istream&	nullStream();
+    static od_uint64	getAsciiNrLines(const char* fnm,
+					od_uint64 maxnrlines=mUdf(od_uint64));
 
 private:
 			mOD_DisableCopy(od_istream);
