@@ -35,6 +35,8 @@ public:
     char		readNewChar() const;
     bool		atEnd() const;
 
+    od_istream&		strm()			{ return strm_; }
+
 protected:
 			ImportHandler(od_istream&);
 
@@ -75,32 +77,40 @@ protected:
 
 
 
-mExpClass(General) Converter : public Executor
+mExpClass(General) Converter : public SequentialTask
 { mODTextTranslationClass(Converter);
 public:
-			Converter(ImportHandler&,ExportHandler&);
+			Converter(ImportHandler&,ExportHandler&,
+				  od_int64 maxnrlines=-1);
 			~Converter();
     // Setup
     TypeSet<int>	selcols_;
     uiString		msg_;
 
-    int			nextStep() override;
+    void		setLinesDone(od_int64);
+
     uiString		uiMessage() const override	{ return msg_; }
     uiString		uiNrDoneText() const override
 			{ return tr("Records read"); }
-    od_int64		nrDone() const override		{ return rowsdone_; }
 
     struct RowManipulator
     {
 	virtual bool	accept(BufferStringSet&) const		= 0;
 			//!< if false returned, the row should not be written
     };
+
     void		setManipulator( const RowManipulator* m )
 			    { manipulators_.erase(); addManipulator(m); }
     void		addManipulator( const RowManipulator* m )
 			    { manipulators_ += m; }
 
-protected:
+private:
+    od_int64		nrDone() const override		{ return rowsdone_; }
+    od_int64		totalNr() const override	{ return nrrows_; }
+
+    bool		doPrepare(od_ostream* =nullptr) override;
+    int			nextStep() override;
+    bool		doFinish(bool,od_ostream* =nullptr) override;
 
     ImportHandler&	imphndlr_;
     ExportHandler&	exphndlr_;
@@ -110,12 +120,16 @@ protected:
     int			colnr_				= 0;
     int			selcolnr_			= -1;
     int			rowsdone_			= 0;
+    od_int64		nrrows_				= 0;
     bool		atend_				= false;
 
     bool		handleImpState(ImportHandler::State);
     inline bool		colSel() const
 			{ return selcols_.isEmpty()
 			      || selcols_.isPresent(colnr_); }
+
+    friend class AscIO;
+
 };
 
 } // namespace Table

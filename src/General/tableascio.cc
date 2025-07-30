@@ -823,17 +823,12 @@ bool Table::AscIO::getHdrVals( od_istream& strm ) const
 	    hdrimphndlr = new Table::WSImportHandler( strm );
 
 	Table::AscIOImp_ExportHandler hdrexphndlr( *this, true );
-	Table::Converter hdrcnvrtr( *hdrimphndlr, hdrexphndlr );
-	for ( int idx=0; idx<nrhdrlines; idx++ )
-	{
-	    int res = hdrcnvrtr.nextStep();
-	    if ( res < 0 )
-		mErrRet( hdrcnvrtr.uiMessage() )
-	    else if ( res == 0 || hdrexphndlr.hdrready_ )
-		break;
-	}
+	Table::Converter hdrcnvrtr( *hdrimphndlr, hdrexphndlr, nrhdrlines );
+	if ( !hdrcnvrtr.execute() )
+	    mErrRet( hdrcnvrtr.uiMessage() );
+
 	if ( !hdrexphndlr.hdrready_ || !strm.isOK() )
-	    mErrRet( tr("File header does not comply with format description" ))
+	    mErrRet( tr("File header does not comply with format description") )
     }
 
     if ( !strm.isOK() )
@@ -869,11 +864,20 @@ int Table::AscIO::getNextBodyVals( od_istream& strm ) const
 
 	self.exphndlr_ = new Table::AscIOImp_ExportHandler( *this, false );
 	self.cnvrtr_ = new Table::Converter( *imphndlr_, *exphndlr_ );
+	self.cnvrtr_->setLinesDone( fd_.nrHdrLines() );
+	self.cnvrtr_->doPrepare( nullptr );
     }
 
-    int ret = cnvrtr_->nextStep();
-    if ( ret < 0 )
-	errmsg_ = cnvrtr_->uiMessage();
+    const int ret = cnvrtr_->nextStep();
+    const bool iserr = ret == SequentialTask::ErrorOccurred();
+    const bool success = ret == SequentialTask::Finished();
+    if ( iserr || success )
+    {
+	cnvrtr_->doFinish( success, nullptr );
+	if ( iserr )
+	    errmsg_ = cnvrtr_->uiMessage();
+    }
+
     return ret;
 }
 

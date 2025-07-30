@@ -110,54 +110,89 @@ uiString Table::ExportHandler::getStrmMsg() const
 
 
 // Table::Converter
-Table::Converter::Converter( ImportHandler& i, ExportHandler& o )
-    : Executor("Data import")
-    , imphndlr_(i)
-    , exphndlr_(o)
-{}
+Table::Converter::Converter( ImportHandler& imphndlr, ExportHandler& exphndlr,
+			     od_int64 maxnrlines )
+    : SequentialTask("Data import")
+    , imphndlr_(imphndlr)
+    , exphndlr_(exphndlr)
+{
+    od_istream strm( imphndlr_.strm().fileName() );
+    std::istream& stdstrm = strm.stdStream();
+    nrrows_ = 0;
+    char ch;
+    while( stdstrm.get(ch) )
+    {
+	if ( ch != '\n' )
+	    continue;
+
+	nrrows_++;
+	if ( maxnrlines > 0 && nrrows_ >= maxnrlines )
+	    break;
+    }
+
+    if ( ch != '\n' )
+	nrrows_++;
+}
 
 
 Table::Converter::~Converter()
 {}
 
 
-#define mFinishReturn( retval )		{  exphndlr_.finish(); return retval; }
+void Table::Converter::setLinesDone( od_int64 nr )
+{
+    nrrows_ -= nr;
+}
+
+
+bool Table::Converter::doPrepare( od_ostream* strm )
+{
+    if ( !atend_ && !exphndlr_.init() )
+    {
+	msg_ = tr("Cannot write first output");
+	return false;
+    }
+
+    rowsdone_ = 0;
+    return SequentialTask::doPrepare( strm );
+}
+
 
 int Table::Converter::nextStep()
 {
     if ( atend_ )
-	mFinishReturn( Finished() );
-
-    if ( selcolnr_ == -1 && !exphndlr_.init() )
-    {
-	msg_ = tr("Cannot write first output");
-	mFinishReturn( ErrorOccurred() );
-    }
+	return Finished();
 
     selcolnr_ = colnr_ = 0;
-
     while ( true )
     {
 	char c = imphndlr_.readNewChar();
 	if ( !c )
 	{
 	    msg_ = tr("The input file is probably not ASCII");
-	    mFinishReturn( ErrorOccurred() );
+	    return ErrorOccurred();
 	}
 
 	Table::ImportHandler::State impstate = imphndlr_.add( c );
 	if ( !handleImpState(impstate) )
-	    mFinishReturn( msg_.isEmpty() ? Finished() : ErrorOccurred() );
+	    return msg_.isEmpty() ? Finished() : ErrorOccurred();
 
 	if ( imphndlr_.atEnd() )
 	{
 	    atend_ = true;
-	    return MoreToDo();
+	    return nrDone() < totalNr() ? MoreToDo() : Finished();
 	}
 
 	if ( impstate == Table::ImportHandler::EndRow )
-	    return MoreToDo();
+	    return nrDone() < totalNr() ? MoreToDo() : Finished();
     }
+}
+
+
+bool Table::Converter::doFinish( bool success, od_ostream* strm )
+{
+    exphndlr_.finish();
+    return SequentialTask::doFinish( success, strm );
 }
 
 
@@ -259,7 +294,10 @@ Table::ImportHandler::State Table::WSImportHandler::add( char c )
 Table::ImportHandler::State Table::CSVImportHandler::add( char c )
 {
     if ( c == '"' )
-	{ instring_ = !instring_; return InCol; }
+    {
+	instring_ = !instring_;
+	return InCol;
+    }
     else if ( c == '\n' )
     {
 	if ( instring_ )
