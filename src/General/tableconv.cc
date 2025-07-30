@@ -200,80 +200,99 @@ bool Table::Converter::handleImpState( Table::ImportHandler::State impstate )
 {
     switch ( impstate )
     {
-
-    case Table::ImportHandler::Error:
-
-	msg_ = mToUiStringTodo( imphndlr_.errMsg() );
-
-    return false;
-
-    case Table::ImportHandler::EndCol: {
-
-	if ( colSel() )
+	case Table::ImportHandler::Error:
 	{
-	    row_.add( imphndlr_.getCol() );
-	    selcolnr_++;
-	}
-
-	colnr_++;
-	imphndlr_.newCol();
-
-    return true; }
-
-    case Table::ImportHandler::EndRow: {
-
-	if ( !handleImpState(Table::ImportHandler::EndCol) )
+	    msg_ = mToUiStringTodo( imphndlr_.errMsg() );
 	    return false;
-
-	bool accepted = true;
-	for ( int idx=0; idx<manipulators_.size(); idx++ )
-	{
-	    const RowManipulator* rm = manipulators_[idx];
-	    if ( rm && !rm->accept(row_) )
-		{ accepted = false; break; }
 	}
 
-	if ( accepted )
+	case Table::ImportHandler::EndCol:
 	{
-	    uiString msg;
-	    if ( !exphndlr_.putRow(row_,msg) )
+	    if ( colSel() )
 	    {
-		if ( !msg.isEmpty() )
-		    msg_ = msg;
-
-		return false;
+		row_.add( imphndlr_.getCol() );
+		selcolnr_++;
 	    }
-	    else
-		rowsdone_++;
+
+	    colnr_++;
+	    imphndlr_.newCol();
+	    return true;
 	}
 
-	row_.erase();
-	imphndlr_.newRow();
+	case Table::ImportHandler::EndRow:
+	{
+	    if ( !handleImpState(Table::ImportHandler::EndCol) )
+		return false;
 
-    return true;
-				       }
+	    bool accepted = true;
+	    for ( int idx=0; idx<manipulators_.size(); idx++ )
+	    {
+		const RowManipulator* rm = manipulators_[idx];
+		if ( rm && !rm->accept(row_) )
+		    { accepted = false; break; }
+	    }
 
-    default:
-    break;
+	    if ( accepted )
+	    {
+		uiString msg;
+		if ( !exphndlr_.putRow(row_,msg) )
+		{
+		    if ( !msg.isEmpty() )
+			msg_ = msg;
+
+		    return false;
+		}
+		else
+		    rowsdone_++;
+	    }
+
+	    row_.erase();
+	    imphndlr_.newRow();
+
+	    return true;
+	}
+
+	default:
+	break;
 
     }
 
     return true;
-
 }
+
+
+// Table::WSImportHandler
+
+Table::WSImportHandler::WSImportHandler( od_istream& s )
+    : ImportHandler(s)
+{}
+
+
+Table::WSImportHandler::~WSImportHandler()
+{}
 
 
 Table::ImportHandler::State Table::WSImportHandler::add( char c )
 {
     if ( c == '"' && !insingqstring_ )
-	{ indoubqstring_ = !indoubqstring_; return InCol; }
+    {
+	indoubqstring_ = !indoubqstring_;
+	return InCol;
+    }
     else if ( c == '\'' && !indoubqstring_ )
-	{ insingqstring_ = !insingqstring_; return InCol; }
+    {
+	insingqstring_ = !insingqstring_;
+	return InCol;
+    }
     else if ( c == '\n' )
     {
-	indoubqstring_ = insingqstring_ = false;
-	addToCol( '\0' );
-	return EndRow;
+	if ( indoubqstring_ || insingqstring_ )
+	    c = nlreplace_;
+	else
+	{
+	    addToCol( '\0' );
+	    return EndRow;
+	}
     }
     else if ( !indoubqstring_ && !insingqstring_ && iswspace(c) )
     {
@@ -289,6 +308,17 @@ Table::ImportHandler::State Table::WSImportHandler::add( char c )
     addToCol( c );
     return InCol;
 }
+
+
+// Table::CSVImportHandler
+
+Table::CSVImportHandler::CSVImportHandler( od_istream& s )
+    : ImportHandler(s)
+{}
+
+
+Table::CSVImportHandler::~CSVImportHandler()
+{}
 
 
 Table::ImportHandler::State Table::CSVImportHandler::add( char c )
@@ -317,6 +347,18 @@ Table::ImportHandler::State Table::CSVImportHandler::add( char c )
     addToCol( c );
     return InCol;
 }
+
+
+// Table::WSExportHandler
+
+Table::WSExportHandler::WSExportHandler( od_ostream& s, ColWSHandl w )
+    : ExportHandler(s)
+    , colwshanld_(w)
+{}
+
+
+Table::WSExportHandler::~WSExportHandler()
+{}
 
 
 void Table::WSExportHandler::addVal( int col, const char* inpval )
@@ -370,6 +412,17 @@ bool Table::WSExportHandler::putRow( const BufferStringSet& row, uiString& msg )
 }
 
 
+// Table::CSVExportHandler
+
+Table::CSVExportHandler::CSVExportHandler( od_ostream& s )
+    : ExportHandler(s)
+{}
+
+
+Table::CSVExportHandler::~CSVExportHandler()
+{}
+
+
 void Table::CSVExportHandler::addVal( int col, const char* val )
 {
     if ( col )
@@ -394,6 +447,17 @@ bool Table::CSVExportHandler::putRow( const BufferStringSet& row, uiString& msg)
     msg = getStrmMsg();
     return msg.isEmpty();
 }
+
+
+// Table::SQLInsertExportHandler
+
+Table::SQLInsertExportHandler::SQLInsertExportHandler( od_ostream& s )
+    : ExportHandler(s)
+{}
+
+
+Table::SQLInsertExportHandler::~SQLInsertExportHandler()
+{}
 
 
 void Table::SQLInsertExportHandler::addVal( int col, const char* val )
@@ -467,6 +531,17 @@ bool Table::SQLInsertExportHandler::putRow( const BufferStringSet& row,
 }
 
 
+// Table::RecordMatcher
+
+Table::RecordMatcher::RecordMatcher( bool a )
+    : any_(a)
+{}
+
+
+Table::RecordMatcher::~RecordMatcher()
+{}
+
+
 bool Table::RecordMatcher::accept( BufferStringSet& cols ) const
 {
     for ( int idx=0; idx<ckcols_.size(); idx++ )
@@ -493,6 +568,16 @@ bool Table::RecordMatcher::accept( BufferStringSet& cols ) const
     // If it was not any_, apparently everything was ok.
     return !any_;
 }
+
+
+// Table::DuplicateKeyRemover
+
+Table::DuplicateKeyRemover::DuplicateKeyRemover()
+{}
+
+
+Table::DuplicateKeyRemover::~DuplicateKeyRemover()
+{}
 
 
 void Table::DuplicateKeyRemover::setPrevKeys( const BufferStringSet& cols) const
@@ -526,6 +611,16 @@ bool Table::DuplicateKeyRemover::accept( BufferStringSet& cols ) const
     nrremoved_++;
     return false;
 }
+
+
+// Table::StartStopManipulator
+
+Table::StartStopManipulator::StartStopManipulator()
+{}
+
+
+Table::StartStopManipulator::~StartStopManipulator()
+{}
 
 
 bool Table::StartStopManipulator::isGEMatch(
@@ -582,27 +677,38 @@ bool Table::StartStopManipulator::accept( BufferStringSet& cols ) const
     return true;
 }
 
-namespace Table
-{
 
-// FormatProvider
-FormatProvider::FormatProvider()
+// Table::StartStopManipulator::Criterion
+
+Table::StartStopManipulator::Criterion::Criterion(
+				Table::StartStopManipulator::Criterion::Type t )
+    : type_(t)
+{}
+
+
+Table::StartStopManipulator::Criterion::~Criterion()
+{}
+
+
+// Table::FormatProvider
+
+Table::FormatProvider::FormatProvider()
 {
     readSettings();
 }
 
 
-FormatProvider::~FormatProvider()
+Table::FormatProvider::~FormatProvider()
 {}
 
 
-void FormatProvider::readSettings()
+void Table::FormatProvider::readSettings()
 {
 // TODO
 }
 
 
-const char* FormatProvider::xy() const
+const char* Table::FormatProvider::xy() const
 {
     mDeclStaticString( ret );
     const od_uint16 width = 12;
@@ -613,7 +719,7 @@ const char* FormatProvider::xy() const
 }
 
 
-const char* FormatProvider::z( od_uint16 extradecimals ) const
+const char* Table::FormatProvider::z( od_uint16 extradecimals ) const
 {
     mDeclStaticString( ret );
     const od_uint16 width = 12;
@@ -623,7 +729,7 @@ const char* FormatProvider::z( od_uint16 extradecimals ) const
 }
 
 
-const char* FormatProvider::trcnr() const
+const char* Table::FormatProvider::trcnr() const
 {
     mDeclStaticString( ret );
     const od_uint16 width = 10;
@@ -632,7 +738,7 @@ const char* FormatProvider::trcnr() const
 }
 
 
-const char* FormatProvider::spnr() const
+const char* Table::FormatProvider::spnr() const
 {
     mDeclStaticString( ret );
     const od_uint16 width = 10;
@@ -641,11 +747,10 @@ const char* FormatProvider::spnr() const
     return ret.buf();
 }
 
-const char* FormatProvider::string( od_uint16 length ) const
+
+const char* Table::FormatProvider::string( od_uint16 length ) const
 {
     mDeclStaticString( ret );
     ret.set( cformat( 's', length ) );
     return ret.buf();
 }
-
-} // namespace Table

@@ -22,23 +22,22 @@ namespace Table
 mExpClass(General) WSImportHandler : public ImportHandler
 {
 public:
-
-
-			WSImportHandler( od_istream& s )
-			    : ImportHandler(s)
-			    , insingqstring_(false)
-			    , indoubqstring_(false)	{}
+			WSImportHandler(od_istream&);
+			~WSImportHandler();
 
     State		add(char) override;
     const char*		getCol() const			{ return col_.buf(); }
     const char*		errMsg() const			{ return col_.buf(); }
 
-    void		newRow() override			{}
+    void		newRow() override		{}
 
-protected:
+    char		nlreplace_			= ' ';
+			/*!< replace newlines found in fields
+			     with this char (optional) */
 
-    bool		insingqstring_;
-    bool		indoubqstring_;
+private:
+    bool		insingqstring_	= false;
+    bool		indoubqstring_	= false;
 
 };
 
@@ -46,23 +45,20 @@ protected:
 mExpClass(General) CSVImportHandler : public ImportHandler
 {
 public:
-			CSVImportHandler( od_istream& s )
-			    : ImportHandler(s)
-			    , nlreplace_('\n')
-			    , instring_(false)	{}
+			CSVImportHandler(od_istream&);
+			~CSVImportHandler();
 
     State		add(char) override;
     const char*		getCol() const		{ return col_.buf(); }
     const char*		errMsg() const		{ return col_.buf(); }
 
-    void		newRow() override		{ instring_ = false; }
+    void		newRow() override	{ instring_ = false; }
 
-    char		nlreplace_;
-			//!< replace newlines with this char (optional)
-
-protected:
-
-    bool		instring_;
+    char		nlreplace_		= ' ';
+			/*!< replace newlines found in fields
+			     with this char (optional) */
+private:
+    bool		instring_ = false;
 
 };
 
@@ -73,17 +69,14 @@ public:
 
     enum ColWSHandl	{ None, Underscores, SingQuot, DoubQuot };
 
-			WSExportHandler( od_ostream& s,
-					 ColWSHandl w=Underscores )
-			    : ExportHandler(s)
-			    , colwshanld_(w)	{}
+			WSExportHandler(od_ostream&,ColWSHandl w=Underscores);
+			~WSExportHandler();
 
     bool		putRow(const BufferStringSet&,uiString&) override;
 
     ColWSHandl		colwshanld_;
 
-protected:
-
+private:
     void		addVal(int col,const char*);
 
 };
@@ -92,13 +85,12 @@ protected:
 mExpClass(General) CSVExportHandler : public ExportHandler
 {
 public:
-			CSVExportHandler( od_ostream& s )
-			    : ExportHandler(s)		{}
+			CSVExportHandler(od_ostream&);
+			~CSVExportHandler();
 
     bool		putRow(const BufferStringSet&,uiString&) override;
 
-protected:
-
+private:
     void		addVal(int col,const char*);
 
 };
@@ -108,11 +100,8 @@ mExpClass(General) SQLInsertExportHandler : public ExportHandler
 { mODTextTranslationClass(SQLInsertExportHandler);
 public:
 
-			SQLInsertExportHandler( od_ostream& s )
-			    : ExportHandler(s)
-			    , startindex_(1)
-			    , stepindex_(1)
-			    , nrrows_(0)	    {}
+			SQLInsertExportHandler(od_ostream&);
+			~SQLInsertExportHandler();
 
     bool		putRow(const BufferStringSet&,uiString&) override;
 
@@ -120,17 +109,17 @@ public:
     BufferStringSet	colnms_;	//!< names of the columns: optional
 
     BufferString	indexcolnm_;	//!< if not empty, will add column
-    int			startindex_;	//!< if indexcolnm_ set, startindex
-    int			stepindex_;	//!< if indexcolnm_ set, step index
+    int			startindex_ = 1;//!< if indexcolnm_ set, startindex
+    int			stepindex_  = 1;//!< if indexcolnm_ set, step index
 
     BufferStringSet	extracolvals_;	//!< Values for columns not in input
     BufferStringSet	extracolnms_;	//!< Column names for extracolvals_
 
-protected:
+private:
 
     void		addVal(int col,const char*);
 
-    int			nrrows_;
+    int			nrrows_ = 0;
     bool		addindex_;
     int			nrextracols_;
 
@@ -147,38 +136,34 @@ protected:
 mExpClass(General) StartStopManipulator : public Converter::RowManipulator
 {
 public:
-		StartStopManipulator()
-		    : startdone_(false)
-		    , count_(0)		{}
+				StartStopManipulator();
+				~StartStopManipulator();
 
     struct Criterion
     {
 	enum Type	{ None, Records, Match };
 
-			Criterion( Type t=None )
-			    : type_(t)
-			    , count_(1)
-			    , matchcolidx_(0)		{}
+			Criterion(Type=None);
+			~Criterion();
 
 	Type		type_;
-	int		count_;		//!< nr of lines or nr of matches
+	int		count_ = 1;	//!< nr of lines or nr of matches
 	GlobExpr	matchexpr_;
-	int		matchcolidx_;	//!< specify -1 for any col
+	int		matchcolidx_ = 0;	//!< specify -1 for any col
 
     };
 
     Criterion	start_;
     Criterion	stop_;
 
-    bool	accept(BufferStringSet&) const override;
+private:
 
-protected:
-
-    mutable bool startdone_;
-    mutable int	 count_;
+    mutable bool startdone_ = false;
+    mutable int	 count_ = 0;
 
     void	updCount(const Criterion&,const BufferStringSet&) const;
     bool	isGEMatch(const Criterion&,const BufferStringSet&) const;
+    bool	accept(BufferStringSet&) const override;
 
 };
 
@@ -189,8 +174,10 @@ protected:
 mExpClass(General) RecordMatcher : public Converter::RowManipulator
 {
 public:
-			RecordMatcher( bool a=true )
-			    : any_(a)	{}
+			RecordMatcher(bool a=true);
+			~RecordMatcher();
+
+private:
 
     bool		accept(BufferStringSet&) const override;
 
@@ -199,9 +186,6 @@ public:
     TypeSet<int>	ckcols_;	//!< Column numbers (mand)
     TypeSet<GlobExpr>	colvals_;	//!< Values associated (opt)
 					//!< Not filled means check for empty
-
-protected:
-
     static const GlobExpr emptyge_;
 
 };
@@ -218,22 +202,19 @@ protected:
 mExpClass(General) DuplicateKeyRemover : public Converter::RowManipulator
 {
 public:
-			DuplicateKeyRemover()
-			    : nrdone_(0), nrremoved_(0)	{}
+			DuplicateKeyRemover();
+			~DuplicateKeyRemover();
 
+private:
+
+    int			nrRemoved() const		{ return nrremoved_; }
+    void		setPrevKeys(const BufferStringSet&) const;
     bool		accept(BufferStringSet&) const override;
 
     TypeSet<int>	keycols_; //!< column numbers (mand)
-
-    int			nrRemoved() const		{ return nrremoved_; }
-
-protected:
-
     mutable BufferStringSet	prevkeys_;
-    mutable int			nrdone_;
-    mutable int			nrremoved_;
-
-    void			setPrevKeys(const BufferStringSet&) const;
+    mutable int			nrdone_ = 0;
+    mutable int			nrremoved_ = 0;
 
 };
 
