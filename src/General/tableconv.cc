@@ -236,9 +236,13 @@ Table::ImportHandler::State Table::WSImportHandler::add( char c )
 	{ insingqstring_ = !insingqstring_; return InCol; }
     else if ( c == '\n' )
     {
-	indoubqstring_ = insingqstring_ = false;
-	addToCol( '\0' );
-	return EndRow;
+	if ( indoubqstring_ || insingqstring_ )
+	    c = ' ';
+	else
+	{
+	    addToCol( '\0' );
+	    return EndRow;
+	}
     }
     else if ( !indoubqstring_ && !insingqstring_ && iswspace(c) )
     {

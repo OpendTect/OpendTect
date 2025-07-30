@@ -48,7 +48,7 @@ mExpClass(General) CSVImportHandler : public ImportHandler
 public:
 			CSVImportHandler( od_istream& s )
 			    : ImportHandler(s)
-			    , nlreplace_('\n')
+			    , nlreplace_(' ')
 			    , instring_(false)	{}
 
     State		add(char) override;
