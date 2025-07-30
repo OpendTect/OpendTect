@@ -116,22 +116,8 @@ Table::Converter::Converter( ImportHandler& imphndlr, ExportHandler& exphndlr,
     , imphndlr_(imphndlr)
     , exphndlr_(exphndlr)
 {
-    od_istream strm( imphndlr_.strm().fileName() );
-    std::istream& stdstrm = strm.stdStream();
-    nrrows_ = 0;
-    char ch;
-    while( stdstrm.get(ch) )
-    {
-	if ( ch != '\n' )
-	    continue;
-
-	nrrows_++;
-	if ( maxnrlines > 0 && nrrows_ >= maxnrlines )
-	    break;
-    }
-
-    if ( ch != '\n' )
-	nrrows_++;
+    nrrows_ = od_istream::getAsciiNrLines( imphndlr_.strm().fileName(),
+					   maxnrlines );
 }
 
 
