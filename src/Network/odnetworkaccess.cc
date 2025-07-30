@@ -169,6 +169,9 @@ FileDownloader::~FileDownloader()
 
 bool FileDownloader::doPrepare( od_ostream* strm )
 {
+    if ( totalnr_ < 1 )
+	totalnr_ = 1;
+
     return SequentialTask::doPrepare( strm );
 }
 
