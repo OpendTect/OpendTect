@@ -152,7 +152,7 @@ int Math::NrSignificantDecimals( double val )
     double intpart;
     double decval = modf( val, &intpart );
     while ( decval > Math::Floor(decval) &&
-	   !mIsZero(decval,1e-4) && !mIsEqual(decval,1.,1e-4) )
+	   !mIsZero(decval,1e-3) && !mIsEqual(decval,1.,1e-3) )
     {
 	nrdec++;
 	decval = decval*10 - Math::Floor(decval*10);
