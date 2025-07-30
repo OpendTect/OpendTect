@@ -221,15 +221,16 @@ public:
     uiTreeItem*			parentTreeItem()	{ return parent_; }
 };
 
-mExpClass(uiTools) uiTreeItemRemover : public SequentialTask
+mExpClass(uiTools) uiTreeItemRemover final : public SequentialTask
 {
 public:
 			uiTreeItemRemover(uiTreeItem* parent,uiTreeItem* child);
 			~uiTreeItemRemover();
 
+private:
     int			nextStep() override;
+    od_int64		totalNr() const override		{ return 1; }
 
-protected:
     uiTreeItem*		parent_;
     uiTreeItem*		child_;
 };
