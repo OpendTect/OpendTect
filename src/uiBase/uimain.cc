@@ -28,6 +28,7 @@ ________________________________________________________________________
 #include "oddirs.h"
 #include "odruncontext.h"
 #include "oscommand.h"
+#include "od_ostream.h"
 #include "settings.h"
 #include "texttranslator.h"
 #include "thread.h"
@@ -468,12 +469,18 @@ void uiMain::preInit( const CommandLineParser& parser, BufferString& stylestr )
 {
     bool needdisabledarkmode = !__islinux__;
     stylestr = uiMain::getStyleFromSettings( parser, &needdisabledarkmode );
+    BufferString platformstr = OD::getPlatformArg( parser );
     if ( __iswin__ && needdisabledarkmode )
     {
-	const BufferString platformstr = OD::getPlatformArg( parser );
 	if ( platformstr.isEmpty() || !platformstr.contains("darkmode") )
-	    SetEnvVar( "QT_QPA_PLATFORM", "windows:darkmode=0" );
+	{
+	    platformstr = "windows:darkmode=0";
+	    SetEnvVar( "QT_QPA_PLATFORM", platformstr.buf() );
+	}
     }
+
+    if ( platformstr.isEmpty() )
+	platformstr = QApplication::platformName();
 
     QApplication::setDesktopSettingsAware( true );
 #if QT_VERSION >= QT_VERSION_CHECK(5,6,0) && \
@@ -492,22 +499,42 @@ void uiMain::preInit( const CommandLineParser& parser, BufferString& stylestr )
 	 QApplication::testAttribute(Qt::AA_UseSoftwareOpenGL) )
 	return;
 
-# ifdef __unix__
-    const bool directren = directRendering();
-    if ( !directren )
+    BufferString glvendor;
+    if ( !__iswin__ )
     {
-	QApplication::setAttribute( Qt::AA_UseSoftwareOpenGL );
-	/* Prevents corruption of QtWebEngine widget on remote Unix.
-	   Keeping dynamic loading of DLLs on Windows for 'standards' uiMain
-	 */
+	const bool directren = directRendering( glvendor );
+	if ( !directren )
+	{
+	    QApplication::setAttribute( Qt::AA_UseSoftwareOpenGL );
+	    /* Prevents corruption of QtWebEngine widget on remote Unix.
+	       Keeping dynamic loading of DLLs on Windows for 'standards' uiMain
+	     */
+	}
     }
-# endif
 
     QSurfaceFormat format;
     format.setVersion( 2, 0 );
     format.setProfile( QSurfaceFormat::CompatibilityProfile );
     format.setDepthBufferSize( 24 );
     QSurfaceFormat::setDefaultFormat( format );
+
+    if ( __islinux__ && platformstr == "xcb" )
+    {
+	const BufferString xcbglintegration =
+				    GetEnvVar( "QT_XCB_GL_INTEGRATION" );
+	if ( reqOpenGL() )
+	{
+	    if ( xcbglintegration == "xcb_egl" )
+		od_cerr() << "[ERROR] xcb_egl is not compatible with "
+			     "OpenSceneGraph" << od_endl;
+	}
+	else
+	{
+	    if ( !glvendor.startsWith("NVIDIA",OD::CaseInsensitive) &&
+		  xcbglintegration.isEmpty() )
+		SetEnvVar( "QT_XCB_GL_INTEGRATION", "xcb_egl" );
+	}
+    }
 #endif
 }
 
@@ -907,7 +934,7 @@ static Threads::Atomic<int> directrendering( 0 );
 //1 = yes
 //-1 = no
 
-bool uiMain::directRendering()
+bool uiMain::directRendering( BufferString& glvendor )
 {
     if ( directrendering )
 	return directrendering == 1;
@@ -919,20 +946,27 @@ bool uiMain::directRendering()
 
     BufferStringSet glxinfostrs;
     glxinfostrs.unCat( stdoutstr.str() );
-    BufferString dorender;
+    BufferString lineval;
     for ( const auto line : glxinfostrs )
     {
-	if ( !line->startsWith("direct rendering:") )
+	const bool isdirren = line->startsWith("direct rendering:");
+	const bool isglven = !isdirren &&
+			      line->startsWith("OpenGL vendor string:");
+	if ( !isdirren && !isglven )
 	    continue;
 
-	dorender.set( line->find( ':' )+1 );
-	dorender.trimBlanks();
-	if ( !dorender.isEmpty() )
-	{
-	    directrendering = dorender == StringView("Yes")
-			    ? 1
-			    : -1;
-	}
+	lineval.set( line->find( ':' )+1 );
+	lineval.trimBlanks();
+	if ( lineval.isEmpty() )
+	    continue;
+
+	if ( isdirren )
+	    directrendering = lineval == "Yes" ? 1 : -1;
+	else if ( isglven )
+	    glvendor = lineval;
+
+	if ( directrendering != 0 && !glvendor.isEmpty() )
+	    break;
     }
 
     return directrendering == 1;
