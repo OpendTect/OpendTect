@@ -20,21 +20,23 @@ static const char* sKeyTimeOut = "Download.Timout";
 
 ODDLSite::ODDLSite( const char* h, float t )
     : timeout_(t)
-    , databuf_(0)
+    , databuf_(nullptr)
     , host_(h)
     , isfailed_(false)
-    , issecure_(false)
+    , issecure_(true)
 {
     islocal_ = host_.startsWith( "DIR=" );
     if ( host_.isEmpty() )
 	host_ = "opendtect.org";
+
     int stroffs = 0;
     if ( islocal_ )
 	stroffs = 4;
     else if ( host_.startsWith("http://") )
-	stroffs = 7;
+	{ stroffs = 7; issecure_ = false; }
     else if ( host_.startsWith("https://") )
 	{ stroffs = 8; issecure_ = true; }
+
     host_ = h + stroffs;
 
     // TODO handle timeout
@@ -47,7 +49,6 @@ ODDLSite::ODDLSite( const char* h, float t )
 
     if ( host_.isEmpty() )
 	host_ = "opendtect.org";
-
 }
 
 
@@ -72,7 +73,7 @@ bool ODDLSite::getFile( const char* relfnm, const char* outfnm,
 			    TaskRunner* taskrunner,
 			    const char* nicename )
 {
-    delete databuf_; databuf_ = 0;
+    deleteAndNullPtr( databuf_ );
 
     if ( islocal_ )
 	return getLocalFile( relfnm, outfnm );
@@ -103,9 +104,11 @@ bool ODDLSite::getLocalFile( const char* relfnm, const char* outfnm )
     const bool isok = strm.getAll( bs );
     if ( isok )
     {
+	delete databuf_;
 	databuf_ = new DataBuffer( bs.size(), 1 );
 	OD::memCopy( (char*)databuf_->data(), bs.buf(), databuf_->size() );
     }
+
     return isok;
 }
 
@@ -113,7 +116,7 @@ bool ODDLSite::getLocalFile( const char* relfnm, const char* outfnm )
 DataBuffer* ODDLSite::obtainResultBuf()
 {
     DataBuffer* ret = databuf_;
-    databuf_ = 0;
+    databuf_ = nullptr;
     return ret;
 }
 
