@@ -40,8 +40,9 @@ mExpClass(Network) ODDLSite : public CallBacker
 { mODTextTranslationClass(ODDLSite);
 public:
 
-			ODDLSite(const char* the_host,float timeout_sec=0);
+			ODDLSite(const char* the_host,float timeout_sec=0.f);
 			~ODDLSite();
+
     bool		isOK() const			{ return !isfailed_; }
 
     const char*		host() const			{ return host_; }
@@ -52,8 +53,9 @@ public:
 
     uiString		errMsg() const			{ return errmsg_; }
 
-    bool		getFile(const char* fnm,const char* outfnm=0,
-				 TaskRunner* tr=0, const char* nicename=0);
+    bool		getFile(const char* fnm,const char* outfnm=nullptr,
+				 TaskRunner* =nullptr,
+				 const char* nicename=nullptr);
 			//!< Without a file name, get the DataBuffer
     DataBuffer*		obtainResultBuf();
 			//!< the returned databuf becomes yours
@@ -73,11 +75,11 @@ protected:
     BufferString	subdir_;
     float		timeout_;
     bool		islocal_;
-    bool		issecure_;
+    bool		issecure_	= true;
 
     mutable uiString	errmsg_;
-    bool		isfailed_;
-    DataBuffer*		databuf_;
+    bool		isfailed_	= false;
+    DataBuffer*		databuf_	= nullptr;
 
     void		reqFinish(CallBacker*);
     BufferString	getFileName(const char*) const;
