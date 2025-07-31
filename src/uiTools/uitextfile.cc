@@ -156,12 +156,20 @@ bool uiTextFile::open( const char* fnm )
 	if ( !strm.isOK() )
 	    return false;
 
-	Table::WSImportHandler imphndlr( strm );
+	const FilePath fp( fnm );
+	const bool iscsv = StringView(fp.extension())
+					.isEqual( "csv", OD::CaseInsensitive);
+	//TODO QC from file content
+	PtrMan<Table::ImportHandler> imphndlr;
+	if ( iscsv )
+	    imphndlr = new Table::CSVImportHandler( strm );
+	else
+	    imphndlr = new Table::WSImportHandler( strm );
+
 	uiTableExpHandler exphndlr( tbl_, setup_.maxnrlines_ );
-	Table::Converter cnvrtr( imphndlr, exphndlr );
+	Table::Converter cnvrtr( *imphndlr.ptr(), exphndlr );
 	cnvrtr.execute();
     }
-
 
     setFileName( fnm );
     return true;
