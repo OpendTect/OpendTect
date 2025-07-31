@@ -61,6 +61,7 @@ public:
     virtual void	setInput(const IOObj&);
     virtual void	setInput(const MultiID&);
     void		setEmpty() override;
+    void		reset();
 
     MultiID		key(bool noerr=false) const;
     const IOObj*	ioobj(bool noerr=false) const;
@@ -107,7 +108,6 @@ protected:
     Setup		setup_;
     HelpKey		helpkey_;
     bool		inctiomine_;
-    bool		overwrdontshowagain_	= false;
     ObjectSet<uiIOObjInserter> inserters_;
 
     void		preFinalizeCB(CallBacker*);
