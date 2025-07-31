@@ -8,10 +8,14 @@ ________________________________________________________________________
 -*/
 
 #include "uiioobjsel.h"
-#include "uiioobjselgrp.h"
-#include "uiioobjseldlg.h"
+
 #include "uiioobjinserter.h"
+#include "uiioobjseldlg.h"
+#include "uiioobjselgrp.h"
 #include "uiioobjselwritetransl.h"
+#include "uilistbox.h"
+#include "uimsg.h"
+#include "uistatusbar.h"
 
 #include "ctxtioobj.h"
 #include "iodir.h"
@@ -21,10 +25,6 @@ ________________________________________________________________________
 #include "keystrs.h"
 #include "od_helpids.h"
 #include "transl.h"
-
-#include "uimsg.h"
-#include "uistatusbar.h"
-#include "uilistbox.h"
 
 
 // uiIOObjRetDlg
@@ -475,8 +475,15 @@ void uiIOObjSel::updateInput()
 void uiIOObjSel::setEmpty()
 {
     uiIOSelect::setEmpty();
-    workctio_.setObj( 0 ); inctio_.setObj( 0 );
+    workctio_.setObj( nullptr );
+    inctio_.setObj( nullptr );
     updateInput();
+}
+
+
+void uiIOObjSel::reset()
+{
+    inctio_.setObj( nullptr );
 }
 
 
@@ -573,14 +580,16 @@ const IOObj* uiIOObjSel::ioobj( bool noerr ) const
 IOObj* uiIOObjSel::getIOObj( bool noerr )
 {
     doCommit( noerr );
-    IOObj* ret = inctio_.ioobj_; inctio_.ioobj_ = 0;
+    IOObj* ret = inctio_.ioobj_;
+    inctio_.ioobj_ = nullptr;
     return ret;
 }
 
 
 bool uiIOObjSel::commitInput()
 {
-    bool dum = false; return doCommitInput( dum );
+    bool dum = false;
+    return doCommitInput( dum );
 }
 
 
@@ -608,7 +617,8 @@ bool uiIOObjSel::doCommitInput( bool& alreadyerr )
 	    return false;
 	}
 
-	workctio_.setObj( 0 ); inctio_.setObj( 0 );
+	workctio_.setObj( nullptr );
+	inctio_.setObj( nullptr );
 	commitSucceeded();
 	return true;
     }
@@ -624,7 +634,9 @@ bool uiIOObjSel::doCommitInput( bool& alreadyerr )
 		mErrRet( tr("Cannot change the output format "
 			 "for an already existing entry") )
 
-	    if ( !alreadyerr && !workctio_.ctxt_.forread_ )
+	    const bool isalreadyok = inctio_.ioobj_ &&
+				inctio_.ioobj_->key()==workctio_.ioobj_->key();
+	    if ( !alreadyerr && !isalreadyok && !workctio_.ctxt_.forread_ )
 	    {
 		const bool exists = workctio_.ioobj_->implExists( false );
 		if ( exists )
@@ -636,11 +648,9 @@ bool uiIOObjSel::doCommitInput( bool& alreadyerr )
 		    }
 		    else if ( setup_.confirmoverwr_ )
 		    {
-			if ( !overwrdontshowagain_ &&
-			     !uiMSG().askGoOn(tr("'%1' already exists."
+			if ( !uiMSG().askGoOn(tr("'%1' already exists."
 						 " Overwrite?")
-						.arg(getInput()),true,
-					     &overwrdontshowagain_) )
+						.arg(getInput()),true) )
 			    mErrRet(uiStrings::sEmptyString())
 		    }
 		}

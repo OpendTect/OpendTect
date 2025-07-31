@@ -65,6 +65,7 @@ MultiID uiSeisWvltCreate::storeKey( bool noerr ) const
 
 bool uiSeisWvltCreate::acceptOK( CallBacker* )
 {
+    wvltfld_->reset();
     const IOObj* outioobj = wvltfld_->ioobj();
     return outioobj;
 }

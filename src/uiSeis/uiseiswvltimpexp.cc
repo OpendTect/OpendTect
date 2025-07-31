@@ -83,6 +83,7 @@ bool uiSeisWvltImp::acceptOK( CallBacker* )
     if ( fnm.isEmpty() )
 	mErrRet( tr("Please enter the input file name") )
 
+    wvltfld_->reset();
     const IOObj* wvltioobj = wvltfld_->ioobj( true );
     if ( !wvltioobj )
 	mErrRet( !wvltfld_->isEmpty() ? uiString::emptyString()
