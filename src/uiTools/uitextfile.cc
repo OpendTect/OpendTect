@@ -156,7 +156,10 @@ bool uiTextFile::open( const char* fnm )
 	if ( !strm.isOK() )
 	    return false;
 
-	const bool iscsv = false; //TODO fetch from file
+	const FilePath fp( fnm );
+	const bool iscsv = StringView(fp.extension())
+					.isEqual( "csv", OD::CaseInsensitive);
+	//TODO QC from file content
 	PtrMan<Table::ImportHandler> imphndlr;
 	if ( iscsv )
 	    imphndlr = new Table::CSVImportHandler( strm );
