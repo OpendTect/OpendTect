@@ -58,7 +58,10 @@ uiImageSel::uiImageSel( uiParent* p, bool forread, const Setup& su )
     }
 
     if ( importeditbut )
+    {
 	importeditbut->attach( rightOf, this->selbut_ );
+	importeditbut->setMinimumWidthInChar( importeditbut->name().size()+3 );
+    }
 }
 
 
@@ -189,6 +192,7 @@ bool uiImportImageDlg::acceptOK( CallBacker* )
 	return false;
     }
 
+    outputfld_->reset();
     const IOObj* ioobj = outputfld_->ioobj();
     if ( !ioobj )
 	return false;
@@ -279,8 +283,7 @@ bool uiImageCoordGrp::saveCoords( const IOObj& ioobj )
 
 
 void uiImageCoordGrp::fillPar( IOPar& par ) const
-{
-}
+{}
 
 
 bool uiImageCoordGrp::usePar( const IOPar& par )

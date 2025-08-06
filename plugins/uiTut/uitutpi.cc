@@ -242,8 +242,7 @@ static HelpProvider* createInstance()
 
 mDefODInitPlugin(uiTut)
 {
-    mDefineStaticLocalObject( PtrMan<uiTutMgr>, theinst_,
-			      = new uiTutMgr() );
+    mDefineStaticLocalObject( PtrMan<uiTutMgr>, theinst_, = new uiTutMgr() );
 
     if ( !theinst_ )
 	return "Cannot instantiate the Tutorial plugin";

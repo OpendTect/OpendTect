@@ -66,8 +66,7 @@ uiAttrDescEd::uiAttrDescEd( uiParent* p, bool is2d, const HelpKey& helpkey )
 
 
 uiAttrDescEd::~uiAttrDescEd()
-{
-}
+{}
 
 
 void uiAttrDescEd::setDesc( Attrib::Desc* desc, Attrib::DescSetMan* adsm )
@@ -146,9 +145,7 @@ void uiAttrDescEd::fillInp( uiSteeringSel* fld, Attrib::Desc& desc, int inp )
 	chtr_.setChanged( true );
 
     if ( !desc.setInput( inp, desc.descSet()->getDesc(descid).ptr() ) )
-    {
 	errmsg_ = sInputTypeError( inp );
-    }
 }
 
 
@@ -205,7 +202,7 @@ uiAttrSel* uiAttrDescEd::createInpFld( const uiAttrSelData& asd,
 uiImagAttrSel* uiAttrDescEd::createImagInpFld( bool is2d )
 {
     uiAttrSelData asd( is2d );
-    return new uiImagAttrSel( this, uiString::empty(), asd);
+    return new uiImagAttrSel( this, uiString::empty(), asd );
 }
 
 
@@ -275,16 +272,14 @@ const char* uiAttrDescEd::zGateLabel() const
 uiString uiAttrDescEd::zDepLabel( const uiString& pre,
 				  const uiString& post ) const
 {
-    BufferString lbl;
     uiString zstr( zIsTime() ? uiStrings::sTime() : uiStrings::sDepth() );
-    uiString ret;
     if ( !pre.isEmpty() && !post.isEmpty() )
     {
 	return toUiString( "%1 %2 %3 %4" )
-	    .arg( pre )
-	    .arg( zstr.toLower() )
-	    .arg( post )
-	    .arg( SI().getUiZUnitString() );
+		    .arg( pre )
+		    .arg( zstr.toLower() )
+		    .arg( post )
+		    .arg( SI().getUiZUnitString() );
     }
 
     if ( !pre.isEmpty() )
@@ -294,8 +289,7 @@ uiString uiAttrDescEd::zDepLabel( const uiString& pre,
     }
 
     if ( !post.isEmpty() )
-	return uiStrings::phrJoinStrings( zstr, post, SI().getUiZUnitString());
-
+	return uiStrings::phrJoinStrings( zstr, post, SI().getUiZUnitString() );
 
     return uiStrings::phrJoinStrings( zstr, SI().getUiZUnitString() );
 }
@@ -329,10 +323,9 @@ uiString uiAttrDescEd::errMsgStr( Attrib::Desc* desc )
 	}
     }
 
-    const bool isuiok = areUIParsOK();
-    if ( !isuiok && errmsg_.isEmpty() )
-	errmsg_= tr("Please review your parameters, "
-                    "some of them are not correct");
+    if ( !areUIParsOK() && errmsg_.isEmpty() )
+	errmsg_= tr( "Please review your parameters, "
+		     "some of them are not correct" );
 
     return errmsg_;
 }

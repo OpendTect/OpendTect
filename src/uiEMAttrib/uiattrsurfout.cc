@@ -58,21 +58,20 @@ uiAttrSurfaceOut::uiAttrSurfaceOut( uiParent* p, const DescSet& ad,
     settingsbut_->display( false );
     settingsbut_->attach( rightOf, filludffld_ );
 
-    objfld_ = new uiHorizon3DSel( pargrp_, false,
-			      uiStrings::phrCalculate(tr("on Horizon")) );
+    objfld_ = new uiHorizon3DSel( pargrp_, true,
+				  uiStrings::phrCalculate(tr("on Horizon")) );
     objfld_->attach( alignedBelow, filludffld_ );
     objfld_->selectionDone.notify( mCB(this,uiAttrSurfaceOut,objSelCB) );
     pargrp_->setHAlignObj( objfld_ );
 
     batchjobfld_->jobSpec().pars_.set( IOPar::compKey(sKey::Output(),
-				sKey::Type()), Output::surfkey() );
+				       sKey::Type()), Output::surfkey() );
     batchjobfld_->jobSpecUpdated();
 }
 
 
 uiAttrSurfaceOut::~uiAttrSurfaceOut()
-{
-}
+{}
 
 
 void uiAttrSurfaceOut::fillUdfSelCB( CallBacker* )
@@ -81,8 +80,7 @@ void uiAttrSurfaceOut::fillUdfSelCB( CallBacker* )
     settingsbut_->display( isdisplay );
     if ( settingsbut_->isDisplayed() )
     {
-	InverseDistanceArray2DInterpol* tempinterpol =
-					new InverseDistanceArray2DInterpol;
+	auto* tempinterpol = new InverseDistanceArray2DInterpol;
 	const float defradius = 10*(SI().inlDistance()+SI().crlDistance());
 	tempinterpol->setSearchRadius( defradius );
 	tempinterpol->setFillType( Array2DInterpol::ConvexHull );
@@ -98,8 +96,8 @@ void uiAttrSurfaceOut::settingsCB( CallBacker* )
     uiSingleGroupDlg dlg( this, uiDialog::Setup(tr("Interpolation"),
 						tr("Interpolation Settings"),
 						mNoHelpKey));
-    uiArray2DInterpolSel* interpolsel =
-		new uiArray2DInterpolSel( &dlg, true, true, false, interpol_ );
+    auto* interpolsel =
+	new uiArray2DInterpolSel( &dlg, true, true, false, interpol_ );
     dlg.setGroup( interpolsel );
     if ( !dlg.go() )
 	return;
@@ -108,7 +106,8 @@ void uiAttrSurfaceOut::settingsCB( CallBacker* )
     interpolsel->fillPar( iop );
     iop.get( sKey::Name(), methodname_ );
 
-    if ( interpol_ ) delete interpol_;
+    if ( interpol_ )
+	delete interpol_;
 
     interpol_ = interpolsel->getResult();
 }
@@ -126,8 +125,7 @@ void uiAttrSurfaceOut::attribSel( CallBacker* )
 
 
 void uiAttrSurfaceOut::objSelCB( CallBacker* )
-{
-}
+{}
 
 
 void uiAttrSurfaceOut::getJobName( BufferString& jobnm ) const
@@ -144,8 +142,10 @@ void uiAttrSurfaceOut::getJobName( BufferString& jobnm ) const
 
 bool uiAttrSurfaceOut::prepareProcessing()
 {
+    objfld_->reset();
     const IOObj* ioobj = objfld_->ioobj();
-    if ( !ioobj ) return false;
+    if ( !ioobj )
+	return false;
 
     const StringView attrnm = attrnmfld_->text();
     if ( attrnm.isEmpty() )
@@ -170,7 +170,8 @@ bool uiAttrSurfaceOut::fillPar( IOPar& iopar )
 	return false;
 
     const IOObj* ioobj = objfld_->ioobj();
-    if ( !ioobj ) return false;
+    if ( !ioobj )
+	return false;
 
     if ( settingsbut_->isDisplayed() )
 	fillGridPar( iopar );
@@ -202,10 +203,7 @@ bool uiAttrSurfaceOut::fillPar( IOPar& iopar )
 
     bool res = true;
     if ( !errors.isEmpty() )
-    {
-	uiString msg = errors.cat();
-	res = uiMSG().askContinue( msg );
-    }
+	res = uiMSG().askContinue( errors.cat() );
 
     return res;
 }

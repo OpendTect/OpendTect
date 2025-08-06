@@ -35,8 +35,6 @@ uiHor3DFrom2DDlg::uiHor3DFrom2DDlg( uiParent* p, const EM::Horizon2D& h2d,
 			 mODHelpKey(mHor3DFrom2DDlgHelpID)))
     , hor2d_( h2d )
     , emserv_( ems )
-    , hor3d_( 0 )
-    , displayfld_( 0 )
 {
     interpolsel_ = new uiArray2DInterpolSel( this, false, false, false, 0 );
     interpolsel_->setDistanceUnit( SI().xyInFeet() ? tr("[ft]") : tr("[m]") );
@@ -55,7 +53,8 @@ uiHor3DFrom2DDlg::uiHor3DFrom2DDlg( uiParent* p, const EM::Horizon2D& h2d,
 
 uiHor3DFrom2DDlg::~uiHor3DFrom2DDlg()
 {
-    if ( hor3d_ ) hor3d_->unRef();
+    if ( hor3d_ )
+	hor3d_->unRef();
 }
 
 
@@ -85,6 +84,7 @@ bool uiHor3DFrom2DDlg::acceptOK( CallBacker* )
     if ( !interpolsel_->acceptOK() )
 	return false;
 
+    outfld_->reset();
     PtrMan<IOObj> ioobj = outfld_->getIOObj( false );
     if ( !ioobj )
 	return false;
@@ -122,7 +122,8 @@ bool uiHor3DFrom2DDlg::acceptOK( CallBacker* )
     bool rv = TaskRunner::execute( &taskrunner, converter );
 
 #undef mErrRet
-    if ( !rv ) return false;
+    if ( !rv )
+	return false;
 
     PtrMan<Executor> exec = hor3d->saver();
     if ( !exec )

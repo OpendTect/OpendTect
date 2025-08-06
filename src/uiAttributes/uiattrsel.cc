@@ -148,8 +148,8 @@ void uiAttrSelDlg::initAndBuild( const uiString& seltxt,
 				 bool isinp4otherattrib )
 {
     //TODO: steering will never be displayed: on purpose?
-    attrinf_ = new SelInfo( &attrdata_.attrSet(), attrdata_.nlamodel_,
-			    is2D(), ignoreid );
+    attrinf_ = new SelInfo( &attrdata_.attrSet(), attrdata_.nlamodel_, is2D(),
+			    ignoreid );
     if ( dpfids_.size() )
 	replaceStoredByInMem();
 
@@ -213,7 +213,8 @@ void uiAttrSelDlg::initAndBuild( const uiString& seltxt,
 		    attrcur = attrinf_->attrnms_.indexOf( ad.userRef() );
 		    seltyp = 2;
 		}
-		if ( storcur != -1 && attrcur != -1 ) break;
+		if ( storcur != -1 && attrcur != -1 )
+		    break;
 	    }
 	}
 
@@ -225,9 +226,12 @@ void uiAttrSelDlg::initAndBuild( const uiString& seltxt,
     }
 
     const bool havenlaouts = attrinf_->nlaoutnms_.size();
-    if ( storcur == -1 )		storcur = 0;
-    if ( attrcur == -1 )		attrcur = attrinf_->attrnms_.size()-1;
-    if ( nlacur == -1 && havenlaouts )	nlacur = 0;
+    if ( storcur == -1 )
+	storcur = 0;
+    if ( attrcur == -1 )
+	attrcur = attrinf_->attrnms_.size()-1;
+    if ( nlacur == -1 && havenlaouts )
+	nlacur = 0;
 
     if ( storoutfld_  )
 	storoutfld_->setCurrentItem( storcur );
@@ -319,7 +323,7 @@ static void setPreloadIcon( uiListBox* lb, const T& ids )
     {
 	const MultiID mid( ids.get(idx) );
 	const char* iconnm =
-		Seis::PLDM().isPresent(mid) ? "preloaded" : "empty";
+			    Seis::PLDM().isPresent(mid) ? "preloaded" : "empty";
 	lb->setIcon( idx, iconnm );
     }
 }
@@ -407,12 +411,19 @@ int uiAttrSelDlg::selType() const
 
 void uiAttrSelDlg::selDone( CallBacker* )
 {
-    if ( !selgrp_ ) return;
+    if ( !selgrp_ )
+	return;
 
     const int seltyp = selType();
-    if ( attroutfld_ ) attroutfld_->display( seltyp == 2 );
-    if ( nlaoutfld_ ) nlaoutfld_->display( seltyp == 3 );
-    if ( zdomoutfld_ ) zdomoutfld_->display( seltyp == 4 );
+    if ( attroutfld_ )
+	attroutfld_->display( seltyp == 2 );
+
+    if ( nlaoutfld_ )
+	nlaoutfld_->display( seltyp == 3 );
+
+    if ( zdomoutfld_ )
+	zdomoutfld_->display( seltyp == 4 );
+
     if ( storoutfld_ || steeroutfld_ )
     {
 	if ( storoutfld_ )
@@ -420,6 +431,7 @@ void uiAttrSelDlg::selDone( CallBacker* )
 	    storoutfld_->display( seltyp==0 );
 	    storoutfld_->adjustSize();
 	}
+
 	if ( steeroutfld_ )
 	{
 	    steeroutfld_->display( seltyp==1 );
@@ -447,7 +459,8 @@ void uiAttrSelDlg::filtChg( CallBacker* cb )
 				      : attrinf_->ioobjnms_;
     outfld->setEmpty();
     attrinf_->fillStored( issteersel, filtfld_->text() );
-    if ( nms.isEmpty() ) return;
+    if ( nms.isEmpty() )
+	return;
 
     outfld->addItems( nms );
     outfld->setCurrentItem( 0 );
@@ -457,7 +470,8 @@ void uiAttrSelDlg::filtChg( CallBacker* cb )
 
 void uiAttrSelDlg::cubeSel( CallBacker* )
 {
-    if ( !storoutfld_ ) return;
+    if ( !storoutfld_ )
+	return;
 
     const int seltyp = selType();
     if ( seltyp==2 || seltyp==3 )
@@ -525,9 +539,8 @@ bool uiAttrSelDlg::getAttrData( bool needattrmatch )
 	if ( !ioobj )
 	    return false;
 
-	descset = usedasinput_
-		? const_cast<DescSet*>( &attrdata_.attrSet() )
-		: eDSHolder().getDescSet( is2D(), true );
+	descset = usedasinput_ ? const_cast<DescSet*>( &attrdata_.attrSet() )
+			       : eDSHolder().getDescSet( is2D(), true );
 	attrdata_.attribid_ = descset->getStoredID( ioobj->key(), 0, true );
 	attrdata_.compnr_ = 0;
 	if ( !usedasinput_ && descset )
@@ -546,6 +559,7 @@ bool uiAttrSelDlg::getAttrData( bool needattrmatch )
     else if ( seltyp==3 )	selidx = nlaoutfld_->currentItem();
     else if ( seltyp==4 )	selidx = zdomoutfld_->currentItem();
     else if ( storoutfld_ )	selidx = storoutfld_->currentItem();
+
     if ( selidx < 0 )
 	return false;
 
@@ -556,7 +570,10 @@ bool uiAttrSelDlg::getAttrData( bool needattrmatch )
     else if ( seltyp == 4 )
     {
 	if ( !attrdata_.zdomaininfo_ )
-	    { pErrMsg( "Huh" ); return false; }
+	{
+	    pErrMsg( "Huh" );
+	    return false;
+	}
 
 	BufferStringSet nms;
 	SelInfo::getZDomainItems( *attrdata_.zdomaininfo_, is2D(), nms );
@@ -565,9 +582,8 @@ bool uiAttrSelDlg::getAttrData( bool needattrmatch )
 	if ( !ioobj )
 	    return false;
 
-	descset = usedasinput_
-		? const_cast<DescSet*>( &attrdata_.attrSet() )
-		: eDSHolder().getDescSet( is2D(), true );
+	descset = usedasinput_ ? const_cast<DescSet*>( &attrdata_.attrSet() )
+			       : eDSHolder().getDescSet( is2D(), true );
 	attrdata_.attribid_ = descset->getStoredID( ioobj->key(), 0, true );
 	attrdata_.compnr_ = 0;
     }
@@ -582,10 +598,9 @@ bool uiAttrSelDlg::getAttrData( bool needattrmatch )
 	if ( attrdata_.compnr_< 0 && !canuseallcomps )
 	    attrdata_.compnr_ = 0;
 	const MultiID& ioobjkey = seltyp==0 ? attrinf_->ioobjids_.get( selidx )
-					: attrinf_->steerids_.get( selidx );
-	descset = usedasinput_
-		? const_cast<DescSet*>( &attrdata_.attrSet() )
-		: eDSHolder().getDescSet( is2D(), true );
+					    : attrinf_->steerids_.get( selidx );
+	descset = usedasinput_ ? const_cast<DescSet*>( &attrdata_.attrSet() )
+			       : eDSHolder().getDescSet( is2D(), true );
 	attrdata_.attribid_ = canuseallcomps && attrdata_.compnr_==-1
 	    ? descset->getStoredID(ioobjkey, attrdata_.compnr_, true,true,"ALL")
 	    : descset->getStoredID( ioobjkey, attrdata_.compnr_, true );
@@ -608,7 +623,9 @@ bool uiAttrSelDlg::getAttrData( bool needattrmatch )
 
 
 const char* uiAttrSelDlg::zDomainKey() const
-{ return attrdata_.zdomaininfo_ ? attrdata_.zdomaininfo_->key() : ""; }
+{
+    return attrdata_.zdomaininfo_ ? attrdata_.zdomaininfo_->key() : "";
+}
 
 
 bool uiAttrSelDlg::acceptOK( CallBacker* )
@@ -659,7 +676,10 @@ void uiAttrSelDlg::fillSelSpec( SelSpec& as ) const
 }
 
 
-uiString uiAttrSel::cDefLabel() { return uiStrings::sInputData(); }
+uiString uiAttrSel::cDefLabel()
+{
+    return uiStrings::sInputData();
+}
 
 uiAttrSel::uiAttrSel( uiParent* p, const DescSet& ads, const uiString& txt,
 		      DescID curid, bool isinp4otherattrib )
@@ -713,7 +733,9 @@ void uiAttrSel::setNLAModel( const NLAModel* mdl )
 
 void uiAttrSel::setDesc( const Desc* ad )
 {
-    if ( !ad || !ad->descSet() ) return;
+    if ( !ad || !ad->descSet() )
+	return;
+
     attrdata_.setAttrSet( ad->descSet() );
 
     const bool isstor = ad->isStored();
@@ -729,7 +751,8 @@ void uiAttrSel::setDesc( const Desc* ad )
 
 void uiAttrSel::setSelSpec( const Attrib::SelSpec* selspec )
 {
-    if ( !selspec ) return;
+    if ( !selspec )
+	return;
 
     attrdata_.attribid_ = selspec->id();
     updateInput();
@@ -784,6 +807,7 @@ const char* uiAttrSel::userNameFromKey( const char* txt ) const
     {
 	if ( !attrdata_.nlamodel_ || outnr < 0 )
 	    return "";
+
 	if ( outnr >= attrdata_.nlamodel_->design().outputs_.size() ||
 		!attrdata_.nlamodel_->design().outputs_[outnr] )
 	    return "<error>";
@@ -793,7 +817,7 @@ const char* uiAttrSel::userNameFromKey( const char* txt ) const
     }
 
     const DescSet& descset = attrid.isStored() ?
-	*eDSHolder().getDescSet( is2D(), true ) : attrdata_.attrSet();
+       *eDSHolder().getDescSet( is2D(), true ) : attrdata_.attrSet();
     ConstRefMan<Desc> ad = descset.getDesc( attrid );
     usrnm_ = ad ? ad->userRef() : "";
     return usrnm_.buf();
@@ -837,6 +861,7 @@ void uiAttrSel::doSel( CallBacker* )
 	attrdata_.compnr_ = dlg.compNr();
 	if ( !usedasinput_ )
 	    attrdata_.setAttrSet( &dlg.getAttrSet() );
+
 	updateInput();
 	selok_ = true;
 	seltype_ = dlg.selType();
@@ -862,20 +887,26 @@ void uiAttrSel::processInput()
 
     attrdata_.attribid_ = descset.getID( inp, true, !seltype_, useseltyp );
     if ( !attrdata_.attribid_.isValid() && !usedasinput_ )
+    {
 	attrdata_.attribid_ = attrdata_.attrSet().getID( inp, true );
+    }
+
     attrdata_.outputnr_ = -1;
     if ( !attrdata_.attribid_.isValid() && attrdata_.nlamodel_ )
     {
 	const BufferStringSet& outnms( attrdata_.nlamodel_->design().outputs_ );
 	const BufferString nodenm = IOObj::isKey( inp ) ?
-				IOM().nameOf( inp.buf() ) : inp.buf();
+			      IOM().nameOf( inp.buf() ) : inp.buf();
 	for ( int idx=0; idx<outnms.size(); idx++ )
 	{
 	    const BufferString& outstr = *outnms[idx];
 	    const char* desnm = IOObj::isKey( outstr ) ?
-				IOM().nameOf( outstr.buf() ) : outstr.buf();
+			  IOM().nameOf( outstr.buf() ) : outstr.buf();
 	    if ( nodenm == desnm )
-		{ attrdata_.outputnr_ = idx; break; }
+	    {
+		attrdata_.outputnr_ = idx;
+		break;
+	    }
 	}
     }
 

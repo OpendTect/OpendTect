@@ -440,8 +440,8 @@ bool uiHor3DInterpolSel::readPolygon( ODPolygon<float>& poly ) const
 
     uiString errmsg;
     RefMan<Pick::Set> ps = new Pick::Set;
-    const bool res = PickSetTranslator::retrieve(
-				*ps, polyfld_->ioobj(), true, errmsg );
+    const bool res = PickSetTranslator::retrieve( *ps, polyfld_->ioobj(), true,
+						  errmsg );
     if ( !res )
 	mErrRet( errmsg );
 

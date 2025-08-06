@@ -25,7 +25,7 @@ public:
 
 uiSurvTopBotImageGrp( uiSurvTopBotImageDlg* p, bool istop,
 		      visBase::TopBotImage* img, const ZSampling& zrng )
-    : uiGroup(p, istop ? "Top img grp" : "Bot img grp")
+    : uiGroup(p,istop ? "Top img grp" : "Bot img grp")
     , istop_(istop)
     , dlg_(p)
     , img_(img)

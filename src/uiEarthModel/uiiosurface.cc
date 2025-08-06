@@ -91,7 +91,7 @@ void uiIOSurface::mkAttribFld( bool labelabove )
     uiString lbl = trnm == EMHorizon3DTranslatorGroup::sGroupName()
 	? tr("Horizon Data") : tr("Calculated attributes");
     uiListBox::Setup su( OD::ChooseZeroOrMore, lbl,
-	labelabove ? uiListBox::AboveMid : uiListBox::LeftTop );
+			labelabove ? uiListBox::AboveMid : uiListBox::LeftTop );
     attribfld_ = new uiListBox( this, su, "surfacedata" );
     attribfld_->setStretch( 2, 2 );
     attribfld_->itemChosen.notify( mCB(this,uiIOSurface,attrSel) );
@@ -101,12 +101,11 @@ void uiIOSurface::mkAttribFld( bool labelabove )
 void uiIOSurface::mkSectionFld( bool labelabove )
 {
     uiListBox::Setup su( OD::ChooseAtLeastOne, tr("Available patches"),
-	labelabove ? uiListBox::AboveMid : uiListBox::LeftTop );
+			labelabove ? uiListBox::AboveMid : uiListBox::LeftTop );
     sectionfld_ = new uiListBox( this, su, "sections" );
     sectionfld_->setPrefHeightInChar( mCast(float,cListHeight) );
     sectionfld_->setStretch( 2, 2 );
-    sectionfld_->selectionChanged.notify(
-					mCB(this,uiIOSurface,ioDataSelChg) );
+    sectionfld_->selectionChanged.notify( mCB(this,uiIOSurface,ioDataSelChg) );
 }
 
 
@@ -120,7 +119,8 @@ void uiIOSurface::mkRangeFld( bool multisubsel )
 	su.choicetype( uiPosSubSel::Setup::VolumeTypes );
     rgfld_ = new uiPosSubSel( this, su );
     rgfld_->selChange.notify( mCB(this,uiIOSurface,ioDataSelChg) );
-    if ( sectionfld_ ) rgfld_->attach( ensureBelow, sectionfld_ );
+    if ( sectionfld_ )
+	rgfld_->attach( ensureBelow, sectionfld_ );
 }
 
 
@@ -181,7 +181,7 @@ void uiIOSurface::fillFields( const EM::ObjectID& emid )
     else
     {
 	uiMSG().error( tr("Temporal surface not existing") );
-	    return;
+	return;
     }
 
     fillAttribFld( sd.valnames );
@@ -192,7 +192,8 @@ void uiIOSurface::fillFields( const EM::ObjectID& emid )
 
 void uiIOSurface::fillAttribFld( const BufferStringSet& valnames )
 {
-    if ( !attribfld_ ) return;
+    if ( !attribfld_ )
+	return;
 
     attribfld_->setEmpty();
     attribfld_->addItems( valnames );
@@ -222,7 +223,8 @@ void uiIOSurface::setInput( const MultiID& mid ) const
 
 void uiIOSurface::fillSectionFld( const BufferStringSet& sections )
 {
-    if ( !sectionfld_ ) return;
+    if ( !sectionfld_ )
+	return;
 
     sectionfld_->setEmpty();
     for ( int idx=0; idx<sections.size(); idx++ )
@@ -233,7 +235,9 @@ void uiIOSurface::fillSectionFld( const BufferStringSet& sections )
 
 void uiIOSurface::fillRangeFld( const TrcKeySampling& hrg )
 {
-    if ( !rgfld_ ) return;
+    if ( !rgfld_ )
+	return;
+
     TrcKeyZSampling cs( rgfld_->envelope() );
     cs.hsamp_ = hrg;
     rgfld_->setInputLimit( cs );	// Set spinbox limits
@@ -335,17 +339,20 @@ uiSurfaceWrite::uiSurfaceWrite( uiParent* p, const Setup& setup,
     {
 	colbut_ = new uiColorInput( this,
 	   uiColorInput::Setup(OD::getRandStdDrawColor())
-					.lbltxt(tr("Base color")));
+					.lbltxt(tr("Base color")) );
 	colbut_->attach( alignedBelow, objfld_ );
-	if ( stratlvlfld_ ) colbut_->attach( ensureBelow, stratlvlfld_ );
+	if ( stratlvlfld_ )
+	    colbut_->attach( ensureBelow, stratlvlfld_ );
     }
 
     if ( setup.withdisplayfld_ )
     {
        displayfld_ = new uiCheckBox( this, setup.displaytext_ );
        displayfld_->attach( alignedBelow, objfld_ );
-       if ( stratlvlfld_ ) displayfld_->attach( ensureBelow, stratlvlfld_ );
-       if ( colbut_ ) displayfld_->attach( ensureBelow, colbut_ );
+       if ( stratlvlfld_ )
+	    displayfld_->attach( ensureBelow, stratlvlfld_ );
+       if ( colbut_ )
+	    displayfld_->attach( ensureBelow, colbut_ );
        displayfld_->setChecked( true );
     }
 
@@ -423,6 +430,7 @@ bool uiSurfaceWrite::processInput()
 	return false;
     }
 
+    objfld_->reset();
     const IOObj* ioobj = objfld_->ioobj();
     if ( ioobj )
 	objfld_->setInputText( ioobj->name() );
@@ -518,7 +526,8 @@ uiSurfaceRead::uiSurfaceRead( uiParent* p, const Setup& setup,
     {
 	mkAttribFld( setup.withsectionfld_ );
 	attribfld_->attach( alignedBelow, objfld_ );
-	if ( sectionfld_ ) sectionfld_->attach( rightTo, attribfld_ );
+	if ( sectionfld_ )
+	    sectionfld_->attach( rightTo, attribfld_ );
 	attachobj = attribfld_;
 	attribfld_->setMultiChoice( setup.multiattribsel_ );
     }
@@ -577,7 +586,7 @@ uiHorizonParSel::uiHorizonParSel( uiParent* p, bool is2d, bool wclear )
 
     if ( wclear )
     {
-	uiPushButton* clearbut = new uiPushButton( this, tr("Clear"), true );
+	auto* clearbut = new uiPushButton( this, tr("Clear"), true );
 	clearbut->activated.notify( mCB(this,uiHorizonParSel,clearPush) );
 	clearbut->attach( rightOf, selbut_ );
     }
@@ -599,7 +608,9 @@ void uiHorizonParSel::setSelected( const TypeSet<MultiID>& ids )
 
 
 const TypeSet<MultiID>& uiHorizonParSel::getSelected() const
-{ return selids_; }
+{
+    return selids_;
+}
 
 
 BufferString uiHorizonParSel::getSummary() const
@@ -608,7 +619,8 @@ BufferString uiHorizonParSel::getSummary() const
     for ( int idx=0; idx<selids_.size(); idx++ )
     {
 	PtrMan<IOObj> ioobj = IOM().get( selids_[idx] );
-	if ( !ioobj ) continue;
+	if ( !ioobj )
+	    continue;
 
 	ss.add( ioobj->name() );
     }
@@ -631,7 +643,8 @@ void uiHorizonParSel::doDlg(CallBacker *)
 			 sdsu.multisel( true );
     uiIOObjSelDlg dlg( this, sdsu, ctxt );
     dlg.selGrp()->setChosen( selids_ );
-    if ( !dlg.go() ) return;
+    if ( !dlg.go() )
+	return;
 
     selids_.erase();
     dlg.selGrp()->getChosen( selids_ );
@@ -652,7 +665,8 @@ bool uiHorizonParSel::usePar( const IOPar& par )
     for ( int idx=0; ; idx++ )
     {
 	const bool res = par.get( IOPar::compKey(sKey::Horizon(),idx), mid );
-	if ( !res ) break;
+	if ( !res )
+	    break;
 
 	mids += mid;
     }
@@ -679,23 +693,27 @@ public:
 	for ( int idx=0; idx<entlst.size(); idx++ )
 	{
 	    const IOObj* obj = entlst[idx]->ioobj_;
-	    if ( !obj ) continue;
+	    if ( !obj )
+		continue;
 
 	    EM::EMObject* emobj = EM::EMM().loadIfNotFullyLoaded(obj->key());
 	    mDynamicCastGet(EM::FaultStickSet*,fss,emobj);
-	    if ( !fss ) continue;
+	    if ( !fss )
+		continue;
 
 	    const int nrsticks = fss->geometry().nrSticks();
 
 	    bool fssvalid = false;
 	    for ( int gidx=0; gidx<geomids.size(); gidx++ )
 	    {
-		if ( fssvalid ) break;
+		if ( fssvalid )
+		    break;
 		for ( int stickidx=0; stickidx<nrsticks; stickidx++ )
 		{
 		    const Geometry::FaultStickSet* fltgeom =
 			fss->geometry().geometryElement();
-		    if ( !fltgeom ) continue;
+		    if ( !fltgeom )
+			continue;
 
 		    const int sticknr = fltgeom->rowRange().atIndex( stickidx );
 		    if ( !fss->geometry().pickedOn2DLine(sticknr) )
@@ -703,7 +721,10 @@ public:
 
 		    if ( geomids[gidx] ==
 				fss->geometry().pickedGeomID(sticknr))
-		    { fssvalid = true; break; }
+		    {
+			fssvalid = true;
+			break;
+		    }
 		}
 	    }
 
@@ -732,7 +753,9 @@ public:
     }
 
     void setSelectedItems( BufferStringSet sel )
-    { fsslistfld_->setChosen(sel); }
+    {
+	fsslistfld_->setChosen(sel);
+    }
 
 
     uiListBox*		fsslistfld_;
@@ -771,7 +794,7 @@ public:
     {
 	const uiString fltnm = fltpar.type() == EM::ObjectType::Flt3D
 			     ? uiStrings::sFault()
-			    : (EM::isFaultStickSet( fltpar_.type() )
+			     : (EM::isFaultStickSet( fltpar_.type() )
 				     ? uiStrings::sFaultStickSet()
 				     : uiStrings::sFaultSet() );
 	table_ = new uiTable( this, uiTable::Setup().rowgrow(true).
@@ -864,7 +887,8 @@ public:
 	for ( int idx=selrows.size()-1; idx>=0; idx-- )
 	{
 	    const int currow = selrows[idx];
-	    if ( currow==-1 ) continue;
+	    if ( currow==-1 )
+		continue;
 
 	    if ( currow<fltpar_.selfaultids_.size() )
 	    {
@@ -878,7 +902,7 @@ public:
 
 	removebut_->setSensitive( fltpar_.selfaultids_.size() );
 	const int newselrow = firstselrow < fltpar_.selfaultids_.size()
-	    ? firstselrow : firstselrow-1;
+						? firstselrow : firstselrow-1;
 	table_->selectRow( newselrow );
     }
 
@@ -1246,7 +1270,7 @@ void uiAuxDataSel::objSelCB( CallBacker* )
 void uiAuxDataSel::auxSelCB( CallBacker* )
 {
     uiDialog dlg( this,
-	uiDialog::Setup(tr("Select Horizon Data"),mTODOHelpKey));
+		  uiDialog::Setup(tr("Select Horizon Data"),mTODOHelpKey) );
     auto* grp = new uiAuxDataGrp( &dlg, forread_ );
     grp->setKey( key_ );
     BufferString datanm = auxdatafld_->getInput();
@@ -1266,9 +1290,8 @@ uiBodySel::uiBodySel( uiParent* p, bool forread,
     : uiIOObjSel(p,mRWIOObjContext(EMBody,forread),setup)
 {
     if ( setup.seltxt_.isEmpty() )
-	setLabelText( forread
-		     ? uiStrings::phrInput( uiStrings::sGeobody() )
-		     : uiStrings::phrOutput( uiStrings::sGeobody() ) );
+	setLabelText( forread ? uiStrings::phrInput( uiStrings::sGeobody() )
+			      : uiStrings::phrOutput( uiStrings::sGeobody() ) );
     fillEntries();
 }
 
@@ -1295,9 +1318,8 @@ uiHorizonSel::uiHorizonSel( uiParent* p, bool is2d, const ZDomain::Info* zinfo,
     : uiIOObjSel(p,EM::Horizon::ioContext(is2d,zinfo,forread),setup)
 {
     if ( setup.seltxt_.isEmpty() )
-	setLabelText( forread
-		     ? uiStrings::phrInput( uiStrings::sHorizon() )
-		     : uiStrings::phrOutput( uiStrings::sHorizon() ) );
+	setLabelText( forread ? uiStrings::phrInput( uiStrings::sHorizon() )
+			      : uiStrings::phrOutput( uiStrings::sHorizon() ) );
     fillEntries();
 }
 
@@ -1307,9 +1329,8 @@ uiHorizonSel::uiHorizonSel( uiParent* p, bool is2d,
     : uiIOObjSel(p,EM::Horizon::ioContext(is2d,forread),setup)
 {
     if ( setup.seltxt_.isEmpty() )
-	setLabelText( forread
-		     ? uiStrings::phrInput( uiStrings::sHorizon() )
-		     : uiStrings::phrOutput( uiStrings::sHorizon() ) );
+	setLabelText( forread ? uiStrings::phrInput( uiStrings::sHorizon() )
+			      : uiStrings::phrOutput( uiStrings::sHorizon() ) );
     fillEntries();
 }
 

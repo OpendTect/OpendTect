@@ -81,9 +81,11 @@ bool uiChangeHorizonDlg::readHorizon()
 
     const MultiID& mid = inputfld_->ctxtIOObj().ioobj_->key();
     EM::Horizon* hor = savefldgrp_->readHorizon( mid );
-    if ( !hor ) return false;
+    if ( !hor )
+	return false;
 
-    if ( horizon_ ) horizon_->unRef();
+    if ( horizon_ )//does this unref need to be removed?
+	horizon_->unRef();
     horizon_ = hor;
     horizon_->ref();
 

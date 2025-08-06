@@ -546,7 +546,9 @@ VisID uiVisPartServer::getSelObjectId() const
 
 
 int uiVisPartServer::getSelAttribNr() const
-{ return selattrib_; }
+{
+    return selattrib_;
+}
 
 
 void uiVisPartServer::setSelObjectId( const VisID& id, int attrib )

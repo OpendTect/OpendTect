@@ -423,9 +423,8 @@ bool uiEMPartServer::importFault()
 	impfltdlg_->raise();
     else
     {
-	impfltdlg_ =
-	    new uiImportFault3D( parent(),
-				 EMFault3DTranslatorGroup::sGroupName());
+	impfltdlg_ = new uiImportFault3D( parent(),
+					EMFault3DTranslatorGroup::sGroupName());
 	impfltdlg_->importReady.notify( mCB(this,uiEMPartServer,importReadyCB));
     }
 
@@ -755,7 +754,7 @@ void uiEMPartServer::selectFaultStickSets( RefObjectSet<EM::EMObject>& objs,
 
 
 static void selectEMObjects( uiParent* p, RefObjectSet<EM::EMObject>& objs,
-			    const IOObjContext& ctxt, const char* exectext,
+			     const IOObjContext& ctxt, const char* exectext,
 			     const ZDomain::Info* zinfo )
 {
     CtxtIOObj ctio( ctxt );
@@ -971,7 +970,7 @@ bool uiEMPartServer::loadAuxData( const EM::ObjectID& id,
 
 
 bool uiEMPartServer::storeFaultAuxData( const EM::ObjectID& id,
-	BufferString& auxdatanm, const Array2D<float>& data )
+			   BufferString& auxdatanm, const Array2D<float>& data )
 {
     EM::EMObject* object = EM::EMM().getObject( id );
     mDynamicCastGet( EM::Fault3D*, flt3d, object );
@@ -1650,9 +1649,9 @@ ZAxisTransform* uiEMPartServer::getHorizonZAxisTransform( bool is2d ) const
     uiDialog dlg( parent(),
 		 uiDialog::Setup(uiStrings::phrSelect(uiStrings::sHorizon()),
 				 mODHelpKey(mgetHorizonZAxisTransformHelpID)) );
-    const IOObjContext ctxt = is2d
-	? EMHorizon2DTranslatorGroup::ioContext()
-	: EMHorizon3DTranslatorGroup::ioContext();
+
+    const IOObjContext ctxt = is2d ? EMHorizon2DTranslatorGroup::ioContext()
+				   : EMHorizon3DTranslatorGroup::ioContext();
     uiIOObjSel* horfld = new uiIOObjSel( &dlg, ctxt );
     if ( !dlg.go() || !horfld->ioobj() )
 	return nullptr;
@@ -1696,9 +1695,8 @@ void uiEMPartServer::getAllSurfaceInfo( ObjectSet<SurfaceInfo>& hinfos,
 					bool is2d, const ZDomain::Info* zinfo )
 {
     const IODir iodir( IOObjContext::getStdDirData(IOObjContext::Surf)->id_ );
-    StringView groupstr = is2d
-	? EMHorizon2DTranslatorGroup::sGroupName()
-	: EMHorizon3DTranslatorGroup::sGroupName();
+    StringView groupstr = is2d ? EMHorizon2DTranslatorGroup::sGroupName()
+			       : EMHorizon3DTranslatorGroup::sGroupName();
     const ObjectSet<IOObj>& ioobjs = iodir.getObjs();
     for ( int idx=0; idx<ioobjs.size(); idx++ )
     {
@@ -1726,14 +1724,15 @@ void uiEMPartServer::getAllSurfaceInfo( ObjectSet<SurfaceInfo>& hinfos,
 
 
 void uiEMPartServer::getSurfaceDef3D( const TypeSet<EM::ObjectID>& selhorids,
-				    BinIDValueSet& bivs,
-				    const TrcKeySampling& hs ) const
+				      BinIDValueSet& bivs,
+				      const TrcKeySampling& hs ) const
 {
     bivs.setEmpty(); bivs.setNrVals( 2, false );
 
     const EM::ObjectID& id = selhorids[0];
     mDynamicCastGet(EM::Horizon3D*,hor3d,EM::EMM().getObject(id))
-    if ( !hor3d ) return;
+    if ( !hor3d )
+	return;
     hor3d->ref();
 
     EM::Horizon3D* hor3d2 = nullptr;
@@ -1758,7 +1757,8 @@ void uiEMPartServer::getSurfaceDef3D( const TypeSet<EM::ObjectID>& selhorids,
 		    z1pos += hor3d->getPos( subid );
 	    }
 
-	    if ( z1pos.isEmpty() ) continue;
+	    if ( z1pos.isEmpty() )
+		continue;
 
 	    if ( !hor3d2 )
 	    {
@@ -1774,7 +1774,8 @@ void uiEMPartServer::getSurfaceDef3D( const TypeSet<EM::ObjectID>& selhorids,
 			z2pos += hor3d2->getPos( subid );
 		}
 
-		if ( z2pos.isEmpty() ) continue;
+		if ( z2pos.isEmpty() )
+		    continue;
 
 		Interval<float> zintv;
 		float dist = 999999;
@@ -1798,8 +1799,10 @@ void uiEMPartServer::getSurfaceDef3D( const TypeSet<EM::ObjectID>& selhorids,
 	}
     }
 
+    //TODO: remove ref and unref calls?
     hor3d->unRef();
-    if ( hor3d2 ) hor3d2->unRef();
+    if ( hor3d2 )
+	hor3d2->unRef();
 }
 
 
@@ -1900,7 +1903,7 @@ void uiEMPartServer::fillPickSet( Pick::Set& ps, const MultiID& horid ) const
 	if ( mIsUdf(zval) )
 	{
 	    const Geometry::BinIDSurface* geom =
-		hor->geometry().geometryElement();
+					  hor->geometry().geometryElement();
 	    if ( geom )
                 zval = geom->computePosition( Coord(bid.inl(),bid.crl()) ).z_;
 

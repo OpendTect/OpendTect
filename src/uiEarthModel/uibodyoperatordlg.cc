@@ -40,9 +40,9 @@ uiBodyOperatorDlg::uiBodyOperatorDlg( uiParent* p )
 {
     setCtrlStyle( RunAndClose );
 
-    uiGroup* lgrp = new uiGroup( this, "Left Group" );
+    auto* lgrp = new uiGroup( this, "Left Group" );
     tree_ = new uiTreeView( lgrp, "Operation tree", 9 );
-    uiLabel* label0 = new uiLabel( lgrp, tr("Operation tree") );
+    auto* label0 = new uiLabel( lgrp, tr("Operation tree") );
     label0->attach( centeredAbove, tree_ );
     tree_->setHScrollBarMode( uiTreeView::Auto );
     tree_->setVScrollBarMode( uiTreeView::Auto );
@@ -55,32 +55,32 @@ uiBodyOperatorDlg::uiBodyOperatorDlg( uiParent* p )
     tree_->addColumns( labels );
     tree_->setColumnWidthMode( 1, uiTreeView::ResizeToContents );
 
-    uiTreeViewItem* output = new uiTreeViewItem(tree_,uiTreeViewItem::Setup());
+    auto* output = new uiTreeViewItem(tree_,uiTreeViewItem::Setup());
     output->setText( uiStrings::phrOutput( tr("body") ), 0 );
     output->setText( uiStrings::sOperator(), 1 );
     output->setOpen( true );
-    BodyOperand item = BodyOperand();
+    auto item = BodyOperand();
     item.defined_ = true;
     listinfo_ += item;
     listsaved_ += output;
 
-    uiTreeViewItem* c0 = new uiTreeViewItem( output, uiTreeViewItem::Setup() );
+    auto* c0 = new uiTreeViewItem( output, uiTreeViewItem::Setup() );
     c0->setText( uiStrings::sInput() );
-    uiTreeViewItem* c1 = new uiTreeViewItem( output, uiTreeViewItem::Setup() );
+    auto* c1 = new uiTreeViewItem( output, uiTreeViewItem::Setup() );
     c1->setText( uiStrings::sInput() );
     listinfo_ += BodyOperand();
     listinfo_ += BodyOperand();
     listsaved_ += c0;
     listsaved_ += c1;
 
-    uiGroup* rgrp = new uiGroup( this, "Right Group" );
+    auto* rgrp = new uiGroup( this, "Right Group" );
     BufferStringSet btype;
     btype.add( "Stored geobody" );
     btype.add( "Operator" );
     typefld_ = new uiLabeledComboBox( rgrp, btype, tr("Input type") );
     typefld_->box()->selectionChanged.notify(
 	    mCB(this,uiBodyOperatorDlg,typeSel) );
-    uiLabel* label1 = new uiLabel( rgrp, tr("Operands") );
+    auto* label1 = new uiLabel( rgrp, tr("Operands") );
     label1->attach( centeredAbove, typefld_ );
 
     bodyselfld_ = new uiGenInput( rgrp, uiStrings::sInput(), StringInpSpec() );
@@ -182,9 +182,9 @@ void uiBodyOperatorDlg::typeSel( CallBacker* cb )
 	if ( tree_->selectedItem()->nrChildren() )
 	    return;
 
-	uiTreeViewItem* c0 = new uiTreeViewItem(cur,uiTreeViewItem::Setup());
+	auto* c0 = new uiTreeViewItem(cur,uiTreeViewItem::Setup());
 	c0->setText( uiStrings::sInput() );
-	uiTreeViewItem* c1 = new uiTreeViewItem(cur,uiTreeViewItem::Setup());
+	auto* c1 = new uiTreeViewItem(cur,uiTreeViewItem::Setup());
 	c1->setText( uiStrings::sInput() );
 
 	cur->setOpen( true );
@@ -223,7 +223,8 @@ void uiBodyOperatorDlg::deleteAllChildInfo( uiTreeViewItem* curitem )
 	int idx = listsaved_.indexOf( curitem );
 	if ( idx==-1 )
 	{
-	    pErrMsg("Hmm"); return;
+	    pErrMsg("Hmm");
+	    return;
 	}
 
 	listsaved_.removeSingle( idx );
@@ -258,7 +259,7 @@ void uiBodyOperatorDlg::itemClick( CallBacker* )
 	return;
 
     const char item = listinfo_[curidx].act_!=sKeyUdf() ? listinfo_[curidx].act_
-						       : sKeyUnion();
+							: sKeyUnion();
     typefld_->setSensitive( tree_->firstItem()!=tree_->selectedItem() );
     if ( !tree_->selectedItem()->nrChildren() )
     {
@@ -313,11 +314,12 @@ bool uiBodyOperatorDlg::acceptOK( CallBacker* )
     if ( outputfld_->isEmpty() )
 	mRetErr(tr("Select an output name"))
 
-    if ( !outputfld_->ioobj(true) )
+    outputfld_->reset();
+    if ( !outputfld_->ioobj() )
 	return false;
 
     RefMan<EM::MarchingCubesSurface> emcs =
-	new EM::MarchingCubesSurface(EM::EMM());
+					new EM::MarchingCubesSurface(EM::EMM());
     if ( !emcs->getBodyOperator() )
 	emcs->createBodyOperator();
 
@@ -352,7 +354,7 @@ bool uiBodyOperatorDlg::acceptOK( CallBacker* )
     TaskRunner::execute( &taskrunner, *exec );
 
     uiString msg = tr("The geobody %1 created successfully")
-                 .arg(outputfld_->getInput());
+		    .arg(outputfld_->getInput());
     uiMSG().message( msg );
 
     return false;
@@ -361,7 +363,8 @@ bool uiBodyOperatorDlg::acceptOK( CallBacker* )
 
 void uiBodyOperatorDlg::setOperator( uiTreeViewItem* lv, EM::BodyOperator& opt )
 {
-    if ( !lv || !lv->nrChildren() ) return;
+    if ( !lv || !lv->nrChildren() )
+	return;
 
     const int lvidx = listsaved_.indexOf( lv );
     if ( listinfo_[lvidx].act_==sKeyUnion() )
@@ -407,7 +410,8 @@ bool uiBodyOperatorDlg::BodyOperand::operator==( const BodyOperand& v ) const
 
 bool uiBodyOperatorDlg::BodyOperand::isOK() const
 {
-    if ( !defined_ ) return false;
+    if ( !defined_ )
+	return false;
 
     return (!mid_.isUdf() && act_==sKeyUdf()) ||
 	   (mid_.isUdf() && act_!=sKeyUdf());
@@ -448,7 +452,11 @@ bool uiImplicitBodyValueSwitchDlg::acceptOK( CallBacker* )
     if ( !inpiobj )
 	inpiobj = getIfMCSurfaceObj();
 
-    if ( !inpiobj || !outputfld_->ioobj() )
+    if ( !inpiobj )
+	return false;
+
+    outputfld_->reset();
+    if ( !outputfld_->ioobj() )
 	return false;
 
     uiTaskRunner taskrunner( this );

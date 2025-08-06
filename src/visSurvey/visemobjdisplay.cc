@@ -543,7 +543,7 @@ void EMObjectDisplay::handleEmChange( const EM::EMObjectCallbackData& cbdata )
 
 	triggermovement = true;
     }
-    else if ( cbdata.event==EM::EMObjectCallbackData::BurstAlert)
+    else if ( cbdata.event==EM::EMObjectCallbackData::BurstAlert )
     {
 	burstalertison_ = !burstalertison_;
 	if ( !burstalertison_ )

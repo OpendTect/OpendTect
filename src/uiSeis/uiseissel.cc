@@ -113,7 +113,8 @@ static uiIOObjSelDlg::Setup getSelDlgSU( const uiSeisSel::Setup& sssu )
 
 uiSeisSelDlg::uiSeisSelDlg( uiParent* p, const CtxtIOObj& c,
 			    const uiSeisSel::Setup& sssu )
-    : uiIOObjSelDlg(p,getSelDlgSU(sssu),adaptCtio4Steering(c,sssu))
+    : uiIOObjSelDlg(p,getSelDlgSU(sssu)
+    , adaptCtio4Steering(c,sssu))
     , steerpol_(sssu.steerpol_)
 {
     const bool is2d = Seis::is2D( sssu.geom_ );
@@ -281,8 +282,7 @@ uiSeisSel::Setup::Setup( Seis::GeomType gt )
 
 uiSeisSel::Setup::Setup( bool is2d, bool isps )
     : uiSeisSel::Setup(Seis::geomTypeOf(is2d,isps))
-{
-}
+{}
 
 
 uiSeisSel::Setup::~Setup()
@@ -316,9 +316,9 @@ uiSeisSel::uiSeisSel( uiParent* p, const IOObjContext& ctxt,
 						   : uiStrings::sTime(),
 				     mCB(this,uiSeisSel,domainChgCB) );
 
-	const UnitOfMeasure* defunit = UnitOfMeasure::surveyDefDepthUnit();
-	const UnitOfMeasure* muom = UnitOfMeasure::meterUnit();
-	const UnitOfMeasure* ftuom = UnitOfMeasure::feetUnit();
+	const auto* defunit = UnitOfMeasure::surveyDefDepthUnit();
+	const auto* muom = UnitOfMeasure::meterUnit();
+	const auto* ftuom = UnitOfMeasure::feetUnit();
 	const UnitOfMeasure* altunit = defunit == muom ? ftuom : muom;
 	const BufferStringSet units( defunit->name().str(),
 				     altunit->name().str() );

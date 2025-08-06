@@ -31,8 +31,8 @@ uiTutHorTools::uiTutHorTools( uiParent* p )
 			  HelpKey("tut","hor") ) )
 {
     taskfld_= new uiGenInput( this, tr("Task"),
-	BoolInpSpec(true,tr("Thickness between two horizons"),
-	tr("Smooth a horizon")) );
+			  BoolInpSpec(true,tr("Thickness between two horizons"),
+			      tr("Smooth a horizon")) );
     mAttachCB( taskfld_->valueChanged, uiTutHorTools::choiceSel );
 
     inpfld_ = new uiHorizon3DSel( this, true );
@@ -43,12 +43,12 @@ uiTutHorTools::uiTutHorTools( uiParent* p )
     inpfld2_->attach( alignedBelow, inpfld_ );
 
     selfld_= new uiGenInput( this, tr("Add Result as an Attribute to "),
-			BoolInpSpec(true, uiStrings::sTopHor(),
-				    uiStrings::sBottomHor()) );
+			     BoolInpSpec(true,uiStrings::sTopHor(),
+					 uiStrings::sBottomHor()) );
     selfld_->attach( alignedBelow, inpfld2_ );
 
     attribnamefld_ = new uiGenInput( this, uiStrings::sAttribName(),
-			StringInpSpec( sKey::Thickness() ) );
+				     StringInpSpec(sKey::Thickness()) );
     attribnamefld_->attach( alignedBelow, selfld_ );
 
     // For smoothing
@@ -56,7 +56,7 @@ uiTutHorTools::uiTutHorTools( uiParent* p )
     outfld_->attach( alignedBelow, inpfld_ );
 
     strengthfld_ = new uiGenInput( this, tr("Filter Strength"),
-			BoolInpSpec(true, tr("Low"), tr("High")) );
+				   BoolInpSpec(true,tr("Low"),tr("High")) );
     strengthfld_->attach( alignedBelow, outfld_ );
 
     mAttachCB( postFinalize(), uiTutHorTools::choiceSel );
@@ -91,7 +91,10 @@ bool uiTutHorTools::checkAttribName() const
     EM::SurfaceIOData sd;
     uiString errmsg;
     if ( !EM::EMM().getSurfaceData(key,sd,errmsg) )
+    {
+	uiMSG().error( errmsg );
 	return false;
+    }
 
     for ( int idx=0; idx<sd.valnames.size(); idx++ )
     {
@@ -107,7 +110,7 @@ bool uiTutHorTools::checkAttribName() const
 
     uiString msg = tr("This surface already has an attribute called:\n%1"
 		      "\nDo you wish to overwrite this data?")
-		 .arg(sd.valnames.get(attridx));
+			.arg(sd.valnames.get(attridx));
     return uiMSG().askOverwrite( msg );
 }
 
@@ -126,7 +129,9 @@ bool uiTutHorTools::acceptOK( CallBacker* )
     RefMan<EM::EMObject> varnm##_emobj = \
 	EM::EMM().loadIfNotFullyLoaded( (fld)->key(), &taskrunner ); \
     mDynamicCastGet(EM::Horizon3D*,varnm,varnm##_emobj.ptr()) \
-    if ( !varnm ) return false;
+    if ( !varnm ) \
+	return false;
+
 
 bool uiTutHorTools::doThicknessCalc()
 {
@@ -142,7 +147,7 @@ bool uiTutHorTools::doThicknessCalc()
 	return false;
 
     uiTaskRunner taskrunner( this );
-    Tut::ThicknessCalculator* calc = new Tut::ThicknessCalculator;
+    auto* calc = new Tut::ThicknessCalculator;
     const bool top = selfld_->getBoolValue();
     mGetHor( hor1, top ? inpfld_ : inpfld2_ );
     mGetHor( hor2, top ? inpfld2_ : inpfld_ );
@@ -160,14 +165,16 @@ bool uiTutHorTools::doThicknessCalc()
 	return false;
     }
 
-    const bool ret = uiMSG().askGoOn(
-	    tr("Process finished successfully. Do you want to continue?") );
-    return !ret;
+    const uiString msg = tr("Process finished successfully.\n"
+			    "Do you want to continue?");
+
+    return !uiMSG().askGoOn( msg );
 }
 
 
 bool uiTutHorTools::doSmoother()
 {
+    outfld_->reset();
     if ( !outfld_->ioobj() )
 	return false;
 
@@ -187,8 +194,8 @@ bool uiTutHorTools::doSmoother()
 	return false;
     }
 
-    const bool ret = uiMSG().askGoOn(
-	    tr("Process finished successfully. Do you want to continue?") );
+    const uiString msg = tr("Process finished successfully.\n"
+			    "Do you want to continue?");
 
-    return !ret;
+    return !uiMSG().askGoOn( msg );
 }

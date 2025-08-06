@@ -81,8 +81,7 @@ uiSeisEventSnapper::uiSeisEventSnapper( uiParent* p, const IOObj* inp,
 
 
 uiSeisEventSnapper::~uiSeisEventSnapper()
-{
-}
+{}
 
 
 #define mErrRet(msg) { uiMSG().error(msg); return false; }

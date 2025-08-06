@@ -41,7 +41,8 @@ mUseQtnamespace
 
 
 /* Idea from:
-   https://forum.qt.io/topic/57394/solved-question-about-qt-table-widget-item-appearence-when-selected
+https://forum.qt.io/topic/57394/solved-question-about-qt-table-widget-item
+-appearence-when-selected
 */
 
 class BackgroundDelegate : public QStyledItemDelegate
@@ -222,7 +223,8 @@ QTableWidgetItem& uiTableBody::getRCItem( int idx, bool isrow )
 
 void uiTableBody::contextMenuEvent( QContextMenuEvent* ev )
 {
-    if ( !ev ) return;
+    if ( !ev )
+	return;
 
     const QPoint evpos = ev->pos();
     QTableWidgetItem* itm = itemAt( evpos );
@@ -234,7 +236,8 @@ void uiTableBody::contextMenuEvent( QContextMenuEvent* ev )
 
 void uiTableBody::mousePressEvent( QMouseEvent* ev )
 {
-    if ( !ev ) return;
+    if ( !ev )
+	return;
 
     if ( ev->button() == Qt::RightButton )
 	handle_.buttonstate_ = OD::RightButton;
@@ -250,7 +253,8 @@ void uiTableBody::mousePressEvent( QMouseEvent* ev )
 
 void uiTableBody::mouseReleaseEvent( QMouseEvent* ev )
 {
-    if ( !ev ) return;
+    if ( !ev )
+	return;
 
     if ( ev->button() == Qt::RightButton )
 	handle_.buttonstate_ = OD::RightButton;
@@ -406,7 +410,9 @@ void uiTableBody::setPrefWidthInChars( int nrchars, int maxwidth )
 
 
 int uiTableBody::nrTxtLines() const
-{ return rowCount()>=0 ? rowCount()+1 : 7; }
+{
+    return rowCount()>=0 ? rowCount()+1 : 7;
+}
 
 
 QTableWidgetItem* uiTableBody::getItem( const RowCol& rc, bool createnew )
@@ -441,9 +447,10 @@ void uiTableBody::setCellObject( const RowCol& rc, uiObject* obj )
 uiObject* uiTableBody::getCellObject( const RowCol& rc ) const
 {
     QWidget* qw = cellWidget( rc.row(), rc.col() );
-    if ( !qw ) return 0;
+    if ( !qw )
+	return nullptr;
 
-    uiObject* obj = 0;
+    uiObject* obj = nullptr;
     for ( int idx=0; idx<cellobjects_.size(); idx++ )
     {
 	if ( cellobjects_[idx]->qwidget_ == qw )
@@ -472,7 +479,8 @@ RowCol uiTableBody::getCell( uiObject* obj )
 void uiTableBody::clearCellObject( const RowCol& rc )
 {
     QWidget* qw = cellWidget( rc.row(), rc.col() );
-    if ( !qw ) return;
+    if ( !qw )
+	return;
 
     CellObject* co = 0;
     for ( int idx=0; idx<cellobjects_.size(); idx++ )
@@ -1083,7 +1091,8 @@ void uiTable::resizeHeaderToContents( bool hor )
 {
     QHeaderView* hdr = hor ? body_->horizontalHeader()
 			   : body_->verticalHeader();
-    if ( hdr ) hdr->resizeSections( QHeaderView::ResizeToContents );
+    if ( hdr )
+	hdr->resizeSections( QHeaderView::ResizeToContents );
 }
 
 

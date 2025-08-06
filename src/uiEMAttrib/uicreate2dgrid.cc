@@ -53,11 +53,12 @@ class uiGrid2DMapObject : public uiBasemapObject
 public:
 uiGrid2DMapObject()
     : uiBasemapObject(0)
-    , grid_(0),baseline_(0)
 {}
 
 const char* getType()
-{ return "Grid2D"; }
+{
+    return "Grid2D";
+}
 
 void setGrid( const Grid2D* grid )
 {
@@ -84,7 +85,8 @@ void update() override
     graphitem_.removeAll( true );
     lines_.erase();
 
-    if ( !grid_ ) return;
+    if ( !grid_ )
+	return;
 
     OD::LineStyle ls;
     ls.color_ = OD::Color( 40, 140, 180 );
@@ -114,15 +116,16 @@ void update() override
 protected:
 
     ObjectSet<uiLineItem>	lines_;
-    const Grid2D::Line*		baseline_;
-    const Grid2D*		grid_;
+    const Grid2D::Line*		baseline_	    = nullptr;
+    const Grid2D*		grid_		    = nullptr;
 };
 
 
 
 ui2DGridLines::ui2DGridLines( uiParent* p, const TrcKeySampling& hs )
     : uiGroup(p,"2D Grid Parameters")
-    , hs_(hs), grid_(new Grid2D)
+    , hs_(hs)
+    , grid_(new Grid2D)
     , gridChanged(this)
 {
     inlprefixfld_ = new uiGenInput( this, tr("Prefix for parallel lines") );
@@ -332,10 +335,9 @@ bool ui2DGridLinesFromInlCrl::fillPar( IOPar& par ) const
 
 
 ui2DGridLinesFromRandLine::ui2DGridLinesFromRandLine( uiParent* p,
-			const TrcKeySampling& hs,
-			const Geometry::RandomLine* rdl )
+					       const TrcKeySampling& hs,
+					       const Geometry::RandomLine* rdl )
     : ui2DGridLines(p,hs)
-    , rdlfld_(0)
 {
     const BinID startnode = rdl ? rdl->nodePosition(0) : BinID::udf();
     const BinID stopnode = rdl ? rdl->nodePosition( rdl->nrNodes() - 1 )
@@ -487,7 +489,6 @@ uiCreate2DGrid::uiCreate2DGrid( uiParent* p, const Geometry::RandomLine* rdl )
 					      .arg(uiStrings::s2D())
 					      .arg(uiStrings::sSeismic())),
 					    mODHelpKey(mCreate2DGridHelpID)))
-    , sourceselfld_(0),inlcrlgridgrp_(0)
     , tkzs_(*new TrcKeyZSampling(true))
 {
     setCtrlStyle( RunAndClose );
@@ -497,7 +498,7 @@ uiCreate2DGrid::uiCreate2DGrid( uiParent* p, const Geometry::RandomLine* rdl )
     uiGroup* previewgrp = createPreviewGroup();
     previewgrp->attach( rightTo, seisgrp );
 
-    uiSeparator* sep = new uiSeparator( this, "HSeparator" );
+    auto* sep = new uiSeparator( this, "HSeparator" );
     sep->attach( stretchedBelow, previewgrp );
     sep->attach( ensureBelow, seisgrp );
 
@@ -520,7 +521,7 @@ uiCreate2DGrid::~uiCreate2DGrid()
 
 uiGroup* uiCreate2DGrid::createSeisGroup( const Geometry::RandomLine* rdl )
 {
-    uiGroup* grp = new uiGroup( this, "Seis group" );
+    auto* grp = new uiGroup( this, "Seis group" );
 
     IOObjContext ctxt = uiSeisSel::ioContext( Seis::Vol, true );
     infld_ = new uiSeisSel( grp, ctxt, uiSeisSel::Setup(Seis::Vol) );
@@ -552,7 +553,7 @@ uiGroup* uiCreate2DGrid::createSeisGroup( const Geometry::RandomLine* rdl )
 
     ctxt = uiSeisSel::ioContext( Seis::Line, false );
     outfld_ = new uiSeisSel( grp, ctxt, uiSeisSel::Setup(Seis::Line) );
-    outfld_->setConfirmOverwrite( false );
+    outfld_->setConfirmOverwrite( true );
     outfld_->selectionDone.notify( mCB(this,uiCreate2DGrid,outSelCB) );
     outfld_->attach( alignedBelow, rdl ? randlinegrdgrp_ : inlcrlgridgrp_ );
 
@@ -563,7 +564,7 @@ uiGroup* uiCreate2DGrid::createSeisGroup( const Geometry::RandomLine* rdl )
 
 uiGroup* uiCreate2DGrid::createHorizonGroup()
 {
-    uiGroup* grp = new uiGroup( this, "Horizon group" );
+    auto* grp = new uiGroup( this, "Horizon group" );
 
     horcheckfld_ = new uiCheckBox( grp, uiStrings::phrExtract(
 				   tr("horizons for the new grid")),
@@ -572,7 +573,7 @@ uiGroup* uiCreate2DGrid::createHorizonGroup()
     horselfld_->attach( alignedBelow, horcheckfld_ );
 
     hornmfld_ = new uiGenInput( grp, tr("%1 name prefix")
-				     .arg(mJoinUiStrs(sHorizon(),s2D())) );
+					.arg(mJoinUiStrs(sHorizon(),s2D())) );
     hornmfld_->attach( alignedBelow, horselfld_ );
 
     grp->setHAlignObj( hornmfld_ );
@@ -582,7 +583,7 @@ uiGroup* uiCreate2DGrid::createHorizonGroup()
 
 uiGroup* uiCreate2DGrid::createPreviewGroup()
 {
-    uiGroup* grp = new uiGroup( this, "Preview Group" );
+    auto* grp = new uiGroup( this, "Preview Group" );
     previewmap_ = new uiSurveyMap( grp, false );
     preview_ = new uiGrid2DMapObject;
     preview_->graphItem().setZValue( 1 );
@@ -725,12 +726,14 @@ int uiCreate2DGrid::checkLineNames() const
     if ( frominlcrl )
     {
 	mDynamicCastGet(ui2DGridLinesFromInlCrl*,grp,inlcrlgridgrp_);
-	if ( grp ) grp->getLineNames( linenames );
+	if ( grp )
+	    grp->getLineNames( linenames );
     }
     else
     {
 	mDynamicCastGet(ui2DGridLinesFromRandLine*,grp,randlinegrdgrp_);
-	if ( grp ) grp->getLineNames( linenames );
+	if ( grp )
+	    grp->getLineNames( linenames );
     }
 
     BufferStringSet ovwrlinenms;
@@ -783,7 +786,8 @@ bool uiCreate2DGrid::fillPar()
 
 bool uiCreate2DGrid::acceptOK( CallBacker* )
 {
-    if ( !infld_->ioobj() || !outfld_->ioobj() )
+    outfld_->reset();
+    if ( !outfld_->ioobj() || !infld_->ioobj() )
 	return false;
 
     const int res = checkLineNames();

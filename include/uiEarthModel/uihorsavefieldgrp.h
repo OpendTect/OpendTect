@@ -50,13 +50,13 @@ public:
 
 protected:
 
-    uiGenInput*			savefld_;
-    uiCheckBox*			addnewfld_;
-    uiIOObjSel*			outputfld_;
-    uiPosSubSel*		rgfld_;
+    uiGenInput*			savefld_		    = nullptr;
+    uiCheckBox*			addnewfld_		    = nullptr;
+    uiIOObjSel*			outputfld_		    = nullptr;
+    uiPosSubSel*		rgfld_			    = nullptr;
 
     EM::Horizon*		horizon_;
-    EM::Horizon*		newhorizon_;
+    EM::Horizon*		newhorizon_		    = nullptr;
     bool			usefullsurvey_;
     bool			is2d_;
 
