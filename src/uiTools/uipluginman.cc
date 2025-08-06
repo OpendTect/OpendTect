@@ -122,10 +122,12 @@ PluginProduct( const char* nm )
 {
 }
 
+
 void add( const char* nm )
 {
     pluginnms_.add( nm );
 }
+
 
 void setIcon( const char* iconnm )
 {
@@ -177,7 +179,6 @@ static void setIcons( ObjectSet<PluginProduct>& products )
 }
 
 
-
 void uiPluginMan::fillList()
 {
     pluginview_->setEmpty();
@@ -220,7 +221,7 @@ void uiPluginMan::fillList()
     {
 	PluginProduct* prod = productlist[pidx];
 	prod->pluginnms_.sort();
-	uiTreeViewItem* pitm = new uiTreeViewItem( pluginview_,
+	auto* pitm = new uiTreeViewItem( pluginview_,
 				toUiString(prod->name_) );
 	pitm->setIcon( 0,
 		prod->iconnm_.isEmpty() ? "plugin" : prod->iconnm_.buf() );
@@ -337,9 +338,9 @@ void uiPluginMan::loadPush( CallBacker* )
 	    loaddir = PIM().getAutoDir( false );
     }
 
-    uiFileDialog dlg( this, uiFileDialog::ExistingFile, loaddir, filt,
-		      captn );
-    if ( !dlg.go() ) return;
+    uiFileDialog dlg( this, uiFileDialog::ExistingFile, loaddir, filt, captn );
+    if ( !dlg.go() )
+	return;
 
     BufferString fnm = dlg.fileName();
     if ( !File::exists(fnm) )
@@ -386,12 +387,10 @@ void uiPluginMan::unLoadPush( CallBacker* )
 }
 
 
-
 bool uiPluginMan::rejectOK( CallBacker* )
 {
     return true;
 }
-
 
 
 static SharedLibAccess* prodloader_ = nullptr;

@@ -107,13 +107,15 @@ uiGMTContourGrp::uiGMTContourGrp( uiParent* p )
 uiGMTContourGrp::~uiGMTContourGrp()
 {
     delete &sd_;
-    if ( hor_ ) hor_->unRef();
+    if ( hor_ )
+	hor_->unRef();//do these unref calls need to be removed?
 }
 
 
 void uiGMTContourGrp::reset()
 {
-    if ( hor_ ) hor_->unRef();
+    if ( hor_ )
+	hor_->unRef();//same as before
     hor_ = 0;
     inpfld_->clear();
     subselfld_->setToAll();
@@ -128,7 +130,8 @@ void uiGMTContourGrp::reset()
 
 void uiGMTContourGrp::drawSel( CallBacker* )
 {
-    if ( !lsfld_ ) return;
+    if ( !lsfld_ )
+	return;
 
     lsfld_->setSensitive( linefld_->isChecked() );
     const bool dofill = fillfld_->isChecked();
@@ -142,7 +145,8 @@ void uiGMTContourGrp::drawSel( CallBacker* )
 void uiGMTContourGrp::objSel( CallBacker* )
 {
     const IOObj* ioobj = inpfld_->ioobj();
-    if ( !ioobj ) return;
+    if ( !ioobj )
+	return;
 
     EM::IOObjInfo eminfo( ioobj->key() );
     if ( !eminfo.isOK() )
@@ -204,7 +208,8 @@ void uiGMTContourGrp::selChg( CallBacker* )
 
 void uiGMTContourGrp::rgChg( CallBacker* cb )
 {
-    if ( !cb || !rgfld_ || !nrcontourfld_ ) return;
+    if ( !cb || !rgfld_ || !nrcontourfld_ )
+	return;
 
     mDynamicCastGet(uiGenInput*,fld,cb)
     StepInterval<float> datarg = rgfld_->getFStepInterval();
@@ -255,7 +260,8 @@ void uiGMTContourGrp::rgChg( CallBacker* cb )
 void uiGMTContourGrp::readCB( CallBacker* )
 {
     const IOObj* ioobj = inpfld_->ioobj();
-    if ( !ioobj ) return;
+    if ( !ioobj )
+	return;
 
     TrcKeySampling hs = subselfld_->envelope().hsamp_;
     if ( ( !hor_ || hor_->multiID()!=ioobj->key() ) && !loadHor() )
@@ -304,10 +310,11 @@ void uiGMTContourGrp::readCB( CallBacker* )
 bool uiGMTContourGrp::loadHor()
 {
     if ( hor_ )
-	hor_->unRef();
+	hor_->unRef();//does this need to be removed?
 
     const IOObj* ioobj = inpfld_->ioobj();
-    if ( !ioobj ) return false;
+    if ( !ioobj )
+	return false;
 
     EM::EMObject* obj = 0;
     EM::ObjectID id = EM::EMM().getObjectID( ioobj->key() );
@@ -346,7 +353,8 @@ bool uiGMTContourGrp::loadHor()
 bool uiGMTContourGrp::fillPar( IOPar& par ) const
 {
     const IOObj* ioobj = inpfld_->ioobj();
-    if ( !ioobj ) return false;
+    if ( !ioobj )
+	return false;
 
     inpfld_->fillPar( par );
     par.set( sKey::Name(), ioobj->name() );

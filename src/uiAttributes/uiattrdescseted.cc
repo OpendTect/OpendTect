@@ -155,9 +155,12 @@ void uiAttribDescSetEd::createMenuBar()
 {
     uiMenuBar* menubar = menuBar();
     if( !menubar )
-	{ pErrMsg("huh?"); return; }
+    {
+	pErrMsg("huh?");
+	return;
+    }
 
-    uiMenu* filemnu = new uiMenu( this, uiStrings::sFile() );
+    auto* filemnu = new uiMenu( this, uiStrings::sFile() );
     mInsertItem( m3Dots(tr("New set")), newSet, "new" );
     mInsertItem( m3Dots(tr("Open set")), openSet, "open" );
     mInsertItem( m3Dots(tr("Save set")), savePush, "save" );
@@ -166,7 +169,7 @@ void uiAttribDescSetEd::createMenuBar()
     mInsertItemNoIcon( m3Dots(tr("Change attribute input(s)")), changeInput );
     filemnu->insertSeparator();
     mInsertItem( m3Dots(tr("Open Default set")), defaultSet, "defset" );
-    uiMenu* impmnu = new uiMenu( this, uiStrings::sImport() );
+    auto* impmnu = new uiMenu( this, uiStrings::sImport() );
     mInsertMnuItem( impmnu, m3Dots(tr("From other Survey")),
 		    importSet, "impset" );
     mInsertMnuItemNoIcon( impmnu, m3Dots(tr("From File")), importFile );
@@ -197,7 +200,7 @@ void uiAttribDescSetEd::createToolBar()
     mAddButton( "evalcrossattr",crossEvalAttrs,tr("Cross attributes evaluate"));
     mAddButton( "xplot", crossPlot, tr("Cross-Plot attributes") );
     const int dotidx = mAddButton( "dot", exportToDotCB, tr("View as graph") );
-    uiMenu* mnu = new uiMenu( nullptr, uiString::emptyString() );
+    auto* mnu = new uiMenu( nullptr, uiString::emptyString() );
     mnu->insertAction( new uiAction(m3Dots(tr("Graphviz Installation")),
 	mCB(this,uiAttribDescSetEd,dotPathCB)) );
     toolbar_->setButtonMenu( dotidx, mnu );
@@ -207,7 +210,7 @@ void uiAttribDescSetEd::createToolBar()
 void uiAttribDescSetEd::createGroups()
 {
 //  Left part
-    uiGroup* leftgrp = new uiGroup( this, "LeftGroup" );
+    auto* leftgrp = new uiGroup( this, "LeftGroup" );
     attrsetfld_ = new uiGenInput(leftgrp, tr("Attribute set"), StringInpSpec());
     attrsetfld_->setReadOnly( true );
 
@@ -232,10 +235,10 @@ void uiAttribDescSetEd::createGroups()
     rmbut_->attach( alignedBelow, sortbut_ );
 
 //  Right part
-    uiGroup* rightgrp = new uiGroup( this, "RightGroup" );
+    auto* rightgrp = new uiGroup( this, "RightGroup" );
     rightgrp->setStretch( 1, 1 );
 
-    uiGroup* degrp = new uiGroup( rightgrp, "DescEdGroup" );
+    auto* degrp = new uiGroup( rightgrp, "DescEdGroup" );
     degrp->setStretch( 1, 1 );
 
     attrtypefld_ = new uiAttrTypeSel( degrp );
@@ -265,13 +268,14 @@ void uiAttribDescSetEd::createGroups()
 	desceds_ += de;
 	de->attach( alignedBelow, attrtypefld_ );
     }
+
     attrtypefld_->update();
     degrp->setHAlignObj( attrtypefld_ );
 
     helpbut_ = new uiToolButton( degrp, "contexthelp", uiStrings::sHelp(),
-				mCB(this,uiAttribDescSetEd,helpButPush) );
+				 mCB(this,uiAttribDescSetEd,helpButPush) );
     helpbut_->attach( rightTo, attrtypefld_ );
-    uiToolButton* matrixbut = new uiToolButton( degrp, "attributematrix",
+    auto* matrixbut = new uiToolButton( degrp, "attributematrix",
 	tr("Attribute Matrix"), mCB(this,uiAttribDescSetEd,showMatrix) );
     matrixbut->attach( rightTo, helpbut_ );
     videobut_ = new uiToolButton( degrp, "video", uiStrings::sVideo(),
@@ -292,12 +296,12 @@ void uiAttribDescSetEd::createGroups()
 	mCB(this,uiAttribDescSetEd,directShow) );
     dispbut_->attach( rightTo, addbut_ );
 
-    uiToolButton* procbut = new uiToolButton( rightgrp, "seisout",
-	tr("Process this attribute"),
-	mCB(this,uiAttribDescSetEd,procAttribute) );
+    auto* procbut = new uiToolButton( rightgrp, "seisout",
+				     tr("Process this attribute"),
+				    mCB(this,uiAttribDescSetEd,procAttribute) );
     procbut->attach( rightTo, dispbut_ );
 
-    uiSplitter* splitter = new uiSplitter( this, "Splitter", true );
+    auto* splitter = new uiSplitter( this, "Splitter", true );
     splitter->addGroup( leftgrp );
     splitter->addGroup( rightgrp );
 }
@@ -326,8 +330,8 @@ void uiAttribDescSetEd::init()
 				   : uiAttribDescSetEd::sKeyAuto3DAttrSetID;
     if ( autoset && SI().pars().get(autoidkey,autoid) && autoid != setid_ )
     {
-	uiString msg = tr("The Attribute-set selected for Auto-load"
-			  " is no longer valid.\n Load another now?");
+	uiString msg = tr( "The Attribute-set selected for Auto-load"
+			   " is no longer valid.\n Load another now?" );
 
 	if ( uiMSG().askGoOn( msg ) )
 	{
@@ -376,7 +380,7 @@ void uiAttribDescSetEd::init()
     else
     {
 	const BufferString txt = setctio_.ioobj_ ? setctio_.ioobj_->name().buf()
-						: sKeyNotSaved;
+						 : sKeyNotSaved;
 	attrsetfld_->setText( txt );
     }
 
@@ -426,7 +430,8 @@ void uiAttribDescSetEd::attrTypSel( CallBacker* )
 
 void uiAttribDescSetEd::selChg( CallBacker* )
 {
-    if ( updating_fields_ ) return;
+    if ( updating_fields_ )
+	return;
 	// Fix for continuous call during re-build of list
 
     doCommit( true );
@@ -460,7 +465,8 @@ bool uiAttribDescSetEd::doSave( bool endsave )
     if ( needpopup )
     {
 	uiIOObjSelDlg dlg( this, setctio_ );
-	if ( !dlg.go() || !dlg.ioObj() ) return false;
+	if ( !dlg.go() || !dlg.ioObj() )
+	    return false;
 
 	setctio_.ioobj_ = 0;
 	setctio_.setObj( dlg.ioObj()->clone() );
@@ -470,11 +476,13 @@ bool uiAttribDescSetEd::doSave( bool endsave )
     {
 	if ( oldioobj != setctio_.ioobj_ )
 	    setctio_.setObj( oldioobj );
+
 	return false;
     }
 
     if ( oldioobj != setctio_.ioobj_ )
 	delete oldioobj;
+
     setid_ = setctio_.ioobj_->key();
     attrsetfld_->setText( setctio_.ioobj_->name() );
     adsman_->setSaved( true );
@@ -500,7 +508,9 @@ void uiAttribDescSetEd::autoSet( CallBacker* )
     SI().savePars();
     if ( dlg.loadAuto() )
     {
-	if ( !offerSetSave() ) return;
+	if ( !offerSetSave() )
+	    return;
+
 	openAttribSet( ioobj );
     }
 }
@@ -519,7 +529,10 @@ void uiAttribDescSetEd::addPush( CallBacker* )
 	return;
 
     if ( !attrset_->addDesc(newdesc.ptr()).isValid() )
-	{ uiMSG().error( attrset_->errMsg() ); return; }
+    {
+	uiMSG().error( attrset_->errMsg() );
+	return;
+    }
 
     newList( attrdescs_.size() );
     adsman_->setSaved( false );
@@ -575,7 +588,8 @@ void uiAttribDescSetEd::videoButPush( CallBacker* )
 void uiAttribDescSetEd::rmPush( CallBacker* )
 {
     Desc* curdesc = curDesc();
-    if ( !curdesc ) return;
+    if ( !curdesc )
+	return;
 
     BufferString depattribnm;
     if ( attrset_->isAttribUsed( curdesc->id(), depattribnm ) )
@@ -598,7 +612,8 @@ void uiAttribDescSetEd::rmPush( CallBacker* )
 void uiAttribDescSetEd::moveUpDownCB( CallBacker* cb )
 {
     Desc* curdesc = curDesc();
-    if ( !curdesc ) return;
+    if ( !curdesc )
+	return;
 
     const bool moveup = cb == moveupbut_;
     const int curidx = attrdescs_.indexOf( curdesc );
@@ -616,7 +631,7 @@ void uiAttribDescSetEd::setButStates()
     moveupbut_->setSensitive( selidx > 0 );
     movedownbut_->setSensitive( selidx < attrlistfld_->size()-1 );
     sortbut_->setSensitive( selidx > 0 );
-    int size = attrlistfld_->size();
+    const int size = attrlistfld_->size();
     sortbut_->setSensitive( size > 1);
 }
 
@@ -624,7 +639,7 @@ void uiAttribDescSetEd::setButStates()
 void uiAttribDescSetEd::sortPush( CallBacker* )
 {
     attrset_->sortDescSet();
-    int size = attrdescs_.size();
+    const int size = attrdescs_.size();
     for ( int idx=0; idx<size; idx++ )
 	newList( idx );
 }
@@ -632,7 +647,7 @@ void uiAttribDescSetEd::sortPush( CallBacker* )
 
 void uiAttribDescSetEd::handleSensitivity()
 {
-    bool havedescs = !attrdescs_.isEmpty();
+    const bool havedescs = !attrdescs_.isEmpty();
     rmbut_->setSensitive( havedescs );
 }
 
@@ -675,13 +690,18 @@ void uiAttribDescSetEd::newList( int newcur )
     attrlistfld_->setEmpty();
     attrlistfld_->addItems( userattrnames_ );
     updating_fields_ = false;
-    if ( newcur < 0 ) newcur = 0;
-    if ( newcur >= attrlistfld_->size() ) newcur = attrlistfld_->size()-1;
+    if ( newcur < 0 )
+	newcur = 0;
+
+    if ( newcur >= attrlistfld_->size() )
+	newcur = attrlistfld_->size()-1;
+
     if ( !userattrnames_.isEmpty() )
     {
 	attrlistfld_->setCurrentItem( newcur );
 	prevdesc_ = curDesc();
     }
+
     updateFields();
     handleSensitivity();
     setButStates();
@@ -726,7 +746,8 @@ void uiAttribDescSetEd::updateFields( bool set_type )
     for ( int idx=0; idx<desceds_.size(); idx++ )
     {
 	uiAttrDescEd* de = desceds_[idx];
-	if ( !de ) continue;
+	if ( !de )
+	    continue;
 
 	if( !set_type )
 	    de->setNeedInputUpdate();
@@ -774,6 +795,7 @@ bool uiAttribDescSetEd::doAcceptInputs()
 		uiStringSet messages( errmsg );
 		uiMSG().errorWithDetails( messages, msg );
 	    }
+
 	    return false;
 	}
     }
@@ -803,9 +825,7 @@ bool uiAttribDescSetEd::doCommit( bool useprev )
 			 " to change the attribute type?")
 			.arg(usedesc->userRef());
 
-	bool res = uiMSG().askGoOn(msg, tr("Change"),
-				   uiStrings::sCancel());
-	if ( res )
+	if ( uiMSG().askGoOn(msg,tr("Change"),uiStrings::sCancel()) )
 	{
 	    checkusrref = false;
 	    DescID id = usedesc->id();
@@ -863,7 +883,8 @@ void uiAttribDescSetEd::updateUserRefs()
     {
 	const DescID descid = attrset_->getID( iattr );
 	RefMan<Desc> desc = attrset_->getDesc( descid );
-	if ( !desc || desc->isHidden() || desc->isStored() ) continue;
+	if ( !desc || desc->isHidden() || desc->isStored() )
+	    continue;
 
 	attrdescs_ += desc.ptr();
 	userattrnames_.add( desc->userRef() );
@@ -943,12 +964,17 @@ bool uiAttribDescSetEd::setUserRef( Desc* attrdesc )
     mTrimBlanks( ptr );
     const BufferString newnm( ptr );
 
-    if ( newnm == attrdesc->userRef() ) return true;
-    else if ( !validName(newnm) ) return false;
+    if ( newnm == attrdesc->userRef() )
+	return true;
+    else if ( !validName(newnm) )
+	return false;
 
     uiString res = curDescEd()->commit();
     if ( !res.isEmpty() )
-	{ uiMSG().error( res ); return false; }
+    {
+	uiMSG().error( res );
+	return false;
+    }
 
     attrdesc->setUserRef( newnm );
     int selidx = userattrnames_.indexOf( attrlistfld_->getText() );
@@ -987,8 +1013,7 @@ bool uiAttribDescSetEd::doSetIO( bool forread )
 	{
 	    bs = tr("Attribute Set %1 is of type %2")
 	       .arg(setctio_.ioobj_->name())
-	       .arg(attrset.is2D() ? uiStrings::s2D()
-				   : uiStrings::s3D());
+	       .arg(attrset.is2D() ? uiStrings::s2D() : uiStrings::s3D());
 	    mErrRetFalse(bs)
 	}
 
@@ -1000,7 +1025,7 @@ bool uiAttribDescSetEd::doSetIO( bool forread )
 	mErrRetFalse(bs)
 
     if ( !bs.isEmpty() )
-	{ pErrMsg( bs.getFullString() ); }
+	pErrMsg( bs.getFullString() );
 
     setid_ = setctio_.ioobj_->key();
     return true;
@@ -1009,7 +1034,9 @@ bool uiAttribDescSetEd::doSetIO( bool forread )
 
 void uiAttribDescSetEd::newSet( CallBacker* )
 {
-    if ( !offerSetSave() ) return;
+    if ( !offerSetSave() )
+	return;
+
     adsman_->inputHistory().setEmpty();
     updateFields();
 
@@ -1025,18 +1052,21 @@ void uiAttribDescSetEd::newSet( CallBacker* )
 
 void uiAttribDescSetEd::openSet( CallBacker* )
 {
-    if ( !offerSetSave() ) return;
+    if ( !offerSetSave() )
+	return;
     setctio_.ctxt_.forread_ = true;
     uiIOObjSelDlg dlg( this, setctio_ );
     if ( dlg.go() && dlg.ioObj() )
 	openAttribSet( dlg.ioObj() );
-
 }
 
 void uiAttribDescSetEd::openAttribSet( const IOObj* ioobj )
 {
-    if ( !ioobj ) return;
-    IOObj* oldioobj = setctio_.ioobj_; setctio_.ioobj_ = 0;
+    if ( !ioobj )
+	return;
+
+    IOObj* oldioobj = setctio_.ioobj_;
+    setctio_.ioobj_ = nullptr;
     setctio_.setObj( ioobj->clone() );
     if ( !doSetIO( true ) )
 	setctio_.setObj( oldioobj );
@@ -1055,7 +1085,9 @@ void uiAttribDescSetEd::openAttribSet( const IOObj* ioobj )
 	for ( int idx=0; idx<attrset_->size(); idx++ )
 	{
 	    RefMan<Desc> ad = attrset_->getDesc( ids[idx] );
-	    if ( !ad ) continue;
+	    if ( !ad )
+		continue;
+
 	    if ( ad->isStored() && ad->isSatisfied()==2 )
 	    {
 		uiString msg = tr("The attribute: '%1'"
@@ -1077,7 +1109,8 @@ void uiAttribDescSetEd::openAttribSet( const IOObj* ioobj )
 
 void uiAttribDescSetEd::defaultSet( CallBacker* )
 {
-    if ( !offerSetSave() ) return;
+    if ( !offerSetSave() )
+	return;
 
     BufferStringSet attribfiles;
     BufferStringSet attribnames;
@@ -1087,10 +1120,13 @@ void uiAttribDescSetEd::defaultSet( CallBacker* )
     sflsu.dlgtitle( tr("Select default attribute set") );
     uiSelectFromList dlg( this, sflsu );
     dlg.setHelpKey( mODHelpKey(mAttribDescSetEddefaultSetHelpID) );
-    if ( !dlg.go() ) return;
+    if ( !dlg.go() )
+	return;
 
     const int selitm = dlg.selection();
-    if ( selitm < 0 ) return;
+    if ( selitm < 0 )
+	return;
+
     const char* filenm = attribfiles[selitm]->buf();
 
     importFromFile( filenm );
@@ -1188,7 +1224,8 @@ void uiAttribDescSetEd::showMatrix( CallBacker* )
 
 void uiAttribDescSetEd::importFromSeis( CallBacker* )
 {
-    if ( !offerSetSave() ) return;
+    if ( !offerSetSave() )
+	return;
 
     // TODO: Only display files with have saved attributes
     const bool is2d = adsman_ ? adsman_->is2D() : attrset_->is2D();
@@ -1222,7 +1259,7 @@ void uiAttribDescSetEd::importFromSeis( CallBacker* )
     attrset_->usePar( *attrpars );
     newList( -1 );
     attrsetfld_->setText( sKeyNotSaved );
-    setctio_.ioobj_ = 0;
+    setctio_.ioobj_ = nullptr;
     applycb.trigger();
 }
 
@@ -1243,7 +1280,8 @@ void uiAttribDescSetEd::importFromFile( const char* filenm )
 
 void uiAttribDescSetEd::importSet( CallBacker* )
 {
-    if ( !offerSetSave() ) return;
+    if ( !offerSetSave() )
+	return;
 
     uiSelObjFromOtherSurvey objdlg( this, setctio_ );
     objdlg.setHelpKey( mODHelpKey(mAttribDescSetEdimportSetHelpID) );
@@ -1269,7 +1307,8 @@ void uiAttribDescSetEd::importSet( CallBacker* )
 
 void uiAttribDescSetEd::importFile( CallBacker* )
 {
-    if ( !offerSetSave() ) return;
+    if ( !offerSetSave() )
+	return;
 
     uiGetFileForAttrSet dlg( this, true, inoutadsman_->is2D() );
     if ( dlg.go() )
@@ -1279,9 +1318,12 @@ void uiAttribDescSetEd::importFile( CallBacker* )
 
 void uiAttribDescSetEd::job2Set( CallBacker* )
 {
-    if ( !offerSetSave() ) return;
+    if ( !offerSetSave() )
+	return;
+
     uiGetFileForAttrSet dlg( this, false, inoutadsman_->is2D() );
-    if ( !dlg.go() ) return;
+    if ( !dlg.go() )
+	return;
 
     if ( dlg.attrSet().nrDescs(false,false) < 1 )
 	mErrRet( tr("No usable attributes in file") )
@@ -1297,7 +1339,9 @@ void uiAttribDescSetEd::job2Set( CallBacker* )
 
 void uiAttribDescSetEd::crossPlot( CallBacker* )
 {
-    if ( !adsman_ || !adsman_->descSet() ) return;
+    if ( !adsman_ || !adsman_->descSet() )
+	return;
+
     xplotcb.trigger();
 }
 
@@ -1309,6 +1353,7 @@ void uiAttribDescSetEd::directShow( CallBacker* )
 
     if ( doCommit() )
 	dirshowcb.trigger();
+
     updateFields();
 }
 
@@ -1318,10 +1363,10 @@ void uiAttribDescSetEd::procAttribute( CallBacker* )
     if ( !curDesc() )
 	mErrRet( tr("Please add this attribute first") )
 
-    if ( !doCommit() ) return;
+    if ( !doCommit() )
+	return;
 
-    uiAttrVolOut* dlg = new uiAttrVolOut( this, *attrset_, false,
-					  0, MultiID::udf() );
+    auto* dlg = new uiAttrVolOut( this, *attrset_, false, 0, MultiID::udf() );
     dlg->setInput( curDesc()->id() );
     dlg->show();
 }
@@ -1329,14 +1374,18 @@ void uiAttribDescSetEd::procAttribute( CallBacker* )
 
 void uiAttribDescSetEd::evalAttribute( CallBacker* )
 {
-    if ( !doCommit() ) return;
+    if ( !doCommit() )
+	return;
+
     evalattrcb.trigger();
 }
 
 
 void uiAttribDescSetEd::crossEvalAttrs( CallBacker* )
 {
-    if ( !doCommit() ) return;
+    if ( !doCommit() )
+	return;
+
     crossevalattrcb.trigger();
 }
 
@@ -1345,7 +1394,8 @@ bool uiAttribDescSetEd::offerSetSave()
 {
     doCommit( true );
     bool saved = adsman_->isSaved();
-    if ( saved ) return true;
+    if ( saved )
+	return true;
 
     uiString msg = tr( "Attribute set is not saved.\nSave now?" );
     const int res = uiMSG().askSave( msg );
@@ -1383,7 +1433,8 @@ void uiAttribDescSetEd::replaceStoredAttr( IOPar& iopar )
 
 void uiAttribDescSetEd::removeNotUsedAttr()
 {
-     if ( attrset_ ) attrset_->removeUnused( true );
+     if ( attrset_ )
+	attrset_->removeUnused( true );
 }
 
 
@@ -1429,7 +1480,9 @@ uiWhereIsDotDlg( uiParent* p )
 
 
 const char* fileName() const
-{ return dotfld_->fileName(); }
+{
+    return dotfld_->fileName();
+}
 
 
 bool acceptOK( CallBacker* ) override
@@ -1440,9 +1493,9 @@ bool acceptOK( CallBacker* ) override
 	const FilePath fp( fnm );
 	if ( fp.baseName() != "dot" )
 	{
-	    const bool res = uiMSG().askGoOn( tr("It looks like you did not "
-		" select the dot executable.\n\nDo you want to continue?") );
-	    if ( !res )
+	    const uiString msg = tr("It looks like you did not select the dot "
+				    "executable.\n\nDo you want to continue?");
+	    if ( !uiMSG().askGoOn(msg) )
 		return false;
 	}
 

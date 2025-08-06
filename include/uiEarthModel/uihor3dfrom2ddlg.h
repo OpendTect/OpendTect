@@ -39,13 +39,13 @@ protected:
     bool			acceptOK(CallBacker*) override;
 
     const EM::Horizon2D& 	hor2d_;
-    EM::Horizon3D* 		hor3d_;
+    EM::Horizon3D*		hor3d_			    = nullptr;
     uiEMPartServer*		emserv_;
 
     uiArray2DInterpolSel*	interpolsel_;
 
     uiIOObjSel*			outfld_;
-    uiCheckBox*			displayfld_;
+    uiCheckBox*			displayfld_		    = nullptr;
 
     MultiID			selid_;
 };

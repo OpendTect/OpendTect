@@ -69,6 +69,7 @@ bool uiFault2FaultSet::acceptOK( CallBacker* )
 	return false;
     }
 
+    outfld_->reset();
     const IOObj* outioobj = outfld_->ioobj();
     if ( !outioobj )
 	return false;
@@ -179,6 +180,7 @@ bool uiCopyFaultSet::acceptOK( CallBacker* )
     if ( selflts.isEmpty() )
 	return false;
 
+    outfld_->reset();
     const IOObj* outobj = outfld_->ioobj();
     if ( !outobj )
 	return false;

@@ -111,7 +111,7 @@ protected:
     void			getNrLinesLabelTexts(BufferString&,
 						 BufferString&) const override;
 
-    uiIOObjSel*			rdlfld_;
+    uiIOObjSel*			rdlfld_			= nullptr;
     uiGenInput*			pardistfld_;
     uiGenInput*			perdistfld_;
 
@@ -138,9 +138,9 @@ protected:
     uiSeisSel*			infld_;
     uiSeisSel*			outfld_;
     uiPosSubSel*		bboxfld_;
-    uiGenInput*			sourceselfld_;
+    uiGenInput*			sourceselfld_		    = nullptr;
 
-    ui2DGridLines*		inlcrlgridgrp_;
+    ui2DGridLines*		inlcrlgridgrp_		    = nullptr;
     ui2DGridLines*		randlinegrdgrp_;
     uiGrid2DMapObject*		preview_;
     uiSurveyMap*		previewmap_;

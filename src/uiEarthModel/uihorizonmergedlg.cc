@@ -75,7 +75,9 @@ bool uiHorizonMergeDlg::acceptOK( CallBacker* )
 	return false;
     }
 
-    outfld_->processInput();
+    if ( !outfld_->processInput() )
+	return false;
+
     const IOObj* ioobj = outfld_->selIOObj();
     if ( !ioobj )
 	return false;

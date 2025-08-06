@@ -31,13 +31,8 @@ ________________________________________________________________________
 uiHorSaveFieldGrp::uiHorSaveFieldGrp( uiParent* p, EM::Horizon* hor, bool is2d )
     : uiGroup( p )
     , horizon_( hor )
-    , newhorizon_( 0 )
-    , savefld_( 0 )
-    , addnewfld_( 0 )
-    , outputfld_( 0 )
     , is2d_( is2d )
     , usefullsurvey_( false )
-    , rgfld_(0)
 {
     init( false );
 }
@@ -47,10 +42,6 @@ uiHorSaveFieldGrp::uiHorSaveFieldGrp( uiParent* p, EM::Horizon* hor,
 				      bool is2d, bool withsubsel )
     : uiGroup( p )
     , horizon_( hor )
-    , newhorizon_( 0 )
-    , savefld_( 0 )
-    , addnewfld_( 0 )
-    , outputfld_( 0 )
     , is2d_( is2d )
     , usefullsurvey_( false )
 {
@@ -96,13 +87,17 @@ void uiHorSaveFieldGrp::init( bool withsubsel )
 
 uiHorSaveFieldGrp::~uiHorSaveFieldGrp()
 {
-    if ( horizon_ ) horizon_->unRef();
-    if ( newhorizon_ ) newhorizon_->unRef();
+    if ( horizon_ )
+	horizon_->unRef();
+    if ( newhorizon_ )
+	newhorizon_->unRef();
 }
 
 
 void uiHorSaveFieldGrp::setSaveFieldName( const char* nm )
-{ savefld_->setName( nm ); }
+{
+    savefld_->setName( nm );
+}
 
 
 void uiHorSaveFieldGrp::saveCB( CallBacker* )
@@ -113,11 +108,15 @@ void uiHorSaveFieldGrp::saveCB( CallBacker* )
 
 
 bool uiHorSaveFieldGrp::displayNewHorizon() const
-{ return savefld_->getBoolValue() && addnewfld_->isChecked(); }
+{
+    return savefld_->getBoolValue() && addnewfld_->isChecked();
+}
 
 
 bool uiHorSaveFieldGrp::overwriteHorizon() const
-{ return !savefld_->getBoolValue(); }
+{
+    return !savefld_->getBoolValue();
+}
 
 
 void uiHorSaveFieldGrp::allowOverWrite( bool yn )
@@ -125,7 +124,8 @@ void uiHorSaveFieldGrp::allowOverWrite( bool yn )
     if ( !savefld_ || !outputfld_ || !addnewfld_ )
 	return;
 
-    if ( !yn ) savefld_->setValue( true );
+    if ( !yn )
+	savefld_->setValue( true );
     savefld_->setSensitive( yn );
     saveCB( 0 );
 }
@@ -143,7 +143,9 @@ void uiHorSaveFieldGrp::setFullSurveyArray( bool yn )
 
 
 bool uiHorSaveFieldGrp::needsFullSurveyArray() const
-{ return  usefullsurvey_; }
+{
+    return  usefullsurvey_;
+}
 
 
 #define mErrRet(msg) { if ( !msg.isEmpty() ) uiMSG().error( msg ); return 0; }
@@ -164,7 +166,7 @@ EM::Horizon* uiHorSaveFieldGrp::readHorizon( const MultiID& mid )
 	if ( !TaskRunner::execute( &dlg, *reader ) )
 	{
 	    delete reader;
-	     mErrRet( uiStrings::phrCannotRead(uiStrings::sHorizon(1)));
+	    mErrRet( uiStrings::phrCannotRead(uiStrings::sHorizon(1)));
 	}
 
 	oid = EM::EMM().getObjectID( mid );
@@ -216,7 +218,8 @@ bool uiHorSaveFieldGrp::saveHorizon()
     PtrMan<Executor> exec = savenew ? newhorizon_->geometry().saver( &sdsel )
 				    : horizon_->geometry().saver( &sdsel );
 
-    if ( !exec ) mErrRet( tr("Cannot save horizon") );
+    if ( !exec )
+	mErrRet( tr("Cannot save horizon") );
 
     uiTaskRunner dlg( this );
     return TaskRunner::execute( &dlg, *exec );
@@ -227,6 +230,7 @@ bool uiHorSaveFieldGrp::acceptOK( CallBacker* )
 {
     if ( savefld_->getBoolValue() )
     {
+	outputfld_->reset();
 	if ( !outputfld_->ioobj() || !createNewHorizon() )
 	    return false;
     }

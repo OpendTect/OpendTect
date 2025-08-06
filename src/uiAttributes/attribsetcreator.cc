@@ -127,11 +127,17 @@ void mkGrp( uiGroup* mkgrp, const uiString& lbltxt,
 void cubeSel( CallBacker* cb )
 {
     mDynamicCastGet(uiIOObjSel*,cursel,cb)
-    if ( !cursel ) { pErrMsg("Huh"); return; }
+    if ( !cursel )
+    {
+	pErrMsg("Huh");
+	return;
+    }
 
     cursel->commitInput();
     const IOObj* ioobj = cursel->ctxtIOObj().ioobj_;
-    if ( !ioobj ) return;
+    if ( !ioobj )
+	return;
+
     int curidx = sels_.indexOf( cursel );
     if ( curidx >= nrindir_ )
 	return;
@@ -141,7 +147,9 @@ void cubeSel( CallBacker* cb )
     for ( int idx=0; idx<nrindir_; idx++ )
     {
 	uiIOObjSel& sel = *sels_[idx];
-	if ( &sel == cursel ) continue;
+	if ( &sel == cursel )
+	    continue;
+
 	sel.getHistory( iopar );
 	if ( !sel.ctxtIOObj().ioobj_ )
 	{
@@ -162,12 +170,12 @@ bool acceptOK( CallBacker* ) override
 	if ( !ioobj )
 	{
 	    uiMSG().error(
-		    tr("Please supply input for '%1'").arg(sel.labelText()) );
+		tr("Please supply input for '%1'").arg(sel.labelText()) );
 	    return false;
 	}
 
 	const DescID descid =
-		attrset_->getID( sel.labelText().getFullString(), true );
+	    attrset_->getID( sel.labelText().getFullString(), true );
 	if ( !descid.isValid() )
 	{
 	    const uiString msg =
@@ -180,14 +188,15 @@ bool acceptOK( CallBacker* ) override
 	}
 
 	Desc& ad = *attrset_->getDesc( descid );
-	if ( ad.isStored() )
+	if ( ad.isStored() )//should this if statement be removed?
 	{
 //	    ad.setDefStr( ioobj->key(), false );
 	}
 	else
 	{
 	    const DescID inpid = attrset_->getStoredID( ioobj->key(), 0, true );
-	    if ( !inpid.isValid() ) return false;
+	    if ( !inpid.isValid() )
+		return false;
 
 	    for ( int iinp=0; iinp<ad.nrInputs(); iinp++ )
 		ad.setInput( iinp, attrset_->getDesc(inpid).ptr() );
@@ -217,7 +226,11 @@ AttributeSetCreator::AttributeSetCreator( uiParent* p_,
 	const BufferString& uref = *inps_[idx];
 	Desc* ad = getDesc( uref );
 	if ( !ad )
-	    { attrset_->removeAll( false ); attrset_ = nullptr; return; }
+	{
+	    attrset_->removeAll( false );
+	    attrset_ = nullptr;
+	    return;
+	}
 
 	if ( ad->isStored() )
 	    directs_ += new BufferString( uref );
@@ -287,7 +300,8 @@ static void addGate( BufferString& defstr, const char* extdesc )
     char* ptr = extstr.find( '[' );
     BufferString gatestr( ptr ? ptr : "[-32,32]" );
     ptr = gatestr.find( ']' );
-    if ( ptr ) *(ptr+1) = '\0';
+    if ( ptr )
+	*(ptr+1) = '\0';
     defstr += " gate=";
     defstr += gatestr;
 }

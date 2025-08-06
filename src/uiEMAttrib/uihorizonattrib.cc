@@ -152,7 +152,8 @@ bool uiHorizonAttrib::getInput( Desc& desc )
 void uiHorizonAttrib::horSel( CallBacker* )
 {
     const IOObj* ioobj = horfld_->ioobj( true );
-    if ( !ioobj ) return;
+    if ( !ioobj )
+	return;
 
     const EM::IOObjInfo eminfo( ioobj->key() );
     if ( !eminfo.isOK() )

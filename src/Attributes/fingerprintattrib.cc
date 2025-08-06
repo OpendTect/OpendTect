@@ -27,7 +27,8 @@ static void scaleVector( const TypeSet<float>& rawvalues,
 			 const TypeSet< Interval<float> >& ranges,
 			 TypeSet<float>& scaledvalues )
 {
-    if ( rawvalues.size() != ranges.size() ) return;
+    if ( rawvalues.size() != ranges.size() )
+	return;
 
     for ( int idx=0; idx<rawvalues.size(); idx++ )
     {
@@ -44,48 +45,45 @@ void FingerPrint::initClass()
 {
     mAttrStartInitClassWithUpdate
 
-    BinIDParam* refpos = new BinIDParam( refposStr() );
+    auto* refpos = new BinIDParam( refposStr() );
     desc->addParam( refpos );
 
-    FloatParam* refposz = new FloatParam( refposzStr() );
+    auto* refposz = new FloatParam( refposzStr() );
     desc->addParam( refposz );
 
-    StringParam* reflineset = new StringParam( reflinesetStr() );
+    auto* reflineset = new StringParam( reflinesetStr() );
     desc->addParam( reflineset );
 
-    StringParam* ref2dline = new StringParam( ref2dlineStr() );
+    auto* ref2dline = new StringParam( ref2dlineStr() );
     desc->addParam( ref2dline );
 
     FloatParam value( valStr() );
-    ParamGroup<FloatParam>* valueset =
-				new ParamGroup<FloatParam>(0,valStr(),value);
+    auto* valueset = new ParamGroup<FloatParam>(0,valStr(),value);
     desc->addParam( valueset );
 
     FloatGateParam range( rangeStr() );
-    ParamGroup<FloatGateParam>* rangeset =
-			    new ParamGroup<FloatGateParam>(0,rangeStr(),range);
+    auto* rangeset = new ParamGroup<FloatGateParam>(0,rangeStr(),range);
     desc->addParam( rangeset );
 
     IntParam weight( weightStr() );
-    ParamGroup<IntParam>* weightset =
-				new ParamGroup<IntParam>(0,weightStr(),weight);
+    auto* weightset = new ParamGroup<IntParam>(0,weightStr(),weight);
     desc->addParam( weightset );
 
-    IntParam* statstype = new IntParam( statstypeStr() );
+    auto* statstype = new IntParam( statstypeStr() );
     statstype->setDefaultValue( 0 );
     desc->addParam( statstype );
 
-    StringParam* valpickset = new StringParam( valpicksetStr() );
+    auto* valpickset = new StringParam( valpicksetStr() );
     desc->addParam( valpickset );
 
-    IntParam* valreftype = new IntParam( valreftypeStr() );
+    auto* valreftype = new IntParam( valreftypeStr() );
     valreftype->setDefaultValue(2);
     desc->addParam( valreftype );
 
-    StringParam* rgpickset = new StringParam( rgpicksetStr() );
+    auto* rgpickset = new StringParam( rgpicksetStr() );
     desc->addParam( rgpickset );
 
-    IntParam* rgreftype = new IntParam( rgreftypeStr() );
+    auto* rgreftype = new IntParam( rgreftypeStr() );
     rgreftype->setDefaultValue(2);
     desc->addParam( rgreftype );
 
@@ -113,6 +111,7 @@ void FingerPrint::updateDesc( Desc& desc )
 	    desc.addInput( InputSpec(bfs, true) );
 	}
     }
+
     const int type = desc.getValParam(valreftypeStr())->getIntValue();
     desc.setParamEnabled( refposStr(), type == 1 );
     desc.setParamEnabled( refposzStr(), type == 1 );
@@ -131,7 +130,8 @@ void FingerPrint::updateDesc( Desc& desc )
 FingerPrint::FingerPrint( Desc& dsc )
     : Provider( dsc )
 {
-    if ( !isOK() ) return;
+    if ( !isOK() )
+	return;
 
     inputdata_.allowNull(true);
 
@@ -182,7 +182,8 @@ bool FingerPrint::getInputData( const BinID& relpos, int zintv )
     for ( int idx=0; idx<inputs_.size(); idx++ )
     {
 	const DataHolder* data = inputs_[idx]->getData( relpos, zintv );
-	if ( !data ) return false;
+	if ( !data )
+	    return false;
 
 	inputdata_.replace( idx, data );
 	dataidx_[idx] = getDataIndex( idx );

@@ -648,21 +648,21 @@ bool uiIOObjSel::doCommitInput( bool& alreadyerr )
 		    }
 		    else if ( setup_.confirmoverwr_ )
 		    {
-			if ( !uiMSG().askGoOn(tr("'%1' already exists."
-						 " Overwrite?")
-						.arg(getInput()),true) )
+			uiString msg = tr("'%1' already exists. Overwrite?")
+					   .arg(getInput());
+			if ( !uiMSG().askGoOn(msg,true) )
 			    mErrRet(uiStrings::sEmptyString())
 		    }
 		}
 	    }
 
 	    inctio_.setObj( workctio_.ioobj_->clone() );
-	    commitSucceeded(); return true;
+	    commitSucceeded();
+	    return true;
 	}
 
 	mErrRet(tr("'%1' already exists as another object type."
 	       "\nPlease enter another name.").arg(getInput()))
-
     }
 
     if ( workctio_.ctxt_.forread_ )

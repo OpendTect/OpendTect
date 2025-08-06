@@ -72,7 +72,7 @@ uiImportVelFunc::uiImportVelFunc( uiParent* p, bool is2d )
     IOObjContext ctxt = StoredFunctionSource::ioContext();
     ctxt.forread_ = false;
     outfld_ = new uiIOObjSel( this, ctxt,
-			     uiStrings::phrOutput(tr("Velocity Function")) );
+			      uiStrings::phrOutput(tr("Velocity Function")) );
     outfld_->attach( alignedBelow, attachobj );
     outfld_->attach( ensureBelow, sep );
 
@@ -120,7 +120,7 @@ void uiImportVelFunc::formatSel( CallBacker* )
 
 bool uiImportVelFunc::acceptOK( CallBacker* )
 {
-    BinIDValueSet bidvalset( 0, true);
+    BinIDValueSet bidvalset( 0, true );
     VelocityDesc desc;
     if ( !typefld_->get(desc,true) )
 	return false;
@@ -162,6 +162,7 @@ bool uiImportVelFunc::acceptOK( CallBacker* )
     if ( !success )
 	mErrRet( uiStrings::phrCannotRead( ::toUiString(inpfld_->fileName())) );
 
+    outfld_->reset();
     const IOObj* ioobj = outfld_->ioobj();
     if ( !ioobj )
 	mErrRet( outfld_->isEmpty() ? uiStrings::phrSelect(uiStrings::sOutput())
@@ -175,8 +176,9 @@ bool uiImportVelFunc::acceptOK( CallBacker* )
 
     uiString msg = tr("Velocity Function successfully imported."
 		      "\n\nDo you want to import more Velocity Functions?");
+
     bool ret = uiMSG().askGoOn( msg, uiStrings::sYes(),
-				tr("No, close window") );
+			       tr("No, close window") );
     return !ret;
 }
 

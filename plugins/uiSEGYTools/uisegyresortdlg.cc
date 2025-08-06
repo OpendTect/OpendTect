@@ -112,12 +112,17 @@ uiResortSEGYDlg::uiResortSEGYDlg( uiParent* p )
 
 void uiResortSEGYDlg::inpSel( CallBacker* cb )
 {
-    if ( !ps2dfld_ || (cb && cb != ps2dfld_) ) return;
+    if ( !ps2dfld_ || (cb && cb != ps2dfld_) )
+	return;
+
     linenmfld_->setEmpty();
     const IOObj* ioobj = ps2dfld_->ioobj();
-    if ( !ioobj ) return;
+    if ( !ioobj )
+	return;
+
     uiSeisIOObjInfo uioi( *ioobj );
-    if ( !uioi.isOK() ) return;
+    if ( !uioi.isOK() )
+	return;
 
     BufferStringSet lnms;
     uioi.ioObjInfo().getLineNames( lnms );
@@ -163,8 +168,8 @@ uiIOObjSel* uiResortSEGYDlg::objSel()
 {
     const Seis::GeomType gt = geomType();
     return gt == Seis::LinePS ? ps2dfld_
-	 : gt == Seis::VolPS  ? ps3dfld_
-			      : volfld_;
+			      : gt == Seis::VolPS  ? ps3dfld_
+						   : volfld_;
 }
 
 

@@ -76,14 +76,14 @@ uiAttrTrcSelOut::uiAttrTrcSelOut( uiParent* p, const DescSet& ad,
 	cubeBoundsSel(0);
 
     batchjobfld_->jobSpec().pars_.set( IOPar::compKey(sKey::Output(),
-				sKey::Type()), Output::tskey() );
+				       sKey::Type()), Output::tskey() );
 }
 
 
 void uiAttrTrcSelOut::createSingleHorUI()
 {
     objfld_ = new uiHorizonSel( pargrp_, is2d_, true,
-			      uiStrings::phrCalculate(tr("along Horizon")) );
+				uiStrings::phrCalculate(tr("along Horizon")) );
     objfld_->attach( alignedBelow, attrfld_ );
     objfld_->selectionDone.notify( mCB(this,uiAttrTrcSelOut,objSel) );
 
@@ -104,7 +104,7 @@ void uiAttrTrcSelOut::createSingleHorUI()
 void uiAttrTrcSelOut::createTwoHorUI()
 {
     xparsdlg_ = new uiDialog( pargrp_, uiDialog::Setup(tr("Set Extra Options"),
-				mODHelpKey(mAttrTrcSelOutBetweenHelpID)) );
+			      mODHelpKey(mAttrTrcSelOutBetweenHelpID)) );
     xparsdlg_->postFinalize().notify( mCB(this,uiAttrTrcSelOut,extraDlgDone) );
 
     uiIOObjSel::Setup su( tr("Calculate between top Horizon") );
@@ -132,14 +132,14 @@ void uiAttrTrcSelOut::createTwoHorUI()
     }
 
     createCubeBoundsFlds( ads_->is2D() ? (uiParent*) pargrp_
-				      : (uiParent*) xparsdlg_ );
+				       : (uiParent*) xparsdlg_ );
     createOutputFld( pargrp_ );
 
     if ( !ads_->is2D() )
     {
 	CallBack cb = mCB(this,uiAttrTrcSelOut,extraParsCB);
-	uiPushButton* extrabut =
-		new uiPushButton( pargrp_, tr("Extra options"), cb, false );
+	auto* extrabut =
+	    new uiPushButton( pargrp_, tr("Extra options"), cb, false );
 	extrabut->attach( alignedBelow, outpfld_ );
     }
 }
@@ -158,7 +158,7 @@ void uiAttrTrcSelOut::createZIntervalFld( uiParent* prnt )
 					      .setName("Z Interval Stop",1) );
     gatefld_->setValues(0.f, 0.f);
     gatefld_->attach( alignedBelow, seissubselfld_ );
-    uiLabel* lbl = new uiLabel( prnt, SI().getUiZUnitString() );
+    auto* lbl = new uiLabel( prnt, SI().getUiZUnitString() );
     lbl->attach( rightOf, (uiObject*)gatefld_ );
 }
 
@@ -168,7 +168,7 @@ void uiAttrTrcSelOut::createExtraZTopFld( uiParent* prnt )
     extraztopfld_ = new uiGenInput( prnt, tr("plus"), FloatInpSpec(0) );
     extraztopfld_->setElemSzPol(uiObject::Small);
     extraztopfld_->attach( rightOf, objfld_ );
-    uiLabel* toplbl = new uiLabel( prnt, SI().getUiZUnitString() );
+    auto* toplbl = new uiLabel( prnt, SI().getUiZUnitString() );
     toplbl->attach( rightOf, extraztopfld_ );
 }
 
@@ -178,7 +178,7 @@ void uiAttrTrcSelOut::createExtraZBotFld( uiParent* prnt )
     extrazbotfld_ = new uiGenInput( prnt, tr("plus"), FloatInpSpec(0) );
     extrazbotfld_->setElemSzPol(uiObject::Small);
     extrazbotfld_->attach( rightOf, obj2fld_ );
-    uiLabel* botlbl = new uiLabel( prnt, SI().getUiZUnitString() );
+    auto* botlbl = new uiLabel( prnt, SI().getUiZUnitString() );
     botlbl->attach( rightOf, extrazbotfld_ );
 }
 
@@ -204,8 +204,7 @@ void uiAttrTrcSelOut::createOutsideValFld( uiParent* prnt )
 						   : (uiGroup*)seissubselfld_ );
     outsidevalfld_->setValue(0);
 
-    uiPushButton* undefbut =
-	new uiPushButton( prnt, tr("Set to Undefined"), true );
+    auto* undefbut = new uiPushButton( prnt, tr("Set to Undefined"), true );
     undefbut->attach( rightTo, outsidevalfld_ );
     undefbut->activated.notify( mCB(this,uiAttrTrcSelOut,undefCB) );
 }
@@ -235,7 +234,7 @@ void uiAttrTrcSelOut::createInterpFld( uiParent* prnt )
 void uiAttrTrcSelOut::createNrSampFld( uiParent* prnt )
 {
     const uiString nrsamplabel =
-		tr("Interpolate if hole is smaller than N traces");
+			     tr("Interpolate if hole is smaller than N traces");
     nrsampfld_ = new uiGenInput( prnt, nrsamplabel,
 				 IntInpSpec(0).setName("Interpolate") );
     nrsampfld_->attach( alignedBelow, interpfld_ );
@@ -264,8 +263,8 @@ void uiAttrTrcSelOut::createMainHorFld( uiParent* prnt )
 {
     const uiString mainhorlabel = tr("Main %1").arg(uiStrings::sHorizon());
     mainhorfld_ = new uiGenInput( prnt, mainhorlabel,
-				 BoolInpSpec(true,tr("Top"),
-				 uiStrings::sBottom()) );
+				  BoolInpSpec(true,tr("Top"),
+				  uiStrings::sBottom()) );
     mainhorfld_->attach( alignedBelow, widthfld_ );
 }
 
@@ -280,12 +279,12 @@ void uiAttrTrcSelOut::createCubeBoundsFlds( uiParent* prnt )
 							: outsidevalfld_ );
     setcubeboundsfld_->setValue( false );
     setcubeboundsfld_->valueChanged.notify(
-	    mCB(this,uiAttrTrcSelOut,cubeBoundsSel) );
+				      mCB(this,uiAttrTrcSelOut,cubeBoundsSel) );
 
     cubeboundsfld_ = new uiGenInput ( prnt, tr("Z Range"),
 				      FloatInpIntervalSpec()
-				      .setName("Z Start",0)
-				      .setName("Z Stop",1) );
+					.setName("Z Start",0)
+					.setName("Z Stop",1) );
     cubeboundsfld_->attach( alignedBelow, setcubeboundsfld_ );
 }
 
@@ -302,7 +301,8 @@ void uiAttrTrcSelOut::createOutputFld( uiParent* prnt )
 
 bool uiAttrTrcSelOut::prepareProcessing()
 {
-    if ( !uiAttrEMOut::prepareProcessing() ) return false;
+    if ( !uiAttrEMOut::prepareProcessing() )
+	return false;
 
     if ( !objfld_->ioobj(true) )
     {
@@ -316,6 +316,7 @@ bool uiAttrTrcSelOut::prepareProcessing()
 	return false;
     }
 
+    outpfld_->reset();
     const IOObj* outioobj = outpfld_->ioobj();
     if ( !outioobj )
 	return false;
@@ -334,7 +335,8 @@ bool uiAttrTrcSelOut::prepareProcessing()
 	{
 	    uiString msg( tr("Output attribute already exists. Do you\n"
 		    "want to continue and overwrite existing attribute?") );
-	    if ( !uiMSG().askOverwrite(msg) ) return false;
+	    if ( !uiMSG().askOverwrite(msg) )
+		return false;
 	}
 
 	EM::SurfaceIOData data;
@@ -393,7 +395,7 @@ bool uiAttrTrcSelOut::fillPar( IOPar& iopar )
 
     if ( !usesinglehor_ )
     {
-	tmpkey = IOPar::compKey( LocationOutput::surfidkey(), 1);
+	tmpkey = IOPar::compKey( LocationOutput::surfidkey(), 1 );
 	key = IOPar::compKey( sKey::Geometry(), tmpkey );
 	iopar.set( key, obj2fld_->key(true) );
     }
@@ -458,7 +460,7 @@ bool uiAttrTrcSelOut::fillPar( IOPar& iopar )
     int nrsamp = 0;
     if ( interpfld_ && interpfld_->isChecked() )
 	nrsamp = interpfld_->getBoolValue() ? mUdf(int)
-					   : nrsampfld_->getIntValue();
+					    : nrsampfld_->getIntValue();
 
     key = IOPar::compKey( sKey::Geometry(), "Interpolation Stepout" );
     iopar.set( key, nrsamp );
@@ -592,7 +594,7 @@ void uiAttrTrcSelOut::objSel( CallBacker* )
 void uiAttrTrcSelOut::interpSel( CallBacker* )
 {
     nrsampfld_->display( interpfld_->isChecked() ? !interpfld_->getBoolValue()
-					       : false );
+						 : false );
     if ( !addwidthfld_ )
 	return;
 
@@ -637,7 +639,8 @@ void uiAttrTrcSelOut::extraDlgDone( CallBacker* )
 
 void uiAttrTrcSelOut::lineSel( CallBacker* )
 {
-    if ( !ads_->is2D() ) return;
+    if ( !ads_->is2D() )
+	return;
 
     batchjobfld_->jobSpecUpdated();
 }
