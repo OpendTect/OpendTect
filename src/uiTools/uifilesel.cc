@@ -86,6 +86,19 @@ void uiFileSel::init( const uiString& lbltxt )
 	checkbox_->activated.notify( mCB(this,uiFileSel,checkCB) );
     }
 
+    fnmfld_ = new uiLineEdit( this, FileNameInpSpec(), "File Name" );
+    setHAlignObj( fnmfld_ );
+    fnmfld_->setHSzPol( uiObject::Wide );
+    fnmfld_->setStretch( 2, 0 );
+
+    if ( lbltxt.isEmpty() || checkbox_ )
+    {
+	if ( checkbox_ )
+	    checkbox_->attach( leftOf, fnmfld_ );
+    }
+    else if ( !checkbox_ )
+	lbl_ = new uiLabel( this, lbltxt, fnmfld_ );
+
     const bool forread = setup_.isForRead();
     uiStringSet protnms;
     OD::FileSystemAccess::getProtocolNames( factnms_, forread );
@@ -103,35 +116,18 @@ void uiFileSel::init( const uiString& lbltxt )
 	    protfld_->setIcon( idx, fsa.iconName() );
 	}
 
-	if ( checkbox_ )
-	    checkbox_->attach( leftOf, protfld_ );
 	mAttachCB( protfld_->selectionChanged, uiFileSel::protChgCB );
 	protfld_->setHSzPol( uiObject::SmallVar );
 	protfld_->setStretch( 0, 0 );
-    }
-
-    fnmfld_ = new uiLineEdit( this, FileNameInpSpec(), "File Name" );
-    setHAlignObj( fnmfld_ );
-    fnmfld_->setHSzPol( uiObject::Wide );
-    fnmfld_->setStretch( 2, 0 );
-
-    if ( lbltxt.isEmpty() || checkbox_ )
-    {
-	if ( protfld_ )
-	    protfld_->attach( leftOf, fnmfld_ );
-	else if ( checkbox_ )
-	    checkbox_->attach( leftOf, fnmfld_ );
-    }
-    else if ( !checkbox_ )
-    {
-	lbl_ = new uiLabel( this, lbltxt, fnmfld_ );
-	if ( protfld_ )
-	    protfld_->attach( leftOf, lbl_ );
+	protfld_->attach( rightOf, fnmfld_ );
     }
 
     selbut_ = uiButton::getStd( this, OD::Select,
 				mCB(this,uiFileSel,doSelCB), false );
-    selbut_->attach( rightOf, fnmfld_ );
+    if ( protfld_ )
+	selbut_->attach( rightOf, protfld_ );
+    else
+	selbut_->attach( rightOf, fnmfld_ );
 
     if ( nrfactnms==0 )
     {
