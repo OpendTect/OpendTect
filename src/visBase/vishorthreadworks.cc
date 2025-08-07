@@ -26,13 +26,13 @@ namespace visBase
 
 HorizonTileRenderPreparer::HorizonTileRenderPreparer(
     HorizonSection& hrsection, const osg::CullStack* cs, char res )
-    : hrsection_( hrsection )
-    , tkzs_( cs )
+    : permutation_( 0 )
     , hrsectiontiles_( hrsection.tiles_.getData() )
+    , hrsection_( hrsection )
     , nrtiles_( hrsection.tiles_.info().getTotalSz() )
     , nrcoltiles_( hrsection.tiles_.info().getSize(1) )
     , resolution_( res )
-    , permutation_( 0 )
+    , tkzs_( cs )
 {
 }
 
@@ -248,6 +248,12 @@ TileTesselator::TileTesselator( HorizonSectionTile* tile, char res )
 {}
 
 
+od_int64 TileTesselator::totalNr() const
+{
+    return 1;
+}
+
+
 int TileTesselator::nextStep()
 {
     if ( tile_ )
@@ -274,9 +280,9 @@ int TileGlueTesselator::nextStep()
 HorizonSectionTilePosSetup::HorizonSectionTilePosSetup(
     TypeSet<RowCol>& tiles, TypeSet<RowCol>& indexes,HorizonSection* horsection,
     StepInterval<int>rrg,StepInterval<int>crg )
-    : rrg_( rrg )
+    : geo_( 0 )
+    , rrg_( rrg )
     , crg_( crg )
-    , geo_( 0 )
     , horsection_( horsection )
     , hortiles_( tiles )
     , indexes_( indexes )
