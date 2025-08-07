@@ -102,15 +102,18 @@ public:
 };
 
 
-class TileTesselator : public SequentialTask
+class TileTesselator final : public SequentialTask
 {
 public:
 				TileTesselator(HorizonSectionTile*,char res);
 
-    int				nextStep() override;
     HorizonSectionTile*		tile_;
     char			res_;
     bool			doglue_;
+
+private:
+    od_int64			totalNr() const override;
+    int				nextStep() override;
 };
 
 

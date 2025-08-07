@@ -177,7 +177,7 @@ void HorizonSectionTile::updateAutoResolution( const osg::CullStack* cs )
 
 void HorizonSectionTile::addTileTesselator( int res )
 {
-    TileTesselator* tt = new TileTesselator( this, res );
+    auto* tt = new TileTesselator( this, res );
     Threads::WorkManager::twm().addWork(
 	Threads::Work( *tt, true ),
 	0, tesselationqueueid_, true );
@@ -186,9 +186,10 @@ void HorizonSectionTile::addTileTesselator( int res )
 
 void HorizonSectionTile::addTileGlueTesselator()
 {
-    if ( !glueneedsretesselation_ ) return;
+    if ( !glueneedsretesselation_ )
+	return;
 
-    TileGlueTesselator* tt = new TileGlueTesselator( this );
+    auto* tt = new TileGlueTesselator( this );
     Threads::WorkManager::twm().addWork(
 	Threads::Work( *tt, true ),
 	0, tesselationqueueid_, true );
