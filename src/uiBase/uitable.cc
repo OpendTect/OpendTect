@@ -2021,6 +2021,15 @@ void uiTable::selectItems( const TypeSet<RowCol>& rcs, bool yn )
 }
 
 
+void uiTable::selectAll( bool yn )
+{
+    if ( yn )
+	body_->selectAll();
+    else
+	body_->clearSelection();
+}
+
+
 bool uiTable::handleLongTabletPress()
 {
     BufferString msg = "rightClicked ";
