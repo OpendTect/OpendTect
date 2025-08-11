@@ -244,6 +244,7 @@ public:
     void		selectRow(int row);
     void		selectColumn(int col);
     void		selectItems(const TypeSet<RowCol>&,bool);
+    void		selectAll(bool yn);
     void		removeAllSelections();
     void		ensureCellVisible(const RowCol&);
 
