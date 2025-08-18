@@ -91,6 +91,7 @@ public:
     static bool		isNameToolTipUsed();
     static void		formatNameToolTipString(BufferString&);
     static bool		directRendering();
+    static bool		directRendering(BufferString& glvendor);
     static BufferString getStyleFromSettings(const CommandLineParser&,
 				 bool* needdisabledarkmode=nullptr);
     static const char* sKeylookstyle();
