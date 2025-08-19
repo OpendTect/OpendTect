@@ -479,6 +479,7 @@ static bool testFileTime( const char* fnm )
 			 "File size of a symbolic link" );
     }
 
+    Threads::sleep( 0.1 ); //100ms
     Time::FileTimeSet filetimes, linktimes;
     mRunStandardTest( File::getTimes( linknm.buf(), filetimes ),
 		      "Get all file timestamps from a link target" );
