@@ -32,28 +32,36 @@ endmacro(ADD_TO_LIST_IF_NEW)
 
 macro( QT_INSTALL_PLUGINS )
     OD_FIND_QT()
-    foreach( QTPLUGIN ${QT_REQ_PLUGINS} )
-	install( DIRECTORY "${QT_ROOT}/plugins/${QTPLUGIN}"
-	     DESTINATION "${OD_RUNTIME_DIRECTORY}/../plugins"
-	     CONFIGURATIONS MinSizeRel;RelWithDebInfo;Release
-	     USE_SOURCE_PERMISSIONS 
-	     FILES_MATCHING
-	     PATTERN "*.so"
-	     PATTERN "*.dll"
-	     PATTERN "*.dylib"
-	     PATTERN "*d.dll" EXCLUDE
-	     PATTERN "*.pdb" EXCLUDE
-	     PATTERN "*.so.debug" EXCLUDE
-	     PATTERN "*_debug*" EXCLUDE
-	     PATTERN "*.dSYM" EXCLUDE )
-	install( DIRECTORY "${QT_ROOT}/plugins/${QTPLUGIN}"
-	     DESTINATION "${OD_RUNTIME_DIRECTORY}/../plugins"
-	     CONFIGURATIONS Debug
-	     USE_SOURCE_PERMISSIONS 
-	     FILES_MATCHING
-	     PATTERN "*.so"
-	     PATTERN "*.dll"
-	     PATTERN "*.dylib" )
+    foreach( QTPLUGIN_FILE ${QT_REQ_PLUGINS} )
+	if ( NOT EXISTS "${QT_ROOT}/plugins/${QTPLUGIN_FILE}" )
+	    continue()
+	endif()
+	cmake_path( GET QTPLUGIN_FILE PARENT_PATH QTPLUGIN_DIR )
+	if ( WIN32 )
+	    cmake_path( GET QTPLUGIN_FILE STEM QTPLUGIN_STEM )
+	    cmake_path( GET QTPLUGIN_FILE EXTENSION QTPLUGIN_FILEEXT )
+	    install( FILES "${QT_ROOT}/plugins/${QTPLUGIN_FILE}"
+		     CONFIGURATIONS MinSizeRel;RelWithDebInfo;Release
+		     DESTINATION "${OD_RUNTIME_DIRECTORY}/../plugins/${QTPLUGIN_DIR}" )
+	    if ( EXISTS "${QT_ROOT}/plugins/${QTPLUGIN_DIR}/${QTPLUGIN_STEM}.pdb" )
+		install( FILES "${QT_ROOT}/plugins/${QTPLUGIN_DIR}/${QTPLUGIN_STEM}.pdb"
+			 CONFIGURATIONS RelWithDebInfo
+			 DESTINATION "${OD_RUNTIME_DIRECTORY}/../plugins/${QTPLUGIN_DIR}" )
+	    endif()
+	    if ( EXISTS "${QT_ROOT}/plugins/${QTPLUGIN_DIR}/${QTPLUGIN_STEM}d${QTPLUGIN_FILEEXT}" )
+		install( FILES "${QT_ROOT}/plugins/${QTPLUGIN_DIR}/${QTPLUGIN_STEM}d${QTPLUGIN_FILEEXT}"
+			 CONFIGURATIONS Debug
+			 DESTINATION "${OD_RUNTIME_DIRECTORY}/../plugins/${QTPLUGIN_DIR}" )
+	    endif()
+	    if ( EXISTS "${QT_ROOT}/plugins/${QTPLUGIN_DIR}/${QTPLUGIN_STEM}d.pdb" )
+		install( FILES "${QT_ROOT}/plugins/${QTPLUGIN_DIR}/${QTPLUGIN_STEM}d.pdb"
+			 CONFIGURATIONS Debug
+			 DESTINATION "${OD_RUNTIME_DIRECTORY}/../plugins/${QTPLUGIN_DIR}" )
+	    endif()
+	else()
+	    install( PROGRAMS "${QT_ROOT}/plugins/${QTPLUGIN_FILE}"
+		     DESTINATION "${OD_RUNTIME_DIRECTORY}/../plugins/${QTPLUGIN_DIR}" )
+	endif()
     endforeach()
 
     list( APPEND OD_QTPLUGINS ${QT_REQ_PLUGINS} )
@@ -90,20 +98,74 @@ endmacro(QT_SETUP_CORE_INTERNALS)
 
 macro( QT_SETUP_GUI_INTERNALS )
 
-    list( APPEND QT_REQ_PLUGINS
-	    iconengines;imageformats;platforms )
+    list( APPEND QT_REQ_PLUGINS iconengines/${SHLIB_PREFIX}qsvgicon.${SHLIB_EXTENSION}
+				imageformats/${SHLIB_PREFIX}qgif.${SHLIB_EXTENSION}
+				imageformats/${SHLIB_PREFIX}qico.${SHLIB_EXTENSION}
+				imageformats/${SHLIB_PREFIX}qjpeg.${SHLIB_EXTENSION}
+				imageformats/${SHLIB_PREFIX}qsvg.${SHLIB_EXTENSION} )
     if ( WIN32 )
-	list( APPEND QT_REQ_PLUGINS styles )
-    elseif ( NOT APPLE )
-	# For xcb platform
-	list( APPEND QT_REQ_PLUGINS
-		egldeviceintegrations;platforminputcontexts;xcbglintegrations )
+	list( APPEND QT_REQ_PLUGINS platforms/qwindows.dll )
+    elseif ( APPLE )
+	list( APPEND QT_REQ_PLUGINS platforms/libqcocoa.dylib
+				    styles/libqmacstyle.dylib )
+    else()
+	list( APPEND QT_REQ_PLUGINS platforms/libqwayland-egl.so
+				    platforms/libqwayland-generic.so
+				    platforms/libqxcb.so )
 	# For wayland platform
 	list( APPEND QT_REQ_PLUGINS
-		wayland-decoration-client;wayland-graphics-integration-client;wayland-shell-integration )
+		wayland-decoration-client/libbradient.so
+		wayland-graphics-integration-client/libdmabuf-server.so
+		wayland-graphics-integration-client/libdrm-egl-server.so
+		wayland-graphics-integration-client/libqt-plugin-wayland-egl.so
+		wayland-graphics-integration-client/libshm-emulation-server.so
+		wayland-graphics-integration-client/libvulkan-server.so
+		wayland-shell-integration/libfullscreen-shell-v1.so
+		wayland-shell-integration/libivi-shell.so
+		wayland-shell-integration/libwl-shell-plugin.so
+		wayland-shell-integration/libxdg-shell.so )
+	# For xcb platform
+	list( APPEND QT_REQ_PLUGINS
+		egldeviceintegrations/libqeglfs-emu-integration.so
+		egldeviceintegrations/libqeglfs-kms-egldevice-integration.so
+		egldeviceintegrations/libqeglfs-x11-integration.so
+		platforminputcontexts/libcomposeplatforminputcontextplugin.so
+		platforminputcontexts/libibusplatforminputcontextplugin.so
+		xcbglintegrations/libqxcb-egl-integration.so
+		xcbglintegrations/libqxcb-glx-integration.so )
     endif()
     if ( QT_VERSION VERSION_GREATER_EQUAL 6 )
-	list( APPEND QT_REQ_PLUGINS tls )
+	list( APPEND QT_REQ_PLUGINS tls/${SHLIB_PREFIX}qcertonlybackend.${SHLIB_EXTENSION}
+				    tls/${SHLIB_PREFIX}qopensslbackend.${SHLIB_EXTENSION} )
+	if ( WIN32 )
+	    list( APPEND QT_REQ_PLUGINS styles/qmodernwindowsstyle.dll
+					tls/qschannelbackend.dll )
+	elseif ( APPLE )
+	    list( APPEND QT_REQ_PLUGINS tls/libqsecuretransportbackend.dylib )
+	else()
+	    list( APPEND QT_REQ_PLUGINS wayland-decoration-client/libadwaita.so
+					wayland-shell-integration/libqt-shell.so
+					egldeviceintegrations/libqeglfs-kms-integration.so )
+	endif()
+    else()
+	list( APPEND QT_REQ_PLUGINS imageformats/${SHLIB_PREFIX}qicns.${SHLIB_EXTENSION}
+				    imageformats/${SHLIB_PREFIX}qtga.${SHLIB_EXTENSION}
+				    imageformats/${SHLIB_PREFIX}qtiff.${SHLIB_EXTENSION}
+				    imageformats/${SHLIB_PREFIX}qwbmp.${SHLIB_EXTENSION}
+				    imageformats/${SHLIB_PREFIX}qwebp.${SHLIB_EXTENSION} )
+	if ( WIN32 )
+	    list( APPEND QT_REQ_PLUGINS styles/qwindowsvistastyle.dll )
+	elseif ( APPLE )
+	    list( APPEND QT_REQ_PLUGINS imageformats/libqmacheif.dylib
+					imageformats/libqmacjp2.dylib )
+	else()
+	    list( APPEND QT_REQ_PLUGINS platforms/libqwayland-xcomposite-egl.so
+					platforms/libqwayland-xcomposite-glx.so
+					wayland-graphics-integration-client/libxcomposite-egl.so
+					wayland-graphics-integration-client/libxcomposite-glx.so
+					wayland-shell-integration/libxdg-shell-v5.so
+					wayland-shell-integration/libxdg-shell-v6.so )
+	endif()
     endif()
 
     QT_INSTALL_PLUGINS()
@@ -111,7 +173,20 @@ macro( QT_SETUP_GUI_INTERNALS )
 endmacro(QT_SETUP_GUI_INTERNALS )
 
 macro( QT_SETUP_SQL_INTERNALS )
-    list( APPEND QT_REQ_PLUGINS sqldrivers )
+    list( APPEND QT_REQ_PLUGINS sqldrivers/${SHLIB_PREFIX}qsqlite.${SHLIB_EXTENSION}
+				sqldrivers/${SHLIB_PREFIX}qsqlodbc.${SHLIB_EXTENSION}
+				sqldrivers/${SHLIB_PREFIX}qsqlpsql.${SHLIB_EXTENSION} )
+    if ( QT_VERSION VERSION_GREATER_EQUAL 6 )
+	list( APPEND QT_REQ_PLUGINS sqldrivers/${SHLIB_PREFIX}qsqlmimer.${SHLIB_EXTENSION} )
+	if ( WIN32 )
+	    if ( QT_VERSION VERSION_GREATER_EQUAL 6.9 )
+		list( APPEND QT_REQ_PLUGINS sqldrivers/qsqlibase.dll
+					    sqldrivers/qsqloci.dll )
+	    endif()
+	elseif ( NOT APPLE )
+	    list( APPEND QT_REQ_PLUGINS sqldrivers/libqsqlmysql.so )
+	endif()
+    endif()
     QT_INSTALL_PLUGINS()
 endmacro(QT_SETUP_SQL_INTERNALS )
 
@@ -126,7 +201,13 @@ endmacro( QT_SETUP_QML_INTERNALS )
 macro( QT_SETUP_PRINTSUPPORT_INTERNALS )
 
     if ( QT_VERSION VERSION_LESS 6 OR (NOT APPLE AND NOT WIN32) )
-	list( APPEND QT_REQ_PLUGINS printsupport )
+	if ( WIN32 )
+	    list( APPEND QT_REQ_PLUGINS printsupport/windowsprintersupport.dll )
+	elseif( APPLE )
+	    list( APPEND QT_REQ_PLUGINS printsupport/libcocoaprintersupport.dylib )
+	else()
+	    list( APPEND QT_REQ_PLUGINS printsupport/libcupsprintersupport.so )
+	endif()
 	QT_INSTALL_PLUGINS()
     endif()
 
@@ -147,9 +228,22 @@ endmacro(QT_SETUP_PRINTSUPPORT_INTERNALS)
 macro( QT_SETUP_WEBENGINE_INTERNALS )
 
     OD_FIND_QT()
-    list( APPEND QT_REQ_PLUGINS position )
+    list( APPEND QT_REQ_PLUGINS
+		position/${SHLIB_PREFIX}qtposition_nmea.${SHLIB_EXTENSION}
+		position/${SHLIB_PREFIX}qtposition_positionpoll.${SHLIB_EXTENSION} )
+    if ( WIN32 )
+	list( APPEND QT_REQ_PLUGINS position/qtposition_winrt.dll )
+    elseif( APPLE )
+	list( APPEND QT_REQ_PLUGINS position/libqtposition_cl.dylib )
+    else()
+	list( APPEND QT_REQ_PLUGINS position/libqtposition_geoclue2.so )
+    endif()
     if ( QT_VERSION VERSION_LESS 6 )
-	list( APPEND QT_REQ_PLUGINS bearer )
+	list( APPEND QT_REQ_PLUGINS bearer/${SHLIB_PREFIX}qgenericbearer.${SHLIB_EXTENSION} )
+	if ( UNIX AND NOT APPLE )
+	    list( APPEND QT_REQ_PLUGINS bearer/libqconnmanbearer.so 
+					bearer/libqnmbearer.so )
+	endif()
     endif()
     QT_INSTALL_PLUGINS()
 

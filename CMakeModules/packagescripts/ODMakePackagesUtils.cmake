@@ -147,16 +147,10 @@ macro(COPY_QTFILES)
 	endif()
     endforeach()
 
-    foreach( QTPLUGIN ${QTPLUGINS} )
-	if ( ${QTPLUGIN}_FILTER )
-	    file( COPY "${COPYFROMEXEDIR}/../plugins/${QTPLUGIN}"
-		  DESTINATION "${COPYTOEXEDIR}/../plugins"
-		  FILES_MATCHING
-		  PATTERN "*${${QTPLUGIN}_FILTER}.*" )
-	else()
-	    file( COPY "${COPYFROMEXEDIR}/../plugins/${QTPLUGIN}"
-		  DESTINATION "${COPYTOEXEDIR}/../plugins" )
-	endif()
+    foreach( QTPLUGIN_FILE ${QTPLUGINS} )
+	cmake_path( GET QTPLUGIN_FILE PARENT_PATH QTPLUGIN_DIR )
+	file( COPY "${COPYFROMEXEDIR}/../plugins/${QTPLUGIN_FILE}"
+	      DESTINATION "${COPYTOEXEDIR}/../plugins/${QTPLUGIN_DIR}" )
     endforeach()
 
 endmacro(COPY_QTFILES)
