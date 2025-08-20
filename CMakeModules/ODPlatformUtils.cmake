@@ -34,6 +34,7 @@ endif()
 
 if( UNIX )
 
+    set ( SHLIB_PREFIX lib )
     if( APPLE )
 
 	set ( SHLIB_EXTENSION dylib )

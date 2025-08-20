@@ -15,9 +15,26 @@ set( EXCLUDE_PLUGINS Tut uiTut uiQtApp uiCrashMe uiCOLOP )
 list( REMOVE_ITEM PLUGINS ${EXCLUDE_PLUGINS} )
 
 set( EXECLIST @OD_BASE_EXECUTABLE@ )
-set( EXCLUDE_EXECS od_layouttest od_screentest od_sysadmmain
-		   tut_process_batch tut_simple_prog tut_app )
+set( EXCLUDE_EXECS od_layouttest od_screentest
+		   od_sysadmmain tut_process_batch tut_simple_prog tut_app )
 list( REMOVE_ITEM EXECLIST ${EXCLUDE_EXECS} )
+
+if ( WIN32 AND ${PACKAGE_TYPE} STREQUAL "Devel" )
+    unset( QTPLUGINS )
+    set( QTPLUGINS_DIR "${CMAKE_INSTALL_PREFIX}/${OD_RUNTIME_DIRECTORY}/../plugins" )
+    foreach( QTPLUGIN_FILE ${OD_QTPLUGINS} )
+	if ( NOT EXISTS "${QTPLUGINS_DIR}/${QTPLUGIN_FILE}" )
+	    continue()
+	endif()
+	cmake_path( GET QTPLUGIN_FILE PARENT_PATH QTPLUGIN_DIR )
+	cmake_path( GET QTPLUGIN_FILE STEM QTPLUGIN_STEM )
+	cmake_path( GET QTPLUGIN_FILE EXTENSION QTPLUGIN_FILEEXT )
+	if ( EXISTS "${QTPLUGINS_DIR}/${QTPLUGIN_DIR}/${QTPLUGIN_STEM}d${QTPLUGIN_FILEEXT}" )
+	    list( APPEND QTPLUGINS "${QTPLUGIN_DIR}/${QTPLUGIN_STEM}d${QTPLUGIN_FILEEXT}" )
+	endif()
+    endforeach()
+    unset( QTPLUGINS_DIR )
+endif()
 
 #TODO update condition when the debug libraries get an actual debug postfix
 if ( ${PACKAGE_TYPE} STREQUAL "Devel" AND NOT APPLE )
