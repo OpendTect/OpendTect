@@ -70,6 +70,10 @@ protected:
     uiIOObjSel*		inpfld_;
     uiFileInput*	outfld_;
 
+    void		initGrpCB( CallBacker* );
+
+    void		inpSelChgCB(CallBacker*);
+
     bool		acceptOK(CallBacker*) override;
 
 };

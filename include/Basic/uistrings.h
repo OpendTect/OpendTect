@@ -124,6 +124,8 @@ public:
     static uiString phrFileDoesNotExist(const char*);
     static uiString phrGenerating(const uiString&);
     //!<"Generating" + string
+    static uiString phrGenerate(const uiString&);
+    //!<"Generate" + string
     static uiString phrImport(const uiString& string);
     //!<"Import" + string
     static uiString phrInline(const uiString&);
@@ -573,7 +575,8 @@ public:
     static uiString sSaveAs()		{ return tr("Save as"); }
     static uiString sSaveAsDefault()	{ return tr("Save as default"); }
     static uiString sSaveBodyFail()	{ return tr("Save body failed"); }
-    static uiString sSavingChanges()	{ return tr("Saving changes"); }
+    static uiString sSaveChanges()	{ return tr("Save Changes"); }
+    static uiString sSavingChanges()	{ return tr("Saving Changes"); }
     static uiString sScale()		{ return tr("Scale"); }
     static uiString sScaleBar()		{ return tr("Scale Bar"); }
     static uiString sScaling()		{ return tr("Scaling"); }

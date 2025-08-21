@@ -49,7 +49,7 @@ protected:
     ObjectSet<uiButton>		rmbuts_;
     ProbDenFunc*		pdf_ = nullptr;
     int				nrdisp_ = 1;
-    bool			restrictedmode_;
+    bool			restrictedmode_ = false;
     bool			requireunits_ = false;
     int				prefnrdims_ = 4;
 

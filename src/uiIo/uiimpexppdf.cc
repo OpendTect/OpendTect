@@ -88,6 +88,8 @@ uiImpRokDocPDF::uiImpRokDocPDF( uiParent* p )
     outputfld_->attach( alignedBelow, grp );
 
     setDisplayedFields( false, false );
+
+    setOkCancelText( uiStrings::sImport(), uiStrings::sCancel() );
 }
 
 
@@ -187,7 +189,10 @@ Sampled1DProbDenFunc* get1DPDF()
 	else if ( astrm.hasKeyword(sKeyXNoBins) )
 	    nr = astrm.getIValue();
 	else if ( StringView(astrm.keyWord()).startsWith(sKeyFirstXBin) )
-	    { cols_are_0 = true; break; }
+	{
+	    cols_are_0 = true;
+	    break;
+	}
     }
 
     if ( nr < 0 )
@@ -251,14 +256,21 @@ Sampled2DProbDenFunc* get2DPDF()
 	else if ( astrm.hasKeyword(sKeyYNoBins) )
 	    nr1 = astrm.getIValue();
 	else if ( StringView(astrm.keyWord()).startsWith(sKeyFirstXBin) )
-	    { cols_are_0 = true; break; }
+	{
+	    cols_are_0 = true;
+	    break;
+	}
 	else if ( StringView(astrm.keyWord()).startsWith(sKeyFirstYBin) )
-	    { cols_are_0 = false; break; }
+	{
+	    cols_are_0 = false;
+	    break;
+	}
     }
+
     if ( nr0 < 0 || nr1 < 0 )
     {
 	errmsg_ = tr("Could not find size for %1")
-		.arg(nr0 < 0 ? tr("X variable") : tr("Y variable"));
+		    .arg( nr0 < 0 ? tr("X variable") : tr("Y variable") );
 	return nullptr;
     }
 
@@ -391,7 +403,8 @@ static void extPDFFlds( uiGenInput* rgfld, uiGenInput* szfld )
     if ( !getPDFFldRes(rgfld,szfld,rg,true) )
 	return;
 
-    if ( mIsUdf(rg.step_) ) return;
+    if ( mIsUdf(rg.step_) )
+	return;
 
     rg.start_ -= rg.step_;
     rg.stop_ += rg.step_;
@@ -418,8 +431,11 @@ ArrayNDProbDenFunc* uiImpRokDocPDF::getAdjustedPDF(
     StepInterval<float> xrg, yrg;
     if ( !getPDFFldRes(xrgfld_,xnrbinfld_,xrg,false) ||
 	 ( inpdf2d && !getPDFFldRes(yrgfld_,ynrbinfld_,yrg,false) ) )
-    { uiMSG().error(uiStrings::phrInvalid(uiStrings::phrOutput(
-						tr("Range/Size")))); return 0; }
+    {
+	uiMSG().error(uiStrings::phrInvalid(uiStrings::phrOutput(
+							    tr("Range/Size"))));
+	return 0;
+    }
 
     const int xsz = xrg.nrSteps() + 1;
     const int ysz = inpdf2d ? yrg.nrSteps() + 1 : 1;
@@ -461,9 +477,11 @@ ArrayNDProbDenFunc* uiImpRokDocPDF::getAdjustedPDF(
     newpdf->setDimName( 1, varnmsfld_->text(1) );
     newpdf->sampling(0) = SamplingData<float>( xrg );
     newpdf->sampling(1) = SamplingData<float>( yrg );
+
     const UnitOfMeasure* uom = xunitfld_->getUnit();
     if ( uom )
 	newpdf->setUOMSymbol( 0, uom->getLabel() );
+
     uom = yunitfld_->getUnit();
     if ( uom )
 	newpdf->setUOMSymbol( 1, uom->getLabel() );
@@ -474,11 +492,17 @@ ArrayNDProbDenFunc* uiImpRokDocPDF::getAdjustedPDF(
 
 bool uiImpRokDocPDF::acceptOK( CallBacker* )
 {
+    //resets, does not have an overwrite message, adds (#) at the end
+    outputfld_->reset();
     const IOObj* pdfioobj = outputfld_->ioobj();
-    if ( !pdfioobj ) return false;
+    if ( !pdfioobj )
+	return false;
 
     if ( !varnmsfld_->text(0) || !varnmsfld_->text(1) )
-    { uiMSG().error( tr("Please enter a variable name") ); return false; }
+    {
+	uiMSG().error( tr("Please enter a variable name") );
+	return false;
+    }
 
     RokDocImporter imp( inpfld_->fileName() );
     ArrayNDProbDenFunc* pdf = nullptr;
@@ -495,13 +519,20 @@ bool uiImpRokDocPDF::acceptOK( CallBacker* )
     uiString errmsg;
     if ( ( pdf1d && !ProbDenFuncTranslator::write(*pdf1d,*pdfioobj,&errmsg) ) ||
 	 ( pdf2d && !ProbDenFuncTranslator::write(*pdf2d,*pdfioobj,&errmsg) ) )
-    { uiMSG().error(errmsg); delete pdf; return false; }
+    {
+	uiMSG().error(errmsg);
+	delete pdf;
+	return false;
+    }
 
-    uiString msg( tr("Imported %1x%2 PDF.\n\nDo you want to import more?" ) );
-    msg.arg( pdf->size(0) ).arg( pdf2d ? pdf2d->size(1) : 1 );
+    uiString msg = tr("Successfully imported %1x%2 PDF as '%3'.\n\n"
+		      "Do you want to import more?" )
+		       .arg( pdf->size(0) )
+		       .arg( pdf2d ? pdf2d->size(1) : 1 )
+		       .arg( pdfioobj->getName().buf() );
     delete pdf;
-    bool ret = uiMSG().askGoOn( msg, uiStrings::sYes(),
-				tr("No, close window") );
+    const bool ret = uiMSG().askGoOn( msg, uiStrings::sYes(),
+				      tr("No, close window") );
     return !ret;
 }
 
@@ -510,20 +541,22 @@ bool uiImpRokDocPDF::acceptOK( CallBacker* )
 uiExpRokDocPDF::uiExpRokDocPDF( uiParent* p )
     : uiDialog(p,Setup(uiStrings::phrExport(uiStrings::sProbDensFunc(false,1)),
 		       mODHelpKey(mExpRokDocPDFHelpID))
-		    .savetext(tr("With units"))
-		    .savebutton(true).savechecked(true)
-		    .modal(false))
+			.savetext(tr("With Units"))
+			.savebutton(true).savechecked(true)
+			.modal(false))
 {
-    setOkCancelText( uiStrings::sExport(), uiStrings::sClose() );
-
     IOObjContext ioobjctxt = mIOObjContext(ProbDenFunc);
     ioobjctxt.forread_ = true;
     inpfld_ = new uiIOObjSel( this, ioobjctxt );
-    inpfld_->setLabelText( uiStrings::phrInput(tr("PDF")) );
+    inpfld_->setLabelText(uiStrings::phrInput(uiStrings::sProbDensFunc(true)));
+    mAttachCB(inpfld_->selectionDone,uiExpRokDocPDF::inpSelChgCB);
 
     outfld_ = new uiASCIIFileInput( this, false );
     outfld_->setSelectMode( uiFileDialog::AnyFile );
     outfld_->attach( alignedBelow, inpfld_ );
+
+    setOkCancelText( uiStrings::sExport(), uiStrings::sCancel() );
+    mAttachCB(postFinalize(),uiExpRokDocPDF::initGrpCB);
 }
 
 
@@ -537,14 +570,16 @@ public:
 
 RokDocExporter( const char* fnm )
     : strm_(fnm)
-{
-}
+{}
 
 
 bool put1DPDF( const Sampled1DProbDenFunc& pdf, bool withunits )
 {
     if ( !strm_.isOK() )
-	{ errmsg_ = uiStrings::sCantOpenOutpFile(); return false; }
+    {
+	errmsg_ = uiStrings::sCantOpenOutpFile();
+	return false;
+    }
 
     strm_ << "Probability Density Function 1D \"" << pdf.name()
 	 << "\" output by OpendTect " << GetFullODVersion()
@@ -576,7 +611,10 @@ bool put1DPDF( const Sampled1DProbDenFunc& pdf, bool withunits )
     }
 
     if ( !strm_.isOK() )
-	{ errmsg_ = uiStrings::sCannotWrite(); strm_.addErrMsgTo( errmsg_ ); }
+    {
+	errmsg_ = uiStrings::sCannotWrite();
+	strm_.addErrMsgTo( errmsg_ );
+    }
 
     return errmsg_.isEmpty();
 }
@@ -585,11 +623,14 @@ bool put1DPDF( const Sampled1DProbDenFunc& pdf, bool withunits )
 bool put2DPDF( const Sampled2DProbDenFunc& pdf, bool withunits )
 {
     if ( !strm_.isOK() )
-	{ errmsg_ = uiStrings::sCantOpenOutpFile(); return false; }
+    {
+	errmsg_ = uiStrings::sCantOpenOutpFile();
+	return false;
+    }
 
     strm_ << "Probability Density Function 2D \"" << pdf.name()
-	 << "\" output by OpendTect " << GetFullODVersion()
-	 << " on " << Time::getDateTimeString() << "\n\n";
+	  << "\" output by OpendTect " << GetFullODVersion()
+	  << " on " << Time::getDateTimeString() << "\n\n";
 
     const int nrx = pdf.size( 0 );
     const int nry = pdf.size( 1 );
@@ -632,7 +673,10 @@ bool put2DPDF( const Sampled2DProbDenFunc& pdf, bool withunits )
     }
 
     if ( !strm_.isOK() )
-	{ errmsg_ = uiStrings::sCannotWrite(); strm_.addErrMsgTo( errmsg_ ); }
+    {
+	errmsg_ = uiStrings::sCannotWrite();
+	strm_.addErrMsgTo( errmsg_ );
+    }
 
     return errmsg_.isEmpty();
 }
@@ -643,31 +687,74 @@ bool put2DPDF( const Sampled2DProbDenFunc& pdf, bool withunits )
 };
 
 
+void uiExpRokDocPDF::initGrpCB( CallBacker* )
+{
+    inpSelChgCB( nullptr );
+}
+
+
+void uiExpRokDocPDF::inpSelChgCB( CallBacker* )
+{
+    const IOObj* ioobj = inpfld_->ioobj( true );
+    if ( !ioobj )
+	return;
+
+    const FilePath prevfnm( outfld_->fileName() );
+    FilePath fp( ioobj->mainFileName() );
+    fp.setExtension( prevfnm.isEmpty() ? outfld_->defaultExtension()
+				       : prevfnm.extension() );
+    outfld_->setFileName( fp.fileName() );
+}
+
+
 bool uiExpRokDocPDF::acceptOK( CallBacker* )
 {
     const IOObj* pdfioobj = inpfld_->ioobj();
-    if ( !pdfioobj ) return false;
+    if ( !pdfioobj )
+	return false;
+
     uiString errmsg;
     PtrMan<ProbDenFunc> pdf = ProbDenFuncTranslator::read( *pdfioobj, &errmsg );
     if ( !pdf )
-	{ uiMSG().error(errmsg); return false; }
+    {
+	uiMSG().error( errmsg );
+	return false;
+    }
 
     mDynamicCastGet(Sampled1DProbDenFunc*,s1dpdf,pdf.ptr())
     mDynamicCastGet(Sampled2DProbDenFunc*,s2dpdf,pdf.ptr())
     if ( !s1dpdf && !s2dpdf )
     {
-	uiMSG().error(tr("Can only export 1D and 2D sampled PDFs"));
+	uiMSG().error( tr("Can only export 1D and 2D sampled PDFs") );
 	return false;
     }
+
+    const BufferString outfnm( outfld_->fileName() );
+    if ( outfnm.isEmpty() )
+    {
+	uiMSG().error( uiStrings::sSelOutpFile() );
+	inpSelChgCB( nullptr );
+	return false;
+    }
+
+    if ( File::exists(outfnm) &&
+	 !uiMSG().askOverwrite(uiStrings::sOutputFileExistsOverwrite()) )
+	return false;
 
     const bool withunits = saveButtonChecked();
 
     RokDocExporter exp( outfld_->fileName() );
     if ( ( s1dpdf && !exp.put1DPDF(*s1dpdf,withunits) ) ||
 	 ( s2dpdf && !exp.put2DPDF(*s2dpdf,withunits) ) )
-    { uiMSG().error(exp.errmsg_); return false; }
+    {
+	uiMSG().error(exp.errmsg_);
+	return false;
+    }
 
-    uiMSG().message( uiStrings::phrSuccessfullyExported(
-					uiStrings::sProbDensFunc(false,1) ) );
-    return false;
+    uiString msg = tr("Successfully exported PDF '%1' as %2.\n\n"
+		      "Do you want to export more PDFs?")
+		       .arg(inpfld_->getInput())
+		       .arg(outfld_->baseName());
+    const bool expmore = uiMSG().askGoOn( msg );
+    return !expmore;
 }

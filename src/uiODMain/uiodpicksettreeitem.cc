@@ -145,7 +145,7 @@ bool uiODPickSetParentTreeItem::showSubMenu()
 	shwallitem->setEnabled( !hastransform );
 	mnu.insertSeparator();
 	mnu.insertAction( new uiAction(m3Dots(tr("Merge Sets"))), mMergeIdx );
-	mnu.insertAction( new uiAction(tr("Save Changes")), mSaveIdx );
+	mnu.insertAction( new uiAction(uiStrings::sSaveChanges()), mSaveIdx );
 	mnu.insertAction( new uiAction(m3Dots(uiGISExpStdFld::sToolTipTxt()),
 			  uiGISExpStdFld::strIcon()), mExpGISIdx );
 
@@ -675,7 +675,8 @@ bool uiODPolygonParentTreeItem::showSubMenu()
 	mnu.insertAction( shwallitem, mAlwaysPolyIdx );
 	shwallitem->setEnabled( !hastransform );
 	mnu.insertSeparator();
-	mnu.insertAction( new uiAction(tr("Save Changes")), mSavePolyIdx );
+	mnu.insertAction( new uiAction(uiStrings::sSaveChanges()),
+			  mSavePolyIdx );
 	mnu.insertAction( new uiAction(m3Dots(uiGISExpStdFld::sToolTipTxt()),
 			  uiGISExpStdFld::strIcon()), mExpGISPolyIdx );
     }

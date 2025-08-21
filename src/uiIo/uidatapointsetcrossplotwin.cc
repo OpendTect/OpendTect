@@ -53,7 +53,7 @@ uiDataPointSetCrossPlotWin::uiDataPointSetCrossPlotWin( uiDataPointSet& uidps )
     , maniptb_(*new uiToolBar(this,uiStrings::phrCrossPlot(
 			uiStrings::phrJoinStrings(tr("Manipulation"),
 						  uiStrings::sToolbar())),
-			uiToolBar::Left))
+			      uiToolBar::Left))
     , colortb_(*new uiColorTableToolBar(this,ColTab::Sequence("Rainbow"),true))
     , grpfld_(nullptr)
     , wantnormalplot_(false)
@@ -62,7 +62,7 @@ uiDataPointSetCrossPlotWin::uiDataPointSetCrossPlotWin( uiDataPointSet& uidps )
 {
     mAttachCB( windowClosed, uiDataPointSetCrossPlotWin::closeNotif );
 
-    Settings& setts = Settings::common();
+    auto& setts = Settings::common();
     if ( !setts.get(sKeyMinDPPts(),minptsfordensity_) )
 	minptsfordensity_ = cMinPtsForDensity;
     if ( minptsfordensity_ <= 0 || mIsUdf(minptsfordensity_) )
@@ -73,9 +73,9 @@ uiDataPointSetCrossPlotWin::uiDataPointSetCrossPlotWin( uiDataPointSet& uidps )
 
     const int nrpts = plotter_.y2_.axis_ ? uidps.pointSet()->nrActive()*2
 					 : uidps.pointSet()->nrActive();
-    const float perc = float( 100/(1 + nrpts/minptsfordensity_) );
+    const auto perc = float( 100/(1 + nrpts/minptsfordensity_) );
 
-    uiLabel* lbl = new uiLabel( 0, uiStrings::sShow() );
+    auto* lbl = new uiLabel( 0, uiStrings::sShow() );
     disptb_.addObject( lbl );
 
     eachfld_ = new uiSpinBox( 0, 2, "Percentage" );
@@ -158,17 +158,17 @@ uiDataPointSetCrossPlotWin::uiDataPointSetCrossPlotWin( uiDataPointSet& uidps )
     const int nrgrps = uidps_.groupNames().size();
     if ( nrgrps > 1 )
     {
-	uiMenu* mnu = new uiMenu( &maniptb_, tr("View Menu") );
+	auto* mnu = new uiMenu( &maniptb_, tr("View Menu") );
 	multicolcodtbid_ = maniptb_.addButton( "colorbar",
 		tr("Turn on multicolor coding"),
 		mCB(this,uiDataPointSetCrossPlotWin,setMultiColorCB), true );
-	uiAction* itm = new uiAction( tr("Change color"),
+	auto* itm = new uiAction( tr("Change color"),
 		mCB(this,uiDataPointSetCrossPlotWin,changeColCB) );
 	mnu->insertAction( itm, 0 );
 	maniptb_.setButtonMenu( multicolcodtbid_, mnu );
 
 	grpfld_ = new uiComboBox( 0, "Group selection" );
-	const uiString alltxt = uiStrings::sAll();
+	const auto alltxt = uiStrings::sAll();
 	grpfld_->addItem( alltxt );
 	TypeSet<OD::Color> ctseqs;
 	for ( int idx=0; idx<uidps_.groupNames().size(); idx++ )
@@ -179,7 +179,9 @@ uiDataPointSetCrossPlotWin::uiDataPointSetCrossPlotWin( uiDataPointSet& uidps )
 	    {
 		OD::Color& col = idy==0 ? coly1 : coly2;
 		do
-		{ col = OD::getRandomColor(); }
+		{
+		    col = OD::getRandomColor();
+		}
 		while ( !ctseqs.addIfNew(col) );
 	    }
 
@@ -224,8 +226,8 @@ void uiDataPointSetCrossPlotWin::setPercDisp( float perc )
 void uiDataPointSetCrossPlotWin::handleAxisChg( uiDataPointSet::TColID xcol,
 		uiDataPointSet::TColID ycol,uiDataPointSet::TColID y2col )
 {
-    plotter().setCols( uiPointSet().dColID(xcol),
-	    uiPointSet().dColID(ycol), uiPointSet().dColID(y2col) );
+    plotter().setCols( uiPointSet().dColID(xcol), uiPointSet().dColID(ycol),
+		       uiPointSet().dColID(y2col) );
     setButtonStatus();
     closeAndNullPtr( propdlg_ );
 }
@@ -242,7 +244,7 @@ void uiDataPointSetCrossPlotWin::setDensityPlot( CallBacker* )
     if ( ison && plotter_.isY2Shown() )
 	uiMSG().message( tr("Y2 cannot be displayed in density plot") );
 
-    ison ?  eachfld_->setValue( 100 ) : eachfld_->setValue( plotter_.plotperc_);
+    ison ? eachfld_->setValue( 100 ) : eachfld_->setValue( plotter_.plotperc_);
     eachfld_->setSensitive( !ison );
     plotter_.setDensityPlot( ison, disptb_.isOn(showy2tbid_) );
 
@@ -284,7 +286,8 @@ void uiDataPointSetCrossPlotWin::colTabChanged( CallBacker* )
 
 void uiDataPointSetCrossPlotWin::removeSelections( CallBacker* )
 {
-    if ( !plotter_.selAreaSize() ) return;
+    if ( !plotter_.selAreaSize() )
+	return;
 
     plotter_.removeSelections();
     plotter_.drawContent();
@@ -331,7 +334,7 @@ public:
 uiSelColorDlg( uiParent* p, const BufferStringSet& names,
 	TypeSet<OD::Color>& y1cols, TypeSet<OD::Color>& y2cols, bool isy2shwn )
     : uiDialog( p, Setup(tr("Select color for Y1 and Y2"),
-				 mODHelpKey(mSelColorDlgHelpID)) )
+			 mODHelpKey(mSelColorDlgHelpID)) )
     , y1cols_(y1cols)
     , y2cols_(y2cols)
     , names_(names)
@@ -349,7 +352,8 @@ uiSelColorDlg( uiParent* p, const BufferStringSet& names,
     for ( int idx=0; idx<names.size(); idx++ )
     {
 	tbl_->setColor( RowCol(idx,0), y1cols[idx] );
-	if ( isy2shwn ) tbl_->setColor( RowCol(idx,1), y2cols[idx] );
+	if ( isy2shwn )
+	    tbl_->setColor( RowCol(idx,1), y2cols[idx] );
     }
 }
 
@@ -454,7 +458,8 @@ void uiDataPointSetCrossPlotWin::selOption( CallBacker* )
 void uiDataPointSetCrossPlotWin::eachChg( CallBacker* )
 {
     MouseCursorChanger cursorchanger( MouseCursor::Wait );
-    if ( mIsUdf(plotter_.plotperc_) ) return; // window is closing
+    if ( mIsUdf(plotter_.plotperc_) )
+	return; // window is closing
 
     float newperc = eachfld_->getFValue();
     if ( plotter_.isADensityPlot() )
@@ -478,12 +483,13 @@ void uiDataPointSetCrossPlotWin::eachChg( CallBacker* )
 		? uidps_.pointSet()->nrActive()
 		: uidps_.pointSet()->nrActive()*2)*plotter_.plotperc_/100.f );
 
-    Settings& setts = Settings::common();
+    auto& setts = Settings::common();
     if ( !setts.get(sKeyMinDPPts(),minptsfordensity_) )
 	minptsfordensity_ = cMinPtsForDensity;
     if ( minptsfordensity_ <= 0 || mIsUdf(minptsfordensity_) )
     {
-	setts.set( sKeyMinDPPts(), cMinPtsForDensity ); setts.write();
+	setts.set( sKeyMinDPPts(), cMinPtsForDensity );
+	setts.write();
 	minptsfordensity_ = cMinPtsForDensity;
     }
 
@@ -494,9 +500,9 @@ void uiDataPointSetCrossPlotWin::eachChg( CallBacker* )
 			  "Do you want to go ahead with normal plot or have a "
 			  "density plot which would be faster?"
 			  "\nNote: a density plot cannot have a Y2 axis");
-	const int res =
-	    uiMSG().askGoOnAfter( msg, uiStrings::sCancel(), tr("Normal Plot"),
-                                  tr("Density Plot"));
+	const int res = uiMSG().askGoOnAfter( msg, uiStrings::sCancel(),
+					      tr("Normal Plot"),
+					      tr("Density Plot"));
 	if ( res==1 )
 	    wantnormalplot_ = true;
 	else if ( res==0 )
@@ -528,7 +534,9 @@ void uiDataPointSetCrossPlotWin::eachChg( CallBacker* )
 
 void uiDataPointSetCrossPlotWin::grpChg( CallBacker* )
 {
-    if ( !grpfld_ ) return;
+    if ( !grpfld_ )
+	return;
+
     plotter_.curgrp_ = grpfld_->currentItem();
     plotter_.dataChanged();
 }
@@ -565,7 +573,7 @@ void uiDataPointSetCrossPlotWin::manageSel( CallBacker* )
 {
     BufferStringSet colnames;
     ConstRefMan<DataPointSet> dps = plotter_.dps();
-    uiDataPointSet::DColID dcid=-dps->nrFixedCols()+1;
+    uiDataPointSet::DColID dcid = -dps->nrFixedCols()+1;
     for ( ; dcid<dps->nrCols(); dcid++ )
 	colnames.add( uidps_.userName(dcid) );
 
@@ -578,7 +586,9 @@ void uiDataPointSetCrossPlotWin::manageSel( CallBacker* )
 
 void uiDataPointSetCrossPlotWin::overlayAttrCB( CallBacker* )
 {
-    if ( !plotter_.axisHandler(0) || !plotter_.axisHandler(1) ) return;
+    if ( !plotter_.axisHandler(0) || !plotter_.axisHandler(1) )
+	return;
+
     uiDPSOverlayPropDlg dlg( this, plotter_ );
     dlg.go();
 }
@@ -586,7 +596,9 @@ void uiDataPointSetCrossPlotWin::overlayAttrCB( CallBacker* )
 
 void uiDataPointSetCrossPlotWin::editProps( CallBacker* )
 {
-    if ( !plotter_.axisHandler(0) || !plotter_.axisHandler(1) ) return;
+    if ( !plotter_.axisHandler(0) || !plotter_.axisHandler(1) )
+	return;
+
     if ( !propdlg_ )
 	propdlg_ = new uiDataPointSetCrossPlotterPropDlg( &plotter_ );
     propdlg_->show();
@@ -628,7 +640,7 @@ void uiDataPointSetCrossPlotWin::setMultiColorCB( CallBacker* )
 
     setGrpColors();
     uiString tooltip = ison ? tr("Turn off color coding")
-			        : tr("Turn on color coding");
+			    : tr("Turn on color coding");
     maniptb_.setToolTip( multicolcodtbid_, tooltip );
     plotter_.drawContent( false );
     plotter_.reDrawSelections();
