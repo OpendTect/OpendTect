@@ -48,40 +48,41 @@ class uiProbDenFuncGenSampled : public uiDialog
 { mODTextTranslationClass(uiProbDenFuncGenSampled);
 public:
 
-			uiProbDenFuncGenSampled(uiParent*,int nrdim,bool gauss,
-						MultiID&,
-						const MnemonicSelection&,
-						const BufferStringSet& varnms);
-			~uiProbDenFuncGenSampled();
+    uiProbDenFuncGenSampled(uiParent*,int nrdim,
+			    bool gauss,MultiID&,
+			    const MnemonicSelection&,
+			    const BufferStringSet& varnms);
+    ~uiProbDenFuncGenSampled();
 
-    inline bool		isGauss() const { return !expstdflds_.isEmpty(); }
-    bool		getFromScreen();
-    ProbDenFunc*	getPDF() const;
+    inline bool			isGauss() const
+    { return !expstdflds_.isEmpty(); }
+    bool			getFromScreen();
+    ProbDenFunc*		getPDF() const;
 
 private:
 
-    uiSpinBox*		nrbinsfld_;
-    ObjectSet<uiGenInput> nmflds_;
-    ObjectSet<uiGenInput> rgflds_;
-    ObjectSet<uiUnitSel>  unitflds_;
-    ObjectSet<uiGenInput> expstdflds_;
-    ObjectSet<uiGenInput> ccflds_;
-    uiIOObjSel*		outfld_;
+    uiSpinBox*			nrbinsfld_;
+    ObjectSet<uiGenInput>	nmflds_;
+    ObjectSet<uiGenInput>	rgflds_;
+    ObjectSet<uiUnitSel>	unitflds_;
+    ObjectSet<uiGenInput>	expstdflds_;
+    ObjectSet<uiGenInput>	ccflds_;
+    uiIOObjSel*			outfld_;
 
-    MultiID&		ioobjky_;
-    const int		nrdims_;
-    int			nrbins_;
-    TypeSet<Interval<float> > rgs_;
-    TypeSet<float>	exps_;
-    TypeSet<float>	stds_;
-    TypeSet<float>	ccs_;
-    BufferStringSet	dimnms_;
+    MultiID&			ioobjky_;
+    const int			nrdims_;
+    int				nrbins_;
+    TypeSet<Interval<float> >	rgs_;
+    TypeSet<float>		exps_;
+    TypeSet<float>		stds_;
+    TypeSet<float>		ccs_;
+    BufferStringSet		dimnms_;
 
-    bool		acceptOK(CallBacker*) override;
-    void		initDlg(CallBacker*);
-    void		unitChgCB(CallBacker*);
-    void		chgCB(CallBacker*);
-    void		rgChg(CallBacker*);
+    bool			acceptOK(CallBacker*) override;
+    void			initDlg(CallBacker*);
+    void			unitChgCB(CallBacker*);
+    void			chgCB(CallBacker*);
+    void			rgChg(CallBacker*);
 };
 
 
@@ -89,18 +90,18 @@ class uiProbDenFuncGenGaussian : public uiDialog
 { mODTextTranslationClass(uiProbDenFuncGenGaussian);
 public:
 
-			uiProbDenFuncGenGaussian(uiParent*,int nrdim,MultiID&,
-						 const MnemonicSelection&,
-						 const BufferStringSet&);
-			~uiProbDenFuncGenGaussian();
+    uiProbDenFuncGenGaussian(uiParent*,int nrdim,
+			     MultiID&,const MnemonicSelection&,
+			     const BufferStringSet&);
+    ~uiProbDenFuncGenGaussian();
 
-    MultiID&		ioobjky_;
+    MultiID&			ioobjky_;
 
-    ProbDenFunc*	pdf_;
-    uiEditGaussianProbDenFunc* pdffld_;
-    uiIOObjSel*		outfld_;
+    ProbDenFunc*		pdf_;
+    uiEditGaussianProbDenFunc*	pdffld_;
+    uiIOObjSel*			outfld_;
 
-    bool		acceptOK(CallBacker*) override;
+    bool			acceptOK(CallBacker*) override;
 
 };
 
@@ -109,7 +110,8 @@ public:
 uiProbDenFuncGen::uiProbDenFuncGen( uiParent* p,
 				    const MnemonicSelection* mns,
 				    const BufferStringSet* fullnms, int defidx )
-    : uiDialog(p,Setup(tr("Generate a PDF"),mODHelpKey(mProbGenFuncGenHelpID)))
+    : uiDialog(p,Setup(uiStrings::sCreateProbDesFunc(),
+		       mODHelpKey(mProbGenFuncGenHelpID)))
     , defidx_(defidx)
 {
 
@@ -154,6 +156,8 @@ uiProbDenFuncGen::uiProbDenFuncGen( uiParent* p,
 	mnsels_.first()->box()->setCurrentItem( defidx );
 
     mAttachCB( postFinalize(), uiProbDenFuncGen::initDlg );
+
+    setOkText( uiStrings::sNext() );
 }
 
 
@@ -191,7 +195,7 @@ void uiProbDenFuncGen::choiceSel( CallBacker* )
     if ( isfullgauss )
     {
 	maxnrdims = mnsels_.isEmpty() ? 20
-		  : mnsels_.first()->getSelection().size();
+				      : mnsels_.first()->getSelection().size();
     }
 
     nrdimfld_->setInterval( 1, maxnrdims, 1 );
@@ -234,29 +238,30 @@ bool uiProbDenFuncGen::acceptOK( CallBacker* )
 }
 
 
-
 uiProbDenFuncGenSampled::uiProbDenFuncGenSampled( uiParent* p, int nrdim,
 						  bool isgauss, MultiID& ky,
 						  const MnemonicSelection& mns,
 						  const BufferStringSet& varnms)
-    : uiDialog(p,Setup(tr("Generate editable PDF"),
+    : uiDialog(p,Setup(tr("Generate Editable PDF"),
 		       mODHelpKey(mProbDenFuncGenSampledHelpID)))
     , nrdims_(nrdim)
     , ioobjky_(ky)
 {
+    setOkText( uiStrings::sGenerate() );
     for ( int idx=0; idx<nrdims_; idx++ )
     {
 	auto* nmfld = new uiGenInput( this, nrdims_ == 1 ?
-		tr("Variable name") : tr("Dimension %1: Name").arg(idx+1) );
+				      mJoinUiStrs(sVariable(false),sName()) :
+				      tr("Dimension %1: Name").arg(idx+1) );
 	BufferString varnm;
-	Interval<float> rg = Interval<float>::udf();
+	auto rg = Interval<float>::udf();
 	const UnitOfMeasure* uom = nullptr;
 	uiEditProbDenFunc::getPars( &mns, &varnms, idx, varnm, rg, uom );
 	if ( !varnm.isEmpty() )
 	    nmfld->setText( varnm );
 
-	auto* rgfld = new uiGenInput(this, mJoinUiStrs(sValue(),sRange()),
-				FloatInpSpec(), FloatInpSpec() );
+	auto* rgfld = new uiGenInput( this, mJoinUiStrs(sValue(),sRange()),
+				      FloatInpSpec(), FloatInpSpec() );
 	if ( !rg.isUdf() )
 	    rgfld->setValue( rg );
 	mAttachCB( rgfld->valueChanged, uiProbDenFuncGenSampled::rgChg );
@@ -289,8 +294,8 @@ uiProbDenFuncGenSampled::uiProbDenFuncGenSampled( uiParent* p, int nrdim,
     {
 	for ( int idx=0; idx<nrdims_; idx++ )
 	{
-	    uiString lbltxt =  nrdims_ == 1 ? tr("Exp/Std") :
-							uiStrings::sDimension();
+	    uiString lbltxt =  nrdims_ == 1 ? tr("Exp/Std")
+					    : uiStrings::sDimension();
 	    if ( nrdims_ > 1 )
 		lbltxt = toUiString("%1 %2 %3").arg(lbltxt).arg(idx+1 )
 					       .arg( tr(": Exp/Std") );
@@ -314,9 +319,9 @@ uiProbDenFuncGenSampled::uiProbDenFuncGenSampled( uiParent* p, int nrdim,
 	    if ( nrdims_ > 2 )
 	    {
 		mMkCorrFld( tr("%1 1 -> 3").arg(uiStrings::sCorrelation()),
-						     alignedBelow, ccflds_[0] );
+			    alignedBelow, ccflds_[0] );
 		mMkCorrFld( tr("%1 2 -> 3").arg(uiStrings::sCorrelation()),
-						     rightOf, ccflds_[1] );
+			    rightOf, ccflds_[1] );
 	    }
 	}
     }
@@ -386,10 +391,17 @@ void uiProbDenFuncGenSampled::rgChg( CallBacker* cb )
 {
     mDynamicCastGet(uiGenInput*,ginp,cb)
     if ( !ginp )
-	{ pErrMsg("Huh? ginp null"); return; }
+    {
+	pErrMsg("Huh? ginp null");
+	return;
+    }
+
     const int dimidx = rgflds_.indexOf( ginp );
     if ( dimidx < 0 )
-	{ pErrMsg("Huh? dimidx<0"); return; }
+    {
+	pErrMsg("Huh? dimidx<0");
+	return;
+    }
 
     if ( !isGauss() )
 	return;
@@ -424,14 +436,17 @@ bool uiProbDenFuncGenSampled::getFromScreen()
     nrbins_= nrbinsfld_->getIntValue();
     od_int64 totalbins = nrbins_;
     totalbins = Math::IntPowerOf( totalbins, nrdims_ );
-    if (totalbins > 100000
-	&& !uiMSG().askGoOn(tr("You have requested a total of %1"
-			       " bins.\nAre you sure this is what you want?")
-		       .arg(totalbins)))
+    uiString msg = tr("You have requested a total of %1 bins.\n"
+		      "Are you sure this is what you want?").arg(totalbins);
+    if ( totalbins > 100000 && !uiMSG().askGoOn( msg ) )
 	return false;
 
-    dimnms_.setEmpty(); rgs_.setEmpty();
-    exps_.setEmpty(); stds_.setEmpty(); ccs_.setEmpty();
+    dimnms_.setEmpty();
+    rgs_.setEmpty();
+    exps_.setEmpty();
+    stds_.setEmpty();
+    ccs_.setEmpty();
+
     for ( int idim=0; idim<nrdims_; idim++ )
     {
 	dimnms_.add( nmflds_[idim]->text() );
@@ -443,6 +458,7 @@ bool uiProbDenFuncGenSampled::getFromScreen()
 	rg.stop_ = rgflds_[idim]->getFValue(1);
 	if ( mIsUdf(rg.start_) || mIsUdf(rg.stop_) )
 	    mErrRet(tr("Please fill all variable ranges"))
+
 	rg.sort();
 	rgs_ += rg;
 
@@ -453,14 +469,20 @@ bool uiProbDenFuncGenSampled::getFromScreen()
 	const float stdev = expstdflds_[idim]->getFValue(1);
 	if ( mIsUdf(exp) || mIsUdf(stdev) )
 	    mErrRet(tr("Please fill all expectations and standard deviations"))
-	exps_ += exp; stds_ += stdev;
+
+	exps_ += exp;
+	stds_ += stdev;
 
 	if ( idim == 1 )
 	    mGetCCValue( 0 )
-	if ( idim == 2 )
-	    { mGetCCValue( 1 ) mGetCCValue( 2 ) }
+	else if ( idim == 2 )
+	{
+	    mGetCCValue( 1 )
+	    mGetCCValue( 2 )
+	}
     }
 
+    outfld_->reset();
     const IOObj* pdfioobj = outfld_->ioobj();
     if ( !pdfioobj )
 	return false;
@@ -479,12 +501,15 @@ bool uiProbDenFuncGenSampled::getFromScreen()
 
 ProbDenFunc* uiProbDenFuncGenSampled::getPDF() const
 {
-    Stats::CalcSetup csu; csu.require( Stats::Max );
+    Stats::CalcSetup csu;
+    csu.require( Stats::Max );
     Stats::RunCalc<float> rc( csu );
     ProbDenFunc* ret = nullptr;
+
     int nrdims = nrdims_;
     if ( nrdims > 3 )
 	nrdims = 3;
+
     const TypeSet<int> szs( nrdims, nrbins_ );
     if ( nrdims_ == 1 )
     {
@@ -554,6 +579,7 @@ ProbDenFunc* uiProbDenFuncGenSampled::getPDF() const
 	    spdf->setDimName( idx, dimnms_.get( idx ) );
 	    spdf->setUOMSymbol( idx, unitflds_.get(idx)->getUnitName() );
 	}
+
 	if ( !isGauss() )
 	    return spdf;
 
@@ -607,6 +633,9 @@ bool uiProbDenFuncGenSampled::acceptOK( CallBacker* )
     if ( !pdf )
 	return false;
 
+    if ( !outfld_->ioobj() )
+	return false;
+
     return writePDF( *pdf, *outfld_->ioobj() );
 }
 
@@ -620,6 +649,8 @@ uiProbDenFuncGenGaussian::uiProbDenFuncGenGaussian( uiParent* p, int nrdim,
 		       mODHelpKey(mProbDenFuncGenGaussianHelpID)))
     , ioobjky_(ky)
 {
+    setOkText( uiStrings::sGenerate() );
+
     if ( nrdim == 1 )
 	pdf_ = new Gaussian1DProbDenFunc;
     else if ( nrdim == 2 )
@@ -658,6 +689,7 @@ uiProbDenFuncGenGaussian::~uiProbDenFuncGenGaussian()
 
 bool uiProbDenFuncGenGaussian::acceptOK( CallBacker* )
 {
+    outfld_->reset();
     const IOObj* pdfioobj = outfld_->ioobj();
     if ( !pdfioobj || !((uiEditProbDenFunc*)pdffld_)->commitChanges() )
 	return false;

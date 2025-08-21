@@ -8,42 +8,46 @@ ________________________________________________________________________
 
 -*/
 
+#include "probdenfunc.h"
+#include "uieditpdf.h"
+#include "uigeninput.h"
 #include "uiiomod.h"
 #include "uidialog.h"
 #include "multiid.h"
+#include "uiioobjsel.h"
+#include "uiunitsel.h"
 
 class MnemonicSelection;
 class uiCheckList;
 class uiMnemonicsSel;
 class uiSpinBox;
 
-
-/*!\brief creates probability density functions (Gaussian and Sampled) */
+/*!\brief Generates probability density functions (Gaussian and Sampled) */
 
 mExpClass(uiIo) uiProbDenFuncGen : public uiDialog
 { mODTextTranslationClass(uiProbDenFuncGen);
 public:
-			uiProbDenFuncGen(uiParent*,
-					 const MnemonicSelection* =nullptr,
-					 const BufferStringSet* nms=nullptr,
-					 int defidx=0);
-			~uiProbDenFuncGen();
+				uiProbDenFuncGen(uiParent*,
+					    const MnemonicSelection* =nullptr,
+					    const BufferStringSet* nms=nullptr,
+					    int defidx=0);
+				~uiProbDenFuncGen();
 
-    MultiID		newObjKey() const	{ return ioobjky_; }
+    MultiID			newObjKey() const	{ return ioobjky_; }
 
 protected:
 
-    uiCheckList*	choicefld_;
-    uiSpinBox*		nrdimfld_;
-    ObjectSet<uiMnemonicsSel> mnsels_;
-    const int		defidx_;
-    int			defmaxnrdims_ = 3;
+    uiCheckList*		choicefld_;
+    uiSpinBox*			nrdimfld_;
+    ObjectSet<uiMnemonicsSel>	mnsels_;
+    const int			defidx_;
+    int				defmaxnrdims_ = 3;
 
-    MultiID		ioobjky_;
+    MultiID			ioobjky_;
 
-    void		initDlg(CallBacker*);
-    void		choiceSel(CallBacker*);
-    void		nrDimsChgCB(CallBacker*);
-    bool		acceptOK(CallBacker*) override;
+    void			initDlg(CallBacker*);
+    void			choiceSel(CallBacker*);
+    void			nrDimsChgCB(CallBacker*);
+    bool			acceptOK(CallBacker*) override;
 
 };

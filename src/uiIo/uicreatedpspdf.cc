@@ -21,7 +21,6 @@ ________________________________________________________________________
 
 #include "arrayndimpl.h"
 #include "ctxtioobj.h"
-#include "datacoldef.h"
 #include "dpsdensitycalc.h"
 #include "ioobj.h"
 #include "probdenfunctr.h"
@@ -38,7 +37,6 @@ uiCreateDPSPDF::uiCreateDPSPDF( uiParent* p,
 				bool requireunits )
     : uiDialog(p,Setup(uiStrings::sCreateProbDesFunc(),
 		       mODHelpKey(mCreateDPSPDFHelpID)))
-    , restrictedmode_(false)
     , requireunits_(requireunits)
     , plotter_(plotter)
     , dps_(plotter_->dps())
@@ -267,9 +265,13 @@ void uiCreateDPSPDF::butPush( CallBacker* cb )
 
     bool isadd = false;
     int idx = addbuts_.indexOf( but );
-    if ( idx < 0 )      idx = rmbuts_.indexOf( but );
-    else                isadd = true;
-    if ( idx < 0 ) return;
+    if ( idx < 0 )
+	idx = rmbuts_.indexOf( but );
+    else
+	isadd = true;
+
+    if ( idx < 0 )
+	return;
 
     nrdisp_ += isadd ? 1 : -1;
     handleDisp( nullptr );
@@ -281,8 +283,10 @@ void uiCreateDPSPDF::handleDisp( CallBacker* )
     for ( int idx=0; idx<probflds_.size(); idx++ )
     {
 	probflds_[idx]->display( idx < nrdisp_ );
-	if ( addbuts_[idx] ) addbuts_[idx]->display( idx == nrdisp_-1 );
-	if ( rmbuts_[idx] ) rmbuts_[idx]->display( idx == nrdisp_-1 );
+	if ( addbuts_[idx] )
+	    addbuts_[idx]->display( idx == nrdisp_-1 );
+	if ( rmbuts_[idx] )
+	    rmbuts_[idx]->display( idx == nrdisp_-1 );
     }
 }
 
@@ -291,7 +295,8 @@ void uiCreateDPSPDF::fillPDF( ArrayNDProbDenFunc& pdf )
 {
     ObjectSet<DPSDensityCalcND::AxisParam> axisparams;
     mDynamicCastGet(ProbDenFunc*,prdf,&pdf)
-    if ( !prdf ) return;
+    if ( !prdf )
+	return;
 
     TypeSet<int> nrbins;
     for ( int dimnr=0; dimnr<prdf->nrDims(); dimnr++ )
@@ -379,6 +384,10 @@ bool uiCreateDPSPDF::acceptOK( CallBacker* )
 	uiMSG().error( tr("No valid PDF created") );
 	return false;
     }
+    else if ( plotter_ )
+	uiMSG().message(tr("Successfully Created PDF '%1' from Cross-Plot '%2'")
+			    .arg(pdf_->getName())
+			    .arg(plotter_->dps()->getName()));
 
     return true;
 }
@@ -394,8 +403,10 @@ pdf_->setName( ioobj->name() );
 
 bool uiCreateDPSPDF::createPDF()
 {
+    outputfld_->reset();
     const IOObj* pdfioobj = outputfld_->ioobj();
-    if ( !pdfioobj ) return false;
+    if ( !pdfioobj )
+	return false;
 
     if ( nrdisp_ == 1 )
     {
@@ -417,8 +428,7 @@ bool uiCreateDPSPDF::createPDF()
     }
     else
     {
-	ArrayNDImpl<float> pdfarr =
-	    ArrayNDImpl<float>( ArrayNDInfoImpl(nrdisp_) );
+	auto pdfarr = ArrayNDImpl<float>( ArrayNDInfoImpl(nrdisp_) );
 	SampledNDProbDenFunc pdf( pdfarr );
 	fillPDF( pdf );
 

@@ -236,7 +236,7 @@ uiEditProbDenFuncDlg::uiEditProbDenFuncDlg( uiParent* p, ProbDenFunc& pdf,
 		       mODHelpKey(mEditProbDenFuncHelpID)))
 {
     if ( ed )
-	setOkCancelText( uiStrings::sSave(), uiStrings::sClose() );
+	setOkCancelText( uiStrings::sSaveChanges(), uiStrings::sDiscard() );
     else
 	setCtrlStyle( uiDialog::CloseOnly );
 
