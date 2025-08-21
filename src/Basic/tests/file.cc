@@ -412,6 +412,16 @@ static bool isEqual( const Time::FileTimeSet& a,
 }
 
 
+static BufferString getErrString( std::timespec tm, std::timespec exptm )
+{
+    const BufferString tmstr = Time::getDateTimeString( tm );
+    const BufferString exptmstr = Time::getDateTimeString( exptm );
+    BufferString res ( "Got: " );
+    res.add( tmstr.buf() ).add( ", Expected: " ).add( exptmstr.buf() );
+    return res;
+}
+
+
 static bool testFileTime( const char* fnm )
 {
     const od_int64 timesec = File::getTimeInSeconds( fnm );
@@ -469,19 +479,27 @@ static bool testFileTime( const char* fnm )
 			 "File size of a symbolic link" );
     }
 
+    Threads::sleep( 0.1 ); //100ms
     Time::FileTimeSet filetimes, linktimes;
     mRunStandardTest( File::getTimes( linknm.buf(), filetimes ),
 		      "Get all file timestamps from a link target" );
     mRunStandardTest( File::getTimes( linknm.buf(), linktimes, false ),
 		      "Get all file timestamps from a symbolic link" );
-    mRunStandardTest( isEqual( filetimes, times ),
-		      "File timestamps by following a link" );
-    mRunStandardTest( !isEqual( linktimes, times ) &&
-	isLarger( linktimes.getCreationTime(), times.getCreationTime() ) &&
-	isLarger( linktimes.getModificationTime(),
-		  times.getModificationTime() ) &&
+    mRunStandardTestWithError(
+	isLarger( linktimes.getCreationTime(), times.getCreationTime() ),
+	"File timestamps of a symbolic link - creation time",
+	getErrString( linktimes.getCreationTime(), times.getCreationTime() ) );
+    mRunStandardTestWithError(
+	isLarger( linktimes.getModificationTime(), times.getModificationTime()),
+	"File timestamps of a symbolic link - modification time",
+	getErrString( linktimes.getModificationTime(),
+		      times.getModificationTime() ) );
+    mRunStandardTestWithError(
 	isLarger( linktimes.getAccessTime(), times.getAccessTime() ),
-		      "File timestamps of a symbolic link" );
+	"File timestamps of a symbolic link - access time",
+	getErrString( linktimes.getAccessTime(), times.getAccessTime() ) );
+    mRunStandardTest( !isEqual( linktimes, times ),
+		      "File timestamps of a symbolic link (object)" );
     std::timespec modtime = linktimes.getModificationTime();
     od_int64 timens = modtime.tv_nsec + 5e7; //50ms
     if ( timens > 999999999ULL )
