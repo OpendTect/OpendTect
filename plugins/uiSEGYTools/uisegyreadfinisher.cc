@@ -108,9 +108,9 @@ void uiSEGYReadFinisher::crSeisFields()
     const bool ismulti = fs_.spec_.nrFiles() > 1;
 
     docopyfld_ = new uiGenInput( this, tr("Copy data"),
-	BoolInpSpec(true,uiStrings::sYes(),
-			 tr("%1, use SEGYDirect (scan&&link)")
-				.arg(uiStrings::sNo())) );
+				 BoolInpSpec(true,uiStrings::sYes(),
+					   tr("%1, use SEGYDirect (scan&&link)")
+						.arg(uiStrings::sNo())) );
     mAttachCB( docopyfld_->valueChanged, uiSEGYReadFinisher::doScanChg );
 
     uiSeisTransfer::Setup trsu( gt );
@@ -120,7 +120,7 @@ void uiSEGYReadFinisher::crSeisFields()
     transffld_->display( zdomain_->def_.isSI() );
 
     remnullfld_ = new uiGenInput( this, tr("Null traces"),
-		BoolInpSpec(true,uiStrings::sDiscard(),uiStrings::sPass()) );
+		   BoolInpSpec(true,uiStrings::sDiscard(),uiStrings::sPass()) );
 
     if ( is2d )
     {
@@ -168,8 +168,7 @@ void uiSEGYReadFinisher::crSeisFields()
     if ( !is2d )
 	outscanfld_->setInputText( objname_ );
 
-    batchfld_ = new uiBatchJobDispatcherSel( this, true,
-					     Batch::JobSpec::SEGY );
+    batchfld_ = new uiBatchJobDispatcherSel( this, true, Batch::JobSpec::SEGY );
     batchfld_->setJobName( "Read SEG-Y" );
     batchfld_->attach( alignedBelow, outimpfld_ );
     mAttachCB( batchfld_->checked, uiSEGYReadFinisher::batchChgCB );
@@ -280,7 +279,8 @@ void uiSEGYReadFinisher::wllSel( CallBacker* )
     if ( !lognmfld_ )
 	return;
 
-    BufferStringSet nms; Well::MGR().getLogNamesByID( outwllfld_->key(), nms );
+    BufferStringSet nms;
+    Well::MGR().getLogNamesByID( outwllfld_->key(), nms );
     BufferString curlognm = lognmfld_->text();
     lognmfld_->setEmpty();
     lognmfld_->addItems( nms );
@@ -336,15 +336,18 @@ void uiSEGYReadFinisher::doScanChg( CallBacker* )
 
 bool uiSEGYReadFinisher::doVSP()
 {
+    outwllfld_->reset();
     const IOObj* wllioobj = outwllfld_->ioobj();
     if ( !wllioobj )
 	return false;
+
     const BufferString lognm( lognmfld_->text() );
     if ( lognm.isEmpty() )
 	mErrRet(uiStrings::phrEnter(tr("a valid name for the new log")))
 
     PtrMan<SEGYSeisTrcTranslator> trl = SEGYSeisTrcTranslator::instance();
-    trl->filePars() = fs_.pars_; trl->fileReadOpts() = fs_.readopts_;
+    trl->filePars() = fs_.pars_;
+    trl->fileReadOpts() = fs_.readopts_;
     PtrMan<IOObj> seisioobj = fs_.spec_.getIOObj( true );
     SeisTrc trc;
     if (   !trl->initRead( seisioobj->getConn(Conn::Read), Seis::Scan )
@@ -365,12 +368,21 @@ bool uiSEGYReadFinisher::doVSP()
     else if ( !isdpth && !wd->d2TModel() )
 	mErrRet(tr("Selected well has no Depth vs Time model"))
 
+    if ( wd->getLog(lognm) )
+    {
+	const uiString msg = tr("Log Name '%1' already exists for well '%2'. "
+				"Overwrite?")
+				     .arg(lognm).arg(wd->name());
+	if ( !uiMSG().askOverwrite(msg) )
+	    return false;
+    }
+
     const Well::Track& track = wd->track();
     int wlidx = wd->logs().indexOf( lognm );
     if ( wlidx >= 0 )
 	delete wd->logs().remove( wlidx );
 
-    Well::Log* wl = new Well::Log( lognm );
+    auto* wl = new Well::Log( lognm );
     wl->pars().set( sKey::FileName(), fs_.spec_.fileName() );
     wd->logs().add( wl );
 
@@ -451,8 +463,8 @@ bool uiSEGYReadFinisher::do3D( const IOObj& inioobj, const IOObj& outioobj,
     {
 	wrr = new SeisTrcWriter( outioobj, &gt );
 	imp = new SeisImporter(
-			getImpReader(inioobj,*wrr,Survey::default3DGeomID()),
-			*wrr, gt );
+			   getImpReader(inioobj,*wrr,Survey::default3DGeomID()),
+			   *wrr, gt );
 	exec = imp.ptr();
     }
     else
@@ -462,9 +474,9 @@ bool uiSEGYReadFinisher::do3D( const IOObj& inioobj, const IOObj& outioobj,
 	    coordsys_->fillPar( segypars );
 
 	indexer = new SEGY::FileIndexer( outioobj.key(), !Seis::isPS(gt),
-			fs_.spec_, false, segypars );
-	const bool discardnull =
-		remnullfld_ ? remnullfld_->getBoolValue() : false;
+					 fs_.spec_, false, segypars );
+	const bool discardnull = remnullfld_ ? remnullfld_->getBoolValue()
+					     : false;
 	indexer->scanner()->fileDataSet().setDiscardNull( discardnull );
 	exec = indexer.ptr();
     }
@@ -483,7 +495,10 @@ bool uiSEGYReadFinisher::do3D( const IOObj& inioobj, const IOObj& outioobj,
 
     wrr = nullptr;  // closes output
     if ( !handleWarnings(!doimp,indexer.ptr(), imp.ptr()) )
-	{ IOM().permRemove( outioobj.key() ); return false; }
+    {
+	IOM().permRemove( outioobj.key() );
+	return false;
+    }
 
     if ( indexer )
     {
@@ -503,8 +518,7 @@ bool uiSEGYReadFinisher::do3D( const IOObj& inioobj, const IOObj& outioobj,
 bool uiSEGYReadFinisher::getGeomID( const char* lnm, bool isnew,
 				    Pos::GeomID& geomid ) const
 {
-    uiString errmsg =
-	    tr("Internal: Cannot create line geometry in database");
+    uiString errmsg = tr("Internal: Cannot create line geometry in database");
     geomid = Survey::GM().getGeomID( lnm );
     if ( isnew )
 	geomid = Geom2DImpHandler::getGeomID( lnm );
@@ -623,7 +637,7 @@ bool uiSEGYReadFinisher::doBatch2D( bool doimp, const char* inplnm )
     if ( coordsys_ )
 	coordsys_->fillPar( inpars );
 
-    bool overwr_warn = true; bool overwr = false;
+    bool overwr_warn = true, overwr = false;
     for ( int iln=0; iln<nrlines; iln++ )
     {
 	BufferString lnm( inplnm );
@@ -664,8 +678,10 @@ bool uiSEGYReadFinisher::exec2Dimp( const IOObj& inioobj, const IOObj& outioobj,
 {
     Executor* exec;
     const Seis::GeomType gt = fs_.geomType();
-    PtrMan<SeisTrcWriter> wrr; PtrMan<SeisImporter> imp;
-    PtrMan<SEGY::FileIndexer> indexer; PtrMan<IOStream> iniostrm;
+    PtrMan<SeisTrcWriter> wrr;
+    PtrMan<SeisImporter> imp;
+    PtrMan<SEGY::FileIndexer> indexer;
+    PtrMan<IOStream> iniostrm;
     SEGY::FileSpec fspec( fs_.spec_ );
     fspec.setFileName( fnm );
     if ( doimp )
@@ -770,7 +786,7 @@ bool uiSEGYReadFinisher::putCoordChoiceInSpec()
 	    if ( fnm.isEmpty() || !File::exists(fnm) )
 	    {
 		mErrRet(
-		    tr("Please choose an existing file for the coordinates") )
+		      tr("Please choose an existing file for the coordinates") )
 		return false;
 	    }
 	    opts.coordfnm_.set( fnm );
@@ -785,8 +801,10 @@ bool uiSEGYReadFinisher::putCoordChoiceInSpec()
 	    mErrRet(tr("The start coordinate is too far from the survey"))
 
 	Coord stepcrd( coordsstepfld_->getCoord() );
-        if ( mIsUdf(stepcrd.x_) ) stepcrd.x_ = 0;
-        if ( mIsUdf(stepcrd.y_) ) stepcrd.y_ = 0;
+	if ( mIsUdf(stepcrd.x_) )
+	    stepcrd.x_ = 0;
+	if ( mIsUdf(stepcrd.y_) )
+	    stepcrd.y_ = 0;
         if ( mIsZero(stepcrd.x_,0.001) && mIsZero(stepcrd.y_,0.001) )
 	    mErrRet(tr("The steps cannot both be zero"))
 
@@ -809,8 +827,7 @@ bool uiSEGYReadFinisher::handleWarnings( bool withstop,
 	if ( imp->nrSkipped() > 0 )
 	    warns += new BufferString("[9] During import, ", imp->nrSkipped(),
 				      " traces were rejected" );
-	SeisStdImporterReader& stdrdr
-		= static_cast<SeisStdImporterReader&>( imp->reader() );
+	auto& stdrdr = static_cast<SeisStdImporterReader&>( imp->reader() );
 	SeisTrcTranslator* transl = stdrdr.reader().seisTranslator();
 	if ( transl && transl->haveWarnings() )
 	    warns.add( transl->warnings(), false );
@@ -838,6 +855,7 @@ bool uiSEGYReadFinisher::acceptOK( CallBacker* )
 	return doVSP();
 
     const bool doimp = docopyfld_ ? docopyfld_->getBoolValue() : true;
+    outFld(doimp)->reset();
     const IOObj* ioobj = outFld(doimp)->ioobj();
     if ( !ioobj )
 	return false;

@@ -154,11 +154,13 @@ uiWellImportSEGYVSP::uiWellImportSEGYVSP( uiParent* p )
 	for ( int idx=0; idx<uns.size(); idx++ )
 	    unnms.add( uns[idx]->name() );
 	unitfld_ = uigi = new uiGenInput( this, tr("Input sampling is in"),
-				   StringListInpSpec(unnms) );
+					  StringListInpSpec(unnms) );
     }
     uigi->attach( alignedBelow, bparsfld_ );
     inpinftfld_ = new uiCheckBox( this, tr("Feet") );
-    if ( definft ) inpinftfld_->setChecked( true );
+    if ( definft )
+	inpinftfld_->setChecked( true );
+
     inpinftfld_->attach( rightOf, uigi );
     inpistvdfld_ = new uiCheckBox( this, tr("TVDSS") );
     inpistvdfld_->attach( rightOf, inpinftfld_ );
@@ -169,7 +171,7 @@ uiWellImportSEGYVSP::uiWellImportSEGYVSP( uiParent* p )
     inpsampfld_->attach( alignedBelow, uigi );
     inpsampfld_->setWithCheck( true );
 
-    uiSeparator* sep = new uiSeparator( this, "hor sep", OD::Horizontal, false);
+    auto* sep = new uiSeparator( this, "hor sep", OD::Horizontal, false);
     sep->attach( stretchedBelow, inpsampfld_ );
 
     wellfld_ = new uiWellSel( this, true, tr("Add to Well"), false );
@@ -177,8 +179,8 @@ uiWellImportSEGYVSP::uiWellImportSEGYVSP( uiParent* p )
     wellfld_->attach( ensureBelow, sep );
     wellfld_->selectionDone.notify( mCB(this,uiWellImportSEGYVSP,wllSel) );
 
-    uiLabeledComboBox* lcb = new uiLabeledComboBox( this,
-				       uiStrings::phrOutput( tr("log name") ));
+    auto* lcb = new uiLabeledComboBox( this,
+				   uiStrings::phrOutput(uiStrings::sLogName()));
     lcb->attach( alignedBelow, wellfld_ );
     lognmfld_ = lcb->box();
     lognmfld_->setReadOnly( false );
@@ -190,7 +192,9 @@ uiWellImportSEGYVSP::uiWellImportSEGYVSP( uiParent* p )
     outzrgfld_->setWithCheck( true );
     outzrgfld_->checked.notify( mCB(this,uiWellImportSEGYVSP,outSampChk) );
     outinftfld_ = new uiCheckBox( this, tr("Feet") );
-    if ( definft ) outinftfld_->setChecked( true );
+    if ( definft )
+	outinftfld_->setChecked( true );
+
     outinftfld_->attach( rightOf, outzrgfld_ );
     outistvdfld_ = new uiCheckBox( this, tr("TVDSS") );
     outistvdfld_->attach( rightOf, outinftfld_ );
@@ -207,7 +211,8 @@ uiWellImportSEGYVSP::~uiWellImportSEGYVSP()
 
 void uiWellImportSEGYVSP::wllSel( CallBacker* )
 {
-    BufferStringSet nms; Well::MGR().getLogNamesByID( wellfld_->key(), nms );
+    BufferStringSet nms;
+    Well::MGR().getLogNamesByID( wellfld_->key(), nms );
     BufferString curlognm = lognmfld_->text();
     lognmfld_->setEmpty();
     lognmfld_->addItems( nms );
@@ -277,28 +282,38 @@ bool uiWellImportSEGYVSP::acceptOK( CallBacker* )
 	inpsamp.start_ = inpsampfld_->getFValue( 0 );
 	inpsamp.step_ = inpsampfld_->getFValue( 1 );
 	if ( !isdpth_ )
-	{ mScaleVal(inpsamp.start_,0.001); mScaleVal(inpsamp.step_,0.001); }
+	{
+	    mScaleVal(inpsamp.start_,0.001);
+	    mScaleVal(inpsamp.step_,0.001);
+	}
 	else if ( inpinftfld_->isChecked() )
-	{ mScaleVal(inpsamp.start_,mFromFeetFactorF);
-	    mScaleVal(inpsamp.step_,mFromFeetFactorF); }
+	{
+	    mScaleVal(inpsamp.start_,mFromFeetFactorF);
+	    mScaleVal(inpsamp.step_,mFromFeetFactorF);
+	}
     }
     if ( outzrgfld_->isChecked() )
     {
 	outzrg = outzrgfld_->getFInterval();
 	if ( outinftfld_->isChecked() )
-	{ mScaleVal(outzrg.start_,mFromFeetFactorF);
-	    mScaleVal(outzrg.stop_,mFromFeetFactorF); }
+	{
+	    mScaleVal(outzrg.start_,mFromFeetFactorF);
+	    mScaleVal(outzrg.stop_,mFromFeetFactorF);
+	}
     }
 
     SeisTrc trc;
     if ( !fetchTrc(trc) )
 	return false;
 
-    if ( !mIsUdf(inpsamp.start_) ) trc.info().sampling_.start_ = inpsamp.start_;
-    if ( !mIsUdf(inpsamp.step_) ) trc.info().sampling_.step_ = inpsamp.step_;
+    if ( !mIsUdf(inpsamp.start_) )
+	trc.info().sampling_.start_ = inpsamp.start_;
+    if ( !mIsUdf(inpsamp.step_) )
+	trc.info().sampling_.step_ = inpsamp.step_;
 
     if ( createLog(trc,outzrg,lognm) )
 	uiMSG().message(tr("%1 created and saved").arg(lognm.buf()));
+
     return false;
 }
 

@@ -2901,14 +2901,14 @@ bool uiCopyWellDlg::acceptOK( CallBacker* )
     if ( !inpioobj )
 	return false;
 
+    outfld_->reset();
     const IOObj* outioobj = outfld_->ioobj();
     if ( !outioobj )
 	return false;
 
     const MultiID inpid = infld_->key( true );
     const BufferString outwellnm = outfld_->getInput();
-    std::pair<const MultiID&,const BufferString> inpoutpair( inpid,
-							     outwellnm );
+    std::pair<const MultiID&,const BufferString> inpoutpair( inpid, outwellnm );
     const ObjectSet<std::pair<const MultiID&,
 			      const BufferString>> param( &inpoutpair );
     MultiWellCopier copier( param );

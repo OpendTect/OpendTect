@@ -131,7 +131,8 @@ void uiWellLogExtractGrp::attribSelCB( CallBacker* )
 
 void uiWellLogExtractGrp::adsChg()
 {
-    if ( !ads_ ) return;
+    if ( !ads_ )
+	return;
 
     attrsfld_->setEmpty();
 
@@ -174,6 +175,7 @@ static void addDCDs( uiListBox* lb, ObjectSet<DataColDef>& dcds,
     {
 	if ( !lb->isChosen(idx) )
 	    continue;
+
 	const char* nm = lb->textOfItem(idx);
 	nms.add( nm );
 	dcds += new DataColDef( nm );

@@ -140,11 +140,15 @@ void WellTie::uiTieWin::doWork( CallBacker* )
     const Wavelet& wvlt = infodlg_ ? infodlg_->getWavelet()
 				   : server_.data().initwvlt_;
     if ( !server_.computeSynthetics(wvlt) )
-	{ uiMSG().error( server_.errMsg() ); }
+    {
+	uiMSG().error( server_.errMsg() );
+    }
 
     if ( server_.doSeismic() ) //needs to be redone also when new d2t
 	if ( !server_.extractSeismics() )
-	    { uiMSG().error( server_.errMsg() ); }
+	{
+	    uiMSG().error( server_.errMsg() );
+	}
 
     if ( server_.warnMsg().isSet() )
 	uiMSG().warning( server_.warnMsg() );
@@ -204,11 +208,11 @@ void WellTie::uiTieWin::snapshotCB( CallBacker* )
 
 void WellTie::uiTieWin::drawFields()
 {
-    uiSeparator* sep1 = new uiSeparator( this );
+    auto* sep1 = new uiSeparator( this );
     sep1->attach( stretchedBelow, viewer() );
     sep1->attach( ensureBelow, drawer_->displayGroup() );
 
-    uiGroup* vwrtaskgrp = new uiGroup( this, "task group" );
+    auto* vwrtaskgrp = new uiGroup( this, "task group" );
     vwrtaskgrp->attach( ensureBelow, sep1 );
     vwrtaskgrp->attach( alignedBelow, viewer() );
     vwrtaskgrp->attach( rightBorder );
@@ -216,7 +220,7 @@ void WellTie::uiTieWin::drawFields()
 
     polarityfld_ = new uiGenInput( this, uiString::empty(),
 			       BoolInpSpec(false, tr("Flip Wavelet Polarity"),
-					       uiString::empty(), false) );
+					   uiString::empty(), false) );
     polarityfld_->attach( leftOf, vwrtaskgrp );
     polarityfld_->attach( ensureBelow, sep1 );
     polarityfld_->valueChanged.notify( mCB(this, uiTieWin, polarityChanged) );
@@ -236,16 +240,16 @@ void WellTie::uiTieWin::drawFields()
     okbut->attach( leftBorder, 80 );
     okbut->attach( ensureBelow, sep2 );
 
-    uiPushButton* infobut = new uiPushButton( this, uiStrings::sInfo(),
-			mCB(this,uiTieWin,displayUserMsg), false );
+    auto* infobut = new uiPushButton( this, uiStrings::sInfo(),
+				     mCB(this,uiTieWin,displayUserMsg), false );
     infobut->attach( hCentered );
     infobut->attach( ensureBelow, sep2 );
-    uiPushButton* helpbut = new uiPushButton( this, uiStrings::sHelp(),
-			mCB(this,uiTieWin,provideWinHelp), true );
+    auto* helpbut = new uiPushButton( this, uiStrings::sHelp(),
+				      mCB(this,uiTieWin,provideWinHelp), true );
     helpbut->attach( rightOf, infobut );
     helpbut->attach( ensureBelow, sep2 );
-    uiPushButton* cancelbut = new uiPushButton( this, uiStrings::sCancel(),
-			mCB(this,uiTieWin,cancelPushCB), true );
+    auto* cancelbut = new uiPushButton( this, uiStrings::sCancel(),
+					mCB(this,uiTieWin,cancelPushCB), true );
     cancelbut->attach( rightBorder );
     cancelbut->attach( ensureBelow, sep2 );
 }
@@ -427,7 +431,7 @@ void WellTie::uiTieWin::matchHorMrks( CallBacker* )
     if ( !wd || !wd->markers().size() )
 	mErrRet( tr("No Well marker found") )
 
-    uiString msg = tr("No horizon loaded, do you want to load some ?");
+    uiString msg = tr("No horizon loaded, do you want to load some?");
     const Data& data = server_.data();
     if ( !data.horizons_.size() )
     {
@@ -438,14 +442,15 @@ void WellTie::uiTieWin::matchHorMrks( CallBacker* )
     pmgr.clearAllPicks();
     uiDialog matchdlg( this, uiDialog::Setup(uiStrings::sSettings(),
 					     mNoHelpKey));
-    uiGenInput* matchinpfld = new uiGenInput( &matchdlg, tr("Match same"),
-				BoolInpSpec(true,uiStrings::sName(),
-                                            tr("Regional marker")) );
+    auto* matchinpfld = new uiGenInput( &matchdlg, tr("Match same"),
+					BoolInpSpec(true,uiStrings::sName(),
+						uiStrings::sRegionalMarker()) );
     matchdlg.go();
     TypeSet<HorizonMgr::PosCouple> pcs;
     server_.horizonMgr().matchHorWithMarkers( pcs, matchinpfld->getBoolValue());
     if ( pcs.isEmpty() )
 	mErrRet( tr("No match between markers and horizons") )
+
     for ( int idx=0; idx<pcs.size(); idx ++ )
     {
 	pmgr.addPick( pcs[idx].z1_, true );
@@ -465,7 +470,8 @@ void WellTie::uiTieWin::nrtrcsCB( CallBacker* )
 void WellTie::uiTieWin::wvltSelCB( CallBacker* )
 {
     const PtrMan<Wavelet> selwvlt = wvltfld_->getWavelet();
-    if ( !selwvlt ) return;
+    if ( !selwvlt )
+	return;
 
     if ( !server_.setNewWavelet(wvltfld_->getID()) )
 	mErrRet( server_.errMsg() )
@@ -576,22 +582,21 @@ WellTie::uiInfoDlg::uiInfoDlg( uiParent* p, Server& server )
 				   SI().zDomain().userFactor() );
     estwvltlengthfld_ = new uiGenInput(wvltgrp,
 				       tr("Deterministic wavelet length (ms)"),
-	IntInpSpec(initwvltsz,mMinWvltLength,maxwvltsz) );
+			      IntInpSpec(initwvltsz,mMinWvltLength,maxwvltsz) );
     estwvltlengthfld_->attach( leftAlignedBelow, wvltscaler_ );
     estwvltlengthfld_->setElemSzPol( uiObject::Small );
     mAttachCB( estwvltlengthfld_->valueChanged,uiInfoDlg::needNewEstimatedWvlt);
 
-    uiSeparator* verSepar = new uiSeparator( viewersgrp, "Vert sep",
-					     OD::Vertical );
+    auto* verSepar = new uiSeparator( viewersgrp, "Vert sep", OD::Vertical );
     verSepar->attach( rightTo, wvltgrp );
 
     corrgrp->attach( rightOf, verSepar );
     crosscorr_ = new uiCrossCorrView( corrgrp, data_ );
 
-    uiSeparator* horSepar = new uiSeparator( this );
+    auto* horSepar = new uiSeparator( this );
     horSepar->attach( stretchedAbove, viewersgrp );
 
-    uiGroup* markergrp =  new uiGroup( this, "User Z Range Group" );
+    auto* markergrp =  new uiGroup( this, "User Z Range Group" );
     markergrp->attach( centeredAbove, viewersgrp );
     horSepar->attach( ensureBelow, markergrp );
 
@@ -747,7 +752,7 @@ void WellTie::uiInfoDlg::putToScreen()
 		zrangeflds_[selidx_]->setValue( lastmarkeridx, 1 );
 	    }
 	}
-	else if( topmarkr->dah() >= basemarkr->dah() )
+	else if ( topmarkr->dah() >= basemarkr->dah() )
 	{
 	    uiMSG().warning(
 		    tr("Inconsistency between top/base marker from setup."));
@@ -833,6 +838,7 @@ void WellTie::uiInfoDlg::zrgChanged( CallBacker* )
     zrg_.limitTo( data_.getTraceRange() );
     if ( zrg_.isRev() )
 	mErrRet( tr("Top marker must be above base marker.") )
+
     server_.setCrossCorrZrg( zrg_ );
     needNewEstimatedWvlt( nullptr );
 
@@ -857,7 +863,7 @@ void WellTie::uiInfoDlg::crossCorrelationChanged( CallBacker* )
 	if ( !mIsUdf(scaler) )
 	{
 	    uiString scalerfld = tr("Synthetic to seismic scaler: %1")
-			       .arg(scaler);
+				    .arg(scaler);
 	    wvltscaler_->setText( scalerfld );
 	}
 	else
@@ -879,9 +885,9 @@ bool WellTie::uiInfoDlg::updateZrg()
     if ( zrangeflds_.isEmpty() || !choicefld_ )
 	return false;
 
-    NotifyStopper ns0 = NotifyStopper( zrangeflds_[0]->valueChanged );
-    NotifyStopper ns1 = NotifyStopper( zrangeflds_[1]->valueChanged );
-    NotifyStopper ns2 = NotifyStopper( zrangeflds_[2]->valueChanged );
+    NotifyStopper ns0( zrangeflds_[0]->valueChanged );
+    NotifyStopper ns1( zrangeflds_[1]->valueChanged );
+    NotifyStopper ns2( zrangeflds_[2]->valueChanged );
 
     mGetWD(return false)
     const Well::D2TModel* d2t = wd->d2TModel();

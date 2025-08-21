@@ -32,8 +32,7 @@ uiWellAttribCrossPlot::uiWellAttribCrossPlot( uiParent* p,
 #define mDPM DPM(DataPackMgr::PointID())
 
 uiWellAttribCrossPlot::~uiWellAttribCrossPlot()
-{
-}
+{}
 
 
 void uiWellAttribCrossPlot::setDescSet( const Attrib::DescSet* newads )

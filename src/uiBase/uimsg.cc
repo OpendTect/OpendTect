@@ -303,7 +303,8 @@ int uiMsg::showMessageBoxWithDetails( Icon icon,QWidget* parent,
     PtrMan<QMessageBox> mb = createMessageBox( icon, parent, txt, yestxt,
 					       notxt, cncltxt, wintitle,
 					       notagain ? &checkbox : 0 );
-    if ( checkbox ) checkbox->setChecked( *notagain );
+    if ( checkbox )
+	checkbox->setChecked( *notagain );
 
     mb->setSizeGripEnabled( true );
     if ( !details.isEmpty() )
@@ -570,6 +571,22 @@ int uiMsg::askOverwrite( const uiString& text )
 }
 
 
+bool uiMsg::askOverwrite( const uiString& text, bool* notagain )
+{
+    return question( text, uiStrings::sOverwrite(), uiStrings::sCancel(),
+		    uiString::emptyString(),
+		    uiString::emptyString(), notagain );
+}
+
+
+int uiMsg::askOverwrite( const uiString& text, const uiString& aborttxt,
+			  bool* notagain )
+{
+    return question( text, uiStrings::sOverwrite(), uiStrings::sCancel(),
+		     aborttxt, uiStrings::sOverwrite(), notagain );
+}
+
+
 int uiMsg::ask2D3D( const uiString& text, bool wcancel )
 {
     mPrepCursor();
@@ -705,9 +722,8 @@ bool uiMsg::askGoOnWithDetails( const uiString& msg,
 }
 
 
-bool uiMsg::askGoOnWithDetails( const uiString& msg,
-			    const uiStringSet& details, const uiString& textyes,
-			    const uiString& textno )
+bool uiMsg::askGoOnWithDetails( const uiString& msg, const uiStringSet& details,
+			       const uiString& textyes, const uiString& textno )
 {
     if ( msg.isEmpty() )
 	return false;

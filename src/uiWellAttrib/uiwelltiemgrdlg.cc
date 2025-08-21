@@ -577,7 +577,10 @@ bool WellTie::uiTieWinMGRDlg::acceptOK( CallBacker* )
 
     PtrMan<Server> server = new Server( wtsetup_ );
     if ( !server->isOK() )
-	{ uiMSG().error( server->errMsg() ); return false; }
+    {
+	uiMSG().error( server->errMsg() );
+	return false;
+    }
 
     if ( wtsetup_.corrtype_ == WellTie::Setup::UserDefined )
     {
@@ -598,7 +601,8 @@ bool WellTie::uiTieWinMGRDlg::acceptOK( CallBacker* )
     const BufferString fname( ioobj->fullUserExpr(true) );
     Reader wtr( fname );
     IOPar* par = wtr.getIOPar( uiTieWin::sKeyWinPar() );
-    if ( par ) wtdlg->usePar( *par );
+    if ( par )
+	wtdlg->usePar( *par );
     delete par;
 
     return false;
@@ -609,11 +613,13 @@ void WellTie::uiTieWinMGRDlg::wellTieDlgClosed( CallBacker* cb )
 {
     mDynamicCastGet(uiTieWin*,tiewin,cb);
     const int idx = welltiedlgset_.indexOf( tiewin );
-    if ( !tiewin || idx<0 ) return;
+    if ( !tiewin || idx<0 )
+	return;
 
     const MultiID wellid = tiewin->welltieSetup().wellid_;
     Writer wtr( Well::odIO::getMainFileName(wellid) );
-    IOPar par; tiewin->fillPar( par );
+    IOPar par;
+    tiewin->fillPar( par );
     wtr.putIOPar( par, uiTieWin::sKeyWinPar() );
 
     welltiedlgset_.removeSingle( idx );

@@ -92,7 +92,7 @@ uiSimpleMultiWellCreate::uiSimpleMultiWellCreate( uiParent* p )
     tbl_->setSelectionBehavior( uiTable::SelectRows );
     tbl_->setColumnStretchable( 6, true );
 
-    uiPushButton* pb = new uiPushButton( this, tr("Read file"),
+    auto* pb = new uiPushButton( this, tr("Read file"),
 	    mCB(this,uiSimpleMultiWellCreate,rdFilePush), false );
     pb->attach( ensureBelow, tbl_ );
 
@@ -135,11 +135,14 @@ bool isXY()
 
 uiSMWCData* getLine()
 {
-    if ( atend_ ) return nullptr;
+    if ( atend_ )
+	return nullptr;
 
     atend_ = true;
     const int ret = getNextBodyVals( strm_ );
-    if ( ret <= 0 ) return nullptr;
+    if ( ret <= 0 )
+	return nullptr;
+
     atend_ = false;
 
     auto* wcd = new uiSMWCData;
@@ -192,7 +195,7 @@ uiSimpleMultiWellCreateReadData( uiSimpleMultiWellCreate& p )
 
     fd_.bodyinfos_ += new Table::TargetInfo( "Well name", Table::Required );
     fd_.bodyinfos_ += Table::TargetInfo::mkHorPosition( true, false, true );
-    Table::TargetInfo* ti = Table::TargetInfo::mkDepthPosition( false );
+    auto* ti = Table::TargetInfo::mkDepthPosition( false );
     ti->setName( Well::Info::sKeyKBElev() );
     fd_.bodyinfos_ += ti;
     ti = Table::TargetInfo::mkDepthPosition( false );
@@ -217,6 +220,7 @@ bool acceptOK( CallBacker* ) override
     const BufferString fnm( inpfld_->fileName() );
     if ( fnm.isEmpty() )
 	mErrRet( uiStrings::phrEnter(mJoinUiStrs(sInputFile(),sName())) )
+
     od_istream strm( fnm );
     if ( !strm.isOK() )
 	mErrRet(uiStrings::phrCannotOpen(uiStrings::sInputFile()))
@@ -274,7 +278,7 @@ bool uiSimpleMultiWellCreate::createWell( const uiSMWCData& wcd,
     wd->track().addPoint( wcd.coord_, drg.stop_, wcd.td_ );
     if ( velfld_ )
     {
-	Well::D2TModel* d2t = new Well::D2TModel("Simple");
+	auto* d2t = new Well::D2TModel("Simple");
 	d2t->makeFromTrack(  wd->track(), vel_, wd->info().replvel_ );
 	wd->setD2TModel( d2t );
     }
@@ -283,7 +287,7 @@ bool uiSimpleMultiWellCreate::createWell( const uiSMWCData& wcd,
     if ( !wr.put() )
     {
 	uiString msg = tr( "Cannot write data for '%1':\n%2" )
-		     .arg( wcd.nm_ ).arg( wr.errMsg() );
+			    .arg( wcd.nm_ ).arg( wr.errMsg() );
 	uiMSG().error( msg );
 	return false;
     }
@@ -299,11 +303,17 @@ IOObj* uiSimpleMultiWellCreate::getIOObj( const char* wellnm )
     if ( ioobj )
     {
 	if ( overwritepol_ == 0 )
+	{
 	    overwritepol_ = uiMSG().askGoOn(
 		    tr("Do you want to overwrite existing wells?"),
 		    true) ? 1 : -1;
+	}
 	if ( overwritepol_ == -1 )
-	    { delete ioobj; return 0; }
+	{
+	    delete ioobj;
+	    return nullptr;
+	}
+
 	ioobj->implRemove();
     }
 
@@ -331,13 +341,17 @@ bool uiSimpleMultiWellCreate::getWellCreateData( int irow, const char* wellnm,
     }
 
     wcd.elev_ = tbl_->getFValue( RowCol(irow,3) );
-    if ( mIsUdf(wcd.elev_) ) wcd.elev_ = 0;
-    if ( zinft_ && zun_ ) wcd.elev_ = zun_->internalValue( wcd.elev_ );
+    if ( mIsUdf(wcd.elev_) )
+	wcd.elev_ = 0;
+
+    if ( zinft_ && zun_ )
+	wcd.elev_ = zun_->internalValue( wcd.elev_ );
 
     wcd.td_ = tbl_->getFValue( RowCol(irow,4) );
     if ( wcd.td_ > 1e-6 && !mIsUdf(wcd.td_) )
     {
-	if ( zinft_ && zun_ ) wcd.td_ = zun_->internalValue( wcd.td_ );
+	if ( zinft_ && zun_ )
+	    wcd.td_ = zun_->internalValue( wcd.td_ );
     }
     else
     {
@@ -365,7 +379,10 @@ bool uiSimpleMultiWellCreate::acceptOK( CallBacker* )
 	vel_ = zun_->internalValue( vel_ );
 
     if ( vel_ < 1e-5 || mIsUdf(vel_) )
-	{ uiMSG().error(tr("Please enter a valid velocity")); return false; }
+    {
+	uiMSG().error( tr("Please enter a valid velocity") );
+	return false;
+    }
 
     IOM().to( IOObjContext::WllInf );
 
@@ -428,14 +445,32 @@ void uiSimpleMultiWellCreate::fillTable( const ObjectSet<uiSMWCData>& wcds )
 void uiSimpleMultiWellCreate::fillRow( int row, const uiSMWCData& wcd )
 {
     RowCol rc( row, 0 );
-    tbl_->setText( rc, wcd.nm_ ); rc.col()++;
-    tbl_->setValue( rc, wcd.coord_.x_ ); rc.col()++;
-    tbl_->setValue( rc, wcd.coord_.y_ ); rc.col()++;
-    float v = wcd.elev_; if ( zinft_ && zun_ ) v = zun_->userValue( v );
-    tbl_->setValue( rc, v ); rc.col()++;
-    v = wcd.td_; if ( zinft_ && zun_ ) v = zun_->userValue( v );
-    tbl_->setValue( rc, v ); rc.col()++;
-    v = wcd.gl_; if ( !mIsUdf(v) && zinft_ && zun_ ) v = zun_->userValue( v );
-    tbl_->setValue( rc, v ); rc.col()++;
+    tbl_->setText( rc, wcd.nm_ );
+    rc.col()++;
+
+    tbl_->setValue( rc, wcd.coord_.x_ );
+    rc.col()++;
+
+    tbl_->setValue( rc, wcd.coord_.y_ );
+    rc.col()++;
+
+    float v = wcd.elev_;
+    if ( zinft_ && zun_ )
+	v = zun_->userValue( v );
+
+    tbl_->setValue( rc, v );
+    rc.col()++;
+    v = wcd.td_;
+    if ( zinft_ && zun_ )
+	v = zun_->userValue( v );
+
+    tbl_->setValue( rc, v );
+    rc.col()++;
+    v = wcd.gl_;
+    if ( !mIsUdf(v) && zinft_ && zun_ )
+	v = zun_->userValue( v );
+
+    tbl_->setValue( rc, v );
+    rc.col()++;
     tbl_->setText( rc, wcd.uwi_ );
 }
