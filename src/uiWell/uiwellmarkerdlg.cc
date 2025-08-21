@@ -91,10 +91,10 @@ static void getColumnLabels( uiStringSet& lbls, uiCheckBox* unfld,
 
 static uiTable* createMarkerTable( uiParent* p, int nrrows, bool editable )
 {
-    uiTable* ret = new uiTable( p, uiTable::Setup().rowdesc("Marker")
+    auto* ret = new uiTable( p, uiTable::Setup().rowdesc("Marker")
 						.rowgrow(editable).defrowlbl("")
 						.selmode(uiTable::Multi),
-			  "Well Marker Table" );
+				"Well Marker Table" );
     uiStringSet lbls;
     getColumnLabels( lbls, nullptr, editable );
     ret->setColumnLabels( lbls );
@@ -104,7 +104,7 @@ static uiTable* createMarkerTable( uiParent* p, int nrrows, bool editable )
     ret->setColumnReadOnly( cTWTCol, true );
     ret->hideColumn( cTWTCol, !SI().zIsTime() );
     ret->setColumnReadOnly( cColorCol, true );
-    ret->setPrefWidth( 650 );
+    ret->setMinimumWidth(850);
 
     return ret;
 }
@@ -265,18 +265,27 @@ uiMarkerDlg::uiMarkerDlg( uiParent* p, const Well::Track& t,
 
     auto* updatebut = new uiPushButton( this, tr("Update display"),
 			mCB(this,uiMarkerDlg,updateDisplayCB), true );
+    updatebut->setMinimumWidthInChar( updatebut->name().size()+1 );
     updatebut->attach( leftAlignedBelow, table_ );
 
-    auto* rfbut = new uiPushButton( this, uiStrings::sImport(),
-			mCB(this,uiMarkerDlg,rdFile), false );
-    rfbut->attach( rightOf, updatebut );
+    auto* impbut = new uiPushButton( this, uiStrings::sImport(),
+				     mCB(this,uiMarkerDlg,rdFile), false );
+    impbut->attach( rightOf, updatebut );
 
     auto* expbut = new uiPushButton( this, uiStrings::sExport(),
-			mCB(this,uiMarkerDlg,exportCB), false );
-    expbut->attach( rightOf, rfbut );
+				     mCB(this,uiMarkerDlg,exportCB), false );
+    expbut->attach( rightOf, impbut );
+
+    unitfld_ = new uiCheckBox( this, tr("Z in Feet"),
+			      mCB(this,uiMarkerDlg,unitChangedCB) );
+    unitfld_->attach( ensureBelow, table_ );
+    unitfld_->attach( ensureRightOf, expbut );
+    unitfld_->attach( rightBorder );
+    unitfld_->setChecked( SI().depthsInFeet() );
 
     auto* setregmarker = new uiPushButton( this, tr("Set as regional markers"),
 			mCB(this,uiMarkerDlg,setAsRegMarkersCB), false );
+    setregmarker->setMinimumWidthInChar( setregmarker->name().size()+1 );
     setregmarker->attach( alignedBelow, updatebut );
 
     auto* randclrbut = new uiToolButton( this, "random_color",
@@ -284,17 +293,12 @@ uiMarkerDlg::uiMarkerDlg( uiParent* p, const Well::Track& t,
 			mCB(this,uiMarkerDlg,assignRandomColorsCB) );
     randclrbut->attach( rightOf, setregmarker );
 
-    unitfld_ = new uiCheckBox( this, tr("Z in Feet"),
-				mCB(this,uiMarkerDlg,unitChangedCB) );
-    unitfld_->attach( rightAlignedBelow, table_ );
-    unitfld_->setChecked( SI().depthsInFeet() );
-
     uiStringSet header;
     getColLabels( header );
     table_->setColumnLabels( header );
-    table_->setPrefWidth( 700 );
     table_->setPrefHeightInRows( cNrEmptyRows*2 );
     table_->hideColumn( cTWTCol, !SI().zIsTime() );
+    table_->setMinimumWidth(850);
 }
 
 
@@ -599,10 +603,12 @@ void uiMarkerDlg::setMarkerSet( const Well::MarkerSet& markers, bool add )
 void uiMarkerDlg::stratLvlChg( CallBacker* cb )
 {
     mDynamicCastGet(uiStratLevelSel*,levelsel,cb)
-    if ( !levelsel ) return;
+    if ( !levelsel )
+	return;
 
     const int irow = rowNrFor( levelsel );
-    if ( irow < 0 ) return;
+    if ( irow < 0 )
+	return;
 
     updateFromLevel( irow, levelsel );
 }
@@ -610,7 +616,8 @@ void uiMarkerDlg::stratLvlChg( CallBacker* cb )
 
 void uiMarkerDlg::updateFromLevel( int irow, uiStratLevelSel* levelsel )
 {
-    if ( !levelsel ) return;
+    if ( !levelsel )
+	return;
 
     NotifyStopper notifystop( table_->valueChanged );
     const bool havelvl = levelsel->getID().isValid();
@@ -629,7 +636,8 @@ class uiReadMarkerFile : public uiDialog
 public:
 
 uiReadMarkerFile( uiParent* p )
-    : uiDialog(p,Setup(tr("Import Markers"),mODHelpKey(mReadMarkerFileHelpID)))
+	: uiDialog(p,Setup(uiStrings::phrImport(uiStrings::sMarker(mPlural)),
+			   mODHelpKey(mReadMarkerFileHelpID)))
     , fd_(*Well::MarkerSetAscIO::getDesc())
 {
     setOkText( uiStrings::sImport() );
@@ -657,7 +665,10 @@ bool acceptOK( CallBacker* ) override
 {
     fnm_ = fnmfld_->fileName();
     if ( File::isEmpty(fnm_) )
-	{ uiMSG().error( uiStrings::sInvInpFile() ); return false; }
+    {
+	uiMSG().error( uiStrings::sInvInpFile() );
+	return false;
+    }
 
     if ( !dataselfld_->commit() )
 	return false;
@@ -703,11 +714,15 @@ void uiMarkerDlg::assignRandomColors( Well::MarkerSet& mrkrs )
 void uiMarkerDlg::rdFile( CallBacker* )
 {
     uiReadMarkerFile dlg( this );
-    if ( !dlg.go() ) return;
+    if ( !dlg.go() )
+	return;
 
     od_istream strm( dlg.fnm_ );
     if ( !strm.isOK() )
-	{ uiMSG().error( tr("Input file exists but cannot be read") ); return; }
+    {
+	uiMSG().error( tr("Input file exists but cannot be read") );
+	return;
+    }
 
     Well::MarkerSetAscIO aio( dlg.fd_ );
     Well::MarkerSet mrkrs;
@@ -767,7 +782,8 @@ bool uiMarkerDlg::getMarkerSet( Well::MarkerSet& markers ) const
 bool uiMarkerDlg::acceptOK( CallBacker* )
 {
     Well::MarkerSet markers;
-    if ( !getMarkerSet(markers) ) return false;
+    if ( !getMarkerSet(markers) )
+	return false;
 
     Interval<float> dahrg( track_.dahRange() );
     const float zfac = zFactor();
@@ -786,7 +802,8 @@ bool uiMarkerDlg::acceptOK( CallBacker* )
 		      "Press Abort if you want to re-enter the depth.")
 		   .arg(dahrg.start_).arg(dahrg.stop_));
       const bool res = uiMSG().askContinue( errmsg );
-      if ( !res ) return false;
+      if ( !res )
+	    return false;
     }
 
     return true;

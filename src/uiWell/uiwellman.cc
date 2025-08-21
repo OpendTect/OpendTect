@@ -425,7 +425,8 @@ void uiWellMan::edMarkers( CallBacker* )
     if ( !iswritable_ )
     {
 	uiMarkerViewDlg dlg( this, *wd );
-	dlg.go(); return;
+	dlg.go();
+	return;
     }
 
     const Well::MarkerSet origmarkers = wd->markers();
@@ -555,8 +556,8 @@ void uiWellMan::defD2T( bool chkshot )
 	      !wtr.putInfo() )
     {
 	if ( !errmsg.isEmpty() )
-	errmsg.append( tr("Cannot write new %1 to disk")
-		       .arg(Well::Info::sReplVel()),true );
+	    errmsg.append( tr("Cannot write new %1 to disk")
+			    .arg(Well::Info::sReplVel()),true );
 	wd->info().replvel_ = oldreplvel;
     }
 
@@ -844,7 +845,8 @@ void uiWellMan::wellLogsChgd( const BufferStringSet& lognms )
 
 
 #define mEnsureLogSelected(msgtxt) \
-    if ( logsfld_->isEmpty() ) return; \
+    if ( logsfld_->isEmpty() ) \
+	return; \
     const int nrsellogs = logsfld_->nrChosen(); \
     if ( nrsellogs < 1 ) \
 	mErrRet(msgtxt)
@@ -981,7 +983,10 @@ void uiWellMan::exportLogs( CallBacker* )
 void uiWellMan::mkFileInfo()
 {
     if ( !curioobj_ )
-	{ setInfo( "" ); return; }
+    {
+	setInfo( "" );
+	return;
+    }
 
     RefMan<Well::Data> curwd = new Well::Data( curioobj_->name() );
     const Well::Reader currdr( *curioobj_, *curwd );
@@ -1007,7 +1012,8 @@ void uiWellMan::mkFileInfo()
 		txt.add( Well::Info::sKeyKBElev() ).add( colonstr );
 		txt.add( toString(zun ? zun->userValue(rdelev)
 				      : rdelev,0,'f',2) );
-		if ( zun ) txt.add( zun->symbol() );
+		if ( zun )
+		    txt.add( zun->symbol() );
 		txt.addNewLine();
 	    }
 
@@ -1016,7 +1022,8 @@ void uiWellMan::mkFileInfo()
 	    {
 		txt.add(Well::Info::sKeyTD()).add( colonstr );
 		txt.add( toString(zun ? zun->userValue(td) : td,0,'f',2) );
-		if ( zun ) txt.add( zun->symbol() );
+		if ( zun )
+		    txt.add( zun->symbol() );
 		txt.addNewLine();
 	    }
 
@@ -1025,7 +1032,8 @@ void uiWellMan::mkFileInfo()
 	    {
 		txt.add( SurveyInfo::sKeySeismicRefDatum() ).add( colonstr );
 		txt.add( toString(zun ? zun->userValue(srd) : srd,0,'f',2) );
-		if ( zun ) txt.add( zun->symbol() );
+		if ( zun )
+		    txt.add( zun->symbol() );
 		txt.addNewLine();
 	    }
 
@@ -1045,7 +1053,8 @@ void uiWellMan::mkFileInfo()
 		txt.add( Well::Info::sKeyGroundElev() ).add( colonstr );
 		txt.add( toString(zun ? zun->userValue(groundelev)
 				      : groundelev,0,'f',2) );
-		if ( zun ) txt.add( zun->symbol() );
+		if ( zun )
+		    txt.add( zun->symbol() );
 		txt.addNewLine();
 	    }
 	}

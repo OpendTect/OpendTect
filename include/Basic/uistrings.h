@@ -414,7 +414,7 @@ public:
     static uiString sImage(int n=1)	{ return tr("Image",0,n); }
     static uiString sImport()		{ return tr("Import"); }
     static uiString sImpSuccess()	{ return tr("Import successful"); }
-    static uiString sInfo()		{ return tr("info"); }
+    static uiString sInfo()		{ return tr("Info"); }
     static uiString sInformation()	{ return tr("Information"); }
     static uiString sInline(int n=1)	{ return tr("In-line",0,n); }
     static uiString sInlineDip()	{ return tr("Inline Dip"); }
@@ -549,7 +549,8 @@ public:
     static uiString sRed()		{ return tr("Red"); }
     static uiString sRedo()		{ return tr("Redo"); }
     static uiString sRegion(int n=1)	{ return tr("Region",0,n); }
-    static uiString sRegionalMarker()	{ return tr("Regional Marker"); }
+    static uiString sRegionalMarker(int n=1)
+					{ return tr("Regional Marker",0,n); }
     static uiString sReload()		{ return tr("Reload"); }
     static uiString sRemove()		{ return tr("Remove"); }
     static uiString sRemoveSelected()	{ return tr("Remove selected"); }
@@ -690,7 +691,7 @@ public:
     static uiString sWell(int n=1)	{ return tr("Well",0,n); }
     static uiString sWells()		{ return sWell(mPlural); }
     static uiString sWellsHandled()	{ return tr("Wells handled"); }
-    static uiString sWellLog(int n=1)	{ return tr("Well log",0,n); }
+    static uiString sWellLog(int n=1)	{ return tr("Well Log",0,n); }
     static uiString sWest(bool abb)	{ return abb ? tr("W"):tr("West"); }
     static uiString sWidth()		{ return tr("Width"); }
     static uiString sWiggle()		{ return tr("Wiggle"); }

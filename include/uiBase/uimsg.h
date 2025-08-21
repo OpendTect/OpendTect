@@ -106,6 +106,11 @@ public:
 		//!<\retval 0=Abort 1=Continue
     int		askOverwrite(const uiString&);
 		//!<\retval 0=Abort 1=Overwrite
+    bool	askOverwrite(const uiString& msg,bool* notagain);
+		//!< if not again is selected, message will not show up
+    int		askOverwrite(const uiString& text, const uiString& notagaintxt,
+			     bool* notagain);
+    bool	askOverwrite(const uiString& text, const uiString& notmsginp);
     int		ask2D3D(const uiString&,bool cancelbut=false);
 		//!<\retval 0=3D 1=2D -1=Cancel
 

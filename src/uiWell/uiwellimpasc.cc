@@ -96,7 +96,7 @@ uiWellImportAsc::uiWellImportAsc( uiParent* p )
     tdfld_->setChecked( false );
     tdfld_->attach( alignedBelow, kbelevfld_ );
 
-    uiSeparator* sep = new uiSeparator( this, "H sep" );
+    auto* sep = new uiSeparator( this, "H sep" );
     sep->attach( stretchedBelow, tdfld_ );
 
     wd_.ref();
@@ -115,7 +115,7 @@ uiWellImportAsc::uiWellImportAsc( uiParent* p )
 	sep->attach( stretchedBelow, d2tgrp_ );
     }
 
-    uiButton* but = new uiPushButton( this, tr("Advanced/Optional"),
+    auto* but = new uiPushButton( this, tr("Advanced/Optional"),
 					mCB(this,uiWellImportAsc,doAdvOpt),
 					false );
     but->attach( alignedBelow, zistime ? (uiObject*)d2tgrp_
@@ -243,7 +243,7 @@ uiWellImportAscOptDlg( uiWellImportAsc* impasc )
 			     StringInpSpec(info.uwid_) );
     idfld_->attach( alignedBelow, gdelevfld_ );
 
-    uiSeparator* horsep = new uiSeparator( this );
+    auto* horsep = new uiSeparator( this );
     horsep->attach( stretchedBelow, idfld_ );
 
     fieldfld_ = new uiGenInput( this, Well::Info::sField(),
@@ -350,8 +350,9 @@ bool uiWellImportAsc::acceptOK( CallBacker* )
     wd_.info().surfacecoord_.x_ = wd_.info().surfacecoord_.y_ = 0;
     wd_.info().groundelev_ = mUdf(float);
     IOM().implUpdated.trigger( wd_.multiID() );
-    uiString msg = tr("Well Track successfully imported."
-		      "\n\nDo you want to import more Well Tracks?");
+    uiString msg = tr("Well Track '%1' successfully imported."
+		      "\n\nDo you want to import more Well Tracks?")
+		       .arg(wd_.name());
     bool ret = uiMSG().askGoOn( msg, uiStrings::sYes(),
 				tr("No, close window") );
     return !ret;
@@ -454,10 +455,10 @@ bool uiWellImportAsc::doWork()
 	    uiStringSet msgs;
 
 	    if ( d2tgrp_->errMsg().isSet() )
-		msgs += d2tgrp_->errMsg();
+		msgs.add( d2tgrp_->errMsg()) ;
 
-	    msgs += tr("Alternatively, switch off the use of a"
-			" Depth to Time model file");
+	    msgs.add( tr("Alternatively, switch off the use of a Depth to Time "
+			 "model file") ) ;
 	    uiMSG().errorWithDetails( msgs );
 	    return false;
 	}
@@ -505,6 +506,7 @@ bool uiWellImportAsc::checkInpFlds()
 
 	if ( istrack && !dataselfld_->commit() )
 	    return false;
+
 	if ( isdir && !dirselfld_->commit() )
 	    return false;
     }
@@ -526,6 +528,7 @@ bool uiWellImportAsc::checkInpFlds()
 	    mErrRet(tr("Please specify a %1").arg(Well::Info::sTD()))
     }
 
+    outfld_->reset();
     if ( !outfld_->ioobj() )
 	return false;
 

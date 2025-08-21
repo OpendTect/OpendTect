@@ -39,7 +39,8 @@ ________________________________________________________________________
 static const float defundefval = -999.25;
 
 uiImportLogsDlg::uiImportLogsDlg( uiParent* p, const IOObj* ioobj, bool wtable )
-    : uiDialog(p,Setup(tr("Import Well Logs"),mODHelpKey(mImportLogsHelpID)))
+    : uiDialog(p,Setup(uiStrings::phrImport(uiStrings::sWellLog(mPlural)),
+		       mODHelpKey(mImportLogsHelpID)))
 {
     setOkText( uiStrings::sImport() );
 
@@ -300,7 +301,7 @@ uiString uiExportLogs::getDlgTitle( const ObjectSet<Well::Data>& wds,
 
 uiExportLogs::uiExportLogs( uiParent* p, const ObjectSet<Well::Data>& wds,
 			  const BufferStringSet& logsel )
-    : uiDialog(p,Setup(uiStrings::phrExport(uiStrings::sWellLog()),
+    : uiDialog(p,Setup(uiStrings::phrExport(uiStrings::sWellLog(mPlural)),
 		       getDlgTitle(wds,logsel),
 		       mODHelpKey(mExportLogsHelpID)))
     , wds_(wds)
@@ -331,7 +332,7 @@ uiExportLogs::uiExportLogs( uiParent* p, const ObjectSet<Well::Data>& wds,
 
     zunitgrp_ = new uiButtonGroup( this, "Z-unit buttons", OD::Horizontal );
     zunitgrp_->attach( alignedBelow, attachobj );
-    uiLabel* zlbl = new uiLabel( this,
+    auto* zlbl = new uiLabel( this,
 				 uiStrings::phrOutput( uiStrings::sZUnit() ));
     zlbl->attach( leftOf, zunitgrp_ );
     new uiRadioButton( zunitgrp_,
@@ -376,8 +377,7 @@ uiExportLogs::uiExportLogs( uiParent* p, const ObjectSet<Well::Data>& wds,
 
 
 uiExportLogs::~uiExportLogs()
-{
-}
+{}
 
 
 void uiExportLogs::setDefaultRange( bool zinft )
@@ -401,8 +401,8 @@ void uiExportLogs::setDefaultRange( bool zinft )
     }
 
     StepInterval<float> disprg = dahintv;
-    const UnitOfMeasure* storunit = UnitOfMeasure::surveyDefDepthStorageUnit();
-    const UnitOfMeasure* outunit = UnitOfMeasure::surveyDefDepthUnit();
+    const auto* storunit = UnitOfMeasure::surveyDefDepthStorageUnit();
+    const auto* outunit = UnitOfMeasure::surveyDefDepthUnit();
     disprg.start_ = getConvertedValue( dahintv.start_, storunit, outunit );
     disprg.stop_ = getConvertedValue( dahintv.stop_, storunit, outunit );
     disprg.step_ = getConvertedValue( dahintv.step_, storunit, outunit );
