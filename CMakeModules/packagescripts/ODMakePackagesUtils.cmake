@@ -160,68 +160,82 @@ macro( COPY_QTCORE )
     file( COPY "${COPYFROMEXEDIR}/qt.conf"
 	  DESTINATION "${COPYTOEXEDIR}" )
 
-    if( UNIX )
-	if ( APPLE )
-	    file( COPY "${COPYFROMDIR}/qt_menu.nib"
-		  DESTINATION "${COPYTODIR}" )
-	else()
-	    file(COPY "${COPYFROMEXEDIR}/../lib"
-		 DESTINATION "${COPYTOEXEDIR}/../" )
-	endif()
-    endif()
+    if ( "${PACKAGE_TYPE}" STREQUAL "Production" )
 
-    if ( NOT NO_QTTRANSLATIONS )
-	file( GLOB TRANSLATION_FILES
-		"${COPYFROMEXEDIR}/../translations/qt_*.qm"
-		"${COPYFROMEXEDIR}/../translations/qtbase_*.qm" )
-	file( COPY ${TRANSLATION_FILES}
-	      DESTINATION "${COPYTOEXEDIR}/../translations" )
-	unset( TRANSLATION_FILES )
+	if( UNIX )
+	    if ( APPLE )
+		file( COPY "${COPYFROMDIR}/qt_menu.nib"
+		      DESTINATION "${COPYTODIR}" )
+	    else()
+		file(COPY "${COPYFROMEXEDIR}/../lib"
+		     DESTINATION "${COPYTOEXEDIR}/../" )
+	    endif()
+	endif()
+
+	if ( NOT NO_QTTRANSLATIONS )
+	    file( GLOB TRANSLATION_FILES
+		    "${COPYFROMEXEDIR}/../translations/qt_*.qm"
+		    "${COPYFROMEXEDIR}/../translations/qtbase_*.qm" )
+	    file( COPY ${TRANSLATION_FILES}
+		  DESTINATION "${COPYTOEXEDIR}/../translations" )
+	    unset( TRANSLATION_FILES )
+	endif()
+
     endif()
 
 endmacro( COPY_QTCORE )
 
 macro( COPY_QTWEBENGINE )
 
-    if ( NOT NO_QTTRANSLATIONS )
-	file( GLOB WEBENGINE_TRANSLATION_FILES
-		"${COPYFROMEXEDIR}/../translations/qtwebengine_*.qm" )
-	file( COPY ${WEBENGINE_TRANSLATION_FILES}
-	      DESTINATION "${COPYTOEXEDIR}/../translations" )
-	unset( WEBENGINE_TRANSLATION_FILES )
-	if ( IS_DIRECTORY "${COPYFROMEXEDIR}/../translations/qtwebengine_locales" )
+    if ( "${PACKAGE_TYPE}" STREQUAL "Production" )
+
+	if ( NOT NO_QTTRANSLATIONS )
 	    file( GLOB WEBENGINE_TRANSLATION_FILES
-		    "${COPYFROMEXEDIR}/../translations/qtwebengine_locales/*.pak" )
+		    "${COPYFROMEXEDIR}/../translations/qtwebengine_*.qm" )
 	    file( COPY ${WEBENGINE_TRANSLATION_FILES}
-		  DESTINATION "${COPYTOEXEDIR}/../translations/qtwebengine_locales" )
+		  DESTINATION "${COPYTOEXEDIR}/../translations" )
 	    unset( WEBENGINE_TRANSLATION_FILES )
+	    if ( IS_DIRECTORY "${COPYFROMEXEDIR}/../translations/qtwebengine_locales" )
+		file( GLOB WEBENGINE_TRANSLATION_FILES
+			"${COPYFROMEXEDIR}/../translations/qtwebengine_locales/*.pak" )
+		file( COPY ${WEBENGINE_TRANSLATION_FILES}
+		      DESTINATION "${COPYTOEXEDIR}/../translations/qtwebengine_locales" )
+		unset( WEBENGINE_TRANSLATION_FILES )
+	    endif()
+
+	    file( GLOB WEBENGINE_RESOURCES_FILES
+		    "${COPYFROMEXEDIR}/../resources/icudtl.dat"
+		    "${COPYFROMEXEDIR}/../resources/qtwebengine_*.pak" )
+	    file( COPY ${WEBENGINE_RESOURCES_FILES}
+		  DESTINATION "${COPYTOEXEDIR}/../resources" )
+	    unset( WEBENGINE_RESOURCES_FILES )
 	endif()
 
 	file( GLOB WEBENGINE_RESOURCES_FILES
-		"${COPYFROMEXEDIR}/../resources/icudtl.dat"
-		"${COPYFROMEXEDIR}/../resources/qtwebengine_*.pak" )
-	file( COPY ${WEBENGINE_RESOURCES_FILES}
-	      DESTINATION "${COPYTOEXEDIR}/../resources" )
-	unset( WEBENGINE_RESOURCES_FILES )
-    endif()
+		    "${COPYFROMEXEDIR}/../resources/v8_context_snapshot*.bin" )
+	if ( NOT "${WEBENGINE_RESOURCES_FILES}" STREQUAL "" )
+	    file( COPY ${WEBENGINE_RESOURCES_FILES}
+		  DESTINATION "${COPYTOEXEDIR}/../resources"
+		  PATTERN "v8_context_snapshot.debug.bin" EXCLUDE )
+	endif()
 
-    file( GLOB WEBENGINE_RESOURCES_FILES
-		"${COPYFROMEXEDIR}/../resources/v8_context_snapshot*.bin" )
-    if ( NOT "${WEBENGINE_RESOURCES_FILES}" STREQUAL "" )
-	file( COPY ${WEBENGINE_RESOURCES_FILES}
-	      DESTINATION "${COPYTOEXEDIR}/../resources"
-	      PATTERN "v8_context_snapshot.debug.bin" EXCLUDE )
-    endif()
-
-    if ( WIN32 )
-	file( COPY "${COPYFROMEXEDIR}/QtWebEngineProcess.exe"
-	      DESTINATION "${COPYTOEXEDIR}" )
-    elseif ( APPLE )
-	file( COPY "${COPYFROMEXEDIR}/../Helpers/QtWebEngineProcess.app"
-	      DESTINATION "${COPYTOEXEDIR}/../Helpers" )
+	if ( WIN32 )
+	    file( COPY "${COPYFROMEXEDIR}/QtWebEngineProcess.exe"
+		  DESTINATION "${COPYTOEXEDIR}" )
+	elseif ( APPLE )
+	    file( COPY "${COPYFROMEXEDIR}/../Helpers/QtWebEngineProcess.app"
+		  DESTINATION "${COPYTOEXEDIR}/../Helpers" )
+	else()
+	    file( COPY "${COPYFROMEXEDIR}/../libexec/QtWebEngineProcess"
+		  DESTINATION "${COPYTOEXEDIR}/../libexec" )
+	endif()
     else()
-	file( COPY "${COPYFROMEXEDIR}/../libexec/QtWebEngineProcess"
-	      DESTINATION "${COPYTOEXEDIR}/../libexec" )
+
+	if ( EXISTS "${COPYFROMEXEDIR}/../resources/v8_context_snapshot.debug.bin" )
+	    file( COPY "${COPYFROMEXEDIR}/../resources/v8_context_snapshot.debug.bin"
+	      DESTINATION "${COPYTOEXEDIR}/../resources" )
+	endif()
+
     endif()
 
 endmacro(COPY_QTWEBENGINE)
@@ -290,7 +304,7 @@ macro( CREATE_PACKAGE PACKAGE_NAME )
 
     endforeach()
 
-    if ( NOT "${PACKAGE_NAME}" STREQUAL "devel" )
+    if ( "${PACKAGE_TYPE}" STREQUAL "Production" )
 	foreach( PLUGIN ${PLUGINS} )
 	    file( COPY "${COPYFROMDIR}/plugins/${OD_PLFSUBDIR}"
 		  DESTINATION "${COPYTODIR}/plugins"
