@@ -249,6 +249,7 @@ void uiProgressViewer::handleProcessStatus()
 	stbmsg = tr("Process %1 was terminated." ).arg(procnm_);
 
     statusBar()->message( stbmsg );
+    strm_->close();
     tb_->setToolTip( quittbid_, sQuitOnly() );
     tb_->setSensitive( killbid_, false );
     pid_ = mUdf(int);
