@@ -32,7 +32,8 @@ ________________________________________________________________________
 
 
 uiImpPVDS::uiImpPVDS( uiParent* p, bool is2d )
-    : uiDialog(p,Setup(tr("Import Cross-plot Data"),mODHelpKey(mImpPVDSHelpID))
+    : uiDialog(p,Setup(uiStrings::phrImport(tr("Cross-plot Data")),
+		       mODHelpKey(mImpPVDSHelpID))
 		    .modal(false))
     , fd_(*new Table::FormatDesc("Cross-plot data"))
     , is2d_(is2d)
@@ -83,9 +84,11 @@ bool uiImpPVDS::acceptOK( CallBacker* )
     const BufferString fnm( inpfld_->fileName() );
     if ( fnm.isEmpty() || File::isEmpty(fnm) )
 	mErrRet(tr("Please select an existing input file"))
+
     if ( !dataselfld_->commit() )
 	return false;
 
+    outfld_->reset();
     const IOObj* ioobj = outfld_->ioobj();
     if ( !ioobj )
 	return false;
@@ -96,15 +99,18 @@ bool uiImpPVDS::acceptOK( CallBacker* )
 
     RefMan<DataPointSet> dps = new DataPointSet( is2d_ );
     MouseCursorManager::setOverride( MouseCursor::Wait );
-    bool rv = getData( strm, fd_, *dps );
+    const bool rv = getData( strm, fd_, *dps );
     MouseCursorManager::restoreOverride();
     if ( !rv || !writeData(*dps,*ioobj) )
 	return false;
 
-    uiString msg = tr("Cross-plot Data successfully imported."
-		      "\n\nDo you want to import more data?");
+    FilePath fpfn (fnm);
+    uiString msg = tr("Cross-plot Data from file '%1' successfully imported to "
+		      "'%2'.\n\nDo you want to import more data?")
+		       .arg(fpfn.fileName())
+		       .arg(outfld_->getInput());
     const bool ret = uiMSG().askGoOn( msg, uiStrings::sYes(),
-				tr("No, close window") );
+				      tr("No, close window") );
     return !ret;
 }
 
@@ -136,11 +142,14 @@ bool isXY() const
 
 bool getLine()
 {
-    if ( atend_ ) return false;
+    if ( atend_ )
+	return false;
 
     atend_ = true;
     const int ret = getNextBodyVals( strm_ );
-    if ( ret <= 0 ) return false;
+    if ( ret <= 0 )
+	return false;
+
     atend_ = false;
 
     if ( rownr_ == -1 )

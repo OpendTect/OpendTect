@@ -123,6 +123,7 @@ void uiIOObjSelDlg::init( const CtxtIOObj& ctio )
 	    titletext = uiStrings::phrSelect(uiStrings::sInput());
 	else
 	    titletext = uiStrings::phrSelect(uiStrings::sOutput());
+
 	if ( selgrp_->getContext().name().isEmpty() )
 	    titletext = toUiString("%1 %2").arg(titletext)
 				    .arg( ctio.ctxt_.trgroup_->typeName(nr) );
@@ -134,7 +135,8 @@ void uiIOObjSelDlg::init( const CtxtIOObj& ctio )
     setTitleText( titletext );
 
     uiString captn;
-    if ( !selgrp_->getContext().forread_ )
+    const bool select = selgrp_->getContext().forread_;
+    if ( !select )
 	captn = tr("Save %1 as" );
     else
 	captn = tr( "Select %1" );
@@ -305,10 +307,8 @@ void uiIOObjSel::survChangedCB( CallBacker* )
 
 void uiIOObjSel::initRead()
 {
-    {
-	NotifyStopper ns( selectionDone );
-	fillEntries();
-    }
+    NotifyStopper ns( selectionDone );
+    fillEntries();
 
     if( !workctio_.ioobj_ )
 	fillDefault();
@@ -320,6 +320,7 @@ uiObject* uiIOObjSel::endObj( bool left )
 {
     if ( wrtrselfld_ && !left && !wrtrselfld_->isEmpty() )
 	return wrtrselfld_->attachObj();
+
     return uiIOSelect::endObj( left );
 }
 

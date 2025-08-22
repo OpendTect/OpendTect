@@ -190,7 +190,8 @@ void uiAttribCrossPlot::lineChecked( CallBacker* )
 {
     MultiID selid = getSelectedID();
     const int selitem = selidxs_.indexOf( attrsfld_->currentItem() );
-    if ( selitem < 0 ) return;
+    if ( selitem < 0 )
+	return;
 
     linenmsset_[selitem].erase();
     for ( int lidx=0; lidx<lnmfld_->size(); lidx++ )
@@ -307,7 +308,8 @@ bool uiAttribCrossPlot::acceptOK( CallBacker* )
 	mErrRet(tr("Please select at least one attribute to evaluate"))
 
     MouseCursorManager::setOverride( MouseCursor::Wait );
-    IOPar iop; posfiltfld_->fillPar( iop );
+    IOPar iop;
+    posfiltfld_->fillPar( iop );
     PtrMan<Pos::Filter> filt = Pos::Filter::make( iop, prov->is2D() );
     MouseCursorManager::restoreOverride();
     if ( filt && !filt->initialize(&taskrunner) )
@@ -338,12 +340,13 @@ bool uiAttribCrossPlot::acceptOK( CallBacker* )
     MouseCursorManager::setOverride( MouseCursor::Wait );
     PtrMan<Executor> tabextr = aem.getTableExtractor( *dps, ads_, errmsg );
     MouseCursorManager::restoreOverride();
-    if ( !errmsg.isEmpty() ) mErrRet(errmsg)
+    if ( !errmsg.isEmpty() )
+	mErrRet(errmsg)
 
     if ( !TaskRunner::execute( &taskrunner, *tabextr ) )
 	return false;
 
-    uiDataPointSet* uidps = new uiDataPointSet( this, *dps,
+    auto* uidps = new uiDataPointSet( this, *dps,
 		uiDataPointSet::Setup(tr("Attribute data"),false),dpsdispmgr_ );
     dpsset_ += uidps;
     IOPar& attrpar = uidps->storePars();

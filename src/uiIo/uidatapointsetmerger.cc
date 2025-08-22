@@ -68,7 +68,8 @@ DPSMerger::~DPSMerger()
 
 void DPSMerger::addNewCols( const BufferStringSet& clnms )
 {
-    if ( !clnms.size() ) return;
+    if ( !clnms.size() )
+	return;
 
     for ( int col=0; col<clnms.size(); col++ )
 	newdps_->dataSet().add( new DataColDef(clnms[col]->buf()) );
@@ -125,9 +126,11 @@ DataPointSet::DataRow DPSMerger::getNewDataRow( int srowid )
 	    const int secondaryidx = getSecondaryColID( mcolid );
 	    if ( secondaryidx < 0 )
 		continue;
+
 	    rowdata[mcolid] = sdr.data()[secondaryidx];
 	}
     }
+
     for ( int scolidx=0; scolidx<secondarycolids.size(); scolidx++ )
     {
 	if ( primarycolids.validIdx(scolidx) &&
@@ -146,6 +149,7 @@ int DPSMerger::getSecondaryColID( int mcolid )
     const int idx = prop_.primaryColIDs().indexOf( mcolid );
     if ( idx<0 )
 	return -1;
+
     return prop_.secondaryColIDs()[idx];
 }
 
@@ -210,11 +214,12 @@ uiDataPointSetMerger::uiDataPointSetMerger( uiParent* p, DataPointSet* mdps,
     , mdps_(mdps)
     , sdps_(sdps)
 {
+    setOkText( uiStrings::sMerge() );
     setPrefHeight( 500 );
     DPM( DataPackMgr::PointID() ).add( mdps_ );
     DPM( DataPackMgr::PointID() ).add( sdps_ );
 
-    uiString capt = uiStrings::phrMerge(tr("'%1' with '%2'")
+    auto capt = uiStrings::phrMerge(tr("'%1' with '%2'")
 			       .arg(toUiString(mdps->name()))
 			       .arg(toUiString(sdps_->name())));
     setTitleText( capt );
@@ -223,17 +228,17 @@ uiDataPointSetMerger::uiDataPointSetMerger( uiParent* p, DataPointSet* mdps,
 						.insertrowallowed(false)
 						.removerowallowed(false), "" );
     setTable();
-    uiLabel* tbllbl = new uiLabel( this, tr("Column matching") );
+    auto* tbllbl = new uiLabel( this, tr("Column matching") );
     tbllbl->attach( leftOf, tbl_ );
 
     BufferString addtxt( "Add new column to '" );
-    addtxt += mdps_->name(); addtxt += "'";
+    addtxt.add(mdps_->name()).add("'");
 
     uiString addcolmsg = tr("Policy for unused columns of '%1'")
 						.arg(toUiString(sdps_->name()));
     addcoloptfld_ =
 	new uiGenInput(this, addcolmsg, BoolInpSpec(true,uiStrings::phrAdd(
-				         uiStrings::sAll()),tr("ignore all")));
+					 uiStrings::sAll()),tr("Ignore all")));
     addcoloptfld_->attach( leftAlignedBelow, tbllbl );
     addcoloptfld_->attach( ensureBelow, tbl_ );
 
@@ -241,9 +246,8 @@ uiDataPointSetMerger::uiDataPointSetMerger( uiParent* p, DataPointSet* mdps,
     matchopts.add( "Exact match" );
     matchopts.add( "Nearby match" );
     matchopts.add( "Never match, add all new" );
-    uiLabeledComboBox* mlcbox =
-	new uiLabeledComboBox( this, matchopts,
-			       tr("How do you want to match positions?") );
+    auto* mlcbox = new uiLabeledComboBox( this, matchopts,
+				    tr("How do you want to match positions?") );
     mlcbox->attach( alignedBelow, addcoloptfld_ );
     matchpolfld_ = mlcbox->box();
     matchpolfld_->setHSzPol( uiObject::MedVar );
@@ -266,16 +270,15 @@ uiDataPointSetMerger::uiDataPointSetMerger( uiParent* p, DataPointSet* mdps,
     zgatefld_->setValue( SI().zStep()*SI().zDomain().userFactor() );
 
     BufferStringSet replaceopts;
-    BufferString opt1( "Keep '" ); opt1 += mdps_->name(); opt1 += "'";
+    const BufferString opt1( "Keep '", mdps_->name(), "'" );
     replaceopts.add( opt1 );
 
-    BufferString opt2( "Overwrite with '" );opt2 += sdps_->name();opt2 += "'";
+    const BufferString opt2( "Overwrite with '", sdps_->name(), "'" );
     replaceopts.add( opt2 );
     replaceopts.add( "Take the average of both" );
 
-    uiLabeledComboBox* rlcbox =
-	new uiLabeledComboBox( this, replaceopts,
-			       tr("Replace policy for matching positions") );
+    auto* rlcbox = new uiLabeledComboBox( this, replaceopts,
+				  tr("Replace policy for matching positions") );
     rlcbox->attach( alignedBelow, distfld_ );
     replacepolfld_ = rlcbox->box();
     replacepolfld_->setHSzPol( uiObject::MedVar );
@@ -297,8 +300,7 @@ uiDataPointSetMerger::uiDataPointSetMerger( uiParent* p, DataPointSet* mdps,
 
 
 uiDataPointSetMerger::~uiDataPointSetMerger()
-{
-}
+{}
 
 
 void uiDataPointSetMerger::matchPolChangedCB( CallBacker* )
@@ -327,7 +329,7 @@ void uiDataPointSetMerger::setTable()
 	uiString celltxt = tr("Couple '%1' to").arg(colnm);
         tbl_->setRowLabel( rowidx, celltxt );
 	tbl_->setRowLabel( rowidx, celltxt );
-	uiComboBox* cb = new uiComboBox( 0, colnames, "Attributes" );
+	auto* cb = new uiComboBox( 0, colnames, "Attributes" );
 	cb->selectionChanged.notify(
 		mCB(this,uiDataPointSetMerger,attribChangedCB) );
 	const int nearmatchidx = colnames.nearestMatch( colnm );
@@ -339,7 +341,6 @@ void uiDataPointSetMerger::setTable()
 }
 
 
-
 void uiDataPointSetMerger::attribChangedCB( CallBacker* )
 {
     TypeSet<int> scolids;
@@ -349,6 +350,7 @@ void uiDataPointSetMerger::attribChangedCB( CallBacker* )
 	mDynamicCastGet(uiComboBox*,combobox,cbobj);
 	if ( !combobox )
 	    continue;
+
 	if ( combobox->currentItem() )
 	    scolids.addIfNew( combobox->currentItem()-1 );
     }
@@ -373,6 +375,7 @@ BufferStringSet uiDataPointSetMerger::checkForNewColumns() const
 	mDynamicCastGet(uiComboBox*,combobox,cbobj);
 	if ( !combobox )
 	    continue;
+
 	if ( combobox->currentItem() && (sdps_->indexOf(combobox->text())>=0) )
 	    scolids -= sdps_->indexOf( combobox->text() );
     }
@@ -389,6 +392,7 @@ void uiDataPointSetMerger::checkForSameColNms( BufferStringSet& colnms ) const
     BufferStringSet oldcolnames;
     for ( int col=0; col<mdps_->nrCols(); col++ )
 	oldcolnames.add( mdps_->colName(col) );
+
     for ( int colidx=0; colidx<colnms.size(); colidx++ )
     {
 	if ( oldcolnames.isPresent(colnms[colidx]->buf()) )
@@ -399,7 +403,8 @@ void uiDataPointSetMerger::checkForSameColNms( BufferStringSet& colnms ) const
 
 bool uiDataPointSetMerger::acceptOK( CallBacker* )
 {
-   if ( !outfld_->ioobj() )
+    outfld_->reset();
+    if ( !outfld_->ioobj() )
        return false;
 
     if ( matchpolfld_->currentItem()==1 )

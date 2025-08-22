@@ -66,15 +66,18 @@ uiString PosVecOutputGen::uiNrDoneText() const
 
 int PosVecOutputGen::nextStep()
 {
-    if ( !outex_ ) return -1;
+    if ( !outex_ )
+	return -1;
 
     int res = outex_->doStep();
-    if ( res < 0 ) return res;
+    if ( res < 0 )
+	return res;
+
     if ( res == 0 )
     {
 	for ( int idx=0; idx<bvss_.size(); idx++ )
 	{
-	    PosVecDataSet* pvds = new PosVecDataSet;
+	    auto* pvds = new PosVecDataSet;
 	    for ( int refidx=0; refidx<inps_.size(); refidx++ )
 	    {
 		BufferString ref = inps_.get( refidx );

@@ -242,7 +242,7 @@ void uiDataPointSetPickDlg::doSave( bool saveas )
     PosVecDataSet pvds;
     uiString errmsg;
     const bool rv = dps_->dataSet().putTo( ioobj->fullUserExpr(true),
-					  errmsg, false );
+					   errmsg, false );
     if ( !rv )
     {
 	uiMSG().error( errmsg );
@@ -258,7 +258,8 @@ void uiDataPointSetPickDlg::doSave( bool saveas )
 void uiDataPointSetPickDlg::valChgCB( CallBacker* )
 {
     const int col = table_->notifiedCell().col();
-    if ( col < 5 ) return;
+    if ( col < 5 )
+	return;
 
     const int row = table_->notifiedCell().row();
     const float val = table_->getFValue(RowCol(row,5) );
@@ -313,6 +314,7 @@ void uiDataPointSetPickDlg::locChgCB( CallBacker* cb )
     }
     else if ( cd->ev_ == Pick::SetMgr::ChangeData::Changed )
     {
+	//TODO: Change Data
     }
 
     pickCB( cb );
@@ -448,7 +450,7 @@ int uiEMDataPointSetPickDlg::addSurfaceData()
 
         auxvals[0] = (float) hor3d->getPos( pid ).z_;
 	auxvals[2] = mUdf( float );
-	BinID bid = BinID::fromInt64( pid.subID() );
+	auto bid = BinID::fromInt64( pid.subID() );
 	emdps_->bivSet().add( bid, auxvals );
     }
 

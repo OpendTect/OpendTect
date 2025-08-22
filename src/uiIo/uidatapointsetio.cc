@@ -47,7 +47,6 @@ bool uiDataPointSetSave::save( const char* fnm, bool ascii )
 	return false;
     }
 
-    uiMSG().message( tr("Cross-plot Data successfully saved") );
     return true;
 }
 
@@ -76,6 +75,9 @@ uiExportDataPointSet::uiExportDataPointSet( uiParent* p,
 
     if ( dps )
 	setOutputName( "crossplot" );
+
+    mAttachCB( postFinalize(), uiExportDataPointSet::inpSelCB );
+    mainObject()->setMinimumHeight( 100 );
 }
 
 
@@ -85,14 +87,24 @@ uiExportDataPointSet::~uiExportDataPointSet()
 }
 
 
+void uiExportDataPointSet::initGrpCB(CallBacker*)
+{
+    inpSelCB( nullptr );
+}
+
+
 void uiExportDataPointSet::inpSelCB( CallBacker* )
 {
-    const IOObj* ioobj = infld_->ioobj( true );
-    if ( !ioobj )
-	return;
+    if ( infld_ )
+    {
+	const IOObj* ioobj = infld_->ioobj( true );
+	if ( !ioobj )
+	    return;
 
-    const FilePath fp = ioobj->fullUserExpr();
-    setOutputName( fp.baseName() );
+	const FilePath fp = ioobj->fullUserExpr();
+	setOutputName( fp.baseName() );
+	return;
+    }
 }
 
 
@@ -102,7 +114,6 @@ void uiExportDataPointSet::setOutputName( const char* basenm )
     fnm.setExtension( "dat" );
     outfld_->setFileName( fnm.fullPath() );
 }
-
 
 
 bool uiExportDataPointSet::acceptOK( CallBacker* )
@@ -128,7 +139,23 @@ bool uiExportDataPointSet::acceptOK( CallBacker* )
     if ( fname.isEmpty() )
 	mErrRet( tr("Please select the output file name") )
 
-    return save( fname.buf(), true );
+    if ( File::exists(fname) &&
+	 !uiMSG().askOverwrite(uiStrings::sOutputFileExistsOverwrite()) )
+	return false;
+
+    if ( save(fname.buf(),true) )
+    {
+	FilePath fpnm(fname);
+	uiString msg = tr("Cross-plot Data %1%2was succesfully exported to "
+			  "file '%3'.\n\nExport more Cross-plot Data?")
+			   .arg( infld_ ? infld_->getInput() : "" )
+			   .arg( infld_ ? " " : "")
+			   .arg(fpnm.fileName());
+	if ( !uiMSG().askGoOn(msg) )
+	    return true;
+    }
+
+    return false;
 }
 
 

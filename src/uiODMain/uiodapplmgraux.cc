@@ -513,36 +513,38 @@ void uiODApplMgrDispatcher::openXPlot()
     ctxt.setName( "Cross-plot Data" );
     uiIOObjSelDlg seldlg( par_, ctxt );
     seldlg.setHelpKey( mODHelpKey(mOpenCossplotHelpID) );
-    if ( !seldlg.go() || !seldlg.ioObj() ) return;
 
-    MouseCursorManager::setOverride( MouseCursor::Wait );
-
-    PosVecDataSet pvds;
-    uiString errmsg;
-    bool rv = pvds.getFrom(seldlg.ioObj()->fullUserExpr(true),errmsg);
-    MouseCursorManager::restoreOverride();
-
-    if ( !rv )
+    while ( seldlg.go() && seldlg.ioObj() )
     {
-	uiMSG().error( errmsg );
-	return;
-    }
+	MouseCursorManager::setOverride( MouseCursor::Wait );
 
-    if ( pvds.data().isEmpty() )
-    {
-	uiMSG().error(uiDataPointSetMan::sSelDataSetEmpty());
-	return;
-    }
+	PosVecDataSet pvds;
+	uiString errmsg;
+	bool rv = pvds.getFrom(seldlg.ioObj()->fullUserExpr(true),errmsg);
+	MouseCursorManager::restoreOverride();
 
-    RefMan<DataPointSet> newdps = new DataPointSet( pvds, false );
-    newdps->setName( seldlg.ioObj()->name() );
-    DPM(DataPackMgr::PointID()).add( newdps );
-    auto* uidps =
-	new uiDataPointSet( ODMainWin(), *newdps,
-	uiDataPointSet::Setup(tr("Cross-plot Data: %1").arg(newdps->name())),
-	ODMainWin()->applMgr().visDPSDispMgr() );
-    uidps->go();
-    uidpsset_ += uidps;
+	if ( !rv )
+	{
+	    uiMSG().error( errmsg );
+	}
+	else if ( pvds.data().isEmpty() )
+	{
+	    uiMSG().error(uiDataPointSetMan::sSelDataSetEmpty());
+	}
+	else
+	{
+	    RefMan<DataPointSet> newdps = new DataPointSet( pvds, false );
+	    newdps->setName( seldlg.ioObj()->name() );
+	    DPM(DataPackMgr::PointID()).add( newdps );
+	    auto* uidps = new uiDataPointSet( ODMainWin(), *newdps,
+			    uiDataPointSet::Setup(tr("Cross-plot Data: %1")
+						    .arg(newdps->name())),
+				ODMainWin()->applMgr().visDPSDispMgr() );
+	    uidps->go();
+	    uidpsset_ += uidps;
+	    return;
+	}
+    }
 }
 
 
@@ -640,7 +642,12 @@ void uiODApplMgrDispatcher::processPreStack( bool is2d )
 	}
     }
     else
-    { mPreStackBatchdlg(batchprocps3ddlg_) }
+    {
+	if ( !batchprocps3ddlg_ )
+	    batchprocps3ddlg_ = new PreStack::uiBatchProcSetup( par_, gs );
+
+	batchprocps3ddlg_->show();
+    }
 }
 
 

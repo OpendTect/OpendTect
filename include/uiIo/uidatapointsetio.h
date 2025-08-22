@@ -43,6 +43,7 @@ public:
 				~uiExportDataPointSet();
 
 private:
+    void			initGrpCB(CallBacker*);
     void			inpSelCB(CallBacker*);
     void			setOutputName(const char*);
     bool			acceptOK(CallBacker*) override;

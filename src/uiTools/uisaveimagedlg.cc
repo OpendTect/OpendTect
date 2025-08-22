@@ -55,7 +55,8 @@ static StepInterval<int> maximum_dpi_range(1,9999,1);
 
 
 uiSaveImageDlg::uiSaveImageDlg( uiParent* p, bool withclipbrd, bool withparsfld)
-    : uiDialog(p,Setup(tr("Create snapshot"),mODHelpKey(mPrintSceneDlgHelpID))
+    : uiDialog(p,Setup(uiStrings::phrCreate(tr("Snapshot")),
+		       mODHelpKey(mPrintSceneDlgHelpID))
 		    .savebutton(true))
     , sizesChanged(this)
     , heightfld_(0)
@@ -65,6 +66,8 @@ uiSaveImageDlg::uiSaveImageDlg( uiParent* p, bool withclipbrd, bool withparsfld)
     , aspectratio_(1.0f)
     , settings_( Settings::fetch(sKeySnapshot) )
 {
+    setOkText( uiStrings::sSave() );
+
     if ( withclipbrd )
     {
 	cliboardselfld_ =
@@ -374,11 +377,22 @@ bool uiSaveImageDlg::filenameOK() const
 	return false;
     }
 
-    if (File::exists(filename) && !File::isWritable(filename))
+    if ( File::exists(filename) )
     {
-	uiString msg = tr("The file %1 is not writable").arg(filename);
-	    uiMSG().error(msg);
+	if ( File::isWritable(filename) )
+	{
+	    uiString msg = tr("File '%1' already exists, overwrite?")
+			       .arg(filename);
+	    const bool ow = uiMSG().askOverwrite( msg );
+	    if ( !ow )
+		return false;
+	}
+	else
+	{
+	    uiString msg = tr("Cannot write to file '%1'").arg(filename);
+	    uiMSG().error( msg );
 	    return false;
+	}
     }
 
     const FilePath filepath( filename );
