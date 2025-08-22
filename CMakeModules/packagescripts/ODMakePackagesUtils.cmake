@@ -309,7 +309,7 @@ macro( CREATE_PACKAGE PACKAGE_NAME )
 
     endforeach()
 
-    if ( "${PACKAGE_TYPE}" STREQUAL "Production" )
+    if ( NOT "${PACKAGE_NAME}" STREQUAL "devel$" )
 	foreach( PLUGIN ${PLUGINS} )
 	    file( COPY "${COPYFROMDIR}/plugins/${OD_PLFSUBDIR}"
 		  DESTINATION "${COPYTODIR}/plugins"
