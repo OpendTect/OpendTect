@@ -199,7 +199,10 @@ RefMan<DataPointSet> uiStratSynthCrossplot::getData(
     RefMan<DataPointSet> dps =
 		seisattrs.createDataPointSet(Attrib::DescSetup(),false);
     if ( !dps )
-	{ uiMSG().error(seisattrs.errMsg()); return nullptr; }
+    {
+	uiMSG().error(seisattrs.errMsg());
+	return nullptr;
+    }
 
     PosVecDataSet& pvds = dps->dataSet();
     const UnitOfMeasure* depunit = PropertyRef::thickness().unit();
@@ -387,9 +390,9 @@ void uiStratSynthCrossplot::fillPosFromLayerSampling( DataPointSet& dps,
 
 bool uiStratSynthCrossplot::extractModelNr( DataPointSet& dps ) const
 {
-    const int modnridx =
-	dps.indexOf( Strat::LayModAttribCalc::sKeyModelIdx() );
-    if ( modnridx<0 ) return false;
+    const int modnridx = dps.indexOf( Strat::LayModAttribCalc::sKeyModelIdx() );
+    if ( modnridx<0 )
+	return false;
 
     for ( int dpsrid=0; dpsrid<dps.size(); dpsrid++ )
     {

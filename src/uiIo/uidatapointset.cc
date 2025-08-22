@@ -1351,7 +1351,8 @@ bool uiDataPointSet::acceptOK( CallBacker* )
 
 void uiDataPointSet::retrieveCB( CallBacker* )
 {
-    if ( !saveOK() ) return;
+    if ( !saveOK() )
+	return;
 
     IOObjContext ctxt = PosVecDataSetTranslatorGroup::ioContext();
     ctxt.forread_ = true;
@@ -1376,7 +1377,7 @@ void uiDataPointSet::retrieveCB( CallBacker* )
 
     if ( pvds.data().isEmpty() )
     {
-	uiMSG().error(uiDataPointSetMan::sSelDataSetEmpty());
+	uiMSG().error( uiDataPointSetMan::sSelDataSetEmpty() );
 	return;
     }
 
@@ -1416,7 +1417,8 @@ void uiDataPointSet::saveCB( CallBacker* )
 
 bool uiDataPointSet::doSave()
 {
-    if ( dps_->nrActive() < 1 ) return true;
+    if ( dps_->nrActive() < 1 )
+	return true;
 
     RefMan<DataPointSet> savedps = new DataPointSet( dps_ );
     savedps->dataSet().pars() = storepars_;
@@ -1474,7 +1476,8 @@ void uiDataPointSet::showSelPts( CallBacker* )
 
 void uiDataPointSet::showPtsInWorkSpace( CallBacker* )
 {
-    if ( !dpsdispmgr_ || !dpsdisppropdlg_->uiResult() || !xplotwin_ ) return;
+    if ( !dpsdispmgr_ || !dpsdisppropdlg_->uiResult() || !xplotwin_ )
+	return;
 
     const uiDataPointSetCrossPlotter& plotter = xplotwin_->plotter();
 
@@ -1509,7 +1512,7 @@ void uiDataPointSet::setDisp( DataPointSetDisplayProp* dispprop )
     dpsdispmgr_->setDispProp( dispprop );
 
     const DataPointSetDisplayMgr::DispID dpsid =
-					dpsdispmgr_->getDisplayID( *dps_ );
+					 dpsdispmgr_->getDisplayID( *dps_ );
     if ( dpsid.isUdf() )
 	dpsdispmgr_->addDisplay( dpsdispmgr_->availableViewers(), *dps_ );
     else
@@ -1525,7 +1528,7 @@ void uiDataPointSet::removeSelPts( CallBacker* )
 	return;
 
     const DataPointSetDisplayMgr::DispID dpsid =
-					dpsdispmgr_->getDisplayID( *dps_ );
+					 dpsdispmgr_->getDisplayID( *dps_ );
     if ( !dpsid.isUdf() )
 	dpsdispmgr_->removeDisplay( dpsid );
 }
@@ -1556,6 +1559,7 @@ void uiDataPointSet::delSelRows( CallBacker* )
 				tr("Delete only selected") );
 	    if ( rep == 1 )
 		removeHiddenRows();
+
 	    if ( rep != 0 )
 		return;
 	}
@@ -1580,6 +1584,7 @@ void uiDataPointSet::delSelRows( CallBacker* )
 
     if ( !setup_.directremove_ )
 	dps_->dataChanged();
+
     if ( nrrem < 1 )
     {
 	uiMSG().message(tr("Please select the row(s) you want to remove."
@@ -1597,13 +1602,10 @@ void uiDataPointSet::delSelRows( CallBacker* )
 
 void uiDataPointSet::removeHiddenRows()
 {
-    const uiTable::SelectionRange* selrange =
-	tbl_->selectedRanges()[0];
+    const uiTable::SelectionRange* selrange = tbl_->selectedRanges()[0];
     Interval<float> valrange;
-    valrange.start_ = tbl_->getFValue(
-	    RowCol(selrange->firstrow_,sortcol_) );
-    valrange.stop_ = tbl_->getFValue(
-	    RowCol(selrange->lastrow_,sortcol_) );
+    valrange.start_ = tbl_->getFValue( RowCol(selrange->firstrow_,sortcol_) );
+    valrange.stop_ = tbl_->getFValue( RowCol(selrange->lastrow_,sortcol_) );
     for ( int drowid=0; drowid<dps_->size(); drowid++ )
     {
 	float val;
@@ -1619,8 +1621,8 @@ void uiDataPointSet::removeHiddenRows()
 	if ( valrange.includes(val,true) || (valrange.start_==val)
 	     || (valrange.stop_==val) )
 	    dps_->setInactive( drowid, true );
-	continue;
 
+	continue;
     }
 
     mCleanRunCalcs;
@@ -1644,7 +1646,9 @@ int uiDataPointSet::getSelectionGroupIdx( int selareaid ) const
 
 void uiDataPointSet::calcSelectedness()
 {
-    if ( !xplotwin_ ) return;
+    if ( !xplotwin_ )
+	return;
+
     uiDPSSelectednessDlg dlg( this, xplotwin_->plotter() );
     dlg.go();
 }
@@ -1670,7 +1674,9 @@ void uiDataPointSet::addColumn( CallBacker* )
 	BinIDValueSet::SPos pos;
 	TypeSet<int> colids = dlg.usedColIDs();
 	Math::Expression* mathobj = dlg.mathObject();
-	if ( !mathobj ) return;
+	if ( !mathobj )
+	    return;
+
 	while ( bvs.next(pos,false) )
 	{
 	    BinID curbid;
@@ -1721,32 +1727,42 @@ void uiDataPointSet::removeColumn( CallBacker* )
     if ( tcolid == xcol_ || tcolid == ycol_ || tcolid == y2col_ )
     {
 	uiStringSet options;
-	if (tcolid == xcol_) options += uiStrings::sX();
-	if (tcolid == ycol_) options += uiStrings::sY();
-	if (tcolid == y2col_) options += uiStrings::sY2();
+	if ( tcolid == xcol_ )
+	    options.add( uiStrings::sX() );
+	if ( tcolid == ycol_ )
+	    options.add( uiStrings::sY() );
+	if ( tcolid == y2col_ )
+	    options.add( uiStrings::sY2() );
 
 	uiString msg = tr("This column is selected as data for %1 "
 			  "axis for the cross-plot. Removing the column "
 			  "will unselect it. Do you really "
 			  "want to remove this column?")
-		     .arg(options.createOptionString(true));
+			    .arg(options.createOptionString(true));
 
 	if ( !uiMSG().askGoOn(msg) )
 	    return;
 	else
 	{
-	    if ( tcolid == y2col_ ) unSelYCol( 0 );
-	    if ( tcolid == ycol_ ) unSelYCol( 0 );
-	    if ( tcolid == xcol_ ) unSelXCol();
+	    if ( tcolid == y2col_ )
+		unSelYCol( 0 );
+	    if ( tcolid == ycol_ )
+		unSelYCol( 0 );
+	    if ( tcolid == xcol_ )
+		unSelXCol();
 	}
     }
 
     unsavedchgs_ = true;
     tbl_->removeColumn( tbl_->currentCol() );
     dps_->dataSet().removeColumn( tcolid+1 );
-    if ( xcol_>tcolid ) xcol_--;
-    if ( ycol_>tcolid ) ycol_--;
-    if ( y2col_>tcolid ) y2col_--;
+    if ( xcol_>tcolid )
+	xcol_--;
+    if ( ycol_>tcolid )
+	ycol_--;
+    if ( y2col_>tcolid )
+	y2col_--;
+
     mCleanRunCalcs;
     dps_->dataChanged();
     reDoTable();
@@ -1777,8 +1793,8 @@ void uiDataPointSet::compVertVariogram( CallBacker* )
     uiString errmsg;
     bool msgiserror = true;
     VertVariogramComputer vvc( *dps_, dcid, varsettings.getStep(),
-			      varsettings.getMaxRg(), varsettings.getFold(),
-			      nrgroups, errmsg, msgiserror );
+			       varsettings.getMaxRg(), varsettings.getFold(),
+			       nrgroups, errmsg, msgiserror );
     if ( !vvc.isOK() )
     {
 	msgiserror ? uiMSG().error( errmsg )

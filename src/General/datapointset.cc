@@ -697,7 +697,9 @@ const float* DataPointSet::getValues( DataPointSet::RowID rid ) const
 
 unsigned short DataPointSet::group( DataPointSet::RowID rid ) const
 {
-    if ( minimal_ ) return 0;
+    if ( minimal_ )
+	return 0;
+
     mChkRowID(rid,0);
     int selgrp, grp;
     getUnCompacted( mNINT32(bivSet().getVal(bvsidxs_[rid],groupcol_)),
@@ -774,7 +776,10 @@ bool DataPointSet::setRow( const DataPointSet::DataRow& dr )
     {
 	const float zval = *bivSet().getVals( bvspos );
 	if ( mIsZero(zval-dr.pos_.z_,mDefEps) )
-	    { alreadyin = true; break; }
+	{
+	    alreadyin = true;
+	    break;
+	}
 	bivSet().next( bvspos );
     }
 
@@ -1162,7 +1167,8 @@ bool DPSFromVolumeFiller::doWork( od_int64 start, od_int64 stop, int thridx )
 	    tk = TrcKey( bid );
 
 	const int gidx = vdp.getGlobalIdx( tk );
-	if ( gidx<0 || gidx>nrtrcs ) continue;
+	if ( gidx<0 || gidx>nrtrcs )
+	    continue;
 
 	float* vals = dps_->getValues( rid );
 	const float zval = dps_->z( rid );
