@@ -632,8 +632,8 @@ void addSurveyMnemonics( CallBacker* )
 						  Repos::Survey );
 	if ( fms.size() > 2 )
 	{
-	    const OD::Color fcolor( fms.getFValue(2),
-				    fms.getFValue(3), fms.getFValue(4) );
+	    const OD::Color fcolor( fms.getIValue(2),
+				    fms.getIValue(3), fms.getIValue(4) );
 	    if ( fcolor != origin->disp_.color_ )
 		mn->disp_.color_ = fcolor;
 	}

@@ -837,9 +837,9 @@ bool uiCustomMnemonicsSel::doSave()
 	FileMultiString fms;
 	fms.add( mn.name().str() )
 	   .add( mn.getOrigin()->name().str() )
-	   .add( mn.disp_.color_.r() )
-	   .add( mn.disp_.color_.g() )
-	   .add( mn.disp_.color_.b() );
+	   .add( sCast(int,mn.disp_.color_.r()) )
+	   .add( sCast(int,mn.disp_.color_.g()) )
+	   .add( sCast(int,mn.disp_.color_.b()) );
 	iop.set( toString(imn), fms.str()  );
     }
 
