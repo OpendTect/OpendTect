@@ -195,7 +195,7 @@ static const int sMnemonicNmCol = 2;
 static const int sMnemonicColorCol = 3;
 
 class uiMnSelFlds : public NamedCallBacker
-{
+{ mODTextTranslationClass(uiMnSelFlds);
 public:
 
     enum class EditType   { StdType, Mnemonic, NameOnly, Color, None };
@@ -281,10 +281,26 @@ bool isCustom() const
 }
 
 
-Mnemonic* getMnemonic( Repos::Source src ) const
+Mnemonic* getMnemonic( Repos::Source src, uiRetVal& uirv ) const
 {
-    return name().isEmpty() ? nullptr
-	    : Mnemonic::getFromTemplate( getTemplateMn(), name().str(), src );
+    if ( name().isEmpty() )
+    {
+	uirv.add( tr("Custom Mnemonic name unpecified. Please provide a "
+		     "unique and valid name for Custom Mnemonics") );
+	return nullptr;
+    }
+
+    const Mnemonic& templatemn = getTemplateMn();
+    const bool isudf = templatemn.isUdf();
+    const bool istemplate = templatemn.isTemplate();
+    if ( isudf || !istemplate )	
+    {
+	uirv.add( tr("Please choose a %1 source mnemonic")
+		     .arg( isudf ? "valid" : "different" ) );
+	return nullptr;
+    }
+
+    return Mnemonic::getFromTemplate( getTemplateMn(), name().str(), src );
 }
 
 
@@ -450,9 +466,9 @@ void uiCustomMnemonicsSel::createTable()
     tbl_->setColumnLabel( sTemplateNmCol,
 			  tr("Existing %1").arg(uiStrings::sMnemonic()) );
     tbl_->setColumnLabel( sMnemonicNmCol,
-			  tr("Extra %1").arg(uiStrings::sMnemonic()) );
+			  tr("Custom %1").arg(uiStrings::sMnemonic()) );
     tbl_->setColumnLabel( sMnemonicColorCol,
-			  tr("Extra %1 %2").arg(uiStrings::sMnemonic())
+			  tr("Custom %1 %2").arg(uiStrings::sMnemonic())
 					   .arg(uiStrings::sColor()) );
     tbl_->showGrid( false );
     tbl_->setTableReadOnly( true );
@@ -639,7 +655,9 @@ void uiCustomMnemonicsSel::cellEditCB( CallBacker* )
 void uiCustomMnemonicsSel::saveButCB( CallBacker* )
 {
     ManagedObjectSet<Mnemonic> custommns;
-    getEntries( custommns );
+    if ( !getEntries(custommns) )
+	return;
+
     const bool srcchgd = !custommns.isEmpty() || !origentriesremoved_.isEmpty();
     const bool nochange = !srcchgd && newnames_.isEmpty()
 				   && newcolors_.isEmpty();
@@ -694,8 +712,9 @@ void uiCustomMnemonicsSel::doRead()
 }
 
 
-void uiCustomMnemonicsSel::getEntries( ObjectSet<Mnemonic>& mns ) const
+bool uiCustomMnemonicsSel::getEntries( ObjectSet<Mnemonic>& mns ) const
 {
+    uiRetVal uirv;
     for ( const auto* selfld : selflds_ )
     {
 	const bool srcchanged
@@ -703,7 +722,16 @@ void uiCustomMnemonicsSel::getEntries( ObjectSet<Mnemonic>& mns ) const
 		      selfld->editState() == uiMnSelFlds::EditType::Mnemonic;
 	if ( srcchanged )
 	{
-	    Mnemonic* mn = selfld->getMnemonic( Repos::Survey );
+	    Mnemonic* mn = selfld->getMnemonic( Repos::Survey, uirv );
+	    if ( !mn )
+	    {
+		uiString msg = tr( "Error: Cannot create new custom "
+				   "mnemonics." );
+		msg.addNewLine().addNewLine().append(uirv);
+		uiMSG().error( msg );
+		return false;
+	    }
+
 	    const OD::Color newcol = selfld->getColor();
 	    if ( newcol != mn->disp_.color_ )
 		mn->disp_.color_ = newcol;
@@ -711,6 +739,8 @@ void uiCustomMnemonicsSel::getEntries( ObjectSet<Mnemonic>& mns ) const
 	    mns.add( mn );
 	}
     }
+
+    return true;
 }
 
 
@@ -822,7 +852,9 @@ bool uiCustomMnemonicsSel::doSave()
 bool uiCustomMnemonicsSel::acceptOK( CallBacker* )
 {
     ManagedObjectSet<Mnemonic> custommns;
-    getEntries( custommns );
+    if ( !getEntries(custommns) )
+	return false;
+
     const bool srcchgd = !custommns.isEmpty() || !origentriesremoved_.isEmpty();
     const bool nochange = !srcchgd && newnames_.isEmpty()
 				   && newcolors_.isEmpty();

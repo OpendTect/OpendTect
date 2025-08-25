@@ -125,7 +125,7 @@ private:
     void			resetTable();
     void			removeEntries(const TypeSet<int>& rows,
 					      bool forreset=false);
-    void			getEntries(ObjectSet<Mnemonic>&) const;
+    bool			getEntries(ObjectSet<Mnemonic>&) const;
     bool			commitEntries(ObjectSet<Mnemonic>&);
     void			commitNameChanges();
     void			commitColorChanges();
