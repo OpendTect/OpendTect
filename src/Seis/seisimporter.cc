@@ -28,7 +28,7 @@ ________________________________________________________________________
 
 SeisImporter::SeisImporter( SeisImporter::Reader* r, SeisTrcWriter& w,
 			    Seis::GeomType gt )
-    : Executor("Importing seismic data")
+    : Executor("Importing Seismic Data")
     , rdr_(r)
     , wrr_(w)
     , maxqueuesize_(100) // arbitrary, but more seems to lower performance
@@ -71,7 +71,9 @@ uiString SeisImporter::uiMessage() const
 	return errmsg_;
 
     if ( hndlmsg_.isEmpty() )
-	{ hndlmsg_ = tr("Importing from %1").arg(rdr_->name()); }
+    {
+	hndlmsg_ = tr("Importing from %1").arg(rdr_->name());
+    }
     return hndlmsg_;
 }
 
@@ -138,6 +140,7 @@ int SeisImporter::nextStep()
 	Threads::MutexLocker lock( lock_ );
 	if ( !errmsg_.isEmpty() )
 	    return ErrorOccurred();
+
 	lock.unLock();
 
 	mDoRead( trc_ );
@@ -160,6 +163,7 @@ int SeisImporter::nextStep()
 	lock.lock();
 	if ( !errmsg_.isEmpty() )
 	    return ErrorOccurred();
+
 	lock.unLock();
 
 	return Finished();
@@ -269,6 +273,7 @@ int SeisImporter::readIntoBuf()
 	buf_.add( trc );
 	if ( !sortingOk(*trc) )
 	    return ErrorOccurred();
+
 	if ( !sortanal_ )
 	    state_ = WriteBuf;
 
@@ -450,6 +455,7 @@ bool SeisStdImporterReader::fetch( SeisTrc& trc )
 	    SeisTrc* outtrc = resampler_->get( trc );
 	    if ( !outtrc )
 		continue;
+
 	    if ( outtrc != &trc )
 		trc = *outtrc;
 	}

@@ -80,10 +80,10 @@ private:
     void		cr2DCoordSrcFields(uiGroup*&,bool);
 
     bool		doVSP();
-    bool		do3D(const IOObj&,const IOObj&,bool doimp);
-    bool		do2D(const IOObj&,const IOObj&,bool doimp,const char*);
-    bool		doBatch(bool doimp);
-    bool		doBatch2D(bool doimp,const char* lnm);
+    bool		do3D(const IOObj&,const IOObj&,bool docopy);
+    bool		do2D(const IOObj&,const IOObj&,bool docopy,const char*);
+    bool		doBatch(bool docopy);
+    bool		doBatch2D(bool docopy,const char* lnm);
     bool		getGeomID(const char* lnm,bool isnew,
 				  Pos::GeomID&) const;
 

@@ -67,6 +67,7 @@ uiString uiSEGYReadFinisher::getWinTile( const FullSpec& fs )
 	ret.arg( tr("Zero-offset VSP") );
     else
 	ret.arg( Seis::nameOf(gt) );
+
     return ret;
 }
 
@@ -193,8 +194,8 @@ void uiSEGYReadFinisher::cr2DCoordSrcFields( uiGroup*& attgrp, bool ismulti )
     coordsfromfld_->addItem( tr("The trace headers") );
 
     coordsfromfld_->addItem( ismulti
-	    ? tr("'Nr X Y' files (bend-points needed)")
-	    : tr("A 'Nr X Y' file (bend-points needed)") );
+				? tr("'Nr X Y' files (bend-points needed)")
+				: tr("A 'Nr X Y' file (bend-points needed)") );
     if ( ismulti )
     {
 	coordfileextfld_ = new uiGenInput( this, tr("File extension"),
@@ -214,8 +215,8 @@ void uiSEGYReadFinisher::cr2DCoordSrcFields( uiGroup*& attgrp, bool ismulti )
 	coordsstartfld_->attach( alignedBelow, lcb );
 	coordsstartfld_->setElemSzPol( uiObject::Small );
 	coordsstepfld_ = new uiGenInput( this, uiStrings::sStep(),
-			DoubleInpSpec(mNINT32(SI().crlDistance())),
-			DoubleInpSpec(0) );
+				     DoubleInpSpec(mNINT32(SI().crlDistance())),
+				     DoubleInpSpec(0) );
 	coordsstepfld_->attach( rightOf, coordsstartfld_ );
 	coordsstepfld_->setElemSzPol( uiObject::Small );
 
@@ -321,12 +322,16 @@ void uiSEGYReadFinisher::doScanChg( CallBacker* )
     const bool copy = docopyfld_ ? docopyfld_->getBoolValue() : true;
     if ( outimpfld_ )
 	outimpfld_->display( copy );
+
     if ( outscanfld_ )
 	outscanfld_->display( !copy );
+
     if ( transffld_ )
 	transffld_->display( copy && zdomain_->def_.isSI() );
+
     if ( remnullfld_ )
 	remnullfld_->display( !copy );
+
     if ( lnmfld_ )
 	lnmfld_->display( !copy );
 }
@@ -396,6 +401,7 @@ bool uiSEGYReadFinisher::doVSP()
 	{
 	    if ( inft )
 		z *= mFromFeetFactorF;
+
 	    if ( !ismd )
 		prevdah = z = track.getDahForTVD( z, prevdah );
 	}
@@ -452,14 +458,14 @@ SeisStdImporterReader* uiSEGYReadFinisher::getImpReader( const IOObj& ioobj,
 
 
 bool uiSEGYReadFinisher::do3D( const IOObj& inioobj, const IOObj& outioobj,
-			       bool doimp )
+			       bool docopy )
 {
     Executor* exec;
     const Seis::GeomType gt = fs_.geomType();
     PtrMan<SeisImporter> imp;
     PtrMan<SeisTrcWriter> wrr;
     PtrMan<SEGY::FileIndexer> indexer;
-    if ( doimp )
+    if ( docopy )
     {
 	wrr = new SeisTrcWriter( outioobj, &gt );
 	imp = new SeisImporter(
@@ -483,7 +489,10 @@ bool uiSEGYReadFinisher::do3D( const IOObj& inioobj, const IOObj& outioobj,
 
     uiTaskRunner dlg( this );
     if ( !dlg.execute(*exec) )
+    {
+	uiMSG().errorWithDetails( dlg.errorWithDetails() );
 	return false;
+    }
 
     if ( imp )
     {
@@ -494,7 +503,7 @@ bool uiSEGYReadFinisher::do3D( const IOObj& inioobj, const IOObj& outioobj,
     }
 
     wrr = nullptr;  // closes output
-    if ( !handleWarnings(!doimp,indexer.ptr(), imp.ptr()) )
+    if ( !handleWarnings(!docopy,indexer.ptr(),imp.ptr()) )
     {
 	IOM().permRemove( outioobj.key() );
 	return false;
@@ -531,7 +540,7 @@ bool uiSEGYReadFinisher::getGeomID( const char* lnm, bool isnew,
 
 
 bool uiSEGYReadFinisher::do2D( const IOObj& inioobj, const IOObj& outioobj,
-				bool doimp, const char* inplnm )
+			       bool docopy, const char* inplnm )
 {
     const int nrlines = fs_.spec_.nrFiles();
     bool overwr_warn = true, overwr = false, needupdate = false;
@@ -563,7 +572,7 @@ bool uiSEGYReadFinisher::do2D( const IOObj& inioobj, const IOObj& outioobj,
 	    return false;
 
 	const BufferString fnm( fs_.spec_.fileName(iln) );
-	if ( !exec2Dimp(inioobj,outioobj,doimp,fnm,lnm,geomid) )
+	if ( !exec2Dimp(inioobj,outioobj,docopy,fnm,lnm,geomid) )
 	    return false;
 
 	geomids += geomid;
@@ -583,18 +592,19 @@ bool uiSEGYReadFinisher::do2D( const IOObj& inioobj, const IOObj& outioobj,
 }
 
 
-bool uiSEGYReadFinisher::doBatch( bool doimp )
+bool uiSEGYReadFinisher::doBatch( bool docopy )
 {
     const Seis::GeomType gt = fs_.geomType();
-    const BufferString jobname( doimp ? "Import_SEG-Y_" : "Scan_SEG-Y_",
-				outFld(doimp)->getInput() );
+    //would this be the correct name for the batch jobs?
+    const BufferString jobname( docopy ? "Import_SEG-Y_" : "Scan_SEG-Y_",
+				outFld(docopy)->getInput() );
     batchfld_->setJobName( jobname );
     IOPar& jobpars = batchfld_->jobSpec().pars_;
     jobpars.setEmpty();
     Seis::putInPar( gt, jobpars );
-    jobpars.set( SEGY::IO::sKeyTask(), doimp ? SEGY::IO::sKeyImport()
-			   : (Seis::isPS(gt) ? SEGY::IO::sKeyIndexPS()
-					     : SEGY::IO::sKeyIndex3DVol()) );
+    jobpars.set( SEGY::IO::sKeyTask(), docopy ? SEGY::IO::sKeyImport()
+			    : (Seis::isPS(gt) ? SEGY::IO::sKeyIndexPS()
+					      : SEGY::IO::sKeyIndex3DVol()) );
     IOPar inpars;
     fs_.fillPar( inpars );
     if ( coordsys_ )
@@ -605,7 +615,7 @@ bool uiSEGYReadFinisher::doBatch( bool doimp )
     if ( transffld_ )
 	transffld_->fillPar( outpars );
 
-    uiSeisSel* seisselfld = outFld(doimp);
+    uiSeisSel* seisselfld = outFld( docopy );
     if ( seisselfld )
 	seisselfld->fillPar( outpars );
 
@@ -615,23 +625,22 @@ bool uiSEGYReadFinisher::doBatch( bool doimp )
 }
 
 
-bool uiSEGYReadFinisher::doBatch2D( bool doimp, const char* inplnm )
+bool uiSEGYReadFinisher::doBatch2D( bool docopy, const char* inplnm )
 {
     const Seis::GeomType gt = fs_.geomType();
-    uiSeisSel* seisselfld = outFld(doimp);
+    uiSeisSel* seisselfld = outFld(docopy);
     const int nrlines = fs_.spec_.nrFiles();
     const BufferString infostr( nrlines > 1 ? "multi" : inplnm, "_",
 				seisselfld->getInput() );
-    const BufferString jobname( doimp ? "Import_SEG-Y_" : "Scan_SEG-Y_",
+    const BufferString jobname( docopy ? "Import_SEG-Y_" : "Scan_SEG-Y_",
 				infostr );
     batchfld_->setJobName( jobname );
     IOPar& jobpars = batchfld_->jobSpec().pars_;
     jobpars.setEmpty();
     Seis::putInPar( gt, jobpars );
-    jobpars.set( SEGY::IO::sKeyTask(), doimp ? SEGY::IO::sKeyImport()
-			   : (Seis::isPS(gt) ? SEGY::IO::sKeyIndexPS()
-					     : SEGY::IO::sKeyIndex3DVol()) );
-
+    jobpars.set( SEGY::IO::sKeyTask(), docopy ? SEGY::IO::sKeyImport()
+			    : (Seis::isPS(gt) ? SEGY::IO::sKeyIndexPS()
+					      : SEGY::IO::sKeyIndex3DVol()) );
     IOPar inpars;
     fs_.fillPar( inpars );
     if ( coordsys_ )
@@ -673,8 +682,8 @@ bool uiSEGYReadFinisher::doBatch2D( bool doimp, const char* inplnm )
 
 
 bool uiSEGYReadFinisher::exec2Dimp( const IOObj& inioobj, const IOObj& outioobj,
-				bool doimp, const char* fnm, const char* lnm,
-				Pos::GeomID geomid )
+				    bool docopy, const char* fnm,
+				    const char* lnm, Pos::GeomID geomid )
 {
     Executor* exec;
     const Seis::GeomType gt = fs_.geomType();
@@ -684,13 +693,14 @@ bool uiSEGYReadFinisher::exec2Dimp( const IOObj& inioobj, const IOObj& outioobj,
     PtrMan<IOStream> iniostrm;
     SEGY::FileSpec fspec( fs_.spec_ );
     fspec.setFileName( fnm );
-    if ( doimp )
+    if ( docopy )
     {
 	iniostrm = static_cast<IOStream*>( fspec.getIOObj( true ) );
 	updateInIOObjPars( *iniostrm, outioobj );
 	wrr = new SeisTrcWriter( outioobj, geomid, &gt );
 	imp = new SeisImporter( getImpReader(*iniostrm,*wrr,geomid), *wrr, gt );
-	BufferString nm( imp->name() ); nm.add( " (" ).add( lnm ).add( ")" );
+	BufferString nm( imp->name() );
+	nm.add( " (" ).add( lnm ).add( ")" );
 	imp->setName( nm );
 	exec = imp.ptr();
     }
@@ -706,8 +716,15 @@ bool uiSEGYReadFinisher::exec2Dimp( const IOObj& inioobj, const IOObj& outioobj,
 	exec = indexer.ptr();
     }
 
-    if ( !exec->execute() )
+    uiTaskRunner dlg( this );
+    BufferString progtitle = docopy ? "Copying 2D Seismic Data"
+				    : "Importing 2D Data with SEGY-Direct";
+    dlg.setTitleText(tr("Scanning Traces"));
+    exec->setName(progtitle);
+    if ( !dlg.execute(*exec) )
+    {
 	return false;
+    }
 
     wrr.erase(); // closes output
     handleWarnings( false, indexer.ptr(), imp.ptr() );
@@ -733,11 +750,11 @@ bool uiSEGYReadFinisher::handleExistingGeometry( const char* lnm, bool morelns,
 			    "\n\nDo you want to overwrite it?").arg(lnm),
 			    mODHelpKey(mhandleExistingGeometryHelpID));
 	uiDialog dlg( this, dsu );
-	uiCheckList* optfld = new uiCheckList( &dlg, uiCheckList::OneOnly );
-	optfld->addItem( tr("Cancel: stop the import"), "cancel" );
-	optfld->addItem( tr("Yes: set the geometry from the SEG-Y file"),
-							"checkgreen" );
-	optfld->addItem( tr("No: keep the existing geometry"), "handstop" );
+	auto* optfld = new uiCheckList( &dlg, uiCheckList::OneOnly );
+	optfld->addItem( tr("Cancel: Stop the import"), "cancel" );
+	optfld->addItem( tr("Yes: Set the geometry from the SEG-Y file"),
+			 "checkgreen" );
+	optfld->addItem( tr("No: Keep the existing geometry"), "handstop" );
 	if ( morelns )
 	{
 	    optfld->addItem( tr("All: overwrite all existing geometries"),
@@ -803,8 +820,10 @@ bool uiSEGYReadFinisher::putCoordChoiceInSpec()
 	Coord stepcrd( coordsstepfld_->getCoord() );
 	if ( mIsUdf(stepcrd.x_) )
 	    stepcrd.x_ = 0;
+
 	if ( mIsUdf(stepcrd.y_) )
 	    stepcrd.y_ = 0;
+
         if ( mIsZero(stepcrd.x_,0.001) && mIsZero(stepcrd.y_,0.001) )
 	    mErrRet(tr("The steps cannot both be zero"))
 
@@ -854,9 +873,9 @@ bool uiSEGYReadFinisher::acceptOK( CallBacker* )
     if ( fs_.isVSP() )
 	return doVSP();
 
-    const bool doimp = docopyfld_ ? docopyfld_->getBoolValue() : true;
-    outFld(doimp)->reset();
-    const IOObj* ioobj = outFld(doimp)->ioobj();
+    const bool docopy = docopyfld_ ? docopyfld_->getBoolValue() : true;
+    outFld(docopy)->reset();
+    const IOObj* ioobj = outFld(docopy)->ioobj();
     if ( !ioobj )
 	return false;
 
@@ -867,22 +886,22 @@ bool uiSEGYReadFinisher::acceptOK( CallBacker* )
     BufferString lnm;
     if ( is2d )
     {
-	lnm = doimp ? transffld_->selectedLine().buf()
-		    : lnmfld_->getInput();
+	lnm = docopy ? transffld_->selectedLine().buf() : lnmfld_->getInput();
 	if ( lnm.isEmpty() )
 	    mErrRet( uiStrings::phrEnter(tr("a line name")) )
+
 	if ( !putCoordChoiceInSpec() )
 	    return false;
     }
 
-    if ( doimp && !Seis::isPS(fs_.geomType()) )
+    if ( docopy && !Seis::isPS(fs_.geomType()) )
     {
 	const uiSeisIOObjInfo oinf( *outioobj, true );
 	if ( !oinf.checkSpaceLeft(transffld_->spaceInfo()) )
 	    return false;
     }
 
-    if ( !doimp )
+    if ( !docopy )
     {
 	const bool ismulti = fs_.spec_.nrFiles() > 1;
 	uiString part = ismulti ? tr("files remain") : tr("file remains");
@@ -897,13 +916,27 @@ bool uiSEGYReadFinisher::acceptOK( CallBacker* )
     }
 
     if ( batchfld_ && batchfld_->wantBatch() )
-	return is2d ? doBatch2D( doimp, lnm ) : doBatch( doimp );
+	return is2d ? doBatch2D( docopy, lnm ) : doBatch( docopy );
 
     PtrMan<IOObj> inioobj = fs_.spec_.getIOObj( true );
     updateInIOObjPars( *inioobj, *outioobj );
 
-    const bool res = is2d ? do2D( *inioobj, *outioobj, doimp, lnm )
-			  : do3D( *inioobj, *outioobj, doimp );
+    const bool success = is2d ? do2D( *inioobj, *outioobj, docopy, lnm )
+			      : do3D( *inioobj, *outioobj, docopy );
+
     IOM().permRemove( inioobj->key() );
-    return res;
+
+    const FilePath fpnm( inioobj->name() );
+
+    const uiString importmore = tr( success ? "Import More" : "Try Again" );
+    const uiString msg = tr("%1 import%2 data from %3 '%4' to '%5'. %6?")
+			     .arg( success ? "Successfully" : "Failed to" )
+			     .arg( success ? "ed" : "" )
+			     .arg( is2d ? "Line" : "SEG-Y" )
+			     .arg( is2d ? lnm.buf() : fpnm.baseName().buf() )
+			     .arg( outioobj->getName().buf() )
+			     .arg( importmore );
+
+    const bool ret = uiMSG().askGoOn( msg, importmore, tr("No, close window") );
+    return !ret;
 }

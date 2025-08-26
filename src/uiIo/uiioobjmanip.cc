@@ -334,14 +334,14 @@ void uiIOObjManipGroup::tbPush( CallBacker* c )
 
 bool uiIOObjManipGroup::renameEntry( IOObj& ioobj, Translator* trans )
 {
-    uiString titl = toUiString("%1 '%2'").arg(uiStrings::sRename())
+    const uiString titl = toUiString("%1 '%2'").arg(uiStrings::sRename())
 					       .arg(ioobj.uiName());
     uiGenInputDlg dlg( this, titl, mJoinUiStrs(sNew(), sName()),
 			new StringInpSpec(ioobj.name()) );
     if ( dlg.go() != uiDialog::Accepted )
 	return false;
 
-    BufferString newnm = dlg.text();
+    const BufferString newnm = dlg.text();
     if ( subj_.names().isPresent(newnm) )
     {
 	if ( newnm != ioobj.name() )
@@ -351,11 +351,11 @@ bool uiIOObjManipGroup::renameEntry( IOObj& ioobj, Translator* trans )
     }
     else
     {
-	IOObj* lioobj = IOM().getLocal( newnm, ioobj.group() );
+	const IOObj* lioobj = IOM().getLocal( newnm, ioobj.group() );
 	if ( lioobj )
 	{
-	    uiString msg = tr("This name is already used by a %1 object")
-			 .arg(lioobj->translator());
+	    const uiString msg = tr("This name is already used by a %1 object")
+				    .arg(lioobj->translator());
 	    delete lioobj;
 	    uiMSG().error( msg );
 	    return false;
@@ -377,10 +377,10 @@ bool uiIOObjManipGroup::rmEntry( IOObj& ioobj )
     bool shldrm = !IOM().implIsLink( key );
     if ( exists && readonly && shldrm )
     {
-	uiString msg = tr("'%1' is not writable; the actual data "
-			  "will not be deleted.\nThe entry will only "
-			  "disappear from the list.\nContinue?")
-		     .arg(ioobj.name());
+	const uiString msg = tr("'%1' is not writable; the actual data "
+				"will not be deleted.\nThe entry will only "
+				"disappear from the list.\nContinue?")
+				    .arg(ioobj.name());
 	if ( !uiMSG().askContinue(msg) )
 	    return false;
 
@@ -470,7 +470,7 @@ bool uiIOObjManipGroup::relocEntry( IOObj& ioobj,
 	return false;
     }
 
-    FilePath newdirfp( newdir );
+    const FilePath newdirfp( newdir );
     if ( !IOM().implReloc(ioobj.key(), newdirfp.fullPath()) )
     {
 	uiString errmsg = tr( "Could not relocate the file to new location." );

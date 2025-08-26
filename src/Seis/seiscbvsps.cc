@@ -705,6 +705,13 @@ void SeisCBVSPS2DReader::init( const Pos::GeomID& geomid )
     tr_->readMgr()->getPositions( coords );
     tr_->readMgr()->getPositions( binids );
 
+    if ( coords.size() != binids.size() )
+    {
+	errmsg_ = tr("Error getting positions from line %1")
+		      .arg( Survey::GM().getName(geomid) );
+	return;
+    }
+
     int prevnr = mUdf(int);
     for ( int idx=0; idx<coords.size(); idx++ )
     {

@@ -82,7 +82,7 @@ uiSEGYReadStarter::uiSEGYReadStarter( uiParent* p, bool forsurvsetup,
     topgrp_ = new uiGroup( this, "Top group" );
     uiFileInput::Setup fisu( uiFileDialog::Gen, filespec_.fileName() );
     fisu.filter( uiSEGYFileSpec::fileFilter() ).forread( true )
-	.objtype( tr("SEG-Y") ).defseldir(sImportFromPath);
+		    .objtype( tr("SEG-Y") ).defseldir(sImportFromPath);
     inpfld_ = new uiFileInput( topgrp_, uiStrings::phrJoinStrings(
 			       uiStrings::sInputFile(),tr("*=wildcard")),fisu );
     inpfld_->setStretch( 2, 0 );
@@ -206,7 +206,8 @@ void uiSEGYReadStarter::createTools()
     examinenrtrcsfld_->setHSzPol( uiObject::Small );
     examinenrtrcsfld_->setToolTip( tr("Number of traces to examine") );
     examinenrtrcsfld_->attach( alignedBelow, examinebut_ );
-    int nrex = 1000; Settings::common().get( sKeySettNrTrcExamine, nrex );
+    int nrex = 1000;
+    Settings::common().get( sKeySettNrTrcExamine, nrex );
     examinenrtrcsfld_->setInterval( 10, 1000000, 10 );
     examinenrtrcsfld_->setValue( nrex );
     examinegrp->attach( alignedBelow, fullscanbut_ );
@@ -325,7 +326,10 @@ void uiSEGYReadStarter::clearDisplay()
 void uiSEGYReadStarter::setImpTypIdx( int tidx )
 {
     if ( imptypeFixed() )
-	{ pErrMsg( "Cannot set type if fixed" ); return; }
+    {
+	pErrMsg( "Cannot set type if fixed" );
+	return;
+    }
 
     typfld_->setTypIdx( tidx ); // should trigger its callback
 }
@@ -511,8 +515,8 @@ void uiSEGYReadStarter::firstSel( CallBacker* )
     mDetachCB( timer_->tick, uiSEGYReadStarter::firstSel );
 
     uiFileDialog dlg( this, uiFileDialog::ExistingFile, 0,
-			uiSEGYFileSpec::fileFilter(),
-			tr("Select (one of) the SEG-Y file(s)") );
+		      uiSEGYFileSpec::fileFilter(),
+		      tr("Select (one of) the SEG-Y file(s)") );
     if ( forsurvsetup_ )
 	dlg.setDirectory( GetBaseDataDir() );
     else
@@ -603,16 +607,20 @@ void uiSEGYReadStarter::runClassic( bool imp )
 {
     const Seis::GeomType gt = impType().geomType();
     uiSEGYRead::Setup su( forsurvsetup_ ? uiSEGYRead::SurvSetup
-				 : (imp ? uiSEGYRead::Import
-					: uiSEGYRead::DirectDef) );
+					: (imp ? uiSEGYRead::Import
+					       : uiSEGYRead::DirectDef) );
     if ( imptypeFixed() )
-	{ su.geoms_.erase(); su.geoms_ += gt; }
+    {
+	su.geoms_.erase();
+	su.geoms_ += gt;
+    }
     else if ( !imp )
 	su.geoms_ -= Seis::Line;
 
     commit( true );
     const FullSpec fullspec = fullSpec();
-    IOPar iop; fullspec.fillPar( iop );
+    IOPar iop;
+    fullspec.fillPar( iop );
     classicrdr_ = new uiSEGYRead( this, su, &iop );
     if ( !timer_ )
 	timer_ = new Timer( "uiSEGYReadStarter timer" );
@@ -648,7 +656,10 @@ void uiSEGYReadStarter::handleNewInputSpec( LoadDefChgType ct, bool fullscan )
 {
     const BufferString newusrfnm( inpfld_->fileName() );
     if ( newusrfnm.isEmpty() )
-	{ clearDisplay(); return; }
+    {
+	clearDisplay();
+	return;
+    }
 
     if ( fullscan || newusrfnm != userfilename_ )
     {
@@ -667,7 +678,7 @@ void uiSEGYReadStarter::handleNewInputSpec( LoadDefChgType ct, bool fullscan )
 	}
     }
 
-    FilePath fp( newusrfnm );
+    const FilePath fp( newusrfnm );
     sImportFromPath = fp.pathOnly();
 }
 
@@ -748,7 +759,8 @@ void uiSEGYReadStarter::readParsCB( CallBacker* )
 
 void uiSEGYReadStarter::writeParsCB( CallBacker* )
 {
-    IOPar iop; fillPar( iop );
+    IOPar iop;
+    fillPar( iop );
     uiSEGYStoreImpParsDlg dlg( this, iop, lastparname_ );
     if ( dlg.go() )
 	lastparname_ = dlg.parName();
@@ -757,7 +769,8 @@ void uiSEGYReadStarter::writeParsCB( CallBacker* )
 
 void uiSEGYReadStarter::icxyCB( CallBacker* cb )
 {
-    if ( !useicbut_ ) return;
+    if ( !useicbut_ )
+	return;
 
     const bool iccl = cb == useicbut_;
     const bool useic = iccl ? useicbut_->isChecked() : !usexybut_->isChecked();
@@ -880,7 +893,8 @@ void uiSEGYReadStarter::editHdrEntrySettings( CallBacker* )
 
 void uiSEGYReadStarter::updateICvsXYButtons()
 {
-    if ( !useicbut_ ) return;
+    if ( !useicbut_ )
+	return;
 
     const bool useic = loaddef_.icvsxytype_ == SEGY::FileReadOpts::ICOnly;
     NotifyStopper nsic( useicbut_->activated );
@@ -897,14 +911,20 @@ void uiSEGYReadStarter::updateAmplDisplay( CallBacker* )
 
     od_int64 nrvals = clipsampler_.nrVals();
     if ( nrvals < 1 )
-	{ ampldisp_->setEmpty(); return; }
+    {
+	ampldisp_->setEmpty();
+	return;
+    }
 
     const float* csvals = clipsampler_.vals();
     const float clipratio = ratioClip();
     const bool useclip = clipratio > 0.0005f;
     const bool rm0 = !incZeros();
     if ( !useclip && !rm0 )
-	{ ampldisp_->setData( csvals, nrvals ); return; }
+    {
+	ampldisp_->setData( csvals, nrvals );
+	return;
+    }
 
     TypeSet<float> vals;
     if ( !rm0 )
@@ -921,7 +941,10 @@ void uiSEGYReadStarter::updateAmplDisplay( CallBacker* )
     }
 
     if ( nrvals < 1 )
-	{ ampldisp_->setEmpty(); return; }
+    {
+	ampldisp_->setEmpty();
+	return;
+    }
 
     if ( useclip )
     {
@@ -940,7 +963,10 @@ void uiSEGYReadStarter::updateAmplDisplay( CallBacker* )
 
 	nrvals = vals.size();
 	if ( nrvals < 1 )
-	    { ampldisp_->setEmpty(); return; }
+	{
+	    ampldisp_->setEmpty();
+	    return;
+	}
     }
 
     ampldisp_->setData( vals.arr(), nrvals );
@@ -1028,6 +1054,7 @@ bool uiSEGYReadStarter::getFileSpec()
     {
 	if ( !getExistingFileName(userfilename_) )
 	    return false;
+
 	filespec_.setFileName( userfilename_ );
     }
     else
@@ -1094,7 +1121,10 @@ bool uiSEGYReadStarter::scanFile( const char* fnm, LoadDefChgType ct,
 {
     od_istream strm( fnm );
     if ( !strm.isOK() )
-	{ uiMSG().error( tr("Cannot open file: %1").arg(fnm) ); return false; }
+    {
+	uiMSG().error( tr("Cannot open file: %1").arg(fnm) );
+	return false;
+    }
 
     SEGY::ScanInfo& si = scaninfos_->add( fnm );
     ConstRefMan<Coords::CoordSystem> usercoordsystem =
@@ -1157,7 +1187,7 @@ bool uiSEGYReadStarter::completeFileInfo( od_istream& strm,
 	mErrRetResetStream(
 	    tr("File:\n%1\nNo proper 'number of samples per trace' found") )
 
-		if ( mIsUdf(bfi.sampling_.step_) )
+    if ( mIsUdf(bfi.sampling_.step_) )
     {
 	SeisTrcInfo ti;
 	if ( thdr->is2D() != loaddef_.is2d_ )
@@ -1174,7 +1204,10 @@ bool uiSEGYReadStarter::completeFileInfo( od_istream& strm,
 void uiSEGYReadStarter::displayScanResults()
 {
     if ( !scaninfos_ || scaninfos_->isEmpty() )
-	{ clearDisplay(); return; }
+    {
+	clearDisplay();
+	return;
+    }
 
     setToolStates();
     if ( ampldisp_ )

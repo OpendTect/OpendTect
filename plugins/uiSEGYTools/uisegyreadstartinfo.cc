@@ -142,7 +142,8 @@ void setHdrEntry( const SEGY::HdrEntry& entry )
 void setEntries( const SEGY::HdrEntryDataSet& ds )
 {
     NotifyStopper ns( changed );
-    bytenrfld_->setEmpty(); heidxs_.setEmpty();
+    bytenrfld_->setEmpty();
+    heidxs_.setEmpty();
 
     for ( int idx=0; idx<ds.idxs_.size(); idx++ )
     {
@@ -151,15 +152,17 @@ void setEntries( const SEGY::HdrEntryDataSet& ds )
 	uiString txt( tr("%1 (byte %2) - \"%3\"")
 		     .arg(he.name()).arg(he.bytepos_+1).arg(he.description()) );
 
-	bytenrfld_->addItem( txt ); heidxs_ += heidx;
+	bytenrfld_->addItem( txt );
+	heidxs_ += heidx;
     }
 
-    uiString ttip; nonefound_ = false;
+    uiString ttip;
+    nonefound_ = false;
     if ( bytenrfld_->isEmpty() )
     {
 	nonefound_ = true;
 	ttip = tr("The scan found invalid numbers in all possible fields for "
-		    "this entry.");
+		  "this entry.");
 	bytenrfld_->addItem( tr("<Nothing valid found>") );
     }
     bytenrfld_->setToolTip( ttip );
@@ -525,8 +528,7 @@ void uiSEGYReadStartInfo::updateCellTexts()
     uiString xustxt; uiString yustxt;
     uiString ky1ustxt; uiString ky2ustxt;
     uiString nrtrcsusrtxt;
-    xittxt = yittxt = ky1ittxt = ky2ittxt = offsittxt = azitxt =
-    xustxt = yustxt = ky1ustxt = ky2ustxt = nrtrcsusrtxt = uiString::empty();
+
     if ( isvsp )
 	nrtrcsusrtxt = tr("(1 trace used)");
     else
@@ -687,16 +689,22 @@ bool uiSEGYReadStartInfo::hasRev1Value( const uiSEGYByteNr* fld ) const
     const SEGY::HdrDef& hdef = SEGY::TrcHeader::hdrDef();
     if ( fld == xcoordbytefld_ )
 	return fld->hasEntry( *hdef[SEGY::TrcHeader::EntryXcdp()] );
+
     if ( fld == ycoordbytefld_ )
 	return fld->hasEntry( *hdef[SEGY::TrcHeader::EntryYcdp()] );
+
     if ( fld == inlbytefld_ )
 	return fld->hasEntry( *hdef[SEGY::TrcHeader::EntryInline()] );
+
     if ( fld == crlbytefld_ )
 	return fld->hasEntry( *hdef[SEGY::TrcHeader::EntryCrossline()] );
+
     if ( fld == trcnrbytefld_ )
 	return fld->hasEntry( *hdef[SEGY::TrcHeader::EntryCdp()] );
+
     if ( fld == refnrbytefld_ )
 	return fld->hasEntry( *hdef[SEGY::TrcHeader::EntrySP()] );
+
     if ( fld == offsetbytefld_ )
 	return fld->hasEntry( *hdef[SEGY::TrcHeader::EntryOffset()] );
 
@@ -761,7 +769,9 @@ void uiSEGYReadStartInfo::setImpTypIdx( int idx, bool doupd )
     if ( idx != imptype_.tidx_ )
     {
 	if ( inptypfixed_ )
-	    { pErrMsg( "Input type fixed, should not set" ); }
+	{
+	    pErrMsg( "Input type fixed, should not set" );
+	}
 	imptype_.tidx_ = idx;
     }
 
@@ -912,7 +922,10 @@ void uiSEGYReadStartInfo::useLoadDef()
 		{
 		    listidx += nrunswappedfmts_;
 		    if ( listidx >= fmtfld_->size() )
-			{ pErrMsg("Huh"); listidx -= nrunswappedfmts_; }
+		    {
+			pErrMsg("Huh");
+			listidx -= nrunswappedfmts_;
+		    }
 		}
 		fmtfld_->setCurrentItem( listidx );
 		break;
@@ -931,7 +944,10 @@ void uiSEGYReadStartInfo::useLoadDef()
     zstartfld_->setValue( loaddef_.sampling_.start_ );
     srfld_->setValue( loaddef_.sampling_.step_ );
     if ( imptype_.isVSP() )
-	{ parsbeingset_ = false; return; }
+    {
+	parsbeingset_ = false;
+	return;
+    }
 
     const Seis::GeomType gt = imptype_.geomType();
     if ( Seis::is2D(gt) )
@@ -1025,6 +1041,7 @@ void uiSEGYReadStartInfo::fillLoadDef()
 	loaddef_.hdrdef_->refnr_ = refnrbytefld_->hdrEntry();
 	if ( trcnrbytefld_ )
 	    loaddef_.hdrdef_->trnr_ = trcnrbytefld_->hdrEntry();
+
 	loaddef_.havetrcnrs_ = trcnrsrcfld_->currentItem() == 0;
 	if ( trcnrgengrp_ )
 	{
@@ -1053,9 +1070,12 @@ void uiSEGYReadStartInfo::fillLoadDef()
 	{
 	    SamplingData<float>& def = loaddef_.psoffsdef_;
             def.start_ = offsgenstartfld_->getFValue();
-            if ( mIsUdf(def.start_) ) def.start_ = 0.f;
+	    if ( mIsUdf(def.start_) )
+		def.start_ = 0.f;
+
             def.step_ = offsgenstepfld_->getFValue();
-            if ( mIsUdf(def.step_) ) def.step_ = 1.f;
+	    if ( mIsUdf(def.step_) )
+		def.step_ = 1.f;
 	}
 
 	loaddef_.hdrdef_->azim_ = azimuthbytefld_->hdrEntry();

@@ -78,9 +78,12 @@ void uiBatchJobDispatcherSel::init( bool optional )
     }
 
     if ( uidispatchers_.isEmpty() )
-	{ pErrMsg("No batch dispatcher launchers at all"); return; }
+    {
+	pErrMsg("No batch dispatcher launchers at all");
+	return;
+    }
 
-    uiString optionsbuttxt = uiStrings::sOptions();
+    auto optionsbuttxt = uiStrings::sOptions();
     const CallBack fldchkcb( mCB(this,uiBatchJobDispatcherSel,fldChck) );
     uiObject* attachobj = nullptr;
     const bool onlyonechoice = uidispatchers_.size() == 1;
@@ -164,6 +167,7 @@ void uiBatchJobDispatcherSel::setWantBatch( bool yn )
 {
     if ( selfld_ && selfld_->isCheckable() )
 	selfld_->setChecked( yn );
+
     if ( dobatchbox_ )
 	dobatchbox_->setChecked( yn );
 }
@@ -267,7 +271,7 @@ void uiBatchJobDispatcherSel::selChg( CallBacker* )
 {
     const int selidx = selIdx();
     uiBatchJobDispatcherLauncher* uidisp = selidx < 0 ? 0
-					 : uidispatchers_[selidx];
+						      : uidispatchers_[selidx];
     optsbut_->display( uidisp ? uidisp->hasOptions() : false );
 
     fldChck( 0 );
