@@ -59,7 +59,8 @@ public:
 
     void		setIOObjCtxt(const IOObjContext&);
 
-    CNotifier<uiIOObjInserter,const MultiID&> objInserted;
+    CNotifier<uiIOObjInserter,const MultiID&>	objInserted;
+    Notifier<uiIOObjInserter>			insertFinalized;
 
 protected:
 

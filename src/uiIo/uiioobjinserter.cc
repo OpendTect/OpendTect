@@ -23,7 +23,8 @@ ________________________________________________________________________
 mImplFactory(uiIOObjInserter,uiIOObjInserter::factory);
 
 uiIOObjInserter::uiIOObjInserter( const Translator& trl )
-    : objInserted(this)
+    : insertFinalized(this)
+    , objInserted(this)
     , transl_(trl)
     , ctxt_(*new IOObjContext(nullptr))
 {}
