@@ -88,7 +88,7 @@ void uiColopLink::addColopIconFolder()
 	return;
 
     BufferStringSet dirnms;
-    if ( !GetSetupShareDirNames("colopgui",dirnms) || dirnms.isEmpty() )
+    if ( !GetSetupShareDirNames("colop",dirnms) || dirnms.isEmpty() )
 	return;
 
     const BufferString& dirnm = *dirnms.first();
