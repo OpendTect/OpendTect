@@ -55,13 +55,13 @@ protected:
     IOPar&		subselpar_;
     Attrib::DescSet*	ads_;
     MultiID		nlaid_;
-    const NLAModel*	nlamodel_;
+    const NLAModel*	nlamodel_		    = nullptr;
 
-    uiAttrSel*		todofld_;
-    uiMultiAttribSel*	attrselfld_;
+    uiAttrSel*		todofld_		    = nullptr;
+    uiMultiAttribSel*	attrselfld_		    = nullptr;
     uiSeisTransfer*	transffld_;
     uiSeisSel*		objfld_;
-    uiIOObjSel*		datastorefld_;
+    uiIOObjSel*		datastorefld_		    = nullptr;
     uiGenInput*		offsetfld_;
 
     TypeSet<int>	seloutputs_;

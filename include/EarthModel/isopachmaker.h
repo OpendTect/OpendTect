@@ -32,14 +32,14 @@ public:
 
     int			nextStep() override;
     int			finishWork();
-    uiString		uiMessage() const override	{ return msg_; }
+    uiString		uiMessage() const override;
     uiString		uiNrDoneText() const override
 			{ return tr("Positions handled"); }
     od_int64		nrDone() const override		{ return nrdone_; }
     od_int64		totalNr() const override	{ return totnr_; }
 
     void		useSignedValue( bool yn )	{ signed_ = yn; }
-    void		setUnits( const bool isinmsc) { inmsec_ = isinmsc; }
+    void		setUnits( const bool isinmsc )	{ inmsec_ = isinmsc; }
     bool		saveAttribute(const EM::Horizon3D*,int attribidx,
 				      bool overwrite,od_ostream* strm=0);
     static const char*	sKeyHorizonID();
@@ -49,9 +49,19 @@ public:
     static const char*	sKeyIsOverWriteYN();
 
 protected:
+
+    enum IsochronMakerStatus
+    {
+	NotStarted,
+	Running,
+	NoValuesCollected,
+	Done
+    };
+
+    IsochronMakerStatus		status_			= NotStarted;
+
     int				totnr_;
-    od_int64			nrdone_;
-    uiString			msg_;
+    od_int64			nrdone_			= 0;
 
     int				sidcolidx_;
     int				dataidx_;

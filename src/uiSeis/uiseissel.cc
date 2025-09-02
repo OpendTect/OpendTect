@@ -38,7 +38,7 @@ uiString uiSeisSelDlg::gtSelTxt( const uiSeisSel::Setup& setup, bool forread )
     if ( !setup.seltxt_.isEmpty() )
 	return setup.seltxt_;
 
-    const uiString datatype = Seis::dataName(setup.geom_, setup.explprepost_ );
+    const uiString datatype = Seis::dataName( setup.geom_, setup.explprepost_ );
     return forread ? uiStrings::phrInput( datatype )
 		   : uiStrings::phrOutput( datatype );
 }

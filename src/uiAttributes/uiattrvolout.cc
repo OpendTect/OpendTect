@@ -57,17 +57,14 @@ uiAttrVolOut::uiAttrVolOut( uiParent* p, const Attrib::DescSet& ad,
     , subselpar_(*new IOPar)
     , ads_(new Attrib::DescSet(ad))
     , nlaid_(id)
-    , nlamodel_(0)
-    , todofld_(0)
-    , attrselfld_(0)
-    , datastorefld_(0)
 {
     const bool is2d = ad.is2D();
+
     const Seis::GeomType gt = Seis::geomTypeOf( is2d, false );
 
-    setCaption( is2d ? tr("Create 2D Data Attribute") :
-	(multioutput ? tr("Create Multi-Attribute Volume")
-		     : tr("Create Single-Attribute Volume")) );
+    setCaption( is2d ? tr("Create 2D Data Attribute")
+		     : (multioutput ? tr("Create Multi-Attribute Volume")
+				    : tr("Create Single-Attribute Volume")) );
 
     setHelpKey( is2d ? mODHelpKey(mAttrVolOut2DHelpID)
 		     : mODHelpKey(mAttrVolOutHelpID) );
@@ -100,10 +97,11 @@ uiAttrVolOut::uiAttrVolOut( uiParent* p, const Attrib::DescSet& ad,
     else
 	transffld_->attach( centeredBelow, attrselfld_ );
 
-    if ( sep1 ) transffld_->attach( ensureBelow, sep1 );
+    if ( sep1 )
+	transffld_->attach( ensureBelow, sep1 );
 
     objfld_ = new uiSeisSel( pargrp_, uiSeisSel::ioContext(gt,false),
-				uiSeisSel::Setup(is2d,false) );
+			     uiSeisSel::Setup(is2d,false) );
     objfld_->selectionDone.notify( mCB(this,uiAttrVolOut,outSelCB) );
     objfld_->attach( alignedBelow, transffld_ );
     objfld_->setConfirmOverwrite( !is2d );
@@ -112,10 +110,10 @@ uiAttrVolOut::uiAttrVolOut( uiParent* p, const Attrib::DescSet& ad,
     uiSeparator* sep3 = 0;
     if ( multioutput && !is2d )
     {
-	uiSeparator* sep2 = new uiSeparator( pargrp_, "PS Start Separator" );
+	auto* sep2 = new uiSeparator( pargrp_, "PS Start Separator" );
 	sep2->attach( stretchedBelow, objfld_ );
 
-	uiCheckBox* cb = new uiCheckBox(pargrp_,tr("Enable Prestack Analysis"));
+	auto* cb = new uiCheckBox( pargrp_,tr("Enable Prestack Analysis") );
 	cb->activated.notify( mCB(this,uiAttrVolOut,psSelCB) );
 	cb->attach( alignedBelow, objfld_ );
 	cb->attach( ensureBelow, sep2 );
@@ -130,7 +128,7 @@ uiAttrVolOut::uiAttrVolOut( uiParent* p, const Attrib::DescSet& ad,
 
 	const Interval<float> offsets( 0, 100 );
 	const uiString lbl = tr( "Offset (start/step) %1" )
-					.arg( SI().getXYUnitString() );
+					.arg(SI().getXYUnitString());
 	offsetfld_ = new uiGenInput( pargrp_, lbl,
 				     FloatInpIntervalSpec(offsets) );
 	offsetfld_->attach( alignedBelow, datastorefld_ );
@@ -189,7 +187,8 @@ void uiAttrVolOut::updateAttributes( const Attrib::DescSet& descset,
 void uiAttrVolOut::psSelCB( CallBacker* cb )
 {
     mDynamicCastGet(uiCheckBox*,box,cb)
-    if ( !box || !datastorefld_ ) return;
+    if ( !box || !datastorefld_ )
+	return;
 
     datastorefld_->setSensitive( box->isChecked() );
     offsetfld_->setSensitive( box->isChecked() );
@@ -253,8 +252,7 @@ void uiAttrVolOut::attrSel( CallBacker* )
 
 
 void uiAttrVolOut::outSelCB( CallBacker* )
-{
-}
+{}
 
 
 bool uiAttrVolOut::prepareProcessing()
@@ -278,7 +276,7 @@ bool uiAttrVolOut::prepareProcessing()
 	    outputnm.replace( '|', '_' );
 	    if( nroccuer )
 	    {
-		uiString msg = tr("Invalid charactor '|' "
+		uiString msg = tr("Invalid character '|' "
 				  " found in output name. "
 				  "It will be renamed to: '%1'"
 				  "\n\nDo you want to continue?")
@@ -301,13 +299,15 @@ bool uiAttrVolOut::prepareProcessing()
 	    BufferString lnm;
 	    if ( singline )
 		lnm = transffld_->selectedLine();
+
 	    if ( (!singline && lnms.size()) ||
-		 (singline && lnms.isPresent(lnm.buf())) )
+		(singline && lnms.isPresent(lnm.buf())) )
 	    {
-		const bool rv = uiMSG().askGoOn(
-		    tr("Output attribute already exists."),
-		       uiStrings::sOverwrite(), uiStrings::sCancel());
-		if ( !rv ) return false;
+		uiString msg = tr("Output attribute '%1' already exists. "
+				  "Overwrite?").arg( outputnm.buf() );
+		const bool rv = uiMSG().askOverwrite( msg );
+		if ( !rv )
+		    return false;
 	    }
 	}
 
@@ -412,7 +412,7 @@ Attrib::DescSet* uiAttrVolOut::getFromToDoFld(
     }
 
     Attrib::DescID targetid = nlamodel_id.isValid() ? nlamodel_id
-					    : todofld_->attribID();
+						    : todofld_->attribID();
 
     RefMan<Attrib::Desc> seldesc = ads_->getDesc( targetid );
     if ( seldesc )
@@ -426,7 +426,7 @@ Attrib::DescSet* uiAttrVolOut::getFromToDoFld(
 				is2d, Attrib::DescID::undef(), false, false );
 	    TypeSet<Attrib::SelSpec> targetspecs;
 	    if ( !uiMultOutSel::handleMultiCompChain( targetid, multoiid,
-				is2d, attrinf, ads_, this, targetspecs ))
+				is2d, attrinf, ads_, this, targetspecs ) )
 		return 0;
 	    for ( int idx=0; idx<targetspecs.size(); idx++ )
 		outdescids += targetspecs[idx].id();
@@ -434,7 +434,7 @@ Attrib::DescSet* uiAttrVolOut::getFromToDoFld(
     }
     const int outdescidsz = outdescids.size();
     Attrib::DescSet* ret = outdescidsz ? ads_->optimizeClone( outdescids )
-			    : ads_->optimizeClone( targetid );
+				       : ads_->optimizeClone( targetid );
     if ( !ret )
 	return 0;
 
@@ -443,7 +443,7 @@ Attrib::DescSet* uiAttrVolOut::getFromToDoFld(
     if ( !seloutputs_.isEmpty() )
 	//TODO make use of the multiple targetspecs (prestack for inst)
 	ret->createAndAddMultOutDescs( targetid, seloutputs_,
-					     seloutnms_, outdescids );
+				       seloutnms_, outdescids );
     else if ( outdescids.isEmpty() )
 	outdescids += targetid;
 
@@ -454,6 +454,7 @@ Attrib::DescSet* uiAttrVolOut::getFromToDoFld(
 bool uiAttrVolOut::fillPar( IOPar& iop )
 {
     iop.set( IOPar::compKey(sKey::Output(),sKey::Type()), "Cube" );
+
     const IOObj* outioobj = objfld_->ioobj();
     if ( !outioobj )
 	return false;
@@ -470,6 +471,7 @@ bool uiAttrVolOut::fillPar( IOPar& iop )
 	nrseloutputs = outdescids.size();
 	clonedset = ads_->optimizeClone( outdescids );
     }
+
     if ( !clonedset )
 	return false;
 
@@ -483,7 +485,8 @@ bool uiAttrVolOut::fillPar( IOPar& iop )
 
     iop.set( IOPar::compKey(attribkey,Attrib::DescSet::highestIDStr()),
 		nrseloutputs );
-    if ( nrseloutputs != outdescids.size() ) return false;
+    if ( nrseloutputs != outdescids.size() )
+	return false;
 
     for ( int idx=0; idx<nrseloutputs; idx++ )
 	iop.set( IOPar::compKey(attribkey,idx), outdescids[idx].asInt() );
@@ -539,7 +542,7 @@ void uiAttrVolOut::addNLA( Attrib::DescID& id )
 
     uiString errmsg;
     Attrib::EngineMan::addNLADesc( defstr, id, *ads_, todofld_->outputNr(),
-			   nlamodel_, errmsg );
+				   nlamodel_, errmsg );
 
     if ( !errmsg.isEmpty() )
 	uiMSG().error( errmsg );

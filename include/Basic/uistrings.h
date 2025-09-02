@@ -306,7 +306,7 @@ public:
     static uiString sColor(int n=1)	{ return tr("Color",0, n); }
     static uiString sColorTable(int n=1) { return tr("ColorTable",0,n); }
     static uiString sColumn(int n=1)	{ return tr("Column",0,n); }
-    static uiString sCommand(int n=1) { return tr("Command",0,n); }
+    static uiString sCommand(int n=1)	{ return tr("Command",0,n); }
     static uiString sComponent()	{ return tr("Component"); }
     static uiString sConnection()	{ return tr("Connection"); }
     static uiString sConstant()		{ return tr("Constant"); }
@@ -430,6 +430,7 @@ public:
     static uiString sInsert()		{ return tr("Insert"); }
     static uiString sInvalid()		{ return tr("Invalid"); }
     static uiString sInvInpFile()	{ return tr("Invalid input file"); }
+    static uiString sIsochron()		{ return tr("Isochron"); }
     static uiString sLastModified()	{ return tr("Last Modified"); }
     static uiString sLat()		{ return tr("Latitude"); }
     static uiString sLayer()		{ return tr("Layer"); }
@@ -475,7 +476,7 @@ public:
     static uiString sMoveToBottom()	{ return tr("Move to bottom"); }
     static uiString sMoveToTop()	{ return tr("Move to top"); }
     static uiString sMoveUp()		{ return tr("Move up"); }
-    static uiString sMsec()		{ return tr("Millisecond"); }
+    static uiString sMsec(int n=1)	{ return tr("Millisecond",0,n); }
     static uiString sMute(int n=1)	{ return tr("Mute",0,n); }
     static uiString sMuteFunc(int n=1)	{ return tr("Mute Function",0,n); }
     static uiString sName(int n=1)	{ return tr("Name",0,n); }
@@ -584,7 +585,7 @@ public:
     static uiString sScanning()		{ return tr("Scanning"); }
     static uiString sScene(int n=1)	{ return tr("Scene",0,n); }
     static uiString sScenes()		{ return sScene(mPlural); }
-    static uiString sSec()		{ return tr("Second"); }
+    static uiString sSec(int n=1)	{ return tr("Second",0,n); }
     static uiString sSEGY()		{ return tr("SEG-Y"); }
     static uiString sSeismic(int n=1);
     static uiString sSeismicData()	{ return tr("Seismic Data"); }
@@ -593,7 +594,7 @@ public:
     static uiString sSelAttrib()	{ return tr("Select Attribute"); }
     static uiString sSelection(int n=1) { return tr("Selection",0,n); }
     static uiString sSelect()		{ return tr("Select"); }
-    static uiString sSelectedLog(int n =1) {return tr("Selected Log",0,n);}
+    static uiString sSelectedLog(int n =1) { return tr("Selected Log",0,n); }
     static uiString sSelectIcon()	{ return tr("Select icon"); }
     static uiString sSelectPos()	{ return tr("Select position"); }
     static uiString sSelOutpFile()	{ return tr("Select output file"); }

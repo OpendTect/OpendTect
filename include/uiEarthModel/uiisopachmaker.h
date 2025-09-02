@@ -35,7 +35,7 @@ public:
     const char*		attrName() const;
 
 protected:
-    uiIOObjSel*		basesel_		= nullptr;
+    uiIOObjSel*		basehorsel_		= nullptr;
     uiIOObjSel*		horsel_;
     uiGenInput*		attrnmfld_;
     uiGenInput*		msecsfld_		= nullptr;

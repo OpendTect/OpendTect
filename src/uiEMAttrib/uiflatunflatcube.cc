@@ -174,6 +174,7 @@ void uiFlatUnflatCube::horSelCB( CallBacker* )
 bool uiFlatUnflatCube::acceptOK( CallBacker* )
 {
     const IOObj* seisioobjin = getInpFld()->ioobj();
+    getOutpFld()->reset();
     const IOObj* seisioobjout = getOutpFld()->ioobj();
     const IOObj* horioobjin = horfld_->ioobj();
     if ( !seisioobjin || !seisioobjout || !horioobjin )

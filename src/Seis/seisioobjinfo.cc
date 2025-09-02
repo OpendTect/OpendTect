@@ -933,10 +933,10 @@ void SeisIOObjInfo::getNms( BufferStringSet& bss,
 	return;
     }
 
-   if ( !isOK() || !is2D() || isPS() ) return;
+   if ( !isOK() || !is2D() || isPS() )
+	return;
 
-    PtrMan<Seis2DDataSet> dset
-	= new Seis2DDataSet( *ioobj_ );
+    PtrMan<Seis2DDataSet> dset = new Seis2DDataSet( *ioobj_ );
     if ( dset->nrLines() == 0 )
 	return;
 

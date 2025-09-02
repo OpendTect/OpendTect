@@ -31,16 +31,14 @@ const char* IsochronMaker::sKeyIsOverWriteYN()
 { return "Is overwrite"; }
 
 IsochronMaker::IsochronMaker( const EM::Horizon3D& hor1,
-			    const EM::Horizon3D& hor2,
+			      const EM::Horizon3D& hor2,
 			    const char* attrnm, int dataidx, DataPointSet* dps )
     : Executor("Creating Isochron")
-    , msg_(tr("Creating Isochron"))
     , sidcolidx_(mUdf(int))
     , dataidx_(dataidx)
     , hor1_(&hor1)
     , hor2_(&hor2)
     , dps_(dps)
-    , inmsec_(false)
 {
     iter_ = hor1.createIterator();
     totnr_ = iter_->approximateSize();
@@ -55,8 +53,6 @@ IsochronMaker::IsochronMaker( const EM::Horizon3D& hor1,
 		sidcol, PosVecDataSet::NameExact ) - dps_->nrFixedCols();
 	dps_->dataSet().add( new DataColDef(attrnm) );
     }
-
-    nrdone_ = 0;
 }
 
 
@@ -68,6 +64,7 @@ IsochronMaker::~IsochronMaker()
 
 int IsochronMaker::nextStep()
 {
+    status_ = Running;
     mAllocVarLenArr( float, vals, dps_ ? dps_->bivSet().nrVals() : 0 );
     int startsourceidx = mUdf(int);
     if ( dps_ )
@@ -143,17 +140,18 @@ int IsochronMaker::finishWork()
 	dps_->dataChanged();
 	if ( dps_->isEmpty() )
 	{
-	    msg_ = tr("No thickness values collected");
+	    status_ = NoValuesCollected;
 	    return ErrorOccurred();
 	}
     }
 
+    status_ = Done;
     return Finished();
 }
 
 
 bool IsochronMaker::saveAttribute( const EM::Horizon3D* hor, int attribidx,
-				  bool overwrite, od_ostream* strm )
+				   bool overwrite, od_ostream* strm )
 {
     PtrMan<Executor> datasaver =
 			hor->auxdata.auxDataSaver( attribidx, overwrite );
@@ -161,4 +159,19 @@ bool IsochronMaker::saveAttribute( const EM::Horizon3D* hor, int attribidx,
 	return false;
 
     return true;
+}
+
+
+uiString IsochronMaker::uiMessage() const
+{
+    switch ( status_ )
+    {
+	case NotStarted:	return tr("Initializing Isochron");
+	case Running:		return tr("Calculating Isochron");
+	case NoValuesCollected: return tr("No Thickness Values Collected");
+	case Done:		return tr("Isochron Calculation Complete");
+	default:		return tr("Uknown Status");
+    }
+
+    pErrMsg("huh?");
 }
