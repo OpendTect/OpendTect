@@ -130,10 +130,12 @@ bool uiBatchProcSetup::prepareProcessing()
 	return false;
     }
 
+    outputsel_->reset();
     if ( !outputsel_->commitInput() )
     {
 	if ( outputsel_->isEmpty() )
 	    uiMSG().error( tr("Please enter an output name") );
+
 	return false;
     }
 

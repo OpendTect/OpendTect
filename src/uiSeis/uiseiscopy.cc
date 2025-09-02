@@ -125,6 +125,7 @@ bool uiSeisCopyCube::acceptOK( CallBacker* )
     if ( !inioobj )
 	return false;
 
+    outfld_->reset();
     const IOObj* outioobj = outfld_->ioobj( true );
     if ( !outioobj )
 	return false;
@@ -140,8 +141,8 @@ bool uiSeisCopyCube::acceptOK( CallBacker* )
     if ( !ioobjinfo.checkSpaceLeft(spi) )
 	return false;
 
-    const bool issteer = outpars.find( sKey::Type() ).
-						isEqual( sKey::Steering() );
+    const bool issteer = outpars.find( sKey::Type() )
+				.isEqual( sKey::Steering() );
     const int compnr = ismc_ ? compfld_->box()->currentItem()-1 : -1;
     if ( issteer && compnr>-1 )
 	outpars.set( sKey::Type(), sKey::Attribute() );
@@ -178,9 +179,9 @@ bool uiSeisCopyCube::acceptOK( CallBacker* )
     }
 
     PtrMan<Executor> exec = transffld_->getTrcProc( *inioobj, *outioobj,
-						"Copying 3D Cube",
-						uiStrings::sEmptyString(),
-						compnr );
+						    "Copying 3D Cube",
+						    uiStrings::sEmptyString(),
+						    compnr );
     mDynamicCastGet(SeisSingleTraceProc*,stp,exec.ptr())
     if ( !stp )
 	return false;
@@ -303,11 +304,16 @@ bool uiSeisCopy2DDataSet::acceptOK( CallBacker* )
 
 	bool haveoverlap = false;
 	for ( int idx=0; idx<ingeomids.size(); idx++ )
+	{
 	    if ( outgeomids.isPresent(ingeomids[idx]) )
-		{ haveoverlap = true; break; }
+	    {
+		haveoverlap = true;
+		break;
+	    }
+	}
 
-	if ( haveoverlap &&
-		!uiMSG().askOverwrite(uiStrings::sOutputFileExistsOverwrite()) )
+	if ( haveoverlap
+	     && !uiMSG().askOverwrite(uiStrings::sOutputFileExistsOverwrite()) )
 	    return false;
     }
 
@@ -345,7 +351,10 @@ bool uiSeisCopy2DDataSet::acceptOK( CallBacker* )
     Seis2DCopier copier( *inioobj, *outioobj, procpars );
     uiTaskRunner taskrunner( this );
     if ( !taskrunner.execute(copier) )
-	{ uiMSG().error( copier.uiMessage() ); return false; }
+    {
+	uiMSG().error( copier.uiMessage() );
+	return false;
+    }
 
     const uiString msg = tr( "%1 successfully copied.\n\n"
 			     "Do you want to copy more %2?" )

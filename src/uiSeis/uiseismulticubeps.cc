@@ -61,7 +61,7 @@ uiSeisMultiCubePS::uiSeisMultiCubePS( uiParent* p, const MultiID& ky )
     }
 
     uiListBox::Setup su1( OD::ChooseOnlyOne, tr("Available cubes"),
-			 uiListBox::AboveMid );
+			  uiListBox::AboveMid );
     cubefld_ = new uiListBox( this, su1, "availablecubes" );
     fillBox( cubefld_ );
     cubefld_->resizeWidthToContents();
@@ -94,8 +94,8 @@ uiSeisMultiCubePS::uiSeisMultiCubePS( uiParent* p, const MultiID& ky )
     sep->attach( stretchedBelow, compfld_ );
     sep->attach( ensureBelow, allcompfld_ );
 
-    uiString offsetstr = tr("Offset (start/step) %1")
-						.arg(SI().getUiXYUnitString());
+    const uiString offsetstr = tr("Offset (start/step) %1")
+				    .arg(SI().getUiXYUnitString());
     const Interval<float> offsets( 0, 100 );
     offsfld_ = new uiGenInput( this, offsetstr,
 			       FloatInpIntervalSpec(offsets).setName("Offset"));
@@ -151,6 +151,7 @@ void uiSeisMultiCubePS::recordEntryData()
 {
     if ( curselidx_ < 0 || selentries_.isEmpty() )
 	return;
+
     if ( curselidx_ >= selentries_.size() )
 	curselidx_ = selentries_.size() - 1;
 
@@ -166,10 +167,15 @@ void uiSeisMultiCubePS::setInitial( CallBacker* )
 	return;
 
     uiString emsg;
-    ObjectSet<MultiID> keys; TypeSet<float> offs; TypeSet<int> comps;
+    ObjectSet<MultiID> keys;
+    TypeSet<float> offs;
+    TypeSet<int> comps;
     if ( !MultiCubeSeisPSReader::readData(outioobj->fullUserExpr(false),
 		keys,offs,comps,emsg) )
-	{ uiMSG().error( emsg ); return; }
+    {
+	uiMSG().error( emsg );
+	return;
+    }
 
     for ( int idx=0; idx<keys.size(); idx++ )
     {
@@ -235,7 +241,9 @@ void uiSeisMultiCubePS::setCompFld( const uiSeisMultiCubePSEntry& se )
 void uiSeisMultiCubePS::addCube( CallBacker* )
 {
     const int cubeidx = cubefld_->currentItem();
-    if ( cubeidx < 0 ) return;
+    if ( cubeidx < 0 )
+	return;
+
     recordEntryData();
 
     uiSeisMultiCubePSEntry* entry = entries_[cubeidx];
@@ -250,8 +258,7 @@ void uiSeisMultiCubePS::addCube( CallBacker* )
 	{
 	    for ( int idx=0; idx<compnms.size(); idx++ )
 	    {
-		uiSeisMultiCubePSEntry* selentry =
-					new uiSeisMultiCubePSEntry( *entry );
+		auto* selentry = new uiSeisMultiCubePSEntry( *entry );
 		selentry->comp_ = idx;
 		selentries_ += selentry;
 	    }
@@ -266,7 +273,8 @@ void uiSeisMultiCubePS::addCube( CallBacker* )
 void uiSeisMultiCubePS::rmCube( CallBacker* )
 {
     const int selidx = selfld_->currentItem();
-    if ( selidx < 0 ) return;
+    if ( selidx < 0 )
+	return;
 
     uiSeisMultiCubePSEntry* entry = selentries_[selidx];
     selentries_ -= entry;
@@ -274,6 +282,7 @@ void uiSeisMultiCubePS::rmCube( CallBacker* )
 
     if ( curselidx_ >= selentries_.size() )
 	curselidx_ = selentries_.size() - 1;
+
     fullUpdate();
 }
 
@@ -292,10 +301,13 @@ void uiSeisMultiCubePS::fullUpdate()
 {
     if ( selfld_->size() != selentries_.size() )
 	fillBox( selfld_ );
+
     if ( cubefld_->size() != entries_.size() )
     {
 	int cubeidx = cubefld_->currentItem();
-	if ( cubeidx < 0 ) cubeidx = 0;
+	if ( cubeidx < 0 )
+	    cubeidx = 0;
+
 	fillBox( cubefld_ );
 	if ( !cubefld_->isEmpty() )
 	    cubefld_->setCurrentItem( cubeidx );
@@ -327,6 +339,7 @@ bool uiSeisMultiCubePS::acceptOK( CallBacker* )
 	return true;
 
     recordEntryData();
+    outfld_->reset();
     const IOObj* outioobj = outfld_->ioobj();
     if ( !outioobj )
 	return false;
@@ -339,7 +352,9 @@ bool uiSeisMultiCubePS::acceptOK( CallBacker* )
 	return false;
     }
 
-    ObjectSet<MultiID> keys; TypeSet<float> offs; TypeSet<int> comps;
+    ObjectSet<MultiID> keys;
+    TypeSet<float> offs;
+    TypeSet<int> comps;
     for ( int idx=0; idx<selentries_.size(); idx++ )
     {
 	const uiSeisMultiCubePSEntry& entry = *selentries_[idx];
@@ -348,12 +363,16 @@ bool uiSeisMultiCubePS::acceptOK( CallBacker* )
 	comps += entry.comp_;
     }
 
-    uiString emsg;
-    const bool ret = MultiCubeSeisPSReader::writeData(
-		outioobj->fullUserExpr(false), keys, offs, comps, emsg );
+    uiString errormsg;
+    const bool success = MultiCubeSeisPSReader::writeData(
+		outioobj->fullUserExpr(false), keys, offs, comps, errormsg );
     deepErase( keys );
-    if ( !ret )
-	mErrRet(emsg)
+    if ( !success )
+	mErrRet(errormsg)
 
-    return true;
+    const uiString msg = tr("Prestack Data Store creation successful. "
+			    "Create more?");
+    const bool ret = uiMSG().askGoOn( msg, uiStrings::sYes(),
+				      tr("No, close window") );
+    return !ret;
 }

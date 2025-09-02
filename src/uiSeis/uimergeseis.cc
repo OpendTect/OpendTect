@@ -103,8 +103,19 @@ bool uiMergeSeis::acceptOK( CallBacker* )
     SeisMerger mrgr( inpars, outpar, false );
     mrgr.stacktrcs_ = stackfld_->getBoolValue();
     mrgr.setScaler( transffld_->getScaler() );
+
     uiTaskRunner dlg( this );
-    return TaskRunner::execute( &dlg, mrgr );
+    const bool success = TaskRunner::execute( &dlg, mrgr );
+    if ( !success )
+    {
+	uiMSG().errorWithDetails( dlg.errorWithDetails() );
+	return false;
+    }
+
+    const uiString msg = tr("Seismic Data merge was successful. Merge more?");
+    const bool ret = uiMSG().askGoOn( msg, uiStrings::sYes(),
+					   tr("No, close window") );
+    return !ret;
 }
 
 
@@ -116,6 +127,7 @@ void uiMergeSeis::setInputIds( const TypeSet<MultiID>& mids )
 
 bool uiMergeSeis::getInput( ObjectSet<IOPar>& inpars, IOPar& outpar )
 {
+    outfld_->reset();
     const IOObj* outioobj = outfld_->ioobj();
     if ( !outioobj )
         return false;
@@ -152,7 +164,7 @@ bool uiMergeSeis::getInput( ObjectSet<IOPar>& inpars, IOPar& outpar )
 		return false;
 	    }
 	    else if ( &ZDomain::Def::get(zdomstr)
-		    != &ZDomain::Def::get(curzdomstr) )
+		      != &ZDomain::Def::get(curzdomstr) )
 	    {
 		uiMSG().error( tr("Input cubes should belong to the same"
 				  " Z domain") );
