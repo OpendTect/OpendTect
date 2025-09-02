@@ -385,23 +385,28 @@ inline bool ValueSeriesEvFinder<VT,PT>::findEvents( TypeSet<PT>& posset,
 	revtype = VSEvent::ZCNegPos;
 
     const bool isascending = pg.stop_ > pg.start_;
+    const PT width = pg.width();
+    PT eps = mCast( PT, 1e-5 );
+    if ( !mIsUdf(width) && width>0 )
+	eps *= width;
+
     posset.erase();
     while ( isascending == (curg.stop_>curg.start_) )
     {
 	ValueSeriesEvent<VT,PT> reqev = find( evtype, curg, 1 );
-	if ( mIsUdf(reqev.pos) ) break;
+	if ( mIsUdf(reqev.pos) )
+	    break;
 
 	posset += reqev.pos;
-	curg.start_ = reqev.pos + mCast(PT,1e-5);
+	curg.start_ = reqev.pos + eps;
 	ValueSeriesEvent<VT,PT> revev = find( revtype, curg, 1 );
-	if ( mIsUdf(revev.pos) ) break;
+	if ( mIsUdf(revev.pos) )
+	    break;
 
-	curg.start_ = revev.pos + mCast(PT,1e-5);
+	curg.start_ = revev.pos + eps;
     }
 
-    if ( !posset.size() ) return false;
-
-    return true;
+    return !posset.isEmpty();
 }
 
 
