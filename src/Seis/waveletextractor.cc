@@ -174,6 +174,9 @@ int WaveletExtractor::nextStep()
 	if ( trc.isNull() )
 	    return MoreToDo();
 
+	if ( trc.zRange().width(false) <  wvlt_.samplePositions().width(false) )
+	    return MoreToDo();
+
 	int startsample, signalsz;
 	if ( !getSignalInfo(trc,startsample,signalsz) )
 	    return MoreToDo();
@@ -193,14 +196,7 @@ bool WaveletExtractor::getSignalInfo( const SeisTrc& trc, int& startsample,
 {
     mDynamicCastGet(const Seis::TableSelData*,tsd,sd_);
     if ( !tsd )
-    {
-	startsample = 0;
-	signalsz = trc.size();
-	return true;
-    }
-
-    if ( trc.zRange().width(false) <  wvlt_.samplePositions().width(false) )
-	return false;
+	return getSignalInfoBetweenZ( trc, startsample, signalsz );
 
     const BinIDValueSet& bvis = tsd->binidValueSet();
     Interval<float> extz = tsd->extraZ();
@@ -209,18 +205,18 @@ bool WaveletExtractor::getSignalInfo( const SeisTrc& trc, int& startsample,
     BinID duplicatebid;
     BinIDValueSet::SPos pos = bvis.find( bid );
     bvis.get( pos, bid, z1 );
-
-    if ( !isbetweenhor_ )
-	z2 = z1;
-    else
+    if ( isbetweenhor_ )
     {
 	bvis.next( pos );
 	bvis.get( pos, duplicatebid, z2  );
 	if ( duplicatebid != bid || mIsUdf(z2) )
 	    return false;
     }
+    else
+	z2 = z1;
 
-    if ( z2 < z1 ) Swap( z1, z2 );
+    if ( z2 < z1 )
+	Swap( z1, z2 );
 
     if( !trc.dataPresent(z1 + extz.start_) || !trc.dataPresent(z2 + extz.stop_) )
 	return false;
@@ -230,6 +226,42 @@ bool WaveletExtractor::getSignalInfo( const SeisTrc& trc, int& startsample,
     signalsz = stopsample - startsample + 1;
 
     return signalsz >= wvltsize_;
+}
+
+
+bool WaveletExtractor::getSignalInfoBetweenZ( const SeisTrc& trc,
+					int& startsample, int& signalsz ) const
+{
+    mDynamicCastGet(const Seis::RangeSelData*,rsd,sd_);
+    if ( !rsd )
+	return getSignalInfoFull( trc, startsample, signalsz );
+
+    const Interval<float> zrg = rsd->zRange();
+    if ( zrg.isUdf() )
+	return getSignalInfoFull( trc, startsample, signalsz );
+
+    float z1 = rsd->zRange().start_;
+    float z2 = rsd->zRange().stop_;
+    if ( z2 < z1 )
+	Swap( z1, z2 );
+
+    if( !trc.dataPresent(z1) || !trc.dataPresent(z2) )
+	return false;
+
+    startsample = trc.nearestSample( z1 );
+    const int stopsample = trc.nearestSample( z2 );
+    signalsz = stopsample - startsample + 1;
+
+    return signalsz >= wvltsize_;
+}
+
+
+bool WaveletExtractor::getSignalInfoFull( const SeisTrc& trc,
+					int& startsample, int& signalsz ) const
+{
+    startsample = 0;
+    signalsz = trc.size();
+    return true;
 }
 
 
