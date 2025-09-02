@@ -48,7 +48,6 @@ protected:
     uiSeisSel*		sifld_;
     uiVelSel*		pwavefld_;
     uiVelSel*		swavefld_;
-    uiIOObjSel*		waveletfld_;
     uiString		errmsg_;
 
 };

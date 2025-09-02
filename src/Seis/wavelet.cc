@@ -54,14 +54,17 @@ Wavelet::Wavelet( bool isricker, float fpeak, float sr, float scale )
 {
     if ( mIsUdf(dpos_) )
 	dpos_ = SeisTrcInfo::defaultSampleInterval(true);
+
     if ( mIsUdf(scale) )
 	scale = 1;
+
     if ( mIsUdf(fpeak) || fpeak <= 0 )
 	fpeak = 25;
+
     cidx_ = (int)( ( 1 + 1. / (fpeak*dpos_) ) );
 
     BufferString nm( isricker ? "Ricker " : "Sinc " );
-    nm += " (Central freq="; nm += fpeak; nm += ")";
+    nm.add(" (Central freq=").add(fpeak).add(")");
     setName( nm );
 
     int lw = 1 + 2*cidx_;
@@ -78,7 +81,8 @@ Wavelet::Wavelet( bool isricker, float fpeak, float sr, float scale )
 	else
 	{
 	    samps_[idx] = (float) (scale * exp(-x2) * sin(x)/x);
-	    if ( samps_[idx] < 0 ) samps_[idx] = 0;
+	    if ( samps_[idx] < 0 )
+		samps_[idx] = 0;
 	}
 	pos += dpos_;
     }
@@ -90,6 +94,7 @@ Wavelet::Wavelet( const TypeSet<float>& freq, float sr, float scale )
 {
     if ( mIsUdf(dpos_) )
 	dpos_ = SeisTrcInfo::defaultSampleInterval(true);
+
     if ( mIsUdf(scale) )
 	scale = 1;
 
@@ -175,7 +180,7 @@ Wavelet* Wavelet::get( const IOObj* ioobj )
 	return nullptr;
 
     Wavelet* newwv = nullptr;
-    Conn* connptr = ioobj->getConn( Conn::Read );
+    auto* connptr = ioobj->getConn( Conn::Read );
     if ( !connptr || connptr->isBad() )
 	ErrMsg( "Cannot open Wavelet file" );
     else
@@ -198,13 +203,17 @@ Wavelet* Wavelet::get( const IOObj* ioobj )
 
 bool Wavelet::put( const IOObj* ioobj ) const
 {
-    if ( !ioobj ) return false;
+    if ( !ioobj )
+	return false;
+
     PtrMan<WaveletTranslator> trans =
         (WaveletTranslator*)ioobj->createTranslator();
-    if ( !trans ) return false;
+    if ( !trans )
+	return false;
+
     bool retval = false;
 
-    Conn* connptr = ioobj->getConn( Conn::Write );
+    auto* connptr = ioobj->getConn( Conn::Write );
     if ( connptr && !connptr->isBad() )
     {
 	if ( trans->write( this, *connptr ) )
@@ -222,10 +231,16 @@ bool Wavelet::put( const IOObj* ioobj ) const
 
 void Wavelet::reSize( int newsz )
 {
-    if ( newsz < 1 ) { delete [] samps_; samps_ = 0; sz_ = 0; return; }
+    if ( newsz < 1 )
+    {
+	deleteAndNullArrPtr( samps_ );
+	sz_ = 0;
+	return;
+    }
 
-    float* newsamps = new float [newsz];
-    if ( !newsamps ) return;
+    auto* newsamps = new float [newsz];
+    if ( !newsamps )
+	return;
 
     delete [] samps_;
     samps_ = newsamps;
@@ -239,17 +254,15 @@ const ValueSeriesInterpolator<float>& Wavelet::interpolator() const
 	   PtrMan<ValueSeriesInterpolator<float> >, defintpol, = 0);
     if ( !defintpol )
     {
-	ValueSeriesInterpolator<float>* newdefintpol = new
-					ValueSeriesInterpolator<float>();
+	auto* newdefintpol = new ValueSeriesInterpolator<float>();
 	newdefintpol->snapdist_ = mDefaultSnapdist;
 	newdefintpol->smooth_ = true;
 	newdefintpol->extrapol_ = false;
 	newdefintpol->udfval_ = 0;
 	defintpol.setIfNull(newdefintpol,true);
     }
-    ValueSeriesInterpolator<float>& ret
-	= const_cast<ValueSeriesInterpolator<float>&>(
-					intpol_ ? *intpol_ : *defintpol );
+    auto& ret = const_cast<ValueSeriesInterpolator<float>&>(
+					      intpol_ ? *intpol_ : *defintpol );
     ret.maxidx_ = size() - 1;
     return ret;
 }
@@ -332,6 +345,7 @@ bool Wavelet::reSample( float newsr )
 	const float_complex val( samps_[idx], 0 );
 	inp.ctwtwvlt_.set( idx + fwdfirstidx, val );
     }
+
     if ( !inp.doFFT(true) )
 	return false;
 
@@ -385,7 +399,7 @@ bool Wavelet::reSampleTime( float newsr )
 
     float fnewsz = (sz_-1) * dpos_ / newsr + 1.f - 1e-5f;
     const int newsz = mNINT32( ceil(fnewsz) );
-    float* newsamps = new float [newsz];
+    auto* newsamps = new float [newsz];
     if ( !newsamps )
 	return false;
 
@@ -413,7 +427,7 @@ void Wavelet::ensureSymmetricalSamples()
     const int newcidx = mNINT32( halftwtwvltsz / dpos_ );
     const int outsz = 2 * newcidx + 1;
 
-    float* newsamps = new float [outsz];
+    auto* newsamps = new float [outsz];
     if ( !newsamps )
 	return;
 
@@ -464,18 +478,25 @@ bool Wavelet::trimPaddedZeros()
 	return false;
 
     Interval<int> nonzerorg( 0, sz_-1 );
-    while ( samps_[nonzerorg.start_] == 0 && nonzerorg.start_ < nonzerorg.stop_ )
+    while ( samps_[nonzerorg.start_] == 0
+	    && nonzerorg.start_ < nonzerorg.stop_ )
         nonzerorg.start_++;
+
     while ( samps_[nonzerorg.stop_] == 0 && nonzerorg.stop_ > nonzerorg.start_ )
         nonzerorg.stop_--;
+
     if ( nonzerorg.start_ < 2 && nonzerorg.stop_ > sz_-3 )
 	return false;
 
     Interval<int> newrg( nonzerorg.start_-1, nonzerorg.stop_+1 );
-    if ( newrg.start_ < 0 ) newrg.start_ = 0;
-    if ( newrg.stop_ > sz_-1 ) newrg.stop_ = sz_-1;
+    if ( newrg.start_ < 0 )
+	newrg.start_ = 0;
+
+    if ( newrg.stop_ > sz_-1 )
+	newrg.stop_ = sz_-1;
+
     const int newsz = newrg.width() + 1;
-    float* newsamps = new float [newsz];
+    auto* newsamps = new float [newsz];
     if ( !newsamps )
 	return false;
 
@@ -510,9 +531,11 @@ int Wavelet::getPos( float val, bool closetocenteronly ) const
 {
     const int width = mCast( int, mCast(float, sz_ ) / 10.f );
     int start = closetocenteronly ? cidx_ - width : 0;
-    if ( start < 0 ) start = 0;
+    if ( start < 0 )
+	start = 0;
     int stop = closetocenteronly ? cidx_ + width : sz_;
-    if ( stop > sz_ ) stop = sz_;
+    if ( stop > sz_ )
+	stop = sz_;
     bool startnotreached = true;
     bool stopnotreached = true;
     for ( int idx=0; startnotreached || stopnotreached; idx++ )
@@ -535,7 +558,9 @@ int Wavelet::getPos( float val, bool closetocenteronly ) const
 static void markWaveletScaled( const MultiID& id, const char* val )
 {
     PtrMan<IOObj> ioobj = IOM().get( id );
-    if ( !ioobj ) return;
+    if ( !ioobj )
+	return;
+
     ioobj->pars().set( sKeyScaled, val );
     IOM().commitChanges( *ioobj );
 }
@@ -552,7 +577,7 @@ void Wavelet::markScaled( const MultiID& id, const MultiID& orgid,
 			  const char* lvlnm )
 {
     FileMultiString fms( orgid.toString() );
-    fms += horid; fms += seisid; fms += lvlnm;
+    fms.add(horid).add(seisid).add(lvlnm);
     markWaveletScaled( id, fms );
 }
 
@@ -623,19 +648,27 @@ WaveletValueSeries::~WaveletValueSeries()
 
 
 float WaveletValueSeries::value( od_int64 idx ) const
-{ return wv_.get((int) idx ); }
+{
+    return wv_.get((int) idx );
+}
 
 
 void WaveletValueSeries::setValue( od_int64 idx,float v )
-{ wv_.set((int) idx,v); }
+{
+    wv_.set((int) idx,v);
+}
 
 
 float* WaveletValueSeries::arr()
-{ return wv_.samples(); }
+{
+    return wv_.samples();
+}
 
 
 const float* WaveletValueSeries::arr() const
-{ return const_cast<WaveletValueSeries*>( this )->arr(); }
+{
+    return const_cast<WaveletValueSeries*>( this )->arr();
+}
 
 
 mDefSimpleTranslatorioContext(Wavelet,Seis)
@@ -652,13 +685,15 @@ dgbWaveletTranslator::~dgbWaveletTranslator()
 
 bool dgbWaveletTranslator::read( Wavelet* wv, Conn& conn )
 {
-    if ( !wv || !conn.forRead() || !conn.isStream() )	return false;
+    if ( !wv || !conn.forRead() || !conn.isStream() )
+	return false;
 
     ascistream astream( ((StreamConn&)conn).iStream() );
     if ( !astream.isOfFileType(mTranslGroupName(Wavelet)) )
 	return false;
 
-    int cidx = 0; float sr = SI().zStep();
+    int cidx = 0;
+    float sr = SI().zStep();
     while ( !atEndOfSection( astream.next() ) )
     {
         if ( astream.hasKeyword( sLength ) )
@@ -683,16 +718,20 @@ bool dgbWaveletTranslator::read( Wavelet* wv, Conn& conn )
 
 bool dgbWaveletTranslator::write( const Wavelet* inwv, Conn& conn )
 {
-    if ( !inwv || !conn.forWrite() || !conn.isStream() )	return false;
+    if ( !inwv || !conn.forWrite() || !conn.isStream() )
+	return false;
 
     Wavelet wv( *inwv );
     wv.trimPaddedZeros();
 
     ascostream astream( ((StreamConn&)conn).oStream() );
     const BufferString head( mTranslGroupName(Wavelet), " file" );
-    if ( !astream.putHeader( head ) ) return false;
+    if ( !astream.putHeader( head ) )
+	return false;
 
-    if ( *(const char*)wv.name() ) astream.put( sKey::Name(), wv.name() );
+    if ( *(const char*)wv.name() )
+	astream.put( sKey::Name(), wv.name() );
+
     astream.put( sLength, wv.size() );
     astream.put( sIndex, -wv.centerSample() );
     astream.put( IOPar::compKey(sSampRate,sKey::Unit()),
@@ -701,6 +740,7 @@ bool dgbWaveletTranslator::write( const Wavelet* inwv, Conn& conn )
     astream.newParagraph();
     for ( int idx=0; idx<wv.size(); idx++ )
 	astream.stream() << wv.samples()[idx] << od_newline;
+
     astream.newParagraph();
 
     return astream.isOK();
@@ -718,12 +758,12 @@ WaveletAscIO::~WaveletAscIO()
 
 Table::FormatDesc* WaveletAscIO::getDesc()
 {
-    Table::FormatDesc* fd = new Table::FormatDesc( "Wavelet" );
+    auto* fd = new Table::FormatDesc( "Wavelet" );
     fd->headerinfos_ += new Table::TargetInfo( "Sample interval",
-                                               FloatInpSpec(SI().zRange(true).step_), Table::Required,
+			FloatInpSpec(SI().zRange(true).step_), Table::Required,
 			Mnemonic::surveyZType() );
     fd->headerinfos_ += new Table::TargetInfo( "Center sample",
-						IntInpSpec(), Table::Optional );
+					       IntInpSpec(), Table::Optional );
     fd->bodyinfos_ += new Table::TargetInfo( "Data samples", FloatInpSpec(),
 					     Table::Required );
     return fd;
@@ -756,19 +796,24 @@ Wavelet* WaveletAscIO::get( od_istream& strm ) const
     while ( true )
     {
 	int ret = getNextBodyVals( strm );
-	if ( ret < 0 ) mErrRet(uiString::emptyString())
-	if ( ret == 0 ) break;
+	if ( ret < 0 )
+	    mErrRet(uiString::emptyString())
+
+	if ( ret == 0 )
+	    break;
 
 	float val = getFValue( 0 );
-	if ( !mIsUdf(val) ) samps += val;
+	if ( !mIsUdf(val) )
+	    samps += val;
     }
 
     if ( samps.isEmpty() )
 	mErrRet( tr("No valid data samples found") )
+
     if ( mIsUdf(centersmp) || centersmp > samps.size() )
 	centersmp = samps.size() / 2;
 
-    Wavelet* ret = new Wavelet( "" );
+    auto* ret = new Wavelet( "" );
     ret->reSize( samps.size() );
     ret->setCenterSample( centersmp  );
     ret->setSampleRate( sr );

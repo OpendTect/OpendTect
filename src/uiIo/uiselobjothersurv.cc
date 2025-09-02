@@ -112,7 +112,6 @@ bool uiSelObjFromOtherSurvey::acceptOK( CallBacker* )
 	deepErase( ioobjs );
 	return false;
     }
-
     IOObj* selobj = ioobjs[selidx];
     mDynamicCastGet(IOStream*,iostrm,selobj);
     if ( iostrm )

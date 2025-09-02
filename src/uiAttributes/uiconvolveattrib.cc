@@ -96,8 +96,7 @@ uiConvolveAttrib::uiConvolveAttrib( uiParent* p, bool is2d )
 
 
 uiConvolveAttrib::~uiConvolveAttrib()
-{
-}
+{}
 
 
 void uiConvolveAttrib::kernelSel( CallBacker* cb )

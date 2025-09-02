@@ -52,12 +52,12 @@ protected:
     uiGenInput*			taperfld_;
     uiIOObjSel*			outputwvltfld_;
     uiPosProvGroup*		surfacesel_;
-    uiSeisSel*			seisselfld_;
-    uiSeis2DMultiLineSel*	linesel2dfld_;
-    uiSeis3DSubSel*		subselfld3d_;
-    uiSelZRange*		zrangefld_;
-    Seis::SelData*		seldata_;
+    uiSeisSel*			seisselfld_	= nullptr;
+    uiSeis2DMultiLineSel*	linesel2dfld_	= nullptr;
+    uiSeis3DSubSel*		subselfld3d_	= nullptr;
+    uiSelZRange*		zrangefld_	= nullptr;
+    Seis::SelData*		seldata_	= nullptr;
 
     float			datastep_;
-    int				wvltsize_;
+    int				wvltsize_	= 0;
 };

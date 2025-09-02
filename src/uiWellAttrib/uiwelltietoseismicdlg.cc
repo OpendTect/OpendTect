@@ -55,9 +55,8 @@ const WellTie::Setup& WellTie::uiTieWin::welltieSetup() const
 
 
 WellTie::uiTieWin::uiTieWin( uiParent* p, Server& wts )
-    : uiFlatViewMainWin(p,
-			uiFlatViewMainWin::Setup(uiString::emptyString())
-			.deleteonclose(false))
+    : uiFlatViewMainWin(p,uiFlatViewMainWin::Setup(uiString::emptyString())
+						.deleteonclose(false))
     , server_(wts)
     , stretcher_(*new EventStretch(server_.pickMgr(),server_.d2TModelMgr()))
     , params_(server_.dispParams())
@@ -67,8 +66,8 @@ WellTie::uiTieWin::uiTieWin( uiParent* p, Server& wts )
     mAttachCB( server_.pickMgr().pickadded, uiTieWin::checkIfPick );
 
     mGetWD(return)
-    uiString title = tr("Tie %1 to %2").arg(toUiString(wd->name()))
-				       .arg(toUiString(welltieSetup().seisnm_));
+    const uiString title = tr("Tie %1 to %2").arg(toUiString(wd->name()))
+				.arg(toUiString(welltieSetup().seisnm_));
     setCaption( title );
 
     initAll();
@@ -144,7 +143,7 @@ void WellTie::uiTieWin::doWork( CallBacker* )
 	uiMSG().error( server_.errMsg() );
     }
 
-    if ( server_.doSeismic() ) //needs to be redone also when new d2t
+    if ( server_.doSeismic() ) //TODO: needs to be redone also when new d2t
 	if ( !server_.extractSeismics() )
 	{
 	    uiMSG().error( server_.errMsg() );
@@ -280,17 +279,17 @@ void WellTie::uiTieWin::createViewerTaskFields( uiGroup* taskgrp )
     nrtrcsfld_->attach( alignedBelow, eventtypefld_ );
 
     applybut_ = new uiPushButton( taskgrp, tr("Apply Changes"),
-	   mCB(this,uiTieWin,applyPushed), true );
+				  mCB(this,uiTieWin,applyPushed), true );
     applybut_->setSensitive( false );
     applybut_->attach( rightOf, eventtypefld_ );
 
     undobut_ = new uiPushButton( taskgrp, uiStrings::sUndo(),
-				   mCB(this,uiTieWin,undoPushed), true );
+				 mCB(this,uiTieWin,undoPushed), true );
     undobut_->attach( rightOf, applybut_ );
     undobut_->setSensitive( false );
 
     clearpicksbut_ = new uiPushButton( taskgrp, tr("Clear picks"),
-	   mCB(this,uiTieWin,clearPicks), true );
+				       mCB(this,uiTieWin,clearPicks), true );
     clearpicksbut_->setSensitive( false );
     clearpicksbut_->attach( rightOf, undobut_ );
 
@@ -301,11 +300,11 @@ void WellTie::uiTieWin::createViewerTaskFields( uiGroup* taskgrp )
 
     matchhormrksbut_ = new uiPushButton( taskgrp,
 					 tr("Match markers and horizons"),
-		       mCB(this,uiTieWin,matchHorMrks), true );
+					mCB(this,uiTieWin,matchHorMrks), true );
     matchhormrksbut_->attach( rightBorder );
 
     infobut_ = new uiPushButton( taskgrp, tr("Quality Control"),
-	               mCB(this,uiTieWin,infoPushed), false );
+				 mCB(this,uiTieWin,infoPushed), false );
     infobut_->attach( ensureBelow, applybut_ );
     infobut_->attach( leftOf, matchhormrksbut_ );
 }
@@ -317,9 +316,9 @@ void WellTie::uiTieWin::infoPushed( CallBacker* )
     {
 	if ( !server_.hasSynthetic() || !server_.hasSeismic() )
 	{
-	    uiString errmsg = tr("No %1 extracted.\nCannot go further")
-			    .arg(server_.hasSeismic() ? tr("synthetic data")
-						      : tr("seismic data"));
+	    const uiString errmsg = tr("No %1 extracted.\nCannot go further")
+				.arg(server_.hasSeismic() ? tr("synthetic data")
+							  : tr("seismic data"));
 	    uiMSG().error( errmsg );
 	    return;
 	}
@@ -431,12 +430,13 @@ void WellTie::uiTieWin::matchHorMrks( CallBacker* )
     if ( !wd || !wd->markers().size() )
 	mErrRet( tr("No Well marker found") )
 
-    uiString msg = tr("No horizon loaded, do you want to load some?");
+    const uiString msg = tr("No horizon loaded, do you want to load some?");
     const Data& data = server_.data();
     if ( !data.horizons_.size() )
     {
 	if ( !uiMSG().askGoOn( msg ) )
 	    return;
+
 	controlview_->loadHorizons( nullptr );
     }
     pmgr.clearAllPicks();
@@ -502,8 +502,8 @@ void WellTie::uiTieWin::cleanUp( CallBacker* )
 
 void WellTie::uiTieWin::okPushCB( CallBacker* )
 {
-    uiString errmsg = tr("This will overwrite your depth/time model, "
-			 "do you want to continue?");
+    const uiString errmsg = tr("This will overwrite your depth/time model, "
+			       "do you want to continue?");
     if ( uiMSG().askOverwrite(errmsg) )
     {
 	drawer_->enableCtrlNotifiers( false );
@@ -531,7 +531,9 @@ void WellTie::uiTieWin::polarityChanged( CallBacker* )
     if ( !infodlg_ || (infodlg_ && infodlg_->isInitWvltActive()) )
     {
 	if ( !server_.computeSynthetics(server_.data().initwvlt_) )
-	    { uiMSG().error( server_.errMsg() ); }
+	{
+	    uiMSG().error( server_.errMsg() );
+	}
 
 	reDrawAll( nullptr );
     }
@@ -619,8 +621,8 @@ WellTie::uiInfoDlg::uiInfoDlg( uiParent* p, Server& server )
 
     zrginft_ = SI().depthsInFeet();
     const uiString units[] = { uiString::emptyString(),
-		UnitOfMeasure::zUnitAnnot(true,true,false),
-		UnitOfMeasure::surveyDefDepthUnitAnnot(false,false) };
+			       UnitOfMeasure::zUnitAnnot(true,true,false),
+			  UnitOfMeasure::surveyDefDepthUnitAnnot(false,false) };
 
     zrangeflds_ += new uiGenInput( markergrp, uiString::emptyString(),
 				   slis.setName(markernms[0]),
@@ -634,7 +636,7 @@ WellTie::uiInfoDlg::uiInfoDlg( uiParent* p, Server& server )
 
     const float maxdah = wd->track().dahRange().stop_;
     zrangeflds_ += new uiGenInput( markergrp, uiString::emptyString(),
-	    FloatInpIntervalSpec().setLimits(Interval<float>(0,maxdah)));
+		   FloatInpIntervalSpec().setLimits(Interval<float>(0,maxdah)));
     zrangeflds_[mDahFldIdx]->setNrDecimals(2,0);
     zrangeflds_[mDahFldIdx]->setNrDecimals(2,1);
 
@@ -754,8 +756,9 @@ void WellTie::uiInfoDlg::putToScreen()
 	}
 	else if ( topmarkr->dah() >= basemarkr->dah() )
 	{
-	    uiMSG().warning(
-		    tr("Inconsistency between top/base marker from setup."));
+	    const uiString msg = tr("Inconsistency between top/base marker "
+				    "from setup.");
+	    uiMSG().warning( msg );
 	    zrangeflds_[selidx_]->setValue( 0, 0 );
 	    zrangeflds_[selidx_]->setValue( lastmarkeridx, 1 );
 	}
@@ -774,8 +777,9 @@ void WellTie::uiInfoDlg::putToScreen()
 	zrg.scale( scalefact );
 	if ( zrg.width(false) < (float)mMinWvltLength )
 	{
-	    uiMSG().warning(
-		    tr("Invalid correlation gate from setup. Resetting."));
+	    const uiString msg = tr("Invalid correlation gate from setup. "
+				    "Resetting.");
+	    uiMSG().warning( msg );
 	    selidx_ = mMarkerFldIdx;
 	    choicefld_->setValue( selidx_ );
 	    zrangeflds_[selidx_]->setValue( 0, 0 );
@@ -862,8 +866,8 @@ void WellTie::uiInfoDlg::crossCorrelationChanged( CallBacker* )
     {
 	if ( !mIsUdf(scaler) )
 	{
-	    uiString scalerfld = tr("Synthetic to seismic scaler: %1")
-				    .arg(scaler);
+	    const uiString scalerfld = tr("Synthetic to seismic scaler: %1")
+					    .arg(scaler);
 	    wvltscaler_->setText( scalerfld );
 	}
 	else
@@ -938,8 +942,8 @@ bool WellTie::uiInfoDlg::updateZrg()
     timerg.stop_ = (float) mNINT32( timerg.stop_ / reflstep ) * reflstep;
     if ( timerg.width() < (float)mMinWvltLength / SI().zDomain().userFactor() )
     {
-	uiString errmsg = tr("The selected interval length must be "
-			     "at least %1ms").arg(mMinWvltLength);
+	const uiString errmsg = tr("The selected interval length must be "
+				   "at least %1ms").arg(mMinWvltLength);
 	mErrRetYN( errmsg )
     }
 
@@ -1012,8 +1016,8 @@ bool WellTie::uiInfoDlg::computeNewWavelet()
     const int reqwvltlgthsz = estwvltlengthfld_->getIntValue();
     if ( reqwvltlgthsz < mMinWvltLength )
     {
-	uiString errmsg = tr("The wavelet length must be at least %1ms")
-			.arg(mMinWvltLength);
+	const uiString errmsg = tr("The wavelet length must be at least %1ms")
+				    .arg(mMinWvltLength);
 	mErrRetYN( errmsg )
     }
 

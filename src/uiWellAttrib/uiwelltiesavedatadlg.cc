@@ -37,7 +37,7 @@ ________________________________________________________________________
 // WellTie::uiSaveDataDlg
 
 WellTie::uiSaveDataDlg::uiSaveDataDlg( uiParent* p, Server& wdserv )
-    : uiDialog(p,Setup(tr("Save current data"),
+    : uiDialog(p,Setup(tr("Save Current Data"),
 		       tr("Check the items to be saved"),
 		       mODHelpKey(mWellTieSaveDataDlgHelpID)))
     , dataserver_(wdserv)
@@ -46,7 +46,7 @@ WellTie::uiSaveDataDlg::uiSaveDataDlg( uiParent* p, Server& wdserv )
     const Data& data = dataserver_.data();
 
     auto* loggrp = new uiGroup( this, "Log parameters" );
-    logchk_ = new uiCheckBox( loggrp, tr("Log(s)") );
+    logchk_ = new uiCheckBox( loggrp, uiStrings::sLog() );
     mAttachCB( logchk_->activated, uiSaveDataDlg::saveLogsSelCB );
 
     BufferStringSet lognms;
@@ -56,9 +56,9 @@ WellTie::uiSaveDataDlg::uiSaveDataDlg( uiParent* p, Server& wdserv )
     logsfld_ = new uiCheckList( loggrp, uiCheckList::Unrel, OD::Horizontal );
     logsfld_->addItems( lognms );
     logsfld_->attach( rightOf, logchk_ );
-
     saveasfld_ = new uiGenInput( loggrp, uiStrings::sSaveAs(),
-			BoolInpSpec(true,tr("Log"),tr("Seismic cube")) );
+				 BoolInpSpec(true,uiStrings::sLog(),
+						  tr("Seismic cube")) );
     saveasfld_->attach( alignedBelow, logsfld_ );
     mAttachCB( saveasfld_->valueChanged, uiSaveDataDlg::changeLogUIOutput );
 
@@ -190,7 +190,7 @@ bool WellTie::uiSaveDataDlg::saveLogs()
 		lcr.resetMsg();
 	}
 
-	uiTaskRunner* taskrunner = new uiTaskRunner( this );
+	auto* taskrunner = new uiTaskRunner( this );
 	if ( !TaskRunner::execute(taskrunner,lcr) || !lcr.isOK() )
 	    mErrRet( lcr.errMsg() )
 
@@ -202,7 +202,7 @@ bool WellTie::uiSaveDataDlg::saveLogs()
 
 bool WellTie::uiSaveDataDlg::saveWvlt( bool isestimated )
 {
-    uiIOObjSel& wvltsel = isestimated ? *estimatedwvltsel_ : *initwvltsel_;
+    auto& wvltsel = isestimated ? *estimatedwvltsel_ : *initwvltsel_;
     if ( !wvltsel.isChecked() )
 	return true;
 
@@ -211,11 +211,11 @@ bool WellTie::uiSaveDataDlg::saveWvlt( bool isestimated )
     if ( !wvlt.size() && isestimated )
     {
 	uiString msg = tr( "No deterministic wavelet yet" );
-	msg.append(
-	   tr( "Press 'Quality Control' before saving" ), true );
+	msg.append( tr( "Press 'Quality Control' before saving" ), true );
 	mErrRet( msg )
     }
 
+    wvltsel.reset();
     const IOObj* wvltioobj = wvltsel.ioobj();
     if ( !wvltioobj )
 	return false;

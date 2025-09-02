@@ -283,7 +283,9 @@ bool uiSynthToRealScale::getHorData( TaskRunner& taskr )
     }
 
     const IOObj* ioobj = horfld_->ioobj();
-    if ( !ioobj ) return false;
+    if ( !ioobj )
+	return false;
+
     EM::EMObject* emobj = EM::EMM().loadIfNotFullyLoaded( ioobj->key(),
 							  &taskr );
     mDynamicCastGet(EM::Horizon*,hor,emobj);
@@ -314,7 +316,8 @@ float uiSynthToRealScale::getTrcValue( const SeisTrc& trc, float reftm ) const
 	    val = trc.get( lastsamp, 0 );
 	else
 	    val = trc.getValue( extrtm, 0 );
-	if ( calcrms ) val *= val;
+	if ( calcrms )
+	    val *= val;
 	sumsq += val;
     }
     return calcrms ? Math::Sqrt( sumsq / nrtms ) : sumsq;
@@ -442,10 +445,15 @@ int getTrc3D()
     {
 	if ( !getNextPos3D() )
 	    return Finished();
+
 	else if ( !rdr_.seisTranslator()->goTo(bid_) )
 	    continue;
+
 	else if ( !rdr_.get(trc_) )
-	    { msg_ = rdr_.errMsg(); return ErrorOccurred(); }
+	{
+	    msg_ = rdr_.errMsg();
+	    return ErrorOccurred();
+	}
 
 	break;
     }
@@ -479,6 +487,7 @@ int nextStep() override
     const int res = dlg_.is2d_ ? getTrc2D() : getTrc3D();
     if ( res <= 0 )
 	return res;
+
     nrdone_++;
     if ( res > 1 )
 	return MoreToDo();
@@ -557,8 +566,12 @@ bool uiSynthToRealScale::acceptOK( CallBacker* )
 
     const float scalefac = finalscalefld_->getFValue();
     if ( mIsUdf(scalefac) )
-	{ uiMSG().error(tr("Please enter the scale factor")); return false; }
+    {
+	uiMSG().error(tr("Please enter the scale factor"));
+	return false;
+    }
 
+    wvltfld_->reset();
     const IOObj* ioobj = wvltfld_->ioobj();
     if ( !ioobj )
 	return false;

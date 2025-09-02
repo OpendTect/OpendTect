@@ -38,16 +38,10 @@ ________________________________________________________________________
 
 
 uiWaveletExtraction::uiWaveletExtraction( uiParent* p, bool is2d )
-    : uiDialog(p,Setup(tr("Extract Wavelet"),
+    : uiDialog(p,Setup(uiStrings::phrExtract(uiStrings::sWavelet()),
 		       mODHelpKey(mWaveletExtractionHelpID)).modal(false))
     , extractionDone(this)
-    , seisselfld_(0)
-    , linesel2dfld_(0)
-    , subselfld3d_(0)
-    , zrangefld_(0)
-    , seldata_(0)
     , datastep_(SI().zStep())
-    , wvltsize_(0)
 {
     setCtrlStyle( RunAndClose );
     const Seis::GeomType gt = Seis::geomTypeOf( is2d, false );
@@ -94,12 +88,12 @@ void uiWaveletExtraction::createCommonUIFlds()
 			 uiPosProvGroup::Setup(linesel2dfld_,false,true) );
     surfacesel_->attach( alignedBelow, zextraction_ );
 
-    uiString lbl = tr("Wavelet length %1").arg(SI().getUiZUnitString());
+    const uiString lbl = tr("Wavelet length %1").arg(SI().getUiZUnitString());
     wtlengthfld_ = new uiGenInput( this, lbl, IntInpSpec(120) );
     wtlengthfld_->attach( alignedBelow, surfacesel_ );
 
-    uiString taperlbl = tr("Taper length %1").arg(SI().getUiZUnitString());
-    taperfld_ = new uiGenInput( this, taperlbl, IntInpSpec(20) );
+    const uiString tprlbl = tr("Taper length %1").arg(SI().getUiZUnitString());
+    taperfld_ = new uiGenInput( this, tprlbl, IntInpSpec(20) );
     taperfld_->attach( alignedBelow, wtlengthfld_ );
 
     wvltphasefld_ = new uiGenInput( this, tr("Phase (Degrees)"),
@@ -223,6 +217,7 @@ bool uiWaveletExtraction::acceptOK( CallBacker* )
 	return false;
     }
 
+    outputwvltfld_->reset();
     const IOObj* wvltioobj = outputwvltfld_->ioobj();
     if ( !wvltioobj )
 	return false;
@@ -389,7 +384,7 @@ bool uiWaveletExtraction::fillHorizonSelData( const IOPar& rangepar,
     if ( surfacepar.get(extrazkey,extz) )
 	tsd.extendZ( extz );
 
-    Pos::Provider3D* prov = Pos::Provider3D::make( rangepar );
+    auto* prov = Pos::Provider3D::make( rangepar );
     BufferString surfkey = IOPar::compKey( sKey::Surface(),
 					   Pos::EMSurfaceProvider::id1Key() );
     MultiID surf1mid, surf2mid;
@@ -467,7 +462,8 @@ bool uiWaveletExtraction::getSelData( const IOPar& rangepar,
 	if ( !linesel2dfld_ )
 	{
 	    seldata_ = Seis::SelData::get( rangepar );
-	    if ( !seldata_ ) return false;
+	    if ( !seldata_ )
+		return false;
 
 	    StepInterval<float> zrg = zrangefld_->getRange();
 	    seldata_->setZRange( zrg );

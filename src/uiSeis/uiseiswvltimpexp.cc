@@ -84,10 +84,11 @@ bool uiSeisWvltImp::acceptOK( CallBacker* )
 	mErrRet( tr("Please enter the input file name") )
 
     wvltfld_->reset();
-    const IOObj* wvltioobj = wvltfld_->ioobj( true );
+    const IOObj* wvltioobj = wvltfld_->ioobj();
     if ( !wvltioobj )
 	mErrRet( !wvltfld_->isEmpty() ? uiString::emptyString()
-		: tr("Please enter a name for the new wavelet") )
+		 : tr("Please enter a name for the new wavelet") )
+
     if ( !dataselfld_->commit() )
 	return false;
 
@@ -131,10 +132,10 @@ bool uiSeisWvltImp::acceptOK( CallBacker* )
     if ( !wvlt->put(wvltioobj) )
 	mErrRet( tr("Cannot store wavelet on disk") )
 
-    uiString msg = tr("Wavelet successfully imported."
-		      "\n\nDo you want to import more Wavelets?");
-    bool ret = uiMSG().askGoOn( msg, uiStrings::sYes(),
-				tr("No, close window") );
+    const uiString msg = tr("Wavelet successfully imported."
+			    "\n\nDo you want to import more Wavelets?");
+    const bool ret = uiMSG().askGoOn( msg, uiStrings::sYes(),
+				      tr("No, close window") );
     return !ret;
 }
 
@@ -150,7 +151,7 @@ uiSeisWvltExp::uiSeisWvltExp( uiParent* p )
     : uiDialog(p,Setup(uiStrings::phrExport(uiStrings::sWavelet()),
 		       mODHelpKey(mSeisWvltImpHelpID)))
 {
-    setOkText( uiStrings::sExport() );
+    setOkCancelText( uiStrings::sExport(), uiStrings::sClose() );
 
     wvltfld_ = new uiWaveletSel( this, true );
     mAttachCB( wvltfld_->selectionDone, uiSeisWvltExp::inputChgd );
@@ -186,6 +187,7 @@ void uiSeisWvltExp::inputChgd( CallBacker* )
 
 bool uiSeisWvltExp::acceptOK( CallBacker* )
 {
+    wvltfld_->reset();
     const IOObj* ioobj = wvltfld_->ioobj();
     if ( !ioobj )
 	return false;
@@ -197,8 +199,10 @@ bool uiSeisWvltExp::acceptOK( CallBacker* )
     PtrMan<Wavelet> wvlt = Wavelet::get( ioobj );
     if ( !wvlt )
 	mErrRet( uiStrings::phrCannotRead( uiStrings::sWavelet()) )
+
     if ( wvlt->size() < 1 )
 	mErrRet( tr("Empty wavelet") )
+
     od_ostream strm( fnm );
     if ( !strm.isOK() )
 	mErrRet( uiStrings::sCantOpenOutpFile() )
@@ -220,9 +224,11 @@ bool uiSeisWvltExp::acceptOK( CallBacker* )
     if ( !strm.isOK() )
 	mErrRet( tr("Possible error during write.") );
 
-    uiString msg = tr("Wavelet successfully exported."
-		      "\nDo you want to export more Wavelets?");
-    return !uiMSG().askGoOn(msg, uiStrings::sYes(), tr("No, close window"));
+    const uiString msg = tr("Wavelet successfully exported."
+			    "\nDo you want to export more Wavelets?");
+    const bool ret = uiMSG().askGoOn( msg, uiStrings::sYes(),
+				      tr("No, close window") );
+    return !ret;
 }
 
 
@@ -231,7 +237,7 @@ bool uiSeisWvltExp::acceptOK( CallBacker* )
 uiSeisWvltCopy::uiSeisWvltCopy( uiParent* p, const IOObj* inioobj )
     : uiDialog(p,Setup(uiStrings::phrCopy(uiStrings::sWavelet()),mTODOHelpKey))
 {
-    setOkText( uiStrings::sCopy() );
+    setOkCancelText( uiStrings::sCopy(), uiStrings::sClose() );
 
     wvltinfld_ = new uiWaveletSel( this, true );
     mAttachCB( wvltinfld_->selectionDone, uiSeisWvltCopy::inputChgd );
@@ -273,6 +279,7 @@ void uiSeisWvltCopy::inputChgd(CallBacker *)
 bool uiSeisWvltCopy::acceptOK( CallBacker* )
 {
     const IOObj* inioobj = wvltinfld_->ioobj();
+    wvltoutfld_->reset();
     const IOObj* outioobj = wvltoutfld_->ioobj();
     if ( !inioobj || !outioobj )
 	return false;
@@ -288,7 +295,9 @@ bool uiSeisWvltCopy::acceptOK( CallBacker* )
     if ( !wvlt->put(outioobj) )
 	mErrRet( tr("Cannot store wavelet on disk") )
 
-    uiString msg = tr("Wavelet successfully copied."
-		      "\nDo you want to copy more Wavelets?");
-    return !uiMSG().askGoOn(msg, uiStrings::sYes(), tr("No, close window"));
+    const uiString msg = tr("Wavelet successfully copied."
+			    "\nDo you want to copy more Wavelets?");
+    const bool ret = uiMSG().askGoOn( msg, uiStrings::sYes(),
+				      tr("No, close window") );
+    return !ret;
 }

@@ -81,7 +81,7 @@ static float getFreqScaler()
 }
 
 uiSeisWvltGen::uiSeisWvltGen( uiParent* p )
-    : uiSeisWvltCreate(p,Setup(tr("Create Wavelet"),
+    : uiSeisWvltCreate(p,Setup(uiStrings::phrCreate(uiStrings::sWavelet()),
 			       tr("Specify wavelet creation parameters"),
 			       mODHelpKey(mSeisWvltManCrWvltHelpID)))
 {
@@ -199,7 +199,7 @@ bool uiSeisWvltGen::acceptOK( CallBacker* cb )
 	return res;
 
     const uiString msg = tr("Wavelet successfully created.\n\n"
-		      "Do you want to create more Wavelets?");
+			    "Do you want to create more Wavelets?");
     const bool ret =
 	uiMSG().askGoOn( msg, uiStrings::sYes(),tr("No, close window") );
 
@@ -378,7 +378,7 @@ void uiSeisWvltMerge::reloadWvlts()
 	if ( !ioobj )
 	    continue;
 
-	Wavelet* wvlt = Wavelet::get( ioobj );
+	auto* wvlt = Wavelet::get( ioobj );
 	if ( !wvlt )
 	    continue;
 
@@ -395,7 +395,7 @@ void uiSeisWvltMerge::reloadWvlts()
 
     for ( int idx=0; idx<wvltset_.size(); idx++ )
     {
-	Wavelet* wvlt = wvltset_[idx];
+	auto* wvlt = wvltset_[idx];
 
 	if ( !mIsEqual(wvltsampling_.step_,wvlt->sampleRate(),mDefEps) )
 	    wvlt->reSample( wvltsampling_.step_ );
@@ -532,7 +532,8 @@ bool uiSeisWvltMerge::acceptOK( CallBacker* cb )
 	const int itm = selitms[idx];
 	PtrMan<IOObj> wvltioobj = Wavelet::getIOObj( namelist_.get(itm) );
 	PtrMan<Wavelet> wvlt = Wavelet::get( wvltioobj.ptr() );
-	if ( !wvlt ) continue;
+	if ( !wvlt )
+	    continue;
 
 	if ( wvlt->sampleRate() < sr )
 	    sr = wvlt->sampleRate();
@@ -546,9 +547,9 @@ bool uiSeisWvltMerge::acceptOK( CallBacker* cb )
 	return false;
 
     const uiString msg = tr("Wavelets successfully merged.\n\n"
-		      "Do you want to merge more Wavelets?");
+			    "Do you want to merge more Wavelets?");
     const bool ret =
-	uiMSG().askGoOn( msg, uiStrings::sYes(),tr("No, close window") );
+	uiMSG().askGoOn( msg, uiStrings::sYes(), tr("No, close window") );
 
     return !ret;
 }
@@ -574,6 +575,7 @@ float uiSeisWvltMerge::WvltMathFunction::getValue( float t ) const
 	return 0;
     else if ( x1 == size_-1 )
 	return samples_[x1];
+
     const float val1 = samples_[x1];
     const int x2 = x1+1 ;
     const float val2 = samples_[x2];
