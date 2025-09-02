@@ -39,6 +39,10 @@ protected:
     void			init3D();
     bool			getSignalInfo(const SeisTrc&,
 					      int& start,int& signalsz) const;
+    bool			getSignalInfoBetweenZ(const SeisTrc&,
+					      int& start,int& signalsz) const;
+    bool			getSignalInfoFull(const SeisTrc&,
+					      int& start,int& signalsz) const;
     bool			getNextLine(); //2D
     bool			processTrace(const SeisTrc&,
 					     int start, int signalsz);
