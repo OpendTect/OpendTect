@@ -38,7 +38,7 @@ protected:
     uiGenInput*		offsrgfld_;
     uiIOObjSel*		outpfld_;
 
-    IOObj*		inpioobj_;
+    IOObj*		inpioobj_	= nullptr;
 
 };
 

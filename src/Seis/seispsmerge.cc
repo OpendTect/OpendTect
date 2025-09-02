@@ -24,7 +24,7 @@ SeisPSCopier::SeisPSCopier( const IOObj& in, const IOObj& out,
 			    const Seis::SelData* sd )
     : SeisPSMerger( mkObjs(in), out, false, sd )
 {
-    setName( "Copying Prestack data" );
+    setName( "Copying Prestack Data" );
 }
 
 
@@ -54,7 +54,8 @@ SeisPSMerger::SeisPSMerger( const ObjectSet<const IOObj>& inobjs,
     , totnr_(-1)
     , nrdone_(0)
 {
-    TrcKeyZSampling cs; bool havecs = false;
+    TrcKeyZSampling cs;
+    bool havecs = false;
     if ( sd_ )
     {
 	mDynamicCastGet(Seis::RangeSelData*,rsd,sd_)
@@ -74,13 +75,19 @@ SeisPSMerger::SeisPSMerger( const ObjectSet<const IOObj>& inobjs,
     for ( int idx=0; idx<inobjs.size(); idx++ )
     {
 	SeisPS3DReader* rdr = SPSIOPF().get3DReader( *inobjs[idx] );
-	if ( !rdr ) continue;
-	readers_ += rdr;
-	if ( havecs ) continue;
+	if ( !rdr )
+	    continue;
 
-	Interval<int> inlrg, crlrg; StepInterval<int> rg;
-	rdr->posData().getInlRange( rg ); assign( inlrg, rg );
-	rdr->posData().getCrlRange( rg ); assign( crlrg, rg );
+	readers_ += rdr;
+	if ( havecs )
+	    continue;
+
+	Interval<int> inlrg, crlrg;
+	StepInterval<int> rg;
+	rdr->posData().getInlRange( rg );
+	assign( inlrg, rg );
+	rdr->posData().getCrlRange( rg );
+	assign( crlrg, rg );
 	if ( idx == 0 )
 	    cs.hsamp_.set( inlrg, crlrg );
 	else
@@ -90,7 +97,10 @@ SeisPSMerger::SeisPSMerger( const ObjectSet<const IOObj>& inobjs,
 	}
     }
     if ( readers_.isEmpty() )
-    { msg_ = tr("No valid inputs specified"); return; }
+    {
+	msg_ = tr("No valid inputs specified");
+	return;
+    }
 
     totnr_ = mCast( int, sd_ ? sd_->expectedNrTraces() : cs.hsamp_.totalNr() );
     iter_ = new TrcKeySamplingIterator( cs.hsamp_ );
@@ -150,7 +160,8 @@ int SeisPSMerger::nextStep()
 		break;
 	}
 
-	if ( gatherset.isEmpty() ) continue;
+	if ( gatherset.isEmpty() )
+	    continue;
 
 	gather = gatherset[0];
 	if ( dostack_ && gatherset.size() > 1 )

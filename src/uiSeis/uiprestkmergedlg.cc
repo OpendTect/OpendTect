@@ -64,7 +64,7 @@ uiPreStackMergeDlg::~uiPreStackMergeDlg()
 void uiPreStackMergeDlg::createFields( uiGroup* topgrp )
 {
     volsbox_ = new uiListBox( topgrp, "Available Stores",
-				OD::ChooseAtLeastOne );
+			      OD::ChooseAtLeastOne );
     volsbox_->setHSzPol( uiObject::Wide );
     selvolsbox_ = new uiListBox( topgrp, "Selected Stores" );
     selvolsbox_->setHSzPol( uiObject::Wide );
@@ -77,17 +77,17 @@ void uiPreStackMergeDlg::createFields( uiGroup* topgrp )
     ctxt.forread_ = false;
     ctxt.deftransl_ = CBVSSeisPS3DTranslator::translKey();
     outpfld_ = new uiIOObjSel( this, ctxt, uiStrings::sOutpDataStore() );
+    outpfld_->setConfirmOverwrite( true );
 
     uiPosSubSel::Setup psssu( false, false );
-    psssu.choicetype( uiPosSubSel::Setup::OnlySeisTypes )
-	 .withstep( false );
+    psssu.choicetype( uiPosSubSel::Setup::OnlySeisTypes ).withstep( false );
     subselfld_ = new uiPosSubSel( this, psssu );
 }
 
 
 void uiPreStackMergeDlg::createSelectButtons( uiGroup* selbuttons )
 {
-    uiLabel* sellbl = new uiLabel( selbuttons, uiStrings::sSelect() );
+    auto* sellbl = new uiLabel( selbuttons, uiStrings::sSelect() );
     CallBack cb = mCB(this,uiPreStackMergeDlg,selButPush);
     toselect_ = new uiToolButton( selbuttons, uiToolButton::RightArrow,
 				  uiString::emptyString(), cb);
@@ -103,7 +103,7 @@ void uiPreStackMergeDlg::createSelectButtons( uiGroup* selbuttons )
 
 void uiPreStackMergeDlg::createMoveButtons( uiGroup* movebuttons )
 {
-    uiLabel* movelbl = new uiLabel( movebuttons, tr("Change \n Priority") );
+    auto* movelbl = new uiLabel( movebuttons, tr("Change \n Priority") );
     CallBack cb = mCB(this,uiPreStackMergeDlg,moveButPush);
     moveupward_ = new uiToolButton( movebuttons, uiToolButton::UpArrow,
 				    uiString::emptyString(),cb);
@@ -118,7 +118,7 @@ void uiPreStackMergeDlg::createMoveButtons( uiGroup* movebuttons )
 
 
 void uiPreStackMergeDlg::attachFields( uiGroup* selbuttons, uiGroup* topgrp,
-					 uiGroup* movebuttons )
+				       uiGroup* movebuttons )
 {
     selbuttons->attach( centeredLeftOf, selvolsbox_ );
     selbuttons->attach( ensureRightOf, volsbox_ );
@@ -161,7 +161,6 @@ void uiPreStackMergeDlg::selButPush( CallBacker* cb )
 	    selvolsbox_->addItem( toUiString(*selnm) );
 	    volsbox_->removeItem( selnm->buf() );
 	}
-
     }
     else if ( but == fromselect_ )
     {
@@ -214,26 +213,29 @@ bool uiPreStackMergeDlg::setSelectedVols()
     for ( int idx=0; idx<nrobjs; idx++ )
     {
 	const char* txt = selvolsbox_->textOfItem(idx);
-	int volidx = allvolsnames_.indexOf( txt );
-	if ( volidx < 0 ) continue;
+	const int volidx = allvolsnames_.indexOf( txt );
+	if ( volidx < 0 )
+	    continue;
 
 	const MultiID id = allvolsids_[volidx];
 	IOObj* ioobj = IOM().get( id );
-	if ( !ioobj ) continue;
+	if ( !ioobj )
+	    continue;
 
 	if ( selobjs_.isEmpty() )
 	    storage = ioobj->pars().find( storagekey );
 	else if ( !altstormsgdone && storage != ioobj->pars().find(storagekey) )
 	{
 	    altstormsgdone = true;
-	    if ( !uiMSG().askContinue(
-		   tr("Not all stores have the same storage type.\nContinue?")))
+	    if ( !uiMSG().askContinue( tr("Not all stores have the same "
+					  "storage type.\nContinue?")) )
 		return false;
 	}
 
 	selobjs_ += ioobj;
     }
 
+    outpfld_->reset();
     const IOObj* outioobj = outpfld_->ioobj( true );
     if ( !outioobj )
     {
@@ -251,14 +253,17 @@ bool uiPreStackMergeDlg::setSelectedVols()
 
 void uiPreStackMergeDlg::moveButPush( CallBacker* cb )
 {
-    if ( selvolsbox_->nrChosen() != 1 ) return;
+    if ( selvolsbox_->nrChosen() != 1 )
+	return;
 
     const int idx = selvolsbox_->currentItem();
     const char* item = selvolsbox_->textOfItem(idx);
     mDynamicCastGet(uiToolButton*,but,cb);
     if ( but == moveupward_ )
     {
-	if ( idx < 1 ) return;
+	if ( idx < 1 )
+	    return;
+
 	selvolsbox_->removeItem(idx);
 	selvolsbox_->insertItem( toUiString(item), idx-1 );
 	selvolsbox_->setCurrentItem( idx - 1 );
@@ -266,10 +271,15 @@ void uiPreStackMergeDlg::moveButPush( CallBacker* cb )
     else if ( but == movedownward_ )
     {
 	const int totalnr = selvolsbox_->size();
-	if ( idx > totalnr-2 ) return;
+	if ( idx > totalnr-2 )
+	    return;
+
 	selvolsbox_->removeItem(idx);
-	if ( idx == totalnr-2 ) selvolsbox_->addItem( toUiString(item) );
-	else selvolsbox_->insertItem( toUiString(item), idx+1 );
+	if ( idx == totalnr-2 )
+	    selvolsbox_->addItem( toUiString(item) );
+	else
+	    selvolsbox_->insertItem( toUiString(item), idx+1 );
+
 	selvolsbox_->setCurrentItem( idx + 1 );
     }
 }
@@ -287,7 +297,8 @@ bool uiPreStackMergeDlg::acceptOK( CallBacker* )
     PtrMan<Seis::SelData> sd = 0;
     if ( !subselfld_->isAll() )
     {
-	IOPar iop; subselfld_->fillPar( iop );
+	IOPar iop;
+	subselfld_->fillPar( iop );
 	sd = Seis::SelData::get( iop );
     }
 
@@ -296,24 +307,30 @@ bool uiPreStackMergeDlg::acceptOK( CallBacker* )
     ObjectSet<const IOObj>& selobjsconst
 		= reinterpret_cast<ObjectSet<const IOObj>&>(selobjs);
     PtrMan<SeisPSMerger> exec =
-	new SeisPSMerger( selobjsconst, *outioobj, dostack, sd.ptr() );
-    exec->setName( "Merge Prestack Data Stores" );
+		 new SeisPSMerger( selobjsconst, *outioobj, dostack, sd.ptr() );
     uiTaskRunner dlg( this );
-    return TaskRunner::execute( &dlg, *exec );
+    if ( !TaskRunner::execute(&dlg,*exec) )
+    {
+	uiMSG().errorWithDetails( dlg.errorWithDetails() );
+	return false;
+    }
+
+    const uiString msg = tr("Prestack Merge was successful. Merge more?");
+    const bool ret = uiMSG().askGoOn( msg, uiStrings::sYes(),
+					   tr("No, close window") );
+    return !ret;
 }
 
 
 uiPreStackOutputGroup::uiPreStackOutputGroup( uiParent* p )
     : uiGroup(p,"Prestack Data Output Group")
-    , inpioobj_(0)
 {
-
     uiPosSubSel::Setup psssu( false, true );
-    psssu.choicetype( uiPosSubSel::Setup::OnlySeisTypes )
-	 .withstep( true );
+    psssu.choicetype( uiPosSubSel::Setup::OnlySeisTypes ).withstep( true );
     subselfld_ = new uiPosSubSel( this, psssu );
 
-    uiString offsetrangestr (tr("Offset range %1").arg(SI().getXYUnitString()));
+    const uiString offsetrangestr( tr("Offset range %1")
+				      .arg(SI().getXYUnitString()) );
     offsrgfld_ = new uiGenInput( this, offsetrangestr,
 				 FloatInpSpec(0), FloatInpSpec() );
     offsrgfld_->attach( alignedBelow, subselfld_ );
@@ -323,6 +340,7 @@ uiPreStackOutputGroup::uiPreStackOutputGroup( uiParent* p )
     ctxt.deftransl_ = CBVSSeisPS3DTranslator::translKey();
     outpfld_ = new uiIOObjSel( this, ctxt, uiStrings::sOutpDataStore() );
     outpfld_->attach( alignedBelow, offsrgfld_ );
+    outpfld_->setConfirmOverwrite( true );
 
     setHAlignObj( subselfld_ );
 }
@@ -343,7 +361,8 @@ void uiPreStackOutputGroup::setInput( const IOObj& ioobj )
     inpioobj_ = ioobj.clone();
 
     SeisPS3DReader* rdr = SPSIOPF().get3DReader( *inpioobj_ );
-    if ( !rdr ) return;
+    if ( !rdr )
+	return;
 
     TrcKeySampling hs;
     StepInterval<int> inlrg, crlrg;
@@ -361,6 +380,7 @@ bool uiPreStackOutputGroup::go()
     if ( !inpioobj_ )
 	return false;
 
+    outpfld_->reset();
     const IOObj* outioobj = outpfld_->ioobj();
     if ( !outioobj )
 	return false;
@@ -368,7 +388,8 @@ bool uiPreStackOutputGroup::go()
     PtrMan<Seis::SelData> sd = 0;
     if ( !subselfld_->isAll() )
     {
-	IOPar iop; subselfld_->fillPar( iop );
+	IOPar iop;
+	subselfld_->fillPar( iop );
 	sd = Seis::SelData::get( iop );
     }
 
@@ -381,7 +402,15 @@ bool uiPreStackOutputGroup::go()
     copier.setOffsetRange( ofsrgstart, ofsrgstop );
 
     uiTaskRunner trunner( this );
-    return trunner.execute( copier );
+    if ( !trunner.execute(copier) )
+    {
+	if ( !copier.errorWithDetails().getText().contains("Handling gathers") )
+	    uiMSG().errorWithDetails( copier.errorWithDetails() );
+
+	return false;
+    }
+
+    return true;
 }
 
 
@@ -391,7 +420,7 @@ uiPreStackCopyDlg::uiPreStackCopyDlg( uiParent* p, const MultiID& key )
 {
     const CallBack selcb( mCB(this,uiPreStackCopyDlg,objSel) );
     inpfld_ = new uiIOObjSel( this, mIOObjContext(SeisPS3D),
-				tr("Input Prestack Data Store") );
+			      tr("Input Prestack Data Store") );
     inpfld_->setInput( key );
     inpfld_->selectionDone.notify( selcb );
 
@@ -421,5 +450,12 @@ bool uiPreStackCopyDlg::acceptOK( CallBacker* )
 	return false;
 
     outgrp_->setInput( *inioobj );
-    return outgrp_->go();
+
+    if ( !outgrp_->go() )
+	return false;
+
+    const uiString msg = tr("Prestack Copy was successful. Copy more?");
+    const bool ret = uiMSG().askGoOn( msg, uiStrings::sYes(),
+					   tr("No, close window") );
+    return !ret;
 }

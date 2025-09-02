@@ -71,7 +71,8 @@ void PSAttrib::initClass()
     auto* ipar = new IntParam( componentStr(), 0 , false );
     ipar->setLimits( Interval<int>(0,mUdf(int)) );
     desc->addParam( ipar );
-    ipar = ipar->clone(); ipar->setKey( apertureStr() );
+    ipar = ipar->clone();
+    ipar->setKey( apertureStr() );
     desc->addParam( ipar );
 
     desc->addParam( new FloatParam( offStartStr(), 0, false ) );
@@ -164,7 +165,7 @@ PSAttrib::PSAttrib( Desc& ds )
 	preprocessor_ = new PreStack::ProcessManager( gs );
 	uiString errmsg;
 	if ( !PreStackProcTranslator::retrieve(*preprocessor_,
-					preprociopar.ptr(),errmsg) )
+					       preprociopar.ptr(),errmsg) )
 	{
 	    errmsg_ = errmsg;
 	    deleteAndNullPtr( preprocessor_ );
@@ -239,7 +240,9 @@ PSAttrib::PSAttrib( Desc& ds )
 	    return;
 	}
 
-	if ( mIsUdf(offstop) ) offstop = 90.f;
+	if ( mIsUdf(offstop) )
+	    offstop = 90.f;
+
 	setup_.anglerg_.set( mNINT32(offstart), mNINT32(offstop) );
     }
 }
@@ -295,7 +298,9 @@ void PSAttrib::setAngleData( DataPackID angledpid )
 
 void PSAttrib::setAngleComp( PreStack::AngleComputer* ac )
 {
-    if ( !ac ) return;
+    if ( !ac )
+	return;
+
     anglecomp_ = ac;
     setSmootheningPar();
 }
@@ -310,8 +315,11 @@ float PSAttrib::getXscaler( bool isoffset, bool isindegrees ) const
 bool PSAttrib::getInputOutput( int input, TypeSet<int>& res ) const
 {
     Interval<float>& rg = const_cast<Interval<float>&>(setup_.offsrg_);
-    if ( rg.start_ > 1e28 ) rg.start_ = 0;
-    if ( rg.stop_ > 1e28 ) rg.stop_ = mUdf(float);
+    if ( rg.start_ > 1e28 )
+	rg.start_ = 0;
+
+    if ( rg.stop_ > 1e28 )
+	rg.stop_ = mUdf(float);
 
     return Provider::getInputOutput( input, res );
 }
@@ -542,11 +550,12 @@ void PSAttrib::prepPriorToBoundsCalc()
 
 	if ( !psrdr_ )
 	    mErrRet( uiStrings::phrCannotRead( psioobj_
-		    ? psioobj_->uiName()
-		    : uiStrings::sVolDataName(true, true, true) ) )
+				? psioobj_->uiName()
+				: uiStrings::sVolDataName(true, true, true) ) )
 
 	const uiString emsg = psrdr_->errMsg();
-	if ( emsg.isSet() ) mErrRet( tr("PS Reader: %1").arg(emsg) );
+	if ( emsg.isSet() )
+	    mErrRet( tr("PS Reader: %1").arg(emsg) );
     }
 
     PreStack::PropCalc::Setup calcsetup( setup_ );
@@ -587,7 +596,7 @@ void PSAttrib::updateCSIfNeeded( TrcKeyZSampling& cs ) const
 
 
 bool PSAttrib::computeData( const DataHolder& output, const BinID& relpos,
-			  int z0, int nrsamples, int threadid ) const
+			    int z0, int nrsamples, int threadid ) const
 {
     if ( !propcalc_ )
 	return false;

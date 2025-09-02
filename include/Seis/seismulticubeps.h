@@ -68,7 +68,7 @@ public:
 			mDefEmptyTranslatorConstructor(MultiCube,SeisPS3D)
 			~MultiCubeSeisPS3DTranslator();
 
-    virtual bool	isUserSelectable( bool fr ) const override
-			{ return fr; }
+    virtual bool	isUserSelectable( bool ) const override
+			{ return true; }
     const char*		defExtension() const override	{ return "mcps"; }
 };

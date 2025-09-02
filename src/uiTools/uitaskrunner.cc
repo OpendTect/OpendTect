@@ -87,7 +87,8 @@ bool uiTaskRunner::execute( Task& t )
 
     MouseCursorChanger mousecursor( MouseCursor::Arrow );
 
-    task_ = &t; state_ = 1;
+    task_ = &t;
+    state_ = 1;
     prevtotalnr_ = prevnrdone_ = prevpercentage_ = -1;
     prevmessage_ = uiString::empty();
     prevtime_ = Time::getMilliSeconds();
@@ -137,7 +138,8 @@ void uiTaskRunner::doWork( CallBacker* )
 
 void uiTaskRunner::updateFields()
 {
-    if ( !task_ ) return;
+    if ( !task_ )
+	return;
 
     uiStatusBar& sb = *statusBar();
 
@@ -187,11 +189,13 @@ void uiTaskRunner::updateFields()
 
 	const float fpercentage = 100.f * ((float)nrdone) / totalnr;
 	int percentage = (int)fpercentage;
-	if ( percentage > 100 ) percentage = 100;
+	if ( percentage > 100 )
+	    percentage = 100;
+
 	if ( percentage!=prevpercentage_ )
 	{
-	    uiString capt = tr("[%1%] %2").arg(percentage)
-					  .arg(toUiString(execnm_));
+	    const uiString capt = tr("[%1%] %2").arg(percentage)
+						.arg(toUiString(execnm_));
 	    setCaption( capt );
 
 	    prevpercentage_ = percentage;
@@ -214,7 +218,9 @@ void uiTaskRunner::updateFields()
 bool uiTaskRunner::acceptOK( CallBacker* )
 {
     Threads::Locker lckr( uitaskrunnerthreadlock_ );
-    if ( !task_ ) return false;
+    if ( !task_ )
+	return false;
+
     Task::Control state = task_->getState();
     lckr.unlockNow();
 
@@ -250,7 +256,8 @@ void uiTaskRunner::timerTick( CallBacker* )
 				Threads::Locker::DontWaitForLock );
 	if ( trlckr.isLocked() )
 	{
-	    if ( task_ ) errdetails = task_->errorWithDetails();
+	    if ( task_ )
+		errdetails = task_->errorWithDetails();
 	    message = finalizeTask();
 	    trlckr.unlockNow();
 	}
@@ -281,7 +288,8 @@ uiString uiTaskRunner::finalizeTask()
 	thread_ = 0;
     }
 
-    if ( task_ ) message = task_->uiMessage();
+    if ( task_ )
+	message = task_->uiMessage();
     task_ = 0;
 
     return message;
@@ -291,7 +299,8 @@ uiString uiTaskRunner::finalizeTask()
 bool uiTaskRunner::rejectOK( CallBacker* )
 {
     Threads::Locker lckr( uitaskrunnerthreadlock_ );
-    if ( task_ ) task_->controlWork( Task::Stop );
+    if ( task_ )
+	task_->controlWork( Task::Stop );
     finalizeTask();
     lckr.unlockNow();
 
