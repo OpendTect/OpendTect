@@ -42,26 +42,37 @@ else()
 	endif()
     endforeach()
 
+    if ( APPLE )
+	set( REGEXESTR2 ".framework$" )
+    else()
+	set( REGEXESTR1 ".*" )
+    endif()
+
     foreach( LIB ${OD_THIRDPARTY_LIBS} )
-	if ( "${LIB}" MATCHES "^${SHLIB_PREFIX}Qt.*${SHLIB_EXTENSION}.*" )
-	    if ( "${LIB}" MATCHES "Qt.*Core" OR
-		 "${LIB}" MATCHES "Qt.*DBus" OR
-		 "${LIB}" MATCHES "Qt.*Network" OR
-		 "${LIB}" MATCHES "Qt.*Sql" )
+	if ( (APPLE AND "${LIB}" MATCHES "^Qt.*${REGEXESTR2}") OR
+	     (NOT APPLE AND "${LIB}" MATCHES "^${SHLIB_PREFIX}Qt.*${SHLIB_EXTENSION}.*") )
+	    if ( "${LIB}" MATCHES "Qt${REGEXESTR1}Core${REGEXESTR2}" OR
+		 "${LIB}" MATCHES "Qt${REGEXESTR1}DBus${REGEXESTR2}" OR
+		 "${LIB}" MATCHES "Qt${REGEXESTR1}Network${REGEXESTR2}" OR
+		 "${LIB}" MATCHES "Qt${REGEXESTR1}Sql${REGEXESTR2}" )
 		list( APPEND THIRDPARTY_LIBS ${LIB} )
 	    endif()
 	else()
 	    if ( NOT "${LIB}" MATCHES "^${SHLIB_PREFIX}osg.*${SHLIB_EXTENSION}.*" AND
 		 NOT "${LIB}" MATCHES ".*OpenThreads.*${SHLIB_EXTENSION}.*" AND
-		 NOT "${LIB}" MATCHES "^fontconfig" AND
-		 NOT "${LIB}" MATCHES "^freetype" AND
-		 NOT "${LIB}" MATCHES "^png" AND
+		 NOT "${LIB}" MATCHES ".*${SHLIB_PREFIX}fontconfig.*${SHLIB_EXTENSION}" AND
+		 NOT "${LIB}" MATCHES ".*${SHLIB_PREFIX}freetype.*${SHLIB_EXTENSION}" AND
+		 NOT "${LIB}" MATCHES ".*${SHLIB_PREFIX}png.*${SHLIB_EXTENSION}" AND
+		 NOT "${LIB}" MATCHES ".*${SHLIB_PREFIX}cups.*${SHLIB_EXTENSION}" AND
 		 NOT "${LIB}" MATCHES "^d3dcompiler" AND
 		 NOT "${LIB}" MATCHES "^opengl32sw" )
 		list( APPEND THIRDPARTY_LIBS ${LIB} )
 	    endif()
 	endif()
     endforeach()
+
+    unset( REGEXESTR1 )
+    unset( REGEXESTR2 )
 
     if ( WIN32 )
 	unset( QTPLUGINS )
