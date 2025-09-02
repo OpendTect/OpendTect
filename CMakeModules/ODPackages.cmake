@@ -5,23 +5,13 @@
 #________________________________________________________________________
 #
 
-macro( OD_CREATE_PACKAGE_DEFINITION )
-    GET_OD_BASE_EXECUTABLES()
-    configure_file( "${CMAKE_SOURCE_DIR}/CMakeModules/packagescripts/develdefs.cmake.in"
-	                "${OD_CMAKE_MODULES_DIR}/packagescripts/develdefs.cmake"
-                   @ONLY )
-
-    configure_file( "${CMAKE_SOURCE_DIR}/CMakeModules/packagescripts/basedefs.cmake.in"
-	                "${OD_CMAKE_MODULES_DIR}/packagescripts/basedefs.cmake"
-                   @ONLY )
-endmacro()
-
 macro( OD_ADD_PACKAGES_TARGET )
     if ( NOT DEFINED PACKAGE_DIR )
 	set( PACKAGE_DIR "${CMAKE_SOURCE_DIR}/../packages" )
 	get_filename_component( PACKAGE_DIR "${PACKAGE_DIR}" ABSOLUTE )
     endif()
 
+    GET_OD_BASE_EXECUTABLES()
     get_thirdparty_targets( OD_THIRDPARTY_TARGETS ${OD_MODULES} ${OD_PLUGINS} )
     get_thirdparty_libs( "${OD_THIRDPARTY_TARGETS}" OD_THIRDPARTY_LIBS )
     set( CMAKE_FOLDER "Releases" )
@@ -44,14 +34,25 @@ macro( OD_ADD_PACKAGES_TARGET )
 	    -DUSERDOC_PROJECT=${USERDOC_PROJECT}
 	    -DBUILD_DOCUMENTATION=${BUILD_DOCUMENTATION}
 	    -DCLASSDOC_SCRIPT_LOCATION=${CLASSDOC_SCRIPT_LOCATION}
+	    "-DOD_CORE_MODULES=\"${OD_CORE_MODULES}\""
+	    "-DOD_GUI_MODULES=\"${OD_GUI_MODULES}\""
+	    "-DOD_CORE_PLUGINS=\"${OD_CORE_PLUGINS}\""
+	    "-DOD_GUI_PLUGINS=\"${OD_GUI_PLUGINS}\""
+	    "-DOD_CORE_SPECMODS=\"${OD_CORE_SPECMODS}\""
+	    "-DOD_GUI_SPECMODS=\"${OD_GUI_SPECMODS}\""
+	    "-DOD_CORE_EXECUTABLES=\"${OD_CORE_EXECUTABLES}\""
+	    "-DOD_CORE_SPECMODS=\"${OD_CORE_SPECMODS}\""
+	    "-DOD_GUI_SPECMODS=\"${OD_GUI_SPECMODS}\""
+	    "-DOD_GUI_EXECUTABLES=\"${OD_GUI_EXECUTABLES}\""
 	    "-DOD_THIRDPARTY_LIBS=\"${OD_THIRDPARTY_LIBS}\""
 	    "-DOD_THIRDPARTY_TARGETS=\"${OD_THIRDPARTY_TARGETS}\""
 	    "-DOD_QTPLUGINS=\"${OD_QTPLUGINS}\""
+	    -DSHLIB_PREFIX=${SHLIB_PREFIX}
+	    -DSHLIB_EXTENSION=${SHLIB_EXTENSION}
 	    -P "${CMAKE_SOURCE_DIR}/CMakeModules/packagescripts/ODMakePackages.cmake" 
 	    COMMENT "Creating packages" ) 
     unset( CMAKE_FOLDER )
 endmacro()
-
 
 macro( OD_ADD_SIGNLIBRARIES_TARGET )
     set( CMAKE_FOLDER "Releases" )
