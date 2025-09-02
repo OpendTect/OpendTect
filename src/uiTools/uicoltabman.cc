@@ -227,6 +227,8 @@ void uiColorTableMan::refreshColTabList( const char* selctnm )
 	    itm->setBold( -1, true );
     }
 
+    coltablistfld_->setColumnWidthMode( uiTreeView::ResizeToContents );
+
     uiTreeViewItem* itm = coltablistfld_->findItem( selctnm, 0, true );
     if ( !itm ) return;
 

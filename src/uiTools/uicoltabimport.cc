@@ -208,6 +208,8 @@ void uiColTabImport::usrSel( CallBacker* )
 void uiColTabImport::getFromSettingsPar( const IOPar& par )
 {
     deepErase( seqs_ );
+    BufferStringSet seqnames;
+    ObjectSet<ColTab::Sequence> seqlist;
     int nrinvalididx = 0;
     for ( int idx=0; ; idx++ )
     {
@@ -229,19 +231,28 @@ void uiColTabImport::getFromSettingsPar( const IOPar& par )
 	    continue;
 	}
 
-	seqs_ += seq;
-	uiPixmap coltabpix( 16, 10 );
-	coltabpix.fill( *seq, true );
-	listfld_->addItem( ::toUiString(seq->name()), coltabpix );
+	seqlist += seq;
+	seqnames.add( seq->name() );
     }
 
-    if ( listfld_->isEmpty() )
+    if ( seqnames.isEmpty() )
 	showMessage(uiStrings::phrCannotRead(uiStrings::phrJoinStrings
 		   (uiStrings::sColorTable(), tr("from Selected"),
 		    uiStrings::sFile())));
     else
     {
-	listfld_->sortItems();
+	ConstArrPtrMan<int> sortindexes = seqnames.getSortIndexes();
+	for ( int idx=0; idx<seqnames.size(); idx++ )
+	{
+	    const int sortedidx = sortindexes[idx];
+	    auto* seq = seqlist[sortedidx];
+	    seqs_ += seq;
+
+	    uiPixmap coltabpix( 16, 10 );
+	    coltabpix.fill( *seq, true );
+	    listfld_->addItem( ::toUiString(seq->name()), coltabpix );
+	}
+
 	showList();
     }
 }
