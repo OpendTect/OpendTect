@@ -23,6 +23,7 @@ ________________________________________________________________________
 
 #include "odplugin.h"
 #include "oddirs.h"
+#include "odiconfile.h"
 #include "oscommand.h"
 
 
@@ -49,7 +50,9 @@ public:
 
 private:
 
+    void		init() override;
     void		dTectMenuChanged() override;
+    void		addColopIconFolder();
 
     void		doColop(CallBacker*);
     void		updateWaveletMan(CallBacker*);
@@ -71,18 +74,53 @@ uiColopLink::~uiColopLink()
 }
 
 
+void uiColopLink::init()
+{
+    addColopIconFolder();
+    uiPluginInitMgr::init();
+}
+
+
+
+void uiColopLink::addColopIconFolder()
+{
+    if ( !OD::isDeveloperBuild() && !OD::isDeveloperInstallation() )
+	return;
+
+    BufferStringSet dirnms;
+    if ( !GetSetupShareDirNames("colop",dirnms) || dirnms.isEmpty() )
+	return;
+
+    const BufferString& dirnm = *dirnms.first();
+    const FilePath fp( dirnm, OD::IconFile::getDefaultIconSubFolderName() );
+    if ( !fp.exists() )
+	return;
+
+    const FilePath iconsfp( dirnm.str(), OD::IconFile::getIconSubFolderName() );
+    const BufferString icdirnm = iconsfp.fullPath();
+    OD::addIconsFolder( icdirnm.buf() );
+
+    const FilePath deficonsfp( iconsfp.pathOnly(),
+			       OD::IconFile::getDefaultIconSubFolderName() );
+    const BufferString deficdirnm = deficonsfp.fullPath();
+    if ( deficdirnm != icdirnm )
+	OD::addIconsFolder( deficdirnm.buf() );
+}
+
+
 void uiColopLink::dTectMenuChanged()
 {
     appl().menuMgr().procMnu()->insertAction(
-			    new uiAction( m3Dots(tr("COLOP")),
-					  mCB(this,uiColopLink,doColop) ) );
+			new uiAction( m3Dots(tr("COLOP")),
+				      mCB(this,uiColopLink,doColop), "COLOP" ));
 }
 
 
 void uiColopLink::updateWaveletMan( CallBacker* cb )
 {
     mDynamicCastGet(uiSeisWvltMan*,swm,cb)
-    if ( !swm ) return;
+    if ( !swm )
+	return;
 
     new uiToolButton( swm->selGroup()->getManipGroup(),
 		       "COLOP", toUiString("COLOP"),

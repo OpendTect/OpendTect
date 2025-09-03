@@ -15,6 +15,10 @@ if ( ${PACKAGE_TYPE} STREQUAL "Production" )
     list( APPEND PACKAGELIST basedatadefs basedefs )
 endif()
 
+if ( WIN32 )
+    list( APPEND PACKAGELIST colopdefs )
+endif()
+
 if ( BUILD_USERDOC AND EXISTS "${USERDOC_PROJECT}" )
     list( APPEND PACKAGELIST doc )
 endif()
