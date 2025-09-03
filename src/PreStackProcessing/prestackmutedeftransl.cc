@@ -62,7 +62,12 @@ uiString MuteDefTranslator::sSelObjNotMuteDef()
 bool MuteDefTranslator::retrieve( PreStack::MuteDef& md, const IOObj* ioobj,
 				  uiString& msg )
 {
-    if ( !ioobj ) { msg = uiStrings::sCantFindODB(); return false; }
+    if ( !ioobj )
+    {
+	msg = uiStrings::sCantFindODB();
+	return false;
+    }
+
     mDynamicCast(MuteDefTranslator*,PtrMan<MuteDefTranslator> mdtrl,
 		 ioobj->createTranslator());
     if ( !mdtrl )
@@ -84,7 +89,7 @@ bool MuteDefTranslator::retrieve( PreStack::MuteDef& md, const IOObj* ioobj,
 
 
 bool MuteDefTranslator::store( const PreStack::MuteDef& md, const IOObj* ioobj,
-				uiString& msg )
+			       uiString& msg )
 {
     if ( !ioobj )
     {
@@ -126,7 +131,7 @@ uiString dgbMuteDefTranslator::read( PreStack::MuteDef& md, Conn& conn )
     if ( conn.isBad() || !conn.forRead() || !conn.isStream() )
     {
 	pErrMsg(BufferString("Internal error: bad connection:\n",
-		    conn.creationMessage()));
+		conn.creationMessage()));
 	return uiStrings::phrCannotConnectToDB();
     }
 
@@ -145,13 +150,18 @@ uiString dgbMuteDefTranslator::read( PreStack::MuteDef& md, Conn& conn )
 	md.usePar( pars );
     }
 
-    if ( atEndOfSection(astrm) ) astrm.next();
-    if ( atEndOfSection(astrm) ) astrm.next(); //skip for anextraparagraph that
-					//was inserted between version 4.4 & 4.6
+    if ( atEndOfSection(astrm) )
+	astrm.next();
+
+    if ( atEndOfSection(astrm) )
+	astrm.next(); //skip for anextraparagraph that
+		    //was inserted between version 4.4 & 4.6
     if ( atEndOfSection(astrm) )
 	return tr("Input file contains no Mute Definition locations");
 
-    while ( md.size() ) md.remove( 0 );
+    while ( md.size() )
+	md.remove( 0 );
+
     md.setName( IOM().nameOf(conn.linkedTo()) );
 
     do
@@ -177,6 +187,7 @@ uiString dgbMuteDefTranslator::read( PreStack::MuteDef& md, Conn& conn )
 
 	    astrm.next();
 	}
+
 	if ( astrm.hasKeyword(sKeyPBMFSetup) )
 	{
 	    const char* val = astrm.value();
@@ -193,7 +204,7 @@ uiString dgbMuteDefTranslator::read( PreStack::MuteDef& md, Conn& conn )
 	const PointBasedMathFunction::ExtrapolType et = extrapol
 	    ? PointBasedMathFunction::EndVal
 	    : PointBasedMathFunction::None;
-	PointBasedMathFunction* fn = new PointBasedMathFunction( it, et );
+	auto* fn = new PointBasedMathFunction( it, et );
 	while ( !atEndOfSection(astrm) )
 	{
 	    BufferString val( astrm.keyWord() );
@@ -202,14 +213,21 @@ uiString dgbMuteDefTranslator::read( PreStack::MuteDef& md, Conn& conn )
 	    char* ptr2ndval = ptr1stval;
 	    mSkipNonBlanks( ptr2ndval );
 	    if ( !*ptr2ndval )
-		{ astrm.next(); continue; }
-	    *ptr2ndval = '\0'; ptr2ndval++;
+	    {
+		astrm.next();
+		continue;
+	    }
+	    *ptr2ndval = '\0';
+	    ptr2ndval++;
 	    mSkipBlanks(ptr2ndval);
 	    if ( !*ptr2ndval )
-		{ astrm.next(); continue; }
+	    {
+		astrm.next();
+		continue;
+	    }
 
-	    float firstval = toFloat( ptr1stval );
-	    float secondval = toFloat( ptr2ndval );
+	    const float firstval = toFloat( ptr1stval );
+	    const float secondval = toFloat( ptr2ndval );
 	    if ( !mIsUdf(firstval) && !mIsUdf(secondval) )
 	    {
 		/*if ( version < 440 )
@@ -239,10 +257,11 @@ uiString dgbMuteDefTranslator::read( PreStack::MuteDef& md, Conn& conn )
 }
 
 
-bool dgbMuteDefTranslator::hasIOPar(int majorversion, int minorversion )
+bool dgbMuteDefTranslator::hasIOPar( int majorversion, int minorversion )
 {
     if ( majorversion<3 )
 	return false;
+
     if ( majorversion>4 )
 	return true;
 
@@ -255,7 +274,7 @@ uiString dgbMuteDefTranslator::write( const PreStack::MuteDef& md,Conn& conn)
     if ( conn.isBad() || !conn.forWrite() || !conn.isStream() )
     {
 	pErrMsg(BufferString("Internal error: bad connection:\n",
-		    conn.creationMessage()));
+		conn.creationMessage()));
 	return uiStrings::phrCannotConnectToDB();
     }
 

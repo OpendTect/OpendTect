@@ -34,6 +34,7 @@ protected:
 
     bool		acceptOK(CallBacker*) override;
     void		coordTypChngCB(CallBacker*);
+    void		inpSelChgdCB(CallBacker*);
     bool		writeAscii();
 };
 

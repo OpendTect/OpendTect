@@ -34,6 +34,7 @@ uiAngleMuteComputer::uiAngleMuteComputer( uiParent* p )
 		       mODHelpKey(mAngleMuteComputerHelpID)))
     , processor_(new AngleMuteComputer)
 {
+    setOkText( uiStrings::sCalculate() );
     const OD::GeomSystem gs = OD::Geom3D;
     anglecompgrp_ = new uiAngleCompGrp( this, processor_->params(), gs, true );
 
@@ -41,7 +42,8 @@ uiAngleMuteComputer::uiAngleMuteComputer( uiParent* p )
     sep->attach( stretchedBelow, anglecompgrp_ );
 
     subsel_ = uiSeisSubSel::get( this, Seis::SelSetup( false ) );
-    TrcKeySampling hs; subsel_->getSampling( hs );
+    TrcKeySampling hs;
+    subsel_->getSampling( hs );
     hs.step_ = BinID( SI().inlStep()*20, SI().crlStep()*20 );
     subsel_->setInput( hs );
     subsel_->attach( alignedBelow, anglecompgrp_ );
@@ -65,6 +67,7 @@ bool uiAngleMuteComputer::acceptOK(CallBacker*)
     if ( !anglecompgrp_->acceptOK() )
 	return false;
 
+    mutedeffld_->reset();
     const IOObj* ioobj = mutedeffld_->ioobj();
     if ( !ioobj )
 	return false;
@@ -82,7 +85,12 @@ bool uiAngleMuteComputer::acceptOK(CallBacker*)
 	uiMSG().error( processor_->errMsg() );
 	return false;
     }
-    return true;
+
+    const uiString msg = tr("Angle Mute Definition '%1' Computed. "
+			    "Compute more?").arg(mutedeffld_->getInput());
+    const bool ret = uiMSG().askGoOn( msg, uiStrings::sYes(),
+				      tr("No, close window") );
+    return !ret;
 }
 
 } // namespace PreStack

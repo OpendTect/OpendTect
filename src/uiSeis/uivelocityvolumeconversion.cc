@@ -25,9 +25,10 @@ ________________________________________________________________________
 #include "od_helpids.h"
 
 Vel::uiBatchVolumeConversion::uiBatchVolumeConversion( uiParent* p )
-    : uiDialog(p,Setup(tr("Velocity conversion"),tr("Velocity conversion"),
+    : uiDialog(p,Setup(tr("Velocity Conversion"),
 		       mODHelpKey(mVelBatchVolumeConversionHelpID)))
 {
+    setOkCancelText( uiStrings::sConvert(), uiStrings::sClose() );
     input_ = new uiVelSel( this, tr("Input velocity model") );
     mAttachCB( input_->selectionDone, uiBatchVolumeConversion::inputChangeCB );
 
@@ -39,7 +40,7 @@ Vel::uiBatchVolumeConversion::uiBatchVolumeConversion( uiParent* p )
 
     IOObjContext outputctxt = uiVelSel::ioContext( false );
     outputctxt.forread_ = false;
-    outputsel_ = new uiSeisSel(this, outputctxt,uiSeisSel::Setup(Seis::Vol));
+    outputsel_ = new uiSeisSel( this, outputctxt, uiSeisSel::Setup(Seis::Vol) );
     outputsel_->attach( alignedBelow, outputveltype_ );
 
     batchfld_ = new uiBatchJobDispatcherSel( this, false,
@@ -109,6 +110,7 @@ void Vel::uiBatchVolumeConversion::inputChangeCB( CallBacker* )
 
 bool Vel::uiBatchVolumeConversion::fillPar()
 {
+    outputsel_->reset();
     const IOObj* outputioobj = outputsel_->ioobj(false);
     if ( !outputioobj )
 	return false;

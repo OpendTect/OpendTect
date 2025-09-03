@@ -28,13 +28,14 @@ namespace PreStack
 {
 
 uiExportMute::uiExportMute( uiParent* p )
-    : uiDialog(p,Setup(uiStrings::phrExport(tr("Mute Function")),
+    : uiDialog(p,Setup(uiStrings::phrExport(uiStrings::sMuteFunc()),
 		       mODHelpKey(mPreStackExportMuteHelpID)))
 {
     setOkCancelText( uiStrings::sExport(), uiStrings::sClose() );
 
     const IOObjContext ctxt = mIOObjContext( MuteDef );
     infld_ = new uiIOObjSel( this, ctxt, tr("Mute Definition") );
+    mAttachCB( infld_->selectionDone, uiExportMute::inpSelChgdCB );
 
     coordfld_ = new uiGenInput( this, tr("Write coordinates as"),
 				BoolInpSpec(true,tr("X/Y"),tr("Inl/Crl")) );
@@ -52,12 +53,19 @@ uiExportMute::uiExportMute( uiParent* p )
     outfld_ = new uiASCIIFileInput( this, false );
     outfld_->attach( alignedBelow, attachobj );
 
-    coordTypChngCB(0);
+    mAttachCB( postFinalize(), uiExportMute::coordTypChngCB );
+    mAttachCB( postFinalize(), uiExportMute::inpSelChgdCB );
 }
 
 
 uiExportMute::~uiExportMute()
+{}
+
+
+void uiExportMute::inpSelChgdCB( CallBacker * )
 {
+    if ( !infld_->isEmpty() )
+	outfld_->setFileName( infld_->getInput() );
 }
 
 
@@ -78,12 +86,14 @@ bool uiExportMute::writeAscii()
 
     PtrMan<MuteDefTranslator> trans =
 			sCast(MuteDefTranslator*,ioobj->createTranslator());
-    if ( !trans ) return false;
+    if ( !trans )
+	return false;
 
     MuteDef mutedef;
     uiString errstr;
     const bool retval = trans->retrieve( mutedef, ioobj, errstr );
-    if ( !retval ) mErrRet( errstr );
+    if ( !retval )
+	mErrRet( errstr );
 
     const BufferString fname = outfld_->fileName();
     od_ostream strm( fname );
@@ -142,7 +152,7 @@ bool uiExportMute::acceptOK( CallBacker* )
 
     if ( writeAscii() )
 	uiMSG().message(
-		    uiStrings::phrSuccessfullyExported( uiStrings::sMute() ));
+		  uiStrings::phrSuccessfullyExported( uiStrings::sMuteFunc() ));
     return false;
 }
 

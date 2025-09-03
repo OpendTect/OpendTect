@@ -477,6 +477,7 @@ public:
     static uiString sMoveUp()		{ return tr("Move up"); }
     static uiString sMsec()		{ return tr("Millisecond"); }
     static uiString sMute(int n=1)	{ return tr("Mute",0,n); }
+    static uiString sMuteFunc(int n=1)	{ return tr("Mute Function",0,n); }
     static uiString sName(int n=1)	{ return tr("Name",0,n); }
     static uiString sNew()		{ return tr("New"); }
     static uiString sNext()		{ return tr("Next"); }
