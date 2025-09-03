@@ -76,6 +76,8 @@ uiAngleCompGrp::uiAngleCompGrp( uiParent* p, PreStack::AngleCompParams& pars,
 	const CallBack cbadv = mCB(this,uiAngleCompGrp,advPushButCB);
 	advpushbut_ = new uiPushButton( this, tr("Advanced Parameters"),
 					cbadv, false );
+	advpushbut_->setMinimumWidthInChar( advpushbut_->getName().size() + 3 );
+
 	if ( velfuncsel_ )
 	    advpushbut_->attach( rightAlignedBelow, velfuncsel_ );
 	else if ( anglelbl_ )
@@ -222,8 +224,8 @@ void uiAngleCompAdvParsDlg::createAngleCompFields()
     smoothwinparamlbl_ = new uiLabel( this, toUiString("%") );
     smoothwinparamlbl_->attach( rightOf, smoothwinparamfld_ );
 
-    smoothwinlengthfld_ = new uiGenInput(this, tr("Window width"),
-								FloatInpSpec());
+    smoothwinlengthfld_ = new uiGenInput( this, tr("Window width"),
+					  FloatInpSpec() );
     smoothwinlengthfld_->attach( alignedBelow, smoothwindowfld_ );
     smoothwinlengthlbl_ = new uiLabel( this, SI().getUiZUnitString(false) );
     smoothwinlengthlbl_->attach( rightOf, smoothwinlengthfld_ );
@@ -307,9 +309,11 @@ void uiAngleCompAdvParsDlg::updateFromParams()
 	BufferString windowname;
 	if ( iopar.get(PreStack::AngleComputer::sKeyWinFunc(),windowname) )
 	    smoothwindowfld_->setText( windowname );
+
 	float windowparam, windowlength;
 	if ( iopar.get(PreStack::AngleComputer::sKeyWinParam(),windowparam) )
 	    smoothwinparamfld_->setValue( mNINT32((1-windowparam)*100) );
+
 	if ( iopar.get(PreStack::AngleComputer::sKeyWinLen(),windowlength) )
 	    smoothwinlengthfld_->setValue( windowlength *
 					   SI().zDomain().userFactor() );
@@ -319,6 +323,7 @@ void uiAngleCompAdvParsDlg::updateFromParams()
 	float freqf3, freqf4;
 	if ( iopar.get(PreStack::AngleComputer::sKeyFreqF3(),freqf3) )
 	    freqf3fld_->setValue( freqf3 );
+
 	if ( iopar.get(PreStack::AngleComputer::sKeyFreqF4(),freqf4) )
 	    freqf4fld_->setValue( freqf4 );
     }
@@ -365,7 +370,7 @@ void uiAngleCompAdvParsDlg::smoothWindowSel( CallBacker* )
 {
     const bool ismovingavg = isSmoothTypeMovingAverage();
     StringView smoothwindow = smoothwindowfld_->text();
-    const bool iscostaper = smoothwindow==CosTaperWindow::sName();
+    const bool iscostaper = smoothwindow == CosTaperWindow::sName();
     smoothwinparamfld_->display( ismovingavg && iscostaper );
     smoothwinparamlbl_->display( ismovingavg && iscostaper );
 }

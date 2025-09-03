@@ -31,19 +31,20 @@ namespace PreStack
 {
 
 uiImportMute::uiImportMute( uiParent* p )
-    : uiDialog(p,Setup(tr("Import Mute Function"),
+    : uiDialog(p,Setup(uiStrings::phrImport(uiStrings::sMuteFunc()),
 		       mODHelpKey(mPreStackImportMuteHelpID)))
-    , fd_( *MuteAscIO::getDesc() )
+    , fd_(*MuteAscIO::getDesc())
 {
     setOkCancelText( uiStrings::sImport(), uiStrings::sClose() );
 
     inpfld_ = new uiASCIIFileInput( this, true );
+    mAttachCB( inpfld_->valueChanged, uiImportMute::inputChgdCB );
 
     inpfilehaveposfld_ = new uiGenInput( this, tr("File contains position"),
 					 BoolInpSpec(true) );
     inpfilehaveposfld_->attach( alignedBelow, inpfld_ );
     inpfilehaveposfld_->valueChanged.notify(
-				mCB(this,uiImportMute,changePrefPosInfo) );
+				   mCB(this,uiImportMute,changePrefPosInfoCB) );
 
     inlcrlfld_ = new uiGenInput( this, tr("Inl/Crl"),
 				 PositionInpSpec(PositionInpSpec::Setup()) );
@@ -58,7 +59,7 @@ uiImportMute::uiImportMute( uiParent* p )
     outfld_ = new uiIOObjSel( this, ctxt, tr("Mute Definition") );
     outfld_->attach( alignedBelow, dataselfld_ );
 
-    postFinalize().notify( mCB(this,uiImportMute,formatSel) );
+    postFinalize().notify( mCB(this,uiImportMute,formatSelCB) );
 }
 
 
@@ -68,21 +69,27 @@ uiImportMute::~uiImportMute()
 }
 
 
-void uiImportMute::formatSel( CallBacker* )
+void uiImportMute::inputChgdCB( CallBacker*)
+{
+    outfld_->setInputText( inpfld_->baseName() );
+}
+
+
+void uiImportMute::formatSelCB( CallBacker* )
 {
     inlcrlfld_->display( !haveInpPosData() );
     MuteAscIO::updateDesc( fd_, haveInpPosData() );
 }
 
 
-void uiImportMute::changePrefPosInfo( CallBacker* cb )
+void uiImportMute::changePrefPosInfoCB( CallBacker* cb )
 {
     BinID center( SI().inlRange(false).center(),
 		  SI().crlRange(false).center() );
     SI().snap( center );
     inlcrlfld_->setValue( center );
 
-    formatSel( cb );
+    formatSelCB( cb );
 }
 
 
@@ -104,8 +111,7 @@ bool uiImportMute::acceptOK( CallBacker* )
     if ( haveInpPosData() )
     {
 	if ( !muteascio.getMuteDef(mutedef) )
-	    mErrRet( uiStrings::phrCannotRead(
-				    toUiString( inpfld_->fileName() ) ) );
+	    mErrRet( uiStrings::phrCannotRead(tr(inpfld_->fileName())) )
     }
     else
     {
@@ -118,30 +124,33 @@ bool uiImportMute::acceptOK( CallBacker* )
 	    mErrRet( tr("Enter Inl/Crl within survey range") )
 
 	else if ( !muteascio.getMuteDef(mutedef, inlcrlfld_->getBinID()) )
-	    mErrRet( uiStrings::phrCannotRead( toUiString(inpfld_->fileName())))
+	    mErrRet( uiStrings::phrCannotRead(tr(inpfld_->fileName())) )
     }
 
+    outfld_->reset();
     const IOObj* ioobj = outfld_->ioobj();
     if ( !ioobj )
 	return false;
 
    PtrMan<MuteDefTranslator> trans =
 			sCast(MuteDefTranslator*,ioobj->createTranslator());
-    if ( !trans ) return false;
-
-    uiString str;
-    const bool retval = trans->store( mutedef, ioobj, str );
-    if ( !retval )
-    {
-	if ( str.isSet() )
-	    uiMSG().error( str );
+    if ( !trans )
 	return false;
-	//TODO: integrate to mErrRet when all messages are uiString
-	//should be part of another revision
+
+    uiString errormsg;
+    const bool success = trans->store( mutedef, ioobj, errormsg );
+    if ( !success )
+    {
+	if ( errormsg.isSet() )
+	    uiMSG().error( errormsg );
     }
 
-    uiMSG().message( tr("Import finished successfully") );
-    return false;
+    const uiString msg = tr("Mute Function '%1' successfully imported."
+			    " Import more?")
+			     .arg( outfld_->getInput() );
+    const bool ret = uiMSG().askGoOn( msg, uiStrings::sYes(),
+					   tr("No, close window") );
+    return !ret;
 }
 
 

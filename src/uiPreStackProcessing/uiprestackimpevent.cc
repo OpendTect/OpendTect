@@ -29,7 +29,7 @@ namespace PreStack
 {
 
 uiEventImport::uiEventImport( uiParent* p )
-    : uiDialog(p,Setup(tr("Import Prestack Events"),
+    : uiDialog(p,Setup(uiStrings::phrImport(uiStrings::sPreStackEvents()),
 		       mODHelpKey(mPreStackEventImportHelpID)))
     , fd_(*EventAscIO::getDesc())
 {
@@ -43,7 +43,7 @@ uiEventImport::uiEventImport( uiParent* p )
 
     IOObjContext ctxt( PSEventTranslatorGroup::ioContext() );
     ctxt.forread_ = false;
-    outputfld_ = new uiIOObjSel( this, ctxt, tr("Prestack Events") );
+    outputfld_ = new uiIOObjSel( this, ctxt, uiStrings::sPreStackEvents() );
     outputfld_->attach( alignedBelow, dataselfld_ );
 }
 
@@ -60,6 +60,7 @@ bool uiEventImport::acceptOK( CallBacker* )
 	return false;
     }
 
+    outputfld_->reset();
     if ( !outputfld_->ioobj() )
 	return false;
 

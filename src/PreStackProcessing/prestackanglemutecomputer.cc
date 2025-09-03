@@ -164,8 +164,8 @@ bool AngleMuteComputer::doWork( od_int64 start, od_int64 stop, int thread )
 	    const float offset = offsets[ioff];
 	    TypeSet< Interval<float> > mutelayeritvs;
 	    const float mutelayer = getOffsetMuteLayer( *refmodel, ioff,
-						innermute, nonemuted,
-						allmuted, mutelayeritvs );
+							innermute, nonemuted,
+						      allmuted, mutelayeritvs );
 	    if ( !mIsUdf(mutelayer) )
 	    {
 		zpos = getfMutePos( tdmodel, zistime, mutelayer, offset );
@@ -207,7 +207,7 @@ bool AngleMuteComputer::doWork( od_int64 start, od_int64 stop, int thread )
 	    if ( !mIsUdf(prevangle) && !mIsUdf(nextangle) )
 	    {
 		const float doff = mIsEqual(nextangle,prevangle,1e-6f)
-				 ? 0.f
+			 ? 0.f
 			 : ( (offsets[lastioff+1] - offsets[lastioff])*relpos);
 		mutefunc->add( offsets[lastioff]+doff, zpos );
 	    }

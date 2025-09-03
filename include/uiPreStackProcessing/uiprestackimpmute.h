@@ -40,8 +40,9 @@ protected:
 
     bool		haveInpPosData() const;
 
-    void 		formatSel(CallBacker*);
-    void		changePrefPosInfo(CallBacker*);
+    void		inputChgdCB(CallBacker*);
+    void		formatSelCB(CallBacker*);
+    void		changePrefPosInfoCB(CallBacker*);
 
     bool		acceptOK(CallBacker*) override;
 };
