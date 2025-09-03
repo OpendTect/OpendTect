@@ -25,6 +25,10 @@ endif()
 
 set( SPECMODS ${OD_GUI_SPECMODS} )
 
+if ( APPLE )
+    list( APPEND SPECFILES od.icns )
+endif()
+
 foreach( TRGT ${OD_THIRDPARTY_TARGETS} )
     if ( "${TRGT}" MATCHES "^Qt.*::" )
         if ( NOT "${TRGT}" MATCHES "^Qt.*::Core$" AND

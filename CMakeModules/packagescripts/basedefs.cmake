@@ -88,9 +88,6 @@ else()
     endif()
     set( SPECFILES .exec_prog .init_dtect .init_dtect_user install .lic_inst_common
 		   .lic_start_common mk_datadir .start_dtect setup.od )
-    if ( APPLE )
-	list( APPEND SPECFILES od.icns )
-    endif()
 endif()
 
 if ( APPLE )
