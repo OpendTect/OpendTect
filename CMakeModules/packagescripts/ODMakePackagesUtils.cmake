@@ -16,6 +16,7 @@ macro( CLEAN_PACK_VARIABLES )
     unset( EXCLUDE_PLUGINS )
     unset( SPECMODS )
     unset( EXCLUDE_SPECMODS )
+    unset( COPY_TARGETS )
 # root files
     unset( SPECFILES )
 # share files
@@ -74,14 +75,12 @@ macro( INIT_DESTINATIONDIR PACKAGE_NAME )
     set( COPYFROMEXEDIR "${CMAKE_INSTALL_PREFIX}/${OD_RUNTIME_DIRECTORY}" )
     set( COPYTOEXEDIR "${DESTINATION_DIR}/${OD_RUNTIME_DIRECTORY}" )
 
-    if( NOT ( (NOT "${PACKAGE_TYPE}" STREQUAL "Devel") AND "${PACKAGE_NAME}" STREQUAL "devel") )
-	if ( EXISTS "${PACKAGE_DIR}/${PACKAGE_FILENAME}" )
-	    file( REMOVE_RECURSE "${PACKAGE_DIR}/${PACKAGE_FILENAME}" )
-	endif()
-
-	file( WRITE "${COPYTODIR}/relinfo/ver.${VER_FILENAME}.txt" ${FULLVER_NAME} )
-	file( APPEND "${COPYTODIR}/relinfo/ver.${VER_FILENAME}.txt" "\n" )
+    if ( EXISTS "${PACKAGE_DIR}/${PACKAGE_FILENAME}" )
+	file( REMOVE_RECURSE "${PACKAGE_DIR}/${PACKAGE_FILENAME}" )
     endif()
+
+    file( WRITE "${COPYTODIR}/relinfo/ver.${VER_FILENAME}.txt" ${FULLVER_NAME} )
+    file( APPEND "${COPYTODIR}/relinfo/ver.${VER_FILENAME}.txt" "\n" )
 
     message( STATUS "Preparing package ${VER_FILENAME} ......" )
 endmacro(INIT_DESTINATIONDIR)
@@ -278,10 +277,7 @@ endmacro(COPY_DATAFILES)
 
 macro( CREATE_PACKAGE PACKAGE_NAME )
 
-    #TODO update condition when the debug libraries get an actual debug postfix
-    #and when the link libraries get separated from the applications
-    if ( (${PACKAGE_TYPE} STREQUAL "Devel" AND NOT APPLE ) OR
-	 NOT ${PACKAGE_NAME} STREQUAL "devel" )
+    if ( NOT DEFINED COPY_TARGETS )
 	set( COPY_TARGETS TRUE )
     endif()
 
@@ -299,7 +295,7 @@ macro( CREATE_PACKAGE PACKAGE_NAME )
 		COPY_LIB()
 	    endif()
 
-	    if ( WIN32 AND "${PACKAGE_NAME}" STREQUAL "devel" )
+	    if ( WIN32 AND "${PACKAGE_NAME}" MATCHES "^devel" )
 		file( COPY "${COPYFROMLIBDIR}/${LIB}${CMAKE_POSTFIX}.lib"
 		      DESTINATION "${COPYTOLIBDIR}" )
 		file( COPY "${COPYFROMLOCDIR}/${LIB}${CMAKE_POSTFIX}.pdb"
@@ -308,17 +304,6 @@ macro( CREATE_PACKAGE PACKAGE_NAME )
 	endif()
 
     endforeach()
-
-    if ( ${PACKAGE_TYPE} STREQUAL "Production" AND
-	 NOT ${PACKAGE_NAME} STREQUAL "devel" )
-	foreach( PLUGIN ${PLUGINS} )
-	    file( COPY "${COPYFROMDIR}/plugins/${OD_PLFSUBDIR}"
-		  DESTINATION "${COPYTODIR}/plugins"
-		  FILES_MATCHING
-		  PATTERN "*.${PLUGIN}.alo"
-		  PATTERN "test_*.*.alo" EXCLUDE )
-	endforeach()
-    endif()
 
     foreach( EXEC ${EXECLIST} )
 	set( EXECFILE "${EXEC}${CMAKE_POSTFIX}" )
@@ -335,7 +320,7 @@ macro( CREATE_PACKAGE PACKAGE_NAME )
 	    file( COPY "${COPYFROMEXEDIR}/${EXECFILE}"
 		  DESTINATION "${COPYTOEXEDIR}" )
 	endif()
-	if ( WIN32 AND "${PACKAGE_NAME}" STREQUAL "devel" AND DEFINED PDB_FILE )
+	if ( WIN32 AND "${PACKAGE_NAME}" MATCHES "^devel" AND DEFINED PDB_FILE )
 	    file( COPY "${COPYFROMEXEDIR}/${PDB_FILE}"
 		  DESTINATION "${COPYTOEXEDIR}" )
 	endif()
@@ -343,6 +328,17 @@ macro( CREATE_PACKAGE PACKAGE_NAME )
 	unset( EXECFILE )
 	unset( PDB_FILE )
     endforeach()
+
+    if ( ${PACKAGE_TYPE} STREQUAL "Production" AND
+	 NOT ${PACKAGE_NAME} MATCHES "^devel" )
+	foreach( PLUGIN ${PLUGINS} )
+	    file( COPY "${COPYFROMDIR}/plugins/${OD_PLFSUBDIR}"
+		  DESTINATION "${COPYTODIR}/plugins"
+		  FILES_MATCHING
+		  PATTERN "*.${PLUGIN}.alo"
+		  PATTERN "test_*.*.alo" EXCLUDE )
+	endforeach()
+    endif()
 
     COPY_DATAFILES( ${PACKAGE_NAME} )
 
@@ -366,9 +362,6 @@ macro( CREATE_PACKAGE PACKAGE_NAME )
 	COPY_THIRDPARTYLIBS()
     endif()
 
-    if ( ${PACKAGE_NAME} STREQUAL "devel" AND "${PACKAGE_TYPE}" STREQUAL "Devel" )
-	CREATE_DEVELPACKAGE()
-    endif()
 endmacro(CREATE_PACKAGE)
 
 macro( CREATE_BASEPACKAGE PACKAGE_NAME )
@@ -399,31 +392,47 @@ macro( CREATE_BASEPACKAGE PACKAGE_NAME )
     COPY_DATAFILES( ${PACKAGE_NAME} )
 endmacro(CREATE_BASEPACKAGE)
 
-macro( CREATE_DEVELPACKAGE )
+macro( CREATE_DEVELPACKAGE PACKAGE_NAME )
+
+    foreach( LIB ${LIBLIST} )
+	file( COPY "${COPYFROMDIR}/include/${LIB}"
+	      DESTINATION "${COPYTODIR}/include"
+	      PATTERN "*_autogen*" EXCLUDE )
+	file( COPY "${COPYFROMDIR}/src/${LIB}"
+	      DESTINATION "${COPYTODIR}/src"
+	      PATTERN "*_autogen*" EXCLUDE )
+    endforeach()
+
     foreach( PLUGIN ${PLUGINS} )
 	file( COPY "${COPYFROMDIR}/plugins/${PLUGIN}"
-	      DESTINATION "${COPYTODIR}/plugins" )
+	      DESTINATION "${COPYTODIR}/plugins"
+	      PATTERN "*_autogen*" EXCLUDE )
     endforeach()
 
-    foreach( DIR CMakeModules include src spec )
-	file( COPY "${COPYFROMDIR}/${DIR}"
+    foreach( SPECMOD ${SPECMODS} )
+	file( COPY "${COPYFROMDIR}/spec/${SPECMOD}"
+	      DESTINATION "${COPYTODIR}/spec"
+	      PATTERN "*_autogen*" EXCLUDE )
+    endforeach()
+
+    if ( "${PACKAGE_NAME}" STREQUAL "devel" )
+	file( COPY "${COPYFROMDIR}/CMakeLists.txt"
 	      DESTINATION "${COPYTODIR}" )
-    endforeach()
+	file( COPY "${COPYFROMDIR}/CMakeModules"
+	      DESTINATION "${COPYTODIR}" )
+	file( COPY "${COPYFROMDIR}/doc/Programmer/batchprogexample"
+		   "${COPYFROMDIR}/doc/Programmer/pluginexample"
+	      DESTINATION "${COPYTODIR}/doc/Programmer" )
+	file( COPY "${COPYFROMDIR}/dtect"
+	      DESTINATION "${COPYTODIR}" )
 
-    file( COPY "${COPYFROMDIR}/CMakeLists.txt"
-	  DESTINATION "${COPYTODIR}" )
-    file( COPY "${COPYFROMDIR}/doc/Programmer/batchprogexample"
-	       "${COPYFROMDIR}/doc/Programmer/pluginexample"
-	  DESTINATION "${COPYTODIR}/doc/Programmer" )
-    file( COPY "${COPYFROMDIR}/dtect"
-	  DESTINATION "${COPYTODIR}" )
-
-    file( GLOB HTMLFILES "${BINARY_DIR}/doc/Programmer/*.html" )
-    file( COPY ${HTMLFILES}
-	  DESTINATION "${COPYTODIR}/doc/Programmer" )
-    file( GLOB PNGFILES "${SOURCE_DIR}/doc/Programmer/*.png" )
-    file( COPY ${PNGFILES}
-	  DESTINATION "${COPYTODIR}/doc/Programmer" )
+	file( GLOB HTMLFILES "${BINARY_DIR}/doc/Programmer/*.html" )
+	file( COPY ${HTMLFILES}
+	      DESTINATION "${COPYTODIR}/doc/Programmer" )
+	file( GLOB PNGFILES "${SOURCE_DIR}/doc/Programmer/*.png" )
+	file( COPY ${PNGFILES}
+	      DESTINATION "${COPYTODIR}/doc/Programmer" )
+    endif()
 endmacro(CREATE_DEVELPACKAGE)
 
 macro( CREATE_DOCPACKAGE PACKAGE_NAME )

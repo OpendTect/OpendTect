@@ -8,11 +8,11 @@
 #
 
 if ( WIN32 OR ${PACKAGE_TYPE} STREQUAL "Devel" )
-    list( APPEND PACKAGELIST develdefs )
+    list( APPEND PACKAGELIST develdefs develguidefs )
 endif()
 
 if ( ${PACKAGE_TYPE} STREQUAL "Production" )
-    list( APPEND PACKAGELIST basedatadefs basedefs )
+    list( APPEND PACKAGELIST basedatadefs basedefs baseguidefs )
 endif()
 
 if ( WIN32 )

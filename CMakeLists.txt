@@ -108,7 +108,6 @@ OD_ADD_EXTERNALS() # Once, in main scope
 OD_ADD_MODULES( src ${OD_MODULES} )
 include( plugins/CMakeLists.txt )
 OD_ADD_MODULES( spec ${OD_SPECPROGS} )
-OD_CREATE_PACKAGE_DEFINITION()
 
 include( ODInternal )
 OD_WRITE_MODDEPS( "${CMAKE_BINARY_DIR}/${OD_DATA_INSTALL_RELPATH}" )

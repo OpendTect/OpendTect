@@ -8,24 +8,61 @@
 #
 
 #OpendTect modules and plugins
-set( LIBLIST @OD_CORE_MODULE_NAMES_od@ )
+set( LIBLIST ${OD_CORE_MODULES} )
 
-set( PLUGINS @OD_PLUGINS@ )
-set( EXCLUDE_PLUGINS Hello uiHello Tut uiTut uiDPSDemo uiQtApp
-    uiTutMadagascar uiCrashMe uiCOLOP )
+set( PLUGINS ${OD_CORE_PLUGINS} )
+set( EXCLUDE_PLUGINS Hello Tut )
 list( REMOVE_ITEM PLUGINS ${EXCLUDE_PLUGINS} )
 
-set( EXECLIST @OD_BASE_EXECUTABLE@ )
-set( EXCLUDE_EXECS od_layouttest od_screentest od_sysadmmain
-		   tut_process_batch tut_simple_prog tut_app )
+set( EXECLIST ${OD_CORE_EXECUTABLES} )
+set( EXCLUDE_EXECS tut_process_batch tut_simple_prog )
 list( REMOVE_ITEM EXECLIST ${EXCLUDE_EXECS} )
-if ( WIN32 )
-    list( APPEND EXECLIST "od_main_debug.bat" )
-endif()
 
-set( THIRDPARTY_LIBS "${OD_THIRDPARTY_LIBS}" )
-set( THIRDPARTY_TARGETS "${OD_THIRDPARTY_TARGETS}" )
-set( QTPLUGINS "${OD_QTPLUGINS}" )
+set( SPECMODS ${OD_CORE_SPECMODS} )
+
+foreach( TRGT ${OD_THIRDPARTY_TARGETS} )
+    if ( "${TRGT}" MATCHES "^Qt.*::" )
+        if ( "${TRGT}" MATCHES "^Qt.*::Core$" OR
+             "${TRGT}" MATCHES "^Qt.*::DBus$" OR
+             "${TRGT}" MATCHES "^Qt.*::Network$" OR
+             "${TRGT}" MATCHES "^Qt.*::Sql$" )
+            list( APPEND THIRDPARTY_TARGETS ${TRGT} )
+        endif()
+    elseif ( NOT "${TRGT}" MATCHES "^osg::" AND
+             NOT "${TRGT}" MATCHES "^Fontconfig::" AND
+             NOT "${TRGT}" MATCHES "^Freetype::" AND
+             NOT "${TRGT}" MATCHES "^PNG::" )
+        list( APPEND THIRDPARTY_TARGETS ${TRGT} )
+    endif()
+endforeach()
+
+foreach( LIB ${OD_THIRDPARTY_LIBS} )
+    if ( "${LIB}" MATCHES "^${SHLIB_PREFIX}Qt.*${SHLIB_EXTENSION}.*" )
+        if ( "${LIB}" MATCHES "Qt.*Core" OR
+             "${LIB}" MATCHES "Qt.*DBus" OR
+             "${LIB}" MATCHES "Qt.*Network" OR
+             "${LIB}" MATCHES "Qt.*Sql" )
+            list( APPEND THIRDPARTY_LIBS ${LIB} )
+        endif()
+    else()
+        if ( NOT "${LIB}" MATCHES "^${SHLIB_PREFIX}osg.*${SHLIB_EXTENSION}.*" AND
+             NOT "${LIB}" MATCHES ".*OpenThreads.*${SHLIB_EXTENSION}.*" AND
+             NOT "${LIB}" MATCHES "^fontconfig" AND
+             NOT "${LIB}" MATCHES "^freetype" AND
+             NOT "${LIB}" MATCHES "^png" AND
+             NOT "${LIB}" MATCHES "^d3dcompiler" AND
+             NOT "${LIB}" MATCHES "^opengl32sw" )
+            list( APPEND THIRDPARTY_LIBS ${LIB} )
+        endif()
+    endif()
+endforeach()
+
+foreach( OD_QTPLUGIN ${OD_QTPLUGINS} )
+    if ( "${OD_QTPLUGIN}" MATCHES "^sqldrivers" OR
+	 "${OD_QTPLUGIN}" MATCHES "^tls" )
+	list( APPEND QTPLUGINS "${OD_QTPLUGIN}" )
+    endif()
+endforeach()
 
 #No need to include shell scripts in windows base package.
 if( WIN32 )
@@ -58,9 +95,7 @@ list( APPEND OTHERFILES "${LMUTIL}" )
 list( APPEND OTHERFILESDEST "${COPYTOSCRIPTSDIR}/${OD_PLFSUBDIR}/lm.dgb" )
 
 if ( WIN32 )
-    set( ML_FW_RULENMS "${COPYFROMDATADIR}/Firewall/od_main.txt"
-		"${COPYFROMDATADIR}/Firewall/od_remoteservice.txt"
-		"${COPYFROMDATADIR}/Firewall/od_SeisMMBatch.txt" )
+    set( ML_FW_RULENMS "${COPYFROMDATADIR}/Firewall/od_remoteservice.txt" )
     foreach( ML_FW_RULENM ${ML_FW_RULENMS} )
         list( APPEND OTHERFILES "${ML_FW_RULENM}" )
         list( APPEND OTHERFILESDEST "${COPYTODATADIR}/Firewall" )
