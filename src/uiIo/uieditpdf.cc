@@ -102,7 +102,7 @@ const Mnemonic* uiEditProbDenFunc::guessMnemonic( const ProbDenFunc& pdf,
     for ( const auto* uom : units )
     {
 	BufferString gexpr( "*", uom->name(), "*" );
-	const GlobExpr ge( gexpr, false );
+	const GlobExpr ge( gexpr, OD::CaseInsensitive );
 	if ( ge.matches(varnm) )
 	{
 	    pdfmn = MnemonicSelection::getGuessed( nullptr, uom );
@@ -118,7 +118,7 @@ const Mnemonic* uiEditProbDenFunc::guessMnemonic( const ProbDenFunc& pdf,
 	    continue;
 
 	gexpr.insertAt( 0, "*" ).add( "*" );
-	const GlobExpr ge( gexpr, false );
+	const GlobExpr ge( gexpr, OD::CaseInsensitive );
 	if ( ge.matches(varnm) )
 	{
 	    pdfmn = MnemonicSelection::getGuessed( nullptr, uom );
