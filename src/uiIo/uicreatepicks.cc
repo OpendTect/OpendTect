@@ -77,8 +77,8 @@ void uiCreatePicks::addStdFields( uiObject* lastobject )
     outfld_ = uiPointSetPolygonSel::create( this, false, aspolygon_ );
 
     colsel_ = new uiColorInput( this,
-			      uiColorInput::Setup(OD::getRandStdDrawColor()).
-			      lbltxt(uiStrings::sColor()) );
+				uiColorInput::Setup(OD::getRandStdDrawColor())
+						.lbltxt(uiStrings::sColor()) );
     colsel_->attach( alignedBelow, outfld_ );
     if ( lastobject )
 	outfld_->attach( alignedBelow, lastobject );
@@ -124,6 +124,7 @@ bool uiCreatePicks::acceptOK( CallBacker* )
 
 bool uiCreatePicks::doAccept()
 {
+    outfld_->reset();
     const IOObj* ioobj = outfld_->ioobj();
     if ( !ioobj )
 	return false;
@@ -242,10 +243,14 @@ bool uiGenPosPicks::acceptOK( CallBacker* )
 	return false;
 
     mSetCursor();
-    IOPar iop; posfiltfld_->fillPar( iop );
+    IOPar iop;
+    posfiltfld_->fillPar( iop );
     PtrMan<Pos::Filter> filt = Pos::Filter::make( iop, prov->is2D() );
     if ( filt && !filt->initialize(&taskrunner) )
-	{ mRestorCursor(); return false; }
+    {
+	mRestorCursor();
+	return false;
+    }
 
     dps_ = new DataPointSet( prov->is2D() );
     if ( !dps_->extractPositions(*prov,ObjectSet<DataColDef>(),filt.ptr(),
@@ -262,10 +267,10 @@ bool uiGenPosPicks::acceptOK( CallBacker* )
 
     if ( size>50000 )
     {
-	uiString msg = tr("PointSet would contain %1 points "
-			  "which might consume unexpected time and memory."
-			  "\n\nDo you want to continue?")
-		     .arg(dpssize);
+	const uiString msg = tr("PointSet would contain %1 points which might "
+				"consume unexpected time and memory."
+				"\n\nDo you want to continue?")
+				    .arg(dpssize);
 	if ( !uiMSG().askGoOn(msg) )
 	{
 	    mRestorCursor();
@@ -311,7 +316,6 @@ uiGenRandPicks2D::uiGenRandPicks2D( uiParent* p, const BufferStringSet& hornms,
     : uiCreatePicks(p,false,false)
     , createClicked(this)
     , hornms_(hornms)
-    , geomfld_(nullptr)
     , linenms_(lnms)
 {
     nrfld_ = new uiGenInput( this, tr("Number of points to generate"),
@@ -320,7 +324,7 @@ uiGenRandPicks2D::uiGenRandPicks2D( uiParent* p, const BufferStringSet& hornms,
     if ( hornms_.size() )
     {
 	horselfld_ = new uiLabeledComboBox( this, mJoinUiStrs(sHorizon(),
-							    sSelection()) );
+							      sSelection()) );
 	horselfld_->box()->addItem( uiStrings::sSelect() );
 	horselfld_->box()->addItems( hornms_ );
 	horselfld_->box()->selectionChanged.notify(
@@ -340,21 +344,23 @@ uiGenRandPicks2D::uiGenRandPicks2D( uiParent* p, const BufferStringSet& hornms,
     if ( hornms.size() )
     {
 	geomfld_ = new uiGenInput( this, uiStrings::sGeometry(),
-				     StringListInpSpec(sGeoms2D) );
+				   StringListInpSpec(sGeoms2D) );
 	geomfld_->attach( alignedBelow, linenmfld_ );
 	geomfld_->valueChanged.notify( mCB(this,uiGenRandPicks2D,geomSel) );
 	horselfld_->attach( alignedBelow, geomfld_ );
 	horsel2fld_->attach( rightOf, horselfld_ );
     }
 
-    uiString zlbl = uiStrings::phrJoinStrings(uiStrings::sZRange(),
-						       SI().getUiZUnitString());
+    const uiString zlbl = uiStrings::phrJoinStrings(uiStrings::sZRange(),
+						    SI().getUiZUnitString());
     StepInterval<float> survzrg = SI().zRange(false);
     Interval<float> inpzrg( survzrg.start_, survzrg.stop_ );
     inpzrg.scale( sCast(float,SI().zDomain().userFactor()) );
     zfld_ = new uiGenInput( this, zlbl, FloatInpIntervalSpec(inpzrg) );
-    if ( geomfld_ ) zfld_->attach( alignedBelow, geomfld_ );
-    else zfld_->attach( alignedBelow, linenmfld_ );
+    if ( geomfld_ )
+	zfld_->attach( alignedBelow, geomfld_ );
+    else
+	zfld_->attach( alignedBelow, linenmfld_ );
 
     addStdFields( zfld_->attachObj() );
     preFinalize().notify( mCB(this,uiGenRandPicks2D,geomSel) );
@@ -384,7 +390,8 @@ void uiGenRandPicks2D::horSel( uiComboBox* sel, uiComboBox* tosel )
     const int idx = hornms_.indexOf( nm.buf() );
     BufferStringSet hornms( hornms_ );
 
-    if ( idx >= 0 ) hornms.removeSingle( idx );
+    if ( idx >= 0 )
+	hornms.removeSingle( idx );
 
     tosel->setEmpty();
     tosel->addItem( uiStrings::sSelect()  );
@@ -395,7 +402,8 @@ void uiGenRandPicks2D::horSel( uiComboBox* sel, uiComboBox* tosel )
 
 void uiGenRandPicks2D::geomSel( CallBacker* )
 {
-    if ( !geomfld_ ) return;
+    if ( !geomfld_ )
+	return;
 
     const int geomtyp = geomfld_->getIntValue();
     zfld_->display( geomtyp==0 );
@@ -436,12 +444,13 @@ bool uiGenRandPicks2D::acceptOK( CallBacker* )
 	const BufferString selstr = uiStrings::sSelect().getFullString();
 	if ( selstr == horselfld_->box()->text() )
 	    mErrRet(uiStrings::phrSelect(tr("a valid horizon")));
+
 	if (choice == 2 && selstr == horsel2fld_->text() )
 	    mErrRet(uiStrings::phrSelect(tr("a valid second horizon")));
     }
     else
     {
-	Interval<float> zrg = zfld_->getFInterval();
+	const Interval<float> zrg = zfld_->getFInterval();
 	StepInterval<float> survzrg = SI().zRange(false);
 	survzrg.scale( sCast(float,SI().zDomain().userFactor()) );
         if ( !survzrg.includes(zrg.start_,false) ||

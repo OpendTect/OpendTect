@@ -308,6 +308,7 @@ bool uiImpExpPickSet::checkInpFlds()
     if ( !import_ && filenm.isEmpty() )
 	mErrRet( uiStrings::sSelOutpFile() )
 
+    objfld_->reset();
     if ( !objfld_->ioobj() )
 	return false;
 

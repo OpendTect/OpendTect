@@ -227,7 +227,7 @@ void uiMainWinBody::doShow( bool minimized )
     poppedup_ = false;
     poptimer_.start( 100, true );
 
-    QEvent* ev = new QEvent( mUsrEvPopUpReady );
+    auto* ev = new QEvent( mUsrEvPopUpReady );
     QApplication::postEvent( this, ev );
 
 #ifdef __debug__

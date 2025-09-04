@@ -269,6 +269,9 @@ uiString uiStrings::phrSetAs( const uiString& string )
 uiString uiStrings::phrSuccessfullyExported( const uiString& string )
 { return tr( "Successfully exported %1").arg( string );}
 
+uiString uiStrings::phrTransform( const uiString& string )
+{ return toUiString(joinstring).arg(sTransform()).arg(string);	}
+
 uiString uiStrings::phrUnexpected( const uiString& obj, const char* what )
 {
     uiPhrase ret = tr("Unexpected %1%2").arg( obj );
