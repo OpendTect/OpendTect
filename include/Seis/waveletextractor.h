@@ -18,6 +18,7 @@ namespace Seis { class SelData; }
 class SeisTrc;
 class SeisTrcReader;
 class Wavelet;
+template <class T> class Array1D;
 template <class T> class Array1DImpl;
 
 mExpClass(Seis) WaveletExtractor : public Executor
