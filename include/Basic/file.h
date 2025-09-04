@@ -87,10 +87,10 @@ public:
 
 private:
 
-    bool	iswindowsattr_;
-    bool	isuid_ = false;
-    bool	isgid_ = false;
-    bool	sticky_ = false;
+    bool	iswindowsattr_		= false;
+    bool	isuid_			= false;
+    bool	isgid_			= false;
+    bool	sticky_			= false;
 
 public:
 			Permissions(int perms,bool iswindowsattr);
