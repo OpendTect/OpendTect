@@ -42,10 +42,8 @@ mExpClass(uiODMain) uiODPSEventsTreeItemFactory : public uiODTreeItemFactory
 {
 public:
     const char*		name() const override	{ return typeid(*this).name(); }
-    uiTreeItem*		create() const override
-			{ return new uiODPSEventsParentTreeItem;}
-    uiTreeItem*		createForVis(const VisID&,uiTreeItem*) const override
-			{ return nullptr; }
+    uiTreeItem*		create() const override;
+    uiTreeItem*		createForVis(const VisID&,uiTreeItem*) const override;
 };
 
 

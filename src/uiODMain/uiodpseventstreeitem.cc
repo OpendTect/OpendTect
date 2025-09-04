@@ -36,6 +36,20 @@ CNotifier<uiODPSEventsParentTreeItem,uiMenu*>&
 }
 
 
+uiTreeItem* uiODPSEventsTreeItemFactory::create() const
+{
+    return new uiODPSEventsParentTreeItem;
+}
+
+
+uiTreeItem* uiODPSEventsTreeItemFactory::createForVis(
+	const VisID& visid, uiTreeItem* itm ) const
+{
+    return nullptr;
+}
+
+
+
 uiODPSEventsParentTreeItem::uiODPSEventsParentTreeItem()
     : uiODParentTreeItem( uiStrings::sPreStackEvents() )
 {}
