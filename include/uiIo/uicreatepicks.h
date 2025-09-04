@@ -124,7 +124,7 @@ protected:
     const BufferStringSet&	hornms_;
 
     uiGenInput*		nrfld_;
-    uiGenInput*		geomfld_;
+    uiGenInput*		geomfld_	= nullptr;
     uiLabeledComboBox*	horselfld_;
     uiComboBox*		horsel2fld_;
     uiListBox*		linenmfld_;

@@ -187,6 +187,8 @@ public:
     //!<"Not impl in this version of OpendTect. Please use version xx or up"
     static uiString phrThreeDots(const uiString& string,bool immediate=false);
     //!<string + "..."
+    static uiString phrTransform(const uiString&);
+    //!<"Transform" + string
     static uiString phrUnexpected(const uiString&,const char* what=nullptr);
     static uiString phrWriting(const uiString&);
     //!<"Writing" + string

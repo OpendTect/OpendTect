@@ -190,31 +190,35 @@ uiMergePickSets( uiParent* p, MultiID& mid )
     , mid_(mid)
 {
     ctioin_.setObj( IOM().get(mid_) );
-    selfld = new uiIOObjSelGrp( this, ctioin_, uiStrings::phrSelect(
+    selfld_ = new uiIOObjSelGrp( this, ctioin_, uiStrings::phrSelect(
 	     uiStrings::phrJoinStrings(uiStrings::sPointSet(), tr("to Merge"))),
 	     uiIOObjSelGrp::Setup(OD::ChooseZeroOrMore) );
     ctioout_.ctxt_.forread_ = false;
-    outfld = new uiIOObjSel( this, ctioout_, uiStrings::phrOutput(
+    outfld_ = new uiIOObjSel( this, ctioout_, uiStrings::phrOutput(
 							    tr("merged set")) );
-    outfld->attach( alignedBelow, selfld );
+    outfld_->attach( alignedBelow, selfld_ );
 }
 
 
 void setInputSets( const BufferStringSet& nms )
 {
-    selfld->getListField()->setChosen( nms );
+    selfld_->getListField()->setChosen( nms );
 }
 
 
 bool acceptOK( CallBacker* ) override
 {
-    nrsel = selfld->nrChosen();
-    if ( nrsel < 2 )
-    { uiMSG().error(tr("Please select at least two sets")); return false; }
-    else if (!outfld->commitInput())
+    nrsel_ = selfld_->nrChosen();
+    outfld_->reset();
+    if ( nrsel_ < 2 )
+    {
+	uiMSG().error(tr("Please select at least two sets"));
+	return false;
+    }
+    else if (!outfld_->commitInput())
     {
 	uiMSG().error(uiStrings::phrCannotCreate(
-					mToUiStringTodo(outfld->getInput()) ));
+					mToUiStringTodo(outfld_->getInput()) ));
 	return false;
     }
 
@@ -223,13 +227,13 @@ bool acceptOK( CallBacker* ) override
     return true;
 }
 
-    uiIOObjSelGrp*	selfld;
-    uiIOObjSel*		outfld;
+    uiIOObjSelGrp*	selfld_;
+    uiIOObjSel*		outfld_;
     CtxtIOObj		ctioin_;
     CtxtIOObj		ctioout_;
     MultiID&		mid_;
 
-    int			nrsel;
+    int			nrsel_;
 
 };
 
@@ -245,9 +249,9 @@ void uiPickSetMgr::mergeSets( MultiID& mid, const BufferStringSet* nms )
 
     uiStringSet errmsgs;
     RefMan<Pick::Set> mergedset = new Pick::Set( dlg.ctioout_.ioobj_->name() );
-    for ( int idx=0; idx<dlg.nrsel; idx++ )
+    for ( int idx=0; idx<dlg.nrsel_; idx++ )
     {
-	const MultiID& ky = dlg.selfld->chosenID( idx );
+	const MultiID& ky = dlg.selfld_->chosenID( idx );
 	const int setidx = setmgr_.indexOf( ky );
 	if ( setidx >= 0 )
 	    mergedset->append( *setmgr_.get(setidx) );
