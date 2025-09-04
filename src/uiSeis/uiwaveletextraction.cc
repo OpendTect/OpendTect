@@ -97,7 +97,7 @@ void uiWaveletExtraction::createCommonUIFlds()
     taperfld_->attach( alignedBelow, wtlengthfld_ );
 
     wvltphasefld_ = new uiGenInput( this, tr("Phase (Degrees)"),
-				    IntInpSpec(0) );
+				    DoubleInpSpec(0) );
     wvltphasefld_->attach( alignedBelow, taperfld_ );
 
     outputwvltfld_ = new uiWaveletSel( this, false );
@@ -249,10 +249,10 @@ bool uiWaveletExtraction::acceptOK( CallBacker* )
 	return false;
     }
 
-    if ( wvltphasefld_->getIntValue()<-180 || wvltphasefld_->getIntValue()>180)
+    if ( wvltphasefld_->getDValue()<-180 || wvltphasefld_->getDValue()>180)
     {
 	uiMSG().error( tr("Please enter Phase between -180 and 180") );
-	wvltphasefld_->setValue( 0 );
+	wvltphasefld_->setValue( 0. );
 	return false;
     }
 
@@ -320,9 +320,8 @@ bool uiWaveletExtraction::check2DFlds()
 bool uiWaveletExtraction::doProcess( const IOObj& seisioobj,
 	const IOObj& wvltioobj, const IOPar& rangepar, const IOPar& surfacepar )
 {
-    const int phase = wvltphasefld_->getIntValue();
-    PtrMan<WaveletExtractor> extractor= new WaveletExtractor( seisioobj,
-							      wvltsize_ );
+    PtrMan<WaveletExtractor> extractor = new WaveletExtractor( seisioobj,
+							       wvltsize_ );
     if ( !linesel2dfld_ )
     {
 	if ( !getSelData(rangepar,surfacepar) || !seldata_ )
@@ -359,6 +358,7 @@ bool uiWaveletExtraction::doProcess( const IOObj& seisioobj,
 	  1-(2*taperlength/( (wvltsize_-1)*datastep_*
 		      ((float)SI().zDomain().userFactor())) );
     const float paramval = (float) ( val == 1 ? 1.0 - 1e-6 : val );
+    const double phase = wvltphasefld_->getDValue() * M_PI/180;
     extractor->setTaperParamVal( paramval );
     extractor->setPhase( phase );
 

@@ -28,7 +28,8 @@ public:
 
     void			setSelData(const Seis::SelData&); // 3D
     void			setSelData(const ObjectSet<Seis::SelData>&);//2D
-    void			setPhase(int phase);
+    void			setPhase(double phase);
+				// phase expected in radians
     void			setTaperParamVal(float paramval);
     const Wavelet&		getWavelet() const;
 
@@ -55,6 +56,12 @@ protected:
     bool			rotateWavelet();
     bool			taperWavelet();
 
+    static void			normalization(Array1D<float>&,int wvltsz);
+    static bool			doWaveletIFFT(Fourier::CC&,
+					      Wavelet&,int wvltsz);
+    static bool			rotateWavelet(Wavelet&,int wvltsz,double phase);
+    static bool			taperWavelet(Wavelet&,int wvltsz,float taper);
+
     int				nextStep() override;
     od_int64			totalNr() const override { return totalnr_ ; }
     od_int64			nrDone() const override  { return nrdone_; }
@@ -67,13 +74,22 @@ protected:
     ObjectSet<Seis::SelData>    sdset_;
     SeisTrcReader*		seisrdr_	= nullptr;
     Fourier::CC*		fft_;
-    int				lineidx_;
-    float			paramval_;
+    int				lineidx_	= -1;
+    float			paramval_	= mUdf(float);
     int				wvltsize_;
-    int				phase_;
+    double			phase_		= mUdf(double);
     int				nrusedtrcs_;
     int				nrdone_;
     bool			isbetweenhor_;
     od_int64			totalnr_;
     uiString			msg_;
+
+public:
+
+    static uiRetVal		processTrace(Array1D<float>&,Fourier::CC&,
+					     int wvltsz,float taperval,
+					     Wavelet&);
+    static bool			finalize(Fourier::CC&,Wavelet&,
+					     int wvltsz,double phase,
+					     float taperval);
 };
