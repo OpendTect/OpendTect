@@ -12,6 +12,9 @@ set( LIBLIST ${OD_GUI_MODULES} )
 
 set( PLUGINS ${OD_GUI_PLUGINS} )
 set( EXCLUDE_PLUGINS uiTut uiQtApp uiCrashMe uiCOLOP )
+if ( ${PACKAGE_TYPE} STREQUAL "Production" )
+    list ( APPEND EXCLUDE_PLUGINS uiHello uiTutMadagascar )
+endif()
 list( REMOVE_ITEM PLUGINS ${EXCLUDE_PLUGINS} )
 
 set( EXECLIST ${OD_GUI_EXECUTABLES} )
