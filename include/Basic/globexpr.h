@@ -23,24 +23,15 @@ mExpClass(Basic) GlobExpr
 {
 public:
 
-			GlobExpr( const char* s=nullptr, bool casesens=true )
-			: expr_(""), errmsg_(nullptr), ci_(!casesens)
-			{ set(s); }
-			GlobExpr( const GlobExpr& ge )
-			: expr_(ge.expr_), errmsg_(nullptr), ci_(ge.ci_) {}
-    GlobExpr&		operator=( const GlobExpr& ge )
-			{
-			    expr_ = ge.expr_;
-			    errmsg_ = nullptr;
-			    ci_ = ge.ci_;
-			    return *this;
-			}
-    bool		operator==( const GlobExpr& ge ) const
-			{
-			    return expr_ == ge.expr_ && ci_ == ge.ci_;
-			}
+			GlobExpr(const char* s=nullptr,
+				 OD::CaseSensitivity cs=OD::CaseSensitive);
+			GlobExpr(const GlobExpr&);
 
-    void		setCaseInSensitive( bool yn=true )	{ ci_ = yn; }
+    GlobExpr&		operator=(const GlobExpr&);
+    bool		operator==(const GlobExpr&) const;
+
+    void		setCaseSensitivity( OD::CaseSensitivity cs )
+			{ cs_ = cs; }
 
     void		set(const char*);
     inline		operator const char*() const
@@ -48,13 +39,13 @@ public:
 
     inline bool		matches( const char* t ) const
 			{ return matches( expr_, t,
-				 const_cast<const char*&>(errmsg_), ci_ ); }
+				 const_cast<const char*&>(errmsg_), cs_ ); }
     const char*		expressionFailMessage() const	{ return errmsg_; }
 			//!< Normally null, only filled if invalid expression
 
     static bool		matches(const char* expression,const char* txt,
 				const char*& errmsg_if_expression_is_incorrect,
-				bool caseinsens);
+				OD::CaseSensitivity cs);
 
     static void		validateFilterString(BufferString&);
 
@@ -62,7 +53,8 @@ protected:
 
     BufferString	expr_;
     const char*		errmsg_;
-    bool		ci_;
+    OD::CaseSensitivity	cs_;
 
-    static bool		starMatches(const char*,const char*,const char*&,bool);
+    static bool		starMatches(const char*,const char*,const char*&,
+				    OD::CaseSensitivity);
 };

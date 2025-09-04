@@ -10,6 +10,36 @@ ________________________________________________________________________
 #include "globexpr.h"
 #include <ctype.h>
 
+GlobExpr::GlobExpr( const char* s, OD::CaseSensitivity cs )
+    : expr_("")
+    , errmsg_(nullptr)
+    , cs_(cs)
+{
+    set(s);
+}
+
+
+GlobExpr::GlobExpr( const GlobExpr& ge )
+    : expr_(ge.expr_)
+    , errmsg_(nullptr)
+    , cs_(ge.cs_)
+{}
+
+
+GlobExpr& GlobExpr::operator=( const GlobExpr& ge )
+{
+    expr_ = ge.expr_;
+    errmsg_ = nullptr;
+    cs_ = ge.cs_;
+    return *this;
+}
+
+
+bool GlobExpr::operator==( const GlobExpr& ge ) const
+{
+    return expr_ == ge.expr_ && cs_ == ge.cs_;
+}
+
 
 void GlobExpr::set( const char* str )
 {
@@ -28,7 +58,7 @@ void GlobExpr::set( const char* str )
 
 
 bool GlobExpr::matches( const char* p, const char* t, const char*& errmsg,
-			bool ci )
+			OD::CaseSensitivity cs )
 {
     errmsg = 0;
     if ( !t || !*t ) return !*p;
@@ -42,7 +72,7 @@ bool GlobExpr::matches( const char* p, const char* t, const char*& errmsg,
 	switch ( *p )
 	{
 	case '?':	break;
-	case '*':	return starMatches( p, t, errmsg, ci );
+	case '*':	return starMatches( p, t, errmsg, cs );
 
 	case '[':
 	{
@@ -130,7 +160,7 @@ bool GlobExpr::matches( const char* p, const char* t, const char*& errmsg,
 
 	    /* must match this character exactly */
 	    default:
-		if ( !ci )
+		if ( cs == OD::CaseSensitive )
 		{
 		    if ( *p != *t )
 			return false;
@@ -149,22 +179,23 @@ bool GlobExpr::matches( const char* p, const char* t, const char*& errmsg,
 
 
 bool GlobExpr::starMatches( const char* p, const char* t, const char*& errmsg,
-			    bool ci )
+			    OD::CaseSensitivity cs )
 {
     /* pass over existing ? and * in pattern */
-    while ( *p == '?' || *p == '*' ) {
+    while ( *p == '?' || *p == '*' )
+    {
 
-        /* take one char for each ? */
-        if ( *p == '?' ) {
+	/* take one char for each ? */
+	if ( *p == '?' )
+	{
 
-            /* if end of text then no match */
-            if ( !*t++ ) {
-                return false;
-            }
-        }
+	    /* if end of text then no match */
+	    if ( !*t++ )
+		return false;
+	}
 
-        /* move to next char in pattern */
-        p++;
+	/* move to next char in pattern */
+	p++;
     }
 
     /* if end of pattern we have matched regardless of text left */
@@ -174,7 +205,7 @@ bool GlobExpr::starMatches( const char* p, const char* t, const char*& errmsg,
     /* get the next character to match which must be a literal or '[' */
     char nextp = *p;
     if ( nextp == '\\' )
-        nextp = p[1];
+	nextp = p[1];
 
     /* Continue until we run out of text or definite result seen */
     bool matched = false, needmatched;
@@ -182,12 +213,13 @@ bool GlobExpr::starMatches( const char* p, const char* t, const char*& errmsg,
     {
 	needmatched = nextp == '[';
 	if ( !needmatched )
-	    needmatched = ci ? toupper(nextp) == toupper(*t) : nextp == *t;
-        if ( needmatched )
-            matched = matches( p, t, errmsg, ci );
+	    needmatched = cs==OD::CaseInsensitive ? toupper(nextp)==toupper(*t)
+						  : nextp == *t;
+	if ( needmatched )
+	    matched = matches( p, t, errmsg, cs );
 
-        /* if the end of text is reached then no match */
-        if ( !*t++ )
+	/* if the end of text is reached then no match */
+	if ( !*t++ )
 	    break;
     }
 

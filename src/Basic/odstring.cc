@@ -98,7 +98,6 @@ bool OD::String::operator <( const char* s ) const
     const char* me = gtStr(); \
     mRetEmptyEquality( me, s )
 
-#define mIsInsens() (sens == OD::CaseInsensitive)
 
 bool OD::String::isEqual( const char* s, CaseSensitivity sens ) const
 {
@@ -112,42 +111,47 @@ bool OD::String::isEqual( const char* s, CaseSensitivity sens ) const
     }
 #endif
     mGetMeForEquality();
-    return mIsInsens() ? caseInsensitiveEqual(me,s,0) : !strcmp( me, s );
+    return sens==OD::CaseInsensitive ? caseInsensitiveEqual(me,s,0)
+				     : !strcmp( me, s );
 }
 
 
 bool OD::String::isStartOf( const char* s, CaseSensitivity sens ) const
 {
     mGetMeForEquality();
-    return mIsInsens() ? stringStartsWithCI(me,s) : stringStartsWith(me,s);
+    return sens==OD::CaseInsensitive ? stringStartsWithCI(me,s)
+				     : stringStartsWith(me,s);
 }
 
 
 bool OD::String::startsWith( const char* s, CaseSensitivity sens ) const
 {
     mGetMeForEquality();
-    return mIsInsens() ? stringStartsWithCI(s,me) : stringStartsWith(s,me);
+    return sens==OD::CaseInsensitive ? stringStartsWithCI(s,me)
+				     : stringStartsWith(s,me);
 }
 
 
 bool OD::String::isEndOf( const char* s, CaseSensitivity sens ) const
 {
     mGetMeForEquality();
-    return mIsInsens() ? stringEndsWithCI(me,s) : stringEndsWith(me,s);
+    return sens==OD::CaseInsensitive ? stringEndsWithCI(me,s)
+				     : stringEndsWith(me,s);
 }
 
 
 bool OD::String::endsWith( const char* s, CaseSensitivity sens ) const
 {
     mGetMeForEquality();
-    return mIsInsens() ? stringEndsWithCI(s,me) : stringEndsWith(s,me);
+    return sens==OD::CaseInsensitive ? stringEndsWithCI(s,me)
+				     : stringEndsWith(s,me);
 }
 
 
 bool OD::String::matches( const char* s, CaseSensitivity sens ) const
 {
     mGetMeForEquality();
-    return GlobExpr(s,!mIsInsens()).matches( me );
+    return GlobExpr(s,sens).matches( me );
 }
 
 

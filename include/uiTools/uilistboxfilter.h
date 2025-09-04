@@ -33,13 +33,16 @@ public:
 
     void		removeItem(int);
 
+    void		setCaseSensitivity( OD::CaseSensitivity cs )
+			{ cs_ = cs; }
+
     Notifier<uiListBoxFilter> newFilter;
 
 protected:
 
     uiListBox&		lb_;
     BufferStringSet	availitems_;
+    OD::CaseSensitivity	cs_		= OD::CaseInsensitive;
 
     void		filtChg(CallBacker*);
-
 };
