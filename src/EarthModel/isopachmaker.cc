@@ -172,6 +172,4 @@ uiString IsochronMaker::uiMessage() const
 	case Done:		return tr("Isochron Calculation Complete");
 	default:		return tr("Uknown Status");
     }
-
-    pErrMsg("huh?");
 }
