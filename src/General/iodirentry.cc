@@ -60,7 +60,8 @@ IODirEntryList::~IODirEntryList()
 }
 
 
-void IODirEntryList::fill( const IODir& iodir, const char* nmfilt )
+void IODirEntryList::fill( const IODir& iodir, const char* nmfilt,
+			   OD::CaseSensitivity cs )
 {
     if ( iodir.isBad() )
     {
@@ -80,7 +81,7 @@ void IODirEntryList::fill( const IODir& iodir, const char* nmfilt )
 	curset++;
     }
 
-    GlobExpr* ge = nmfilt && *nmfilt ? new GlobExpr(nmfilt) : nullptr;
+    GlobExpr* ge = nmfilt && *nmfilt ? new GlobExpr(nmfilt,cs) : nullptr;
 
     for ( int idx=0; idx<ioobjs.size(); idx++ )
     {

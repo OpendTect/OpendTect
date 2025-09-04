@@ -45,7 +45,8 @@ public:
 			~IODirEntryList();
     const char*		name() const	{ return name_; }
 
-    void		fill(const IODir&,const char* nmfiltglobexpr=0);
+    void		fill(const IODir&,const char* nmfiltglobexpr=nullptr,
+			     OD::CaseSensitivity cs=OD::CaseInsensitive);
 			//!<IODir is expected to remain alive
     void		setSelected(const MultiID&);
     void		sort();
