@@ -134,6 +134,8 @@ uiBatchHostsDlg::uiBatchHostsDlg( uiParent* p )
     table_->setColumnLabels( collbls );
     table_->setPrefWidth( 800 );
     table_->resizeHeaderToContents( true );
+    table_->setColumnResizeMode( uiTable::ResizeToContents );
+    table_->setColumnStretchable( sDataRootCol, true );
     table_->setTableReadOnly( readonly_ );
     table_->setSelectionBehavior( uiTable::SelectRows );
     mAttachCB( table_->valueChanged, uiBatchHostsDlg::changedCB );
@@ -371,7 +373,7 @@ static void setStatus( uiTable& tbl, int row, uiBatchHostsDlg::Status status,
     {
 	sb = new uiStatusButton( nullptr, uiBatchHostsDlg::StatusDef(),
 				 sIconNames, 0 );
-	sb->setMaximumWidth( 70 );
+	sb->setMaximumWidth( 100 );
 	tbl.setCellObject( RowCol(row,sStatusCol), sb );
     }
 
@@ -432,8 +434,6 @@ void uiBatchHostsDlg::fillTable()
     }
 
     table_->resizeColumnsToContents();
-    table_->setColumnResizeMode( uiTable::ResizeToContents );
-    table_->setColumnStretchable( sDataRootCol, true );
 }
 
 
