@@ -804,9 +804,9 @@ void PluginManager::loadAuto( bool late, bool withfilter )
 	getNotLoadedByUser( dontloadlist );
 
     const int pitype = late ? PI_AUTO_INIT_LATE : PI_AUTO_INIT_EARLY;
-    for ( auto* dataptr : data_ )
+    for ( int idx=0; idx<data_.size(); idx++ ) //no auto, size may increase
     {
-	Data& data = *dataptr;
+	Data& data = *data_.get( idx );
 	if ( !data.sla_ || !data.sla_->isOK() || data.autosource_==Data::None )
 	    continue;
 
