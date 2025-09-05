@@ -1296,6 +1296,7 @@ bool initTempDir()
 
 Permissions::Permissions( const Permissions& oth )
     : IntegerID(oth)
+    , iswindowsattr_(oth.iswindowsattr_)
 {
     *this = oth;
 }
