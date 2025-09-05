@@ -106,4 +106,4 @@ foreach( MOD IN LISTS LIBLIST PLUGINS )
     endforeach()
 endforeach()
 
-set( PACK basegui )
+set( PACK base )

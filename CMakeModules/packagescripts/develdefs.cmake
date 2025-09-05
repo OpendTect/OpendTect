@@ -96,7 +96,7 @@ else()
 
 endif()
 
-set( PACK devel )
+set( PACK develbatch )
 if ( ${PACKAGE_TYPE} STREQUAL "Production" )
     set( PACK "${PACK}rel" )
 endif()

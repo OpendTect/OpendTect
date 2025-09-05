@@ -138,4 +138,4 @@ endforeach()
 
 set( PYTHONDIR odpy;odbind;safety )
 
-set( PACK base )
+set( PACK basebatch )

@@ -97,7 +97,7 @@ else()
 
 endif()
 
-set( PACK develgui )
+set( PACK devel )
 if ( ${PACKAGE_TYPE} STREQUAL "Production" )
     set( PACK "${PACK}rel" )
 endif()
