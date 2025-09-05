@@ -32,7 +32,7 @@ public:
 
 protected:
 
-    IOObj*		outioobj_;
+    IOObj*		outioobj_	    = nullptr;
     const MultiID	tmpid_;
 
     uiGenInput*		typefld_;

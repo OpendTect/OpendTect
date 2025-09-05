@@ -87,10 +87,12 @@ uiWaveletMatchDlg::~uiWaveletMatchDlg()
 void uiWaveletMatchDlg::inpSelCB( CallBacker* cb )
 {
     mDynamicCastGet(uiWaveletSel*,inpfld,cb)
-    if ( !inpfld ) return;
+    if ( !inpfld )
+	return;
 
     PtrMan<Wavelet> wvlt = inpfld->getWavelet( true );
-    if ( !wvlt ) return;
+    if ( !wvlt )
+	return;
 
     uiFuncDispBase* fd = inpfld==wvlt0fld_ ? wvlt0disp_ : wvlt1disp_;
     fd->setVals( wvlt->samplePositions(), wvlt->samples(), wvlt->size() );
@@ -179,8 +181,10 @@ bool uiWaveletMatchDlg::calcFilter()
 
 bool uiWaveletMatchDlg::acceptOK( CallBacker* )
 {
+    wvltoutfld_->reset();
     const IOObj* ioobj = wvltoutfld_->ioobj();
-    if ( !ioobj ) return false;
+    if ( !ioobj )
+	return false;
 
     const bool res = outputwvlt_.put( ioobj );
     if ( !res )

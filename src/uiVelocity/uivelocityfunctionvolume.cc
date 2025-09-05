@@ -40,7 +40,7 @@ uiFunctionSettings* uiVolumeFunction::create( uiParent* p, FunctionSource* vs )
 
 uiVolumeFunction::uiVolumeFunction( uiParent* p, VolumeFunctionSource* s )
     : uiFunctionSettings(p,"Volume")
-    , source_( s )
+    , source_(s)
 {
     if ( source_ )
 	source_->ref();

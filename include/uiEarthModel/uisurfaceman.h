@@ -42,11 +42,11 @@ protected:
     uiToolButton*	surfdataremovebut_	= nullptr;
     uiToolButton*	copybut_		= nullptr;
     uiToolButton*	mergehorbut_		= nullptr;
-    uiToolButton*	applybodybut_;
-    uiToolButton*	createregbodybut_;
-    uiToolButton*	volestimatebut_;
-    uiToolButton*	switchvalbut_;
-    uiToolButton*	manselsetbut_ = nullptr;
+    uiToolButton*	applybodybut_		= nullptr;
+    uiToolButton*	createregbodybut_	= nullptr;
+    uiToolButton*	volestimatebut_		= nullptr;
+    uiToolButton*	switchvalbut_		= nullptr;
+    uiToolButton*	manselsetbut_		= nullptr;
 
     void		attribSel(CallBacker*);
     void		copyCB(CallBacker*);

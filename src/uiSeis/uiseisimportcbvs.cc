@@ -36,7 +36,6 @@ ________________________________________________________________________
 uiSeisImportCBVS::uiSeisImportCBVS( uiParent* p )
     : uiDialog(p,Setup(tr("Import CBVS cube"),mODHelpKey(mSeisImpCBVSHelpID))
 		    .modal(false))
-    , outioobj_(0)
     , tmpid_(100010,IOObj::tmpID())
 {
     setOkCancelText( uiStrings::sImport(), uiStrings::sClose() );
@@ -61,8 +60,7 @@ uiSeisImportCBVS::uiSeisImportCBVS( uiParent* p )
     modefld_->valueChanged.notify( mCB(this,uiSeisImportCBVS,modeSel) );
 
     uiSeisTransfer::Setup sts( Seis::Vol );
-    sts.withnullfill(false).withstep(true).onlyrange(false)
-				.fornewentry(true);
+    sts.withnullfill(false).withstep(true).onlyrange(false).fornewentry(true);
     transffld_ = new uiSeisTransfer( this, sts );
     transffld_->attach( alignedBelow, modefld_ );
 
@@ -132,6 +130,7 @@ void uiSeisImportCBVS::inpSel( CallBacker* )
 
 bool uiSeisImportCBVS::acceptOK( CallBacker* )
 {
+    outfld_->reset();
     const IOObj* selioobj = outfld_->ioobj();
     if ( !selioobj )
 	return false;
@@ -165,8 +164,8 @@ bool uiSeisImportCBVS::acceptOK( CallBacker* )
     if ( seltyp == 0 )
 	outioobj_->pars().removeWithKey( "Type" );
     else
-	outioobj_->pars().set( sKey::Type(), seltyp == 1 ?
-				    sKey::Attribute() : sKey::Steering() );
+	outioobj_->pars().set( sKey::Type(), seltyp == 1 ? sKey::Attribute()
+							 : sKey::Steering() );
 
     outfld_->getZDomain().fillPar( outioobj_->pars() );
     outioobj_->setTranslator( CBVSSeisTrcTranslator::translKey() );
@@ -191,11 +190,11 @@ bool uiSeisImportCBVS::acceptOK( CallBacker* )
 
     if ( dolink )
     {
-	 uiString msg = tr("CBVS cube successfully imported."
-		      "\n\nDo you want to import more cubes?");
-	 bool ret = uiMSG().askGoOn( msg, uiStrings::sYes(),
+	const uiString msg = tr("CBVS cube successfully imported."
+				"\n\nDo you want to import more cubes?");
+	const bool ret = uiMSG().askGoOn( msg, uiStrings::sYes(),
 				tr("No, close window") );
-	 return !ret;
+	return !ret;
     }
 
     uiSeisIOObjInfo ioobjinfo( *outioobj_, true );

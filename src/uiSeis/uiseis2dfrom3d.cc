@@ -46,7 +46,8 @@ void uiSeis2DFrom3D::cubeSel( CallBacker* )
 {
     const IOObj* ioobj = data3dfld_->ioobj( true );
     const StringView selattrnm = data2dfld_->getInput();
-    if ( !ioobj || !selattrnm.isEmpty() ) return;
+    if ( !ioobj || !selattrnm.isEmpty() )
+	return;
 
     const BufferString attrnm( ioobj->name(), "[2D]" );
     data2dfld_->setInputText( attrnm.buf() );
@@ -57,7 +58,8 @@ bool uiSeis2DFrom3D::acceptOK( CallBacker* )
 {
     const IOObj* ioobj3d = data3dfld_->ioobj();
     const IOObj* ioobj2d = data2dfld_->ioobj();
-    if ( !ioobj3d || !ioobj2d ) return false;
+    if ( !ioobj3d || !ioobj2d )
+	return false;
 
     TypeSet<Pos::GeomID> geomids;
     subselfld_->selectedGeomIDs( geomids );

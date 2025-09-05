@@ -40,8 +40,7 @@ uiVelocityDesc::Setup::Setup( const IOObj* ioobj, bool is2d, bool onlyvelocity )
 
 
 uiVelocityDesc::Setup::~Setup()
-{
-}
+{}
 
 
 // uiVelocityDesc
@@ -68,8 +67,7 @@ uiVelocityDesc::uiVelocityDesc( uiParent* p, const uiVelocityDesc::Setup& vsu )
     unitchkfld_->setMaximumWidth( 16 );
     unitchkfld_->attach( rightOf, typefld_ );
 
-    uiUnitSel::Setup uiusu( Mnemonic::Vel, tr("in"),
-			    &Mnemonic::defVEL() );
+    uiUnitSel::Setup uiusu( Mnemonic::Vel, tr("in"), &Mnemonic::defVEL() );
     uiusu.mode( uiUnitSel::Setup::SymbolsOnly );
     unitfld_ = new uiUnitSel( this, uiusu );
     unitfld_->setUnit( UnitOfMeasure::surveyDefVelUnit() );
@@ -528,6 +526,7 @@ void uiVelSel::initGrpCB( CallBacker* )
 				VelocityStretcher::getDefaultVAvg( veluom );
 	if ( trg_.isUdf() )
 	    trg_.set( defvelrg.start_, defvelrg.start_ );
+
 	if ( brg_.isUdf() )
 	    brg_.set( defvelrg.stop_, defvelrg.stop_ );
 
@@ -707,12 +706,12 @@ void uiVelSel::updateEditButton()
 // uiVelModelZAxisTransform
 
 uiVelModelZAxisTransform::uiVelModelZAxisTransform( uiParent* p, bool t2d,
-							 OD::Pol2D3D poltype )
+						    OD::Pol2D3D poltype )
     : uiTime2DepthZTransformBase(p,t2d)
 {
     const bool is2d = poltype == OD::Only2D;
     velsel_ = new uiVelSel( this, VelocityDesc::getVelVolumeLabel(),
-								is2d, true );
+			    is2d, true );
     setHAlignObj( velsel_ );
 }
 
@@ -725,8 +724,8 @@ uiVelModelZAxisTransform::~uiVelModelZAxisTransform()
 
 const char* uiVelModelZAxisTransform::transformName() const
 {
-    return isTimeToDepth() ? Time2DepthStretcher::sFactoryKeyword() :
-				    Depth2TimeStretcher::sFactoryKeyword();
+    return isTimeToDepth() ? Time2DepthStretcher::sFactoryKeyword()
+			   : Depth2TimeStretcher::sFactoryKeyword();
 }
 
 
@@ -780,7 +779,7 @@ bool uiVelModelZAxisTransform::isOK() const
     if ( !VelocityDesc::isUsable(desc.type_,zinfo->def_,res) )
     {
 	uirv = tr("Cannot setup a time-depth transformation with the "
-	    "selected velocity model:");
+		  "selected velocity model:");
 	uirv.add( res );
 	uiMSG().error( res );
 	return false;
@@ -908,8 +907,8 @@ uiZAxisTransform* uiDepth2Time::createInstance( uiParent* p,
     if ( setup.fromdomain_.isEmpty() || setup.todomain_.isEmpty() )
 	return nullptr;
 
-    if ( setup.fromdomain_ != ZDomain::sKeyDepth() ||
-				    setup.todomain_ != ZDomain::sKeyTime() )
+    if ( setup.fromdomain_ != ZDomain::sKeyDepth()
+	 || setup.todomain_ != ZDomain::sKeyTime() )
 	return nullptr;
 
     return new uiDepth2Time( p, setup.datatype_ );

@@ -74,6 +74,7 @@ Batch::JobSpec& uiSeis2DTo3DInterPol::jobSpec()
 bool uiSeis2DTo3DInterPol::prepareProcessing()
 {
     const IOObj* inioobj = inpfld_->ioobj();
+    outfld_->reset();
     const IOObj* outioobj = outfld_->ioobj();
     if ( !inioobj || !outioobj )
 	return false;

@@ -83,7 +83,10 @@ uiDZTImporter( uiParent* p )
     setOkText( uiStrings::sImport() );
 
     if ( !SI().has2D() )
-	{ new uiLabel(this,tr("TODO: implement 3D loading")); return; }
+    {
+	new uiLabel(this,tr("TODO: implement 3D loading"));
+	return;
+    }
 
     uiFileInput::Setup fisu( uiFileDialog::Gen );
     fisu.filter( "*.dzt" ).forread( true );
@@ -115,14 +118,17 @@ uiDZTImporter( uiParent* p )
 void inpSel( CallBacker* )
 {
     const BufferString fnm( inpfld_->fileName() );
-    if ( fnm.isEmpty() ) return;
+    if ( fnm.isEmpty() )
+	return;
 
     od_istream stream( fnm );
 
-    if ( !stream.isOK() ) return;
+    if ( !stream.isOK() )
+	return;
 
     DZT::FileHeader fh; uiString emsg;
-    if ( !fh.getFrom(stream,emsg) ) return;
+    if ( !fh.getFrom(stream,emsg) )
+	return;
 
     FilePath fp( fnm ); fp.setExtension( "", true );
     lnmfld_->setText( fp.fileName() );
@@ -140,9 +146,12 @@ bool acceptOK( CallBacker* ) override
 	return true;
 
     const BufferString fnm( inpfld_->fileName() );
-    if ( fnm.isEmpty() ) mErrRet(tr("Please enter the input file name"))
+    if ( fnm.isEmpty() )
+	mErrRet(tr("Please enter the input file name"))
+
     const BufferString lnm( lnmfld_->text() );
-    if ( lnm.isEmpty() ) mErrRet(tr("Please enter the output line name"))
+    if ( lnm.isEmpty() )
+	mErrRet(tr("Please enter the output line name"))
 
     const Pos::GeomID geomid = Geom2DImpHandler::getGeomID( lnm );
     if (  geomid.isUdf() )
@@ -177,7 +186,8 @@ bool acceptOK( CallBacker* ) override
 
 void uiImpGPRMgr::doWork( CallBacker* )
 {
-    if ( !uiSurvey::survTypeOKForUser(true) ) return;
+    if ( !uiSurvey::survTypeOKForUser(true) )
+	return;
 
     uiDZTImporter dlg( &appl() );
     dlg.go();
@@ -187,7 +197,7 @@ void uiImpGPRMgr::doWork( CallBacker* )
 mDefODInitPlugin(uiImpGPR)
 {
     mDefineStaticLocalObject( PtrMan<uiImpGPRMgr>, theinst_,
-	= new uiImpGPRMgr() );
+			      = new uiImpGPRMgr() );
 
     if ( !theinst_ )
 	return "Cannot instantiate the ImpGPR plugin";

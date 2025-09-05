@@ -131,6 +131,7 @@ bool uiSeisImpCBVSFromOtherSurveyDlg::acceptOK( CallBacker* )
     if ( !import_ )
 	mErrRet( tr("No valid input, please select a new input file") )
 
+    outfld_->reset();
     const IOObj* outioobj = outfld_->ioobj();
     if ( !outioobj )
 	return false;

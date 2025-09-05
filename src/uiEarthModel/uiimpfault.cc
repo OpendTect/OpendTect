@@ -394,6 +394,7 @@ bool uiImportFault::checkInpFlds()
 	}
     }
 
+    getValidOutFld()->reset();
     if ( !getValidOutFld()->ioobj() )
 	return false;
 

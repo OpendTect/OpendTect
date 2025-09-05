@@ -124,16 +124,6 @@ uiSurfaceMan::uiSurfaceMan( uiParent* p, EM::ObjectType typ )
 			   getHelpID(typ)).nrstatusflds(1).modal(false),
 		   getIOCtxt(typ),ZDomain::sKey())
     , type_(typ)
-    , attribfld_(nullptr)
-    , man2dbut_(0)
-    , surfdatarenamebut_(0)
-    , surfdataremovebut_(0)
-    , copybut_(0)
-    , mergehorbut_(0)
-    , applybodybut_(0)
-    , createregbodybut_(0)
-    , volestimatebut_(0)
-    , switchvalbut_(0)
 {
     createDefaultUI();
     if ( type_ != EM::ObjectType::Body )

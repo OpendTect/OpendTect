@@ -360,6 +360,7 @@ bool uiImportHorizon2D::doImport()
 	    return false;
     }
 
+    getWorkingOutFld()->reset();
     const IOObj* ioobj = getWorkingOutFld()->ioobj();
     if ( !ioobj )
     {

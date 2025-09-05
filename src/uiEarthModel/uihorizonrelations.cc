@@ -40,20 +40,19 @@ ________________________________________________________________________
 uiHorizonRelationsDlg::uiHorizonRelationsDlg( uiParent* p, bool is2d )
     : uiDialog(p,Setup(tr("Horizon relations"),
 		       mODHelpKey(mHorizonRelationsDlgHelpID)))
-    , is2d_( is2d )
+    , is2d_(is2d)
 {
     uiListBox::Setup su( OD::ChooseOnlyOne, tr("Order (top to bottom)"),
 			 uiListBox::AboveLeft );
     relationfld_ = new uiListBox( this, su, "horizonorder" );
     relationfld_->setHSzPol( uiObject::Wide );
 
-    uiPushButton* clearbut =
-	new uiPushButton( relationfld_, tr("Clear Order"), true );
+    auto* clearbut = new uiPushButton( relationfld_, tr("Clear Order"), true );
     clearbut->activated.notify( mCB(this,uiHorizonRelationsDlg,clearCB) );
     clearbut->attach( rightTo, relationfld_->box() );
 
-    uiPushButton* orderbut =
-		new uiPushButton( relationfld_, tr("Read Horizons"), false );
+    auto* orderbut = new uiPushButton( relationfld_, tr("Read Horizons"),
+				       false );
     orderbut->activated.notify( mCB(this,uiHorizonRelationsDlg,readHorizonCB) );
     orderbut->attach( alignedBelow, clearbut );
 
@@ -96,7 +95,8 @@ void uiHorizonRelationsDlg::clearCB( CallBacker* )
 void uiHorizonRelationsDlg::readHorizonCB( CallBacker* )
 {
     uiHorizonSortDlg dlg( this, is2d_, false );
-    if ( !dlg.go() ) return;
+    if ( !dlg.go() )
+	return;
 
     hornames_.erase();
     horids_.erase();
@@ -137,9 +137,9 @@ HorizonModifyDlg( uiParent* p, const MultiID& mid1, const MultiID& mid2,
     hornms.add( EM::EMM().objectName(mid1) );
     hornms.add( EM::EMM().objectName(mid2) );
 
-    uiString msg = tr("'%1' crosses '%2' at %3 positions").arg(hornms.get(0))
-		 .arg(hornms.get(1)).arg( nrcross );
-    uiLabel* lbl = new uiLabel( this, msg );
+    const uiString msg = tr("'%1' crosses '%2' at %3 positions")
+			  .arg(hornms.get(0)).arg(hornms.get(1)).arg( nrcross );
+    auto* lbl = new uiLabel( this, msg );
 
     horizonfld_ = new uiGenInput( this,
 				  uiStrings::phrModify(uiStrings::sHorizon(1)),
@@ -165,14 +165,13 @@ HorizonModifyDlg( uiParent* p, const MultiID& mid1, const MultiID& mid2,
     objfld_->display( false );
     objfld_->attach( alignedBelow, savefld_ );
 
-    saveCB(0);
-    horSel(0);
+    saveCB(nullptr);
+    horSel(nullptr);
 }
 
 
 ~HorizonModifyDlg()
-{
-}
+{}
 
 
 void saveCB( CallBacker* )
@@ -190,7 +189,7 @@ void horSel( CallBacker* )
     objfld_->setInputText( hornm );
     savefld_->setValue( true );
     savefld_->setSensitive( EM::canOverwrite(targetmid) );
-    saveCB( 0 );
+    saveCB(nullptr);
 }
 
 
@@ -208,6 +207,7 @@ bool acceptOK( CallBacker* ) override
 
     if ( saveas )
     {
+	objfld_->reset();
 	const IOObj* horioobj = objfld_->ioobj();
 	if ( !horioobj )
 	    return false;
@@ -241,6 +241,7 @@ bool acceptOK( CallBacker* ) override
 	    mDynamicCastGet(EM::Horizon2D*,outhor2d,outemobj.ptr());
 	    if ( !hor2d || !outhor2d )
 		return false;
+
 	    for ( int idx=0; idx<hor2d->geometry().nrLines(); idx++ )
 	    {
 		const Pos::GeomID geomid = hor2d->geometry().geomID( idx );
@@ -262,7 +263,8 @@ bool acceptOK( CallBacker* ) override
     modifier.doWork();
 
     PtrMan<Executor> exec = !saveas ? emobj->saver() : outemobj->saver();
-    if ( !exec ) mErrRet(uiStrings::phrCannotSave(uiStrings::sHorizon(1)));
+    if ( !exec )
+	mErrRet(uiStrings::phrCannotSave(uiStrings::sHorizon(1)));
 
     uiTaskRunner taskrunner( this );
     return TaskRunner::execute( &taskrunner, *exec );
@@ -287,7 +289,9 @@ void uiHorizonRelationsDlg::checkCrossingsCB( CallBacker* )
     HorizonSorter sorter( horids_, is2d_ );
     sorter.setName( "Check crossings" );
     uiTaskRunner taskrunner( this );
-    if ( !TaskRunner::execute( &taskrunner, sorter ) ) return;
+    if ( !TaskRunner::execute( &taskrunner, sorter ) )
+	return;
+
     MouseCursorManager::restoreOverride();
 
     int count = 0;
@@ -297,7 +301,8 @@ void uiHorizonRelationsDlg::checkCrossingsCB( CallBacker* )
 	{
 	    const int nrcrossings =
 		sorter.getNrCrossings( horids_[idx], horids_[idy] );
-	    if ( nrcrossings == 0 ) continue;
+	    if ( nrcrossings == 0 )
+		continue;
 
 	    TypeSet<MultiID> sortedids;
 	    sorter.getSortedList( sortedids );
