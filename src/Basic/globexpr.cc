@@ -11,6 +11,11 @@ ________________________________________________________________________
 #include <ctype.h>
 
 
+GlobExpr::GlobExpr( const char* s, OD::CaseSensitivity cs )
+    : GlobExpr(s,cs==OD::CaseSensitive)
+{}
+
+
 void GlobExpr::set( const char* str )
 {
     expr_ = str;

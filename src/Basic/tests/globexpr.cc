@@ -28,8 +28,10 @@ int mTestMainFnName( int argc, char** argv )
     const std::string tomatch = argv[1];
     const std::string expr = argv[2];
     const bool casesensitive = argc < 4;
+    const OD::CaseSensitivity cs =
+		casesensitive ? OD::CaseSensitive : OD::CaseInsensitive;
 
-    const GlobExpr ge( expr.c_str(), casesensitive );
+    const GlobExpr ge( expr.c_str(), cs );
 
     od_cout() << "'" << tomatch.c_str()
 	<< (ge.matches(tomatch.c_str()) ? "' matches '" : "' doesn't match '")

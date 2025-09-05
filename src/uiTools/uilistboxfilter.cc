@@ -51,7 +51,7 @@ void uiListBoxFilter::setItems( const BufferStringSet& nms )
 
     BufferString filt = text();
     GlobExpr::validateFilterString( filt );
-    GlobExpr ge( filt.buf() );
+    GlobExpr ge( filt.buf(), OD::CaseInsensitive );
     for ( int idx=0; idx<nms.size(); idx++ )
     {
 	const char* itm = nms.get(idx).buf();

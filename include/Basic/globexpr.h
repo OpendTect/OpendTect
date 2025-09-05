@@ -26,6 +26,7 @@ public:
 			GlobExpr( const char* s=nullptr, bool casesens=true )
 			: expr_(""), errmsg_(nullptr), ci_(!casesens)
 			{ set(s); }
+			GlobExpr(const char* s,OD::CaseSensitivity);
 			GlobExpr( const GlobExpr& ge )
 			: expr_(ge.expr_), errmsg_(nullptr), ci_(ge.ci_) {}
     GlobExpr&		operator=( const GlobExpr& ge )
