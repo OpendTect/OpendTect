@@ -55,6 +55,7 @@ protected:
     int			state_; //-1 finished in error
 				// 0 finished without error
 				// 1 running
+				// 2 aborted
     Threads::Thread*	thread_;
     Threads::Lock	uitaskrunnerthreadlock_;
     void		doWork(CallBacker*);	//!< Method with work thread
