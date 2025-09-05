@@ -218,7 +218,7 @@ bool WaveletExtractor::getSignalInfo( const SeisTrc& trc, int& startsample,
     if ( z2 < z1 )
 	Swap( z1, z2 );
 
-    if( !trc.dataPresent(z1 + extz.start_) || !trc.dataPresent(z2 + extz.stop_) )
+    if( !trc.dataPresent(z1+extz.start_) || !trc.dataPresent(z2+extz.stop_) )
 	return false;
 
     startsample = trc.nearestSample( z1 + extz.start_ );
@@ -294,46 +294,73 @@ bool WaveletExtractor::processTrace( const SeisTrc& trc, int startsample,
     if ( count == signalsz || count == signalsz-1 )
 	return false;
 
-    ArrayNDWindow window( signal.info(), true, "CosTaper", paramval_ );
+    const uiRetVal uirv = processTrace( signal, *fft_,
+					wvltsize_, paramval_, wvlt_ );
+    return uirv.isOK();
+}
+
+
+uiRetVal WaveletExtractor::processTrace( Array1D<float>& signal,
+					 Fourier::CC& fft, int wvltsize,
+					 float taperval, Wavelet& wvlt )
+{
+    uiRetVal ret;
+    if ( !wvltsize )
+	ret.add( tr("Please provide a valid wavelet") );
+
+    if ( signal.isEmpty() )
+	ret.add( tr("Invalid trace data") );
+
+    if ( mIsUdf(taperval) )
+	ret.add( tr("Invalid taper parameter value") );
+
+    const int signalsz = signal.size();
+    ArrayNDWindow window( signal.info(), true, "CosTaper", taperval );
     window.apply( &signal );
 
     Array1DImpl<float> acarr( signalsz );
     float* acarrptr = acarr.arr();
     genericCrossCorrelation( signalsz, 0, signal.arr(),
 			     signalsz, 0, signal.arr(),
-			     signalsz,  -signalsz/2, acarrptr );
+			     signalsz, -signalsz/2, acarrptr );
 
-    Array1DImpl<float> temp( wvltsize_ );
-    const int startidx = (signalsz/2) - ((wvltsize_-1)/2);
-    for ( int idx=0; idx<wvltsize_; idx++ )
+    Array1DImpl<float> temp( wvltsize );
+    const int startidx = (signalsz/2) - ((wvltsize-1)/2);
+    for ( int idx=0; idx<wvltsize; idx++ )
 	temp.set( idx, acarr.get( startidx+idx ) );
 
     removeBias<float,float>( temp );
-    normalization( temp );
+    normalization( temp, wvltsize );
 
-    Array1DImpl<float_complex> freqdomsignal( wvltsize_ );
-    Array1DImpl<float_complex> timedomsignal( wvltsize_ );
-    for ( int idx=0; idx<wvltsize_; idx++ )
+    Array1DImpl<float_complex> freqdomsignal( wvltsize );
+    Array1DImpl<float_complex> timedomsignal( wvltsize );
+    for ( int idx=0; idx<wvltsize; idx++ )
 	timedomsignal.set( idx, temp.arr()[idx] );
 
-    fft_->setInput( timedomsignal.getData() );
-    fft_->setOutput( freqdomsignal.getData() );
-    fft_->run( true );
+    fft.setInput( timedomsignal.getData() );
+    fft.setOutput( freqdomsignal.getData() );
+    fft.run( true );
 
-    for ( int idx=0; idx<wvltsize_; idx++ )
+    for ( int idx=0; idx<wvltsize; idx++ )
     {
 	const float val = std::abs( freqdomsignal.arr()[idx] );
-	wvlt_.samples()[idx] += val;
+	wvlt.samples()[idx] += val;
     }
 
-    return true;
+    return ret;
 }
 
 
 void WaveletExtractor::normalization( Array1DImpl<float>& normal )
 {
+    normalization( normal, wvltsize_ );
+}
+
+
+void WaveletExtractor::normalization( Array1D<float>& normal, int wvltsize )
+{
     float maxval = fabs( normal.arr()[0] );
-    for ( int idx=1; idx<wvltsize_; idx++ )
+    for ( int idx=1; idx<wvltsize; idx++ )
     {
 	float val = fabs( normal.arr()[idx] );
 	if( val > maxval )
@@ -343,7 +370,7 @@ void WaveletExtractor::normalization( Array1DImpl<float>& normal )
     if( mIsZero(maxval, 1e-6f) )
 	return;
 
-    for( int idx=0; idx<wvltsize_; idx++ )
+    for( int idx=0; idx<wvltsize; idx++ )
 	normal.arr()[idx] = (normal.arr()[idx])/(maxval);
 }
 
@@ -351,17 +378,33 @@ void WaveletExtractor::normalization( Array1DImpl<float>& normal )
 bool WaveletExtractor::finish( int nrusedtrcs )
 {
     if ( nrusedtrcs == 0 )
-    { msg_ = tr("No valid traces read"); return false; }
+    {
+	msg_ = tr("No valid traces read");
+	return false;
+    }
 
-    float * stackedarr = wvlt_.samples();
+    float* stackedarr = wvlt_.samples();
     stackedarr[0] = 0;
     for ( int i=1; i<wvltsize_; i++ )
 	stackedarr[i] = Math::Sqrt( stackedarr[i] / nrusedtrcs );
 
-    if ( !doWaveletIFFT() || !rotateWavelet() || !taperWavelet() )
-    { msg_ = tr("Failed to generate wavelet"); return false; }
+    if ( !finalize(*fft_,wvlt_,wvltsize_,phase_,paramval_) )
+    {
+	msg_ = tr("Failed to generate wavelet");
+	return false;
+    }
 
-   return true;
+    return true;
+}
+
+
+bool WaveletExtractor::finalize( Fourier::CC& fft, Wavelet& wvlt, int wvltsize,
+				 double phase, float paramval )
+{
+    double angle = phase * M_PI/180;
+    return doWaveletIFFT( fft, wvlt, wvltsize )
+	&& rotateWavelet( wvlt,wvltsize,angle )
+	&& taperWavelet( wvlt, wvltsize, paramval );
 }
 
 
@@ -375,22 +418,32 @@ void WaveletExtractor::setPhase( int phase )
 
 bool WaveletExtractor::doWaveletIFFT()
 {
-    fft_->setDir( false );
+    return doWaveletIFFT( *fft_, wvlt_, wvltsize_ );
+}
 
-    Array1DImpl<float_complex> signal( wvltsize_ ), transfsig( wvltsize_ );
-    for ( int idx=0; idx<wvltsize_; idx++ )
-	signal.set( idx, wvlt_.samples()[idx] );
 
-    fft_->setInput( signal.getData() );
-    fft_->setOutput( transfsig.getData() );
-    fft_->run( true );
+bool WaveletExtractor::doWaveletIFFT( Fourier::CC& fft,
+				      Wavelet& wvlt, int wvltsize )
+{
+    if ( !wvltsize || wvltsize>wvlt.size() )
+	return false;
 
-    for ( int idx=0; idx<wvltsize_; idx++ )
+    fft.setDir( false );
+
+    Array1DImpl<float_complex> signal( wvltsize ), transfsig( wvltsize );
+    for ( int idx=0; idx<wvltsize; idx++ )
+	signal.set( idx, wvlt.samples()[idx] );
+
+    fft.setInput( signal.getData() );
+    fft.setOutput( transfsig.getData() );
+    fft.run( true );
+
+    for ( int idx=0; idx<wvltsize; idx++ )
     {
-	if ( idx>=wvltsize_/2 )
-	    wvlt_.samples()[idx] = transfsig.get( idx - wvltsize_/2 ).real();
+	if ( idx>=wvltsize/2 )
+	    wvlt.samples()[idx] = transfsig.get( idx - wvltsize/2 ).real();
 	else
-	    wvlt_.samples()[idx] = transfsig.get( wvltsize_/2 - idx ).real();
+	    wvlt.samples()[idx] = transfsig.get( wvltsize/2 - idx ).real();
     }
 
     return true;
@@ -399,19 +452,29 @@ bool WaveletExtractor::doWaveletIFFT()
 
 bool WaveletExtractor::rotateWavelet()
 {
-    Array1DImpl<float> rotatewvlt( wvltsize_ );
-    for ( int idx=0; idx<wvltsize_; idx++ )
-	rotatewvlt.set( idx, wvlt_.samples()[idx] );
+    double angle = phase_ * M_PI/180;
+    return rotateWavelet( wvlt_, wvltsize_, angle );
+}
 
-    WaveletAttrib wvltattr( wvlt_ );
+
+bool WaveletExtractor::rotateWavelet( Wavelet& wvlt,
+				      int wvltsize, double phase )
+{
+    if ( !wvltsize || wvltsize>wvlt.size() || mIsUdf(phase) )
+	return false;
+
+    Array1DImpl<float> rotatewvlt( wvltsize );
+    for ( int idx=0; idx<wvltsize; idx++ )
+	rotatewvlt.set( idx, wvlt.samples()[idx] );
+
+    WaveletAttrib wvltattr( wvlt );
     wvltattr.getHilbert( rotatewvlt );
 
-    double angle = phase_ * M_PI/180;
-    for ( int idx=0; idx<wvltsize_; idx++ )
+    for ( int idx=0; idx<wvltsize; idx++ )
     {
-	const float realval = wvlt_.samples()[idx];
+	const float realval = wvlt.samples()[idx];
 	const float imagval = -rotatewvlt.arr()[idx];
-	wvlt_.samples()[idx] = (float) (realval*cos(angle)-imagval*sin(angle));
+	wvlt.samples()[idx] = (float) (realval*cos(phase)-imagval*sin(phase));
     }
 
     return true;
@@ -420,15 +483,25 @@ bool WaveletExtractor::rotateWavelet()
 
 bool WaveletExtractor::taperWavelet()
 {
-    Array1DImpl<float> taperwvlt( wvltsize_ );
-    for ( int idx=0; idx<wvltsize_; idx++ )
-	taperwvlt.set( idx, wvlt_.samples()[idx] );
+    return taperWavelet( wvlt_, wvltsize_, paramval_ );
+}
 
-    ArrayNDWindow window( taperwvlt.info(), true, "CosTaper", paramval_ );
+
+bool WaveletExtractor::taperWavelet( Wavelet& wvlt,
+				     int wvltsize, float paramval )
+{
+    if ( !wvltsize || wvltsize>wvlt.size() || mIsUdf(paramval) )
+	return false;
+
+    Array1DImpl<float> taperwvlt( wvltsize );
+    for ( int idx=0; idx<wvltsize; idx++ )
+	taperwvlt.set( idx, wvlt.samples()[idx] );
+
+    ArrayNDWindow window( taperwvlt.info(), true, "CosTaper", paramval );
     window.apply( &taperwvlt );
     WaveletAttrib::muteZeroFrequency( taperwvlt );
-    for ( int samp=0; samp<wvltsize_; samp++ )
-	wvlt_.samples()[samp] = taperwvlt.arr()[samp];
+    for ( int samp=0; samp<wvltsize; samp++ )
+	wvlt.samples()[samp] = taperwvlt.arr()[samp];
 
     return true;
 }

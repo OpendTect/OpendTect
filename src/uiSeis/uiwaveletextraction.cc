@@ -326,8 +326,8 @@ bool uiWaveletExtraction::doProcess( const IOObj& seisioobj,
 	const IOObj& wvltioobj, const IOPar& rangepar, const IOPar& surfacepar )
 {
     const int phase = wvltphasefld_->getIntValue();
-    PtrMan<WaveletExtractor> extractor= new WaveletExtractor( seisioobj,
-							      wvltsize_ );
+    PtrMan<WaveletExtractor> extractor = new WaveletExtractor( seisioobj,
+							       wvltsize_ );
     if ( !linesel2dfld_ )
     {
 	if ( !getSelData(rangepar,surfacepar) || !seldata_ )

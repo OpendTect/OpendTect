@@ -18,6 +18,7 @@ namespace Seis { class SelData; }
 class SeisTrc;
 class SeisTrcReader;
 class Wavelet;
+template <class T> class Array1D;
 template <class T> class Array1DImpl;
 
 mExpClass(Seis) WaveletExtractor : public Executor
@@ -55,6 +56,12 @@ protected:
     bool			rotateWavelet();
     bool			taperWavelet();
 
+    static void			normalization(Array1D<float>&,int wvltsz);
+    static bool			doWaveletIFFT(Fourier::CC&,
+					      Wavelet&,int wvltsz);
+    static bool			rotateWavelet(Wavelet&,int wvltsz,double phase);
+    static bool			taperWavelet(Wavelet&,int wvltsz,float taper);
+
     int				nextStep() override;
     od_int64			totalNr() const override { return totalnr_ ; }
     od_int64			nrDone() const override  { return nrdone_; }
@@ -76,4 +83,13 @@ protected:
     bool			isbetweenhor_;
     od_int64			totalnr_;
     uiString			msg_;
+
+public:
+
+    static uiRetVal		processTrace(Array1D<float>&,Fourier::CC&,
+					     int wvltsz,float taperval,
+					     Wavelet&);
+    static bool			finalize(Fourier::CC&,Wavelet&,
+					     int wvltsz,double phase,
+					     float taperval);
 };
