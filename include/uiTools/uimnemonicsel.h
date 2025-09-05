@@ -125,7 +125,11 @@ private:
     void			resetTable();
     void			removeEntries(const TypeSet<int>& rows,
 					      bool forreset=false);
+
+    mDeprecated("Use getCustomMnemEntries instead")
     void			getEntries(ObjectSet<Mnemonic>&) const;
+    bool			getCustomMnemEntries(
+					   ObjectSet<Mnemonic>&) const;
     bool			commitEntries(ObjectSet<Mnemonic>&);
     void			commitNameChanges();
     void			commitColorChanges();
