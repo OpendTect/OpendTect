@@ -18,19 +18,33 @@ ________________________________________________________________________
 #include "uitoolbutton.h"
 #include "settings.h"
 
+#include "hiddenparam.h"
 
 // uiIOObjInserter
 mImplFactory(uiIOObjInserter,uiIOObjInserter::factory);
+
+static HiddenParam<uiIOObjInserter,Notifier<uiIOObjInserter>*>
+						insertfinalized_(nullptr);
 
 uiIOObjInserter::uiIOObjInserter( const Translator& trl )
     : objInserterd(this)
     , transl_(trl)
     , ctxt_(*new IOObjContext(nullptr))
-{}
+{
+    insertfinalized_.setParam( this, new Notifier<uiIOObjInserter>(this) );
+}
 
 
 uiIOObjInserter::~uiIOObjInserter()
-{}
+{
+    insertfinalized_.removeAndDeleteParam( this );
+}
+
+
+Notifier<uiIOObjInserter>& uiIOObjInserter::insertFinalized()
+{
+    return *insertfinalized_.getParam( this );
+}
 
 
 bool uiIOObjInserter::isPresent( const TranslatorGroup& grp )

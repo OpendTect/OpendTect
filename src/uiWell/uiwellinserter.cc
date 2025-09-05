@@ -62,6 +62,7 @@ void uiWellInserter::startRead( CallBacker* cb )
     uiBulkLogImport impdlg( par );
     impdlg.setModal( true );
     impdlg.go();
+    insertFinalized().trigger();
 }
 
 

@@ -60,7 +60,7 @@ public:
     void		setIOObjCtxt(const IOObjContext&);
 
     CNotifier<uiIOObjInserter,const MultiID&> objInserterd;
-
+    Notifier<uiIOObjInserter>&		      insertFinalized();
 protected:
 
     const Translator&	transl_;

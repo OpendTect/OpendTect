@@ -27,5 +27,6 @@ public:
     static void			initClass();
 
 protected:
+
     void			startRead(CallBacker*);
 };
