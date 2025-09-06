@@ -415,7 +415,7 @@ macro( CREATE_DEVELPACKAGE PACKAGE_NAME )
 	      PATTERN "*_autogen*" EXCLUDE )
     endforeach()
 
-    if ( "${PACKAGE_NAME}" STREQUAL "devel" )
+    if ( "${PACKAGE_NAME}" STREQUAL "develbatch" )
 	file( COPY "${COPYFROMDIR}/CMakeLists.txt"
 	      DESTINATION "${COPYTODIR}" )
 	file( COPY "${COPYFROMDIR}/CMakeModules"
