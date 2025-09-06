@@ -13,15 +13,12 @@ ________________________________________________________________________
 #include "attribsel.h"
 #include "ctxtioobj.h"
 #include "ioman.h"
-#include "mousecursor.h"
 #include "od_helpids.h"
 #include "ptrman.h"
 #include "randcolor.h"
 #include "randomlinegeom.h"
 #include "randomlinetr.h"
-#include "strmprov.h"
 #include "survinfo.h"
-#include "trigonometry.h"
 #include "visrgbatexturechannel2rgba.h"
 #include "visselman.h"
 
@@ -43,9 +40,7 @@ ________________________________________________________________________
 #include "uipickpartserv.h"
 #include "uipositiontable.h"
 #include "uiseispartserv.h"
-#include "uiselsimple.h"
 #include "uistrings.h"
-#include "uitreeview.h"
 #include "uivispartserv.h"
 #include "uiwellpartserv.h"
 #include "uiwellrdmlinedlg.h"
@@ -463,13 +458,13 @@ void uiODRandomLineParentTreeItem::loadRandLineFromWell( CallBacker* )
 
 uiODRandomLineTreeItem::uiODRandomLineTreeItem( const VisID& id, Type tp,
 						const RandomLineID& rid )
-    : type_(tp)
-    , rlid_(rid)
-    , editnodesmnuitem_(m3Dots(tr("Position")))
+    : editnodesmnuitem_(m3Dots(tr("Position")))
     , insertnodemnuitem_(tr("Insert Node"))
     , saveasmnuitem_(m3Dots(uiStrings::sSaveAs()))
     , saveas2dmnuitem_(m3Dots(tr("Save as 2D")))
     , create2dgridmnuitem_(m3Dots(tr("Create 2D Grid")))
+    , type_(tp)
+    , rlid_(rid)
 {
     displayid_ = id;
     editnodesmnuitem_.iconfnm = "orientation64";
@@ -572,6 +567,9 @@ bool uiODRandomLineTreeItem::displayData( const Attrib::SelSpec* selspec )
 	children_[0]->select();
 	children_[0]->select(); // hack to update toolbar
     }
+
+    if ( res )
+	applMgr()->useDefColTab( displayid_, 0 );
 
     return res;
 }
