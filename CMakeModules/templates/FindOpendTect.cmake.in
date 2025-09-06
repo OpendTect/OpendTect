@@ -72,8 +72,10 @@ if ( NOT ONLY_SET_VAR )
         include( "${OpendTect_DIR}/Contents/Resources/CMakeModules/OD_SetupOD.cmake" ) 
     endif()
 
-    #Set the linker path to OpendTect's libraries
-    link_directories( "${OD_BINARY_BASEDIR}/${OD_LIBRARY_DIRECTORY}" )
+    if ( DEFINED OD_LIBRARY_DIRECTORY )
+	#Set the linker path to OpendTect's libraries
+	link_directories( "${OD_BINARY_BASEDIR}/${OD_LIBRARY_DIRECTORY}" )
+    endif()
 endif()
 
 if ( CMAKE_CONFIGURATION_TYPES AND NOT CMAKE_DEBUG_POSTFIX )
