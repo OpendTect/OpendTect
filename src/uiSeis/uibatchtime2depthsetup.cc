@@ -32,21 +32,21 @@ uiBatchTime2DepthSetup::uiBatchTime2DepthSetup( uiParent* p, bool is2d )
 		       mODHelpKey(mBatchTime2DepthSetupHelpID)))
 {
     const uiString capt = tr("Time - Depth Conversion %1")
-			.arg( is2d ? uiStrings::s2D() : uiStrings::s3D() );
+			    .arg( is2d ? uiStrings::s2D() : uiStrings::s3D() );
     setCaption( capt );
     setCtrlStyle( RunAndClose );
 
     directionsel_ = new uiGenInput( this, tr("Direction"),
-	BoolInpSpec(true, tr("Time to Depth"), tr("Depth to Time"), true ));
+	       BoolInpSpec(true,tr("Time to Depth"),tr("Depth to Time"),true) );
     mAttachCB( directionsel_->valueChanged,
 	       uiBatchTime2DepthSetup::dirChangeCB );
 
     t2dfld_ = new uiZAxisTransformSel( this, false, ZDomain::sKeyTime(),
-			ZDomain::sKeyDepth(), true, false, is2d );
+				      ZDomain::sKeyDepth(), true, false, is2d );
     t2dfld_->attach( alignedBelow, directionsel_ );
 
     d2tfld_ = new uiZAxisTransformSel( this, false, ZDomain::sKeyDepth(),
-			ZDomain::sKeyTime(), true, false, is2d );
+				       ZDomain::sKeyTime(), true, false, is2d );
     d2tfld_->attach( alignedBelow, directionsel_ );
 
     const Seis::GeomType geom = is2d ? Seis::Line : Seis::Vol;
@@ -155,6 +155,7 @@ bool uiBatchTime2DepthSetup::prepareProcessing()
 	if ( !t2dfld_->isOK() )
 	    return false;
 
+	outputdepthsel_->reset();
 	outioobj = outputdepthsel_->ioobj();
 	if ( !inputtimesel_->ioobj() || !outioobj )
 	    return false;
@@ -170,6 +171,7 @@ bool uiBatchTime2DepthSetup::prepareProcessing()
 	if ( !d2tfld_->isOK() )
 	    return false;
 
+	outputtimesel_->reset();
 	outioobj = outputtimesel_->ioobj();
 	if ( !inputdepthsel_->ioobj() || !outioobj )
 	    return false;
@@ -184,9 +186,8 @@ bool uiBatchTime2DepthSetup::prepareProcessing()
 bool uiBatchTime2DepthSetup::fillPar()
 {
     const bool istime2depth = directionsel_->getBoolValue();
-    RefMan<ZAxisTransform> trans = istime2depth
-				 ? t2dfld_->getSelection()
-				 : d2tfld_->getSelection();
+    RefMan<ZAxisTransform> trans = istime2depth ? t2dfld_->getSelection()
+						: d2tfld_->getSelection();
     if ( !trans )
 	return false;
 
@@ -213,8 +214,8 @@ bool uiBatchTime2DepthSetup::fillPar()
 	possubsel_->fillPar( par );
     else
     {
-	if ( subselfld_ )
-        subselfld_->fillPar( par );
+	if ( subselfld_ && !subselfld_->fillPar(par) )
+	    return false;
     }
 
     ZSampling zrange;
@@ -247,5 +248,5 @@ bool uiBatchTime2DepthSetup::acceptOK( CallBacker* )
     if ( !batchfld_->start() )
 	uiMSG().error( uiStrings::sBatchProgramFailedStart() );
 
-    return  false;
+    return false;
 }

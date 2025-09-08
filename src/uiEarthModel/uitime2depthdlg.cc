@@ -35,7 +35,7 @@ namespace EM
 {
 static HelpKey getHelpKey( ObjectType objtype )
 {
-    HelpKey key =mNoHelpKey;
+    HelpKey key = mNoHelpKey;
     switch( objtype )
     {
 	case ObjectType::Hor3D:
@@ -68,24 +68,31 @@ uiTime2DepthDlg::uiTime2DepthDlg( uiParent* p, ObjectType objtype )
 
     IOObjContext ioobjctxt( nullptr );
     bool is2d = is2DObject();
-    if ( objtype == ObjectType::Hor3D )
-	ioobjctxt = mIOObjContext(EMHorizon3D);
-    else if ( objtype == ObjectType::Hor2D )
-	ioobjctxt = mIOObjContext(EMHorizon2D);
-    else if ( objtype == ObjectType::Flt3D )
-	ioobjctxt = mIOObjContext(EMFault3D);
-    else if ( objtype == ObjectType::FltSet )
-	ioobjctxt = mIOObjContext(EMFaultSet3D);
-    else if ( objtype == ObjectType::FltSS2D )
-	ioobjctxt = mIOObjContext(EMFaultStickSet);
-    else if ( objtype == ObjectType::FltSS3D )
-	ioobjctxt = mIOObjContext(EMFaultStickSet);
-    else
-	return;
+    switch ( objtype )
+    {
+	case ObjectType::Hor3D:
+	    ioobjctxt = mIOObjContext(EMHorizon3D);
+	    break;
+	case ObjectType::Hor2D:
+	    ioobjctxt = mIOObjContext(EMHorizon2D);
+	    break;
+	case ObjectType::Flt3D:
+	    ioobjctxt = mIOObjContext(EMFault3D);
+	    break;
+	case ObjectType::FltSet:
+	    ioobjctxt = mIOObjContext(EMFaultSet3D);
+	    break;
+	case ObjectType::FltSS2D:
+	case ObjectType::FltSS3D:
+	    ioobjctxt = mIOObjContext(EMFaultStickSet);
+	    break;
+	default:
+	    return;
+    }
 
     const bool istime = SI().zIsTime();
     directionsel_ = new uiGenInput( this, tr("Convert from"),
-	BoolInpSpec(true, tr("Time to Depth"), tr("Depth to Time"), true));
+	    BoolInpSpec(true,tr("Time to Depth"),tr("Depth to Time"),true) );
     directionsel_->setChecked( istime );
     mAttachCB( directionsel_->valueChanged, uiTime2DepthDlg::dirChangeCB );
 
@@ -151,36 +158,46 @@ bool uiTime2DepthDlg::is2DObject() const
 }
 
 
-uiRetVal uiTime2DepthDlg::canTransform( ObjectType objtype )
+uiRetVal uiTime2DepthDlg::canTransform(ObjectType objtype)
 {
     uiRetVal ret;
-    if ( objtype == ObjectType::Hor3D || objtype == ObjectType::Hor2D ||
-	objtype == ObjectType::Flt3D || objtype == ObjectType::FltSet ||
-	objtype == ObjectType::FltSS2D || objtype == ObjectType::FltSS3D )
-	return ret;
-    else
-	ret.add( tr("Object type is not yet supported") );
 
-    return ret;
+    switch (objtype)
+    {
+	case ObjectType::Hor3D:
+	case ObjectType::Hor2D:
+	case ObjectType::Flt3D:
+	case ObjectType::FltSet:
+	case ObjectType::FltSS2D:
+	case ObjectType::FltSS3D:
+	    return ret;
+
+	default:
+	    ret.add( tr("Object type is not yet supported") );
+	    return ret;
+    }
 }
 
 
 uiString uiTime2DepthDlg::getDlgTitle( ObjectType objtyp ) const
 {
-    if ( objtyp == ObjectType::Hor3D )
-	return tr("Transform 3D Horizon");
-    else if ( objtyp == ObjectType::Hor2D )
-	return tr("Transform 2D Horizon");
-    else if ( objtyp == ObjectType::Flt3D )
-	return tr("Transform Fault");
-    else if ( objtyp == ObjectType::FltSet )
-	return tr("Tranform FaultSet");
-    else if ( objtyp == ObjectType::FltSS2D )
-	return tr("Tranform FaultStickSet 2D");
-    else if ( objtyp == ObjectType::FltSS3D )
-	return tr("Tranform FaultStickSet 3D");
-
-    return tr("Object Type Not Supported");
+    switch ( objtyp )
+    {
+	case ObjectType::Hor3D:
+	    return uiStrings::phrTransform(uiStrings::s3DHorizon());
+	case ObjectType::Hor2D:
+	    return uiStrings::phrTransform(uiStrings::s2DHorizon());
+	case ObjectType::Flt3D:
+	    return uiStrings::phrTransform(uiStrings::sFault());
+	case ObjectType::FltSet:
+	    return uiStrings::phrTransform(uiStrings::sFaultSet());
+	case ObjectType::FltSS2D:
+	    return uiStrings::phrTransform(uiStrings::sFaultStickSet2D());
+	case ObjectType::FltSS3D:
+	    return uiStrings::phrTransform(uiStrings::sFaultStickSet3D());
+	default:
+	    return tr("Object Type Not Supported");
+    }
 }
 
 
@@ -266,8 +283,8 @@ uiSurfaceWrite* uiTime2DepthDlg::getWorkingOutSurfWrite()
 bool uiTime2DepthDlg::usePar( const IOPar& par )
 {
     const bool is2d = is2DObject();
-    const IOPar* dimpar = par.subselect( is2d ? sKey::TwoD() :
-							    sKey::ThreeD() );
+    const IOPar* dimpar = par.subselect( is2d ? sKey::TwoD()
+					      : sKey::ThreeD() );
     if ( !dimpar )
 	return false;
 
@@ -333,10 +350,17 @@ bool uiTime2DepthDlg::fillPar( IOPar& par ) const
 
 bool uiTime2DepthDlg::hasSurfaceIOData() const
 {
-    return objtype_ == ObjectType::Hor3D || objtype_ == ObjectType::Hor2D
-	    || objtype_ == ObjectType::Flt3D
-	    || objtype_ == ObjectType::FltSS2D
-	    || objtype_ == ObjectType::FltSS3D;
+    switch (objtype_)
+    {
+	case ObjectType::Hor2D:
+	case ObjectType::Hor3D:
+	case ObjectType::Flt3D:
+	case ObjectType::FltSS2D:
+	case ObjectType::FltSS3D:
+	    return true;
+	default:
+	    return false;
+	}
 }
 
 
@@ -350,6 +374,7 @@ bool uiTime2DepthDlg::acceptOK( CallBacker* )
 
     const uiSurfaceRead* inpsel = getWorkingInpSurfRead();
     const IOObj* inpioobj = inpsel->selIOObj();
+    outfld->getObjSel()->reset();
     const IOObj* outioobj = outfld->selIOObj();
     if ( !inpioobj || !outioobj )
 	mErrRet( uiStrings::phrCannotFindObjInDB() );

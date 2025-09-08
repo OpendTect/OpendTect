@@ -301,6 +301,7 @@ bool acceptOK( CallBacker* ) override
 
     if ( mid_.isUdf() )
     {
+	savefld_->reset();
 	const IOObj* outobj = savefld_->ioobj();
 	if ( !outobj )
 	    return false;
@@ -332,8 +333,7 @@ uiSimpleTimeDepthTransform::uiSimpleTimeDepthTransform( uiParent* p, bool t2d )
     mAttachCB( selfld_->selectionDone,
 	       uiSimpleTimeDepthTransform::setZRangeCB );
 
-    auto* editcreatebut = new uiPushButton( this,
-			tr("Create/Edit"), false );
+    auto* editcreatebut = new uiPushButton( this, tr("Create/Edit"), false );
     editcreatebut->attach( rightOf, selfld_ );
     auto* mnu = new uiMenu;
     mnu->insertAction( new uiAction(uiStrings::sCreate(),
