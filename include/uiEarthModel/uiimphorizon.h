@@ -105,7 +105,7 @@ public:
 protected:
 
     uiFileInput*		inpfld_;
-    Coords::uiCoordSystemSel*	crsfld_;
+    Coords::uiCoordSystemSel*	crsfld_		    = nullptr;
     uiUnitSel*			unitfld_;
     uiIOObjSel*			outputfld_;
 

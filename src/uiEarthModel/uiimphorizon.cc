@@ -85,8 +85,7 @@ uiImportHorizon::uiImportHorizon( uiParent* p, bool isgeom )
     attrlistfld_->setNrLines( 5 );
     mAttachCB( attrlistfld_->itemChosen, uiImportHorizon::inputChgd );
 
-    uiButtonGroup* butgrp =
-		new uiButtonGroup( attrlistfld_, "Buttons", OD::Vertical );
+    auto* butgrp = new uiButtonGroup( attrlistfld_, "Buttons", OD::Vertical );
     butgrp->attach( rightTo, attrlistfld_->box() );
     new uiToolButton( butgrp, "addnew", tr("Add new"),
 				mCB(this,uiImportHorizon,addAttribCB) );
@@ -95,7 +94,7 @@ uiImportHorizon::uiImportHorizon( uiParent* p, bool isgeom )
     new uiToolButton( butgrp, "clear", tr("Clear list"),
 				mCB(this,uiImportHorizon,clearListCB) );
 
-    uiSeparator* sep = new uiSeparator( this, "H sep" );
+    auto* sep = new uiSeparator( this, "H sep" );
     sep->attach( stretchedBelow, attrlistfld_ );
 
     dataselfld_ = new uiTableImpDataSel( this, fd_,
@@ -197,8 +196,8 @@ void uiImportHorizon::interpolSettingsCB( CallBacker* )
     uiSingleGroupDlg dlg( this, uiDialog::Setup(tr("Interpolation settings"),
 			  uiStrings::sEmptyString(),mNoHelpKey ) );
 
-    uiArray2DInterpolSel* arr2dinterpfld =
-	new uiArray2DInterpolSel( &dlg, true, true, false, interpol_ );
+    auto* arr2dinterpfld = new uiArray2DInterpolSel(
+					   &dlg, true, true, false, interpol_ );
     arr2dinterpfld->setDistanceUnit( SI().xyInFeet() ? tr("[ft]") : tr("[m]") );
     dlg.setGroup( arr2dinterpfld );
 
@@ -272,7 +271,8 @@ void uiImportHorizon::rmAttribCB( CallBacker* )
 
     attrlistfld_->removeItem( selidx );
     selidx--;
-    if ( selidx < 0 ) selidx = 0;
+    if ( selidx < 0 )
+	selidx = 0;
     attrlistfld_->setChosen( selidx );
 
     if ( updatedef )
@@ -293,7 +293,10 @@ void uiImportHorizon::clearListCB( CallBacker* )
 void uiImportHorizon::scanPush( CallBacker* )
 {
     if ( !isgeom_ && !attrlistfld_->nrChosen() )
-	{ uiMSG().error(tr("Please select at least one attribute")); return; }
+    {
+	uiMSG().error(tr("Please select at least one attribute"));
+	return;
+    }
     if ( !dataselfld_->commit() || !doScan() )
 	return;
 
@@ -322,8 +325,8 @@ void uiImportHorizon::scanPush( CallBacker* )
 
 uiString uiImportHorizon::goOnMsg()
 {
-    uiString msg(tr("The horizon is not compatible with survey "
-		      "trace, do you want to continue?"));
+    const uiString msg(tr("The horizon is not compatible with survey "
+			  "trace, do you want to continue?"));
     return msg;
 }
 
@@ -443,7 +446,9 @@ MultiID uiImportHorizon::getSelID() const
 
 void uiImportHorizon::stratLvlChg( CallBacker* )
 {
-    if ( !stratlvlfld_ ) return;
+    if ( !stratlvlfld_ )
+	return;
+
     const OD::Color col( stratlvlfld_->getColor() );
     if ( col != OD::Color::NoColor() )
 	colbut_->setColor( col );
@@ -473,8 +478,8 @@ bool uiImportHorizon::doImport()
 
     if ( scanner_->nrPositions() == 0 )
     {
-	uiString msg( tr("No valid positions found\n"
-		      "Please re-examine input file and format definition") );
+	const uiString msg( tr("No valid positions found\n"
+			"Please re-examine input file and format definition") );
 	mErrRet( msg );
     }
 
@@ -492,7 +497,7 @@ bool uiImportHorizon::doImport()
 	fillUdfs( sections );
     }
 
-    TrcKeySampling hs = subselfld_->envelope().hsamp_;
+    const TrcKeySampling hs = subselfld_->envelope().hsamp_;
     if ( hs.lineRange().step_==0 || hs.trcRange().step_==0 )
 	mErrRet( tr("Cannot have '0' as a step value") )
 
@@ -545,28 +550,29 @@ bool uiImportHorizon::acceptOK( CallBacker* )
 
     if ( isgeom_ )
     {
+	outputfld_->reset();
 	const IOObj* ioobj = outputfld_->ioobj();
-	if ( ioobj )
-	{
-	    EM::EMManager& em = EM::EMM();
-	    EM::ObjectID objid = em.getObjectID( ioobj->key() );
-	    mDynamicCastGet(EM::Horizon3D*,horizon,em.getObject(objid))
-	    const ZDomain::Info& info = horizon ? horizon->zDomain() :
-								zDomain();
-	    info.fillPar( ioobj->pars() );
-	    ioobj->pars().update( sKey::CrFrom(), inpfld_->fileName() );
-	    ioobj->updateCreationPars();
-	    IOM().commitChanges( *ioobj );
-	}
+	if ( !ioobj )
+	    return false;
+
+	EM::EMManager& em = EM::EMM();
+	EM::ObjectID objid = em.getObjectID( ioobj->key() );
+	mDynamicCastGet(EM::Horizon3D*,horizon,em.getObject(objid))
+	const ZDomain::Info& info = horizon ? horizon->zDomain()
+					    : zDomain();
+	info.fillPar( ioobj->pars() );
+	ioobj->pars().update( sKey::CrFrom(), inpfld_->fileName() );
+	ioobj->updateCreationPars();
+	IOM().commitChanges( *ioobj );
     }
 
     if ( saveButtonChecked() )
 	importReady.trigger();
 
-    uiString msg = tr("3D Horizon successfully imported."
-		      "\n\nDo you want to import more 3D Horizons?");
-    bool ret = uiMSG().askGoOn( msg, uiStrings::sYes(),
-				tr("No, close window") );
+    const uiString msg = tr("3D Horizon successfully imported."
+			    "\n\nDo you want to import more 3D Horizons?");
+    const bool ret = uiMSG().askGoOn( msg, uiStrings::sYes(),
+					   tr("No, close window") );
     return !ret;
 }
 
@@ -582,8 +588,8 @@ bool uiImportHorizon::getFileNames( BufferStringSet& filenames ) const
 	const char* fnm = filenames[idx]->buf();
 	if ( !File::exists(fnm) )
 	{
-	    uiString errmsg = tr("Cannot find input file:\n%1")
-			    .arg(fnm);
+	    const uiString errmsg = tr("Cannot find input file:\n%1")
+					.arg(fnm);
 	    filenames.setEmpty();
 	    mErrRet( errmsg );
 	}
@@ -635,6 +641,7 @@ bool uiImportHorizon::fillUdfs( ObjectSet<BinIDValueSet>& sections )
 {
     if ( !interpol_ )
 	return false;
+
     TrcKeySampling hs = subselfld_->envelope().hsamp_;
 
     const float inldist = SI().inlDistance();
@@ -743,7 +750,6 @@ uiImpHorFromZMap::uiImpHorFromZMap( uiParent* p )
     : uiDialog(p,Setup(tr("Import Horizon from ZMap"),mODHelpKey(mFromZMap))
 		    .modal(false))
     , importReady(this)
-    , crsfld_(nullptr)
 {
     setOkCancelText( uiStrings::sImport(), uiStrings::sClose() );
     enableSaveButton( tr("Display after import") );
@@ -839,6 +845,7 @@ bool uiImpHorFromZMap::acceptOK( CallBacker* )
     EM::ZMapImporter importer( horfnm );
     if ( crsfld_ )
 	importer.setCoordSystem( crsfld_->getCoordSystem().ptr() );
+
     importer.setUOM( zuom );
     if ( !uitr.execute(importer) )
     {
@@ -857,6 +864,11 @@ bool uiImpHorFromZMap::acceptOK( CallBacker* )
 	return false;
     }
 
+    outputfld_->reset();
+    const IOObj* ioobj = outputfld_->ioobj();
+    if ( !ioobj )
+	return false;
+
     RefMan<EM::Horizon3D> hor3d = createHor();
     hor3d->setArray2D( conv.getOutput(), tks.start_, tks.step_, false );
     PtrMan<Executor> saver = hor3d->saver();
@@ -866,13 +878,9 @@ bool uiImpHorFromZMap::acceptOK( CallBacker* )
 	return false;
     }
 
-    const IOObj* ioobj = outputfld_->ioobj();
-    if ( ioobj )
-    {
-	ioobj->pars().update( sKey::CrFrom(), inpfld_->fileName() );
-	ioobj->updateCreationPars();
-	IOM().commitChanges( *ioobj );
-    }
+    ioobj->pars().update( sKey::CrFrom(), inpfld_->fileName() );
+    ioobj->updateCreationPars();
+    IOM().commitChanges( *ioobj );
 
     if ( saveButtonChecked() )
     {
@@ -880,9 +888,9 @@ bool uiImpHorFromZMap::acceptOK( CallBacker* )
 	importReady.trigger();
     }
 
-    uiString msg = tr("ZMap grid successfully imported."
-		      "\n\nDo you want to import more grids?");
-    bool ret = uiMSG().askGoOn( msg, uiStrings::sYes(),
-				tr("No, close window") );
+    const uiString msg = tr("ZMap grid successfully imported."
+			    "\n\nDo you want to import more grids?");
+    const bool ret = uiMSG().askGoOn( msg, uiStrings::sYes(),
+					   tr("No, close window") );
     return !ret;
 }

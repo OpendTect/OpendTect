@@ -72,6 +72,7 @@ bool ZMapImporter::initHeader()
     SeparString ss( linestr, ',' );
     if ( ss.size() != 3 )
 	return false;
+
     nrnodesperline_ = toInt( ss[2] );
 
 //header line 2
@@ -79,6 +80,7 @@ bool ZMapImporter::initHeader()
     ss = linestr.buf();
     if ( ss.size() != 5 )
 	return false;
+
     nrchars_ = toInt( ss[0] );
     undefval_ = toFloat( ss[1] );
     undeftxt_ = ss[2];
@@ -90,6 +92,7 @@ bool ZMapImporter::initHeader()
     ss = linestr.buf();
     if ( ss.size() != 6 )
 	return false;
+
     nrrows_ = toInt( ss[0] );
     nrcols_ = toInt( ss[1] );
     xmin_ = toDouble( ss[2] );
