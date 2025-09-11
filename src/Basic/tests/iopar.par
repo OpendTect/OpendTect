@@ -101,9 +101,9 @@ Vis.Scene0.Child1.Attrib 1.Version.0.Is 2D: No
 Vis.Scene0.Child1.Attrib 1.Sequence.Name: OD Seismic 1
 Vis.Scene0.Child1.Attrib 1.Mapper.Type: Auto
 Vis.Scene0.Child1.Attrib 1.Mapper.Clip Rate: 0.005`0.005
-Vis.Scene0.Child1.Attrib 1.Mapper.Sym Mid Value: 1e30
+Vis.Scene0.Child1.Attrib 1.Mapper.Sym Mid Value: 1e+30
 Vis.Scene0.Child1.Attrib 1.Mapper.Auto Sym: Yes
-Vis.Scene0.Child1.Attrib 1.Mapper.Range: 0.8231823`1.1131755
+Vis.Scene0.Child1.Attrib 1.Mapper.Range: 0.823182`1.11318
 Vis.Scene0.Child1.Attrib 1.Mapper.Flip seq: No
 Vis.Scene0.Child1.Attrib 1.Trans: 0
 Vis.Scene0.Child1.Attrib 1.Is on: Yes
@@ -154,7 +154,7 @@ Vis.Scene0.Child1.Last Cross-line: 1250
 Vis.Scene0.Child1.Step In-line: 1
 Vis.Scene0.Child1.Step Cross-line: 1
 Vis.Scene0.Child1.Survey ID: -1
-Vis.Scene0.Child1.Z range: 2.5703e-8`1.848`0.004
+Vis.Scene0.Child1.Z range: 0`1.848`0.004
 Vis.Scene0.Child2.ID: 38
 Vis.Scene0.Child2.Type: PlaneDataDisplay
 Vis.Scene0.Child2.Survey: F3 Demo 2020
@@ -169,7 +169,7 @@ Vis.Scene0.Child2.Attrib 1.Version.0.Is 2D: No
 Vis.Scene0.Child2.Attrib 1.Sequence.Name: Chimney
 Vis.Scene0.Child2.Attrib 1.Mapper.Type: Fixed
 Vis.Scene0.Child2.Attrib 1.Mapper.Clip Rate: 0.01`0.01
-Vis.Scene0.Child2.Attrib 1.Mapper.Sym Mid Value: 1e30
+Vis.Scene0.Child2.Attrib 1.Mapper.Sym Mid Value: 1e+30
 Vis.Scene0.Child2.Attrib 1.Mapper.Auto Sym: Yes
 Vis.Scene0.Child2.Attrib 1.Mapper.Range: 9000`12000
 Vis.Scene0.Child2.Attrib 1.Mapper.Flip seq: No
@@ -222,16 +222,16 @@ Vis.Scene0.Child2.Last Cross-line: 1250
 Vis.Scene0.Child2.Step In-line: 1
 Vis.Scene0.Child2.Step Cross-line: 1
 Vis.Scene0.Child2.Survey ID: -1
-Vis.Scene0.Child2.Z range: 2.5703e-8`1.848`0.004
+Vis.Scene0.Child2.Z range: 0`1.848`0.004
 Vis.Scene0.Number of Child: 3
 Scene.0.Scene ID: 9
 Scene.0.Background color: 8421504
 Scene.0.Stereo viewing: None
 Scene.0.Stereo offset: 0
 Scene.0.Perspective camera: Yes
-Scene.0.Camera Rotation: 0.707106781186547`0`0`0.707106781186547
-Scene.0.Manipulator Center: 11643.5126953125`8453.3935546875`-0.000244140625
-Scene.0.Manipulator Distance: 43787.622426003537839
+Scene.0.Camera Rotation: 0.707107`0`0`0.707107
+Scene.0.Manipulator Center: 11643.5`8453.39`-0.000244141
+Scene.0.Manipulator Distance: 43787.6224260035
 2D.Attribs.0.Definition: Storage id=100010.118 output=0
 2D.Attribs.0.UserRef: Seis
 2D.Attribs.0.Hidden: No

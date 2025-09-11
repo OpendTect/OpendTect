@@ -12,33 +12,22 @@ ________________________________________________________________________
 #include "file.h"
 #include "filepath.h"
 #include "iopar.h"
+#include "keystrs.h"
 #include "odjson.h"
 #include "timefun.h"
 
 
-int mTestMainFnName( int argc, char** argv )
+static bool testReadPar( const char* fnm, IOPar& inpar )
 {
-    mInitTestProg();
-
-    FilePath fp( __FILE__ );
-    fp.setExtension( "par" );
-    if ( !File::exists(fp.fullPath()) )
-    {
-	errStream() << "Input file not found\n";
-	return 1;
-    }
-
-    IOPar inpar;
-    inpar.read( fp.fullPath(), "Parameters" );
+    inpar.read( fnm, sKey::Pars() );
     mRunStandardTest( inpar.size()==285, "Read IOPar from file" );
 
-    OD::JSON::Object jsonobj;
-    inpar.fillJSON( jsonobj, false );
+    return true;
+}
 
-    IOPar outpar( inpar.name() );
-    outpar.useJSON( jsonobj );
-    mRunStandardTest( outpar.isEqual(inpar), "Retrieve IOPar from JSON" );
 
+static bool testIOParClass( const IOPar& inpar )
+{
     IOPar testpar;
     testpar.add( "Key1", "Value1" );
     testpar.add( "Key2", "Value2" );
@@ -58,6 +47,60 @@ int mTestMainFnName( int argc, char** argv )
     mRunStandardTest( ((strvw1.buf() != strvw2.buf()) ||
 	(strvw1.buf() != strvw2.buf()) || (strvw1.buf() != strvw2.buf())),
 	"Retrieved string do not point to same location" );
+
+    return true;
+}
+
+
+static bool testUseJSON( const IOPar& inpar )
+{
+    OD::JSON::Object jsonobj;
+    inpar.fillJSON( jsonobj, false );
+
+    IOPar outpar( inpar.name() );
+    outpar.useJSON( jsonobj );
+    mRunStandardTest( outpar.size() == inpar.size(),
+		      "Retrieve IOPar from JSON (size only)" );
+    IOParIterator iter( inpar );
+    BufferString key, val;
+    while( iter.next(key,val) )
+    {
+	if ( !outpar.isPresent(key.buf()) )
+	    mRunStandardTestWithError( false, "IOPar from JSON (Key presence)",
+			BufferString("Key: '",key.buf(),"' is missing") );
+	const BufferString newval = outpar.find( key.buf() );
+	if ( newval != val )
+	{
+	    BufferString errmsg( "Expected: '", val, "'; Found: '" );
+	    errmsg.add( newval ).add( "'" );
+	    mRunStandardTestWithError( false, "IOPar from JSON (Value check)",
+				       errmsg );
+	}
+    }
+
+    mRunStandardTest( outpar.isEqual(inpar), "Retrieve IOPar from JSON" );
+
+    return true;
+}
+
+
+int mTestMainFnName( int argc, char** argv )
+{
+    mInitTestProg();
+
+    FilePath fp( __FILE__ );
+    fp.setExtension( "par" );
+    if ( !File::exists(fp.fullPath()) )
+    {
+	errStream() << "Input file not found" << od_endl;
+	return 1;
+    }
+
+    IOPar inpar;
+    if ( !testReadPar(fp.fullPath(),inpar) ||
+	 !testIOParClass(inpar) ||
+	 !testUseJSON(inpar) )
+	return 1;
 
     return 0;
 }
