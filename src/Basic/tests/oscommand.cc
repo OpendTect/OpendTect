@@ -10,13 +10,11 @@ ________________________________________________________________________
 #include "applicationdata.h"
 #include "envvars.h"
 #include "filepath.h"
-#include "oddirs.h"
 #include "od_iostream.h"
+#include "oddirs.h"
 #include "oscommand.h"
 #include "testprog.h"
 #include "timer.h"
-
-#include <iostream>
 
 #define mWrongReply "What!"
 #define mGoodReply "Yo!"
@@ -42,22 +40,44 @@ public:
         CallBack::removeFromThreadCalls( this );
     }
 
+    void doStop( bool iserr )
+    {
+	retval_ = iserr ? 1 : 0;
+	CallBack::addToMainThread( mCB(this,TestClass,closeTesterCB) );
+    }
+
     void timerTick( CallBacker* )
     {
+	mDetachCB( timer_.tick, TestClass::timerTick );
+	bool res = false;
         if ( clParser().hasKey("testpipes") )
         {
-            retval_ = testServer() ? 0 : 1;
+	    res = testServer();
 	}
 	else
 	{
-	    retval_ = testCmds() &&
-		      testAllPipes() &&
-		      runCommandWithSpace() &&
-		      runCommandWithLongOutput()
-		      ? 0 : 1;
+	    res = testCmds() &&
+		  testAllPipes() &&
+		  runCommandWithSpace() &&
+		  runCommandWithLongOutput();
+	    if ( res )
+	    {
+		isblocking_ = false;
+		testAllPipes();
+		mAttachCB( timer_.tick, TestClass::timeoutCB );
+		timer_.start( 10000, true );
+		return;
+	    }
         }
 
-        CallBack::addToMainThread( mCB(this,TestClass,closeTesterCB) );
+	doStop( !res );
+    }
+
+    void timeoutCB( CallBacker* )
+    {
+	mDetachCB( timer_.tick, TestClass::timeoutCB );
+	errStream() << "Timeout for process running in background" << od_endl;
+	doStop( true );
     }
 
     void closeTesterCB( CallBacker* )
@@ -67,67 +87,215 @@ public:
 
 static bool testCmds()
 {
-#ifdef __win__
-    //TODO
-#else
-
-    OS::MachineCommand machcomm( "ls", "-l" );
-    if ( quiet_ )
-	machcomm.addFileRedirect( "/dev/null" );
+    OS::MachineCommand machcomm;
+    OS::CommandExecPars execpars( OS::Wait4Finish );
+    if ( __iswin__ )
+    {
+	machcomm.setProgram( "cmd " ).addArg( "/c" ).addArg( "dir" );
+    }
     else
-	machcomm.addPipe().addArg( "head" ).addArg( "-10" );
+	machcomm.setProgram( "ls" ).addFlag( "l", OS::OldStyle );
 
-    mRunStandardTest( machcomm.execute(OS::Wait4Finish),
-		      "OS::MachineCommand::execute wait4finish" );
-    OS::CommandExecPars execpars( OS::RunInBG );
-    execpars.createstreams( true );
-    mRunStandardTest( machcomm.execute(execpars),
-		     "OS::MachineCommand::execute not wait4finish" );
-#endif
+    mRunStandardTestWithError( machcomm.execute(execpars),
+		      "OS::MachineCommand::execute wait4finish",
+		       toString(machcomm.errorMsg()) );
+
+    execpars.launchtype( OS::RunInBG ).txtbufstdout( true );
+    mRunStandardTestWithError( machcomm.execute(execpars),
+		     "OS::MachineCommand::execute not wait4finish",
+		     toString(machcomm.errorMsg()) );
+
+    if ( !__iswin__ )
+    {
+	OS::MachineCommand headmc( "head", "-10" );
+	machcomm.addPipedCommand( headmc );
+    }
+
+    BufferString stdoutstr;
+    mRunStandardTestWithError( machcomm.execute(stdoutstr),
+			"OS::MachineCommand::execute read stdout",
+			toString(machcomm.errorMsg()) );
+    BufferStringSet alllines;
+    alllines.unCat( stdoutstr.buf() );
+    mRunStandardTestWithError( __iswin__ ? alllines.size() > 20
+					 : alllines.size() == 10,
+			     "OS::MachineCommand::execute stdout size",
+			     toString(machcomm.errorMsg()) );
 
     return true;
 }
 
 
-static bool testAllPipes()
+void startedCB( CallBacker* cb )
+{
+    tstStream() << "Process has started" << od_endl;
+    if ( isblocking_ )
+	return;
+
+    mDynamicCastGet( OS::CommandLauncher*, cl, cb );
+    if ( !cb )
+    {
+	doStop( true );
+	return;
+    }
+
+    RefMan<OD::Process> process = cl->process();
+    if ( !process )
+    {
+	doStop( true );
+	return;
+    }
+
+    mAttachCB( process->readyReadStandardOutput,
+	       TestClass::readStandardOutputCB );
+    mAttachCB( process->readyReadStandardError,
+	       TestClass::readStandardErrorCB );
+}
+
+
+void stateChangedCB( CallBacker* cb )
+{
+    if ( !cb || !cb->isCapsule() )
+	return;
+
+    mCBCapsuleUnpack( OD::Process::State, state, cb );
+    tstStream() << "Process current state: "
+		<< OD::Process::toString( state ) << od_endl;
+}
+
+
+void errorOccurredCB( CallBacker* cb )
+{
+    if ( !cb || !cb->isCapsule() )
+	return;
+
+    mCBCapsuleUnpack( OD::Process::Error, error, cb );
+    errStream() << "Process error: "
+		<< OD::Process::toString( error ) << od_endl;
+    doStop( true );
+}
+
+
+using procresobj = std::pair<int,OD::Process::ExitStatus>;
+
+void procFinishedCB( CallBacker* cb )
+{
+    if ( !cb || !cb->isCapsule() )
+	return;
+
+    mCBCapsuleUnpack( procresobj, exitcaps, cb );
+    tstStream() << "Process finished with exit code '" << exitcaps.first
+		<< "' and exit status: "
+		<< OD::Process::toString(exitcaps.second) << od_endl;
+}
+
+
+void readStandardOutputCB( CallBacker* cb )
+{
+    mDynamicCastGet(OD::Process*,process,cb)
+    if ( !cb )
+	return;
+
+    if ( !testRetStdout(*process) )
+	doStop( true );
+    else if ( stdoutret_ && stderrret_ )
+	doStop( false );
+}
+
+
+void readStandardErrorCB( CallBacker* cb )
+{
+    mDynamicCastGet(OD::Process*,process,cb)
+	if ( !cb )
+	    return;
+
+    if ( !testRetStderr(*process) )
+	doStop( true );
+    else if ( stdoutret_ && stderrret_ )
+	doStop( false );
+}
+
+
+bool testRetStdout( OD::Process& process )
+{
+    BufferString stdoutstr;
+    bool newlinefound = false;
+    mRunStandardTestWithError( process.getLine( stdoutstr, true, &newlinefound )
+			       && stdoutstr==mGoodReply, "Standard output",
+	BufferString("Received message: ").add( stdoutstr.buf() ) );
+
+    stdoutret_ = true;
+    return true;
+}
+
+
+bool testRetStderr( OD::Process& process )
+{
+    BufferString stderrstr;
+    bool newlinefound = false;
+    mRunStandardTestWithError( process.getLine( stderrstr, false, &newlinefound)
+			       && stderrstr==mWrongReply, "Error output",
+	BufferString( "Received message: ").add( stderrstr.buf() ) );
+
+    stderrret_ = true;
+    return true;
+}
+
+
+bool testAllPipes()
 {
     OS::MachineCommand mc( GetFullExecutablePath() );
     mc.addFlag( "testpipes" );
     OS::CommandLauncher cl( mc );
-    OS::CommandExecPars cp( OS::RunInBG );
-    cp.createstreams( true );
+    mAttachCB( cl.started, TestClass::startedCB );
+    mAttachCB( cl.stateChanged, TestClass::stateChangedCB );
+    mAttachCB( cl.errorOccurred, TestClass::errorOccurredCB );
+    mAttachCB( cl.finished, TestClass::procFinishedCB );
 
-    mRunStandardTest( cl.execute(cp), "Launching triple pipes" );
+    OS::CommandExecPars clpars( OS::RunInBG );
+    clpars.txtbufstdout( true ).txtbufstderr( true );
+
+    mRunStandardTestWithError( cl.execute(clpars), "Launching triple pipes",
+			       toString(cl.errorMsg()) );
+    RefMan<OD::Process> proc = cl.process();
+    mRunStandardTest( proc, "Has process object" );
     mRunStandardTest( cl.processID(), "Launched process has valid PID" );
+    mRunStandardTest( proc->isRunning(), "Process is running" );
+    mRunStandardTest( cl.hasStdInput(), "Has stdin stream" );
+    mRunStandardTest( cl.hasStdOutput(), "Has stdout stream" );
+    mRunStandardTest( cl.hasStdError(), "Has stderr stream" );
 
-    *cl.getStdInput() << mGoodMessage << " ";
-    cl.getStdInput()->flush();
+    const BufferString msg( mGoodMessage, " " );
+    cl.write( msg.str() );
+    if ( !isblocking_ )
+	return true;
 
-    BufferString stdoutput;
-    for ( int idx=0; idx<10; idx++ )
+    mRunStandardTest( proc->waitForBytesWritten(), "Bytes sent to process" );
+    while( true )
     {
-	Threads::sleep( 0.5 );
-	cl.getStdOutput()->getWord( stdoutput );
-	if ( !stdoutput.isEmpty() )
+	if ( !proc->waitForReadRead(100) &&
+	     proc->state() == OD::Process::State::NotRunning )
 	    break;
 
-        if ( cl.getStdOutput()->stdStream().bad() )
-            break;
+	BufferString stdoutstr, stderrstr;
+	if ( proc->getLine(stdoutstr,true) && !stdoutstr.isEmpty() )
+	{
+	    mRunStandardTestWithError( stdoutstr==mGoodReply,
+				       "Standard output",
+		BufferString("Received message: ").add( stdoutstr.buf() ) );
+	}
 
-        if ( cl.getStdOutput()->stdStream().eof() )
-        {
-            cl.getStdOutput()->stdStream().clear();
-        }
-
+	if ( proc->getLine(stderrstr,false) && !stderrstr.isEmpty() )
+	{
+	    mRunStandardTestWithError( stderrstr==mWrongReply,
+				       "Standard error",
+		BufferString("Received message: ").add( stderrstr.buf() ) );
+	}
     }
 
-    mRunStandardTestWithError( stdoutput==mGoodReply, "Standard output",
-	    BufferString("Received message: ").add( stdoutput.buf() ) );
-
-    BufferString erroutput;
-    cl.getStdError()->getWord( erroutput );
-    mRunStandardTestWithError( erroutput==mWrongReply, "Error output",
-	    BufferString( "Received message: ").add( erroutput.buf() ) );
+    mRunStandardTest( cl.exitCode() == 0, "Process exit code" );
+    mRunStandardTest( cl.exitStatus() == OD::Process::ExitStatus::NormalExit,
+		      "Process exit status" );
 
     return true;
 }
@@ -136,14 +304,14 @@ static bool testAllPipes()
 static bool runCommandWithSpace()
 {
     FilePath scriptfp( GetScriptDir(), "script with space");
-#ifdef __win__
-    scriptfp.setExtension( "cmd" );
-#else
-    scriptfp.setExtension( "sh" );
-#endif
+    if ( __iswin__ )
+	scriptfp.setExtension( "cmd" );
+    else
+	scriptfp.setExtension( "sh" );
 
     OS::MachineCommand machcomm( scriptfp.fullPath() );
-    mRunStandardTest( machcomm.execute(), "Command with space" );
+    mRunStandardTestWithError( machcomm.execute(), "Command with space",
+			       toString(machcomm.errorMsg()) );
 
     return true;
 }
@@ -151,20 +319,22 @@ static bool runCommandWithSpace()
 
 static bool runCommandWithLongOutput()
 {
-#ifdef __win__
-    return true;
-#else
     //Run a command that will cause overflow in the input buffer. Output
     //Should be 100% correct, meaning that no bytes have been skipped or
     //inserted.
-    //
-    const FilePath scriptfp( GetScriptDir(), "count_to_1000.csh" );
-    BufferString output, errmsg;
+
+    FilePath scriptfp( GetScriptDir(), "count_to_1000" );
+    if ( __iswin__ )
+	scriptfp.setExtension( "cmd" );
+    else
+	scriptfp.setExtension( "csh" );
+
+    BufferString output;
     OS::MachineCommand machcomm( scriptfp.fullPath() );
-    mRunStandardTestWithError( machcomm.execute(output,&errmsg),
-		"Executing count_to_1000.csh script", errmsg );
-    mRunStandardTest( output.size() == 3892,
-		      "Output has expected size" );
+    mRunStandardTestWithError( machcomm.execute(output),
+			"Executing count_to_1000 script",
+			toString(machcomm.errorMsg()) );
+    mRunStandardTest( output.size() == 3892, "Output has expected size" );
 
     BufferStringSet parsedoutput;
     parsedoutput.unCat( output.buf() );
@@ -180,14 +350,11 @@ static bool runCommandWithLongOutput()
 
     mRunStandardTest( res, "Correctly reading long input stream" );
     return true;
-#endif
 }
 
 
 static bool testServer()
 {
-    Threads::sleep( 0.5 );
-
     od_istream& in = od_cin();
 
     BufferString input;
@@ -207,6 +374,9 @@ static bool testServer()
 }
 
 Timer   timer_;
+bool	isblocking_ = true;
+bool	stdoutret_ = false;
+bool	stderrret_ = false;
 int     retval_ = -1;
 
 };

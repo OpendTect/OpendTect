@@ -87,16 +87,17 @@ set( OD_MODULE_SOURCES
 	namedobj.cc
 	objdisposer.cc
 	od_iostream.cc
+	oscommand.cc
 	odcommonenums.cc
 	oddirs.cc
 	odimage.cc
 	odinst.cc
 	odjson.cc
 	odmemory.cc
+	odprocess.cc
 	odstring.cc
 	oduuid.cc
 	odver.cc
-	oscommand.cc
 	plugins.cc
 	posinfo.cc
 	posinfo2d.cc

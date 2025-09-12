@@ -11,11 +11,12 @@ ________________________________________________________________________
 #include "basicmod.h"
 
 #include "bufstringset.h"
+#include "odprocess.h"
 #include "od_iosfwd.h"
+#include "ptrman.h"
 #include "uistring.h"
 
-mFDQtclass(QProcess);
-class qstreambuf;
+mFDQtclass(QTextStream);
 class StreamProvider;
 
 namespace OS
@@ -33,37 +34,44 @@ inline bool isOldStyle( OS::KeyStyle ks ) { return ks == OS::OldStyle; }
 mExpClass(Basic) CommandExecPars
 {
 public:
-			CommandExecPars( LaunchType lt=Wait4Finish )
-			    : launchtype_(lt)
-			    , createstreams_(false)
-			    , needmonitor_(false)
-			    , prioritylevel_(lt>=Batch ? -1.0f : 0.0f)
-			    , isconsoleuiprog_(false)
-			    , runasadmin_(false)     {}
+			CommandExecPars(LaunchType lt=Wait4Finish);
+			~CommandExecPars();
 
     mDeprecated		("Use CommandExecPars(LaunchType) instead")
     explicit		CommandExecPars(bool isbatchprog);
 
     mDefSetupClssMemb(CommandExecPars,LaunchType,launchtype);
-    mDefSetupClssMemb(CommandExecPars,bool,createstreams);
-    mDefSetupClssMemb(CommandExecPars,bool,needmonitor);
+    CommandExecPars&	createstreams(bool);
+    mDefSetupClssMembInit(CommandExecPars,bool,needmonitor,false);
     mDefSetupClssMemb(CommandExecPars,BufferString,monitorfnm);
 			    //!< when empty, will be generated (if needed)
-    mDefSetupClssMemb(CommandExecPars,BufferString,stdoutfnm);
-    mDefSetupClssMemb(CommandExecPars,BufferString,stderrfnm);
+    mDefSetupClssMembInit(CommandExecPars,OD::Process::ChannelMode,channelmode,
+			  OD::Process::ChannelMode::SeparateChannels);
+    mDefSetupClssMembInit(CommandExecPars,OD::Process::InputChannelMode,
+			  inputchmode,
+			  OD::Process::InputChannelMode::ManagedInputChannel);
+    CommandExecPars&	consolestdout(bool);
+			    //!< The QProcess stdout is redirected to stdout
+    CommandExecPars&	consolestderr(bool);
+			    //!< The QProcess stderr is redirected to stderr
+    CommandExecPars&	stdoutfnm(const char*);
+			    //!< The QProcess stdout is redirected to a file
+    CommandExecPars&	stderrfnm(const char*);
+			    //!< The QProcess stderr is redirected to a file
 
     mDefSetupClssMemb(CommandExecPars,float,prioritylevel);
 			    //!< -1=lowest, 0=normal, 1=highest (administrator)
 
-    mDefSetupClssMemb(CommandExecPars,bool,isconsoleuiprog);
+    mDefSetupClssMembInit(CommandExecPars,bool,isconsoleuiprog,false);
 			    //!< program uses text-based stdin console input
 			    //!< if true, will ignore monitor settings
 
-    mDefSetupClssMemb(CommandExecPars,bool,runasadmin);
+    mDefSetupClssMembInit(CommandExecPars,bool,runasadmin,false);
 		//!< launch in a new session as admin
 		//!< Windows only.
 
     mDefSetupClssMemb(CommandExecPars,BufferString,workingdir);
+    mDefSetupClssMemb(CommandExecPars,BufferStringSet,environment);
 
     void		usePar(const IOPar&);
     void		fillPar(IOPar&) const;
@@ -78,11 +86,25 @@ public:
 			  */
 
     static int		getMachinePriority(float priolevel,bool iswin);
+
+    bool		createstreams_		= false;
+    BufferString	stdoutfnm_;
+    BufferString	stderrfnm_;
+    bool		consolestdout_		= false;
+    bool		consolestderr_		= false;
+
+public:
+    //Internal usage of CommandLauncher
+    CommandExecPars&	txtbufstdout(bool);
+    CommandExecPars&	txtbufstderr(bool);
+    bool		txtbufstdout_		= false;
+    bool		txtbufstderr_		= false;
 };
 
 
 
 class CommandLauncher;
+class MachineCommand;
 
 /*!\brief Encapsulates an actual command to execute + the machine to run it on
 
@@ -94,17 +116,20 @@ mExpClass(Basic) MachineCommand
 {
 public:
 
-			MachineCommand( const char* prognm=nullptr )
-			    : prognm_(prognm)		{}
-			MachineCommand( const char* prognm,
-					const BufferStringSet& arguments )
-			    : prognm_(prognm)
-			    , args_(arguments)		{}
+			MachineCommand(const char* prognm=nullptr);
+			MachineCommand(const char* prognm,
+				       const BufferStringSet & arguments);
 			MachineCommand(const char* prognm,const char* arg1,
-				       const char* arg2=0,const char* arg3=0,
-				       const char* arg4=0,const char* arg5=0);
+				       const char* arg2=nullptr,
+				       const char* arg3=nullptr,
+				       const char* arg4=nullptr,
+				       const char* arg5=nullptr);
 			MachineCommand(const char* prognm,bool isolated);
+			MachineCommand(const MachineCommand&);
 			MachineCommand(const MachineCommand&,bool isolated);
+			~MachineCommand();
+
+    MachineCommand&	operator=(const MachineCommand&);
 
     const char*		program() const			{ return prognm_; }
     const BufferStringSet& args() const			{ return args_; }
@@ -120,6 +145,7 @@ public:
     MachineCommand&	addKeyedArg(const char* ky,const char* valstr,
 				    KeyStyle ks=NewStyle);
     MachineCommand&	addPipe()	{ return addArg("|"); }
+    MachineCommand&	addPipedCommand(const MachineCommand&);
     MachineCommand&	addFileRedirect(const char* fnm,int stdcode=0,
 					bool append=false);
 			/*!< stdcode=0: '>'; stdcode=1: '1>'; stdcode=2: '2>'
@@ -143,6 +169,8 @@ public:
     const char*		remExec() const			{ return remexec_; }
     MachineCommand&	setRemExec(const char* sh);
 
+    const MachineCommand* pipedCommand() const	{ return pipedmc_; }
+
     bool		isBad() const		{ return prognm_.isEmpty(); }
     bool		hasHostName() const	{ return !hname_.isEmpty(); }
 
@@ -155,6 +183,7 @@ public:
     static const char*	sKeyPrimaryPort()	{ return "primaryport"; }
     static const char*	sKeyJobID()		{ return "jobid"; }
     static const char*	sKeyIsolationScript()	{ return "isolatefnm"; }
+
     bool		execute(LaunchType lt=Wait4Finish,
 				const char* workdir=nullptr);
     bool		execute(BufferString& output_stdout,
@@ -165,6 +194,8 @@ public:
 
     BufferString	runAndCollectOutput(BufferString* errmsg=nullptr);
 				//!< for quick get-me-the-output-of-this-command
+				//!
+    uiString		errorMsg() const	{ return errmsg_; }
 
 private:
 
@@ -180,7 +211,9 @@ private:
     bool		hostiswin_		= __iswin__;
     BufferString	hname_;
     BufferString	remexec_		= defremexec_;
-    bool		needshell_ = false;
+    bool		needshell_		= false;
+    uiString		errmsg_;
+    MachineCommand*	pipedmc_		= nullptr;
 
     static BufferString	defremexec_;
 
@@ -203,11 +236,12 @@ public:
 
 /*!\brief Launches machine commands */
 
-mExpClass(Basic) CommandLauncher
+mExpClass(Basic) CommandLauncher : public CallBacker
 { mODTextTranslationClass(CommandLauncher);
 public:
 			CommandLauncher(const MachineCommand&);
 			~CommandLauncher();
+			mOD_DisableCopy(CommandLauncher);
 
     void		set(const MachineCommand&);
 
@@ -221,16 +255,35 @@ public:
     bool		startServer(bool inpythonenv=false,
 				    const char* stdoutfnm =nullptr,
 				    const char* stderrfnm =nullptr,
+				    bool consolestdout=false,
+				    bool consolestderr=false,
 				    double maxwaittm=20 /* seconds */);
+
+    ConstRefMan<OD::Process>	process() const;
+    RefMan<OD::Process> process();
 
     PID_Type		processID() const;
     int			exitCode() const;
+    OD::Process::ExitStatus exitStatus() const;
     const char*		monitorFileName() const	{ return monitorfnm_; }
     uiString		errorMsg() const	{ return errmsg_; }
 
-    od_istream*		getStdOutput() { return stdoutput_; }
-    od_istream*		getStdError() { return stderror_; }
-    od_ostream*		getStdInput() { return stdinput_; }
+    bool		hasStdInput() const;
+    bool		hasStdOutput() const;
+    bool		hasStdError() const;
+
+    od_int64		write(const char*,od_int64 maxsz);
+    od_int64		write(const char*);
+				    //!< String must be null terminated
+    bool		getLine(BufferString&,bool stdoutstrm=true,
+				bool* newline_found=nullptr);
+    bool		getAll(BufferStringSet&,bool stdoutstrm=true);
+    bool		getAll(BufferString&,bool stdoutstrm=true);
+
+    Notifier<CommandLauncher> started;
+    CNotifier<CommandLauncher,std::pair<int,OD::Process::ExitStatus> > finished;
+    CNotifier<CommandLauncher,OD::Process::Error> errorOccurred;
+    CNotifier<CommandLauncher,OD::Process::State> stateChanged;
 
     static bool		openTerminal(const char* cmd,
 				     const BufferStringSet* args=nullptr,
@@ -242,13 +295,19 @@ protected:
 
     void		reset();
     bool		doExecute(const MachineCommand&,const CommandExecPars&);
-    int			catchError();
-    bool		startDetached(const MachineCommand&,
-				      bool inconsole=false,
-				      const char* workingdir=nullptr);
+    const OD::Process*	getReadProcess() const;
+    OD::Process*	getReadProcess();
+    int			catchError(bool pipecmd=false);
+    bool		startDetached(bool inconsole=false);
     void		startMonitor();
-    static void		manageQProcess(QProcess*);
-			/*!<Add a QProcess and it will be deleted one day. */
+
+    void		startedCB(CallBacker*);
+    void		finishedCB(CallBacker*);
+    void		errorOccurredCB(CallBacker*);
+    void		stateChangedCB(CallBacker*);
+
+    static void		manageODProcess(OD::Process*);
+			/*!<Add a OD::Process and it will be deleted one day. */
 
     MachineCommand	machcmd_;
     BufferString	monitorfnm_;
@@ -257,17 +316,11 @@ protected:
     uiString		errmsg_;
     const BufferString	odprogressviewer_;
 
-    QProcess*		process_ = nullptr;
-    PID_Type		pid_ = 0;
-    int			exitcode_ = mUdf(int);
-
-    od_istream*		stdoutput_ = nullptr;
-    od_istream*		stderror_ = nullptr;
-    od_ostream*		stdinput_ = nullptr;
-
-    qstreambuf*		stdoutputbuf_ = nullptr;
-    qstreambuf*		stderrorbuf_ = nullptr;
-    qstreambuf*		stdinputbuf_ = nullptr;
+    RefMan<OD::Process> process_;
+    RefMan<OD::Process> pipeprocess_;
+    PID_Type		pid_		= mUdf(PID_Type);
+    int			exitcode_	= mUdf(int);
+    OD::Process::ExitStatus exitstatus_ = OD::Process::ExitStatus::NormalExit;
 
 };
 

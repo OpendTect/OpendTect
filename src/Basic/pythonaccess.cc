@@ -549,7 +549,7 @@ bool OD::PythonAccess::execute( const OS::MachineCommand& cmd, uiRetVal& ret,
 				BufferString* stderrstr ) const
 {
     OS::CommandExecPars execpars( wait4finish ? OS::Wait4Finish : OS::RunInBG );
-    execpars.createstreams( true );
+    execpars.txtbufstdout( stdoutstr ).txtbufstderr( stderrstr );
     return execute( cmd, execpars, ret, nullptr, stdoutstr, stderrstr );
 }
 
@@ -1012,20 +1012,20 @@ uiRetVal OD::PythonAccess::doExecute( const OS::MachineCommand& cmd,
     }
 
     uiRetVal ret;
-    if ( execpars && stdoutstr && cl->getStdOutput() )
-	cl->getStdOutput()->getAll( *stdoutstr );
+    if ( execpars && stdoutstr && cl->hasStdOutput() )
+	cl->getAll( *stdoutstr, true );
 
     if ( !res && !cl->errorMsg().isEmpty() )
 	ret = tr("Cannot execute '%1'").arg( cmd.toString(execpars) );
 
-    if ( cl->getStdError() )
+    if ( cl->hasStdError() )
     {
 	BufferString stderrorret;
 	if ( stderrstr && !execpars )
 	    stderrorret.set( stderrstr->buf() );
 	else
 	{
-	    cl->getStdError()->getAll( stderrorret );
+	    cl->getAll( stderrorret, false );
 	    if ( stderrstr )
 		stderrstr->set( stderrorret.buf() );
 	}

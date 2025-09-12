@@ -113,15 +113,11 @@ void RemCommHandler::startJobCB( CallBacker* cb )
 	    uirv.add( tr("Cannot launch '%1'").arg( machcomm.toString(&pars) ));
 	else
 	    uirv.add( errmsg );
-    }
 
-    BufferString stderrstr;
-    od_istream* stderrstrm = cl.getStdError();
-    if ( stderrstrm )
-    {
-	stderrstrm->getAll( stderrstr );
+	BufferString stderrstr;
+	cl.getAll( stderrstr, false );
 	if ( !stderrstr.isEmpty() )
-	    uirv.add( toUiString(stderrstr) );
+	    uirv.add( toUiString(stderrstr.str()) );
     }
 
     if ( !uirv.isOK() )

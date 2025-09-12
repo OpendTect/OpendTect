@@ -23,8 +23,9 @@ ________________________________________________________________________
 #include "uistrings.h"
 
 #ifndef OD_NO_QT
-# include "qstreambuf.h"
+# include <QFile>
 # include <QProcess>
+# include <QTextStream>
 # include <QVersionNumber>
 #endif
 
@@ -55,23 +56,23 @@ static const char* sKeyWorkDir = "WorkingDirectory";
 
 
 //
-class QProcessManager
+class ODProcessManager
 {
 public:
-		~QProcessManager()
+		~ODProcessManager()
 		{
 		    deleteProcesses();
 		}
-    void	takeOver( QProcess* p )
+    void	takeOver( OD::Process* p )
 		{
-		    processes_ += p;
+		    processes_.add( p );
 		}
     void	deleteProcesses()
 		{
 #ifndef OD_NO_QT
-		    for ( auto process : processes_ )
+		    for ( auto* process : processes_ )
 			process->close();
-		    deepErase( processes_ );
+		    processes_.erase();
 #endif
 		}
 
@@ -79,26 +80,26 @@ public:
     static Threads::Lock	lock_;
 
 private:
-    ObjectSet<QProcess>		processes_;
+    RefObjectSet<OD::Process>		processes_;
 };
 
-static PtrMan<QProcessManager> processmanager;
-Threads::Lock QProcessManager::lock_( true );
+static PtrMan<ODProcessManager> processmanager;
+Threads::Lock ODProcessManager::lock_( true );
 
 void DeleteProcesses()
 {
-    Threads::Locker locker( QProcessManager::lock_ );
+    Threads::Locker locker( ODProcessManager::lock_ );
     if ( processmanager )
 	processmanager->deleteProcesses();
 }
 
-void OS::CommandLauncher::manageQProcess( QProcess* p )
+void OS::CommandLauncher::manageODProcess( OD::Process* p )
 {
-    Threads::Locker locker( QProcessManager::lock_ );
+    Threads::Locker locker( ODProcessManager::lock_ );
 
     if ( !processmanager )
     {
-	processmanager = new QProcessManager;
+	processmanager = new ODProcessManager;
 	NotifyExitProgram( DeleteProcesses );
     }
 
@@ -106,9 +107,20 @@ void OS::CommandLauncher::manageQProcess( QProcess* p )
 }
 
 
+// OS::CommandExecPars
+
+OS::CommandExecPars::CommandExecPars( LaunchType lt )
+    : launchtype_(lt)
+    , prioritylevel_(lt>=Batch ? -1.f : 0.f)
+{}
+
 
 OS::CommandExecPars::CommandExecPars( bool isbatchprog )
-    : CommandExecPars( isbatchprog ? RunInBG : Wait4Finish )
+    : CommandExecPars(isbatchprog ? RunInBG : Wait4Finish)
+{}
+
+
+OS::CommandExecPars::~CommandExecPars()
 {}
 
 
@@ -176,6 +188,71 @@ void OS::CommandExecPars::removeFromPar( IOPar& iop ) const
 }
 
 
+OS::CommandExecPars& OS::CommandExecPars::createstreams( bool yn )
+{
+    createstreams_ = yn;
+    txtbufstdout_  = yn;
+    txtbufstderr_  = yn;
+    return *this;
+}
+
+
+OS::CommandExecPars& OS::CommandExecPars::consolestdout( bool yn )
+{
+    if ( yn )
+	createstreams_ = true;
+
+    consolestdout_ = yn;
+    return *this;
+}
+
+
+OS::CommandExecPars& OS::CommandExecPars::consolestderr( bool yn )
+{
+    if ( yn )
+	createstreams_ = true;
+
+    consolestderr_ = yn;
+    return *this;
+}
+
+
+OS::CommandExecPars& OS::CommandExecPars::stdoutfnm( const char* fnm )
+{
+    createstreams_ = true;
+    stdoutfnm_ = fnm;
+    return *this;
+}
+
+
+OS::CommandExecPars& OS::CommandExecPars::stderrfnm( const char* fnm )
+{
+    createstreams_ = true;
+    stderrfnm_ = fnm;
+    return *this;
+}
+
+
+OS::CommandExecPars& OS::CommandExecPars::txtbufstdout( bool yn )
+{
+    if ( yn )
+	createstreams_ = true;
+
+    txtbufstdout_ = yn;
+    return *this;
+}
+
+
+OS::CommandExecPars& OS::CommandExecPars::txtbufstderr( bool yn )
+{
+    if ( yn )
+	createstreams_ = true;
+
+    txtbufstderr_ = yn;
+    return *this;
+}
+
+
 const StepInterval<int> OS::CommandExecPars::cMachineUserPriorityRange(
 					     bool iswin )
 { return iswin ? StepInterval<int>( 6, 8, 1 ) :StepInterval<int>( 0, 19, 1 ); }
@@ -191,6 +268,19 @@ int OS::CommandExecPars::getMachinePriority( float priority, bool iswin )
     return machprio += iswin ? machpriorg.stop_ : machpriorg.start_;
 }
 
+
+//  OS::MachineCommand
+
+OS::MachineCommand::MachineCommand( const char* prognm )
+  : prognm_(prognm)
+{}
+
+
+OS::MachineCommand::MachineCommand( const char* prognm,
+				    const BufferStringSet& arguments )
+  : prognm_(prognm)
+  , args_(arguments)
+{}
 
 
 OS::MachineCommand::MachineCommand( const char* prognm, const char* arg1,
@@ -210,18 +300,46 @@ OS::MachineCommand::MachineCommand( const char* prognm, bool isolated )
 }
 
 
+OS::MachineCommand::MachineCommand( const MachineCommand& oth )
+{
+    *this = oth;
+}
+
+
 OS::MachineCommand::MachineCommand( const MachineCommand& oth, bool isolated )
 {
-    if ( &oth == this )
-	return;
-
     if ( isolated )
     {
 	setIsolated( oth.program() );
 	addArgs( oth.args() );
     }
     else
-	*this = MachineCommand( oth );
+	*this = oth;
+}
+
+
+OS::MachineCommand::~MachineCommand()
+{
+    delete pipedmc_;
+}
+
+
+OS::MachineCommand& OS::MachineCommand::operator=( const MachineCommand& oth )
+{
+    if ( &oth == this )
+	return *this;
+
+    prognm_ = oth.prognm_;
+    args_ = oth.args_;
+    hostiswin_ = oth.hostiswin_;
+    hname_ = oth.hname_;
+    remexec_ = oth.remexec_;
+    needshell_ = oth.needshell_;
+    errmsg_ = oth.errmsg_;
+    delete pipedmc_;
+    pipedmc_ = oth.pipedmc_ ? new MachineCommand( *oth.pipedmc_ ) : nullptr;
+
+    return *this;
 }
 
 
@@ -292,6 +410,18 @@ OS::MachineCommand& OS::MachineCommand::addKeyedArg( const char* ky,
     else
 	addArg( CommandLineParser::createKey(ky) );
     addArg( str );
+    return *this;
+}
+
+
+OS::MachineCommand&
+OS::MachineCommand::addPipedCommand( const MachineCommand& mc )
+{
+    if ( pipedmc_ )
+	*pipedmc_ = mc;
+    else
+	pipedmc_ = new MachineCommand( mc );
+
     return *this;
 }
 
@@ -510,6 +640,7 @@ OS::MachineCommand OS::MachineCommand::getExecCommand(
     if ( pars && pars->launchtype_ != Wait4Finish &&
 	 !mIsZero(pars->prioritylevel_,1e-2f) )
 	ret.addKeyedArg( CommandExecPars::sKeyPriority(),pars->prioritylevel_);
+
     ret.addShellIfNeeded();
 
     return ret;
@@ -577,35 +708,45 @@ BufferString OS::MachineCommand::toString( const OS::CommandExecPars* pars
     BufferString ret( mc.program() );
     if ( !mc.args().isEmpty() )
 	ret.addSpace().add( mc.args().cat( " " ) );
+
     return ret;
 }
 
 
 bool OS::MachineCommand::execute( LaunchType lt, const char* workdir )
 {
-    return CommandLauncher(*this).execute( lt, workdir );
+    CommandLauncher cl( *this );
+    const bool res = cl.execute( lt, workdir );
+    errmsg_ = cl.errorMsg();
+    return res;
 }
 
 
 bool OS::MachineCommand::execute( BufferString& out, BufferString* err,
 				  const char* workdir )
 {
-    return CommandLauncher(*this).execute( out, err, workdir );
+    CommandLauncher cl( *this );
+    const bool res = cl.execute( out, err, workdir );
+    errmsg_ = cl.errorMsg();
+    return res;
 }
 
 
 bool OS::MachineCommand::execute( const CommandExecPars& execpars )
 {
-    return CommandLauncher(*this).execute( execpars );
+    CommandLauncher cl( *this );
+    const bool res = cl.execute( execpars );
+    errmsg_ = cl.errorMsg();
+    return res;
 }
-
 
 
 BufferString OS::MachineCommand::runAndCollectOutput( BufferString* errmsg )
 {
     BufferString ret;
-    if ( !CommandLauncher(*this).execute(ret,errmsg) )
+    if ( !getNonConst(*this).execute(ret,errmsg) )
 	ret.setEmpty();
+
     return ret;
 }
 
@@ -616,70 +757,75 @@ OS::CommandLauncher::CommandLauncher( const OS::MachineCommand& mc )
     : odprogressviewer_(FilePath(GetExecPlfDir(),
 			ODInst::sKeyODProgressViewerExecNm()).fullPath())
     , machcmd_(mc)
+    , started(this)
+    , finished(this)
+    , errorOccurred(this)
+    , stateChanged(this)
 {
 }
 
 
 OS::CommandLauncher::~CommandLauncher()
 {
+    detachAllNotifiers();
 #ifndef OD_NO_QT
-    reset();
+    if ( process_ && process_->state()!=OD::Process::State::NotRunning )
+	manageODProcess( process_.ptr() );
 #endif
+}
+
+
+ConstRefMan<OD::Process> OS::CommandLauncher::process() const
+{
+    ConstRefMan<OD::Process> ret = process_.ptr();
+    return ret;
+}
+
+
+RefMan<OD::Process> OS::CommandLauncher::process()
+{
+    RefMan<OD::Process> ret = process_.ptr();
+    return ret;
 }
 
 
 PID_Type OS::CommandLauncher::processID() const
 {
-#ifndef OD_NO_QT
-
-    if ( !process_ )
-	return pid_;
-#if QT_VERSION >= QT_VERSION_CHECK(5,3,0)
-    const qint64 pid = process_->processId();
-    return mCast( PID_Type, pid );
-#else
-# ifdef __win__
-    const PROCESS_INFORMATION* pi = (PROCESS_INFORMATION*) process_->pid();
-    return pi->dwProcessId;
-# else
-    return process_->pid();
-# endif
-#endif
-
-#else
-    return 0;
-#endif
+    return mIsUdf(pid_) ? (process_ ? process_->processId() : 0) : pid_;
 }
 
 
 int OS::CommandLauncher::exitCode() const
 {
-    return exitcode_;
+    return process_ ? process_->exitCode() : exitcode_;
+}
+
+
+OD::Process::ExitStatus OS::CommandLauncher::exitStatus() const
+{
+    return process_ ? process_->exitStatus() : exitstatus_;
 }
 
 
 void OS::CommandLauncher::reset()
 {
-    deleteAndNullPtr( stderror_ );
-    deleteAndNullPtr( stdoutput_ );
-    deleteAndNullPtr( stdinput_ );
-
-    stderrorbuf_ = nullptr;
-    stdoutputbuf_ = nullptr;
-    stdinputbuf_ = nullptr;
-
 #ifndef OD_NO_QT
-    if ( process_ && process_->state()!=QProcess::NotRunning )
-    {
-	manageQProcess( process_ );
-	process_ = nullptr;
-    }
-    deleteAndNullPtr( process_ );
+    if ( process_ && process_->state()!=OD::Process::State::NotRunning )
+	manageODProcess( process_.ptr() );
+
+    mDetachCB( process_->started, CommandLauncher::startedCB );
+    mDetachCB( process_->finished, CommandLauncher::finishedCB );
+    mDetachCB( process_->stateChanged, CommandLauncher::stateChangedCB );
+    mDetachCB( process_->errorOccurred, CommandLauncher::errorOccurredCB );
+    process_ = nullptr;
+    pipeprocess_ = nullptr;
 #endif
     errmsg_.setEmpty();
     monitorfnm_.setEmpty();
     progvwrcmd_.setEmpty();
+    pid_ = mUdf(PID_Type);
     exitcode_ = mUdf(int);
+    exitstatus_ = OD::Process::ExitStatus::NormalExit;
 }
 
 
@@ -695,6 +841,7 @@ bool OS::CommandLauncher::execute( OS::LaunchType lt, const char* workdir )
     CommandExecPars execpars( lt );
     if ( workdir && *workdir )
 	execpars.workingdir( workdir );
+
     return execute( execpars );
 }
 
@@ -703,15 +850,16 @@ bool OS::CommandLauncher::execute( BufferString& out, BufferString* err,
 				   const char* workdir )
 {
     CommandExecPars execpars( Wait4Finish );
-    execpars.createstreams( true );
+    execpars.txtbufstdout( true ).txtbufstderr( err );
     if ( workdir && *workdir )
 	execpars.workingdir( workdir );
 
     const bool res = execute( execpars );
-    if ( getStdOutput() )
-	getStdOutput()->getAll( out );
-    if ( err && getStdError() )
-	getStdError()->getAll( *err );
+    if ( hasStdOutput() )
+	getAll( out, true );
+
+    if ( err && hasStdError() )
+	getAll( *err, false );
 
     return res;
 }
@@ -769,30 +917,33 @@ bool OS::CommandLauncher::execute( const OS::CommandExecPars& pars )
 
 
 bool OS::CommandLauncher::startServer( bool ispyth, const char* stdoutfnm,
-				       const char* stderrfnm, double waittm )
+				       const char* stderrfnm,
+				       bool consolestdout, bool consolestderr,
+				       double waittm )
 {
     CommandExecPars execpars( RunInBG );
-    execpars.createstreams( true );
+    execpars.txtbufstdout( true ).txtbufstderr( true );
 	// this has to be done otherwise we cannot pick up any error messages
     if ( stdoutfnm )
 	execpars.stdoutfnm( stdoutfnm );
+
     if ( stderrfnm )
 	execpars.stderrfnm( stderrfnm );
 
     uiRetVal ret;
-    pid_ = -1;
+    pid_ = mUdf(PID_Type);
     if ( ispyth )
     {
 	if ( !OD::PythA().execute(machcmd_,execpars,ret,&pid_) )
-	    pid_ = -1;
+	    pid_ = mUdf(PID_Type);
     }
     else
     {
 	if ( !execute(execpars) )
-	    pid_ = -1;
+	    pid_ = mUdf(PID_Type);
     }
 
-    if ( pid_ < 1 )
+    if ( mIsUdf(pid_) || pid_ < 1 )
     {
 	if ( errmsg_.isEmpty() )
 	    errmsg_ = uiStrings::phrCannotStart(
@@ -935,92 +1086,108 @@ bool OS::CommandLauncher::doExecute( const MachineCommand& mc,
     const bool wt4finish = pars.launchtype_ == Wait4Finish;
     const bool createstreams = pars.createstreams_;
 #ifndef OD_NO_QT
-    process_ = wt4finish || createstreams ? new QProcess : nullptr;
+    process_ = new OD::Process;
+    process_->setProgram(  mc.program() ).setArguments( mc.args() );
+    mAttachCB( process_->started, CommandLauncher::startedCB );
+    mAttachCB( process_->finished, CommandLauncher::finishedCB );
+    mAttachCB( process_->stateChanged, CommandLauncher::stateChangedCB );
+    mAttachCB( process_->errorOccurred, CommandLauncher::errorOccurredCB );
+    const MachineCommand* pipedmc = machcmd_.pipedCommand();
+    if ( wt4finish && pipedmc )
+    {
+	pipeprocess_ = new OD::Process;
+	pipeprocess_->setProgram( pipedmc->program() )
+		     .setArguments( pipedmc->args() );
+	process_->setStandardOutputProcess( *pipeprocess_.ptr() );
+    }
 
     if ( createstreams )
     {
-	if ( monitorfnm_.isEmpty() )
+	OD::Process* proc = getReadProcess();
+	const BufferString& stdoutfnm = monitorfnm_.isEmpty()
+				      ? pars.stdoutfnm_
+				      : monitorfnm_;
+	if ( !pars.consolestdout_ && !pars.txtbufstdout_ &&
+	     !stdoutfnm.isEmpty() )
 	{
-	    stdinputbuf_ = new qstreambuf( *process_, false, false );
-	    stdinput_ = new od_ostream( new oqstream( stdinputbuf_ ) );
+	    proc->setStandardOutputFile( stdoutfnm.str() );
 	}
-	else
-	    process_->setStandardOutputFile( monitorfnm_.buf() );
-
-	if ( pars.stdoutfnm_.isEmpty() )
+	else if ( pars.consolestdout_ || pars.txtbufstdout_ )
 	{
-	    stdoutputbuf_ = new qstreambuf( *process_, false, false  );
-	    stdoutput_ = new od_istream( new iqstream( stdoutputbuf_ ) );
-	}
-	else
-	{
-	    const QString filenm(
-		pars.stdoutfnm_ == od_ostream::nullStream().fileName()
-		? QProcess::nullDevice() : QString(pars.stdoutfnm_) );
-	    process_->setStandardOutputFile( filenm );
+	    proc->setStandardOutputStream( pars.consolestdout_,
+				pars.txtbufstdout_, stdoutfnm.buf() );
 	}
 
-	if ( pars.stderrfnm_.isEmpty() )
+	const BufferString& stderrfnm = pars.stderrfnm_;
+	if ( !pars.consolestderr_ && !pars.txtbufstderr_ &&
+	     !stderrfnm.isEmpty() )
 	{
-	    stderrorbuf_ = new qstreambuf( *process_, true, false  );
-	    stderror_ = new od_istream( new iqstream( stderrorbuf_ ) );
+	    proc->setStandardErrorFile( stderrfnm.str() );
 	}
-	else
+	else if ( pars.consolestderr_ || pars.txtbufstderr_ )
 	{
-	    const QString filenm(
-		pars.stderrfnm_ == od_ostream::nullStream().fileName()
-		? QProcess::nullDevice() : QString(pars.stderrfnm_));
-	    process_->setStandardErrorFile( filenm );
+	    proc->setStandardErrorStream( pars.consolestderr_,
+				pars.txtbufstderr_, stderrfnm.buf() );
 	}
     }
 
     const BufferString& workingdir = pars.workingdir_;
-    if ( process_ )
+    if ( !workingdir.isEmpty() )
+	process_->setWorkingDirectory( workingdir.str() );
+
+    const BufferStringSet& environment = pars.environment_;
+    if ( !environment.isEmpty() )
+	process_->setEnvironment( environment );
+
+    const OD::Process::InputChannelMode inputchmode = pars.inputchmode_;
+    if ( inputchmode != OD::Process::InputChannelMode::ManagedInputChannel )
+	process_->setInputChannelMode( inputchmode );
+
+    const OD::Process::ChannelMode channelmode = pars.channelmode_;
+    if ( channelmode != OD::Process::ChannelMode::SeparateChannels )
+	process_->setProcessChannelMode( channelmode );
+
+    if ( wt4finish || createstreams )
     {
-	if ( !workingdir.isEmpty() )
-	{
-	    const QString qworkdir( workingdir );
-	    process_->setWorkingDirectory( qworkdir );
-	}
 	//TODO: use inconsole on Windows ?
-	const QString qprog( mc.program() );
-	QStringList qargs;
-	mc.args().fill( qargs );
-	process_->start( qprog, qargs, QIODevice::ReadWrite );
+	if ( pipeprocess_ )
+	{
+	    pipeprocess_->start();
+	    if ( !pipeprocess_->waitForStarted(10000) )
+		return !catchError( true );
+	}
+
+	process_->start();
+	if ( !process_->waitForStarted(10000) ) //Timeout of 10 secs
+	    return !catchError();
     }
     else
     {
-	const bool res = startDetached( mc, pars.isconsoleuiprog_,
-					workingdir );
+	const bool res = startDetached( pars.isconsoleuiprog_ );
 	return res;
-    }
-
-    if ( !process_->waitForStarted(10000) ) //Timeout of 10 secs
-    {
-	return !catchError();
     }
 
     if ( wt4finish )
     {
 	startMonitor();
-	if ( process_->state()==QProcess::Running )
-	    process_->waitForFinished(-1);
+	if ( createstreams )
+	    process_->closeWriteChannel();
 
-	bool res = process_->exitStatus() == QProcess::NormalExit;
+	if ( process_->isRunning() )
+	{
+	    process_->waitForFinished(-1);
+	    if ( pipeprocess_ )
+		pipeprocess_->waitForFinished(-1);
+	}
+
+	OD::Process* proc = getReadProcess();
+	bool res = proc->exitStatus() == OD::Process::ExitStatus::NormalExit;
 	if ( res )
 	{
-	    exitcode_ = process_->exitCode();
+	    exitcode_ = proc->exitCode();
 	    res = exitcode_ == 0;
 	}
 
-	if ( createstreams )
-	{
-	    stderrorbuf_->detachDevice( true );
-	    stdoutputbuf_->detachDevice( true );
-	    stdinputbuf_->detachDevice( false );
-	}
-
-	deleteAndNullPtr( process_ );
 	return res;
     }
 #endif
@@ -1034,15 +1201,16 @@ bool OS::CommandLauncher::doExecute( const MachineCommand& mc,
 
 namespace OS {
 
-static bool startDetachedLegacy( const OS::MachineCommand& mc,
-	    bool inconsole, const char* workdir, PID_Type& pid )
+static bool startDetachedLegacy( const char* prog,
+		const BufferStringSet& progargs, const char* workdir,
+		bool inconsole, PID_Type& pid )
 {
 #ifdef __win__
-    BufferString comm( mc.program() );
-    if ( !mc.args().isEmpty() )
+    BufferString comm( prog );
+    if ( !progargs.isEmpty() )
     {
-	BufferStringSet args( mc.args() );
-	for ( auto arg : args )
+	BufferStringSet args( progargs );
+	for ( auto* arg : args )
 	{
 	    if ( arg->find(" ") && !arg->startsWith("\"") &&
 		!arg->startsWith("'") )
@@ -1079,9 +1247,9 @@ static bool startDetachedLegacy( const OS::MachineCommand& mc,
 
     return res;
 #else
-    const QString qprog( mc.program() );
+    const QString qprog( prog );
     QStringList qargs;
-    mc.args().fill( qargs );
+    progargs.fill( qargs );
     const QString qworkdir( workdir );
     qint64 qpid = 0;
 
@@ -1101,32 +1269,16 @@ static bool startDetachedLegacy( const OS::MachineCommand& mc,
 #endif
 
 
-bool OS::CommandLauncher::startDetached( const OS::MachineCommand& mc,
-					 bool inconsole, const char* workdir )
+bool OS::CommandLauncher::startDetached( bool inconsole )
 {
-    if ( mc.isBad() )
-	return false;
-
 #ifndef OD_NO_QT
 
 #if QT_VERSION >= QT_VERSION_CHECK(5,10,0)
 
-    const QString qprog( mc.program() );
-    QStringList qargs;
-    mc.args().fill( qargs );
-    const QString qworkdir( workdir );
-    qint64 qpid = 0;
-
-    QProcess qproc;
-    qproc.setProgram( qprog );
-    qproc.setArguments( qargs );
-    if ( !qworkdir.isEmpty() )
-	qproc.setWorkingDirectory( qworkdir );
-
 #ifdef __win__
     if ( inconsole )
     {
-	qproc.setCreateProcessArgumentsModifier(
+	process_->process()->setCreateProcessArgumentsModifier(
 	    [] (QProcess::CreateProcessArguments *args )
 	{
 	    args->flags |= CREATE_NEW_CONSOLE;
@@ -1138,15 +1290,15 @@ bool OS::CommandLauncher::startDetached( const OS::MachineCommand& mc,
     }
 #endif
 
-    if ( !qproc.startDetached(&qpid) )
-	return false;
-
-    pid_ = (PID_Type)qpid;
-    return true;
+    return process_->startDetached( &pid_ );
 
 #else
 
-    return startDetachedLegacy( mc, inconsole, workdir, pid_ );
+    const BufferString program = process_->program();
+    const BufferStringSet args = process_->arguments();
+    const BufferString workdir = process_->workingDirectory();
+    return startDetachedLegacy( program.buf(), args, workdir.buf(),
+				inconsole, pid_ );
 
 #endif
 
@@ -1158,30 +1310,44 @@ bool OS::CommandLauncher::startDetached( const OS::MachineCommand& mc,
 }
 
 
-int OS::CommandLauncher::catchError()
+const OD::Process* OS::CommandLauncher::getReadProcess() const
 {
-    if ( !process_ )
+    return pipeprocess_ ? pipeprocess_.ptr() : process_.ptr();
+}
+
+
+OD::Process* OS::CommandLauncher::getReadProcess()
+{
+    return pipeprocess_ ? pipeprocess_.ptr() : process_.ptr();
+}
+
+
+int OS::CommandLauncher::catchError( bool pipecmd )
+{
+    const OD::Process* process = getReadProcess();
+    if ( !process )
 	return 0;
 
     if ( !errmsg_.isEmpty() )
 	return 1;
 
 #ifndef OD_NO_QT
-    switch ( process_->error() )
+    const OD::Process::Error error = process->error();
+    switch ( error )
     {
-	case QProcess::FailedToStart :
+	case OD::Process::Error::FailedToStart :
 	    errmsg_ = tr("Cannot start process %1.");
 	    break;
-	case QProcess::Crashed :
+	case OD::Process::Error::Crashed :
 	    errmsg_ = tr("%1 crashed.");
 	    break;
-	case QProcess::Timedout :
+	case OD::Process::Error::Timedout :
 	    errmsg_ = tr("%1 timeout");
 	    break;
-	case QProcess::ReadError :
+	case OD::Process::Error::ReadError :
 	    errmsg_ = tr("Read error from process %1");
 	    break;
-	case QProcess::WriteError :
+	case OD::Process::Error::WriteError :
 	    errmsg_ = tr("Write error from process %1");
 	    break;
 	default :
@@ -1190,17 +1356,112 @@ int OS::CommandLauncher::catchError()
 
     if ( !errmsg_.isEmpty() )
     {
-	BufferString argstr( machcmd_.program() );
-	if ( machcmd_.hasHostName() )
-	    argstr.add( " @ " ).add( machcmd_.hostName() );
+	const OS::MachineCommand& mc = pipecmd ? *machcmd_.pipedCommand()
+					       : machcmd_;
+	BufferString argstr( mc.program() );
+	if ( mc.hasHostName() )
+	    argstr.add( " @ " ).add( mc.hostName() );
 	errmsg_.arg( argstr );
 	return 1;
     }
-    return process_->exitCode();
+    return process->exitCode();
 #else
 
     return 0;
 #endif
+}
+
+
+void OS::CommandLauncher::startedCB( CallBacker* cb )
+{
+    started.trigger();
+}
+
+
+using procresobj = std::pair<int,OD::Process::ExitStatus>;
+
+void OS::CommandLauncher::finishedCB( CallBacker* cb )
+{
+    if ( !cb || !cb->isCapsule() )
+	return;
+
+    mCBCapsuleUnpack( procresobj, exitcaps, cb );
+    finished.trigger( exitcaps );
+}
+
+
+void OS::CommandLauncher::errorOccurredCB( CallBacker* cb )
+{
+    if ( !cb || !cb->isCapsule() )
+	return;
+
+    mCBCapsuleUnpack( OD::Process::Error, error, cb );
+    errorOccurred.trigger( error );
+}
+
+
+void OS::CommandLauncher::stateChangedCB( CallBacker* cb )
+{
+    if ( !cb || !cb->isCapsule() )
+	return;
+
+    mCBCapsuleUnpack( OD::Process::State, state, cb );
+    stateChanged.trigger( state );
+}
+
+
+bool OS::CommandLauncher::hasStdInput() const
+{
+    return process_ && process_->hasStdInput();
+}
+
+
+bool OS::CommandLauncher::hasStdOutput() const
+{
+    const OD::Process* process = getReadProcess();
+    return process && process->hasStdOutput();
+}
+
+
+bool OS::CommandLauncher::hasStdError() const
+{
+    const OD::Process* process = getReadProcess();
+    return process && process->hasStdError();
+}
+
+
+od_int64 OS::CommandLauncher::write( const char* data, od_int64 maxsz )
+{
+    return process_ ? process_->write( data, maxsz ) : mUdf(od_int64);
+}
+
+
+od_int64 OS::CommandLauncher::write( const char* data )
+{
+    return process_ ? process_->write( data ) : mUdf(od_int64);
+}
+
+
+bool OS::CommandLauncher::getLine( BufferString& ret, bool stdoutstrm,
+				   bool* newline_found )
+{
+    OD::Process* process = getReadProcess();
+    return process ? process->getLine( ret, stdoutstrm, newline_found )
+		   : false;
+}
+
+
+bool OS::CommandLauncher::getAll( BufferStringSet& ret, bool stdoutstrm )
+{
+    OD::Process* process = getReadProcess();
+    return process ? process->getAll( ret, stdoutstrm ) : false;
+}
+
+
+bool OS::CommandLauncher::getAll( BufferString& ret, bool stdoutstrm )
+{
+    OD::Process* process = getReadProcess();
+    return process ? process->getAll( ret, stdoutstrm ) : false;
 }
 
 
@@ -1232,8 +1493,9 @@ bool OS::CommandLauncher::openTerminal( const char* cmdstr,
     const bool res = cl.execute( pars );
     if ( launchermsg )
 	launchermsg->set( cl.errorMsg() );
-    if ( errmsg && cl.getStdError() )
-	cl.getStdError()->getAll( *errmsg );
+
+    if ( errmsg && cl.hasStdError() )
+	cl.getAll( *errmsg, false );
 
     return res;
 }
