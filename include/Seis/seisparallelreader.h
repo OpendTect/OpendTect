@@ -193,6 +193,7 @@ public:
 protected:
 
     bool		setOutputComponents();
+    bool		doPrepare(od_ostream*) override;
     virtual int		nextStep() override;
     virtual bool	goImpl(od_ostream*,bool,bool,int) override;
 

@@ -1226,6 +1226,12 @@ static bool fillTrcsBuffer( SeisTrcReader& rdr, TypeSet<TrcKey>& tks,
 #define cTrcChunkSz	1000
 
 
+bool Seis::SequentialReader::doPrepare( od_ostream* )
+{
+    return initialized_ ? true : init();
+}
+
+
 int Seis::SequentialReader::nextStep()
 {
     if ( !initialized_ && !init() )
