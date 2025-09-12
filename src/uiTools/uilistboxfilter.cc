@@ -22,12 +22,14 @@ uiListBoxFilter::uiListBoxFilter( uiListBox& lb, bool above )
     else
 	attach( above ? centeredAbove : centeredBelow, lb_.box() );
 
-    valueChanged.notify( mCB(this,uiListBoxFilter,filtChg) );
+    mAttachCB( valueChanged, uiListBoxFilter::filtChg );
 }
 
 
 uiListBoxFilter::~uiListBoxFilter()
-{}
+{
+    detachAllNotifiers();
+}
 
 
 void uiListBoxFilter::setItems( const uiStringSet& itms )
@@ -74,7 +76,7 @@ void uiListBoxFilter::setItems( const BufferStringSet& nms )
 
 void uiListBoxFilter::setFilter( const char* newfilt )
 {
-    setText( StringView(newfilt).isEmpty() ? "*" : newfilt );
+    setText( StringView(newfilt).isEmpty() ? "" : newfilt );
     setItems( availitems_ );
 }
 
