@@ -150,8 +150,8 @@ public:
 
 protected:
 
-    virtual bool	rejectOK(CallBacker*){ return true;}//!< confirm reject
-    virtual bool	acceptOK(CallBacker*){ return true;}//!< confirm accept
+    virtual bool	rejectOK(CallBacker*){ return true; }//!< confirm reject
+    virtual bool	acceptOK(CallBacker*){ return true; }//!< confirm accept
     virtual bool	doneOK(int)	     { return true; } //!< confirm exit
 
     bool		cancelpushed_;

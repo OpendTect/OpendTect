@@ -24,7 +24,7 @@ public:
 			// one says 'Finish', the other 'Go'.
 
 			uiVarWizardDlg(uiParent*,const uiDialog::Setup&,IOPar&,
-					Position,bool revbuttons=true);
+				       Position,bool revbuttons=true);
 			~uiVarWizardDlg();
 
 protected:
@@ -33,6 +33,7 @@ protected:
     Position		pos_;
 
     bool		leave_;
+    void		doFinalizeCB(CallBacker*);
     bool		rejectOK(CallBacker*) override;
 
     friend class	uiVarWizard;

@@ -35,12 +35,7 @@ ________________________________________________________________________
 
 static const int cMaxNrPDFs = 5;
 static const uiString sKeyBayesClss()
-{ return  od_static_tr("sKeyBayesClss","Bayesian classification"); }
-
-#define mInpPDFs	10
-#define mGetNorm	11
-#define mInpSeis	12
-#define mOutput		13
+{ return od_static_tr("sKeyBayesClss","Bayesian Classification"); }
 
 
 static ProbDenFunc* getPDF( const MultiID& id, uiString& emsg )
@@ -68,7 +63,7 @@ uiSeisBayesClass::uiSeisBayesClass( uiParent* p, bool is2d )
 {
     pars_.set( sKey::Type(), is2d_ ? "2D" : "3D" );
 
-    state_ = mInpPDFs;
+    state_ = PDFInp;
     nextAction();
 }
 
@@ -85,17 +80,19 @@ void uiSeisBayesClass::doPart()
 {
     switch ( state_ )
     {
-	case mInpPDFs:
+	case PDFInp:
 	    getInpPDFs();
 	    break;
-	case mGetNorm:
+	case GetNorm:
 	    getNorm();
 	    break;
-	case mInpSeis:
+	case SeisInp:
 	    getInpSeis();
 	    break;
-	case mOutput:
+	case BayesOut:
 	    doOutput();
+	    break;
+	default:
 	    break;
     }
 }
@@ -116,7 +113,7 @@ uiSeisBayesPDFInp( uiParent* p, IOPar& pars )
     IOObjContext ctxt( mIOObjContext(ProbDenFunc) );
     ctxt.forread_ = true;
 
-    const CallBack pushcb = mCB(this,uiSeisBayesPDFInp,butPush);
+    const CallBack pushcb = mCB(this,uiSeisBayesPDFInp,butPushCB);
     for ( int idx=0; idx<cMaxNrPDFs; idx++ )
     {
 	auto* fld = new uiIOObjSel( this, ctxt, uiStrings::phrInput(tr("PDF %1")
@@ -126,17 +123,20 @@ uiSeisBayesPDFInp( uiParent* p, IOPar& pars )
 	else
 	{
 	    fld->attach( alignedBelow, flds_[idx-1] );
-	    uiButton* rmbut = new uiPushButton( this, tr("<- Less"),
-						pushcb, true);
+	    auto* rmbut = new uiPushButton( this, uiStrings::sRemove(),
+					    pushcb, true);
+	    rmbut->setIcon( "minus" );
 	    rmbut->attach( rightAlignedBelow, fld );
 	    rmbuts_ += rmbut;
 	}
+
 	if ( idx == cMaxNrPDFs-1 )
 	    addbuts_ += 0;
 	else
 	{
-	    uiButton* addbut = new uiPushButton( this, tr("More ->"),
-						 pushcb,true);
+	    auto* addbut = new uiPushButton( this, uiStrings::sAdd(),
+					     pushcb, true);
+	    addbut->setIcon( "plus" );
 	    addbut->attach( leftAlignedBelow, fld );
 	    addbuts_ += addbut;
 	}
@@ -153,7 +153,7 @@ uiSeisBayesPDFInp( uiParent* p, IOPar& pars )
 	flds_ += fld;
     }
 
-    mAttachCB(postFinalize(), uiSeisBayesPDFInp::handleDisp );
+    mAttachCB(postFinalize(), uiSeisBayesPDFInp::handleDispCB );
 }
 
 ~uiSeisBayesPDFInp()
@@ -162,7 +162,7 @@ uiSeisBayesPDFInp( uiParent* p, IOPar& pars )
 }
 
 
-void butPush( CallBacker* cb )
+void butPushCB( CallBacker* cb )
 {
     mDynamicCastGet(uiButton*,but,cb)
     if ( !but )
@@ -179,11 +179,11 @@ void butPush( CallBacker* cb )
 	return;
 
     nrdisp_ += isadd ? 1 : -1;
-    handleDisp( 0 );
+    handleDispCB( 0 );
 }
 
 
-void handleDisp( CallBacker* )
+void handleDispCB( CallBacker* )
 {
     for ( int idx=0; idx<flds_.size(); idx++ )
     {
@@ -227,7 +227,7 @@ bool acceptOK( CallBacker* ) override
 	    if ( !iscompat )
 	    {
 		uiMSG().error(tr("'%1'\nis not compatible with the first")
-			    .arg(ioobj->name()));
+				.arg(ioobj->name()));
 		return false;
 	    }
 	}
@@ -250,15 +250,15 @@ bool acceptOK( CallBacker* ) override
 void uiSeisBayesClass::getInpPDFs()
 {
     inppdfdlg_ = new uiSeisBayesPDFInp( parent_, pars_ );
-    mLaunchVWDialog(inppdfdlg_,uiSeisBayesClass,inpPDFsGot);
+    mLaunchVWDialog(inppdfdlg_,uiSeisBayesClass,inpPDFsGotCB);
 }
 
 
-void uiSeisBayesClass::inpPDFsGot( CallBacker* )
+void uiSeisBayesClass::inpPDFsGotCB( CallBacker* )
 {
     mHandleVWCancel(inppdfdlg_,cCancelled())
     inppdfdlg_ = nullptr;
-    mSetState( mGetNorm );
+    mSetState( GetNorm );
 }
 
 
@@ -276,7 +276,7 @@ uiSeisBayesNorm( uiParent* p, IOPar& pars )
 			     mODHelpKey(mSeisBayesNormHelpID)),pars,Middle)
     , is2d_(pars[sKey::Type()].firstChar() == '2')
 {
-    const CallBack dispcb( mCB(this,uiSeisBayesNorm,updDisp) );
+    const CallBack dispcb( mCB(this,uiSeisBayesNorm,updDispCB) );
 
     for ( int idx=0; idx<cMaxNrPDFs; idx++ )
     {
@@ -295,8 +295,8 @@ uiSeisBayesNorm( uiParent* p, IOPar& pars )
     }
 
     useglobfld_ = new uiGenInput( this, tr("A priori weights"),
-				  BoolInpSpec(false,tr("Constant"),
-				  tr("Variable")) );
+				  BoolInpSpec(false,uiStrings::sConstant(),
+					      uiStrings::sVariable(true)) );
     if ( prenormfld_ )
 	useglobfld_->attach( alignedBelow, prenormfld_ );
 
@@ -310,11 +310,11 @@ uiSeisBayesNorm( uiParent* p, IOPar& pars )
     for ( int idx=0; idx<nrpdfs_; idx++ )
     {
 	const BufferString id = pars_.find( mGetSeisBayesPDFIDKey(idx) );
-	uiString fldtxt = tr("For '%1'").
-				    arg(toUiString(IOM().nameOf(id.buf())));
+	const uiString fldtxt = tr("For '%1'")
+				    .arg(toUiString(IOM().nameOf(id.buf())));
 
 	float scl = 1;
-	BufferString res = pars_.find( mGetSeisBayesPreScaleKey(idx) );
+	const BufferString res = pars_.find( mGetSeisBayesPreScaleKey(idx) );
 	if ( !res.isEmpty() )
 	    scl = res.toFloat();
 
@@ -349,7 +349,7 @@ uiSeisBayesNorm( uiParent* p, IOPar& pars )
 }
 
 
-void updDisp( CallBacker* )
+void updDispCB( CallBacker* )
 {
     const bool isglob = useglobfld_->getBoolValue();
     for ( int idx=0; idx<apflds_.size(); idx++ )
@@ -403,7 +403,7 @@ bool getFromScreen( bool permissive )
 	}
 	else
 	{
-	    uiIOObjSel* fld = apflds_[idx];
+	    const uiIOObjSel* fld = apflds_[idx];
 	    const IOObj* ioobj = fld->ioobj( permissive );
 	    if ( ioobj )
 		pars_.set( mGetSeisBayesAPProbIDKey(idx), ioobj->key() );
@@ -437,15 +437,15 @@ bool getFromScreen( bool permissive )
 void uiSeisBayesClass::getNorm()
 {
     normdlg_ = new uiSeisBayesNorm( parent_, pars_ );
-    mLaunchVWDialog(normdlg_,uiSeisBayesClass,normGot);
+    mLaunchVWDialog(normdlg_,uiSeisBayesClass,normGotCB);
 }
 
 
-void uiSeisBayesClass::normGot( CallBacker* )
+void uiSeisBayesClass::normGotCB( CallBacker* )
 {
-    mHandleVWCancel(normdlg_,mInpPDFs)
+    mHandleVWCancel(normdlg_,PDFInp)
     normdlg_ = nullptr;
-    mSetState( mInpSeis );
+    mSetState( SeisInp );
 }
 
 
@@ -541,15 +541,15 @@ bool getFromScreen( bool permissive )
 void uiSeisBayesClass::getInpSeis()
 {
     inpseisdlg_ = new uiSeisBayesSeisInp( parent_, pars_ );
-    mLaunchVWDialog(inpseisdlg_,uiSeisBayesClass,inpSeisGot);
+    mLaunchVWDialog(inpseisdlg_,uiSeisBayesClass,inpSeisGotCB);
 }
 
 
-void uiSeisBayesClass::inpSeisGot( CallBacker* )
+void uiSeisBayesClass::inpSeisGotCB( CallBacker* )
 {
-    mHandleVWCancel(inpseisdlg_,mGetNorm)
+    mHandleVWCancel(inpseisdlg_,GetNorm)
     inpseisdlg_ = nullptr;
-    mSetState( mOutput );
+    mSetState( BayesOut );
 }
 
 
@@ -656,6 +656,7 @@ bool acceptOK( CallBacker* ) override
     return getFromScreen( false );
 }
 
+
 bool getFromScreen( bool permissive )
 {
     if ( is2d_ )
@@ -706,13 +707,13 @@ bool getFromScreen( bool permissive )
 void uiSeisBayesClass::doOutput()
 {
     outdlg_ = new uiSeisBayesOut( parent_, pars_ );
-    mLaunchVWDialog(outdlg_,uiSeisBayesClass,outputDone);
+    mLaunchVWDialog(outdlg_,uiSeisBayesClass,outputDoneCB);
 }
 
 
-void uiSeisBayesClass::outputDone( CallBacker* )
+void uiSeisBayesClass::outputDoneCB( CallBacker* )
 {
-    mHandleVWCancel(outdlg_,mInpSeis)
+    mHandleVWCancel(outdlg_,SeisInp)
 
     SeisBayesClass exec( pars_ );
     uiTaskRunner taskrunner( outdlg_ );
@@ -724,7 +725,7 @@ void uiSeisBayesClass::outputDone( CallBacker* )
 	const uiString msg = tr("Successfully calculated Bayesian "
 				"classification volumes:");
 	BufferStringSet volnms;
-	for ( auto* vol : vols)
+	for ( auto* vol : vols )
 	{
 	    if ( vol->isChecked() )
 		volnms.add( vol->getInput() );
@@ -737,10 +738,13 @@ void uiSeisBayesClass::outputDone( CallBacker* )
 	const int state = taskrunner.getState();
 	if ( state == -1 )
 	    uiMSG().errorWithDetails( exec.errorWithDetails() );
+	else if ( state == 2 )
+	{
+	    return;
+	}
     }
 
-    outdlg_ = nullptr;
-    mSetState( isok ? cFinished() : mOutput );
+    mSetState( isok ? cFinished() : BayesOut );
 }
 
 

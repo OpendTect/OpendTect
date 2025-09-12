@@ -9,6 +9,8 @@ ________________________________________________________________________
 
 #include "uivarwizard.h"
 #include "uivarwizarddlg.h"
+
+#include "uibutton.h"
 #include "objdisposer.h"
 
 
@@ -19,8 +21,7 @@ uiVarWizard::uiVarWizard( uiParent* p )
     , afterfinishedstate_(-1)
     , parent_(p)
     , processEnded(this)
-{
-}
+{}
 
 
 uiVarWizard::~uiVarWizard()
@@ -39,11 +40,14 @@ void uiVarWizard::nextAction()
     if ( state_ <= cFinished() )
     {
 	if ( state_ == cCancelled() || afterfinishedstate_ < 0 )
-	    { closeDown(); return; }
+	{
+	    closeDown();
+	    return;
+	}
 	state_ = afterfinishedstate_;
     }
 
-    if ( state_ != cFinished() && state_ != cWait4Dialog() )
+    if ( state_ != cFinished() && state_ != cWaitForDialog() )
 	doPart();
 }
 
@@ -55,30 +59,47 @@ bool uiVarWizard::mustLeave( uiVarWizardDlg* dlg )
 
 
 uiVarWizardDlg::uiVarWizardDlg( uiParent* p, const uiDialog::Setup& su,
-			IOPar& pars, uiVarWizardDlg::Position pos,
-			bool revbuttons )
+				IOPar& pars, uiVarWizardDlg::Position pos,
+				bool revbuttons )
     : uiDialog(p,Setup(su).modal(false).okcancelrev(revbuttons))
     , pars_(pars)
     , pos_(pos)
     , leave_(false)
 {
-    if ( pos_ == End )
-	setOkText( tr("Finish") );
-    else if ( pos_ == DoWork )
-	setOkText( uiStrings::sGo() );
-    else
-	setOkText( uiStrings::sNext() );
-
-    if ( pos_ == Start )
-	setCancelText( uiStrings::sCancel() );
-    else
-	setCancelText( tr("< Back") );
+    setOkCancelText( uiStrings::sNext(), uiStrings::sBack() );
+    mAttachCB( postFinalize(), uiVarWizardDlg::doFinalizeCB );
 }
 
 
 uiVarWizardDlg::~uiVarWizardDlg()
+{}
+
+
+void uiVarWizardDlg::doFinalizeCB( CallBacker* )
 {
+    switch ( pos_ )
+    {
+	case Start:
+	    setCancelText( uiStrings::sCancel() );
+	    button(OK)->setIcon( "rightarrow" );
+	    break;
+	case Middle:
+	    button(CANCEL)->setIcon( "leftarrow" );
+	    button(OK)->setIcon( "rightarrow" );
+	    break;
+	case End://when a process finishes, there is no cancel button, right?
+	    setOkText( uiStrings::sFinish() );
+	    break;
+	case DoWork:
+	    button(CANCEL)->setIcon( "leftarrow" );
+	    setOkText( uiStrings::sGo() );
+	    break;
+	default:
+	    pErrMsg("Invalid Status");
+	    break;
+    }
 }
+
 
 bool uiVarWizardDlg::rejectOK( CallBacker* )
 {

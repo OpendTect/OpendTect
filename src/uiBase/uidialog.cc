@@ -39,7 +39,7 @@ uiDialog::uiDialog( uiParent* p, const uiDialog::Setup& s )
     body_= new uiDialogBody( *this, p, s );
     setBody( body_ );
     body_->construct( s.nrstatusflds_, s.menubar_ );
-    uiGroup* cw = new uiGroup( body_->uiCentralWidg(), "Dialog central widget");
+    auto* cw = new uiGroup( body_->uiCentralWidg(), "Dialog central widget");
     cw->setStretch( 2, 2 );
     mBody->setDlgGrp( cw );
     setTitleText( s.dlgtitle_ );

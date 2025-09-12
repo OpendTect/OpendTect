@@ -29,6 +29,13 @@ public:
 
     void		raiseCurrent() override;
 
+    enum BayesStep {
+	PDFInp = 10,
+	GetNorm = 11,
+	SeisInp = 12,
+	BayesOut = 13
+    };
+
 protected:
 
     bool		is2d_;
@@ -42,15 +49,15 @@ protected:
     void		closeDown() override;
 
     void		getInpPDFs();
-    void		inpPDFsGot(CallBacker*);
+    void		inpPDFsGotCB(CallBacker*);
 
     void		getNorm();
-    void		normGot(CallBacker*);
+    void		normGotCB(CallBacker*);
 
     void		getInpSeis();
-    void		inpSeisGot(CallBacker*);
+    void		inpSeisGotCB(CallBacker*);
 
     void		doOutput();
-    void		outputDone(CallBacker*);
+    void		outputDoneCB(CallBacker*);
 
 };

@@ -35,7 +35,8 @@ public:
 
     static int		cCancelled()		{ return 0; }
     static int		cFinished()		{ return 1; }
-    static int		cWait4Dialog()		{ return 2; }
+    static int		cWaitForDialog()	{ return 2; }
+    static int		cRetry()		{ return 3; }
 
     virtual void	raiseCurrent()		= 0;
 
@@ -63,13 +64,13 @@ protected:
 
 #define mLaunchVWDialog(dlg,clss,fn) \
 	mLaunchVWDialogOnly(dlg,clss,fn); \
-	mSetVWState( cWait4Dialog() )
+	mSetVWState( cWaitForDialog() )
 
 #define mHandleVWCancel(dlg,backstate) \
     if ( !dlg ) return; \
     if ( !dlg->uiResult() ) \
     { \
 	const bool doleave = mustLeave(dlg); \
-	dlg = 0; \
+	dlg = nullptr; \
 	mSetVWState( doleave ? cCancelled() : ((int)backstate) ); \
     }
