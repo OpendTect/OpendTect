@@ -1059,7 +1059,9 @@ void PreStackDisplay::getMousePosInfo( const visBase::EventInfo& ei,
 
     pos = Coord3( disppos, pos.z_ );
     const int zsample = posdata.range(false).nearestIndex( pos.z_ );
-    val.set( gather->data().get( trcidx, zsample ) );
+    int gatherpos[2] = { trcidx, zsample };
+    if ( gather->data().validPos(gatherpos) )
+	val.set( gather->data().get( trcidx, zsample ) );
 }
 
 
@@ -1077,7 +1079,7 @@ void PreStackDisplay::fillPar( IOPar& par ) const
 	par.set( sKey::Position(), bid_ );
     }
 
-    if  ( seis2d_ )
+    if ( seis2d_ )
     {
 	par.set( sKeyParent(), seis2d_->id() );
 	par.set( sKeyTraceNr(), trcnr_ );
