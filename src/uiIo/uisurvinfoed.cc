@@ -246,6 +246,8 @@ void uiSurveyInfoEditor::mkSIPFld( uiObject* att )
 	if ( icnm && *icnm )
 	    sipfld_->setIcon( sipfld_->size()-1, icnm );
     }
+
+    sipfld_->setHSzPol( uiObject::WideVar );
     sipfld_->setCurrentItem( 0 );
 
     if ( !si_.sipName().isEmpty() )
@@ -1086,9 +1088,17 @@ void uiSurveyInfoEditor::sipCB( CallBacker* )
     if ( !dlg || !dlg->go() )
 	return;
 
-    TrcKeyZSampling cs; Coord crd[3];
+    TrcKeyZSampling cs;
+    Coord crd[3];
     if ( !sip->getInfo(dlg.ptr(),cs,crd) )
 	return;
+
+    const BufferString newsurveyname = sip->getNewSurveyName();
+    if ( !newsurveyname.isEmpty() && si_.name().startsWith("New_Survey") )
+    {
+	si_.setName( newsurveyname.buf() );
+	survnmfld_->setText( newsurveyname.buf() );
+    }
 
     IOPar& pars = si_.getLogPars();
     sip->fillLogPars( pars );

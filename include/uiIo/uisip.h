@@ -71,6 +71,7 @@ public:
     virtual TDInfo		tdInfo() const		{ return Unknown; }
     virtual bool		xyInFeet() const	{ return false; }
     virtual const char*		iconName() const	{ return nullptr; }
+    virtual BufferString	getNewSurveyName() const { return ""; }
 
     virtual IOPar*		getImportPars() const	{ return nullptr; }
     virtual void		startImport(uiParent*,const IOPar&) {}
