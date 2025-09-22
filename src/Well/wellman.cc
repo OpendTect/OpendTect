@@ -1146,3 +1146,50 @@ float Well::storageToDisplayDepth( float zval )
     const UnitOfMeasure* dispunit = Well::Man::surveyDepthDisplayUnit();
     return getConvertedValue( zval, storunit, dispunit );
 }
+
+
+void updateObjPars( const char* uwi, IOObj& ioobj )
+{
+    IOPar& pars = ioobj.pars();
+    ioobj.pars().set( Well::Info::sKeyUwid(), uwi );
+}
+
+
+bool Well::putUWI( const MultiID& key, const char* uwi )
+{
+    if ( key.isUdf() )
+	return false;
+
+    PtrMan<IOObj> ioobj = IOM().get( key );
+    if ( !ioobj )
+	return false;
+
+    updateObjPars( uwi, *ioobj );
+    return IOM().commitChanges( *ioobj );
+}
+
+
+bool Well::putUWIs( const ObjectSet<std::pair<const MultiID,
+    const char*>>& uwiset )
+{
+    if ( uwiset.isEmpty() )
+	return true;
+
+    ObjectSet<const IOObj> ioobjs;
+    for ( const auto* pair : uwiset )
+    {
+	const MultiID& key = pair->first;
+	if ( key.isUdf() )
+	    continue;
+
+	IOObj* ioobj = IOM().get( key );
+	const StringView uwi( pair->second );
+	if ( !ioobj )
+	    continue;
+
+	updateObjPars( uwi, *ioobj );
+	ioobjs += ioobj;
+    }
+
+    return IOM().commitChanges( ioobjs );
+}

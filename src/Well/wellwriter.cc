@@ -767,7 +767,12 @@ bool MultiWellWriter::store( const MultiID& key, const Well::Data& wd,
 // Well::WriteAccess
 Well::WriteAccess::WriteAccess( const Data& wd )
     : wd_(wd)
-{}
+{
+    const BufferString uwi = wd.info().uwid_;
+    const MultiID key = wd.multiID();
+    if ( !key.isUdf() && !IOM().implExists(key) )
+	putUWI( key, uwi );
+}
 
 
 Well::WriteAccess::~WriteAccess()
