@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "welld2tmodel.h"
 #include "welldisp.h"
 #include "welllogset.h"
+#include "wellreader.h"
 #include "wellwriter.h"
 
 #include "uibulkwellimp.h"
@@ -83,6 +84,7 @@ uiWellPartServer::uiWellPartServer( uiApplService& a )
     , randLineDlgClosed(this)
     , uiwellpropDlgClosed(this)
 {
+    updateEntries();
     mAttachCB( IOM().surveyChanged, uiWellPartServer::survChangedCB );
     mAttachCB( uiWellMan::instanceCreated(),
 	       uiWellPartServer::wellManCreatedCB );
@@ -105,6 +107,41 @@ uiWellPartServer::~uiWellPartServer()
     deepErase( wellpropdlgs_ );
     deepErase( wellpropcaches_ );
     delete wellmgrinfodlg_;
+}
+
+
+void uiWellPartServer::updateEntries()
+{
+    const IOObjContext ctxt = mIOObjContext( Well );
+    ConstPtrMan<IOObj> obj = IOM().getFirst( ctxt );
+    const bool neesupdate = obj &&
+			    !obj->pars().isPresent( Well::Info::sKeyUwid() );
+    if ( !neesupdate )
+	return;
+
+    TypeSet<MultiID> allwellsids;
+    Well::Man::getWellKeys( allwellsids, false );
+    RefObjectSet<Well::Data> wds;
+    if ( allwellsids.isEmpty() )
+	return;
+
+    Well::LoadReqs req( Well::Inf );
+    MultiWellReader wtrdr( allwellsids, wds, req );
+    if ( !wtrdr.execute() )
+	return;
+
+    ManagedObjectSet<std::pair<const MultiID,const char*>> iduwiset;
+    for ( const auto& id : allwellsids )
+    {
+	iduwiset += new std::pair<const MultiID,const char*>( id, "" );
+	for ( const auto* wd : wds )
+	{
+	    if ( wd->multiID() == id )
+		iduwiset.last()->second = wd->info().uwid_;
+	}
+    }
+
+    Well::putUWIs( iduwiset );
 }
 
 

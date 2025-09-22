@@ -485,6 +485,7 @@ void uiWellMan::edWellTrack( CallBacker* )
 	wd->info().groundelev_ = origgl;
     }
 
+    Well::putUWI( wd->multiID(), wd->info().uwid_ );
     wd->trackchanged.trigger();
     mkFileInfo();
 }

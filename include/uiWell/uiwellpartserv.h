@@ -144,4 +144,6 @@ protected:
     void			exportToGISCB(CallBacker*);
     int				getPropDlgIndex(const MultiID&);
 
+    void			updateEntries();
+
 };

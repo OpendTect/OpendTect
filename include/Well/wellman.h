@@ -192,4 +192,11 @@ mGlobal(Well) IOObj* findIOObj(const char* wellnm,const char* uwi);
 mGlobal(Well) float displayToStorageDepth(float);
 mGlobal(Well) float storageToDisplayDepth(float);
 
+/*!\ use creafully, will rewrite the database entry.
+Rule-of-thumb: If IOM().implExists(id), then consider whether you really
+need it.*/
+mGlobal(Well) bool	putUWI(const MultiID&,const char* uwi);
+mGlobal(Well) bool	putUWIs(const ObjectSet<std::pair<const MultiID,
+				const char*>>&);
+
 } // namespace Well
