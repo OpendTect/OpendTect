@@ -1148,13 +1148,6 @@ float Well::storageToDisplayDepth( float zval )
 }
 
 
-void updateObjPars( const char* uwi, IOObj& ioobj )
-{
-    IOPar& pars = ioobj.pars();
-    ioobj.pars().set( Well::Info::sKeyUwid(), uwi );
-}
-
-
 bool Well::putUWI( const MultiID& key, const char* uwi )
 {
     if ( key.isUdf() )
@@ -1164,7 +1157,7 @@ bool Well::putUWI( const MultiID& key, const char* uwi )
     if ( !ioobj )
 	return false;
 
-    updateObjPars( uwi, *ioobj );
+    ioobj->pars().set( Well::Info::sKeyUwid(), uwi );
     return IOM().commitChanges( *ioobj );
 }
 
@@ -1187,7 +1180,7 @@ bool Well::putUWIs( const ObjectSet<std::pair<const MultiID,
 	if ( !ioobj )
 	    continue;
 
-	updateObjPars( uwi, *ioobj );
+	ioobj->pars().set( Well::Info::sKeyUwid(), uwi );
 	ioobjs += ioobj;
     }
 
