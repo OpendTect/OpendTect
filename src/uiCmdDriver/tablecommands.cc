@@ -251,7 +251,7 @@ TableActivator::TableActivator( const uiTable& uitable, const RowCol& rc,
 { \
     acttable_.selectionChanged.disable(); \
     if ( !toggle ) \
-	acttable_.removeAllSelections(); \
+	acttable_.clearSelection(); \
     RowCol rc; \
     for ( rc.row()=lowrc.row(); rc.row()<=highrc.row(); rc.row()++ ) \
     { \
@@ -266,7 +266,7 @@ TableActivator::TableActivator( const uiTable& uitable, const RowCol& rc,
 }
 
 
-void TableActivator::actCB( CallBacker* cb )
+void TableActivator::actCB( CallBacker* )
 {
     if ( actrc_.row()<acttable_.nrRows() && actrc_.col()<acttable_.nrCols() )
     {
@@ -363,7 +363,7 @@ TableFillActivator::TableFillActivator( const uiTable& uitable,
 {}
 
 
-void TableFillActivator::actCB( CallBacker* cb )
+void TableFillActivator::actCB( CallBacker* )
 {
     if ( actrc_.row()>=0 && actrc_.row()<acttable_.nrRows() &&
 	 actrc_.col()>=0 && actrc_.col()<acttable_.nrCols() &&
@@ -593,12 +593,12 @@ TableSelectActivator::TableSelectActivator( const uiTable& uitable,
 {}
 
 
-void TableSelectActivator::actCB( CallBacker* cb )
+void TableSelectActivator::actCB( CallBacker* )
 {
     if ( acttable_.maxNrOfSelections()>0 )
     {
 	acttable_.selectionChanged.disable();
-	acttable_.removeAllSelections();
+	acttable_.clearSelection();
 	int idx = 0;
 	while ( idx < actselset_.size() )
 	{

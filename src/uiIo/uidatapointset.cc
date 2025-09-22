@@ -919,7 +919,7 @@ void uiDataPointSet::notifySelectedCell()
     TypeSet<RowCol> selectedrowcols(xplotwin_->plotter().getDPSSelectedCells());
     if ( selectedrowcols.isEmpty() )
     {
-	tbl_->removeAllSelections();
+	tbl_->clearSelection();
 	return;
     }
 

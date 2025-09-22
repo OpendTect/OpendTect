@@ -579,7 +579,7 @@ void uiCustomMnemonicsSel::removeEntries( const TypeSet<int>& rows,
 	for ( int irow=nrrows; irow<tbl_->nrRows(); irow++ )
 	    tbl_->hideRow( irow, true );
 
-	tbl_->removeAllSelections();
+	tbl_->clearSelection();
     }
 }
 

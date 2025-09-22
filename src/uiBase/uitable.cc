@@ -1748,7 +1748,7 @@ void uiTable::clearTable()
 }
 
 
-void uiTable::removeAllSelections()
+void uiTable::clearSelection()
 {
     mBlockCmdRec;
     body_->clearSelection();
@@ -2008,7 +2008,7 @@ int uiTable::maxNrOfSelections() const
 void uiTable::selectItems( const TypeSet<RowCol>& rcs, bool yn )
 {
     mBlockCmdRec;
-    removeAllSelections();
+    clearSelection();
     for ( int idx=0; idx<rcs.size(); idx++ )
     {
 	if ( mIsUdf(rcs[idx].row()) || mIsUdf(rcs[idx].col()) )

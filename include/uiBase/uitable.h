@@ -245,7 +245,7 @@ public:
     void		selectColumn(int col);
     void		selectItems(const TypeSet<RowCol>&,bool);
     void		selectAll(bool yn);
-    void		removeAllSelections();
+    void		clearSelection();
     void		ensureCellVisible(const RowCol&);
 
     const char*		rowLabel(int) const;
@@ -357,6 +357,9 @@ public:
     bool		handleLongTabletPress() override;
     bool		needOfVirtualKeyboard() const;
     void		popupVirtualKeyboard(int globalx=-1,int globaly=-1);
+
+    mDeprecated("Use clearSelection()")
+    void		removeAllSelections()	{ clearSelection(); }
 
 protected:
 
