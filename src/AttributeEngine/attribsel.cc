@@ -441,6 +441,9 @@ void SelInfo::fillStored( bool steerdata, const char* filter )
     for ( int idx=0; idx<ioobjs.size(); idx++ )
     {
 	const IOObj& ioobj = *ioobjs[idx];
+	if ( !ioobj.implExists(true) )
+	    continue;
+
 	if ( *ioobj.group() == 'W' || *ioobj.group() == 'O' )
 	    continue;
 
