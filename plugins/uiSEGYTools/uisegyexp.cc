@@ -413,8 +413,7 @@ uiSEGYExp::uiSEGYExp( uiParent* p, Seis::GeomType gt )
     tsu.withmultiz( true ).withnullfill(true).fornewentry(false)
 					     .onlyrange(false);
     transffld_ = new uiSeisTransfer( this, tsu );
-    mAttachCB( transffld_->selChange, uiSEGYExp::updateTextHdrCB );
-
+    mAttachCB( transffld_->selChange, uiSEGYExp::subSelCB );
     transffld_->attach( alignedBelow, seissel_ );
 
     uiObject* attachobj = transffld_->attachObj();
@@ -488,9 +487,34 @@ void uiSEGYExp::inpSel( CallBacker* )
 	return;
 
     transffld_->updateFrom( *ioobj );
+    fillOutputName();
+}
+
+
+void uiSEGYExp::subSelCB( CallBacker* )
+{
+    updateTextHdrCB( nullptr );
+    fillOutputName();
+}
+
+
+void uiSEGYExp::fillOutputName()
+{
+    const IOObj* ioobj = seissel_->ioobj( true );
+    if ( !ioobj )
+	return;
 
     const FilePath fp = ioobj->fullUserExpr();
-    FilePath fnm( GetSurveyExportDir(), fp.baseName() );
+    BufferString basename = fp.baseName();
+
+    if ( is2D(geom_) )
+    {
+	BufferString lnm = transffld_->selectedLine();
+	lnm.add( "_" );
+	basename.insertAt( 0, lnm.buf() );
+    }
+
+    FilePath fnm( GetSurveyExportDir(), basename );
     fnm.setExtension( "sgy" );
     fsfld_->setFileName( fnm.fullPath() );
 }
