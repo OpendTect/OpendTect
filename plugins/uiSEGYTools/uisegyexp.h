@@ -55,11 +55,13 @@ protected:
     Coords::uiCoordSystemSel* coordsysselfld_;
 
     void		inpSel(CallBacker*);
+    void		subSelCB(CallBacker*);
     void		crsCB(CallBacker*);
     void		batchChg(CallBacker*);
     void		showSubselCB(CallBacker*);
     void		updateTextHdrCB(CallBacker*);
     bool		acceptOK(CallBacker*) override;
+    void		fillOutputName();
 
     friend class	uiSEGYExpMore;
     friend class	uiSEGYExpTxtHeader;
