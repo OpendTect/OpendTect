@@ -182,6 +182,8 @@ bool uiODPlaneDataTreeItem::init()
     mAttachCB( pdd->deSelection(), uiODPlaneDataTreeItem::selChg );
     mAttachCB( visserv_->getUiSlicePos()->positionChg,
 	       uiODPlaneDataTreeItem::posChange );
+    mAttachCB( visserv_->getUiSlicePos()->sliderReleased,
+	       uiODPlaneDataTreeItem::sliderReleasedCB );
 
     pdd_ = pdd;
     return uiODDisplayTreeItem::init();
@@ -362,7 +364,21 @@ void uiODPlaneDataTreeItem::posChange( CallBacker* )
     if ( slicepos->getDisplayID() != displayid_ )
 	return;
 
+    RefMan<visSurvey::PlaneDataDisplay> pdd = getDisplay();
+    if ( pdd && pdd->getOrientation()==OD::SliceType::Z )
+	pdd->setSlideActive( slicepos->isSliderActive() );
+
     movePlaneAndCalcAttribs( slicepos->getTrcKeyZSampling() );
+}
+
+
+void uiODPlaneDataTreeItem::sliderReleasedCB( CallBacker* )
+{
+    RefMan<visSurvey::PlaneDataDisplay> pdd = getDisplay();
+    if ( !pdd || pdd->getOrientation()!=OD::SliceType::Z )
+	return;
+
+    pdd->setSlideActive( false );
 }
 
 

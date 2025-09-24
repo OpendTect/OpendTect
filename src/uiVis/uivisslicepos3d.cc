@@ -12,6 +12,7 @@ ________________________________________________________________________
 #include "survinfo.h"
 #include "uitoolbutton.h"
 #include "uispinbox.h"
+#include "uislider.h"
 #include "uivispartserv.h"
 #include "vissurvscene.h"
 #include "visvolorthoslice.h"
@@ -66,6 +67,7 @@ void uiSlicePos3DDisp::setDisplay( const VisID& dispid )
     sliceposbox_->setSensitive( isvalidso );
     slicestepbox_->setSensitive( isvalidso );
     prevbut_->setSensitive( isvalidso );
+    sliceslider_->setSensitive( isvalidso );
     nextbut_->setSensitive( isvalidso );
 
     curpdd_ = isvalidso ? curpdd.ptr() : nullptr;

@@ -164,6 +164,8 @@ public:
     void			setEditMode(bool yn)	{ ineditmode_ = yn; };
     bool			inEditMode() const	{ return ineditmode_; }
 
+    void			setSlideActive(bool yn);
+
 protected:
 				~PlaneDataDisplay();
 
@@ -214,7 +216,7 @@ protected:
     RefMan<visBase::EventCatcher>	eventcatcher_;
     MouseCursor				mousecursor_;
     RefMan<visBase::DepthTabPlaneDragger> dragger_;
-    bool				ineditmode_	= false;
+    bool				ineditmode_		    = false;
 
     RefMan<visBase::GridLines>		gridlines_;
     SliceType				orientation_ = OD::SliceType::Inline;
@@ -230,18 +232,21 @@ protected:
     Notifier<PlaneDataDisplay>		datachanged_;
 
     RefMan<ZAxisTransform>		datatransform_;
-    int					voiidx_ = -1;
+    int					voiidx_			    = -1;
 
     ConstRefMan<mVisTrans>		displaytrans_;
     RefMan<visBase::TextureRectangle>	texturerect_;
 
-    int					originalresolution_ = -1;
-    bool				forcemanipupdate_ = false;
-    bool				interactivetexturedisplay_ = false;
+    int					originalresolution_	    = -1;
+    bool				forcemanipupdate_	    = false;
+    bool				interactivetexturedisplay_  = false;
+
+    bool				slideactive_		    = false;
+    bool				datachgd_		    = false;
 
     struct UpdateStageInfo
     {
-	bool		refreeze_ = true;
+	bool		refreeze_	= true;
 	TrcKeyZSampling oldcs_;
 	SliceType	oldorientation_ = OD::SliceType::Inline;
     };

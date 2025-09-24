@@ -797,7 +797,16 @@ bool PlaneDataDisplay::setVolumeDataPack( int attrib, VolumeDataPack* voldp,
 
     createTransformedDataPack( attrib, taskr );
     updateChannels( attrib, taskr );
-    datachanged_.trigger();
+    if ( orientation_ == OD::SliceType::Z )
+    {
+	if ( !slideactive_ )
+	    datachanged_.trigger();
+
+	datachgd_ = slideactive_;
+    }
+    else
+	datachanged_.trigger();
+
     return true;
 }
 
@@ -1346,5 +1355,15 @@ void PlaneDataDisplay::updateTexOriginAndScale( int attrib,
     channels_->setScale( attrib, scale );
 }
 
+
+void PlaneDataDisplay::setSlideActive( bool yn )
+{
+    slideactive_ = yn;
+    if ( !slideactive_ && datachgd_ )
+    {
+	datachanged_.trigger();
+	datachgd_ = false;
+    }
+}
 
 } // namespace visSurvey

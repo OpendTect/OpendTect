@@ -63,6 +63,7 @@ protected:
 
     void		selChg(CallBacker*);
     void		posChange(CallBacker*);
+    void		sliderReleasedCB(CallBacker*);
     void		movePlaneAndCalcAttribs(const TrcKeyZSampling&);
     void		keyUnReDoPressedCB(CallBacker*);
 

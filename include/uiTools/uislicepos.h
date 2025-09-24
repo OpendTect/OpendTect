@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "trckeyzsampling.h"
 
 class uiLabel;
+class uiSlider;
 class uiSpinBox;
 class uiToolBar;
 class uiToolButton;
@@ -42,8 +43,10 @@ public:
 
     float		getZStep() const;
     void		setZStep(float);
+    bool		isSliderActive() const;
 
     Notifier<uiSlicePos> positionChg;
+    Notifier<uiSlicePos> sliderReleased;
 
 protected:
 			uiSlicePos(uiParent*);
@@ -54,10 +57,13 @@ protected:
     uiSpinBox*		slicestepbox_;
     uiToolButton*	prevbut_;
     uiToolButton*	nextbut_;
+    uiSlider*		sliceslider_;
     float		laststeps_[3];
     float		zfactor_	= mUdf(float);
     TrcKeyZSampling	curcs_;
     uiStringSet		boxlabels_;
+
+    bool		isslideractive_			= false;
 
     const ZDomain::Info*    zdominfo_			= nullptr;
     const ZDomain::Info*    dispzdominfo_		= nullptr;
@@ -78,6 +84,8 @@ protected:
 				 const TrcKeyZSampling&);
     void		setPosBoxVal(SliceDir,const TrcKeyZSampling&);
 
+    void		sliderSlicePosChg(CallBacker*);
+    void		sliderReleasedCB(CallBacker*);
     void		prevCB(CallBacker*);
     void		nextCB(CallBacker*);
 };
