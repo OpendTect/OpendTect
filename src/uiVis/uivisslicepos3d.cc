@@ -10,6 +10,7 @@ ________________________________________________________________________
 #include "uivisslicepos3d.h"
 
 #include "survinfo.h"
+#include "uitoolbar.h"
 #include "uitoolbutton.h"
 #include "uispinbox.h"
 #include "uislider.h"
@@ -72,6 +73,7 @@ void uiSlicePos3DDisp::setDisplay( const VisID& dispid )
 
     curpdd_ = isvalidso ? curpdd.ptr() : nullptr;
     curvol_ = isvalidso ? curvol.ptr() : nullptr;
+    toolbar_->display( isvalidso );
     if ( !isvalidso )
 	return;
 

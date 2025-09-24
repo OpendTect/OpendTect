@@ -385,7 +385,7 @@ void uiODPlaneDataTreeItem::sliderReleasedCB( CallBacker* )
 void uiODPlaneDataTreeItem::selChg( CallBacker* )
 {
     ConstRefMan<visSurvey::PlaneDataDisplay> pdd = getDisplay();
-    if ( pdd && pdd->isSelected() )
+    if ( pdd )
 	visserv_->getUiSlicePos()->setDisplay( pdd->id() );
 }
 
