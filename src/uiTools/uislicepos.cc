@@ -174,7 +174,6 @@ void uiSlicePos::sliderSlicePosChg( CallBacker* )
 	isslideractive_ = true;
 
     uiSpinBox* posbox = sliceposbox_;
-    uiSpinBox* stepbox = slicestepbox_;
     OD::SliceType type = getOrientation();
     if ( type == OD::SliceType::Inline || type == OD::SliceType::Crossline )
 	posbox->setValue( sliceslider_->getIntValue() );
