@@ -194,6 +194,7 @@ uiWorldRect uiFlatViewer::getBoundingBox( bool wva ) const
 	return uiWorldRect(0,0,1,1);
 
     ConstRefMan<FlatDataPack> dp = datapack.get();
+    MouseCursorChanger mcc( MouseCursor::Shape::Wait );
     const FlatPosData& pd = dp->posData();
     StepInterval<double> rg0( pd.range(true) );
     StepInterval<double> rg1( pd.range(false) );
