@@ -11,22 +11,18 @@ ________________________________________________________________________
 
 #include "uiamplspectrum.h"
 #include "uifkspectrum.h"
-#include "uimenu.h"
 #include "uimenuhandler.h"
 #include "uiodapplmgr.h"
 #include "uioddisplaytreeitem.h"
 #include "uiodscenemgr.h"
 #include "uiodviewer2dmgr.h"
 #include "uishortcutsmgr.h"
-#include "uistatsdisplay.h"
-#include "uistatsdisplaywin.h"
 #include "uitreeview.h"
 #include "uivispartserv.h"
 
 #include "attribsel.h"
 
 //TODO:remove when Flattened scene ok for 2D Viewer
-#include "emhorizonztransform.h"
 #include "vissurvscene.h"
 
 
@@ -35,12 +31,7 @@ mImplFactory2Param( uiODDataTreeItem, const Attrib::SelSpec&,
 
 uiODDataTreeItem::uiODDataTreeItem( const char* parenttype )
     : uiTreeItem(uiString::emptyString())
-    , parenttype_(parenttype)
     , visserv_(ODMainWin()->applMgr().visServer())
-    , menu_(0)
-    , statswin_(0)
-    , ampspectrumwin_(0)
-    , fkspectrumwin_(0)
     , movemnuitem_(tr("Move"))
     , movetotopmnuitem_(tr("To Top"))
     , movetobottommnuitem_(tr("To Bottom"))
@@ -54,6 +45,7 @@ uiODDataTreeItem::uiODDataTreeItem( const char* parenttype )
     , fkspectrumitem_(m3Dots(tr("F-K Spectrum")))
     , view2dwvaitem_(tr("2D Viewer - Wiggle"))
     , view2dvditem_(tr("2D Viewer"))
+    , parenttype_(parenttype)
 {
     statisticsitem_.iconfnm = "histogram";
     removemnuitem_.iconfnm = "remove";
@@ -77,7 +69,6 @@ uiODDataTreeItem::~uiODDataTreeItem()
 	menu_->unRef();
     }
 
-    delete statswin_;
     delete ampspectrumwin_;
 
     MenuHandler* tb = visserv_->getToolBarHandler();
@@ -127,7 +118,7 @@ bool uiODDataTreeItem::init()
 }
 
 
-void uiODDataTreeItem::checkCB( CallBacker* cb )
+void uiODDataTreeItem::checkCB( CallBacker* )
 {
     visserv_->enableAttrib( displayID(), attribNr(), isChecked() );
 }

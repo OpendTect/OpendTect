@@ -77,7 +77,7 @@ protected:
 
     void			displayMiniCtab( const ColTab::Sequence* );
 
-    uiMenuHandler*		menu_;
+    uiMenuHandler*		menu_				= nullptr;
     MenuItem			movemnuitem_;
     MenuItem			movetotopmnuitem_;
     MenuItem			movetobottommnuitem_;
@@ -94,7 +94,6 @@ protected:
     MenuItem			view2dvditem_;
     const char*			parenttype_;
 
-    uiStatsDisplayWin*		statswin_;
-    uiAmplSpectrum*		ampspectrumwin_;
-    uiFKSpectrum*		fkspectrumwin_;
+    uiAmplSpectrum*		ampspectrumwin_			= nullptr;
+    uiFKSpectrum*		fkspectrumwin_			= nullptr;
 };

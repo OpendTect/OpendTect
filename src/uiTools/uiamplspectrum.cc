@@ -27,6 +27,7 @@ ________________________________________________________________________
 #include "fourier.h"
 #include "od_ostream.h"
 #include "oddirs.h"
+#include "survgeom2d.h"
 
 
 uiAmplSpectrum::uiAmplSpectrum( uiParent* p, const uiAmplSpectrum::Setup& setup)
@@ -124,6 +125,7 @@ bool uiAmplSpectrum::setDataPackID( const DataPackID& dpid,
 bool uiAmplSpectrum::setDataPack( const DataPack& dp, int version )
 {
     BufferString dpversionnm;
+    BufferString auxname;
 
     mDynamicCastGet(const VolumeDataPack*,voldp,&dp)
     mDynamicCastGet(const FlatDataPack*,fdp,&dp)
@@ -135,6 +137,13 @@ bool uiAmplSpectrum::setDataPack( const DataPack& dp, int version )
 	dpversionnm = voldp->getComponentName( version );
 	setup_.nyqvistspspace_ = voldp->zRange().step_;
 	setData( voldp->data(version) );
+
+	if ( voldp->is2D() )
+	{
+	    const TrcKey tk = voldp->getTrcKey( 0 );
+	    const auto& geom2d = Survey::GM().get2D( tk.geomID() );
+	    auxname = geom2d.getName();
+	}
     }
     else if ( fdp )
     {
@@ -148,7 +157,10 @@ bool uiAmplSpectrum::setDataPack( const DataPack& dp, int version )
     else
 	return false;
 
-    setCaption( tr( "Amplitude Spectrum for %1" ).arg( dpversionnm ) );
+    if ( !auxname.isEmpty() )
+	dpversionnm.add( " at " ).add( auxname );
+
+    disp_->setTitle( tr("Amplitude Spectrum - %1").arg(dpversionnm) );
 
     return true;
 }
