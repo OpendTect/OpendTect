@@ -206,7 +206,8 @@ macro( COPY_QTWEBENGINE )
 		    "${COPYFROMEXEDIR}/../resources/icudtl.dat"
 		    "${COPYFROMEXEDIR}/../resources/qtwebengine_*.pak" )
 	    file( COPY ${WEBENGINE_RESOURCES_FILES}
-		  DESTINATION "${COPYTOEXEDIR}/../resources" )
+		  DESTINATION "${COPYTOEXEDIR}/../resources"
+		  PATTERN "*.debug.pak" EXCLUDE )
 	    unset( WEBENGINE_RESOURCES_FILES )
 	endif()
 
@@ -235,9 +236,11 @@ macro( COPY_QTWEBENGINE )
 		  DESTINATION "${COPYTOEXEDIR}" )
 	endif()
 
-	if ( EXISTS "${COPYFROMEXEDIR}/../resources/v8_context_snapshot.debug.bin" )
-	    file( COPY "${COPYFROMEXEDIR}/../resources/v8_context_snapshot.debug.bin"
-	      DESTINATION "${COPYTOEXEDIR}/../resources" )
+	file( GLOB WEBENGINE_RESOURCES_FILES
+		"${COPYFROMEXEDIR}/../resources/*.debug.*" )
+	if ( NOT "${WEBENGINE_RESOURCES_FILES}" STREQUAL "" )
+	    file( COPY ${WEBENGINE_RESOURCES_FILES}
+		  DESTINATION "${COPYTOEXEDIR}/../resources" )
 	endif()
 
     endif()
