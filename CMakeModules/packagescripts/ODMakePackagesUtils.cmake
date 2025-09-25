@@ -17,6 +17,7 @@ macro( CLEAN_PACK_VARIABLES )
     unset( SPECMODS )
     unset( EXCLUDE_SPECMODS )
     unset( COPY_TARGETS )
+    unset( APPEND_TO_PACKAGE )
 # root files
     unset( SPECFILES )
 # share files
@@ -76,7 +77,11 @@ macro( INIT_DESTINATIONDIR PACKAGE_NAME )
     set( COPYTOEXEDIR "${DESTINATION_DIR}/${OD_RUNTIME_DIRECTORY}" )
 
     if ( EXISTS "${PACKAGE_DIR}/${PACKAGE_FILENAME}" )
-	file( REMOVE_RECURSE "${PACKAGE_DIR}/${PACKAGE_FILENAME}" )
+	if ( NOT DEFINED APPEND_TO_PACKAGE )
+	    file( REMOVE_RECURSE "${PACKAGE_DIR}/${PACKAGE_FILENAME}" )
+	elseif( NOT APPEND_TO_PACKAGE )
+	    file( REMOVE_RECURSE "${PACKAGE_DIR}/${PACKAGE_FILENAME}" )
+	endif()
     endif()
 
     file( WRITE "${COPYTODIR}/relinfo/ver.${VER_FILENAME}.txt" ${FULLVER_NAME} )

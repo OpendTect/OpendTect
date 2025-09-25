@@ -27,6 +27,7 @@ set( SPECMODS ${OD_GUI_SPECMODS} )
 if ( ${PACKAGE_TYPE} STREQUAL "Production" )
 
     set( COPY_TARGETS FALSE )
+    set( APPEND_TO_PACKAGE TRUE )
 
 else()
 
@@ -98,6 +99,3 @@ else()
 endif()
 
 set( PACK devel )
-if ( ${PACKAGE_TYPE} STREQUAL "Production" )
-    set( PACK "${PACK}rel" )
-endif()
