@@ -59,8 +59,17 @@ macro( QT_INSTALL_PLUGINS )
 			 DESTINATION "${OD_RUNTIME_DIRECTORY}/../plugins/${QTPLUGIN_DIR}" )
 	    endif()
 	else()
-	    install( PROGRAMS "${QT_ROOT}/plugins/${QTPLUGIN_FILE}"
-		     DESTINATION "${OD_RUNTIME_DIRECTORY}/../plugins/${QTPLUGIN_DIR}" )
+	    if ( APPLE )
+		install( PROGRAMS "${QT_ROOT}/plugins/${QTPLUGIN_FILE}"
+			 CONFIGURATIONS MinSizeRel;RelWithDebInfo;Release
+			 DESTINATION "${OD_RUNTIME_DIRECTORY}/../plugins/${QTPLUGIN_DIR}" )
+		install( PROGRAMS "${QT_ROOT}/plugins/${QTPLUGIN_FILE}"
+			 CONFIGURATIONS Debug
+			 DESTINATION "${OD_RUNTIME_DIRECTORY}/../../plugins/${QTPLUGIN_DIR}" )
+	    else()
+		install( PROGRAMS "${QT_ROOT}/plugins/${QTPLUGIN_FILE}"
+			 DESTINATION "${OD_RUNTIME_DIRECTORY}/../plugins/${QTPLUGIN_DIR}" )
+	    endif()
 	endif()
     endforeach()
 
@@ -73,17 +82,36 @@ endmacro(QT_INSTALL_PLUGINS)
 macro( QT_SETUP_CORE_INTERNALS )
     OD_FIND_QT()
     set( QTCONFTXT "[Paths]\nPrefix=..\n" )
+    string( REPLACE ":\\" ":/" CMAKE_INSTALL_PREFIX_ed "${CMAKE_INSTALL_PREFIX}" )
     if ( APPLE )
 	set( QTCONFTXT "${QTCONFTXT}Translations=Contents/translations\n" )
+	set( QTCONFTXT_DEBUG "[Paths]\nPrefix=../..\n" )
+	set( QTCONFTXT_DEBUG "${QTCONFTXT_DEBUG}Translations=Contents/translations\n" )
+	install( CODE "
+		    if( \"$<CONFIG>\" STREQUAL \"Debug\" )
+		        file( WRITE \"${CMAKE_INSTALL_PREFIX_ed}/${OD_RUNTIME_DIRECTORY}/qt.conf\" \"${QTCONFTXT_DEBUG}\" ) 
+		    else()
+		        file( WRITE \"${CMAKE_INSTALL_PREFIX_ed}/${OD_RUNTIME_DIRECTORY}/qt.conf\" \"${QTCONFTXT}\" ) 
+		    endif()
+		      " )
+    else()
+	install( CODE "
+		 file( WRITE \"${CMAKE_INSTALL_PREFIX_ed}/${OD_RUNTIME_DIRECTORY}/qt.conf\" \"${QTCONFTXT}\" ) " )
     endif()
-    string( REPLACE ":\\" ":/" CMAKE_INSTALL_PREFIX_ed "${CMAKE_INSTALL_PREFIX}" )
-    install( CODE "
-	     file( WRITE \"${CMAKE_INSTALL_PREFIX_ed}/${OD_RUNTIME_DIRECTORY}/qt.conf\" \"${QTCONFTXT}\" ) " )
 
     file( GLOB TRANSLATION_FILES ${QT_ROOT}/translations/qt_*.qm
 				 ${QT_ROOT}/translations/qtbase_*.qm )
-    install( FILES ${TRANSLATION_FILES}
-	     DESTINATION "${OD_RUNTIME_DIRECTORY}/../translations" )
+    if ( APPLE )
+	install( FILES ${TRANSLATION_FILES}
+		 CONFIGURATIONS MinSizeRel;RelWithDebInfo;Release
+		 DESTINATION "${OD_RUNTIME_DIRECTORY}/../translations" )
+	install( FILES ${TRANSLATION_FILES}
+		 CONFIGURATIONS Debug
+		 DESTINATION "${OD_RUNTIME_DIRECTORY}/../../translations" )
+    else()
+	install( FILES ${TRANSLATION_FILES}
+		 DESTINATION "${OD_RUNTIME_DIRECTORY}/../translations" )
+    endif()
 
     if ( UNIX AND NOT APPLE )
 	install( CODE "
@@ -248,8 +276,17 @@ macro( QT_SETUP_WEBENGINE_INTERNALS )
     QT_INSTALL_PLUGINS()
 
     file( GLOB WEBENGINE_TRANSLATION_FILES "${QT_ROOT}/translations/qtwebengine_*.qm" )
-    install( FILES ${WEBENGINE_TRANSLATION_FILES}
-	     DESTINATION "${OD_RUNTIME_DIRECTORY}/../translations" )
+    if ( APPLE )
+	install( FILES ${WEBENGINE_TRANSLATION_FILES}
+		 CONFIGURATIONS MinSizeRel;RelWithDebInfo;Release
+		 DESTINATION "${OD_RUNTIME_DIRECTORY}/../translations" )
+	install( FILES ${WEBENGINE_TRANSLATION_FILES}
+		 CONFIGURATIONS Debug
+		 DESTINATION "${OD_RUNTIME_DIRECTORY}/../../translations" )
+    else()
+	install( FILES ${WEBENGINE_TRANSLATION_FILES}
+		 DESTINATION "${OD_RUNTIME_DIRECTORY}/../translations" )
+    endif()
 
     if ( APPLE )
 	set( WEBENGINE_RESOURCES_DIR "${QT_ROOT}/lib/QtWebEngineCore.framework/Resources" )
@@ -259,8 +296,17 @@ macro( QT_SETUP_WEBENGINE_INTERNALS )
 	set( WEBENGINE_LOCALES_DIR "${QT_ROOT}/translations" )
     endif()
 
-    install( DIRECTORY "${WEBENGINE_LOCALES_DIR}/qtwebengine_locales"
-	     DESTINATION "${OD_RUNTIME_DIRECTORY}/../translations" )
+    if ( APPLE )
+	install( DIRECTORY "${WEBENGINE_LOCALES_DIR}/qtwebengine_locales"
+		 CONFIGURATIONS MinSizeRel;RelWithDebInfo;Release
+		 DESTINATION "${OD_RUNTIME_DIRECTORY}/../translations" )
+	install( DIRECTORY "${WEBENGINE_LOCALES_DIR}/qtwebengine_locales"
+		 CONFIGURATIONS Debug
+		 DESTINATION "${OD_RUNTIME_DIRECTORY}/../../translations" )
+    else()
+	install( DIRECTORY "${WEBENGINE_LOCALES_DIR}/qtwebengine_locales"
+		 DESTINATION "${OD_RUNTIME_DIRECTORY}/../translations" )
+    endif()
 
     file( GLOB WEBENGINE_RESOURCES_FILES
 		"${WEBENGINE_RESOURCES_DIR}/icudtl.dat"
