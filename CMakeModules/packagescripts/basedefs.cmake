@@ -79,8 +79,8 @@ endforeach()
 if( WIN32 )
     set( ODSCRIPTS od_external.bat )
 else()
-    file( GLOB ODSCRIPTS RELATIVE "${CMAKE_INSTALL_PREFIX}/${MISC_INSTALL_PREFIX}/bin"
-	    "${CMAKE_INSTALL_PREFIX}/${MISC_INSTALL_PREFIX}/bin/od_*" )
+    file( GLOB ODSCRIPTS RELATIVE "${COPYFROMSCRIPTSDIR}"
+	    "${COPYFROMSCRIPTSDIR}/od_*" )
     list( REMOVE_ITEM ODSCRIPTS od_external.bat od_main_debug.bat )
     list( APPEND ODSCRIPTS init_dtect_GL mksethdir )
     if ( APPLE )

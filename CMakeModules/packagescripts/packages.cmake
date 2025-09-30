@@ -13,16 +13,14 @@ endif()
 
 if ( ${PACKAGE_TYPE} STREQUAL "Production" )
     list( APPEND PACKAGELIST basedatadefs basedefs baseguidefs )
+    if ( BUILD_DOCUMENTATION AND EXISTS "${CLASSDOC_SCRIPT_LOCATION}" )
+	list( APPEND PACKAGELIST classdocdefs )
+    endif()
+    if ( BUILD_USERDOC AND EXISTS "${USERDOC_PROJECT}" )
+	list( APPEND PACKAGELIST docdefs )
+    endif()
 endif()
 
 if ( WIN32 )
     list( APPEND PACKAGELIST colopdefs )
-endif()
-
-if ( BUILD_USERDOC AND EXISTS "${USERDOC_PROJECT}" )
-    list( APPEND PACKAGELIST doc )
-endif()
-
-if ( BUILD_DOCUMENTATION AND EXISTS "${CLASSDOC_SCRIPT_LOCATION}" )
-    list( APPEND PACKAGELIST classdoc )
 endif()

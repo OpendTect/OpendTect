@@ -16,14 +16,27 @@ list( APPEND DATALIST BatchPrograms ColTabs EnvVars FileFormats Mnemonics
 	ModDeps.od MouseControls odSettings omf qtdefaultstate.ini Properties
 	RockPhysics ShortCuts UnitsOfMeasure welldispSettings )
 
-file( GLOB DATAICONS RELATIVE "${CMAKE_INSTALL_PREFIX}/${OD_DATA_INSTALL_RELPATH}"
-	"${CMAKE_INSTALL_PREFIX}/${OD_DATA_INSTALL_RELPATH}/*.ico"
-	"${CMAKE_INSTALL_PREFIX}/${OD_DATA_INSTALL_RELPATH}/*.png" )
+file( GLOB DATAICONS RELATIVE "${COPYFROMDATADIR}"
+	"${COPYFROMDATADIR}/*.ico"
+	"${COPYFROMDATADIR}/*.png" )
 list( APPEND DATALIST ${DATAICONS} )
+
+list( APPEND OTHERFILES "${COPYFROMDATADIR}/localizations/od_en_US.qm" )
+list( APPEND OTHERFILESDEST "${COPYTODATADIR}/localizations" )
+
+list( APPEND OTHERFILES "${COPYFROMDIR}/relinfo/README.txt" )
+list( APPEND OTHERFILESDEST "${COPYTODIR}/relinfo" )
+list( APPEND OTHERFILES "${COPYFROMDIR}/relinfo/RELEASEINFO.txt" )
+list( APPEND OTHERFILESDEST "${COPYTODIR}/doc/ReleaseInfo" )
+
+list( APPEND OTHERFILES "${COPYFROMDIR}/doc/Videos.od" )
+list( APPEND OTHERFILESDEST "${COPYTODIR}/doc" )
 
 set( PYTHONREQLIST
 	"basic_requirements"
 	"notebooks_requirements"
 	"presentation_maker_requirements" )
+
+set( ISBASE TRUE )
 
 set( PACK basedata )
