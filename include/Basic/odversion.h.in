@@ -16,4 +16,15 @@ ________________________________________________________________________
 #define mODPatchVersion		@OpendTect_VERSION_PATCH@
 
 #define mODVersion		@OpendTect_VERSION_MAJOR@@OpendTect_VERSION_MINOR@@OpendTect_VERSION_PATCH@
+
+/*
+   OD_VERSION is (major << 16) | (minor << 8) | patch.
+*/
+#define OD_VERSION		OD_VERSION_CHECK(mODMajorVersion, mODMinorVersion, mODPatchVersion)
+
+/*
+   can be used like #if OD_VERSION >= OD_VERSION_CHECK(6, 4, 0)
+*/
+#define OD_VERSION_CHECK(major, minor, patch) ((major<<16)|(minor<<8)|(patch))
+
 #define mODFullVersion		"@OpendTect_FULL_VERSION@"
