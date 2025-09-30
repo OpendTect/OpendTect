@@ -16,8 +16,15 @@ macro( CLEAN_PACK_VARIABLES )
     unset( EXCLUDE_PLUGINS )
     unset( SPECMODS )
     unset( EXCLUDE_SPECMODS )
-    unset( COPY_TARGETS )
+    unset( COPY_ALOS ) #Default true in Release configuration
+    unset( COPY_TARGETS ) #Default true
+    unset( COPY_LIBS ) #Link libraries, if different from runtime libraries, default false
+    unset( COPY_PDBS ) #Windows only, default false
     unset( APPEND_TO_PACKAGE )
+    unset( ISBASE )
+    unset( ISDEVEL )
+    unset( ISUSERDOC )
+    unset( ISCLASSDOC )
 # root files
     unset( SPECFILES )
 # share files
@@ -30,7 +37,7 @@ macro( CLEAN_PACK_VARIABLES )
     unset( PYTHONDIR )
 # any other file or directory
 # boths lists OTHERFILES and OTHERFILESDEST must have the same size
-# and should use absolute file paths
+# and MUST use absolute file paths
     unset( OTHERFILES )
     unset( OTHERFILESDEST )
     unset( THIRDPARTY_LIBS )
@@ -40,7 +47,7 @@ macro( CLEAN_PACK_VARIABLES )
 endmacro(CLEAN_PACK_VARIABLES)
 
 macro( INIT_DESTINATIONDIR PACKAGE_NAME )
-    if( "${PACKAGE_NAME}" MATCHES "basedata$" OR "${PACKAGE_NAME}" MATCHES "doc$" )
+    if ( ISBASE OR ISUSERDOC OR ISCLASSDOC )
 	set( VER_FILENAME "${PACKAGE_NAME}" )
 	if ( APPLE )
 	    set ( VER_FILENAME "${VER_FILENAME}_mac" )
@@ -51,30 +58,9 @@ macro( INIT_DESTINATIONDIR PACKAGE_NAME )
 	set( PACKAGE_FILENAME "${PACKAGE_NAME}_${OD_PLFSUBDIR}.zip" )
     endif()
 
-    if( NOT EXISTS "${PACKAGE_DIR}" )
-	file( MAKE_DIRECTORY "${PACKAGE_DIR}" )
-    endif()
-
-    set( DESTINATION_DIR "${PACKAGE_DIR}/${REL_DIR}" )
     if( IS_DIRECTORY "${DESTINATION_DIR}" )
 	file( REMOVE_RECURSE "${DESTINATION_DIR}" )
     endif()
-
-    if ( APPLE )
-	set( MISC_INSTALL_PREFIX "/Contents/Resources" )
-    endif()
-    set( COPYFROMDIR "${CMAKE_INSTALL_PREFIX}${MISC_INSTALL_PREFIX}" )
-    set( COPYTODIR "${DESTINATION_DIR}${MISC_INSTALL_PREFIX}" )
-    set( COPYFROMSCRIPTSDIR "${COPYFROMDIR}/bin" )
-    set( COPYTOSCRIPTSDIR "${COPYTODIR}/bin" )
-    set( COPYFROMDATADIR "${COPYFROMDIR}/share" )
-    set( COPYTODATADIR "${COPYTODIR}/share" )
-    set( COPYFROMLIBDIR "${CMAKE_INSTALL_PREFIX}/${OD_LIBRARY_DIRECTORY}" )
-    set( COPYTOLIBDIR "${DESTINATION_DIR}/${OD_LIBRARY_DIRECTORY}" )
-    set( COPYFROMLOCDIR "${CMAKE_INSTALL_PREFIX}/${OD_LOCATION_DIRECTORY}" )
-    set( COPYTOLOCDIR "${DESTINATION_DIR}/${OD_LOCATION_DIRECTORY}" )
-    set( COPYFROMEXEDIR "${CMAKE_INSTALL_PREFIX}/${OD_RUNTIME_DIRECTORY}" )
-    set( COPYTOEXEDIR "${DESTINATION_DIR}/${OD_RUNTIME_DIRECTORY}" )
 
     if ( EXISTS "${PACKAGE_DIR}/${PACKAGE_FILENAME}" )
 	if ( NOT DEFINED APPEND_TO_PACKAGE )
@@ -285,8 +271,17 @@ endmacro(COPY_DATAFILES)
 
 macro( CREATE_PACKAGE PACKAGE_NAME )
 
+    if ( NOT DEFINED COPY_ALOS AND ${PACKAGE_TYPE} STREQUAL "Production" )
+	set( COPY_ALOS TRUE )
+    endif()
     if ( NOT DEFINED COPY_TARGETS )
 	set( COPY_TARGETS TRUE )
+    endif()
+    if ( NOT DEFINED COPY_LIBS )
+	set( COPY_LIBS FALSE )
+    endif()
+    if ( NOT DEFINED COPY_PDBS )
+	set( COPY_PDBS FALSE )
     endif()
 
     foreach( LIB IN LISTS LIBLIST PLUGINS SPECMODS )
@@ -303,11 +298,15 @@ macro( CREATE_PACKAGE PACKAGE_NAME )
 		COPY_LIB()
 	    endif()
 
-	    if ( WIN32 AND "${PACKAGE_NAME}" MATCHES "^devel" )
-		file( COPY "${COPYFROMLIBDIR}/${LIB}${CMAKE_POSTFIX}.lib"
-		      DESTINATION "${COPYTOLIBDIR}" )
-		file( COPY "${COPYFROMLOCDIR}/${LIB}${CMAKE_POSTFIX}.pdb"
-		      DESTINATION "${COPYTOLOCDIR}" )
+	    if ( WIN32 )
+		if ( COPY_LIBS )
+		    file( COPY "${COPYFROMLIBDIR}/${LIB}${CMAKE_POSTFIX}.lib"
+			  DESTINATION "${COPYTOLIBDIR}" )
+		endif()
+		if ( COPY_PDBS )
+		    file( COPY "${COPYFROMLOCDIR}/${LIB}${CMAKE_POSTFIX}.pdb"
+			  DESTINATION "${COPYTOLOCDIR}" )
+		endif()
 	    endif()
 	endif()
 
@@ -328,7 +327,7 @@ macro( CREATE_PACKAGE PACKAGE_NAME )
 	    file( COPY "${COPYFROMEXEDIR}/${EXECFILE}"
 		  DESTINATION "${COPYTOEXEDIR}" )
 	endif()
-	if ( WIN32 AND "${PACKAGE_NAME}" MATCHES "^devel" AND DEFINED PDB_FILE )
+	if ( WIN32 AND DEFINED PDB_FILE AND COPY_PDBS )
 	    file( COPY "${COPYFROMEXEDIR}/${PDB_FILE}"
 		  DESTINATION "${COPYTOEXEDIR}" )
 	endif()
@@ -337,8 +336,7 @@ macro( CREATE_PACKAGE PACKAGE_NAME )
 	unset( PDB_FILE )
     endforeach()
 
-    if ( ${PACKAGE_TYPE} STREQUAL "Production" AND
-	 NOT ${PACKAGE_NAME} MATCHES "^devel" )
+    if ( COPY_ALOS )
 	foreach( PLUGIN ${PLUGINS} )
 	    file( COPY "${COPYFROMDIR}/plugins/${OD_PLFSUBDIR}"
 		  DESTINATION "${COPYTODIR}/plugins"
@@ -372,101 +370,6 @@ macro( CREATE_PACKAGE PACKAGE_NAME )
 
 endmacro(CREATE_PACKAGE)
 
-macro( CREATE_BASEPACKAGE PACKAGE_NAME )
-    if( ${PACKAGE_NAME} STREQUAL "basedata" )
-	set( ODDGBSTR "od" )
-	file( COPY "${COPYFROMDATADIR}/localizations/od_en_US.qm"
-	      DESTINATION "${COPYTODATADIR}/localizations" )
-	file( COPY "${COPYFROMDIR}/relinfo/README.txt"
-	      DESTINATION "${COPYTODIR}/relinfo" )
-	file( COPY "${COPYFROMDIR}/relinfo/RELEASEINFO.txt"
-	      DESTINATION "${COPYTODIR}/doc/ReleaseInfo" )
-    elseif( ${PACKAGE_NAME} STREQUAL "dgbbasedata" )
-	set( ODDGBSTR "dgb" )
-	file( GLOB QMFILES ${COPYFROMDATADIR}/localizations/*.qm )
-	foreach( QMFILE ${QMFILES} )
-	    get_filename_component( QMFILENM ${QMFILE} NAME )
-	    file( COPY "${COPYFROMDATADIR}/localizations/${QMFILENM}"
-		  DESTINATION "${COPYTODATADIR}/localizations"
-		  PATTERN "od_en_US*" EXCLUDE )
-	 endforeach()
-    else()
-	message( FATAL_ERROR "Should not be reached" )
-    endif()
-
-    file( COPY "${COPYFROMDIR}/doc/Videos.${ODDGBSTR}"
-	  DESTINATION "${COPYTODIR}/doc" )
-
-    COPY_DATAFILES( ${PACKAGE_NAME} )
-endmacro(CREATE_BASEPACKAGE)
-
-macro( CREATE_DEVELPACKAGE PACKAGE_NAME )
-
-    foreach( LIB ${LIBLIST} )
-	file( COPY "${COPYFROMDIR}/include/${LIB}"
-	      DESTINATION "${COPYTODIR}/include"
-	      PATTERN "*_autogen*" EXCLUDE )
-	file( COPY "${COPYFROMDIR}/src/${LIB}"
-	      DESTINATION "${COPYTODIR}/src"
-	      PATTERN "*_autogen*" EXCLUDE )
-    endforeach()
-
-    foreach( PLUGIN ${PLUGINS} )
-	file( COPY "${COPYFROMDIR}/plugins/${PLUGIN}"
-	      DESTINATION "${COPYTODIR}/plugins"
-	      PATTERN "*_autogen*" EXCLUDE )
-    endforeach()
-
-    foreach( SPECMOD ${SPECMODS} )
-	file( COPY "${COPYFROMDIR}/spec/${SPECMOD}"
-	      DESTINATION "${COPYTODIR}/spec"
-	      PATTERN "*_autogen*" EXCLUDE )
-    endforeach()
-
-    if ( "${PACKAGE_NAME}" STREQUAL "develbatch" )
-	file( COPY "${COPYFROMDIR}/CMakeLists.txt"
-	      DESTINATION "${COPYTODIR}" )
-	file( COPY "${COPYFROMDIR}/CMakeModules"
-	      DESTINATION "${COPYTODIR}" )
-	file( COPY "${COPYFROMDIR}/doc/Programmer/batchprogexample"
-		   "${COPYFROMDIR}/doc/Programmer/pluginexample"
-	      DESTINATION "${COPYTODIR}/doc/Programmer" )
-	file( COPY "${COPYFROMDIR}/dtect"
-	      DESTINATION "${COPYTODIR}" )
-
-	file( GLOB HTMLFILES "${BINARY_DIR}/doc/Programmer/*.html" )
-	file( COPY ${HTMLFILES}
-	      DESTINATION "${COPYTODIR}/doc/Programmer" )
-	file( GLOB PNGFILES "${SOURCE_DIR}/doc/Programmer/*.png" )
-	file( COPY ${PNGFILES}
-	      DESTINATION "${COPYTODIR}/doc/Programmer" )
-    endif()
-endmacro(CREATE_DEVELPACKAGE)
-
-macro( CREATE_DOCPACKAGE PACKAGE_NAME )
-    if( WIN32 )
-	if( ${PACKAGE_NAME} STREQUAL "doc" )
-	    file( COPY "${COPYFROMDIR}/doc/od_userdoc"
-		  DESTINATION "${COPYTODIR}/doc" )
-	elseif( ${PACKAGE_NAME} STREQUAL "dgbdoc" )
-	    file( COPY "${COPYFROMDIR}/doc/dgb_userdoc"
-		  DESTINATION "${COPYTODIR}/doc" )
-	    file( GLOB FILES "${COPYFROMDIR}/doc/flexnet*" )
-	    file( COPY ${FILES}
-		  DESTINATION "${COPYTODIR}/doc" )
-	endif()
-    else()
-	if( ${PACKAGE_NAME} STREQUAL "classdoc" )
-	    if( EXISTS "${COPYFROMDIR}/doc/Programmer/Generated" )
-		file( COPY "${COPYFROMDIR}/doc/Programmer/Generated"
-		      DESTINATION "${COPYTODIR}/doc/Programmer" )
-	    else()
-		message( FATAL_ERROR "Class doc not installed correctly. ${PACKAGE_FILENAME} is not self contained." )
-	    endif()
-	endif()
-    endif()
-endmacro(CREATE_DOCPACKAGE)
-
 macro( ZIPPACKAGE PACKAGE_FILENAME REL_DIR PACKAGE_DIR )
     execute_process( COMMAND "${ZIP_EXEC}" u -tzip -mmt -mx5 -snl -r -ba -bso0 -bd
 			     "${PACKAGE_FILENAME}" "${REL_DIR}"
@@ -476,7 +379,7 @@ macro( ZIPPACKAGE PACKAGE_FILENAME REL_DIR PACKAGE_DIR )
 			     ERROR_VARIABLE ERRVAR )
 
     if( NOT ${STATUS} EQUAL 0 )
-	message( FATAL_ERROR "Failed to create zip file ${PACKAGE_FILENAME}: ${STATUS}" )
+	message( SEND_ERROR "Failed to create zip file ${PACKAGE_FILENAME}: ${STATUS}" )
     endif()
 
     file( REMOVE_RECURSE "${PACKAGE_DIR}/${REL_DIR}" )
