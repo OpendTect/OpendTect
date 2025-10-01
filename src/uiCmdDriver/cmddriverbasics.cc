@@ -802,28 +802,36 @@ UIEntity::UIEntity( const CallBacker* cber )
 
 bool UIEntity::visible() const
 {
-    if ( !isValid() ) return false;
+    if ( !isValid() )
+	return false;
+
     return uiobj_ ? uiobj_->visible() :  uiact_->isVisible();
 }
 
 
 bool UIEntity::sensitive() const
 {
-    if ( !isValid() ) return false;
+    if ( !isValid() )
+	return false;
+
     return uiobj_ ? uiobj_->sensitive() : uiact_->isEnabled();
 }
 
 
 const char* UIEntity::name() const
 {
-    if ( !isValid() ) return "";
+    if ( !isValid() )
+	return "";
+
     return uiobj_ ? uiobj_->name() : uiact_->text().getFullString();
 }
 
 
 const char* UIEntity::toolTip() const
 {
-    if ( !isValid() ) return "";
+    if ( !isValid() )
+	return "";
+
     return uiobj_
 	? uiobj_->toolTip().getFullString()
 	: uiact_->toolTip().getFullString();
@@ -831,7 +839,9 @@ const char* UIEntity::toolTip() const
 
 
 const uiParent* UIEntity::parent() const
-{ return uiobj_ ? uiobj_->parent() : 0; }
+{
+    return uiobj_ ? uiobj_->parent() : nullptr;
+}
 
 
 const uiMenu* UIEntity::menu() const
@@ -839,13 +849,20 @@ const uiMenu* UIEntity::menu() const
     if ( uiact_ )
 	return uiact_->getMenu();
 
-    mDynamicCastGet( const uiToolButton*, toolbut, uiobj_ );
-    return toolbut ? toolbut->menu() : 0;
+    mDynamicCastGet(const uiToolButton*,toolbut,uiobj_)
+    if ( toolbut )
+	return toolbut->menu();
+
+
+    mDynamicCastGet(const uiPushButton*,pushbut,uiobj_)
+    return pushbut ? pushbut->menu() : nullptr;
 }
 
 
 const ObjectSet<uiBaseObject>* UIEntity::childList() const
-{ return uiobj_ ? uiobj_->childList() : 0; }
+{
+    return uiobj_ ? uiobj_->childList() : nullptr;
+}
 
 
 } // namespace CmdDrive

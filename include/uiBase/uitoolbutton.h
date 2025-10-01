@@ -64,9 +64,10 @@ private:
     uiToolButtonBody&		mkbody(uiParent*,const char* icon_identifier,
 				       const uiString&);
 
-    int				id_; // Used by toolbar
+    int				id_				= -1;
+				// Used by toolbar
 
-    uiMenu*			uimenu_;
+    uiMenu*			uimenu_				= nullptr;
 
 };
 

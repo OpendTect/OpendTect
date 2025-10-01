@@ -22,7 +22,6 @@ ________________________________________________________________________
 
 #include "objdisposer.h"
 #include "odiconfile.h"
-#include "perthreadrepos.h"
 
 #include "q_uiimpl.h"
 
@@ -57,9 +56,9 @@ public:
 uiButtonBody( uiButton& uibut, uiParent* p, const uiString& txt,
 	      QAbstractButton& qbut )
     : uiObjectBody(p,txt.getFullString())
-    , messenger_(qbut,*this)
-    , qbut_(qbut)
     , uibut_(uibut)
+    , qbut_(qbut)
+    , messenger_(qbut,*this)
 {
     qbut_.setText( toQString(txt) );
     setHSzPol( uiObject::SmallVar );
@@ -110,8 +109,8 @@ class uiButtonTemplBody : public ButT
 public:
 
 uiButtonTemplBody( uiButton& uibut, uiParent* p, const uiString& txt )
-    : uiButtonBody( uibut, p, txt, *this )
-    , ButT( p && p->pbody() ? p->pbody()->managewidg() : 0 )
+    : ButT( p && p->pbody() ? p->pbody()->managewidg() : 0 )
+    , uiButtonBody( uibut, p, txt, *this )
     , handle_(uibut)
 {
 }
@@ -157,8 +156,10 @@ virtual void setFont( const QFont& )
 }
 
 
-virtual void fontChange( const QFont& oldFont )
-{ uiBody::fontchanged(); }
+virtual void fontChange( const QFont& /*oldfont*/ )
+{
+    uiBody::fontchanged();
+}
 
 
 void closeEvent( QCloseEvent* e ) override
@@ -233,8 +234,8 @@ uiButton::uiButton( uiParent* parnt, const uiString& nm, const CallBack* cb,
 		    uiObjectBody& b  )
     : uiObject(parnt,nm.getFullString(),b)
     , activated(this)
-    , iconscale_(0.75)
     , text_(nm)
+    , iconscale_(0.75)
 {
     if ( cb ) activated.notify(*cb);
 
@@ -459,6 +460,7 @@ uiPushButton::uiPushButton( uiParent* p, const uiString& nm,
 uiPushButton::~uiPushButton()
 {
     detachAllNotifiers();
+    delete uimenu_;
 }
 
 
@@ -469,14 +471,23 @@ uiPushButtonBody& uiPushButton::mkbody( uiParent* p, const uiString& txt )
 }
 
 
-void uiPushButton::setMenu( uiMenu* menu )
+void uiPushButton::setMenu( uiMenu* mnu )
 {
     QAbstractButton* qbut = qButton();
     mDynamicCastGet(QPushButton*,qpushbut,qbut)
     if ( !qpushbut ) return;
 
     // not tested null, but found a link on Internet that says null hides
-    qpushbut->setMenu( menu ? menu->getQMenu() : 0 );
+    qpushbut->setMenu( mnu ? mnu->getQMenu() : nullptr );
+
+    OBJDISP()->go( uimenu_ );
+    uimenu_ = mnu;
+}
+
+
+uiMenu* uiPushButton::menu() const
+{
+    return uimenu_;
 }
 
 
@@ -722,13 +733,9 @@ uiPushButton* uiToolButtonSetup::getPushButton( uiParent* p, bool wic ) const
     mDynamicCastGet(uiToolBar*,tb,parnt) \
     if ( !tb ) setPrefWidth( prefVNrPics() );
 
-#define mInitTBList \
-    id_(-1), uimenu_(0)
-
 uiToolButton::uiToolButton( uiParent* parnt, const uiToolButtonSetup& su )
     : uiButton( parnt, su.name_, &su.cb_, mkbody(parnt,su.icid_,
 		su.name_) )
-    , mInitTBList
 {
     setToolTip( su.tooltip_ );
     if ( su.istoggle_ )
@@ -749,7 +756,6 @@ uiToolButton::uiToolButton( uiParent* parnt, const char* fnm,
 			    const uiString& tt, const CallBack& cb )
     : uiButton( parnt, tt, &cb,
 		mkbody(parnt,fnm,tt) )
-    , mInitTBList
 {
     mSetDefPrefSzs();
     setToolTip( tt );
@@ -759,7 +765,6 @@ uiToolButton::uiToolButton( uiParent* parnt, const char* fnm,
 uiToolButton::uiToolButton( uiParent* parnt, const char* fnm,
 			    const uiString& tt )
     : uiButton(parnt,tt,nullptr,mkbody(parnt,fnm,tt))
-    , mInitTBList
 {
     mSetDefPrefSzs();
     setToolTip( tt );
@@ -770,7 +775,6 @@ uiToolButton::uiToolButton( uiParent* parnt, uiToolButton::ArrowType at,
 			    const uiString& tt, const CallBack& cb )
     : uiButton( parnt, tt, &cb,
 		mkbody(parnt,"empty",tt) )
-    , mInitTBList
 {
     mSetDefPrefSzs();
     setArrowType( at );
@@ -859,7 +863,7 @@ void uiToolButton::setShortcut( const char* sc )
 void uiToolButton::setMenu( uiMenu* mnu, PopupMode mode )
 {
     const bool hasmenu = mnu && mnu->nrActions() > 0;
-    tbbody_->setMenu( hasmenu ? mnu->getQMenu() : 0 );
+    tbbody_->setMenu( hasmenu ? mnu->getQMenu() : nullptr );
 
     mDynamicCastGet(uiToolBar*,tb,parent())
     if ( !tb )
@@ -880,7 +884,9 @@ void uiToolButton::setMenu( uiMenu* mnu, PopupMode mode )
 	}
     }
 
-    if ( !hasmenu ) mode = DelayedPopup;
+    if ( !hasmenu )
+	mode = DelayedPopup;
+
     tbbody_->setPopupMode( (QToolButton::ToolButtonPopupMode)mode );
 
     OBJDISP()->go( uimenu_ );
