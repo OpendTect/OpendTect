@@ -103,6 +103,7 @@ public:
     void		setDefault(bool yn=true);
     void		click() override;
     void		setMenu(uiMenu*);
+    uiMenu*		menu() const;
     void		setFlat(bool);
     bool		isFlat() const;
 
@@ -118,6 +119,7 @@ private:
     uiPushButtonBody*	pbbody_;
     uiPushButtonBody&	mkbody(uiParent*,const uiString&);
 
+    uiMenu*		uimenu_				= nullptr;
 };
 
 

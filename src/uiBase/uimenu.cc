@@ -256,22 +256,42 @@ void uiMenu::setAction( uiAction* action )
 
 
 bool uiMenu::isCheckable() const
-{ return submenuaction_->isCheckable(); }
+{
+    return submenuaction_ ? submenuaction_->isCheckable() : false;
+}
+
 
 void uiMenu::setCheckable( bool yn )
-{ submenuaction_->setCheckable( yn ); }
+{
+    if ( submenuaction_ )
+	submenuaction_->setCheckable( yn );
+}
+
 
 bool uiMenu::isChecked() const
-{ return submenuaction_->isChecked(); }
+{
+    return submenuaction_ ? submenuaction_->isChecked() : false;
+}
+
 
 void uiMenu::setChecked( bool yn )
-{ submenuaction_->setChecked( yn ); }
+{
+    if ( submenuaction_ )
+	submenuaction_->setChecked( yn );
+}
+
 
 bool uiMenu::isEnabled() const
-{ return submenuaction_->isEnabled(); }
+{
+    return submenuaction_ ? submenuaction_->isEnabled() : true;
+}
+
 
 void uiMenu::setEnabled( bool yn )
-{ submenuaction_->setEnabled( yn ); }
+{
+    if ( submenuaction_ )
+	submenuaction_->setEnabled( yn );
+}
 
 
 void uiMenu::setText( const uiString& txt )
