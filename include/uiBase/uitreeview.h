@@ -353,13 +353,13 @@ protected:
     uiStringSet			texts_;
     uiStringSet			tooltips_;
 
-    bool			isselectable_;
-    bool			iseditable_;
-    bool			isdragenabled_;
-    bool			isdropenabled_;
-    bool			ischeckable_;
-    bool			isenabled_;
-    bool			checked_;
+    bool			isselectable_			= true;
+    bool			iseditable_			= false;
+    bool			isdragenabled_			= false;
+    bool			isdropenabled_			= false;
+    bool			isenabled_			= true;
+    bool			ischeckable_			= false;
+    bool			checked_			= false;
 };
 
 

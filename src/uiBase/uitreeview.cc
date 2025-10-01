@@ -87,10 +87,10 @@ private:
 uiTreeViewBody::uiTreeViewBody( uiTreeView& hndle, uiParent* p,
 				const char* nm, int nrl )
     : uiObjBodyImpl<uiTreeView,QTreeWidget>( hndle, p, nm )
-    , messenger_( *new i_treeVwMessenger(*this,hndle) )
-    , prefnrlines_( nrl )
-    , lvhandle_(hndle)
     , mousepos_(0,0)
+    , prefnrlines_( nrl )
+    , messenger_( *new i_treeVwMessenger(*this,hndle) )
+    , lvhandle_(hndle)
 {
     setStretch( 1, (nrTxtLines()== 1) ? 0 : 1 );
     setHSzPol( uiObject::MedVar ) ;
@@ -267,16 +267,15 @@ bool uiTreeViewBody::moveItem( QKeyEvent* ev )
 
 uiTreeView::uiTreeView( uiParent* p, const char* nm, int nl, bool dec )
     : uiObject( p, nm, mkbody(p,nm,nl) )
-    , parent_(p)
     , selectionChanged(this)
     , currentChanged(this)
     , itemChanged(this)
     , itemRenamed(this)
     , returnPressed(this)
-    , leftButtonClicked(this)
-    , leftButtonPressed(this)
     , rightButtonClicked(this)
     , rightButtonPressed(this)
+    , leftButtonClicked(this)
+    , leftButtonPressed(this)
     , mouseButtonPressed(this)
     , mouseButtonClicked(this)
     , contextMenuRequested(this)
@@ -284,6 +283,7 @@ uiTreeView::uiTreeView( uiParent* p, const char* nm, int nl, bool dec )
     , expanded(this)
     , collapsed(this)
     , unusedKey(this)
+    , parent_(p)
 {
     mAttachCB( itemChanged, uiTreeView::itemChangedCB );
     mAttachCB( mouseButtonClicked, uiTreeView::cursorSelectionChanged );
@@ -883,15 +883,9 @@ bool uiTreeView::allowDoubleClick() const
 // uiTreeViewItem
 #define mTreeViewBlockCmdRec	CmdRecStopper cmdrecstopper(treeView());
 
-#define mInitVars \
-    , isselectable_(true), isenabled_(true) \
-    , iseditable_(false), isdragenabled_(false), isdropenabled_(false) \
-    , ischeckable_(false), checked_(false)
-
 uiTreeViewItem::uiTreeViewItem( uiTreeView* p, const Setup& setup )
     : stateChanged(this)
     , keyPressed(this)
-    mInitVars
 {
     qtreeitem_ = new QTreeWidgetItem( p ? p->lvbody() : 0 );
     odqtobjects_.add( this, qtreeitem_ );
@@ -902,7 +896,6 @@ uiTreeViewItem::uiTreeViewItem( uiTreeView* p, const Setup& setup )
 uiTreeViewItem::uiTreeViewItem( uiTreeViewItem* p, const Setup& setup )
     : stateChanged(this)
     , keyPressed(this)
-    mInitVars
 {
     qtreeitem_ = new QTreeWidgetItem( p ? p->qItem() : 0 );
     odqtobjects_.add( this, qtreeitem_ );
@@ -1157,7 +1150,7 @@ uiTreeView* uiTreeViewItem::treeView() const
 {
     QTreeWidget* lv = qtreeitem_->treeWidget();
     uiTreeViewBody* lvb = dynamic_cast<uiTreeViewBody*>(lv);
-    return lvb ? &lvb->lvhandle() : 0;
+    return lvb ? &lvb->lvhandle() : nullptr;
 }
 
 
@@ -1327,9 +1320,12 @@ void uiTreeViewItem::setToolTip( int column, const uiString& txt )
 
 bool uiTreeViewItem::updateToolTip( int column )
 {
+    if ( column<0 || column>=qtreeitem_->columnCount() )
+	return false;
+
     const uiString& tooltip =
-	tooltips_.validIdx(column) && !tooltips_[column].isEmpty() ?
-		tooltips_[column]
+	tooltips_.validIdx(column) && !tooltips_[column].isEmpty()
+		? tooltips_[column]
 		: (texts_.validIdx(column)? texts_[column] : uiString::empty());
 
     if ( uiMain::isNameToolTipUsed() )
