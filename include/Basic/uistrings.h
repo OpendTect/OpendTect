@@ -306,7 +306,7 @@ public:
     static uiString sCollapse()		{ return tr("Collapse"); }
     static uiString sCollectingData()	{ return tr("Collecting Data"); }
     static uiString sColor(int n=1)	{ return tr("Color",0, n); }
-    static uiString sColorTable(int n=1) { return tr("ColorTable",0,n); }
+    static uiString sColorTable(int n=1) { return tr("Color Table",0,n); }
     static uiString sColumn(int n=1)	{ return tr("Column",0,n); }
     static uiString sCommand(int n=1) { return tr("Command",0,n); }
     static uiString sComponent()	{ return tr("Component"); }
@@ -501,7 +501,7 @@ public:
     static uiString sOnlyAtSections()	{ return tr("Only at Sections"); }
     static uiString sOpen()		{ return tr("Open" ); }
     static uiString sODTColTab()
-				    { return tr("OpendTect *_coltab file"); }
+				    { return tr("OpendTect Color Table file"); }
     static uiString sOperator()		{ return tr("Operator"); }
     static uiString sOptions()		{ return tr("Options"); }
     static uiString sOr()		{ return tr("or"); }

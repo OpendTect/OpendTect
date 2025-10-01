@@ -28,7 +28,7 @@ ________________________________________________________________________
 
 
 mDefineEnumUtils( uiColTabImport, ImportType, "Import type" )
-    { "Other user", "OpendTect *_coltab", "Petrel *.alut", nullptr };
+{ "Other user", "OpendTect ColorTable file", "Petrel *.alut", "CSV", nullptr };
 
 template <>
 void EnumDefImpl<uiColTabImport::ImportType>::init()
@@ -36,13 +36,14 @@ void EnumDefImpl<uiColTabImport::ImportType>::init()
     uistrings_ += uiStrings::sOtherUser();
     uistrings_ += uiStrings::sODTColTab();
     uistrings_ += uiStrings::sPetrelAlut();
+    uistrings_ += ::toUiString("CSV");
 }
 
 static BufferString sHomePath;
 static BufferString sFilePath;
 
 uiColTabImport::uiColTabImport( uiParent* p )
-    : uiDialog(p,Setup(uiStrings::phrImport(uiStrings::sColorTable()),
+    : uiDialog(p,Setup(uiStrings::phrImport(uiStrings::sColorTable(2)),
 		       mODHelpKey(mColTabImportHelpID)))
     , dirfld_(0)
     , dtectusrfld_(0)
@@ -53,9 +54,9 @@ uiColTabImport::uiColTabImport( uiParent* p )
     choicefld_->valueChanged.notify( mCB(this,uiColTabImport,choiceSel) );
 
     sHomePath = sFilePath = GetPersonalDir();
-    dirfld_ = new uiFileInput( this, getLabel(OtherUser),
+    dirfld_ = new uiFileInput( this, tr("User's HOME folder"),
 			       uiFileInput::Setup(sHomePath)
-			       .directories(true) );
+			       .directories(true).withexamine(true) );
     dirfld_->setReadOnly();
     dirfld_->valueChanged.notify( mCB(this,uiColTabImport,usrSel) );
     dirfld_->attach( alignedBelow, choicefld_ );
@@ -100,20 +101,31 @@ void uiColTabImport::choiceSel( CallBacker* )
 	    dirfld_->setSelectMode( uiFileDialog::DirectoryOnly );
 	    dirfld_->setTitleText( tr("User's HOME folder") );
 	    dirfld_->setFileName( sHomePath );
+	    dirfld_->enableExamine( false );
 	    dtectusrfld_->display( true );
 	    break;
 	case ODTColTab:
 	    dirfld_->setSelectMode( uiFileDialog::ExistingFile );
-	    dirfld_->setTitleText( uiStrings::sODTColTab() );
+	    dirfld_->setTitleText( uiStrings::sInputFile() );
 	    dirfld_->setFileName( sFilePath );
+	    dirfld_->enableExamine( true );
 	    dtectusrfld_->display( false );
 	    break;
 	case PetrelAlut:
 	    dirfld_->setSelectMode( uiFileDialog::DirectoryOnly );
 	    dirfld_->setTitleText( uiStrings::sPetrelAlut() );
 	    dirfld_->setFileName( sHomePath );
+	    dirfld_->enableExamine( false );
 	    dtectusrfld_->display( false );
 	    break;
+	case CSV:
+	    dirfld_->setSelectMode( uiFileDialog::ExistingFile );
+	    dirfld_->setTitleText( uiStrings::sInputFile() );
+	    dirfld_->setFileName( sFilePath );
+	    dirfld_->enableExamine( true );
+	    dtectusrfld_->display( false );
+	    break;
+	default: break;
     }
 
     usrSel(0);
@@ -367,19 +379,4 @@ void uiColTabImport::showList()
 {
     messagelbl_->display( false );
     listfld_->display( true );
-}
-
-
-uiString uiColTabImport::getLabel( ImportType imptype )
-{
-    switch( imptype )
-    {
-	case OtherUser: return tr("User's HOME folder");
-			break;
-	case ODTColTab: return uiStrings::sODTColTab();
-			break;
-	case PetrelAlut: return uiStrings::sPetrelAlut();
-			break;
-    }
-    return uiString::empty();
 }
