@@ -13,12 +13,12 @@ ________________________________________________________________________
 
 namespace ColTab { class Sequence; }
 
+class uiButtonGroup;
 class uiFileInput;
-class uiGenInput;
 class uiListBox;
 
 
-mExpClass(uiTools) uiColTabExport : public uiDialog
+mExpClass(uiTools) uiColTabExport final : public uiDialog
 {
 mODTextTranslationClass(uiColTabExport)
 public:
@@ -28,10 +28,11 @@ public:
 
 protected:
 
-    uiGenInput*			choicefld_;
+    uiButtonGroup*		choicefld_;
     uiFileInput*		dirfld_;
     uiListBox*			listfld_;
 
+    void			choiceCB(CallBacker*);
     bool			acceptOK(CallBacker*) override;
     void			fillList();
 
@@ -39,4 +40,6 @@ protected:
 					      od_ostream&);
     void			writeODFile(const ColTab::Sequence&,
 					    od_ostream&);
+    void			writeCSVFile(const ColTab::Sequence&,
+					     od_ostream&);
 };

@@ -9,8 +9,9 @@ ________________________________________________________________________
 
 #include "uicoltabexport.h"
 
+#include "uibutton.h"
+#include "uibuttongroup.h"
 #include "uifileinput.h"
-#include "uigeninput.h"
 #include "uilabel.h"
 #include "uilistbox.h"
 #include "uimsg.h"
@@ -31,8 +32,14 @@ uiColTabExport::uiColTabExport( uiParent* p )
 		       mODHelpKey(mColTabExportHelpID)))
 {
     setOkText( uiStrings::sExport() );
-    choicefld_ = new uiGenInput( this, tr("Export format"),
-	BoolInpSpec(true,tr("OpendTect"),tr("Petrel")) );
+
+    choicefld_ = new uiButtonGroup( this, "export_choice", OD::Horizontal );
+    new uiRadioButton( choicefld_, tr("OpendTect") );
+    new uiRadioButton( choicefld_, tr("Petrel") );
+    new uiRadioButton( choicefld_, tr("CSV") );
+    new uiLabel( this, tr("Export format"), choicefld_ );
+    choicefld_->selectButton( 0 );
+    mAttachCB( choicefld_->valueChanged, uiColTabExport::choiceCB );
 
     uiListBox::Setup su( OD::ChooseZeroOrMore, tr("Color table(s) to export") );
     su.lblpos( uiListBox::LeftTop );
@@ -43,16 +50,39 @@ uiColTabExport::uiColTabExport( uiParent* p )
     uiFileInput::Setup fisu;
     fisu.forread( false ).objtype( tr("ColorTable") );
     fisu.defseldir( GetSurveyExportDir() );
-    dirfld_ = new uiFileInput( this,
-			       uiStrings::phrOutput(tr("location")), fisu );
+    dirfld_ = new uiFileInput( this, tr("Output folder"), fisu );
+    dirfld_->setDefaultSelectionDir( GetExportToDir() );
     dirfld_->setSelectMode( uiFileDialog::DirectoryOnly );
     dirfld_->attach( alignedBelow, listfld_ );
     dirfld_->setStretch( 2, 0 );
+
+    mAttachCB( postFinalize(), uiColTabExport::choiceCB );
 }
 
 
 uiColTabExport::~uiColTabExport()
 {
+}
+
+
+void uiColTabExport::choiceCB( CallBacker* )
+{
+    const int exporttype = choicefld_->selectedId();
+    if ( exporttype==0 )
+    {
+	dirfld_->setSelectMode( uiFileDialog::AnyFile );
+	FilePath fp( GetExportToDir(), "opendtect_colortables" );
+	fp.setExtension( "odct" );
+	dirfld_->setFileName( fp.fullPath() );
+	dirfld_->setDefaultExtension( "odct" );
+	dirfld_->setTitleText( tr("Output file") );
+    }
+    else
+    {
+	dirfld_->setSelectMode( uiFileDialog::DirectoryOnly );
+	dirfld_->setFileName( GetExportToDir() );
+	dirfld_->setTitleText( tr("Output folder") );
+    }
 }
 
 
@@ -98,6 +128,15 @@ void uiColTabExport::writeAlutFile( const ColTab::Sequence& seq,
 void uiColTabExport::writeODFile( const ColTab::Sequence& seq,
 				  od_ostream& strm )
 {
+    IOPar par;
+    seq.fillPar( par );
+    par.write( strm, "OpendTect ColorTables" );
+}
+
+
+void uiColTabExport::writeCSVFile( const ColTab::Sequence& seq,
+				   od_ostream& strm )
+{
     for ( int idx=0; idx<seq.size(); idx++ )
     {
 	const float pos = seq.position( idx );
@@ -121,38 +160,76 @@ bool uiColTabExport::acceptOK( CallBacker* )
 	return false;
     }
 
-    const bool asod = choicefld_->getBoolValue();
-    int nrwritten = 0;
-    for ( const auto* nm : chosen )
+    const int exportmode = choicefld_->selectedId();
+    if ( exportmode==0 )
     {
-	ColTab::Sequence seq;
-	if ( !ColTab::SM().get(nm->buf(),seq) )
-	    continue;
-
-	BufferString fnm( nm->buf() );
-	fnm.trimBlanks();
-	fnm.clean( BufferString::NoFileSeps );
-	FilePath fp( dirfld_->fileName(), fnm.buf() );
-	fp.setExtension( asod ? "odct" : "alut" );
-
+	const FilePath fp( dirfld_->fileName() );
 	od_ostream strm( fp.fullPath() );
 	if ( !strm.isOK() )
-	    continue;
+	    return false;
 
-	asod ? writeODFile( seq, strm ) : writeAlutFile( seq, strm );
-	strm.close();
+	IOPar allpars;
+	int coltabidx = 0;
+	for ( int idx=0; idx<chosen.size(); idx++ )
+	{
+	    const BufferString& nm = chosen.get( idx );
+	    ColTab::Sequence seq;
+	    if ( !ColTab::SM().get(nm.buf(),seq) )
+		continue;
 
-	nrwritten++;
+	    IOPar par;
+	    seq.fillPar( par );
+	    allpars.mergeComp( par, toString(coltabidx) );
+	    coltabidx++;
+	}
+
+	const bool res = allpars.write( strm, "OpendTect ColorTables" );
+	if ( !res )
+	{
+	    uiMSG().error( tr("Could not write Color Tables to\n%1")
+			   .arg(strm.fileName()) );
+	    return false;
+	}
     }
-
-    if ( nrwritten==0 )
+    else
     {
-	uiMSG().error( tr("No color tables have been exported. "
-			  "Please check permissions.") );
-	return false;
+	const char* extension = exportmode==1 ? "alut" : "csv";
+	int nrwritten = 0;
+	for ( const auto* nm : chosen )
+	{
+	    ColTab::Sequence seq;
+	    if ( !ColTab::SM().get(nm->buf(),seq) )
+		continue;
+
+	    BufferString fnm( nm->buf() );
+	    fnm.trimBlanks();
+	    fnm.clean( BufferString::NoFileSeps );
+	    FilePath fp( dirfld_->fileName(), fnm.buf() );
+	    fp.setExtension( extension );
+
+	    od_ostream strm( fp.fullPath() );
+	    if ( !strm.isOK() )
+		continue;
+
+	    if ( exportmode==1 )
+		writeAlutFile( seq, strm );
+	    else if ( exportmode==2 )
+		writeCSVFile( seq, strm );
+
+	    strm.close();
+
+	    nrwritten++;
+	}
+
+	if ( nrwritten==0 )
+	{
+	    uiMSG().error( tr("No color tables have been exported. "
+			      "Please check permissions.") );
+	    return false;
+	}
     }
 
-    uiString msg = tr( "Color table(s) successfully exported."
+    uiString msg = tr( "Color Table(s) successfully exported."
 		      "\n\nDo you want to export more Color Tables?" );
     bool ret = uiMSG().askGoOn( msg, uiStrings::sYes(),
 				tr("No, close window") );
