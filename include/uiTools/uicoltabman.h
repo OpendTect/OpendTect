@@ -23,7 +23,35 @@ class uiToolButton;
 class uiSpinBox;
 class uiWorld2Ui;
 class uiColTabImport;
+class uiTable;
 
+namespace ColTab { class Sequence; }
+
+mExpClass(uiTools) uiTranspValuesDlg : public uiDialog
+{ mODTextTranslationClass(uiColTabMarkerDlg);
+public:
+				uiTranspValuesDlg(uiParent*,ColTab::Sequence&,
+						  const Interval<float>&);
+				~uiTranspValuesDlg();
+
+    Notifier<uiTranspValuesDlg> valuesChanged;
+
+
+protected:
+
+    uiTable*			table_;
+    ColTab::Sequence&		ctab_;
+    Interval<float>		ctabrange_;
+
+    void			colorOrDataChgdCB(CallBacker*);
+    void			transpValChgdCB(CallBacker*);
+    void			pointInsertedCB(CallBacker*);
+    void			pointDeletedCB(CallBacker*);
+
+    void			fillTable();
+    void			handleColorPos();
+    void			handleDataVal();
+};
 
 namespace ColTab { class Sequence; }
 
@@ -37,6 +65,8 @@ public:
     const ColTab::Sequence&	currentColTab()	const	{ return ctab_; }
 
     void			setHistogram(const TypeSet<float>&);
+    void			setHistogram(const TypeSet<float>&,
+					     const Interval<float>&);
 
     Notifier<uiColorTableMan> 	tableAddRem;
     Notifier<uiColorTableMan> 	tableChanged;
@@ -99,6 +129,9 @@ protected:
     void			transptChg(CallBacker*);
     void			sequenceChange(CallBacker*);
     void			markerChange(CallBacker*);
+    void			transpTableChgd(CallBacker*);
+    void			rightClickTranspCB(CallBacker*);
+    void			mouseMoveCB(CallBacker*);
 
 private:
 

@@ -669,7 +669,9 @@ void uiColorTable::doManage( CallBacker* )
     uiColorTableMan coltabman( dlgparent, coltabseq_, enabletrans_ );
     coltabman.tableChanged.notify( mCB(this,uiColorTable,colTabManChgd) );
     coltabman.tableAddRem.notify( mCB(this,uiColorTable,tableAdded) );
-    coltabman.setHistogram( histogram_ );
+    const float minval = minfld_ ? minfld_->getFValue() : mUdf(float);
+    const float maxval = maxfld_ ? maxfld_->getFValue() : mUdf(float);
+    coltabman.setHistogram( histogram_, Interval<float>(minval,maxval) );
     coltabman.go();
 }
 
