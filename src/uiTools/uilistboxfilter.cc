@@ -53,15 +53,23 @@ void uiListBoxFilter::setItems( const BufferStringSet& nms )
 
     BufferString filt = text();
     GlobExpr::validateFilterString( filt );
-    GlobExpr ge( filt.buf(), OD::CaseInsensitive );
-    for ( int idx=0; idx<nms.size(); idx++ )
+    if ( filt == "*" )
+	lb_.addItems( nms );
+    else
     {
-	const char* itm = nms.get(idx).buf();
-	if ( ge.matches(itm) )
-	    lb_.addItem( toUiString(itm) );
+	BufferStringSet filtereditems;
+	GlobExpr ge( filt.buf(), OD::CaseInsensitive );
+	for ( int idx=0; idx<nms.size(); idx++ )
+	{
+	    const char* itm = nms.get(idx).buf();
+	    if ( ge.matches(itm) )
+		filtereditems.add( itm );
+	}
+
+	lb_.addItems( filtereditems );
     }
 
-    if ( lb_.isPresent(cursel) )
+    if ( !cursel.isEmpty() )
 	lb_.setCurrentItem( cursel.buf() );
     else if ( !lb_.isEmpty() )
 	lb_.setCurrentItem( 0 );
