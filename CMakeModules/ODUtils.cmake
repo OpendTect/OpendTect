@@ -524,7 +524,7 @@ endif()
 
 macro( GET_OD_BASE_EXECUTABLES )
     foreach(  MODULE ${OD_CORE_MODULE_NAMES_od} )
-	if ( "${MODULE}" MATCHES "^ui" )
+	if ( "${MODULE}" MATCHES "^ui" OR "${MODULE}" MATCHES "^vis" )
 	    list( APPEND OD_GUI_MODULES ${MODULE} )
 	    list( APPEND OD_GUI_EXECUTABLES ${OD_${MODULE}_PROGS} )
 	else()
