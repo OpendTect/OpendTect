@@ -140,7 +140,7 @@ uiString uiGLInfo::getMessage( const uiRetVal& uirv, const uiRetVal& warnings )
 {
     BufferString msg( "<html>" );
 
-    const char* url = "https://doc.opendtect.org/7.0.0/doc/admindoc/"
+    const char* url = "https://doc.opendtect.org/2025/doc/admindoc/"
 		      "Default.htm#system_requirements.htm";
     BufferString sysreq( "<br><br>Click <a href=\"" );
     sysreq.add( url ).add( "\">" ).add( "here</a>" )
