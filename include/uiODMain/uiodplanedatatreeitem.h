@@ -64,7 +64,8 @@ protected:
     void		selChg(CallBacker*);
     void		posChange(CallBacker*);
     void		sliderReleasedCB(CallBacker*);
-    void		movePlaneAndCalcAttribs(const TrcKeyZSampling&);
+    void		movePlaneAndCalcAttribs(const TrcKeyZSampling&,
+						bool dispplane=true);
     void		keyUnReDoPressedCB(CallBacker*);
 
     const OD::SliceType	orient_;

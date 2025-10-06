@@ -281,9 +281,11 @@ public:
     bool		calcManipulatedAttribs(const VisID&);
 
     void		movePlaneAndCalcAttribs(const VisID&,
-						const TrcKeyZSampling&);
+						const TrcKeyZSampling&,
+						bool moveplane=true);
     void		moveRandomLineAndCalcAttribs(const VisID&,
-						const TrcKeyZSampling&);
+						const TrcKeyZSampling&,
+						bool moveplane=true);
 
     bool		canHaveMultipleTextures(const VisID&) const;
     int			nrTextures(const VisID&,int attrib) const;

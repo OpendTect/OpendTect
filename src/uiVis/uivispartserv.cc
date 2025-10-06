@@ -1614,25 +1614,36 @@ bool uiVisPartServer::usePar( const IOPar& par )
 
 
 void uiVisPartServer::movePlaneAndCalcAttribs( const VisID& id,
-					       const TrcKeyZSampling& tkzs )
+					       const TrcKeyZSampling& tkzs,
+					       bool moveplane )
 {
     mDynamicCastGet(visSurvey::PlaneDataDisplay*,pdd,getObject(id))
     if ( !pdd )
 	return;
 
+    const bool ismanipshown = pdd->isManipulatorShown();
     pdd->annotateNextUpdateStage( true );
     pdd->setTrcKeyZSampling( tkzs );
     pdd->resetManipulation();
     pdd->annotateNextUpdateStage( true );
-    calculateAllAttribs( id );
-    pdd->annotateNextUpdateStage( false );
-    triggerTreeUpdate();
-    planeMovedEvent.trigger();
+    if ( moveplane )
+    {
+	calculateAllAttribs( id );
+	pdd->annotateNextUpdateStage( false );
+	triggerTreeUpdate();
+	planeMovedEvent.trigger();
+    }
+    else
+    {
+	pdd->acceptManipulation();
+	pdd->displayDraggerPlane( !moveplane );
+    }
 }
 
 
 void uiVisPartServer::moveRandomLineAndCalcAttribs( const VisID& id,
-					       const TrcKeyZSampling& tkzs )
+					       const TrcKeyZSampling& tkzs,
+					       bool moveplane )
 {
     mDynamicCastGet(visSurvey::RandomTrackDisplay*,rtd,getObject(id))
     if ( !rtd || rtd->nrNodes()!=2 )
@@ -1644,9 +1655,17 @@ void uiVisPartServer::moveRandomLineAndCalcAttribs( const VisID& id,
     rtd->setNodePositions( nodes );
     rtd->resetManipulation();
     rtd->annotateNextUpdateStage( true );
-    calculateAllAttribs( id );
-    rtd->annotateNextUpdateStage( false );
-    triggerTreeUpdate();
+    if ( moveplane )
+    {
+	calculateAllAttribs( id );
+	rtd->annotateNextUpdateStage( false );
+	triggerTreeUpdate();
+    }
+    else
+    {
+	rtd->acceptManipulation();
+	rtd->displayDraggerPlane( true );
+    }
 }
 
 

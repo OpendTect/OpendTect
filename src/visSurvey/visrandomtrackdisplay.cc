@@ -1079,7 +1079,6 @@ void RandomTrackDisplay::resetManipulation()
 
     dragger_->showAllPanels( false );
     ismanip_ = false;
-    dragger_->turnOn( false );
 }
 
 
@@ -1096,6 +1095,15 @@ void RandomTrackDisplay::showManipulator( bool yn )
 	if ( scene_ )
 	    scene_->blockMouseSelection( yn );
     }
+}
+
+
+void RandomTrackDisplay::displayDraggerPlane( bool yn )
+{
+    if ( !dragger_ || !isManipulatorShown() )
+	return;
+
+    dragger_->showAllPanels( yn );
 }
 
 

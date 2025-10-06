@@ -492,6 +492,16 @@ void PlaneDataDisplay::showManipulator( bool yn )
 }
 
 
+void PlaneDataDisplay::displayDraggerPlane( bool yn )
+{
+    if ( !dragger_ || !isManipulatorShown() )
+	return;
+
+    dragger_->showPlane( yn );
+    dragger_->showDraggerBorder( !yn );
+}
+
+
 bool PlaneDataDisplay::isManipulatorShown() const
 {
     return dragger_->isOn();
@@ -1364,6 +1374,12 @@ void PlaneDataDisplay::setSlideActive( bool yn )
 	datachanged_.trigger();
 	datachgd_ = false;
     }
+}
+
+
+bool PlaneDataDisplay::isSlideActive() const
+{
+    return slideactive_;
 }
 
 } // namespace visSurvey

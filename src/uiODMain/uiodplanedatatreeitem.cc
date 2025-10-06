@@ -364,21 +364,30 @@ void uiODPlaneDataTreeItem::posChange( CallBacker* )
     if ( slicepos->getDisplayID() != displayid_ )
 	return;
 
+    const bool isslideractive = slicepos->isSliderActive();
     RefMan<visSurvey::PlaneDataDisplay> pdd = getDisplay();
     if ( pdd && pdd->getOrientation()==OD::SliceType::Z )
-	pdd->setSlideActive( slicepos->isSliderActive() );
+	pdd->setSlideActive( isslideractive );
 
-    movePlaneAndCalcAttribs( slicepos->getTrcKeyZSampling() );
+    const bool displayplane = isslideractive &&
+			      pdd->canDisplayInteractively();
+    movePlaneAndCalcAttribs( slicepos->getTrcKeyZSampling(), displayplane );
 }
 
 
 void uiODPlaneDataTreeItem::sliderReleasedCB( CallBacker* )
 {
-    RefMan<visSurvey::PlaneDataDisplay> pdd = getDisplay();
-    if ( !pdd || pdd->getOrientation()!=OD::SliceType::Z )
+    uiSlicePos3DDisp* slicepos = visserv_->getUiSlicePos();
+    if ( slicepos->getDisplayID() != displayid_ )
 	return;
 
-    pdd->setSlideActive( false );
+    RefMan<visSurvey::PlaneDataDisplay> pdd = getDisplay();
+    if ( !pdd )
+	return;
+
+    movePlaneAndCalcAttribs( slicepos->getTrcKeyZSampling() );
+    if ( pdd->getOrientation()!=OD::SliceType::Z )
+	pdd->setSlideActive( false );
 }
 
 
@@ -601,9 +610,9 @@ void uiODPlaneDataTreeItem::updatePlanePos( CallBacker* cb )
 
 
 void uiODPlaneDataTreeItem::movePlaneAndCalcAttribs(
-	const TrcKeyZSampling& tkzs )
+				const TrcKeyZSampling& tkzs, bool displayplane )
 {
-    visserv_->movePlaneAndCalcAttribs( displayid_, tkzs );
+    visserv_->movePlaneAndCalcAttribs( displayid_, tkzs, displayplane );
 }
 
 

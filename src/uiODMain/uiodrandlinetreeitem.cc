@@ -512,6 +512,8 @@ bool uiODRandomLineTreeItem::init()
     mAttachCB( rtd->deSelection(), uiODRandomLineTreeItem::selChg );
     mAttachCB( visserv_->getUiSlicePos()->positionChg,
 	       uiODRandomLineTreeItem::posChange );
+    mAttachCB( visserv_->getUiSlicePos()->sliderReleased,
+	       uiODRandomLineTreeItem::sliderReleasedCB );
     mAttachCB( *rtd->getMovementNotifier(),
 	       uiODRandomLineTreeItem::remove2DViewerCB );
     mAttachCB( *rtd->getManipulationNotifier(),
@@ -662,8 +664,25 @@ void uiODRandomLineTreeItem::posChange( CallBacker* cb )
     if ( slicepos->getDisplayID() != displayid_ )
 	return;
 
+    RefMan<visSurvey::RandomTrackDisplay> rtd = getDisplay();
+    if ( !rtd )
+	return;
+
+    const bool displayplane = slicepos->isSliderActive() &&
+			      rtd->canDisplayInteractively();
     visserv_->moveRandomLineAndCalcAttribs( displayid_,
-				       slicepos->getTrcKeyZSampling() );
+			      slicepos->getTrcKeyZSampling(), displayplane );
+}
+
+
+void uiODRandomLineTreeItem::sliderReleasedCB( CallBacker* cb )
+{
+    uiSlicePos3DDisp* slicepos = visserv_->getUiSlicePos();
+    if ( slicepos->getDisplayID() != displayid_ )
+	return;
+
+    visserv_->moveRandomLineAndCalcAttribs( displayid_,
+					    slicepos->getTrcKeyZSampling() );
 }
 
 

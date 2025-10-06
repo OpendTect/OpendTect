@@ -59,6 +59,7 @@ public:
     bool			hasPosModeManipulator() const override
 				{ return true; }
     void			showManipulator(bool) override;
+    void			displayDraggerPlane(bool);
     bool			isManipulatorShown() const override;
     bool			isManipulated() const override;
     bool			canResetManipulation() const override
@@ -165,6 +166,7 @@ public:
     bool			inEditMode() const	{ return ineditmode_; }
 
     void			setSlideActive(bool yn);
+    bool			isSlideActive() const;
 
 protected:
 				~PlaneDataDisplay();
