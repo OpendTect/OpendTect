@@ -10,6 +10,7 @@ ________________________________________________________________________
 #include "uivisslicepos3d.h"
 
 #include "survinfo.h"
+#include "uilabel.h"
 #include "uitoolbar.h"
 #include "uitoolbutton.h"
 #include "uispinbox.h"
@@ -66,9 +67,12 @@ void uiSlicePos3DDisp::setDisplay( const VisID& dispid )
     curpdd = dCast(visSurvey::PlaneDataDisplay*,so);
     curvol = dCast(visSurvey::VolumeDisplay*,so);
     currtd = dCast(visSurvey::RandomTrackDisplay*,so);
-    const bool isvalidso = ( curpdd && curpdd->isSelected() ) ||
-			   ( curvol && curvol->getSelectedSlice() ) ||
-			   ( currtd && currtd->isSelected() );
+    const bool isvalidpdd = curpdd && curpdd->isSelected();
+    const bool isvalidvolso = curvol && curvol->getSelectedSlice();
+    const bool isvalidrtd = currtd && currtd->isSelected() &&
+				currtd->nrNodes()==2 &&
+				currtd->getOrientation()!=OD::SliceType::Z;
+    const bool isvalidso = isvalidpdd || isvalidvolso || isvalidrtd;
 
     sliceposbox_->setSensitive( isvalidso );
     slicestepbox_->setSensitive( isvalidso );
@@ -95,6 +99,27 @@ void uiSlicePos3DDisp::setDisplay( const VisID& dispid )
 
 	zfactor_ = FlatView::Viewer::userFactor( *zdominfo_, dispzdominfo_ );
     }
+
+    setBoxLabel( getOrientation() );
+    setBoxRanges();
+    setPosBoxValue();
+    setStepBoxValue();
+}
+
+
+void uiSlicePos3DDisp::doUpdatePos()
+{
+    if ( !isOK() )
+	return;
+
+    ConstRefMan<visSurvey::RandomTrackDisplay> currtd = currtd_.get();
+    if ( !currtd )
+	return;
+
+    const bool isvalidrtd = currtd->getOrientation() != OD::SliceType::Z;
+    toolbar_->display( isvalidrtd );
+    if ( !isvalidrtd )
+	return;
 
     setBoxLabel( getOrientation() );
     setBoxRanges();

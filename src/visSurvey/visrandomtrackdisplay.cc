@@ -181,6 +181,8 @@ void RandomTrackDisplay::updateOrientation()
 	orientation_ = OD::SliceType::Inline;
     else if ( nodes_.first().crl() == nodes_.last().crl() )
 	orientation_ = OD::SliceType::Crossline;
+    else
+	orientation_ = OD::SliceType::Z;
 }
 
 
@@ -332,7 +334,10 @@ void RandomTrackDisplay::addNode( const BinID& bid )
 {
     const BinID sbid = snapPosition( bid );
     if ( checkPosition(sbid) )
+    {
 	rl_->addNode( sbid );
+	updateOrientation();
+    }
 }
 
 
@@ -349,6 +354,7 @@ void RandomTrackDisplay::addNodeInternal( const BinID& bid )
     if ( nodes_.size() > 1 && !panelstrip_->isOn() )
 	panelstrip_->turnOn( true );
 
+    updateOrientation();
     moving_.trigger();
 }
 
@@ -357,7 +363,10 @@ void RandomTrackDisplay::insertNode( int nodeidx, const BinID& bid )
 {
     const BinID sbid = snapPosition( bid );
     if ( checkPosition(sbid) )
+    {
 	rl_->insertNode( nodeidx, sbid );
+	updateOrientation();
+    }
 }
 
 
@@ -371,6 +380,7 @@ void RandomTrackDisplay::insertNodeInternal( int nodeidx, const BinID& bid )
     else
 	updatePanelStripPath();
 
+    updateOrientation();
     moving_.trigger();
 }
 
@@ -419,6 +429,7 @@ void RandomTrackDisplay::setNodePos( int nodeidx, const BinID& bid, bool check )
 	dragger_->setKnot( nodeidx, Coord(sbid.inl(),sbid.crl()) );
 	mUpdateRandomLineGeometry( setNodePosition(nodeidx,sbid) );
 	updatePanelStripPath();
+	updateOrientation();
 	moving_.trigger();
     }
 }
@@ -489,6 +500,7 @@ void RandomTrackDisplay::setNodePositions( const TypeSet<BinID>& bids,
     }
 
     updatePanelStripPath();
+    updateOrientation();
 
     movingnotifystopper.enableNotification();
     moving_.trigger();
@@ -504,6 +516,7 @@ void RandomTrackDisplay::removeNode( int nodeidx )
     }
 
     rl_->removeNode( nodeidx );
+    updateOrientation();
 }
 
 
@@ -515,6 +528,7 @@ void RandomTrackDisplay::removeNodeInternal( int nodeidx )
     nodes_.removeSingle(nodeidx);
     dragger_->removeKnot( nodeidx );
     updatePanelStripPath();
+    updateOrientation();
 
     moving_.trigger();
 }
@@ -534,6 +548,7 @@ void RandomTrackDisplay::removeAllNodes()
     nodes_.setEmpty();
     updatePanelStripPath();
     panelstrip_->turnOn( false );
+    updateOrientation();
     moving_.trigger();
 }
 
@@ -1240,6 +1255,8 @@ void RandomTrackDisplay::movingNodeInternal( int selnodeidx )
 	updatePath();
 	updateSel();
     }
+
+    updateOrientation();
 }
 
 
@@ -2055,6 +2072,7 @@ void RandomTrackDisplay::finishNodeMoveInternal()
     interactivetexturedisplay_ = false;
     updatePath();
     updateSel();
+    updateOrientation();
 }
 
 

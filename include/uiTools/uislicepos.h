@@ -78,6 +78,7 @@ protected:
     void		shortcutsChg(CallBacker*);
     void		updatePos(CallBacker*);
     void		initSteps(CallBacker* cb=0);
+    virtual void	doUpdatePos();
     void		slicePosChanged(SliceDir,const TrcKeyZSampling&);
     void		sliceStepChanged(SliceDir);
     void		setBoxRg(SliceDir,const TrcKeyZSampling&,

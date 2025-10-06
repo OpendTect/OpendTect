@@ -42,6 +42,7 @@ private:
 
     void			slicePosChg(CallBacker*) override;
     void			sliceStepChg(CallBacker*) override;
+    void			doUpdatePos() override;
     void			setBoxRanges() override;
     void			setPosBoxValue() override;
     void			setStepBoxValue() override;

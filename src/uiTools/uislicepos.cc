@@ -151,6 +151,12 @@ void uiSlicePos::setBoxLabel( uiSlicePos::SliceDir orientation )
 
 void uiSlicePos::updatePos( CallBacker* )
 {
+    doUpdatePos();
+}
+
+
+void uiSlicePos::doUpdatePos()
+{
     setPosBoxValue();
 }
 
