@@ -164,6 +164,13 @@ bool uiSlicePos::isSliderActive() const
 void uiSlicePos::sliderReleasedCB( CallBacker* )
 {
     isslideractive_ = false;
+    uiSpinBox* posbox = sliceposbox_;
+    OD::SliceType type = getOrientation();
+    if ( type == OD::SliceType::Inline || type == OD::SliceType::Crossline )
+	posbox->setValue( sliceslider_->getIntValue() );
+    else
+	posbox->setValue( sliceslider_->getFValue() );
+
     sliderReleased.trigger();
 }
 
