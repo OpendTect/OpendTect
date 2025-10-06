@@ -41,6 +41,7 @@ class Scene;
 mExpClass(visSurvey) RandomTrackDisplay : public MultiTextureSurveyObject
 { mODTextTranslationClass(RandomTrackDisplay);
 public:
+
 				RandomTrackDisplay();
 
 				mDefaultFactoryInstantiation(
@@ -114,6 +115,7 @@ public:
     bool			setNodePositions(const TypeSet<BinID>&);
     void			lockGeometry(bool);
     bool			isGeometryLocked() const;
+    OD::SliceType		getOrientation() const;
 
     TrcKeyZSampling		getTrcKeyZSampling(bool displayspace,
 						int attrib) const override;
@@ -225,10 +227,13 @@ protected:
     float			appliedZRangeStep() const;
     void			draggerMoveFinished(CallBacker*);
     void			updateMouseCursorCB(CallBacker*) override;
+    void			updateOrientation();
 
-    int				nrgeomchangecbs_ = 0;
-    TypeSet<VisID>*		premovingselids_ = nullptr;
-    bool			geomnodejustmoved_ = false;
+    int				nrgeomchangecbs_	    = 0;
+    TypeSet<VisID>*		premovingselids_	    = nullptr;
+    bool			geomnodejustmoved_	    = false;
+
+    OD::SliceType		orientation_		    = OD::SliceType::Z;
 
     RefMan<Geometry::RandomLine> rl_;
     RefMan<visBase::TexturePanelStrip>	panelstrip_;
@@ -241,7 +246,7 @@ protected:
     RefMan<visBase::EventCatcher> eventcatcher_;
     MouseCursor			mousecursor_;
 
-    int				selnodeidx_	= mUdf(int);
+    int				selnodeidx_		    = mUdf(int);
     RefObjectSet<RandomSeisDataPack>	datapacks_;
     RefObjectSet<RandomSeisDataPack>	transfdatapacks_;
 
@@ -252,9 +257,9 @@ protected:
     TypeSet<BinID>		nodes_;
     TrcKeySet			trckeypath_;
     TypeSet<int>		segments_;
-    int				pickstartnodeidx_ = -1;
-    bool			ispicking_ = false;
-    int				oldstyledoubleclicked_ = 0;
+    int				pickstartnodeidx_	    = -1;
+    bool			ispicking_		    = false;
+    int				oldstyledoubleclicked_	    = 0;
 
     struct UpdateStageInfo
     {
@@ -262,12 +267,12 @@ protected:
     };
     UpdateStageInfo		updatestageinfo_;
 
-    bool			lockgeometry_ = false;
-    bool			ismanip_ = false;
+    bool			lockgeometry_		    = false;
+    bool			ismanip_		    = false;
     int				namenr_;
-    bool			polylinemode_ = false;
-    bool			interactivetexturedisplay_ = false;
-    int				originalresolution_ = -1;
+    bool			polylinemode_		    = false;
+    bool			interactivetexturedisplay_  = false;
+    int				originalresolution_	    = -1;
 
     static const char*		sKeyTrack();
     static const char*		sKeyNrKnots();

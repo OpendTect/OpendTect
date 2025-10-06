@@ -141,7 +141,7 @@ RandomTrackDisplay::RandomTrackDisplay()
     init();		// sets default resolution -> update texture mapping
     updatePanelStripPath();
     setPanelStripZRange( panelstrip_->getZRange() );
-
+    updateOrientation();
     showManipulator( dragger_->isOn() );
     unRefNoDelete();
 }
@@ -164,6 +164,23 @@ RandomTrackDisplay::~RandomTrackDisplay()
     rl_ = nullptr;
     setZAxisTransform( nullptr, nullptr );
     delete premovingselids_;
+}
+
+
+OD::SliceType RandomTrackDisplay::getOrientation() const
+{
+    return orientation_;
+}
+
+
+void RandomTrackDisplay::updateOrientation()
+{
+    if ( nrNodes() != 2 )
+	orientation_ = OD::SliceType::Z;
+    else if ( nodes_.first().inl() == nodes_.last().inl() )
+	orientation_ = OD::SliceType::Inline;
+    else if ( nodes_.first().crl() == nodes_.last().crl() )
+	orientation_ = OD::SliceType::Crossline;
 }
 
 

@@ -83,6 +83,8 @@ protected:
     void		handleMenuCB(CallBacker*) override;
     void		changeColTabCB(CallBacker*);
     void		remove2DViewerCB(CallBacker*);
+    void		posChange(CallBacker*);
+    void		selChg(CallBacker*);
     const char*		parentType() const override
 			{ return typeid(uiODRandomLineParentTreeItem).name(); }
 

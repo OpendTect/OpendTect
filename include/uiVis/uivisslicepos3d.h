@@ -12,6 +12,7 @@ ________________________________________________________________________
 
 #include "uislicepos.h"
 #include "visplanedatadisplay.h"
+#include "visrandomtrackdisplay.h"
 #include "visvolumedisplay.h"
 
 class uiVisPartServer;
@@ -33,6 +34,7 @@ private:
 
     WeakPtr<visSurvey::PlaneDataDisplay>	curpdd_;
     WeakPtr<visSurvey::VolumeDisplay>		curvol_;
+    WeakPtr<visSurvey::RandomTrackDisplay>	currtd_;
     uiVisPartServer*				vispartserv_;
 
     uiSlicePos::SliceDir	getOrientation() const override;

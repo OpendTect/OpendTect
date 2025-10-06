@@ -1631,6 +1631,25 @@ void uiVisPartServer::movePlaneAndCalcAttribs( const VisID& id,
 }
 
 
+void uiVisPartServer::moveRandomLineAndCalcAttribs( const VisID& id,
+					       const TrcKeyZSampling& tkzs )
+{
+    mDynamicCastGet(visSurvey::RandomTrackDisplay*,rtd,getObject(id))
+    if ( !rtd || rtd->nrNodes()!=2 )
+	return;
+
+    TypeSet<BinID> nodes;
+    nodes.add( tkzs.hsamp_.start_ ).add( tkzs.hsamp_.stop_ );
+    rtd->annotateNextUpdateStage( true );
+    rtd->setNodePositions( nodes );
+    rtd->resetManipulation();
+    rtd->annotateNextUpdateStage( true );
+    calculateAllAttribs( id );
+    rtd->annotateNextUpdateStage( false );
+    triggerTreeUpdate();
+}
+
+
 void uiVisPartServer::calculateAllAttribs()
 {
     for ( const auto* scene : scenes_ )

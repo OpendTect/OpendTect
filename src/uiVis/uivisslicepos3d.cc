@@ -38,7 +38,7 @@ uiSlicePos3DDisp::~uiSlicePos3DDisp()
 
 bool uiSlicePos3DDisp::isOK() const
 {
-    return curpdd_ || curvol_;
+    return curpdd_ || curvol_ || currtd_;
 }
 
 
@@ -48,9 +48,12 @@ void uiSlicePos3DDisp::setDisplay( const VisID& dispid )
     CallBack manipcb( mCB(this,uiSlicePos3DDisp,updatePos) );
     RefMan<visSurvey::PlaneDataDisplay> curpdd = curpdd_.get();
     RefMan<visSurvey::VolumeDisplay> curvol = curvol_.get();
+    RefMan<visSurvey::RandomTrackDisplay> currtd = currtd_.get();
     visSurvey::SurveyObject* prevso = curpdd
 		    ? (visSurvey::SurveyObject*)curpdd.ptr()
-		    : (visSurvey::SurveyObject*)curvol.ptr();
+		    : curvol ? (visSurvey::SurveyObject*)curvol.ptr()
+			     : (visSurvey::SurveyObject*)currtd.ptr();
+
     if ( prevso )
     {
 	mDetachCB( *prevso->getMovementNotifier(), uiSlicePos3DDisp::updatePos);
@@ -62,8 +65,10 @@ void uiSlicePos3DDisp::setDisplay( const VisID& dispid )
 		    vispartserv_->getObject(dispid));
     curpdd = dCast(visSurvey::PlaneDataDisplay*,so);
     curvol = dCast(visSurvey::VolumeDisplay*,so);
+    currtd = dCast(visSurvey::RandomTrackDisplay*,so);
     const bool isvalidso = ( curpdd && curpdd->isSelected() ) ||
-			   ( curvol && curvol->getSelectedSlice() );
+			   ( curvol && curvol->getSelectedSlice() ) ||
+			   ( currtd && currtd->isSelected() );
 
     sliceposbox_->setSensitive( isvalidso );
     slicestepbox_->setSensitive( isvalidso );
@@ -73,6 +78,7 @@ void uiSlicePos3DDisp::setDisplay( const VisID& dispid )
 
     curpdd_ = isvalidso ? curpdd.ptr() : nullptr;
     curvol_ = isvalidso ? curvol.ptr() : nullptr;
+    currtd_ = isvalidso ? currtd.ptr() : nullptr;
     toolbar_->display( isvalidso );
     if ( !isvalidso )
 	return;
@@ -104,7 +110,10 @@ VisID uiSlicePos3DDisp::getDisplayID() const
 
     ConstRefMan<visSurvey::PlaneDataDisplay> curpdd = curpdd_.get();
     ConstRefMan<visSurvey::VolumeDisplay> curvol = curvol_.get();
-    return curpdd ? curpdd->id() : curvol ? curvol->id() : VisID::udf();
+    ConstRefMan<visSurvey::RandomTrackDisplay> currtd = currtd_.get();
+    return curpdd ? curpdd->id()
+		  : curvol ? curvol->id()
+			   : currtd ? currtd->id() : VisID::udf();
 }
 
 
@@ -112,12 +121,15 @@ void uiSlicePos3DDisp::setBoxRanges()
 {
     RefMan<visSurvey::PlaneDataDisplay> curpdd = curpdd_.get();
     RefMan<visSurvey::VolumeDisplay> curvol = curvol_.get();
-    if ( !curpdd && !curvol )
+    RefMan<visSurvey::RandomTrackDisplay> currtd = currtd_.get();
+    if ( !curpdd && !curvol && !currtd )
 	return;
 
     TrcKeyZSampling curcs;
     if ( curpdd && curpdd->getScene() )
 	curcs = curpdd->getScene()->getTrcKeyZSampling();
+    else if ( currtd && currtd->getScene() )
+	curcs = currtd->getScene()->getTrcKeyZSampling();
     else if ( curvol )
 	curcs = curvol->getTrcKeyZSampling( false, 0 );
     else
@@ -206,6 +218,7 @@ OD::SliceType uiSlicePos3DDisp::getOrientation() const
 {
     ConstRefMan<visSurvey::PlaneDataDisplay> curpdd = curpdd_.get();
     ConstRefMan<visSurvey::VolumeDisplay> curvol = curvol_.get();
+    ConstRefMan<visSurvey::RandomTrackDisplay> currtd = currtd_.get();
     if ( curpdd )
 	return curpdd->getOrientation();
     else if ( curvol && curvol->getSelectedSlice() )
@@ -218,6 +231,8 @@ OD::SliceType uiSlicePos3DDisp::getOrientation() const
 	else if ( dim == visSurvey::VolumeDisplay::cTimeSlice() )
 	    return OD::SliceType::Z;
     }
+    else if ( currtd )
+	return currtd->getOrientation();
 
     return OD::SliceType::Inline;
 }
@@ -227,6 +242,8 @@ TrcKeyZSampling uiSlicePos3DDisp::getSampling() const
 {
     ConstRefMan<visSurvey::PlaneDataDisplay> curpdd = curpdd_.get();
     ConstRefMan<visSurvey::VolumeDisplay> curvol = curvol_.get();
+    ConstRefMan<visSurvey::RandomTrackDisplay> currtd = currtd_.get();
     return curpdd ? curpdd->getTrcKeyZSampling( true, true )
-		  : curvol->sliceSampling( curvol->getSelectedSlice() );
+		  : curvol ? curvol->sliceSampling( curvol->getSelectedSlice() )
+			   : currtd->getTrcKeyZSampling( true, true );
 }

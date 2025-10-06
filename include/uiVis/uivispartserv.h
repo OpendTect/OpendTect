@@ -282,6 +282,8 @@ public:
 
     void		movePlaneAndCalcAttribs(const VisID&,
 						const TrcKeyZSampling&);
+    void		moveRandomLineAndCalcAttribs(const VisID&,
+						const TrcKeyZSampling&);
 
     bool		canHaveMultipleTextures(const VisID&) const;
     int			nrTextures(const VisID&,int attrib) const;

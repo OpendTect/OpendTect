@@ -42,6 +42,7 @@ ________________________________________________________________________
 #include "uiseispartserv.h"
 #include "uistrings.h"
 #include "uivispartserv.h"
+#include "uivisslicepos3d.h"
 #include "uiwellpartserv.h"
 #include "uiwellrdmlinedlg.h"
 
@@ -507,6 +508,10 @@ bool uiODRandomLineTreeItem::init()
     if ( rlid_.isValid() && rlid_ != rtd->getRandomLineID() )
 	rtd->setRandomLineID( rlid_ );
 
+    mAttachCB( rtd->selection(), uiODRandomLineTreeItem::selChg );
+    mAttachCB( rtd->deSelection(), uiODRandomLineTreeItem::selChg );
+    mAttachCB( visserv_->getUiSlicePos()->positionChg,
+	       uiODRandomLineTreeItem::posChange );
     mAttachCB( *rtd->getMovementNotifier(),
 	       uiODRandomLineTreeItem::remove2DViewerCB );
     mAttachCB( *rtd->getManipulationNotifier(),
@@ -635,6 +640,30 @@ void uiODRandomLineTreeItem::createMenu( MenuHandler* menu, bool istb )
 
     mAddMenuOrTBItem( istb, 0, menu, &saveasmnuitem_, true, false );
     mAddMenuOrTBItem( istb, 0, menu, &saveas2dmnuitem_, true, false );
+}
+
+
+void uiODRandomLineTreeItem::selChg( CallBacker* cb )
+{
+    RefMan<visSurvey::RandomTrackDisplay> rtd = getDisplay();
+    if ( !rtd )
+	return;
+
+    OD::SliceType orientation = rtd->getOrientation();
+    if ( orientation!=OD::SliceType::Inline ||
+	 orientation!=OD::SliceType::Crossline )
+	visserv_->getUiSlicePos()->setDisplay( rtd->id() );
+}
+
+
+void uiODRandomLineTreeItem::posChange( CallBacker* cb )
+{
+    uiSlicePos3DDisp* slicepos = visserv_->getUiSlicePos();
+    if ( slicepos->getDisplayID() != displayid_ )
+	return;
+
+    visserv_->moveRandomLineAndCalcAttribs( displayid_,
+				       slicepos->getTrcKeyZSampling() );
 }
 
 
