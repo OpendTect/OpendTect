@@ -906,13 +906,13 @@ void Well::DisplayProperties::ensureColorContrastWith( OD::Color bkcol )
     bool modified = false;
     if ( bkcol.contrast(track_.getColor())<4.5 )
     {
-	modified = modified || track_.getColor() != usecols[1];
-	track_.setColor( usecols[1] );
+	modified = modified || track_.getColor() != usecols[0];
+	track_.setColor( usecols[0] );
     }
     if ( markers_.issinglecol_ && bkcol.contrast(markers_.getColor())<4.5 )
     {
-	modified = modified || markers_.color_ != usecols[1];
-	markers_.setColor( usecols[1] );
+	modified = modified || markers_.color_ != usecols[0];
+	markers_.setColor( usecols[0] );
     }
 
     for ( auto* logpanel : logs_ )
@@ -924,8 +924,8 @@ void Well::DisplayProperties::ensureColorContrastWith( OD::Color bkcol )
 	    if ( log->name_ != sKey::None() &&
 		 bkcol.contrast(log->getColor())<4.5)
 	    {
-		modified = modified || log->getColor() != usecols[0];
-		log->setColor( usecols[0] );
+		modified = modified || log->getColor() != usecols[1];
+		log->setColor( usecols[1] );
 	    }
 	}
     }
