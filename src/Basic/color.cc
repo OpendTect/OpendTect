@@ -22,11 +22,16 @@ namespace OD
 
 Color::Color( unsigned char r_, unsigned char g_,
 	      unsigned char b_, unsigned char t_ )
-{ set( r_, g_, b_, t_ ); }
+{
+    set( r_, g_, b_, t_ );
+}
 
 
 Color::Color( unsigned int rgbval )
-{ col_ = rgbval; }
+{
+    col_ = rgbval;
+}
+
 
 bool Color::operator ==( const Color& c ) const
 { return col_ == c.col_; }
@@ -85,14 +90,42 @@ TypeSet<Color> Color::complimentaryColors( int numColor ) const
     getHSV( h, s, v );
     s = 255-s;
     v = 255-v;
-    int hdelta = mNINT32(60.0/(float)(numColor+1));
-    int hs = h;
+    float hdelta = mNINT32(360.0/(float)(numColor+1));
+    float hf = float(h)/255*360;
     Color tmp;
     for ( int idx=0; idx<numColor; idx++ )
     {
-	hs += (idx+1)*hdelta;
-	h = hs%60;
-	tmp.setHSV( h, s, v );
+	int hs = mNINT32((idx+1)*hdelta + hf);
+	if ( hs>360 )
+	    hs = hs % 360;
+
+	hs = mNINT32((float)hs/360.0*255.0);
+	tmp.setHSV( (unsigned char)hs, s, v );
+	res[idx] = tmp;
+    }
+    return res;
+}
+
+
+TypeSet<Color> Color::distinctColors( int numColor ) const
+{
+    if ( numColor<1 )
+	numColor = 1;
+
+    TypeSet<Color> res( numColor, Color() );
+    unsigned char h, v, s;
+    getHSV( h, s, v );
+    float hdelta = 360.0/(float)(numColor+1);
+    float hf = float(h)/255*360;;
+    Color tmp;
+    for ( int idx=0; idx<numColor; idx++ )
+    {
+	int hs = mNINT32((idx+1)*hdelta + hf);
+	if ( hs>360 )
+	    hs = hs % 360;
+
+	hs = mNINT32((float)hs/360.0*255.0);
+	tmp.setHSV( (unsigned char)hs, s, v );
 	res[idx] = tmp;
     }
     return res;
@@ -273,7 +306,7 @@ void Color::getHSV( unsigned char& h_, unsigned char& s_,
     if ( h < 0 )
         h += 360;
 
-    h_ = (unsigned char)mNINT32(h);
+    h_ = (unsigned char)mNINT32(h/360*255);
     s_ = (unsigned char)mNINT32(s*255);
     v_ = (unsigned char)mNINT32(v*255);
 }
@@ -290,7 +323,7 @@ void Color::setHSV( unsigned char h_, unsigned char s_, unsigned char v_ )
         return;
     }
 
-    float h = (float)h_ / 60;
+    float h = (float)h_ / 255 * 360 / 60;
     float s = (float)s_ / 255;
     float v = (float)v_ / 255;
     float fr, fg, fb;
