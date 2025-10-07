@@ -46,7 +46,7 @@ uiSlicePos::uiSlicePos( uiParent* p )
     uiString nextttip = tr( "Next position \n\nShortcut: \"x\"" );
     prevbut_ = new uiToolButton( toolbar_, "prevpos", prevttip,
 				mCB(this,uiSlicePos,prevCB) );
-    sliceslider_ = new uiSlider( toolbar_, uiSlider::Setup(), "Slice slider" );
+    sliceslider_ = new uiSlider( nullptr, uiSlider::Setup(), "Slice slider" );
     mAttachCB( sliceslider_->sliderMoved, uiSlicePos::sliderSlicePosChg );
     mAttachCB( sliceslider_->sliderReleased, uiSlicePos::sliderReleasedCB );
     nextbut_ = new uiToolButton( toolbar_, "nextpos", nextttip,
