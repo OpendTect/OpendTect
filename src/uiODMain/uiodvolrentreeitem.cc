@@ -280,7 +280,10 @@ void uiODVolrenTreeItem::handleMenuCB( CallBacker* cb )
 			volumedisplay->getTrcKeyZSampling(true,true,-1),
 			maxcs, dummycb, uiSliceSel::Vol,
 			scene->zDomainInfo() );
-	    if ( !dlg.go() ) return;
+	    dlg.grp()->enableApplyButton( false );
+	    dlg.grp()->enableScrollButton( false );
+	    if ( dlg.go() != uiDialog::Accepted )
+		return;
 
 	    TrcKeyZSampling cs = dlg.getTrcKeyZSampling();
 	    volumedisplay->setTrcKeyZSampling( cs );

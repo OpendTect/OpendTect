@@ -19,15 +19,12 @@ ________________________________________________________________________
 #include "uigraphicsview.h"
 #include "uistring.h"
 
-class ArrayNDWindow;
 class WindowFunction;
 class uiAxisHandler;
-class uiFuncTaperDisp;
 class uiGenInput;
 class uiGraphicsItemGroup;
 class uiListBox;
 class uiRectItem;
-class uiSliceSelDlg;
 class uiWorld2Ui;
 
 /*!brief Displays a mathfunction. */
