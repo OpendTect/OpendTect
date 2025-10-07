@@ -23,12 +23,12 @@ Standard color tables
 1.Transparency.1: 1`0
 
 2.Name: Chimney
-2.Value-Color.0: 0`0`0`255`255
-2.Value-Color.1: 0.436548`50`113`207`100
-2.Value-Color.2: 0.482233`42`84`255`255
-2.Value-Color.3: 0.832487`0`255`0`255
-2.Value-Color.4: 0.959391`255`255`0`255
-2.Value-Color.5: 1`255`255`0`255
+2.Value-Color.0: 0`0`0`255`0
+2.Value-Color.1: 0.436548`50`113`207`0
+2.Value-Color.2: 0.482233`42`84`255`0
+2.Value-Color.3: 0.832487`0`255`0`0
+2.Value-Color.4: 0.959391`255`255`0`0
+2.Value-Color.5: 1`255`255`0`0
 2.Transparency.0: 0`255
 2.Transparency.1: 0.316583`255
 2.Transparency.2: 0.668342`0
@@ -37,12 +37,12 @@ Standard color tables
 2.Marker color: 0`0`0
 
 3.Name: Depth
-3.Value-Color.0: 0`255`0`0`255
-3.Value-Color.1: 0.311558`0`255`0`255
+3.Value-Color.0: 0`255`0`0`0
+3.Value-Color.1: 0.311558`0`255`0`0
 3.Value-Color.2: 0.5`255`255`0`255
-3.Value-Color.3: 0.653266`170`255`255`255
-3.Value-Color.4: 0.819095`117`190`179`255
-3.Value-Color.5: 1`42`42`126`255
+3.Value-Color.3: 0.653266`170`255`255`0
+3.Value-Color.4: 0.819095`117`190`179`0
+3.Value-Color.5: 1`42`42`126`0
 3.Transparency.0: 0`0
 3.Transparency.1: 1`0
 3.Undef color: 200`200`200`0
@@ -190,11 +190,11 @@ Standard color tables
 16.Name: Red-White-Blue
 16.Marker color: 0`240`0
 16.Undef color: 150`200`150`0
-16.Value-Color.0: 0`170`0`0`255
-16.Value-Color.1: 0.25`131`119`78`255
+16.Value-Color.0: 0`170`0`0`0
+16.Value-Color.1: 0.25`131`119`78`0
 16.Value-Color.2: 0.5`255`255`255`0
-16.Value-Color.3: 0.781726`60`61`89`255
-16.Value-Color.4: 1`0`0`127`255
+16.Value-Color.3: 0.781726`60`61`89`0
+16.Value-Color.4: 1`0`0`127`0
 16.Transparency.0: 0`0
 16.Transparency.1: 1`0
 
@@ -203,7 +203,7 @@ Standard color tables
 17.Value-Color.1: 0.070352`255`28`0`0
 17.Value-Color.2: 0.25`255`200`0`0
 17.Value-Color.3: 0.5`243`243`243`0
-17.Value-Color.4: 0.883249`56`70`127`255
+17.Value-Color.4: 0.883249`56`70`127`0
 17.Value-Color.5: 1`0`0`0`0
 17.Transparency.0: 0`0
 17.Transparency.1: 1`0
@@ -262,7 +262,7 @@ Standard color tables
 21.Value-Color.1: 0.163265`255`0`0`0
 21.Value-Color.2: 0.316327`170`85`0`0
 21.Value-Color.3: 0.479592`224`217`211`0
-21.Value-Color.4: 0.493827`229`229`229`255
+21.Value-Color.4: 0.493827`229`229`229`0
 21.Value-Color.5: 0.678571`0`0`0`0
 21.Value-Color.6: 0.836735`0`0`255`0
 21.Value-Color.7: 1`0`255`255`0
@@ -424,7 +424,7 @@ Standard color tables
 32.Undef color: 200`200`200`0
 32.Nr segments: 0
 32.Value-Color.0: 0`0`0`255`0
-32.Value-Color.1: 0.5`255`255`255`120.63824
+32.Value-Color.1: 0.5`255`255`255`0
 32.Value-Color.2: 1`0`255`0`0
 32.Transparency.0: 0`0
 32.Transparency.1: 0.494208`122.03571
@@ -434,8 +434,8 @@ Standard color tables
 33.Marker color: 0`240`0`0
 33.Undef color: 150`200`150`0
 33.Nr segments: 0
-33.Value-Color.0: 0`255`255`255`255
-33.Value-Color.1: 0.436293`0`0`0`255
+33.Value-Color.0: 0`255`255`255`0
+33.Value-Color.1: 0.436293`0`0`0`0
 33.Value-Color.2: 1`255`0`0`0
 33.Transparency.0: 0`255
 33.Transparency.1: 0.53668`255

@@ -23,7 +23,35 @@ class uiToolButton;
 class uiSpinBox;
 class uiWorld2Ui;
 class uiColTabImport;
+class uiTable;
 
+namespace ColTab { class Sequence; }
+
+mExpClass(uiTools) uiTranspValuesDlg : public uiDialog
+{ mODTextTranslationClass(uiColTabMarkerDlg);
+public:
+				uiTranspValuesDlg(uiParent*,ColTab::Sequence&,
+						  const Interval<float>&);
+				~uiTranspValuesDlg();
+
+    Notifier<uiTranspValuesDlg> valuesChanged;
+
+
+protected:
+
+    uiTable*			table_;
+    ColTab::Sequence&		ctab_;
+    Interval<float>		ctabrange_;
+
+    void			dataChgdCB(CallBacker*);
+    void			pointInsertedCB(CallBacker*);
+    void			pointDeletedCB(CallBacker*);
+
+    void			fillTable();
+    void			handleColorPos();
+    void			handleDataVal();
+    void			handleTranspVal();
+};
 
 namespace ColTab { class Sequence; }
 
@@ -37,6 +65,8 @@ public:
     const ColTab::Sequence&	currentColTab()	const	{ return ctab_; }
 
     void			setHistogram(const TypeSet<float>&);
+    void			setHistogram(const TypeSet<float>&,
+					     const Interval<float>&);
 
     Notifier<uiColorTableMan> 	tableAddRem;
     Notifier<uiColorTableMan> 	tableChanged;
@@ -62,13 +92,14 @@ protected:
 
     bool			issaved_		= true;
     int				selidx_			= -1;
+    Interval<float>		ctabrange_;
 
     bool			enabletrans_;
 
     void			doFinalize(CallBacker*);
     void			reDrawCB(CallBacker*);
-    void			markerChgd(CallBacker*);
-    void			selChg(CallBacker*);
+    void			markerChgdCB(CallBacker*);
+    void			selChgdCB(CallBacker*);
     void			removeCB(CallBacker*);
     void			saveCB(CallBacker*);
     void			saveAsCB(CallBacker*);
@@ -76,7 +107,8 @@ protected:
     void			itemRenamedCB(CallBacker*);
     bool			acceptOK(CallBacker*) override;
     bool			rejectOK(CallBacker*) override;
-    void			reDraw( bool deep ) override	{ reDrawCB(0); }
+    void			reDraw( bool deep ) override
+				{ reDrawCB(nullptr); }
 
 
     void			refreshColTabList(const char*);
@@ -84,21 +116,24 @@ protected:
 
     bool			saveColTab(bool);
 
-    void			segmentSel(CallBacker*);
+    void			segmentSelCB(CallBacker*);
     void			nrSegmentsCB(CallBacker*);
     void			updateSegmentFields();
 
-    void			undefColSel(CallBacker*);
-    void			markerColChgd(CallBacker*);
-    void			rightClick(CallBacker*);
+    void			undefColSelCB(CallBacker*);
+    void			markerColChgdCB(CallBacker*);
+    void			rightClickColorCB(CallBacker*);
+    void			rightClickTranspCB(CallBacker*);
+    void			mouseMoveCB(CallBacker*);
     void			doSegmentize();
-    void			importColTab(CallBacker*);
-    void			exportColTab(CallBacker*);
-    void			renameColTab(CallBacker*);
-    void			transptSel(CallBacker*);
-    void			transptChg(CallBacker*);
-    void			sequenceChange(CallBacker*);
-    void			markerChange(CallBacker*);
+    void			importColTabCB(CallBacker*);
+    void			exportColTabCB(CallBacker*);
+    void			renameColTabCB(CallBacker*);
+    void			transptSelCB(CallBacker*);
+    void			transptChgdCB(CallBacker*);
+    void			sequenceChangeCB(CallBacker*);
+    void			markerChangeCB(CallBacker*);
+    void			transpTableChgd(CallBacker*);
 
 private:
 

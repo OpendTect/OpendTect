@@ -1432,3 +1432,18 @@ void uiGenInput::setPrefix( const uiString& str, int fldnr )
 	    uisbinp->setPrefix( str );
     }
 }
+
+
+void uiGenInput::setSuffix( const uiString& str, int fldnr )
+{
+    if ( !flds_.validIdx(fldnr) )
+	return;
+
+    const int nrelements = flds_[fldnr]->nElems();
+    for ( int idx=0; idx<nrelements; idx++ )
+    {
+	mDynamicCastGet(uiSpinBox*,uisbinp,flds_[fldnr]->element(idx))
+	if ( uisbinp )
+	    uisbinp->setSuffix( str );
+    }
+}

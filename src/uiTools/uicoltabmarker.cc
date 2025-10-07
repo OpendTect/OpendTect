@@ -36,19 +36,19 @@ static const int sColorCol = 1;
 #define mEps 0.00001
 
 uiColTabMarkerDlg::uiColTabMarkerDlg( uiParent* p, ColTab::Sequence& ctab )
-    : uiDialog(p,Setup(uiStrings::phrManage(uiStrings::sMarker()),
-		       tr("Add, Remove, Change Anchors"),
+    : uiDialog(p,Setup(uiStrings::phrManage(uiStrings::sAnchor(mPlural)),
+		       tr("Add, Remove, and Edit Anchors"),
 		       mODHelpKey(mColTabMarkerDlgHelpID)))
     , markersChanged(this)
     , ctab_(ctab)
 {
     table_ = new uiTable( this, uiTable::Setup(ctab_.size(),2)
 						.rowgrow(true)
-						.rowdesc(tr("Anchor"))
+						.rowdesc(uiStrings::sAnchor())
 						.defrowlbl(true)
 						.manualresize(true)
 						.removeselallowed(false),
-			  "Marker table");
+			  "Anchor Table");
     uiStringSet columnlabels;
     columnlabels.add( uiStrings::sPosition() )
 		.add( uiStrings::sColor() );
@@ -58,9 +58,9 @@ uiColTabMarkerDlg::uiColTabMarkerDlg( uiParent* p, ColTab::Sequence& ctab )
     fillTable();
 
     mAttachCB( table_->leftClicked, uiColTabMarkerDlg::mouseClick );
-    mAttachCB( table_->rowInserted, uiColTabMarkerDlg::markerInserted );
-    mAttachCB( table_->rowDeleted, uiColTabMarkerDlg::markerDeleted );
-    mAttachCB( table_->valueChanged, uiColTabMarkerDlg::markerPosChgd );
+    mAttachCB( table_->rowInserted, uiColTabMarkerDlg::markerInsertedCB );
+    mAttachCB( table_->rowDeleted, uiColTabMarkerDlg::markerDeletedCB );
+    mAttachCB( table_->valueChanged, uiColTabMarkerDlg::markerPosChgdCB );
 }
 
 
@@ -78,6 +78,9 @@ void uiColTabMarkerDlg::fillTable()
 	table_->setValue( RowCol(cidx,sPosCol), position );
 	table_->setColor( RowCol(cidx,sColorCol), ctab_.color(position) );
     }
+
+    table_->setCellReadOnly( RowCol(0,0), true );
+    table_->setCellReadOnly( RowCol(table_->nrRows()-1,0), true );
 }
 
 
@@ -89,7 +92,8 @@ void uiColTabMarkerDlg::mouseClick( CallBacker* )
 	return;
 
     OD::Color newcol = table_->getColor( rc );
-    if ( selectColor(newcol,this,tr("Anchor color")) )
+    if ( selectColor(newcol,this,uiStrings::phrJoinStrings(uiStrings::sAnchor(),
+							 uiStrings::sColor())) )
     {
 	ColTab::Sequence orgctab = ctab_;
 	table_->setColor( rc, newcol );
@@ -102,7 +106,7 @@ void uiColTabMarkerDlg::mouseClick( CallBacker* )
 }
 
 
-void uiColTabMarkerDlg::markerInserted( CallBacker* )
+void uiColTabMarkerDlg::markerInsertedCB( CallBacker* )
 {
     NotifyStopper notifstop( table_->valueChanged );
     RowCol rcpos = table_->newCell();
@@ -126,18 +130,15 @@ void uiColTabMarkerDlg::markerInserted( CallBacker* )
 }
 
 
-void uiColTabMarkerDlg::markerDeleted( CallBacker* )
+void uiColTabMarkerDlg::markerDeletedCB( CallBacker* )
 {
     NotifyStopper notifstop( table_->valueChanged );
     const RowCol rc = table_->notifiedCell();
     if ( rc.row()==0 || rc.row()==ctab_.size()-1 )
     {
 	table_->insertRows( rc, 1 );
-	const float pos = ctab_.position( rc.row() );
-	table_->setValue( RowCol(rc.row(),sPosCol), pos );
-	table_->setColor( RowCol(rc.row(),sColorCol), ctab_.color(pos) );
-	table_->setCurrentCell( RowCol(rc.row(),sPosCol) );
-	uiMSG().error( tr("Cannot remove markers at extreme positions") );
+	fillTable();
+	uiMSG().error( tr("Cannot remove anchors at extreme positions") );
 	return;
     }
 
@@ -147,9 +148,12 @@ void uiColTabMarkerDlg::markerDeleted( CallBacker* )
 }
 
 
-void uiColTabMarkerDlg::markerPosChgd( CallBacker* )
+void uiColTabMarkerDlg::markerPosChgdCB( CallBacker* )
 {
     const RowCol rc = table_->currentCell();
+    if ( rc.row()<=0 || rc.row()>=ctab_.size()-1 )
+	return;
+
     const float newpos = table_->getFValue( rc );
     if (ctab_.position(rc.row()-1)>newpos || ctab_.position(rc.row()+1)<newpos)
     {
@@ -196,11 +200,10 @@ bool uiColTabMarkerDlg::acceptOK( CallBacker* )
 
 // ***** uiColTabMarkerCanvas ****
 uiColTabMarkerCanvas::uiColTabMarkerCanvas( uiParent* p, ColTab::Sequence& ctab)
-    : uiGraphicsView(p,"Marker Canvas")
+    : uiGraphicsView(p,"Anchor Canvas")
     , parent_(p)
     , ctab_(ctab)
     , markerChanged(this)
-    , markerlineitmgrp_(0)
     , meh_(scene().getMouseEventHandler())
 {
     setScrollBarPolicy( true, uiGraphicsView::ScrollBarAlwaysOff );
@@ -229,7 +232,7 @@ void uiColTabMarkerCanvas::drawMarkers( CallBacker* )
     const int w = viewWidth();
     const int h = viewHeight();
     scene().setSceneRect( 0, 0, sCast(float,w), sCast(float,h) );
-    w2ui_->set( uiRect(0,0,w-5,h-5), uiWorldRect(0,255,1,0) );
+    w2ui_->set( uiRect(3,0,w-4,h-5), uiWorldRect(0,255,1,0) );
 
     if ( !markerlineitmgrp_ )
     {
@@ -283,11 +286,14 @@ void uiColTabMarkerCanvas::mouseClk( CallBacker* )
     if ( selidx_>=0 )
     {
 	if ( selidx_ != 0 && selidx_ != ctab_.size()-1 )
-	mnu.insertAction( new uiAction(tr("Remove color")), 0 );
-	mnu.insertAction( new uiAction(m3Dots(tr("Change color"))), 1 );
+	    mnu.insertAction( new uiAction(uiStrings::phrRemove(
+						     uiStrings::sColor())), 0 );
+
+	mnu.insertAction( new uiAction(m3Dots(tr("Change Color"))), 1 );
     }
 
-    mnu.insertAction( new uiAction(m3Dots(tr("Edit Anchors"))), 2 );
+    mnu.insertAction( new uiAction(m3Dots(uiStrings::phrEdit(
+					    uiStrings::sAnchor(mPlural)))), 2 );
 
     const int res = mnu.exec();
     if ( res==0 )
@@ -297,12 +303,14 @@ void uiColTabMarkerCanvas::mouseClk( CallBacker* )
     else if ( res==2 )
     {
 	ColTab::Sequence coltab = ctab_;
-	uiColTabMarkerDlg dlg( parent_, ctab_ );
+	//this will ensure that the color table manager will not be gray
+	uiParent* dlgparent = parent_ ? parent_->mainwin()->parent() : parent_;
+	uiColTabMarkerDlg dlg( dlgparent, ctab_ );
 	dlg.markersChanged.notify( mCB(this,uiColTabMarkerCanvas,markerChgd) );
 	if ( !dlg.go() )
 	{
 	    ctab_ = coltab;
-	    markerChgd(0);
+	    markerChgd( nullptr );
 	}
     }
 
@@ -389,14 +397,12 @@ void uiColTabMarkerCanvas::mouseMove( CallBacker* )
 
     const MouseEvent& ev = meh_.event();
     uiWorldPoint wpt = w2ui_->transform( ev.pos() );
-    float changepos = (float) ( wpt.x_ );
 
     const int sz = ctab_.size();
     if ( selidx_<0 || selidx_>=sz )
 	return;
 
-    if ( changepos > 1 ) changepos = 1;
-    if ( changepos < 0 ) changepos = 0;
+    const float changepos = std::clamp( (float)( wpt.x_ ), 0.0f, 1.0f );
 
     float position = mUdf(float);
     if ( (selidx_ > 0 && ctab_.position(selidx_-1)>=changepos) )

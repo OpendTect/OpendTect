@@ -66,20 +66,20 @@ public:
 
 protected:
 
-    uiGraphicsItem*		ypolyitem_;
-    uiGraphicsItem*		y2polyitem_;
-    uiPolygonItem*		ypolygonitem_;
-    uiPolygonItem*		y2polygonitem_;
-    uiPolyLineItem*		ypolylineitem_;
-    uiPolyLineItem*		y2polylineitem_;
-    uiRectItem*			borderrectitem_;
-    uiGraphicsItemGroup*	ymarkeritems_;
-    uiGraphicsItemGroup*	y2markeritems_;
-    uiLineItem*			xmarklineitem_;
-    uiLineItem*			ymarklineitem_;
-    uiLineItem*			xmarkline2item_;
-    uiLineItem*			ymarkline2item_;
-    uiTextItem*			titleitem_;
+    uiGraphicsItem*		ypolyitem_		= nullptr;
+    uiGraphicsItem*		y2polyitem_		= nullptr;
+    uiPolygonItem*		ypolygonitem_		= nullptr;
+    uiPolygonItem*		y2polygonitem_		= nullptr;
+    uiPolyLineItem*		ypolylineitem_		= nullptr;
+    uiPolyLineItem*		y2polylineitem_		= nullptr;
+    uiRectItem*			borderrectitem_		= nullptr;
+    uiGraphicsItemGroup*	ymarkeritems_		= nullptr;
+    uiGraphicsItemGroup*	y2markeritems_		= nullptr;
+    uiLineItem*			xmarklineitem_		= nullptr;
+    uiLineItem*			ymarklineitem_		= nullptr;
+    uiLineItem*			xmarkline2item_		= nullptr;
+    uiLineItem*			ymarkline2item_		= nullptr;
+    uiTextItem*			titleitem_		= nullptr;
 
     void			mousePressCB(CallBacker*) override;
     void			mouseReleaseCB(CallBacker*) override;

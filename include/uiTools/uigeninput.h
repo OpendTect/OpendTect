@@ -219,7 +219,8 @@ Returns true, if changes are accepted.
 
     void		setNrDecimals(int nrdec,int fldnr=0);
     void		setRequired(bool yn=true);
-    void		setPrefix(const uiString&r,int fldnr=0);
+    void		setPrefix(const uiString&str,int fldnr=0);
+    void		setSuffix(const uiString&str,int fldnr=0);
 
     Notifier<uiGenInput> checked;
     Notifier<uiGenInput> valueChanging;

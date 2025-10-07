@@ -37,9 +37,9 @@ protected:
     void			fillTable();
     void			rebuildColTab();
     void			mouseClick(CallBacker*);
-    void			markerInserted(CallBacker*);
-    void			markerDeleted(CallBacker*);
-    void			markerPosChgd(CallBacker*);
+    void			markerInsertedCB(CallBacker*);
+    void			markerDeletedCB(CallBacker*);
+    void			markerPosChgdCB(CallBacker*);
     bool			acceptOK(CallBacker*) override;
 
 };
@@ -58,7 +58,7 @@ protected:
 
     uiWorld2Ui*                 w2ui_;
     uiParent*	                parent_;
-    uiGraphicsItemGroup*	markerlineitmgrp_;
+    uiGraphicsItemGroup*	markerlineitmgrp_	= nullptr;
     int		                selidx_;
     ColTab::Sequence&           ctab_;
     MouseEventHandler&		meh_;

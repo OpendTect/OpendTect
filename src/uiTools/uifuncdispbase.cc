@@ -62,7 +62,8 @@ void uiFuncDispBase::setVals( const Interval<float>& xrg, const float* yv,
 
 void uiFuncDispBase::setY2Vals( const float* xv, const float* yv, int sz )
 {
-    y2xvals_.erase(); y2yvals_.erase();
+    y2xvals_.erase();
+    y2yvals_.erase();
     if ( sz > 0 )
     {
 	for ( int idx=0; idx<sz; idx++ )
@@ -72,7 +73,8 @@ void uiFuncDispBase::setY2Vals( const float* xv, const float* yv, int sz )
 	}
     }
 
-    gatherInfo( true ); draw();
+    gatherInfo( true );
+    draw();
 }
 
 

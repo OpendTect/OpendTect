@@ -85,12 +85,12 @@ protected:
     ColTab::Sequence&	coltabseq_;
 
     TypeSet<float>	histogram_;
-    uiParent*		parent_;
+    uiParent*		parent_			    = nullptr;
     uiColorTableCanvas*	canvas_;
-    uiLineEdit*		minfld_;
-    uiLineEdit*		maxfld_;
+    uiLineEdit*		minfld_			    = nullptr;
+    uiLineEdit*		maxfld_			    = nullptr;
     uiColorTableSel*	selfld_;
-    uiAutoRangeClipDlg*	scalingdlg_;
+    uiAutoRangeClipDlg* scalingdlg_		    = nullptr;
 
     bool		enabletrans_;
 

@@ -186,6 +186,7 @@ OD::Color ColTab::Sequence::color( float x ) const
     float x0 = x_[0];
     if ( sz == 1 || x < x0 + mDefEps )
 	return OD::Color( r_[0], g_[0], b_[0], t );
+
     float x1 = x_[ sz-1 ];
     if ( x > x1 - mDefEps )
 	return OD::Color( r_[sz-1], g_[sz-1], b_[sz-1], t );
@@ -197,6 +198,7 @@ OD::Color ColTab::Sequence::color( float x ) const
 	{
 	    if ( mIsEqual(x,x1,mDefEps) )
 		return OD::Color( r_[idx], g_[idx], b_[idx], t );
+
 	    if ( snaptomarkerbelow )
 		return OD::Color( r_[idx-1], g_[idx-1], b_[idx-1], t );
 
@@ -261,7 +263,8 @@ bool ColTab::Sequence::hasTransparency() const
 	return false;
 
     for ( int idx=0; idx<tr_.size(); idx++ )
-        if ( tr_[idx].y_ > 0.1f ) return true;
+	if ( tr_[idx].y_ > 0.1f )
+	    return true;
 
     return false;
 }
@@ -276,8 +279,8 @@ int ColTab::Sequence::setColor( float pos, const OD::Color& col )
 int ColTab::Sequence::setColor( float px, unsigned char pr, unsigned char pg,
 				unsigned char pb )
 {
-    if ( px > 1 ) px = 1;
-    if ( px < 0 ) px = 0;
+    px = std::clamp( px, 0.0f, 1.0f );
+
     const int sz = size();
 
     int chgdidx = -1;
@@ -330,7 +333,9 @@ void ColTab::Sequence::changeColor( int idx, unsigned char pr,
     if ( !validIdx(idx) )
 	return;
 
-    r_[idx] = pr; g_[idx] = pg; b_[idx] = pb;
+    r_[idx] = pr;
+    g_[idx] = pg;
+    b_[idx] = pb;
     colorChanged.trigger();
 }
 
@@ -342,8 +347,7 @@ void ColTab::Sequence::changePos( int idx, float x )
     if ( !canChangePosition(idx) )
 	return;
 
-    if ( x > 1 ) x = 1;
-    if ( x < 0 ) x = 0;
+    x = std::clamp( x, 0.0f, 1.0f );
 
     x_[idx] = x;
     colorChanged.trigger();
@@ -374,19 +378,25 @@ void ColTab::Sequence::removeAllColors()
 
 void ColTab::Sequence::setTransparency( Geom::Point2D<float> pt )
 {
-    if ( pt.x_ < 0 ) pt.x_ = 0;
-    if ( pt.x_ > 1 ) pt.x_ = 1;
-    if ( pt.y_ < 0 ) pt.y_ = 0;
-    if ( pt.y_ > 255 ) pt.y_ = 255;
+    pt.x_ = std::clamp( pt.x_, 0.0f, 1.0f );
+    pt.y_ = std::clamp( pt.y_, 0.0f, 255.0f );
 
     bool done = false;
     for ( int idx=0; idx<tr_.size(); idx++ )
     {
         const float x = tr_[idx].x_;
         if ( mIsEqual(x,pt.x_,mDefEps) )
-	    { tr_[idx] = pt; done = true; break; }
+	{
+	    tr_[idx] = pt;
+	    done = true;
+	    break;
+	}
         else if ( pt.x_ < x )
-	    { tr_.insert( idx, pt ); done = true; break; }
+	{
+	    tr_.insert( idx, pt );
+	    done = true;
+	    break;
+	}
     }
 
     if ( !done )
@@ -412,7 +422,8 @@ void ColTab::Sequence::removeTransparencyAt( int idx )
 
 void ColTab::Sequence::changeTransparency( int idx, Geom::Point2D<float> pt )
 {
-    if ( !tr_.validIdx(idx) ) return;
+    if ( !tr_.validIdx(idx) )
+	return;
 
     tr_[idx] = pt;
     transparencyChanged.trigger();
@@ -421,7 +432,8 @@ void ColTab::Sequence::changeTransparency( int idx, Geom::Point2D<float> pt )
 
 void ColTab::Sequence::flipColor()
 {
-    if ( size() == 0 ) return;
+    if ( size() == 0 )
+	return;
 
     int first = 0;
     int last = size() - 1;

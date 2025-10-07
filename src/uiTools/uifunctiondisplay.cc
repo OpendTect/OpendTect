@@ -19,20 +19,6 @@ uiFunctionDisplay::uiFunctionDisplay( uiParent* p,
 				      const uiFunctionDisplay::Setup& su )
     : uiFuncDispBase(su)
     , uiGraphicsView(p,"Function display viewer")
-    , ypolyitem_(0)
-    , y2polyitem_(0)
-    , ypolygonitem_(0)
-    , y2polygonitem_(0)
-    , ypolylineitem_(0)
-    , y2polylineitem_(0)
-    , ymarkeritems_(0)
-    , y2markeritems_(0)
-    , xmarklineitem_(0)
-    , ymarklineitem_(0)
-    , xmarkline2item_(0)
-    , ymarkline2item_(0)
-    , borderrectitem_(0)
-    , titleitem_(0)
     , pointChanged(this)
     , pointSelected(this)
     , mouseMove(this)
@@ -89,17 +75,19 @@ uiFunctionDisplay::~uiFunctionDisplay()
 
 void uiFunctionDisplay::cleanUp()
 {
-    delete ypolylineitem_; delete y2polylineitem_;
-    delete ypolygonitem_; delete y2polygonitem_;
-    delete ymarkeritems_; delete y2markeritems_;
-    delete xmarklineitem_; delete ymarklineitem_;
-    delete xmarkline2item_; delete ymarkline2item_;
-    ypolylineitem_ = y2polylineitem_ = 0;
-    ypolygonitem_ = y2polygonitem_ = 0;
-    ymarkeritems_ = y2markeritems_ = 0;
-    xmarklineitem_ = ymarklineitem_ = xmarkline2item_ = ymarkline2item_ = 0;
-    ypolyitem_ = y2polyitem_ = 0;
-    delete titleitem_; titleitem_ = 0;
+    deleteAndNullPtr( ypolylineitem_ );
+    deleteAndNullPtr( y2polylineitem_ );
+    deleteAndNullPtr( ypolygonitem_ );
+    deleteAndNullPtr( y2polygonitem_ );
+    deleteAndNullPtr( ymarkeritems_ );
+    deleteAndNullPtr( y2markeritems_ );
+    deleteAndNullPtr( xmarklineitem_ );
+    deleteAndNullPtr( ymarklineitem_ );
+    deleteAndNullPtr( xmarkline2item_ );
+    deleteAndNullPtr( ymarkline2item_ );
+    ypolyitem_ = nullptr;
+    y2polyitem_ = nullptr;
+    deleteAndNullPtr( titleitem_ );
 }
 
 
@@ -109,8 +97,7 @@ void uiFunctionDisplay::reSized( CallBacker* )
 }
 
 void uiFunctionDisplay::saveImageAs( CallBacker* )
-{
-}
+{}
 
 
 void uiFunctionDisplay::setTitle( const uiString& title )
@@ -130,7 +117,8 @@ void uiFunctionDisplay::setTitle( const uiString& title )
 Geom::Point2D<float> uiFunctionDisplay::getFuncXY( int xpix, bool y2 ) const
 {
     const uiAxisHandler* axis = xAxis();
-    if ( !axis ) return Geom::Point2D<float>::udf();
+    if ( !axis )
+	return Geom::Point2D<float>::udf();
 
     const float xval = axis->getVal( xpix );
     const TypeSet<float>& xvals = y2 ? y2xvals_ : xvals_;

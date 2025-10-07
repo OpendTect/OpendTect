@@ -238,6 +238,7 @@ public:
     static uiString sAmplitude(int n=1) { return tr("Amplitude",0,n); }
     static uiString sAngle(int n=1)	{ return tr("Angle",0,n); }
     static uiString sAnalysis()		{ return tr("Analysis"); }
+    static uiString sAnchor(int n=1)	{ return tr("Anchor", 0, n); }
     static uiString sAnd()		{ return tr("and"); }
     static uiString sApply()		{ return tr("Apply"); }
     static uiString sArea()		{ return tr("Area"); }

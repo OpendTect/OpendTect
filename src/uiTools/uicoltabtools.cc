@@ -26,7 +26,7 @@ uiColorTableCanvas::uiColorTableCanvas( uiParent* p, const ColTab::Sequence& ct,
     : uiRGBArrayCanvas(p,mkRGBArr(withalpha))
     , orientation_(ori)
     , ctseq_(ct)
-    , flipseq_( false )
+    , flipseq_(false)
 {
     disableImageSave();
     setDragMode( uiGraphicsView::NoDrag );

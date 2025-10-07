@@ -28,7 +28,7 @@ ________________________________________________________________________
 
 
 static const char* sdTectNumberFormat()
-	{ return "dTect.Color table.Number format"; }
+{ return "dTect.Color table.Number format"; }
 
 
 class uiAutoRangeClipDlg : public uiDialog
@@ -48,7 +48,7 @@ uiAutoRangeClipDlg( uiParent* p, ColTab::MapperSetup& ms,
     setOkCancelText( uiStrings::sApply(), uiStrings::sClose() );
 
     doclipfld_ = new uiGenInput( this, tr("Auto-set scale ranges"),
-				BoolInpSpec(true) );
+				 BoolInpSpec(true) );
     mAttachCB( doclipfld_->valueChanged, uiAutoRangeClipDlg::clipPush );
 
     cliptypefld_ = new uiGenInput( this, tr("Clip type"),
@@ -57,7 +57,7 @@ uiAutoRangeClipDlg( uiParent* p, ColTab::MapperSetup& ms,
     mAttachCB( cliptypefld_->valueChanged, uiAutoRangeClipDlg::cliptypePush );
 
     clipfld_ = new uiGenInput( this, tr("Percentage clipped (low/high)"),
-			      FloatInpIntervalSpec() );
+			       FloatInpIntervalSpec() );
     clipfld_->setElemSzPol( uiObject::Small );
     clipfld_->attach( alignedBelow, cliptypefld_ );
 
@@ -71,7 +71,7 @@ uiAutoRangeClipDlg( uiParent* p, ColTab::MapperSetup& ms,
     mAttachCB( symfld_->valueChanged, uiAutoRangeClipDlg::symPush );
 
     midvalfld_ = new uiGenInput( this, tr("Symmetrical Mid Value"),
-				FloatInpSpec() );
+				 FloatInpSpec() );
     midvalfld_->setElemSzPol( uiObject::Small );
     midvalfld_->attach( alignedBelow, symfld_ );
 
@@ -88,8 +88,7 @@ uiAutoRangeClipDlg( uiParent* p, ColTab::MapperSetup& ms,
     formatfld_->attach( ensureBelow, sep );
     mAttachCB( formatfld_->valueChanged, uiAutoRangeClipDlg::formatChangedCB );
 
-    precisionfld_ = new uiGenInput( this, tr("Precision"),
-				    IntInpSpec(5,0,8) );
+    precisionfld_ = new uiGenInput( this, tr("Precision"), IntInpSpec(5,0,8) );
     precisionfld_->attach( alignedBelow, formatfld_ );
     mAttachCB(precisionfld_->valueChanging,uiAutoRangeClipDlg::formatChangedCB);
 
@@ -217,7 +216,8 @@ bool acceptOK( CallBacker* ) override
 
     if ( saveButtonChecked() )
     {
-	char fmt; int prec;
+	char fmt;
+	int prec;
 	getNumberFormat( fmt, prec );
 	BufferString fmtstr; fmtstr.add( fmt );
 	FileMultiString fullstr;
@@ -286,7 +286,9 @@ uiColorTableSel::~uiColorTableSel()
 
 
 void uiColorTableSel::seqChgCB( CallBacker* )
-{ update(); }
+{
+    update();
+}
 
 void uiColorTableSel::update()
 {
@@ -303,7 +305,8 @@ void uiColorTableSel::update()
 
 	const ColTab::Sequence& seq = *ColTab::SM().get( seqidx );
 	addItem( toUiString(seq.name()) );
-	uiPixmap pm( 16, 10 ); pm.fill( seq, true );
+	uiPixmap pm( 16, 10 );
+	pm.fill( seq, true );
 	setPixmap( idx, pm );
     }
 
@@ -315,13 +318,19 @@ void uiColorTableSel::update()
 }
 
 void uiColorTableSel::setCurrent( const ColTab::Sequence& seq )
-{ setCurrentItem( seq.name().buf() ); }
+{
+    setCurrentItem( seq.name().buf() );
+}
 
 void uiColorTableSel::setCurrent( const char* nm )
-{ setCurrentItem( nm ); }
+{
+    setCurrentItem( nm );
+}
 
 const char* uiColorTableSel::getCurrent() const
-{ return textOfItem( currentItem() ); }
+{
+    return textOfItem( currentItem() );
+}
 
 
 
@@ -342,10 +351,6 @@ uiColorTable::uiColorTable( const ColTab::Sequence& colseq )
 		.symmidval(mUdf(float))
 		.cliprate(ColTab::defClipRate())) )
     , coltabseq_(*new ColTab::Sequence(colseq))
-    , parent_(nullptr)
-    , minfld_(nullptr)
-    , maxfld_(nullptr)
-    , scalingdlg_(nullptr)
     , enabletrans_(true)
 {
 }
@@ -413,7 +418,8 @@ uiColorTable::~uiColorTable()
 void uiColorTable::setDispPars( const FlatView::DataDispPars::VD& disppar )
 {
     mapsetup_ = disppar.mappersetup_;
-    if ( scalingdlg_ ) scalingdlg_->updateFields();
+    if ( scalingdlg_ )
+	scalingdlg_->updateFields();
 }
 
 
@@ -427,7 +433,8 @@ void uiColorTable::setInterval( const Interval<float>& range )
 {
     mapsetup_.range_ =  range;
     updateRgFld();
-    if ( scalingdlg_ ) scalingdlg_->updateFields();
+    if ( scalingdlg_ )
+	scalingdlg_->updateFields();
 }
 
 
@@ -466,7 +473,8 @@ static void setValue( uiLineEdit* fld, float val )
 
 void uiColorTable::updateRgFld()
 {
-    if ( !minfld_ ) return;
+    if ( !minfld_ )
+	return;
 
     setValue( minfld_, mapsetup_.range_.start_ );
     setValue( maxfld_, mapsetup_.range_.stop_ );
@@ -511,7 +519,8 @@ void uiColorTable::setMapperSetup( const ColTab::MapperSetup* ms,
     {
 	mapsetup_ = *ms;
 	updateRgFld();
-	if ( scalingdlg_ ) scalingdlg_->updateFields();
+	if ( scalingdlg_ )
+	    scalingdlg_->updateFields();
 
 	if ( !emitnotif )
 	    scaleChanged.trigger();
@@ -560,20 +569,20 @@ void uiColorTable::canvasClick( CallBacker* )
 
     PtrMan<uiMenu> mnu = new uiMenu( parent_, uiStrings::sAction() );
 
-    uiAction* itm = new uiAction(tr("Flipped"), mCB(this,uiColorTable,doFlip) );
+    auto* itm = new uiAction(tr("Flipped"), mCB(this,uiColorTable,doFlip) );
     mnu->insertAction( itm, 0 );
     itm->setCheckable( true );
     itm->setChecked( mapsetup_.flipseq_ );
 
     if ( enabclipdlg_ && hasmapper )
 	mnu->insertAction( new uiAction(m3Dots(tr("Ranges/Clipping")),
-	    mCB(this,uiColorTable,editScaling)), 1 );
+			   mCB(this,uiColorTable,editScaling)), 1 );
     if ( enabmanage_ && hasseq )
     {
 	mnu->insertAction( new uiAction(m3Dots(tr("Manage")),
-	    mCB(this,uiColorTable,doManage)), 2 );
+			   mCB(this,uiColorTable,doManage)), 2 );
 	mnu->insertAction( new uiAction(tr("Set as default"),
-	    mCB(this,uiColorTable,setAsDefault)), 3 );
+			   mCB(this,uiColorTable,setAsDefault)), 3 );
     }
 
     mnu->exec();
@@ -645,21 +654,24 @@ void uiColorTable::makeSymmetrical( CallBacker* )
     Interval<float> rg = mapsetup_.range_;
     const float maxval = fabs(rg.start_) > fabs(rg.stop_)
 			 ? fabs(rg.start_) : fabs(rg.stop_);
-    bool flipped = rg.stop_ < rg.start_;
+    const bool flipped = rg.stop_ < rg.start_;
     rg.start_ = flipped ? maxval : -maxval;
     rg.stop_ = flipped ? -maxval : maxval;
 
     mapsetup_.range_ =  rg;
     mapsetup_.type_ = ColTab::MapperSetup::Fixed;
     updateRgFld();
-    if ( scalingdlg_ ) scalingdlg_->updateFields();
+    if ( scalingdlg_ )
+	scalingdlg_->updateFields();
 
     scaleChanged.trigger();
 }
 
 
 void uiColorTable::enableTransparencyEdit( bool yn )
-{ enabletrans_ = yn; }
+{
+    enabletrans_ = yn;
+}
 
 
 void uiColorTable::doManage( CallBacker* )
@@ -669,7 +681,9 @@ void uiColorTable::doManage( CallBacker* )
     uiColorTableMan coltabman( dlgparent, coltabseq_, enabletrans_ );
     coltabman.tableChanged.notify( mCB(this,uiColorTable,colTabManChgd) );
     coltabman.tableAddRem.notify( mCB(this,uiColorTable,tableAdded) );
-    coltabman.setHistogram( histogram_ );
+    const float minval = minfld_ ? minfld_->getFValue() : mUdf(float);
+    const float maxval = maxfld_ ? maxfld_->getFValue() : mUdf(float);
+    coltabman.setHistogram( histogram_, Interval<float>(minval,maxval) );
     coltabman.go();
 }
 
@@ -708,7 +722,8 @@ void uiColorTable::numberFormatChgdCB( CallBacker* )
     if ( !scalingdlg_ )
 	return;
 
-    char fmt; int prec;
+    char fmt;
+    int prec;
     scalingdlg_->getNumberFormat( fmt, prec );
     setNumberFormat( fmt, prec );
 }
@@ -850,4 +865,6 @@ uiColorTableToolBar::~uiColorTableToolBar()
 
 
 OD::Orientation uiColorTableToolBar::getOrientation() const
-{ return uiToolBar::getOrientation(); }
+{
+    return uiToolBar::getOrientation();
+}
