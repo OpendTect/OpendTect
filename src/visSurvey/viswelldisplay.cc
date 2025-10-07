@@ -99,7 +99,8 @@ RefMan<Well::Data> WellDisplay::getWD( const Well::LoadReqs& reqs ) const
 	const auto& dispprop3d = wd_->displayProperties();
 	if ( !isloaded && !dispprop3d.isValid() )
 	{ //Only for wells without pre-existing display properties
-	    if ( dispprop3d.getTrack().getColor() == OD::Color::NoColor() )
+	    if ( dispprop3d.getTrack().getColor() ==
+		    Well::DisplayProperties::defaults().getTrack().getColor() )
 	    {
 		self->wd_->displayProperties()
 		       .ensureColorContrastWith( getBackgroundColor() );
