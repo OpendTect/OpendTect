@@ -110,11 +110,17 @@ void uiSlicePos3DDisp::setDisplay( const VisID& dispid )
 void uiSlicePos3DDisp::doUpdatePos()
 {
     if ( !isOK() )
+    {
+	uiSlicePos::doUpdatePos();
 	return;
+    }
 
     ConstRefMan<visSurvey::RandomTrackDisplay> currtd = currtd_.get();
     if ( !currtd )
+    {
+	uiSlicePos::doUpdatePos();
 	return;
+    }
 
     const bool isvalidrtd = currtd->getOrientation() != OD::SliceType::Z;
     toolbar_->display( isvalidrtd );

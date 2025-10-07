@@ -1636,6 +1636,7 @@ void uiVisPartServer::movePlaneAndCalcAttribs( const VisID& id,
     {
 	pdd->acceptManipulation();
 	pdd->displayDraggerPlane( !moveplane );
+	triggerTreeUpdate();
     }
 }
 
