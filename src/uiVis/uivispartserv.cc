@@ -1621,7 +1621,6 @@ void uiVisPartServer::movePlaneAndCalcAttribs( const VisID& id,
     if ( !pdd )
 	return;
 
-    const bool ismanipshown = pdd->isManipulatorShown();
     pdd->annotateNextUpdateStage( true );
     pdd->setTrcKeyZSampling( tkzs );
     pdd->resetManipulation();
