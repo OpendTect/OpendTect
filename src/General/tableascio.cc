@@ -569,7 +569,7 @@ struct HdrInfo : public BodyInfo
 };
 
 AscIOImp_ExportHandler( const AscIO& aio, bool hdr )
-    : ExportHandler(od_cout())
+    : ExportHandler(od_ostream::nullStream())
     , ishdr_(hdr)
     , aio_(const_cast<AscIO&>(aio))
     , hdrready_(false)
