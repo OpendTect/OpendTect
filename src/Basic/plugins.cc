@@ -69,7 +69,8 @@ SharedLibAccess::SharedLibAccess( const char* lnm )
     {
 	const UINT oldmod = GetErrorMode();
 	SetErrorMode( SEM_NOOPENFILEERRORBOX | SEM_FAILCRITICALERRORS );
-	const std::wstring wtargetlibnm = targetlibnm.toStdWString();
+	const std::wstring wtargetlibnm =
+			    FilePath::getWLongPath( targetlibnm.buf() );
 	handle_ = LoadLibrary( wtargetlibnm.c_str() );
 	if ( !handle_ )
 	{

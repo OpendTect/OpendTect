@@ -954,7 +954,7 @@ static const char* getShortPathName( const char* path )
     mDeclStaticString( shortpath );
     TCHAR wshortpath[MAX_PATH];
     //Extract the shortname by removing spaces
-    const std::wstring wpath = StringView(path).toStdWString();
+    const std::wstring wpath = FilePath::getWLongPath( path );
     GetShortPathName( wpath.c_str(), wshortpath, MAX_PATH );
     WinUtils::copyWString( wshortpath, shortpath );
     return shortpath;

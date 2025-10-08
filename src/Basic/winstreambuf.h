@@ -14,9 +14,12 @@ ________________________________________________________________________
 #ifdef __win32__
 # define fpos_t od_int64
 #endif
+#include "filepath.h"
+#include <filesystem>
 
 #ifndef _POS_TYPE_FROM_STATE
-//TODO this is a hack for VS >= 15.8.7, try to get rid of this winstreambuf hack altogether
+/*TODO this is a hack for VS >= 15.8.7,
+  try to get rid of this winstreambuf hack altogether */
 #define _POS_TYPE_FROM_STATE(postype, state, position) postype(state, position)
 #define _POS_TYPE_TO_STATE(pos) pos.state()
 #define _BADOFF -1
@@ -43,10 +46,11 @@ mClass(Basic) winfilebuf : public filebuf
 {
 public:
 winfilebuf( const char* fnm, ios_base::openmode om )
-    : realpos_(0)
 {
-	std::filebuf* openstrm = open( fnm, om );
-	isok_ = openstrm;
+    const std::wstring wfilenm = FilePath::getWLongPath( fnm );
+    const std::filesystem::path fp( wfilenm );
+    std::filebuf* openstrm = open( fp, om );
+    isok_ = openstrm;
 }
 
 bool		isOK() const	{ return isok_; }
@@ -76,7 +80,7 @@ virtual pos_type seekoff( off_type _Off, ios_base::seekdir _Way,
 }
 
 bool	    isok_;
-od_int64    realpos_;
+od_int64    realpos_ = 0;
 };
 
 

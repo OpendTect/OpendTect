@@ -123,6 +123,7 @@ public:
 				    BufferString* error=nullptr);
     static BufferString getShortPath(const char* longpath,
 				    BufferString* error=nullptr);
+    static std::wstring getWLongPath(const char* fnm);
 
 protected:
 
