@@ -1069,7 +1069,11 @@ int SeisIOObjInfo::getComponentInfo( const Pos::GeomID& geomid,
 
 	const bool supportsmulticomp = sttr->supportsMultiCompTrc();
 	if ( !supportsmulticomp )
+	{
+	    if ( nms )
+		nms->add( "Component 1" );
 	    return 1; // Just 1 component in this case
+	}
 
 	if ( !checkAndInitTranslRead(sttr.ptr()) )
 	    return ret;
