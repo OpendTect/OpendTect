@@ -50,6 +50,7 @@ ________________________________________________________________________
 #include "randomlinegeom.h"
 #include "seisdatapackzaxistransformer.h"
 #include "seisioobjinfo.h"
+#include "seispreload.h"
 #include "settings.h"
 #include "sorting.h"
 #include "survinfo.h"
@@ -106,6 +107,7 @@ uiODViewer2D::uiODViewer2D( uiODMain& appl, const VisID& visid )
 
     initSelSpec( vdselspec_ );
     initSelSpec( wvaselspec_ );
+    mAttachCB( Seis::PLDM().changed, uiODViewer2D::pldmChangedCB );
 
     mTriggerInstanceCreatedNotifier();
 }
@@ -346,7 +348,9 @@ void uiODViewer2D::adjustOthrDisp( bool wva, bool isnew )
 
 void uiODViewer2D::adjustOthrDisp( FlatView::Viewer::VwrDest dest, bool isnew )
 {
-    if ( !slicepos_ ) return;
+    if ( !slicepos_ )
+	return;
+
     const TrcKeyZSampling& cs = slicepos_->getTrcKeyZSampling();
     const bool newcs = ( cs != tkzs_ );
     const bool wva = dest == FlatView::Viewer::WVA;
@@ -363,7 +367,8 @@ void uiODViewer2D::adjustOthrDisp( FlatView::Viewer::VwrDest dest, bool isnew )
 void uiODViewer2D::setDataPack( FlatDataPack* indp,
 				FlatView::Viewer::VwrDest dest, bool isnew )
 {
-    if ( !indp ) return;
+    if ( !indp )
+	return;
 
     RefMan<FlatDataPack> fdp = indp;
     if ( dest == FlatView::Viewer::WVA || dest == FlatView::Viewer::Both )
@@ -410,6 +415,17 @@ bool uiODViewer2D::setZAxisTransform( ZAxisTransform* zat )
 }
 
 
+void uiODViewer2D::pldmChangedCB( CallBacker* )
+{
+    const MultiID wvltid = selSpec( true ).getStoredMultiID();
+    const MultiID vdid = selSpec( false ).getStoredMultiID();
+    const bool ispreloaded = !wvltid.isUdf() && !vdid.isUdf()
+			     && Seis::PLDM().isPresent(wvltid)
+			     && Seis::PLDM().isPresent(vdid);
+    slicepos_->setIsPreloaded( ispreloaded );
+}
+
+
 void uiODViewer2D::setTrcKeyZSampling( const TrcKeyZSampling& tkzs,
 				       TaskRunner* taskr )
 {
@@ -439,6 +455,8 @@ void uiODViewer2D::setTrcKeyZSampling( const TrcKeyZSampling& tkzs,
 	    limitcs.zsamp_ = datatransform_->getZInterval( false );
 	    slicepos_->setLimitSampling( limitcs );
 	}
+
+	pldmChangedCB( nullptr );
     }
 
     setWinTitle( false );

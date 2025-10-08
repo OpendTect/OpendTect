@@ -80,6 +80,7 @@ protected:
     void		initSteps(CallBacker* cb=0);
     virtual void	doUpdatePos();
     void		slicePosChanged(SliceDir,const TrcKeyZSampling&);
+    virtual void	sliderPosChanged();
     void		sliceStepChanged(SliceDir);
     void		setBoxRg(SliceDir,const TrcKeyZSampling&,
 				 const TrcKeyZSampling&);

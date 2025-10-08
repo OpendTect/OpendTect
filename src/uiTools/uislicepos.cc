@@ -183,6 +183,12 @@ void uiSlicePos::sliderReleasedCB( CallBacker* )
 
 void uiSlicePos::sliderSlicePosChg( CallBacker* )
 {
+    sliderPosChanged();
+}
+
+
+void uiSlicePos::sliderPosChanged()
+{
     if ( !isslideractive_ )
 	isslideractive_ = true;
 

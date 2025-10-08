@@ -24,6 +24,7 @@ public:
 
     void		setTrcKeyZSampling(const TrcKeyZSampling&);
     void		setLimitSampling(const TrcKeyZSampling&);
+    void		setIsPreloaded(bool yn);
 
     const TrcKeyZSampling& getLimitSampling() const { return limitscs_; }
 
@@ -37,7 +38,10 @@ protected:
     void		setStepBoxValue() override;
     void		slicePosChg(CallBacker*) override;
     void		sliceStepChg(CallBacker*) override;
+    void		sliderPosChanged() override;
 
-    TrcKeyZSampling		limitscs_;
-    SliceDir			curorientation_;
+    TrcKeyZSampling	limitscs_;
+    SliceDir		curorientation_;
+
+    bool		ispreloaded_		    = false;
 };

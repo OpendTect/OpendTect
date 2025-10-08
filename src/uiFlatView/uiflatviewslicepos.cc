@@ -33,6 +33,12 @@ uiSlicePos2DView::~uiSlicePos2DView()
 {}
 
 
+void uiSlicePos2DView::setIsPreloaded( bool yn )
+{
+    ispreloaded_ = yn;
+}
+
+
 static OD::SliceType getSliceType( const TrcKeyZSampling& cs )
 {
     if ( cs.defaultDir() == TrcKeyZSampling::Crl )
@@ -92,4 +98,14 @@ void uiSlicePos2DView::slicePosChg( CallBacker* )
 void uiSlicePos2DView::sliceStepChg( CallBacker* )
 {
     sliceStepChanged( curorientation_ );
+}
+
+
+void uiSlicePos2DView::sliderPosChanged()
+{
+    NotifyStopper ns( sliceposbox_->valueChanging, this );
+    if ( ispreloaded_ && getOrientation()!=OD::SliceType::Z )
+	ns.enableNotification();
+
+    uiSlicePos::sliderPosChanged();
 }

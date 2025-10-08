@@ -293,6 +293,7 @@ protected:
     void			removeSelected(CallBacker*);
     void			mouseCursorCB(CallBacker*);
     void			mouseMoveCB(CallBacker*);
+    void			pldmChangedCB(CallBacker*);
 
 public:
     mDeprecated("No longer used")
