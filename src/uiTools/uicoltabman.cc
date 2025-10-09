@@ -572,7 +572,7 @@ void uiColorTableMan::updateTransparencyGraph()
         yvals += transp.y_;
     }
 
-    cttranscanvas_->setVals( xvals.arr(), yvals.arr(), xvals.size()  );
+    cttranscanvas_->setVals( xvals.arr(), yvals.arr(), xvals.size() );
 }
 
 
@@ -1026,6 +1026,7 @@ void uiColorTableMan::transptChgdCB( CallBacker* )
 {
     const int ptidx = cttranscanvas_->selPt();
     const int nrpts = cttranscanvas_->xVals().size();
+
     if ( ptidx < 0 )
     {
 	ctab_.removeTransparencies();
@@ -1077,11 +1078,13 @@ void uiColorTableMan::transptSelCB( CallBacker* )
 {
     const int ptidx = cttranscanvas_->selPt();
     const int nrpts = cttranscanvas_->xVals().size();
-    if ( ptidx<0 || nrpts == ctab_.transparencySize() )
+
+    if ( ptidx<0 || nrpts==ctab_.transparencySize() )
 	return;
 
     Geom::Point2D<float> pt( cttranscanvas_->xVals()[ptidx],
 			     cttranscanvas_->yVals()[ptidx] );
+
     if ( !pt.isDefined() )
 	return;
 

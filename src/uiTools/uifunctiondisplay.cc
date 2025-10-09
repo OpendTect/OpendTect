@@ -524,12 +524,13 @@ void uiFunctionDisplay::mousePressCB( CallBacker* )
 
 void uiFunctionDisplay::mouseReleaseCB( CallBacker* )
 {
-    if ( !mousedown_ ) return;
+    if ( !mousedown_ )
+	return;
 
     mousedown_ = false;
     mGetMousePos();
 
-    if ( isnorm && selpt_<=0 )
+    if ( isnorm && selpt_<0 )
     {
         addPoint( Geom::PointF(ev.pos().x_, ev.pos().y_) );
 	pointSelected.trigger();
@@ -537,8 +538,8 @@ void uiFunctionDisplay::mouseReleaseCB( CallBacker* )
 	return;
     }
 
-    if ( !isctrl || selpt_ <= 0 || selpt_ >= xvals_.size()-1
-	 || xvals_.size() < 3 ) return;
+    if ( !isctrl || selpt_<=0 || selpt_>=xvals_.size()-1 || xvals_.size()<3 )
+	return;
 
     xvals_.removeSingle( selpt_ );
     yvals_.removeSingle( selpt_ );
@@ -551,17 +552,19 @@ void uiFunctionDisplay::mouseReleaseCB( CallBacker* )
 
 void uiFunctionDisplay::mouseMoveCB( CallBacker* )
 {
-    {
-	const MouseEvent& ev = getMouseEventHandler().event();
-        mouseMove.trigger( Geom::PointF(ev.pos().x_, ev.pos().y_) );
-	if ( !setup_.editable_ ) return;
-    }
-    if ( !mousedown_ ) return;
+    const MouseEvent& mev = getMouseEventHandler().event();
+    mouseMove.trigger( Geom::PointF(mev.pos().x_, mev.pos().y_) );
+    if ( !setup_.editable_ )
+	return;
+
+    if ( !mousedown_ )
+	return;
 
     const uiAxisHandler* xax = xAxis();
     const uiAxisHandler* yax = yAxis( false );
     mGetMousePos();
-    if ( !isnorm || selpt_<0 ) return;
+    if ( !isnorm || selpt_<0 )
+	return;
 
     float xval = xax->getVal( ev.pos().x_ );
     float yval = yax->getVal( ev.pos().y_ );
@@ -581,7 +584,8 @@ void uiFunctionDisplay::mouseMoveCB( CallBacker* )
     else if ( yval < yax->range().start_ )
 	yval = yax->range().start_;
 
-    xvals_[selpt_] = xval; yvals_[selpt_] = yval;
+    xvals_[selpt_] = xval;
+    yvals_[selpt_] = yval;
 
     pointChanged.trigger();
     draw();
