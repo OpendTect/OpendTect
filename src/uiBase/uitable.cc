@@ -1154,6 +1154,38 @@ void uiTable::setSortable( bool yn )
 }
 
 
+void uiTable::setRowSelectable( int row, bool yn )
+{
+    for ( int col=0; col<body_->columnCount(); col++ )
+    {
+	QTableWidgetItem* item = body_->getItem( RowCol(row,col) );
+	if ( !item )
+	    continue;
+
+	if ( yn )
+	    item->setFlags( item->flags() | Qt::ItemIsSelectable );
+	else
+	    item->setFlags( item->flags() & ~Qt::ItemIsSelectable );
+    }
+}
+
+
+void uiTable::setColumnSelectable( int col, bool yn )
+{
+    for ( int row=0; row<body_->rowCount(); row++ )
+    {
+	QTableWidgetItem* item = body_->getItem( RowCol(row,col) );
+	if ( !item )
+	    continue;
+
+	if ( yn )
+	    item->setFlags( item->flags() | Qt::ItemIsSelectable );
+	else
+	    item->setFlags( item->flags() & ~Qt::ItemIsSelectable );
+    }
+}
+
+
 static Qt::Alignment getQAlignment( const Alignment& al )
 {
     Qt::AlignmentFlag hal = Qt::AlignHCenter;
