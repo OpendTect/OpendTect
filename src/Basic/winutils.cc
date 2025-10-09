@@ -139,6 +139,24 @@ bool removeRegKeyVal( const char* ky, const char* varnm )
 
 #ifdef __win__
 
+const char* GetKnownFolderLocation( REFKNOWNFOLDERID rfid )
+{
+    PWSTR path = NULL;
+    HRESULT hr = SHGetKnownFolderPath( rfid, 0, NULL, &path );
+    if ( !SUCCEEDED(hr) )
+    {
+	CoTaskMemFree( path );
+	return nullptr;
+    }
+
+    mDeclStaticString( ret );
+    WinUtils::copyWString( path, ret );
+    CoTaskMemFree( path );
+
+    return ret.buf();
+}
+
+
 const char* GetSpecialFolderLocation( int nFolder )
 {
     LPITEMIDLIST pidl;
