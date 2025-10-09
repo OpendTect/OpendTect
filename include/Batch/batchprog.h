@@ -235,6 +235,7 @@ if ( comm_ ) \
     {
 	OD::SetRunContext( OD::RunCtxt::BatchProgCtxt );
 	SetProgramArgs( argc, argv );
+	ApplicationData::sSetDefaults();
 	ApplicationData app;
 	Execute_batch( &argc, argv );
 	if ( !BP().isOK() )

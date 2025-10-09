@@ -19,8 +19,8 @@ extern int ODSysAdmMain(uiMain&);
 
 int mProgMainFnName( int argc, char** argv )
 {
-    mInitProg( OD::RunCtxt::SysAdmCtxt )
     SetProgramArgs( argc, argv, false );
+    mInitProg( OD::RunCtxt::SysAdmCtxt )
     uiMain app( argc, argv );
 
     return ODSysAdmMain( app );

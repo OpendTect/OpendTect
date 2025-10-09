@@ -11,9 +11,12 @@ ________________________________________________________________________
 
 #include "debug.h"
 #include "genc.h"
+#include "odruncontext.h"
+#include "perthreadrepos.h"
 #include "ptrman.h"
 
 #include <QCoreApplication>
+#include <iostream>
 
 
 ApplicationData::ApplicationData()
@@ -94,8 +97,69 @@ void ApplicationData::setApplicationName( const char* nm )
 }
 
 
+BufferString ApplicationData::organizationName()
+{
+    const QString qstr = QCoreApplication::organizationName();
+    return qstr;
+}
+
+
+BufferString ApplicationData::organizationDomain()
+{
+    const QString qstr = QCoreApplication::organizationDomain();
+    return qstr;
+}
+
+
 BufferString ApplicationData::applicationName()
 {
     const QString qstr = QCoreApplication::applicationName();
     return qstr;
+}
+
+
+const char* ApplicationData::sDefOrganizationName()
+{
+    return "dGB Earth Sciences";
+}
+
+
+const char* ApplicationData::sDefOrganizationDomain()
+{
+    return "opendtect.org";
+}
+
+
+const char* ApplicationData::sDefApplicationName()
+{
+    mDeclStaticString( ret );
+    if ( ret.isEmpty() )
+    {
+	if ( !AreProgramArgsSet() )
+	{
+	    std::cerr << "(PE) SetProgramArgs not called in time" << std::endl;
+	    return nullptr;
+	}
+
+	 BufferString applnm( GetExecutableName() );
+	 if ( HasDebugPostFix() )
+	 {
+	     const BufferString postfix = GetDebugPostFix();
+	     const char* lastocc = applnm.findLast( postfix.buf() );
+	     if ( lastocc && *lastocc )
+		 (char&) *lastocc = '\0';
+	 }
+
+	 ret = applnm.str();
+    }
+
+    return ret.buf();
+}
+
+
+void ApplicationData::sSetDefaults()
+{
+    setOrganizationName( sDefOrganizationName() );
+    setOrganizationDomain( sDefOrganizationDomain() );
+    setApplicationName( sDefApplicationName() );
 }

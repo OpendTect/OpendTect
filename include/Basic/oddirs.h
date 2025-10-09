@@ -221,6 +221,13 @@ UNIX:
 
 */
 
+mGlobal(Basic) const char* GetLogsDir(void);
+/*!< $HOME\AppData\Local\[ORGNAME]\[APPNAME]\logs on Windows
+     $HOME/.local/share/[ORGNAME]/[APPNAME]/logs on Linux
+     $HOME/Library/Application Support/[DOMAIN]/[APPNAME]/logs on macOS
+     The organization name, domain and the application name values are read
+     from the ApplicationData class, and may thus vary with the application */
+
 mGlobal(Basic) const char* GetDownloadsDir(void);
 /*!< User's Downloads directory, typically $HOME/Downloads. */
 

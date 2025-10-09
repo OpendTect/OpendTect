@@ -293,7 +293,8 @@ void IOStream::genFileName()
     const int neededsz = fnm.size() + extsz;
     if ( neededsz >= mMaxFilePathLength )
     {
-	const BufferString uniqstr( "_", FilePath::getTimeStampFileName(0) );
+	const BufferString uniqstr( "_",
+				   FilePath::getTimeStampFileName(nullptr) );
 	const int len = uniqstr.size();
 	fnm[ mMaxFilePathLength - len - extsz - 1 ] = '\0';
 	fnm.add( uniqstr );

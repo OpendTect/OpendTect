@@ -19,6 +19,7 @@ ________________________________________________________________________
 
 -*/
 
+#include "applicationdata.h"
 #include "commandlineparser.h"
 #include "genc.h"
 #include "keystrs.h"
@@ -65,6 +66,7 @@ static inline CommandLineParser& clParser()
 
 # define mTestProgInits( withdataroot ) \
     od_init_test_program( argc, argv, withdataroot ); \
+    ApplicationData::sSetDefaults(); \
     the_testprog_parser_ = new CommandLineParser; \
     quiet_ = clParser().hasKey( sKey::Quiet() ); \
     OD::ModDeps().ensureLoaded( "Basic" ); \

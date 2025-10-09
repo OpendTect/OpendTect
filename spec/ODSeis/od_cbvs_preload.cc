@@ -27,8 +27,8 @@ ________________________________________________________________________
 
 int mProgMainFnName( int argc, char** argv )
 {
-    mInitProg( OD::RunCtxt::BatchProgCtxt )
     SetProgramArgs( argc, argv );
+    mInitProg( OD::RunCtxt::BatchProgCtxt )
     OD::ModDeps().ensureLoaded( "Network" );
 
     if ( argc < 2 )

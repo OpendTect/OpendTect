@@ -109,7 +109,10 @@ public:
     static BufferString	getTempDir();
     static BufferString	getTempFileName(const char* typ,const char* ext);
     static BufferString getTempFullPath(const char* typ,const char* ext);
-    static BufferString getTimeStampFileName(const char* ext);
+    static BufferString getTimeStampFileName(const char* ext,
+					     const char* postfix=nullptr,
+					     bool local=true);
+			//!< No format: default from Time::getDateTimeString
     mDeprecated("Use getTempFullPath instead")
     static BufferString	getTempName( const char* ext=0 )
 			{ return getTempFullPath(0,ext); }

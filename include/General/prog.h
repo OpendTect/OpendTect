@@ -10,6 +10,7 @@ ________________________________________________________________________
 
 // Include this file in any executable program you make.
 
+#include "applicationdata.h"
 #include "debug.h"
 #include "genc.h"
 #include "od_ostream.h"
@@ -32,6 +33,9 @@ int main( int argc, char** argv )
 
 # define mInitProg( ctxt ) \
     OD::SetRunContext( ctxt ); \
+    if ( !AreProgramArgsSet() ) \
+	SetProgramArgs( argc, argv ); \
+    ApplicationData::sSetDefaults(); \
 
 
 static inline mUsedVar od_ostream& gtStream( bool err=false )

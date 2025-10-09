@@ -44,8 +44,8 @@ static void printBatchUsage()
 
 int mProgMainFnName( int argc, char** argv )
 {
-    mInitProg( OD::RunCtxt::UiProgCtxt )
     SetProgramArgs( argc, argv, false );
+    mInitProg( OD::RunCtxt::UiProgCtxt )
     uiMain app( argc, argv );
 
     OD::ModDeps().ensureLoaded( "Network" );
