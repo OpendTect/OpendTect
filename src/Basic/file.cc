@@ -1485,17 +1485,20 @@ Permissions& Permissions::setSystem( bool yn )
 # define S_IROTH (S_IRGRP >> 3)
 # define S_IWOTH (S_IWGRP >> 3)
 # define S_IXOTH (S_IXGRP >> 3)
+# define S_ISLNK(m)	 (((m) & S_IFMT) == S_IFLNK)
+# define S_ISREG(m)	 (((m) & S_IFMT) == S_IFREG)
+# define S_ISDIR(m)	 (((m) & S_IFMT) == S_IFDIR)
 #endif
 
 
 Permissions Permissions::getFrom( int st_mode, int uid )
 {
-#ifdef __unix__
 # ifdef __debug__
     const bool mUnusedVar isfile = S_ISREG( st_mode );
     const bool mUnusedVar isdir = S_ISDIR( st_mode );
     const bool mUnusedVar islink = S_ISLNK( st_mode );
 # endif
+#ifdef __unix__
     const int procuid = getuid();
 #else
     const int procuid = mUdf(int);
@@ -1539,7 +1542,7 @@ Permissions Permissions::getFrom( int st_mode, int uid )
     if ( mode & S_IXOTH )
 	ret += int (File::Permission::ExeOther);
 
-    return Permissions( ret );
+    return Permissions( ret, false, false, false );
 }
 
 

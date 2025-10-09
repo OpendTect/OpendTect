@@ -156,7 +156,7 @@ BufferString FilePath::getLongPath( const char* shortpath,
 {
     BufferString res;
 #ifdef	__win__
-    const std::wstring wshortpath = StringView(shortpath).toStdWString();
+    const std::wstring wshortpath = FilePath::getWLongPath( shortpath );
     TCHAR longpath[2048];
     const int len = GetLongPathName( wshortpath.c_str(), longpath, 2048 );
     if ( len==0 || len>2048 )
@@ -176,12 +176,25 @@ BufferString FilePath::getLongPath( const char* shortpath,
 }
 
 
+std::wstring FilePath::getWLongPath( const char* fnm )
+{
+    const StringView filenm( fnm );
+    std::wstring wfilenm = filenm.toStdWString();
+#if defined( __win__ ) || defined( UNICODE )
+    if ( filenm.size() >= MAX_PATH )
+	wfilenm =  L"\\\\?\\" + wfilenm;
+#endif
+
+    return wfilenm;
+}
+
+
 BufferString FilePath::getShortPath( const char* longpath,
 				     BufferString* error )
 {
     BufferString res;
 #ifdef	__win__
-    const std::wstring wlongpath = StringView(longpath).toStdWString();
+    const std::wstring wlongpath = FilePath::getWLongPath( longpath );
     TCHAR shortpath[MAX_PATH];
     const int len = GetShortPathName( wlongpath.c_str(), shortpath, MAX_PATH );
     if ( len==0 || len>MAX_PATH )

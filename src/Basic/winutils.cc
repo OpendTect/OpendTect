@@ -169,10 +169,8 @@ bool winCopy( const char* from, const char* to, bool isfile, bool ismove )
     if ( !isfile )
 	frm += "\\*";
 
-    std::wstring wfrm = frm.toStdWString();
-    frm += L'\0';
-    std::wstring wto = StringView(to).toStdWString();
-    wto += L'\0';
+    const std::wstring wfrm = FilePath::getWLongPath( frm.buf() );
+    const std::wstring wto = FilePath::getWLongPath( to );
 
     ZeroMemory( &fileop, sizeof(fileop) );
     fileop.hwnd = NULL; fileop.wFunc = ismove ? FO_MOVE : FO_COPY;
@@ -191,8 +189,7 @@ bool winRemoveDir( const char* dirnm )
 {
     SHFILEOPSTRUCT fileop;
     const BufferString frm( dirnm );
-    std::wstring wfrm = frm.toStdWString();
-    wfrm += L'\0';
+    const std::wstring wfrm = FilePath::getWLongPath( frm.buf() );
     ZeroMemory( &fileop, sizeof(fileop) );
     fileop.hwnd = NULL;
     fileop.wFunc = FO_DELETE;
@@ -289,7 +286,8 @@ SecurityID getFileSID( const char* fnm )
 	? FILE_ATTRIBUTE_NORMAL
 	: (File::isDirectory(fnm) ? FILE_FLAG_BACKUP_SEMANTICS
 	    : FILE_ATTRIBUTE_NORMAL);
-    const std::wstring wfnm = StringView(fnm).toStdWString();
+    const std::wstring wfnm = FilePath::getWLongPath( fnm );
+
     HANDLE hFile = CreateFile(
 	wfnm.c_str(),
 	GENERIC_READ,
@@ -386,7 +384,7 @@ int getServiceStatus( const char* nm )
     if (!scm )
 	return 0;
 
-    const std::wstring wnm = StringView(nm).toStdWString();
+    const std::wstring wnm = FilePath::getWLongPath( nm );
     theService = OpenService( scm, wnm.c_str(), SERVICE_QUERY_STATUS );
     if (!theService) {
         CloseServiceHandle(scm);
@@ -692,9 +690,10 @@ bool hasAppLocker()
 
 bool execShellCmd( const char* comm, const char* parm, const char* runin )
 {
-    const std::wstring wcomm = StringView(comm).toStdWString();
-    const std::wstring wparm = StringView(parm).toStdWString();
-    const std::wstring wrunin = StringView(runin).toStdWString();
+    const std::wstring wcomm = FilePath::getWLongPath( comm );
+    const std::wstring wparm = FilePath::getWLongPath( parm );
+    const std::wstring wrunin = FilePath::getWLongPath( runin );
+
     const HINSTANCE res = ShellExecute( NULL, L"runas",
 				 wcomm.c_str(),
 				 wparm.c_str(),    // params
@@ -723,8 +722,8 @@ bool execProc( const char* comm, bool inconsole, bool inbg, const char* runin )
 	si.wShowWindow = SW_HIDE;
     }
 
-    const std::wstring wcomm = StringView(comm).toStdWString();
-    const std::wstring wrunin = StringView(runin).toStdWString();
+    const std::wstring wcomm = FilePath::getWLongPath( comm );
+    const std::wstring wrunin = FilePath::getWLongPath( runin );
    //Start the child process.
     int res = CreateProcess( NULL,	// No module name (use command line).
 	const_cast<LPTSTR>( wcomm.c_str() ),

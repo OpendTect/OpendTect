@@ -615,8 +615,7 @@ void CrashDumper::init()
 #ifdef mUseCrashDumper
     const BufferString dmppathbuf = FilePath::getTempDir();
 # ifdef __win__
-    const QString dmppath( dmppathbuf.buf() );
-    const std::wstring wpath = dmppath.toStdWString();
+    const std::wstring wpath = FilePath::getWLongPath( dmppathbuf.buf() );
     handler_ = new google_breakpad::ExceptionHandler(
 		    wpath, NULL, MinidumpCB, NULL,
 		    google_breakpad::ExceptionHandler::HANDLER_ALL );

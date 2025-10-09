@@ -9,9 +9,32 @@ ________________________________________________________________________
 
 #include "ziputils.h"
 
+#include "od_iostream.h"
 #include "testprog.h"
 #include "file.h"
 #include "filepath.h"
+
+
+class FileDisposer
+{
+public:
+
+    FileDisposer( const char* fnm )
+	: fnm_(fnm)
+    {}
+
+    ~FileDisposer()
+    {
+	const char* fnm = fnm_.buf();
+	if ( File::isDirectory(fnm) && !File::isSymLink(fnm) )
+	    File::removeDir( fnm );
+	else
+	    File::remove( fnm );
+    }
+
+private:
+    BufferString fnm_;
+};
 
 #define mCleanup() \
     delete taskrun; \
@@ -55,9 +78,117 @@ else \
 }
 
 
+static bool testLongPath()
+{
+    const BufferString tempdirfp = FilePath::getTempDir();;
+    FilePath fp( tempdirfp.str(), "od_test_zip_longpath" );
+    const BufferString workdir = fp.fullPath();
+
+    if ( File::exists(workdir.str()) )
+    {
+	mRunStandardTest( File::removeDir(fp.fullPath()),
+			  "Remove existing long directory" );
+    }
+
+    FileDisposer disposer( workdir.str() );
+
+    int idx = 0;
+#ifdef __win__
+    const int minpathsz = MAX_PATH + 40;
+#else
+    const int minpathsz = 300;
+#endif
+
+    //Ensure we are above the 8.3 windows shortpath standard: Use 15.5
+    const int dirsz = 15; // Size of one folder level;
+    while( fp.fullPath().size()<minpathsz )
+    {
+	BufferString filenm;
+	while ( filenm.size() < dirsz )
+	{
+	    char c = 'a' + idx;
+	    filenm.add( c );
+	    if ( ++idx >= 26 )
+		idx = 0;
+	}
+
+	fp.add( filenm.str() );
+    }
+
+    const OD::String& lastdir = fp.dir( fp.nrLevels()-2 );
+    (char&) lastdir[7] = od_space;
+    fp.setExtension( "extxt" ); // extension size: 5
+    const BufferString dirnm = fp.pathOnly();
+    const BufferString fnm = fp.fullPath();
+    mRunStandardTest( File::createDir( dirnm.str() ), "Create long directory" );
+
+
+    const BufferString contentstr( "Some file content" );
+    od_ostream ostrm( fnm.str() );
+    mRunStandardTestWithError( ostrm.isOK(),
+			       "Open output file stream on long filepath",
+			       toString(ostrm.errMsg()) );
+
+    ostrm.add( contentstr.str() ).addNewLine();
+    mRunStandardTestWithError( ostrm.isOK(),
+			       "Write stream content on long filepath",
+			       toString(ostrm.errMsg()) );
+    ostrm.close();
+
+    od_istream istrm( fnm.str() );
+    mRunStandardTestWithError( istrm.isOK(),
+			       "Open input file stream on long filepath",
+			       toString(istrm.errMsg()) );
+    BufferString retstr;
+    mRunStandardTestWithError( istrm.getAll( retstr ),
+			       "Read stream content on long filepath",
+			       toString(istrm.errMsg()) );
+    mRunStandardTest( retstr == contentstr, "File content on long filepath" );
+    istrm.close();
+
+    FilePath zipfp( workdir.str() );
+    zipfp.setExtension( "zip" );
+    const BufferString zipfnm = zipfp.fullPath();
+    FileDisposer zipdisposer( zipfnm.str() );
+
+    uiString err;
+    mRunStandardTestWithError(
+	ZipUtils::makeZip( workdir.str(), tempdirfp.str(), zipfnm.str(), err ),
+	"Zip archive with long path", toString( err ) );
+
+    mRunStandardTest( File::removeDir( workdir.str() ),
+		      "Remove directory before unzipping" );
+
+    mRunStandardTestWithError(
+	ZipUtils::unZipArchive( zipfnm.str(), tempdirfp.str(), err ),
+	"Unzip archive with long path", toString( err ) );
+
+    istrm.open( fnm.str() );
+    mRunStandardTestWithError( istrm.isOK(),
+			       "Re-open input file stream on long filepath",
+			       toString(istrm.errMsg()) );
+
+    retstr.setEmpty();
+    mRunStandardTestWithError( istrm.getAll( retstr ),
+			      "Read unpackaged stream content on long filepath",
+			      toString(istrm.errMsg()) );
+    mRunStandardTest( retstr == contentstr,
+		      "Unpackaged file content on long filepath" );
+    istrm.close();
+
+    mRunStandardTest( File::removeDir( workdir.str() ),
+		      "Remove directory after last test" );
+
+    return true;
+}
+
+
 int mTestMainFnName( int argc, char** argv )
 {
     mInitTestProg();
+
+    if ( __iswin__ && !testLongPath() )
+	return 1;
 
     BufferString basedir;
     clParser().getVal("datadir", basedir );

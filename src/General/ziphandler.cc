@@ -515,7 +515,7 @@ void ZipFileInfo::setFullFileName( const char* fnm, const FilePath& basepath )
     {
 	linkvalue_.setEmpty();
 #ifdef __win__
-	const std::wstring wfnm = StringView(fnm).toStdWString();
+	const std::wstring wfnm = FilePath::getWLongPath( fnm );
 	HANDLE filehandle = CreateFile ( wfnm.c_str(), GENERIC_READ, 0, NULL,
 				OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL );
 	const od_int32 linksize = GetFileSize( filehandle, NULL );
@@ -625,19 +625,21 @@ void ZipFileInfo::setAttr( const unsigned char* buf, bool fromwin )
     else
     {
 	const int permsi = *(od_uint16*)(buf+mLUNIXFileAttr);
+	//Full preservation: Unix to Unix
+	perms_ = File::Permissions::getFrom( permsi, mUdf(int) );
 	if ( __iswin__ )
 	{
 	    /* Unix to Windows (No system attribute to restore,
 				Hidden attrib set by file name) */
-	    const bool isreadonly = OD::getBitValue( buf[mLDOSFileAttr], 0 );
+	    const bool isreadonly = perms_.isReadOnly();
+	    if ( !isSymbolicLink() )
+	    {
+		type_ = perms_.testFlag( File::Permission::ExeUser )
+		      ? File::Type::Directory : File::Type::File;
+	    }
 	    perms_ = File::Permissions::getDefault( !isDirectory() &&
 						    !isSymbolicLink(), true );
 	    perms_.setReadOnly( isreadonly );
-	}
-	else
-	{
-	    //Full preservation: Unix to Unix
-	    perms_ = File::Permissions::getFrom( permsi, mUdf(int) );
 	}
     }
 }
@@ -1201,17 +1203,19 @@ bool ZipHandler::setXtraHeaders( const ZipFileInfo& fileinfo, bool local )
 {
     bool haserrors = false;
     if ( fileinfo.needZIP64(local) )
-	haserrors |= setZIP64Header( fileinfo, local );
+	haserrors |= !setZIP64Header( fileinfo, local );
 
-    haserrors |= setXtraTimestampFld( fileinfo, local );
+    if ( fileinfo.hasModTime() )
+	haserrors |= !setXtraTimestampFld( fileinfo, local );
+
     if ( local )
-	return haserrors;
+	return !haserrors;
 
-    haserrors |= setXtraNTFSFld( fileinfo );
+    haserrors |= !setXtraNTFSFld( fileinfo );
     if ( fileinfo.hasUIDGID() )
-	haserrors |= setUnixUIDGID( fileinfo );
+	haserrors |= !setUnixUIDGID( fileinfo );
 
-    return haserrors;
+    return !haserrors;
 }
 
 
