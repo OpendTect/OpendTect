@@ -541,7 +541,7 @@ void uiFunctionDisplay::mouseReleaseCB( CallBacker* )
     mousedown_ = false;
     mGetMousePos();
 
-    if ( isnorm && selpt_<=0 )
+    if ( isnorm && selpt_<0 )
     {
         addPoint( Geom::PointF(ev.pos().x_, ev.pos().y_) );
 	pointSelected.trigger();
