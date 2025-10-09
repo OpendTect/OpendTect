@@ -630,7 +630,6 @@ bool uiODApplMgr::getNewData( const VisID& visid, int attrib )
 				visserv_->isAttribEnabled( visid, attrib );
 		visserv_->setSelSpecs( visid, attrib, myas );
 		visserv_->enableAttrib( visid, attrib, isattribenabled );
-		return false;
 	    }
 
 	    res = visserv_->setRegularSeisDataPack( visid, attrib,
