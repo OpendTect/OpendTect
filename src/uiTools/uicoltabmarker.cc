@@ -36,8 +36,8 @@ static const int sColorCol = 1;
 #define mEps 0.00001
 
 uiColTabMarkerDlg::uiColTabMarkerDlg( uiParent* p, ColTab::Sequence& ctab )
-    : uiDialog(p,Setup(uiStrings::phrManage(uiStrings::sMarker()),
-		       tr("Add, Remove, Change Anchors"),
+    : uiDialog(p,Setup(uiStrings::phrManage(tr("Anchors")),
+		       tr("Add, Remove, and Edit Anchors"),
 		       mODHelpKey(mColTabMarkerDlgHelpID)))
     , markersChanged(this)
     , ctab_(ctab)
@@ -48,7 +48,7 @@ uiColTabMarkerDlg::uiColTabMarkerDlg( uiParent* p, ColTab::Sequence& ctab )
 						.defrowlbl(true)
 						.manualresize(true)
 						.removeselallowed(false),
-			  "Marker table");
+			  "Anchor Table");
     uiStringSet columnlabels;
     columnlabels.add( uiStrings::sPosition() )
 		.add( uiStrings::sColor() );
@@ -78,6 +78,9 @@ void uiColTabMarkerDlg::fillTable()
 	table_->setValue( RowCol(cidx,sPosCol), position );
 	table_->setColor( RowCol(cidx,sColorCol), ctab_.color(position) );
     }
+
+    table_->setCellReadOnly( RowCol(0,0), true );
+    table_->setCellReadOnly( RowCol(table_->nrRows()-1,0), true );
 }
 
 
@@ -150,6 +153,9 @@ void uiColTabMarkerDlg::markerDeleted( CallBacker* )
 void uiColTabMarkerDlg::markerPosChgd( CallBacker* )
 {
     const RowCol rc = table_->currentCell();
+    if ( rc.row()<=0 || rc.row()>=ctab_.size()-1 )
+	return;
+
     const float newpos = table_->getFValue( rc );
     if (ctab_.position(rc.row()-1)>newpos || ctab_.position(rc.row()+1)<newpos)
     {
@@ -196,7 +202,7 @@ bool uiColTabMarkerDlg::acceptOK( CallBacker* )
 
 // ***** uiColTabMarkerCanvas ****
 uiColTabMarkerCanvas::uiColTabMarkerCanvas( uiParent* p, ColTab::Sequence& ctab)
-    : uiGraphicsView(p,"Marker Canvas")
+    : uiGraphicsView(p,"Anchor Canvas")
     , parent_(p)
     , ctab_(ctab)
     , markerChanged(this)
@@ -229,7 +235,7 @@ void uiColTabMarkerCanvas::drawMarkers( CallBacker* )
     const int w = viewWidth();
     const int h = viewHeight();
     scene().setSceneRect( 0, 0, sCast(float,w), sCast(float,h) );
-    w2ui_->set( uiRect(0,0,w-5,h-5), uiWorldRect(0,255,1,0) );
+    w2ui_->set( uiRect(3,0,w-4,h-5), uiWorldRect(0,255,1,0) );
 
     if ( !markerlineitmgrp_ )
     {
@@ -297,12 +303,16 @@ void uiColTabMarkerCanvas::mouseClk( CallBacker* )
     else if ( res==2 )
     {
 	ColTab::Sequence coltab = ctab_;
-	uiColTabMarkerDlg dlg( parent_, ctab_ );
+	//this will ensure that the color table manager will not be gray
+	uiParent* dlgparent = parent_ &&
+			      parent_->mainwin() ? parent_->mainwin()->parent()
+						 : nullptr;
+	uiColTabMarkerDlg dlg( dlgparent, ctab_ );
 	dlg.markersChanged.notify( mCB(this,uiColTabMarkerCanvas,markerChgd) );
 	if ( !dlg.go() )
 	{
 	    ctab_ = coltab;
-	    markerChgd(0);
+	    markerChgd( nullptr );
 	}
     }
 

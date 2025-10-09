@@ -476,7 +476,6 @@ uiColorTableMan::uiColorTableMan( uiParent* p, ColTab::Sequence& ctab,
     mAttachCB( markercanvas_->markerChanged, uiColorTableMan::markerChange );
     mAttachCB( ctab_.colorChanged, uiColorTableMan::sequenceChange );
     mAttachCB( ctab_.transparencyChanged, uiColorTableMan::sequenceChange );
-    mAttachCB( ctab_.transparencyChanged, uiColorTableMan::transpTableChgd );
     mAttachCB( postFinalize(), uiColorTableMan::doFinalize );
 }
 
@@ -904,6 +903,7 @@ void uiColorTableMan::rightClickTranspCB(CallBacker*)
 	    if ( !save )
 	    {
 		ctab_ = coltab;
+		transpTableChgd( nullptr );
 		return;
 	    }
 	}
