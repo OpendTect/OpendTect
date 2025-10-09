@@ -34,8 +34,8 @@ public:
 
 private :
     uiGenInput*			choicefld_;
-    uiFileInput*		dirfld_;
-    uiGenInput*			dtectusrfld_;
+    uiFileInput*		dirfld_		    = nullptr;
+    uiGenInput*			dtectusrfld_	    = nullptr;
     uiListBox*			listfld_;
     uiLabel*			messagelbl_;
 
@@ -50,5 +50,5 @@ private :
 
     void			getFromSettingsPar(const IOPar&);
     void			getFromAlutFiles(const BufferStringSet&);
-
+    void			getFromCSVFiles(const BufferStringSet&);
 };

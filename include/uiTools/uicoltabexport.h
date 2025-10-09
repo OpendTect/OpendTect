@@ -36,10 +36,10 @@ protected:
     bool			acceptOK(CallBacker*) override;
     void			fillList();
 
-    void			writeAlutFile(const ColTab::Sequence&,
-					      od_ostream&);
     void			writeODFile(const ColTab::Sequence&,
 					    od_ostream&);
+    void			writeAlutFile(const ColTab::Sequence&,
+					      od_ostream&);
     void			writeCSVFile(const ColTab::Sequence&,
 					     od_ostream&);
 };

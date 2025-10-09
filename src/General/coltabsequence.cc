@@ -840,9 +840,12 @@ float ColTab::Sequence::snapToSegmentCenter( float x ) const
     const float segmentsize = 1.0f / (nrsegments_ - 1);
 
     int segment = (int) ( x/segmentsize + 0.5 );
-    if ( segment<0 ) segment = 0;
+    if ( segment<0 )
+	segment = 0;
+
     if ( segment>=nrsegments_ )
 	segment = nrsegments_-1;
+
     return segment*segmentsize;
 }
 

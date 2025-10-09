@@ -75,7 +75,7 @@ void uiColTabExport::choiceCB( CallBacker* )
 	fp.setExtension( "odct" );
 	dirfld_->setFileName( fp.fullPath() );
 	dirfld_->setDefaultExtension( "odct" );
-	dirfld_->setTitleText( tr("Output file") );
+	dirfld_->setTitleText( uiStrings::sOutputFile() );
     }
     else
     {
@@ -109,6 +109,14 @@ void uiColTabExport::fillList()
 }
 
 
+void uiColTabExport::writeODFile( const ColTab::Sequence& seq,
+				  od_ostream& strm )
+{
+    IOPar par;
+    seq.fillPar( par );
+    par.write( strm, "OpendTect ColorTables" );
+}
+
 
 void uiColTabExport::writeAlutFile( const ColTab::Sequence& seq,
 				    od_ostream& strm )
@@ -125,15 +133,6 @@ void uiColTabExport::writeAlutFile( const ColTab::Sequence& seq,
 }
 
 
-void uiColTabExport::writeODFile( const ColTab::Sequence& seq,
-				  od_ostream& strm )
-{
-    IOPar par;
-    seq.fillPar( par );
-    par.write( strm, "OpendTect ColorTables" );
-}
-
-
 void uiColTabExport::writeCSVFile( const ColTab::Sequence& seq,
 				   od_ostream& strm )
 {
@@ -145,7 +144,7 @@ void uiColTabExport::writeCSVFile( const ColTab::Sequence& seq,
 	     << int(seq.r(idx)) << ","
 	     << int(seq.g(idx)) << ","
 	     << int(seq.b(idx)) << ","
-	     << 255-transparency << "\n";
+	     << transparency << "\n";
     }
 }
 
@@ -229,9 +228,9 @@ bool uiColTabExport::acceptOK( CallBacker* )
 	}
     }
 
-    uiString msg = tr( "Color Table(s) successfully exported."
-		      "\n\nDo you want to export more Color Tables?" );
-    bool ret = uiMSG().askGoOn( msg, uiStrings::sYes(),
-				tr("No, close window") );
+    const uiString msg = tr( "Color Table(s) successfully exported."
+			    "\n\nDo you want to export more Color Tables?" );
+    const bool ret = uiMSG().askGoOn( msg, uiStrings::sYes(),
+					   tr("No, close window") );
     return !ret;
 }

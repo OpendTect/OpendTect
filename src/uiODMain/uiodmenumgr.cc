@@ -461,6 +461,8 @@ void uiODMenuMgr::fillExportMenu()
     auto* exppdf = new uiMenu( &appl_, tr("Probability Density Functions") );
     auto* expwell = new uiMenu( &appl_, uiStrings::sWell(mPlural) );
 
+    insertAction( expmnu_, m3Dots(uiStrings::sColorTable()), mExpColTabMnuItm );
+
     expmnu_->addMenu( expcpd );
     expmnu_->addMenu( expflt );
     expmnu_->addMenu( expfltss );
@@ -1559,6 +1561,7 @@ void uiODMenuMgr::handleClick( CallBacker* cb )
     case mImpAttrMnuItm:		mDoOp(Imp,Attr,0); break;
     case mImpAttrOthSurvMnuItm:		mDoOp(Imp,Attr,1); break;
     case mImpColTabMnuItm:		mDoOp(Imp,ColTab,0); break;
+    case mExpColTabMnuItm:		mDoOp(Exp,ColTab,0); break;
     case mImpSeisCBVSMnuItm:		mDoOp(Imp,Seis,0); break;
     case mImpSeisSimple3DMnuItm:	mDoOp(Imp,Seis,5); break;
     case mImpSeisSimple2DMnuItm:	mDoOp(Imp,Seis,6); break;

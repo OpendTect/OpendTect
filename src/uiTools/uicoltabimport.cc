@@ -24,6 +24,7 @@ ________________________________________________________________________
 #include "oddirs.h"
 #include "od_istream.h"
 #include "od_helpids.h"
+#include "separstr.h"
 #include "settings.h"
 
 
@@ -43,10 +44,8 @@ static BufferString sHomePath;
 static BufferString sFilePath;
 
 uiColTabImport::uiColTabImport( uiParent* p )
-    : uiDialog(p,Setup(uiStrings::phrImport(uiStrings::sColorTable(2)),
+    : uiDialog(p,Setup(uiStrings::phrImport(uiStrings::sColorTable(mPlural)),
 		       mODHelpKey(mColTabImportHelpID)))
-    , dirfld_(0)
-    , dtectusrfld_(0)
 {
     setOkText( uiStrings::sImport() );
     choicefld_ = new uiGenInput( this, tr("Import from"),
@@ -76,7 +75,7 @@ uiColTabImport::uiColTabImport( uiParent* p )
     messagelbl_->attach( alignedBelow, dtectusrfld_ );
     messagelbl_->display( false );
 
-    choiceSel( 0 );
+    choiceSel( nullptr );
 }
 
 
@@ -113,14 +112,14 @@ void uiColTabImport::choiceSel( CallBacker* )
 	    break;
 	case PetrelAlut:
 	    dirfld_->setSelectMode( uiFileDialog::DirectoryOnly );
-	    dirfld_->setTitleText( uiStrings::sPetrelAlut() );
-	    dirfld_->setFileName( sHomePath );
+	    dirfld_->setTitleText( ::toUiString("Petrel (*.alut) folder") );
+	    dirfld_->setFileName( sFilePath );
 	    dirfld_->enableExamine( false );
 	    dtectusrfld_->display( false );
 	    break;
 	case CSV:
-	    dirfld_->setSelectMode( uiFileDialog::ExistingFile );
-	    dirfld_->setTitleText( uiStrings::sInputFile() );
+	    dirfld_->setSelectMode( uiFileDialog::ExistingFiles );
+	    dirfld_->setTitleText( ::toUiString("CSV file(s)") );
 	    dirfld_->setFileName( sFilePath );
 	    dirfld_->enableExamine( true );
 	    dtectusrfld_->display( false );
@@ -128,7 +127,7 @@ void uiColTabImport::choiceSel( CallBacker* )
 	default: break;
     }
 
-    usrSel(0);
+    usrSel( nullptr );
 }
 
 
@@ -141,12 +140,22 @@ void uiColTabImport::usrSel( CallBacker* )
 
     const auto imptype = sCast(ImportType,choicefld_->getIntValue());
 
-    FilePath fp( dirfld_->fileName() );
+    BufferStringSet fnms;
+    dirfld_->getFileNames( fnms );
+
+    if ( fnms.isEmpty() )
+    {
+	showMessage(tr("No files selected for import."));
+	return;
+    }
+
+    FilePath fp = fnms.get( 0 );
     if ( !File::exists(fp.fullPath()) )
     {
 	uiMSG().error(tr("Please select an existing %1")
-		    .arg(imptype==ODTColTab ? uiStrings::sFile().toLower()
-				  : uiStrings::sFolder().toLower() ));
+		   .arg( imptype==ODTColTab
+			 || imptype==CSV ? uiStrings::sFile().toLower()
+					 : uiStrings::sFolder().toLower() ));
 	return;
     }
 
@@ -181,7 +190,11 @@ void uiColTabImport::usrSel( CallBacker* )
 	const BufferString fnm = fp.fullPath();
 	if ( File::isDirectory(fnm) )
 	{
-	    showList();
+	    if ( listfld_->isEmpty() )
+		showMessage( tr("No files detected to import") );
+	    else
+		showList();
+
 	    return;
 	}
 
@@ -201,18 +214,36 @@ void uiColTabImport::usrSel( CallBacker* )
 	}
 	getFromSettingsPar( *ctabiop );
     }
-    else if ( imptype== PetrelAlut )
+    else if ( imptype==PetrelAlut )
     {
 	BufferStringSet filenms;
 	File::listDir( fp.fullPath(), File::DirListType::FilesInDir,
 		       filenms, "*.alut" );
+
 	if ( filenms.isEmpty() )
 	{
-	    showMessage( tr("No *.alut files found in selected folder") );
+	    showMessage( tr("No Petrel (*.alut) files detected in selected "
+			    "folder.") );
 	    return;
 	}
 
 	getFromAlutFiles( filenms );
+    }
+    else if ( imptype==CSV )
+    {
+	for ( auto const nm : fnms )
+	{
+	    if ( File::isDirectory(nm->str()) )
+		fnms.remove( nm->buf() );
+	}
+
+	getFromCSVFiles( fnms );
+
+	if ( fnms.isEmpty() || listfld_->isEmpty() )
+	{
+	    showMessage( tr("No CSV files detected among the ones selected.") );
+	    return;
+	}
     }
 }
 
@@ -284,28 +315,28 @@ void uiColTabImport::getFromAlutFiles( const BufferStringSet& filenms )
 	seq->setName( fp.baseName() );
 	TypeSet<int> r, g, b, a;
 	BufferString line;
-	BufferStringSet nums;
 	while ( strm.isOK() )
 	{
 	    strm.getLine( line );
 	    if ( line.isEmpty() || strm.isBad() )
 		break;
 
-	    nums.setEmpty();
-	    nums.unCat( line, "," );
-	    if ( nums.size()!=4 )
+	    const SeparString ss( line );
+	    if ( ss.size()!=4 )
 		break;
 
-	    r += nums[0]->toInt();
-	    g += nums[1]->toInt();
-	    b += nums[2]->toInt();
-	    a += nums[3]->toInt();
+	    r += std::clamp( ss.getIValue(0), 0, 255 );
+	    g += std::clamp( ss.getIValue(1), 0, 255 );
+	    b += std::clamp( ss.getIValue(2), 0, 255 );
+	    a += std::clamp( ss.getIValue(3), 0, 255 );
 	}
+
 	if ( r.isEmpty() )
 	{
 	    delete seq;
 	    continue;
 	}
+
 	StepInterval<float> si( 0.f, 1.f, 1.f/(r.size()-1) );
 	for ( int idx=0; idx<r.size(); idx++ )
 	{
@@ -313,14 +344,97 @@ void uiColTabImport::getFromAlutFiles( const BufferStringSet& filenms )
 	    seq->setColor( pos, r[idx], g[idx], b[idx] );
 	    seq->setTransparency( Geom::Point2D<float>(pos,255-a[idx]) );
 	}
+
 	seq->simplify();
 	seqs_ += seq;
 	uiPixmap coltabpix( 16, 10 );
 	coltabpix.fill( *seq, true );
 	listfld_->addItem( ::toUiString(fp.baseName()), coltabpix );
     }
+
     if ( !listfld_->isEmpty() )
 	showList();
+}
+
+
+void uiColTabImport::getFromCSVFiles( const BufferStringSet& filenms )
+{
+    deepErase( seqs_ );
+    uiStringSet skippedfiles;
+    for ( const auto* filenm : filenms )
+    {
+	if ( File::isDirectory(filenm->str()) )
+	    continue;
+
+	const FilePath fp( filenm->str() );
+	od_istream strm( fp.fullPath() );
+	if ( !strm.isOK() )
+	    continue;
+
+	auto* seq = new ColTab::Sequence;
+	seq->setName( fp.baseName() );
+	TypeSet<float> pos;
+	TypeSet<int> r, g, b, t;
+	BufferString line;
+
+	while ( strm.isOK() )
+	{
+	    strm.getLine( line );
+	    if ( line.isEmpty() || strm.isBad() )
+		break;
+
+	    const SeparString ss( line );
+	    const int numsize = ss.size();
+	    if ( numsize<4 )
+		break;
+
+	    pos += std::clamp( ss.getFValue(0), 0.0f, 1.0f );
+	    r += std::clamp( ss.getIValue(1), 0, 255 );
+	    g += std::clamp( ss.getIValue(2), 0, 255 );
+	    b += std::clamp( ss.getIValue(3), 0, 255 );
+
+	    if ( numsize==5 )
+		t += std::clamp( ss.getIValue(4), 0, 255 );
+	    else
+		t += 0;
+	}
+
+	if ( r.isEmpty() || r.size()>255 )
+	{
+	    skippedfiles.add( ::uiString(tr(filenm->buf())) );
+	    delete seq;
+	    continue;
+	}
+
+	for ( int idx=0; idx<r.size(); idx++ )
+	{
+	    seq->setColor( pos[idx], r[idx], g[idx], b[idx] );
+	    seq->setTransparency( Geom::Point2D<float>(pos[idx],t[idx]) );
+	}
+
+	seqs_ += seq;
+	uiPixmap coltabpix( 16, 10 );
+	coltabpix.fill( *seq, true );
+	listfld_->addItem( ::toUiString(fp.baseName()), coltabpix );
+    }
+
+    if ( !listfld_->isEmpty() )
+	showList();
+
+    if ( !skippedfiles.isEmpty() )
+    {
+	const bool all = skippedfiles.size()==filenms.size();
+	const uiString msg = tr("%1 of the selected files were skipped because "
+				"they either do not adhere to the CSV format "
+				"or exceed the size limit.\n\n(Hint: You can "
+				"use the 'Examine' tool to see why the file "
+				"might be invalid)")
+				 .arg( all ? "All" : "Some" );
+	skippedfiles.insert( 0, msg );
+	uiMSG().errorWithDetails( skippedfiles );
+    }
+
+    return;
 }
 
 
@@ -342,9 +456,9 @@ bool uiColTabImport::acceptOK( CallBacker* )
 	const int seqidx = ColTab::SM().indexOf( seq.name() );
 	if ( seqidx >= 0 )
 	{
-	    uiString msg = tr("User colortable '%1' "
-			      "will replace the existing.\nOverwrite?")
-			 .arg(seq.name());
+	    const uiString msg = tr("User Color table '%1' "
+				    "will replace the existing.\nOverwrite?")
+					.arg(seq.name());
 	    doset = uiMSG().askOverwrite( msg );
 	}
 
@@ -359,10 +473,11 @@ bool uiColTabImport::acceptOK( CallBacker* )
     if ( oneadded )
 	ColTab::SM().write( false );
 
-    uiString msg = tr( "Color table successfully imported."
-		      "\n\nDo you want to import more Color tables?" );
-    bool ret = uiMSG().askGoOn( msg, uiStrings::sYes(),
-				tr("No, close window") );
+    const uiString msg = tr( "Color table(s) successfully imported."
+			     "\n\nDo you want to import more Color tables?" );
+
+    const bool ret = uiMSG().askGoOn( msg, uiStrings::sYes(),
+				      tr("No, close window") );
     return !ret;
 }
 
