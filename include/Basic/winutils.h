@@ -34,6 +34,7 @@ mGlobal(Basic) bool		removeRegKeyVal(const char* ky,
 
 extern "C"
 {
+    mGlobal(Basic) const char*  GetKnownFolderLocation(REFKNOWNFOLDERID);
     mGlobal(Basic) const char*	GetSpecialFolderLocation(int csidl);
 }
 
