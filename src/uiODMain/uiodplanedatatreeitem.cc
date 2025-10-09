@@ -369,7 +369,7 @@ void uiODPlaneDataTreeItem::posChange( CallBacker* )
     if ( pdd && pdd->getOrientation()==OD::SliceType::Z )
 	pdd->setSlideActive( isslideractive );
 
-    const bool displayplane = isslideractive &&
+    const bool displayplane = !isslideractive ||
 			      pdd->canDisplayInteractively();
     movePlaneAndCalcAttribs( slicepos->getTrcKeyZSampling(), displayplane );
 }
