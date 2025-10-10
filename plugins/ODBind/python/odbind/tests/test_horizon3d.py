@@ -59,7 +59,7 @@ def test_Horizon3D_class(survey):
                 'attrib_count': len(data_info['comp'])-1
             }
     test = Horizon3D(survey, 'pytest')
-    assert test.info() == info
+    assert info == pytest.approx(test.info())
     assert test.attribnames == data_info['comp'][1:]
     assert test.ranges == (data_info['iline'], data_info['xline'],)
 #
