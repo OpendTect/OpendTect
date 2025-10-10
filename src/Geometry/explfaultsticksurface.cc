@@ -366,39 +366,34 @@ public:
     : Executor("Fault Surface Updater")
     , explsurf_( efss )
     , updatesticksnotpanels_( updatesticksnotpanels )
-    , curidx_(0)
 {}
 
 
 od_int64 totalNr() const override
 {
     return updatesticksnotpanels_ ? explsurf_.sticks_.size()
-	: explsurf_.paneltriangles_.size()-1;
+				  : explsurf_.paneltriangles_.size()-1;
 }
 
 
 od_int64 nrDone() const override
 { return curidx_; }
 
-
 int nextStep() override
 {
-    if ( curidx_ >= totalNr() )
-	return Finished();
-
     if ( updatesticksnotpanels_ )
 	explsurf_.fillStick( curidx_++ );
     else
 	explsurf_.fillPanel( curidx_++ );
 
-    return MoreToDo();
+    return curidx_>=totalNr() ? Finished() : MoreToDo();
 }
 
 protected:
 
     ExplFaultStickSurface&	explsurf_;
     bool			updatesticksnotpanels_;
-    int				curidx_;
+    int				curidx_			= 0;
 };
 
 
@@ -521,13 +516,12 @@ bool ExplFaultStickSurface::update( bool forceall, TaskRunner* tr )
     PtrMan<ExplFaultStickSurfaceUpdater> updater =
 	new ExplFaultStickSurfaceUpdater( *this, true );
 
-    if ( !TaskRunner::execute( tr, *updater ) )
+    if ( sticks_.isEmpty() || !TaskRunner::execute( tr, *updater ) )
 	return false;
 
     //Now do panels
     updater = new ExplFaultStickSurfaceUpdater( *this, false );
-
-    if ( !TaskRunner::execute( tr, *updater ) )
+    if ( paneltriangles_.isEmpty() || !TaskRunner::execute( tr, *updater ) )
 	return false;
 
     needsupdate_ = false;
