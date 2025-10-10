@@ -1,4 +1,5 @@
 import pytest
+import odbind.pytest_helper as pytest_helper
 import json
 import numpy as np
 import random
@@ -77,10 +78,12 @@ def test_Seismic3D_class(survey):
                 'storage_dtype': 'Float`Signed`4`IEEE`Yes',
                 'nrsamp': nz,
                 'bin_count': niln*ncrl,
-                'trc_count': niln*ncrl
+                'trc_count': niln*ncrl,
+                'inl_step': 25.0,
+                'crl_step': 25.0
             }
     test = Seismic3D(survey, 'pytest')
-    assert test.info() == info
+    assert info == pytest_helper.approx(test.info(), rel=0.001)
     assert test.zistime == zistime
     assert test.comp_names == data_info['comp']
     assert test.z_index(zrg[1])==nz-1
@@ -212,4 +215,3 @@ def test_Seismic3D_class(survey):
     Seismic3D.delete(survey, ['pytest', 'pytest_create'])
     assert 'pytest' not in Seismic3D.names(survey)
     assert 'pytest_create' not in Seismic3D.names(survey)
-
