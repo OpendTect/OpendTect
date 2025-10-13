@@ -178,7 +178,6 @@ void odHorizon3D::save()
     if ( array_ && writecount_ )
     {
 	RefMan<EM::Horizon3D> hor3d = getHorizonObj( true );
-	ConstPtrMan<IOObj> ioobj( ioobj_ptr() );
 	if ( !hor3d )
 	    return;
 
@@ -238,7 +237,7 @@ void odHorizon3D::getZ( hAllocator allocator )
     const ZDomain::Info* zdom = nullptr;
     if ( !array_ )
     {
-	RefMan<EM::Horizon3D> hor = getHorizonObj();
+	ConstRefMan<EM::Horizon3D> hor = getHorizonObj();
 	if ( !hor )
 	    return;
 
@@ -351,7 +350,7 @@ void odHorizon3D::putZ( const float* data, const TrcKeySampling& tk )
     if ( !canWrite() )
 	return;
 
-    RefMan<EM::Horizon3D> hor3d = getHorizonObj( true );
+    ConstRefMan<EM::Horizon3D> hor3d = getHorizonObj( true );
     if ( !hor3d )
 	return;
 
