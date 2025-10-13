@@ -47,9 +47,6 @@ public:
 
 				~dgbSurfDataWriter();
 
-    int				nextStep() override;
-    od_int64			nrDone() const override;
-    od_int64			totalNr() const override;
     uiString			uiMessage() const override;
     uiString			uiNrDoneText() const override;
 
@@ -64,7 +61,13 @@ public:
     static bool			writeDummyHeader(const char* fnm,
 						 const char* attrnm);
 
-protected:
+private:
+    bool			doPrepare(od_ostream* =nullptr) override;
+    int				nextStep() override;
+    bool			doFinish(bool,od_ostream* =nullptr) override;
+
+    od_int64			nrDone() const override;
+    od_int64			totalNr() const override;
 
     bool			writeInt(int);
     bool			writeInt64(od_int64);
@@ -79,8 +82,8 @@ protected:
 
     int				chunksize_	= 100;
     int				nrdone_		= 0;
-    int				totalnr_	= 0;
-    uiString		        errmsg_;
+    int				totalnr_;
+    uiString			msg_;
 
     od_ostream*			stream_		= nullptr;
     bool			binary_;
@@ -106,15 +109,18 @@ public:
 
     void			setSurface(EM::Horizon3D&);
 
-    int				nextStep() override;
-    od_int64			nrDone() const override;
-    od_int64			totalNr() const override;
     uiString			uiMessage() const override;
     uiString			uiNrDoneText() const override;
 
     static uiString		sHorizonData();
 
-protected:
+private:
+    bool			doPrepare(od_ostream* =nullptr) override;
+    int				nextStep() override;
+    bool			doFinish(bool,od_ostream* =nullptr) override;
+
+    od_int64			nrDone() const override;
+    od_int64			totalNr() const override;
 
     bool			readInt(int&);
     bool			readInt64(od_int64&);
@@ -133,8 +139,8 @@ protected:
 
     int				chunksize_		= 100;
     int				nrdone_			= 0;
-    int				totalnr_		= 0;
-    uiString		        errmsg_;
+    int				totalnr_		= 1;
+    uiString			msg_;
 
     od_istream*			stream_			= nullptr;
     BufferString		filename_;
@@ -142,7 +148,6 @@ protected:
     DataInterpreter<int>*	intinterpreter_		= nullptr;
     DataInterpreter<od_int64>*	int64interpreter_	= nullptr;
     DataInterpreter<float>*	floatinterpreter_	= nullptr;
-    bool			error_			= true;
 
     bool			readHeader();
 };

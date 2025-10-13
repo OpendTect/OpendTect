@@ -35,17 +35,13 @@ const char* dgbSurfDataWriter::sKeyShift()	    { return "Shift"; }
 
 
 dgbSurfDataWriter::dgbSurfDataWriter( const Horizon3D& surf,int dataidx,
-				    const TrcKeySampling* sel, bool binary,
-				    const char* filename )
+				      const TrcKeySampling* sel, bool binary,
+				      const char* filename )
     : Executor("Aux data writer")
-    , stream_(nullptr)
-    , chunksize_(100)
     , dataidx_(dataidx)
     , surf_(surf)
     , sel_(sel)
-    , sectionindex_(0)
     , binary_(binary)
-    , nrdone_(0)
     , filename_(filename)
 {
     const Geometry::BinIDSurface* meshsurf =
@@ -79,12 +75,10 @@ bool dgbSurfDataWriter::writeHeader()
 	    return false;
     }
 
+    delete stream_;
     stream_ = new od_ostream( filename_ );
     if ( !stream_ || !stream_->isOK() )
-    {
-	deleteAndNullPtr( stream_ );
 	return false;
-    }
 
     ascostream astream( *stream_ );
     astream.putHeader( sKeyFileType() );
@@ -130,17 +124,28 @@ bool dgbSurfDataWriter::writeDummyHeader( const char* fnm, const char* attrnm )
 }
 
 
-#define mErrRetWrite(msg) \
-{ errmsg_ = msg; File::remove(filename_.buf()); \
-    deleteAndNullPtr( stream_ ); return ErrorOccurred(); }
+bool dgbSurfDataWriter::doPrepare( od_ostream* strm )
+{
+    if ( !writeHeader() )
+    {
+	deleteAndNullPtr( stream_ );
+	return false;
+    }
 
+    return Executor::doPrepare( strm );
+}
+
+
+#define mErrRetWrite(msg) \
+{ \
+    if ( !msg.isEmpty() ) \
+	msg_ = msg; \
+    return ErrorOccurred(); \
+}
 
 int dgbSurfDataWriter::nextStep()
 {
     PosID posid( surf_.id() );
-    if ( !stream_ && !writeHeader() )
-	return ErrorOccurred();
-
     for ( int idx=0; idx<chunksize_; idx++ )
     {
 	while ( subids_.isEmpty() )
@@ -149,10 +154,7 @@ int dgbSurfDataWriter::nextStep()
 	    {
 		sectionindex_++;
 		if ( sectionindex_ >= surf_.nrSections() )
-		{
-		    deleteAndNullPtr( stream_ );
 		    return Finished();
-		}
 	    }
 	    else
 	    {
@@ -162,7 +164,8 @@ int dgbSurfDataWriter::nextStep()
 
 	    const Geometry::BinIDSurface* meshsurf =
 				surf_.geometry().geometryElement();
-	    if ( !meshsurf ) continue;
+	    if ( !meshsurf )
+		continue;
 
 	    const int nrnodes = meshsurf->nrKnots();
 	    for ( int idy=0; idy<nrnodes; idy++ )
@@ -191,10 +194,7 @@ int dgbSurfDataWriter::nextStep()
 	    }
 
 	    if ( subids_.isEmpty() )
-	    {
-		deleteAndNullPtr( stream_ );
 		return Finished();
-	    }
 
 	    if ( !writeInt(SectionID::def().asInt()) ||
 		 !writeInt(subids_.size()) )
@@ -216,15 +216,26 @@ int dgbSurfDataWriter::nextStep()
 }
 
 
+bool dgbSurfDataWriter::doFinish( bool success, od_ostream* strm )
+{
+    deleteAndNullPtr( stream_ );
+    if ( !success )
+	File::remove( filename_.buf() );
+
+    return Executor::doFinish( success, strm );
+}
+
+
 BufferString dgbSurfDataWriter::createHovName( const char* base, int idx )
 {
     BufferString res( base );
-    res += "^"; res += idx; res += ".hov";
+    res.add( "^" ).add( idx ).add( ".hov" );
     return res;
 }
 
 #define mWriteData() \
-    if ( !stream_ ) return false; \
+    if ( !stream_ ) \
+	return false; \
     if ( binary_ ) \
 	stream_->addBin( val ); \
     else \
@@ -253,7 +264,7 @@ od_int64 dgbSurfDataWriter::totalNr() const
 
 
 uiString dgbSurfDataWriter::uiMessage() const
-{ return errmsg_; }
+{ return msg_; }
 
 uiString dgbSurfDataWriter::uiNrDoneText() const
 { return tr("Positions Written"); }
@@ -266,7 +277,7 @@ dgbSurfDataReader::dgbSurfDataReader( const char* filename )
     : Executor("Aux data reader")
     , filename_(filename)
 {
-    error_ = !readHeader();
+    readHeader();
     deleteAndNullPtr( stream_ );
 }
 
@@ -282,10 +293,9 @@ dgbSurfDataReader::~dgbSurfDataReader()
 
 bool dgbSurfDataReader::readHeader()
 {
-    if ( !stream_ )
-	stream_ = new od_istream( filename_ );
-
-    if ( !stream_->isOK() )
+    delete stream_;
+    stream_ = new od_istream( filename_ );
+    if ( !stream_ || !stream_->isOK() )
 	return false;
 
     ascistream astream( *stream_ );
@@ -306,24 +316,27 @@ bool dgbSurfDataReader::readHeader()
     {
 	DataCharacteristics writtendatachar;
 	writtendatachar.set( dc.buf() );
+	delete intinterpreter_;
 	intinterpreter_ = new DataInterpreter<int>( writtendatachar );
 
 	if ( !par.get(dgbSurfDataWriter::sKeyInt64DataChar(),dc) )
 	{
-	    error_ = true;
-	    errmsg_ = tr("Error in reading data characteristics (int64)");
+	    msg_ = tr("Error in reading data characteristics (int64)");
 	    return false;
 	}
+
 	writtendatachar.set( dc.buf() );
+	delete int64interpreter_;
 	int64interpreter_ = new DataInterpreter<od_int64>( writtendatachar );
 
 	if ( !par.get(dgbSurfDataWriter::sKeyFloatDataChar(),dc) )
 	{
-	    error_ = true;
-	    errmsg_ = tr("Error in reading data characteristics (float)");
+	    msg_ = tr("Error in reading data characteristics (float)");
 	    return false;
 	}
+
 	writtendatachar.set( dc.buf() );
+	delete floatinterpreter_;
 	floatinterpreter_ = new DataInterpreter<float>( writtendatachar );
     }
 
@@ -333,19 +346,20 @@ bool dgbSurfDataReader::readHeader()
 
 const char* dgbSurfDataReader::dataName() const
 {
-    return dataname_[0] ? dataname_.buf() : 0;
+    return dataname_[0] ? dataname_.buf() : nullptr;
 }
 
 
 float dgbSurfDataReader::shift() const
-{ return shift_; }
+{
+    return shift_;
+}
 
 
 const char* dgbSurfDataReader::dataInfo() const
 {
-    return datainfo_[0] ? datainfo_.buf() : 0;
+    return datainfo_[0] ? datainfo_.buf() : nullptr;
 }
-
 
 
 void dgbSurfDataReader::setSurface( Horizon3D& surf )
@@ -360,38 +374,35 @@ uiString dgbSurfDataReader::sHorizonData()
     return tr("Horizon data");
 }
 
-#ifdef __debug__
-#   define mErrRetRead(msg) { \
-    if ( !msg.isEmpty() ) errmsg_ = msg; \
-    deleteAndNullPtr( stream_ ); \
-    surf_->auxdata.removeAuxData(dataidx_); return ErrorOccurred(); }
-#else
-    #define mErrRetRead(msg) { \
-    deleteAndNullPtr( stream_ ); \
-    surf_->auxdata.removeAuxData(dataidx_); return ErrorOccurred(); }
-#endif
+
+bool dgbSurfDataReader::doPrepare( od_ostream* strm )
+{
+    if ( !readHeader() )
+    {
+	deleteAndNullPtr( stream_ );
+	deleteAndNullPtr( intinterpreter_ );
+	deleteAndNullPtr( int64interpreter_ );
+	deleteAndNullPtr( floatinterpreter_ );
+	if ( surf_ )
+	    surf_->auxdata.removeAuxData( dataidx_ );
+
+	msg_ = tr("Error reading file '%1'").arg( filename_ );
+	return false;
+    }
+
+    return Executor::doPrepare( strm );
+}
 
 
-#ifdef __debug__
-#   define mErrRetReadNoDeleteAux(msg) { \
-    if ( !msg.isEmpty() ) errmsg_ = msg; \
-    deleteAndNullPtr( stream_ ); \
-    return ErrorOccurred(); }
-#else
-#define mErrRetReadNoDeleteAux(msg) { \
-    deleteAndNullPtr( stream_ ); \
-    return ErrorOccurred(); }
-#endif
-
+#define mErrRetRead(msg) \
+{ \
+    if ( !msg.isEmpty() ) \
+	msg_ = msg; \
+    return ErrorOccurred(); \
+}
 
 int dgbSurfDataReader::nextStep()
 {
-    if ( error_ )
-	mErrRetRead( uiString::emptyString() )
-
-    if ( !stream_ && !readHeader() )
-	mErrRetRead( tr("Error reading file %1").arg(filename_) )
-
     PosID posid( surf_->id() );
     for ( int idx=0; idx<chunksize_; idx++ )
     {
@@ -401,36 +412,25 @@ int dgbSurfDataReader::nextStep()
 	    {
 		sectionindex_++;
 		if ( sectionindex_ >= nrsections_ || nrsections_ < 0 )
-		{
-		    deleteAndNullPtr( stream_ );
 		    return Finished();
-		}
 	    }
 	    else
 	    {
 		readInt( nrsections_ );
 		if ( stream_->atEOF() )
-		{
-		    deleteAndNullPtr( stream_ );
 		    return Finished();
-		}
 
 		if ( nrsections_ < 0 )
-		    mErrRetReadNoDeleteAux(
-		    uiStrings::phrCannotRead( sHorizonData() ) )
+		    mErrRetRead( uiStrings::phrCannotRead( sHorizonData() ) )
 	    }
 
 	    int cursec = -1;
 	    const bool res = !readInt(cursec) || !readInt(valsleftonsection_);
 	    if ( stream_->atEOF() )
-	    {
-		deleteAndNullPtr( stream_ );
 		return Finished();
-	    }
 
 	    if ( res || cursec<0 )
-		mErrRetReadNoDeleteAux(
-		uiStrings::phrCannotRead( sHorizonData() ) )
+		mErrRetRead( uiStrings::phrCannotRead( sHorizonData() ) )
 
 	    currentsection_ = mCast(EM::SectionID,cursec);
 	    totalnr_ = 100;
@@ -445,7 +445,7 @@ int dgbSurfDataReader::nextStep()
 	SubID subid;
 	float val;
 	if ( !readInt64(subid) || !readFloat(val) )
-	    mErrRetReadNoDeleteAux( uiStrings::phrCannotRead( sHorizonData() ) )
+	    mErrRetRead( uiStrings::phrCannotRead( sHorizonData() ) )
 
 	posid.setSubID( subid );
 	posid.setSectionID( currentsection_ );
@@ -456,6 +456,17 @@ int dgbSurfDataReader::nextStep()
 
     nrdone_++;
     return MoreToDo();
+}
+
+
+bool dgbSurfDataReader::doFinish( bool success, od_ostream* strm )
+{
+    deleteAndNullPtr( stream_ );
+    deleteAndNullPtr( intinterpreter_ );
+    deleteAndNullPtr( int64interpreter_ );
+    deleteAndNullPtr( floatinterpreter_ );
+
+    return Executor::doFinish( success, strm );
 }
 
 
@@ -491,7 +502,7 @@ od_int64 dgbSurfDataReader::totalNr() const
 
 
 uiString dgbSurfDataReader::uiMessage() const
-{ return errmsg_; }
+{ return msg_; }
 
 uiString dgbSurfDataReader::uiNrDoneText() const
 { return tr("Positions Read"); }
