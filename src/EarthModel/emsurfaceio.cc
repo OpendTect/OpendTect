@@ -608,7 +608,7 @@ od_int64 dgbSurfaceReader::totalNr() const
     if ( !ownres )
 	ownres = nrrows_;
 
-    return ownres + (executors_.size() ? ExecutorGroup::totalNr() : 0);
+    return ownres + (executors_.size() ? ExecutorGroup::totalNr() : 1);
 }
 
 
@@ -1697,7 +1697,7 @@ uiString dgbSurfaceWriter::uiNrDoneText() const
 
 od_int64 dgbSurfaceWriter::totalNr() const
 {
-    return (executors_.size() ? ExecutorGroup::totalNr() : 0) +
+    return (executors_.size() ? ExecutorGroup::totalNr() : 1) +
 	   (writerowrange_?writerowrange_->nrSteps():rowrange_.nrSteps()) *
 	   sectionsel_.size();
 }

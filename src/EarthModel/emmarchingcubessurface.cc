@@ -387,7 +387,7 @@ bool MarchingCubesSurface::regenerateMCBody( TaskRunner* taskrunner )
 }
 
 
-bool MarchingCubesSurface::getBodyRange( TrcKeyZSampling& cs )
+bool MarchingCubesSurface::getBodyRange( TrcKeyZSampling& cs ) const
 {
     Interval<int> inlrg, crlrg, zrg;
     if ( !mcsurface_->models_.getRange( 0, inlrg ) ||

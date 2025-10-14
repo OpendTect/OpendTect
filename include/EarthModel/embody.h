@@ -53,7 +53,7 @@ public:
     virtual const char*		type() const = 0;
 
     const IOObjContext&		getBodyContext() const;
-    virtual bool		getBodyRange(TrcKeyZSampling&) = 0;
+    virtual bool		getBodyRange(TrcKeyZSampling&) const = 0;
 
     virtual MultiID		storageID() const	= 0;
     virtual BufferString	storageName()const	= 0;

@@ -166,10 +166,10 @@ protected:
 			FaultTraceExtractor(const EM::Fault&,FaultTrcHolder&);
 
     virtual bool	extractFaultTrace(int)			= 0;
-    virtual od_int64	nrIterations() const override;
-    virtual bool	doPrepare(int) override;
-    virtual bool	doWork(od_int64,od_int64,int) override;
-    virtual bool	doFinish(bool) override { return true; }
+    od_int64		nrIterations() const override;
+    bool		doPrepare(int) override;
+    bool		doWork(od_int64,od_int64,int) override;
+    bool		doFinish(bool) override { return true; }
 
     const EM::Fault&	fault_;
     FaultTrcHolder&	holder_;
@@ -188,7 +188,7 @@ protected:
 
     bool		extractFaultTrace(int) override;
 
-    virtual bool	doPrepare(int) override;
+    bool		doPrepare(int) override;
 
     Geometry::ExplFaultStickSurface* fltsurf_ = nullptr;
 
@@ -205,8 +205,8 @@ public:
 protected:
 
     bool		extractFaultTrace(int) override;
-    virtual bool	doPrepare(int) override;
-    virtual bool	doFinish(bool) override;
+    bool		doPrepare(int) override;
+    bool		doFinish(bool) override;
 
     Pos::GeomID		geomid_;
 };

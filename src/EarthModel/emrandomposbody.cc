@@ -377,7 +377,7 @@ ImplicitBody* RandomPosBody::createImplicitBody( TaskRunner* taskrunner,
 }
 
 
-bool RandomPosBody::getBodyRange( TrcKeyZSampling& cs )
+bool RandomPosBody::getBodyRange( TrcKeyZSampling& cs ) const
 {
     for ( int idx=0; idx<locations_.size(); idx++ )
     {

@@ -51,7 +51,7 @@ public:
 
     ImplicitBody*		createImplicitBody(TaskRunner*,
 						   bool) const override;
-    bool			getBodyRange(TrcKeyZSampling& cs) override;
+    bool			getBodyRange(TrcKeyZSampling&) const override;
 
     void			refBody() override;
     void			unRefBody() override;

@@ -22,13 +22,10 @@ namespace EM
 ZMapImporter::ZMapImporter( const char* fnm )
     : Executor("Reading ZMap data")
     , fnm_(fnm)
-    , posdetector_(new PosInfo::Detector(false))
+    , posdetector_(*new PosInfo::Detector(false))
 {
-    nrdonetxt_ = tr("Positions done");
-    istrm_ = new od_istream( fnm_ );
-
+    msg_ = tr("Importing ZMap data");
     initHeader();
-    applyCRS();
 }
 
 
@@ -36,28 +33,32 @@ ZMapImporter::~ZMapImporter()
 {
     delete istrm_;
     delete data_;
-    delete uom_;
-    delete posdetector_;
+    delete &posdetector_;
 }
 
 
 void ZMapImporter::setCoordSystem( const Coords::CoordSystem* crs )
 {
     coordsystem_ = crs;
-    applyCRS();
 }
 
 
 void ZMapImporter::setUOM( const UnitOfMeasure* uom )
 {
-    deleteAndNullPtr( uom_ );
-    if ( uom )
-	uom_ = new UnitOfMeasure( *uom );
+    uom_ = uom;
+}
+
+
+uiString ZMapImporter::uiNrDoneText() const
+{
+    return ParallelTask::sPosFinished();
 }
 
 
 bool ZMapImporter::initHeader()
 {
+    totalnr_ = 1; //In case of early return
+    istrm_ = new od_istream( fnm_ );
     BufferString linestr;
     while( true ) // comments
     {
@@ -130,31 +131,31 @@ void ZMapImporter::applyCRS()
 }
 
 
+bool ZMapImporter::doPrepare( od_ostream* strm )
+{
+    if ( mIsUdf(nrrows_) || mIsUdf(nrcols_) )
+    {
+	msg_ = tr("Found invalid data in header");
+	deleteAndNullPtr( istrm_ );
+	return false;
+    }
+
+    delete data_;
+    data_ = new Array2DImpl<float>( nrrows_, nrcols_ );
+    data_->setAll( mUdf(float) );
+    applyCRS();
+
+    return Executor::doPrepare( strm );
+}
+
+
 int ZMapImporter::nextStep()
 {
-    if ( totalnr_ == 0 )
-	return ErrorOccurred();
-
-    if ( !data_ )
-    {
-	data_ = new Array2DImpl<float>( nrrows_, nrcols_ );
-	data_->setAll( mUdf(float) );
-    }
-
-    if ( nrdone_ >= totalnr_ )
-    {
-	posdetector_->finish();
-	return Finished();
-    }
-
     BufferString buf;
     istrm_->getWord( buf );
     float zval = toFloat( buf );
     if ( mIsUdf(zval) || mIsEqual(zval,undefval_,mDefEps) )
-    {
-	nrdone_++;
-	return MoreToDo();
-    }
+	return ++nrdone_ >= totalnr_ ? Finished() : MoreToDo();
 
     if ( uom_ )
 	zval = uom_->internalValue( zval );
@@ -170,10 +171,18 @@ int ZMapImporter::nextStep()
     curcrd.x_ = mincrd_.x_ + dx_*col;
     curcrd.y_ = mincrd_.y_ + dy_*row;
     const BinID curbid = SI().transform( curcrd );
-    posdetector_->add( curcrd, curbid );
+    posdetector_.add( curcrd, curbid );
 
-    nrdone_++;
-    return MoreToDo();
+    return ++nrdone_ >= totalnr_ ? Finished() : MoreToDo();
+}
+
+
+bool ZMapImporter::doFinish( bool success, od_ostream* strm )
+{
+    if ( success )
+	posdetector_.finish();
+
+    return Executor::doFinish( success, strm );
 }
 
 
@@ -194,8 +203,8 @@ TrcKeySampling ZMapImporter::sampling() const
     tks.include( TrcKey(SI().transform(maxcrd_)) );
     tks.include( TrcKey(SI().transform(Coord(mincrd_.x_,maxcrd_.y_))) );
     tks.include( TrcKey(SI().transform(Coord(maxcrd_.x_,mincrd_.y_))) );
-    tks.step_ = BinID( Math::Abs(posdetector_->step().inl()),
-		       Math::Abs(posdetector_->step().crl()) );
+    tks.step_ = BinID( Math::Abs(posdetector_.step().inl()),
+		       Math::Abs(posdetector_.step().crl()) );
     return tks;
 }
 

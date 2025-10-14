@@ -185,7 +185,7 @@ ImplicitBody* PolygonBody::createImplicitBody( TaskRunner* taskrunner,
 }
 
 
-bool PolygonBody::getBodyRange( TrcKeyZSampling& cs )
+bool PolygonBody::getBodyRange( TrcKeyZSampling& cs ) const
 {
     const Geometry::PolygonSurface* surf = geometry().geometryElement();
     if ( !surf )

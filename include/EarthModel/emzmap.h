@@ -27,10 +27,8 @@ public:
 			ZMapImporter(const char* fnm);
 			~ZMapImporter();
 
-    od_int64		nrDone() const override		{ return nrdone_; }
-    od_int64		totalNr() const override	{ return totalnr_; }
     uiString		uiMessage() const override	{ return msg_; }
-    uiString		uiNrDoneText() const override	{ return nrdonetxt_; }
+    uiString		uiNrDoneText() const override;
 
     void		setCoordSystem(const Coords::CoordSystem*);
     void		setUOM(const UnitOfMeasure*);
@@ -46,52 +44,55 @@ public:
     int			nrRows() const			{ return nrrows_; }
     int			nrCols() const			{ return nrcols_; }
 
-    const PosInfo::Detector& detector() const		{ return *posdetector_;}
+    const PosInfo::Detector& detector() const		{ return posdetector_; }
 
-protected:
+private:
+    bool		doPrepare(od_ostream* =nullptr) override;
+    int			nextStep() override;
+    bool		doFinish(bool,od_ostream* =nullptr) override;
+
+    od_int64		nrDone() const override		{ return nrdone_; }
+    od_int64		totalNr() const override	{ return totalnr_; }
 
     bool		initHeader();
     void		applyCRS();
-    int			nextStep() override;
 
     od_int64		nrdone_		= 0;
-    od_int64		totalnr_	= 0;
+    od_int64		totalnr_;
     uiString		msg_;
-    uiString		nrdonetxt_;
 
-    Array2D<float>*	data_		= nullptr;
     BufferString	fnm_;
-    bool		initdone_	= false;
-    od_istream*		istrm_		= nullptr;
+    od_istream*		istrm_;
+    Array2D<float>*	data_		= nullptr;
     ConstRefMan<Coords::CoordSystem> coordsystem_;
-    UnitOfMeasure*	uom_		= nullptr;
-    PosInfo::Detector*	posdetector_;
+    const UnitOfMeasure* uom_		= nullptr;
+    PosInfo::Detector&	posdetector_;
 
     // header line 1
-    int			nrnodesperline_	= 0;
+    int			nrnodesperline_ = mUdf(int);
 
     // header line 2
-    int			nrchars_	= 0;
+    int			nrchars_	= mUdf(int);
     float		undefval_	= -999.f;
     BufferString	undeftxt_;
-    int			nrdec_		= 0;
-    int			firstcol_	= 0;
+    int			nrdec_		= mUdf(int);
+    int			firstcol_	= mUdf(int);
 
     // header line 3
-    int			nrrows_		= 0;
-    int			nrcols_		= 0;
-    double		xmin_		= 0.;
-    double		xmax_		= 0.;
-    double		ymin_		= 0.;
-    double		ymax_		= 0.;
+    int			nrrows_		= mUdf(int);
+    int			nrcols_		= mUdf(int);
+    double		xmin_		= mUdf(double);
+    double		xmax_		= mUdf(double);
+    double		ymin_		= mUdf(double);
+    double		ymax_		= mUdf(double);
 
     // derived
-    double		dx_		= 0.;
-    double		dy_		= 0.;
+    double		dx_		= mUdf(double);
+    double		dy_		= mUdf(double);
 
     // Coords in survey's CRS
-    Coord		mincrd_;
-    Coord		maxcrd_;
+    Coord		mincrd_		= Coord::udf();
+    Coord		maxcrd_		= Coord::udf();
 };
 
 } // namespace EM

@@ -120,7 +120,7 @@ public:
 
     ImplicitBody*		createImplicitBody(TaskRunner*,
 						   bool) const override;
-    bool			getBodyRange(TrcKeyZSampling&) override;
+    bool			getBodyRange(TrcKeyZSampling&) const override;
 
     MultiID			storageID() const override;
     BufferString		storageName() const override;
