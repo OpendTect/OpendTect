@@ -327,7 +327,7 @@ static bool runCommandWithLongOutput()
     if ( __iswin__ )
 	scriptfp.setExtension( "cmd" );
     else
-	scriptfp.setExtension( "csh" );
+	scriptfp.setExtension( "sh" );
 
     BufferString output;
     OS::MachineCommand machcomm( scriptfp.fullPath() );

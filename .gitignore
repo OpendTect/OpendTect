@@ -30,7 +30,7 @@ share/Firewall
 doc/Videos.dgb
 doc/od_userdoc
 test/
-bin/count_to_1000.csh
+bin/count_to_1000.*
 bin/script with space.*
 Contents/
 plugins/lux64
