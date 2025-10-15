@@ -30,6 +30,7 @@ bool GenericTransformND::setInputInfo( const ArrayNDInfo& ni )
 {
     delete info_;
     info_ = ni.clone();
+    setNeedSetup();
     return true;
 }
 
@@ -41,6 +42,7 @@ const ArrayNDInfo& GenericTransformND::getInputInfo() const
 bool GenericTransformND::setDir( bool forward )
 {
     forward_ = forward;
+    setNeedSetup();
     return true;
 }
 
@@ -117,6 +119,7 @@ void GenericTransformND::setScope( int nr, int batchsampling )
     nr_ = nr;
     batchsampling_ = batchsampling;
     batchstarts_ = nullptr;
+    setNeedSetup();
 }
 
 
@@ -124,6 +127,13 @@ void GenericTransformND::setScope( int nr, const int* batchstarts )
 {
     nr_ = nr;
     batchstarts_ = batchstarts;
+    setNeedSetup();
+}
+
+
+void GenericTransformND::setNeedSetup( bool yn )
+{
+    needsetup_ = true;
 }
 
 
@@ -148,9 +158,10 @@ bool GenericTransformND::run( bool parallel )
 
 bool GenericTransformND::doPrepare( od_ostream* strm )
 {
-    if ( !setup() )
+    if ( needsetup_ && !setup() )
 	return false;
 
+    curdim_ = 0;
     return SequentialTask::doPrepare( strm );
 }
 
@@ -167,10 +178,6 @@ int GenericTransformND::nextStep()
 
 bool GenericTransformND::doFinish( bool success, od_ostream* strm )
 {
-    deepErase( transforms_ );
-    deepEraseArr( transforms1dstarts_ );
-    nr1dtransforms_.erase();
-
     return SequentialTask::doFinish( success, strm );
 }
 
@@ -287,7 +294,7 @@ bool GenericTransformND::setup()
     mSetOutputData( routput_ );
     mSetOutputData( coutput_ );
 
-    curdim_ = 0;
+    needsetup_ = false;
 
     return true;
 }

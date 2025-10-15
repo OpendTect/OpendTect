@@ -55,13 +55,15 @@ public:
 protected:
 				GenericTransformND();
 
-    od_int64			nrDone() const override;
-    od_int64			totalNr() const override;
+    virtual bool		setup();
+    void			setNeedSetup(bool yn=true);
 
     bool			doPrepare(od_ostream* =nullptr) override;
-    virtual bool		setup();
     int				nextStep() override;
     bool			doFinish(bool,od_ostream* =nullptr) override;
+
+    od_int64			nrDone() const override;
+    od_int64			totalNr() const override;
 
     class			Transform1D;
     virtual Transform1D*	createTransform() const		= 0;
@@ -124,8 +126,10 @@ protected:
 	const float*		rinput_		= nullptr;
 	float_complex*		coutput_	= nullptr;
 	float*			routput_	= nullptr;
+
     };
 
 private:
     int				curdim_		= -1;
+    bool			needsetup_	= true;
 };

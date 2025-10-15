@@ -79,6 +79,7 @@ bool CC::setup()
 void CC::setNormalization( bool yn )
 {
     normalize_ = yn;
+    setNeedSetup();
 }
 
 
