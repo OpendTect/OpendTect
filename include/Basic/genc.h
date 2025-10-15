@@ -74,6 +74,7 @@ mGlobal(Basic) bool IsExiting();
 
 using PtrAllVoidFn = void(*)(void);
 mGlobal(Basic) void NotifyExitProgram(PtrAllVoidFn);
+mGlobal(Basic) void NotifyExitProgram_(PtrAllVoidFn,bool remove=false);
 		/*!< Function will be called on 'ExitProgram' */
 
 mGlobal(Basic) bool StartProgramCopy();

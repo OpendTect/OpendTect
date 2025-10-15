@@ -73,6 +73,7 @@ void SetCleanSIFlag( CallBacker* )
 void UnsetCleanSIFlag()
 {
     needcleansi_ = false;
+    NotifyExitProgram_( &Coords::UnsetCleanSIFlag, true );
 }
 
 

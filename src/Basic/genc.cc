@@ -398,6 +398,12 @@ static bool is_exiting_ = false;
 
 void NotifyExitProgram( PtrAllVoidFn fn )
 {
+    NotifyExitProgram_( fn );
+}
+
+
+void NotifyExitProgram_( PtrAllVoidFn fn, bool remove )
+{
     mDefineStaticLocalObject( Threads::Atomic<int>, nrfns, (0) )
     mDefineStaticLocalObject( PtrAllVoidFn, fns, [100] )
     int idx;
@@ -405,12 +411,24 @@ void NotifyExitProgram( PtrAllVoidFn fn )
     if ( fn == ((PtrAllVoidFn)(-1)) )
     {
 	for ( idx=0; idx<nrfns; idx++ )
-	    (*(fns[idx]))();
+	    if ( fns[idx] )
+		(*(fns[idx]))();
     }
     else
     {
-	const int myfnidx = nrfns++;
-	fns[myfnidx] = fn;
+	if ( remove )
+	{
+	    for ( idx=0; idx<nrfns; idx++ )
+	    {
+		if ( fns[idx] == fn )
+		    fns[idx] = nullptr;
+	    }
+	}
+	else
+	{
+	    const int myfnidx = nrfns++;
+	    fns[myfnidx] = fn;
+	}
     }
 }
 
