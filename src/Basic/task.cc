@@ -447,16 +447,26 @@ bool SequentialTask::execute()
 	return false;
 
 #ifdef __debug__
-    if ( totalNr() <= 0 )
+    static bool checktotalnr =
+		    GetEnvVarYN( "DTECT_TRACK_SEQUENTIALTASKS", true );
+    if ( checktotalnr )
     {
-	static bool checktotalnr =
-			GetEnvVarYN( "DTECT_TRACK_SEQUENTIALTASKS", true );
-	if ( checktotalnr )
+	const od_int64 totnr = totalNr();
+	if ( totnr <= 0 )
 	{
-	    if ( totalNr() < 0 )
+	    if ( totnr < 0 )
+	    {
 		pErrMsg("totalNr should be more than 0 when a sequential"
 			" task is executed");
-	    return true;
+		return true;
+	    }
+
+	    if ( totnr == 0 )
+	    {
+		ErrMsg( "totalNr should not be 0 when a sequential"
+		    " task is executed. This error will become fatal, "
+		    "update your code ASAP");
+	    }
 	}
     }
 #endif
