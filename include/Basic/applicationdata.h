@@ -48,10 +48,17 @@ public:
     static void		setOrganizationName(const char*);
     static void		setOrganizationDomain(const char*);
     static void		setApplicationName(const char*);
+    static BufferString organizationName();
+    static BufferString organizationDomain();
     static BufferString	applicationName();
 
     static Notifier<ApplicationData>& applicationToBeStarted();
 			//!<Just before the event loop is started
+
+    static const char*	sDefOrganizationName();
+    static const char*	sDefOrganizationDomain();
+    static const char*	sDefApplicationName();
+    static void		sSetDefaults();
 
 protected:
 

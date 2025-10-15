@@ -563,14 +563,11 @@ BufferString FilePath::baseName() const
 
 BufferString FilePath::getTimeStampFileName( const char* ext )
 {
-    BufferString tsfnm;
-    BufferString datestr = Time::getDateTimeString();
-    datestr.replace( ", ", "-" );
-    datestr.replace( ':', '.' );
-    datestr.replace( ' ', '_' );
-    tsfnm += datestr.buf();
-    tsfnm += ext;
-
+    static const char* fmt = "ddd_dd_MMM_yyyy-hh.mm.ss";
+    BufferString datestr = Time::getDateTimeString( fmt );
+    FilePath tsfp( datestr.buf() );
+    tsfp.setExtension( ext, false );
+    const BufferString tsfnm = tsfp.fileName();
     return tsfnm;
 }
 

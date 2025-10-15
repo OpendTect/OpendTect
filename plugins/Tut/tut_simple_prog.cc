@@ -90,9 +90,9 @@ static bool loadOpendTectPlugins( const char* piname )
 
 int mProgMainFnName( int argc, char** argv )
 {
-    mInitProg( OD::RunCtxt::BatchProgCtxt );
     const bool needprojectdata = true;
     SetProgramArgs( argc, argv, needprojectdata );
+    mInitProg( OD::RunCtxt::BatchProgCtxt );
     ApplicationData app;
 
     OD::ModDeps().ensureLoaded( "Network" );

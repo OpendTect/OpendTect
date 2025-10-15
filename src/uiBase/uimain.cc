@@ -288,14 +288,8 @@ QtTabletEventFilter* uiMain::tabletfilter_ = nullptr;
 static void initQApplication()
 {
     uiMain::cleanQtOSEnv();
-
-    ApplicationData::setOrganizationName( "dGB");
-    ApplicationData::setOrganizationDomain( "opendtect.org" );
-    ApplicationData::setApplicationName( "OpendTect" );
-
-#ifdef __mac__
-    ApplicationData::swapCommandAndCTRL( true );
-#endif
+    if ( __ismac__ )
+	ApplicationData::swapCommandAndCTRL( true );
 }
 
 

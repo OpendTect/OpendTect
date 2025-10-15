@@ -160,7 +160,7 @@ void RemCommHandler::createLogFile( bool removeold )
 	    File::remove( logfilename_.buf() );
     }
 
-    FilePath logfp( GetBaseDataDir(), "LogFiles" );
+    FilePath logfp( GetLogsDir() );
     BufferString lhname = System::localAddress();
     lhname.replace( '.',  '_' );
     logfp.add( lhname );

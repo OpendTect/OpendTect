@@ -33,6 +33,7 @@ ________________________________________________________________________
 #endif
 #ifdef __win__
 #include "windows.h"
+#include "Knownfolders.h"
 # define sDirSep	"\\"
 static const char* lostinspace = "C:\\";
 #else
@@ -1124,6 +1125,61 @@ mExternC(Basic) const char* GetPersonalDir()
     }
 
     return dirnm.buf();
+}
+
+
+mExternC(Basic) const char* GetLogsDir()
+{
+    mDeclStaticString( ret );
+    if ( ret.isEmpty() )
+    {
+	FilePath fp;
+#ifdef __win__
+	const BufferString dirnm =
+			GetKnownFolderLocation( FOLDERID_LocalAppData );
+	fp.set( dirnm.buf() );
+#else
+	fp.set( GetPersonalDir() );
+	if ( __islinux__ )
+	    fp.add( ".local" ).add( "share" );
+	else
+	    fp.add( "Library" ).add( "Application Support" );
+#endif
+	BufferString editor;
+	if ( __ismac__ )
+	{
+	    editor = ApplicationData::organizationDomain();
+	    if ( editor.isEmpty() )
+	    {
+		editor = ApplicationData::organizationName();
+		if ( editor.isEmpty() )
+		    editor = ApplicationData::sDefOrganizationDomain();
+		else
+		    editor.clean().add( ".com" );
+	    }
+	}
+	else
+	{
+	    editor = ApplicationData::organizationName();
+	    if ( editor.isEmpty() )
+		editor = ApplicationData::sDefOrganizationName();
+
+	    if ( __islinux__ )
+		editor.clean();
+	}
+
+	BufferString appnm = ApplicationData::applicationName();
+	if ( appnm.isEmpty() )
+	    appnm = ApplicationData::sDefApplicationName();
+
+	if ( __islinux__ )
+	    appnm.clean();
+
+	fp.add( editor.str() ).add( appnm.str() ).add( "logs" );
+	ret = fp.fullPath();
+    }
+
+    return ret.buf();
 }
 
 

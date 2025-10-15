@@ -29,8 +29,8 @@ ________________________________________________________________________
 
 int mProgMainFnName( int argc, char** argv )
 {
-    mInitProg( OD::RunCtxt::UiProgCtxt )
     SetProgramArgs( argc, argv, false );
+    mInitProg( OD::RunCtxt::UiProgCtxt )
     uiMain::preInitForOpenGL();
     uiMain app( argc, argv );
 

@@ -57,9 +57,9 @@ static bool loadOpendTectPlugins( const char* piname )
 
 int mProgMainFnName( int argc, char** argv )
 {
-    mInitProg( OD::RunCtxt::StandAloneCtxt );
     const bool needprojectdata = true;
     SetProgramArgs( argc, argv, needprojectdata );
+    mInitProg( OD::RunCtxt::StandAloneCtxt );
     uiMain::setXpmIconData( od_logo_64x64 );
     uiMain app( argc, argv );
     app.setIcon( "opendtect" );

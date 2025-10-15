@@ -411,34 +411,33 @@ Export_Basic od_ostream& logMsgStrm()
     else if ( GetEnvVarYN("OD_LOG_STDERR") )
 	log_file_name_.set( sStdErr );
 
+    const bool wasempty = log_file_name_.isEmpty();
+    BufferString timestampstr;
     BufferString errmsg;
-    if ( log_file_name_.isEmpty() )
+    if ( wasempty )
     {
-	const char* basedd = GetBaseDataDir();
-	if ( !basedd || !*basedd )
-	    errmsg = "Survey Data Root folder is not set\n";
-	else if ( !File::isDirectory(basedd) )
-	    errmsg = "Survey Data Root folder is invalid\n";
+	FilePath fp( GetLogsDir() );
+	const BufferString dirnm = fp.fullPath();
+	if ( !File::exists(dirnm) )
+	    File::createDir( dirnm );
+	if ( !File::isDirectory(dirnm) )
+	    errmsg = "Cannot create proper folder for log file";
 	else
 	{
-	    FilePath fp( basedd, "LogFiles" );
-	    const BufferString dirnm = fp.fullPath();
-	    if ( !File::exists(dirnm) )
-		File::createDir( dirnm );
-	    if ( !File::isDirectory(dirnm) )
-		errmsg = "Cannot create proper folder for log file";
-	    else
-	    {
-		const FilePath pfp( GetPersonalDir() );
-		BufferString fnm( pfp.fileName() );
-		const char* odusr = GetSoftwareUser();
-		if ( odusr && *odusr )
-		    { fnm += "_"; fnm += odusr; }
-		fnm += "_";
-		fp.add( fnm.add(FilePath::getTimeStampFileName(".txt")) );
+	    const BufferString usernm = GetUserNm();
+	    const BufferString odusr = GetInterpreterName();
+	    BufferString fnm( usernm.buf() );
+	    if ( !odusr.isEmpty() && odusr != usernm )
+		fnm.add( "_" ).add( odusr.str() );
 
-		log_file_name_ = fp.fullPath();
-	    }
+	    fnm.trimBlanks().clean( BufferString::NoSpaces );
+	    fnm.add( "_" );
+	    timestampstr = FilePath::getTimeStampFileName( "log" );
+	    if ( !timestampstr.isEmpty() )
+		fnm.add( timestampstr.str() );
+
+	    fp.add( fnm.str() );
+	    log_file_name_ = fp.fullPath();
 	}
     }
 
@@ -448,17 +447,17 @@ Export_Basic od_ostream& logMsgStrm()
 	if ( !logstrm->isOK() )
 	{
 	    errmsg.set( "Cannot create log file '" )
-		  .add( log_file_name_ ).add( "'" );
+		  .add( log_file_name_ ).add( "': " )
+		  .add( logstrm->errMsg() );
 	    logstrm = nullptr;
 	}
     }
 
     if ( !logstrm )
-    {
 	logstrm = new od_ostream( std::cout );
-	if ( !errmsg.isEmpty() )
-	    *logstrm << errmsg;
-    }
+
+    if ( !errmsg.isEmpty() )
+	std::cerr << errmsg.str() << std::endl;
 
     return *logstrm;
 }

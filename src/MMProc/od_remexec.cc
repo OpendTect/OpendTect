@@ -188,8 +188,8 @@ void doWork( CallBacker* )
 
 int mProgMainFnName( int argc, char** argv )
 {
-    mInitProg( OD::RunCtxt::BatchProgCtxt )
     SetProgramArgs( argc, argv, false );
+    mInitProg( OD::RunCtxt::BatchProgCtxt )
     ApplicationData app;
 
     OD::ModDeps().ensureLoaded( "Network" );

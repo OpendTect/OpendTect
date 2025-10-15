@@ -82,8 +82,8 @@ protected:
 
 int mProgMainFnName( int argc, char** argv )
 {
-    mInitProg( OD::RunCtxt::UiProgCtxt )
     SetProgramArgs( argc, argv, false );
+    mInitProg( OD::RunCtxt::UiProgCtxt )
     uiMain app( argc, argv );
     app.setIcon( "rsm" );
     ApplicationData::setApplicationName( "OpendTect RemoteServiceMgr" );
@@ -328,7 +328,7 @@ bool uiRemoteServiceMgr::rejectOK( CallBacker* )
 
 BufferString uiRemoteServiceMgr::getLogFileName() const
 {
-    FilePath logfp( GetBaseDataDir(), "LogFiles" );
+    FilePath logfp( GetLogsDir() );
     BufferString lhname = System::localAddress();
     lhname.replace( '.',  '_' );
     logfp.add( lhname );
