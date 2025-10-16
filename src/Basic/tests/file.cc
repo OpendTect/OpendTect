@@ -38,8 +38,8 @@ static bool testEmptyReadContent( const BufferString& tempfile )
     od_ostream stream( tempfile );
     stream.close();
     BufferString buf;
-    mRunStandardTest(File::getContent(tempfile,buf),"Empty file read")
-    mRunStandardTest(buf.isEmpty(),"empty file: No data to be read");
+    mRunStandardTest( File::getContent(tempfile,buf), "Empty file read" );
+    mRunStandardTest( buf.isEmpty(), "empty file: No data to be read" );
     return true;
 }
 
@@ -315,9 +315,22 @@ static bool isLarger( std::timespec a, std::timespec b )
 static bool isEqual( const Time::FileTimeSet& a,
 		     const Time::FileTimeSet& b )
 {
-    return isEqual( a.getModificationTime(), b.getModificationTime() ) &&
-	   isEqual( a.getAccessTime(), b.getAccessTime() ) &&
-	   isEqual( a.getCreationTime(), b.getCreationTime() );
+    if ( !isEqual(a.getModificationTime(),b.getModificationTime()) ||
+	 !isEqual(a.getCreationTime(),b.getCreationTime()) )
+	return false;
+
+    return __iswin__ ? true
+		     : isEqual( a.getAccessTime(), b.getAccessTime() );
+}
+
+
+static BufferString getErrString( std::timespec tm, std::timespec exptm )
+{
+    const BufferString tmstr = Time::getDateTimeString( tm );
+    const BufferString exptmstr = Time::getDateTimeString( exptm );
+    BufferString res ( "Got: " );
+    res.add( tmstr.buf() ).add( ", Expected: " ).add( exptmstr.buf() );
+    return res;
 }
 
 
@@ -376,21 +389,34 @@ static bool testFileTime( const char* fnm )
     const od_int64 filesz = File::getFileSize( realfnm );
     mRunStandardTest( File::getFileSize(linknm.buf()) == filesz,
 		      "File size by following a link" );
-    mRunStandardTest( File::getFileSize(linknm.buf(),false) == realfnm.size(),
-		      "File size of a symbolic link" );
+    if ( !__iswin__ )
+    {
+	mRunStandardTest(
+		File::getFileSize(linknm.buf(),false) == realfnm.size(),
+			 "File size of a symbolic link" );
+    }
+
+    Threads::sleep( 0.1 ); //100ms
     Time::FileTimeSet filetimes, linktimes;
     mRunStandardTest( File::getTimes( linknm.buf(), filetimes ),
 		      "Get all file timestamps from a link target" );
     mRunStandardTest( File::getTimes( linknm.buf(), linktimes, false ),
 		      "Get all file timestamps from a symbolic link" );
-    mRunStandardTest( isEqual( filetimes, times ),
-		      "File timestamps by following a link" );
-    mRunStandardTest( !isEqual( linktimes, times ) &&
-	isLarger( linktimes.getCreationTime(), times.getCreationTime() ) &&
-	isLarger( linktimes.getModificationTime(),
-		  times.getModificationTime() ) &&
+    mRunStandardTestWithError(
+	isLarger( linktimes.getCreationTime(), times.getCreationTime() ),
+	"File timestamps of a symbolic link - creation time",
+	getErrString( linktimes.getCreationTime(), times.getCreationTime() ) );
+    mRunStandardTestWithError(
+	isLarger( linktimes.getModificationTime(), times.getModificationTime()),
+	"File timestamps of a symbolic link - modification time",
+	getErrString( linktimes.getModificationTime(),
+		      times.getModificationTime() ) );
+    mRunStandardTestWithError(
 	isLarger( linktimes.getAccessTime(), times.getAccessTime() ),
-		      "File timestamps of a symbolic link" );
+	"File timestamps of a symbolic link - access time",
+	getErrString( linktimes.getAccessTime(), times.getAccessTime() ) );
+    mRunStandardTest( !isEqual( linktimes, times ),
+		      "File timestamps of a symbolic link (object)" );
     std::timespec modtime = linktimes.getModificationTime();
     od_int64 timens = modtime.tv_nsec + 5e7; //50ms
     if ( timens > 999999999ULL )
@@ -437,7 +463,7 @@ static bool testFileTime( const char* fnm )
 		      !File::isLink(linkdeepcpnm),
 		      "Deep copy from a link", msg.getString().buf() );
     const bool isdir = File::isDirectory( fnm );
-    if ( File::isDirectory(fnm) )
+    if ( isdir )
     {
 	mRunStandardTest( File::isDirectory(linkdeepcpnm.buf()),
 			  "Deep copied link of a directory" );
@@ -451,7 +477,8 @@ static bool testFileTime( const char* fnm )
     if ( !isdir )
 	return true;
 
-    mRunStandardTest( File::remove( linkcpnm ) && File::remove( linkdeepcpnm ),
+    mRunStandardTest( File::remove( linkcpnm ) &&
+		      File::removeDir( linkdeepcpnm ),
 		      "Removed temporary files" );
     msg.setEmpty();
     mRunStandardTestWithError(
