@@ -90,7 +90,7 @@ void disableAutoScrollSettings()
 
 private:
 
-bool acceptOK( CallBacker* )
+bool acceptOK( CallBacker* ) override
 {
     step_ = stepfld_->getIntValue();
     if ( mIsUdf(step_) || step_<=0 )

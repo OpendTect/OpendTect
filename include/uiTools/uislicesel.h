@@ -16,6 +16,8 @@ ________________________________________________________________________
 #include "ranges.h"
 #include "threadlock.h"
 
+class Timer;
+
 class uiGenInput;
 class uiLabeledSpinBox;
 class uiScrollDialog;
