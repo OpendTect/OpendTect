@@ -26,6 +26,14 @@ ________________________________________________________________________
 #include "survinfo.h"
 
 
+#define valTest( val, expval, defeps, desc ) \
+{ \
+    errmsg.set( "Expected: " ).add( toStringPrecise(val) ) \
+	  . add( "; Retrieved: " ).add( toStringPrecise(expval) ); \
+    mRunStandardTestWithError(mIsEqual(val,expval,defeps),desc,errmsg.str()); \
+}
+
+
 static bool testEMStoredObjAccess()
 {
     EM::StoredObjAccess soa;
@@ -60,19 +68,18 @@ static bool testEMStoredObjAccess()
     mDynamicCastGet(const EM::Body*,body,soa.object(4))
     mRunStandardTest(body,"object(4) must be a Geobody")
 
+    BufferString errmsg;
     const Coord crd_ix_400_900( 620620, 6081472 );
     float zval = hor3d->getZValue( crd_ix_400_900 );
-    mRunStandardTest(mIsEqual(zval,0.549256265,1e-6f),
-		     "Horizon 3D Z Value check")
+    valTest( zval, 0.549256265, 1e-6f, "Horizon 3D Z Value check" );
 
     const Coord crd_lt_Line_900( 619665.70, 6088541.50 );
     zval = hor2d->getZValue( crd_lt_Line_900 );
-    mRunStandardTest(mIsEqual(zval,0.92633921,1e-6f),
-		     "Horizon 2D Z Value check")
+    valTest( zval, 0.92633921, 1e-6f, "Horizon 2D Z Value check" );
 
     const EM::FaultStickSetGeometry& fssgeom = fss->geometry();
     mRunStandardTest( fssgeom.nrSticks() == 4 && fssgeom.nrKnots(0) == 7,
-			"Check nr Sticks and knots of Stick in FaultStickSet" );
+		      "Check nr Sticks and knots of Stick in FaultStickSet" );
 
     const EM::FaultGeometry& fltgeom = flt->geometry();
     getNonConst(fltgeom).selectAllSticks();
@@ -82,7 +89,7 @@ static bool testEMStoredObjAccess()
     TrcKeyZSampling cs;
     mRunStandardTest( body->getBodyRange(cs),"Get body ranges")
     mRunStandardTest( cs.hsamp_.start_.inl()>390 && cs.hsamp_.stop_.crl()<870,
-			"Check on body ranges" )
+		      "Check on body ranges" )
 
     return true;
 }
