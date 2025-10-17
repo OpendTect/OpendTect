@@ -142,7 +142,7 @@ protected:
 	AutoScrollType		astype_			= AutoScrollType::Stop;
     };
 
-    PtrMan<Timer>		timer_				= nullptr;
+    Timer*			timer_				= nullptr;
     AutoScroll			asprops_;
     bool			slideractive_			= false;
 

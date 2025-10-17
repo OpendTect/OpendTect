@@ -214,6 +214,7 @@ uiSliceSel::~uiSliceSel()
 {
     detachAllNotifiers();
     delete applycb_;
+    delete timer_;
 }
 
 
