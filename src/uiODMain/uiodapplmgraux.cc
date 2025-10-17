@@ -30,6 +30,7 @@ ________________________________________________________________________
 #include "uibatchlaunch.h"
 #include "uibatchprestackproc.h"
 #include "uibatchprogs.h"
+#include "uicoltabexport.h"
 #include "uicoltabimport.h"
 #include "uicoltabman.h"
 #include "uiconvpos.h"
@@ -455,6 +456,11 @@ void uiODApplMgrDispatcher::doOperation( int iot, int iat, int opt )
 	else if ( at == uiODApplMgr::Imp )
 	{
 	    uiColTabImport dlg( par_ );
+	    dlg.go();
+	}
+	else if ( at == uiODApplMgr::Exp )
+	{
+	    uiColTabExport dlg( par_ );
 	    dlg.go();
 	}
     break;

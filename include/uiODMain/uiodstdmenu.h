@@ -92,6 +92,8 @@ ________________________________________________________________________
 #define mImpFaultSSAscii2DBulkMnuItm	(mFileImpMnu + 114)
 #define mImpGeom2DAsciiMnuItm	(mFileImpMnu + 115)
 
+#define mExpColTabMnuItm	(mFileExpMnu + 5)
+
 #define mExpSeisSimple3DMnuItm	(mFileExpMnu + 15)
 #define mExpSeisSimple2DMnuItm	(mFileExpMnu + 16)
 #define mExpSeisSimplePS3DMnuItm (mFileExpMnu + 17)

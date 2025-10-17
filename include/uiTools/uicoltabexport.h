@@ -41,5 +41,5 @@ protected:
     void			writeODFile(const ColTab::Sequence&,
 					    od_ostream&);
     void			writeCSVFile(const ColTab::Sequence&,
-					     od_ostream&);
+					     od_ostream&,const char* sep=",");
 };
