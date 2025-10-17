@@ -196,7 +196,6 @@ void uiFreqTaperDlg::previewPushed( CallBacker* )
     delete posdlg_;
     posdlg_ = new uiSliceSelDlg( this, *tkzs_, *tkzs_, dummycb, tp, info );
     posdlg_->grp()->enableApplyButton( false );
-    posdlg_->grp()->enableScrollButton( false );
     posdlg_->setModal( true );
 
     if ( posdlg_ &&  posdlg_->go() )

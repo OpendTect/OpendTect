@@ -281,7 +281,6 @@ void uiODVolrenTreeItem::handleMenuCB( CallBacker* cb )
 			maxcs, dummycb, uiSliceSel::Vol,
 			scene->zDomainInfo() );
 	    dlg.grp()->enableApplyButton( false );
-	    dlg.grp()->enableScrollButton( false );
 	    if ( dlg.go() != uiDialog::Accepted )
 		return;
 

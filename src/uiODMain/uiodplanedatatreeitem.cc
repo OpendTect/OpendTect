@@ -29,6 +29,7 @@ ________________________________________________________________________
 #include "callback.h"
 #include "coltabsequence.h"
 #include "keyboardevent.h"
+#include "seispreload.h"
 #include "settings.h"
 #include "survinfo.h"
 #include "visplanedatadisplay.h"
@@ -126,6 +127,7 @@ uiODPlaneDataTreeItem::uiODPlaneDataTreeItem( const VisID& id,
     gridlinesmnuitem_.iconfnm = "gridlines";
     mAttachCB( uiMain::keyboardEventHandler().keyPressed,
 	       uiODPlaneDataTreeItem::keyUnReDoPressedCB );
+    mAttachCB( Seis::PLDM().changed, uiODPlaneDataTreeItem::pldmChangedCB );
 }
 
 
@@ -391,6 +393,20 @@ void uiODPlaneDataTreeItem::sliderReleasedCB( CallBacker* )
 }
 
 
+void uiODPlaneDataTreeItem::pldmChangedCB( CallBacker* )
+{
+    if ( !positiondlg_ )
+	return;
+
+    RefMan<visSurvey::PlaneDataDisplay> pdd = getDisplay();
+    if ( !pdd || pdd->getOrientation()!=OD::SliceType::Z )
+	return;
+
+    const bool canautoscroll = pdd->canDisplayInteractively();
+    positiondlg_->grp()->disableAutoScroll( !canautoscroll );
+}
+
+
 void uiODPlaneDataTreeItem::selChg( CallBacker* )
 {
     ConstRefMan<visSurvey::PlaneDataDisplay> pdd = getDisplay();
@@ -521,9 +537,18 @@ void uiODPlaneDataTreeItem::handleMenuCB( CallBacker* cb )
 	positiondlg_ = new uiSliceSelDlg( getUiParent(),
 				pdd->getTrcKeyZSampling(true,true), scenetkzs,
 				mCB(this,uiODPlaneDataTreeItem,updatePlanePos),
-				(uiSliceSel::Type)orient_,scene->zDomainInfo());
+				(uiSliceSel::Type)orient_, scene->zDomainInfo(),
+				true );
 	mAttachCB( positiondlg_->windowClosed,
 		   uiODPlaneDataTreeItem::posDlgClosed );
+	mAttachCB( positiondlg_->grp()->sliderMoved,
+		   uiODPlaneDataTreeItem::posDlgSliderMoved );
+	const bool disabautoslider = !pdd ||
+			       ( pdd->getOrientation()==OD::SliceType::Z &&
+				 !pdd->canDisplayInteractively() );
+	if ( disabautoslider )
+	    positiondlg_->grp()->disableAutoScroll(true);
+
 	positiondlg_->go();
 	mAttachCB( pdd->getMovementNotifier(),
 		   uiODPlaneDataTreeItem::updatePositionDlg );
@@ -599,13 +624,39 @@ void uiODPlaneDataTreeItem::posDlgClosed( CallBacker* )
 }
 
 
+void uiODPlaneDataTreeItem::posDlgSliderMoved( CallBacker* cb )
+{
+    mDynamicCastGet(uiSliceSel*,slicesel,cb)
+    if ( !slicesel )
+	return;
+
+    const bool isslideractive = slicesel->isSliderActive();
+    RefMan<visSurvey::PlaneDataDisplay> pdd = getDisplay();
+    if ( pdd && pdd->getOrientation()==OD::SliceType::Z )
+	pdd->setSlideActive( isslideractive );
+
+    const bool displayplane = !isslideractive || pdd->canDisplayInteractively();
+    NotifyStopper ns( *pdd->getMovementNotifier(), this );
+    if ( !isslideractive )
+	ns.enableNotification();
+
+    movePlaneAndCalcAttribs( slicesel->getTrcKeyZSampling(), displayplane );
+}
+
+
 void uiODPlaneDataTreeItem::updatePlanePos( CallBacker* cb )
 {
     mDynamicCastGet(uiSliceSel*,slicesel,cb)
     if ( !slicesel )
 	return;
 
+    RefMan<visSurvey::PlaneDataDisplay> pdd = getDisplay();
+    if ( !pdd )
+	return;
+
     movePlaneAndCalcAttribs( slicesel->getTrcKeyZSampling() );
+    if ( pdd->getOrientation()!=OD::SliceType::Z )
+	pdd->setSlideActive( false );
 }
 
 

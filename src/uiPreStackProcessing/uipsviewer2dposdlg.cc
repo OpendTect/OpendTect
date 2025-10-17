@@ -49,7 +49,6 @@ uiViewer2DPosDlg::uiViewer2DPosDlg( uiParent* p, const TrcKeyZSampling& tkzs,
     const uiSliceSel::Type tp = uiSliceSel::getType( tkzs );
     sliceselfld_ = new uiGatherPosSliceSel( this, tp,
 					    tkzs.hsamp_.getGeomID(), gathernms);
-    sliceselfld_->enableScrollButton( false );
     if ( sliceselfld_->is2DSlice() )
 	sliceselfld_->setMaxTrcKeyZSampling( tkzs );
 

@@ -715,7 +715,8 @@ void PlaneDataDisplay::setTrcKeyZSampling( const TrcKeyZSampling& wantedcs )
     texturerect_->swapTextureAxes();
 
     setDraggerPos( cs );
-    if ( gridlines_ ) gridlines_->setPlaneTrcKeyZSampling( cs );
+    if ( gridlines_ )
+	gridlines_->setPlaneTrcKeyZSampling( cs );
 
     curicstep_ = cs.hsamp_.step_;
 

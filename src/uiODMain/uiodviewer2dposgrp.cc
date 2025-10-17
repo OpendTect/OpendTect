@@ -271,7 +271,6 @@ void uiODViewer2DPosGrp::createSliceSel( uiSliceSel::Type dir )
 					tkzs.hsamp_.getGeomID() );
     sliceselfld->setMaxTrcKeyZSampling( tkzs );
     sliceselfld->attach( alignedBelow, inp3dfld_ );
-    sliceselfld->enableScrollButton( false );
 
     TrcKeyZSampling seltkzs( tkzs.hsamp_.getGeomID() );
     getSelAttrSamp( seltkzs );

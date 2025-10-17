@@ -61,8 +61,10 @@ protected:
     void		keyPressCB(CallBacker*) override;
     void		movePlane(bool forward,int step=1);
 
+    void		pldmChangedCB(CallBacker*);
     void		selChg(CallBacker*);
     void		posChange(CallBacker*);
+    void		posDlgSliderMoved(CallBacker*);
     void		sliderReleasedCB(CallBacker*);
     void		movePlaneAndCalcAttribs(const TrcKeyZSampling&,
 						bool dispplane=true);

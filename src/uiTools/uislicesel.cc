@@ -10,8 +10,13 @@ ________________________________________________________________________
 #include "uislicesel.h"
 
 #include "uibutton.h"
+#include "uibuttongroup.h"
 #include "uicombobox.h"
 #include "uigeninput.h"
+#include "uilabel.h"
+#include "uimsg.h"
+#include "uiseparator.h"
+#include "uislider.h"
 #include "uispinbox.h"
 #include "uitoolbutton.h"
 
@@ -24,254 +29,154 @@ ________________________________________________________________________
 #include "od_helpids.h"
 #include "zdomain.h"
 
-
-// uiSliceScroll
-
-class uiSliceScroll : public uiDialog
-{ mODTextTranslationClass(uiSliceScroll);
+class uiSliderSettings : public uiDialog
+{ mODTextTranslationClass(uiSliderSettings)
 public:
-
-uiSliceScroll( uiSliceSel* ss )
-    : uiDialog(ss,Setup(tr("Scrolling"),mToUiStringTodo(getTitle(ss)),
-			mODHelpKey(mSliceScrollHelpID) ).modal(false))
-    , slcsel_(ss)
-    , zfact_(ss->zdominfo_.userFactor())
+uiSliderSettings( uiParent* p, int step, float dt,
+		  uiSliceSel::AutoScrollType astype )
+    : uiDialog( p, uiDialog::Setup(tr("Slider settings"),mNoHelpKey) )
+    , timebwupdates_( dt )
+    , astype_( astype )
 {
-    setCtrlStyle( CloseOnly );
-    timer = new Timer( "uiSliceScroll timer" );
-    mAttachCB( timer->tick, uiSliceScroll::timerTick );
-
-    const TrcKeyZSampling cs = SI().sampling( false );
-    const TrcKeySampling& hs = cs.hsamp_;
-    int step = hs.step_.inl();
-    int maxstep = hs.start_.inl() - hs.stop_.inl();
-    if	( ss->isCrl() )
-    {
-	step = hs.step_.crl();
-	maxstep = hs.start_.crl() - hs.stop_.crl();
-    }
-    else if ( ss->isZSlice() )
-    {
-	step = mNINT32(cs.zsamp_.step_*zfact_);
-	float zrg = (cs.zsamp_.stop_ - cs.zsamp_.start_) * zfact_;
-	maxstep = mNINT32(zrg);
-    }
-
-    if ( maxstep < 0 )
-	maxstep = -maxstep;
-
-    stepfld_ = new uiLabeledSpinBox( this, tr("Scroll step") );
-    stepfld_->box()->setMinValue( !ss->dogeomcheck_ ? -1 : -maxstep );
-    stepfld_->box()->setMaxValue( !ss->dogeomcheck_ ? 1 : maxstep );
-    stepfld_->box()->setStep( !ss->dogeomcheck_ ? 1 : step );
-    stepfld_->box()->setValue( !ss->dogeomcheck_ ? 1 : step );
-
-    typfld_ = new uiLabeledComboBox( this, tr("Control") );
-    typfld_->box()->addItem( uiStrings::sManual() );
-    typfld_->box()->addItem( tr("Auto") );
-    mAttachCB( typfld_->box()->selectionChanged, uiSliceScroll::typSel );
-    typfld_->attach( alignedBelow, stepfld_ );
-    ctrlbut = new uiPushButton( this, uiSliceSel::sButTxtAdvance(),
-				mCB(this,uiSliceScroll,butPush), true );
-    ctrlbut->attach( alignedBelow, typfld_ );
-    backbut = new uiPushButton( this, tr("<< Step Back"),
-				mCB(this,uiSliceScroll,butPush), true );
-    backbut->attach( leftOf, ctrlbut );
+    auto* lblspb = new uiLabeledSpinBox( this, uiStrings::sStep(), 0 );
+    stepfld_ = lblspb->box();
+    stepfld_->setValue( step );
+    if ( mIsUdf(step_) )
+	stepfld_->setMinValue( step );
 
     dtfld_ = new uiGenInput( this, tr("Time between updates (s)"),
-			     FloatInpSpec(2));
-    dtfld_->attach( alignedBelow, ctrlbut );
+			     FloatInpSpec(2) );
+    dtfld_->setValue( timebwupdates_ );
+    dtfld_->attach( alignedBelow, lblspb->attachObj() );
 
-    mAttachCB( postFinalize(), uiSliceScroll::typSel );
+    uiStringSet cbstrs;
+    cbstrs.add( tr("Stop") ).add( tr("Continue reversed") )
+			    .add( tr("Wrap around") );
+    auto* lblcb = new uiLabeledComboBox( this, cbstrs,
+					 tr("Upon hitting a boundary") );
+    lblcb->attach( alignedBelow, dtfld_ );
+    boundaryfld_ = lblcb->box();
+    boundaryfld_->setCurrentItem( (int)astype_ );
 }
 
 
-~uiSliceScroll()
+~uiSliderSettings()
+{}
+
+
+int getStep() const
 {
-    detachAllNotifiers();
-    delete timer;
+    return step_;
 }
 
 
-void typSel( CallBacker* )
+float getDT() const
 {
-    const bool autoreq = typfld_->box()->currentItem() == 1;
-    dtfld_->display( autoreq );
-    if ( inauto_ != autoreq )
+    return timebwupdates_;
+}
+
+
+uiSliceSel::AutoScrollType getBoundaryBehaviour() const
+{
+    return astype_;
+}
+
+
+void disableAutoScrollSettings()
+{
+    dtfld_->setSensitive( false );
+}
+
+
+private:
+
+bool acceptOK( CallBacker* )
+{
+    step_ = stepfld_->getIntValue();
+    if ( mIsUdf(step_) || step_<=0 )
     {
-	if ( autoreq )
-	    startAuto();
-	else
-	    stopAuto( false );
+	uiMSG().error( tr("Please ensure that the specified \"Step\" "
+			  "value is positive") );
+	return false;
     }
 
-    ctrlbut->setText( autoreq ? uiSliceSel::sButTxtPause() :
-				uiSliceSel::sButTxtAdvance() );
-    backbut->display( !autoreq );
-    inauto_ = autoreq;
-}
-
-
-void butPush( CallBacker* cb )
-{
-    if ( inauto_ )
-    {
-	paused_ = ctrlbut->text().getString()[0] == 'P';
-	ctrlbut->setText( paused_ ? uiStrings::sGo() :
-						  uiSliceSel::sButTxtPause() );
-    }
-    else
-	doAdvance( cb != ctrlbut );
-}
-
-
-void startAuto()
-{
-    paused_ = false;
-    doAdvance( false );
-    ctrlbut->setText( uiSliceSel::sButTxtPause() );
-    setTimer();
-}
-
-
-void stopAuto( bool setmanual )
-{
-    timer->stop();
-    inauto_ = false;
-    if ( setmanual )
-    {
-	typfld_->box()->setCurrentItem( 0 );
-	ctrlbut->setText( uiSliceSel::sButTxtAdvance() );
-	backbut->display( true );
-    }
-}
-
-
-void doAdvance( bool reversed )
-{
-    if ( !timer )
-	return;
-
-    const int step = (reversed ? -1 : 1) * stepfld_->box()->getIntValue();
-    slcsel_->readInput();
-    if ( slcsel_->isInl() )
-    {
-	int newval = slcsel_->tkzs_.hsamp_.start_.inl() + step;
-	if (slcsel_->dogeomcheck_ && !SI().sampling(true).hsamp_.inlOK(newval))
-	    stopAuto( true );
-	else
-	    slcsel_->inl0fld_->box()->setValue( newval );
-    }
-    else if ( slcsel_->isCrl() )
-    {
-	int newval = slcsel_->tkzs_.hsamp_.start_.crl() + step;
-	if (slcsel_->dogeomcheck_ && !SI().sampling(true).hsamp_.crlOK(newval))
-	    stopAuto( true );
-	else
-	    slcsel_->crl0fld_->box()->setValue( newval );
-    }
-    else if ( slcsel_->isZSlice() )
-    {
-	float newval = slcsel_->tkzs_.zsamp_.start_ + step / zfact_;
-	if ( slcsel_->dogeomcheck_ &&
-	     !SI().sampling(true).zsamp_.includes(newval,false) )
-	    stopAuto( true );
-	else
-	{
-	    if ( zfact_ < 10 )
-		slcsel_->z0fld_->box()->setValue( newval );
-	    else
-	    {
-		newval *= zfact_;
-		slcsel_->z0fld_->box()->setValue( mNINT32(newval) );
-	    }
-	}
-    }
-    else
-	return;
-
-    slcsel_->applyPush(0);
-}
-
-
-void timerTick( CallBacker* )
-{
-    if ( !inauto_ )
-	return;
-
-    if ( !paused_ )
-	doAdvance( false );
-
-    setTimer();
-}
-
-
-void setTimer()
-{
-    if ( !timer ) return;
-
-    float val = dtfld_->getFValue();
-    if ( mIsUdf(val) || val < 0.2 )
-	val = 200;
-    else
-	val *= 1000;
-    timer->start( mNINT32(val), true );
-}
-
-
-bool rejectOK( CallBacker* ) override
-{
-    paused_ = true;
-    inauto_ = false;
+    timebwupdates_ = dtfld_->getFValue();
+    const int astypsel = boundaryfld_->currentItem();
+    astype_ = sCast( uiSliceSel::AutoScrollType, astypsel );
     return true;
 }
 
+    uiSpinBox*	    stepfld_;
+    uiGenInput*     dtfld_;
+    uiComboBox*     boundaryfld_;
 
-uiString getTitle( uiSliceSel* ss ) const
-{
-    uiString title = tr("Control scrolling through %1");
-    if ( ss->isZSlice() )
-    {
-	uiString slicetxt = tr( "%1 slices" )
-	    .arg( SI().zIsTime() ? uiStrings::sTime() : uiStrings::sDepth() );
-	title.arg( slicetxt );
-    }
-    else
-    {
-	title.arg( ss->isInl() ? uiStrings::sInline(mPlural)
-			       : uiStrings::sCrossline(mPlural) );
-    }
-
-    return title;
-}
-
-    uiSliceSel*		slcsel_;
-    uiLabeledSpinBox*	stepfld_;
-    uiLabeledComboBox*	typfld_;
-    uiPushButton*	ctrlbut;
-    uiPushButton*	backbut;
-    uiGenInput*		dtfld_;
-    const float		zfact_;
-
-    bool		paused_ = false;
-    bool		inauto_ = false;
-    Timer*		timer;
+    int		    step_		    = mUdf(int);
+    float	    timebwupdates_	    = 2.f;
+    uiSliceSel::AutoScrollType astype_	    = uiSliceSel::AutoScrollType::Stop;
 
 };
 
 
 // uiSliceSel
-
 uiSliceSel::uiSliceSel( uiParent* p, Type type, const ZDomain::Info& zi,
-			const Pos::GeomID& gid, const ZDomain::Info* dispzi )
+			const Pos::GeomID& gid, bool withscroll,
+			const ZDomain::Info* dispzi )
     : uiGroup(p,"Slice Selection")
     , type_(type)
     , dogeomcheck_(gid.is3D())
     , zdominfo_(zi)
     , dispzdominfo_(dispzi?*dispzi:(zi.isDepth()?ZDomain::DefaultDepth():zi))
+    , sliderMoved(this)
 {
     tkzs_.init( gid );
     maxcs_.init( gid );
+
+    if ( (isInl() || isCrl() || isZSlice()) && withscroll )
+    {
+	timer_ = new Timer( "uiSliceSel timer" );
+	mAttachCB( timer_->tick, uiSliceSel::timerTickCB );
+	scrollgrp_ = new uiGroup( this, "Scroll group" );
+
+	auto* mvgrp = new uiGroup( scrollgrp_, "Movement group" );
+	uiString prevttip = tr( "Previous position \n\nShortcut: \"z\"" );
+	uiString nextttip = tr( "Next position \n\nShortcut: \"x\"" );
+	auto* prevbut = new uiToolButton( mvgrp, "prevpos", prevttip,
+				     mCB(this,uiSliceSel,prevCB) );
+	slider_ = new uiSlider( mvgrp, uiSlider::Setup(), "Slice slider" );
+	slider_->attach( rightOf, prevbut );
+	mAttachCB( slider_->sliderMoved, uiSliceSel::sliderMovedCB );
+	mAttachCB( slider_->sliderReleased, uiSliceSel::sliderReleasedCB );
+	auto* nextbut = new uiToolButton( mvgrp, "nextpos", nextttip,
+				     mCB(this,uiSliceSel,nextCB) );
+	nextbut->attach( rightOf, slider_ );
+	auto* settingsbut_ = new uiToolButton( mvgrp, "settings",
+				     tr("Movement settings"),
+				     mCB(this,uiSliceSel,settingsCB) );
+	settingsbut_->attach( rightOf, nextbut );
+
+	auto* playgrp = new uiButtonGroup( scrollgrp_,
+					   "Auto-play group", OD::Horizontal );
+	playgrp->attach( centeredBelow, mvgrp );
+	uiToolButtonSetup revsu( "reverse", tr("Auto-scroll backwards"),
+				 mCB(this,uiSliceSel,playRevCB) );
+	revsu.istoggle( true );
+	playrevbut_ = new uiToolButton( playgrp, revsu );
+	uiToolButtonSetup psu( "resume", tr("Start auto-scroll"),
+			       mCB(this,uiSliceSel,playPauseCB) );
+	playpausebut_ = new uiToolButton( playgrp, psu );
+	uiToolButtonSetup fsu( "forward", tr("Auto-scroll forwards"),
+			       mCB(this,uiSliceSel,playForwardCB) );
+	fsu.istoggle( true );
+	playforwardbut_ = new uiToolButton( playgrp, fsu );
+
+	auto* sep = new uiSeparator( scrollgrp_ );
+	sep->attach( stretchedBelow, playgrp );
+    }
+
+    posgrp_ = new uiGroup( this, "Position group" );
+    if ( scrollgrp_ )
+	posgrp_->attach( centeredBelow, scrollgrp_ );
+
     if ( is3DSlice() )
 	createInlFld();
 
@@ -285,21 +190,16 @@ uiSliceSel::uiSliceSel( uiParent* p, Type type, const ZDomain::Info& zi,
 
     if ( is3DSlice() )
     {
-	applybut_ = uiButton::getStd( this, OD::Apply,
+	applybut_ = uiButton::getStd( posgrp_, OD::Apply,
 				    mCB(this,uiSliceSel,applyPush), true );
 	mainObject()->setTabOrder( (uiObject*)z0fld_, (uiObject*)applybut_ );
 	applybut_->attach( alignedBelow, z0fld_ );
 	applybut_->display( false );
-
-	scrollbut_ = new uiPushButton( this, tr("Scroll"),
-				mCB(this,uiSliceSel,scrollPush), false );
-	scrollbut_->attach( rightOf, isInl() ? inl0fld_
-					    : (isCrl() ? crl0fld_ : z0fld_));
     }
 
     if ( isVol() )
     {
-	auto* fullbut = new uiToolButton( this, "exttofullsurv",
+	auto* fullbut = new uiToolButton( posgrp_, "exttofullsurv",
 					tr("Set ranges to full survey"),
 					mCB(this,uiSliceSel,fullPush) );
 	fullbut->attach( rightTo, inl1fld_ );
@@ -314,7 +214,6 @@ uiSliceSel::~uiSliceSel()
 {
     detachAllNotifiers();
     delete applycb_;
-    delete scrolldlg_;
 }
 
 
@@ -351,6 +250,12 @@ bool uiSliceSel::is2DSlice( Type typ )
 bool uiSliceSel::is3DSlice( Type typ )
 {
     return typ == Inl || typ == Crl || typ == Tsl || typ == Vol;
+}
+
+
+bool uiSliceSel::isSliderActive() const
+{
+    return slideractive_;
 }
 
 
@@ -391,14 +296,249 @@ void uiSliceSel::setApplyCB( const CallBack& acb )
 }
 
 
+void uiSliceSel::prevCB( CallBacker* cb )
+{
+    doPrevious( slider_->step() );
+}
+
+
+void uiSliceSel::doPrevious( int step )
+{
+    doMove( -step );
+}
+
+
+void uiSliceSel::nextCB( CallBacker* cb )
+{
+    doNext( slider_->step() );
+}
+
+
+void uiSliceSel::doNext( int step )
+{
+    doMove( step );
+}
+
+
+void uiSliceSel::doMove( int step )
+{
+    StepInterval<float> sliderintv;
+    slider_->getInterval( sliderintv );
+    const float currval = slider_->getFValue();
+    float nextval = currval + step;
+    if ( !sliderintv.includes(nextval,true) && asprops_.autoon_ )
+    {
+	if ( asprops_.astype_ == AutoScrollType::Stop )
+	{
+	    asprops_.autoon_ = false;
+	    playpausebut_->setIcon( "resume" );
+	    stopAuto();
+	}
+	else if ( asprops_.astype_ == AutoScrollType::ContRev )
+	{
+	    playPauseCB( nullptr );
+	    asprops_.isforward_ = !asprops_.isforward_;
+	    playPauseCB( nullptr );
+	}
+	else
+	    nextval = asprops_.isforward_ ? sliderintv.start_
+					  : sliderintv.stop_;
+    }
+
+    slider_->setValue( nextval );
+    sliderReleasedCB( nullptr );
+}
+
+
+void uiSliceSel::sliderMovedCB( CallBacker* cb )
+{
+    slideractive_ = true;
+    sliderValChanged();
+    sliderMoved.trigger();
+}
+
+
+void uiSliceSel::sliderReleasedCB( CallBacker* cb )
+{
+    slideractive_ = false;
+    sliderValChanged();
+    applyPush( nullptr );
+}
+
+
+void uiSliceSel::sliderValChanged()
+{
+    if ( isInl() )
+    {
+	const int inlnr = slider_->getIntValue();
+	inl0fld_->box()->setValue( inlnr );
+	tkzs_.hsamp_.start_.inl() = tkzs_.hsamp_.stop_.inl() = inlnr;
+    }
+    else if ( isCrl() )
+    {
+	const int crlnr = slider_->getIntValue();
+	crl0fld_->box()->setValue( crlnr );
+	tkzs_.hsamp_.start_.crl() = tkzs_.hsamp_.stop_.crl() = crlnr;
+    }
+    else if ( isZSlice() )
+    {
+	const float zval = slider_->getFValue();
+	z0fld_->box()->setValue( zval );
+	const float zfac = userFactor();
+	tkzs_.zsamp_.start_ = tkzs_.zsamp_.stop_ = zval / zfac;
+    }
+}
+
+
+void uiSliceSel::settingsCB( CallBacker* cb )
+{
+    uiSliderSettings dlg( this, asprops_.step_,
+			  asprops_.dt_, asprops_.astype_ );
+    if ( !asprops_.enabled_ )
+	dlg.disableAutoScrollSettings();
+
+    if ( dlg.go() == uiDialog::Accepted )
+    {
+	asprops_.step_ = dlg.getStep();
+	asprops_.dt_ = dlg.getDT();
+	asprops_.astype_ = dlg.getBoundaryBehaviour();
+    }
+}
+
+
+void uiSliceSel::playRevCB( CallBacker* cb )
+{
+    const bool ison = playrevbut_->isOn();
+    if ( ison )
+    {
+	if ( playforwardbut_->isOn() )
+	{
+	    NotifyStopper revns( playforwardbut_->activated );
+	    playforwardbut_->setOn( false );
+	}
+
+	asprops_.isforward_ = false;
+	asprops_.autoon_ = true;
+	playpausebut_->setIcon( "pause" );
+	doAuto();
+    }
+    else
+    {
+	asprops_.autoon_ = false;
+	playpausebut_->setIcon( "resume" );
+	stopAuto();
+    }
+}
+
+
+void uiSliceSel::playPauseCB( CallBacker* cb )
+{
+    if ( asprops_.autoon_ )
+    {
+	asprops_.autoon_ = false;
+	playpausebut_->setIcon( "resume" );
+	stopAuto();
+    }
+    else
+    {
+	asprops_.autoon_ = true;
+	playpausebut_->setIcon( "pause" );
+	if ( asprops_.isforward_ )
+	{
+	    playforwardbut_->setOn( true );
+	    playForwardCB( nullptr );
+	}
+	else
+	{
+	    playrevbut_->setOn( true );
+	    playRevCB( nullptr );
+	}
+    }
+}
+
+
+void uiSliceSel::playForwardCB( CallBacker* cb )
+{
+    const bool ison = playforwardbut_->isOn();
+    if ( ison )
+    {
+	if ( playrevbut_->isOn()  )
+	{
+	    NotifyStopper revns( playrevbut_->activated );
+	    playrevbut_->setOn( false );
+	}
+
+	asprops_.isforward_ = true;
+	asprops_.autoon_ = true;
+	playpausebut_->setIcon( "pause" );
+	doAuto();
+    }
+    else
+    {
+	asprops_.autoon_ = false;
+	playpausebut_->setIcon( "resume" );
+	stopAuto();
+    }
+
+}
+
+
+void uiSliceSel::doAuto()
+{
+    asprops_.isforward_ ? doNext( asprops_.step_ )
+			: doPrevious( asprops_.step_ );
+    setTimer();
+}
+
+
+void uiSliceSel::stopAuto()
+{
+    timer_->stop();
+    asprops_.autoon_ = false;
+}
+
+
+void uiSliceSel::disableAutoScroll( bool yn )
+{
+    playrevbut_->setSensitive( !yn );
+    playpausebut_->setSensitive( !yn );
+    playforwardbut_->setSensitive( !yn );
+    asprops_.enabled_ = !yn;
+}
+
+
+void uiSliceSel::timerTickCB( CallBacker* cb )
+{
+    if ( !asprops_.autoon_ )
+	return;
+
+    doAuto();
+}
+
+
+void uiSliceSel::setTimer()
+{
+    if ( !timer_ )
+	return;
+
+    float val = asprops_.dt_;
+    if ( mIsUdf(val) || val < 0.2 )
+	val = 200;
+    else
+	val *= 1000;
+
+    timer_->start( mNINT32(val), true );
+}
+
+
 void uiSliceSel::createInlFld()
 {
     const bool isinl = isInl();
     const uiString label = isinl ? uiStrings::sInline()
 				 : uiStrings::sInlineRange();
-    inl0fld_ = new uiLabeledSpinBox( this, label, 0,
+    inl0fld_ = new uiLabeledSpinBox( posgrp_, label, 0,
 			BufferString(isinl ? "Inl nr" : "Inl Start") );
-    inl1fld_ = new uiSpinBox( this, 0, "Inl Stop" );
+    inl1fld_ = new uiSpinBox( posgrp_, 0, "Inl Stop" );
     inl1fld_->attach( rightTo, inl0fld_ );
     inl1fld_->display( !isinl );
 }
@@ -410,9 +550,9 @@ void uiSliceSel::createCrlFld()
     const uiString label = is2DSlice() ? uiStrings::sTraceRange()
 			   : (iscrl ? uiStrings::sCrossline()
 				    : uiStrings::sCrosslineRange());
-    crl0fld_ = new uiLabeledSpinBox( this, label, 0,
+    crl0fld_ = new uiLabeledSpinBox( posgrp_, label, 0,
 			 BufferString( iscrl ? "Crl nr" : "Crl Start ") );
-    crl1fld_ = new uiSpinBox( this, 0, "Crl Stop" );
+    crl1fld_ = new uiSpinBox( posgrp_, 0, "Crl Stop" );
     crl1fld_->attach( rightTo, crl0fld_ );
     crl1fld_->display( !iscrl );
     if ( inl0fld_ )
@@ -426,8 +566,9 @@ void uiSliceSel::createZFld()
     uiString label = tr("%1 %2")
 		.arg(iszslice ? uiStrings::sZ() : uiStrings::sZRange())
 		.arg(zDomain(true).uiUnitStr(true));
-    z0fld_ = new uiLabeledSpinBox( this, label, 0, iszslice ? "Z" : "Z Start" );
-    z1fld_ = new uiSpinBox( this, 0, "Z Stop" );
+    z0fld_ = new uiLabeledSpinBox( posgrp_, label, 0,
+				   iszslice ? "Z" : "Z Start" );
+    z1fld_ = new uiSpinBox( posgrp_, 0, "Z Stop" );
     z1fld_->attach( rightTo, z0fld_ );
     z1fld_->display( !iszslice );
     z0fld_->attach( alignedBelow, crl0fld_ );
@@ -440,14 +581,6 @@ void uiSliceSel::setBoxValues( uiSpinBox* box, const StepInterval<int>& intv,
     box->setInterval( intv.start_, intv.stop_ );
     box->setStep( intv.step_, true );
     box->setValue( curval );
-}
-
-
-void uiSliceSel::scrollPush( CallBacker* )
-{
-    if ( !scrolldlg_ )
-	scrolldlg_ = new uiSliceScroll( this );
-    scrolldlg_->show();
 }
 
 
@@ -527,6 +660,13 @@ void uiSliceSel::updateUI()
 				    maxcs_.hsamp_.step_.inl() );
 	setBoxValues( inl0fld_->box(), maxinlrg, inlrg.start_ );
 	setBoxValues( inl1fld_, maxinlrg, inlrg.stop_ );
+	if ( scrollgrp_ && isInl() )
+	{
+	    slider_->setInterval( maxinlrg );
+	    slider_->setValue( inlrg.start_ );
+	    if ( mIsUdf(asprops_.step_) )
+		asprops_.step_ = maxinlrg.step_;
+	}
     }
 
     Interval<int> crlrg( tkzs_.hsamp_.start_.crl(), tkzs_.hsamp_.stop_.crl() );
@@ -535,6 +675,13 @@ void uiSliceSel::updateUI()
 				maxcs_.hsamp_.step_.crl() );
     setBoxValues( crl0fld_->box(), maxcrlrg, crlrg.start_ );
     setBoxValues( crl1fld_, maxcrlrg, crlrg.stop_ );
+    if ( scrollgrp_ && isCrl() )
+    {
+	slider_->setInterval( maxcrlrg );
+	slider_->setValue( crlrg.stop_ );
+	if ( mIsUdf(asprops_.step_) )
+	    asprops_.step_ = maxcrlrg.step_;
+    }
 
     const float zfac = userFactor();
     const int nrdec = nrDec();
@@ -561,6 +708,13 @@ void uiSliceSel::updateUI()
 
 	z1fld_->setInterval( maxzrg );
 	z1fld_->setValue( tkzs_.zsamp_.stop_*zfac );
+	if ( scrollgrp_ && isZSlice() )
+	{
+	    slider_->setInterval( maxzrg );
+	    slider_->setValue( tkzs_.zsamp_.start_*zfac );
+	    if ( mIsUdf(asprops_.step_) )
+		asprops_.step_ = maxzrg.step_;
+	}
     }
 
     z0fld_->box()->setNrDecimals( nrdec );
@@ -605,15 +759,6 @@ void uiSliceSel::enableApplyButton( bool yn )
 	return;
 
     applybut_->display( yn );
-}
-
-
-void uiSliceSel::enableScrollButton( bool yn )
-{
-    if ( !scrollbut_ )
-	return;
-
-    scrollbut_->display( yn );
 }
 
 
@@ -700,24 +845,35 @@ int uiSliceSel::nrDec()
     return FlatView::Viewer::nrDec( dispzdominfo_ );
 }
 
+uiString dlgTitle( uiSliceSel::Type type )
+{
+    uiString ret = ::toUiString( "Positioning" );
+    if ( type == uiSliceSel::Inl )
+	ret.append( ": ").append( uiStrings::sInline() );
+    else if ( type == uiSliceSel::Crl )
+	ret.append( ": ").append( uiStrings::sCrossline() );
+    else if ( type == uiSliceSel::Tsl )
+	ret.append( ": ").append( uiStrings::sZSlice() );
+
+    return ret;
+}
 
 //uiSliceSelDlg
 
 uiSliceSelDlg::uiSliceSelDlg( uiParent* p, const TrcKeyZSampling& curcs,
 			const TrcKeyZSampling& maxcs,
 			const CallBack& acb, uiSliceSel::Type type,
-			const ZDomain::Info& zdominfo )
-    : uiDialog(p,Setup(tr("Positioning"),tr("Specify the element's position"),
+			const ZDomain::Info& zdominfo, bool withscroll )
+    : uiDialog(p,Setup( dlgTitle(type), tr("Specify the element's position"),
 		       mODHelpKey(mSliceSelHelpID))
 		    .modal(type==uiSliceSel::Vol || type==uiSliceSel::TwoD ||
 			   type==uiSliceSel::Synth))
 {
     slicesel_ = new uiSliceSel( this, type, zdominfo,
-				curcs.hsamp_.getGeomID() );
+				curcs.hsamp_.getGeomID(), withscroll );
     slicesel_->setMaxTrcKeyZSampling( maxcs );
     slicesel_->setTrcKeyZSampling( curcs );
     slicesel_->setApplyCB( acb );
-    slicesel_->enableScrollButton( true );
 }
 
 
@@ -727,7 +883,15 @@ uiSliceSelDlg::~uiSliceSelDlg()
 
 bool uiSliceSelDlg::acceptOK( CallBacker* )
 {
+    slicesel_->stopAuto();
     return slicesel_->acceptOK();
+}
+
+
+bool uiSliceSelDlg::rejectOK( CallBacker* )
+{
+    slicesel_->stopAuto();
+    return uiDialog::rejectOK( nullptr );
 }
 
 
@@ -792,7 +956,6 @@ bool uiLinePosSelDlg::selectPos2D()
     const uiSliceSel::Type tp = uiSliceSel::TwoD;
     posdlg_ = new uiSliceSelDlg( this, inputcs, tkzs_, CallBack(), tp, info );
     posdlg_->grp()->enableApplyButton( false );
-    posdlg_->grp()->enableScrollButton( false );
     posdlg_->setModal( true );
     if ( !prevpar_.isEmpty() )
 	posdlg_->grp()->usePar( prevpar_ );
@@ -825,7 +988,6 @@ bool uiLinePosSelDlg::selectPos3D()
     const uiSliceSel::Type tp = isinl ? uiSliceSel::Inl : uiSliceSel::Crl;
     posdlg_ = new uiSliceSelDlg( this, inputcs, tkzs_, dummycb, tp, info );
     posdlg_->grp()->enableApplyButton( false );
-    posdlg_->grp()->enableScrollButton( false );
     posdlg_->setModal( true );
     if ( !prevpar_.isEmpty() )
 	posdlg_->grp()->usePar( prevpar_ );

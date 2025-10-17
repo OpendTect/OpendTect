@@ -736,7 +736,6 @@ void uiGDPositionDlg::popUpPosDlg()
 			       : (isinl ? uiSliceSel::Inl : uiSliceSel::Crl);
     posdlg_ = new uiSliceSelDlg( this, inputcs, tkzs_, dummycb, tp, info );
     posdlg_->grp()->enableApplyButton( false );
-    posdlg_->grp()->enableScrollButton( false );
     posdlg_->setModal( true );
     if ( !prevpar_.isEmpty() )
 	posdlg_->grp()->usePar( prevpar_ );
