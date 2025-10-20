@@ -50,5 +50,6 @@ private :
 
     void			getFromSettingsPar(const IOPar&);
     void			getFromAlutFiles(const BufferStringSet&);
-    void			getFromCSVFiles(const BufferStringSet&);
+    void			getFromCSVFiles(const BufferStringSet&,
+						const char* sep=",");
 };

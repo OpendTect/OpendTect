@@ -121,6 +121,13 @@ void uiColTabExport::writeODFile( const ColTab::Sequence& seq,
 void uiColTabExport::writeAlutFile( const ColTab::Sequence& seq,
 				    od_ostream& strm )
 {
+    if ( strm.isBad() )
+    {
+	uiMSG().error( tr("Error writing Color Table to Petrel (Alut): %1")
+			  .arg(strm.errMsg()) );
+	return;
+    }
+
     for ( int idx=0; idx<256; idx++ )
     {
 	const float pos = float(idx) / 255.f;
@@ -128,23 +135,32 @@ void uiColTabExport::writeAlutFile( const ColTab::Sequence& seq,
 	strm << int(col.r()) << ","
 	     << int(col.g()) << ","
 	     << int(col.b()) << ","
-	     << 255-col.t() << "\n";
+	     << 255-col.t() << od_newline;
     }
 }
 
 
 void uiColTabExport::writeCSVFile( const ColTab::Sequence& seq,
-				   od_ostream& strm )
+				   od_ostream& strm, const char* sep )
 {
+    if ( strm.isBad() )
+    {
+	uiMSG().error( tr("Error writing Color Table to CSV: %1")
+			    .arg(strm.errMsg()) );
+	return;
+    }
+
+    strm << "Position, Red, Green, Blue, Transparency" << od_newline;
+    strm << "## " << seq.name() << od_newline;
     for ( int idx=0; idx<seq.size(); idx++ )
     {
 	const float pos = seq.position( idx );
 	const float transparency = seq.transparencyAt( pos );
-	strm << pos << ","
-	     << int(seq.r(idx)) << ","
-	     << int(seq.g(idx)) << ","
-	     << int(seq.b(idx)) << ","
-	     << transparency << "\n";
+	strm << pos << sep
+	     << int(seq.r(idx)) << sep
+	     << int(seq.g(idx)) << sep
+	     << int(seq.b(idx)) << sep
+	     << transparency << od_newline;
     }
 }
 

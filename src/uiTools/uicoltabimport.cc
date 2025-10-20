@@ -37,7 +37,7 @@ void EnumDefImpl<uiColTabImport::ImportType>::init()
     uistrings_ += uiStrings::sOtherUser();
     uistrings_ += uiStrings::sODTColTab();
     uistrings_ += uiStrings::sPetrelAlut();
-    uistrings_ += ::toUiString("CSV");
+    uistrings_ += ::toUiString("ASCII CSV");
 }
 
 static BufferString sHomePath;
@@ -119,7 +119,7 @@ void uiColTabImport::choiceSel( CallBacker* )
 	    break;
 	case CSV:
 	    dirfld_->setSelectMode( uiFileDialog::ExistingFiles );
-	    dirfld_->setTitleText( ::toUiString("CSV file(s)") );
+	    dirfld_->setTitleText( ::toUiString("ASCII (CSV)") );
 	    dirfld_->setFileName( sFilePath );
 	    dirfld_->enableExamine( true );
 	    dtectusrfld_->display( false );
@@ -357,7 +357,8 @@ void uiColTabImport::getFromAlutFiles( const BufferStringSet& filenms )
 }
 
 
-void uiColTabImport::getFromCSVFiles( const BufferStringSet& filenms )
+void uiColTabImport::getFromCSVFiles( const BufferStringSet& filenms,
+				      const char* sep )
 {
     deepErase( seqs_ );
     uiStringSet skippedfiles;
@@ -371,7 +372,7 @@ void uiColTabImport::getFromCSVFiles( const BufferStringSet& filenms )
 	if ( !strm.isOK() )
 	    continue;
 
-	auto* seq = new ColTab::Sequence;
+	PtrMan<ColTab::Sequence> seq = new ColTab::Sequence;
 	seq->setName( fp.baseName() );
 	TypeSet<float> pos;
 	TypeSet<int> r, g, b, t;
@@ -383,12 +384,20 @@ void uiColTabImport::getFromCSVFiles( const BufferStringSet& filenms )
 	    if ( line.isEmpty() || strm.isBad() )
 		break;
 
-	    const SeparString ss( line );
+	    if ( line.isEqual("Position, Red, Green, Blue, Transparency") )
+	    {
+		strm.getLine( line );
+		line.remove( "## " ).remove( "#" );
+		seq->setName( line.buf() );
+		continue;
+	    }
+
+	    const SeparString ss( line, *sep );
 	    const int numsize = ss.size();
 	    if ( numsize<4 )
 		break;
 
-	    pos += std::clamp( ss.getFValue(0), 0.0f, 1.0f );
+	    pos += std::clamp( ss.getFValue(0), 0.f, 1.f );
 	    r += std::clamp( ss.getIValue(1), 0, 255 );
 	    g += std::clamp( ss.getIValue(2), 0, 255 );
 	    b += std::clamp( ss.getIValue(3), 0, 255 );
@@ -401,8 +410,12 @@ void uiColTabImport::getFromCSVFiles( const BufferStringSet& filenms )
 
 	if ( r.isEmpty() || r.size()>255 )
 	{
-	    skippedfiles.add( ::uiString(tr(filenm->buf())) );
-	    delete seq;
+	    const uiString sf = tr("%1: %2")
+				    .arg( filenm->buf() )
+				    .arg( r.isEmpty()
+					? "No RGBT values provided"
+					: "More than 255 RGBT values provided");
+	    skippedfiles.add( sf );
 	    continue;
 	}
 
@@ -412,10 +425,10 @@ void uiColTabImport::getFromCSVFiles( const BufferStringSet& filenms )
 	    seq->setTransparency( Geom::Point2D<float>(pos[idx],t[idx]) );
 	}
 
-	seqs_ += seq;
 	uiPixmap coltabpix( 16, 10 );
 	coltabpix.fill( *seq, true );
-	listfld_->addItem( ::toUiString(fp.baseName()), coltabpix );
+	listfld_->addItem( ::toUiString(seq->getName()), coltabpix );
+	seqs_ += seq.release();
     }
 
     if ( !listfld_->isEmpty() )
