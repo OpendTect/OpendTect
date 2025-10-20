@@ -42,7 +42,6 @@ ________________________________________________________________________
 #define		mSurveyFileDlgHelpID				0x00003017
 // General Other 04
 #define		mSliceSelHelpID					0x00004001
-#define		mSliceScrollHelpID				0x00004002
 #define		mmcmddriverimpsHelpID				0x00004003
 #define		mODApplMgraddTimeDepthSceneHelpID		0x00004004
 #define		mODApplMgrDispatchersetAutoUpdatePolHelpID	0x00004005
