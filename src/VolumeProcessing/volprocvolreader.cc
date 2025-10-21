@@ -35,6 +35,7 @@ VolumeReaderExecutor( const IOObj& ioobj, const TypeSet<int>& components,
     , components_(components)
     , compscalers_(compscalers)
     , output_(&output)
+    , rdr_(*ioobj_,&output_->sampling(),&components_)
 {
     output.setName( "Input Data" );
     adjustSteeringScaler();
@@ -47,50 +48,53 @@ VolumeReaderExecutor( const IOObj& ioobj, const TypeSet<int>& components,
 }
 
 
-uiString uiMessage() const override
-{ return msg_; }
+const OD::String& name() const override
+{
+    return rdr_.name();
+}
 
+
+uiString uiMessage() const override
+{
+    return rdr_.uiMessage();
+}
+
+
+private:
 
 od_int64 nrDone() const override
 {
-    return nrdone_;
+    return rdr_.nrDone();
 }
 
 
 od_int64 totalNr() const override
 {
-    return 1;
+    return rdr_.totalNr();
 }
 
 
-protected:
-
-#define mErrRet() \
-{ \
-    msg_ = rdr.uiMessage(); \
-    return ErrorOccurred(); \
-}
-
-int nextStep() override
+bool doPrepare( od_ostream* strm ) override
 {
-    Seis::SequentialReader rdr( *ioobj_, &output_->sampling(), &components_ );
-    if ( !rdr.setDataPack(*output_) )
-	mErrRet()
+    if ( !rdr_.setDataPack(*output_) )
+	return false;
 
     for ( int idx=0; idx<compscalers_.size(); idx++ )
     {
 	if ( !compscalers_[idx] )
 	    continue;
 
-	rdr.setComponentScaler( *compscalers_[idx], idx );
+	rdr_.setComponentScaler( *compscalers_[idx], idx );
     }
 
-    rdr.getProgress( *this );
-    if ( !rdr.execute() )
-	mErrRet()
+    return SequentialTask::doPrepare( strm );
+}
 
-    nrdone_++;
-    return Finished();
+
+int nextStep() override
+{
+    rdr_.getProgress( *this );
+    return rdr_.execute() ? Finished() : ErrorOccurred();
 }
 
 private:
@@ -144,8 +148,7 @@ void adjustSteeringScaler()
     const TypeSet<int>& components_;
     const ObjectSet<Scaler>& compscalers_;
     RegularSeisDataPack* output_;
-    uiString	msg_;
-    od_int64	nrdone_ = 0;
+    Seis::SequentialReader rdr_;
 
 };
 
