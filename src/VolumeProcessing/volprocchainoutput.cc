@@ -26,17 +26,7 @@ ________________________________________________________________________
 VolProc::ChainOutput::ChainOutput()
     : Executor("Volume Processing Output")
     , cs_(true)
-    , chainid_(MultiID::udf())
-    , chainpar_(0)
-    , chain_(0)
-    , chainexec_(0)
-    , wrr_(0)
-    , neednextchunk_(true)
-    , nrexecs_(-1)
-    , curexecnr_(-1)
-    , storererr_(false)
     , progresskeeper_(*new ProgressRecorder)
-    , jobcomm_(0)
     , tkscalcscope_(cs_.hsamp_)
 {
     setProgressMeter( &progresskeeper_ );
@@ -47,10 +37,7 @@ VolProc::ChainOutput::~ChainOutput()
 {
     delete wrr_;
     deepErase( storers_ );
-
-    if ( chain_ )
-	chain_->unRef();
-
+    chain_ = nullptr;
     delete chainexec_;
     delete chainpar_;
     delete &progresskeeper_;
@@ -78,14 +65,15 @@ void VolProc::ChainOutput::setTrcKeyZSampling( const TrcKeyZSampling& tkzs )
 void VolProc::ChainOutput::usePar( const IOPar& iop )
 {
     iop.get( VolProcessingTranslatorGroup::sKeyChainID(), chainid_ );
-    unRefAndNullPtr( chain_ );
+    chain_ = nullptr;
     if ( chainid_.isUdf() || chainid_.isUdf() )
     {
 	if ( chainpar_ )
 	    deleteAndNullPtr( chainpar_ );
 
 	chainpar_ = iop.subselect( sKey::Chain() );
-	if ( !chainpar_ ) return;
+	if ( !chainpar_ )
+	    return;
     }
 
     PtrMan<IOPar> subselpar = iop.subselect(
@@ -145,12 +133,10 @@ void VolProc::ChainOutput::controlWork( Control ctrl )
 void VolProc::ChainOutput::createNewChainExec()
 {
     deleteAndNullPtr( chainexec_ );
-    if ( chain_ )
-	unRefAndNullPtr( chain_ );
-
+    chain_ = nullptr;
     if ( getChain() != MoreToDo() )
     {
-	unRefAndNullPtr( chain_ );
+	chain_ = nullptr;
 	return;
     }
     /* Many usePar implementations also allocate auxiliary data:
@@ -185,7 +171,7 @@ od_int64 VolProc::ChainOutput::nrDone() const
 
 od_int64 VolProc::ChainOutput::totalNr() const
 {
-    return progresskeeper_.totalNr();
+    return chainexec_ ? progresskeeper_.totalNr() : 1;
 }
 
 
@@ -264,7 +250,7 @@ int VolProc::ChainOutput::getChain()
 {
     if ( chainpar_ )
     {
-	chain_ = new Chain; chain_->ref();
+	chain_ = new Chain;
 	return chain_->usePar( *chainpar_ ) ? MoreToDo()
 					    : retError( chain_->errMsg() );
     }
@@ -278,7 +264,6 @@ int VolProc::ChainOutput::getChain()
 		tr("Volume Processing with id: %1").arg(chainid_) ) );
 
     chain_ = new Chain;
-    chain_->ref();
     uiString errmsg;
     if ( !VolProcessingTranslator::retrieve(*chain_,ioobj.ptr(),errmsg) )
 	return retError( errmsg );
@@ -362,7 +347,7 @@ int VolProc::ChainOutput::setNextChunk()
     progresskeeper_.setMessage(
 	    tr("Starting new Volume Processing chunk %1-%2.")
 	    .arg( hsamp.start_.inl() ).arg( hsamp.stop_.inl() ), true );
-    progresskeeper_.setMessage( uiString::emptyString() );
+    progresskeeper_.setMessage( uiString::empty() );
 
     return MoreToDo();
 }

@@ -9,10 +9,12 @@ ________________________________________________________________________
 -*/
 
 #include "volumeprocessingmod.h"
+
 #include "executor.h"
 #include "multiid.h"
 #include "trckeyzsampling.h"
 #include "threadlock.h"
+#include "volprocchain.h"
 
 class IOPar;
 class JobCommunic;
@@ -23,7 +25,6 @@ class SeisDataPackWriter;
 namespace VolProc
 {
 
-class Chain;
 class ChainExecutor;
 class ChainOutputStorer;
 
@@ -43,11 +44,8 @@ public:
 						    const StepInterval<int>&);
     void			usePar(const IOPar&);
 
-    od_int64			nrDone() const override;
-    od_int64			totalNr() const override;
     uiString			uiMessage() const override;
     uiString			uiNrDoneText() const override;
-    int				nextStep() override;
 
     void			setProgressMeter(ProgressMeter*) override;
     void			controlWork(Control) override;
@@ -55,28 +53,32 @@ public:
     void			setJobCommunicator(JobCommunic*);
 
 protected:
+    int				nextStep() override;
+
+    od_int64			nrDone() const override;
+    od_int64			totalNr() const override;
 
     MultiID			chainid_;
     MultiID			outid_;
     TrcKeyZSampling		cs_;
     TrcKeySampling		tkscalcscope_;
     TrcKeySampling		tkscalcdone_;
-    IOPar* chainpar_;
+    IOPar*			chainpar_	= nullptr;
 
-    Chain*			chain_;
-    ChainExecutor*		chainexec_;
-    SeisDataPackWriter*		wrr_;
-    bool			neednextchunk_;
-    int				nrexecs_;
-    int				curexecnr_;
+    RefMan<Chain>		chain_;
+    ChainExecutor*		chainexec_	= nullptr;
+    SeisDataPackWriter*		wrr_		= nullptr;
+    bool			neednextchunk_	= true;
+    int				nrexecs_	= -1;
+    int				curexecnr_	= -1;
     StepInterval<int>		outputzrg_;
     ProgressRecorder&		progresskeeper_;
 
     mutable Threads::Lock	storerlock_;
     ObjectSet<ChainOutputStorer> storers_;
     ObjectSet<ChainOutputStorer> toremstorers_;
-    bool			storererr_;
-    JobCommunic*		jobcomm_;
+    bool			storererr_	= false;
+    JobCommunic*		jobcomm_	= nullptr;
 
     int				getChain();
     int				setupChunking();
