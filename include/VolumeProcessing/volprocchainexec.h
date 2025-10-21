@@ -58,7 +58,7 @@ private:
     {
     public:
 				Epoch(const ChainExecutor&);
-				~Epoch()		{ delete &taskgroup_; }
+				~Epoch();
 
 	void			addStep(Step* s)	{ steps_ += s; }
 	const ObjectSet<Step>&	getSteps() const	{ return steps_; }

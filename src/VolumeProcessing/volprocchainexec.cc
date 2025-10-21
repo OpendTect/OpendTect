@@ -558,6 +558,12 @@ VolProc::ChainExecutor::Epoch::Epoch( const ChainExecutor& ce )
 }
 
 
+VolProc::ChainExecutor::Epoch::~Epoch()
+{
+    delete &taskgroup_;
+}
+
+
 bool VolProc::ChainExecutor::Epoch::needsStepOutput( Step::ID stepid ) const
 {
     for ( int idx=0; idx<steps_.size(); idx++ )
@@ -712,7 +718,7 @@ bool VolProc::ChainExecutor::Epoch::doPrepare( ProgressMeter* progmeter )
 	    return false;
 	}
 
-	newtask->setName( currentstep->factoryKeyword() );
+//	newtask->setName( currentstep->factoryKeyword() );
 	taskgroup_.addTask( newtask );
     }
 
