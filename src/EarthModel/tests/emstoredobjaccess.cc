@@ -28,8 +28,8 @@ ________________________________________________________________________
 
 #define valTest( val, expval, defeps, desc ) \
 { \
-    errmsg.set( "Expected: " ).add( toStringPrecise(val) ) \
-	  . add( "; Retrieved: " ).add( toStringPrecise(expval) ); \
+    errmsg.set( "Expected: " ).add( toStringPrecise(expval) ) \
+	  . add( "; Retrieved: " ).add( toStringPrecise(val) ); \
     mRunStandardTestWithError(mIsEqual(val,expval,defeps),desc,errmsg.str()); \
 }
 
