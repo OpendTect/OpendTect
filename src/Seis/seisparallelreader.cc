@@ -828,7 +828,7 @@ ConstRefMan<RegularSeisDataPack> Seis::ParallelReader2D::getDataPack() const
 Seis::SequentialReader::SequentialReader( const IOObj& ioobj,
 					  const TrcKeyZSampling* tkzs,
 					  const TypeSet<int>* comps )
-    : Executor("Reading Data")
+    : Executor("Volume Reader")
     , ioobj_(ioobj.clone())
     , rdr_(*new SeisTrcReader(ioobj))
     , dc_(DataCharacteristics::Auto)
@@ -857,6 +857,7 @@ Seis::SequentialReader::SequentialReader( const IOObj& ioobj,
 	tkzs_ = *tkzs;
     else if ( is2d_ )
     {
+	setName( "Line reader" );
 	TypeSet<Pos::GeomID> geomids;
 	info.getGeomIDs( geomids );
 	if ( !geomids.isEmpty() )
