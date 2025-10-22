@@ -206,7 +206,7 @@ uiBitMapDisplay::uiBitMapDisplay( FlatView::Appearance& app, bool withalpha )
     else if ( nrcpu<2 )
 	overlap_ = 0.1f;
 
-    display_->wantsData().notify( mCB(this,uiBitMapDisplay,reGenerateCB) );
+    mAttachCB( display_->wantsData(), uiBitMapDisplay::reGenerateCB );
     workqueueid_ = Threads::WorkManager::twm().addQueue(
 				Threads::WorkManager::SingleThread,
 				"BitmapDisplay");
@@ -215,6 +215,7 @@ uiBitMapDisplay::uiBitMapDisplay( FlatView::Appearance& app, bool withalpha )
 
 uiBitMapDisplay::~uiBitMapDisplay()
 {
+    detachAllNotifiers();
     Threads::WorkManager::twm().removeQueue( workqueueid_, false );
 
     delete basetask_;
@@ -226,7 +227,7 @@ uiBitMapDisplay::~uiBitMapDisplay()
 void uiBitMapDisplay::removeDisplay()
 {
     if ( display_ )
-	display_->wantsData().remove( mCB(this,uiBitMapDisplay,reGenerateCB) );
+	mDetachCB( display_->wantsData(), uiBitMapDisplay::reGenerateCB );
 
     display_ = nullptr;
 }
@@ -330,6 +331,9 @@ Interval<float> uiBitMapDisplay::getDataRange( bool iswva ) const
 
 void uiBitMapDisplay::reGenerateCB( CallBacker* )
 {
+    if ( !display_ )
+	return;
+
     const bool issnapshot = display_->isSnapshot();
 
     Task* dynamictask = createDynamicTask( issnapshot );
