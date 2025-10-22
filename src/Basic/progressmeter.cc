@@ -122,6 +122,7 @@ void ProgressRecorder::setFrom( const Task& t )
 }
 
 
+// TextStreamProgressMeter
 
 TextStreamProgressMeter::TextStreamProgressMeter( od_ostream& out,
 						  unsigned short rowlen )
@@ -139,62 +140,59 @@ TextStreamProgressMeter::~TextStreamProgressMeter()
 }
 
 
+void TextStreamProgressMeter::setName( const char* newname )
+{
+    if ( !name_.isEmpty() && name_==newname )
+	return;
+
+    name_ = newname;
+    reset();
+}
+
+
+void TextStreamProgressMeter::setStarted()
+{
+    if ( skipprog_ || inited_ )
+	return;
+
+    if ( !name_.isEmpty() )
+	strm_ <<  "Process: '" << name_.buf() << "'" << od_endl;
+
+    if ( !message_.isEmpty() )
+    {
+	strm_ << "Started: " << Time::getDateTimeString() << "\n\n";
+	strm_ << '\t' << message_ << od_endl;
+    }
+
+    oldtime_ = Time::getMilliSeconds();
+    finished_ = false;
+    inited_ = true;
+}
+
+
 void TextStreamProgressMeter::setFinished()
 {
     mSetLock();
     if ( finished_ )
 	return;
 
-    annotate(false);
+    annotate( false );
     finished_ = true;
 
-    if ( name_.isEmpty() )
-	strm_ << od_newline;
-    else
-	strm_ <<  "Process: '" << name_.buf() << "'\n";
+    if ( !name_.isEmpty() )
+	strm_ <<  "Process: '" << name_.buf() << "'";
 
-    strm_ << "Finished: "  << Time::getDateTimeString() << od_endl;
+    strm_ << "\nFinished: " << Time::getDateTimeString() << od_endl;
 
     lock.unlockNow();
     reset();
 }
 
 
-void TextStreamProgressMeter::reset()
-{
-    mSetLock();
-    nrdone_ = 0;
-    oldtime_ = Time::getMilliSeconds();
-    inited_ = false;
-    nrdoneperchar_ = 1; distcharidx_ = 0;
-    lastannotatednrdone_ = 0;
-    nrdotsonline_ = 0;
-}
-
-
-void TextStreamProgressMeter::setStarted()
-{
-    if ( skipprog_ ) return;
-
-    if ( !inited_ )
-    {
-	if ( !name_.isEmpty() ) strm_ <<  "Process: '" << name_.buf() << "'\n";
-	if ( !message_.isEmpty() )
-	{
-	    strm_ << "Started: " << Time::getDateTimeString() << "\n\n";
-	    strm_ << '\t' << message_.getFullString() << od_endl;
-	}
-
-	oldtime_ = Time::getMilliSeconds();
-	finished_ = false;
-	inited_ = true;
-    }
-}
-
-
 void TextStreamProgressMeter::addProgress( int nr )
 {
-    if ( skipprog_ ) return;
+    if ( skipprog_ )
+	return;
 
     if ( !inited_ )
 	setStarted();
@@ -218,6 +216,36 @@ void TextStreamProgressMeter::addProgress( int nr )
 }
 
 
+void TextStreamProgressMeter::setNrDone( od_int64 nrdone )
+{
+    mSetLock();
+    if ( finished_ || nrdone<=nrdone_ )
+	return;
+
+    addProgress( nrdone-nrdone_ );
+}
+
+
+void TextStreamProgressMeter::setTotalNr( od_int64 totalnr )
+{
+    Threads::Locker lock( lock_ );
+    totalnr_ = totalnr;
+}
+
+
+void TextStreamProgressMeter::setMessage( const uiString& message )
+{
+    if ( message != message_ )
+	message_ = message;
+}
+
+
+void TextStreamProgressMeter::printMessage( const uiString& msg )
+{
+    strm_ << od_newline << msg << od_endl;
+}
+
+
 void TextStreamProgressMeter::operator++()
 {
     mSetLock();
@@ -225,40 +253,15 @@ void TextStreamProgressMeter::operator++()
 }
 
 
-void TextStreamProgressMeter::setNrDone( od_int64 nrdone )
+void TextStreamProgressMeter::reset()
 {
     mSetLock();
-    if ( finished_ || nrdone<=nrdone_ )
-	return;
-
-    addProgress( (int)(nrdone-nrdone_) );
-}
-
-
-void TextStreamProgressMeter::setMessage( const uiString& message )
-{
-    const BufferString existmsg( message_.getFullString() );
-    const BufferString newmsg( message.getFullString() );
-    if ( existmsg == newmsg )
-	return;
-
-    message_ = message;
-}
-
-
-void TextStreamProgressMeter::printMessage( const uiString& msg )
-{
-    strm_ << od_newline << msg.getFullString() << od_endl;
-}
-
-
-void TextStreamProgressMeter::setName( const char* newname )
-{
-    if ( !name_.isEmpty() && name_==newname )
-	return;
-
-    name_ = newname;
-    reset();
+    nrdone_ = 0;
+    oldtime_ = Time::getMilliSeconds();
+    inited_ = false;
+    nrdoneperchar_ = 1; distcharidx_ = 0;
+    lastannotatednrdone_ = 0;
+    nrdotsonline_ = 0;
 }
 
 
@@ -274,7 +277,6 @@ void TextStreamProgressMeter::annotate( bool withrate )
     }
     else
 	strm_ << nrdone_;
-
 
     // Show rate
     const od_int64 newtime = Time::getMilliSeconds();
@@ -316,11 +318,12 @@ void TextStreamProgressMeter::annotate( bool withrate )
 }
 
 
+// SimpleTextStreamProgressMeter
+
 SimpleTextStreamProgressMeter::SimpleTextStreamProgressMeter( od_ostream& out,
 							      int repperc )
-  : strm_(out)
-  , repperc_(repperc)
-  , name_("unknown")
+    : strm_(out)
+    , repperc_(repperc)
 {
     reset();
 }
@@ -333,67 +336,89 @@ SimpleTextStreamProgressMeter::~SimpleTextStreamProgressMeter()
 }
 
 
+void SimpleTextStreamProgressMeter::setName( const char* newname )
+{
+    if ( !name_.isEmpty() && name_==newname )
+	return;
+
+    name_ = newname;
+    reset();
+}
+
+
+void SimpleTextStreamProgressMeter::setStarted()
+{
+    if ( skipprog_ || inited_ )
+	return;
+
+    const bool hasname = !name_.isEmpty();
+    const bool hasmessage = !message_.isEmpty();
+    if ( hasname )
+	strm_ <<  "Process: '" << name_.buf() << "'";
+
+    if ( hasmessage )
+    {
+	if ( hasname )
+	    strm_ << "; ";
+
+	strm_ << "Started at: " << Time::getISODateTimeString(true);
+    }
+
+    if ( hasname || hasmessage )
+	strm_ << od_endl;
+
+    finished_ = false;
+    inited_ = true;
+}
+
+
 void SimpleTextStreamProgressMeter::setFinished()
 {
     mSetLock();
     if ( finished_ )
 	return;
 
+    addProgress( totalnr_ - nrdone_ );
     finished_ = true;
 
-    strm_ <<  "Process: " << name_.buf() << " Progress(%): 100"
-	  <<  " At: " << Time::getISODateTimeString(true) << od_endl;
+    const bool hasname = !name_.isEmpty();
+    if ( hasname )
+	strm_ <<  "Process: '" << name_.buf() << "'; ";
+
+    strm_ << "Finished at: " << Time::getISODateTimeString(true) << od_endl;
 
     lock.unlockNow();
     reset();
 }
 
 
-void SimpleTextStreamProgressMeter::reset()
+void SimpleTextStreamProgressMeter::setNrDone( od_int64 nrdone )
 {
     mSetLock();
-    nrdone_ = 0;
-    inited_ = false;
+    if ( finished_ || nrdone<=nrdone_ )
+	return;
+
+    addProgress( nrdone-nrdone_ );
 }
 
 
-void SimpleTextStreamProgressMeter::setStarted()
+void SimpleTextStreamProgressMeter::setTotalNr( od_int64 totalnr )
 {
-    if ( skipprog_ ) return;
-
-    if ( !inited_ )
-    {
-	strm_ <<  "Process: " << name_.buf() << " Progress(%): 0"
-	      << " Total_Number: " << totalnr_
-	      << " At: " << Time::getISODateTimeString(true) << od_endl;
-	strm_.flush();
-
-	finished_ = false;
-	inited_ = true;
-    }
+    Threads::Locker lock( lock_ );
+    totalnr_ = totalnr;
 }
 
 
-void SimpleTextStreamProgressMeter::addProgress( int nr )
+void SimpleTextStreamProgressMeter::setMessage( const uiString& message )
 {
-    if ( skipprog_ ) return;
+    if ( message != message_ )
+	message_ = message;
+}
 
-    if ( !inited_ )
-	setStarted();
 
-    const int repint = mNINT32(repperc_/100.0 * totalnr_);
-    for ( int idx=0; idx<nr; idx++ )
-    {
-	nrdone_ ++;
-	if ( !(nrdone_ % repint) )
-	{
-	    const float perc = float(nrdone_)/float(totalnr_) * 100.0;
-	    strm_ << "Process: " << name_.buf() << " Progress(%): "
-		  << mNINT32(perc) << od_endl;
-	    strm_.flush();
-	}
-
-    }
+void SimpleTextStreamProgressMeter::printMessage( const uiString& msg )
+{
+    strm_ << od_newline << msg << od_endl;
 }
 
 
@@ -404,30 +429,41 @@ void SimpleTextStreamProgressMeter::operator++()
 }
 
 
-void SimpleTextStreamProgressMeter::setNrDone( od_int64 nrdone )
+void SimpleTextStreamProgressMeter::reset()
 {
     mSetLock();
-    if ( finished_ || nrdone<=nrdone_ )
+    nrdone_ = 0;
+    inited_ = false;
+    lastannotatednrdone_ = 0;
+}
+
+
+void SimpleTextStreamProgressMeter::addProgress( int nr )
+{
+    if ( skipprog_ )
 	return;
 
-    addProgress( (int)(nrdone-nrdone_) );
+    if ( !inited_ )
+	setStarted();
+
+    const int repint = mNINT32((double)repperc_/100. * totalnr_);
+    if ( nrdone_ == totalnr_ && lastannotatednrdone_ < totalnr_ )
+    {
+	strm_ <<  message_ << "; Progress(%): 100" << od_endl;
+    }
+    else
+    {
+	for ( int idx=0; idx<nr; idx++ )
+	{
+	    if ( !(nrdone_ % repint) )
+	    {
+		const float perc = float(nrdone_)/float(totalnr_) * 100.f;
+		strm_ <<  message_ << "; Progress(%): " << mNINT32(perc)
+		      << od_endl;
+		lastannotatednrdone_ = nrdone_+1;
+	    }
+
+	    nrdone_++;
+	}
+    }
 }
-
-
-void SimpleTextStreamProgressMeter::setName( const char* newname )
-{
-    if ( !name_.isEmpty() && name_==newname )
-	return;
-
-    name_ = newname;
-    name_.remove( " " );
-    reset();
-}
-
-
-void SimpleTextStreamProgressMeter::setTotalNr(od_int64 t)
-{
-    Threads::Locker lock( lock_ );
-    totalnr_ = t;
-}
-

@@ -84,11 +84,7 @@ public:
     void		setStarted() override;
     void		setFinished() override;
     void		setNrDone(od_int64) override;
-    void		setTotalNr(od_int64 t) override
-			{
-			    Threads::Locker lock( lock_ );
-			    totalnr_ = t;
-			}
+    void		setTotalNr(od_int64) override;
 
     void		setMessage(const uiString&) override;
     void		printMessage(const uiString&);
@@ -122,7 +118,7 @@ protected:
     Threads::Lock	lock_;
     bool		skipprog_	= false;
 
-    void		annotate(bool);
+    void		annotate(bool withrate);
 };
 
 
@@ -140,6 +136,9 @@ public:
     void		setNrDone(od_int64) override;
     void		setTotalNr(od_int64) override;
 
+    void		setMessage(const uiString&) override;
+    void		printMessage(const uiString&);
+
 			/*!<This setting will not reset unless you call it.*/
     void		skipProgress( bool yn ) override { skipprog_ = yn; }
 
@@ -156,6 +155,7 @@ private:
     uiString		message_;
     BufferString	name_;
     od_int64		nrdone_;
+    od_int64		lastannotatednrdone_;
     od_int64		totalnr_	= 0;
     int			repperc_;
     bool		inited_;
