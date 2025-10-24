@@ -570,16 +570,15 @@ bool uiODApplMgr::getNewData( const VisID& visid, int attrib )
 	    if ( myas[0].id().asInt()==Attrib::SelSpec::cOtherAttrib().asInt() )
 	    {
 		MouseCursorChanger cursorchgr( MouseCursor::Wait );
+		uiString errmsg;
 		PtrMan<Attrib::ExtAttribCalc> calc =
-			Attrib::ExtAttrFact().create( nullptr, myas[0], false );
+		    Attrib::ExtAttribCalc::createInstance( myas[0], errmsg );
 		if ( !calc )
 		{
-		    uiString msg(tr("Attribute not in the set,"
-				"cannot create: '%1'").arg(myas[0].userRef()));
 		    if ( isRestoringSession() )
-			appl_.restoreMsgs().add( msg );
+			appl_.restoreMsgs().add( errmsg );
 		    else
-			uiMSG().error( msg );
+			uiMSG().error( errmsg );
 
 		    return false;
 		}
@@ -650,10 +649,18 @@ bool uiODApplMgr::getNewData( const VisID& visid, int attrib )
 	    if ( myas[0].id().asInt()==Attrib::SelSpec::cOtherAttrib().asInt() )
 	    {
 		MouseCursorChanger cursorchgr( MouseCursor::Wait );
+		uiString errmsg;
 		PtrMan<Attrib::ExtAttribCalc> calc =
-			Attrib::ExtAttrFact().create( nullptr, myas[0], false );
+		    Attrib::ExtAttribCalc::createInstance( myas[0], errmsg );
 		if ( !calc )
+		{
+		    if ( isRestoringSession() )
+			appl_.restoreMsgs().add( errmsg );
+		    else
+			uiMSG().error( errmsg );
+
 		    break;
+		}
 
 		newdp = calc->createRdmTrcAttrib( zrg, rdlid, nullptr );
 	    }

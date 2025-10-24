@@ -241,21 +241,15 @@ bool SurveyObject::usePar( const IOPar& par )
 	if ( !attribpar )
 	    continue;
 
-	if ( !firstattrib )
-	    addAttrib();
-	else
+	if ( firstattrib )
 	    firstattrib = false;
+	else
+	    addAttrib();
 
 	const int attribnr = nrAttribs()-1;
 
 	int nrvers = 1;
-	if ( !attribpar->get(sKeyNrVersions(),nrvers) )
-	{
-	    Attrib::SelSpec spec;
-	    spec.usePar( *attribpar );
-	    setSelSpec( attribnr, spec );
-	}
-	else
+	if ( attribpar->get(sKeyNrVersions(),nrvers) )
 	{
 	    TypeSet<Attrib::SelSpec> specs;
 	    for ( int vidx=0; vidx<nrvers; vidx++ )
@@ -276,6 +270,12 @@ bool SurveyObject::usePar( const IOPar& par )
 	    int seltexture = 0;
 	    if ( specs.size()>1 && attribpar->get(sKeySelTexture(),seltexture) )
 		selectTexture( attrib, seltexture );
+	}
+	else
+	{
+	    Attrib::SelSpec spec;
+	    spec.usePar( *attribpar );
+	    setSelSpec( attribnr, spec );
 	}
 
 	PtrMan<IOPar> seqpar = attribpar->subselect( sKeySequence() );

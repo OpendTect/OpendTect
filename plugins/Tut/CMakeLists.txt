@@ -12,10 +12,11 @@ if ( NOT "${OD_SUBSYSTEM}" STREQUAL "od" )
     set( OD_USEQT Core )
 endif()
 set( OD_MODULE_SOURCES
-	tutseistools.cc
+	tutexternalattribrandom.cc
+	tutlogtools.cc
 	tuthortools.cc
 	tutorialattrib.cc
-	tutlogtools.cc
+	tutseistools.cc
 	tutvolproc.cc
 	tutpi.cc
 )

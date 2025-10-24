@@ -10,6 +10,7 @@ ________________________________________________________________________
 #include "tutmod.h"
 
 #include "odplugin.h"
+#include "tutexternalattribrandom.h"
 #include "tutorialattrib.h"
 #include "tutvolproc.h"
 
@@ -48,7 +49,8 @@ static const char* dispName()	    { return "Tutorial plugin (Base)"; }
 
 static const char* dispText()
 {
-    return "Back-end for the plugin that shows simple plugin development basics.\n"
+    return "Back-end for the plugin that shows simple plugin development"
+	   " basics.\n"
 	   "This non-UI part can also be loaded into od_process_attrib.";
 }
 
@@ -79,6 +81,7 @@ mDefODPluginInfo(Tut)
 mDefODInitPlugin(Tut)
 {
     Attrib::Tutorial::initClass();
+    ExternalAttrib::Random::initClass();
     VolProc::TutOpCalculator::initClass();
 
     return nullptr;

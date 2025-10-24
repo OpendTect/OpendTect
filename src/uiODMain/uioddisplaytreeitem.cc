@@ -26,6 +26,7 @@ ________________________________________________________________________
 #include "uivispartserv.h"
 #include "vismultiattribsurvobj.h"
 #include "vissurvobj.h"
+#include "volprocattrib.h"
 
 #include "attribsel.h"
 #include "ioman.h"
@@ -111,9 +112,12 @@ uiODDataTreeItem* uiODDisplayTreeItem::createAttribItem(
 					const Attrib::SelSpec* as ) const
 {
     const char* parenttype = typeid(*this).name();
-    uiODDataTreeItem* res = as
-	? uiODDataTreeItem::factory().create( 0, *as, parenttype, false ) : 0;
-    if ( !res ) res = new uiODAttribTreeItem( parenttype );
+    auto* res = as ? uiODDataTreeItem::factory().create( nullptr, *as,
+							 parenttype, false )
+		   : nullptr;
+    if ( !res )
+	res = new uiODAttribTreeItem( parenttype );
+
     return res;
 }
 
@@ -488,13 +492,12 @@ void uiODDisplayTreeItem::handleMenuCB( CallBacker* cb )
 
 	const VisID visid( menu->menuID() );
 	const int attrib = visserv_->addAttrib( visid );
-	Attrib::SelSpec spec( "Velocity", Attrib::SelSpec::cOtherAttrib(),
-				false, 0 );
+	const Attrib::SelSpec spec( VolProcAttrib::attribName(),
+				    Attrib::SelSpec::cOtherAttrib() );
 	visserv_->setSelSpec( visid, attrib, spec );
 	visserv_->enableInterpolation( visid, true );
 
-	VolProc::uiDataTreeItem* newitem =
-	    new VolProc::uiDataTreeItem( typeid(*this).name() );
+	auto* newitem = new VolProc::uiDataTreeItem( typeid(*this).name() );
 	addChild( newitem, false );
 	const bool selok = newitem->selectSetup();
 	if ( selok && !visserv_->calcManipulatedAttribs(newitem->displayID()) )

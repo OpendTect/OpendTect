@@ -14,10 +14,11 @@ ________________________________________________________________________
 #include "attribsel.h"
 #include "ioman.h"
 #include "ioobj.h"
-#include "seisdatapack.h"
 #include "survinfo.h"
 #include "volprocchainexec.h"
 #include "volproctrans.h"
+
+// Attrib::VolProcAttrib
 
 using namespace Attrib;
 
@@ -26,7 +27,7 @@ mAttrDefCreateInstance(VolProcAttrib)
 void VolProcAttrib::initClass()
 {
     mAttrStartInitClass
-    StringParam* setup = new StringParam( sKeySetup() );
+    auto* setup = new StringParam( sKeySetup() );
     desc->addParam( setup );
 
     desc->addOutputDataType( Seis::UnknowData );
@@ -48,7 +49,9 @@ VolProcAttrib::~VolProcAttrib()
 
 
 bool VolProcAttrib::allowParallelComputation() const
-{ return false; }
+{
+    return false;
+}
 
 
 void VolProcAttrib::prepareForComputeData()
@@ -63,9 +66,9 @@ void VolProcAttrib::prepareForComputeData()
     if ( !VolProcessingTranslator::retrieve(*chain_,ioobj.ptr(),errmsg) )
     {
 	chain_ = nullptr;
-	errmsg_ = uiStrings::phrCannotRead(tr("processing setup."));
+	errmsg_ = uiStrings::phrCannotRead( tr("processing setup") );
 	if ( !errmsg.isEmpty() )
-	    errmsg_.append(tr(" Reason given: %1").arg( errmsg ) );
+	    errmsg_.appendPhraseSameLine( tr("Reason given: %1").arg( errmsg ));
 
 	return;
     }
@@ -104,26 +107,10 @@ bool VolProcAttrib::computeData( const Attrib::DataHolder& output,
 }
 
 
+// VolProc::ExternalAttribCalculator
 
 namespace VolProc
 {
-
-// ExternalAttribCalculator
-void ExternalAttribCalculator::initClass()
-{ Attrib::ExtAttrFact().addCreator( create, 0 ); }
-
-
-Attrib::ExtAttribCalc* ExternalAttribCalculator::create(
-					const Attrib::SelSpec& as )
-{
-    auto* res = new ExternalAttribCalculator;
-    if ( res->setTargetSelSpec(as) )
-	return res;
-
-    delete res;
-    return nullptr;
-}
-
 
 ExternalAttribCalculator::ExternalAttribCalculator()
 {}
@@ -134,34 +121,19 @@ ExternalAttribCalculator::~ExternalAttribCalculator()
 }
 
 
-BufferString ExternalAttribCalculator::createDefinition( const MultiID& setup )
+bool ExternalAttribCalculator::setTargetSelSpec( const Attrib::SelSpec& as )
 {
-    BufferString res = sAttribName();
-    res += " ";
-    res += sKeySetup();
-    res += "=";
-    res += setup;
-
-    return res;
-}
-
-
-bool ExternalAttribCalculator::setTargetSelSpec( const Attrib::SelSpec& ss )
-{
-    const char* definition = ss.defString();
-
-    BufferString attribname;
-    if ( !Attrib::Desc::getAttribName( definition, attribname ) ||
-	 attribname != sAttribName() )
+    if ( !checkSelSpec(as) )
 	return false;
 
+    const char* definition = as.defString();
     BufferString midstring;
-    if ( !Attrib::Desc::getParamString( definition, sKeySetup(), midstring ) )
+    if ( !Attrib::Desc::getParamString(definition,sKeySetup(),midstring) )
 	return false;
 
     MultiID mid;
     mid.fromString( midstring.buf() );
-    PtrMan<IOObj>  ioobj = IOM().get( mid );
+    PtrMan<IOObj> ioobj = IOM().get( mid );
     if ( !ioobj )
     {
 	errmsg_ = tr("Cannot find the processing setup.");
@@ -173,9 +145,9 @@ bool ExternalAttribCalculator::setTargetSelSpec( const Attrib::SelSpec& ss )
     if ( !VolProcessingTranslator::retrieve(*chain_,ioobj.ptr(),errmsg) )
     {
 	chain_ = nullptr;
-	errmsg_ = uiStrings::phrCannotRead(tr("processing setup.") );
+	errmsg_ = uiStrings::phrCannotRead( tr("processing setup") );
 	if ( !errmsg.isEmpty() )
-	    errmsg_.append( tr( " Reason given: %1").arg( errmsg ) );
+	    errmsg_.appendPhraseSameLine( tr("Reason given: %1").arg( errmsg ));
 
 	return false;
     }
@@ -226,9 +198,58 @@ ExternalAttribCalculator::createAttrib( const TrcKeyZSampling& tkzs,
 
 ConstRefMan<RegularSeisDataPack>
 ExternalAttribCalculator::createAttrib( const TrcKeyZSampling& tkzs,
-					TaskRunner* taskr )
+					TaskRunner* taskrun )
 {
-    return createAttrib( tkzs, taskr );
+    return createAttrib( tkzs, nullptr, taskrun );
+}
+
+
+bool ExternalAttribCalculator::createAttrib( ObjectSet<BinIDValueSet>& o,
+					     TaskRunner* taskrun )
+{
+    return Attrib::ExtAttribCalc::createAttrib( o, taskrun );
+}
+
+
+bool ExternalAttribCalculator::createAttrib( const BinIDValueSet& b,
+					     SeisTrcBuf& tb,
+					     TaskRunner* taskrun )
+{
+    return Attrib::ExtAttribCalc::createAttrib( b, tb, taskrun );
+}
+
+
+ConstRefMan<RandomSeisDataPack>
+ ExternalAttribCalculator::createRdmTrcAttrib( const ZGate& zrg,
+				const RandomLineID& rdlid, TaskRunner* taskrun )
+{
+    //TODO impl?
+    return Attrib::ExtAttribCalc::createRdmTrcAttrib( zrg, rdlid, taskrun );
+}
+
+
+BufferString ExternalAttribCalculator::createDefinition( const MultiID& setup )
+{
+    BufferString res = sFactoryKeyword();
+    res.addSpace().add( sKeySetup() ).add( "=" ).add( setup );
+
+    return res;
+}
+
+
+uiString ExternalAttribCalculator::createDisplayName( const MultiID& setup )
+{
+    PtrMan<IOObj> ioobj = IOM().get( setup );
+    if ( !ioobj )
+	return uiString::empty();
+
+    return ioobj->uiName();
+}
+
+
+bool ExternalAttribCalculator::sCheckSelSpec( const Attrib::SelSpec& spec )
+{
+    return Attrib::ExtAttribCalc::sCheckSelSpec( spec, sFactoryKeyword() );
 }
 
 } // namespace VolProc

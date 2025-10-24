@@ -835,11 +835,17 @@ void uiOD2DLineTreeItem::getNewData( CallBacker* )
     uiTaskRunner uitr( getUiParent() );
     if ( as[0].id().asInt() == Attrib::SelSpec::cOtherAttrib().asInt() )
     {
+	uiString errmsg;
 	PtrMan<Attrib::ExtAttribCalc> calc =
-	    Attrib::ExtAttrFact().create( nullptr, as[0], false );
+		    Attrib::ExtAttribCalc::createInstance( as[0], errmsg );
 	if ( !calc )
 	{
-	    uiMSG().error( tr("Attribute cannot be created") );
+	    uiODMain* appl = ODMainWin();
+	    if ( appl && appl->isRestoringSession() )
+		appl->restoreMsgs().add( errmsg );
+	    else
+		uiMSG().error( errmsg );
+
 	    return;
 	}
 

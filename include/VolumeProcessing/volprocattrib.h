@@ -22,7 +22,6 @@ namespace VolProc { class ChainExecutor; }
 mExpClass(VolumeProcessing) VolProcAttrib : public Attrib::Provider
 { mODTextTranslationClass(VolProcAttrib);
 public:
-    static void		initClass();
 
     static const char*	attribName()		{ return "VolumeProcessing"; }
     static const char*	sKeySetup()		{ return "setup"; }
@@ -43,8 +42,12 @@ protected:
     RefMan<VolProc::Chain> chain_;
     MultiID		setupmid_;
     VolProc::ChainExecutor* executor_ = nullptr;
-};
 
+public:
+
+    static void		initClass();
+
+};
 
 
 /*!
@@ -59,9 +62,14 @@ mExpClass(VolumeProcessing) ExternalAttribCalculator
 { mODTextTranslationClass(ExternalAttribCalculator);
 public:
 
-    static BufferString createDefinition(const MultiID& setup);
+    mDefaultFactoryInstantiation( ExtAttribCalc, ExternalAttribCalculator,
+				  "Volume_Processing",
+				  tr("Volume Processing") );
 
-    static const char*	sAttribName()	{ return "Volume_Processing"; }
+    static BufferString createDefinition(const MultiID& setup);
+    static uiString	createDisplayName(const MultiID& setup);
+
+    static bool		sCheckSelSpec(const Attrib::SelSpec&);
     static const char*	sKeySetup()	{ return "volprocsetup"; }
 
 private:
@@ -75,22 +83,16 @@ private:
 					TaskRunner*) override;
     ConstRefMan<RegularSeisDataPack> createAttrib(const TrcKeyZSampling&,
 						  TaskRunner*) override;
-    bool		createAttrib( ObjectSet<BinIDValueSet>& o,
-				      TaskRunner* trans ) override
-			{ return Attrib::ExtAttribCalc::createAttrib(o,trans); }
-    bool		createAttrib( const BinIDValueSet& b, SeisTrcBuf& tb,
-				      TaskRunner* trans ) override
-			{ return Attrib::ExtAttribCalc::createAttrib(b,
-								tb,trans); }
-
-    static Attrib::ExtAttribCalc* create(const Attrib::SelSpec&);
+    bool		createAttrib(ObjectSet<BinIDValueSet>&,
+				     TaskRunner*) override;
+    bool		createAttrib(const BinIDValueSet&,SeisTrcBuf&,
+				     TaskRunner*) override;
+    ConstRefMan<RandomSeisDataPack> createRdmTrcAttrib(const ZGate&,
+						   const RandomLineID&,
+						   TaskRunner*) override;
 
     RefMan<Chain>		chain_;
     MultiID			rendermid_;
-
-public:
-
-    static void		initClass();
 
 };
 

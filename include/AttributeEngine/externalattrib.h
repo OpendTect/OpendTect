@@ -37,6 +37,11 @@ public:
     virtual			~ExtAttribCalc();
 				mOD_DisableCopy(ExtAttribCalc)
 
+    mDefineFactoryInClass( ExtAttribCalc, factory );
+
+    static ExtAttribCalc*	createInstance(const SelSpec&,uiString& errmsg);
+
+    virtual bool		checkSelSpec(const Attrib::SelSpec&) const;
     virtual bool		setTargetSelSpec(const SelSpec&)	= 0;
 				/*!<\returns if this object can
 				     compute it or not. */
@@ -63,11 +68,10 @@ public:
 
 protected:
 				ExtAttribCalc();
+
+    static bool			sCheckSelSpec(const Attrib::SelSpec&,
+					      const char* factkw);
+
 };
-
-
-mDefineFactory1Param( AttributeEngine, ExtAttribCalc, const Attrib::SelSpec&,
-		      ExtAttrFact );
-
 
 } // namespace Attrib

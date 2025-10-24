@@ -99,12 +99,13 @@ uiODApplMgr* uiODDataTreeItem::applMgr() const
 
 bool uiODDataTreeItem::init()
 {
-    if ( visserv_->canHaveMultipleAttribs(displayID()) ||
-	 visserv_->hasSingleColorFallback(displayID()) )
+    const VisID dispid = displayID();
+    if ( visserv_->canHaveMultipleAttribs(dispid) ||
+	 visserv_->hasSingleColorFallback(dispid) )
     {
 	getItem()->stateChanged.notify( mCB(this,uiODDataTreeItem,checkCB) );
-	uitreeviewitem_->setChecked( visserv_->isAttribEnabled(displayID(),
-				     attribNr() ) );
+	const int attribnr = attribNr();
+	uitreeviewitem_->setChecked(visserv_->isAttribEnabled(dispid,attribnr));
     }
 
     MenuHandler* tb = visserv_->getToolBarHandler();

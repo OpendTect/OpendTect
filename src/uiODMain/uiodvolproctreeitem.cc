@@ -32,7 +32,9 @@ namespace VolProc
 
 
 void uiDataTreeItem::initClass()
-{ uiODDataTreeItem::factory().addCreator( create, 0 ); }
+{
+    uiODDataTreeItem::factory().addCreator( create );
+}
 
 
 uiDataTreeItem::uiDataTreeItem( const char* parenttype, const MultiID* key )
@@ -57,10 +59,11 @@ bool uiDataTreeItem::anyButtonClick( uiTreeViewItem* item )
     if ( item!=uitreeviewitem_ )
 	return uiTreeItem::anyButtonClick( item );
 
-    if ( !select() ) return false;
+    if ( !select() )
+	return false;
 
     uiVisPartServer* visserv = applMgr()->visServer();
-    if ( !visserv->getColTabSequence(displayID(),attribNr()) )
+    if ( !visserv || !visserv->getColTabSequence(displayID(),attribNr()) )
 	return false;
 
     ODMainWin()->applMgr().updateColorTable( displayID(), attribNr() );
@@ -72,15 +75,10 @@ bool uiDataTreeItem::anyButtonClick( uiTreeViewItem* item )
 uiODDataTreeItem* uiDataTreeItem::create( const Attrib::SelSpec& as,
 					  const char* parenttype )
 {
-    if ( as.id().asInt()!=Attrib::SelSpec::cOtherAttrib().asInt() )
-	return 0;
+    if ( !VolProc::ExternalAttribCalculator::sCheckSelSpec(as) )
+	return nullptr;
 
-    BufferString attribnm;
     const char* defstr = as.defString();
-    Attrib::Desc::getAttribName( defstr, attribnm );
-    if ( attribnm != VolProc::ExternalAttribCalculator::sAttribName() )
-	return 0;
-
     const char* parkey = VolProc::ExternalAttribCalculator::sKeySetup();
     BufferString setupmidstr;
     MultiID setupmid;
@@ -90,9 +88,6 @@ uiODDataTreeItem* uiDataTreeItem::create( const Attrib::SelSpec& as,
     return new uiDataTreeItem( parenttype, &setupmid );
 }
 
-
-#define mCreateMenu( func ) \
-    mDynamicCastGet(MenuHandler*,menu,cb); \
 
 void uiDataTreeItem::createMenu( MenuHandler* menu ,bool istb )
 {
@@ -119,7 +114,8 @@ void uiDataTreeItem::handleMenuCB( CallBacker* cb )
     if ( mnuid==selmenuitem_.id )
     {
 	menu->setIsHandled( true );
-	if ( !selectSetup() ) return;
+	if ( !selectSetup() )
+	    return;
     }
 
     if ( mnuid==selmenuitem_.id || mnuid==reloadmenuitem_.id )
@@ -129,7 +125,8 @@ void uiDataTreeItem::handleMenuCB( CallBacker* cb )
     }
     else if ( mnuid==editmenuitem_.id )
     {
-	StringView parenttype = parentType();
+	menu->setIsHandled( true );
+	const StringView parenttype = parentType();
 	const bool is2d = parenttype == typeid(uiOD2DLineTreeItem).name();
 	applMgr()->doVolProc( mid_, is2d );
     }
@@ -142,8 +139,9 @@ bool uiDataTreeItem::selectSetup()
 
     StringView parenttype = parentType();
     const bool is2d = parenttype == typeid(uiOD2DLineTreeItem).name();
-    IOObjContext ioctxt = is2d ? VolProcessing2DTranslatorGroup::ioContext()
-				: VolProcessingTranslatorGroup::ioContext();
+    const IOObjContext ioctxt =
+			is2d ? VolProcessing2DTranslatorGroup::ioContext()
+			     : VolProcessingTranslatorGroup::ioContext();
     const CtxtIOObj ctxt( ioctxt, ioobj.ptr() );
     uiIOObjSelDlg dlg( ODMainWin(), ctxt );
     if ( !dlg.go() || dlg.nrChosen() < 1 )
@@ -164,11 +162,13 @@ bool uiDataTreeItem::selectSetup()
 
     mid_ = dlg.chosenID();
 
-    const BufferString def =
+    const uiString userref =
+	VolProc::ExternalAttribCalculator::createDisplayName( mid_ );
+    const BufferString defstr =
 	VolProc::ExternalAttribCalculator::createDefinition( mid_ );
-    Attrib::SelSpec spec( "VolProc", Attrib::SelSpec::cOtherAttrib(),
-			  false, 0 );
-    spec.setDefString( def.buf() );
+    Attrib::SelSpec spec( userref.getFullString(),
+			  Attrib::SelSpec::cOtherAttrib() );
+    spec.setDefString( defstr.buf() );
     applMgr()->visServer()->setSelSpec( displayID(), attribNr(), spec );
     updateColumnText( uiODSceneMgr::cNameColumn() );
     return true;
@@ -177,10 +177,10 @@ bool uiDataTreeItem::selectSetup()
 
 uiString uiDataTreeItem::createDisplayName() const
 {
-    uiString dispname = uiStrings::sRightClick();
-    PtrMan<IOObj> ioobj = IOM().get( mid_ );
-    if ( ioobj )
-	dispname = ioobj->uiName();
+    uiString dispname =
+	VolProc::ExternalAttribCalculator::createDisplayName( mid_ );
+    if ( dispname.isEmpty() )
+	dispname = uiStrings::sRightClick();
 
     return dispname;
 }
