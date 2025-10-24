@@ -10,6 +10,7 @@ ________________________________________________________________________
 #include "prog.h"
 
 #include "uidesktopservices.h"
+#include "uidialog.h"
 #include "uifiledlg.h"
 #include "uifont.h"
 #include "uigroup.h"
@@ -49,7 +50,7 @@ class uiProgressViewer : public uiMainWin
 { mODTextTranslationClass(uiProgressViewer)
 public:
 
-		uiProgressViewer(uiParent*,const BufferString& filenm,int,
+		uiProgressViewer(uiParent*,const char* filenm,PID_Type,
 				 int delay=cDefDelay);
 		~uiProgressViewer();
 
@@ -66,10 +67,10 @@ protected:
     int			quittbid_;
     int			killbid_;
 
-    int			pid_;
+    PID_Type		pid_;
     const BufferString	procnm_;
     const BufferString	filenm_;
-    ProcStatus		procstatus_;
+    ProcStatus		procstatus_	= None;
     int			delay_;
     PtrMan<od_istream>	strm_;
     Timer		timer_;
@@ -94,23 +95,19 @@ protected:
 #define mAddButton(fnm,txt,fn) \
     tb_->addButton( fnm, txt, mCB(this,uiProgressViewer,fn), false );
 
-uiProgressViewer::uiProgressViewer( uiParent* p, const BufferString& fnm,
-				    int pid, int delay )
+uiProgressViewer::uiProgressViewer( uiParent* p, const char* fnm,
+				    PID_Type pid, int delay )
     : uiMainWin(p,tr("Progress Viewer"),1)
     , filenm_(fnm)
-    , strm_(0)
     , pid_(pid)
     , delay_(delay)
     , timer_("Progress")
-    , procstatus_(None)
-    , tb_(0)
-    , quittbid_(0)
 {
     if ( mIsUdf(pid) )
-	getNewPID(0);
+	getNewPID( nullptr );
 
     if ( !mIsUdf(pid_) )
-	const_cast<BufferString&>( procnm_ ) = getProcessNameForPID( pid_ );
+	getNonConst( procnm_ ).set( getProcessNameForPID( pid_ ) );
 
     topGroup()->setBorder(0);
     topGroup()->setSpacing(0);
@@ -124,7 +121,7 @@ uiProgressViewer::uiProgressViewer( uiParent* p, const BufferString& fnm,
 
     txtfld_ = new uiTextBrowser( this, "Progress", mUdf(int), true, true );
     uiFont& fnt = FontList().add( "Non-prop",
-	    FontData(FontData::defaultPointSize(),"Courier") );
+			FontData(FontData::defaultPointSize(),"Courier") );
     txtfld_->setFont( fnt );
 
     //Ensure we have space for 80 chars
@@ -158,8 +155,8 @@ void uiProgressViewer::initWin( CallBacker* )
     handleProcessStatus();
     if ( procnm_.isEmpty() || procnm_ == "bash" || procnm_ == "cmd" )
     {
-	pid_ = mUdf(int);
-	getNewPID(0);
+	pid_ = mUdf(PID_Type);
+	getNewPID( nullptr );
     }
 
     if ( !timer_.isActive() )
@@ -210,23 +207,22 @@ void uiProgressViewer::handleProcessStatus()
 	lockfp.setExtension( "lock" );
 	if ( haveProcess() )
 	    return;
-	else if ( lockfp.exists() )
+
+	if ( lockfp.exists() )
 	{
 	    procstatus_ = Running;
 	    return;
 	}
 
-	if ( !File::exists(filenm_) )
-	    procstatus_ = AbnormalEnd;
-	else
+	if ( File::exists(filenm_) )
 	{
-	    if ( !strm_ )
+	    if ( strm_ )
+		strm_->reOpen();
+	    else
 	    {
 		strm_ = new od_istream( filenm_.str() );
 		txtfld_->setSource( filenm_.str() );
 	    }
-	    else
-		strm_->reOpen();
 
 	    BufferString lines;
 	    strm_->getAll( lines );
@@ -237,6 +233,8 @@ void uiProgressViewer::handleProcessStatus()
 
 	    strm_->close();
 	}
+	else
+	    procstatus_ = AbnormalEnd;
     }
 
     timer_.stop();
@@ -254,7 +252,7 @@ void uiProgressViewer::handleProcessStatus()
 
     tb_->setToolTip( quittbid_, sQuitOnly() );
     tb_->setSensitive( killbid_, false );
-    pid_ = mUdf(int);
+    pid_ = mUdf(PID_Type);
 }
 
 
@@ -300,16 +298,17 @@ void uiProgressViewer::getNewPID( CallBacker* )
     }
 
     const SeparString sepstr( line.str(), ':' );
-    const int pid = sepstr.getIValue( 1 );
+    const PID_Type pid = sepstr.getIValue( 1 );
     if ( pid == 0 )
     {
 	if ( activetimer )
 	    timer_.start( delay_, false );
+
 	return;
     }
 
     pid_ = pid;
-    const_cast<BufferString&>( procnm_ ) = getProcessNameForPID( pid_ );
+    getNonConst( procnm_ ).set( getProcessNameForPID( pid_ ) );
     if ( tb_ && quittbid_ )
     {
 	tb_->setToolTip( quittbid_, sStopAndQuit() );
@@ -333,7 +332,7 @@ void uiProgressViewer::killFn( CallBacker* cb )
 	return;
 
     SignalHandling::stopProcess( pid_ );
-    pid_ = mUdf(int);
+    pid_ = mUdf(PID_Type);
     procstatus_ = Terminated;
     handleProcessStatus();
 }
@@ -353,7 +352,7 @@ bool uiProgressViewer::closeOK()
 	if ( !canTerminate() )
 	    return false;
 
-        killFn( 0 );
+        killFn( nullptr );
     }
 
     return true;
@@ -371,12 +370,12 @@ void uiProgressViewer::saveFn( CallBacker* )
     uiFileDialog dlg( this, false, GetProcFileName("log.txt"),
 		      "*.txt", uiStrings::phrSave(uiStrings::sLogs()) );
     dlg.setAllowAllExts( true );
-    if ( dlg.go() )
-    {
-	od_ostream strm( dlg.fileName() );
-	if ( strm.isOK() )
-	   strm << txtfld_->text() << od_endl;
-    }
+    if ( dlg.go() != uiDialog::Accepted )
+	return;
+
+    od_ostream strm( dlg.fileName() );
+    if ( strm.isOK() )
+       strm << txtfld_->text() << od_endl;
 }
 
 
@@ -421,7 +420,7 @@ int mProgMainFnName( int argc, char** argv )
 
     BufferString inpfile;
     clp.getVal( uiProgressViewer::sKeyInputFile(), inpfile );
-    int pid = mUdf(int);
+    PID_Type pid = mUdf(PID_Type);
     clp.getVal( uiProgressViewer::sKeyPID(), pid );
     int delay = cDefDelay;
     clp.getVal( uiProgressViewer::sKeyDelay(), delay );
@@ -439,7 +438,7 @@ int mProgMainFnName( int argc, char** argv )
 
 	    if ( normalargs.size() > 1 )
 	    {
-		const int tmppid = normalargs.get(1).toInt();
+		const PID_Type tmppid = normalargs.get(1).toInt();
 		if ( !mIsUdf(tmppid) || tmppid > 0 )
 		    pid = tmppid;
 	    }
@@ -448,8 +447,8 @@ int mProgMainFnName( int argc, char** argv )
 
     PIM().loadAuto( false );
     OD::ModDeps().ensureLoaded( "uiTools" );
-    PtrMan<uiMainWin> topmw = new uiProgressViewer( nullptr, inpfile, pid,
-						    delay);
+    PtrMan<uiMainWin> topmw = new uiProgressViewer( nullptr, inpfile,
+						    pid, delay );
     app.setTopLevel( topmw.ptr() );
     PIM().loadAuto( true );
     topmw->show();
