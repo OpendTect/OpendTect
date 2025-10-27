@@ -161,6 +161,7 @@ void uiTaskRunner::updateFields()
 	sb.message( message, 0 );
 	prevmessage_ = message;
     }
+
     if ( prevnrdonetext_.getString() != nrdonetext.getString() )
     {
 	sb.message( nrdonetext, 1 );
@@ -201,7 +202,7 @@ void uiTaskRunner::updateFields()
 	    prevpercentage_ = percentage;
 	}
 
-	if ( curnrdone > 0 )
+	if ( showeta_ && curnrdone>0 )
 	{
 	    const od_int64 tdiff = newtime - prevtime_;
 	    const float curtodo = sCast(float,totalnr-nrdone);
@@ -307,4 +308,10 @@ bool uiTaskRunner::rejectOK( CallBacker* )
     state_ = (int)Task::Stop;
     execres_ = false;
     return true;
+}
+
+
+void uiTaskRunner::showETA( bool yn )
+{
+    showeta_ = yn;
 }

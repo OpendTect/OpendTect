@@ -32,6 +32,7 @@ public:
     uiRetVal		errorWithDetails() const	{ return errdetails_; }
     int			getState() const	{ return state_; }
     void		displayMsgOnError(bool yn)	{ dispmsgonerr_ = yn; }
+    void		showETA(bool yn);
 
 protected:
 
@@ -50,6 +51,7 @@ protected:
     uiString		prevnrdonetext_;
     uiRetVal		errdetails_;
     bool		dispmsgonerr_;
+    bool		showeta_			= true;
 
     Threads::Lock	statelock_;
     int			state_; //-1 finished in error
