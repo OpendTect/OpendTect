@@ -42,7 +42,10 @@ WellLogInfo( const MultiID& mid, const char* lognm, Well::ExtractParams params )
     : mid_(mid)
     , logname_(lognm)
     , params_(params)
-{}
+{
+    logfunc_.setExtrapolateType( PointBasedMathFunction::None );
+    mdfunc_.setExtrapolateType( PointBasedMathFunction::None );
+}
 
 ~WellLogInfo()
 {
