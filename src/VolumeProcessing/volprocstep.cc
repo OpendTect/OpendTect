@@ -432,7 +432,7 @@ bool VolProc::Step::usePar( const IOPar& par )
 {
     username_.empty();
     par.get( sKey::Name(), username_ );
-    if ( !par.get(sKey::ID(),id_) && chain_ )
+    if ( !par.get(sKey::ID(),id_) && chain_ && mIsUdf(id_) )
 	id_ = chain_->getNewStepID();
 
     return true;
