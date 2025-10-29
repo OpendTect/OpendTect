@@ -299,7 +299,7 @@ bool uiSimpleMultiWellCreate::createWell( const uiSMWCData& wcd,
 
 IOObj* uiSimpleMultiWellCreate::getIOObj( const char* wellnm )
 {
-    IOObj* ioobj = IOM().getLocal( wellnm, "Well" );
+    IOObj* ioobj = IOM().get( wellnm, mTranslGroupName(Well) );
     if ( ioobj )
     {
 	if ( overwritepol_ == 0 )
@@ -383,8 +383,6 @@ bool uiSimpleMultiWellCreate::acceptOK( CallBacker* )
 	uiMSG().error( tr("Please enter a valid velocity") );
 	return false;
     }
-
-    IOM().to( IOObjContext::WllInf );
 
     TypeSet<MultiID> newwellkeys;
     progbar_->setTotalSteps( tbl_->nrRows() );

@@ -382,7 +382,7 @@ bool uiBulk2DHorizonImport::acceptOK( CallBacker* )
     for ( int idx=0; idx<horizonstoimport.size(); idx++ )
     {
 	const BufferString& nm = horizonstoimport.get( idx );
-	PtrMan<IOObj> ioobj = IOM().getLocal( nm,
+	PtrMan<IOObj> ioobj = IOM().get( nm,
 				EMHorizon2DTranslatorGroup::sGroupName() );
 	EM::ObjectID id = ioobj ? EM::EMM().getObjectID( ioobj->key() )
 				: EM::ObjectID::udf();

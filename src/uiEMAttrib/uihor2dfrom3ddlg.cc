@@ -13,6 +13,7 @@ ________________________________________________________________________
 #include "emmanager.h"
 #include "emhorizon2d.h"
 #include "emhorizon3d.h"
+#include "emsurfacetr.h"
 #include "executor.h"
 #include "hor2dfrom3dcreator.h"
 #include "ioman.h"
@@ -123,8 +124,7 @@ bool uiHor2DFrom3DDlg::checkOutNames( BufferStringSet& outnms ) const
     for ( const auto& mid : horids )
     {
 	BufferString hornm( hor2dnmfld_->text(), EM::EMM().objectName(mid) );
-	IOM().to( IOObjContext::Surf );
-	if ( IOM().getLocal(hornm,0) )
+	if ( IOM().get(hornm,mTranslGroupName(EMHorizon2D)) )
 	    existinghornms.add( hornm );
 
 	outnms.add( hornm );

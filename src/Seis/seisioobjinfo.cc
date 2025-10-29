@@ -201,38 +201,24 @@ SeisIOObjInfo::SeisIOObjInfo( const char* ioobjnm, Seis::GeomType geomtype )
 {
     if ( IOMan::isOK() )
     {
-	IOM().to( IOObjContext::Seis );
 	switch ( geomtype_ )
 	{
 	    case Seis::Vol:
-	    ioobj_ = IOM().getLocal( ioobjnm, mTranslGroupName(SeisTrc) );
+	    ioobj_ = IOM().get( ioobjnm, mTranslGroupName(SeisTrc) );
 	    break;
 
 	    case Seis::VolPS:
-	    ioobj_ = IOM().getLocal( ioobjnm, mTranslGroupName(SeisPS3D) );
+	    ioobj_ = IOM().get( ioobjnm, mTranslGroupName(SeisPS3D) );
 	    break;
 
 	    case Seis::Line:
-	    ioobj_ = IOM().getLocal( ioobjnm, mTranslGroupName(SeisTrc2D) );
+	    ioobj_ = IOM().get( ioobjnm, mTranslGroupName(SeisTrc2D) );
 	    break;
 
 	    case Seis::LinePS:
-	    ioobj_ = IOM().getLocal( ioobjnm, mTranslGroupName(SeisPS2D) );
+	    ioobj_ = IOM().get( ioobjnm, mTranslGroupName(SeisPS2D) );
 	    break;
 	}
-    }
-
-    setType();
-}
-
-
-SeisIOObjInfo::SeisIOObjInfo( const char* ioobjnm )
-    : ioobj_(nullptr)
-{
-    if ( IOMan::isOK() )
-    {
-	IOM().to( IOObjContext::Seis );
-	ioobj_ = IOM().getLocal( ioobjnm, nullptr );
     }
 
     setType();

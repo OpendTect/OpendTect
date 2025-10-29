@@ -82,7 +82,7 @@ static void convertSeis2DTranslators()
 
 	if ( ioobj->translator() == TwoDDataSeisTrcTranslator::translKey() )
 	{
-	    PtrMan<IOObj> duplobj = IOM().getLocal( ioobj->name().buf(),
+	    PtrMan<IOObj> duplobj = IOM().get( ioobj->name().buf(),
 						mTranslGroupName(SeisTrc2D) );
 	    if ( duplobj )
 		continue;

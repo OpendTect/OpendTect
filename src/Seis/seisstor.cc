@@ -401,16 +401,7 @@ PtrMan<IOObj> SeisStoreAccess::getFromPar( const IOPar& iop )
 
     MultiID dbkey;
     if ( !iop.get(sKey::ID(),dbkey) )
-    {
-	BufferString dsnm;
-	if ( iop.get(sKey::Name(),dsnm) && !dsnm.isEmpty() )
-	{
-	    IOM().to( IOObjContext::Seis );
-	    ret = IOM().getLocal( dsnm.str(), nullptr );
-	    if ( ret )
-		dbkey = ret->key();
-	}
-    }
+	return nullptr;
 
     ret = IOM().get( dbkey );
     return ret;

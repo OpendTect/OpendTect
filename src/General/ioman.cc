@@ -727,6 +727,12 @@ IOObj* IOMan::getOfGroup( const char* tgname, bool first,
 
 IOObj* IOMan::getLocal( const char* objname, const char* trgrpnm ) const
 {
+    if ( StringView(trgrpnm).isEmpty() )
+    {
+	pErrMsg( "TranslatorGroup name is mandatory" );
+	return nullptr;
+    }
+
     const StringView fsobjnm( objname );
     if ( fsobjnm.isEmpty() )
 	return nullptr;
@@ -1544,6 +1550,12 @@ bool IOMan::doReloc( const MultiID& key, Translator* trans,
 
 IOObj* IOMan::get( const char* objname, const char* tgname ) const
 {
+    if ( StringView(tgname).isEmpty() )
+    {
+	pErrMsg( "TranslatorGroup name is mandatory" );
+	return nullptr;
+    }
+
     for ( int itype=0; itype<TranslatorGroup::groups().size(); itype++ )
     {
 	const TranslatorGroup& tgrp = *TranslatorGroup::groups()[itype];

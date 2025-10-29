@@ -224,7 +224,6 @@ public:
     IOObj::Status	objStatus() const		{ return objstatus_; }
 
 
-    mDeprecatedDef	SeisIOObjInfo(const char* ioobjnm);
     mDeprecated("Use getDataSetNamesForLine with Pos::GeomID")
     static void		getDataSetNamesForLine(const char* linenm,
 					       BufferStringSet&,

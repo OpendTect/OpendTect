@@ -443,8 +443,7 @@ void uiODAnnotSubItem::store() const
 
 bool uiODAnnotSubItem::doesNameExist( const char* nm )
 {
-    IOM().to( IOObjContext::Loc );
-    PtrMan<IOObj> local = IOM().getLocal( nm, 0 );
+    PtrMan<IOObj> local = IOM().get( nm, mTranslGroupName(PickSet) );
     return local;
 }
 

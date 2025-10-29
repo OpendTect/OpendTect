@@ -351,7 +351,7 @@ bool uiIOObjManipGroup::renameEntry( IOObj& ioobj, Translator* trans )
     }
     else
     {
-	const IOObj* lioobj = IOM().getLocal( newnm, ioobj.group() );
+	const IOObj* lioobj = IOM().get( newnm, ioobj.group() );
 	if ( lioobj )
 	{
 	    const uiString msg = tr("This name is already used by a %1 object")

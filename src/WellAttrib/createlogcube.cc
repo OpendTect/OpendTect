@@ -65,7 +65,6 @@ bool LogCubeCreator::LogCube::mkIOObj()
     ctxt.forread_ = false;
     ctxt.deftransl_ = CBVSSeisTrcTranslator::translKey();
 
-    IOM().to( ctxt.getSelKey() );
     CtxtIOObj ctio( ctxt );
     ctio.setName( fnm_ );
     IOM().getEntry( ctio );
@@ -262,8 +261,8 @@ bool LogCubeCreator::setOutputNm( const char* suffix, bool withwllnm )
 	if ( withwllnm )
 	    fnm.addSpace().add( wellnmsuffix );
 
-	const IOObj* presentobj = IOM().getLocal( fnm.buf(),
-						  ctxt.trgroup_->groupName() );
+	const IOObj* presentobj = IOM().get( fnm.buf(),
+					     ctxt.trgroup_->groupName() );
 	if ( !presentobj )
 	    continue;
 
