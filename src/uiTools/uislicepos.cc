@@ -42,8 +42,20 @@ uiSlicePos::uiSlicePos( uiParent* p )
     slicestepbox_ = new uiSpinBox( toolbar_, 0, "Slice step" );
     slicestepbox_->valueChanging.notify( mCB(this,uiSlicePos,sliceStepChg) );
 
-    uiString prevttip = tr( "Previous position \n\nShortcut: \"z\"" );
-    uiString nextttip = tr( "Next position \n\nShortcut: \"x\"" );
+    BufferString prevscstr, nextscstr;
+    const uiShortcutsList& scl = SCMgr().getList( "ODScene" );
+    const uiKeyDesc* keydesc = scl.keyDescOf( "Move slice forward" );
+    if ( keydesc )
+	prevscstr = keydesc->getKeySequenceStr();
+
+    keydesc = scl.keyDescOf( "Move slice backward" );
+    if ( keydesc )
+	nextscstr = keydesc->getKeySequenceStr();
+
+    uiString prevttip = tr( "Previous position \n\nShortcut: \"%1\"" )
+			    .arg( prevscstr.isEmpty() ? "z" : prevscstr.buf() );
+    uiString nextttip = tr( "Next position \n\nShortcut: \"%1\"" )
+			    .arg( nextscstr.isEmpty() ? "x" : nextscstr.buf() );
     prevbut_ = new uiToolButton( toolbar_, "prevpos", prevttip,
 				mCB(this,uiSlicePos,prevCB) );
     sliceslider_ = new uiSlider( nullptr, uiSlider::Setup(), "Slice slider" );
@@ -78,11 +90,22 @@ void uiSlicePos::shortcutsChg( CallBacker* )
     const uiShortcutsList& scl = SCMgr().getList( "ODScene" );
     const uiKeyDesc* keydesc = scl.keyDescOf( "Move slice forward" );
     if ( keydesc )
-	nextbut_->setShortcut( keydesc->getKeySequenceStr() );
+    {
+	const BufferString keystr = keydesc->getKeySequenceStr();
+	nextbut_->setShortcut( keystr.buf() );
+	nextbut_->setToolTip( tr("Next position \n\nShortcut: \"%1\"")
+				.arg(keystr) );
+    }
 
     keydesc = scl.keyDescOf( "Move slice backward" );
     if ( keydesc )
-	prevbut_->setShortcut( keydesc->getKeySequenceStr() );
+    {
+	const BufferString keystr = keydesc->getKeySequenceStr();
+	prevbut_->setShortcut( keystr.buf() );
+	prevbut_->setToolTip( tr("Previous position \n\nShortcut: \"%1\"")
+				.arg(keystr) );
+
+    }
 }
 
 
