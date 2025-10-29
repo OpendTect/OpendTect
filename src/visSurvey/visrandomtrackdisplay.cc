@@ -834,7 +834,7 @@ void RandomTrackDisplay::updateChannels( int attrib, TaskRunner* )
 void RandomTrackDisplay::createTransformedDataPack( int attrib,
 						    TaskRunner* taskr )
 {
-    ConstRefMan<VolumeDataPack> voldp = getDisplayedVolumeDataPack( attrib );
+    ConstRefMan<VolumeDataPack> voldp = getVolumeDataPack( attrib );
     mDynamicCastGet(const RandomSeisDataPack*,randsdp,voldp.ptr());
     if ( !randsdp || randsdp->isEmpty() )
 	return;
@@ -842,6 +842,7 @@ void RandomTrackDisplay::createTransformedDataPack( int attrib,
     RefMan<RandomSeisDataPack> output;
     if ( datatransform_ && !alreadyTransformed(attrib) )
     {
+	datatransform_->setDataFromZDomainInfo( randsdp->zDomain() );
 	if ( datatransform_->needsVolumeOfInterest() )
 	{
 	    const TrcKeySet& path = randsdp->getPath();
