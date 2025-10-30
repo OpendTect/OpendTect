@@ -32,6 +32,7 @@ ________________________________________________________________________
 #include "nlamodel.h"
 #include "randomlinegeom.h"
 #include "rangeposprovider.h"
+#include "seis2dlineio.h"
 #include "seisbuf.h"
 #include "seisdatapack.h"
 #include "seisioobjinfo.h"
@@ -2064,8 +2065,8 @@ bool uiAttribPartServer::handleAttribSubMenu( int mnuid, SelSpec& as,
 	    return false;
 	const MenuItem* item = zdomainmnuitem->findItem( mnuid );
 	IOM().to( IOObjContext::Seis );
-	ConstPtrMan<IOObj> ioobj =
-			IOM().getLocal( item->text.getFullString(), nullptr );
+	ConstPtrMan<IOObj> ioobj = IOM().getLocal( item->text.getFullString(),
+						   mTranslGroupName(SeisTrc) );
 	if ( ioobj )
 	{
 	    multiid = ioobj->key();
