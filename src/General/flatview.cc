@@ -861,7 +861,7 @@ void FlatView::Viewer::setPack( VwrDest dest, FlatDataPack* fdp,
 	return;
 
     BufferString category;
-    if ( !fdp )
+    if ( !fdp || !fdp->isOK() )
     {
 	if ( wva )
 	    wvapack_ = nullptr;
