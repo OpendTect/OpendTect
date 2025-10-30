@@ -200,21 +200,30 @@ bool uiCoordSystemSelGrp::acceptOK()
     }
 
     const int selidx = coordsystemsel_ ? coordsystemsel_->getIntValue() : 0;
+    uiCoordSystem* csui = nullptr;
+    if ( coordsystemsuis_.validIdx(selidx) )
+	csui = coordsystemsuis_.get( selidx );
 
-    if ( coordsystemsuis_[selidx] )
+    if ( csui )
     {
-	if ( !coordsystemsuis_[selidx]->acceptOK() )
+	if ( !csui->acceptOK() )
 	    return false;
 
-	outputsystem_ = coordsystemsuis_[selidx]->outputSystem();
+	outputsystem_ = csui->outputSystem();
     }
     else
     {
-	BufferString key;
-	coordsystempars_[selidx]->get( sKey::Name(), key );
-	RefMan<CoordSystem> outputsystem = CoordSystem::factory().create( key );
-	if ( outputsystem->usePar(*coordsystempars_[selidx]) )
-	    outputsystem_ = outputsystem.ptr();
+	const IOPar* selpar = coordsystempars_.validIdx( selidx )
+				? coordsystempars_.get( selidx ) : nullptr;
+	if ( selpar )
+	{
+	    BufferString key;
+	    selpar->get( sKey::Name(), key );
+	    RefMan<CoordSystem> outputsystem
+					= CoordSystem::factory().create( key );
+	    if ( outputsystem_ && outputsystem->usePar(*selpar) )
+		outputsystem_ = outputsystem.ptr();
+	}
     }
 
     return outputsystem_;
