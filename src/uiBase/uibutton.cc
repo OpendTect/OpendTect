@@ -856,6 +856,9 @@ void uiToolButton::setArrowType( ArrowType type )
 
 void uiToolButton::setShortcut( const char* sc )
 {
+    if ( !sc )
+	return;
+
     tbbody_->setShortcut( QString(sc) );
 }
 
