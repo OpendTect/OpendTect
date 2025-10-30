@@ -1038,7 +1038,8 @@ void uiSEGYReadStartInfo::fillLoadDef()
     const Seis::GeomType gt = imptype_.geomType();
     if ( Seis::is2D(gt) )
     {
-	loaddef_.hdrdef_->refnr_ = refnrbytefld_->hdrEntry();
+	if ( refnrbytefld_ )
+	    loaddef_.hdrdef_->refnr_ = refnrbytefld_->hdrEntry();
 	if ( trcnrbytefld_ )
 	    loaddef_.hdrdef_->trnr_ = trcnrbytefld_->hdrEntry();
 
