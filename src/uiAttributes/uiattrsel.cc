@@ -27,6 +27,7 @@ ________________________________________________________________________
 #include "nladesign.h"
 #include "nlamodel.h"
 #include "ptrman.h"
+#include "seis2dlineio.h"
 #include "seisioobjinfo.h"
 #include "seispreload.h"
 #include "seistrctr.h"
@@ -487,7 +488,9 @@ void uiAttrSelDlg::cubeSel( CallBacker* )
 	if ( nms.validIdx(selidx) )
 	{
 	    IOM().to( IOObjContext::Seis );
-	    ConstPtrMan<IOObj> ioobj = IOM().getLocal( nms.get(selidx), 0 );
+	    ConstPtrMan<IOObj> ioobj = IOM().getLocal( nms.get(selidx),
+					is2D() ? mTranslGroupName(SeisTrc2D)
+					       : mTranslGroupName(SeisTrc) );
 	    if ( ioobj )
 		ioobjkey = ioobj->key();
 	}
@@ -566,7 +569,9 @@ bool uiAttrSelDlg::getAttrData( bool needattrmatch )
 	BufferStringSet nms;
 	SelInfo::getZDomainItems( *attrdata_.zdomaininfo_, is2D(), nms );
 	IOM().to( IOObjContext::Seis );
-	ConstPtrMan<IOObj> ioobj = IOM().getLocal( nms.get(selidx), 0 );
+	ConstPtrMan<IOObj> ioobj = IOM().getLocal( nms.get(selidx),
+					is2D() ? mTranslGroupName(SeisTrc2D)
+						: mTranslGroupName(SeisTrc) );
 	if ( !ioobj )
 	    return false;
 
