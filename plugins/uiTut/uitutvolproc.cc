@@ -66,15 +66,21 @@ bool uiTutOpCalculator::acceptOK( CallBacker* cb )
     const BufferString type( typefld_->text() );
     const BufferStringSet strs( possibleoperations );
     const int opidx = strs.indexOf( type );
-    IOPar steppar;
-    steppar.set( TutOpCalculator::sKeyTypeIndex(), opidx>0 ? opidx : 0 );
-    if ( opidx == 1 )
+
+    /* Set step parameters directly rather than building an IOPar */
+    const int settype = opidx > 0 ? opidx : 0;
+    opcalc_->setType( settype );
+
+    if ( settype == 1 ) /* Shift */
     {
-	steppar.set( sKey::StepInl(), shiftfld_->getBinID().inl() );
-	steppar.set( sKey::StepCrl(), shiftfld_->getBinID().crl() );
+	opcalc_->setShift( shiftfld_->getBinID() );
+    }
+    else if ( settype == 0 ) /* Square */
+    {
+	opcalc_->setShift( BinID::noStepout() );
     }
 
-    return opcalc_->usePar( steppar );
+    return true;
 }
 
 

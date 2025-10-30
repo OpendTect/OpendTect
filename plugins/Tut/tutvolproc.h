@@ -35,6 +35,10 @@ public:
 			TutOpCalculator();
 			~TutOpCalculator();
 
+    /* New: programmatic setters so UI can set parameters directly */
+    void		setType(int t);
+    void		setShift(const BinID&);
+
     void		fillPar(IOPar&) const override;
     bool		usePar(const IOPar&) override;
 

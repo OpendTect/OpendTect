@@ -76,6 +76,20 @@ bool TutOpCalculator::usePar( const IOPar& par )
 }
 
 
+void TutOpCalculator::setType( int t )
+{
+    type_ = t;
+    setStepParameters();
+}
+
+
+void TutOpCalculator::setShift( const BinID& b )
+{
+    shift_ = b;
+    setStepParameters();
+}
+
+
 bool TutOpCalculator::prepareWork()
 {
     if ( inputs_.isEmpty() )
