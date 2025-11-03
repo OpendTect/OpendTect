@@ -26,7 +26,7 @@ ________________________________________________________________________
 #include "timedepthconv.h"
 #include "unitofmeasure.h"
 
-#define mErrRet(s) { od_ostream::logStream() << s << od_endl; return false; }
+#define mErrRet(s) { errStream() << s << od_endl; return false; }
 
 //Velocity Object IDs
 static const int velids_direct[] = { 8, 16, 9, 9, 14, 14, 16 };
@@ -318,7 +318,8 @@ bool testFltOutput( RefMan<EM::EMObject> emobj, int survidx, int zatfidx )
 
     const float* zvals = zvalues_flt[survidx][zatfidx];
     mRunStandardTest( (mIsEqual(firstcrd.z_,zvals[0],mEps) &&
-                      mIsEqual(lastcrd.z_,zvals[1],mEps)),mMsg("Fault 3D position testing") );
+		       mIsEqual(lastcrd.z_,zvals[1],mEps)),
+		      mMsg("Fault 3D position testing") );
 
     return true;
 }
@@ -340,7 +341,7 @@ bool handleEarthModelObjects( ZAxisTransform& zatf, int survidx, int zatfidx )
     const int grpid = IOObjContext::getStdDirData(
 	IOObjContext::Surf )->groupID();
     const MultiID outmid( grpid, MultiID::cMemoryObjID() );
-    for ( auto inpdata : inpdataset )
+    for ( const auto& inpdata : inpdataset )
     {
 	const EM::ObjectType objtype = inpdata.second();
 	EM::EMManager& em = EM::EMM();
@@ -369,25 +370,31 @@ bool handleEarthModelObjects( ZAxisTransform& zatf, int survidx, int zatfidx )
 	PtrMan<Executor> exec =
 	EM::SurfaceT2DTransformer::createExecutor( datas, zatf, objtype );
 	mDynamicCastGet(EM::SurfaceT2DTransformer*,surftrans,exec.ptr());
-	if ( !surftrans->execute() )
-	    od_cerr() << zatf.name() << " for " <<
-		    EM::ObjectTypeDef().getKey( objtype ) << "\n";
-	else
+	if ( surftrans->execute() )
 	{
 	    switch(objtype)
 	    {
 		case EM::ObjectType::Hor3D:
 		case EM::ObjectType::AnyHor:
-		    testHorizon3DOutput( surftrans->getTransformedSurface(
-			    data->outmid_), survidx, zatfidx );
+		    if ( !testHorizon3DOutput(
+			    surftrans->getTransformedSurface(data->outmid_),
+			    survidx,zatfidx) )
+			return false;
+
 		    break;
 		case EM::ObjectType::Flt3D:
-		    testFltOutput( surftrans->getTransformedSurface(
-			    data->outmid_), survidx, zatfidx );
+		    if ( !testFltOutput(
+			    surftrans->getTransformedSurface(data->outmid_),
+			    survidx,zatfidx) )
+			return false;
+
 		    break;
 		case EM::ObjectType::FltSet:
-		    testFltSetOutput( surftrans->getTransformedSurface(
-						data->outmid_), zatfidx );
+		    if ( !testFltSetOutput(
+			    surftrans->getTransformedSurface(data->outmid_),
+			    zatfidx) )
+			return false;
+
 		    break;
 		case EM::ObjectType::Hor2D:
 		case EM::ObjectType::FltSS2D:
@@ -397,9 +404,12 @@ bool handleEarthModelObjects( ZAxisTransform& zatf, int survidx, int zatfidx )
 		case EM::ObjectType::Unknown:
 		    break;
 	    }
-
 	}
-
+	else
+	{
+	    tstStream() << zatf.name() << " for " <<
+		    EM::ObjectTypeDef().getKey( objtype ) << "\n";
+	}
     }
 
     return true;
@@ -417,9 +427,9 @@ int mTestMainFnName( int argc, char** argv )
     BufferString basedir;
     clParser().getVal( "datadir", basedir );
     const uiRetVal uirv = IOMan::setDataSource( basedir.buf(),
-	survdirnms.first()->str() );
+						survdirnms.first()->str() );
     mRunStandardTestWithError( uirv.isOK(), "Initialize the first project",
-	toString(uirv) );
+			       toString(uirv) );
 
     SurveyDiskLocation sdl( IOM().rootDir() );
     for ( int survidx=0; survidx<survdirnms.size(); survidx++ )
@@ -437,8 +447,10 @@ int mTestMainFnName( int argc, char** argv )
 	    ZAxisTransform* zatf = zatfs.get( zatfidx );
 	    logStream() << "Testing " << survdirnm << " for " <<
 		zatf->factoryDisplayName() << " transformation" << od_endl;
-	    handleEarthModelObjects( *zatf, survidx, zatfidx );
-	    logStream() << od_endl;
+	    if ( !handleEarthModelObjects(*zatf,survidx,zatfidx) )
+		return 1;
+
+	    tstStream() << od_endl;
 	}
     }
 

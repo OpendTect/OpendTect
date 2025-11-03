@@ -28,8 +28,6 @@ static BufferString getTestTempFileName()
     return ret;
 }
 
-#define mRetFail(s) { od_cout() << "Failed " << s << od_endl; }
-
 #define mImplNumberTestFn(fnnm,decls,act,cond) \
 static bool fnnm() \
 { \
@@ -37,14 +35,11 @@ static bool fnnm() \
     decls; \
     act; \
     const bool isok = (cond); \
-    if ( !quiet_ ) \
-    { \
-	od_cout() << #fnnm << "[" << #cond << "]" \
-		  << (isok ? " OK" : " Fail") << od_endl; \
-	if ( strm.isBad() ) \
-		od_cout() << "\terrmsg=" << strm.errMsg().getFullString() \
-			  << od_endl; \
-    } \
+    tstStream(!isok) << #fnnm << "[" << #cond << "]" \
+		     << (isok ? " OK" : " Fail") << od_endl; \
+    if ( strm.isBad() ) \
+	tstStream() << "\terrmsg=" << strm.errMsg().getFullString() \
+			<< od_endl; \
     return isok; \
 }
 
@@ -264,8 +259,7 @@ int mTestMainFnName( int argc, char** argv )
     if ( !isok ) \
 	return doExit( 1 )
 
-
-    od_cout() << "-> Number tests." << od_endl;
+    tstStream() << "-> Number tests." << od_endl;
 
     mDoTest(strm1,"123 44.5",testIfNumberIsNormal);
     mDoTest(strm2,"\t\n123\t\t44.5\n\n",testIfNumberIsNormal);
@@ -275,17 +269,17 @@ int mTestMainFnName( int argc, char** argv )
     mDoTest(strm6,"123",testOnlyIntRead);
     mDoTest(strm7,"\n123\n \n",testOnlyIntRead);
 
-    od_cout() << "-> Line endings test." << od_endl;
+    tstStream() << "-> Line endings test." << od_endl;
 
     if ( !testLineEndings() )
 	return doExit( 1 );
 
-    od_cout() << "-> Pipe input test." << od_endl;
+    tstStream() << "-> Pipe input test." << od_endl;
 
     if ( !testPipeInput() )
 	return doExit( 1 );
 
-    od_cout() << "-> Pipe output test." << od_endl;
+    tstStream() << "-> Pipe output test." << od_endl;
     if ( !testPipeOutput() )
     {
 	if ( File::exists(getTestTempFileName()) )
@@ -294,6 +288,6 @@ int mTestMainFnName( int argc, char** argv )
 	return doExit(1);
     }
 
-    od_cout() << "-> No problem." << od_endl;
+    tstStream() << "-> No problem." << od_endl;
     return doExit( 0 );
 }
