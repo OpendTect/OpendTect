@@ -162,7 +162,7 @@ bool testTracesAmplitudes( od_ostream& strm,
 
 mLoad1Module("Seis")
 
-bool BatchProgram::doWork( od_ostream& strm )
+bool BatchProgram::doWork( od_ostream& /*strm*/ )
 {
     // Inputs
     ElasticModelSet models;
@@ -177,21 +177,22 @@ bool BatchProgram::doWork( od_ostream& strm )
     MultiID wavid;
     if ( !pars().get(sKeyWaveletID(),wavid) )
     {
-	strm << "Can not find wavelet from parameter file" << od_newline;
+	errStream() << "Can not find wavelet from parameter file"
+		    << od_newline;
 	return false;
     }
 
     PtrMan<IOObj> wavioobj = IOM().get( wavid );
     if ( !wavioobj )
     {
-	strm << "Input wavelet is not available." << od_newline;
+	errStream() << "Input wavelet is not available." << od_newline;
 	return false;
     }
 
     PtrMan<Wavelet> realwav = Wavelet::get( wavioobj.ptr() );
     if ( !realwav )
     {
-	strm << "Input wavelet could not be read." << od_newline;
+	errStream() << "Input wavelet could not be read." << od_newline;
 	return false;
     }
 
@@ -201,10 +202,11 @@ bool BatchProgram::doWork( od_ostream& strm )
     PtrMan<IOPar> reflpar = pars().subselect( ReflCalc1D::sKeyReflPar() );
     if ( !reflpar )
     {
-	strm << "Input calculator could not be found." << od_newline;
+	errStream() << "Input calculator could not be found." << od_newline;
 	return false;
     }
 
+    od_ostream& strm = tstStream();
     PtrMan<TaskRunner> taskr = new TextTaskRunner( strm );
     const bool srd = 0.f;
     const Seis::OffsetType offstyp = Seis::OffsetType::OffsetMeter;
@@ -226,7 +228,7 @@ bool BatchProgram::doWork( od_ostream& strm )
 			  taskr.ptr(), srd, offstyp, azityp, depthtype );
 	if ( !refmodels )
 	{
-	    strm << ::toString(msg) << od_endl;
+	    errStream() << ::toString(msg) << od_endl;
 	    return false;
 	}
 

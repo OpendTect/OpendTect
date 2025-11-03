@@ -30,27 +30,29 @@ public:
     int		id_;
     float	val_;
 
-    void	print() const	{ od_cout() << '['<< id_<<": "<<val_<<']'; }
+    void	print() const	{ tstStream() << '['<< id_<<": "<<val_<<']'; }
 
 };
 
-#define mPrElems(msg ) if ( !quiet_ ) { \
-    od_cout() << msg << od_endl << '\t'; \
+#define mPrElems(msg ) \
+{ \
+    tstStream() << msg << od_endl << '\t'; \
     for ( int idx=0; idx<des.size(); idx++ ) \
-	{ mPrintFunc; od_cout() << " | "; } \
-    od_cout() << od_endl; }
+	{ mPrintFunc; tstStream() << " | "; } \
+    tstStream() << od_endl; \
+}
 
 #define mErrRet(msg ) \
 { \
-    if ( !quiet_ ) { \
-    mPrElems("-> Failure ..." ) \
-    od_cout() << msg << " failed.\n"; } \
+    { \
+	mPrElems("-> Failure ..." ) \
+	errStream() << msg << " failed." << od_endl; \
+    } \
     return 1; \
 }
 
 #define mRetAllOK() \
-    if ( !quiet_ ) { \
-    od_cout() << "All OK.\n" << od_endl; } \
+    tstStream() << "All OK." << od_endl; \
     return 0;
 
 #define mPrintFunc des[idx].print()
@@ -58,7 +60,7 @@ public:
 
 static int testTypeSetFind()
 {
-    od_cout() << od_endl;
+    tstStream() << od_endl;
     TypeSet<DataElem> des( 6, DataElem() );
     des[0] = DataElem( 1, 0.1 );
     des[1] = DataElem( 2, 0.2 );
@@ -97,7 +99,7 @@ static int testTypeSetFind()
 
 static int testTypeSetSetFns()
 {
-    od_cout() << od_endl;
+    tstStream() << od_endl;
     TypeSet<DataElem> des;
     des += DataElem( 1, 0.1 );
     des += DataElem( 2, 0.2 );
@@ -133,11 +135,11 @@ static int testTypeSetSetFns()
 }
 
 #undef mPrintFunc
-#define mPrintFunc od_cout().addPtr( des[idx] )
+#define mPrintFunc tstStream().addPtr( des[idx] )
 
 static int testObjSetFind()
 {
-    od_cout() << od_endl;
+    tstStream() << od_endl;
     ObjectSet<DataElem> des;
     des += new DataElem( 1, 0.1 );
     des += new DataElem( 2, 0.2 );
