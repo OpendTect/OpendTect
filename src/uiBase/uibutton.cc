@@ -460,7 +460,6 @@ uiPushButton::uiPushButton( uiParent* p, const uiString& nm,
 uiPushButton::~uiPushButton()
 {
     detachAllNotifiers();
-    delete uimenu_;
 }
 
 
@@ -479,16 +478,8 @@ void uiPushButton::setMenu( uiMenu* mnu )
 
     // not tested null, but found a link on Internet that says null hides
     qpushbut->setMenu( mnu ? mnu->getQMenu() : nullptr );
-
-    OBJDISP()->go( uimenu_ );
-    uimenu_ = mnu;
 }
 
-
-uiMenu* uiPushButton::menu() const
-{
-    return uimenu_;
-}
 
 
 void uiPushButton::setFlat( bool yn )
@@ -582,6 +573,46 @@ void uiPushButton::click()
 {
     activated.trigger();
 }
+
+
+
+// uiPushButtonWithMenu
+uiPushButtonWithMenu::uiPushButtonWithMenu( uiParent* p, const uiString& txt,
+					    bool immediate, uiMenu* mnu )
+    : uiPushButton(p,txt,immediate)
+{
+    setNewMenu( mnu );
+}
+
+
+uiPushButtonWithMenu::uiPushButtonWithMenu( uiParent* p, const uiString& txt,
+					    const char* iconnm, bool immediate,
+					    uiMenu* mnu )
+    : uiPushButton(p,txt,iconnm,immediate)
+{
+    setNewMenu( mnu );
+}
+
+
+uiPushButtonWithMenu::~uiPushButtonWithMenu()
+{
+    delete uimenu_;
+}
+
+
+void uiPushButtonWithMenu::setNewMenu( uiMenu* mnu )
+{
+    setMenu( mnu );
+    OBJDISP()->go( uimenu_ );
+    uimenu_ = mnu;
+}
+
+
+uiMenu* uiPushButtonWithMenu::menu() const
+{
+    return uimenu_;
+}
+
 
 
 // uiRadioButton

@@ -103,7 +103,6 @@ public:
     void		setDefault(bool yn=true);
     void		click() override;
     void		setMenu(uiMenu*);
-    uiMenu*		menu() const;
     void		setFlat(bool);
     bool		isFlat() const;
 
@@ -118,7 +117,24 @@ private:
     bool		immediate_;
     uiPushButtonBody*	pbbody_;
     uiPushButtonBody&	mkbody(uiParent*,const uiString&);
+};
 
+
+mExpClass(uiBase) uiPushButtonWithMenu : public uiPushButton
+{
+public:
+			uiPushButtonWithMenu(uiParent*,const uiString& txt,
+					     bool immediate,uiMenu*);
+			uiPushButtonWithMenu(uiParent*,const uiString& txt,
+					const char* iconnm,bool immediate,
+					uiMenu*);
+			~uiPushButtonWithMenu();
+			mOD_DisableCopy(uiPushButtonWithMenu)
+
+    uiMenu*		menu() const;
+    void		setNewMenu(uiMenu*);
+
+private:
     uiMenu*		uimenu_				= nullptr;
 };
 

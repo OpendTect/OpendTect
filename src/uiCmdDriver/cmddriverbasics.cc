@@ -854,7 +854,7 @@ const uiMenu* UIEntity::menu() const
 	return toolbut->menu();
 
 
-    mDynamicCastGet(const uiPushButton*,pushbut,uiobj_)
+    mDynamicCastGet(const uiPushButtonWithMenu*,pushbut,uiobj_)
     return pushbut ? pushbut->menu() : nullptr;
 }
 

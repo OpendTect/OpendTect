@@ -37,14 +37,15 @@ uiImageSel::uiImageSel( uiParent* p, bool forread, const Setup& su )
 
     uiPushButton* importeditbut = nullptr;
     if ( su.withimport_ && su.withedit_ )
-    {
-	importeditbut = new uiPushButton( this, tr("Import/Edit"), false );
+   {
 	auto* mnu = new uiMenu;
 	mnu->insertAction( new uiAction(uiStrings::sImport(),
 		    mCB(this,uiImageSel,doImportCB),"import") );
 	mnu->insertAction( new uiAction(uiStrings::sEdit(),
 		    mCB(this,uiImageSel,doEditCB),"edit") );
-	importeditbut->setMenu( mnu );
+	auto* but =
+		new uiPushButtonWithMenu( this, tr("Import/Edit"), false, mnu );
+	importeditbut = but;
     }
     else if ( su.withimport_ )
     {
@@ -282,11 +283,11 @@ bool uiImageCoordGrp::saveCoords( const IOObj& ioobj )
 }
 
 
-void uiImageCoordGrp::fillPar( IOPar& par ) const
+void uiImageCoordGrp::fillPar( IOPar& ) const
 {}
 
 
-bool uiImageCoordGrp::usePar( const IOPar& par )
+bool uiImageCoordGrp::usePar( const IOPar& )
 {
     return true;
 }
@@ -296,8 +297,8 @@ bool uiImageCoordGrp::usePar( const IOPar& par )
 
 uiEditImageDlg::uiEditImageDlg( uiParent* p, const IOObj& ioobj )
     : uiDialog(p,Setup(tr("Edit Image"),mTODOHelpKey))
-    , ioobj_(ioobj)
     , editDone(this)
+    , ioobj_(ioobj)
 {
     setOkCancelText( uiStrings::sEdit(), uiStrings::sClose() );
 

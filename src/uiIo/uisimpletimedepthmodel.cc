@@ -332,15 +332,14 @@ uiSimpleTimeDepthTransform::uiSimpleTimeDepthTransform( uiParent* p, bool t2d )
     mAttachCB( selfld_->selectionDone,
 	       uiSimpleTimeDepthTransform::setZRangeCB );
 
-    auto* editcreatebut = new uiPushButton( this,
-			tr("Create/Edit"), false );
-    editcreatebut->attach( rightOf, selfld_ );
     auto* mnu = new uiMenu;
     mnu->insertAction( new uiAction(uiStrings::sCreate(),
 		mCB(this,uiSimpleTimeDepthTransform,createCB),"create") );
     mnu->insertAction( new uiAction(uiStrings::sEdit(),
 		mCB(this,uiSimpleTimeDepthTransform,editCB),"edit") );
-    editcreatebut->setMenu( mnu );
+    auto* editcreatebut = new uiPushButtonWithMenu( this,
+			tr("Create/Edit"), false, mnu );
+    editcreatebut->attach( rightOf, selfld_ );
 
     setHAlignObj( selfld_ );
 }
