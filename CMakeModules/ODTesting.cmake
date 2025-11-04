@@ -74,6 +74,7 @@ macro ( ADD_TEST_PROGRAM TEST_NAME )
     add_test( NAME ${TEST_NAME}
 	      COMMAND "${CMAKE_COMMAND}"
 	      "-DCMD=${TEST_CMD}"
+	      "-DNAME=${TEST_NAME}"
 	      "-DQUIET=ON"
 	      "-DEXPECTEDRES=${TEST_EXPECTEDRES}"
 	      "-DPATHDIRS=${PATHDIRS}"

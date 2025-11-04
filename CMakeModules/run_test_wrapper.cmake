@@ -69,5 +69,5 @@ execute_process(
 )
 
 if ( NOT ${TESTRES} EQUAL ${EXPECTEDRES} )
-    message( FATAL_ERROR "Test program ${CMD} returned ${TESTRES}, while ${EXPECTEDRES} was expected" )
+    message( FATAL_ERROR "Test program ${NAME} returned ${TESTRES}, while ${EXPECTEDRES} was expected" )
 endif()
