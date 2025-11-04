@@ -10,8 +10,11 @@ ________________________________________________________________________
 #include "odhttp.h"
 
 #include "databuf.h"
+#include "envvars.h"
 #include "genc.h"
 #include "odnetworkaccess.h" //Proxy settings
+#include "odruncontext.h"
+#include "od_ostream.h"
 
 #ifndef OD_NO_QT
 #include "i_odhttpconn.h"
@@ -187,20 +190,42 @@ void HttpRequestProcess::reportError()
     const uiString errmsg = toUiString( qnetworkreply_->errorString() );
     errmsgs_.add( errmsg );
 
-#ifdef __debug__
-    qDebug() << "Attributes:";
-    for ( int idx=0; idx<=29; idx++ )
+    static int addprint = -1;
+    if ( addprint < 0 )
     {
-	QNetworkRequest::Attribute attr = QNetworkRequest::Attribute(idx);
-	const QVariant value = qnetworkreply_->attribute( attr );
-	if ( value.isValid() )
-	    qDebug() << attr << ": " << value;
+	if ( OD::InDebugMode() )
+	    addprint = !OD::InTestProgRunContext() ||
+			GetEnvVarYN( "TEST_DEBUG_HTTPREQUESTS" ) ? 1 : 0;
+	else
+	    addprint = 0;
     }
 
-    const auto headers = qnetworkreply_->rawHeaderPairs();
-    for ( const auto& header : headers )
-	qDebug() << header.first << ": " << header.second;
-#endif
+    if ( addprint == 1 )
+    {
+	od_ostream& strm = od_cerr();
+	strm << "Attributes:" << od_newline;
+	for ( int idx=0; idx<=29; idx++ )
+	{
+	    const QNetworkRequest::Attribute attr =
+					QNetworkRequest::Attribute( idx );
+	    const QVariant value = qnetworkreply_->attribute( attr );
+	    if ( !value.isValid() )
+		continue;
+
+	    const QString valuestr = value.toString();
+	    strm << (int)attr << ": (" << value.typeName()
+		 << ", " << BufferString(valuestr) << ")" << od_newline;
+	}
+
+	const auto& headers = qnetworkreply_->rawHeaderPairs();
+	for ( const auto& header : headers )
+	{
+	    const std::string firststr = header.first.toStdString();
+	    const std::string secondstr = header.second.toStdString();
+	    strm << firststr.c_str() << ": "
+		 << secondstr.c_str() << od_newline;
+	}
+    }
 
     statuslock_.signal( true );
     statuslock_.unLock();
