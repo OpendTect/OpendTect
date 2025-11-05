@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "envvars.h"
 #include "file.h"
 #include "filepath.h"
+#include "filesystemaccess.h"
 #include "ioman.h"
 #include "iostrm.h"
 #include "oddirs.h"
@@ -945,4 +946,20 @@ bool CBVSSeisTrcTranslator::getConfirmRemoveMsg( const IOObj* ioobj,
     deepremovetxt = tr("Delete CBVS file");
     shallowremovetxt = tr("Delete link only");
     return true;
+}
+
+
+bool CBVSSeisTrcTranslator::getFileHeader( const IOObj& ioobj,
+					   uiString& label,
+					   BufferString& hdr ) const
+{
+    label.set( tr("SEG-Y EDCDIC Header") );
+
+    FilePath fp = ioobj.mainFileName();
+    fp.setExtension( "sgyhdr" );
+    if ( !fp.exists() )
+	return false;
+
+    const auto& fs = OD::FileSystemAccess::get( fp.fullPath() );
+    return fs.getContent( fp.fullPath(), hdr );
 }

@@ -779,3 +779,29 @@ void uiTextBrowser::reload()
 
     body_->reload();
 }
+
+
+// uiTextEditDlg
+uiTextEditDlg::uiTextEditDlg( uiParent* p, const uiString& caption,
+			      const char* txt, bool readonly )
+    : uiDialog(p,Setup(caption,mNoHelpKey))
+{
+    setCtrlStyle( uiDialog::CloseOnly );
+
+    txtfld_ = new uiTextEdit( this, "", readonly );
+    txtfld_->setText( txt );
+}
+
+
+uiTextEditDlg::~uiTextEditDlg()
+{}
+
+
+void uiTextEditDlg::setText( const char* txt )
+{
+    txtfld_->setText( txt );
+}
+
+
+void uiTextEditDlg::getText(BufferString&) const
+{}

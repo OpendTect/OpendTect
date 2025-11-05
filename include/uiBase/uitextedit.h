@@ -9,6 +9,8 @@ ________________________________________________________________________
 -*/
 
 #include "uibasemod.h"
+
+#include "uidialog.h"
 #include "uiobj.h"
 
 #include "odcommonenums.h"
@@ -187,4 +189,19 @@ private:
 
     uiTextBrowserBody*	body_;
     uiTextBrowserBody&	mkbody(uiParent*,const char*,bool);
+};
+
+
+mExpClass(uiBase) uiTextEditDlg : public uiDialog
+{
+public:
+			uiTextEditDlg(uiParent*,const uiString& caption,
+				      const char* txt,bool readonly);
+			~uiTextEditDlg();
+
+    void		setText(const char*);
+    void		getText(BufferString&) const;
+
+private:
+    uiTextEdit*		txtfld_;
 };

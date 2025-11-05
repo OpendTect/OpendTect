@@ -74,6 +74,8 @@ public:
 
     static const char*	sKeyOptDir()		{ return "Optimized direction";}
     bool		supportsMultiCompTrc() const override { return true; }
+    bool		getFileHeader(const IOObj&,uiString& label,
+				      BufferString& header) const override;
 
 protected:
 
