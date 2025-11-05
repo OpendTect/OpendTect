@@ -37,14 +37,12 @@ static bool testSpeed()
 	od_cout() << "Arrsz=" << arrsz << " (" << nrruns << " runs)" << od_endl;
 
 	od_int64 prevms = Time::getMilliSeconds();
-
 	for ( od_int64 irun=0; irun<nrruns; irun++ )
 	{
 	    for ( int idx=0; idx<arrsz; idx++ )
 		copy[idx] = vals[idx];
 	}
-
-	int mPrTime( "SimpleLoop" );
+	od_int64 mPrTime( "SimpleLoop" );
 
 	prevms = Time::getMilliSeconds();
 	for ( int irun=0; irun<nrruns; irun++ )
@@ -55,23 +53,30 @@ static bool testSpeed()
 		    curptr++, cpptr++  )
 		*cpptr = *curptr;
 	}
-
 	mPrTime( "PtrLoop" );
 
 	prevms = Time::getMilliSeconds();
 	for ( int irun=0; irun<nrruns; irun++ )
 	    OD::sysMemCopy( copy, vals, arrsz * sizeof(float) );
-
 	mPrTime( "OD::sysMemCopy" );
 
 	prevms = Time::getMilliSeconds();
 	for ( int irun=0; irun<nrruns; irun++ )
-	{
-	    MemCopier<float> mcp( copy, vals, arrsz );
-	    mcp.execute();
-	}
+	    OD::memCopy( copy, vals, arrsz * sizeof(float) );
+	mPrTime( "OD::memCopy" );
 
-	mPrTime( "MemCopier" );
+	if ( arrsz > 500 )
+	{
+	    prevms = Time::getMilliSeconds();
+	    for ( int irun=0; irun<nrruns; irun++ )
+	    {
+		MemCopier<float> mcp( copy, vals, arrsz );
+		mcp.execute();
+	    }
+	    mPrTime( "MemCopier" );
+	}
+	else
+	    od_cout() << od_tab << "MemCopier: [skipped]" << od_endl;
 
 	delete [] vals;
 	delete [] copy;
