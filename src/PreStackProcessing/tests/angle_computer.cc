@@ -8,7 +8,6 @@ ________________________________________________________________________
 -*/
 
 #include "batchprog.h"
-#include "testprog.h"
 
 #include "ioman.h"
 #include "ioobj.h"
@@ -70,7 +69,7 @@ static MultiID getVelID( const int* grps, int idx )
 
 #define mMsg(txt) BufferString( SI().name(), ": ", txt )
 
-BufferString msg_;
+BufferString errmsg_;
 
 
 // 1e-3f radians < 0.058 degree
@@ -78,11 +77,14 @@ BufferString msg_;
 { \
     if ( !mIsEqual(vals.get(ofsidx,zidx),val,1e-3f) ) \
     { \
-	msg_.set( mMsg("Invalid computed value: ") ) \
-	    .add( "Expected: " ).add( val ).add( "; Computed: " ) \
-	    .add( vals.get(ofsidx,zidx) ).add( " at zidx " ) \
-	    .add( zidx ).add( " and offset idx: " ).add( ofsidx ); \
-	return false; \
+	if ( !errmsg_.isEmpty() ) \
+	    errmsg_.addNewLine(); \
+	\
+	errmsg_.add( mMsg("Invalid computed value: ") ) \
+	       .add( "Expected: " ).add( val ).add( "; Computed: " ) \
+	       .add( vals.get(ofsidx,zidx) ).add( " at zidx " ) \
+	       .add( zidx ).add( " and offset idx: " ).add( ofsidx ); \
+	res = false; \
     } \
 }
 
@@ -90,6 +92,7 @@ BufferString msg_;
 bool isRawAngleOK( const PreStack::Gather& angles )
 {
     const Array2D<float>& vals = angles.data();
+    bool res = true;
     mCheckVal( 0, 0,   0.f )
     mCheckVal( 5, 0,   M_PI_2f )
     mCheckVal( 1, 50,  0.905887909f )
@@ -103,13 +106,14 @@ bool isRawAngleOK( const PreStack::Gather& angles )
     mCheckVal( 0, 275, 0.f )
     mCheckVal( 5, 275, 0.820676323f )
 
-    return true;
+    return res;
 }
 
 
 bool isMovingAverageAngleOK( const PreStack::Gather& angles )
 {
     const Array2D<float>& vals = angles.data();
+    bool res = true;
     mCheckVal( 0, 0,   0.f );
     mCheckVal( 5, 0,   1.55975366f );
     mCheckVal( 1, 50,  0.90728283f );
@@ -123,13 +127,14 @@ bool isMovingAverageAngleOK( const PreStack::Gather& angles )
     mCheckVal( 0, 275, 0.f );
     mCheckVal( 5, 275, 0.82726491f );
 
-    return true;
+    return res;
 }
 
 
 bool isFFTAngleOK( const PreStack::Gather& angles )
 {
     const Array2D<float>& vals = angles.data();
+    bool res = true;
     mCheckVal( 0, 0,   0.f )
     mCheckVal( 5, 0,   1.5606885f )
     mCheckVal( 1, 50,  0.9083171f )
@@ -143,7 +148,7 @@ bool isFFTAngleOK( const PreStack::Gather& angles )
     mCheckVal( 0, 275, 0.f )
     mCheckVal( 5, 275, 0.80776274f )
 
-    return true;
+    return res;
 }
 
 
@@ -159,6 +164,7 @@ bool isMutedGatherOK( const PreStack::Gather& output, bool toponly )
     const int tailmuteidx = zistime ? 172 : (zinfeet ? 147 : 135);
 
     const Array2D<float>& vals = output.data();
+    bool res = true;
     mCheckVal( nroffs-1, 0, 0.f );	// top right corner
     mCheckVal( ioff, topmuteidx, 0.f ); // 30deg outer mute
     mCheckVal( ioff, topmuteidx+1, 1.f );
@@ -169,7 +175,7 @@ bool isMutedGatherOK( const PreStack::Gather& output, bool toponly )
 	mCheckVal( 0, nrz-1, 0.f ); // bottom left corner
     }
 
-    return true;
+    return res;
 }
 
 // Analytically computed values, not an approximation
@@ -224,28 +230,29 @@ static bool compareAngles( const PreStack::Gather& angles, int zidx,
 		  ? (feet ? anglesdepthftsurvlastidx : anglesdepthmsurvlastidx)
 		  : anglestimesurvlastidx;
     const Array2D<float>& vals = angles.data();
+    bool res = true;
     for ( int idx=0; idx<nrztests; idx++ )
 	for ( int ioff=0; ioff<nroffset; ioff++ )
 	    { mCheckVal( ioff, zidxs[idx], targetvals[idx][ioff] ) }
 
-    return true;
+    return res;
 }
 
 static bool testSmoothing( PreStack::VelocityBasedAngleComputer& computer,
 			   ConstRefMan<PreStack::Gather>& angles )
 {
     mRunStandardTestWithError( isRawAngleOK(*angles),
-			       mMsg("Test raw angle values"), msg_ );
+			       mMsg("Test raw angle values"), errmsg_ );
 
     computer.setMovingAverageSmoother( 0.1f, HanningWindow::sName() );
     angles = computer.computeAngles();
     mRunStandardTestWithError( angles && isMovingAverageAngleOK(*angles),
-			       mMsg("Angle values after AVG filter"), msg_ );
+			       mMsg("Angle values after AVG filter"), errmsg_ );
 
     computer.setFFTSmoother( 10.f, 15.f );
     angles = computer.computeAngles();
     mRunStandardTestWithError( angles && isFFTAngleOK(*angles),
-			       mMsg("Angle values after FFT Filter"), msg_ );
+			       mMsg("Angle values after FFT Filter"), errmsg_ );
     return true;
 }
 
@@ -273,7 +280,7 @@ static bool testAngleGatherComputer( const MultiID& velmid, const TrcKey& tk,
 			       ::toString(computer->errMsg()) );
     mRunStandardTestWithError( compareAngles(*angles,zid,zinfo.isDepth(),
 				zinfo.isDepthFeet()),
-			       mMsg("Angles gather values"), msg_ );
+			       mMsg("Angles gather values"), errmsg_ );
 
     return isurv == 0 ? testSmoothing( *computer.ptr(), angles ) : true;
 }
@@ -309,7 +316,7 @@ static bool testAngleMuteApplier( const MultiID& velid, PreStack::Gather& input)
 
     ConstRefMan<PreStack::Gather> output = muter.getOutput( relbid );
     mRunStandardTestWithError( output && isMutedGatherOK( *output, true ),
-			       mMsg("Gather with outer mute applied"), msg_ );
+			       mMsg("Gather with outer mute applied") ,errmsg_);
 
     pars.mutecutoff_ = 20.f;
     pars.tail_ = true;
@@ -322,7 +329,7 @@ static bool testAngleMuteApplier( const MultiID& velid, PreStack::Gather& input)
     output = muter.getOutput( relbid );
     mRunStandardTestWithError( output && isMutedGatherOK( *output, false ),
 			       mMsg("Gather with outer and inner mute applied"),
-			       msg_ );
+			       errmsg_ );
 
     return true;
 }
@@ -357,8 +364,6 @@ mLoad1Module("PreStackProcessing")
 
 bool BatchProgram::doWork( od_ostream& strm )
 {
-    mInitBatchTestProg();
-
     const double zstart = 0.;
     TypeSet<StepInterval<double> > zrgs;
     zrgs.add( StepInterval<double> (zstart,1.1,0.004) );

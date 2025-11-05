@@ -205,7 +205,7 @@ int mTestMainFnName( int argc, char** argv )
         OS::MachineCommand mc( serverapp );
         auth.addTo( mc );
         mc.addKeyedArg( "timeout", runner.timeout_ );
-        //if ( quiet_ )
+	//if ( OD::GetQuietFlag() )
 	    mc.addFlag( sKey::Quiet() );
 
         const OS::CommandExecPars execpars( OS::RunInBG );

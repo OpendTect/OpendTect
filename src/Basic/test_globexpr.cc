@@ -18,10 +18,6 @@ ________________________________________________________________________
 int mTestMainFnName( int argc, char** argv )
 {
     mInitTestProg();
-
-    if ( quiet_ )
-	return 0;
-
     if ( argc < 3 )
 	return 1;
 
@@ -33,7 +29,7 @@ int mTestMainFnName( int argc, char** argv )
 
     const GlobExpr ge( expr.c_str(), cs );
 
-    od_cout() << "'" << tomatch.c_str()
+    logStream() << "'" << tomatch.c_str()
 	<< (ge.matches(tomatch.c_str()) ? "' matches '" : "' doesn't match '")
 	<< expr.c_str() << "'" << od_endl;
 
@@ -42,9 +38,9 @@ int mTestMainFnName( int argc, char** argv )
 			   : std::regex( expr, std::regex::icase );
     std::smatch m;
     const bool stdmatch = std::regex_search( tomatch, m, stdge );
-    od_cout() << "'" << tomatch.c_str()
-	<< (stdmatch ? "' matches '" : "' doesn't match '")
-	<< expr.c_str() << "'" << od_endl;
+    logStream() << "'" << tomatch.c_str()
+		<< (stdmatch ? "' matches '" : "' doesn't match '")
+		<< expr.c_str() << "'" << od_endl;
 
     const QString qexpr = expr.c_str();
     const QString qmatch = tomatch.c_str();
@@ -53,9 +49,9 @@ int mTestMainFnName( int argc, char** argv )
 			: QRegularExpression::CaseInsensitiveOption );
     const QRegularExpressionMatch qtmatch = qge.match( qmatch );
     const bool hasqtmatch = qtmatch.hasMatch();
-    od_cout() << "'" << tomatch.c_str()
-	<< (hasqtmatch ? "' matches '" : "' doesn't match '")
-	<< expr.c_str() << "'" << od_endl;
+    logStream() << "'" << tomatch.c_str()
+		<< (hasqtmatch ? "' matches '" : "' doesn't match '")
+		<< expr.c_str() << "'" << od_endl;
 
     return 0;
 }

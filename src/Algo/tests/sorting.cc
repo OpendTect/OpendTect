@@ -7,15 +7,13 @@ ________________________________________________________________________
 
 -*/
 
-#include "sorting.h"
+#include "testprog.h"
 
 #include "arrayndalgo.h"
 #include "file.h"
 #include "filepath.h"
-#include "sorting.h"
 #include "statrand.h"
 #include "statparallelcalc.h"
-#include "testprog.h"
 #include "timefun.h"
 #include "threadwork.h"
 #include "varlenarray.h"
@@ -141,17 +139,18 @@ static bool testParallelQuickSort()
 static bool testRandom( bool dodiff, bool dotime )
 {
     PtrMan<od_ostream> strm;
-    if ( quiet_ )
+    if ( OD::GetQuietFlag() )
     {
 	const bool doappend = !logfilenm_.isEmpty();
 	if ( !doappend )
 	    logfilenm_ = FilePath::getTempFullPath( "test_sorting_log", "txt" );
+
 	strm = new od_ostream( logfilenm_, doappend );
 	if ( doappend )
 	    strm->setWritePosition( 0, od_stream::End );
     }
 
-    od_ostream& ostrm = strm && strm->isOK() ? *strm.ptr() : tstStream();
+    od_ostream& ostrm = strm && strm->isOK() ? *strm.ptr() : logStream();
 
     static double epsavg = 1e-3;
     static double epsstd = 1e-3;

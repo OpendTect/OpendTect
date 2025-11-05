@@ -8,7 +8,6 @@ ________________________________________________________________________
 -*/
 
 #include "batchprog.h"
-#include "testprog.h"
 
 #include "ailayer.h"
 #include "ioman.h"
@@ -162,7 +161,7 @@ bool testTracesAmplitudes( od_ostream& strm,
 
 mLoad1Module("Seis")
 
-bool BatchProgram::doWork( od_ostream& /*strm*/ )
+bool BatchProgram::doWork( od_ostream& strm )
 {
     // Inputs
     ElasticModelSet models;
@@ -175,38 +174,21 @@ bool BatchProgram::doWork( od_ostream& /*strm*/ )
     //Ricker 50Hz, 4ms SR
     wvlts += &syntheticricker;
     MultiID wavid;
-    if ( !pars().get(sKeyWaveletID(),wavid) )
-    {
-	errStream() << "Can not find wavelet from parameter file"
-		    << od_newline;
-	return false;
-    }
+    mRunStandardTest( pars().get( sKeyWaveletID(), wavid ),
+		      "Read wavelet MultiID from IOPar" );
 
     PtrMan<IOObj> wavioobj = IOM().get( wavid );
-    if ( !wavioobj )
-    {
-	errStream() << "Input wavelet is not available." << od_newline;
-	return false;
-    }
+    mRunStandardTest( wavioobj, "Wavelet IOObj" );
 
     PtrMan<Wavelet> realwav = Wavelet::get( wavioobj.ptr() );
-    if ( !realwav )
-    {
-	errStream() << "Input wavelet could not be read." << od_newline;
-	return false;
-    }
+    mRunStandardTest( realwav, "Input wavelet object" );
 
     wvlts += realwav.ptr();
     initTest( singlespike, nrmodels==1, start_depth, models );
 
     PtrMan<IOPar> reflpar = pars().subselect( ReflCalc1D::sKeyReflPar() );
-    if ( !reflpar )
-    {
-	errStream() << "Input calculator could not be found." << od_newline;
-	return false;
-    }
+    mRunStandardTest( reflpar, "Reflectivity parameters in IOPar" );
 
-    od_ostream& strm = tstStream();
     PtrMan<TaskRunner> taskr = new TextTaskRunner( strm );
     const bool srd = 0.f;
     const Seis::OffsetType offstyp = Seis::OffsetType::OffsetMeter;
@@ -226,11 +208,8 @@ bool BatchProgram::doWork( od_ostream& /*strm*/ )
 	ConstRefMan<ReflectivityModelSet> refmodels =
 		  Seis::RaySynthGenerator::getRefModels( models, *reflpar, msg,
 			  taskr.ptr(), srd, offstyp, azityp, depthtype );
-	if ( !refmodels )
-	{
-	    errStream() << ::toString(msg) << od_endl;
-	    return false;
-	}
+	mRunStandardTestWithError( refmodels, "Reflectivity models",
+				   msg.getFullString() );
 
 	Seis::RaySynthGenerator synthgen( *refmodels.ptr() );
 	synthgen.setWavelet( wav, OD::UsePtr );

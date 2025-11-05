@@ -26,6 +26,7 @@ ________________________________________________________________________
 #include "odjson.h"
 #include "oscommand.h"
 #include "od_ostream.h"
+#include "testprog.h"
 #include "plugins.h"
 #include "pythonaccess.h"
 #include "sighndl.h"
@@ -100,6 +101,8 @@ BatchProgram::BatchProgram()
     , resume(this)
     , killed(this)
     , endWork(this)
+    , logstrm_(OD::InTestProgRunContext() ? logStream() : od_cout())
+    , errstrm_(OD::InTestProgRunContext() ? errStream(false) : od_cerr())
 {
     mAttachCB( timer_->tick, BatchProgram::eventLoopStartedCB );
     timer_->start(0, true);
@@ -241,7 +244,7 @@ bool BatchProgram::parseArguments()
 	    errorMsg( tr("%1: Input file %2 is not a parameter file")
 			.arg( clparser_->getExecutableName() )
 			.arg( parfilnm ));
-	    od_cerr() << aistrm.fileType() << od_endl;
+	    errstrm_ << aistrm.fileType() << od_endl;
 	    return false;
 	}
 
@@ -324,8 +327,8 @@ bool BatchProgram::initLogging()
 	strm_ = new od_ostream( mc );
 	if ( !strm_ || !strm_->isOK() )
 	{
-	    od_cerr() << name() << ": Cannot open window for output" << od_endl;
-	    od_cerr() << "Using std output instead" << od_endl;
+	    errstrm_ << name() << ": Cannot open window for output" << od_endl;
+	    errstrm_ << "Using std output instead" << od_endl;
 	    deleteAndNullPtr( strm_ );
 	    res = 0;
 	}
@@ -335,19 +338,28 @@ bool BatchProgram::initLogging()
     {
 	if ( !res.isEmpty() )
 	{
-	    strmismine_ = true;
-	    strm_ = new od_ostream( res );
+	    if ( OD::InTestProgRunContext() )
+	    {
+		strmismine_ = false;
+		strm_ = &logstrm_;
+	    }
+	    else
+	    {
+		strmismine_ = true;
+		strm_ = new od_ostream( res );
+	    }
 	}
 
 	if ( !strm_ || !strm_->isOK() )
 	{
 	    if ( !res.isEmpty() )
 	    {
-		od_cerr() << name() << ": Cannot open log file" << od_endl;
-		od_cerr() << "Using stdoutput instead" << od_endl;
+		errstrm_ << name() << ": Cannot open log file" << od_endl;
+		errstrm_ << "Using stdoutput instead" << od_endl;
 	    }
+
 	    deleteAndNullPtr( strm_ );
-	    strm_ = &od_cout();
+	    strm_ = &logstrm_;
 	    strmismine_ = false;
 	}
     }
@@ -378,7 +390,7 @@ void BatchProgram::eventLoopStartedCB( CallBacker* )
 {
     mDetachCB( timer_->tick, BatchProgram::eventLoopStartedCB );
 
-    od_ostream& logstrm = strm_ ? *strm_ : od_cerr();
+    od_ostream& logstrm = strm_ ? *strm_ : errstrm_;
     logstrm << "Starting program: " << clparser_->getExecutable();
     if ( clparser_->nrArgs() > 1 )
 	logstrm << " '" << name() << "'";
@@ -593,8 +605,12 @@ bool BatchProgram::errorMsg( const uiString& msg, bool cc_stderr )
     const bool hasstrm = strm_ && strm_->isOK();
     if ( hasstrm )
 	*strm_ << '\n' << ::toString(msg) << '\n' << od_endl;
+
+    if ( hasstrm && strm_ == &errstrm_ )
+	cc_stderr = false;
+
     if ( cc_stderr || !hasstrm )
-	od_cerr() << '\n' << ::toString(msg) << '\n' << od_endl;
+	errstrm_ << '\n' << ::toString(msg) << '\n' << od_endl;
 
     if ( comm_ && comm_->ok() )
 	return comm_->sendErrMsg( ::toString(msg) );
@@ -605,10 +621,15 @@ bool BatchProgram::errorMsg( const uiString& msg, bool cc_stderr )
 
 bool BatchProgram::infoMsg( const char* msg, bool cc_stdout )
 {
-    if ( strm_ && strm_->isOK() )
+    const bool hasstrm = strm_ && strm_->isOK();
+    if ( hasstrm )
 	*strm_ << '\n' << msg << '\n' << od_endl;
-    if ( cc_stdout )
-	od_cout() << '\n' << msg << '\n' << od_endl;
+
+    if ( hasstrm && strm_ == &logstrm_ )
+	cc_stdout = false;
+
+    if ( cc_stdout || !hasstrm )
+	logstrm_ << '\n' << msg << '\n' << od_endl;
 
     return true;
 }

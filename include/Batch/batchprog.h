@@ -114,6 +114,8 @@ private:
     CommandLineParser*	clparser_ = nullptr;
     IOPar*		iopar_ = nullptr;
     od_ostream*		strm_ = nullptr;
+    od_ostream&		logstrm_;
+    od_ostream&		errstrm_;
 
     void		progKilled(CallBacker*);
     void		killNotify(bool yn);
@@ -231,11 +233,19 @@ if ( comm_ ) \
 #  include "_execbatch.h"
 # endif
 #define mMainIsDefined
+#ifdef __testprog__
+# include "testprog.h"
+#endif
     int doMain( int argc, char** argv )
     {
+#ifdef __testprog__
+	OD::SetRunContext( OD::RunCtxt::BatchProgTestCtxt );
+	mTestProgInits( true )
+#else
 	OD::SetRunContext( OD::RunCtxt::BatchProgCtxt );
 	SetProgramArgs( argc, argv );
 	ApplicationData::sSetDefaults();
+#endif
 	ApplicationData app;
 	Execute_batch( &argc, argv );
 	if ( !BP().isOK() )

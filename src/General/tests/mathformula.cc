@@ -7,12 +7,13 @@ ________________________________________________________________________
 
 -*/
 
+#include "testprog.h"
+
 #include "elasticpropsel.h"
 #include "mathexpression.h"
 #include "mathproperty.h"
 #include "mathspecvars.h"
 #include "rockphysics.h"
-#include "testprog.h"
 #include "unitofmeasure.h"
 
 static const float propvals[] = { 50.f, 2.5f, 3000.f, 1250.f, 7500.f, 3125.f,
@@ -20,51 +21,50 @@ static const float propvals[] = { 50.f, 2.5f, 3000.f, 1250.f, 7500.f, 3125.f,
     2.2942567f, 2.2942567f, 1524.7951f, 9.615385f
 };
 
+#define valTest( val, expval, defeps, desc ) \
+{ \
+    errmsg.set( "Expected: " ).add( toStringPrecise(expval) ) \
+	  .add( "; Retrieved: " ).add( toStringPrecise(val) ); \
+    mRunStandardTestWithError(mIsEqual(val,expval,defeps),desc,errmsg.str()); \
+}
 
-#define mTestValErr(var,val) \
-	{ od_cout() << "Fail:\n" << #var <<'='<< var << \
-	    ", not " << val << od_endl; return false; }
-#define mTestValSucces(var,val) \
-    logStream() << "Success: " << #var <<'='<< var << od_endl
-
-#define mTestVal(var,val) \
-    if ( var != val ) mTestValErr(var,val) mTestValSucces(var,val)
-#define mTestValD(var,val) \
-    if ( !mIsEqual(var,val,0.001) ) \
-	mTestValErr(var,val) mTestValSucces(var,val)
+#define valTestI( val, expval, desc ) \
+{ \
+    errmsg.set( "Expected: " ).add( expval ) \
+	  .add( "; Retrieved: " ).add( val ); \
+    mRunStandardTestWithError(val==expval,desc,errmsg.str()); \
+}
 
 
 static bool testSimpleFormula()
 {
-     const char* expr = "c0 * x + y - this[-2]";
-
-    if ( !quiet_ )
-	od_cout() << "Expression: '" << expr << "'\n";
+    const char* expr = "c0 * x + y - this[-2]";
 
     Math::Formula tryform( false, expr );
-    if ( tryform.isOK() )
-	{ od_cout() << "Fail:\n" << expr
-	    << " should not parse in single mode" << od_endl; return false; }
-    if ( !quiet_ )
-	od_cout() << "OK, single mode err msg='" << tryform.errMsg() << "'\n";
+    const bool res = tryform.isOK();
+    BufferString desc( "Formula '", expr, "' should not parse in single mode" );
+    desc.addNewLine().add( "Returned error: " )
+	.add( tryform.errMsg().getFullString() );
+    mRunStandardTest( !tryform.isOK(), desc );
 
     Math::Formula form( true, expr );
+    mRunStandardTestWithError( form.isOK(),
+	BufferString( "Formula from expression '", expr, "' with data series" ),
+	form.errMsg().getFullString() );
 
-    if ( !form.isOK() )
-	{ od_cout() << "Fail:\ndata series mode errmsg="
-			<< form.errMsg() << od_endl; return false; }
+    BufferString errmsg;
 
     const int nrinp = form.nrInputs();
-    mTestVal(nrinp,3);
+    valTestI( nrinp, 3, "Formula nr inputs" );
 
     const int nrshft = form.maxRecShift();
-    mTestVal(nrshft,2);
+    valTestI( nrshft, 2, "Formula nr shifts" );
 
     form.recStartVals()[0] = 3;
     form.recStartVals()[1] = 4;
 
-    const UnitOfMeasure* muom = UoMR().get("Meter");
-    const UnitOfMeasure* ftuom = UoMR().get("Feet");
+    const UnitOfMeasure* muom = UnitOfMeasure::meterUnit();
+    const UnitOfMeasure* ftuom = UnitOfMeasure::feetUnit();
 
     form.setInputValUnit( 1, muom );
     form.setInputFormUnit( 1, ftuom );
@@ -72,35 +72,33 @@ static bool testSimpleFormula()
     double inpvals[3];
     inpvals[0] = 1; inpvals[1] = 2; inpvals[2] = 3;
     double val = form.getValue( inpvals );
-    mTestValD(val,6.56168);
+    valTest( val, 6.56168, 1e-6, "Formula value for serie" );
 
     val = form.getValue( inpvals );
-    mTestValD(val,5.56168);
+    valTest( val, 5.56168, 1e-6, "Formula value on next sample" );
 
     form.startNewSeries();
     form.setOutputFormUnit( ftuom );
     val = form.getValue( inpvals );
-    mTestValD(val,6.56168);
+    valTest( val, 6.56168, 1e-6, "Formula value for new serie in ft output");
     form.startNewSeries();
     form.setOutputValUnit( muom );
     val = form.getValue( inpvals );
-    mTestValD(val,2.);
+    valTest( val, 2., 1e-6, "Formula value for new serie in meter output" );
 
-    if ( !quiet_ )
-    {
-	IOPar iop;
-	form.fillPar( iop );
-	BufferString str;
-	iop.dumpPretty( str );
-	od_cout() << str << od_endl;
-	Math::Formula form2( true, "" );
-	form2.usePar( iop );
-	IOPar iop2;
-	form2.fillPar( iop2 );
-	str.setEmpty();
-	iop2.dumpPretty( str );
-	od_cout() << str << od_endl;
-    }
+    IOPar iop;
+    form.fillPar( iop );
+    BufferString str;
+    iop.dumpPretty( str );
+    logStream() << str << od_endl;
+
+    Math::Formula form2( true, nullptr );
+    form2.usePar( iop );
+    IOPar iop2;
+    form2.fillPar( iop2 );
+    str.setEmpty();
+    iop2.dumpPretty( str );
+    logStream() << str << od_endl;
 
     return true;
 }
@@ -108,36 +106,33 @@ static bool testSimpleFormula()
 
 static bool testRepeatingVar()
 {
-     const char* expr = "x[-1] + 2*y + out[-1] + x[1] + aap";
-
-    if ( !quiet_ )
-	od_cout() << "Expression: '" << expr << "'\n";
-
+    const char* expr = "x[-1] + 2*y + out[-1] + x[1] + aap";
     Math::SpecVarSet svs;
     svs += Math::SpecVar( "Aap", "Dit is aapje", true, &Mnemonic::distance() );
     svs += Math::SpecVar( "Noot", "Dit is nootje" );
     Math::Formula form( true, svs, expr );
+    mRunStandardTestWithError( form.isOK(),
+	BufferString( "Formula from expression '", expr, "'" ),
+	form.errMsg().getFullString() );
 
-    if ( !form.isOK() )
-	{ od_cout() << "Fail:\n" << form.errMsg() << od_endl; return false; }
-
+    BufferString errmsg;
     const int nrinp = form.nrInputs();
-    mTestVal(nrinp,3);
+    valTestI( nrinp, 3, "Formula nr inputs" );
 
     const int nrshft = form.maxRecShift();
-    mTestVal(nrshft,1);
+    valTestI( nrshft, 1, "Formula nr shifts" );
 
     const int nrinpvals = form.nrValues2Provide();
-    mTestVal(nrinpvals,4);
-    mTestVal(form.isSpec(0),false);
-    mTestVal(form.isSpec(2),true);
+    valTestI( nrinpvals, 4, "Formula nr values to provide" );
+    valTestI( form.isSpec(0), false, "Formula variable '0' is not special" );
+    valTestI( form.isSpec(2), true, "Formula variable '2' is special" );
 
     double inpvals[4];
     inpvals[0] = -3; inpvals[1] = 7; // values for x[-1] and x[1]
     inpvals[2] = 11; // value for y
     inpvals[3] = -10; // value for aap
     const double val = form.getValue( inpvals );
-    mTestValD(val,16);
+    valTest( val, 16., 1e-4, "Formula value" );
 
     return true;
 }
@@ -149,6 +144,7 @@ static bool testRockPhys( const Math::Formula& form )
 		ROCKPHYSFORMS().getByName( Mnemonic::defSVEL(), form.name() );
     mRunStandardTest( fm, "Found Castagna's formula in repository" );
     mRunStandardTest( fm->hasSameForm(form), "Forms are identical" );
+    BufferString errmsg;
 
     TypeSet<double> inpvals( fm->nrInputs(), mUdf(double) );
     inpvals[0] = fm->getConstVal(0);
@@ -156,7 +152,7 @@ static bool testRockPhys( const Math::Formula& form )
 
     inpvals[1] = 2200.;
     const double val = fm->getValue( inpvals.arr() );
-    mTestValD(val,724.18);
+    valTest( val, 724.18, 1e-3, "Formula value" );
 
     /* Use a more complete rpform, with several variables and constants,
        that makes use of all class members: */
@@ -168,8 +164,7 @@ static bool testRockPhys( const Math::Formula& form )
     fm->fillPar( iop );
     BufferString str;
     iop.dumpPretty( str );
-    if ( !quiet_ )
-	od_cout() << od_newline << str << od_endl;
+    logStream() << od_newline << str << od_endl;
 
     RockPhysics::Formula newfm( *fm->outputMnemonic() );
     RockPhysics::Formula formcp( *fm );
@@ -187,6 +182,7 @@ static bool testCastagna()
     const BufferString formnm( "Castagna's equation" );
     const BufferString desc( "S-wave from P-wave velocity." );
     const BufferString formexp( "c0*Vp + c1" );
+    BufferString errmsg;
 
     Math::Formula form;
     form.setName( formnm );
@@ -194,7 +190,7 @@ static bool testCastagna()
     form.setText( formexp );
 
     const int nrinp = form.nrInputs();
-    mTestVal(nrinp,3);
+    valTestI( nrinp, 3, "Formula nr inputs" );
 
     form.setInputDef( 0, "0.8619" );
     form.setInputDescription( 0, "a" );
@@ -211,14 +207,13 @@ static bool testCastagna()
     form.setOutputMnemonic( &Mnemonic::defSVEL() );
     form.setOutputFormUnit( msuom );
 
-    mTestVal(form.nrValues2Provide(),3);
+    valTestI( form.nrValues2Provide(), 3, "Formula nr values to provide" );
 
     IOPar iop;
     form.fillPar( iop );
     BufferString str;
     iop.dumpPretty( str );
-    if ( !quiet_ )
-	od_cout() << od_newline << str << od_endl;
+    logStream() << od_newline << str << od_endl;
 
     TypeSet<double> inpvals( nrinp, mUdf(double) );
     inpvals[0] = form.getConstVal(0);
@@ -226,7 +221,7 @@ static bool testCastagna()
 
     inpvals[1] = 2200.;
     const double val = form.getValue( inpvals.arr() );
-    mTestValD(val,724.18);
+    valTest( val, 724.18, 1e-3, "Formula value" );
 
     Math::Formula formcp( form );
     Math::Formula formiop;
@@ -238,11 +233,12 @@ static bool testCastagna()
     formcp.setInputValUnit( 1, ftsuom );
     formiop.setInputValUnit( 1, ftsuom );
     inpvals[1] = ftsuom->getUserValueFromSI( inpvals[1] );
-    mTestValD(formcp.getValue(inpvals.arr()),724.18);
+    valTest( formcp.getValue(inpvals.arr()), 724.18, 1e-3,
+	     "Formula value ft-ft" );
 
     formiop.setOutputValUnit( ftsuom );
-    mTestValD( formiop.getValue( inpvals.arr() ),
-	       ftsuom->getUserValueFromSI(724.18) );
+    valTest( formiop.getValue( inpvals.arr() ),
+	     ftsuom->getUserValueFromSI(724.18), 1e-3, "Formula value ft-ft" );
 
     mRunStandardTest( formcp!=form, "Unequal operator 1" );
     mRunStandardTest( formiop!=form, "Unequal operator 2" );
@@ -356,22 +352,16 @@ static bool testElasticForms()
 
     IOPar par, repar;
     elselfromDenVp.fillPar( par );
-    if ( !quiet_ )
-    {
-	BufferString str;
-	par.dumpPretty( str );
-	od_cout() << od_newline << str << od_endl;
-    }
+    BufferString str;
+    par.dumpPretty( str );
+    logStream() << od_newline << str << od_endl;
 
     ElasticPropSelection newesel;
     newesel.usePar( par );
     newesel.fillPar( repar );
-    if ( !quiet_ )
-    {
-	BufferString str;
-	repar.dumpPretty( str );
-	od_cout() << od_newline << str << od_endl;
-    }
+    str.setEmpty();
+    repar.dumpPretty( str );
+    logStream() << od_newline << str << od_endl;
 
     mRunStandardTest( par == repar, "Identical propsel using IOPar" );
 

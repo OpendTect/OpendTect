@@ -10,12 +10,8 @@ ________________________________________________________________________
 
  The macro mInitTestProg() will take care of:
  1) Initialization of program args
- 2) A file-scope variable 'bool quiet_': whether progress info is required
+ 2) Setting OD::GetQuietFlag(): whether progress info is required
  3) A command line parser 'CommandLineParser& clParser()'
-
- When the file is included in a lib source, #define __test_lib_source__. To use
- the macros and inline functions, you'll have to make a variable 'quiet_'
- (e.g. as class member).
 
 -*/
 
@@ -29,7 +25,8 @@ ________________________________________________________________________
 #include "od_ostream.h"
 #include "odruncontext.h"
 
-#ifndef __test_lib_source__
+#ifdef __testprog__
+# ifndef __prog__
 
 # ifdef __win__
 #  include "winmain.h"
@@ -49,7 +46,8 @@ int main(int argc, char** argv)
 }
 # endif
 
-static bool quiet_ mUnusedVar = true;
+# endif // ifndef __prog__
+
 static PtrMan<CommandLineParser> the_testprog_parser_ mUnusedVar = nullptr;
 
 static inline CommandLineParser& clParser()
@@ -57,39 +55,30 @@ static inline CommandLineParser& clParser()
     return *the_testprog_parser_;
 }
 
-
-# define mRunSubTest( nm ) \
-    tstStream() << "\n\n\n->" << #nm << " subtest\n\n"; \
-    status = test_main_##nm( argc, argv ); \
-    if ( status != 0 ) \
-	return status
-
 # define mTestProgInits( withdataroot ) \
     od_init_test_program( argc, argv, withdataroot ); \
+    OD::SetQuietFlag( argc, argv ); \
     ApplicationData::sSetDefaults(); \
-    the_testprog_parser_ = new CommandLineParser; \
-    quiet_ = clParser().hasKey( sKey::Quiet() ); \
-    OD::ModDeps().ensureLoaded( "Basic" ); \
+    the_testprog_parser_ = new CommandLineParser;
 
-# define mInitCompositeTestProg(mod) \
-    mTestProgInits(); \
-    tstStream() << "** '" << #mod << "' composite test\n\n"; \
-    int status
+# define mInitTestProg() \
+    mTestProgInits( false ) \
+    OD::ModDeps().ensureLoaded( "Basic" );
 
-# define mInitTestProg() mTestProgInits( false )
-# define mInitTestProgDR() mTestProgInits( true )
-# define mInitBatchTestProg() \
-    int argc = GetArgC(); char** argv = GetArgV(); \
-    mInitTestProg()
-
-#endif // ifndef __test_lib_source__
+# define mInitTestProgDR() \
+    mTestProgInits( true ) \
+    OD::ModDeps().ensureLoaded( "Basic" );
 
 
-static inline mUnusedVar od_ostream& tstStream( bool err=false )
+#endif // ifdef __testprog__
+
+
+static inline mUnusedVar od_ostream& tstStream( bool err=false,
+						bool withprefix=false )
 {
-    if ( !quiet_ || err )
+    if ( !OD::GetQuietFlag() || err )
     {
-	if ( err )
+	if ( err && withprefix )
 	    od_ostream::logStream() << "[FAIL] ";
 	return od_ostream::logStream();
     }
@@ -101,9 +90,9 @@ static inline mUnusedVar od_ostream& logStream()
     return tstStream( false );
 }
 
-static inline mUnusedVar od_ostream& errStream()
+static inline mUnusedVar od_ostream& errStream( bool useprefix=true )
 {
-    return tstStream( true );
+    return tstStream( true, useprefix );
 }
 
 inline bool handleTestResult( bool isok, const char* desc,

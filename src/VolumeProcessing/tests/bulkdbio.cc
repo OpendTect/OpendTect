@@ -8,11 +8,10 @@ ________________________________________________________________________
 -*/
 
 #include "batchprog.h"
-#include "moddepmgr.h"
-#include "testprog.h"
 
 #include "ioman.h"
 #include "ioobj.h"
+#include "moddepmgr.h"
 #include "seistrctr.h"
 #include "welltransl.h"
 
@@ -203,8 +202,6 @@ mLoad3Modules( "General", "Well", "Seis" )
 
 bool BatchProgram::doWork( od_ostream& strm )
 {
-    mInitBatchTestProg();
-
     MultiID seis1id, seis2id, well1id, well2id;
     mRunStandardTest(pars().get("Seis1", seis1id),
 		     "First seismic multiID found")
@@ -236,17 +233,14 @@ bool BatchProgram::doWork( od_ostream& strm )
 			       "Valid clone objects set.", msg );
     msg.setEmpty();
     msg.add( "Clone objects names: Current size: ")
-	.add( cloneobjset.size() ).add( "; Actual size: " ).add( 4 );
+       .add( cloneobjset.size() ).add( "; Actual size: " ).add( 4 );
     mRunStandardTestWithError( (!cloneobjnms.isEmpty()
 				    && cloneobjnms.size()==4),
 			       "Valid clone object names.", msg );
-    if ( !testNewSingleEntry(w1cloneobj.ptr()) )
-	return false;
-    if ( !testRemoveSingleEntry() )
-	return false;
-    if ( !testNewSingleEntry(s1cloneobj.ptr()) )
-	return false;
-    if ( !testRemoveSingleEntry() )
+    if ( !testNewSingleEntry(w1cloneobj.ptr()) ||
+	 !testRemoveSingleEntry() ||
+	 !testNewSingleEntry(s1cloneobj.ptr()) ||
+	!testRemoveSingleEntry() )
 	return false;
 
     ObjectSet<IOObj> wellcloneobjs;
@@ -257,22 +251,14 @@ bool BatchProgram::doWork( od_ostream& strm )
     seiscloneobjs.add( s1cloneobj.ptr() );
     seiscloneobjs.add( s2cloneobj.ptr() );
 
-    if ( !testCloneObjSet(wellcloneobjs,"Well") )
-	return false;
-    if ( !testNewEntriesSingleType(wellcloneobjs) )
-	return false;
-    if ( !testRemoveEntriesSingleType() )
-	return false;
-    if ( !testCloneObjSet(seiscloneobjs,"Seismic Data") )
-	return false;
-    if ( !testNewEntriesSingleType(seiscloneobjs) )
-	return false;
-    if ( !testRemoveEntriesSingleType() )
-	return false;
-
-    if ( !testNewEntries(cloneobjset) )
-	return false;
-    if ( !testRemoveEntries() )
+    if ( !testCloneObjSet(wellcloneobjs,"Well") ||
+	 !testNewEntriesSingleType(wellcloneobjs) ||
+	 !testRemoveEntriesSingleType() ||
+	 !testCloneObjSet(seiscloneobjs,"Seismic Data") ||
+	 !testNewEntriesSingleType(seiscloneobjs) ||
+	 !testRemoveEntriesSingleType() ||
+	 !testNewEntries(cloneobjset) ||
+	 !testRemoveEntries() )
 	return false;
 
     return true;

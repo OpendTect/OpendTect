@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "odnetworkaccess.h" //Proxy settings
 #include "odruncontext.h"
 #include "od_ostream.h"
+#include "testprog.h"
 
 #ifndef OD_NO_QT
 #include "i_odhttpconn.h"
@@ -202,7 +203,8 @@ void HttpRequestProcess::reportError()
 
     if ( addprint == 1 )
     {
-	od_ostream& strm = od_cerr();
+	od_ostream& strm = OD::InTestProgRunContext() ? errStream(false)
+						      : od_cerr();
 	strm << "Attributes:" << od_newline;
 	for ( int idx=0; idx<=29; idx++ )
 	{

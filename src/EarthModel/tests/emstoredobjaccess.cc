@@ -8,7 +8,6 @@ ________________________________________________________________________
 -*/
 
 #include "batchprog.h"
-#include "testprog.h"
 
 #include "embody.h"
 #include "emfault.h"
@@ -29,12 +28,12 @@ ________________________________________________________________________
 #define valTest( val, expval, defeps, desc ) \
 { \
     errmsg.set( "Expected: " ).add( toStringPrecise(expval) ) \
-	  . add( "; Retrieved: " ).add( toStringPrecise(val) ); \
+	  .add( "; Retrieved: " ).add( toStringPrecise(val) ); \
     mRunStandardTestWithError(mIsEqual(val,expval,defeps),desc,errmsg.str()); \
 }
 
 
-static bool testEMStoredObjAccess()
+static bool testEMStoredObjAccess( od_ostream& strm )
 {
     EM::StoredObjAccess soa;
     mRunStandardTest( soa.add( MultiID(100020,2) ),
@@ -52,7 +51,7 @@ static bool testEMStoredObjAccess()
     soa.dismiss( MultiID(100020,99795) );
 
     PtrMan<Executor> exec = soa.reader();
-    TextTaskRunner ttr( tstStream() );
+    TextTaskRunner ttr( strm );
     const bool res = ttr.execute( *exec.ptr() );
     mRunStandardTestWithError( res, exec->name(), ::toString(soa.getError()) );
     exec = nullptr;
@@ -71,11 +70,11 @@ static bool testEMStoredObjAccess()
     BufferString errmsg;
     const Coord crd_ix_400_900( 620620, 6081472 );
     float zval = hor3d->getZValue( crd_ix_400_900 );
-    valTest( zval, 0.549256265, 1e-6f, "Horizon 3D Z Value check" );
+    valTest( zval, 0.549256265f, 1e-6f, "Horizon 3D Z Value check" );
 
     const Coord crd_lt_Line_900( 619665.70, 6088541.50 );
     zval = hor2d->getZValue( crd_lt_Line_900 );
-    valTest( zval, 0.92633921, 1e-6f, "Horizon 2D Z Value check" );
+    valTest( zval, 0.92633921f, 1e-6f, "Horizon 2D Z Value check" );
 
     const EM::FaultStickSetGeometry& fssgeom = fss->geometry();
     mRunStandardTest( fssgeom.nrSticks() == 4 && fssgeom.nrKnots(0) == 7,
@@ -95,7 +94,7 @@ static bool testEMStoredObjAccess()
 }
 
 
-static bool testHorizonSorting( bool is2d )
+static bool testHorizonSorting( od_ostream& strm, bool is2d )
 {
     TypeSet<MultiID> inputids;
     if ( is2d )
@@ -114,7 +113,7 @@ static bool testHorizonSorting( bool is2d )
     }
 
     HorizonSorter sorter( inputids, is2d );
-    TextTaskRunner ttr( tstStream() );
+    TextTaskRunner ttr( strm );
     const bool res = ttr.execute( sorter );
     mRunStandardTestWithError( res,
 		BufferString("Sorting ", is2d ? "2D" : "3D", " horizons"),
@@ -310,12 +309,10 @@ mLoad1Module("EarthModel")
 
 bool BatchProgram::doWork( od_ostream& strm )
 {
-    mInitBatchTestProg();
-
     const BufferString hor3dnm( "test_horizon3d" );
-    if ( !testEMStoredObjAccess() ||
-	 !testHorizonSorting(false) ||
-	 !testHorizonSorting(true) ||
+    if ( !testEMStoredObjAccess(strm) ||
+	 !testHorizonSorting(strm,false) ||
+	 !testHorizonSorting(strm,true) ||
 	 !createHorizon3D(hor3dnm.str()) ||
 	 !testHorizon3D(hor3dnm.str()) ||
 	 !removeHorizon3D(hor3dnm.str()) )

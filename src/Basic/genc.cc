@@ -10,34 +10,35 @@ ________________________________________________________________________
 #include "genc.h"
 
 #include "applicationdata.h"
-#include "commandlineparser.h"
-#include "envvars.h"
-#include "debug.h"
-#include "oddirs.h"
-#include "oscommand.h"
-#include "commondefs.h"
-#include "buildinfo.h"
 #include "bufstring.h"
-#include "ptrman.h"
+#include "buildinfo.h"
+#include "commandlineparser.h"
+#include "commondefs.h"
+#include "convert.h"
+#include "debug.h"
+#include "envvars.h"
 #include "file.h"
 #include "filepath.h"
-#include "moddepmgr.h"
-#include "perthreadrepos.h"
-#include "threadlock.h"
-#include "od_iostream.h"
-#include "odmemory.h"
-#include "odruncontext.h"
-#include "plugins.h"
-#include "separstr.h"
-#include "convert.h"
 #include "iopar.h"
+#include "keystrs.h"
+#include "moddepmgr.h"
+#include "oddirs.h"
+#include "odmemory.h"
+#include "oscommand.h"
+#include "odruncontext.h"
+#include "od_iostream.h"
+#include "perthreadrepos.h"
+#include "plugins.h"
+#include "ptrman.h"
+#include "separstr.h"
 #include "survinfo.h"
-#include <iostream>
-#include <string.h>
+#include "threadlock.h"
 
+#include <iostream>
 #include <math.h>
 #include <memory>
 #include <stdlib.h>
+#include <string.h>
 #ifdef __win__
 # include <float.h>
 # include <time.h>
@@ -74,10 +75,70 @@ bool AreProgramArgsSet()	{ return argc_ != -1; }
 
 
 static OD::RunCtxt runctxt_ = OD::RunCtxt::UnknownCtxt;
-namespace OD
+static bool quietflag_ = false;
+
+OD::RunCtxt OD::GetRunContext()
 {
-    RunCtxt GetRunContext()		{ return runctxt_; }
-    void SetRunContext( RunCtxt rm )	{ runctxt_ = rm; }
+    return runctxt_;
+}
+
+bool OD::GetQuietFlag()
+{
+    return quietflag_;
+}
+
+void OD::SetRunContext( RunCtxt rm )
+{
+    runctxt_ = rm;
+}
+
+
+void OD::SetQuietFlag( int argc, char** argv )
+{
+    const CommandLineParser parser( argc, argv );
+    quietflag_ = parser.hasKey( sKey::Quiet() );
+}
+
+bool OD::InNormalRunContext()
+{
+    return GetRunContext() == RunCtxt::NormalCtxt;
+}
+
+bool OD::InStandAloneRunContext()
+{
+    return GetRunContext() == RunCtxt::StandAloneCtxt;
+}
+
+bool OD::InTestProgRunContext()
+{
+    return GetRunContext() == RunCtxt::TestProgCtxt ||
+	   InBatchProgTestRunContext();
+}
+
+bool OD::InSysAdmRunContext()
+{
+    return GetRunContext() == RunCtxt::SysAdmCtxt;
+}
+
+bool OD::InBatchProgRunContext()
+{
+    return GetRunContext() == RunCtxt::BatchProgCtxt ||
+	   InBatchProgTestRunContext();
+}
+
+bool OD::InBatchProgTestRunContext()
+{
+    return GetRunContext() == RunCtxt::BatchProgTestCtxt;
+}
+
+bool OD::InUiProgRunContext()
+{
+    return GetRunContext() == RunCtxt::UiProgCtxt;
+}
+
+bool OD::InInstallerRunContext()
+{
+    return GetRunContext() == RunCtxt::InstallerCtxt;
 }
 
 

@@ -16,48 +16,36 @@ ________________________________________________________________________
 #include "moddepmgr.h"
 #include "prestackmutedef.h"
 #include "prestackmutedeftransl.h"
-#include "testprog.h"
 
 static const char* sKeyTestMute41()	{ return "Mute for V4.1"; }
 static const char* sKeyTestMute44()	{ return "Mute for V4.4"; }
 static const char* sKeyTestMute46()	{ return "Mute for V4.6"; }
+
 #define mCheckVal(offset,inl,crl,chkval) \
-muteval = mutedef.value( offset, BinID(inl,crl) ); \
-if ( !mIsEqual(muteval,chkval,1e-5f) ) \
-{ \
-    BufferString msg( "Value mismatch in '", muteobj->name(), "'" ); \
-    msg += " Offset :"; msg += offset; \
-    msg += " Inline :"; msg += inl; \
-    msg += " Crossline :"; msg += crl; \
-    strm<<msg<<od_newline; \
-    return false; \
-}
+    muteval = mutedef.value( offset, BinID(inl,crl) ); \
+    desc.set( "Mute '" ).add( muteobj->name() ).add( "'" ) \
+	.add( " Offset :" ).add( offset ).add( " Inline :" ).add( inl ) \
+	.add( " Crossline :" ).add( crl ); \
+    errmsg.set( "Expected: " ).add( chkval ) \
+	  .add( ", calculated: " ).add( muteval ); \
+    mRunStandardTestWithError( mIsEqual(muteval,chkval,1e-5f), \
+			       desc.str(), errmsg.str() );
 
 //check for Top Mute created in different versions
-bool odTestSameMuteInDiffVersion( od_ostream& strm, const MultiID& muteid )
+bool odTestSameMuteInDiffVersion( const MultiID& muteid )
 {
     PtrMan<IOObj> muteobj = IOM().get( muteid );
-    if ( !muteobj )
-    {
-	strm << "Mute object with id " << muteid.toString()
-	     << " not found" << od_newline;
-	return false;
-    }
+    mRunStandardTestWithError( muteobj, "Get mute IOObj",
+			       IOM().uiMessage().getFullString() );
 
     PreStack::MuteDef mutedef;
-    uiString errmsg;
-    if ( !MuteDefTranslator::retrieve(mutedef,muteobj.ptr(),errmsg) )
-    {
-	BufferString msg;
-	msg += "Mute definition ";
-	msg += muteobj->name();
-	msg += " cannot be read. ";
-	msg += errmsg.getString();
-	strm<<msg.buf()<<od_newline;
-	return false;
-    }
+    uiString trerrmsg;
+    mRunStandardTestWithError(
+	MuteDefTranslator::retrieve( mutedef, muteobj.ptr(), trerrmsg ),
+	"Read mute definition object", trerrmsg.getFullString() );
 
     float muteval = 0.0f;
+    BufferString desc, errmsg;
     mCheckVal(0,200,700,0.0467186)
     mCheckVal(500,200,700,0.145135)
     mCheckVal(1000,200,700,0.700861)
@@ -118,12 +106,6 @@ bool odTestSameMuteInDiffVersion( od_ostream& strm, const MultiID& muteid )
     mCheckVal(2000,650,1200,1.57068)
     mCheckVal(2500,650,1200,1.9304)
     mCheckVal(3000,650,1200,2.29012)
-    if ( !quiet_ )
-    {
-	BufferString msg( "Test on mute '", muteobj->name() );
-	msg += "' is OK";
-	strm << msg.buf() << od_newline;
-    }
 
     return true;
 }
@@ -131,33 +113,22 @@ bool odTestSameMuteInDiffVersion( od_ostream& strm, const MultiID& muteid )
 
 mLoad1Module("PreStackProcessing")
 
-bool BatchProgram::doWork( od_ostream& strm )
+bool BatchProgram::doWork( od_ostream& /*strm*/ )
 {
-    mInitBatchTestProg();
-
     MultiID muteid;
-    if ( !pars().get(sKeyTestMute41(),muteid) )
-    {
-	strm << "Can not find mute for V4.1 in parameter file"<<od_newline;
-	return false;
-    }
-    if ( !odTestSameMuteInDiffVersion(strm,muteid) )
+    mRunStandardTest( pars().get( sKeyTestMute41(), muteid ),
+		      "Mute for V4.1 in IOPar" );
+    if ( !odTestSameMuteInDiffVersion(muteid) )
 	return false;
 
-    if ( !pars().get(sKeyTestMute44(),muteid) )
-    {
-	strm << "Can not find mute for V4.4 in parameter file"<<od_newline;
-	return false;
-    }
-    if ( !odTestSameMuteInDiffVersion(strm,muteid) )
+    mRunStandardTest( pars().get( sKeyTestMute44(), muteid ),
+		      "Mute for V4.4 in IOPar" );
+    if ( !odTestSameMuteInDiffVersion(muteid) )
 	return false;
 
-    if ( !pars().get(sKeyTestMute46(),muteid) )
-    {
-	strm << "Can not find mute for V4.6 in parameter file"<<od_newline;
-	return false;
-    }
-    if ( !odTestSameMuteInDiffVersion(strm,muteid) )
+    mRunStandardTest( pars().get( sKeyTestMute46(), muteid ),
+		      "Mute for V4.6 in IOPar" );
+    if ( !odTestSameMuteInDiffVersion(muteid) )
 	return false;
 
     return true;

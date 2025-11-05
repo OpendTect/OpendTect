@@ -33,21 +33,12 @@ private:
 };
 
 
-#undef mRunTest
 #define mRunTest( voiddo, test, delstatus, rc ) \
 deleted = false; \
 voiddo; \
-if ( (refclass && !(test)) || delstatus!=deleted || \
-     (rc>=0 && refclass && rc!=refclass->nrRefs() )) \
-{ \
-    errStream() << "[FAIL] Test " << #voiddo << " " << #test << od_endl; \
-    return false; \
-} \
-else \
-{ \
-    logStream() << "[OK] Test " << #voiddo << " " << #test << od_endl; \
-}
-
+mRunStandardTest( !((refclass && !(test)) || delstatus!=deleted || \
+		   (rc>=0 && refclass && rc!=refclass->nrRefs()) ), \
+		   BufferString(#voiddo, " ", #test).trimBlanks() )
 
 bool testRefCount()
 {

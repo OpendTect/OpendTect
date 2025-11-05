@@ -23,28 +23,25 @@ enum class RunCtxt
     TestProgCtxt,	// test programs
     SysAdmCtxt,		// system administrator tool
     BatchProgCtxt,	// batch programs
+    BatchProgTestCtxt,	// batch test programs
     UiProgCtxt,		// UI utility program (not od_main or alike, installer)
     InstallerCtxt	// installer
 };
 
 mGlobal(Basic) RunCtxt GetRunContext();
+mGlobal(Basic) bool GetQuietFlag();
 
-mGlobal(Basic) inline bool InNormalRunContext()
-{ return GetRunContext() == OD::RunCtxt::NormalCtxt; }
-mGlobal(Basic) inline bool InStandAloneRunContext()
-{ return GetRunContext() == OD::RunCtxt::StandAloneCtxt; }
-mGlobal(Basic) inline bool InTestProgRunContext()
-{ return GetRunContext() == OD::RunCtxt::TestProgCtxt; }
-mGlobal(Basic) inline bool InSysAdmRunContext()
-{ return GetRunContext() == OD::RunCtxt::SysAdmCtxt; }
-mGlobal(Basic) inline bool InBatchProgRunContext()
-{ return GetRunContext() == OD::RunCtxt::BatchProgCtxt; }
-mGlobal(Basic) inline bool InUiProgRunContext()
-{ return GetRunContext() == OD::RunCtxt::UiProgCtxt; }
-mGlobal(Basic) inline bool InInstallerRunContext()
-{ return GetRunContext() == OD::RunCtxt::InstallerCtxt; }
+mGlobal(Basic) bool InNormalRunContext();
+mGlobal(Basic) bool InStandAloneRunContext();
+mGlobal(Basic) bool InTestProgRunContext();
+mGlobal(Basic) bool InSysAdmRunContext();
+mGlobal(Basic) bool InBatchProgRunContext();
+mGlobal(Basic) bool InBatchProgTestRunContext();
+mGlobal(Basic) bool InUiProgRunContext();
+mGlobal(Basic) bool InInstallerRunContext();
 
 // Not for you:
 mGlobal(Basic) void SetRunContext(RunCtxt);
+mGlobal(Basic) void SetQuietFlag(int argc,char** argv);
 
 } // namespace OD

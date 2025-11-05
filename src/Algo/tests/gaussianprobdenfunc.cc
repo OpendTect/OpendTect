@@ -7,13 +7,13 @@ ________________________________________________________________________
 
 -*/
 
-#include "gaussianprobdenfunc.h"
+#include "testprog.h"
 
-#include "od_iostream.h"
+#include "gaussianprobdenfunc.h"
 #include "linear.h"
 #include "statrand.h"
 #include "statruncalc.h"
-#include "testprog.h"
+
 
 
 #define mNrPts2Draw 100000
@@ -36,31 +36,24 @@ static bool test2DPDF()
     ls2d.use( x0, x1, mNrPts2Draw );
     const float cctol = 1e3f / mNrPts2Draw;
 
-    const bool failed = ls2d.corrcoeff < mCorrCoeff-cctol
-		     || ls2d.corrcoeff > mCorrCoeff+cctol;
+    BufferString desc( "2D gaussian PDF cross-correlation" );
+    desc.addNewLine().add( "Corr coeff=" ).add( ls2d.corrcoeff )
+	.add( ", expected " ).add( mCorrCoeff ).add( " +/- " ).add( cctol );
 
-    if ( failed )
-	od_cout() << "Failed: ";
+    Stats::CalcSetup csu;
+    csu.require( Stats::Average ).require( Stats::StdDev );
+    Stats::RunCalc<float> x0rc( csu ); Stats::RunCalc<float> x1rc( csu );
+    x0rc.addValues( mNrPts2Draw, x0 ); x1rc.addValues( mNrPts2Draw, x1 );
+    desc.addNewLine().add( "X0: exp=" ).add( pdf.averagePos(0) )
+	.add( " std=" ).add( pdf.stddevPos(0) ).add( " => avg=" )
+	.add( x0rc.average() ).add( " std=" ).add( x0rc.stdDev() )
+	.addNewLine().add( "X1: exp=" ).add( pdf.averagePos(1) )
+	.add( " std=" ).add( pdf.stddevPos(1) ).add( " => avg=" )
+	.add( x1rc.average() ).add( " std=" ).add( x1rc.stdDev() );
 
-    if ( !quiet_ || failed )
-    {
-	od_cout() << "Corr coeff=" << ls2d.corrcoeff
-		  << ", expected " << mCorrCoeff << " +/- " << cctol << od_endl;
+    mRunStandardTest( mIsEqual(ls2d.corrcoeff,mCorrCoeff,cctol), desc );
 
-	Stats::CalcSetup csu;
-	csu.require( Stats::Average ).require( Stats::StdDev );
-	Stats::RunCalc<float> x0rc( csu ); Stats::RunCalc<float> x1rc( csu );
-	x0rc.addValues( mNrPts2Draw, x0 ); x1rc.addValues( mNrPts2Draw, x1 );
-	od_cout() << "X0: exp=" << pdf.averagePos(0)
-		  << " std=" << pdf.stddevPos(0)
-		  << " => avg=" << x0rc.average() << " std=" << x0rc.stdDev();
-	od_cout() << "\nX1: exp=" << pdf.averagePos(1)
-		  << " std=" << pdf.stddevPos(1)
-		  << " => avg=" << x1rc.average() << " std=" << x1rc.stdDev();
-	od_cout() << od_endl;
-    }
-
-    return !failed;
+    return true;
 }
 
 

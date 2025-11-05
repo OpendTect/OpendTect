@@ -19,7 +19,6 @@ set( OD_TEST_PROGS
 	file.cc
 	filesize.cc
 	geometry.cc
-	globexpr.cc
 	hash.cc
 	iopar.cc
 	latlong.cc
@@ -43,6 +42,8 @@ set( OD_TEST_PROGS
 if ( UNIX )
     list( APPEND OD_TEST_PROGS gason.cc )
 endif()
+
+list( APPEND OD_MODULE_TESTPROGS test_globexpr.cc )
 
 set( OD_MODULE_SOURCES
 	applicationdata.cc

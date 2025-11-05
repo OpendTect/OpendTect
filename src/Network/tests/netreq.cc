@@ -301,7 +301,7 @@ int mTestMainFnName( int argc, char** argv )
 
 	OS::MachineCommand mc( echoapp );
 	auth.addTo( mc );
-	//if ( quiet_ )
+	//if ( OD::GetQuietFlag() )
 	    mc.addFlag( sKey::Quiet() );
 
 	const OS::CommandExecPars execpars( OS::RunInBG );

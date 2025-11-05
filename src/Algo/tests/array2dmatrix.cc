@@ -7,11 +7,10 @@ ________________________________________________________________________
 
 -*/
 
+#include "testprog.h"
+
 #include "array2dmatrix.h"
 #include "arraynddumper.h"
-
-#include "od_iostream.h"
-#include "testprog.h"
 
 
 static bool testMultiply()
@@ -28,8 +27,8 @@ static bool testMultiply()
     mat.multiply( mat2 );
     Array2DMatrix<float> exp( 1, 4 );
     exp.get(0,0) = 83; exp.get(0,1) = 63; exp.get(0,2) = 37; exp.get(0,3) = 75;
-    if ( !mat.isEq(exp.a2d_,0.0001) )
-	{ od_cout() << "Failed: Matrix multiply" << od_endl; return false; }
+    mRunStandardTest( mat.isEq( exp.a2d_, 0.0001 ),
+		      "Matrix multiply" );
 
     return true;
 }
@@ -56,8 +55,8 @@ static bool testCholesky()
     exp.get(2,0) = -8;
     exp.get(2,1) = 5;
 
-    if ( !out.isEq(exp.a2d_,0.0001) )
-	{ od_cout() << "Failed: Cholesky decomp (1)" << od_endl; return false; }
+    mRunStandardTest( out.isEq( exp.a2d_,0.0001 ),
+		      "Cholesky decomp (1)" );
 
     mat.get(0,0) = mat.get(1,1) = mat.get(2,2) = 1;
     mat.get(0,1) = mat.get(1,0) = 0.6f;
@@ -66,16 +65,13 @@ static bool testCholesky()
 
     mat.getCholesky( out );
 
-    if ( !quiet_ )
-    {
-	ArrayNDDumper<float> matdmpr( mat.a2d_ );
-	od_cout() << "Inp matrix" << od_endl;
-	matdmpr.dump( od_cout() );
+    ArrayNDDumper<float> matdmpr( mat.a2d_ );
+    logStream() << "Inp matrix" << od_endl;
+    matdmpr.dump( logStream() );
 
-	od_cout() << "Cholesky matrix" << od_endl;
-	ArrayNDDumper<float> outdmpr( out.a2d_ );
-	outdmpr.dump( od_cout() );
-    }
+    logStream() << "Cholesky matrix" << od_endl;
+    ArrayNDDumper<float> outdmpr( out.a2d_ );
+    outdmpr.dump( logStream() );
 
     exp.get(0,0) = 1;
     exp.get(1,1) = 0.8f;
@@ -83,8 +79,9 @@ static bool testCholesky()
     exp.get(1,0) = 0.6f;
     exp.get(2,0) = 0.3f;
     exp.get(2,1) = 0.4f;
-    if ( !out.isEq(exp.a2d_,0.0001) )
-	{ od_cout() << "Failed: Cholesky decomp (2)" << od_endl; return false; }
+
+    mRunStandardTest( out.isEq( exp.a2d_, 0.0001 ),
+		      "Cholesky decomp (2)" );
 
     return true;
 }
@@ -94,9 +91,8 @@ int mTestMainFnName( int argc, char** argv )
 {
     mInitTestProg();
 
-    if ( !testMultiply() )
-	return 1;
-    if ( !testCholesky() )
+    if ( !testMultiply() ||
+	 !testCholesky() )
 	return 1;
 
     return 0;

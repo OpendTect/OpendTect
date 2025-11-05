@@ -89,7 +89,7 @@ private:
 
 static void printTestUsage( const char* prognm )
 {
-    od_ostream& strm = tstStream();
+    od_ostream& strm = logStream();
     strm << "Usage: " << prognm << od_newline;
     strm << "Creates a layer model with a fixed number of sequences\n";
     strm << "and a fixed number of layers per sequence." << od_newline;
@@ -106,12 +106,9 @@ static void printTestUsage( const char* prognm )
 
 static void printMem( const char* msg )
 {
-    if ( quiet_ )
-	return;
-
     Threads::sleep( 0.1 );
     OD::getSystemMemory( totmem_, freemem_ );
-    tstStream() << msg << ": " << fmtcreator_.getString(freemem_) << od_newline;
+    logStream() << msg << ": " << fmtcreator_.getString(freemem_) << od_endl;
 }
 
 
@@ -379,10 +376,10 @@ int mTestMainFnName( int argc, char** argv )
 	return 1;
 
     printMem( "Free memory before closing the Application" );
-    if ( !quiet_ && layeralloc_ > 0 )
+    if ( layeralloc_ > 0 )
     {
-	tstStream() << layeralloc_ << " " << layerdealloc_ << od_newline;
-	tstStream() << layervalalloc_ << " " << layervaldealloc_ << od_newline;
+	logStream() << layeralloc_ << " " << layerdealloc_ << od_newline;
+	logStream() << layervalalloc_ << " " << layervaldealloc_ << od_endl;
     }
 
     return 0;
