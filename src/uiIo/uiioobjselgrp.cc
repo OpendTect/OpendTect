@@ -427,20 +427,35 @@ void uiIOObjSelGrp::init( const uiString& seltxt )
     if ( ctio_.ctxt_.maydooper_ )
 	mkManipulators();
 
+    initFSWatcher();
+    setHAlignObj( topgrp_ );
+    mAttachCB( postFinalize(), uiIOObjSelGrp::initGrpCB );
+}
+
+
+void uiIOObjSelGrp::initFSWatcher()
+{
+    delete fswatcher_;
     fswatcher_ = new FileSystemWatcher;
     const FilePath fp( IOM().curDirName(), ".omf" );
     fswatcher_->addFile( fp.fullPath() );
     mAttachCB( fswatcher_->fileChanged, uiIOObjSelGrp::omfChgCB );
-
-    setHAlignObj( topgrp_ );
-    mAttachCB( postFinalize(), uiIOObjSelGrp::initGrpCB );
 }
 
 
 void uiIOObjSelGrp::omfChgCB( CallBacker* )
 {
     if ( grpobj_->visible() )
+    {
 	fullUpdate( -1 );
+	/* FileSystemWatcher stops watching omf file after the first change.
+	   Here is an excerpt from QFileSystemWatcher's documentation:
+	    "QFileSystemWatcher stops monitoring files once they have been
+	     renamed or removed from disk"
+	   Everytime .omf is updated, it creates a new file that the current
+	   FileSystemWatcher is not watching.*/
+	initFSWatcher();
+    }
 }
 
 

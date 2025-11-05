@@ -264,6 +264,7 @@ protected:
 private:
 
     void		init(const uiString& st=uiString::emptyString());
+    void		initFSWatcher();
     void		mkTopFlds(const uiString&);
     void		mkWriteFlds();
     void		mkManipulators();
