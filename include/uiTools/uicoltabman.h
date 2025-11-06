@@ -8,9 +8,6 @@ ________________________________________________________________________
 
 -*/
 
-#include "color.h"
-#include "uigroup.h"
-#include "uilabel.h"
 #include "uitoolsmod.h"
 #include "uidialog.h"
 #include "bufstring.h"
@@ -18,21 +15,19 @@ ________________________________________________________________________
 
 class uiColorInput;
 class uiColorTableCanvas;
-class uiColTabImport;
 class uiColTabMarkerCanvas;
 class uiFunctionDisplay;
 class uiGenInput;
-class uiPushButton;
-class uiSpinBox;
-class uiTable;
-class uiToolButton;
 class uiTreeView;
+class uiToolButton;
+class uiSpinBox;
 class uiWorld2Ui;
-
+class uiColTabImport;
+class uiTable;
 
 namespace ColTab { class Sequence; }
 
-mClass(uiTools) uiTranspValuesDlg : public uiDialog
+mExpClass(uiTools) uiTranspValuesDlg : public uiDialog
 { mODTextTranslationClass(uiTranspValuesDlg);
 public:
 				uiTranspValuesDlg(uiParent*,ColTab::Sequence&,
@@ -57,7 +52,6 @@ protected:
     void			handleColorPos();
     void			handleDataVal();
 };
-
 
 mExpClass(uiTools) uiColorTableMan : public uiDialog
 { mODTextTranslationClass(uiColorTableMan);
