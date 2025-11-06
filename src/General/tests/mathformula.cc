@@ -41,7 +41,6 @@ static bool testSimpleFormula()
     const char* expr = "c0 * x + y - this[-2]";
 
     Math::Formula tryform( false, expr );
-    const bool res = tryform.isOK();
     BufferString desc( "Formula '", expr, "' should not parse in single mode" );
     desc.addNewLine().add( "Returned error: " )
 	.add( tryform.errMsg().getFullString() );

@@ -374,7 +374,7 @@ static bool testBufferStringFns()
     bs.replace( "Tok1", 0 );
     bs.replace( "Tok2", " " );
     bs.replace( "Tok3", "X" );
-    mRunStandardTest( bs == "	 X Tok5", "BufferString replace" ); 
+    mRunStandardTest( bs == "    X Tok5", "BufferString replace" );
     bs.trimBlanks();
     mRunStandardTest( bs == "X Tok5", "BufferString trimBlanks 1" );
     bs = "\nXX\tYY Z\t";

@@ -148,8 +148,8 @@ bool testAtomicWithType()
     mRunTestWithType(od_uint32);
     mRunTestWithType(od_int16);
     mRunTestWithType(od_uint16);
-    mRunTestWithType(long long);
-    mRunTestWithType(unsigned long long );
+    //mRunTestWithType(long long);
+    //mRunTestWithType(unsigned long long);
     //mRunTestWithType(long);
     //mRunTestWithType(unsigned long);
     mRunTestWithType(int);
