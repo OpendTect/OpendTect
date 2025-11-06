@@ -89,6 +89,20 @@ template <>
 inline void set( const char*& _to, const od_uint64& i )
     { _to = toString(i); }
 
+#ifdef __win__
+template <>
+inline void set(const char*&,const long&)			= delete;
+
+template <>
+inline void set(const char*&,const unsigned long&)		= delete;
+#else
+template <>
+inline void set(const char*&,const long long&)			= delete;
+
+template <>
+inline void set(const char*&,const unsigned long long&)		= delete;
+#endif
+
 template <>
 inline void set( const char*& _to, const bool& b )
     { _to = toString(b); }
@@ -128,6 +142,20 @@ template <>
 inline void set( od_uint64& _to, const float& f )
     { _to = mRounded(od_uint64,f); }
 
+#ifdef __win__
+template <>
+inline void set(long&,const float&)				= delete;
+
+template <>
+inline void set(unsigned long&,const float&)			= delete;
+#else
+template <>
+inline void set(long long&,const float&)			= delete;
+
+template <>
+inline void set(unsigned long long&,const float&)		= delete;
+#endif
+
 template <>
 inline void set( short& _to, const double& f )
     { _to = mRounded(short,f); }
@@ -151,6 +179,20 @@ inline void set( od_int64& _to, const double& f )
 template <>
 inline void set( od_uint64& _to, const double& f )
     { _to = mRounded(od_uint64,f); }
+
+#ifdef __win__
+template <>
+inline void set(long&,const double&)				= delete;
+
+template <>
+inline void set(unsigned long&,const double&)			= delete;
+#else
+template <>
+inline void set(long long&,const double&)			= delete;
+
+template <>
+inline void set(unsigned long long&,const double&)		= delete;
+#endif
 
 
 //----- specializations 3: strings and simple types -> bool
@@ -188,6 +230,11 @@ template <> mGlobal(Basic) void set(type&,const char* const&); \
 template <> mGlobal(Basic) void set(type&,const StringView&); \
 template <> mGlobal(Basic) void set(type&,const BufferString&)
 
+#define mConvDeclFromStrToDeletedType(type) \
+template <> mGlobal(Basic) void set(type&,const char* const&)	= delete; \
+template <> mGlobal(Basic) void set(type&,const StringView&)	= delete; \
+template <> mGlobal(Basic) void set(type&,const BufferString&)	= delete;
+
 mConvDeclFromStrToSimpleType(short);
 mConvDeclFromStrToSimpleType(unsigned short);
 mConvDeclFromStrToSimpleType(int);
@@ -196,6 +243,13 @@ mConvDeclFromStrToSimpleType(od_int64);
 mConvDeclFromStrToSimpleType(od_uint64);
 mConvDeclFromStrToSimpleType(double);
 mConvDeclFromStrToSimpleType(float);
+#ifdef __win__
+mConvDeclFromStrToDeletedType(long);
+mConvDeclFromStrToDeletedType(unsigned long);
+#else
+mConvDeclFromStrToDeletedType(long long);
+mConvDeclFromStrToDeletedType(unsigned long long);
+#endif
 
 } // namespace Conv
 

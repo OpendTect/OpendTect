@@ -45,6 +45,17 @@ mGlobal(Basic) const char* toString(od_int64,od_uint16 width=0,
 				    int minbufsz=128,char* extbuf=nullptr);
 mGlobal(Basic) const char* toString(od_uint64,od_uint16 width=0,
 				    int minbufsz=128,char* extbuf=nullptr);
+#ifdef __win__
+mGlobal(Basic) const char* toString(long,od_uint16 width=0,
+				int minbufsz=128,char* extbuf=nullptr) = delete;
+mGlobal(Basic) const char* toString(unsigned long,od_uint16 width=0,
+				int minbufsz=128,char* extbuf=nullptr) = delete;
+#else
+mGlobal(Basic) const char* toString(long long,od_uint16 width=0,
+				int minbufsz=128,char* extbuf=nullptr) = delete;
+mGlobal(Basic) const char* toString(unsigned long long,od_uint16 width=0,
+				int minbufsz=128,char* extbuf=nullptr) = delete;
+#endif
 mGlobal(Basic) const char* toString(float,od_uint16 width=0,char format='g',
 				    od_uint16 precision=6,
 				    const char* length=nullptr,

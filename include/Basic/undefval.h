@@ -150,29 +150,66 @@ public:
 };
 
 
-#ifdef __mac__
+#ifdef __win__
+/*!
+\brief Undefined long
+*/
+
 template<>
 mClass(Basic) Undef<long>
 {
 public:
-    static long		val()			{ return __mUndefIntVal64; }
-    static bool		hasUdf()		{ return true; }
-    static bool		isUdf( long i )
-			{ return i>=__mUndefIntVal64 || i<=-__mUndefIntVal64; }
-    static void		setUdf( long& i )	{ i = __mUndefIntVal64; }
+    static long		val()				= delete;
+    static bool		hasUdf()			= delete;
+    static bool		isUdf(long)			= delete;
+    static void		setUdf(long&)			= delete;
 };
 
+
+/*!
+\brief Undefined unsigned long
+*/
 
 template<>
 mClass(Basic) Undef<unsigned long>
 {
 public:
-    static unsigned long val()			{ return __mUndefIntVal64; }
-    static bool		hasUdf()		{ return true; }
-    static bool		isUdf( unsigned long i )
-					   { return i >= __mUndefIntVal64; }
-    static void		setUdf( unsigned long& i ) { i = __mUndefIntVal64; }
+    static unsigned long val()				= delete;
+    static bool		hasUdf()			= delete;
+    static bool		isUdf(unsigned long)		= delete;
+    static void		setUdf(unsigned long&)		= delete;
 };
+
+#else
+/*!
+\brief Undefined long long
+*/
+
+template<>
+mClass(Basic) Undef<long long>
+{
+public:
+    static long long	val()				= delete;
+    static bool		hasUdf()			= delete;
+    static bool		isUdf(long long)		= delete;
+    static void		setUdf(long long&)		= delete;
+};
+
+
+/*!
+\brief Undefined unsigned long long
+*/
+
+template<>
+mClass(Basic) Undef<unsigned long long>
+{
+public:
+    static unsigned long long val()			= delete;
+    static bool		hasUdf()			= delete;
+    static bool		isUdf(unsigned long long)	= delete;
+    static void		setUdf(unsigned long long&)	= delete;
+};
+
 #endif
 
 

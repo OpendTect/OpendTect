@@ -47,6 +47,65 @@ static bool testPointerCast()
 }
 
 
+static bool testUndefineds()
+{
+    const short sval = 32766;
+    const unsigned short usval = 65534;
+    const od_int32 i32val = 2109876543;
+    const od_uint32 ui32val = 2109876543;
+    const od_int64 i64val = 9223344556677889900LL;
+    const od_uint64 ui64val = 9223344556677889900ULL;
+    const float fval = 1e30f;
+    const double dval = 1e30;
+
+    mRunStandardTest( mIsUdf(sval), "Short is undefined" );
+    mRunStandardTest( mIsUdf(usval), "Unsigned short is undefined" );
+    mRunStandardTest( mIsUdf(i32val), "Signed int is undefined");
+    mRunStandardTest( mIsUdf(ui32val), "Unsigned int is undefined" );
+    mRunStandardTest( mIsUdf(i64val), "long long int is undefined");
+    mRunStandardTest( mIsUdf(ui64val), "Unsigned long long int is undefined" );
+    mRunStandardTest( mIsUdf(fval), "Single-precision float is undefined");
+    mRunStandardTest( mIsUdf(dval), "Double-precision float is undefined");
+
+    return true;
+}
+
+
+static bool testNotUndefineds()
+{
+    const short psval =  31245;
+    const short msval = -31245;
+    const unsigned short usval = 51235;
+	//Must be below __mUndefIntVal = 2109876543
+    const od_int32 pi32val =  2097483640;
+    const od_int32 mi32val = -2097483640;
+    const od_uint32 ui32val = 2097483640;
+	//Must be below __mUndefIntVal64 = 9223344556677889900LL
+    const od_int64 pi64val =  9223322036854775703LL;
+    const od_int64 mi64val = -9223322036854775703LL;
+    const od_uint64 ui64val = 9223322036854775703ULL;
+    const float fval = 12345.6789f;
+    const double dval = 12345.6789;
+
+    mRunStandardTest( !mIsUdf(psval), "Short positive is not undefined" );
+    mRunStandardTest( !mIsUdf(msval), "Short negative is not undefined" );
+    mRunStandardTest( !mIsUdf(usval), "Unsigned short is not undefined" );
+    mRunStandardTest( !mIsUdf(pi32val), "Positive signed int is not undefined");
+    mRunStandardTest( !mIsUdf(mi32val), "Negative signed int is not undefined");
+    mRunStandardTest( !mIsUdf(ui32val), "Unsigned int is not undefined" );
+    mRunStandardTest( !mIsUdf(pi64val),
+		      "Positive signed long long int is not undefined" );
+    mRunStandardTest( !mIsUdf(mi64val),
+		      "Negative signed long long int is not undefined" );
+    mRunStandardTest( !mIsUdf(ui64val),
+		      "Unsigned long long int as od_uint64 is not undefined" );
+    mRunStandardTest( !mIsUdf(fval), "Single-precision float is not undefined");
+    mRunStandardTest( !mIsUdf(dval), "Double-precision float is not undefined");
+
+    return true;
+}
+
+
 static bool testPointerAlignment()
 {
     char buffer[] = { 0, 0, 0, 0, 1, 1, 1, 1 };
@@ -247,7 +306,9 @@ int mTestMainFnName( int argc, char** argv )
     // Main idea is to test things that are so basic they don't
     // really fit anywhere else.
 
-    if ( !testPointerCast()
+    if (   !testPointerCast()
+	|| !testUndefineds()
+	|| !testNotUndefineds()
 	|| !testCompoundKey()
 	|| !testOSVersion()
         || !testPointerAlignment()
