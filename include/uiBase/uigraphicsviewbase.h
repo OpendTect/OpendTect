@@ -111,6 +111,7 @@ public:
     CNotifier<uiGraphicsViewBase,uiSize> reSize; //!< CallBacker is OLD size
     Notifier<uiGraphicsViewBase> rubberBandUsed;
     Notifier<uiGraphicsViewBase> reDrawNeeded;
+    Notifier<uiGraphicsViewBase>&		eraseNeeded();
     Notifier<uiGraphicsViewBase> reDrawn;
 				//!< In practice, this happens only after reSize
     Notifier<uiGraphicsViewBase> preDraw;

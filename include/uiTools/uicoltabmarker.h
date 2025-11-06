@@ -68,6 +68,7 @@ protected:
     bool                        changeColor(int);
 
     void                        drawMarkers(CallBacker*);
+    void			eraseMarkers(CallBacker*);
     void                        mouseClk(CallBacker*);
     void                        mouse2Clk(CallBacker*);
     void                        mouseRelease(CallBacker*);

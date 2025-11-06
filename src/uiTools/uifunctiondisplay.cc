@@ -119,13 +119,26 @@ void uiFunctionDisplay::setTitle( const uiString& title )
     {
 	titleitem_ = scene().addItem( new uiTextItem() );
 	titleitem_->setAlignment( Alignment(Alignment::HCenter,Alignment::Top));
-	titleitem_->setPos( uiPoint(viewWidth()/2,0) );
 	titleitem_->setZValue( 2 );
     }
 
     titleitem_->setText( title );
+    draw();//TODO: Figure out how to align without doing this call
 }
 
+
+void uiFunctionDisplay::setTitleColor( const OD::Color& col )
+{
+    if ( !titleitem_ )
+    {
+	titleitem_ = scene().addItem( new uiTextItem() );
+	titleitem_->setAlignment( Alignment(Alignment::HCenter,Alignment::Top));
+	titleitem_->setZValue( 2 );
+    }
+
+    titleitem_->setTextColor( col );
+    draw();
+}
 
 Geom::Point2D<float> uiFunctionDisplay::getFuncXY( int xpix, bool y2 ) const
 {

@@ -8,6 +8,9 @@ ________________________________________________________________________
 
 -*/
 
+#include "color.h"
+#include "uigroup.h"
+#include "uilabel.h"
 #include "uitoolsmod.h"
 #include "uidialog.h"
 #include "bufstring.h"
@@ -15,26 +18,28 @@ ________________________________________________________________________
 
 class uiColorInput;
 class uiColorTableCanvas;
+class uiColTabImport;
 class uiColTabMarkerCanvas;
 class uiFunctionDisplay;
 class uiGenInput;
-class uiTreeView;
-class uiToolButton;
+class uiPushButton;
 class uiSpinBox;
-class uiWorld2Ui;
-class uiColTabImport;
 class uiTable;
+class uiToolButton;
+class uiTreeView;
+class uiWorld2Ui;
+
 
 namespace ColTab { class Sequence; }
 
-mExpClass(uiTools) uiTranspValuesDlg : public uiDialog
-{ mODTextTranslationClass(uiColTabMarkerDlg);
+mClass(uiTools) uiTranspValuesDlg : public uiDialog
+{ mODTextTranslationClass(uiTranspValuesDlg);
 public:
 				uiTranspValuesDlg(uiParent*,ColTab::Sequence&,
 						  const Interval<float>&);
 				~uiTranspValuesDlg();
 
-    Notifier<uiTranspValuesDlg> valuesChanged;
+				Notifier<uiTranspValuesDlg> valuesChanged;
 
 
 protected:
@@ -53,7 +58,6 @@ protected:
     void			handleDataVal();
 };
 
-namespace ColTab { class Sequence; }
 
 mExpClass(uiTools) uiColorTableMan : public uiDialog
 { mODTextTranslationClass(uiColorTableMan);
@@ -129,6 +133,7 @@ protected:
     void			transptChg(CallBacker*);
     void			sequenceChange(CallBacker*);
     void			markerChange(CallBacker*);
+    void			markerDialogCB(CallBacker*);
     void			transpTableChgd(CallBacker*);
     void			rightClickTranspCB(CallBacker*);
     void			mouseMoveCB(CallBacker*);

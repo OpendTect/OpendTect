@@ -816,22 +816,72 @@ bool ColTab::SeqMgr::write( bool sys, bool applsetup )
 
 float ColTab::Sequence::snapToSegmentCenter( float x ) const
 {
-    if ( nrsegments_<1 )
-	return x;
+    //TODO: This if statement checks for equal segments. If fixed will be
+    //removed, then change this to check for nrsegments_
+    if ( nrsegments_ > 1 )
+    {
+	if ( mIsUdf(x) )
+	    return x;
 
-    if ( mIsUdf(x) )
-	return x;
+	if ( nrsegments_ == 1 )
+	    return 0.5f;
 
-    if ( nrsegments_==1 )
-	return 0.5;
+	//Equal Segments have two visible sliver segments on the ends for the
+	//anchors
+	const float sliverFraction = 0.001f;
 
-    const float segmentsize = 1.0f / (nrsegments_ - 1);
+	// Each visible segment's effective width
+	const float segmentWidth = 1.0f / (nrsegments_ + 2.0f * sliverFraction);
 
-    int segment = (int) ( x/segmentsize + 0.5 );
-    if ( segment<0 ) segment = 0;
-    if ( segment>=nrsegments_ )
-	segment = nrsegments_-1;
-    return segment*segmentsize;
+	// Total sliver width at each end (normalized)
+	const float sliverWidth = sliverFraction * segmentWidth;
+
+	// Start and end of visible range (excluding slivers)
+	const float startVisible = 0;
+	const float endVisible = 1.0f - sliverWidth;
+
+	// If outside visible area, just clamp
+	//(so slivers show but aren't snapped to)
+	if ( x <= startVisible )
+	    return startVisible;
+	if ( x >= endVisible )
+	    return endVisible;
+
+	// Normalize inside visible area
+	const float localx = (x - startVisible) / (endVisible - startVisible);
+
+	// Snap to the nearest of the N equal visible segments
+	int segment = (int)(localx * nrsegments_);
+	if (segment < 0)
+	    segment = 0;
+	else if (segment >= nrsegments_)
+	    segment = nrsegments_ - 1;
+
+	// Compute snapped center (in normalized [0,1] space)
+	const float center = startVisible +
+		((segment + 0.5f) / nrsegments_)*(endVisible - startVisible);
+
+	return center;
+    }
+    else
+    {
+	if ( nrsegments_<1 || mIsUdf(x) )
+	    return x;
+
+	if ( nrsegments_==1 )
+	    return 0.5;
+
+	const float segmentsize = 1.0f / (nrsegments_ - 1);
+
+	int segment = (int) ( x/segmentsize + 0.5 );
+	if ( segment<0 )
+	    segment = 0;
+
+	if ( segment>=nrsegments_ )
+	    segment = nrsegments_-1;
+
+	return segment*segmentsize;
+    }
 }
 
 

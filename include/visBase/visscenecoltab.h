@@ -53,11 +53,13 @@ public:
     const ColTab::Sequence& getColTabSequence() const { return sequence_; }
     bool		isSeqFlipped() const { return flipseq_; }
     const Interval<float>& getRange() const { return rg_; }
+    int			getNumLabels();
 
 protected:
 			~SceneColTab();
     void		updateSequence();
     void		setPos(float x, float y);
+    void		setNumLabels(int numoflbls);
 
     osg::Geode*		osgcolorbar_;
     ColTab::Sequence	sequence_;
@@ -66,7 +68,7 @@ protected:
     bool		flipseq_	= false;
     bool		horizontal_	= false;
     int			width_		= 20;
-    int			height_		= 250;
+    int			height_		= 350;
     float		aspratio_	= 1.f;
     int			winx_		= 100;
     int			winy_		= 100;

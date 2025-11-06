@@ -13,6 +13,7 @@ ________________________________________________________________________
 #include "coltabmapper.h"
 #include "coltabsequence.h"
 #include "fontdata.h"
+#include "visscene.h"
 #include "vistext.h"
 
 #include <osg/Geode>
@@ -51,7 +52,8 @@ SceneColTab::SceneColTab()
 
     mScalarBar->setOrientation( mScalarBarType::VERTICAL );
     mScalarBar->setTitle( "" );
-    mScalarBar->setNumLabels( 5 );
+    mScalarBar->setNumLabels( sequence_.nrSegments()+2 );
+    height_ = sequence_.nrSegments()*70;
 
     setSize( width_, height_ );
     setColTabSequence( ColTab::Sequence("") );
@@ -150,12 +152,12 @@ void SceneColTab::setPos( Pos pos )
     else if ( pos_ == Right )
     {
 	setOrientation( false );
-	setPos( winx_-3.5*height_, winy_/2 - width_/2 );
+	setPos( winx_-(90+height_), winy_/2 - width_/2 );
     }
     else if ( pos_ == Top )
     {
 	setOrientation( true );
-	setPos( winx_/2 - width_/2, winy_ - 3*height_ );
+	setPos( winx_/2 - width_/2, winy_ - (height_+35) );
     }
     else if ( pos_ == Bottom )
     {
@@ -173,12 +175,23 @@ void SceneColTab::setPos( float x, float y )
 }
 
 
+void SceneColTab::setNumLabels( int num )
+{
+    mScalarBar->setNumLabels( num );
+}
+
+
 Geom::Size2D<int> SceneColTab::getSize()
 {
     Geom::Size2D<int> sz;
     sz.setWidth( horizontal_ ? width_ : height_ );
     sz.setHeight( horizontal_ ? height_ : width_ );
     return sz;
+}
+
+int SceneColTab::getNumLabels()
+{
+    return mScalarBar->getNumLabels();
 }
 
 
@@ -207,11 +220,24 @@ void SceneColTab::updateSequence()
     ColorUpdator colorupdator( nrcols, colors, table, flipseq_, nrcols );
     colorupdator.execute();
 
-    osgSim::ColorRange* osgcolorrange =
-	new osgSim::ColorRange(
-                rg_.start_, mIsZero(rg_.width(false),mDefEps) ? 1 : rg_.stop_, colors );
+    auto* osgcolorrange = new osgSim::ColorRange( rg_.start_,
+					   mIsZero(rg_.width(false),mDefEps) ? 1
+							  : rg_.stop_, colors );
 
     mScalarBar->setScalarsToColors( osgcolorrange );
+    const int segments = sequence_.nrSegments();
+    if ( segments==0 || segments==-1 )
+	mScalarBar->setNumLabels( 7 );
+    else if ( segments<12 )
+	mScalarBar->setNumLabels( segments+1 );
+    else
+	mScalarBar->setNumLabels( 7 );
+
+    if ( mScalarBar->getNumLabels()>=7 && getOrientation() )
+	setSize( mScalarBar->getNumLabels()*65, height_ );
+    else if ( mScalarBar->getNumLabels()>=7 && !getOrientation() )
+	setSize( height_, mScalarBar->getNumLabels()*65 );
+
     requestSingleRedraw();
 }
 

@@ -136,11 +136,8 @@ void uiColTabMarkerDlg::markerDeleted( CallBacker* )
     if ( rc.row()==0 || rc.row()==ctab_.size()-1 )
     {
 	table_->insertRows( rc, 1 );
-	const float pos = ctab_.position( rc.row() );
-	table_->setValue( RowCol(rc.row(),sPosCol), pos );
-	table_->setColor( RowCol(rc.row(),sColorCol), ctab_.color(pos) );
-	table_->setCurrentCell( RowCol(rc.row(),sPosCol) );
-	uiMSG().error( tr("Cannot remove markers at extreme positions") );
+	fillTable();
+	uiMSG().error( tr("Cannot remove anchors at extreme positions") );
 	return;
     }
 
@@ -215,6 +212,7 @@ uiColTabMarkerCanvas::uiColTabMarkerCanvas( uiParent* p, ColTab::Sequence& ctab)
     w2ui_ = new uiWorld2Ui( uiWorldRect(0,255,1,0), uiSize(1,1) );
 
     reDrawNeeded.notify( mCB(this,uiColTabMarkerCanvas,drawMarkers));
+    eraseNeeded().notify( mCB(this,uiColTabMarkerCanvas,eraseMarkers));
     reSize.notify( mCB(this,uiColTabMarkerCanvas,drawMarkers));
 
     meh_.buttonPressed.notify(mCB(this,uiColTabMarkerCanvas,mouseClk) );
@@ -232,6 +230,9 @@ uiColTabMarkerCanvas::~uiColTabMarkerCanvas()
 
 void uiColTabMarkerCanvas::drawMarkers( CallBacker* )
 {
+    if ( ctab_.nrSegments() > 2 )
+	return;
+
     const int w = viewWidth();
     const int h = viewHeight();
     scene().setSceneRect( 0, 0, sCast(float,w), sCast(float,h) );
@@ -255,6 +256,23 @@ void uiColTabMarkerCanvas::drawMarkers( CallBacker* )
 	lineitem->setPenStyle( OD::LineStyle(OD::LineStyle::Solid,3) );
 	markerlineitmgrp_->add( lineitem );
     }
+}
+
+
+void uiColTabMarkerCanvas::eraseMarkers( CallBacker* )
+{
+    const int w = viewWidth();
+    const int h = viewHeight();
+    scene().setSceneRect( 0, 0, sCast(float,w), sCast(float,h) );
+    w2ui_->set( uiRect(3,0,w-4,h-5), uiWorldRect(0,255,1,0) );
+
+    if ( !markerlineitmgrp_ )
+    {
+	markerlineitmgrp_ = new uiGraphicsItemGroup();
+	scene().addItem( markerlineitmgrp_ );
+    }
+    else
+	markerlineitmgrp_->removeAll( true );
 }
 
 
@@ -285,7 +303,13 @@ void uiColTabMarkerCanvas::mouseClk( CallBacker* )
     if ( OD::RightButton != ev.buttonState() )
 	return;
 
+    if ( markerlineitmgrp_->isEmpty() )
+	return;
+
     uiMenu mnu( parent_, uiStrings::sAction() );
+    mnu.insertAction( new uiAction(m3Dots(uiStrings::phrEdit(
+			 tr("Anchors")))), 2 );
+
     if ( selidx_>=0 )
     {
 	if ( selidx_ != 0 && selidx_ != ctab_.size()-1 )
@@ -340,7 +364,8 @@ void uiColTabMarkerCanvas::addMarker( float pos, bool withcolsel )
 	    ctab_ = coltab;
     }
 
-    reDrawNeeded.trigger();
+    if ( !markerlineitmgrp_->isEmpty() )
+	reDrawNeeded.trigger();
 }
 
 
@@ -348,7 +373,9 @@ void uiColTabMarkerCanvas::removeMarker( int markeridx )
 {
     ctab_.removeColor( markeridx );
     markerChanged.trigger();
-    reDrawNeeded.trigger();
+
+    if ( !markerlineitmgrp_->isEmpty() )
+	reDrawNeeded.trigger();
 }
 
 
@@ -369,6 +396,9 @@ void uiColTabMarkerCanvas::mouse2Clk( CallBacker* )
     if ( meh_.isHandled() )
 	return;
 
+    if ( ctab_.nrSegments()>1 )
+	return;
+
     const MouseEvent& ev = meh_.event();
     const uiWorldPoint wpt = w2ui_->transform( ev.pos() );
     addMarker( sCast(float,wpt.x_), true );
@@ -382,8 +412,10 @@ void uiColTabMarkerCanvas::mouseRelease( CallBacker* )
     if ( meh_.isHandled() )
 	return;
 
+    if ( !markerlineitmgrp_->isEmpty() )
+	reDrawNeeded.trigger();
+
     selidx_ = -1;
-    reDrawNeeded.trigger();
     meh_.setHandled( true );
 }
 
@@ -417,7 +449,8 @@ void uiColTabMarkerCanvas::mouseMove( CallBacker* )
 	position = changepos;
 
     ctab_.changePos( selidx_, position );
-    reDrawNeeded.trigger();
+    if ( !markerlineitmgrp_->isEmpty() )
+	reDrawNeeded.trigger();
     markerChanged.trigger();
     meh_.setHandled( true );
 }

@@ -26,6 +26,16 @@ ________________________________________________________________________
 #include <QTouchEvent>
 #include <QWheelEvent>
 
+#include "hiddenparam.h"
+
+static HiddenParam<uiGraphicsViewBase,Notifier<uiGraphicsViewBase>*>
+    eraseneeded_(nullptr);
+
+Notifier<uiGraphicsViewBase>& uiGraphicsViewBase::eraseNeeded()
+{
+    return *eraseneeded_.getParam( this );
+}
+
 mUseQtnamespace
 
 static const int cDefaultWidth  = 1;
@@ -464,6 +474,7 @@ uiGraphicsViewBase::uiGraphicsViewBase( uiParent* p, const char* nm )
     , isctrlpressed_(false)
     , enabscrollzoom_(false)
 {
+    eraseneeded_.setParam( this, new Notifier<uiGraphicsViewBase>(this) );
     enableScrollZoom( enabscrollzoom_ );
     setScene( *new uiGraphicsScene(nm) );
     setDragMode( uiGraphicsViewBase::NoDrag );
@@ -483,6 +494,7 @@ uiGraphicsViewBody& uiGraphicsViewBase::mkbody( uiParent* p, const char* nm )
 
 uiGraphicsViewBase::~uiGraphicsViewBase()
 {
+    eraseneeded_.removeAndDeleteParam( this );
     allviewers -= this;
     delete body_;
     delete scene_;

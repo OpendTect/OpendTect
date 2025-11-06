@@ -68,6 +68,7 @@ public:
     void		removeTransparencyAt(int);
     bool		hasTransparency() const;
 
+    bool		hasEqualSegments() const    { return nrsegments_ > 1; }
     int			nrSegments() const		{ return nrsegments_; }
     void		setNrSegments(int n)		{ nrsegments_ = n; }
 			/*!<nrsegments > 0 divide the ctab in equally wide

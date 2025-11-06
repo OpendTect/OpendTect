@@ -40,6 +40,7 @@ public:
 				~uiFunctionDisplay();
 
     void			setTitle(const uiString&) override;
+    void			setTitleColor(const OD::Color&);
 
     Geom::Point2D<float>	getFuncXY(int xpix,bool y2) const;
     Geom::Point2D<float>	getXYFromPix(const Geom::Point2D<int>& pix,
