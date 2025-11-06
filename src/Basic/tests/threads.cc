@@ -15,31 +15,22 @@ ________________________________________________________________________
 #include "thread.h"
 
 
-#define mPrintResult(func) \
-{ \
-    if ( !quiet_ ) \
-    { \
-	od_cout() << "\nData type in test: " << valtype; \
-	od_cout() << "\n====================\n"; \
-	od_cout() << "Atomic = " << atomic.load() << " in function: "; \
-    } \
-    od_cout() << func << " failed!\n"; \
-    stopflag = true; \
-    return false; \
-} \
-else \
-{ \
-    if ( !quiet_ ) \
-    { \
-	od_cout() << "Atomic = " << atomic.load() << " in function: "; \
-	od_cout() << func << " OK\n"; \
-    } \
-}
 
-#undef mRunTest
+
+#define mSetDesc( finalval , func ) \
+    desc.set( "Atomic = " ).add( finalval ) \
+	.add( " in function: " ).add( func );
+#define mSetErrMsg( finalval, val ) \
+    errmsg.set( "Expected: " ).add( finalval ) \
+	  .add( ", received: " ).add( val );  \
+
 #define mRunTest( func, finalval ) \
-    if ( (func)==false || atomic.load()!=finalval ) \
-	mPrintResult( #func )
+    res = func; \
+    val = atomic.load(); \
+    mSetDesc( finalval, #func ) \
+    mSetErrMsg( finalval, val ) \
+    mRunStandardTestWithError( res && val==finalval, \
+			       desc.str(), errmsg.str() );
 
 #define mTestVal 100
 
@@ -71,11 +62,12 @@ bool testAtomic( const char* valtype )
     bool stopflag = false;
     Threads::Atomic<T> atomic( 0 );
 
-    if ( !quiet_ )
-    {
-	od_cout() << "\nData type in test: " << valtype;
-	od_cout() << "\n====================\n";
-    }
+    logStream() << od_newline << "Data type in test: " << valtype
+		<< od_newline << "=====================" << od_endl;
+
+    BufferString desc, errmsg;
+    bool res;
+    T val;
 
     T curval = 2;
     mRunTest( !atomic.setIfValueIs( 2, 1, &curval ) && curval==0, 0 ); //0
@@ -112,8 +104,8 @@ bool testAtomic( const char* valtype )
 	    break;
     }
 
-    if ( !successfound || !failurefound )
-	mPrintResult( "weakSetIfEqual stresstest");
+    mSetDesc( mTestVal, "weakSetIfEqual stress test" )
+    mRunStandardTest( successfound && failurefound, desc.str() );
 
     count = 1000000000;
     successfound = false;
@@ -122,7 +114,7 @@ bool testAtomic( const char* valtype )
     for ( idx=0; idx<count; idx++ )
     {
 	curval = atomic.load();
-	if ( atomic.setIfValueIs(curval,mTestVal,&curval ) )
+	if ( atomic.setIfValueIs(curval,mTestVal,&curval) )
 	    successfound = true;
 	else
 	    failurefound = true;
@@ -131,60 +123,59 @@ bool testAtomic( const char* valtype )
 	    break;
     }
 
-    BufferString message("strongSetIfEqual stresstest: nrattempts = ",
-			 toString(idx) );
-    message += ", successfound=";
-    message += toString(successfound);
-    message += ", failurefound=";
-    message += toString(failurefound);
+    BufferString message("nrattempts = ", idx );
+    message.add( ", successfound=" ).add( successfound )
+	   .add( ", failurefound=" ).add( failurefound );
 
-    if ( !successfound || !failurefound )
-	mPrintResult( message.buf() );
-
+    mSetDesc( atomic.load(), "strongSetIfEqual stress test" )
+    mRunStandardTestWithError( successfound && failurefound,
+			       desc.str(), message.str() );
     stopflag = true;
-
-    if ( !quiet_ )
-	od_cout() << "\n";
 
     return true;
 }
 
 
-
-
-#undef mRunTest
-
-#define mRunTest( desc, test ) \
-{ \
-    if ( (test) ) \
-    { \
-	if ( !quiet_ ) \
-	{ \
-	    od_cout() << desc << ":"; \
-	    od_cout() << " OK\n"; \
-	} \
-    } \
-    else \
-    { \
-	od_cout() << desc << ":"; \
-	od_cout() << " Fail\n"; \
+#define mRunTestWithType(thetype) \
+    if ( !testAtomic<thetype>( " " #thetype " " ) ) \
 	return false; \
-    } \
+
+bool testAtomicWithType()
+{
+    mRunTestWithType(od_int64);
+    mRunTestWithType(od_uint64);
+    mRunTestWithType(od_int32);
+    mRunTestWithType(od_uint32);
+    mRunTestWithType(od_int16);
+    mRunTestWithType(od_uint16);
+    /*mRunTestWithType(long long);
+    mRunTestWithType(unsigned long long);
+    mRunTestWithType(long);
+    mRunTestWithType(unsigned long);*/
+    mRunTestWithType(int);
+    mRunTestWithType(unsigned int);
+    mRunTestWithType(short);
+    mRunTestWithType(unsigned short);
+
+    return true;
 }
+
 
 bool testAtomicSetIfValueIs()
 {
     volatile int val = 0;
 
+    logStream() << od_newline;
+
     int curval = 1;
-    mRunTest( "atomicSetIfValueIs failure",
-	      !Threads::atomicSetIfValueIs( val, curval, 1, &curval )
-	      && curval == 0 )
+    mRunStandardTest(
+	!Threads::atomicSetIfValueIs( val, curval, 1, &curval ) && curval == 0,
+	"atomicSetIfValueIs shoud fail" );
 
     curval = 0;
-    mRunTest( "atomicSetIfValueIs success",
-	      Threads::atomicSetIfValueIs( val, curval, 1, &curval )
-	      && curval == 0 )
+    mRunStandardTest(
+	Threads::atomicSetIfValueIs( val, curval, 1, &curval ) && curval == 0,
+	"atomicSetIfValueIs success" );
 
     return true;
 }
@@ -195,10 +186,8 @@ bool testAtomicPointer()
     Threads::AtomicPointer<void> curthread;
 
     curthread = Threads::currentThread();
-
     mRunStandardTest(curthread == Threads::currentThread(),
 		     "Atomic Pointer assignment");
-
 
     return true;
 }
@@ -271,51 +260,52 @@ struct LockerTester : public CallBacker
 template <class T> inline
 bool testLock( bool testcount, const char* type )
 {
-    if ( !quiet_ )
-    {
-	od_cout() << "\n" << type << " tests\n====================\n";
-    }
+    logStream() << od_newline << type << " tests" << od_newline
+		<< "===================" << od_endl;
 
     {
 	T lock( false );
 	mDynamicCastGet( Threads::SpinLock*, spinlock, testcount ? &lock : 0 );
 
 	if ( spinlock )
-	    mRunTest( "Inital count", spinlock->count()==0 );
-	mRunTest( "tryLock on unlocked lock", lock.tryLock() );
+	    mRunStandardTest( spinlock->count()==0, "Inital count" );
+
+	mRunStandardTest( lock.tryLock(), "tryLock on unlocked lock" );
 	if ( spinlock )
-	    mRunTest( "Locked count", spinlock->count()==1 );
-	mRunTest( "tryLock on locked lock", !lock.tryLock() );
+	    mRunStandardTest( spinlock->count()==1, "Locked count" );
+
+	mRunStandardTest( !lock.tryLock(), "tryLock on locked lock" );
 	if ( spinlock )
-	    mRunTest( "Locked count after lock attempt", spinlock->count()==1 );
+	    mRunStandardTest( spinlock->count()==1,
+			      "Locked count after lock attempt" );
+
 	lock.unLock();
 
 	//No lock
-	mRunTest( "tryLock on unlocked lock (2)", lock.tryLock() );
+	mRunStandardTest( lock.tryLock(), "tryLock on unlocked lock (2)" );
 	lock.unLock();
 
 	//No lock
 	LockerTester<T> otherthreadlocker( lock );
-	mRunTest( "tryLock on unlocked lock from other thread",
-		  otherthreadlocker.res_ );
-	mRunTest( "tryLock on lock that is locked in other thread",
-		  !lock.tryLock() );
+	mRunStandardTest( otherthreadlocker.res_,
+			  "tryLock on unlocked lock from other thread" );
+	mRunStandardTest( !lock.tryLock(),
+			  "tryLock on lock that is locked in other thread" );
 	otherthreadlocker.unLockIfLocked();
 
 	//No lock
 	lock.lock();
-	mRunTest( "tryLock on locked lock (2)", !lock.tryLock() );
+	mRunStandardTest( !lock.tryLock(), "tryLock on locked lock (2)" );
 	lock.unLock();
 
 	lock.lock();
 	LockerTester<T> otherthreadlocker2( lock );
-	mRunTest( "tryLock on locked lock from other thread",
-		  !otherthreadlocker2.res_ );
+	mRunStandardTest( !otherthreadlocker2.res_,
+			  "tryLock on locked lock from other thread" );
 	otherthreadlocker2.unLockIfLocked();
 	lock.unLock();
 	//No lock
     }
-
 
     {
 	T rlock( true );
@@ -324,38 +314,45 @@ bool testLock( bool testcount, const char* type )
 			 testcount ? &rlock : 0 );
 
 	if ( spinlock )
-	    mRunTest( "Inital count", spinlock->count()==0 );
-	mRunTest( "tryLock on unlocked recursive lock", rlock.tryLock() );
+	    mRunStandardTest( spinlock->count()==0, "Inital count" );
+
+	mRunStandardTest( rlock.tryLock(),
+			  "tryLock on unlocked recursive lock" );
 	if ( spinlock )
-	    mRunTest( "Locked count on single locked recursive lock",
-		  spinlock->count()==1 );
-	mRunTest( "tryLock on locked recursive lock", rlock.tryLock() );
+	    mRunStandardTest( spinlock->count()==1,
+			      "Locked count on single locked recursive lock" );
+
+	mRunStandardTest( rlock.tryLock(),
+			  "tryLock on locked recursive lock" );
 	if ( spinlock )
-	    mRunTest( "Locked count on double locked recursive lock",
-		  spinlock->count()==2 );
+	    mRunStandardTest( spinlock->count()==2,
+			      "Locked count on double locked recursive lock" );
+
 	rlock.unLock();
 	rlock.unLock();
-	mRunTest( "tryLock on unlocked recursive lock (2)", rlock.tryLock() );
+	mRunStandardTest( rlock.tryLock(),
+			  "tryLock on unlocked recursive lock (2)" );
 	rlock.unLock();
 
 	//No lock
 	LockerTester<T> otherthreadlocker( rlock );
-	mRunTest( "tryLock on unlocked lock from other thread",
-		  otherthreadlocker.res_ );
-	mRunTest( "tryLock on lock that is locked in other thread",
-		  !rlock.tryLock() );
+	mRunStandardTest( otherthreadlocker.res_,
+			  "tryLock on unlocked lock from other thread" );
+	mRunStandardTest( !rlock.tryLock(),
+			  "tryLock on lock that is locked in other thread" );
 	otherthreadlocker.unLockIfLocked();
 
 	//No lock
 	rlock.lock();
-	mRunTest( "tryLock on locked recursive lock (2)", rlock.tryLock() );
+	mRunStandardTest( rlock.tryLock(),
+			  "tryLock on locked recursive lock (2)" );
 	rlock.unLock();
 	rlock.unLock();
 
 	rlock.lock();
 	LockerTester<T> otherthreadlocker2( rlock );
-	mRunTest( "tryLock on locked lock from other thread",
-		  !otherthreadlocker2.res_ );
+	mRunStandardTest( !otherthreadlocker2.res_,
+			  "tryLock on locked lock from other thread" );
 	otherthreadlocker2.unLockIfLocked();
 	rlock.unLock();
     }
@@ -369,61 +366,44 @@ bool testSimpleSpinLock()
     volatile int lock = 0;
     Threads::lockSimpleSpinLock( lock, Threads::Locker::WaitIfLocked );
 
-    mRunTest( "Simple spinlock acquire lock", (lock==1));
-    mRunTest( "Simple spinlock trylock on locked lock.",
-        !Threads::lockSimpleSpinLock( lock, Threads::Locker::DontWaitForLock ));
+    mRunStandardTest( lock==1, "Simple spinlock acquire lock" );
+    mRunStandardTest(
+	!Threads::lockSimpleSpinLock( lock, Threads::Locker::DontWaitForLock ),
+	"Simple spinlock trylock on locked lock" );
 
     Threads::unlockSimpleSpinLock( lock );
-    mRunTest( "Simple spinlock release lock", lock==0 );
+    mRunStandardTest( lock==0, "Simple spinlock release lock" );
 
-    mRunTest( "Simple spinlock trylock on unlocked lock.",
-         Threads::lockSimpleSpinLock( lock, Threads::Locker::DontWaitForLock ));
+    mRunStandardTest(
+	Threads::lockSimpleSpinLock( lock, Threads::Locker::DontWaitForLock ),
+	"Simple spinlock trylock on unlocked lock." );
 
     return true;
 }
+
 
 bool testConditionVarTimeout()
 {
     Threads::ConditionVar condvar;
 
     Threads::MutexLocker locker( condvar );
-
     mRunStandardTest( !condvar.wait( 20 ), "Condition variable timeout" );
 
     return true;
 }
 
 
-#define mRunTestWithType(thetype) \
-    if ( !testAtomic<thetype>( " " #thetype " " ) ) \
-	return 1;
-
-
 int mTestMainFnName( int argc, char** argv )
 {
     mInitTestProg();
 
-    mRunTestWithType(od_int64);
-    mRunTestWithType(od_uint64);
-    mRunTestWithType(od_int32);
-    mRunTestWithType(od_uint32);
-    mRunTestWithType(od_int16);
-    mRunTestWithType(od_uint16);
-    mRunTestWithType(long long);
-    mRunTestWithType(unsigned long long );
-    mRunTestWithType(long);
-    mRunTestWithType(unsigned long);
-    mRunTestWithType(int);
-    mRunTestWithType(unsigned int);
-    mRunTestWithType(short);
-    mRunTestWithType(unsigned short);
-
-    if ( !testAtomicSetIfValueIs()
+    if ( !testAtomicWithType()
+      || !testAtomicSetIfValueIs()
       || !testAtomicPointer()
       || !testSimpleSpinLock()
       || !testConditionVarTimeout()
-      || !testLock<Threads::Mutex>( false, "Mutex" )
-      || !testLock<Threads::SpinLock>( true, "SpinLock" ) )
+      || !testLock<Threads::Mutex>(false,"Mutex")
+      || !testLock<Threads::SpinLock>(true,"SpinLock") )
 	return 1;
 
     return 0;

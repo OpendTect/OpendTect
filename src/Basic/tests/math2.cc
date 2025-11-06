@@ -7,22 +7,15 @@ ________________________________________________________________________
 
 -*/
 
-#include "thread.h"
 #include "testprog.h"
-#include "math2.h"
+
 #include "genc.h"
+#include "math2.h"
+#include "thread.h"
 
 
 #define mRunTest( func ) \
-    if ( (func)==false ) \
-    { \
-	handleTestResult( false, #func ); \
-	return false; \
-    } \
-    else \
-    { \
-	handleTestResult( true, #func ); \
-    }
+    mRunStandardTest( (func) , #func );
 
 #define mTestVal 100
 
@@ -56,33 +49,26 @@ bool testBits()
 
 bool testNiceNumber()
 {
-    mRunStandardTest(Math::NiceNumber(0.f)==0.f, "NiceNumber(0.f)");
-    mRunStandardTest(Math::NiceNumber(14.f)==10.f, "NiceNumber(14.f)");
-    mRunStandardTest(Math::NiceNumber(-14.f)==-10.f, "NiceNumber(-14.f)");
-    mRunStandardTest(Math::NiceNumber(14.f, false)==20.f,
-						     "NiceNumber(14.f, false)");
-    mRunStandardTest(Math::NiceNumber(-14.f, false)==-20.f,
-						 "NiceNumber(-14.f, false)");
-    mRunStandardTest(Math::NiceNumber(0.14f)==0.1f, "NiceNumber(0.14f)");
-    mRunStandardTest(Math::NiceNumber(-0.14f)==-0.1f, "NiceNumber(-0.14f)");
-    mRunStandardTest(Math::NiceNumber(0.14f, false)==0.2f,
-						 "NiceNumber(0.14f, false)");
-    mRunStandardTest(Math::NiceNumber(-0.14f, false)==-0.2f,
-						 "NiceNumber(-0.14f, false)");
+    mRunTest( Math::NiceNumber(0.f)==0.f );
+    mRunTest( Math::NiceNumber(14.f)==10.f );
+    mRunTest( Math::NiceNumber(-14.f)==-10.f );
+    mRunTest( Math::NiceNumber(14.f, false)==20.f );
+    mRunTest( Math::NiceNumber(-14.f, false)==-20.f );
+    mRunTest( Math::NiceNumber(0.14f)==0.1f );
+    mRunTest( Math::NiceNumber(-0.14f)==-0.1f );
+    mRunTest( Math::NiceNumber(0.14f, false)==0.2f );
+    mRunTest( Math::NiceNumber(-0.14f, false)==-0.2f );
 
-    mRunStandardTest(Math::NiceNumber(0.0)==0.0, "NiceNumber(0.0)");
-    mRunStandardTest(Math::NiceNumber(14.0)==10.0, "NiceNumber(14.0)");
-    mRunStandardTest(Math::NiceNumber(-14.0)==-10.0, "NiceNumber(-14.0)");
-    mRunStandardTest(Math::NiceNumber(14.0, false)==20.0,
-						     "NiceNumber(14.0, false)");
-    mRunStandardTest(Math::NiceNumber(-14.0, false)==-20.0,
-						 "NiceNumber(-14.0, false)");
-    mRunStandardTest(Math::NiceNumber(0.14)==0.1, "NiceNumber(0.14)");
-    mRunStandardTest(Math::NiceNumber(-0.14)==-0.1, "NiceNumber(-0.14)");
-    mRunStandardTest(Math::NiceNumber(0.14, false)==0.2,
-						 "NiceNumber(0.14, false)");
-    mRunStandardTest(Math::NiceNumber(-0.14, false)==-0.2,
-						 "NiceNumber(-0.14, false)");
+    mRunTest( Math::NiceNumber(0.)==0. );
+    mRunTest( Math::NiceNumber(14.)==10. );
+    mRunTest( Math::NiceNumber(-14.)==-10. );
+    mRunTest( Math::NiceNumber(14., false)==20. );
+    mRunTest( Math::NiceNumber(-14., false)==-20. );
+    mRunTest( Math::NiceNumber(0.14)==0.1 );
+    mRunTest( Math::NiceNumber(-0.14)==-0.1 );
+    mRunTest( Math::NiceNumber(0.14, false)==0.2 );
+    mRunTest( Math::NiceNumber(-0.14, false)==-0.2 );
+
     return true;
 }
 

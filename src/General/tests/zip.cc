@@ -14,67 +14,53 @@ ________________________________________________________________________
 #include "file.h"
 #include "filepath.h"
 
+#include <csignal>
 
-class FileDisposer
+static const char* sKeySurvey = "F3_Test_Survey";
+
+static BufferString workdir_;
+static BufferString zipfnm_;
+static BufferString zipfilename_;
+static BufferString zipfilename2_;
+static BufferString outputdir_;
+
+
+void cleanup()
 {
-public:
+    if ( File::exists(workdir_.buf()) )
+	File::removeDir( workdir_.buf() );
 
-    FileDisposer( const char* fnm )
-	: fnm_(fnm)
-    {}
+    if ( File::exists(zipfnm_.buf()) )
+	File::remove( zipfnm_.buf() );
 
-    ~FileDisposer()
-    {
-	const char* fnm = fnm_.buf();
-	if ( File::isDirectory(fnm) && !File::isSymLink(fnm) )
-	    File::removeDir( fnm );
-	else
-	    File::remove( fnm );
-    }
+    if ( File::exists(zipfilename_.buf()) )
+	File::remove( zipfilename_.buf() );
 
-private:
-    BufferString fnm_;
-};
+    if ( File::exists(zipfilename2_.buf()) )
+	File::remove( zipfilename2_.buf() );
 
-#define mCleanup() \
-    delete taskrun; \
-    File::remove( zipfilename.fullPath() ); \
-    File::remove( zipfilename2.fullPath() ); \
-    File::removeDir( outputdir.fullPath() ); \
+    if ( File::exists(outputdir_.buf()) )
+	File::removeDir( outputdir_.buf() );
+}
 
-
-#define mRunTest(testname,command) \
-{ \
-if ( !command ) \
-{ \
-    errStream() << testname << " failed!\n" << err.getFullString(); \
-    mCleanup() \
-    return 1; \
-} \
-else \
-    logStream() << testname << " Succeeded!\n"; \
+void signalHandler( int signum )
+{
+    errStream() << "Interrupt signal (" << signum << ") received." << od_endl;
+    exit( signum );
 }
 
 
-#define mCheckDataIntegrity(relpart1,relpart2) \
-{ \
-    FilePath src( tozip.fullPath() ); \
-    src.add( relpart1 ); \
-    src.add( relpart2 ); \
-    FilePath dest( zipfilename.pathOnly() ); \
-    dest.add( "F3_Test_Survey" ); \
-    dest.add( relpart1 ); \
-    dest.add( relpart2 ); \
-    if ( File::getFileSize(dest.fullPath()) != \
-					  File::getFileSize(src.fullPath()) ) \
-    { \
-	errStream() << "Data integrety check failed!\n" \
-			       << dest.fullPath(); \
-	mCleanup() \
-	return 1; \
-    } \
-    else \
-	logStream() << "Data integrety check succeeded!\n"; \
+static bool checkDataIntegrity( const char* srcdir, const char* destdir,
+				const char* relpart1,const char* relpart2 )
+{
+    const FilePath src( srcdir, relpart1, relpart2 );
+    const FilePath dest( destdir, sKeySurvey, relpart1, relpart2 );
+    BufferString descstr( "Data integrity check for: ", relpart1, "/" );
+    descstr.add( relpart2 );
+    mRunStandardTest( File::getFileSize(dest.fullPath()) ==
+		      File::getFileSize(src.fullPath()), descstr.str() );
+
+    return true;
 }
 
 
@@ -82,15 +68,13 @@ static bool testLongPath()
 {
     const BufferString tempdirfp = FilePath::getTempDir();;
     FilePath fp( tempdirfp.str(), "od_test_zip_longpath" );
-    const BufferString workdir = fp.fullPath();
+    workdir_ = fp.fullPath();
 
-    if ( File::exists(workdir.str()) )
+    if ( File::exists(workdir_.str()) )
     {
-	mRunStandardTest( File::removeDir(fp.fullPath()),
+	mRunStandardTest( File::removeDir(workdir_.str()),
 			  "Remove existing long directory" );
     }
-
-    FileDisposer disposer( workdir.str() );
 
     int idx = 0;
 #ifdef __win__
@@ -146,21 +130,20 @@ static bool testLongPath()
     mRunStandardTest( retstr == contentstr, "File content on long filepath" );
     istrm.close();
 
-    FilePath zipfp( workdir.str() );
+    FilePath zipfp( workdir_.str() );
     zipfp.setExtension( "zip" );
-    const BufferString zipfnm = zipfp.fullPath();
-    FileDisposer zipdisposer( zipfnm.str() );
+    zipfnm_ = zipfp.fullPath();
 
     uiString err;
     mRunStandardTestWithError(
-	ZipUtils::makeZip( workdir.str(), tempdirfp.str(), zipfnm.str(), err ),
+	ZipUtils::makeZip( workdir_.str(), tempdirfp.str(), zipfnm_.str(), err),
 	"Zip archive with long path", toString( err ) );
 
-    mRunStandardTest( File::removeDir( workdir.str() ),
+    mRunStandardTest( File::removeDir( workdir_.str() ),
 		      "Remove directory before unzipping" );
 
     mRunStandardTestWithError(
-	ZipUtils::unZipArchive( zipfnm.str(), tempdirfp.str(), err ),
+	ZipUtils::unZipArchive( zipfnm_.str(), tempdirfp.str(), err ),
 	"Unzip archive with long path", toString( err ) );
 
     istrm.open( fnm.str() );
@@ -176,7 +159,10 @@ static bool testLongPath()
 		      "Unpackaged file content on long filepath" );
     istrm.close();
 
-    mRunStandardTest( File::removeDir( workdir.str() ),
+    mRunStandardTest( File::remove( zipfnm_.buf() ),
+		      "Remove zip file after last test" );
+
+    mRunStandardTest( File::removeDir( workdir_.str() ),
 		      "Remove directory after last test" );
 
     return true;
@@ -186,42 +172,59 @@ static bool testLongPath()
 int mTestMainFnName( int argc, char** argv )
 {
     mInitTestProg();
+    signal( SIGINT, signalHandler );
+    signal( SIGTERM, signalHandler );
+    atexit( cleanup );
 
     if ( __iswin__ && !testLongPath() )
 	return 1;
 
     BufferString basedir;
     clParser().getVal("datadir", basedir );
-    FilePath tozip( basedir );
-    tozip.add( "F3_Test_Survey" );
+    const FilePath tozip( basedir.buf(), sKeySurvey );
     const FilePath zipfilename(
 		FilePath::getTempFullPath("zip_test","zip") );
     const FilePath zipfilename2(
 		FilePath::getTempFullPath("zip_test2","zip") );
 
     FilePath outputdir( zipfilename.pathOnly() );
-    outputdir.add( "F3_Test_Survey" );
+    outputdir.add( sKeySurvey );
 
-    TaskRunner* taskrun = nullptr;
-    if ( !quiet_ )
-	taskrun = new TextTaskRunner( logStream() );
+    zipfilename_ = zipfilename.fullPath();
+    zipfilename2_ = zipfilename2.fullPath();
+    outputdir_ = outputdir.fullPath();
+
+    TextTaskRunner taskrun( logStream() );
 
     uiString err;
-    mRunTest("Zipping", ZipUtils::makeZip(tozip.fullPath(),nullptr,
-					 zipfilename.fullPath(),err,taskrun) );
-    mRunTest("Zipping (copy)", ZipUtils::makeZip(tozip.fullPath(),nullptr,
-					 zipfilename2.fullPath(),err,taskrun) );
-    mRunTest("Unzipping", ZipUtils::unZipArchive(zipfilename.fullPath(),
-					 outputdir.pathOnly(),err,taskrun) );
-    mRunTest("Unzipping (copy)", ZipUtils::unZipArchive(zipfilename2.fullPath(),
-					 outputdir.pathOnly(),err,taskrun) );
+    mRunStandardTestWithError(
+		ZipUtils::makeZip( tozip.fullPath(), nullptr,
+				   zipfilename_.buf(), err, &taskrun ),
+		"Zipping", err.getFullString() );
+    mRunStandardTestWithError(
+		ZipUtils::makeZip( tozip.fullPath(), nullptr,
+				   zipfilename2_.buf(), err, &taskrun ),
+		"Zipping (copy)", err.getFullString() );
+    mRunStandardTestWithError(
+		ZipUtils::unZipArchive( zipfilename_.buf(),
+					outputdir.pathOnly(), err, &taskrun ),
+		"Unzipping", err.getFullString() );
+    mRunStandardTestWithError(
+		ZipUtils::unZipArchive( zipfilename2_.buf(),
+					outputdir.pathOnly(), err, &taskrun ),
+		"Unzipping (copy)", err.getFullString() );
 
-    mCheckDataIntegrity( "Seismics","Seismic.cbvs" );
-    mCheckDataIntegrity( "Misc",".omf" );
-    mCheckDataIntegrity( "Surfaces","horizonrelations.txt" );
-    mCheckDataIntegrity( "WellInfo","F03-4^5.wll" );
-
-    mCleanup();
+    const BufferString tozipfnm = tozip.fullPath();
+    const BufferString zipbasefp = zipfilename.pathOnly();
+    if ( !checkDataIntegrity(tozipfnm.buf(),zipbasefp.buf(),
+			     "Seismics","Seismic.cbvs") ||
+	 !checkDataIntegrity(tozipfnm.buf(),zipbasefp.buf(),
+			     "Misc",".omf") ||
+	 !checkDataIntegrity(tozipfnm.buf(),zipbasefp.buf(),
+			     "Surfaces","horizonrelations.txt") ||
+	 !checkDataIntegrity(tozipfnm.buf(),zipbasefp.buf(),
+			     "WellInfo","F03-4^5.wll") )
+	return 1;
 
     return 0;
 }

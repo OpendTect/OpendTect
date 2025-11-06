@@ -7,8 +7,9 @@ ________________________________________________________________________
 
 -*/
 
-#include "moddepmgr.h"
 #include "testprog.h"
+
+#include "moddepmgr.h"
 
 
 /*On windows, this will only trigger outside a debugger. Hence, set the path

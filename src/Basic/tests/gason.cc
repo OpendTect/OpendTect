@@ -82,14 +82,13 @@ int mTestMainFnName( int argc, char** argv )
 		 allocator );
     if ( status != Gason::JSON_OK )
     {
-	od_ostream& strm = tstStream( true );
+	od_ostream& strm = errStream();
 	strm << "Status: " << Gason::jsonStrError(status) << od_endl;
 	strm << "at: " << endptr << od_endl;
 	return 1;
     }
 
-    if ( !quiet_ )
-	printGasonValue( tstStream(false), root );
+    printGasonValue( logStream(), root );
 
     return 0;
 }

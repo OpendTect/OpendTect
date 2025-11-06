@@ -40,9 +40,6 @@ static const OD::String& getStringFromRef()
 }
 
 
-#undef mRunTest
-#define mRunTest( desc, test ) mRunStandardTest( test, desc );
-
 static bool testWords()
 {
     const char* inp = "The sentence 'this one' is not \"that one\"";
@@ -98,26 +95,31 @@ static bool testBytes2String()
 {
     NrBytesToStringCreator b2s;
     b2s.setUnitFrom( 100000, true ); //hundred thoughand
-    mRunTest( "kB unit (1)",
-	     b2s.getUnitString()== b2s.toString(NrBytesToStringCreator::KB) )
+    mRunStandardTest(
+	     b2s.getUnitString()== b2s.toString(NrBytesToStringCreator::KB),
+	     "kB unit (1)" )
 
     b2s.setUnitFrom( 1000000, true ); //One million
-    mRunTest( "kB unit (2)",
-	     b2s.getUnitString()== b2s.toString(NrBytesToStringCreator::KB) )
+    mRunStandardTest(
+	     b2s.getUnitString()== b2s.toString(NrBytesToStringCreator::KB),
+	     "kB unit (2)" )
 
     b2s.setUnitFrom( 2000000, true ); //Two millions
-    mRunTest( "MB unit",
-	     b2s.getUnitString()== b2s.toString(NrBytesToStringCreator::MB) )
+    mRunStandardTest(
+	     b2s.getUnitString()== b2s.toString(NrBytesToStringCreator::MB),
+	     "MB unit" )
 
     b2s.setUnitFrom( 1000000, true ); //One million
-    mRunTest( "Maximum flag turned on",
-	     b2s.getUnitString()== b2s.toString(NrBytesToStringCreator::MB) )
+    mRunStandardTest(
+	     b2s.getUnitString()== b2s.toString(NrBytesToStringCreator::MB),
+	     "Maximum flag turned on" )
 
     b2s.setUnitFrom( 1000000, false ); //One million
-    mRunTest( "Maximum flag turned off",
-	     b2s.getUnitString()== b2s.toString(NrBytesToStringCreator::KB) )
+    mRunStandardTest(
+	     b2s.getUnitString()== b2s.toString(NrBytesToStringCreator::KB),
+	     "Maximum flag turned off" )
 
-    mRunTest( "Conversion test", b2s.getString( 100000 )=="97.66 kB" );
+    mRunStandardTest( b2s.getString( 100000 )=="97.66 kB", "Conversion test" );
 
     return true;
 }
@@ -182,7 +184,7 @@ static bool doTestStringPrecisionInAscII( T val, const char* strval, bool flt )
 				 strval );
     T retval;
     Conv::set<T>( retval, bstostring );
-    mRunTest( testname.buf(), bstostring == strval && retval==val )
+    mRunStandardTest( bstostring == strval && retval==val, testname.buf() )
 
     return true;
 }
@@ -372,72 +374,74 @@ static bool testBufferStringFns()
     bs.replace( "Tok1", 0 );
     bs.replace( "Tok2", " " );
     bs.replace( "Tok3", "X" );
-    mRunTest("BufferString replace",bs == "    X Tok5");
+    mRunStandardTest( bs == "    X Tok5", "BufferString replace" );
     bs.trimBlanks();
-    mRunTest("BufferString trimBlanks 1",bs == "X Tok5");
+    mRunStandardTest( bs == "X Tok5", "BufferString trimBlanks 1" );
     bs = "\nXX\tYY Z\t";
     bs.trimBlanks();
-    mRunTest("BufferString trimBlanks 2",bs == "XX\tYY Z");
-    mRunTest("BufferString count",bs.count('Y')==2);
-    mRunTest("BufferString contains 1",bs.contains(" Z"));
-    mRunTest("BufferString contains 2",!bs.contains("\n"));
+    mRunStandardTest( bs == "XX\tYY Z", "BufferString trimBlanks 2" );
+    mRunStandardTest( bs.count('Y')==2, "BufferString count" );
+    mRunStandardTest( bs.contains(" Z"), "BufferString contains 1" );
+    mRunStandardTest( !bs.contains("\n"), "BufferString contains 2" );
     bs = "\nXX\tYY Z\t";
     bs.remove( '\t' );
-    mRunTest("BufferString remove 1",bs == "\nXXYY Z");
+    mRunStandardTest( bs == "\nXXYY Z", "BufferString remove 1" );
     bs.remove( "XX" );
-    mRunTest("BufferString remove 2",bs == "\nYY Z");
+    mRunStandardTest( bs == "\nYY Z", "BufferString remove 2" );
     bs = "XXYYZ";
     bs.embed( '^', '+' );
-    mRunTest("BufferString embed",bs == "^XXYYZ+");
+    mRunStandardTest( bs == "^XXYYZ+", "BufferString embed" );
     bs.quote( '=' );
-    mRunTest("BufferString quote",bs == "=^XXYYZ+=");
+    mRunStandardTest( bs == "=^XXYYZ+=", "BufferString quote" );
     bs.unQuote( '=' );
-    mRunTest("BufferString unQuote",bs == "^XXYYZ+");
+    mRunStandardTest( bs == "^XXYYZ+", "BufferString unQuote" );
     bs.unEmbed( '^', '+' );
-    mRunTest("BufferString unEmbed",bs == "XXYYZ");
+    mRunStandardTest( bs == "XXYYZ", "BufferString unEmbed" );
 
 #define mSetBSToInit() bs = "\nXX$.YY/:\\ Z\t"
     mSetBSToInit(); bs.clean( BufferString::OnlyAlphaNum );
-    mRunTest("BufferString clean OnlyAlphaNum",bs == "_XX__YY____Z_");
+    mRunStandardTest( bs == "_XX__YY____Z_", "BufferString clean OnlyAlphaNum");
     mSetBSToInit(); bs.clean( BufferString::AllowDots );
-    mRunTest("BufferString clean AllowDots",bs == "_XX_.YY____Z_");
+    mRunStandardTest( bs == "_XX_.YY____Z_", "BufferString clean AllowDots" );
     mSetBSToInit(); bs.clean( BufferString::NoSpaces );
-    mRunTest("BufferString clean NoSpaces",
-	    bs == (__iswin__ ? "_XX_.YY_:\\_Z_" : "_XX_.YY/___Z_"));
+    mRunStandardTest( bs == ( __iswin__ ? "_XX_.YY_:\\_Z_" : "_XX_.YY/___Z_" ),
+		      "BufferString clean NoSpaces" );
     mSetBSToInit(); bs.clean( BufferString::NoFileSeps );
-    mRunTest("BufferString clean NoFileSeps",bs == "\nXX_.YY___ Z\t");
+    mRunStandardTest(bs == "\nXX_.YY___ Z\t","BufferString clean NoFileSeps");
     mSetBSToInit(); bs.clean( BufferString::NoSpecialChars );
 #ifdef __win__
-    mRunTest("BufferString clean NoSpecialChars",bs == "\nXX_.YY_:\\ Z\t");
+    mRunStandardTest( bs == "\nXX_.YY_:\\ Z\t",
+		      "BufferString clean NoSpecialChars");
     const TCHAR path[] = __TEXT( "C:\\temp\\this is a path" );
     BufferString retpath( path );
-    mRunTest( "TCHAR to BufferString using constructor",
-	      retpath == "C:\\temp\\this is a path" );
+    mRunStandardTest( retpath == "C:\\temp\\this is a path",
+	"TCHAR to BufferString using constructor" );
     retpath.set( "New content" ).set( path );
-    mRunTest( "TCHAR to BufferString using set (from non-empty)",
-	      retpath == "C:\\temp\\this is a path" );
+    mRunStandardTest( retpath == "C:\\temp\\this is a path",
+	"TCHAR to BufferString using set (from non-empty)" );
     const TCHAR addedpath[] = __TEXT( "\\my folder\\dir" );
     retpath.add( addedpath );
-    mRunTest( "TCHAR to BufferString using add function (from non-empty)",
-	      retpath == "C:\\temp\\this is a path\\my folder\\dir" );
+    mRunStandardTest( retpath == "C:\\temp\\this is a path\\my folder\\dir",
+	"TCHAR to BufferString using add function (from non-empty)" );
     retpath.setEmpty();
     retpath = toString( path );
-    mRunTest( "TCHAR to BufferString using toString global function",
-	       retpath == "C:\\temp\\this is a path" );
+    mRunStandardTest( retpath == "C:\\temp\\this is a path",
+	"TCHAR to BufferString using toString global function" );
 #else
-    mRunTest("BufferString clean NoSpecialChars",bs == "\nXX_.YY/__ Z\t");
+    mRunStandardTest( bs == "\nXX_.YY/__ Z\t",
+		      "BufferString clean NoSpecialChars" );
 #endif
     return true;
 }
 
 
 #define mRunBSFindTest(tofind,offs) \
-    mRunTest( BufferString("BufferString::find ",tofind), \
-	    offs == str.find(tofind) - str.buf() )
+    mRunStandardTest( offs == str.find(tofind) - str.buf(), \
+		BufferString("BufferString::find ",tofind) )
 
 #define mRunBSFindLastTest(tofind,offs) \
-    mRunTest( BufferString("BufferString::findLast ",tofind), \
-	    offs == str.findLast(tofind) - str.buf() )
+    mRunStandardTest( offs == str.findLast(tofind) - str.buf(), \
+		BufferString("BufferString::findLast ",tofind) )
 
 static bool testOccFns()
 {
@@ -454,10 +458,10 @@ static bool testOccFns()
     mRunBSFindLastTest("Tok1",len-15);
     mRunBSFindLastTest("",len);
 
-    mRunTest( "contains exist (char)", str.contains('k') )
-    mRunTest( "contains exist (str)", str.contains("N]") )
-    mRunTest( "contains non-exist (char)", !str.contains("Tok4") )
-    mRunTest( "contains non-exist (str)", !str.contains('X') )
+    mRunStandardTest( str.contains('k'), "contains exist (char)" )
+    mRunStandardTest( str.contains("N]"), "contains exist (str)" )
+    mRunStandardTest( !str.contains("Tok4"), "contains non-exist (char)" )
+    mRunStandardTest( !str.contains('X'), "contains non-exist (str)" )
 
     return true;
 }
@@ -467,13 +471,10 @@ static bool testOccFns()
 
 #define mPrNumb(var,maxsz) \
     str = toStringLim( var.v_, maxsz ); \
-    od_cout() << var.desc_ << ' ' << maxsz << ": \"" << str << '"' << od_endl
+    logStream() << var.desc_ << ' ' << maxsz << ": \"" << str << '"' << od_endl
 
 static bool testLimFToStringFns()
 {
-    if ( quiet_ )
-	return true;
-
     struct floatVarDef { float v_; const char* desc_; };
     struct doubleVarDef { double v_; const char* desc_; };
     mDefVarDef( float, f1, 0.1234567f );
@@ -522,12 +523,6 @@ static bool testEmptyStringComparison()
     mRunStandardTest( fxdstr=="", "Empty string comparison - StringView");
 
     return true;
-}
-
-
-static void printBufStr( const char* pfx, BufferString bs )
-{
-    od_cout() << pfx << ": '" << bs << "'" << od_endl;
 }
 
 
@@ -598,6 +593,49 @@ bool testStaticString()
 }
 
 
+bool testStringSetIOPar()
+{
+    BufferStringSet strs;
+    strs.add( "Str pos 0" );
+    strs.add( "" );
+    strs.add( "Str pos 2" );
+    IOPar iop; strs.fillPar( iop );
+    strs.setEmpty(); strs.usePar( iop );
+    mRunStandardTest( strs.get(2)=="Str pos 2",
+		      "BufferString use/fillPar test" );
+
+    return true;
+}
+
+
+static BufferString getString( BufferString ret )
+{
+    return ret;
+}
+
+
+bool testStringConv()
+{
+    const StringView str( 0 );
+    mRunStandardTest( str.isEmpty(),
+	BufferString( "StringView(0) should be empty: '", str, "'" ) )
+
+    const BufferString bufstr = getString( 0 );
+    mRunStandardTest( bufstr.isEmpty(),
+	BufferString("Implicit BufferString(0) should be empty: '",bufstr,"'") )
+
+    const BufferString bufstr2( 0 );
+    mRunStandardTest( bufstr2 == "0",
+	BufferString( "Explicit BufferString(0) should not be empty: '",
+		      bufstr2, "'" ) )
+
+    const BufferString str4point9( 4.9f );
+    mRunStandardTest( str4point9=="4.9", "4.9 string" )
+
+    return true;
+}
+
+
 int mTestMainFnName( int argc, char** argv )
 {
     mInitTestProg();
@@ -617,29 +655,10 @@ int mTestMainFnName( int argc, char** argv )
       || !testEmptyStringComparison()
       || !testStringContentType()
       || !testGetFromString()
-      || !testStaticString() )
+      || !testStaticString()
+      || !testStringSetIOPar()
+      || !testStringConv() )
 	return 1;
-
-    BufferStringSet strs;
-    strs.add( "Str pos 0" );
-    strs.add( "" );
-    strs.add( "Str pos 2" );
-    IOPar iop; strs.fillPar( iop );
-    strs.setEmpty(); strs.usePar( iop );
-    mRunTest( "BufferString use/fillPar test", strs.get(2)=="Str pos 2" );
-
-    if ( !quiet_ )
-    {
-	StringView str( 0 );
-	od_cout() << "Should be empty: '" << str << "'" << od_endl;
-	BufferString str4point9( 4.9f );
-	printBufStr( "4.9 string", str4point9 );
-	printBufStr( "0 (conv to (const char*)0)", 0 );
-	/* These do not compile because of the explicit constructor:
-	    printBufStr( "literal 4.9f", 4.9f );
-	    const int int0 = 0; printBufStr( "int variable", int0 );
-	*/
-    }
 
     return 0;
 }

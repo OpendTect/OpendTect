@@ -8,13 +8,13 @@ ________________________________________________________________________
 -*/
 
 #include "batchprog.h"
-#include "moddepmgr.h"
 #include "testprog.h"
 
 #include "cbvsio.h"
 #include "dirlist.h"
 #include "file.h"
 #include "ioman.h"
+#include "moddepmgr.h"
 #include "multiid.h"
 #include "seisioobjinfo.h"
 #include "segydirectdef.h"
@@ -233,9 +233,11 @@ bool testSEGYDirectSize( const IOObj& obj, od_ostream& strm )
 
 mLoad1Module( "Seis" )
 
-bool BatchProgram::doWork( od_ostream& strm )
+bool BatchProgram::doWork( od_ostream& /*strm*/ )
 {
     mInitBatchTestProg();
+    od_ostream& strm = logStream();
+
     bool alltestspassed = true;
     MultiID cbvsid, zcbvsid, twodid, sgydirid;
     mRunStandardTest(pars().get(sKeyCBVSID(), cbvsid),

@@ -16,25 +16,23 @@ static od_int64 cTotNrElems = 100000000;
 static od_int64 cTotNrOpers = 1000000000;
 
 #define mPrTime(s) \
-	curms = Time::getMilliSeconds(); \
-	od_cout() << od_tab << s << ": " << curms - prevms << od_endl
+    curms = Time::getMilliSeconds(); \
+    logStream() << od_tab << s << ": " << curms - prevms << od_endl
 
 
 static bool testSpeed()
 {
-    if ( quiet_ )
-	return true;
-
-    od_cout() << "\nTotal number of floats: " << cTotNrElems << od_newline
-	      << "Processors: " << Threads::getNrProcessors() << od_newline
-	      << od_endl;
+    logStream() << "\nTotal number of floats: " << cTotNrElems << od_newline
+		<< "Processors: " << Threads::getNrProcessors() << od_newline
+		<< od_endl;
 
     for ( int arrsz=10; arrsz<=cTotNrElems; arrsz*=10 )
     {
 	float* vals = new float [arrsz];
 	float* copy = new float [arrsz];
 	const od_int64 nrruns = cTotNrOpers / arrsz;
-	od_cout() << "Arrsz=" << arrsz << " (" << nrruns << " runs)" << od_endl;
+	logStream() << "Arrsz=" << arrsz << " (" << nrruns << " runs)"
+		    << od_endl;
 
 	od_int64 prevms = Time::getMilliSeconds();
 	for ( od_int64 irun=0; irun<nrruns; irun++ )
@@ -76,7 +74,7 @@ static bool testSpeed()
 	    mPrTime( "MemCopier" );
 	}
 	else
-	    od_cout() << od_tab << "MemCopier: [skipped]" << od_endl;
+	    logStream() << od_tab << "MemCopier: [skipped]" << od_endl;
 
 	delete [] vals;
 	delete [] copy;
@@ -102,9 +100,9 @@ static bool testCopySet()
 	OD::memCopy( copy, vals, arrsz * sizeof(float) );
 	for ( int idx=0; idx<arrsz; idx++ )
 	{
-	    if ( !isFPEqual( copy[idx], vals[idx], mDefEpsF ) )
+	    if ( !isFPEqual(copy[idx],vals[idx],mDefEpsF) )
 	    {
-		od_cout() << "OD::memCopy failure: vals[" << idx << "]="
+		errStream() << "OD::memCopy: vals[" << idx << "]="
 		    << vals[idx] << " but copy[idx]=" << copy[idx] << od_endl;
 		return false;
 	    }
@@ -113,9 +111,9 @@ static bool testCopySet()
 	OD::memZero( copy, arrsz * sizeof(float) );
 	for ( int idx=0; idx<arrsz; idx++ )
 	{
-	    if ( !isFPZero( copy[idx], mDefEpsF ) )
+	    if ( !isFPZero(copy[idx],mDefEpsF) )
 	    {
-		od_cout() << "OD::memZero failure: copy[" << idx << "]="
+		errStream() << "OD::memZero: copy[" << idx << "]="
 			    << copy[idx] << od_endl;
 		return false;
 	    }
@@ -134,13 +132,13 @@ int mTestMainFnName( int argc, char** argv )
     const bool largemem = clParser().hasKey( "largemem" );
     if ( largemem )
 	cTotNrElems *= 10;
+
     const bool smallmem = clParser().hasKey( "smallmem" );
     if ( smallmem )
 	cTotNrElems /= 10;
 
-    if ( !testCopySet() )
-	return 1;
-    if ( !testSpeed() )
+    if ( !testCopySet() ||
+	 !testSpeed() )
 	return 1;
 
     return 0;
