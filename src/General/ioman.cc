@@ -1694,10 +1694,17 @@ bool IOMan::permRemove( const MultiID& ky )
     const CompoundKey defaultkey(
 		trl->group()->getSurveyDefaultKey(ioobj.ptr()) );
     Threads::Locker lock( lock_ );
-    if ( !dirptr_ || !dirptr_->permRemove(ky) )
+    const bool issamesubdir = dirptr_ && dirptr_->key().groupID()==ky.groupID();
+    if ( issamesubdir && !dirptr_->permRemove(ky) )
 	return false;
 
     lock.unlockNow();
+    if ( !issamesubdir )
+    {
+	IODir subdir( ky.mainID() );
+	if ( !subdir.permRemove(ky) )
+	    return false;
+    }
 
     entryRemoved.trigger( ky );
     if ( issurvdefault )
