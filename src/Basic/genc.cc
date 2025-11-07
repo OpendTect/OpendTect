@@ -670,7 +670,7 @@ mExtern(Basic) const char* GetEnvVar( const char* env )
 	if ( File::exists(envvarsettsfnm.buf()) )
 	    envvarsfnms.add( envvarsettsfnm.str() );
 
-	GetSetupShareFileNames( "EnvVars", envvarsfnms, true );
+	GetSetupShareFileNames( "EnvVars*", envvarsfnms, true );
 	for ( const auto* fnm : envvarsfnms )
 	    loadEntries( fnm->str() );
 

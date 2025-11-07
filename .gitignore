@@ -17,6 +17,7 @@ LICENSE.txt
 Contents/Resources/LICENSE.txt
 CMakeModules/sourcefiles_od.txt
 CMakeModules/sourcefiles_dgb.txt
+share/EnvVars.*
 share/ModDeps.od
 share/localizations/*.qm
 share/localizations/generated
