@@ -174,13 +174,15 @@ bool uiImpExpPickSet::doImport()
 	mErrRet( tr("Could not open input file") )
 
     const char* psnm = objfld_->getInput();
-    RefMan<Pick::Set> ps = new Pick::Set( psnm );
+    const int seloption = polyfld_->getIntValue();
+    const bool ispoly = seloption == 1 || seloption == 2;
+    RefMan<Pick::Set> ps = new Pick::Set( psnm, ispoly );
     const int zchoice = zfld_->box()->currentItem();
     float constz = zchoice==1 ? constzfld_->getFValue() : 0;
     if ( SI().zIsTime() )
 	constz /= 1000;
 
-    ps->disp_.color_ = colorfld_->color();
+    ps->disp3d().markerstyle_.color_ = colorfld_->color();
     PickSetAscIO aio( fd_ );
     aio.get( strm, *ps, zchoice==0, constz );
 
@@ -192,17 +194,14 @@ bool uiImpExpPickSet::doImport()
 	return false;
 
     PtrMan<IOObj> ioobj = objfldioobj->clone();
-    const int seloption = polyfld_->getIntValue();
     if ( seloption==0 )
-    {
-	ps->disp_.connect_ = Pick::Set::Disp::None;
 	ioobj->pars().set(sKey::Type(), PickSetTranslatorGroup::sKeyPickSet());
-    }
     else
     {
-	ps->disp_.connect_ = seloption==1 ? Pick::Set::Disp::Open
-					  : Pick::Set::Disp::Close;
-	ps->disp_.linestyle_.color_ = colorfld_->color();
+	ps->disp3d().polyDisp()->connect_ = seloption==1
+					  ? Pick::Set::Connection::Open
+					  : Pick::Set::Connection::Close;
+	ps->disp3d().polyDisp()->linestyle_.color_ = colorfld_->color();
 	ioobj->pars().set( sKey::Type(), sKey::Polygon() );
 
 	if ( seloption==2 )

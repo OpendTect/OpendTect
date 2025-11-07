@@ -192,35 +192,8 @@ void PickSet::pickRemoveCB( CallBacker* cb )
 
 MarkerStyle2D PickSet::get2DMarkers( const Pick::Set& ps ) const
 {
-    MarkerStyle2D style( MarkerStyle2D::Square, ps.disp_.pixsize_,
-			 ps.disp_.color_ );
-    switch( ps.disp_.markertype_ )
-    {
-	case MarkerStyle3D::Plane:
-	    style.type_ = MarkerStyle2D::Plane;
-	    break;
-	case MarkerStyle3D::Sphere:
-	    style.type_ = MarkerStyle2D::Circle;
-	    break;
-	case MarkerStyle3D::Cube:
-	    style.type_ = MarkerStyle2D::Square;
-	    break;
-	case MarkerStyle3D::Cone:
-	    style.type_ = MarkerStyle2D::Triangle;
-	    break;
-	case MarkerStyle3D::Cross:
-	    style.type_ = MarkerStyle2D::Plus;
-	    break;
-	case MarkerStyle3D::Arrow:
-	    style.type_ = MarkerStyle2D::Arrow;
-	    break;
-	case MarkerStyle3D::Cylinder:
-	    style.type_ = MarkerStyle2D::Square;
-	    break;
-	default:
-	    style.type_ = MarkerStyle2D::Circle;
-    }
-
+    MarkerStyle2D::Type typ = (MarkerStyle2D::Type) ps.disp2d().type();
+    MarkerStyle2D style( typ, ps.disp2d().size(), ps.disp2d().color() );
     return style;
 }
 

@@ -97,10 +97,11 @@ void uiCreatePicks::addStdFields( uiObject* lastobject )
 
 RefMan<Pick::Set> uiCreatePicks::getPickSet() const
 {
-    RefMan<Pick::Set> ret = new Pick::Set( name_ );
-    ret->disp_.color_ = colsel_->color();
-    ret->disp_.connect_ = aspolygon_ ? Pick::Set::Disp::Open
-				     : Pick::Set::Disp::None;
+    RefMan<Pick::Set> ret = new Pick::Set( name_, aspolygon_ );
+    ret->disp3d().markerstyle_.color_ = colsel_->color();
+    if ( ret->isPolygon() && ret->disp3d().polyDisp() )
+	ret->disp3d().polyDisp()->connect_ = Pick::Set::Connection::Open;
+
     return ret;
 }
 
@@ -166,7 +167,7 @@ bool uiCreatePicks::handlePickSet()
 	RefMan<Pick::Set> oldps = psmgr.get( setidx );
 	oldps->setEmpty();
 	oldps->append( *ps );
-	oldps->disp_.color_ = ps->disp_.color_;
+	oldps->disp3d().markerstyle_.color_ = ps->disp3d().color();
 	psmgr.reportChange( nullptr, *oldps );
 	psmgr.reportDispChange( nullptr, *oldps );
     }

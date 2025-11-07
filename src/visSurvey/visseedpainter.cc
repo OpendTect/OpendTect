@@ -151,9 +151,9 @@ bool SeedPainter::activate()
 
     active_ = true;
 
-    set_->disp_.markertype_ = MarkerStyle3D::Point;
+    set_->disp3d().markerstyle_.type_ = MarkerStyle3D::Point;
     picksetmgr_->reportDispChange( this, *set_ );
-    circle_->getMaterial()->setColor( set_->disp_.color_ );
+    circle_->getMaterial()->setColor( set_->disp3d().color() );
     circle_->turnOn( true );
     return true;
 }

@@ -267,7 +267,7 @@ void uiODView2DPickSetTreeItem::displayMiniCtab()
 {
     uiTreeItem::updateColumnText( uiODViewer2DMgr::cColorColumn() );
     uitreeviewitem_->setPixmap( uiODViewer2DMgr::cColorColumn(),
-				pickset_->disp_.color_ );
+				pickset_->disp2d().color() );
 }
 
 
@@ -282,6 +282,7 @@ bool uiODView2DPickSetTreeItem::select()
 	viewer2D()->dataMgr()->setSelected( vw2dpickset_ );
 	vw2dpickset_->selected();
     }
+
     return true;
 }
 

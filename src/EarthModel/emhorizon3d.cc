@@ -1639,7 +1639,14 @@ bool Horizon3DGeometry::getBoundingPolygon( Pick::Set& set ) const
 	    break;
     }
 
-    set.disp_.connect_ = Pick::Set::Disp::Close;
+    if ( set.isPolygon() )
+    {
+	if ( set.disp3d().polyDisp() )
+	    set.disp3d().polyDisp()->connect_ = Pick::Set::Connection::Close;
+	if ( set.disp2d().polyDisp() )
+	    set.disp2d().polyDisp()->connect_ = Pick::Set::Connection::Close;
+    }
+
     return set.size() ? true : false;
 }
 

@@ -170,7 +170,7 @@ void LocationDisplay::fullRedraw( CallBacker* )
 	}
     }
 
-    getMaterial()->setColor( set_->disp_.color_ );
+    getMaterial()->setColor( set_->disp3d().color() );
 
     if ( set_->isEmpty() )
     {
@@ -186,8 +186,8 @@ void LocationDisplay::fullRedraw( CallBacker* )
 
     if ( set_->isSizeLargerThanThreshold() )
     {
-	set_->disp_.markertype_ = MarkerStyle3D::Point;
-	set_->disp_.pixsize_ = 2;
+	set_->disp3d().markerstyle_.type_ = MarkerStyle3D::Point;
+	set_->disp3d().markerstyle_.size_ = 2;
     }
 
     for ( int idx=0; idx<set_->size(); idx++ )
@@ -270,14 +270,16 @@ void LocationDisplay::pickCB( CallBacker* cb )
 	updateDragger();
     }
 
-    const bool sowerenabled = set_->disp_.connect_ != Pick::Set::Disp::None;
+    const bool sowerenabled = set_->isPolygon() && set_->disp3d().polyDisp() &&
+	    set_->disp3d().polyDisp()->connect_!=Pick::Set::Connection::None;
 
     const bool allowdblclick = allowdoubleclicks_;
     if ( eventinfo.type == visBase::MouseDoubleClick && allowdblclick )
     {
-	if ( set_ && set_->disp_.connect_!=Pick::Set::Disp::None )
+	if ( set_ && set_->isPolygon() && set_->disp3d().polyDisp() &&
+	     set_->disp3d().polyDisp()->connect_ != Pick::Set::Connection::None)
 	{
-	    set_->disp_.connect_ = Pick::Set::Disp::Close;
+	    set_->disp3d().polyDisp()->connect_ = Pick::Set::Connection::Close;
 	    dispChg( nullptr );
 	    return;
 	}
@@ -401,7 +403,7 @@ void LocationDisplay::pickCB( CallBacker* cb )
 	    }
 	    else
 	    {
-		const OD::Color& color = set_->disp_.color_;
+		const OD::Color& color = set_->disp3d().color();
 		if ( sowerenabled && sower_->activate(color, eventinfo) )
 		    return;
 	    }
@@ -681,24 +683,33 @@ void LocationDisplay::setChg( CallBacker* cb )
 void LocationDisplay::dispChg( CallBacker* )
 {
     if ( set_ )
-	getMaterial()->setColor( set_->disp_.color_ );
+	getMaterial()->setColor( set_->disp3d().color() );
 }
 
 
 void LocationDisplay::setColor( OD::Color nc )
 {
     if ( set_ )
-	set_->disp_.color_ = nc;
+	set_->disp3d().markerstyle_.color_ = nc;
 }
 
 
 OD::Color LocationDisplay::getColor() const
 {
-    if ( !set_ )
-	return OD::Color::DgbColor();
+    OD::Color ret = OD::Color::DgbColor();
+    if ( set_ )
+    {
+	if ( set_->isPolygon() && set_->disp3d().polyDisp() )
+	    ret = set_->disp3d().polyDisp()->dofill_
+			      ? set_->disp3d().polyDisp()->fillcolor_
+			      : set_->disp3d().polyDisp()->linestyle_.color_;
+	else
+	    ret = set_->disp3d().type() != MarkerStyle3D::None
+			      ? set_->disp3d().color()
+			      : set_->disp3d().polyDisp()->linestyle_.color_;
+    }
 
-    return set_->disp_.markertype_ != MarkerStyle3D::None
-			? set_->disp_.color_ : set_->disp_.linestyle_.color_;
+    return ret;
 }
 
 
@@ -717,13 +728,16 @@ bool LocationDisplay::isPainting() const
 bool LocationDisplay::addPick( const Coord3& pos, const Sphere& dir,
 			       bool notif )
 {
-    if ( selectionmodel_ ) return false;
+    if ( selectionmodel_ )
+	return false;
 
     mDefineStaticLocalObject( TypeSet<Coord3>, sowinghistory, );
 
     int locidx = -1;
     bool insertpick = false;
-    if ( set_->disp_.connect_ == Pick::Set::Disp::Close )
+    const bool isclosedpoly = set_->isPolygon() && set_->disp3d().polyDisp() &&
+	    set_->disp3d().polyDisp()->connect_==Pick::Set::Connection::Close;
+    if ( isclosedpoly )
     {
 	sower_->alternateSowingOrder( true );
 	Coord3 displaypos = world2Display( pos );
@@ -1029,8 +1043,8 @@ void LocationDisplay::fillPar( IOPar& par ) const
     }
 
     par.setYN( sKeyShowAll(), showall_ );
-    par.set( sKeyMarkerType(), set_->disp_.markertype_ );
-    par.set( sKeyMarkerSize(), set_->disp_.pixsize_ );
+    par.set( sKeyMarkerType(), set_->disp3d().type() );
+    par.set( sKeyMarkerSize(), set_->disp3d().size() );
 }
 
 
@@ -1067,8 +1081,8 @@ bool LocationDisplay::usePar( const IOPar& par )
 	if ( newps->name().isEmpty() )
 	    newps->setName( getName() );
 
-	newps->disp_.markertype_ = markertype;
-	newps->disp_.pixsize_ = pixsize;
+	newps->disp3d().markerstyle_.type_ = (MarkerStyle3D::Type) markertype;
+	newps->disp3d().markerstyle_.size_ = pixsize;
 
 	if ( picksetmgr_ )
 	    picksetmgr_->set( storedmid_, newps.ptr() );

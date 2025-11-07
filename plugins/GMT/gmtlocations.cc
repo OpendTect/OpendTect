@@ -296,7 +296,7 @@ bool GMTPolyline::doExecute( od_ostream& strm, const char* fnm )
 
     OS::MachineCommand xymc( "psxy" );
     xymc.addArg( mapprojstr ).addArg( rgstr ).addArg( "-O" ).addArg( "-K" );
-    if ( ps->disp_.connect_ == Pick::Set::Disp::Close )
+    if ( ps->disp3d().polyDisp()->connect_ == Pick::Set::Connection::Close )
 	xymc.addArg( "-L" );
 
     if ( drawline )

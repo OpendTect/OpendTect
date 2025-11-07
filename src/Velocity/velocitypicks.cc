@@ -407,7 +407,7 @@ bool Picks::store( const IOObj* ioobjarg )
     }
 
     RefMan<::Pick::Set> ps = new ::Pick::Set( ioobj->name() );
-    ps->disp_.color_ = color_;
+    ps->disp3d().markerstyle_.color_ = color_;
     RowCol arrpos( 0, 0 );
     if ( picks_.isValidPos( arrpos ) )
     {
@@ -839,7 +839,7 @@ bool Picks::load( const IOObj* ioobj )
 	picks_.add( &pick, bid );
     }
 
-    color_ = ps->disp_.color_;
+    color_ = ps->disp3d().color();
 
     changed_ = false;
     change.trigger( BinID::udf() );

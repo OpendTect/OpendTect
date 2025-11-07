@@ -250,7 +250,7 @@ bool uiGISExportDlg::acceptOK( CallBacker* )
 	wrr->getDefaultProperties( typ, props );
 	if ( props.isPoint() )
 	{
-	    const OD::Color& color = gisdata->disp_.color_;
+	    const OD::Color& color = gisdata->disp2d().color();
 	    if ( color != OD::Color::NoColor() )
 		props.color_ = color;
 	    if ( lsfld_ )
@@ -261,7 +261,11 @@ bool uiGISExportDlg::acceptOK( CallBacker* )
 	}
 	else
 	{
-	    const OD::LineStyle& linestyle = gisdata->disp_.linestyle_;
+	    const bool ispoly = gisdata->isPolygon() &&
+				gisdata->disp2d().polyDisp();
+	    const OD::LineStyle& linestyle = ispoly
+				    ? gisdata->disp2d().polyDisp()->linestyle_
+				    : OD::LineStyle();
 	    const OD::Color& color = linestyle.color_;
 	    if ( color != OD::Color::NoColor() )
 		props.linestyle_.color_ = color;

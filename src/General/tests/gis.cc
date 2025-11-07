@@ -112,9 +112,6 @@ static bool testGISWriter( const Coords::CoordSystem& ed50crs,
 			       "Write PointSet", toString(wrr.errMsg()) );
 
     RefMan<Pick::Set> lines = new Pick::Set( "lines", false );
-    Pick::Set::Disp& linesdisp = lines->disp_;
-    linesdisp.linestyle_.color_ = OD::Color::Green().darker( 0.5 );
-    linesdisp.linestyle_.width_ = 4;
     wrr.setDescription( "This is a folder for multiple lines" );
     const int nrlines = 3;
     for ( int iline=0; iline<nrlines; iline++ )
@@ -133,12 +130,15 @@ static bool testGISWriter( const Coords::CoordSystem& ed50crs,
 			       "Write lines", toString(wrr.errMsg()) );
 
     RefMan<Pick::Set> polygons = new Pick::Set( "polygons", true );
-    Pick::Set::Disp& polydisp = polygons->disp_;
-    polydisp.linestyle_.color_ = OD::Color::Green().darker( 0.5 );
-    polydisp.linestyle_.width_ = 4;
-    polydisp.dofill_ = true;
-    polydisp.fillcolor_ = OD::Color::Orange();
-    polydisp.fillcolor_.setTransparencyF( 0.5f );
+    Pick::Set::Disp& polydisp = polygons->disp2d();
+    mRunStandardTestWithError( polydisp.polyDisp(),
+			       "Has polygon display properties.",
+			       "Polygon display properties not created." );
+    polydisp.polyDisp()->linestyle_.color_ = OD::Color::Green().darker( 0.5 );
+    polydisp.polyDisp()->linestyle_.width_ = 4;
+    polydisp.polyDisp()->dofill_ = true;
+    polydisp.polyDisp()->fillcolor_ = OD::Color::Orange();
+    polydisp.polyDisp()->fillcolor_.setTransparencyF( 0.5f );
     wrr.setDescription( "This is a folder for multiple polygons" );
     const int nrpolygons = 4;
     for ( int ipoly=0; ipoly<nrpolygons; ipoly++ )

@@ -162,7 +162,9 @@ void uiPickSetMan::mkFileInfo()
 	return;
     }
 
-    RefMan<Pick::Set> ps = new Pick::Set;
+    BufferString typ = curioobj_->pars().find( sKey::Type() );
+    const bool ispoly = typ.isEqual( sKey::Polygon() );
+    RefMan<Pick::Set> ps = new Pick::Set( curioobj_->name(), ispoly );
     BufferString txt;
     uiString errmsg;
     if ( PickSetTranslator::retrieve(*ps,curioobj_,true,errmsg) )
@@ -170,11 +172,9 @@ void uiPickSetMan::mkFileInfo()
 	if ( !errmsg.isEmpty() )
 	    ErrMsg( errmsg );
 
-	BufferString typ = curioobj_->pars().find( sKey::Type() );
 	if ( typ.isEmpty() || typ == sKey::PickSet() )
 	    typ = sKey::PointSet();
 
-	const bool ispoly = typ.isEqual( sKey::Polygon() );
 	txt.add( "Type: " ).add( typ );
 
 	const int sz = ps->size();
@@ -200,12 +200,12 @@ void uiPickSetMan::mkFileInfo()
 	    }
 	}
 
-	OD::Color col( ps->disp_.color_ );
+	OD::Color col( ps->disp3d().color() );
 	col.setTransparency( 0 );
 	txt.add( "\nColor: " ).add( col.largeUserInfoString() );
-	txt.add( "\nMarker size (pixels): " ).add( ps->disp_.pixsize_ );
+	txt.add( "\nMarker size (pixels): " ).add( ps->disp3d().size() );
 	txt.add( "\nMarker type: " ).add( MarkerStyle3D::getTypeString(
-			sCast(MarkerStyle3D::Type,ps->disp_.markertype_)) );
+			sCast(MarkerStyle3D::Type,ps->disp3d().type())) );
 	txt.add( "\n" );
     }
 

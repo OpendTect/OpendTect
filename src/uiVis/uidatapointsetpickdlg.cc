@@ -135,7 +135,7 @@ void uiDataPointSetPickDlg::initPickSet()
     psd_ = new visSurvey::PickSetDisplay();
 
     RefMan<Pick::Set> ps = new Pick::Set( "DPS picks" );
-    ps->disp_.color_ = OD::Color( 255, 0, 0 );
+    ps->disp3d().markerstyle_.color_ = OD::Color( 255, 0, 0 );
     psd_->setSet( ps.ptr() );
     psd_->setSetMgr( &picksetmgr_ );
     picksetmgr_.set( getMultiID(sceneid_), ps.ptr() );

@@ -160,9 +160,9 @@ void MeasureToolMan::addScene( const SceneID& sceneid )
     RefMan<visSurvey::PickSetDisplay> psd = new visSurvey::PickSetDisplay();
     psd->allowDoubleClick( false );
 
-    RefMan<Pick::Set> ps = new Pick::Set( "Measure picks" );
-    ps->disp_.connect_ = Pick::Set::Disp::Open;
-    ps->disp_.color_ = OD::Color( 255, 0, 0 );
+    RefMan<Pick::Set> ps = new Pick::Set( "Measure picks", true );
+    ps->disp3d().polyDisp()->connect_ = Pick::Set::Connection::Open;
+    ps->disp3d().markerstyle_.color_ = OD::Color( 255, 0, 0 );
     psd->setSet( ps.ptr() );
     psd->setSetMgr( &picksetmgr_ );
     picksetmgr_.set( getMultiID(sceneid), ps.ptr() );
@@ -323,8 +323,8 @@ void MeasureToolMan::lineStyleChangeCB( CallBacker* )
 	    continue;
 
 	OD::LineStyle ls( measuredlg_->getLineStyle() );
-	ps->disp_.color_ = ls.color_;
-	ps->disp_.pixsize_ = ls.width_;
+	ps->disp3d().markerstyle_.color_ = ls.color_;
+	ps->disp3d().markerstyle_.size_ = ls.width_;
 	picksetmgr_.reportDispChange( this, *ps );
     }
 }

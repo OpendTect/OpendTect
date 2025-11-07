@@ -162,7 +162,7 @@ void ImageDisplay::setPosition( int idx, const Pick::Location& pick, bool add )
 	group_->addObject( imagerect );
     }
 
-    const int size = set_ ? set_->disp_.pixsize_ : 100;
+    const int size = set_ ? set_->disp3d().size() : 100;
     double width, height;
     getScaledImageDimensions( rgbimage_, width, height, size );
     const Coord3 topleft(-width,0,height);
@@ -185,7 +185,7 @@ void ImageDisplay::removePosition( int idx )
 
 void ImageDisplay::updateCoords( CallBacker* )
 {
-    const int size = set_ ? set_->disp_.pixsize_ : 100;
+    const int size = set_ ? set_->disp3d().size() : 100;
 
     double width, height;
     getScaledImageDimensions( rgbimage_, width, height, size );

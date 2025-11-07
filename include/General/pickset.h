@@ -35,26 +35,99 @@ namespace Pick
 mExpClass(General) Set : public SharedObject
 {
 public:
+    enum class Connection   { None, Open, Close };
+			    mDeclareEnumUtils(Connection)
+
 			Set(const char* nm=nullptr,bool ispolygon=false);
 			Set(const Set&);
 
     Set&		operator =(const Set&);
 
-    struct Disp
+    class PolyDisp;
+
+    mExpClass(General) Disp
     {
-			Disp();
-			~Disp();
+    public:
+			virtual ~Disp();
 
-	enum Connection { None, Open, Close };
-			mDeclareEnumUtils(Connection)
+	virtual bool	operator=(const Disp&)		    { return true; }
+	virtual bool	operator==(const Disp&) const;
+	virtual bool	is2D() const				= 0;
+	virtual OD::Color color() const				= 0;
+	virtual int	size() const				= 0;
+	virtual int	type() const				= 0;
 
-	OD::Color	color_ = OD::Color::NoColor();	//!< marker color
-	OD::Color	fillcolor_ = OD::Color::NoColor(); //!< surface color
-	int		pixsize_ = 3;		//!< size in pixels
-	int		markertype_ = 3;	//!< MarkerStyle3D
-	bool		dofill_ = false;	//!< Fill?
-	OD::LineStyle	linestyle_;		//!< line type
-	Connection	connect_ = None;	//!< connect picks in set order
+	PolyDisp*	polyDisp();
+	const PolyDisp* polyDisp() const;
+
+    protected:
+			Disp(bool ispolygon);
+
+	PolyDisp*	polydisp_				= nullptr;
+	bool		ispolygon_				= true;
+
+    public:
+
+	void		convertToPolygon();
+	void		convertToPointSet();
+
+	mDeprecated("Use PolyDisp")
+	OD::Color	fillcolor_			= OD::Color::NoColor();
+	mDeprecated("Use PolyDisp")
+	bool		dofill_				= false;    //!< Fill?
+	mDeprecated("Use PolyDisp")
+	OD::LineStyle	linestyle_;				//!< line type
+	mDeprecated("Use PolyDisp")
+	Connection	connect_			= Connection::None;
+	mDeprecated("Use markerstyle_")
+	OD::Color	color_		= OD::Color::NoColor();
+	mDeprecated("Use markerstyle_")
+	int		pixsize_	= 3;		//!< size in pixels
+	mDeprecated("Use markerstyle_")
+	int		markertype_	= 3;
+
+    };
+
+    mExpClass(General) Disp3D : public Disp
+    {
+    public:
+			Disp3D(bool ispolygon);
+			~Disp3D();
+
+	MarkerStyle3D	markerstyle_;
+
+	bool		operator=(const Disp&) override;
+	bool		operator==(const Disp&) const override;
+	OD::Color	color() const override	{ return markerstyle_.color_; }
+	int		size() const override	{ return markerstyle_.size_; }
+	int		type() const override;
+	bool		is2D() const override	{ return false; }
+    };
+
+    mExpClass(General) Disp2D : public Disp
+    {
+    public:
+			Disp2D(bool ispolygon);
+			~Disp2D();
+
+	MarkerStyle2D	markerstyle_;
+
+	bool		operator=(const Disp&) override;
+	bool		operator==(const Disp&) const override;
+	OD::Color	color() const override	{ return markerstyle_.color_; }
+	int		size() const override	{ return markerstyle_.size_; }
+	int		type() const override;
+	bool		is2D() const override	{ return true; }
+    };
+
+    mExpClass(General) PolyDisp
+    {
+    public:
+	OD::LineStyle	linestyle_;				//!< line type
+	Connection	connect_			= Connection::None;
+	//!< surface color
+	OD::Color	fillcolor_			= OD::Color::NoColor();
+	bool		dofill_				= false;    //!< Fill?
     };
 
     int			add(const Location&);
@@ -82,7 +155,11 @@ public:
     const TypeSet<Location>& locations() const		{ return locations_; }
     void		getLocations(TypeSet<Coord3>&,int setidx=0) const;
 
-    Disp		disp_;
+    Disp3D&		disp3d();
+    const Disp3D&	disp3d() const;
+    Disp2D&		disp2d();
+    const Disp2D&	disp2d() const;
+
     IOPar&		pars_;
     bool		is2D() const;
 			//!< default is 3D
@@ -154,6 +231,15 @@ private:
     void		addUndoEvent(EventType,int,const Pick::Location&);
     void		addBulkUndoEvent(EventType,const TypeSet<int>&,
 					 const TypeSet<Pick::Location>&);
+    void		setDefaultDispPars2D(bool ispolygon);
+    void		setDefaultDispPars3D(bool ispolygon);
+
+    void		fillDisplayPars3D(IOPar&) const;
+    void		fillDisplayPars2D(IOPar&) const;
+    void		fillDispPars(const Disp&,IOPar&) const;
+
+    bool		useDisplayPars3D(const IOPar&,Disp3D&);
+    bool		useDisplayPars2D(const IOPar&,Disp2D&);
 
     TypeSet<int>	startidxs_;
     bool		readonly_ = false;
@@ -161,13 +247,22 @@ private:
     TypeSet<Location>	locations_;
     const ZDomain::Info* zdomaininfo_;
 
+    Disp3D&		disp3d_;
+    Disp2D&		disp2d_;
+
     void		refNotify() const override;
     void		unRefNotify() const override;
 
 public:
 
+    void		convertToPointSet();
+    void		convertToPolygon();
+
     mDeprecated("use geomSystem")
     OD::GeomSystem	getSurvID() const	{ return geomSystem(); }
+
+    mDeprecated("use disp(bool) function")
+    Disp&		disp_;
 
 };
 /*!\brief ObjectSet of Pick::Location's. Does not manage. */

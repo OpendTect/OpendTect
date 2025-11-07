@@ -247,9 +247,9 @@ bool uiODAnnotTreeItem::showSubMenu()
 		return false;
 
 	    RefMan<Pick::Set> set = new Pick::Set( txt );
-	    set->disp_.color_ = OD::getRandStdDrawColor();
+	    set->disp3d().markerstyle_.color_ = OD::getRandStdDrawColor();
 	    if ( defScale()!=-1 )
-		set->disp_.pixsize_ = defScale();
+		set->disp3d().markerstyle_.size_ = defScale();
 
 	    Pick::SetMgr& mgr = Pick::SetMgr::getMgr( managerName() );
 	    mgr.set( mid, set.ptr() );
@@ -284,7 +284,7 @@ bool uiODAnnotTreeItem::readPicks( Pick::Set& ps )
 	return false;
 
     if ( defScale()!=-1 )
-	ps.disp_.pixsize_= defScale();
+	ps.disp3d().markerstyle_.size_ = defScale();
 
     uiString errmsg;
     if ( !PickSetTranslator::retrieve(ps,dlg.ioObj(),true,errmsg) )
@@ -309,7 +309,7 @@ bool uiODAnnotTreeItem::readPicks( Pick::Set& ps )
 
 uiODAnnotSubItem::uiODAnnotSubItem( Pick::Set& set, const VisID& displayid )
     : set_( &set )
-    , defscale_(mCast(float,set.disp_.pixsize_))
+    , defscale_(mCast(float,set.disp3d().size()))
     , scalemnuitem_(m3Dots(uiStrings::sSize()))
     , storemnuitem_(uiStrings::sSave())
     , storeasmnuitem_(m3Dots(uiStrings::sSaveAs()))
@@ -399,7 +399,7 @@ void uiODAnnotSubItem::handleMenuCB( CallBacker* cb )
 			"Size" );
 	sliderfld->setMinValue( 0.1 );
 	sliderfld->setMaxValue( 10 );
-	sliderfld->setValue( mCast(float,set_->disp_.pixsize_/defscale_));
+	sliderfld->setValue( mCast(float,set_->disp3d().size()/defscale_));
 	sliderfld->valueChanged.notify( mCB(this,uiODAnnotSubItem,scaleChg) );
 	dlg.go();
     }
@@ -512,10 +512,10 @@ void uiODAnnotSubItem::setScale( float ns )
 
     const int newscale = mNINT32( ns );
     RefMan<Pick::Set> set = ld->getSet();
-    if ( set->disp_.pixsize_==newscale )
+    if ( set->disp3d().size() == newscale)
 	return;
 
-    set->disp_.pixsize_ = newscale;
+    set->disp3d().markerstyle_.size_ = newscale;
 
     Pick::SetMgr::getMgr( managerName() ).reportDispChange( this, *set );
 }
@@ -529,10 +529,10 @@ void uiODAnnotSubItem::setColor( OD::Color nc )
 	return;
 
     RefMan<Pick::Set> set = ld->getSet();
-    if ( set->disp_.color_==nc )
+    if ( set->disp3d().color() == nc)
 	return;
 
-    set->disp_.color_ = nc;
+    set->disp3d().markerstyle_.color_ = nc;
     Pick::SetMgr::getMgr( managerName() ).reportDispChange( this, *set );
 }
 

@@ -74,20 +74,23 @@ void PickSetDisplay::setSet( Pick::Set* newset )
     LocationDisplay::setSet( newset );
     if ( set_->isSizeLargerThanThreshold() )
     {
-	set_->disp_.markertype_ = MarkerStyle3D::Point;
-	set_->disp_.pixsize_ = 2;
+	set_->disp3d().markerstyle_.type_ = MarkerStyle3D::Point;
+	set_->disp3d().markerstyle_.size_ = 2;
     }
 
     MarkerStyle3D markerstyle;
-    markerstyle.size_ = set_->disp_.pixsize_;
-    markerstyle.type_ = (MarkerStyle3D::Type) set_->disp_.markertype_;
+    markerstyle.size_ = set_->disp3d().size();
+    markerstyle.type_ = (MarkerStyle3D::Type) set_->disp3d().type();
     markerset_->setMaterial( nullptr );
     markerset_->setMarkerStyle( markerstyle );
-    markerset_->setMarkersSingleColor( set_->disp_.color_ );
+    markerset_->setMarkersSingleColor( set_->disp3d().color() );
 
-    OD::LineStyle ls = set_->disp_.linestyle_;
-    if ( polylines_ )
-	polylines_->setLineStyle( ls );
+    if ( newset->isPolygon() && set_->isPolygon() && set_->disp3d().polyDisp() )
+    {
+	OD::LineStyle ls = set_->disp3d().polyDisp()->linestyle_;
+	if ( polylines_ )
+	    polylines_->setLineStyle( ls );
+    }
 
     if ( !showall_ && scene_ )
 	scene_->objectMoved( nullptr );
@@ -101,7 +104,10 @@ void PickSetDisplay::setSet( Pick::Set* newset )
     addChild( dragger_->osgNode() );
     dragger_->turnOn( false );
 
-    displayBody( set_->disp_.dofill_ );
+    const bool dodispbody = set_->isPolygon() &&
+			    set_->disp3d().polyDisp() &&
+			    set_->disp3d().polyDisp()->dofill_;
+    displayBody( dodispbody );
 }
 
 
@@ -159,33 +165,38 @@ void PickSetDisplay::dispChg( CallBacker* cb )
 	return;
 
     const int oldpixsz = (int)(markerset_->getScreenSize() + .5);
-    if ( oldpixsz != set_->disp_.pixsize_ )
+    if ( oldpixsz != set_->disp3d().size() )
     {
 	updateLineStyle();
-	markerset_->setScreenSize(  sCast(float,set_->disp_.pixsize_) );
+	markerset_->setScreenSize( sCast(float,set_->disp3d().size()) );
     }
 
-    if ( markerset_->getType() != set_->disp_.markertype_ )
+    if ( markerset_->getType()!=(MarkerStyle3D::Type)set_->disp3d().type() )
     {
-	markerset_->setType( (MarkerStyle3D::Type)set_->disp_.markertype_ );
-	if ( set_->disp_.markertype_ == MarkerStyle3D::Arrow
-		|| set_->disp_.markertype_ == MarkerStyle3D::Plane )
+	markerset_->setType( (MarkerStyle3D::Type)set_->disp3d().type() );
+	if ( set_->disp3d().type() == MarkerStyle3D::Arrow ||
+	     set_->disp3d().type() == MarkerStyle3D::Plane )
 	    fullRedraw(nullptr);
     }
 
-    if ( bodydisplay_ &&
-	    bodydisplay_->getMaterial()->getColor() != set_->disp_.fillcolor_ )
+    if ( bodydisplay_ && set_->isPolygon() && set_->disp3d().polyDisp() &&
+	 bodydisplay_->getMaterial()->getColor()
+				    != set_->disp3d().polyDisp()->fillcolor_ )
     {
-	bodydisplay_->getMaterial()->setColor( set_->disp_.fillcolor_ );
+	bodydisplay_->getMaterial()->setColor(
+				    set_->disp3d().polyDisp()->fillcolor_ );
     }
 
     LocationDisplay::dispChg( cb );
-    markerset_->setMarkersSingleColor( set_->disp_.color_  );
+    markerset_->setMarkersSingleColor( set_->disp3d().color() );
     markerset_->forceRedraw( true );
 
     showLine( needLine() );
 
-    displayBody( set_->disp_.dofill_ );
+    const bool dodispbody = set_->isPolygon() &&
+			    set_->disp3d().polyDisp() &&
+			    set_->disp3d().polyDisp()->dofill_;
+    displayBody( dodispbody );
 }
 
 
@@ -194,7 +205,7 @@ void PickSetDisplay::updateLineStyle()
     if ( !polylines_ || !set_ )
 	return;
 
-    polylines_->setLineStyle( set_->disp_.linestyle_ );
+    polylines_->setLineStyle( set_->disp3d().polyDisp()->linestyle_ );
 }
 
 
@@ -211,8 +222,8 @@ void PickSetDisplay::setPosition( int idx, const Pick::Location& loc, bool add )
 	markerset_->insertPos( idx, loc.pos(), true );
     else
 	markerset_->setPos( idx, loc.pos(), true );
-    if ( set_->disp_.markertype_ == MarkerStyle3D::Arrow ||
-	 set_->disp_.markertype_ == MarkerStyle3D::Plane )
+    if ( set_->disp3d().type() == MarkerStyle3D::Arrow ||
+	 set_->disp3d().type() == MarkerStyle3D::Plane )
 	markerset_->setSingleMarkerRotation( getDirection(loc), idx );
 
     if ( needLine() )
@@ -238,11 +249,13 @@ void PickSetDisplay::setPolylinePos( int idx, const Coord3& pos )
     if ( set_->nrSets() > 1 )
 	return;
 
-     if ( set_->disp_.connect_==Pick::Set::Disp::Close )
-     {
+    const bool doredraw = set_->isPolygon() && set_->disp3d().polyDisp() &&
+	    set_->disp3d().polyDisp()->connect_==Pick::Set::Connection::Close;
+    if ( doredraw )
+    {
 	redrawLine();
 	return;
-     }
+    }
 
     polylines_->setPoint( idx, pos );
     polylines_->dirtyCoordinates();
@@ -253,7 +266,9 @@ void PickSetDisplay::removePosition( int idx )
 {
     mCheckReadyOnly( set_ )
 
-    if ( set_->disp_.connect_ == Pick::Set::Disp::Close )
+    const bool doredraw = set_->isPolygon() && set_->disp3d().polyDisp() &&
+	    set_->disp3d().polyDisp()->connect_==Pick::Set::Connection::Close;
+    if ( doredraw )
     {
 	redrawAll( idx );
 	return;
@@ -275,7 +290,9 @@ void PickSetDisplay::removePolylinePos( int idx )
     if ( !polylines_ || idx>polylines_->size() )
 	return;
 
-    if ( set_->disp_.connect_==Pick::Set::Disp::Close )
+    bool doredraw = set_->isPolygon() && set_->disp3d().polyDisp() &&
+	    set_->disp3d().polyDisp()->connect_==Pick::Set::Connection::Close;
+    if ( doredraw )
     {
 	redrawLine();
 	return;
@@ -283,7 +300,9 @@ void PickSetDisplay::removePolylinePos( int idx )
 
     polylines_->removePoint( idx );
 
-    if ( set_->disp_.connect_==Pick::Set::Disp::Close )
+    doredraw = set_->isPolygon() && set_->disp3d().polyDisp() &&
+	   set_->disp3d().polyDisp()->connect_==Pick::Set::Connection::Close;
+    if ( doredraw )
 	redrawLine();
 }
 
@@ -303,7 +322,8 @@ void PickSetDisplay::redrawMultiSets()
 	polylines_->getCoordinates()->setEmpty();
     }
 
-    if ( set_->nrSets()==0 && set_->disp_.connect_!=Pick::Set::Disp::None )
+    if ( set_->nrSets()==0 && set_->isPolygon() && set_->disp3d().polyDisp() &&
+	 set_->disp3d().polyDisp()->connect_!=Pick::Set::Connection::None )
     {
 	// this is for a default new polygon, we should have a default start
 	// index. it should be changed in trunk version.
@@ -337,8 +357,11 @@ void PickSetDisplay::redrawMultiSets()
 	    }
 	}
 
-	if ( set_->disp_.connect_==Pick::Set::Disp::Close )
+	const bool ispoly = set_->isPolygon() && set_->disp3d().polyDisp() &&
+	    set_->disp3d().polyDisp()->connect_==Pick::Set::Connection::Close;
+	if ( ispoly )
 	    ps += firstidx;
+
 	if ( ps.isEmpty() )
 	    continue;
 
@@ -412,7 +435,9 @@ void PickSetDisplay::redrawLine()
     if ( !polylines_ || !set_ )
 	return;
 
-    polylines_->setLineStyle( set_->disp_.linestyle_ );
+    const bool ispoly = set_->isPolygon() && set_->disp3d().polyDisp();
+    polylines_->setLineStyle( ispoly ? set_->disp3d().polyDisp()->linestyle_
+				     : OD::LineStyle() );
 
     if ( set_->nrSets() > 1 )
 	return;
@@ -429,7 +454,8 @@ void PickSetDisplay::redrawLine()
 	    polylines_->addPoint( pos );
     }
 
-    if ( idx && set_->disp_.connect_==Pick::Set::Disp::Close )
+    if ( idx && ispoly &&
+	 set_->disp3d().polyDisp()->connect_==Pick::Set::Connection::Close )
 	polylines_->setPoint( idx, polylines_->getPoint(0) );
 
     polylines_->dirtyCoordinates();
@@ -438,7 +464,8 @@ void PickSetDisplay::redrawLine()
 
 bool PickSetDisplay::needLine()
 {
-    needline_ = set_->disp_.connect_ != Pick::Set::Disp::None;
+    needline_ = set_->isPolygon() &&  set_->disp3d().polyDisp() &&
+	    set_->disp3d().polyDisp()->connect_!=Pick::Set::Connection::None;
     return needline_;
 }
 
@@ -482,7 +509,7 @@ static float getSurveyRotation()
 ::Quaternion PickSetDisplay::getDirection( const Pick::Location& loc ) const
 {
     const float survngle = getSurveyRotation();
-    if ( set_->disp_.markertype_ == MarkerStyle3D::Arrow )
+    if ( set_->disp3d().type() == MarkerStyle3D::Arrow )
     {
 	const float phi = SI().isRightHandSystem() ? survngle + loc.dir().phi
 					     : survngle - loc.dir().phi;
@@ -549,7 +576,10 @@ bool PickSetDisplay::setBodyDisplay()
 	bodydisplay_->setMaterial( newmat.ptr() );
     }
 
-    bodydisplay_->getMaterial()->setColor( set_->disp_.fillcolor_ );
+    const bool ispoly = set_->isPolygon() && set_->disp3d().polyDisp();
+    bodydisplay_->getMaterial()->setColor( ispoly
+				    ? set_->disp3d().polyDisp()->fillcolor_
+				    : OD::Color::NoColor() );
     bodydisplay_->setDisplayTransformation( transformation_.ptr() );
 
     TypeSet<Coord3> picks;
@@ -560,7 +590,8 @@ bool PickSetDisplay::setBodyDisplay()
             picks[idx].z_ = datatransform_->transformBack( picks[idx] );
     }
 
-    setColor( set_->disp_.fillcolor_ );
+    setColor( ispoly ? set_->disp3d().polyDisp()->fillcolor_
+		     : OD::Color::NoColor() );
 
     return bodydisplay_->setPoints( picks, set_->isPolygon() );
 }
@@ -570,8 +601,8 @@ RefMan<visBase::MarkerSet> PickSetDisplay::createOneMarker() const
 {
     RefMan<visBase::MarkerSet> marker = visBase::MarkerSet::create();
     MarkerStyle3D markerstyle;
-    markerstyle.size_ = set_->disp_.pixsize_;
-    markerstyle.type_ = sCast(MarkerStyle3D::Type,set_->disp_.markertype_);
+    markerstyle.size_ = set_->disp3d().size();
+    markerstyle.type_ = sCast(MarkerStyle3D::Type,set_->disp3d().type());
     marker->setMaterial( nullptr );
     marker->setMarkerStyle( markerstyle );
     marker->setMarkersSingleColor( OD::Color::NoColor() );
@@ -732,7 +763,8 @@ void PickSetDisplay::updateLineAtSection()
 		polylines_->addPoint( polycoords[pidx] );
 	}
 
-	if ( pidx && set_->disp_.connect_ == Pick::Set::Disp::Close )
+	if ( pidx && set_->isPolygon() && set_->disp3d().polyDisp() &&
+	     set_->disp3d().polyDisp()->connect_==Pick::Set::Connection::Close )
 	    polylines_->setPoint( pidx, polylines_->getPoint(0) );
     }
 }
@@ -783,7 +815,7 @@ void PickSetDisplay::getPickingMessage( BufferString& str ) const
 void PickSetDisplay::setColor( OD::Color nc )
 {
     if ( set_ )
-	set_->disp_.fillcolor_ = nc;
+	set_->disp3d().polyDisp()->fillcolor_ = nc;
 
     if ( !bodydisplay_ ) return;
 
@@ -883,7 +915,7 @@ void PickSetDisplay::polygonFinishedCB(CallBacker*)
     if ( !scene_ || ! scene_->getPolySelection() )
 	return;
 
-    color_ = set_->disp_.color_;
+    color_ = set_->disp3d().color();
     const int diff = markerset_->size()-pickselstatus_.size();
     if ( diff !=0 ) // added new pos or removed pos. reset
     {

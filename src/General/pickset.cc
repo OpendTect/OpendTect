@@ -37,15 +37,15 @@ static OD::LineStyle		defLineStyle()
     return OD::LineStyle( OD::LineStyle::Solid, defPixSz(), defcolor() );
 }
 
+static MarkerStyle2D		defMarkerStyle2D()
+{
+    return MarkerStyle2D( MarkerStyle2D::Circle, defPixSz(), defcolor() );
+}
 
-// Pick::Set::Disp
-
-Pick::Set::Disp::Disp()
-{}
-
-
-Pick::Set::Disp::~Disp()
-{}
+static MarkerStyle3D		defMarkerStyle3D()
+{
+    return MarkerStyle3D( defMarkerStyle(), defPixSz(), defcolor() );
+}
 
 
 int Pick::Set::getSizeThreshold()
@@ -442,7 +442,7 @@ class PickSetKnotUndoEvent: public UndoEvent
 public:
     enum  UnDoType	    { Insert, PolygonClose, Remove, Move };
     PickSetKnotUndoEvent( UnDoType type, const MultiID& mid, int sidx,
-	const Pick::Location& pos )
+			  const Pick::Location& pos )
     : type_(type)
     , newpos_(Pick::Location(Coord3::udf()))
     , pos_(Pick::Location(Coord3::udf()))
@@ -472,17 +472,18 @@ public:
 	const int mididx = mgr.indexOf( mid_ );
 	const bool haspickset = mididx >=0;
 	RefMan<Pick::Set> set = haspickset ? mgr.get(mididx) : nullptr;
-	if ( !set ) return false;
+	if ( !set )
+	    return false;
 
-	if ( set->disp_.connect_==Pick::Set::Disp::Close &&
-	    index_ == set->size()-1 && type_ != Move )
+	const bool isclosed
+	  = set->disp3d().polyDisp()->connect_==Pick::Set::Connection::Close;
+	if ( isclosed && index_ == set->size()-1 && type_ != Move )
 	    type_ = PolygonClose;
 
-	Pick::SetMgr::ChangeData::Ev ev = type_ == Move ?
-	    Pick::SetMgr::ChangeData::Changed :
-	    ( type_ == Remove
-	    ? Pick::SetMgr::ChangeData::Added
-	    : Pick::SetMgr::ChangeData::ToBeRemoved );
+	Pick::SetMgr::ChangeData::Ev ev = type_ == Move
+	    ? Pick::SetMgr::ChangeData::Changed
+	    : ( type_ == Remove ? Pick::SetMgr::ChangeData::Added
+				: Pick::SetMgr::ChangeData::ToBeRemoved );
 
 	Pick::SetMgr::ChangeData cd( ev, set.ptr(), index_ );
 
@@ -500,9 +501,10 @@ public:
 	{
 	    set->remove( index_ );
 	}
-	else if ( type_ == PolygonClose )
+	else if ( type_ == PolygonClose && set->isPolygon() &&
+					   set->disp3d().polyDisp() )
 	{
-	    set->disp_.connect_ = Pick::Set::Disp::Open;
+	    set->disp3d().polyDisp()->connect_ = Pick::Set::Connection::Open;
 	    set->remove(index_);
 	}
 
@@ -542,11 +544,13 @@ public:
 	    if ( pos_.pos().isDefined() )
 		set->insert( index_,pos_ );
 	}
-	else if ( type_ == PolygonClose )
+	else if ( type_ == PolygonClose && set->isPolygon() &&
+					   set->disp3d().polyDisp() )
 	{
 	    if ( pos_.pos().isDefined() )
 	    {
-		set->disp_.connect_=Pick::Set::Disp::Close;
+		set->disp3d().polyDisp()->connect_
+						= Pick::Set::Connection::Close;
 		set->insert( index_, pos_ );
 	    }
 	}
@@ -742,13 +746,195 @@ static int getNearestLocation( const PicksType& ps,
 
 
 // Pick::Set
-mDefineEnumUtils( Pick::Set::Disp, Connection, "Connection" )
+mDefineEnumUtils( Pick::Set, Connection, "Connection" )
 { "None", "Open", "Close", nullptr };
+
+mStartAllowDeprecatedSection
+Set::Disp::Disp( bool ispolygon )
+    : ispolygon_(ispolygon)
+{
+    if ( ispolygon )
+	polydisp_ = new PolyDisp;
+}
+
+
+Set::Disp::~Disp()
+{
+    delete polydisp_;
+}
+
+
+bool Set::Disp::operator==( const Disp& oth ) const
+{
+    if ( !ispolygon_ )
+	return !oth.ispolygon_;
+
+    if ( polydisp_ && oth.polydisp_ )
+	return polydisp_->linestyle_ == oth.polydisp_->linestyle_ &&
+	       polydisp_->connect_ == oth.polydisp_->connect_ &&
+	       polydisp_->dofill_ == oth.polydisp_->dofill_ &&
+	       polydisp_->fillcolor_ == oth.polydisp_->fillcolor_;
+
+    return false;
+}
+mStopAllowDeprecatedSection
+
+
+void Set::Disp::convertToPolygon()
+{
+    if ( ispolygon_ )
+	return;
+
+    ispolygon_ = true;
+    polydisp_ = new PolyDisp;
+}
+
+
+void Set::Disp::convertToPointSet()
+{
+    if ( !ispolygon_ )
+	return;
+
+    ispolygon_ = false;
+    delete polydisp_;
+    polydisp_ = nullptr;
+}
+
+
+Set::PolyDisp* Set::Disp::polyDisp()
+{
+    if ( ispolygon_ && !polydisp_  )
+    {
+	pErrMsg( "PolyDisp object should have been valid. Please debug." );
+	polydisp_ = new Set::PolyDisp;
+    }
+
+    if ( !ispolygon_ )
+    {
+	pErrMsg( "If it is a polygon, Pick::Set should have been "
+	    "created as one" );
+	if ( !polydisp_ )
+	    polydisp_ = new Set::PolyDisp;
+    }
+
+    return polydisp_;
+}
+
+
+const Set::PolyDisp* Set::Disp::polyDisp() const
+{
+    return getNonConst(this)->polyDisp();
+}
+
+
+Set::Disp3D::Disp3D( bool ispolygon )
+    : Disp( ispolygon )
+{}
+
+
+Set::Disp3D::~Disp3D()
+{}
+
+
+bool Set::Disp3D::operator=( const Disp& oth )
+{
+    auto* oth3d = dCast( const Disp3D*, &oth );
+    if ( !oth3d )
+    {
+	pErrMsg( "Please provide a Disp3D object." );
+	return false;
+    }
+
+    markerstyle_ = oth3d->markerstyle_;
+    ispolygon_ = oth3d->ispolygon_ && oth3d->polydisp_;
+    if ( ispolygon_ && !polydisp_ )
+	polydisp_ = new PolyDisp;
+
+    if ( polydisp_ && oth3d->polydisp_ )
+	*polydisp_ = *oth3d->polydisp_;
+
+    return true;
+}
+
+
+bool Set::Disp3D::operator==( const Disp& oth ) const
+{
+    auto* oth3d = dCast( const Disp3D*, &oth );
+    if ( !oth3d )
+    {
+	pErrMsg( "Please provide a Disp3D object." );
+	return false;
+    }
+
+    bool ret = Set::Disp::operator==( *oth3d );
+    return ret && markerstyle_==oth3d->markerstyle_;
+}
+
+
+int Set::Disp3D::type() const
+{
+    return markerstyle_.type_;
+}
+
+
+Set::Disp2D::Disp2D( bool ispolygon )
+    : Disp( ispolygon )
+{}
+
+
+Set::Disp2D::~Disp2D()
+{}
+
+
+bool Set::Disp2D::operator=( const Disp& oth )
+{
+    auto* oth2d = dCast( const Disp2D*, &oth );
+    if ( !oth2d )
+    {
+	pErrMsg( "Please provide a Disp3D object." );
+	return false;
+    }
+
+    markerstyle_ = oth2d->markerstyle_;
+    ispolygon_ = oth2d->ispolygon_ && oth2d->polydisp_;
+    if ( ispolygon_ && !polydisp_ )
+	polydisp_ = new PolyDisp;
+
+    if ( polydisp_ && oth2d->polydisp_ )
+	*polydisp_ = *oth2d->polydisp_;
+
+    return true;
+}
+
+
+bool Set::Disp2D::operator==( const Disp& oth ) const
+{
+    auto* oth2d = dCast( const Disp2D*, &oth );
+    if ( !oth2d )
+    {
+	pErrMsg( "Please provide a Disp2D object." );
+	return false;
+    }
+
+    bool ret = Set::Disp::operator==( *oth2d );
+    return ret && markerstyle_==oth2d->markerstyle_;
+}
+
+
+int Set::Disp2D::type() const
+{
+    return markerstyle_.type_;
+}
+
 
 Set::Set( const char* nm, bool ispolygon )
     : SharedObject(nm)
     , pars_(*new IOPar)
     , zdomaininfo_(&SI().zDomainInfo())
+    , disp3d_( *new Disp3D(ispolygon) )
+    , disp2d_( *new Disp2D(ispolygon) )
+    , disp_(disp3d_)
+
 {
     setDefaultDispPars( ispolygon );
 }
@@ -757,6 +943,9 @@ Set::Set( const char* nm, bool ispolygon )
 Set::Set( const Set& oth )
     : pars_(*new IOPar)
     , zdomaininfo_(&SI().zDomainInfo())
+    , disp3d_( *new Disp3D(oth.isPolygon()) )
+    , disp2d_( *new Disp2D(oth.isPolygon()) )
+    , disp_(disp3d_)
 {
     *this = oth;
 }
@@ -765,6 +954,8 @@ Set::Set( const Set& oth )
 Set::~Set()
 {
     delete &pars_;
+    delete &disp3d_;
+    delete &disp2d_;
 }
 
 
@@ -775,13 +966,40 @@ Set& Set::operator=( const Set& oth )
 
     locations_.copy( oth.locations_ );
     setName( oth.name() );
-    disp_ = oth.disp_;
+    disp3d_ = oth.disp3d_;
+    disp2d_ = oth.disp2d_;
     pars_ = oth.pars_;
     startidxs_ = oth.startidxs_;
     readonly_ = oth.readonly_;
     setZDomain( oth.zDomain() );
 
     return *this;
+}
+
+
+void Set::convertToPointSet()
+{
+    if ( !isPolygon() )
+	return;
+
+    pars_.set( sKey::Type(), sKey::PointSet() );
+    disp2d_.convertToPointSet();
+    disp3d_.convertToPointSet();
+}
+
+
+void Set::convertToPolygon()
+{
+    if ( isPolygon() )
+	return;
+
+    pars_.set( sKey::Type(), sKey::Polygon() );
+    disp2d_.convertToPolygon();
+    disp3d_.convertToPolygon();
+    disp2d_.polyDisp()->fillcolor_ = defcolor();
+    disp2d_.polyDisp()->linestyle_ = defLineStyle();
+    if ( disp2d_.polyDisp()->connect_==Connection::None )
+	disp2d_.polyDisp()->connect_ = Connection::Close;
 }
 
 
@@ -1062,7 +1280,9 @@ void Set::getPolygon( ODPolygon<double>& poly, int setidx ) const
 
 float Set::getXYArea( int setidx ) const
 {
-    if ( size()<3 || disp_.connect_==Set::Disp::None )
+    const bool isdisconnected = isPolygon() && disp3d().polyDisp() &&
+			disp3d().polyDisp()->connect_==Set::Connection::None;
+    if ( size()<3 || isdisconnected )
 	return mUdf(float);
 
     ODPolygon<double> polygon;
@@ -1140,6 +1360,7 @@ bool Set::usePar( const IOPar& par )
     pars_.removeWithKey( sKey::LineStyle() );
     pars_.removeWithKey( sKeyFillColor() );
     pars_.removeWithKey( sKeyFill() );
+    pars_.removeSubSelection( "2D" );
 
     return true;
 }
@@ -1147,83 +1368,236 @@ bool Set::usePar( const IOPar& par )
 
 void Set::setDefaultDispPars( bool ispolygon )
 {
-    if ( disp_.color_ == OD::Color::NoColor() )
-	disp_.color_ = defcolor();
+    setDefaultDispPars2D( ispolygon );
+    setDefaultDispPars3D( ispolygon );
+}
 
-    disp_.fillcolor_ = defcolor();
-    disp_.pixsize_ = defPixSz();
-    disp_.markertype_ = defMarkerStyle();
-    disp_.linestyle_ = defLineStyle();
-    if ( disp_.connect_==Disp::None && ispolygon )
-	disp_.connect_ = Disp::Close;
+
+void Set::setDefaultDispPars2D( bool ispolygon )
+{
+    disp2d_.markerstyle_ = defMarkerStyle2D();
+    if ( !ispolygon )
+	return;
+
+    disp2d_.polyDisp()->fillcolor_ = defcolor();
+    disp2d_.polyDisp()->linestyle_ = defLineStyle();
+    if ( disp2d_.polyDisp()->connect_==Connection::None )
+	disp2d_.polyDisp()->connect_ = Connection::Close;
+}
+
+
+void Set::setDefaultDispPars3D( bool ispolygon )
+{
+    disp3d_.markerstyle_ = defMarkerStyle3D();
+    if ( !ispolygon )
+	return;
+
+    disp3d_.polyDisp()->fillcolor_ = defcolor();
+    disp3d_.polyDisp()->linestyle_ = defLineStyle();
+    if ( disp3d_.polyDisp()->connect_==Connection::None )
+	disp3d_.polyDisp()->connect_ = Connection::Close;
+}
+
+
+void Set::fillDispPars( const Disp& disp, IOPar& par ) const
+{
+    BufferString colstr;
+    if ( disp.color() != OD::Color::NoColor() )
+    {
+	disp.color().fill( colstr );
+	par.set( sKey::Color(), colstr );
+    }
+
+    par.set( sKeyMarkerType(), disp.type() );
+    par.set( sKey::Size(), disp.size() );
+
+    if ( !isPolygon() )
+	return;
+
+    BufferString fillcolstr;
+    if ( disp.polyDisp()->fillcolor_ != OD::Color::NoColor() )
+    {
+	disp.polyDisp()->fillcolor_.fill( fillcolstr );
+	par.set( sKeyFillColor(), fillcolstr );
+    }
+
+    BufferString lsstr;
+    disp.polyDisp()->linestyle_.toString( lsstr );
+    par.set( sKey::LineStyle(), lsstr );
+    par.set( sKeyConnect(), getConnectionString(disp.polyDisp()->connect_) );
+    par.setYN( sKeyFill(), disp.polyDisp()->dofill_ );
 }
 
 
 void Set::fillDisplayPars( IOPar& par ) const
 {
-    BufferString colstr, fillcolstr;
-    if ( disp_.color_ != OD::Color::NoColor() )
-    {
-	disp_.color_.fill( colstr );
-	par.set( sKey::Color(), colstr );
-    }
-
-    if ( disp_.fillcolor_ != OD::Color::NoColor() )
-    {
-	disp_.fillcolor_.fill( fillcolstr );
-	par.set( sKeyFillColor(), fillcolstr );
-    }
-
-    BufferString lsstr; disp_.linestyle_.toString( lsstr );
-    par.set( sKey::LineStyle(), lsstr );
-    par.set( sKey::Size(), disp_.pixsize_ );
-    par.set( sKeyMarkerType(), disp_.markertype_ );
-    par.set( sKeyConnect(), Disp::getConnectionString(disp_.connect_) );
-    par.setYN( sKeyFill(), disp_.dofill_ );
+    fillDisplayPars3D( par );
+    fillDisplayPars2D( par );
 }
 
 
-bool Set::useDisplayPars( const IOPar& par )
+void Set::fillDisplayPars3D( IOPar& par ) const
+{
+    fillDispPars( disp3d_, par );
+}
+
+
+void Set::fillDisplayPars2D( IOPar& par ) const
+{
+    IOPar par2d;
+    fillDispPars( disp2d_, par2d );
+    par.mergeComp( par2d, "2D" );
+}
+
+
+bool Set::useDisplayPars3D( const IOPar& par, Disp3D& disp )
 {
     BufferString colstr;
     const bool hascolor = par.get( sKey::Color(), colstr );
     if ( hascolor )
-	disp_.color_.use( colstr.buf() );
+	disp.color().use( colstr.buf() );
 
     BufferString fillcolstr;
     if ( par.get(sKeyFillColor(),fillcolstr) )
-	disp_.fillcolor_.use( fillcolstr.buf() );
+	disp.polyDisp()->fillcolor_.use( fillcolstr.buf() );
 
     const bool hasdispsz = par.hasKey( sKey::Size() );
+    int size = defPixSz();
     if ( hasdispsz )
-	par.get( sKey::Size(), disp_.pixsize_ );
+	par.get( sKey::Size(), size );
 
+    disp.markerstyle_.size_ = size;
+
+    int markertype = 0;
     if ( par.hasKey(sKeyMarkerType()) )
-	par.get( sKeyMarkerType(), disp_.markertype_ );
+	par.get( sKeyMarkerType(), markertype );
+
+    disp.markerstyle_.type_ = (MarkerStyle3D::Type) markertype;
+
+    if ( !isPolygon() )
+	return true;
 
     BufferString lsstr;
     if ( par.get(sKey::LineStyle(),lsstr) )
-	disp_.linestyle_.fromString( lsstr );
+	disp.polyDisp()->linestyle_.fromString( lsstr );
     else if ( hasdispsz && hascolor )
-	disp_.linestyle_ = OD::LineStyle( OD::LineStyle::Solid,
-					 disp_.pixsize_,disp_.color_ );
+	disp.polyDisp()->linestyle_ = OD::LineStyle( OD::LineStyle::Solid,
+						     disp.size(),
+						     disp.color() );
 
-    par.getYN( sKeyFill(), disp_.dofill_ );
+    par.getYN( sKeyFill(), disp.polyDisp()->dofill_ );
     if ( par.hasKey(sKeyConnect()) )
     {
 	bool doconnect = false;
 	par.getYN( sKeyConnect(), doconnect );	// For Backward Compatibility
 	if ( doconnect )
-	    disp_.connect_ = Disp::Close;
+	    disp.polyDisp()->connect_ = Connection::Close;
 	else
 	{
-	    if ( !Disp::parseEnumConnection(par.find(sKeyConnect()),
-							    disp_.connect_) )
-		disp_.connect_ = Disp::None;
+	    if ( !parseEnumConnection(par.find(sKeyConnect()),
+		 disp.polyDisp()->connect_) )
+		disp.polyDisp()->connect_ = Connection::None;
 	}
     }
 
     return true;
+}
+
+
+bool Set::useDisplayPars( const IOPar& par )
+{
+    return useDisplayPars3D( par, disp3d_ ) && useDisplayPars2D( par, disp2d_ );
+}
+
+
+bool Set::useDisplayPars2D( const IOPar& par, Disp2D& disp )
+{
+    const IOPar* par2d = par.subselect( "2D" );
+    if ( !par2d || par2d->isEmpty() )
+    {
+	const MarkerStyle3D::Type typ3d = (MarkerStyle3D::Type) disp3d_.type();
+	const MarkerStyle2D::Type typ2d = MarkerStyle3D::getMS2DType( typ3d );
+	disp2d_.markerstyle_ = MarkerStyle2D( typ2d,
+					      disp3d_.size(),disp3d_.color() );
+	if ( isPolygon() )
+	    *disp2d_.polyDisp() = *disp3d_.polyDisp();
+
+	return true;
+    }
+
+    BufferString colstr;
+    const bool hascolor = par2d->get( sKey::Color(), colstr );
+    if ( hascolor )
+	disp.color().use( colstr.buf() );
+
+    BufferString fillcolstr;
+    if ( par2d->get(sKeyFillColor(),fillcolstr) )
+	disp.polyDisp()->fillcolor_.use( fillcolstr.buf() );
+
+    const bool hasdispsz = par2d->hasKey( sKey::Size() );
+    int size = defPixSz();
+    if ( hasdispsz )
+	par2d->get( sKey::Size(), size );
+
+    disp.markerstyle_.size_ = size;
+
+    int markertype = 0;
+    if ( par2d->hasKey(sKeyMarkerType()) )
+	par2d->get( sKeyMarkerType(), markertype );
+
+    disp.markerstyle_.type_ = (MarkerStyle2D::Type) markertype;
+
+    if ( !isPolygon() )
+	return true;
+
+    BufferString lsstr;
+    if ( par2d->get(sKey::LineStyle(),lsstr) )
+	disp.polyDisp()->linestyle_.fromString( lsstr );
+    else if ( hasdispsz && hascolor )
+	disp.polyDisp()->linestyle_ = OD::LineStyle( OD::LineStyle::Solid,
+	    disp.size(),
+	    disp.color() );
+
+    par2d->getYN( sKeyFill(), disp.polyDisp()->dofill_ );
+    if ( par2d->hasKey(sKeyConnect()) )
+    {
+	bool doconnect = false;
+	par2d->getYN( sKeyConnect(), doconnect );// For Backward Compatibility
+	if ( doconnect )
+	    disp.polyDisp()->connect_ = Connection::Close;
+	else
+	{
+	    if ( !parseEnumConnection(par2d->find(sKeyConnect()),
+		disp.polyDisp()->connect_) )
+		disp.polyDisp()->connect_ = Connection::None;
+	}
+    }
+
+    return true;
+}
+
+
+Set::Disp3D& Set::disp3d()
+{
+    return disp3d_;
+}
+
+
+const Set::Disp3D& Set::disp3d() const
+{
+    return getNonConst(this)->disp3d();
+}
+
+
+Set::Disp2D& Set::disp2d()
+{
+    return disp2d_;
+}
+
+
+const Set::Disp2D& Set::disp2d() const
+{
+    return getNonConst(this)->disp2d();
 }
 
 

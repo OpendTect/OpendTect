@@ -190,7 +190,7 @@ bool uiSetPickDirs::acceptOK( CallBacker* )
 	ps_.setDir( idx, Sphere(1,theta,phi) );
     }
 
-    ps_.disp_.markertype_ = MarkerStyle3D::Plane;
+    ps_.disp3d().markerstyle_.type_ = MarkerStyle3D::Plane;
     Pick::Mgr().reportChange( this, ps_ );
     Pick::Mgr().reportDispChange( this, ps_ );
     return true;

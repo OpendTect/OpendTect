@@ -251,8 +251,8 @@ void ScaleBarSubItem::handleMenuCB( CallBacker* cb )
 	pars.oninlcrl_ = sbdisp->isOnInlCrl();
 	pars.orientation_ = sbdisp->getOrientation();
 	pars.length_ = sbdisp->getLength();
-	pars.ls_ = OD::LineStyle(OD::LineStyle::Solid,sbdisp->getLineWidth(),
-			     set_->disp_.color_);
+	pars.ls_ = OD::LineStyle( OD::LineStyle::Solid,sbdisp->getLineWidth(),
+				  set_->disp3d().color() );
 	RefMan<visSurvey::Scene> scene = visserv_->getScene( sceneID() );
 	uiScaleBarDialog dlg( getUiParent(), scene->zDomainInfo() );
 	dlg.setPars( pars );

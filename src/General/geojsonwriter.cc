@@ -29,8 +29,8 @@ void setProperties( const Pick::Set::Disp& disp, GIS::Property& props )
 
     if ( props.isPoint() )
     {
-	props.color_ = disp.color_;
-	props.pixsize_ = disp.pixsize_;
+	props.color_ = disp.color();
+	props.pixsize_ = disp.size();
 	props.linestyle_.width_ = 2;
 	props.linestyle_.color_ = OD::Color::NoColor();
 	props.dofill_ = false;
@@ -40,10 +40,12 @@ void setProperties( const Pick::Set::Disp& disp, GIS::Property& props )
     {
 	props.color_ = OD::Color::NoColor();
 	props.pixsize_ = 2;
-	props.linestyle_ = disp.linestyle_;
-	const bool ispoly = props.isPolygon();
-	props.dofill_ = ispoly ? disp.dofill_ : false;
-	props.fillcolor_ = ispoly ? disp.fillcolor_: OD::Color::NoColor();
+	const bool ispoly = props.isPolygon() && disp.polyDisp();
+	props.linestyle_ = ispoly ? disp.polyDisp()->linestyle_
+				  : OD::LineStyle();
+	props.dofill_ = ispoly ? disp.polyDisp()->dofill_ : false;
+	props.fillcolor_ = ispoly ? disp.polyDisp()->fillcolor_
+				  : OD::Color::NoColor();
     }
 }
 
@@ -213,7 +215,7 @@ bool OD::JSON::GeoJSONWriter::writeLine( const TypeSet<Coord3>& coords,
 bool OD::JSON::GeoJSONWriter::writeLine( const Pick::Set& pickset )
 {
     mAddFeatures( GIS::FeatureType::LineString, pickset, pickset.name().buf() );
-    OD::JSON::setProperties( pickset.disp_, properties );
+    OD::JSON::setProperties( pickset.disp2d(), properties);
     return geojsontree_->addFeatures( pickset, properties );
 }
 
@@ -237,7 +239,7 @@ bool OD::JSON::GeoJSONWriter::writePolygon( const TypeSet<Coord3>& coords,
 bool OD::JSON::GeoJSONWriter::writePolygon( const Pick::Set& pickset )
 {
     mAddFeatures( GIS::FeatureType::Polygon, pickset, pickset.name().buf() );
-    OD::JSON::setProperties( pickset.disp_, properties );
+    OD::JSON::setProperties( pickset.disp2d(), properties);
     return geojsontree_->addFeatures( pickset, properties );
 }
 
@@ -261,7 +263,7 @@ bool OD::JSON::GeoJSONWriter::writePoints( const TypeSet<Coord3>& coords,
 bool OD::JSON::GeoJSONWriter::writePoints( const Pick::Set& pickset )
 {
     mAddFeatures( GIS::FeatureType::MultiPoint, pickset, pickset.name().buf() );
-    OD::JSON::setProperties( pickset.disp_, properties );
+    OD::JSON::setProperties( pickset.disp2d(), properties );
     return geojsontree_->addFeatures( pickset, properties );
 }
 
@@ -270,7 +272,7 @@ bool OD::JSON::GeoJSONWriter::writeLines( const Pick::Set& pickset )
 {
     mAddFeatures( GIS::FeatureType::MultiLineString, pickset,
 		  pickset.name().buf() );
-    OD::JSON::setProperties( pickset.disp_, properties );
+    OD::JSON::setProperties( pickset.disp2d(), properties );
     return geojsontree_->addFeatures( pickset, properties );
 }
 
@@ -279,6 +281,6 @@ bool OD::JSON::GeoJSONWriter::writePolygons( const Pick::Set& pickset )
 {
     mAddFeatures( GIS::FeatureType::MultiPolygon, pickset,
 		  pickset.name().buf() );
-    OD::JSON::setProperties( pickset.disp_, properties );
+    OD::JSON::setProperties( pickset.disp2d(), properties );
     return geojsontree_->addFeatures( pickset, properties );
 }

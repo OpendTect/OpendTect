@@ -51,7 +51,7 @@ ArrowSubItem::ArrowSubItem( Pick::Set& pck, const VisID& displayid )
     , propmnuitem_( m3Dots(uiStrings::sProperties()) )
     , arrowtype_( 2 )
 {
-    defscale_ = mCast(float,set_->disp_.pixsize_);
+    defscale_ = mCast(float,set_->disp3d().size());
     propmnuitem_.iconfnm = "disppars";
 }
 
@@ -181,15 +181,15 @@ void ArrowSubItem::handleMenuCB( CallBacker* cb )
 	menu->setIsHandled(true);
 
 	uiArrowDialog dlg( getUiParent() );
-	dlg.setColor( set_->disp_.color_ );
+	dlg.setColor( set_->disp3d().color() );
 	dlg.setArrowType( arrowtype_ );
 	dlg.setLineWidth( ad->getLineWidth() );
 	dlg.propertyChange.notify( mCB(this,ArrowSubItem,propertyChange) );
-	dlg.setScale( mCast(float,set_->disp_.pixsize_/defscale_) );
+	dlg.setScale( mCast(float,set_->disp3d().size()/defscale_) );
 	dlg.go();
-	if ( set_->disp_.color_!=dlg.getColor() )
+	if ( set_->disp3d().color()!=dlg.getColor() )
 	{
-	    set_->disp_.color_ = dlg.getColor();
+	    set_->disp3d().markerstyle_.color_ = dlg.getColor();
 	    Pick::SetMgr& mgr = Pick::SetMgr::getMgr( managerName() );
 	    mgr.reportDispChange( this, *set_ );
 	}

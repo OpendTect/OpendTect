@@ -233,7 +233,8 @@ bool uiPickPartServer::loadSets( TypeSet<MultiID>& psids, bool poly,
     {
 	const MultiID id = dlg.chosenID(idx);
 	PtrMan<IOObj> ioobj = IOM().get( id );
-	if ( !ioobj ) continue;
+	if ( !ioobj )
+	    continue;
 
 	psids += id;
 	if ( Pick::Mgr().indexOf(id) >= 0 )
@@ -242,7 +243,7 @@ bool uiPickPartServer::loadSets( TypeSet<MultiID>& psids, bool poly,
 	    continue; // No need to read again
 	}
 
-	RefMan<Pick::Set> ps = new Pick::Set;
+	RefMan<Pick::Set> ps = new Pick::Set( ioobj->name(), poly );
 	uiString errmsg;
 	if ( PickSetTranslator::retrieve(*ps,ioobj.ptr(),true,errmsg) )
 	{
@@ -439,8 +440,8 @@ void uiPickPartServer::setPickSet( const Pick::Set& pickset )
 	ps->setEmpty();
     else
     {
-	ps = new Pick::Set( pickset.name() );
-	ps->disp_.color_.set( 240, 0, 0 );
+	ps = new Pick::Set( pickset.name(), pickset.isPolygon() );
+	ps->disp3d().markerstyle_.color_ = OD::Color( 240, 0, 0 );
     }
 
     *ps = pickset;
@@ -469,7 +470,7 @@ void uiPickPartServer::setMisclassSet( const DataPointSet& dps )
     else
     {
 	ps = new Pick::Set( sKeyMisClass );
-	ps->disp_.color_.set( 240, 0, 0 );
+	ps->disp3d().markerstyle_.color_ = OD::Color( 240, 0, 0 );
     }
 
     for ( int idx=0; idx<dps.size(); idx++ )
@@ -548,9 +549,12 @@ void uiPickPartServer::convert( const Geometry::RandomLine& rl,
 				Pick::Set& pickset )
 {
     pickset.setName( rl.name() );
-    pickset.disp_.color_ = OD::Color::NoColor();
-    pickset.disp_.linestyle_.color_ = OD::Color::NoColor();
-    pickset.disp_.linestyle_.width_ = mUdf(int);
+    pickset.disp3d().markerstyle_.color_ = OD::Color::NoColor();
+    if ( pickset.isPolygon() && pickset.disp3d().polyDisp() )
+    {
+	pickset.disp3d().polyDisp()->linestyle_.color_ = OD::Color::NoColor();
+	pickset.disp3d().polyDisp()->linestyle_.width_ = mUdf(int);
+    }
 
     TrcKeySet knots;
     rl.allNodePositions( knots );

@@ -153,18 +153,21 @@ uiString dgbPickSetTranslator::read( Pick::Set& ps, Conn& conn,
 	    astrm.next();
 	    if ( astrm.hasKeyword(sKey::Color()) )
 	    {
-		ps.disp_.color_.use( astrm.value() );
-		ps.disp_.color_.setTransparency( 0 );
+		OD::Color col;
+		col.use( astrm.value() );
+		col.setTransparency( 0 );
+		ps.disp3d().markerstyle_.color_ = col;
 		astrm.next();
 	    }
 	    if ( astrm.hasKeyword(sKey::Size()) )
 	    {
-		ps.disp_.pixsize_ = astrm.getIValue();
+		ps.disp3d().markerstyle_.size_ = astrm.getIValue();
 		astrm.next();
 	    }
 	    if ( astrm.hasKeyword(Pick::Set::sKeyMarkerType()) )
 	    {
-		ps.disp_.markertype_ = astrm.getIValue();
+		ps.disp3d().markerstyle_.type_
+				    = (MarkerStyle3D::Type)astrm.getIValue();
 		astrm.next();
 	    }
 	    while ( !atEndOfSection(astrm) )

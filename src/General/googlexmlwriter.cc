@@ -30,8 +30,8 @@ static void setProperties( const Pick::Set::Disp& disp,
 
     if ( props.isPoint() )
     {
-	props.color_ = disp.color_;
-	props.pixsize_ = disp.pixsize_;
+	props.color_ = disp.color();
+	props.pixsize_ = disp.size();
 	props.linestyle_.width_ = 2;
 	props.linestyle_.color_ = OD::Color::NoColor();
 	props.dofill_ = false;
@@ -41,10 +41,12 @@ static void setProperties( const Pick::Set::Disp& disp,
     {
 	props.color_ = OD::Color::NoColor();
 	props.pixsize_ = 2;
-	props.linestyle_ = disp.linestyle_;
-	const bool ispoly = props.isPolygon();
-	props.dofill_ = ispoly ? disp.dofill_ : false;
-	props.fillcolor_ = ispoly ? disp.fillcolor_: OD::Color::NoColor();
+	const bool ispoly = props.isPolygon() && disp.polyDisp();
+	props.linestyle_ = ispoly ? disp.polyDisp()->linestyle_
+				  : OD::LineStyle();
+	props.dofill_ = ispoly ? disp.polyDisp()->dofill_ : false;
+	props.fillcolor_ = ispoly ? disp.polyDisp()->fillcolor_
+				  : OD::Color::NoColor();
     }
 
 }
@@ -220,7 +222,7 @@ bool ODGoogle::KMLWriter::writeLine( const Pick::Set& pickset )
 {
     TypeSet<Coord3> coords;
     pickset.getLocations( coords );
-    ODGoogle::setProperties( pickset.disp_, GIS::FeatureType::LineString,
+    ODGoogle::setProperties( pickset.disp2d(), GIS::FeatureType::LineString,
 			     properties_ );
     const bool res = putPolyStyle() && putLine( coords, pickset.name() );
     stlidx_++;
@@ -252,7 +254,7 @@ bool ODGoogle::KMLWriter::writePolygon( const Pick::Set& pickset )
 {
     TypeSet<Coord3> coords;
     pickset.getLocations( coords );
-    ODGoogle::setProperties( pickset.disp_, GIS::FeatureType::Polygon,
+    ODGoogle::setProperties( pickset.disp2d(), GIS::FeatureType::Polygon,
 			     properties_ );
     const bool res = putPolyStyle() && putPoly( coords, pickset.name() );
     stlidx_++;
@@ -298,7 +300,7 @@ bool ODGoogle::KMLWriter::writePoints( const Pick::Set& pickset )
 {
     TypeSet<Coord3> coords;
     pickset.getLocations( coords );
-    ODGoogle::setProperties( pickset.disp_, GIS::FeatureType::MultiPoint,
+    ODGoogle::setProperties( pickset.disp2d(), GIS::FeatureType::MultiPoint,
 			     properties_ );
     return writePoints( coords, pickset.name() );
 }
@@ -312,7 +314,8 @@ bool ODGoogle::KMLWriter::writeLines( const Pick::Set& pickset )
     if ( !putFolder(pickset.name().buf()) )
 	return false;
 
-    ODGoogle::setProperties( pickset.disp_, GIS::FeatureType::MultiLineString,
+    ODGoogle::setProperties( pickset.disp2d(),
+			     GIS::FeatureType::MultiLineString,
 			     properties_ );
     if	( !putPolyStyle() )
 	return false;
@@ -336,7 +339,7 @@ bool ODGoogle::KMLWriter::writePolygons( const Pick::Set& pickset )
     if ( !putFolder(pickset.name().buf()) )
 	return false;
 
-    ODGoogle::setProperties( pickset.disp_, GIS::FeatureType::MultiPolygon,
+    ODGoogle::setProperties( pickset.disp2d(), GIS::FeatureType::MultiPolygon,
 			     properties_ );
     if	( !putPolyStyle() )
 	return false;
