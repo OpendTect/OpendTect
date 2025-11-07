@@ -521,7 +521,7 @@ bool ExplFaultStickSurface::update( bool forceall, TaskRunner* tr )
 
     //Now do panels
     updater = new ExplFaultStickSurfaceUpdater( *this, false );
-    if ( paneltriangles_.isEmpty() || !TaskRunner::execute( tr, *updater ) )
+    if ( paneltriangles_.size() <= 1 || !TaskRunner::execute( tr, *updater ) )
 	return false;
 
     needsupdate_ = false;
