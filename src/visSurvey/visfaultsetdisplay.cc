@@ -257,12 +257,14 @@ void FaultSetDisplay::updateSingleColor()
     for ( int idx=0; idx<channelset_.size(); idx++ )
 	channelset_[idx]->turnOn( !usesinglecolor );
 
+    const float transparency = getMaterial()->getTransparency();
     const OD::Color prevcol = getMaterial()->getColor();
     const OD::Color newcol = usesinglecolor ? nontexturecol_.darker(0.3)
 					: OD::Color::White();
     if ( newcol != prevcol )
     {
 	getMaterial()->setColor( newcol );
+	getMaterial()->setTransparency( transparency );
 	colorchange.trigger();
     }
     else if ( !usesinglecolor )			// To update color column in
