@@ -936,6 +936,7 @@ Set::Set( const char* nm, bool ispolygon )
     , disp2d_( *new Disp2D(ispolygon) )
     , disp_(disp3d_)
 {
+    pars_.set( sKey::Type(), ispolygon ? sKey::Polygon() : sKey::PointSet() );
     setDefaultDispPars( ispolygon );
 }
 
@@ -969,6 +970,10 @@ Set& Set::operator=( const Set& oth )
     setName( oth.name() );
     disp3d_ = oth.disp3d_;
     disp2d_ = oth.disp2d_;
+    if ( isPolygon() != oth.isPolygon() )
+	pErrMsg( "Please avoid copying a pointset into a polygon and "
+		 "vice-versa" );
+
     pars_ = oth.pars_;
     startidxs_ = oth.startidxs_;
     readonly_ = oth.readonly_;
@@ -1160,7 +1165,7 @@ bool Set::isPolygon() const
     BufferString typ = pars_.find( sKey::Type() );
     if ( typ.isEmpty() )
     {
-	PtrMan<IOObj> obj = IOM().get( name(), nullptr );
+	PtrMan<IOObj> obj = IOM().get( name(), "PickSet Group" );
 	if ( obj )
 	    obj->pars().get( sKey::Type(), typ );
     }
@@ -1340,6 +1345,16 @@ void Set::fillPar( IOPar& par ) const
 
 bool Set::usePar( const IOPar& par )
 {
+    BufferString type;
+    const bool parhastype = par.get( sKey::Type(),type) && !type.isEmpty();
+    if ( parhastype )
+    {
+	const bool ispolygonpar = type==sKey::Polygon();
+	if ( isPolygon() != ispolygonpar )
+	    pErrMsg( "Please avoid using an IOPar meant for pointset in a "
+		     "polygon and vice-versa" );
+    }
+
     useDisplayPars( par );
     TypeSet<int> startidx;
     par.get( sKeyStartIdx(), startidx );
