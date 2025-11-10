@@ -180,7 +180,7 @@ public:
     static void		setUdf(unsigned long&)		= delete;
 };
 
-#else
+#elif __lux__
 /*!
 \brief Undefined long long
 */
@@ -208,6 +208,31 @@ public:
     static bool		hasUdf()			= delete;
     static bool		isUdf(unsigned long long)	= delete;
     static void		setUdf(unsigned long long&)	= delete;
+};
+
+#elif __mac__
+
+template<>
+mClass(Basic) Undef<long>
+{
+public:
+    static long         val()                   { return __mUndefIntVal64; }
+    static bool         hasUdf()                { return true; }
+    static bool         isUdf( long i )
+                        { return i>=__mUndefIntVal64 || i<=-__mUndefIntVal64; }
+    static void         setUdf( long& i )       { i = __mUndefIntVal64; }
+};
+
+
+template<>
+mClass(Basic) Undef<unsigned long>
+{
+public:
+    static unsigned long val()                  { return __mUndefIntVal64; }
+    static bool         hasUdf()                { return true; }
+    static bool         isUdf( unsigned long i )
+                                           { return i >= __mUndefIntVal64; }
+    static void         setUdf( unsigned long& i ) { i = __mUndefIntVal64; }
 };
 
 #endif

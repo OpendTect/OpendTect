@@ -95,7 +95,7 @@ inline void set(const char*&,const long&)			= delete;
 
 template <>
 inline void set(const char*&,const unsigned long&)		= delete;
-#else
+#elif __lux__
 template <>
 inline void set(const char*&,const long long&)			= delete;
 
@@ -148,7 +148,7 @@ inline void set(long&,const float&)				= delete;
 
 template <>
 inline void set(unsigned long&,const float&)			= delete;
-#else
+#elif __lux__
 template <>
 inline void set(long long&,const float&)			= delete;
 
@@ -186,7 +186,7 @@ inline void set(long&,const double&)				= delete;
 
 template <>
 inline void set(unsigned long&,const double&)			= delete;
-#else
+#elif __lux__
 template <>
 inline void set(long long&,const double&)			= delete;
 
@@ -246,7 +246,7 @@ mConvDeclFromStrToSimpleType(float);
 #ifdef __win__
 mConvDeclFromStrToDeletedType(long);
 mConvDeclFromStrToDeletedType(unsigned long);
-#else
+#elif __lux__
 mConvDeclFromStrToDeletedType(long long);
 mConvDeclFromStrToDeletedType(unsigned long long);
 #endif

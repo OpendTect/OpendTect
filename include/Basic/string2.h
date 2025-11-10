@@ -50,7 +50,7 @@ static const char* toString(long,od_uint16 width=0,
 				int minbufsz=128,char* extbuf=nullptr) = delete;
 static const char* toString(unsigned long,od_uint16 width=0,
 				int minbufsz=128,char* extbuf=nullptr) = delete;
-#else
+#elif __lux__
 mGlobal(Basic) const char* toString(long long,od_uint16 width=0,
 				int minbufsz=128,char* extbuf=nullptr) = delete;
 mGlobal(Basic) const char* toString(unsigned long long,od_uint16 width=0,
