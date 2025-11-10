@@ -927,15 +927,14 @@ int Set::Disp2D::type() const
 }
 
 
+mStartAllowDeprecatedSection
 Set::Set( const char* nm, bool ispolygon )
     : SharedObject(nm)
     , pars_(*new IOPar)
     , zdomaininfo_(&SI().zDomainInfo())
     , disp3d_( *new Disp3D(ispolygon) )
     , disp2d_( *new Disp2D(ispolygon) )
-mStartAllowDeprecatedSection
     , disp_(disp3d_)
-mStopAllowDeprecatedSection
 {
     setDefaultDispPars( ispolygon );
 }
@@ -946,9 +945,7 @@ Set::Set( const Set& oth )
     , zdomaininfo_(&SI().zDomainInfo())
     , disp3d_( *new Disp3D(oth.isPolygon()) )
     , disp2d_( *new Disp2D(oth.isPolygon()) )
-mStartAllowDeprecatedSection
     , disp_(disp3d_)
-mStopAllowDeprecatedSection
 {
     *this = oth;
 }
@@ -960,6 +957,7 @@ Set::~Set()
     delete &disp3d_;
     delete &disp2d_;
 }
+mStopAllowDeprecatedSection
 
 
 Set& Set::operator=( const Set& oth )
