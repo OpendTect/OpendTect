@@ -231,9 +231,9 @@ template <> mGlobal(Basic) void set(type&,const StringView&); \
 template <> mGlobal(Basic) void set(type&,const BufferString&)
 
 #define mConvDeclFromStrToDeletedType(type) \
-template <> mGlobal(Basic) void set(type&,const char* const&)	= delete; \
-template <> mGlobal(Basic) void set(type&,const StringView&)	= delete; \
-template <> mGlobal(Basic) void set(type&,const BufferString&)	= delete;
+template <> void set(type&,const char* const&)	= delete; \
+template <> void set(type&,const StringView&)	= delete; \
+template <> void set(type&,const BufferString&)	= delete;
 
 mConvDeclFromStrToSimpleType(short);
 mConvDeclFromStrToSimpleType(unsigned short);

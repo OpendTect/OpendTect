@@ -46,9 +46,9 @@ mGlobal(Basic) const char* toString(od_int64,od_uint16 width=0,
 mGlobal(Basic) const char* toString(od_uint64,od_uint16 width=0,
 				    int minbufsz=128,char* extbuf=nullptr);
 #ifdef __win__
-mGlobal(Basic) const char* toString(long,od_uint16 width=0,
+static const char* toString(long,od_uint16 width=0,
 				int minbufsz=128,char* extbuf=nullptr) = delete;
-mGlobal(Basic) const char* toString(unsigned long,od_uint16 width=0,
+static const char* toString(unsigned long,od_uint16 width=0,
 				int minbufsz=128,char* extbuf=nullptr) = delete;
 #else
 mGlobal(Basic) const char* toString(long long,od_uint16 width=0,
