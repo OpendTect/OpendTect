@@ -4,7 +4,7 @@
 if ( NOT DEFINED CMD )
     message( FATAL_ERROR "Please provide the command to run in 'CMD'" )
 elseif ( NOT EXISTS "${CMD}" )
-    message( FATAL_ERROR "Test executable 'CMD' does not exist" )
+    message( FATAL_ERROR "Test executable '${CMD}' does not exist" )
 endif()
 
 set( TEST_ARGS )
