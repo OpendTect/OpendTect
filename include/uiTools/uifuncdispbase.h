@@ -254,6 +254,7 @@ public:
 	mDefSetupMemb(OD::Color,bgcol)		//!< Canvas background
 	mDefSetupMemb(uiBorder,border)
 	mDefSetupMemb(OD::LineStyle,borderstyle)
+	mDefSetupMembInit(bool,isvertical,false)
 	mDefSetupMembInit(bool,fixdrawrg,true)
 	mDefSetupMembInit(int,canvaswidth,400)
 	mDefSetupMembInit(int,canvasheight,250)
@@ -267,6 +268,7 @@ public:
 	mDefSetupMembInit(bool,xannotinint,false)
 	mDefSetupMembInit(bool,yannotinint,false)
 	mDefSetupMembInit(bool,showlegend,false)	//!< when supported
+	mDefSetupMembInit(OD::Edge,legendpos,OD::Top)	//!< when supported
 	mDefSetupMembInit(bool,showcallout,false)	//!< when supported
     };
 
