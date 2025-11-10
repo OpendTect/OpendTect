@@ -595,8 +595,6 @@ bool FaultT2DTransformer::doFault( const SurfaceT2DTransfData& data )
 					    &SI().sampling(false).zsamp_ );
 
     load3DTranformVol( &tkzs );
-    const Interval<float> reasonablerange =
-				zatf_.toZDomainInfo().getReasonableZRange();
     int stickidx = 0;
     for ( int idx=0; idx<nrsticks; idx++ )
     {
@@ -613,7 +611,7 @@ bool FaultT2DTransformer::doFault( const SurfaceT2DTransfData& data )
 	    Coord3 outcrd( stick->getCoordAtIndex(crdidx) );
             outcrd.z_ = zatf_.transformTrc( stick->locs_[crdidx].trcKey(),
                                             outcrd.z_ );
-            if ( !reasonablerange.includes(outcrd.z_,false) )
+	    if ( mIsUdf(outcrd.z_) )
 		continue;
 
 	    if ( !stickinserted )
@@ -708,8 +706,6 @@ bool FaultSetT2DTransformer::doFaultSet( const SurfaceT2DTransfData& data )
 	mErrRet( tr("The output type is incompatible with input type, "
 	    "FaultSet object expected") );
 
-    const Interval<float> reasonablerange =
-				zatf_.toZDomainInfo().getReasonableZRange();
     const int nrfaults = inpfltset->nrFaults();
     TrcKeyZSampling tkzs = inpfltset->getEnvelope();
     tkzs.zsamp_ = SI().sampling( false ).zsamp_;
@@ -749,7 +745,7 @@ bool FaultSetT2DTransformer::doFaultSet( const SurfaceT2DTransfData& data )
 		Coord3 outcrd( stick->getCoordAtIndex(crdidx) );
                 outcrd.z_ = zatf_.transformTrc( stick->locs_[crdidx].trcKey(),
                                                 outcrd.z_ );
-                if ( !reasonablerange.includes(outcrd.z_,false) )
+		if ( mIsUdf(outcrd.z_) )
 		    continue;
 
 		if ( !stickinserted )
