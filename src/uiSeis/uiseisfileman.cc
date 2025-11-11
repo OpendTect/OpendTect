@@ -296,7 +296,17 @@ void uiSeisFileMan::setToolButtonProperties()
     else
 	attribbut_->setToolTip( sShowAttributeSet() );
 
-    hdrbut_->setSensitive( curioobj_ );
+    if ( curioobj_ )
+    {
+	PtrMan<Translator> transl = curioobj_->createTranslator();
+	auto* seistrctr = dCast(SeisTrcTranslator*,transl.ptr());
+	if ( seistrctr )
+	    hdrbut_->setSensitive( seistrctr->hasFileHeader( *curioobj_ ) );
+	else
+	    hdrbut_->setSensitive( curioobj_ );
+    }
+    else
+	hdrbut_->setSensitive( false );
 }
 
 
@@ -640,8 +650,8 @@ void uiSeisFileMan::showFileHeader( CallBacker* )
     if ( !curioobj_ )
 	return;
 
-    auto* transl = curioobj_->createTranslator();
-    auto* seistrctr = dCast(SeisTrcTranslator*,transl);
+    PtrMan<Translator> transl = curioobj_->createTranslator();
+    auto* seistrctr = dCast(SeisTrcTranslator*,transl.ptr());
     if ( !seistrctr )
 	return;
 
