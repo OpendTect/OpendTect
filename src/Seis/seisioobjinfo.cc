@@ -581,7 +581,6 @@ od_int64 SeisIOObjInfo::expectedSize( const SpaceInfo& si ) const
 
 od_int64 SeisIOObjInfo::getFileSize() const
 {
-    const FilePath filepath = ioobj_->fullUserExpr();
     mDynamicCast(SeisTrcTranslator*,PtrMan<SeisTrcTranslator> sttr,
 		 ioobj_->createTranslator())
     if ( !checkAndInitTranslRead(sttr.ptr()) )
