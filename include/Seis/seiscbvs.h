@@ -59,6 +59,7 @@ public:
 			{ return sKeyDefExtension(); }
 
     static const char*	sKeyDefExtension();
+    static const char*	sSGYHdrFileExtension();
 
     bool		is2D() const;
     void		set2D(bool yn=true);

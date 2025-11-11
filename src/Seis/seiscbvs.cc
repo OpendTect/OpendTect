@@ -16,7 +16,6 @@ ________________________________________________________________________
 #include "envvars.h"
 #include "file.h"
 #include "filepath.h"
-#include "filesystemaccess.h"
 #include "ioman.h"
 #include "iostrm.h"
 #include "oddirs.h"
@@ -33,6 +32,7 @@ ________________________________________________________________________
 
 
 const char* CBVSSeisTrcTranslator::sKeyDefExtension()	{ return "cbvs"; }
+const char* CBVSSeisTrcTranslator::sSGYHdrFileExtension() { return "sgyhdr"; }
 
 CBVSSeisTrcTranslator::CBVSSeisTrcTranslator( const char* nm, const char* unm )
     : SeisTrcTranslator(nm,unm)
@@ -264,6 +264,14 @@ void CBVSSeisTrcTranslator::getAllFileNames( BufferStringSet& filenames,
     const BufferString basefname = rdmgr_->baseFileName();
     if ( !basefname.isEmpty() )
 	filenames.addIfNew( basefname );
+
+    if ( !forui )
+    {
+	const BufferString sgyhdrfilename =
+				getAuxFileName( sSGYHdrFileExtension() );
+	if ( File::exists(sgyhdrfilename.buf()) )
+	    filenames.addIfNew( sgyhdrfilename );
+    }
 
     SeisTrcTranslator::getAllFileNames( filenames, forui );
 }
@@ -844,8 +852,9 @@ bool CBVSSeisTrcTranslator::implRemove( const IOObj* ioobj, bool deep ) const
 
     mImplStart( implRemove() );
 
-    removeAuxFile( ioobj, "par" );
-    removeAuxFile( ioobj, "proc" );
+    removeAuxFile( ioobj, sParFileExtension() );
+    removeAuxFile( ioobj, sProcFileExtension() );
+    removeAuxFile( ioobj, sSGYHdrFileExtension() );
 
     bool rv = true;
     for ( int nr=0; ; nr++ )
@@ -871,8 +880,9 @@ bool CBVSSeisTrcTranslator::implRename( const IOObj* ioobj,
 
     mImplStart( implRename(newnm) );
 
-    renameAuxFile( ioobj, newnm, "par" );
-    renameAuxFile( ioobj, newnm, "proc" );
+    renameAuxFile( ioobj, newnm, sParFileExtension() );
+    renameAuxFile( ioobj, newnm, sProcFileExtension() );
+    renameAuxFile( ioobj, newnm, sSGYHdrFileExtension() );
 
     bool rv = true;
     for ( int nr=0; ; nr++ )
@@ -952,7 +962,7 @@ bool CBVSSeisTrcTranslator::getConfirmRemoveMsg( const IOObj* ioobj,
 bool CBVSSeisTrcTranslator::hasFileHeader( const IOObj& ioobj ) const
 {
     FilePath fp = ioobj.mainFileName();
-    fp.setExtension( "sgyhdr" );
+    fp.setExtension( sSGYHdrFileExtension() );
     return fp.exists();
 }
 
@@ -961,13 +971,12 @@ bool CBVSSeisTrcTranslator::getFileHeader( const IOObj& ioobj,
 					   uiString& label,
 					   BufferString& hdr ) const
 {
-    label.set( tr("SEG-Y EDCDIC Header") );
+    label.set( tr("SEG-Y EBCDIC Header") );
 
     FilePath fp = ioobj.mainFileName();
-    fp.setExtension( "sgyhdr" );
+    fp.setExtension( sSGYHdrFileExtension() );
     if ( !fp.exists() )
 	return false;
 
-    const auto& fs = OD::FileSystemAccess::get( fp.fullPath() );
-    return fs.getContent( fp.fullPath(), hdr );
+    return File::getContent( fp.fullPath(), hdr );
 }
