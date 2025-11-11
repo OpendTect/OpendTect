@@ -949,6 +949,14 @@ bool CBVSSeisTrcTranslator::getConfirmRemoveMsg( const IOObj* ioobj,
 }
 
 
+bool CBVSSeisTrcTranslator::hasFileHeader( const IOObj& ioobj ) const
+{
+    FilePath fp = ioobj.mainFileName();
+    fp.setExtension( "sgyhdr" );
+    return fp.exists();
+}
+
+
 bool CBVSSeisTrcTranslator::getFileHeader( const IOObj& ioobj,
 					   uiString& label,
 					   BufferString& hdr ) const
