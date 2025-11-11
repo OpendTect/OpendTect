@@ -231,7 +231,8 @@ bool SEGY::DirectDef::readFromFile( const char* fnm )
 	mErrRet(tr("Input file '%1' has wrong file type").arg( fnm ) )
     }
 
-    IOPar hdriop; hdriop.getFrom( astrm );
+    IOPar hdriop;
+    hdriop.getFrom( astrm );
     int version = 1;
     hdriop.get( sKey::Version(), version );
     if ( version<1 || version>cCurVersion )
@@ -295,7 +296,7 @@ bool SEGY::DirectDef::readFromFile( const char* fnm )
 	const BufferString int32typestr = hdriop.find( sKeyInt32DataChar() );
 	DataCharacteristics int32type;
 	int32type.set( int32typestr );
-	FileDataSet* fds = new FileDataSet(segypars,fnm,datastart,int32type);
+	auto* fds = new FileDataSet(segypars,fnm,datastart,int32type);
 	if ( !fds->usePar(finalpariop) )
 	{
 	    delete fds;
@@ -333,6 +334,8 @@ bool SEGY::DirectDef::readFromFile( const char* fnm )
 	    mErrRet( uiStrings::phrCannotRead( toUiString(fnm) ) );
 	}
     }
+
+    objstatus_ = IOObj::Status::OK;
 
     return true;
 }
@@ -418,7 +421,8 @@ bool SEGY::DirectDef::readFooter( const char* fnm, IOPar& pars,
     if ( !astrm.isOfFileType(sKeyFileType()) )
 	return false;
 
-    IOPar hdriop; hdriop.getFrom( astrm );
+    IOPar hdriop;
+    hdriop.getFrom( astrm );
     int version = 1;
     hdriop.get( sKey::Version(), version );
     if ( version<=1 || version>cCurVersion )
@@ -584,8 +588,8 @@ const char* SEGY::DirectDef::get2DFileName( const char* dirnm, const char* unm )
 
 
 SEGY::FileIndexer::FileIndexer( const MultiID& mid, bool isvol,
-					const FileSpec& sgyfile, bool is2d,
-				        const IOPar& segypar )
+				const FileSpec& sgyfile, bool is2d,
+				const IOPar& segypar )
     : Executor( "SEGY Indexer" )
     , ioobj_( IOM().get( mid ) )
     , isvol_(isvol)
@@ -614,8 +618,8 @@ SEGY::FileIndexer::FileIndexer( const MultiID& mid, bool isvol,
     }
 
     scanner_ = new SEGY::Scanner( sgyfile,
-			is2d_ ? (isvol_ ? Seis::Line : Seis::LinePS) :
-				(isvol_ ? Seis::Vol : Seis::VolPS), iop );
+			is2d_ ? (isvol_ ? Seis::Line : Seis::LinePS)
+			      : (isvol_ ? Seis::Vol : Seis::VolPS), iop );
 }
 
 SEGY::FileIndexer::~FileIndexer()
@@ -634,7 +638,10 @@ int SEGY::FileIndexer::nextStep()
     {
 	BufferString outfile = ioobj_->mainFileName();
 	if ( outfile.isEmpty() )
-	{ msg_ = tr("Output filename empty"); return ErrorOccurred(); }
+	{
+	    msg_ = tr("Output filename empty");
+	    return ErrorOccurred();
+	}
 
 	if ( is2d_ )
 	{

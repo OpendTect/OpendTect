@@ -101,6 +101,7 @@ uiSeisFileMan::uiSeisFileMan( uiParent* p, bool is2d )
 		   SeisTrcTranslatorGroup::ioContext(),
 		   Seis::getManagerContextFilter(is2d))
     , is2d_(is2d)
+    , segyhdrbut_(nullptr)
 {
     if ( !cbvsbrowsermgr_ )
 	cbvsbrowsermgr_ = new uiSeisCBVSBrowerMgr;
@@ -115,14 +116,29 @@ uiSeisFileMan::uiSeisFileMan( uiParent* p, bool is2d )
 				is2d_ ? mCB(this,uiSeisFileMan,man2DPush)
 				      : mCB(this,uiSeisFileMan,browsePush) );
 
-    copybut_ = addManipButton( "copyobj", is2d ? uiStrings::phrCopy(
-				tr("dataset")) : uiStrings::phrCopy(tr("cube")),
-				mCB(this,uiSeisFileMan,copyPush) );
     if ( is2d )
     {
 	man2dlinesbut_ = addManipButton( "man2d",
 				uiStrings::phrManage(uiStrings::sLine(2)),
 				mCB(this,uiSeisFileMan,man2DPush) );
+    }
+    else
+    {
+	segyhdrbut_ = addManipButton( "header",tr("Show file header/meta data"),
+				      mCB(this,uiSeisFileMan,showFileHeader) );
+	browsebut_ = addManipButton( "browseseis",
+				tr("Browse/edit this cube"),
+				mCB(this,uiSeisFileMan,browsePush) );
+    }
+
+    attribbut_ = addManipButton( "attributes", sShowAttributeSet(),
+				 mCB(this,uiSeisFileMan,showAttribSet) );
+
+    copybut_ = addManipButton( "copyobj", is2d ? uiStrings::phrCopy(
+				tr("dataset")) : uiStrings::phrCopy(tr("cube")),
+				mCB(this,uiSeisFileMan,copyPush) );
+    if ( is2d )
+    {
 	if ( SI().has3D() )
 	    addManipButton( "extr3dinto2d", tr("Extract from 3D cube"),
 			mCB(this,uiSeisFileMan,extrFrom3D) );
@@ -132,15 +148,7 @@ uiSeisFileMan::uiSeisFileMan( uiParent* p, bool is2d )
 	mergecubesbut_ = addManipButton( "mergeseis",uiStrings::phrMerge(
 					tr("cube parts into one cube")),
 					mCB(this,uiSeisFileMan,mergePush) );
-	browsebut_ = addManipButton( "browseseis",
-				tr("Browse/edit this cube"),
-				mCB(this,uiSeisFileMan,browsePush) );
     }
-
-    attribbut_ = addManipButton( "attributes", sShowAttributeSet(),
-				 mCB(this,uiSeisFileMan,showAttribSet) );
-    segyhdrbut_ = addManipButton( "header", tr("Show file header/meta data"),
-				  mCB(this,uiSeisFileMan,showFileHeader) );
 
     mTriggerInstanceCreatedNotifier();
 }
@@ -236,15 +244,35 @@ void uiSeisFileMan::doLocateCB( CallBacker* cb )
 
 void uiSeisFileMan::setToolButtonProperties()
 {
+    uiString tt;
     BufferString cursel;
     if ( curioobj_ )
 	cursel.add( curioobj_->name() );
 
-    uiString tt;
-    copybut_->setSensitive( !cursel.isEmpty() );
-    mSetButToolTip(copybut_,tr("Make a Copy of '"),toUiString(cursel),
-		   toUiString("'"), is2d_ ? uiStrings::phrCopy(tr("dataset")) :
-		   uiStrings::phrCopy(uiStrings::sCube().toLower()));
+    if ( man2dlinesbut_ )
+    {
+	man2dlinesbut_->setSensitive( !cursel.isEmpty() );
+	mSetButToolTip(man2dlinesbut_,uiStrings::phrManage(tr("2D lines in '")),
+		       toUiString(cursel),toUiString("'"),
+		       uiStrings::phrManage(uiStrings::sLine(2)))
+    }
+
+    if ( segyhdrbut_ )
+    {
+	if ( curioobj_ )
+	{
+	    PtrMan<Translator> transl = curioobj_->createTranslator();
+	    auto* seistrctr = dCast(SeisTrcTranslator*,transl.ptr());
+	    if ( seistrctr )
+		segyhdrbut_->setSensitive(
+				seistrctr->hasFileHeader( *curioobj_ ) );
+	    else
+		segyhdrbut_->setSensitive( curioobj_ );
+	}
+	else
+	    segyhdrbut_->setSensitive( false );
+    }
+
     if ( browsebut_ )
     {
 	const BrowserDef* bdef = getBrowserDef();
@@ -261,28 +289,6 @@ void uiSeisFileMan::setToolButtonProperties()
 	}
     }
 
-    if ( mergecubesbut_ )
-    {
-	BufferStringSet selcubenms;
-	selgrp_->getChosen( selcubenms );
-	if ( selcubenms.size() > 1 )
-	    mSetButToolTip(mergecubesbut_,uiStrings::sMerge(),toUiString(" %1")
-			   .arg(toUiString(selcubenms.getDispString(2))),
-			   uiStrings::sEmptyString(),uiStrings::phrMerge(
-			   uiStrings::sCube().toLower()))
-	else
-	    mergecubesbut_->setToolTip( uiStrings::phrMerge(
-					    uiStrings::sCube(2).toLower()) );
-    }
-
-    if ( man2dlinesbut_ )
-    {
-	man2dlinesbut_->setSensitive( !cursel.isEmpty() );
-	mSetButToolTip(man2dlinesbut_,uiStrings::phrManage(tr("2D lines in '")),
-		       toUiString(cursel),toUiString("'"),
-		       uiStrings::phrManage(uiStrings::sLine(2)))
-    }
-
     attribbut_->setSensitive( curioobj_ );
     if ( curioobj_ )
     {
@@ -290,23 +296,30 @@ void uiSeisFileMan::setToolButtonProperties()
 	 fp.setExtension( "proc" );
 	 attribbut_->setSensitive( File::exists(fp.fullPath()) );
 	 mSetButToolTip(attribbut_,tr("Show AttributeSet for "),
-			toUiString(cursel),uiStrings::sEmptyString(),
+			toUiString(cursel),uiString::empty(),
 			sShowAttributeSet())
     }
     else
 	attribbut_->setToolTip( sShowAttributeSet() );
 
-    if ( curioobj_ )
+    copybut_->setSensitive( !cursel.isEmpty() );
+    mSetButToolTip(copybut_,tr("Make a Copy of '"),toUiString(cursel),
+		   toUiString("'"), is2d_ ? uiStrings::phrCopy(tr("dataset")) :
+		   uiStrings::phrCopy(uiStrings::sCube().toLower()));
+
+    if ( mergecubesbut_ )
     {
-	PtrMan<Translator> transl = curioobj_->createTranslator();
-	auto* seistrctr = dCast(SeisTrcTranslator*,transl.ptr());
-	if ( seistrctr )
-	    segyhdrbut_->setSensitive( seistrctr->hasFileHeader( *curioobj_ ) );
+	BufferStringSet selcubenms;
+	selgrp_->getChosen( selcubenms );
+	if ( selcubenms.size() > 1 )
+	    mSetButToolTip(mergecubesbut_,uiStrings::sMerge(),toUiString(" %1")
+			   .arg(toUiString(selcubenms.getDispString(2))),
+			   uiString::empty(),uiStrings::phrMerge(
+			   uiStrings::sCube().toLower()))
 	else
-	    segyhdrbut_->setSensitive( curioobj_ );
+	    mergecubesbut_->setToolTip( uiStrings::phrMerge(
+					    uiStrings::sCube(2).toLower()) );
     }
-    else
-	segyhdrbut_->setSensitive( false );
 }
 
 
@@ -661,12 +674,12 @@ void uiSeisFileMan::showFileHeader( CallBacker* )
     if ( !seistrctr )
 	return;
 
-    uiString label;
+    uiString label = tr("header");
     BufferString header;
     const bool res = seistrctr->getFileHeader( *curioobj_, label, header );
-    if ( !res )
+    if ( !res || header.isEmpty() )
     {
-	uiString msg = tr("No %1 available for this volume.").arg( label );
+	const uiString msg = tr("No %1 available for this dataset.").arg(label);
 	uiMSG().message( msg );
 	return;
     }

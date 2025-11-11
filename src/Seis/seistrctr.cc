@@ -35,6 +35,7 @@ ________________________________________________________________________
 
 #include <math.h>
 
+#include "segydirecttr.h"
 #include "seiscbvs.h"
 
 
@@ -928,10 +929,18 @@ void setGlobal_Seis_OpenVDS_Fns( boolFromSeisTrcTrIOObj exitshdrfn,
 
 bool SeisTrcTranslator::hasFileHeader( const IOObj& ioobj ) const
 {
-    mDynamicCastGet(const CBVSSeisTrcTranslator*,cbvstr,this);
-    if ( cbvstr )
-	return cbvstr->hasFileHeader_( ioobj );
-    if ( typeName() == "VDSDirect" && existvdshdrfn_ )
+    const OD::String& typnm = typeName();
+    if ( typnm == CBVSSeisTrcTranslator::translKey() )
+    {
+	mDynamicCastGet(const CBVSSeisTrcTranslator*,cbvstr,this);
+	return cbvstr && cbvstr->hasFileHeader_( ioobj );
+    }
+    else if ( typnm == SEGYDirectSeisTrcTranslator::translKey() )
+    {
+	mDynamicCastGet(const SEGYDirectSeisTrcTranslator*,segydirecttr,this);
+	return segydirecttr && segydirecttr->hasFileHeader_( ioobj );
+    }
+    else if ( typnm == "VDSDirect" && existvdshdrfn_ )
     {
 	return (*existvdshdrfn_)( *this, ioobj );
     }
@@ -943,10 +952,18 @@ bool SeisTrcTranslator::hasFileHeader( const IOObj& ioobj ) const
 bool SeisTrcTranslator::getFileHeader( const IOObj& ioobj, uiString& label,
 				       BufferString& hdr ) const
 {
-    mDynamicCastGet(const CBVSSeisTrcTranslator*,cbvstr,this);
-    if ( cbvstr )
-	return cbvstr->getFileHeader_( ioobj, label, hdr );
-    if ( typeName() == "VDSDirect" && getvdshdrfn_ )
+    const OD::String& typnm = typeName();
+    if ( typnm == CBVSSeisTrcTranslator::translKey() )
+    {
+	mDynamicCastGet(const CBVSSeisTrcTranslator*,cbvstr,this)
+	return cbvstr && cbvstr->getFileHeader_( ioobj, label, hdr );
+    }
+    else if ( typnm == SEGYDirectSeisTrcTranslator::translKey() )
+    {
+	mDynamicCastGet(const SEGYDirectSeisTrcTranslator*,segydirecttr,this)
+	return segydirecttr && segydirecttr->getFileHeader_( ioobj, label, hdr);
+    }
+    else if ( typnm == "VDSDirect" && getvdshdrfn_ )
     {
 	return (*getvdshdrfn_)( *this, ioobj, label, hdr );
     }
