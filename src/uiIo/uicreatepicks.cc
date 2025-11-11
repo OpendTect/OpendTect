@@ -99,8 +99,15 @@ RefMan<Pick::Set> uiCreatePicks::getPickSet() const
 {
     RefMan<Pick::Set> ret = new Pick::Set( name_, aspolygon_ );
     ret->disp3d().markerstyle_.color_ = colsel_->color();
-    if ( ret->isPolygon() && ret->disp3d().polyDisp() )
+    ret->disp2d().markerstyle_.color_ = colsel_->color();
+    if ( !ret->isPolygon() )
+	return ret;
+
+    if ( ret->disp3d().polyDisp() )
 	ret->disp3d().polyDisp()->connect_ = Pick::Set::Connection::Open;
+
+    if ( ret->disp2d().polyDisp() )
+	ret->disp2d().polyDisp()->connect_ = Pick::Set::Connection::Open;
 
     return ret;
 }

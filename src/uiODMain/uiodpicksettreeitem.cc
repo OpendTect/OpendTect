@@ -968,6 +968,7 @@ void uiODPolygonTreeItem::handleMenuCB( CallBacker* cb )
 	 mnuid==closepolyitem_.id )
     {
 	set_->disp3d().polyDisp()->connect_ = Pick::Set::Connection::Close;
+	set_->disp2d().polyDisp()->connect_ = Pick::Set::Connection::Close;
 	Pick::Mgr().reportDispChange( this, *set_ );
     }
     else if ( mnuid==storemnuitem_.id )
