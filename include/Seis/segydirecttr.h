@@ -190,6 +190,9 @@ public:
     bool		getGeometryInfo(PosInfo::CubeData&) const override;
     SEGY::DirectDef*	getDef() override		{ return def_; }
     bool		goTo(const BinID&) override;
+    bool		hasFileHeader(const IOObj&) const override;
+    bool		getFileHeader(const IOObj&,uiString& label,
+				      BufferString& hdr) const override;
     uiString		errMsg() const override
 			{ return SeisTrcTranslator::errMsg(); }
 

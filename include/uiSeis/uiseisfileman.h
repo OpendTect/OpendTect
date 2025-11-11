@@ -43,11 +43,11 @@ public:
 protected:
 
     bool		is2d_;
+    uiToolButton*	man2dlinesbut_	    = nullptr;
+    uiToolButton*	hdrbut_		    = nullptr;
     uiToolButton*	browsebut_	    = nullptr;
     uiToolButton*	attribbut_;
-    uiToolButton*	hdrbut_;
     uiToolButton*	copybut_;
-    uiToolButton*	man2dlinesbut_	    = nullptr;
     uiToolButton*	mergecubesbut_	    = nullptr;
 
     void		mergePush(CallBacker*);

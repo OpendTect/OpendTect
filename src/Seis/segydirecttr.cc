@@ -19,6 +19,7 @@ ________________________________________________________________________
 #include "posinfo2d.h"
 #include "ptrman.h"
 #include "segydirectdef.h"
+#include "segyhdr.h"
 #include "segytr.h"
 #include "seisbuf.h"
 #include "seispacketinfo.h"
@@ -856,12 +857,14 @@ bool SEGYDirectSeisTrcTranslator::toNextTrace()
 
 bool SEGYDirectSeisTrcTranslator::goTo( const BinID& bid )
 {
-    if ( !def_ ) return false;
+    if ( !def_ )
+	return false;
 
     const PosInfo::CubeData& cd = cubeData();
     const int newild = cd.indexOf( bid.inl() );
     if ( newild < 0 )
 	return false;
+
     const PosInfo::LineData& ld = *cd[newild];
     const int newiseg = ld.segmentOf( bid.crl() );
     if ( newiseg < 0 )
@@ -870,6 +873,39 @@ bool SEGYDirectSeisTrcTranslator::goTo( const BinID& bid )
     ild_ = newild; iseg_ = newiseg;
     itrc_ = ld.segments_[iseg_].getIndex( bid.crl() );
     return positionTranslator();
+}
+
+
+bool SEGYDirectSeisTrcTranslator::hasFileHeader( const IOObj& ioobj ) const
+{
+    const FilePath fp = ioobj.mainFileName();
+    if ( !fp.exists() )
+	return false;
+
+    const SEGY::DirectDef segydef( ioobj.mainFileName() );
+    return !segydef.isEmpty() && segydef.objStatus() == IOObj::Status::OK;
+}
+
+
+bool SEGYDirectSeisTrcTranslator::getFileHeader( const IOObj& ioobj,
+						 uiString& label,
+						 BufferString& hdr ) const
+{
+    label.set( tr("SEG-Y EBCDIC Header") );
+    if ( !hasFileHeader(ioobj) )
+	return false;
+
+    const SEGY::DirectDef segydef( ioobj.mainFileName() );
+    PtrMan<SEGYSeisTrcTranslator> trl =
+	    SEGYDirectSeisTrcTranslator::createTranslator( segydef, 0 );
+    if ( !trl )
+	return false;
+
+    const SEGY::TxtHeader* txthdr = trl ? trl->txtHeader(): nullptr;
+    if ( txthdr )
+	txthdr->getText( hdr );
+
+    return txthdr && !hdr.isEmpty();
 }
 
 

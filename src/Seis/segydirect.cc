@@ -296,7 +296,7 @@ bool SEGY::DirectDef::readFromFile( const char* fnm )
 	const BufferString int32typestr = hdriop.find( sKeyInt32DataChar() );
 	DataCharacteristics int32type;
 	int32type.set( int32typestr );
-	FileDataSet* fds = new FileDataSet(segypars,fnm,datastart,int32type);
+	auto* fds = new FileDataSet(segypars,fnm,datastart,int32type);
 	if ( !fds->usePar(finalpariop) )
 	{
 	    delete fds;
@@ -334,6 +334,8 @@ bool SEGY::DirectDef::readFromFile( const char* fnm )
 	    mErrRet( uiStrings::phrCannotRead( toUiString(fnm) ) );
 	}
     }
+
+    objstatus_ = IOObj::Status::OK;
 
     return true;
 }
