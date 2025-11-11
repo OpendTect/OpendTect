@@ -59,6 +59,7 @@ public:
 			{ return sKeyDefExtension(); }
 
     static const char*	sKeyDefExtension();
+    static const char*	sSGYHdrFileExtension();
 
     bool		is2D() const;
     void		set2D(bool yn=true);
@@ -74,6 +75,9 @@ public:
 
     static const char*	sKeyOptDir()		{ return "Optimized direction";}
     bool		supportsMultiCompTrc() const override { return true; }
+    bool		hasFileHeader_(const IOObj&) const;
+    bool		getFileHeader_(const IOObj&,uiString& label,
+				      BufferString& header) const;
 
 protected:
 

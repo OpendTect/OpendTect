@@ -269,6 +269,9 @@ public:
 
     virtual const BufferString	getFileNameKey(int idx) const
 			    { return BufferString::empty(); }
+    bool		hasFileHeader(const IOObj&) const;
+    bool		getFileHeader(const IOObj&,uiString& label,
+				      BufferString& hdr) const;
 
 protected:
 			SeisTrcTranslator(const char*,const char*);

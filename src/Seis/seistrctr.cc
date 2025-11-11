@@ -35,6 +35,8 @@ ________________________________________________________________________
 
 #include <math.h>
 
+#include "seiscbvs.h"
+
 
 const char* SeisTrcTranslator::sKeySeisTrPars() { return "SeisTranslator"; }
 const char* SeisTrcTranslator::sKeyIs2D()	{ return "Is2D"; }
@@ -905,6 +907,51 @@ void SeisTrcTranslator::setCoordSys( const Coords::CoordSystem& crs,
 				     IOPar& iop )
 {
     crs.fillPar( iop );
+}
+
+
+using boolFromSeisTrcTrIOObj = bool(*)(const SeisTrcTranslator&,const IOObj&);
+using boolFromSeisTrcTrIOObjuiStringString =
+        bool(*)(const SeisTrcTranslator&,const IOObj&,uiString&,BufferString&);
+static boolFromSeisTrcTrIOObj existvdshdrfn_ = nullptr;
+static boolFromSeisTrcTrIOObjuiStringString getvdshdrfn_ = nullptr;
+
+mGlobal(Seis) void setGlobal_Seis_OpenVDS_Fns(boolFromSeisTrcTrIOObj,
+                                        boolFromSeisTrcTrIOObjuiStringString);
+void setGlobal_Seis_OpenVDS_Fns( boolFromSeisTrcTrIOObj exitshdrfn,
+                                 boolFromSeisTrcTrIOObjuiStringString gethdrfn )
+{
+    existvdshdrfn_ = exitshdrfn;
+    getvdshdrfn_ = gethdrfn;
+}
+
+
+bool SeisTrcTranslator::hasFileHeader( const IOObj& ioobj ) const
+{
+    mDynamicCastGet(const CBVSSeisTrcTranslator*,cbvstr,this);
+    if ( cbvstr )
+	return cbvstr->hasFileHeader_( ioobj );
+    if ( typeName() == "VDSDirect" && existvdshdrfn_ )
+    {
+	return (*existvdshdrfn_)( *this, ioobj );
+    }
+
+    return false;
+}
+
+
+bool SeisTrcTranslator::getFileHeader( const IOObj& ioobj, uiString& label,
+				       BufferString& hdr ) const
+{
+    mDynamicCastGet(const CBVSSeisTrcTranslator*,cbvstr,this);
+    if ( cbvstr )
+	return cbvstr->getFileHeader_( ioobj, label, hdr );
+    if ( typeName() == "VDSDirect" && getvdshdrfn_ )
+    {
+	return (*getvdshdrfn_)( *this, ioobj, label, hdr );
+    }
+
+    return false;
 }
 
 

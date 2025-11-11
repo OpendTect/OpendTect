@@ -19,7 +19,6 @@ ________________________________________________________________________
 #include "keystrs.h"
 #include "od_helpids.h"
 #include "segydirecttr.h"
-#include "segydirectdef.h"
 #include "seis2dlineio.h"
 #include "seiscbvs.h"
 #include "seisioobjinfo.h"
@@ -42,6 +41,7 @@ ________________________________________________________________________
 #include "uiseiscopy.h"
 #include "uiseisdirectfiledatadlg.h"
 #include "uiseispsman.h"
+#include "uitextedit.h"
 #include "uitoolbutton.h"
 
 mDefineInstanceCreatedNotifierAccess(uiSeisFileMan)
@@ -139,8 +139,8 @@ uiSeisFileMan::uiSeisFileMan( uiParent* p, bool is2d )
 
     attribbut_ = addManipButton( "attributes", sShowAttributeSet(),
 				 mCB(this,uiSeisFileMan,showAttribSet) );
-    segyhdrbut_ = addManipButton( "segy", tr("Show SEG-Y EBCDIC Header"),
-				  mCB(this,uiSeisFileMan,showSEGYHeader) );
+    segyhdrbut_ = addManipButton( "header", tr("Show file header/meta data"),
+				  mCB(this,uiSeisFileMan,showFileHeader) );
 
     mTriggerInstanceCreatedNotifier();
 }
@@ -296,13 +296,17 @@ void uiSeisFileMan::setToolButtonProperties()
     else
 	attribbut_->setToolTip( sShowAttributeSet() );
 
-    segyhdrbut_->setSensitive( curioobj_ );
     if ( curioobj_ )
     {
-	 FilePath fp( curioobj_->fullUserExpr() );
-	 fp.setExtension( "sgyhdr" );
-	 segyhdrbut_->setSensitive( File::exists(fp.fullPath()) );
+	PtrMan<Translator> transl = curioobj_->createTranslator();
+	auto* seistrctr = dCast(SeisTrcTranslator*,transl.ptr());
+	if ( seistrctr )
+	    segyhdrbut_->setSensitive( seistrctr->hasFileHeader( *curioobj_ ) );
+	else
+	    segyhdrbut_->setSensitive( curioobj_ );
     }
+    else
+	segyhdrbut_->setSensitive( false );
 }
 
 
@@ -641,14 +645,34 @@ void uiSeisFileMan::showAttribSet( CallBacker* )
 }
 
 
-void uiSeisFileMan::showSEGYHeader( CallBacker* )
+void uiSeisFileMan::showSEGYHeader( CallBacker* cb )
+{
+    showFileHeader( cb );
+}
+
+
+void uiSeisFileMan::showFileHeader( CallBacker* )
 {
     if ( !curioobj_ )
 	return;
 
-    FilePath fp( curioobj_->fullUserExpr() );
-    fp.setExtension( "sgyhdr" );
-    File::launchViewer( fp.fullPath(), File::ViewPars() );
+    PtrMan<Translator> transl = curioobj_->createTranslator();
+    auto* seistrctr = dCast(SeisTrcTranslator*,transl.ptr());
+    if ( !seistrctr )
+	return;
+
+    uiString label;
+    BufferString header;
+    const bool res = seistrctr->getFileHeader( *curioobj_, label, header );
+    if ( !res )
+    {
+	uiString msg = tr("No %1 available for this volume.").arg( label );
+	uiMSG().message( msg );
+	return;
+    }
+
+    auto* hdrdlg = new uiTextEditDlg( this, label, header, true );
+    hdrdlg->show();
 }
 
 

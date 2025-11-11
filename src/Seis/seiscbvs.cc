@@ -32,6 +32,7 @@ ________________________________________________________________________
 
 
 const char* CBVSSeisTrcTranslator::sKeyDefExtension()	{ return "cbvs"; }
+const char* CBVSSeisTrcTranslator::sSGYHdrFileExtension() { return "sgyhdr"; }
 
 CBVSSeisTrcTranslator::CBVSSeisTrcTranslator( const char* nm, const char* unm )
     : SeisTrcTranslator(nm,unm)
@@ -263,6 +264,14 @@ void CBVSSeisTrcTranslator::getAllFileNames( BufferStringSet& filenames,
     const BufferString basefname = rdmgr_->baseFileName();
     if ( !basefname.isEmpty() )
 	filenames.addIfNew( basefname );
+
+    if ( !forui )
+    {
+	const BufferString sgyhdrfilename =
+				getAuxFileName( sSGYHdrFileExtension() );
+	if ( File::exists(sgyhdrfilename.buf()) )
+	    filenames.addIfNew( sgyhdrfilename );
+    }
 
     SeisTrcTranslator::getAllFileNames( filenames, forui );
 }
@@ -843,8 +852,9 @@ bool CBVSSeisTrcTranslator::implRemove( const IOObj* ioobj, bool deep ) const
 
     mImplStart( implRemove() );
 
-    removeAuxFile( ioobj, "par" );
-    removeAuxFile( ioobj, "proc" );
+    removeAuxFile( ioobj, sParFileExtension() );
+    removeAuxFile( ioobj, sProcFileExtension() );
+    removeAuxFile( ioobj, sSGYHdrFileExtension() );
 
     bool rv = true;
     for ( int nr=0; ; nr++ )
@@ -870,8 +880,9 @@ bool CBVSSeisTrcTranslator::implRename( const IOObj* ioobj,
 
     mImplStart( implRename(newnm) );
 
-    renameAuxFile( ioobj, newnm, "par" );
-    renameAuxFile( ioobj, newnm, "proc" );
+    renameAuxFile( ioobj, newnm, sParFileExtension() );
+    renameAuxFile( ioobj, newnm, sProcFileExtension() );
+    renameAuxFile( ioobj, newnm, sSGYHdrFileExtension() );
 
     bool rv = true;
     for ( int nr=0; ; nr++ )
@@ -945,4 +956,27 @@ bool CBVSSeisTrcTranslator::getConfirmRemoveMsg( const IOObj* ioobj,
     deepremovetxt = tr("Delete CBVS file");
     shallowremovetxt = tr("Delete link only");
     return true;
+}
+
+
+bool CBVSSeisTrcTranslator::hasFileHeader_( const IOObj& ioobj ) const
+{
+    FilePath fp = ioobj.mainFileName();
+    fp.setExtension( sSGYHdrFileExtension() );
+    return fp.exists();
+}
+
+
+bool CBVSSeisTrcTranslator::getFileHeader_( const IOObj& ioobj,
+					   uiString& label,
+					   BufferString& hdr ) const
+{
+    label.set( tr("SEG-Y EBCDIC Header") );
+
+    FilePath fp = ioobj.mainFileName();
+    fp.setExtension( sSGYHdrFileExtension() );
+    if ( !fp.exists() )
+	return false;
+
+    return File::getContent( fp.fullPath(), hdr );
 }

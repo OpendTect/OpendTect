@@ -45,7 +45,7 @@ protected:
     bool		is2d_;
     uiToolButton*	browsebut_	    = nullptr;
     uiToolButton*	attribbut_;
-    uiToolButton*	segyhdrbut_;
+    uiToolButton*	segyhdrbut_;  //hdrbut_
     uiToolButton*	copybut_;
     uiToolButton*	man2dlinesbut_	    = nullptr;
     uiToolButton*	mergecubesbut_	    = nullptr;
@@ -57,7 +57,9 @@ protected:
     void		man2DPush(CallBacker*);
     void		manPS(CallBacker*);
     void		showAttribSet(CallBacker*);
+    			mDeprecated("Use showFileHeader")
     void		showSEGYHeader(CallBacker*);
+    void		showFileHeader(CallBacker*);
     void		extrFrom3D(CallBacker*);
     void		initObjRead(CallBacker*) override;
     void		doLocateCB(CallBacker*) override;
