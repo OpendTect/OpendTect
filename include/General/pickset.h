@@ -50,7 +50,6 @@ public:
     public:
 			virtual ~Disp();
 
-	virtual bool	operator=(const Disp&)		    { return true; }
 	virtual bool	operator==(const Disp&) const;
 	virtual bool	is2D() const				= 0;
 	virtual OD::Color color() const				= 0;
@@ -96,7 +95,7 @@ public:
 
 	MarkerStyle3D	markerstyle_;
 
-	bool		operator=(const Disp&) override;
+	bool		operator=(const Disp3D&);
 	bool		operator==(const Disp&) const override;
 	OD::Color	color() const override	{ return markerstyle_.color_; }
 	int		size() const override	{ return markerstyle_.size_; }
@@ -112,7 +111,7 @@ public:
 
 	MarkerStyle2D	markerstyle_;
 
-	bool		operator=(const Disp&) override;
+	bool		operator=(const Disp2D&);
 	bool		operator==(const Disp&) const override;
 	OD::Color	color() const override	{ return markerstyle_.color_; }
 	int		size() const override	{ return markerstyle_.size_; }

@@ -312,10 +312,10 @@ bool uiODPickSetTreeItem::doubleClick( uiTreeViewItem* item )
     if ( !pointsetdisplay )
 	return false;
 
-    const OD::Color orgcolor( set_->disp2d().color() );
+    const OD::Color orgcolor( set_->disp3d().color() );
     uiPickPropDlg dlg( getUiParent(), *set_ , pointsetdisplay.ptr() );
     const bool ret = dlg.go();
-    if ( set_->disp2d().color() != orgcolor )
+    if ( set_->disp3d().color() != orgcolor )
 	updateColumnText( uiODSceneMgr::cColorColumn() );
 
     return ret;
@@ -342,8 +342,8 @@ bool uiODPickSetTreeItem::init()
     {
 	RefMan<visSurvey::PickSetDisplay> psd = new visSurvey::PickSetDisplay;
 	displayid_ = psd->id();
-	if ( set_->disp2d().size()>100)
-	    set_->disp2d().markerstyle_.size_ = 3;
+	if ( set_->disp3d().size()>100)
+	    set_->disp3d().markerstyle_.size_ = 3;
 
 	psd->setSet( set_.ptr() );
 	visserv_->addObject( psd.ptr(), sceneID(), true);
@@ -471,7 +471,7 @@ void uiODPickSetTreeItem::handleMenuCB( CallBacker* cb )
 	    return;
 
 	emps->copyFrom( *set_ );
-	emps->setPreferredColor( set_->disp2d().color() );
+	emps->setPreferredColor( set_->disp3d().color() );
 	emps->setName( BufferString("Geobody from ",set_->name()) );
 	emps->setChangedFlag();
 
@@ -872,8 +872,8 @@ bool uiODPolygonTreeItem::init()
     {
 	RefMan<visSurvey::PickSetDisplay> psd = new visSurvey::PickSetDisplay;
 	displayid_ = psd->id();
-	if ( set_->disp2d().size()>100)
-	    set_->disp2d().markerstyle_.size_ = 3;
+	if ( set_->disp3d().size()>100)
+	    set_->disp3d().markerstyle_.size_ = 3;
 
 	psd->setSet( set_.ptr() );
 	visserv_->addObject( psd.ptr(), sceneID(), true);
@@ -926,7 +926,7 @@ void uiODPolygonTreeItem::createMenu( MenuHandler* menu, bool istb )
     if ( !polygondisplay )
 	return;
 
-    if ( set_->disp2d().polyDisp()->connect_ == Pick::Set::Connection::Open )
+    if ( set_->disp3d().polyDisp()->connect_ == Pick::Set::Connection::Open )
 	mAddMenuItem( menu, &closepolyitem_, true, false )
     else
 	mResetMenuItem( &closepolyitem_ );
@@ -964,10 +964,10 @@ void uiODPolygonTreeItem::handleMenuCB( CallBacker* cb )
 	return;
 
     bool handled = true;
-    if ( set_->disp2d().polyDisp()->connect_==Pick::Set::Connection::Open &&
+    if ( set_->disp3d().polyDisp()->connect_==Pick::Set::Connection::Open &&
 	 mnuid==closepolyitem_.id )
     {
-	set_->disp2d().polyDisp()->connect_ = Pick::Set::Connection::Close;
+	set_->disp3d().polyDisp()->connect_ = Pick::Set::Connection::Close;
 	Pick::Mgr().reportDispChange( this, *set_ );
     }
     else if ( mnuid==storemnuitem_.id )

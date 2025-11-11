@@ -836,22 +836,15 @@ Set::Disp3D::~Disp3D()
 {}
 
 
-bool Set::Disp3D::operator=( const Disp& oth )
+bool Set::Disp3D::operator=( const Disp3D& oth )
 {
-    auto* oth3d = dCast( const Disp3D*, &oth );
-    if ( !oth3d )
-    {
-	pErrMsg( "Please provide a Disp3D object." );
-	return false;
-    }
-
-    markerstyle_ = oth3d->markerstyle_;
-    ispolygon_ = oth3d->ispolygon_ && oth3d->polydisp_;
+    markerstyle_ = oth.markerstyle_;
+    ispolygon_ = oth.ispolygon_ && oth.polydisp_;
     if ( ispolygon_ && !polydisp_ )
 	polydisp_ = new PolyDisp;
 
-    if ( polydisp_ && oth3d->polydisp_ )
-	*polydisp_ = *oth3d->polydisp_;
+    if ( polydisp_ && oth.polydisp_ )
+	*polydisp_ = *oth.polydisp_;
 
     return true;
 }
@@ -886,22 +879,15 @@ Set::Disp2D::~Disp2D()
 {}
 
 
-bool Set::Disp2D::operator=( const Disp& oth )
+bool Set::Disp2D::operator=( const Disp2D& oth )
 {
-    auto* oth2d = dCast( const Disp2D*, &oth );
-    if ( !oth2d )
-    {
-	pErrMsg( "Please provide a Disp3D object." );
-	return false;
-    }
-
-    markerstyle_ = oth2d->markerstyle_;
-    ispolygon_ = oth2d->ispolygon_ && oth2d->polydisp_;
+    markerstyle_ = oth.markerstyle_;
+    ispolygon_ = oth.ispolygon_ && oth.polydisp_;
     if ( ispolygon_ && !polydisp_ )
 	polydisp_ = new PolyDisp;
 
-    if ( polydisp_ && oth2d->polydisp_ )
-	*polydisp_ = *oth2d->polydisp_;
+    if ( polydisp_ && oth.polydisp_ )
+	*polydisp_ = *oth.polydisp_;
 
     return true;
 }
@@ -948,6 +934,8 @@ Set::Set( const Set& oth )
     , disp2d_( *new Disp2D(oth.isPolygon()) )
     , disp_(disp3d_)
 {
+    pars_.set( sKey::Type(), oth.isPolygon() ? sKey::Polygon()
+					     : sKey::PointSet() );
     *this = oth;
 }
 
@@ -966,15 +954,15 @@ Set& Set::operator=( const Set& oth )
     if ( &oth == this )
 	return *this;
 
-    locations_.copy( oth.locations_ );
-    setName( oth.name() );
-    disp3d_ = oth.disp3d_;
-    disp2d_ = oth.disp2d_;
     if ( isPolygon() != oth.isPolygon() )
 	pErrMsg( "Please avoid copying a pointset into a polygon and "
 		 "vice-versa" );
 
+    locations_.copy( oth.locations_ );
+    setName( oth.name() );
     pars_ = oth.pars_;
+    disp3d_ = oth.disp3d_;
+    disp2d_ = oth.disp2d_;
     startidxs_ = oth.startidxs_;
     readonly_ = oth.readonly_;
     setZDomain( oth.zDomain() );
