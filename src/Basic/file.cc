@@ -864,7 +864,11 @@ bool setSystemFileAttrib( const char* fnm, bool yn )
 
 bool getContent( const char* fnm, BufferString& txt )
 {
-    if ( !isSane(fnm) || !exists(fnm) || !isFile(fnm) )
+    if ( !exists(fnm) )
+	return false;
+
+    const Type typ = getType( fnm, true );
+    if ( typ != Type::File && typ != Type::URI )
 	return false;
 
     const auto& fsa = OD::FileSystemAccess::get( fnm );
