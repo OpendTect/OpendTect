@@ -269,6 +269,7 @@ public:
 
     virtual const BufferString	getFileNameKey(int idx) const
 			    { return BufferString::empty(); }
+    virtual bool	hasFileHeader(const IOObj&) const;
     virtual bool	getFileHeader(const IOObj&,uiString& label,
 				      BufferString& hdr) const
 			{ return false; }
