@@ -163,7 +163,7 @@ uiString uiGLInfo::getMessage( const uiRetVal& uirv, const uiRetVal& warnings )
     msg.add( "<h2>Graphics Card Information</h2><br>" )
        .add( "GL-vendor: " ).add( glinfo_.glVendor() ).add( "<br>" )
        .add( "GL-renderer: " ).add( glinfo_.glRenderer() ).add( "<br>" )
-       .add( "GL-version: " ).add( glinfo_.glVersion() ).add( "<br>" );
+       .add( "GL-version: " ).add( glinfo_.glVersion() ).add( "<br><br>" );
 
     if ( !warnings.isOK() )
     {
