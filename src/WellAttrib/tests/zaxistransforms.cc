@@ -288,11 +288,20 @@ bool testHorizon3DOutput( RefMan<EM::EMObject> emobj, int survidx,
 	return false;
 
     const float z1 = hor->getPos(mHorizon3DBinID_1.toInt64()).z_;
+    mRunStandardTest( !mIsUdf(z1),mMsg("Horizon 3D position is defined") );
     const float z2 = hor->getPos(mHorizon3DBinID_2.toInt64()).z_;
+    mRunStandardTest( !mIsUdf(z2),mMsg("Horizon 3D position is defined") );
     const float* zvals = zvalues_hor3d[survidx][zatfidx];
 
-    mRunStandardTest( (mIsEqual(z1,zvals[0],mEps) &&
-	    mIsEqual(z2,zvals[1],mEps)),mMsg("Horizon 3D position testing") );
+    BufferString readvalstr( "Z-Values read: [" );
+    readvalstr.add(z1).add(',').add(z2).add("]");
+    BufferString expvalstr( "Expected Z-Values: [" );
+    expvalstr.add(zvals[0]).add(',').add(zvals[1]).add("]; ");
+    const BufferString errmsg( expvalstr.buf(), readvalstr.buf() );
+
+    mRunStandardTestWithError(
+	(mIsEqual(z1,zvals[0],mEps) && mIsEqual(z2,zvals[1],mEps)),
+	mMsg("Horizon 3D position testing"), errmsg  );
 
     return true;
 }
@@ -306,7 +315,11 @@ bool testFltOutput( RefMan<EM::EMObject> emobj, int survidx, int zatfidx )
 
     const EM::Fault3DGeometry& geometry = flt->geometry();
     const int nrsticks = geometry.nrSticks();
-    mRunStandardTest( nrsticks == 2, mMsg("Number of sticks") );
+    const BufferString expnrstick( "Expected: ", 2 );
+    const BufferString nrstickstr( "Actual: ", nrsticks );
+    BufferString expnrstickerrmsg( expnrstick, " ; ", nrstickstr );
+    mRunStandardTestWithError( nrsticks == 2,
+			       mMsg("Number of sticks"), expnrstickerrmsg );
 
     const Geometry::FaultStickSurface* fltsurf = geometry.geometryElement();
     mRunStandardTest( fltsurf, mMsg("Fault surface created"));
@@ -314,12 +327,21 @@ bool testFltOutput( RefMan<EM::EMObject> emobj, int survidx, int zatfidx )
     const Geometry::FaultStick* stick = fltsurf->getStick( 0 );
     mRunStandardTest( !stick->locs_.isEmpty(), mMsg("Stick has data") );
     const Coord3 firstcrd = stick->getCoordAtIndex( 0 );
+    mRunStandardTest( !firstcrd.isUdf(),mMsg("Fault 3D position is defined") );
     const Coord3 lastcrd = stick->getCoordAtIndex( stick->size()-1 );
+    mRunStandardTest( !lastcrd.isUdf(),mMsg("Fault 3D position is defined") );
 
     const float* zvals = zvalues_flt[survidx][zatfidx];
-    mRunStandardTest( (mIsEqual(firstcrd.z_,zvals[0],mEps) &&
-		       mIsEqual(lastcrd.z_,zvals[1],mEps)),
-		      mMsg("Fault 3D position testing") );
+
+    BufferString readvalstr( "Z-Values read: [" );
+    readvalstr.add(firstcrd.z_).add(',').add(lastcrd.z_).add("]");
+    BufferString expvalstr( "Expected Z-Values: [" );
+    expvalstr.add(zvals[0]).add(',').add(zvals[1]).add("]; ");
+    const BufferString errmsg( expvalstr.buf(), readvalstr.buf() );
+
+    mRunStandardTestWithError( (mIsEqual(firstcrd.z_,zvals[0],mEps) &&
+				mIsEqual(lastcrd.z_,zvals[1],mEps)),
+			       mMsg("Fault 3D position testing"), errmsg );
 
     return true;
 }
