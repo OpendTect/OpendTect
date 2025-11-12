@@ -25,9 +25,9 @@ set( OD_PLUGIN_ALO_EXEC
 	${OD_MAIN_EXEC}
 	tut_app )
 
-#if ( "${OD_SUBSYSTEM}" STREQUAL "od" )
-#    set( OD_NO_ALO_ENTRY TRUE )  # OpendTect SDK internal build
-#endif()
+if ( "${OD_SUBSYSTEM}" STREQUAL "od" )
+    set( OD_NO_ALO_ENTRY TRUE )  # OpendTect SDK internal build
+endif()
 
 OD_INIT_MODULE()
 
