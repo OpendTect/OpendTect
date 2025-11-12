@@ -69,8 +69,9 @@ public:
 					       float rot=0);
 				~MarkerStyle2D();
 
-    bool			operator==(const MarkerStyle2D& a) const;
-    const MarkerStyle2D&	operator=(const MarkerStyle2D& a);
+    bool			operator==(const MarkerStyle2D&) const;
+    bool			operator!=(const MarkerStyle2D&) const;
+    MarkerStyle2D&		operator=(const MarkerStyle2D&);
 
     Type			type_;
     int				size_;
@@ -113,8 +114,10 @@ public:
     void		toString(BufferString&) const;
     void		fromString(const char*);
 
-    bool		operator==(const MarkerStyle3D& b) const;
-    bool		operator!=(const MarkerStyle3D& b) const;
+    bool		operator==(const MarkerStyle3D&) const;
+    bool		operator!=(const MarkerStyle3D&) const;
+    MarkerStyle3D&	operator=(const MarkerStyle3D&);
+
     static  MarkerStyle2D::Type getMS2DType(MarkerStyle3D::Type);
 
     static uiString	sCone()		{ return tr("Cone"); }

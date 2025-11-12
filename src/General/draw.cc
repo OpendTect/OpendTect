@@ -168,11 +168,17 @@ MarkerStyle2D::~MarkerStyle2D()
 bool MarkerStyle2D::operator==( const MarkerStyle2D& b ) const
 {
     return type_==b.type_ && size_==b.size_ && color_==b.color_ &&
-	mIsEqual(rotation_,b.rotation_,mDefEps);
+	   mIsEqual(rotation_,b.rotation_,mDefEps);
 }
 
 
-const MarkerStyle2D& MarkerStyle2D::operator=( const MarkerStyle2D& a )
+bool MarkerStyle2D::operator!=( const MarkerStyle2D& b ) const
+{
+    return !(*this==b);
+}
+
+
+MarkerStyle2D& MarkerStyle2D::operator=( const MarkerStyle2D& a )
 {
     type_ = a.type_ ; size_ = a.size_; color_ = a.color_;
     rotation_ = a.rotation_; return *this;
@@ -180,7 +186,9 @@ const MarkerStyle2D& MarkerStyle2D::operator=( const MarkerStyle2D& a )
 
 
 bool MarkerStyle2D::isVisible() const
-{ return type_!=None && size_>0 && color_.isVisible(); }
+{
+    return type_!=None && size_>0 && color_.isVisible();
+}
 
 
 MarkerStyle3D::MarkerStyle3D(Type tp, int sz, OD::Color col )
@@ -193,15 +201,28 @@ MarkerStyle3D::~MarkerStyle3D()
 
 
 bool MarkerStyle3D::operator==(const MarkerStyle3D& b) const
-{ return type_==b.type_ && size_==b.size_ && color_==b.color_; }
+{
+    return type_==b.type_ && size_==b.size_ && color_==b.color_;
+}
 
 
 bool MarkerStyle3D::operator!=(const MarkerStyle3D& b) const
-{ return !(*this==b); }
+{
+    return !(*this==b);
+}
+
+
+MarkerStyle3D& MarkerStyle3D::operator=( const MarkerStyle3D& a )
+{
+    type_ = a.type_ ; size_ = a.size_; color_ = a.color_;
+    return *this;
+}
 
 
 bool MarkerStyle3D::isVisible() const
-{ return type_!=None && size_>0 && color_.isVisible(); }
+{
+    return type_!=None && size_>0 && color_.isVisible();
+}
 
 
 MarkerStyle2D::Type MarkerStyle3D::getMS2DType( MarkerStyle3D::Type ms3d )
