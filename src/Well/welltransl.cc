@@ -9,9 +9,9 @@ ________________________________________________________________________
 
 #include "welltransl.h"
 
+#include "file.h"
 #include "filepath.h"
 #include "iostrm.h"
-#include "strmprov.h"
 #include "welldata.h"
 #include "wellhdf5reader.h"
 #include "wellhdf5writer.h"
@@ -135,9 +135,12 @@ mDefSimpleTranslatorioContext(Well,WllInf)
 
 
 bool WellTranslator::implRename( const IOObj* ioobj,
-				 const char* /* newnm */ ) const
+				 const char* newnm ) const
 {
     if ( !ioobj )
+	return false;
+
+    if ( !Translator::implRename(ioobj,newnm) )
 	return false;
 
     if ( Well::MGR().isLoaded(ioobj->key()) )
@@ -188,16 +191,13 @@ bool hdfWellTranslator::implRename( const IOObj* ioobj,
 
     PtrMan<HDF5::Writer> wrr = HDF5::mkWriter();
     if ( !wrr )
-    {
-	WellTranslator::implRename( ioobj, newnm );
 	return false;
-    }
 
     const uiRetVal uirv = wrr->open4Edit( newnm );
     if ( uirv.isOK() )
 	wrr->setAttribute( "Well name", ioobj->name().str() );
 
-    return WellTranslator::implRename( ioobj, newnm );
+    return true;
 }
 
 
@@ -242,87 +242,82 @@ bool odWellTranslator::isUserSelectable( bool forread ) const
 }
 
 
-#define mImplStart(fn) \
-    if ( !ioobj || ioobj->translator()!=translKey() ) \
-	return false; \
-    mDynamicCastGet(const IOStream*,iostrm,ioobj) \
-    if ( !iostrm ) return false; \
-\
-    BufferString pathnm = iostrm->fileSpec().fullDirName(); \
-    BufferString filenm = iostrm->fileSpec().fileName(); \
-    StreamProvider prov( filenm ); \
-    prov.addPathIfNecessary( pathnm ); \
-    if ( !prov.fn ) return false;
-
-#define mRemove(ext,nr,extra) \
-{ \
-    StreamProvider sp( Well::odIO::mkFileName(bnm,ext,nr) ); \
-    sp.addPathIfNecessary( pathnm ); \
-    const bool exists = sp.exists( true ); \
-    if ( exists && !sp.remove(false) ) \
-	return false; \
-    extra; \
+bool removeAuxFile( const char* basenm, const char* ext, int nr=0 )
+{
+    const BufferString auxfnm = Well::odIO::mkFileName( basenm, ext, nr );
+    return File::exists( auxfnm ) && File::remove( auxfnm );
 }
 
-bool odWellTranslator::implRemove( const IOObj* ioobj, bool ) const
+bool odWellTranslator::implRemove( const IOObj* ioobj, bool deep ) const
 {
-    mImplStart(remove(false));
+    if ( !ioobj || ioobj->translator()!=translKey() )
+	return false;
 
-    FilePath fp( filenm );
+    if ( !WellTranslator::implRemove(ioobj,deep) )
+	return false;
+
+    // Main file has been removed, no return false, as there is no going back
+    FilePath fp( ioobj->mainFileName() );
     fp.setExtension( nullptr );
-    const BufferString bnm = fp.fullPath();
-    mRemove(Well::odIO::sExtMarkers(),0,)
-    mRemove(Well::odIO::sExtD2T(),0,)
-    mRemove(Well::odIO::sExtCSMdl(),0,)
-    mRemove(Well::odIO::sExtDispProps(),0,)
-    mRemove(Well::odIO::sExtDefaults(),0,)
-    mRemove(Well::odIO::sExtWellTieSetup(),0,)
-    for ( int idx=1; ; idx++ )
-	mRemove(Well::odIO::sExtLog(),idx,if ( !exists ) break)
+    const BufferString basenm = fp.fullPath();
+    removeAuxFile( basenm, Well::odIO::sExtMarkers() );
+    removeAuxFile( basenm, Well::odIO::sExtD2T() );
+    removeAuxFile( basenm, Well::odIO::sExtCSMdl() );
+    removeAuxFile( basenm, Well::odIO::sExtDispProps() );
+    removeAuxFile( basenm, Well::odIO::sExtDefaults() );
+    removeAuxFile( basenm, Well::odIO::sExtWellTieSetup() );
+    int logidx = 1;
+    while ( removeAuxFile(basenm,Well::odIO::sExtLog(),logidx) )
+	logidx++;
 
     return true;
 }
 
 
-#define mRename(ext,nr,extra) \
-{ \
-    StreamProvider sp( Well::odIO::mkFileName(bnm,ext,nr) ); \
-    sp.addPathIfNecessary( pathnm ); \
-    StreamProvider spnew( Well::odIO::mkFileName(newbnm,ext,nr) ); \
-    spnew.addPathIfNecessary( pathnm ); \
-    const bool exists = sp.exists( true ); \
-    if ( exists && !sp.rename(spnew.fileName()) ) \
-	return false; \
-    extra; \
+bool renameAuxFile( const char* basenm, const char* newbasenm,
+		    const char* ext, int nr=0 )
+{
+    const BufferString auxfnm = Well::odIO::mkFileName( basenm, ext, nr );
+    const BufferString newauxfnm = Well::odIO::mkFileName( newbasenm, ext, nr );
+    return File::exists( auxfnm ) && File::rename( auxfnm, newauxfnm );
 }
 
 bool odWellTranslator::implRename( const IOObj* ioobj, const char* newnm ) const
 {
-    mImplStart(rename(newnm));
+    if ( !ioobj || ioobj->translator()!=translKey() )
+	return false;
 
-    FilePath fp( filenm );
+    if ( !WellTranslator::implRename(ioobj,newnm) )
+	return false;
+
+    // Main file has been renamed, no return false, as there is no going back
+    FilePath fp( ioobj->mainFileName() );
     fp.setExtension( nullptr );
-    const BufferString bnm = fp.fullPath();
+    const BufferString basenm = fp.fullPath();
     fp.set( newnm );
     fp.setExtension( nullptr );
-    const BufferString newbnm = fp.fullPath();
-    mRename(Well::odIO::sExtMarkers(),0,)
-    mRename(Well::odIO::sExtD2T(),0,)
-    mRename(Well::odIO::sExtCSMdl(),0,)
-    mRename(Well::odIO::sExtDispProps(),0,)
-    mRename(Well::odIO::sExtDefaults(),0,)
-    mRename(Well::odIO::sExtWellTieSetup(),0,)
-    for ( int idx=1; ; idx++ )
-	mRename(Well::odIO::sExtLog(),idx,if ( !exists ) break)
+    const BufferString newbasenm = fp.fullPath();
 
-    return WellTranslator::implRename( ioobj, newnm );
+    renameAuxFile( basenm, newbasenm, Well::odIO::sExtMarkers() );
+    renameAuxFile( basenm, newbasenm, Well::odIO::sExtD2T() );
+    renameAuxFile( basenm, newbasenm, Well::odIO::sExtCSMdl() );
+    renameAuxFile( basenm, newbasenm, Well::odIO::sExtDispProps() );
+    renameAuxFile( basenm, newbasenm, Well::odIO::sExtDefaults() );
+    renameAuxFile( basenm, newbasenm, Well::odIO::sExtWellTieSetup() );
+    int logidx = 1;
+    while ( renameAuxFile(basenm,newbasenm,Well::odIO::sExtLog(),logidx) )
+	logidx++;
+
+    return true;
 }
 
 
 bool odWellTranslator::implSetReadOnly( const IOObj* ioobj, bool ro ) const
 {
-    mImplStart(setReadOnly(ro));
-    return true;
+    if ( !ioobj || ioobj->translator()!=translKey() )
+	return false;
+
+    return WellTranslator::implSetReadOnly( ioobj, ro );
 }
 
 
