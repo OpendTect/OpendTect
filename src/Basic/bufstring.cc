@@ -1004,6 +1004,28 @@ bool BufferStringSet::remove( const char* itm )
 }
 
 
+BufferString& BufferStringSet::get( idx_type idx )
+{
+#ifdef __debug__
+    if ( !validIdx(idx) )
+    { pErrMsg("Invalid access"); DBG::forceCrash(true); }
+#endif
+
+    return *strs_.get( idx );
+}
+
+
+const BufferString& BufferStringSet::get( idx_type idx ) const
+{
+#ifdef __debug__
+    if ( !validIdx(idx) )
+    { pErrMsg("Invalid access"); DBG::forceCrash(true); }
+#endif
+
+    return *strs_.get( idx );
+}
+
+
 BufferStringSet& BufferStringSet::add( const char* s )
 {
     strs_.add( new BufferString(s) );
@@ -1100,6 +1122,36 @@ BufferStringSet& BufferStringSet::addToAll( const char* str, bool infront )
 	else
 	    itm.add( str );
     }
+
+    return *this;
+}
+
+
+BufferStringSet& BufferStringSet::replace( idx_type idx, const char* s )
+{
+    get( idx ).set( s );
+    return *this;
+}
+
+
+BufferStringSet& BufferStringSet::replace( idx_type idx, const OD::String& s )
+{
+    get( idx ).set( s );
+    return *this;
+}
+
+
+BufferStringSet& BufferStringSet::replace( idx_type idx, BufferString* bs )
+{
+#ifdef __debug__
+    if ( !validIdx(idx) )
+    { pErrMsg("Invalid access"); DBG::forceCrash(true); }
+#endif
+
+    if ( bs )
+	set( idx, bs );
+    else
+	get( idx ).setEmpty();
 
     return *this;
 }

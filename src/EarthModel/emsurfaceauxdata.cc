@@ -155,7 +155,7 @@ void SurfaceAuxData::addAuxData( const BufferStringSet& name,
 
 void SurfaceAuxData::removeAuxData( int dataidx )
 {
-    auxdatanames_.replace( dataidx, nullptr );
+    auxdatanames_.replace( dataidx, "" );
     auxdatashift_[dataidx] = 0.0;
     auxdatatypes_[dataidx] = NoType;
 

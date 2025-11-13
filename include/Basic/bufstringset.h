@@ -53,8 +53,8 @@ public:
     inline bool		isPresent( const char* s,
 				OD::CaseSensitivity c=OD::CaseSensitive) const
 						{ return indexOf(s,c) >= 0; }
-    BufferString&	get( idx_type idx )	{ return *strs_.get(idx); }
-    const BufferString&	get( idx_type idx ) const { return *strs_.get(idx); }
+    BufferString&	get(idx_type idx);
+    const BufferString& get(idx_type idx) const;
     BufferString*	first()			{ return strs_.first(); }
     const BufferString*	first() const		{ return strs_.first(); }
     BufferString*	last()			{ return strs_.last(); }
@@ -131,8 +131,9 @@ public:
     void		setNullAllowed( bool yn=true )
 				{ strs_.setNullAllowed( yn ); }
     BufferStringSet&	operator +=( BufferString* bs )	{ return add(bs); }
-    BufferStringSet&	replace( idx_type idx, BufferString* bs )
-			{ set( idx, bs ); return *this; }
+    BufferStringSet&	replace(idx_type,const char*);
+    BufferStringSet&	replace(idx_type,const OD::String&);
+    BufferStringSet&	replace(idx_type idx,BufferString* bs);
     BufferStringSet&	set( idx_type idx, BufferString* bs )
 				{ strs_.replace(idx,bs); return *this; }
     void		insertAt( BufferString* bs, idx_type idx )
