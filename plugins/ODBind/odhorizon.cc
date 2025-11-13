@@ -31,7 +31,6 @@ ________________________________________________________________________________
 #include "ioman.h"
 #include "ioobj.h"
 #include "odjson.h"
-#include "survinfo.h"
 #include "task.h"
 #include "zdomain.h"
 
@@ -179,7 +178,6 @@ void odHorizon3D::save()
     if ( array_ && writecount_ )
     {
 	RefMan<EM::Horizon3D> hor3d = getHorizonObj( true );
-	ConstPtrMan<IOObj> ioobj( ioobj_ptr() );
 	if ( !hor3d )
 	    return;
 
@@ -209,12 +207,13 @@ void odHorizon3D::getInfo( OD::JSON::Object& jsobj ) const
     if ( ioobj )
     {
 	const EM::IOObjInfo eminfo( ioobj.ptr() );
+	const ZDomain::Info& zdom = eminfo.zDomain();
 	Interval<float> zrg = eminfo.getZRange();
-	zrg.start_ *= SI().showZ2UserFactor();
-	zrg.stop_ *= SI().showZ2UserFactor();
+	zrg.scale( (float) zdom.userFactor() );
 	jsobj.set( "z_range", zrg );
 	jsobj.set( "zunit", eminfo.getZUnitLabel() );
     }
+
     jsobj.set( "attrib_count", getNrAttributes() );
 
 }
@@ -235,13 +234,15 @@ void odHorizon3D::getPoints( OD::JSON::Array& jsarr, bool towgs ) const
 
 void odHorizon3D::getZ( hAllocator allocator )
 {
+    const ZDomain::Info* zdom = nullptr;
     if ( !array_ )
     {
-	RefMan<EM::Horizon3D> hor = getHorizonObj();
+	ConstRefMan<EM::Horizon3D> hor = getHorizonObj();
 	if ( !hor )
 	    return;
 
 	array_ = hor->createArray2D();
+	zdom = &hor->zDomain();
     }
 
     if ( !array_ || !isOK() )
@@ -252,8 +253,10 @@ void odHorizon3D::getZ( hAllocator allocator )
     for ( int i=0; i<ndim; i++ )
 	dims[i] = array_->info().getSize(i);
 
+    const bool needscale = zdom && zdom->isTime();
+    const float zfac = needscale ? (float) zdom->userFactor() : 1.f;
+
     float* data = static_cast<float*>( allocator(ndim, dims, 'f') );
-    const float zfac = SI().showZ2UserFactor();
     const float znan = std::nanf("");
     for (int i=0; i<dims[0]; i++)
     {
@@ -262,7 +265,7 @@ void odHorizon3D::getZ( hAllocator allocator )
 	    float z = array_->get( i, j );
 	    if ( mIsUdf(z) )
 		z = znan;
-	    else
+	    else if ( needscale )
 		z *= zfac;
 
 	    *data++ = z;
@@ -309,7 +312,7 @@ void odHorizon3D::getAuxData( hAllocator allocator, const char* auxname )
 	return;
 
     PtrMan<Executor> auxloader = hor->auxdata.auxDataLoader( auxname );
-    if ( !auxloader || !TaskRunner::execute( nullptr, *auxloader ) )
+    if ( !auxloader || !TaskRunner::execute(nullptr,*auxloader) )
     {
 	errmsg_ = "odHorizon3D::getAuxData - error loading attribute.";
 	return;
@@ -326,9 +329,9 @@ void odHorizon3D::getAuxData( hAllocator allocator, const char* auxname )
 
 	float* data = static_cast<float*>( allocator(ndim, dims, 'f') );
 	const float valnan = std::nanf("");
-	for (int i=0; i<dims[0]; i++)
+	for ( int i=0; i<dims[0]; i++ )
 	{
-	    for (int j=0; j<dims[1]; j++)
+	    for ( int j=0; j<dims[1]; j++ )
 	    {
 		float val = array->get( i, j );
 		if ( mIsUdf(val) )
@@ -347,24 +350,28 @@ void odHorizon3D::putZ( const float* data, const TrcKeySampling& tk )
     if ( !canWrite() )
 	return;
 
+    ConstRefMan<EM::Horizon3D> hor3d = getHorizonObj( true );
+    if ( !hor3d )
+	return;
+
     TrcKey trckey;
     trckey.setIs2D( false );
-    const float zfac = SI().showZ2UserFactor();
+    const ZDomain::Info& zdom = hor3d->zDomain();
+    const float zfac = zdom.isTime() ? (float) zdom.userFactor() : 1.f;
     writecount_ = 0;
     for ( od_int64 idx=0; idx<tk.totalNr(); idx++ )
     {
 	trckey = tk.trcKeyAt( idx );
-	if ( !tk_.includes(trckey, false) )
+	if ( !tk_.includes(trckey,false) )
 	    continue;
 
 	float val = data[idx];
-	if ( !Math::IsNormalNumber(val) )
-	    val = mUdf(float);
-	else
+	if ( Math::IsNormalNumber(val) )
 	    val /= zfac;
+	else
+	    val = mUdf(float);
 
-	array_->set( tk_.lineIdx(trckey.inl()), tk_.trcIdx(trckey.crl()),
-			   val );
+	array_->set( tk_.lineIdx(trckey.inl()), tk_.trcIdx(trckey.crl()), val );
 	writecount_++;
     }
 
@@ -624,20 +631,23 @@ void odHorizon2D::getZ( hAllocator allocator, int lineid )
 	return;
     }
 
+    const ZDomain::Info& zdom = hor_->zDomain();
+    const bool needscale = zdom.isTime();
+    const float zfac = needscale ? (float) zdom.userFactor() : 1.f;
+
     const int ndim = 1;
     int dims[ndim];
     for ( int i=0; i<ndim; i++ )
 	dims[i] = array->info().getSize(i);
 
     float* data = static_cast<float*>( allocator(ndim, dims, 'f') );
-    const float zfac = SI().showZ2UserFactor();
     const float znan = std::nanf("");
-    for (int i=0; i<dims[0]; i++)
+    for ( int i=0; i<dims[0]; i++ )
     {
 	float z = array->get( i );
 	if ( mIsUdf(z) )
 	    z = znan;
-	else
+	else if ( needscale )
 	    z *= zfac;
 
 	*data++ = z;
