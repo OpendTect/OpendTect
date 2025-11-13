@@ -57,7 +57,8 @@ static bool testWords()
     mRunStandardTest( words.isEmpty(), "addWordsFrom blanks string" );
     words.addWordsFrom( "''" );
     mRunStandardTest( words.size()==1, "addWordsFrom empty word size" );
-    mRunStandardTest( words.get(0)=="", "addWordsFrom empty word content" );
+    mRunStandardTest( words.get(0).isEmpty(),
+		      "addWordsFrom empty word content" );
 
     return true;
 }
@@ -608,6 +609,41 @@ bool testStringSetIOPar()
 }
 
 
+bool testStringSetReplace()
+{
+    BufferStringSet strs;
+    strs.add( "Str pos 0" );
+    strs.add( "" );
+    strs.add( "Str pos 2" );
+
+    strs.replace( 1, "Str pos 1" );
+    mRunStandardTest( strs.get(1)=="Str pos 1",
+		      "BufferStringSet replace test (valid const char*)" );
+    strs.replace( 1, "" );
+    mRunStandardTest( strs.get(1).isEmpty(),
+		      "BufferStringSet replace test (empty const char*)" );
+
+    const BufferString replstr( "Str pos 1");
+    strs.replace( 1, replstr );
+    mRunStandardTest( strs.get(1)=="Str pos 1",
+		      "BufferStringSet replace test (OD::String&)" );
+    strs.replace( 1, BufferString::empty() );
+    mRunStandardTest( strs.get(1).isEmpty(),
+		      "BufferStringSet replace test (empty OD::String&)" );
+
+    auto* newreplstr = new BufferString( "Str pos 1");
+    strs.replace( 1, newreplstr );
+    mRunStandardTest( strs.get(1)=="Str pos 1",
+		      "BufferStringSet replace test (BufferString*)" );
+    auto* newemptyreplstr = new BufferString;
+    strs.replace( 1, newemptyreplstr );
+    mRunStandardTest( strs.get(1).isEmpty(),
+		      "BufferStringSet replace test (empty BufferString*)" );
+
+    return true;
+}
+
+
 static BufferString getString( BufferString ret )
 {
     return ret;
@@ -657,6 +693,7 @@ int mTestMainFnName( int argc, char** argv )
       || !testGetFromString()
       || !testStaticString()
       || !testStringSetIOPar()
+      || !testStringSetReplace()
       || !testStringConv() )
 	return 1;
 
