@@ -594,7 +594,7 @@ uiString Well::LASImporter::getLogs( od_istream& strm, const FileInfo& lfi,
     BoolTypeSet issel( inplfi.size(), false );
 
     BufferStringSet storedlognms;
-    wd_->getLogNames( storedlognms );
+    wd_->logs().getNames( storedlognms );
     const BufferStringSet& lognms =
 		usecurvenms ? inplfi.logcurves_ : inplfi.lognms_;
     for ( int idx=0; idx<lognms.size(); idx++ )
@@ -717,7 +717,7 @@ uiString Well::LASImporter::getLogData( od_istream& strm,
 	{
 	    const int logidx = addstartidx + idx;
 	    if ( logs.validIdx(logidx) )
-		logs.getLog( logidx ).addValue( dah, selvals[idx] );
+		logs.getLogByIdx( logidx ).addValue( dah, selvals[idx] );
 	}
 
 	nradded++;
@@ -731,7 +731,7 @@ uiString Well::LASImporter::getLogData( od_istream& strm,
 	const int logidx = addstartidx + idx;
 	if ( logs.validIdx(logidx) )
 	{
-	    Well::Log& newlog = logs.getLog( logidx );
+	    Well::Log& newlog = logs.getLogByIdx( logidx );
 	    if ( !newlog.haveMnemonic() )
 		newlog.setMnemonicLabel( nullptr, true );
 	}

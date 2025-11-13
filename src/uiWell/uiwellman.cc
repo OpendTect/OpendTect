@@ -157,13 +157,6 @@ void uiWellMan::ownSelChg()
 }
 
 
-static void getBasicInfo( Well::Reader& rdr )
-{
-    rdr.getTrack();
-    rdr.getInfo();
-}
-
-
 void uiWellMan::getCurrentWells()
 {
     curfnms_.erase();
@@ -174,18 +167,21 @@ void uiWellMan::getCurrentWells()
 	return;
 
     const int nrsel = selGroup()->nrChosen();
+    const Well::LoadReqs lreqs( Well::Inf );
     for ( int idx=0; idx<nrsel; idx++ )
     {
 	const IOObj* obj = IOM().get( selgrp_->chosenID(idx) );
 	if ( !obj )
 	    continue;
 
-	curmultiids_ += obj->key();
-	curfnms_.add( BufferString( obj->fullUserExpr( true ) ) );
-	RefMan<Well::Data> wd = new Well::Data;
-	curwds_.add( wd.ptr() );
-	Well::Reader rdr( *obj, *wd );
-	getBasicInfo( rdr );
+	const MultiID wid = obj->key();
+	ConstRefMan<Well::Data> wd = Well::MGR().get( wid, lreqs );
+	if ( !wd )
+	    continue;
+
+	curmultiids_ += wid;
+	curfnms_.add( BufferString( obj->fullUserExpr(true) ) );
+	curwds_.add( wd.getNonConstPtr() );
     }
 }
 
@@ -196,7 +192,7 @@ void uiWellMan::copyPush( CallBacker* cb )
     if ( curioobj_ )
 	dlg.setKey( curioobj_->key() );
 
-    if ( dlg.go() )
+    if ( dlg.go() == uiDialog::Accepted )
 	updateCB( cb );
 }
 
@@ -205,59 +201,68 @@ void uiWellMan::bulkD2TCB( CallBacker* )
 {
     uiSetD2TFromOtherWell dlg( this );
     dlg.setSelected( getSelWells() );
-    if ( !dlg.go() )
+    if ( dlg.go() != uiDialog::Accepted )
 	return;
 
     // update display?
 }
 
 
+#define mEnsureWellsSelected(act) \
+    if ( curmultiids_.isEmpty() ) \
+	act;
+
 void uiWellMan::fillLogsFld()
 {
     logsfld_->setEmpty();
-    availablelognms_.erase();
-    defaultlognms_.erase();
-    if ( curwds_.isEmpty() )
-	return;
+    availablelognms_.setEmpty();
+    defaultlognms_.setEmpty();
+    mEnsureWellsSelected(return)
 
-    const MultiID key0 = curmultiids_.first();
-    RefMan<Well::Data> wd0 = curwds_.first();
-    Well::Reader rdr0( key0, *wd0 );
-    rdr0.getLogInfo( availablelognms_ );
-    wd0->logs().getDefaultLogs( defaultlognms_ );
-    for ( int idx=1; idx<curwds_.size(); idx++ )
+    const Well::LoadReqs lreqs( Well::LogInfos );
+    const MultiID& key0 = curmultiids_.first();
+    ConstRefMan<Well::Data> wd0 = Well::MGR().get( key0, lreqs );
+    if ( wd0 )
     {
-	const MultiID key = curmultiids_[idx];
-	RefMan<Well::Data> wd = curwds_[idx];
+	wd0->logs().getNames( availablelognms_ );
+	wd0->logs().getDefaultLogs( defaultlognms_ );
+    }
+
+    for ( int idx=1; idx<curmultiids_.size(); idx++ )
+    {
+	const MultiID& key = curmultiids_[idx];
+	ConstRefMan<Well::Data> wd = Well::MGR().get( key, lreqs );
+	if ( !wd )
+	    continue;
+
 	BufferStringSet lognms, deflognms;
-	Well::Reader rdr( key, *wd );
-	rdr.getLogInfo( lognms );
+	wd->logs().getNames( lognms );
 	wd->logs().getDefaultLogs( deflognms );
 	for ( int idy=0; idy<availablelognms_.size(); )
 	{
-	    if ( !lognms.isPresent(availablelognms_.get(idy)) )
-		availablelognms_.removeSingle( idy );
-	    else
+	    if ( lognms.isPresent(availablelognms_.get(idy)) )
 		idy++;
+	    else
+		availablelognms_.removeSingle( idy );
 	}
 
 	int index = 0;
 	for ( auto* deflognm : defaultlognms_ )
 	{
-	    if ( !deflognms.isPresent(*deflognm) )
-		defaultlognms_.removeSingle( index );
-	    else
+	    if ( deflognms.isPresent(*deflognm) )
 		index++;
+	    else
+		defaultlognms_.removeSingle( index );
 	}
     }
 
     logsfld_->addItems( availablelognms_ );
     logsfld_->chooseAll( false );
-    addlogsbut_->setSensitive( iswritable_ && curwds_.size() == 1 );
+    addlogsbut_->setSensitive( iswritable_ && curmultiids_.size() == 1 );
     calclogsbut_->setSensitive( iswritable_ );
     setDefaultPixmaps();
 
-    logSel(0);
+    logSel( nullptr );
 }
 
 
@@ -329,16 +334,13 @@ void uiWellMan::setWellToolButtonProperties()
 
 void uiWellMan::setLogToolButtonProperties()
 {
+    BufferStringSet wellnms, lognms;
+    selGroup()->getChosen( wellnms );
     const int nrlogs = logsfld_->size();
-
-    TypeSet<MultiID> wellids;
-    selGroup()->getChosen( wellids );
-
-    BufferStringSet lognms;
     logsfld_->getChosen( lognms );
 
+    const int nrchosenwells = curmultiids_.size();
     const int nrchosenlogs = lognms.size();
-    const int nrchosenwells = wellids.size();
     const bool oneormorelog = nrchosenlogs > 0;
 
     logrenamebut_->setSensitive( iswritable_ && nrlogs > 0 );
@@ -375,24 +377,15 @@ void uiWellMan::setLogToolButtonProperties()
     const bool canview = nrlogs2vw >= 1;
     logvwbut_->setSensitive( canview );
 
-    if ( !canview )
-	logvwbut_->setToolTip( mJoinUiStrs(sView(),sLog(mPlural).toLower()) );
-    else
+    if ( canview )
     {
-	BufferStringSet wellnms;
-	for ( int midx=0; midx<wellids.size(); midx++ )
-	{
-	    IOObj* ioobj = IOM().get( wellids[midx] );
-	    if ( ioobj )
-		wellnms.add( ioobj->name() );
-	    delete ioobj;
-	}
-
-	uiString tt = tr("View %1 for %2")
-		      .arg(toUiString(lognms.getDispString(2)))
-		      .arg(toUiString(wellnms.getDispString(2)));
+	const uiString tt = tr("View %1 for %2")
+			      .arg( lognms.getDispString(2) )
+			      .arg( wellnms.getDispString(2) );
 	logvwbut_->setToolTip( tt );
     }
+    else
+	logvwbut_->setToolTip( mJoinUiStrs(sView(),sLog(mPlural).toLower()) );
 }
 
 
@@ -412,8 +405,8 @@ void uiWellMan::edMarkers( CallBacker* )
 	return;
 
     const MultiID curmid( curioobj_->key() );
-    RefMan<Well::Data> wd = Well::MGR().get( curmid,
-			 Well::LoadReqs( Well::Trck, Well::D2T, Well::Mrkrs ) );
+    const Well::LoadReqs lreqs( Well::Trck, Well::D2T, Well::Mrkrs );
+    RefMan<Well::Data> wd = Well::MGR().get( curmid, lreqs );
     if ( !wd )
     {
 	uiMSG().error( tr("Markers not present in %1")
@@ -433,7 +426,7 @@ void uiWellMan::edMarkers( CallBacker* )
     wd->track().setName( curioobj_->name() );
     uiMarkerDlg dlg( this, wd->track(), wd->d2TModel() );
     dlg.setMarkerSet( wd->markers() );
-    if ( !dlg.go() )
+    if ( dlg.go() != uiDialog::Accepted )
 	return;
 
     dlg.getMarkerSet( wd->markers() );
@@ -454,7 +447,7 @@ void uiWellMan::edWellTrack( CallBacker* )
 	return;
 
     const MultiID curmid( curioobj_->key() );
-    Well::LoadReqs lreqs( Well::Trck );
+    const Well::LoadReqs lreqs( Well::Trck );
     RefMan<Well::Data> wd = Well::MGR().get( curmid, lreqs );
     if ( !wd )
     {
@@ -504,11 +497,11 @@ void uiWellMan::edChckSh( CallBacker* )
 
 void uiWellMan::defD2T( bool chkshot )
 {
-    if ( curwds_.isEmpty() )
+    if ( !curioobj_ )
 	return;
 
     const MultiID curmid = curioobj_->key();
-    Well::LoadReqs lreqs( chkshot? Well::CSMdl : Well::D2T );
+    const Well::LoadReqs lreqs( chkshot ? Well::CSMdl : Well::D2T );
     RefMan<Well::Data> wd =  Well::MGR().get( curmid, lreqs );
     if ( !wd )
     {
@@ -530,12 +523,12 @@ void uiWellMan::defD2T( bool chkshot )
 
     const float oldreplvel = wd->info().replvel_;
     Well::D2TModel* inpmdl = chkshot ? wd->checkShotModel() : wd->d2TModel();
-    PtrMan<Well::D2TModel> origd2t = 0;
+    PtrMan<Well::D2TModel> origd2t;
     if ( inpmdl )
 	origd2t = new Well::D2TModel( *inpmdl );
 
     uiD2TModelDlg dlg( this, *wd, chkshot );
-    if ( !dlg.go() || !iswritable_ )
+    if ( dlg.go() != uiDialog::Accepted || !iswritable_ )
 	return;
 
     uiString errmsg;
@@ -570,19 +563,24 @@ void uiWellMan::defD2T( bool chkshot )
 }
 
 
+#define mEnsureLogSelected(msgtxt) \
+    if ( logsfld_->isEmpty() ) \
+	return; \
+    const int nrsellogs = logsfld_->nrChosen(); \
+    if ( nrsellogs < 1 ) \
+	mErrRet(msgtxt)
+
+
 void uiWellMan::logTools( CallBacker* )
 {
-    BufferStringSet wellnms, lognms;
-    logsfld_->getChosen( lognms );
-    TypeSet<MultiID> chosnmids;
-    selGroup()->getChosen( chosnmids );
-    for ( int midx=0; midx<chosnmids.size(); midx ++ )
-    {
-	const IOObj* ioobj = IOM().get( chosnmids[midx] );
-	if ( ioobj )
-	    wellnms.add( ioobj->name() );
-    }
+    mEnsureWellsSelected(return)
+    mEnsureLogSelected( uiStrings::sNoLogSel() )
 
+    BufferStringSet wellnms, lognms;
+    selGroup()->getChosen( wellnms );
+    logsfld_->getChosen( lognms );
+
+    //TODO: pass curmultiids_ directly to uiWellLogToolWinMgr
     uiWellLogToolWinMgr tooldlg( this, &wellnms, &lognms );
     tooldlg.go();
     fillLogsFld();
@@ -591,29 +589,30 @@ void uiWellMan::logTools( CallBacker* )
 
 void uiWellMan::importLogs( CallBacker* )
 {
+    if ( !curioobj_ )
+	return;
+
     uiImportLogsDlg dlg( this, curioobj_, true );
-    if ( dlg.go() )
+    if ( dlg.go() == uiDialog::Accepted )
 	wellsChgd();
 }
 
 
 void uiWellMan::calcLogs( CallBacker* )
 {
-    if ( curwds_.isEmpty() || curmultiids_.isEmpty() )
-	return;
-
+    mEnsureWellsSelected(return)
     if ( !welllogcalcdlg_ )
     {
 	welllogcalcdlg_ = new  uiWellLogCalc( this, curmultiids_ );
 	welllogcalcdlg_->setModal( false );
 	welllogcalcdlg_->setDeleteOnClose( true );
-	mAttachCB(welllogcalcdlg_->logschanged,uiWellMan::updateLogsFld);
-	mAttachCB(welllogcalcdlg_->windowClosed,uiWellMan::calcClosedCB);
+	mAttachCB( welllogcalcdlg_->logschanged, uiWellMan::updateLogsFld );
+	mAttachCB( welllogcalcdlg_->windowClosed, uiWellMan::calcClosedCB );
     }
 
     if ( !welllogcalcdlg_->updateWells(curmultiids_) )
     {
-	mDetachCB(welllogcalcdlg_->logschanged,uiWellMan::updateLogsFld);
+	mDetachCB( welllogcalcdlg_->logschanged, uiWellMan::updateLogsFld );
 	welllogcalcdlg_->close();
 	return;
     }
@@ -624,139 +623,97 @@ void uiWellMan::calcLogs( CallBacker* )
 
 void uiWellMan::logUOMPush( CallBacker* )
 {
-    if ( curwds_.isEmpty() )
-	return;
-
+    mEnsureWellsSelected(return)
+    mEnsureLogSelected( uiStrings::sNoLogSel() )
     BufferStringSet lognms;
     logsfld_->getChosen( lognms );
-    if ( lognms.isEmpty() )
-	mErrRet(uiStrings::sNoLogSel())
 
-    BufferStringSet wellnms;
-    selGroup()->getChosen( wellnms );
-    const int nrchosenwls = selGroup()->nrChosen();
-    ObjectSet<ObjectSet<Well::Log>> wls;
-    TypeSet<MultiID> selkeys;
-    for ( int widx=0; widx<nrchosenwls; widx++ )
-    {
-	const MultiID& key = curmultiids_[widx];
-	RefMan<Well::Data> wd = curwds_.get( widx );
-	Well::Reader rdr( key, *wd );
-	auto* sellogs = new ObjectSet<Well::Log>();
-	for ( int idx=0; idx<lognms.size(); idx++ )
-	{
-	    BufferString& curlognm = lognms.get(idx);
-	    rdr.getLog( curlognm );
-	    auto* curlog = new Well::Log( *wd->logs().getLog(curlognm.buf()) );
-	    sellogs->addIfNew( curlog );
-	}
+    ManagedObjectSet<BufferStringSet> editedlognmsset;
+    for ( int widx=0; widx<curmultiids_.size(); widx++ )
+	editedlognmsset.add( new BufferStringSet() );
 
-	wls += sellogs;
-	selkeys += wd->multiID();
-    }
-
-    uiWellLogUOMDlg dlg( this, wls, selkeys, wellnms );
-    if ( !dlg.go() )
+    uiWellLogUOMDlg dlg( this, curmultiids_, lognms, editedlognmsset );
+    if ( dlg.go() != uiDialog::Accepted )
 	return;
 
     selGroup()->chooseAll( false );
-    selGroup()->setChosen( selkeys );
-    BufferStringSet editedlognms;
-    for ( int widx=0; widx<wls.size(); widx++ )
+    selGroup()->setChosen( curmultiids_ );
+    uiRetVal uirv;
+    BufferStringSet alleditedlognms;
+    for ( int widx=0; widx<curmultiids_.size(); widx++ )
     {
-	const MultiID& key = curmultiids_[widx];
-	RefMan<Well::Data> wd = curwds_.get( widx );
-	Well::Reader rdr( key, *wd );
-	rdr.getLogs( true );
-	//--To-Do > fix this hack with a global sol
-	const ObjectSet<Well::Log>* logset = wls.get( widx );
-	for ( const auto* log : *logset )
-	{
-	    writeLog( key, *wd, *log );
-	    editedlognms.addIfNew( log->name() );
-	}
+	const MultiID& wid = curmultiids_[widx];
+	if ( !editedlognmsset.validIdx(widx) )
+	    continue;
+
+	const BufferStringSet& editedlognms = *editedlognmsset.get( widx );
+	if ( editedlognms.isEmpty() )
+	    continue;
+
+	const uiRetVal saveret =
+			Well::MGR().writeLogHeaders( wid, editedlognms );
+	if ( saveret.isError() )
+	    uirv.add( saveret );
+
+	alleditedlognms.add( editedlognms, false );
     }
 
-    for ( auto* logset : wls )
-	deepErase( *logset );
-    deepErase( wls );
+    if ( uirv.isError() )
+	uiMSG().errorWithDetails( uirv, tr("Cannot write all log headers") );
 
-    wellLogsChgd( editedlognms );
+    if ( !alleditedlognms.isEmpty() )
+	wellLogsChgd( alleditedlognms );
 }
 
 
 void uiWellMan::logMnemPush( CallBacker* )
 {
-    if ( curwds_.isEmpty() )
-	return;
-
+    mEnsureWellsSelected(return)
+    mEnsureLogSelected( uiStrings::sNoLogSel() )
     BufferStringSet lognms;
     logsfld_->getChosen( lognms );
-    if ( lognms.isEmpty() )
-	mErrRet(uiStrings::sNoLogSel())
 
-    BufferStringSet wellnms;
-    selGroup()->getChosen( wellnms );
-    ObjectSet<ObjectSet<Well::Log>> wls;
-    TypeSet<MultiID> selkeys;
-    for ( int widx=0; widx<curwds_.size(); widx++ )
-    {
-	const MultiID& key = curmultiids_[widx];
-	RefMan<Well::Data> wd = curwds_[widx];
-	Well::Reader rdr( key, *wd );
-	auto* sellogs = new ObjectSet<Well::Log>;
-	for ( int idx=0; idx<lognms.size(); idx++ )
-	{
-	    const BufferString& curlognm = lognms.get( idx );
-	    if ( !rdr.getLog(curlognm) )
-		continue;
+    ManagedObjectSet<BufferStringSet> editedlognmsset;
+    for ( int widx=0; widx<curmultiids_.size(); widx++ )
+	editedlognmsset.add( new BufferStringSet() );
 
-	    auto* curlog = wd->logs().getLog( curlognm.buf() );
-	    sellogs->addIfNew( curlog->clone() );
-	}
-
-	wls += sellogs;
-	selkeys += key;
-    }
-
-    uiWellLogMnemDlg dlg( this, wls, selkeys, wellnms );
-    if ( !dlg.go() )
+    uiWellLogMnemDlg dlg( this, curmultiids_, lognms, editedlognmsset );
+    if ( dlg.go() != uiDialog::Accepted )
 	return;
 
-
     selGroup()->chooseAll( false );
-    selGroup()->setChosen( selkeys );
-    BufferStringSet editedlognms;
-    for ( int widx=0; widx<wls.size(); widx++ )
+    selGroup()->setChosen( curmultiids_ );
+    uiRetVal uirv;
+    BufferStringSet alleditedlognms;
+    for ( int widx=0; widx<curmultiids_.size(); widx++ )
     {
-	RefMan<Well::Data> currwd = curwds_.get( widx );
-	const MultiID& currkey = curmultiids_[widx];
-	Well::Reader rdr( currkey, *currwd );
-	rdr.getLogs( true );
-			//--To-Do > fix this hack with a global sol
-	const ObjectSet<Well::Log>* logset = wls.get( widx );
-	for ( const auto* log : *logset )
-	{
-	    writeLog( currkey, *currwd, *log );
-	    editedlognms.addIfNew( log->name() );
-	}
+	const MultiID& wid = curmultiids_[widx];
+	const BufferStringSet& editedlognms = *editedlognmsset.get( widx );
+	if ( editedlognms.isEmpty() )
+	    continue;
+
+	const uiRetVal saveret =
+			Well::MGR().writeLogHeaders( wid, editedlognms );
+	if ( saveret.isError() )
+	    uirv.add( saveret );
+
+	alleditedlognms.add( editedlognms, false );
     }
 
-    for ( auto* logset : wls )
-	deepErase( *logset );
-    deepErase( wls );
+    if ( uirv.isError() )
+	uiMSG().errorWithDetails( uirv, tr("Cannot write all log headers") );
 
-    wellLogsChgd( editedlognms );
+    if ( !alleditedlognms.isEmpty() )
+	wellLogsChgd( alleditedlognms );
 }
 
 
 void uiWellMan::defMnemLogPush( CallBacker* )
 {
-    if ( curwds_.isEmpty() )
-	return;
+    mEnsureWellsSelected(return)
 
     uiWellDefMnemLogDlg dlg( this, curmultiids_ );
-    if ( !dlg.go() )
+    if ( dlg.go() != uiDialog::Accepted )
 	return;
 
     wellsChgd();
@@ -772,16 +729,22 @@ void uiWellMan::customMnsPush( CallBacker* )
 
 void uiWellMan::editLogPush( CallBacker* )
 {
-    if ( curwds_.isEmpty() )
-	return;
+    mEnsureWellsSelected(return)
+    mEnsureLogSelected( uiStrings::sNoLogSel() )
 
+    const MultiID& wid = curmultiids_.first();
     const int selidx = logsfld_->firstChosen();
-    if ( selidx < 0 )
-	mErrRet(uiStrings::sNoLogSel())
-
     const char* lognm = logsfld_->textOfItem( selidx );
-    RefMan<Well::Data> firstwd = curwds_.first();
-    const Well::Log* log = firstwd->getLog( lognm );
+    const BufferStringSet lognms( lognm );
+    const Well::LoadReqs lreqs( lognms );
+    ConstRefMan<Well::Data> wd = Well::MGR().get( wid, lreqs );
+    if ( !wd )
+    {
+	uiMSG().error( Well::MGR().errMsg() );
+	return;
+    }
+
+    const Well::Log* log = wd->logs().getLog( lognm );
     if ( !log )
     {
 	uiMSG().error( tr("Log not available or no values present") );
@@ -790,7 +753,7 @@ void uiWellMan::editLogPush( CallBacker* )
 
     PtrMan<Well::Log> logcopy = new Well::Log( *log );
     uiWellLogEditor dlg( this, *logcopy );
-    if ( !dlg.go() || !dlg.isLogChanged() )
+    if ( dlg.go() != uiDialog::Accepted || !dlg.isLogChanged() )
 	return;
 
     const bool res = uiMSG().askSave(
@@ -800,13 +763,13 @@ void uiWellMan::editLogPush( CallBacker* )
 	return;
 
     logcopy->updateAfterValueChanges();
+    if ( !Well::MGR().writeAndRegister(wid,logcopy) )
+    {
+	uiMSG().error( Well::MGR().errMsg() );
+	return;
+    }
 
-    const MultiID firstkey = curmultiids_.first();
-    Well::Reader rdr( firstkey, *firstwd );
-    rdr.getLogs( true );
-//--To-Do > fix this hack with a global sol
-    writeLog( firstkey, *firstwd, *logcopy );
-    wellLogsChgd( BufferStringSet(lognm) );
+    wellLogsChgd( lognms );
 }
 
 
@@ -827,7 +790,7 @@ void uiWellMan::writeLog( const MultiID& key,
 			  Well::Data& wd, const Well::Log& log )
 {
     Well::Writer wwr( key, wd );
-    if ( !wwr.putLog( log ) )
+    if ( !wwr.putLog(log) )
 	uiMSG().error( wwr.errMsg() );
 }
 
@@ -844,110 +807,120 @@ void uiWellMan::wellLogsChgd( const BufferStringSet& lognms )
 }
 
 
-#define mEnsureLogSelected(msgtxt) \
-    if ( logsfld_->isEmpty() ) \
-	return; \
-    const int nrsellogs = logsfld_->nrChosen(); \
-    if ( nrsellogs < 1 ) \
-	mErrRet(msgtxt)
-
-
 void uiWellMan::viewLogPush( CallBacker* )
 {
-    mEnsureLogSelected(uiStrings::sNoLogSel())
-    DBKeySet wellkeys;
+    mEnsureWellsSelected(return)
+    mEnsureLogSelected( uiStrings::sNoLogSel() )
+
+    const DBKeySet wellkeys( curmultiids_ );
     BufferStringSet lognms;
     logsfld_->getChosen( lognms );
-    BufferString logstr = lognms.cat( "," );
-    lognms.setEmpty();
-    lognms.add( logstr );
-    for ( int widx=0; widx<curwds_.size(); widx++ )
-    {
-	RefMan<Well::Data> wd = curwds_.get( widx );
-	wellkeys.add( DBKey(wd->multiID()) );
-    }
 
+    const BufferString logstr = lognms.cat( "," );
+    lognms.setEmpty();
+    lognms.add( logstr );  //TODO No a valid way to forward a set of log names
     GetWellDisplayServer().createMultiWellDisplay( this, wellkeys, lognms );
 }
 
 
 void uiWellMan::renameLogPush( CallBacker* )
 {
-    mEnsureLogSelected(uiStrings::sNoLogSel());
-    BufferString lognm = logsfld_->getText();
+    mEnsureWellsSelected(return)
+    mEnsureLogSelected( uiStrings::sNoLogSel() );
+
+    const BufferString lognm = logsfld_->getText();
     const uiString titl = uiStrings::phrRename(toUiString("'%1'").arg(lognm));
     uiGenInputDlg dlg( this, titl, mJoinUiStrs(sNew(),sName().toLower()),
-				new StringInpSpec(lognm));
-    if ( !dlg.go() )
+		       new StringInpSpec(lognm) );
+    if ( dlg.go() != uiDialog::Accepted )
 	return;
 
-    BufferString newnm = dlg.text();
+    const BufferString newnm = dlg.text();
     if ( logsfld_->isPresent(newnm) )
-	mErrRet(tr("Name already in use"))
+	mErrRet( tr("Name already in use") )
 
-    Well::MGR().renameLog( curmultiids_, lognm, newnm );
-    fillLogsFld();
+    if ( !Well::MGR().renameLog(curmultiids_,lognm,newnm) )
+	uiMSG().error( Well::MGR().errMsg() );
+
+    fillLogsFld(); //If some have been renamed successfully
 }
 
 
 void uiWellMan::removeLogPush( CallBacker* )
 {
-    mEnsureLogSelected(uiStrings::sNoLogSel());
+    mEnsureWellsSelected(return)
+    mEnsureLogSelected( uiStrings::sNoLogSel() );
+    BufferStringSet lognms;
+    logsfld_->getChosen( lognms );
 
-    BufferStringSet logs2rem;
-    logsfld_->getChosen( logs2rem );
-
-    uiString msg = tr("Selected logs will be permanently deleted."
-		      "\nDo you wish to continue?");
+    const uiString msg = tr("Selected logs will be permanently deleted."
+			    "\nDo you wish to continue?");
     uiStringSet details;
-    logs2rem.fill( details );
+    lognms.fill( details );
     const int res = uiMSG().askDeleteWithDetails( msg, details );
     if ( res == 0 )
 	return;
 
-    for ( int widx=0; widx<curwds_.size(); widx++ )
+    uiRetVal uirv;
+    for ( const auto& wid : curmultiids_ )
     {
-	RefMan<Well::Data> wd = curwds_.get( widx );
-	Well::MGR().deleteLogs( wd->multiID(), logs2rem );
+	if ( !Well::MGR().deleteLogs(wid,lognms) )
+	    uirv.add( Well::MGR().errMsg() );
     }
+
+    if ( uirv.isError() )
+	uiMSG().errorWithDetails( uirv, tr("Cannot remove all requested logs"));
+
+    fillLogsFld(); //If some have been removed successfully
 }
 
 
 void uiWellMan::copyLogPush( CallBacker* )
 {
-    mEnsureLogSelected(uiStrings::sNoLogSel());
-    BufferStringSet sellogs;
-    logsfld_->getChosen( sellogs );
+    mEnsureWellsSelected(return)
+    mEnsureLogSelected( uiStrings::sNoLogSel() );
+    BufferStringSet lognms;
+    logsfld_->getChosen( lognms );
 
-    for ( int widx=0; widx<curwds_.size(); widx++ )
+    const Well::LoadReqs lreqs( lognms );
+    uiRetVal uirv;
+    for ( const auto& wid : curmultiids_ )
     {
-	const MultiID& key = curmultiids_[widx];
-	RefMan<Well::Data> wd = curwds_.get( widx );
-	Well::Reader rdr( key, *wd );
-	rdr.getLogs( sellogs );
-	Well::LogSet& wls = wd->logs();
-	for ( const auto* logname : sellogs )
+	ConstRefMan<Well::Data> wd = Well::MGR().get( wid, lreqs );
+	if ( !wd )
 	{
-	    const Well::Log* log = wls.getLog( logname->buf() );
-	    if ( log )
-	    {
-		BufferString baselognm( "Copy of ", logname->buf() );
-		BufferString copylognm( baselognm );
-		int count = 0;
-		while ( wls.isPresent(copylognm) )
-		{
-		    count++;
-		    copylognm = baselognm;
-		    copylognm.add( "(" ).add( count ).add( ")" );
-		}
-
-		PtrMan<Well::Log> copylog = new Well::Log( *log );
-		copylog->setName( copylognm );
-		writeLog( wd->multiID(), *wd, *copylog );
-	    }
+	    uirv.add( Well::MGR().errMsg() );
+	    continue;
 	}
 
-	wd->logschanged.trigger( -1 );
+	const Well::LogSet& logs = wd->logs();
+	ManagedObjectSet<Well::Log> copiedlogs;
+	BufferStringSet addedlognms;
+	for ( const auto* logname : lognms )
+	{
+	    BufferString baselognm( "Copy of ", logname->buf() );
+	    BufferString copylognm( baselognm );
+	    int count = 0;
+	    while ( logs.isPresent(copylognm) &&
+		    addedlognms.isPresent(copylognm) )
+	    {
+		count++;
+		copylognm = baselognm;
+		copylognm.add( "(" ).add( count ).add( ")" );
+	    }
+
+	    const Well::Log* log = logs.getLog( logname->buf() );
+	    if ( !log )
+		continue; //checked above, should not happen
+
+	    auto* copylog = new Well::Log( *log );
+	    copylog->setName( copylognm );
+	    copiedlogs.add( copylog );
+	    addedlognms.add( copylognm );
+	}
+
+	if ( !Well::MGR().writeAndRegister(wid,copiedlogs) )
+	    uirv.add( Well::MGR().errMsg() );
     }
 
     fillLogsFld();
@@ -956,21 +929,12 @@ void uiWellMan::copyLogPush( CallBacker* )
 
 void uiWellMan::exportLogs( CallBacker* )
 {
-    mEnsureLogSelected(uiStrings::sNoLogSel());
+    mEnsureWellsSelected(return)
+    mEnsureLogSelected( uiStrings::sNoLogSel() );
+    BufferStringSet lognms;
+    logsfld_->getChosen( lognms );
 
-    BufferStringSet sellogs;
-    logsfld_->getChosen( sellogs );
-
-    for ( int widx=0; widx<curwds_.size(); widx++ )
-    {
-	const MultiID& key = curmultiids_[widx];
-	RefMan<Well::Data> wd = curwds_.get( widx );
-	Well::Reader rdr( key, *wd );
-	rdr.getLogs( sellogs );
-	rdr.getD2T();
-    }
-
-    uiExportLogs dlg( this, curwds_, sellogs );
+    uiExportLogs dlg( this, curmultiids_, lognms );
     dlg.go();
 }
 
@@ -982,93 +946,92 @@ void uiWellMan::exportLogs( CallBacker* )
 
 void uiWellMan::mkFileInfo()
 {
+    BufferString txt( "<No specific info available>\n" );
     if ( !curioobj_ )
     {
-	setInfo( "" );
+	setInfo( txt );
 	return;
     }
 
-    RefMan<Well::Data> curwd = new Well::Data( curioobj_->name() );
-    const Well::Reader currdr( *curioobj_, *curwd );
-    BufferString txt;
-
-    if ( currdr.getTrack() && currdr.getInfo() )
+    const Well::LoadReqs lreqs( Well::Inf, Well::Trck );
+    ConstRefMan<Well::Data> wd = Well::MGR().get( curioobj_->key(), lreqs );
+    if ( !wd )
     {
-	const Well::Info& info = curwd->info();
-	const Well::Track& track = curwd->track();
+	setInfo( txt );
+	return;
+    }
 
-	StringView colonstr( ": " );
-	const BufferString posstr(
-		info.surfacecoord_.toPrettyString(SI().nrXYDecimals()), " - ",
-		SI().transform(info.surfacecoord_).toString() );
-	mAddWellInfo(Well::Info::sCoord(),posstr)
+    txt.setEmpty();
+    const Well::Info& info = wd->info();
+    const Well::Track& track = wd->track();
 
-	if ( !track.isEmpty() )
+    StringView colonstr( ": " );
+    const BufferString posstr(
+	    info.surfacecoord_.toPrettyString(SI().nrXYDecimals()), " - ",
+	    SI().transform(info.surfacecoord_).toString() );
+    mAddWellInfo(Well::Info::sCoord(),posstr)
+
+    if ( !track.isEmpty() )
+    {
+	const float rdelev = track.getKbElev();
+	const UnitOfMeasure* zun = UnitOfMeasure::surveyDefDepthUnit();
+	if ( !mIsZero(rdelev,1e-4) && !mIsUdf(rdelev) )
 	{
-	    const float rdelev = track.getKbElev();
-	    const UnitOfMeasure* zun = UnitOfMeasure::surveyDefDepthUnit();
-	    if ( !mIsZero(rdelev,1e-4) && !mIsUdf(rdelev) )
-	    {
-		txt.add( Well::Info::sKeyKBElev() ).add( colonstr );
-		txt.add( toString(zun ? zun->userValue(rdelev)
-				      : rdelev,0,'f',2) );
-		if ( zun )
-		    txt.add( zun->symbol() );
-		txt.addNewLine();
-	    }
-
-	    const float td = track.dahRange().stop_;
-	    if ( !mIsZero(td,1e-3f) && !mIsUdf(td) )
-	    {
-		txt.add(Well::Info::sKeyTD()).add( colonstr );
-		txt.add( toString(zun ? zun->userValue(td) : td,0,'f',2) );
-		if ( zun )
-		    txt.add( zun->symbol() );
-		txt.addNewLine();
-	    }
-
-	    const double srd = SI().seismicReferenceDatum();
-	    if ( !mIsZero(srd,1e-4) )
-	    {
-		txt.add( SurveyInfo::sKeySeismicRefDatum() ).add( colonstr );
-		txt.add( toString(zun ? zun->userValue(srd) : srd,0,'f',2) );
-		if ( zun )
-		    txt.add( zun->symbol() );
-		txt.addNewLine();
-	    }
-
-	    const float replvel = info.replvel_;
-	    if ( !mIsUdf(replvel) )
-	    {
-		 txt.add( Well::Info::sKeyReplVel() ).add( colonstr );
-		 txt.add( zun ? zun->userValue(replvel) : replvel );
-		 txt.add( UnitOfMeasure::surveyDefVelUnitAnnot(true,false)
-			  .getFullString() );
-		 txt.addNewLine();
-	    }
-
-	    const float groundelev = info.groundelev_;
-	    if ( !mIsUdf(groundelev) )
-	    {
-		txt.add( Well::Info::sKeyGroundElev() ).add( colonstr );
-		txt.add( toString(zun ? zun->userValue(groundelev)
-				      : groundelev,0,'f',2) );
-		if ( zun )
-		    txt.add( zun->symbol() );
-		txt.addNewLine();
-	    }
+	    txt.add( Well::Info::sKeyKBElev() ).add( colonstr );
+	    txt.add( toString(zun ? zun->userValue(rdelev)
+				  : rdelev,0,'f',2) );
+	    if ( zun )
+		txt.add( zun->symbol() );
+	    txt.addNewLine();
 	}
 
-	mAddWellInfo(Well::Info::sUwid(),info.uwid_)
-	mAddWellInfo(Well::Info::sOper(),info.oper_)
-	mAddWellInfo(Well::Info::sCounty(),info.county_)
-	mAddWellInfo(Well::Info::sState(),info.state_)
-	mAddWellInfo(Well::Info::sCountry(),info.country_)
+	const float td = track.dahRange().stop_;
+	if ( !mIsZero(td,1e-3f) && !mIsUdf(td) )
+	{
+	    txt.add(Well::Info::sKeyTD()).add( colonstr );
+	    txt.add( toString(zun ? zun->userValue(td) : td,0,'f',2) );
+	    if ( zun )
+		txt.add( zun->symbol() );
+	    txt.addNewLine();
+	}
 
-	if ( txt.isEmpty() )
-	    txt.set( "<No specific info available>\n" );
+	const double srd = SI().seismicReferenceDatum();
+	if ( !mIsZero(srd,1e-4) )
+	{
+	    txt.add( SurveyInfo::sKeySeismicRefDatum() ).add( colonstr );
+	    txt.add( toString(zun ? zun->userValue(srd) : srd,0,'f',2) );
+	    if ( zun )
+		txt.add( zun->symbol() );
+	    txt.addNewLine();
+	}
 
-    } // if ( currdr.getInfo() )
+	const float replvel = info.replvel_;
+	if ( !mIsUdf(replvel) )
+	{
+	     txt.add( Well::Info::sKeyReplVel() ).add( colonstr );
+	     txt.add( zun ? zun->userValue(replvel) : replvel );
+	     txt.add( UnitOfMeasure::surveyDefVelUnitAnnot(true,false)
+		      .getFullString() );
+	     txt.addNewLine();
+	}
+
+	const float groundelev = info.groundelev_;
+	if ( !mIsUdf(groundelev) )
+	{
+	    txt.add( Well::Info::sKeyGroundElev() ).add( colonstr );
+	    txt.add( toString(zun ? zun->userValue(groundelev)
+				  : groundelev,0,'f',2) );
+	    if ( zun )
+		txt.add( zun->symbol() );
+	    txt.addNewLine();
+	}
+    }
+
+    mAddWellInfo(Well::Info::sUwid(),info.uwid_)
+    mAddWellInfo(Well::Info::sOper(),info.oper_)
+    mAddWellInfo(Well::Info::sCounty(),info.county_)
+    mAddWellInfo(Well::Info::sState(),info.state_)
+    mAddWellInfo(Well::Info::sCountry(),info.country_)
 
     txt.add( getFileInfo() );
     setInfo( txt );

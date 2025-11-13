@@ -50,9 +50,7 @@ WellTie::uiSaveDataDlg::uiSaveDataDlg( uiParent* p, Server& wdserv )
     mAttachCB( logchk_->activated, uiSaveDataDlg::saveLogsSelCB );
 
     BufferStringSet lognms;
-    for ( int idx=cLogShift; idx<data.logset_.size(); idx++)
-	lognms.add( data.logset_.getLog(idx).name() );
-
+    data.logset_.getNames( lognms );
     logsfld_ = new uiCheckList( loggrp, uiCheckList::Unrel, OD::Horizontal );
     logsfld_->addItems( lognms );
     logsfld_->attach( rightOf, logchk_ );
@@ -64,7 +62,7 @@ WellTie::uiSaveDataDlg::uiSaveDataDlg( uiParent* p, Server& wdserv )
 
     outputgrp_ = new uiCreateLogCubeOutputSel( loggrp, true );
     outputgrp_->attach( leftAlignedBelow, saveasfld_ );
-    changeLogUIOutput(0);
+    changeLogUIOutput( nullptr );
 
     auto* horSepar = new uiSeparator( this );
     horSepar->attach( stretchedBelow, loggrp );
@@ -142,15 +140,16 @@ bool WellTie::uiSaveDataDlg::saveLogs()
     uiString msg;
     for ( int ilog=0; ilog<logsfld_->size(); ilog++ )
     {
-	if ( !logsfld_->isChecked(ilog) )
+	if ( !logsfld_->isChecked(ilog) ||
+	     !data.logset_.validIdx(ilog+cLogShift) )
 	    continue;
 
-	const Well::Log& log = data.logset_.getLog( ilog+cLogShift );
+	const Well::Log& log = data.logset_.getLogByIdx( ilog+cLogShift );
 	BufferString lognm( log.name() );
 	if ( savetolog )
 	    lognm.addSpace().add( outputgrp_->getPostFix() );
 
-	if ( data.wd_->logs().getLog(lognm.buf()) )
+	if ( data.wd_->logs().isPresent(lognm.buf()) )
 	{
 	    const uiString localmsg = tr( "Log: '%1' already exists" )
 					  .arg( lognm );
@@ -181,19 +180,31 @@ bool WellTie::uiSaveDataDlg::saveLogs()
 	Well::ExtractParams wep;
 	wep.setFixedRange( data.getModelRange(), true );
 	LogCubeCreator lcr(lognms, logset, dataserver_.wellID(), wep, nrtraces);
-	if ( !lcr.setOutputNm(outputgrp_->getPostFix(),
-			      outputgrp_->withWellName()) )
+	uiStringSet existimpls;
+	const uiRetVal uirv = lcr.setOutputNm( outputgrp_->getPostFix(),
+					       outputgrp_->withWellName(),
+					       existimpls );
+	if ( uirv.isError() )
+	    mErrRet( uirv )
+
+	if ( !existimpls.isEmpty() &&
+	     !outputgrp_->askOverwrite(existimpls.cat()) )
+	    return false;
+
+	uiTaskRunner taskrunner( this );
+	if ( !TaskRunner::execute(&taskrunner,lcr) )
 	{
-	    if ( !outputgrp_->askOverwrite(lcr.errMsg()) )
-		return false;
-	    else
-		lcr.resetMsg();
+	    uiMSG().errorWithDetails( lcr.details(), lcr.uiMessage() );
+	    return false;
 	}
 
-	auto* taskrunner = new uiTaskRunner( this );
-	if ( !TaskRunner::execute(taskrunner,lcr) || !lcr.isOK() )
-	    mErrRet( lcr.errMsg() )
-
+	BufferStringSet outputnames;
+	lcr.getOutputNames( outputnames );
+	uiStringSet outputuinames;
+	for ( const auto* nm : outputnames )
+	    outputuinames.add( toUiString(nm->buf()) );
+	uiMSG().messageWithDetails( outputuinames,
+				    tr("Successfully created log cube(s)") );
     }
 
     return true;

@@ -26,6 +26,7 @@ public:
 			DBKey(const DBKey&);
 			~DBKey();
 
+    MultiID*		clone() const override;
     DBKey&		operator =(const DBKey&);
     bool		operator ==(const DBKey&) const;
     bool		operator !=(const DBKey&) const;

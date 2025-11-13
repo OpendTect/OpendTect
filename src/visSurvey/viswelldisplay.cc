@@ -236,15 +236,15 @@ void WellDisplay::fullRedraw( CallBacker* )
     well_->removeLogs();
 
     const BufferString& llogname = mGetLogPar( visBase::Well::Left, name_ );
-    if ( wd->getLog(llogname) )
+    if ( wd->logs().isPresent(llogname.buf()) )
 	displayLeftLog();
 
     const BufferString& rlogname = mGetLogPar( visBase::Well::Right, name_ );
-    if ( wd->getLog(rlogname) )
+    if ( wd->logs().isPresent(rlogname.buf()) )
 	displayRightLog();
 
     const BufferString& clogname = mGetLogPar( visBase::Well::Center, name_ );
-    if ( wd->getLog(clogname) )
+    if ( wd->logs().isPresent(clogname.buf()) )
 	displayCenterLog();
 }
 
@@ -431,16 +431,20 @@ void WellDisplay::setLineStyle( const OD::LineStyle& lst )
 
 void WellDisplay::setLogData( visBase::Well::LogParams& lp, bool isfilled )
 {
-    const Well::LoadReqs lreqs( Well::Trck,  Well::LogInfos );
+    const char* lognm = lp.name_.buf();
+    Well::LoadReqs lreqs( Well::Trck, Well::LogInfos );
+    lreqs.addLog( lognm );
+    if ( isfilled && lp.fillname_ != lognm )
+	lreqs.addLog( lp.fillname_ );
+
     RefMan<Well::Data> wd = getWD( lreqs );
     if ( !wd )
 	return;
 
-    const Well::Log* curlog = wd->getLog( lp.name_ );
-    if ( wd->track().size()<2 || !curlog )
+    const Well::Log* curlog = wd->logs().getLog( lognm );
+    if ( wd->track().size()<2 || !curlog || !curlog->isLoaded() )
 	return;
 
-    const BufferString lognm = curlog->name();
     ZSampling dahrg = curlog->dahRange();
     dahrg.step_ = curlog->dahStep( true );
     const float lognrsamples = dahrg.nrfSteps();
@@ -459,10 +463,14 @@ void WellDisplay::setLogData( visBase::Well::LogParams& lp, bool isfilled )
     logdata->setName( lognm );
 
     PtrMan<Well::Log> logfill;
-    if ( isfilled && lognm==lp.fillname_ )
+    if ( isfilled && lp.fillname_ == lognm )
 	logfill = new Well::Log( *logdata );
     else if ( isfilled )
-	logfill = wd->getLog( lp.fillname_ )->upScaleLog( dahrg );
+    {
+	const Well::Log* filllog = wd->logs().getLog( lp.fillname_ );
+	if ( filllog )
+	    logfill = filllog->upScaleLog( dahrg );
+    }
 
     const Well::Track& track =
 		needsConversionToTime() ? *timetrack_ : wd->track();
@@ -493,7 +501,7 @@ void WellDisplay::setLogData( visBase::Well::LogParams& lp, bool isfilled )
 	maxval = getmaxVal(maxval,val);
 	crdvals += visBase::Well::Coord3Value( pos, val );
 
-	if ( isfilled )
+	if ( isfilled && logfill )
 	{
 	    const float valfill = logfill->value( idx );
 	    if ( !mIsUdf(valfill) )
@@ -523,26 +531,27 @@ static bool mustBeFilled( const visBase::Well::LogParams& lp )
 
 void WellDisplay::setLogDisplay( visBase::Well::Side side )
 {
-    const Well::LoadReqs lreqs( Well::LogInfos );
+    Well::LoadReqs lreqs( Well::LogInfos );
     RefMan<Well::Data> wd = getWD( lreqs );
-    if ( !wd )
+    if ( !wd || wd->logs().isEmpty() )
 	return;
 
     const BufferString& logname = mGetLogPar( side, name_ );
-    if ( wd->logs().isEmpty() )
-	return;
-
-    const int logidx = wd->logs().indexOf( logname );
-    if ( logidx<0 )
+    if ( !wd->logs().isPresent(logname.buf()) )
     {
 	well_->clearLog( side );
 	well_->showLog( false, side );
 	return;
     }
 
+    lreqs.addLog( logname.buf() );
+    wd = getWD( lreqs );
+    if ( !wd || !wd->logs().isLoaded(logname.buf()) )
+	return;
+
     visBase::Well::LogParams lp;
     fillLogParams( lp, side );
-    lp.logidx_ = logidx;
+    lp.logidx_ = wd->logs().indexOf( logname.buf() );
     lp.side_ = side;
     lp.filllogidx_ = wd->logs().indexOf( lp.fillname_ );
 
@@ -595,7 +604,10 @@ void WellDisplay::calcClippedRange( float rate, Interval<float>& rg, int lidx )
 {
     mGetWD(return);
 
-    Well::Log& wl = wd->logs().getLog( lidx );
+    if ( !wd->logs().validIdx(lidx) )
+	return;
+
+    Well::Log& wl = wd->logs().getLogByIdx( lidx );
     if ( rate > 100 ) rate = 100;
     if ( mIsUdf(rate) || rate < 0 ) rate = 0;
     rate /= 100;

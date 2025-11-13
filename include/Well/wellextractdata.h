@@ -17,7 +17,6 @@ ________________________________________________________________________
 #include "position.h"
 #include "ranges.h"
 #include "stattype.h"
-#include "survinfo.h"
 #include "uistrings.h"
 #include "welldata.h"
 
@@ -25,13 +24,15 @@ class DataPointSet;
 class IODirEntryList;
 class IODir;
 class IOObj;
-template <class T> class Array2DImpl;
+class SurveyChanger;
+template <class T> class Array2D;
 
 
 namespace Well
 {
 class D2TModel;
 class Info;
+class LoadReqs;
 class Log;
 class LogSet;
 class Marker;
@@ -45,14 +46,14 @@ class Track;
 mExpClass(Well) ZRangeSelector
 { mODTextTranslationClass(ZRangeSelector);
 public :
-			ZRangeSelector() { setEmpty(); }
+			ZRangeSelector();
 			ZRangeSelector(const ZRangeSelector&);
     virtual		~ZRangeSelector();
 
     enum		ZSelection { Markers, Depths, Times };
 			mDeclareEnumUtils(ZSelection);
 
-    ZSelection		zselection_;
+    ZSelection		zselection_		= Markers;
 
     static const char*	sKeyTopMrk();
     static const char*	sKeyBotMrk();
@@ -67,7 +68,8 @@ public :
     virtual void	fillPar(IOPar&) const;
 
     virtual void	setEmpty();
-    virtual bool	isOK(uiString* errmsg=0) const;
+    virtual bool	isOK(uiString* errmsg=nullptr) const;
+    virtual void	fill(LoadReqs&) const;
 
     //set
     void		setTopMarker(const char* nm,float offset)
@@ -80,9 +82,9 @@ public :
 
     //get
     Interval<float>	calcFrom(const Data&,const BufferStringSet& logs,
-				 bool todah=true) const;
+				 uiString& errmsg,bool todah=true) const;
     Interval<float>	calcFrom(const Data&,const Well::LogSet& logset,
-				 bool todah=true) const;
+				 uiString& errmsg,bool todah=true) const;
 
     float		topOffset() const	{ return above_; }
     float		botOffset() const	{ return below_; }
@@ -93,19 +95,19 @@ public :
 
 protected:
 
-    Interval<float>	fixedzrg_;
-    BufferString	topmrkr_;
-    BufferString	botmrkr_;
-    float		above_;
-    float		below_;
-    bool		snapzrgtosurvey_;
+    Interval<float>	fixedzrg_		= Interval<float>::udf();
+    BufferString	topmrkr_		= sKeyDataStart();
+    BufferString	botmrkr_		= sKeyDataEnd();
+    float		above_			= 0.f;
+    float		below_			= 0.f;
+    bool		snapzrgtosurvey_	= false;
 
     void		setMarker(bool top,const char* nm,float offset);
     void		getMarkerRange(const Data&,
 				       Interval<float>&) const;
     void		getLimitPos(const MarkerSet&,bool,float&,
 				    const Interval<float>&) const;
-    void		snapZRangeToSurvey(Interval<float>&,bool,
+    void		snapZRangeToSurvey(Interval<float>&,bool zistime,
 					  const D2TModel*,
 					  const Track&) const;
 };
@@ -118,7 +120,7 @@ protected:
 mExpClass(Well) ExtractParams : public ZRangeSelector
 { mODTextTranslationClass(ExtractParams);
 public:
-			ExtractParams() { setEmpty(); }
+			ExtractParams();
 			ExtractParams(const ExtractParams&);
 			~ExtractParams();
 
@@ -126,15 +128,15 @@ public:
     void		fillPar(IOPar&) const override;
 
     void		setEmpty() override;
-    bool		isOK(uiString* errmsg=0) const override;
+    bool		isOK(uiString* errmsg=nullptr) const override;
 
     static const char*	sKeySamplePol();
     static const char*	sKeyZExtractInTime();
     float		getZStep() const;
 
-    float		zstep_; //can be in time
-    bool		extractzintime_;
-    Stats::UpscaleType	samppol_;
+    float		zstep_			= 1.f; //can be in time
+    bool		extractzintime_		= false;
+    Stats::UpscaleType	samppol_		= Stats::UseAvg;
 };
 
 
@@ -142,7 +144,7 @@ public:
 \brief Collects information about all wells in store.
 */
 
-mExpClass(Well) InfoCollector : public ::Executor
+mExpClass(Well) InfoCollector : public SequentialTask
 { mODTextTranslationClass(InfoCollector);
 public:
 
@@ -151,13 +153,9 @@ public:
 				      bool trackinfo=false);
 			~InfoCollector();
 
-    int			nextStep() override;
     uiString		uiMessage() const override	{ return curmsg_; }
     uiString		uiNrDoneText() const override
 			{ return tr("Wells inspected"); }
-
-    od_int64		nrDone() const override		{ return curidx_; }
-    od_int64		totalNr() const override	{ return totalnr_; }
 
     const TypeSet<MultiID>&	ids() const	{ return ids_; }
     const ObjectSet<Info>&	infos() const	{ return infos_; }
@@ -175,16 +173,23 @@ public:
     SurveyDiskLocation&		survey() const;
 
 protected:
+    bool		doPrepare(od_ostream* =nullptr) override;
+    int			nextStep() override;
+    bool		doFinish(bool,od_ostream* =nullptr) override;
+
+    od_int64		nrDone() const override		{ return curidx_; }
+    od_int64		totalNr() const override	{ return totalnr_; }
 
     SurveyDiskLocation&		survloc_;
+    SurveyChanger*		chgr_		= nullptr;
     TypeSet<MultiID>		ids_;
     ObjectSet<Info>		infos_;
     ObjectSet<MarkerSet>	markers_;
     ObjectSet<BufferStringSet>	logs_;
-    IODirEntryList*		direntries_;
-    const IODir*		iodir_;
+    IODirEntryList*		direntries_	= nullptr;
+    const IODir*		iodir_		= nullptr;
     int				totalnr_;
-    int				curidx_;
+    int				curidx_		= 0;
     uiString			curmsg_;
     bool			domrkrs_;
     bool			dologs_;
@@ -199,7 +204,7 @@ protected:
 new rows with the positions along the track.
 */
 
-mExpClass(Well) TrackSampler : public ::Executor
+mExpClass(Well) TrackSampler : public ::SequentialTask
 { mODTextTranslationClass(TrackSampler);
 public:
 
@@ -208,47 +213,45 @@ public:
 				     bool zvalsintime);
 			~TrackSampler();
 
-    float		locradius_;
-    bool		for2d_;
-    bool		minidps_;
-    bool		mkdahcol_;
+    float		locradius_	= 0.f;
+    bool		for2d_		= false;
+    bool		minidps_	= false;
+    bool		mkdahcol_	= false;
     BufferStringSet	lognms_;
 
     ExtractParams	params_;
 
     void		usePar(const IOPar&);
 
-    int			nextStep() override;
     uiString		uiMessage() const override
-			{ return tr("Scanning well tracks"); }
-
+			{ return msg_; }
     uiString		uiNrDoneText() const override
 			{ return tr("Wells inspected"); }
-
-    od_int64		nrDone() const override    { return curid_; }
-    od_int64		totalNr() const override   { return ids_.size(); }
-
-    uiString		errMsg() const
-			{ return errmsg_.isEmpty() ? uiString::emptyString()
-						   : errmsg_; }
-
-    const TypeSet<MultiID>&	ioObjIds() const	{ return ids_; }
-    ObjectSet<DataPointSet>&	dataPointSets()		{ return dpss_; }
 
     static const char*	sKeySelRadius();
     static const char*	sKeyDahCol();
     static const char*	sKeyFor2D();
     static const char*	sKeyLogNm();
 
-protected:
+private:
+
+    bool		doPrepare(od_ostream* =nullptr) override;
+    int			nextStep() override;
+    bool		doFinish(bool success,od_ostream* =nullptr) override;
+
+    od_int64		nrDone() const override    { return curid_; }
+    od_int64		totalNr() const override   { return ids_.size(); }
+
+    const TypeSet<MultiID>&	ioObjIds() const	{ return ids_; }
+    ObjectSet<DataPointSet>&	dataPointSets()		{ return dpss_; }
 
     const TypeSet<MultiID>&	ids_;
     ObjectSet<DataPointSet>&	dpss_;
-    int				curid_;
+    int				curid_		= 0;
     const bool			zistime_;
     Interval<float>		zrg_;
-    int				dahcolnr_;
-    uiString			errmsg_;
+    int				dahcolnr_	= -1;
+    uiString			msg_;
 
     void		getData(const Data&,DataPointSet&);
     bool		getPos(const Data&,float,BinIDValue&,int&,
@@ -421,9 +424,9 @@ protected:
     float			zstep_;
     bool			extrintime_;
     bool			zrgisintime_;
-    float			maxholesz_ = mUdf(float);
+    float			maxholesz_	= mUdf(float);
     ObjectSet<const Log>	logset_;
-    Array2DImpl<float>*		data_;
+    Array2D<float>*		data_		= nullptr;
     uiString			errmsg_;
     Stats::UpscaleType		samppol_;
 };

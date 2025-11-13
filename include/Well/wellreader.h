@@ -9,13 +9,9 @@ ________________________________________________________________________
 -*/
 
 #include "wellmod.h"
-#include "executor.h"
 
-#include "dbkey.h"
-#include "uistring.h"
-#include "wellman.h"
-#include "wellid.h"
-
+#include "paralleltask.h"
+#include "welldata.h"
 
 class BufferStringSet;
 class DBKeySet;
@@ -24,9 +20,8 @@ class SurveyChanger;
 
 namespace Well
 {
-class Data;
+class LogID;
 class ReadAccess;
-class LoadReqs;
 
 
 /*!\brief Reads Well::Data from any data store */
@@ -43,6 +38,7 @@ public:
 
     bool		get() const;		//!< Just read all
 			// Should use Well::MGR().get instead to get all
+    uiRetVal		readReqData(const LoadReqs&) const;
 
     bool		getInfo() const;	//!< Read Info only
     bool		getTrack() const;	//!< Read Track only
@@ -56,7 +52,7 @@ public:
     bool		getLogs(const BufferStringSet& lognms) const;
     bool		getLog(const char* lognm) const; //!< Read this one only
     bool		getLogByID(const LogID&) const; //!< Read this one only
-    void		getLogInfo(BufferStringSet& lognms) const;
+    void		getLogNames(BufferStringSet& lognms) const;
     bool		getDefLogs() const;	//!< Read list of default logs
 
     bool		getDispProps() const;	//!< Read display props only
@@ -65,56 +61,83 @@ public:
     const uiString&	errMsg() const		{ return errmsg_; }
 
     Well::Data*		data();
-    const Well::Data*	data() const
-			{ return const_cast<Reader*>(this)->data(); }
+    const Well::Data*	data() const;
 
     bool		getMapLocation(Coord&) const;
+
+    static bool		canReadInParallel(const MultiID&);
 
 protected:
 
     ReadAccess*		ra_ = nullptr;
     mutable uiString	errmsg_;
 
+    uiString		sCannotReadFileHeader() const;
+
 private:
 
     void		init(const IOObj&,Data&);
+
+public:
+			mDeprecated("Use getLogNames")
+    void		getLogInfo(BufferStringSet& lognms) const;
 
 };
 
 } // namespace Well
 
 
-mExpClass(Well) MultiWellReader : public Executor
+mExpClass(Well) MultiWellReader : public ParallelTask
 { mODTextTranslationClass(MultiWellReader)
 public:
 
 				MultiWellReader(const TypeSet<MultiID>&,
 						RefObjectSet<Well::Data>&,
-				    const Well::LoadReqs reqs=Well::LoadReqs());
+				    const Well::LoadReqs =Well::LoadReqs());
 				MultiWellReader(const DBKeySet&,
 						RefObjectSet<Well::Data>&,
-				    const Well::LoadReqs reqs=Well::LoadReqs());
+				    const Well::LoadReqs =Well::LoadReqs());
 				~MultiWellReader();
 
-    int				nextStep() override;
-    od_int64			totalNr() const override;
-    od_int64			nrDone() const override;
-    uiString			uiMessage() const override;
+    MultiWellReader&		setReqs(const Well::LoadReqs&);
+    MultiWellReader&		forceRead(bool yn);
+				//!< Default: false
+    MultiWellReader&		allowMissingLogs(bool yn);
+				//!< Default: true if logs are required
+
     uiString			uiNrDoneText() const override;
-    bool			allWellsRead() const { return allwellsread_; }
+    uiString			uiMessage() const override	{ return msg_; }
+    uiRetVal			details() const			{ return uirv_;}
+    uiRetVal			allMessages() const;
+
+    bool			hasFails() const;
 				//Can then be used to launch a warning locally
-    const uiString&		errMsg() const		{ return errmsg_; }
 
 protected:
+    void			init();
+    void			setMaxNrThreads();
+    od_int64			nrIterations() const override;
+    int				maxNrThreads() const override;
+    bool			stopAllOnFailure() const override
+				{ return false; }
 
-    RefObjectSet<Well::Data>&	wds_;
+    bool			doPrepare(int) override;
+    bool			doWork(od_int64,od_int64,int) override;
+    bool			doFinish(bool success) override;
+
+    RefMan<Well::Data>		getWD(const DBKey&,bool islocal) const;
+
     DBKeySet&			keys_;
-    od_int64			welladdedcount_		= 0;
-    od_int64			wellreloadedcount_	= 0;
+    BoolTypeSet			islocal_;
+    RefObjectSet<Well::Data>&	wds_;
     od_int64			nrwells_;
+    Threads::Atomic<od_int64>	nrsuccess_;
     od_int64			nrdone_			= 0;
-    uiString			errmsg_;
-    bool			allwellsread_		= true;
-    const Well::LoadReqs	reqs_;
+    uiString			msg_;
+    uiRetVal			uirv_;
+    bool			allsamesurvey_;
+    int				maxnrthreads_		= mUdf(int);
+    Well::LoadReqs		reqs_;
     SurveyChanger*		chgr_			= nullptr;
+    bool			forceread_		= false;
 };

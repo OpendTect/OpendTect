@@ -78,7 +78,7 @@ protected :
 
     void			writeLogs(od_ostream&);
     void			writeLogHeader(od_ostream&);
-    void			setDefaultRange(bool zinft);
+    void			setDefaultRange();
 
     od_ostream*			getOutputStream(const char* fp,
 						const BufferString& type);

@@ -58,30 +58,31 @@ protected:
 mExpClass(uiWell) uiExportLogs : public uiDialog
 { mODTextTranslationClass(uiExportLogs);
 public:
-			uiExportLogs(uiParent*,
-				const ObjectSet<Well::Data>&,
-				const BufferStringSet&);
+			uiExportLogs(uiParent*,const TypeSet<MultiID>&,
+				     const BufferStringSet& lognms);
 			~uiExportLogs();
 
 protected:
 
-    const ObjectSet<Well::Data>& wds_;
-    const BufferStringSet& logsel_;
+    const BufferStringSet lognms_;
+    RefObjectSet<Well::Data> wds_;
 
     uiGenInput*		typefld_;
     uiButtonGroup*	zunitgrp_;
     uiGenInput*		zrangefld_;
     uiFileInput*	outfld_;
-    uiGenInput*		multiwellsnamefld_;
-    Coords::uiCoordSystemSel* coordsysselfld_;
+    uiGenInput*		multiwellsnamefld_	= nullptr;
+    Coords::uiCoordSystemSel* coordsysselfld_	= nullptr;
 
-    void		setDefaultRange(bool);
+    void		setDefaultRange();
     void		writeHeader(od_ostream&,const Well::Data&);
     void		writeLogs(od_ostream&,const Well::Data&);
 
     void		typeSel(CallBacker*);
     bool		acceptOK(CallBacker*) override;
-    uiString		getDlgTitle( const ObjectSet<Well::Data>& wds,
-				     const BufferStringSet& lognms );
+
+    static uiString	getDlgTitle(const TypeSet<MultiID>& wellids,
+				    const BufferStringSet& lognms,
+				    ObjectSet<Well::Data>&);
 
 };

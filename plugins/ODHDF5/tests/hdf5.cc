@@ -25,6 +25,18 @@ static const int dim2_ = 20;
 static const int chunksz_ = 6;
 static const char* sPropNm = "Block and comp idxs";
 
+
+static bool testHDF5Access()
+{
+    mRunStandardTest( HDF5::isAvailable(), "HDF5 is available" )
+    mRunStandardTest( HDF5::isEnabled(), "HDF5 is enabled" )
+    mRunStandardTest( !HDF5::isParallelEnabled(),
+		      "HDF5 does not have parallel enabled" )
+
+    return true;
+}
+
+
 template <class T>
 static void fillArr2D( Array2D<T>& arr2d, int shft )
 {
@@ -650,7 +662,7 @@ static bool sampsOK( const short* data, const short* expected, int nrsamps )
     {
 	if ( data[isamp] != expected[isamp] )
 	{
-	    tstStream() << isamp << "-> " << data[isamp]
+	    logStream() << isamp << "-> " << data[isamp]
 		<< " should be " << expected[isamp] << od_endl;
 	    allok = false;
 	}
@@ -716,11 +728,8 @@ int mTestMainFnName( int argc, char** argv )
     OD::ModDeps().ensureLoaded( "General" );
     PIM().loadAuto( true );
 
-    if ( !HDF5::isAvailable() )
-    {
-	tstStream( true ) << "HDF5 not available" << od_endl;
+    if ( !testHDF5Access() )
 	return 1;
-    }
 
     filename_.set( FilePath(File::getTempPath(),"test.h5").fullPath() );
     if ( File::exists(filename_) && !File::remove(filename_) )
@@ -729,9 +738,9 @@ int mTestMainFnName( int argc, char** argv )
     if ( !testSmallCube() )
 	return 1;
 
-    if ( !testWrite()
-      || !testEdit()
-      || !testRead() )
+    if ( !testWrite() ||
+	 !testEdit() ||
+	 !testRead() )
 	return 1;
 
     if ( !clParser().hasKey("keep") )

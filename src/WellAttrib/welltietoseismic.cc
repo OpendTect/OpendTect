@@ -67,6 +67,12 @@ bool WellTie::DataPlayer::computeSynthetics( const Wavelet& wvlt )
     if ( !data_.wd_ )
 	mErrRet( tr( "Cannot read well data" ) )
 
+    const BufferStringSet lognms( data_.sKeySonic(), data_.sKeyDensity() );
+    Well::LoadReqs lreqs( Well::Trck, Well::D2T );
+    lreqs.addLogs( lognms );
+    if ( !Well::MGR().get(data_.wd_->multiID(),lreqs) )
+	mErrRet( Well::MGR().errMsg() );
+
     if ( !data_.wd_->d2TModel() )
 	mErrRet( tr( "No depth/time model computed" ) )
 

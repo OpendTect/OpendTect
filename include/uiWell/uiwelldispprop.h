@@ -9,7 +9,9 @@ ________________________________________________________________________
 -*/
 
 #include "uiwellmod.h"
+
 #include "uigroup.h"
+#include "welldata.h"
 #include "welldisp.h"
 #include "uistrings.h"
 
@@ -221,6 +223,6 @@ protected:
     Interval<float>	valuerange_;
     Interval<float>	fillvaluerange_;
     const Well::LogSet*  wl_ = nullptr;
-    const Well::Data*	wd_ = nullptr;
+    ConstRefMan<Well::Data> wd_;
 
 };

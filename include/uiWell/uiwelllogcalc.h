@@ -14,7 +14,9 @@ ________________________________________________________________________
 #include "bufstringset.h"
 #include "mnemonics.h"
 #include "multiid.h"
+#include "welldata.h"
 
+class Timer;
 class uiCheckBox;
 class uiComboBox;
 class uiGenInput;
@@ -22,7 +24,7 @@ class uiMathFormula;
 class uiToolButton;
 class uiUnitSel;
 namespace Math { class Formula; }
-namespace Well { class D2TModel; class Log; class LogSet; class Track;}
+namespace Well { class D2TModel; class Log; class LogSet; class Track; }
 
 
 /*! \brief Dialog for marker specifications */
@@ -53,45 +55,49 @@ protected:
     uiComboBox*			interppolfld_	= nullptr;
     uiToolButton*		viewlogbut_	= nullptr;
 
-    Well::LogSet&		superwls_;
+    RefObjectSet<Well::Data>	wds_;
     Math::Formula&		form_;
     float			zsampintv_	= mUdf(float);
     BufferStringSet		lognms_;
     MnemonicSelection		mnsel_;
     TypeSet<MultiID>		wellids_;
     bool			havenew_	= false;
+    bool			rockphysmode_;
+    Timer&			timer_;
 
-    struct InpData
+    mClass(uiWell) InpData
     {
-			InpData( const Well::Log* w=nullptr )
-			    : wl_(w)				{}
-	bool		operator ==( const InpData& id ) const
-			{ return wl_ == id.wl_; }
-	const Well::Log* wl_;
-	int		shift_ = 0;
-	int		specidx_ = -1;
-	bool		isconst_ = false;
-	double		constval_ = 0.;
+    public:
+			InpData();
+			~InpData();
+			mOD_DisableCopy(InpData);
+
+	BufferString	lognm_;
+	const Well::Log* wl_		= nullptr;
+	int		shift_		= 0;
+	int		specidx_	= -1;
+	bool		isconst_	= false;
+	double		constval_	= 0.;
     };
 
     void		getAllLogs();
     bool		useForm();
-    Well::Log*		getLog4InpIdx(Well::LogSet&,const char* lognm);
-    void		fillSRFld(const char* lognm);
+    const Well::Log*	getFirstLog4InpIdx(const char* lognm) const;
+    void		resetTimer();
 
-    bool		getInpDatas(Well::LogSet&,TypeSet<InpData>&,uiString&);
-    Well::Log*		getInpLog(Well::LogSet&,int);
-    bool		calcLog(Well::Log&,const TypeSet<InpData>&,
-				Well::Track&,Well::D2TModel*);
-    void		deleteLog(TypeSet<InpData>&);
+    bool		getInpDatas(const MultiID& wid,ObjectSet<InpData>&,
+				    Well::LoadReqs&,uiString&);
+    bool		calcLog(const ObjectSet<InpData>&,
+				const Well::Track&,const Well::D2TModel*,
+				Well::Log&);
 
-    void		initWin(CallBacker*);
+    void		afterPopupCB(CallBacker*);
     void		rockPhysReq(CallBacker*);
-    void		inpSel(CallBacker*);
     void		formMnSet(CallBacker*);
     void		feetSel(CallBacker*);
     void		vwLog(CallBacker*);
     void		viewOutputCB(CallBacker*);
+    void		releaseWDS(CallBacker*);
 
     bool		acceptOK(CallBacker*) override;
 };

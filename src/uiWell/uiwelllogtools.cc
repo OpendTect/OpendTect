@@ -42,27 +42,74 @@ ________________________________________________________________________
 WellLogToolData::WellLogToolData( const Well::SelInfo& info )
     : Well::SubSelData(info)
 {
-    init();
 }
 
 
 WellLogToolData::~WellLogToolData()
 {
-    inplogs_.setEmpty();
     deepErase( outplogs_ );
 }
 
 
-void WellLogToolData::init()
+int WellLogToolData::nrLogs() const
 {
-    for ( int idx=0; idx<logs().size(); idx++ )
-    {
-	const Well::Log& log = logs().getLog( idx );
-	inplogs_ += &log;
+    return lognms().size();
+}
 
-	auto* outplog = new Well::Log( log );
-	outplogs_.add( outplog );
-    }
+
+const Well::Log* WellLogToolData::getInpLog( const char* lognm ) const
+{
+    return wd_ ? wd_->logs().getLog( lognm ) : nullptr;
+}
+
+
+const Well::LogSet* WellLogToolData::getLogs() const
+{
+    return wd_ ? &wd_->logs() : nullptr;
+}
+
+
+const Well::Log* WellLogToolData::getOutpLog( const char* lognm ) const
+{
+    return getNonConst(this)->getOutpLog( lognm );
+}
+
+
+Well::Log* WellLogToolData::getOutpLog( const char* lognm )
+{
+    for ( auto* log : outplogs_ )
+	if ( log->name() == lognm )
+	    return log;
+
+    return nullptr;
+}
+
+
+bool WellLogToolData::loadInputLogs( uiString& errmsg )
+{
+    const MultiID wid = wellID();
+    const Well::LoadReqs lreqs( lognms() );
+    const bool res = Well::MGR().get( wid, lreqs );
+    if ( !res )
+	errmsg = Well::MGR().errMsg();
+
+    return true;
+}
+
+
+Well::Log* WellLogToolData::addOutputLog( const Well::Log& inplog )
+{
+    auto* outputlog = new Well::Log( inplog );
+    outplogs_.add( outputlog );
+    return outputlog;
+}
+
+
+void WellLogToolData::replace( Well::Log* oldlog, Well::Log* newlog )
+{
+    outplogs_ -= oldlog;
+    delete oldlog;
+    outplogs_.add( newlog );
 }
 
 
@@ -115,66 +162,100 @@ bool uiWellLogToolWinMgr::acceptOK( CallBacker* )
 	mErrRet( tr("Please select at least one well") )
 
     ObjectSet<WellLogToolData> logdatas;
-    BufferStringSet msgs;
-    int nrsellogs = lognms.size() * wellnms.size();
+    uiRetVal uirv;
     int totalnrlogs = 0;
     const int maxlimit = checkMaxLogsToDisplay();
-    bool displogs = false;
-    for ( int idx=0; idx<wellids.size(); idx++ )
+    const Well::ExtractParams& params = welllogselfld_->params();
+    Well::LoadReqs lreqs( false );
+    params.fill( lreqs );
+    lreqs.include( Well::LogInfos );
+    for ( const auto& wid : wellids )
     {
-	const MultiID& wmid = wellids[idx];
-	const Well::LoadReqs req( Well::LogInfos );
-	RefMan<Well::Data> wd = Well::MGR().get( wmid, req );
-	Well::SelInfo info( *wd );
-	info.setSelectedLogs( lognms );
-	const Well::ExtractParams& params = welllogselfld_->params();
-	info.setMDRange( params.calcFrom(*wd,lognms,true) );
-	auto* ldata = new WellLogToolData( info );
-	const int nrinplogs = ldata->inpLogs().size();
-	if ( !nrinplogs )
+	RefMan<Well::Data> wd = Well::MGR().get( wid, lreqs );
+	if ( !wd )
 	{
-	    delete ldata;
+	    uirv.add( Well::MGR().errMsg() );
 	    continue;
 	}
 
-	totalnrlogs += nrinplogs;
-	displogs = totalnrlogs <= maxlimit;
-	if ( !displogs )
+	const Well::LogSet& logs = wd->logs();
+	BufferStringSet wlllognms;
+	for ( const auto* lognm : lognms )
 	{
-	    delete ldata;
-	    break;
+	    if ( logs.isPresent(lognm->buf()) )
+		wlllognms.add( lognm->buf() );
 	}
 
-	logdatas += ldata;
+	if ( wlllognms.isEmpty() )
+	    continue;
+
+	Well::SelInfo info( *wd );
+	info.setSelectedLogs( wlllognms );
+	uiString errmsg;
+	const Interval<float> dahrg = params.calcFrom( *wd, wlllognms, errmsg );
+	if ( dahrg.isUdf() )
+	{
+	    uirv.add( errmsg );
+	    continue;
+	}
+
+	info.setMDRange( dahrg );
+	PtrMan<WellLogToolData> ldata = new WellLogToolData( info );
+	const int nrinplogs = ldata->nrLogs();
+	if ( nrinplogs < 1 )
+	    continue;
+
+	totalnrlogs += nrinplogs;
+	if ( totalnrlogs > maxlimit )
+	    break;
+
+	logdatas += ldata.release();
     }
 
-    if ( !displogs )
+    if ( logdatas.isEmpty() )
     {
-	const int ldsize = logdatas.size();
+	uiMSG().errorWithDetails( uirv,
+				    tr("Please select at least one valid "
+				       "log for the selected well(s)") );
+	return false;
+    }
+    else if ( logdatas.size() < wellids.size() )
+    {
+	uiMSG().messageWithDetails( uirv,
+		tr("Could not extract data for all selected wells") );
+    }
+
+    if ( totalnrlogs > maxlimit )
+    {
 	uiString msg = tr("You have selected %1 logs. Unfortunately OpendTect\n"
 			  "can only display %2 logs on this screen.\n"
 			  "Do you want to display logs of the first")
-			.arg(nrsellogs).arg(maxlimit);
+			.arg( totalnrlogs ).arg( maxlimit );
 
+	const int ldsize = logdatas.size();
 	ldsize == 1 ? msg.append( tr("well?") )
-		    : msg.append( tr("%3 wells?").arg(ldsize));
+		    : msg.append( tr("%3 wells?").arg(ldsize) );
 
-	const int res = uiMSG().askGoOn( msg );
-	if ( !res )
+	if ( !uiMSG().askGoOn(msg) )
 	{
-	    deepErase(logdatas);
+	    deepErase( logdatas );
 	    return false;
 	}
     }
 
-    if ( logdatas.isEmpty() )
-	mErrRet(tr("%1\nPlease select at least one valid "
-		   "log for the selected well(s)")
-		   .arg(msgs.cat()) )
-    else if ( !msgs.isEmpty() )
-	uiMSG().warning( tr("%1\nWill process the other wells only")
-			     .arg( msgs.cat() ) );
+    uirv.setOK();
+    for ( auto* logdata : logdatas )
+    {
+	uiString errmsg;
+	if ( !logdata->loadInputLogs(errmsg) )
+	    uirv.add( errmsg );
+    }
 
+    if ( uirv.isError() )
+    {
+	uiMSG().messageWithDetails( uirv,
+				    tr("Could not load all selected logs") );
+    }
 
     auto* win = new uiWellLogToolWin( this, logdatas );
     win->show();
@@ -202,8 +283,6 @@ uiWellLogToolWin::uiWellLogToolWin( uiParent* p,
 				    ObjectSet<WellLogToolData>& logs,
 				    bool withedit )
     : uiMainWin(p,Setup(tr("Log Tools Window")).nrstatusflds(0))
-    , actionfld_(nullptr)
-    , savefld_(nullptr)
     , logdatas_(logs)
 {
     logdisp_ = GetWellDisplayServer().createWellLogToolGrp( this, logdatas_ );
@@ -212,12 +291,11 @@ uiWellLogToolWin::uiWellLogToolWin( uiParent* p,
     if ( editgrp )
 	editgrp->attach( ensureBelow, logdisp_ );
 
-    uiSeparator* horSepar = new uiSeparator( this );
+    auto* horSepar = new uiSeparator( this );
     if ( editgrp )
 	horSepar->attach( stretchedBelow, editgrp->attachObj() );
     else
 	horSepar->attach( stretchedBelow, logdisp_ );
-
 
     okbut_ = uiButton::getStd( this, OD::Ok,
 				mCB(this,uiWellLogToolWin,acceptOK), true );
@@ -225,7 +303,7 @@ uiWellLogToolWin::uiWellLogToolWin( uiParent* p,
     okbut_->attach( ensureBelow, horSepar );
     okbut_->setSensitive( false );
 
-    uiButton* cancelbut = uiButton::getStd( this, OD::Cancel,
+    auto* cancelbut = uiButton::getStd( this, OD::Cancel,
 				mCB(this,uiWellLogToolWin,rejectOK), true );
     cancelbut->attach( rightBorder, 20 );
     cancelbut->attach( ensureBelow, horSepar );
@@ -236,8 +314,8 @@ uiWellLogToolWin::uiWellLogToolWin( uiParent* p,
 
 uiGroup* uiWellLogToolWin::createEditGroup()
 {
-    uiGroup* editgrp = new uiGroup( this, "Edit" );
-    uiGroup* actiongrp = new uiGroup( editgrp, "Action" );
+    auto* editgrp = new uiGroup( this, "Edit" );
+    auto* actiongrp = new uiGroup( editgrp, "Action" );
     actiongrp->attach( hCentered );
     const char* acts[] =
 	{ "Remove Spikes", "FFT Filter", "Smooth",
@@ -278,7 +356,7 @@ uiGroup* uiWellLogToolWin::createEditGroup()
     replacespikevalfld_->attach( rightOf, replacespikefld_ );
     replacespikevalfld_->setValue( 0 );
 
-    uiGroup* savegrp = new uiGroup( editgrp, "Save options" );
+    auto* savegrp = new uiGroup( editgrp, "Save options" );
     savegrp->attach( alignedBelow, actiongrp );
     savefld_ = new uiGenInput( savegrp, tr("On OK"),
 	BoolInpSpec(true,tr("Save logs as new"),tr("Overwrite original logs")));
@@ -415,16 +493,26 @@ void uiWellLogToolWin::applyPushedCB( CallBacker* )
     for ( int idldata=0; idldata<logdatas_.size(); idldata++ )
     {
 	WellLogToolData& ld = *logdatas_[idldata];
-	const char* wllnm = ld.wellName();
+	if ( !ld.isOK() )
+	    continue;
 
-	for ( int idlog=0; idlog<ld.inpLogs().size(); idlog++ )
+	const char* wllnm = ld.wellName();
+	const BufferStringSet& lognms = ld.lognms();
+	for ( const auto* lognm : lognms )
 	{
-	    const Well::Log& inplog = *ld.inpLogs().get( idlog );
-	    Well::Log& outplog = *ld.outpLogs().get( idlog );
-	    outplog = inplog;
-	    const int sz = inplog.size();
-	    if ( sz< 2 )
+	    const Well::Log* inplog = ld.getInpLog( lognm->buf() );
+	    if ( !inplog || !inplog->isLoaded() )
 		continue;
+
+	    const int sz = inplog->size();
+	    if ( sz<2 )
+		continue;
+
+	    auto* outplog = ld.getOutpLog( lognm->buf() );
+	    if ( outplog )
+		*outplog = *inplog;
+	    else
+		outplog = ld.addOutputLog( *inplog );
 
 	    if ( act == 0 || act == 2 )
 	    {
@@ -433,8 +521,6 @@ void uiWellLogToolWin::applyPushedCB( CallBacker* )
 		    continue;
 	    }
 
-	    const float* inp = inplog.valArr();
-	    float* outp = outplog.valArr();
 	    if ( act == 0 )
 	    {
 		Stats::Grubbs sgb;
@@ -442,20 +528,21 @@ void uiWellLogToolWin::applyPushedCB( CallBacker* )
 		TypeSet<int> grubbsidxs;
 		const int winsz = gatefld_->getIntValue();
 		mAllocVarLenArr( float, gatevals, winsz )
+		float* outpvals = outplog->valArr();
 		for ( int idx=winsz/2; idx<sz-winsz; idx+=winsz  )
 		{
 		    float cutoffval = cutoff_grups + 1;
 		    while ( cutoffval > cutoff_grups )
 		    {
 			for (int winidx=0; winidx<winsz; winidx++)
-			    gatevals[winidx]= outp[idx+winidx-winsz/2];
+			    gatevals[winidx]= outpvals[idx+winidx-winsz/2];
 
 			int idxtofix;
 			cutoffval = sgb.getMax( mVarLenArr(gatevals),
 						winsz, idxtofix ) ;
 			if ( cutoffval > cutoff_grups  && idxtofix >= 0 )
 			{
-			    outp[idx+idxtofix-winsz/2] = mUdf( float );
+			    outpvals[idx+idxtofix-winsz/2] = mUdf( float );
 			    grubbsidxs += idx+idxtofix-winsz/2;
 			}
 		    }
@@ -464,15 +551,15 @@ void uiWellLogToolWin::applyPushedCB( CallBacker* )
 		for ( int idx=0; idx<grubbsidxs.size(); idx++ )
 		{
 		    const int gridx = grubbsidxs[idx];
-		    float& grval = outp[gridx];
+		    float& grval = outpvals[gridx];
 		    if ( spkact == 2 )
 		    {
 			grval = replacespikevalfld_->getFValue();
 		    }
 		    else if ( spkact == 1 )
 		    {
-			float dah = outplog.dah( gridx );
-			grval = outplog.getValue( dah, true );
+			float dah = outplog->dah( gridx );
+			grval = outplog->getValue( dah, true );
 		    }
 		}
 	    }
@@ -481,14 +568,14 @@ void uiWellLogToolWin::applyPushedCB( CallBacker* )
 		RefMan<Well::Data> wd = Well::MGR().get( ld.wellID(),
 				Well::LoadReqs(Well::Trck,Well::D2T) );
 		const Well::Track& track = wd->track();
-		const float startdah = outplog.dahRange().start_;
-		const float stopdah = outplog.dahRange().stop_;
+		const float startdah = outplog->dahRange().start_;
+		const float stopdah = outplog->dahRange().stop_;
 		const float zstart = sCast( float,
 					    track.getPos( startdah ).z_ );
                 const float zstop = sCast( float, track.getPos( stopdah ).z_ );
 		const Interval<float> zrg( zstart, zstop );
 		ObjectSet<const Well::Log> reslogs;
-		reslogs += &outplog;
+		reslogs += outplog;
 		Stats::UpscaleType ut = Stats::UseAvg;
 		const float deftimestep = 0.001f;
 
@@ -529,20 +616,23 @@ void uiWellLogToolWin::applyPushedCB( CallBacker* )
 		    filtvals.add( ls.getDah( idz ), logvals.get( idz ) );
 		}
 
+		float* outpvals = outplog->valArr();
 		for ( int idz=0; idz<sz; idz++ )
 		{
-		    const float dah = outplog.dah( idz );
-		    outp[idz] = filtvals.getValue( dah );
+		    const float dah = outplog->dah( idz );
+		    outpvals[idz] = filtvals.getValue( dah );
 		}
-		if ( freqfld_->filterType() != FFTFilter::LowPass )
-		    outplog.setMnemonicLabel( nullptr );
 
+		if ( freqfld_->filterType() != FFTFilter::LowPass )
+		    outplog->setMnemonicLabel( nullptr );
 	    }
 	    else if ( act == 2 )
 	    {
+		const float* inpvals = inplog->valArr();
+		float* outpvals = outplog->valArr();
 		Smoother1D<float> sm;
-		sm.setInput( inp, sz );
-		sm.setOutput( outp );
+		sm.setInput( inpvals, sz );
+		sm.setOutput( outpvals );
 		const int winsz = gatefld_->getIntValue();
 		sm.setWindow( HanningWindow::sName(), 0.95, winsz );
 		if ( !sm.execute() )
@@ -552,37 +642,39 @@ void uiWellLogToolWin::applyPushedCB( CallBacker* )
 	    }
 	    else if ( act == 3 )
 	    {
+		float* outpvals = outplog->valArr();
 		Interval<float> rg;
 		const float rate = gatefld_->getFValue() / 100.f;
 		DataClipSampler dcs( sz );
-		dcs.add( outp, sz );
+		dcs.add( outpvals, sz );
 		rg = dcs.getRange( rate );
 		for ( int idx=0; idx<sz; idx++ )
 		{
-		    if ( outp[idx] < rg.start_ ) outp[idx] = rg.start_;
-		    if ( outp[idx] > rg.stop_ )  outp[idx] = rg.stop_;
+		    if ( outpvals[idx] < rg.start_ ) outpvals[idx] = rg.start_;
+		    if ( outpvals[idx] > rg.stop_ )  outpvals[idx] = rg.stop_;
 		}
 	    }
 	    else if ( act == 4 )
 	    {
-		StepInterval<float> rg( inplog.dahRange() );
+		StepInterval<float> rg( inplog->dahRange() );
 		rg.step_ = gatefld_->getFValue();
-		Well::Log* upscaledlog = inplog.upScaleLog( rg );
-		outplog = *upscaledlog;
+		Well::Log* upscaledlog = inplog->upScaleLog( rg );
+		ld.replace( outplog, upscaledlog );
 	    }
 	    else if ( act == 5 )
 	    {
-		StepInterval<float> rg( inplog.dahRange() );
+		StepInterval<float> rg( inplog->dahRange() );
 		rg.step_ = gatefld_->getFValue();
-		Well::Log* sampledlog = inplog.sampleLog( rg );
-		outplog = *sampledlog;
+		Well::Log* sampledlog = inplog->sampleLog( rg );
+		ld.replace( outplog, sampledlog );
 	    }
 	    else if ( act == 6 )
 	    {
-		Well::Log* cleanudflog = inplog.cleanUdfs();
-		outplog = *cleanudflog;
+		Well::Log* cleanudflog = inplog->cleanUdfs();
+		ld.replace( outplog, cleanudflog );
 	    }
-	    outplog.updateAfterValueChanges();
+
+	    outplog->updateAfterValueChanges();
 	}
     }
 
@@ -605,18 +697,19 @@ bool uiWellLogToolWin::saveLogs()
 	    return false;
     }
 
-    uiStringSet errmsgs;
-    for ( int idx=0; idx<logdatas_.size(); idx++ )
+    uiRetVal uirv;
+    for ( auto* logdata : logdatas_ )
     {
-	WellLogToolData& ld = *logdatas_[idx];
-	const Well::LogSet& ls = ld.logs();
+	const Well::LogSet* logs = logdata->getLogs();
+	if ( !logs )
+	    continue;
 
-	ObjectSet<Well::Log>& outputlogs = ld.outpLogs();
+	ObjectSet<Well::Log>& outputlogs = logdata->outpLogs();
 	for ( auto* log : outputlogs )
 	{
 	    BufferString newnm( log->name() );
 	    newnm += extfld_->text();
-	    if ( !overwrite && ls.isPresent(newnm) )
+	    if ( !overwrite && logs->isPresent(newnm.buf()) )
 	    {
 		uiMSG().error(
 		    tr("One or more logs with this name already exists."
@@ -628,16 +721,16 @@ bool uiWellLogToolWin::saveLogs()
 		log->setName( newnm.buf() );
 	}
 
-	const bool res = Well::MGR().writeAndRegister( ld.wellID(),
+	const bool res = Well::MGR().writeAndRegister( logdata->wellID(),
 						       outputlogs );
 	if ( !res )
-	    errmsgs.add( toUiString(Well::MGR().errMsg()) );
+	    uirv.add( Well::MGR().errMsg() );
     }
 
-    if ( !errmsgs.isEmpty() )
+    if ( uirv.isError() )
     {
-	errmsgs.insert( 0, tr("Error saving edited logs") );
-	uiMSG().errorWithDetails( errmsgs );
+	uiMSG().errorWithDetails( uirv, tr("Error saving edited logs") );
+	return false;
     }
 
     return true;

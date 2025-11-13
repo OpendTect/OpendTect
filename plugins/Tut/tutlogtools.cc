@@ -30,25 +30,21 @@ bool Tut::LogTools::runSmooth( const int inpgate )
     Stats::WindowedCalc<float> wcalc(
 			Stats::CalcSetup().require(Stats::Median), gate );
     const int sz = inplog_.size();
-    for ( int idx=0; idx<sz+rad; idx++ )
+    for ( int idx=0; idx<sz; idx++ )
     {
-	const int cpos = idx - rad;
-	const float dah = inplog_.dah( cpos );
-	const float cposval = inplog_.value( cpos );
-	if ( idx < sz )
+	wcalc.clear();
+	for ( int i=idx-rad; i<=idx+rad; i++ )
 	{
-	    const float inval = inplog_.value( idx );
-	    if ( !mIsUdf(inval) )
-		wcalc += inval;
-
-	    if ( cpos >= rad )
-		outplog_.addValue( dah, wcalc.median() );
+	    if ( i >= 0 && i < sz )
+	    {
+		const float val = inplog_.value( i );
+		if ( !mIsUdf(val) )
+		    wcalc += val;
+	    }
 	}
-	else
-	    outplog_.addValue( dah, cposval );
 
-	if ( cpos<rad && cpos>=0 )
-	    outplog_.addValue( dah, cposval );
+	const float dah = inplog_.dah( idx );
+	outplog_.addValue( dah, wcalc.median() );
     }
 
     outplog_.setUnitMeasLabel( inplog_.unitMeasLabel() );

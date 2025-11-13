@@ -17,7 +17,6 @@ ________________________________________________________________________
 #include "welldata.h"
 #include "wellextractdata.h"
 #include "wellman.h"
-#include "wellreader.h"
 
 #include <math.h>
 
@@ -79,35 +78,13 @@ void Attrib::WellLog::prepareForComputeData()
 {
     deleteAndNullPtr( logvals_ );
 
-    RefMan<Well::Data> wd = new Well::Data;
-    if ( Well::MGR().isLoaded(wellid_) )
+    Well::LoadReqs lreqs( Well::Trck, Well::D2T, Well::LogInfos );
+    lreqs.include( Well::Mrkrs ).addLog( logname_ );
+    ConstRefMan<Well::Data> wd = Well::MGR().get( wellid_, lreqs );
+    if ( !wd )
     {
-	Well::LoadReqs lreqs( Well::Trck, Well::D2T, Well::LogInfos );
-	lreqs.add( Well::Mrkrs );
-	wd = Well::MGR().get( wellid_, lreqs );
-	if ( !wd )
-	{
-	    errmsg_ = Well::MGR().errMsg();
-	    return;
-	}
-    }
-    else
-    {
-	Well::Reader wrdr( wellid_, *wd );
-	const bool hastrack = wrdr.getTrack();
-	const bool hasd2t = wrdr.getD2T();
-	const bool haslog = wrdr.getLog( logname_ );
-	if ( !hastrack || ( SI().zIsTime() && !hasd2t ) || !haslog )
-	{
-	    errmsg_ = uiStrings::phrCannotRead( !hastrack
-				    ? uiStrings::sTrack()
-				    : !haslog ? uiStrings::sWellLog()
-					      : tr("time-depth model") );
-	    if ( !wd->name().isEmpty() )
-		errmsg_.append( " for well ").append( wd->name() );
-
-	    return;
-	}
+	errmsg_ = Well::MGR().errMsg();
+	return;
     }
 
     Well::ExtractParams pars;

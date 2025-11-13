@@ -369,6 +369,7 @@ Well::Data::Data( const char* nm )
     , logschanged(this)
     , reloaded(this)
     , info_(nm)
+    , mid_(new MultiID)
     , track_(*new Well::Track)
     , logs_(*new Well::LogSet)
     , markers_(*new MarkerSet)
@@ -384,6 +385,7 @@ Well::Data::~Data()
 {
     detachAllNotifiers();
 
+    delete mid_;
     delete &track_;
     delete &logs_;
     deepErase( d2tmodels_ );
@@ -397,6 +399,13 @@ Well::Data::~Data()
 void Well::Data::prepareForDelete()
 {
     Well::MGR().cleanupNullPtrs();
+}
+
+
+void Well::Data::setMultiID( const MultiID& mid )
+{
+    delete mid_;
+    mid_ = mid.clone();
 }
 
 
@@ -823,6 +832,13 @@ Well::LoadReqs Well::Data::loadState() const
 	lreqs.add( LogInfos );
 	if ( logs_.areAllLoaded() )
 	    lreqs.add( Logs );
+	else
+	{
+	    BufferStringSet lognms;
+	    logs().getNames( lognms, true );
+	    if ( !lognms.isEmpty() )
+		lreqs.addLogs( lognms );
+	}
     }
 
     if ( !track_.isEmpty() )
@@ -834,24 +850,12 @@ Well::LoadReqs Well::Data::loadState() const
 
 const Well::Log* Well::Data::getLog( const char* nm ) const
 {
-    Well::Data& wd = const_cast<Well::Data&>(*this);
-    return wd.getLogForEdit( nm );
+    return logs().getLog( nm );
 }
 
 
 Well::Log* Well::Data::getLogForEdit( const char* nm )
 {
-    if ( !logs().isLoaded(nm) )
-    {
-	Well::Data& wd = const_cast<Well::Data&>(*this);
-	Well::Reader rdr( mid_, wd );
-	if ( !rdr.getLog( nm ) )
-	{
-	    ErrMsg( rdr.errMsg() );
-	    return nullptr;
-	}
-    }
-
     return logs().getLog( nm );
 }
 
@@ -874,7 +878,7 @@ void Well::Data::getLoadedLogNames( BufferStringSet& nms ) const
 
 void Well::Data::reloadLogInfos() const
 {
-    MGR().reloadLogs( mid_ );
+    MGR().reloadLogs( multiID() );
 }
 
 

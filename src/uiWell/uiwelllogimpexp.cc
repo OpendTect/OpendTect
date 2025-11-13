@@ -234,27 +234,31 @@ bool uiImportLogsDlg::acceptOK( CallBacker* )
 
     lfi.lognms_ = lognms;
     const uiString res = wdai.getLogs( lasfnm, lfi, istvdfld_->getBoolValue(),
-				    usecurvenms );
+				       usecurvenms );
     if ( !res.isEmpty() )
 	mErrRet( res )
 
-    uiString errmsg = tr("Cannot write following logs to disk");
+    ObjectSet<Well::Log> logs;
     bool failed = false;
-    Well::Writer wtr( wmid, *wd );
+    uiString errmsg = tr("Cannot write following logs to disk: ");
     for ( const auto* lognm : lognms )
     {
-	const Well::Log* log = wd->logs().getLog( lognm->buf() );
-	if ( !log || !wtr.putLog(*log) )
+	Well::Log* log = wd->logs().getLog( lognm->buf() );
+	if ( log )
+	    logs.add( log );
+	else
 	{
-	    errmsg.addMoreInfo( tr("lognm"), true );
 	    failed = true;
+	    errmsg.addMoreInfo( tr("lognm"), true );
 	}
     }
 
     if ( failed )
 	mErrRet( errmsg )
 
-    wd->logschanged.trigger( -1 );
+    if ( Well::MGR().writeAndRegister(wmid,logs) )
+	mErrRet( Well::MGR().errMsg() );
+
     uiString msg = tr("Well Log successfully imported."
 		      "\n\nDo you want to import more Well Logs?");
     bool ret = uiMSG().askGoOn( msg, uiStrings::sYes(),
@@ -277,12 +281,23 @@ static const char* exptypes[] =
 static const float cTWTFac  = 1000.f;
 
 
-uiString uiExportLogs::getDlgTitle( const ObjectSet<Well::Data>& wds,
-				    const BufferStringSet& lognms )
+uiString uiExportLogs::getDlgTitle( const TypeSet<MultiID>& wellids,
+				    const BufferStringSet& lognms,
+				    ObjectSet<Well::Data>& wds )
 {
+    const Well::LoadReqs lreqs( Well::Inf, Well::D2T, Well::LogInfos );
     BufferStringSet wllnms;
-    addNames( wds, wllnms );
-    const int nrwells = wllnms.size();
+    for ( const auto& wid : wellids )
+    {
+	RefMan<Well::Data> wd = Well::MGR().get( wid, lreqs );
+	if ( !wd )
+	    continue;
+
+	wds.add( wd.ptr() );
+	wllnms.add( wd->name() );
+    }
+
+    const int nrwells = wds.size();
     const int nrlogs = lognms.size();
     if ( nrwells < 1 || nrlogs < 1 )
 	return tr("No wells/logs selected");
@@ -301,15 +316,12 @@ uiString uiExportLogs::getDlgTitle( const ObjectSet<Well::Data>& wds,
 
 
 
-uiExportLogs::uiExportLogs( uiParent* p, const ObjectSet<Well::Data>& wds,
-			  const BufferStringSet& logsel )
+uiExportLogs::uiExportLogs( uiParent* p, const TypeSet<MultiID>& wellids,
+			    const BufferStringSet& lognms )
     : uiDialog(p,Setup(uiStrings::phrExport(uiStrings::sWellLog(mPlural)),
-		       getDlgTitle(wds,logsel),
+		       getDlgTitle(wellids,lognms,wds_),
 		       mODHelpKey(mExportLogsHelpID)))
-    , wds_(wds)
-    , logsel_(logsel)
-    , multiwellsnamefld_(nullptr)
-    , coordsysselfld_(nullptr)
+    , lognms_(lognms)
 {
     setOkCancelText( uiStrings::sExport(), uiStrings::sCancel() );
 
@@ -317,11 +329,11 @@ uiExportLogs::uiExportLogs( uiParent* p, const ObjectSet<Well::Data>& wds,
     const uiString lbl = tr( "Depth range %1" ).
 	arg( uiStrings::sDistUnitString( zinft, true, true) );
     zrangefld_ = new uiGenInput( this, lbl, FloatInpIntervalSpec(true) );
-    setDefaultRange( zinft );
+    setDefaultRange();
 
     typefld_ = new uiGenInput( this, uiStrings::sFormat(),
-			      StringListInpSpec(exptypes) );
-    typefld_->valueChanged.notify( mCB(this,uiExportLogs,typeSel) );
+			       StringListInpSpec(exptypes) );
+    mAttachCB( typefld_->valueChanged, uiExportLogs::typeSel );
     typefld_->attach( alignedBelow, zrangefld_ );
 
     uiObject* attachobj = typefld_->attachObj();
@@ -341,17 +353,18 @@ uiExportLogs::uiExportLogs( uiParent* p, const ObjectSet<Well::Data>& wds,
 		       uiStrings::sDistUnitString( false, false, false ) );
     new uiRadioButton( zunitgrp_,
 		      uiStrings::sDistUnitString( true, false, false ) );
-    bool have2dtmodel = true;
-    for ( int idwell=0; idwell<wds_.size(); idwell++ )
+    bool have2dtmodel = !wds_.isEmpty();
+    for ( int iwell=0; iwell<wds_.size(); iwell++ )
     {
-	if ( !wds_[idwell]->haveD2TModel() )
+	ConstRefMan<Well::Data> wd = wds_[iwell];
+	if ( !wd || !wd->haveD2TModel() )
 	{
 	    have2dtmodel = false;
 	    break;
 	}
     }
 
-    if ( SI().zIsTime() && have2dtmodel)
+    if ( SI().zIsTime() && have2dtmodel )
     {
 	new uiRadioButton( zunitgrp_, uiStrings::sSec().toLower() );
 	new uiRadioButton( zunitgrp_, uiStrings::sMsec().toLower() );
@@ -359,7 +372,7 @@ uiExportLogs::uiExportLogs( uiParent* p, const ObjectSet<Well::Data>& wds,
 
     zunitgrp_->selectButton( zinft );
 
-    const bool multiwells = wds.size() > 1;
+    const bool multiwells = wds_.size() > 1;
     outfld_ = new uiFileInput( this,
 			multiwells ? tr("Output folder") : tr("Output file"),
 			uiFileInput::Setup().forread(false)
@@ -374,36 +387,38 @@ uiExportLogs::uiExportLogs( uiParent* p, const ObjectSet<Well::Data>& wds,
 	multiwellsnamefld_->setText( "logs.dat" );
     }
 
-    typeSel( nullptr );
+    mAttachCB( postFinalize(), uiExportLogs::typeSel );
 }
 
 
 uiExportLogs::~uiExportLogs()
-{}
-
-
-void uiExportLogs::setDefaultRange( bool zinft )
 {
-    StepInterval<float> dahintv;
-    for ( int idwell=0; idwell<wds_.size(); idwell++ )
-    {
-	const Well::Data& wd = *wds_[idwell];
-	for ( int idx=0; idx<wd.logs().size(); idx++ )
-	{
-	    const Well::Log& log = wd.logs().getLog(idx);
-	    const int logsz = log.size();
-	    if ( logsz==0 )
-		continue;
+    detachAllNotifiers();
+}
 
-	    dahintv.include( wd.logs().dahInterval() );
-	    const float width = log.dah(logsz-1) - log.dah(0);
-	    dahintv.step_ = width / (logsz-1);
-	    break;
+
+void uiExportLogs::setDefaultRange()
+{
+    ZSampling dahintv( mUdf(float), -mUdf(float), mUdf(float) );
+    for ( int iwell=0; iwell<wds_.size(); iwell++ )
+    {
+	ConstRefMan<Well::Data> wd = wds_.get( iwell );
+	if ( !wd )
+	    continue;
+
+	const Well::LogSet& logs = wd->logs();
+	for ( const auto* lognm : lognms_ )
+	{
+	    const Interval<float> mdrg = logs.getDahRangeForLog( lognm->buf() );
+	    if ( !mdrg.isUdf() )
+		dahintv.includes( mdrg );
 	}
     }
 
-    StepInterval<float> disprg = dahintv;
     const auto* storunit = UnitOfMeasure::surveyDefDepthStorageUnit();
+    dahintv.step_ = storunit && storunit->isImperial() ? 0.5f : 0.1524f;
+
+    ZSampling disprg = dahintv;
     const auto* outunit = UnitOfMeasure::surveyDefDepthUnit();
     disprg.start_ = getConvertedValue( dahintv.start_, storunit, outunit );
     disprg.stop_ = getConvertedValue( dahintv.stop_, storunit, outunit );
@@ -433,6 +448,7 @@ bool uiExportLogs::acceptOK( CallBacker* )
     {
 	if ( !File::isDirectory(fname) )
 	    mErrRet( tr("Please enter a valid (existing) location") )
+
 	BufferString suffix = multiwellsnamefld_->text();
 	if ( suffix.isEmpty() )
 	    mErrRet( tr("Please enter a valid file name") )
@@ -447,8 +463,19 @@ bool uiExportLogs::acceptOK( CallBacker* )
     else
 	fnames.add( fname );
 
+    Well::LoadReqs lreqs( lognms_ );
+    if ( typefld_->getIntValue() > 0 )
+	lreqs.include( Well::Trck );
+    if ( zunitgrp_->selectedId() == 2 || zunitgrp_->selectedId() == 3 )
+	lreqs.include( Well::D2T );
+
+    uiRetVal uirv;
     for ( int idx=0; idx<fnames.size(); idx++ )
     {
+	ConstRefMan<Well::Data> wd = wds_[idx];
+	if ( !wd )
+	    continue;
+
 	const BufferString fnm( fnames.get(idx) );
 	od_ostream strm( fnm );
 	if ( !strm.isOK() )
@@ -457,8 +484,17 @@ bool uiExportLogs::acceptOK( CallBacker* )
 	    strm.addErrMsgTo( msg );
 	    mErrRet( msg );
 	}
-	writeHeader( strm, *wds_[idx] );
-	writeLogs( strm, *wds_[idx] );
+
+	const MultiID wid = wd->multiID();
+	wd = Well::MGR().get( wid, lreqs );
+	if ( !wd )
+	{
+	    uirv.add( Well::MGR().errMsg() );
+	    continue;
+	}
+
+	writeHeader( strm, *wd.ptr() );
+	writeLogs( strm, *wd.ptr() );
     }
 
     return true;
@@ -467,7 +503,7 @@ bool uiExportLogs::acceptOK( CallBacker* )
 
 void uiExportLogs::writeHeader( od_ostream& strm, const Well::Data& wd )
 {
-    const char* units[] = { "(m)", "(ft)", "(s)", "(ms)", 0 };
+    const char* units[] = { "(m)", "(ft)", "(s)", "(ms)", nullptr };
 
     if ( typefld_->getIntValue() == 1 )
 	strm << "X\tY\t";
@@ -478,19 +514,18 @@ void uiExportLogs::writeHeader( od_ostream& strm, const Well::Data& wd )
     BufferString zstr( unitid<2 ? "Depth" : "Time" );
     strm << zstr << units[unitid];
 
-    for ( int idx=0; idx<wd.logs().size(); idx++ )
+    const Well::LogSet& logs = wd.logs();
+    for ( const auto* nm : lognms_ )
     {
-	const Well::Log& log = wd.logs().getLog(idx);
-	if ( !logsel_.isPresent(log.name()) )
+	const Well::Log* log = logs.getLog( nm->buf() );
+	if ( !log || !log->isLoaded() )
 	    continue;
 
-	BufferString lognm( log.name() );
-	lognm.clean();
-	lognm.replace( '+', '_' );
-	lognm.replace( '-', '_' );
+	BufferString lognm( nm );
+	lognm.clean().replace( '+', '_' ).replace( '-', '_' );
 	strm << od_tab << lognm;
-	if ( log.haveUnit() )
-	    strm << "(" << log.unitMeasLabel() << ")";
+	if ( log->haveUnit() )
+	    strm << "(" << log->unitMeasLabel() << ")";
     }
 
     strm << od_newline;
@@ -514,13 +549,13 @@ void uiExportLogs::writeLogs( od_ostream& strm, const Well::Data& wd )
 
     const int outtypesel = typefld_->getIntValue();
     const bool dobinid = outtypesel == 2;
-    const StepInterval<float> intv = zrangefld_->getFStepInterval();
+    const ZSampling intv = zrangefld_->getFStepInterval();
     const int nrsteps = intv.nrSteps();
 
     const UnitOfMeasure* storunit = UnitOfMeasure::surveyDefDepthStorageUnit();
     const UnitOfMeasure* userunit = UnitOfMeasure::surveyDefDepthUnit();
     const UnitOfMeasure* outunit =
-	outinft ? UoMR().get( "Feet" ) : UoMR().get( "Meter" );
+	outinft ? UnitOfMeasure::feetUnit() : UnitOfMeasure::meterUnit();
 
     ConstRefMan<Coords::CoordSystem> outcrs =
 	coordsysselfld_ ? coordsysselfld_->getCoordSystem() : nullptr;
@@ -552,6 +587,7 @@ void uiExportLogs::writeLogs( od_ostream& strm, const Well::Data& wd )
 		Coord convcoord;
 		if ( needsconversion )
 		    convcoord = outcrs->convertFrom( pos.coord(), *syscrs );
+
                 strm << convcoord.x_ << od_tab; // keep sep from next line
                 strm << convcoord.y_;
 	    }
@@ -569,17 +605,15 @@ void uiExportLogs::writeLogs( od_ostream& strm, const Well::Data& wd )
 	    strm << od_tab << z;
 	}
 
-	for ( int logidx=0; logidx<wd.logs().size(); logidx++ )
+	const Well::LogSet& logs = wd.logs();
+	for ( const auto* lognm : lognms_ )
 	{
-	    const Well::Log& log = wd.logs().getLog( logidx );
-	    if ( !logsel_.isPresent(log.name()) )
+	    const Well::Log* log = logs.getLog( lognm->buf() );
+	    if ( !log || !log->isLoaded() )
 		continue;
 
-	    const float val = log.getValue( mdstor );
-	    if ( mIsUdf(val) )
-		strm << od_tab << mUdf(float);
-	    else
-		strm << od_tab << val;
+	    const float val = log->getValue( mdstor );
+	    strm << od_tab << val;
 	}
 
 	strm << od_newline;

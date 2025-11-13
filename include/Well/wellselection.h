@@ -72,9 +72,7 @@ public:
 };
 
 
-//!\brief Holds a set of logs and markers.
-//! This object does not own logs. It borrows from the Well::Data object
-//! or from users of an instance.
+//!\brief Holds a set of log names and markers.
 
 mExpClass(Well) SubSelData
 {
@@ -82,21 +80,22 @@ public:
 				SubSelData(const SelInfo&);
     virtual			~SubSelData();
 
+    virtual bool		isOK() const;
     const char*			wellName() const;
     MultiID			wellID() const;
 
-    inline LogSet&		logs()			{ return logs_; }
-    inline const LogSet&	logs() const		{ return logs_; }
-    inline MarkerSet&		markers()		{ return markers_; }
-    inline const MarkerSet&	markers() const		{ return markers_; }
+    inline BufferStringSet& lognms()			{ return lognms_; }
+    inline const BufferStringSet& lognms() const	{ return lognms_; }
+    inline BufferStringSet&	markers()		{ return markernms_; }
+    inline const BufferStringSet& markers() const	{ return markernms_; }
     inline Interval<float>	getMDRange() const	{ return mdrg_; }
 
 protected:
     void			init(const SelInfo&);
 
     ConstRefMan<Well::Data>	wd_;
-    LogSet&			logs_;
-    MarkerSet&			markers_;
+    BufferStringSet		lognms_;
+    BufferStringSet		markernms_;
     Interval<float>		mdrg_		= Interval<float>::udf();
 };
 

@@ -390,20 +390,19 @@ bool WellTie::uiTieWinMGRDlg::getVelLogInSetup() const
 		mJoinUiStrs(sWell().toLower(),sData().toLower())))
     }
 
-    const Well::Log* vp = wd_->getLog( wtsetup_.vellognm_ );
-    if ( !vp )
+    const Well::LogSet& logs = wd_->logs();
+    const char* lognm = wtsetup_.vellognm_.buf();
+    if ( !logs.isPresent(lognm) )
     {
-	uiString errmsg = tr("Cannot retrieve the velocity log %1"
-			     " stored in the setup.")
-			.arg(wtsetup_.vellognm_);
+	uiString errmsg = tr("Cannot retrieve the velocity log '%1'"
+			     " stored in the setup.").arg( lognm );
 	mErrRet( errmsg );
     }
 
-    const Mnemonic* logmn = vp->mnemonic();
-    const UnitOfMeasure* velpuom = vp->unitOfMeasure();
+    const Mnemonic* logmn = logs.getMnemonicOfLog( lognm );
+    const UnitOfMeasure* velpuom = logs.getUnitOfMeasureOfLog( lognm );
     const bool reverted = wtsetup_.issonic_;
-    logsfld_->setLog( logmn, wtsetup_.vellognm_, reverted, velpuom,
-		      mPwaveIdx );
+    logsfld_->setLog( logmn, lognm, reverted, velpuom, mPwaveIdx );
 
     return true;
 }
@@ -421,19 +420,19 @@ bool WellTie::uiTieWinMGRDlg::getDenLogInSetup() const
 		mJoinUiStrs(sWell().toLower(),sData().toLower())))
     }
 
-    const Well::Log* den = wd_->getLog( wtsetup_.denlognm_ );
-    if ( !den )
+    const Well::LogSet& logs = wd_->logs();
+    const char* lognm = wtsetup_.denlognm_.buf();
+    if ( !logs.isPresent(lognm) )
     {
-	uiString errmsg = tr("Cannot retrieve the density log %1"
-			     " stored in the setup.")
-			.arg(toUiString(wtsetup_.denlognm_));
+	uiString errmsg = tr("Cannot retrieve the density log '%1'"
+			     " stored in the setup.").arg( lognm );
 	mErrRet( errmsg );
     }
 
-    const Mnemonic* logmn = den->mnemonic();
-    const UnitOfMeasure* denuom = den->unitOfMeasure();
+    const Mnemonic* logmn = logs.getMnemonicOfLog( lognm );
+    const UnitOfMeasure* denuom = logs.getUnitOfMeasureOfLog( lognm );
     const bool reverted = false;
-    logsfld_->setLog( logmn, wtsetup_.denlognm_, reverted, denuom,mDensityIdx );
+    logsfld_->setLog( logmn, lognm, reverted, denuom, mDensityIdx );
 
     return true;
 }
@@ -448,7 +447,6 @@ void WellTie::uiTieWinMGRDlg::saveWellTieSetup( const MultiID& key,
 }
 
 
-
 #undef mErrRet
 #define mErrRet(s) { if ( !s.isEmpty() ) uiMSG().error(s); return false; }
 
@@ -459,7 +457,7 @@ bool WellTie::uiTieWinMGRDlg::initSetup()
 	mErrRet(uiStrings::phrSelect(tr("a valid well")))
 
     const MultiID wellid = wellfld_->key();
-    Well::LoadReqs lreqs(Well::Trck, Well::Mrkrs, Well::LogInfos);
+    const Well::LoadReqs lreqs( Well::Trck, Well::Mrkrs, Well::LogInfos );
     wd_ = Well::MGR().get( wellid, lreqs );
     if ( !wd_ )
 	mErrRet(uiStrings::phrCannotRead(mJoinUiStrs(
@@ -517,18 +515,20 @@ bool WellTie::uiTieWinMGRDlg::initSetup()
 	mErrRet( uiStrings::phrCannotFind(
 				tr("the density in the log selection list")) )
 
-    const Well::Log* den = wd_->getLog( lognm );
-    if ( !den )
+    const Well::LogSet& logs = wd_->logs();
+    if ( !logs.isPresent(lognm.buf()) )
 	mErrRet( uiStrings::phrCannotExtract(tr("this density log")) )
 
     wtsetup_.denlognm_ = lognm;
-    if ( !den->unitOfMeasure() )
+    const UnitOfMeasure* denloguom = logs.getUnitOfMeasureOfLog( lognm.buf() );
+    BufferStringSet logstowrite;
+    if ( !denloguom )
     {
 	if ( !uom )
 	    mErrRet( uiStrings::phrSelect(tr("a unit for the density log")) )
 
-	const_cast<Well::Log*>( den )->setUnitOfMeasure( uom );
-	//TODO: Write to DB
+	getNonConst( logs ).setUnitOfMeasureOfLog( lognm.buf(), uom );
+	logstowrite.add( lognm.buf() );
     }
 
     mn = &elpropsel_.get( mPwaveIdx )->mn();
@@ -536,27 +536,30 @@ bool WellTie::uiTieWinMGRDlg::initSetup()
 	mErrRet( uiStrings::phrCannotFind(
 				    tr("the Pwave in the log selection list")) )
 
-    const Well::Log* vp = wd_->getLog( lognm );
-    if ( !vp )
+    if ( !logs.isPresent(lognm.buf()) )
 	mErrRet( uiStrings::phrCannotExtract(tr("this velocity log")) )
 
     wtsetup_.vellognm_ = lognm;
     wtsetup_.issonic_  = isrev;
-    if ( !vp->unitOfMeasure() )
+    const UnitOfMeasure* vploguom = logs.getUnitOfMeasureOfLog( lognm.buf() );
+    if ( !vploguom )
     {
 	if ( !uom )
 	    mErrRet( uiStrings::phrSelect(tr("a unit for the velocity log")) )
 
-	const_cast<Well::Log*>( vp )->setUnitOfMeasure( uom );
-	//TODO: Write to DB
+	getNonConst( logs ).setUnitOfMeasureOfLog( lognm.buf(), uom );
+	logstowrite.add( lognm.buf() );
     }
+
+    if ( !logstowrite.isEmpty() )
+	Well::MGR().writeLogHeaders( wellid, logstowrite );
 
     wtsetup_.useexistingd2tm_ = used2tmbox_->isChecked();
     if ( wtsetup_.useexistingd2tm_ )
 	wtsetup_.corrtype_ = WellTie::Setup::None;
     else
 	WellTie::Setup::CorrTypeDef().parse( cscorrfld_->box()->text(),
-				       wtsetup_.corrtype_ );
+					     wtsetup_.corrtype_ );
 
     const uiRetVal uirv = wvltfld_->isOK();
     if ( !uirv.isOK() || !wvltfld_->getGenParams(wtsetup_.sgp_) )

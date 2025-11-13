@@ -32,15 +32,11 @@ public:
     mExpClass(uiWell) Setup
     {
 	public:
-				Setup()
-				    : withzintime_(true)
-				    , withzvalsel_(true)
-				    , txtofmainfld_("Extract Between")
-				    {}
-	virtual		~Setup()	{}
+				Setup();
+	virtual			~Setup();
 
-	mDefSetupMemb(bool,withzintime)
-	mDefSetupMemb(bool,withzvalsel)
+	mDefSetupMembInit(bool,withzintime,true)
+	mDefSetupMembInit(bool,withzvalsel,true)
 	mDefSetupMemb(BufferString,txtofmainfld)
     };
 
@@ -88,20 +84,14 @@ public:
     mExpClass(uiWell) Setup : public uiWellZRangeSelector::Setup
     {
 	public:
-				Setup()
-				    : withzstep_(false)
-				    , defmeterstep_(1)
-				    , withsampling_(false)
-				    , singlelog_(false)
-				    , withextractintime_(SI().zIsTime())
-				    { }
-	~Setup()	{}
+				Setup();
+				~Setup();
 
-	mDefSetupMemb(bool,withzstep)
-	mDefSetupMemb(bool,withsampling)
+	mDefSetupMembInit(bool,withzstep,false)
+	mDefSetupMembInit(bool,withsampling,false)
 	mDefSetupMemb(bool,withextractintime)
-	mDefSetupMemb(float,defmeterstep)
-	mDefSetupMemb(bool,singlelog)
+	mDefSetupMembInit(float,defmeterstep,1)
+	mDefSetupMembInit(bool,singlelog,false)
 	mDefSetupMemb(BufferString,prefpropnm)
     };
 

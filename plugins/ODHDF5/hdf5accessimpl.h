@@ -33,6 +33,7 @@ public:
 			AccessImpl(WriterImpl&);
     virtual		~AccessImpl();
 
+    static bool		isParallelEnabled();
     static void		setErrPrint(bool);	//!< user switch on/off
 
 protected:

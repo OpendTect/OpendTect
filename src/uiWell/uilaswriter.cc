@@ -26,7 +26,6 @@ ________________________________________________________________________
 #include "welllog.h"
 #include "welllogset.h"
 #include "wellman.h"
-#include "wellreader.h"
 
 
 uiLASWriter::uiLASWriter( uiParent* p )
@@ -174,19 +173,19 @@ bool uiLASWriter::acceptOK( CallBacker* )
 	 !uiMSG().askOverwrite(uiStrings::sOutputFileExistsOverwrite()) )
 	return false;
 
-    Well::Reader rdr( ioobj->key(), *wd_ );
-    if ( !rdr.isUsable() )
+    BufferStringSet lognms;
+    logsfld_->getChosen( lognms );
+    if ( lognms.isEmpty() )
     {
-	uiMSG().error( rdr.errMsg() );
+	uiMSG().error( tr("Please select at least one log") );
 	return false;
     }
 
-    BufferStringSet lognms;
-    logsfld_->getChosen( lognms );
-    for ( int idx=0; idx<lognms.size(); idx++ )
+    const Well::LoadReqs lreqs( lognms );
+    if ( !Well::MGR().get(wd_->multiID(),lreqs) )
     {
-	const char* lognm = lognms.get( idx ).buf();
-	rdr.getLog( lognm );
+	uiMSG().error( Well::MGR().errMsg() );
+	return false;
     }
 
     LASWriter laswriter( *wd_, lognms, lasfnm );

@@ -163,6 +163,12 @@ bool Well::HDF5Writer::isFunctional() const
 }
 
 
+bool Well::HDF5Writer::canWriteInParallel() const
+{
+    return HDF5Access::isParallelEnabled();
+}
+
+
 bool Well::HDF5Writer::ensureFileOpen() const
 {
     if ( !wrr_ )
@@ -193,10 +199,10 @@ bool Well::HDF5Writer::put() const
 {
     return putInfo()
 	&& putTrack()
-	&& putD2T()
-	&& putLogs()
-	&& putMarkers()
 	&& putCSMdl()
+	&& putD2T()
+	&& putMarkers()
+	&& putLogs()
 	&& putDispProps();
 }
 
@@ -368,7 +374,7 @@ bool Well::HDF5Writer::putLogs() const
     uiRetVal uirv;
     for ( int idx=0; idx<nrlogs; idx++ )
     {
-	const Log& wl = logs.getLog( idx );
+	const Log& wl = logs.getLogByIdx( idx );
 	HDF5::DataSetKey dsky = logdsky;
 	dsky.setDataSetName( toString(idx) );
 	const bool success = putLog( wl );
@@ -534,6 +540,23 @@ bool Well::HDF5Writer::putLog( const Log& wl ) const
     mErrRetIfUiRvNotOK( dsky );
 
     return setLogAttribs( grpky, &wl );
+}
+
+
+bool Well::HDF5Writer::renameLog( const char* oldnm, const char* newnm )
+{
+    if ( !ensureFileOpen() )
+	return false;
+
+    const int logidx = getLogIndex( oldnm );
+    const Log* wl = wd_.logs().getLogInfos( oldnm );
+    getNonConst( wl )->setName( newnm );
+
+    auto& wrr = cCast(HDF5::Writer&,*wrr_);
+    const HDF5::DataSetKey grpky =
+	HDF5::DataSetKey::groupKey( sLogsGrpName(), toString(logidx) );
+    wrr.setAttribute( sKey::Name().str(), wl->name().buf(), &grpky );
+    return true;
 }
 
 

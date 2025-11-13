@@ -38,6 +38,12 @@ DBKey::~DBKey()
 }
 
 
+MultiID* DBKey::clone() const
+{
+    return new DBKey( *this );
+}
+
+
 DBKey& DBKey::operator =( const DBKey& oth )
 {
     if ( &oth == this )

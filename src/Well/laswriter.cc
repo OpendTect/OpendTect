@@ -171,7 +171,7 @@ bool LASWriter::writeCurveInfoSection( od_ostream& strm )
     strm << create( "DEPT", depthunit, "", "0 Depth" );
     for ( int idx=0; idx<logs_.size(); idx++ )
     {
-	const Well::Log& log = logs_.getLog( idx );
+	const Well::Log& log = logs_.getLogByIdx( idx );
 	BufferString uomstr = log.unitMeasLabel();
 	uomstr.remove( ' ' );
 	if ( writelognm_ )
@@ -235,7 +235,7 @@ bool LASWriter::writeLogData( od_ostream& strm )
 	md = getConvertedValue( md, mdunit, storunit );
 	for ( int idx=0; idx<logs_.size(); idx++ )
 	{
-	    float val = logs_.getLog(idx).getValue( md );
+	    float val = logs_.getLogByIdx(idx).getValue( md );
 	    if ( mIsUdf(val) )
 		val = toFloat( nullvalue_ );
 

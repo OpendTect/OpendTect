@@ -26,6 +26,8 @@ public:
 			MultiID(int grpid,int objid,int subgrpid,int subobjid);
     virtual		~MultiID();
 
+    virtual MultiID*	clone() const;
+
     inline int		nrIDs() const			{ return ids_.size(); }
     int			ID(int idx) const;
     inline int		groupID() const			{ return ID(0); }

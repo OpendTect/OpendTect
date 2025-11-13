@@ -765,7 +765,7 @@ void Well::DisplayProperties::Log::setTo( const Data* wd, const Log& oth,
 					  bool forceIfMissing  )
 {
     if ( forceIfMissing || oth.name_== sKey::None() ||
-				    wd->logs().getLog(oth.name_.buf()) )
+				    wd->logs().isPresent(oth.name_.buf()) )
 	*this = oth;
 }
 

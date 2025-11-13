@@ -330,8 +330,6 @@ uiWellLogDispDlg::uiWellLogDispDlg( uiParent* p,
     : uiDialog(p,Setup(uiStrings::sEmptyString(),mNoHelpKey).modal(false))
     , logSet(this)
     , logsmine_(mkcopy)
-    , log1_(0)
-    , log2_(0)
 {
     setCtrlStyle( CloseOnly );
     dispfld_ = new uiWellLogDisplay( this, wldsu );
@@ -352,8 +350,8 @@ uiWellLogDispDlg::~uiWellLogDispDlg()
 {
     if ( logsmine_ )
     {
-	delete const_cast<Well::Log*>(log1_);
-	delete const_cast<Well::Log*>(log2_);
+	delete getNonConst( log1_ );
+	delete getNonConst( log2_ );
     }
 }
 
@@ -364,7 +362,8 @@ void uiWellLogDispDlg::setLog( const Well::Log* wl, bool first,
     if ( wl && logsmine_ )
     {
 	Well::Log*& mywl = const_cast<Well::Log*&>(first ? log1_ : log2_);
-	delete mywl; mywl = new Well::Log( *wl );
+	delete mywl;
+	mywl = new Well::Log( *wl );
 	wl = mywl;
     }
 
@@ -391,17 +390,18 @@ void uiWellLogDispDlg::logSetCB( CallBacker* )
 
     if ( l1 )
 	capt = toUiString("%1 %2").arg(capt).arg(toUiString(l1->name()));
+
     if ( l2 )
     {
 	if ( !l1->name().isEqual(l2->name()) )
 	    capt = toUiString("%1 & %2").arg(capt).arg(toUiString(l2->name()));
     }
 
-    uiString str = uiStrings::sEmptyString();
+    uiString str;
     if ( !wellnm1_.isEmpty() )
-	str= toUiString(wellnm1_);
+	str= toUiString( wellnm1_.str() );
     if ( !wellnm2_.isEmpty() )
-	str = tr( "%1 and %2" ).arg(str).arg(toUiString(wellnm2_.buf()));
+	str = tr( "%1 and %2" ).arg(str).arg( wellnm2_.str() );
     if ( !str.isEmpty() )
 	capt = tr("%1 of %2").arg(capt).arg(str);
 
@@ -426,15 +426,14 @@ void uiWellLogDispDlg::logSetCB( CallBacker* )
 
 uiWellLogDispDlg* uiWellLogDispDlg::popupNonModal( uiParent* p,
 				const Well::Log* wl1, const Well::Log* wl2,
-				const char* wellnm1,
-				const char* wellnm2)
+				const char* wellnm1, const char* wellnm2 )
 {
     uiWellLogDisplay::Setup wldsu;
     wldsu.annotinside( false ).drawcurvenames( false );
-    uiWellLogDispDlg* dlg = new uiWellLogDispDlg( p, wldsu, true );
-    uiWellDahDisplay::Data data(dlg->logDisplay().zData());
+    auto* dlg = new uiWellLogDispDlg( p, wldsu, true );
+    uiWellDahDisplay::Data data( dlg->logDisplay().zData() );
     data.dispzinft_ = true;
-    dlg->logDisplay().setData(data);
+    dlg->logDisplay().setData( data );
     dlg->setLog( wl1, true, wellnm1 );
     if ( wl2 )
 	dlg->setLog( wl2, false, wellnm2 );

@@ -34,6 +34,8 @@ private:
     uiRetVal		open(const char* fnm);
     void		openFile(const char*,uiRetVal&,bool) override;
     void		closeFile() override		{ doCloseFile(*this); }
+    bool		isParallelEnabled() const override
+			{ return AccessImpl::isParallelEnabled(); }
 
     DataSetKey		scope() const override
 				{ return AccessImpl::gtScope(); }

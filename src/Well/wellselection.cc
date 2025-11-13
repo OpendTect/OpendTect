@@ -63,39 +63,29 @@ void MultiSelSpec::clear()
 
 // SubSelData
 SubSelData::SubSelData( const SelInfo& info )
-    : logs_(*new LogSet)
-    , markers_(*new MarkerSet)
 {
-    wd_ = MGR().get( info.wellID(), LoadReqs(Inf,LogInfos,Mrkrs) );
+    const LoadReqs lreqs( Inf, Mrkrs, LogInfos );
+    wd_ = MGR().get( info.wellID(), lreqs );
     init( info );
 }
 
 
 SubSelData::~SubSelData()
 {
-    logs_.setEmpty( false );
-    delete &logs_;
-    delete &markers_;
 }
 
 
 void SubSelData::init( const SelInfo& info )
 {
     mdrg_ = info.getMDRange();
+    lognms_ = info.selectedLogs();
+    markernms_ = info.selectedMarkers();
+}
 
-    for ( auto* lognm : info.selectedLogs() )
-    {
-	const Well::Log* log = wd_->getLog( lognm->buf() );
-	if ( log )
-	    logs_.add( cCast(Log*,log) );
-    }
 
-    for ( auto* lognm : info.selectedMarkers() )
-    {
-	const Well::Marker* marker = wd_->markers().getByName( lognm->buf() );
-	if ( marker )
-	    markers_.addSameWell( *marker );
-    }
+bool SubSelData::isOK() const
+{
+    return wd_.ptr();
 }
 
 

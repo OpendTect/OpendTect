@@ -38,4 +38,8 @@ set( OD_MODULE_SOURCES
 	wellupdate.cc
 )
 
+set( OD_BATCH_TEST_PROGS
+	welldata.cc
+)
+
 OD_INIT_MODULE()

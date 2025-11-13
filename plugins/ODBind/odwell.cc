@@ -59,12 +59,7 @@ BufferStringSet* odWell::getLogNames() const
 	return nullptr;
 
     auto* names = new BufferStringSet;
-    const Well::LogSet& ls = wd_->logs();
-    for ( int il=0; il<ls.size(); il++ )
-    {
-	const Well::Log& log = ls.getLog( il );
-	names->add( log.name() );
-    }
+    wd_->logs().getNames( *names );
     return names;
 }
 
@@ -84,25 +79,25 @@ void odWell::getLogInfo( OD::JSON::Array& jsarr,
     if ( !wd_ )
 	return;
 
-    const Well::LogSet& ls = wd_->logs();
+    const Well::LogSet& logs = wd_->logs();
     const UnitOfMeasure* zduom = UnitOfMeasure::surveyDefDepthUnit();
     const UnitOfMeasure* zsuom = UnitOfMeasure::surveyDefDepthStorageUnit();
     for ( const auto* nm : nms )
     {
-	const auto* log = ls.getLog( nm->buf() );
-	if ( !log )
+	const char* lognm = nm->buf();
+	if ( !logs.isPresent(lognm) )
 	    continue;
 
-	const auto dahstored = log->dahRange();
-	const auto dahrange = Interval<float>(
+	const Interval<float> dahstored = logs.getDahRangeForLog( lognm );
+	const Interval<float> dahrange(
 			getConvertedValue(dahstored.start_, zsuom, zduom),
 			getConvertedValue(dahstored.stop_, zsuom, zduom) );
 	OD::JSON::Object loginfo;
-	loginfo.set( "name", log->name() );
-	loginfo.set( "mnemonic", log->mnemonicLabel() );
-	loginfo.set( "uom", log->unitMeasLabel() );
+	loginfo.set( "name", lognm );
+	loginfo.set( "mnemonic", logs.getMnemonicLblOfLog(lognm) );
+	loginfo.set( "uom", logs.getUnitOfMeasureLblOfLog(lognm) );
 	loginfo.set( "dah_range", dahrange );
-	loginfo.set( "log_range", log->valueRange() );
+	loginfo.set( "log_range", logs.getValueRangeForLog(lognm) );
 	jsarr.add( loginfo.clone() );
     }
 }
@@ -205,16 +200,24 @@ void odWell::getLogs( hAllocator allocator, const BufferStringSet& lognms,
     else
 	nms = odSurvey::getCommonItems( *allnms, lognms );
 
+    const Well::LoadReqs lreqs( nms );
+    ConstRefMan<Well::Data> wd = Well::MGR().get( wd_->multiID(), lreqs );
+    if ( !wd )
+    {
+	errmsg_ = "odWell::getLogs - cannot load requested logs";
+	return;
+    }
+
     const UnitOfMeasure* zduom = UnitOfMeasure::surveyDefDepthUnit();
     const UnitOfMeasure* zsuom = UnitOfMeasure::surveyDefDepthStorageUnit();
     StepInterval<float> dahrg;
     dahrg.setUdf();
     dahrg.step_ = getConvertedValue( zstep, zduom, zsuom );
+    const Well::LogSet& logs = wd->logs();
     for ( const auto* lognm : nms )
     {
-	auto* log = wd_->logs().getLog( lognm->buf() );
-	if (log)
-	    dahrg.include(log->dahRange());
+	if ( logs.isPresent(lognm->buf()) )
+	    dahrg.include( logs.getDahRangeForLog(lognm->buf()) );
     }
 
     const int ndim = 1;
@@ -222,37 +225,37 @@ void odWell::getLogs( hAllocator allocator, const BufferStringSet& lognms,
     bool first = true;
     for ( const auto* lognm : nms )
     {
-	const auto* log = wd_->getLog( lognm->buf() );
-	if ( log )
+	const auto* log = logs.getLog( lognm->buf() );
+	if ( !log || !log->isLoaded() )
+	    continue;
+
+	PtrMan<Well::Log> outlog;
+	if ( samplemode==Upscale )
+	    outlog = log->upScaleLog( dahrg );
+	else
+	    outlog = log->sampleLog( dahrg );
+
+	dims[0] = outlog->size();
+	if ( first )
 	{
-	    PtrMan<Well::Log> outlog;
-	    if (samplemode==Upscale)
-		outlog = log->upScaleLog( dahrg );
-	    else
-		outlog = log->sampleLog( dahrg );
+	    float* dah_data = static_cast<float*>(
+					    allocator(ndim, dims, 'f') );
+	    for ( int idx=0; idx<outlog->size(); idx++ )
+		*dah_data++ = getConvertedValue( outlog->dah(idx),
+						 zsuom, zduom );
 
-	    dims[0] = outlog->size();
-	    if ( first )
-	    {
-		float* dah_data = static_cast<float*>(
-						allocator(ndim, dims, 'f') );
-		for ( int idx=0; idx<outlog->size(); idx++ )
-		    *dah_data++ = getConvertedValue( outlog->dah(idx),
-						     zsuom, zduom );
-
-		first = false;
-		jsuomobj.set( "dah",
-			     UnitOfMeasure::surveyDefDepthUnit()->getLabel() );
-	    }
-
-	    float* log_data = static_cast<float*>(
-						allocator(ndim, dims, 'f') );
-	    for ( int idx=0; idx<outlog->size();idx++ )
-		*log_data++ = mIsUdf(outlog->value(idx)) ? nanf("") :
-						    outlog->value(idx);
-
-	    jsuomobj.set( lognm->buf(), log->unitMeasLabel() );
+	    first = false;
+	    jsuomobj.set( "dah",
+			 UnitOfMeasure::surveyDefDepthUnit()->getLabel() );
 	}
+
+	float* log_data = static_cast<float*>(
+					    allocator(ndim, dims, 'f') );
+	for ( int idx=0; idx<outlog->size();idx++ )
+	    *log_data++ = mIsUdf(outlog->value(idx)) ? nanf("") :
+						outlog->value(idx);
+
+	jsuomobj.set( lognm->buf(), log->unitMeasLabel() );
     }
 }
 
@@ -270,7 +273,8 @@ void odWell::putLog( const char* lognm, const float* dah, const float* logdata,
 
     if ( !overwrite && wd_->logs().isPresent(lognm) )
 	return;
-    else if ( wd_->logs().isPresent(lognm) )
+
+    if ( wd_->logs().isPresent(lognm) )
 	Well::MGR().deleteLogs( wd_->multiID(), BufferStringSet(lognm) );
 
     const UnitOfMeasure* zduom = UnitOfMeasure::surveyDefDepthUnit();

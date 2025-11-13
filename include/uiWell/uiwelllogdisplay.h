@@ -51,13 +51,13 @@ public:
 
 	ObjectSet<uiPolygonItem> curvepolyitms_;
 
-	friend class 	uiWellLogDisplay;
+	friend class	uiWellLogDisplay;
     };
 
     LogData&		logData(bool first=true);
     const LogData&	logData(bool first=true) const
 				{ return const_cast<uiWellLogDisplay*>(this)
-				    			->logData(first); }
+							->logData(first); }
 
 protected:
 
@@ -81,17 +81,17 @@ mExpClass(uiWell) uiWellLogDispDlg : public uiDialog
 { mODTextTranslationClass(uiWellLogDispDlg)
 public:
 
-   			uiWellLogDispDlg(uiParent*,
+			uiWellLogDispDlg(uiParent*,
 					 const uiWellLogDisplay::Setup&,
 					 bool make_copy=true);
 			~uiWellLogDispDlg();
 
     void		setLog(const Well::Log*,bool first=true,
-			       const char* wellnm=0);
+			       const char* wellnm=nullptr);
     const Well::Log*	getLog(bool first=true) const;
 
     uiWellLogDisplay&	logDisplay()	{ return *dispfld_; }
-    			//!< for detailed work
+			//!< for detailed work
 
     Notifier<uiWellLogDispDlg>	logSet;
 
@@ -99,13 +99,13 @@ public:
 					   const Well::Log* wl2=0,
 					   const char* wellnm1=0,
 					   const char* wellnm2=0);
-    			//!< has setDeleteOnClose set
+			//!< has setDeleteOnClose set
 
 protected:
 
     bool		logsmine_;
-    const Well::Log*	log1_;
-    const Well::Log*	log2_;
+    const Well::Log*	log1_		= nullptr;
+    const Well::Log*	log2_		= nullptr;
     BufferString	wellnm1_;
     BufferString	wellnm2_;
 

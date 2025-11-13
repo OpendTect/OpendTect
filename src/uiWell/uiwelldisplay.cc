@@ -143,8 +143,8 @@ void uiWellDisplay::setDisplayProperties()
 								 lc.center_;
 	const Well::DisplayProperties::Log& lp2 = lc.right_;
 
-	const Well::Log* l1 = wd_.getLog( lp1.name_ );
-	const Well::Log* l2 = wd_.getLog( lp2.name_ );
+	const Well::Log* l1 = wd_.logs().getLog( lp1.name_.buf() );
+	const Well::Log* l2 = wd_.logs().getLog( lp2.name_.buf() );
 
 	ld1.setLog( l1 );			ld2.setLog( l2 );
 	ld1.xrev_ = false;			ld2.xrev_ = false;
@@ -178,10 +178,11 @@ void uiWellDisplay::applyWDChanges( CallBacker* )
 uiWellDisplayWin::uiWellDisplayWin(uiParent* p, const MultiID& mid )
     : uiMainWin(p)
 {
-    auto wd = Well::MGR().get( mid, Well::LoadReqs( Well::DispProps2D,
-						    Well::LogInfos ) );
+    const Well::LoadReqs lreqs( Well::LogInfos, Well::DispProps2D );
+    RefMan<Well::Data> wd = Well::MGR().get( mid, lreqs );
     if ( !wd )
 	return;
+
     setCaption( toUiString( wd->name() ) );
     setStretch( 2, 2 );
     uiWellDisplay::Setup su; su.takedisplayfrom3d_ = true;

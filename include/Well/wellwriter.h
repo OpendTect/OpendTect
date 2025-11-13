@@ -36,7 +36,9 @@ public:
 			Writer(const MultiID&,const Data&);
 			Writer(const IOObj&,const Data&);
 			~Writer();
+
     bool		isUsable() const	{ return wa_; }
+    bool		isFunctional() const;
 
     bool		put() const;		//!< Just write all
     bool		put(const StoreReqs&) const;
@@ -44,23 +46,24 @@ public:
     bool		putInfoAndTrack() const;//!< Write Info and Track
     bool		putInfo() const;	//!< Write Info only
     bool		putTrack() const;	//!< Write Track only
-    bool		putLogs() const;	//!< Write Logs only
-    bool		putMarkers() const;	//!< Write Markers only
-    bool		putD2T() const;		//!< Write D2T model only
     bool		putCSMdl() const;	//!< Write Check shot model only
-    bool		putDispProps() const;	//!< Write display pars only
+    bool		putD2T() const;		//!< Write D2T model only
+    bool		putMarkers() const;	//!< Write Markers only
+    bool		putLogs() const;	//!< Write Logs only
     bool		putLog(const Log&) const;
     bool		putDefLogs() const;
-    bool		swapLogs(const Log&,const Log&) const;
-    bool		canSwapLogs()		{ return true; }
+    bool		putDispProps() const;	//!< Write display pars only
+
     bool		renameLog(const char* oldnm,const char* newnm);
 
     const uiString&	errMsg() const		{ return errmsg_; }
 
-    bool		isFunctional() const;
+    const Data*		data() const;
 
     static bool		isFunctional(const MultiID&);
     static bool		isFunctional(const IOObj&);
+    static bool		canRenameLogs(const MultiID&);
+    static bool		canWriteInParallel(const MultiID&);
 
 protected:
 

@@ -274,20 +274,24 @@ void uiWellAttribPartServer::welltieDlgClosedCB( CallBacker* )
 bool uiWellAttribPartServer::showAmplSpectrum( const MultiID& mid,
 					       const char* lognm )
 {
-    ConstRefMan<Well::Data> wd = Well::MGR().get( mid,
-					       Well::LoadReqs(Well::LogInfos) );
-    if ( !wd || wd->logs().isEmpty()  )
+    Well::LoadReqs lreqs( Well::Trck, Well::D2T );
+    lreqs.addLog( lognm );
+    ConstRefMan<Well::Data> wd = Well::MGR().get( mid, lreqs );
+    if ( !wd )
+    {
+	uiMSG().error( Well::MGR().errMsg() );
 	return false;
+    }
 
-    const Well::Log* log = wd->getLog( lognm );
+    const Well::Log* log = wd->logs().getLog( lognm );
     if ( !log )
 	mErrRet( tr("Cannot find log in well data."
 		    "  Probably it has been deleted") )
 
-    if ( !log->size() )
+    if ( log->isEmpty() )
 	mErrRet( tr("Well log is empty") )
 
-    StepInterval<float> resamprg( log->dahRange() );
+    ZSampling resamprg( log->dahRange() );
     TypeSet<float> resamplvals; int resampsz = 0;
     if ( SI().zIsTime() && wd->haveD2TModel() )
     {

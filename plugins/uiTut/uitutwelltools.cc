@@ -30,11 +30,11 @@ ________________________________________________________________________
 static const StepInterval<int> sSampleGateRange( 3, 99, 2 );
 
 uiTutWellTools::uiTutWellTools( uiParent* p, const MultiID& wellid )
-	: uiDialog( p, Setup( tr("Log Smoothing"),
-			      tr("Specify parameters for smoothing"),
-			      HelpKey("tut","well") ) )
-	, wd_(Well::MGR().get(wellid, Well::LoadReqs(Well::LogInfos)))
-	, wellid_(wellid)
+    : uiDialog( p, Setup( tr("Log Smoothing"),
+			  tr("Specify parameters for smoothing"),
+			  HelpKey("tut","well") ) )
+    , wd_(Well::MGR().get(wellid, Well::LoadReqs(Well::LogInfos)))
+    , wellid_(wellid)
 {
     if ( !wd_ )
 	return;
@@ -43,8 +43,9 @@ uiTutWellTools::uiTutWellTools( uiParent* p, const MultiID& wellid )
     uiListBox::Setup su( OD::ChooseOnlyOne, tr("Select Input Log") );
     inplogfld_ = new uiListBox( this, su, "lognames" );
     inplogfld_->setHSzPol( uiObject::Wide );
-    for ( int idx=0; idx<logs.size(); idx++ )
-	inplogfld_->addItem( logs.getLog(idx).name() );
+    BufferStringSet lognms;
+    logs.getNames( lognms );
+    inplogfld_->addItems( lognms );
 
     mAttachCB( inplogfld_->selectionChanged, uiTutWellTools::inpchg );
 
@@ -81,33 +82,36 @@ bool uiTutWellTools::acceptOK( CallBacker* )
 	return false;
 
     const BufferString inplognm = inplogfld_->getText();
-    Well::LogSet& logset = wd_->logs();
-    const int inpidx = logset.indexOf( inplognm );
-    if ( inpidx<0 || inpidx>=logset.size() )
+    Well::LogSet& logs = wd_->logs();
+    if ( !logs.isPresent(inplognm.buf()) )
 	mErrRet( tr("Please select a valid Input Log") )
 
     const BufferString lognm = outplogfld_->text();
     if ( lognm.isEmpty() )
 	mErrRet( tr("Please enter a valid name for Output log") )
 
-    const int outpidx = logset.indexOf( lognm );
-    if ( outpidx>=0 && outpidx<logset.size() )
+    if ( logs.isPresent(lognm.str()) )
 	mErrRet( tr("Output Log already exists. Enter a new name") )
 
+    Well::LoadReqs lreqs( Well::LogInfos );
+    lreqs.addLog( inplognm.buf() );
+    wd_ = Well::MGR().get( wd_->multiID(), lreqs );
+    if ( !wd_ )
+	mErrRet( Well::MGR().errMsg() );
 
-
-    const int gate = gatefld_->box()->getIntValue();
+    const Well::Log* inplog = logs.getLog( inplognm.buf() );
     PtrMan<Well::Log> outputlog = new Well::Log( lognm );
-    Tut::LogTools logtool( *wd_->getLog(inplognm), *outputlog );
+    Tut::LogTools logtool( *inplog, *outputlog );
+    const int gate = gatefld_->box()->getIntValue();
     if ( logtool.runSmooth(gate) )
     {
-	logset.add( outputlog.release() );
+	logs.add( outputlog.release() );
 	PtrMan<IOObj> ioobj = IOM().get( wellid_ );
 	if ( !ioobj )
 	    mErrRet( tr("Cannot find object in I/O Manager") )
 
 	Well::Writer wtr( *ioobj, *wd_ );
-	const Well::Log& newlog = logset.getLog( logset.size()-1 );
+	const Well::Log& newlog = logs.last();
 	if ( !wtr.putLog(newlog) )
 	{
 	    uiString errmsg = tr("Could not write log: %1"

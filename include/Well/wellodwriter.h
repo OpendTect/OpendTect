@@ -32,7 +32,7 @@ class Log;
 mExpClass(Well) odWriter : public odIO
 			 , public WriteAccess
 {
-mODTextTranslationClass(Well::odWriter)
+mODTextTranslationClass(odWriter)
 public:
 			odWriter(const IOObj&,const Data&,uiString& errmsg);
 			odWriter(const char* fnm,const Data&,uiString& errmsg);
@@ -41,21 +41,22 @@ public:
     static const char*	sKeyLogStorage()		{ return "Log storage";}
 
 private:
-
+    bool		isFunctional() const override;
+    bool		canRenameLogs() const override		{ return true; }
+    bool		canWriteInParallel() const override	{ return true; }
     bool		needsInfoAndTrackCombined() const override
 			{ return true; }
 
     bool		put() const override;
     bool		putInfo() const override;
     bool		putTrack() const override;
-    bool		putLogs() const override;
-    bool		putMarkers() const override;
-    bool		putD2T() const override;
     bool		putCSMdl() const override;
-    bool		putDispProps() const override;
+    bool		putD2T() const override;
+    bool		putMarkers() const override;
+    bool		putLogs() const override;
     bool		putLog(const Log&) const override;
     bool		putDefLogs() const override;
-    bool		swapLogs(const Log&,const Log&) const override;
+    bool		putDispProps() const override;
     bool		renameLog(const char* oldnm,
 				  const char* newnm) override;
 
@@ -69,18 +70,14 @@ private:
     bool		putCSMdl(od_ostream&) const;
     bool		putDispProps(od_ostream&) const;
 
-    void		setBinaryWriteLogs( bool yn )	{ binwrlogs_ = yn; }
-
     bool		binwrlogs_;
 
-    bool		isFunctional() const override;
-
-    bool		putLog(od_ostream&,const Log&,
-				  const DataBuffer* databuf = nullptr) const;
-    int			getLogIndex(const char* lognm ) const;
-    bool		wrLogHdr(od_ostream&,const Log&) const;
-    bool		wrLogData(od_ostream&,const Log&,
-				  const DataBuffer* databuf = nullptr) const;
+    bool		putLog(od_ostream&,const Log&,int bintype,
+			       const DataBuffer* databuf =nullptr) const;
+    int			getLogIndex(const char* lognm) const;
+    bool		wrLogHdr(const Log&,int bintype,od_ostream&) const;
+    bool		wrLogData(const Log&,int bintype,const DataBuffer*,
+				  od_ostream&) const;
     DataBuffer*		getLogBuffer(od_istream&) const;
     bool		wrHdr(od_ostream&,const char*) const;
     bool		doPutD2T(bool) const;

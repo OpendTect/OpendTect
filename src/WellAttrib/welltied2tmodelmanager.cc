@@ -14,6 +14,7 @@ ________________________________________________________________________
 #include "welld2tmodel.h"
 #include "welldata.h"
 #include "welllog.h"
+#include "welllogset.h"
 #include "welltiedata.h"
 #include "welltiegeocalculator.h"
 #include "welltiesetup.h"
@@ -84,27 +85,32 @@ WellTie::D2TModelMgr::D2TModelMgr( Well::Data& wd, DataWriter& dwr,
 	// Insert points into the time/depth model at the start and stop of
 	// the log range - primarily so bulk shifting works as expected
 	//
-	const Well::Log* vp = wd_->getLog( wts.vellognm_ );
-	const Well::Log* den = wd_->getLog( wts.denlognm_ );
+	const Well::LogSet& logs = wd_->logs();
 	float mindah = d2t->dahRange().start_;
 	float maxdah = d2t->dahRange().stop_;
-	if ( vp )
+	if ( logs.isPresent(wts.vellognm_.buf()) )
 	{
-	    mindah = vp->dahRange().start_;
-	    maxdah = vp->dahRange().stop_;
+	    const Interval<float> vpdahrg =
+				logs.getDahRangeForLog( wts.vellognm_.buf() );
+	    mindah = vpdahrg.start_;
+	    maxdah = vpdahrg.stop_;
 	}
 
-	if ( den )
+	if ( logs.isPresent(wts.denlognm_.buf()) )
 	{
-	    if ( vp )
+	    const Interval<float> dendahrg =
+				logs.getDahRangeForLog( wts.denlognm_.buf() );
+	    if ( logs.isPresent(wts.vellognm_.buf()) )
 	    {
-		mindah = mMIN( mindah, den->dahRange().start_ );
-		maxdah = mMAX( maxdah, vp->dahRange().stop_ );
+		const Interval<float> vpdahrg =
+				logs.getDahRangeForLog( wts.vellognm_.buf() );
+		mindah = mMIN( mindah, dendahrg.start_ );
+		maxdah = mMAX( maxdah, vpdahrg.stop_ );
 	    }
 	    else
 	    {
-		mindah = den->dahRange().start_;
-		maxdah = den->dahRange().stop_;
+		mindah = dendahrg.start_;
+		maxdah = dendahrg.stop_;
 	    }
 	}
 

@@ -251,6 +251,18 @@ PtrMan<HDF5::Writer> HDF5::AccessProvider::mkWriter( int idx )
 }
 
 
+bool HDF5::isParallelEnabled()
+{
+    static int ret = -1;
+    if ( ret < 0 )
+    {
+	PtrMan<Reader> rdr = mkReader();
+	ret = rdr && rdr->isParallelEnabled() ? 1 : 0;
+    }
+
+    return ret == 1;
+}
+
 // HDF5::Access
 
 HDF5::Access::Access()

@@ -77,7 +77,9 @@ protected:
     void			ownSelChg() override;
     void			getCurrentWells();
     void			mkFileInfo() override;
+    mDeprecatedObs
     void			writeLogs();
+    mDeprecatedObs
     void			writeLog(const MultiID&,
 					 Well::Data&,const Well::Log&);
     void			fillLogsFld();

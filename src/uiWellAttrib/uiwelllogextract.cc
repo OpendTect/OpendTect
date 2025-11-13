@@ -26,6 +26,7 @@ ________________________________________________________________________
 #include "welldata.h"
 #include "wellextractdata.h"
 #include "welllog.h"
+#include "welllogset.h"
 #include "wellman.h"
 
 #include "uigeninput.h"
@@ -224,11 +225,14 @@ bool uiWellLogExtractGrp::extractWellData( const TypeSet<MultiID>& ioobjids,
 	    wts.params_.setFixedRange( Interval<float>(start, stop), false );
 	}
     }
+
     uiTaskRunner taskrunner( this );
-    if ( !TaskRunner::execute( &taskrunner, wts ) )
-	return false;
+    if ( !TaskRunner::execute(&taskrunner,wts) )
+	mErrRet( wts.uiMessage() );
+
     if ( dpss.isEmpty() )
 	mErrRet(tr("No wells found"))
+
     bool founddata = false;
     for ( int idx=0; idx<dpss.size(); idx++ )
     {
@@ -254,8 +258,10 @@ bool uiWellLogExtractGrp::extractWellData( const TypeSet<MultiID>& ioobjids,
 	execgrp.add( wlde );
     }
 
-    const bool res = TaskRunner::execute( &taskrunner, execgrp );
-    return res;
+    if ( !TaskRunner::execute( &taskrunner, execgrp ) )
+	mErrRet( execgrp.uiMessage() );
+
+    return true;
 }
 
 
@@ -293,9 +299,6 @@ bool uiWellLogExtractGrp::extractDPS()
 {
     ObjectSet<DataColDef> dcds;
 
-    BufferStringSet wellnms;
-    getWellNames( wellnms );
-
     TypeSet<MultiID> ioobjids;
     welllogselfld_->getSelWellIDs( ioobjids );
     if ( ioobjids.isEmpty() )
@@ -306,20 +309,21 @@ bool uiWellLogExtractGrp::extractDPS()
     if ( lognms.isEmpty() )
 	mErrRet(uiStrings::phrSelect(tr("at least one log")))
 
+    const Well::LoadReqs lreqs( Well::LogInfos );
+    ConstRefMan<Well::Data> firstwd = Well::MGR().get( ioobjids.first(), lreqs);
+    if ( !firstwd )
+	mErrRet( Well::MGR().errMsg() )
+
+    const Well::LogSet& logs = firstwd->logs();
     dcds += new DataColDef( sKey::MD(), nullptr,
 			    UnitOfMeasure::surveyDefDepthUnit() );
-
-    for ( int idx=0; idx<lognms.size(); idx++ )
+    for ( const auto* lognm : lognms )
     {
-	ConstRefMan<Well::Data> wd = Well::MGR().get( ioobjids.get(0),
-						      Well::LogInfos );
-	const char* lognm = lognms.get( idx ).buf();
-	const Well::Log* log = wd ? wd->getLog( lognm ) : nullptr;
-	if ( !log ) // should not happen
-	    continue;
-
-	dcds += new DataColDef( lognm, nullptr, log->unitOfMeasure() );
+	const UnitOfMeasure* loguom = logs.getUnitOfMeasureOfLog( lognm->buf());
+	dcds += new DataColDef( lognm->buf(), nullptr, loguom );
     }
+
+    firstwd = nullptr;
 
     BufferStringSet attrnms;
     if ( ads_ )
@@ -327,7 +331,7 @@ bool uiWellLogExtractGrp::extractDPS()
 
     RefObjectSet<DataPointSet> dpss;
     if ( !extractWellData(ioobjids,lognms,dpss) )
-	mErrRet(uiStrings::sEmptyString())
+	mErrRet(uiString::empty())
 
     for ( const auto* dps : dpss )
     {
@@ -346,7 +350,7 @@ bool uiWellLogExtractGrp::extractDPS()
 	    break;
     }
 
-    PtrMan<Pos::Filter> filt = 0;
+    PtrMan<Pos::Filter> filt;
     if ( posfiltfld_ )
     {
 	IOPar iop; posfiltfld_->fillPar( iop );
@@ -400,6 +404,8 @@ bool uiWellLogExtractGrp::extractDPS()
     if ( curdps_->isEmpty() )
 	mErrRet(uiStrings::phrCannotFind(uiStrings::sPosition(2).toLower()))
 
+    BufferStringSet wellnms;
+    getWellNames( wellnms );
     BufferString dpsnm( "Well data: " );
     for ( int idx=0; idx<wellnms.size(); idx++ )
     {

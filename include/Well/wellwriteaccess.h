@@ -33,22 +33,23 @@ public:
     virtual bool	needsInfoAndTrackCombined() const	= 0;
     virtual bool	putInfo() const			= 0;
     virtual bool	putTrack() const		= 0;
-    virtual bool	putLogs() const			= 0;
-    virtual bool	putMarkers() const		= 0;
-    virtual bool	putD2T() const			= 0;
     virtual bool	putCSMdl() const		= 0; //!< Checkshot mdl
-    virtual bool	putDispProps() const		= 0;
+    virtual bool	putD2T() const			= 0;
+    virtual bool	putMarkers() const		= 0;
+    virtual bool	putLogs() const			= 0;
     virtual bool	putLog(const Log&) const	= 0;
     virtual bool	putDefLogs() const		{ return false; }
-    virtual bool	swapLogs(const Log&,const Log&) const
-			{ return false; }
+    virtual bool	putDispProps() const		= 0;
     virtual bool	renameLog(const char* oldnm,const char* newnm)
 			{ return false; }
 
     virtual const uiString& errMsg() const		= 0;
 
+    const Data&		data() const			{ return wd_; }
+
     virtual bool	isFunctional() const		{ return true; }
-    virtual bool	canSwapLogs()			{ return false; }
+    virtual bool	canRenameLogs() const		{ return false; }
+    virtual bool	canWriteInParallel() const	{ return false; }
 
 protected:
 			WriteAccess(const Data&);

@@ -12,6 +12,7 @@ ________________________________________________________________________
 #include "dbkey.h"
 #include "welldata.h"
 #include "welllog.h"
+#include "welllogset.h"
 #include "wellman.h"
 #include "uimsg.h"
 #include "uiwelllogdisplay.h"
@@ -59,27 +60,23 @@ uiMainWin* uiODWellDisplayServer::createMultiWellDisplay( uiParent* p,
     const Well::Log* wl1 = nullptr;
     const Well::Log* wl2 = nullptr;
     BufferStringSet wnms;
-    RefMan<Well::Data> wd = Well::MGR().get( wells[0],
-					     Well::LoadReqs(Well::LogInfos) );
+    const Well::LoadReqs lreqs( lognms );
+    RefMan<Well::Data> wd = Well::MGR().get( wells[0], lreqs );
     if ( wd )
     {
 	wnms.add( wd->name() );
-	wl1 = wd->getLog( lognms.get(0) );
-
+	wl1 = wd->logs().getLog( lognms.get(0).buf() );
 	if ( lognms.size() >= 2 )
-	{
-	    wl2 = wd->getLog( lognms.get(1) );
-	}
+	    wl2 = wd->logs().getLog( lognms.get(1).buf() );
     }
 
     if ( wells.size() > 1 )
     {
-	RefMan<Well::Data> wd2 = Well::MGR().get( wells[1],
-					     Well::LoadReqs(Well::LogInfos) );
+	RefMan<Well::Data> wd2 = Well::MGR().get( wells[1], lreqs );
 	if ( wd2 )
 	{
 	    wnms.add( wd2->name() );
-	    wl2 = wd2->getLog( lognms.get(0) );
+	    wl2 = wd2->logs().getLog( lognms.get(0).buf() );
 	}
     }
 
@@ -94,8 +91,8 @@ uiMainWin* uiODWellDisplayServer::createMultiWellDisplay( uiParent* p,
 }
 
 
-uiWellLogToolWinGrp* uiODWellDisplayServer::createWellLogToolGrp(uiParent* p,
-			    const ObjectSet<WellLogToolData>& logs)
+uiWellLogToolWinGrp* uiODWellDisplayServer::createWellLogToolGrp( uiParent* p,
+			    const ObjectSet<WellLogToolData>& logs )
 {
     return new uiODWellLogToolWinGrp( p, logs );
 }

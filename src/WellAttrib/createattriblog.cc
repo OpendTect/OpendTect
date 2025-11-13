@@ -9,6 +9,7 @@ ________________________________________________________________________
 
 #include "createattriblog.h"
 
+#include "attribdescset.h"
 #include "attribengman.h"
 #include "attribprocessor.h"
 #include "ioobj.h"
@@ -126,8 +127,9 @@ bool AttribLogCreator::doWork( Well::Data& wdin, uiString& errmsg )
     aem.setNLAModel( setup_.nlamodel_ );
     aem.setAttribSpec( *setup_.selspec_ );
 
-    BufferStringSet dummy;
-    StepInterval<float> dahrg = setup_.extractparams_->calcFrom( *wd, dummy );
+    static BufferStringSet emptylognms;
+    StepInterval<float> dahrg =
+		setup_.extractparams_->calcFrom( *wd, emptylognms, errmsg );
     if ( !mIsUdf( setup_.extractparams_->zstep_ ) )
 	dahrg.step_ = setup_.extractparams_->zstep_;
 
@@ -144,7 +146,7 @@ bool AttribLogCreator::doWork( Well::Data& wdin, uiString& errmsg )
 	mErrRet(msg)
     }
 
-    if ( !createLog( *wd, ale ) )
+    if ( !createLog(*wd,ale) )
     {
 	msg.arg(tr("Unable to create Log")).arg(wd->name());
 	mErrRet(msg)
@@ -154,11 +156,10 @@ bool AttribLogCreator::doWork( Well::Data& wdin, uiString& errmsg )
 }
 
 
-bool AttribLogCreator::createLog( Well::Data& wdin,
-				  const AttribLogExtractor& ale)
+bool AttribLogCreator::createLog( Well::Data& wd,
+				  const AttribLogExtractor& ale )
 {
-    RefMan<Well::Data> wd( &wdin );
-    Well::Log* newlog = new Well::Log( setup_.lognm_ );
+    PtrMan<Well::Log> newlog = new Well::Log( setup_.lognm_ );
     float v[2]; BinID bid;
     for ( int idx=0; idx<ale.depths().size(); idx++ )
     {
@@ -167,46 +168,49 @@ bool AttribLogCreator::createLog( Well::Data& wdin,
 	    newlog->addValue( ale.depths()[idx], v[1] );
     }
 
-    if ( !newlog->size() )
-    {
-	delete newlog;
+    if ( newlog->isEmpty() )
 	return false;
-    }
 
-    if ( sellogidx_ < 0 )
+    Well::LogSet& logs = wd.logs();
+    if ( logs.validIdx(sellogidx_) )
     {
-	wd->logs().add( newlog );
-	sellogidx_ = wd->logs().size() - 1;
-    }
-    else
-    {
-	Well::Log& log = wd->logs().getLog( sellogidx_ );
+	const BufferString lognm( logs.getLogNameByIdx(sellogidx_) );
+	Well::Log& log = logs.isLoaded( lognm.buf() )
+		       ? *logs.getLog( lognm.buf() )
+		       : getNonConst( *logs.getLogInfos( lognm.buf() ) );
 	log.setEmpty();
 	for ( int idx=0; idx<newlog->size(); idx++ )
 	    log.addValue( newlog->dah(idx), newlog->value(idx) );
-	delete newlog;
     }
+    else
+    {
+	logs.add( newlog.release() );
+	sellogidx_ = logs.size() - 1;
+    }
+
     return true;
 }
 
 
 BulkAttribLogCreator::BulkAttribLogCreator( const AttribLogCreator::Setup& su,
-				    ObjectSet<Well::Data>& selwells,
-				    const Mnemonic& outmn, uiRetVal& uirv,
-				    bool overwrite )
+				    const TypeSet<MultiID>& wellids,
+				    const Mnemonic& outmn, bool overwrite )
     : SequentialTask("Creating log attribute")
     , datasetup_(su)
-    , selwells_(selwells)
+    , wellids_(wellids)
     , outmn_(outmn)
-    , msgs_(uirv)
+    , lreqs_(*new Well::LoadReqs(Well::Inf,Well::Trck,Well::D2T))
     , overwrite_(overwrite)
 {
+    lreqs_.include( Well::LogInfos );
     msg_ = tr( "Creating attribute logs" );
 }
 
 
 BulkAttribLogCreator::~BulkAttribLogCreator()
-{}
+{
+    delete &lreqs_;
+}
 
 
 od_int64 BulkAttribLogCreator::nrDone() const
@@ -217,79 +221,107 @@ od_int64 BulkAttribLogCreator::nrDone() const
 
 od_int64 BulkAttribLogCreator::totalNr() const
 {
-    return selwells_.size();
+    return wellids_.size();
 }
 
 
 uiString BulkAttribLogCreator::uiNrDoneText() const
 {
-    return tr( "Wells processed" );
+    return tr("Wells processed");
 }
 
 
-uiString BulkAttribLogCreator::uiMessage() const
+uiRetVal BulkAttribLogCreator::allMessages() const
 {
-    return msg_;
+    uiRetVal uirv( msg_ );
+    uirv.add( uirv_ );
+    return uirv;
+}
+
+
+bool BulkAttribLogCreator::doPrepare( od_ostream* strm )
+{
+    if ( !datasetup_.selspec_ )
+    {
+	msg_ = tr("No attribute selspec provided");
+	return false;
+    }
+
+    if ( !datasetup_.attrib_ || datasetup_.attrib_->isEmpty() )
+    {
+	msg_ = tr("No attribute desc set provided");
+	return false;
+    }
+
+    if ( datasetup_.lognm_.isEmpty() )
+    {
+	msg_ = tr("No output log name provided");
+	return false;
+    }
+
+    msg_ = tr( "Creating attribute logs" );
+    uirv_.setOK();
+    nrdone_ = 0;
+    return SequentialTask::doPrepare( strm );
 }
 
 
 int BulkAttribLogCreator::nextStep()
 {
-    if ( nrdone_ >= selwells_.size() )
-	return Finished();
-
-    const char* lognm = datasetup_.lognm_.str();
-    RefMan<Well::Data> wd = selwells_.get( nrdone_ );
+    const MultiID& wid = wellids_[nrdone_];
+    RefMan<Well::Data> wd = Well::MGR().get( wid, lreqs_ );
     if ( !wd )
     {
-	nrdone_++;
-	return MoreToDo();
+	uirv_.add( Well::MGR().errMsg() );
+	return ++nrdone_ >= totalNr() ? Finished() : MoreToDo();
     }
 
-    if ( SI().zIsTime() && !wd->d2TModel() )
+    Well::LogSet& logs = wd->logs();
+    const char* wellnm = wd->name().buf();
+    const char* lognm = datasetup_.lognm_.buf();
+    if ( logs.isPresent(lognm) && !overwrite_ )
     {
-	msgs_.add( tr("No depth to time model defined for well '%1'")
-		   .arg(wd->name()) );
-	nrdone_++;
-	return MoreToDo();
+	uirv_.add( tr("Log '%1' is already present in well '%2'")
+			.arg(lognm).arg(wellnm) );
+	return ++nrdone_ >= totalNr() ? Finished() : MoreToDo();
     }
 
-    if ( wd->logs().isPresent(lognm) && !overwrite_ )
-    {
-	msgs_.add( tr("Log: '%1' is already present in '%2'.\n")
-				  .arg(lognm).arg(wd->name().buf()) );
-	nrdone_++;
-	return MoreToDo();
-    }
-
-    int sellogidx = wd->logs().indexOf( lognm ); //not used
+    int sellogidx = logs.indexOf( lognm ); //not used
     AttribLogCreator attriblog( datasetup_, sellogidx );
     uiString errmsg;
-    if ( !attriblog.doWork(*wd,errmsg) )
+    if ( !attriblog.doWork(*wd.ptr(),errmsg) )
     {
-	msgs_.add( errmsg );
-	nrdone_++;
-	return MoreToDo();
+	uirv_.add( errmsg );
+	return ++nrdone_ >= totalNr() ? Finished() : MoreToDo();
     }
 
-    sellogidx = wd->logs().indexOf( lognm );
+    sellogidx = logs.indexOf( lognm );
     PtrMan<Well::Log> newlog = wd->logs().remove( sellogidx );
     if ( !newlog )
     {
 	pErrMsg("Should not happen");
-	nrdone_++;
-	return MoreToDo();
+	return ++nrdone_ >= totalNr() ? Finished() : MoreToDo();
     }
 
     newlog->setMnemonic( outmn_ );
     const MultiID dbkey = wd->multiID();
     if ( !Well::MGR().writeAndRegister(dbkey,newlog) )
     {
-	msgs_.add( toUiString(Well::MGR().errMsg()) );
-	nrdone_++;
-	return MoreToDo();
+	uirv_.add( Well::MGR().errMsg() );
+	++nrdone_ >= totalNr() ? Finished() : MoreToDo();
     }
 
-    nrdone_++;
-    return MoreToDo();
+    return ++nrdone_ >= totalNr() ? Finished() : MoreToDo();
+}
+
+
+bool BulkAttribLogCreator::doFinish( bool success, od_ostream* strm )
+{
+    if ( uirv_.isError() )
+    {
+	msg_ = tr("One or several attribute logs could not be computed");
+	success = false;
+    }
+
+    return SequentialTask::doFinish( success, strm );
 }

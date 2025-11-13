@@ -21,7 +21,6 @@ ________________________________________________________________________
 #include "welllogset.h"
 #include "wellman.h"
 #include "wellmarker.h"
-#include "wellreader.h"
 #include "welltrack.h"
 
 
@@ -54,14 +53,14 @@ WellLogInfo( const MultiID& mid, const char* lognm,
 ~WellLogInfo()
 {
     delete track_;
-    delete log_;
 }
 
 
 bool init( InterpolationLayerModel& layermodel )
 {
     const bool zistime = SI().zIsTime();
-    Well::LoadReqs lreqs( Well::Inf, Well::Trck, Well::LogInfos );
+    Well::LoadReqs lreqs( Well::Inf, Well::Trck );
+    lreqs.addLog( logname_.buf() );
     if ( zistime )
 	lreqs.add( Well::D2T );
 
@@ -74,8 +73,8 @@ bool init( InterpolationLayerModel& layermodel )
 	    lreqs.add( Well::Mrkrs );
     }
 
-    RefMan<Well::Data> wd = Well::MGR().get( mid_, lreqs );
-    if ( !wd || !wd->getLog(logname_) )
+    ConstRefMan<Well::Data> wd = Well::MGR().get( mid_, lreqs );
+    if ( !wd )
 	return false;
 
     if ( lreqs.includes(Well::Mrkrs) )
@@ -98,16 +97,17 @@ bool init( InterpolationLayerModel& layermodel )
     if ( zistime )
 	track_->toTime( *wd );
 
-    const Well::Log* log = wd->getLog( logname_ );
-    if ( !log )
+    const Well::Log* log = wd->logs().getLog( logname_.buf() );
+    if ( !log || !log->isLoaded() )
 	return false;
 
     logisvelocity_ = log->propType() == Mnemonic::Vel;
 
-    delete log_;
-    log_ = applyFilter( *wd, *log );
+    PtrMan<Well::Log> usedlog = applyFilter( *wd, *log );
+    if ( !usedlog )
+	return false;
 
-    return log_ && createInterpolationFunctions( layermodel );
+    return createInterpolationFunctions( layermodel, *usedlog.ptr() );
 }
 
 
@@ -132,31 +132,34 @@ bool getTrackSampling( const Well::D2TModel* d2tmodel )
 
 #define cLogStepFact 10
 
-Well::Log* applyFilter( const Well::Data& wdin, const Well::Log& log ) const
+Well::Log* applyFilter( const Well::Data& wd, const Well::Log& log ) const
 {
-    ConstRefMan<Well::Data> wd( &wdin );
-    const Well::Track& track = wd->track();
-    const Well::D2TModel* d2t = wd->d2TModel();
+    const Well::Track& track = wd.track();
+    const Well::D2TModel* d2t = wd.d2TModel();
     Interval<float> mdrg;
-    if ( wd->logs().getLog(log.name().buf()) )
+    if ( wd.logs().isPresent(log.name().buf()) )
     {
-	BufferStringSet lognms; lognms.add( log.name() );
-	mdrg = params_.calcFrom( *wd, lognms );
+	uiString errmsg;
+	const BufferStringSet lognms( log.name().buf() );
+	mdrg = params_.calcFrom( wd, lognms, errmsg );
     }
     else
 	mdrg = log.dahRange();
 
     if ( mdrg.isUdf() )
-	return 0;
+	return nullptr;
 
     Interval<float> zrg;
     const bool zintime = SI().zIsTime();
     if ( zintime )
     {
-	if ( !d2t ) return 0;
+	if ( !d2t )
+	    return nullptr;
+
 	zrg.start_ = d2t->getTime( mdrg.start_, track );
 	zrg.stop_ = d2t->getTime( mdrg.stop_, track );
-	if ( zrg.isUdf() ) return 0;
+	if ( zrg.isUdf() )
+	    return nullptr;
     }
     else
 	zrg = track.zRange();
@@ -165,11 +168,11 @@ Well::Log* applyFilter( const Well::Data& wdin, const Well::Log& log ) const
     logs += &log;
     const float extractstep = bbox_.zsamp_.step_ / cLogStepFact;
     Well::LogSampler ls( d2t, &track, zrg, zintime, extractstep,
-			 zintime, params_.samppol_, logs ),
-		     lsnear( d2t, &track, zrg, zintime, extractstep,
+			 zintime, params_.samppol_, logs );
+    Well::LogSampler lsnear( d2t, &track, zrg, zintime, extractstep,
 			     zintime, Stats::TakeNearest, logs );
     if ( !ls.execute() || !lsnear.execute() )
-	return 0;
+	return nullptr;
 
     const int nrz = ls.nrZSamples();
     Array1DImpl<float> reglog( nrz );
@@ -184,9 +187,9 @@ Well::Log* applyFilter( const Well::Data& wdin, const Well::Log& log ) const
     FFTFilter filter( nrz, extractstep );
     filter.setLowPass( 1.f / (2.f*bbox_.zsamp_.step_) );
     if ( !filter.apply(reglog) )
-	return 0;
+	return nullptr;
 
-    Well::Log* filteredlog = new Well::Log;
+    auto* filteredlog = new Well::Log;
     const int intstep = mNINT32(cLogStepFact);
     for ( int idz=0; idz<nrz; idz+=intstep )
     {
@@ -200,26 +203,28 @@ Well::Log* applyFilter( const Well::Data& wdin, const Well::Log& log ) const
     if ( filteredlog->isEmpty() )
     {
 	delete filteredlog;
-	return 0;
+	return nullptr;
     }
 
     return filteredlog;
 }
 
-bool createInterpolationFunctions( const InterpolationLayerModel& layermodel )
+
+bool createInterpolationFunctions( const InterpolationLayerModel& layermodel,
+				   const Well::Log& log )
 {
     logfunc_.setEmpty();
     mdfunc_.setEmpty();
 
     const TrcKeySampling& hsamp = bbox_.hsamp_;
-    const int nrlogvals = log_->size();
+    const int nrlogvals = log.size();
     for ( int idz=0; idz<nrlogvals; idz++ )
     {
-	const float md = log_->dah( idz );
+	const float md = log.dah( idz );
+	const float logval = log.value( idz );
 	const Coord3 pos = track_->getPos( md );
 	const TrcKey tk = hsamp.toTrcKey( pos );
         const float layerz = layermodel.getLayerIndex( tk, mCast(float,pos.z_));
-	const float logval = log_->value( idz );
 	if ( mIsUdf(layerz) || mIsUdf(logval) )
 	    continue;
 
@@ -227,17 +232,13 @@ bool createInterpolationFunctions( const InterpolationLayerModel& layermodel )
 	mdfunc_.add( layerz, md );
     }
 
-    deleteAndNullPtr( log_ );
-
     return !logfunc_.isEmpty();
 }
-
 
     Well::Track*		track_			= nullptr;
     TrcKeyZSampling		bbox_;
     MultiID			mid_;
     BufferString		logname_;
-    const Well::Log*		log_			= nullptr;
     bool			logisvelocity_		= false;
     Well::ExtractParams		params_;
     PointBasedMathFunction	logfunc_;

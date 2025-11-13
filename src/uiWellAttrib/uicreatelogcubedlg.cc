@@ -65,24 +65,29 @@ bool uiCreateLogCubeDlg::acceptOK( CallBacker* )
     BufferStringSet lognms;
     welllogsel_->getSelLogNames( lognms );
     LogCubeCreator lcr( lognms, wids, extractparams, nrtrcs );
-    if ( !lcr.setOutputNm(outputgrp_->getPostFix(),outputgrp_->withWellName()) )
-    {
-	if ( !outputgrp_->askOverwrite(lcr.errMsg()) )
-	    return false;
-	else
-	    lcr.resetMsg();
-    }
+    uiStringSet existimpls;
+    const uiRetVal uirv = lcr.setOutputNm( outputgrp_->getPostFix(),
+					   outputgrp_->withWellName(),
+					   existimpls );
+    if ( uirv.isError() )
+	mErrRet( uirv );
 
-    uiTaskRunner* taskrunner = new uiTaskRunner( this );
-    if ( !TaskRunner::execute(taskrunner,lcr) || !lcr.isOK() )
-	mErrRet( lcr.errMsg() )
+    if ( !existimpls.isEmpty() && !outputgrp_->askOverwrite(existimpls.cat()) )
+	return false;
+
+    uiTaskRunner taskrunner( this );
+    if ( !taskrunner.execute(lcr) )
+    {
+	uiMSG().errorWithDetails( lcr.details(), lcr.uiMessage() );
+	return false;
+    }
 
     BufferStringSet outputnames;
     lcr.getOutputNames( outputnames );
-    uiMSG().message( tr("Successfully created log cube(s):\n%1")
-			.arg(outputnames.cat()) );
-
-    return false;
+    uiStringSet outputuinames;
+    outputnames.fill( outputuinames );
+    return !uiMSG().askGoOnWithDetails(
+		    tr("Successfully created log cube(s)"), outputuinames );
 }
 
 

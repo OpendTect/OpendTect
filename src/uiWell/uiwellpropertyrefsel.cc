@@ -111,18 +111,18 @@ void uiWellSinglePropSel::makeAltLogNameFld( const UnitOfMeasure* uom )
 }
 
 
-bool uiWellSinglePropSel::setAvailableLogs( const Well::LogSet& wls )
+bool uiWellSinglePropSel::setAvailableLogs( const Well::LogSet& logs )
 {
     BufferStringSet normnms;
     normnms.add( sKeyPlsSel );
     logunits_.setEmpty();
 
-    const TypeSet<int> logidxs = wls.getSuitable( normMn() );
+    const TypeSet<int> logidxs = logs.getSuitable( normMn() );
     for ( const auto& idx : logidxs )
     {
-	const Well::Log& wl = wls.getLog( idx );
-	normnms.add( wl.name() );
-	logunits_.add( wl.unitOfMeasure() );
+	const char* lognm = logs.getLogNameByIdx( idx );
+	normnms.add( lognm );
+	logunits_.add( logs.getUnitOfMeasureOfLog(lognm) );
     }
 
     uiComboBox* lognmfld = lognmfld_->box();
@@ -132,7 +132,7 @@ bool uiWellSinglePropSel::setAvailableLogs( const Well::LogSet& wls )
 
     lognmfld->setEmpty();
     lognmfld->addItems( normnms );
-    if ( !setDefaultLog(wls,normMn()) )
+    if ( !setDefaultLog(logs,normMn()) )
     {
 	if ( !prevlognm.isEmpty() && normnms.isPresent(prevlognm.str()) )
 	    lognmfld->setCurrentItem( normnms.indexOf(prevlognm.str()) );
@@ -151,18 +151,18 @@ bool uiWellSinglePropSel::setAvailableLogs( const Well::LogSet& wls )
     altnms.add( sKeyPlsSel );
     altlogunits_.setEmpty();
 
-    const TypeSet<int> altlogidxs = wls.getSuitable( *altMn() );
+    const TypeSet<int> altlogidxs = logs.getSuitable( *altMn() );
     for ( const auto& idx : altlogidxs )
     {
-	const Well::Log& wl = wls.getLog( idx );
-	altnms.add( wl.name() );
-	altlogunits_.add( wl.unitOfMeasure() );
+	const char* lognm = logs.getLogNameByIdx( idx );
+	altnms.add( lognm );
+	altlogunits_.add( logs.getUnitOfMeasureOfLog(lognm) );
     }
 
     uiComboBox* altlognmfld = altlognmfld_->box();
     altlognmfld->setEmpty();
     altlognmfld->addItems( altnms );
-    if ( !setDefaultLog(wls,*altMn()) )
+    if ( !setDefaultLog(logs,*altMn()) )
     {
 	if ( altnms.size() > 1 )
 	    altlognmfld->setCurrentItem( 1 );
@@ -177,14 +177,14 @@ bool uiWellSinglePropSel::setAvailableLogs( const Well::LogSet& wls )
 }
 
 
-bool uiWellSinglePropSel::setDefaultLog( const Well::LogSet& wls,
+bool uiWellSinglePropSel::setDefaultLog( const Well::LogSet& logs,
 					 const Mnemonic& mnem )
 {
-    const Well::Log* deflog = wls.getDefaultLog( mnem );
-    if ( !deflog )
+    const StringView deflognm( logs.getDefaultLogName( mnem ) );
+    if ( deflognm.isEmpty() )
 	return false;
 
-    setCurrent( deflog->name() );
+    setCurrent( deflognm.str() );
     return true;
 }
 

@@ -9,13 +9,14 @@ ________________________________________________________________________
 -*/
 
 #include "wellattribmod.h"
+
 #include "binidvalset.h"
 #include "bufstring.h"
 #include "task.h"
 #include "uistring.h"
 
 namespace Attrib { class DescSet; class SelSpec; class EngineMan; }
-namespace Well { class Data; class ExtractParams; }
+namespace Well { class Data; class ExtractParams; class LoadReqs; }
 class Mnemonic;
 class NLAModel;
 class TaskRunner;
@@ -87,25 +88,30 @@ mExpClass(WellAttrib) BulkAttribLogCreator : public SequentialTask
 public:
 
 			BulkAttribLogCreator(const AttribLogCreator::Setup&,
-					ObjectSet<Well::Data>& selwells,
-					const Mnemonic& outmn,uiRetVal&,
-					bool overwrite);
+					const TypeSet<MultiID>& wellids,
+					const Mnemonic& outmn,bool overwrite);
 			~BulkAttribLogCreator();
 
-    od_int64		nrDone() const override;
-    od_int64		totalNr() const override;
     uiString		uiNrDoneText() const override;
-    uiString		uiMessage() const override;
+    uiString		uiMessage() const override	{ return msg_; }
+    uiRetVal		details() const			{ return uirv_; }
+    uiRetVal		allMessages() const;
 
 private:
 
+    bool		doPrepare(od_ostream* =nullptr) override;
     int			nextStep() override;
+    bool		doFinish(bool,od_ostream* =nullptr) override;
+
+    od_int64		nrDone() const override;
+    od_int64		totalNr() const override;
 
     const AttribLogCreator::Setup&  datasetup_;
-    ObjectSet<Well::Data>&	    selwells_;
+    const TypeSet<MultiID>	    wellids_;
     const Mnemonic&		    outmn_;
+    Well::LoadReqs&		    lreqs_;
     uiString			    msg_;
-    uiRetVal&			    msgs_;
+    uiRetVal			    uirv_;
     const bool			    overwrite_;
 
     od_int64			    nrdone_			= 0;

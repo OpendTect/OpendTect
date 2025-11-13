@@ -286,13 +286,13 @@ void WellTie::Data::computeExtractionRange()
     if ( !wd_ )
 	return;
 
-    const Well::Log* velplog = wd_->logs().getLog( setup_.vellognm_.buf() );
     const Well::Track& track = wd_->track();
     const Well::D2TModel* d2t = wd_->d2TModel();
-    if ( !velplog || !d2t || track.isEmpty() )
+    const Well::LogSet& logs = wd_->logs();
+    if ( !logs.isPresent(setup_.vellognm_.buf()) || !d2t || track.isEmpty() )
 	return;
 
-    dahrg_ = velplog->dahRange();
+    dahrg_ = logs.getDahRangeForLog( setup_.vellognm_.buf() );
     dahrg_.limitTo( track.dahRange() );
     float twtstart = mMAX( 0.f, d2t->getTime( dahrg_.start_, track ) );
     float twtstop = d2t->getTime( dahrg_.stop_, track );
@@ -484,16 +484,15 @@ bool WellTie::DataWriter::writeLogs( const Well::LogSet& logset,
     if ( !wd_ || !wtr_ )
 	return false;
 
-    auto& wdlogset = const_cast<Well::LogSet&>( wd_->logs() );
+    auto& wdlogset = getNonConst( wd_->logs() );
     for ( int idx=0; idx<logset.size(); idx++ )
     {
-	auto* log = new Well::Log( logset.getLog(idx) );
+	auto* log = new Well::Log( logset.getLogByIdx(idx) );
 	wdlogset.add( log );
     }
 
-    if ( todisk )
-	if ( !wtr_->putLogs() )
-	    return false;
+    if ( todisk && !wtr_->putLogs() )
+	return false;
 
     return true;
 }
@@ -504,7 +503,7 @@ bool WellTie::DataWriter::removeLogs( const Well::LogSet& logset ) const
     if ( !wd_ )
 	return false;
 
-    auto& wdlogset = const_cast<Well::LogSet&>( wd_->logs() );
+    auto& wdlogset = getNonConst( wd_->logs() );
     int nrlogs = wdlogset.size();
     for ( int idx=0; idx<logset.size(); idx++ )
     {
@@ -525,7 +524,8 @@ WellTie::Server::Server( const WellTie::Setup& wts )
     mAttachCB( wdmgr_->datadeleted_, Server::wellDataDel );
 
     RefMan<Well::Data> wdata = wdmgr_->wd();
-    if ( !wdata ) return; //TODO close + errmsg
+    if ( !wdata )
+	return; //TODO close + errmsg
 
     // Order below matters
     datawriter_ = new DataWriter( *wdata, wts.wellid_ );

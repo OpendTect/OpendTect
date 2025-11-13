@@ -30,6 +30,7 @@ ________________________________________________________________________
 #include "welllog.h"
 #include "welllogset.h"
 #include "wellmarker.h"
+#include "wellodreader.h"
 #include "welltrack.h"
 #include "uistrings.h"
 
@@ -43,13 +44,43 @@ bool Well::Writer::isFunctional( const MultiID& ky )
 
 bool Well::Writer::isFunctional( const IOObj& ioobj )
 {
-    RefMan<Well::Data> wd = new Well::Data;
-    Well::Writer wrr( ioobj, *wd );
+    RefMan<Data> wd = new Data;
+    Writer wrr( ioobj, *wd );
     return wrr.isFunctional();
 }
 
 
-Well::Writer::Writer( const IOObj& ioobj, const Well::Data& wd )
+bool Well::Writer::canRenameLogs( const MultiID& ky )
+{
+    PtrMan<IOObj> ioobj = IOM().get( ky );
+    if ( !ioobj )
+	return false;
+
+    RefMan<Data> wd = new Data;
+    Writer wrr( *ioobj, *wd );
+    if ( !wrr.isUsable() )
+	return false;
+
+    return wrr.wa_ ? wrr.wa_->canRenameLogs() : false;
+}
+
+
+bool Well::Writer::canWriteInParallel( const MultiID& ky )
+{
+    PtrMan<IOObj> ioobj = IOM().get( ky );
+    if ( !ioobj )
+	return false;
+
+    RefMan<Data> wd = new Data;
+    Writer wrr( *ioobj, *wd );
+    if ( !wrr.isUsable() )
+	return false;
+
+    return wrr.wa_ ? wrr.wa_->canWriteInParallel() : false;
+}
+
+
+Well::Writer::Writer( const IOObj& ioobj, const Data& wd )
 {
     nsfile_ = new NotifyStopper( FSW().fileChanged );
     nsdir_ = new NotifyStopper( FSW().directoryChanged );
@@ -57,19 +88,19 @@ Well::Writer::Writer( const IOObj& ioobj, const Well::Data& wd )
 }
 
 
-Well::Writer::Writer( const MultiID& ky, const Well::Data& wd )
+Well::Writer::Writer( const MultiID& ky, const Data& wd )
 {
     nsfile_ = new NotifyStopper( FSW().fileChanged );
     nsdir_ = new NotifyStopper( FSW().directoryChanged );
     ConstPtrMan<IOObj> ioobj = IOM().get( ky );
-    if ( !ioobj )
-	errmsg_.appendPhrase( uiStrings::phrCannotFindDBEntry(ky) );
-    else
+    if ( ioobj )
 	init( *ioobj, wd );
+    else
+	errmsg_.appendPhrase( uiStrings::phrCannotFindDBEntry(ky) );
 }
 
 
-void Well::Writer::init( const IOObj& ioobj, const Well::Data& wd )
+void Well::Writer::init( const IOObj& ioobj, const Data& wd )
 {
     if ( ioobj.group() != mTranslGroupName(Well) )
 	errmsg_ = tr("%1 is for a %2- not for a Well")
@@ -79,7 +110,7 @@ void Well::Writer::init( const IOObj& ioobj, const Well::Data& wd )
 	wa_ = WDIOPF().getWriteAccess( ioobj, wd, errmsg_ );
 	if ( !wa_ )
 	    errmsg_ = uiStrings::phrCannotCreate(tr("writer of type %1"))
-		   .arg(ioobj.translator());
+					   .arg(ioobj.translator());
     }
 }
 
@@ -113,29 +144,30 @@ mImplWWFn(bool,putLog,const Log&,wl,false)
 bool Well::Writer::put( const StoreReqs& reqs ) const
 {
     if ( wa_->needsInfoAndTrackCombined() &&
-	(reqs.includes(Well::Inf) || reqs.includes(Well::Trck)) )
+	(reqs.includes(Inf) || reqs.includes(Trck)) )
 	 putTrack();
     else
     {
-	if ( reqs.includes(Well::Inf) )
+	if ( reqs.includes(Inf) )
 	    putInfo();
-	if ( reqs.includes(Well::Trck) )
+
+	if ( reqs.includes(Trck) )
 	    putTrack();
     }
 
-    if ( reqs.includes(Well::D2T) )
-	putD2T();
-
-    if ( reqs.includes(Well::Mrkrs) )
-	putMarkers();
-
-    if ( reqs.includes(Well::Logs) || reqs.includes(Well::LogInfos) )
-	putLogs();
-
-    if ( reqs.includes(Well::CSMdl) )
+    if ( reqs.includes(CSMdl) )
 	putCSMdl();
 
-    if ( reqs.includes(Well::DispProps2D) || reqs.includes(Well::DispProps3D) )
+    if ( reqs.includes(D2T) )
+	putD2T();
+
+    if ( reqs.includes(Mrkrs) )
+	putMarkers();
+
+    if ( reqs.includes(Logs) || reqs.includes(LogInfos) )
+	putLogs();
+
+    if ( reqs.includes(DispProps2D) || reqs.includes(DispProps3D) )
 	putDispProps();
 
     return true;
@@ -144,7 +176,7 @@ bool Well::Writer::put( const StoreReqs& reqs ) const
 
 bool Well::Writer::putInfoAndTrack() const
 {
-    return put( StoreReqs(Well::Inf,Well::Trck) );
+    return put( StoreReqs(Inf,Trck) );
 }
 
 
@@ -157,16 +189,34 @@ bool Well::Writer::putLogs() const
 }
 
 
-bool Well::Writer::swapLogs( const Well::Log& log1,
-			     const Well::Log& log2 ) const
+bool Well::Writer::renameLog( const char* oldnm, const char* newnm )
 {
-    return wa_->canSwapLogs() ? wa_->swapLogs( log1, log2 ) : false;
+    if ( !wa_ || !data() )
+	return false;
+
+    const LogSet& logs = data()->logs();
+    const Log* wl = logs.getLogInfos( oldnm );
+    if ( !wl )
+    {
+	errmsg_ = tr("Cannot find the log to rename in the set");
+	return false;
+    }
+
+    if ( !wa_->renameLog(oldnm,newnm) )
+	return false;
+
+    if ( logs.isPresent(oldnm) )
+    {
+	pErrMsg("The writer implementation must rename the log in the set");
+    }
+
+    return logs.isPresent( newnm );
 }
 
 
-bool Well::Writer::renameLog( const char* oldnm, const char* newnm )
+const Well::Data* Well::Writer::data() const
 {
-    return wa_ ? wa_->renameLog( oldnm, newnm ) : false;
+    return wa_ ? &wa_->data() : nullptr;
 }
 
 
@@ -180,20 +230,20 @@ bool Well::Writer::renameLog( const char* oldnm, const char* newnm )
     if ( !strm.isOK() ) mErrStrmOper(startWriteStr(),todo)
 
 
-Well::odWriter::odWriter( const char* f, const Well::Data& w, uiString& errmsg )
-    : Well::odIO(f,errmsg)
-    , Well::WriteAccess(w)
+Well::odWriter::odWriter( const char* f, const Data& w, uiString& errmsg )
+    : odIO(f,errmsg)
+    , WriteAccess(w)
 {
     init();
 }
 
 
-Well::odWriter::odWriter( const IOObj& ioobj, const Well::Data& w,
+Well::odWriter::odWriter( const IOObj& ioobj, const Data& w,
 			  uiString& errmsg )
-    : Well::odIO(ioobj.fullUserExpr(false),errmsg)
-    , Well::WriteAccess(w)
+    : odIO(ioobj.fullUserExpr(false),errmsg)
+    , WriteAccess(w)
 {
-    wd_.setMultiID( ioobj.key() );
+    getNonConst( wd_ ).setMultiID( ioobj.key() );
     init();
     ioobj.pars().getYN( sKeyLogStorage(), binwrlogs_ );
 }
@@ -240,10 +290,10 @@ bool Well::odWriter::wrHdr( od_ostream& strm, const char* fileky ) const
 bool Well::odWriter::put() const
 {
     return putTrack()
-	&& putLogs()
-	&& putMarkers()
-	&& putD2T()
 	&& putCSMdl()
+	&& putD2T()
+	&& putMarkers()
+	&& putLogs()
 	&& putDispProps();
 }
 
@@ -268,22 +318,22 @@ bool Well::odWriter::putInfo( od_ostream& strm ) const
 
     const auto& info = wd_.info();
     ascostream astrm( strm );
-    astrm.put( Well::Info::sKeyDepthUnit(),
+    astrm.put( Info::sKeyDepthUnit(),
 	    UnitOfMeasure::surveyDefDepthStorageUnit()->symbol() );
-    astrm.put( Well::Info::sKeyUwid(), info.uwid_ );
-    astrm.put( Well::Info::sKeyOper(), info.oper_ );
-    astrm.put( Well::Info::sKeyField(), info.field_ );
-    astrm.put( Well::Info::sKeyCounty(), info.county_ );
-    astrm.put( Well::Info::sKeyState(), info.state_ );
-    astrm.put( Well::Info::sKeyProvince(), info.province_ );
-    astrm.put( Well::Info::sKeyCountry(), info.country_ );
-    astrm.put( Well::Info::sKeyWellType(), info.welltype_ );
+    astrm.put( Info::sKeyUwid(), info.uwid_ );
+    astrm.put( Info::sKeyOper(), info.oper_ );
+    astrm.put( Info::sKeyField(), info.field_ );
+    astrm.put( Info::sKeyCounty(), info.county_ );
+    astrm.put( Info::sKeyState(), info.state_ );
+    astrm.put( Info::sKeyProvince(), info.province_ );
+    astrm.put( Info::sKeyCountry(), info.country_ );
+    astrm.put( Info::sKeyWellType(), info.welltype_ );
     if ( info.surfacecoord_ != Coord(0,0) )
-	astrm.put( Well::Info::sKeyCoord(), info.surfacecoord_.toString() );
+	astrm.put( Info::sKeyCoord(), info.surfacecoord_.toString() );
     if ( info.surfacelatlong_.isDefined() )
 	astrm.put( sKey::LatLong(), info.surfacelatlong_.toString() );
-    astrm.put( Well::Info::sKeyReplVel(), info.replvel_ );
-    astrm.put( Well::Info::sKeyGroundElev(), info.groundelev_ );
+    astrm.put( Info::sKeyReplVel(), info.replvel_ );
+    astrm.put( Info::sKeyGroundElev(), info.groundelev_ );
     astrm.newParagraph();
 
     return true;
@@ -304,6 +354,7 @@ bool Well::odWriter::putTrack( od_ostream& strm ) const
     }
     if ( !strm.isOK() )
 	mErrRetStrmOper(tr("write track data"))
+
     return true;
 }
 
@@ -331,22 +382,26 @@ DataBuffer* Well::odWriter::getLogBuffer( od_istream& istrm ) const
 bool Well::odWriter::putLogs() const
 {
     ManagedObjectSet<DataBuffer> databufset;
-    for ( int idx=wd_.logs().size()-1; idx>=0; idx-- )
+    const LogSet& logs = wd_.logs();
+    for ( int idx=logs.size()-1; idx>=0; idx-- )
     {
-	const Well::Log& wl = wd_.logs().getLog(idx);
-	if ( wl.size() == 0 )
-	    delete const_cast<Well::LogSet&>(wd_.logs()).remove( idx );
+	const Log& wl = logs.getLogByIdx( idx );
+	if ( wl.isEmpty() )
+	    delete getNonConst( logs ).remove( idx );
     }
 
-    for ( int idx=0; idx<wd_.logs().size(); idx++ )
+    TypeSet<int> bintypes( logs.size(), mUdf(int) );
+    BufferStringSet lognms;
+    logs.getNames( lognms );
+    for ( int idx=0; idx<lognms.size(); idx++ )
     {
 	const BufferString fnm( getFileName(sExtLog(), idx+1) );
+	bintypes[idx] = odReader::getStorageType( fnm );
 	od_istream istrm( fnm );
 	if ( !istrm.isOK() )
 	    continue;
 
-	const Well::Log& wl = wd_.logs().getLog(idx);
-	if ( wl.isLoaded() )
+	if ( logs.isLoaded(lognms.get(idx).buf()) )
 	    continue;
 
 	databufset.add( getLogBuffer(istrm) );
@@ -354,16 +409,22 @@ bool Well::odWriter::putLogs() const
 
     removeAll( sExtLog() );
     int idy = 0;
-    for ( int idx=0; idx<wd_.logs().size(); idx++ )
+    for ( int idx=0; idx<lognms.size(); idx++ )
     {
-	const Well::Log& wl = wd_.logs().getLog(idx);
-	const DataBuffer* dbuf = wl.isLoaded() ? nullptr :
-			    databufset.validIdx(idy) ? databufset.get(idy++) :
-						       nullptr;
+	const char* lognm = lognms.get( idx ).buf();
+	const Log* wl = logs.isLoaded( lognm ) ? logs.getLog( lognm )
+					       : logs.getLogInfos( lognm);
+	if ( !wl )
+	    continue;
+
+	const int bintype = bintypes.validIdx( idx) ? bintypes[idx] : mUdf(int);
+	const DataBuffer* dbuf = wl->isLoaded() ? nullptr :
+			    (databufset.validIdx(idy) ? databufset.get(idy++)
+						      : nullptr);
 	mGetOutStream( sExtLog(), idx+1, return false )
 
 	errmsg_.setEmpty();
-	if ( !putLog(strm,wl,dbuf) )
+	if ( !putLog(strm,*wl,bintype,dbuf) )
 	    return false;
     }
 
@@ -371,63 +432,76 @@ bool Well::odWriter::putLogs() const
 }
 
 
-bool Well::odWriter::putLog( const Well::Log& wl ) const
+bool Well::odWriter::putLog( const Log& wl ) const
 {
     const int logidx = getLogIndex( wl.name() );
-    const BufferString logfnm = getFileName( Well::odIO::sExtLog(), logidx );
-    od_istream istrm( logfnm );
-    const DataBuffer* dbuf = wl.isLoaded() ? nullptr : getLogBuffer(istrm);
-    od_ostream strm( logfnm );
-    if ( !putLog(strm,wl,dbuf) )
-    {
-	delete dbuf;
-	return false;
-    }
+    const BufferString logfnm = getFileName( odIO::sExtLog(), logidx );
 
+    const int bintype = odReader::getStorageType( logfnm.str() );
+    od_istream istrm( logfnm );
+    const DataBuffer* dbuf = wl.isLoaded() ? nullptr : getLogBuffer( istrm );
+
+    od_ostream strm( logfnm );
+    const bool res = putLog( strm, wl, bintype, dbuf );
     delete dbuf;
-    return true;
+
+    return res;
 }
 
 
-bool Well::odWriter::putLog( od_ostream& strm, const Well::Log& wl,
-					    const DataBuffer* databuf ) const
+bool Well::odWriter::putLog( od_ostream& strm, const Log& wl,
+			     int bintype, const DataBuffer* databuf ) const
 {
     if ( !wrHdr(strm,sKeyLog()) )
 	mErrRetStrmOper(tr("write header (log)"))
 
-    if ( !wrLogHdr(strm, wl) || !wrLogData(strm, wl, databuf) )
+    if ( !wrLogHdr(wl,bintype,strm) || !wrLogData(wl,bintype,databuf,strm) )
 	mErrRetStrmOper(tr("write log data"))
 
     return true;
 }
 
 
-bool Well::odWriter::wrLogHdr( od_ostream& strm, const Well::Log& wl ) const
+bool Well::odWriter::wrLogHdr( const Log& wl, int bintype,
+			       od_ostream& strm ) const
 {
     if ( !strm.isOK() )
 	return false;
 
     ascostream astrm( strm );
-    astrm.put( Well::Info::sKeyDepthUnit(),
-	    UnitOfMeasure::surveyDefDepthStorageUnit()->symbol() );
+    astrm.put( Info::sKeyDepthUnit(),
+	       UnitOfMeasure::surveyDefDepthStorageUnit()->symbol() );
     astrm.put( sKey::Name(), wl.name() );
     const bool havemnemonics = !StringView(wl.mnemonicLabel()).isEmpty();
     const bool haveunits = wl.haveUnit();
     const bool havepars = !wl.pars().isEmpty();
     if ( havemnemonics )
-	astrm.put( Well::Log::sKeyMnemLbl(), wl.mnemonicLabel() );
+	astrm.put( Log::sKeyMnemLbl(), wl.mnemonicLabel() );
+
     if ( haveunits )
-	astrm.put( Well::Log::sKeyUnitLbl(), wl.unitMeasLabel() );
-    astrm.putYN( Well::Log::sKeyHdrInfo(), havepars );
-    const char* stortyp = binwrlogs_ ? (__islittle__ ? "Binary" : "Swapped")
-				     : "Ascii";
-    astrm.put( Well::Log::sKeyStorage(), stortyp );
+	astrm.put( Log::sKeyUnitLbl(), wl.unitMeasLabel() );
+
+    astrm.putYN( Log::sKeyHdrInfo(), havepars );
+    const char* stortype;
+    if ( mIsUdf(bintype) || (bintype < 1 && bintype > 1) )
+    {
+	stortype = binwrlogs_ ? (__islittle__ ? "Binary" : "Swapped")
+			      : "Ascii";
+    }
+    else
+    {
+	stortype = bintype == 0 ? "Ascii"
+				: (bintype == 1 ? "Binary" : "Swapped");
+    }
+
+    astrm.put( Log::sKeyStorage(), stortype );
     const Interval<float>& dahrange = wl.dahRange();
     if ( !dahrange.isUdf() )
-	astrm.put( Well::Log::sKeyDahRange(), dahrange.start_, dahrange.stop_ );
+	astrm.put( Log::sKeyDahRange(), dahrange.start_, dahrange.stop_ );
+
     const Interval<float>& logrange = wl.valueRange();
     if ( !logrange.isUdf() )
-	astrm.put( Well::Log::sKeyLogRange(), logrange.start_, logrange.stop_ );
+	astrm.put( Log::sKeyLogRange(), logrange.start_, logrange.stop_ );
 
     astrm.newParagraph();
     if ( havepars )
@@ -437,8 +511,9 @@ bool Well::odWriter::wrLogHdr( od_ostream& strm, const Well::Log& wl ) const
 }
 
 
-bool Well::odWriter::wrLogData( od_ostream& strm, const Well::Log& wl,
-					   const DataBuffer* databuf ) const
+bool Well::odWriter::wrLogData( const Log& wl, int bintype,
+				const DataBuffer* databuf,
+				od_ostream& strm ) const
 {
     if ( !strm.isOK() )
 	return false;
@@ -448,6 +523,10 @@ bool Well::odWriter::wrLogData( od_ostream& strm, const Well::Log& wl,
 	strm.addBin( databuf->data(), databuf->size() );
 	return true;
     }
+
+    bool binwrlogs = binwrlogs_;
+    if ( !mIsUdf(bintype) && bintype >=-1 && bintype <=-1 )
+	binwrlogs = bintype != 0;
 
     Interval<int> wrintv( 0, wl.size()-1 );
     float dah, val;
@@ -473,7 +552,7 @@ bool Well::odWriter::wrLogData( od_ostream& strm, const Well::Log& wl,
 	    continue;
 
 	v[1] = wl.value( idx );
-	if ( binwrlogs_ )
+	if ( binwrlogs )
 	    strm.addBin( v );
 	else
 	{
@@ -494,44 +573,22 @@ bool Well::odWriter::wrLogData( od_ostream& strm, const Well::Log& wl,
 }
 
 
-bool Well::odWriter::swapLogs( const Well::Log& log1,
-			       const Well::Log& log2 ) const
-{
-    const int logidx1 = getLogIndex( log1.name() );
-    const BufferString logfnm1 = getFileName( Well::odIO::sExtLog(), logidx1 );
-    const int logidx2 = getLogIndex( log2.name() );
-    const BufferString logfnm2 = getFileName( Well::odIO::sExtLog(), logidx2 );
-    const BufferString tempfnm = getFileName( Well::odIO::sExtLog(), 0 );
-    File::rename( logfnm2, tempfnm );
-    File::rename( logfnm1, logfnm2 );
-    File::rename( tempfnm, logfnm1 );
-    return true;
-}
-
-
 bool Well::odWriter::renameLog( const char* oldnm, const char* newnm )
 {
     const int logidx = getLogIndex( oldnm );
-    const BufferString logfnm = getFileName( Well::odIO::sExtLog(), logidx );
+    const BufferString logfnm = getFileName( odIO::sExtLog(), logidx );
+    const int bintype = odReader::getStorageType( logfnm );
     od_istream istrm( logfnm );
-    Reader rdr( wd_.multiID(), const_cast<Data&>( wd_ ) );
-    if ( rdr.isUsable() )
-	rdr.getLog( oldnm );
+    const Log* wl = wd_.logs().getLogInfos( oldnm );
+    const DataBuffer* dbuf = wl->isLoaded() ? nullptr : getLogBuffer( istrm );
 
-    Well::Log* wl = const_cast<Well::Log*>( wd_.logs().getLog(oldnm) );
-    if ( wl )
-	wl->setName( newnm );
+    getNonConst( wl )->setName( newnm );
 
-    const DataBuffer* dbuf = wl->isLoaded() ? nullptr : getLogBuffer(istrm);
     od_ostream strm( logfnm );
-    if ( !putLog(strm,*wl,dbuf) )
-    {
-	delete dbuf;
-	return false;
-    }
-
+    const bool res = putLog( strm, *wl, bintype, dbuf );
     delete dbuf;
-    return true;
+
+    return res;
 }
 
 
@@ -546,7 +603,7 @@ int Well::odWriter::getLogIndex( const char* lognm ) const
 	if ( rdr.isUsable() )
 	{
 	    BufferStringSet lognms;
-	    rdr.getLogInfo( lognms );
+	    rdr.getLogNames( lognms );
 	    logidx = lognms.indexOf( lognm );
 	    nrlogs = lognms.size();
 	}
@@ -599,18 +656,18 @@ bool Well::odWriter::putMarkers( od_ostream& strm ) const
 	mErrRetStrmOper(tr("write header (markers)"))
 
     ascostream astrm( strm );
-    astrm.put( Well::Info::sKeyDepthUnit(),
+    astrm.put( Info::sKeyDepthUnit(),
 	    UnitOfMeasure::surveyDefDepthStorageUnit()->symbol() );
     for ( int idx=0; idx<wd_.markers().size(); idx++ )
     {
 	BufferString basekey; basekey += idx+1;
-	const Well::Marker& wm = *wd_.markers()[idx];
+	const Marker& wm = *wd_.markers()[idx];
 	const float dah = wm.dah();
 	if ( mIsUdf(dah) )
 	    continue;
 
 	astrm.put( IOPar::compKey(basekey,sKey::Name()), wm.getDatabaseName() );
-	astrm.put( IOPar::compKey(basekey,Well::Marker::sKeyDah()), dah );
+	astrm.put( IOPar::compKey(basekey,Marker::sKeyDah()), dah );
 	astrm.put( IOPar::compKey(basekey,sKey::StratRef()),
 		   wm.levelID().asInt() );
 	BufferString bs;
@@ -646,11 +703,11 @@ bool Well::odWriter::doPutD2T( od_ostream& strm, bool csmdl ) const
 	mErrRetStrmOper(tr("write header (D2T model)"))
 
     ascostream astrm( strm );
-    const Well::D2TModel& d2t = *(csmdl ? wd_.checkShotModel(): wd_.d2TModel());
+    const D2TModel& d2t = *(csmdl ? wd_.checkShotModel(): wd_.d2TModel());
     astrm.put( sKey::Name(), d2t.name() );
     astrm.put( sKey::Desc(), d2t.desc );
     astrm.put( D2TModel::sKeyDataSrc(), d2t.datasource );
-    astrm.put( Well::Info::sKeyDepthUnit(),
+    astrm.put( Info::sKeyDepthUnit(),
 	    UnitOfMeasure::surveyDefDepthStorageUnit()->symbol() );
     astrm.newParagraph();
 
@@ -668,6 +725,7 @@ bool Well::odWriter::doPutD2T( od_ostream& strm, bool csmdl ) const
 
     if ( !strm.isOK() )
 	mErrRetStrmOper(tr("write Depth/Time data"))
+
     return true;
 }
 
@@ -691,9 +749,12 @@ bool Well::odWriter::putDispProps( od_ostream& strm ) const
     iop.putTo( astrm );
     if ( !strm.isOK() )
 	mErrRetStrmOper(tr("write well display parameters"))
+
     return true;
 }
 
+
+// MultiWellWriter
 
 MultiWellWriter::MultiWellWriter( const ObjectSet<Well::Data>& wds,
 				  const TypeSet<StoreReqs>& reqs )

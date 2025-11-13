@@ -1,0 +1,17 @@
+dTect V8.1.0
+Parameters
+Fri Nov 14 03:39:50 PM CET 2025
+!
+Survey: F3_Test_Survey
+Well A: 100050.3
+Well B: 100050.5
+Sonic Log Cube: 100010.32
+P-Impedance Log Cube: 100010.33
+Attributes.0.Definition: Storage id=100010.2 output=0
+Attributes.0.UserRef: Seismic
+Attributes.0.Hidden: No
+Attributes.0.DataType: Other
+Attributes.0.Index: 0
+Attributes.MaxNrKeys: 0
+Attributes.Type: 3D
+!

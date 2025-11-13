@@ -30,7 +30,6 @@ ________________________________________________________________________
 #include "uilistbox.h"
 #include "uilistboxchoiceio.h"
 #include "uistrings.h"
-#include "uitaskrunner.h"
 #include "uiwellmarkersel.h"
 
 
@@ -45,6 +44,19 @@ ________________________________________________________________________
 	zfldidx = zselectionflds_.size()-1; \
     mDynamicCastGet(uiGenInput*,zfld,zselectionflds_[zfldidx])
 
+
+// uiWellZRangeSelector::Setup
+
+uiWellZRangeSelector::Setup::Setup()
+    : txtofmainfld_("Extract Between")
+{}
+
+
+uiWellZRangeSelector::Setup::~Setup()
+{}
+
+
+// uiWellZRangeSelector
 
 uiWellZRangeSelector::uiWellZRangeSelector( uiParent* p, const Setup& s )
     : uiGroup(p,"Select Z Range")
@@ -231,11 +243,23 @@ void uiWellZRangeSelector::setRange( Interval<float> zrg, bool istime )
     zchoicefld_->setValue( selidx_ );
     zfld->setValue( zrg );
 
-    getFromScreen(0);
+    getFromScreen( nullptr );
 }
 
 
+// uiWellExtractParams
 
+uiWellExtractParams::Setup::Setup()
+    : uiWellZRangeSelector::Setup()
+    , withextractintime_(SI().zIsTime())
+{}
+
+
+uiWellExtractParams::Setup::~Setup()
+{}
+
+
+// uiWellExtractParams
 
 uiWellExtractParams::uiWellExtractParams( uiParent* p, const Setup& s )
     : uiWellZRangeSelector( p, s )
@@ -480,8 +504,8 @@ void uiMultiWellLogSel::update()
 
     deepErase( wellobjs_ );
 
-    IOObjContext ctxt = mIOObjContext(Well);
-    IODir iodir( ctxt.getSelKey() );
+    const IOObjContext ctxt = WellTranslatorGroup::ioContext();
+    const IODir iodir( ctxt.getSelKey() );
     IODirEntryList entries( iodir, ctxt );
 
     BufferStringSet wellnms;
@@ -498,7 +522,7 @@ void uiMultiWellLogSel::update()
     if ( wellsfld_ )
 	wellsfld_->addItems( wellnms );
 
-    updateLogsFldCB( 0 );
+    updateLogsFldCB( nullptr );
 }
 
 

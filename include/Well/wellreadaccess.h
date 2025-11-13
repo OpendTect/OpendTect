@@ -28,34 +28,36 @@ class Track;
 
 mExpClass(Well) ReadAccess
 {
+    mODTextTranslationClass(ReadAccess)
 public:
 
     virtual		~ReadAccess();
 			mOD_DisableCopy(ReadAccess)
 
-    virtual bool	getInfo() const			= 0;
-    virtual bool	getTrack() const		= 0;
-    virtual bool	getMarkers() const		= 0;
+    virtual bool	getInfo() const					= 0;
+    virtual bool	getTrack() const				= 0;
+    virtual bool	getMarkers() const				= 0;
 
-    virtual bool	getD2T() const			= 0;
+    virtual bool	getD2T() const					= 0;
     virtual bool	getD2TByName(const char*) const;
     virtual bool	getD2TByID(const D2TID&) const;
     virtual bool	getD2TInfo(BufferStringSet&) const;
 
-    virtual bool	getCSMdl() const		= 0; //!< Checkshot mdl
+    virtual bool	getCSMdl() const				= 0;
     virtual bool	getCSMdlByName(const char*) const;
     virtual bool	getCSMdlByID(const D2TID&) const;
     virtual bool	getCSMdlInfo(BufferStringSet&) const;
 
-    virtual bool	getLogs(bool needjustinfo) const	  = 0;
-    virtual bool	getLog(const char* lognm) const	= 0;
+    virtual bool	getLogs(bool needjustinfo) const		= 0;
+    virtual bool	getLog(const char* lognm) const			= 0;
     virtual bool	getLogByID(const LogID&) const	{ return false; }
-    virtual void	getLogInfo(BufferStringSet& lognms) const = 0;
     virtual bool	getDefLogs() const		{ return false; }
 
-    virtual bool	getDispProps() const		= 0;
+    virtual bool	getDispProps() const				= 0;
 
-    virtual const uiString& errMsg() const		= 0;
+    virtual const uiString& errMsg() const				= 0;
+
+    virtual bool	canReadInParallel() const	{ return false; }
 
     Data&		data()				{ return wd_; }
     const Data&		data() const			{ return wd_; }
@@ -65,10 +67,13 @@ protected:
 
     Data&		wd_;
 
-    bool		addToLogSet(Log*, bool needjustinfo=false) const;
+    bool		needsAdd(const char* lognm,bool needjustinfo) const;
+    bool		addToLogSet(Log*,bool needjustinfo) const;
     bool		updateDTModel(D2TModel*,bool ischeckshot,
 					uiString& errmsg) const;
     void		adjustTrackIfNecessary(bool frommarkers=false) const;
+
+    uiString		sCannotReadFileHeader() const;
 
     mDeprecated("use updateDTModel with uiString")
     bool		updateDTModel(D2TModel*,bool ischeckshot,
@@ -81,6 +86,9 @@ protected:
 public:
     mDeprecated("Use other get functions, or Well::Reader::get")
     virtual bool	get() const			= 0;
+
+    mDeprecatedObs
+    virtual void	getLogInfo(BufferStringSet& lognms) const;
 };
 
 } // namespace Well

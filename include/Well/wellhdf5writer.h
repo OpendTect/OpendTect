@@ -34,18 +34,24 @@ public:
     static bool		useHDF5(const IOObj&,uiString&);
 
 private:
+    bool		isFunctional() const override;
+    bool		canRenameLogs() const override		{ return true; }
+    bool		canWriteInParallel() const override;
     bool		needsInfoAndTrackCombined() const override
 			{ return false; }
 
     bool		put() const override;
     bool		putInfo() const override;
     bool		putTrack() const override;
-    bool		putLogs() const override;
-    bool		putDefLogs() const override;
-    bool		putMarkers() const override;
-    bool		putD2T() const override;
     bool		putCSMdl() const override;
+    bool		putD2T() const override;
+    bool		putMarkers() const override;
+    bool		putLogs() const override;
+    bool		putLog(const Log&) const override;
+    bool		putDefLogs() const override;
     bool		putDispProps() const override;
+    bool		renameLog(const char* oldnm,
+				  const char* newnm) override;
 
     const uiString&	errMsg() const override		{ return errmsg_; }
 
@@ -61,10 +67,7 @@ private:
     void		ensureCorrectDSSize(const HDF5::DataSetKey&,int,int,
 					    uiRetVal&) const;
     int			getLogIndex(const char* lognm ) const;
-    bool		putLog(const Log&) const override;
     bool		setLogAttribs(const HDF5::DataSetKey&,const Log*) const;
-
-    bool		isFunctional() const override;
 
 };
 

@@ -30,6 +30,8 @@ mExpClass(Well) HDF5Access
 {
 public:
 
+    static bool			isParallelEnabled();
+
     static const char*		sTrackGrpName();
     static const char*		sLogsGrpName();
     static const char*		sMarkersGrpName();
@@ -62,19 +64,22 @@ public:
 			~HDF5Reader();
 
 private:
+    bool		canReadInParallel() const override;
+
+    bool		get() const override		{ return true; }
 
     bool		getInfo() const override;
     bool		getTrack() const override;
-    bool		getLogs(bool needjustinfo) const override;
     bool		getMarkers() const override;
 
     bool		getD2T() const override;
     bool		getCSMdl() const override;
 
+    bool		getLogs(bool needjustinfo) const override;
     bool		getLog(const char* lognm) const override;
     bool		getLogByID(const LogID&) const override;
-    void		getLogInfo(BufferStringSet&) const override;
     bool		getDefLogs() const override;
+
     bool		getDispProps() const override;
 
     const		uiString& errMsg() const override    { return errmsg_; }
@@ -83,13 +88,18 @@ private:
     bool		ensureFileOpen() const;
     bool		doGetD2T(bool) const;
     bool		getLogPars(const HDF5::DataSetKey&,IOPar&) const;
-    Log*		getWL(const HDF5::DataSetKey&) const;
+    bool		addLog(const HDF5::DataSetKey&,Log* newlog=nullptr,
+			       bool needjustinfo=false) const;
+    bool		readLogData(const HDF5::DataSetKey&,Log&) const;
 
-    bool		get() const override		{ return true; }
+
+    static Log*		rdLogHdr(const IOPar&,int idx);
 
     uiString&		errmsg_;
     PtrMan<HDF5::Reader> rdr_;
+    BufferStringSet	loggrps_;
     mutable IOPar	infoiop_;
+    mutable Threads::Lock lock_;
 
 };
 

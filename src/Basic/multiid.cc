@@ -46,6 +46,12 @@ MultiID::~MultiID()
 }
 
 
+MultiID* MultiID::clone() const
+{
+    return new MultiID( *this );
+}
+
+
 MultiID& MultiID::setID( int idx, int id )
 {
     if ( idx<0 || mIsUdf(idx) )

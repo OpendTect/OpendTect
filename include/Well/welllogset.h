@@ -11,7 +11,6 @@ ________________________________________________________________________
 #include "wellmod.h"
 
 #include "mnemonics.h"
-#include "position.h"
 #include "ranges.h"
 
 class BufferStringSet;
@@ -29,54 +28,61 @@ class Log;
 mExpClass(Well) LogSet : public CallBacker
 {
 public:
-
 			LogSet();
-    virtual		~LogSet();
+			~LogSet();
 
-    void		getNames(BufferStringSet&, bool onlyloaded=false) const;
-
+	    // Available without actual log data
     int			size() const		{ return logs_.size(); }
-    Log&		getLog( int idx )	{ return *logs_[idx]; }
-    const Log&		getLog( int idx ) const { return *logs_[idx]; }
-    Log&		first()			{ return *logs_.first(); }
-    const Log&		first() const		{ return *logs_.first(); }
-    Log&		last()			{ return *logs_.last(); }
-    const Log&		last() const		{ return *logs_.last(); }
-    int			indexOf(const char*) const;
-    bool		isLoaded(const char*) const;
-    bool		areAllLoaded() const;
+    bool		isEmpty() const		{ return logs_.isEmpty(); }
     bool		isPresent(const char*) const;
+    bool		isLoaded(const char*) const;
+    int			nrLoaded() const;
+    bool		validIdx(int idx) const { return logs_.validIdx(idx); }
+    int			indexOf(const char*) const;
+    bool		areAllLoaded() const;
+
+    void		setEmpty(bool withdelete=true);
+    void		swap(int idx0,int idx1) { logs_.swap( idx0, idx1 ); }
+
+    const char*		getLogNameByIdx(int) const;
+    const char*		getLogNameFor(const Mnemonic&) const;
+			/*<! default if default is present, otherwise first
+			     of suitable logs !>*/
+    const char*		getDefaultLogName(const Mnemonic&) const;
+    Interval<float>	getDahRangeForLog(const char*) const;
+    Interval<float>	getValueRangeForLog(const char*) const;
+
     bool		hasDefaultFor(const Mnemonic&) const;
     bool		setDefaultMnemLog(const Mnemonic&,const char* lognm);
     bool		removeDefault(const Mnemonic&);
     void		getDefaultLogs(BufferStringSet&,
 				       bool onlyloaded=false) const;
     bool		isDefaultLog(const char* lognm) const;
-    void		renameDefaultLog(const char* oldnm, const char* newnm);
+    void		renameDefaultLog(const char* oldnm,const char* newnm);
 			//<! make sure the log is renamed first
-    const Log*		getLog( const char* nm ) const	{ return gtLog(nm); }
-    Log*		getLog( const char* nm )	{ return gtLog(nm); }
+    const char*		getMnemonicLblOfLog(const char* nm) const;
+    const Mnemonic*	getMnemonicOfLog(const char* nm,
+					 bool setifnull=false) const;
+    const char*		getUnitOfMeasureLblOfLog(const char* nm) const;
+    const UnitOfMeasure* getUnitOfMeasureOfLog(const char* nm) const;
 
-    const Log*		getLog(const Mnemonic&) const;
-			/*<! default if default is present, otherwise first
-			     of suitable logs !>*/
-    const Log*		getDefaultLog(const Mnemonic&) const;
-			//<! returns null if default is not assigned.
+    void		setMnemonicOfLog(const char* lognm,const Mnemonic&);
+    void		setUnitOfMeasureOfLog(const char* lognm,
+					      const UnitOfMeasure*);
+    const IOPar*	getParsOfLog(const char* lognm) const;
+
+    const Log*		getLogInfos(const char* lognm) const;
 
     Interval<float>	dahInterval() const	{ return dahintv_; }
 						//!< not def if start == undef
-    void		updateDahIntvs();
-						//!< if logs changed
-    void		removeTopBottomUdfs();
 
-    void		add(Log*);		//!< becomes mine
-    void		add(const LogSet&);	//!< copies all logs
-    Log*		remove(int);		//!< becomes yours
-    void		swap(int idx0,int idx1) { logs_.swap( idx0, idx1 ); }
-    bool		validIdx(int idx) const { return logs_.validIdx(idx); }
-
-    bool		isEmpty() const		{ return size() == 0; }
-    void		setEmpty(bool withdelete=true);
+    void		getNames(BufferStringSet&, bool onlyloaded=false) const;
+    void		getAllAvailMnems(MnemonicSelection&) const;
+    TypeSet<int>	getLogsWithNoMnemonics() const;
+    TypeSet<int>	getSuitable(const Mnemonic&) const;
+    TypeSet<int>	getSuitable(Mnemonic::StdType,
+				    const PropertyRef* altpr=nullptr,
+				    BoolTypeSet* isalt=nullptr) const;
     void		defaultLogUsePar(const IOPar&);
 			//-> to be used only in Well::Reader/Writer class.
 			//-> Use access functions above instead.
@@ -84,14 +90,29 @@ public:
 			//-> to be used only in Well::Reader/Writer class.
 			//-> Use access functions above instead.
 
-    void		getAllAvailMnems(MnemonicSelection&) const;
-    TypeSet<int>	getLogsWithNoMnemonics() const;
-    TypeSet<int>	getSuitable(const Mnemonic&) const;
-    TypeSet<int>	getSuitable(Mnemonic::StdType,
-				    const PropertyRef* altpr=nullptr,
-				    BoolTypeSet* isalt=nullptr) const;
+	    //Only available when the actual log data is loaded:
+    const Log*		getLog(const char* nm) const;
+    const Log*		getLog(const OD::String&) const;
+    const Log&		getLogByIdx(int) const;
+    const Log&		first() const;
+    const Log&		last() const;
+    const Log*		getLog(const Mnemonic&) const;
+			/*<! default if default is present, otherwise first
+			     of suitable logs !>*/
+    const Log*		getDefaultLog(const Mnemonic&) const;
+			//<! returns null if default is not assigned.
+    Log*		getLog(const char* nm);
+    Log*		getLog(const OD::String&);
+    Log&		getLogByIdx(int);
+    Log&		first();
+    Log&		last();
 
-    const Mnemonic*	getMnemonicOfLog(const char* nm) const;
+    void		updateDahIntvs();
+    void		removeTopBottomUdfs();
+
+    void		add(Log*);		//!< becomes mine
+    void		add(const LogSet&);	//!< copies all logs
+    Log*		remove(int);		//!< becomes yours
 
     Notifier<LogSet>	logAdded;
     Notifier<LogSet>	logRemoved;
@@ -105,20 +126,26 @@ protected:
 
     ObjectSet<std::pair<const Mnemonic&,BufferString>> defaultlogs_;
 
-    void		init()
-    { dahintv_.start_ = mSetUdf(dahintv_.stop_); }
+    void		init()	{ dahintv_.setUdf(); }
 
     void		mnemonicRemovedCB(CallBacker*);
 
     void		updateDahIntv(const Well::Log&);
 
-    Log*		gtLog( const char* nm ) const
-			{ const int idx = indexOf(nm);
-			    return idx < 0 ? nullptr
-					   : const_cast<Log*>(logs_[idx]); }
+    const Log*		gtLogByIdx(int,bool needjustinfo) const;
+    const Log*		gtLog(const char* nm,bool needjustinfo) const;
+
+    Log*		gtLogByIdx(int,bool needjustinfo);
+    Log*		gtLog(const char* nm,bool needjustinfo);
 
 private:
 			mOD_DisableCopy(LogSet);
+
+public:
+			mDeprecated("Use getLogByIdx")
+    Log&		getLog( int idx )	{ return getLogByIdx(idx); }
+			mDeprecated("Use getLogByIdx")
+    const Log&		getLog( int idx ) const { return getLogByIdx(idx); }
 
 };
 

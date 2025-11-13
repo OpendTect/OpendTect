@@ -43,10 +43,17 @@ const char* Well::HDF5Access::sLvlIDsDSName()	{ return "LevelIDs"; }
 const char* Well::HDF5Access::sKeyLogDel()	{ return "Deleted"; }
 
 
+bool Well::HDF5Access::isParallelEnabled()
+{
+    return HDF5::isAvailable() && HDF5::isParallelEnabled();
+}
+
+
 Well::HDF5Reader::HDF5Reader( const char* fnm, Well::Data& wd,
 			      uiString& errmsg )
     : Well::ReadAccess(wd)
     , errmsg_(errmsg)
+    , lock_(true)
 {
     FilePath fp( fnm );
     fp.setExtension( nullptr );
@@ -59,6 +66,7 @@ Well::HDF5Reader::HDF5Reader( const IOObj& ioobj, Well::Data& wd,
 			      uiString& errmsg )
     : Well::ReadAccess(wd)
     , errmsg_(errmsg)
+    , lock_(true)
 {
     wd_.info().setName( ioobj.name() );
     wd_.setMultiID( ioobj.key() );
@@ -71,6 +79,7 @@ Well::HDF5Reader::HDF5Reader( const HDF5Writer& wrr, Well::Data& wd,
     : Well::ReadAccess(wd)
     , errmsg_(errmsg)
     , rdr_(wrr.createCoupledHDFReader())
+    , lock_(true)
 {
     if ( !rdr_ )
     {
@@ -112,10 +121,25 @@ void Well::HDF5Reader::init( const char* fnm )
 }
 
 
+bool Well::HDF5Reader::canReadInParallel() const
+{
+    return HDF5Access::isParallelEnabled();
+}
+
+
 bool Well::HDF5Reader::ensureFileOpen() const
 {
+    Threads::Locker locker( lock_ );
     if ( rdr_ && rdr_->isOpen() )
+    {
+	if ( loggrps_.isEmpty() )
+	{
+	    const HDF5::DataSetKey dsky( sLogsGrpName() );
+	    rdr_->getSubGroups( sLogsGrpName(), getNonConst(loggrps_) );
+	}
+
 	return true;
+    }
 
     if ( errmsg_.isEmpty() )
 	errmsg_.set( HDF5::Access::sHDF5FileNoLongerAccessible() );
@@ -152,13 +176,16 @@ bool Well::HDF5Reader::getTrack() const
 	return false;
 
     Array2DImpl<double> arr( sz, 3 );
+    TypeSet<double> mds;
+    if ( !arr.isOK() || !mds.setCapacity(sz,false) )
+	return false;
+
     HDF5::ArrayNDTool<double> arrtool( arr );
     auto& rdr = cCast(HDF5::Reader&,*rdr_);
     uirv = arrtool.getAll( dsky, rdr );
     mErrRetIfUiRvNotOK( uirv );
 
     dsky.setDataSetName( sMDsDSName() );
-    TypeSet<double> mds;
     uirv = rdr_->get( dsky, mds );
     mErrRetIfUiRvNotOK( uirv );
     IOPar mdiop;
@@ -182,9 +209,9 @@ bool Well::HDF5Reader::doGetD2T( bool csmdl ) const
     if ( !ensureFileOpen() )
 	return false;
 
-    D2TModel* d2t = csmdl ? wd_.checkShotModel(): wd_.d2TModel();
-    if ( !d2t )
-	d2t = new D2TModel;
+    PtrMan<D2TModel> d2tmodel = new D2TModel;
+    if ( !d2tmodel )
+	return false;
 
     const int modelid = 0; // TODO: suppport multiple models
     const HDF5::DataSetKey grpky =
@@ -193,35 +220,37 @@ bool Well::HDF5Reader::doGetD2T( bool csmdl ) const
     HDF5::DataSetKey dsky( nullptr, sMDsDSName() );
     dsky.setGroupName( grpky.fullDataSetName() );
     if ( !rdr_->hasDataSet(dsky) )
-    {
-	errmsg_.set( rdr_->sCannotReadDataSet(dsky) );
-	return false;
-    }
+	return true;
 
     IOPar hdriop;
     uiRetVal uirv = rdr_->get( hdriop, &dsky );
     mErrRetIfUiRvNotOK( uirv );
-    d2t->useHeaderPar( hdriop );
+    d2tmodel->useHeaderPar( hdriop );
 
     const int sz = rdr_->dimSize( dsky, 0, uirv );
+    if ( sz < 1 )
+	return true;
+
     TypeSet<double> mds;
+    TypeSet<double> times;
+    if ( !mds.setCapacity(sz,false) || !times.setCapacity(sz,false) )
+	return false;
+
     uirv = rdr_->get( dsky, mds );
     mErrRetIfUiRvNotOK( uirv );
 
     dsky.setDataSetName( sTWTsDSName() );
-    TypeSet<double> times;
     uirv = rdr_->get( dsky, times );
     mErrRetIfUiRvNotOK( uirv );
 
-    d2t->setEmpty();
     for ( int idx=0; idx<sz; idx++ )
     {
-	const double& dah = mds.get( idx );
-	const double& val = times.get( idx );
-	d2t->insertAtDah( dah, val );
+	const double& dah = mds[idx];
+	const double& twt = times[idx];
+	d2tmodel->insertAtDah( dah, twt );
     }
 
-    if ( !updateDTModel(d2t,csmdl,errmsg_) )
+    if ( !updateDTModel(d2tmodel.release(),csmdl,errmsg_) )
 	return false;
 
     return true;
@@ -240,30 +269,6 @@ bool Well::HDF5Reader::getCSMdl() const
 }
 
 
-bool Well::HDF5Reader::getLogs( bool needjustinfo ) const
-{
-    if ( !ensureFileOpen() )
-	return false;
-
-    HDF5::DataSetKey dsky( sLogsGrpName() );
-    BufferStringSet loggrps;
-    rdr_->getSubGroups( sLogsGrpName(), loggrps );
-    errmsg_.setEmpty();
-    for ( const auto* grpnm : loggrps )
-    {
-	dsky.setDataSetName( grpnm->buf() );
-	HDF5::DataSetKey grpkey;
-	grpkey.setGroupName( dsky.fullDataSetName() );
-	Log* wl = getWL( grpkey );
-	addToLogSet( wl, needjustinfo );
-	if ( !wl )
-	    continue;
-    }
-
-    return errmsg_.isEmpty() && getDefLogs();
-}
-
-
 bool Well::HDF5Reader::getLogPars( const HDF5::DataSetKey& dsky,
 				   IOPar& iop ) const
 {
@@ -279,96 +284,176 @@ bool Well::HDF5Reader::getLogPars( const HDF5::DataSetKey& dsky,
 }
 
 
-#define mErrRetNullIfUiRvNotOK() \
-    if ( !uirv.isOK() ) \
-	{ errmsg_.set( uirv ); return nullptr; }
-
-Well::Log* Well::HDF5Reader::getWL( const HDF5::DataSetKey& dsky ) const
+Well::Log* Well::HDF5Reader::rdLogHdr( const IOPar& iop, int idx )
 {
-    IOPar iop;
-    if ( !getLogPars(dsky,iop) )
+    auto* newlog = new Log;
+    if ( !newlog )
 	return nullptr;
 
     if ( iop.isTrue(sKeyLogDel()) )
 	return nullptr;
 
+    BufferString lognm;
+    if ( !iop.get(sKey::Name(),lognm) || lognm.isEmpty() )
+	lognm.set( "[" ).add( idx+1 ).add( "]" );
+
+    newlog->setName( lognm.str() );
+
+    BufferString mnemlbl;
+    if ( iop.get(Log::sKeyMnemLbl(),mnemlbl) )
+	newlog->setMnemonicLabel( mnemlbl );
+
+    BufferString uomlbl;
+    if ( iop.get(Log::sKeyUnitLbl(),uomlbl) )
+	newlog->setUnitMeasLabel( uomlbl );
+
+    Interval<float> dahrange;
+    if ( iop.get(Log::sKeyDahRange(),dahrange) )
+    {
+	newlog->addValue( dahrange.start_, mUdf(float) );
+	newlog->addValue( dahrange.stop_, mUdf(float) );
+	newlog->dahRange().set( dahrange.start_, dahrange.stop_ );
+    }
+
+    Interval<float> logrange;
+    if ( iop.get(Log::sKeyLogRange(),logrange) )
+	newlog->setValueRange( logrange );
+
+    bool havehdrinfo = false;
+    if ( iop.getYN(Log::sKeyHdrInfo(),havehdrinfo) && havehdrinfo )
+    {
+	IOPar logiop = iop;
+	logiop.removeWithKey( sKey::Name() );
+	logiop.removeWithKey( sKey::DepthUnit() );
+	logiop.removeWithKey( Log::sKeyUnitLbl() );
+	logiop.removeWithKey( Log::sKeyMnemLbl() );
+	logiop.removeWithKey( Log::sKeyDahRange() );
+	logiop.removeWithKey( Log::sKeyLogRange() );
+	newlog->pars().merge( logiop );
+    }
+
+    return newlog;
+}
+
+
+bool Well::HDF5Reader::readLogData( const HDF5::DataSetKey& dsky, Log& wl) const
+{
     uiRetVal uirv;
     HDF5::DataSetKey logkey( nullptr, sMDsDSName() );
     logkey.setGroupName( dsky.fullDataSetName() );
     if ( !rdr_->hasDataSet(logkey) )
     {
 	errmsg_.set( rdr_->sCannotReadDataSet(logkey) );
-	return nullptr;
+	return false;
     }
 
     const int sz = rdr_->dimSize( logkey, 0, uirv );
+    if ( sz < 1 )
+	return true;
+
     TypeSet<double> mds;
+    TypeSet<double> vals;
+    if ( !mds.setCapacity(sz,false) ||
+	 !vals.setCapacity(sz,false) )
+	return false;
+
     uirv = rdr_->get( logkey, mds );
-    mErrRetNullIfUiRvNotOK();
+    if ( uirv.isError() )
+    {
+	errmsg_.set( uirv );
+	return false;
+    }
 
     logkey.setDataSetName( sValuesDSName() );
-    TypeSet<double> vals;
     uirv = rdr_->get( logkey, vals );
-    mErrRetNullIfUiRvNotOK();
+    if ( uirv.isError() )
+    {
+	errmsg_.set( uirv );
+	return false;
+    }
 
-    BufferString lognm;
-    iop.get( sKey::Name(), lognm );
-    auto* wl = new Log( lognm );
-
+    wl.setEmpty();
     for ( int idx=0; idx<sz; idx++ )
     {
-	const float dah = mds.get( idx );
-	const float val = vals.get( idx );
-	wl->addValue( dah, val );
+	const float dah = mCast(float,mds[idx]);
+	const float val = mCast(float,vals[idx]);
+	wl.addValue( dah, val );
     }
 
-    BufferString uomlbl;
-    if ( iop.get(Log::sKeyUnitLbl(),uomlbl) )
-	wl->setUnitMeasLabel( uomlbl );
-
-    BufferString mnemlbl;
-    if ( iop.get(Log::sKeyMnemLbl(),mnemlbl) )
-	wl->setMnemonicLabel( mnemlbl );
-
-    Interval<float> dahrange;
-    if ( iop.get(Log::sKeyDahRange(),dahrange) )
-    {
-	wl->addValue( dahrange.start_, mUdf(float) );
-	wl->addValue( dahrange.stop_, mUdf(float) );
-	wl->dahRange().set( dahrange.start_, dahrange.stop_ );
-    }
-
-    Interval<float> logrange;
-    if ( iop.get(Log::sKeyLogRange(),logrange) )
-	wl->setValueRange( logrange );
-
-    iop.removeWithKey( sKey::Name() );
-    iop.removeWithKey( sKey::DepthUnit() );
-    iop.removeWithKey( Log::sKeyUnitLbl() );
-    iop.removeWithKey( Log::sKeyMnemLbl() );
-    iop.removeWithKey( Log::sKeyDahRange() );
-    iop.removeWithKey( Log::sKeyLogRange() );
-    bool havehdrinfo = false;
-    if ( iop.getYN(Log::sKeyHdrInfo(),havehdrinfo) && havehdrinfo )
-	wl->pars().merge( iop );
-    // TODO_HDF5Reader
-    // I think this is done, please confirm and I will remove the comment.
-    // wl->setPars( iop );
-
-    iop.removeWithKey( Log::sKeyHdrInfo() );
-    return wl;
+    return true;
 }
 
 
-bool Well::HDF5Reader::getLog( const char* reqlognm ) const
+bool Well::HDF5Reader::addLog( const HDF5::DataSetKey& dsky, Log* newlog,
+			       bool needjustinfo ) const
+{
+    IOPar iop;
+    if ( !getLogPars(dsky,iop) )
+    {
+	delete newlog;
+	errmsg_ = tr("Cannot read HDF5 log header");
+	return false;
+    }
+
+    if ( !newlog )
+    {
+	newlog = rdLogHdr( iop, wd_.logs().size() );
+	if ( !newlog )
+	{
+	    errmsg_ = sCannotReadFileHeader();
+	    return false;
+	}
+    }
+
+    if ( !needsAdd(newlog->name().buf(),needjustinfo) )
+	return true;
+
+    if ( !needjustinfo && !readLogData(dsky,*newlog) )
+    {
+	delete newlog;
+	return false;
+    }
+
+    return addToLogSet( newlog, needjustinfo );
+}
+
+
+bool Well::HDF5Reader::getLogs( bool needjustinfo ) const
+{
+    if ( !ensureFileOpen() )
+	return false;
+
+    bool haserrors = false;
+
+    HDF5::DataSetKey dsky( sLogsGrpName() );
+    for ( const auto* grpnm : loggrps_ )
+    {
+	dsky.setDataSetName( grpnm->buf() );
+	HDF5::DataSetKey grpkey;
+	grpkey.setGroupName( dsky.fullDataSetName() );
+	if ( !addLog(grpkey,nullptr,needjustinfo) )
+	{
+	    errmsg_ = tr("read log data failed for '%2'")
+						.arg( rdr_->fileName() );
+	    ErrMsg( errmsg_ );
+	    errmsg_.setEmpty();
+	    haserrors = true;
+	    continue;
+	}
+    }
+
+    haserrors = !getDefLogs() || haserrors;
+    return !haserrors;
+}
+
+
+bool Well::HDF5Reader::getLog( const char* lognm ) const
 {
     if ( !ensureFileOpen() )
 	return false;
 
     HDF5::DataSetKey dsky( sLogsGrpName() );
-    BufferStringSet loggrps;
-    rdr_->getSubGroups( sLogsGrpName(), loggrps );
-    for ( const auto* grpnm : loggrps )
+    for ( const auto* grpnm : loggrps_ )
     {
 	dsky.setDataSetName( grpnm->buf() );
 	HDF5::DataSetKey grpkey;
@@ -380,15 +465,13 @@ bool Well::HDF5Reader::getLog( const char* reqlognm ) const
 	if ( iop.isTrue(sKeyLogDel()) )
 	    continue;
 
-	BufferString lognm;
-	iop.get( sKey::Name(), lognm );
-	if ( lognm == reqlognm )
-	{
-	    Log* wl = getWL( grpkey );
-	    return addToLogSet( wl );
-	}
+	PtrMan<Log> log = rdLogHdr( iop, wd_.logs().size() );
+	if ( log->name() == lognm )
+	    return addLog( grpkey, log.release() );
     }
 
+    errmsg_ = tr("Cannot find log '%1' in well '%2'").arg( lognm )
+						     .arg( data().name() );
     return false;
 }
 
@@ -402,37 +485,12 @@ bool Well::HDF5Reader::getLogByID( const LogID& id ) const
     dsky.setDataSetName( toString(id.asInt()) );
     HDF5::DataSetKey grpkey;
     grpkey.setGroupName( dsky.fullDataSetName() );
-
     IOPar iop;
     if ( !getLogPars(grpkey,iop) )
 	return false;
 
-    Log* wl = getWL( grpkey );
-    return addToLogSet( wl );
-}
-
-
-void Well::HDF5Reader::getLogInfo( BufferStringSet& nms ) const
-{
-    if ( !ensureFileOpen() )
-	return;
-
-    HDF5::DataSetKey dsky( sLogsGrpName() );
-    for ( int ilog=1; ; ilog++ )
-    {
-	dsky.setDataSetName( toString(ilog) );
-	HDF5::DataSetKey grpkey;
-	grpkey.setGroupName( dsky.fullDataSetName() );
-	IOPar iop;
-	if ( !getLogPars(grpkey,iop) )
-	    break;
-
-	BufferString lognm;
-	iop.get( sKey::Name(), lognm );
-	nms.add( lognm );
-    }
-
-    getDefLogs();
+    PtrMan<Log> log = rdLogHdr( iop, wd_.logs().size() );
+    return log ? addLog( grpkey, log.release() ) : false;
 }
 
 
@@ -471,11 +529,19 @@ bool Well::HDF5Reader::getMarkers() const
 	return false;
 
     HDF5::DataSetKey dsky( sMarkersGrpName(), "" );
-    MarkerSet& ms = wd_.markers();
+    uiRetVal uirv;
 
     dsky.setDataSetName( sMDsDSName() );
+    const int sz = rdr_->dimSize( dsky, 0, uirv );
+    if ( sz < 1 )
+	return true;
+
     TypeSet<double> mds;
-    uiRetVal uirv = rdr_->get( dsky, mds );
+    TypeSet<int> lvlids;
+    if ( !mds.setCapacity(sz,false) || !lvlids.setCapacity(sz,false) )
+	return false;
+
+    uirv = rdr_->get( dsky, mds );
     mErrRetIfUiRvNotOK( uirv );
     IOPar mdiop;
     uirv = rdr_->get( mdiop, &dsky );
@@ -491,26 +557,26 @@ bool Well::HDF5Reader::getMarkers() const
     mErrRetIfUiRvNotOK( uirv )
 
     dsky.setDataSetName( sLvlIDsDSName() );
-    TypeSet<int> lvlids;
     uirv = rdr_->get( dsky, lvlids );
     mErrRetIfUiRvNotOK( uirv )
 
-    ms.setEmpty();
-    const int sz = mds.size();
+    MarkerSet newms;
     for ( int idx=0; idx<sz; idx++ )
     {
 	const float dah = mds[idx];
-	const BufferString nm( nms.validIdx(idx) ? nms.get(idx).buf()
-						 : "" );
+	const BufferString nm( nms.validIdx(idx) ? nms.get(idx).buf() : "" );
 	OD::Color col( OD::Color::NoColor() );
 	if ( colors.validIdx(idx) )
 	    col.setStdStr( colors.get(idx) );
+
 	const int lvlid = lvlids.validIdx(idx) ? lvlids[idx] : -1;
 
 	auto* mrkr = new Marker( nm, dah, col );
 	mrkr->setLevelID( Strat::LevelID(lvlid) );
-	ms.insertNew( mrkr );
+	newms.insertNew( mrkr );
     }
+
+    wd_.markers() = newms;
 
     return true;
 }

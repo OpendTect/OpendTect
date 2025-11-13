@@ -38,12 +38,16 @@ void WellDataFilter::getWellsFromLogs( const BufferStringSet& lognms,
     for ( int widx=0; widx<allwds_.size(); widx++ )
     {
 	const Well::Data* wd = allwds_[widx];
-	const Well::LogSet& lis = wd->logs();
-	BufferStringSet wdlognms; lis.getNames( wdlognms );
+	if ( !wd )
+	    continue;
+
+	const Well::LogSet& logs = wd->logs();
+	BufferStringSet wdlognms;
+	logs.getNames( wdlognms );
 	bool addwell = false;
-	for ( int lidx=0; lidx<lognms.size(); lidx++ )
+	for ( const auto* lognm : lognms )
 	{
-	    const bool wdhaslog = wdlognms.isPresent( lognms.get(lidx) );
+	    const bool wdhaslog = wdlognms.isPresent( lognm->buf() );
 	    if ( !wdhaslog && shouldhavewholeset )
 	    {
 		addwell = false;
@@ -73,8 +77,12 @@ void WellDataFilter::getWellsFromMnems( const MnemonicSelection& mns,
 {
     for ( const auto* wd : allwds_ )
     {
-	const Well::LogSet& lis = wd->logs();
-	MnemonicSelection wdmns; lis.getAllAvailMnems( wdmns );
+	if ( !wd )
+	    continue;
+
+	const Well::LogSet& logs = wd->logs();
+	MnemonicSelection wdmns;
+	logs.getAllAvailMnems( wdmns );
 	bool addwell = false;
 	for ( const auto* mn : mns )
 	{
@@ -106,7 +114,7 @@ void WellDataFilter::getWellsWithNoLogs( BufferStringSet& wellnms ) const
 {
     for ( const auto* wd : allwds_ )
     {
-	if ( wd->logs().isEmpty() )
+	if ( wd && wd->logs().isEmpty() )
 	    wellnms.add( wd->name() );
     }
 }
@@ -163,14 +171,15 @@ void WellDataFilter::getMarkersLogsMnemsFromWells(
     for ( int widx=0; widx<allwds_.size(); widx++ )
     {
 	const Well::Data* wd = allwds_[widx];
-	const bool haswellnm = wellnms.isPresent( wd->name() );
+	const bool haswellnm = wd && wellnms.isPresent( wd->name() );
 	if ( !haswellnm )
 	    continue;
 
+	const Well::LogSet& logs = wd->logs();
 	if ( first )
 	{
-	    wd->logs().getNames( lognms );
-	    wd->logs().getAllAvailMnems( mns );
+	    logs.getNames( lognms );
+	    logs.getAllAvailMnems( mns );
 	    wd->markers().getNames( markernms );
 	    first = false;
 	}
@@ -178,8 +187,8 @@ void WellDataFilter::getMarkersLogsMnemsFromWells(
 	{
 	    BufferStringSet wdlognms, wdmarkernms;
 	    MnemonicSelection wdmns;
-	    wd->logs().getNames( wdlognms );
-	    wd->logs().getAllAvailMnems( wdmns );
+	    logs.getNames( wdlognms );
+	    logs.getAllAvailMnems( wdmns );
 	    wd->markers().getNames( wdmarkernms );
 	    if ( !getonlycommon )
 	    {
@@ -231,7 +240,7 @@ void WellDataFilter::getLogPresence( const BufferStringSet& wellnms,
     for ( int widx=0; widx<allwds_.size(); widx++ )
     {
 	ConstRefMan<Well::Data> wd = allwds_[widx];
-	const bool haswellnm = wellnms.isPresent( wd->name() );
+	const bool haswellnm = wd && wellnms.isPresent( wd->name() );
 	if ( !haswellnm )
 	    continue;
 
@@ -245,14 +254,14 @@ void WellDataFilter::getLogPresence( const BufferStringSet& wellnms,
 	}
 
 	const float markerwidth = markerrg.width();
+	const Well::LogSet& logs = wd->logs();
 	for ( int lidx=0; lidx<alllognms.size(); lidx++ )
 	{
 	    const BufferString& lognm = alllognms.get( lidx );
-	    const Well::Log* log = wd->logs().getLog( lognm.buf() );
-	    if ( !log )
+	    if ( !logs.isPresent(lognm.buf()) )
 		continue;
 
-	    const Interval<float> logrg = log->dahRange();
+	    const Interval<float> logrg = logs.getDahRangeForLog( lognm.buf() );
 	    int perc = 0;
 	    if ( logrg.includes(markerrg,false) )
 		perc = 100;
@@ -281,7 +290,7 @@ void WellDataFilter::getLogPresenceForMnems( const BufferStringSet& wellnms,
     for ( int widx=0; widx<allwds_.size(); widx++ )
     {
 	ConstRefMan<Well::Data> wd = allwds_[widx];
-	const bool haswellnm = wellnms.isPresent( wd->name() );
+	const bool haswellnm = wd && wellnms.isPresent( wd->name() );
 	if ( !haswellnm )
 	    continue;
 
@@ -296,21 +305,26 @@ void WellDataFilter::getLogPresenceForMnems( const BufferStringSet& wellnms,
 	}
 
 	const float markerwidth = markerrg.width();
+	const Well::LogSet& logs = wd->logs();
 	for ( const auto* mn : mns )
 	{
-	    const Well::Log* log = wd->logs().getLog( *mn );
-	    if ( !log )
+	    const BufferString lognm = logs.getLogNameFor( *mn );
+	    if ( lognm.isEmpty() )
 		continue;
 
-	    const Interval<float> logrg = log->dahRange();
+	    const Interval<float> logmdrg =
+					logs.getDahRangeForLog( lognm.buf() );
+	    if ( logmdrg.isUdf() )
+		continue;
+
 	    int perc = 0;
-	    if ( logrg.includes(markerrg,false) )
+	    if ( logmdrg.includes(markerrg,false) )
 		perc = 100;
-	    else if ( !logrg.overlaps(markerrg,false) )
+	    else if ( !logmdrg.overlaps(markerrg,false) )
 		perc = 0;
 	    else
 	    {
-		Interval<float> avlogrg = logrg;
+		Interval<float> avlogrg = logmdrg;
 		avlogrg.limitTo( markerrg );
 		perc = mNINT32( 100.f * avlogrg.width()/markerwidth );
 	    }
@@ -326,13 +340,16 @@ void WellDataFilter::getLogPresenceFromValFilter(
 					const BufferStringSet& lognms,
 					const BufferStringSet& alllognms,
 					const MnemonicSelection& mns,
-					const TypeSet<Interval<float>> valrg,
+					const TypeSet<Interval<float>> valrgs,
 					Array2D<int>& presence ) const
 {
     for ( int widx=0; widx<allwds_.size(); widx++ )
     {
 	const int perc = 0;
 	ConstRefMan<Well::Data> wd = allwds_[widx];
+	if ( !wd )
+	    continue;
+
 	const bool haswellnm = wellnms.isPresent( wd->name() );
 	if ( !haswellnm )
 	{
@@ -340,23 +357,24 @@ void WellDataFilter::getLogPresenceFromValFilter(
 		presence.set( widx, lidx, perc );
 	}
 
+	const Well::LogSet& logs = wd->logs();
 	for ( const auto* mn : mns )
 	{
 	    const int idx = mns.indexOf( mn );
-	    const TypeSet<int> logidxs = wd->logs().getSuitable( *mn );
+	    const TypeSet<int> logidxs = logs.getSuitable( *mn );
 	    for ( const auto& logidx : logidxs )
 	    {
-		const Well::Log* log = &wd->logs().getLog( logidx);
-		const int lidx = alllognms.indexOf( log->name() );
-		if ( !lognms.isPresent(log->name()) )
+		const BufferString lognm = logs.getLogNameByIdx( logidx );
+		const int lidx = alllognms.indexOf( lognm );
+		if ( !lognms.isPresent(lognm.buf()) )
 		{
 		    presence.set( widx, lidx, perc );
 		    continue;
 		}
 
-		const bool perczero = !log ||
-				      !lognms.isPresent( log->name() ) ||
-				      !valrg[idx].includes( log->valueRange() );
+		const Interval<float> valrg =
+				logs.getValueRangeForLog( lognm.buf() );
+		const bool perczero = !valrgs[idx].includes( valrg );
 		if ( perczero )
 		    presence.set( widx, lidx, perc );
 	    }
@@ -372,7 +390,7 @@ void WellDataFilter::getLogsInMarkerZone( BufferStringSet& wellnms,
     for ( int widx=0; widx<allwds_.size(); widx++ )
     {
 	ConstRefMan<Well::Data> wd = allwds_.get( widx );
-	const bool haswellnm = wellnms.isPresent( wd->name() );
+	const bool haswellnm = wd && wellnms.isPresent( wd->name() );
 	if ( !haswellnm )
 	    continue;
 
@@ -385,17 +403,16 @@ void WellDataFilter::getLogsInMarkerZone( BufferStringSet& wellnms,
 	}
 
 	BufferStringSet currwelllognms;
-	for ( int idx=0; idx<wd->logs().size(); idx++ )
+	const Well::LogSet& logs = wd->logs();
+	for ( int logidx=0; logidx<logs.size(); logidx++ )
 	{
-	    const Well::Log* log = &wd->logs().getLog( idx );
-	    if ( !log )
+	    const BufferString lognm = logs.getLogNameByIdx( logidx );
+	    const Interval<float> logmdrg =
+					logs.getDahRangeForLog( lognm.buf() );
+	    if ( logmdrg.isUdf() || !logmdrg.overlaps(markerrg,false) )
 		continue;
 
-	    const Interval<float> logrg = log->dahRange();
-	    if ( !logrg.overlaps(markerrg,false) )
-		continue;
-
-	    currwelllognms.add( log->name() );
+	    currwelllognms.add( lognm.buf() );
 	}
 
 	if ( currwelllognms.isEmpty() )
@@ -416,7 +433,7 @@ void WellDataFilter::getMnemsInMarkerZone( BufferStringSet& wellnms,
     for ( int widx=0; widx<allwds_.size(); widx++ )
     {
 	ConstRefMan<Well::Data> wd = allwds_.get( widx );
-	const bool haswellnm = wellnms.isPresent( wd->name() );
+	const bool haswellnm = wd && wellnms.isPresent( wd->name() );
 	if ( !haswellnm )
 	    continue;
 
@@ -429,17 +446,16 @@ void WellDataFilter::getMnemsInMarkerZone( BufferStringSet& wellnms,
 	}
 
 	MnemonicSelection currwellmns;
-	for ( int idx=0; idx<wd->logs().size(); idx++ )
+	const Well::LogSet& logs = wd->logs();
+	for ( int logidx=0; logidx<logs.size(); logidx++ )
 	{
-	    const Well::Log* log = &wd->logs().getLog( idx );
-	    if ( !log )
+	    const BufferString lognm = logs.getLogNameByIdx( logidx );
+	    const Interval<float> logmdrg =
+					logs.getDahRangeForLog( lognm.buf() );
+	    if ( logmdrg.isUdf() || !logmdrg.overlaps(markerrg,false) )
 		continue;
 
-	    const Interval<float> logrg = log->dahRange();
-	    if ( !logrg.overlaps(markerrg,false) )
-		continue;
-
-	    currwellmns.addIfNew( log->mnemonic() );
+	    currwellmns.addIfNew( logs.getMnemonicOfLog(lognm.buf()) );
 	}
 
 	if ( currwellmns.isEmpty() )
@@ -461,20 +477,24 @@ void WellDataFilter::getMnemsInDepthInterval( const Interval<float> depthrg,
 {
     for ( const auto* wd : allwds_ )
     {
+	if ( !wd )
+	    continue;
+
 	MnemonicSelection currwellmns;
-	for ( int idx=0; idx<wd->logs().size(); idx++ )
+	const Well::LogSet& logs = wd->logs();
+	for ( int logidx=0; logidx<logs.size(); logidx++ )
 	{
-	    const Well::Log* log = &wd->logs().getLog( idx );
-	    if ( !log )
+	    const BufferString lognm = logs.getLogNameByIdx( logidx );
+	    Interval<float> logmdrg = logs.getDahRangeForLog( lognm.buf() );
+	    if ( logmdrg.isUdf() )
 		continue;
 
-	    Interval<float> logrg = log->dahRange();
-            logrg.start_ = wd->track().getPos(logrg.start_).z_;
-            logrg.stop_ = wd->track().getPos(logrg.stop_).z_;
-	    if ( !logrg.overlaps(depthrg,false) )
+	    logmdrg.start_ = wd->track().getPos(logmdrg.start_).z_;
+	    logmdrg.stop_ = wd->track().getPos(logmdrg.stop_).z_;
+	    if ( !logmdrg.overlaps(depthrg,false) )
 		continue;
 
-	    currwellmns.addIfNew( log->mnemonic() );
+	    currwellmns.addIfNew( logs.getMnemonicOfLog(lognm.buf()) );
 	}
 
 	if ( currwellmns.isEmpty() )
@@ -493,53 +513,63 @@ void WellDataFilter::getLogsInDepthInterval( const Interval<float> depthrg,
 {
     for ( const auto* wd : allwds_ )
     {
+	if ( !wd )
+	    continue;
+
 	BufferStringSet currwelllognms;
-	for ( int idx=0; idx<wd->logs().size(); idx++ )
+	const Well::LogSet& logs = wd->logs();
+	for ( int logidx=0; logidx<logs.size(); logidx++ )
 	{
-	    const Well::Log* log = &wd->logs().getLog( idx );
-	    if ( !log )
+	    const BufferString lognm = logs.getLogNameByIdx( logidx );
+	    Interval<float> logmdrg = logs.getDahRangeForLog( lognm.buf() );
+	    if ( logmdrg.isUdf() )
 		continue;
 
-	    Interval<float> logrg = log->dahRange();
-            logrg.start_ = wd->track().getPos(logrg.start_).z_;
-            logrg.stop_ = wd->track().getPos(logrg.stop_).z_;
-	    if ( !logrg.overlaps(depthrg,false) )
+	    logmdrg.start_ = wd->track().getPos(logmdrg.start_).z_;
+	    logmdrg.stop_ = wd->track().getPos(logmdrg.stop_).z_;
+	    if ( !logmdrg.overlaps(depthrg,false) )
 		continue;
 
-	    currwelllognms.add( log->name() );
+	    currwelllognms.add( lognm.buf() );
 	}
 
 	if ( currwelllognms.isEmpty() )
 	    continue;
 
 	wellnms.add( wd->name() );
-	lognms.add( currwelllognms, false ); 
+	lognms.add( currwelllognms, false );
     }
 }
 
 
 void WellDataFilter::getLogsInValRange( const MnemonicSelection& mns,
-					const TypeSet<Interval<float>> valrg,
+					const TypeSet<Interval<float>> valrgs,
 					BufferStringSet& wellnms,
 					BufferStringSet& lognms ) const
 {
     for ( const auto* wd : allwds_ )
     {
+	if ( !wd )
+	    continue;
+
 	BufferStringSet lognames;
+	const Well::LogSet& logs = wd->logs();
 	for ( const auto* mn : mns )
 	{
 	    const int idx = mns.indexOf( mn );
-	    const TypeSet<int> logidxs = wd->logs().getSuitable( *mn );
+	    const TypeSet<int> logidxs = logs.getSuitable( *mn );
 	    for ( const auto& logidx : logidxs )
 	    {
-		const Well::Log* log = &wd->logs().getLog( logidx);
-		if ( !log )
+		const BufferString lognm = logs.getLogNameByIdx( logidx );
+		const Interval<float> logvalrg =
+				logs.getValueRangeForLog( lognm.buf());
+		if ( logvalrg.isUdf() )
 		    continue;
 
-		if ( !valrg[idx].includes(log->valueRange()) )
+		if ( !valrgs[idx].includes(logvalrg) )
 		    continue;
 
-		lognames.add( log->name() );
+		lognames.add( lognm.buf() );
 	    }
 	}
 
@@ -595,11 +625,15 @@ void WellDataFilter::getLogsForMnems( const MnemonicSelection& mns,
 {
     for ( const auto* wd : allwds_ )
     {
+	if ( !wd )
+	    continue;
+
+	const Well::LogSet& logs = wd->logs();
 	for ( const auto* mn : mns )
 	{
-	    TypeSet<int> idxs = wd->logs().getSuitable( *mn );
-	    for ( const auto& idx : idxs )
-		lognms.addIfNew( wd->logs().getLog(idx).name() );
+	    const TypeSet<int> idxs = logs.getSuitable( *mn );
+	    for ( const auto& logidx : idxs )
+		lognms.addIfNew( logs.getLogNameByIdx(logidx) );
 	}
     }
 }

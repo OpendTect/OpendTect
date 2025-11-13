@@ -56,6 +56,8 @@ const char* Well::odIO::sExtDefaults()	{ return ".defs"; }
 const char* Well::odIO::sExtWellTieSetup() { return ".tie"; }
 
 
+// Well::ReadAccess
+
 Well::ReadAccess::ReadAccess( Well::Data& wd )
     : wd_(wd)
 {}
@@ -63,6 +65,15 @@ Well::ReadAccess::ReadAccess( Well::Data& wd )
 
 Well::ReadAccess::~ReadAccess()
 {}
+
+
+bool Well::ReadAccess::needsAdd( const char* lognm, bool needjustinfo ) const
+{
+    const Well::LogSet& logs = data().logs();
+    const bool ispresent = (needjustinfo && logs.isLoaded(lognm)) ||
+			  (!needjustinfo && logs.isLoaded(lognm));
+    return !ispresent;
+}
 
 
 bool Well::ReadAccess::addToLogSet( Log* newlog, bool needjustinfo ) const
@@ -189,7 +200,21 @@ bool Well::ReadAccess::getCSMdlInfo( BufferStringSet& ) const
 }
 
 
+void Well::ReadAccess::getLogInfo( BufferStringSet& lognms ) const
+{
+    if ( getLogs(true) )
+	data().logs().getNames( lognms );
+}
+
+
+uiString Well::ReadAccess::sCannotReadFileHeader() const
+{
+    return tr( "Cannot read file header" );
+}
+
+
 // Well::Reader
+
 Well::Reader::Reader( const IOObj& ioobj, Data& wd )
 {
     init( ioobj, wd );
@@ -262,6 +287,110 @@ bool Well::Reader::get() const
 }
 
 
+uiRetVal Well::Reader::readReqData( const LoadReqs& lreqs ) const
+{
+    uiRetVal uirv;
+    const Data* wd = data();
+    const bool isusable = isUsable() && wd;
+    if ( !isusable )
+	uirv.add( errMsg() );
+
+    if ( isusable && lreqs.includes(Inf) && !getInfo() )
+	uirv.add( errMsg() );
+
+    if ( isusable && lreqs.includes(Trck) && !getTrack() )
+	uirv.add( errMsg() );
+
+    if ( isusable && lreqs.includes(CSMdl) && !getCSMdl() )
+	uirv.add( errMsg() );
+
+    if ( isusable && lreqs.includes(D2T) && !getD2T() )
+	uirv.add( errMsg() );
+
+    if ( isusable && lreqs.includes(Mrkrs) && !getMarkers() )
+	uirv.add( errMsg() );
+
+    bool logres = true;
+    const LogSet& logs = wd->logs();
+    const BufferStringSet& reqlognms = lreqs.logNames();
+    const bool allowmissinglogs = lreqs.allowMissingLogs();
+    BufferStringSet lognms;
+    if ( isusable && lreqs.includes(Logs) )
+    {
+	if ( wd->loadState().includes(LogInfos) )
+	{
+	    BufferStringSet alllognms;
+	    logs.getNames( alllognms );
+	    if ( reqlognms.isEmpty() ) //All (not already loaded)
+	    {
+		for ( const auto* nm : alllognms )
+		{
+		    const char* lognm = nm->buf();
+		    if ( !logs.isLoaded(lognm) )
+		    {
+			if ( (allowmissinglogs && alllognms.isPresent(lognm)) ||
+			     !allowmissinglogs )
+			    lognms.add( lognm );
+		    }
+		}
+	    }
+	    else
+	    {
+		for ( const auto* nm : reqlognms )
+		{
+		    const char* lognm = nm->buf();
+		    if ( !logs.isLoaded(lognm) )
+		    {
+			if ( (allowmissinglogs && alllognms.isPresent(lognm)) ||
+			     !allowmissinglogs )
+			    lognms.add( lognm );
+		    }
+		}
+	    }
+
+	    if ( !lognms.isEmpty() )
+		logres = getLogs( lognms );
+	}
+	else
+	    logres = getLogs( false );
+    }
+    else if ( isusable && lreqs.includes(LogInfos) )
+    {
+	logres = getLogs( true );
+	BufferStringSet alllognms;
+	logs.getNames( alllognms );
+	if ( !reqlognms.isEmpty() )
+	{
+	    for ( const auto* nm : reqlognms )
+	    {
+		const char* lognm = nm->buf();
+		if ( !logs.isLoaded(lognm) )
+		{
+		    if ( (allowmissinglogs && alllognms.isPresent(lognm)) ||
+			 !allowmissinglogs )
+			lognms.add( lognm );
+		}
+	    }
+
+	    if ( !lognms.isEmpty() )
+		logres = getLogs( lognms );
+	}
+    }
+
+    if ( !logres )
+	uirv.add( errMsg() );
+
+    if ( isusable && (lreqs.includes(DispProps2D) ||
+		      lreqs.includes(DispProps3D)) )
+    {
+	if ( !getDispProps() )
+	    uirv.add( errMsg() );
+    }
+
+    return uirv;
+}
+
+
 bool Well::Reader::getInfo() const
 {
     return ra_ ? ra_->getInfo() : false;
@@ -310,14 +439,24 @@ bool Well::Reader::getLogs( bool needjustinfo ) const
 
 bool Well::Reader::getLogs( const BufferStringSet& lognms ) const
 {
-    bool res = true;
+    uiRetVal uirv;
     for ( const auto* lognm : lognms )
     {
-	if ( res )
-	    res = getLog( lognm->buf() );
+	if ( !getLog(lognm->buf()) )
+	{
+	    uirv.add( errmsg_ );
+	    errmsg_.setEmpty();
+	}
     }
 
-    return res && getDefLogs();
+    errmsg_.setEmpty();
+    if ( !getDefLogs() )
+	uirv.add( errmsg_ );
+
+    if ( uirv.isError() )
+	errmsg_ = uirv.messages().cat();
+
+    return uirv.isOK();
 }
 
 
@@ -335,11 +474,14 @@ bool Well::Reader::getLogByID( const LogID& id ) const
 
 void Well::Reader::getLogInfo( BufferStringSet& lognms ) const
 {
-    if ( ra_ )
-    {
-	ra_->getLogInfo( lognms );
-	ra_->getDefLogs();
-    }
+    getLogNames( lognms );
+}
+
+
+void Well::Reader::getLogNames( BufferStringSet& lognms ) const
+{
+    if ( getLogs(true) && data() )
+	data()->logs().getNames( lognms );
 }
 
 
@@ -361,6 +503,12 @@ Well::Data* Well::Reader::data()
 }
 
 
+const Well::Data* Well::Reader::data() const
+{
+    return getNonConst(this)->data();
+}
+
+
 bool Well::Reader::getMapLocation( Coord& coord ) const
 {
     if ( !data() || !getInfo() )
@@ -372,6 +520,22 @@ bool Well::Reader::getMapLocation( Coord& coord ) const
 }
 
 
+bool Well::Reader::canReadInParallel( const MultiID& ky )
+{
+    PtrMan<IOObj> ioobj = IOM().get( ky );
+    if ( !ioobj )
+	return false;
+
+    RefMan<Data> wd = new Data;
+    Reader rdr( *ioobj, *wd );
+    if ( !rdr.isUsable() )
+	return false;
+
+    return rdr.ra_ ? rdr.ra_->canReadInParallel() : false;
+}
+
+
+// Well::odIO
 
 Well::odIO::odIO( const char* f, uiString& errmsg )
     : basenm_(f)
@@ -434,8 +598,7 @@ bool Well::odIO::removeAll( const char* ext ) const
 }
 
 
-static const char* rdHdr( od_istream& strm, const char* fileky,
-			  double& ver )
+static const char* rdHdr( od_istream& strm, const char* fileky, double& ver )
 {
     ascistream astrm( strm, true );
     if ( !astrm.isOfFileType(fileky) )
@@ -464,7 +627,7 @@ static const char* rdHdr( od_istream& strm, const char* fileky,
 	todo; \
     }
 
-
+// Well::odReader
 
 Well::odReader::odReader( const char* f, Data& w, uiString& errmsg )
     : odIO(f,errmsg)
@@ -507,19 +670,13 @@ void Well::odReader::setInpStrmOpenErrMsg( od_istream& strm ) const
 void Well::odReader::setStrmOperErrMsg( od_istream& strm,
                                         const uiString& oper ) const
 {
-    errmsg_ = toUiString("%1 ['%2']").arg( oper ).arg( strm.fileName() );
+    errmsg_ = tr("%1 ['%2']").arg( oper ).arg( strm.fileName() );
     strm.addErrMsgTo( errmsg_ );
 }
 
 
 #define mErrStrmOper(oper,todo) { setStrmOperErrMsg( strm, oper ); todo; }
 #define mErrRetStrmOper(oper) mErrStrmOper(oper,return false)
-
-
-uiString Well::odReader::sCannotReadFileHeader() const
-{
-    return tr( "Cannot read file header" );
-}
 
 
 static const char* sKeyOldreplvel()	{ return "Replacement velocity"; }
@@ -675,15 +832,8 @@ bool Well::odReader::getTrack() const
 }
 
 
-void Well::odReader::getLogInfo( BufferStringSet& nms ) const
-{
-    TypeSet<int> idxs;
-    getLogInfo( nms, idxs );
-}
-
-
-void Well::odReader::getLogInfo( BufferStringSet& nms,
-					TypeSet<int>& idxs ) const
+void Well::odReader::getLogInfos( BufferStringSet& nms,
+				  TypeSet<int>& idxs ) const
 {
     for ( int idx=1;  ; idx++ )
     {
@@ -714,9 +864,14 @@ bool Well::odReader::getLog( const char* lognm ) const
 {
     BufferStringSet nms;
     TypeSet<int> idxs;
-    getLogInfo( nms, idxs );
+    getLogInfos( nms, idxs );
     const int lognmidx = nms.indexOf( lognm );
-    if ( lognmidx<0 ) return false;
+    if ( lognmidx<0 )
+    {
+	errmsg_ = tr("Cannot find log '%1' in well '%2'").arg( lognm )
+							 .arg( data().name() );
+	return false;
+    }
 
     const int logfileidx = idxs[lognmidx];
     mGetInpStream( sExtLog(), logfileidx, true, return false )
@@ -728,7 +883,7 @@ bool Well::odReader::getLogByID( const LogID& id ) const
 {
     BufferStringSet nms;
     TypeSet<int> idxs;
-    getLogInfo( nms, idxs );
+    getLogInfos( nms, idxs );
 
     const int logidx = idxs.indexOf( id.asInt() );
     if ( logidx<0 )
@@ -743,7 +898,6 @@ bool Well::odReader::getLogByID( const LogID& id ) const
 bool Well::odReader::getLogs( bool needjustinfo ) const
 {
     bool rv = true;
-    wd_.logs().setEmpty();
     for ( int idx=1;  ; idx++ )
     {
 	mGetInpStream( sExtLog(), idx, false, break )
@@ -781,8 +935,12 @@ Well::Log* Well::odReader::rdLogHdr( od_istream& strm, int& bintype, int idx )
 	if ( astrm.hasKeyword(Log::sKeyHdrInfo()) )
 	    havehdrinfo = astrm.getYN();
 	if ( astrm.hasKeyword(Log::sKeyStorage()) )
-	    bintype = *astrm.value() == 'B' ? 1
-		    : (*astrm.value() == 'S' ? -1 : 0);
+	{
+	    const BufferString stortype = astrm.value();
+	    bintype = stortype == "Ascii" ? 0
+		    : (stortype == "Binary" ? 1
+					    : (stortype == "Swapped" ? -1:-2));
+	}
 	if ( astrm.hasKeyword(Log::sKeyDahRange()) )
 	{
 	    newlog->addValue( astrm.getFValue(0), mUdf(float) );
@@ -820,6 +978,9 @@ bool Well::odReader::addLog( od_istream& strm, bool needjustinfo ) const
     if ( !newlog )
 	mErrRetStrmOper( sCannotReadFileHeader() )
 
+    if ( !needsAdd(newlog->name().buf(),needjustinfo) )
+	return true;
+
     const Log* cnewlog = newlog;
     const bool udfranges = cnewlog->dahRange().isUdf() ||
 			   cnewlog->valueRange().isUdf();
@@ -830,16 +991,15 @@ bool Well::odReader::addLog( od_istream& strm, bool needjustinfo ) const
 	getTrack();
 
     const bool addedok = addToLogSet( newlog, needjustinfo );
-    Log* wl = const_cast<LogSet&>(data().logs()).
-						getLog( newlog->name().buf() );
     if ( addedok && udfranges )
     {
-	Writer wrr( data().multiID(), data() );
-	wrr.putLog( *wl );
+	const BufferStringSet lognms( newlog->name().buf() );
+	Well::MGR().writeLogHeaders( wd_.multiID(), lognms );
     }
 
-    if ( addedok && SI().zInFeet() && version<4.195 )
+    if ( addedok && SI().zInFeet() && version<4.195 && !needjustinfo )
     {
+	Log* wl = getNonConst( data().logs() ).getLog( newlog->name().buf() );
 	for ( int idx=0; idx<wl->size(); idx++ )
 	    wl->dahArr()[idx] = wl->dah(idx) * mToFeetFactorF;
 
@@ -855,12 +1015,11 @@ bool Well::odReader::addLog( od_istream& strm, bool needjustinfo ) const
 
 void Well::odReader::readLogData( Log& wl, od_istream& strm, int bintype ) const
 {
+    wl.setEmpty();
     float v[2];
     while ( strm.isOK() )
     {
-	if ( !bintype )
-	    strm >> v[0] >> v[1];
-	else
+	if ( bintype )
 	{
 	    strm.getBin( v, 2 * sizeof(float) );
 	    if ( (bintype > 0) != __islittle__ )
@@ -869,7 +1028,11 @@ void Well::odReader::readLogData( Log& wl, od_istream& strm, int bintype ) const
 		SwapBytes( v+1, sizeof(float) );
 	    }
 	}
-	if ( !strm.isOK() ) break;
+	else
+	    strm >> v[0] >> v[1];
+
+	if ( !strm.isOK() )
+	    break;
 
 	wl.addValue( v[0], v[1] );
     }
@@ -974,8 +1137,9 @@ bool Well::odReader::getD2T() const	{ return doGetD2T( false ); }
 bool Well::odReader::getCSMdl() const	{ return doGetD2T( true ); }
 bool Well::odReader::doGetD2T( bool csmdl ) const
 {
-    mGetInpStream( csmdl ? sExtCSMdl() : sExtD2T(), 0, true, return false )
-    return doGetD2T( strm, csmdl );
+    mGetInpStream( csmdl ? sExtCSMdl() : sExtD2T(), 0, false, )
+    return File::exists(strm.fileName()) ? strm.isOK() && doGetD2T(strm,csmdl)
+					 : true;
 }
 
 
@@ -1038,40 +1202,49 @@ bool Well::odReader::getDispProps( od_istream& strm ) const
 }
 
 
+int Well::odReader::getStorageType( const char* fnm )
+{
+    if ( !File::exists(fnm) )
+	return mUdf(int);
+
+    od_istream strm( fnm );
+    if ( !strm.isOK() )
+	return mUdf(int);
+
+    int bintype = mUdf(int);
+    double version = 0.0;
+    if ( !rdHdr(strm,sKeyLog(),version) )
+	return mUdf(int);
+
+    PtrMan<Log> log = rdLogHdr( strm, bintype, mUdf(int) );
+    return log ? bintype : mUdf(int);
+}
+
+
 // MultiWellReader
 MultiWellReader::MultiWellReader( const TypeSet<MultiID>& ids,
 				  RefObjectSet<Well::Data>& wds,
 				  const Well::LoadReqs reqs )
-    : Executor("Reading well info")
+    : ParallelTask("Reading well data")
+    , keys_(*new DBKeySet(ids))
     , wds_(wds)
-    , nrwells_(0)
+    , nrwells_(ids.size())
     , reqs_(reqs)
-    , keys_( *new DBKeySet() )
 {
-    for ( const auto& id : ids )
-	keys_ += DBKey( id );
-
-    nrwells_ = keys_.size();
-    if ( !keys_.isEmpty() )
-	IOM().to( keys_.first() );
+    init();
 }
 
 
 MultiWellReader::MultiWellReader( const DBKeySet& keys,
 				  RefObjectSet<Well::Data>& wds,
 				  const Well::LoadReqs reqs )
-    : Executor("Reading well info")
-    , wds_(wds)
+    : ParallelTask("Reading well data")
     , keys_(*new DBKeySet(keys))
+    , wds_(wds)
     , nrwells_(keys.size())
     , reqs_(reqs)
 {
-    if ( !keys_.isEmpty() )
-	IOM().to( keys_.first() );
-
-    const SurveyDiskLocation& sdl = keys.first().surveyDiskLocation();
-    if ( !sdl.isCurrentSurvey() )
-	chgr_ = new SurveyChanger( sdl );
+    init();
 }
 
 
@@ -1082,114 +1255,259 @@ MultiWellReader::~MultiWellReader()
 }
 
 
-od_int64 MultiWellReader::totalNr() const
-{ return nrwells_; }
-
-od_int64 MultiWellReader::nrDone() const
-{ return nrdone_; }
-
-uiString MultiWellReader::uiMessage() const
-{ return errmsg_; }
-
-uiString MultiWellReader::uiNrDoneText() const
-{ return tr("Wells read"); }
-
-
-int MultiWellReader::nextStep()
+void MultiWellReader::init()
 {
-    if ( keys_.isEmpty() )
+    msg_ = tr("Reading well data");
+    allowMissingLogs( true );
+    allsamesurvey_ = true;
+    setMaxNrThreads();
+    if ( keys_.size() > 1 )
+	return;
+
+    const DBKey& firstdbky = keys_.first();
+    if ( firstdbky.isInCurrentSurvey() )
     {
-	errmsg_ = tr("No wells available for reading");
-	return Finished();
-    }
-
-    if ( nrdone_ >= totalNr() )
-    {
-	if ( wds_.size() != keys_.size() )
+	for ( int idx=1; idx<keys_.size(); idx++ )
 	{
-	    const int nrwellsread = welladdedcount_ + wellreloadedcount_;
-	    if ( nrwellsread != keys_.size() )
-		allwellsread_ = false;
+	    if ( !keys_.get(idx).isInCurrentSurvey() )
+	    {
+		allsamesurvey_ = false;
+		return;
+	    }
 	}
-
-	if  ( wds_.size() == 0 )
-	{
-	    errmsg_ = tr("Failed to read well data.");
-	    return  ErrorOccurred();
-	}
-	else
-	    return Finished();
-    }
-
-    const DBKey& wkey = keys_[sCast(int,nrdone_)];
-    nrdone_++;
-    RefMan<Well::Data> wd;
-    bool needsreload = false;
-    if ( !wds_.isEmpty() )
-    {
-	for ( int idx=wds_.size()-1; idx>=0; idx-- )
-	{
-	    RefMan<Well::Data> wdata = wds_.get( idx );
-	    if ( !wdata || wdata->multiID() != wkey )
-		continue;
-
-	    needsreload = true;
-	    break;
-	}
-    }
-
-    bool reloadsuccess = false;
-    if ( wkey.isInCurrentSurvey() )
-    {
-	if ( needsreload )
-	{
-	    reloadsuccess = Well::MGR().reload( wkey,reqs_ );
-	    if ( !reloadsuccess )
-		errmsg_.append( Well::MGR().errMsg() ).addNewLine();
-	}
-
-	wd = Well::MGR().get( wkey, reqs_ );
     }
     else
     {
-	if ( !wd )
-	    wd = new Well::Data;
-
-	Well::Reader rdr( wkey, *wd );
-	if ( reqs_.includes(Well::Inf) && !rdr.getInfo() )
+	const SurveyDiskLocation& sdl = firstdbky.surveyDiskLocation();
+	for ( int idx=1; idx<keys_.size(); idx++ )
 	{
-	    errmsg_.append( rdr.errMsg() ).addNewLine();
-	    return MoreToDo();
+	    const DBKey& dbky = keys_.get( idx );
+	    if ( dbky.isInCurrentSurvey() ||
+		 dbky.surveyDiskLocation() != sdl )
+	    {
+		allsamesurvey_ = false;
+		return;
+	    }
 	}
-
-	if ( reqs_.includes(Well::Trck) && !rdr.getTrack() )
-	{
-	    errmsg_.append( rdr.errMsg() ).addNewLine();
-	    return MoreToDo();
-	}
-
-	if ( reqs_.includes(Well::D2T) )
-	    rdr.getD2T();
-	if ( reqs_.includes(Well::Mrkrs) )
-	    rdr.getMarkers();
-	if ( reqs_.includes(Well::Logs) )
-	    rdr.getLogs( false );
-	else if ( reqs_.includes(Well::LogInfos) )
-	    rdr.getLogs( true );
-	if ( reqs_.includes(Well::CSMdl) )
-	    rdr.getCSMdl();
-	if ( reqs_.includes(Well::DispProps2D)
-	     || reqs_.includes(Well::DispProps3D) )
-	    rdr.getDispProps();
     }
+}
 
-    if ( !wd && wkey.isInCurrentSurvey() )
+
+void MultiWellReader::setMaxNrThreads()
+{
+    maxnrthreads_ = mUdf(int); //auto (from base class)
+    if ( !allsamesurvey_ )
     {
-	errmsg_.append( Well::MGR().errMsg() ).addNewLine();
-	return MoreToDo();
+	maxnrthreads_ = 1;
+	return;
     }
 
-    wds_.addIfNew( wd.ptr() );
-    needsreload && reloadsuccess ? wellreloadedcount_++ : welladdedcount_++;
-    return MoreToDo();
+    for ( const auto* dbky : keys_ )
+    {
+	if ( !Well::Reader::canReadInParallel(*dbky) )
+	{
+	    maxnrthreads_ = 1;
+	    return;
+	}
+    }
+}
+
+
+MultiWellReader& MultiWellReader::setReqs( const Well::LoadReqs& lreqs )
+{
+    reqs_ = lreqs;
+    return *this;
+}
+
+
+MultiWellReader& MultiWellReader::forceRead( bool yn )
+{
+    forceread_ = yn;
+    return *this;
+}
+
+
+MultiWellReader& MultiWellReader::allowMissingLogs( bool yn )
+{
+    reqs_.allowMissingLogs( yn );
+    return *this;
+}
+
+
+uiString MultiWellReader::uiNrDoneText() const
+{
+    return tr("Wells read");
+}
+
+
+od_int64 MultiWellReader::nrIterations() const
+{
+    return nrwells_;
+}
+
+
+int MultiWellReader::maxNrThreads() const
+{
+    return allsamesurvey_ && mIsUdf(maxnrthreads_)
+		? ParallelTask::maxNrThreads() : maxnrthreads_;
+}
+
+
+uiRetVal MultiWellReader::allMessages() const
+{
+    uiRetVal uirv( msg_ );
+    uirv.add( uirv_ );
+    return uirv;
+}
+
+
+bool MultiWellReader::hasFails() const
+{
+    return nrsuccess_ < totalNr();
+}
+
+
+RefMan<Well::Data> MultiWellReader::getWD( const DBKey& dbky,
+					   bool islocal ) const
+{
+    for ( int idx=0; idx<wds_.size(); idx++ )
+    {
+	RefMan<Well::Data> wd = wds_.get( idx );
+	if ( !wd )
+	    continue;
+
+	const MultiID& wid = wd->multiID();
+	if ( wid == dbky )
+	    return wd;
+    }
+
+    RefMan<Well::Data> wd;
+    if ( islocal )
+    {
+	if ( Well::MGR().isLoaded(dbky) )
+	{
+	    const Well::LoadReqs lreqs = Well::MGR().loadState( dbky );
+	    wd = Well::MGR().get( dbky, lreqs );
+	}
+    }
+    else
+    {
+	wd = new Well::Data;
+	wd->setMultiID( dbky );
+    }
+
+    return wd;
+}
+
+
+bool MultiWellReader::doPrepare( int nrthreads )
+{
+    msg_ = tr("Reading well data");
+    uirv_.setOK();
+    resetNrDone(); //Required ?
+    nrsuccess_ = 0;
+
+    if ( !allsamesurvey_ && nrthreads > 1 )
+    {
+	msg_ = tr("Cannot read sets of wells from multiple"
+		  " surveys in parallel");
+	return false;
+    }
+
+    islocal_.setEmpty();
+    for ( const auto* dbky : keys_ )
+    {
+	const bool islocal = dbky->isInCurrentSurvey();
+	islocal_ += islocal;
+	RefMan<Well::Data> wd = getWD( *dbky, islocal );
+	wds_.addIfNew( wd.ptr() );
+    }
+
+    deleteAndNullPtr( chgr_ );
+    if ( allsamesurvey_ && !islocal_.isEmpty() && !islocal_.first() )
+	chgr_ = new SurveyChanger( keys_.first().surveyDiskLocation() );
+
+    return true;
+}
+
+
+bool MultiWellReader::doWork( od_int64 start, od_int64 stop, int threadidx )
+{
+    PtrMan<SurveyChanger> chgr;
+    for ( od_int64 idx=start; idx<=stop; idx++, addToNrDone(1) )
+    {
+	const DBKey& dbky = keys_[sCast(int,idx)];
+	const bool islocal = islocal_[sCast(int,idx)];
+	if ( !chgr_ )
+	{
+	    if ( islocal && chgr )
+		chgr = nullptr;
+	    else if ( !islocal )
+	    {
+		const SurveyDiskLocation& sdl = dbky.surveyDiskLocation();
+		if ( (chgr && chgr->changedToSurvey() != sdl )
+			|| !chgr )
+		    chgr = new SurveyChanger( sdl );
+	    }
+	}
+
+	RefMan<Well::Data> wd = getWD( dbky, islocal );
+	uiRetVal uirv;
+	if ( islocal )
+	{
+	    if ( forceread_ )
+	    {
+		if ( Well::MGR().reload(dbky,reqs_) )
+		    wd = Well::MGR().get( dbky, reqs_ );
+	    }
+	    else
+		wd = Well::MGR().get( dbky, reqs_ );
+
+	    if ( wd )
+		wds_.addIfNew( wd.ptr() );
+	    else
+		uirv.add( Well::MGR().errMsg() );
+	}
+	else
+	{
+	    if ( wd )
+	    {
+		Well::Reader rdr( dbky, *wd );
+		const uiRetVal rv = rdr.readReqData( reqs_ );
+		if ( rv.isError() )
+		    uirv.add( rv );
+	    }
+	}
+
+	if ( !wd || uirv.isError() )
+	{
+	    if ( uirv.isOK() )
+	    {
+		const BufferString dbkystr = dbky.toString( !islocal );
+		uirv.add( tr("Unspecified error loading the well data for"
+			     "MultiID %1").arg(dbkystr) );
+	    }
+	    else
+		uirv_.add( uirv );
+	}
+	else
+	    nrsuccess_++;
+    }
+
+    return true;
+}
+
+
+bool MultiWellReader::doFinish( bool success )
+{
+    deleteAndNullPtr( chgr_ );
+    if ( nrsuccess_ < 1 )
+    {
+	msg_ = tr("Failed to read any well data.");
+	success = false;
+    }
+    else if ( hasFails() )
+	msg_ = tr("Failed to read some of the well data.");
+
+    return success;
 }

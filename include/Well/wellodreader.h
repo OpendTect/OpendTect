@@ -27,12 +27,16 @@ class Log;
 
 mExpClass(Well) odReader : public odIO
 			 , public Well::ReadAccess
-{ mODTextTranslationClass(Well::odReader);
+{
+mODTextTranslationClass(odReader)
 public:
 
 			odReader(const IOObj&,Data&,uiString& errmsg);
 			odReader(const char* fnm,Data&,uiString& errmsg);
-    virtual		~odReader();
+			~odReader();
+
+private:
+    bool		canReadInParallel() const override     { return true; }
 
     bool		get() const override		{ return true; }
 
@@ -43,10 +47,9 @@ public:
     bool		getD2T() const override;
     bool		getCSMdl() const override;
 
-    bool		getLogs(bool needjustinfo=false) const override;
+    bool		getLogs(bool needjustinfo) const override;
     bool		getLog(const char* lognm) const override;
     bool		getLogByID(const LogID&) const override;
-    void		getLogInfo(BufferStringSet& lognms) const override;
     bool		getDefLogs() const override;
 
     bool		getDispProps() const override;
@@ -61,10 +64,8 @@ public:
     bool		getDispProps(od_istream&) const;
     bool		getDefLogs(od_istream&) const;
 
-protected:
-
     bool		getOldTimeWell(od_istream&) const;
-    void		getLogInfo(BufferStringSet&,TypeSet<int>&) const;
+    void		getLogInfos(BufferStringSet&,TypeSet<int>&) const;
     void		readLogData(Log&,od_istream&,int) const;
     bool		getTrack(od_istream&) const;
     bool		doGetD2T(od_istream&,bool csmdl) const;
@@ -74,8 +75,11 @@ protected:
 
     void		setInpStrmOpenErrMsg(od_istream&) const;
     void		setStrmOperErrMsg(od_istream&,const uiString&) const;
-    uiString		sCannotReadFileHeader() const;
 
+public:
+
+    static int		getStorageType(const char* logfnm);
+			//!<Exclusively for the Well::odWriter class
 };
 
 } // namespace Well

@@ -279,6 +279,8 @@ public:
     bool		hasGroup(const char* grpnm) const;
     bool		hasDataSet(const DataSetKey&) const;
 
+    virtual bool	isParallelEnabled() const	{ return false; }
+
     static uiString	sHDF5PackageDispName();
     static uiString	sHDF5NotAvailable();
     static uiString	sHDF5NotAvailable(const char* fnm);
@@ -360,6 +362,7 @@ inline bool isEnvBlocked( const char* typ=nullptr )
 inline bool isHDF5File( const char* fnm )
 { return Access::isHDF5File(fnm); }
 //!< Always false for non-existing file, even for an 'file.h5' string
+mGlobal(General) bool isParallelEnabled();
 
 inline const char* sSeismicsType()	{ return "Seismics"; }
 inline const char* sPickSetType()	{ return "PickSets"; }

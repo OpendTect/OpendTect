@@ -9,6 +9,7 @@ ________________________________________________________________________
 -*/
 
 #include "wellmod.h"
+
 #include <bitset>
 #include "bufstring.h"
 #include "bufstringset.h"
@@ -16,7 +17,6 @@ ________________________________________________________________________
 #include "callback.h"
 #include "ptrman.h"
 #include "refcount.h"
-#include "sets.h"
 #include "uistring.h"
 
 class BufferStringSet;
@@ -36,7 +36,7 @@ namespace Well
 class Data;
 class Log;
 
-/*\brief Tells the Well Manager what you need to be loaded.*/
+/*\brief Tells the Well Manager what needs to be loaded.*/
 
 #define mWellNrSubObjTypes 9
 
@@ -52,29 +52,41 @@ public:
 			LoadReqs(SubObjType);
 			LoadReqs(SubObjType,SubObjType);
 			LoadReqs(SubObjType,SubObjType,SubObjType);
+    explicit		LoadReqs(const char*)			= delete;
+			LoadReqs(const OD::String& lognm);
+			LoadReqs(const BufferStringSet& lognms);
 			~LoadReqs();
 
     static LoadReqs	getLoadReqFromFileExt(const char*);
     static LoadReqs	All();
-    static LoadReqs	AllNoLogs();
-    bool		operator ==( const LoadReqs& oth ) const
-						{ return reqs_ == oth.reqs_; }
+    static LoadReqs	AllNoLogs(); //!< But with LogInfos
+    bool		operator ==(const LoadReqs&) const;
+    bool		operator !=(const LoadReqs&) const;
 
     LoadReqs&		add(SubObjType);
+    LoadReqs&		addLog(const char* lognm);
+    LoadReqs&		addLogs(const BufferStringSet&);
     LoadReqs&		remove(SubObjType);
     LoadReqs&		setToAll();
     LoadReqs&		setEmpty();
     LoadReqs&		include(const LoadReqs&);
     LoadReqs&		exclude(const LoadReqs&);
+    LoadReqs&		excludeLogSel();
+    LoadReqs&		allowMissingLogs(bool yn);
 
     bool		isEmpty() const;
     bool		includes(SubObjType) const;
     bool		includes(const LoadReqs&) const;
+    bool		allowMissingLogs() const { return allowmissinglogs_; }
     BufferString	toString() const;
+
+    const BufferStringSet& logNames() const	{ return lognms_; }
 
 protected:
 
     std::bitset<mWellNrSubObjTypes>		reqs_;
+    BufferStringSet	lognms_;
+    bool		allowmissinglogs_	= false;
 };
 
 
@@ -85,6 +97,7 @@ protected:
 
 mExpClass(Well) Man : public CallBacker
 {
+mODTextTranslationClass(Man)
 public:
 			~Man();
 
@@ -92,13 +105,14 @@ public:
     void		removeObject(const Data*);
     void		removeObject(const MultiID&);
     RefMan<Data>	get(const MultiID&);
-    RefMan<Data>	get(const MultiID&,LoadReqs);
-    RefMan<Data>	get(const DBKey&,LoadReqs);
+    RefMan<Data>	get(const MultiID&,const LoadReqs&);
+    RefMan<Data>	get(const DBKey&,const LoadReqs&);
     bool		isLoaded(const MultiID&) const;
-    Well::LoadReqs	loadState(const MultiID&) const;
-    bool		reload(const MultiID&,LoadReqs lreq=LoadReqs(false));
-    bool		reloadDispPars(const MultiID&, bool for2d=false);
+    LoadReqs		loadState(const MultiID&) const;
+    bool		reload(const MultiID&,LoadReqs =LoadReqs(false));
+    bool		reloadDispPars(const MultiID&,bool for2d=false);
     bool		reloadLogs(const MultiID&);
+			//!< Limited to the already loaded logs
     bool		validID(const MultiID&) const;
 
     uiString		errMsg() const		{ return errmsg_; }
@@ -118,23 +132,24 @@ public:
 					 TypeSet<OD::Color>&,
 					 bool onlyloaded=false);
     static bool		getAllLogNames(BufferStringSet&,
-				       bool onlyloaded=false);
+				       bool onlyloadedwells=false);
     static bool		getAllMnemonics(MnemonicSelection&,
-					bool onlyloaded=false);
+					bool onlyloadedwells=false);
 
-    static bool		getMarkersByID(const MultiID&, BufferStringSet&);
-    static bool		getMarkersByID(const MultiID&, BufferStringSet&,
+    static bool		getMarkersByID(const MultiID&,BufferStringSet&);
+    static bool		getMarkersByID(const MultiID&,BufferStringSet&,
 				       TypeSet<OD::Color>&);
     static bool		getMarkersByID(const MultiID&, BufferStringSet&,
-				       TypeSet<OD::Color>&, TypeSet<float>&);
-    static bool		getLogNamesByID(const MultiID&,BufferStringSet&,
-					bool onlyloaded=false);
+				       TypeSet<OD::Color>&,TypeSet<float>&);
+    static bool		getLogNamesByID(const MultiID&,BufferStringSet&);
     static void		getLogIDs(const MultiID&,const BufferStringSet&,
 				  TypeSet<int>&);
     static void		getLogIDs(const MultiID&,const MnemonicSelection&,
 				  TypeSet<int>&);
     Coord		getMapLocation(const MultiID&) const;
 
+    uiRetVal		writeLogHeaders(const MultiID&,
+					const BufferStringSet& lognms);
     bool		writeAndRegister(const MultiID&,PtrMan<Log>&);
 					//!< Log becomes mine
     bool		writeAndRegister(const MultiID&,ObjectSet<Log>&);
@@ -166,8 +181,8 @@ protected:
 
     void		checkForUndeletedRef(CallBacker*);
     int			gtByKey(const MultiID&) const;
-    RefMan<Data>	addNew(const MultiID&, LoadReqs lreq=LoadReqs(false));
-    bool		readReqData(const MultiID&,Data&,LoadReqs);
+    RefMan<Data>	addNew(const MultiID&,LoadReqs =LoadReqs(false));
+    bool		readReqData(const MultiID&,const LoadReqs&,Data&);
     void		reloadAll();
 
     void		wellAddedToDB(CallBacker*);

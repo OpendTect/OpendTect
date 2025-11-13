@@ -208,22 +208,24 @@ mExpClass(uiWell) uiWellLogUOMDlg : public uiDialog
 { mODTextTranslationClass(uiWellLogUOMDlg);
 public:
 			uiWellLogUOMDlg(uiParent*,
-					ObjectSet<ObjectSet<Well::Log>>& wls,
-					TypeSet<MultiID>& keys,
-					const BufferStringSet& wellnms);
+				const TypeSet<MultiID>& keys,
+				const BufferStringSet& lognms,
+				ObjectSet<BufferStringSet>& editedlognmsset);
 			~uiWellLogUOMDlg();
 
 protected:
 
-    ObjectSet<ObjectSet<Well::Log>>&		wls_;
+    const BufferStringSet&			lognms_;
+    ObjectSet<BufferStringSet>&			editedlognmsset_;
+    RefObjectSet<Well::Data>			wds_;
     ObjectSet<uiUnitSel>			unflds_;
-    TypeSet<MultiID>&				keys_;
     uiTable*					uominfotbl_;
 
     void		initDlg(CallBacker*);
     bool		acceptOK(CallBacker*) override;
 
-    void		fillTable(const BufferStringSet& wellnms);
+    bool		readWellData(uiParent*,const TypeSet<MultiID>& keys);
+    void		fillTable();
     bool		setUoMValues();
 };
 
@@ -234,22 +236,24 @@ mExpClass(uiWell) uiWellLogMnemDlg : public uiDialog
 { mODTextTranslationClass(uiWellLogMnemDlg);
 public:
 			uiWellLogMnemDlg(uiParent*,
-					ObjectSet<ObjectSet<Well::Log>>& wls,
-					TypeSet<MultiID>& keys,
-					const BufferStringSet& wellnms);
+				 const TypeSet<MultiID>& keys,
+				 const BufferStringSet& lognms,
+				 ObjectSet<BufferStringSet>& editedlognmsset);
 			~uiWellLogMnemDlg();
 
 protected:
 
-    ObjectSet<ObjectSet<Well::Log>>&		wls_;
+    const BufferStringSet&			lognms_;
+    ObjectSet<BufferStringSet>&			editedlognmsset_;
+    RefObjectSet<Well::Data>			wds_;
     ObjectSet<uiMnemonicsSel>			mnemflds_;
-    TypeSet<MultiID>&				keys_;
     uiTable*					mneminfotbl_;
 
     void		initDlg(CallBacker*);
     bool		acceptOK(CallBacker*) override;
 
-    void		fillTable(const BufferStringSet&);
+    bool		readWellData(uiParent*,const TypeSet<MultiID>& keys);
+    void		fillTable();
     bool		setMnemonics();
 };
 
@@ -269,12 +273,15 @@ protected:
 
     void	displayTable(int currwellidx);
 
-    bool	acceptOK(CallBacker*) override;
-    bool	rejectOK(CallBacker*) override;
     void	initDlg(CallBacker*);
     void	wellChangedCB(CallBacker*);
     void	changeModeCB(CallBacker*);
     void	logChangedCB(CallBacker*);
+    bool	acceptOK(CallBacker*) override;
+    bool	rejectOK(CallBacker*) override;
+
+    bool	readWellData(uiParent*,const TypeSet<MultiID>& keys,
+			     RefObjectSet<Well::Data>&);
 
 
     mClass(uiWell) Tables : public CallBacker
@@ -285,17 +292,17 @@ protected:
 			~Tables();
 
 	uiTable&			getTable();
-	RefMan<Well::Data>		wellData() const
-					{ return wd_; }
+	ConstRefMan<Well::Data>		wellData() const	{ return wd_; }
+	RefMan<Well::Data>		wellData()		{ return wd_; }
 	const MnemonicSelection&	availMnems() const
 					{ return availmnems_; }
-	const Well::Log*		changedLog() const
-					{ return changedlog_; }
+	const char*			changedLogName() const
+					{ return changedlognm_.buf(); }
 	const Mnemonic*			changedMnem() const
 					{ return changedmn_; }
 	void				restoreDefsBackup();
 	void				setDefLog(const int idx,
-						  const Well::Log*);
+						  const char* lognm);
 	bool				hasMnem(const Mnemonic*) const;
 
     protected:
@@ -313,7 +320,7 @@ protected:
 	IOPar			    saveddefaults_;
 	ObjectSet<uiComboBox>	    deflogsflds_;
 	MnemonicSelection	    availmnems_;
-	Well::Log*		    changedlog_ = nullptr;
+	BufferString		    changedlognm_;
 	Mnemonic*		    changedmn_ = nullptr;
 
     private:
@@ -324,7 +331,6 @@ protected:
 	void	    setSavedDefaults();
 
     };
-
 
     uiListBox*			welllist_;
     uiRadioButton*		applytobut_;

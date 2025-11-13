@@ -55,8 +55,7 @@ static const UnitOfMeasure* getDisplayUnit( uiGenInput* ztype )
 	    UnitOfMeasure::surveyDefDepthUnit(),getDisplayUnit(ztypefld_) ) \
 
 
-uiWellExportFacility::uiWellExportFacility( uiParent* p,
-						    uiWellPartServer& wps )
+uiWellExportFacility::uiWellExportFacility( uiParent* p, uiWellPartServer& wps )
     : uiDialog(p,Setup(tr("Well Export Facility"),uiString::empty(),
 		       mODHelpKey(mWellExpDlg) ) )
     , wellpartserver_(wps)
@@ -92,19 +91,16 @@ uiWellExportFacility::uiWellExportFacility( uiParent* p,
     mAttachCB( welltrack_->activated, uiWellExportFacility::updateSelButCB );
     welltrack_->attach( alignedBelow, selobjbox_ );
     label->attach( leftOf, welltrack_ );
-    welltrack_->setChecked( true );
 
     markers_ = new uiCheckBox( topgrp, sMarkerUIKey() );
     mAttachCB( markers_->activated, uiWellExportFacility::updateSelButCB );
     markers_->attach( rightOf, welltrack_ );
-    markers_->setChecked( true );
 
     d2tmodel_ = new uiCheckBox( topgrp, sD2TModel() );
     d2tmodel_->attach( rightOf, markers_ );
     mAttachCB( d2tmodel_->activated, uiWellExportFacility::updateSelButCB );
     mAttachCB( d2tmodel_->activated,
 				uiWellExportFacility::updateTravelTimeFld );
-    d2tmodel_->setChecked( true );
 
     checkshotdata_ = new uiCheckBox( topgrp, sCheckShot() );
     checkshotdata_->attach( rightOf, d2tmodel_ );
@@ -112,7 +108,6 @@ uiWellExportFacility::uiWellExportFacility( uiParent* p,
 					uiWellExportFacility::updateSelButCB );
     mAttachCB( checkshotdata_->activated,
 				uiWellExportFacility::updateTravelTimeFld );
-    checkshotdata_->setChecked( true );
 
     traveltymfld_ = new uiGenInput( topgrp , tr("Travel Time"),
 			    BoolInpSpec(true,uiStrings::sTWT(),tr("OWT")) );
@@ -129,14 +124,12 @@ uiWellExportFacility::uiWellExportFacility( uiParent* p,
 				    OD::ChoiceMode::ChooseZeroOrMore );
     loglist_->attach( leftBorder );
     loggrp_->setHAlignObj( loglist_ );
-    loglist_->primaryCheckBox()->setChecked( true );
 
     const bool zinft = SI().depthsInFeet();
     const uiString lbl = tr("Log Depth Range %1").
 			    arg( uiStrings::sDistUnitString(zinft,true,true) );
     zrangefld_ = new uiGenInput( loggrp_, lbl, FloatInpIntervalSpec(true) );
     zrangefld_->attach( alignedBelow, loglist_ );
-    setDefaultRange( zinft );
 
     auto* logbotsep = new uiSeparator( this, "LogBottomSep" );
     logbotsep->attach( stretchedBelow, loggrp_ );
@@ -159,7 +152,7 @@ uiWellExportFacility::uiWellExportFacility( uiParent* p,
     outfilefld_ = new uiFileInput( this,
 			uiStrings::phrOutput(uiStrings::sDirectory()), fssu );
     outfilefld_->attach( alignedBelow, basenmfld_ );
-    const FilePath expfp( GetDataDir(), "Export" );
+    const FilePath expfp( GetSurveyExportDir() );
     if ( expfp.exists() )
 	outfilefld_->setText( expfp.fullPath() );
 
@@ -189,36 +182,48 @@ void uiWellExportFacility::refreshCB( CallBacker* )
 void uiWellExportFacility::inputChngCB( CallBacker* )
 {
     ConstPtrMan<IOObj> ioobj = wellselfld_->getIOObj( true );
-    if ( ioobj )
-	wd_ = Well::MGR().get( ioobj->key() );
+    Well::LoadReqs lreqs = Well::LoadReqs::AllNoLogs();
+    lreqs.include( Well::LogInfos );
+    wd_ = ioobj ? Well::MGR().get( ioobj->key(), lreqs ) : nullptr;
 
-    if ( wd_ )
+    welltrack_->setSensitive( wd_ );
+    if ( !wd_ )
     {
-	basenmfld_->setText( wd_->name() );
-	checkshotdata_->setSensitive( wd_->haveCheckShotModel() );
-	checkshotdata_->setChecked( wd_->haveCheckShotModel() );
-	d2tmodel_->setSensitive( wd_->haveD2TModel() );
-	d2tmodel_->setChecked( wd_->haveD2TModel() );
+	markers_->setSensitive( false );
+	d2tmodel_->setSensitive(  false );
+	checkshotdata_->setSensitive( false );
+	loggrp_->display( false );
+	loglist_->primaryCheckBox()->setChecked( false );
+	return;
+    }
 
-	const Well::MarkerSet& mrkrs = wd_->markers();
-	markers_->setSensitive( !mrkrs.isEmpty() );
-	markers_->setChecked( !mrkrs.isEmpty() );
-	const Well::LogSet& logs = wd_->logs();
-	BufferStringSet lognms;
-	logs.getNames( lognms, false );
-	if ( lognms.isEmpty() )
-	{
-	    loggrp_->display( false );
-	    loglist_->primaryCheckBox()->setChecked( false );
-	}
-	else
-	{
-	    loglist_->setEmpty();
-	    loglist_->addItems( lognms );
-	    loggrp_->display( true );
-	    loglist_->primaryCheckBox()->setChecked( true );
-	    setDefaultRange( SI().zInFeet() );
-	}
+    basenmfld_->setText( wd_->name() );
+    welltrack_->setChecked( !wd_->track().isEmpty() );
+
+    const Well::MarkerSet& mrkrs = wd_->markers();
+    markers_->setSensitive( !mrkrs.isEmpty() );
+    markers_->setChecked( !mrkrs.isEmpty() );
+
+    d2tmodel_->setSensitive( wd_->haveD2TModel() );
+    d2tmodel_->setChecked( wd_->haveD2TModel() );
+    checkshotdata_->setSensitive( wd_->haveCheckShotModel() );
+    checkshotdata_->setChecked( wd_->haveCheckShotModel() );
+
+    const Well::LogSet& logs = wd_->logs();
+    BufferStringSet lognms;
+    logs.getNames( lognms );
+    if ( lognms.isEmpty() )
+    {
+	loggrp_->display( false );
+	loglist_->primaryCheckBox()->setChecked( false );
+    }
+    else
+    {
+	loglist_->setEmpty();
+	loglist_->addItems( lognms );
+	loggrp_->display( true );
+	loglist_->primaryCheckBox()->setChecked( true );
+	setDefaultRange();
     }
 }
 
@@ -270,29 +275,16 @@ void uiWellExportFacility::updateTravelTimeFld( CallBacker* )
 }
 
 
-void uiWellExportFacility::setDefaultRange( bool zinft )
+void uiWellExportFacility::setDefaultRange()
 {
     if ( !wd_ )
 	return;
 
-    StepInterval<float> dahintv;
-    const Well::LogSet& logs = wd_->logs();
-    for ( int idx=0; idx<logs.size(); idx++ )
-    {
-	const Well::Log& log = logs.getLog(idx);
-	const int logsz = log.size();
-	if ( logsz==0 )
-	    continue;
-
-	dahintv.include( logs.dahInterval() );
-	const float width = log.dah(logsz-1) - log.dah(0);
-	dahintv.step_ = width / (logsz-1);
-	break;
-    }
-
-
-    StepInterval<float> disprg = dahintv;
     const UnitOfMeasure* storunit = UnitOfMeasure::surveyDefDepthStorageUnit();
+    ZSampling dahintv = wd_->logs().dahInterval();
+    dahintv.step_ = storunit && storunit->isImperial() ? 0.5f : 0.1524f;
+
+    ZSampling disprg = dahintv;
     const UnitOfMeasure* outunit = UnitOfMeasure::surveyDefDepthUnit();
     disprg.start_ = getConvertedValue( dahintv.start_, storunit, outunit );
     disprg.stop_ = getConvertedValue( dahintv.stop_, storunit, outunit );
@@ -386,21 +378,21 @@ void uiWellExportFacility::writeLogHeader( od_ostream& strm )
     BufferString depthstr( "Depth",
 		    getDistUnitString(!ztypefld_->getBoolValue(),true ) );
     strm << depthstr.quote();
+
     const Well::LogSet& logs = wd_->logs();
-    BufferStringSet logsel;
-    loglist_->getChosen( logsel );
-    for ( int idx=0; idx<logs.size(); idx++ )
+    BufferStringSet lognms;
+    loglist_->getChosen( lognms );
+    for ( const auto* nm : lognms )
     {
-	const Well::Log& log = logs.getLog(idx);
-	if ( !logsel.isPresent( log.name() ) )
+	const Well::Log* log = logs.getLog( nm->buf() );
+	if ( !log || !log->isLoaded() )
 	    continue;
 
-	BufferString lognm( log.name() );
-	lognm.clean();
-	lognm.replace( '+', '_' );
-	lognm.replace( '-', '_' );
-	if ( *log.unitMeasLabel() )
-	    lognm.add( "(" ).add( log.unitMeasLabel() ).add( ")" );
+	BufferString lognm( nm->buf() );
+	lognm.clean().replace( '+', '_' ).replace( '-', '_' );
+	const StringView loguomlbl = log->unitMeasLabel();
+	if ( !loguomlbl.isEmpty() )
+	    lognm.add( "(" ).add( loguomlbl.str() ).add( ")" );
 
 	lognm.quote();
 	strm << od_tab << lognm;
@@ -420,8 +412,8 @@ void uiWellExportFacility::writeLogs( od_ostream& strm )
     const UnitOfMeasure* outunit = getDisplayUnit( ztypefld_ );
 
     const Well::LogSet& logs = wd_->logs();
-    BufferStringSet logsel;
-    loglist_->getChosen( logsel );
+    BufferStringSet lognms;
+    loglist_->getChosen( lognms );
     for ( int idx=0; idx<nrsteps; idx++ )
     {
 	const float md = intv.atIndex( idx );
@@ -429,17 +421,14 @@ void uiWellExportFacility::writeLogs( od_ostream& strm )
 	const float mdout = getConvertedValue( md, userunit, outunit );
 	strm << mdout;
 
-	for ( int logidx=0; logidx<logs.size(); logidx++ )
+	for ( const auto* lognm : lognms )
 	{
-	    const Well::Log& log = logs.getLog( logidx );
-	    if ( !logsel.isPresent( log.name() ) )
+	    const Well::Log* log = logs.getLog( lognm->buf() );
+	    if ( !log || !log->isLoaded() )
 		continue;
 
-	    const float val = log.getValue( mdstor );
-	    if ( mIsUdf(val) )
-		strm << od_tab << mUdf(float);
-	    else
-		strm << od_tab << val;
+	    const float val = log->getValue( mdstor );
+	    strm << od_tab << val;
 	}
 	strm << od_newline;
     }
@@ -578,6 +567,18 @@ bool uiWellExportFacility::acceptOK( CallBacker* )
 	return false;
     }
 
+    if ( loglist_->nrChosen() > 0 )
+    {
+	BufferStringSet lognms;
+	loglist_->getChosen( lognms );
+	const Well::LoadReqs lreqs( lognms );
+	if ( !Well::MGR().get(wd_->multiID(),lreqs) )
+	{
+	    uiMSG().error( Well::MGR().errMsg() );
+	    return false;
+	}
+    }
+
     uiStringSet errobjtype;
     bool somethingexported = false;
     const BufferString& baseafp = basedir.fullPath();
@@ -609,7 +610,6 @@ bool uiWellExportFacility::acceptOK( CallBacker* )
 	    errobjtype.add( sMarkerUIKey() );
     }
 
-    BufferStringSet logsels;
     if ( loglist_->nrChosen() > 0 )
     {
 	somethingexported = true;

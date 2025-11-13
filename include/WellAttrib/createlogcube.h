@@ -35,20 +35,17 @@ public:
 			~LogCubeCreator();
 
 			//Returns false if an output already exists
-    bool		setOutputNm(const char* postfix=0,
-				    bool withwllnm=false);
+    uiRetVal		setOutputNm(const char* postfix,bool withwllnm,
+				    uiStringSet& existimpls);
+
+    bool		isOK() const;
+
+    uiString		uiNrDoneText() const override;
+    uiString		uiMessage() const override	{ return msg_; }
+    uiRetVal		details() const			{ return uirv_; }
+    uiRetVal		allMessages() const;
+
     void		getOutputNames(BufferStringSet&) const;
-
-    const uiString&	errMsg() const { return errmsg_; }
-    bool		isOK() const { return errmsg_.isEmpty(); }
-    void		resetMsg() { errmsg_.setEmpty(); }
-
-    uiString		uiNrDoneText() const override
-			{ return tr("Wells handled"); }
-    od_int64		totalNr() const override
-			{ return nrIterations(); }
-    bool		stopAllOnFailure() const override
-			{ return false; }
 
 protected:
     const Well::LogSet*		logset_ = nullptr;
@@ -72,7 +69,8 @@ protected:
 
     mStruct(WellAttrib) WellData : public CallBacker
     {
-				WellData(const MultiID&);
+				WellData(const MultiID&,
+					 const BufferStringSet* lognms);
 				~WellData();
 
 	bool			isOK() const { return errmsg_.isEmpty(); }
@@ -89,19 +87,20 @@ protected:
     Well::ExtractParams		extractparams_;
     int				stepout_;
 
-    uiString			errmsg_;
+    uiString			msg_;
+    uiRetVal			uirv_;
 
     od_int64			nrIterations() const override
 				{ return welldata_.size(); }
-    od_int64			nrdone_;
 
-    bool			init(const BufferStringSet& lognms,
+    void			init(const BufferStringSet& lognms,
 				     const TypeSet<MultiID>& wllids);
     bool			doPrepare(int) override;
     bool			doWork(od_int64,od_int64,int) override;
     bool			doFinish(bool) override;
 
-    bool			makeLogTraces(int iwell);
+    uiString			makeLogTraces(int iwell);
     void			getLogNames(BufferStringSet&) const;
-    void			addUniqueTrace(const SeisTrc&,SeisTrcBuf&)const;
+
+    static void			addUniqueTrace(const SeisTrc&,SeisTrcBuf&);
 };

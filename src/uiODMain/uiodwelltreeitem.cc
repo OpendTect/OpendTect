@@ -150,14 +150,11 @@ bool uiODWellParentTreeItem::handleSubMenu( int mnuid )
 	MultiWellReader mwr( emwellids, wds, lreqs );
 	if ( !uitr.execute(mwr) )
 	{
-	    uiMSG().error( tr("Could not load wells.") );
+	    uiMSG().errorWithDetails( mwr.details(), mwr.uiMessage() );
 	    return false;
 	}
 
-	uiString msg;
-	if ( !mwr.allWellsRead() )
-	    msg = mwr.uiMessage();
-
+	uiRetVal uirv;
 	MouseCursorChanger mcc( MouseCursor::Wait );
 	TypeSet<MultiID> remids;
 	for ( const auto* wd : wds )
@@ -167,9 +164,8 @@ bool uiODWellParentTreeItem::handleSubMenu( int mnuid )
 					    -1.f * SI().seismicReferenceDatum();
 	    if ( zistime && !d2t && !trackabovesrd )
 	    {
-		msg.append( wd->name() )
-		   .append( tr(" : No depth to time model defined") )
-		   .addNewLine();
+		uirv.add( tr("Well '%1': No depth to time model defined")
+				.arg(wd->name()) );
 		remids.addIfNew( wd->multiID() );
 	    }
 	}
@@ -187,8 +183,8 @@ bool uiODWellParentTreeItem::handleSubMenu( int mnuid )
 	}
 
 	mcc.restore();
-	if ( !msg.isEmpty() )
-	    uiMSG().errorWithDetails( msg, tr("Could not load some wells") );
+	if ( uirv.isError() )
+	    uiMSG().errorWithDetails( uirv, tr("Could not load some wells") );
     }
     else if ( mnuid == cTieIdx )
     {

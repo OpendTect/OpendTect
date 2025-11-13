@@ -34,5 +34,6 @@ set( OD_TEST_PROGS
 )
 
 set( OD_NIGHTLY_TEST_PROGS zaxistransforms.cc )
+set( OD_BATCH_TEST_PROGS wellattrib.cc )
 
 OD_INIT_MODULE()

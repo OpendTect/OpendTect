@@ -42,17 +42,23 @@ namespace Well
 mExpClass(uiWell) WellLogToolData : public Well::SubSelData
 {
 public:
-			WellLogToolData(const Well::SelInfo&);
-			~WellLogToolData();
+				WellLogToolData(const Well::SelInfo&);
+				~WellLogToolData();
 
-    const ObjectSet<const Well::Log>& inpLogs() const	{ return inplogs_; }
-    ObjectSet<Well::Log>&	outpLogs()		{ return outplogs_; }
+    int				nrLogs() const;
+    const Well::Log*		getInpLog(const char*) const;
+    const Well::LogSet*		getLogs() const;
+    const Well::Log*		getOutpLog(const char*) const;
+    Well::Log*			getOutpLog(const char*);
     const ObjectSet<Well::Log>& outpLogs() const	{ return outplogs_; }
 
-protected:
-    void			init();
+    bool			loadInputLogs(uiString&);
+    Well::Log*			addOutputLog(const Well::Log&);
+    void			replace(Well::Log* oldlog,Well::Log* newlog);
+    ObjectSet<Well::Log>&	outpLogs()		{ return outplogs_; }
 
-    ObjectSet<const Well::Log>	inplogs_;
+protected:
+
     ObjectSet<Well::Log>	outplogs_;
 };
 
@@ -71,8 +77,8 @@ public:
 
 protected:
 
-    uiComboBox*			actionfld_;
-    uiGenInput*			savefld_;
+    uiComboBox*			actionfld_	= nullptr;
+    uiGenInput*			savefld_	= nullptr;
     uiGenInput*			extfld_;
     uiSpinBox*			gatefld_;
     uiLabel*			gatelbl_;

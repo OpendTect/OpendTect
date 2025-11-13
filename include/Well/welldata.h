@@ -145,9 +145,8 @@ mExpClass(Well) Data : public SharedObject
 public:
 				Data(const char* nm=nullptr);
 
-    const MultiID&		multiID() const		{ return mid_; }
-    void			setMultiID( const MultiID& mid ) const
-							{ mid_ = mid; }
+    const MultiID&		multiID() const		{ return *mid_; }
+    void			setMultiID(const MultiID&);
 
     const OD::String&		name() const override	{ return info_.name(); }
     void			setName(const char* nm) override
@@ -197,12 +196,6 @@ public:
 
     void			levelToBeRemoved(CallBacker*);
 
-    const Well::Log*		getLog(const char* lognm) const;
-    Well::Log*			getLogForEdit(const char* lognm);
-    void			getLogNames(BufferStringSet&,
-					    bool needreload=false) const;
-    void			getLoadedLogNames(BufferStringSet&) const;
-
     bool			haveLogs() const;
     bool			haveMarkers() const;
     bool			haveD2TModel() const	{ return actd2tmodel_; }
@@ -217,6 +210,7 @@ public:
     Notifier<Well::Data>	disp3dparschanged;
     Notifier<Well::Data>	disp2dparschanged;
     CNotifier<Well::Data,int>	logschanged;
+				//!< Index in the log set of the modified log
     Notifier<Well::Data>	reloaded;
 
 protected:
@@ -225,7 +219,7 @@ protected:
     void			prepareForDelete() override;
 
     Info			info_;
-    mutable MultiID		mid_;
+    MultiID*			mid_;
     Track&			track_;
     LogSet&			logs_;
     D2TModel*			actd2tmodel_	= nullptr;
@@ -235,6 +229,20 @@ protected:
     MarkerSet&			markers_;
     DisplayProperties&		disp2d_;
     DisplayProperties&		disp3d_;
+
+public:
+
+    mDeprecated("Use Well::LogSet::getLog")
+    const Well::Log*		getLog(const char* lognm) const;
+    mDeprecated("Use Well::LogSet::getLog")
+    Well::Log*			getLogForEdit(const char* lognm);
+
+    mDeprecated("Use Well::LogSet::getNames")
+    void			getLogNames(BufferStringSet&,
+					    bool needreload=false) const;
+    mDeprecated("Use Well::LogSet::getNames")
+    void			getLoadedLogNames(BufferStringSet&) const;
+
 };
 
 } // namespace Well

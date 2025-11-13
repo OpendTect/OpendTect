@@ -469,3 +469,13 @@ void HDF5::AccessImpl::selectSlab( const DataspaceID& ds,
 			 offss.arr(), strides.arr(),
 			 pcounts->arr(), nullptr );
 }
+
+
+bool HDF5::AccessImpl::isParallelEnabled()
+{
+#ifdef H5_CONFIG_PARALLEL
+    return true;
+#else
+    return false;
+#endif
+}

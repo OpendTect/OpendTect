@@ -373,7 +373,7 @@ bool uiSEGYReadFinisher::doVSP()
     else if ( !isdpth && !wd->d2TModel() )
 	mErrRet(tr("Selected well has no Depth vs Time model"))
 
-    if ( wd->getLog(lognm) )
+    if ( wd->logs().isPresent(lognm.buf()) )
     {
 	const uiString msg = tr("Log Name '%1' already exists for well '%2'. "
 				"Overwrite?")

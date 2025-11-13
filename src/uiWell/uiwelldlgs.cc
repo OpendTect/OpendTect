@@ -24,6 +24,7 @@ ________________________________________________________________________
 #include "uiseparator.h"
 #include "uistrings.h"
 #include "uitable.h"
+#include "uitaskrunner.h"
 #include "uitblimpexpdatasel.h"
 #include "uitextedit.h"
 #include "uitoolbutton.h"
@@ -1706,7 +1707,7 @@ void uiD2TModelDlg::readNew( CallBacker* )
 	return;
 
     setEmpty();
-    fillTable(0);
+    fillTable( nullptr );
     wd_.d2tchanged.trigger();
 }
 
@@ -2035,14 +2036,16 @@ const OD::Color& uiNewWellDlg::getWellColor()
 //============================================================================
 
 uiWellLogUOMDlg::uiWellLogUOMDlg( uiParent* p,
-				  ObjectSet<ObjectSet<Well::Log>>& wls,
-				  TypeSet<MultiID>& keys,
-				  const BufferStringSet& wellnms )
+				  const TypeSet<MultiID>& keys,
+				  const BufferStringSet& lognms,
+				  ObjectSet<BufferStringSet>& editedlognmsset )
     : uiDialog(p,Setup(tr("Set units of measure for logs"),mNoHelpKey))
-    , wls_(wls)
-    , keys_(keys)
+    , lognms_(lognms)
+    , editedlognmsset_(editedlognmsset)
 {
-    fillTable( wellnms );
+    readWellData( p, keys );
+    fillTable();
+
     mAttachCB( postFinalize(), uiWellLogUOMDlg::initDlg );
 }
 
@@ -2053,36 +2056,79 @@ uiWellLogUOMDlg::~uiWellLogUOMDlg()
 }
 
 
-void uiWellLogUOMDlg::fillTable( const BufferStringSet& wellnms )
+void uiWellLogUOMDlg::initDlg( CallBacker* )
+{
+}
+
+
+bool uiWellLogUOMDlg::readWellData( uiParent* p, const TypeSet<MultiID>& keys )
+{
+    const Well::LoadReqs lreqs( Well::Inf, Well::LogInfos );
+    MultiWellReader rdr( keys, wds_, lreqs );
+    uiTaskRunner taskrunner( p );
+    if ( !taskrunner.execute(rdr) )
+    {
+	uiMSG().errorWithDetails( rdr.details(), rdr.uiMessage() );
+	return false;
+    }
+
+    if ( rdr.hasFails() )
+	uiMSG().messageWithDetails( rdr.details(), rdr.uiMessage() );
+
+    return !wds_.isEmpty();
+}
+
+
+void uiWellLogUOMDlg::fillTable()
 {
     uominfotbl_ = new uiTable( this, uiTable::Setup()
 				    .manualresize(true)
 				    .fillrow(true)
 				    .removeselallowed(false),
-				"Units info" );
+				"Logs Units of Measure editor" );
     uiStringSet collbls;
     collbls.add( tr("Well name") )
            .add( tr("Log name") )
            .add( tr("Unit of measure") );
     uominfotbl_->setColumnLabels( collbls );
-    uominfotbl_->setColumnResizeMode( uiTable::ResizeToContents );
-    const int nrwls = wls_.size();
     int nrrows = 0;
-    for ( const auto* logset : wls_ )
-	nrrows += logset->size();
+    for ( int iwell=0; iwell<wds_.size(); iwell++ )
+    {
+	ConstRefMan<Well::Data> wd = wds_.get( iwell );
+	if ( !wd )
+	    continue;
 
-    uominfotbl_->setNrRows( nrrows );
+	const Well::LogSet& logs = wd->logs();
+	for ( const auto* lognm : lognms_ )
+	    if ( logs.isPresent(lognm->buf()) )
+		nrrows++;
+    }
+
+    uominfotbl_->setNrRows( nrrows > 0 ? nrrows : 5 );
+    uominfotbl_->setColumnResizeMode( uiTable::ResizeToContents );
+    uominfotbl_->setPrefWidth( 600 );
     uominfotbl_->setPrefHeight( 400 );
     uominfotbl_->setTableReadOnly( true );
 
     int rowidx = -1;
     bool withmnsel = false;
-    for ( int wlsidx=0; wlsidx<nrwls; wlsidx++ )
+    for ( int iwell=0; iwell<wds_.size(); iwell++ )
     {
-	const ObjectSet<Well::Log>* logset = wls_[wlsidx];
-	for ( const auto* log : *logset )
+	ConstRefMan<Well::Data> wd = wds_.get( iwell );
+	if ( !wd )
+	    continue;
+
+	const Well::LogSet& logs = wd->logs();
+	for ( const auto* nm : lognms_ )
 	{
-	    rowidx++;
+	    const char* lognm = nm->buf();
+	    if ( !logs.isPresent(lognm) )
+		continue;
+
+	    const Well::Log* log = logs.getLogInfos( lognm );
+	    if ( !log )
+		continue;
+
 	    const Mnemonic* mn = log->mnemonic();
 	    Mnemonic::StdType typ = Mnemonic::Other;
 	    bool usetype = false;
@@ -2108,89 +2154,75 @@ void uiWellLogUOMDlg::fillTable( const BufferStringSet& wellnms )
 
 	    unfld->setUnit( uom );
 	    unflds_ += unfld;
-	    uominfotbl_->setText( RowCol(rowidx,0), wellnms.get(wlsidx) );
-	    uominfotbl_->setText( RowCol(rowidx,1), log->name() );
+
+	    rowidx++;
+	    uominfotbl_->setText( RowCol(rowidx,0), wd->name() );
+	    uominfotbl_->setText( RowCol(rowidx,1), lognm );
 	    uominfotbl_->setCellGroup( RowCol(rowidx,2), unfld );
 
 	    withmnsel = withmnsel || !usetype;
 	}
     }
 
-    uominfotbl_->setPrefWidth( withmnsel ? 720 : 520 );
-}
-
-
-void uiWellLogUOMDlg::initDlg( CallBacker* )
-{
+    uominfotbl_->setPrefWidth( withmnsel ? 720 : 600 );
 }
 
 
 bool uiWellLogUOMDlg::setUoMValues()
 {
-    int logssz = 0;
-    for ( const auto* logset : wls_ )
-	logssz += logset->size();
+    for ( auto* editedlognms : editedlognmsset_ )
+	editedlognms->setEmpty();
 
-    if ( !logssz || logssz!=uominfotbl_->nrRows() )
+    for ( int row=0; row<uominfotbl_->nrRows(); row++ )
     {
-	uiMSG().message( tr("No logs found.") );
-	return false;
-    }
+	const BufferString wellnm( uominfotbl_->text( RowCol(row,0) ) );
+	if ( wellnm.isEmpty() )
+	    continue;
 
-    TypeSet<TypeSet<int>> uneditedidxs;
-    uneditedidxs.setSize( wls_.size() );
-    int row = 0;
-    for ( int idx=0; idx<wls_.size(); idx++ )
-    {
-	ObjectSet<Well::Log>* logset = wls_.get( idx );
-	for ( int lidx=0; lidx<logset->size(); lidx++ )
+	for ( int iwell=0; iwell<wds_.size(); iwell++ )
 	{
-	    Well::Log* log = logset->get( lidx );
-	    if ( !log )
-	    {
-		row++;
+	    RefMan<Well::Data> wd = wds_.get( iwell );
+	    if ( !wd || wd->name() != wellnm.buf() )
 		continue;
+
+	    Well::LogSet& logs = wd->logs();
+	    const BufferString logname( uominfotbl_->text( RowCol(row,1) ) );
+	    const char* lognm = logname.buf();
+	    if ( !logs.isPresent(lognm) )
+		continue;
+
+	    BufferStringSet* editedlognms = nullptr;
+	    if ( editedlognmsset_.validIdx(iwell) )
+	    {
+		editedlognms = editedlognmsset_.get( iwell );
+	    }
+	    else
+	    {
+		editedlognms = new BufferStringSet();
+		editedlognmsset_.add( editedlognms );
 	    }
 
 	    const uiUnitSel* unfld = unflds_[row];
 	    if ( unfld->hasMnemonicSelection() )
 	    {
-		const Mnemonic* mn =  unfld->mnemonic();
-		if ( mn && mn!=log->mnemonic() )
-		    log->setMnemonic( *mn );
+		const Mnemonic* curmn = logs.getMnemonicOfLog( lognm );
+		const Mnemonic* newmn =  unfld->mnemonic();
+		if ( newmn && newmn!=curmn )
+		{
+		    logs.setMnemonicOfLog( lognm, *newmn );
+		    editedlognms->addIfNew( lognm );
+		}
 	    }
 
-	    const UnitOfMeasure* uom = unfld->getUnit();
-	    if ( uom && uom!=log->unitOfMeasure() )
-		log->setUnitOfMeasure( unfld->getUnit() );
-	    else
+	    const UnitOfMeasure* curuom = logs.getUnitOfMeasureOfLog( lognm );
+	    const UnitOfMeasure* newuom = unfld->getUnit();
+	    if ( newuom && newuom!=curuom )
 	    {
-		uneditedidxs[idx].add( lidx );
-		row++;
-		continue;
+		logs.setUnitOfMeasureOfLog( lognm, newuom );
+		editedlognms->addIfNew( lognm );
 	    }
 
-	    row++;
-	}
-    }
-
-    for ( auto* logset : wls_ )
-    {
-	const int idx = wls_.indexOf( logset );
-	for ( int lidx=logset->size()-1; lidx>=0; lidx-- )
-	{
-	    if ( uneditedidxs[idx].isPresent(lidx) )
-		delete logset->removeSingle( lidx );
-	}
-    }
-
-    for ( int idx=wls_.size()-1; idx>=0; idx-- )
-    {
-	ObjectSet<Well::Log>* logset = wls_.get( idx );
-	if ( logset->isEmpty() )
-	{
-	    delete wls_.removeSingle( idx );
-	    keys_.removeSingle(idx);
+	    break;
 	}
     }
 
@@ -2207,14 +2239,16 @@ bool uiWellLogUOMDlg::acceptOK( CallBacker* )
 //============================================================================
 
 uiWellLogMnemDlg::uiWellLogMnemDlg( uiParent* p,
-				    ObjectSet<ObjectSet<Well::Log>>& wls,
-				    TypeSet<MultiID>& keys,
-				    const BufferStringSet& wellnms )
+				  const TypeSet<MultiID>& keys,
+				  const BufferStringSet& lognms,
+				  ObjectSet<BufferStringSet>& editedlognmsset )
     : uiDialog(p,Setup(tr("Set mnemonic for logs"),mNoHelpKey))
-    , wls_( wls )
-    , keys_( keys )
+    , lognms_(lognms)
+    , editedlognmsset_(editedlognmsset)
 {
-    fillTable( wellnms );
+    readWellData( p, keys );
+    fillTable();
+
     mAttachCB( postFinalize(), uiWellLogMnemDlg::initDlg );
 }
 
@@ -2225,36 +2259,78 @@ uiWellLogMnemDlg::~uiWellLogMnemDlg()
 }
 
 
-void uiWellLogMnemDlg::fillTable( const BufferStringSet& wellnms )
+void uiWellLogMnemDlg::initDlg( CallBacker* )
+{
+}
+
+
+bool uiWellLogMnemDlg::readWellData( uiParent* p, const TypeSet<MultiID>& keys )
+{
+    const Well::LoadReqs lreqs( Well::Inf, Well::LogInfos );
+    MultiWellReader rdr( keys, wds_, lreqs );
+    uiTaskRunner taskrunner( p );
+    if ( !taskrunner.execute(rdr) )
+    {
+	uiMSG().errorWithDetails( rdr.details(), rdr.uiMessage() );
+	return false;
+    }
+
+    if ( rdr.hasFails() )
+	uiMSG().messageWithDetails( rdr.details(), rdr.uiMessage() );
+
+    return !wds_.isEmpty();
+}
+
+
+void uiWellLogMnemDlg::fillTable()
 {
     mneminfotbl_ = new uiTable( this, uiTable::Setup()
 				    .manualresize(true)
 				    .fillrow(true)
 				    .removeselallowed(false),
-				"Units info" );
+				"Logs Mnemonic editor" );
     uiStringSet collbls;
     collbls.add( tr("Well name") )
 	   .add( tr("Log name") )
 	   .add( uiStrings::sMnemonic() );
     mneminfotbl_->setColumnLabels( collbls );
-    mneminfotbl_->setColumnResizeMode( uiTable::ResizeToContents );
-    const int nrwls = wls_.size();
     int nrrows = 0;
-    for ( const auto* logset : wls_ )
-	nrrows += logset->size();
+    for ( int iwell=0; iwell<wds_.size(); iwell++ )
+    {
+	ConstRefMan<Well::Data> wd = wds_.get( iwell );
+	if ( !wd )
+	    continue;
 
-    mneminfotbl_->setNrRows( nrrows );
+	const Well::LogSet& logs = wd->logs();
+	for ( const auto* lognm : lognms_ )
+	    if ( logs.isPresent(lognm->buf()) )
+		nrrows++;
+    }
+
+    mneminfotbl_->setNrRows( nrrows > 0 ? nrrows : 5 );
+    mneminfotbl_->setColumnResizeMode( uiTable::ResizeToContents );
     mneminfotbl_->setPrefWidth( 520 );
     mneminfotbl_->setPrefHeight( 400 );
     mneminfotbl_->setTableReadOnly( true );
 
     int rowidx = -1;
-    for ( int wlsidx=0; wlsidx<nrwls; wlsidx++ )
+    for ( int iwell=0; iwell<wds_.size(); iwell++ )
     {
-	const ObjectSet<Well::Log>* logset = wls_[wlsidx];
-	for ( const auto* log : *logset )
+	ConstRefMan<Well::Data> wd = wds_.get( iwell );
+	if ( !wd )
+	    continue;
+
+	const Well::LogSet& logs = wd->logs();
+	for ( const auto* nm : lognms_ )
 	{
-	    rowidx++;
+	    const char* lognm = nm->buf();
+	    if ( !logs.isPresent(lognm) )
+		continue;
+
+	    const Well::Log* log = logs.getLogInfos( lognm );
+	    if ( !log )
+		continue;
+
 	    const Mnemonic* mn = log->mnemonic( true );
 	    Mnemonic::StdType typ = Mnemonic::Other;
 	    bool usetype = false;
@@ -2275,83 +2351,69 @@ void uiWellLogMnemDlg::fillTable( const BufferStringSet& wellnms )
 	    auto* mnemfld = new uiMnemonicsSel( nullptr, mnsu );
 	    mnemfld->setMnemonic( mn ? *mn : Mnemonic::undef() );
 	    mnemflds_ += mnemfld;
-	    mneminfotbl_->setText( RowCol(rowidx,0), wellnms.get(wlsidx) );
-	    mneminfotbl_->setText( RowCol(rowidx,1), log->name() );
+
+	    rowidx++;
+	    mneminfotbl_->setText( RowCol(rowidx,0), wd->name() );
+	    mneminfotbl_->setText( RowCol(rowidx,1), lognm );
 	    mneminfotbl_->setCellGroup( RowCol(rowidx,2), mnemfld );
 	}
     }
 }
 
 
-void uiWellLogMnemDlg::initDlg( CallBacker* )
-{
-}
-
-
 bool uiWellLogMnemDlg::setMnemonics()
 {
-    int logssz = 0;
-    for ( const auto* logset : wls_ )
-	logssz += logset->size();
+    for ( auto* editedlognms : editedlognmsset_ )
+	editedlognms->setEmpty();
 
-    if ( !logssz || logssz!=mneminfotbl_->nrRows() )
+    for ( int row=0; row<mneminfotbl_->nrRows(); row++ )
     {
-	uiMSG().message( tr("No logs found.") );
-	return false;
-    }
+	const BufferString wellnm( mneminfotbl_->text( RowCol(row,0) ) );
+	if ( wellnm.isEmpty() )
+	    continue;
 
-    TypeSet<TypeSet<int>> uneditedidxs;
-    uneditedidxs.setSize( wls_.size() );
-    int row = 0;
-    for ( int idx=0; idx<wls_.size(); idx++ )
-    {
-	ObjectSet<Well::Log>* logset = wls_.get( idx );
-	for ( int lidx=0; lidx<logset->size(); lidx++ )
+	for ( int iwell=0; iwell<wds_.size(); iwell++ )
 	{
-	    Well::Log* log = logset->get(lidx);
-	    if ( !log )
-	    {
-		row++;
+	    RefMan<Well::Data> wd = wds_.get( iwell );
+	    if ( !wd || wd->name() != wellnm.buf() )
 		continue;
-	    }
 
-	    const Mnemonic* newmn =  mnemflds_[row]->mnemonic();
-	    if ( newmn && newmn!=log->mnemonic() )
-		log->setMnemonic( *newmn );
+	    Well::LogSet& logs = wd->logs();
+	    const BufferString logname( mneminfotbl_->text( RowCol(row,1) ) );
+	    const char* lognm = logname.buf();
+	    if ( !logs.isPresent(lognm) )
+		continue;
+
+	    BufferStringSet* editedlognms = nullptr;
+	    if ( editedlognmsset_.validIdx(iwell) )
+	    {
+		editedlognms = editedlognmsset_.get( iwell );
+	    }
 	    else
 	    {
-		uneditedidxs[idx].add( lidx );
-		row++;
-		continue;
+		editedlognms = new BufferStringSet();
+		editedlognmsset_.add( editedlognms );
 	    }
 
-	    const UnitOfMeasure* curuom = log->unitOfMeasure();
+	    const uiMnemonicsSel* mnfld = mnemflds_[row];
+	    const Mnemonic* curmn = logs.getMnemonicOfLog( lognm );
+	    const Mnemonic* newmn =  mnfld->mnemonic();
+	    if ( newmn && newmn!=curmn )
+	    {
+		logs.setMnemonicOfLog( lognm, *newmn );
+		editedlognms->addIfNew( lognm );
+	    }
+
+	    const UnitOfMeasure* curuom = logs.getUnitOfMeasureOfLog( lognm );
 	    const UnitOfMeasure* newmnuom = newmn->unit();
 	    if ( newmnuom &&
 		    (!curuom || !curuom->isCompatibleWith(*newmnuom)) )
-		log->setUnitOfMeasure( newmnuom );
+	    {
+		logs.setUnitOfMeasureOfLog( lognm, newmnuom );
+		editedlognms->addIfNew( lognm );
+	    }
 
-	    row++;
-	}
-    }
-
-    for ( auto* logset : wls_ )
-    {
-	const int idx = wls_.indexOf( logset );
-	for ( int lidx=logset->size()-1; lidx>=0; lidx-- )
-	{
-	    if ( uneditedidxs[idx].isPresent(lidx) )
-		delete logset->removeSingle( lidx );
-	}
-    }
-
-    for ( int idx=wls_.size()-1; idx>=0; idx-- )
-    {
-	ObjectSet<Well::Log>* logset = wls_.get( idx );
-	if ( logset->isEmpty() )
-	{
-	    delete wls_.removeSingle( idx );
-	    keys_.removeSingle(idx);
+	    break;
 	}
     }
 
@@ -2433,18 +2495,19 @@ uiTable* uiWellDefMnemLogDlg::Tables::createLogTable( uiGroup* tablegrp )
 
 void uiWellDefMnemLogDlg::Tables::createMnemRows()
 {
-    const Well::LogSet& logset = wd_->logs();
-    for ( int idx=0; idx<logset.size(); idx++ )
-	availmnems_.addIfNew( logset.getLog(idx).mnemonic() );
+    const Well::LogSet& logs = wd_->logs();
+    BufferStringSet lognms;
+    logs.getNames( lognms );
+    for ( const auto* lognm : lognms )
+	availmnems_.addIfNew( logs.getMnemonicOfLog(lognm->buf()) );
 }
 
 
 void uiWellDefMnemLogDlg::Tables::createLogRows()
 {
     ObjectSet<BufferStringSet> suitablelogsallmnems;
-    const Well::LogSet& currset = wd_->logs();
-    getSuitableLogNamesForMnems( currset,
-				 availmnems_,
+    const Well::LogSet& logs = wd_->logs();
+    getSuitableLogNamesForMnems( logs, availmnems_,
 				 suitablelogsallmnems );
 
     for ( const auto* suitablelogs : suitablelogsallmnems )
@@ -2498,22 +2561,23 @@ void uiWellDefMnemLogDlg::Tables::defLogChangedCB( CallBacker* cb )
     const int curritem = deflogfld->currentItem();
     const BufferString lognm( deflogfld->textOfItem(curritem) );
     if ( lognm == sNone() )
-	changedlog_ = nullptr;
+	changedlognm_.setEmpty();
     else
-	changedlog_ = wd_->logs().getLog( lognm.buf() );
+	changedlognm_.set( lognm.buf() );
 }
 
 
 void uiWellDefMnemLogDlg::Tables::setSavedDefaults()
 {
+    if ( !wd_ )
+	return;
+
     int row = 0;
     for ( const auto* mn : availmnems_ )
     {
-	const Well::Log* deflog = wd_->logs().getLog( *mn );
 	BufferString deflognm;
-	if ( deflog )
-	    deflognm = deflog->name();
-	else
+	deflognm = wd_->logs().getDefaultLogName( *mn );
+	if ( deflognm.isEmpty() )
 	    deflognm = sNone();
 
 	deflogsflds_.get(row)->setCurrentItem( deflognm.buf() );
@@ -2522,10 +2586,12 @@ void uiWellDefMnemLogDlg::Tables::setSavedDefaults()
 }
 
 
-void uiWellDefMnemLogDlg::Tables::setDefLog( const int idx,
-					      const Well::Log* log )
+void uiWellDefMnemLogDlg::Tables::setDefLog( const int idx, const char* log )
 {
-    const StringView lognm = log ? log->name().buf() : sNone();
+    StringView lognm( log );
+    if ( lognm.isEmpty() )
+	lognm = sNone();
+
     const int cbidx = deflogsflds_.get(idx)->indexOf( lognm );
     deflogsflds_.get(idx)->setCurrentItem( cbidx );
 }
@@ -2563,7 +2629,7 @@ void uiWellDefMnemLogDlg::Tables::getSuitableLogNamesForMnems(
 	auto* suitablelogs = new BufferStringSet( sNone() );
 	TypeSet<int> suitlogsidxs = logs.getSuitable( *mnem );
 	for ( const auto idx : suitlogsidxs )
-	    suitablelogs->add( logs.getLog(idx).name() );
+	    suitablelogs->add( logs.getLogNameByIdx(idx) );
 
 	suitlogsforallmnems.add( suitablelogs );
     }
@@ -2577,12 +2643,7 @@ uiWellDefMnemLogDlg::uiWellDefMnemLogDlg( uiParent* p,
 		       mODHelpKey(mWellDefaultMnemonicLogHelpID)))
 {
     RefObjectSet<Well::Data> wds;
-    Well::LoadReqs loadreqs( Well::LogInfos );
-    MultiWellReader wtrdr( keys, wds, loadreqs );
-    TaskRunner::execute( nullptr, wtrdr );
-    if ( !wtrdr.allWellsRead() )
-	uiMSG().errorWithDetails( wtrdr.uiMessage(),
-			    tr("Some wells could not be read") );
+    readWellData( p, keys, wds );
 
     BufferStringSet wellnms;
     for ( const auto* wd : wds )
@@ -2593,8 +2654,7 @@ uiWellDefMnemLogDlg::uiWellDefMnemLogDlg( uiParent* p,
     auto* sep = new uiSeparator( this );
     sep->attach( stretchedBelow, applytobut_ );
     welllist_ = new uiListBox( this, "Wells" );
-    welllist_->addLabel( tr("Select Well"),
-			 uiListBox::AboveMid );
+    welllist_->addLabel( tr("Select Well"), uiListBox::AboveMid );
     welllist_->setFieldWidth( 4 );
     welllist_->addItems( wellnms );
     welllist_->attach( ensureBelow, sep );
@@ -2602,9 +2662,13 @@ uiWellDefMnemLogDlg::uiWellDefMnemLogDlg( uiParent* p,
     tablegrp_ = new uiGroup( this, "Table Group" );
     tablegrp_->attach( ensureBelow, sep );
     tablegrp_->attach( rightOf, welllist_ );
-    for ( auto* wd : wds )
+    for ( int iwell=0; iwell<wds.size(); iwell++ )
     {
-	auto* table = new Tables( *wd, tablegrp_, mns );
+	RefMan<Well::Data> wd = wds.get( iwell );
+	if ( !wd )
+	    continue;
+
+	auto* table = new Tables( *wd.ptr(), tablegrp_, mns );
 	mAttachCB( table->getTable().valueChanged,
 		   uiWellDefMnemLogDlg::logChangedCB );
 	tables_ += table;
@@ -2630,6 +2694,26 @@ void uiWellDefMnemLogDlg::initDlg( CallBacker* )
 }
 
 
+bool uiWellDefMnemLogDlg::readWellData( uiParent* p,
+					const TypeSet<MultiID>& keys,
+					RefObjectSet<Well::Data>& wds )
+{
+    const Well::LoadReqs lreqs( Well::Inf, Well::LogInfos );
+    MultiWellReader rdr( keys, wds, lreqs );
+    uiTaskRunner taskrunner( p );
+    if ( !taskrunner.execute(rdr) )
+    {
+	uiMSG().errorWithDetails( rdr.details(), rdr.uiMessage() );
+	return false;
+    }
+
+    if ( rdr.hasFails() )
+	uiMSG().messageWithDetails( rdr.details(), rdr.uiMessage() );
+
+    return true;
+}
+
+
 void uiWellDefMnemLogDlg::changeModeCB( CallBacker* )
 {
     if ( applytobut_->isChecked() )
@@ -2647,16 +2731,23 @@ void uiWellDefMnemLogDlg::logChangedCB( CallBacker* )
 	return;
 
     const int curwell = welllist_->currentItem();
-    const Mnemonic* mn = tables_.get(curwell)->changedMnem();
-    const Well::Log* preflog = tables_.get(curwell)->changedLog();
+    if ( !tables_.validIdx(curwell) )
+	return;
+
+    const Tables& curtable = *tables_.get( curwell );
+    const Mnemonic* mn = curtable.changedMnem();
+    const BufferString preflognm = curtable.changedLogName();
     for ( auto* table : tables_ )
     {
-	if ( !table->hasMnem(mn) &&
-	     table->wellData()->logs().isPresent(preflog->name()))
+	ConstRefMan<Well::Data> wd =  table->wellData();
+	if ( !wd )
+	    continue;
+
+	if ( !table->hasMnem(mn) && wd->logs().isPresent(preflognm.buf()) )
 	    continue;
 
 	const int idx = table->availMnems().indexOf( mn );
-	table->setDefLog( idx, preflog );
+	table->setDefLog( idx, preflognm.buf() );
     }
 }
 
@@ -2693,6 +2784,9 @@ bool uiWellDefMnemLogDlg::acceptOK( CallBacker* )
     {
 	int row = 0;
 	RefMan<Well::Data> wd = table->wellData();
+	if ( !wd )
+	    continue;
+
 	for ( const auto* mn : table->availMnems() )
 	{
 	    mDynamicCastGet(uiComboBox*,currgen,

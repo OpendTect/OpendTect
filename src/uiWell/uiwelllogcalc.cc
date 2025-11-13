@@ -18,6 +18,7 @@ ________________________________________________________________________
 #include "uimsg.h"
 #include "uirockphysform.h"
 #include "uiseparator.h"
+#include "uitaskrunner.h"
 #include "uitoolbutton.h"
 #include "uiunitsel.h"
 #include "uiwelllogdisplay.h"
@@ -27,10 +28,9 @@ ________________________________________________________________________
 #include "mathspecvars.h"
 #include "mousecursor.h"
 #include "od_helpids.h"
-#include "ptrman.h"
 #include "survinfo.h"
+#include "timer.h"
 #include "welld2tmodel.h"
-#include "welldata.h"
 #include "welllog.h"
 #include "welllogset.h"
 #include "wellman.h"
@@ -106,9 +106,10 @@ uiWellLogCalc::uiWellLogCalc( uiParent* p, const TypeSet<MultiID>& wllids,
     : uiDialog(p,Setup(tr("Calculate New Logs"),getDlgTitle(wllids),
 		       mODHelpKey(mWellLogCalcHelpID)))
     , logschanged(this)
-    , superwls_(*new Well::LogSet)
     , form_(*new Math::Formula(true,getSpecVars()))
     , wellids_(wllids)
+    , rockphysmode_(rockphysmode)
+    , timer_(*new Timer("Well log calc WD timer"))
 {
     if ( wellids_.isEmpty() )
     {
@@ -130,7 +131,6 @@ uiWellLogCalc::uiWellLogCalc( uiParent* p, const TypeSet<MultiID>& wllids,
     formfld_->addInpViewIcon( "view_log", tr("Display this log"),
 			      mCB(this,uiWellLogCalc,vwLog) );
     formfld_->setNonSpecInputs( lognms_, -1, &mnsel_ );
-    mAttachCB( formfld_->inpSet, uiWellLogCalc::inpSel );
     mAttachCB( formfld_->formMnSet, uiWellLogCalc::formMnSet );
     const CallBack rockphyscb( mCB(this,uiWellLogCalc,rockPhysReq) );
     uiToolButtonSetup tbsu( "rockphys", tr("Choose rockphysics formula"),
@@ -140,14 +140,7 @@ uiWellLogCalc::uiWellLogCalc( uiParent* p, const TypeSet<MultiID>& wllids,
     auto* sep = new uiSeparator( this, "sep" );
     sep->attach( stretchedBelow, formfld_ );
 
-    float defsr = SI().depthsInFeet() ? 0.5f : 0.1524f;
-    if ( !superwls_.isEmpty() )
-    {
-	defsr = superwls_.getLog(0).dahStep( false );
-	if ( SI().depthsInFeet() )
-	    defsr *= mToFeetFactorF;
-    }
-
+    const float defsr = SI().depthsInFeet() ? 0.5f : 0.1524f;
     srfld_ = new uiGenInput( this, uiStrings::phrOutput( tr("sample distance")),
 			     FloatInpSpec(defsr) );
     srfld_->attach( alignedBelow, formfld_ );
@@ -174,21 +167,36 @@ uiWellLogCalc::uiWellLogCalc( uiParent* p, const TypeSet<MultiID>& wllids,
 
     uiUnitSel::Setup uussu( Mnemonic::Other,
 			    tr("New log's unit of measure") );
-    uussu.mode( uiUnitSel::Setup::SymbolsOnly ).variableszpol(true);
+    uussu.mode( uiUnitSel::Setup::SymbolsOnly ).variableszpol( true );
     outunfld_ = new uiUnitSel( this, uussu );
     outunfld_->attach( alignedBelow, lcb );
     outunfld_->attach( ensureRightOf, viewlogbut_ );
 
-    if ( rockphysmode )
-	afterPopup.notify( rockphyscb );
+    mAttachCB( timer_.tick, uiWellLogCalc::releaseWDS );
+    mAttachCB( afterPopup, uiWellLogCalc::afterPopupCB );
 }
 
 
 uiWellLogCalc::~uiWellLogCalc()
 {
     detachAllNotifiers();
+    delete &timer_;
     delete &form_;
-    delete &superwls_;
+}
+
+
+void uiWellLogCalc::afterPopupCB( CallBacker* cb )
+{
+    resetTimer();
+    if ( rockphysmode_ )
+	rockPhysReq( cb );
+}
+
+
+void uiWellLogCalc::resetTimer()
+{
+    timer_.stop();
+    timer_.start( 360000, true ); //One hour
 }
 
 
@@ -200,6 +208,7 @@ bool uiWellLogCalc::updateWells( const TypeSet<MultiID>& wellids )
 	uiMSG().error(tr( "No wells.\nPlease import or create a well first.") );
 	return false;
     }
+
     setTitleText( tr("%1").arg(getDlgTitle(wellids_)) );
     getAllLogs();
     return true;
@@ -208,55 +217,28 @@ bool uiWellLogCalc::updateWells( const TypeSet<MultiID>& wellids )
 
 void uiWellLogCalc::getAllLogs()
 {
-    for ( int idx=0; idx<wellids_.size(); idx++ )
+    const Well::LoadReqs lreqs( Well::LogInfos );
+    MultiWellReader rdr( wellids_, wds_, lreqs );
+    uiTaskRunner uitr( this );
+    if ( !uitr.execute(rdr) )
     {
-	const MultiID wmid = wellids_[idx];
-	RefMan<Well::Data> wd = new Well::Data;
-	PtrMan<Well::Reader> wrdr;
-	BufferStringSet nms;
-	if ( Well::MGR().isLoaded(wmid ) )
-	{
-	    wd = Well::MGR().get( wmid );
-	    if ( !wd ) continue;
-	    wd->logs().getNames( nms );
-	}
-	else
-	{
-	    wrdr = new Well::Reader( wmid, *wd );
-	    wrdr->getLogInfo( nms );
-	}
-
-	bool havenewlog = false;
-	for ( int inm=0; inm<nms.size(); inm++ )
-	{
-	    const char* lognm = nms.get(inm).buf();
-	    if ( !lognms_.isPresent(lognm) )
-	    {
-		havenewlog = true;
-		lognms_.add( lognm );
-	    }
-	}
-
-	if ( havenewlog )
-	{
-	    if ( wrdr && !wrdr->getLogs(false) )
-		continue;
-
-	    for ( int ilog=0; ilog<wd->logs().size(); ilog++ )
-	    {
-		const Well::Log& wl = wd->logs().getLog( ilog );
-		if ( !superwls_.getLog(wl.name().buf()) )
-		    superwls_.add( new Well::Log(wl) );
-	    }
-	}
+	uiMSG().error( rdr.uiMessage() );
+	return;
     }
 
     mnsel_.setEmpty();
-    for ( const auto* lognm : lognms_ )
+    for ( int idx=0; idx<wds_.size(); idx++ )
     {
-	const Well::Log* wl = superwls_.getLog( lognm->str() );
-	if ( wl )
-	    mnsel_.add( wl->mnemonic() );
+	ConstRefMan<Well::Data> wd = wds_[idx];
+	if ( !wd )
+	    continue;
+
+	const Well::LogSet& logs = wd->logs();
+	BufferStringSet lognms;
+	logs.getNames( lognms );
+	lognms_.add( lognms, false );
+	for ( const auto* lognm : lognms )
+	    mnsel_.add( logs.getMnemonicOfLog(lognm->buf()) );
     }
 
     if ( mnsel_.size() < lognms_.size() )
@@ -301,7 +283,7 @@ void uiWellLogCalc::rockPhysReq( CallBacker* )
     const Mnemonic* mn = form_.outputMnemonic();
     const Mnemonic::StdType typ = mn ? mn->stdType() : Mnemonic::Other;
     uiWellLogCalcRockPhys dlg( this, typ );
-    if ( !dlg.go() )
+    if ( dlg.go() != uiDialog::Accepted )
 	return;
 
     dlg.getFormulaInfo( form_ );
@@ -319,40 +301,27 @@ void uiWellLogCalc::feetSel( CallBacker* )
 }
 
 
-Well::Log* uiWellLogCalc::getLog4InpIdx( Well::LogSet& wls, const char* lognm )
+const Well::Log* uiWellLogCalc::getFirstLog4InpIdx( const char* lognm ) const
 {
-    return wls.getLog( lognm );
-}
-
-
-void uiWellLogCalc::fillSRFld( const char* lognm )
-{
-    float sr = srfld_->getFValue();
-    if ( !mIsUdf(sr) )
-	return;
-
-    const Well::Log* wl = getLog4InpIdx( superwls_, lognm );
-    if ( wl && !wl->isEmpty() )
-	sr = wl->dahStep( false );
-    if ( !mIsUdf(sr) )
+    const BufferStringSet lognms( lognm );
+    const Well::LoadReqs lreqs( lognms );
+    for ( int idx=0; idx<wds_.size(); idx++ )
     {
-	if ( ftbox_->isChecked() )
-	    sr *= mToFeetFactorF;
-	srfld_->setValue( sr );
+	ConstRefMan<Well::Data> wd = wds_[idx];
+	if ( !wd )
+	    continue;
+
+	const Well::LogSet& logs = wd->logs();
+	if ( !logs.isPresent(lognm) )
+	    continue;
+
+	if ( !Well::MGR().get(wd->multiID(),lreqs) )
+	    continue;
+
+	return logs.getLog( lognm );
     }
-}
 
-
-void uiWellLogCalc::inpSel( CallBacker* cb )
-{
-    mDynamicCastGet(uiMathExpressionVariable*,inpfld,cb);
-    if ( !inpfld || !inpfld->isActive() ||
-	  inpfld->isConst() || inpfld->isSpec() )
-	return;
-
-    const BufferString inpnm( inpfld->getInput() );
-
-    fillSRFld( inpnm.buf() );
+    return nullptr;
 }
 
 
@@ -383,29 +352,21 @@ void uiWellLogCalc::vwLog( CallBacker* cb )
     if ( inpnr < 0 )
 	return;
 
-    const Well::Log* wl = getLog4InpIdx( superwls_, formfld_->getInput(inpnr) );
-    if ( !wl )
+    const Well::Log* log = getFirstLog4InpIdx( formfld_->getInput(inpnr) );
+    if ( !log || !log->isLoaded() )
 	return;
 
     uiWellLogDisplay::Setup wldsu;
     wldsu.nrmarkerchars( 10 );
-    uiWellLogDispDlg* dlg = new uiWellLogDispDlg( this, wldsu, true );
-    dlg->setLog( wl, true );
+    auto* dlg = new uiWellLogDispDlg( this, wldsu, true );
+    dlg->setLog( log, true );
     dlg->setDeleteOnClose( true );
     dlg->show();
 }
 
 
 #define mErrRet(s) { uiMSG().error(s); return false; }
-
-#define mErrContinue(s) { deleteLog(inpdatas); uiMSG().error(s); continue; }
-
-void uiWellLogCalc::deleteLog( TypeSet<InpData>& inpdatas )
-{
-    for ( int idx=0; idx<inpdatas.size(); idx++ )
-	deleteAndNullPtr( inpdatas[idx].wl_ );
-}
-
+#define mErrContinue(s) { uiMSG().error(s); continue; }
 
 bool uiWellLogCalc::acceptOK( CallBacker* )
 {
@@ -418,11 +379,11 @@ bool uiWellLogCalc::acceptOK( CallBacker* )
     const BufferString newnm = nmfld_ ? nmfld_->text() : "";
     if ( newnm.isEmpty() )
 	mErrRet(tr("Please provide a name for the new log"))
-    if ( lognms_.isPresent(newnm) || superwls_.getLog(newnm.buf()) )
+    if ( lognms_.isPresent(newnm.buf()) || getFirstLog4InpIdx(newnm.buf()) )
     {
 	const bool ret = uiMSG().askOverwrite(
 			tr("A log with this name already exists."
-			"\nDo you want to overwrite it?"));
+			"\nDo you want to overwrite it?") );
 	if ( !ret )
 	    return false;
     }
@@ -440,32 +401,51 @@ bool uiWellLogCalc::acceptOK( CallBacker* )
     bool successfulonce = false;
     uiRetVal errormsg;
     uiString errorstr;
-    for ( int iwell=0; iwell<wellids_.size(); iwell++ )
+    for ( const auto& wmid : wellids_ )
     {
-	TypeSet<InpData> inpdatas;
-	const MultiID wmid = wellids_[iwell];
-	RefMan<Well::Data> wd = Well::MGR().get( wmid );
-	if ( !wd )
+	ManagedObjectSet<InpData> inpdatas;
+	Well::LoadReqs lreqs( Well::Trck );
+	if ( !getInpDatas(wmid,inpdatas,lreqs,errorstr) )
 	{
-	    deleteLog( inpdatas );
-	    errormsg.add( tr("%1").arg(Well::MGR().errMsg()) );
+	    errormsg.add( errorstr );
 	    continue;
 	}
 
-	Well::LogSet& wls = wd->logs();
-	// TODO: Change to an ObjectSet. Can not do proper memory management
-	// with a TypeSet. Hence the addition of deleteLog.
-	if ( !getInpDatas(wls,inpdatas,errorstr) )
+	ConstRefMan<Well::Data> wd = Well::MGR().get( wmid, lreqs );
+	if ( !wd )
 	{
-	    errormsg.add( tr("%1: %2").arg(wd->name()).arg(errorstr) );
-	    deleteLog( inpdatas );
+	    errormsg.add( Well::MGR().errMsg() );
 	    continue;
+	}
+
+	if ( !lreqs.logNames().isEmpty() )
+	{
+	    bool haserror = false;
+	    for ( auto* inpdata : inpdatas )
+	    {
+		if ( inpdata->lognm_.isEmpty() )
+		    continue;
+
+		const Well::Log* inplog =
+				wd->logs().getLog( inpdata->lognm_.str() );
+		if ( !inplog || !inplog->isLoaded() )
+		{
+		    errormsg.add( tr("Cannot read input logs for well '%1'")
+					.arg(wd->name()) );
+		    haserror = true;
+		    break;
+		}
+
+		inpdata->wl_ = inplog;
+	    }
+
+	    if ( haserror )
+		continue;
 	}
 
 	PtrMan<Well::Log> newwl = new Well::Log( newnm );
-	if ( !calcLog(*newwl,inpdatas,wd->track(),wd->d2TModel()) )
+	if ( !calcLog(inpdatas,wd->track(),wd->d2TModel(),*newwl.ptr()) )
 	{
-	    deleteLog( inpdatas );
 	    errormsg.add( tr("Cannot compute log for %1").arg(wd->name()) );
 	    continue;
 	}
@@ -476,13 +456,11 @@ bool uiWellLogCalc::acceptOK( CallBacker* )
 	newwl->setUnitOfMeasure( outun );
 	if ( !Well::MGR().writeAndRegister(wmid,newwl) )
 	{
-	    deleteLog( inpdatas );
 	    errormsg.add( Well::MGR().errMsg() );
 	    continue;
 	}
 
 	successfulonce = true;
-	deleteLog( inpdatas );
     }
 
     if ( !successfulonce )
@@ -502,27 +480,31 @@ bool uiWellLogCalc::acceptOK( CallBacker* )
     havenew_ = true;
     viewlogbut_->setSensitive( true );
     logschanged.trigger();
+    resetTimer();
+
     return false;
 }
 
 
-bool uiWellLogCalc::getInpDatas( Well::LogSet& wls,
-				 TypeSet<uiWellLogCalc::InpData>& inpdatas,
-				 uiString& errorstr )
+bool uiWellLogCalc::getInpDatas( const MultiID& wid,
+				 ObjectSet<InpData>& inpdatas,
+				 Well::LoadReqs& lreqs, uiString& errorstr )
 {
     for ( int iinp=0; iinp<form_.nrInputs(); iinp++ )
     {
 	if ( form_.isConst(iinp) )
 	{
-	    InpData inpd; inpd.isconst_ = true;
-	    inpd.constval_ = form_.getConstVal( iinp );
-	    if ( mIsUdf(inpd.constval_) )
+	    PtrMan<InpData> inpd = new InpData;
+	    inpd->isconst_ = true;
+	    inpd->constval_ = form_.getConstVal( iinp );
+	    if ( mIsUdf(inpd->constval_) )
 	    {
 		errorstr = tr("Please enter a value for %1")
 						.arg(form_.variableName(iinp));
 		return false;
 	    }
-	    inpdatas += inpd;
+
+	    inpdatas.add( inpd.release() );
 	    continue;
 	}
 
@@ -530,35 +512,23 @@ bool uiWellLogCalc::getInpDatas( Well::LogSet& wls,
 	const TypeSet<int>& reqshifts = form_.getShifts( iinp );
 	for ( int ishft=0; ishft<reqshifts.size(); ishft++ )
 	{
-	    InpData inpd;
-	    inpd.shift_ = reqshifts[ishft];
+	    PtrMan<InpData> inpd = new InpData;
+	    inpd->shift_ = reqshifts[ishft];
 	    if ( specidx < 0 )
 	    {
-		inpd.wl_ = getInpLog( wls, iinp );
-		if ( !inpd.wl_ )
-		{
-		    errorstr = tr("%1: empty log").arg(toUiString(
-						     form_.inputDef(iinp)));
-		    return false;
-		}
+		inpd->lognm_ = formfld_->getInput( iinp );
+		lreqs.include( Well::LogInfos );
+		lreqs.addLog( inpd->lognm_.buf() );
 	    }
+	    else if ( inpd->specidx_ == mTWTIdx || inpd->specidx_ == mVelIdx )
+		lreqs.include( Well::D2T );
 
-	    inpd.specidx_ = specidx;
-	    inpdatas += inpd;
+	    inpd->specidx_ = specidx;
+	    inpdatas.add( inpd.release() );
 	}
     }
 
     return true;
-}
-
-
-Well::Log* uiWellLogCalc::getInpLog( Well::LogSet& wls, int inpidx )
-{
-    Well::Log* inplog = getLog4InpIdx( wls, formfld_->getInput(inpidx) );
-    if ( !inplog || inplog->isEmpty() )
-	return nullptr;
-
-    return new Well::Log( *inplog );
 }
 
 
@@ -583,27 +553,28 @@ static void selectInpVals( const TypeSet<double>& noudfinpvals,
 }
 
 
-bool uiWellLogCalc::calcLog( Well::Log& wlout,
-			     const TypeSet<uiWellLogCalc::InpData>& inpdatas,
-			     Well::Track& track, Well::D2TModel* d2t )
+bool uiWellLogCalc::calcLog( const ObjectSet<InpData>& inpdatas,
+			     const Well::Track& track,const Well::D2TModel* d2t,
+			     Well::Log& wlout )
 {
     form_.startNewSeries();
 
-    Interval<float> dahrg( mUdf(float), mUdf(float) );
-    for ( int iinp=0; iinp<inpdatas.size(); iinp++ )
+    Interval<float> dahrg = Interval<float>::udf();
+    for ( const auto* inpd : inpdatas )
     {
-	if ( !inpdatas[iinp].wl_ )
+	if ( !inpd->wl_ )
 	    continue;
 
 	if ( dahrg.isUdf() )
-	    dahrg = inpdatas[iinp].wl_->dahRange();
+	    dahrg = inpd->wl_->dahRange();
 	else
-	    dahrg.include( inpdatas[iinp].wl_->dahRange(), false );
+	    dahrg.include( inpd->wl_->dahRange(), false );
     }
+
     if ( dahrg.isUdf() )
 	dahrg = track.dahRange();
 
-    const StepInterval<float> samprg( dahrg.start_, dahrg.stop_, zsampintv_ );
+    const ZSampling samprg( dahrg.start_, dahrg.stop_, zsampintv_ );
     const int nrsamps = samprg.nrSteps() + 1;
     const int interppol = interppolfld_->currentItem();
     TypeSet<double> inpvals( inpdatas.size(), 0. );
@@ -615,7 +586,7 @@ bool uiWellLogCalc::calcLog( Well::Log& wlout,
 	noudfinpvals.setAll( mUdf(double) );
 	for ( int iinp=0; iinp<inpdatas.size(); iinp++ )
 	{
-	    const uiWellLogCalc::InpData& inpd = inpdatas[iinp];
+	    const InpData& inpd = *inpdatas.get( iinp );
 	    const float curdah = dah + samprg.step_ * inpd.shift_;
 	    if ( inpd.wl_ )
 	    {
@@ -678,18 +649,23 @@ bool uiWellLogCalc::calcLog( Well::Log& wlout,
 
 
 void uiWellLogCalc::setOutputLogName( const char* nm )
-{ if ( nmfld_ ) nmfld_->setText( nm ); }
+{
+    if ( nmfld_ )
+	nmfld_->setText( nm );
+}
 
 
 const char* uiWellLogCalc::getOutputLogName() const
-{ return nmfld_ ? nmfld_->text() : 0; }
+{
+    return nmfld_ ? nmfld_->text() : nullptr;
+}
 
 
 void uiWellLogCalc::viewOutputCB( CallBacker* )
 {
     const char* lognm = getOutputLogName();
-    const Well::Log* wl = superwls_.getLog( lognm );
-    if ( !wl )
+    const Well::Log* log = getFirstLog4InpIdx( lognm );
+    if ( !log )
     {
 	uiMSG().error( tr("Can not find log '%1' for this well.").arg(lognm) );
 	return;
@@ -697,8 +673,28 @@ void uiWellLogCalc::viewOutputCB( CallBacker* )
 
     uiWellLogDisplay::Setup wldsu;
     wldsu.nrmarkerchars( 10 );
-    uiWellLogDispDlg* dlg = new uiWellLogDispDlg( this, wldsu, true );
-    dlg->setLog( wl, true );
+    auto* dlg = new uiWellLogDispDlg( this, wldsu, true );
+    dlg->setLog( log, true );
     dlg->setDeleteOnClose( true );
     dlg->show();
 }
+
+
+void uiWellLogCalc::releaseWDS( CallBacker* )
+{
+    /*After one hour of inactivity, this GUI releases its well data,
+      but not before, to avoid re-reading the well data too frequently
+      if nothing else locks it */
+
+    wds_.setEmpty();
+}
+
+
+// uiWellLogCalc::InpData
+
+uiWellLogCalc::InpData::InpData()
+{}
+
+
+uiWellLogCalc::InpData::~InpData()
+{}
