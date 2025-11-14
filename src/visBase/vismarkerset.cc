@@ -447,6 +447,13 @@ void MarkerSet::insertPos( int idx, const Coord3& crd, bool draw )
 	coords_->insertPos( idx, crd );
 
     onoffarr_->resizeArray( coords_->size() );
+    auto* barr = dCast( osg::ByteArray*, onoffarr_ );
+    if ( barr )
+    {
+	for ( int ida=coords_->size()-1; ida>idx; ida--)
+	    (*barr)[ida] = (*barr)[ida-1];
+    }
+
     markerset_->turnMarkerOn( idx, draw );
     if ( draw && markerset_ )
 	markerset_->forceRedraw( true );
