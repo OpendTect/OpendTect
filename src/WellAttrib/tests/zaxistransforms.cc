@@ -57,70 +57,70 @@ static const float zvalues_flt[7][8][2] =
 	{ 475.2301330f, 1043.8642578f }, //T2D : tablet2did_ft
 	{ 718.2444970f, 1557.4968164f }, //T2D : Linear
 	{ 458.2054040f, 1055.7767236f }, //T2D : Velocity
-	{ 0.4831075f, 1.0219321f }, //D2T : tablet2did_m
-	{ 0.4831075f, 1.0219321f }, //D2T : tablet2did_ft
-	{ 0.3243359f, 0.6938919f }, //D2T : Linear
-	{ 0.5004789f, 1.0120050f }  //D2T : Velocity
+	{ 0.483107567f, 1.021932130f }, //D2T : tablet2did_m
+	{ 0.483107567f, 1.021932130f }, //D2T : tablet2did_ft
+	{ 0.324335963f, 0.693891943f }, //D2T : Linear
+	{ 0.500479281f, 1.012004970f }	//D2T : Velocity
     },
     { //F3_Test_Survey_DepthFT
 	{ 1559.1539796f, 3424.7515019f }, //T2D : tablet2did_m
 	{ 1559.1539796f, 3424.7515019f }, //T2D : tablet2did_ft
 	{ 2356.4450683f, 5109.8974609f }, //T2D : Linear
 	{ 1503.2985839f, 3463.8337402f }, //T2D : Velocity
-	{ 0.4831075f, 1.0219321f }, //D2T : tablet2did_m
-	{ 0.4831075f, 1.0219321f }, //D2T : tablet2did_ft
-	{ 0.3243359f, 0.6938919f }, //D2T : Linear
-	{ 0.5004791f, 1.0120050f }  //D2T : Velocity
+	{ 0.483107567f, 1.021932130f }, //D2T : tablet2did_m
+	{ 0.483107567f, 1.021932130f }, //D2T : tablet2did_ft
+	{ 0.324335963f, 0.693891943f }, //D2T : Linear
+	{ 0.500479162f, 1.012005090f }	//D2T : Velocity
     },
     { //F3_Test_Survey_DisplayFT
 	{ 1559.1539306f, 3424.7514648f }, //T2D : tablet2did_m
 	{ 1559.1539306f, 3424.7514648f }, //T2D : tablet2did_ft
 	{ 2356.4450683f, 5109.8974609f }, //T2D : Linear
 	{ 1503.2985839f, 3463.8339843f }, //T2D : Velocity
-	{ 0.4831075f, 1.0219321f }, //D2T : tablet2did_m
-	{ 0.4831075f, 1.0219321f }, //D2T : tablet2did_ft
-	{ 0.3243359f, 0.6938919f }, //D2T : Linear
-	{ 0.5004789f, 1.0120050f }  //D2T : Velocity
+	{ 0.483107567f, 1.021932130f }, //D2T : tablet2did_m
+	{ 0.483107567f, 1.021932130f }, //D2T : tablet2did_ft
+	{ 0.324335963f, 0.693891943f }, //D2T : Linear
+	{ 0.500479281f, 1.012005090f }	//D2T : Velocity
     },
     { //F3_Test_Survey_XYinft
 	{ 1559.1540527f, 3424.7514648f }, //T2D : tablet2did_m
 	{ 1559.1540527f, 3424.7514648f }, //T2D : tablet2did_ft
 	{ 2356.4453125f, 5109.8974609f }, //T2D : Linear
 	{ 1503.2987060f, 3463.8339843f }, //T2D : Velocity
-	{ 0.4831075f, 1.0219321f }, //D2T : tablet2did_m
-	{ 0.4831075f, 1.0219321f }, //D2T : tablet2did_ft
-	{ 0.3243359f, 0.6938920f }, //D2T : Linear
-	{ 0.5004789f, 1.0120050f }  //D2T : Velocity
+	{ 0.483107597f, 1.021932130f }, //D2T : tablet2did_m
+	{ 0.483107597f, 1.021932130f }, //D2T : tablet2did_ft
+	{ 0.324335992f, 0.693892002f }, //D2T : Linear
+	{ 0.500479341f, 1.012005090f }	//D2T : Velocity
     },
     { //F3_Test_Survey_DepthM
 	{ 475.2301330f, 1043.8642578f }, //T2D : tablet2did_m
 	{ 475.2301330f, 1043.8642578f }, //T2D : tablet2did_ft
 	{ 718.2444970f, 1557.4968164f }, //T2D : Linear
 	{ 458.2054138f, 1055.7766113f }, //T2D : Velocity
-	{ 0.4831075f, 1.0219321f }, //D2T : tablet2did_m
-	{ 0.4831075f, 1.0219321f }, //D2T : tablet2did_ft
-	{ 0.3243359f, 0.6938919f }, //D2T : Linear
-	{ 0.5004795f, 1.0120050f }  //D2T : Velocity
+	{ 0.483107567f, 1.021932130f }, //D2T : tablet2did_m
+	{ 0.483107567f, 1.021932130f }, //D2T : tablet2did_ft
+	{ 0.324335963f, 0.693891943f }, //D2T : Linear
+	{ 0.500479519f, 1.012005090f }	//D2T : Velocity
     },
     { //F3_Test_Survey_DepthM_XYinft
 	{ 475.2301330f, 1043.8642578f }, //T2D : tablet2did_m
 	{ 475.2301330f, 1043.8642578f }, //T2D : tablet2did_ft
 	{ 718.2444970f, 1557.4968164f }, //T2D : Linear
 	{ 458.2054040f, 1055.7766113f }, //T2D : Velocity
-	{ 0.4831075f, 1.0219321f }, //D2T : tablet2did_m
-	{ 0.4831075f, 1.0219321f }, //D2T : tablet2did_ft
-	{ 0.3243359f, 0.6938919f }, //D2T : Linear
-	{ 0.5004789f, 1.0120050f }  //D2T : Velocity
+	{ 0.483107567f, 1.021932130f }, //D2T : tablet2did_m
+	{ 0.483107567f, 1.021932130f }, //D2T : tablet2did_ft
+	{ 0.324335963f, 0.693891943f }, //D2T : Linear
+	{ 0.500479519f, 1.012005090f }	//D2T : Velocity
     },
     { //F3_Test_Survey_DepthFT__XYinft_
 	{ 1559.1540527f, 3424.7514648f }, //T2D : tablet2did_m
 	{ 1559.1540527f, 3424.7514648f }, //T2D : tablet2did_ft
 	{ 2356.4453125f, 5109.8974609f }, //T2D : Linear
 	{ 1503.2987060f, 3463.8337402f }, //T2D : Velocity
-	{ 0.4831075f, 1.0219321f }, //D2T : tablet2did_m
-	{ 0.4831075f, 1.0219321f }, //D2T : tablet2did_ft
-	{ 0.3243359f, 0.6938919f }, //D2T : Linear
-	{ 0.5004789f, 1.0120050f }  //D2T : Velocity
+	{ 0.483107597f, 1.021932130f }, //D2T : tablet2did_m
+	{ 0.483107597f, 1.021932130f }, //D2T : tablet2did_ft
+	{ 0.324335992f, 0.693892002f }, //D2T : Linear
+	{ 0.500479221f, 1.012005210f }	//D2T : Velocity
     }
 };
 
@@ -135,70 +135,70 @@ static const float zvalues_hor3d[7][8][2] =
 	{ 566.503967f, 551.361450f }, //T2D : tablet2did_ft
 	{ 856.708191f, 833.693664f }, //T2D : Linear
 	{ 562.842895f, 549.798157f }, //T2D : Velocity
-	{ 0.5730112f, 0.5580959f }, //D2T : tablet2did_m
-	{ 0.5730112f, 0.5580959f }, //D2T : tablet2did_ft
-	{ 0.3841169f, 0.3742115f }, //D2T : Linear
-	{ 0.5924090f, 0.5785800f }  //D2T : Velocity
+	{ 0.57301122f, 0.558095992f }, //D2T : tablet2did_m
+	{ 0.57301122f, 0.558095929f }, //D2T : tablet2did_ft
+	{ 0.384116888f, 0.37421146f }, //D2T : Linear
+	{ 0.592409372f, 0.578579605f }	//D2T : Velocity
     },
     { //F3_Test_Survey_DepthFT
 	{ 1858.6088156f, 1808.9286417f }, //T2D : tablet2did_m
 	{ 1858.6088156f, 1808.9286417f }, //T2D : tablet2did_ft
 	{ 2810.7224114f, 2735.2154330f }, //T2D : Linear
 	{ 1848.4530029f, 1805.2114258f }, //T2D : Velocity
-	{ 0.5680090f, 0.5543861f }, //D2T : tablet2did_m
-	{ 0.5680090f, 0.5543861f }, //D2T : tablet2did_ft
-	{ 0.3807954f, 0.3717469f }, //D2T : Linear
-	{ 0.5815666f, 0.5700924f }  //D2T : Velocity
+	{ 0.568009019f, 0.554386139f }, //D2T : tablet2did_m
+	{ 0.568009019f, 0.554386139f }, //D2T : tablet2did_ft
+	{ 0.380795419f, 0.371746927f }, //D2T : Linear
+	{ 0.581566572f, 0.570092440f }	//D2T : Velocity
     },
     { //F3_Test_Survey_DisplayFT
 	{ 1858.6087646f, 1808.9285889f }, //T2D : tablet2did_m
 	{ 1858.6087646f, 1808.9285889f }, //T2D : tablet2did_ft
 	{ 2810.7224121f, 2735.2153320f }, //T2D : Linear
 	{ 1846.1667480f, 1803.4663086f }, //T2D : Velocity
-	{ 0.5680090f, 0.5543861f }, //D2T : tablet2did_m
-	{ 0.5680090f, 0.5543861f }, //D2T : tablet2did_ft
-	{ 0.3807954f, 0.3717469f }, //D2T : Linear
-	{ 0.5852728f, 0.5729352f }  //D2T : Velocity
+	{ 0.568009019f, 0.554386139f }, //D2T : tablet2did_m
+	{ 0.568009019f, 0.554386139f }, //D2T : tablet2did_ft
+	{ 0.380795419f, 0.371746927f }, //D2T : Linear
+	{ 0.585272849f, 0.572935224f }	//D2T : Velocity
     },
     { //F3_Test_Survey_XYinft
 	{ 1858.6087646f, 1808.9285889f }, //T2D : tablet2did_m
 	{ 1858.6087646f, 1808.9285889f }, //T2D : tablet2did_ft
 	{ 2810.7224121f, 2735.2153320f }, //T2D : Linear
 	{ 1846.1667480f, 1803.4663086f }, //T2D : Velocity
-	{ 0.1850900f, 0.1805435f }, //D2T : tablet2did_m
-	{ 0.1850900f, 0.1805435f }, //D2T : tablet2did_ft
-	{ 0.1248829f, 0.1218248f }, //D2T : Linear
-	{ 0.1901860f, 0.1860567f }  //D2T : Velocity
+	{ 0.185089633f, 0.180543467f }, //D2T : tablet2did_m
+	{ 0.185089633f, 0.180543467f }, //D2T : tablet2did_ft
+	{ 0.124882892f, 0.121824846f }, //D2T : Linear
+	{ 0.190186039f, 0.186056688f }	//D2T : Velocity
     },
     { //F3_Test_Survey_DepthM
 	{ 566.503967f, 551.36145f }, //T2D : tablet2did_m
 	{ 566.503967f, 551.36145f }, //T2D : tablet2did_ft
 	{ 856.708191f, 833.693664f }, //T2D : Linear
 	{ 563.5928955f, 550.3659058f }, //T2D : Velocity
-	{ 0.5680090f, 0.5543861f }, //D2T : tablet2did_m
-	{ 0.5680090f, 0.5543861f }, //D2T : tablet2did_ft
-	{ 0.3807954f, 0.3717469f }, //D2T : Linear
-	{ 0.5815666f, 0.5700924f }  //D2T : Velocity
+	{ 0.568009079f, 0.554386139f }, //D2T : tablet2did_m
+	{ 0.568009079f, 0.554386139f }, //D2T : tablet2did_ft
+	{ 0.380795449f, 0.371746927f }, //D2T : Linear
+	{ 0.581566572f, 0.570092380f }	//D2T : Velocity
     },
     { //F3_Test_Survey_DepthM_XYinft
 	{ 566.503967f, 551.36145f }, //T2D : tablet2did_m
 	{ 566.503967f, 551.36145f }, //T2D : tablet2did_ft
 	{ 856.708191f, 833.693664f }, //T2D : Linear
 	{ 563.5928955f, 550.3659058f }, //T2D : Velocity
-	{ 0.5680090f, 0.5543861f }, //D2T : tablet2did_m
-	{ 0.5680090f, 0.5543861f }, //D2T : tablet2did_ft
-	{ 0.3807954f, 0.3717469f }, //D2T : Linear
-	{ 0.5815666f, 0.5700924f }  //D2T : Velocity
+	{ 0.568009079f, 0.554386139f }, //D2T : tablet2did_m
+	{ 0.568009079f, 0.554386139f }, //D2T : tablet2did_ft
+	{ 0.380795449f, 0.371746939f }, //D2T : Linear
+	{ 0.581566572f, 0.570092380f }	//D2T : Velocity
     },
     { //F3_Test_Survey_DepthFT__XYinft_
 	{ 1858.6088156f, 1808.9286417f }, //T2D : tablet2did_m
 	{ 1858.6088156f, 1808.9286417f }, //T2D : tablet2did_ft
 	{ 2810.7224114f, 2735.2154330f }, //T2D : Linear
 	{ 1848.4530029f, 1805.2114258f }, //T2D : Velocity
-	{ 0.5680090f, 0.5543861f }, //D2T : tablet2did_m
-	{ 0.5680090f, 0.5543861f }, //D2T : tablet2did_ft
-	{ 0.3807954f, 0.3717469f }, //D2T : Linear
-	{ 0.5815666f, 0.5700924f }  //D2T : Velocity
+	{ 0.568009019f, 0.554386139f }, //D2T : tablet2did_m
+	{ 0.568009019f, 0.554386139f }, //D2T : tablet2did_ft
+	{ 0.380795419f, 0.371746927f }, //D2T : Linear
+	{ 0.581566572f, 0.570092440f }	//D2T : Velocity
     }
 };
 
@@ -294,14 +294,16 @@ bool testHorizon3DOutput( RefMan<EM::EMObject> emobj, int survidx,
     const float* zvals = zvalues_hor3d[survidx][zatfidx];
 
     BufferString readvalstr( "Z-Values read: [" );
-    readvalstr.add(z1).add(',').add(z2).add("]");
+    readvalstr.add(toStringPrecise(z1)).add(',')
+	      .add(toStringPrecise(z2)).add("]");
     BufferString expvalstr( "Expected Z-Values: [" );
-    expvalstr.add(zvals[0]).add(',').add(zvals[1]).add("]; ");
+    expvalstr.add(toStringPrecise(zvals[0])).add(',')
+	     .add(toStringPrecise(zvals[1])).add("]; ");
     const BufferString errmsg( expvalstr.buf(), readvalstr.buf() );
 
-    mRunStandardTestWithError(
-	(mIsEqual(z1,zvals[0],mEps) && mIsEqual(z2,zvals[1],mEps)),
-	mMsg("Horizon 3D position testing"), errmsg  );
+    mRunStandardTestWithError( (mIsEqual(z1,zvals[0],zvals[0]*mEps) &&
+				mIsEqual(z2,zvals[1],zvals[1]*mEps)),
+			       mMsg("Horizon 3D position testing"), errmsg  );
 
     return true;
 }
@@ -334,13 +336,15 @@ bool testFltOutput( RefMan<EM::EMObject> emobj, int survidx, int zatfidx )
     const float* zvals = zvalues_flt[survidx][zatfidx];
 
     BufferString readvalstr( "Z-Values read: [" );
-    readvalstr.add(firstcrd.z_).add(',').add(lastcrd.z_).add("]");
+    readvalstr.add(toStringPrecise(firstcrd.z_)).add(',')
+	      .add(toStringPrecise(lastcrd.z_)).add("]");
     BufferString expvalstr( "Expected Z-Values: [" );
-    expvalstr.add(zvals[0]).add(',').add(zvals[1]).add("]; ");
+    expvalstr.add(toStringPrecise(zvals[0])).add(',')
+	     .add(toStringPrecise(zvals[1])).add("]; ");
     const BufferString errmsg( expvalstr.buf(), readvalstr.buf() );
 
-    mRunStandardTestWithError( (mIsEqual(firstcrd.z_,zvals[0],mEps) &&
-				mIsEqual(lastcrd.z_,zvals[1],mEps)),
+    mRunStandardTestWithError( (mIsEqual(firstcrd.z_,zvals[0],zvals[0]*mEps) &&
+				mIsEqual(lastcrd.z_,zvals[1],zvals[1]*mEps)),
 			       mMsg("Fault 3D position testing"), errmsg );
 
     return true;
