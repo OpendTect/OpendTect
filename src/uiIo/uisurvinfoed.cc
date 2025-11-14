@@ -1368,13 +1368,21 @@ bool uiCopySurveySIP::getInfo(uiDialog* dlg, TrcKeyZSampling& cs, Coord crd[3])
     tdinf_ = survinfo->zIsTime() ? Time
 			    : (survinfo->zInFeet() ? DepthFeet : DepthMeter);
     xyinft_ = survinfo->xyInFeet();
+    srd_ = survinfo->seismicReferenceDatum();
 
     RefMan<Coords::CoordSystem> crs = survinfo->getCoordSystem();
     IOPar* crspar = new IOPar;
     crs->fillPar( *crspar );
-	delete crspars_;
+    delete crspars_;
     crspars_ = crspar;
 
+    return true;
+}
+
+
+bool uiCopySurveySIP::getSRD( float& srd )
+{
+    srd = srd_;
     return true;
 }
 
@@ -1459,7 +1467,15 @@ bool uiSurveyFileSIP::getInfo( uiDialog* dlg, TrcKeyZSampling& cs, Coord crd[3])
     xyinft_ = survinfo->xyInFeet();
     coordsystem_ = survinfo->getCoordSystem();
     surveynm_ = survinfo->name();
+    srd_ = survinfo->seismicReferenceDatum();
 
+    return true;
+}
+
+
+bool uiSurveyFileSIP::getSRD( float& srd )
+{
+    srd = srd_;
     return true;
 }
 

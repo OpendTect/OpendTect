@@ -159,6 +159,7 @@ public:
     uiDialog*		dialog(uiParent*) override;
     bool		getInfo(uiDialog*,
 				TrcKeyZSampling&,Coord crd[3]) override;
+    bool		getSRD(float&) override;
 
     void		fillLogPars(IOPar&) const override;
 
@@ -175,6 +176,7 @@ protected:
     TDInfo		tdinf_				= Unknown;
     BufferStringSet	survlist_;
     IOPar*		crspars_			= nullptr;
+    float		srd_				= mUdf(float);
 
 public:
     void		reset();
@@ -191,6 +193,7 @@ public:
     uiDialog*		dialog(uiParent*) override;
     bool		getInfo(uiDialog*,
 				TrcKeyZSampling&,Coord crd[3]) override;
+    bool		getSRD(float&) override;
 
     void		fillLogPars(IOPar&) const override;
 
@@ -202,9 +205,10 @@ public:
 
 protected:
 
-    BufferString		filenm_;
-    bool			xyinft_			= false;
-    TDInfo			tdinf_			= Unknown;
-    BufferString		surveynm_;
+    BufferString	filenm_;
+    bool		xyinft_				= false;
+    TDInfo		tdinf_				= Unknown;
+    float		srd_				= mUdf(float);
+    BufferString	surveynm_;
     ConstRefMan<Coords::CoordSystem> coordsystem_;
 };
