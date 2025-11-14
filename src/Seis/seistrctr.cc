@@ -740,22 +740,28 @@ bool SeisTrcTranslator::getRanges( const IOObj& ioobj, TrcKeyZSampling& cs )
     if ( !tr )
 	return false;
 
+    return tr->sampling( ioobj, cs );
+}
+
+
+bool SeisTrcTranslator::sampling( const IOObj& ioobj, TrcKeyZSampling& cs )
+{
     PtrMan<Seis::SelData> sd;
     if ( cs.is2D() )
     {
 	sd = Seis::SelData::get( Seis::Range );
 	sd->setGeomID( cs.hsamp_.getGeomID() );
-	tr->setSelData( sd.ptr() );
+	setSelData( sd.ptr() );
     }
 
     mDynamicCastGet(const IOStream*,iostrmptr,&ioobj)
     if ( !iostrmptr || !iostrmptr->isMultiConn() )
     {
 	Conn* cnn = ioobj.getConn( Conn::Read );
-	if ( !cnn || !tr->initRead(cnn,Seis::PreScan) )
+	if ( !cnn || !initRead(cnn,Seis::PreScan) )
 	    return false;
 
-	const SeisPacketInfo& pinf = tr->packetInfo();
+	const SeisPacketInfo& pinf = packetInfo();
 	cs.hsamp_.set( pinf.inlrg_, pinf.crlrg_ );
 	cs.zsamp_ = pinf.zrg_;
     }

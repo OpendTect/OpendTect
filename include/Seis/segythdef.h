@@ -66,7 +66,7 @@ public:
     static const char*	sRefNrByte();
     static const char*	sPickByte();
 
-    SeisPacketInfo*	pinfo;
+    SeisPacketInfo*	pinfo					= nullptr;
 };
 
 } // namespace SEGY

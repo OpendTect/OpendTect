@@ -214,6 +214,7 @@ public:
 
     static bool		getRanges(const MultiID&,TrcKeyZSampling&);
     static bool		getRanges(const IOObj&,TrcKeyZSampling&);
+    virtual bool	sampling(const IOObj&,TrcKeyZSampling&);
 
     virtual bool	getGeometryInfo(PosInfo::CubeData&) const
 			{
@@ -258,8 +259,8 @@ public:
     virtual BufferString    getAuxFileName(const char*) const
 				{ return BufferString::empty(); }
 
-    void		setComponentNames(const BufferStringSet&);
-    void		getComponentNames(BufferStringSet&) const;
+    virtual void	setComponentNames(const BufferStringSet&);
+    virtual void	getComponentNames(BufferStringSet&) const;
     virtual Interval<float> getDataRange(int icomp=-1) const;
 
     bool		haveWarnings() const;
