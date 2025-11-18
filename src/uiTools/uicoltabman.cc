@@ -44,8 +44,8 @@ ________________________________________________________________________
 #include "uitreeview.h"
 #include "uiworld2ui.h"
 
-#define mTransHeight	708
-#define mTransWidth	706
+#define mTransHeight	600
+#define mTransWidth	600
 
 static StringView sKeyAskBeforeSettingToSeg()
 { return "Ask before setting a transparency line to segments"; }
@@ -1178,7 +1178,7 @@ uiColorTableMan::uiColorTableMan( uiParent* p, ColTab::Sequence& ctab,
     nrsegbox_->setValue( 8 );
     nrsegbox_->display( false );
     mAttachCB( nrsegbox_->valueChanging, uiColorTableMan::nrSegmentsCB );
-    nrsegbox_->attach( rightTo, segmentfld_ );
+    nrsegbox_->attach( rightOf, segmentfld_ );
 
     uiColorInput::Setup cisetup( ctab_.undefColor(), enabletrans_ ?
 		    uiColorInput::Setup::Separate : uiColorInput::Setup::None );
@@ -1222,15 +1222,15 @@ uiColorTableMan::uiColorTableMan( uiParent* p, ColTab::Sequence& ctab,
     //ctabcanvas_->attach( leftOf, markercanvas_, 0 );
     ctabcanvas_->setPrefWidth( mTransWidth/25 );
     ctabcanvas_->setPrefHeight( mTransWidth );
-    ctabcanvas_->setStretch( 0, 0 );
+    ctabcanvas_->setStretch( 0, 2 );
     ctabcanvas_->setOrientation( OD::Vertical );
     mAttachCB( ctabcanvas_->getMouseEventHandler().doubleClick,
 	      uiColorTableMan::markerDialogCB );
 
     markercanvas_ = new uiColTabMarkerCanvas( rightgrp, ctab_ );
-    markercanvas_->setPrefWidth( mTransWidth/10 );
+    markercanvas_->setPrefWidthInChar( 8 );
     markercanvas_->setPrefHeight( mTransWidth );
-    markercanvas_->setStretch( 0, 0 );
+    markercanvas_->setStretch( 0, 2 );
     markercanvas_->attach( rightOf, ctabcanvas_ );
 
     uiFunctionDisplay::Setup su;
@@ -1249,7 +1249,7 @@ uiColorTableMan::uiColorTableMan( uiParent* p, ColTab::Sequence& ctab,
       .drawborder(false).xannotinint(true);
 
     cttranscanvas_ = new uiFunctionDisplay( rightgrp, su, OD::Vertical );
-    cttranscanvas_->setStretch( 0, 0 );
+    cttranscanvas_->setStretch( 2, 2 );
     cttranscanvas_->setTitleColor( OD::Color::Red() );
     cttranscanvas_->attach( rightOf, markercanvas_ );
     cttranscanvas_->setTitleAlignment(Alignment(Alignment::Left,
@@ -2070,6 +2070,8 @@ void uiColorTableMan::transpTableChgd( CallBacker* cb )
 void uiColorTableMan::reDrawCB( CallBacker* )
 {
     ctabcanvas_->setRGB();
+    w2uictabcanvas_->set( uiWorldRect(0,0,0,255),
+			  uiSize(mTransWidth/5, mTransWidth) );
 }
 
 
