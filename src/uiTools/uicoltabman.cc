@@ -1248,9 +1248,7 @@ uiColorTableMan::uiColorTableMan( uiParent* p, ColTab::Sequence& ctab,
       .noy2axis(true).noy2gridline(true)
       .drawborder(false).xannotinint(true);
 
-    su.setOrientation( OD::Vertical );
-
-    cttranscanvas_ = new uiFunctionDisplay( rightgrp, su );
+    cttranscanvas_ = new uiFunctionDisplay( rightgrp, su, OD::Vertical );
     cttranscanvas_->setStretch( 0, 0 );
     cttranscanvas_->setTitleColor( OD::Color::Red() );
     cttranscanvas_->attach( rightOf, markercanvas_ );

@@ -37,6 +37,8 @@ mExpClass(uiTools) uiFunctionDisplay :	public uiFuncDispBase,
 { mODTextTranslationClass(uiFunctionDisplay)
 public:
 				uiFunctionDisplay(uiParent*,const Setup&);
+				uiFunctionDisplay(uiParent*,const Setup&,
+						  OD::Orientation);
 				~uiFunctionDisplay();
 
     void			setTitle(const uiString&) override;
@@ -106,6 +108,8 @@ protected:
     bool			setSelPt();
     void			reSized( CallBacker* );
     void			saveImageAs( CallBacker* );
+    void			init(OD::Orientation);
+    bool			isVertical() const;
 
     virtual void		drawData();
 };

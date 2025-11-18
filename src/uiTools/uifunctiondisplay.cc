@@ -17,7 +17,10 @@ ________________________________________________________________________
 #include "mouseevent.h"
 #include "axislayout.h"
 
-static HiddenParam<uiFunctionDisplay,bool*> hp_allowaddpts(nullptr);
+static HiddenParam<uiFunctionDisplay,OD::Orientation>
+					hp_orientation( OD::Horizontal );
+static HiddenParam<uiFunctionDisplay,char> hp_allowaddpts(0);
+
 uiFunctionDisplay::uiFunctionDisplay( uiParent* p,
 				      const uiFunctionDisplay::Setup& su )
     : uiFuncDispBase(su)
@@ -40,8 +43,53 @@ uiFunctionDisplay::uiFunctionDisplay( uiParent* p,
     , pointSelected(this)
     , mouseMove(this)
 {
+    init( OD::Horizontal );
+}
+
+
+uiFunctionDisplay::uiFunctionDisplay( uiParent* p,
+				      const uiFunctionDisplay::Setup& su,
+				      OD::Orientation orient )
+    : uiFuncDispBase(su)
+    , uiGraphicsView(p,"Function display viewer")
+    , ypolyitem_(0)
+    , y2polyitem_(0)
+    , ypolygonitem_(0)
+    , y2polygonitem_(0)
+    , ypolylineitem_(0)
+    , y2polylineitem_(0)
+    , ymarkeritems_(0)
+    , y2markeritems_(0)
+    , xmarklineitem_(0)
+    , ymarklineitem_(0)
+    , xmarkline2item_(0)
+    , ymarkline2item_(0)
+    , borderrectitem_(0)
+    , titleitem_(0)
+    , pointChanged(this)
+    , pointSelected(this)
+    , mouseMove(this)
+{
+    init( orient );
+}
+
+
+uiFunctionDisplay::~uiFunctionDisplay()
+{
+    detachAllNotifiers();
+    cleanUp();
+    delete xax_; delete yax_; delete y2ax_;
+    hp_allowaddpts.removeParam(this);
+    hp_orientation.removeParam(this);
+}
+
+
+void uiFunctionDisplay::init( OD::Orientation orient )
+{
+    hp_allowaddpts.setParam( this, 1 );
+    hp_orientation.setParam( this, orient );
     disableScrollZoom();
-    const bool isvert = setup_.isVertical();
+    const bool isvert = isVertical();
     const int width = isvert ? setup_.canvasheight_ : setup_.canvaswidth_ ;
     const int height = isvert ? setup_.canvaswidth_ : setup_.canvasheight_;
     setPrefWidth( width );
@@ -99,15 +147,6 @@ uiFunctionDisplay::uiFunctionDisplay( uiParent* p,
 }
 
 
-uiFunctionDisplay::~uiFunctionDisplay()
-{
-    detachAllNotifiers();
-    cleanUp();
-    delete xax_; delete yax_; delete y2ax_;
-    hp_allowaddpts.removeParam(this);
-}
-
-
 void uiFunctionDisplay::cleanUp()
 {
     delete ypolylineitem_; delete y2polylineitem_;
@@ -139,7 +178,7 @@ void uiFunctionDisplay::setTitle( const uiString& title )
     if ( !titleitem_ )
     {
 	titleitem_ = scene().addItem( new uiTextItem() );
-	if ( setup_.isVertical() )
+	if ( isVertical() )
 	{
 	    titleitem_->setAlignment( Alignment(Alignment::Left,
 					       Alignment::Top));
@@ -164,7 +203,7 @@ void uiFunctionDisplay::setTitleColor( const OD::Color& col )
     if ( !titleitem_ )
     {
 	titleitem_ = scene().addItem( new uiTextItem() );
-	if ( setup_.isVertical() )
+	if ( isVertical() )
 	{
 	    titleitem_->setAlignment( Alignment(Alignment::Left,
 					       Alignment::Top));
@@ -230,7 +269,7 @@ Geom::Point2D<float> uiFunctionDisplay::getXYFromPix(
 {
     const uiAxisHandler* xaxis = xAxis();
     const uiAxisHandler* yaxis = yAxis( y2 );
-    if ( !setup_.isVertical() )
+    if ( !isVertical() )
     {
 	return Geom::Point2D<float>(
 		    xaxis ? xaxis->getVal( pix.x_ ) : mUdf(float),
@@ -266,7 +305,7 @@ void uiFunctionDisplay::setUpAxis( bool havey2 )
     if ( !xaxis || !yaxis )
 	return;
 
-    if ( setup_.isVertical() )
+    if ( isVertical() )
 	y2axis->setup().side( uiRect::Left );
     else
 	y2axis->setup().side( uiRect::Right );
@@ -318,7 +357,7 @@ void uiFunctionDisplay::getPointSet( TypeSet<uiPoint>& ptlist, bool y2 )
 	float xval = y2 ? y2xvals_[idx] : xvals_[idx];
 	float yval = y2 ? y2yvals_[idx] : yvals_[idx];
 
-	if ( setup_.isVertical() )
+	if ( isVertical() )
 	{
 	    xval = y2 ? y2xvals_[nrpts-idx-1]
 		      : xvals_[idx];
@@ -333,7 +372,7 @@ void uiFunctionDisplay::getPointSet( TypeSet<uiPoint>& ptlist, bool y2 )
 	}
 
 	int xpix, ypix;
-	if ( setup_.isVertical() )
+	if ( isVertical() )
 	{
 	    // swap coordinate mapping for vertical layout
 	    xpix = yaxis->getPix( yval );
@@ -523,7 +562,7 @@ void uiFunctionDisplay::draw()
 {
     if ( titleitem_ )
     {
-	if ( setup_.isVertical() )
+	if ( isVertical() )
 	{
 	    titleitem_->setPos( uiPoint(viewWidth()/1.6,0) );
 	}
@@ -651,7 +690,7 @@ bool uiFunctionDisplay::setSelPt()
 
 Geom::Point2D<int> uiFunctionDisplay::orientedPix( const MouseEvent& ev ) const
 {
-    if ( setup_.isVertical() )
+    if ( isVertical() )
 	return Geom::Point2D<int>( ev.pos().y_, ev.pos().x_ ); // swap X/Y
 
     return Geom::Point2D<int>( ev.pos().x_, ev.pos().y_ );
@@ -690,7 +729,7 @@ void uiFunctionDisplay::mouseReleaseCB( CallBacker* )
     if ( !isctrl || selpt_<=0 || selpt_>=xvals_.size()-1 || xvals_.size()<3 )
 	return;
 
-    if ( hp_allowaddpts.getParam(this) )
+    if ( hp_allowaddpts.getParam(this)==1 )
     {
 	xvals_.removeSingle( selpt_ );
 	yvals_.removeSingle( selpt_ );
@@ -799,5 +838,11 @@ uiAxisHandler* uiFunctionDisplay::yAxis( bool y2 ) const
 
 void uiFunctionDisplay::allowAddingPoints( bool yn )
 {
-    hp_allowaddpts.setParam(this, &yn);
+    hp_allowaddpts.setParam( this, yn ? 1 : 0 );
+}
+
+
+bool uiFunctionDisplay::isVertical() const
+{
+    return hp_orientation.getParam( this ) == OD::Vertical;
 }
