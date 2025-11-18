@@ -12,9 +12,12 @@ ________________________________________________________________________
 #include "uigraphicsscene.h"
 #include "uigraphicsitemimpl.h"
 #include "uigraphicssaveimagedlg.h"
+
+#include "hiddenparam.h"
 #include "mouseevent.h"
 #include "axislayout.h"
 
+static HiddenParam<uiFunctionDisplay,bool*> hp_allowaddpts(nullptr);
 uiFunctionDisplay::uiFunctionDisplay( uiParent* p,
 				      const uiFunctionDisplay::Setup& su )
     : uiFuncDispBase(su)
@@ -38,29 +41,46 @@ uiFunctionDisplay::uiFunctionDisplay( uiParent* p,
     , mouseMove(this)
 {
     disableScrollZoom();
-    setPrefWidth( setup_.canvaswidth_ );
-    setPrefHeight( setup_.canvasheight_ );
+    const bool isvert = setup_.isVertical();
+    const int width = isvert ? setup_.canvasheight_ : setup_.canvaswidth_ ;
+    const int height = isvert ? setup_.canvaswidth_ : setup_.canvasheight_;
+    setPrefWidth( width );
+    setPrefHeight( height );
     setStretch( 2, 2 );
-    uiAxisHandler::Setup asu( uiRect::Bottom, setup_.canvaswidth_,
-			      setup_.canvasheight_ );
+    uiRect::Side xside = isvert ? uiRect::Left : uiRect::Bottom;
+    uiRect::Side yside = isvert ? uiRect::Top : uiRect::Left;
+
+    uiAxisHandler::Setup asu( xside, width, height );
     asu.noaxisline( setup_.noxaxis_ );
     asu.noaxisannot( asu.noaxisline_ ? true : !setup_.annotx_ );
     asu.nogridline( asu.noaxisline_ ? true : setup_.noxgridline_ );
     asu.border_ = setup_.border_;
     asu.annotinint_ = setup_.xannotinint_;
     xax_ = new uiAxisHandler( &scene(), asu );
+
+    // now set up Y axis on the correct side
     asu.noaxisline( setup_.noyaxis_ );
     asu.noaxisannot( asu.noaxisline_ ? true : !setup_.annoty_ );
     asu.nogridline( asu.noaxisline_ ? true : setup_.noygridline_ );
-    asu.side( uiRect::Left );
+    asu.side( yside );
     asu.annotinint_ = setup_.yannotinint_;
-    xax_->setBounds(setup_.xrg_);
+    xax_->setBounds( isvert ? setup_.yrg_ : setup_.xrg_ );
     yax_ = new uiAxisHandler( &scene(), asu );
+    yax_->setBounds( isvert ? setup_.xrg_ : setup_.yrg_ );
+
     asu.noaxisline( setup_.noy2axis_ );
     asu.noaxisannot( asu.noaxisline_ ? true : !setup_.annoty2_ );
     asu.nogridline( setup_.noy2gridline_ );
-    xAxis()->setBegin( yAxis(false) ); yAxis(false)->setBegin( xAxis() );
-    asu.side( uiRect::Right );
+
+    xAxis()->setBegin( yAxis(false) );
+    yAxis(false)->setBegin( xAxis() );
+
+    // Select side based on orientation
+    if ( isvert )
+	asu.side( uiRect::Top );
+    else
+	asu.side( uiRect::Right );
+
     y2ax_ = new uiAxisHandler( &scene(), asu );
 
     mAttachCB(getMouseEventHandler().movement,uiFunctionDisplay::mouseMoveCB);
@@ -84,6 +104,7 @@ uiFunctionDisplay::~uiFunctionDisplay()
     detachAllNotifiers();
     cleanUp();
     delete xax_; delete yax_; delete y2ax_;
+    hp_allowaddpts.removeParam(this);
 }
 
 
@@ -118,7 +139,18 @@ void uiFunctionDisplay::setTitle( const uiString& title )
     if ( !titleitem_ )
     {
 	titleitem_ = scene().addItem( new uiTextItem() );
-	titleitem_->setAlignment( Alignment(Alignment::HCenter,Alignment::Top));
+	if ( setup_.isVertical() )
+	{
+	    titleitem_->setAlignment( Alignment(Alignment::Left,
+					       Alignment::Top));
+	}
+	else
+	{
+	    titleitem_->setAlignment( Alignment(Alignment::HCenter,
+						Alignment::Top));
+	    titleitem_->setPos( uiPoint(viewWidth()/2,0) );
+	}
+
 	titleitem_->setZValue( 2 );
     }
 
@@ -132,7 +164,16 @@ void uiFunctionDisplay::setTitleColor( const OD::Color& col )
     if ( !titleitem_ )
     {
 	titleitem_ = scene().addItem( new uiTextItem() );
-	titleitem_->setAlignment( Alignment(Alignment::HCenter,Alignment::Top));
+	if ( setup_.isVertical() )
+	{
+	    titleitem_->setAlignment( Alignment(Alignment::Left,
+					       Alignment::Top));
+	}
+	else
+	{
+	    titleitem_->setAlignment( Alignment(Alignment::HCenter,
+					       Alignment::Top));
+	}
 	titleitem_->setZValue( 2 );
     }
 
@@ -140,10 +181,25 @@ void uiFunctionDisplay::setTitleColor( const OD::Color& col )
     draw();
 }
 
+
+void uiFunctionDisplay::setTitleAlignment( const Alignment& al )
+{
+    if ( titleitem_ )
+    {
+	titleitem_->setAlignment(al);
+    }
+    else
+    {
+	pErrMsg("Title Item is null, cannot set the title alignment");
+    }
+    draw();
+}
+
 Geom::Point2D<float> uiFunctionDisplay::getFuncXY( int xpix, bool y2 ) const
 {
     const uiAxisHandler* axis = xAxis();
-    if ( !axis ) return Geom::Point2D<float>::udf();
+    if ( !axis )
+	return Geom::Point2D<float>::udf();
 
     const float xval = axis->getVal( xpix );
     const TypeSet<float>& xvals = y2 ? y2xvals_ : xvals_;
@@ -174,9 +230,18 @@ Geom::Point2D<float> uiFunctionDisplay::getXYFromPix(
 {
     const uiAxisHandler* xaxis = xAxis();
     const uiAxisHandler* yaxis = yAxis( y2 );
-    return Geom::Point2D<float>(
-                xaxis ? xaxis->getVal( pix.x_ ) : mUdf(float),
-                yaxis ? yaxis->getVal( pix.y_ ) : mUdf(float) );
+    if ( !setup_.isVertical() )
+    {
+	return Geom::Point2D<float>(
+		    xaxis ? xaxis->getVal( pix.x_ ) : mUdf(float),
+		    yaxis ? yaxis->getVal( pix.y_ ) : mUdf(float) );
+    }
+    else
+    {
+	return Geom::Point2D<float>(
+	    yaxis ? yaxis->getVal( pix.y_ ) : mUdf(float),
+	    xaxis ? xaxis->getVal( pix.x_ ) : mUdf(float) );
+    }
 }
 
 
@@ -187,7 +252,8 @@ void uiFunctionDisplay::gatherInfo( bool fory2 )
     if ( usey2 )
     {
 	xAxis()->setEnd( yAxis(true) );
-	yAxis( true )->setBegin( xAxis() );
+	xAxis()->setBegin( yAxis(true) );
+	yAxis( true )->setEnd( yAxis(false) );
     }
 }
 
@@ -199,6 +265,11 @@ void uiFunctionDisplay::setUpAxis( bool havey2 )
     uiAxisHandler* y2axis = yAxis( true );
     if ( !xaxis || !yaxis )
 	return;
+
+    if ( setup_.isVertical() )
+	y2axis->setup().side( uiRect::Left );
+    else
+	y2axis->setup().side( uiRect::Right );
 
     xaxis->updateDevSize();
     yaxis->updateDevSize();
@@ -216,7 +287,8 @@ void uiFunctionDisplay::setUpAxis( bool havey2 )
 			  .nogridline(setup_.noy2gridline_);
 	}
 
-	y2axis->updateDevSize(); y2axis->updateScene();
+	y2axis->updateDevSize();
+	y2axis->updateScene();
     }
 }
 
@@ -236,23 +308,51 @@ void uiFunctionDisplay::getPointSet( TypeSet<uiPoint>& ptlist, bool y2 )
     if ( fillbelow )
 	ptlist += closept;
 
-    const Interval<int> xpixintv( xaxis->getPix(xaxis->range().start_),
+    Interval<int> xpixintv( xaxis->getPix(xaxis->range().start_),
 				  xaxis->getPix(xaxis->range().stop_) );
-    const Interval<int> ypixintv( yaxis->getPix(yrg.start_),
+    Interval<int> ypixintv( yaxis->getPix(yrg.start_),
 				  yaxis->getPix(yrg.stop_) );
     uiPoint pt = closept;
     for ( int idx=0; idx<nrpts; idx++ )
     {
-	const float xval = y2 ? y2xvals_[idx] : xvals_[idx];
-	const float yval = y2 ? y2yvals_[idx] : yvals_[idx];
+	float xval = y2 ? y2xvals_[idx] : xvals_[idx];
+	float yval = y2 ? y2yvals_[idx] : yvals_[idx];
+
+	if ( setup_.isVertical() )
+	{
+	    xval = y2 ? y2xvals_[nrpts-idx-1]
+		      : xvals_[idx];
+	    yval = y2 ? y2yvals_[nrpts-idx-1]
+		      : yvals_[idx];
+	}
+
 	if ( mIsUdf(xval) || mIsUdf(yval) )
 	{
 	    ptlist += uiPoint( mUdf(int), mUdf(int) ); //break in curve
 	    continue;
 	}
 
-	const int xpix = xaxis->getPix( xval );
-	const int ypix = yaxis->getPix( yval );
+	int xpix, ypix;
+	if ( setup_.isVertical() )
+	{
+	    // swap coordinate mapping for vertical layout
+	    xpix = yaxis->getPix( yval );
+	    ypix = xaxis->getPix( xval );
+
+	    if ( y2 )
+	    {
+		xpix = yaxis->getPix( abs(yaxis->range().start_
+					 - yaxis->range().stop_) - yval );
+		ypix = xaxis->getPix( abs(xaxis->range().start_
+					 - xaxis->range().stop_) - xval );
+	    }
+	}
+	else
+	{
+	    xpix = xaxis->getPix( xval );
+	    ypix = yaxis->getPix( yval );
+	}
+
 	if ( xpixintv.includes(xpix,true) && ypixintv.includes(ypix,true) )
 	{
             pt.x_ = xpix;
@@ -422,7 +522,14 @@ void uiFunctionDisplay::drawBorder()
 void uiFunctionDisplay::draw()
 {
     if ( titleitem_ )
-	titleitem_->setPos( uiPoint(viewWidth()/2,0) );
+    {
+	if ( setup_.isVertical() )
+	{
+	    titleitem_->setPos( uiPoint(viewWidth()/1.6,0) );
+	}
+	else
+	    titleitem_->setPos( uiPoint(viewWidth()/2,0) );
+    }
 
     const bool havey = !yvals_.isEmpty();
     const bool havey2 = !y2yvals_.isEmpty();
@@ -507,22 +614,30 @@ void uiFunctionDisplay::drawMarkLine( uiAxisHandler* ah, float val,
 bool uiFunctionDisplay::setSelPt()
 {
     const MouseEvent& ev = getMouseEventHandler().event();
+    const Geom::Point2D<int> pos = orientedPix(ev);
     const uiAxisHandler* xax = xAxis();
     const uiAxisHandler* yax = yAxis( false );
 
-    int newsel = -1; float mindistsq = 1e30;
-    const float xpix = xax->getRelPos( xax->getVal(ev.pos().x_) );
-    const float ypix = yax->getRelPos( yax->getVal(ev.pos().y_) );
+    int newsel = -1;
+    float mindistsq = 1e30;
+    const float xpix = xax->getRelPos( xax->getVal(pos.x_) );
+    const float ypix = yax->getRelPos( yax->getVal(pos.y_) );
+
     for ( int idx=0; idx<xvals_.size(); idx++ )
     {
 	const float x = xax->getRelPos( xvals_[idx] );
 	const float y = yax->getRelPos( yvals_[idx] );
 	const float distsq = (x-xpix)*(x-xpix) + (y-ypix)*(y-ypix);
 	if ( distsq < mindistsq )
-	    { newsel = idx; mindistsq = distsq; }
+	{
+	    newsel = idx;
+	    mindistsq = distsq;
+	}
     }
     selpt_ = -1;
-    if ( mindistsq > setup_.ptsnaptol_*setup_.ptsnaptol_ ) return false;
+    if ( mindistsq > setup_.ptsnaptol_*setup_.ptsnaptol_ )
+	return false;
+
     if ( newsel < 0 || newsel > xvals_.size() - 1 )
     {
 	selpt_ = -1;
@@ -531,6 +646,15 @@ bool uiFunctionDisplay::setSelPt()
 
     selpt_ = newsel;
     return true;
+}
+
+
+Geom::Point2D<int> uiFunctionDisplay::orientedPix( const MouseEvent& ev ) const
+{
+    if ( setup_.isVertical() )
+	return Geom::Point2D<int>( ev.pos().y_, ev.pos().x_ ); // swap X/Y
+
+    return Geom::Point2D<int>( ev.pos().x_, ev.pos().y_ );
 }
 
 
@@ -556,19 +680,24 @@ void uiFunctionDisplay::mouseReleaseCB( CallBacker* )
 
     if ( isnorm && selpt_<0 )
     {
-        addPoint( Geom::PointF(ev.pos().x_, ev.pos().y_) );
+	const Geom::Point2D<int> pos = orientedPix(ev);
+	addPoint( Geom::PointF(pos.x_, pos.y_) );
 	pointSelected.trigger();
 	draw();
 	return;
     }
 
-    if ( !isctrl || selpt_ <= 0 || selpt_ >= xvals_.size()-1
-	 || xvals_.size() < 3 ) return;
+    if ( !isctrl || selpt_<=0 || selpt_>=xvals_.size()-1 || xvals_.size()<3 )
+	return;
 
-    xvals_.removeSingle( selpt_ );
-    yvals_.removeSingle( selpt_ );
+    if ( hp_allowaddpts.getParam(this) )
+    {
+	xvals_.removeSingle( selpt_ );
+	yvals_.removeSingle( selpt_ );
 
-    selpt_ = -1;
+	selpt_ = -1;
+    }
+
     pointChanged.trigger();
     draw();
 }
@@ -576,20 +705,24 @@ void uiFunctionDisplay::mouseReleaseCB( CallBacker* )
 
 void uiFunctionDisplay::mouseMoveCB( CallBacker* )
 {
-    {
-	const MouseEvent& ev = getMouseEventHandler().event();
-        mouseMove.trigger( Geom::PointF(ev.pos().x_, ev.pos().y_) );
-	if ( !setup_.editable_ ) return;
-    }
-    if ( !mousedown_ ) return;
+    const MouseEvent& mev = getMouseEventHandler().event();
+    const Geom::Point2D<int> pos2 = orientedPix(mev);
+    mouseMove.trigger( Geom::PointF(pos2.x_, pos2.y_) );
+    if ( !setup_.editable_ )
+	return;
+
+    if ( !mousedown_ )
+	return;
 
     const uiAxisHandler* xax = xAxis();
     const uiAxisHandler* yax = yAxis( false );
     mGetMousePos();
-    if ( !isnorm || selpt_<0 ) return;
+    if ( !isnorm || selpt_<0 )
+	return;
 
-    float xval = xax->getVal( ev.pos().x_ );
-    float yval = yax->getVal( ev.pos().y_ );
+    const Geom::Point2D<int> pos = orientedPix(ev);
+    float xval = xax->getVal( pos.x_ );
+    float yval = yax->getVal( pos.y_ );
 
     if ( selpt_>0 && xvals_[selpt_-1]>=xval )
         xval = xvals_[selpt_-1];
@@ -661,4 +794,10 @@ uiAxisHandler* uiFunctionDisplay::yAxis( bool y2 ) const
 	mDynamicCastGet(uiAxisHandler*, yax, yax_);
 	return yax;
     }
+}
+
+
+void uiFunctionDisplay::allowAddingPoints( bool yn )
+{
+    hp_allowaddpts.setParam(this, &yn);
 }

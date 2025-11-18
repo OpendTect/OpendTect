@@ -41,6 +41,7 @@ public:
 
     void			setTitle(const uiString&) override;
     void			setTitleColor(const OD::Color&);
+    void			setTitleAlignment(const Alignment& al);
 
     Geom::Point2D<float>	getFuncXY(int xpix,bool y2) const;
     Geom::Point2D<float>	getXYFromPix(const Geom::Point2D<int>& pix,
@@ -57,6 +58,8 @@ public:
     uiObject*			uiobj() override	{ return this; }
     const NotifierAccess&	mouseMoveNotifier() override
 				{ return mouseMove; }
+
+    void			allowAddingPoints(bool);
 
     Notifier<uiFunctionDisplay>	pointSelected;
     Notifier<uiFunctionDisplay>	pointChanged;
@@ -82,6 +85,8 @@ protected:
     uiLineItem*			ymarkline2item_;
     uiTextItem*			titleitem_;
 
+    Geom::Point2D<int>		orientedPix(const MouseEvent& ev) const;
+
     void			mousePressCB(CallBacker*) override;
     void			mouseReleaseCB(CallBacker*) override;
     void			mouseMoveCB(CallBacker*) override;
@@ -103,5 +108,4 @@ protected:
     void			saveImageAs( CallBacker* );
 
     virtual void		drawData();
-
 };

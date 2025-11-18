@@ -16,6 +16,13 @@ ________________________________________________________________________
 #include "visscenecoltab.h"
 
 
+static const int sMinHorWidth = 350;
+static const int sMaxHorWidth = 700;
+
+static const int sMinVertWidth = 20;
+static const int sMaxVertWidth = 35;
+
+
 uiSceneColorbarMgr::uiSceneColorbarMgr( uiParent* p,
 					visBase::SceneColTab* coltab )
     : uiDialog(p,Setup(tr("Color Bar Settings"),mNoHelpKey))
@@ -36,8 +43,7 @@ uiSceneColorbarMgr::uiSceneColorbarMgr( uiParent* p,
     heightfld_->setMaxValue( horizontal ? 35 : 700 );
     heightfld_->setMinValue( horizontal ? 20 : 350 );
     heightfld_->setValue( scenecoltab_->getSize().height() );
-    heightfld_->valueChanging.notify(
-			mCB(this,uiSceneColorbarMgr,sizeChangedCB) );
+    mAttachCB( heightfld_->valueChanging, uiSceneColorbarMgr::sizeChangedCB );
     hfld->attach( rightOf, wfld );
 
     BufferStringSet positms;
@@ -46,8 +52,7 @@ uiSceneColorbarMgr::uiSceneColorbarMgr( uiParent* p,
     posfld_ = new uiGenInput( this, tr("Position"), StringListInpSpec(positms));
     posfld_->attach( alignedBelow, wfld );
     posfld_->setValue( scenecoltab_->getPos() );
-    posfld_->valueChanged.notify(
-			mCB(this,uiSceneColorbarMgr,posChangedCB) );
+    mAttachCB( posfld_->valueChanged, uiSceneColorbarMgr::posChangedCB );
 }
 
 

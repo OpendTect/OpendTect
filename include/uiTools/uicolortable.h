@@ -101,6 +101,7 @@ protected:
     void		tabSel(CallBacker*);
     void		tableAdded(CallBacker*);
     void		rangeEntered(CallBacker*);
+    void		colTabManRgChangeCB(CallBacker*);
     void		doManage(CallBacker*);
     void		doFlip(CallBacker*);
     void		setAsDefault(CallBacker*);

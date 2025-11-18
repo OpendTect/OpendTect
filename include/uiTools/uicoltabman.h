@@ -65,9 +65,11 @@ public:
     void			setHistogram(const TypeSet<float>&);
     void			setHistogram(const TypeSet<float>&,
 					     const Interval<float>&);
+    Interval<float>*		getRange();
 
     Notifier<uiColorTableMan> 	tableAddRem;
     Notifier<uiColorTableMan> 	tableChanged;
+    Notifier<uiColorTableMan>&	rangeChanged();
 
 protected:
 
@@ -113,10 +115,13 @@ protected:
     bool			saveColTab(bool);
 
     void			segmentSel(CallBacker*);
+    void			insertSegmentCB(CallBacker*);
+    void			removeSegmentCB(CallBacker*);
     void			nrSegmentsCB(CallBacker*);
     void			updateSegmentFields();
 
     void			undefColSel(CallBacker*);
+    void			rangeChangedCB(CallBacker*);
     void			markerColChgd(CallBacker*);
     void			rightClick(CallBacker*);
     void			doSegmentize();
@@ -126,6 +131,7 @@ protected:
     void			transptSel(CallBacker*);
     void			transptChg(CallBacker*);
     void			sequenceChange(CallBacker*);
+    void			setPtsToAnchSegsCB(CallBacker*);
     void			markerChange(CallBacker*);
     void			markerDialogCB(CallBacker*);
     void			transpTableChgd(CallBacker*);

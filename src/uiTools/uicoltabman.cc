@@ -29,6 +29,8 @@ ________________________________________________________________________
 #include "uifunctiondisplay.h"
 #include "uigeninput.h"
 #include "uigeninputdlg.h"
+#include "uilineedit.h"
+#include "uilabel.h"
 #include "uimenu.h"
 #include "uimsg.h"
 #include "uispinbox.h"
@@ -42,11 +44,14 @@ ________________________________________________________________________
 #include "uitreeview.h"
 #include "uiworld2ui.h"
 
-#define mTransHeight	150
-#define mTransWidth	200
+#define mTransHeight	708
+#define mTransWidth	706
 
 static StringView sKeyAskBeforeSettingToSeg()
 { return "Ask before setting a transparency line to segments"; }
+
+static StringView sKeyAskBeforeNotSavingCT()
+{ return "Ask before closing without saving Color Table"; }
 
 static const int sPosCol = 0;
 static const int sDataCol = 1;
@@ -56,6 +61,8 @@ static const int sPosColorCol = 3;
 static const int sColorCol = 1;
 
 static HiddenParam<uiColorTableMan,Interval<float>*> hp_ctabrange( nullptr );
+static HiddenParam<uiColorTableMan,uiLineEdit*> hp_minfld(nullptr);
+static HiddenParam<uiColorTableMan,uiLineEdit*> hp_maxfld(nullptr);
 
 
 mClass(uiTools) uiTranspValuesDlgPlus : public uiDialog
@@ -66,6 +73,8 @@ public:
     ~uiTranspValuesDlgPlus();
 
     Notifier<uiTranspValuesDlgPlus> valuesChanged;
+    Notifier<uiTranspValuesDlgPlus>& segmentInserted();
+    Notifier<uiTranspValuesDlgPlus>& segmentRemoved();
 
 
 protected:
@@ -92,6 +101,24 @@ protected:
     void			handleDataVal();
     void			handleTranspVal();
 };
+
+
+static HiddenParam<uiTranspValuesDlgPlus,Notifier<uiTranspValuesDlgPlus>*>
+    hp_segmentinserted(nullptr);
+
+Notifier<uiTranspValuesDlgPlus>& uiTranspValuesDlgPlus::segmentInserted()
+{
+    return *hp_segmentinserted.getParam( this );
+}
+
+
+static HiddenParam<uiTranspValuesDlgPlus,Notifier<uiTranspValuesDlgPlus>*>
+    hp_segmentremoved(nullptr);
+
+Notifier<uiTranspValuesDlgPlus>& uiTranspValuesDlgPlus::segmentRemoved()
+{
+    return *hp_segmentremoved.getParam( this );
+}
 
 
 uiTranspValuesDlg::uiTranspValuesDlg( uiParent* p, ColTab::Sequence& ctab,
@@ -397,17 +424,22 @@ uiTranspValuesDlgPlus::uiTranspValuesDlgPlus( uiParent* p,
     , ctab_(ctab)
     , ctabrange_(ctabrange)
 {
+    hp_segmentinserted.setParam( this,
+				 new Notifier<uiTranspValuesDlgPlus>(this));
+    hp_segmentremoved.setParam( this,
+				new Notifier<uiTranspValuesDlgPlus>(this));
     const bool hasequalseg = ctab_.nrSegments() > 1;
 
-    auto* leftgrp = new uiGroup( this, "Left" );
-    table_ = new uiTable( leftgrp, uiTable::Setup(ctab_.transparencySize(),4)
-				      .rowdesc(uiStrings::sPoint())
-				      .defrowlbl(true)
-				      .removeselallowed(false)
-				      .fillrow(true)
-				      .removerowallowed(!hasequalseg)
-				      .insertrowallowed(!hasequalseg),
-			 "Position Table");
+    auto* tablegrp = new uiGroup( this, "Table" );
+    table_ = new uiTable( tablegrp, uiTable::Setup(ctab_.transparencySize(),4)
+				   .rowdesc(hasequalseg ? tr("Segment")
+							: uiStrings::sPoint())
+				   .rowgrow(true)
+				   .defrowlbl(true)
+				   .manualresize(false)
+				   .removeselallowed(false)
+				   .fillrow(true),
+			  "Position Table");
     const uiString pos = hasequalseg ? tr("% Value") : tr("Position\n(0 - 1)");
     const uiString transparency = tr("% Transparency");
     const uiString color = uiStrings::sColor();
@@ -418,36 +450,33 @@ uiTranspValuesDlgPlus::uiTranspValuesDlgPlus( uiParent* p,
     table_->setSelectionMode( uiTable::SingleRow );
     table_->setColumnReadOnly( sPosColorCol, true );
 
-
-    syncanchors_ = new uiPushButton( leftgrp, hasequalseg
-			     ? tr("Convert Transparency Points to Segments")
-			     : tr("Set Transparency Points to Anchor Values") );
+    auto* buttongrp = new uiButtonGroup( this, "Buttons", OD::Horizontal );
+    syncanchors_ = new uiPushButton( buttongrp, hasequalseg
+			? tr("Convert Transparency Points to Segments")
+			: tr("Set Transparency Points to Anchor Values"));
     syncanchors_->attach( leftAlignedBelow, table_ );
     mAttachCB( syncanchors_->activated,
 	       uiTranspValuesDlgPlus::setPtsToAnchSegCB );
 
-    resettransp_ = new uiPushButton( leftgrp, hasequalseg
-				 ? tr("Clear and set to Initial Anchor Points")
-				 : tr("Clear Transparency Points") );
+    resettransp_ = new uiPushButton( buttongrp, hasequalseg
+				? tr("Clear and set to Initial Anchor Points")
+				: tr("Clear Transparency Points"));
     resettransp_->attach( rightAlignedBelow, table_ );
     mAttachCB( resettransp_->activated,
 	       uiTranspValuesDlgPlus::resetTranspPtsCB );
     resettransp_->display( false );
 
-    auto* splitter = new uiSplitter( this, "Splitter", true );
-    splitter->addGroup( leftgrp );
+    auto* splitter = new uiSplitter( this, "Splitter", false );
 
     if ( !hasequalseg )
     {
-	auto* rightgrp = new uiGroup( this, "Right" );
-	anchortable_ = new uiTable( rightgrp, uiTable::Setup(ctab_.size(),2)
-						 .rowgrow(true)
-						 .rowdesc(tr("Anchor"))
-						 .defrowlbl(true)
-						 .manualresize(true)
-						 .fillrow(true)
-						 .removeselallowed(false),
-				   "Anchor Table");
+	anchortable_ = new uiTable( tablegrp, uiTable::Setup(ctab_.size(),2)
+					     .rowdesc(tr("Anchor"))
+					     .defrowlbl(true)
+					     .manualresize(false)
+					     .removeselallowed(false)
+					     .insertcolallowed(false),
+				    "Anchor Table");
 	uiStringSet anchorcolumnlabels;
 	anchorcolumnlabels.add( tr("Position\n(0 - 1)") )
 	    .add( uiStrings::sColor() );
@@ -455,9 +484,11 @@ uiTranspValuesDlgPlus::uiTranspValuesDlgPlus( uiParent* p,
 	anchortable_->setSelectionMode( uiTable::SingleRow );
 	fillAnchorTable();
 	anchortable_->setTableReadOnly(true);
-	splitter->addGroup( rightgrp );
+	anchortable_->attach( rightOf, table_ );
     }
 
+    splitter->addGroup( tablegrp );
+    splitter->addGroup( buttongrp );
 
     mAttachCB( table_->valueChanged, uiTranspValuesDlgPlus::dataChgdCB );
     mAttachCB( table_->rowInserted, uiTranspValuesDlgPlus::pointInsertedCB );
@@ -469,6 +500,8 @@ uiTranspValuesDlgPlus::uiTranspValuesDlgPlus( uiParent* p,
 uiTranspValuesDlgPlus::~uiTranspValuesDlgPlus()
 {
     detachAllNotifiers();
+    hp_segmentinserted.removeAndDeleteParam( this );
+    hp_segmentremoved.removeAndDeleteParam( this );
 }
 
 
@@ -529,7 +562,6 @@ void uiTranspValuesDlgPlus::fillTableWithPts()
     table_->setColumnReadOnly( sTranspCol, eqseg );
 
     table_->setMinimumWidthInChar( 80 );
-    table_->setMinimumHeightInChar( 28 );
 
     if ( anchortable_ && ctab_.nrSegments() < 2 )
 	fillAnchorTable();
@@ -542,11 +574,6 @@ void uiTranspValuesDlgPlus::fillTableWithSegments( bool resettransp )
     const int nrsegments = ctab_.nrSegments();
     const bool udfrange = ctabrange_.isUdf();
 
-    uiStringSet segrowlbls;
-    for ( int i=1; i<=nrsegments; i++)
-	segrowlbls.add(tr("Segment %1").arg(i));
-
-    table_->setRowLabels(segrowlbls);
     const int transpsize = ctab_.transparencySize();
 
     for ( int cidx=0; cidx<transpsize-2; cidx+=2 )
@@ -610,17 +637,14 @@ void uiTranspValuesDlgPlus::fillTableWithSegments( bool resettransp )
 void uiTranspValuesDlgPlus::fillAnchorTable()
 {
     const int numpos = ctab_.size();
-    for ( int cidx=0; cidx<numpos; cidx++ )
+    for ( int cidx=numpos-1; cidx>=0; cidx-- )
     {
 	const float position = ctab_.position( cidx );
-	anchortable_->setValue( RowCol(cidx,sPosCol),
-						 position );
-	anchortable_->setColor( RowCol(cidx,sColorCol),
-						 ctab_.color(position) );
+	anchortable_->setValue( RowCol(cidx,sPosCol), position );
+	anchortable_->setColor( RowCol(cidx,sColorCol), ctab_.color(position) );
     }
 
-    anchortable_->setColumnReadOnly( sPosCol, true );
-    anchortable_->setColumnReadOnly( sColorCol, true);
+    anchortable_->setTableReadOnly( true );
     anchortable_->setMinimumWidthInChar( 40 );
     anchortable_->setMinimumHeightInChar( 28 );
 }
@@ -628,18 +652,16 @@ void uiTranspValuesDlgPlus::fillAnchorTable()
 
 void uiTranspValuesDlgPlus::setPtsToAnchSegCB( CallBacker * )
 {
-    const BufferString lb = table_->rowLabel(0);
-    const bool segmenttable = lb.contains("Segment");
+    uiString synctxt = syncanchors_->text();
+    BufferString lb = synctxt.getString();
+    const bool settozero = lb.contains("0");
 
-    setPtsToAnchSeg( !segmenttable );
+    setPtsToAnchSeg( !settozero );
 
     if ( ctab_.nrSegments() > 1 )
     {
-	table_->setup().insertrowallowed(false).removerowallowed(false);
-	syncanchors_->setText( tr("Set Segments to 0% Transparency") );
+	syncanchors_->setText( tr("Set All Segments to 0% Transparency") );
     }
-//    else if ( !segmenttable && ctab_.nrSegments() > 1 )
-    // syncanchors_->setText( tr("Convert Transparency Points to Segments") );
 }
 
 
@@ -716,6 +738,14 @@ void uiTranspValuesDlgPlus::setPtsToAnchSeg( bool extrapolate )
 	}
     }
 
+    TypeSet<float> transpvals;
+    for ( int cidx=0; cidx<ctab_.size(); cidx++)
+    {
+	const float position = ctab_.position( cidx );
+	const float transp = extrapolate ? ctab_.transparencyAt(position) : 0;
+	transpvals.add( transp );
+    }
+
     while ( ctab_.transparencySize() > 2 )
 	ctab_.removeTransparencyAt( 1 );
 
@@ -724,7 +754,8 @@ void uiTranspValuesDlgPlus::setPtsToAnchSeg( bool extrapolate )
 	for ( int cidx=0; cidx<ctab_.size(); cidx++ )
 	{
 	    const float position = ctab_.position( cidx );
-	    const Geom::Point2D<float> newval = { position, 0 };
+	    const float transp = transpvals.get(cidx);
+	    const Geom::Point2D<float> newval = { position, transp };
 	    ctab_.setTransparency( newval );
 	}
 
@@ -763,7 +794,7 @@ void uiTranspValuesDlgPlus::setPtsToAnchSeg( bool extrapolate )
 	ctab_.setTransparency( {.999,tvals.last()} );
 	ctab_.setTransparency( {1,0} );
 
-	const int tabsize = ctab_.transparencySize()/2-2;
+	const int tabsize = nrsegs;
 
 	int trows = table_->nrRows();
 	if ( trows < tabsize )
@@ -972,20 +1003,38 @@ void uiTranspValuesDlgPlus::pointInsertedCB( CallBacker* )
     RowCol rcpos = table_->newCell();
     const int row = rcpos.row();
 
-    if ( ctab_.hasEqualSegments() )
+    if ( ctab_.nrSegments() > 1 )
     {
-	table_->removeRow( rcpos );
-	uiMSG().error( tr("Cannot insert points/segments "
-			  "in equal segment view") );
-	return;
-    }
+	if ( row-1<0 || row>=ctab_.nrSegments() )
+	{
+	    table_->removeRow( rcpos );
+	    uiMSG().error( tr("Cannot insert new segments before or after "
+			     "extreme positions.") );
+	    return;
+	}
 
-    if ( row-1<0 || row>=ctab_.transparencySize() )
+	if ( table_->nrRows() > 25 )
+	{
+	    table_->removeRow( rcpos );
+	    uiMSG().error( tr("Cannot have more than 25 segments") );
+	    return;
+	}
+
+	ctab_.setNrSegments( ctab_.nrSegments()+1 );
+	segmentInserted().trigger();
+	table_->clearTable();
+	setPtsToAnchSeg( true );
+	valuesChanged.trigger();
+    }
+    else
     {
-	table_->removeRow( rcpos );
-	uiMSG().error( tr("Cannot insert new points before or after "
-			  "extreme positions.") );
-	return;
+	if ( row-1<0 || row>=ctab_.transparencySize() )
+	{
+	    table_->removeRow( rcpos );
+	    uiMSG().error( tr("Cannot insert new points before or after "
+			      "extreme positions.") );
+	    return;
+	}
     }
 
     const float x1 = ctab_.transparency(row-1).x_;
@@ -1020,25 +1069,35 @@ void uiTranspValuesDlgPlus::pointDeletedCB( CallBacker* )
     const int row = rc.row();
     if ( ctab_.nrSegments() > 1 )
     {
-	table_->insertRows( rc, 1 );
-	fillTableWithSegments( false );
-	uiMSG().error( tr("Cannot delete points/segments "
-			  "in equal segment view") );
-	return;
-    }
+	if ( table_->nrRows() < 2 )
+	{
+	    table_->insertRows( rc, 1 );
+	    setPtsToAnchSeg( true );
+	    uiMSG().error( tr("Cannot have fewer than 2 segments") );
+	    return;
+	}
 
-    if ( row==0 || row==ctab_.transparencySize()-1 )
+	ctab_.setNrSegments( ctab_.nrSegments()-1 );
+	segmentRemoved().trigger();
+	table_->clearTable();
+	setPtsToAnchSeg( true );
+	valuesChanged.trigger();
+    }
+    else
     {
-	table_->insertRows( rc, 1 );
-	fillTableWithPts();
-	uiMSG().error( tr("Cannot remove remove points "
-			  "from extreme positions.") );
-	return;
-    }
+	if ( row==0 || row==ctab_.transparencySize()-1 )
+	{
+	    table_->insertRows( rc, 1 );
+	    fillTableWithPts();
+	    uiMSG().error( tr("Cannot remove remove points "
+			      "from extreme positions.") );
+	    return;
+	}
 
-    ctab_.removeTransparencyAt( row );
-    fillTableWithPts();
-    valuesChanged.trigger();
+	ctab_.removeTransparencyAt( row );
+	fillTableWithPts();
+	valuesChanged.trigger();
+    }
 }
 
 
@@ -1073,6 +1132,15 @@ void uiTranspValuesDlgPlus::resetTranspPtsCB( CallBacker* )
 }
 
 
+static HiddenParam<uiColorTableMan,Notifier<uiColorTableMan>*>
+    hp_rangechanged(nullptr);
+
+Notifier<uiColorTableMan>& uiColorTableMan::rangeChanged()
+{
+    return *hp_rangechanged.getParam( this );
+}
+
+
 uiColorTableMan::uiColorTableMan( uiParent* p, ColTab::Sequence& ctab,
        				  bool enabletrans )
     : uiDialog(p,Setup(uiStrings::phrManage(uiStrings::sColorTable(mPlural)),
@@ -1085,6 +1153,7 @@ uiColorTableMan::uiColorTableMan( uiParent* p, ColTab::Sequence& ctab,
 {
     hp_ctabrange.setParam( this,
 			   new Interval<float>(Interval<float>::udf()) );
+    hp_rangechanged.setParam(this, new Notifier<uiColorTableMan>(this));
     setShrinkAllowed( false );
 
     auto* leftgrp = new uiGroup( this, "Left" );
@@ -1098,22 +1167,95 @@ uiColorTableMan::uiColorTableMan( uiParent* p, ColTab::Sequence& ctab,
     coltablistfld_->setSelectionBehavior( uiTreeView::SelectRows );
     mAttachCB( coltablistfld_->selectionChanged, uiColorTableMan::selChg );
 
+    const char* segtypes[] = { "None", "Equal", "Variable", 0 };
+    segmentfld_ = new uiGenInput( leftgrp, tr("Segmentation"),
+				 StringListInpSpec(segtypes) );
+    mAttachCB( segmentfld_->valueChanged, uiColorTableMan::segmentSel );
+    segmentfld_->attach( leftAlignedBelow, coltablistfld_, 5 );
+
+    nrsegbox_ = new uiSpinBox( leftgrp, 0, 0 );
+    nrsegbox_->setInterval( 2, 25 );
+    nrsegbox_->setValue( 8 );
+    nrsegbox_->display( false );
+    mAttachCB( nrsegbox_->valueChanging, uiColorTableMan::nrSegmentsCB );
+    nrsegbox_->attach( rightTo, segmentfld_ );
+
+    uiColorInput::Setup cisetup( ctab_.undefColor(), enabletrans_ ?
+		    uiColorInput::Setup::Separate : uiColorInput::Setup::None );
+    cisetup.lbltxt( tr("Undefined color") );
+    undefcolfld_ = new uiColorInput( leftgrp, cisetup );
+    mAttachCB( undefcolfld_->colorChanged, uiColorTableMan::undefColSel );
+    undefcolfld_->attach( leftAlignedBelow, segmentfld_ );
+
+    auto* lbl = new uiLabel( leftgrp, tr("Range") );
+    lbl->attach( leftAlignedBelow, undefcolfld_ );
+
+    hp_minfld.setParam( this, new uiLineEdit(leftgrp,"Min") );
+    auto* minfld = hp_minfld.getParam(this);
+    mAttachCB( minfld->returnPressed, uiColorTableMan::rangeChangedCB );
+    minfld->attach( rightTo, lbl );
+
+    hp_maxfld.setParam( this, new uiLineEdit(leftgrp,"Max") );
+    auto* maxfld = hp_maxfld.getParam(this);
+    mAttachCB( maxfld->returnPressed, uiColorTableMan::rangeChangedCB );
+    maxfld->attach( rightTo, minfld );
+
+    uiColorInput::Setup ctsu( ctab_.markColor(), uiColorInput::Setup::None );
+    ctsu.withdesc( false );
+    markercolfld_ = new uiColorInput( leftgrp,
+				      ctsu.lbltxt(tr("Marker color")) );
+    mAttachCB( markercolfld_->colorChanged, uiColorTableMan::markerColChgd );
+
+    markercolfld_->display( false );
+
     auto* rightgrp = new uiGroup( this, "Right" );
 
-    OD::LineStyle ls( OD::LineStyle::Solid, 1, OD::Color::LightGrey() );
+    ctabcanvas_ =
+	new uiColorTableCanvas( rightgrp, ctab_, false, OD::Horizontal );
+    mAttachCB( ctabcanvas_->getMouseEventHandler().buttonPressed,
+	      uiColorTableMan::rightClick );
+    mAttachCB( ctabcanvas_->reSize, uiColorTableMan::reDrawCB );
+
+    w2uictabcanvas_ = new uiWorld2Ui( uiWorldRect(0,0,0,255),
+				     uiSize(mTransWidth/5, mTransWidth) );
+
+    //ctabcanvas_->attach( leftOf, markercanvas_, 0 );
+    ctabcanvas_->setPrefWidth( mTransWidth/25 );
+    ctabcanvas_->setPrefHeight( mTransWidth );
+    ctabcanvas_->setStretch( 0, 0 );
+    ctabcanvas_->setOrientation( OD::Vertical );
+    mAttachCB( ctabcanvas_->getMouseEventHandler().doubleClick,
+	      uiColorTableMan::markerDialogCB );
+
+    markercanvas_ = new uiColTabMarkerCanvas( rightgrp, ctab_ );
+    markercanvas_->setPrefWidth( mTransWidth/10 );
+    markercanvas_->setPrefHeight( mTransWidth );
+    markercanvas_->setStretch( 0, 0 );
+    markercanvas_->attach( rightOf, ctabcanvas_ );
+
     uiFunctionDisplay::Setup su;
-    su.border(uiBorder(2,25,3,5)).xrg(Interval<float>(0,1)).editable(true)
+    int nrsegs = ctab_.nrSegments();
+
+    su.border(uiBorder(2,5,3,5)).xrg(Interval<float>(0,1)).editable(true)
       .yrg(Interval<float>(0,255)).canvaswidth(mTransWidth).closepolygon(true)
       .canvasheight(mTransHeight).drawscattery1(true)
       .ylinestyle(OD::LineStyle(OD::LineStyle::Solid,2,OD::Color(255,0,0)))
       .y2linestyle(OD::LineStyle(OD::LineStyle::Solid,2,OD::Color(190,190,190)))
-      .drawliney2(false).fillbelowy2(true)
-      .pointsz(3).ptsnaptol(0.08).noxaxis(true).noxgridline(true).noyaxis(true)
-      .noygridline(true).noy2axis(true).noy2gridline(true).drawborder(false)
-      .borderstyle(ls);
+      .drawliney2(true).fillbelowy2(true)
+      .pointsz(3).ptsnaptol(nrsegs<10 && nrsegs>1 ? 0.5f/nrsegs : 0.08)
+      .noxaxis(true).noxgridline(true)
+      .noyaxis(true).noygridline(true)
+      .noy2axis(true).noy2gridline(true)
+      .drawborder(false).xannotinint(true);
+
+    su.setOrientation( OD::Vertical );
+
     cttranscanvas_ = new uiFunctionDisplay( rightgrp, su );
-    cttranscanvas_->setStretch( 2, 0 );
+    cttranscanvas_->setStretch( 0, 0 );
     cttranscanvas_->setTitleColor( OD::Color::Red() );
+    cttranscanvas_->attach( rightOf, markercanvas_ );
+    cttranscanvas_->setTitleAlignment(Alignment(Alignment::Left,
+						Alignment::Top));
 
     if ( enabletrans_ )
     {
@@ -1124,55 +1266,6 @@ uiColorTableMan::uiColorTableMan( uiParent* p, ColTab::Sequence& ctab,
 	mAttachCB( cttranscanvas_->getMouseEventHandler().buttonReleased,
 		   uiColorTableMan::rightClickTranspCB );
     }
-
-    markercanvas_ = new uiColTabMarkerCanvas( rightgrp, ctab_ );
-    markercanvas_->setPrefWidth( mTransWidth );
-    markercanvas_->setPrefHeight( mTransWidth/15 );
-    markercanvas_->setStretch( 2, 0 );
-    markercanvas_->attach( alignedBelow, cttranscanvas_ );
-
-    ctabcanvas_ =
-	new uiColorTableCanvas( rightgrp, ctab_, false, OD::Horizontal );
-    mAttachCB( ctabcanvas_->getMouseEventHandler().buttonPressed,
-		uiColorTableMan::rightClick );
-    mAttachCB( ctabcanvas_->reSize, uiColorTableMan::reDrawCB );
-
-    w2uictabcanvas_ = new uiWorld2Ui( uiWorldRect(0,255,1,0),
-				      uiSize(mTransWidth,mTransWidth/10) );
-    ctabcanvas_->attach( alignedBelow, markercanvas_, 0 );
-    ctabcanvas_->setPrefWidth( mTransWidth );
-    ctabcanvas_->setPrefHeight( mTransWidth/10 );
-    ctabcanvas_->setStretch( 2, 0 );
-    mAttachCB( ctabcanvas_->getMouseEventHandler().doubleClick,
-	       uiColorTableMan::markerDialogCB );
-
-    const char* segtypes[] = { "None", "Equal", "Variable", 0 };
-    segmentfld_ = new uiGenInput( rightgrp, tr("Segmentation"),
-				  StringListInpSpec(segtypes) );
-    mAttachCB( segmentfld_->valueChanged, uiColorTableMan::segmentSel );
-    segmentfld_->attach( leftAlignedBelow, ctabcanvas_ );
-
-    nrsegbox_ = new uiSpinBox( rightgrp, 0, 0 );
-    nrsegbox_->setInterval( 2, 25 );
-    nrsegbox_->setValue( 8 );
-    nrsegbox_->display( false );
-    mAttachCB( nrsegbox_->valueChanging, uiColorTableMan::nrSegmentsCB );
-    nrsegbox_->attach( rightTo, segmentfld_ );
-
-    uiColorInput::Setup cisetup( ctab_.undefColor(), enabletrans_ ?
-		 uiColorInput::Setup::Separate : uiColorInput::Setup::None );
-    cisetup.lbltxt( tr("Undefined color") );
-    undefcolfld_ = new uiColorInput( rightgrp, cisetup );
-    mAttachCB( undefcolfld_->colorChanged, uiColorTableMan::undefColSel );
-    undefcolfld_->attach( alignedBelow, segmentfld_ );
-
-    uiColorInput::Setup ctsu( ctab_.markColor(), uiColorInput::Setup::None );
-    ctsu.withdesc( false );
-    markercolfld_ = new uiColorInput( rightgrp,
-				      ctsu.lbltxt(tr("Marker color")) );
-    mAttachCB( markercolfld_->colorChanged, uiColorTableMan::markerColChgd );
-    markercolfld_->attach( alignedBelow, undefcolfld_ );
-    markercolfld_->display( ctab_.nrSegments() < 2 );
 
     auto* splitter = new uiSplitter( this, "Splitter", true );
     splitter->addGroup( leftgrp );
@@ -1220,6 +1313,8 @@ uiColorTableMan::~uiColorTableMan()
     ctab_.colorChanged.remove( mCB(this,uiColorTableMan,sequenceChange) );
     ctab_.transparencyChanged.remove( mCB(this,uiColorTableMan,sequenceChange));
     hp_ctabrange.removeAndDeleteParam( this );
+    hp_maxfld.removeAndDeleteParam( this );
+    hp_minfld.removeAndDeleteParam( this );
 
     delete orgctab_;
     delete w2uictabcanvas_;
@@ -1240,10 +1335,7 @@ void uiColorTableMan::doFinalize( CallBacker* )
     sequenceChange( 0 );
     toStatusBar( uiString::emptyString(), 1 );
 
-    if ( ctab_.nrSegments() < 2 )
-	markercanvas_->reDrawNeeded.trigger();
-    else
-	markercanvas_->eraseNeeded().trigger();
+    markercanvas_->reDrawNeeded.trigger();
 }
 
 
@@ -1286,10 +1378,7 @@ void uiColorTableMan::refreshColTabList( const char* selctnm )
     coltablistfld_->setSelected( itm, true );
     coltablistfld_->ensureItemVisible( itm );
 
-    if ( ctab_.nrSegments() < 2 )
-	markercanvas_->reDrawNeeded.trigger();
-    else
-	markercanvas_->eraseNeeded().trigger();
+    markercanvas_->reDrawNeeded.trigger();
 }
 
 
@@ -1339,12 +1428,9 @@ void uiColorTableMan::selChg( CallBacker* )
     updateSegmentFields();
     tableChanged.trigger();
 
-    if ( ctab_.nrSegments() < 2 )
-	markercanvas_->reDrawNeeded.trigger();
-    else
-	markercanvas_->eraseNeeded().trigger();
+    markercanvas_->reDrawNeeded.trigger();
 
-    markercolfld_->display( ctab_.nrSegments() < 2 );
+    markercolfld_->display( false );
 }
 
 
@@ -1389,13 +1475,12 @@ void uiColorTableMan::flipCB( CallBacker* )
     ctab_.flipColor();
     ctab_.flipTransparency();
     tableChanged.trigger();
-    if ( ctab_.nrSegments() < 2 )
-	markercanvas_->reDrawNeeded.trigger();
-    else
-	markercanvas_->eraseNeeded().trigger();;
 
     ctabcanvas_->setRGB();
     updateTransparencyGraph();
+
+    markercanvas_->setRange( *hp_ctabrange.getParam(this) );
+    markercanvas_->reDrawNeeded.trigger();
 }
 
 
@@ -1516,6 +1601,50 @@ void uiColorTableMan::undefColSel( CallBacker* )
 }
 
 
+void uiColorTableMan::rangeChangedCB( CallBacker* )
+{
+    auto* minfld = hp_minfld.getParam(this);
+    auto* maxfld = hp_maxfld.getParam(this);
+    auto* ctabrg = hp_ctabrange.getParam(this);
+    float mininp = minfld->getFValue();
+    float maxinp = hp_maxfld.getParam(this)->getFValue();
+
+    if ( mininp==mUdf(float) || maxinp==mUdf(float) )
+    {
+	minfld->setValue(ctabrg->start_);
+	maxfld->setValue(ctabrg->stop_);
+	uiMSG().error(tr("Invalid Input entered, check that it is a number"));
+	return;
+    }
+
+    if ( mininp >= ctabrg->stop_ )
+    {
+	minfld->setValue( ctabrg->start_ );
+	maxfld->setValue( ctabrg->stop_ );
+	uiMSG().error(tr("Invalid Input: Cannot have min range more than "
+			 "max range."));
+	return;
+    }
+
+    if ( maxinp <= ctabrg->start_ )
+    {
+	minfld->setValue( ctabrg->start_ );
+	maxfld->setValue( ctabrg->stop_ );
+	uiMSG().error(tr("Invalid Input: Cannot have max range less than "
+			 "min range."));
+	return;
+    }
+
+    ctabrg->start_ = mininp;
+
+    ctabrg->stop_ = maxinp;
+
+    markercanvas_->setRange(*ctabrg);
+    rangeChanged().trigger();
+    markercanvas_->reDrawNeeded.trigger();
+}
+
+
 void uiColorTableMan::markerColChgd( CallBacker* )
 {
     ctab_.setMarkColor( markercolfld_->color() );
@@ -1534,18 +1663,38 @@ void uiColorTableMan::setHistogram( const TypeSet<float>& hist,
 {
     *hp_ctabrange.getParam(this) = minmax;
     TypeSet<float>& myhist = const_cast<TypeSet<float>&>(hist);
-    if ( !myhist.isEmpty() )
-    {
-	myhist.removeSingle( 0 );
-	myhist.removeSingle( hist.size()-1 );
-    }
 
     TypeSet<float> x2vals;
     const float step = (float)1/(float)myhist.size();
     for ( int idx=0; idx<myhist.size(); idx++ )
 	x2vals += idx*step;
 
-    cttranscanvas_->setY2Vals( x2vals.arr(), myhist.arr(), myhist.size() );
+    TypeSet<float> y2vals;
+    for ( int idx=myhist.size()-1; idx>=0; idx-- )
+    {
+	y2vals += myhist.get(idx);
+    }
+
+    cttranscanvas_->setY2Vals( x2vals.arr(), y2vals.arr(), myhist.size() );
+    markercanvas_->setRange(minmax);
+    markercanvas_->reDrawNeeded.trigger();
+
+    const auto* rg = hp_ctabrange.getParam(this);
+    const bool validrg = rg && !rg->isUdf();
+    if ( validrg )
+    {
+	hp_minfld.getParam(this)->setValue( rg->start_ );
+	hp_maxfld.getParam(this)->setValue( rg->stop_ );
+    }
+
+    hp_minfld.getParam(this)->setSensitive( validrg );
+    hp_maxfld.getParam(this)->setSensitive( validrg );
+}
+
+
+Interval<float>* uiColorTableMan::getRange()
+{
+    return hp_ctabrange.getParam(this);
 }
 
 
@@ -1560,10 +1709,7 @@ void uiColorTableMan::updateSegmentFields()
     nrsegbox_->display( val==1 );
     nrsegbox_->setValue( val==1 ? ctab_.nrSegments() : 8 );
 
-    if ( ctab_.nrSegments() < 2 )
-	markercanvas_->reDrawNeeded.trigger();
-    else
-	markercanvas_->eraseNeeded().trigger();
+    markercanvas_->reDrawNeeded.trigger();
 }
 
 
@@ -1573,8 +1719,33 @@ void uiColorTableMan::segmentSel( CallBacker* )
     const bool segmented = segval==1;
 
     nrsegbox_->display( segmented );
-    markercolfld_->display ( !segmented );
+    markercolfld_->display ( false );
     doSegmentize();
+    if ( segmented )
+    {
+	setPtsToAnchSegsCB(nullptr);
+	const float nrsegs = ctab_.nrSegments();
+	cttranscanvas_->setup().ptsnaptol( nrsegs<10 && nrsegs>1 ? 0.7f/nrsegs
+								    : 0.08 );
+    }
+    else
+    {
+	cttranscanvas_->setup().ptsnaptol( 0.08 );
+    }
+}
+
+
+void uiColorTableMan::insertSegmentCB( CallBacker * )
+{
+    nrsegbox_->setValue(nrsegbox_->getIntValue()+1);
+    nrSegmentsCB( nullptr );
+}
+
+
+void uiColorTableMan::removeSegmentCB( CallBacker * )
+{
+    nrsegbox_->setValue(nrsegbox_->getIntValue()-1);
+    nrSegmentsCB( nullptr );
 }
 
 
@@ -1582,6 +1753,7 @@ void uiColorTableMan::nrSegmentsCB( CallBacker* )
 {
     NotifyStopper( ctab_.colorChanged );
     doSegmentize();
+    setPtsToAnchSegsCB(nullptr);
 }
 
 #define mAddColor(orgidx,newpos) { \
@@ -1616,13 +1788,103 @@ void uiColorTableMan::doSegmentize()
     else
 	ctab_.setNrSegments( -1 );
 
-   if ( ctab_.nrSegments() < 2 )
-       markercanvas_->reDrawNeeded.trigger();
-   else
-       markercanvas_->eraseNeeded().trigger();
+    markercanvas_->reDrawNeeded.trigger();
 
     ctabcanvas_->setRGB();
     tableChanged.trigger();
+    const int nrsegsel = nrsegbox_->getIntValue();
+    const bool compatible = ctab_.transparencySize()==nrsegsel*2+2;
+}
+
+
+void uiColorTableMan::setPtsToAnchSegsCB(CallBacker*)
+{
+    const int nrsegs = ctab_.nrSegments();
+    const float nrseg = nrsegs;
+    const float segsz = 1.0f/nrseg;
+    TypeSet<float> tvals;
+    if ( nrsegs<26 && nrsegs>1 )
+    {
+	const float quarter = segsz/4;
+	for ( float i=segsz/2; i<1; i+=segsz )
+	{
+	    float high = 0;
+	    float low = 255;
+	    for ( float j=(i-quarter); j<(i+quarter); j+=0.002 )
+	    {
+		const float transp = ctab_.transparencyAt(j);
+		if ( transp > high )
+		    high = transp;
+
+		if ( transp < low )
+		    low = transp;
+	    }
+
+	    const float avg = (high+low)/2;
+	    tvals.add( avg );
+	}
+    }
+
+    TypeSet<float> transpvals;
+    for ( int cidx=0; cidx<ctab_.size(); cidx++)
+    {
+	const float position = ctab_.position( cidx );
+	const float transp = ctab_.transparencyAt(position);
+	transpvals.add( transp );
+    }
+
+    while ( ctab_.transparencySize() > 2 )
+	ctab_.removeTransparencyAt( 1 );
+
+    if ( nrsegs==0 || nrsegs==-1 )
+    {
+	for ( int cidx=0; cidx<ctab_.size(); cidx++ )
+	{
+	    const float position = ctab_.position( cidx );
+	    const float transp = transpvals.get(cidx);
+	    const Geom::Point2D<float> newval = { position, transp };
+	    ctab_.setTransparency( newval );
+	}
+    }
+    else if ( nrsegs < 26 )
+    {
+	ctab_.setTransparency( {0,0} );
+	ctab_.setTransparency( {.001,tvals.first()} );
+
+	int rgidx = 0;
+
+	for ( float cidx=segsz; cidx<1; cidx+=segsz )
+	{
+	    const Geom::Point2D<float> segval = { cidx-.001f,
+						  tvals.get(rgidx++)};
+	    ctab_.setTransparency( segval );
+
+	    if ( rgidx > tvals.size()-1 )
+		rgidx = tvals.size()-1;
+
+	    if ( ctab_.transparencySize() < nrsegs*2+2 )
+	    {
+		const Geom::Point2D<float> segval2 = { cidx,
+						       tvals.get(rgidx) };
+		ctab_.setTransparency( segval2 );
+	    }
+	}
+
+	if ( ctab_.transparencySize() < nrsegs*2+2 )
+	{
+	    ctab_.setTransparency( {.999,tvals.last()} );
+	    ctab_.setTransparency( {1,0} );
+	}
+    }
+    else
+	uiMSG().error(tr("Number of Segments to replace the Points exceeds "
+			 "the max threshold."));
+
+    ctabcanvas_->setRGB();
+    transpTableChgd( nullptr );
+    //TODO: Figure out the optimal ratio for this
+    cttranscanvas_->setup().ptsnaptol( nrsegs<10 && nrsegs>1 ? 0.7f/nrsegs
+							     : 0.08 );
 }
 
 
@@ -1693,53 +1955,35 @@ void uiColorTableMan::rightClickTranspCB(CallBacker*)
 
     if ( res == 0 )
     {
-	bool showvals = true;
+	ColTab::Sequence coltab = ctab_;
+	uiTranspValuesDlgPlus dlg( parent_, ctab_,
+				   *hp_ctabrange.getParam(this) );
+	dlg.valuesChanged.notify( mCB(this,uiColorTableMan,transpTableChgd) );
+
 	if ( ctab_.nrSegments() > 1 )
 	{
-	    bool dontshowagain = false;
-	    Settings::common().getYN( sKeyAskBeforeSettingToSeg(),
-					dontshowagain );
-	    if ( !dontshowagain )
-	    {
-		const uiString msg = tr("Since the selected Segmentation is "
-					"'Equal', your Transparency line will "
-					"be converted to a 'Segmented' line. "
-					"Continue?");
-		showvals = uiMSG().askGoOn( msg, uiStrings::sContinue(),
-						 uiStrings::sCancel(),
-					    &dontshowagain );
-		if ( dontshowagain )
-		{
-		    Settings::common().setYN( sKeyAskBeforeSettingToSeg(),
-					      true );
-		    Settings::common().write();
-		}
-	    }
+	    dlg.segmentInserted()
+	       .notify( mCB(this,uiColorTableMan,insertSegmentCB) );
+	    dlg.segmentRemoved()
+	       .notify( mCB(this,uiColorTableMan,removeSegmentCB) );
 	}
 
-	if ( showvals )
+	if ( !dlg.go() && !(ctab_==coltab) )
 	{
-	    ColTab::Sequence coltab = ctab_;
-	    uiTranspValuesDlgPlus dlg( parent_, ctab_,
-				      *hp_ctabrange.getParam( this ) );
-	    dlg.valuesChanged.notify( mCB(this,uiColorTableMan,
-					 transpTableChgd) );
-	    if ( !dlg.go() && !(ctab_==coltab) )
+	    const uiString msg = tr("Save or Discard changes made to the "
+				    "Color Positions?");
+	    const bool save = uiMSG().askGoOn( msg, uiStrings::sSaveChanges(),
+						    uiStrings::sDiscard());
+	    if ( !save )
 	    {
-		const uiString msg2 = tr("Save or Discard changes made "
-					 "to the Color Positions?");
-		const bool save = uiMSG().askGoOn( msg2,
-						  uiStrings::sSaveChanges(),
-						  uiStrings::sDiscard());
-		if ( !save )
-		{
-		    ctab_ = coltab;
-		    transpTableChgd( nullptr );
-		    return;
-		}
+		ctab_ = coltab;
+		transpTableChgd( nullptr );
+		nrsegbox_->setValue( ctab_.nrSegments() );
 	    }
 	}
     }
+
+    doSegmentize();
 }
 
 
@@ -1771,16 +2015,15 @@ void uiColorTableMan::mouseMoveCB( CallBacker* cb )
     const float xval = std::clamp( xpos, 0.0f, 1.0f );
 
     float dataval = mUdf(float);
-    uiString datavalstr = uiStrings::sEmptyString();
-    const auto& ctabrange = *hp_ctabrange.getParam( this );
-    const bool udfrange = ctabrange.isUdf();
+    uiString datavalstr = tr("Value: ");
+    const bool udfrange = hp_ctabrange.getParam(this)->isUdf();
     if ( !udfrange )
     {
-	const float min = ctabrange.start_;
-	const float max = ctabrange.stop_;
+	const float min = hp_ctabrange.getParam(this)->start_;
+	const float max = hp_ctabrange.getParam(this)->stop_;
 	dataval = xval*(max-min)+min;
-	datavalstr = tr("Value: %1  /  ")
-			 .arg(toUiString( dataval, 0, 'g', 5 ) );
+	datavalstr.append( toUiString( dataval, 0, 'g', 5 ) )
+		  .append("  ").append("/").append("  ");
     }
     else
     {
@@ -1795,13 +2038,15 @@ void uiColorTableMan::mouseMoveCB( CallBacker* cb )
     const uiString valpercstr = toUiString("% Value: %1%  /  ")
 				    .arg(valperc);
 
-    const uiString posstr = toUiString("%1%2% Transp: %3%")
+    const uiString posstr = toUiString("%1%2Transp: %3%")
 				.arg( udfrange ? colorposstr
-					       : valpercstr )
+					       : uiStrings::sEmptyString() )
 				.arg( datavalstr )
 				.arg( transpvalstr );
     cttranscanvas_->setTitle( posstr );
     const MouseEvent& ev = cttranscanvas_->getMouseEventHandler().event();
+    cttranscanvas_->setTitleAlignment(Alignment(Alignment::Left,
+						Alignment::Top));
     if ( ( !inyrange || !inxrange ) && OD::LeftButton!=ev.buttonState() )
 	cttranscanvas_->setTitle( uiStrings::sEmptyString() );
 }
@@ -1838,9 +2083,23 @@ void uiColorTableMan::sequenceChange( CallBacker* )
 
 void uiColorTableMan::transptChg( CallBacker* )
 {
+    if ( ctab_.nrSegments() > 1 )
+    {
+	cttranscanvas_->allowAddingPoints(false);
+    }
+    else
+	cttranscanvas_->allowAddingPoints(true);
+
     const int ptidx = cttranscanvas_->selPt();
     const int nrpts = cttranscanvas_->xVals().size();
-    if ( ptidx < 0 )
+    const bool equalseg = ctab_.nrSegments() > 1;
+    const bool compatible = ctab_.transparencySize()==ctab_.nrSegments()*2+2;
+
+    if ( ptidx < 0 && equalseg )
+    {
+	return;
+    }
+    else if ( ptidx < 0 )
     {
 	ctab_.removeTransparencies();
 	if ( cttranscanvas_->xVals().isEmpty() )
@@ -1865,6 +2124,26 @@ void uiColorTableMan::transptChg( CallBacker* )
     {
 	Geom::Point2D<float> pt( cttranscanvas_->xVals()[ptidx],
 				 cttranscanvas_->yVals()[ptidx] );
+
+	Geom::Point2D<float> pt2;
+	int ptidx2 = ptidx;
+
+	if ( ptidx!=0 && ptidx!=nrpts-1 && equalseg && compatible )
+	{
+	    if ( ptidx%2!=0 )
+	    {
+		ptidx2 = ptidx+1;
+		pt2 = { cttranscanvas_->xVals()[ptidx2],
+			cttranscanvas_->yVals()[ptidx] };
+	    }
+	    else
+	    {
+		ptidx2 = ptidx-1;
+		pt2 = { cttranscanvas_->xVals()[ptidx2],
+			cttranscanvas_->yVals()[ptidx] };
+	    }
+	}
+
 	if ( !pt.isDefined() )
 	    return;
 
@@ -1880,11 +2159,19 @@ void uiColorTableMan::transptChg( CallBacker* )
 	    reset = true;
 	}
 
+	if ( equalseg && compatible )
+	{
+	    updateTransparencyGraph();
+	    ctab_.changeTransparency( ptidx2, pt2 );
+	    pt.x_ = ctab_.transparency(ptidx).x_;
+	}
+
 	if ( reset )
 	    updateTransparencyGraph();
 
 	ctab_.changeTransparency( ptidx, pt );
     }
+
     tableChanged.trigger();
 }
 
@@ -1892,6 +2179,15 @@ void uiColorTableMan::transptChg( CallBacker* )
 void uiColorTableMan::transptSel( CallBacker* )
 {
     const int ptidx = cttranscanvas_->selPt();
+    if ( ctab_.nrSegments() > 1 )
+    {
+	cttranscanvas_->allowAddingPoints(false);
+	return;
+    }
+    else
+	cttranscanvas_->allowAddingPoints(true);
+
+
     const int nrpts = cttranscanvas_->xVals().size();
     if ( ptidx<0 || nrpts == ctab_.transparencySize() )
 	return;

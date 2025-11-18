@@ -50,9 +50,13 @@ mExpClass(uiTools) uiColTabMarkerCanvas : public uiGraphicsView
 public:
 				uiColTabMarkerCanvas(uiParent*,
 						     ColTab::Sequence&);
+				uiColTabMarkerCanvas(uiParent*,
+						     ColTab::Sequence&,
+						     const Interval<float>);
 				~uiColTabMarkerCanvas();
 
     Notifier<uiColTabMarkerCanvas> markerChanged;
+    void			setRange(const Interval<float>);
 
 protected:
 

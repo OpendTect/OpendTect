@@ -26,52 +26,9 @@ public:
 
     struct Setup
     {
-				Setup()
-				    : xrg_(mUdf(float),mUdf(float))
-				    , yrg_(mUdf(float),mUdf(float))
-				    , y2rg_(mUdf(float),mUdf(float))
-				    , bgcol_(OD::Color::White())
-				    , ylinestyle_(OD::LineStyle::Solid,2,
-						  OD::Color(200,160,140))
-				    , y2linestyle_(OD::LineStyle::Solid,2,
-						   OD::Color(140,160,200))
-				    , canvaswidth_(400)
-				    , canvasheight_(250)
-				    , border_(20,20,20,10)
-				    , annotx_(true)
-				    , annoty_(true)
-				    , annoty2_(true)
-				    , noxaxis_(false)
-				    , noyaxis_(false)
-				    , noy2axis_(false)
-				    , noxgridline_(false)
-				    , noygridline_(false)
-				    , noy2gridline_(false)
-				    , pointsz_(0)
-				    , ptsnaptol_(0.01)
-				    , editable_(false)
-				    , curvzvaly_(1)
-				    , curvzvaly2_(0)
-				    , fillbelow_(false)
-				    , fillbelowy2_(false)
-				    , drawscattery1_(false)
-				    , drawscattery2_(false)
-				    , markerstyley1_(MarkerStyle2D::Square,3,
-						     OD::Color(200,160,140))
-				    , markerstyley2_(MarkerStyle2D::Square,3,
-						     OD::Color(140,160,200))
-				    , markerfilly1_(false)
-				    , markerfilly2_(false)
-				    , drawborder_(false)
-				    , fixdrawrg_(true)
-				    , borderstyle_(OD::LineStyle())
-				    , closepolygon_(true)
-				    , drawliney_(true)
-				    , useyscalefory2_(false)
-				    , xannotinint_(false)
-				    , yannotinint_(false)
-				    , drawliney2_(true)
-				    , showlegend_(false) {}
+				Setup();
+				Setup(const Setup&);
+				~Setup();
 
 	mDefSetupMemb(Interval<float>,xrg)	//!< if fixed start or end
 	mDefSetupMemb(Interval<float>,yrg)	//!< if fixed start or end
@@ -129,6 +86,10 @@ public:
 	Setup&		axes( bool yn )
 			{ noxaxis_ = noyaxis_ = noy2axis_ = !yn; return *this; }
 
+			bool isVertical() const
+			{ return getOrientation() == OD::Vertical; }
+			void setOrientation(OD::Orientation);
+			OD::Orientation getOrientation() const;
     };
 
 				uiFuncDispBase(const Setup&);

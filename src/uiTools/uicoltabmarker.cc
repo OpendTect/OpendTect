@@ -23,6 +23,7 @@ ________________________________________________________________________
 #include "color.h"
 #include "coltabsequence.h"
 #include "draw.h"
+#include "hiddenparam.h"
 #include "mouseevent.h"
 #include "rowcol.h"
 #include "od_helpids.h"
@@ -34,6 +35,8 @@ static const int sPosCol = 0;
 static const int sColorCol = 1;
 
 #define mEps 0.00001
+
+static HiddenParam<uiColTabMarkerCanvas,Interval<float>*> hp_ctabrg(nullptr);
 
 uiColTabMarkerDlg::uiColTabMarkerDlg( uiParent* p, ColTab::Sequence& ctab )
     : uiDialog(p,Setup(uiStrings::phrManage(tr("Anchors")),
@@ -206,10 +209,12 @@ uiColTabMarkerCanvas::uiColTabMarkerCanvas( uiParent* p, ColTab::Sequence& ctab)
     , markerlineitmgrp_(0)
     , meh_(scene().getMouseEventHandler())
 {
+    hp_ctabrg.setParam( this,
+			  new Interval<float>(Interval<float>::udf()) );
     setScrollBarPolicy( true, uiGraphicsView::ScrollBarAlwaysOff );
     setScrollBarPolicy( false, uiGraphicsView::ScrollBarAlwaysOff );
     selidx_ = mUdf(int);
-    w2ui_ = new uiWorld2Ui( uiWorldRect(0,255,1,0), uiSize(1,1) );
+    w2ui_ = new uiWorld2Ui( uiWorldRect(0,1,255,0), uiSize(1,1) );
 
     reDrawNeeded.notify( mCB(this,uiColTabMarkerCanvas,drawMarkers));
     eraseNeeded().notify( mCB(this,uiColTabMarkerCanvas,eraseMarkers));
@@ -222,21 +227,72 @@ uiColTabMarkerCanvas::uiColTabMarkerCanvas( uiParent* p, ColTab::Sequence& ctab)
 }
 
 
+uiColTabMarkerCanvas::uiColTabMarkerCanvas( uiParent* p, ColTab::Sequence& ctab,
+					    const Interval<float> surveyrg )
+    : uiGraphicsView(p,"Anchor Canvas")
+    , parent_(p)
+    , ctab_(ctab)
+    , markerChanged(this)
+    , meh_(scene().getMouseEventHandler())
+{
+    hp_ctabrg.setParam( this,
+			new Interval<float>(surveyrg.start_, surveyrg.stop_) );
+    setScrollBarPolicy( true, uiGraphicsView::ScrollBarAlwaysOff );
+    setScrollBarPolicy( false, uiGraphicsView::ScrollBarAlwaysOff );
+    selidx_ = mUdf(int);
+    w2ui_ = new uiWorld2Ui( uiWorldRect(0,1,255,0), uiSize(1,1) );
+
+    reDrawNeeded.notify( mCB(this,uiColTabMarkerCanvas,drawMarkers) );
+    eraseNeeded().notify( mCB(this,uiColTabMarkerCanvas,eraseMarkers) );
+    reSize.notify( mCB(this,uiColTabMarkerCanvas,drawMarkers) );
+
+    meh_.buttonPressed.notify(mCB(this,uiColTabMarkerCanvas,mouseClk) );
+    meh_.movement.notify( mCB(this,uiColTabMarkerCanvas,mouseMove) );
+    meh_.doubleClick.notify( mCB(this,uiColTabMarkerCanvas,mouse2Clk) );
+    meh_.buttonReleased.notify(mCB(this,uiColTabMarkerCanvas,mouseRelease) );
+}
+
+
 uiColTabMarkerCanvas::~uiColTabMarkerCanvas()
 {
     delete w2ui_;
+    hp_ctabrg.removeAndDeleteParam( this );
 }
 
 
 void uiColTabMarkerCanvas::drawMarkers( CallBacker* )
 {
-    if ( ctab_.nrSegments() > 2 )
-	return;
-
     const int w = viewWidth();
     const int h = viewHeight();
-    scene().setSceneRect( 0, 0, sCast(float,w), sCast(float,h) );
-    w2ui_->set( uiRect(3,0,w-4,h-5), uiWorldRect(0,255,1,0) );
+    scene().setSceneRect( sCast(float,w), sCast(float,h), 0, 0 );
+    w2ui_->set( uiRect(5,3,w-8,h-4), uiWorldRect(0,1,255,0) );
+    auto* ctabrg = hp_ctabrg.getParam(this);
+
+    int decimals = 2;
+    char format = 'g';
+    if ( !ctabrg->isUdf() )
+    {
+	const float min = std::fabs( ctabrg->start_ );
+	const float max = std::fabs( ctabrg->stop_ );
+
+	const float totalrange = min+max;
+
+	if ( totalrange>=100000.0f || totalrange<0.2f )
+	{
+	    decimals = 3;
+	    format = 'g';
+	}
+	else if ( totalrange < 20.0f )
+	{
+	    decimals = 2;
+	    format = 'f';
+	}
+	else
+	{
+	    decimals = 0;
+	    format = 'f';
+	}
+    }
 
     if ( !markerlineitmgrp_ )
     {
@@ -246,15 +302,119 @@ void uiColTabMarkerCanvas::drawMarkers( CallBacker* )
     else
 	markerlineitmgrp_->removeAll( true );
 
-    for ( int idx=0; idx<ctab_.size(); idx++ )
+    if ( ctab_.nrSegments() < 2 )
     {
-	const float val = ctab_.position(idx);
-	uiWorldPoint wpt( val, 0 );
-	const uiPoint pt( w2ui_->transform(wpt) );
-	auto* lineitem = new uiLineItem();
-        lineitem->setLine( pt.x_, 0, pt.x_, 15 );
-	lineitem->setPenStyle( OD::LineStyle(OD::LineStyle::Solid,3) );
-	markerlineitmgrp_->add( lineitem );
+	for ( int idx=0; idx<ctab_.size(); idx++ )
+	{
+	    const float val = ctab_.position(idx);
+	    uiWorldPoint wpt( 0, val );
+	    const uiPoint pt( w2ui_->transform(wpt) );
+	    auto* lineitem = new uiLineItem();
+	    lineitem->setLine( 0, pt.y_, 70, pt.y_ );
+	    lineitem->setPenStyle( OD::LineStyle(OD::LineStyle::Solid,2) );
+	    auto* txtitem = new uiTextItem();
+	    if ( ctabrg->isUdf() )
+	    {
+		txtitem->setText( toUiString(val,0,format,decimals) );
+	    }
+	    else
+	    {
+		const float min = ctabrg->start_;
+		const float max = ctabrg->stop_;
+		float dataval = val*(max-min)+min;
+		txtitem->setText( toUiString(dataval,0,format,decimals) );
+	    }
+
+	    if ( val==0 )
+	    {
+		txtitem->setPos( uiPoint(pt.x_,pt.y_-23) );
+	    }
+	    else
+	    {
+		txtitem->setPos( uiPoint(pt.x_,pt.y_-2) );
+	    }
+
+	    txtitem->setVisible( true );
+	    markerlineitmgrp_->add( txtitem );
+	    markerlineitmgrp_->add( lineitem );
+	}
+    }
+    else
+    {
+	const float nrseg = ctab_.nrSegments();
+	const float segdist = 1.0f/nrseg;
+	for ( float idx=0; idx<=1; idx+=segdist )
+	{
+	    const float val = idx;
+	    uiWorldPoint wpt( 0, val );
+	    const uiPoint pt( w2ui_->transform(wpt) );
+	    auto* lineitem = new uiLineItem();
+
+	    int offset = 0;
+	    if ( idx<0.5 && idx>0 )
+	    {
+		offset = 2;
+	    }
+	    else if ( idx>0.5 && idx<1 )
+	    {
+		offset = -2;
+	    }
+
+	    lineitem->setLine( 0, pt.y_+offset, 70, pt.y_+offset );
+	    lineitem->setPenStyle( OD::LineStyle(OD::LineStyle::Solid,2) );
+	    auto* txtitem = new uiTextItem();
+	    if ( ctabrg->isUdf() )
+	    {
+		txtitem->setText( toUiString(val,0,format,decimals) );
+	    }
+	    else
+	    {
+		const float min = hp_ctabrg.getParam(this)->start_;
+		const float max = hp_ctabrg.getParam(this)->stop_;
+		float dataval = val*(max-min)+min;
+		txtitem->setText( toUiString(dataval,0,format,decimals) );
+	    }
+
+	    if ( val==0 )
+	    {
+		txtitem->setPos( uiPoint(pt.x_,pt.y_-23) );
+	    }
+	    else
+	    {
+		txtitem->setPos( uiPoint(pt.x_,pt.y_-2) );
+	    }
+
+	    markerlineitmgrp_->add( txtitem );
+	    markerlineitmgrp_->add( lineitem );
+	}
+
+	if ( markerlineitmgrp_->size()!=(nrseg*2+2))
+	{
+	    const float val = 1;
+	    uiWorldPoint wpt( 0, val );
+	    const uiPoint pt( w2ui_->transform(wpt) );
+	    auto* lineitem = new uiLineItem();
+
+	    lineitem->setLine( 0, pt.y_, 70, pt.y_ );
+	    lineitem->setPenStyle( OD::LineStyle(OD::LineStyle::Solid,2) );
+	    auto* txtitem = new uiTextItem();
+	    if ( ctabrg->isUdf() )
+	    {
+		txtitem->setText( toUiString(val,0,format,decimals) );
+	    }
+	    else
+	    {
+		const float min = ctabrg->start_;
+		const float max = ctabrg->stop_;
+		float dataval = val*(max-min)+min;
+		txtitem->setText( toUiString(dataval,0,format,decimals) );
+	    }
+
+	    txtitem->setPos( uiPoint(pt.x_,pt.y_-2) );
+
+	    markerlineitmgrp_->add( txtitem );
+	    markerlineitmgrp_->add( lineitem );
+	}
     }
 }
 
@@ -263,8 +423,8 @@ void uiColTabMarkerCanvas::eraseMarkers( CallBacker* )
 {
     const int w = viewWidth();
     const int h = viewHeight();
-    scene().setSceneRect( 0, 0, sCast(float,w), sCast(float,h) );
-    w2ui_->set( uiRect(3,0,w-4,h-5), uiWorldRect(0,255,1,0) );
+    scene().setSceneRect( sCast(float,w), sCast(float,h), 0, 0 );
+    w2ui_->set( uiRect(5,3,w-8,h-4), uiWorldRect(0,1,255,0) );
 
     if ( !markerlineitmgrp_ )
     {
@@ -287,11 +447,11 @@ void uiColTabMarkerCanvas::mouseClk( CallBacker* )
     selidx_ = -1;
     float mindiff = 5;
     uiWorldPoint wpp = w2ui_->worldPerPixel();
-    float fac = (float)wpp.x_;
+    float fac = (float)wpp.y_;
     for ( int idx=0; idx<ctab_.size(); idx++ )
     {
 	const float val = ctab_.position( idx );
-        const float ref = (float) ( wpt.x_ );
+	const float ref = (float) ( wpt.y_ );
 	const float diffinpix = fabs(val-ref) / fabs(fac);
 	if ( diffinpix < mindiff )
 	{
@@ -313,11 +473,11 @@ void uiColTabMarkerCanvas::mouseClk( CallBacker* )
     if ( selidx_>=0 )
     {
 	if ( selidx_ != 0 && selidx_ != ctab_.size()-1 )
-	mnu.insertAction( new uiAction(tr("Remove color")), 0 );
-	mnu.insertAction( new uiAction(m3Dots(tr("Change color"))), 1 );
-    }
+	    mnu.insertAction( new uiAction(uiStrings::phrRemove(
+				 tr("Anchor"))), 0 );
 
-    mnu.insertAction( new uiAction(m3Dots(tr("Edit Anchors"))), 2 );
+	mnu.insertAction( new uiAction(m3Dots(tr("Change Color"))), 1 );
+    }
 
     const int res = mnu.exec();
     if ( res==0 )
@@ -328,9 +488,7 @@ void uiColTabMarkerCanvas::mouseClk( CallBacker* )
     {
 	ColTab::Sequence coltab = ctab_;
 	//this will ensure that the color table manager will not be gray
-	uiParent* dlgparent = parent_ &&
-			      parent_->mainwin() ? parent_->mainwin()->parent()
-						 : nullptr;
+	uiParent* dlgparent = parent_ ? parent_->mainwin()->parent() : parent_;
 	uiColTabMarkerDlg dlg( dlgparent, ctab_ );
 	dlg.markersChanged.notify( mCB(this,uiColTabMarkerCanvas,markerChgd) );
 	if ( !dlg.go() )
@@ -348,7 +506,14 @@ void uiColTabMarkerCanvas::mouseClk( CallBacker* )
 void uiColTabMarkerCanvas::markerChgd( CallBacker* )
 {
     markerChanged.trigger();
-    reDrawNeeded.trigger();
+
+    if ( !markerlineitmgrp_->isEmpty() )
+	reDrawNeeded.trigger();
+}
+
+void uiColTabMarkerCanvas::setRange( const Interval<float> rg )
+{
+    hp_ctabrg.setParam( this, new Interval<float>(rg.start_, rg.stop_) );
 }
 
 
@@ -401,7 +566,7 @@ void uiColTabMarkerCanvas::mouse2Clk( CallBacker* )
 
     const MouseEvent& ev = meh_.event();
     const uiWorldPoint wpt = w2ui_->transform( ev.pos() );
-    addMarker( sCast(float,wpt.x_), true );
+    addMarker( sCast(float,wpt.y_), true );
     selidx_ = -1;
     meh_.setHandled( true );
 }
@@ -431,7 +596,7 @@ void uiColTabMarkerCanvas::mouseMove( CallBacker* )
 
     const MouseEvent& ev = meh_.event();
     uiWorldPoint wpt = w2ui_->transform( ev.pos() );
-    float changepos = (float) ( wpt.x_ );
+    float changepos = (float) ( wpt.y_ );
 
     const int sz = ctab_.size();
     if ( selidx_<0 || selidx_>=sz )
