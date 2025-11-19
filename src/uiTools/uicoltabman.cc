@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "hiddenparam.h"
 #include "mouseevent.h"
 #include "od_helpids.h"
+#include "od_ostream.h"
 #include "settings.h"
 #include "timer.h"
 
@@ -1223,7 +1224,7 @@ uiColorTableMan::uiColorTableMan( uiParent* p, ColTab::Sequence& ctab,
     w2uictabcanvas_ = new uiWorld2Ui( uiWorldRect(0,0,0,255),
 				     uiSize(mTransWidth/5, mTransWidth) );
 
-    ctabcanvas_->setPrefWidth( mTransWidth/25 );
+    ctabcanvas_->setPrefWidth( 20 );
     ctabcanvas_->setPrefHeight( mTransWidth );
     ctabcanvas_->setStretch( 0, 2 );
     ctabcanvas_->setOrientation( OD::Vertical );
@@ -1240,7 +1241,8 @@ uiColorTableMan::uiColorTableMan( uiParent* p, ColTab::Sequence& ctab,
     int nrsegs = ctab_.nrSegments();
 
     su.border(uiBorder(2,5,3,5)).xrg(Interval<float>(0,1)).editable(true)
-      .yrg(Interval<float>(0,255)).canvaswidth(mTransWidth).closepolygon(true)
+      .yrg(Interval<float>(0,255)).y2rg(Interval<float>(0,1))
+      .canvaswidth(mTransWidth).closepolygon(true)
       .canvasheight(mTransHeight).drawscattery1(true)
       .ylinestyle(OD::LineStyle(OD::LineStyle::Solid,2,OD::Color(255,0,0)))
       .y2linestyle(OD::LineStyle(OD::LineStyle::Solid,2,OD::Color(190,190,190)))
@@ -1253,10 +1255,8 @@ uiColorTableMan::uiColorTableMan( uiParent* p, ColTab::Sequence& ctab,
 
     cttranscanvas_ = new uiFunctionDisplay( rightgrp, su, OD::Vertical );
     cttranscanvas_->setStretch( 2, 2 );
-    cttranscanvas_->setTitleColor( OD::Color::Red() );
     cttranscanvas_->attach( rightOf, markercanvas_ );
-    cttranscanvas_->setTitleAlignment(Alignment(Alignment::Left,
-						Alignment::Top));
+    cttranscanvas_->setTitleColor( OD::Color::Red() );
 
     if ( enabletrans_ )
     {
@@ -1651,6 +1651,7 @@ void uiColorTableMan::setHistogram( const TypeSet<float>& hist )
 void uiColorTableMan::setHistogram( const TypeSet<float>& hist,
 				    const Interval<float>& minmax )
 {
+    od_ostream strm("/tmp/hist.txt");
     *hp_ctabrange.getParam(this) = minmax;
     TypeSet<float>& myhist = const_cast<TypeSet<float>&>(hist);
 
@@ -1663,8 +1664,11 @@ void uiColorTableMan::setHistogram( const TypeSet<float>& hist,
     for ( int idx=myhist.size()-1; idx>=0; idx-- )
     {
 	y2vals += myhist.get(idx);
+	strm << myhist.get(idx) << od_endl;
     }
 
+    cttranscanvas_->yAxis(true)->setRange( Interval<float>(0.,1.f) );
+    cttranscanvas_->yAxis(true)->setCaption( uiString::empty() );
     cttranscanvas_->setY2Vals( x2vals.arr(), y2vals.arr(), myhist.size() );
     const auto* rg = hp_ctabrange.getParam(this);
     const bool validrg = rg && !rg->isUdf();
@@ -1988,6 +1992,12 @@ void uiColorTableMan::mouseMoveCB( CallBacker* cb )
     const bool inyrange = cttranscanvas_->yAxis(false)->range()
 							.includes(ypos,true);
     const bool inxrange = cttranscanvas_->xAxis()->range().includes(xpos,true);
+    const MouseEvent& ev = cttranscanvas_->getMouseEventHandler().event();
+    if ( ( !inyrange || !inxrange ) && OD::LeftButton!=ev.buttonState() )
+    {
+	cttranscanvas_->setTitle( uiStrings::sEmptyString() );
+	return;
+    }
 
     float transperc = 0;
     const float ymax = cttranscanvas_->yAxis(false)->range().stop_;
@@ -2004,41 +2014,21 @@ void uiColorTableMan::mouseMoveCB( CallBacker* cb )
 
     const float xval = std::clamp( xpos, 0.0f, 1.0f );
 
-    float dataval = mUdf(float);
     uiString datavalstr = tr("Value: ");
-    const bool udfrange = hp_ctabrange.getParam(this)->isUdf();
-    if ( !udfrange )
-    {
-	const float min = hp_ctabrange.getParam(this)->start_;
-	const float max = hp_ctabrange.getParam(this)->stop_;
-	dataval = xval*(max-min)+min;
-	datavalstr.append( toUiString( dataval, 0, 'g', 5 ) )
-		  .append("  ").append("/").append("  ");
-    }
-    else
-    {
-	datavalstr = uiStrings::sEmptyString();
-    }
+    const Interval<float>* datarg = hp_ctabrange.getParam( this );
+    if ( !datarg )
+	return;
 
-    const uiString colorposval = toUiString( xval, 0, 'f', 2 );
-    const uiString valperc = toUiString( xval*100, 0, 'f', 0 );
-    const uiString transpvalstr = toUiString( transperc, 0, 'f', 0 );
-    const uiString colorposstr = toUiString("Pos: %1 (0-1)  /  ")
-				    .arg(colorposval);
-    const uiString valpercstr = toUiString("% Value: %1%  /  ")
-				    .arg(valperc);
-
-    const uiString posstr = toUiString("%1%2Transp: %3%")
-				.arg( udfrange ? colorposstr
-					       : uiStrings::sEmptyString() )
-				.arg( datavalstr )
-				.arg( transpvalstr );
-    cttranscanvas_->setTitle( posstr );
-    const MouseEvent& ev = cttranscanvas_->getMouseEventHandler().event();
-    cttranscanvas_->setTitleAlignment(Alignment(Alignment::Left,
-						Alignment::Top));
-    if ( ( !inyrange || !inxrange ) && OD::LeftButton!=ev.buttonState() )
-	cttranscanvas_->setTitle( uiStrings::sEmptyString() );
+    const float dataval = datarg->isUdf() ? mUdf(float)
+		: datarg->start_ + xval*(datarg->stop_ - datarg->start_);
+    const uiString vallabel = mIsUdf(dataval) ? tr( "Pos   " ) : tr( "Value " );
+    const BufferString valstr = mIsUdf(dataval) ? toStringDec( xval, 2 )
+						: toStringLim( dataval, 8 );
+    const BufferString transpvalstr = toStringDec( transperc, 0 );
+    const uiString titletext = toUiString( "%1 : %2\n%3 : %4%" )
+			.arg( vallabel ).arg( valstr )
+			.arg( tr("Transp") ).arg( transpvalstr );
+    cttranscanvas_->setTitle( titletext );
 }
 
 

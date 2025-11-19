@@ -180,8 +180,9 @@ void uiFunctionDisplay::setTitle( const uiString& title )
 	titleitem_ = scene().addItem( new uiTextItem() );
 	if ( isVertical() )
 	{
-	    titleitem_->setAlignment( Alignment(Alignment::Left,
+	    titleitem_->setAlignment( Alignment(Alignment::Right,
 					       Alignment::Top));
+	    titleitem_->setPos( uiPoint(viewWidth()) );
 	}
 	else
 	{
@@ -557,9 +558,13 @@ void uiFunctionDisplay::drawBorder()
 	borderrectitem_->setVisible( setup_.drawborder_ );
 }
 
-
+#include "od_ostream.h"
 void uiFunctionDisplay::draw()
 {
+    const int w = viewWidth();
+    const int h = viewHeight();
+    od_cerr() << "W: " << w << ", H : " << h << od_endl;
+
     if ( titleitem_ )
     {
 	if ( isVertical() )

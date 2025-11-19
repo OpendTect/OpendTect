@@ -216,7 +216,7 @@ uiColTabMarkerCanvas::uiColTabMarkerCanvas( uiParent* p, ColTab::Sequence& ctab)
     setScrollBarPolicy( false, uiGraphicsView::ScrollBarAlwaysOff );
     selidx_ = mUdf(int);
     w2ui_ = new uiWorld2Ui( uiWorldRect(0,1,255,0),
-	    		    uiSize(viewWidth(),viewHeight()) );
+			    uiSize(viewWidth(),viewHeight()) );
 
     reDrawn.notify( mCB(this,uiColTabMarkerCanvas,drawMarkers) );
     eraseNeeded().notify( mCB(this,uiColTabMarkerCanvas,eraseMarkers) );
@@ -242,7 +242,7 @@ uiColTabMarkerCanvas::uiColTabMarkerCanvas( uiParent* p, ColTab::Sequence& ctab,
     setScrollBarPolicy( false, uiGraphicsView::ScrollBarAlwaysOff );
     selidx_ = mUdf(int);
     w2ui_ = new uiWorld2Ui( uiWorldRect(0,1,255,0),
-	    		    uiSize(viewWidth(),viewHeight()) );
+			    uiSize(viewWidth(),viewHeight()) );
 
     reDrawn.notify( mCB(this,uiColTabMarkerCanvas,drawMarkers) );
     eraseNeeded().notify( mCB(this,uiColTabMarkerCanvas,eraseMarkers) );
@@ -265,7 +265,7 @@ void uiColTabMarkerCanvas::drawMarkers( CallBacker* )
 {
     const int w = viewWidth();
     const int h = viewHeight();
-    od_cerr() << "W: " << w << ", H : " << h << od_endl;
+    od_cerr() << "markerW: " << w << ", markerH : " << h << od_endl;
     scene().setSceneRect( sCast(float,w), sCast(float,h), 0, 0 );
     w2ui_->set( uiRect(0,0,w,h), uiWorldRect(0,1,255,0) );
     auto* ctabrg = hp_ctabrg.getParam(this);
