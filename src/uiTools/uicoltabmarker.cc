@@ -220,7 +220,6 @@ uiColTabMarkerCanvas::uiColTabMarkerCanvas( uiParent* p, ColTab::Sequence& ctab)
 
     reDrawn.notify( mCB(this,uiColTabMarkerCanvas,drawMarkers) );
     eraseNeeded().notify( mCB(this,uiColTabMarkerCanvas,eraseMarkers) );
-    reSize.notify( mCB(this,uiColTabMarkerCanvas,drawMarkers) );
 
     meh_.buttonPressed.notify(mCB(this,uiColTabMarkerCanvas,mouseClk) );
     meh_.movement.notify( mCB(this,uiColTabMarkerCanvas,mouseMove) );
@@ -245,9 +244,8 @@ uiColTabMarkerCanvas::uiColTabMarkerCanvas( uiParent* p, ColTab::Sequence& ctab,
     w2ui_ = new uiWorld2Ui( uiWorldRect(0,1,255,0),
 	    		    uiSize(viewWidth(),viewHeight()) );
 
-    reDrawNeeded.notify( mCB(this,uiColTabMarkerCanvas,drawMarkers) );
+    reDrawn.notify( mCB(this,uiColTabMarkerCanvas,drawMarkers) );
     eraseNeeded().notify( mCB(this,uiColTabMarkerCanvas,eraseMarkers) );
-    reSize.notify( mCB(this,uiColTabMarkerCanvas,drawMarkers) );
 
     meh_.buttonPressed.notify(mCB(this,uiColTabMarkerCanvas,mouseClk) );
     meh_.movement.notify( mCB(this,uiColTabMarkerCanvas,mouseMove) );

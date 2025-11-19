@@ -1168,13 +1168,16 @@ uiColorTableMan::uiColorTableMan( uiParent* p, ColTab::Sequence& ctab,
     coltablistfld_->setSelectionBehavior( uiTreeView::SelectRows );
     mAttachCB( coltablistfld_->selectionChanged, uiColorTableMan::selChg );
 
+    auto* botgrp = new uiGroup( leftgrp, "Bottom" );
+    botgrp->attach( leftAlignedBelow, coltablistfld_ );
+
     const char* segtypes[] = { "None", "Equal", "Variable", 0 };
-    segmentfld_ = new uiGenInput( leftgrp, tr("Segmentation"),
+    segmentfld_ = new uiGenInput( botgrp, tr("Segmentation"),
 				 StringListInpSpec(segtypes) );
     mAttachCB( segmentfld_->valueChanged, uiColorTableMan::segmentSel );
-    segmentfld_->attach( leftAlignedBelow, coltablistfld_, 5 );
+    botgrp->setHAlignObj( segmentfld_ );
 
-    nrsegbox_ = new uiSpinBox( leftgrp, 0, 0 );
+    nrsegbox_ = new uiSpinBox( botgrp, 0, 0 );
     nrsegbox_->setInterval( 2, 25 );
     nrsegbox_->setValue( 8 );
     nrsegbox_->display( false );
@@ -1184,26 +1187,26 @@ uiColorTableMan::uiColorTableMan( uiParent* p, ColTab::Sequence& ctab,
     uiColorInput::Setup cisetup( ctab_.undefColor(), enabletrans_ ?
 		    uiColorInput::Setup::Separate : uiColorInput::Setup::None );
     cisetup.lbltxt( tr("Undefined color") );
-    undefcolfld_ = new uiColorInput( leftgrp, cisetup );
+    undefcolfld_ = new uiColorInput( botgrp, cisetup );
     mAttachCB( undefcolfld_->colorChanged, uiColorTableMan::undefColSel );
     undefcolfld_->attach( leftAlignedBelow, segmentfld_ );
 
-    auto* lbl = new uiLabel( leftgrp, tr("Range") );
+    auto* lbl = new uiLabel( botgrp, tr("Range") );
     lbl->attach( leftAlignedBelow, undefcolfld_ );
 
-    hp_minfld.setParam( this, new uiLineEdit(leftgrp,"Min") );
+    hp_minfld.setParam( this, new uiLineEdit(botgrp,"Min") );
     auto* minfld = hp_minfld.getParam(this);
     mAttachCB( minfld->returnPressed, uiColorTableMan::rangeChangedCB );
     minfld->attach( rightTo, lbl );
 
-    hp_maxfld.setParam( this, new uiLineEdit(leftgrp,"Max") );
+    hp_maxfld.setParam( this, new uiLineEdit(botgrp,"Max") );
     auto* maxfld = hp_maxfld.getParam(this);
     mAttachCB( maxfld->returnPressed, uiColorTableMan::rangeChangedCB );
     maxfld->attach( rightTo, minfld );
 
     uiColorInput::Setup ctsu( ctab_.markColor(), uiColorInput::Setup::None );
     ctsu.withdesc( false );
-    markercolfld_ = new uiColorInput( leftgrp,
+    markercolfld_ = new uiColorInput( botgrp,
 				      ctsu.lbltxt(tr("Marker color")) );
     mAttachCB( markercolfld_->colorChanged, uiColorTableMan::markerColChgd );
 
@@ -1329,8 +1332,6 @@ void uiColorTableMan::doFinalize( CallBacker* )
     refreshColTabList( ctab_.name() );
     sequenceChange( 0 );
     toStatusBar( uiString::emptyString(), 1 );
-
-    markercanvas_->reDrawNeeded.trigger();
 }
 
 
@@ -1372,8 +1373,6 @@ void uiColorTableMan::refreshColTabList( const char* selctnm )
     coltablistfld_->setCurrentItem( itm );
     coltablistfld_->setSelected( itm, true );
     coltablistfld_->ensureItemVisible( itm );
-
-    markercanvas_->reDrawNeeded.trigger();
 }
 
 
@@ -1423,8 +1422,6 @@ void uiColorTableMan::selChg( CallBacker* )
     updateSegmentFields();
     tableChanged.trigger();
 
-    markercanvas_->reDrawNeeded.trigger();
-
     markercolfld_->display( false );
 }
 
@@ -1473,9 +1470,6 @@ void uiColorTableMan::flipCB( CallBacker* )
 
     ctabcanvas_->setRGB();
     updateTransparencyGraph();
-
-    markercanvas_->setRange( *hp_ctabrange.getParam(this) );
-    markercanvas_->reDrawNeeded.trigger();
 }
 
 
@@ -1636,7 +1630,8 @@ void uiColorTableMan::rangeChangedCB( CallBacker* )
 
     markercanvas_->setRange(*ctabrg);
     rangeChanged().trigger();
-    markercanvas_->reDrawNeeded.trigger();
+    if ( poppedUp() )
+	markercanvas_->reDrawn.trigger();
 }
 
 
@@ -1671,15 +1666,13 @@ void uiColorTableMan::setHistogram( const TypeSet<float>& hist,
     }
 
     cttranscanvas_->setY2Vals( x2vals.arr(), y2vals.arr(), myhist.size() );
-    markercanvas_->setRange(minmax);
-    markercanvas_->reDrawNeeded.trigger();
-
     const auto* rg = hp_ctabrange.getParam(this);
     const bool validrg = rg && !rg->isUdf();
     if ( validrg )
     {
 	hp_minfld.getParam(this)->setValue( rg->start_ );
 	hp_maxfld.getParam(this)->setValue( rg->stop_ );
+	markercanvas_->setRange(minmax);
     }
 
     hp_minfld.getParam(this)->setSensitive( validrg );
@@ -1704,7 +1697,8 @@ void uiColorTableMan::updateSegmentFields()
     nrsegbox_->display( val==1 );
     nrsegbox_->setValue( val==1 ? ctab_.nrSegments() : 8 );
 
-    markercanvas_->reDrawNeeded.trigger();
+    if ( poppedUp() )
+	markercanvas_->reDrawn.trigger();
 }
 
 
@@ -1783,7 +1777,8 @@ void uiColorTableMan::doSegmentize()
     else
 	ctab_.setNrSegments( -1 );
 
-    markercanvas_->reDrawNeeded.trigger();
+    if ( poppedUp() )
+	markercanvas_->reDrawn.trigger();
 
     ctabcanvas_->setRGB();
     tableChanged.trigger();
@@ -2067,9 +2062,10 @@ void uiColorTableMan::transpTableChgd( CallBacker* cb )
 void uiColorTableMan::reDrawCB( CallBacker* )
 {
     ctabcanvas_->setRGB();
-    markercanvas_->reDrawNeeded.trigger();
     w2uictabcanvas_->set( uiWorldRect(0,0,0,255),
 			  uiSize(mTransWidth/5, mTransWidth) );
+    if ( poppedUp() )
+	markercanvas_->reDrawn.trigger();
 }
 
 
