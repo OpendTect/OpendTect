@@ -25,6 +25,7 @@ ________________________________________________________________________
 #include "draw.h"
 #include "hiddenparam.h"
 #include "mouseevent.h"
+#include "od_ostream.h"
 #include "rowcol.h"
 #include "od_helpids.h"
 
@@ -214,11 +215,12 @@ uiColTabMarkerCanvas::uiColTabMarkerCanvas( uiParent* p, ColTab::Sequence& ctab)
     setScrollBarPolicy( true, uiGraphicsView::ScrollBarAlwaysOff );
     setScrollBarPolicy( false, uiGraphicsView::ScrollBarAlwaysOff );
     selidx_ = mUdf(int);
-    w2ui_ = new uiWorld2Ui( uiWorldRect(0,1,255,0), uiSize(1,1) );
+    w2ui_ = new uiWorld2Ui( uiWorldRect(0,1,255,0),
+	    		    uiSize(viewWidth(),viewHeight()) );
 
-    reDrawNeeded.notify( mCB(this,uiColTabMarkerCanvas,drawMarkers));
-    eraseNeeded().notify( mCB(this,uiColTabMarkerCanvas,eraseMarkers));
-    reSize.notify( mCB(this,uiColTabMarkerCanvas,drawMarkers));
+    reDrawn.notify( mCB(this,uiColTabMarkerCanvas,drawMarkers) );
+    eraseNeeded().notify( mCB(this,uiColTabMarkerCanvas,eraseMarkers) );
+    reSize.notify( mCB(this,uiColTabMarkerCanvas,drawMarkers) );
 
     meh_.buttonPressed.notify(mCB(this,uiColTabMarkerCanvas,mouseClk) );
     meh_.movement.notify( mCB(this,uiColTabMarkerCanvas,mouseMove) );
@@ -240,7 +242,8 @@ uiColTabMarkerCanvas::uiColTabMarkerCanvas( uiParent* p, ColTab::Sequence& ctab,
     setScrollBarPolicy( true, uiGraphicsView::ScrollBarAlwaysOff );
     setScrollBarPolicy( false, uiGraphicsView::ScrollBarAlwaysOff );
     selidx_ = mUdf(int);
-    w2ui_ = new uiWorld2Ui( uiWorldRect(0,1,255,0), uiSize(1,1) );
+    w2ui_ = new uiWorld2Ui( uiWorldRect(0,1,255,0),
+	    		    uiSize(viewWidth(),viewHeight()) );
 
     reDrawNeeded.notify( mCB(this,uiColTabMarkerCanvas,drawMarkers) );
     eraseNeeded().notify( mCB(this,uiColTabMarkerCanvas,eraseMarkers) );
@@ -264,8 +267,9 @@ void uiColTabMarkerCanvas::drawMarkers( CallBacker* )
 {
     const int w = viewWidth();
     const int h = viewHeight();
+    od_cerr() << "W: " << w << ", H : " << h << od_endl;
     scene().setSceneRect( sCast(float,w), sCast(float,h), 0, 0 );
-    w2ui_->set( uiRect(0,3,w,h-4), uiWorldRect(0,1,255,0) );
+    w2ui_->set( uiRect(0,0,w,h), uiWorldRect(0,1,255,0) );
     auto* ctabrg = hp_ctabrg.getParam(this);
 
     int decimals = 2;
@@ -307,12 +311,20 @@ void uiColTabMarkerCanvas::drawMarkers( CallBacker* )
 	for ( int idx=0; idx<ctab_.size(); idx++ )
 	{
 	    const float val = ctab_.position(idx);
-	    uiWorldPoint wpt( 2, val );
+	    uiWorldPoint wpt( 0, val );
 	    const uiPoint pt( w2ui_->transform(wpt) );
 	    auto* lineitem = new uiLineItem();
-	    lineitem->setLine( 0, pt.y_, w, pt.y_ );
 	    lineitem->setPenStyle( OD::LineStyle(OD::LineStyle::Solid,2) );
+	    lineitem->setPenColor( OD::Color::Anthracite() );
+	    if ( idx == 0 )
+		lineitem->setLine( 0, pt.y_-2, w, pt.y_-2 );
+	    else if ( idx == ctab_.size()-1 )
+		lineitem->setLine( 0, pt.y_+2, w, pt.y_+2 );
+	    else
+		lineitem->setLine( 0, pt.y_, w, pt.y_ );
+
 	    auto* txtitem = new uiTextItem();
+	    txtitem->setTextColor( OD::Color::Anthracite() );
 	    if ( ctabrg->isUdf() )
 	    {
 		txtitem->setText( toUiString(val,0,format,decimals) );
@@ -326,18 +338,13 @@ void uiColTabMarkerCanvas::drawMarkers( CallBacker* )
 	    }
 
 	    if ( val==0 )
-	    {
-		txtitem->setPos( uiPoint(w/2,pt.y_+2) );
 		txtitem->setAlignment( Alignment(Alignment::HCenter,
 						 Alignment::Bottom) );
-	    }
 	    else
-	    {
-		txtitem->setPos( uiPoint(w/2,pt.y_-2) );
 		txtitem->setAlignment( Alignment(Alignment::HCenter,
 						 Alignment::Top) );
-	    }
 
+	    txtitem->setPos( uiPoint(w/2,pt.y_) );
 	    txtitem->setVisible( true );
 	    markerlineitmgrp_->add( txtitem );
 	    markerlineitmgrp_->add( lineitem );
@@ -347,26 +354,24 @@ void uiColTabMarkerCanvas::drawMarkers( CallBacker* )
     {
 	const float nrseg = ctab_.nrSegments();
 	const float segdist = 1.0f/nrseg;
-	for ( float idx=0; idx<=1; idx+=segdist )
+	for ( int idx=0; idx<=nrseg; idx++ )
 	{
-	    const float val = idx;
+	    const float val = idx*segdist;
 	    uiWorldPoint wpt( 0, val );
 	    const uiPoint pt( w2ui_->transform(wpt) );
 	    auto* lineitem = new uiLineItem();
-
-	    int offset = 0;
-/*	    if ( idx<0.5 && idx>0 )
-	    {
-		offset = 2;
-	    }
-	    else if ( idx>0.5 && idx<1 )
-	    {
-		offset = -2;
-	    }
-*/
-	    lineitem->setLine( 0, pt.y_+offset, w, pt.y_+offset );
 	    lineitem->setPenStyle( OD::LineStyle(OD::LineStyle::Solid,2) );
+	    lineitem->setPenColor( OD::Color::Anthracite() );
+
+	    if ( idx == 0 )
+		lineitem->setLine( 0, pt.y_-2, w, pt.y_-2 );
+	    else if ( idx == nrseg )
+		lineitem->setLine( 0, pt.y_+2, w, pt.y_+2 );
+	    else
+		lineitem->setLine( 0, pt.y_, w, pt.y_ );
+
 	    auto* txtitem = new uiTextItem();
+	    txtitem->setTextColor( OD::Color::Anthracite() );
 	    if ( ctabrg->isUdf() )
 	    {
 		txtitem->setText( toUiString(val,0,format,decimals) );
@@ -379,23 +384,18 @@ void uiColTabMarkerCanvas::drawMarkers( CallBacker* )
 		txtitem->setText( toUiString(dataval,0,format,decimals) );
 	    }
 
-	    if ( val==0 )
-	    {
-		txtitem->setPos( uiPoint(w/2,pt.y_+2) );
+	    if ( idx == 0 )
 		txtitem->setAlignment( Alignment(Alignment::HCenter,
 						 Alignment::Bottom) );
-	    }
 	    else
-	    {
-		txtitem->setPos( uiPoint(w/2,pt.y_-2) );
 		txtitem->setAlignment( Alignment(Alignment::HCenter,
 						 Alignment::Top) );
-	    }
 
+	    txtitem->setPos( uiPoint(w/2,pt.y_) );
 	    markerlineitmgrp_->add( txtitem );
 	    markerlineitmgrp_->add( lineitem );
 	}
-
+/*
 	if ( markerlineitmgrp_->size()!=(nrseg*2+2))
 	{
 	    const float val = 1;
@@ -403,9 +403,11 @@ void uiColTabMarkerCanvas::drawMarkers( CallBacker* )
 	    const uiPoint pt( w2ui_->transform(wpt) );
 	    auto* lineitem = new uiLineItem();
 
-	    lineitem->setLine( 0, pt.y_, 70, pt.y_ );
+	    lineitem->setLine( 0, pt.y_-1, w, pt.y_-1 );
 	    lineitem->setPenStyle( OD::LineStyle(OD::LineStyle::Solid,2) );
+	    lineitem->setPenColor( OD::Color::Anthracite() );
 	    auto* txtitem = new uiTextItem();
+	    txtitem->setTextColor( OD::Color::Anthracite() );
 	    if ( ctabrg->isUdf() )
 	    {
 		txtitem->setText( toUiString(val,0,format,decimals) );
@@ -418,13 +420,14 @@ void uiColTabMarkerCanvas::drawMarkers( CallBacker* )
 		txtitem->setText( toUiString(dataval,0,format,decimals) );
 	    }
 
-	    txtitem->setPos( uiPoint(w/2,pt.y_-2) );
 	    txtitem->setAlignment( Alignment(Alignment::HCenter,
 					     Alignment::Top) );
+	    txtitem->setPos( uiPoint(w/2,pt.y_-1) );
 
 	    markerlineitmgrp_->add( txtitem );
 	    markerlineitmgrp_->add( lineitem );
 	}
+	*/
     }
 }
 
@@ -434,7 +437,7 @@ void uiColTabMarkerCanvas::eraseMarkers( CallBacker* )
     const int w = viewWidth();
     const int h = viewHeight();
     scene().setSceneRect( sCast(float,w), sCast(float,h), 0, 0 );
-    w2ui_->set( uiRect(5,3,w-8,h-4), uiWorldRect(0,1,255,0) );
+    w2ui_->set( uiRect(0,0,w,h), uiWorldRect(0,1,255,0) );
 
     if ( !markerlineitmgrp_ )
     {

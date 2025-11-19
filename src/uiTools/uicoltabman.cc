@@ -18,6 +18,7 @@ ________________________________________________________________________
 #include "mouseevent.h"
 #include "od_helpids.h"
 #include "settings.h"
+#include "timer.h"
 
 #include "uibutton.h"
 #include "uibuttongroup.h"
@@ -44,7 +45,7 @@ ________________________________________________________________________
 #include "uitreeview.h"
 #include "uiworld2ui.h"
 
-#define mTransHeight	600
+#define mTransHeight	300
 #define mTransWidth	600
 
 static StringView sKeyAskBeforeSettingToSeg()
@@ -1219,7 +1220,6 @@ uiColorTableMan::uiColorTableMan( uiParent* p, ColTab::Sequence& ctab,
     w2uictabcanvas_ = new uiWorld2Ui( uiWorldRect(0,0,0,255),
 				     uiSize(mTransWidth/5, mTransWidth) );
 
-    //ctabcanvas_->attach( leftOf, markercanvas_, 0 );
     ctabcanvas_->setPrefWidth( mTransWidth/25 );
     ctabcanvas_->setPrefHeight( mTransWidth );
     ctabcanvas_->setStretch( 0, 2 );
@@ -1228,7 +1228,7 @@ uiColorTableMan::uiColorTableMan( uiParent* p, ColTab::Sequence& ctab,
 	      uiColorTableMan::markerDialogCB );
 
     markercanvas_ = new uiColTabMarkerCanvas( rightgrp, ctab_ );
-    markercanvas_->setPrefWidthInChar( 8 );
+    markercanvas_->setPrefWidth( 60 );
     markercanvas_->setPrefHeight( mTransWidth );
     markercanvas_->setStretch( 0, 2 );
     markercanvas_->attach( rightOf, ctabcanvas_ );
@@ -1308,11 +1308,9 @@ uiColorTableMan::uiColorTableMan( uiParent* p, ColTab::Sequence& ctab,
 uiColorTableMan::~uiColorTableMan()
 {
     detachAllNotifiers();
-    ctab_.colorChanged.remove( mCB(this,uiColorTableMan,sequenceChange) );
-    ctab_.transparencyChanged.remove( mCB(this,uiColorTableMan,sequenceChange));
     hp_ctabrange.removeAndDeleteParam( this );
-    hp_maxfld.removeAndDeleteParam( this );
-    hp_minfld.removeAndDeleteParam( this );
+    hp_maxfld.removeParam( this );
+    hp_minfld.removeParam( this );
 
     delete orgctab_;
     delete w2uictabcanvas_;
@@ -1325,7 +1323,6 @@ uiString uiColorTableMan::sKeyEdited()
 { return tr("Edited"); }
 uiString uiColorTableMan::sKeyOwn()
 { return tr("Own"); }
-
 
 void uiColorTableMan::doFinalize( CallBacker* )
 {
@@ -2070,6 +2067,7 @@ void uiColorTableMan::transpTableChgd( CallBacker* cb )
 void uiColorTableMan::reDrawCB( CallBacker* )
 {
     ctabcanvas_->setRGB();
+    markercanvas_->reDrawNeeded.trigger();
     w2uictabcanvas_->set( uiWorldRect(0,0,0,255),
 			  uiSize(mTransWidth/5, mTransWidth) );
 }
