@@ -359,14 +359,6 @@ void uiFunctionDisplay::getPointSet( TypeSet<uiPoint>& ptlist, bool y2 )
 	float xval = y2 ? y2xvals_[idx] : xvals_[idx];
 	float yval = y2 ? y2yvals_[idx] : yvals_[idx];
 
-/*	if ( isVertical() )
-	{
-	    xval = y2 ? y2xvals_[nrpts-idx-1]
-		      : xvals_[idx];
-	    yval = y2 ? y2yvals_[nrpts-idx-1]
-		      : yvals_[idx];
-	}
-*/
 	if ( mIsUdf(xval) || mIsUdf(yval) )
 	{
 	    ptlist += uiPoint( mUdf(int), mUdf(int) ); //break in curve
@@ -379,14 +371,6 @@ void uiFunctionDisplay::getPointSet( TypeSet<uiPoint>& ptlist, bool y2 )
 	    // swap coordinate mapping for vertical layout
 	    xpix = yaxis->getPix( yval );
 	    ypix = xaxis->getPix( xval );
-/*
-	    if ( y2 )
-	    {
-		xpix = yaxis->getPix( abs(yaxis->range().start_
-					 - yaxis->range().stop_) - yval );
-		ypix = xaxis->getPix( abs(xaxis->range().start_
-					 - xaxis->range().stop_) - xval );
-	    }*/
 	}
 	else
 	{
@@ -723,11 +707,11 @@ void uiFunctionDisplay::mouseReleaseCB( CallBacker* )
     if ( !mousedown_ )
 	return;
 
+    mousedown_ = false;
     if ( hp_allowaddpts.getParam(this)==0 &&
 	    (selpt_==0 || selpt_==xvals_.size()-1) )
        return;
 
-    mousedown_ = false;
     mGetMousePos();
 
     if ( isnorm && selpt_<0 )
