@@ -171,8 +171,8 @@ void uiAttrSelDlg::initAndBuild( const uiString& seltxt,
 							    inserters_, nms );
 	for ( auto* inserter : inserters_ )
 	    mAttachCB( inserter->objInserted, uiAttrSelDlg::objInserted );
-
-	but->attach( ensureBelow, selgrp_ );
+	if ( but )
+	    but->attach( ensureBelow, selgrp_ );
     }
 
     int seltyp = 0;
