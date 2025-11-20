@@ -411,7 +411,7 @@ uiColorTable::~uiColorTable()
     delete &coltabseq_;
     delete &mapsetup_;
     delete scalingdlg_;
-    hp_coltabman.removeParam( this );
+    hp_coltabman.removeAndDeleteParam( this );
 }
 
 
@@ -626,11 +626,11 @@ void uiColorTable::commitInput()
 void uiColorTable::colTabManRgChangeCB( CallBacker* cb )
 {
     mDynamicCastGet(uiColorTableMan*,ctman,cb)
-    if ( !hp_coltabman.getParam(this) )
+    if ( !ctman )
 	return;
 
     mapsetup_.setAutoScale( false );
-    mapsetup_.range( *hp_coltabman.getParam(this)->getRange() );
+    mapsetup_.range( *ctman->getRange() );
 
     if ( minfld_ )
 	minfld_->setValue( mapsetup_.range_.start_ );

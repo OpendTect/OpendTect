@@ -58,6 +58,7 @@ uiSceneColorbarMgr::uiSceneColorbarMgr( uiParent* p,
 
 uiSceneColorbarMgr::~uiSceneColorbarMgr()
 {
+    detachAllNotifiers();
 }
 
 

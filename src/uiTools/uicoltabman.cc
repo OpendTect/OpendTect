@@ -17,7 +17,6 @@ ________________________________________________________________________
 #include "hiddenparam.h"
 #include "mouseevent.h"
 #include "od_helpids.h"
-#include "od_ostream.h"
 #include "settings.h"
 #include "timer.h"
 
@@ -48,12 +47,6 @@ ________________________________________________________________________
 
 #define mTransHeight	300
 #define mTransWidth	600
-
-static StringView sKeyAskBeforeSettingToSeg()
-{ return "Ask before setting a transparency line to segments"; }
-
-static StringView sKeyAskBeforeNotSavingCT()
-{ return "Ask before closing without saving Color Table"; }
 
 static const int sPosCol = 0;
 static const int sDataCol = 1;
@@ -779,21 +772,19 @@ void uiTranspValuesDlgPlus::setPtsToAnchSeg( bool extrapolate )
 
 	int rgidx = 0;
 
-	for ( float cidx=segsz; cidx<1; cidx+=segsz )
+	for ( int pos=1; pos<=nrsegs; pos++ )
 	{
-	    const Geom::Point2D<float> segval = { cidx-.001f,
-						  tvals.get(rgidx++)};
+	    const float val = pos*segsz;
+	    const Geom::Point2D<float> segval = { val-.001f, tvals.get(rgidx) };
 	    ctab_.setTransparency( segval );
 
 	    if ( rgidx > tvals.size()-1 )
 		rgidx = tvals.size()-1;
 
-	    const Geom::Point2D<float> segval2 = { cidx,
-						   tvals.get(rgidx) };
+	    const Geom::Point2D<float> segval2 = { val, tvals.get(rgidx) };
 	    ctab_.setTransparency( segval2 );
 	}
 
-	ctab_.setTransparency( {.999,tvals.last()} );
 	ctab_.setTransparency( {1,0} );
 
 	const int tabsize = nrsegs;
@@ -1155,7 +1146,7 @@ uiColorTableMan::uiColorTableMan( uiParent* p, ColTab::Sequence& ctab,
 {
     hp_ctabrange.setParam( this,
 			   new Interval<float>(Interval<float>::udf()) );
-    hp_rangechanged.setParam(this, new Notifier<uiColorTableMan>(this));
+    hp_rangechanged.setParam( this, new Notifier<uiColorTableMan>(this) );
     setShrinkAllowed( false );
 
     auto* leftgrp = new uiGroup( this, "Left" );
@@ -1195,13 +1186,13 @@ uiColorTableMan::uiColorTableMan( uiParent* p, ColTab::Sequence& ctab,
     auto* lbl = new uiLabel( botgrp, tr("Range") );
     lbl->attach( leftAlignedBelow, undefcolfld_ );
 
-    hp_minfld.setParam( this, new uiLineEdit(botgrp,"Min") );
-    auto* minfld = hp_minfld.getParam(this);
+    auto* minfld = new uiLineEdit( botgrp, "Min" );
+    hp_minfld.setParam( this, minfld );
     mAttachCB( minfld->returnPressed, uiColorTableMan::rangeChangedCB );
     minfld->attach( rightTo, lbl );
 
-    hp_maxfld.setParam( this, new uiLineEdit(botgrp,"Max") );
-    auto* maxfld = hp_maxfld.getParam(this);
+    auto* maxfld = new uiLineEdit( botgrp, "Max" );
+    hp_maxfld.setParam( this, maxfld );
     mAttachCB( maxfld->returnPressed, uiColorTableMan::rangeChangedCB );
     maxfld->attach( rightTo, minfld );
 
@@ -1299,7 +1290,12 @@ uiColorTableMan::uiColorTableMan( uiParent* p, ColTab::Sequence& ctab,
     auto* flipbut = new uiToolButton( this, "revpol", tr("Flip") );
     mAttachCB( flipbut->activated, uiColorTableMan::flipCB );
     flipbut->attach( leftOf, savebut );
-    flipbut->attach( rightTo, butgrp );
+
+    auto* settoanchbut = new uiPushButton( this,
+					tr("Set Transp Pts to Anchors") );
+    mAttachCB( settoanchbut->activated, uiColorTableMan::setPtsToAnchSegsCB );
+    settoanchbut->attach( leftOf, flipbut );
+    settoanchbut->attach( rightTo, butgrp );
 
     mAttachCB( markercanvas_->markerChanged, uiColorTableMan::markerChange );
     mAttachCB( ctab_.colorChanged, uiColorTableMan::sequenceChange );
@@ -1651,7 +1647,6 @@ void uiColorTableMan::setHistogram( const TypeSet<float>& hist )
 void uiColorTableMan::setHistogram( const TypeSet<float>& hist,
 				    const Interval<float>& minmax )
 {
-    od_ostream strm("/tmp/hist.txt");
     *hp_ctabrange.getParam(this) = minmax;
     TypeSet<float>& myhist = const_cast<TypeSet<float>&>(hist);
 
@@ -1662,10 +1657,7 @@ void uiColorTableMan::setHistogram( const TypeSet<float>& hist,
 
     TypeSet<float> y2vals;
     for ( int idx=myhist.size()-1; idx>=0; idx-- )
-    {
 	y2vals += myhist.get(idx);
-	strm << myhist.get(idx) << od_endl;
-    }
 
     cttranscanvas_->yAxis(true)->setRange( Interval<float>(0.,1.f) );
     cttranscanvas_->yAxis(true)->setCaption( uiString::empty() );
@@ -1716,13 +1708,15 @@ void uiColorTableMan::segmentSel( CallBacker* )
     doSegmentize();
     if ( segmented )
     {
-	setPtsToAnchSegsCB(nullptr);
+	cttranscanvas_->allowAddingPoints( false );
+	setPtsToAnchSegsCB( nullptr );
 	const float nrsegs = ctab_.nrSegments();
 	cttranscanvas_->setup().ptsnaptol( nrsegs<10 && nrsegs>1 ? 0.7f/nrsegs
 								    : 0.08 );
     }
     else
     {
+	cttranscanvas_->allowAddingPoints( true );
 	cttranscanvas_->setup().ptsnaptol( 0.08 );
     }
 }
@@ -1786,8 +1780,6 @@ void uiColorTableMan::doSegmentize()
 
     ctabcanvas_->setRGB();
     tableChanged.trigger();
-    const int nrsegsel = nrsegbox_->getIntValue();
-    const bool compatible = ctab_.transparencySize()==nrsegsel*2+2;
 }
 
 

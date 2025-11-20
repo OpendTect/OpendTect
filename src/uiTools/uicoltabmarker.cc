@@ -25,7 +25,6 @@ ________________________________________________________________________
 #include "draw.h"
 #include "hiddenparam.h"
 #include "mouseevent.h"
-#include "od_ostream.h"
 #include "rowcol.h"
 #include "od_helpids.h"
 
@@ -265,19 +264,15 @@ void uiColTabMarkerCanvas::drawMarkers( CallBacker* )
 {
     const int w = viewWidth();
     const int h = viewHeight();
-    od_cerr() << "markerW: " << w << ", markerH : " << h << od_endl;
     scene().setSceneRect( sCast(float,w), sCast(float,h), 0, 0 );
     w2ui_->set( uiRect(0,0,w,h), uiWorldRect(0,1,255,0) );
     auto* ctabrg = hp_ctabrg.getParam(this);
 
     int decimals = 2;
-    char format = 'g';
+    char format = 'f';
     if ( !ctabrg->isUdf() )
     {
-	const float min = std::fabs( ctabrg->start_ );
-	const float max = std::fabs( ctabrg->stop_ );
-
-	const float totalrange = min+max;
+	const float totalrange = std::fabs( ctabrg->width() );
 
 	if ( totalrange>=100000.0f || totalrange<0.2f )
 	{
@@ -393,39 +388,6 @@ void uiColTabMarkerCanvas::drawMarkers( CallBacker* )
 	    markerlineitmgrp_->add( txtitem );
 	    markerlineitmgrp_->add( lineitem );
 	}
-/*
-	if ( markerlineitmgrp_->size()!=(nrseg*2+2))
-	{
-	    const float val = 1;
-	    uiWorldPoint wpt( 0, val );
-	    const uiPoint pt( w2ui_->transform(wpt) );
-	    auto* lineitem = new uiLineItem();
-
-	    lineitem->setLine( 0, pt.y_-1, w, pt.y_-1 );
-	    lineitem->setPenStyle( OD::LineStyle(OD::LineStyle::Solid,2) );
-	    lineitem->setPenColor( OD::Color::Anthracite() );
-	    auto* txtitem = new uiTextItem();
-	    txtitem->setTextColor( OD::Color::Anthracite() );
-	    if ( ctabrg->isUdf() )
-	    {
-		txtitem->setText( toUiString(val,0,format,decimals) );
-	    }
-	    else
-	    {
-		const float min = ctabrg->start_;
-		const float max = ctabrg->stop_;
-		float dataval = val*(max-min)+min;
-		txtitem->setText( toUiString(dataval,0,format,decimals) );
-	    }
-
-	    txtitem->setAlignment( Alignment(Alignment::HCenter,
-					     Alignment::Top) );
-	    txtitem->setPos( uiPoint(w/2,pt.y_-1) );
-
-	    markerlineitmgrp_->add( txtitem );
-	    markerlineitmgrp_->add( lineitem );
-	}
-	*/
     }
 }
 

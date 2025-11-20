@@ -112,9 +112,9 @@ void uiFunctionDisplay::init( OD::Orientation orient )
     asu.nogridline( asu.noaxisline_ ? true : setup_.noygridline_ );
     asu.side( yside );
     asu.annotinint_ = setup_.yannotinint_;
-    xax_->setBounds( isvert ? setup_.yrg_ : setup_.xrg_ );
+    xax_->setBounds( setup_.xrg_ );
     yax_ = new uiAxisHandler( &scene(), asu );
-    yax_->setBounds( isvert ? setup_.xrg_ : setup_.yrg_ );
+    yax_->setBounds( setup_.yrg_ );
 
     asu.noaxisline( setup_.noy2axis_ );
     asu.noaxisannot( asu.noaxisline_ ? true : !setup_.annoty2_ );
@@ -130,6 +130,8 @@ void uiFunctionDisplay::init( OD::Orientation orient )
 	asu.side( uiRect::Right );
 
     y2ax_ = new uiAxisHandler( &scene(), asu );
+    y2ax_->setBounds( setup_.y2rg_ );
+    yAxis(true)->setBegin( xAxis() );
 
     mAttachCB(getMouseEventHandler().movement,uiFunctionDisplay::mouseMoveCB);
     if ( setup_.editable_ )
@@ -306,11 +308,6 @@ void uiFunctionDisplay::setUpAxis( bool havey2 )
     if ( !xaxis || !yaxis )
 	return;
 
-    if ( isVertical() )
-	y2axis->setup().side( uiRect::Left );
-    else
-	y2axis->setup().side( uiRect::Right );
-
     xaxis->updateDevSize();
     yaxis->updateDevSize();
 
@@ -342,30 +339,34 @@ void uiFunctionDisplay::getPointSet( TypeSet<uiPoint>& ptlist, bool y2 )
 
     const StepInterval<float>& yrg = yaxis->range();
     const int nrpts = y2 ? y2xvals_.size() : xvals_.size();
-    const uiPoint closept( xaxis->getPix(xaxis->range().start_),
-			   yaxis->getPix(yrg.start_) );
+    uiPoint closept( isVertical() ? yaxis->getPix(yrg.start_)
+				  : xaxis->getPix(xaxis->range().start_),
+		     isVertical() ? xaxis->getPix(xaxis->range().start_)
+				  : yaxis->getPix(yrg.start_) );
     const bool fillbelow = y2 ? setup_.fillbelowy2_ : setup_.fillbelow_;
     if ( fillbelow )
 	ptlist += closept;
 
-    Interval<int> xpixintv( xaxis->getPix(xaxis->range().start_),
-				  xaxis->getPix(xaxis->range().stop_) );
-    Interval<int> ypixintv( yaxis->getPix(yrg.start_),
-				  yaxis->getPix(yrg.stop_) );
+    const Interval<int> xaxispixintv( xaxis->getPix(xaxis->range().start_),
+				      xaxis->getPix(xaxis->range().stop_) );
+    const Interval<int> yaxispixintv( yaxis->getPix(yrg.start_),
+				      yaxis->getPix(yrg.stop_) );
+    const Interval<int>& xpixintv = isVertical() ? yaxispixintv : xaxispixintv;
+    const Interval<int>& ypixintv = isVertical() ? xaxispixintv : yaxispixintv;
     uiPoint pt = closept;
     for ( int idx=0; idx<nrpts; idx++ )
     {
 	float xval = y2 ? y2xvals_[idx] : xvals_[idx];
 	float yval = y2 ? y2yvals_[idx] : yvals_[idx];
 
-	if ( isVertical() )
+/*	if ( isVertical() )
 	{
 	    xval = y2 ? y2xvals_[nrpts-idx-1]
 		      : xvals_[idx];
 	    yval = y2 ? y2yvals_[nrpts-idx-1]
 		      : yvals_[idx];
 	}
-
+*/
 	if ( mIsUdf(xval) || mIsUdf(yval) )
 	{
 	    ptlist += uiPoint( mUdf(int), mUdf(int) ); //break in curve
@@ -378,14 +379,14 @@ void uiFunctionDisplay::getPointSet( TypeSet<uiPoint>& ptlist, bool y2 )
 	    // swap coordinate mapping for vertical layout
 	    xpix = yaxis->getPix( yval );
 	    ypix = xaxis->getPix( xval );
-
+/*
 	    if ( y2 )
 	    {
 		xpix = yaxis->getPix( abs(yaxis->range().start_
 					 - yaxis->range().stop_) - yval );
 		ypix = xaxis->getPix( abs(xaxis->range().start_
 					 - xaxis->range().stop_) - xval );
-	    }
+	    }*/
 	}
 	else
 	{
@@ -402,7 +403,8 @@ void uiFunctionDisplay::getPointSet( TypeSet<uiPoint>& ptlist, bool y2 )
     }
 
     if ( setup_.closepolygon_ && fillbelow )
-        ptlist += uiPoint( pt.x_, closept.y_ );
+	ptlist += uiPoint( isVertical() ? closept.x_ : pt.x_,
+			   isVertical() ? pt.y_ : closept.y_ );
 }
 
 
@@ -558,13 +560,8 @@ void uiFunctionDisplay::drawBorder()
 	borderrectitem_->setVisible( setup_.drawborder_ );
 }
 
-#include "od_ostream.h"
 void uiFunctionDisplay::draw()
 {
-    const int w = viewWidth();
-    const int h = viewHeight();
-    od_cerr() << "W: " << w << ", H : " << h << od_endl;
-
     if ( titleitem_ )
     {
 	if ( isVertical() )
@@ -704,11 +701,17 @@ Geom::Point2D<int> uiFunctionDisplay::orientedPix( const MouseEvent& ev ) const
 
 void uiFunctionDisplay::mousePressCB( CallBacker* )
 {
-    if ( mousedown_ ) return;
+    if ( mousedown_ )
+	return;
 
     mousedown_ = true;
     mGetMousePos();
-    if ( isoth || !setSelPt() ) return;
+    if ( isoth || !setSelPt() )
+	return;
+
+    if ( hp_allowaddpts.getParam(this)==0 &&
+	    (selpt_==0 || selpt_==xvals_.size()-1) )
+       return;
 
     if ( isnorm )
 	pointSelected.trigger();
@@ -717,7 +720,12 @@ void uiFunctionDisplay::mousePressCB( CallBacker* )
 
 void uiFunctionDisplay::mouseReleaseCB( CallBacker* )
 {
-    if ( !mousedown_ ) return;
+    if ( !mousedown_ )
+	return;
+
+    if ( hp_allowaddpts.getParam(this)==0 &&
+	    (selpt_==0 || selpt_==xvals_.size()-1) )
+       return;
 
     mousedown_ = false;
     mGetMousePos();
@@ -757,6 +765,10 @@ void uiFunctionDisplay::mouseMoveCB( CallBacker* )
 
     if ( !mousedown_ )
 	return;
+
+    if ( hp_allowaddpts.getParam(this)==0 &&
+	    (selpt_==0 || selpt_==xvals_.size()-1) )
+       return;
 
     const uiAxisHandler* xax = xAxis();
     const uiAxisHandler* yax = yAxis( false );
