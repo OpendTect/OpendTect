@@ -771,24 +771,23 @@ void uiTranspValuesDlgPlus::setPtsToAnchSeg( bool extrapolate )
 	ctab_.setTransparency( {.001,tvals.first()} );
 
 	int rgidx = 0;
-
 	for ( int pos=1; pos<=nrsegs; pos++ )
 	{
 	    const float val = pos*segsz;
-	    const Geom::Point2D<float> segval = { val-.001f, tvals.get(rgidx) };
+	    const Geom::Point2D<float> segval = { val-.001f,
+						  tvals.get(rgidx++) };
 	    ctab_.setTransparency( segval );
 
 	    if ( rgidx > tvals.size()-1 )
 		rgidx = tvals.size()-1;
 
-	    const Geom::Point2D<float> segval2 = { val, tvals.get(rgidx) };
+	    const Geom::Point2D<float> segval2 = { val,
+						   tvals.get(rgidx) };
 	    ctab_.setTransparency( segval2 );
 	}
-
 	ctab_.setTransparency( {1,0} );
 
 	const int tabsize = nrsegs;
-
 	int trows = table_->nrRows();
 	if ( trows < tabsize )
 	{
@@ -1832,7 +1831,6 @@ void uiColorTableMan::setPtsToAnchSegsCB(CallBacker*)
 	ctab_.setTransparency( {.001,tvals.first()} );
 
 	int rgidx = 0;
-
 	for ( float cidx=segsz; cidx<1; cidx+=segsz )
 	{
 	    const Geom::Point2D<float> segval = { cidx-.001f,
