@@ -708,13 +708,13 @@ void uiFunctionDisplay::mouseReleaseCB( CallBacker* )
 	return;
 
     mousedown_ = false;
-    if ( hp_allowaddpts.getParam(this)==0 &&
-	    (selpt_==0 || selpt_==xvals_.size()-1) )
+    const bool allowaddremove = hp_allowaddpts.getParam(this) == 1;
+    if ( !allowaddremove && (selpt_==0 || selpt_==xvals_.size()-1) )
        return;
 
     mGetMousePos();
 
-    if ( isnorm && selpt_<0 )
+    if ( isnorm && selpt_<0 && allowaddremove )
     {
 	const Geom::Point2D<int> pos = orientedPix(ev);
 	addPoint( Geom::PointF(pos.x_, pos.y_) );
@@ -726,7 +726,7 @@ void uiFunctionDisplay::mouseReleaseCB( CallBacker* )
     if ( !isctrl || selpt_<=0 || selpt_>=xvals_.size()-1 || xvals_.size()<3 )
 	return;
 
-    if ( hp_allowaddpts.getParam(this)==1 )
+    if ( allowaddremove )
     {
 	xvals_.removeSingle( selpt_ );
 	yvals_.removeSingle( selpt_ );
