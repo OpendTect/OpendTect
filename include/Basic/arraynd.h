@@ -113,6 +113,11 @@ public:
 
     virtual void		set(int,T)				= 0;
     virtual T			get(int) const				= 0;
+    bool			isOK() const override
+				{
+				    return ArrayND<T>::isOK() &&
+					   ValueSeries<T>::isOK();
+				}
     void			setND( const int* pos , T v ) override
 				{ set( pos[0], v ); }
     T				getND(const int* pos) const override
