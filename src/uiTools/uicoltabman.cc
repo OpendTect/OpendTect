@@ -1684,8 +1684,11 @@ void uiColorTableMan::updateSegmentFields()
 
     segmentfld_->setValue( val );
     nrsegbox_->display( val==1 );
-    nrsegbox_->setValue( val==1 ? ctab_.nrSegments() : 8 );
-
+    const int nrseg = ctab_.nrSegments();
+    nrsegbox_->setValue( val==1 ? nrseg : 8 );
+    const bool allowaddpoints = nrseg < 1 ||
+			ctab_.transparencySize() != 2*nrseg+2;
+    cttranscanvas_->allowAddingPoints( allowaddpoints );
     if ( poppedUp() )
 	markercanvas_->reDrawn.trigger();
 }
@@ -1858,6 +1861,9 @@ void uiColorTableMan::setPtsToAnchSegsCB(CallBacker*)
 	uiMSG().error(tr("Number of Segments to replace the Points exceeds "
 			 "the max threshold."));
 
+    const bool allowaddpoints = nrseg < 1 ||
+			ctab_.transparencySize() != 2*nrseg+2;
+    cttranscanvas_->allowAddingPoints( allowaddpoints );
     ctabcanvas_->setRGB();
     transpTableChgd( nullptr );
     //TODO: Figure out the optimal ratio for this
@@ -2051,13 +2057,6 @@ void uiColorTableMan::sequenceChange( CallBacker* )
 
 void uiColorTableMan::transptChg( CallBacker* )
 {
-    if ( ctab_.nrSegments() > 1 )
-    {
-	cttranscanvas_->allowAddingPoints(false);
-    }
-    else
-	cttranscanvas_->allowAddingPoints(true);
-
     const int ptidx = cttranscanvas_->selPt();
     const int nrpts = cttranscanvas_->xVals().size();
     const bool equalseg = ctab_.nrSegments() > 1;
@@ -2147,15 +2146,6 @@ void uiColorTableMan::transptChg( CallBacker* )
 void uiColorTableMan::transptSel( CallBacker* )
 {
     const int ptidx = cttranscanvas_->selPt();
-    if ( ctab_.nrSegments() > 1 )
-    {
-	cttranscanvas_->allowAddingPoints(false);
-	return;
-    }
-    else
-	cttranscanvas_->allowAddingPoints(true);
-
-
     const int nrpts = cttranscanvas_->xVals().size();
     if ( ptidx<0 || nrpts == ctab_.transparencySize() )
 	return;
