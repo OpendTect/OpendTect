@@ -1655,13 +1655,7 @@ void uiColorTableMan::setHistogram( const TypeSet<float>& hist,
     for ( int idx=0; idx<myhist.size(); idx++ )
 	x2vals += idx*step;
 
-    TypeSet<float> y2vals;
-    for ( int idx=myhist.size()-1; idx>=0; idx-- )
-	y2vals += myhist.get(idx);
-
-    cttranscanvas_->yAxis(true)->setRange( Interval<float>(0.,1.f) );
-    cttranscanvas_->yAxis(true)->setCaption( uiString::empty() );
-    cttranscanvas_->setY2Vals( x2vals.arr(), y2vals.arr(), myhist.size() );
+    cttranscanvas_->setY2Vals( x2vals.arr(), myhist.arr(), myhist.size() );
     const auto* rg = hp_ctabrange.getParam(this);
     const bool validrg = rg && !rg->isUdf();
     if ( validrg )
