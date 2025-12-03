@@ -2299,10 +2299,9 @@ bool uiWellLogMnemDlg::setMnemonics()
 		continue;
 	    }
 
-	    const UnitOfMeasure* uom = log->unitOfMeasure();
-	    const Mnemonic* mn =  mnemflds_[row]->mnemonic();
-	    if ( mn && mn!=log->mnemonic() )
-		log->setMnemonic( *mn );
+	    const Mnemonic* newmn =  mnemflds_[row]->mnemonic();
+	    if ( newmn && newmn!=log->mnemonic() )
+		log->setMnemonic( *newmn );
 	    else
 	    {
 		uneditedidxs[idx].add( lidx );
@@ -2310,8 +2309,11 @@ bool uiWellLogMnemDlg::setMnemonics()
 		continue;
 	    }
 
-	    if ( !uom || !uom->isCompatibleWith(*mn->unit()) )
-		log->setUnitOfMeasure( mnemflds_[row]->mnemonic()->unit() );
+	    const UnitOfMeasure* curuom = log->unitOfMeasure();
+	    const UnitOfMeasure* newmnuom = newmn->unit();
+	    if ( newmnuom &&
+		    (!curuom || !curuom->isCompatibleWith(*newmnuom)) )
+		log->setUnitOfMeasure( newmnuom );
 
 	    row++;
 	}

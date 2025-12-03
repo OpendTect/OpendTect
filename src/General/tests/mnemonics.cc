@@ -13,6 +13,66 @@ ________________________________________________________________________
 #include "unitofmeasure.h"
 
 
+static bool testStdMnemonics()
+{
+    const UnitOfMeasure* gccuom = UoMR().get( "g/cc" );
+    const UnitOfMeasure* usftuom = UoMR().get( "us/ft" );
+    const UnitOfMeasure* percuom = UoMR().get( "%" );
+    mRunStandardTest( gccuom && usftuom && percuom, "Has test units of measure")
+
+    const Mnemonic* denmn = MNC().getByName( "RHOB", false );
+    mRunStandardTest( denmn && denmn == &Mnemonic::defDEN(), "RHOB mnemonic" )
+    mRunStandardTest( denmn->stdType() == Mnemonic::Den, "RHOB standard type")
+    mRunStandardTest( denmn->unit() == gccuom, "RHOB mnemonic UoM" )
+
+    const Mnemonic* dtmn = MNC().getByName( "DT", false );
+    mRunStandardTest( dtmn && dtmn == &Mnemonic::defDT(), "DT mnemonic" )
+    mRunStandardTest( dtmn->stdType() == Mnemonic::Son, "DT standard type" )
+    mRunStandardTest( dtmn->unit() == usftuom, "Sonic mnemonic UoM" )
+
+    const Mnemonic* phimn = MNC().getByName( "PHI", false );
+    mRunStandardTest( phimn && phimn == &Mnemonic::defPHI(), "PHI mnemonic" )
+    mRunStandardTest( phimn->stdType() == Mnemonic::Volum, "PHI standard type" )
+    mRunStandardTest( phimn->unit() == percuom, "PHI mnemonic UoM" )
+
+    const Mnemonic* swmn = MNC().getByName( "SW", false );
+    mRunStandardTest( swmn && swmn == &Mnemonic::defSW(), "SW mnemonic" )
+    mRunStandardTest( swmn->stdType() == Mnemonic::Volum, "SW standard type" )
+    mRunStandardTest( swmn->unit() == percuom, "SW mnemonic UoM" )
+
+    const Mnemonic* vclmn = MNC().getByName( "VCL", false );
+    mRunStandardTest( vclmn, "VCL mnenmonic" )
+    mRunStandardTest( vclmn->stdType() == Mnemonic::Volum, "VCL standard type" )
+    mRunStandardTest( vclmn->unit() == percuom, "VCL mnemonic UoM" )
+
+    const Mnemonic* lithomn = MNC().getByName( "LITHO", false );
+    mRunStandardTest( lithomn, "LITHO mnemonic" )
+    mRunStandardTest( lithomn->stdType() == Mnemonic::Class,
+		      "LITHO standard type (Class)" )
+    mRunStandardTest( !lithomn->unit(), "LITHO mnemonic is unitless" )
+
+    const Mnemonic* segmentmn = MNC().getByName( "SEGMENT", false );
+    mRunStandardTest( segmentmn, "SEGMENT mnemonic" )
+    mRunStandardTest( segmentmn->stdType() == Mnemonic::Class,
+		      "SEGMENT standard type (Class)" )
+    mRunStandardTest( !segmentmn->unit(), "SEGMENT mnemonic is unitless" )
+
+    const Mnemonic* seismn = MNC().getByName( "SEIS", false );
+    mRunStandardTest( seismn, "SEIS mnemonic" )
+    mRunStandardTest( seismn->stdType() == Mnemonic::Other,
+		      "SEIS standard type (Other)" )
+    mRunStandardTest( !seismn->unit(), "SEIS mnemonic is unitless" )
+
+    const Mnemonic* synthmn = MNC().getByName( "SYNTH", false );
+    mRunStandardTest( synthmn, "SYNTH mnemonic" )
+    mRunStandardTest( synthmn->stdType() == Mnemonic::Other,
+		      "SYNTH standard type (Other)" )
+    mRunStandardTest( !synthmn->unit(), "SYNTH mnemonic is unitless" )
+
+    return true;
+}
+
+
 static bool testRanges()
 {
     const Mnemonic* mnem = MNC().getByName( "DT", false );
@@ -397,7 +457,8 @@ int mTestMainFnName( int argc, char** argv )
 {
     mInitTestProg();
 
-    if ( !testRanges() ||
+    if ( !testStdMnemonics() ||
+	 !testRanges() ||
 	 !testMnemonicsSel() ||
 	 !testPropertyRefSet() ||
 	 !testPropertyRefSelection() ||
