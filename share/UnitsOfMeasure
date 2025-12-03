@@ -36,7 +36,7 @@ Feet/second x Kg/m3: Impedance`ft/s x kg/m3`0.3048
 Feet/second x Gram/cm3: Impedance`ft/s x g/cc`304.8
 Kg/m3 / Microseconds/feet: Impedance`kg/m3 / us/ft`304800
 Gram/ft2s: Impedance`g/ft2s`0.0107639
-Fraction: Volumetrics|Other``1
+Fraction: Volumetrics``1
 Ratio: Elastic Ratio|Anisotropy``1
 Percent: Volumetrics|Elastic Ratio|Anisotropy`%`0.01
 Parts-per-million: Fluid`ppm`1e-6
