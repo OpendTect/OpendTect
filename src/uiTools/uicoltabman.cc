@@ -60,6 +60,7 @@ static HiddenParam<uiColorTableMan,uiLineEdit*> hp_minfld( nullptr );
 static HiddenParam<uiColorTableMan,uiLineEdit*> hp_maxfld( nullptr );
 static HiddenParam<uiColorTableMan,TypeSet<float>*> hp_histvals( nullptr );
 static HiddenParam<uiColorTableMan,int> hp_segidx( -1 );
+static HiddenParam<uiColorTableMan, ColTab::Sequence*> hp_segctab(nullptr);
 
 
 mClass(uiTools) uiTranspValuesDlgPlus : public uiDialog
@@ -1279,6 +1280,7 @@ uiColorTableMan::uiColorTableMan( uiParent* p, ColTab::Sequence& ctab,
     hp_rangechanged.setParam( this, new Notifier<uiColorTableMan>(this) );
     hp_histvals.setParam( this, new TypeSet<float> );
     hp_segidx.setParam( this, 0 );
+    hp_segctab.setParam( this, new ColTab::Sequence );
     setShrinkAllowed( false );
 
     auto* leftgrp = new uiGroup( this, "Left" );
@@ -1452,6 +1454,7 @@ uiColorTableMan::~uiColorTableMan()
     hp_minfld.removeParam( this );
     hp_histvals.removeParam( this );
     hp_segidx.removeParam( this );
+    hp_segctab.removeAndDeleteParam( this );
 
     delete orgctab_;
     delete w2uictabcanvas_;
@@ -1561,6 +1564,9 @@ void uiColorTableMan::selChg( CallBacker* )
     tableChanged.trigger();
 
     markercolfld_->display( false );
+
+    if (ctab_.hasEqualSegments() )
+	setPtsToAnchSegsCB( nullptr );
 }
 
 
@@ -1847,8 +1853,11 @@ void uiColorTableMan::segmentSel( CallBacker* )
     nrsegbox_->display( segmented );
     markercolfld_->display ( false );
     doSegmentize();
+    ColTab::Sequence* segctab = hp_segctab.getParam( this );
     if ( segmented )
     {
+	*segctab = ctab_;
+	hp_segctab.setParam( this, segctab );
 	cttranscanvas_->allowAddingPoints( false );
 	setPtsToAnchSegsCB( nullptr );
 	const float nrsegs = ctab_.nrSegments();
@@ -1857,6 +1866,15 @@ void uiColorTableMan::segmentSel( CallBacker* )
     }
     else
     {
+	if ( segctab && !segctab->isEmpty()  )
+	{
+	    ctab_ = *segctab;
+	    doSegmentize();
+	    transpTableChgd( nullptr );
+	    markercanvas_->reDrawNeeded.trigger();
+	    ctabcanvas_->setRGB();
+	}
+
 	cttranscanvas_->allowAddingPoints( true );
 	cttranscanvas_->setup().ptsnaptol( 0.08 );
     }
