@@ -46,7 +46,7 @@ ________________________________________________________________________
 #include "uiworld2ui.h"
 
 #define mTransHeight	300
-#define mTransWidth	600
+#define mTransWidth	300
 
 static const int sPosCol = 0;
 static const int sDataCol = 1;
@@ -56,8 +56,10 @@ static const int sPosColorCol = 3;
 static const int sColorCol = 1;
 
 static HiddenParam<uiColorTableMan,Interval<float>*> hp_ctabrange( nullptr );
-static HiddenParam<uiColorTableMan,uiLineEdit*> hp_minfld(nullptr);
-static HiddenParam<uiColorTableMan,uiLineEdit*> hp_maxfld(nullptr);
+static HiddenParam<uiColorTableMan,uiLineEdit*> hp_minfld( nullptr );
+static HiddenParam<uiColorTableMan,uiLineEdit*> hp_maxfld( nullptr );
+static HiddenParam<uiColorTableMan,TypeSet<float>*> hp_histvals( nullptr );
+static HiddenParam<uiColorTableMan,int> hp_segidx( -1 );
 
 
 mClass(uiTools) uiTranspValuesDlgPlus : public uiDialog
@@ -1275,6 +1277,8 @@ uiColorTableMan::uiColorTableMan( uiParent* p, ColTab::Sequence& ctab,
     hp_ctabrange.setParam( this,
 			   new Interval<float>(Interval<float>::udf()) );
     hp_rangechanged.setParam( this, new Notifier<uiColorTableMan>(this) );
+    hp_histvals.setParam( this, new TypeSet<float> );
+    hp_segidx.setParam( this, 0 );
     setShrinkAllowed( false );
 
     auto* leftgrp = new uiGroup( this, "Left" );
@@ -1284,7 +1288,10 @@ uiColorTableMan::uiColorTableMan( uiParent* p, ColTab::Sequence& ctab,
     labels.add( "Color table" ).add( "Source" );
     coltablistfld_->addColumns( labels );
     coltablistfld_->setRootDecorated( false );
-    coltablistfld_->setStretch( 2, 2 );
+    coltablistfld_->setColumnWidthMode( 0, uiTreeView::Stretch );
+    coltablistfld_->setColumnWidthMode( 1, uiTreeView::Fixed );
+    coltablistfld_->setFixedColumnWidth( 1, 70 );
+    coltablistfld_->setStretch( 0, 2 );
     coltablistfld_->setSelectionBehavior( uiTreeView::SelectRows );
     mAttachCB( coltablistfld_->selectionChanged, uiColorTableMan::selChg );
 
@@ -1295,6 +1302,7 @@ uiColorTableMan::uiColorTableMan( uiParent* p, ColTab::Sequence& ctab,
     segmentfld_ = new uiGenInput( botgrp, tr("Segmentation"),
 				 StringListInpSpec(segtypes) );
     mAttachCB( segmentfld_->valueChanged, uiColorTableMan::segmentSel );
+    segmentfld_->setStretch( 0, 0 );
     botgrp->setHAlignObj( segmentfld_ );
 
     nrsegbox_ = new uiSpinBox( botgrp, 0, 0 );
@@ -1318,11 +1326,15 @@ uiColorTableMan::uiColorTableMan( uiParent* p, ColTab::Sequence& ctab,
     hp_minfld.setParam( this, minfld );
     mAttachCB( minfld->returnPressed, uiColorTableMan::rangeChangedCB );
     minfld->attach( rightTo, lbl );
+    minfld->setStretch( 0, 0 );
 
     auto* maxfld = new uiLineEdit( botgrp, "Max" );
     hp_maxfld.setParam( this, maxfld );
     mAttachCB( maxfld->returnPressed, uiColorTableMan::rangeChangedCB );
-    maxfld->attach( rightTo, minfld );
+    maxfld->attach( rightOf, minfld );
+    maxfld->setStretch( 0, 0 );
+
+    coltablistfld_->setMinimumWidth( 345 );
 
     uiColorInput::Setup ctsu( ctab_.markColor(), uiColorInput::Setup::None );
     ctsu.withdesc( false );
@@ -1333,6 +1345,12 @@ uiColorTableMan::uiColorTableMan( uiParent* p, ColTab::Sequence& ctab,
     markercolfld_->display( false );
 
     auto* rightgrp = new uiGroup( this, "Right" );
+    leftgrp->attach( leftOf, rightgrp );
+
+    markercanvas_ = new uiColTabMarkerCanvas( rightgrp, ctab_ );
+    markercanvas_->setPrefWidth( 80 );
+    markercanvas_->setPrefHeight( mTransWidth );
+    markercanvas_->setStretch( 0, 2 );
 
     ctabcanvas_ =
 	new uiColorTableCanvas( rightgrp, ctab_, false, OD::Horizontal );
@@ -1341,7 +1359,7 @@ uiColorTableMan::uiColorTableMan( uiParent* p, ColTab::Sequence& ctab,
     mAttachCB( ctabcanvas_->reSize, uiColorTableMan::reDrawCB );
 
     w2uictabcanvas_ = new uiWorld2Ui( uiWorldRect(0,0,0,255),
-				     uiSize(mTransWidth/5, mTransWidth) );
+				      uiSize(mTransWidth/5, mTransWidth) );
 
     ctabcanvas_->setPrefWidth( 20 );
     ctabcanvas_->setPrefHeight( mTransWidth );
@@ -1350,11 +1368,7 @@ uiColorTableMan::uiColorTableMan( uiParent* p, ColTab::Sequence& ctab,
     mAttachCB( ctabcanvas_->getMouseEventHandler().doubleClick,
 	      uiColorTableMan::markerDialogCB );
 
-    markercanvas_ = new uiColTabMarkerCanvas( rightgrp, ctab_ );
-    markercanvas_->setPrefWidth( 60 );
-    markercanvas_->setPrefHeight( mTransWidth );
-    markercanvas_->setStretch( 0, 2 );
-    markercanvas_->attach( rightOf, ctabcanvas_ );
+    ctabcanvas_->attach( rightOf, markercanvas_ );
 
     uiFunctionDisplay::Setup su;
     int nrsegs = ctab_.nrSegments();
@@ -1373,8 +1387,8 @@ uiColorTableMan::uiColorTableMan( uiParent* p, ColTab::Sequence& ctab,
       .drawborder(false).xannotinint(true);
 
     cttranscanvas_ = new uiFunctionDisplay( rightgrp, su, OD::Vertical );
-    cttranscanvas_->setStretch( 2, 2 );
-    cttranscanvas_->attach( rightOf, markercanvas_ );
+    cttranscanvas_->setStretch( 3, 2 );
+    cttranscanvas_->attach( rightOf, ctabcanvas_ );
     cttranscanvas_->setTitleColor( OD::Color::Red() );
 
     if ( enabletrans_ )
@@ -1387,12 +1401,10 @@ uiColorTableMan::uiColorTableMan( uiParent* p, ColTab::Sequence& ctab,
 		   uiColorTableMan::rightClickTranspCB );
     }
 
-    auto* splitter = new uiSplitter( this, "Splitter", true );
-    splitter->addGroup( leftgrp );
-    splitter->addGroup( rightgrp );
+
 
     auto* butgrp = new uiButtonGroup( this, "actions", OD::Horizontal );
-    butgrp->attach( alignedBelow, splitter );
+    butgrp->attach( alignedBelow, leftgrp );
 
     auto* renamebut = new uiToolButton( butgrp, "renameobj",
 					uiStrings::sRename() );
@@ -1409,7 +1421,7 @@ uiColorTableMan::uiColorTableMan( uiParent* p, ColTab::Sequence& ctab,
 
     auto* saveasbut = new uiToolButton( this, "saveas", uiStrings::sSaveAs() );
     mAttachCB( saveasbut->activated, uiColorTableMan::saveAsCB );
-    saveasbut->attach( rightBorder, 0 );
+    saveasbut->attach( rightAlignedBelow, rightgrp );
 
     auto* savebut = new uiToolButton( this, "save", uiStrings::sSave() );
     mAttachCB( savebut->activated, uiColorTableMan::saveCB );
@@ -1420,7 +1432,7 @@ uiColorTableMan::uiColorTableMan( uiParent* p, ColTab::Sequence& ctab,
     flipbut->attach( leftOf, savebut );
 
     auto* settoanchbut = new uiPushButton( this,
-					tr("Set Transp Pts to Anchors") );
+					   tr("Set Transp Pts to Anchors") );
     mAttachCB( settoanchbut->activated, uiColorTableMan::setPtsToAnchSegsCB );
     settoanchbut->attach( leftOf, flipbut );
     settoanchbut->attach( rightTo, butgrp );
@@ -1438,6 +1450,8 @@ uiColorTableMan::~uiColorTableMan()
     hp_ctabrange.removeAndDeleteParam( this );
     hp_maxfld.removeParam( this );
     hp_minfld.removeParam( this );
+    hp_histvals.removeParam( this );
+    hp_segidx.removeParam( this );
 
     delete orgctab_;
     delete w2uictabcanvas_;
@@ -1776,7 +1790,9 @@ void uiColorTableMan::setHistogram( const TypeSet<float>& hist,
 				    const Interval<float>& minmax )
 {
     *hp_ctabrange.getParam(this) = minmax;
+
     TypeSet<float>& myhist = const_cast<TypeSet<float>&>(hist);
+    *hp_histvals.getParam(this) = myhist;
 
     TypeSet<float> x2vals;
     const float step = (float)1/(float)myhist.size();
@@ -1790,7 +1806,7 @@ void uiColorTableMan::setHistogram( const TypeSet<float>& hist,
     {
 	hp_minfld.getParam(this)->setValue( rg->start_ );
 	hp_maxfld.getParam(this)->setValue( rg->stop_ );
-	markercanvas_->setRange(minmax);
+	markercanvas_->setRange( minmax );
     }
 
     hp_minfld.getParam(this)->setSensitive( validrg );
@@ -2099,6 +2115,8 @@ void uiColorTableMan::rightClickTranspCB(CallBacker*)
 
 		markercanvas_->markerChgd( nullptr );
 	    }
+
+	    transpTableChgd( nullptr );
 	}
     }
 
@@ -2192,7 +2210,7 @@ void uiColorTableMan::sequenceChange( CallBacker* )
 
 void uiColorTableMan::transptChg( CallBacker* )
 {
-    const int ptidx = cttranscanvas_->selPt();
+    int ptidx = cttranscanvas_->selPt();
     const int nrpts = cttranscanvas_->xVals().size();
     const bool equalseg = ctab_.nrSegments() > 1;
     const bool compatible = ctab_.transparencySize()==ctab_.nrSegments()*2+2;
@@ -2232,7 +2250,9 @@ void uiColorTableMan::transptChg( CallBacker* )
 
 	if ( ptidx!=0 && ptidx!=nrpts-1 && equalseg && compatible )
 	{
-	    if ( ptidx%2!=0 )
+	    ptidx = hp_segidx.getParam(this)*2;
+
+	    if ( ptidx%2 != 0 )
 	    {
 		ptidx2 = ptidx+1;
 		pt2 = { cttranscanvas_->xVals()[ptidx2],
@@ -2282,6 +2302,22 @@ void uiColorTableMan::transptSel( CallBacker* )
 {
     const int ptidx = cttranscanvas_->selPt();
     const int nrpts = cttranscanvas_->xVals().size();
+
+    if ( ctab_.hasEqualSegments() )
+    {
+	const MouseEvent& ev =
+	    cttranscanvas_->getMouseEventHandler().event();
+
+	const auto pos = Geom::Point2D<int>( ev.pos().y_, ev.pos().x_ );
+	const float xpos = pos.x_;
+	const float transpheight = cttranscanvas_->height();
+	const float nrseg = ctab_.nrSegments();
+	const int segidx = std::clamp( nrseg-xpos/transpheight*nrseg+1,
+				      1.0f, nrseg );
+	cttranscanvas_->setSelectedPt( segidx*2 );
+	hp_segidx.setParam( this, segidx );
+    }
+
     if ( ptidx<0 || nrpts == ctab_.transparencySize() )
 	return;
 

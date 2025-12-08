@@ -44,6 +44,7 @@ public:
     void			setTitle(const uiString&) override;
     void			setTitleColor(const OD::Color&);
     void			setTitleAlignment(const Alignment& al);
+    void			setSelectedPt(int pt);
 
     Geom::Point2D<float>	getFuncXY(int xpix,bool y2) const;
     Geom::Point2D<float>	getXYFromPix(const Geom::Point2D<int>& pix,
