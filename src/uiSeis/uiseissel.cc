@@ -77,7 +77,7 @@ static IOObjContext adaptCtxtWithSetup( const IOObjContext& ct,
 		 !seistr->supportsMultiCompTrc()) )
 		continue;
 
-	    const BufferString nm = transl->typeName();
+	    const BufferString nm = transl->userName();
 	    allowedtranlators.add( nm );
 	}
 
@@ -625,7 +625,7 @@ void uiSeisSel::updateOutputOpts( bool issteering )
 
 	if ( !transl->isUserSelectable(false) )
 	{
-	    transntallowed.add( transl->typeName() );
+	    transntallowed.add( transl->userName() );
 	    continue;
 	}
 
@@ -634,7 +634,7 @@ void uiSeisSel::updateOutputOpts( bool issteering )
 
 	mDynamicCastGet(const SeisTrcTranslator*,seistr,transl);
 	if ( seistr && !seistr->supportsMultiCompTrc() )
-	    transntallowed.add( transl->typeName() );
+	    transntallowed.add( transl->userName() );
     }
 
     wrtrselfld_->updateTransFld( transntallowed );
