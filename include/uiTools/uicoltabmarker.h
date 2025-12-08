@@ -57,6 +57,7 @@ public:
 
     Notifier<uiColTabMarkerCanvas> markerChanged;
     void			setRange(const Interval<float>);
+    void			markerChgd(CallBacker*);
 
 protected:
 
@@ -77,5 +78,4 @@ protected:
     void                        mouse2Clk(CallBacker*);
     void                        mouseRelease(CallBacker*);
     void                        mouseMove(CallBacker*);
-    void                        markerChgd(CallBacker*);
 };

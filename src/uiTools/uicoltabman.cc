@@ -70,6 +70,7 @@ public:
     Notifier<uiTranspValuesDlgPlus> valuesChanged;
     Notifier<uiTranspValuesDlgPlus>& segmentInserted();
     Notifier<uiTranspValuesDlgPlus>& segmentRemoved();
+    Notifier<uiTranspValuesDlgPlus>& markersChanged();
 
 
 protected:
@@ -81,12 +82,20 @@ protected:
     ColTab::Sequence&		ctab_;
     Interval<float>		ctabrange_;
 
+    // these are for the transparency values
     void			doFinalizeCB(CallBacker*);
     void			setPtsToAnchSegCB(CallBacker*);
     void			dataChgdCB(CallBacker*);
     void			pointInsertedCB(CallBacker*);
     void			pointDeletedCB(CallBacker*);
     void			resetTranspPtsCB(CallBacker*);
+
+    // these are for the anchor values
+    void			mouseClick(CallBacker*);
+    void			markerInserted(CallBacker*);
+    void			markerDeleted(CallBacker*);
+    void			markerPosChgd(CallBacker*);
+    bool			acceptOK(CallBacker*) override;
 
     void			fillTableWithPts();
     void			fillAnchorTable();
@@ -113,6 +122,15 @@ static HiddenParam<uiTranspValuesDlgPlus,Notifier<uiTranspValuesDlgPlus>*>
 Notifier<uiTranspValuesDlgPlus>& uiTranspValuesDlgPlus::segmentRemoved()
 {
     return *hp_segmentremoved.getParam( this );
+}
+
+
+static HiddenParam<uiTranspValuesDlgPlus,Notifier<uiTranspValuesDlgPlus>*>
+    hp_markerschanged(nullptr);
+
+Notifier<uiTranspValuesDlgPlus>& uiTranspValuesDlgPlus::markersChanged()
+{
+    return *hp_markerschanged.getParam( this );
 }
 
 
@@ -420,9 +438,11 @@ uiTranspValuesDlgPlus::uiTranspValuesDlgPlus( uiParent* p,
     , ctabrange_(ctabrange)
 {
     hp_segmentinserted.setParam( this,
-				 new Notifier<uiTranspValuesDlgPlus>(this));
+				 new Notifier<uiTranspValuesDlgPlus>(this) );
     hp_segmentremoved.setParam( this,
-				new Notifier<uiTranspValuesDlgPlus>(this));
+				new Notifier<uiTranspValuesDlgPlus>(this) );
+    hp_markerschanged.setParam( this,
+				new Notifier<uiTranspValuesDlgPlus>(this) );
     const bool hasequalseg = ctab_.nrSegments() > 1;
 
     auto* tablegrp = new uiGroup( this, "Table" );
@@ -466,20 +486,20 @@ uiTranspValuesDlgPlus::uiTranspValuesDlgPlus( uiParent* p,
     if ( !hasequalseg )
     {
 	anchortable_ = new uiTable( tablegrp, uiTable::Setup(ctab_.size(),2)
-					     .rowdesc(tr("Anchor"))
-					     .defrowlbl(true)
-					     .manualresize(false)
-					     .removeselallowed(false)
-					     .insertcolallowed(false),
-				    "Anchor Table");
+						 .rowgrow(true)
+						 .rowdesc(tr("Anchor"))
+						 .defrowlbl(true)
+						 .manualresize(true)
+						 .removeselallowed(false),
+				   "Anchor Table");
 	uiStringSet anchorcolumnlabels;
-	anchorcolumnlabels.add( tr("Position\n(0 - 1)") )
-	    .add( uiStrings::sColor() );
+	anchorcolumnlabels.add( tr("Anchor Position\n(0 - 1)") )
+			  .add( uiStrings::sColor() );
 	anchortable_->setColumnLabels( anchorcolumnlabels );
 	anchortable_->setSelectionMode( uiTable::SingleRow );
-	fillAnchorTable();
-	anchortable_->setTableReadOnly(true);
+	anchortable_->setColumnReadOnly( sColorCol, true );
 	anchortable_->attach( rightOf, table_ );
+	fillAnchorTable();
     }
 
     splitter->addGroup( tablegrp );
@@ -489,6 +509,15 @@ uiTranspValuesDlgPlus::uiTranspValuesDlgPlus( uiParent* p,
     mAttachCB( table_->rowInserted, uiTranspValuesDlgPlus::pointInsertedCB );
     mAttachCB( table_->rowDeleted, uiTranspValuesDlgPlus::pointDeletedCB );
     mAttachCB( postFinalize(), uiTranspValuesDlgPlus::doFinalizeCB );
+
+    mAttachCB( anchortable_->leftClicked,
+	       uiTranspValuesDlgPlus::mouseClick );
+    mAttachCB( anchortable_->rowInserted,
+	       uiTranspValuesDlgPlus::markerInserted );
+    mAttachCB( anchortable_->rowDeleted,
+	       uiTranspValuesDlgPlus::markerDeleted );
+    mAttachCB( anchortable_->valueChanged,
+	       uiTranspValuesDlgPlus::markerPosChgd );
 }
 
 
@@ -497,6 +526,7 @@ uiTranspValuesDlgPlus::~uiTranspValuesDlgPlus()
     detachAllNotifiers();
     hp_segmentinserted.removeAndDeleteParam( this );
     hp_segmentremoved.removeAndDeleteParam( this );
+    hp_markerschanged.removeAndDeleteParam( this );
 }
 
 
@@ -639,9 +669,11 @@ void uiTranspValuesDlgPlus::fillAnchorTable()
 	anchortable_->setColor( RowCol(cidx,sColorCol), ctab_.color(position) );
     }
 
-    anchortable_->setTableReadOnly( true );
     anchortable_->setMinimumWidthInChar( 40 );
     anchortable_->setMinimumHeightInChar( 28 );
+
+    anchortable_->setCellReadOnly( RowCol(0,0), true );
+    anchortable_->setCellReadOnly( RowCol(anchortable_->nrRows()-1,0), true );
 }
 
 
@@ -1121,6 +1153,103 @@ void uiTranspValuesDlgPlus::resetTranspPtsCB( CallBacker* )
 	syncanchors_->setText(
 				tr("Convert Transparency Points to Segments") );
     }
+}
+
+
+void uiTranspValuesDlgPlus::mouseClick( CallBacker* )
+{
+    NotifyStopper notifstop( anchortable_->valueChanged );
+    const RowCol rc = anchortable_->notifiedCell();
+    if ( rc.col() != sColorCol )
+	return;
+
+    OD::Color newcol = anchortable_->getColor( rc );
+    if ( selectColor(newcol,this,tr("Anchor color")) )
+    {
+	ColTab::Sequence orgctab = ctab_;
+	anchortable_->setColor( rc, newcol );
+	anchortable_->setCurrentCell( RowCol(rc.row(),sPosCol) );
+	orgctab.changeColor( rc.row(), newcol );
+	ctab_ = orgctab;
+    }
+
+    hp_markerschanged.getParam(this)->trigger();
+}
+
+
+void uiTranspValuesDlgPlus::markerInserted( CallBacker* )
+{
+    NotifyStopper notifstop( anchortable_->valueChanged );
+    RowCol rcpos = anchortable_->newCell();
+    if ( rcpos.row()-1<0 || rcpos.row()>=ctab_.size() )
+    {
+	anchortable_->removeRow( rcpos );
+	uiMSG().error( tr("Cannot insert anchors at extreme positions") );
+	return;
+    }
+
+    const RowCol rccolor( rcpos.row(), sColorCol );
+    const float newpos = ctab_.position(rcpos.row()-1) +
+			 ( ctab_.position(rcpos.row()) -
+			  ctab_.position(rcpos.row()-1) ) / 2;
+    const OD::Color col( ctab_.color(newpos) );
+    anchortable_->setColor( rccolor, col );
+    anchortable_->setCurrentCell( RowCol(rcpos.row(),sPosCol) );
+    ctab_.setColor( newpos, col );
+    fillAnchorTable();
+    hp_markerschanged.getParam(this)->trigger();
+}
+
+
+void uiTranspValuesDlgPlus::markerDeleted( CallBacker* )
+{
+    NotifyStopper notifstop( anchortable_->valueChanged );
+    const RowCol rc = anchortable_->notifiedCell();
+    if ( rc.row()==0 || rc.row()==ctab_.size()-1 )
+    {
+	anchortable_->insertRows( rc, 1 );
+	fillAnchorTable();
+	uiMSG().error( tr("Cannot remove anchors at extreme positions") );
+	return;
+    }
+
+    ctab_.removeColor( rc.row() );
+    fillAnchorTable();
+    hp_markerschanged.getParam(this)->trigger();
+}
+
+
+void uiTranspValuesDlgPlus::markerPosChgd( CallBacker* )
+{
+    const RowCol rc = anchortable_->currentCell();
+    if ( rc.row()<=0 || rc.row()>=ctab_.size()-1 )
+	return;
+
+    const float newpos = anchortable_->getFValue( rc );
+    if (ctab_.position(rc.row()-1)>newpos || ctab_.position(rc.row()+1)<newpos)
+    {
+	uiMSG().error( tr("Please enter position between 0 and 1") );
+	anchortable_->setValue( rc, ctab_.position(rc.row()) );
+	return;
+    }
+
+    ctab_.changePos( rc.row(), newpos );
+    hp_markerschanged.getParam(this)->trigger();
+}
+
+
+bool uiTranspValuesDlgPlus::acceptOK( CallBacker* )
+{
+    NotifyStopper ns( ctab_.colorChanged );
+    for ( int idx=0; idx<anchortable_->nrRows(); idx++ )
+    {
+	const RowCol colrc( idx, sColorCol );
+	const OD::Color col( anchortable_->getColor(colrc) );
+	ctab_.changeColor( idx, col );
+    }
+
+    ctab_.colorChanged.trigger();
+    return true;
 }
 
 
@@ -1943,6 +2072,8 @@ void uiColorTableMan::rightClickTranspCB(CallBacker*)
 	uiTranspValuesDlgPlus dlg( parent_, ctab_,
 				   *hp_ctabrange.getParam(this) );
 	dlg.valuesChanged.notify( mCB(this,uiColorTableMan,transpTableChgd) );
+	dlg.markersChanged()
+	    .notify( mCB(markercanvas_,uiColTabMarkerCanvas,markerChgd) );
 
 	if ( ctab_.nrSegments() > 1 )
 	{
@@ -1960,9 +2091,13 @@ void uiColorTableMan::rightClickTranspCB(CallBacker*)
 						    uiStrings::sDiscard());
 	    if ( !save )
 	    {
+		NotifyStopper ns( dlg.markersChanged() );
 		ctab_ = coltab;
 		transpTableChgd( nullptr );
-		nrsegbox_->setValue( ctab_.nrSegments() );
+		if ( ctab_.hasEqualSegments() )
+		    nrsegbox_->setValue( ctab_.nrSegments() );
+
+		markercanvas_->markerChgd( nullptr );
 	    }
 	}
     }

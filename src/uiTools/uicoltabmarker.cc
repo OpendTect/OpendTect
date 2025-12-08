@@ -115,7 +115,7 @@ void uiColTabMarkerDlg::markerInserted( CallBacker* )
     if ( rcpos.row()-1<0 || rcpos.row()>=ctab_.size() )
     {
 	table_->removeRow( rcpos );
-	uiMSG().error( tr("Cannot insert achors at extreme positions") );
+	uiMSG().error( tr("Cannot insert anchors at extreme positions") );
 	return;
     }
 
