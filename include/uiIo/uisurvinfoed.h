@@ -199,7 +199,7 @@ public:
     const char*		iconName() const override	{ return "ascii"; }
 
     IOPar*		getCoordSystemPars() const override;
-    BufferString	getNewSurveyName() const	{ return surveynm_; }
+    BufferString	getNewSurveyName() const override { return surveynm_; }
 
 protected:
 
