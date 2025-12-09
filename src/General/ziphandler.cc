@@ -625,13 +625,7 @@ void ZipFileInfo::setAttr( const unsigned char* buf, bool fromwin )
 	    /* Unix to Windows (No system attribute to restore,
 				Hidden attrib set by file name) */
 	    const bool isreadonly = perms_.isReadOnly();
-	    if ( !isSymbolicLink() )
-	    {
-		type_ = perms_.testFlag( File::Permission::ExeUser )
-		      ? File::Type::Directory : File::Type::File;
-	    }
-	    perms_ = File::Permissions::getDefault( !isDirectory() &&
-						    !isSymbolicLink(), true );
+	    perms_ = File::Permissions::getDefault( !isDirectory(), true );
 	    perms_.setReadOnly( isreadonly );
 	}
     }
