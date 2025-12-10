@@ -91,6 +91,9 @@ public:
 
     bool		getData(TraceData&);
     bool		getDataPack(RegularSeisDataPack&,TaskRunner* =nullptr);
+    bool		getDataPack(RegularSeisDataPack&,
+				    const TypeSet<int>& selcomps,
+				    TaskRunner* =nullptr);
 
     bool		get(SeisTrc&);
 			/*!< It is possible to directly call this without

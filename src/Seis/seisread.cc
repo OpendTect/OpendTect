@@ -571,10 +571,27 @@ bool SeisTrcReader::getData( TraceData& data )
 
 bool SeisTrcReader::getDataPack( RegularSeisDataPack& sdp, TaskRunner* taskr )
 {
+    const TypeSet<int> selcomps;
+    return getDataPack( sdp, selcomps, taskr );
+}
+
+
+bool SeisTrcReader::getDataPack( RegularSeisDataPack& sdp,
+				 const TypeSet<int>& selcomps,
+				 TaskRunner* taskr )
+{
     needskip_ = false;
     if ( !prepared_ && !prepareWork(readmode_) )
 	return false;
-    else if ( outer_ == &getUdfTks() && !startWork() )
+
+    selcomp_ = -1;
+    if ( !selcomps.isEmpty() )
+    {
+	for ( int idx=0; idx<strl()->componentInfo().size(); idx++ )
+	    strl()->componentInfo()[idx]->destidx = selcomps.indexOf( idx );
+    }
+
+    if ( outer_ == &getUdfTks() && !startWork() )
 	return false;
 
     if ( psioprov_ || is2D() )
@@ -587,7 +604,6 @@ bool SeisTrcReader::getDataPack( RegularSeisDataPack& sdp, TaskRunner* taskr )
     }
 
     sdp.setZDomain( zDomain() );
-
     return true;
 }
 
