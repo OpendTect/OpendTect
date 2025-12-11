@@ -14,6 +14,7 @@ ________________________________________________________________________
 #include "odmemory.h"
 #include "nrbytes2string.h"
 #include "thread.h"
+#include "threadwork.h"
 
 #if defined( __lux__ )
 # include "file.h"
