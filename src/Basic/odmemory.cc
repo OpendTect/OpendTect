@@ -14,20 +14,17 @@ ________________________________________________________________________
 #include "odmemory.h"
 #include "nrbytes2string.h"
 #include "thread.h"
-#include "threadwork.h"
 
-#ifdef __lux__
-# include "od_istream.h"
-# include "strmoper.h"
-# include <fstream>
-static od_int64 swapfree;
-#endif
-
-#ifdef __mac__
-# include <unistd.h>
+#if defined( __lux__ )
+# include "file.h"
+#elif defined( __mac__ )
+# include <mach/mach.h>
 # include <mach/mach_init.h>
 # include <mach/mach_host.h>
 # include <mach/host_info.h>
+# include <sys/sysctl.h>
+# include <sys/types.h>
+# include <unistd.h>
 #endif
 
 #include "iopar.h"
@@ -139,15 +136,10 @@ void OD::dumpMemInfo( StringPairSet& res )
     od_int64 total, free;
     getSystemMemory( total, free );
     NrBytesToStringCreator converter;
-
     converter.setUnitFrom( total );
 
-    res.setEmpty();
-    res.add( "Total memory", converter.getString(total) );
+    res.add( "Total memory", converter.getString( total ) );
     res.add( "Free memory", converter.getString( free ) );
-#ifdef __lux__
-    res.add( "Available swap space", converter.getString(swapfree) );
-#endif
 }
 
 
@@ -164,7 +156,9 @@ void OD::dumpMemInfo( IOPar& res )
 static od_int64 getMemFromStr( char* str, const char* ky )
 {
     char* ptr = firstOcc( str, ky );
-    if ( !ptr ) return 0;
+    if ( !ptr )
+	return 0;
+
     ptr += strlen( ky );
     mSkipBlanks(ptr);
     char* endptr = ptr; mSkipNonBlanks(endptr);
@@ -185,55 +179,38 @@ static od_int64 getMemFromStr( char* str, const char* ky )
 
 void OD::getSystemMemory( od_int64& total, od_int64& free )
 {
-    od_int64 virttotal, virtfree;
-#ifdef __lux__
-
-    std::ifstream stdstrm( "/proc/meminfo" );
-    od_istream strm( stdstrm );
-    BufferString filecont;
-    if ( !strm.getAll(filecont) )
-	mErrRet
-
-    total = getMemFromStr( filecont.getCStr(), "MemTotal:" );
-    free = getMemFromStr( filecont.getCStr(), "MemFree:" );
-    free += getMemFromStr( filecont.getCStr(), "Cached:" );
-    swapfree = getMemFromStr( filecont.getCStr(), "SwapFree:" );
-    virttotal = getMemFromStr( filecont.getCStr(), "SwapTotal:" );
-    virtfree = swapfree;
-#endif
-#ifdef __mac__
-    vm_statistics64_data_t vm_info;
-    mach_msg_type_number_t info_count;
-
-    info_count = HOST_VM_INFO64_COUNT;
-    if ( host_statistics64(mach_host_self(),HOST_VM_INFO64,
-                (host_info64_t)&vm_info,&info_count) )
-        mErrRet
-
-    total = (vm_info.active_count + vm_info.inactive_count +
-             vm_info.free_count + vm_info.wire_count) * vm_page_size;
-    free = (vm_info.free_count + vm_info.inactive_count) * vm_page_size;
-    virttotal = 0; //TODO: impl?
-    virtfree = 0; //TODO: impl?
-#endif
-#ifdef __win__
+#if defined(__win__)
     MEMORYSTATUSEX status;
     status.dwLength = sizeof(status);
     GlobalMemoryStatusEx(&status);
     total = status.ullTotalPhys;
     free = status.ullAvailPhys;
-    virttotal = status.ullTotalPageFile;
-    virtfree = status.ullAvailPageFile;
-#endif
-    const bool usevirtualmem = GetEnvVarYN( "OD_USE_VIRTUALMEM" );
-    if ( !usevirtualmem )
-	return;
+#elif defined(__lux__)
+    BufferString filecont;
+    if ( !File::getContent("/proc/meminfo",filecont) )
+	mErrRet
 
-#ifdef __win__
-    total = virttotal;
-    free = virtfree;
-#else
-    total += virttotal;
-    free += virtfree;
+    total = getMemFromStr( filecont.getCStr(), "MemTotal:" );
+    free = getMemFromStr( filecont.getCStr(), "MemAvailable:" );
+    // Available <= free + cached
+    if ( free < 1 )
+    {
+	free = getMemFromStr( filecont.getCStr(), "MemFree:" ) +
+	       getMemFromStr( filecont.getCStr(), "Cached:" );
+    }
+#elif defined( __mac__ )
+    int mib[2] = {CTL_HW, HW_MEMSIZE};
+    size_t len = sizeof(total);
+    sysctl(mib, 2, &total, &len, nullptr, 0);
+
+    vm_statistics64_data_t vm_info;
+    mach_msg_type_number_t info_count;
+    info_count = HOST_VM_INFO64_COUNT;
+    if ( host_statistics64(mach_host_self(),HOST_VM_INFO64,
+			   (host_info64_t)&vm_info,&info_count) )
+        mErrRet
+
+    free = (vm_info.free_count + vm_info.inactive_count) * vm_page_size;
+    // Available (free + inactive)
 #endif
 }
