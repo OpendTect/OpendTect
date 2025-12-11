@@ -14,7 +14,6 @@ ________________________________________________________________________
 #include "odmemory.h"
 #include "nrbytes2string.h"
 #include "thread.h"
-#include "threadwork.h"
 
 #if defined( __lux__ )
 # include "file.h"
@@ -23,7 +22,6 @@ ________________________________________________________________________
 # include <mach/mach_init.h>
 # include <mach/mach_host.h>
 # include <mach/host_info.h>
-# include <sys/sysctl.h>
 # include <sys/types.h>
 # include <unistd.h>
 #endif
@@ -31,6 +29,10 @@ ________________________________________________________________________
 #include "iopar.h"
 #include "string2.h"
 #include <string.h>
+
+#ifdef __mac__
+# include <sys/sysctl.h>
+#endif
 
 
 void OD::sysMemCopy( void* dest, const void* org, od_int64 sz )
