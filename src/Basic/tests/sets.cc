@@ -370,15 +370,6 @@ static bool testMove()
     return true;
 }
 
-static bool testIncreasingValues()
-{
-    TypeSet<int> vals( 900 );
-    vals.fillWithIncreasingValues( 100 );
-    mRunStandardTest( vals.first()==100 && vals.last()==999, "fill 10-999" );
-
-    return true;
-}
-
 
 int mTestMainFnName( int argc, char** argv )
 {
@@ -392,7 +383,6 @@ int mTestMainFnName( int argc, char** argv )
     res += testObjectSetCapacity() ? 0 : 1;
     res += testManagedObjectSet() ? 0 : 1;
     res += testMove() ? 0 : 1;
-    res += testIncreasingValues() ? 0 : 1;
 
     return res;
 }

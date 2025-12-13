@@ -10,11 +10,9 @@ ________________________________________________________________________
 
 #include "debug.h"
 #include "gendefs.h"
-
 #include <algorithm>
-#include <numeric>
-#include <stdexcept>
 #include <vector>
+#include <stdexcept>
 
 /*!
 \brief Simple vector-based container simplifying index-based work.
@@ -39,8 +37,9 @@ public:
     typedef IT					size_type;
     typedef size_type				idx_type;
     typedef T					object_type;
-    typedef typename std::vector<T>::iterator	iterator;
-    typedef typename std::vector<T>::const_iterator const_iterator;
+    typedef std::vector<T>			impl_type;
+    typedef typename impl_type::iterator	iterator;
+    typedef typename impl_type::const_iterator	const_iterator;
 
     inline iterator	begin()			{ return v_.begin(); }
     inline const_iterator begin() const		{ return v_.cbegin(); }
@@ -61,8 +60,8 @@ public:
 				: v_(v2.v_)		{}
     virtual		~VectorAccess()			{}
 
-    inline std::vector<T>&	 vec()			{ return v_; }
-    inline const std::vector<T>& vec() const		{ return v_; }
+    inline impl_type&	 vec()			{ return v_; }
+    inline const impl_type& vec() const		{ return v_; }
 
     inline T&		operator[](IT);
     inline const T&	operator[](IT) const;
@@ -130,8 +129,6 @@ public:
 			{ std::swap( v_[i], v_[j] ); }
     inline void		fillWith( const T& val )
 			{ std::fill( v_.begin(), v_.end(), val ); }
-    inline void		iota( T startval )
-			{ std::iota( v_.begin(), v_.end(), startval); }
     inline void		replace( const T& val, const T& newval )
 			{ std::replace( v_.begin(), v_.end(), val, newval ); }
     inline void		swap( VectorAccess& oth )
@@ -176,7 +173,7 @@ public:
 
 protected:
 
-    std::vector<T>	v_;
+    impl_type	v_;
 
 };
 
@@ -305,7 +302,7 @@ IT VectorAccess<T,IT>::indexOf( const T& t, bool forward, IT start ) const
 	rebegit += nrskipped;
     }
 
-    const typename std::vector<T>::const_reverse_iterator res
+    const typename impl_type::const_reverse_iterator res
 			= std::find( rebegit, rendit, t );
     if ( res == rendit )
 	return -1;
