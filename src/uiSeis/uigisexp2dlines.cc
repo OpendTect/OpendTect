@@ -62,7 +62,7 @@ uiGISExport2DLines::~uiGISExport2DLines()
 
 void uiGISExport2DLines::setSelected( const Pos::GeomID& gid )
 {
-    const TypeSet<Pos::GeomID> geomids( gid );
+    const TypeSet<Pos::GeomID> geomids( 1, gid );
     setSelected( geomids );
 }
 
