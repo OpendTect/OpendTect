@@ -389,8 +389,8 @@ bool uiRockPhysForm::getFormulaInfo( Math::Formula& form,
     if ( res && sttypes )
     {
 	sttypes->setEmpty();
-	for ( const auto& specvar : form.specVars() )
-	    sttypes->add( specvar.getMnemonic().stdType() );
+	for ( const auto* specvar : form.specVars() )
+	    sttypes->add( specvar->getMnemonic().stdType() );
     }
 
     return res;

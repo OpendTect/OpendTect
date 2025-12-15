@@ -323,8 +323,13 @@ void Horizon3DT2DTransformer::postStepCB( CallBacker* )
 
 
 //Horizon2DDataHolder
+
 Horizon2DDataHolder::Horizon2DDataHolder( const Pos::GeomID& geomid )
     : geomid_(geomid)
+{}
+
+
+Horizon2DDataHolder::~Horizon2DDataHolder()
 {}
 
 
@@ -370,20 +375,24 @@ Horizon2DDataHolderSet::Horizon2DDataHolderSet()
 {}
 
 
+Horizon2DDataHolderSet::~Horizon2DDataHolderSet()
+{}
+
+
 void Horizon2DDataHolderSet::addData( const Pos::GeomID& geomid,
 				      const MultiID& mid )
 {
-    for ( auto& data : *this )
+    for ( auto* data : *this )
     {
-	if ( data.getGeomID() == geomid )
+	if ( data->getGeomID() == geomid )
 	{
-	    data.addHorMID( mid );
+	    data->addHorMID( mid );
 	    return;
 	}
     }
 
-    Horizon2DDataHolder hd( geomid );
-    hd.addHorMID( mid );
+    auto* hd = new Horizon2DDataHolder( geomid );
+    hd->addHorMID( mid );
     this->add( hd );
 }
 
@@ -521,9 +530,9 @@ int Horizon2DT2DTransformer::nextStep()
     if ( nrdone_ == totnr_ )
 	return Finished();
 
-    for ( const auto& data : dataset_ )
+    for ( const auto* data : dataset_ )
     {
-	do2DHorizon( data );
+	do2DHorizon( *data );
 	nrdone_++;
     }
 

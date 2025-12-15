@@ -107,8 +107,8 @@ static bool testRepeatingVar()
 {
     const char* expr = "x[-1] + 2*y + out[-1] + x[1] + aap";
     Math::SpecVarSet svs;
-    svs += Math::SpecVar( "Aap", "Dit is aapje", true, &Mnemonic::distance() );
-    svs += Math::SpecVar( "Noot", "Dit is nootje" );
+    svs.add( "Aap", "Dit is aapje", true, &Mnemonic::distance() );
+    svs.add( "Noot", "Dit is nootje" );
     Math::Formula form( true, svs, expr );
     mRunStandardTestWithError( form.isOK(),
 	BufferString( "Formula from expression '", expr, "'" ),

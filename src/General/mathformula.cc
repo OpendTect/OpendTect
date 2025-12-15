@@ -53,7 +53,6 @@ const Math::SpecVarSet& Math::SpecVarSet::getEmpty()
 
 
 Math::SpecVarSet::SpecVarSet()
-    : TypeSet<SpecVar>()
 {
 }
 
@@ -76,6 +75,27 @@ int Math::SpecVarSet::getIndexOf( const char* varnm ) const
 }
 
 
+void Math::SpecVarSet::add( const char* varnm, const char* dispnm,
+			    bool hasuns, const Mnemonic* mn )
+{
+    auto* sv = new SpecVar( varnm, dispnm, hasuns, mn );
+    ObjectSet<SpecVar>::add( sv );
+}
+
+
+const Math::SpecVar* Math::SpecVarSet::find( const char* nm ) const
+{
+    return getNonConst( *this ).find( nm );
+}
+
+
+Math::SpecVar* Math::SpecVarSet::find( const char* nm )
+{
+    const int idx = getIndexOf( nm );
+    return validIdx( idx ) ? get( idx ) : nullptr;
+}
+
+
 void Math::SpecVarSet::getNames( BufferStringSet& nms, bool usrdisp ) const
 {
     for ( int idx=0; idx<size(); idx++ )
@@ -87,7 +107,7 @@ void Math::SpecVarSet::add( const char* varnm, const char* dispnm,
 			    bool hasuns, Mnemonic::StdType typ )
 {
     const Mnemonic* mn = MnemonicSelection::getGuessed( nullptr, typ );
-    *this += SpecVar( varnm, dispnm, hasuns, mn );
+    add( varnm, dispnm, hasuns, mn );
 }
 
 

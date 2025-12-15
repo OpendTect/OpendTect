@@ -1055,7 +1055,8 @@ od_int64 OD::JSON::Array::getIntValue( idx_type idx ) const
     if ( !isData() || isMixed())
 	return ValueSet::getIntValue( idx );
 
-    return valArr().validIdx( idx ) ? valArr().vals()[idx] : mUdf(od_int64);
+    return valArr().validIdx( idx ) ? sCast(od_int64,valArr().vals()[idx])
+				    : mUdf(od_int64);
 }
 
 
@@ -1221,7 +1222,7 @@ OD::JSON::Array& OD::JSON::Array::set( const FilePath& fp )
 
 OD::JSON::Array& OD::JSON::Array::set( bool val )
 {
-    return set( BoolTypeSet(val) );
+    return set( BoolTypeSet(1,val) );
 }
 
 

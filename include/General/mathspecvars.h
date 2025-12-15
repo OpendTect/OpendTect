@@ -48,7 +48,7 @@ private:
 
 /*!\brief Set of special variables for Math Formulae/Expressions */
 
-mExpClass(General) SpecVarSet : public TypeSet<SpecVar>
+mExpClass(General) SpecVarSet : public ManagedObjectSet<SpecVar>
 {
 public:
 			SpecVarSet();
@@ -56,27 +56,23 @@ public:
 
     int			getIndexOf(const char* varnm) const;
     void		getNames(BufferStringSet&,bool usrdisp=true) const;
-    void		add( const char* varnm, const char* dispnm,
-			     bool hasuns=false, const Mnemonic* mn=nullptr )
-			{ *this += SpecVar(varnm,dispnm,hasuns,mn); }
+    void		add(const char* varnm,const char* dispnm,
+			    bool hasuns =false,const Mnemonic* =nullptr);
 
 			// convenience
 
-    SpecVar*		find( const char* nm )
-			{ int idx=getIndexOf(nm);
-			  return idx<0 ? nullptr: &(*this)[idx]; }
-    const SpecVar*	find( const char* nm ) const
-			{ return const_cast<SpecVarSet*>(this)->find( nm ); }
+    SpecVar*		find(const char* nm);
+    const SpecVar*	find(const char* nm) const;
     bool		isPresent( const char* nm ) const
 			{ return getIndexOf(nm) >= 0; }
     const OD::String&	varName( int idx ) const
-			{ return (*this)[idx].varnm_; }
+			{ return get(idx)->varnm_; }
     const OD::String&	dispName( int idx ) const
-			{ return (*this)[idx].dispnm_; }
+			{ return get(idx)->dispnm_; }
     bool		hasUnits( int idx ) const
-			{ return (*this)[idx].hasunits_; }
+			{ return get(idx)->hasunits_; }
     const Mnemonic&	mnemonic( int idx ) const
-			{ return (*this)[idx].getMnemonic(); }
+			{ return get(idx)->getMnemonic(); }
     Mnemonic::StdType	propType( int idx ) const
 			{ return mnemonic( idx ).stdType(); }
 

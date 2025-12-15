@@ -692,7 +692,7 @@ void StratSynth::DataMgr::setDataSet( const SynthGenParams& sgp,
 	dirtycount_++;
 	if ( oldid.isValid() )
 	{
-	    const TypeSet<SynthID> ids( sd->id() );
+	    const TypeSet<SynthID> ids( 1, sd->id() );
 	    entryChanged.trigger( ids );
 	}
 	else
@@ -857,7 +857,7 @@ bool StratSynth::DataMgr::removeSynthetic( SynthID id )
 	lmdatasets_[ilm]->removeSingle( idx );
 
     dirtycount_++;
-    const TypeSet<SynthID> ids( id );
+    const TypeSet<SynthID> ids( 1, id );
     entryRemoved.trigger( ids );
     return true;
 }
@@ -2487,7 +2487,7 @@ void StratSynth::DataMgr::kick()
 {
     dirtycount_++;
     static SynthID emptysid = SynthID();
-    const TypeSet<SynthID> ids( emptysid );
+    const TypeSet<SynthID> ids( 1, emptysid );
     entryChanged.trigger( ids );
 }
 

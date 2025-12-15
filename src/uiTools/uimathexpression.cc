@@ -138,11 +138,11 @@ void uiMathExpression::grpSel( CallBacker* )
 		Math::ExpressionOperatorDescGroup::supported();
     if ( grpidx == grps.size() )
     {
-	for ( int idx=0; idx<setup_.specvars_->size(); idx++ )
+	for ( const auto* specvar : *setup_.specvars_ )
 	{
-	    const Math::SpecVar& specvar = (*setup_.specvars_)[idx];
-	    uiString str = tr("%1 (%2)").arg(toUiString(specvar.varnm_)).
-			   arg(toUiString(specvar.dispnm_));
+	    uiString str = tr("%1 (%2)")
+			    .arg( specvar->varnm_ )
+			    .arg( specvar->dispnm_ );
 	    fnfld_->addItem( str );
 	}
     }
@@ -152,8 +152,8 @@ void uiMathExpression::grpSel( CallBacker* )
 	for ( int idx=0; idx<grp.opers_.size(); idx++ )
 	{
 	    const Math::ExpressionOperatorDesc& oper = *grp.opers_[idx];
-	    uiString str = tr("%1 (%2)").arg(toUiString(oper.symbol_)).
-					    arg(mToUiStringTodo(oper.desc_));
+	    uiString str = tr("%1 (%2)").arg( oper.symbol_ )
+					.arg(mToUiStringTodo(oper.desc_));
 	    fnfld_->addItem( str );
 	}
     }
@@ -170,7 +170,7 @@ void uiMathExpression::doIns( CallBacker* )
     BufferString txt;
     if ( grpidx == grps.size() )
     {
-	const Math::SpecVar& specvar = (*setup_.specvars_)[opidx];
+	const Math::SpecVar& specvar = *setup_.specvars_->get(opidx);
 	txt.set( specvar.varnm_ );
     }
     else

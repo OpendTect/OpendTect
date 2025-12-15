@@ -113,11 +113,14 @@ mExpClass(EarthModel) Horizon2DDataHolder
 {
 public:
 				Horizon2DDataHolder(const Pos::GeomID&);
+				~Horizon2DDataHolder();
+
     Horizon2DDataHolder&	operator =(const Horizon2DDataHolder&);
     bool			operator ==(const Horizon2DDataHolder&) const;
     void			addHorMID(const MultiID&);
     const Pos::GeomID&		getGeomID() const;
     const TypeSet<MultiID>&	getMIDSet() const;
+
 protected:
     TypeSet<MultiID>		mids_;
     Pos::GeomID			geomid_;
@@ -125,10 +128,12 @@ protected:
 
 
 mExpClass(EarthModel) Horizon2DDataHolderSet :
-					    public TypeSet<Horizon2DDataHolder>
+				public ManagedObjectSet<Horizon2DDataHolder>
 {
 public:
 				    Horizon2DDataHolderSet();
+				    ~Horizon2DDataHolderSet();
+
     bool			    positionExists(const Pos::GeomID&);
     void			    addData(const Pos::GeomID&,const MultiID&);
 };

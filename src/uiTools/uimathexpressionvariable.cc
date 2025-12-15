@@ -26,10 +26,13 @@ uiMathExpressionVariable::uiMathExpressionVariable( uiParent* p,
 	int varidx, bool withunit, bool withsub, const Math::SpecVarSet* svs )
     : uiGroup(p,BufferString("MathExprVar ",varidx))
     , varidx_(varidx)
-    , specvars_(*new Math::SpecVarSet(svs?*svs:Math::SpecVarSet::getEmpty()))
+    , specvars_(*new Math::SpecVarSet())
     , inpSel(this)
     , subInpSel(this)
 {
+    if ( svs )
+	deepCopy( specvars_, *svs );
+
     inpgrp_ = new uiGroup( this, "Input group" );
     inpfld_ = new uiComboBox( inpgrp_, BufferString("input ",varidx_+1) );
     const uiString lblstr = tr("For %1 use").arg(varidx_+1);
@@ -238,7 +241,7 @@ void uiMathExpressionVariable::use( const Math::Expression* expr )
 void uiMathExpressionVariable::use( const Math::Formula& form,
 				    bool hasfixedunits )
 {
-    specvars_ = form.specVars();
+    deepCopy( specvars_, form.specVars() );
     varnm_.setEmpty();
     const int nrvars = form.nrInputs();
     if ( varidx_ >= nrvars )

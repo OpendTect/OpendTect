@@ -62,7 +62,7 @@ uiGISExportWells::~uiGISExportWells()
 
 void uiGISExportWells::setSelected( const MultiID& wellid )
 {
-    const TypeSet<MultiID> wellids( wellid );
+    const TypeSet<MultiID> wellids( 1, wellid );
     setSelected( wellids );
 }
 
