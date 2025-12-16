@@ -161,6 +161,7 @@ public: \
 		    : OD::ValVec<T,size_type>()			{} \
 		clss( size_type sz, T typ ) \
 		    : OD::ValVec<T,size_type>( sz, typ )	{} \
+		mDeprecated("This constructor will be replaced")   \
     explicit	clss( T typ ) \
 		    : OD::ValVec<T,size_type>( 1, typ )		{} \
 		clss( const T* t, size_type sz ) \
