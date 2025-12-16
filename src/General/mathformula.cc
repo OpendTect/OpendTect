@@ -424,7 +424,7 @@ void Math::Formula::setText( const char* inp )
 	    else
 	    {
 		InpDef::Type typ = vtyp == Expression::Constant	? InpDef::Const
-			    : (specvars_->isPresent(varnm)	? InpDef::Spec
+			    : (specvars_->find(varnm)		? InpDef::Spec
 								: InpDef::Var);
 		inps_.add( new InpDef( varnm, typ ) );
 		inpidx = inps_.size() - 1;

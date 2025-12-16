@@ -63,8 +63,6 @@ public:
 
     SpecVar*		find(const char* nm);
     const SpecVar*	find(const char* nm) const;
-    bool		isPresent( const char* nm ) const
-			{ return getIndexOf(nm) >= 0; }
     const OD::String&	varName( int idx ) const
 			{ return get(idx)->varnm_; }
     const OD::String&	dispName( int idx ) const
