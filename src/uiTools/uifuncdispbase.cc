@@ -389,6 +389,9 @@ void uiMultiFuncDispBase::gatherInfo()
 
     for ( const auto* func : functions_ )
     {
+	if ( !func->isvisible_ )
+	    continue;
+
 	if ( calcxrg )
 	    calcAxisRange( func->xvals_, xrg );
 
