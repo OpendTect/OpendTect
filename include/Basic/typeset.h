@@ -11,6 +11,8 @@ ________________________________________________________________________
 #include "odset.h"
 #include "vectoraccess.h"
 
+#include <type_traits>
+
 
 /*!\brief Base class for TypeSet, usually not used as such. */
 
@@ -44,6 +46,9 @@ public:
     inline virtual size_type	getCapacity() const;
     inline void			setAll(T);
     inline void			replace(T,T);
+    template <typename U = T>
+    inline typename std::enable_if<std::is_arithmetic<U>::value>::type
+				fillWithIncreasingValues(U startval=0);
 
     inline T&			get(idx_type);
     inline const T&		get(idx_type) const;
@@ -105,8 +110,8 @@ public:
 protected:
 
     inline			ValVec();
-    inline			ValVec(size_type nr,T typ);
-    inline			ValVec(const T*,size_type nr);
+    inline			ValVec(size_type sz,T typ);
+    inline			ValVec(const T*,size_type sz);
     inline			ValVec(const ValVec&);
 
     typedef VectorAccess<T,IT>	impl_type;
@@ -154,12 +159,12 @@ public: \
  \
 		clss() \
 		    : OD::ValVec<T,size_type>()			{} \
-		clss( size_type nr, T typ ) \
-		    : OD::ValVec<T,size_type>( nr, typ )	{} \
+		clss( size_type sz, T typ ) \
+		    : OD::ValVec<T,size_type>( sz, typ )	{} \
     explicit	clss( T typ ) \
 		    : OD::ValVec<T,size_type>( 1, typ )		{} \
-		clss( const T* t, size_type nr ) \
-		    : OD::ValVec<T,size_type>( t, nr )		{} \
+		clss( const T* t, size_type sz ) \
+		    : OD::ValVec<T,size_type>( t, sz )		{} \
 		clss( const clss& oth ) \
 		    : OD::ValVec<T,size_type>( oth )		{} \
 		~clss()						{} \
@@ -305,12 +310,12 @@ OD::ValVec<T,IT>::ValVec()
 {}
 
 template <class T, class IT> inline
-OD::ValVec<T,IT>::ValVec( IT nr, T typ )
-{ setSize( nr, typ ); }
+OD::ValVec<T,IT>::ValVec( IT sz, T typ )
+{ setSize( sz, typ ); }
 
 template <class T, class IT> inline
-OD::ValVec<T,IT>::ValVec( const T* tarr, IT nr )
-{ append( tarr, nr ); }
+OD::ValVec<T,IT>::ValVec( const T* tarr, IT sz )
+{ append( tarr, sz ); }
 
 template <class T, class IT> inline
 OD::ValVec<T,IT>::ValVec( const OD::ValVec<T,IT>& t )
@@ -339,6 +344,14 @@ bool OD::ValVec<T,IT>::setCapacity( IT sz, bool withmargin )
 template <class T, class IT> inline
 void OD::ValVec<T,IT>::setAll( T val )
 { vec_.fillWith( val ); }
+
+template <class T, class IT>
+template <typename U>
+inline typename std::enable_if<std::is_arithmetic<U>::value>::type
+OD::ValVec<T,IT>::fillWithIncreasingValues( U startval )
+{
+    vec_.iota( startval );
+}
 
 template <class T, class IT> inline
     void OD::ValVec<T,IT>::replace( T val, T newval )

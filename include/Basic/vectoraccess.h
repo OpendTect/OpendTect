@@ -10,9 +10,11 @@ ________________________________________________________________________
 
 #include "debug.h"
 #include "gendefs.h"
+
 #include <algorithm>
-#include <vector>
+#include <numeric>
 #include <stdexcept>
+#include <vector>
 
 /*!
 \brief Simple vector-based container simplifying index-based work.
@@ -129,6 +131,8 @@ public:
 			{ std::swap( v_[i], v_[j] ); }
     inline void		fillWith( const T& val )
 			{ std::fill( v_.begin(), v_.end(), val ); }
+    inline void		iota( T startval )
+			{ std::iota( v_.begin(), v_.end(), startval); }
     inline void		replace( const T& val, const T& newval )
 			{ std::replace( v_.begin(), v_.end(), val, newval ); }
     inline void		swap( VectorAccess& oth )
