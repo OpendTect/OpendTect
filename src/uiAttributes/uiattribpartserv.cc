@@ -815,6 +815,31 @@ static const Desc* getTargetDesc( const TypeSet<Attrib::SelSpec>& targetspecs )
 }
 
 
+static bool getCompNrsForStoredTarget(
+				const TypeSet<Attrib::SelSpec>& targetspecs,
+				TypeSet<int>& compnrs )
+{
+    if ( targetspecs.isEmpty() )
+	return false;
+
+    if ( !targetspecs[0].isStored() )
+	return false;
+
+    const bool is2d = targetspecs[0].is2D();
+    const DescSet* attrds = DSHolder().getDescSet( is2d, true );
+    if ( !attrds || attrds->isEmpty() )
+	return false;
+
+    for ( const auto& spec : targetspecs )
+    {
+	ConstRefMan<Desc> targetdesc = attrds->getDesc( spec.id() );
+	compnrs.add( targetdesc->selectedOutput() );
+    }
+
+    return true;
+}
+
+
 ConstRefMan<RegularSeisDataPack> uiAttribPartServer::createOutput(
 					    const TrcKeyZSampling& tkzs,
 					    const RegularSeisDataPack* cache )
@@ -935,11 +960,16 @@ RefMan<RegularSeisDataPack> uiAttribPartServer::createOutputRM(
 		const SeisIOObjInfo seisinfo( mid );
 		SeisTrcReader rdr( mid, seisinfo.geomType() );
 		rdr.setSelData( new Seis::RangeSelData(tkzs) );
-
-		uiTaskRunner uitaskr( parent() );
-		TaskRunner* taskr = (isz && showzprogress) ? &uitaskr : nullptr;
-		if ( rdr.getDataPack(*sdp,taskr) )
-		    return sdp;
+		TypeSet<int> selcomps;
+		if ( getCompNrsForStoredTarget(targetspecs_,selcomps) )
+		{
+		    uiTaskRunner uitaskr( parent() );
+		    rdr.setComponents( selcomps );
+		    TaskRunner* taskr = (isz && showzprogress) ? &uitaskr
+								: nullptr;
+		    if ( rdr.getDataPack(*sdp,taskr) )
+			return sdp;
+		}
 	    }
 
 	    if ( isz )

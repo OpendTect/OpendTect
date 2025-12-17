@@ -105,7 +105,8 @@ public:
     Seis::Bounds*	getBounds() const;
 			//!< use after prepareWork(). If not avail: survinfo
     bool		get3DGeometryInfo(PosInfo::CubeData&) const;
-    void		setComponent( int ic )		{ selcomp_ = ic; }
+    void		setComponents(const TypeSet<int>&);
+    void		setComponent(int);
 			//!< use before startWork()
 			//!< -1 (default) is all components
 
@@ -142,7 +143,7 @@ protected:
     PosInfo::CubeDataIterator* pscditer_	= nullptr;
     PosInfo::Line2DDataIterator* pslditer_	= nullptr;
     BinID		curpsbid_		= BinID::udf();
-    int			selcomp_		= -1;
+    TypeSet<int>	selcomps_;
 
     void		init();
     Conn*		openFirst();

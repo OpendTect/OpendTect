@@ -341,10 +341,11 @@ bool SeisTrcReader::startWork()
 	for ( int idx=0; idx<sttrl.componentInfo().size(); idx++ )
 	    sttrl.componentInfo()[idx]->datachar_ = DataCharacteristics();
     }
-    if ( selcomp_ >= 0 )
+
+    if ( !selcomps_.isEmpty() )
     {
 	for ( int idx=0; idx<sttrl.componentInfo().size(); idx++ )
-	    sttrl.componentInfo()[idx]->destidx = idx == selcomp_ ? 0 : -1;
+	    sttrl.componentInfo()[idx]->destidx = selcomps_.indexOf( idx );
     }
 
     sttrl.setSelData( seldata_ );
@@ -427,19 +428,25 @@ bool SeisTrcReader::initRead( Conn* conn )
     for ( int idx=0; idx<nrcomp; idx++ )
     {
 	if ( sttrl->componentInfo()[idx]->destidx >= 0 )
-	    { foundone = true; break; }
+	{
+	    foundone = true;
+	    break;
+	}
     }
+
     if ( !foundone )
     {
 	for ( int idx=0; idx<nrcomp; idx++ )
 	{
-	    if ( selcomp_ == -1 )
+	    if ( selcomps_.isEmpty() )
 		sttrl->componentInfo()[idx]->destidx = idx;
 	    else
-		sttrl->componentInfo()[idx]->destidx = selcomp_ == idx ? 0 : 1;
+		sttrl->componentInfo()[idx]->destidx = selcomps_.indexOf( idx );
+
 	    if ( sttrl->componentInfo()[idx]->destidx >= 0 )
 		foundone = true;
 	}
+
 	if ( !foundone )
 	    sttrl->componentInfo()[0]->destidx = 0;
     }
@@ -530,18 +537,16 @@ int SeisTrcReader::get( SeisTrcInfo& ti )
 }
 
 
-static void reduceComps( SeisTrc& trc, int selcomp )
+static void reduceComps( SeisTrc& trc, const TypeSet<int>& selcomps )
 {
     const int orgnrcomps = trc.nrComponents();
-    if ( selcomp < 0 || orgnrcomps < 2 ) return;
-    if ( selcomp >= orgnrcomps )
-	selcomp = orgnrcomps-1;
+    if ( selcomps.isEmpty() || orgnrcomps<2 )
+	return;
 
     TraceData& td( trc.data() );
-    for ( int idx=0; idx<selcomp; idx++ )
-	td.delComponent( 0 );
-    for ( int idx=selcomp+1; idx<orgnrcomps; idx++ )
-	td.delComponent( 1 );
+    for ( int idx=orgnrcomps-1; idx>=0; idx-- )
+	if ( !selcomps.isPresent(idx) )
+	    td.delComponent( idx );
 }
 
 
@@ -574,7 +579,8 @@ bool SeisTrcReader::getDataPack( RegularSeisDataPack& sdp, TaskRunner* taskr )
     needskip_ = false;
     if ( !prepared_ && !prepareWork(readmode_) )
 	return false;
-    else if ( outer_ == &getUdfTks() && !startWork() )
+
+    if ( outer_ == &getUdfTks() && !startWork() )
 	return false;
 
     if ( psioprov_ || is2D() )
@@ -587,7 +593,6 @@ bool SeisTrcReader::getDataPack( RegularSeisDataPack& sdp, TaskRunner* taskr )
     }
 
     sdp.setZDomain( zDomain() );
-
     return true;
 }
 
@@ -612,7 +617,7 @@ bool SeisTrcReader::get( SeisTrc& trc )
 	return false;
     }
 
-    reduceComps( trc, selcomp_ );
+    reduceComps( trc, selcomps_ );
     return true;
 }
 
@@ -700,7 +705,7 @@ bool SeisTrcReader::getPS( SeisTrc& trc )
     trc.copyDataFrom( *buftrc, -1, forcefloats_ );
 
     delete tbuf_->remove(0);
-    reduceComps( trc, selcomp_ );
+    reduceComps( trc, selcomps_ );
     nrtrcs_++;
     return true;
 }
@@ -889,7 +894,7 @@ bool SeisTrcReader::get2D( SeisTrc& trc )
     trc.copyDataFrom( *buftrc, -1, forcefloats_ );
 
     delete tbuf_->remove(0);
-    reduceComps( trc, selcomp_ );
+    reduceComps( trc, selcomps_ );
     nrtrcs_++;
     return true;
 }
@@ -1198,4 +1203,18 @@ bool SeisTrcReader::get3DGeometryInfo( PosInfo::CubeData& cd ) const
     cd = rdr3d->posData();
     delete rdr3d;
     return true;
+}
+
+
+void SeisTrcReader::setComponents( const TypeSet<int>& selcomps )
+{
+    selcomps_ = selcomps;
+}
+
+
+void SeisTrcReader::setComponent( int selcomp )
+{
+    selcomps_.setEmpty();
+    if ( selcomp >= 0 )
+	selcomps_.add( selcomp );
 }

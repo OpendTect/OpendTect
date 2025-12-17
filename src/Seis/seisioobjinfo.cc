@@ -295,7 +295,7 @@ bool SeisIOObjInfo::isOK( bool createtr ) const
 
     mDynamicCast(SeisTrcTranslator*,PtrMan<SeisTrcTranslator> sttr,
 		 ioobj_->createTranslator())
-    return checkAndInitTranslRead( sttr.ptr() );
+    return checkAndInitTranslRead( sttr.ptr(), Seis::PreScan );
 }
 
 
@@ -569,7 +569,7 @@ od_int64 SeisIOObjInfo::getFileSize() const
 {
     mDynamicCast(SeisTrcTranslator*,PtrMan<SeisTrcTranslator> sttr,
 		 ioobj_->createTranslator())
-    if ( !checkAndInitTranslRead(sttr.ptr()) )
+    if ( !checkAndInitTranslRead(sttr.ptr(),Seis::PreScan) )
 	return -1;
 
     return sttr->getFileSize();
@@ -590,7 +590,7 @@ void SeisIOObjInfo::getAllFileNames( BufferStringSet& filenames,
 {
     mDynamicCast(SeisTrcTranslator*,PtrMan<SeisTrcTranslator> sttr,
 		 ioobj_->createTranslator())
-    if ( !checkAndInitTranslRead(sttr.ptr()) )
+    if ( !checkAndInitTranslRead(sttr.ptr(),Seis::PreScan) )
 	return;
 
     sttr->getAllFileNames( filenames, forui );
@@ -847,7 +847,7 @@ bool SeisIOObjInfo::getBPS( int& bps, int icomp ) const
 
     mDynamicCast(SeisTrcTranslator*,PtrMan<SeisTrcTranslator> sttr,
 		 ioobj_->createTranslator())
-    bool isgood = checkAndInitTranslRead( sttr.ptr() );
+    bool isgood = checkAndInitTranslRead( sttr.ptr(), Seis::PreScan );
     if ( !isgood )
     {
 	bps = 4;
@@ -1060,7 +1060,7 @@ int SeisIOObjInfo::getComponentInfo( const Pos::GeomID& geomid,
 	    return 1; // Just 1 component in this case
 	}
 
-	if ( !checkAndInitTranslRead(sttr.ptr()) )
+	if ( !checkAndInitTranslRead(sttr.ptr(),Seis::PreScan) )
 	    return ret;
 
 	ret = sttr->componentInfo().size();
@@ -1222,7 +1222,7 @@ bool SeisIOObjInfo::isFullyRectAndRegular() const
     mChk(false)
     mDynamicCast(SeisTrcTranslator*,PtrMan<SeisTrcTranslator> sttr,
 		 ioobj_->createTranslator())
-    if ( !checkAndInitTranslRead(sttr.ptr()) )
+    if ( !checkAndInitTranslRead(sttr.ptr(),Seis::Scan) )
 	return false;
 
     PosInfo::SortedCubeData scdata;
