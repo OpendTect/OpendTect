@@ -10,6 +10,7 @@ ________________________________________________________________________
 
 #include "uiearthmodelmod.h"
 #include "uidialog.h"
+#include "uieditpicks.h"
 
 #include "pickset.h"
 #include "uigeninput.h"
@@ -35,4 +36,21 @@ protected:
     uiGenInput*		zvalfld_;
     uiIOObjSel*		horinpfld_;
     Pick::Set&		set_;
+};
+
+mExpClass(uiEarthModel) uiEditPolygonDlg : public uiEditPicksDlg
+{ mODTextTranslationClass(uiEditPolygonDlg)
+public:
+
+			uiEditPolygonDlg(uiParent*,Pick::Set&);
+			~uiEditPolygonDlg();
+
+    static uiEditPicksDlg*  create( uiParent* p, Pick::Set& ps )
+			    { return new uiEditPolygonDlg(p,ps); }
+    static void		    initClass();
+
+private:
+
+    void		chgZCB(CallBacker*);
+
 };

@@ -13,6 +13,7 @@ ________________________________________________________________________
 #include "uibatchjobdispatcherlauncher.h"
 #include "uibatchlaunch.h"
 #include "uiclusterjobprov.h"
+#include "uieditpicks.h"
 #include "uilatlong2coord.h"
 #include "uiposprovgroupstd.h"
 #include "uiposfiltgroupstd.h"
@@ -83,6 +84,7 @@ mDefModInitFn(uiIo)
     Coords::uiAnchorBasedXYSystem::initClass();
 
     uiSimpleTimeDepthTransform::initClass();
+    uiEditPicksDlg::initClass();
 
     setGlobal_uiTools_SurvSelFns( doSurveySelection );
 

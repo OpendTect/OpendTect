@@ -715,11 +715,13 @@ public:
     static uiString sX1()		{ return tr("X1"); }
     static uiString sX2()		{ return tr("X2"); }
     static uiString sXcoordinate()	{ return tr("X-coordinate"); }
+    static uiString sXRange()		{ return tr("X range"); }
     static uiString sY()		{ return tr("Y"); }
     static uiString sY1()		{ return tr("Y1"); }
     static uiString sY2()		{ return tr("Y2"); }
     static uiString sYcoordinate()	{ return tr("Y-coordinate"); }
     static uiString sYes()		{ return tr("Yes"); }
+    static uiString sYRange()		{ return tr("Y range"); }
     static uiString sZ()		{ return tr("Z"); }
     static uiString sZip()		{ return tr("Zip"); }
     static uiString sZRange()		{ return tr("Z range"); }

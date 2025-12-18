@@ -16,7 +16,9 @@ ________________________________________________________________________
 #include "pickset.h"
 #include "survinfo.h"
 
+#include "uibuttongroup.h"
 #include "uicalcpoly2horvol.h"
+#include "uieditpicks.h"
 #include "uimenu.h"
 #include "uimsg.h"
 #include "uiodapplmgr.h"
@@ -27,6 +29,7 @@ ________________________________________________________________________
 #include "uipickpropdlg.h"
 #include "uipolygonzchanger.h"
 #include "uitreeview.h"
+#include "uitoolbutton.h"
 #include "uivispartserv.h"
 
 #include "threadwork.h"
@@ -261,6 +264,7 @@ uiODPickSetTreeItem::uiODPickSetTreeItem( const VisID& did, Pick::Set& ps )
     , convertbodymnuitem_( tr("Convert to Geobody") )
     , propertymnuitem_(m3Dots(uiStrings::sProperties() ) )
     , paintingmnuitem_(m3Dots(tr("Start Painting")))
+    , editlocmenuitm_(m3Dots(tr("Edit pickset locations")))
 {
     displayid_ = did;
     onlyatsectmnuitem_.checkable = true;
@@ -408,6 +412,7 @@ void uiODPickSetTreeItem::createMenu( MenuHandler* menu, bool istb )
     mAddMenuItem( &displaymnuitem_, &propertymnuitem_, true, false );
     mAddMenuItem( &displaymnuitem_, &dirmnuitem_, true, false );
 
+    mAddMenuItem( menu, &editlocmenuitm_, !isreadonly, false );
     mAddMenuItemCond( menu, &storemnuitem_, changed, false, !isreadonly );
     mAddMenuItemCond( menu, &storeasmnuitem_, true, false, !isreadonly );
 }
@@ -437,6 +442,21 @@ void uiODPickSetTreeItem::handleMenuCB( CallBacker* cb )
     {
 	menu->setIsHandled( true );
 	applMgr()->storePickSetAs( *set_ );
+    }
+    else if ( mnuid==editlocmenuitm_.id )
+    {
+	if ( set_->isEmpty() )
+	{
+	    uiMSG().message( uiStrings::sPickSet()
+		     .append( tr("%1 is empty. Pick some points in the %2") )
+			     .arg( uiStrings::sPickSet() )
+			     .arg( uiStrings::sPickSet().toLower() ) );
+	    return;
+	}
+
+	auto* dlg = uiEditPicksDlg::factory().create( sKey::PickSet(),
+						      getUiParent(), *set_ );
+	dlg->go();
     }
     else if ( mnuid==dirmnuitem_.id )
     {
@@ -781,6 +801,7 @@ uiODPolygonTreeItem::uiODPolygonTreeItem( const VisID& did, Pick::Set& ps )
     , propertymnuitem_(m3Dots(uiStrings::sProperties()))
     , closepolyitem_(tr("Close Polygon"))
     , changezmnuitem_(m3Dots(tr("Change Z values")))
+    , editlocmenuitm_(m3Dots(tr("Edit polygon locations")))
     , workareaitem_(m3Dots(tr("Set as Work Area")))
     , calcvolmnuitem_(m3Dots(tr("Calculate Volume")))
 {
@@ -944,6 +965,7 @@ void uiODPolygonTreeItem::createMenu( MenuHandler* menu, bool istb )
 
     const bool islocked = visserv_->isLocked( displayID() );
     mAddMenuItem( menu, &changezmnuitem_, !islocked, false );
+    mAddMenuItem( menu, &editlocmenuitm_, !islocked, false );
     mAddMenuItem( menu, &calcvolmnuitem_, true, false );
 }
 
@@ -1003,12 +1025,28 @@ void uiODPolygonTreeItem::handleMenuCB( CallBacker* cb )
 	uiPolygonZChanger dlg( getUiParent(), *set_ );
 	dlg.go();
     }
+    else if ( mnuid == editlocmenuitm_.id )
+    {
+	if ( set_->isEmpty() )
+	{
+	    uiMSG().message( uiStrings::sPolygon()
+		.append( tr("%1 is empty. Pick some points in the %2") )
+		.arg( uiStrings::sPolygon() )
+		.arg( uiStrings::sPolygon().toLower() ) );
+	    return;
+	}
+
+	auto* dlg = uiEditPicksDlg::factory().create( sKey::Polygon(),
+						      getUiParent(), *set_ );
+	dlg->go();
+    }
     else if ( mnuid == workareaitem_.id )
     {
 	TrcKeyZSampling tkzs;
 	set_->getBoundingBox( tkzs );
 	if ( tkzs.zsamp_.width() < 2*SI().zStep() )
 	    tkzs.zsamp_ = SI().zRange( false );
+
 	visserv_->setWorkingArea( tkzs );
     }
     else if ( mnuid == calcvolmnuitem_.id )

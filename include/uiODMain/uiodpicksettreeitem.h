@@ -83,6 +83,7 @@ protected:
     MenuItem		convertbodymnuitem_;
     MenuItem		propertymnuitem_;
     MenuItem		paintingmnuitem_;
+    MenuItem		editlocmenuitm_;
 
     uiSeedPainterDlg*	paintdlg_ = nullptr;
     bool		paintingenabled_ = false;
@@ -159,6 +160,7 @@ protected:
     MenuItem		propertymnuitem_;
     MenuItem		closepolyitem_;
     MenuItem		changezmnuitem_;
+    MenuItem		editlocmenuitm_;
     MenuItem		workareaitem_;
     MenuItem		calcvolmnuitem_;
 

@@ -10,6 +10,7 @@ ________________________________________________________________________
 #include "uipicksetman.h"
 #include "uipicksetmgr.h"
 
+#include "uieditpicks.h"
 #include "uiioobjselgrp.h"
 #include "uigisexp.h"
 #include "uigisexpdlgs.h"
@@ -56,6 +57,10 @@ uiPickSetMan::uiPickSetMan( uiParent* p, const char* fixedtrkey )
     mergebut_ = addManipButton( "mergepicksets",
 				uiStrings::phrMerge(uiStrings::sPointSet()),
 				mCB(this,uiPickSetMan,mergeSets) );
+    editbut_ = addManipButton( "edit",
+				uiStrings::phrEdit(uiStrings::sPointSet()),
+				mCB(this,uiPickSetMan,editSet) );
+
     CallBack cb = mCB(this,uiPickSetMan,exportToGISCB);
     uiToolButton* gisbut = addExtraButton( uiGISExpStdFld::strIcon(),
 					uiGISExpStdFld::sToolTipTxt(),
@@ -81,7 +86,13 @@ void uiPickSetMan::addToMgr( const MultiID& id, uiString& msg )
     if ( !obj )
 	return;
 
-    RefMan<Pick::Set> ps = new Pick::Set;
+    BufferString type;
+    bool ispolygon = false;
+    obj->pars().get( sKey::Type(), type );
+    if ( type == sKey::Polygon() )
+	ispolygon = true;
+
+    RefMan<Pick::Set> ps = new Pick::Set( obj->name(), !ispolygon );
     PickSetTranslator::retrieve( *ps, obj.ptr(), true, msg );
     Pick::Mgr().set( id, ps.ptr() );
 }
@@ -226,4 +237,33 @@ void uiPickSetMan::mergeSets( CallBacker* )
     mgr.mergeSets( curkey, &chsnnms );
     if ( !curkey.isUdf() )
 	selgrp_->fullUpdate( curkey );
+}
+
+
+void uiPickSetMan::editSet( CallBacker* )
+{
+    const MultiID id = selgrp_->currentID();
+    uiString errmsg;
+    const int idx = Pick::Mgr().indexOf( id );
+    if ( idx < 0 )
+    {
+	addToMgr( id, errmsg );
+	const int idp = Pick::Mgr().indexOf( id );
+	if ( idp < 0 )
+	{
+	    uiMSG().error( tr("Please select a %1/%2 to edit.")
+			      .arg(sKey::PointSet()).arg(sKey::Polygon()) );
+	    return;
+	}
+    }
+
+    RefMan<Pick::Set> ps = Pick::Mgr().get( id );
+    if ( !ps )
+    {
+	uiMSG().error( tr("Could not load the selected object") );
+	return;
+    }
+
+    auto* dlg = uiEditPicksDlg::factory().create( sKey::PickSet(), this, *ps );
+    dlg->go();
 }

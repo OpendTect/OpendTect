@@ -28,10 +28,12 @@ public:
 
 protected:
     uiToolButton*		mergebut_;
+    uiToolButton*		editbut_;
 
     void			exportToGISCB(CallBacker*);
     void			chooseExportTypeCB(CallBacker*);
     void			mergeSets(CallBacker*);
+    void			editSet(CallBacker*);
 
     void			ownSelChg() override;
     void			mkFileInfo() override;

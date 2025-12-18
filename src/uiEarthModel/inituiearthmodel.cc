@@ -10,6 +10,7 @@ ________________________________________________________________________
 #include "moddepmgr.h"
 #include "uibodyposprovgroup.h"
 #include "uihorinterpol.h"
+#include "uipolygonzchanger.h"
 #include "uisurfaceposprov.h"
 
 mDefModInitFn(uiEarthModel)
@@ -23,4 +24,6 @@ mDefModInitFn(uiEarthModel)
 
     uiBodyPosProvGroup::initClass();
     uiSurfacePosProvGroup::initClass();
+
+    uiEditPolygonDlg::initClass();
 }

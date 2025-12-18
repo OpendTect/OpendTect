@@ -13,10 +13,12 @@ ________________________________________________________________________
 #include "emhorizon3d.h"
 #include "survinfo.h"
 
+#include "uibuttongroup.h"
 #include "uicombobox.h"
 #include "uiiosurface.h"
 #include "uimsg.h"
 #include "uitaskrunner.h"
+#include "uitoolbutton.h"
 
 
 uiPolygonZChanger::uiPolygonZChanger( uiParent* p, Pick::Set& ps )
@@ -58,6 +60,7 @@ bool uiPolygonZChanger::acceptOK( CallBacker* )
 	const MultiID horid = horinpfld_->key();
 	if ( horid.isUdf() )
 	    return false;
+
 	zchanger = new EM::PolygonZChanger( set_, horid );
     }
     else
@@ -65,6 +68,7 @@ bool uiPolygonZChanger::acceptOK( CallBacker* )
 	float zconst = zvalfld_->getFValue();
 	if ( SI().zIsTime() )
 	    zconst /= SI().zDomain().userFactor();
+
 	zchanger = new EM::PolygonZChanger( set_, zconst );
     }
 
@@ -77,7 +81,10 @@ bool uiPolygonZChanger::applyZChanges( EM::PolygonZChanger& zchanger )
     uiTaskRunner trp( this, true );
     uiRetVal uirv = zchanger.doWork( trp );
     if ( !uirv.isOK() )
-    { uiMSG().error( uirv ); return false; }
+    {
+	uiMSG().error( uirv );
+	return false;
+    }
 
     return true;
 }
@@ -88,4 +95,45 @@ void uiPolygonZChanger::changeZvalCB( CallBacker* )
     const bool zisconstant = isconstzfld_->getBoolValue();
     horinpfld_->display( !zisconstant );
     zvalfld_->display( zisconstant );
+}
+
+
+uiEditPolygonDlg::uiEditPolygonDlg( uiParent* p, Pick::Set& ps )
+    : uiEditPicksDlg( p, ps )
+{
+    if ( !ps.isPolygon() )
+    {
+	pErrMsg( "This dialog is for editing a polygon." );
+	return;
+    }
+
+    uiButtonGroup* butgrp = polygongrp_->tblButGrp();
+    if (!butgrp)
+    {
+	pErrMsg( "A valid button group should be created. Please debug!");
+	return;
+    }
+
+    auto* chgzbut = new uiToolButton( butgrp, "alonghor",
+				      tr("Bulk change z-values"),
+				      mCB(this,uiEditPolygonDlg,chgZCB) );
+    butgrp->addButton( chgzbut );
+
+}
+
+
+uiEditPolygonDlg::~uiEditPolygonDlg()
+{}
+
+
+void uiEditPolygonDlg::initClass()
+{
+    uiEditPolygonDlg::factory().addCreator( create, sKey::Polygon() );
+}
+
+
+void uiEditPolygonDlg::chgZCB( CallBacker* )
+{
+    uiPolygonZChanger dlg( this, ps_ );
+    dlg.go();
 }

@@ -84,14 +84,14 @@ Pick::Location::~Location()
 
 void Pick::Location::operator=( const Location& oth )
 {
-    if ( this != &oth )
-    {
-#	define mCopyMemb( memb, typ ) mSetMember( memb, typ, oth.memb )
-	pos_ = oth.pos_;
-	dir_ = oth.dir_;
-	trckey_ = oth.trckey_;
-	mCopyMemb(text_,BufferString)
-    }
+    if ( this == &oth )
+	return;
+
+#   define mCopyMemb( memb, typ ) mSetMember( memb, typ, oth.memb )
+    pos_ = oth.pos_;
+    dir_ = oth.dir_;
+    trckey_ = oth.trckey_;
+    mCopyMemb(text_,BufferString)
 }
 
 
@@ -131,7 +131,10 @@ Pick::Location& Pick::Location::setText( const char* txt )
 	    text_ = new BufferString( txt );
     }
     else if ( !txt || !*txt )
-	{ delete text_; text_ = 0; }
+    {
+	delete text_;
+	text_ = nullptr;
+    }
     else
 	*text_ = txt;
 
@@ -140,12 +143,22 @@ Pick::Location& Pick::Location::setText( const char* txt )
 
 
 bool Pick::Location::hasTextKey( const char* key ) const
-{ return fndKeyTxt( key, 0 ); }
+{
+    return fndKeyTxt( key, 0 );
+}
+
+
 bool Pick::Location::getKeyedText( const char* key, BufferString& val ) const
-{ return fndKeyTxt( key, &val ); }
+{
+    return fndKeyTxt( key, &val );
+}
+
 
 bool Pick::Location::getText( const char* idkey, BufferString& val ) const
-{ return getKeyedText(idkey,val); }
+{
+    return getKeyedText(idkey,val);
+}
+
 
 bool Pick::Location::fndKeyTxt( const char* key, BufferString* val ) const
 {
@@ -175,7 +188,11 @@ bool Pick::Location::fndKeyTxt( const char* key, BufferString* val ) const
 
 
 void Pick::Location::setText( const char* key, const char* txt )
-{ setKeyedText(key,txt); }
+{
+    setKeyedText(key,txt);
+}
+
+
 void Pick::Location::setKeyedText( const char* key, const char* txt )
 {
     removeTextKey( key );
@@ -184,6 +201,7 @@ void Pick::Location::setKeyedText( const char* key, const char* txt )
 
     if ( !text_ )
 	text_ = new BufferString;
+
     SeparString sepstr( *text_, '\'' );
     sepstr.add( key ).add( txt );
     setText( sepstr );
@@ -191,7 +209,11 @@ void Pick::Location::setKeyedText( const char* key, const char* txt )
 
 
 void Pick::Location::unSetText( const char* key )
-{ removeTextKey(key); }
+{
+    removeTextKey(key);
+}
+
+
 void Pick::Location::removeTextKey( const char* key )
 {
     if ( !hasText() )
@@ -241,19 +263,23 @@ bool Pick::Location::fromString( const char* s )
 {
     if ( !s || !*s )
 	return false;
+
     mSkipBlanks(s);
     if ( !*s )
 	return false;
 
     // The location may start with the label ID (will be introduced in 7.0)
     if ( *s == '@' )
-	{ s++; mSkipNonBlanks(s); mSkipBlanks(s); }
+    {
+	s++;
+	mSkipNonBlanks(s);
+	mSkipBlanks(s);
+    }
 
     // The location may start with the text_
     if ( *s == '"' )
     {
 	s++;
-
 	if ( !text_ )
 	    text_ = new BufferString( s );
 	else
@@ -262,7 +288,10 @@ bool Pick::Location::fromString( const char* s )
 	char* start = text_->getCStr();
 	char* stop = firstOcc( start, '"' );
 	if ( !stop )
-	    { delete text_; text_ = 0; }
+	{
+	    delete text_;
+	    text_ = nullptr;
+	}
 	else
 	{
 	    *stop = '\0';
@@ -271,7 +300,10 @@ bool Pick::Location::fromString( const char* s )
 	}
     }
     else if ( text_ )
-	{ delete text_; text_ = 0; }
+    {
+	delete text_;
+	text_ = nullptr;
+    }
 
     BufferString bufstr( s );
     char* str = bufstr.getCStr();
@@ -312,6 +344,7 @@ bool Pick::Location::fromString( const char* s )
     ConstRefMan<Survey::Geometry> geom;
     if ( geomid.isValid() )
 	geom = Survey::GM().getGeometry( geomid );
+
     if ( !geom )
 	geom = &Survey::Geometry3D::instance();
 
