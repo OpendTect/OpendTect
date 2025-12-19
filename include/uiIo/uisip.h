@@ -72,6 +72,8 @@ public:
     virtual bool		xyInFeet() const	{ return false; }
     virtual const char*		iconName() const	{ return nullptr; }
     virtual BufferString	getNewSurveyName() const { return ""; }
+    virtual OD::Pol2D3D		getSurveyDataType() const
+				{ return OD::Both2DAnd3D; }
 
     virtual IOPar*		getImportPars() const	{ return nullptr; }
     virtual void		startImport(uiParent*,const IOPar&) {}
