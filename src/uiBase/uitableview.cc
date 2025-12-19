@@ -672,6 +672,22 @@ void uiTableView::resizeColumnToContents( int column )
 }
 
 
+void uiTableView::setColumnResizeMode( ResizeMode mode )
+{
+    QHeaderView* header = odtableview_->horizontalHeader();
+    if ( header )
+	header->setSectionResizeMode( (QHeaderView::ResizeMode)(int)mode );
+}
+
+
+void uiTableView::setRowResizeMode( ResizeMode mode )
+{
+    QHeaderView* header = odtableview_->verticalHeader();
+    if ( header )
+	header->setSectionResizeMode( (QHeaderView::ResizeMode)(int)mode );
+}
+
+
 void uiTableView::setRowHeight( int row, int height )
 {
     if ( row >= 0 )
@@ -683,6 +699,17 @@ void uiTableView::setRowHeight( int row, int height )
     }
 
     odtableview_->setRowHeight( row, height );
+}
+
+
+void uiTableView::setRowHeight( int height )
+{
+    auto* header = odtableview_->verticalHeader();
+    if ( !header )
+	return;
+
+    header->setDefaultSectionSize( height );
+    header->setSectionResizeMode( QHeaderView::Fixed );
 }
 
 
@@ -848,7 +875,8 @@ int uiTableView::maxNrOfSelections() const
 }
 
 
-bool uiTableView::getSelectedRows( TypeSet<int>& rows ) const
+bool uiTableView::getSelectedRows( TypeSet<int>& rows,
+				   bool mappedtosource ) const
 {
     QItemSelectionModel* selmdl = odtableview_->selectionModel();
     if ( !selmdl->hasSelection() )
@@ -858,7 +886,15 @@ bool uiTableView::getSelectedRows( TypeSet<int>& rows ) const
     for ( int idx=0; idx<selection.size(); idx++ )
     {
 	const int selrow = selection[idx].row();
-	if ( !isRowHidden(selrow) )
+	if ( isRowHidden(selrow) )
+	    continue;
+
+	if ( mappedtosource )
+	{
+	    const RowCol rc( selrow, 0 );
+	    rows += mapToSource( rc ).row();
+	}
+	else
 	    rows += selrow;
     }
 
@@ -866,7 +902,8 @@ bool uiTableView::getSelectedRows( TypeSet<int>& rows ) const
 }
 
 
-bool uiTableView::getSelectedColumns( TypeSet<int>& cols ) const
+bool uiTableView::getSelectedColumns( TypeSet<int>& cols,
+				      bool mappedtosource ) const
 {
     QItemSelectionModel* selmdl = odtableview_->selectionModel();
     if ( !selmdl->hasSelection() )
@@ -876,7 +913,15 @@ bool uiTableView::getSelectedColumns( TypeSet<int>& cols ) const
     for ( int idx=0; idx<selection.size(); idx++ )
     {
 	const int selcol = selection[idx].column();
-	if ( !isColumnHidden(selcol) )
+	if ( isColumnHidden(selcol) )
+	    continue;
+
+	if ( mappedtosource )
+	{
+	    const RowCol rc( 0, selcol );
+	    cols += mapToSource( rc ).col();
+	}
+	else
 	    cols += selcol;
     }
 

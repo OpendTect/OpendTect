@@ -26,6 +26,8 @@ public:
     enum SelectionBehavior	{ SelectItems, SelectRows, SelectColumns };
     enum SelectionMode		{ SingleSelection=1, ExtendedSelection=3,
 				  NoSelection=0 };
+    enum ResizeMode		{ Interactive=0, Fixed=2, Stretch=1,
+				  ResizeToContents=3 };
 
 				uiTableView(uiParent*,const char* nm);
 				~uiTableView();
@@ -43,7 +45,13 @@ public:
     void			setColumnStretchable(int,bool);
     void			resizeColumnsToContents();
     void			resizeColumnToContents(int column);
+    void			setColumnResizeMode(ResizeMode);
+				//!<Default is Stretch
+
+    void			setRowHeight(int height);
     void			setRowHeight(int row,int height);
+    void			setRowResizeMode(ResizeMode);
+				//!<Default is ResizeToContents
 
     void			setSectionsMovable(bool);
     void			moveColumn(int from,int to);
@@ -75,8 +83,10 @@ public:
     void			clearSelection();
     int				maxNrOfSelections() const;
 
-    bool			getSelectedRows(TypeSet<int>&) const;
-    bool			getSelectedColumns(TypeSet<int>&) const;
+    bool			getSelectedRows(TypeSet<int>&,
+						bool mappedtosource) const;
+    bool			getSelectedColumns(TypeSet<int>&,
+						   bool mappedtosource) const;
     bool			getSelectedCells(TypeSet<RowCol>&,
 						 bool mappedtosource) const;
     void			selectAll();
