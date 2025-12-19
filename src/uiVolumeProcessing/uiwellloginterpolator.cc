@@ -12,9 +12,7 @@ ________________________________________________________________________
 
 #include "gridder2d.h"
 #include "survinfo.h"
-#include "volprocchain.h"
 
-#include "uidialog.h"
 #include "uigeninput.h"
 #include "uiinterpollayermodel.h"
 #include "uimsg.h"
@@ -32,7 +30,6 @@ uiWellLogInterpolator::uiWellLogInterpolator( uiParent* p,
     : uiStepDialog( p, WellLogInterpolator::sFactoryDisplayName(), &hwi, is2d )
     , hwinterpolator_( hwi )
     , extensfld_(0)
-    , logextenfld_(0)
 {
     setHelpKey( mODHelpKey(mWellLogInterpolHelpID) );
 
@@ -43,12 +40,16 @@ uiWellLogInterpolator::uiWellLogInterpolator( uiParent* p,
     welllogsel_ = new uiMultiWellLogSel( this, su );
     welllogsel_->attach( alignedBelow, layermodelfld_ );
 
+    logextenfld_ = new uiGenInput( this, tr("Extend logs when needed"),
+				   BoolInpSpec(hwi.extendsLogs()) );
+    logextenfld_->attach( alignedBelow, welllogsel_ );
+
     uiStringSet algos;
     algos += InverseDistanceGridder2D::sFactoryDisplayName();
     algos += TriangulatedGridder2D::sFactoryDisplayName();
     algos += RadialBasisFunctionGridder2D::sFactoryDisplayName();
     algosel_ = new uiGenInput( this, tr("Algorithm"), StringListInpSpec(algos));
-    algosel_->attach( alignedBelow, welllogsel_ );
+    algosel_->attach( alignedBelow, logextenfld_ );
 
     const uiString radiustxt = tr("Search radius %1")
 	    .arg( uiStrings::sDistUnitString(SI().xyInFeet(),true, true));
@@ -144,6 +145,7 @@ bool uiWellLogInterpolator::acceptOK( CallBacker* cb )
 	return false;
     }
 
+    hwinterpolator_.extendLogs( logextenfld_->getBoolValue() );
     hwinterpolator_.setWellData( wellids, lognms.get(0) );
     hwinterpolator_.setWellExtractParams( welllogsel_->params() );
 

@@ -49,7 +49,7 @@ public:
     const char*			getGridderName() const;
     float			getSearchRadius() const;
     const InterpolationLayerModel* getLayerModel() const;
-    Well::ExtractParams getWellExtractParams() { return params_; }
+    Well::ExtractParams		getWellExtractParams() { return params_; }
 
     void			setGridder(const char* nm,float radius=0);
     void			setWellData(const TypeSet<MultiID>&,
@@ -57,6 +57,9 @@ public:
     void			setWellExtractParams(Well::ExtractParams params)
 				{ params_ = params;}
     void			setLayerModel(InterpolationLayerModel*);
+
+    bool			extendsLogs() const;
+    void			extendLogs(bool yn);
 
     void			fillPar(IOPar&) const override;
     bool			usePar(const IOPar&) override;
@@ -90,6 +93,7 @@ protected:
     BufferString		logname_;
     bool			doinverse_			= false;
     int				workareastepout_		= mUdf(int);
+    bool			extendlogs_			= true;
 
     StepInterval<int>		outputinlrg_;
     StepInterval<int>		outputcrlrg_;
