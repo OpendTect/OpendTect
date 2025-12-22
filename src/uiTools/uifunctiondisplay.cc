@@ -183,13 +183,13 @@ void uiFunctionDisplay::setTitle( const uiString& title )
 	if ( isVertical() )
 	{
 	    titleitem_->setAlignment( Alignment(Alignment::Right,
-					       Alignment::Top));
-	    titleitem_->setPos( uiPoint(viewWidth()) );
+						Alignment::Top) );
+	    titleitem_->setPos( uiPoint(viewWidth(),0) );
 	}
 	else
 	{
 	    titleitem_->setAlignment( Alignment(Alignment::HCenter,
-						Alignment::Top));
+						Alignment::Top) );
 	    titleitem_->setPos( uiPoint(viewWidth()/2,0) );
 	}
 
@@ -550,10 +550,16 @@ void uiFunctionDisplay::draw()
     {
 	if ( isVertical() )
 	{
-	    titleitem_->setPos( uiPoint(viewWidth()/1.6,0) );
+	    titleitem_->setAlignment( Alignment(Alignment::Right,
+						Alignment::Top) );
+	    titleitem_->setPos( uiPoint(viewWidth(),0) );
 	}
 	else
+	{
+	    titleitem_->setAlignment( Alignment(Alignment::HCenter,
+						Alignment::Top) );
 	    titleitem_->setPos( uiPoint(viewWidth()/2,0) );
+	}
     }
 
     const bool havey = !yvals_.isEmpty();
