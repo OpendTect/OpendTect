@@ -30,22 +30,21 @@ namespace Network
 
 /*!< Functions to download/upload one or more files/data using HTTP protocol*/
 
-    mGlobal(Network) bool   downloadFile(const char* url,const char* outpath,
-					uiString& errmsg,TaskRunner* =nullptr);
+    mGlobal(Network) uiRetVal downloadFile(const char* url,const char* outpath,
+					   TaskRunner* =nullptr);
 
-    mGlobal(Network) bool   downloadFiles(BufferStringSet& urls,
-					  const char* outpath,
-					  uiString& errmsg,
-					  TaskRunner* =nullptr);
+    mGlobal(Network) uiRetVal downloadFiles(BufferStringSet& urls,
+					    const char* outpath,
+					    TaskRunner* =nullptr,
+					    bool canfail =false);
 
-    mGlobal(Network) bool   downloadFiles(BufferStringSet& urls,
-					  BufferStringSet& outpaths,
-					  uiString& errmsg,
-					  TaskRunner* =nullptr);
+    mGlobal(Network) uiRetVal downloadFiles(BufferStringSet& urls,
+					    BufferStringSet& outpaths,
+					    TaskRunner* =nullptr,
+					    bool canfail =false);
 
-    mGlobal(Network) bool   downloadToBuffer(const char* url,DataBuffer&,
-					     uiString& errmsg,
-					     TaskRunner* =nullptr);
+    mGlobal(Network) uiRetVal downloadToBuffer(const char* url,DataBuffer&,
+					       TaskRunner* =nullptr);
 
     mGlobal(Network) bool   uploadFile(const char* url,const char* localfname,
 				       const char* remotefname,
@@ -107,12 +106,14 @@ public:
 
     uiString		uiMessage() const override;
     uiString		uiNrDoneText() const override;
+    uiRetVal		allMessages() const;
+    bool		hasFails() const;
+    void		setContinueOnFail( bool yn )  { continueonfail_ = yn; }
 
 private:
     od_int64		nrDone() const override;
     od_int64		totalNr() const override;
     double		progressFactor() const override;
-
     bool		doPrepare(od_ostream* =nullptr) override;
     int			nextStep() override;
     bool		doFinish(bool success,od_ostream* =nullptr) override;
@@ -125,9 +126,11 @@ private:
     bool		writeDataToBuffer(const char* buffer,int size);
 
     bool		initneeded_ = true;
+    bool		continueonfail_ = false;
     BufferStringSet	urls_;
     BufferStringSet	saveaspaths_;
-    int			nrfilesdownloaded_ = 0;
+    int			currurlidx_	    = 0;
+    int			nrfilesdownloaded_  = 0;
     DataBuffer*		databuffer_ = nullptr;
     od_ostream*		osd_ = nullptr;
 
@@ -136,6 +139,7 @@ private:
     od_int64		nrdone_ = 0;
     od_int64		totalnr_ = 0;
     uiString		msg_;
+    uiRetVal		uirv_;
 };
 
 

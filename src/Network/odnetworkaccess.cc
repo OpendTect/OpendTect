@@ -20,6 +20,7 @@ ________________________________________________________________________
 #include "separstr.h"
 #include "settings.h"
 #include "uistrings.h"
+#include "uistring.h"
 
 # include <QByteArray>
 # include <QNetworkProxy>
@@ -40,24 +41,24 @@ od_int64 Network::getFileSize( const char* url )
 bool Network::getContent( const char* url, BufferString& bs )
 {
     uiString msg; DataBuffer dbuf(0,1);
-    if ( !downloadToBuffer(url,dbuf,msg) || !dbuf.fitsInString() )
+    if ( downloadToBuffer(url,dbuf).isError() || !dbuf.fitsInString() )
 	return false;
     bs = dbuf.getString();
     return true;
 }
 
 
-bool Network::downloadFile( const char* url, const char* path,
-			    uiString& errmsg, TaskRunner* taskr )
+uiRetVal Network::downloadFile( const char* url, const char* path,
+				TaskRunner* taskr )
 {
     BufferStringSet urls; urls.add( url );
     BufferStringSet outputpath; outputpath.add( path );
-    return downloadFiles( urls, outputpath, errmsg, taskr );
+    return downloadFiles( urls, outputpath, taskr );
 }
 
 
-bool Network::downloadFiles( BufferStringSet& urls, const char* path,
-			     uiString& errmsg, TaskRunner* taskr )
+uiRetVal Network::downloadFiles( BufferStringSet& urls, const char* path,
+				 TaskRunner* taskr, bool canfail )
 {
     BufferStringSet outputpaths;
     for ( int idx=0; idx<urls.size(); idx++ )
@@ -72,32 +73,40 @@ bool Network::downloadFiles( BufferStringSet& urls, const char* path,
 	outputpaths.add( destpath.fullPath() );
     }
 
-    return downloadFiles( urls, outputpaths, errmsg, taskr );
+    return downloadFiles( urls, outputpaths, taskr, canfail );
 }
 
 
-bool Network::downloadFiles( BufferStringSet& urls,BufferStringSet& outputpaths,
-			     uiString& errmsg, TaskRunner* taskr )
+uiRetVal Network::downloadFiles( BufferStringSet& urls,
+				 BufferStringSet& outputpaths,
+				 TaskRunner* taskr, bool canfail )
 {
     if ( urls.size() != outputpaths.size() )
-	return false;
+    {
+	uiRetVal uirv;
+	uirv.add( od_static_tr("downloadFiles",
+			       "urls size is not equal to output path size") );
+	return uirv;
+    }
 
     FileDownloader dl( urls, outputpaths );
-    const bool res = taskr ? taskr->execute( dl ) : dl.execute();
-    if ( !res ) errmsg = dl.uiMessage();
-    return res;
+    dl.setContinueOnFail( canfail );
+    const bool res = TaskRunner::execute( taskr, dl ) &&
+					dl.allMessages().isOK();
+
+    return res ? uiRetVal::OK() : dl.allMessages();
 }
 
 
-bool Network::downloadToBuffer( const char* url, DataBuffer& databuffer,
-				uiString& errmsg, TaskRunner* taskr )
+uiRetVal Network::downloadToBuffer( const char* url, DataBuffer& databuffer,
+				    TaskRunner* taskr )
 {
     databuffer.reSize( 0, false );
     databuffer.reByte( 1, false );
     FileDownloader dl( url, databuffer );
-    const bool res = taskr ? taskr->execute( dl ) : dl.execute();
-    if ( !res ) errmsg = dl.uiMessage();
-    return res;
+    const bool res = TaskRunner::execute( taskr, dl );
+
+    return res ? uiRetVal::OK() : dl.allMessages();
 }
 
 
@@ -130,13 +139,13 @@ FileDownloader::FileDownloader( const BufferStringSet& urls,
 				const BufferStringSet& outputpaths )
     : SequentialTask("Downloading files")
     , osd_(new od_ostream())
-    , saveaspaths_( outputpaths )
-    , urls_( urls )
+    , saveaspaths_(outputpaths)
+    , urls_(urls)
 {
     OD::OpenSSLAccess::loadOpenSSL(); //Keep at the first line
     totalnr_ = getDownloadSize();
     if ( totalnr_ < 0 )
-	msg_ = tr("Cannot determine download size");
+	msg_ = tr( "Cannot determine download size" );
 }
 
 
@@ -145,10 +154,10 @@ FileDownloader::FileDownloader( const char* url, DataBuffer& db )
     , databuffer_(&db)
 {
     OD::OpenSSLAccess::loadOpenSSL(); //Keep at the first line
-    urls_.add(url);
+    urls_.add( url );
     totalnr_ = getDownloadSize();
     if ( totalnr_ < 0 )
-	msg_ = tr("Cannot determine download size");
+	msg_ = tr( "Cannot determine download size" );
 }
 
 
@@ -167,6 +176,17 @@ FileDownloader::~FileDownloader()
 }
 
 
+uiRetVal FileDownloader::allMessages() const
+{
+    if ( uirv_.isOK() )
+	return uiRetVal::OK();
+
+    uiRetVal uirv( msg_ );
+    uirv.add( uirv_ );
+    return uirv;
+}
+
+
 bool FileDownloader::doPrepare( od_ostream* strm )
 {
     if ( totalnr_ < 1 )
@@ -181,10 +201,11 @@ int FileDownloader::nextStep()
     if ( initneeded_ )
     {
 	initneeded_ = false;
-	if ( !urls_.validIdx(nrfilesdownloaded_) )
+	if ( !urls_.validIdx(currurlidx_) )
 	    return Finished();
 
-	const char* url = urls_.get(nrfilesdownloaded_).buf();
+	const char* url = urls_.get( currurlidx_ ).buf();
+	msg_ = tr( "Downloading %1" ).arg( url );
 	odnr_ = Network::HttpRequestManager::instance().get( url );
     }
 
@@ -202,6 +223,7 @@ int FileDownloader::nextStep()
 
 	initneeded_ = true;
 	nrfilesdownloaded_++;
+	currurlidx_++;
 	if ( osd_ && osd_->isOK() )
 	    osd_->close();
     }
@@ -222,15 +244,14 @@ od_int64 FileDownloader::getDownloadSize()
     od_int64 totalbytes = 0;
     for ( int idx=0; idx<urls_.size(); idx++ )
     {
-	const char* url = urls_.get(idx).buf();
+	const char* url = urls_.get( idx ).buf();
 	odnr_ = Network::HttpRequestManager::instance().head( url );
 	odnr_->waitForFinish();
 
 	if ( odnr_->isError() )
 	    return errorOccured();
 
-
-	od_int64 filesize = odnr_->getContentLengthHeader();
+	const od_int64 filesize = odnr_->getContentLengthHeader();
 	totalbytes += filesize;
     }
 
@@ -256,9 +277,9 @@ bool FileDownloader::writeData()
 }
 
 
-bool FileDownloader::writeDataToFile(const char* buffer, int size)
+bool FileDownloader::writeDataToFile( const char* buffer, int size )
 {
-    FilePath fp = saveaspaths_.get(nrfilesdownloaded_).buf();
+    const FilePath fp = saveaspaths_.get( currurlidx_ ).buf();
     if ( !osd_ )
 	return false;
 
@@ -267,11 +288,11 @@ bool FileDownloader::writeDataToFile(const char* buffer, int size)
 	if ( !File::exists(fp.pathOnly()) )
 	    File::createDir( fp.pathOnly() );
 
-	osd_->open( saveaspaths_.get(nrfilesdownloaded_) );
+	osd_->open( fp.fullPath() );
 	if ( osd_->isBad() )
 	{
-	    msg_ = tr("%1 Didn't have permission to write to: %2")
-		 .arg(osd_->isBad()).arg(fp.fullPath());
+	    uirv_.add( tr("%1 Didn't have permission to write to: %2")
+		      .arg(osd_->isBad()).arg(fp.fullPath()) );
 	    return false;
 	}
     }
@@ -281,13 +302,13 @@ bool FileDownloader::writeDataToFile(const char* buffer, int size)
 }
 
 
-bool FileDownloader::writeDataToBuffer(const char* buffer, int size)
+bool FileDownloader::writeDataToBuffer( const char* buffer, int size )
 {
     if ( !databuffer_ )
 	return false;
 
     int buffersize = databuffer_->size();
-    databuffer_->reSize(nrdone_);
+    databuffer_->reSize( nrdone_ );
     OD::memCopy( databuffer_->data()+buffersize, buffer, size );
     return true;
 }
@@ -295,14 +316,24 @@ bool FileDownloader::writeDataToBuffer(const char* buffer, int size)
 
 int FileDownloader::errorOccured()
 {
-    uiRetVal uirv;
+    uiRetVal uiretval;
     if ( odnr_ )
-	uirv.add( odnr_->errMsgs() );
+	uiretval.add( odnr_->errMsgs() );
 
-    if ( uirv.isEmpty() )
-	uirv.add( tr( "Oops! Something went wrong with the connection" ) );
+    if ( uiretval.isEmpty() )
+	uiretval.add( tr("Oops! Something went wrong with the connection") );
 
-    msg_ = uirv.messages().cat();
+    uirv_.add( uiretval );
+    if ( continueonfail_ )
+    {
+	initneeded_ = true;
+	currurlidx_++;
+	if ( osd_ && osd_->isOK() )
+	    osd_->close();
+
+	return MoreToDo();
+    }
+
     return ErrorOccurred();
 }
 

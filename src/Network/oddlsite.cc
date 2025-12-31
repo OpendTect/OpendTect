@@ -75,14 +75,22 @@ bool ODDLSite::getFile( const char* relfnm, const char* outfnm,
     if ( islocal_ )
 	return getLocalFile( relfnm, outfnm );
 
+    uiRetVal uirv;
     if ( !outfnm )
     {
 	databuf_ = new DataBuffer( 0, 1, true );
-	return Network::downloadToBuffer(fullURL(relfnm),*databuf_,errmsg_,
-					 taskrunner);
+	uirv = Network::downloadToBuffer(fullURL(relfnm),*databuf_,taskrunner);
+	if( uirv.isError() )
+	    errmsg_ = uirv.messages().cat();
+
+	return uirv.isOK();
     }
 
-    return Network::downloadFile( fullURL(relfnm), outfnm, errmsg_,taskrunner);
+    uirv = Network::downloadFile( fullURL(relfnm), outfnm, taskrunner );
+    if ( uirv.isError() )
+	errmsg_ = uirv.messages().cat();
+
+    return uirv.isOK();
 }
 
 
@@ -126,7 +134,11 @@ bool ODDLSite::getFiles( const BufferStringSet& fnms, const char* outputdir,
     for ( int idx=0; idx<fnms.size(); idx++ )
 	fullurls.add( fullURL(fnms.get(idx)) );
 
-    return Network::downloadFiles( fullurls, outputdir, errmsg_, &taskrunner );
+    uiRetVal uirv = Network::downloadFiles( fullurls, outputdir, &taskrunner );
+    if( uirv.isError() )
+	errmsg_ = uirv.messages().cat();
+
+    return uirv.isOK();
 }
 
 

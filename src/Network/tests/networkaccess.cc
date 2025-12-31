@@ -14,13 +14,17 @@ ________________________________________________________________________
 #include "filepath.h"
 #include "iopar.h"
 #include "moddepmgr.h"
+#include "od_istream.h"
+#include "ascstream.h"
 #include "odnetworkaccess.h"
 #include "perthreadrepos.h"
+#include "separstr.h"
 #include "systeminfo.h"
 #include "testprog.h"
 
 
 static FilePath tempfile_;
+static FilePath tempfile1_;
 static BufferString prefix_;
 
 static BufferString intranetHost()
@@ -51,16 +55,16 @@ bool testPing()
     uiString err;
 
     mRunStandardTestWithError( Network::ping(url.str(),err),
-				BufferString( prefix_, "Ping existing URL"),
+				BufferString(prefix_, "Ping existing URL"),
 				toString(err) );
 
     url.set( "https://nonexistingurl.www" ).add( "/thisfiledoesnotexist" );
     mRunStandardTestWithError( Network::ping(url.str(),err)==false,
-	BufferString( prefix_, "Ping non-existing URL"), toString(err) );
+	BufferString(prefix_, "Ping non-existing URL"), toString(err) );
 
     url.set( "https://cdash.dgbes.com" );
     mRunStandardTestWithError( Network::ping(url.str(),err)==false,
-        BufferString( prefix_, "Ping existing URL - invalid certificate"),
+	BufferString(prefix_, "Ping existing URL - invalid certificate"),
 	toString(err) );
 
     return true;
@@ -71,13 +75,76 @@ bool testDownloadToBuffer()
 {
     const char* url = "https://opendtect.org/dlsites.txt";
     DataBuffer db( 1000, 4 );
-    uiString err;
 
-    mRunStandardTestWithError( Network::downloadToBuffer( url, db, err ),
-	    BufferString( prefix_, "Download to buffer"), toString(err) );
+    uiRetVal uirv = Network::downloadToBuffer( url, db );
+    mRunStandardTestWithError( uirv.isOK(),
+	    BufferString(prefix_, "Download to buffer"), uirv.getText() );
 
     mRunStandardTest( db.size()==54,
-		      BufferString( prefix_, "Download to buffer size") );
+		      BufferString(prefix_, "Download to buffer size") );
+
+    return true;
+}
+
+
+bool testGetUrls( BufferStringSet& pkgurls, const bool& setfail )
+{
+    const BufferString verurl(
+		"https://download.opendtect.org/relman/0.0.0/versions.txt" );
+    FilePath verfp( tempfile1_, "versions.txt" );
+
+    const uiRetVal uirv = Network::downloadFile( verurl, verfp.fullPath() );
+    mRunStandardTestWithError( uirv.isOK(),
+		BufferString(prefix_, "Read Package urls"), uirv.getText() );
+
+    BufferString osstr;
+    if ( __islinux__ )
+	osstr.add( "_lux" );
+    if ( __iswin__ )
+	osstr.set( "_win64" );
+    if ( __ismac__ )
+	osstr.set( "_mac" );
+
+    BufferStringSet pkgnms( "base", "basedata", "demosurvey" );
+    if ( __ismac__ )
+	pkgnms.addToAll( osstr );
+
+    od_istream istrm( verfp );
+    ascistream ascstrm( istrm, false );
+
+    mRunStandardTestWithError( ascstrm.isOK(),
+	"Open stream versions.txt", "Failed to open stream for version.txt" );
+
+    IOPar verspar( ascstrm );
+
+    mRunStandardTestWithError( !verspar.isEmpty(),
+	"Reading versions.txt", "Version.txt is empty" );
+
+    for ( const auto* pkgnm : pkgnms )
+    {
+	FilePath baseurl( "https://download.opendtect.org/relman/0.0.0" );
+	BufferString nm( *pkgnm );
+
+	if ( pkgnm->isEqual("base") )
+	{
+	    nm.add( osstr );
+	    if ( setfail )
+		baseurl.add( "fail" ); // canfailurl
+	}
+
+	FileMultiString pkgsepar;
+	bool isver = verspar.get( nm, pkgsepar );
+	const OD::String& pkgver = pkgsepar.first();
+	if ( pkgver.isEmpty() )
+	    continue;
+
+	nm.add( ".zip" );
+	baseurl.add( *pkgnm ).add( pkgver ).add( nm );
+	pkgurls.add( baseurl.fullPath() );
+    }
+
+    mRunStandardTestWithError( !pkgurls.isEmpty(), "Package urls",
+						   "Package urls is empty" );
 
     return true;
 }
@@ -86,10 +153,45 @@ bool testDownloadToBuffer()
 bool testDownloadToFile()
 {
     const char* url = "https://opendtect.org/dlsites.txt";
-    uiString err;
-    mRunStandardTestWithError(
-	    Network::downloadFile( url, tempfile_.fullPath(), err ),
-	    BufferString( prefix_, "Download to file"), toString(err) );
+    const uiRetVal uirv = Network::downloadFile(url, tempfile_.fullPath());
+    const uiString err = uirv.messages().cat();
+    mRunStandardTestWithError( uirv.isOK(),
+		BufferString(prefix_, "Download to file"), toString(err) );
+
+    return true;
+}
+
+
+bool testDownloadFiles()
+{
+    BufferStringSet pkgurls;
+    BufferStringSet failpkgurls;
+
+    if ( !testGetUrls(pkgurls, false) )
+	return false;
+
+    if ( !testGetUrls(failpkgurls, true) )
+	return false;
+
+    const uiRetVal uirv1 = Network::downloadFiles( pkgurls,
+				tempfile1_.fullPath() );
+    const uiRetVal uirv2 = Network::downloadFiles( failpkgurls,
+				tempfile1_.fullPath(), nullptr, true );
+    const uiRetVal uirv3 = Network::downloadFiles( failpkgurls,
+				tempfile1_.fullPath() );
+
+    mRunStandardTestWithError( uirv1.isOK(),
+	BufferString(prefix_, "Download files, Good urls, CanFail: False"),
+		     uirv1.getText() );
+    mRunStandardTestWithError( !uirv2.isOK(),
+	BufferString(prefix_, "Download files, Fail urls, CanFail: True"),
+		     uirv2.getText() );
+    mRunStandardTestWithError( !uirv3.isOK(),
+	BufferString(prefix_, "Download files, Fail urls, CanFail: False"),
+		     uirv3.getText() );
+
+    if ( File::exists(tempfile1_.fullPath()) )
+	File::removeDir( tempfile1_.fullPath() );
 
     return true;
 }
@@ -102,9 +204,9 @@ bool testFileUpload()
     uiString err;
     IOPar postvars;
     mRunStandardTestWithError(
-    Network::uploadFile( url.buf(), tempfile_.fullPath(), remotefn,
-			"dumpfile", postvars, err ),
-	    BufferString( prefix_, "Upload file "), toString(err) );
+    Network::uploadFile(url.buf(), tempfile_.fullPath(), remotefn,
+			"dumpfile", postvars, err),
+	    BufferString(prefix_, "Upload file "), toString(err) );
 
     return true;
 }
@@ -117,8 +219,8 @@ bool testQueryUpload()
     querypars.set( "report", report );
     const BufferString url = intranetUrl( "query_uploadtest.php" );
     uiString err;
-    mRunStandardTestWithError( Network::uploadQuery( url, querypars, err ),
-		BufferString( prefix_, "UploadQuery"), toString(err) );
+    mRunStandardTestWithError( Network::uploadQuery(url, querypars, err),
+		BufferString(prefix_, "UploadQuery"), toString(err) );
 
     return true;
 }
@@ -152,6 +254,9 @@ bool runTests()
 	return false;
 
     if ( !testDownloadToFile() )
+	return false;
+
+    if ( !testDownloadFiles() )
 	return false;
 
     if ( !testFileUpload() )
@@ -192,10 +297,13 @@ int mTestMainFnName( int argc, char** argv )
     OD::ModDeps().ensureLoaded( "Network" );
 
     tempfile_ = FilePath::getTempDir();
+    tempfile1_ = tempfile_;
     mRunStandardTest( !tempfile_.isEmpty(), "Temp-dir generation" );
 
-    BufferString filename( toString(GetPID()), "_dlsites.txt" );
+    const BufferString filename( toString(GetPID()), "_dlsites.txt" );
     tempfile_.add( filename );
+    const BufferString filename1( toString(GetPID()), "_dlsites" );
+    tempfile1_.add( filename1 );
 
     Threads::Thread thread( mSCB( threadCB ), "test_networkaccess thread" );
     thread.waitForFinish();
