@@ -380,6 +380,13 @@ const NLAModel* uiAttribPartServer::getNLAModel( bool is2d ) const
 }
 
 
+void fillWithAllComponents( TypeSet<int>& selectedcomps, int nrcomps )
+{
+    selectedcomps.setSize( nrcomps, 0 );
+    selectedcomps.fillWithIncreasingValues( 0 );
+}
+
+
 bool uiAttribPartServer::selectAttrib( SelSpec& selspec,
 				       const ZDomain::Info* zdominfo,
 				       const Pos::GeomID& geomid,
@@ -436,10 +443,51 @@ bool uiAttribPartServer::selectAttrib( SelSpec& selspec,
 	{
 	    const MultiID dbky =
 		dlg.getAttrSet().getStoredKey( attrdata.attribid_ );
-	    SeisIOObjInfo info( dbky );
-	    TypeSet<int> selectedcomps( info.nrComponents(), 0 );
-	    for ( int idx=1; idx<selectedcomps.size(); idx++ )
-		selectedcomps[idx] = idx;
+	    const SeisIOObjInfo info( dbky );
+	    const int nrtotalcomps = info.nrComponents();
+	    TypeSet<int> selectedcomps;
+	    if ( Seis::PLDM().isPresent(dbky) )
+	    {
+		ConstRefMan<DataPack> dp = Seis::PLDM().getDP( dbky );
+		ConstRefMan<RegularSeisDataPack> rsdp
+				= dCast( const RegularSeisDataPack*, dp.ptr() );
+		if ( !rsdp || rsdp->nrComponents()==0
+			   || rsdp->nrComponents()==nrtotalcomps )
+		{
+		    fillWithAllComponents( selectedcomps, nrtotalcomps );
+		}
+		else
+		{
+		    BufferStringSet compnms;
+		    for ( int idx=0; idx<rsdp->nrComponents(); idx++ )
+		    {
+			const BufferString dpcompnm
+					    = rsdp->getComponentName( idx );
+			const SeparString ss( dpcompnm.buf(), '|' );
+			BufferString truecompnm;
+			if ( ss.size() == 2 )
+			    truecompnm = ss[1];
+
+			compnms.add( truecompnm.isEmpty() ? dpcompnm
+							  : truecompnm );
+		    }
+
+		    if ( compnms.isEmpty() )
+		    {
+			pErrMsg( "Components should have name." );
+			fillWithAllComponents( selectedcomps, nrtotalcomps );
+		    }
+		    else
+		    {
+			BufferStringSet allcompnms;
+			info.getComponentNames( allcompnms );
+			for ( const auto* nm : compnms )
+			    selectedcomps.add( allcompnms.indexOf(*nm) );
+		    }
+		}
+	    }
+	    else
+		fillWithAllComponents( selectedcomps, nrtotalcomps );
 
 	    selspec.set( nullptr, Attrib::SelSpec::cOtherAttrib(),
 			 false, nullptr );

@@ -1028,22 +1028,23 @@ DescID DescSet::getStoredID( const MultiID& multiid, int selout, bool create,
 					    blindcompnm ? blindcompnm :"") );
 
     const int out0idx = outsreadyforthislk.indexOf( 0 );
-    BufferStringSet bss; SeisIOObjInfo::getCompNames( multiid, bss );
-    const int nrcomps = bss.size();
+    BufferStringSet compnms;
+    SeisIOObjInfo::getCompNames( multiid, compnms );
+    const int nrcomps = compnms.size();
     if ( nrcomps < 2 )
 	return out0idx != -1 ? outsreadyids[out0idx]
 			     : createStoredDesc( multiid, 0, BufferString("") );
 
     const int startidx = selout<0 ? 0 : selout;
     const int stopidx = selout<0 ? nrcomps : selout;
-    const BufferString& curstr = bss.validIdx(startidx)
-				? bss.get(startidx) : BufferString::empty();
+    const BufferString& curstr = compnms.validIdx(startidx)
+				? compnms.get(startidx) : BufferString::empty();
     const DescID retid = out0idx != -1
 			? outsreadyids[out0idx]
 			: createStoredDesc( multiid, startidx, curstr );
     for ( int idx=startidx+1; idx<stopidx; idx++ )
 	if ( !outsreadyforthislk.isPresent(idx) )
-	    createStoredDesc( multiid, idx, *bss[idx] );
+	    createStoredDesc( multiid, idx, *compnms[idx] );
 
     return retid;
 }

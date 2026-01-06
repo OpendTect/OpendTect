@@ -30,13 +30,20 @@ namespace Seis
 const char* PreLoader::sKeyLines()	{ return "Lines"; }
 const char* PreLoader::sKeyUserType()	{ return "User Type"; }
 
-PreLoader::PreLoader( const MultiID& mid, Pos::GeomID geomid, TaskRunner* trn )
+PreLoader::PreLoader( const MultiID& mid,
+		      const Pos::GeomID& geomid, TaskRunner* trn )
     : mid_(mid), geomid_(geomid), tr_(trn)
 {}
 
 
 PreLoader::~PreLoader()
 {}
+
+
+void PreLoader::setComponents( const TypeSet<int>& comps )
+{
+    comps_ = comps;
+}
 
 
 IOObj* PreLoader::getIOObj() const
@@ -85,6 +92,9 @@ bool PreLoader::load( const TrcKeyZSampling& tkzs,
     rdr.setName( caption.getFullString() );
     rdr.setScaler( scaler );
     rdr.setDataChar( type );
+    if ( !comps_.isEmpty() && comps_.size()<info.nrComponents() )
+	rdr.setComponents( comps_ );
+
     if ( !trunnr.execute(rdr) )
     {
 	errmsg_ = rdr.uiMessage();

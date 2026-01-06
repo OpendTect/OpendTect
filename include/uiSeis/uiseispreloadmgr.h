@@ -68,6 +68,7 @@ public:
     const IOObj*	getIOObj() const;
     void		getSampling(TrcKeyZSampling&) const;
     void		getSampling(TrcKeyZSampling&,Pos::GeomID) const;
+    void		getComponents(TypeSet<int>&) const;
     void		selectedGeomIDs(TypeSet<Pos::GeomID>&) const;
     Scaler*		getScaler() const;
     void		getDataChar(DataCharacteristics&) const;
@@ -80,8 +81,11 @@ protected:
     void		selChangeCB(CallBacker*);
     void		histChangeCB(CallBacker*);
     void		doScaleCB(CallBacker*);
+
     void		updateScaleFld();
     void		updateEstUsage();
+    void		fillCompList(const BufferStringSet&);
+
     bool		acceptOK(CallBacker*) override;
 
     Scaler*			scaler_;
@@ -89,6 +93,7 @@ protected:
 
     uiSeisSel*			seissel_;
     uiMultiZSeisSubSel*		subselfld_;
+    uiListBox*			complb_;
     uiGenInput*			formatdiskfld_;
     uiGenInput*			sizediskfld_;
     uiGenInput*			typefld_;

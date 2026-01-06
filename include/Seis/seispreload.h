@@ -26,9 +26,12 @@ namespace Seis
 mExpClass(Seis) PreLoader
 { mODTextTranslationClass(PreLoader)
 public:
-			PreLoader(const MultiID&,Pos::GeomID=Pos::GeomID::udf(),
+			PreLoader(const MultiID&,
+				  const Pos::GeomID& =Pos::GeomID::udf(),
 				  TaskRunner* =nullptr);
 			~PreLoader();
+
+    void		setComponents(const TypeSet<int>&);
 
     const MultiID&	id() const			{ return mid_; }
     Pos::GeomID		geomID() const			{ return geomid_; }
@@ -72,6 +75,7 @@ protected:
     Pos::GeomID		geomid_;
     TaskRunner*		tr_;
     TaskRunner		deftr_;
+    TypeSet<int>	comps_;
     mutable uiString	errmsg_;
 
     TaskRunner&		getTr() const
