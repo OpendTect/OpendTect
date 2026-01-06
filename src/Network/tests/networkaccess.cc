@@ -133,11 +133,11 @@ bool testGetUrls( BufferStringSet& pkgurls, const bool& setfail )
 	}
 
 	FileMultiString pkgsepar;
-	bool isver = verspar.get( nm, pkgsepar );
-	const OD::String& pkgver = pkgsepar.first();
-	if ( pkgver.isEmpty() )
+	const bool isver = verspar.get( nm, pkgsepar );
+	if ( !isver || pkgsepar.isEmpty() )
 	    continue;
 
+	const OD::String& pkgver = pkgsepar.first();
 	nm.add( ".zip" );
 	baseurl.add( *pkgnm ).add( pkgver ).add( nm );
 	pkgurls.add( baseurl.fullPath() );
