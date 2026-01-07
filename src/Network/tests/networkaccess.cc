@@ -99,16 +99,13 @@ bool testGetUrls( BufferStringSet& pkgurls, const bool& setfail )
 
     BufferString osstr;
     if ( __islinux__ )
-	osstr.add( "_lux" );
+	osstr.add( "_lux64" );
     if ( __iswin__ )
 	osstr.set( "_win64" );
     if ( __ismac__ )
 	osstr.set( "_mac" );
 
     BufferStringSet pkgnms( "base", "basedata", "demosurvey" );
-    if ( __ismac__ )
-	pkgnms.addToAll( osstr );
-
     od_istream istrm( verfp );
     ascistream ascstrm( istrm, false );
 
@@ -131,6 +128,8 @@ bool testGetUrls( BufferStringSet& pkgurls, const bool& setfail )
 	    if ( setfail )
 		baseurl.add( "fail" ); // canfailurl
 	}
+	else if ( __ismac__ )
+	    nm.add( osstr );
 
 	FileMultiString pkgsepar;
 	const bool isver = verspar.get( nm, pkgsepar );

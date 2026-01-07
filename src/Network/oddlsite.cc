@@ -127,14 +127,15 @@ DataBuffer* ODDLSite::obtainResultBuf()
 
 
 bool ODDLSite::getFiles( const BufferStringSet& fnms, const char* outputdir,
-			 TaskRunner& taskrunner )
+			 TaskRunner& taskrunner, bool canfail )
 {
     errmsg_.setEmpty();
     BufferStringSet fullurls;
     for ( int idx=0; idx<fnms.size(); idx++ )
 	fullurls.add( fullURL(fnms.get(idx)) );
 
-    uiRetVal uirv = Network::downloadFiles( fullurls, outputdir, &taskrunner );
+    const uiRetVal uirv = Network::downloadFiles( fullurls, outputdir,
+						  &taskrunner, canfail );
     if( uirv.isError() )
 	errmsg_ = uirv.messages().cat();
 
