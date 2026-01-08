@@ -19,11 +19,93 @@ ________________________________________________________________________
 #include "perthreadrepos.h"
 #include "separstr.h"
 #include "settings.h"
+#include "task.h"
 #include "uistrings.h"
-#include "uistring.h"
 
 # include <QByteArray>
 # include <QNetworkProxy>
+
+class FileDownloader : public SequentialTask
+{ mODTextTranslationClass(FileDownloader);
+public:
+			FileDownloader(const char* url);
+			FileDownloader(const char* url,DataBuffer&);
+			FileDownloader(const BufferStringSet& urls,
+				       const BufferStringSet& outputpaths);
+			~FileDownloader();
+
+    od_int64		getDownloadSize();
+
+    uiString		uiMessage() const override;
+    uiString		uiNrDoneText() const override;
+    uiRetVal		allMessages() const;
+    bool		hasFails() const;
+    void		setContinueOnFail( bool yn )  { continueonfail_ = yn; }
+
+private:
+    od_int64		nrDone() const override;
+    od_int64		totalNr() const override;
+    double		progressFactor() const override;
+    bool		doPrepare(od_ostream* =nullptr) override;
+    int			nextStep() override;
+    bool		doFinish(bool success,od_ostream* =nullptr) override;
+
+    void		setSaveAsPaths(const BufferStringSet&,const char*);
+    int			errorOccured();
+
+    bool		writeData();
+    bool		writeDataToFile(const char* buffer,int size);
+    bool		writeDataToBuffer(const char* buffer,int size);
+
+    bool		initneeded_ = true;
+    bool		continueonfail_ = false;
+    BufferStringSet	urls_;
+    BufferStringSet	saveaspaths_;
+    int			currurlidx_	    = 0;
+    int			nrfilesdownloaded_  = 0;
+    DataBuffer*		databuffer_ = nullptr;
+    od_ostream*		osd_ = nullptr;
+
+    RefMan<Network::HttpRequestProcess> odnr_;
+
+    od_int64		nrdone_ = 0;
+    od_int64		totalnr_ = 0;
+    uiString		msg_;
+    uiRetVal		uirv_;
+};
+
+
+//!>Provides file or data upload facility
+class DataUploader : public SequentialTask
+{ mODTextTranslationClass(DataUploader);
+public:
+			DataUploader(const char* url,const DataBuffer& data,
+				     BufferString& header);
+			~DataUploader();
+
+    uiString		uiMessage() const override;
+    uiString		uiNrDoneText() const override;
+
+private:
+    od_int64		nrDone() const override;
+    od_int64		totalNr() const override;
+    double		progressFactor() const override;
+
+    bool		doPrepare(od_ostream* =nullptr) override;
+    int			nextStep() override;
+    int			errorOccured();
+    bool		doFinish(bool,od_ostream* =nullptr) override;
+
+    BufferString	url_;
+    BufferString	header_;
+
+    const DataBuffer&			data_;
+    RefMan<Network::HttpRequestProcess> odnr_;
+
+    od_int64		nrdone_ = 0;
+    od_int64		totalnr_ = 1;
+    uiString		msg_;
+};
 
 
 bool Network::exists( const char* url )
