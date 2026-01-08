@@ -155,7 +155,7 @@ protected:
 
     ObjectSet<Task>	tasks_;
     int			curtask_;
-    bool        cumulativecount_ = false;
+    bool		cumulativecount_ = false;
 
     mutable Threads::Lock lock_;
 

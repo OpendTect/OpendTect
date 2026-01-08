@@ -25,39 +25,287 @@ ________________________________________________________________________
 # include <QNetworkProxy>
 
 
-bool Network::exists( const char* url )
+class FileDownloaderTask : public SequentialTask
+{ mODTextTranslationClass(FileDownloaderTask);
+public:
+			FileDownloaderTask(const char* url);
+			FileDownloaderTask(const char* url,DataBuffer&);
+			FileDownloaderTask(const BufferStringSet& urls,
+					   const BufferStringSet& outputpaths);
+			~FileDownloaderTask();
+
+    od_int64		getDownloadSize();
+
+    uiString		uiMessage() const override;
+    uiString		uiNrDoneText() const override;
+    uiRetVal		allMessages() const;
+    bool		hasFails() const;
+    void		setContinueOnFail( bool yn )  { continueonfail_ = yn; }
+
+private:
+    double		progressFactor() const;
+    bool		doPrepare(od_ostream* =nullptr) override;
+    int			nextStep() override;
+    od_int64		nrDone() const override;
+    od_int64		totalNr() const override;
+
+protected:
+
+    void		setSaveAsPaths(const BufferStringSet&,const char*);
+    int			errorOccured();
+
+    bool		writeData();
+    bool		writeDataToFile(const char* buffer,int size);
+    bool		writeDataToBuffer(const char* buffer,int size);
+
+    bool		initneeded_ = true;
+    bool		continueonfail_ = false;
+    BufferStringSet	urls_;
+    BufferStringSet	saveaspaths_;
+    int			currurlidx_	    = 0;
+    int			nrfilesdownloaded_  = 0;
+    DataBuffer*		databuffer_ = nullptr;
+    od_ostream*		osd_ = nullptr;
+
+    RefMan<Network::HttpRequestProcess> odnr_;
+
+    od_int64		nrdone_ = 0;
+    od_int64		totalnr_ = 0;
+    uiString		msg_;
+    uiRetVal		uirv_;
+};
+
+
+FileDownloaderTask::FileDownloaderTask( const BufferStringSet& urls,
+				const BufferStringSet& outputpaths )
+    : SequentialTask("Downloading files")
+    , osd_(new od_ostream())
+    , saveaspaths_(outputpaths)
+    , urls_(urls)
 {
-    od_int64 dum; uiString msg;
-    return getRemoteFileSize( url, dum, msg );
+    OD::OpenSSLAccess::loadOpenSSL(); //Keep at the first line
+    totalnr_ = getDownloadSize();
+    if ( totalnr_ < 0 )
+	msg_ = tr( "Cannot determine download size" );
 }
 
-od_int64 Network::getFileSize( const char* url )
+
+FileDownloaderTask::FileDownloaderTask( const char* url, DataBuffer& db )
+    : SequentialTask("Downloading file")
+    , databuffer_(&db)
 {
-    od_int64 ret; uiString msg;
-    return getRemoteFileSize( url, ret, msg ) ? ret : 0;
+    OD::OpenSSLAccess::loadOpenSSL(); //Keep at the first line
+    urls_.add( url );
+    totalnr_ = getDownloadSize();
+    if ( totalnr_ < 0 )
+	msg_ = tr( "Cannot determine download size" );
 }
 
-bool Network::getContent( const char* url, BufferString& bs )
+
+FileDownloaderTask::FileDownloaderTask( const char* url )
+    : SequentialTask("Downloading file")
+    , osd_(new od_ostream())
 {
-    uiString msg; DataBuffer dbuf(0,1);
-    if ( !downloadToBuffer(url,dbuf,msg) || !dbuf.fitsInString() )
+    OD::OpenSSLAccess::loadOpenSSL(); //Keep at the first line
+    urls_.add(url);
+}
+
+
+FileDownloaderTask::~FileDownloaderTask()
+{
+    delete osd_;
+}
+
+
+uiRetVal FileDownloaderTask::allMessages() const
+{
+    if ( uirv_.isOK() )
+	return uiRetVal::OK();
+
+    uiRetVal uirv( msg_ );
+    uirv.add( uirv_ );
+    return uirv;
+}
+
+
+bool FileDownloaderTask::doPrepare( od_ostream* strm )
+{
+    if ( totalnr_ < 1 )
+	totalnr_ = 1;
+
+    return SequentialTask::doPrepare( strm );
+}
+
+
+int FileDownloaderTask::nextStep()
+{
+    if ( totalnr_ < 0 )
+	return errorOccured();
+
+    if ( initneeded_ )
+    {
+	initneeded_ = false;
+	if ( !urls_.validIdx(currurlidx_) )
+	    return Finished();
+
+	const char* url = urls_.get(nrfilesdownloaded_).buf();
+	msg_ = tr( "Downloading %1" ).arg( url );
+	odnr_ = Network::HttpRequestManager::instance().get( url );
+    }
+
+    if ( odnr_->isError() )
+	return errorOccured();
+
+    if ( !writeData() )
+	return ErrorOccurred();
+
+    if ( odnr_->isFinished() )
+    {
+	// Check for any residue data received since the last read
+	if ( !writeData() )
+	    return ErrorOccurred();
+
+	initneeded_ = true;
+	nrfilesdownloaded_++;
+	currurlidx_++;
+	if ( osd_ && osd_->isOK() )
+	    osd_->close();
+    }
+
+    return MoreToDo();
+}
+
+
+od_int64 FileDownloaderTask::getDownloadSize()
+{
+    od_int64 totalbytes = 0;
+    for ( int idx=0; idx<urls_.size(); idx++ )
+    {
+	const char* url = urls_.get( idx ).buf();
+	odnr_ = Network::HttpRequestManager::instance().head( url );
+	odnr_->waitForFinish();
+
+	if ( odnr_->isError() )
+	    return errorOccured();
+
+	const od_int64 filesize = odnr_->getContentLengthHeader();
+	totalbytes += filesize;
+    }
+
+    odnr_ = nullptr;
+    return totalbytes;
+}
+
+
+bool FileDownloaderTask::writeData()
+{
+    od_int64 bytes = odnr_->downloadBytesAvailable();
+    if ( !bytes )
+	return true;
+
+    mAllocLargeVarLenArr( char, buffer, bytes );
+    char* bufferptr = buffer.ptr();
+    bytes = odnr_->read( bufferptr, bytes );
+    nrdone_ += bytes;
+    if ( databuffer_ )
+	return writeDataToBuffer( bufferptr, bytes );
+    else
+	return writeDataToFile( bufferptr, bytes );
+}
+
+
+bool FileDownloaderTask::writeDataToFile( const char* buffer, int size )
+{
+    const FilePath fp = saveaspaths_.get( currurlidx_ ).buf();
+    if ( !osd_ )
 	return false;
-    bs = dbuf.getString();
+
+    if ( osd_->isBad() )
+    {
+	if ( !File::exists(fp.pathOnly()) )
+	    File::createDir( fp.pathOnly() );
+
+	osd_->open( fp.fullPath() );
+	if ( osd_->isBad() )
+	{
+	    uirv_.add( tr("%1 Didn't have permission to write to: %2")
+		      .arg(osd_->isBad()).arg(fp.fullPath()) );
+	    return false;
+	}
+    }
+
+    osd_->addBin( buffer, size );
+    return osd_->isOK();
+}
+
+
+bool FileDownloaderTask::writeDataToBuffer( const char* buffer, int size )
+{
+    if ( !databuffer_ )
+	return false;
+
+    int buffersize = databuffer_->size();
+    databuffer_->reSize(nrdone_);
+    OD::memCopy( databuffer_->data()+buffersize, buffer, size );
     return true;
 }
 
 
-bool Network::downloadFile( const char* url, const char* path,
-			    uiString& errmsg, TaskRunner* taskr )
+int FileDownloaderTask::errorOccured()
 {
-    BufferStringSet urls; urls.add( url );
-    BufferStringSet outputpath; outputpath.add( path );
-    return downloadFiles( urls, outputpath, errmsg, taskr );
+    uiRetVal uiretval;
+    if ( odnr_ )
+	uiretval.add( odnr_->errMsgs() );
+
+    if ( uiretval.isEmpty() )
+	uiretval.add( tr("Oops! Something went wrong with the connection") );
+
+    uirv_.add( uiretval );
+    if ( continueonfail_ )
+    {
+	initneeded_ = true;
+	currurlidx_++;
+	if ( osd_ && osd_->isOK() )
+	    osd_->close();
+
+	return MoreToDo();
+    }
+
+    return ErrorOccurred();
 }
 
 
-bool Network::downloadFiles( BufferStringSet& urls, const char* path,
-			     uiString& errmsg, TaskRunner* taskr )
+uiString FileDownloaderTask::uiMessage() const
+{ return msg_; }
+
+
+od_int64 FileDownloaderTask::nrDone() const
+{return nrdone_/1024;}
+
+
+uiString FileDownloaderTask::uiNrDoneText() const
+{ return tr("KBytes downloaded"); }
+
+
+od_int64 FileDownloaderTask::totalNr() const
+{ return totalnr_/1024; }
+
+
+double FileDownloaderTask::progressFactor() const
+{ return 1./mDef1KB; }
+
+
+uiRetVal Network::downloadFile_( const char* url, const char* path,
+				  TaskRunner* taskr )
+{
+    BufferStringSet urls; urls.add( url );
+    BufferStringSet outputpath; outputpath.add( path );
+    return downloadFiles_( urls, outputpath, taskr );
+}
+
+
+uiRetVal Network::downloadFiles_( BufferStringSet& urls, const char* path,
+				   TaskRunner* taskr, bool canfail )
 {
     BufferStringSet outputpaths;
     for ( int idx=0; idx<urls.size(); idx++ )
@@ -72,32 +320,106 @@ bool Network::downloadFiles( BufferStringSet& urls, const char* path,
 	outputpaths.add( destpath.fullPath() );
     }
 
-    return downloadFiles( urls, outputpaths, errmsg, taskr );
+    return downloadFiles_( urls, outputpaths, taskr, canfail );
+}
+
+
+uiRetVal Network::downloadFiles_( BufferStringSet& urls,
+				   BufferStringSet& outputpaths,
+				   TaskRunner* taskr, bool canfail )
+{
+    if ( urls.size() != outputpaths.size() )
+    {
+	uiRetVal uirv;
+	uirv.add( od_static_tr("downloadFiles",
+			       "urls size is not equal to output path size") );
+	return uirv;
+    }
+
+    FileDownloaderTask dl( urls, outputpaths );
+    dl.setContinueOnFail( canfail );
+    const bool res = TaskRunner::execute( taskr, dl ) &&
+					dl.allMessages().isOK();
+
+    return res ? uiRetVal::OK() : dl.allMessages();
+}
+
+
+uiRetVal Network::downloadToBuffer_( const char* url, DataBuffer& databuffer,
+					TaskRunner* taskr )
+{
+    databuffer.reSize( 0, false );
+    databuffer.reByte( 1, false );
+    FileDownloaderTask dl( url, databuffer );
+    const bool res = TaskRunner::execute( taskr, dl );
+
+    return res ? uiRetVal::OK() : dl.allMessages();
+}
+
+
+bool Network::exists( const char* url )
+{
+    od_int64 dum; uiString msg;
+    return getRemoteFileSize( url, dum, msg );
+}
+
+od_int64 Network::getFileSize( const char* url )
+{
+    od_int64 ret; uiString msg;
+    return getRemoteFileSize( url, ret, msg ) ? ret : 0;
+}
+
+bool Network::getContent( const char* url, BufferString& bs )
+{
+    DataBuffer dbuf(0,1);
+    if ( downloadToBuffer_(url,dbuf).isError() || !dbuf.fitsInString() )
+	return false;
+    bs = dbuf.getString();
+    return true;
+}
+
+
+bool Network::downloadFile( const char* url, const char* path,
+			    uiString& errmsg, TaskRunner* taskr )
+{
+    const uiRetVal uirv = downloadFile_( url, path, taskr );
+    if ( uirv.isError() )
+	errmsg = uirv.messages().cat();
+
+    return uirv.isOK();
+}
+
+
+bool Network::downloadFiles( BufferStringSet& urls, const char* path,
+			     uiString& errmsg, TaskRunner* taskr )
+{
+    const uiRetVal uirv = downloadFiles_( urls, path, taskr );
+    if ( uirv.isError() )
+	errmsg = uirv.messages().cat();
+
+    return uirv.isOK();
 }
 
 
 bool Network::downloadFiles( BufferStringSet& urls,BufferStringSet& outputpaths,
 			     uiString& errmsg, TaskRunner* taskr )
 {
-    if ( urls.size() != outputpaths.size() )
-	return false;
+    const uiRetVal uirv = downloadFiles_( urls, outputpaths, taskr );
+    if ( uirv.isError() )
+	errmsg = uirv.messages().cat();
 
-    FileDownloader dl( urls, outputpaths );
-    const bool res = taskr ? taskr->execute( dl ) : dl.execute();
-    if ( !res ) errmsg = dl.uiMessage();
-    return res;
+    return uirv.isOK();
 }
 
 
 bool Network::downloadToBuffer( const char* url, DataBuffer& databuffer,
 				uiString& errmsg, TaskRunner* taskr )
 {
-    databuffer.reSize( 0, false );
-    databuffer.reByte( 1, false );
-    FileDownloader dl( url, databuffer );
-    const bool res = taskr ? taskr->execute( dl ) : dl.execute();
-    if ( !res ) errmsg = dl.uiMessage();
-    return res;
+    const uiRetVal uirv = downloadToBuffer_( url, databuffer, taskr );
+    if ( uirv.isError() )
+	errmsg = uirv.messages().cat();
+
+    return uirv.isOK();
 }
 
 

@@ -47,6 +47,24 @@ namespace Network
 					     uiString& errmsg,
 					     TaskRunner* =nullptr);
 
+    mGlobal(Network) uiRetVal downloadFile_(const char* url,
+					    const char* outpath,
+					    TaskRunner* =nullptr);
+
+    mGlobal(Network) uiRetVal downloadFiles_(BufferStringSet& urls,
+					     const char* outpath,
+					     TaskRunner* =nullptr,
+					     bool canfail =false);
+
+    mGlobal(Network) uiRetVal downloadFiles_(BufferStringSet& urls,
+					     BufferStringSet& outpaths,
+					     TaskRunner* =nullptr,
+					     bool canfail =false);
+
+    mGlobal(Network) uiRetVal downloadToBuffer_(const char* url,
+						DataBuffer&,
+						TaskRunner* =nullptr);
+
     mGlobal(Network) bool   uploadFile(const char* url,const char* localfname,
 				       const char* remotefname,
 				       const char* ftype,const IOPar& postvars,

@@ -70,22 +70,30 @@ void ODDLSite::setTimeOut( float t, bool sett )
 
 
 bool ODDLSite::getFile( const char* relfnm, const char* outfnm,
-			    TaskRunner* taskrunner,
-			    const char* nicename )
+			TaskRunner* taskrunner, const char* nicename )
 {
     deleteAndNullPtr( databuf_ );
 
     if ( islocal_ )
 	return getLocalFile( relfnm, outfnm );
 
+    uiRetVal uirv;
     if ( !outfnm )
     {
 	databuf_ = new DataBuffer( 0, 1, true );
-	return Network::downloadToBuffer(fullURL(relfnm),*databuf_,errmsg_,
-					 taskrunner);
+	uirv = Network::downloadToBuffer_( fullURL(relfnm),*databuf_,
+					      taskrunner );
+	if( uirv.isError() )
+	    errmsg_ = uirv.messages().cat();
+
+	return uirv.isOK();
     }
 
-    return Network::downloadFile( fullURL(relfnm), outfnm, errmsg_,taskrunner);
+    uirv = Network::downloadFile_( fullURL(relfnm), outfnm, taskrunner );
+    if ( uirv.isError() )
+	errmsg_ = uirv.messages().cat();
+
+    return uirv.isOK();
 }
 
 
@@ -124,13 +132,26 @@ DataBuffer* ODDLSite::obtainResultBuf()
 bool ODDLSite::getFiles( const BufferStringSet& fnms, const char* outputdir,
 			 TaskRunner& taskrunner )
 {
+    return fetchFiles( fnms, outputdir, taskrunner );
+}
+
+
+bool ODDLSite::fetchFiles( const BufferStringSet& fnms, const char* outputdir,
+			   TaskRunner& taskrunner, bool canfail )
+{
     errmsg_.setEmpty();
     BufferStringSet fullurls;
     for ( int idx=0; idx<fnms.size(); idx++ )
 	fullurls.add( fullURL(fnms.get(idx)) );
 
-    return Network::downloadFiles( fullurls, outputdir, errmsg_, &taskrunner );
+    const uiRetVal uirv = Network::downloadFiles_( fullurls, outputdir,
+						    &taskrunner, canfail );
+    if( uirv.isError() )
+	errmsg_ = uirv.messages().cat();
+
+    return uirv.isOK();
 }
+
 
 
 od_int64 ODDLSite::getFileSize( const char* relfilenm )

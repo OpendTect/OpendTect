@@ -60,6 +60,9 @@ public:
 
     bool		getFiles(const BufferStringSet& fnms,
 				  const char* outputdir,TaskRunner&);
+    bool		fetchFiles(const BufferStringSet& fnms,
+				   const char* outputdir,TaskRunner&,
+				   bool canfail=false);
     od_int64		getFileSize(const char* relfilenm);
     bool		haveErrMsg() const
 			{ return !errmsg_.isEmpty(); }
