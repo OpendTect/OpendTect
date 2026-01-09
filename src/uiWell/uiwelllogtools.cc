@@ -518,8 +518,8 @@ void uiWellLogToolWin::applyPushedCB( CallBacker* )
 		    mAddErrMsg(tr("Could not apply the FFT Filter at well %1").
 								    arg(wllnm))
 
-		PointBasedMathFunction filtvals(PointBasedMathFunction::Linear,
-						PointBasedMathFunction::EndVal);
+		PointBasedMathFunction filtvals( OD::InterpolationType::Linear,
+					OD::ExtrapolationType::EndValue );
 		for ( int idz=0; idz<size; idz++ )
 		{
 		    const float val = logvals.get( idz );

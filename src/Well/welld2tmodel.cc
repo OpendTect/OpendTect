@@ -118,7 +118,7 @@ float Well::D2TModel::getDepth( float twt, const Track& track ) const
 
     const double curvel = getVelocityForTwt( twt, track );
     const double depth = depths.start_ +
-                         ( ( mCast(double,twt) - mCast(double,times.start_) ) * curvel ) / 2.f;
+	(( mCast(double,twt) - mCast(double,times.start_) ) * curvel) / 2.f;
 
     return mCast( float, depth );
 }
@@ -578,8 +578,8 @@ static double getDatumTwtFromFile( const TypeSet<double>& zvals,
 	return mUdf(double);
 
     BendPointBasedMathFunction<double,double> tdcurve(
-	  BendPointBasedMathFunction<double,double>::Linear,
-	  BendPointBasedMathFunction<double,double>::None );
+					  OD::InterpolationType::Linear,
+					  OD::ExtrapolationType::None );
 
     for ( int idz=0; idz<zvals.size(); idz++ )
 	tdcurve.add( zvals[idz], tvals[idz], false );

@@ -49,18 +49,17 @@ public:
     const char*			getGridderName() const;
     float			getSearchRadius() const;
     const InterpolationLayerModel* getLayerModel() const;
-    Well::ExtractParams getWellExtractParams() { return params_; }
+    Well::ExtractParams		getWellExtractParams() { return params_; }
+
+    void			setLogExtrapolateType(OD::ExtrapolationType);
+    OD::ExtrapolationType	logExtrapolateType() const;
 
     void			setGridder(const char* nm,float radius=0);
     void			setWellData(const TypeSet<MultiID>&,
 					    const char* lognm);
-    void			setWellExtractParams(Well::ExtractParams params)
-				{ params_ = params;}
+    void			setWellExtractParams(
+						const Well::ExtractParams&);
     void			setLayerModel(InterpolationLayerModel*);
-
-    void			fillPar(IOPar&) const override;
-    bool			usePar(const IOPar&) override;
-    uiString			errMsg() const override { return errmsg_; }
 
     bool			canInputAndOutputBeSame() const override
 				{ return true; }
@@ -68,10 +67,9 @@ public:
     bool			needsFullVolume() const override{ return false;}
     bool			needsInput() const override	{ return false;}
 
-    /* mDeprecated (this function will be protected virtual after 6.2) */
-    od_int64			extraMemoryUsage(OutputSlotID,
-				    const TrcKeySampling&,
-				    const StepInterval<int>&) const override;
+    void			fillPar(IOPar&) const override;
+    bool			usePar(const IOPar&) override;
+    uiString			errMsg() const override { return errmsg_; }
 
 protected:
 
@@ -81,19 +79,28 @@ protected:
     bool			prepareComp(int) override;
     bool			computeBinID(const BinID&,int) override;
 
-    InterpolationLayerModel*	layermodel_			= nullptr;
-    Gridder2D*			gridder_			= nullptr;
+    InterpolationLayerModel*	layermodel_		= nullptr;
+    Gridder2D*			gridder_		= nullptr;
     InverseDistanceGridder2D*	invdistgridder_;
-    PolyTrend::Order		trendorder_;
+    PolyTrend::Order		trendorder_		= PolyTrend::None;
     ObjectSet<WellLogInfo>	infos_;
     TypeSet<MultiID>		wellmids_;
     BufferString		logname_;
-    bool			doinverse_			= false;
-    int				workareastepout_		= mUdf(int);
+    bool			doinverse_		= false;
+    int				workareastepout_	= mUdf(int);
 
     StepInterval<int>		outputinlrg_;
     StepInterval<int>		outputcrlrg_;
     Well::ExtractParams		params_;
+    OD::ExtrapolationType	logextrapoltype_
+					= OD::ExtrapolationType::EndValue;
+
+public:
+    /* mDeprecated (this function will be protected virtual after 6.2) */
+    od_int64			extraMemoryUsage(OutputSlotID,
+				    const TrcKeySampling&,
+				    const StepInterval<int>&) const override;
+
 };
 
 } // namespace VolProc

@@ -47,8 +47,7 @@ protected:
     uiInterpolationLayerModel*	layermodelfld_;
     uiGenInput*			algosel_;
     uiGenInput*			radiusfld_;
-    uiGenInput*			extensfld_;	//Will be removed after 6.2
-    uiGenInput*			logextenfld_;	//Will be removed after 6.2
+    uiGenInput*			logextenfld_;
     uiMultiWellLogSel*		welllogsel_;
 };
 

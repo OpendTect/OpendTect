@@ -347,10 +347,10 @@ bool Wavelet::reSample( float newsr )
 	return false;
 
     // Interpolate Frequency Wavelet
-    PointBasedMathFunction spectrumreal( PointBasedMathFunction::Poly,
-					 PointBasedMathFunction::None );
-    PointBasedMathFunction spectrumimag( PointBasedMathFunction::Poly,
-					 PointBasedMathFunction::None );
+    PointBasedMathFunction spectrumreal( OD::InterpolationType::Polynomial,
+					 OD::ExtrapolationType::None );
+    PointBasedMathFunction spectrumimag( OD::InterpolationType::Polynomial,
+					 OD::ExtrapolationType::None );
     for ( int idx=0; idx<inp.sz_; idx++ )
     {
 	float freq = idx * inp.freqstep_;

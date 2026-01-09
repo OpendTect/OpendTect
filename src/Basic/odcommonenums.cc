@@ -46,6 +46,25 @@ void EnumDefImpl<OD::SliceType>::init()
 }
 
 
+mDefineNameSpaceEnumUtils(OD,ExtrapolationType,"Extrapolation Type")
+{
+    "None",
+    "EndValue",
+    "Gradient",
+    nullptr
+};
+
+
+mDefineNameSpaceEnumUtils(OD,InterpolationType,"Interpolation Type")
+{
+    "None",
+    "Nearest",
+    "Linear",
+    "Polynomial",
+    nullptr
+};
+
+
 mDefineNameSpaceEnumUtils(OD,WellType,"Well Type")
 {
     "Unknown",

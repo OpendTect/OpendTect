@@ -2311,11 +2311,11 @@ bool doWork( od_int64 start, od_int64 stop, int /* threadid */ ) override
 	    if ( !rawtrc )
 		continue;
 
-	    const PointBasedMathFunction::InterpolType intertyp =
-				propisclass ? PointBasedMathFunction::Snap
-					    : PointBasedMathFunction::Linear;
+	    const OD::InterpolationType intertyp =
+				propisclass ? OD::InterpolationType::Nearest
+					    : OD::InterpolationType::Linear;
 	    PointBasedMathFunction propvals( intertyp,
-					     PointBasedMathFunction::EndVal );
+					     OD::ExtrapolationType::EndValue );
 
 	    for ( int idz=0; idz<sz; idz++ )
 	    {

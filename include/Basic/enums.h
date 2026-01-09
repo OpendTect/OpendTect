@@ -140,9 +140,9 @@ public:
   #include <myclass.h>
 
   mDefineEnumUtils(MyClass,State,"My class state")
-	  { "Good", "Bad", "Not very handsome", 0 };
+	  { "Good", "Bad", "Not very handsome", nullptr };
   mDefineEnumUtils(MyClass,Type,"My class type")
-          { "Yes", "No", "Not sure", 0 };
+	  { "Yes", "No", "Not sure", nullptr };
   \endcode
 
   Note the '1' in the first one telling the EnumDef that only one character

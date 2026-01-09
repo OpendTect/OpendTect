@@ -772,8 +772,8 @@ bool SynthGenerator::doNMOStretch( const ValueSeries<float>& input,
     float mutelevel = trcsampling.start_;
     float firsttime = mUdf(float);
 
-    PointBasedMathFunction stretchfunc( PointBasedMathFunction::Linear,
-				      PointBasedMathFunction::ExtraPolGradient);
+    PointBasedMathFunction stretchfunc( OD::InterpolationType::Linear,
+					OD::ExtrapolationType::Gradient );
 
     for ( int idx=0; idx<refmodel_->size(); idx++ )
     {

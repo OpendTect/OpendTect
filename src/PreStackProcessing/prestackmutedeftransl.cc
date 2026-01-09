@@ -177,7 +177,7 @@ uiString dgbMuteDefTranslator::read( PreStack::MuteDef& md, Conn& conn )
 	BinID bid;
 	bool extrapol = true;
 	bool rejectpt = false;
-	PointBasedMathFunction::InterpolType it =PointBasedMathFunction::Linear;
+	OD::InterpolationType it = OD::InterpolationType::Linear;
 
 	if ( astrm.hasKeyword(sKey::Position()) )
 	{
@@ -193,17 +193,17 @@ uiString dgbMuteDefTranslator::read( PreStack::MuteDef& md, Conn& conn )
 	    const char* val = astrm.value();
 	    if ( *val )
 	    {
-		it = (*val == 'S' ? PointBasedMathFunction::Snap
-		   : (*val == 'P' ? PointBasedMathFunction::Poly
-				  : PointBasedMathFunction::Linear));
+		it = (*val == 'S' ? OD::InterpolationType::Nearest
+		   : (*val == 'P' ? OD::InterpolationType::Polynomial
+				  : OD::InterpolationType::Linear));
 		extrapol = *(val+1) != 'N';
 	    }
 	    astrm.next();
 	}
 
-	const PointBasedMathFunction::ExtrapolType et = extrapol
-	    ? PointBasedMathFunction::EndVal
-	    : PointBasedMathFunction::None;
+	const OD::ExtrapolationType et = extrapol
+				? OD::ExtrapolationType::EndValue
+				: OD::ExtrapolationType::None;
 	auto* fn = new PointBasedMathFunction( it, et );
 	while ( !atEndOfSection(astrm) )
 	{
@@ -303,8 +303,8 @@ uiString dgbMuteDefTranslator::write( const PreStack::MuteDef& md,Conn& conn)
 	astrm.put( sKey::Position(), md.getPos(imd).toString() );
 	const PointBasedMathFunction& pbmf = md.getFn( imd );
 	char buf[3];
-	buf[0] =  pbmf.interpolType() == PointBasedMathFunction::Snap
-	 ? 'S' : (pbmf.interpolType() == PointBasedMathFunction::Poly
+	buf[0] =  pbmf.interpolType() == OD::InterpolationType::Nearest
+	 ? 'S' : (pbmf.interpolType() == OD::InterpolationType::Polynomial
 	 ? 'P' : 'L');
 	buf[1] = pbmf.extrapolate() ? 'Y' : 'N';
 	buf[2] = '\0';

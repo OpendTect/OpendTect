@@ -151,10 +151,10 @@ bool DecompInput::doDecompMethod( int nrsamples, float refstep,
     float stdev;
     float epsilon = setup_.noisepercentage_ / mCast(float,100.0);
 
-    PointBasedMathFunction maxima( PointBasedMathFunction::Poly,
-				   PointBasedMathFunction::ExtraPolGradient );
-    PointBasedMathFunction minima( PointBasedMathFunction::Poly,
-				   PointBasedMathFunction::ExtraPolGradient );
+    PointBasedMathFunction maxima( OD::InterpolationType::Polynomial,
+				   OD::ExtrapolationType::Gradient );
+    PointBasedMathFunction minima( OD::InterpolationType::Polynomial,
+				   OD::ExtrapolationType::Gradient );
 
     // remove average from input data and store in orgminusaverage
     computeStats( average, stdev );
@@ -330,10 +330,10 @@ bool DecompInput::doDecompMethod( int nrsamples, float refstep,
 bool DecompInput::decompositionLoop( ObjectSet<IMFComponent>& components,
 				     int maxnrimf, float stdevinput ) const
 {
-    PointBasedMathFunction maxima( PointBasedMathFunction::Poly,
-				   PointBasedMathFunction::ExtraPolGradient );
-    PointBasedMathFunction minima( PointBasedMathFunction::Poly,
-				   PointBasedMathFunction::ExtraPolGradient );
+    PointBasedMathFunction maxima( OD::InterpolationType::Polynomial,
+				   OD::ExtrapolationType::Gradient );
+    PointBasedMathFunction minima( OD::InterpolationType::Polynomial,
+				   OD::ExtrapolationType::Gradient );
 
     int nrimf=0, nriter=0;
     bool isresidual = false;
@@ -423,10 +423,10 @@ void DecompInput::stackCeemdComponents(
 	    const ObjectSet<ObjectSet<IMFComponent> >& currentrealizations,
 	    ObjectSet<IMFComponent>& currentstackedcomponents, int nrimf ) const
 {
-    PointBasedMathFunction minima( PointBasedMathFunction::Poly,
-				   PointBasedMathFunction::ExtraPolGradient );
-    PointBasedMathFunction maxima( PointBasedMathFunction::Poly,
-				   PointBasedMathFunction::ExtraPolGradient );
+    PointBasedMathFunction maxima( OD::InterpolationType::Polynomial,
+				   OD::ExtrapolationType::Gradient );
+    PointBasedMathFunction minima( OD::InterpolationType::Polynomial,
+				   OD::ExtrapolationType::Gradient );
 
     DecompInput imf( setup_, size_, gen_ );
     int stackcount = setup_.maxnoiseloop_;
@@ -481,10 +481,10 @@ void DecompInput::stackEemdComponents(
 		    const ObjectSet<ObjectSet<IMFComponent> >& realizations,
 		    ObjectSet<IMFComponent>& stackedcomponents ) const
 {
-    PointBasedMathFunction minima( PointBasedMathFunction::Poly,
-				   PointBasedMathFunction::ExtraPolGradient );
-    PointBasedMathFunction maxima( PointBasedMathFunction::Poly,
-				   PointBasedMathFunction::ExtraPolGradient );
+    PointBasedMathFunction maxima( OD::InterpolationType::Polynomial,
+				   OD::ExtrapolationType::Gradient );
+    PointBasedMathFunction minima( OD::InterpolationType::Polynomial,
+				   OD::ExtrapolationType::Gradient );
 
     DecompInput imf( setup_, size_, gen_ );
     int stackcount = setup_.maxnoiseloop_;
@@ -1114,8 +1114,8 @@ bool DecompInput::usePolynomial(
     float* unsortedamplitudes = new float[fsize+2];
     float* unsortedfrequencies = new float[fsize+2];
     PointBasedMathFunction sortedampspectrum(
-				PointBasedMathFunction::Linear,
-				PointBasedMathFunction::ExtraPolGradient );
+				OD::InterpolationType::Linear,
+				OD::ExtrapolationType::Gradient );
     const int convfac = SI().zIsTime() ? 1 : 1000;
 
     const float stepout = stepoutfreq*convfac;

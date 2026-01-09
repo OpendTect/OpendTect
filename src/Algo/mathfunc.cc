@@ -8,6 +8,7 @@ ________________________________________________________________________
 -*/
 
 #include "mathfunc.h"
+
 #include "linear.h"
 #include "valseriesinterpol.h"
 

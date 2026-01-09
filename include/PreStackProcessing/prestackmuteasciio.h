@@ -36,12 +36,12 @@ public:
    float			getUdfVal() const;
    bool				isXY() const;
    bool				getMuteDef(MuteDef&,bool extrapol=true,
-					   PointBasedMathFunction::InterpolType=
-						PointBasedMathFunction::Linear);
+					   OD::InterpolationType=
+						OD::InterpolationType::Linear);
    bool				getMuteDef(MuteDef&,const BinID&,
 					   bool extrapol=true,
-					   PointBasedMathFunction::InterpolType=
-						PointBasedMathFunction::Linear);
+					   OD::InterpolationType=
+						OD::InterpolationType::Linear);
 
 protected:
 

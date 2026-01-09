@@ -9,12 +9,13 @@ ________________________________________________________________________
 -*/
 
 #include "algomod.h"
+
 #include "interpol1d.h"
-#include "ptrman.h"
-#include "samplingdata.h"
-#include "varlenarray.h"
-#include "typeset.h"
 #include "math2.h"
+#include "odcommonenums.h"
+#include "samplingdata.h"
+#include "typeset.h"
+#include "varlenarray.h"
 
 #include <math.h>
 
@@ -145,14 +146,11 @@ template <class xT,class yT>
 mClass(Algo) BendPointBasedMathFunction : public MathFunction<yT,xT>
 {
 public:
-
-    enum InterpolType	{ Linear, Poly, Snap };
-    enum ExtrapolType   { None, EndVal, ExtraPolGradient };
-
-			BendPointBasedMathFunction( InterpolType t=Linear,
-						    ExtrapolType extr=EndVal )
-			    : itype_(t)
-			    , extrapol_(extr)	{}
+		BendPointBasedMathFunction(
+			OD::InterpolationType i=OD::InterpolationType::Linear,
+			OD::ExtrapolationType e=OD::ExtrapolationType::EndValue)
+			    : itype_(i)
+			    , extrapol_(e)	{}
 
     void		setEmpty()		{ x_.setSize(0); y_.setSize(0);}
     int			size() const		{ return x_.size(); }
@@ -160,23 +158,27 @@ public:
     void		add(xT x,yT y,bool checkforduplicates=true);
     void		remove(int idx);
     yT			getValue( xT x ) const override
-			{ return itype_ == Snap ? snapVal(x) : interpVal(x); }
+			{ return itype_ == OD::InterpolationType::Nearest
+					? snapVal(x) : interpVal(x); }
 
-    const TypeSet<xT>& xVals() const		{ return x_; }
-    const TypeSet<yT>& yVals() const		{ return y_; }
+    const TypeSet<xT>&	xVals() const		{ return x_; }
+    const TypeSet<yT>&	yVals() const		{ return y_; }
 
-    InterpolType	interpolType() const	{ return itype_; }
-    ExtrapolType	extrapolateType() const { return extrapol_; }
-    bool		extrapolate() const	{ return extrapol_ != None; }
-    void		setInterpolType( InterpolType t ) { itype_ = t; }
-    void		setExtrapolateType( ExtrapolType t ) { extrapol_ = t; }
+    OD::InterpolationType	interpolType() const	{ return itype_; }
+    OD::ExtrapolationType	extrapolateType() const { return extrapol_; }
+    bool		extrapolate() const
+			{ return extrapol_ != OD::ExtrapolationType::None; }
+    void		setInterpolType( OD::InterpolationType t )
+			{ itype_ = t; }
+    void		setExtrapolateType( OD::ExtrapolationType t )
+			{ extrapol_ = t; }
     yT			getNDValue( const xT* p ) const	override
 			{ return getValue(*p); }
 
 protected:
 
-    InterpolType	itype_;
-    ExtrapolType	extrapol_;
+    OD::InterpolationType itype_;
+    OD::ExtrapolationType extrapol_;
     TypeSet<xT>		x_;
     TypeSet<yT>		y_;
 
@@ -453,12 +455,12 @@ void BendPointBasedMathFunction<mXT,mYT>::remove( int idx )
 template <class mXT, class mYT> inline
 mYT BendPointBasedMathFunction<mXT,mYT>::outsideVal( mXT x ) const
 {
-    if ( extrapol_ == None )
+    if ( extrapol_ == OD::ExtrapolationType::None )
 	return mUdf(mYT);
 
     const int sz = x_.size();
 
-    if ( extrapol_==EndVal || sz<2 )
+    if ( extrapol_==OD::ExtrapolationType::EndValue || sz<2 )
 	return x-x_[0] < x_[sz-1]-x ? y_[0] : y_[sz-1];
 
     if ( x < x_[0] )
@@ -522,7 +524,7 @@ mYT BendPointBasedMathFunction<mXT,mYT>::interpVal( mXT x ) const
     // - are not undef
     // - don't coincide
 
-    if ( itype_ == Linear )
+    if ( itype_ == OD::InterpolationType::Linear )
 	return (mYT)(v1 * relx + v0 * (1-relx));
 
     const int im1 = i0 > 0 ? i0 - 1 : i0;

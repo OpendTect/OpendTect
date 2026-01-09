@@ -73,7 +73,7 @@ bool MuteAscIO::isXY() const
 
 
 bool MuteAscIO::getMuteDef( MuteDef& mutedef, bool extrapol,
-			   PointBasedMathFunction::InterpolType iptype )
+			   OD::InterpolationType iptype )
 {
     while ( true )
     {
@@ -83,9 +83,9 @@ bool MuteAscIO::getMuteDef( MuteDef& mutedef, bool extrapol,
 
 	BinID binid( getBinID(0,1) );
 
-	const PointBasedMathFunction::ExtrapolType et = extrapol
-	    ? PointBasedMathFunction::EndVal
-	    : PointBasedMathFunction::None;
+	const OD::ExtrapolationType et = extrapol
+		? OD::ExtrapolationType::EndValue
+		: OD::ExtrapolationType::None;
 
 
 	if ( mutedef.indexOf(binid) < 0 )
@@ -99,13 +99,13 @@ bool MuteAscIO::getMuteDef( MuteDef& mutedef, bool extrapol,
 
 
 bool MuteAscIO::getMuteDef( MuteDef& mutedef, const BinID& binid, bool extrapol,
-			    PointBasedMathFunction::InterpolType iptype )
+			    OD::InterpolationType iptype )
 {
     if ( mutedef.indexOf(binid) < 0 )
     {
-	const PointBasedMathFunction::ExtrapolType et = extrapol
-	    ? PointBasedMathFunction::EndVal
-	    : PointBasedMathFunction::None;
+	const OD::ExtrapolationType et = extrapol
+	    ? OD::ExtrapolationType::EndValue
+	    : OD::ExtrapolationType::None;
 
 	mutedef.add( new PointBasedMathFunction(iptype,et), binid );
     }

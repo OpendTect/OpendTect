@@ -33,22 +33,30 @@ static const char* sKeyWellLogID()	{ return "WellLog ID"; }
 static const char* sKeyLogName()	{ return "Log name"; }
 static const char* sKeyAlgoName()	{ return "Algorithm"; }
 static const char* sKeyLayerModel()	{ return "Layer Model"; }
-
+static const char* sKeyLogExtension()	{ return "Extend logs"; }
+static const char* sKeyExtrapolationType()	{ return "Log extrapolation"; }
 
 class WellLogInfo
 {
 public:
-WellLogInfo( const MultiID& mid, const char* lognm, Well::ExtractParams params )
+WellLogInfo( const MultiID& mid, const char* lognm,
+	     const Well::ExtractParams& params,
+	     OD::ExtrapolationType extrapoltype )
     : mid_(mid)
     , logname_(lognm)
     , params_(params)
-{}
+{
+    logfunc_.setExtrapolateType( extrapoltype );
+    mdfunc_.setExtrapolateType( extrapoltype );
+}
+
 
 ~WellLogInfo()
 {
     delete track_;
     delete log_;
 }
+
 
 bool init( InterpolationLayerModel& layermodel )
 {
@@ -241,7 +249,6 @@ bool createInterpolationFunctions( const InterpolationLayerModel& layermodel )
 
 WellLogInterpolator::WellLogInterpolator()
     : invdistgridder_(new InverseDistanceGridder2D())
-    , trendorder_(PolyTrend::None)
 {}
 
 
@@ -303,6 +310,18 @@ void WellLogInterpolator::setGridder( const char* nm, float radius )
 }
 
 
+void WellLogInterpolator::setLogExtrapolateType( OD::ExtrapolationType type )
+{
+    logextrapoltype_ = type;
+}
+
+
+OD::ExtrapolationType WellLogInterpolator::logExtrapolateType() const
+{
+    return logextrapoltype_;
+}
+
+
 const char* WellLogInterpolator::getGridderName() const
 {
     mDynamicCastGet( InverseDistanceGridder2D*, invgrid, gridder_ );
@@ -359,6 +378,13 @@ void WellLogInterpolator::getWellIDs( TypeSet<MultiID>& ids ) const
 { ids = wellmids_; }
 
 
+void WellLogInterpolator::setWellExtractParams(
+					const Well::ExtractParams& params )
+{
+    params_ = params;
+}
+
+
 bool WellLogInterpolator::prepareComp( int )
 {
     RegularSeisDataPack* output = getOutput( getOutputSlotID(0) );
@@ -380,8 +406,8 @@ bool WellLogInterpolator::prepareComp( int )
     uiStringSet errmsgs;
     for ( int idx=0; idx<wellmids_.size(); idx++ )
     {
-	WellLogInfo* info = new WellLogInfo( wellmids_[idx], logname_,
-								    params_ );
+	auto* info = new WellLogInfo( wellmids_[idx], logname_,
+				      params_, logextrapoltype_ );
 	if ( !info->init(*layermodel_) )
 	{
 	    RefMan<Well::Data> wd = Well::MGR().get( wellmids_[idx],
@@ -584,6 +610,8 @@ void WellLogInterpolator::fillPar( IOPar& pars ) const
 
     pars.set( sKeyLogName(), logname_ );
     pars.set( sKeyNrWells(), wellmids_.size() );
+    pars.set( sKeyExtrapolationType(), OD::toString(logextrapoltype_) );
+
     for ( int idx=0; idx<wellmids_.size(); idx++ )
     {
 	const BufferString key = IOPar::compKey( sKeyWellLogID(), idx );
@@ -612,6 +640,19 @@ bool WellLogInterpolator::usePar( const IOPar& pars )
 	params_.samppol_ = samppol;
 
     pars.get( sKeyLogName(), logname_ );
+
+    bool doextrapol = true;
+    if ( pars.getYN(sKeyLogExtension(),doextrapol) )
+    {
+	logextrapoltype_ = doextrapol ? OD::ExtrapolationType::EndValue
+				      : OD::ExtrapolationType::None;
+    }
+    else
+    {
+	BufferString typestr;
+	pars.get( sKeyExtrapolationType(), typestr );
+	logextrapoltype_ = OD::parseEnumExtrapolationType( typestr );
+    }
 
     workareastepout_ = mUdf(int);
     pars.get( "Stepout", workareastepout_ );

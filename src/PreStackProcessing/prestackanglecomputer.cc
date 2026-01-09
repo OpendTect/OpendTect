@@ -186,8 +186,8 @@ void AngleComputer::fftDepthSmooth( ::FFTFilter& filter,
 	    continue;
 	}
 
-	PointBasedMathFunction sinanglevals( PointBasedMathFunction::Poly,
-				     PointBasedMathFunction::ExtraPolGradient );
+	PointBasedMathFunction sinanglevals( OD::InterpolationType::Polynomial,
+				     OD::ExtrapolationType::Gradient );
 
 	float layertwt = 0, prevlayertwt = mUdf(float);
 	for ( int zidx=0; zidx<zsize; zidx++ )
@@ -218,8 +218,9 @@ void AngleComputer::fftDepthSmooth( ::FFTFilter& filter,
 	}
 
 	filter.apply( angles );
-	PointBasedMathFunction sinanglevalsindepth(PointBasedMathFunction::Poly,
-				    PointBasedMathFunction::ExtraPolGradient );
+	PointBasedMathFunction sinanglevalsindepth(
+			OD::InterpolationType::Polynomial,
+			OD::ExtrapolationType::Gradient );
 
 	float layerdepth = 0, prevlayerdepth = mUdf(float);
 	for ( int zidx=0; zidx<zsizeintime; zidx++ )
@@ -361,11 +362,11 @@ bool AngleComputer::fillandInterpArray( Array2D<float>& angledata )
 	const float offset = offsets[ofsidx];
 	const bool zerooffset = mIsZero(offset,1e-1f);
 	PointBasedMathFunction sinanglevals(
-				    PointBasedMathFunction::Poly,
-				    PointBasedMathFunction::ExtraPolGradient ),
+				    OD::InterpolationType::Polynomial,
+				    OD::ExtrapolationType::Gradient ),
 			       anglevals(
-				    PointBasedMathFunction::Linear,
-				    PointBasedMathFunction::ExtraPolGradient );
+				    OD::InterpolationType::Linear,
+				    OD::ExtrapolationType::Gradient );
 
 	sinanglevals.add( 0.f, zerooffset ? 0.f : 1.f );
 	anglevals.add( 0.f, zerooffset ? 0.f : M_PI_2f );

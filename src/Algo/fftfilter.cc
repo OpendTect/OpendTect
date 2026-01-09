@@ -358,7 +358,7 @@ bool FFTFilter::interpUdf( Array1DImpl<float>& outp, bool isimag )
 	isudf.setSize( sz );
     }
 
-    PointBasedMathFunction data( PointBasedMathFunction::Poly );
+    PointBasedMathFunction data( OD::InterpolationType::Polynomial );
     for ( int idx=0; idx<sz; idx++ )
     {
 	const float val = outp[idx];

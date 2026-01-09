@@ -70,6 +70,32 @@ enum class DevType
 };
 
 
+/*!\brief Extrapolation types */
+
+enum class ExtrapolationType
+{
+    None=0,
+    EndValue=1,
+    Gradient=2
+};
+
+mDeclareNameSpaceEnumUtils(Basic,ExtrapolationType)
+
+
+/*!\brief Interpolation types */
+
+enum class InterpolationType
+{
+    None=0,
+    Nearest=1,
+    Linear=2,
+    Polynomial=3,
+};
+
+mDeclareNameSpaceEnumUtils(Basic,InterpolationType)
+
+
+
 /*!\brief How to select files or directories */
 
 enum FileSelectionMode

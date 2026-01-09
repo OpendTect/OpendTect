@@ -388,8 +388,8 @@ PreStack::Gather* uiViewer2DMainWin::getAngleGather(
     for ( int zidx=0; zidx<zsize; zidx++ )
     {
 	vals += new PointBasedMathFunction(
-				    PointBasedMathFunction::Linear,
-				    PointBasedMathFunction::None );
+				    OD::InterpolationType::Linear,
+				    OD::ExtrapolationType::None );
 
 	float prevangleval = mUdf( float );
 	for ( int ofsidx=0; ofsidx<offsetsize; ofsidx++ )
