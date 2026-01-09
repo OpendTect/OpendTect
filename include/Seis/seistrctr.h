@@ -214,6 +214,8 @@ public:
 
     static bool		getRanges(const MultiID&,TrcKeyZSampling&);
     static bool		getRanges(const IOObj&,TrcKeyZSampling&);
+    bool		sampling(const IOObj&,TrcKeyZSampling&);
+			//!< Will be virtual soon
 
     virtual bool	getGeometryInfo(PosInfo::CubeData&) const
 			{
@@ -259,7 +261,9 @@ public:
 				{ return BufferString::empty(); }
 
     void		setComponentNames(const BufferStringSet&);
+			//<! will be virtual soon
     void		getComponentNames(BufferStringSet&) const;
+			//<! will be virtual soon
     virtual Interval<float> getDataRange(int icomp=-1) const;
 
     bool		haveWarnings() const;
@@ -352,6 +356,8 @@ private:
     void		enforceBounds();
     bool		writeBlock();
     bool		copyDataToTrace(SeisTrc&);
+    void		setComponentNames_(const BufferStringSet&);
+    void		getComponentNames_(BufferStringSet&) const;
 
     friend class SeisTrcReader;
 

@@ -615,14 +615,14 @@ SeisTrc* SeisTrcTranslator::getEmpty()
 }
 
 
-void SeisTrcTranslator::setComponentNames( const BufferStringSet& bss )
+void SeisTrcTranslator::setComponentNames_( const BufferStringSet& bss )
 {
     delete compnms_;
     compnms_ = new BufferStringSet( bss );
 }
 
 
-void SeisTrcTranslator::getComponentNames( BufferStringSet& bss ) const
+void SeisTrcTranslator::getComponentNames_( BufferStringSet& bss ) const
 {
     bss.erase();
     if ( cds_.size() == 1 )	//TODO display comp name only if more than 1
@@ -736,29 +736,24 @@ bool SeisTrcTranslator::getRanges( const MultiID& ky, TrcKeyZSampling& cs )
 }
 
 
-bool SeisTrcTranslator::getRanges( const IOObj& ioobj, TrcKeyZSampling& cs )
+bool SeisTrcTranslator::sampling( const IOObj& ioobj, TrcKeyZSampling& cs )
 {
-    PtrMan<Translator> transl = ioobj.createTranslator();
-    mDynamicCastGet(SeisTrcTranslator*,tr,transl.ptr());
-    if ( !tr )
-	return false;
-
     PtrMan<Seis::SelData> sd;
     if ( cs.is2D() )
     {
 	sd = Seis::SelData::get( Seis::Range );
 	sd->setGeomID( cs.hsamp_.getGeomID() );
-	tr->setSelData( sd.ptr() );
+	setSelData( sd.ptr() );
     }
 
     mDynamicCastGet(const IOStream*,iostrmptr,&ioobj)
     if ( !iostrmptr || !iostrmptr->isMultiConn() )
     {
 	Conn* cnn = ioobj.getConn( Conn::Read );
-	if ( !cnn || !tr->initRead(cnn,Seis::PreScan) )
+	if ( !cnn || !initRead(cnn,Seis::PreScan) )
 	    return false;
 
-	const SeisPacketInfo& pinf = tr->packetInfo();
+	const SeisPacketInfo& pinf = packetInfo();
 	cs.hsamp_.set( pinf.inlrg_, pinf.crlrg_ );
 	cs.zsamp_ = pinf.zrg_;
     }
@@ -911,19 +906,54 @@ void SeisTrcTranslator::setCoordSys( const Coords::CoordSystem& crs,
 }
 
 
+using boolFromSeisTrcTrIOObjTkzs =
+		bool(*)(SeisTrcTranslator&,const IOObj&,TrcKeyZSampling&);
 using boolFromSeisTrcTrIOObj = bool(*)(const SeisTrcTranslator&,const IOObj&);
 using boolFromSeisTrcTrIOObjuiStringString =
         bool(*)(const SeisTrcTranslator&,const IOObj&,uiString&,BufferString&);
+static boolFromSeisTrcTrIOObjTkzs vdssamplingfn_ = nullptr;
 static boolFromSeisTrcTrIOObj existvdshdrfn_ = nullptr;
 static boolFromSeisTrcTrIOObjuiStringString getvdshdrfn_ = nullptr;
 
-mGlobal(Seis) void setGlobal_Seis_OpenVDS_Fns(boolFromSeisTrcTrIOObj,
+mGlobal(Seis) void setGlobal_Seis_OpenVDS_Fns(boolFromSeisTrcTrIOObjTkzs,
+					boolFromSeisTrcTrIOObj,
                                         boolFromSeisTrcTrIOObjuiStringString);
-void setGlobal_Seis_OpenVDS_Fns( boolFromSeisTrcTrIOObj exitshdrfn,
+void setGlobal_Seis_OpenVDS_Fns( boolFromSeisTrcTrIOObjTkzs samplingfn,
+				 boolFromSeisTrcTrIOObj exitshdrfn,
                                  boolFromSeisTrcTrIOObjuiStringString gethdrfn )
 {
+    vdssamplingfn_ = samplingfn;
     existvdshdrfn_ = exitshdrfn;
     getvdshdrfn_ = gethdrfn;
+}
+
+
+bool SeisTrcTranslator::getRanges( const IOObj& ioobj, TrcKeyZSampling& cs )
+{
+    PtrMan<Translator> transl = ioobj.createTranslator();
+    mDynamicCastGet(SeisTrcTranslator*,tr,transl.ptr());
+    if ( !tr )
+	return false;
+
+    const OD::String& typnm = tr->typeName();
+    if ( typnm == "VDSDirect" && vdssamplingfn_ )
+    {
+	return (*vdssamplingfn_)( *tr, ioobj, cs );
+    }
+
+    return tr->sampling( ioobj, cs );
+}
+
+
+void SeisTrcTranslator::setComponentNames( const BufferStringSet& bss )
+{
+    setComponentNames_( bss );
+}
+
+
+void SeisTrcTranslator::getComponentNames( BufferStringSet& bss ) const
+{
+    getComponentNames_( bss );
 }
 
 
