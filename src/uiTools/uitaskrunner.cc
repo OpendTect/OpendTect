@@ -23,6 +23,8 @@ ________________________________________________________________________
 
 #include <math.h>
 
+#include "hiddenparam.h"
+
 /*!If there is a main window up, we should always use that window as parent.
    Only if main window does not exist, use the provided parent. */
 
@@ -36,6 +38,7 @@ static uiParent* getTRParent( uiParent* p )
 }
 
 
+static HiddenParam<uiTaskRunner,char> uitrshowetamgr_(0);
 
 uiTaskRunner::uiTaskRunner( uiParent* prnt, bool dispmsgonerr )
     : uiDialog(getTRParent(prnt),Setup(tr("Executing"),mNoHelpKey)
@@ -51,6 +54,7 @@ uiTaskRunner::uiTaskRunner( uiParent* prnt, bool dispmsgonerr )
     , uitaskrunnerthreadlock_(false)
     , dispmsgonerr_( dispmsgonerr )
 {
+    uitrshowetamgr_.setParam( this, 1 );
     progbar_ = new uiProgressBar( this, "ProgressBar", 0, 0 );
     progbar_->setPrefWidthInChar( 50 );
 
@@ -77,6 +81,7 @@ uiTaskRunner::~uiTaskRunner()
     }
 
     delete &tim_;
+    uitrshowetamgr_.removeParam( this );
 }
 
 
@@ -161,6 +166,7 @@ void uiTaskRunner::updateFields()
 	sb.message( message, 0 );
 	prevmessage_ = message;
     }
+
     if ( prevnrdonetext_.getString() != nrdonetext.getString() )
     {
 	sb.message( nrdonetext, 1 );
@@ -201,7 +207,7 @@ void uiTaskRunner::updateFields()
 	    prevpercentage_ = percentage;
 	}
 
-	if ( curnrdone > 0 )
+	if ( doShowETA() && curnrdone > 0 )
 	{
 	    const od_int64 tdiff = newtime - prevtime_;
 	    const float curtodo = sCast(float,totalnr-nrdone);
@@ -307,4 +313,16 @@ bool uiTaskRunner::rejectOK( CallBacker* )
     state_ = (int)Task::Stop;
     execres_ = false;
     return true;
+}
+
+
+void uiTaskRunner::showETA( bool yn )
+{
+    uitrshowetamgr_.setParam( this, yn ? 1 : 0 );
+}
+
+
+bool uiTaskRunner::doShowETA() const
+{
+    return uitrshowetamgr_.getParam( this ) == 1;
 }

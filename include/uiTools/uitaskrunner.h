@@ -32,6 +32,7 @@ public:
     uiRetVal		errorWithDetails() const	{ return errdetails_; }
     int			getState() const	{ return state_; }
     void		displayMsgOnError(bool yn)	{ dispmsgonerr_ = yn; }
+    void		showETA(bool yn);
 
 protected:
 
@@ -69,5 +70,8 @@ protected:
     bool		rejectOK(CallBacker*) override;
 
     void		init();
+
+private:
+    bool		doShowETA() const;
 
 };
