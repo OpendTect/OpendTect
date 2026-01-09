@@ -44,6 +44,8 @@ ________________________________________________________________________
 #include "uitabstack.h"
 #include "od_helpids.h"
 
+#include "hiddenparam.h"
+
 extern "C" const char* GetBaseDataDir();
 
 uiString uiSurveyInfoEditor::getSRDString( bool infeet )
@@ -473,6 +475,7 @@ void uiSurveyInfoEditor::setValues()
     y0fld_->setNrDecimals( nrx0y0dec );
     yinlfld_->setValue( si_.b2c_.getTransform(false).b );
     ycrlfld_->setValue( si_.b2c_.getTransform(false).c );
+    xyunitlbl_->setText( getCoordString(xyInFeet()) );
 
     Coord c[3]; BinID b[2]; int xline;
     si_.get3Pts( c, b, xline );
@@ -515,6 +518,7 @@ void uiSurveyInfoEditor::setValues()
     const UnitOfMeasure* displayuom =
 	zistime ? (depthdispfld_->getBoolValue() ? meteruom : feetuom)
 		: datauom;
+    refdatumfld_->setTitleText( getSRDString(zinfeet) );
     refdatumfld_->setValue( getConvertedValue( srd, datauom, displayuom ) );
 }
 
@@ -1129,26 +1133,30 @@ void uiSurveyInfoEditor::sipCB( CallBacker* )
 	zistime = tdinfo == uiSurvInfoProvider::Time;
 
     bool zinfeet = !depthdispfld_->getBoolValue();
-    if ( zistime )
+    if ( tdinfo != uiSurvInfoProvider::Unknown )
+	zinfeet = tdinfo == uiSurvInfoProvider::DepthFeet;
+    else if ( zistime )
     {
 	if ( xyinfeet )
 	    zinfeet = true;
     }
-    else if ( tdinfo != uiSurvInfoProvider::Unknown )
-	zinfeet = tdinfo == uiSurvInfoProvider::DepthFeet;
 
-    si_.setDepthInFeet( zinfeet );
-    si_.setZUnit( zistime, zinfeet );
     si_.setXYInFeet( xyinfeet );
-    xyunitlbl_->setText( getCoordString(xyInFeet()) );
+    si_.setZUnit( zistime, zinfeet );
 
     float srd = 0.f;
-    if ( sip->getSRD(srd) && !mIsUdf(srd) )
+    if ( sip->getSRD_(srd) && !mIsUdf(srd) )
     {
 	if ( !zistime && zinfeet )
 	    srd *= mToFeetFactorF;
 	si_.setSeismicReferenceDatum( srd );
     }
+
+    bool depthsinft = zinfeet;
+    if ( sip->getDepthsInFeet(depthsinft) )
+	si_.setDepthInFeet( depthsinft );
+    else
+	si_.setDepthInFeet( zinfeet );
 
     const bool havez = !mIsUdf(cs.zsamp_.start_);
     if ( !havez )
@@ -1167,7 +1175,6 @@ void uiSurveyInfoEditor::sipCB( CallBacker* )
 
     lastsip_ = sip;
     impiop_ = lastsip_->getImportPars();
-    updZUnit( nullptr );
 }
 
 
@@ -1320,26 +1327,37 @@ void uiSurvInfoProvider::fillLogPars( IOPar& par ) const
 
 
 // uiCopySurveySIP
+
+static HiddenParam<uiCopySurveySIP,float> uicopysurvsrdhpmgr_(0.f);
+static HiddenParam<uiCopySurveySIP,char> uicopysurvdepthsinfthpmgr_(0.f);
+
 uiCopySurveySIP::uiCopySurveySIP()
 {
+    uicopysurvsrdhpmgr_.setParam( this, mUdf(float) );
+    uicopysurvdepthsinfthpmgr_.setParam( this, 0 );
 }
 
 
 uiCopySurveySIP::~uiCopySurveySIP()
-{}
+{
+    uicopysurvsrdhpmgr_.removeParam( this );
+    uicopysurvdepthsinfthpmgr_.removeParam( this );
+}
 
 
 void uiCopySurveySIP::reset()
 {
-    deleteAndNullPtr(crspars_);
+    deleteAndNullPtr( crspars_ );
+    uicopysurvsrdhpmgr_.setParam( this, mUdf(float) );
+    uicopysurvdepthsinfthpmgr_.setParam( this, 0 );
 }
 
 
 uiDialog* uiCopySurveySIP::dialog( uiParent* p )
 {
     survlist_.erase();
-    uiSurveySelectDlg* dlg = new uiSurveySelectDlg( p, GetSurveyName(),
-	GetBaseDataDir(), true, true );
+    auto* dlg = new uiSurveySelectDlg( p, GetSurveyName(),
+				       GetBaseDataDir(), true, true );
     dlg->setHelpKey( mODHelpKey(mCopySurveySIPHelpID) );
     return dlg;
 }
@@ -1368,13 +1386,30 @@ bool uiCopySurveySIP::getInfo(uiDialog* dlg, TrcKeyZSampling& cs, Coord crd[3])
     tdinf_ = survinfo->zIsTime() ? Time
 			    : (survinfo->zInFeet() ? DepthFeet : DepthMeter);
     xyinft_ = survinfo->xyInFeet();
+    uicopysurvsrdhpmgr_.setParam( this, survinfo->seismicReferenceDatum() );
+    uicopysurvdepthsinfthpmgr_.setParam( this,
+				survinfo->depthsInFeet() ? 1 : 0 );
 
     RefMan<Coords::CoordSystem> crs = survinfo->getCoordSystem();
-    IOPar* crspar = new IOPar;
+    auto* crspar = new IOPar;
     crs->fillPar( *crspar );
-	delete crspars_;
+    delete crspars_;
     crspars_ = crspar;
 
+    return true;
+}
+
+
+bool uiCopySurveySIP::getSRD_( float& srd ) const
+{
+    srd = uicopysurvsrdhpmgr_.getParam( this );
+    return true;
+}
+
+
+bool uiCopySurveySIP::getDepthsInFeet_( bool& yn ) const
+{
+    yn = uicopysurvdepthsinfthpmgr_.getParam( this ) == 1;
     return true;
 }
 
@@ -1382,7 +1417,7 @@ bool uiCopySurveySIP::getInfo(uiDialog* dlg, TrcKeyZSampling& cs, Coord crd[3])
 IOPar* uiCopySurveySIP::getCoordSystemPars() const
 {
     if ( !crspars_ )
-       return 0;
+       return nullptr;
 
     return new IOPar( *crspars_ );
 }
@@ -1396,12 +1431,22 @@ void uiCopySurveySIP::fillLogPars( IOPar& par ) const
 
 
 // uiSurveyFileSIP
+
+static HiddenParam<uiSurveyFileSIP,float> uisurveyfilesrdhpmgr_(0.f);
+static HiddenParam<uiSurveyFileSIP,char> uisurveyfiledepthsinfthpmgr_(0);
+
 uiSurveyFileSIP::uiSurveyFileSIP()
-{}
+{
+    uisurveyfilesrdhpmgr_.setParam( this, mUdf(float) );
+    uisurveyfiledepthsinfthpmgr_.setParam( this, 0 );
+}
 
 
 uiSurveyFileSIP::~uiSurveyFileSIP()
-{}
+{
+    uisurveyfilesrdhpmgr_.removeParam( this );
+    uisurveyfiledepthsinfthpmgr_.removeParam( this );
+}
 
 
 uiString uiSurveyFileSIP::usrText() const
@@ -1459,7 +1504,24 @@ bool uiSurveyFileSIP::getInfo( uiDialog* dlg, TrcKeyZSampling& cs, Coord crd[3])
     xyinft_ = survinfo->xyInFeet();
     coordsystem_ = survinfo->getCoordSystem();
     surveynm_ = survinfo->name();
+    uisurveyfilesrdhpmgr_.setParam( this, survinfo->seismicReferenceDatum() );
+    uisurveyfiledepthsinfthpmgr_.setParam( this,
+				    survinfo->depthsInFeet() ? 1 : 0 );
 
+    return true;
+}
+
+
+bool uiSurveyFileSIP::getSRD_( float& srd ) const
+{
+    srd = uisurveyfilesrdhpmgr_.getParam( this );
+    return true;
+}
+
+
+bool uiSurveyFileSIP::getDepthsInFeet_( bool& yn ) const
+{
+    yn = uisurveyfiledepthsinfthpmgr_.getParam( this ) == 1;
     return true;
 }
 

@@ -159,6 +159,8 @@ public:
     uiDialog*		dialog(uiParent*) override;
     bool		getInfo(uiDialog*,
 				TrcKeyZSampling&,Coord crd[3]) override;
+    bool		getSRD_(float&) const;
+    bool		getDepthsInFeet_(bool& yn) const;
 
     void		fillLogPars(IOPar&) const override;
 
@@ -191,6 +193,8 @@ public:
     uiDialog*		dialog(uiParent*) override;
     bool		getInfo(uiDialog*,
 				TrcKeyZSampling&,Coord crd[3]) override;
+    bool		getSRD_(float&) const;
+    bool		getDepthsInFeet_(bool& yn) const;
 
     void		fillLogPars(IOPar&) const override;
 

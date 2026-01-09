@@ -61,7 +61,10 @@ public:
     virtual bool		getLatLongAnchor(Coord&,LatLong&)
 							{ return false; }
     virtual bool		getSRD(float&)		{ return false; }
+    bool			getSRD_(float&) const;
 				//!< return value must be in SI units (meters)
+    bool			getDepthsInFeet(bool& yn) const;
+				//!< will become virtual
 
     virtual void		fillPar(IOPar&) const		{}
     virtual void		fillLogPars(IOPar&) const;

@@ -19,6 +19,7 @@ ________________________________________________________________________
 #include "uilabel.h"
 #include "uimsg.h"
 #include "uiseparator.h"
+#include "uisurvinfoed.h"
 #include "uitblimpexpdatasel.h"
 
 #include "od_helpids.h"
@@ -250,6 +251,34 @@ uiSurvInfoProvider::uiSurvInfoProvider()
 uiSurvInfoProvider::~uiSurvInfoProvider()
 {
     uisippol2d3dmgr_.removeParam( this );
+}
+
+
+bool uiSurvInfoProvider::getSRD_( float& srd ) const
+{
+    mDynamicCastGet(const uiCopySurveySIP*,uicopysip,this)
+    if ( uicopysip )
+	return uicopysip->getSRD_( srd );
+
+    mDynamicCastGet(const uiSurveyFileSIP*,uisurvfilesip,this)
+    if ( uisurvfilesip )
+	return uisurvfilesip->getSRD_( srd );
+
+    return getNonConst( this )->getSRD( srd );
+}
+
+
+bool uiSurvInfoProvider::getDepthsInFeet( bool& yn ) const
+{
+    mDynamicCastGet(const uiCopySurveySIP*,uicopysip,this)
+    if ( uicopysip )
+	return uicopysip->getDepthsInFeet_( yn );
+
+    mDynamicCastGet(const uiSurveyFileSIP*,uisurvfilesip,this)
+    if ( uisurvfilesip )
+	return uisurvfilesip->getDepthsInFeet_( yn );
+
+    return false;
 }
 
 
