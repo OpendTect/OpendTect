@@ -26,6 +26,9 @@ public:
 				Coord crd[3]) override;
     const char*		iconName() const override;
     TDInfo		tdInfo() const override;
+    OD::Pol2D3D         getSurveyDataType() const override
+                                { return OD::Only2D; }
+
 
     void		fillLogPars(IOPar&) const override;
     IOPar*		getCoordSystemPars() const override;
@@ -49,6 +52,8 @@ public:
 				Coord crd[3]) override;
     const char*		iconName() const override;
     TDInfo		tdInfo() const override;
+    OD::Pol2D3D         getSurveyDataType() const override
+                                { return OD::Only2D; }
 
     void		fillLogPars(IOPar&) const override;
     IOPar*		getImportPars() const override;

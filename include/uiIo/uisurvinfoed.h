@@ -159,7 +159,8 @@ public:
     uiDialog*		dialog(uiParent*) override;
     bool		getInfo(uiDialog*,
 				TrcKeyZSampling&,Coord crd[3]) override;
-    bool		getSRD(float&) override;
+    bool		getSRD(float&) const override;
+    bool		getDepthsInFeet(bool& yn) const override;
 
     void		fillLogPars(IOPar&) const override;
 
@@ -177,6 +178,7 @@ protected:
     BufferStringSet	survlist_;
     IOPar*		crspars_			= nullptr;
     float		srd_				= mUdf(float);
+    bool		depthsinfeet_			= false;
 
 public:
     void		reset();
@@ -193,7 +195,8 @@ public:
     uiDialog*		dialog(uiParent*) override;
     bool		getInfo(uiDialog*,
 				TrcKeyZSampling&,Coord crd[3]) override;
-    bool		getSRD(float&) override;
+    bool		getSRD(float&) const override;
+    bool		getDepthsInFeet(bool& yn) const override;
 
     void		fillLogPars(IOPar&) const override;
 
@@ -210,6 +213,7 @@ protected:
     bool		xyinft_				= false;
     TDInfo		tdinf_				= Unknown;
     float		srd_				= mUdf(float);
+    bool		depthsinfeet_			= false;
     BufferString	surveynm_;
     ConstRefMan<Coords::CoordSystem> coordsystem_;
 };

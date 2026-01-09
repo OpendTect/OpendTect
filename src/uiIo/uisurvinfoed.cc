@@ -473,6 +473,7 @@ void uiSurveyInfoEditor::setValues()
     y0fld_->setNrDecimals( nrx0y0dec );
     yinlfld_->setValue( si_.b2c_.getTransform(false).b );
     ycrlfld_->setValue( si_.b2c_.getTransform(false).c );
+    xyunitlbl_->setText( getCoordString(xyInFeet()) );
 
     Coord c[3]; BinID b[2]; int xline;
     si_.get3Pts( c, b, xline );
@@ -515,6 +516,7 @@ void uiSurveyInfoEditor::setValues()
     const UnitOfMeasure* displayuom =
 	zistime ? (depthdispfld_->getBoolValue() ? meteruom : feetuom)
 		: datauom;
+    refdatumfld_->setTitleText( getSRDString(zinfeet) );
     refdatumfld_->setValue( getConvertedValue( srd, datauom, displayuom ) );
 }
 
@@ -1129,18 +1131,16 @@ void uiSurveyInfoEditor::sipCB( CallBacker* )
 	zistime = tdinfo == uiSurvInfoProvider::Time;
 
     bool zinfeet = !depthdispfld_->getBoolValue();
-    if ( zistime )
+    if ( tdinfo != uiSurvInfoProvider::Unknown )
+	zinfeet = tdinfo == uiSurvInfoProvider::DepthFeet;
+    else if ( zistime )
     {
 	if ( xyinfeet )
 	    zinfeet = true;
     }
-    else if ( tdinfo != uiSurvInfoProvider::Unknown )
-	zinfeet = tdinfo == uiSurvInfoProvider::DepthFeet;
 
-    si_.setDepthInFeet( zinfeet );
-    si_.setZUnit( zistime, zinfeet );
     si_.setXYInFeet( xyinfeet );
-    xyunitlbl_->setText( getCoordString(xyInFeet()) );
+    si_.setZUnit( zistime, zinfeet );
 
     float srd = 0.f;
     if ( sip->getSRD(srd) && !mIsUdf(srd) )
@@ -1149,6 +1149,12 @@ void uiSurveyInfoEditor::sipCB( CallBacker* )
 	    srd *= mToFeetFactorF;
 	si_.setSeismicReferenceDatum( srd );
     }
+
+    bool depthsinft = zinfeet;
+    if ( sip->getDepthsInFeet(depthsinft) )
+	si_.setDepthInFeet( depthsinft );
+    else
+	si_.setDepthInFeet( zinfeet );
 
     const bool havez = !mIsUdf(cs.zsamp_.start_);
     if ( !havez )
@@ -1167,7 +1173,6 @@ void uiSurveyInfoEditor::sipCB( CallBacker* )
 
     lastsip_ = sip;
     impiop_ = lastsip_->getImportPars();
-    updZUnit( nullptr );
 }
 
 
@@ -1331,15 +1336,15 @@ uiCopySurveySIP::~uiCopySurveySIP()
 
 void uiCopySurveySIP::reset()
 {
-    deleteAndNullPtr(crspars_);
+    deleteAndNullPtr( crspars_ );
 }
 
 
 uiDialog* uiCopySurveySIP::dialog( uiParent* p )
 {
     survlist_.erase();
-    uiSurveySelectDlg* dlg = new uiSurveySelectDlg( p, GetSurveyName(),
-	GetBaseDataDir(), true, true );
+    auto* dlg = new uiSurveySelectDlg( p, GetSurveyName(),
+				       GetBaseDataDir(), true, true );
     dlg->setHelpKey( mODHelpKey(mCopySurveySIPHelpID) );
     return dlg;
 }
@@ -1369,9 +1374,10 @@ bool uiCopySurveySIP::getInfo(uiDialog* dlg, TrcKeyZSampling& cs, Coord crd[3])
 			    : (survinfo->zInFeet() ? DepthFeet : DepthMeter);
     xyinft_ = survinfo->xyInFeet();
     srd_ = survinfo->seismicReferenceDatum();
+    depthsinfeet_ = survinfo->depthsInFeet();
 
     RefMan<Coords::CoordSystem> crs = survinfo->getCoordSystem();
-    IOPar* crspar = new IOPar;
+    auto* crspar = new IOPar;
     crs->fillPar( *crspar );
     delete crspars_;
     crspars_ = crspar;
@@ -1380,9 +1386,16 @@ bool uiCopySurveySIP::getInfo(uiDialog* dlg, TrcKeyZSampling& cs, Coord crd[3])
 }
 
 
-bool uiCopySurveySIP::getSRD( float& srd )
+bool uiCopySurveySIP::getSRD( float& srd ) const
 {
     srd = srd_;
+    return true;
+}
+
+
+bool uiCopySurveySIP::getDepthsInFeet( bool& yn ) const
+{
+    yn = depthsinfeet_;
     return true;
 }
 
@@ -1390,7 +1403,7 @@ bool uiCopySurveySIP::getSRD( float& srd )
 IOPar* uiCopySurveySIP::getCoordSystemPars() const
 {
     if ( !crspars_ )
-       return 0;
+       return nullptr;
 
     return new IOPar( *crspars_ );
 }
@@ -1468,14 +1481,22 @@ bool uiSurveyFileSIP::getInfo( uiDialog* dlg, TrcKeyZSampling& cs, Coord crd[3])
     coordsystem_ = survinfo->getCoordSystem();
     surveynm_ = survinfo->name();
     srd_ = survinfo->seismicReferenceDatum();
+    depthsinfeet_ = survinfo->depthsInFeet();
 
     return true;
 }
 
 
-bool uiSurveyFileSIP::getSRD( float& srd )
+bool uiSurveyFileSIP::getSRD( float& srd ) const
 {
     srd = srd_;
+    return true;
+}
+
+
+bool uiSurveyFileSIP::getDepthsInFeet( bool& yn ) const
+{
+    yn = depthsinfeet_;
     return true;
 }
 

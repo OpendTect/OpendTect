@@ -60,8 +60,10 @@ public:
     mDeprecatedObs
     virtual bool		getLatLongAnchor(Coord&,LatLong&)
 							{ return false; }
-    virtual bool		getSRD(float&)		{ return false; }
+    virtual bool		getSRD(float&) const	{ return false; }
 				//!< return value must be in SI units (meters)
+    virtual bool		getDepthsInFeet(bool& yn) const
+							{ return false; }
 
     virtual void		fillPar(IOPar&) const		{}
     virtual void		fillLogPars(IOPar&) const;
