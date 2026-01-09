@@ -30,6 +30,8 @@ ________________________________________________________________________
 #include "trckeyzsampling.h"
 #include "unitofmeasure.h"
 
+#include "hiddenparam.h"
+
 
 static const char* dlgtitle =
 "Specify working area values.\n"
@@ -38,7 +40,10 @@ static const char* dlgtitle =
 "and provide some defaults e.g. for 3D horizon generation.";
 
 ui2DSurvInfoProvider::ui2DSurvInfoProvider()
-{}
+{
+    setSurveyDataType( OD::Only2D );
+}
+
 
 ui2DSurvInfoProvider::~ui2DSurvInfoProvider()
 {}
@@ -232,12 +237,32 @@ IOPar* ui2DSurvInfoProvider::getCoordSystemPars() const
 
 
 // uiSurvInfoProvider
+
+static HiddenParam<uiSurvInfoProvider,OD::Pol2D3D>
+					uisippol2d3dmgr_(OD::Both2DAnd3D);
+
 uiSurvInfoProvider::uiSurvInfoProvider()
-{}
+{
+    setSurveyDataType( OD::Both2DAnd3D );
+}
 
 
 uiSurvInfoProvider::~uiSurvInfoProvider()
-{}
+{
+    uisippol2d3dmgr_.removeParam( this );
+}
+
+
+OD::Pol2D3D uiSurvInfoProvider::getSurveyDataType() const
+{
+    return uisippol2d3dmgr_.getParam( this );
+}
+
+
+void uiSurvInfoProvider::setSurveyDataType( OD::Pol2D3D pol2d3d )
+{
+    uisippol2d3dmgr_.setParam( this, OD::Both2DAnd3D );
+}
 
 
 static void ensureMinSize( int minnum, int& nrnodes, double& originxy,
@@ -383,6 +408,7 @@ bool acceptOK( CallBacker* ) override
 
 uiNavSurvInfoProvider::uiNavSurvInfoProvider()
 {
+    setSurveyDataType( OD::Only2D );
 }
 
 
