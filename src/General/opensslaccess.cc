@@ -95,7 +95,7 @@ bool OD::OpenSSLAccess::isOK( uiRetVal* uirv ) const
 	if ( !sla_ )
 	    *uirv = tr("ODOpenSSL library is not available");
 	else if ( !sla_->isOK() )
-	    *uirv = toUiString( sla_->errMsg() );
+	    *uirv = ::toUiString( sla_->errMsg() );
     }
 
     return res;
