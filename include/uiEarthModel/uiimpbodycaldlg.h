@@ -25,6 +25,13 @@ public:
 			uiImplBodyCalDlg(uiParent*,const EM::Body&);
 			~uiImplBodyCalDlg();
 
+    double		getVolume() const;
+
+    uiObject*		attachObject();
+
+    static Notifier<uiImplBodyCalDlg>&	instanceCreated();
+    Notifier<uiImplBodyCalDlg>	calcPushed;
+
 protected:
     
     void		calcCB(CallBacker*);
@@ -32,10 +39,10 @@ protected:
     void		getImpBody();
 
     const EM::Body&	embody_;
-    EM::ImplicitBody*	impbody_;
-    uiGenInput*		velfld_;
-    uiGenInput*		volfld_;
+    EM::ImplicitBody*	impbody_		= nullptr;
     uiUnitSel*		unitfld_;
-
-    float		volumeinm3_		= mUdf(float);
+    uiGenInput*		velfld_			= nullptr;
+    uiGenInput*		grossvolfld_;
+    double		volumeinm3_		= mUdf(double);
+    uiGroup*		topgrp_;
 };

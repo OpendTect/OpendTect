@@ -27,36 +27,44 @@ ________________________________________________________________________
 uiImplBodyCalDlg::uiImplBodyCalDlg( uiParent* p, const EM::Body& eb )
     : uiDialog(p,Setup(tr("Calculate Geobody Volume"),
 		       mODHelpKey(mImplBodyCalDlgHelpID)))
+    , calcPushed(this)
     , embody_(eb)
-    , velfld_(0)
-    , volfld_(0)
-    , impbody_(0)
 {
     setCtrlStyle( CloseOnly );
 
+    topgrp_ = new uiGroup( this, "Top Group" );
     if ( SI().zIsTime() )
     {
-	velfld_ = new uiGenInput( this,
+	velfld_ = new uiGenInput( topgrp_,
 		    tr("%1 %2")
 		    .arg(VelocityDesc::getVelVolumeLabel())
 		    .arg(UnitOfMeasure::surveyDefVelUnitAnnot(true,true)),
 			 FloatInpSpec(Vel::getGUIDefaultVelocity()) );
+	velfld_->setStretch( 0, 0 );
     }
 
-    auto* calcbut = new uiPushButton( this, uiStrings::sCalculate(), true );
-    calcbut->setIcon( "downarrow" );
-    mAttachCB( calcbut->activated, uiImplBodyCalDlg::calcCB );
+    auto* calcvolbut = new uiPushButton( topgrp_, tr("Calculate Volume"),
+					 "math", true );
+    calcvolbut->setStretch( 0, 0 );
+    mAttachCB( calcvolbut->activated, uiImplBodyCalDlg::calcCB );
     if ( velfld_ )
-	calcbut->attach( alignedBelow, velfld_ );
+	calcvolbut->attach( alignedBelow, velfld_ );
 
-    volfld_ = new uiGenInput( this, uiStrings::sVolume() );
-    volfld_->setReadOnly( true );
-    volfld_->attach( alignedBelow, calcbut );
+    grossvolfld_ = new uiGenInput( topgrp_, tr("Gross Volume") );
+    grossvolfld_->setReadOnly( true );
+    grossvolfld_->attach( alignedBelow, calcvolbut );
+    grossvolfld_->setStretch( 0, 0 );
+    topgrp_->setHAlignObj( grossvolfld_ );
 
-    unitfld_ = new uiUnitSel( this, Mnemonic::Vol );
+    uiUnitSel::Setup unitsetup( Mnemonic::Vol );
+    unitsetup.variableszpol( true );
+    unitfld_ = new uiUnitSel( topgrp_, unitsetup );
     unitfld_->setUnit( UoMR().get(SI().depthsInFeet() ? "ft3" : "m3") );
     mAttachCB( unitfld_->selChange, uiImplBodyCalDlg::unitChgCB );
-    unitfld_->attach( rightOf, volfld_ );
+    unitfld_->attach( rightOf, grossvolfld_ );
+    unitfld_->setStretch( 0, 0 );
+
+    instanceCreated().trigger( this );
 }
 
 
@@ -64,6 +72,25 @@ uiImplBodyCalDlg::~uiImplBodyCalDlg()
 {
     detachAllNotifiers();
     delete impbody_;
+}
+
+
+double uiImplBodyCalDlg::getVolume() const
+{
+    return volumeinm3_;
+}
+
+
+uiObject* uiImplBodyCalDlg::attachObject()
+{
+    return topgrp_->attachObj();
+}
+
+
+Notifier<uiImplBodyCalDlg>& uiImplBodyCalDlg::instanceCreated()
+{
+    mDefineStaticLocalObject( Notifier<uiImplBodyCalDlg>, theNotif, (0) );
+    return theNotif;
 }
 
 
@@ -92,25 +119,26 @@ void uiImplBodyCalDlg::calcCB( CallBacker* )
     uiTaskRunner taskrunner(this);
     BodyVolumeCalculator bc( impbody_->tkzs_, *impbody_->arr_,
 			     impbody_->threshold_, vel );
-    if ( !TaskRunner::execute(&taskrunner,bc) )
+    if ( !taskrunner.execute(bc) )
 	return;
 
     volumeinm3_ = bc.getVolume();
     unitChgCB( nullptr );
+    calcPushed.trigger();
 }
 
 
 void uiImplBodyCalDlg::unitChgCB( CallBacker* )
 {
-    BufferString txt;
-    const UnitOfMeasure* uom = unitfld_->getUnit();
-    if ( uom && !mIsUdf(volumeinm3_) )
+    if ( mIsUdf(volumeinm3_) )
     {
-	const float newval = uom->getUserValueFromSI( volumeinm3_ );
-	txt.setDec( newval, 4 );
+	grossvolfld_->setEmpty();
+	return;
     }
 
-    volfld_->setText( txt );
+    const UnitOfMeasure* uom = unitfld_->getUnit();
+    const double grossvol = getConvertedValue( volumeinm3_, nullptr, uom );
+    grossvolfld_->setValue( grossvol );
 }
 
 
