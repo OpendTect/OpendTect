@@ -1062,7 +1062,8 @@ void uiODMenuMgr::fillUtilMenu()
 		  "plugin" );
     insertAction( installmnu_, m3Dots(tr("Setup Distributed Computing")),
 		 mSetupBatchItm);
-    insertAction( installmnu_, tr("Information"), mInformationItm, "info" );
+    insertAction( installmnu_, tr("System Information"), mInformationItm,
+		  "info" );
 
     if ( __iswin__ )
 	insertAction( installmnu_, m3Dots(tr("Firewall Management")),

@@ -10,6 +10,7 @@ ________________________________________________________________________
 #include "uihostiddlg.h"
 
 #include "bufstring.h"
+#include "file.h"
 #include "filepath.h"
 #include "generalinfo.h"
 #include "oddirs.h"
@@ -17,12 +18,12 @@ ________________________________________________________________________
 #include "odplatform.h"
 #include "systeminfo.h"
 
+#include "uibutton.h"
 #include "uiclipboard.h"
 #include "uigeninput.h"
 #include "uilabel.h"
 #include "uilocalhostgrp.h"
 #include "uimsg.h"
-#include "uitoolbutton.h"
 
 #include <QTimeZone>
 
@@ -192,6 +193,11 @@ uiOdTInfoGrp( uiParent* p )
     odinstfld_->attach( alignedBelow, settingsfld_ );
     odinstfld_->setText( FilePath::getLongPath(GetSoftwareDir(true)) );
 
+    currentpathfld_ = new uiGenInput( this, tr("Current Working Directory") );
+    currentpathfld_->setReadOnly();
+    currentpathfld_->setElemSzPol( uiObject::Wide );
+    currentpathfld_->attach( alignedBelow, odinstfld_ );
+    currentpathfld_->setText( File::getCurrentPath() );
 }
 
 
@@ -210,6 +216,8 @@ void addInfo( BufferStringSet& infos ) const override
 					settingsfld_->text() );
     const BufferString odinststr( "OpendTect Installation folder: ",
 					odinstfld_->text() );
+    const BufferString currentstr( "Current Working Directory: ",
+					currentpathfld_->text() );
 
     infos.add( interpreterstr );
     infos.add( settingsstr );
@@ -220,6 +228,7 @@ void addInfo( BufferStringSet& infos ) const override
     uiGenInput*		interpreternmfld_;
     uiGenInput*		settingsfld_;
     uiGenInput*		odinstfld_;
+    uiGenInput*		currentpathfld_;
 };
 
 
@@ -278,7 +287,8 @@ void addInfo( BufferStringSet& infos ) const override
 // uiInformationDlg
 
 uiInformationDlg::uiInformationDlg( uiParent* p )
-    : uiTabStackDlg(p,Setup(tr("Information"),mODHelpKey(mInformationHelpID)))
+    : uiTabStackDlg(p,Setup(tr("System Information"),
+			    mODHelpKey(mInformationHelpID)))
 {
     setOkCancelText( tr("Copy to Clipboard"), uiStrings::sClose() );
 
