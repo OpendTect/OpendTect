@@ -52,9 +52,8 @@ uiColTabMarkerDlg::uiColTabMarkerDlg( uiParent* p, ColTab::Sequence& ctab )
 						.manualresize(true)
 						.removeselallowed(false),
 			  "Anchor Table");
-    uiStringSet columnlabels;
-    columnlabels.add( uiStrings::sPosition() )
-		.add( uiStrings::sColor() );
+    const uiStringSet columnlabels = { tr("Position (0 - 1)"),
+				       uiStrings::sColor() };
     table_->setColumnLabels( columnlabels );
     table_->setColumnReadOnly( sColorCol, true );
     table_->setSelectionMode( uiTable::SingleRow );
@@ -78,8 +77,9 @@ void uiColTabMarkerDlg::fillTable()
     for ( int cidx=0; cidx<ctab_.size(); cidx++ )
     {
 	const float position = ctab_.position( cidx );
-	table_->setValue( RowCol(cidx,sPosCol), position );
-	table_->setColor( RowCol(cidx,sColorCol), ctab_.color(position) );
+	table_->setValue( RowCol(reverseIdx(cidx),sPosCol), position );
+	table_->setColor( RowCol(reverseIdx(cidx),sColorCol),
+			  ctab_.color(position) );
     }
 
     table_->setCellReadOnly( RowCol(0,0), true );
@@ -100,7 +100,7 @@ void uiColTabMarkerDlg::mouseClick( CallBacker* )
 	ColTab::Sequence orgctab = ctab_;
 	table_->setColor( rc, newcol );
 	table_->setCurrentCell( RowCol(rc.row(),sPosCol) );
-	orgctab.changeColor( rc.row(), newcol );
+	orgctab.changeColor( reverseIdx(rc.row()), newcol );
 	ctab_ = orgctab;
     }
 
@@ -112,6 +112,7 @@ void uiColTabMarkerDlg::markerInserted( CallBacker* )
 {
     NotifyStopper notifstop( table_->valueChanged );
     RowCol rcpos = table_->newCell();
+    const int rcrow = reverseIdx( rcpos.row() );
     if ( rcpos.row()-1<0 || rcpos.row()>=ctab_.size() )
     {
 	table_->removeRow( rcpos );
@@ -119,13 +120,14 @@ void uiColTabMarkerDlg::markerInserted( CallBacker* )
 	return;
     }
 
-    const RowCol rccolor( rcpos.row(), sColorCol );
-    const float newpos = ctab_.position(rcpos.row()-1) +
-			 ( ctab_.position(rcpos.row()) -
-			   ctab_.position(rcpos.row()-1) ) / 2;
+    const RowCol rccolor( rcrow, sColorCol );
+
+    const float newpos = ctab_.position(rcrow+1) +
+			 ( ctab_.position(rcrow) -
+			   ctab_.position(rcrow+1) ) / 2;
     const OD::Color col( ctab_.color(newpos) );
     table_->setColor( rccolor, col );
-    table_->setCurrentCell( RowCol(rcpos.row(),sPosCol) );
+    table_->setCurrentCell( RowCol(rcrow,sPosCol) );
     ctab_.setColor( newpos, col );
     fillTable();
     markersChanged.trigger();
@@ -144,7 +146,7 @@ void uiColTabMarkerDlg::markerDeleted( CallBacker* )
 	return;
     }
 
-    ctab_.removeColor( rc.row() );
+    ctab_.removeColor( reverseIdx(rc.row()) );
     fillTable();
     markersChanged.trigger();
 }
@@ -152,19 +154,24 @@ void uiColTabMarkerDlg::markerDeleted( CallBacker* )
 
 void uiColTabMarkerDlg::markerPosChgd( CallBacker* )
 {
+    const NotifyStopper notifstop( table_->valueChanged );
     const RowCol rc = table_->currentCell();
     if ( rc.row()<=0 || rc.row()>=ctab_.size()-1 )
 	return;
 
     const float newpos = table_->getFValue( rc );
-    if (ctab_.position(rc.row()-1)>newpos || ctab_.position(rc.row()+1)<newpos)
+    const int rcrow = reverseIdx( rc.row() );
+    const float rcprev = ctab_.position( rcrow-1 );
+    const float rcnext = ctab_.position( rcrow+1 );
+    if ( rcprev>newpos || rcnext<newpos )
     {
-	uiMSG().error( tr("Please enter position between 0 and 1") );
-	table_->setValue( rc, ctab_.position(rc.row()) );
+	uiMSG().error( tr("Please enter position between %1 and %2")
+			  .arg(rcprev).arg(rcnext) );
+	table_->setValue( rc, ctab_.position(rcrow) );
 	return;
     }
 
-    ctab_.changePos( rc.row(), newpos );
+    ctab_.changePos( rcrow, newpos );
     markersChanged.trigger();
 }
 
@@ -182,6 +189,13 @@ void uiColTabMarkerDlg::rebuildColTab()
 	table_->setColor( colrc, col );
 	ctab_.setColor( newpos, col );
     }
+}
+
+
+int uiColTabMarkerDlg::reverseIdx( int idx )
+{
+    const int ctbsz = ctab_.size();
+    return std::clamp( ctbsz-idx-1, 0, ctbsz-1 );
 }
 
 

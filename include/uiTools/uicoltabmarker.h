@@ -36,6 +36,7 @@ protected:
 
     void			fillTable();
     void			rebuildColTab();
+    int				reverseIdx(int);
     void			mouseClick(CallBacker*);
     void			markerInserted(CallBacker*);
     void			markerDeleted(CallBacker*);
