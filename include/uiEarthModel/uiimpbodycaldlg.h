@@ -30,19 +30,23 @@ public:
     uiObject*		attachObject();
 
     static Notifier<uiImplBodyCalDlg>&	instanceCreated();
-    Notifier<uiImplBodyCalDlg>	calcPushed;
+    Notifier<uiImplBodyCalDlg>&	calcPushed();
 
 protected:
-    
+
     void		calcCB(CallBacker*);
     void		unitChgCB(CallBacker*);
     void		getImpBody();
 
     const EM::Body&	embody_;
-    EM::ImplicitBody*	impbody_		= nullptr;
-    uiUnitSel*		unitfld_;
-    uiGenInput*		velfld_			= nullptr;
+    EM::ImplicitBody*	impbody_;
+    uiGenInput*		velfld_;
     uiGenInput*		volfld_;
-    double		volumeinm3_		= mUdf(double);
-    uiGroup*		topgrp_;
+    uiUnitSel*		unitfld_;
+
+    mDeprecated("uset setVolumeD/getVolume")
+    float		volumeinm3_		= mUdf(float);
+
+    uiGroup*		topGroup();
+    void		setVolumeD(double);
 };

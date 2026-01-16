@@ -23,22 +23,70 @@ ________________________________________________________________________
 #include "uitaskrunner.h"
 #include "uiunitsel.h"
 
+#include "hiddenparam.h"
+
+
+class uiImplBodyCalcHPGrp
+{
+public:
+
+uiImplBodyCalcHPGrp( uiImplBodyCalDlg& dlg )
+    : calcPushed(&dlg)
+{
+    topgrp_ = new uiGroup( &dlg, "Top Group" );
+}
+
+~uiImplBodyCalcHPGrp()
+{
+}
+
+uiGroup* topGroup()
+{
+    return topgrp_;
+}
+
+
+double getVolume() const
+{
+    return volumeinm3_;
+}
+
+
+void setVolume( double volm3 )
+{
+    volumeinm3_ = volm3;
+}
+
+    Notifier<uiImplBodyCalDlg> calcPushed;
+
+private:
+
+    uiGroup*    topgrp_;
+    double	volumeinm3_	= mUdf(double);
+
+};
+
+static HiddenParam<uiImplBodyCalDlg,uiImplBodyCalcHPGrp*>
+				uiimplbodygrphpmgr_(nullptr);
+
+mStartAllowDeprecatedSection
 
 uiImplBodyCalDlg::uiImplBodyCalDlg( uiParent* p, const EM::Body& eb )
     : uiDialog(p,Setup(tr("Calculate Geobody Volume"),
 		       mODHelpKey(mImplBodyCalDlgHelpID)))
-    , calcPushed(this)
     , embody_(eb)
-    , velfld_(0)
-    , volfld_(0)
-    , impbody_(0)
+    , velfld_(nullptr)
+    , volfld_(nullptr)
+    , impbody_(nullptr)
 {
     setCtrlStyle( CloseOnly );
+    auto* hpgrp = new uiImplBodyCalcHPGrp( *this );
+    uiimplbodygrphpmgr_.setParam ( this, hpgrp );
 
-    topgrp_ = new uiGroup( this, "Top Group" );
+    uiGroup* topgrp = hpgrp->topGroup();
     if ( SI().zIsTime() )
     {
-	velfld_ = new uiGenInput( topgrp_,
+	velfld_ = new uiGenInput( topgrp,
 		    tr("%1 %2")
 		    .arg(VelocityDesc::getVelVolumeLabel())
 		    .arg(UnitOfMeasure::surveyDefVelUnitAnnot(true,true)),
@@ -46,22 +94,22 @@ uiImplBodyCalDlg::uiImplBodyCalDlg( uiParent* p, const EM::Body& eb )
 	velfld_->setStretch( 0, 0 );
     }
 
-    auto* calcvolbut = new uiPushButton( topgrp_, tr("Calculate Volume"),
+    auto* calcvolbut = new uiPushButton( topgrp, tr("Calculate Volume"),
 					 "math", true );
     calcvolbut->setStretch( 0, 0 );
     mAttachCB( calcvolbut->activated, uiImplBodyCalDlg::calcCB );
     if ( velfld_ )
 	calcvolbut->attach( alignedBelow, velfld_ );
 
-    volfld_ = new uiGenInput( topgrp_, tr("Gross Volume") );
+    volfld_ = new uiGenInput( topgrp, tr("Gross Volume") );
     volfld_->setReadOnly( true );
     volfld_->attach( alignedBelow, calcvolbut );
     volfld_->setStretch( 0, 0 );
-    topgrp_->setHAlignObj( volfld_ );
+    topgrp->setHAlignObj( volfld_ );
 
     uiUnitSel::Setup unitsetup( Mnemonic::Vol );
     unitsetup.variableszpol( true );
-    unitfld_ = new uiUnitSel( topgrp_, unitsetup );
+    unitfld_ = new uiUnitSel( topgrp, unitsetup );
     unitfld_->setUnit( UoMR().get(SI().depthsInFeet() ? "ft3" : "m3") );
     mAttachCB( unitfld_->selChange, uiImplBodyCalDlg::unitChgCB );
     unitfld_->attach( rightOf, volfld_ );
@@ -70,30 +118,51 @@ uiImplBodyCalDlg::uiImplBodyCalDlg( uiParent* p, const EM::Body& eb )
     instanceCreated().trigger( this );
 }
 
+mStopAllowDeprecatedSection
+
 
 uiImplBodyCalDlg::~uiImplBodyCalDlg()
 {
     detachAllNotifiers();
     delete impbody_;
+    uiimplbodygrphpmgr_.removeAndDeleteParam( this );
+}
+
+
+uiGroup* uiImplBodyCalDlg::topGroup()
+{
+    return uiimplbodygrphpmgr_.getParam( this )->topGroup();
+}
+
+
+Notifier<uiImplBodyCalDlg>& uiImplBodyCalDlg::calcPushed()
+{
+    return uiimplbodygrphpmgr_.getParam( this )->calcPushed;
 }
 
 
 double uiImplBodyCalDlg::getVolume() const
 {
-    return volumeinm3_;
+    return uiimplbodygrphpmgr_.getParam( this )->getVolume();
+}
+
+
+void uiImplBodyCalDlg::setVolumeD( double volm3 )
+{
+    uiimplbodygrphpmgr_.getParam( this )->setVolume( volm3 );
 }
 
 
 uiObject* uiImplBodyCalDlg::attachObject()
 {
-    return topgrp_->attachObj();
+    return topGroup()->attachObj();
 }
 
 
 Notifier<uiImplBodyCalDlg>& uiImplBodyCalDlg::instanceCreated()
 {
-    mDefineStaticLocalObject( Notifier<uiImplBodyCalDlg>, theNotif, (0) );
-    return theNotif;
+    mDefineStaticLocalObject( Notifier<uiImplBodyCalDlg>, thenotif, = nullptr );
+    return thenotif;
 }
 
 
@@ -118,29 +187,31 @@ void uiImplBodyCalDlg::calcCB( CallBacker* )
 	    vel *= mFromFeetFactorF;
     }
 
-    volumeinm3_ = mUdf(float);
+    setVolumeD( mUdf(double) );
     uiTaskRunner taskrunner(this);
     BodyVolumeCalculator bc( impbody_->tkzs_, *impbody_->arr_,
 			     impbody_->threshold_, vel );
     if ( !taskrunner.execute(bc) )
 	return;
 
-    volumeinm3_ = bc.getVolume();
+    setVolumeD( bc.getVolume() );
     unitChgCB( nullptr );
-    calcPushed.trigger();
+    calcPushed().trigger();
 }
 
 
 void uiImplBodyCalDlg::unitChgCB( CallBacker* )
 {
-    if ( mIsUdf(volumeinm3_) )
+    const double volumeinm3 = getVolume();
+    if ( mIsUdf(volumeinm3) )
     {
 	volfld_->setEmpty();
 	return;
     }
 
     const UnitOfMeasure* uom = unitfld_->getUnit();
-    const double grossvol = getConvertedValue( volumeinm3_, nullptr, uom );
+    const float grossvol =
+		    mCast(float,getConvertedValue( volumeinm3, nullptr, uom ) );
     volfld_->setValue( grossvol );
 }
 
