@@ -137,7 +137,8 @@ void uiImplBodyCalDlg::unitChgCB( CallBacker* )
     }
 
     const UnitOfMeasure* uom = unitfld_->getUnit();
-    const double grossvol = getConvertedValue( volumeinm3_, nullptr, uom );
+    const float grossvol =
+		    mCast(float,getConvertedValue( volumeinm3_, nullptr, uom ) );
     grossvolfld_->setValue( grossvol );
 }
 
