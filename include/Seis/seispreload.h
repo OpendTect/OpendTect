@@ -30,6 +30,8 @@ public:
 				  TaskRunner* =nullptr);
 			~PreLoader();
 
+    void		setComponents(const TypeSet<int>&);
+
     const MultiID&	id() const			{ return mid_; }
     Pos::GeomID		geomID() const			{ return geomid_; }
     void		setTaskRunner( TaskRunner& t )	{ tr_ = &t; }

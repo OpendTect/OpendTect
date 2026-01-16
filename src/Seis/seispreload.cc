@@ -11,6 +11,7 @@ ________________________________________________________________________
 
 #include "file.h"
 #include "ioman.h"
+#include "hiddenparam.h"
 #include "keystrs.h"
 #include "mousecursor.h"
 #include "scaler.h"
@@ -30,13 +31,26 @@ namespace Seis
 const char* PreLoader::sKeyLines()	{ return "Lines"; }
 const char* PreLoader::sKeyUserType()	{ return "User Type"; }
 
-PreLoader::PreLoader( const MultiID& mid, Pos::GeomID geomid, TaskRunner* trn )
+static HiddenParam<PreLoader,TypeSet<int>*> comps_(nullptr);
+
+PreLoader::PreLoader( const MultiID& mid,
+		      Pos::GeomID geomid, TaskRunner* trn )
     : mid_(mid), geomid_(geomid), tr_(trn)
-{}
+{
+    comps_.setParam( this, new TypeSet<int> );
+}
 
 
 PreLoader::~PreLoader()
-{}
+{
+    comps_.removeAndDeleteParam( this );
+}
+
+
+void PreLoader::setComponents( const TypeSet<int>& comps )
+{
+    *comps_.getParam( this ) = comps;
+}
 
 
 IOObj* PreLoader::getIOObj() const
@@ -85,6 +99,10 @@ bool PreLoader::load( const TrcKeyZSampling& tkzs,
     rdr.setName( caption.getFullString() );
     rdr.setScaler( scaler );
     rdr.setDataChar( type );
+    const TypeSet<int>& comps = *comps_.getParam( this );
+    if ( !comps.isEmpty() && comps.size()<info.nrComponents() )
+	rdr.setComponents( comps );
+
     if ( !trunnr.execute(rdr) )
     {
 	errmsg_ = rdr.uiMessage();

@@ -14,6 +14,7 @@ ________________________________________________________________________
 #include "coltabmapper.h"
 #include "coltabsequence.h"
 #include "file.h"
+#include "hiddenparam.h"
 #include "ioman.h"
 #include "ioobj.h"
 #include "mousecursor.h"
@@ -55,6 +56,8 @@ ________________________________________________________________________
 using namespace Seis;
 
 const char* cannotloadstr = "Cannot load ";
+
+static HiddenParam<uiSeisPreLoadSel,uiListBox*> complb_( nullptr );
 
 uiSeisPreLoadMgr::uiSeisPreLoadMgr( uiParent* p )
     : uiDialog(p,Setup(tr("Seismic Data Pre-load Manager"),
@@ -184,16 +187,26 @@ void uiSeisPreLoadMgr::cubeLoadPush( CallBacker* )
 	uiString msg( ioobj->uiName() );
 	msg.append( " is already preloaded."
 		    "\n\nDo you want to reload the cube?" );
-	if ( !uiMSG().askGoOn(msg) ) return;
+	if ( !uiMSG().askGoOn(msg) )
+	    return;
 
 	PreLoader spl( key );
 	spl.unLoad();
     }
 
-    TrcKeyZSampling tkzs; dlg.getSampling( tkzs );
-    DataCharacteristics dc; dlg.getDataChar( dc );
+    TrcKeyZSampling tkzs;
+    dlg.getSampling( tkzs );
+    DataCharacteristics dc;
+    dlg.getDataChar( dc );
+    TypeSet<int> selcompnrs;
+    dlg.getComponents( selcompnrs );
+
     PreLoader spl( key );
-    uiTaskRunner taskrunner( this ); spl.setTaskRunner( taskrunner );
+    if ( !selcompnrs.isEmpty() )
+	spl.setComponents( selcompnrs );
+
+    uiTaskRunner taskrunner( this );
+    spl.setTaskRunner( taskrunner );
     if ( !spl.load(tkzs,dc.userType(),dlg.getScaler()) )
     {
 	const uiString emsg = spl.errMsg();
@@ -496,11 +509,17 @@ uiSeisPreLoadSel::uiSeisPreLoadSel( uiParent* p, GeomType geom,
     mAttachCB( subselfld_->selChange, uiSeisPreLoadSel::selChangeCB );
     subselfld_->attach( alignedBelow, seissel_ );
 
+    const uiListBox::Setup lbsu( OD::ChooseAtLeastOne,
+			     tr("Select component(s)"), uiListBox::LeftMid );
+    auto* complb = new uiListBox( leftgrp, lbsu, "Select component(s)" );
+    complb_.setParam( this, complb );
+    complb->attach( alignedBelow, subselfld_ );
+
     formatdiskfld_ = new uiGenInput( leftgrp, tr("Format on disk") );
     formatdiskfld_->setReadOnly();
     sizediskfld_ = new uiGenInput( leftgrp, tr("Size on disk") );
     sizediskfld_->setReadOnly();
-    formatdiskfld_->attach( alignedBelow, subselfld_ );
+    formatdiskfld_->attach( alignedBelow, complb );
     sizediskfld_->attach( rightTo, formatdiskfld_ );
 
     BufferStringSet formats;
@@ -550,6 +569,7 @@ uiSeisPreLoadSel::~uiSeisPreLoadSel()
     detachAllNotifiers();
     delete scaler_;
     delete &gen_;
+    complb_.removeParam( this );
 }
 
 
@@ -592,6 +612,16 @@ void uiSeisPreLoadSel::getSampling( TrcKeyZSampling& tkzs,
     }
 
     ss2d->getSampling( tkzs, geomid );
+}
+
+
+void uiSeisPreLoadSel::getComponents( TypeSet<int>& selcompnrs ) const
+{
+    const auto* complb = complb_.getParam( this );
+    if ( !complb->isDisplayed() )
+	return;
+
+    complb->getChosen( selcompnrs );
 }
 
 
@@ -719,6 +749,10 @@ void uiSeisPreLoadSel::seisSel( CallBacker* )
     typefld_->setValue( 0 );
     subselfld_->setInput( *ioobj );
 
+    BufferStringSet compnms;
+    info.getComponentNames( compnms );
+    fillCompList( compnms );
+
     BufferString formatstr;
     DataCharacteristics dc; info.getDataChar( dc );
     const StringView usertypestr =
@@ -731,6 +765,16 @@ void uiSeisPreLoadSel::seisSel( CallBacker* )
     sizediskfld_->setText( File::getFileSizeString(filesz) );
 
     selChangeCB( nullptr );
+}
+
+
+void uiSeisPreLoadSel::fillCompList( const BufferStringSet& compnms )
+{
+    auto* complb = complb_.getParam( this );
+    complb->setEmpty();
+    complb->display( compnms.size() > 1 );
+    complb->addItems( compnms );
+    complb->chooseAll( true );
 }
 
 
