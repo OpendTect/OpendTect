@@ -36,7 +36,7 @@ protected:
 
     void			fillTable();
     void			rebuildColTab();
-    void			mouseClick(CallBacker*);
+    void			mouseClickCB(CallBacker*);
     void			markerInsertedCB(CallBacker*);
     void			markerDeletedCB(CallBacker*);
     void			markerPosChgdCB(CallBacker*);
@@ -50,9 +50,13 @@ mExpClass(uiTools) uiColTabMarkerCanvas : public uiGraphicsView
 public:
 				uiColTabMarkerCanvas(uiParent*,
 						     ColTab::Sequence&);
+				uiColTabMarkerCanvas(uiParent*,
+						     ColTab::Sequence&,
+						     const Interval<float>);
 				~uiColTabMarkerCanvas();
 
     Notifier<uiColTabMarkerCanvas> markerChanged;
+    void			setRange(const Interval<float>);
 
 protected:
 
@@ -62,15 +66,17 @@ protected:
     int		                selidx_;
     ColTab::Sequence&           ctab_;
     MouseEventHandler&		meh_;
+    Interval<float>		ctabrange_;
 
     void                        addMarker(float,bool);
     void                        removeMarker(int);
     bool                        changeColor(int);
 
-    void                        drawMarkers(CallBacker*);
-    void                        mouseClk(CallBacker*);
-    void                        mouse2Clk(CallBacker*);
-    void                        mouseRelease(CallBacker*);
-    void                        mouseMove(CallBacker*);
-    void                        markerChgd(CallBacker*);
+    void			drawMarkersCB(CallBacker*);
+    void			eraseMarkersCB(CallBacker*);
+    void			mouseClkCB(CallBacker*);
+    void			mouseDoubleClickCB(CallBacker*);
+    void			mouseReleaseCB(CallBacker*);
+    void			mouseMoveCB(CallBacker*);
+    void			markerChgdCB(CallBacker*);
 };

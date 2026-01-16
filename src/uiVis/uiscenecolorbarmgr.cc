@@ -9,9 +9,18 @@ ________________________________________________________________________
 
 #include "uiscenecolorbarmgr.h"
 
+#include "notify.h"
+#include "survinfo.h"
 #include "uigeninput.h"
 #include "uispinbox.h"
 #include "visscenecoltab.h"
+
+
+static const int sMinHorWidth = 350;
+static const int sMaxHorWidth = 700;
+
+static const int sMinVertWidth = 20;
+static const int sMaxVertWidth = 35;
 
 
 uiSceneColorbarMgr::uiSceneColorbarMgr( uiParent* p,
@@ -20,20 +29,21 @@ uiSceneColorbarMgr::uiSceneColorbarMgr( uiParent* p,
     , scenecoltab_(coltab)
 {
     setCtrlStyle( CloseOnly );
+    const bool horizontal = scenecoltab_->getOrientation();
 
     auto* wfld = new uiLabeledSpinBox( this, tr("Width") );
     widthfld_ = wfld->box();
-    widthfld_->setMaxValue( 500 );
+    widthfld_->setMaxValue( horizontal ? sMaxHorWidth : sMaxVertWidth );
+    widthfld_->setMinValue( horizontal ? sMinHorWidth : sMinVertWidth );
     widthfld_->setValue( scenecoltab_->getSize().width() );
-    widthfld_->valueChanging.notify(
-			mCB(this,uiSceneColorbarMgr,sizeChangedCB) );
+    mAttachCB( widthfld_->valueChanging, uiSceneColorbarMgr::sizeChangedCB );
 
     auto* hfld = new uiLabeledSpinBox( this, tr("Height") );
     heightfld_ = hfld->box();
-    heightfld_->setMaxValue( 1000 );
+    heightfld_->setMaxValue( horizontal ? sMaxVertWidth : sMaxHorWidth );
+    heightfld_->setMinValue( horizontal ? sMinVertWidth : sMinHorWidth );
     heightfld_->setValue( scenecoltab_->getSize().height() );
-    heightfld_->valueChanging.notify(
-			mCB(this,uiSceneColorbarMgr,sizeChangedCB) );
+    mAttachCB( heightfld_->valueChanging, uiSceneColorbarMgr::sizeChangedCB );
     hfld->attach( rightOf, wfld );
 
     BufferStringSet positms;
@@ -42,13 +52,13 @@ uiSceneColorbarMgr::uiSceneColorbarMgr( uiParent* p,
     posfld_ = new uiGenInput( this, tr("Position"), StringListInpSpec(positms));
     posfld_->attach( alignedBelow, wfld );
     posfld_->setValue( scenecoltab_->getPos() );
-    posfld_->valueChanged.notify(
-			mCB(this,uiSceneColorbarMgr,posChangedCB) );
+    mAttachCB( posfld_->valueChanged, uiSceneColorbarMgr::posChangedCB );
 }
 
 
 uiSceneColorbarMgr::~uiSceneColorbarMgr()
 {
+    detachAllNotifiers();
 }
 
 
@@ -64,6 +74,15 @@ void uiSceneColorbarMgr::posChangedCB( CallBacker* )
     scenecoltab_->setPos( (visBase::SceneColTab::Pos)posfld_->getIntValue() );
     NotifyStopper ns1( widthfld_->valueChanging );
     NotifyStopper ns2( heightfld_->valueChanging );
+
+    const bool horizontal = scenecoltab_->getOrientation();
+    const int numlbls = scenecoltab_->getNumLabels();
+
+    widthfld_->setMaxValue( horizontal ? numlbls*100 : 35 );
+    widthfld_->setMinValue( horizontal ? numlbls*90 : 20 );
+    heightfld_->setMaxValue( horizontal ? 35 : numlbls*100 );
+    heightfld_->setMinValue( horizontal ? 20 : numlbls*90 );
+
     widthfld_->setValue( scenecoltab_->getSize().width() );
     heightfld_->setValue( scenecoltab_->getSize().height() );
 }

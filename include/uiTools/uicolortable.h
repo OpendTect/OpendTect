@@ -19,6 +19,7 @@ ________________________________________________________________________
 class uiAutoRangeClipDlg;
 class uiColorTableCanvas;
 class uiLineEdit;
+class uiColorTableMan;
 
 
 namespace ColTab { class Sequence; class MapperSetup; }
@@ -91,6 +92,7 @@ protected:
     uiLineEdit*		maxfld_			    = nullptr;
     uiColorTableSel*	selfld_;
     uiAutoRangeClipDlg* scalingdlg_		    = nullptr;
+    uiColorTableMan*	coltabman_		    = nullptr;
 
     bool		enabletrans_;
 
@@ -101,6 +103,7 @@ protected:
     void		tabSel(CallBacker*);
     void		tableAdded(CallBacker*);
     void		rangeEntered(CallBacker*);
+    void		colTabManRgChangeCB(CallBacker*);
     void		doManage(CallBacker*);
     void		doFlip(CallBacker*);
     void		setAsDefault(CallBacker*);

@@ -37,9 +37,13 @@ mExpClass(uiTools) uiFunctionDisplay :	public uiFuncDispBase,
 { mODTextTranslationClass(uiFunctionDisplay)
 public:
 				uiFunctionDisplay(uiParent*,const Setup&);
+				uiFunctionDisplay(uiParent*,const Setup&,
+						  OD::Orientation);
 				~uiFunctionDisplay();
 
     void			setTitle(const uiString&) override;
+    void			setTitleColor(const OD::Color&);
+    void			setTitleAlignment(const Alignment& al);
 
     Geom::Point2D<float>	getFuncXY(int xpix,bool y2) const;
     Geom::Point2D<float>	getXYFromPix(const Geom::Point2D<int>& pix,
@@ -57,12 +61,16 @@ public:
     const NotifierAccess&	mouseMoveNotifier() override
 				{ return mouseMove; }
 
+    void			allowAddingPoints(bool);
+
     Notifier<uiFunctionDisplay>	pointSelected;
     Notifier<uiFunctionDisplay>	pointChanged;
     CNotifier<uiFunctionDisplay,const Geom::PointF&> mouseMove;
 
     uiAxisHandler*		xAxis() const;
     uiAxisHandler*		yAxis(bool y2) const;
+    bool			allowaddpts_;
+    OD::Orientation		orientation_;
 
 protected:
 
@@ -80,6 +88,8 @@ protected:
     uiLineItem*			xmarkline2item_		= nullptr;
     uiLineItem*			ymarkline2item_		= nullptr;
     uiTextItem*			titleitem_		= nullptr;
+
+    Geom::Point2D<int>		orientedPix(const MouseEvent& ev) const;
 
     void			mousePressCB(CallBacker*) override;
     void			mouseReleaseCB(CallBacker*) override;
@@ -100,7 +110,8 @@ protected:
     bool			setSelPt();
     void			reSized( CallBacker* );
     void			saveImageAs( CallBacker* );
+    void			init(OD::Orientation);
+    bool			isVertical() const;
 
     virtual void		drawData();
-
 };

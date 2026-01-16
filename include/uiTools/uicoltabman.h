@@ -15,15 +15,17 @@ ________________________________________________________________________
 
 class uiColorInput;
 class uiColorTableCanvas;
+class uiColTabImport;
 class uiColTabMarkerCanvas;
 class uiFunctionDisplay;
 class uiGenInput;
+class uiLineEdit;
+class uiPushButton;
+class uiSpinBox;
+class uiTable;
 class uiTreeView;
 class uiToolButton;
-class uiSpinBox;
 class uiWorld2Ui;
-class uiColTabImport;
-class uiTable;
 
 namespace ColTab { class Sequence; }
 
@@ -34,20 +36,31 @@ public:
 						  const Interval<float>&);
 				~uiTranspValuesDlg();
 
-    Notifier<uiTranspValuesDlg> valuesChanged;
+				Notifier<uiTranspValuesDlg> valuesChanged;
+				Notifier<uiTranspValuesDlg> segmentInserted;
+				Notifier<uiTranspValuesDlg> segmentRemoved;
 
 
 protected:
 
     uiTable*			table_;
+    uiTable*			anchortable_	    = nullptr;
+    uiPushButton*		syncanchors_;
+    uiPushButton*		resettransp_;
     ColTab::Sequence&		ctab_;
     Interval<float>		ctabrange_;
 
+    void			doFinalizeCB(CallBacker*);
+    void			setPtsToAnchSegCB(CallBacker*);
     void			dataChgdCB(CallBacker*);
-    void			pointInsertedCB(CallBacker*);
-    void			pointDeletedCB(CallBacker*);
+    void			rowInsertedCB(CallBacker*);
+    void			rowDeletedCB(CallBacker*);
+    void			resetTranspPtsCB(CallBacker*);
 
-    void			fillTable();
+    void			fillTableWithPts();
+    void			fillAnchorTable();
+    void			fillTableWithSegments(bool resettransp);
+    void			setPtsToAnchSeg(bool extrapolate);
     void			handleColorPos();
     void			handleDataVal();
     void			handleTranspVal();
@@ -67,9 +80,11 @@ public:
     void			setHistogram(const TypeSet<float>&);
     void			setHistogram(const TypeSet<float>&,
 					     const Interval<float>&);
+    const Interval<float>&	getRange() const;
 
     Notifier<uiColorTableMan> 	tableAddRem;
     Notifier<uiColorTableMan> 	tableChanged;
+    Notifier<uiColorTableMan>	rangeChanged;
 
 protected:
 
@@ -84,8 +99,10 @@ protected:
     uiColorInput*       	markercolfld_;
     uiGenInput*			segmentfld_;
     uiSpinBox*			nrsegbox_;
-    uiWorld2Ui*			w2uictabcanvas_;
+    uiLineEdit*			minfld_;
+    uiLineEdit*			maxfld_;
 
+    uiWorld2Ui*			w2uictabcanvas_;
     BufferString		selstatus_;
     ColTab::Sequence&         	ctab_;
     ColTab::Sequence*         	orgctab_		= nullptr;
@@ -96,7 +113,7 @@ protected:
 
     bool			enabletrans_;
 
-    void			doFinalize(CallBacker*);
+    void			doFinalizeCB(CallBacker*);
     void			reDrawCB(CallBacker*);
     void			markerChgdCB(CallBacker*);
     void			selChgdCB(CallBacker*);
@@ -117,23 +134,28 @@ protected:
     bool			saveColTab(bool);
 
     void			segmentSelCB(CallBacker*);
+    void			insertSegmentCB(CallBacker*);
+    void			removeSegmentCB(CallBacker*);
     void			nrSegmentsCB(CallBacker*);
     void			updateSegmentFields();
 
     void			undefColSelCB(CallBacker*);
+    void			rangeChangedCB(CallBacker*);
     void			markerColChgdCB(CallBacker*);
-    void			rightClickColorCB(CallBacker*);
-    void			rightClickTranspCB(CallBacker*);
-    void			mouseMoveCB(CallBacker*);
+    void			rightClickCB(CallBacker*);
     void			doSegmentize();
     void			importColTabCB(CallBacker*);
     void			exportColTabCB(CallBacker*);
     void			renameColTabCB(CallBacker*);
     void			transptSelCB(CallBacker*);
-    void			transptChgdCB(CallBacker*);
+    void			transptChgCB(CallBacker*);
     void			sequenceChangeCB(CallBacker*);
+    void			setPtsToAnchSegsCB(CallBacker*);
     void			markerChangeCB(CallBacker*);
-    void			transpTableChgd(CallBacker*);
+    void			markerDialogCB(CallBacker*);
+    void			transpTableChgdCB(CallBacker*);
+    void			rightClickTranspCB(CallBacker*);
+    void			mouseMoveCB(CallBacker*);
 
 private:
 
