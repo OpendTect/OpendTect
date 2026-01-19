@@ -149,8 +149,8 @@ public:
     static const UnitOfMeasure*	surveyDepthStorageUnit();
     static const UnitOfMeasure*	surveyDepthDisplayUnit();
 
-    const TypeSet<MultiID>&	getWellsAddedToDB() const
-				    { return dbaddedwellsids_; }
+    CNotifier<Well::Man,const TypeSet<MultiID>&>	wellsAdded;
+    CNotifier<Well::Man,const TypeSet<MultiID>&>	wellsRemoved;
 
 protected:
 
@@ -161,8 +161,8 @@ protected:
 
     WeakPtrSet<Data>		wells_;
     uiString			errmsg_;
-    TypeSet<MultiID>		dbaddedwellsids_;
     bool			isreloading_		= false;
+    int				wellgrpid_;
 
     void		checkForUndeletedRef(CallBacker*);
     int			gtByKey(const MultiID&) const;
@@ -171,6 +171,7 @@ protected:
     void		reloadAll();
 
     void		wellAddedToDB(CallBacker*);
+    void		wellsAddedToDB(CallBacker*);
     void		wellEntryRemovedCB(CallBacker*);
     void		wellEntriesRemovedCB(CallBacker*);
 
