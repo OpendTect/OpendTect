@@ -55,14 +55,14 @@ const bool big_endian = false;
 #endif
 
 const size_t magic_string_length = 6;
-const std::array<char, magic_string_length> magic_string = {'\x93', 'N', 'U', 'M', 'P', 'Y'};
+const std::array<char, magic_string_length> magic_string = {{'\x93', 'N', 'U', 'M', 'P', 'Y'}};
 
 const char little_endian_char = '<';
 const char big_endian_char = '>';
 const char no_endian_char = '|';
 
-constexpr std::array<char, 3> endian_chars = {little_endian_char, big_endian_char, no_endian_char};
-constexpr std::array<char, 4> numtype_chars = {'f', 'i', 'u', 'c'};
+constexpr std::array<char, 3> endian_chars = {{little_endian_char, big_endian_char, no_endian_char}};
+constexpr std::array<char, 4> numtype_chars = {{'f', 'i', 'u', 'c'}};
 
 constexpr char host_endian_char = (big_endian ? big_endian_char : little_endian_char);
 
@@ -403,15 +403,15 @@ inline void write_header(std::ostream &out, const header_t &header) {
   if (version == version_t{1, 0}) {
     auto header_len = static_cast<uint16_t>(header_dict.length() + padding.length() + 1);
 
-    std::array<uint8_t, 2> header_len_le16{static_cast<uint8_t>((header_len >> 0) & 0xff),
-                                           static_cast<uint8_t>((header_len >> 8) & 0xff)};
+    std::array<uint8_t, 2> header_len_le16{{static_cast<uint8_t>((header_len >> 0) & 0xff),
+                                            static_cast<uint8_t>((header_len >> 8) & 0xff)}};
     out.write(reinterpret_cast<char *>(header_len_le16.data()), 2);
   } else {
     auto header_len = static_cast<uint32_t>(header_dict.length() + padding.length() + 1);
 
-    std::array<uint8_t, 4> header_len_le32{
+    std::array<uint8_t, 4> header_len_le32{{
         static_cast<uint8_t>((header_len >> 0) & 0xff), static_cast<uint8_t>((header_len >> 8) & 0xff),
-        static_cast<uint8_t>((header_len >> 16) & 0xff), static_cast<uint8_t>((header_len >> 24) & 0xff)};
+        static_cast<uint8_t>((header_len >> 16) & 0xff), static_cast<uint8_t>((header_len >> 24) & 0xff)}};
     out.write(reinterpret_cast<char *>(header_len_le32.data()), 4);
   }
 
