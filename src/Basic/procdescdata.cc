@@ -224,7 +224,14 @@ IOPar& ProcDesc::Data::readPars()
 
 bool ProcDesc::Data::writePars( const IOPar& pars, bool toadd )
 {
-    const FilePath exceptionfp( path_, "data", "FirewallExceptionList" );
+    FilePath exceptionfp( path_ );
+    const FilePath v8fp( path_, "share" );
+
+    if ( File::exists(v8fp.fullPath()) )
+	exceptionfp.add( "share" ).add( "FirewallExceptionList" );
+    else
+	exceptionfp.add( "data" ).add( "FirewallExceptionList" );
+
     BufferStringSet v6procs;
     BufferStringSet v7procs;
     BufferStringSet pyprocs;

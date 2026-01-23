@@ -416,36 +416,39 @@ bool uiFirewallProcSetter::acceptOK( CallBacker* )
 	    procnmsset.add( procset.get(procidx) );
 	}
 
-	if ( !mc.execute() )
+	if ( mc.execute() )
+	{
+	    pars.set( PDE::TypeDef().getKeyForIndex(idx), procnmsset );
+	}
+	else
 	{
 	    failedprocnms.add( procnmsset,false );
 	    errocc = true;
 	}
-	else
-	{
-	    pars.set( PDE::TypeDef().getKeyForIndex(idx), procnmsset );
-	}
     }
 
-    if ( !errocc )
+    if ( errocc )
     {
-	if ( toadd_ )
-	    uiMSG().message( tr("Selected apps successfully added") );
-	else
-	    uiMSG().message( tr("Selected apps successfully removed") );
-    }
-    else
-    {
-	uiString firstmsg = tr("Some modifications could not be made.\n"
-		"Please make sure you run OpendTect as Administrator.");
+	uiString firstmsg = tr( "Some modifications could not be made.\n"
+	    "Please make sure you run OpendTect as Administrator." );
 
-	uiString errmsg = tr("\nThe following apps could not be %1:\n%2");
+	uiString errmsg = tr( "\nThe following apps could not be %1:\n%2" );
 	errmsg.arg( toadd_ ? tr("added") : tr("removed") )
-	      .arg( failedprocnms.getDispString() );
+	    .arg( failedprocnms.getDispString() );
 
 	uiMSG().errorWithDetails( errmsg, firstmsg );
 	return true;
     }
 
-    return  ePDD().writePars( pars, toadd_ );
+    const bool writepars = ePDD().writePars( pars, toadd_ );
+    if ( !writepars )
+	uiMSG().error(
+		tr("Failed to update the changes to FirewallExceptionList") );
+
+    if ( toadd_ )
+	uiMSG().message( tr("Selected apps successfully added") );
+    else
+	uiMSG().message( tr("Selected apps successfully removed") );
+
+    return writepars;
 }
