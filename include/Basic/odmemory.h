@@ -11,6 +11,8 @@ ________________________________________________________________________
 #include "commondefs.h"
 #include "paralleltask.h"
 
+#include <cmath>
+
 template <class T> class ValueSeries;
 
 
