@@ -11,6 +11,8 @@ ________________________________________________________________________
 #include "basicmod.h"
 #include "paralleltask.h"
 
+#include <cstring>
+
 
 /*!
 \brief Interface to a series of values.
