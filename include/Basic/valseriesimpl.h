@@ -10,6 +10,7 @@ ________________________________________________________________________
 
 #include "valseries.h"
 
+#include "odmemory.h"
 #include "samplingdata.h"
 
 #ifdef __debug__

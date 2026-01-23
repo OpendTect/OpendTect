@@ -9,8 +9,9 @@ ________________________________________________________________________
 -*/
 
 #include "basicmod.h"
-#include "odmemory.h"
 #include "paralleltask.h"
+
+#include <cstring>
 
 
 /*!
@@ -92,8 +93,8 @@ bool doWork( od_int64 start, od_int64 stop, int ) override
     const T* fromarr = from_.arr();
     T* toarr = toptr_ ? toptr_ : to_->arr();
     if ( toarr && fromarr )
-	OD::sysMemCopy( toarr+start, fromarr+start,
-		(size_t) (nrleft*from_.bytesPerItem()) );
+	std::memcpy( toarr+start, fromarr+start,
+		     (size_t) (nrleft*from_.bytesPerItem()) );
     else if ( toarr )
     {
 	toarr += start;

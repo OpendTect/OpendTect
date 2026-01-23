@@ -78,6 +78,7 @@ set( OD_MODULE_SOURCES
 set( OD_TEST_PROGS
 	array2dmatrix.cc
 	arraymath.cc
+	arraytonpy.cc
 	contcurvinterpol.cc
 	gaussianprobdenfunc.cc
 	simpnumer.cc
