@@ -991,6 +991,13 @@ bool OD::JSON::Array::isEmpty() const
 }
 
 
+bool OD::JSON::Array::validIdx( idx_type idx ) const
+{
+    return isData() && !isMixed() ? valArr().validIdx( idx )
+				  : ValueSet::validIdx( idx );
+}
+
+
 OD::JSON::DataType OD::JSON::Array::dType( idx_type idx ) const
 {
     if ( dataType() == OD::JSON::Mixed )

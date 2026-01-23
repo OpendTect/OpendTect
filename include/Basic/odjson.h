@@ -122,6 +122,8 @@ public:
     virtual bool		isEmpty() const
 				{ return values_.isEmpty(); }
     virtual void		setEmpty();
+    virtual bool		validIdx( idx_type idx ) const
+				{ return values_.validIdx(idx); }
 
     virtual ValueType		valueType(idx_type) const;
     virtual DataType		dType(idx_type) const;
@@ -221,8 +223,12 @@ public:
     Array&		operator=(const Array&)	= delete;
     Array*		clone() const override	{ return new Array(*this); }
     bool		isArray() const override	{ return true; }
-    void		setEmpty() override;
+
+    size_type		size() const override;
     bool		isEmpty() const override;
+    void		setEmpty() override;
+    bool		validIdx(idx_type) const override;
+
     bool		isData() const;
     bool		isMixed() const;
 
@@ -230,7 +236,6 @@ public:
 			{ return valtype_; }
     DataType		dType(idx_type) const override;
     ValueType		valType() const		{ return valtype_; }
-    size_type		size() const override;
     DataType		dataType() const;
 
 			/*!< Only available if valType() == Data
