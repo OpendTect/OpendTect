@@ -429,26 +429,53 @@ bool MemValReplacer<T>::doWork( od_int64 start, od_int64 stop, int )
     if ( ptr_ )
 	return setPtr( start, stop-start+1 );
 
-    for ( od_int64 idx=start; idx<=stop; idx++ )
+    const bool isfromnan = std::isnan( fromval_ );
+    if ( isfromnan )
     {
-	if ( vs_->value(idx)==fromval_ )
-	    vs_->setValue( idx, toval_ );
+	for ( od_int64 idx=start; idx<=stop; idx++ )
+	{
+	    if ( std::isnan(vs_->value(idx)) )
+		vs_->setValue( idx, toval_ );
+	}
+    }
+    else
+    {
+	for ( od_int64 idx=start; idx<=stop; idx++ )
+	{
+	    if ( vs_->value(idx)==fromval_ )
+		vs_->setValue( idx, toval_ );
+	}
     }
 
     return true;
 }
+
 
 template <class T> inline
 bool MemValReplacer<T>::setPtr( od_int64 start, od_int64 size )
 {
     T* ptr = ptr_ + start;
     const T* stopptr = ptr + size;
-    while ( ptr != stopptr )
+    const bool isfromnan = std::isnan( fromval_ );
+    if ( isfromnan )
     {
-	if ( *ptr==fromval_ )
-	    *ptr = toval_;
+	while ( ptr != stopptr )
+	{
+	    if ( std::isnan(*ptr) )
+		*ptr = toval_;
 
-	ptr++;
+	    ptr++;
+	}
+    }
+    else
+    {
+	while ( ptr != stopptr )
+	{
+	    if ( *ptr==fromval_ )
+		*ptr = toval_;
+
+	    ptr++;
+	}
     }
 
     return true;

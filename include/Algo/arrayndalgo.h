@@ -10,16 +10,22 @@ ________________________________________________________________________
 
 #include "algomod.h"
 #include "arrayndimpl.h"
+#include "arrayndinfo.h"
+#include "arrayndslice.h"
 #include "coord.h"
 #include "enums.h"
-#include "arrayndslice.h"
+#include "file.h"
 #include "mathfunc.h"
 #include "periodicvalue.h"
 #include "posinfo.h"
 #include "scaler.h"
 #include "trckeyzsampling.h"
+#include "uistring.h"
 #include "uistrings.h"
 
+#include "../../src/Algo/npy.h"
+
+#include <type_traits>
 
 #define mComputeTrendAandB( sz ) { \
 	aval = mCast(T,( (fT)sz * crosssum - sum * sumindexes ) / \
@@ -2055,6 +2061,155 @@ inline bool getInterceptGradient( const ArrayND<T>& iny, const ArrayND<T>* inx_,
 }
 
 } // namespace ArrayMath
+
+
+template <typename T>
+inline typename std::enable_if<std::is_arithmetic<T>::value,void>::type
+saveAsNpy( const ArrayND<T>& arr, const char* filename,
+	   uiRetVal& uirv, bool fortranorder=false )
+{
+    const ArrayNDInfo& shape = arr.info();
+    const od_int64 totalsz = shape.getTotalSz();
+    if ( totalsz < 1 )
+    {
+	uirv.add( od_static_tr("save_as_npy",
+			       "Nothing to write: Input array is empty.") );
+	return;
+    }
+
+    PtrMan<ArrayND<T>> cleanarr;
+    if constexpr ( std::is_floating_point_v<T> )
+    {
+	if ( hasUndefs(arr) )
+	{
+	    cleanarr = ArrayNDImpl<T>::clone( arr );
+	    if ( !cleanarr || cleanarr->info()!=shape )
+	    {
+		uirv.add( od_static_tr("save_as_npy",
+			      "Could not copy the input array for cleaning "
+			      "undefined values.") );
+		return;
+	    }
+
+	    T* arrdata = cleanarr->getData();
+	    const T npudf = std::numeric_limits<T>::quiet_NaN();
+	    const T odudf = mUdf( T );
+	    MemValReplacer<T> udfrepl( arrdata, odudf, npudf, totalsz);
+	    if ( !udfrepl.execute() )
+	    {
+		uirv.add( od_static_tr("save_as_npy",
+			    "Could not replace undefined values to 'nan'.") );
+		return;
+	    }
+	}
+    }
+
+    const T* data = cleanarr ? cleanarr->getData() : arr.getData();
+    if ( !data )
+    {
+	uirv.add( od_static_tr("save_as_npy",
+			       "Nothing to write: Input array is empty.") );
+	return;
+    }
+
+    npy::npy_data_ptr<T> npydata;
+    npydata.data_ptr = data;
+    for ( int idx=0; idx<shape.getNDim(); idx++ )
+	npydata.shape.push_back( shape.getSize(idx) );
+
+    npydata.fortran_order = fortranorder;
+    try
+    {
+	npy::write_npy( filename, npydata );
+    }
+    catch ( const std::exception& ex )
+    {
+	uirv.add( od_static_tr("save_as_npy",
+			       "Failed to write .npy file: ").arg(ex.what()));
+	return;
+    }
+    catch ( ... )
+    {
+	uirv.add( od_static_tr("save_as_npy",
+			"Failed to write .npy file due to an unknown error."));
+	return;
+    }
+
+    if ( !File::exists(filename) )
+    {
+	uirv.add( od_static_tr("save_as_npy",
+		       "Failed to create .npy file due to an unknown error.") );
+	return;
+    }
+
+    if ( File::isEmpty(filename) )
+	uirv.add( od_static_tr("save_as_npy",
+			"Failed to write .npy file due to an unknown error.") );
+}
+
+
+template <typename T>
+inline typename std::enable_if<std::is_arithmetic<T>::value,ArrayND<T>*>::type
+getFromNpy( const char* filename, uiRetVal& uirv )
+{
+    if ( !File::exists(filename) )
+    {
+	uirv.add( od_static_tr("get_From_Npy",
+			       "%1 does not exist.").arg(filename) );
+	return nullptr;
+    }
+
+    npy::npy_data<T> npydata;
+    try
+    {
+	npydata = npy::read_npy<T>( filename );
+    }
+    catch ( const std::exception& ex )
+    {
+	uirv.add( od_static_tr("get_From_Npy",
+			"Failed to read %1: %2").arg(filename).arg(ex.what()));
+	return nullptr;
+    }
+    catch ( ... )
+    {
+	uirv.add( od_static_tr("get_From_Npy",
+		"Failed to read %1 due to an unknown error.").arg(filename) );
+	return nullptr;
+    }
+
+    TypeSet<od_int64> shapearr;
+    for ( const auto& elem : npydata.shape )
+	shapearr += elem;
+
+    PtrMan<ArrayNDInfo> shapeinf = ArrayNDInfoImpl::create( shapearr.arr(),
+							    shapearr.size() );
+    if ( !shapeinf )
+    {
+	uirv.add( od_static_tr("get_From_Npy",
+			    "Could not determine the shape of Numpy array.") );
+	return nullptr;
+    }
+
+    PtrMan<ArrayND<T>> data = ArrayNDImpl<T>::create( *shapeinf );
+    const od_int64 totalsz = npydata.data.size();
+    T* dataarr = data->getData();
+    OD::memCopy( dataarr, npydata.data.data(), sizeof(T)*totalsz );
+    const T odudf = mUdf(T);
+    if constexpr ( std::is_floating_point_v<T> )
+    {
+	const T npudf = std::numeric_limits<T>::quiet_NaN();
+	MemValReplacer<T> udfrepl( dataarr, npudf, odudf, totalsz );
+	if ( !udfrepl.execute() )
+	{
+	    uirv.add( od_static_tr("get_From_Npy",
+			 "Could not replace 'nan' values with compatible "
+			 "undefined values.") );
+	    return nullptr;
+	}
+    }
+
+    return data.release();
+}
 
 
 
