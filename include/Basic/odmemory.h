@@ -431,7 +431,10 @@ bool MemValReplacer<T>::doWork( od_int64 start, od_int64 stop, int )
     if ( ptr_ )
 	return setPtr( start, stop-start+1 );
 
-    const bool isfromnan = std::isnan( fromval_ );
+    bool isfromnan = false;
+    if constexpr ( std::is_floating_point_v<T> )
+	isfromnan = std::isnan( fromval_ );
+
     if ( isfromnan )
     {
 	for ( od_int64 idx=start; idx<=stop; idx++ )
@@ -458,7 +461,10 @@ bool MemValReplacer<T>::setPtr( od_int64 start, od_int64 size )
 {
     T* ptr = ptr_ + start;
     const T* stopptr = ptr + size;
-    const bool isfromnan = std::isnan( fromval_ );
+    bool isfromnan = false;
+    if constexpr ( std::is_floating_point_v<T> )
+	isfromnan = std::isnan( fromval_ );
+
     if ( isfromnan )
     {
 	while ( ptr != stopptr )
