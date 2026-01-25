@@ -57,7 +57,7 @@ public:
 			~CubicBezierSurface();
 
     CubicBezierSurface* clone() const override;
-    bool		isEmpty() const override { return !positions; }
+    bool		isEmpty() const override { return !positions_; }
 
     IntervalND<float>	boundingBox(bool approx) const override;
 
@@ -105,11 +105,11 @@ protected:
     int		nrRows() const override;
     int		nrCols() const override;
 
-    Array2D<Coord3>*	rowdirections;
-    Array2D<Coord3>*	coldirections;
-    Array2D<Coord3>*	positions;
+    Array2D<Coord3>*	rowdirections_	= nullptr;
+    Array2D<Coord3>*	coldirections_	= nullptr;
+    Array2D<Coord3>*	positions_	= nullptr;
 
-    float		directioninfluence;
+    float		directioninfluence_;
 };
 
 } // namespace Geometry

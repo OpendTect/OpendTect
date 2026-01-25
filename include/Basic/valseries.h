@@ -9,6 +9,8 @@ ________________________________________________________________________
 -*/
 
 #include "basicmod.h"
+
+#include "coord.h"
 #include "paralleltask.h"
 
 #include <cstring>
@@ -93,8 +95,12 @@ bool doWork( od_int64 start, od_int64 stop, int ) override
     const T* fromarr = from_.arr();
     T* toarr = toptr_ ? toptr_ : to_->arr();
     if ( toarr && fromarr )
-	std::memcpy( toarr+start, fromarr+start,
-		     (size_t) (nrleft*from_.bytesPerItem()) );
+    {
+	fromarr += start;
+	toarr += start;
+	const od_int64 sz = nrleft * from_.bytesPerItem();
+	std::memcpy( (void*)toarr, (const void*)fromarr, sz );
+    }
     else if ( toarr )
     {
 	toarr += start;
@@ -139,4 +145,26 @@ void ValueSeries<T>::getValues( T* to, od_int64 nrvals ) const
 {
     ValueSeriesGetAll<T> memsetter( *this, to, nrvals );
     memsetter.execute();
+}
+
+
+template <> inline
+bool ValueSeriesGetAll<Coord>::doWork( od_int64 start, od_int64 stop,
+				       int /*threadidx*/ )
+{
+    for ( od_int64 idx=start; idx<=stop; idx++ )
+	to_->setValue( idx, from_.value(idx) );
+
+    return true;
+}
+
+
+template <> inline
+bool ValueSeriesGetAll<Coord3>::doWork( od_int64 start, od_int64 stop,
+				        int /*threadidx*/ )
+{
+    for ( od_int64 idx=start; idx<=stop; idx++ )
+	to_->setValue( idx, from_.value(idx) );
+
+    return true;
 }

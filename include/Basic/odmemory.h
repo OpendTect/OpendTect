@@ -8,8 +8,8 @@ ________________________________________________________________________
 
 -*/
 
-#include "commondefs.h"
-#include "paralleltask.h"
+#include "basicmod.h"
+
 #include "valseries.h"
 
 #include <cmath>
@@ -241,6 +241,26 @@ bool MemSetter<T>::doWork( od_int64 start, od_int64 stop, int )
 }
 
 
+template <> inline
+bool MemSetter<Coord>::doWork( od_int64 start, od_int64 stop, int )
+{
+    for ( od_int64 idx=start; idx<=stop; idx++ )
+	vs_->setValue( idx, val_ );
+
+    return true;
+}
+
+
+template <> inline
+bool MemSetter<Coord3>::doWork( od_int64 start, od_int64 stop, int )
+{
+    for ( od_int64 idx=start; idx<=stop; idx++ )
+	vs_->setValue( idx, val_ );
+
+    return true;
+}
+
+
 namespace OD
 {
     mGlobal(Basic) void sysMemSet(void*,int,size_t);
@@ -275,18 +295,6 @@ bool MemSetter<bool>::setPtr( od_int64 start, od_int64 size )
 }
 
 
-#define mODMemSetterFullImpl(Type) \
-    Type* ptr = ptr_ + start; \
-    const Type* stopptr = ptr + size; \
-    while ( ptr != stopptr ) \
-    { \
-	*ptr = val_; \
-	ptr++; \
-    } \
- \
-    return true;
-
-
 namespace OD { mGlobal(Basic) void sysMemZero(void*,size_t); }
 
 #define mODMemSpecialImpl( Type ) \
@@ -313,7 +321,6 @@ mODMemSpecialImpl( od_int64 );
 mODMemSpecialImpl( od_uint64 );
 
 
-
 template <class T> inline
 bool MemSetter<T>::setPtr( od_int64 start, od_int64 size )
 {
@@ -323,7 +330,6 @@ bool MemSetter<T>::setPtr( od_int64 start, od_int64 size )
 }
 
 #undef mODMemSpecialImpl
-#undef mODMemSetterFullImpl
 
 
 template <class T> inline
@@ -374,6 +380,26 @@ bool MemCopier<T>::doWork( od_int64 start, od_int64 stop, int )
 	for ( od_int64 idx=start; idx<=stop; idx++ )
 	    { outvs_->setValue( idx, invs_->value(idx)); }
     }
+    return true;
+}
+
+
+template <> inline
+bool MemCopier<Coord>::doWork( od_int64 start, od_int64 stop, int )
+{
+    for ( od_int64 idx=start; idx<=stop; idx++ )
+	outvs_->setValue( idx, invs_->value(idx) );
+
+    return true;
+}
+
+
+template <> inline
+bool MemCopier<Coord3>::doWork( od_int64 start, od_int64 stop, int )
+{
+    for ( od_int64 idx=start; idx<=stop; idx++ )
+	outvs_->setValue( idx, invs_->value(idx) );
+
     return true;
 }
 
@@ -569,6 +595,32 @@ bool MemValReplacer<double>::doWork( od_int64 start, od_int64 stop, int )
 	    if ( vs_->value(idx)==fromval_ )
 		vs_->setValue( idx, toval_ );
 	}
+    }
+
+    return true;
+}
+
+
+template <> inline
+bool MemValReplacer<Coord>::doWork( od_int64 start, od_int64 stop, int )
+{
+    for ( od_int64 idx=start; idx<=stop; idx++ )
+    {
+	if ( vs_->value(idx) == fromval_ )
+	    vs_->setValue( idx, toval_ );
+    }
+
+    return true;
+}
+
+
+template <> inline
+bool MemValReplacer<Coord3>::doWork( od_int64 start, od_int64 stop, int )
+{
+    for ( od_int64 idx=start; idx<=stop; idx++ )
+    {
+	if ( vs_->value(idx) == fromval_ )
+	    vs_->setValue( idx, toval_ );
     }
 
     return true;
