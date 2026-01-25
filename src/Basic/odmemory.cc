@@ -34,7 +34,7 @@ ________________________________________________________________________
 
 void OD::sysMemCopy( void* dest, const void* org, od_int64 sz )
 {
-    memcpy( dest, org, (size_t)sz );
+    std::memcpy( dest, org, (size_t)sz );
 }
 
 
