@@ -157,29 +157,27 @@ bool CubicBezierSurfacePatch::intersectWithLine( const Line3& line,
 
 
 CubicBezierSurface::CubicBezierSurface( const RowCol& newstep )
-    : ParametricSurface( RowCol(0,0) , newstep )
-    , positions( 0 )
-    , rowdirections( 0 )
-    , coldirections( 0 )
-    , directioninfluence( 1.0/3 )
+    : ParametricSurface(RowCol(0,0), newstep)
+    , directioninfluence_(1.f/3.f)
 { }
 
 
 CubicBezierSurface::CubicBezierSurface( const CubicBezierSurface& b )
     : ParametricSurface( b.origin_, b.step_ )
-    , positions( b.positions ? new Array2DImpl<Coord3>(*b.positions) : 0 )
-    , rowdirections( b.rowdirections
-	    ? new Array2DImpl<Coord3>(*b.rowdirections) : 0 )
-    , coldirections( b.coldirections
-	    ? new Array2DImpl<Coord3>(*b.coldirections) : 0 )
+    , positions_( b.positions_ ? new Array2DImpl<Coord3>(*b.positions_)
+			       : nullptr )
+    , rowdirections_( b.rowdirections_
+	    ? new Array2DImpl<Coord3>(*b.rowdirections_) : nullptr )
+    , coldirections_( b.coldirections_
+	    ? new Array2DImpl<Coord3>(*b.coldirections_) : nullptr )
 { }
 
 
 CubicBezierSurface::~CubicBezierSurface()
 {
-    delete rowdirections;
-    delete coldirections;
-    delete positions;
+    delete rowdirections_;
+    delete coldirections_;
+    delete positions_;
 }
 
 
@@ -378,12 +376,17 @@ bool CubicBezierSurface::insertRow(int row, int nrtoinsert )
     for ( int idy=0; idy<curnrcols; idy++ )
 	addedpos += RowCol(newrow,origin_.col()+idy*step_.col()).toInt64();
 
-    mCloneRowVariable( Coord3, positions, computePosition(param), Coord3::udf())
-    mCloneRowVariable( Coord3, rowdirections, Coord3::udf(), Coord3::udf() )
-    mCloneRowVariable( Coord3, coldirections, Coord3::udf(), Coord3::udf() )
+    mCloneRowVariable( Coord3, positions_, computePosition(param),
+		       Coord3::udf() )
+    mCloneRowVariable( Coord3, rowdirections_, Coord3::udf(), Coord3::udf() )
+    mCloneRowVariable( Coord3, coldirections_, Coord3::udf(), Coord3::udf() )
 
-    if ( addedpos.size() ) triggerNrPosCh( addedpos );
-    if ( movedpos.size() ) triggerMovement( movedpos );
+    if ( addedpos.size() )
+	triggerNrPosCh( addedpos );
+
+    if ( movedpos.size() )
+	triggerMovement( movedpos );
+
     return true;
 }
 
@@ -409,12 +412,17 @@ bool CubicBezierSurface::insertCol(int col, int nrtoinsert )
     for ( int idy=0; idy<curnrrows; idy++ )
 	addedpos += RowCol(origin_.row()+idy*step_.row(),newcol).toInt64();
 
-    mCloneColVariable( Coord3, positions, computePosition(param), Coord3::udf())
-    mCloneColVariable( Coord3, rowdirections, Coord3::udf(), Coord3::udf() )
-    mCloneColVariable( Coord3, coldirections, Coord3::udf(), Coord3::udf() )
+    mCloneColVariable( Coord3, positions_, computePosition(param),
+		       Coord3::udf() )
+    mCloneColVariable( Coord3, rowdirections_, Coord3::udf(), Coord3::udf() )
+    mCloneColVariable( Coord3, coldirections_, Coord3::udf(), Coord3::udf() )
 
-    if ( addedpos.size() ) triggerNrPosCh( addedpos );
-    if ( movedpos.size() ) triggerMovement( movedpos );
+    if ( addedpos.size() )
+	triggerNrPosCh( addedpos );
+
+    if ( movedpos.size() )
+	triggerMovement( movedpos );
+
     return true;
 }
 
@@ -446,50 +454,56 @@ bool CubicBezierSurface::removeRow( int row, int )
 	}
     }
 
-    Array2D<Coord3>* newpositions = 
-	positions ? new Array2DImpl<Coord3>( curnrrows-1, curnrcols ) : 0;
+    auto* newpositions = 
+	positions_ ? new Array2DImpl<Coord3>( curnrrows-1, curnrcols )
+		   : nullptr;
     
     for ( int idx=0; newpositions && idx<curnrrows-1; idx++ )
     {
 	for ( int idy=0; idy<curnrcols; idy++ )
 	{
 	    const int srcrow = idx<rowidx ? idx : idx+1;
-	    newpositions->set( idx, idy, positions->get( srcrow, idy ) );
+	    newpositions->set( idx, idy, positions_->get( srcrow, idy ) );
 	}
     }
     if ( newpositions ) 
-	{ delete positions; positions = newpositions; }
+	{ delete positions_; positions_ = newpositions; }
     
-    Array2D<Coord3>* newrowdirections = 
-	rowdirections ? new Array2DImpl<Coord3>( curnrrows-1, curnrcols ) : 0;
+    auto* newrowdirections = 
+	rowdirections_ ? new Array2DImpl<Coord3>( curnrrows-1, curnrcols )
+		       : nullptr;
     
     for ( int idx=0; newrowdirections && idx<curnrrows-1; idx++ )
     {
 	for ( int idy=0; idy<curnrcols; idy++ )
 	{
 	    const int srcrow = idx<rowidx ? idx : idx+1;
-	    newrowdirections->set( idx, idy, rowdirections->get(srcrow,idy) );
+	    newrowdirections->set( idx, idy, rowdirections_->get(srcrow,idy) );
 	}
     }
     if ( newrowdirections ) 
-	{ delete rowdirections; rowdirections = newrowdirections; }
+	{ delete rowdirections_; rowdirections_ = newrowdirections; }
     
-    Array2D<Coord3>* newcoldirections = 
-	coldirections ? new Array2DImpl<Coord3>( curnrrows-1, curnrcols ) : 0;
+    auto* newcoldirections = 
+	coldirections_ ? new Array2DImpl<Coord3>( curnrrows-1, curnrcols )
+		       : nullptr;
 
     for ( int idx=0; newcoldirections && idx<curnrrows-1; idx++ )
     {
 	for ( int idy=0; idy<curnrcols; idy++ )
 	{
 	    const int srcrow = idx<rowidx ? idx : idx+1;
-	    newcoldirections->set( idx, idy, coldirections->get(srcrow,idy) );
+	    newcoldirections->set( idx, idy, coldirections_->get(srcrow,idy) );
 	}
     }
     if ( newcoldirections )
-	{ delete coldirections; coldirections = newcoldirections; }
+	{ delete coldirections_; coldirections_ = newcoldirections; }
 
-    if ( removedpos.size() ) triggerNrPosCh( removedpos );
-    if ( movedpos.size() ) triggerMovement( movedpos );
+    if ( removedpos.size() )
+	triggerNrPosCh( removedpos );
+
+    if ( movedpos.size() )
+	triggerMovement( movedpos );
 
     return true;
 }
@@ -522,50 +536,56 @@ bool CubicBezierSurface::removeCol( int col, int )
 	}
     }
 
-    Array2D<Coord3>* newpositions = 
-	positions ? new Array2DImpl<Coord3>( curnrrows, curnrcols-1 ) : 0;
+    auto* newpositions = 
+	positions_ ? new Array2DImpl<Coord3>( curnrrows, curnrcols-1 )
+		   : nullptr;
 
     for ( int idx=0; newpositions && idx<curnrrows; idx++ )
     {
 	for ( int idy=0; idy<curnrcols-1; idy++ )
 	{
 	    const int srccol = idy<colidx ? idy : idy+1;
-	    newpositions->set( idx, idy, positions->get( idx, srccol ) );
+	    newpositions->set( idx, idy, positions_->get( idx, srccol ) );
 	}
     }
     if ( newpositions ) 
-	{ delete positions; positions = newpositions; }
+	{ delete positions_; positions_ = newpositions; }
 
-    Array2D<Coord3>* newrowdirections = 
-	rowdirections ? new Array2DImpl<Coord3>( curnrrows, curnrcols-1 ) : 0;
+    auto* newrowdirections = 
+	rowdirections_ ? new Array2DImpl<Coord3>( curnrrows, curnrcols-1 )
+		       : nullptr;
 
     for ( int idx=0; newrowdirections && idx<curnrrows; idx++ )
     {
 	for ( int idy=0; idy<curnrcols-1; idy++ )
 	{
 	    const int srccol = idy<colidx ? idy : idy+1;
-	    newrowdirections->set( idx, idy, rowdirections->get(idx,srccol) );
+	    newrowdirections->set( idx, idy, rowdirections_->get(idx,srccol) );
 	}
     }
     if ( newrowdirections ) 
-	{ delete rowdirections; rowdirections = newrowdirections; }
+	{ delete rowdirections_; rowdirections_ = newrowdirections; }
     
-    Array2D<Coord3>* newcoldirections = 
-	coldirections ? new Array2DImpl<Coord3>( curnrrows, curnrcols-1 ) : 0;
+    auto* newcoldirections = 
+	coldirections_ ? new Array2DImpl<Coord3>( curnrrows, curnrcols-1 )
+		       : nullptr;
    
     for ( int idx=0; newcoldirections && idx<curnrrows; idx++ )
     {
 	for ( int idy=0; idy<curnrcols-1; idy++ )
 	{
 	    const int srccol = idy<colidx ? idy : idy+1;
-	    newcoldirections->set( idx, idy, coldirections->get(idx,srccol) );
+	    newcoldirections->set( idx, idy, coldirections_->get(idx,srccol) );
 	}
     }
     if ( newcoldirections )
-	{ delete coldirections; coldirections = newcoldirections; }
+	{ delete coldirections_; coldirections_ = newcoldirections; }
 
-    if ( removedpos.size() ) triggerNrPosCh( removedpos );
-    if ( movedpos.size() ) triggerMovement( movedpos );
+    if ( removedpos.size() )
+	triggerNrPosCh( removedpos );
+
+    if ( movedpos.size() )
+	triggerMovement( movedpos );
 
     return true;
 }
@@ -577,7 +597,7 @@ Coord3 CubicBezierSurface::getKnot( const RowCol& rc,
     const int index = getKnotIndex(rc);
     if ( index==-1 ) return Coord3::udf();
 
-    const Coord3* data = positions->getData();
+    const Coord3* data = positions_->getData();
 
     if ( estimateifundef && !data[index].isDefined() )
     {
@@ -653,7 +673,7 @@ Coord3 CubicBezierSurface::getKnot( const RowCol& rc,
 Coord3 CubicBezierSurface::getRowDirection( const RowCol& rc,
 					    bool computeifudf ) const
 {
-    mGetDirectionImpl( rowdirections, computeRowDirection);
+    mGetDirectionImpl( rowdirections_, computeRowDirection);
 }
 
 
@@ -661,17 +681,19 @@ Coord3 CubicBezierSurface::getRowDirection( const RowCol& rc,
 Coord3 CubicBezierSurface::getColDirection( const RowCol& rc,
 					    bool computeifudf ) const
 {
-    mGetDirectionImpl( coldirections, computeColDirection);
+    mGetDirectionImpl( coldirections_, computeColDirection);
 }
 
 
 float CubicBezierSurface::directionInfluence() const
-{ return directioninfluence; }
+{
+    return directioninfluence_;
+}
 
 
 void CubicBezierSurface::setDirectionInfluence(float ndi)
 {
-    directioninfluence = ndi;
+    directioninfluence_ = ndi;
     triggerMovement();
 }
 
@@ -921,7 +943,7 @@ IntervalND<float> CubicBezierSurface::boundingBox( const RowCol& rc,
 
 
 #define mComputeDirImpl(_rowcol_) \
-    const Coord3* ptr = positions->getData(); \
+    const Coord3* ptr = positions_->getData(); \
     int diff = 2*step_._rowcol_; \
     int previndex = getKnotIndex(prev); \
     if ( previndex!=-1 && !ptr[previndex].isDefined() ) previndex=-1; \
@@ -950,7 +972,7 @@ IntervalND<float> CubicBezierSurface::boundingBox( const RowCol& rc,
     if ( prevcoord.sqDistTo(nextcoord)<mEPS ) \
 	return Coord3::udf(); \
  \
-    return (nextcoord-prevcoord)*step_._rowcol_/diff*directioninfluence;
+    return (nextcoord-prevcoord)*step_._rowcol_/diff*directioninfluence_;
 
 
 Coord3 CubicBezierSurface::computeRowDirection( const RowCol& rc ) const
@@ -979,21 +1001,21 @@ Coord3 CubicBezierSurface::computeColDirection( const RowCol& rc ) const
 
 void CubicBezierSurface::_setKnot( int idx, const Coord3& np )
 {
-    if ( !positions )
+    if ( !positions_ )
     {
-	positions = new Array2DImpl<Coord3>( 1, 1 );
+	positions_ = new Array2DImpl<Coord3>( 1, 1 );
 	idx = 0;
     }
 
-    positions->getData()[idx] = np;
+    positions_->getData()[idx] = np;
 }
 
 
 int CubicBezierSurface::nrRows() const
-{ return positions ? positions->info().getSize(rowDim()) : 0; }
+{ return positions_ ? positions_->info().getSize(rowDim()) : 0; }
 
 
 int CubicBezierSurface::nrCols() const
-{ return positions ? positions->info().getSize(colDim()) : 0; }
+{ return positions_ ? positions_->info().getSize(colDim()) : 0; }
 
 } // namespace Geometry
