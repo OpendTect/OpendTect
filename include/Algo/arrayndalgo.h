@@ -2125,7 +2125,7 @@ saveAsNpy( const ArrayND<T>& arr, const char* filename,
     catch ( const std::exception& ex )
     {
 	uirv.add( od_static_tr("save_as_npy",
-			       "Failed to write .npy file: ").arg(ex.what()));
+			       "Failed to write .npy file: %1").arg(ex.what()));
 	return;
     }
     catch ( ... )
