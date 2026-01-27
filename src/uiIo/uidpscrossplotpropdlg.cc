@@ -28,17 +28,18 @@ static const int cMinPtsForDensity = 20000;
 
 struct uiDPSCPScalingTabAxFlds
 {
-		uiDPSCPScalingTabAxFlds()
-		    : doclipfld_(0), percclipfld_(0), rgfld_(0)	{}
+uiDPSCPScalingTabAxFlds()
+{}
 
-    uiGenInput*	doclipfld_;
-    uiGenInput*	percclipfld_;
-    uiGenInput*	rgfld_;
+    uiGenInput*		doclipfld_			= nullptr;
+    uiGenInput*		percclipfld_			= nullptr;
+    uiGenInput*		rgfld_				= nullptr;
 };
 
 
 class uiDPSCPScalingTab : public uiDlgGroup
-{ mODTextTranslationClass(uiDPSCPScalingTab);
+{
+mODTextTranslationClass(uiDPSCPScalingTab)
 public:
 
 uiDPSCPScalingTab( uiDataPointSetCrossPlotterPropDlg* p )
@@ -46,11 +47,9 @@ uiDPSCPScalingTab( uiDataPointSetCrossPlotterPropDlg* p )
     , plotter_(p->plotter())
 {
     const char* axnms[] = { "X", "Y", "Y2", 0 };
-    uiLabeledComboBox* axlcb = new uiLabeledComboBox( this, axnms,
-							  uiStrings::sAxis() );
+    auto* axlcb = new uiLabeledComboBox( this, axnms, uiStrings::sAxis() );
     axselfld_ = axlcb->box();
-    const CallBack axselcb( mCB(this,uiDPSCPScalingTab,axSel) );
-    axselfld_->selectionChanged.notify( axselcb );
+    mAttachCB( axselfld_->selectionChanged, uiDPSCPScalingTab::axSel );
 
     for ( int idx=0; idx<3; idx++ )
     {
@@ -75,14 +74,14 @@ uiDPSCPScalingTab( uiDataPointSetCrossPlotterPropDlg* p )
 	flds->rgfld_->attach( alignedBelow, flds->doclipfld_ );
     }
 
-    plotter_.dataChgd.notify( mCB(this,uiDPSCPScalingTab,updateFlds) );
-    p->postFinalize().notify( axselcb );
+    mAttachCB( plotter_.dataChgd, uiDPSCPScalingTab::updateFlds );
+    mAttachCB( p->postFinalize(), uiDPSCPScalingTab::axSel );
 }
 
 
 ~uiDPSCPScalingTab()
 {
-    plotter_.dataChgd.remove( mCB(this,uiDPSCPScalingTab,updateFlds) );
+    detachAllNotifiers();
 }
 
 
@@ -169,11 +168,13 @@ bool acceptOK() override
     uiDataPointSetCrossPlotter&		plotter_;
     uiComboBox*				axselfld_;
     ObjectSet<uiDPSCPScalingTabAxFlds>	axflds_;
-};
+
+}; // class uiDPSCPScalingTab
 
 
 class uiDPSCPStatsTab : public uiDlgGroup
-{ mODTextTranslationClass(uiDPSCPStatsTab)
+{
+mODTextTranslationClass(uiDPSCPStatsTab)
 public:
 
 uiDPSCPStatsTab( uiDataPointSetCrossPlotterPropDlg* p, bool y1 )
@@ -182,27 +183,27 @@ uiDPSCPStatsTab( uiDataPointSetCrossPlotterPropDlg* p, bool y1 )
     , plotter_(p->plotter())
     , y1_(y1)
 {
-    uiLabel* ylbl = new uiLabel( this, toUiString("%1 =").arg(uiStrings::sY()));
+    auto* ylbl = new uiLabel( this, toUiString("%1 =").arg(uiStrings::sY()));
     a0fld_ = new uiLineEdit( this, FloatInpSpec(0), "A0" );
     a0fld_->attach( rightOf, ylbl );
-    uiLabel* pluslbl = new uiLabel( this, toUiString("+ ") );
+    auto* pluslbl = new uiLabel( this, toUiString("+ ") );
     pluslbl->attach( rightOf, a0fld_ );
 
     a1fld_ = new uiLineEdit( this, FloatInpSpec(1), "A1" );
     a1fld_->attach( rightOf, pluslbl );
-    uiLabel* xlbl = new uiLabel(this, toUiString("* %1").arg(uiStrings::sX()));
+    auto* xlbl = new uiLabel(this, toUiString("* %1").arg(uiStrings::sX()));
     xlbl->attach( rightOf, a1fld_ );
 
     d0fld_ = new uiLineEdit( this, FloatInpSpec(0), "D0" );
     d0fld_->attach( alignedBelow, a0fld_ );
-    uiLabel* dlbl = new uiLabel( this, uiStrings::sErrors() );
+    auto* dlbl = new uiLabel( this, uiStrings::sErrors() );
     dlbl->attach( leftOf, d0fld_ );
     d1fld_ = new uiLineEdit( this, FloatInpSpec(0), "D1" );
     d1fld_->attach( alignedBelow, a1fld_ );
 
     ccfld_ = new uiLineEdit( this, FloatInpSpec(0), "CC" );
     ccfld_->attach( alignedBelow, d0fld_ );
-    uiLabel* cclbl = new uiLabel( this, uiStrings::sCorrelCoeff());
+    auto* cclbl = new uiLabel( this, uiStrings::sCorrelCoeff());
     cclbl->attach( leftOf, ccfld_ );
     ccdispbut_ = new uiCheckBox( this, tr("Put in plot") );
     ccdispbut_->attach( rightOf, ccfld_ );
@@ -281,11 +282,12 @@ bool acceptOK() override
     uiCheckBox*		ccdispbut_;
     uiCheckBox*		shwregrlnbut_;
 
-};
+}; // class uiDPSCPStatsTab
 
 
 class uiDPSUserDefTab : public uiDlgGroup
-{ mODTextTranslationClass(uiDPSUserDefTab);
+{
+mODTextTranslationClass(uiDPSUserDefTab)
 public:
 
 uiDPSUserDefTab( uiDataPointSetCrossPlotterPropDlg* p )
@@ -299,8 +301,8 @@ uiDPSUserDefTab( uiDataPointSetCrossPlotterPropDlg* p )
 {
     inpfld_ = new uiGenInput( this, tr("Equation Y1=") );
     inpfld_->setElemSzPol( uiObject::Wide );
-    inpfld_->updateRequested.notify( mCB(this,uiDPSUserDefTab,parseExpCB) );
-    inpfld_->valueChanging.notify( mCB(this,uiDPSUserDefTab,checkMathExpr) );
+    mAttachCB( inpfld_->updateRequested, uiDPSUserDefTab::parseExpCB );
+    mAttachCB( inpfld_->valueChanging, uiDPSUserDefTab::checkMathExpr );
 
     rmsfld_ = new uiGenInput( this, mJoinUiStrs(sRMS(),sErrors()) );
     rmsfld_->setElemSzPol( uiObject::Wide );
@@ -309,8 +311,7 @@ uiDPSUserDefTab( uiDataPointSetCrossPlotterPropDlg* p )
 
     shwy1userdefpolyline_ = new uiCheckBox( this,
 					    tr("Show Y1 User Defined Curve") );
-    shwy1userdefpolyline_->activated.notify(
-					mCB(this,uiDPSUserDefTab,parseExpCB));
+    mAttachCB( shwy1userdefpolyline_->activated, uiDPSUserDefTab::parseExpCB );
     shwy1userdefpolyline_->attach( alignedBelow, rmsfld_ );
 
     const OD::Color y1col = plotter_.setup().y1userdeflinestyle_.color_;
@@ -322,8 +323,8 @@ uiDPSUserDefTab( uiDataPointSetCrossPlotterPropDlg* p )
     {
 	inpfld1_ = new uiGenInput( this, tr("Equation Y2=") );
 	inpfld1_->setElemSzPol( uiObject::Wide );
-	inpfld1_->updateRequested.notify( mCB(this,uiDPSUserDefTab,parseExpCB));
-	inpfld1_->valueChanging.notify(mCB(this,uiDPSUserDefTab,checkMathExpr));
+	mAttachCB( inpfld1_->updateRequested , uiDPSUserDefTab::parseExpCB );
+	mAttachCB( inpfld1_->valueChanging, uiDPSUserDefTab::checkMathExpr );
 	inpfld1_->attach( alignedBelow, shwy1userdefpolyline_ );
 
 	rmsfld1_ = new uiGenInput( this, mJoinUiStrs(sRMS(), sErrors()) );
@@ -333,8 +334,8 @@ uiDPSUserDefTab( uiDataPointSetCrossPlotterPropDlg* p )
 
 	shwy2userdefpolyline_ =
 	    new uiCheckBox( this, tr("Show Y2 User Defined Curve") );
-	shwy2userdefpolyline_->activated.notify(
-		mCB(this,uiDPSUserDefTab,parseExpCB) );
+	mAttachCB( shwy2userdefpolyline_->activated,
+		   uiDPSUserDefTab::parseExpCB );
 
 	shwy2userdefpolyline_->attach( alignedBelow, rmsfld1_ );
 
@@ -360,24 +361,25 @@ uiDPSUserDefTab( uiDataPointSetCrossPlotterPropDlg* p )
 				uiStrings::sDraw(),tr("Y1")),
 				mJoinUiStrs(sDraw(), sY2())) );
 	selaxisfld_->attach( rightTo, drawlinebut_ );
-	selaxisfld_->valueChanged.notify(
-		mCB(this,uiDPSUserDefTab,drawAxisChanged) );
+	mAttachCB( selaxisfld_->valueChanged,
+		   uiDPSUserDefTab::drawAxisChanged );
 	selaxisfld_->display( false );
     }
 
     pickCB( 0 );
-    plotter_.lineDrawn.notify( mCB(this,uiDPSUserDefTab,setFlds) );
-    plotter_.mouseReleased.notify( mCB(this,uiDPSUserDefTab,getRmsErrorCB) );
-    p->postFinalize().notify( mCB(this,uiDPSUserDefTab,initFlds) );
-    p->windowClosed.notify( mCB(this,uiDPSUserDefTab,setPolyLines) );
+
+    mAttachCB( plotter_.lineDrawn, uiDPSUserDefTab::setFlds );
+    mAttachCB( plotter_.mouseReleased, uiDPSUserDefTab::getRmsErrorCB );
+    mAttachCB( p->postFinalize(), uiDPSUserDefTab::initFlds );
+    mAttachCB( p->windowClosed, uiDPSUserDefTab::setPolyLines );
 }
 
 
 ~uiDPSUserDefTab()
 {
-    plotter_.lineDrawn.remove( mCB(this,uiDPSUserDefTab,setFlds) );
-    plotter_.mouseReleased.remove( mCB(this,uiDPSUserDefTab,getRmsErrorCB) );
-    delete mathobj_; delete mathobj1_;
+    detachAllNotifiers();
+    delete mathobj_;
+    delete mathobj1_;
 }
 
 
@@ -786,11 +788,13 @@ bool acceptOK() override
     Math::Expression*		mathobj1_		= nullptr;
     uiString			msg() const		{ return msg_; }
     mutable uiString		msg_;
-};
+
+}; // class uiDPSUserDefTab
 
 
 class uiDPSCPDisplayPropTab : public uiDlgGroup
-{ mODTextTranslationClass(uiDPSCPDisplayPropTab);
+{
+mODTextTranslationClass(uiDPSCPDisplayPropTab)
 public:
 
 uiDPSCPDisplayPropTab( uiDataPointSetCrossPlotterPropDlg* p )
@@ -864,11 +868,13 @@ bool acceptOK() override
     uiComboBox*			shapefld_;
     uiColorInput*		ycolinpfld_;
     uiColorInput*		y2colinpfld_;
-};
+
+}; // class uiDPSCPDisplayPropTab
 
 
 class uiDPSDensPlotSetTab : public uiDlgGroup
-{ mODTextTranslationClass(uiDPSDensPlotSetTab)
+{
+mODTextTranslationClass(uiDPSDensPlotSetTab)
 public:
 
 uiDPSDensPlotSetTab( uiDataPointSetCrossPlotterPropDlg* p )
@@ -960,17 +966,20 @@ bool acceptOK() override
 
     static const char*		sKeyMinDPPts()
 				{ return "Minimum pts for Density Plot"; }
-};
+
+}; // class uiDPSDensPlotSetTab
 
 
+
+// uiDataPointSetCrossPlotterPropDlg
 uiDataPointSetCrossPlotterPropDlg::uiDataPointSetCrossPlotterPropDlg(
 		uiDataPointSetCrossPlotter* p )
-	: uiTabStackDlg( p->parent(),
-			 uiDialog::Setup(uiStrings::sSettings(),
-			 mODHelpKey(mDataPointSetCrossPlotterPropDlgHelpID))
-			 .modal(false) )
-	, plotter_(*p)
-	, bdroptab_(0)
+    : uiTabStackDlg( p->parent(),
+		     uiDialog::Setup(uiStrings::sSettings(),
+		     mODHelpKey(mDataPointSetCrossPlotterPropDlgHelpID))
+		     .modal(false) )
+    , plotter_(*p)
+    , bdroptab_(0)
 {
     setDeleteOnClose( false );
     scaletab_ = new uiDPSCPScalingTab( this );
