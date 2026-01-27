@@ -516,10 +516,16 @@ void uiFunctionDisplay::draw()
     {
 	if ( isVertical() )
 	{
-	    titleitem_->setPos( uiPoint(viewWidth()/1.6,0) );
+	    titleitem_->setAlignment( Alignment(Alignment::Right,
+						Alignment::Top) );
+	    titleitem_->setPos( uiPoint(viewWidth(),0) );
 	}
 	else
+	{
+	    titleitem_->setAlignment( Alignment(Alignment::HCenter,
+						Alignment::Top) );
 	    titleitem_->setPos( uiPoint(viewWidth()/2,0) );
+	}
     }
 
     const bool havey = !yvals_.isEmpty();
@@ -618,18 +624,19 @@ bool uiFunctionDisplay::setSelPt()
     {
 	const float x = xax->getRelPos( xvals_[idx] );
 	const float y = yax->getRelPos( yvals_[idx] );
-	const float distsq = (x-xpix)*(x-xpix) + (y-ypix)*(y-ypix);
+	const long double distsq = (x-xpix)*(x-xpix)+(y-ypix)*(y-ypix);
+
 	if ( distsq < mindistsq )
 	{
 	    newsel = idx;
 	    mindistsq = distsq;
 	}
     }
-    selpt_ = -1;
+
     if ( mindistsq > setup_.ptsnaptol_*setup_.ptsnaptol_ )
 	return false;
 
-    if ( newsel < 0 || newsel > xvals_.size() - 1 )
+    if ( newsel<0 || newsel>xvals_.size()-1 )
     {
 	selpt_ = -1;
 	return false;
@@ -637,6 +644,15 @@ bool uiFunctionDisplay::setSelPt()
 
     selpt_ = newsel;
     return true;
+}
+
+
+void uiFunctionDisplay::setSelectedPt( int pt )
+{
+    if ( pt>=0 && pt<xvals_.size()-1 )
+	selpt_ = pt;
+    else
+	selpt_ = -1;
 }
 
 
@@ -685,11 +701,15 @@ void uiFunctionDisplay::mouseReleaseCB( CallBacker* )
 	addPoint( Geom::PointF(pos.x_, pos.y_) );
 	pointSelected.trigger();
 	draw();
+	selpt_ = -1;
 	return;
     }
 
     if ( !isctrl || selpt_<=0 || selpt_>=xvals_.size()-1 || xvals_.size()<3 )
+    {
+	selpt_ = -1;
 	return;
+    }
 
     if ( allowaddpts_ )
     {
@@ -701,6 +721,7 @@ void uiFunctionDisplay::mouseReleaseCB( CallBacker* )
 
     pointChanged.trigger();
     draw();
+    selpt_ = -1;
 }
 
 
