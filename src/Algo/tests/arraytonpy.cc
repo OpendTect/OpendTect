@@ -43,6 +43,7 @@ static const od_int64 int64arr[] =
 };
 
 static BufferString workdir_;
+static BufferString badoutfpstr_;
 static BufferString floatfpstr_;
 static BufferString doublefpstr_;
 static BufferString intfpstr_;
@@ -71,6 +72,27 @@ void signalHandler( int signum )
 {
     errStream() << "Interrupt signal (" << signum << ") received." << od_endl;
     exit( signum );
+}
+
+
+bool testExportToBadFileName()
+{
+    Array2DImpl<float> farr( 3, 3 );
+    farr.setData( floatarr );
+    FilePath ffp( workdir_, "Bad_output_name10:37" );
+    ffp.setExtension( "npy" );
+    badoutfpstr_ = ffp.fullPath();
+    uiRetVal uirv;
+    saveAsNpy( farr, badoutfpstr_, uirv );
+    mRunStandardTest( uirv.isError(),
+		"Export aborted: output filename had special characters" );
+
+    const BufferString existdescstr( badoutfpstr_, " file does not exist." );
+    const BufferString existerrstr( badoutfpstr_, " file exists." );
+    mRunStandardTestWithError( !File::exists(badoutfpstr_.buf()),
+			       existdescstr, existerrstr );
+
+    return true;
 }
 
 
@@ -388,7 +410,7 @@ bool testGetInt64FromNpy()
 
 bool createWorkingDir()
 {
-    const BufferString tempdirfp = FilePath::getTempDir();;
+    const BufferString tempdirfp = FilePath::getTempDir();
     FilePath fp( tempdirfp.str(), "od_test_npy_read_write" );
     workdir_ = fp.fullPath();
     if ( File::exists(workdir_.str()) )
@@ -411,7 +433,8 @@ int mTestMainFnName( int argc, char** argv )
     signal( SIGTERM, signalHandler );
     atexit( cleanup );
 
-    if ( !createWorkingDir() )
+    if ( !createWorkingDir() ||
+	 !testExportToBadFileName() )
 	return 1;
 
     if ( !testExportFloatAsNpy() || 

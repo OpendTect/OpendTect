@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "coord.h"
 #include "enums.h"
 #include "file.h"
+#include "filepath.h"
 #include "mathfunc.h"
 #include "periodicvalue.h"
 #include "posinfo.h"
@@ -2068,6 +2069,19 @@ inline typename std::enable_if<std::is_arithmetic<T>::value,void>::type
 saveAsNpy( const ArrayND<T>& arr, const char* filename,
 	   uiRetVal& uirv, bool fortranorder=false )
 {
+    const FilePath outfp( filename );
+    const BufferString origbasename = outfp.baseName();
+    const BufferString cleanbasname
+			= outfp.baseName().clean( BufferString::NoFileSeps );
+    if ( origbasename != cleanbasname )
+    {
+	uirv.add( od_static_tr("save_as_npy",
+			       "Invalid output file name.\n\nA name cannot "
+			       "contain special characters used as file "
+			       "separators\n") );
+	return;
+    }
+
     const ArrayNDInfo& shape = arr.info();
     const od_int64 totalsz = shape.getTotalSz();
     if ( totalsz < 1 )
@@ -2118,9 +2132,16 @@ saveAsNpy( const ArrayND<T>& arr, const char* filename,
 	npydata.shape.push_back( shape.getSize(idx) );
 
     npydata.fortran_order = fortranorder;
+    BufferString outfname;
+    const bool outfileisuri = File::isURI( filename );
+    if ( outfileisuri )
+	outfname = FilePath::getTempFullPath( "od_npy_out", "npy" );
+    else
+	outfname = filename;
+
     try
     {
-	npy::write_npy( filename, npydata );
+	npy::write_npy( outfname.buf(), npydata);
     }
     catch ( const std::exception& ex )
     {
@@ -2135,16 +2156,28 @@ saveAsNpy( const ArrayND<T>& arr, const char* filename,
 	return;
     }
 
-    if ( !File::exists(filename) )
+    if ( !File::exists(outfname.buf()) )
     {
 	uirv.add( od_static_tr("save_as_npy",
 		       "Failed to create .npy file due to an unknown error.") );
 	return;
     }
 
-    if ( File::isEmpty(filename) )
+    if ( File::isEmpty(outfname.buf()) )
+    {
 	uirv.add( od_static_tr("save_as_npy",
 			"Failed to write .npy file due to an unknown error.") );
+	return;
+    }
+
+    if ( outfileisuri )
+    {
+	if ( !File::copy(outfname,filename) )
+	    uirv.add( od_static_tr("save_as_npy",
+			    "Could not upload the .npy to specified URI") );
+
+	File::remove( outfname.buf() );
+    }
 }
 
 
@@ -2152,28 +2185,54 @@ template <typename T>
 inline typename std::enable_if<std::is_arithmetic<T>::value,ArrayND<T>*>::type
 getFromNpy( const char* filename, uiRetVal& uirv )
 {
-    if ( !File::exists(filename) )
+    const bool inpfileisuri = File::isURI( filename );
+    auto cleanUp = [&inpfileisuri]( const char* tempfnm )
+    {
+	if ( !inpfileisuri )
+	    return;
+
+	if ( File::exists(tempfnm) )
+	    File::remove( tempfnm );
+    };
+
+    BufferString workingfnm;
+    if ( inpfileisuri )
+    {
+	workingfnm = FilePath::getTempFullPath( "od_npy_in", "npy" );
+	if ( !File::copy(filename,workingfnm) )
+	{
+	    uirv.add( od_static_tr("get_From_Npy",
+		    "Could not copy input .npy file from specified URI") );
+	    return nullptr;
+	}
+    }
+    else
+	workingfnm = filename;
+
+    if ( !File::exists(workingfnm) )
     {
 	uirv.add( od_static_tr("get_From_Npy",
-			       "%1 does not exist.").arg(filename) );
+			       "%1 does not exist.").arg(workingfnm) );
 	return nullptr;
     }
 
     npy::npy_data<T> npydata;
     try
     {
-	npydata = npy::read_npy<T>( filename );
+	npydata = npy::read_npy<T>( workingfnm.buf() );
     }
     catch ( const std::exception& ex )
     {
 	uirv.add( od_static_tr("get_From_Npy",
-			"Failed to read %1: %2").arg(filename).arg(ex.what()));
+		    "Failed to read %1: %2").arg(workingfnm).arg(ex.what()));
+	cleanUp( workingfnm.buf() );
 	return nullptr;
     }
     catch ( ... )
     {
 	uirv.add( od_static_tr("get_From_Npy",
-		"Failed to read %1 due to an unknown error.").arg(filename) );
+		"Failed to read %1 due to an unknown error.").arg(workingfnm) );
+	cleanUp( workingfnm.buf() );
 	return nullptr;
     }
 
@@ -2187,6 +2246,7 @@ getFromNpy( const char* filename, uiRetVal& uirv )
     {
 	uirv.add( od_static_tr("get_From_Npy",
 			    "Could not determine the shape of Numpy array.") );
+	cleanUp( workingfnm.buf() );
 	return nullptr;
     }
 
@@ -2204,10 +2264,12 @@ getFromNpy( const char* filename, uiRetVal& uirv )
 	    uirv.add( od_static_tr("get_From_Npy",
 			 "Could not replace 'nan' values with compatible "
 			 "undefined values.") );
+	    cleanUp( workingfnm.buf() );
 	    return nullptr;
 	}
     }
 
+    cleanUp( workingfnm.buf() );
     return data.release();
 }
 
