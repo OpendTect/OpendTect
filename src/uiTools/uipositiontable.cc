@@ -230,5 +230,5 @@ void uiPositionTable::setRowColor( int rid, bool includes )
 {
     OD::Color col = !includes ? OD::Color(200,0,0) : OD::Color::White();
     for ( int colid=0; colid<table_->nrCols(); colid++ )
-	table_->setColor( RowCol(rid,colid), col );
+	table_->setCellBackground( RowCol(rid,colid), col );
 }

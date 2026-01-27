@@ -54,6 +54,7 @@ uiColTabMarkerDlg::uiColTabMarkerDlg( uiParent* p, ColTab::Sequence& ctab )
 		.add( uiStrings::sColor() );
     table_->setColumnLabels( columnlabels );
     table_->setColumnReadOnly( sColorCol, true );
+    table_->setColumnForColorSelection( sColorCol );
     table_->setSelectionMode( uiTable::SingleRow );
     fillTable();
 

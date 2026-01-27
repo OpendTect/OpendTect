@@ -642,7 +642,7 @@ void uiSEGYReadStartInfo::setCellTxt( int col, int row, const uiString& txt )
     tbl_->setText( rc, txt );
     if ( col == mItemCol || col == mUseTxtCol )
 	tbl_->resizeColumnToContents( col );
-    tbl_->setColor( rc, col != mQSResCol || txt.isEmpty()
+    tbl_->setCellBackground( rc, col != mQSResCol || txt.isEmpty()
 			? OD::Color::White() : qscellcolor );
 }
 

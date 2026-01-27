@@ -259,6 +259,7 @@ uiMarkerDlg::uiMarkerDlg( uiParent* p, const Well::Track& t,
     table_->setColumnStretchable( cLevelCol, true );
     table_->setNrRows( cNrEmptyRows );
     table_->setColumnReadOnly( cColorCol, true );
+    table_->setColumnForColorSelection( cColorCol );
     table_->setSelectionBehavior( uiTable::SelectRows );
     mAttachCB( table_->doubleClicked, uiMarkerDlg::mouseClick );
     mAttachCB( table_->valueChanged, uiMarkerDlg::markerChangedCB );

@@ -763,6 +763,7 @@ uiSurfaceStratDlg( uiParent* p, const TypeSet<MultiID>& ids )
     tbl_->setRowResizeMode( uiTable::Interactive );
     tbl_->setColumnResizeMode( uiTable::ResizeToContents );
     tbl_->setColumnStretchable( 2, true );
+    tbl_->setColumnForColorSelection( 1 );
     tbl_->setPrefWidth( 400 );
     tbl_->doubleClicked.notify( mCB(this,uiSurfaceStratDlg,doCol) );
 

@@ -44,6 +44,7 @@ uiDPSSelGrpDlg::uiDPSSelGrpDlg( uiDataPointSetCrossPlotter& p,
     tbl_->selectionChanged.notify( mCB(this,uiDPSSelGrpDlg,setCurSelGrp) );
     tbl_->setColumnLabel( 0, uiStrings::sName() );
     tbl_->setColumnLabel( 1, uiStrings::sColor() );
+    tbl_->setColumnForColorSelection( 1 );
 
     for ( int idx=0; idx<selgrps_.size(); idx++ )
     {

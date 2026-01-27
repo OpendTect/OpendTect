@@ -702,6 +702,7 @@ uiStratUnitDivideDlg::uiStratUnitDivideDlg( uiParent* p,
            .add( uiStrings::sStop().withUnit("my") );
     table_->setColumnLabels( collbls );
     table_->setColumnReadOnly( cColorCol, true );
+    table_->setColumnForColorSelection( cColorCol );
     table_->setColumnResizeMode( uiTable::ResizeToContents );
     table_->setNrRows( cNrEmptyRows );
     mAttachCB( table_->leftClicked, uiStratUnitDivideDlg::mouseClick );
