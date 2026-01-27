@@ -344,7 +344,7 @@ static void setDisplayName( uiTable& tbl, int row, const HostData& hd, bool ro )
 {
     const char* nm = hd.nrAliases()>0 ? hd.alias(0) : hd.getHostName();
     tbl.setText( RowCol(row,sDispNameCol), nm );
-    tbl.setColor( RowCol(row,sDispNameCol), getCellColor(true,ro) );
+    tbl.setCellBackground( RowCol(row,sDispNameCol), getCellColor(true,ro) );
 }
 
 
@@ -385,7 +385,7 @@ static void setDataRoot( uiTable& tbl, int row, const HostData& hd, bool ro )
 {
     const BufferString dataroot = hd.getDataRoot().fullPath();
     tbl.setText( RowCol(row,sDataRootCol), dataroot );
-    tbl.setColor( RowCol(row,sDataRootCol), getCellColor(true,ro) );
+    tbl.setCellBackground( RowCol(row,sDataRootCol), getCellColor(true,ro) );
 }
 
 
@@ -703,10 +703,10 @@ void uiBatchHostsDlg::checkHostData( int row )
     table_->setCellReadOnly( RowCol(row,sIPCol), !isstaticip );
     table_->setCellReadOnly( RowCol(row,sHostNameCol), isstaticip );
 
-    table_->setColor( RowCol(row,sIPCol),
-		      getCellColor(isok,readonly_||!isstaticip) );
-    table_->setColor( RowCol(row,sHostNameCol),
-		      getCellColor(isok,readonly_||isstaticip) );
+    table_->setCellBackground( RowCol(row,sIPCol),
+			getCellColor(isok,readonly_||!isstaticip) );
+    table_->setCellBackground( RowCol(row,sHostNameCol),
+			getCellColor(isok,readonly_||isstaticip) );
 }
 
 

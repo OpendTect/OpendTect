@@ -52,39 +52,40 @@ public:
     {
     public:
 
-		    Setup(int nrrows=-1,int nrcols=-1)
-			: size_(nrrows,nrcols)
-			, rowdesc_(uiStrings::sRow())
-			, coldesc_(uiStrings::sColumn())
-			, rowgrow_(false)
-			, colgrow_(false)
-			, insertrowallowed_(true) //!< can extra rows be added by user?
-			, removerowallowed_(true)
-			, insertcolallowed_(true)
-			, removecolallowed_(true) //!< can extra cols be added by user?
-			, fillrow_(false) //!< adjust cell height to avail space
-			, fillcol_(false) //!< adjust cell width to avail space
-			, maxrowhgt_(3.f) //!< units of font height
-			, minrowhgt_(1.f) //!< units of font height
-			, maxcolwdt_(2.3f*uiObject::baseFldSize())
-					  //!< units of font
-			, mincolwdt_(1.f*uiObject::baseFldSize())
-					  //!< units of font
-			, selmode_(NoSelection)
-			, removeselallowed_(true)
-			, snglclkedit_(true)
-			, defrowlbl_(false)
-			, defcollbl_(false)
-			, manualresize_(false)
-					//!< if not, adapt size of cells auto
-			, defrowstartidx_(1)
-				//!< default row label: start counting at 1
-			, rightclickdisabled_(false)
-				//!<default enables right click popup
-			, enablecopytext_(false)
-				{}
-			~Setup()
-			{}
+	Setup(int nrrows=-1,int nrcols=-1)
+	    : size_(nrrows,nrcols)
+	    , rowdesc_(uiStrings::sRow())
+	    , coldesc_(uiStrings::sColumn())
+	    , rowgrow_(false)
+	    , colgrow_(false)
+	    , insertrowallowed_(true) //!< can extra rows be added by user?
+	    , removerowallowed_(true)
+	    , insertcolallowed_(true)
+	    , removecolallowed_(true) //!< can extra cols be added by user?
+	    , fillrow_(false) //!< adjust cell height to avail space
+	    , fillcol_(false) //!< adjust cell width to avail space
+	    , maxrowhgt_(3.f) //!< units of font height
+	    , minrowhgt_(1.f) //!< units of font height
+	    , maxcolwdt_(2.3f*uiObject::baseFldSize())
+			      //!< units of font
+	    , mincolwdt_(1.f*uiObject::baseFldSize())
+			      //!< units of font
+	    , selmode_(NoSelection)
+	    , removeselallowed_(true)
+	    , snglclkedit_(true)
+	    , defrowlbl_(false)
+	    , defcollbl_(false)
+	    , manualresize_(false)
+			    //!< if not, adapt size of cells auto
+	    , defrowstartidx_(1)
+		    //!< default row label: start counting at 1
+	    , rightclickdisabled_(false)
+		    //!<default enables right click popup
+	    , enablecopytext_(false)
+	    {}
+
+	~Setup()
+	{}
 
 	mDefSetupMemb(RowCol,size)
 	mDefSetupMemb(uiString,rowdesc)
@@ -306,8 +307,11 @@ public:
     CNotifier<uiTable,int> columnClicked;
 
     void		setPixmap(const RowCol&,const uiPixmap&);
+    void		setColumnForColorSelection(int col);
     void		setColor(const RowCol&,const OD::Color&);
     OD::Color		getColor(const RowCol&) const;
+    void		setCellBackground(const RowCol&,const OD::Color&);
+    OD::Color		getCellBackground(const RowCol&) const;
     void		setHeaderBackground(int,const OD::Color&,bool isrow);
     OD::Color		getHeaderBackground(int,bool isrow) const;
     void		showOuterFrame(bool);

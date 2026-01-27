@@ -345,8 +345,12 @@ uiSelColorDlg( uiParent* p, const BufferStringSet& names,
     tbl_->setRowLabels( names.getUiStringSet() );
     uiStringSet collabel;
     collabel.add( uiStrings::sY() );
+    tbl_->setColumnForColorSelection( 0 );
     if ( isy2shwn )
+    {
         collabel.add( uiStrings::sY2() );
+	tbl_->setColumnForColorSelection( 1 );
+    }
 
     tbl_->setColumnLabels( collabel );
     for ( int idx=0; idx<names.size(); idx++ )

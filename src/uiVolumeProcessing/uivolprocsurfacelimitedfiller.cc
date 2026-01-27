@@ -70,6 +70,7 @@ uiSurfaceLimitedFiller::uiSurfaceLimitedFiller( uiParent* p,
     table_->setColumnResizeMode( uiTable::ResizeToContents );
     table_->setRowResizeMode( uiTable::Interactive );
     table_->setColumnStretchable( cNameCol, true );
+    table_->setColumnForColorSelection( cColorCol );
     addbutton_ = new uiPushButton( this, uiStrings::sAdd(),
 	    mCB(this,uiSurfaceLimitedFiller,addSurfaceCB), false );
     addbutton_->attach( rightOf, table_ );

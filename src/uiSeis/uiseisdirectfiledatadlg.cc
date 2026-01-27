@@ -120,14 +120,14 @@ void uiSeisDirectFileDataDlg::updateFileTable( int rowidx )
 	if ( File::exists(fp.fullPath()) )
 	{
 	    filetable_->setCellToolTip( rc, uiStrings::sEmptyString() );
-	    filetable_->setColor( rc, OD::Color::White() );
+	    filetable_->setCellBackground( rc, filetable_->backgroundColor() );
 	}
 	else
 	{
 	    uiString tttext( uiStrings::phrCannotFind(uiStrings::phrJoinStrings
 			      (uiStrings::sFile(),toUiString(fp.fullPath()))) );
 	    filetable_->setCellToolTip( rc, tttext );
-	    filetable_->setColor( rc, OD::Color::Red() );
+	    filetable_->setCellBackground( rc, OD::Color::Red() );
 	}
     }
 }

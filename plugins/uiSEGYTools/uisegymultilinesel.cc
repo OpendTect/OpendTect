@@ -266,12 +266,12 @@ void uiSEGYMultiLineSel::updateLineAvailability( int rowidx )
     if ( geom && geom->is2D() )
     {
 	tbl_->setText( rc, tr("Exists") );
-	tbl_->setColor( rc, OD::Color(180,255,180) );
+	tbl_->setCellBackground( rc, OD::Color(180,255,180) );
     }
     else
     {
 	tbl_->setText( rc, uiStrings::sNew() );
-	tbl_->setColor( rc, OD::Color(180,240,255) );
+	tbl_->setCellBackground( rc, OD::Color(180,240,255) );
     }
 
     tbl_->setCellReadOnly( rc, true );

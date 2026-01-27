@@ -447,7 +447,7 @@ void uiSEGYExamine::updateInp()
 	}
 
 	if ( !trhead.isusable )
-	    tbl_->setColor( RowCol(SEGY::TrcHeader::EntryTrid(),itrc),
+	    tbl_->setCellBackground( RowCol(SEGY::TrcHeader::EntryTrid(),itrc),
 			    OD::Color::Red() );
 
 	nrdone++;

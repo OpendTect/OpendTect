@@ -64,7 +64,35 @@ void paint( QPainter* painter, const QStyleOptionViewItem& option,
     QStyledItemDelegate::paint( painter, option, index );
 }
 
-};
+}; // class BackgroundDelegate
+
+
+class ColorDelegate : public QStyledItemDelegate
+{
+public:
+using QStyledItemDelegate::QStyledItemDelegate;
+
+void paint( QPainter* painter, const QStyleOptionViewItem& option,
+	    const QModelIndex& index) const override
+{
+    QStyledItemDelegate::paint( painter, option, index );
+
+    const QColor qcol = index.data(Qt::UserRole).value<QColor>();
+    if ( !qcol.isValid() )
+	return;
+
+    const QRect qrect = option.rect.adjusted( 5, 5, -5, -5 );
+
+    painter->save();
+    painter->setRenderHint( QPainter::Antialiasing, false );
+    painter->setPen( QPen(Qt::black,1) );
+    painter->setBrush( qcol );
+    painter->drawRect( qrect );
+    painter->restore();
+}
+
+}; // class ColorDelegate
+
 
 
 class CellObject
@@ -1253,17 +1281,51 @@ void uiTable::setPixmap( const RowCol& rc, const uiPixmap& pm )
 }
 
 
+void uiTable::setColumnForColorSelection( int col )
+{
+    body_->setItemDelegateForColumn( col, new ColorDelegate(body_) );
+}
+
+
 void uiTable::setColor( const RowCol& rc, const OD::Color& col )
 {
     mBlockCmdRec;
-    QColor qcol( col.r(), col.g(), col.b(), 255-col.t() );
+    const QColor qcol( col.r(), col.g(), col.b(), 255-col.t() );
     QTableWidgetItem* itm = body_->getItem( rc );
-    if ( itm ) itm->setBackground( QBrush(qcol) );
+    if ( itm )
+	itm->setData( Qt::UserRole, qcol );
+
     body_->setFocus();
 }
 
 
 OD::Color uiTable::getColor( const RowCol& rc ) const
+{
+    QTableWidgetItem* itm = body_->getItem( rc, false );
+    if ( !itm )
+	return OD::Color(255,255,255);
+
+    const QColor qcol = itm->data(Qt::UserRole).value<QColor>();
+    if ( !qcol.isValid() )
+	return OD::Color(255,255,255);
+
+    return OD::Color( qcol.red(), qcol.green(), qcol.blue(), 255-qcol.alpha() );
+}
+
+
+void uiTable::setCellBackground( const RowCol& rc, const OD::Color& col )
+{
+    mBlockCmdRec;
+    const QColor qcol( col.r(), col.g(), col.b(), 255-col.t() );
+    QTableWidgetItem* itm = body_->getItem( rc );
+    if ( itm )
+	itm->setBackground( QBrush(qcol) );
+
+    body_->setFocus();
+}
+
+
+OD::Color uiTable::getCellBackground( const RowCol& rc ) const
 {
     QTableWidgetItem* itm = body_->getItem( rc, false );
     if ( !itm )
@@ -1289,7 +1351,7 @@ void uiTable::setHeaderBackground( int idx, const OD::Color& col, bool isrow )
 OD::Color uiTable::getHeaderBackground( int idx, bool isrow ) const
 {
     QTableWidgetItem* itm = isrow ? body_->verticalHeaderItem( idx )
-					    : body_->horizontalHeaderItem( idx);
+				  : body_->horizontalHeaderItem( idx);
     if ( !itm )
 	return OD::Color(255,255,255);
 
