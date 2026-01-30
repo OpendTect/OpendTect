@@ -424,3 +424,15 @@ void uiSlider::setNrDecimalsEditFld( int nrdec )
     fv.nrdecimals_ = nrdec;
     editfld_->setValidator( fv );
 }
+
+
+bool uiSlider::isSliderDown() const
+{
+    return slider_->body().isSliderDown();
+}
+
+
+void uiSlider::setSliderDown( bool yn )
+{
+    slider_->body().setSliderDown( yn );
+}
