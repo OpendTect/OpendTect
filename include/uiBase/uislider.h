@@ -115,6 +115,9 @@ public:
     bool		isLogScale()			{ return logscale_; }
     void		setNrDecimalsEditFld(int);
 
+    bool		isSliderDown() const;
+    void		setSliderDown(bool);
+
     Notifier<uiSlider>	valueChanged;
     Notifier<uiSlider>	sliderMoved;
     Notifier<uiSlider>	sliderPressed;
