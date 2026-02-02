@@ -180,7 +180,6 @@ uiContourTreeItemContourGenerator::uiContourTreeItemContourGenerator(
     , field_(field)
 {
     totalnrshapes_ = nrcontours_;
-    areas_.setSize( nrcontours_ );
     setName( "Generating contours" );
 }
 
@@ -202,6 +201,9 @@ od_int64 uiContourTreeItemContourGenerator::nrIterations() const
 
 bool uiContourTreeItemContourGenerator::doPrepare(int)
 {
+    if ( !areas_.setSize(nrcontours_) )
+	return false;
+
     if( !setRowColRgs( uicitem_->getHorDisp() ) ||
 	!prepForContourGenerator() )
 	return false;
