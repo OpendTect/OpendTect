@@ -133,6 +133,13 @@ i_tableViewMessenger( QTableView* sndr, uiTableView* rcvr )
 	    this, &i_tableViewMessenger::rowPressed );
     connect( sndr->horizontalHeader(), &QHeaderView::sectionPressed,
 	    this, &i_tableViewMessenger::columnPressed );
+    connect( sndr, &QTableView::clicked,
+	    this, &i_tableViewMessenger::cellClicked );
+    connect( sndr, &QTableView::pressed,
+	    this, &i_tableViewMessenger::cellPressed );
+
+    connect( sndr->selectionModel(), &QItemSelectionModel::selectionChanged,
+	     this, &i_tableViewMessenger::selectionChanged );
 }
 
 
@@ -226,6 +233,31 @@ void rowPressed( int row )
 void columnPressed( int col )
 {
     handleSlot( "columnPressed", -1, col );
+}
+
+
+void cellClicked( const QModelIndex& index )
+{
+    const int row = index.row();
+    const int col = index.column();
+    receiver_->notifcell_ = RowCol(row,col);
+    handleSlot( "cellLeftClicked", row, col, &receiver_->leftClicked );
+}
+
+
+void cellPressed( const QModelIndex& index )
+{
+    const int row = index.row();
+    const int col = index.column();
+    receiver_->notifcell_ = RowCol(row,col);
+    handleSlot( "cellPressed", row, col, nullptr );
+}
+
+
+void selectionChanged( const QItemSelection& selected,
+		       const QItemSelection& deselected )
+{
+    handleSlot( "selectionChanged", -1, -1, &receiver_->selectionChanged );
 }
 
 };

@@ -143,6 +143,7 @@ public:
 
     TableModel::CellType	getCellType(int col) const;
 
+    Notifier<uiTableView>			leftClicked;
     Notifier<uiTableView>			doubleClicked;
     Notifier<uiTableView>			rightClicked;
     Notifier<uiTableView>			selectionChanged;
@@ -163,6 +164,8 @@ protected:
     void			editRequestCB(CallBacker*);
 
     TableModel*			tablemodel_		= nullptr;
+    RowCol			notifcell_;
+
     ODTableView*		odtableview_;
     QSortFilterProxyModel*	qproxymodel_		= nullptr;
     QByteArray*			horizontalheaderstate_	= nullptr;

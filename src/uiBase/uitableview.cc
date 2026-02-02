@@ -908,6 +908,7 @@ bool ODTableView::setSourceDataWithUndo( const TableModel::EditRequest& req )
 
 uiTableView::uiTableView( uiParent* p, const char* nm )
     : uiObject(p,nm,mkView(p,nm))
+    , leftClicked(this)
     , doubleClicked(this)
     , rightClicked(this)
     , selectionChanged(this)

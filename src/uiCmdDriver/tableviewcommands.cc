@@ -1680,11 +1680,11 @@ bool TableViewCmdComposer::accept( const CmdRecEvent& ev )
 
     if ( accepted )
     {
-	const bool notileft = mMatchCI(notifiername, "leftClicked") ||
+	const bool notileft = mMatchCI(notifiername, "cellLeftClicked") ||
 			      mMatchCI(notifiername, "rowClicked")  ||
 			      mMatchCI(notifiername, "columnClicked");
 
-	const bool notiright = mMatchCI( notifiername, "rightClicked" );
+	const bool notiright = mMatchCI( notifiername, "cellRightClicked" );
 
 	if ( stagenr_ == -1 )
 	    return true;
