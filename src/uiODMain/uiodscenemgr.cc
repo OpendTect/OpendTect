@@ -160,7 +160,11 @@ uiODSceneMgr::~uiODSceneMgr()
     delete tifs_;
     delete mdiarea_;
     for ( auto* scene : scenes_ )
+    {
 	scene->itemmanager_->prepareForShutdown();
+	removeScene( *scene );
+    }
+
     deepErase( scenes_ );
     delete wingrabber_;
     delete tiletimer_;
