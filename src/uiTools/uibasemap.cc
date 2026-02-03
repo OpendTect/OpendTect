@@ -577,6 +577,16 @@ void uiBasemap::show( const BasemapObject& obj, bool yn )
 }
 
 
+bool uiBasemap::isVisible( const BasemapObject& obj ) const
+{
+    const int objidx = indexOf( &obj );
+    if ( !objects_.validIdx(objidx) )
+	return false;
+
+    return objects_[objidx]->isShown();
+}
+
+
 void uiBasemap::showLabels( bool yn )
 {
     for ( int idx=0; idx<objects_.size(); idx++ )
