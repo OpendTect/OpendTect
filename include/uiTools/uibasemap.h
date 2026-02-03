@@ -90,6 +90,7 @@ public:
 				//!Owned by caller
     void			removeObject(const BasemapObject*);
     void			show(const BasemapObject&,bool yn);
+    bool			isVisible(const BasemapObject&) const;
 
     void			showLabels(bool yn);
     bool			labelsShown() const;
