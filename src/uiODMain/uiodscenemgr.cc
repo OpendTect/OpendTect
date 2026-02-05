@@ -159,10 +159,11 @@ uiODSceneMgr::~uiODSceneMgr()
     cleanUp( false );
     delete tifs_;
     delete mdiarea_;
-    for ( auto* scene : scenes_ )
+    for ( int idx=scenes_.size()-1; idx>=0; idx-- )
     {
+	Scene* scene = scenes_.get( idx );
 	scene->itemmanager_->prepareForShutdown();
-	removeScene( *scene );
+	removeScene( *scene ); // deletes "scene"
     }
 
     deepErase( scenes_ );
