@@ -166,7 +166,7 @@ protected:
     BufferString	unx_appl_pr_;
     BufferString	win_data_pr_;
     BufferString	unx_data_pr_;
-    mutable int		prefixlength_;
+    mutable int		prefixlength_		= -1;
 
     void		handleLocal();
     void		initDataRoot();
