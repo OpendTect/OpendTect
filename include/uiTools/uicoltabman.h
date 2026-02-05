@@ -39,6 +39,7 @@ public:
 				Notifier<uiTranspValuesDlg> valuesChanged;
 				Notifier<uiTranspValuesDlg> segmentInserted;
 				Notifier<uiTranspValuesDlg> segmentRemoved;
+				Notifier<uiTranspValuesDlg> markersChanged;
 
 
 protected:
@@ -55,9 +56,18 @@ protected:
     void			dataChgdCB(CallBacker*);
     void			rowInsertedCB(CallBacker*);
     void			rowDeletedCB(CallBacker*);
-    void			resetTranspPtsCB(CallBacker*);
+    void			resetTranspPointsCB(CallBacker*);
+    void			mouseClickCB(CallBacker*);
+    void			markerInsertedCB(CallBacker*);
+    void			markerDeletedCB(CallBacker*);
+    void			markerPositionChgdCB(CallBacker*);
+    bool			acceptOK(CallBacker*);
 
-    void			fillTableWithPts();
+    int				reverseAnchorIdx(int idx);
+    int				reverseTransparencyIdx(int idx);
+    int				reverseSegIdx(int idx);
+
+    void			fillTableWithPoints();
     void			fillAnchorTable();
     void			fillTableWithSegments(bool resettransp);
     void			setPtsToAnchSeg(bool extrapolate);
@@ -106,10 +116,12 @@ protected:
     BufferString		selstatus_;
     ColTab::Sequence&         	ctab_;
     ColTab::Sequence*         	orgctab_		= nullptr;
+    ColTab::Sequence*		segctab_		= nullptr;
 
     bool			issaved_		= true;
     int				selidx_			= -1;
     Interval<float>		ctabrange_;
+    int				segidx_			= -1;
 
     bool			enabletrans_;
 
@@ -150,7 +162,7 @@ protected:
     void			transptSelCB(CallBacker*);
     void			transptChgCB(CallBacker*);
     void			sequenceChangeCB(CallBacker*);
-    void			setPtsToAnchSegsCB(CallBacker*);
+    void			setPtsToAnchorSegmentsCB(CallBacker*);
     void			markerChangeCB(CallBacker*);
     void			markerDialogCB(CallBacker*);
     void			transpTableChgdCB(CallBacker*);

@@ -715,8 +715,6 @@ void uiFunctionDisplay::mouseReleaseCB( CallBacker* )
     {
 	xvals_.removeSingle( selpt_ );
 	yvals_.removeSingle( selpt_ );
-
-	selpt_ = -1;
     }
 
     pointChanged.trigger();

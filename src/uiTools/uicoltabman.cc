@@ -45,7 +45,7 @@ static StringView sKeyAskBeforeNotSavingCT()
 { return "Ask before closing without saving Color Table"; }
 
 #define mTransHeight	300
-#define mTransWidth	600
+#define mTransWidth	300
 
 static const int sPosCol = 0;
 static const int sDataCol = 1;
@@ -58,6 +58,7 @@ uiTranspValuesDlg::uiTranspValuesDlg( uiParent* p,
     ColTab::Sequence& ctab,
     const Interval<float>& ctabrange )
     : uiDialog(p,Setup(tr("View Point Values"),mNoHelpKey))
+    , markersChanged(this)
     , valuesChanged(this)
     , segmentInserted(this)
     , segmentRemoved(this)
@@ -85,6 +86,7 @@ uiTranspValuesDlg::uiTranspValuesDlg( uiParent* p,
     table_->setColumnLabels( columnlabels );
     table_->setSelectionMode( uiTable::SingleRow );
     table_->setColumnReadOnly( sPosColorCol, true );
+    table_->setColumnForColorSelection( sPosColorCol );
 
     auto* buttongrp = new uiButtonGroup( this, "Buttons", OD::Horizontal );
     syncanchors_ = new uiPushButton( buttongrp, hasequalseg
@@ -99,29 +101,27 @@ uiTranspValuesDlg::uiTranspValuesDlg( uiParent* p,
 			    : tr("Clear Transparency Points"));
     resettransp_->attach( rightAlignedBelow, table_ );
     mAttachCB( resettransp_->activated,
-	      uiTranspValuesDlg::resetTranspPtsCB );
+	      uiTranspValuesDlg::resetTranspPointsCB );
     resettransp_->display( false );
 
     auto* splitter = new uiSplitter( this, "Splitter", false );
 
-    if ( !hasequalseg )
-    {
-	anchortable_ = new uiTable( tablegrp, uiTable::Setup(ctab_.size(),2)
-				       .rowdesc(tr("Anchor"))
-				       .defrowlbl(true)
-				       .manualresize(false)
-				       .removeselallowed(false)
-				       .insertcolallowed(false),
-				       "Anchor Table");
-	uiStringSet anchorcolumnlabels;
-	anchorcolumnlabels.add( tr("Position\n(0 - 1)") )
-	    .add( uiStrings::sColor() );
-	anchortable_->setColumnLabels( anchorcolumnlabels );
-	anchortable_->setSelectionMode( uiTable::SingleRow );
-	fillAnchorTable();
-	anchortable_->setTableReadOnly(true);
-	anchortable_->attach( rightOf, table_ );
-    }
+    anchortable_ = new uiTable( tablegrp, uiTable::Setup(ctab_.size(),2)
+					     .rowgrow(true)
+					     .rowdesc(tr("Anchor"))
+					     .defrowlbl(true)
+					     .manualresize(true)
+					     .removeselallowed(false),
+			       "Anchor Table");
+    uiStringSet anchorcolumnlabels;
+    anchorcolumnlabels.add( tr("Anchor Position\n(0 - 1)") )
+		      .add( uiStrings::sColor() );
+    anchortable_->setColumnLabels( anchorcolumnlabels );
+    anchortable_->setSelectionMode( uiTable::SingleRow );
+    anchortable_->setColumnReadOnly( sColorCol, true );
+    anchortable_->setColumnForColorSelection( sColorCol );
+    anchortable_->attach( rightOf, table_ );
+    fillAnchorTable();
 
     splitter->addGroup( tablegrp );
     splitter->addGroup( buttongrp );
@@ -130,6 +130,12 @@ uiTranspValuesDlg::uiTranspValuesDlg( uiParent* p,
     mAttachCB( table_->rowInserted, uiTranspValuesDlg::rowInsertedCB );
     mAttachCB( table_->rowDeleted, uiTranspValuesDlg::rowDeletedCB );
     mAttachCB( postFinalize(), uiTranspValuesDlg::doFinalizeCB );
+
+    mAttachCB( anchortable_->leftClicked, uiTranspValuesDlg::mouseClickCB );
+    mAttachCB( anchortable_->rowInserted, uiTranspValuesDlg::markerInsertedCB );
+    mAttachCB( anchortable_->rowDeleted, uiTranspValuesDlg::markerDeletedCB );
+    mAttachCB( anchortable_->valueChanged,
+	       uiTranspValuesDlg::markerPositionChgdCB );
 }
 
 
@@ -146,11 +152,11 @@ void uiTranspValuesDlg::doFinalizeCB( CallBacker* )
 	setPtsToAnchSegCB( nullptr );
     }
     else
-	fillTableWithPts();
+	fillTableWithPoints();
 }
 
 
-void uiTranspValuesDlg::fillTableWithPts()
+void uiTranspValuesDlg::fillTableWithPoints()
 {
     NotifyStopper notifstop( table_->valueChanged );
     const int transpsize = ctab_.transparencySize();
@@ -168,14 +174,16 @@ void uiTranspValuesDlg::fillTableWithPts()
 
 	const float transperc = position.y_/255*100;
 	const float colpos = position.x_;
+	const int ridx = reverseTransparencyIdx( cidx );
 	if ( ctab_.nrSegments()>1 )
-	    table_->setText( RowCol(cidx,sPosCol), toUiStringDec(colpos*100,0));
+	    table_->setText( RowCol(ridx,sPosCol), toUiStringDec(colpos*100,0));
 	else
-	    table_->setText( RowCol(cidx,sPosCol), toUiStringDec(colpos,2) );
+	    table_->setText( RowCol(ridx,sPosCol), toUiStringDec(colpos,2) );
 
-	table_->setText( RowCol(cidx,sDataCol), toUiString(dataval,0,'g',5));
-	table_->setText( RowCol(cidx,sTranspCol), toUiStringDec(transperc,0) );
-	table_->setColor( RowCol(cidx,sPosColorCol), ctab_.color(colpos) );
+	table_->setText( RowCol(ridx,sDataCol), toUiString(dataval,0,'g',5));
+	table_->setText( RowCol(ridx,sTranspCol), toUiStringDec(transperc,0) );
+	table_->setColor( RowCol(ridx,sPosColorCol),
+				   ctab_.color(colpos) );
     }
 
     table_->setCellReadOnly( RowCol(0,0), true );
@@ -244,9 +252,10 @@ void uiTranspValuesDlg::fillTableWithSegments( bool resettransp )
 	colpos = halfcol > 6 ? cidx>halfcol ? pos1.x_ : pos2.x_
 			     : pos1.x_;
 
-	table_->setText( RowCol(cidx/2,sDataCol), segmentrange );
-	table_->setText( RowCol(cidx/2,sTranspCol), toUiStringDec(trperc,0) );
-	table_->setColor( RowCol(cidx/2,sPosColorCol), ctab_.color(colpos) );
+	const int ridx = reverseSegIdx( cidx );
+	table_->setText( RowCol(ridx/2,sDataCol), segmentrange );
+	table_->setText( RowCol(ridx/2,sTranspCol), toUiStringDec(trperc,0) );
+	table_->setColor( RowCol(ridx/2,sPosColorCol), ctab_.color(colpos) );
     }
 
     table_->setCellReadOnly( RowCol(0,0), true );
@@ -271,16 +280,20 @@ void uiTranspValuesDlg::fillTableWithSegments( bool resettransp )
 void uiTranspValuesDlg::fillAnchorTable()
 {
     const int numpos = ctab_.size();
-    for ( int cidx=numpos-1; cidx>=0; cidx-- )
+    for ( int cidx=0; cidx<numpos; cidx++ )
     {
 	const float position = ctab_.position( cidx );
-	anchortable_->setValue( RowCol(cidx,sPosCol), position );
-	anchortable_->setColor( RowCol(cidx,sColorCol), ctab_.color(position) );
+	const int revidx = reverseAnchorIdx( cidx );
+	anchortable_->setValue( RowCol(revidx,sPosCol), position );
+	anchortable_->setColor( RowCol(revidx,sColorCol),
+				ctab_.color(position) );
     }
 
-    anchortable_->setTableReadOnly( true );
     anchortable_->setMinimumWidthInChar( 40 );
     anchortable_->setMinimumHeightInChar( 28 );
+
+    anchortable_->setCellReadOnly( RowCol(0,0), true );
+    anchortable_->setCellReadOnly( RowCol(anchortable_->nrRows()-1,0), true );
 }
 
 
@@ -326,7 +339,7 @@ void uiTranspValuesDlg::dataChgdCB( CallBacker* )
     if ( ctab_.nrSegments() < 2 )
     {
 	table_->clearTable();
-	fillTableWithPts();
+	fillTableWithPoints();
     }
     else
     {
@@ -414,14 +427,14 @@ void uiTranspValuesDlg::setPtsToAnchSeg( bool extrapolate )
 	{
 	    const float val = pos*segsz;
 	    const Geom::Point2D<float> segval = { val-.001f,
-						 tvals.get(rgidx++) };
+						  tvals.get(rgidx++) };
 	    ctab_.setTransparency( segval );
 
 	    if ( rgidx > tvals.size()-1 )
 		rgidx = tvals.size()-1;
 
 	    const Geom::Point2D<float> segval2 = { val,
-						  tvals.get(rgidx) };
+						   tvals.get(rgidx) };
 	    ctab_.setTransparency( segval2 );
 	}
 	ctab_.setTransparency( {1,0} );
@@ -444,14 +457,13 @@ void uiTranspValuesDlg::setPtsToAnchSeg( bool extrapolate )
 
 
     table_->clearTable();
-    if ( ctab_.nrSegments() > 1 )//TODO: Change this condition should segment
-    //view will be need to be implemented for Variable segmentation
+    if ( ctab_.hasEqualSegments() )
     {
 	fillTableWithSegments( false );
     }
     else
     {
-	fillTableWithPts();
+	fillTableWithPoints();
     }
 
     valuesChanged.trigger();
@@ -463,6 +475,7 @@ void uiTranspValuesDlg::handleColorPos()
 {
     const RowCol rc = table_->currentCell();
     const int row = rc.row();
+    const int revrow = reverseAnchorIdx( row );
     const int col = rc.col();
 
     const float newcolpos = table_->getFValue( rc );
@@ -472,8 +485,8 @@ void uiTranspValuesDlg::handleColorPos()
 
     const RowCol nextrc = RowCol( row+1, col );
     const float nextval = table_->getFValue( nextrc );
-    const bool fixed = ctab_.nrSegments()>1;
-    const float posmax = fixed ? 100 : 1;
+    const bool equalseg = ctab_.hasEqualSegments();
+    const float posmax = equalseg ? 100 : 1;
 
     if ( newcolpos>posmax || newcolpos<0 )
     {
@@ -482,7 +495,8 @@ void uiTranspValuesDlg::handleColorPos()
 				 .arg( newcolpos )
 				 .arg( posmax );
 	uiMSG().error( msg );
-	table_->setText(rc, toUiStringDec(ctab_.transparency(row).x_*posmax,2));
+	const float transp = ctab_.transparency(revrow).x_ * posmax;
+	table_->setText( rc, toUiStringDec(transp,2) );
 	return;
     }
     else if ( newcolpos<prevval || newcolpos>nextval )
@@ -494,8 +508,8 @@ void uiTranspValuesDlg::handleColorPos()
 				 .arg( prevval )
 				 .arg( nextval );
 	uiMSG().error( msg );
-	table_->setText( rc, toUiStringDec(ctab_.transparency(row).x_*posmax,
-					  fixed ? 0 : 2) );
+	const float transp = ctab_.transparency(revrow).x_ * posmax;
+	table_->setText( rc, toUiStringDec(transp,equalseg ? 0 : 2) );
 	return;
     }
 
@@ -508,10 +522,10 @@ void uiTranspValuesDlg::handleColorPos()
 	table_->setText( rchist, toUiString(dataval,0,'g',5) );
     }
 
-    table_->setText( rc, toUiStringDec(newcolpos,fixed ? 0 : 2) );
-    const float transpval = ctab_.transparency( row ).y_;
+    table_->setText( rc, toUiStringDec(newcolpos,equalseg ? 0 : 2) );
+    const float transpval = ctab_.transparency( revrow ).y_;
     const Geom::Point2D<float> newpoint = { newcolpos/posmax, transpval };
-    ctab_.changeTransparency( row, newpoint );
+    ctab_.changeTransparency( revrow, newpoint );
     valuesChanged.trigger();
 }
 
@@ -592,8 +606,8 @@ void uiTranspValuesDlg::handleTranspVal()
     if ( newtranspval>100 || newtranspval<0 )
     {
 	uiMSG().error( tr("Entered Transparency Value '%1' is out of range.\n"
-			 "Please enter a percentage between 0 and 100%.")
-			  .arg( newtranspval ) );
+			  "Please enter a percentage between 0 and 100%.")
+			    .arg( newtranspval ) );
 	const float transperc = ctab_.transparency(row).y_/255*100;
 	table_->setText( rc, toUiStringDec(transperc,0) );
 	return;
@@ -604,17 +618,17 @@ void uiTranspValuesDlg::handleTranspVal()
     const BufferString lb = table_->rowLabel(0);
     if ( ctab_.nrSegments()>1 && lb.contains("Segment") )
     {
-	int segidx = row;
-	segidx = row*2+1;
+	const int segidx = row*2+1;
+	const int revsegidx = reverseTransparencyIdx( segidx )-1;
 
-	const float newcolpos = ctab_.transparency( segidx ).x_;
+	const float newcolpos = ctab_.transparency( revsegidx ).x_;
 	const float convtranspval = newtranspval/100*255;
 	const Geom::Point2D<float> newval = { newcolpos, convtranspval };
-	ctab_.changeTransparency( segidx, newval );
+	ctab_.changeTransparency( revsegidx, newval );
 
-	const float newcolpos2 = ctab_.transparency( segidx+1 ).x_;
+	const float newcolpos2 = ctab_.transparency( revsegidx+1 ).x_;
 	const Geom::Point2D<float> newval2 = { newcolpos2, convtranspval };
-	ctab_.changeTransparency( segidx+1, newval2 );
+	ctab_.changeTransparency( revsegidx+1, newval2 );
     }
     else
     {
@@ -656,6 +670,7 @@ void uiTranspValuesDlg::rowInsertedCB( CallBacker* )
 	table_->clearTable();
 	setPtsToAnchSeg( true );
 	valuesChanged.trigger();
+	return;
     }
     else
     {
@@ -663,23 +678,24 @@ void uiTranspValuesDlg::rowInsertedCB( CallBacker* )
 	{
 	    table_->removeRow( rcpos );
 	    uiMSG().error( tr("Cannot insert new points before or after "
-			     "extreme positions.") );
+			      "extreme positions.") );
 	    return;
 	}
     }
 
-    const float x1 = ctab_.transparency(row-1).x_;
-    const float x2 = ctab_.transparency(row).x_;
-    const float y1 = ctab_.transparency(row-1).y_;
-    const float y2 = ctab_.transparency(row).y_;
+    const int revrow = reverseTransparencyIdx( row );
+    const float x1 = ctab_.transparency(revrow+1).x_;
+    const float x2 = ctab_.transparency(revrow).x_;
+    const float y1 = ctab_.transparency(revrow+1).y_;
+    const float y2 = ctab_.transparency(revrow).y_;
 
     const float epsilonx = 1e-2;
-    if ( x2-x1<epsilonx )
+    if ( std::abs(x2-x1)<epsilonx )
     {
 	table_->removeRow( rcpos );
 	uiMSG().error( tr("Cannot insert a new point here since the point will "
-			 "exceed the proximity threshold between "
-			 "the previous and next points.") );
+			  "exceed the proximity threshold between "
+			  "the previous and next points.") );
 	return;
     }
 
@@ -688,7 +704,7 @@ void uiTranspValuesDlg::rowInsertedCB( CallBacker* )
     const Geom::Point2D<float> newval = { newposval, newtransval };
     table_->setCurrentCell( RowCol(row,sPosCol) );
     ctab_.setTransparency( newval );
-    fillTableWithPts();
+    fillTableWithPoints();
     valuesChanged.trigger();
 }
 
@@ -698,7 +714,7 @@ void uiTranspValuesDlg::rowDeletedCB( CallBacker* )
     NotifyStopper notifstop( table_->valueChanged );
     const RowCol rc = table_->notifiedCell();
     const int row = rc.row();
-    if ( ctab_.nrSegments() > 1 )
+    if ( ctab_.hasEqualSegments() )
     {
 	if ( table_->nrRows() < 2 )
 	{
@@ -713,26 +729,27 @@ void uiTranspValuesDlg::rowDeletedCB( CallBacker* )
 	table_->clearTable();
 	setPtsToAnchSeg( true );
 	valuesChanged.trigger();
+	return;
     }
     else
     {
 	if ( row==0 || row==ctab_.transparencySize()-1 )
 	{
 	    table_->insertRows( rc, 1 );
-	    fillTableWithPts();
+	    fillTableWithPoints();
 	    uiMSG().error( tr("Cannot remove remove points "
-			     "from extreme positions.") );
+			      "from extreme positions.") );
 	    return;
 	}
 
-	ctab_.removeTransparencyAt( row );
-	fillTableWithPts();
+	ctab_.removeTransparencyAt( reverseTransparencyIdx(row) );
+	fillTableWithPoints();
 	valuesChanged.trigger();
     }
 }
 
 
-void uiTranspValuesDlg::resetTranspPtsCB( CallBacker* )
+void uiTranspValuesDlg::resetTranspPointsCB( CallBacker* )
 {
     NotifyStopper ns( table_->valueChanged );
     while ( ctab_.transparencySize() > 2 )
@@ -751,7 +768,7 @@ void uiTranspValuesDlg::resetTranspPtsCB( CallBacker* )
     }
 
     table_->clearTable();
-    fillTableWithPts();
+    fillTableWithPoints();
     valuesChanged.trigger();
 
     if ( ctab_.nrSegments() > 1 )
@@ -763,6 +780,129 @@ void uiTranspValuesDlg::resetTranspPtsCB( CallBacker* )
 }
 
 
+void uiTranspValuesDlg::mouseClickCB( CallBacker* )
+{
+    const NotifyStopper notifstop( anchortable_->valueChanged );
+    const RowCol rc = anchortable_->notifiedCell();
+    if ( rc.col() != sColorCol )
+	return;
+
+    OD::Color newcol = anchortable_->getColor( rc );
+    if ( selectColor(newcol,this,tr("Anchor color")) )
+    {
+	ColTab::Sequence orgctab = ctab_;
+	anchortable_->setColor( rc, newcol );
+	anchortable_->setCurrentCell( RowCol(rc.row(),sPosCol) );
+	orgctab.changeColor( reverseAnchorIdx(rc.row()), newcol );
+	ctab_ = orgctab;
+    }
+
+    markersChanged.trigger();
+}
+
+
+void uiTranspValuesDlg::markerInsertedCB( CallBacker* )
+{
+    const NotifyStopper notifstop( anchortable_->valueChanged );
+    const RowCol rcpos = anchortable_->newCell();
+    const int rcrow = reverseAnchorIdx( rcpos.row() );
+    if ( rcpos.row()-1<0 || rcpos.row()>=ctab_.size() )
+    {
+	anchortable_->removeRow( rcpos );
+	uiMSG().error( tr("Cannot insert anchors at extreme positions") );
+	return;
+    }
+
+    const RowCol rccolor( rcpos.row(), sColorCol );
+    const float newpos = ctab_.position(rcrow+1) +
+			 ( ctab_.position(rcrow) -
+			  ctab_.position(rcrow+1) ) / 2;
+    const OD::Color col( ctab_.color(newpos) );
+    anchortable_->setColor( rccolor, col );
+    anchortable_->setCurrentCell( RowCol(rcrow,sPosCol) );
+    ctab_.setColor( newpos, col );
+    fillAnchorTable();
+    markersChanged.trigger();
+}
+
+
+void uiTranspValuesDlg::markerDeletedCB( CallBacker* )
+{
+    NotifyStopper notifstop( anchortable_->valueChanged );
+    const RowCol rc = anchortable_->notifiedCell();
+    if ( rc.row()==0 || rc.row()==ctab_.size()-1 )
+    {
+	anchortable_->insertRows( rc, 1 );
+	fillAnchorTable();
+	uiMSG().error( tr("Cannot remove anchors at extreme positions") );
+	return;
+    }
+
+    ctab_.removeColor( reverseAnchorIdx(rc.row()) );
+    fillAnchorTable();
+    markersChanged.trigger();
+}
+
+
+void uiTranspValuesDlg::markerPositionChgdCB( CallBacker* )
+{
+    const NotifyStopper notifstop( anchortable_->valueChanged );
+    const RowCol rc = anchortable_->currentCell();
+    if ( rc.row()<=0 || rc.row()>=ctab_.size()-1 )
+	return;
+
+    const float newpos = anchortable_->getFValue( rc );
+    const int rcrow = reverseAnchorIdx( rc.row() );
+    const float rcprev = ctab_.position( rcrow-1 );
+    const float rcnext = ctab_.position( rcrow+1 );
+    if ( rcprev>newpos || rcnext<newpos )
+    {
+	uiMSG().error( tr("Please enter position between %1 and %2")
+			  .arg(rcprev).arg(rcnext) );
+	table_->setValue( rc, ctab_.position(rcrow) );
+	return;
+    }
+
+    ctab_.changePos( rcrow, newpos );
+    markersChanged.trigger();
+}
+
+
+int uiTranspValuesDlg::reverseAnchorIdx( int idx )
+{
+    const int ctsz = ctab_.size();
+    return std::clamp( ctsz-idx-1, 0, ctsz-1 );
+}
+
+
+int uiTranspValuesDlg::reverseTransparencyIdx( int idx )
+{
+    const int ctranspsz = ctab_.transparencySize();
+    return std::clamp( ctranspsz-idx-1, 0, ctranspsz-1 );
+}
+
+
+int uiTranspValuesDlg::reverseSegIdx( int idx )
+{
+    const int ctranspsz = ctab_.transparencySize();
+    return std::clamp( ctranspsz-idx-3, 0, ctranspsz-1 );
+}
+
+
+bool uiTranspValuesDlg::acceptOK( CallBacker* )
+{
+    NotifyStopper ns( ctab_.colorChanged );
+    for ( int idx=0; idx<anchortable_->nrRows(); idx++ )
+    {
+	const RowCol colrc( idx, sColorCol );
+	const OD::Color col( anchortable_->getColor(colrc) );
+	ctab_.changeColor( idx, col );
+    }
+
+    ctab_.colorChanged.trigger();
+    return true;
+}
+
 
 uiColorTableMan::uiColorTableMan( uiParent* p, ColTab::Sequence& ctab,
        				  bool enabletrans )
@@ -773,6 +913,8 @@ uiColorTableMan::uiColorTableMan( uiParent* p, ColTab::Sequence& ctab,
     , tableChanged(this)
     , rangeChanged(this)
     , ctab_(ctab)
+    , segidx_(0)
+    , segctab_(new ColTab::Sequence)
     , ctabrange_(Interval<float>::udf())
     , enabletrans_(enabletrans)
 {
@@ -785,9 +927,12 @@ uiColorTableMan::uiColorTableMan( uiParent* p, ColTab::Sequence& ctab,
     labels.add( "Color table" ).add( "Source" );
     coltablistfld_->addColumns( labels );
     coltablistfld_->setRootDecorated( false );
-    coltablistfld_->setStretch( 2, 2 );
+    coltablistfld_->setColumnWidthMode( 0, uiTreeView::Stretch );
+    coltablistfld_->setColumnWidthMode( 1, uiTreeView::Fixed );
+    coltablistfld_->setFixedColumnWidth( 1, 70 );
+    coltablistfld_->setStretch( 0, 2 );
     coltablistfld_->setSelectionBehavior( uiTreeView::SelectRows );
-    mAttachCB( coltablistfld_->selectionChanged, uiColorTableMan::selChgdCB );
+    mAttachCB( coltablistfld_->selectionChanged, ::uiColorTableMan::selChgdCB );
 
     auto* botgrp = new uiGroup( leftgrp, "Bottom" );
     botgrp->attach( leftAlignedBelow, coltablistfld_ );
@@ -796,6 +941,7 @@ uiColorTableMan::uiColorTableMan( uiParent* p, ColTab::Sequence& ctab,
     segmentfld_ = new uiGenInput( botgrp, tr("Segmentation"),
 				 StringListInpSpec(segtypes) );
     mAttachCB( segmentfld_->valueChanged, uiColorTableMan::segmentSelCB );
+    segmentfld_->setStretch( 0, 0 );
     botgrp->setHAlignObj( segmentfld_ );
 
     nrsegbox_ = new uiSpinBox( botgrp, 0, 0 );
@@ -818,10 +964,14 @@ uiColorTableMan::uiColorTableMan( uiParent* p, ColTab::Sequence& ctab,
     minfld_ = new uiLineEdit( botgrp, "Min" );
     mAttachCB( minfld_->returnPressed, uiColorTableMan::rangeChangedCB );
     minfld_->attach( rightTo, lbl );
+    minfld_->setStretch( 0, 0 );
 
     maxfld_ = new uiLineEdit( botgrp, "Max" );
     mAttachCB( maxfld_->returnPressed, uiColorTableMan::rangeChangedCB );
     maxfld_->attach( rightTo, minfld_ );
+    maxfld_->setStretch( 0, 0 );
+
+    coltablistfld_->setMinimumWidth( 345 );
 
     uiColorInput::Setup ctsu( ctab_.markColor(), uiColorInput::Setup::None );
     ctsu.withdesc( false );
@@ -832,6 +982,12 @@ uiColorTableMan::uiColorTableMan( uiParent* p, ColTab::Sequence& ctab,
     markercolfld_->display( false );
 
     auto* rightgrp = new uiGroup( this, "Right" );
+    leftgrp->attach( leftOf, rightgrp );
+
+    markercanvas_ = new uiColTabMarkerCanvas( rightgrp, ctab_ );
+    markercanvas_->setPrefWidth( 80 );
+    markercanvas_->setPrefHeight( mTransWidth );
+    markercanvas_->setStretch( 0, 2 );
 
     ctabcanvas_ =
 	new uiColorTableCanvas( rightgrp, ctab_, false, OD::Horizontal );
@@ -840,7 +996,7 @@ uiColorTableMan::uiColorTableMan( uiParent* p, ColTab::Sequence& ctab,
     mAttachCB( ctabcanvas_->reSize, uiColorTableMan::reDrawCB );
 
     w2uictabcanvas_ = new uiWorld2Ui( uiWorldRect(0,0,0,255),
-				     uiSize(mTransWidth/5, mTransWidth) );
+				      uiSize(mTransWidth/5, mTransWidth) );
 
     ctabcanvas_->setPrefWidth( 20 );
     ctabcanvas_->setPrefHeight( mTransWidth );
@@ -849,16 +1005,15 @@ uiColorTableMan::uiColorTableMan( uiParent* p, ColTab::Sequence& ctab,
     mAttachCB( ctabcanvas_->getMouseEventHandler().doubleClick,
 	      uiColorTableMan::markerDialogCB );
 
-    markercanvas_ = new uiColTabMarkerCanvas( rightgrp, ctab_, ctabrange_ );
-    markercanvas_->setPrefWidth( 60 );
-    markercanvas_->setPrefHeight( mTransWidth );
-    markercanvas_->setStretch( 0, 2 );
-    markercanvas_->attach( rightOf, ctabcanvas_ );
+    ctabcanvas_->attach( rightOf, markercanvas_ );
 
     uiFunctionDisplay::Setup su;
     int nrsegs = ctab_.nrSegments();
 
-    su.border(uiBorder(2,5,3,5)).xrg(Interval<float>(0,1)).editable(true)
+    // TODO: The border is slightly off. For some reason when the value for the
+    // top border is changed, the bottom also changes, whereas changing the
+    // bottom value does nothing.
+    su.border(uiBorder(2,4,3,4)).xrg(Interval<float>(0,1)).editable(true)
       .yrg(Interval<float>(0,255)).y2rg(Interval<float>(0,1))
       .canvaswidth(mTransWidth).closepolygon(true)
       .canvasheight(mTransHeight).drawscattery1(true)
@@ -873,7 +1028,7 @@ uiColorTableMan::uiColorTableMan( uiParent* p, ColTab::Sequence& ctab,
 
     cttranscanvas_ = new uiFunctionDisplay( rightgrp, su, OD::Vertical );
     cttranscanvas_->setStretch( 2, 2 );
-    cttranscanvas_->attach( rightOf, markercanvas_ );
+    cttranscanvas_->attach( rightOf, ctabcanvas_ );
     cttranscanvas_->setTitleColor( OD::Color::Red() );
 
     if ( enabletrans_ )
@@ -888,12 +1043,10 @@ uiColorTableMan::uiColorTableMan( uiParent* p, ColTab::Sequence& ctab,
 		   uiColorTableMan::rightClickTranspCB );
     }
 
-    auto* splitter = new uiSplitter( this, "Splitter", true );
-    splitter->addGroup( leftgrp );
-    splitter->addGroup( rightgrp );
+
 
     auto* butgrp = new uiButtonGroup( this, "actions", OD::Horizontal );
-    butgrp->attach( alignedBelow, splitter );
+    butgrp->attach( alignedBelow, leftgrp );
 
     auto* renamebut = new uiToolButton( butgrp, "renameobj",
 					uiStrings::sRename() );
@@ -910,7 +1063,7 @@ uiColorTableMan::uiColorTableMan( uiParent* p, ColTab::Sequence& ctab,
 
     auto* saveasbut = new uiToolButton( this, "saveas", uiStrings::sSaveAs() );
     mAttachCB( saveasbut->activated, uiColorTableMan::saveAsCB );
-    saveasbut->attach( rightBorder, 0 );
+    saveasbut->attach( rightAlignedBelow, rightgrp );
 
     auto* savebut = new uiToolButton( this, "save", uiStrings::sSave() );
     mAttachCB( savebut->activated, uiColorTableMan::saveCB );
@@ -921,8 +1074,9 @@ uiColorTableMan::uiColorTableMan( uiParent* p, ColTab::Sequence& ctab,
     flipbut->attach( leftOf, savebut );
 
     auto* settoanchbut = new uiPushButton( this,
-					tr("Set Transp Pts to Anchors") );
-    mAttachCB( settoanchbut->activated, uiColorTableMan::setPtsToAnchSegsCB );
+					   tr("Set Transp Pts to Anchors") );
+    mAttachCB( settoanchbut->activated,
+	       uiColorTableMan::setPtsToAnchorSegmentsCB );
     settoanchbut->attach( leftOf, flipbut );
     settoanchbut->attach( rightTo, butgrp );
 
@@ -1049,6 +1203,9 @@ void uiColorTableMan::selChgdCB( CallBacker* )
     tableChanged.trigger();
 
     markercolfld_->display( false );
+
+    if (ctab_.hasEqualSegments() )
+	setPtsToAnchorSegmentsCB( nullptr );
 }
 
 
@@ -1237,8 +1394,8 @@ void uiColorTableMan::undefColSelCB( CallBacker* )
 
 void uiColorTableMan::rangeChangedCB( CallBacker* )
 {
-    float mininp = minfld_->getFValue();
-    float maxinp = maxfld_->getFValue();
+    const float mininp = minfld_->getFValue();
+    const float maxinp = maxfld_->getFValue();
 
     if ( mininp==mUdf(float) || maxinp==mUdf(float) )
     {
@@ -1350,14 +1507,24 @@ void uiColorTableMan::segmentSelCB( CallBacker* )
     doSegmentize();
     if ( segmented )
     {
+	*segctab_ = ctab_;
 	cttranscanvas_->allowAddingPoints( false );
-	setPtsToAnchSegsCB( nullptr );
+	setPtsToAnchorSegmentsCB( nullptr );
 	const float nrsegs = ctab_.nrSegments();
 	cttranscanvas_->setup().ptsnaptol( nrsegs<10 && nrsegs>1 ? 0.7f/nrsegs
 								    : 0.08 );
     }
     else
     {
+	if ( segctab_ && !segctab_->isEmpty()  )
+	{
+	    ctab_ = *segctab_;
+	    doSegmentize();
+	    transpTableChgdCB( nullptr );
+	    markercanvas_->reDrawNeeded.trigger();
+	    ctabcanvas_->setRGB();
+	}
+
 	cttranscanvas_->allowAddingPoints( true );
 	cttranscanvas_->setup().ptsnaptol( 0.08 );
     }
@@ -1382,7 +1549,7 @@ void uiColorTableMan::nrSegmentsCB( CallBacker* )
 {
     NotifyStopper( ctab_.colorChanged );
     doSegmentize();
-    setPtsToAnchSegsCB(nullptr);
+    setPtsToAnchorSegmentsCB( nullptr );
 }
 
 #define mAddColor(orgidx,newpos) { \
@@ -1425,7 +1592,7 @@ void uiColorTableMan::doSegmentize()
 }
 
 
-void uiColorTableMan::setPtsToAnchSegsCB(CallBacker*)
+void uiColorTableMan::setPtsToAnchorSegmentsCB(CallBacker*)
 {
     const int nrsegs = ctab_.nrSegments();
     const float nrseg = nrsegs;
@@ -1556,13 +1723,10 @@ void uiColorTableMan::rightClickCB( CallBacker* )
 
 void uiColorTableMan::markerDialogCB(CallBacker*)
 {
-
-    if ( ctab_.nrSegments() > 1 )
-    {
+    if ( ctab_.hasEqualSegments() )
 	return;
-    }
 
-    ColTab::Sequence coltab = ctab_;
+    const ColTab::Sequence coltab = ctab_;
     uiColTabMarkerDlg dlg( parent_, ctab_ );
     mAttachCB( dlg.markersChanged, uiColorTableMan::markerChangeCB );
     if ( !dlg.go() )
@@ -1590,6 +1754,7 @@ void uiColorTableMan::rightClickTranspCB(CallBacker*)
 	ColTab::Sequence coltab = ctab_;
 	uiTranspValuesDlg dlg( parent_, ctab_, ctabrange_ );
 	mAttachCB( dlg.valuesChanged, uiColorTableMan::transpTableChgdCB );
+	mAttachCB( dlg.markersChanged, uiColorTableMan::markerChangeCB );
 
 	if ( ctab_.nrSegments() > 1 )
 	{
@@ -1605,10 +1770,13 @@ void uiColorTableMan::rightClickTranspCB(CallBacker*)
 						    uiStrings::sDiscard());
 	    if ( !save )
 	    {
+		NotifyStopper ns( dlg.markersChanged );
 		ctab_ = coltab;
-
+		transpTableChgdCB( nullptr );
 		if ( ctab_.hasEqualSegments() )
 		    nrsegbox_->setValue( ctab_.nrSegments() );
+
+		markercanvas_->markerChgdCB( nullptr );
 	    }
 
 	    transpTableChgdCB( nullptr );
@@ -1624,8 +1792,8 @@ void uiColorTableMan::mouseMoveCB( CallBacker* cb )
     mCBCapsuleUnpack(const Geom::PointF&,mousepos,cb);
     const Geom::PointF pos = cttranscanvas_->mapToValue( mousepos, false );
     const Geom::PointF pos2 = cttranscanvas_->mapToValue( mousepos, true );
-    float xpos = pos.x_;
-    float ypos = pos.y_;
+    const float xpos = pos.x_;
+    const float ypos = pos.y_;
 
     const bool inyrange = cttranscanvas_->yAxis(false)->range()
 							.includes(ypos,true);
@@ -1703,7 +1871,7 @@ void uiColorTableMan::sequenceChangeCB( CallBacker* )
 
 void uiColorTableMan::transptChgCB( CallBacker* )
 {
-    const int ptidx = cttranscanvas_->selPt();
+    int ptidx = cttranscanvas_->selPt();
     const int nrpts = cttranscanvas_->xVals().size();
     const bool equalseg = ctab_.nrSegments() > 1;
     const bool compatible = ctab_.transparencySize()==ctab_.nrSegments()*2+2;
@@ -1743,7 +1911,9 @@ void uiColorTableMan::transptChgCB( CallBacker* )
 
 	if ( ptidx!=0 && ptidx!=nrpts-1 && equalseg && compatible )
 	{
-	    if ( ptidx%2!=0 )
+	    ptidx = segidx_*2;
+
+	    if ( ptidx%2 != 0 )
 	    {
 		ptidx2 = ptidx+1;
 		pt2 = { cttranscanvas_->xVals()[ptidx2],
@@ -1793,6 +1963,22 @@ void uiColorTableMan::transptSelCB( CallBacker* )
 {
     const int ptidx = cttranscanvas_->selPt();
     const int nrpts = cttranscanvas_->xVals().size();
+
+    if ( ctab_.hasEqualSegments() )
+    {
+	const MouseEvent& ev =
+	    cttranscanvas_->getMouseEventHandler().event();
+
+	const auto pos = Geom::Point2D<int>( ev.pos().y_, ev.pos().x_ );
+	const float xpos = pos.x_;
+	const float transpheight = cttranscanvas_->height();
+	const float nrseg = ctab_.nrSegments();
+	const int segidx = std::clamp( nrseg-xpos/transpheight*nrseg+1,
+				       1.0f, nrseg );
+	cttranscanvas_->setSelectedPt( segidx*2 );
+	segidx_ = segidx;
+    }
+
     if ( ptidx<0 || nrpts == ctab_.transparencySize() )
 	return;
 

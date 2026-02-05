@@ -36,6 +36,7 @@ protected:
 
     void			fillTable();
     void			rebuildColTab();
+    int				reverseIdx(int);
     void			mouseClickCB(CallBacker*);
     void			markerInsertedCB(CallBacker*);
     void			markerDeletedCB(CallBacker*);
@@ -57,12 +58,13 @@ public:
 
     Notifier<uiColTabMarkerCanvas> markerChanged;
     void			setRange(const Interval<float>);
+    void			markerChgdCB(CallBacker*);
 
 protected:
 
     uiWorld2Ui*                 w2ui_;
     uiParent*	                parent_;
-    uiGraphicsItemGroup*	markerlineitmgrp_	= nullptr;
+    uiGraphicsItemGroup*	markerlineitmgrp_;;
     int		                selidx_;
     ColTab::Sequence&           ctab_;
     MouseEventHandler&		meh_;
@@ -78,5 +80,4 @@ protected:
     void			mouseDoubleClickCB(CallBacker*);
     void			mouseReleaseCB(CallBacker*);
     void			mouseMoveCB(CallBacker*);
-    void			markerChgdCB(CallBacker*);
 };
