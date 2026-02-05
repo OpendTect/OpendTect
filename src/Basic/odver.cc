@@ -240,7 +240,8 @@ const char* OD::Platform::osName() const
 
 void OD::Platform::set( const char* s, bool isshort )
 {
-    if ( !s || !*s )
+    const StringView cmp( s );
+    if ( cmp.isEmpty() )
 	{ pErrMsg("null or empty platform set"); return; }
 
     if ( isshort )
@@ -258,7 +259,15 @@ void OD::Platform::set( const char* s, bool isshort )
     }
     else
     {
-	parseEnumType( s, type_ );
+	if ( !parseEnumType(s,type_) )
+	{
+	    if ( cmp == "Windows (64 bits)" )
+		type_ = Type::Windows;
+	    else if ( cmp == "Linux (64 bits)" )
+		type_ = Type::Linux;
+	    else if ( cmp == "Mac OS X" )
+		type_ = Type::MacOS;
+	}
     }
 }
 
@@ -268,11 +277,19 @@ bool OD::Platform::isValidName( const char* s, bool isshort )
     if ( !s || !*s )
 	return false;
 
-    if ( !isshort )
-	return TypeDef().isValidName( s );
-
     const StringView cmp( s );
-    return cmp == "win64" || cmp == "lux64" || cmp == "mac";
+    if ( isshort )
+	return cmp == "win64" || cmp == "lux64" || cmp == "mac";
+
+    if ( TypeDef().isValidName(s) )
+	return true;
+
+    // Legacy, compatible enum values
+    if ( cmp == "Windows (64 bits)" || cmp == "Linux (64 bits)" ||
+	 cmp == "Mac OS X" )
+	return true;
+
+    return false;
 }
 
 
