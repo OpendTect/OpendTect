@@ -206,13 +206,15 @@ void uiWellDahDisplay::gatherInfo()
     ld2_->xax_.setup().nmcolor_ = ld2_->dahobj_ ? ld2_->col_
 			    : ld1_->dahobj_ ? ld1_->col_ : OD::Color::Black();
 
-    BufferString axis1nm = ld1_->dahobj_ ? ld1_->dahobj_->name().buf()
-			 : ld2_->dahobj_ ? ld2_->dahobj_->name().buf() : 0;
-    BufferString axis2nm = ld2_->dahobj_ ? ld2_->dahobj_->name().str()
-			 : ld1_->dahobj_ ? ld1_->dahobj_->name().str() : 0;
+    const BufferString axis1nm = ld1_->dahobj_ ? ld1_->dahobj_->name().buf()
+			       : ( ld2_->dahobj_ ? ld2_->dahobj_->name().buf()
+						 : nullptr );
+    const BufferString axis2nm = ld2_->dahobj_ ? ld2_->dahobj_->name().buf()
+			       : ( ld1_->dahobj_ ? ld1_->dahobj_->name().buf()
+						 : nullptr );
 
-    ld1_->xax_.setCaption( toUiString(axis1nm) );
-    ld2_->xax_.setCaption( toUiString(axis2nm) );
+    ld1_->xax_.setCaption( toUiString(axis1nm.buf()) );
+    ld2_->xax_.setCaption( toUiString(axis2nm.buf()) );
 }
 
 
@@ -378,7 +380,8 @@ void uiWellDahDisplay::drawCurve( bool first )
 	    ptsforspikes.setCapacity( 3 * sz, false );
 	    for ( int idx=0; idx<pts.size(); idx++ )
 	    {
-                const uiPoint extrapt = uiPoint( ld.xax_.getPix(0),pts[idx].y_ );
+		const uiPoint extrapt = uiPoint( ld.xax_.getPix(0),
+						 pts[idx].y_ );
 		ptsforspikes += extrapt;
 		ptsforspikes += pts[idx];
 		ptsforspikes += extrapt;
