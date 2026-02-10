@@ -12,6 +12,7 @@ ________________________________________________________________________
 #include "file.h"
 #include "iopar.h"
 #include "keystrs.h"
+#include "separstr.h"
 
 #include "uibutton.h"
 #include "uicombobox.h"
@@ -165,14 +166,16 @@ void uiIOSelect::doFinalize( CallBacker* )
 void uiIOSelect::setEntries( const BufferStringSet& keys,
 			     const BufferStringSet& names )
 {
-    const BufferString previnp = inp_->text();
-    const bool samesel = !previnp.isEmpty() && names.isPresent( previnp.buf() );
+    const SeparString previnp( inp_->text(), '|');
+    const StringView previnpbasename = previnp.first();
+    const bool samesel = !previnp.isEmpty() &&
+			 names.isPresent( previnpbasename );
     NotifyStopper ns( inp_->selectionChanged );
     entries_ = keys;
     inp_->setEmpty();
     inp_->addItems( names );
     if ( samesel )
-	inp_->setCurrentItem( previnp.buf() );
+	inp_->setCurrentItem( previnpbasename );
 
     ns.enableNotification();
     if ( !samesel )
