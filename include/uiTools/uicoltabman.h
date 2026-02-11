@@ -61,7 +61,7 @@ protected:
     void			markerInsertedCB(CallBacker*);
     void			markerDeletedCB(CallBacker*);
     void			markerPositionChgdCB(CallBacker*);
-    bool			acceptOK(CallBacker*);
+    bool			acceptOK(CallBacker*) override;
 
     int				reverseAnchorIdx(int idx);
     int				reverseTransparencyIdx(int idx);
