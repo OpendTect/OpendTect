@@ -496,13 +496,17 @@ void uiDataPointSetCrossPlotter::drawUserDefPolyLine( bool isy1 )
     for ( int pixvar=0; pixvar<size; pixvar++ )
     {
 	uiWorldPoint pt = pts[pixvar];
-        if ( mIsUdf(pt.x_) || mIsUdf(pt.y_) ) continue;
-        if ( mIsUdf(xah->getPix(pt.x_)) || mIsUdf(yah->getPix(pt.y_)) ) continue;
+	if ( mIsUdf(pt.x_) || mIsUdf(pt.y_) )
+	    continue;
+	if ( mIsUdf(xah->getPix(pt.x_)) || mIsUdf(yah->getPix(pt.y_)) )
+	    continue;
 
 	if ( !mousepressed_ )
 	{
-            if (!xah->pixRange().includes(xah->getPix(pt.x_),false) ) continue;
-            if (!yah->pixRange().includes(yah->getPix(pt.y_),false) ) continue;
+	    if (!xah->pixRange().includes(xah->getPix(pt.x_),false) )
+		continue;
+	    if (!yah->pixRange().includes(yah->getPix(pt.y_),false) )
+		continue;
 	}
 
         pixpts += uiPoint( xah->getPix(pt.x_), yah->getPix(pt.y_) );
@@ -892,7 +896,7 @@ void uiDataPointSetCrossPlotter::setWorldSelArea( int selareaid  )
 	    if ( selarea.axistype_ == SelectionArea::Both )
 	    {
                 altworldpoly.add( uiWorldPoint(xah.getVal(polypts[idx].x_),
-                                               y2_.axis_->getVal(polypts[idx].y_)) );
+					y2_.axis_->getVal(polypts[idx].y_)) );
 	    }
 	}
 
@@ -1130,7 +1134,8 @@ static void updLS( const TypeSet<float>& inpxvals,
     {
 	TypeSet<float> sortvals( inpxvals );
 	sortFor( sortvals.arr(), inpsz, firstxidx );
-        xrg.start_ = sortvals[firstxidx]; xrg.stop_ = sortvals[inpsz-firstxidx-1];
+	xrg.start_ = sortvals[firstxidx];
+	xrg.stop_ = sortvals[inpsz-firstxidx-1];
     }
 
     Interval<float> yrg; assign( yrg, axdy.axis_->range() );
@@ -1138,7 +1143,8 @@ static void updLS( const TypeSet<float>& inpxvals,
     {
 	TypeSet<float> sortvals( inpyvals );
 	sortFor( sortvals.arr(), inpsz, firstyidx );
-        yrg.start_ = sortvals[firstyidx]; yrg.stop_ = sortvals[inpsz-firstyidx-1];
+	yrg.start_ = sortvals[firstyidx];
+	yrg.stop_ = sortvals[inpsz-firstyidx-1];
     }
 
     TypeSet<float> xvals, yvals;
@@ -1430,19 +1436,17 @@ void uiDataPointSetCrossPlotter::setAnnotEndTxt( uiAxisHandler& yah )
     const bool isy1 = y_.axis_ == &yah;
     if ( isy1 ? setup_.showy1cc_ : setup_.showy2cc_ )
     {
-	const float fr100 = (isy1 ? lsy1_ : lsy2_).corrcoeff * 100;
-	int r100 = mNINT32(fr100);
-	BufferString txt( "r=" );
-	if ( r100 < 0 )
-	    { txt += "-"; r100 = -r100; }
+	const float rcoefficient = (isy1 ? lsy1_ : lsy2_).corrcoeff;
+	BufferString txt("r = ");
 
-	if ( r100 == 0 )	txt += "0";
-	else if ( r100 == 100 )	txt += "1";
+	const float absrcoefficient = Math::Abs( rcoefficient );
+
+	if ( absrcoefficient <= 0.01f )
+	    txt.add( 0 );
+	else if ( absrcoefficient >= 0.99f )
+	    txt.add( rcoefficient < 0 ? -1 : 1 );
 	else
-	{
-	    txt += "0.";
-	    txt += r100%10 ? r100 : r100 / 10;
-	}
+	    txt.addDec( rcoefficient, 2 );
 
 	yah.annotAtEnd( toUiString(txt) );
     }
