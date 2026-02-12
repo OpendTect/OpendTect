@@ -29,10 +29,10 @@ public:
 			uiIsochronMakerGrp(uiParent*,EM::ObjectID);
 			~uiIsochronMakerGrp();
 
-    bool		chkInputFlds();
+    bool		checkInputFlds();
     bool		fillPar(IOPar&);
-    BufferString	getHorNm(EM::ObjectID);
-    const char*		attrName() const;
+    BufferString	getHorizonName(EM::ObjectID);
+    const char*		attributeName() const;
 
 protected:
     uiIOObjSel*		basehorsel_		= nullptr;
@@ -42,7 +42,7 @@ protected:
     EM::ObjectID	horid_;
     RefMan<EM::EMObject> baseemobj_;
 
-    void		toHorSel(CallBacker*);
+    void		toHorSelCB(CallBacker*);
 };
 
 
@@ -71,8 +71,8 @@ public:
 			uiIsochronMakerDlg(uiParent*,EM::ObjectID);
 			~uiIsochronMakerDlg();
 
-    const char*		attrName() const	{ return grp_->attrName(); }
-    const DataPointSet&	getDPS()		{ return *dps_; }
+    const char*		attrName() const    { return grp_->attributeName();}
+    const DataPointSet& getDPS()	    { return *dps_; }
 
 protected:
     bool		acceptOK(CallBacker*) override;

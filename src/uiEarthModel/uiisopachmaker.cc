@@ -40,8 +40,10 @@ uiIsochronMakerGrp::uiIsochronMakerGrp( uiParent* p, EM::ObjectID horid )
     baseemobj_ = EM::EMM().getObject( horid_ );
     if ( !baseemobj_ )
 	basehorsel_ = new uiHorizon3DSel( this, true, uiStrings::sHorizon() );
+
     horsel_ = new uiHorizon3DSel( this, true, tr("Calculate to") );
-    horsel_->selectionDone.notify( mCB(this,uiIsochronMakerGrp,toHorSel) );
+    horsel_->setInput( baseemobj_ ? baseemobj_->multiID() : MultiID::udf() );
+    mAttachCB( horsel_->selectionDone, uiIsochronMakerGrp::toHorSelCB );
     if ( !baseemobj_ )
     {
 	horsel_->setInput( MultiID::udf() );
@@ -54,8 +56,6 @@ uiIsochronMakerGrp::uiIsochronMakerGrp( uiParent* p, EM::ObjectID horid )
     attrnmfld_->attach( alignedBelow, horsel_ );
     attrnmfld_->setDefaultTextValidator();
 
-    toHorSel(0);
-
     if ( SI().zIsTime() )
     {
 	msecsfld_ = new uiGenInput( this, tr("Output unit"),
@@ -65,10 +65,12 @@ uiIsochronMakerGrp::uiIsochronMakerGrp( uiParent* p, EM::ObjectID horid )
     }
 
     setHAlignObj( basehorsel_ ? basehorsel_ : horsel_ );
+
+    mAttachCB( postFinalize(), uiIsochronMakerGrp::toHorSelCB );
 }
 
 
-BufferString uiIsochronMakerGrp::getHorNm( EM::ObjectID horid )
+BufferString uiIsochronMakerGrp::getHorizonName( EM::ObjectID horid )
 {
     MultiID mid( EM::EMM().getMultiID( horid ) );
     return EM::EMM().objectName( mid );
@@ -79,7 +81,7 @@ uiIsochronMakerGrp::~uiIsochronMakerGrp()
 {}
 
 
-void uiIsochronMakerGrp::toHorSel( CallBacker* )
+void uiIsochronMakerGrp::toHorSelCB( CallBacker* )
 {
     if ( horsel_->ioobj(true) )
 	attrnmfld_->setText( BufferString("Isochron: ",
@@ -87,7 +89,7 @@ void uiIsochronMakerGrp::toHorSel( CallBacker* )
 }
 
 
-bool uiIsochronMakerGrp::chkInputFlds()
+bool uiIsochronMakerGrp::checkInputFlds()
 {
     if ( basehorsel_ && !basehorsel_->ioobj() )
 	return false;
@@ -110,29 +112,45 @@ bool uiIsochronMakerGrp::chkInputFlds()
 
 bool uiIsochronMakerGrp::fillPar( IOPar& par )
 {
-    EM::IOObjInfo eminfo( baseemobj_->multiID() );
+    const MultiID baseid = baseemobj_ ? baseemobj_->multiID() :
+			   basehorsel_ ? basehorsel_->key() : MultiID::udf();
+
+    if ( baseid.isUdf() )
+    {
+	uiMSG().error( tr("No valid base horizon found") );
+	return false;
+    }
+
+    const EM::IOObjInfo eminfo( baseid );
+
     BufferStringSet attrnms;
     eminfo.getAttribNames( attrnms );
 
-    BufferString attrnm = attrnmfld_->text();
-    bool isoverwrite_ = false;
+    const BufferString attrnm = attrnmfld_->text();
+    bool isoverwrite = false;
     if ( attrnms.isPresent(attrnm.buf()) )
     {
-	uiString errmsg = tr("Entered Isochron name already exists as an "
-			     "attribute in %1. Overwrite?")
-			      .arg(baseemobj_->name() );
+	const uiString errmsg = tr("Entered Isochron name already exists as "
+				   "an attribute in %1. Overwrite?")
+				    .arg( eminfo.name() );
 	if ( !uiMSG().askOverwrite(errmsg) )
 	    return false;
 
-	isoverwrite_ = true;
+	isoverwrite = true;
     }
 
-    par.setYN( IsochronMaker::sKeyIsOverWriteYN(), isoverwrite_ );
+    const MultiID horselid = horsel_->key();
+    if ( baseid == horselid )
+    {
+	uiMSG().error( tr("Selected horizon is the same as base horizon.") );
+	return false;
+    }
 
-    par.set( IsochronMaker::sKeyHorizonID(), basehorsel_ ? basehorsel_->key()
-						       : baseemobj_->multiID());
-    par.set( IsochronMaker::sKeyCalculateToHorID(), horsel_->key() );
+    par.setYN( IsochronMaker::sKeyIsOverWriteYN(), isoverwrite );
+    par.set( IsochronMaker::sKeyHorizonID(), baseid );
+    par.set( IsochronMaker::sKeyCalculateToHorID(), horselid );
     par.set( IsochronMaker::sKeyAttribName(), attrnmfld_->text() );
+
     if ( msecsfld_ )
 	par.setYN( IsochronMaker::sKeyOutputInMilliSecYN(),
 		   msecsfld_->getBoolValue() );
@@ -141,7 +159,7 @@ bool uiIsochronMakerGrp::fillPar( IOPar& par )
 }
 
 
-const char* uiIsochronMakerGrp::attrName() const
+const char* uiIsochronMakerGrp::attributeName() const
 {
     return attrnmfld_->text();
 }
@@ -168,7 +186,7 @@ uiIsochronMakerBatch::~uiIsochronMakerBatch()
 
 bool uiIsochronMakerBatch::prepareProcessing()
 {
-    return grp_->chkInputFlds();
+    return grp_->checkInputFlds();
 }
 
 
@@ -185,7 +203,7 @@ bool uiIsochronMakerBatch::acceptOK( CallBacker* )
     if ( !prepareProcessing() || !fillPar() )
 	return false;
 
-    batchfld_->setJobName( grp_->attrName() );
+    batchfld_->setJobName( grp_->attributeName() );
     return batchfld_->start();
 }
 
@@ -198,7 +216,8 @@ uiIsochronMakerDlg::uiIsochronMakerDlg( uiParent* p, EM::ObjectID emid )
 {
     grp_ = new uiIsochronMakerGrp( this, emid );
     const uiString title = tr("Calculate Isochron and add as an Attribute to"
-			      " '%1' (bottom)" ).arg( grp_->getHorNm( emid ) );
+			      " '%1' (bottom)" )
+			       .arg( grp_->getHorizonName( emid ) );
     setTitleText( title );
 }
 
@@ -209,7 +228,7 @@ uiIsochronMakerDlg::~uiIsochronMakerDlg()
 
 bool uiIsochronMakerDlg::acceptOK( CallBacker* )
 {
-    if ( !grp_->chkInputFlds() )
+    if ( !grp_->checkInputFlds() )
 	return false;
 
     return doWork();
@@ -232,7 +251,7 @@ bool uiIsochronMakerDlg::doWork()
 	mErrRet(uiStrings::phrCannotLoad(tr("selected horizon")))
     h2->ref();
 
-    EM::ObjectID emidbase = EM::EMM().getObjectID( mid1 );
+    const EM::ObjectID emidbase = EM::EMM().getObjectID( mid1 );
     EM::EMObject* emobjbase = EM::EMM().getObject( emidbase );
     mDynamicCastGet(EM::Horizon3D*,h1,emobjbase)
     if ( !h1 )
