@@ -291,6 +291,7 @@ public:
     void 		setAlignment(const Alignment&);
     void		setText(const uiString&);
     void		setTextColor(const OD::Color&);
+    OD::Color		getTextColor();
 
     void		setTextRotation(float angle);
 

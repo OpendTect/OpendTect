@@ -852,33 +852,47 @@ uiLineItem* uiAxisHandler::getGridLine( int pix )
 void uiAxisHandler::annotAtEnd( const uiString& txt )
 {
     if ( txt.isEmpty() )
-	{ mRemoveFromScene( endannotitm_ ); return; }
+    {
+	mRemoveFromScene( endannotitm_ );
+	return;
+    }
 
     const int pix2edge = pixToEdge();
-    int xpix, ypix; Alignment al;
+    int xpix, ypix;
+    Alignment al;
     if ( isHor() )
     {
+	const bool istopsetup = setup_.side_ == uiRect::Top;
 	xpix = devsz_ - pixAfter() - 2;
-	ypix = setup_.side_ == uiRect::Top ? pix2edge  : height_ - pix2edge - 2;
-	al.set( Alignment::Left,
-		setup_.side_==uiRect::Top ? Alignment::Bottom : Alignment::Top);
+	ypix = istopsetup ? pix2edge : height_ - pix2edge - 2;
+	al.set( Alignment::Left, istopsetup ? Alignment::Bottom
+					    : Alignment::Top );
     }
     else
     {
-	xpix = setup_.side_ == uiRect::Left  ? pix2edge + 5
-					     : width_ - pix2edge - 5;
-	ypix = pixBefore() + 5;
-	al.set( setup_.side_==uiRect::Left ? Alignment::Left : Alignment::Right,
-		Alignment::VCenter );
+	al.set( setup_.side_==uiRect::Left ? Alignment::Left
+					: Alignment::Right,Alignment::VCenter );
     }
 
     if ( !endannotitm_ )
 	endannotitm_ = scene_->addItem( new uiTextItem(txt,al) );
     else
 	endannotitm_->setText( txt );
+
+    if ( !isHor() )
+    {
+	const int horpix = endannotitm_->boundingRect().hNrPics();
+	xpix = setup_.side_==uiRect::Left ? pix2edge - horpix
+					  : width_ - pix2edge + horpix;
+	ypix = pixRange().start_ + endannotitm_->boundingRect().vNrPics();
+    }
+
     endannotitm_->setPos( uiPoint(xpix,ypix) );
     endannotitm_->setZValue( mAxisZValue );
     endannotitm_->setFontData( setup_.fontdata_ );
+
+    if ( nameitm_ )
+	endannotitm_->setTextColor( nameitm_->getTextColor() );
 }
 
 
