@@ -165,8 +165,10 @@ void uiIOSelect::doFinalize( CallBacker* )
 void uiIOSelect::setEntries( const BufferStringSet& keys,
 			     const BufferStringSet& names )
 {
-    const BufferString previnp = inp_->text();
-    const bool samesel = !previnp.isEmpty() && names.isPresent( previnp.buf() );
+    const StringPair input( inp_->text() );
+    const BufferString& previnp = input.first();
+    const bool samesel = !previnp.isEmpty() &&
+			 names.isPresent( previnp );
     NotifyStopper ns( inp_->selectionChanged );
     entries_ = keys;
     inp_->setEmpty();
