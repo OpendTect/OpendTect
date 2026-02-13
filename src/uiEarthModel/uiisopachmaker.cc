@@ -78,7 +78,9 @@ BufferString uiIsochronMakerGrp::getHorizonName( EM::ObjectID horid )
 
 
 uiIsochronMakerGrp::~uiIsochronMakerGrp()
-{}
+{
+    detachAllNotifiers();
+}
 
 
 void uiIsochronMakerGrp::toHorSelCB( CallBacker* )
