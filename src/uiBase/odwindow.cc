@@ -36,43 +36,26 @@ ________________________________________________________________________
 mUseQtnamespace
 
 
-static Threads::Mutex		winlistmutex_;
-static ObjectSet<uiMainWin>	orderedwinlist_;
-
-
-static void addToOrderedWinList( uiMainWin* uimw )
+static bool isInWinList( const uiMainWin* uimw )
 {
-    winlistmutex_.lock();
-    orderedwinlist_ -= uimw;
-    orderedwinlist_ += uimw;
-    winlistmutex_.unLock();
-}
-
-
-static bool isInOrderedWinList( const uiMainWin* uimw )
-{
-    winlistmutex_.lock();
-    const bool res = orderedwinlist_.isPresent( uimw );
-    winlistmutex_.unLock();
-    return res;
+    return uiMainWinTracker::instance().hasWindow( uimw );
 }
 
 
 static bool hasChildWindows( uiMainWin& curwin )
 {
-    winlistmutex_.lock();
-    for ( int idx=0; idx<orderedwinlist_.size(); idx++ )
+    ObjectSet<uiMainWin> wins;
+    uiMainWinTracker::instance().getWindows( wins, false );
+    for ( int idx=0; idx<wins.size(); idx++ )
     {
-	uiMainWin* mw = orderedwinlist_[idx];
+	uiMainWin* mw = wins[idx];
 	if ( mw->parent()==&curwin && mw->isModal() )
 	{
 	    mw->raise();
-	    winlistmutex_.unLock();
 	    return true;
 	}
     }
 
-    winlistmutex_.unLock();
     return false;
 }
 
@@ -83,21 +66,21 @@ uiMainWinBody::uiMainWinBody( uiMainWin& uimw, uiParent* p,
 			      const char* nm, bool modal )
 	: uiCentralWidgetBody(nm)
 	, QMainWindow(mParent)
-	, handle_(uimw)
+	, force_finalize_(false)
+	, exitapponclose_(false)
+	, nractivated_(0)
 	, statusbar_(nullptr)
 	, menubar_(nullptr)
 	, toolbarsmnu_(0)
+	, handle_(uimw)
 	, modal_(p && modal)
 	, poptimer_("Popup timer")
 	, poppedup_(false)
-	, exitapponclose_(false)
 	, prefsz_(-1,-1)
 	, prefpos_(uiPoint::udf())
-	, nractivated_(0)
 	, moved_(false)
 	, createtbmenu_(false)
 	, hasguisettings_(false)
-	, force_finalize_(false)
 {
     if ( nm && *nm )
 	setObjectName( nm );
@@ -122,9 +105,7 @@ uiMainWinBody::uiMainWinBody( uiMainWin& uimw, uiParent* p,
 
 uiMainWinBody::~uiMainWinBody()
 {
-    winlistmutex_.lock();
-    orderedwinlist_ -= &handle_;
-    winlistmutex_.unLock();
+    uiMainWinTracker::instance().removeWindow( &handle_ );
 
     deleteAllChildren(); //delete them now to make sure all ui objects
 			 //are deleted before their body counterparts
@@ -152,20 +133,6 @@ uiMainWinBody::~uiMainWinBody()
 bool uiMainWinBody::isDeleteOnClose() const
 {
     return testAttribute( Qt::WA_DeleteOnClose );
-}
-
-
-void uiMainWinBody::getTopLevelWindows( ObjectSet<uiMainWin>& list,
-					bool visibleonly )
-{
-    list.erase();
-    winlistmutex_.lock();
-    for ( int idx=0; idx<orderedwinlist_.size(); idx++ )
-    {
-	if ( !visibleonly || !orderedwinlist_[idx]->isHidden() )
-	    list += orderedwinlist_[idx];
-    }
-    winlistmutex_.unLock();
 }
 
 
@@ -468,7 +435,7 @@ void uiMainWinBody::reDraw( bool deep )
 
 void uiMainWinBody::go( bool showminimized )
 {
-    addToOrderedWinList( &handle_ );
+    uiMainWinTracker::instance().addWindow( &handle_ );
     doShow( showminimized );
 }
 
@@ -546,7 +513,7 @@ void uiMainWinBody::closeEvent( QCloseEvent* ce )
 	handle_.windowClosed.trigger( handle_ );
 	ce->accept();
 
-	if ( isInOrderedWinList(&handle_) && modal_ )
+	if ( isInWinList(&handle_) && modal_ )
 	    eventloop_.exit();
     }
     else
@@ -562,7 +529,7 @@ void uiMainWinBody::close()
 
     handle_.windowClosed.trigger( handle_ );
 
-    if ( !isInOrderedWinList(&handle_) )
+    if ( !isInWinList(&handle_) )
 	return;
 
     if ( testAttribute(Qt::WA_DeleteOnClose) )

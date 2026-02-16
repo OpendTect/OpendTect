@@ -46,6 +46,8 @@ protected:
     void		updateSceneList();
     void		updateScreenList();
 
+    void		windowsChgdCB(CallBacker*);
+
     PresentationSpec	specs_;
     BufferString	pythonpptxdir_;
     BufferString	logfilenm_;
