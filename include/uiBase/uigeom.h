@@ -21,8 +21,9 @@ typedef Geom::PosRectangle<double> uiWorldRect;
 mExpClass(uiBase) uiSize : public Geom::Size2D<int>
 {
 public:
+			uiSize();
 			uiSize(const Geom::Size2D<int>&);
-			uiSize(int wdt=0,int hgt=0);
+			uiSize(int wdt,int hgt);
 			~uiSize();
 
     inline int		hNrPics() const		{ return width_; }

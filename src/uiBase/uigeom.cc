@@ -11,8 +11,13 @@ ________________________________________________________________________
 
 
 // uiSize
+uiSize::uiSize()
+    : Geom::Size2D<int>(0,0)
+{}
+
+
 uiSize::uiSize( const Geom::Size2D<int>& a )
-    :  Geom::Size2D<int>( a )
+    : Geom::Size2D<int>( a )
 {}
 
 
