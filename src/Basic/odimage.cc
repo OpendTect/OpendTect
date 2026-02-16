@@ -9,6 +9,8 @@ ________________________________________________________________________
 
 #include "odimage.h"
 
+#include "paralleltask.h"
+
 namespace OD
 {
 // RGBImageLoader
@@ -78,47 +80,170 @@ void RGBImage::fill( unsigned char* res ) const
 }
 
 
-bool RGBImage::put(unsigned char const* source,bool xdir_slowest, bool opacity)
+class ImageFiller : public ParallelTask
 {
-    if ( !source )
-	return false;
+public:
+ImageFiller( RGBImage& image, unsigned char const* source,bool xdir_slowest,
+	     bool opacity )
+    : ParallelTask("Filling Image")
+    , image_(image)
+    , source_(source)
+    , xdir_slowest_(xdir_slowest)
+    , opacity_(opacity)
+    , xsize_(image.getSize(true))
+    , ysize_(image.getSize(false))
+    , nrcomponents_(image.nrComponents())
+{}
 
-    const int xsize = getSize( true );
-    const int ysize = getSize( false );
-    const char nrcomponents = nrComponents();
 
+od_int64 nrIterations() const override
+{
+    return xsize_ * ysize_;
+}
+
+
+bool doWork( od_int64 start, od_int64 stop, int threadidx ) override
+{
     Color col;
-    for ( int idx=0; idx<xsize; idx++ )
+    for ( od_int64 gidx=start; gidx<=stop; gidx++ )
     {
-	for ( int idy=0; idy<ysize; idy++ )
+	const od_int64 idx = gidx / ysize_;
+	const od_int64 idy = gidx % ysize_;
+
+	const int pixeloffset = xdir_slowest_
+	    ? (idx * ysize_ + idy) * nrcomponents_
+	    : (idy * xsize_ + idx) * nrcomponents_;
+
+	unsigned char const* pixelsource = source_ + pixeloffset;
+
+	if ( nrcomponents_==1 )
+	    col.set( *pixelsource, *pixelsource, *pixelsource, 0 );
+	else if ( nrcomponents_==2 )
+	    col.set( *pixelsource, *pixelsource, *pixelsource,
+	    pixelsource[1] );
+	else if ( nrcomponents_==3 )
+	    col.set( *pixelsource, pixelsource[1], pixelsource[2], 0 );
+	else
 	{
-	    const int pixeloffset = xdir_slowest
-		? (idx * ysize + idy) * nrcomponents
-		: (idy * xsize + idx) * nrcomponents;
-
-	    unsigned char const* pixelsource = source + pixeloffset;
-
-	    if ( nrcomponents==1 )
-		col.set( *pixelsource, *pixelsource, *pixelsource, 0 );
-	    else if ( nrcomponents==2 )
-		col.set( *pixelsource, *pixelsource, *pixelsource,
-		pixelsource[1] );
-	    else if ( nrcomponents==3 )
-		col.set( *pixelsource, pixelsource[1], pixelsource[2], 0 );
-	    else
-	    {
-		col.set( *pixelsource, pixelsource[1], pixelsource[2],
-		opacity ? 255-pixelsource[3] : pixelsource[3] );
-	    }
-
-	    if ( !set( idx, idy, col ) )
-		return false;
+	    col.set( *pixelsource, pixelsource[1], pixelsource[2],
+	    opacity_ ? 255-pixelsource[3] : pixelsource[3] );
 	}
+
+	if ( !image_.set(idx,idy,col) )
+	    return false;
     }
 
     return true;
 }
 
+
+RGBImage&		image_;
+unsigned char const*	source_;
+bool			xdir_slowest_;
+bool			opacity_;
+od_int64		xsize_;
+od_int64		ysize_;
+int			nrcomponents_;
+
+}; // class ImageFiller
+
+bool RGBImage::put(unsigned char const* source,bool xdir_slowest, bool opacity)
+{
+    if ( !source )
+	return false;
+
+    ImageFiller filler( *this, source, xdir_slowest, opacity );
+    return filler.execute();
+}
+
+
+class ImageBlender : public ParallelTask
+{
+public:
+ImageBlender( RGBImage& image, const RGBImage& sourceimage,
+	      bool blendtransparency,
+	      unsigned char blendtransparencyval,
+	      bool blendequaltransparency,
+	      bool opacity )
+    : ParallelTask("Filling Image")
+    , image_(image)
+    , sourceimage_(sourceimage)
+    , blendtransparency_(blendtransparency)
+    , blendtransparencyval_(blendtransparencyval)
+    , blendequaltransparency_(blendequaltransparency)
+    , opacity_(opacity)
+    , xsize_(image.getSize(true))
+    , ysize_(image.getSize(false))
+    , nrcomponents_(image.nrComponents())
+{}
+
+
+od_int64 nrIterations() const override
+{
+    return xsize_ * ysize_;
+}
+
+
+bool doWork( od_int64 start, od_int64 stop, int threadidx ) override
+{
+    for ( od_int64 gidx=start; gidx<=stop; gidx++ )
+    {
+	const od_int64 idx = gidx / ysize_;
+	const od_int64 idy = gidx % ysize_;
+
+	const Color color = image_.get( idx, idy );
+	const Color srccolor = sourceimage_.get( idx, idy );
+
+	double a2 = .0f;
+	double a1 = .0f;
+
+	bool forceblendsourceimg =
+	    blendtransparency_ && srccolor.t()== blendtransparencyval_;
+
+	if ( forceblendsourceimg )
+	{
+	    a1 = 0; a2 = 1.0f;
+	}
+	else if ( !blendequaltransparency_ )
+	{
+	    a1 = ( color.t()==srccolor.t()  ) ? 1.0f : color.t()/255.0f;
+	    a2 = ( color.t()==srccolor.t()  ) ? 0.0f : srccolor.t()/255.0f;
+	}
+	else
+	{
+	    a1 = color.t() / 255.0f;
+	    a2 = srccolor.t() / 255.0f;
+	}
+
+	const unsigned char r =
+	    (unsigned char)(a1 * color.r() + a2 * (1 - a1) * srccolor.r());
+	const unsigned char g =
+	    (unsigned char)(a1 * color.g() + a2 * (1 - a1) * srccolor.g());
+	const unsigned char b =
+	    (unsigned char)(a1 * color.b() + a2 * (1 - a1) * srccolor.b());
+
+	unsigned char t = forceblendsourceimg ? 255 :
+	    (unsigned char)( 255 * ( a1 + a2 * ( 1 - a1 ) ) );
+
+	if ( !image_.set( idx, idy, Color(r,g,b,opacity_ ? 255-t : t) ) )
+	    return false;
+    }
+
+    return true;
+}
+
+
+RGBImage&		image_;
+const RGBImage&		sourceimage_;
+bool			blendtransparency_;
+unsigned char		blendtransparencyval_;
+bool			blendequaltransparency_;
+bool			opacity_;
+od_int64		xsize_;
+od_int64		ysize_;
+int			nrcomponents_;
+
+}; // class ImageBlender
 
 bool RGBImage::blendWith( const RGBImage& sourceimage,
 			  bool blendtransparency,
@@ -136,51 +261,10 @@ bool RGBImage::blendWith( const RGBImage& sourceimage,
 	 sourceimage.getSize( false ) != ysize )
 	return false;
 
-
-    for ( int idx=0; idx<xsize; idx++ )
-    {
-	for ( int idy=0; idy<ysize; idy++ )
-	{
-	    const Color color = get( idx, idy );
-	    const Color srccolor = sourceimage.get( idx, idy );
-
-	    double a2 = .0f;
-	    double a1 = .0f;
-	    
-	    bool forceblendsourceimg =
-		blendtransparency && srccolor.t()== blendtransparencyval;
-
-	    if ( forceblendsourceimg )
-	    {
-		a1 = 0; a2 = 1.0f;
-	    }
-	    else if ( !blendequaltransparency )
-	    {
-		a1 = ( color.t()==srccolor.t()  ) ? 1.0f : color.t() / 255.0f;
-		a2 = ( color.t()==srccolor.t()  ) ? 0.0f : srccolor.t()/255.0f;
-	    }
-	    else
-	    {
-		a1 = color.t() / 255.0f;
-		a2 = srccolor.t()/255.0f;
-	    }
-
-	    const unsigned char r = 
-		(unsigned char)(a1 * color.r() + a2 * (1 - a1) * srccolor.r());
-	    const unsigned char g = 
-		(unsigned char)(a1 * color.g() + a2 * (1 - a1) * srccolor.g());
-	    const unsigned char b = 
-		(unsigned char)(a1 * color.b() + a2 * (1 - a1) * srccolor.b());
-
-	    unsigned char t = forceblendsourceimg ? 255 :
-		(unsigned char)( 255 * ( a1 + a2 * ( 1 - a1 ) ) );
-
-	    if ( !set( idx, idy, Color( r, g, b, with_opacity ? 255-t : t ) ) )
-		return false;
-	}
-    }
-
-    return true;
+    ImageBlender blender( *this, sourceimage, blendtransparency,
+			  blendtransparencyval, blendequaltransparency,
+			  with_opacity );
+    return blender.execute();
 }
 
 
