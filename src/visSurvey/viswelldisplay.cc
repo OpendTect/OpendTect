@@ -205,12 +205,6 @@ void WellDisplay::fillLogParams(
 }
 
 
-#define mDispLog( dsplSide, Side )\
-{ \
-    const BufferString& logname = mGetLogPar( dsplSide, name_ );\
-    if ( wd->getLog(logname) )\
-	display##Side##Log();\
-}
 void WellDisplay::fullRedraw( CallBacker* )
 {
     mGetWD(return);
@@ -239,9 +233,17 @@ void WellDisplay::fullRedraw( CallBacker* )
 
     well_->removeLogs();
 
-    mDispLog( visBase::Well::Left, Left );
-    mDispLog( visBase::Well::Right, Right );
-    mDispLog( visBase::Well::Center, Center );
+    const BufferString& llogname = mGetLogPar( visBase::Well::Left, name_ );
+    if ( wd->getLog(llogname) )
+	displayLeftLog();
+
+    const BufferString& rlogname = mGetLogPar( visBase::Well::Right, name_ );
+    if ( wd->getLog(rlogname) )
+	displayRightLog();
+
+    const BufferString& clogname = mGetLogPar( visBase::Well::Center, name_ );
+    if ( wd->getLog(clogname) )
+	displayCenterLog();
 }
 
 
