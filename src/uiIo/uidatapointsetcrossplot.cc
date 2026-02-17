@@ -1272,15 +1272,10 @@ void uiDataPointSetCrossPlotter::setCols( DataPointSet::ColID x,
 			 ( posdisptypechgd ? !mIsHPosCol( y ) : true );
     const bool isprevy2 = ( y2_.colid_ == y2 ) &&
 			  ( posdisptypechgd ? !mIsHPosCol( y2 ) : true );
-    x_.setCol( x ); y_.setCol( y ); y2_.setCol( y2 );
 
-    if ( y_.axis_ )
-    {
-	y_.axis_->setBegin( x_.axis_ );
-	x_.axis_->setBegin( y_.axis_ );
-    }
-    else if ( x_.axis_ )
-	x_.axis_->setBegin( 0 );
+    y2_.setCol( y2 );
+    y_.setCol( y );
+    x_.setCol( x );
 
     if ( y2_.axis_ )
     {
@@ -1288,7 +1283,16 @@ void uiDataPointSetCrossPlotter::setCols( DataPointSet::ColID x,
 	x_.axis_->setEnd( y2_.axis_ );
     }
     else if ( x_.axis_ )
-	x_.axis_->setEnd( 0 );
+	x_.axis_->setEnd( x_.axis_ );
+
+    if ( y_.axis_ )
+    {
+	y_.axis_->setBegin( x_.axis_ );
+	x_.axis_->setBegin( y_.axis_ );
+    }
+    else if ( x_.axis_ )
+	x_.axis_->setBegin( x_.axis_ );
+
 
     if ( !isprevx || !isprevy )
     {
