@@ -463,7 +463,11 @@ endmacro(QT_DTECT_WEBENGINE)
 
 macro( QT_DTECT_CHARTS )
     if ( QT_VERSION VERSION_GREATER_EQUAL 6 )
-	find_package( Qt${QT_VERSION_MAJOR} QUIET COMPONENTS Charts GLOBAL )
+	if ( QT_VERSION VERSION_GREATER_EQUAL 6.10 )
+	    find_package( Qt${QT_VERSION_MAJOR} QUIET COMPONENTS Graphs GLOBAL )
+	else()
+	    find_package( Qt${QT_VERSION_MAJOR} QUIET COMPONENTS Charts GLOBAL )
+	endif()
     endif()
 endmacro()
 
