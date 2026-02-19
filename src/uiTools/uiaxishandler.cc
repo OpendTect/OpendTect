@@ -858,7 +858,7 @@ void uiAxisHandler::annotAtEnd( const uiString& txt )
     }
 
     const int pix2edge = pixToEdge();
-    int xpix, ypix;
+    int xpix = mUdf(int), ypix = mUdf(int);
     Alignment al;
     if ( isHor() )
     {
