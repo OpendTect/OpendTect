@@ -725,7 +725,8 @@ uiRect i_LayoutMngr::childrenRect( LayoutMode lom )
 				    chldRect.setBottom( childPos->bottom());
     }
 
-    if ( int bs = borderSpace() >= 0 )
+    const int bs = borderSpace();
+    if ( bs >= 0 )
     {
 	int l = mMAX( 0,chldRect.left() - bs );
 	int t = mMAX( 0,chldRect.top() - bs );
