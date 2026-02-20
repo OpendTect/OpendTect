@@ -433,9 +433,15 @@ void uiFlatViewStdControl::aspectRatioCB( CallBacker* cb )
     mDynamicCastGet(uiGraphicsView*,view,caps->caller);
     int vwridx = -1;
     for ( int idx=0; idx<vwrs_.size(); idx++ )
+    {
 	if ( &vwrs_[idx]->rgbCanvas() == view )
-	    { vwridx = idx; break; }
-    if ( vwridx == -1 ) return;
+	{
+	    vwridx = idx;
+	    break;
+	}
+    }
+    if ( vwridx == -1 )
+	return;
 
     uiFlatViewer& vwr = *vwrs_[vwridx];
     const uiWorldRect bb = vwr.boundingBox();
