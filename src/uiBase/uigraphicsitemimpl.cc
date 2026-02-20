@@ -808,6 +808,13 @@ void uiTextItem::setTextColor( const OD::Color& col )
 }
 
 
+OD::Color uiTextItem::getTextColor()
+{
+    auto qcol = qtextitem_->defaultTextColor();
+    return OD::Color( qcol.red(), qcol.green(), qcol.blue(), 255-qcol.alpha() );
+}
+
+
 void uiTextItem::setTextRotation( float angle )
 {
     qtextitem_->setRotation( angle );
