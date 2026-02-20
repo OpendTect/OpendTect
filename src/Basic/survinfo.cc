@@ -1989,25 +1989,25 @@ RefMan<Survey::Geometry3D> SurveyInfo::get3DGeometry( bool work )
 
 float SurveyInfo::angleXInl() const
 {
-    const Coord xy1 = transform( BinID(inlRange(false).start_,
-				       crlRange(false).start_));
-    const Coord xy2 = transform( BinID(inlRange(false).start_,
-				       crlRange(false).stop_) );
+    const Coord xy1 = b2c_.transform( BinID(inlRange(false).start_,
+					    crlRange(false).start_));
+    const Coord xy2 = b2c_.transform( BinID(inlRange(false).start_,
+					    crlRange(false).stop_) );
     const double xdiff = xy2.x_ - xy1.x_;
     const double ydiff = xy2.y_ - xy1.y_;
-    return sCast(float, Math::Atan2( ydiff, xdiff ) );
+    return sCast(float, Math::Atan2(ydiff,xdiff) );
 }
 
 
 float SurveyInfo::angleXCrl() const
 {
-    const Coord xy1 = transform( BinID(inlRange(false).start_,
-				       crlRange(false).start_));
-    const Coord xy2 = transform( BinID(inlRange(false).stop_,
-				       crlRange(false).start_) );
+    const Coord xy1 = b2c_.transform( BinID(inlRange(false).start_,
+					    crlRange(false).start_));
+    const Coord xy2 = b2c_.transform( BinID(inlRange(false).stop_,
+					    crlRange(false).start_) );
     const double xdiff = xy2.x_ - xy1.x_;
     const double ydiff = xy2.y_ - xy1.y_;
-    return sCast(float, Math::Atan2( ydiff, xdiff ) );
+    return sCast(float, Math::Atan2(ydiff,xdiff) );
 }
 
 

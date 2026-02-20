@@ -9,14 +9,15 @@ ________________________________________________________________________
 
 #include "vishorizontexturehandler.h"
 
+#include "bidvsetarrayadapter.h"
 #include "binidsurface.h"
 #include "binidvalset.h"
 #include "coltabmapper.h"
 #include "datacoldef.h"
 #include "datapointset.h"
+#include "paralleltask.h"
 #include "posvecdataset.h"
-#include "threadwork.h"
-#include "vishorizonsectiondef.h"
+#include "trckeysampling.h"
 #include "vishorizonsectiontile.h"
 
 #include <osgGeo/LayeredTexture>
@@ -24,6 +25,84 @@ ________________________________________________________________________
 
 namespace visBase
 {
+
+class HorizonTextureGridFiller : public ParallelTask
+{
+mODTextTranslationClass(HorizonTextureGridFiller)
+public:
+HorizonTextureGridFiller( const ObjectSet<BIDValSetArrAdapter>& adapters,
+	ObjectSet<float>& versiondata, int nrcols, int nrcells,
+	const StepInterval<int>& rrg, const StepInterval<int>& crg )
+    : ParallelTask( "Filling horizon texture grid" )
+    , adapters_( adapters )
+    , versiondata_( versiondata )
+    , nrcols_( nrcols )
+    , nrcells_( nrcells )
+    , rrg_( rrg )
+    , crg_( crg )
+{
+}
+
+od_int64 nrIterations() const override
+{
+    return nrcells_;
+}
+
+uiString uiMessage() const override
+{
+    return tr( "Filling horizon texture grid" );
+}
+
+uiString uiNrDoneText() const override
+{
+    return ParallelTask::sPosFinished();
+}
+
+protected:
+bool doWork( od_int64 start, od_int64 stop, int ) override
+{
+    const int nrversions = adapters_.size();
+    for ( od_int64 idx=start; idx<=stop && shouldContinue(); idx++ )
+    {
+	const int inlidx = (int)( idx / nrcols_ );
+	const int crlidx = (int)( idx % nrcols_ );
+	const int inl = rrg_.start_ + inlidx * rrg_.step_;
+	const int crl = crg_.start_ + crlidx * crg_.step_;
+
+	if ( adapters_.isEmpty() )
+	    continue;
+
+	const BIDValSetArrAdapter& adp = *adapters_[0];
+	if ( !adp.tks_.includes(BinID(inl,crl)) )
+	    continue;
+
+	const int ai = adp.tks_.inlIdx( inl );
+	const int aj = adp.tks_.crlIdx( crl );
+	if ( !adp.info().validPos(ai,aj) )
+	    continue;
+
+	for ( int v=0; v<nrversions; v++ )
+	{
+	    const float val = adapters_[v]->get( ai, aj );
+	    if ( !mIsUdf(val) )
+		versiondata_[v][idx] = val;
+	}
+
+	quickAddToNrDone( 1 );
+    }
+
+    return true;
+}
+
+private:
+    const ObjectSet<BIDValSetArrAdapter>&	adapters_;
+    ObjectSet<float>&				versiondata_;
+    int						nrcols_;
+    int						nrcells_;
+    const StepInterval<int>&			rrg_;
+    const StepInterval<int>&			crg_;
+};
+
 
 HorizonTextureHandler::HorizonTextureHandler( HorizonSection* horsection )
     : horsection_(horsection)
@@ -310,36 +389,20 @@ void HorizonTextureHandler::updateTexture(int channel,int sectionid,
 	versiondata += vals;
     }
 
-    BinIDValueSet::SPos pos;
     const int startsourceidx = nrfixedcols + (nrfixedcols==sidcol ? 1 : 0);
-    while ( data->next(pos,true) )
+    const BinID step( rrg.step_, crg.step_ );
+
+    ManagedObjectSet<BIDValSetArrAdapter> adapters;
+    for ( int idx=0; idx<nrversions; idx++ )
     {
-	const float* ptr = data->getVals(pos);
-	if ( sidcol!=-1 && sectionid!=mNINT32(ptr[sidcol]) )
-	    continue;
-
-	const BinID bid = data->getBinID( pos );
-	if ( !rrg.includes(bid.inl(), false) ||
-	    !crg.includes(bid.crl(),false) )
-	    continue;
-
-	if ( horsection->userchangedisplayrg_ )
-	{
-	    if ( ( bid.inl()-rrg.start_ ) % rrg.step_ ||
-		 ( bid.crl()-crg.start_ ) % crg.step_ )
-		continue;
-	}
-
-	const int inlidx = rrg.nearestIndex( bid.inl() );
-	const int crlidx = crg.nearestIndex( bid.crl() );
-
-	const int offset = inlidx*nrcols + crlidx;
-	if ( offset>=nrcells )
-	    continue;
-
-	for ( int idx=0; idx<nrversions; idx++ )
-	    versiondata[idx][offset] = ptr[idx+startsourceidx];
+	auto* adapter =
+		new BIDValSetArrAdapter( *data, idx+startsourceidx, step );
+	adapters += adapter;
     }
+
+    HorizonTextureGridFiller filler( adapters, versiondata, nrcols, nrcells,
+				     rrg, crg );
+    filler.execute();
 
     for ( int idx=0; idx<nrversions; idx++ )
 	channels_->setUnMappedData( channel, idx, versiondata[idx],

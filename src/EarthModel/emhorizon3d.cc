@@ -447,17 +447,20 @@ bool Horizon3D::setZ( const TrcKey& tk, float z, bool addtohist )
 
 
 float Horizon3D::getZ( const TrcKey& tk ) const
-{ return (float) getPos( tk.position().toInt64() ).z_; }
+{
+    return geometry_.geometryElement() ?
+	geometry_.geometryElement()->getZ( tk.binID() ) : mUdf(float);
+}
+
 
 bool Horizon3D::setZ( const BinID& bid, float z, bool addtohist )
 {
-    return setPos( bid.toInt64(), Coord3(0,0,z),
-	addtohist );
+    return setPos( bid.toInt64(), Coord3(0,0,z), addtohist );
 }
 
 
 bool Horizon3D::setZAndNodeSourceType( const TrcKey& tk, float z,
-    bool addtohist, NodeSourceType type )
+				       bool addtohist, NodeSourceType type )
 {
     if ( !arrayinited_ )
     {
@@ -481,13 +484,22 @@ bool Horizon3D::setZAndNodeSourceType( const TrcKey& tk, float z,
 
 
 float Horizon3D::getZ( const BinID& bid ) const
-{ return (float) getPos( bid.toInt64() ).z_; }
+{
+    return geometry_.geometryElement() ?
+	geometry_.geometryElement()->getZ( bid ) : mUdf(float);
+}
+
 
 bool Horizon3D::hasZ( const TrcKey& tk ) const
-{ return isDefined( tk.position().toInt64() ); }
+{
+    return isDefined( tk.position().toInt64() );
+}
+
 
 Coord3 Horizon3D::getCoord( const TrcKey& tk ) const
-{ return getPos( tk.position().toInt64() ); }
+{
+    return getPos( tk.position().toInt64() );
+}
 
 
 void Horizon3D::setAttrib( const TrcKey& tk, int attr, int yn, bool addtohist )
@@ -521,8 +533,8 @@ float Horizon3D::getZValue( const Coord& crd, bool allow_udf, int nr ) const
 }
 
 
-void Horizon3D::setArray( const BinID& start,
-    const BinID& step, Array2D<float>* arr, bool takeover )
+void Horizon3D::setArray( const BinID& start, const BinID& step,
+			  Array2D<float>* arr, bool takeover )
 {
     PtrMan<EM::EMObjectIterator> iterator = createIterator();
     if ( !iterator )
@@ -588,9 +600,9 @@ Array2D<float>* Horizon3D::createArray2D(
 		    {
 			const TrcKey tk( bid );
 			const float zval =
-                                zaxistransform->transformTrc( tk, pos.z_ );
-			arr->set( rowrg.getIndex(row), colrg.getIndex(col),
-									zval );
+				zaxistransform->transformTrc( tk, pos.z_ );
+			arr->set( rowrg.getIndex(row),
+				  colrg.getIndex(col), zval );
 		    }
 		}
 	    }
@@ -664,10 +676,10 @@ bool Horizon3D::setArray2D( const Array2D<float>& arr,
 		   ? arr.get(rowrg.getIndex(row),colrg.getIndex(col))
 		   : mUdf(float);
 
-            if ( pos.z_ == val || (mIsUdf(pos.z_) && mIsUdf(val)) )
+	    if ( pos.z_ == val || (mIsUdf(pos.z_) && mIsUdf(val)) )
 		continue;
 
-            pos.z_ = val;
+	    pos.z_ = val;
 	    setPos( rc.toInt64(), pos, false );
 
 	    if ( ++poscount >= 10000 )
@@ -1562,7 +1574,7 @@ void Horizon3DGeometry::getDataPointSet( DataPointSet& dps, float shift ) const
     {
 	const RowCol bid = geometryElement()->getKnotRowCol( idx );
 	Coord3 coord = geometryElement()->getKnot( bid, false );
-        bidvalset.add( bid, (float) coord.z_ + shift );
+	bidvalset.add( bid, (float) coord.z_ + shift );
     }
     dps.dataChanged();
 }
@@ -1669,7 +1681,7 @@ void Horizon3DGeometry::fillBinIDValueSet( BinIDValueSet& bivs,
 	    BinID bid = BinID::fromInt64( pid.subID() );
 	    const bool isinside = prov ? prov->includes( bid ) : true;
 	    if ( isinside )
-                bivs.add( bid, (float) crd.z_ );
+		bivs.add( bid, (float) crd.z_ );
 	}
     }
 }
