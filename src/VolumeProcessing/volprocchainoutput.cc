@@ -384,7 +384,7 @@ bool VolProc::ChainOutput::openOutput()
     wrr_ = new SeisDataPackWriter( outid_, *seisdp );
     seisdp = nullptr;
 
-    wrr_->setSelection( cs_.hsamp_, outputzrg_ );
+    wrr_->setFullRange( cs_ );
     for ( int idx=0; idx<chain_->getOutputScalers().size(); idx++ )
     {
 	const Scaler* scaler = chain_->getOutputScalers()[idx];
