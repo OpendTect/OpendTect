@@ -30,7 +30,7 @@ void uiFlatViewWin::createViewers( int nr )
 {
     for ( int idx=0; idx<nr; idx++ )
     {
-	uiFlatViewer* vwr = new uiFlatViewer( dockParent() );
+	auto* vwr = new uiFlatViewer( dockParent() );
 	vwrs_ += vwr;
 	vwr->setStretch( 2, 2 );
 	handleNewViewer( vwr );
@@ -227,7 +227,8 @@ void uiFlatViewMainWin::addControl( uiFlatViewControl* fvc )
 
 void uiFlatViewWin::setInitialSize( int w, int h )
 {
-    int vwrw = w / vwrs_.size(); int vwrh = h / vwrs_.size();
+    int vwrw = w / vwrs_.size();
+    int vwrh = h / vwrs_.size();
     for ( int idx=0; idx<vwrs_.size(); idx++ )
 	vwrs_[idx]->setInitialSize( uiSize(vwrw,vwrh) );
 }
@@ -236,7 +237,8 @@ void uiFlatViewWin::setInitialSize( int w, int h )
 void uiFlatViewMainWin::setInitialSize( int w, int h )
 {
     uiFlatViewWin::setInitialSize( w, h );
-    setPrefWidth( w ); setPrefHeight( h );
+    setPrefWidth( w );
+    setPrefHeight( h );
 }
 
 
