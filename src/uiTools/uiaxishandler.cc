@@ -713,7 +713,10 @@ bool uiAxisHandler::reCalcAnnotation()
 void uiAxisHandler::updateName()
 {
     if ( setup_.noaxisannot_ || setup_.caption_.isEmpty() )
-	{ mRemoveFromScene( nameitm_ ); return; }
+    {
+	mRemoveFromScene( nameitm_ );
+	return;
+    }
 
     if ( !nameitm_ )
     {
@@ -723,7 +726,6 @@ void uiAxisHandler::updateName()
     else
 	nameitm_->setText( setup_.caption_ );
 
-
 // TODO: Text positioning is trial and error. Needs to be reworked!
     Alignment al( Alignment::HCenter, Alignment::VCenter );
     uiPoint pt;
@@ -732,16 +734,16 @@ void uiAxisHandler::updateName()
     {
 	const bool istop = setup_.side_ == uiRect::Top;
         pt.x_ = pixBefore() + axsz_/2;
-        pt.y_ = istop ? namepos : height_ - namepos + ticSz();
+	pt.y_ = istop ? namepos : height_ - namepos + ticSz();
 	al.set( istop ? Alignment::Top : Alignment::Bottom );
     }
     else
     {
 	const int fontheight = annots_.font().height();
 	const bool isleft = setup_.side_ == uiRect::Left;
-	const int vnamepos = namepos - fontheight;
+	const int vnamepos = namepos - fontheight/2;
         pt.x_ = isleft ? vnamepos : width_-vnamepos;
-        pt.y_ = pixAfter() + axsz_/2 + annots_.font().width(setup_.caption_);
+	pt.y_ = pixAfter() + axsz_/2 + annots_.font().width(setup_.caption_);
 
 	al.set( Alignment::Bottom );
 	al.set( Alignment::Left );

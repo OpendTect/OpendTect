@@ -24,23 +24,23 @@ ________________________________________________________________________
 
 uiFlatViewer::uiFlatViewer( uiParent* p )
     : uiGroup(p,"Flat viewer")
-    , view_( new uiGraphicsView( this, "Flatview" ) )
-    , axesdrawer_( *new AxesDrawer(*this) )
-    , extfac_( 0.5f )
-    , worldgroup_( new uiGraphicsItemGroup( true ) )
-    , control_( 0 )
-    , xseldatarange_( mUdf(float),mUdf(float) )
-    , yseldatarange_( mUdf(float),mUdf(float) )
-    , useseldataranges_( false )
-    , viewChanged( this )
-    , dataChanged( this )
-    , dispParsChanged( this )
-    , annotChanged( this )
-    , dispPropChanged( this )
-    , updatebitmapsonresize_( true )
-    , updateannot_( false )
-    , updatebitmap_( false )
-    , updateauxdata_( false )
+    , view_(new uiGraphicsView(this,"Flatview"))
+    , axesdrawer_(*new AxesDrawer(*this))
+    , extfac_(0.5f)
+    , worldgroup_(new uiGraphicsItemGroup( true ))
+    , control_(0)
+    , xseldatarange_(mUdf(float),mUdf(float))
+    , yseldatarange_(mUdf(float),mUdf(float))
+    , useseldataranges_(false)
+    , viewChanged(this)
+    , dataChanged(this)
+    , dispParsChanged(this)
+    , annotChanged(this)
+    , dispPropChanged(this)
+    , updatebitmapsonresize_(true)
+    , updateannot_(false)
+    , updatebitmap_(false)
+    , updateauxdata_(false)
 
 {
     mAttachCB( view_->preDraw, uiFlatViewer::updateCB );
@@ -52,7 +52,8 @@ uiFlatViewer::uiFlatViewer( uiParent* p )
     view_->setScrollBarPolicy( true, uiGraphicsViewBase::ScrollBarAlwaysOff );
     view_->setSceneBorder( 2 );
     mAttachCB( view_->reSize, uiFlatViewer::reSizeCB );
-    setStretch( 2, 2 ); view_->setStretch( 2, 2 );
+    setStretch( 2, 2 );
+    view_->setStretch( 2, 2 );
 
     bitmapdisp_ = new uiBitMapDisplay( appearance(), false );
     mAttachCB( bitmapdisp_->rangeUpdated, uiFlatViewer::rangeUpdatedCB );
@@ -138,7 +139,7 @@ void uiFlatViewer::updateAnnotCB( CallBacker* cb )
 	setView( wr_ ); //<<-- To flip the resultant image.
     }
 
-    reSizeCB(0); // Needed as annotation changes may make view-area
+    reSizeCB( nullptr ); // Needed as annotation changes may make view-area
 		 // larger or smaller.
     annotChanged.trigger();
 }
@@ -165,25 +166,33 @@ void uiFlatViewer::setBoundingRect( const uiRect& boundingrect )
     const uiRect viewrect = getViewRect( false );
     int extrawidth = viewrect.width() - boundingrect.width();
     int extraheight = viewrect.height() - boundingrect.height();
-    if ( extrawidth < 0 ) extrawidth = 0;
-    if ( extraheight < 0 ) extraheight = 0;
-    const uiBorder border( 0, 0, extrawidth, extraheight );
+    if ( extrawidth < 0 )
+	extrawidth = 0;
+    if ( extraheight < 0 )
+	extraheight = 0;
+
+    //keeps the 2D view in the center
+    const uiBorder border( extrawidth/2, extraheight/2,
+			   extrawidth/2, extraheight/2 );
     axesdrawer_.setExtraBorder( border );
 }
 
 
 void uiFlatViewer::setExtraBorders( const uiSize& lfttp, const uiSize& rghtbt )
 {
-    uiBorder border( lfttp.width(), lfttp.height(), rghtbt.width(),
-		     rghtbt.height() );
+    const uiBorder border( lfttp.width(), lfttp.height(),
+			   rghtbt.width(), rghtbt.height() );
     axesdrawer_.setExtraBorder( border );
 }
 
 
 void uiFlatViewer::setInitialSize( const uiSize& sz )
 {
-    setPrefWidth( sz.width() ); setPrefHeight( sz.height() );
-    view_->setPrefWidth( sz.width() ); view_->setPrefHeight( sz.height() );
+    setPrefWidth( sz.width() );
+    setPrefHeight( sz.height() );
+
+    view_->setPrefWidth( sz.width() );
+    view_->setPrefHeight( sz.height() );
 }
 
 

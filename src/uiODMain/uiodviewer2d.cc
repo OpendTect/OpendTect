@@ -502,7 +502,7 @@ void uiODViewer2D::createViewWin( bool isvert, bool needslicepos,
     viewwin_->setInitialSize( 700, 400 );
     for ( int ivwr=0; ivwr<viewwin_->nrViewers(); ivwr++ )
     {
-	uiFlatViewer& vwr = viewwin()->viewer( ivwr);
+	uiFlatViewer& vwr = viewwin()->viewer( ivwr );
 	vwr.setZDomain( datazom, false );
 	if ( displayzdom )
 	    vwr.setZDomain( *displayzdom, true );
@@ -1843,7 +1843,7 @@ void uiODViewer2D::setUpView( const DataPackID& packid, bool wva )
 								      !wva );
     DataPackMgr& dpm = DPM(DataPackMgr::FlatID());
     RefMan<FlatDataPack> fdp = dpm.get<FlatDataPack>( packid );
-    makeUpView( fdp.ptr(), dest);
+    makeUpView( fdp.ptr(), dest );
 }
 
 

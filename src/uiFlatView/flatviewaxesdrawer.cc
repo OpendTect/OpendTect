@@ -105,7 +105,7 @@ uiBorder AxesDrawer::getAnnotBorder( bool withextraborders ) const
 	    b += axisheight*3;
     }
 
-    uiBorder annotborder(l,t,r,b);
+    const uiBorder annotborder( l, t, r, b );
     return annotborder;
 }
 
