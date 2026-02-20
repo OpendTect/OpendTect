@@ -280,7 +280,8 @@ Coord3 ParametricSurface::getKnot( const RowCol& rc ) const
 bool ParametricSurface::isKnotDefined( const RowCol& rc ) const
 {
     const int index = getKnotIndex(rc);
-    if ( index==-1 ) return false;
+    if ( index==-1 )
+	return false;
 
     return getKnot(rc).isDefined();
 }
@@ -359,7 +360,7 @@ bool ParametricSurface::isAtEdge( const RowCol& rc ) const
 
 
 bool ParametricSurface::isAtSameEdge( const RowCol& rc1, const RowCol& rc2,
-       TypeSet<RowCol>* path ) const
+				      TypeSet<RowCol>* path ) const
 {
     if ( !isAtEdge(rc1)  || !isAtEdge(rc2) )
 	return false;

@@ -294,7 +294,7 @@ HorizonSectionTilePosSetup::HorizonSectionTilePosSetup(
 	geo_ = horsection_->geometry_;
     }
 
-    setName( BufferString( "Creating horizon surface..." ) );
+    setName( "Creating horizon surface" );
 }
 
 

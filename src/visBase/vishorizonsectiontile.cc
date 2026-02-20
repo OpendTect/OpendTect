@@ -33,24 +33,24 @@ namespace visBase
 
 HorizonSectionTile::HorizonSectionTile( const HorizonSection& section,
 					const RowCol& origin )
-    : osgswitchnode_( new osg::Switch )
-    , desiredresolution_( cNoneResolution )
-    , resolutionhaschanged_( false )
-    , needsupdatebbox_( false )
-    , nrdefinedvertices_( 0 )
+    : righttileglue_( new HorizonSectionTileGlue )
+    , bottomtileglue_( new HorizonSectionTileGlue )
     , origin_( origin )
     , hrsection_( section )
-    , updatenewpoint_( false )
     , wireframedisplayed_( false )
-    , righttileglue_( new HorizonSectionTileGlue )
-    , bottomtileglue_( new HorizonSectionTileGlue )
+    , desiredresolution_( cNoneResolution )
+    , nrdefinedvertices_( 0 )
+    , resolutionhaschanged_( false )
+    , needsupdatebbox_( false )
+    , tesselationqueueid_( Threads::WorkManager::twm().addQueue(
+		Threads::WorkManager::MultiThread, "Tessalation") )
     , stateset_( new osg::StateSet )
+    , osgswitchnode_( new osg::Switch )
+    , updatenewpoint_( false )
     , txorigin_( osg::Vec2f(0,0) )
     , txoppsite_( osg::Vec2f(0,0) )
     , normals_( new osg::Vec3Array )
     , osgvertices_( new osg::Vec3Array )
-    , tesselationqueueid_( Threads::WorkManager::twm().addQueue(
-	Threads::WorkManager::MultiThread, "Tessalation" ) )
     , cosanglexinl_( cos(SI().angleXInl()) )
     , sinanglexinl_( sin(SI().angleXInl()) )
 {
@@ -434,7 +434,7 @@ void HorizonSectionTile::setPositions( const TypeSet<Coord3>& pos )
 		computeNormal( crdidx,(*mGetOsgVec3Arr(normals_))[crdidx] );
 	    }
 	    crdidx++;
-       }
+	}
     }
 
     datalock_.unLock();
@@ -637,8 +637,8 @@ double HorizonSectionTile::calcGradient( int row, int col,
     {
 	if ( !beforefound )
 	{
-            const int currc = rc - idx*rcrange.step_;
-            if ( currc >= rcrange.start_ )
+	    const int currc = rc - idx*rcrange.step_;
+	    if ( currc >= rcrange.start_ )
 	    {
 		const RowCol arrpos = isrow ?
 		    RowCol( currc, col ) : RowCol( row, currc );
@@ -648,8 +648,8 @@ double HorizonSectionTile::calcGradient( int row, int col,
 
 	if ( idx>0 && !afterfound )
 	{
-            const int currc = rc + idx*rcrange.step_;
-            if ( currc <= rcrange.stop_ )
+	    const int currc = rc + idx*rcrange.step_;
+	    if ( currc <= rcrange.stop_ )
 	    {
 		const RowCol arrpos = isrow ?
 		    RowCol( currc, col ) : RowCol( row, currc );
@@ -673,10 +673,11 @@ void HorizonSectionTile::computeNormal( int nmidx,osg::Vec3& normal )
 
     RowCol step;
     if ( hrsection_.userchangedisplayrg_ )
-        step = RowCol(hrsection_.displayrrg_.step_,hrsection_.displaycrg_.step_);
+	step = RowCol( hrsection_.displayrrg_.step_,
+		       hrsection_.displaycrg_.step_ );
     else
-        step = RowCol( hrsection_.geometry_->rowRange().step_,
-                       hrsection_.geometry_->colRange().step_ );
+	step = RowCol( hrsection_.geometry_->rowRange().step_,
+		       hrsection_.geometry_->colRange().step_ );
 
     const int normalrow = (nmidx-hrsection_.normalstartidx_[0])/
 	hrsection_.normalsidesize_[0];

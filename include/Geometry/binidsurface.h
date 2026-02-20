@@ -64,6 +64,8 @@ public:
 
     Coord		getKnotCoord(const RowCol&) const;
     RowCol		getNearestKnotRowCol(Coord) const;
+    bool		isKnotDefined(const RowCol&) const override;
+    float		getZ(const BinID&) const;
 
 protected:
     void		_setKnot(int idx,const Coord3&) override;
