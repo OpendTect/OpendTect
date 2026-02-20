@@ -29,6 +29,7 @@ public:
 			       const TypeSet<int>& components=TypeSet<int>());
 			~SeisDataPackWriter();
 
+    void		setFullRange(const TrcKeyZSampling&);
     void		setSelection(const TrcKeySampling&,
 				     const Interval<int>&);
     const RegularSeisDataPack* dataPack() const { return dp_.ptr(); }
@@ -42,6 +43,7 @@ public:
     uiString		uiNrDoneText() const override
 			{ return tr("Traces written:"); }
     int			nextStep() override;
+    bool		doFinish(bool success,od_ostream* =nullptr) override;
 
     TrcKeySampling	hSampling() const	{ return tks_; }
     Interval<int>	zSampling() const       { return zrg_; }
