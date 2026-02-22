@@ -1352,7 +1352,7 @@ bool uiEMPartServer::getAllAuxData( const EM::ObjectID& oid,
 		    continue;
 	    }
 
-            auxvals[0] = (float) hor3d->getPos( pid ).z_;
+	    auxvals[0] = hor3d->getZ( bid );
 	    for ( int idx=0; idx<nms.size(); idx++ )
 	    {
 		const int auxidx = hor3d->auxdata.auxDataIndex( nms.get(idx) );
