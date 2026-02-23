@@ -195,8 +195,9 @@ void AxesDrawer::updateViewRect()
 	if ( !scalebaritem_ )
 	    scalebaritem_ = view_.scene().addItem(new uiScaleBarItem(sbwidth));
 
-	const int sbheight = scalebaritem_->getPxHeight();
-	scalebaritem_->setPos( uiPoint(rect.right(),rect.top()-sbheight*6) );
+	const int sbheight = scalebaritem_->boundingRect().height();
+	const uiPoint pos( rect.right(), rect.bottom()+sbheight+10 );
+	scalebaritem_->setPos( pos );
     }
 
     if ( scalebaritem_ )
