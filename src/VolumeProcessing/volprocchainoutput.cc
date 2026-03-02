@@ -399,7 +399,7 @@ bool VolProc::ChainOutput::openOutput()
     wrr_ = new SeisDataPackWriter( outid_, *seisdp );
     seisdp = nullptr;
 
-    wrr_->setFullRange( cs_ );
+    wrr_->setSelection( cs_.hsamp_, outputzrg_ );
     for ( int idx=0; idx<chain_->getOutputScalers().size(); idx++ )
     {
 	const Scaler* scaler = chain_->getOutputScalers()[idx];
@@ -463,6 +463,7 @@ void startWork()
     ((Task&)wrr).setProgressMeter( co_.progresskeeper_.forwardTo() );
     wrr.setSimpleMeter( co_.useSimpleMeter(), co_.simpleMeterStep() );
     wrr.execute();
+    wrr.releaseDataPack();
     co_.reportFinished( *this );
 }
 

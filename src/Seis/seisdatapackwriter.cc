@@ -175,15 +175,29 @@ void SeisDataPackWriter::setNextDataPack( const RegularSeisDataPack& dp )
 }
 
 
+void SeisDataPackWriter::releaseDataPack()
+{
+    posinfo_ = nullptr;
+    dp_ = nullptr;
+}
+
+
 void SeisDataPackWriter::setCubeIdxRange()
 {
 }
 
 
-void SeisDataPackWriter::setSelection( const TrcKeySampling& hrg,
+void SeisDataPackWriter::setSelection( const TrcKeyZSampling& tkzs )
+{
+    if ( writer_ )
+	writer_->setSelData( new Seis::RangeSelData(tkzs) );
+}
+
+
+void SeisDataPackWriter::setSelection( const TrcKeySampling& tks,
 				       const Interval<int>& cubezrgidx )
 {
-    tks_ = hrg;
+    tks_ = tks;
     if ( !zrg_.includes(cubezrgidx) )
     {
 	pErrMsg("Invalid selection");
@@ -193,16 +207,12 @@ void SeisDataPackWriter::setSelection( const TrcKeySampling& hrg,
 
     cubezrgidx_.set( cubezrgidx, 1 );
 
-    iterator_.setSampling( hrg );
-    totalnr_ = posinfo_ ? posinfo_->totalSizeInside( hrg )
-			: mCast(int,hrg.totalNr());
-}
-
-
-void SeisDataPackWriter::setFullRange( const TrcKeyZSampling& tkzs )
-{
+    iterator_.setSampling( tks_ );
+    totalnr_ = posinfo_ ? posinfo_->totalSizeInside( tks_ )
+			: mCast(int,tks_.totalNr());
+    auto* seldata = new Seis::RangeSelData( tks_ );
     if ( writer_ )
-	writer_->setSelData( new Seis::RangeSelData(tkzs) );
+	writer_->setSelData( seldata );
 }
 
 
@@ -217,7 +227,7 @@ bool SeisDataPackWriter::setTrc()
     if ( !writer_ || dp_->isEmpty() )
 	return false;
 
-    if ( cubezrgidx_ == Interval<int>::udf() )
+    if ( cubezrgidx_.isUdf() )
     {
 	pErrMsg("Invalid selection");
 	return false;
@@ -290,12 +300,4 @@ int SeisDataPackWriter::nextStep()
 
     nrdone_++;
     return MoreToDo();
-}
-
-
-bool SeisDataPackWriter::doFinish( bool success, od_ostream* )
-{
-    posinfo_ = nullptr;
-    dp_ = nullptr;
-    return success;
 }
