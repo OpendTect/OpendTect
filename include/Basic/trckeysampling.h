@@ -130,10 +130,14 @@ public:
 
     bool		overlaps(const TrcKeySampling&,
 				 bool ignoresteps=false) const;
+    bool		getIntersection(const TrcKeySampling&,
+					TrcKeySampling&,
+					bool ignoresteps=false) const;
+			//!< Returns false if intersection is empty
+    mDeprecated("Use getIntersection")
     bool		getInterSection(const TrcKeySampling&,
 					TrcKeySampling&,
 					bool ignoresteps=false) const;
-			    //!< Returns false if intersection is empty
 
     BinID		getNearest(const BinID&) const;
     TrcKey		getNearest(const TrcKey&) const;

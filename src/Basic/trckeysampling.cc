@@ -855,11 +855,11 @@ bool TrcKeySampling::overlaps( const TrcKeySampling& oth,
 			       bool ignoresteps ) const
 {
     TrcKeySampling intertks;
-    return getInterSection( oth, intertks, ignoresteps );
+    return getIntersection( oth, intertks, ignoresteps );
 }
 
 
-bool TrcKeySampling::getInterSection( const TrcKeySampling& tks,
+bool TrcKeySampling::getIntersection( const TrcKeySampling& tks,
 				   TrcKeySampling& out,
 				   bool ignoresteps ) const
 {
@@ -893,6 +893,14 @@ bool TrcKeySampling::getInterSection( const TrcKeySampling& tks,
     }
 
     return success;
+}
+
+
+bool TrcKeySampling::getInterSection( const TrcKeySampling& tks,
+				   TrcKeySampling& out,
+				   bool ignoresteps ) const
+{
+    return getIntersection( tks, out, ignoresteps );
 }
 
 
