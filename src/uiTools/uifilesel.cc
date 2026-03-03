@@ -257,6 +257,7 @@ const char* uiFileSel::text() const
 
 void uiFileSel::setSel( const BufferStringSet& fnms )
 {
+    filenames_ = fnms;
     setText( uiFileSelTool::joinSelection(fnms) );
 }
 
@@ -471,7 +472,7 @@ const char* uiFileSel::protocol() const
 
 void uiFileSel::getFileNames( BufferStringSet& nms ) const
 {
-    uiFileSelTool::separateSelection( text(), nms );
+    nms = filenames_;
     for ( int idx=0; idx<nms.size(); idx++ )
     {
 	BufferString& fname = nms.get( idx );
