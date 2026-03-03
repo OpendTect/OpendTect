@@ -317,14 +317,23 @@ void uiAttrSelDlg::createSelectionButtons()
 }
 
 
-template <class T>
-static void setPreloadIcon( uiListBox* lb, const T& ids )
+static void setItemIcon( uiListBox* lb, const TypeSet<MultiID>& ids )
 {
     for ( int idx=0; idx<ids.size(); idx++ )
     {
-	const MultiID mid( ids.get(idx) );
-	const char* iconnm =
-			    Seis::PLDM().isPresent(mid) ? "preloaded" : "empty";
+	const MultiID& mid = ids.get( idx );
+	BufferString iconnm = "empty";
+	if ( Seis::PLDM().isPresent(mid) )
+	    iconnm = "preloaded";
+	else
+	{
+	    ConstPtrMan<IOObj> ioobj = IOM().get( mid );
+	    ConstPtrMan<Translator> transl = ioobj ? ioobj->createTranslator()
+						   : nullptr;
+	    if ( transl )
+		iconnm = transl->iconName();
+	}
+
 	lb->setIcon( idx, iconnm );
     }
 }
@@ -341,7 +350,7 @@ void uiAttrSelDlg::createSelectionFields()
     storoutfld_->selectionChanged.notify( mCB(this,uiAttrSelDlg,cubeSel) );
     storoutfld_->doubleClicked.notify( mCB(this,uiAttrSelDlg,accept) );
     storoutfld_->attach( rightOf, selgrp_ );
-    setPreloadIcon( storoutfld_, attrinf_->ioobjids_ );
+    setItemIcon( storoutfld_, attrinf_->ioobjids_ );
     storoutfld_->resizeToContents();
 
     steeroutfld_ = new uiListBox( this, "Steered output" );
@@ -349,7 +358,7 @@ void uiAttrSelDlg::createSelectionFields()
     steeroutfld_->selectionChanged.notify( mCB(this,uiAttrSelDlg,cubeSel) );
     steeroutfld_->doubleClicked.notify( mCB(this,uiAttrSelDlg,accept) );
     steeroutfld_->attach( rightOf, selgrp_ );
-    setPreloadIcon( steeroutfld_, attrinf_->steerids_ );
+    setItemIcon( steeroutfld_, attrinf_->steerids_ );
 
     filtfld_ = new uiGenInput( this, uiStrings::sFilter() );
     filtfld_->attach( centeredAbove, storoutfld_ );
@@ -499,8 +508,8 @@ void uiAttrSelDlg::cubeSel( CallBacker* )
 	if ( nms.validIdx(selidx) )
 	{
 	    ConstPtrMan<IOObj> ioobj = IOM().get( nms.get(selidx),
-					is2D() ? mTranslGroupName(SeisTrc2D)
-					       : mTranslGroupName(SeisTrc) );
+				is2D() ? SeisTrc2DTranslatorGroup::sGroupName()
+				       : SeisTrcTranslatorGroup::sGroupName() );
 	    if ( ioobj )
 		key = ioobj->key();
 	}
@@ -580,8 +589,8 @@ bool uiAttrSelDlg::getAttrData( bool needattrmatch )
 	BufferStringSet nms;
 	SelInfo::getZDomainItems( *attrdata_.zdomaininfo_, is2D(), nms );
 	ConstPtrMan<IOObj> ioobj = IOM().get( nms.get(selidx),
-					is2D() ? mTranslGroupName(SeisTrc2D)
-					       : mTranslGroupName(SeisTrc) );
+				is2D() ? SeisTrc2DTranslatorGroup::sGroupName()
+				       : SeisTrcTranslatorGroup::sGroupName() );
 	if ( !ioobj )
 	    return false;
 
