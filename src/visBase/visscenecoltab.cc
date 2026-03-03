@@ -13,7 +13,6 @@ ________________________________________________________________________
 #include "coltabmapper.h"
 #include "coltabsequence.h"
 #include "fontdata.h"
-#include "visscene.h"
 #include "vistext.h"
 
 #include <osg/Geode>
@@ -21,27 +20,16 @@ ________________________________________________________________________
 #include <osgSim/ColorRange>
 #include <osg/Version>
 
-// TODO: Wait for OSG to accept Ranojay's submission containing the new class
-// variable osgSim::TextProperties::_font and its handling
-//
-//#if OSG_MIN_VERSION_REQUIRED(3,?,?)
-//# include <osgSim/ScalarBar>
-//# define mScalarBarType osgSim::ScalarBar
-//#else
-# include <osgGeo/ScalarBar>
-# define mScalarBarType osgGeo::ScalarBar
-//#endif
-
-#define mScalarBar static_cast<mScalarBarType*>(osgcolorbar_)
-
 mCreateFactoryEntry( visBase::SceneColTab );
+
+constexpr int cMinLabels = 5;
 
 namespace visBase
 {
 
 SceneColTab::SceneColTab()
     : VisualObjectImpl(false)
-    , osgcolorbar_(new mScalarBarType)
+    , osgcolorbar_(new osgGeo::ScalarBar)
     , pixeldensity_(getDefaultPixelDensity())
 {
     ref();
@@ -50,13 +38,11 @@ SceneColTab::SceneColTab()
     //Set it to something to avoid osg to look for own font
     setAnnotFont( FontData() );
 
-    mScalarBar->setOrientation( mScalarBarType::VERTICAL );
-    mScalarBar->setTitle( "" );
-    mScalarBar->setNumLabels( sequence_.nrSegments()+2 );
-    height_ = sequence_.nrSegments()*70;
+    osgcolorbar_->setOrientation( osgGeo::ScalarBar::VERTICAL );
+    osgcolorbar_->setTitle( "" );
+    setColTabSequence( ColTab::Sequence("") );
 
     setSize( width_, height_ );
-    setColTabSequence( ColTab::Sequence("") );
 
     unRefNoDelete();
 }
@@ -72,26 +58,27 @@ void SceneColTab::setLegendColor( const OD::Color& col )
 {
 #define col2f(rgb) float(col.rgb())/255
 
-    mScalarBarType::TextProperties tp = mScalarBar->getTextProperties();
+    osgGeo::ScalarBar::TextProperties tp = osgcolorbar_->getTextProperties();
     tp._color = osg::Vec4( col2f(r), col2f(g), col2f(b), 1.0f );
-    mScalarBar->setTextProperties( tp );
+    osgcolorbar_->setTextProperties( tp );
 }
 
 
 void SceneColTab::setAnnotFont( const FontData& fd )
 {
-    mScalarBarType::TextProperties tp = mScalarBar->getTextProperties();
+    osgGeo::ScalarBar::TextProperties tp = osgcolorbar_->getTextProperties();
     const float sizefactor = pixeldensity_/getDefaultPixelDensity();
     tp._font = OsgFontCreator::create( fd );
     tp._characterSize = fd.pointSize()*sizefactor;
-    mScalarBar->setTextProperties( tp );
+    osgcolorbar_->setTextProperties( tp );
     fontsize_ = fd.pointSize();
 }
 
 
 void SceneColTab::setPixelDensity( float dpi )
 {
-    if ( dpi==pixeldensity_ ) return;
+    if ( dpi==pixeldensity_ )
+	return;
 
     VisualObjectImpl::setPixelDensity( dpi );
 
@@ -117,8 +104,8 @@ void SceneColTab::setColTabSequence( const ColTab::Sequence& ctseq )
 void SceneColTab::setOrientation( bool horizontal )
 {
     horizontal_ = horizontal;
-    mScalarBar->setOrientation( horizontal_ ? mScalarBarType::HORIZONTAL
-					    : mScalarBarType::VERTICAL );
+    osgcolorbar_->setOrientation( horizontal_ ? osgGeo::ScalarBar::HORIZONTAL
+					      : osgGeo::ScalarBar::VERTICAL );
 }
 
 
@@ -130,14 +117,23 @@ void SceneColTab::setWindowSize( int winx, int winy )
 }
 
 
-void SceneColTab::setSize( int w, int h )
+void SceneColTab::setSize( int width, int height )
 {
-    width_ = horizontal_ ? w : h;
-    height_ = horizontal_ ? h : w;
+    width_ = horizontal_ ? std::clamp( width, ColorBarBounds::minHorWidth(),
+					      ColorBarBounds::maxHorWidth() )
+			 : std::clamp( height, ColorBarBounds::minVertHeight(),
+					      ColorBarBounds::maxVertHeight() );
+    height_ = horizontal_ ? std::clamp( height, ColorBarBounds::minHorHeight(),
+						ColorBarBounds::maxHorHeight() )
+			  : std::clamp( width, ColorBarBounds::minVertWidth(),
+					       ColorBarBounds::maxVertWidth() );
+
     aspratio_ = mCast(float,height_) / mCast(float,width_);
-    mScalarBar->setAspectRatio( aspratio_ );
-    mScalarBar->setWidth(  width_ );
+    osgcolorbar_->setAspectRatio( aspratio_ );
+    osgcolorbar_->setWidth( width_ );
     setPos( getPos() );
+
+    setNumLabels( sequence_.nrSegments()+1 );
 }
 
 
@@ -152,7 +148,7 @@ void SceneColTab::setPos( Pos pos )
     else if ( pos_ == Right )
     {
 	setOrientation( false );
-	setPos( winx_-(90+height_), winy_/2 - width_/2 );
+	setPos( winx_-(height_*1.5+getMinLabelWidth()), winy_/2 - width_/2 );
     }
     else if ( pos_ == Top )
     {
@@ -171,13 +167,34 @@ void SceneColTab::setPos( Pos pos )
 
 void SceneColTab::setPos( float x, float y )
 {
-    mScalarBar->setPosition( osg::Vec3( horizontal_? x : x+height_,y,0.0f) );
+    osgcolorbar_->setPosition( osg::Vec3( horizontal_? x : x+height_,y,0.0f) );
 }
 
 
 void SceneColTab::setNumLabels( int num )
 {
-    mScalarBar->setNumLabels( num );
+    if ( horizontal_ )
+    {
+	if ( getMinLabelWidth() <= width_ )
+	{
+	    const int minlabels = sequence_.hasEqualSegments() ?
+				  sequence_.nrSegments()+1 : cMinLabels;
+	    osgcolorbar_->setNumLabels( std::clamp(num,minlabels,num) );
+	}
+	else
+	    osgcolorbar_->setNumLabels( cMinLabels );
+    }
+    else
+    {
+	if ( getMinLabelHeight() <= width_ )
+	{
+	    const int minlabels = sequence_.hasEqualSegments() ?
+				  sequence_.nrSegments()+1 : cMinLabels;
+	    osgcolorbar_->setNumLabels( std::clamp(num,minlabels,num) );
+	}
+	else
+	    osgcolorbar_->setNumLabels( cMinLabels );
+    }
 }
 
 
@@ -189,9 +206,44 @@ Geom::Size2D<int> SceneColTab::getSize()
     return sz;
 }
 
+
+int SceneColTab::getLabelCharSize()
+{
+    return osgcolorbar_->getTextProperties()._characterSize;
+}
+
+
 int SceneColTab::getNumLabels()
 {
-    return mScalarBar->getNumLabels();
+    return osgcolorbar_->getNumLabels();
+}
+
+
+int SceneColTab::getMinLabelWidth()
+{
+    float nrlabels = sequence_.nrSegments()+1;
+    if ( nrlabels < cMinLabels )
+	nrlabels = cMinLabels;
+
+    const float start = rg_.start_;
+    const float stop =	mIsZero(rg_.width(false),mDefEps) ? 1 : rg_.stop_;
+    const float interval = stop - start;
+    const float dist = interval / ( nrlabels - 1 );
+    const float lbl = start + dist;
+    const BufferString lblstring( lbl );
+    const int lblwidth = lblstring.size()*
+	    (osgcolorbar_->getTextProperties()._characterSize/mGoldenRatioF);
+    const int totalwidth = lblwidth * ( horizontal_ ? nrlabels : 1 );
+    return totalwidth;
+}
+
+
+int SceneColTab::getMinLabelHeight()
+{
+    const int numlabels = sequence_.hasEqualSegments() ? sequence_.nrSegments()
+						       : cMinLabels;
+    return osgcolorbar_->getTextProperties()._characterSize *
+						(horizontal_ ? 1 : numlabels);
 }
 
 
@@ -224,20 +276,15 @@ void SceneColTab::updateSequence()
 					   mIsZero(rg_.width(false),mDefEps) ? 1
 							  : rg_.stop_, colors );
 
-    mScalarBar->setScalarsToColors( osgcolorrange );
-    const int segments = sequence_.nrSegments();
-    if ( segments==0 || segments==-1 )
-	mScalarBar->setNumLabels( 7 );
-    else if ( segments<12 )
-	mScalarBar->setNumLabels( segments+1 );
+    osgcolorbar_->setScalarsToColors( osgcolorrange );
+
+    if ( horizontal_ )
+	setSize( width_, height_ );
     else
-	mScalarBar->setNumLabels( 7 );
+	setSize( height_, width_ );
 
-    if ( mScalarBar->getNumLabels()>=7 && getOrientation() )
-	setSize( mScalarBar->getNumLabels()*65, height_ );
-    else if ( mScalarBar->getNumLabels()>=7 && !getOrientation() )
-	setSize( height_, mScalarBar->getNumLabels()*65 );
-
+    const int segments = sequence_.nrSegments();
+    setNumLabels( segments+1 );
     requestSingleRedraw();
 }
 
