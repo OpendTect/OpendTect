@@ -104,7 +104,13 @@ void uiSelZRange::setIsRelative( bool yn )
 
     isrel_ = yn;
     if ( isrel_ )
+    {
+	const ZSampling limitrg( -sCast(float,cUnLim),
+				 sCast(float,cUnLim), 1.f );
+	startfld_->setInterval( limitrg );
+	stopfld_->setInterval( limitrg );
 	setRange( ZSampling(0.f,0.f,1.f) );
+    }
     else if ( isSIDomain() )
 	setRange( SI().zRange(true) );
 }
