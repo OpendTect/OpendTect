@@ -150,9 +150,11 @@ void uiFileInput::setDefaultSelectionDir( const char* s )
 }
 
 
-void uiFileInput::setFileName( const char* s )
+void uiFileInput::setFileName( const char* fnm )
 {
-    setText( s );
+    filenames_.setEmpty();
+    filenames_.add( fnm );
+    setText( fnm );
 
     if ( displaylocalpath_ )
     {
@@ -335,7 +337,9 @@ void uiFileInput::ensureAbsolutePath( BufferString& fname ) const
 const char* uiFileInput::fileName() const
 {
     mDeclStaticString( fname );
-    fname = text();
+    if ( !filenames_.isEmpty() )
+	fname = filenames_.get( 0 );
+
     fname.trimBlanks();
     if ( fname.isEmpty() || fname.firstChar() == '@' )
 	return fname;
@@ -370,11 +374,7 @@ const char* uiFileInput::baseName() const
 
 void uiFileInput::getFileNames( BufferStringSet& list ) const
 {
-    const BufferString allfnms = text();
-    if ( allfnms.isEmpty() )
-	return;
-
-    uiFileDialog::string2List( allfnms, list );
+    list = filenames_;
     for ( int idx=0; idx<list.size(); idx++ )
 	ensureAbsolutePath( list.get(idx) );
 }
