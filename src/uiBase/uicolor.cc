@@ -134,15 +134,15 @@ void setExternalColor( const OD::Color& col )
 
 uiColorInput::uiColorInput( uiParent* p, const Setup& s, const char* nm )
 	: uiGroup(p,"Color input")
-	, color_(s.color_)
-	, dlgtxt_(s.dlgtitle_)
-	, dodrawbox_(0)
-	, lbl_(0)
-	, transpfld_(0)
-	, descfld_(0)
-	, selwithtransp_(s.transp_ == Setup::InSelector)
 	, colorChanged(this)
 	, doDrawChanged(this)
+	, dodrawbox_(0)
+	, transpfld_(0)
+	, descfld_(0)
+	, lbl_(0)
+	, color_(s.color_)
+	, dlgtxt_(s.dlgtitle_)
+	, selwithtransp_(s.transp_ == Setup::InSelector)
 {
     if ( s.withcheck_ )
     {
@@ -176,7 +176,7 @@ uiColorInput::uiColorInput( uiParent* p, const Setup& s, const char* nm )
     {
 	descfld_ = new uiComboBox( this, OD::Color::descriptions(),
 				    "Color description" );
-	descfld_->setHSzPol( uiObject::Medium );
+	descfld_->setHSzPol( uiObject::MedVar );
 	TypeSet<OD::Color> colors = OD::Color::descriptionCenters();
 	for ( int idx=0; idx<colors.size(); idx++ )
 	{
@@ -190,7 +190,6 @@ uiColorInput::uiColorInput( uiParent* p, const Setup& s, const char* nm )
 	else
 	    descfld_->attach( rightOf, colbut_ );
 	descfld_->selectionChanged.notify( mCB(this,uiColorInput,descSel) );
-	descfld_->setHSzPol( uiObject::MedMax );
     }
 
     setColor( color_ );
