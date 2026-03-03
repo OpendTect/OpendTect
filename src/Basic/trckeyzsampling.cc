@@ -263,7 +263,7 @@ bool TrcKeyZSampling::getIntersection( const TrcKeyZSampling& tkzs,
 				    TrcKeyZSampling& out,
 				    bool ignoresteps ) const
 {
-    const bool hintersect = hsamp_.getInterSection( tkzs.hsamp_,out.hsamp_,
+    const bool hintersect = hsamp_.getIntersection( tkzs.hsamp_,out.hsamp_,
 						    ignoresteps );
     if ( !hintersect )
 	return false;

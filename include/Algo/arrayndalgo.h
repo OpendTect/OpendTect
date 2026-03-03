@@ -857,7 +857,7 @@ public:
 			return;
 		    }
 
-		    tksin.getInterSection( tksout, commontks_ );
+		    tksin.getIntersection( tksout, commontks_ );
 		}
 
     uiString	uiNrDoneText() const override
