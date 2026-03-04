@@ -291,7 +291,7 @@ public:
 \brief Tracks top-level uiMainWin instances with notifiers on add/remove.
     Only uiMainWinBody can add or remove windows.
 */
-class uiMainWinTracker : public CallBacker
+mExpClass(uiBase) uiMainWinTracker : public CallBacker
 {
     friend class uiMainWinBody;
 
