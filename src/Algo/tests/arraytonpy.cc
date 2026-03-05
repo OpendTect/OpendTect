@@ -47,6 +47,7 @@ static BufferString badoutfpstr_;
 static BufferString floatfpstr_;
 static BufferString doublefpstr_;
 static BufferString intfpstr_;
+static BufferString int3dfpstr_;
 static BufferString int64fpstr_;
 
 void cleanup()
@@ -168,6 +169,34 @@ bool testExportIntAsNpy()
     const BufferString emptydescstr( intfpstr_, " file exists." );
     const BufferString emptyerrstr( intfpstr_, " file does not exist." );
     mRunStandardTestWithError( !File::isEmpty(intfpstr_.buf()),
+			       emptydescstr, emptyerrstr );
+
+    return true;
+}
+
+
+bool testExportInt3D1x3x2xAsNpy()
+{
+    Array3DImpl<int> iarr3( 1, 3, 2 );
+    iarr3.setData( intarr ); // intarr has 6 elements, matches 1*3*2
+
+    FilePath ifp( workdir_, "iarr_1x3x2" );
+    ifp.setExtension( "npy" );
+    int3dfpstr_ = ifp.fullPath();
+    uiRetVal uirv;
+    saveAsNpy( iarr3, int3dfpstr_.buf(), uirv );
+    mRunStandardTestWithError( uirv.isOK(),
+			       "Exporting 3D int array (1x3x2) to .npy",
+			       uirv.getText() );
+
+    const BufferString existdescstr( int3dfpstr_, " file exists." );
+    const BufferString existerrstr( int3dfpstr_, " file does not exist." );
+    mRunStandardTestWithError( File::exists(int3dfpstr_.buf()),
+			       existdescstr, existerrstr );
+
+    const BufferString emptydescstr( int3dfpstr_, " file exists." );
+    const BufferString emptyerrstr( int3dfpstr_, " file does not exist." );
+    mRunStandardTestWithError( !File::isEmpty(int3dfpstr_.buf()),
 			       emptydescstr, emptyerrstr );
 
     return true;
@@ -359,6 +388,58 @@ bool testGetIntFromNpy()
 }
 
 
+bool testGetInt3D1x3x2FromNpy()
+{
+    const BufferString doesnotexiststr( int3dfpstr_, " does not exist." );
+    const BufferString existstr( int3dfpstr_, ": file exists" );
+    mRunStandardTestWithError( File::exists(int3dfpstr_.buf()), existstr,
+			       doesnotexiststr );
+
+    uiRetVal uirv;
+    PtrMan<ArrayND<int>> data = getFromNpy<int>( int3dfpstr_.buf(), uirv );
+    mRunStandardTestWithError( uirv.isOK(), "Reading from .npy file",
+			       uirv.getText() );
+    mRunStandardTestWithError( data, "Got a valid array pointer",
+			       "Return value: nullptr" );
+
+    const int exparrsz = 6;
+    const od_int64 datasz = data->totalSize();
+    BufferString errmsg( "Expected size: ", exparrsz,
+			 "Size of int array read: " );
+    errmsg.add( datasz );
+    mRunStandardTestWithError( datasz==exparrsz, "Read size correct", errmsg );
+
+    Array2DImpl<int> iarr2d( 3, 2 );
+    iarr2d.setData( intarr );
+    BufferString arrdimerrmsg( "Unexpected array dimensions; Expected "
+			       "dimension: ", iarr2d.info().getNDim() );
+    arrdimerrmsg.add( "; Received dimension: " ).add( data->info().getNDim() );
+    mRunStandardTestWithError( iarr2d.info()==data->info(),
+			       "Expected ArrayNDInfo", arrdimerrmsg );
+
+    bool valtest = true;
+    float expectedval = mUdf(int);
+    float readval = mUdf(int);
+    for ( int idx=0; idx<exparrsz; idx++ )
+    {
+	if ( intarr[idx] != data->getData()[idx] )
+	{
+	    valtest = false;
+	    expectedval = intarr[idx];
+	    readval = data->getData()[idx];
+	    break;
+	}
+    }
+
+    BufferString comperrmsg( "Expected int value: ", expectedval,
+			     "; Read value: ");
+    comperrmsg.add( readval );
+    mRunStandardTestWithError( valtest, "Values compared.", comperrmsg );
+
+    return true;
+}
+
+
 bool testGetInt64FromNpy()
 {
     const BufferString doesnotexiststr( int64fpstr_, " does not exist." );
@@ -443,6 +524,8 @@ int mTestMainFnName( int argc, char** argv )
 	 !testGetDoubleFromNpy() ||
 	 !testExportIntAsNpy() ||
 	 !testGetIntFromNpy() ||
+	 !testExportInt3D1x3x2xAsNpy() ||
+	 !testGetInt3D1x3x2FromNpy() ||
 	 !testExportInt64AsNpy()||
 	 !testGetInt64FromNpy() )
 	return 1;
