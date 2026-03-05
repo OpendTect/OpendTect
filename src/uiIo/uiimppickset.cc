@@ -38,6 +38,49 @@ ________________________________________________________________________
 
 #include <math.h>
 
+mImplFactory1Param( uiPickSetImportGroup, uiParent*,
+		    uiPickSetImportGroup::factory );
+
+uiPickSetImportGroup::uiPickSetImportGroup( uiParent* p )
+    : uiGroup(p)
+{
+}
+
+
+uiPickSetImportGroup::~uiPickSetImportGroup()
+{
+}
+
+
+void uiPickSetImportGroup::setPartServer( uiPickPartServer* pps )
+{
+    serv_ = pps;
+}
+
+
+bool uiPickSetImportGroup::init()
+{
+    if ( !serv_ )
+	return false;
+
+    if ( horinpfld_ )
+    {
+	serv_->fetchHors( false );
+	const ObjectSet<SurfaceInfo> hinfos = serv_->horInfos();
+	for ( int idx=0; idx<hinfos.size(); idx++ )
+	    horinpfld_->box()->addItem( hinfos[idx]->name_ );
+    }
+
+    return true;
+}
+
+
+bool uiPickSetImportGroup::isPolygon() const
+{
+    return polyfld_ && polyfld_->isChecked();
+}
+
+
 static const char* zoptions[] =
 {
     "Input file",
@@ -47,105 +90,76 @@ static const char* zoptions[] =
 };
 
 
-uiImpExpPickSet::uiImpExpPickSet(uiParent* p, uiPickPartServer* pps, bool imp )
-    : uiDialog(p,Setup(imp ? uiStrings::phrImport(sPicksetPolygon() )
-			   : uiStrings::phrExport(sPicksetPolygon() ),
-		       imp ? mODHelpKey(mImpPickSetHelpID)
-			   : mODHelpKey(mExpPickSetHelpID)).modal(false))
-    , serv_(pps)
-    , import_(imp)
-    , fd_(*PickSetAscIO::getDesc(true))
-    , zfld_(nullptr)
-    , constzfld_(nullptr)
-    , dataselfld_(nullptr)
-    , coordsysselfld_(nullptr)
-    , importReady(this)
-    , storedid_(MultiID::udf())
-    , polyfld_(nullptr)
-{
-    setOkCancelText( import_ ? uiStrings::sImport() : uiStrings::sExport(),
-		     uiStrings::sClose() );
-    if ( import_ ) enableSaveButton( tr("Display after import") );
 
-    filefld_ = new uiASCIIFileInput( this, import_ );
-    if ( import_ )
-	filefld_->valueChanged.notify( mCB(this,uiImpExpPickSet,inputChgd) );
+static uiString sPicksetPolygon() { return toUiString("Pointset/Polygon"); }
+
+uiSinglePickSetImportGroup::uiSinglePickSetImportGroup( uiParent* p )
+    : uiPickSetImportGroup(p)
+    , fd_(*PickSetAscIO::getDesc(true))
+{
+    filefld_ = new uiASCIIFileInput( this, true );
+    mAttachCB( filefld_->valueChanged, uiSinglePickSetImportGroup::inputChgd );
+    setHAlignObj( filefld_ );
 
     IOObjContext ctxt( mIOObjContext(PickSet) );
-    ctxt.forread_ = !import_;
+    ctxt.forread_ = false;
 
-    uiString label = import_
-	? uiStrings::phrOutput( sPicksetPolygon() )
-	: uiStrings::phrInput( sPicksetPolygon() );
+    zfld_ = new uiLabeledComboBox( this, zoptions, tr("Get Z values from") );
+    zfld_->box()->selectionChanged.notify(
+		mCB(this,uiSinglePickSetImportGroup,formatSel) );
+    zfld_->attach( alignedBelow, filefld_ );
+
+    uiString constzlbl = tr("Specify constant Z value %1")
+				.arg( SI().getZUnitString() );
+    constzfld_ = new uiGenInput( this, constzlbl, FloatInpSpec(0) );
+    constzfld_->attach( rightTo, zfld_ );
+    constzfld_->display( zfld_->box()->currentItem() == 1 );
+
+    horinpfld_ = new uiLabeledComboBox( this,
+			    uiStrings::phrSelect(uiStrings::sHorizon()) );
+    horinpfld_->attach( rightTo, zfld_ );
+    horinpfld_->display( zfld_->box()->currentItem() == 2 );
+    horinpfld_->box()->setHSzPol( uiObject::MedVar );
+
+    uiStringSet impoptions;
+    impoptions.add( uiStrings::sPointSet() ).add( uiStrings::sPolyLine() )
+	      .add( uiStrings::sPolygon() );
+    polyfld_ = new uiGenInput( this, tr("Import as"),
+			       StringListInpSpec(impoptions) );
+    polyfld_->attach( alignedBelow, zfld_ );
+
+    uiSeparator* sep = new uiSeparator( this, "H sep" );
+    sep->attach( stretchedBelow, polyfld_ );
+
+    dataselfld_ = new uiTableImpDataSel( this, fd_,
+		      mODHelpKey(mTableImpDataSelpicksHelpID) );
+    dataselfld_->attach( alignedBelow, polyfld_ );
+    dataselfld_->attach( ensureBelow, sep );
+
+    sep = new uiSeparator( this, "H sep" );
+    sep->attach( stretchedBelow, dataselfld_ );
+
+    uiString label = uiStrings::phrOutput( sPicksetPolygon() );
     uiIOObjSel::Setup ioobjsetup( label );
     ioobjsetup.withinserters(false).withwriteopts(false);
     objfld_ = new uiIOObjSel( this, ctxt, ioobjsetup );
+    objfld_->attach( alignedBelow, dataselfld_ );
+    objfld_->attach( ensureBelow, sep );
 
-    if ( import_ )
-    {
-	zfld_ = new uiLabeledComboBox( this, zoptions,tr("Get Z values from") );
-	zfld_->box()->selectionChanged.notify( mCB(this,uiImpExpPickSet,
-				formatSel) );
-	zfld_->attach( alignedBelow, filefld_ );
-
-	uiString constzlbl = tr("Specify constant Z value %1")
-				.arg( SI().getZUnitString() );
-	constzfld_ = new uiGenInput( this, constzlbl, FloatInpSpec(0) );
-	constzfld_->attach( rightTo, zfld_ );
-	constzfld_->display( zfld_->box()->currentItem() == 1 );
-
-	horinpfld_ = new uiLabeledComboBox( this,
-			    uiStrings::phrSelect( uiStrings::sHorizon() ) );
-	serv_->fetchHors( false );
-	const ObjectSet<SurfaceInfo> hinfos = serv_->horInfos();
-	for ( int idx=0; idx<hinfos.size(); idx++ )
-	    horinpfld_->box()->addItem( toUiString(hinfos[idx]->name_) );
-	horinpfld_->attach( rightTo, zfld_ );
-	horinpfld_->display( zfld_->box()->currentItem() == 2 );
-
-	uiStringSet impoptions;
-	impoptions.add( uiStrings::sPointSet() ).add( uiStrings::sPolyLine() )
-		  .add( uiStrings::sPolygon() );
-	polyfld_ = new uiGenInput( this, tr("Import as"),
-				   StringListInpSpec(impoptions) );
-	polyfld_->attach( alignedBelow, zfld_ );
-
-	uiSeparator* sep = new uiSeparator( this, "H sep" );
-	sep->attach( stretchedBelow, polyfld_ );
-
-	dataselfld_ = new uiTableImpDataSel( this, fd_,
-		      mODHelpKey(mTableImpDataSelpicksHelpID) );
-	dataselfld_->attach( alignedBelow, polyfld_ );
-	dataselfld_->attach( ensureBelow, sep );
-
-	sep = new uiSeparator( this, "H sep" );
-	sep->attach( stretchedBelow, dataselfld_ );
-
-	objfld_->attach( alignedBelow, dataselfld_ );
-	objfld_->attach( ensureBelow, sep );
-
-	colorfld_ = new uiColorInput( this,
-				 uiColorInput::Setup(OD::getRandStdDrawColor()).
-				   lbltxt(uiStrings::sColor()) );
-	colorfld_->attach( alignedBelow, objfld_ );
-    }
-    else
-    {
-	filefld_->attach( alignedBelow, objfld_ );
-	if ( SI().hasProjection() )
-	{
-	    coordsysselfld_ = new Coords::uiCoordSystemSel( this );
-	    coordsysselfld_->attach(alignedBelow, filefld_);
-	}
-    }
+    colorfld_ = new uiColorInput( this,
+			uiColorInput::Setup(OD::getRandStdDrawColor())
+			    .lbltxt(uiStrings::sColor()) );
+    colorfld_->attach( alignedBelow, objfld_ );
 }
 
 
-uiImpExpPickSet::~uiImpExpPickSet()
-{}
+uiSinglePickSetImportGroup::~uiSinglePickSetImportGroup()
+{
+    detachAllNotifiers();
+}
 
 
-void uiImpExpPickSet::inputChgd( CallBacker* )
+void uiSinglePickSetImportGroup::inputChgd( CallBacker* )
 {
     storedid_.setUdf();
     FilePath fnmfp( filefld_->fileName() );
@@ -153,7 +167,7 @@ void uiImpExpPickSet::inputChgd( CallBacker* )
 }
 
 
-void uiImpExpPickSet::formatSel( CallBacker* )
+void uiSinglePickSetImportGroup::formatSel( CallBacker* )
 {
     const int zchoice = zfld_->box()->currentItem();
     const bool iszreq = zchoice == 0;
@@ -166,8 +180,11 @@ void uiImpExpPickSet::formatSel( CallBacker* )
 
 #define mErrRet(s) { uiMSG().error(s); return false; }
 
-bool uiImpExpPickSet::doImport()
+bool uiSinglePickSetImportGroup::doImport( bool display_on_import )
 {
+    if ( !checkInpFlds() )
+	return false;
+
     const char* fname = filefld_->fileName();
     od_istream strm( fname );
     if ( !strm.isOK() )
@@ -214,7 +231,7 @@ bool uiImpExpPickSet::doImport()
 	mErrRet( errmsg )
 
     storedid_ = ioobj->key();
-    if ( saveButtonChecked() )
+    if ( display_on_import )
     {
 	Pick::SetMgr& psmgr = Pick::Mgr();
 	int setidx = psmgr.indexOf( storedid_ );
@@ -223,7 +240,7 @@ bool uiImpExpPickSet::doImport()
 	    Pick::Set* newps = new Pick::Set( *ps );
 	    psmgr.set( storedid_, newps );
 	    setidx = psmgr.indexOf( storedid_ );
-	    importReady.trigger();
+	    importready_ = true;
 	}
 	else
 	{
@@ -240,7 +257,157 @@ bool uiImpExpPickSet::doImport()
 }
 
 
-bool uiImpExpPickSet::doExport()
+bool uiSinglePickSetImportGroup::checkInpFlds()
+{
+    BufferString filenm = filefld_->fileName();
+    if ( !File::exists(filenm) )
+	mErrRet( tr("Please select input file") )
+
+    objfld_->reset();
+    if ( !objfld_->ioobj() )
+	return false;
+
+    if ( !dataselfld_->commit() )
+	mErrRet( tr("Please specify data format") )
+
+    const int zchoice = zfld_->box()->currentItem();
+    if ( zchoice == 1 )
+    {
+	float constz = constzfld_->getFValue();
+	if ( SI().zIsTime() ) constz /= 1000;
+
+	if ( !SI().zRange(false).includes( constz,false ) )
+	    mErrRet( tr("Please enter a valid Z value") )
+    }
+
+    return true;
+}
+
+
+TypeSet<MultiID> uiSinglePickSetImportGroup::storedIDs() const
+{
+    TypeSet<MultiID> ids;
+    ids.add( storedid_ );
+    return ids;
+}
+
+
+
+uiImportPickSet::uiImportPickSet( uiParent* p, uiPickPartServer* pps )
+    : uiDialog( p,
+		Setup( uiStrings::phrImport(sPicksetPolygon()),
+		       mODHelpKey(mImpPickSetHelpID) ).modal(false) )
+    , importReady(this)
+{
+    setOkCancelText( uiStrings::sImport(), uiStrings::sClose() );
+    enableSaveButton( tr("Display after import") );
+
+    const auto& fact = uiPickSetImportGroup::factory();
+    const uiStringSet& options = fact.getUserNames();
+    auto* lcc = new uiLabeledComboBox( this, tr("Import"), "import_options" );
+    optionfld_ = lcc->box();
+    optionfld_->addItems( options );
+
+    const BufferStringSet& names = fact.getNames();
+    for ( const auto* name : names )
+    {
+	auto* grp = fact.create( name->buf(), this );
+	if ( !grp )
+	    continue;
+
+	grp->setPartServer( pps );
+	grp->init();
+	groups_.add( grp );
+	grp->attach( alignedBelow, lcc );
+    }
+
+    mAttachCB( postFinalize(), uiImportPickSet::optionSelCB );
+}
+
+
+uiImportPickSet::~uiImportPickSet()
+{
+    detachAllNotifiers();
+}
+
+
+MultiID uiImportPickSet::getStoredID() const
+{
+    const int sel = optionfld_->currentItem();
+    if ( !groups_.validIdx(sel) )
+	return MultiID::udf();
+
+    // TODO: Properly support multiple ids
+    const TypeSet<MultiID> ids = groups_[sel]->storedIDs();
+    return ids.isEmpty() ? MultiID::udf() : ids.first();
+}
+
+
+void uiImportPickSet::optionSelCB( CallBacker* )
+{
+    const int sel = optionfld_->currentItem();
+    for ( int idx=0; idx<groups_.size(); idx++ )
+	groups_[idx]->display( sel==idx );
+}
+
+
+bool uiImportPickSet::acceptOK( CallBacker* )
+{
+    uiMsgMainWinSetter mws( this );
+
+    const int sel = optionfld_->currentItem();
+    if ( !groups_.validIdx(sel) )
+	return false;
+
+    auto* selgroup = groups_[sel];
+    const bool res = selgroup->doImport( saveButtonChecked() );
+    if ( !res )
+	return false;
+
+    if ( selgroup->triggerImportReady() )
+	importReady.trigger();
+
+    const bool ispolygon = selgroup->isPolygon();
+    uiString msg = tr("%1 successfully imported."
+		      "\n\nDo you want to import more PointSets or Polygons?")
+		 .arg( ispolygon ? uiStrings::sPolygon()
+				 : uiStrings::sPointSet() );
+    return !uiMSG().askGoOn( msg, uiStrings::sYes(), tr("No, close window") );
+}
+
+
+
+uiExportPickSet::uiExportPickSet( uiParent* p )
+    : uiDialog( p,
+		Setup( uiStrings::phrExport(sPicksetPolygon()),
+		       mODHelpKey(mExpPickSetHelpID) ).modal(false) )
+{
+    setOkCancelText( uiStrings::sExport(), uiStrings::sClose() );
+
+    IOObjContext ctxt( mIOObjContext(PickSet) );
+    ctxt.forread_ = true;
+
+    uiString label = uiStrings::phrInput( sPicksetPolygon() );
+    uiIOObjSel::Setup ioobjsetup( label );
+    ioobjsetup.withinserters(false).withwriteopts(false);
+    objfld_ = new uiIOObjSel( this, ctxt, ioobjsetup );
+
+    filefld_ = new uiASCIIFileInput( this, false );
+    filefld_->attach( alignedBelow, objfld_ );
+
+    if ( SI().hasProjection() )
+    {
+	coordsysselfld_ = new Coords::uiCoordSystemSel( this );
+	coordsysselfld_->attach( alignedBelow, filefld_ );
+    }
+}
+
+
+uiExportPickSet::~uiExportPickSet()
+{}
+
+
+bool uiExportPickSet::doExport()
 {
     const IOObj* objfldioobj = objfld_->ioobj();
     if ( !objfldioobj )
@@ -274,58 +441,30 @@ bool uiImpExpPickSet::doExport()
 }
 
 
-bool uiImpExpPickSet::acceptOK( CallBacker* )
-{
-    uiMsgMainWinSetter mws( this );
-
-    if ( !checkInpFlds() ) return false;
-    bool ret = import_ ? doImport() : doExport();
-    if ( !ret ) return false;
-
-    const bool ispolygon = polyfld_ && polyfld_->isChecked();
-    uiString msg = tr("%1 successfully %2."
-		      "\n\nDo you want to %3 more %4?")
-		 .arg( import_ ? (ispolygon ? uiStrings::sPolygon()
-					    : uiStrings::sPointSet())
-			      : tr("Pointset/Polygon") )
-		 .arg( import_ ? tr("imported") : tr("exported") )
-		 .arg( import_ ? (uiStrings::sImport()).toLower()
-			       : (uiStrings::sExport()).toLower() )
-		 .arg( import_ ? (ispolygon ? (uiStrings::sPolygon(2)).toLower()
-					   :(uiStrings::sPointSet(2)).toLower())
-					    : tr("pointsets/polygons") );
-    return !uiMSG().askGoOn( msg, uiStrings::sYes(), tr("No, close window") );
-}
-
-
-bool uiImpExpPickSet::checkInpFlds()
+bool uiExportPickSet::checkInpFlds()
 {
     BufferString filenm = filefld_->fileName();
-    if ( import_ && !File::exists(filenm) )
-	mErrRet( tr("Please select input file") )
-
-    if ( !import_ && filenm.isEmpty() )
+    if ( filenm.isEmpty() )
 	mErrRet( uiStrings::sSelOutpFile() )
 
     objfld_->reset();
     if ( !objfld_->ioobj() )
 	return false;
 
-    if ( import_ )
-    {
-	if ( !dataselfld_->commit() )
-	    mErrRet( tr("Please specify data format") )
-
-	const int zchoice = zfld_->box()->currentItem();
-	if ( zchoice == 1 )
-	{
-	    float constz = constzfld_->getFValue();
-	    if ( SI().zIsTime() ) constz /= 1000;
-
-	    if ( !SI().zRange(false).includes( constz,false ) )
-		mErrRet( tr("Please enter a valid Z value") )
-	}
-    }
-
     return true;
+}
+
+
+bool uiExportPickSet::acceptOK( CallBacker* )
+{
+    uiMsgMainWinSetter mws( this );
+
+    if ( !checkInpFlds() )
+	return false;
+    if ( !doExport() )
+	return false;
+
+    uiString msg = tr("Data successfully exported."
+		      "\n\nDo you want to export more PointSets or Polygons?");
+    return !uiMSG().askGoOn( msg, uiStrings::sYes(), tr("No, close window") );
 }

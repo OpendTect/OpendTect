@@ -21,7 +21,8 @@ ________________________________________________________________________
 class uiCreatePicks;
 class uiGenPosPicks;
 class uiGenRandPicks2D;
-class uiImpExpPickSet;
+class uiImportPickSet;
+class uiExportPickSet;
 class uiPickSetMan;
 class uiPickSetMgr;
 class uiPickSetMgrInfoDlg;
@@ -127,8 +128,8 @@ protected:
     TypeSet<BinID>		trcpos2d_;
     TypeSet< Interval<float> >	hor2dzrgs_;
 
-    uiImpExpPickSet*		imppsdlg_		= nullptr;
-    uiImpExpPickSet*		exppsdlg_		= nullptr;
+    uiImportPickSet*		imppsdlg_		= nullptr;
+    uiExportPickSet*		exppsdlg_		= nullptr;
     uiPickSetMan*		manpicksetsdlg_		= nullptr;
     uiPickSetMgrInfoDlg*	setmgrinfodlg_		= nullptr;
 

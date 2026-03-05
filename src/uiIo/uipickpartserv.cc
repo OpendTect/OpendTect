@@ -102,7 +102,7 @@ void uiPickPartServer::importSet()
 {
     if ( !imppsdlg_ )
     {
-	imppsdlg_ = new uiImpExpPickSet( parent(), this, true );
+	imppsdlg_ = new uiImportPickSet( parent(), this );
 	imppsdlg_->importReady.notify(
 		mCB(this,uiPickPartServer,importReadyCB) );
     }
@@ -134,7 +134,7 @@ void uiPickPartServer::importReadyCB( CallBacker* cb )
 void uiPickPartServer::exportSet()
 {
     if ( !exppsdlg_ )
-	exppsdlg_ = new uiImpExpPickSet( parent(), this, false );
+	exppsdlg_ = new uiExportPickSet( parent() );
 
     exppsdlg_->show();
     exppsdlg_->raise();
