@@ -29,6 +29,8 @@ class uiToolBar;
 class BufferStringSet;
 class Timer;
 
+#include "thread.h"
+
 /*!
 \brief User interface main window.
 */
@@ -282,6 +284,43 @@ public:
     static bool		saveAsPDF(QWidget&,const char* fnm,
 				  int width,int height,int res);
 
+};
+
+
+/*!
+\brief Tracks top-level uiMainWin instances with notifiers on add/remove.
+    Only uiMainWinBody can add or remove windows.
+*/
+mExpClass(uiBase) uiMainWinTracker : public CallBacker
+{
+    friend class uiMainWinBody;
+
+public:
+				~uiMainWinTracker();
+				mOD_DisableCopy(uiMainWinTracker)
+
+    static uiMainWinTracker&	instance();
+
+    bool			hasWindow(const uiMainWin*) const;
+    void			getWindows(ObjectSet<uiMainWin>& list,
+					   bool visibleonly) const;
+
+    CNotifier<uiMainWinTracker,uiMainWin&>	windowAdded;
+    CNotifier<uiMainWinTracker,uiMainWin&>	windowRemoved;
+    CNotifier<uiMainWinTracker,uiMainWin&>	windowShown;
+    CNotifier<uiMainWinTracker,uiMainWin&>	windowHidden;
+
+private:
+				uiMainWinTracker();
+
+    void			windowShownCB( CallBacker* );
+    void			windowHiddenCB( CallBacker* );
+
+    void			addWindow(uiMainWin*);
+    void			removeWindow(uiMainWin*);
+
+    mutable Threads::Mutex	mutex_;
+    ObjectSet<uiMainWin>	windows_;
 };
 
 

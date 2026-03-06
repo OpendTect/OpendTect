@@ -40,9 +40,6 @@ public:
     virtual		~uiMainWinBody();
 			mOD_DisableCopy(uiMainWinBody)
 
-    static void		getTopLevelWindows(ObjectSet<uiMainWin>&,
-					   bool visibleonly);
-
     void		construct(int nrstatusflds,bool wantmenubar);
 
     uiStatusBar*	uistatusbar();
