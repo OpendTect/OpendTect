@@ -26,14 +26,16 @@ LASWriter::LASWriter( const Well::Data& wd, const BufferStringSet& lognms,
     : Executor("")
     , wd_(&wd)
     , logs_(*new Well::LogSet)
-    , lognms_(lognms)
     , lasfnm_(lasfnm)
 {
     nullvalue_ = "-999.2500";
 
-    for ( int idx=0; idx<lognms_.size(); idx++ )
+    for ( int idx=0; idx<lognms.size(); idx++ )
     {
-	const Well::Log* log = wd_->logs().getLog( lognms_.get(idx).buf() );
+	const Well::Log* log = wd_->logs().getLog( lognms.get(idx).buf() );
+	if ( !log )
+	    continue;
+
 	logs_.add( new Well::Log(*log) );
     }
 
@@ -62,6 +64,12 @@ void LASWriter::setNullValue( const char* nv )
 void LASWriter::setColumnWidth( int w )
 {
     columnwidth_ = mMAX( minimumColumnWidth(), w );
+}
+
+
+bool LASWriter::doPrepare( od_ostream* )
+{
+    return !logs_.isEmpty() && !mdrg_.isUdf();
 }
 
 

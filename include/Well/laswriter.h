@@ -38,6 +38,7 @@ public:
     static int		minimumColumnWidth()		{ return 10; }
 
 protected:
+    bool		doPrepare(od_ostream*) override;
     int			nextStep() override;
 
     bool		writeVersionInfoSection(od_ostream&);
@@ -49,7 +50,6 @@ protected:
 
     ConstRefMan<Well::Data>	wd_;
     Well::LogSet&	logs_;
-    BufferStringSet	lognms_;
     BufferString	lasfnm_;
 
     StepInterval<float> mdrg_;
