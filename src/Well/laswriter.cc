@@ -59,6 +59,12 @@ void LASWriter::setNullValue( const char* nv )
 }
 
 
+void LASWriter::setColumnWidth( int w )
+{
+    columnwidth_ = mMAX( minimumColumnWidth(), w );
+}
+
+
 int LASWriter::nextStep()
 {
     od_ostream strm( lasfnm_.buf() );
@@ -217,7 +223,6 @@ bool LASWriter::writeLogData( od_ostream& strm )
     {
 	float md = mdrg_.atIndex( idz );
 	word.set( md, 12, 'f', cNrMDDecimals );
-
 	strm << word;
 
 	md = getConvertedValue( md, mdunit, storunit );
@@ -226,7 +231,8 @@ bool LASWriter::writeLogData( od_ostream& strm )
 	    float val = logs_.getLog(idx).getValue( md );
 	    if ( mIsUdf(val) )
 		val = toFloat( nullvalue_ );
-		word.set(val, columnwidth_, 'f', cNrValDecimals );
+
+	    word.set( val, columnwidth_, 'f', cNrValDecimals );
 	    strm << word;
 	}
 	strm << od_newline;
