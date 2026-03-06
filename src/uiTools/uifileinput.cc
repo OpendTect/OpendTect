@@ -22,6 +22,8 @@ ________________________________________________________________________
 
 #include <string.h>
 
+#include "hiddenparam.h"
+
 
 // uiFileInput::Setup
 
@@ -64,6 +66,8 @@ uiFileInput::Setup::~Setup()
 
 // uiFileInput
 
+static HiddenParam<uiFileInput,BufferStringSet*> uifileinphpmgr_( nullptr );
+
 uiFileInput::uiFileInput( uiParent* p, const uiString& txt, const Setup& setup )
     : uiGenInput( p, txt, FileNameInpSpec(setup.fnm) )
     , forread_(setup.forread_)
@@ -78,6 +82,7 @@ uiFileInput::uiFileInput( uiParent* p, const uiString& txt, const Setup& setup )
     , objtype_(setup.objtype_)
     , filedlgtype_(setup.filedlgtype_)
 {
+    uifileinphpmgr_.setParam( this, new BufferStringSet );
     setStretch( 2, 0 );
     setFileName( setup.fnm );
     setWithSelect( true );
@@ -115,6 +120,7 @@ uiFileInput::uiFileInput( uiParent* p, const uiString& txt, const char* fnm )
     , defaultext_("dat")
     , filedlgtype_(uiFileDialog::Gen)
 {
+    uifileinphpmgr_.setParam( this, new BufferStringSet );
     setStretch( 2, 0 );
     setFileName( fnm );
     setWithSelect( true );
@@ -126,6 +132,19 @@ uiFileInput::uiFileInput( uiParent* p, const uiString& txt, const char* fnm )
 uiFileInput::~uiFileInput()
 {
     detachAllNotifiers();
+    uifileinphpmgr_.removeAndDeleteParam( this );
+}
+
+
+const BufferStringSet& uiFileInput::filenames_() const
+{
+    return *uifileinphpmgr_.getParam( this );
+}
+
+
+BufferStringSet& uiFileInput::filenames_()
+{
+    return *uifileinphpmgr_.getParam( this );
 }
 
 
@@ -152,8 +171,9 @@ void uiFileInput::setDefaultSelectionDir( const char* s )
 
 void uiFileInput::setFileName( const char* fnm )
 {
-    filenames_.setEmpty();
-    filenames_.add( fnm );
+    BufferStringSet& filenames = filenames_();
+    filenames.setEmpty();
+    filenames.add( fnm );
     setText( fnm );
 
     if ( displaylocalpath_ )
@@ -337,8 +357,9 @@ void uiFileInput::ensureAbsolutePath( BufferString& fname ) const
 const char* uiFileInput::fileName() const
 {
     mDeclStaticString( fname );
-    if ( !filenames_.isEmpty() )
-	fname = filenames_.get( 0 );
+    const BufferStringSet& filenames = filenames_();
+    if ( !filenames.isEmpty() )
+	fname = filenames.get( 0 );
 
     fname.trimBlanks();
     if ( fname.isEmpty() || fname.firstChar() == '@' )
@@ -374,7 +395,7 @@ const char* uiFileInput::baseName() const
 
 void uiFileInput::getFileNames( BufferStringSet& list ) const
 {
-    list = filenames_;
+    list = filenames_();
     for ( int idx=0; idx<list.size(); idx++ )
 	ensureAbsolutePath( list.get(idx) );
 }

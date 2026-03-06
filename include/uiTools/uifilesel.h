@@ -88,7 +88,8 @@ protected:
     uiString		objtype_;
     BufferStringSet	factnms_;
     IOPar		filepars_;
-    BufferStringSet	filenames_;
+    BufferStringSet&	filenames_();
+    const BufferStringSet& filenames_() const;
 
     uiCheckBox*		checkbox_		= nullptr;
     uiComboBox*		protfld_		= nullptr;
