@@ -62,7 +62,8 @@ uiLASWriter::uiLASWriter( uiParent* p )
     nullfld_->attach( alignedBelow, mdrangefld_ );
 
     colwidthfld_ = new uiGenInput( this, tr("Log data column width"),
-				   IntInpSpec(14,10) );
+				IntInpSpec(LASWriter::defaultColumnWidth(),
+					   LASWriter::minimumColumnWidth()) );
     colwidthfld_->attach( rightOf, nullfld_ );
 
     lasfld_ = new uiASCIIFileInput( this, false );
