@@ -10,8 +10,10 @@ ________________________________________________________________________
 
 #include "uiemattribmod.h"
 #include "uiapplserv.h"
+
 #include "uistring.h"
 #include "attribdescid.h"
+#include "attribsel.h"
 #include "datacoldef.h"
 #include "emposid.h"
 #include "multiid.h"
@@ -93,6 +95,10 @@ public:
     void			create2DGrid(const Geometry::RandomLine*);
 
     const TypeSet<EM::ObjectID>& getEMObjIDs() const	{ return emobjids_; }
+
+    bool			selectRGBAttribs(const MultiID& hormid,
+						 TypeSet<Attrib::SelSpec>&,
+						 const ZDomain::Info* =nullptr);
 
     mDeprecated("Use setNLAModel")
     void			setNLA( const NLAModel* mdl, const MultiID& id )

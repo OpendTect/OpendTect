@@ -11,9 +11,9 @@ ________________________________________________________________________
 #include "uiodattribtreeitem.h"
 
 #include "uiattribpartserv.h"
+#include "uiemattribpartserv.h"
 #include "uiicon.h"
 #include "uiioobj.h"
-#include "uimenu.h"
 #include "uimenuhandler.h"
 #include "uimsg.h"
 #include "uiodapplmgr.h"
@@ -24,13 +24,15 @@ ________________________________________________________________________
 #include "uitreeview.h"
 #include "uiviscoltabed.h"
 #include "uivispartserv.h"
-#include "vismultiattribsurvobj.h"
+
+#include "vishorizondisplay.h"
 #include "vissurvobj.h"
 
 #include "attribsel.h"
 #include "ioman.h"
 #include "ioobj.h"
 #include "threadwork.h"
+#include "volprocattrib.h"
 
 
 bool uiODDisplayTreeItem::create( uiTreeItem* treeitem, uiODApplMgr* appl,
@@ -70,14 +72,14 @@ uiODDisplayTreeItem::uiODDisplayTreeItem()
     : uiODTreeItem(uiString::emptyString())
     , visserv_(ODMainWin()->applMgr().visServer())
     , addmnuitem_(uiStrings::sAdd(),cAddIdx)
+    , displaymnuitem_(uiStrings::sDisplay(),cDisplayIdx)
     , addattribmnuitem_(uiStrings::sAttribute(), cAttribIdx)
     , addvolprocmnuitem_(tr("Volume Builder Attribute"),cAttribIdx)
-    , displaymnuitem_(uiStrings::sDisplay(),cDisplayIdx)
     , duplicatemnuitem_(tr("Duplicate"),cDuplicateIdx)
-    , histogrammnuitem_(m3Dots(uiStrings::sHistogram()),cHistogramIdx)
+    , removemnuitem_(tr("Remove from Tree"),cRemoveIdx)
     , lockmnuitem_(uiStrings::sEmptyString(),cLockIdx)
     , hidemnuitem_(uiStrings::sHide(),cHideIdx )
-    , removemnuitem_(tr("Remove from Tree"),cRemoveIdx)
+    , histogrammnuitem_(m3Dots(uiStrings::sHistogram()),cHistogramIdx)
 {
     removemnuitem_.iconfnm = "remove";
     histogrammnuitem_.iconfnm = "histogram";
@@ -314,14 +316,19 @@ void uiODDisplayTreeItem::selectRGBA( const Pos::GeomID& geomid )
 	    rgbaspecs[idx] = *as;
     }
 
-    const bool selok =
-	applMgr()->attrServer()->selectRGBAttribs( rgbaspecs, 0, geomid );
-    if ( !selok ) return;
+    mDynamicCastGet(const visSurvey::HorizonDisplay*,hd,
+			visserv_->getObject(displayid_))
+    const bool selok = hd
+	? applMgr()->EMAttribServer()->selectRGBAttribs( hd->getMultiID(),
+							 rgbaspecs )
+	: applMgr()->attrServer()->selectRGBAttribs( rgbaspecs, 0, geomid );
+    if ( !selok )
+	return;
 
     for ( int idx=0; idx<rgbaspecs.size(); idx++ )
     {
 	const Attrib::SelSpec& as = rgbaspecs[idx];
-	if ( !as.id().isValid() )
+	if ( as.id().asInt() < Attrib::SelSpec::cOtherAttrib().asInt() )
 	    continue;
 
 	visserv_->setSelSpec( displayid_, idx, as );
