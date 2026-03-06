@@ -437,7 +437,9 @@ void MultiTextureSurveyObject::setColTabMapperSetup( int attrib,
     if ( attrib<0 || attrib>=nrAttribs() )
 	return;
 
-    const ColTab::MapperSetup& old = channels_->getColTabMapperSetup(attrib,0);
+    const ColTab::MapperSetup& old =
+	channels_->getColTabMapperSetup( attrib,
+					 channels_->currentVersion(attrib) );
     if ( old!=mapper )
     {
 	const bool needsreclip = old.needsReClip( mapper );

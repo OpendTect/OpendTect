@@ -177,7 +177,8 @@ void HorizonTextureHandler::setColTabMapperSetup( int channel,
 	return;
 
     const bool needsclip =
-	    channels_->getColTabMapperSetup( channel, 0 ).needsReClip( mapper );
+	    channels_->getColTabMapperSetup( channel, activeVersion(channel) )
+							.needsReClip( mapper );
     channels_->setColTabMapperSetup( channel, mapper );
     channels_->reMapData( channel, !needsclip, tr );
 }
