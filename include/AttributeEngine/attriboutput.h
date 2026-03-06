@@ -249,7 +249,9 @@ public:
 protected:
 				~Trc2DVarZStorOutput();
 
+    mDeprecated("Provide a Pos::GeomID")
     const TrcKeyZSampling	getCS();
+    const TrcKeyZSampling	getCS(const Pos::GeomID&) const;
 
     RefMan<DataPointSet>	poszvalues_;
     float			stdtrcsz_;

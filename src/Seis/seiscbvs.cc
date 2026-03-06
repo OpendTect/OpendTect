@@ -429,27 +429,18 @@ bool CBVSSeisTrcTranslator::commitSelections_()
 
     if ( forread_ && seldata_ && !seldata_->isAll() )
     {
-	const Interval<int> inlrg = seldata_->inlRange();
-	const Interval<int> crlrg = seldata_->crlRange();
-	TrcKeyZSampling tkzs;
+	TrcKeyZSampling tkzs( curGeomID() );
+	getLimits( tkzs );
 	if ( is2D() )
 	{
-	    tkzs.hsamp_.start_.inl() = rdmgr_->info().geom_.start_.inl();
-	    tkzs.hsamp_.stop_.inl() = rdmgr_->info().geom_.start_.inl();
 	    // CBVSInfo does not know about 2D
-	}
-	else
-	{
-	    tkzs.hsamp_.start_.inl() = inlrg.start_;
-	    tkzs.hsamp_.stop_.inl() = inlrg.stop_;
+	    const Pos::GeomID fakegeomid( rdmgr_->info().geom_.start_.inl() );
+	    tkzs.hsamp_.setGeomID( fakegeomid );
 	}
 
-	tkzs.hsamp_.start_.crl() = crlrg.start_;
-	tkzs.hsamp_.stop_.crl() = crlrg.stop_;
 	tkzs.zsamp_.start_ = outsd_.start_;
 	tkzs.zsamp_.step_ = outsd_.step_;
 	tkzs.zsamp_.stop_ = outsd_.start_ + (outnrsamples_-1) * outsd_.step_;
-
 	if ( rdmgr_->pruneReaders(tkzs) == 0 )
 	{
 	    errmsg_ = tr("Input contains no relevant data");
@@ -619,28 +610,52 @@ bool CBVSSeisTrcTranslator::readDataPack( RegularSeisDataPack& rsdp,
     if ( !storbuf_ && !commitSelections() )
 	return false;
 
-    TrcKeyZSampling tkzs;
-    tkzs.hsamp_.setInlRange( seldata_->inlRange() );
-    tkzs.hsamp_.setCrlRange( seldata_->crlRange() );
-    tkzs.zsamp_.setInterval( seldata_->zRange() );
+    TrcKeyZSampling tkzs( curGeomID() );
+    getLimits( tkzs );
     rsdp.setSampling( tkzs );
-    rsdp.addComponent( "" );
+    const int nrz = tkzs.nrZ();
+    const int trczidx0 = insd_.nearestIndex( tkzs.zsamp_.start_ );
+    const Array3DInfoImpl info( tkzs.nrLines(), tkzs.nrTrcs(), nrz );
+    for ( int iselc=0; iselc<nrSelComps(); iselc++ )
+    {
+	const BufferString compnm( "Component ", iselc+1 );
+	if ( rsdp.validComp(iselc) )
+	{
+	    Array3D<float>& arr = rsdp.data( iselc );
+	    if ( arr.info() != info && !arr.setInfo(info) )
+		return false;
 
+	    rsdp.setComponentName( compnm.str(), iselc );
+	}
+	else
+	{
+	    if ( !rsdp.addComponent(compnm.str()) )
+		return false;
+	}
+    }
+
+    goTo( tkzs.hsamp_.start_ );
     while ( true )
     {
 	const BinID bid = rdmgr_->binID();
-	const int inlidx = tkzs.hsamp_.lineIdx( bid.inl() );
-	const int crlidx = tkzs.hsamp_.trcIdx( bid.crl() );
-	const int zidx = 0;
-
 	if ( !rdmgr_->fetch(*storbuf_,compsel_,&samprg_) )
 	{
 	    errmsg_ = toUiString( rdmgr_->errMsg() );
 	    return false;
 	}
 
-	const float val = storbuf_->getValue( 0, 0 );
-	rsdp.data(0).set( inlidx, crlidx, zidx, val );
+	const int inlidx = tkzs.hsamp_.lineIdx( bid.inl() );
+	const int crlidx = tkzs.hsamp_.trcIdx( bid.crl() );
+	for ( int iselc=0; iselc<nrSelComps(); iselc++ )
+	{
+	    Array3D<float>& arr = rsdp.data( iselc );
+	    for ( int zidx=0; zidx<nrz; zidx++ )
+	    {
+		const float val = storbuf_->getValue( zidx+trczidx0, iselc );
+		arr.set( inlidx, crlidx, zidx, val );
+	    }
+	}
+
 	if ( !toNext() )
 	    break;
     }

@@ -76,6 +76,9 @@ void Output::doSetGeometry( const TrcKeyZSampling& cs )
 	return;
 
     ensureSelType( Seis::Range );
+    const bool isall = cs == ((Seis::RangeSelData*)seldata_)->cubeSampling();
+    seldata_->setGeomID( cs.hsamp_.getGeomID() );
+    seldata_->setIsAll( isall );
     ((Seis::RangeSelData*)seldata_)->cubeSampling() = cs;
 }
 
@@ -89,11 +92,12 @@ Pos::GeomID Output::curGeomID() const
 
 // DataPackOutput
 DataPackOutput::DataPackOutput( const TrcKeyZSampling& cs )
-    : desiredvolume_(cs)
+    : Output()
+    , desiredvolume_(cs)
     , dcsampling_(cs)
-    , output_(0)
     , udfval_(mUdf(float))
 {
+    setGeometry( desiredvolume_ );
 }
 
 
@@ -262,11 +266,14 @@ void DataPackOutput::init( float refstep, const BinDataDesc* bdd )
 // SeisTrcStorOutput
 SeisTrcStorOutput::SeisTrcStorOutput( const TrcKeyZSampling& cs,
 				      const Pos::GeomID& geomid )
-    : storid_(*new MultiID)
+    : Output()
+    , storid_(*new MultiID)
     , desiredvolume_(cs)
-    , errmsg_(uiString::emptyString())
 {
-    seldata_->setGeomID( geomid );
+    if ( cs.hsamp_.getGeomID() != geomid )
+	{ pErrMsg("Mismatching Pos::GeomID"); }
+
+    setGeometry( desiredvolume_ );
 }
 
 
@@ -335,7 +342,7 @@ static bool isDataType( const char* reqtp )
 
 bool SeisTrcStorOutput::doUsePar( const IOPar& pars )
 {
-    errmsg_ = uiString::emptyString();
+    errmsg_.setEmpty();
     PtrMan<IOPar> outppar = pars.subselect( IOPar::compKey(sKey::Output(),0) );
     if ( !outppar )
 	outppar = pars.subselect( IOPar::compKey(sKey::Output(),1) );
@@ -354,8 +361,7 @@ bool SeisTrcStorOutput::doUsePar( const IOPar& pars )
         return false;
     }
 
-    SeparString sepstr( stormid.toString(), '|' );
-
+    const SeparString sepstr( stormid.toString(), '|' );
     if ( !sepstr[1].isEmpty() )
 	attribname_ = sepstr[1];
 
@@ -368,7 +374,7 @@ bool SeisTrcStorOutput::doUsePar( const IOPar& pars )
     {
 	scaler_ = Scaler::get( res );
 	if ( scaler_ && scaler_->isEmpty() )
-	    { delete scaler_; scaler_ = 0; }
+	    deleteAndNullPtr( scaler_ );
     }
 
     auxpars_ = pars.subselect("Aux");
@@ -378,8 +384,6 @@ bool SeisTrcStorOutput::doUsePar( const IOPar& pars )
 
 bool SeisTrcStorOutput::doInit()
 {
-    ensureSelType( Seis::Range );
-
     if ( !storid_.isUdf() )
     {
 	PtrMan<IOObj> ioseisout = IOM().get( storid_ );
@@ -405,9 +409,14 @@ bool SeisTrcStorOutput::doInit()
     desiredvolume_.normalize();
     if ( !is2d_ )
     {
-	TrcKeyZSampling& cs = ((Seis::RangeSelData*)seldata_)->cubeSampling();
-	desiredvolume_.limitTo( cs );
+	const TrcKeyZSampling& cs =
+				((Seis::RangeSelData*)seldata_)->cubeSampling();
+	if ( desiredvolume_ != cs )
+	    desiredvolume_.limitTo( cs );
     }
+
+    if ( writer_ && seldata_ )
+	writer_->setSelData( seldata_->clone() );
 
     return true;
 }
@@ -517,7 +526,7 @@ bool SeisTrcStorOutput::writeTrc()
 
     if ( !storinited_ )
     {
-	SeisTrcTranslator* transl = 0;
+	SeisTrcTranslator* transl = nullptr;
 	if ( writer_->is2D() )
 	    writer_->setGeomIDProvider( new COGeomIDProvider(curGeomID()) );
 	else
@@ -556,8 +565,7 @@ bool SeisTrcStorOutput::writeTrc()
     if ( !writer_->put(*usetrc) )
 	{ errmsg_ = writer_->errMsg(); return false; }
 
-    delete trc_;
-    trc_ = 0;
+    deleteAndNullPtr( trc_ );
     return true;
 }
 
@@ -596,8 +604,7 @@ TypeSet< Interval<int> > SeisTrcStorOutput::getLocalZRanges(
 
 void SeisTrcStorOutput::deleteTrc()
 {
-    if ( trc_ ) delete trc_;
-    trc_ = 0;
+    deleteAndNullPtr( trc_ );
 }
 
 
@@ -616,6 +623,7 @@ bool SeisTrcStorOutput::finishWrite()
 // TwoDOutput
 TwoDOutput::TwoDOutput( const Interval<int>& trg, const Interval<float>& zrg,
 			const Pos::GeomID& geomid )
+    : Output()
 {
     seldata_->setGeomID( geomid );
     setGeometry( trg, zrg );
@@ -731,7 +739,8 @@ TypeSet< Interval<int> > TwoDOutput::getLocalZRanges( const Coord&,
 
 // LocationOutput
 LocationOutput::LocationOutput( BinIDValueSet& bidvalset )
-    : bidvalset_(bidvalset)
+    : Output()
+    , bidvalset_(bidvalset)
 {
     ensureSelType( Seis::Table );
     seldata_->setIsAll( false );
@@ -871,7 +880,8 @@ bool LocationOutput::areBIDDuplicated() const
 // TrcSelectionOutput
 TrcSelectionOutput::TrcSelectionOutput( const BinIDValueSet& bidvalset,
 					float outval )
-    : bidvalset_(bidvalset)
+    : Output()
+    , bidvalset_(bidvalset)
     , outval_(outval)
 {
     delete seldata_;
@@ -1059,21 +1069,11 @@ bool TrcSelectionOutput::getDesiredVolume( TrcKeyZSampling& cs ) const
 }
 
 
-const TrcKeyZSampling Trc2DVarZStorOutput::getCS()
-{
-    TrcKeyZSampling cs;
-    cs.hsamp_.start_.inl() = 0; cs.hsamp_.stop_.inl() = mUdf(int);
-    cs.hsamp_.start_.crl() = 1; cs.hsamp_.stop_.crl() = mUdf(int);
-    return cs;
-}
-
-
-
 // Trc2DVarZStorOutput
 Trc2DVarZStorOutput::Trc2DVarZStorOutput( const Pos::GeomID& geomid,
 					  DataPointSet* poszvalues,
 					  float outval )
-    : SeisTrcStorOutput( getCS(), geomid )
+    : SeisTrcStorOutput( getCS(geomid), geomid )
     , poszvalues_(poszvalues)
     , outval_(outval)
 {
@@ -1091,7 +1091,6 @@ Trc2DVarZStorOutput::Trc2DVarZStorOutput( const Pos::GeomID& geomid,
 	if ( val > zmax ) zmax = val;
     }
 
-    setGeometry( getCS() );
     seldata_->setZRange( Interval<float>(zmin,zmax) );
     stdtrcsz_ = zmax - zmin;
     stdstarttime_ = zmin;
@@ -1254,10 +1253,30 @@ bool Trc2DVarZStorOutput::finishWrite()
 }
 
 
+const TrcKeyZSampling Trc2DVarZStorOutput::getCS(
+					const Pos::GeomID& geomid ) const
+{
+    TrcKeyZSampling cs( geomid );
+    cs.hsamp_.start_.crl() = 1;
+    cs.hsamp_.stop_.crl() = mUdf(int);
+    return cs;
+}
+
+
+const TrcKeyZSampling Trc2DVarZStorOutput::getCS()
+{
+    TrcKeyZSampling cs;
+    cs.hsamp_.start_.inl() = 0; cs.hsamp_.stop_.inl() = mUdf(int);
+    cs.hsamp_.start_.crl() = 1; cs.hsamp_.stop_.crl() = mUdf(int);
+    return cs;
+}
+
 
 // TableOutput
+
 TableOutput::TableOutput( DataPointSet& datapointset, int firstcol )
-    : dps_(&datapointset)
+    : Output()
+    , dps_(&datapointset)
     , firstattrcol_(firstcol)
     , mediandisttrcs_(mUdf(float))
 {
