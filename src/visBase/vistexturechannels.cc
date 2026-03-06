@@ -170,37 +170,45 @@ const ColTab::Mapper& ChannelInfo::getColTabMapper( int version ) const
 
 void ChannelInfo::setColTabMapperSetup( const ColTab::MapperSetup& setup )
 {
-    if ( !mappers_.size() )
-	{ pErrMsg("No mappers"); return; }
+    if ( mappers_.isEmpty() )
+    {
+	pErrMsg("No mappers");
+	return;
+    }
 
-    if ( mappers_[0]->setup_==setup )
+    const int current = getCurrentVersion();
+    if ( mappers_[current]->setup_==setup )
 	return;
 
+    bool autoscalechange = false;
     for ( int idx=0; idx<mappers_.size(); idx++ )
     {
-	const bool autoscalechange = mappers_[idx]->setup_.type_ != setup.type_;
+	if ( mappers_[idx]->setup_.type_ != setup.type_ )
+	    autoscalechange = true;
+
 	mappers_[idx]->setup_ = setup;
-	if ( autoscalechange )
-	    mappers_[idx]->setup_.triggerAutoscaleChange();
-	else
-	    mappers_[idx]->setup_.triggerRangeChange();
     }
+
+    if ( autoscalechange )
+	mappers_[current]->setup_.triggerAutoscaleChange();
+    else
+	mappers_[current]->setup_.triggerRangeChange();
 }
 
 
-const ColTab::MapperSetup& ChannelInfo::getColTabMapperSetup(int channel) const
+const ColTab::MapperSetup& ChannelInfo::getColTabMapperSetup(int version) const
 {
-    if ( channel < mappers_.size() )
-	return mappers_[channel]->setup_;
+    if ( mappers_.validIdx(version) )
+	return mappers_[version]->setup_;
 
-    pErrMsg( "channel >= mappers_.size()" );
+    pErrMsg( "version >= mappers_.size()" );
     if ( mappers_.isEmpty() )
     {
 	mDefineStaticLocalObject( ColTab::MapperSetup, ctms, );
 	return ctms;
     }
 
-    return mappers_[mappers_.size()-1]->setup_;
+    return mappers_.last()->setup_;
 }
 
 
