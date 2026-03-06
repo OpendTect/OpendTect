@@ -116,7 +116,8 @@ protected:
     bool		selmodset_			= false;
     uiFileDialog::Mode	selmode_			= uiFileDialog::AnyFile;
     uiFileDialog::Type  filedlgtype_;
-    BufferStringSet	filenames_;
+    BufferStringSet&	filenames_();
+    const BufferStringSet& filenames_() const;
 
     uiButton*		examinebut_			= nullptr;
 

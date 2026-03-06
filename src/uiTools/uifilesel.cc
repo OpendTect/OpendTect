@@ -21,6 +21,8 @@ ________________________________________________________________________
 #include "uimsg.h"
 #include "uistrings.h"
 
+#include "hiddenparam.h"
+
 
 static const char* sKeyDefProt()	{ return "dTect.Default protocol"; }
 
@@ -52,6 +54,10 @@ uiFileSel::Setup::Setup( ContentType ct, const char* filenm )
 }
 
 
+// uiFileSel
+
+static HiddenParam<uiFileSel,BufferStringSet*> uifileselhpmgr_( nullptr );
+
 uiFileSel::uiFileSel( uiParent* p, const uiString& txt, const Setup& setp )
     : uiGroup(p,"File input")
     , newSelection(this)
@@ -60,6 +66,7 @@ uiFileSel::uiFileSel( uiParent* p, const uiString& txt, const Setup& setp )
     , protocolChanged(this)
     , setup_(setp)
 {
+    uifileselhpmgr_.setParam( this, new BufferStringSet );
     init( txt );
 }
 
@@ -72,6 +79,7 @@ uiFileSel::uiFileSel( uiParent* p, const uiString& txt, const char* fnm )
     , protocolChanged(this)
     , setup_(fnm)
 {
+    uifileselhpmgr_.setParam( this, new BufferStringSet );
     setup_.withexamine( true );
     init( txt );
 }
@@ -159,6 +167,19 @@ void uiFileSel::init( const uiString& lbltxt )
 uiFileSel::~uiFileSel()
 {
     detachAllNotifiers();
+    uifileselhpmgr_.removeAndDeleteParam( this );
+}
+
+
+const BufferStringSet& uiFileSel::filenames_() const
+{
+    return *uifileselhpmgr_.getParam( this );
+}
+
+
+BufferStringSet& uiFileSel::filenames_()
+{
+    return *uifileselhpmgr_.getParam( this );
 }
 
 
@@ -257,7 +278,7 @@ const char* uiFileSel::text() const
 
 void uiFileSel::setSel( const BufferStringSet& fnms )
 {
-    filenames_ = fnms;
+    filenames_() = fnms;
     setText( uiFileSelTool::joinSelection(fnms) );
 }
 
@@ -472,7 +493,7 @@ const char* uiFileSel::protocol() const
 
 void uiFileSel::getFileNames( BufferStringSet& nms ) const
 {
-    nms = filenames_;
+    nms = filenames_();
     for ( int idx=0; idx<nms.size(); idx++ )
     {
 	BufferString& fname = nms.get( idx );
