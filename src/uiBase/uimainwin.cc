@@ -609,7 +609,7 @@ void uiMainWin::closeActiveModalQDlg( int retval )
 void uiMainWin::getTopLevelWindows( ObjectSet<uiMainWin>& list,
 				    bool visibleonly )
 {
-    uiMainWinBody::getTopLevelWindows( list, visibleonly );
+    uiMainWinTracker::instance().getWindows( list, visibleonly );
 }
 
 
@@ -898,4 +898,104 @@ Notifier<uiMainWin>& uiMainWin::iconSetChanged()
     static PtrMan<Notifier<uiMainWin> > thenotif_ =
 					new Notifier<uiMainWin>( nullptr );
     return *thenotif_.ptr();
+}
+
+
+// uiMainWinTracker
+uiMainWinTracker::uiMainWinTracker()
+    : windowAdded(this)
+    , windowRemoved(this)
+    , windowShown(this)
+    , windowHidden(this)
+{}
+
+
+uiMainWinTracker::~uiMainWinTracker()
+{}
+
+
+uiMainWinTracker& uiMainWinTracker::instance()
+{
+    mDefineStaticLocalObject( PtrMan<uiMainWinTracker>, theinst,
+			     = new uiMainWinTracker );
+    return *theinst.ptr();
+}
+
+
+void uiMainWinTracker::windowShownCB( CallBacker* cb )
+{
+    auto* mw = static_cast<uiMainWin*>( cb );
+    if ( mw )
+	uiMainWinTracker::instance().windowShown.trigger( *mw );
+}
+
+
+void uiMainWinTracker::windowHiddenCB( CallBacker* cb )
+{
+    auto* mw = static_cast<uiMainWin*>( cb );
+    if ( mw )
+	uiMainWinTracker::instance().windowHidden.trigger( *mw );
+}
+
+void uiMainWinTracker::addWindow( uiMainWin* mw )
+{
+    if ( !mw )
+	return;
+
+    Threads::MutexLocker lock( mutex_ );
+    if ( windows_.isPresent( mw ) )
+	return;
+
+    windows_ += mw;
+    lock.unLock();
+    mw->windowShown.notify( mCB(this,uiMainWinTracker,windowShownCB) );
+    mw->windowHidden.notify( mCB(this,uiMainWinTracker,windowHiddenCB) );
+    windowAdded.trigger( *mw );
+}
+
+
+void uiMainWinTracker::removeWindow( uiMainWin* mw )
+{
+    if ( !mw )
+	return;
+
+    Threads::MutexLocker lock( mutex_ );
+    const bool waspresent = windows_.isPresent( mw );
+    if ( waspresent )
+    {
+	mw->windowShown.remove( mCB(this,uiMainWinTracker,windowShownCB) );
+	mw->windowHidden.remove( mCB(this,uiMainWinTracker,windowHiddenCB) );
+	windows_ -= mw;
+    }
+
+    lock.unLock();
+    if ( waspresent )
+	windowRemoved.trigger( *mw );
+}
+
+
+bool uiMainWinTracker::hasWindow( const uiMainWin* mw ) const
+{
+    if ( !mw )
+	return false;
+
+    Threads::MutexLocker lock( mutex_ );
+    return windows_.isPresent( const_cast<uiMainWin*>(mw) );
+}
+
+
+void uiMainWinTracker::getWindows( ObjectSet<uiMainWin>& list,
+				   bool visibleonly ) const
+{
+    Threads::MutexLocker lock( mutex_ );
+    list = windows_;
+    lock.unLock();
+    if ( !visibleonly )
+	return;
+
+    for ( int idx=list.size()-1; idx>=0; idx-- )
+    {
+	if ( list[idx]->isHidden() )
+	    list.removeSingle( idx );
+    }
 }

@@ -10,6 +10,7 @@ ________________________________________________________________________
 #include "uipresentationmaker.h"
 
 #include "uibuttongroup.h"
+#include "uimainwin.h"
 #include "uicombobox.h"
 #include "uidesktopservices.h"
 #include "uidlggroup.h"
@@ -218,18 +219,18 @@ uiPresentationMakerDlg::uiPresentationMakerDlg( uiParent* p )
     addbut->attach( rightTo, typegrp_ );
 
     windowfld_ = new uiComboBox( this, "Window Names" );
-    windowfld_->setHSzPol( uiObject::Wide );
-    windowfld_->attach( alignedBelow, typegrp_ );
+    windowfld_->setStretch( 2, 0 );
+    windowfld_->attach( ensureBelow, typegrp_ );
     windowfld_->display( false );
 
     scenefld_ = new uiComboBox( this, "Scene Names" );
-    scenefld_->setHSzPol( uiObject::Wide );
-    scenefld_->attach( alignedBelow, typegrp_ );
+    scenefld_->setStretch( 2, 0 );
+    scenefld_->attach( ensureBelow, typegrp_ );
     scenefld_->display( false );
 
     screenfld_ = new uiComboBox( this, "Screen Names" );
-    screenfld_->setHSzPol( uiObject::Wide );
-    screenfld_->attach( alignedBelow, typegrp_ );
+    screenfld_->setStretch( 2, 0 );
+    screenfld_->attach( ensureBelow, typegrp_ );
     screenfld_->display( false );
 
     uiTable::Setup ts( 0, 1 );
@@ -258,6 +259,12 @@ uiPresentationMakerDlg::uiPresentationMakerDlg( uiParent* p )
 
     templateCB(0);
     imageTypeCB(0);
+
+    auto& mwtracker = uiMainWinTracker::instance();
+    mAttachCB( mwtracker.windowAdded, uiPresentationMakerDlg::windowsChgdCB );
+    mAttachCB( mwtracker.windowRemoved, uiPresentationMakerDlg::windowsChgdCB );
+    mAttachCB( mwtracker.windowShown, uiPresentationMakerDlg::windowsChgdCB );
+    mAttachCB( mwtracker.windowHidden, uiPresentationMakerDlg::windowsChgdCB );
 
     afterPopup.notify(mCB(this,uiPresentationMakerDlg,checkCB) );
 }
@@ -300,9 +307,15 @@ void uiPresentationMakerDlg::updateWindowList()
 {
     windowfld_->setEmpty();
     ObjectSet<uiMainWin> windowlist;
-    getTopLevelWindows( windowlist );
+    uiMainWinTracker::instance().getWindows( windowlist, true );
     for ( int idx=0; idx<windowlist.size(); idx++ )
 	windowfld_->addItem( windowlist[idx]->caption(true) );
+}
+
+
+void uiPresentationMakerDlg::windowsChgdCB( CallBacker* )
+{
+    updateWindowList();
 }
 
 
@@ -396,6 +409,7 @@ void uiPresentationMakerDlg::addCB( CallBacker* )
     imagefp.setExtension( "png" );
     const BufferString imagefnm = imagefp.fullPath();
 
+    bool grabresult = false;
     uiString slidename;
     const bool grabscene = typegrp_->selectedId()==0;
     if ( grabscene )
@@ -407,30 +421,42 @@ void uiPresentationMakerDlg::addCB( CallBacker* )
 	    return;
 
 	ui3DViewer2Image vwr2image( *vwrs[selitm], imagefnm.buf() );
-	vwr2image.create();
+	grabresult = vwr2image.create();
 
 	createSlideName( slidename );
+	if ( slidename.isEmpty() )
+	    slidename.set( toUiString("Slide %1").arg(slideidx+1) );
     }
     else
     {
-	ObjectSet<uiMainWin> windowlist;
-	getTopLevelWindows( windowlist );
-	if ( windowlist.isEmpty() )
-	    return;
-
 	const bool grabdesktop = typegrp_->selectedId()==2;
 	if ( grabdesktop )
 	{
 	    const int screenidx = screenfld_->currentItem();
-	    uiMainWin::grabScreen( imagefnm, "png", -1, screenidx );
+	    grabresult =
+		uiMainWin::grabScreen( imagefnm, "png", -1, screenidx );
 	    slidename = toUiString( screenfld_->text() );
 	}
 	else
 	{
+	    ObjectSet<uiMainWin> windowlist;
+	    uiMainWinTracker::instance().getWindows( windowlist, true );
+	    if ( windowlist.isEmpty() )
+		return;
+
 	    const int selitm = windowfld_->currentItem();
-	    windowlist[selitm]->grab( imagefnm, 1, "png" );
-	    slidename = windowlist[selitm]->caption(true);
+	    if ( windowlist.validIdx(selitm) )
+	    {
+		grabresult = windowlist[selitm]->grab( imagefnm, 1, "png" );
+		slidename = windowlist[selitm]->caption(true);
+	    }
 	}
+    }
+
+    if ( !grabresult )
+    {
+	uiMSG().message( tr("Could not grab image.") );
+	return;
     }
 
     SlideContent* ss = new SlideContent( slidename.getString(), imagefnm);
