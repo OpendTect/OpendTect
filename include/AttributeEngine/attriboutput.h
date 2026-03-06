@@ -41,7 +41,6 @@ class Processor;
 mExpClass(AttributeEngine) Output : public ReferencedObject
 {
 public:
-				Output();
 				mOD_DisableCopy(Output)
 
     virtual void		set2D( bool yn )		{ is2d_ = yn; }
@@ -85,6 +84,7 @@ public:
     virtual uiString		errMsg() const	{ return uiString::empty(); }
 
 protected:
+				Output();
     virtual			~Output();
 
     bool			is2d_;
@@ -148,8 +148,7 @@ protected:
 mExpClass(AttributeEngine) SeisTrcStorOutput : public Output
 { mODTextTranslationClass(Attrib::SeisTrcStorOutput)
 public:
-				SeisTrcStorOutput(const TrcKeyZSampling&,
-						  const Pos::GeomID&);
+				SeisTrcStorOutput(const TrcKeyZSampling&);
 
     virtual bool		doInit();
     bool			getDesiredVolume(
@@ -249,7 +248,7 @@ public:
 protected:
 				~Trc2DVarZStorOutput();
 
-    const TrcKeyZSampling	getCS();
+    const TrcKeyZSampling	getCS(const Pos::GeomID&) const;
 
     RefMan<DataPointSet>	poszvalues_;
     float			stdtrcsz_;

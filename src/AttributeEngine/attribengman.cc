@@ -122,11 +122,8 @@ Processor* EngineMan::usePar( const IOPar& iopar, DescSet& attribset,
 	    tkzs_.init();
 	else
 	{
-	    // doesn't make much sense, but is better than nothing
-	    tkzs_.set2DDef();
-
 	    const Pos::GeomID geomid = Survey::GM().getGeomID( linename );
-	    tkzs_.hsamp_.setGeomID( geomid );
+	    tkzs_.init( geomid );
 	    if ( outpar && outpar->hasKey(sKey::TrcRange()) )
 	    {
 		StepInterval<int> trcrg( 0, 0, 1 );
@@ -147,9 +144,9 @@ Processor* EngineMan::usePar( const IOPar& iopar, DescSet& attribset,
 	}
     }
 
-    const Pos::GeomID geomid = Survey::GM().getGeomID( linename );
-    RefMan<SeisTrcStorOutput> storeoutp =
-				createOutput( iopar, geomid, errmsg );
+    const Pos::GeomID geomid = tkzs_.hsamp_.getGeomID();
+    proc->setGeomID( geomid );
+    RefMan<SeisTrcStorOutput> storeoutp = createOutput( iopar, errmsg );
     if ( !storeoutp )
 	return nullptr;
 
@@ -236,7 +233,6 @@ void EngineMan::setExecutorName( Executor* ex )
 
 
 RefMan<SeisTrcStorOutput> EngineMan::createOutput( const IOPar& pars,
-						   const Pos::GeomID& geomid,
 						   uiString& errmsg )
 {
     const BufferString typestr =
@@ -244,8 +240,7 @@ RefMan<SeisTrcStorOutput> EngineMan::createOutput( const IOPar& pars,
     if ( !typestr.isEqual(sKey::Cube()) )
 	return nullptr;
 
-    RefMan<SeisTrcStorOutput> outp = new SeisTrcStorOutput( tkzs_, geomid );
-    outp->setGeometry( tkzs_ );
+    RefMan<SeisTrcStorOutput> outp = new SeisTrcStorOutput( tkzs_ );
     const bool res = outp->doUsePar( pars );
     if ( !res )
     {
@@ -856,7 +851,7 @@ Processor* EngineMan::createScreenOutput2D( uiString& errmsg,
     Interval<int> trcrg( tkzs_.hsamp_.start_.crl(), tkzs_.hsamp_.stop_.crl() );
     Interval<float> zrg( tkzs_.zsamp_.start_, tkzs_.zsamp_.stop_ );
 
-    TwoDOutput* attrout = new TwoDOutput( trcrg, zrg, geomid_ );
+    auto* attrout = new TwoDOutput( trcrg, zrg, geomid_ );
     attrout->setOutput( output );
     proc->addOutput( attrout );
 
@@ -892,10 +887,9 @@ Processor* EngineMan::createDataPackOutput( uiString& errmsg,
 
 #define mAddAttrOut(todocs) \
 { \
-    DataPackOutput* attrout = new DataPackOutput(todocs); \
-    attrout->setGeometry( todocs ); \
+    RefMan<DataPackOutput> attrout = new DataPackOutput( todocs ); \
     attrout->setUndefValue( udfval_ ); \
-    proc->addOutput( attrout ); \
+    proc->addOutput( attrout.ptr() ); \
 }
 
     Processor* proc = getProcessor(errmsg);
@@ -1112,7 +1106,7 @@ void EngineMan::computeIntersect2D( ObjectSet<BinIDValueSet>& bivsets ) const
     for ( int idx=0; idx<dset.nrLines(); idx++ )
     {
 	PosInfo::Line2DData& linegeom = linesetgeom.addLine(dset.lineName(idx));
-	Pos::GeomID geomid = Survey::GM().getGeomID( dset.lineName(idx) );
+	const Pos::GeomID geomid = Survey::GM().getGeomID( dset.lineName(idx) );
 	const Survey::Geometry* geometry = Survey::GM().getGeometry( geomid );
 	mDynamicCastGet( const Survey::Geometry2D*, geom2d, geometry )
 	if ( geom2d )

@@ -322,6 +322,10 @@ protected:
     virtual bool	initRead_()			{ return true; }
     virtual bool	initWrite_(const SeisTrc&)	{ return true; }
     virtual bool	commitSelections_()		{ return true; }
+    void		getLimits(TrcKeyZSampling&,
+				  const TrcKeyZSampling* limitto=nullptr) const;
+			/*!< Envelope from seldata_ if available, mind
+			     that the actual range may be smaller */
 
 			// These are called from the default write()
     virtual bool	prepareWriteBlock(StepInterval<int>&,bool&)

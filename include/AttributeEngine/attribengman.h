@@ -56,9 +56,6 @@ public:
     static void		addNLADesc(const char*,DescID&,DescSet&,int,
 				   const NLAModel*,uiString&);
 
-    RefMan<SeisTrcStorOutput> createOutput(const IOPar&,const Pos::GeomID&,
-					   uiString&);
-
     const DescSet*	attribSet() const	{ return inpattrset_; }
     const NLAModel*	nlaModel() const	{ return nlamodel_; }
     const TrcKeyZSampling&	cubeSampling() const	{ return tkzs_; }
@@ -136,6 +133,8 @@ protected:
     TypeSet<SelSpec>	attrspecs_;
 
     Processor*		getProcessor(uiString& err);
+    RefMan<SeisTrcStorOutput> createOutput(const IOPar&,uiString&);
+
     void		setExecutorName(Executor*);
 
 private:

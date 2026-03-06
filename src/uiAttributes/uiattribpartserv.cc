@@ -954,21 +954,38 @@ RefMan<RegularSeisDataPack> uiAttribPartServer::createOutputRM(
 	    if ( targetdesc->isStored() )
 	    {
 		const MultiID mid = targetdesc->getStoredID();
-		RefMan<RegularSeisDataPack> sdp = new RegularSeisDataPack(
-				VolumeDataPack::categoryStr(tkzs) );
-
-		const SeisIOObjInfo seisinfo( mid );
-		SeisTrcReader rdr( mid, seisinfo.geomType() );
-		rdr.setSelData( new Seis::RangeSelData(tkzs) );
-		TypeSet<int> selcomps;
-		if ( getCompNrsForStoredTarget(targetspecs_,selcomps) )
+		ConstPtrMan<IOObj> ioobj = IOM().get( mid );
+		if ( ioobj )
 		{
-		    uiTaskRunner uitaskr( parent() );
-		    rdr.setComponents( selcomps );
-		    TaskRunner* taskr = (isz && showzprogress) ? &uitaskr
-								: nullptr;
-		    if ( rdr.getDataPack(*sdp,taskr) )
-			return sdp;
+		    TypeSet<int> selcomps;
+		    if ( getCompNrsForStoredTarget(targetspecs_,selcomps) )
+		    {
+			uiTaskRunner uitaskr( parent() );
+			TaskRunner* taskr = (isz && showzprogress) ? &uitaskr
+								   : nullptr;
+
+			// Very fast for few translators
+			SeisTrcReader trcrdr( *ioobj.ptr() );
+			trcrdr.setSelData( new Seis::RangeSelData(tkzs) );
+			RefMan<RegularSeisDataPack> sdp =
+				new RegularSeisDataPack(
+					    VolumeDataPack::categoryStr(tkzs) );
+			//TODO should be:
+			//if ( trcrdr.getDataPack(*sdp,selcomps,taskr) )
+			if ( trcrdr.getDataPack(*sdp,taskr) )
+			    return sdp;
+
+			sdp = nullptr;
+			// Somewhat fast, but for all formats
+			Seis::SequentialReader seqrdr( *ioobj.ptr(), &tkzs,
+						       &selcomps );
+			if ( TaskRunner::execute(taskr,seqrdr) )
+			{
+			    sdp = seqrdr.getDataPack().getNonConstPtr();
+			    if ( sdp )
+				return sdp;
+			}
+		    }
 		}
 	    }
 
