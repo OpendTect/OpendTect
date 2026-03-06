@@ -1649,7 +1649,10 @@ const ColTab::MapperSetup* HorizonDisplay::getColTabMapperSetup( int ch,
     if ( ch<0 || ch>=nrAttribs() )
 	return nullptr;
 
-    return &coltabmappersetups_[ch];
+    if ( sections_.isEmpty() )
+	return &coltabmappersetups_[ch];
+
+    return sections_[0]->getColTabMapperSetup( ch );
 }
 
 
