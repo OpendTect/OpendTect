@@ -28,11 +28,14 @@ public:
     void		setNullValue(const char*);
     void		setMDRange(const StepInterval<float>&);
     void		setZInFeet( bool yn )		{ zinfeet_ = yn; }
-    void		setColumnWidth( int w )		{ columnwidth_ = w; }
+    void		setColumnWidth(int w);
     void		writeLogName(bool yn)		{ writelognm_ = yn; }
 
     od_int64		totalNr() const  override	{ return totalnr_; }
     od_int64		nrDone() const override		{ return nrdone_; }
+
+    static int		defaultColumnWidth()		{ return 14; }
+    static int		minimumColumnWidth()		{ return 10; }
 
 protected:
     int			nextStep() override;
@@ -57,5 +60,5 @@ protected:
     od_int64		totalnr_			= 1;
     od_int64		nrdone_				= 0;
 
-    int			columnwidth_			= 12;
+    int			columnwidth_			= defaultColumnWidth();
 };
