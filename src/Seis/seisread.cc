@@ -597,13 +597,13 @@ bool SeisTrcReader::getDataPack( RegularSeisDataPack& sdp,
     if ( psioprov_ || is2D() )
 	return false;
 
+    sdp.setZDomain( zDomain() );
     if ( !strl()->readDataPack(sdp,taskr) )
     {
 	errmsg_ = strl()->errMsg();
 	return false;
     }
 
-    sdp.setZDomain( zDomain() );
     return true;
 }
 

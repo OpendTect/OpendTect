@@ -25,7 +25,7 @@ ________________________________________________________________________
 #include "seisinfo.h"
 #include "seisioobjinfo.h"
 #include "seispacketinfo.h"
-#include "seisselection.h"
+#include "seisselectionimpl.h"
 #include "seistrc.h"
 #include "separstr.h"
 #include "sorting.h"
@@ -537,6 +537,68 @@ void SeisTrcTranslator::prepareComponents( SeisTrc& trc, int actualsz ) const
 bool SeisTrcTranslator::forRead() const
 {
     return conn_ ? conn_->forRead() : true;
+}
+
+
+static void snap( const ZSampling& ref, ZSampling& intv )
+{
+    intv.start_ = ref.snap( intv.start_, OD::SnapDownward );
+    intv.stop_ = ref.snap( intv.stop_, OD::SnapUpward );
+}
+
+
+void SeisTrcTranslator::getLimits( TrcKeyZSampling& tkzs,
+				   const TrcKeyZSampling* limittotkzs ) const
+{
+    if ( seldata_ && !seldata_->isAll() )
+    {
+	mDynamicCastGet(const Seis::RangeSelData*,rgseldata,seldata_)
+	if ( rgseldata )
+	    tkzs = rgseldata->cubeSampling();
+	else
+	{
+	    if ( is2D() )
+		tkzs.hsamp_.set( seldata_->geomID(), seldata_->crlRange() );
+	    else
+	    {
+		tkzs.hsamp_.setGeomID( seldata_->geomID() );
+		tkzs.hsamp_.set( seldata_->inlRange(), seldata_->crlRange() );
+	    }
+	}
+
+	if ( forRead() )
+	{
+	    tkzs.zsamp_.setFrom( seldata_->zRange() );
+	    if ( limittotkzs )
+		tkzs.zsamp_.step_ = limittotkzs->zsamp_.step_;
+	}
+	else
+	{
+	    tkzs.zsamp_.start_ = outsd_.start_;
+	    tkzs.zsamp_.stop_ = outsd_.atIndex( outnrsamples_-1 );
+	    tkzs.zsamp_.step_ = outsd_.step_;
+	}
+
+	if ( limittotkzs )
+	{
+	    tkzs.limitTo( *limittotkzs );
+	    snap( limittotkzs->zsamp_, tkzs.zsamp_ );
+	}
+    }
+    else
+    {
+	if ( is2D() )
+	    tkzs.init( curGeomID() );
+	else
+	    tkzs.init( true );
+
+	if ( !forRead() )
+	{
+	    tkzs.zsamp_.start_ = outsd_.start_;
+	    tkzs.zsamp_.stop_ = outsd_.atIndex( outnrsamples_-1 );
+	    tkzs.zsamp_.step_ = outsd_.step_;
+	}
+    }
 }
 
 

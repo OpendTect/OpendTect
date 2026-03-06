@@ -287,10 +287,10 @@ bool testHorizon3DOutput( RefMan<EM::EMObject> emobj, int survidx,
     if ( !hor )
 	return false;
 
-    const float z1 = hor->getPos(mHorizon3DBinID_1.toInt64()).z_;
-    mRunStandardTest( !mIsUdf(z1),mMsg("Horizon 3D position is defined") );
-    const float z2 = hor->getPos(mHorizon3DBinID_2.toInt64()).z_;
-    mRunStandardTest( !mIsUdf(z2),mMsg("Horizon 3D position is defined") );
+    const float z1 = hor->getZ( mHorizon3DBinID_1 );
+    mRunStandardTest( !mIsUdf(z1),mMsg("Horizon 3D position 1 is defined") );
+    const float z2 = hor->getZ( mHorizon3DBinID_2 );
+    mRunStandardTest( !mIsUdf(z2),mMsg("Horizon 3D position 2 is defined") );
     const float* zvals = zvalues_hor3d[survidx][zatfidx];
 
     BufferString readvalstr( "Z-Values read: [" );
