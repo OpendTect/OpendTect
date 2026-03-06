@@ -201,7 +201,7 @@ void SceneColTab::setNumLabels( int num )
 	{
 	    const int minlabels = sequence_.hasEqualSegments() ?
 				  sequence_.nrSegments()+1 : cMinLabels;
-	    osgColorBar()->setNumLabels(std::max(num, minlabels));
+	    osgColorBar()->setNumLabels( std::max(num, minlabels) );
 	}
 	else
 	    osgColorBar()->setNumLabels( cMinLabels );
@@ -212,7 +212,7 @@ void SceneColTab::setNumLabels( int num )
 	{
 	    const int minlabels = sequence_.hasEqualSegments() ?
 				  sequence_.nrSegments()+1 : cMinLabels;
-	    osgColorBar()->setNumLabels(std::max(num, minlabels));
+	    osgColorBar()->setNumLabels( std::max(num, minlabels) );
 	}
 	else
 	    osgColorBar()->setNumLabels(cMinLabels);
