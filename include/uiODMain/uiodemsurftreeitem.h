@@ -88,6 +88,7 @@ public:
 
     void		setDataPointSet(const DataPointSet&);
     void		selectAndLoadAuxData();
+    void		selectAndLoadData();
 
 protected:
 			~uiODEarthModelSurfaceDataTreeItem();

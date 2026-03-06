@@ -9,6 +9,8 @@ ________________________________________________________________________
 
 #include "uiodemsurftreeitem.h"
 
+#include "attribdescsetman.h"
+#include "attribdescsetsholder.h"
 #include "datapointset.h"
 #include "emhorizon3d.h"
 #include "emhorizonztransform.h"
@@ -23,8 +25,8 @@ ________________________________________________________________________
 
 #include "uiattribpartserv.h"
 #include "uiemattribpartserv.h"
+#include "uiemattrsel.h"
 #include "uiempartserv.h"
-#include "uimenuhandler.h"
 #include "uimpepartserv.h"
 #include "uimsg.h"
 #include "uinotsaveddlg.h"
@@ -277,7 +279,6 @@ VisID uiODEarthModelSurfaceTreeItem::reloadEMObject()
 
 void uiODEarthModelSurfaceTreeItem::handleMenuCB( CallBacker* cb )
 {
-    uiODDisplayTreeItem::handleMenuCB(cb);
     mCBCapsuleUnpackWithCaller( int, mnuid, caller, cb );
     mDynamicCastGet(MenuHandler*,menu,caller);
     if ( menu->isHandled() || !isDisplayID(menu->menuID()) || mnuid==-1 )
@@ -288,6 +289,18 @@ void uiODEarthModelSurfaceTreeItem::handleMenuCB( CallBacker* cb )
     mps->setCurrentAttribDescSet( applMgr()->attrServer()->curDescSet(false) );
     mps->setCurrentAttribDescSet( applMgr()->attrServer()->curDescSet(true) );
 
+    if ( mnuid==addattribmnuitem_.id )
+    {
+	menu->setIsHandled( true );
+	uiODDataTreeItem* itm = addAttribItem();
+	mDynamicCastGet(uiODEarthModelSurfaceDataTreeItem*,emitm,itm)
+	if ( emitm )
+	    emitm->selectAndLoadData();
+
+	return;
+    }
+
+    uiODDisplayTreeItem::handleMenuCB(cb);
     if ( mnuid==savemnuitem_.id )
     {
 	menu->setIsHandled( true );
@@ -724,6 +737,33 @@ void uiODEarthModelSurfaceDataTreeItem::selectAndLoadAuxData()
     vishor->setAttribShift( attribNr(), shifts );
 
     updateColumnText( uiODSceneMgr::cNameColumn() );
+    updateColumnText( uiODSceneMgr::cColorColumn() );
+}
+
+
+void uiODEarthModelSurfaceDataTreeItem::selectAndLoadData()
+{
+    Attrib::DescSetMan* adsman = Attrib::eDSHolder().getDescSetMan( false );
+    if ( !adsman || !adsman->descSet() )
+	return;
+
+    const MultiID mid = applMgr()->EMServer()->getStorageID( emid_ );
+
+    const int attrib = attribNr();
+    uiAttrSelData ad( *adsman->descSet() );
+    uiString txt = tr("Select Data");
+    visserv_->getAttribPosName( displayID(), attrib, txt );
+    uiEMAttrSelDlg dlg( ODMainWin(), ad, mid,
+			uiEMAttrSelDlg::Setup(txt).showsteeringdata(true) );
+    if ( !dlg.go() )
+	return;
+
+    Attrib::SelSpec as;
+    dlg.fillSelSpec( as );
+    visserv_->setSelSpec( displayID(), attrib, as );
+    applMgr()->calcRandomPosAttrib( displayID(), attrib );
+    updateColumnText( uiODSceneMgr::cNameColumn() );
+    updateColumnText( uiODSceneMgr::cColorColumn() );
 }
 
 
@@ -744,6 +784,7 @@ void uiODEarthModelSurfaceDataTreeItem::setDataPointSet(
     visserv->setRandomPosData( visid, attribnr, &vals );
     visserv->selectTexture( visid, attribnr, 0 );
     updateColumnText( uiODSceneMgr::cNameColumn() );
+    updateColumnText( uiODSceneMgr::cColorColumn() );
 }
 
 
