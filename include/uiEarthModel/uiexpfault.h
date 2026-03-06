@@ -10,19 +10,17 @@ ________________________________________________________________________
 
 #include "uiearthmodelmod.h"
 #include "uidialog.h"
-#include "uicoordsystem.h"
-#include "emobject.h"
+
 #include "multiid.h"
 
-class StreamData;
 class uiCheckBox;
 class uiCheckList;
+class uiFaultSel;
 class uiFileInput;
 class uiGenInput;
-class uiIOObjSel;
-class uiIOObjSelGrp;
 class uiMultiSurfaceRead;
 class uiUnitSel;
+namespace Coords { class uiCoordSystemSel; }
 
 
 /*! \brief Dialog for horizon export */
@@ -39,7 +37,8 @@ protected:
 
     uiMultiSurfaceRead* multisurfdepthread_		= nullptr;
     uiMultiSurfaceRead* multisurftimeread_		= nullptr;
-    uiIOObjSel*		infld_			= nullptr;
+    uiFaultSel*		timefld_		= nullptr;
+    uiFaultSel*		depthfld_		= nullptr;
     uiGenInput*		zdomypefld_		= nullptr;
     uiGenInput*		coordfld_;
     uiCheckList*	stickidsfld_;
