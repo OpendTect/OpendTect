@@ -125,6 +125,9 @@ inline T& getNonConst( const T& t )
 #define mDeg2RadF		0.017453292519943292f
 #define mRad2DegF		57.295779513082323f
 
+#define mGoldenRatioF		1.618034f
+#define mGoldenRatioD		1.618033988749895
+
 //--- File size-related constants
 
 #define mDef1KB 1024ULL

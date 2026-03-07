@@ -301,13 +301,13 @@ inline uiRect uiBorder::getRect( const uiRect& rect, int extr ) const
 
 inline int GetGoldenMajor( int inp )
 {
-    const float val = inp * mGoldenRatio;
+    const float val = inp * mGoldenRatioF;
     return inp > 0 ? (int)(val+.5f) : (int)(val - .5f);
 }
 
 static const float cGoldenRatio = 1.618034f;
 inline int GetGoldenMinor( int inp )
 {
-    const float val = inp / mGoldenRatio;
+    const float val = inp / mGoldenRatioF;
     return inp > 0 ? (int)(val+.5f) : (int)(val - .5f);
 }
