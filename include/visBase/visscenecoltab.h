@@ -16,6 +16,22 @@ class FontData;
 namespace ColTab { class MapperSetup; }
 
 namespace osg { class Geode; }
+namespace osgGeo { class ScalarBar; }
+
+
+struct ColorBarBounds {
+    // Horizontal constraints
+    static constexpr int minHorWidth()	    { return 350; }
+    static constexpr int maxHorWidth()	    { return 1000; }
+    static constexpr int minHorHeight()     { return 20; }
+    static constexpr int maxHorHeight()     { return 35; }
+
+    // Vertical constraints
+    static constexpr int minVertWidth()     { return 20; }
+    static constexpr int maxVertWidth()     { return 80; }
+    static constexpr int minVertHeight()    { return 350; }
+    static constexpr int maxVertHeight()    { return 800; }
+};
 
 
 namespace visBase
@@ -48,6 +64,11 @@ public:
     void		setSize(int w,int h);
     Geom::Size2D<int>	getSize();
 
+    int			getLabelCharSize();
+
+    int			getMinLabelWidth();
+    int			getMinLabelHeight();
+
     void		setPixelDensity(float dpi) override;
 
     const ColTab::Sequence& getColTabSequence() const { return sequence_; }
@@ -62,6 +83,8 @@ protected:
     void		setNumLabels(int numoflbls);
 
     osg::Geode*		osgcolorbar_;
+    const osgGeo::ScalarBar* osgColorBar() const;
+    osgGeo::ScalarBar*	osgColorBar();
     ColTab::Sequence	sequence_;
     Interval<float>	rg_;
     Pos			pos_		= Pos::Bottom;
