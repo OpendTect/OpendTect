@@ -89,7 +89,7 @@ void uiEMAttrSelDlg::initAndBuild( const uiString& seltxt,
 	uiButton* but = uiIOObjInserter::createInsertButton( this, *ctio,
 							    inserters_, nms );
 	for ( auto* inserter : inserters_ )
-	    mAttachCB( inserter->objInserted, uiEMAttrSelDlg::objInserted );
+	    mAttachCB( inserter->objInserterd, uiEMAttrSelDlg::objInserted );
 
 	but->attach( ensureBelow, selgrp_ );
     }
