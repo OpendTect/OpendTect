@@ -323,8 +323,7 @@ void MeasureToolMan::lineStyleChangeCB( CallBacker* )
 	    continue;
 
 	OD::LineStyle ls( measuredlg_->getLineStyle() );
-	ps->disp3d().markerstyle_.color_ = ls.color_;
-	ps->disp3d().markerstyle_.size_ = ls.width_;
+	ps->disp3d().polyDisp()->linestyle_ = ls;
 	picksetmgr_.reportDispChange( this, *ps );
     }
 }
