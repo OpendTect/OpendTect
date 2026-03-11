@@ -1127,6 +1127,9 @@ bool Set::usePar( const IOPar& par )
 	startidxs_ = startidx;
 
     const ZDomain::Info* zinfo = ZDomain::Info::getFrom( par );
+    if ( !zinfo )
+	zinfo = UnitOfMeasure::zDomain( par ); //Legacy
+
     if ( zinfo )
 	setZDomain( *zinfo );
 

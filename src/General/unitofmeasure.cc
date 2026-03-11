@@ -14,6 +14,7 @@ ________________________________________________________________________
 #include "file.h"
 #include "filepath.h"
 #include "ioman.h"
+#include "keystrs.h"
 #include "od_iostream.h"
 #include "separstr.h"
 #include "survinfo.h"
@@ -329,6 +330,26 @@ const UnitOfMeasure* UnitOfMeasure::zUnit( const ZDomain::Info& zinfo,
 	return meterUnit();
     if ( zinfo.isDepthFeet() )
 	return feetUnit();
+
+    return nullptr;
+}
+
+
+const ZDomain::Info* UnitOfMeasure::zDomain( const IOPar& par )
+{
+    const BufferString zunitstr = par.find( sKey::ZUnit() );
+    if ( zunitstr.isEmpty() )
+	return nullptr;
+    const UnitOfMeasure* zuom = UoMR().get( zunitstr.str() );
+    if ( !zuom )
+	return nullptr;
+
+    if ( zuom == secondsUnit() )
+	return &ZDomain::TWT();
+    else if ( zuom == meterUnit() )
+	return &ZDomain::DepthMeter();
+    else if ( zuom == feetUnit() )
+	return &ZDomain::DepthFeet();
 
     return nullptr;
 }

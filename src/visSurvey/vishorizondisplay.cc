@@ -645,11 +645,15 @@ bool HorizonDisplay::canShowTexture() const
 
 
 bool HorizonDisplay::displayedOnlyAtSections() const
-{ return displayonlyatsections_; }
+{
+    return EMObjectDisplay::displayedOnlyAtSections();
+}
 
 
 bool HorizonDisplay::canHaveMultipleAttribs() const
-{ return true; }
+{
+    return true;
+}
 
 
 int HorizonDisplay::nrTextures( int channel ) const
@@ -908,7 +912,7 @@ void HorizonDisplay::setSelSpecs(
 class ZValSetter : public ParallelTask
 {
 public:
-ZValSetter( BinIDValueSet& bivs, int zcol, ZAxisTransform* zat )
+ZValSetter( BinIDValueSet& bivs, int zcol, const ZAxisTransform* zat )
     : ParallelTask()
     , bivs_(bivs), zcol_(zcol), zat_(zat)
 {
@@ -922,17 +926,19 @@ protected:
 
 bool doWork( od_int64 start, od_int64 stop, int thread ) override
 {
-    for ( int idx=mCast(int,start); idx<=mCast(int,stop); idx++ )
+    const ZAxisTransform* zat = zat_.ptr();
+    for ( od_int64 idx=start; idx<=stop; idx++ )
     {
-	const BinID bid = hs_.atIndex( idx );
-	BinIDValueSet::SPos pos = bivs_.findOccurrence( bid );
-	if ( !pos.isValid() ) continue;
+	const TrcKey tk = hs_.trcKeyAt( idx );
+	BinIDValueSet::SPos pos = bivs_.findOccurrence( tk.position() );
+	if ( !pos.isValid() )
+	    continue;
 
 	float* vals = bivs_.getVals(pos);
-	if ( !vals ) continue;
+	if ( !vals )
+	    continue;
 
-	vals[zcol_] = zat_ ? zat_->transform( BinIDValue(bid,vals[0]) )
-			   : vals[0];
+	vals[zcol_] = zat ? zat->transformTrc( tk, vals[0] ) : vals[0];
     }
 
     return true;
@@ -940,8 +946,8 @@ bool doWork( od_int64 start, od_int64 stop, int thread ) override
 
     BinIDValueSet&	bivs_;
     int			zcol_;
-    RefMan<ZAxisTransform> zat_;
-    HorSampling		hs_;
+    ConstRefMan<ZAxisTransform> zat_;
+    TrcKeySampling	hs_;
 
 };
 
@@ -1211,7 +1217,7 @@ void HorizonDisplay::setTranslation( const Coord3& nt )
 
     translation_->setTranslation( shift );
     translationpos_ = nt;
-    setOnlyAtSectionsDisplay( displayonlyatsections_ );		/* retrigger */
+    setOnlyAtSectionsDisplay( displayedOnlyAtSections() ); /* retrigger */
 }
 
 
@@ -1310,7 +1316,7 @@ bool HorizonDisplay::addSection( const EM::SectionID& sid, TaskRunner* trans )
 
     addChild( surf->osgNode() );
 
-    surf->turnOn( !displayonlyatsections_ );
+    surf->turnOn( !displayedOnlyAtSections() );
 
     sections_ += surf.ptr();
     secnames_ += emobject_->name();
@@ -1355,8 +1361,6 @@ void HorizonDisplay::setOnlyAtSectionsDisplay( bool yn )
 	section->turnOn( !yn );
 
     EMObjectDisplay::setOnlyAtSectionsDisplay( yn );
-    displayonlyatsections_ = yn;
-
     mDynamicCastGet(const EM::Horizon3D*,hor3d,emobject_.ptr())
     if ( !hor3d )
 	return;
@@ -1364,10 +1368,10 @@ void HorizonDisplay::setOnlyAtSectionsDisplay( bool yn )
     const bool showlock = showlock_ && hor3d->hasLockedNodes();
 
     if ( lockedpts_ && lockedpts_->size()>0 )
-	lockedpts_->turnOn( showlock && !displayonlyatsections_ );
+	lockedpts_->turnOn( showlock && !displayedOnlyAtSections() );
 
     if ( sectionlockedpts_ )
-	sectionlockedpts_->turnOn( showlock && displayonlyatsections_ );
+	sectionlockedpts_->turnOn( showlock && displayedOnlyAtSections() );
 }
 
 
@@ -1442,7 +1446,7 @@ void HorizonDisplay::handleEmChange( const EM::EMObjectCallbackData& cbdata )
 	// if it is locked, we do nothing
 	mDynamicCastGet( const EM::Horizon3D*, hor3d, emobject_.ptr() )
 	const bool locked = hor3d ? hor3d->hasLockedNodes() : false;
-	if ( locked && !displayonlyatsections_ )
+	if ( locked && !displayedOnlyAtSections() )
 	{
 	    updateLockedPointsColor();
 	    return;
@@ -1993,7 +1997,7 @@ void HorizonDisplay::updateIntersectionLines(
     if ( !doall && objidx < 0 )
 	return;
 
-    if ( isOn() && (displayonlyatsections_ || displayintersectionlines_) )
+    if ( isOn() && (displayedOnlyAtSections() || displayintersectionlines_) )
     {
 	const int size = doall ? objs.size() : 1;
 	for ( int idx=0; idx<size; idx++ )
@@ -2127,7 +2131,7 @@ void HorizonDisplay::updateSectionSeeds(
 
 	for ( int idy=0; idy<markerset->getCoordinates()->size(); idy++ )
 	{
-	    markerset->turnMarkerOn( idy,!displayonlyatsections_ );
+	    markerset->turnMarkerOn( idy, !displayedOnlyAtSections() );
 	    const visBase::Coordinates* markercoords =
 					markerset->getCoordinates();
 	    if ( markercoords->size() )
@@ -2161,7 +2165,7 @@ void HorizonDisplay::updateSectionSeeds(
     // handle locked points on section
     mDynamicCastGet(const EM::Horizon3D*,hor3d,emobject_.ptr())
     if ( !hor3d || !lockedpts_ ||
-	 lockedpts_->size()<=0 || !displayonlyatsections_ )
+	 lockedpts_->size()<=0 || !displayedOnlyAtSections() )
 	return;
 
     if ( !sectionlockedpts_ )
@@ -2204,7 +2208,7 @@ void HorizonDisplay::updateSectionSeeds(
     lockedpts_->turnOn( false );
     sectionlockedpts_->turnOn( showlock_ &&
 			       hor3d->hasLockedNodes() &&
-			       displayonlyatsections_ );
+			       displayedOnlyAtSections() );
 }
 
 
@@ -2341,10 +2345,10 @@ void HorizonDisplay::showLocked( bool yn )
     const bool showlock = yn && hor3d->hasLockedNodes();
 
     if ( lockedpts_ )
-	lockedpts_->turnOn( showlock && !displayonlyatsections_ );
+	lockedpts_->turnOn( showlock && !displayedOnlyAtSections() );
 
     if ( sectionlockedpts_ )
-	sectionlockedpts_->turnOn( showlock && displayonlyatsections_ );
+	sectionlockedpts_->turnOn( showlock && displayedOnlyAtSections() );
 
     updateLockedPointsColor();
 }

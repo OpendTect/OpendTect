@@ -142,7 +142,10 @@ bool MuteDef::usePar( const IOPar& par )
 	offsettype_ = offsettype;
 
     const ZDomain::Info* zinfo = ZDomain::Info::getFrom( par );
-    if ( zinfo && (zinfo->isTime() || zinfo->isDepth()) )
+    if ( !zinfo )
+	zinfo = UnitOfMeasure::zDomain( par ); // Legacy
+
+    if ( zinfo )
 	setZDomain( *zinfo );
 
     return true;

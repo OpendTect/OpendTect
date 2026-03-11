@@ -85,6 +85,7 @@ dgbSurfaceReader::dgbSurfaceReader( const IOObj& ioobj,
     : ExecutorGroup( "Surface Reader" )
     , filename_(ioobj.fullUserExpr(true))
 {
+    zinfo_ = ZDomain::Info::getFrom( ioobj.pars() );
     init( filetype, ioobj.name() );
 }
 
@@ -95,6 +96,7 @@ dgbSurfaceReader::dgbSurfaceReader( const char* fulluserexp,
     : ExecutorGroup( "Surface Reader" )
     , filename_(fulluserexp)
 {
+    zinfo_ = nullptr;
     init( filetype, objname );
 }
 
@@ -103,7 +105,6 @@ dgbSurfaceReader::dgbSurfaceReader( const char* fulluserexp,
 void dgbSurfaceReader::init( const char* filetype, const char* objname )
 {
     zrange_ = Interval<float>(mUdf(float),mUdf(float));
-    zinfo_ = &SI().zDomainInfo();
     linenames_.setNullAllowed();
 
     BufferString exnm( "Reading surface '", objname, "'" );
@@ -335,9 +336,12 @@ bool dgbSurfaceReader::readHeaders( StreamConn& conn, const char* filetype )
     linenames_.setEmpty();
     par_->get( Horizon2DGeometry::sKeyLineNames(), linenames_ );
 
-    const ZDomain::Info* info = ZDomain::Info::getFrom( *par_ );
-    if ( info && info != zinfo_ )
-	zinfo_ = info;
+    const ZDomain::Info* zinfo = ZDomain::Info::getFrom( *par_ );
+    if ( !zinfo )
+	zinfo = UnitOfMeasure::zDomain( *par_ );
+
+    if ( zinfo && !zinfo_ )
+	zinfo_ = zinfo;
 
     TypeSet< StepInterval<int> > trcranges;
     const int res = scanFor2DGeom( trcranges );
@@ -532,7 +536,7 @@ const Interval<float>& dgbSurfaceReader::zInterval() const
 
 const ZDomain::Info& dgbSurfaceReader::zDomain() const
 {
-    return *zinfo_;
+    return zinfo_ ? *zinfo_ : SI().zDomainInfo();
 }
 
 
