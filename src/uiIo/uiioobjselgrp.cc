@@ -1133,7 +1133,7 @@ void uiIOObjSelGrp::fillListBox()
 
     listfld_->setEmpty();
     listfld_->addItems( dataset_.getDispNms() );
-    listfld_->resizeHeightToContents();
+    listfld_->resizeToContents();
     if ( requireIcon() )
     {
 	const BufferStringSet& iconnm = dataset_.getIconNms();
