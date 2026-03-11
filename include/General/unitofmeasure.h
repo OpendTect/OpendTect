@@ -107,6 +107,7 @@ public:
     static const UnitOfMeasure* offsetUnit(Seis::OffsetType);
     static const UnitOfMeasure* angleUnit(OD::AngleType);
     static const UnitOfMeasure* zUnit(const ZDomain::Info&,bool storage=true);
+    static const ZDomain::Info* zDomain(const IOPar&);
 
     static uiString	surveyDefZUnitAnnot(bool symbol,bool withparens);
     static uiString	surveyDefTimeUnitAnnot(bool symbol,bool withparens);

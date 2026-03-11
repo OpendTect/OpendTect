@@ -20,6 +20,7 @@ ________________________________________________________________________
 #include "ioman.h"
 #include "streamconn.h"
 #include "uistrings.h"
+#include "zdomain.h"
 
 static const char* sKeyPBMFSetup = "PBMF setup";
 
@@ -84,6 +85,13 @@ bool MuteDefTranslator::retrieve( PreStack::MuteDef& md, const IOObj* ioobj,
     }
 
     msg = mdtrl->read( md, *conn );
+    if ( msg.isEmpty() )
+    {
+	const ZDomain::Info* zinfo = ZDomain::Info::getFrom( ioobj->pars() );
+	if ( zinfo )
+	    md.setZDomain( *zinfo );
+    }
+
     return msg.isEmpty();
 }
 

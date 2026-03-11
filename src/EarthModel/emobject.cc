@@ -804,9 +804,12 @@ bool EMObject::usePar( const IOPar& par )
 	}
     }
 
-    const ZDomain::Info* dominfo = ZDomain::Info::getFrom( par );
-    if ( dominfo )
-	setZDomain( *dominfo );
+    const ZDomain::Info* zinfo = ZDomain::Info::getFrom( par );
+    if ( !zinfo )
+	zinfo = UnitOfMeasure::zDomain( par ); //Legacy
+
+    if ( zinfo && zinfo != &zDomain() )
+	setZDomain( *zinfo );
 
     return true;
 }

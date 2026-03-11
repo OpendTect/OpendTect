@@ -511,7 +511,10 @@ void Picks::fillPar( IOPar& par ) const
 bool Picks::usePar( const IOPar& par )
 {
     const ZDomain::Info* zinfo = ZDomain::Info::getFrom( par );
-    if ( zinfo && (zinfo->isTime() || zinfo->isDepth()) )
+    if ( !zinfo )
+	zinfo = UnitOfMeasure::zDomain( par ); // Legacy
+
+    if ( zinfo )
 	setZDomain( *zinfo );
 
     const BufferString typestr = par.find( sKeyPickType() );

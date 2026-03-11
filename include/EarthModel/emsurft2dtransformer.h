@@ -66,7 +66,11 @@ protected:
     virtual OD::Pol2D3D		dataTypeSupported() { return OD::Both2DAnd3D; }
     bool			do3DHorizon(const EM::EMObject&,Surface&);
 
+    bool			addVolumeOfInterest(const TrcKeyZSampling&,
+						    const ZDomain::Info&);
+    mDeprecated("Use addVolumeOfInterest")
     void			load3DTranformVol(const TrcKeyZSampling*);
+    mDeprecated("Use addVolumeOfInterest")
     bool			load2DVelCubeTransf(const Pos::GeomID&,
 					    const StepInterval<int>&);
     void			unloadModel();
@@ -207,13 +211,20 @@ protected:
     const StringView	    getTypeString() const override;
 
     bool	    handle2DTransformation(const EM::FaultStickSetGeometry&,
-						EM::FaultStickSet&);
+					   const ZDomain::Info&,
+					   EM::FaultStickSet&);
     bool	    handle3DTransformation(const EM::FaultStickSetGeometry&,
-						EM::FaultStickSet&);
+					   const ZDomain::Info&,
+					   EM::FaultStickSet&);
+    mDeprecated("Provide ZDomain::Info")
+    bool	    handle2DTransformation(const EM::FaultStickSetGeometry&,
+					   EM::FaultStickSet&);
+    mDeprecated("Provide ZDomain::Info")
+    bool	    handle3DTransformation(const EM::FaultStickSetGeometry&,
+					   EM::FaultStickSet&);
     bool	    doTransformation(const Geometry::FaultStick*,int,
-						EM::FaultStickSet&,
-						const Pos::GeomID&
-							=Pos::GeomID::udf());
+				     EM::FaultStickSet&,
+				     const Pos::GeomID& =Pos::GeomID::udf());
 
 };
 }

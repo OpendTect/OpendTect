@@ -256,7 +256,7 @@ bool SeisTrcTranslator::commitSelections()
 	    seldatazdom = &selinf.zDomainDef();
 	}
 
-	if ( seldatazdom != &SI().zDomain() )
+	if ( seldatazdom == &SI().zDomain() )
 	{
 	    const Interval<float> sizrg( SI().sampling(false).zsamp_ );
 	    if ( !mIsEqual(selzrg.start_,sizrg.start_,1e-8) ||
@@ -267,6 +267,13 @@ bool SeisTrcTranslator::commitSelections()
 					/ outsd_.step_;
 		outnrsamples_ = mNINT32(fnrsteps) + 1;
 	    }
+	}
+	else if ( !mIsUdf(selzrg.stop_) )
+	{
+	    outsd_.start_ = selzrg.start_;
+	    const float fnrsteps = (selzrg.stop_-selzrg.start_)
+				    / outsd_.step_;
+	    outnrsamples_ = mNINT32(fnrsteps) + 1;
 	}
     }
 
