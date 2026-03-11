@@ -17,8 +17,9 @@ ________________________________________________________________________
 
 #include <osg/Geode>
 #include <osg/Geometry>
-#include <osgSim/ColorRange>
 #include <osg/Version>
+#include <osgGeo/ScalarBar>
+#include <osgSim/ColorRange>
 
 mCreateFactoryEntry( visBase::SceneColTab );
 

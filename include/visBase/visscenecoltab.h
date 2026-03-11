@@ -10,7 +10,6 @@ ________________________________________________________________________
 
 #include "visobject.h"
 #include "coltabsequence.h"
-#include <osgGeo/ScalarBar>
 
 class FontData;
 class VisColorTab;
@@ -18,6 +17,7 @@ class VisColorTab;
 namespace ColTab { class MapperSetup; }
 
 namespace osg { class Geode; }
+namespace osgGeo { class ScalarBar; }
 
 
 struct ColorBarBounds {
