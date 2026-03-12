@@ -118,6 +118,7 @@ protected:
     BinIDValueSet&	bvs_;
     Interval<float>	extraz_;
     Interval<float>	fixedzrange_; // used only if no z vals in bidvalset
+    Interval<float>	zrange_			= StepInterval<float>::udf();
 
     void		doExtendH(BinID,BinID) override;
     int			selRes3D(const BinID&) const override;
