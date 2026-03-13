@@ -37,11 +37,11 @@ protected:
 				uiSeisWvltSliderDlg(uiParent*,Wavelet&);
 
     WaveletAttrib*		wvltattr_;
-    uiSlider*			sliderfld_;
+    uiSlider*			sliderfld_		= nullptr;
     Wavelet*			wvlt_;
     const Wavelet*		orgwvlt_;
 
-    virtual void		act(CallBacker*) {}
+    virtual void		actCB(CallBacker*) {}
     void			constructSlider(uiSlider::Setup&,
 						const Interval<float>&);
 };
@@ -55,7 +55,7 @@ public:
 
 protected:
 
-    void			act(CallBacker*) override;
+    void			actCB(CallBacker*) override;
 };
 
 
@@ -66,7 +66,7 @@ public:
 				~uiSeisWvltTaperDlg();
 protected:
 
-    bool			isfreqtaper_;
+    bool			isfreqtaper_		= false;
     int				wvltsz_;
 
     Array1DImpl<float>*		wvltvals_;
@@ -74,8 +74,8 @@ protected:
     Interval<float>		timerange_;
     Interval<float>		freqrange_;
 
-    uiFuncTaperDisp*		timedrawer_;
-    uiFuncTaperDisp*		freqdrawer_;
+    uiFuncTaperDisp*		timedrawer_		= nullptr;
+    uiFuncTaperDisp*		freqdrawer_		= nullptr;
     uiFreqTaperGrp*		freqtaper_;
 
     uiGenInput*			typefld_;
@@ -84,8 +84,8 @@ protected:
     void			setFreqData();
     void			setTimeData();
 
-    void			act(CallBacker*) override;
-    void			typeChoice(CallBacker*);
+    void			actCB(CallBacker*) override;
+    void			typeChoiceCB(CallBacker*);
 };
 
 

@@ -9,20 +9,21 @@ ________________________________________________________________________
 -*/
 
 #include "uiseismod.h"
+#include "uibutton.h"
 #include "uidialog.h"
 #include "uifuncdispbase.h"
 #include "uiwindowfunctionsel.h"
-#include "uibutton.h"
+
 #include "survinfo.h"
 #include "arrayndalgo.h"
 #include <arrayndimpl.h>
 #include "uistring.h"
 
-class uiGenInput;
+class uiFreqTaperGrp;
 class uiFuncTaperDisp;
+class uiGenInput;
 class uiSliceSelDlg;
 class uiSlider;
-class uiFreqTaperGrp;
 
 class ArrayNDWindow;
 class TrcKeyZSampling;
@@ -30,18 +31,18 @@ class TrcKeyZSampling;
 
 mStruct(uiSeis) FreqTaperSetup
 {
-		    FreqTaperSetup();
-		    FreqTaperSetup(const FreqTaperSetup&);
-		    ~FreqTaperSetup();
+			FreqTaperSetup();
+			FreqTaperSetup(const FreqTaperSetup&);
+			~FreqTaperSetup();
 
-    const char*		seisnm_;
-    const char*		attrnm_; //2D
-    bool		hasmin_;
-    bool		hasmax_;
+    const char*		seisnm_			= nullptr;
+    const char*		attrnm_			= nullptr; //2D
+    bool		hasmin_			= false;
+    bool		hasmax_			= true;
     Interval<float>	minfreqrg_;
     Interval<float>	maxfreqrg_;
-    bool		allfreqssetable_;
-    MultiID		multiid_;
+    bool		allfreqssetable_	= false;
+    MultiID		multiid_		= MultiID::udf();
 };
 
 
@@ -105,7 +106,7 @@ public:
     void		setWindows(float,float rightvar=0);
     void		setFunction(Array1DImpl<float>&,Interval<float>);
 
-    ArrayNDWindow*	window() const { return window_; }
+    ArrayNDWindow*	window() const		{ return window_; }
 
     float*		getWinValues() const
 			{ return window_ ? window_->getValues() : 0; }
@@ -113,7 +114,8 @@ public:
 			{ return funcvals_ ? funcvals_->getData() : 0; }
 
     void		adaptFreqRangesToDataSize(bool,bool);
-    void		taperChged(CallBacker*);
+
+    void		updateDisplay();
 
     TaperData&		leftTaperData()		{ return leftd_; }
     TaperData&		rightTaperData()	{ return rightd_; }
@@ -124,14 +126,17 @@ public:
     Notifier<uiFuncTaperDisp> taperChanged;
 
 protected:
+
+    void		taperChangedCB(CallBacker*);
+
     uiFuncDispBase*	disp_;
     TaperData		leftd_;
     TaperData		rightd_;
 
-    ArrayNDWindow*	window_;
+    ArrayNDWindow*	window_			= nullptr;
 
-    Array1DImpl<float>* funcvals_;
-    Array1DImpl<float>* orgfuncvals_;
+    Array1DImpl<float>* funcvals_		= nullptr;
+    Array1DImpl<float>* orgfuncvals_		= nullptr;
     Interval<float>	funcdisprg_;
 
     bool		is2sided_;
@@ -153,7 +158,8 @@ public:
 
     void		setFreqRange(Interval<float>);
     Interval<float>	getFreqRange() const;
-    void		taperChged(CallBacker*);
+
+    void		taperChanged();
 
 protected :
 
@@ -161,7 +167,7 @@ protected :
     TaperData		td2_;
 
     uiGenInput*		varinpfld_;
-    uiGenInput*		freqinpfld_;
+    uiGenInput*		freqinpfld_		= nullptr;
     uiGenInput*		inffreqfld_;
     uiGenInput*		supfreqfld_;
     uiSlider*		sliderfld_;
@@ -177,11 +183,12 @@ protected :
     void		setPercentsFromFreq();
     void		setFreqFromSlope(float);
 
-    void		freqChoiceChged(CallBacker*);
-    void		freqChanged(CallBacker*);
-    void		putToScreen(CallBacker*);
-    void		sliderChanged(CallBacker*);
-    void		slopeChanged(CallBacker*);
+    void		freqChangedCB(CallBacker*);
+    void		freqInpChgdCB(CallBacker*);
+    void		putToScreenCB(CallBacker*);
+    void		sliderChangedCB(CallBacker*);
+    void		slopeChangedCB(CallBacker*);
+    void		taperChangedCB(CallBacker*);
 };
 
 
@@ -200,16 +207,17 @@ protected:
 
     uiFreqTaperGrp*	tapergrp_;
     uiFuncTaperDisp*    drawer_;
-    Array1DImpl<float>* funcvals_;
+    Array1DImpl<float>* funcvals_		= nullptr;
 
     const char*		seisnm_;
     const char*		attrnm_;
     uiPushButton*	previewfld_;
-    uiSliceSelDlg*	posdlg_;
+    uiSliceSelDlg*	posdlg_			= nullptr;
     TrcKeyZSampling*	tkzs_;
     MultiID		seisid_;
 
-    void		previewPushed(CallBacker*);
+    void		postFinalizeCB(CallBacker*);
+    void		previewPushedCB(CallBacker*);
 };
 
 
@@ -231,10 +239,10 @@ public:
 
 protected :
 
-    uiFreqTaperDlg*	freqtaperdlg_;
+    uiFreqTaperDlg*	freqtaperdlg_		= nullptr;
     FreqTaperSetup	freqsetup_;
 
     void		winfuncseldlgCB(CallBacker*) override;
-    void		windowClosed(CallBacker*);
-    void		setSelFreqs(CallBacker*);
+    void		windowClosedCB(CallBacker*);
+    void		setSelFreqsCB(CallBacker*);
 };

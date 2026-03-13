@@ -45,8 +45,6 @@ uiSeisWvltMan::uiSeisWvltMan( uiParent* p )
     : uiObjFileMan(p,Setup(uiStrings::phrManage(uiStrings::sWavelet(mPlural)),
 			   mODHelpKey(mSeisWvltManHelpID)).nrstatusflds(1)
 			.modal(false),WaveletTranslatorGroup::ioContext())
-    , wvltext_(0)
-    , wvltpropdlg_(0)
 {
     createDefaultUI();
     setPrefWidth( 50 );
@@ -54,20 +52,20 @@ uiSeisWvltMan::uiSeisWvltMan( uiParent* p )
     uiIOObjManipGroup* manipgrp = selgrp_->getManipGroup();
     copybut_ = manipgrp->addButton( "copyobj",
 		uiStrings::phrCopy(uiStrings::sWavelet()),
-		mCB(this,uiSeisWvltMan,copyPush) );
+		mCB(this,uiSeisWvltMan,copyPushCB) );
     manipgrp->nextButtonOnNewRowCol();
     disppropbut_ = manipgrp->addButton( "info", mJoinUiStrs(sDisplay(),
 				sProperties()), mCB(this,uiSeisWvltMan,
-				dispProperties) );
+				dispPropertiesCB) );
 
     revpolbut_ = manipgrp->addButton( "revpol", tr("Reverse polarity"),
-				mCB(this,uiSeisWvltMan,reversePolarity) );
+				mCB(this,uiSeisWvltMan,reversePolarityCB) );
     rotatephbut_  = manipgrp->addButton( "phase", tr("Rotate phase"),
-				mCB(this,uiSeisWvltMan,rotatePhase) );
+				mCB(this,uiSeisWvltMan,rotatePhaseCB) );
     taperbut_ = manipgrp->addButton( "wavelet_taper", tr("Taper"),
-				     mCB(this,uiSeisWvltMan,taper) );
+				     mCB(this,uiSeisWvltMan,taperCB) );
     addButtons();
-    uiGroup* wvltdispgrp = new uiGroup( listgrp_,"Wavelet Display" );
+    auto* wvltdispgrp = new uiGroup( listgrp_,"Wavelet Display" );
     wvltdispgrp->attach( rightOf, selgrp_ );
 
     uiFuncDispBase::Setup fdsu;
@@ -85,15 +83,13 @@ uiSeisWvltMan::uiSeisWvltMan( uiParent* p )
     wvnamdisp_->setAlignment( Alignment::HCenter );
 
     mTriggerInstanceCreatedNotifier();
-    windowClosed.notify( mCB(this,uiSeisWvltMan,closeDlg) );
+    mAttachCB( windowClosed, uiSeisWvltMan::closeDlgCB );
 }
 
 
 uiSeisWvltMan::~uiSeisWvltMan()
 {
-    if ( wvltext_ )
-	wvltext_->extractionDone.remove(
-				mCB(this,uiSeisWvltMan,wvltCreatedCB) );
+    detachAllNotifiers();
 
     delete wvltext_;
 
@@ -107,27 +103,27 @@ void uiSeisWvltMan::addButtons()
     uiButtonGroup* grp = extraButtonGroup();
     new uiToolButton( grp, "impfromothsurv",
 		      tr("Import Wavelet from other survey"),
-		      mCB(this,uiSeisWvltMan,getFromOtherSurvey) );
+		      mCB(this,uiSeisWvltMan,getFromOtherSurveyCB) );
 
     new uiToolButton( grp, "import",
 		      tr("Import Wavelet from ASCII file"),
-		      mCB(this,uiSeisWvltMan,impPush) );
+		      mCB(this,uiSeisWvltMan,impPushCB) );
 
     new uiToolButton( grp, "wavelet", tr("Create Wavelet"),
-		      mCB(this,uiSeisWvltMan,crPush) );
+		      mCB(this,uiSeisWvltMan,crPushCB) );
 
     new uiToolButton( grp, "plus", tr("Stack Wavelets"),
-		      mCB(this,uiSeisWvltMan,mrgPush) );
+		      mCB(this,uiSeisWvltMan,mrgPushCB) );
 
     new uiToolButton( grp, "wavelet_extract", tr("Extract"),
-		      mCB(this,uiSeisWvltMan,extractPush) );
+		      mCB(this,uiSeisWvltMan,extractPushCB) );
 
     new uiToolButton( grp, "wavelet_match", tr("Match Wavelets"),
-		      mCB(this,uiSeisWvltMan,matchPush) );
+		      mCB(this,uiSeisWvltMan,matchPushCB) );
 }
 
 
-void uiSeisWvltMan::impPush( CallBacker* )
+void uiSeisWvltMan::impPushCB( CallBacker* )
 {
     uiSeisWvltImp dlg( this );
     if ( dlg.go() )
@@ -135,7 +131,7 @@ void uiSeisWvltMan::impPush( CallBacker* )
 }
 
 
-void uiSeisWvltMan::crPush( CallBacker* )
+void uiSeisWvltMan::crPushCB( CallBacker* )
 {
     uiSeisWvltGen dlg( this );
     if ( dlg.go() )
@@ -143,7 +139,7 @@ void uiSeisWvltMan::crPush( CallBacker* )
 }
 
 
-void uiSeisWvltMan::mrgPush( CallBacker* )
+void uiSeisWvltMan::mrgPushCB( CallBacker* )
 {
     if ( selgrp_->getListField()->size()<2 )
 	mErrRet( tr("At least two wavelets are needed to merge wavelets") );
@@ -154,7 +150,7 @@ void uiSeisWvltMan::mrgPush( CallBacker* )
 }
 
 
-void uiSeisWvltMan::extractPush( CallBacker* )
+void uiSeisWvltMan::extractPushCB( CallBacker* )
 {
     bool is2d = SI().has2D();
     if ( is2d && SI().has3D() )
@@ -172,7 +168,7 @@ void uiSeisWvltMan::extractPush( CallBacker* )
 }
 
 
-void uiSeisWvltMan::matchPush( CallBacker* )
+void uiSeisWvltMan::matchPushCB( CallBacker* )
 {
     uiWaveletMatchDlg dlg( this );
     if ( dlg.go() )
@@ -180,7 +176,7 @@ void uiSeisWvltMan::matchPush( CallBacker* )
 }
 
 
-void uiSeisWvltMan::copyPush( CallBacker* )
+void uiSeisWvltMan::copyPushCB( CallBacker* )
 {
     uiSeisWvltCopy copydlg( this, curioobj_ );
     if ( copydlg.go() )
@@ -199,7 +195,7 @@ void uiSeisWvltMan::wvltCreatedCB( CallBacker* )
 }
 
 
-void uiSeisWvltMan::closeDlg( CallBacker* )
+void uiSeisWvltMan::closeDlgCB( CallBacker* )
 {
    if ( !wvltext_ ) return;
    wvltext_->close();
@@ -283,7 +279,7 @@ void uiSeisWvltMan::mkFileInfo()
 }
 
 
-void uiSeisWvltMan::dispProperties( CallBacker* )
+void uiSeisWvltMan::dispPropertiesCB( CallBacker* )
 {
     Wavelet* wvlt = Wavelet::get( curioobj_ );
     if ( !wvlt ) return;
@@ -303,7 +299,7 @@ void uiSeisWvltMan::dispProperties( CallBacker* )
 #define mRet(s) \
 	{ ctio.setObj(0); if ( !s.isEmpty() ) uiMSG().error(s); return; }
 
-void uiSeisWvltMan::getFromOtherSurvey( CallBacker* )
+void uiSeisWvltMan::getFromOtherSurveyCB( CallBacker* )
 {
     CtxtIOObj ctio( mIOObjContext(Wavelet) );
     ctio.ctxt_.forread_ = true;
@@ -362,7 +358,7 @@ bool uiSeisWvltMan::waveletSaveAs( const Wavelet& wvlt, const uiString& subj )
 }
 
 
-void uiSeisWvltMan::reversePolarity( CallBacker* )
+void uiSeisWvltMan::reversePolarityCB( CallBacker* )
 {
     PtrMan<Wavelet> wvlt = Wavelet::get( curioobj_ );
     if ( !wvlt )
@@ -373,7 +369,7 @@ void uiSeisWvltMan::reversePolarity( CallBacker* )
 }
 
 
-void uiSeisWvltMan::rotatePhase( CallBacker* )
+void uiSeisWvltMan::rotatePhaseCB( CallBacker* )
 {
     PtrMan<Wavelet> wvlt = Wavelet::get( curioobj_ );
     if ( !wvlt )
@@ -381,7 +377,7 @@ void uiSeisWvltMan::rotatePhase( CallBacker* )
 
     uiSeisWvltRotDlg dlg( this, *wvlt );
     dlg.setCaption( curioobj_->uiName() );
-    dlg.acting.notify( mCB(this,uiSeisWvltMan,rotUpdateCB) );
+    mAttachCB( dlg.acting, uiSeisWvltMan::rotUpdateCB );
     if ( dlg.go() )
 	waveletSaveAs( *wvlt, tr("rotated phase wavelet") );
 
@@ -390,7 +386,7 @@ void uiSeisWvltMan::rotatePhase( CallBacker* )
 }
 
 
-void uiSeisWvltMan::taper( CallBacker* )
+void uiSeisWvltMan::taperCB( CallBacker* )
 {
     PtrMan<Wavelet> wvlt = Wavelet::get( curioobj_ );
     if ( !wvlt )

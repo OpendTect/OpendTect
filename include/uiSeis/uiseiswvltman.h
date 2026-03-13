@@ -30,8 +30,8 @@ public:
 
 protected:
 
-    uiWaveletExtraction*	wvltext_;
-    uiWaveletDispPropDlg*	wvltpropdlg_;
+    uiWaveletExtraction*	wvltext_		= nullptr;
+    uiWaveletDispPropDlg*	wvltpropdlg_		= nullptr;
     uiToolButton*		copybut_;
     uiToolButton*		disppropbut_;
     uiToolButton*		revpolbut_;
@@ -44,20 +44,20 @@ protected:
     void			ownSelChg() override;
     void			dispWavelet(const Wavelet*);
 
-    void			closeDlg(CallBacker*);
-    void			crPush(CallBacker*);
-    void			dispProperties(CallBacker*);
+    void			closeDlgCB(CallBacker*);
+    void			crPushCB(CallBacker*);
+    void			dispPropertiesCB(CallBacker*);
 
-    void			impPush(CallBacker*);
-    void			mrgPush(CallBacker*);
-    void			extractPush(CallBacker*);
-    void			matchPush(CallBacker*);
-    void			copyPush(CallBacker*);
+    void			impPushCB(CallBacker*);
+    void			mrgPushCB(CallBacker*);
+    void			extractPushCB(CallBacker*);
+    void			matchPushCB(CallBacker*);
+    void			copyPushCB(CallBacker*);
 
-    void			getFromOtherSurvey(CallBacker*);
-    void			reversePolarity(CallBacker*);
-    void			rotatePhase(CallBacker*);
-    void			taper(CallBacker*);
+    void			getFromOtherSurveyCB(CallBacker*);
+    void			reversePolarityCB(CallBacker*);
+    void			rotatePhaseCB(CallBacker*);
+    void			taperCB(CallBacker*);
     void			updateCB(CallBacker*);
 				/* Do not use this function.
 				   It is replaced by

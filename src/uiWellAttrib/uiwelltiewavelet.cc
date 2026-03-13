@@ -35,8 +35,10 @@ WellTie::uiWaveletView::uiWaveletView( uiParent* p, ObjectSet<Wavelet>& wvs )
     {
 	uiwvlts_ += new uiWavelet( this, wvs[idx], idx==0 );
 	uiwvlts_[idx]->attach( ensureBelow, activewvltfld_ );
-	if ( idx ) uiwvlts_[idx]->attach( rightOf, uiwvlts_[idx-1] );
-	mAttachCB( uiwvlts_[idx]->wvltChged, uiWaveletView::activeWvltChanged );
+	if ( idx )
+	    uiwvlts_[idx]->attach( rightOf, uiwvlts_[idx-1] );
+	mAttachCB( uiwvlts_[idx]->wvltChged,
+		   uiWaveletView::activeWvltChangedCB );
     }
 }
 
@@ -55,12 +57,13 @@ void WellTie::uiWaveletView::createWaveletFields( uiGroup* grp )
     uiString initwnm = tr("Initial");
     uiString estwnm = tr("Deterministic");
 
-    uiLabel* wvltlbl = new uiLabel( this, tr("Set active Wavelet : "));
+    auto* wvltlbl = new uiLabel( this, tr("Set active Wavelet : "));
     activewvltfld_ = new uiGenInput( this, uiString::emptyString(),
 				     BoolInpSpec(true,initwnm,estwnm));
     wvltlbl->attach( alignedAbove, activewvltfld_ );
-    activewvltfld_->valueChanged.notify(
-			 mCB(this, uiWaveletView, activeWvltChanged) );
+    mAttachCB( activewvltfld_->valueChanged,
+	       uiWaveletView::activeWvltChangedCB );
+
     setVSpacing ( 0 );
 }
 
@@ -72,7 +75,7 @@ void WellTie::uiWaveletView::redrawWavelets()
 }
 
 
-void WellTie::uiWaveletView::activeWvltChanged( CallBacker* )
+void WellTie::uiWaveletView::activeWvltChangedCB( CallBacker* )
 {
     const bool isinitactive = activewvltfld_->getBoolValue();
     uiwvlts_[0]->setAsActive( isinitactive );
@@ -111,25 +114,26 @@ WellTie::uiWavelet::uiWavelet( uiParent* p, Wavelet* wvlt, bool isactive )
     viewer_ = new uiFlatViewer( this );
 
     wvltbuts_ += new uiToolButton( this, "info", uiStrings::sProperties(),
-	    mCB(this,uiWavelet,dispProperties) );
+				   mCB(this,uiWavelet,dispProperties) );
     wvltbuts_[0]->attach( alignedBelow, viewer_ );
 
     wvltbuts_ += new uiToolButton( this, "phase", tr("Rotate phase"),
-	    mCB(this,uiWavelet,rotatePhase) );
+				   mCB(this,uiWavelet,rotatePhase) );
     wvltbuts_[1]->attach( rightOf, wvltbuts_[0] );
 
     wvltbuts_ += new uiToolButton( this, "wavelet_taper", tr("Taper Wavelet"),
-	    mCB(this,uiWavelet,taper) );
+				   mCB(this,uiWavelet,taperCB) );
     wvltbuts_[2]->attach( rightOf, wvltbuts_[1] );
 
     initWaveletViewer();
     drawWavelet();
-    setVSpacing ( 0 );
+    setVSpacing( 0 );
 }
 
 
 WellTie::uiWavelet::~uiWavelet()
 {
+    detachAllNotifiers();
 }
 
 
@@ -155,31 +159,31 @@ void WellTie::uiWavelet::rotatePhase( CallBacker* )
 {
     auto* orgwvlt = new Wavelet( *wvlt_ );
     uiSeisWvltRotDlg dlg( this, *wvlt_ );
-    dlg.acting.notify( mCB(this,uiWavelet,wvltChanged) );
+    mAttachCB( dlg.acting, uiWavelet::wvltChangedCB );
     if ( !dlg.go() )
     {
 	*wvlt_ = *orgwvlt;
-	wvltChanged( nullptr );
+	wvltChangedCB( nullptr );
     }
     delete orgwvlt;
 }
 
 
-void WellTie::uiWavelet::taper( CallBacker* )
+void WellTie::uiWavelet::taperCB( CallBacker* )
 {
     auto* orgwvlt = new Wavelet( *wvlt_ );
     uiSeisWvltTaperDlg dlg( this, *wvlt_ );
-    dlg.acting.notify( mCB(this,uiWavelet,wvltChanged) );
+    mAttachCB( dlg.acting, uiWavelet::wvltChangedCB );
     if ( !dlg.go() )
     {
 	*wvlt_ = *orgwvlt;
-	wvltChanged( nullptr );
+	wvltChangedCB( nullptr );
     }
     delete orgwvlt;
 }
 
 
-void WellTie::uiWavelet::wvltChanged( CallBacker* )
+void WellTie::uiWavelet::wvltChangedCB( CallBacker* )
 {
     drawWavelet();
     if ( isactive_ )

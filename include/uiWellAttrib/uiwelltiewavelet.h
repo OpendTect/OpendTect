@@ -38,7 +38,6 @@ public:
     bool			isInitialWvltActive() const;
 
     Notifier<uiWaveletView>	activeWvltChgd;
-    void			activeWvltChanged(CallBacker*);
 
 protected:
 
@@ -48,6 +47,8 @@ protected:
     ObjectSet<uiWavelet>	uiwvlts_;
 
     void			createWaveletFields(uiGroup*);
+
+    void			activeWvltChangedCB(CallBacker*);
 };
 
 
@@ -76,8 +77,8 @@ protected:
 
     void			dispProperties(CallBacker*);
     void			rotatePhase(CallBacker*);
-    void			taper(CallBacker*);
-    void			wvltChanged(CallBacker*);
+    void			taperCB(CallBacker*);
+    void			wvltChangedCB(CallBacker*);
 };
 
 } // namespace WellTie
