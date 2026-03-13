@@ -18,6 +18,7 @@ ________________________________________________________________________
 #include "samplfunc.h"
 #include "seisbounds.h"
 #include "seisdatapack.h"
+#include "seisioobjinfo.h"
 #include "seispreload.h"
 #include "seisread.h"
 #include "seisselectionimpl.h"
@@ -47,13 +48,14 @@ public:
 					SeisTrcReader&,Array3D<float>&);
 		    ~TimeDepthDataLoader();
 
+    uiString	uiMessage() const override		{ return msg_; }
+
 private:
 
     uiString			msg_;
     int				nrdone_ = 0;
     od_int64			totalnr_;
 
-    uiString	uiMessage() const override		{ return msg_; }
     uiString	uiNrDoneText() const override
 					{ return ParallelTask::sPosFinished(); }
     od_int64	nrDone() const override			{ return nrdone_; }
@@ -143,14 +145,17 @@ int TimeDepthDataLoader::nextStep()
 	veltrace = new SeisTrc();
 	switch ( reader_.get(veltrace->info()) )
 	{
-	    case -1 : return ErrorOccurred();
+	    case -1 : { msg_ = reader_.errMsg(); return ErrorOccurred(); }
 	    case 0 : return Finished();
 	    case 1 : tk = veltrace->info().trcKey(); break;
 	    default: return MoreToDo();
 	}
 
 	if ( !reader_.get(*veltrace) )
+	{
+	    msg_ = reader_.errMsg();
 	    return ErrorOccurred();
+	}
 
 	trcvs = new SeisTrcValueSeries( *veltrace, icomp );
 	zvals_in = new RegularZValues( veltrace->info().sampling_,
@@ -298,6 +303,7 @@ MultiID VelocityStretcher::getVelID() const
     MultiID ret;
     if ( velreader_ && velreader_->isOK() )
 	ret = velreader_->ioObj()->key();
+
     return ret;
 }
 
@@ -379,33 +385,58 @@ bool VelocityStretcher::loadDataIfMissing( int id, TaskRunner* taskr )
 	delete voidata_.replace( idx, arr );
     }
 
-    const TrcKeySampling& tks = voi.hsamp_;
+    const TrcKeySampling& voitks = voi.hsamp_;
+    const ZSampling& voizsamp = voi.zsamp_;
     PtrMan<IOObj> ioobj = velreader_->ioObj()->clone();
-    if ( velreader_->is2D() ) // Now geomid is known. Have to recreate reader.
+    const SeisIOObjInfo info( *ioobj );
+    if ( !info.isOK() )
     {
-	const Seis::GeomType gt = Seis::Line;
-	delete velreader_;
-	velreader_ = new SeisTrcReader( *ioobj, tks.getGeomID(), &gt );
-	velreader_->prepareWork();
-	velzinfo_ = &velreader_->zDomain();
+	errmsg_ = info.errMsg();
+	return false;
+    }
+
+    const Pos::GeomID geomid = voitks.getGeomID();
+    const Seis::GeomType gt = info.geomType();
+    delete velreader_;
+    velreader_ = new SeisTrcReader( *ioobj, geomid, &gt );
+    velzinfo_ = &velreader_->zDomain();
+
+    TrcKeyZSampling seltkzs;
+    ZSampling& selzsamp = seltkzs.zsamp_;
+    if ( info.is2D() )
+    {
+	StepInterval<int> trcrg;
+	info.getRanges( geomid, trcrg, selzsamp );
     }
     else
     {
-	delete velreader_;
-	velreader_ = new SeisTrcReader( *ioobj );
-	PtrMan<Seis::SelData> sd = new Seis::RangeSelData( voi );
-	if ( !sd->isAll() )
-	    velreader_->setSelData( sd.release() );
+	info.getRanges( seltkzs );
     }
 
-    if ( !velzinfo_ )
-	return false;
+    seltkzs.hsamp_ = voitks;
+    if ( velzinfo_ == voizinfos_[idx] )
+    {
+	selzsamp.stop_ = selzsamp.snap( voizsamp.stop_, OD::SnapUpward );;
+    }
+    else
+    {
+	selzsamp = ZSampling::udf();
+    }
 
-    const RegularZValues zvals_out( voi.zsamp_, *voizinfos_[idx] );
-    TimeDepthDataLoader loader( tks, veldesc_, *velzinfo_, zvals_out,
+    PtrMan<Seis::SelData> sd = new Seis::RangeSelData( seltkzs );
+    if ( !sd->isAll() )
+	velreader_->setSelData( sd.release() );
+
+    velreader_->prepareWork();
+
+    const RegularZValues zvals_out( voizsamp, *voizinfos_[idx] );
+    TimeDepthDataLoader loader( voitks, veldesc_, *velzinfo_, zvals_out,
 				*voirevzinfos_[idx], *velreader_, *arr );
     if ( !TaskRunner::execute(taskr,loader) )
+    {
+	errmsg_ = loader.uiMessage();
 	return false;
+    }
 
     return true;
 }
@@ -625,15 +656,40 @@ ZSampling VelocityStretcher::getWorkZSampling( const ZSampling& zsamp,
     ZSampling ret = zsamp;
     if ( from.isTime() && to.isDepth() )
     {
-        ret.start_ *= topvavg_.start_/2.f;
-        ret.stop_ *= botvavg_.stop_/2.f;
+	const UnitOfMeasure* velunit = velUnit();
+	const UnitOfMeasure* outzunit = UnitOfMeasure::zUnit( to );
+	const UnitOfMeasure* outpvelunit = nullptr;
+	if ( outzunit == UnitOfMeasure::meterUnit() )
+	    outpvelunit = UnitOfMeasure::meterSecondUnit();
+	else if ( outzunit == UnitOfMeasure::feetUnit() )
+	    outpvelunit = UnitOfMeasure::feetSecondUnit();
+
+	const float topvavg =
+		getConvertedValue( topvavg_.start_, velunit, outpvelunit );
+	const float botvavg =
+		getConvertedValue( botvavg_.stop_, velunit, outpvelunit );
+
+	ret.start_ *= topvavg/2.f;
+	ret.stop_  *= botvavg/2.f;
 	ret.shift( -seisrefdatum );
     }
     else if ( from.isDepth() && to.isTime() )
     {
 	ret.shift( seisrefdatum );
-        ret.start_ /= topvavg_.stop_/2.f;
-        ret.stop_ /= botvavg_.start_/2.f;
+	const UnitOfMeasure* velunit = velUnit();
+	const UnitOfMeasure* outzunit = UnitOfMeasure::zUnit( from );
+	const UnitOfMeasure* outpvelunit = nullptr;
+	if ( outzunit == UnitOfMeasure::meterUnit() )
+	    outpvelunit = UnitOfMeasure::meterSecondUnit();
+	else if ( outzunit == UnitOfMeasure::feetUnit() )
+	    outpvelunit = UnitOfMeasure::feetSecondUnit();
+
+	const float topvavg =
+		getConvertedValue( topvavg_.stop_, velunit, outpvelunit );
+	const float botvavg =
+		getConvertedValue( botvavg_.start_, velunit, outpvelunit );
+	ret.start_ /= topvavg/2.f;
+	ret.stop_  /= botvavg/2.f;
     }
 
     if ( to != from )

@@ -394,24 +394,20 @@ bool uiTime2DepthDlg::acceptOK( CallBacker* )
     data->inpmid_ = inpmid;
     data->outmid_ = outioobj->key();
     inpsel->getSelection( data->surfsel_ );
-    ObjectSet<SurfaceT2DTransfData> datas;
+    ManagedObjectSet<SurfaceT2DTransfData> datas;
     datas.add( data );
 
-    PtrMan<Executor> exec = SurfaceT2DTransformer::createExecutor( datas,
+    PtrMan<Task> exec = SurfaceT2DTransformer::createExecutor( datas,
 							    *zatf, objtype_ );
     mDynamicCastGet(SurfaceT2DTransformer*,surftrans,exec.ptr());
     if ( !surftrans )
-    {
-	deepErase( datas );
 	return false;
-    }
 
     uiTaskRunner tskr( this );
-    const bool errocc = TaskRunner::execute( &tskr, *surftrans );
-    if ( !errocc || surftrans->errMsg().isError() )
+    const bool errocc = tskr.execute( *surftrans );
+    if ( !errocc )
     {
-	deepErase( datas );
-	uiMSG().errorWithDetails( surftrans->errMsg().messages(),
+	uiMSG().errorWithDetails( surftrans->uiMessage(),
 		    tr("Fail to transform the %1").arg(inpioobj->name()) );
 	return false;
     }
@@ -422,10 +418,7 @@ bool uiTime2DepthDlg::acceptOK( CallBacker* )
     {
 	PtrMan<Executor> saver = surf->saver();
 	if ( !saver || !TaskRunner::execute(&tskr,*saver) )
-	{
-	    deepErase( datas );
 	    mErrRet( tr("Can not save tranformed data.") );
-	}
 
 	const MultiID outmid = surf->multiID();
 	PtrMan<IOObj> obj = IOM().get( outmid );
@@ -442,7 +435,6 @@ bool uiTime2DepthDlg::acceptOK( CallBacker* )
 	uiMSG().error( tr("Cannot save tranformed data.") );
     }
 
-    deepErase( datas );
     return !ret;
 }
 

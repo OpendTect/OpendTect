@@ -38,51 +38,53 @@ public:
     SurfaceIODataSelection	surfsel_;
 };
 
-mExpClass(EarthModel) SurfaceT2DTransformer : public Executor
+mExpClass(EarthModel) SurfaceT2DTransformer : public SequentialTask
 { mODTextTranslationClass(SurfaceT2DTransformer)
 public:
 
-    static Executor*		createExecutor(
+				~SurfaceT2DTransformer();
+
+    static Task*		createExecutor(
 				const ObjectSet<SurfaceT2DTransfData>& datas,
 				ZAxisTransform&,ObjectType);
 
-				~SurfaceT2DTransformer();
+    uiString		uiMessage() const override  { return msg_; }
+    uiString		uiNrDoneText() const override;
+    od_int64		nrDone() const override     { return nrdone_; }
+    od_int64		totalNr() const override;
 
-    uiString			uiMessage() const override  { return msg_; }
-    uiString			uiNrDoneText() const override;
-    od_int64			nrDone() const override     { return nrdone_; }
-    od_int64			totalNr() const override;
-
-    inline uiRetVal		errMsg() const { return errmsg_; }
-    RefMan<EMObject>		getTransformedSurface(const MultiID&) const;
+    RefMan<EMObject>	getTransformedSurface(const MultiID&) const;
 
 protected:
-				SurfaceT2DTransformer(
-				const ObjectSet<SurfaceT2DTransfData>& datas,
-				ZAxisTransform&);
-    virtual void		preStepCB(CallBacker*);
-    virtual void		postStepCB(CallBacker*);
+			SurfaceT2DTransformer(
+			    const ObjectSet<SurfaceT2DTransfData>& datas,
+			    ZAxisTransform&);
 
-    virtual OD::Pol2D3D		dataTypeSupported() { return OD::Both2DAnd3D; }
-    bool			do3DHorizon(const EM::EMObject&,Surface&);
+    bool		doFinish(bool success,od_ostream* =nullptr) override;
 
-    void			load3DTranformVol(const TrcKeyZSampling*);
-    bool			load2DVelCubeTransf(const Pos::GeomID&,
+    virtual OD::Pol2D3D dataTypeSupported() const { return OD::Both2DAnd3D; }
+    bool		do3DHorizon(const EM::EMObject&,Surface&);
+
+    bool		addVolumeOfInterest(const TrcKeyZSampling&,
+						    const ZDomain::Info&);
+    void		unloadModel();
+
+    mDeprecated("Use addVolumeOfInterest")
+    void		load3DTranformVol(const TrcKeyZSampling*);
+    mDeprecated("Use addVolumeOfInterest")
+    bool		load2DVelCubeTransf(const Pos::GeomID&,
 					    const StepInterval<int>&);
-    void			unloadModel();
-    inline virtual bool		updateHSamp() const { return false; }
 
-    virtual const StringView	getTypeString() const	    = 0;
+    virtual StringView	getTypeString() const	    = 0;
 
-    RefMan<EMObject>		createObject(const MultiID&,
-							const MultiID&) const;
+    RefMan<EMObject>	createObject(const MultiID&,const MultiID&) const;
 
-    od_int64					nrdone_     = 0;
-    od_int64					totnr_	    = 0;
-    int						zatvoi_     = -1;
-    uiRetVal					errmsg_;
-    uiString					msg_;
-    ZAxisTransform&				zatf_;
+    od_int64		nrdone_     = 0;
+    od_int64		totnr_	    = 0;
+    int			zatvoi_     = -1;
+    uiRetVal		errmsg_;
+    uiString		msg_;
+    ZAxisTransform&	zatf_;
     const ObjectSet<SurfaceT2DTransfData>&	datas_;
     RefObjectSet<EMObject>			outsurfs_;
 };
@@ -97,15 +99,14 @@ public:
 			    ~Horizon3DT2DTransformer();
 protected:
 
-    OD::Pol2D3D		    dataTypeSupported() override { return OD::Only3D; }
-    void		    preStepCB(CallBacker*) override;
-    void		    postStepCB(CallBacker*) override;
-    int			    nextStep() override;
-    const StringView	    getTypeString() const override;
-    inline virtual bool     updateHSamp() const override { return true; }
-    bool		    doHorizon(const SurfaceT2DTransfData&);
+    OD::Pol2D3D		dataTypeSupported() const override { return OD::Only3D;}
+    bool		doPrepare(od_ostream* =nullptr) override;
+    int			nextStep() override;
+    bool		doFinish(bool success,od_ostream* =nullptr) override;
+    StringView		getTypeString() const override;
+    bool		doHorizon(const SurfaceT2DTransfData&);
 
-    int			    zatvoi_	= -1;
+    int			zatvoi_ = -1;
 };
 
 
@@ -134,8 +135,7 @@ public:
 				    Horizon2DDataHolderSet();
 				    ~Horizon2DDataHolderSet();
 
-    bool			    positionExists(const Pos::GeomID&);
-    void			    addData(const Pos::GeomID&,const MultiID&);
+    void		addData(const Pos::GeomID&,const MultiID&);
 };
 
 
@@ -148,11 +148,12 @@ public:
 			    ~Horizon2DT2DTransformer();
 protected:
 
-    OD::Pol2D3D		    dataTypeSupported() override { return OD::Only2D; }
-    void		    preStepCB(CallBacker*) override;
-    int			    nextStep() override;
-    const StringView	    getTypeString() const override;
-    bool		    do2DHorizon(const Horizon2DDataHolder&);
+    OD::Pol2D3D		dataTypeSupported() const override { return OD::Only2D;}
+    bool		doPrepare(od_ostream* =nullptr) override;
+    int			nextStep() override;
+    StringView		getTypeString() const override;
+    bool		do2DHorizon(const Horizon2DDataHolder&);
+
 private:
     TypeSet<Pos::GeomID>	    geomids_;
     Horizon2DDataHolderSet	    dataset_;
@@ -170,10 +171,10 @@ public:
 			    ~FaultT2DTransformer();
 protected:
 
-    OD::Pol2D3D		    dataTypeSupported() override { return OD::Only3D; }
-    int			    nextStep() override;
-    bool		    doFault(const SurfaceT2DTransfData&);
-    const StringView	    getTypeString() const override;
+    OD::Pol2D3D		dataTypeSupported() const override { return OD::Only3D;}
+    int			nextStep() override;
+    bool		doFault(const SurfaceT2DTransfData&);
+    StringView		getTypeString() const override;
 };
 
 
@@ -186,10 +187,10 @@ public:
 				~FaultSetT2DTransformer();
 protected:
 
-    OD::Pol2D3D		    dataTypeSupported() override { return OD::Only3D; }
-    int			    nextStep() override;
-    bool		    doFaultSet(const SurfaceT2DTransfData&);
-    const StringView	    getTypeString() const override;
+    OD::Pol2D3D		dataTypeSupported() const override { return OD::Only3D;}
+    int			nextStep() override;
+    bool		doFaultSet(const SurfaceT2DTransfData&);
+    StringView		getTypeString() const override;
 };
 
 
@@ -203,22 +204,29 @@ public:
 				~FaultStickSetT2DTransformer();
 protected:
 
-    bool		    is2d_;
+    bool		is2d_;
 
-    OD::Pol2D3D		    dataTypeSupported() override
+    OD::Pol2D3D		dataTypeSupported() const override
 						{ return OD::Both2DAnd3D; }
-    int			    nextStep() override;
-    bool		    doFaultStickSet(const SurfaceT2DTransfData&);
-    const StringView	    getTypeString() const override;
+    int			nextStep() override;
+    bool		doFaultStickSet(const SurfaceT2DTransfData&);
+    StringView		getTypeString() const override;
 
     bool	    handle2DTransformation(const EM::FaultStickSetGeometry&,
-						EM::FaultStickSet&);
+					   const ZDomain::Info&,
+					   EM::FaultStickSet&);
     bool	    handle3DTransformation(const EM::FaultStickSetGeometry&,
-						EM::FaultStickSet&);
+					   const ZDomain::Info&,
+					   EM::FaultStickSet&);
+    mDeprecated("Provide ZDomain::Info")
+    bool	    handle2DTransformation(const EM::FaultStickSetGeometry&,
+					   EM::FaultStickSet&);
+    mDeprecated("Provide ZDomain::Info")
+    bool	    handle3DTransformation(const EM::FaultStickSetGeometry&,
+					   EM::FaultStickSet&);
     bool	    doTransformation(const Geometry::FaultStick*,int,
-						EM::FaultStickSet&,
-						const Pos::GeomID&
-							=Pos::GeomID::udf());
+				     EM::FaultStickSet&,
+				     const Pos::GeomID& =Pos::GeomID::udf());
 
 };
 }

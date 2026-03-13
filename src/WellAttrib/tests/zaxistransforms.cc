@@ -26,10 +26,11 @@ ________________________________________________________________________
 #include "timedepthconv.h"
 #include "unitofmeasure.h"
 
-#define mErrRet(s) { errStream() << s << od_endl; return false; }
 
 //Velocity Object IDs
-static const int velids_direct[] = { 8, 16, 9, 9, 14, 14, 16 };
+static const int velids_direct[] =   {	8,  9,	9, 14, 14, 16, 16 };
+static const int velids_reverse1[] = { 14, 16, 16,  8,	8,  9,	9 };
+static const int velids_reverse2[] = { 16, 14, 14,  9,	9,  8,	8 };
 
 //Simple Time-Depth Parameters
 static const MultiID tablet2did_m = MultiID( 100090, 6 );
@@ -38,7 +39,7 @@ static const MultiID tablet2did_ft = MultiID( 100090, 7 );
 //Linear Vel Paramenters
 static double v0()
 {
-    return LinearVelTransform::velUnit()->getUserValueFromSI( 3000.f );
+    return LinearVelTransform::velUnit()->getUserValueFromSI( 3000. );
 }
 
 static const double k = 0.1;
@@ -47,159 +48,42 @@ static const double k = 0.1;
 static double srd_ = 15.24; // 50ft
 
 
-#define mEps 1e-6f
 //Model Info : [Nr. Surveys][Nr. ZAxistransforms][Nr. test Vals]
-//Fault : Output Values
-static const float zvalues_flt[7][8][2] =
-{
-    { //F3_Test_Survey
-	{ 475.2301330f, 1043.8642578f }, //T2D : tablet2did_m
-	{ 475.2301330f, 1043.8642578f }, //T2D : tablet2did_ft
-	{ 718.2444970f, 1557.4968164f }, //T2D : Linear
-	{ 458.2054040f, 1055.7767236f }, //T2D : Velocity
-	{ 0.483107567f, 1.021932130f }, //D2T : tablet2did_m
-	{ 0.483107567f, 1.021932130f }, //D2T : tablet2did_ft
-	{ 0.324335963f, 0.693891943f }, //D2T : Linear
-	{ 0.500479281f, 1.012004970f }	//D2T : Velocity
-    },
-    { //F3_Test_Survey_DepthFT
-	{ 1559.1539796f, 3424.7515019f }, //T2D : tablet2did_m
-	{ 1559.1539796f, 3424.7515019f }, //T2D : tablet2did_ft
-	{ 2356.4450683f, 5109.8974609f }, //T2D : Linear
-	{ 1503.2985839f, 3463.8337402f }, //T2D : Velocity
-	{ 0.483107567f, 1.021932130f }, //D2T : tablet2did_m
-	{ 0.483107567f, 1.021932130f }, //D2T : tablet2did_ft
-	{ 0.324335963f, 0.693891943f }, //D2T : Linear
-	{ 0.500479162f, 1.012005090f }	//D2T : Velocity
-    },
-    { //F3_Test_Survey_DisplayFT
-	{ 1559.1539306f, 3424.7514648f }, //T2D : tablet2did_m
-	{ 1559.1539306f, 3424.7514648f }, //T2D : tablet2did_ft
-	{ 2356.4450683f, 5109.8974609f }, //T2D : Linear
-	{ 1503.2985839f, 3463.8339843f }, //T2D : Velocity
-	{ 0.483107567f, 1.021932130f }, //D2T : tablet2did_m
-	{ 0.483107567f, 1.021932130f }, //D2T : tablet2did_ft
-	{ 0.324335963f, 0.693891943f }, //D2T : Linear
-	{ 0.500479281f, 1.012005090f }	//D2T : Velocity
-    },
-    { //F3_Test_Survey_XYinft
-	{ 1559.1540527f, 3424.7514648f }, //T2D : tablet2did_m
-	{ 1559.1540527f, 3424.7514648f }, //T2D : tablet2did_ft
-	{ 2356.4453125f, 5109.8974609f }, //T2D : Linear
-	{ 1503.2987060f, 3463.8339843f }, //T2D : Velocity
-	{ 0.483107597f, 1.021932130f }, //D2T : tablet2did_m
-	{ 0.483107597f, 1.021932130f }, //D2T : tablet2did_ft
-	{ 0.324335992f, 0.693892002f }, //D2T : Linear
-	{ 0.500479341f, 1.012005090f }	//D2T : Velocity
-    },
-    { //F3_Test_Survey_DepthM
-	{ 475.2301330f, 1043.8642578f }, //T2D : tablet2did_m
-	{ 475.2301330f, 1043.8642578f }, //T2D : tablet2did_ft
-	{ 718.2444970f, 1557.4968164f }, //T2D : Linear
-	{ 458.2054138f, 1055.7766113f }, //T2D : Velocity
-	{ 0.483107567f, 1.021932130f }, //D2T : tablet2did_m
-	{ 0.483107567f, 1.021932130f }, //D2T : tablet2did_ft
-	{ 0.324335963f, 0.693891943f }, //D2T : Linear
-	{ 0.500479519f, 1.012005090f }	//D2T : Velocity
-    },
-    { //F3_Test_Survey_DepthM_XYinft
-	{ 475.2301330f, 1043.8642578f }, //T2D : tablet2did_m
-	{ 475.2301330f, 1043.8642578f }, //T2D : tablet2did_ft
-	{ 718.2444970f, 1557.4968164f }, //T2D : Linear
-	{ 458.2054040f, 1055.7766113f }, //T2D : Velocity
-	{ 0.483107567f, 1.021932130f }, //D2T : tablet2did_m
-	{ 0.483107567f, 1.021932130f }, //D2T : tablet2did_ft
-	{ 0.324335963f, 0.693891943f }, //D2T : Linear
-	{ 0.500479519f, 1.012005090f }	//D2T : Velocity
-    },
-    { //F3_Test_Survey_DepthFT__XYinft_
-	{ 1559.1540527f, 3424.7514648f }, //T2D : tablet2did_m
-	{ 1559.1540527f, 3424.7514648f }, //T2D : tablet2did_ft
-	{ 2356.4453125f, 5109.8974609f }, //T2D : Linear
-	{ 1503.2987060f, 3463.8337402f }, //T2D : Velocity
-	{ 0.483107597f, 1.021932130f }, //D2T : tablet2did_m
-	{ 0.483107597f, 1.021932130f }, //D2T : tablet2did_ft
-	{ 0.324335992f, 0.693892002f }, //D2T : Linear
-	{ 0.500479221f, 1.012005210f }	//D2T : Velocity
-    }
-};
-
 
 #define mHorizon3DBinID_1 BinID(426,800)
 #define mHorizon3DBinID_2 BinID(426,900)
-//Horizon3D : Output Values
-static const float zvalues_hor3d[7][8][2] =
+//Horizon3D : Output Values (SI units)
+static const float zvalues_hor3d[12][2] =
 {
-    { //F3_Test_Survey
-	{ 566.503967f, 551.361450f }, //T2D : tablet2did_m
-	{ 566.503967f, 551.361450f }, //T2D : tablet2did_ft
-	{ 856.708191f, 833.693664f }, //T2D : Linear
-	{ 562.842895f, 549.798157f }, //T2D : Velocity
-	{ 0.57301122f, 0.558095992f }, //D2T : tablet2did_m
-	{ 0.57301122f, 0.558095929f }, //D2T : tablet2did_ft
-	{ 0.384116888f, 0.37421146f }, //D2T : Linear
-	{ 0.592409372f, 0.578579605f }	//D2T : Velocity
-    },
-    { //F3_Test_Survey_DepthFT
-	{ 1858.6088156f, 1808.9286417f }, //T2D : tablet2did_m
-	{ 1858.6088156f, 1808.9286417f }, //T2D : tablet2did_ft
-	{ 2810.7224114f, 2735.2154330f }, //T2D : Linear
-	{ 1848.4530029f, 1805.2114258f }, //T2D : Velocity
-	{ 0.568009019f, 0.554386139f }, //D2T : tablet2did_m
-	{ 0.568009019f, 0.554386139f }, //D2T : tablet2did_ft
-	{ 0.380795419f, 0.371746927f }, //D2T : Linear
-	{ 0.581566572f, 0.570092440f }	//D2T : Velocity
-    },
-    { //F3_Test_Survey_DisplayFT
-	{ 1858.6087646f, 1808.9285889f }, //T2D : tablet2did_m
-	{ 1858.6087646f, 1808.9285889f }, //T2D : tablet2did_ft
-	{ 2810.7224121f, 2735.2153320f }, //T2D : Linear
-	{ 1846.1667480f, 1803.4663086f }, //T2D : Velocity
-	{ 0.568009019f, 0.554386139f }, //D2T : tablet2did_m
-	{ 0.568009019f, 0.554386139f }, //D2T : tablet2did_ft
-	{ 0.380795419f, 0.371746927f }, //D2T : Linear
-	{ 0.585272849f, 0.572935224f }	//D2T : Velocity
-    },
-    { //F3_Test_Survey_XYinft
-	{ 1858.6087646f, 1808.9285889f }, //T2D : tablet2did_m
-	{ 1858.6087646f, 1808.9285889f }, //T2D : tablet2did_ft
-	{ 2810.7224121f, 2735.2153320f }, //T2D : Linear
-	{ 1846.1667480f, 1803.4663086f }, //T2D : Velocity
-	{ 0.185089633f, 0.180543467f }, //D2T : tablet2did_m
-	{ 0.185089633f, 0.180543467f }, //D2T : tablet2did_ft
-	{ 0.124882892f, 0.121824846f }, //D2T : Linear
-	{ 0.190186039f, 0.186056688f }	//D2T : Velocity
-    },
-    { //F3_Test_Survey_DepthM
-	{ 566.503967f, 551.36145f }, //T2D : tablet2did_m
-	{ 566.503967f, 551.36145f }, //T2D : tablet2did_ft
-	{ 856.708191f, 833.693664f }, //T2D : Linear
-	{ 563.5928955f, 550.3659058f }, //T2D : Velocity
-	{ 0.568009079f, 0.554386139f }, //D2T : tablet2did_m
-	{ 0.568009079f, 0.554386139f }, //D2T : tablet2did_ft
-	{ 0.380795449f, 0.371746927f }, //D2T : Linear
-	{ 0.581566572f, 0.570092380f }	//D2T : Velocity
-    },
-    { //F3_Test_Survey_DepthM_XYinft
-	{ 566.503967f, 551.36145f }, //T2D : tablet2did_m
-	{ 566.503967f, 551.36145f }, //T2D : tablet2did_ft
-	{ 856.708191f, 833.693664f }, //T2D : Linear
-	{ 563.5928955f, 550.3659058f }, //T2D : Velocity
-	{ 0.568009079f, 0.554386139f }, //D2T : tablet2did_m
-	{ 0.568009079f, 0.554386139f }, //D2T : tablet2did_ft
-	{ 0.380795449f, 0.371746939f }, //D2T : Linear
-	{ 0.581566572f, 0.570092380f }	//D2T : Velocity
-    },
-    { //F3_Test_Survey_DepthFT__XYinft_
-	{ 1858.6088156f, 1808.9286417f }, //T2D : tablet2did_m
-	{ 1858.6088156f, 1808.9286417f }, //T2D : tablet2did_ft
-	{ 2810.7224114f, 2735.2154330f }, //T2D : Linear
-	{ 1848.4530029f, 1805.2114258f }, //T2D : Velocity
-	{ 0.568009019f, 0.554386139f }, //D2T : tablet2did_m
-	{ 0.568009019f, 0.554386139f }, //D2T : tablet2did_ft
-	{ 0.380795419f, 0.371746927f }, //D2T : Linear
-	{ 0.581566572f, 0.570092440f }	//D2T : Velocity
-    }
+    {  958.38483f,  937.085945f },  //T2D : tablet2did_m
+    {  958.38483f,  937.085945f },  //T2D : tablet2did_ft
+    { 1458.3209f,  1425.32379f	},  //T2D : Linear
+    {  980.3473f,   959.003687f },  //T2D : Velocity (Model: Time)
+    {  980.3473f,   959.003687f },  //T2D : Velocity (Model: Depth)
+    {  980.3473f,   959.003687f },  //T2D : Velocity (Model: Depth)
+    { 0.981122051f, 0.960130379f }, //D2T : tablet2did_m
+    { 0.981122051f, 0.960130379f }, //D2T : tablet2did_ft
+    { 0.653263919f, 0.639507739f }, //D2T : Linear
+    { 0.959009528f, 0.938030362f }, //D2T : Velocity (Model: Depth)
+    { 0.959009528f, 0.938030362f }, //D2T : Velocity (Model: Time)
+    { 0.959009528f, 0.938030362f }  //D2T : Velocity (Model: Time)
+};
+
+//Fault : Output Values
+static const float zvalues_flt[12][2] =
+{
+    { 475.230133f, 1043.864161f }, //T2D : tablet2did_m
+    { 475.230133f, 1043.864161f }, //T2D : tablet2did_ft
+    { 718.244495f, 1557.496705f }, //T2D : Linear
+    { 458.2054225f, 1055.745435f }, //T2D : Velocity
+    { 458.2054225f, 1055.745435f }, //T2D : Velocity
+    { 458.2054225f, 1055.745435f }, //T2D : Velocity
+    { 0.466338386f, 1.027888367f },  //D2T : tablet2did_m
+    { 0.466338386f, 1.027888367f },  //D2T : tablet2did_ft
+    { 0.313165591f, 0.701561303f },  //D2T : Linear
+    { 0.483107534f, 1.021958163f },  //D2T : Velocity
+    { 0.483107534f, 1.021958163f },  //D2T : Velocity
+    { 0.483107534f, 1.021958163f }   //D2T : Velocity
 };
 
 
@@ -212,108 +96,132 @@ static MultiID getVelID( const int* grps, int idx )
 
 bool hasSurfaceIOData( EM::ObjectType objtype )
 {
-    return objtype == EM::ObjectType::Hor3D || objtype == EM::ObjectType::Hor2D
-	|| objtype == EM::ObjectType::Flt3D
-	|| objtype == EM::ObjectType::FltSS2D
-	|| objtype == EM::ObjectType::FltSS3D;
+    return objtype == EM::ObjectType::Hor3D ||
+	   objtype == EM::ObjectType::Hor2D ||
+	   objtype == EM::ObjectType::Flt3D ||
+	   objtype == EM::ObjectType::FltSS2D ||
+	   objtype == EM::ObjectType::FltSS3D;
 }
 
 
-static BufferStringSet& survDirNames()
+static const BufferStringSet& survDirNames()
 {
     static BufferStringSet ret;
     if ( ret.isEmpty() )
     {
 	ret.add( "F3_Test_Survey" )
-	    .add( "F3_Test_Survey_DepthFT")
-	    .add("F3_Test_Survey_DisplayFT")
-	    .add("F3_Test_Survey_XYinft")
-	    .add("F3_Test_Survey_DepthM")
-	    .add("F3_Test_Survey_DepthM_XYinft")
-	    .add("F3_Test_Survey_DepthFT__XYinft_");
+	   .add( "F3_Test_Survey_DisplayFT" )
+	   .add( "F3_Test_Survey_XYinft" )
+	   .add( "F3_Test_Survey_DepthM" )
+	   .add( "F3_Test_Survey_DepthM_XYinft" )
+	   .add( "F3_Test_Survey_DepthFT" )
+	   .add( "F3_Test_Survey_DepthFT__XYinft_" );
     }
 
     return ret;
 }
 
 
-TypeSet<OD::Pair<MultiID,EM::ObjectType>> getNativeInputData()
+static const TypeSet<OD::Pair<MultiID,EM::ObjectType> >& getNativeInputData()
 {
-    TypeSet<OD::Pair<MultiID,EM::ObjectType>> inpdataset;
+    static TypeSet<OD::Pair<MultiID,EM::ObjectType>> inpdataset;
+    inpdataset.setEmpty();
     const int grpid = IOObjContext::getStdDirData(
-	IOObjContext::Surf )->groupID();
-    inpdataset.add( OD::Pair(MultiID(grpid,2),EM::ObjectType::Hor3D) );
+					    IOObjContext::Surf )->groupID();
+    if ( SI().zIsTime() )
+	inpdataset.add( OD::Pair(MultiID(grpid,3),EM::ObjectType::Hor3D) );
+    else
+    {
+	// Depth data for SRD=50ft
+	inpdataset.add( OD::Pair(MultiID(grpid,11),EM::ObjectType::Hor3D) );
+    }
+
     inpdataset.add( OD::Pair(MultiID(grpid,9),EM::ObjectType::Flt3D) );
+
     return inpdataset;
 }
 
 
-TypeSet<OD::Pair<MultiID,EM::ObjectType>> getTranformedInputData()
+static const TypeSet<OD::Pair<MultiID,EM::ObjectType>>& getTranformedInputData()
 {
-    TypeSet<OD::Pair<MultiID,EM::ObjectType>> inpdataset;
-    const int grpid = IOObjContext::getStdDirData(
-	IOObjContext::Surf )->groupID();
-    inpdataset.add( OD::Pair(MultiID(grpid,10),EM::ObjectType::Hor3D) );
-    inpdataset.add( OD::Pair(MultiID(grpid,11),EM::ObjectType::Flt3D) );
+    static TypeSet<OD::Pair<MultiID,EM::ObjectType>> inpdataset;
+    if ( inpdataset.isEmpty() )
+    {
+	const int grpid = IOObjContext::getStdDirData(
+					    IOObjContext::Surf )->groupID();
+	inpdataset.add( OD::Pair(MultiID(grpid,13),EM::ObjectType::Hor3D) );
+	inpdataset.add( OD::Pair(MultiID(grpid,14),EM::ObjectType::Flt3D) );
+    }
+
     return inpdataset;
 }
 
 
 #define mMsg(txt) BufferString( SI().name(), ": ", txt )
 
-static RefObjectSet<ZAxisTransform> get3DTransforms( int survidx )
+static RefObjectSet<ZAxisTransform>& get3DTransforms( int survidx )
 {
-    RefObjectSet<ZAxisTransform> zatfs;
+    static RefObjectSet<ZAxisTransform> zatfs;
+    zatfs.setEmpty();
     //Time to Depth
     zatfs.add( new SimpleT2DTransform(tablet2did_m) );
     zatfs.add( new SimpleT2DTransform(tablet2did_ft) );
     zatfs.add( new LinearT2DTransform(v0(), k));
     zatfs.add( new Time2DepthStretcher(getVelID(velids_direct,survidx)) );
+    zatfs.add( new Time2DepthStretcher(getVelID(velids_reverse1,survidx)) );
+    zatfs.add( new Time2DepthStretcher(getVelID(velids_reverse2,survidx)) );
 
     //Depth to Time
     zatfs.add( new SimpleD2TTransform(tablet2did_m) );
     zatfs.add( new SimpleD2TTransform(tablet2did_ft) );
     zatfs.add( new LinearD2TTransform(v0(), k));
     zatfs.add( new Depth2TimeStretcher(getVelID(velids_direct,survidx)) );
+    zatfs.add( new Depth2TimeStretcher(getVelID(velids_reverse1,survidx)) );
+    zatfs.add( new Depth2TimeStretcher(getVelID(velids_reverse2,survidx)) );
 
     return zatfs;
 }
 
 
-bool testHorizon3DOutput( RefMan<EM::EMObject> emobj, int survidx,
-								int zatfidx )
+bool testHorizon3DOutput( const EM::EMObject* emobj, int survidx, int zatfidx )
 {
-    mDynamicCastGet(EM::Horizon3D*,hor,emobj.ptr());
-    if ( !hor )
-	return false;
+    mDynamicCastGet(const EM::Horizon3D*,hor,emobj);
+    mRunStandardTest( hor, mMsg("Horizon 3D has been processed") )
 
     const float z1 = hor->getZ( mHorizon3DBinID_1 );
     mRunStandardTest( !mIsUdf(z1),mMsg("Horizon 3D position 1 is defined") );
     const float z2 = hor->getZ( mHorizon3DBinID_2 );
     mRunStandardTest( !mIsUdf(z2),mMsg("Horizon 3D position 2 is defined") );
-    const float* zvals = zvalues_hor3d[survidx][zatfidx];
+    const float* zvals = zvalues_hor3d[zatfidx];
+    float zval1 = zvals[0];
+    float zval2 = zvals[1];
+    if ( emobj->zDomain().isDepthFeet() )
+    {
+	zval1 *= mToFeetFactorF;
+	zval2 *= mToFeetFactorF;
+    }
 
     BufferString readvalstr( "Z-Values read: [" );
     readvalstr.add(toStringPrecise(z1)).add(',')
 	      .add(toStringPrecise(z2)).add("]");
     BufferString expvalstr( "Expected Z-Values: [" );
-    expvalstr.add(toStringPrecise(zvals[0])).add(',')
-	     .add(toStringPrecise(zvals[1])).add("]; ");
+    expvalstr.add(toStringPrecise(zval1)).add(',')
+	     .add(toStringPrecise(zval2)).add("]; ");
     const BufferString errmsg( expvalstr.buf(), readvalstr.buf() );
 
-    mRunStandardTestWithError( (mIsEqual(z1,zvals[0],zvals[0]*mEps) &&
-				mIsEqual(z2,zvals[1],zvals[1]*mEps)),
+    const float eps = hor->zDomain().isTime() ? 1e-3f : 1e1f;
+    mRunStandardTestWithError( (mIsEqual(z1,zval1,eps) &&
+				mIsEqual(z2,zval2,eps)),
 			       mMsg("Horizon 3D position testing"), errmsg  );
 
     return true;
 }
 
 
-bool testFltOutput( RefMan<EM::EMObject> emobj, int survidx, int zatfidx )
+bool testFltOutput( const EM::EMObject* emobj, int survidx, int zatfidx )
 {
-    mDynamicCastGet(EM::Fault3D*,flt,emobj.ptr());
-    if ( !flt )
-	return false;
+    mDynamicCastGet(const EM::Fault3D*,flt,emobj);
+    mRunStandardTest( flt, mMsg("Fault 3D has been processed") )
 
     const EM::Fault3DGeometry& geometry = flt->geometry();
     const int nrsticks = geometry.nrSticks();
@@ -333,50 +241,65 @@ bool testFltOutput( RefMan<EM::EMObject> emobj, int survidx, int zatfidx )
     const Coord3 lastcrd = stick->getCoordAtIndex( stick->size()-1 );
     mRunStandardTest( !lastcrd.isUdf(),mMsg("Fault 3D position is defined") );
 
-    const float* zvals = zvalues_flt[survidx][zatfidx];
+    const float* zvals = zvalues_flt[zatfidx];
+    float zval1 = zvals[0];
+    float zval2 = zvals[1];
+    if ( emobj->zDomain().isDepthFeet() )
+    {
+	zval1 *= mToFeetFactorF;
+	zval2 *= mToFeetFactorF;
+    }
 
+    const float firstz = mCast(float,firstcrd.z_);
+    const float secondz = mCast(float,lastcrd.z_);
     BufferString readvalstr( "Z-Values read: [" );
-    readvalstr.add(toStringPrecise(firstcrd.z_)).add(',')
-	      .add(toStringPrecise(lastcrd.z_)).add("]");
+    readvalstr.add(toStringPrecise(firstz)).add(',')
+	      .add(toStringPrecise(secondz)).add("]");
     BufferString expvalstr( "Expected Z-Values: [" );
-    expvalstr.add(toStringPrecise(zvals[0])).add(',')
-	     .add(toStringPrecise(zvals[1])).add("]; ");
+    expvalstr.add(toStringPrecise(zval1)).add(',')
+	     .add(toStringPrecise(zval2)).add("]; ");
     const BufferString errmsg( expvalstr.buf(), readvalstr.buf() );
 
-    mRunStandardTestWithError( (mIsEqual(firstcrd.z_,zvals[0],zvals[0]*mEps) &&
-				mIsEqual(lastcrd.z_,zvals[1],zvals[1]*mEps)),
+    const float eps = flt->zDomain().isTime() ? 1e-4f : 1e-0f;
+    mRunStandardTestWithError( (mIsEqual(firstz,zval1,eps) &&
+				mIsEqual(secondz,zval2,eps)),
 			       mMsg("Fault 3D position testing"), errmsg );
 
     return true;
 }
 
 
-bool testFltSetOutput( RefMan<EM::EMObject> emobj, int zatfidx )
+bool testFltSetOutput( const EM::EMObject* emobj, int survidx, int zatfidx )
 {
     //TODO
     return true;
 }
 
 
-bool handleEarthModelObjects( ZAxisTransform& zatf, int survidx, int zatfidx )
+static bool handleEarthModelObjects( ZAxisTransform& zatf,
+				     int survidx, int zatfidx )
 {
-    TypeSet<OD::Pair<MultiID,EM::ObjectType>> inpdataset =
+    const TypeSet<OD::Pair<MultiID,EM::ObjectType> >& inpdataset =
 	(zatf.fromZDomainInfo().def_ == SI().zDomain() ) ?
 			    getNativeInputData() : getTranformedInputData();
 
     const int grpid = IOObjContext::getStdDirData(
-	IOObjContext::Surf )->groupID();
+						IOObjContext::Surf )->groupID();
     const MultiID outmid( grpid, MultiID::cMemoryObjID() );
     for ( const auto& inpdata : inpdataset )
     {
 	const EM::ObjectType objtype = inpdata.second();
+	const BufferString objtypestr = EM::toString( objtype );
 	EM::EMManager& em = EM::EMM();
 	EM::SurfaceIOData sd;
 	uiString errmsg;
 	const MultiID inpmid = inpdata.first();
-	if ( hasSurfaceIOData(objtype) &&
-				    !em.getSurfaceData(inpmid,sd,errmsg) )
-	    mErrRet(errmsg)
+	if( hasSurfaceIOData(objtype) )
+	{
+	    const BufferString msg( "Read ", objtypestr, " data" );
+	    mRunStandardTestWithError( em.getSurfaceData(inpmid,sd,errmsg),
+				mMsg(msg.str()), errmsg.getString() )
+	}
 
 	auto* data = new EM::SurfaceT2DTransfData( sd );
 	data->inpmid_ = inpmid;
@@ -393,48 +316,40 @@ bool handleEarthModelObjects( ZAxisTransform& zatf, int survidx, int zatfidx )
 	ObjectSet<EM::SurfaceT2DTransfData> datas;
 	datas.add( data );
 
-	PtrMan<Executor> exec =
+	PtrMan<Task> exec =
 	EM::SurfaceT2DTransformer::createExecutor( datas, zatf, objtype );
+	const BufferString msg( "Run ", objtypestr, " transformation" );
+	mRunStandardTestWithError( exec->execute(),
+				mMsg(msg.str()), exec->uiMessage().getString() )
+
 	mDynamicCastGet(EM::SurfaceT2DTransformer*,surftrans,exec.ptr());
-	if ( surftrans->execute() )
+	ConstRefMan<EM::EMObject> emobj =
+			surftrans->getTransformedSurface( data->outmid_ );
+	switch( objtype )
 	{
-	    switch(objtype)
-	    {
-		case EM::ObjectType::Hor3D:
-		case EM::ObjectType::AnyHor:
-		    if ( !testHorizon3DOutput(
-			    surftrans->getTransformedSurface(data->outmid_),
-			    survidx,zatfidx) )
-			return false;
+	    case EM::ObjectType::Hor3D:
+	    case EM::ObjectType::AnyHor:
+		if ( !testHorizon3DOutput(emobj.ptr(),survidx,zatfidx) )
+		    return false;
 
-		    break;
-		case EM::ObjectType::Flt3D:
-		    if ( !testFltOutput(
-			    surftrans->getTransformedSurface(data->outmid_),
-			    survidx,zatfidx) )
-			return false;
+		break;
+	    case EM::ObjectType::Flt3D:
+		if ( !testFltOutput(emobj.ptr(),survidx,zatfidx) )
+		    return false;
 
-		    break;
-		case EM::ObjectType::FltSet:
-		    if ( !testFltSetOutput(
-			    surftrans->getTransformedSurface(data->outmid_),
-			    zatfidx) )
-			return false;
+		break;
+	    case EM::ObjectType::FltSet:
+		if ( !testFltSetOutput(emobj.ptr(),survidx,zatfidx) )
+		    return false;
 
-		    break;
-		case EM::ObjectType::Hor2D:
-		case EM::ObjectType::FltSS2D:
-		case EM::ObjectType::FltSS2D3D:
-		case EM::ObjectType::FltSS3D:
-		case EM::ObjectType::Body:
-		case EM::ObjectType::Unknown:
-		    break;
-	    }
-	}
-	else
-	{
-	    tstStream() << zatf.name() << " for " <<
-		    EM::ObjectTypeDef().getKey( objtype ) << "\n";
+		break;
+	    case EM::ObjectType::Hor2D:
+	    case EM::ObjectType::FltSS2D:
+	    case EM::ObjectType::FltSS2D3D:
+	    case EM::ObjectType::FltSS3D:
+	    case EM::ObjectType::Body:
+	    case EM::ObjectType::Unknown:
+		break;
 	}
     }
 
@@ -467,16 +382,18 @@ int mTestMainFnName( int argc, char** argv )
 	const float srd =
 	  UnitOfMeasure::surveyDefSRDStorageUnit()->getUserValueFromSI( srd_ );
 	eSI().setSeismicReferenceDatum( srd );
-	RefObjectSet<ZAxisTransform> zatfs = get3DTransforms( survidx );
+	ObjectSet<ZAxisTransform>& zatfs = get3DTransforms( survidx );
 	for ( int zatfidx=0; zatfidx<zatfs.size(); zatfidx++ )
 	{
-	    ZAxisTransform* zatf = zatfs.get( zatfidx );
+	    tstStream() << od_endl;
+	    RefMan<ZAxisTransform> zatf = zatfs.get( zatfidx );
 	    logStream() << "Testing " << survdirnm << " for " <<
 		zatf->factoryDisplayName() << " transformation" << od_endl;
 	    if ( !handleEarthModelObjects(*zatf,survidx,zatfidx) )
+	    {
+		zatfs.erase();
 		return 1;
-
-	    tstStream() << od_endl;
+	    }
 	}
     }
 

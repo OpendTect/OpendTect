@@ -122,7 +122,7 @@ EMSurfaceTranslator::~EMSurfaceTranslator()
 
 void EMSurfaceTranslator::init( const EM::Surface* surf, const IOObj* ioobj )
 {
-    surface_ = const_cast<EM::Surface*>(surf);
+    surface_ = const_cast<EM::Surface*>( surf );
     setIOObj( ioobj );
 }
 
@@ -130,7 +130,7 @@ void EMSurfaceTranslator::init( const EM::Surface* surf, const IOObj* ioobj )
 void EMSurfaceTranslator::setIOObj( const IOObj* ioobj )
 {
     delete ioobj_;
-    ioobj_ = ioobj ? ioobj->clone() : 0;
+    ioobj_ = ioobj ? ioobj->clone() : nullptr;
 }
 
 
@@ -139,6 +139,13 @@ bool EMSurfaceTranslator::startRead( const IOObj& ioobj )
     init( nullptr, &ioobj );
     if ( !prepRead() )
 	return false;
+
+    if ( surface_ )
+    {
+	const ZDomain::Info* zinfo = ZDomain::Info::getFrom( ioobj.pars() );
+	if ( zinfo )
+	    surface_->setZDomain( *zinfo );
+    }
 
     sels_.setDefault();
     return true;
@@ -186,7 +193,7 @@ bool EMSurfaceTranslator::implRemove( const IOObj* ioobj, bool ) const
 {
     if ( ioobj )
     {
-	EM::IOObjInfo ioinfo( *ioobj );
+	const EM::IOObjInfo ioinfo( *ioobj );
 	if ( ioinfo.type() == EM::ObjectType::Flt3D )
 	{
 	    EM::FaultAuxData fad( ioobj->key() );
@@ -395,7 +402,7 @@ Executor* dgbEMSurfaceTranslator::reader( EM::Surface& surf )
 	reader_->selAuxData( sels_.selvalues );
     }
 
-    reader_ = 0;
+    reader_ = nullptr;
     return res;
 }
 
@@ -650,7 +657,7 @@ int nextStep() override
 }
 
 
-bool doFinish( bool success, od_ostream*/**/ ) override
+bool doFinish( bool success, od_ostream* /*strm*/ ) override
 {
     if ( curidx_ >= totalnr_ )
 	fltset_.setEnvelope( tkzsenvelope_ );

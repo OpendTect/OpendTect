@@ -438,9 +438,6 @@ bool CBVSSeisTrcTranslator::commitSelections_()
 	    tkzs.hsamp_.setGeomID( fakegeomid );
 	}
 
-	tkzs.zsamp_.start_ = outsd_.start_;
-	tkzs.zsamp_.step_ = outsd_.step_;
-	tkzs.zsamp_.stop_ = outsd_.start_ + (outnrsamples_-1) * outsd_.step_;
 	if ( rdmgr_->pruneReaders(tkzs) == 0 )
 	{
 	    errmsg_ = tr("Input contains no relevant data");
@@ -614,7 +611,7 @@ bool CBVSSeisTrcTranslator::readDataPack( RegularSeisDataPack& rsdp,
     getLimits( tkzs );
     rsdp.setSampling( tkzs );
     const int nrz = tkzs.nrZ();
-    const int trczidx0 = insd_.nearestIndex( tkzs.zsamp_.start_ );
+    const int trczidx0 = outsd_.nearestIndex( tkzs.zsamp_.start_ );
     const Array3DInfoImpl info( tkzs.nrLines(), tkzs.nrTrcs(), nrz );
     for ( int iselc=0; iselc<nrSelComps(); iselc++ )
     {

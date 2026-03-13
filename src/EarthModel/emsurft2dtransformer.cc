@@ -39,7 +39,7 @@ SurfaceT2DTransfData::SurfaceT2DTransfData( const SurfaceIOData& surfdata )
 SurfaceT2DTransformer::SurfaceT2DTransformer(
 			const ObjectSet<SurfaceT2DTransfData>& datas,
 			ZAxisTransform& zatf )
-    : Executor("Surface Domain Transformation")
+    : SequentialTask("Surface Domain Transformation")
     , datas_(datas)
     , zatf_(zatf)
 {
@@ -47,7 +47,7 @@ SurfaceT2DTransformer::SurfaceT2DTransformer(
 }
 
 
-Executor* SurfaceT2DTransformer::createExecutor(
+Task* SurfaceT2DTransformer::createExecutor(
 			const ObjectSet<SurfaceT2DTransfData>& datas,
 			ZAxisTransform& zatf, ObjectType objtype )
 {
@@ -86,59 +86,51 @@ uiString SurfaceT2DTransformer::uiNrDoneText() const
 }
 
 
-void SurfaceT2DTransformer::preStepCB( CallBacker* )
+void SurfaceT2DTransformer::load3DTranformVol( const TrcKeyZSampling* tkzsext )
 {
-}
-
-
-void SurfaceT2DTransformer::load3DTranformVol( const TrcKeyZSampling* tkzs )
-{
-    TrcKeyZSampling samp;
-    if ( tkzs )
-	samp = *tkzs;
-    else
-    {
-	auto zgate = ZSampling::udf();
-	for ( const auto* data : datas_ )
-	{
-	    const SurfaceIODataSelection& surfsel = data->surfsel_;
-	    const Interval<float>& datagate = surfsel.sd.zrg;
-	    zgate.include( datagate );
-	}
-
-	if ( updateHSamp() )
-	    samp.hsamp_ = datas_[0]->surfsel_.rg;
-
-	samp.zsamp_ = zatf_.getZInterval( true, true, &zgate );
-    }
-
-    zatvoi_ = zatf_.addVolumeOfInterest( samp, true );
-    TaskRunner tskr;
-    if ( !zatf_.loadDataIfMissing(zatvoi_,&tskr) )
-    {
-	errmsg_.add( tr("Cannot load data for z-transform") );
-	return;
-    }
+    if ( tkzsext )
+	addVolumeOfInterest( *tkzsext, SI().zDomainInfo() );
 }
 
 
 bool SurfaceT2DTransformer::load2DVelCubeTransf( const Pos::GeomID& geomid,
 					const StepInterval<int>& trcrg )
 {
-    if ( !zatf_.needsVolumeOfInterest() )
-	return true;
-
     TrcKeyZSampling tkzs;
     tkzs.hsamp_.set( geomid, trcrg );
-    if ( SI().zDomainInfo().isCompatibleWith(zatf_.fromZDomainInfo()) )
+    return addVolumeOfInterest( tkzs, SI().zDomainInfo() );
+}
+
+
+bool SurfaceT2DTransformer::addVolumeOfInterest( const TrcKeyZSampling& tkzsext,
+						 const ZDomain::Info& zinfo )
+{
+    const ZDomain::Info& fromzinfo = zatf_.fromZDomainInfo();
+    const ZDomain::Info& tozinfo = zatf_.toZDomainInfo();
+    if ( !zinfo.isCompatibleWith(fromzinfo) &&
+	 !zinfo.isCompatibleWith(tozinfo) )
     {
-	tkzs.zsamp_.start_ = zatf_.getModelZSampling().start_;
-	tkzs.zsamp_ = zatf_.getZInterval( true, true, &tkzs.zsamp_ );
+	errmsg_ = tr("Incompatible ZDomains");
+	return false;
     }
 
-    zatvoi_ = zatf_.addVolumeOfInterest( tkzs, true );
-    TaskRunner tskr;
-    return zatf_.loadDataIfMissing( zatvoi_, &tskr );
+    const bool fromzdomain = zinfo.isCompatibleWith( fromzinfo );
+    TrcKeyZSampling tkzs( tkzsext );
+    tkzs.zsamp_ = zatf_.getZInterval( fromzdomain );
+    if ( fromzdomain && mIsUdf(tkzsext.zsamp_.stop_) )
+    {
+	tkzs.zsamp_.stop_ = tkzs.zsamp_.snap( tkzsext.zsamp_.stop_,
+					      OD::SnapUpward );
+    }
+
+    zatvoi_ = zatf_.addVolumeOfInterest( tkzs, !fromzdomain );
+    if ( !zatf_.loadDataIfMissing(zatvoi_) )
+    {
+	errmsg_.add( tr("Failed to preload the velocity volume") );
+	return false;
+    }
+
+    return true;
 }
 
 
@@ -175,11 +167,20 @@ RefMan<EMObject> SurfaceT2DTransformer::createObject( const MultiID& outmid,
 }
 
 
+bool SurfaceT2DTransformer::doFinish( bool success, od_ostream* strm )
+{
+    if ( errmsg_.isError() )
+    {
+	msg_ = errmsg_.messages().cat();
+	success = false;
+    }
+
+    return SequentialTask::doFinish( success, strm );
+}
+
+
 #define mErrRet(s) { errmsg_.add(s); return false; }
 
-void SurfaceT2DTransformer::postStepCB( CallBacker* )
-{
-}
 
 RefMan<EMObject> SurfaceT2DTransformer::getTransformedSurface(
 						    const MultiID& mid ) const
@@ -202,13 +203,12 @@ void SurfaceT2DTransformer::unloadModel()
 
 
 //Horizon3DT2DTransformer
+
 Horizon3DT2DTransformer::Horizon3DT2DTransformer(
 	const ObjectSet<SurfaceT2DTransfData>& datas, ZAxisTransform& zatf )
     : SurfaceT2DTransformer(datas,zatf)
 {
     msg_ = tr("Transforming 3D Horizon");
-    mAttachCB(prestep,Horizon3DT2DTransformer::preStepCB);
-    mAttachCB(poststep,Horizon3DT2DTransformer::postStepCB);
 }
 
 
@@ -218,49 +218,79 @@ Horizon3DT2DTransformer::~Horizon3DT2DTransformer()
 }
 
 
-const StringView Horizon3DT2DTransformer::getTypeString() const
+StringView Horizon3DT2DTransformer::getTypeString() const
 {
     return EM::Horizon3D::typeStr();
 }
 
 
-void Horizon3DT2DTransformer::preStepCB( CallBacker* )
+bool Horizon3DT2DTransformer::doPrepare( od_ostream* strm )
 {
-    if ( (nrdone_==0) && zatf_.needsVolumeOfInterest() && (totnr_>0) )
-	load3DTranformVol( nullptr );
+    if ( totnr_<=0 || !zatf_.needsVolumeOfInterest() || datas_.isEmpty() )
+	return SurfaceT2DTransformer::doPrepare( strm );
+
+    TrcKeyZSampling tkzs;
+    tkzs.hsamp_ = datas_.first()->surfsel_.rg;
+    ZSampling& zsamp = tkzs.zsamp_;
+    zsamp.step_ = mUdf(float);
+    const ZDomain::Info* zinfo = nullptr;
+    for ( const auto* data : datas_ )
+    {
+	const IOObjInfo objinfo( data->inpmid_ );
+	if ( objinfo.isOK() )
+	{
+	    if ( zinfo && &objinfo.zDomain() != zinfo )
+	    {
+		pErrMsg("Should not mix various zDomains in one execution");
+	    }
+	    else if ( !zinfo )
+		zinfo = &objinfo.zDomain();
+	}
+
+	const SurfaceIODataSelection& surfsel = data->surfsel_;
+	const Interval<float>& datagate = surfsel.sd.zrg;
+	zsamp.include( datagate );
+    }
+
+    if ( !zinfo )
+	zinfo = &SI().zDomainInfo();
+
+    if ( !addVolumeOfInterest(tkzs,*zinfo) )
+	return false;
+
+    return SurfaceT2DTransformer::doPrepare( strm );
 }
 
 
 bool Horizon3DT2DTransformer::doHorizon( const SurfaceT2DTransfData& data )
 {
     const MultiID& inpmid = data.inpmid_;
-    RefMan<EMObject> surf = createObject( data.outmid_, inpmid );
-    if ( !surf )
-	mErrRet( tr("Cannot access database") );
-
     const IOObj* ioobj = IOM().get( inpmid );
     if ( !ioobj )
 	mErrRet( tr("Cannot find input horizon in repository") );
 
     EM::EMManager& em = EM::EMM();
-    TaskRunner tskr;
     PtrMan<Executor> loader = em.objectLoader( inpmid, &data.surfsel_ );
     if ( !loader || !loader->execute() )
 	mErrRet( uiStrings::sCantCreateHor() )
 
-    RefMan<EM::EMObject> emobj = em.getObject( inpmid );
+    ConstRefMan<EM::EMObject> emobj = em.getObject( inpmid );
     if ( !emobj )
 	mErrRet( tr("Failed to load the surface") );
-
-    mDynamicCastGet(EM::Horizon3D*,outhor3D,surf.ptr())
-    if ( !outhor3D )
-	mErrRet( tr("The output type is incompatible with input type, "
-	    "3D Horizon object expected") );
 
     mDynamicCastGet(const EM::Horizon3D*,hor,emobj.ptr())
     if ( !hor )
 	mErrRet( tr("Incorrect object selected, "
 	    "3D horizon is expected for the workflow") );
+
+    RefMan<EMObject> surf = createObject( data.outmid_, inpmid );
+    if ( !surf )
+	mErrRet( tr("Cannot access database") );
+
+    mDynamicCastGet(EM::Horizon3D*,outhor3d,surf.ptr())
+    if ( !outhor3d )
+	mErrRet( tr("The output type is incompatible with input type, "
+	    "3D Horizon object expected") );
 
     TrcKeyZSampling bbox;
     bbox.hsamp_ = hor->range();
@@ -268,15 +298,15 @@ bool Horizon3DT2DTransformer::doHorizon( const SurfaceT2DTransfData& data )
 
     const StepInterval<int> inlrg = hor->geometry().rowRange();
     const StepInterval<int> crlrg = hor->geometry().colRange();
-    outhor3D->enableGeometryChecks( false );
+    outhor3d->enableGeometryChecks( false );
     const RowCol step( inlrg.step_, crlrg.step_ );
-    outhor3D->geometry().setStep( step, step );
-    Array2D<float>* arrdata = hor->createArray2D( &zatf_ );
+    outhor3d->geometry().setStep( step, step );
+    PtrMan<Array2D<float> > arrdata = hor->createArray2D( &zatf_ );
     if ( !arrdata )
 	return false;
 
-    outhor3D->setArray2D( arrdata, bbox.hsamp_.start_,
-	bbox.hsamp_.step_, false );
+    outhor3d->setArray2D( arrdata.release(), bbox.hsamp_.start_,
+			  bbox.hsamp_.step_ );
 
     const ObjectSet<BinIDValueSet>& auxdatas = hor->auxdata.getData();
     if ( !auxdatas.isEmpty() )
@@ -286,11 +316,11 @@ bool Horizon3DT2DTransformer::doHorizon( const SurfaceT2DTransfData& data )
 	for ( int idx=0; idx<nraux; idx++ )
 	    nms.add( hor->auxdata.auxDataName(idx) );
 
-	outhor3D->auxdata.addAuxData( nms, *auxdatas.get(0) );
+	outhor3d->auxdata.addAuxData( nms, *auxdatas.get(0) );
     }
 
-    outhor3D->setStratLevelID( hor->stratLevelID() );
-    outsurfs_.add( outhor3D );
+    outhor3d->setStratLevelID( hor->stratLevelID() );
+    outsurfs_.add( outhor3d );
 
     return true;
 }
@@ -298,27 +328,25 @@ bool Horizon3DT2DTransformer::doHorizon( const SurfaceT2DTransfData& data )
 
 int Horizon3DT2DTransformer::nextStep()
 {
-    if ( nrdone_ == totnr_ )
-	return Finished();
-
     for ( const auto* data : datas_ )
     {
 	if ( !data )
 	    continue;
 
 	doHorizon( *data );
-
 	nrdone_++;
     }
 
-    return MoreToDo();
+    return nrDone() >= totalNr() ? Finished() : MoreToDo();
 }
 
 
-void Horizon3DT2DTransformer::postStepCB( CallBacker* )
+bool Horizon3DT2DTransformer::doFinish( bool success, od_ostream* strm )
 {
-    if ( nrdone_ == totnr_ )
+    if ( zatf_.needsVolumeOfInterest() )
 	unloadModel();
+
+    return SurfaceT2DTransformer::doFinish( success, strm );
 }
 
 
@@ -415,7 +443,6 @@ Horizon2DT2DTransformer::Horizon2DT2DTransformer(
 	}
     }
 
-    mAttachCB(prestep,Horizon2DT2DTransformer::preStepCB);
     totnr_ = dataset_.size();
 }
 
@@ -426,27 +453,18 @@ Horizon2DT2DTransformer::~Horizon2DT2DTransformer()
 }
 
 
-const StringView Horizon2DT2DTransformer::getTypeString() const
+StringView Horizon2DT2DTransformer::getTypeString() const
 {
     return EM::Horizon2D::typeStr();
 }
 
 
-void Horizon2DT2DTransformer::preStepCB( CallBacker* )
+bool Horizon2DT2DTransformer::doPrepare( od_ostream* strm )
 {
     EM::EMManager& em = EM::EMM();
-    TaskRunner tskr;
     for ( const auto* data : datas_ )
     {
 	const MultiID& inpmid = data->inpmid_;
-	RefMan<EMObject> surf = createObject( data->outmid_, inpmid );
-	if ( !surf )
-	    continue;
-
-	mDynamicCastGet(EM::Horizon2D*,outhor2D,surf.ptr())
-	if ( !outhor2D )
-	    continue;
-
 	const IOObj* ioobj = IOM().get( inpmid );
 	if ( !ioobj )
 	    continue;
@@ -455,7 +473,7 @@ void Horizon2DT2DTransformer::preStepCB( CallBacker* )
 	if ( !loader || !loader->execute() )
 	   continue;
 
-	RefMan<EM::EMObject> emobj = em.getObject( inpmid );
+	ConstRefMan<EM::EMObject> emobj = em.getObject( inpmid );
 	if ( !emobj )
 	    continue;
 
@@ -463,10 +481,21 @@ void Horizon2DT2DTransformer::preStepCB( CallBacker* )
 	if ( !hor )
 	    continue;
 
-	outsurfs_.add( outhor2D );
+
+	RefMan<EMObject> surf = createObject( data->outmid_, inpmid );
+	if ( !surf )
+	    continue;
+
+	mDynamicCastGet(EM::Horizon2D*,outhor2d,surf.ptr())
+	if ( !outhor2d )
+	    continue;
+
+	outsurfs_.add( outhor2d );
 	inpsurfs_.add( hor );
 	preprocessesedinpmid_.add( hor->multiID() );
     }
+
+    return Horizon2DT2DTransformer::doPrepare( strm );
 }
 
 
@@ -478,6 +507,7 @@ bool Horizon2DT2DTransformer::do2DHorizon( const
     const TypeSet<MultiID>& inpmids = dataholder.getMIDSet();
     TypeSet<int> horidxs;
     StepInterval<int> trcrangeenvelop( Interval<int>::udf(), 1 );
+    const ZDomain::Info* zinfo = nullptr;
     for ( const auto& inpmid : inpmids )
     {
 	const int horidx = preprocessesedinpmid_.indexOf( inpmid );
@@ -486,6 +516,14 @@ bool Horizon2DT2DTransformer::do2DHorizon( const
 	if ( !inphor2D )
 	    continue;
 
+	if ( zinfo && &inpsurf->zDomain() != zinfo )
+	{
+	    errmsg_ = tr("Cannot transform horizons from different ZDomains");
+	    return false;
+	}
+	else if ( !zinfo )
+	    zinfo = &inpsurf->zDomain();
+
 	const StepInterval<int>& trcrng =
 				inphor2D->geometry().colRange( geomid );
 	trcrangeenvelop.include( trcrng );
@@ -493,50 +531,53 @@ bool Horizon2DT2DTransformer::do2DHorizon( const
 	horidxs.add( horidx );
     }
 
-    if ( !load2DVelCubeTransf(geomid,trcrangeenvelop) )
+    if ( !zinfo )
     {
-	errmsg_.add( tr("Failed to preload the velocity volume") );
+	errmsg_.add( tr("Cannot determine horizon ZDomain") );
 	return false;
     }
+
+    TrcKeyZSampling tkzs( geomid );
+    tkzs.hsamp_.setTrcRange( trcrangeenvelop );
+    tkzs.zsamp_ = ZSampling::udf();
+    if ( zatf_.needsVolumeOfInterest() && !addVolumeOfInterest(tkzs,*zinfo) )
+	return false;
 
     for ( const auto& horidx : horidxs )
     {
 	const Surface* inpsurf = inpsurfs_.get( horidx );
 	mDynamicCastGet(const Horizon2D*,inphor2D,inpsurf)
 	EMObject* outsurf = outsurfs_.get( horidx );
-	mDynamicCastGet(Horizon2D*,outhor2D,outsurf)
+	mDynamicCastGet(Horizon2D*,outhor2d,outsurf)
 	if ( !outsurf )
 	    continue;
 
-	outhor2D->enableGeometryChecks( false );
-	outhor2D->setStratLevelID( inphor2D->stratLevelID() );
+	outhor2d->enableGeometryChecks( false );
+	outhor2d->setStratLevelID( inphor2D->stratLevelID() );
 	const StepInterval<int>& trcrng =
 				    inphor2D->geometry().colRange( geomid );
-	PtrMan<Array1D<float>> array = inphor2D->createArray1D( geomid,
-								    &zatf_ );
-	if ( !array )
-	    continue;
-
-	outhor2D->setArray1D( *array, trcrng, geomid, false );
+	PtrMan<Array1D<float>> array =
+				inphor2D->createArray1D( geomid, &zatf_ );
+	if ( array )
+	    outhor2d->setArray1D( *array.ptr(), trcrng, geomid, false );
     }
 
-    unloadModel();
+    if ( zatf_.needsVolumeOfInterest() )
+	unloadModel();
+
     return true;
 }
 
 
 int Horizon2DT2DTransformer::nextStep()
 {
-    if ( nrdone_ == totnr_ )
-	return Finished();
-
     for ( const auto* data : dataset_ )
     {
 	do2DHorizon( *data );
 	nrdone_++;
     }
 
-    return MoreToDo();
+    return nrDone() >= totalNr() ? Finished() : MoreToDo();
 }
 
 
@@ -546,8 +587,6 @@ FaultT2DTransformer::FaultT2DTransformer(
     : SurfaceT2DTransformer(data,zatf)
 {
     msg_ = tr("Transforming Fault");
-    mAttachCB(prestep,FaultT2DTransformer::preStepCB);
-    mAttachCB(poststep,FaultT2DTransformer::postStepCB);
 }
 
 
@@ -557,7 +596,7 @@ FaultT2DTransformer::~FaultT2DTransformer()
 }
 
 
-const StringView FaultT2DTransformer::getTypeString() const
+StringView FaultT2DTransformer::getTypeString() const
 {
     return EM::Fault3D::typeStr();
 }
@@ -566,44 +605,42 @@ const StringView FaultT2DTransformer::getTypeString() const
 bool FaultT2DTransformer::doFault( const SurfaceT2DTransfData& data )
 {
     const MultiID& inpmid = data.inpmid_;
-    RefMan<EMObject> surf = createObject( data.outmid_, inpmid );
-    if ( !surf )
-	mErrRet( tr("Cannot access database") );
-
     const IOObj* ioobj = IOM().get( inpmid );
     if ( !ioobj )
 	mErrRet( tr("Cannot find input fault in repository") );
 
     EM::EMManager& em = EM::EMM();
-    TaskRunner tskr;
-    RefMan<EM::EMObject> emobj = em.loadIfNotFullyLoaded( inpmid, &tskr );
+    ConstRefMan<EM::EMObject> emobj = em.loadIfNotFullyLoaded( inpmid );
     if ( !emobj )
 	mErrRet( tr("Failed to load the fault") );
+
+    mDynamicCastGet(const EM::Fault3D*,flt,emobj.ptr())
+    if ( !flt )
+	mErrRet( tr("Incorrect object selected, "
+				"3D fault is expected for the workflow") );
+
+    const EM::Fault3DGeometry& fltgeom = flt->geometry();
+    const Geometry::FaultStickSurface* fssurf = fltgeom.geometryElement();
+    if ( !fssurf )
+	mErrRet( tr("Fault is empty") );
+
+    RefMan<EMObject> surf = createObject( data.outmid_, inpmid );
+    if ( !surf )
+	mErrRet( tr("Cannot access database") );
 
     mDynamicCastGet(EM::Fault3D*,outfault3d,surf.ptr())
     if ( !outfault3d )
 	mErrRet( tr("The output type is incompatible with input type, "
 						"Fault object expected") );
 
-    mDynamicCastGet(EM::Fault3D*,flt,emobj.ptr())
-    if ( !flt )
-	mErrRet( tr("Incorrect object selected, "
-				"3D fault is expected for the workflow") );
-
     outfault3d->enableGeometryChecks( false );
-    const EM::Fault3DGeometry& fltgeom = flt->geometry();
-    const Geometry::FaultStickSurface* fssurf = fltgeom.geometryElement();
-    if ( !fssurf )
-	mErrRet( tr("Fault is empty") );
 
     const int nrsticks = fltgeom.nrSticks();
-    TrcKeyZSampling tkzs = fltgeom.getEnvelope();
-    tkzs.zsamp_ = SI().sampling( false ).zsamp_;
-    if ( zatf_.toZDomainInfo().def_ != SI().zDomain() )
-	tkzs.zsamp_ = zatf_.getZInterval( true, true,
-					    &SI().sampling(false).zsamp_ );
+    const TrcKeyZSampling tkzs = fltgeom.getEnvelope();
+    const ZDomain::Info& info = emobj->zDomain();
+    if ( zatf_.needsVolumeOfInterest() && !addVolumeOfInterest(tkzs,info) )
+	return false;
 
-    load3DTranformVol( &tkzs );
     int stickidx = 0;
     for ( int idx=0; idx<nrsticks; idx++ )
     {
@@ -642,7 +679,8 @@ bool FaultT2DTransformer::doFault( const SurfaceT2DTransfData& data )
 	    stickidx++;
     }
 
-    unloadModel();
+    if ( zatf_.needsVolumeOfInterest() )
+	unloadModel();
 
     outsurfs_.add( outfault3d );
     return true;
@@ -651,9 +689,6 @@ bool FaultT2DTransformer::doFault( const SurfaceT2DTransfData& data )
 
 int FaultT2DTransformer::nextStep()
 {
-    if ( nrdone_ == totnr_ )
-	return Finished();
-
     for ( const auto* data : datas_ )
     {
 	if ( !data )
@@ -663,7 +698,9 @@ int FaultT2DTransformer::nextStep()
 	nrdone_++;
     }
 
-    return MoreToDo();
+    return nrDone() >= totalNr()
+		? ( errmsg_.isOK() ? Finished() : ErrorOccurred() )
+		: MoreToDo();
 }
 
 
@@ -673,8 +710,6 @@ FaultSetT2DTransformer::FaultSetT2DTransformer(
     : SurfaceT2DTransformer(data, zatf)
 {
     msg_ = tr("Transforming FaultSet");
-    mAttachCB(prestep,FaultSetT2DTransformer::preStepCB);
-    mAttachCB(poststep,FaultSetT2DTransformer::postStepCB);
 }
 
 FaultSetT2DTransformer::~FaultSetT2DTransformer()
@@ -683,7 +718,7 @@ FaultSetT2DTransformer::~FaultSetT2DTransformer()
 }
 
 
-const StringView FaultSetT2DTransformer::getTypeString() const
+StringView FaultSetT2DTransformer::getTypeString() const
 {
     return EM::FaultSet3D::typeStr();
 }
@@ -692,22 +727,21 @@ const StringView FaultSetT2DTransformer::getTypeString() const
 bool FaultSetT2DTransformer::doFaultSet( const SurfaceT2DTransfData& data )
 {
     const MultiID& inpmid = data.inpmid_;
-    RefMan<EMObject> outfltsetobj = createObject( data.outmid_, inpmid );
-    if ( !outfltsetobj )
-	mErrRet( tr("Cannot access database") );
-
     const IOObj* ioobj = IOM().get( inpmid );
     if ( !ioobj )
 	mErrRet( tr("Cannot find input FaultSet in repository") );
 
     EM::EMManager& em = EM::EMM();
-    TaskRunner tskr;
-    RefMan<EM::EMObject> inpemobj = em.loadIfNotFullyLoaded( inpmid, &tskr );
+    ConstRefMan<EM::EMObject> inpemobj = em.loadIfNotFullyLoaded( inpmid );
     if ( !inpemobj )
 	mErrRet( tr("Failed to load the faultset") );
 
-    mDynamicCastGet(EM::FaultSet3D*,inpfltset,inpemobj.ptr())
+    mDynamicCastGet(const EM::FaultSet3D*,inpfltset,inpemobj.ptr())
     if ( !inpfltset )
+	mErrRet( tr("Cannot access database") );
+
+    RefMan<EMObject> outfltsetobj = createObject( data.outmid_, inpmid );
+    if ( !outfltsetobj )
 	mErrRet( tr("Cannot access database") );
 
     mDynamicCastGet(EM::FaultSet3D*,outfltset,outfltsetobj.ptr())
@@ -716,18 +750,16 @@ bool FaultSetT2DTransformer::doFaultSet( const SurfaceT2DTransfData& data )
 	    "FaultSet object expected") );
 
     const int nrfaults = inpfltset->nrFaults();
-    TrcKeyZSampling tkzs = inpfltset->getEnvelope();
-    tkzs.zsamp_ = SI().sampling( false ).zsamp_;
-    if ( zatf_.toZDomainInfo().def_ != SI().zDomain() )
-	tkzs.zsamp_ = zatf_.getZInterval( true, true,
-						&SI().sampling(false).zsamp_ );
+    const TrcKeyZSampling tkzs = inpfltset->getEnvelope();
+    const ZDomain::Info& zinfo = inpfltset->zDomain();
+    if ( zatf_.needsVolumeOfInterest() && !addVolumeOfInterest(tkzs,zinfo) )
+	return false;
 
-    load3DTranformVol( &tkzs );
     for ( int fltidx=0; fltidx<nrfaults; fltidx++ )
     {
 	const EM::FaultID fltid = inpfltset->getFaultID( fltidx );
-	RefMan<EM::EMObject> fltobj = inpfltset->getFault3D( fltid );
-	mDynamicCastGet(EM::Fault3D*,flt,fltobj.ptr())
+	ConstRefMan<EM::EMObject> fltobj = inpfltset->getFault3D( fltid );
+	mDynamicCastGet(const EM::Fault3D*,flt,fltobj.ptr())
 	    const EM::Fault3DGeometry& fltgeom = flt->geometry();
 	const Geometry::FaultStickSurface* fssurf = fltgeom.geometryElement();
 	if ( !fssurf )
@@ -780,7 +812,9 @@ bool FaultSetT2DTransformer::doFaultSet( const SurfaceT2DTransfData& data )
 	outfltset->addFault( outfault3d );
     }
 
-    unloadModel();
+    if ( zatf_.needsVolumeOfInterest() )
+	unloadModel();
+
     outsurfs_.add( outfltset );
     return true;
 }
@@ -788,9 +822,6 @@ bool FaultSetT2DTransformer::doFaultSet( const SurfaceT2DTransfData& data )
 
 int FaultSetT2DTransformer::nextStep()
 {
-    if ( nrdone_ == totnr_ )
-	return Finished();
-
     for ( const auto* data : datas_ )
     {
 	if ( !data )
@@ -800,7 +831,9 @@ int FaultSetT2DTransformer::nextStep()
 	nrdone_++;
     }
 
-    return MoreToDo();
+    return nrDone() >= totalNr()
+		? ( errmsg_.isOK() ? Finished() : ErrorOccurred() )
+		: MoreToDo();
 }
 
 
@@ -813,8 +846,6 @@ FaultStickSetT2DTransformer::FaultStickSetT2DTransformer(
 {
     msg_ = tr("Transforming %1 FaultStickSet").arg( is2d ? uiStrings::s2D()
 							 : uiStrings::s3D() );
-    mAttachCB(prestep,FaultStickSetT2DTransformer::preStepCB);
-    mAttachCB(poststep,FaultStickSetT2DTransformer::postStepCB);
 }
 
 
@@ -824,7 +855,7 @@ FaultStickSetT2DTransformer::~FaultStickSetT2DTransformer()
 }
 
 
-const StringView FaultStickSetT2DTransformer::getTypeString() const
+StringView FaultStickSetT2DTransformer::getTypeString() const
 {
     return EM::FaultStickSet::typeStr();
 }
@@ -869,26 +900,35 @@ bool FaultStickSetT2DTransformer::handle2DTransformation(
 				const EM::FaultStickSetGeometry& fssgeom,
 				EM::FaultStickSet& outfss )
 {
+    return false;
+}
+
+
+bool FaultStickSetT2DTransformer::handle2DTransformation(
+				const EM::FaultStickSetGeometry& fssgeom,
+				const ZDomain::Info& zinfo,
+				EM::FaultStickSet& outfss )
+{
     TypeSet<Pos::GeomID> geomids;
     fssgeom.getPickedGeomIDs( geomids );
-    const StepInterval<int> trcrg = fssgeom.geometryElement()->colRange();
-    for ( auto& geomid : geomids )
+    for ( const auto& geomid : geomids )
     {
-	mDynamicCastGet(const Survey::Geometry2D*,geom2d,
-					    Survey::GM().getGeometry(geomid));
-	if ( !geom2d )
-	    continue;
+	TrcKeyZSampling tkzs( geomid );
+	fssgeom.getTrcKeyZSamplingForGeomID( geomid, tkzs );
+	if ( zatf_.needsVolumeOfInterest() &&
+	     !addVolumeOfInterest(tkzs,zinfo) )
+	    return false;
 
-	load2DVelCubeTransf( geomid, geom2d->data().trcNrRange() );
 	TypeSet<int> sticknrs;
 	fssgeom.getStickNrsForGeomID( geomid, sticknrs );
-	for ( auto sticknr : sticknrs )
+	for ( const auto& sticknr : sticknrs )
 	{
 	    doTransformation( fssgeom.geometryElement()->getStick(sticknr,
 					true), sticknr, outfss, geomid );
 	}
 
-	unloadModel();
+	if ( zatf_.needsVolumeOfInterest() )
+	    unloadModel();
     }
 
     return true;
@@ -899,6 +939,15 @@ bool FaultStickSetT2DTransformer::handle3DTransformation(
 				    const EM::FaultStickSetGeometry& fssgeom,
 				    EM::FaultStickSet& outfss )
 {
+    return false;
+}
+
+
+bool FaultStickSetT2DTransformer::handle3DTransformation(
+				    const EM::FaultStickSetGeometry& fssgeom,
+				    const ZDomain::Info& zinfo,
+				    EM::FaultStickSet& outfss )
+{
     const Geometry::FaultStickSet* fss = fssgeom.geometryElement();
     if ( !fss )
 	mErrRet( tr("FaultStickSet is empty") );
@@ -906,23 +955,23 @@ bool FaultStickSetT2DTransformer::handle3DTransformation(
     const int nrsticks = fssgeom.nrSticks();
     TypeSet<Pos::GeomID> geomids;
     fssgeom.getPickedGeomIDs( geomids );
-    for ( auto& geomid : geomids )
+    for ( const auto& geomid : geomids )
     {
-	TrcKeyZSampling samp;
-	fssgeom.getTrcKeyZSamplingForGeomID( geomid, samp );
-	samp.zsamp_ = SI().sampling( false ).zsamp_;
-	if ( zatf_.toZDomainInfo().def_ != SI().zDomain() )
-	    samp.zsamp_ = zatf_.getZInterval( true, true,
-						&SI().sampling(false).zsamp_ );
+	TrcKeyZSampling tkzs( geomid );
+	fssgeom.getTrcKeyZSamplingForGeomID( geomid, tkzs );
 
-	load3DTranformVol( &samp );
+	if ( zatf_.needsVolumeOfInterest() &&
+	     !addVolumeOfInterest(tkzs,zinfo) )
+	    return false;
+
 	for ( int idx=0; idx<nrsticks; idx++ )
 	{
 	    const Geometry::FaultStick* stick = fss->getStick( idx );
 	    doTransformation( stick, idx, outfss );
 	}
 
-	unloadModel();
+	if ( zatf_.needsVolumeOfInterest() )
+	    unloadModel();
     }
 
     return true;
@@ -933,29 +982,28 @@ bool FaultStickSetT2DTransformer::doFaultStickSet(
 				const SurfaceT2DTransfData& data )
 {
     const MultiID& inpmid = data.inpmid_;
-    RefMan<EMObject> surf = createObject( data.outmid_, inpmid );
-    if ( !surf )
-	mErrRet( tr("Cannot access database") );
-
     const IOObj* ioobj = IOM().get( inpmid );
     if ( !ioobj )
 	mErrRet( tr("Cannot find input FaultStickSet in repository") );
 
     EM::EMManager& em = EM::EMM();
-    TaskRunner tskr;
-    RefMan<EM::EMObject> emobj = em.loadIfNotFullyLoaded( inpmid, &tskr );
+    ConstRefMan<EM::EMObject> emobj = em.loadIfNotFullyLoaded( inpmid );
     if ( !emobj )
 	mErrRet( tr("Failed to load the fault") );
+
+    mDynamicCastGet(const EM::FaultStickSet*,fltss,emobj.ptr())
+    if ( !fltss )
+	mErrRet( tr("Incorrect object selected, "
+		"3D FaultStickSet is expected for the workflow") );
+
+    RefMan<EMObject> surf = createObject( data.outmid_, inpmid );
+    if ( !surf )
+	mErrRet( tr("Cannot access database") );
 
     mDynamicCastGet(EM::FaultStickSet*,outfss,surf.ptr())
     if ( !outfss)
 	mErrRet( tr("The output type is incompatible with input type, "
 		"FaultStickSet object expected") );
-
-    mDynamicCastGet(EM::FaultStickSet*,fltss,emobj.ptr())
-    if ( !fltss )
-	mErrRet( tr("Incorrect object selected, "
-		"3D FaultStickSet is expected for the workflow") );
 
     outfss->enableGeometryChecks( false );
     const EM::FaultStickSetGeometry& fssgeom = fltss->geometry();
@@ -973,10 +1021,11 @@ bool FaultStickSetT2DTransformer::doFaultStickSet(
 		.arg(is2d_ ? uiStrings::s3D() : uiStrings::s2D()) );
     }
 
+    const ZDomain::Info& zinfo = emobj->zDomain();
     if ( is2d_ )
-	handle2DTransformation( fssgeom, *outfss );
+	handle2DTransformation( fssgeom, zinfo, *outfss );
     else
-	handle3DTransformation( fssgeom, *outfss );
+	handle3DTransformation( fssgeom, zinfo, *outfss );
 
     outsurfs_.add( outfss );
     return true;
@@ -985,9 +1034,6 @@ bool FaultStickSetT2DTransformer::doFaultStickSet(
 
 int FaultStickSetT2DTransformer::nextStep()
 {
-    if ( nrdone_ == totnr_ )
-	return Finished();
-
     for ( const auto* data : datas_ )
     {
 	if ( !data )
@@ -997,7 +1043,9 @@ int FaultStickSetT2DTransformer::nextStep()
 	nrdone_++;
     }
 
-    return MoreToDo();
+    return nrDone() >= totalNr()
+		? ( errmsg_.isOK() ? Finished() : ErrorOccurred() )
+		: MoreToDo();
 }
 
 }

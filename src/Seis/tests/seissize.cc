@@ -288,16 +288,20 @@ bool validDP( const RegularSeisDataPack* dp, const TrcKeyZSampling& tkzs,
 bool testCBVS3DSeisTrcReader( const IOObj& obj, const TrcKeyZSampling& tkzs )
 {
     SeisTrcReader volrdr( obj );
-    TrcKeySampling trctkzs = tkzs.hsamp_;
-    trctkzs.set( TrcKey(BinID(232,728)) );
+    TrcKeyZSampling trctkzs = tkzs;
+    trctkzs.hsamp_.set( TrcKey(BinID(232,728)) );
+    trctkzs.zsamp_.start_ = tkzs.zsamp_.atIndex( 2 );
+    trctkzs.zsamp_.stop_ = tkzs.zsamp_.atIndex( tkzs.nrZ()-2 );
     volrdr.setSelData( new Seis::RangeSelData(trctkzs) );
     SeisTrc trc;
     mRunStandardTestWithError( volrdr.get(trc.info()) == 1,
 			       "Fetch trc info", volrdr.errMsg().getString() )
     mRunStandardTestWithError( volrdr.get(trc),
 			       "Fetch trc data", volrdr.errMsg().getString() )
+    mRunStandardTest( trc.zRange().isEqual(trctkzs.zsamp_,1e-2f),
+		      "Fetched SeisTrc zRange" )
     mRunStandardTest( mIsEqual(trc.getValue(0.756f,0),-263.f,1e-2f),
-			 "Sample amplitude from SeisTrcReader::get" )
+		      "Sample amplitude from SeisTrcReader::get" )
 
     SetEnvVar( "OD_ENABLE_TRANSLATOR_DATAPACK", "Yes" );
 
@@ -366,14 +370,18 @@ bool testCBVS3DSeisTrcReader( const IOObj& obj, const TrcKeyZSampling& tkzs )
 bool testCBVS2DSeisTrcReader( const IOObj& obj, const TrcKeyZSampling& tkzs )
 {
     SeisTrcReader linerdr( obj );
-    TrcKeySampling trctkzs = tkzs.hsamp_;
-    trctkzs.set( TrcKey(tkzs.hsamp_.getGeomID(),500) );
+    TrcKeyZSampling trctkzs = tkzs;
+    trctkzs.hsamp_.set( TrcKey(tkzs.hsamp_.getGeomID(),500) );
+    trctkzs.zsamp_.start_ = tkzs.zsamp_.atIndex( 2 );
+    trctkzs.zsamp_.stop_ = tkzs.zsamp_.atIndex( tkzs.nrZ()-2 );
     linerdr.setSelData( new Seis::RangeSelData(trctkzs) );
     SeisTrc trc;
     mRunStandardTestWithError( linerdr.get(trc.info()) == 1,
 			       "Fetch trc info", linerdr.errMsg().getString() )
     mRunStandardTestWithError( linerdr.get(trc),
 			       "Fetch trc data", linerdr.errMsg().getString() )
+    mRunStandardTest( trc.zRange().isEqual(trctkzs.zsamp_,1e-2f),
+		      "Fetched SeisTrc zRange" )
     mRunStandardTest( mIsEqual(trc.getValue(0.756f,0),-503.f,1e-2f),
 		      "Sample amplitude from SeisTrcReader::get" )
 
@@ -432,14 +440,18 @@ bool testCBVS2DSeisTrcReader( const IOObj& obj, const TrcKeyZSampling& tkzs )
 bool testSEGYSeisTrcReader( const IOObj& obj, const TrcKeyZSampling& tkzs )
 {
     SeisTrcReader volrdr( obj );
-    TrcKeySampling trctkzs = tkzs.hsamp_;
-    trctkzs.set( TrcKey(BinID(206,706)) );
+    TrcKeyZSampling trctkzs = tkzs;
+    trctkzs.hsamp_.set( TrcKey(BinID(206,706)) );
+    trctkzs.zsamp_.start_ = tkzs.zsamp_.atIndex( 2 );
+    trctkzs.zsamp_.stop_ = tkzs.zsamp_.atIndex( tkzs.nrZ()-2 );
     volrdr.setSelData( new Seis::RangeSelData(trctkzs) );
     SeisTrc trc;
     mRunStandardTestWithError( volrdr.get(trc.info()) == 1,
 			       "Fetch trc info", volrdr.errMsg().getString() )
     mRunStandardTestWithError( volrdr.get(trc),
 			       "Fetch trc data", volrdr.errMsg().getString() )
+    mRunStandardTest( trc.zRange().isEqual(trctkzs.zsamp_,1e-2f),
+		      "Fetched SeisTrc zRange" )
     mRunStandardTest( mIsEqual(trc.getValue(0.756f,0),-589.f,1e-2f),
 		      "Sample amplitude from SeisTrcReader::get" )
 

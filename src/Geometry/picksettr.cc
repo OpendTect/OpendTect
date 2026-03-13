@@ -74,6 +74,13 @@ bool PickSetTranslator::retrieve( Pick::Set& ps, const IOObj* ioobj,
 	ps.setDefaultDispPars( ispolygon );
     }
 
+    if ( errmsg.isEmpty() )
+    {
+	const ZDomain::Info* zinfo = ZDomain::Info::getFrom( ioobj->pars() );
+	if ( zinfo )
+	    ps.setZDomain( *zinfo );
+    }
+
     return errmsg.isEmpty();
 }
 
