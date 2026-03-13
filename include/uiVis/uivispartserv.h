@@ -95,8 +95,9 @@ public:
     uiString		getUiObjectName(const VisID&) const;
     Pos::GeomID		getGeomID(const VisID&) const;
 
-    CNotifier<uiVisPartServer,VisID>	objectAdded;
-    CNotifier<uiVisPartServer,VisID>	objectRemoved;
+    CNotifier<uiVisPartServer,VisID>		objectAdded;
+    CNotifier<uiVisPartServer,VisID>		objectRemoved;
+    CNotifier<uiVisPartServer,VisAttribID>	datapackDisplayed;
 
     void		removeSelection();
 
