@@ -144,3 +144,32 @@ public:
     using IntegerID::IntegerID;
     static inline Vis2DID	udf()			{ return Vis2DID(); }
 };
+
+
+mExpClass(Basic) VisAttribID
+{
+public:
+    inline			VisAttribID()
+				    : attribnr_(mUdf(int))
+				{}
+    inline			VisAttribID( VisID visid, int attribnr )
+				    : visid_(visid)
+				    , attribnr_(attribnr)		{}
+    virtual			~VisAttribID()		{}
+
+    inline VisID		visID() const		{ return visid_; }
+    inline int			attribNr() const	{ return attribnr_; }
+    inline void			setVisID(VisID id)	{ visid_ = id; }
+    inline void			setAttribNr(int nr)	{ attribnr_ = nr; }
+
+    inline virtual bool		isValid() const { return visid_.isValid() &&
+							 attribnr_>=0 &&
+							 !mIsUdf(attribnr_); }
+    inline void			setUdf()	{ visid_.setUdf();
+						  attribnr_ = mUdf(int); }
+    static inline VisAttribID	udf()		{ return VisAttribID(); }
+
+private:
+    VisID			visid_;
+    int				attribnr_;
+};

@@ -97,6 +97,7 @@ uiVisPartServer::uiVisPartServer( uiApplService& a )
     : uiApplPartServer(a)
     , objectAdded(this)
     , objectRemoved(this)
+    , datapackDisplayed(this)
     , keyEvent(this)
     , mouseEvent(this)
     , selectionmodeChange(this)
@@ -825,6 +826,12 @@ bool uiVisPartServer::setVolumeDataPack( const VisID& id, int attrib,
     {
 	multirgeditwin_->setDataPack( attrib, voldp,
 				      so->selectedTexture(attrib) );
+    }
+
+    if ( voldp )
+    {
+	VisAttribID layerid( id, attrib );
+	datapackDisplayed.trigger( layerid );
     }
 
     return res;
