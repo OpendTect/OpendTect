@@ -10,6 +10,7 @@ ________________________________________________________________________
 #include "seisselectionimpl.h"
 
 #include "binidvalset.h"
+#include "hiddenparam.h"
 #include "ioman.h"
 #include "ioobj.h"
 #include "iopar.h"
@@ -27,6 +28,8 @@ ________________________________________________________________________
 
 #define mGetSpecKey(s,k) IOPar::compKey(sKey::s(),k)
 static const char* sKeyBinIDSel = "BinID selection";
+
+static HiddenParam<Seis::TableSelData,Interval<float>*> hp_zrange( nullptr );
 
 Seis::SelSetup::SelSetup( Seis::GeomType gt )
     : is2d_(Seis::is2D(gt))
@@ -114,9 +117,9 @@ Seis::SelData* Seis::SelData::get( Type t )
 {
     switch ( t )
     {
-    case Seis::Table:	return new Seis::TableSelData;
-    case Seis::Polygon:	return new Seis::PolySelData;
-    default:		return new Seis::RangeSelData( true );
+	case Seis::Table:	return new Seis::TableSelData;
+	case Seis::Polygon:	return new Seis::PolySelData;
+	default:		return new Seis::RangeSelData( true );
     }
 }
 
@@ -263,7 +266,8 @@ Seis::RangeSelData::~RangeSelData()
 
 void Seis::RangeSelData::copyFrom( const Seis::SelData& sd )
 {
-    if ( this == &sd ) return;
+    if ( this == &sd )
+	return;
 
     SelData::copyFrom( sd );
     if ( sd.type() == type() )
@@ -410,6 +414,7 @@ void Seis::RangeSelData::include( const Seis::SelData& sd )
 {
     if ( isall_ )
 	return;
+
     if ( sd.isAll() )
 	{ isall_ = true; return; }
 
@@ -526,6 +531,7 @@ Seis::TableSelData::TableSelData()
     , extraz_(0,0)
     , fixedzrange_(Interval<float>(mUdf(float),mUdf(float)))
 {
+    hp_zrange.setParam( this, new Interval<float>(Interval<float>::udf()) );
 }
 
 
@@ -535,8 +541,10 @@ Seis::TableSelData::TableSelData( const BinIDValueSet& bvs,
     , extraz_(0,0)
     , fixedzrange_(Interval<float>(mUdf(float),mUdf(float)))
 {
+    hp_zrange.setParam( this, new Interval<float>(Interval<float>::udf()) );
     bvs_.setNrVals( 1, true );
-    if ( extraz ) extraz_ = *extraz;
+    if ( extraz )
+	extraz_ = *extraz;
 }
 
 
@@ -545,19 +553,22 @@ Seis::TableSelData::TableSelData( const Seis::TableSelData& sd )
     , extraz_(0,0)
     , fixedzrange_(Interval<float>(mUdf(float),mUdf(float)))
 {
+    hp_zrange.setParam( this, new Interval<float>(Interval<float>::udf()) );
     copyFrom(sd);
 }
 
 
 Seis::TableSelData::~TableSelData()
 {
+    hp_zrange.removeAndDeleteParam( this );
     delete &bvs_;
 }
 
 
 void Seis::TableSelData::copyFrom( const Seis::SelData& sd )
 {
-    if ( this == &sd ) return;
+    if ( this == &sd )
+	return;
 
     SelData::copyFrom( sd );
     if ( sd.type() == type() )
@@ -566,6 +577,8 @@ void Seis::TableSelData::copyFrom( const Seis::SelData& sd )
 	bvs_ = tsd.bvs_;
 	extraz_ = tsd.extraz_;
 	fixedzrange_ = tsd.fixedzrange_;
+	auto* zrange = hp_zrange.getParam( this );
+	*zrange = StepInterval<float>::udf();
     }
     else
     {
@@ -577,27 +590,40 @@ void Seis::TableSelData::copyFrom( const Seis::SelData& sd )
 
 Interval<int> Seis::TableSelData::inlRange() const
 {
-    if ( isall_  ) return Seis::SelData::inlRange();
+    if ( isall_  )
+	return Seis::SelData::inlRange();
+
     return bvs_.inlRange();
 }
 
 
 Interval<int> Seis::TableSelData::crlRange() const
 {
-    if ( isall_  ) return Seis::SelData::crlRange();
+    if ( isall_  )
+	return Seis::SelData::crlRange();
+
     return bvs_.crlRange();
 }
 
 
 Interval<float> Seis::TableSelData::zRange() const
 {
-    if ( isall_ ) return Seis::SelData::zRange();
+    auto* zrange = hp_zrange.getParam( this );
+    if ( isall_ )
+	return Seis::SelData::zRange();
+
+    if ( !zrange->isUdf() )
+	return *zrange;
+
+    if ( bvs_.nrVals() )
+	return fixedzrange_;
 
     Interval<float> zrg( bvs_.valRange(0) + extraz_ );
     if ( zrg.isUdf() )
-	zrg = SI().zRange(true);
+	zrg = SI().zRange( true );
 
-    return !bvs_.nrVals() ? fixedzrange_ : zrg;
+    const_cast<Interval<float>&>( *zrange ) = zrg;
+    return *zrange;
 }
 
 
@@ -613,7 +639,9 @@ bool Seis::TableSelData::setZRange( const Interval<float>& rg )
 void Seis::TableSelData::fillPar( IOPar& iop ) const
 {
     Seis::SelData::fillPar( iop );
-    if ( isall_ ) return;
+    if ( isall_ )
+	return;
+
     iop.set( mGetTableKey("ExtraZ"), extraz_ );
     bvs_.fillPar( iop, mGetTableKey("Data") );
 }
@@ -622,8 +650,11 @@ void Seis::TableSelData::fillPar( IOPar& iop ) const
 void Seis::TableSelData::usePar( const IOPar& iop )
 {
     bvs_.setEmpty();
+    auto* zrange = hp_zrange.getParam( this );
+    *zrange = StepInterval<float>::udf();
     Seis::SelData::usePar( iop );
-    if ( isall_ ) return;
+    if ( isall_ )
+	return;
 
     iop.get( mGetTableKey("ExtraZ"), extraz_ );
     Pos::TableProvider3D::getBVSFromPar( iop, bvs_ );
@@ -632,6 +663,8 @@ void Seis::TableSelData::usePar( const IOPar& iop )
 
 void Seis::TableSelData::extendZ( const Interval<float>& zrg )
 {
+    auto* zrange = hp_zrange.getParam( this );
+    *zrange = StepInterval<float>::udf();
     extraz_.start_ += zrg.start_;
     extraz_.stop_ += zrg.stop_;
 }
@@ -647,12 +680,18 @@ void Seis::TableSelData::include( const Seis::SelData& sd )
 {
     if ( isall_ )
 	return;
+
     if ( sd.isAll() )
-	{ isall_ = true; return; }
+    {
+	isall_ = true;
+	return;
+    }
 
     if ( sd.type() == type() )
     {
 	mDynamicCastGet(const Seis::TableSelData&,tsd,sd)
+	auto* zrange = hp_zrange.getParam( this );
+	*zrange = StepInterval<float>::udf();
 	bvs_.append( tsd.bvs_ );
         if ( extraz_.start_ < tsd.extraz_.start_ )
             extraz_.start_ = tsd.extraz_.start_;
@@ -668,10 +707,12 @@ void Seis::TableSelData::include( const Seis::SelData& sd )
 
 int Seis::TableSelData::selRes3D( const BinID& bid ) const
 {
-    if ( isall_ ) return 0;
+    if ( isall_ )
+	return 0;
 
     const BinIDValueSet::SPos pos( bvs_.find(bid) );
-    if ( pos.j >= 0 ) return 0;
+    if ( pos.j >= 0 )
+	return 0;
 
     const int inlres = pos.i < 0 ? 2 : 0;
     const int crlres = 1; // Maybe not true, but safe
@@ -723,6 +764,7 @@ Seis::PolySelData::PolySelData( const ODPolygon<int>& poly,
 	polys_[0]->add( Geom::Point2D<float>(
                             mCast(float,pt.x_), mCast(float,pt.y_) ) );
     }
+
     initZrg( zrg );
 }
 
@@ -753,7 +795,8 @@ Seis::PolySelData::~PolySelData()
 
 void Seis::PolySelData::copyFrom( const Seis::SelData& sd )
 {
-    if ( this == &sd ) return;
+    if ( this == &sd )
+	return;
 
     SelData::copyFrom( sd );
     if ( sd.type() == type() )
@@ -770,7 +813,8 @@ void Seis::PolySelData::copyFrom( const Seis::SelData& sd )
     {
 	mDynamicCastGet(const Seis::RangeSelData*,rsd,&sd)
 	if ( !rsd )
-	    { pErrMsg( "Huh" ); }
+	    pErrMsg( "Huh" );
+
 	ODPolygon<float>* poly = new ODPolygon<float>;
 	const TrcKeyZSampling& cs = rsd->cubeSampling();
 	poly->add( Geom::Point2D<float>( (float) cs.hsamp_.start_.inl(),
@@ -789,7 +833,8 @@ void Seis::PolySelData::copyFrom( const Seis::SelData& sd )
 
 Interval<int> Seis::PolySelData::inlRange() const
 {
-    if ( isall_ ) return Seis::SelData::inlRange();
+    if ( isall_ )
+	return Seis::SelData::inlRange();
 
     if ( polys_.isEmpty() )
 	return Interval<int>( mUdf(int), mUdf(int) );
@@ -808,7 +853,8 @@ Interval<int> Seis::PolySelData::inlRange() const
 
 Interval<int> Seis::PolySelData::crlRange() const
 {
-    if ( isall_  ) return Seis::SelData::crlRange();
+    if ( isall_  )
+	return Seis::SelData::crlRange();
 
     if ( polys_.isEmpty() )
 	return Interval<int>( mUdf(int), mUdf(int) );
@@ -827,7 +873,9 @@ Interval<int> Seis::PolySelData::crlRange() const
 
 Interval<float> Seis::PolySelData::zRange() const
 {
-    if ( isall_ ) return Seis::SelData::zRange();
+    if ( isall_ )
+	return Seis::SelData::zRange();
+
     return zrg_;
 }
 
@@ -837,7 +885,8 @@ Interval<float> Seis::PolySelData::zRange() const
 void Seis::PolySelData::fillPar( IOPar& iop ) const
 {
     Seis::SelData::fillPar( iop );
-    if ( isall_ ) return;
+    if ( isall_ )
+	return;
 
     iop.set( mGetPolyKey(sKey::ZRange()), zrg_ );
     iop.set( mGetPolyKey("Stepoutreach"), stepoutreach_ );
@@ -851,7 +900,11 @@ void Seis::PolySelData::fillPar( IOPar& iop ) const
 void Seis::PolySelData::usePar( const IOPar& iop )
 {
     Seis::SelData::usePar( iop );
-    if ( isall_ ) { deepErase( polys_ ); return; }
+    if ( isall_ )
+    {
+	deepErase( polys_ );
+	return;
+    }
 
     const bool wasfilled = !polys_.isEmpty();
 
@@ -892,21 +945,28 @@ void Seis::PolySelData::extendZ( const Interval<float>& zrg )
 
 
 void Seis::PolySelData::doExtendH( BinID so, BinID sos )
-{ stepoutreach_ += so * sos; }
+{
+    stepoutreach_ += so * sos;
+}
 
 
 void Seis::PolySelData::include( const Seis::SelData& sd )
 {
     if ( isall_ )
 	return;
+
     if ( sd.isAll() )
-	{ isall_ = true; return; }
+    {
+	isall_ = true;
+	return;
+    }
 
     if ( sd.type() == type() )
     {
 	mDynamicCastGet(const Seis::PolySelData&,psd,sd)
-                if ( zrg_.start_ < psd.zrg_.start_ )
-                zrg_.start_ = psd.zrg_.start_;
+	if ( zrg_.start_ < psd.zrg_.start_ )
+	    zrg_.start_ = psd.zrg_.start_;
+
         if ( zrg_.stop_ > psd.zrg_.stop_ )
             zrg_.stop_ = psd.zrg_.stop_;
 
@@ -941,6 +1001,7 @@ void Seis::PolySelData::include( const Seis::SelData& sd )
 
             if ( zrg_.start_ < zrg.start_ )
                 zrg_.start_ = zrg.start_;
+
             if ( zrg_.stop_ > zrg.stop_ )
                 zrg_.stop_ = zrg.stop_;
 	}
@@ -954,7 +1015,8 @@ void Seis::PolySelData::include( const Seis::SelData& sd )
 
 int Seis::PolySelData::selRes3D( const BinID& bid ) const
 {
-    if ( isall_ ) return 0;
+    if ( isall_ )
+	return 0;
 
     Interval<float> inlrg( mCast(float,bid.inl()), mCast(float,bid.inl()) );
     inlrg.widen( mCast(float,stepoutreach_.inl()) );
@@ -975,7 +1037,8 @@ int Seis::PolySelData::selRes3D( const BinID& bid ) const
 
 int Seis::PolySelData::expectedNrTraces( bool for2d, const BinID* step ) const
 {
-    if ( isall_ || for2d ) return tracesInSI();
+    if ( isall_ || for2d )
+	return tracesInSI();
 
     int estnrtraces = 0;
     // Estimation does not compensate for eventual overlap between polys
@@ -984,18 +1047,21 @@ int Seis::PolySelData::expectedNrTraces( bool for2d, const BinID* step ) const
 	const Interval<float> polyinlrg = polys_[idx]->getRange( true );
 	const Interval<float> polycrlrg = polys_[idx]->getRange( false );
 	const float rectarea = polyinlrg.width() * polycrlrg.width();
-        const float coverfrac = rectarea
-	    ? (float) polys_[idx]->area()/rectarea
-	    : 1.0f;
+	const float coverfrac = rectarea ? (float) polys_[idx]->area()/rectarea
+					 : 1.0f;
 
-        Interval<int> inlrg( mNINT32(polyinlrg.start_), mNINT32(polyinlrg.stop_));
+	Interval<int> inlrg( mNINT32(polyinlrg.start_),
+			     mNINT32(polyinlrg.stop_));
 	inlrg.widen( stepoutreach_.inl() );
-        Interval<int> crlrg( mNINT32(polycrlrg.start_), mNINT32(polycrlrg.stop_));
+	Interval<int> crlrg( mNINT32(polycrlrg.start_),
+			     mNINT32(polycrlrg.stop_));
 	crlrg.widen( stepoutreach_.crl() );
 
 	TrcKeySampling hs;
 	hs.set( inlrg, crlrg );
-	if ( step ) hs.step_ = *step;
+	if ( step )
+	    hs.step_ = *step;
+
 	hs.snapToSurvey();
 	estnrtraces += mNINT32( coverfrac * hs.totalNr() );
     }
