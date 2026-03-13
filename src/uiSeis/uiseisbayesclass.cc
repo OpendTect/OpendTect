@@ -102,7 +102,8 @@ void uiSeisBayesClass::doPart()
 
 
 class uiSeisBayesPDFInp : public uiVarWizardDlg
-{ mODTextTranslationClass(uiSeisBayesPDFInp);
+{
+mODTextTranslationClass(uiSeisBayesPDFInp)
 public:
 
 uiSeisBayesPDFInp( uiParent* p, IOPar& pars )
@@ -153,7 +154,7 @@ uiSeisBayesPDFInp( uiParent* p, IOPar& pars )
 	flds_ += fld;
     }
 
-    mAttachCB(postFinalize(), uiSeisBayesPDFInp::handleDisp );
+    mAttachCB( postFinalize(), uiSeisBayesPDFInp::handleDispCB );
 }
 
 ~uiSeisBayesPDFInp()
@@ -243,7 +244,7 @@ bool acceptOK( CallBacker* ) override
     ObjectSet<uiButton>		rmbuts_;
     int				nrdisp_		= 1;
 
-};
+}; // class uiSeisBayesPDFInp
 
 
 
@@ -266,7 +267,8 @@ void uiSeisBayesClass::inpPDFsGot( CallBacker* )
 
 
 class uiSeisBayesNorm : public uiVarWizardDlg
-{ mODTextTranslationClass(uiSeisBayesNorm);
+{
+mODTextTranslationClass(uiSeisBayesNorm)
 public:
 
 uiSeisBayesNorm( uiParent* p, IOPar& pars )
@@ -276,8 +278,6 @@ uiSeisBayesNorm( uiParent* p, IOPar& pars )
 			     mODHelpKey(mSeisBayesNormHelpID)),pars,Middle)
     , is2d_(pars[sKey::Type()].firstChar() == '2')
 {
-    const CallBack dispcb( mCB(this,uiSeisBayesNorm,updDisp) );
-
     for ( int idx=0; idx<cMaxNrPDFs; idx++ )
     {
 	const BufferString id = pars_.find( mGetSeisBayesPDFIDKey(idx) );
@@ -343,9 +343,14 @@ uiSeisBayesNorm( uiParent* p, IOPar& pars )
 	postnormfld_->attach( alignedBelow, alobj );
     }
 
+    mAttachCB( useglobfld_->valueChanged, uiSeisBayesNorm::updDispCB );
+    mAttachCB( postFinalize(), uiSeisBayesNorm::updDispCB );
+}
 
-    useglobfld_->valueChanged.notify( dispcb );
-    postFinalize().notify( dispcb );
+
+~uiSeisBayesNorm()
+{
+    detachAllNotifiers();
 }
 
 
@@ -431,7 +436,7 @@ bool getFromScreen( bool permissive )
     ObjectSet<uiGenInput> sclflds_;
     ObjectSet<uiIOObjSel> apflds_;
 
-};
+}; // class uiSeisBayesNorm
 
 
 void uiSeisBayesClass::getNorm()
@@ -450,7 +455,8 @@ void uiSeisBayesClass::normGot( CallBacker* )
 
 
 class uiSeisBayesSeisInp : public uiVarWizardDlg
-{ mODTextTranslationClass(uiSeisBayesSeisInp);
+{
+mODTextTranslationClass(uiSeisBayesSeisInp)
 public:
 
 uiSeisBayesSeisInp( uiParent* p, IOPar& pars )
@@ -495,6 +501,10 @@ uiSeisBayesSeisInp( uiParent* p, IOPar& pars )
 }
 
 
+~uiSeisBayesSeisInp()
+{}
+
+
 bool rejectOK( CallBacker* cb ) override
 {
     const bool rv = uiVarWizardDlg::rejectOK( cb );
@@ -535,7 +545,7 @@ bool getFromScreen( bool permissive )
     uiSeisSel*			lsfld_				= nullptr;
     ObjectSet<uiSeisSel>	flds3d_;
 
-};
+}; // class uiSeisBayesSeisInp
 
 
 void uiSeisBayesClass::getInpSeis()
@@ -554,7 +564,8 @@ void uiSeisBayesClass::inpSeisGot( CallBacker* )
 
 
 class uiSeisBayesOut : public uiVarWizardDlg
-{ mODTextTranslationClass(uiSeisBayesOut);
+{
+mODTextTranslationClass(uiSeisBayesOut)
 public:
 
 uiSeisBayesOut( uiParent* p, IOPar& pars )
@@ -609,6 +620,10 @@ uiSeisBayesOut( uiParent* p, IOPar& pars )
 
     subselfld_->usePar( pars_ );
 }
+
+
+~uiSeisBayesOut()
+{}
 
 
 void addOut( const char* nm, bool ispdf )
@@ -700,7 +715,7 @@ bool getFromScreen( bool permissive )
     uiSeisSubSel*		subselfld_;
 
 
-};
+}; // class uiSeisBayesOut
 
 
 void uiSeisBayesClass::doOutput()
