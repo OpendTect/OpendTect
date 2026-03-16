@@ -97,7 +97,8 @@ public:
 
     CNotifier<uiVisPartServer,VisID>		objectAdded;
     CNotifier<uiVisPartServer,VisID>		objectRemoved;
-    CNotifier<uiVisPartServer,VisAttribID>	datapackDisplayed;
+
+    CNotifier<uiVisPartServer,VisAttribID>&	datapackDisplayed();
 
     void		removeSelection();
 

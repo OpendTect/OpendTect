@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "envvars.h"
 #include "flatview.h"
 #include "genc.h"
+#include "hiddenparam.h"
 #include "ioman.h"
 #include "iopar.h"
 #include "mousecursor.h"
@@ -92,12 +93,13 @@ static const int cResetManipIdx = 800;
 static const int cPropertiesIdx = 600;
 static const int cResolutionIdx = 500;
 
+static HiddenParam<uiVisPartServer,CNotifier<uiVisPartServer,VisAttribID>*>
+						hp_datapackdisplayed(nullptr);
 
 uiVisPartServer::uiVisPartServer( uiApplService& a )
     : uiApplPartServer(a)
     , objectAdded(this)
     , objectRemoved(this)
-    , datapackDisplayed(this)
     , keyEvent(this)
     , mouseEvent(this)
     , selectionmodeChange(this)
@@ -111,6 +113,8 @@ uiVisPartServer::uiVisPartServer( uiApplService& a )
     , pickretriever_(new uiVisPickRetriever(this))
     , nrscenesChange(this)
 {
+    hp_datapackdisplayed.setParam( this,
+	    new CNotifier<uiVisPartServer,VisAttribID>(this) );
     changematerialmnuitem_.iconfnm = "disppars";
 
     mAttachCB( menu_->createnotifier, uiVisPartServer::createMenuCB );
@@ -157,10 +161,16 @@ uiVisPartServer::~uiVisPartServer()
     delete dirlightdlg_;
     delete topbotdlg_;
     mousecursorexchange_ = nullptr;
+    hp_datapackdisplayed.removeAndDeleteParam( this );
 }
 
 
 const char* uiVisPartServer::name() const  { return "Visualization"; }
+
+CNotifier<uiVisPartServer,VisAttribID>& uiVisPartServer::datapackDisplayed()
+{
+    return *hp_datapackdisplayed.getParam( this );
+}
 
 
 void uiVisPartServer::setMouseCursorExchange( MouseCursorExchange* mce )
@@ -837,7 +847,7 @@ bool uiVisPartServer::setVolumeDataPack( const VisID& id, int attrib,
     if ( voldp )
     {
 	VisAttribID layerid( id, attrib );
-	datapackDisplayed.trigger( layerid );
+	datapackDisplayed().trigger( layerid );
     }
 
     return res;
