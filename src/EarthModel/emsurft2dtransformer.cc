@@ -495,7 +495,7 @@ bool Horizon2DT2DTransformer::doPrepare( od_ostream* strm )
 	preprocessesedinpmid_.add( hor->multiID() );
     }
 
-    return Horizon2DT2DTransformer::doPrepare( strm );
+    return SurfaceT2DTransformer::doPrepare( strm );
 }
 
 
