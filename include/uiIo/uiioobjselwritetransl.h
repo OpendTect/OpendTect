@@ -108,10 +108,12 @@ protected:
 
     void				mkSelFld(const CtxtIOObj&,bool);
     int					translIdx() const;
+    const Translator*			getTranslator(const IOObj&) const;
     void				selChg(CallBacker*);
     void				nmAvCB( CallBacker* )
 					{ suggestedNameAvailble.trigger(); }
     uiIOObjTranslatorWriteOpts*		getCurOptFld() const;
+
 
 };
 

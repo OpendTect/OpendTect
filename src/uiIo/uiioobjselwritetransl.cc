@@ -119,26 +119,26 @@ void uiIOObjSelWriteTranslator::mkSelFld( const CtxtIOObj& ctio, bool withopts )
     if ( withopts )
 	lbl_ = new uiLabel( this, tr("Write to"), selfld_ );
 
-    int cur = 0;
     CommandLineParser clp;
     BufferString deftransl;
     clp.getVal( CommandLineParser::sDefTransl(), deftransl );
-    for ( int idx=0; idx<trs_.size(); idx++ )
+    const Translator* seltrl = nullptr;
+    int idx = 0;
+    for ( const auto* trl : trs_ )
     {
-	const Translator& trl = *trs_[idx];
-	const BufferString trnm( trl.userName() );
-	if ( (ctio.ioobj_ && trnm == ctio.ioobj_->translator()) ||
-		    (!deftransl.isEmpty() && trnm == deftransl) )
-	    cur = idx;
+	const char* trnm = trl->userName().buf();
+	if ( (ctio.ioobj_ && ctio.ioobj_->translator() == trnm) ||
+	     (!deftransl.isEmpty() && deftransl == trnm) )
+	    seltrl = trl;
 
-	selfld_->addItem( trl.displayName() );
-
-	const StringView icnm = trl.iconName();
+	selfld_->addItem( trl->displayName() );
+	const StringView icnm = trl->iconName();
 	if ( !icnm.isEmpty() )
 	    selfld_->setIcon( idx, icnm );
+	idx++;
     }
 
-    selfld_->setCurrentItem( cur );
+    setTranslator( seltrl );
 
     mAttachCB( selfld_->selectionChanged, uiIOObjSelWriteTranslator::selChg );
     mAttachCB( postFinalize(), uiIOObjSelWriteTranslator::selChg );
@@ -193,7 +193,7 @@ void uiIOObjSelWriteTranslator::updateTransFld(
 	    selfld_->setIcon( idx, icnm );
     }
 
-    selfld_->setCurrentItem( 0 );
+    setTranslator( trs_.first() );
 }
 
 
@@ -280,6 +280,21 @@ bool uiIOObjSelWriteTranslator::hasSelectedTranslator( const IOObj& ioobj) const
 }
 
 
+const Translator* uiIOObjSelWriteTranslator::getTranslator(
+						const IOObj& ioobj ) const
+{
+    const char* trlnm = ioobj.translator().buf();
+    const char* grpnm = ioobj.group().buf();
+    for ( const auto* trl : trs_ )
+    {
+	if ( trl->userName() == trlnm && trl->group()->groupName() == grpnm )
+	    return trl;
+    }
+
+    return nullptr;
+}
+
+
 uiIOObjTranslatorWriteOpts* uiIOObjSelWriteTranslator::getCurOptFld() const
 {
     int selidx = -1;
@@ -363,7 +378,11 @@ void uiIOObjSelWriteTranslator::resetPars()
 void uiIOObjSelWriteTranslator::use( const IOObj& ioobj )
 {
     if ( selfld_ )
-	selfld_->setCurrentItem( ioobj.translator().buf() );
+    {
+	const Translator* trl = getTranslator( ioobj );
+	if ( trl )
+	    setTranslator( trl );
+    }
 
     uiIOObjTranslatorWriteOpts* fld = getCurOptFld();
     if ( fld )
