@@ -346,8 +346,8 @@ void HorizonTextureHandler::setTextureData( int channel,  int sectionid,
 }
 
 
-void HorizonTextureHandler::updateTexture(int channel,int sectionid,
-				   const DataPointSet* dtpntset)
+void HorizonTextureHandler::updateTexture( int channel, int sectionid,
+					   const DataPointSet* dtpntset )
 {
     ConstRefMan<HorizonSection> horsection = horsection_.get();
     if ( !horsection || !horsection->geometry_ )
@@ -377,7 +377,7 @@ void HorizonTextureHandler::updateTexture(int channel,int sectionid,
     channels_->setSize( channel, 1, nrrows, nrcols );
 
     ObjectSet<float> versiondata;
-    versiondata.allowNull( true );
+    versiondata.setNullAllowed();
     const int nrcells = nrrows*nrcols;
 
     for ( int idx=0; idx<nrversions; idx++ )

@@ -136,6 +136,7 @@ bool HorizonTileResolutionTesselator::doWork( od_int64 start, od_int64 stop,int)
 
     const StepInterval<int> rrg = horsection_->displayedRowRange();
     const StepInterval<int> crg = horsection_->displayedColRange();
+    const ZAxisTransform* zat = horsection_->zaxistransform_.ptr();
 
     for ( int idx=start; idx<=stop && shouldContinue(); idx++ )
     {
@@ -151,7 +152,7 @@ bool HorizonTileResolutionTesselator::doWork( od_int64 start, od_int64 stop,int)
 	    const int row = origin.row() + rowidx*rrg.step_;
 	    const bool rowok = rrg.includes(row, false);
 	    const StepInterval<int> geocolrg =
-		horsection_->geometry_->colRange( row );
+				horsection_->geometry_->colRange( row );
 	    const StepInterval<int> colrg(
 			mMAX(geocolrg.start_,crg.start_),
 			mMIN(geocolrg.stop_,crg.stop_), crg.step_ );
@@ -159,11 +160,22 @@ bool HorizonTileResolutionTesselator::doWork( od_int64 start, od_int64 stop,int)
 	    for ( int colidx=0; colidx<nrsidecoords; colidx++ )
 	    {
 		const int col = origin.col() + colidx*colrg.step_;
-		Coord3 pos = rowok && colrg.includes(col, false)
-		    ? horsection_->geometry_->getKnot(RowCol(row,col),false)
-		    : Coord3::udf();
-		if ( horsection_->zaxistransform_ )
-                    pos.z_ = horsection_->zaxistransform_->transform( pos );
+		const RowCol rc( row, col );
+		Coord3 pos = Coord3::udf();
+		if ( rowok && colrg.includes(col, false) )
+		    pos.coord() = horsection_->geometry_->getKnotCoord( rc );
+
+		if ( pos.coord().isDefined() )
+		{
+		    const BinID bid( row, col );
+		    float zval = horsection_->geometry_->getZ( bid );
+		    const TrcKey tk( bid );
+		    if ( zat )
+			zval = zat->transformTrc( tk, zval );
+
+		    pos.z_ = zval;
+		}
+
 		positions += pos;
 	    }
 	}
@@ -289,6 +301,7 @@ HorizonSectionTilePosSetup::HorizonSectionTilePosSetup(
 {
     if ( horsection_ )
     {
+	zaxistransform_ = horsection_->getZAxisTransform();
 	nrcrdspertileside_ = horsection_->nrcoordspertileside_;
 	resolution_ = horsection_->lowestresidx_;
 	geo_ = horsection_->geometry_;
@@ -343,15 +356,21 @@ bool HorizonSectionTilePosSetup::doWork( od_int64 start, od_int64 stop, int )
 	    for ( int colidx=0; colidx<nrcrdspertileside_ ; colidx++ )
 	    {
 		const int col = origin.col() + colidx*colrg.step_;
-		Coord3 pos = rowok && colrg.includes(col, false)
-		    ? geo_->getKnot(RowCol(row,col),false)
-		    : Coord3::udf();
+		const RowCol rc( row, col );
+		Coord3 pos = Coord3::udf();
+		if ( rowok && colrg.includes(col,false) )
+		    pos.coord() = geo_->getKnotCoord( rc );
 
-		if ( pos.isDefined() )
+		if ( pos.coord().isDefined() )
 		{
+		    const BinID bid( row, col );
 		    hasdata = true;
+		    float zval = geo_->getZ( bid );
+		    const TrcKey tk( bid );
 		    if ( zaxistransform_ )
-                        pos.z_ = zaxistransform_->transform( pos );
+			zval = zaxistransform_->transformTrc( tk, zval );
+
+		    pos.z_ = zval;
 		}
 
 		positions += pos;
@@ -382,9 +401,7 @@ bool HorizonSectionTilePosSetup::doWork( od_int64 start, od_int64 stop, int )
 bool HorizonSectionTilePosSetup::doFinish( bool sucess )
 {
     if ( sucess && horsection_ )
-    {
 	horsection_->forceupdate_ =  true;
-    }
 
     return sucess;
 }

@@ -40,7 +40,7 @@ HorTilesCreatorAndUpdator::~HorTilesCreatorAndUpdator()
 
 
 void HorTilesCreatorAndUpdator::updateTiles( const TypeSet<GeomPosID>* gpids,
-				      TaskRunner* tr )
+					     TaskRunner* taskrun )
 {
     if ( !horsection_ )
 	return;
@@ -157,10 +157,10 @@ void HorTilesCreatorAndUpdator::updateTiles( const TypeSet<GeomPosID>* gpids,
     horsection_->setUpdateVar( horsection_->forceupdate_,  false );
 
     HorizonSectionTilePosSetup postask( fullupdatetiles, tileindexes,
-	horsection_, rrg, crg );
+					horsection_, rrg, crg );
     postask.setTesselationResolution( cFullResolution );
 
-    TaskRunner::execute( tr, postask );
+    TaskRunner::execute( taskrun, postask );
 
     for ( int idx = 0; idx< fullupdatetiles.size(); idx++ )
     {
@@ -169,6 +169,7 @@ void HorTilesCreatorAndUpdator::updateTiles( const TypeSet<GeomPosID>* gpids,
 	HorizonSectionTile* tile = horsection_->tiles_.get( ridx, cidx );
 	if ( !tile || !fullupdatetiles.isPresent(tile->origin_) )
 	    continue;
+
 	setNeighbors( tile, ridx, cidx );
 	horsection_->osghorizon_->addChild( tile->osgswitchnode_ );
 	tile->addTileGlueTesselator();
@@ -182,8 +183,8 @@ void HorTilesCreatorAndUpdator::updateTiles( const TypeSet<GeomPosID>* gpids,
 	TypeSet<Threads::Work> work;
 	for ( int idx=0; idx<oldupdatetiles.size(); idx++ )
 	{
-	    TileTesselator* tt = new TileTesselator(
-		oldupdatetiles[idx], horsection_->desiredresolution_ );
+	    auto* tt = new TileTesselator(
+			oldupdatetiles[idx], horsection_->desiredresolution_ );
 	    work += Threads::Work( *tt, true );
 	}
 
@@ -333,7 +334,7 @@ void HorTilesCreatorAndUpdator::setNeighbors( HorizonSectionTile* tile,
 }
 
 
-void HorTilesCreatorAndUpdator::createAllTiles( TaskRunner* tr )
+void HorTilesCreatorAndUpdator::createAllTiles( TaskRunner* taskrun )
 {
     if ( !horsection_ )
 	return;
@@ -382,8 +383,8 @@ void HorTilesCreatorAndUpdator::createAllTiles( TaskRunner* tr )
     horsection_->setUpdateVar( horsection_->forceupdate_,  false );
 
     HorizonSectionTilePosSetup postask( createtiles, tileindexes,
-	horsection_, rrg, crg );
-    TaskRunner::execute(tr,postask);
+					horsection_, rrg, crg );
+    TaskRunner::execute( taskrun, postask );
 
     HorizonSectionTile** tileptrs = horsection_->tiles_.getData();
     int tidx = 0;
@@ -403,7 +404,6 @@ void HorTilesCreatorAndUpdator::createAllTiles( TaskRunner* tr )
 
     horsection_->setUpdateVar( horsection_->forceupdate_,  true );
     horsection_->tesselationlock_ = false;
-
 }
 
 
@@ -415,7 +415,8 @@ void HorTilesCreatorAndUpdator::updateTilesAutoResolution(
     task.execute();
 
     const int tilesz = horsection_->tiles_.info().getTotalSz();
-    if ( !tilesz ) return;
+    if ( !tilesz )
+	return;
 
     HorizonSectionTile** tileptrs = horsection_->tiles_.getData();
 
@@ -429,7 +430,6 @@ void HorTilesCreatorAndUpdator::updateTilesAutoResolution(
 	}
     }
     spinlock_.unLock();
-
 }
 
 
@@ -453,10 +453,12 @@ void HorTilesCreatorAndUpdator::updateTilesPrimitiveSets()
 }
 
 
-void HorTilesCreatorAndUpdator::setFixedResolution( char res, TaskRunner* tr )
+void HorTilesCreatorAndUpdator::setFixedResolution( char res,
+						    TaskRunner* /*taskrun*/ )
 {
     const int tilesz = horsection_->tiles_.info().getTotalSz();
-    if ( !tilesz ) return;
+    if ( !tilesz )
+	return;
 
     HorizonSectionTile** tileptrs = horsection_->tiles_.getData();
     for ( int idx=0; idx<tilesz; idx++ )
@@ -478,7 +480,7 @@ void HorTilesCreatorAndUpdator::setFixedResolution( char res, TaskRunner* tr )
     }
 
     Threads::WorkManager::twm().addWork( work,
-	Threads::WorkManager::cDefaultQueueID() );
+			    Threads::WorkManager::cDefaultQueueID() );
 }
 
 } // namespace visBase
