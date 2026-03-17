@@ -1000,8 +1000,14 @@ void HorizonDisplay::setDepthAsAttrib( int channel )
 	col = 2;
 
     RefMan<ZAxisTransform> zatf;
-    if ( !isAlreadyTransformed() )
+    if ( isAlreadyTransformed() )
+	positions->setZDomain( zDomain() );
+    else
+    {
 	zatf = zaxistransform_.ptr();
+	if ( zatf )
+	    positions->setZDomain( zatf->zDomain( false ) );
+    }
 
     ZValSetter zvalssetter( bivs, col, zatf.ptr() );
     zvalssetter.execute();
@@ -1571,7 +1577,7 @@ int HorizonDisplay::getResolution() const
 bool HorizonDisplay::displaysSurfaceGrid() const
 {
     if ( sections_.size() )
-	return	sections_[0]->isWireframeDisplayed();
+	return sections_[0]->isWireframeDisplayed();
 
     return false;
 }
