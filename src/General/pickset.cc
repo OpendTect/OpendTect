@@ -1462,7 +1462,7 @@ bool Set::useDisplayPars3D( const IOPar& par, Disp3D& disp )
     BufferString colstr;
     const bool hascolor = par.get( sKey::Color(), colstr );
     if ( hascolor )
-	disp.color().use( colstr.buf() );
+	disp.markerstyle_.color_.use( colstr.buf() );
 
     BufferString fillcolstr;
     if ( par.get(sKeyFillColor(),fillcolstr) )
