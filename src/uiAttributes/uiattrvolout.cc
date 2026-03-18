@@ -459,7 +459,7 @@ bool uiAttrVolOut::fillPar( IOPar& iop )
     if ( !outioobj )
 	return false;
 
-    Attrib::DescSet* clonedset = 0;
+    PtrMan<Attrib::DescSet> clonedset;
     TypeSet<Attrib::DescID> outdescids;
     int nrseloutputs = 1;
 
@@ -529,7 +529,6 @@ bool uiAttrVolOut::fillPar( IOPar& iop )
 	}
     }
 
-    delete clonedset;
     batchjobfld_->saveProcPars( *outioobj );
     return true;
 }

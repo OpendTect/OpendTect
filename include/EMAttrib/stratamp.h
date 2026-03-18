@@ -36,9 +36,13 @@ public:
     uiString		uiMessage() const override	{ return msg_; }
     uiString		uiNrDoneText() const override;
 
-    int			init(const IOPar&);
-    bool		saveAttribute(const EM::Horizon3D*,int attribidx,
-				      bool overwrite,od_ostream* s=0);
+    bool		init(const IOPar&);
+    bool		saveAttribute(const EM::Horizon3D&,int dataidx,
+				      bool overwrite,int foldidx=-1,
+				      od_ostream* s=nullptr);
+    const TypeSet<int>& attribIdxs() const;
+    const TypeSet<int>& foldAttribIdxs() const;
+    bool		doOutputFold() const;
 
     static const char*	sKeyTopHorizonID();
     static const char*	sKeyBottomHorizonID();
@@ -55,24 +59,25 @@ public:
 protected:
 
     Stats::Type			stattyp_;
-    bool			isclassification_ = false;
-    SeisTrcReader*		rdr_;
-    bool			usesstored_;
-    const EM::Horizon3D*	tophorizon_;
-    const EM::Horizon3D*	bothorizon_;
+    bool			isclassification_		= false;
+    SeisTrcReader*		rdr_				= nullptr;
+    bool			usesstored_			= false;
+    ConstRefMan<EM::Horizon3D>	tophorizon_;
+    ConstRefMan<EM::Horizon3D>	bothorizon_;
     int				nrdone_;
     int				totnr_;
-    float			tophorshift_;
-    float			bothorshift_;
+    float			tophorshift_			= mUdf(float);
+    float			bothorshift_			= mUdf(float);
     EM::PosID			posid_;
     EM::PosID			posidfold_;
-    int				dataidx_;
-    int				dataidxfold_;
+    TypeSet<int>		selcomps_;
+    TypeSet<int>		dataidxs_;
+    TypeSet<int>		dataidxsfold_;
     bool			addtotop_;
     bool			outfold_;
     TrcKeySampling		hs_;
     Attrib::DescSet*		descset_;
-    Attrib::Processor*		proc_;
+    Attrib::Processor*		proc_				= nullptr;
 
 private:
 
