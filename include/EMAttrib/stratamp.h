@@ -36,9 +36,18 @@ public:
     uiString		uiMessage() const override	{ return msg_; }
     uiString		uiNrDoneText() const override;
 
+    mDeprecated("Use doInit function.")
     int			init(const IOPar&);
+    bool		doInit(const IOPar&);
+    mDeprecated("Use doSaveAttribute.")
     bool		saveAttribute(const EM::Horizon3D*,int attribidx,
 				      bool overwrite,od_ostream* s=0);
+    bool		doSaveAttribute(const EM::Horizon3D&,int dataidx,
+				      bool overwrite,int foldidx=-1,
+				      od_ostream* s=nullptr);
+    const TypeSet<int>& attribIdxs() const;
+    const TypeSet<int>& foldAttribIdxs() const;
+    bool		doOutputFold() const;
 
     static const char*	sKeyTopHorizonID();
     static const char*	sKeyBottomHorizonID();

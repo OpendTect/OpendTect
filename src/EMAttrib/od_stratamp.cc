@@ -28,14 +28,16 @@ static bool getHorsampling( const IOPar& par, TrcKeySampling& hs )
 {
     BufferString compkey = IOPar::compKey( sKey::Output(), sKey::Subsel() );
     const IOPar* hspar = par.subselect( compkey );
-    if ( !hspar ) return false;
+    if ( !hspar )
+	return false;
 
     return hs.usePar( *hspar ) ? true : false;
 }
 
 
-static EM::Horizon3D* loadHorizon( const MultiID& mid, const TrcKeySampling& hs,
-				   od_ostream& strm )
+static ConstRefMan<EM::Horizon3D> loadHorizon( const MultiID& mid,
+					       const TrcKeySampling& hs,
+					       od_ostream& strm )
 {
     EM::EMManager& em = EM::EMM();
     EM::SurfaceIOData sd;
@@ -43,27 +45,26 @@ static EM::Horizon3D* loadHorizon( const MultiID& mid, const TrcKeySampling& hs,
     sdsel.rg = hs;
     strm << "Loading " << em.objectName( mid ) << od_newline;
     Executor* exec = em.objectLoader( mid, &sdsel );
-    if ( !(exec && exec->go(strm, false, false, 0) ) )
-	return 0;
+    TextTaskRunner taskr( strm );
+    if ( !exec || !taskr.execute(*exec) )
+	return nullptr;
 
     EM::ObjectID emid = em.getObjectID( mid );
-    EM::EMObject* emobj = em.getObject( emid );
+    ConstRefMan<EM::EMObject> emobj = em.getObject( emid );
     if ( !emobj )
     {
 	BufferString msg;
 	msg = "Error while loading horizon '";
 	msg.add( em.objectName( mid ) ).add( "'" );
 	strm << msg << od_newline;
-	return 0;
+	return nullptr;
     }
 
-    emobj->ref();
-    mDynamicCastGet(EM::Horizon3D*,horizon,emobj)
+    ConstRefMan<EM::Horizon3D> horizon = dCast( const EM::Horizon3D*,
+						emobj.ptr() );
     return horizon;
 }
 
-
-#define mUnRef(){ tophor->unRef(); if ( bothor ) bothor->unRef(); }
 
 mLoad3Modules("EMAttrib","WellAttrib","PreStackProcessing")
 
@@ -79,21 +80,18 @@ bool BatchProgram::doWork( od_ostream& strm )
     pars().get( StratAmpCalc::sKeyTopHorizonID(), mid1 );
     strm << GetProjectVersionName() << od_newline;
     strm << "Loading horizons ..." << od_newline;
-    EM::Horizon3D* tophor = loadHorizon( mid1, hs, strm );
+    ConstRefMan<EM::Horizon3D> tophor = loadHorizon( mid1, hs, strm );
     if ( !tophor )
 	return false;
 
-    EM::Horizon3D* bothor = 0;
+    ConstRefMan<EM::Horizon3D> bothor;
     if ( !usesingle )
     {
 	MultiID mid2;
 	pars().get( StratAmpCalc::sKeyBottomHorizonID(), mid2 );
 	bothor = loadHorizon( mid2, hs, strm );
 	if ( !bothor )
-	{
-	    tophor->unRef();
 	    return false;
-	}
     }
 
     strm << "Horizon(s) loaded successfully" << od_newline;
@@ -103,20 +101,19 @@ bool BatchProgram::doWork( od_ostream& strm )
     Stats::Type sttype = Stats::parseEnumType( type );
     bool outputfold = false;
     pars().getYN( StratAmpCalc::sKeyOutputFoldYN(), outputfold );
-    StratAmpCalc exec( tophor, usesingle ? 0 : bothor, sttype, hs, outputfold );
-    int attribidx = exec.init( pars() );
-    if ( attribidx < 0 )
+    StratAmpCalc exec( tophor.ptr(), usesingle ? nullptr : bothor.ptr(),
+		       sttype, hs, outputfold );
+    if ( !exec.doInit(pars()) )
     {
 	strm << "Cannot add attribute to Horizon" << od_newline;
-	mUnRef();
 	return false;
     }
 
     strm << "Calculating attribute ..." << od_newline;
-    if ( !exec.go( strm, false, false, 0 ) )
+    TextTaskRunner taskr( strm );
+    if ( !taskr.execute(exec) )
     {
 	strm << "Failed to calculate attribute." << od_newline;
-	mUnRef();
 	return false;
     }
 
@@ -126,15 +123,20 @@ bool BatchProgram::doWork( od_ostream& strm )
     pars().getYN( StratAmpCalc::sKeyAddToTopYN(), addtotop );
     bool isoverwrite = false;
     pars().getYN( StratAmpCalc::sKeyIsOverwriteYN(), isoverwrite );
-    if ( !exec.saveAttribute( addtotop ? tophor : bothor, attribidx,
-			      isoverwrite, &strm ) )
+    const TypeSet<int>& attribidxs = exec.attribIdxs();
+    const TypeSet<int>& foldidxs = exec.foldAttribIdxs();
+    for ( int idx=0; idx<attribidxs.size(); idx++ )
     {
-	strm << "Failed to save attribute";
-	mUnRef();
-	return false;
+	const int attribidx = attribidxs[idx];
+	const int foldidx = exec.doOutputFold() ? foldidxs[idx] : -1;
+	if ( !exec.doSaveAttribute( addtotop ? *tophor : *bothor, attribidx,
+				  isoverwrite, foldidx, &strm ) )
+	{
+	    strm << "Failed to save attribute";
+	    return false;
+	}
     }
     
     strm << "Attribute saved successfully";
-    mUnRef();
     return true;
 }
