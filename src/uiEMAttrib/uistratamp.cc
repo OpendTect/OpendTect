@@ -13,9 +13,11 @@ ________________________________________________________________________
 #include "attribdescset.h"
 #include "attribdescsetsholder.h"
 #include "attriboutput.h"
+#include "attribsel.h"
 #include "emioobjinfo.h"
 #include "emmanager.h"
 #include "emsurfacetr.h"
+#include "hiddenparam.h"
 #include "stratamp.h"
 #include "survinfo.h"
 #include "trckeyzsampling.h"
@@ -27,6 +29,7 @@ ________________________________________________________________________
 #include "uimsg.h"
 #include "uiioobjsel.h"
 #include "uiiosurface.h"
+#include "uimultoutsel.h"
 #include "uipossubsel.h"
 #include "uistrings.h"
 #include "od_helpids.h"
@@ -35,10 +38,17 @@ ________________________________________________________________________
 static const char* statstrs[] =
 	{ "Min", "Max", "Average", "Median", "RMS", "Sum", "MostFrequent", 0 };
 
+static HiddenParam<uiStratAmpCalc,Attrib::CurrentSel*> hp_sel( nullptr );
+static HiddenParam<uiStratAmpCalc,TypeSet<int>*> hp_seloutputs( nullptr );
+static HiddenParam<uiStratAmpCalc,BufferStringSet*> hp_seloutnames( nullptr );
+
 uiStratAmpCalc::uiStratAmpCalc( uiParent* p )
     : uiDialog( p, Setup(tr("Stratal Amplitude"),
 			 mODHelpKey(mStratAmpCalcHelpID)))
 {
+    hp_sel.setParam( this, new Attrib::CurrentSel );
+    hp_seloutputs.setParam( this, new TypeSet<int> );
+    hp_seloutnames.setParam( this, new BufferStringSet );
     setCtrlStyle( RunAndClose );
 
     const Attrib::DescSet* ads = Attrib::DSHolder().getDescSet(false,false);
@@ -63,8 +73,7 @@ uiStratAmpCalc::uiStratAmpCalc( uiParent* p )
     mAttachCB( horfld2_->selectionDone, uiStratAmpCalc::inpSel );
     horfld2_->attach( alignedBelow, horfld1_ );
 
-    BufferString lbltxt = "Z Offset ";
-    lbltxt += SI().getZUnitString(); lbltxt += " Top";
+    const BufferString lbltxt( "Z Offset ",  SI().getZUnitString(), " Top" );
     tophorshiftfld_ = new uiGenInput( this, toUiString(lbltxt),
 				      FloatInpSpec(0).setName("Top") );
     tophorshiftfld_->attach( alignedBelow, horfld2_ );
@@ -82,7 +91,8 @@ uiStratAmpCalc::uiStratAmpCalc( uiParent* p )
     ampoptionfld_->attach( alignedBelow, rangefld_ );
 
     selfld_= new uiGenInput( this, tr("Add result as HorizonData to"),
-	BoolInpSpec(true,uiStrings::sTopHor(),uiStrings::sBottomHor()) );
+			     BoolInpSpec(true,uiStrings::sTopHor(),
+					 uiStrings::sBottomHor()) );
     mAttachCB( selfld_->valueChanged, uiStratAmpCalc::setParFileNameCB );
     selfld_->attach( alignedBelow, ampoptionfld_ );
 
@@ -109,6 +119,9 @@ uiStratAmpCalc::uiStratAmpCalc( uiParent* p )
 uiStratAmpCalc::~uiStratAmpCalc()
 {
     detachAllNotifiers();
+    hp_sel.removeAndDeleteParam( this );
+    hp_seloutputs.removeAndDeleteParam( this );
+    hp_seloutnames.removeAndDeleteParam( this );
 }
 
 
@@ -206,6 +219,11 @@ bool uiStratAmpCalc::checkInpFlds()
 
 bool uiStratAmpCalc::prepareProcessing()
 {
+    auto* sel = hp_sel.getParam( this );
+    auto* seloutputs = hp_seloutputs.getParam( this );
+    auto* seloutnms = hp_seloutnames.getParam( this );
+    seloutnms->erase();
+    seloutputs->erase();
     if ( !checkInpFlds() )
 	return false;
 
@@ -225,8 +243,89 @@ bool uiStratAmpCalc::prepareProcessing()
 	    isoverwrite_ = true;
     }
 
+    if ( inpfld_ )
+    {
+	sel->attrid_ = inpfld_->attribID();
+	sel->outputnr_ = inpfld_->outputNr();
+	if ( sel->outputnr_ < 0 && !sel->attrid_.isValid() )
+	{
+	    uiMSG().error( tr("Please select attribute to calculate") );
+	    return false;
+	}
+    }
+
+    Attrib::DescSet* ads = Attrib::eDSHolder().getDescSet(false,false);
+    RefMan<Attrib::Desc> seldesc = ads->getDesc( inpfld_->attribID() );
+    if ( seldesc && seldesc->isStored() )
+    {
+	const int nroutputs = seldesc->nrOutputs();
+	if ( nroutputs > 1 )
+	{
+	    uiMultOutSel multoutdlg( this, *seldesc, false );
+	    if ( multoutdlg.doDisp() )
+	    {
+		if ( multoutdlg.go() )
+		{
+		    multoutdlg.getSelectedOutputs( *seloutputs );
+		    multoutdlg.getSelectedOutNames( *seloutnms );
+		}
+		else
+		    return false;
+	    }
+
+	    BufferStringSet availcomps;
+	    uiMultOutSel::fillInAvailOutNames( *seldesc, availcomps );
+	}
+    }
+
     return true;
 }
+
+
+Attrib::DescSet* uiStratAmpCalc::getFromInpFld(
+		TypeSet<Attrib::DescID>& outdescids, int& nrseloutputs )
+{
+    auto* seloutputs = hp_seloutputs.getParam( this );
+    auto* seloutnms = hp_seloutnames.getParam( this );
+    Attrib::DescID targetid = inpfld_->attribID();
+    Attrib::DescSet* ads = Attrib::eDSHolder().getDescSet(false,false);
+    RefMan<Attrib::Desc> seldesc = ads->getDesc( targetid );
+    if ( seldesc )
+    {
+	const bool is2d = inpfld_->is2D();
+	Attrib::DescID multoiid = seldesc->getMultiOutputInputID();
+	if ( multoiid != Attrib::DescID::undef() )
+	{
+	    uiAttrSelData attrdata( ads );
+	    Attrib::SelInfo attrinf( &attrdata.attrSet(), attrdata.nlamodel_,
+				is2d, Attrib::DescID::undef(), false, false );
+	    TypeSet<Attrib::SelSpec> targetspecs;
+	    if ( !uiMultOutSel::handleMultiCompChain( targetid, multoiid,
+				is2d, attrinf, ads, this, targetspecs ) )
+		return nullptr;
+
+	    for ( int idx=0; idx<targetspecs.size(); idx++ )
+		outdescids += targetspecs[idx].id();
+	}
+    }
+
+    const int outdescidsz = outdescids.size();
+    Attrib::DescSet* ret = outdescidsz ? ads->optimizeClone( outdescids )
+				       : ads->optimizeClone( targetid );
+    if ( !ret )
+	return nullptr;
+
+    nrseloutputs = seloutputs->size() ? seloutputs->size()
+				      : outdescidsz ? outdescidsz : 1;
+    if ( !seloutputs->isEmpty() )
+	ret->createAndAddMultOutDescs( targetid, *seloutputs,
+				       *seloutnms, outdescids );
+    else if ( outdescids.isEmpty() )
+	outdescids += targetid;
+
+    return ret;
+}
+
 
 
 bool uiStratAmpCalc::fillPar()
@@ -262,26 +361,30 @@ bool uiStratAmpCalc::fillPar()
     subselpar.set( sKey::ZRange(), SI().zRange(false) );
     iop.mergeComp( subselpar, IOPar::compKey(sKey::Output(),sKey::Subsel()) );
 
-    const Attrib::DescID targetid = inpfld_->attribID();
-    Attrib::DescSet* clonedset = Attrib::DSHolder().getDescSet(
-			    inpfld_->is2D(),false)->optimizeClone( targetid );
+    PtrMan<Attrib::DescSet> clonedset;
+    TypeSet<Attrib::DescID> outdescids;
+    int nrseloutputs = 1;
+    clonedset = getFromInpFld( outdescids, nrseloutputs );
+    if ( !clonedset )
+	return false;
+
     IOPar attrpar( "Attribute Descriptions" );
-    if ( !clonedset ) return false;
+    if ( !clonedset )
+	return false;
 
     clonedset->fillPar( attrpar );
     iop.mergeComp( attrpar, Attrib::SeisTrcStorOutput::attribkey() );
-
-    ConstRefMan<Attrib::Desc> desc = clonedset->getDesc( targetid );
-    if ( desc && desc->is2D() )
-	iop.set( "Input Line Set", desc->getStoredID() );
-
-    delete clonedset;
-
-    const BufferString keybase = IOPar::compKey( Attrib::Output::outputstr(),0);
+    const BufferString keybase = IOPar::compKey(Attrib::Output::outputstr(),0);
     const BufferString attribkey =
-	    IOPar::compKey( keybase, Attrib::SeisTrcStorOutput::attribkey() );
-    iop.set( IOPar::compKey(attribkey,Attrib::DescSet::highestIDStr()), 1 );
-    iop.set( IOPar::compKey(attribkey,0), targetid.asInt() );
+	IOPar::compKey( keybase, Attrib::SeisTrcStorOutput::attribkey() );
+    iop.set( IOPar::compKey(attribkey,Attrib::DescSet::highestIDStr()),
+			    nrseloutputs );
+    if ( nrseloutputs != outdescids.size() )
+	return false;
+
+    for ( int idx=0; idx<nrseloutputs; idx++ )
+	iop.set( IOPar::compKey(attribkey,idx), outdescids[idx].asInt() );
+
     iop.set( IOPar::compKey(sKey::Output(), sKey::Type()), sKey::Cube() );
     return true;
 }

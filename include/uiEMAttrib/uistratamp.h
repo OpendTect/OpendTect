@@ -19,6 +19,7 @@ class uiIOObjSel;
 class uiLabeledComboBox;
 class uiPosSubSel;
 
+namespace Attrib { class DescID; class DescSet; }
 
 mClass(uiEMAttrib) uiStratAmpCalc : public uiDialog
 { mODTextTranslationClass(uiStratAmpCalc)
@@ -38,6 +39,7 @@ protected:
     bool		checkInpFlds();
     bool		fillPar();
     void		setParFileName();
+    Attrib::DescSet*	getFromInpFld(TypeSet<Attrib::DescID>&,int&);
     bool		acceptOK(CallBacker*) override;
 
     uiGenInput*		winoption_;
