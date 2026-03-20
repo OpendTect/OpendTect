@@ -343,7 +343,7 @@ void PickSetDisplay::redrawMultiSets()
 	    continue;
 
 	RefMan<Geometry::IndexedPrimitiveSet> lineprimitiveset =
-			    Geometry::IndexedPrimitiveSet::create( false );
+			    Geometry::IndexedPrimitiveSet::create( true );
 	lineprimitiveset->set( ps.arr(), ps.size() );
 	polylines_->addPrimitiveSet( lineprimitiveset.ptr() );
     }
