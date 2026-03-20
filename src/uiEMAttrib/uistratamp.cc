@@ -34,6 +34,16 @@ ________________________________________________________________________
 #include "uistrings.h"
 #include "od_helpids.h"
 
+uiStratAmpCalc::Setup::Setup( const char* defmapnm, bool allowattributes )
+    : uiDialog::Setup( tr("Stratal Amplitude"), mODHelpKey(mStratAmpCalcHelpID))
+    , defmapname_(defmapnm)
+    , allowattributes_(allowattributes)
+{}
+
+
+uiStratAmpCalc::Setup::~Setup()
+{}
+
 
 static const char* statstrs[] =
 	{ "Min", "Max", "Average", "Median", "RMS", "Sum", "MostFrequent", 0 };
@@ -43,15 +53,19 @@ static HiddenParam<uiStratAmpCalc,TypeSet<int>*> hp_seloutputs( nullptr );
 static HiddenParam<uiStratAmpCalc,BufferStringSet*> hp_seloutnames( nullptr );
 
 uiStratAmpCalc::uiStratAmpCalc( uiParent* p )
-    : uiDialog( p, Setup(tr("Stratal Amplitude"),
-			 mODHelpKey(mStratAmpCalcHelpID)))
+    : uiStratAmpCalc( p, Setup() )
+{}
+
+uiStratAmpCalc::uiStratAmpCalc( uiParent* p, const Setup& setup )
+    : uiDialog( p, uiDialog::Setup(setup.wintitle_,setup.helpkey_))
 {
     hp_sel.setParam( this, new Attrib::CurrentSel );
     hp_seloutputs.setParam( this, new TypeSet<int> );
     hp_seloutnames.setParam( this, new BufferStringSet );
     setCtrlStyle( RunAndClose );
 
-    const Attrib::DescSet* ads = Attrib::DSHolder().getDescSet(false,false);
+    const Attrib::DescSet* ads
+		= Attrib::DSHolder().getDescSet(false,!setup.allowattributes_);
     inpfld_ = new uiAttrSel( this, *ads,
 			    uiStrings::phrSelect(uiStrings::sAttribute()) );
     mAttachCB( inpfld_->selectionDone, uiStratAmpCalc::inpSel );
@@ -100,8 +114,11 @@ uiStratAmpCalc::uiStratAmpCalc( uiParent* p )
 			       BoolInpSpec(false) ) ;
     foldfld_->attach( alignedBelow, selfld_ );
 
+    const BufferString defmapname
+		= StringView(setup.defmapname_).isEmpty() ? "Stratal Amplitude"
+							  : setup.defmapname_;
     attribnamefld_ = new uiGenInput( this, uiStrings::sAttribName(),
-				     StringInpSpec("Stratal Amplitude") );
+				     StringInpSpec(defmapname.buf()) );
     mAttachCB( attribnamefld_->valueChanged, uiStratAmpCalc::setParFileNameCB );
     attribnamefld_->attach( alignedBelow, foldfld_ );
     attribnamefld_->setDefaultTextValidator();
@@ -127,7 +144,14 @@ uiStratAmpCalc::~uiStratAmpCalc()
 
 void uiStratAmpCalc::init()
 {
-    const Attrib::DescSet* ads = Attrib::DSHolder().getDescSet(false,false);
+    doInit( true );
+}
+
+
+void uiStratAmpCalc::doInit( bool allowattributes )
+{
+    const Attrib::DescSet* ads
+	= Attrib::DSHolder().getDescSet( false, !allowattributes );
     inpfld_->setDescSet( ads );
 }
 
