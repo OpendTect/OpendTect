@@ -154,7 +154,7 @@ uiSeisBayesPDFInp( uiParent* p, IOPar& pars )
 	flds_ += fld;
     }
 
-    mAttachCB( postFinalize(), uiSeisBayesPDFInp::handleDispCB );
+    mAttachCB( postFinalize(), uiSeisBayesPDFInp::handleDisp );
 }
 
 ~uiSeisBayesPDFInp()
@@ -343,8 +343,8 @@ uiSeisBayesNorm( uiParent* p, IOPar& pars )
 	postnormfld_->attach( alignedBelow, alobj );
     }
 
-    mAttachCB( useglobfld_->valueChanged, uiSeisBayesNorm::updDispCB );
-    mAttachCB( postFinalize(), uiSeisBayesNorm::updDispCB );
+    mAttachCB( useglobfld_->valueChanged, uiSeisBayesNorm::updDisp );
+    mAttachCB( postFinalize(), uiSeisBayesNorm::updDisp );
 }
 
 
