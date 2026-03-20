@@ -195,7 +195,7 @@ void uiEMAttribPartServer::computeStratAmp()
 	stratampdlg_->setModal( false );
     }
     else
-	stratampdlg_->init();
+	stratampdlg_->doInit();
 
     stratampdlg_->show();
 }
