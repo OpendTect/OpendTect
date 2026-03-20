@@ -21,15 +21,28 @@ class uiPosSubSel;
 
 namespace Attrib { class CurrentSel; class DescID; class DescSet; }
 
-mClass(uiEMAttrib) uiStratAmpCalc : public uiDialog
+mExpClass(uiEMAttrib) uiStratAmpCalc : public uiDialog
 { mODTextTranslationClass(uiStratAmpCalc)
 public:
-			uiStratAmpCalc(uiParent*);
+
+    mExpClass( uiEMAttrib ) Setup : public uiDialog::Setup
+    {
+	public:
+			Setup(const char* defmapnm="Stratal Amplitude",
+			      bool allowattributes=true);
+			~Setup();
+
+			mDefSetupMemb(const char*,defmapname)
+			mDefSetupMemb(bool,allowattributes)
+    };
+
+			uiStratAmpCalc(uiParent*,const Setup& =Setup());
 			~uiStratAmpCalc();
 
     void		init();
 
 protected:
+
     void		inpSel(CallBacker*);
     void		horSel(CallBacker*);
     void		choiceSel(CallBacker*);
@@ -61,5 +74,7 @@ protected:
     uiLabeledComboBox*	ampoptionfld_;
     bool		usesingle_		= true;
     bool		isoverwrite_		= false;
+    bool		allowattributes_;
     uiBatchJobDispatcherSel*	batchfld_;
+
 };

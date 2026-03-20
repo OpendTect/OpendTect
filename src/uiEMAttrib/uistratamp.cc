@@ -34,18 +34,31 @@ ________________________________________________________________________
 #include "uistrings.h"
 #include "od_helpids.h"
 
+uiStratAmpCalc::Setup::Setup( const char* defmapnm, bool allowattributes )
+    : uiDialog::Setup( tr("Stratal Amplitude"), mODHelpKey(mStratAmpCalcHelpID))
+    , defmapname_(defmapnm)
+    , allowattributes_(allowattributes)
+{}
+
+
+uiStratAmpCalc::Setup::~Setup()
+{}
+
 
 static const char* statstrs[] =
 	{ "Min", "Max", "Average", "Median", "RMS", "Sum", "MostFrequent", 0 };
 
-uiStratAmpCalc::uiStratAmpCalc( uiParent* p )
-    : uiDialog( p, Setup(tr("Stratal Amplitude"),
-			 mODHelpKey(mStratAmpCalcHelpID)))
+
+uiStratAmpCalc::uiStratAmpCalc( uiParent* p, const Setup& setup )
+    : uiDialog( p, uiDialog::Setup(setup.wintitle_,
+				   mODHelpKey(mStratAmpCalcHelpID)))
     , sel_(*new Attrib::CurrentSel)
+    , allowattributes_(setup.allowattributes_)
 {
     setCtrlStyle( RunAndClose );
 
-    const Attrib::DescSet* ads = Attrib::DSHolder().getDescSet(false,false);
+    const Attrib::DescSet* ads
+		= Attrib::DSHolder().getDescSet(false,!setup.allowattributes_);
     inpfld_ = new uiAttrSel( this, *ads,
 			    uiStrings::phrSelect(uiStrings::sAttribute()) );
     mAttachCB( inpfld_->selectionDone, uiStratAmpCalc::inpSel );
@@ -94,8 +107,11 @@ uiStratAmpCalc::uiStratAmpCalc( uiParent* p )
 			       BoolInpSpec(false) ) ;
     foldfld_->attach( alignedBelow, selfld_ );
 
+    const BufferString defmapname
+		= StringView(setup.defmapname_).isEmpty() ? "Stratal Amplitude"
+							  : setup.defmapname_;
     attribnamefld_ = new uiGenInput( this, uiStrings::sAttribName(),
-				     StringInpSpec("Stratal Amplitude") );
+				     StringInpSpec(defmapname.buf()) );
     mAttachCB( attribnamefld_->valueChanged, uiStratAmpCalc::setParFileNameCB );
     attribnamefld_->attach( alignedBelow, foldfld_ );
     attribnamefld_->setDefaultTextValidator();
@@ -119,7 +135,8 @@ uiStratAmpCalc::~uiStratAmpCalc()
 
 void uiStratAmpCalc::init()
 {
-    const Attrib::DescSet* ads = Attrib::DSHolder().getDescSet(false,false);
+    const Attrib::DescSet* ads
+		= Attrib::DSHolder().getDescSet( false, !allowattributes_ );
     inpfld_->setDescSet( ads );
 }
 
