@@ -45,8 +45,8 @@ uiSeisWvltMan::uiSeisWvltMan( uiParent* p )
     : uiObjFileMan(p,Setup(uiStrings::phrManage(uiStrings::sWavelet(mPlural)),
 			   mODHelpKey(mSeisWvltManHelpID)).nrstatusflds(1)
 			.modal(false),WaveletTranslatorGroup::ioContext())
-    , wvltext_(0)
-    , wvltpropdlg_(0)
+    , wvltext_(nullptr)
+    , wvltpropdlg_(nullptr)
 {
     createDefaultUI();
     setPrefWidth( 50 );
@@ -85,15 +85,13 @@ uiSeisWvltMan::uiSeisWvltMan( uiParent* p )
     wvnamdisp_->setAlignment( Alignment::HCenter );
 
     mTriggerInstanceCreatedNotifier();
-    windowClosed.notify( mCB(this,uiSeisWvltMan,closeDlg) );
+    mAttachCB( windowClosed, uiSeisWvltMan::closeDlg );
 }
 
 
 uiSeisWvltMan::~uiSeisWvltMan()
 {
-    if ( wvltext_ )
-	wvltext_->extractionDone.remove(
-				mCB(this,uiSeisWvltMan,wvltCreatedCB) );
+    detachAllNotifiers();
 
     delete wvltext_;
 
@@ -381,11 +379,11 @@ void uiSeisWvltMan::rotatePhase( CallBacker* )
 
     uiSeisWvltRotDlg dlg( this, *wvlt );
     dlg.setCaption( curioobj_->uiName() );
-    dlg.acting.notify( mCB(this,uiSeisWvltMan,rotUpdateCB) );
+    mAttachCB( dlg.acting, uiSeisWvltMan::rotUpdateCB );
     if ( dlg.go() )
 	waveletSaveAs( *wvlt, tr("rotated phase wavelet") );
 
-    dlg.acting.remove( mCB(this,uiSeisWvltMan,rotUpdateCB) );
+    mDetachCB( dlg.acting, uiSeisWvltMan::rotUpdateCB );
     mkFileInfo();
 }
 
