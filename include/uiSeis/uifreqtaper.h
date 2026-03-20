@@ -30,9 +30,9 @@ class TrcKeyZSampling;
 
 mStruct(uiSeis) FreqTaperSetup
 {
-		    FreqTaperSetup();
-		    FreqTaperSetup(const FreqTaperSetup&);
-		    ~FreqTaperSetup();
+			FreqTaperSetup();
+			FreqTaperSetup(const FreqTaperSetup&);
+			~FreqTaperSetup();
 
     const char*		seisnm_;
     const char*		attrnm_; //2D
@@ -105,7 +105,7 @@ public:
     void		setWindows(float,float rightvar=0);
     void		setFunction(Array1DImpl<float>&,Interval<float>);
 
-    ArrayNDWindow*	window() const { return window_; }
+    ArrayNDWindow*	window() const		{ return window_; }
 
     float*		getWinValues() const
 			{ return window_ ? window_->getValues() : 0; }
@@ -113,6 +113,7 @@ public:
 			{ return funcvals_ ? funcvals_->getData() : 0; }
 
     void		adaptFreqRangesToDataSize(bool,bool);
+    void		updateDisplay();
     void		taperChged(CallBacker*);
 
     TaperData&		leftTaperData()		{ return leftd_; }
@@ -124,6 +125,7 @@ public:
     Notifier<uiFuncTaperDisp> taperChanged;
 
 protected:
+
     uiFuncDispBase*	disp_;
     TaperData		leftd_;
     TaperData		rightd_;
@@ -153,6 +155,7 @@ public:
 
     void		setFreqRange(Interval<float>);
     Interval<float>	getFreqRange() const;
+    void		taperChanged();
     void		taperChged(CallBacker*);
 
 protected :
@@ -209,6 +212,7 @@ protected:
     TrcKeyZSampling*	tkzs_;
     MultiID		seisid_;
 
+    void		postFinalizeCB(CallBacker*);
     void		previewPushed(CallBacker*);
 };
 

@@ -35,7 +35,8 @@ WellTie::uiWaveletView::uiWaveletView( uiParent* p, ObjectSet<Wavelet>& wvs )
     {
 	uiwvlts_ += new uiWavelet( this, wvs[idx], idx==0 );
 	uiwvlts_[idx]->attach( ensureBelow, activewvltfld_ );
-	if ( idx ) uiwvlts_[idx]->attach( rightOf, uiwvlts_[idx-1] );
+	if ( idx )
+	    uiwvlts_[idx]->attach( rightOf, uiwvlts_[idx-1] );
 	mAttachCB( uiwvlts_[idx]->wvltChged, uiWaveletView::activeWvltChanged );
     }
 }
@@ -55,12 +56,11 @@ void WellTie::uiWaveletView::createWaveletFields( uiGroup* grp )
     uiString initwnm = tr("Initial");
     uiString estwnm = tr("Deterministic");
 
-    uiLabel* wvltlbl = new uiLabel( this, tr("Set active Wavelet : "));
+    auto* wvltlbl = new uiLabel( this, tr("Set active Wavelet : "));
     activewvltfld_ = new uiGenInput( this, uiString::emptyString(),
 				     BoolInpSpec(true,initwnm,estwnm));
     wvltlbl->attach( alignedAbove, activewvltfld_ );
-    activewvltfld_->valueChanged.notify(
-			 mCB(this, uiWaveletView, activeWvltChanged) );
+    mAttachCB( activewvltfld_->valueChanged, uiWaveletView::activeWvltChanged );
     setVSpacing ( 0 );
 }
 
@@ -130,6 +130,7 @@ WellTie::uiWavelet::uiWavelet( uiParent* p, Wavelet* wvlt, bool isactive )
 
 WellTie::uiWavelet::~uiWavelet()
 {
+    detachAllNotifiers();
 }
 
 
@@ -155,7 +156,7 @@ void WellTie::uiWavelet::rotatePhase( CallBacker* )
 {
     auto* orgwvlt = new Wavelet( *wvlt_ );
     uiSeisWvltRotDlg dlg( this, *wvlt_ );
-    dlg.acting.notify( mCB(this,uiWavelet,wvltChanged) );
+    mAttachCB( dlg.acting, uiWavelet::wvltChanged );
     if ( !dlg.go() )
     {
 	*wvlt_ = *orgwvlt;
@@ -169,6 +170,7 @@ void WellTie::uiWavelet::taper( CallBacker* )
 {
     auto* orgwvlt = new Wavelet( *wvlt_ );
     uiSeisWvltTaperDlg dlg( this, *wvlt_ );
+    mAttachCB( dlg.acting, uiWavelet::wvltChanged );
     dlg.acting.notify( mCB(this,uiWavelet,wvltChanged) );
     if ( !dlg.go() )
     {

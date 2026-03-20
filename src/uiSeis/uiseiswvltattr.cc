@@ -30,7 +30,7 @@ uiSeisWvltSliderDlg::uiSeisWvltSliderDlg( uiParent* p, Wavelet& wvlt )
 		       mODHelpKey(mSeisWvltSliderDlgHelpID)))
     , acting(this)
     , wvltattr_(new WaveletAttrib(wvlt))
-    , sliderfld_(0)
+    , sliderfld_(nullptr)
     , wvlt_(&wvlt)
     , orgwvlt_(new Wavelet(wvlt))
 {
@@ -42,12 +42,13 @@ void uiSeisWvltSliderDlg::constructSlider( uiSlider::Setup& su,
 {
     sliderfld_ = new uiSlider( this, su, "wavelet slider" );
     sliderfld_->setInterval( sliderrg );
-    sliderfld_->valueChanged.notify(mCB(this,uiSeisWvltSliderDlg,act));
+    mAttachCB( sliderfld_->valueChanged, uiSeisWvltSliderDlg::act );
 }
 
 
 uiSeisWvltSliderDlg::~uiSeisWvltSliderDlg()
 {
+    detachAllNotifiers();
     delete orgwvlt_;
     delete wvltattr_;
 }
@@ -108,8 +109,8 @@ uiSeisWvltTaperDlg::uiSeisWvltTaperDlg( uiParent* p, Wavelet& wvlt )
     , isfreqtaper_(false)
     , wvltsz_(wvlt.size())
     , freqvals_(new Array1DImpl<float>(mPadSz))
-    , timedrawer_(0)
-    , freqdrawer_(0)
+    , timedrawer_(nullptr)
+    , freqdrawer_(nullptr)
 {
     setCaption( tr("Taper Wavelet") );
     setHelpKey( mODHelpKey(mSeisWvltTaperDlgHelpID) );
@@ -125,7 +126,7 @@ uiSeisWvltTaperDlg::uiSeisWvltTaperDlg( uiParent* p, Wavelet& wvlt )
     mutefld_ = new uiCheckBox( this, tr("mute zero frequency") );
     mutefld_->setChecked();
     mutefld_->attach( rightOf, sliderfld_ );
-    mutefld_->activated.notify( mCB( this, uiSeisWvltTaperDlg, act )  );
+    mAttachCB( mutefld_->activated, uiSeisWvltTaperDlg::act );
 
     wvltvals_ = new Array1DImpl<float>( wvltsz_ );
     OD::memCopy( wvltvals_->getData(), wvlt_->samples(),sizeof(float)*wvltsz_);
@@ -151,13 +152,13 @@ uiSeisWvltTaperDlg::uiSeisWvltTaperDlg( uiParent* p, Wavelet& wvlt )
     s.drawliney_ = false;
     freqdrawer_ = new uiFuncTaperDisp( this, s );
     freqdrawer_->attach( ensureBelow, timedrawer_ );
-    freqdrawer_->taperChanged.notify(mCB(this,uiSeisWvltTaperDlg,act) );
+    mAttachCB( freqdrawer_->taperChanged, uiSeisWvltTaperDlg::act );
 
     typefld_ = new uiGenInput( this, tr("Taper"),
 		    BoolInpSpec(true, istime ? uiStrings::sTime()
 					     : uiStrings::sDepth(),
 					       tr("Frequency")));
-    typefld_->valueChanged.notify( mCB(this,uiSeisWvltTaperDlg,typeChoice) );
+    mAttachCB( typefld_->valueChanged, uiSeisWvltTaperDlg::typeChoice );
     typefld_->attach( centeredAbove, timedrawer_ );
 
     const float zfact = SI().showZ2UserFactor();
@@ -175,7 +176,7 @@ uiSeisWvltTaperDlg::uiSeisWvltTaperDlg( uiParent* p, Wavelet& wvlt )
     freqtaper_ = new uiFreqTaperGrp( this, ftsu, freqdrawer_ );
     freqtaper_->attach( ensureBelow, freqdrawer_ );
 
-    typeChoice(0);
+    typeChoice( nullptr );
 
     sliderfld_->attach( ensureBelow, freqdrawer_ );
     postFinalize().notify( mCB( this, uiSeisWvltTaperDlg, act ) );
@@ -184,6 +185,7 @@ uiSeisWvltTaperDlg::uiSeisWvltTaperDlg( uiParent* p, Wavelet& wvlt )
 
 uiSeisWvltTaperDlg::~uiSeisWvltTaperDlg()
 {
+    detachAllNotifiers();
     delete wvltvals_;
     delete freqvals_;
 }
@@ -196,13 +198,24 @@ void uiSeisWvltTaperDlg::typeChoice( CallBacker* )
     mutefld_->display( !isfreqtaper_ );
     freqtaper_->display( isfreqtaper_ );
 
-    timedrawer_->disp().setup().drawliney_ = !isfreqtaper_;
-    freqdrawer_->disp().setup().drawliney_ = isfreqtaper_;
+    timedrawer_->disp().setup().drawliney( !isfreqtaper_ );
+    freqdrawer_->disp().setup().drawliney( isfreqtaper_ );
 
     if ( isfreqtaper_ )
 	freqdrawer_->setFunction( *freqvals_, freqrange_ );
     else
+    {
 	timedrawer_->setFunction( *wvltvals_, timerange_ );
+	sliderfld_->valueChanged.trigger();
+    }
+
+    act( nullptr );
+
+    //TODO: For some reason, it does not get updated when the
+    //isfreqtaper_ is false. This fixes it, but why the behavior for freqdrawer_
+    //is not the same as timedrawer_ needs to be found
+    freqdrawer_->disp().draw();
+    timedrawer_->disp().draw();
 }
 
 
@@ -227,7 +240,9 @@ void uiSeisWvltTaperDlg::act( CallBacker* )
 	float var = sliderfld_->getFValue();
 	timedrawer_->setWindows( 1-var/100 );
 
-	if ( !timedrawer_->getFuncValues() ) return;
+	if ( !timedrawer_->getFuncValues() )
+	    return;
+
 	OD::memCopy( wvlt_->samples(), timedrawer_->getFuncValues(),
 						    sizeof(float)*wvltsz_ );
 	if ( mutefld_->isChecked() )
