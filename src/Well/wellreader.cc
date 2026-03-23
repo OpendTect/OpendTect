@@ -1053,8 +1053,8 @@ int MultiWellReader::nextStep()
 
 	if  ( wds_.size() == 0 )
 	{
-	   errmsg_ = tr("Failed to read well data.");
-	   return  ErrorOccurred();
+	    errmsg_ = tr("Failed to read well data.");
+	    return  ErrorOccurred();
 	}
 	else
 	    return Finished();
@@ -1066,15 +1066,14 @@ int MultiWellReader::nextStep()
     bool needsreload = false;
     if ( !wds_.isEmpty() )
     {
-	for ( const auto* wdata : wds_ )
+	for ( int idx=wds_.size()-1; idx>=0; idx-- )
 	{
-	    const int idx  = wds_.indexOf( wdata );
-	    if ( wdata->multiID() == wkey )
-	    {
-		wds_.removeSingle( idx );
-		needsreload = true;
-		break;
-	    }
+	    RefMan<Well::Data> wdata = wds_.get( idx );
+	    if ( !wdata || wdata->multiID() != wkey )
+		continue;
+
+	    needsreload = true;
+	    break;
 	}
     }
 
