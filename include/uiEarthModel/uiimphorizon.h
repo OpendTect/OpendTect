@@ -10,6 +10,9 @@ ________________________________________________________________________
 
 #include "uiearthmodelmod.h"
 #include "uidialog.h"
+#include "uigroup.h"
+
+#include "factory.h"
 
 #include "emhorizon3d.h"
 
@@ -33,6 +36,31 @@ class uiUnitSel;
 namespace Coords { class uiCoordSystemSel; }
 namespace Table { class FormatDesc; }
 namespace ZDomain { class Info; }
+
+
+/*! \brief Base class for 3D Horizon Import GUI */
+
+mExpClass(uiEarthModel) uiHorizon3DImportGroup : public uiGroup
+{
+mODTextTranslationClass(uiImpHorizon3DGroup)
+public:
+			mDefineFactory1ParamInClass(uiHorizon3DImportGroup,
+						    uiParent*,factory);
+
+			~uiHorizon3DImportGroup();
+
+    virtual bool	init();
+
+    virtual bool	doImport(bool dodisplay)			= 0;
+    virtual bool	triggerImportReady() const			= 0;
+    virtual TypeSet<MultiID> storedIDs() const				= 0;
+
+protected:
+			uiHorizon3DImportGroup(uiParent*);
+
+    bool		importready_					= false;
+};
+
 
 /*! \brief Dialog for Horizon Import */
 

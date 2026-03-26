@@ -56,6 +56,31 @@ ________________________________________________________________________
 #include <math.h>
 
 
+
+// uiHorizon3DImportGroup
+mImplFactory1Param( uiHorizon3DImportGroup, uiParent*,
+		    uiHorizon3DImportGroup::factory );
+
+uiHorizon3DImportGroup::uiHorizon3DImportGroup( uiParent* p )
+    : uiGroup(p)
+{
+}
+
+
+uiHorizon3DImportGroup::~uiHorizon3DImportGroup()
+{
+}
+
+
+bool uiHorizon3DImportGroup::init()
+{
+    return true;
+}
+
+
+
+
+// uiImportHorizon
 uiImportHorizon::uiImportHorizon( uiParent* p, bool isgeom )
     : uiDialog(p,Setup(uiString::emptyString(),
 		       mODHelpKey(mImportHorAttribHelpID)).modal(false))
