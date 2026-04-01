@@ -28,3 +28,4 @@ ________________________________________________________________________
 #define OD_VERSION_CHECK(major, minor, patch) ((major<<16)|(minor<<8)|(patch))
 
 #define mODFullVersion		"@OpendTect_FULL_VERSION@"
+#define mODInstDir		"@OpendTect_INST_DIR@"

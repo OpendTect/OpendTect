@@ -900,40 +900,35 @@ void uiODMain::afterSurveyChgCB( CallBacker* )
 
 void uiODMain::checkUpdateAvailable()
 {
-    const BufferString relrootdir( __ismac__ ?
-				    FilePath(GetSoftwareDir(true)).pathOnly() :
-				    BufferString(GetSoftwareDir(true)) );
-    OS::MachineCommand mc;
-    ODInst::getMachComm( relrootdir, mc );
-    if ( mc.isBad() || !File::exists(mc.program()) )
+    const BufferString odver = GetFullODVersion();
+    if ( odver.isEmpty() || odver.contains("development") )
 	return;
 
-    auto& mgr = Threads::CommandLaunchMgr::getMgr();
     CallBack cb( mCB(this,uiODMain,updateStatusCB) );
-    mgr.execute( mc, true, true, &cb );
+    ODInst::startUpdateCheck( cb );
 }
 
 
 void uiODMain::updateStatusCB( CallBacker* cb )
 {
     const auto* ct = Threads::CommandLaunchMgr::getMgr().getCommandTask( cb );
-    if ( ct )
-    {
-	const BufferString stdoutstr = ct->getStdOutput();
-	const BufferString stderrstr = ct->getStdError();
-	if ( stdoutstr.isEmpty() || !stderrstr.isEmpty() )
-	{
-	    ODInst::updatesAvailable( 0 );
-	    if ( !stderrstr.isEmpty() )
-		ErrMsg( BufferString("Error checking for software updates: ",
-				     stderrstr) );
-	}
-	else
-	    ODInst::updatesAvailable(
-				stdoutstr==ODInst::sKeyHasUpdate() ? 1 : 0 );
-	updateCaptionCB( nullptr );
-    }
+    if ( !ct )
+	return;
 
+    const BufferString stdoutstr = ct->getStdOutput();
+    const BufferString stderrstr = ct->getStdError();
+    if ( stdoutstr.isEmpty() || !stderrstr.isEmpty() )
+    {
+	ODInst::updatesAvailable( 0 );
+	if ( !stderrstr.isEmpty() )
+	    ErrMsg( BufferString("Error checking for software updates: ",
+				 stderrstr) );
+    }
+    else
+	ODInst::updatesAvailable(
+			    stdoutstr==ODInst::sKeyHasUpdate() ? 1 : 0 );
+
+    updateCaptionCB( nullptr );
 }
 
 

@@ -9,26 +9,23 @@ ________________________________________________________________________
 
 #include "odinst.h"
 
+#include "bufstringset.h"
+#include "commandlaunchmgr.h"
 #include "dirlist.h"
+#include "envvars.h"
 #include "file.h"
 #include "filepath.h"
 #include "oddirs.h"
 #include "odplatform.h"
 #include "odver.h"
-#include "envvars.h"
 #include "od_iostream.h"
 #include "oscommand.h"
-#include "settings.h"
+#include "odruncontext.h"
 #include "perthreadrepos.h"
-#include "bufstringset.h"
+#include "separstr.h"
+#include "settings.h"
 
-#define mDeclEnvVarVal const char* envvarval = GetEnvVar("OD_INSTALLER_POLICY")
-#ifdef __mac__
-    #define mRelRootDir \
-    FilePath( GetSoftwareDir(true) ).pathOnly()
-#else
-	#define mRelRootDir GetSoftwareDir(true)
-#endif
+#include <QSettings>
 
 #ifdef __win__
 # include <Windows.h>
@@ -59,11 +56,12 @@ mDefineNameSpaceEnumUtils(ODInst,RelType,"Release type")
 
 BufferString ODInst::GetRelInfoDir()
 {
-#ifdef __mac__
-    return FilePath( GetSoftwareDir(true), "Resources", "relinfo" ).fullPath();
-#else
-    return FilePath( GetSoftwareDir(true), "relinfo" ).fullPath();
-#endif
+    FilePath ret( GetSoftwareDir(true) );
+    if ( __ismac__ )
+	ret.add( "Resources" );
+
+    ret.add( "relinfo" );
+    return ret.fullPath();
 }
 
 
@@ -113,67 +111,355 @@ bool ODInst::canInstall( const char* dirnm )
 
 namespace ODInst {
 
-static OS::MachineCommand getFullMachComm( const char* reldir )
+static const char* softwareDir()
 {
-    OS::MachineCommand mc;
-    FilePath installerfp( getInstallerPlfDir() );
-    if ( !File::isDirectory(installerfp.fullPath()) )
-	return mc;
-    if ( __iswin__ )
-	installerfp.add( "od_instmgr.exe" );
-    else if( __ismac__ )
-	installerfp.add( "od_instmgr" );
+    mDeclStaticString(ret);
+    if ( ret.isEmpty() )
+    {
+	FilePath instfp( GetSoftwareDir(true) );
+	if ( __ismac__ )
+	    ret  = instfp.pathOnly();
+	else
+	    ret = instfp.fullPath();
+    }
+
+    return ret.buf();
+}
+
+
+static const char* qtEditorName()
+{
+    return "dGB_Earth_Sciences";
+}
+
+
+static const char* sKeyqInstaller()
+{
+    return "Installer";
+}
+
+
+static const char* sKeyqInstallerDir()
+{
+    return "ODInstallerDir";
+}
+
+
+static const char* sKeyqInstallerExecFnm()
+{
+    return "ODInstallerExecFnm";
+}
+
+
+static bool isUserInst()
+{
+    const FilePath reqpath( GetSoftwareDir(true) );
+    if ( reqpath.isEmpty() )
+	return true;
+
+    const FilePath homepath( File::getHomePath() );
+    if ( reqpath.isSubDirOf(homepath) || reqpath == homepath )
+	return true;
+
+    const BufferString reqpathstr = reqpath.fullPath();
+#ifdef __win__
+    if ( WinUtils::pathContainsTrustedInstaller(reqpathstr.buf()) )
+	return false;
+#endif
+    if ( __ismac__ && reqpathstr.startsWith("/Application") )
+	return false;
+
+    return File::isWritable( reqpathstr );
+}
+
+
+static const char* getInstallerExe( QSettings::Scope scope, ActionType typ )
+{
+    mDeclStaticString(ret);
+    ret.setEmpty();
+    const QSettings instsetts( scope, qtEditorName(), sKeyqInstaller() );
+    const QVariant qvarinstexec = instsetts.value( sKeyqInstallerExecFnm() );
+    const QString qinstexec = qvarinstexec.toString();
+    BufferString instexec( qinstexec );
+    if ( __iswin__ && typ == ActionType::UpdateCheck )
+    { // od_instmgr may have embedded UAC, needs to use run_installer.exe
+	FilePath instscriptfp( instexec );
+	instscriptfp.setFileName( "run_installer.exe" );
+	const BufferString instscript = instscriptfp.fullPath();
+	if ( File::isExecutable(instscript.buf()) &&
+	     !File::isDirectory(instscript.buf()) )
+	    instexec = instscript;
+    }
     else if ( __islinux__ )
     {
-	installerfp.add( "run_installer" );
-	if ( !installerfp.exists() )
+	FilePath instscriptfp( instexec );
+	instscriptfp.setFileName( "run_installer" );
+	const BufferString instscript = instscriptfp.fullPath();
+	if ( File::isExecutable(instscript.buf()) &&
+	     !File::isDirectory(instscript.buf()) )
+	    instexec = instscript;
+    }
+
+    if ( File::isExecutable(instexec.buf()) &&
+	 !File::isDirectory(instexec.buf()) )
+	ret = File::getCanonicalPath( instexec.str() );
+
+    return ret.buf();
+}
+
+
+static const char* getInstallerVersion( const char* execfnm )
+{
+    mDeclStaticString(ret);
+    if ( !StringView(execfnm).isEmpty() )
+    {
+	FilePath fp( execfnm );
+	fp.setFileName( nullptr );
+	const BufferString mask( "ver.*_", GetPlfSubDir(), ".txt" );
+	while ( !fp.isEmpty() )
 	{
-	    FilePath odinstmgrfp( installerfp );
-	    odinstmgrfp.setFileName( "od_instmgr" );
-	    if ( odinstmgrfp.exists() )
-		installerfp = odinstmgrfp;
+	    fp.setFileName( nullptr );
+	    if ( fp.isEmpty() )
+		break;
+
+	    if ( __ismac__ && fp.fileName() == "Contents" )
+		fp.setFileName( "Resources" );
+
+	    fp.setFileName( "relinfo" );
+	    if ( !fp.exists() )
+		continue;
+
+	    const DirList dl( fp.fullPath(), File::DirListType::FilesInDir,
+			      mask.str() );
+	    if ( !dl.isEmpty() )
+	    {
+		ret.setEmpty();
+		File::getContent( dl.fullPath(0), ret );
+	    }
+
+	    break;
 	}
     }
 
-    mc.setProgram( installerfp.fullPath() )
-      .addKeyedArg( "instdir", reldir );
+    return ret.buf();
 
-    return OS::MachineCommand( mc, false );
 }
 
 
-static bool submitCommand( OS::MachineCommand& mc, const char* reldir )
+static const char* getUserInstallerExe( ActionType typ )
 {
-    OS::CommandExecPars pars( OS::RunInBG );
-    pars.workingdir( FilePath(mc.program()).pathOnly() );
-    pars.runasadmin( !canInstall(reldir) ||
-                     !canInstall(pars.workingdir_) );
-    return mc.execute( pars );
+    mDeclStaticString(ret);
+    if ( ret.isEmpty() )
+	ret = getInstallerExe( QSettings::Scope::UserScope, typ );
+
+    return ret.buf();
 }
 
-};
 
-#define mGetFullMachComm(reldir,errretstmt) \
-    OS::MachineCommand machcomm( getFullMachComm( reldir ) ); \
-    if ( machcomm.isBad() || !File::isExecutable(machcomm.program()) ) \
-        errretstmt
-
-void ODInst::getMachComm( const char* reldir, OS::MachineCommand& mc )
+static const char* getSystemInstallerExe( ActionType typ )
 {
-    mc = getFullMachComm( reldir );
-    const BufferString odverstr( GetFullODVersion() );
-    if ( odverstr.contains("development") )
-	mc = OS::MachineCommand();
+    mDeclStaticString(ret);
+    if ( ret.isEmpty() )
+	ret = getInstallerExe( QSettings::Scope::SystemScope, typ );
+
+    return ret.buf();
+}
+
+
+static BufferString getLocalInstallerDir()
+{
+    mDeclStaticString(ret);
+    BufferString appldir( softwareDir() );
+    if ( File::isSymLink(appldir) )
+	appldir = File::linkEnd( appldir );
+
+    FilePath installerdir( appldir );
+    installerdir.setFileName( __ismac__ ? "OpendTect Installer.app"
+					: "Installer" );
+    FilePath relinfosubdir( installerdir );
+    if ( __ismac__ )
+	relinfosubdir.add( "Contents" ).add( "Resources" );
+
+    relinfosubdir.add( "relinfo" );
+    if ( !relinfosubdir.exists() )
+	return nullptr;
+
+    bool isvalid = false;
+    FilePath moddepfp( installerdir );
+    if ( __ismac__ )
+	moddepfp.add( "Contents" ).add( "Resources" );
+
+    moddepfp.add( "share" ).add( "ModDeps.Installer" );
+    if ( moddepfp.exists() )
+    {
+	isvalid = true;
+    }
     else
     {
-	BufferString remotedirnm( mODMajorVersion );
-	remotedirnm.add( "." ).add( mODMinorVersion )
-		   .add( "." ).add( mODPatchVersion );
-	mc.addFlag( "updcheck_report" )
-	  .addKeyedArg( "relver", odverstr )
-	  .addKeyedArg( "remotedirnm", remotedirnm.str() );
+	const DirList dl( relinfosubdir.fullPath(),
+			  File::DirListType::FilesInDir );
+	for ( int idx=0; idx<dl.size(); idx++ )
+	{
+	    if ( dl.get(idx).contains("instmgr") )
+	    {
+		isvalid = true;
+		break;
+	    }
+	}
     }
+
+    if ( isvalid )
+    {
+	const BufferString instdir = installerdir.fullPath();
+	ret = File::getCanonicalPath( instdir.str() );
+    }
+
+    return ret.buf();
 }
+
+
+static const char* getLocalInstallerExe( const char* odinstdir,
+					 ActionType /*typ*/ )
+{
+    mDeclStaticString(ret);
+    const BufferString installerbasedir( getLocalInstallerDir() );
+    if ( !File::isDirectory(installerbasedir.buf()) )
+	return nullptr;
+
+    ManagedObjectSet<FilePath> installerbinfps;
+    FilePath installerfp( installerbasedir.str() );
+    if ( __ismac__ )
+    {
+	installerfp.add( "Contents" ).add( "MacOS" );
+	installerbinfps.add( new FilePath(installerfp) );
+	installerfp.add( "Debug" );
+	installerbinfps.add( new FilePath(installerfp) );
+    }
+    else
+    {
+	installerfp.add( "bin" );
+	installerbinfps.add( new FilePath(installerfp) );
+	installerfp.add( GetPlfSubDir() ).add( "Release" );
+	installerbinfps.add( new FilePath(installerfp) );
+	installerfp.setFileName( "Debug" );
+	installerbinfps.add( new FilePath(installerfp) );
+    }
+
+    for ( const auto* execdir : installerbinfps )
+    {
+	FilePath execfp( *execdir );
+	if ( __iswin__ )
+	{
+	    execfp.add( "od_instmgr.exe" );
+	    if ( !execfp.exists() )
+		execfp.add( "od_instmgrd.exe" );
+	}
+	else if ( __ismac__ )
+	{
+	    execfp.add( "od_instmgr" );
+	    if ( !execfp.exists() )
+		execfp.setFileName( "od_instmgrd" );
+	}
+	else
+	{
+	    execfp.add( "run_installer" );
+	    if ( !execfp.exists() )
+	    {
+		execfp.setFileName( "od_instmgr" );
+		if ( !execfp.exists() )
+		    execfp.setFileName( "od_instmgrd" );
+	    }
+	}
+
+	const BufferString instexec = execfp.fullPath();
+	if ( File::isExecutable(instexec.buf()) &&
+	     !File::isDirectory(instexec.buf()) )
+	{
+	    ret = File::getCanonicalPath( instexec.str() );
+	    break;
+	}
+    }
+
+    return ret.buf();
+}
+
+
+static const char* getInstallerExe( ActionType typ=ActionType::Standard )
+{
+    mDeclStaticString(ret);
+    const bool isuserinst = isUserInst();
+    BufferString instexec = isuserinst ? getUserInstallerExe( typ )
+				       : getSystemInstallerExe( typ );
+    if ( instexec.isEmpty() )
+	instexec = getLocalInstallerExe( GetSoftwareDir(true), typ );
+
+    if ( !instexec.isEmpty() )
+    {
+	getInstallerVersion( instexec.str() );
+	ret = instexec.str();
+    }
+
+    return ret.buf();
+}
+
+
+static OS::MachineCommand getFullMachComm( const char* odinstdir,
+					   ActionType typ )
+{
+    const BufferString installerexe( getInstallerExe(typ) );
+    OS::MachineCommand mc;
+    if ( installerexe.isEmpty() )
+	return mc;
+
+    mc.setProgram( installerexe )
+      .addKeyedArg( "instdir", odinstdir );
+
+    const SeparString fms( getInstallerVersion(nullptr), '.' );
+    const bool ispre2026 = !fms.isEmpty() && fms.getUI16Value(0) > 1999 &&
+			   fms.getUI16Value(0) < 2026;
+
+    if ( ispre2026 )
+    {
+	if ( typ == ActionType::Manage || typ == ActionType::Update )
+	    mc.addFlag( "update" ).addFlag( "skip-first-dlg" );
+	else if ( typ == ActionType::UpdateCheck )
+	    mc.addFlag( "updcheck_report" );
+
+	return mc;
+    }
+
+    if ( typ == ActionType::Install )
+	mc.addFlag( "install" );
+    else if ( typ == ActionType::Manage )
+	mc.addFlag( "manage" );
+    else if ( typ == ActionType::Uninstall )
+	mc.addFlag( "uninstall" );
+    else if ( typ == ActionType::Update )
+	mc.addFlag( "update" );
+    else if ( typ == ActionType::UpdateCheck )
+	mc.addFlag( "updcheck_report" );
+
+    //TODO Use --sitesubdir
+
+    return mc;
+}
+
+
+static bool submitCommand( const OS::MachineCommand& mc, const char* odinstdir )
+{
+    OS::CommandExecPars pars( OS::RunInBG );
+    if ( __iswin__ )
+    {
+	pars.workingdir( FilePath(mc.program()).pathOnly() );
+	pars.runasadmin( !canInstall(odinstdir) ||
+			 !canInstall(pars.workingdir_) );
+    }
+
+    OS::MachineCommand isolatedmc( mc, __islinux__ );
+    return isolatedmc.execute( pars );
+}
+
+} // namespace ODInst
 
 
 const char* ODInst::sKeyHasUpdate()
@@ -187,89 +473,45 @@ const char* ODInst::sKeyHasNoUpdate()
     return "No updates available";
 }
 
-BufferString ODInst::GetInstallerDir()
+
+bool ODInst::HasInstaller()
 {
-    BufferString appldir( GetSoftwareDir(false) );
-    if ( File::isSymLink(appldir) )
-	appldir = File::linkEnd( appldir );
-
-#ifdef __mac__
-    FilePath macpath( appldir );
-    appldir = macpath.pathOnly();
-#endif
-
-    FilePath installerdir( appldir );
-    installerdir.setFileName( mInstallerDirNm );
-    if ( !File::isDirectory(installerdir.fullPath()) )
-    {
-	installerdir.setFileName( nullptr );
-	installerdir.setFileName( nullptr );
-	installerdir.setFileName( mInstallerDirNm );
-	if ( !File::isDirectory(installerdir.fullPath()) )
-	    installerdir = appldir;
-    }
-
-    FilePath relinfosubdir( installerdir );
-#ifdef __mac__
-    relinfosubdir.add( "Contents" ).add( "Resources" );
-#endif
-    relinfosubdir.add( "relinfo" );
-    if ( !relinfosubdir.exists() )
-	return BufferString::empty();
-
-    const DirList dl( relinfosubdir.fullPath(), File::DirListType::FilesInDir );
-    bool isvalid = false;
-    for ( int idx=0; idx<dl.size(); idx++ )
-    {
-	if ( dl.get(idx).contains("instmgr") )
-	{
-	    isvalid = true;
-	    break;
-	}
-    }
-
-    return isvalid ? installerdir.fullPath() : BufferString::empty();
+    const BufferString instexec = getInstallerExe();
+    return !instexec.isEmpty();
 }
 
 
-void ODInst::startInstManagement()
+void ODInst::startInstManagement( ActionType typ )
 {
-    mGetFullMachComm(mRelRootDir,return);
-    submitCommand( machcomm, mRelRootDir );
+    const OS::MachineCommand mc = getFullMachComm( softwareDir(), typ );
+    if ( mc.isBad() )
+	return;
+
+    submitCommand( mc, softwareDir() );
 }
 
 
-void ODInst::startInstManagementWithRelDir( const char* reldir )
+void ODInst::startUpdateCheck( CallBack cb )
 {
-    mGetFullMachComm(reldir,return);
-    submitCommand( machcomm, reldir );
-}
+    const OS::MachineCommand mc = getFullMachComm( softwareDir(),
+						   ActionType::UpdateCheck );
+    if ( mc.isBad() )
+	return;
 
-
-BufferString ODInst::getInstallerPlfDir()
-{
-    const FilePath installerbasedir( GetInstallerDir() );
-    if ( !installerbasedir.exists() )
-	return BufferString::empty();
-
-#ifdef __mac__
-    FilePath installerfp( installerbasedir, "Contents/MacOS" );
-#else
-    FilePath installerfp( installerbasedir, "bin", __plfsubdir__, "Release" );
-    if ( !installerfp.exists() )
+    OS::MachineCommand isolatedmc( mc, __islinux__ );
+    BufferString workdir;
+    if ( __iswin__ )
     {
-	FilePath dbginstallerfp( installerfp );
-	dbginstallerfp.setFileName( "Debug" );
-	if ( dbginstallerfp.exists() )
-	    installerfp = dbginstallerfp;
+	const FilePath execfp( mc.program() );
+	workdir = execfp.pathOnly();
     }
 
-#endif
-    const BufferString path = installerfp.fullPath();
-    if ( !File::exists(path) || !File::isDirectory(path) )
-	return installerbasedir.fullPath();
-
-    return installerfp.fullPath();
+    auto& mgr = Threads::CommandLaunchMgr::getMgr();
+    const bool readstdoutput = true;
+    const bool readstderror = true;
+    const bool inpythonenv = false;
+    mgr.execute( isolatedmc, readstdoutput, readstderror, &cb, inpythonenv,
+		 workdir.buf() );
 }
 
 
@@ -278,16 +520,21 @@ bool ODInst::runInstMgrForUpdt()
     return updatesAvailable();
 }
 
+
 namespace ODInst {
 
-static Threads::Lock odinstlock_( Threads::Lock::SmallWork );
+static Threads::Lock& Lock()
+{
+    static Threads::Lock lock( Threads::Lock::SmallWork );
+    return lock;
+}
 
-};
+} // namespace ODInst
 
 
 bool ODInst::updatesAvailable( int isavailable )
 {
-    Threads::Locker lock( ODInst::odinstlock_,
+    Threads::Locker lock( ODInst::Lock(),
 			  isavailable<0 ? Threads::Locker::ReadLock
 					: Threads::Locker::WriteLock );
     static int updavailable = -1;
@@ -329,16 +576,17 @@ const char* ODInst::getPkgVersion( const char* file_pkg_basenm )
 
 bool ODInst::autoInstTypeIsFixed()
 {
-    mDeclEnvVarVal;
-    return envvarval && *envvarval;
+    const BufferString envvarval = GetEnvVar( "OD_INSTALLER_POLICY" );
+    return !envvarval.isEmpty();
 }
 
 
 ODInst::AutoInstType ODInst::getAutoInstType()
 {
-    mDeclEnvVarVal;
-    const BufferString res = envvarval && *envvarval ?
-	    BufferString( envvarval ) : userSettings().find( sKeyAutoInst() );
+    const BufferString envvarval = GetEnvVar( "OD_INSTALLER_POLICY" );
+    const BufferString res = envvarval.isEmpty()
+			   ? userSettings().find( sKeyAutoInst() )
+			   : envvarval;
     return res.isEmpty() ? ODInst::InformOnly : parseEnumAutoInstType( res );
 }
 
@@ -353,4 +601,65 @@ void ODInst::setAutoInstType( ODInst::AutoInstType ait )
 Settings& ODInst::userSettings()
 {
     return Settings::fetch( "instmgr" );
+}
+
+
+// Deprecated impls
+
+BufferString ODInst::GetInstallerDir()
+{
+    if ( OD::InInstallerRunContext() )
+	return softwareDir();
+
+    const bool isuserinst = isUserInst();
+    const QSettings::Scope instscope = isuserinst ? QSettings::Scope::UserScope
+						: QSettings::Scope::SystemScope;
+    const QSettings instsetts( instscope, qtEditorName(), sKeyqInstaller() );
+    const QVariant qvarinstsettlist = instsetts.value( sKeyqInstallerDir() );
+    const QString qinstsettlist = qvarinstsettlist.toString();
+    const BufferString instsettlist( qinstsettlist );
+    if ( File::isDirectory(instsettlist.buf()) )
+	return instsettlist;
+
+    const BufferString localinstdir = getLocalInstallerDir();
+    if ( File::isDirectory(localinstdir.buf()) )
+	return localinstdir;
+
+    return BufferString::empty();
+}
+
+
+BufferString ODInst::getInstallerPlfDir()
+{
+    if ( OD::InInstallerRunContext() )
+	return GetExecPlfDir();
+
+    const FilePath instexefp( getInstallerExe() );
+    if ( instexefp.exists() )
+	return instexefp.pathOnly();
+
+    return BufferString::empty();
+}
+
+
+void ODInst::getMachComm( const char* reldir, OS::MachineCommand& mc )
+{
+    mc = getFullMachComm( reldir, ActionType::UpdateCheck );
+    const BufferString odverstr( GetFullODVersion() );
+    if ( odverstr.contains("development") )
+	mc = OS::MachineCommand();
+}
+
+
+void ODInst::startInstManagement()
+{
+    startInstManagement( ActionType::Standard );
+}
+
+
+void ODInst::startInstManagementWithRelDir( const char* reldir )
+{
+    const OS::MachineCommand mc = getFullMachComm( reldir,ActionType::Standard);
+    if ( !mc.isBad() )
+	submitCommand( mc, reldir );
 }

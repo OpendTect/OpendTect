@@ -34,6 +34,7 @@ class uiVisDataPointSetDisplayMgr;
 class DataPointSet;
 class ODSession;
 namespace Attrib { class DescID; class SelSpec; }
+namespace ODInst { enum class ActionType; }
 namespace Pick { class Set; }
 
 /*!\brief Application level manager - ties part servers together
@@ -139,7 +140,7 @@ public:
     void			posConversion();
     void			crDevEnv();
     void			manageShortcuts();
-    void			startInstMgr();
+    void			startInstMgr(ODInst::ActionType);
     void			setAutoUpdatePol();
 
     // Tree menu services
@@ -308,4 +309,7 @@ private:
 
 public:
     void			launch2DViewer(CallBacker*);
+
+    mDeprecated("Provide ODInst::ActionType")
+    void			startInstMgr();
 };

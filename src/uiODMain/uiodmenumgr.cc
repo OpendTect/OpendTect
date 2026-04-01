@@ -1039,15 +1039,12 @@ void uiODMenuMgr::fillUtilMenu()
 
     installmnu_ = new uiMenu( &appl_, tr("Installation") );
     utilmnu_->addMenu( installmnu_ );
-    FilePath installerdir( ODInst::GetInstallerDir() );
-    const bool hasinstaller = File::isDirectory( installerdir.fullPath() );
-    if ( hasinstaller )
+    if ( ODInst::HasInstaller() )
     {
 	const ODInst::AutoInstType ait = ODInst::getAutoInstType();
 	const bool aitfixed = ODInst::autoInstTypeIsFixed();
 	if ( !aitfixed || ait == ODInst::UseManager || ait == ODInst::FullAuto )
-	    insertAction( installmnu_, m3Dots(tr("Update")),
-			 mInstMgrMnuItem );
+	    insertAction( installmnu_, m3Dots(tr("Update")), mInstMgrMnuItem );
 	if ( !aitfixed )
 	    insertAction( installmnu_, m3Dots(tr("Auto-update Policy")),
 			 mInstAutoUpdPolMnuItm );
@@ -1705,7 +1702,8 @@ void uiODMenuMgr::handleClick( CallBacker* cb )
     case mInstConnSettsMnuItm:	applMgr().showProxy(&appl_); break;
     case mSettLkNFlMnuItm:	applMgr().showSettings(&appl_); break;
     case mPosconvMnuItm:	applMgr().posConversion(); break;
-    case mInstMgrMnuItem:	applMgr().startInstMgr(); break;
+    case mInstMgrMnuItem:	applMgr().startInstMgr(
+					ODInst::ActionType::Manage ); break;
     case mInstAutoUpdPolMnuItm:	applMgr().setAutoUpdatePol(); break;
     case mCrDevEnvMnuItm:	uiCrDevEnv::crDevEnv(&appl_); break;
     case mShwLogFileMnuItm:	showLogFile(); break;

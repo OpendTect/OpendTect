@@ -36,6 +36,7 @@ class uiSessionMan;
 class uiVelSel;
 
 namespace Attrib { class SelSpec; }
+namespace ODInst { enum class ActionType; }
 namespace PreStack
 { class uiExportMute; class uiImportMute; class uiBatchProcSetup; }
 namespace Vel { class uiImportVelFunc; }
@@ -76,7 +77,7 @@ mExpClass(uiODMain) uiODApplMgrDispatcher : public CallBacker
     void		batchProgs();
     void		pluginMan();
     void		manageShortcuts();
-    void		startInstMgr();
+    void		startInstMgr(ODInst::ActionType);
     void		setAutoUpdatePol();
     void		openXPlot();
     void		createCubeFromWells();
@@ -108,4 +109,7 @@ mExpClass(uiODMain) uiODApplMgrDispatcher : public CallBacker
     Vel::uiImportVelFunc*	impvelfunc3d_			= nullptr;
     PreStack::uiBatchProcSetup* batchprocps2ddlg_		= nullptr;
     PreStack::uiBatchProcSetup* batchprocps3ddlg_		= nullptr;
+
+    mDeprecated("Provide ODInst::ActionType")
+    void		startInstMgr();
 };

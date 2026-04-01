@@ -32,20 +32,12 @@ mDefineEnumUtils(OD::Platform,Type,"Platform")
 extern "C" const char* GetFullODVersion()
 {
     mDeclStaticString( ret );
-    if ( !ret.isEmpty() ) return ret.buf();
+    if ( !ret.isEmpty() )
+	return ret.buf();
 
     GetSpecificODVersion( nullptr, ret );
-
     if ( ret.isEmpty() )
-    {
-	const char* pvnm = GetProjectVersionName();
-	pvnm = lastOcc( pvnm, 'V' );
-	if ( pvnm )
-	    ret = pvnm + 1;
-
-	if ( ret.isEmpty() )
-	    ret = "2025.1";
-    }
+	ret.set( mODFullVersion );
 
     return ret.buf();
 }

@@ -585,18 +585,28 @@ bool uiUpdateInfoDlg::acceptOK( CallBacker* )
 
 void uiODApplMgrDispatcher::startInstMgr()
 {
-#ifdef __win__
-    uiString msg = tr("Please close OpendTect application and all other "
+    startInstMgr( ODInst::ActionType::Standard );
+}
+
+
+void uiODApplMgrDispatcher::startInstMgr( ODInst::ActionType typ )
+{
+    uiString msg;
+    if ( __iswin__ )
+	msg = tr("Please close OpendTect application and all other "
 		      "OpendTect processes before proceeding for"
 		      " installation/update");
-#else
-    uiString msg = tr("If you make changes to the application,\nplease "
+    else
+	msg = tr("If you make changes to the application,\nplease "
 		      "restart OpendTect for the changes to take effect.");
-#endif
 
-    uiUpdateInfoDlg dlg( par_, msg );
-    dlg.go();
-    ODInst::startInstManagement();
+    if ( typ == ODInst::ActionType::Manage || typ == ODInst::ActionType::Update)
+    {
+	uiUpdateInfoDlg dlg( par_, msg );
+	dlg.go();
+    }
+
+    ODInst::startInstManagement( typ );
 }
 
 
