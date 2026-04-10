@@ -962,17 +962,16 @@ void uiIOObjSelGrp::fullUpdate( const MultiID& ky )
 void uiIOObjSelGrp::addEntry( const MultiID& mid )
 {
     const int selidx = dataset_.indexOfMID( mid );
-    if ( selidx < 0 )
-    {
-	PtrMan<IOObj> ioobj = IOM().get( mid );
-	if ( !ioobj )
-	    return;
+    if ( dataset_.validIdx(selidx) )
+	return;
 
-	const bool isdef = setup_.allowsetdefault_
-				    ? IOObj::isSurveyDefault(mid) : false;
-	dataset_.add( mid, isdef );
-    }
+    PtrMan<IOObj> ioobj = IOM().get( mid );
+    if ( !ioobj )
+	return;
 
+    const bool isdef = setup_.allowsetdefault_ ? IOObj::isSurveyDefault(mid)
+					       : false;
+    dataset_.add( mid, isdef );
     addEntryToListBox( mid );
     itemAdded.trigger( mid );
 }
