@@ -163,6 +163,7 @@ uiSeisFileMan::uiSeisFileMan( uiParent* p, bool is2d )
 uiSeisFileMan::~uiSeisFileMan()
 {
     detachAllNotifiers();
+    closeAndNullPtr( copydlg_ );
 }
 
 
@@ -579,13 +580,18 @@ void uiSeisFileMan::getBasicFileInfo( BufferString& txt ) const
     seisobjinfo.getAllFileNames( filenames, true );
     if ( !filenames.isEmpty() )
     {
-	txt.add( "\nLinked file(s): " );
-	for ( const auto* nm : filenames )
+	if ( filenames.size()==1 )
+	    txt.add("\nLinked file: ").add( filenames.first()->buf() );
+	else
 	{
-	    if ( *nm == fname )
-		continue;
+	    txt.add( "\nLinked files: " );
+	    for ( const auto* nm : filenames )
+	    {
+		if ( *nm == fname )
+		    continue;
 
-	    txt.add( "\n" ).add( nm->buf() );
+		txt.add( "\n" ).add( nm->buf() );
+	    }
 	}
     }
 
@@ -657,8 +663,13 @@ void uiSeisFileMan::copyPush( CallBacker* )
     }
     else
     {
-	uiSeisCopyCube dlg( this, curioobj_ );
-	needrefresh = dlg.go();
+	if ( !copydlg_ )
+	{
+	    copydlg_ = new uiSeisCopyCube( this, curioobj_ );
+	    copydlg_->setModal( false );
+	}
+
+	copydlg_->show();
     }
 
     if ( needrefresh )

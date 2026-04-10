@@ -63,7 +63,7 @@ uiSeisCopyCube::uiSeisCopyCube( uiParent* p, const IOObj* startobj )
     transffld_->attach( alignedBelow, compfld_ );
 
     IOObjContext outctxt( uiSeisSel::ioContext(gt,false) );
-    sssu.enabotherdomain( false );
+    sssu.withunitsel(false);
     outfld_ = new uiSeisSel( this, outctxt, sssu );
     outfld_->attach( alignedBelow, transffld_ );
 

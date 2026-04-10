@@ -10,6 +10,8 @@ ________________________________________________________________________
 
 #include "uiseismod.h"
 #include "uiobjfileman.h"
+
+class uiSeisCopyCube;
 class uiToolButton;
 
 
@@ -43,12 +45,13 @@ public:
 protected:
 
     bool		is2d_;
-    uiToolButton*	man2dlinesbut_	    = nullptr;
-    uiToolButton*	hdrbut_		    = nullptr;
-    uiToolButton*	browsebut_	    = nullptr;
+    uiToolButton*	man2dlinesbut_				= nullptr;
+    uiToolButton*	hdrbut_					= nullptr;
+    uiToolButton*	browsebut_				= nullptr;
     uiToolButton*	attribbut_;
     uiToolButton*	copybut_;
-    uiToolButton*	mergecubesbut_	    = nullptr;
+    uiToolButton*	mergecubesbut_				= nullptr;
+    uiSeisCopyCube*	copydlg_				= nullptr;
 
     void		mergePush(CallBacker*);
     void		passSelToMergeDlgCB(CallBacker*);

@@ -270,10 +270,11 @@ void uiSeisSelDlg::getComponentNames( BufferStringSet& compnms ) const
 uiSeisSel::Setup::Setup( Seis::GeomType gt )
     : geom_(gt)
     , allowsetdefault_(true)
-    , steerpol_(NoSteering)
-    , compnrpol_(Both)
     , enabotherdomain_(false)
+    , withunitsel_(false)
     , domainpol_(SIDomain)
+    , compnrpol_(Both)
+    , steerpol_(NoSteering)
     , allowsetsurvdefault_(false)
     , explprepost_(false)
     , selectcomp_(false)
@@ -301,9 +302,9 @@ uiSeisSel::Setup& uiSeisSel::Setup::wantSteering( bool yn )
 uiSeisSel::uiSeisSel( uiParent* p, const IOObjContext& ctxt,
 		      const uiSeisSel::Setup& su )
     : uiIOObjSel(p,adaptCtxtWithSetup(ctxt,su),mkSetup(su,ctxt))
-    , seissetup_(mkSetup(su,ctxt))
     , domainChanged(this)
     , zUnitChanged(this)
+    , seissetup_(mkSetup(su,ctxt))
 {
     workctio_.ctxt_ = inctio_.ctxt_;
     if ( !ctxt.forread_ && Seis::is2D(seissetup_.geom_) )
@@ -357,8 +358,9 @@ void uiSeisSel::initGrpCB( CallBacker* )
 
 bool uiSeisSel::enableTimeDepthToogle() const
 {
-    if ( inctio_.ctxt_.forread_ || !seissetup_.enabotherdomain_ )
-//    if ( inctio_.ctxt_.forread_ || seissetup_.domainpol_ == Setup::SIDomain )
+    const bool withunitsel =
+		seissetup_.enabotherdomain_ && seissetup_.withunitsel_;
+    if ( inctio_.ctxt_.forread_ || !withunitsel )
 	return false;
 
     const ZDomain::Info* requiredzdom = requiredZDomain();
@@ -371,14 +373,18 @@ bool uiSeisSel::enableTimeDepthToogle() const
 
 void uiSeisSel::domainChgCB( CallBacker* )
 {
-    othdombox_->display( !customzinfo_ );
-    const bool zistime = SI().zIsTime();
-    const bool istransformed = othdombox_->isDisplayed() &&
-			       othdombox_->isChecked();
-    const bool idepth = (zistime && istransformed) ||
-			(!zistime && !istransformed);
+    if ( othdombox_ )
+    {
+	othdombox_->display( !customzinfo_ );
+	const bool zistime = SI().zIsTime();
+	const bool istransformed = othdombox_->isDisplayed() &&
+				   othdombox_->isChecked();
+	const bool idepth = (zistime && istransformed) ||
+			    (!zistime && !istransformed);
 
-    othunitfld_->display( idepth );
+	othunitfld_->display( idepth );
+    }
+
     domainChanged.trigger( getZDomain() );
 }
 
@@ -480,6 +486,9 @@ const ZDomain::Info& uiSeisSel::getZDomain() const
 {
     if ( !othdombox_ )
     {
+	if ( customzinfo_ )
+	    return *customzinfo_;
+
 	const ZDomain::Info* ret = requiredZDomain();
 	return ret ? *ret : SI().zDomainInfo();
     }
@@ -509,7 +518,12 @@ const ZDomain::Info& uiSeisSel::getZDomain() const
 BufferString uiSeisSel::zUnit() const
 {
     if ( !othunitfld_ )
+    {
+	if ( customzinfo_ )
+	    return customzinfo_->unitStr();
+
 	return SI().zDomainInfo().unitStr();
+    }
 
     if ( !othunitfld_->isDisplayed() && customzinfo_ )
 	return customzinfo_->unitStr();
@@ -521,7 +535,11 @@ BufferString uiSeisSel::zUnit() const
 void uiSeisSel::setZDomain( const ZDomain::Info& zinfo )
 {
     if ( !othdombox_ )
+    {
+	customzinfo_ = &zinfo;
+	domainChgCB( nullptr );
 	return;
+    }
 
     if ( zinfo.isTime() || zinfo.isDepth() )
     {
@@ -586,7 +604,7 @@ void uiSeisSel::updateInput()
 	uiIOSelect::setInput( ioobjkey.toString() );
 
     const bool needcomp = seissetup_.selectcomp_ && !mIsUdf(compnr_);
-    const bool needzdomain = othdombox_;
+    const bool needzdomain = othdombox_ || seissetup_.enabotherdomain_;
     if ( !needcomp && !needzdomain )
 	return;
 

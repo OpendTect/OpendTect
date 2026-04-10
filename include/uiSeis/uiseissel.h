@@ -40,6 +40,7 @@ public:
 	mDefSetupMemb(Seis::GeomType,geom)
 	mDefSetupMemb(bool,allowsetdefault) //!< Fill with def cube/line? True
 	mDefSetupMemb(bool,enabotherdomain) //!< write only: T vs Depth False
+	mDefSetupMemb(bool,withunitsel)     //!< write only: False
 	mDefSetupMemb(DomainPol,domainpol)  //!< SIDomain (only)
 	mDefSetupMemb(CompNrPol,compnrpol)  //!< Both
 	mDefSetupMemb(SteerPol,steerpol)    //!< NoSteering
