@@ -31,7 +31,6 @@ ________________________________________________________________________
 #include "systeminfo.h"
 
 static const int cPrefHeight = 10;
-static const int cPrefWidth = 75;
 
 uiObjFileMan::uiObjFileMan( uiParent* p, const uiDialog::Setup& s,
 			    const IOObjContext& ctxt,
@@ -103,8 +102,6 @@ void uiObjFileMan::createDefaultUI( bool withreloc, bool withrm, bool multisel )
     auto* savebut = new uiToolButton( notesgrp, "save", tr("Save Notes"),
 				      mCB(this,uiObjFileMan,saveNotes) );
     savebut->attach( rightTo, notesfld_ );
-
-    setPrefWidth( cPrefWidth );
 
     auto* sep = new uiSplitter( this, "List-Info splitter", false );
     sep->addGroup( listgrp_ );
@@ -440,10 +437,7 @@ void uiObjFileMan::setInfo( const char* txt )
 
 
 void uiObjFileMan::setPrefWidth( int width )
-{
-    selgrp_->setPrefWidthInChar( mCast(float,width) );
-    infofld_->setPrefWidthInChar( width );
-}
+{}
 
 
 void uiObjFileMan::updateCB( CallBacker* )
