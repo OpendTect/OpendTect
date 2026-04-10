@@ -49,7 +49,6 @@ uiSeisWvltMan::uiSeisWvltMan( uiParent* p )
     , wvltpropdlg_(nullptr)
 {
     createDefaultUI();
-    setPrefWidth( 50 );
 
     uiIOObjManipGroup* manipgrp = selgrp_->getManipGroup();
     copybut_ = manipgrp->addButton( "copyobj",

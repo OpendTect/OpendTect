@@ -54,7 +54,6 @@ uiWellMan::uiWellMan( uiParent* p )
 		   WellTranslatorGroup::sGroupName())
 {
     createDefaultUI();
-    setPrefWidth( 50 );
 
     addManipButton( "copyobj", tr("Copy Well"), mCB(this,uiWellMan,copyPush) );
 

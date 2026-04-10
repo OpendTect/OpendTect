@@ -30,7 +30,6 @@ uiAttrSetMan::uiAttrSetMan( uiParent* p, bool is2d )
 {
     ctxt_.toselect_.dontallow_.set( sKey::Type(), is2d ? "3D" : "2D" );
     createDefaultUI();
-    setPrefWidth( 50 );
 
     uiListBox::Setup su( OD::ChooseNone, uiStrings::sAttribute(2),
 			 uiListBox::AboveMid );

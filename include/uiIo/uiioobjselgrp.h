@@ -245,6 +245,7 @@ protected:
     void		triggerStatusMsg(const char*);
 
     void		initGrpCB(CallBacker*);
+    void		preInitGrpCB(CallBacker*);
     void		setInitial(CallBacker*);
     void		selChg(CallBacker*);
     void		choiceChg(CallBacker*);

@@ -181,7 +181,6 @@ uiSurfaceMan::uiSurfaceMan( uiParent* p, EM::ObjectType typ )
 	new uiPushButton( extrabutgrp_, uiStrings::sStratigraphy(),
 		mCB(this,uiSurfaceMan,stratSel), false );
 	extrabutgrp_->attach( ensureBelow, attribfld_ );
-	setPrefWidth( 50 );
     }
 
     if ( type_==EM::ObjectType::Hor3D || type_==EM::ObjectType::Hor2D )
