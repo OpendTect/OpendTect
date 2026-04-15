@@ -260,7 +260,7 @@ bool testArray1D()
     logStream() << "\ndump 1D array json:\n" << jsStr << '\n' << od_endl;
 
     BufferString teststr( "[0,2,4,6]" );
-    OD::JSON::Array jsarr_in( false );
+    OD::JSON::Array jsarr_in( OD::JSON::Number );
     uiRetVal uirv = jsarr_in.parseJSon( teststr.getCStr(), teststr.size() );
     mRunStandardTestWithError( uirv.isOK(),
 			      "Parse an array string into a JSON::Array",
