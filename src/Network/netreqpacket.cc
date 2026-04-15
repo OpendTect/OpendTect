@@ -240,8 +240,8 @@ PtrMan<Network::PacketFiller> Network::RequestPacket::setPayload(
 					 const ObjectSet<ArrayNDInfo>& infos,
 					 const TypeSet<OD::DataRepType>& types )
 {
-    OD::JSON::Array* shapes = new OD::JSON::Array( OD::JSON::ValueSet::Data );
-    OD::JSON::Array* dtypes = new OD::JSON::Array( OD::JSON::String );
+    auto* shapes = new OD::JSON::Array( false );
+    auto* dtypes = new OD::JSON::Array( OD::JSON::String );
     od_int64 totsz = 0;
     for ( int idx=0; idx<infos.size(); idx++ )
     {
@@ -249,8 +249,7 @@ PtrMan<Network::PacketFiller> Network::RequestPacket::setPayload(
 	const OD::DataRepType type = types[idx];
 	const DataCharacteristics dc( type );
 	totsz += info.getTotalSz() * dc.nrBytes();
-	OD::JSON::Array* shape =
-	    shapes->add( new OD::JSON::Array(OD::JSON::Number) );
+	auto* shape = shapes->add( new OD::JSON::Array(OD::JSON::Number) );
 	TypeSet<ArrayNDInfo::dim_idx_type> ndpos;
 	for ( ArrayNDInfo::nr_dims_type idim=0; idim<info.getNDim(); idim++ )
 	    ndpos += info.getSize( idim );
