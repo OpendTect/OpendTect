@@ -104,7 +104,8 @@ bool ODOSGViewer::checkNeedToDoFrame()
 	return true;
 
     // check if the view needs to update the scene graph
-    // this check if camera has update callback and if scene requires to update scene graph
+    // this check if camera has update callback and if scene requires to
+    // update scene graph
     if ( requiresUpdateSceneGraph() )
 	return true;
 
@@ -139,6 +140,14 @@ bool ODOSGViewer::checkNeedToDoFrame()
 // called from ViewerWidget paintGL() method
 void ODOSGViewer::frame( double simulationtime )
 {
+    if ( isinframe_ )
+    {
+	needsredraw_ = true;
+	return;
+    }
+
+    isinframe_ = true;
+
     // limit the frame rate
     if ( getRunMaxFrameRate() > 0.0 )
     {
@@ -187,6 +196,15 @@ void ODOSGViewer::frame( double simulationtime )
     updateTraversal();
     renderingTraversals();
 #endif
+
+    isinframe_ = false;
+
+    if ( needsredraw_ )
+    {
+	needsredraw_ = false;
+	requestRedraw();
+	update();
+    }
 }
 
 

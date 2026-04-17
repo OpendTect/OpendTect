@@ -36,7 +36,7 @@ public:
 
     bool			checkNeedToDoFrame() override;
     void			frame(double simulationtime=USE_REFERENCE_TIME)
-								override;
+							override;
     bool			checkEvents() override;
 
     void			update();
@@ -50,4 +50,6 @@ protected:
     osg::Timer			lastframestarttime_;
     bool			applicationabouttoquit_	= false;
     bool			osgwantstorenderframe_	= true;
+    bool			isinframe_		= false;
+    bool			needsredraw_		= false;
 };

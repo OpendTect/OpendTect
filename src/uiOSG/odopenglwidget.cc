@@ -130,21 +130,15 @@ void ODOpenGLWidget::paintGL()
 {
     OpenThreads::ScopedReadLock locker( mutex_ );
 
-    if ( isfirstframe_ )
+    if ( viewer_ )
     {
-	isfirstframe_ = false;
-
-/*
 	std::vector<osg::Camera*> cameras;
 	viewer_->getCameras( cameras );
 	for ( auto* cam : cameras )
 	    cam->getGraphicsContext()->setDefaultFboId(
 						defaultFramebufferObject() );
-*/
-    }
-
-    if ( viewer_ )
 	viewer_->frame();
+    }
 }
 
 
@@ -154,12 +148,17 @@ void ODOpenGLWidget::resizeGL( int w, int h )
 				   w*scalex_, h*scaley_ );
     graphicswindow_->resized( x()*scalex_, y()*scaley_, w*scalex_, h*scaley_ );
 
-/*
-    std::vector<osg::Camera*> cameras;
-    viewer_->getCameras( cameras );
-    for ( auto* cam : cameras )
-	cam->setViewport( 0, 0, this->width(), this->height() );
-*/
+    if ( viewer_ )
+    {
+	std::vector<osg::Camera*> cameras;
+	viewer_->getCameras( cameras );
+	for ( auto* cam : cameras )
+	{
+	    cam->getGraphicsContext()->setDefaultFboId(
+						defaultFramebufferObject() );
+	    cam->setViewport( 0, 0, w*scalex_, h*scaley_ );
+	}
+    }
 
     update();
 }
