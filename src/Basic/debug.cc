@@ -635,7 +635,9 @@ void CrashDumper::sendDump( const char* filename )
 	return;
 
     BufferString newfilename = FilePath( GetArgV()[0] ).baseName();
-    newfilename.add( "_error_report.dmp" );
+    newfilename.add( "_" ).add( GetUserNm() )
+		.add( "_" ).add( Time::getDateTimeString("yyMMddhhmmss") )
+		.add( "_error_report.dmp" );
     FilePath newfp( filename );
     newfp.setFileName( newfilename );
     newfilename = newfp.fullPath();
