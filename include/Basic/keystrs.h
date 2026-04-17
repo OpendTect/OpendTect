@@ -175,6 +175,7 @@ namespace sKey
     inline StringView Shotpoint()	{ return "Shotpoint"; }
     inline StringView Size()		{ return "Size"; }
     inline StringView SliceType()	{ return "SliceType"; }
+    inline StringView Snap()		{ return "Snap"; }
     inline StringView Source()		{ return "Source"; }
     inline StringView SpaceString()	{ return " "; }
     inline StringView StackOrder()	{ return "Stack order"; }

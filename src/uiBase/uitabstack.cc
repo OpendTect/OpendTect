@@ -125,6 +125,12 @@ bool uiTabStack::isTabEnabled( uiGroup* grp ) const
 }
 
 
+void uiTabStack::setTabVisible( int idx, bool yn )
+{
+    tabbar_->setTabVisible( idx, yn );
+}
+
+
 void uiTabStack::setTabVisible( uiGroup* grp, bool yn )
 {
     const int idx = indexOf( grp );

@@ -406,7 +406,7 @@ public:
 uiSingleBatchJobDispatcherPars( uiParent* p, const HostDataList& hdl,
 				Batch::SingleJobDispatcher& sjd,
 				Batch::JobSpec& js )
-    : uiDialog(p,Setup(tr("Batch execution parameters"),
+    : uiDialog(p,Setup(tr("Batch Execution Parameters"),
 		       tr("Options for '%1' program").arg(js.prognm_),
 		       mODHelpKey(mSingleBatchJobDispatcherParsHelpID)))
     , sjd_(sjd)
@@ -457,7 +457,7 @@ uiSingleBatchJobDispatcherPars( uiParent* p, const HostDataList& hdl,
     if ( remhostfld_ )
 	windowspriofld_->attach( alignedBelow, remhostfld_ );
 
-    sliderlbl_ = new uiLabel( this, tr("Left:Low, Right: Normal") );
+    sliderlbl_ = new uiLabel( this, tr("Left: Low, Right: Normal") );
     sliderlbl_->attach( rightOf, unixpriofld_ );
 
     hostChgCB(nullptr);

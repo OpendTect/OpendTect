@@ -80,6 +80,7 @@ public:
 
     uiParent*		tabParent();
     uiObject*		tabObject()		{ return (uiObject*)tabstack_; }
+    uiTabStack*		tabStack()		{ return tabstack_; }
     void		addGroup(uiDlgGroup*);
 
     int			nrGroups() const	{ return groups_.size(); }
