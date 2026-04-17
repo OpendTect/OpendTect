@@ -82,7 +82,8 @@ int uiAttribPartServer::objNLAModel3D()		{ return 101; }
 
 const char* uiAttribPartServer::attridstr()	{ return "Attrib ID"; }
 
-static const int cMaxMenuSize = 150;
+static const int cMaxMenuSize			= 150;
+static constexpr od_int64 cVolumeThreshold	= 100000000LL;
 
 const char* uiAttribPartServer::sKeyUserSettingAttrErrMsg()
 { return "dTect.Display attribute positioning error messages"; }
@@ -933,6 +934,7 @@ RefMan<RegularSeisDataPack> uiAttribPartServer::createOutputRM(
     Settings::common().getYN( SettingsAccess::sKeyShowZProgress(),
 			      showzprogress );
 
+    const bool showvolprogress = true; //to support adding a user-setting like z
     const Desc* targetdesc = getTargetDesc( targetspecs_ );
     ConstRefMan<RegularSeisDataPack> preloadeddatapack;
     if ( targetdesc )
@@ -961,8 +963,11 @@ RefMan<RegularSeisDataPack> uiAttribPartServer::createOutputRM(
 		    if ( getCompNrsForStoredTarget(targetspecs_,selcomps) )
 		    {
 			uiTaskRunner uitaskr( parent() );
-			TaskRunner* taskr = (isz && showzprogress) ? &uitaskr
-								   : nullptr;
+			const bool islargevolume
+			    = !tkzs.isFlat() && tkzs.totalNr()>cVolumeThreshold;
+			const bool needsuitr = ( isz && showzprogress) ||
+					  ( islargevolume && showvolprogress );
+			TaskRunner* taskr = needsuitr ? &uitaskr : nullptr;
 
 			// Very fast for few translators
 			SeisTrcReader trcrdr( *ioobj.ptr() );
