@@ -70,6 +70,109 @@ static bool addComponents( RegularSeisDataPack& dp, const IOObj& ioobj,
 }
 
 
+class Array3DUdfTrcRestorer : public ParallelTask
+{ mODTextTranslationClass(Array3DUdfTrcRestorer)
+public:
+Array3DUdfTrcRestorer( const PosInfo::CubeData& trcssampling,
+		const TrcKeySampling& tks, Array3D<float>& outp )
+    : ParallelTask("Udf traces retriever")
+    , trcssampling_(trcssampling)
+    , tks_(tks)
+    , outp_(outp)
+    , totalnr_(trcssampling.totalSizeInside(tks)==mCast(int,tks.totalNr())
+			? 0 : outp.info().getTotalSz()/outp.info().getSize(2))
+{}
+
+uiString uiMessage() const override
+{ return tr("Restoring undefined values"); }
+
+uiString uiNrDoneText() const override
+{ return ParallelTask::sTrcFinished(); }
+
+void setParentTask( Task* parenttask )
+{ parenttask_ = parenttask; }
+
+protected:
+
+od_int64 nrIterations() const override
+{ return totalnr_; }
+
+bool shouldContinue() override
+{
+    if ( parenttask_ )
+	return parenttask_->shouldContinue();
+
+    return Task::shouldContinue();
+}
+
+private:
+
+bool	doWork( od_int64 start, od_int64 stop, int ) override
+{
+    const Array3DInfo& info = outp_.info();
+    const int nrtrcsp = info.getSize( outp_.get1DDim() );
+    float* outpptr = outp_.getData();
+    ValueSeries<float>* outstor = outp_.getStorage();
+    const bool hasarrayptr = outpptr;
+    const bool hasstorage = outstor;
+    const od_int64 offset = start * nrtrcsp;
+    outpptr += offset;
+    od_uint64 validx = offset;
+    const Array2DInfoImpl hinfo( info.getSize(0), info.getSize(1) );
+    ArrayNDIter* hiter = !hasarrayptr && !hasstorage ? new ArrayNDIter( hinfo )	
+						     : nullptr;
+    if ( hiter )
+	hiter->setGlobalPos( start );
+
+    for ( od_int64 idx=start; idx<=stop; idx++ )
+    {
+	if ( (idx-start)%1024 == 0 && !shouldContinue() )
+	{
+	    delete hiter;
+	    return false;
+	}
+
+	if ( trcssampling_.isValid(idx,tks_) )
+	{
+	    if ( hasarrayptr ) outpptr+=nrtrcsp;
+	    else if ( hasstorage ) validx+=nrtrcsp;
+	    else hiter->next();
+
+	    continue;
+	}
+
+	if ( hasarrayptr )
+	{
+	    outpptr = OD::sysMemValueSet( outpptr, mUdf(float), nrtrcsp );
+	}
+	else if ( hasstorage )
+	{
+	    for ( int idz=0; idz<nrtrcsp; idz++ )
+		outstor->setValue( validx++, mUdf(float) );
+	}
+	else
+	{
+	    const int inlidx = (*hiter)[0];
+	    const int crlidx = (*hiter)[1];
+	    for ( int idz=0; idz<nrtrcsp; idz++ )
+		outp_.set( inlidx, crlidx, idz, mUdf(float) );
+	}
+    }
+
+    delete hiter;
+    return true;
+}
+
+    const PosInfo::CubeData&	trcssampling_;
+    const TrcKeySampling&	tks_;
+    Array3D<float>&		outp_;
+    Task*			parenttask_ = nullptr;
+
+    const od_int64		totalnr_;
+
+};
+
+
 class ArrayFiller : public Task
 {
 public:
@@ -426,8 +529,8 @@ void Seis::ParallelReader::submitUdfWriterTasks()
     for ( int idx=0; idx<dp_->nrComponents(); idx++ )
     {
 	udfwriters->addTask(
-		new Array3DUdfTrcRestorer<float>( *trcssampling_, tkzs_.hsamp_,
-						  dp_->data(idx) ) );
+		new Array3DUdfTrcRestorer( *trcssampling_, tkzs_.hsamp_,
+					   dp_->data(idx) ) );
     }
 
     Threads::WorkManager::twm().addWork(
@@ -1312,9 +1415,12 @@ void Seis::SequentialReader::submitUdfWriterTasks()
     auto* udfwriters = new TaskGroup;
     for ( int idx=0; idx<dp_->nrComponents(); idx++ )
     {
-	udfwriters->addTask(
-		new Array3DUdfTrcRestorer<float>( *trcssampling_, tkzs_.hsamp_,
-						  dp_->data(idx) ) );
+	auto* udfrstorer =
+	    new Array3DUdfTrcRestorer( *trcssampling_,
+				       tkzs_.hsamp_, dp_->data(idx) );
+	udfrstorer->setParentTask( this );
+	udfrstorer->enableWorkControl( true );
+	udfwriters->addTask( udfrstorer );
     }
 
     Threads::WorkManager::twm().addWork(
