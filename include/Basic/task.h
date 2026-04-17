@@ -57,12 +57,12 @@ public:
     bool		workControlEnabled() const;
     virtual void	controlWork(Control);
     virtual Control	getState() const;
+    virtual bool	shouldContinue();
+			//!<\returns wether we should continue
 
 protected:
 
 				Task(const char* nm=nullptr);
-    virtual bool		shouldContinue();
-					//!<\returns wether we should continue
     Control			control_			= Task::Run;
     Threads::ConditionVar*	workcontrolcondvar_		= nullptr;
 
