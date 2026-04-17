@@ -46,6 +46,7 @@ public:
     void		setTabEnabled(uiGroup*,bool yn);
     bool		isTabEnabled(uiGroup*) const;
 
+    void		setTabVisible(int idx,bool yn);
     void		setTabVisible(uiGroup*,bool yn);
     bool		isTabVisible(uiGroup*) const;
 
@@ -67,8 +68,8 @@ public:
 
     int			size() const;
 
-    NotifierAccess&	selChange();
-    CNotifier<uiTabStack,int>  tabToBeClosed;
+    NotifierAccess&		selChange();
+    CNotifier<uiTabStack,int>	tabToBeClosed;
     Notifier<uiTabStack>	tabClosed;
 
 protected:
