@@ -14,6 +14,8 @@ ________________________________________________________________________
 #include "timer.h"
 #include "visdataman.h"
 
+#include "hiddenparam.h"
+
 #include <osgGA/GUIEventHandler>
 #include <osgUtil/LineSegmentIntersector>
 #include <osgViewer/Viewer>
@@ -118,15 +120,16 @@ void EventCatchHandler::traverse( EventInfo& eventinfo, unsigned int mask,
 
     osg::ref_ptr<osgUtil::LineSegmentIntersector> lineintersector =
 	new osgUtil::LineSegmentIntersector( osgUtil::Intersector::WINDOW,
-                                             eventinfo.mousepos.x_, eventinfo.mousepos.y_ );
+					     eventinfo.mousepos.x_,
+					     eventinfo.mousepos.y_ );
 
     const float frustrumPixelRadius = 1.0f;
     osg::ref_ptr<osgUtil::PolytopeIntersector> polyintersector =
 	new osgUtil::PolytopeIntersector( osgUtil::Intersector::WINDOW,
-                                          eventinfo.mousepos.x_-frustrumPixelRadius,
-                                          eventinfo.mousepos.y_-frustrumPixelRadius,
-                                          eventinfo.mousepos.x_+frustrumPixelRadius,
-                                          eventinfo.mousepos.y_+frustrumPixelRadius );
+				  eventinfo.mousepos.x_-frustrumPixelRadius,
+				  eventinfo.mousepos.y_-frustrumPixelRadius,
+				  eventinfo.mousepos.x_+frustrumPixelRadius,
+				  eventinfo.mousepos.y_+frustrumPixelRadius );
 
     polyintersector->setDimensionMask( osgUtil::PolytopeIntersector::DimZero |
 				       osgUtil::PolytopeIntersector::DimOne );
@@ -562,12 +565,14 @@ void EventCatchHandler::initKeyMap()
 
 //=============================================================================
 
+static HiddenParam<EventCatcher,int> hpeventcatcherparammgr_(0);
 
 EventCatcher::EventCatcher()
     : eventhappened( this )
     , nothandled( this )
     , eventreleasetimer_( new Timer() )
 {
+    hpeventcatcherparammgr_.setParam( this, 0 );
     osgnode_ = setOsgNode( new osg::Node );
     eventcatchhandler_ = new EventCatchHandler( *this );
     refOsgPtr( eventcatchhandler_ );
@@ -581,6 +586,7 @@ EventCatcher::~EventCatcher()
     osgnode_->removeEventCallback( eventcatchhandler_ );
     unRefOsgPtr( eventcatchhandler_ );
     delete eventreleasetimer_;
+    hpeventcatcherparammgr_.removeParam( this );
 }
 
 
@@ -629,11 +635,16 @@ void EventCatcher::reHandle( const EventInfo& eventinfo )
 
 void EventCatcher::releaseEventsCB( CallBacker* )
 {
+    const bool isreleasing_ = hpeventcatcherparammgr_.getParam( this ) == 1;
+    if ( isreleasing_ )
+	return;
+
+    hpeventcatcherparammgr_.setParam( this, 1 );
     while ( true )
     {
 	Threads::Locker locker( eventqueuelock_ );
 	if ( eventqueue_.isEmpty() )
-	    return;
+	    break;
 
 	const EventInfo* curevent = eventqueue_.removeSingle( 0 );
 	locker.unlockNow();
@@ -648,6 +659,8 @@ void EventCatcher::releaseEventsCB( CallBacker* )
 
 	delete curevent;
     }
+
+    hpeventcatcherparammgr_.setParam( this, 0 );
 }
 
 

@@ -198,6 +198,8 @@ public:
 				{ return usesShading();}
     SurveyObject*		duplicate(TaskRunner*) const override;
 
+    void			annotateNextUpdateStageImpl(bool yn);
+
     static bool			canUseVolRenShading();
     void			allowShading(bool yn) override;
     bool			usesShading() const;

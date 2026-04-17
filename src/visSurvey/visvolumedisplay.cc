@@ -365,40 +365,42 @@ void VolumeDisplay::draggerMoveCB( CallBacker* )
     if ( scene_ )
 	cs.limitTo( scene_->getTrcKeyZSampling() );
 
-    QTimer::singleShot( 0, [this, cs] {
+    const Coord3 center(
+	( cs.hsamp_.start_.inl() + cs.hsamp_.stop_.inl() ) / 2.0,
+	( cs.hsamp_.start_.crl() + cs.hsamp_.stop_.crl() ) / 2.0,
+	( cs.zsamp_.start_ + cs.zsamp_.stop_ ) / 2.0 );
 
-	const Coord3 center(
-	    ( cs.hsamp_.start_.inl() + cs.hsamp_.stop_.inl() ) / 2.0,
-	    ( cs.hsamp_.start_.crl() + cs.hsamp_.stop_.crl() ) / 2.0,
-	    ( cs.zsamp_.start_ + cs.zsamp_.stop_ ) / 2.0 );
+    const Coord3 width(
+	cs.hsamp_.stop_.inl() - cs.hsamp_.start_.inl(),
+	cs.hsamp_.stop_.crl() - cs.hsamp_.start_.crl(),
+	cs.zsamp_.stop_ - cs.zsamp_.start_ );
 
-	const Coord3 width(
-	    cs.hsamp_.stop_.inl() - cs.hsamp_.start_.inl(),
-	    cs.hsamp_.stop_.crl() - cs.hsamp_.start_.crl(),
-	    cs.zsamp_.stop_ - cs.zsamp_.start_ );
+    boxdragger_->setCenter( center );
+    boxdragger_->setWidth( width );
 
-	boxdragger_->setCenter( center );
-	boxdragger_->setWidth( width );
+    setTrcKeyZSampling( cs, true );
+    if ( keepdraggerinsidetexture_ )
+    {
+	boxdragger_->setBoxTransparency( 1.0 );
+	boxdragger_->showScaleTabs( false );
+    }
 
-	setTrcKeyZSampling( cs, true );
-	if ( keepdraggerinsidetexture_ )
-	{
-	    boxdragger_->setBoxTransparency( 1.0 );
-	    boxdragger_->showScaleTabs( false );
-	}
-
-	boxMoving.trigger();
-	ismanip_ = true;
-    });
+    boxMoving.trigger();
+    ismanip_ = true;
 }
 
 
 void VolumeDisplay::draggerFinishCB( CallBacker* )
 {
-    QTimer::singleShot( 0, [this] {
-	boxdragger_->setBoxTransparency( mDefaultBoxTransparency );
-	boxdragger_->showScaleTabs( true );
-    });
+    boxdragger_->setBoxTransparency( mDefaultBoxTransparency );
+    boxdragger_->showScaleTabs( true );
+}
+
+
+void VolumeDisplay::annotateNextUpdateStageImpl( bool yn )
+{
+    if ( scalarfield_ )
+	scalarfield_->turnOn( !yn );
 }
 
 
@@ -579,7 +581,8 @@ void VolumeDisplay::setTrcKeyZSampling( const TrcKeyZSampling& desiredcs,
     mSetVolumeTransform( TexVolume, texcenter, texwidth, texcs, 1 )
 
     texturecs_ = cs;
-    scalarfield_->turnOn( false );
+    if ( getUpdateStageNr() > 0 )
+	scalarfield_->turnOn( false );
 
     for ( int idx=0; idx<isosurfaces_.size(); idx++ )
     {

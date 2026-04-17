@@ -18,6 +18,7 @@ ________________________________________________________________________
 #include "visevent.h"
 #include "visobject.h"
 #include "vistexturechannel2rgba.h"
+#include "visvolumedisplay.h"
 
 namespace visSurvey {
 
@@ -138,6 +139,10 @@ Pos::GeomID SurveyObject::getGeomID() const
 
 void SurveyObject::annotateNextUpdateStage( bool yn )
 {
+    mDynamicCastGet(VolumeDisplay*,voldisp,this)
+    if ( voldisp )
+	voldisp->annotateNextUpdateStageImpl( yn );
+
     updatestagenr_ = yn ? updatestagenr_+1 : 0;
 }
 
