@@ -181,7 +181,8 @@ ArrayFiller( const RawTrcsSequence& databuf, const StepInterval<float>& zsamp,
 	     const TypeSet<int>& components,
 	     const ObjectSet<Scaler>& compscalers,
 	     const TypeSet<int>& outcomponents,
-	     RegularSeisDataPack& dp, bool is2d )
+	     RegularSeisDataPack& dp, bool is2d,
+	     Task* parenttask = nullptr )
     : databuf_(databuf)
     , zsamp_(zsamp)
     , samedatachar_(samedatachar)
@@ -191,6 +192,7 @@ ArrayFiller( const RawTrcsSequence& databuf, const StepInterval<float>& zsamp,
     , outcomponents_(outcomponents)
     , dp_(dp),is2d_(is2d)
     , trcscalers_(0)
+    , parenttask_(parenttask)
 {
     startidx0_ = dp.sampling().zsamp_.nearestIndex( zsamp_.start_ );
     stopidx0_ = dp.sampling().zsamp_.nearestIndex( zsamp_.stop_ );
@@ -239,6 +241,9 @@ bool execute() override
     const int nrpos = databuf_.nrPositions();
     for ( int itrc=0; itrc<nrpos; itrc++ )
     {
+	if ( !shouldContinue() )
+	    return true;
+
 	if ( !doTrace(itrc) )
 	    return false;
     }
@@ -269,6 +274,9 @@ bool execute() override
 
 bool doTrace( int itrc )
 {
+    if ( !shouldContinue() )
+	return true;
+
     const TrcKey& tk = databuf_.getPosition( itrc );
     const int idx0 = is2d_ ? 0 : dp_.sampling().hsamp_.lineIdx( tk.lineNr() );
     const int idx1 = dp_.sampling().hsamp_.trcIdx( tk.trcNr() );
@@ -277,6 +285,9 @@ bool doTrace( int itrc )
 
     for ( int cidx=0; cidx<outcomponents_.size(); cidx++ )
     {
+	if ( !shouldContinue() )
+	    return true;
+
 	const int idcin = components_[cidx];
 	const Scaler* compscaler = compscalers_[cidx];
 	const int idcout = outcomponents_[cidx];
@@ -297,6 +308,9 @@ bool doTrace( int itrc )
 	if ( storarr && samedatachar_ && !needresampling_ &&
 	     !compscaler && !trcscaler )
 	{
+	    if ( !shouldContinue() )
+		return true;
+
 	    const unsigned char* srcptr = databuf_.getData( itrc, idcin,
 							    trczidx0_ );
 #ifdef __debug__
@@ -321,6 +335,9 @@ bool doTrace( int itrc )
 #endif
 	    for ( int zidx=0; zidx<nrzsamples_; zidx++ )
 	    {
+		if ( !shouldContinue() )
+		    return true;
+
 		float rawval = needresampling_
 			     ? databuf_.getValue( zval, itrc, idcin )
 			     : databuf_.get( trczidx++, itrc, idcin );
@@ -364,6 +381,7 @@ bool doTrace( int itrc )
 		OD::sysMemValueSet( storptr + offset + stopidx0_ + 1,
 				    mUdf(float), nrpadtail_ );
 	    }
+
 	    continue;
 	}
 
@@ -400,6 +418,14 @@ bool doTrace( int itrc )
 
 protected:
 
+bool shouldContinue() override
+{
+    if ( parenttask_ )
+	return parenttask_->shouldContinue();
+
+    return Task::shouldContinue();
+}
+
     const RawTrcsSequence&	databuf_;
     const StepInterval<float>&	zsamp_;
     const TypeSet<int>&		components_;
@@ -421,6 +447,8 @@ protected:
     int				trczidx0_;
     int				bytespersamp_;
     od_int64			nrbytes_;
+
+    Task*			parenttask_;
 
 };
 
@@ -1014,7 +1042,7 @@ bool Seis::SequentialReader::goImpl( od_ostream* strm, bool first, bool last,
 {
     initialized_ = false;
     const bool success = Executor::goImpl( strm, first, last, delay );
-    Threads::WorkManager::twm().emptyQueue( queueid_, success );
+    Threads::WorkManager::twm().emptyQueue( queueid_, true );
     deleteAndNullPtr( seissummary_ );
 
     return success;
@@ -1378,7 +1406,9 @@ int Seis::SequentialReader::nextStep()
     if ( is2d_ ) refnrs_.append( refnrs );
     auto* task = new ArrayFiller( *databuf, dpzsamp_, samedatachar_,
 				  needresampling_, components_,
-				  compscalers_, outcomponents_, *dp_, is2d_ );
+				  compscalers_, outcomponents_,	
+				  *dp_, is2d_, this );
+    task->enableWorkControl( true );
     task->setTrcScalers( trcscalers );
     nrdone_ += databuf->nrPositions();
     Threads::WorkManager::twm().addWork(

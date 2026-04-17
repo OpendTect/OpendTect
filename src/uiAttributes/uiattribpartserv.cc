@@ -937,6 +937,7 @@ RefMan<RegularSeisDataPack> uiAttribPartServer::createOutputRM(
     const bool showvolprogress = true; //to support adding a user-setting like z
     const Desc* targetdesc = getTargetDesc( targetspecs_ );
     ConstRefMan<RegularSeisDataPack> preloadeddatapack;
+    bool aborted = false;
     if ( targetdesc )
     {
 	if ( targetdesc->isStored() && !isnla )
@@ -977,6 +978,9 @@ RefMan<RegularSeisDataPack> uiAttribPartServer::createOutputRM(
 					    VolumeDataPack::categoryStr(tkzs) );
 			if ( trcrdr.getDataPack(*sdp,selcomps,taskr) )
 			    return sdp;
+			else if ( taskr &&
+				  uitaskr.uiResult()==uiDialog::Rejected )
+			    aborted = true;
 
 			sdp = nullptr;
 			// Somewhat fast, but for all formats
@@ -988,6 +992,8 @@ RefMan<RegularSeisDataPack> uiAttribPartServer::createOutputRM(
 			    if ( sdp )
 				return sdp;
 			}
+			else if ( uitaskr.uiResult()==uiDialog::Rejected )
+			    aborted = true;
 		    }
 		}
 	    }
@@ -1013,7 +1019,7 @@ RefMan<RegularSeisDataPack> uiAttribPartServer::createOutputRM(
 	}
     }
 
-    bool success = true;
+    bool success = false;
     PtrMan<Processor> process;
     RefMan<RegularSeisDataPack> output;
     //note: 1 attrib computed at a time
@@ -1132,7 +1138,7 @@ RefMan<RegularSeisDataPack> uiAttribPartServer::createOutputRM(
 		    return nullptr;
 		}
 	    }
-	    else
+	    else if ( !aborted )
 	    {
 		uiTaskRunner taskrunner( parent() );
 		taskrunner.displayMsgOnError( false );
