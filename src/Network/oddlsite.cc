@@ -70,34 +70,31 @@ void ODDLSite::setTimeOut( float t, bool sett )
 
 
 bool ODDLSite::getFile( const char* relfnm, const char* outfnm,
-			TaskRunner* taskrunner, const char* nicename )
+			TaskRunner* taskrun, const char* nicename )
 {
     deleteAndNullPtr( databuf_ );
-
     if ( islocal_ )
 	return getLocalFile( relfnm, outfnm );
 
-    uiRetVal uirv;
     if ( !outfnm )
     {
-	BufferString bs;
-	uirv = Network::downloadToString( fullURL(relfnm), bs, taskrunner );
-
-	if( uirv.isError() )
-	    errmsg_ = uirv.messages().cat();
+	BufferString str;
+	if ( !Network::getContent(fullURL(relfnm),str,&errmsg_,taskrun) )
+	    return false;
 
 	delete databuf_;
-	databuf_ = new DataBuffer( bs.size(), 1 );
+	databuf_ = new DataBuffer( str.size(), 1 );
 	if( !databuf_->isOk() )
 	    return false;
 
-	if ( !bs.isEmpty() )
-	    OD::memCopy( (char*)databuf_->data(), bs.str(), databuf_->size() );
+	if ( !str.isEmpty() )
+	    OD::memCopy( (char*)databuf_->data(), str.str(), databuf_->size() );
 
-	return uirv.isOK();
+	return true;
     }
 
-    uirv = Network::downloadFile_( fullURL(relfnm), outfnm, taskrunner );
+    const uiRetVal uirv =
+		Network::downloadFile_( fullURL(relfnm), outfnm, taskrun );
     if ( uirv.isError() )
 	errmsg_ = uirv.messages().cat();
 

@@ -87,7 +87,11 @@ namespace Network
 				// File:: counterparts
     mGlobal(Network) bool	exists(const char*);
     mGlobal(Network) od_int64	getFileSize(const char*);
+    mGlobal(Network) od_int64	getFileSize(const char*,uiString* errmsg);
     mGlobal(Network) bool	getContent(const char*,BufferString&);
+    mGlobal(Network) bool	getContent(const char*,BufferString&,
+					   uiString* errmsg,
+					   TaskRunner* =nullptr);
 
     mDeprecated("Use downloadToString")
     mGlobal(Network) uiRetVal downloadToBuffer_(const char* url,DataBuffer&,
