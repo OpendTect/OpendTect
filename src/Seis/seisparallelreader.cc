@@ -100,7 +100,7 @@ od_int64 nrIterations() const override
 bool shouldContinue() override
 {
     if ( parenttask_ )
-	return parenttask_->shouldContinue();
+	return parenttask_->shouldContinue_();
 
     return Task::shouldContinue();
 }
@@ -119,7 +119,7 @@ bool	doWork( od_int64 start, od_int64 stop, int ) override
     outpptr += offset;
     od_uint64 validx = offset;
     const Array2DInfoImpl hinfo( info.getSize(0), info.getSize(1) );
-    ArrayNDIter* hiter = !hasarrayptr && !hasstorage ? new ArrayNDIter( hinfo )	
+    ArrayNDIter* hiter = !hasarrayptr && !hasstorage ? new ArrayNDIter( hinfo )
 						     : nullptr;
     if ( hiter )
 	hiter->setGlobalPos( start );
@@ -421,7 +421,7 @@ protected:
 bool shouldContinue() override
 {
     if ( parenttask_ )
-	return parenttask_->shouldContinue();
+	return parenttask_->shouldContinue_();
 
     return Task::shouldContinue();
 }
@@ -1406,7 +1406,7 @@ int Seis::SequentialReader::nextStep()
     if ( is2d_ ) refnrs_.append( refnrs );
     auto* task = new ArrayFiller( *databuf, dpzsamp_, samedatachar_,
 				  needresampling_, components_,
-				  compscalers_, outcomponents_,	
+				  compscalers_, outcomponents_,
 				  *dp_, is2d_, this );
     task->enableWorkControl( true );
     task->setTrcScalers( trcscalers );
