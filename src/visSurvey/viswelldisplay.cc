@@ -220,6 +220,8 @@ void WellDisplay::fillLogParams(
 
 void WellDisplay::fullRedraw( CallBacker* )
 {
+    mEnsureExecutedInMainThread( WellDisplay::fullRedraw );
+
     mGetWD(return);
     if ( !well_ || !wd )
 	return;
@@ -319,6 +321,8 @@ void WellDisplay::getTrackPos( const Well::Data* wd,
 
 void WellDisplay::updateMarkers( CallBacker* )
 {
+    mEnsureExecutedInMainThread( WellDisplay::updateMarkers );
+
     if ( !well_ )
 	return;
 
@@ -551,9 +555,11 @@ void WellDisplay::setLogDisplay( visBase::Well::Side side )
 
     visBase::Well::LogParams lp;
     fillLogParams( lp, side );
-    lp.logidx_ = logidx;  lp.side_ = side;
+    lp.logidx_ = logidx;
+    lp.side_ = side;
     lp.filllogidx_ = wd->logs().indexOf( lp.fillname_ );
 
+    well_->clearLog( side );
     setLogProperties( lp );
     setLogData( lp, mustBeFilled(lp) );
 }
