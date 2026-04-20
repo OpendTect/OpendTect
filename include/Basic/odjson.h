@@ -291,6 +291,8 @@ public:
 			mDeclJSONArraySetFns(float);
 			mDeclJSONArraySetFns(double);
 
+    bool		get(BufferStringSet&) const;
+
 protected:
 
     ValueType		valtype_;
@@ -371,6 +373,8 @@ public:
     double		getDoubleValue(const char*) const;
     BufferString	getStringValue(const char*) const;
     FilePath		getFilePath(const char*) const;
+    bool		get(const char*,BufferStringSet&) const;
+    mDeprecated("Use get")
     bool		getStrings(const char*,BufferStringSet&) const;
     bool		getGeomID(const char*,Pos::GeomID&) const;
     MultiID		getMultiID(const char*) const;
