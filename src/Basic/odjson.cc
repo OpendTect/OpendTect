@@ -1344,6 +1344,16 @@ OD::JSON::Array& OD::JSON::Array::set( const uiStringSet& vals )
 }
 
 
+bool OD::JSON::Array::get( BufferStringSet& bss ) const
+{
+    if ( !isData() || dataType() != String )
+	return false;
+
+    bss = valArr().strings();
+    return true;
+}
+
+
 void OD::JSON::Array::dumpJSon( StringBuilder& sb ) const
 {
     if ( isData() && !isMixed() )
@@ -1546,12 +1556,14 @@ MultiID OD::JSON::Object::getMultiID( const char* ky ) const
 
 bool OD::JSON::Object::getStrings( const char* ky, BufferStringSet& bss ) const
 {
-    const Array* stringsarr = getArray( ky );
-    if ( !stringsarr || stringsarr->valType() != Data )
-	return false;
+    return get( ky, bss );
+}
 
-    bss = stringsarr->valArr().strings();
-    return !bss.isEmpty();
+
+bool OD::JSON::Object::get( const char* ky, BufferStringSet& bss ) const
+{
+    const Array* stringsarr = getArray( ky );
+    return stringsarr ? stringsarr->get( bss ) : false;
 }
 
 
