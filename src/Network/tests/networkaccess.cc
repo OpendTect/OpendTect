@@ -74,25 +74,28 @@ bool testPing()
 bool testDownloadToString()
 {
     const char* url = "https://opendtect.org/dlsites.txt";
-    BufferString bs;
-    const uiRetVal uirv = Network::downloadToString( url, bs );
-    mRunStandardTestWithError( uirv.isOK(),
-	BufferString(prefix_, "Download to string"), uirv.getText() );
-    mRunStandardTest( bs.size()==54,
+    BufferString str;
+    uiString errmsg;
+    mRunStandardTestWithError( Network::getContent( url, str, &errmsg ),
+	BufferString(prefix_, "Download to string"), errmsg.getString() );
+
+    mRunStandardTest( str.size()==54,
 	      BufferString(prefix_, "Download to string size") );
 
-    DataBuffer db( 1000, 4 );
-    uiString err;
     mStartAllowDeprecatedSection
-	uiRetVal uirv1 = Network::downloadToBuffer_( url, db );
-    mRunStandardTestWithError( uirv1.isOK(),
+
+    DataBuffer db( 1000, 4 );
+    const uiRetVal uirv = Network::downloadToBuffer_( url, db );
+    mRunStandardTestWithError( uirv.isOK(),
 	    BufferString(prefix_, "downloadToBuffer_(): Download to buffer"),
 	    uirv.getText() );
+    uiString err;
     mRunStandardTestWithError( Network::downloadToBuffer( url, db, err ),
 	    BufferString(prefix_, "downloadToBuffer(): Download to buffer"),
 	    uirv.getText() );
     mRunStandardTest( db.size()==54,
 		     BufferString(prefix_, "Download to buffer size") );
+
     mStopAllowDeprecatedSection
 
     return true;
