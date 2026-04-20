@@ -505,6 +505,9 @@ void Well::setLogData(const TypeSet<Coord3Value>& crdvals,
 	);
 
     auto logdisplay = getLogDisplay( lp.side_ );
+    if ( !logdisplay )
+	return;
+
     logdisplay->setRevScale( rev );
     logdisplay->setFillRevScale( fillrev );
     logdisplay->setFullFilled( isfullfilled );
@@ -534,15 +537,18 @@ void Well::setLogData(const TypeSet<Coord3Value>& crdvals,
 	if ( isfilled )
 	{
 	    osg::FloatArray* fillLog = logdisplay->getFillLogValues();
-	    if ( !fillLog )
+	    osg::FloatArray* fillLogDepths = logdisplay->getFillLogDepths();
+	    if ( !fillLog || !fillLogDepths )
 		continue;
 
-	    val = getValue( crdvalsF, idx, lp.islogarithmic_, scalerF );
+	    if ( idx < crdvalsF.size() )
+		val = getValue( crdvalsF, idx, lp.islogarithmic_, scalerF );
+	    else
+		val = mUdf(float);
 // ToDo: check if we need to support an udfval
 // At the moment 1e30 is capped to the maxval in osgGeo/PlaneWellLog.cpp
 
 	    fillLog->push_back( val );
-	    osg::FloatArray* fillLogDepths = logdisplay->getFillLogDepths();
             fillLogDepths->push_back(pos.z_);
 	}
     }
