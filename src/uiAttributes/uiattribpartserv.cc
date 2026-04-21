@@ -1068,7 +1068,7 @@ RefMan<RegularSeisDataPack> uiAttribPartServer::createOutputRM(
 	    {
 		ValueSeries<float>* arr3dvs = output->data(0).getStorage();
 		ValueSeriesGetAll<float> copier( avs, *arr3dvs, vals.size() );
-		copier.execute();
+		success = copier.execute();
 	    }
 	}
     }
@@ -1137,6 +1137,8 @@ RefMan<RegularSeisDataPack> uiAttribPartServer::createOutputRM(
 		    // ToDo: use this message as a tree tooltip
 		    return nullptr;
 		}
+
+		success = true;
 	    }
 	    else if ( !aborted )
 	    {
