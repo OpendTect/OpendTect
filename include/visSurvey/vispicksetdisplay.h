@@ -93,6 +93,7 @@ protected:
 
     void			dispChg(CallBacker*) override;
     void			locChg(CallBacker*) override;
+    void			setChg(CallBacker*) override;
 
     int				clickedMarkerIndex(
 				    const visBase::EventInfo&) const override;
