@@ -292,6 +292,7 @@ public:
 			mDeclJSONArraySetFns(double);
 
     bool		get(BufferStringSet&) const;
+    Array&		set(const FilePath&,size_type);
 
 protected:
 
@@ -366,7 +367,6 @@ public:
 			{ return ValueSet::getStringValue( idx ); }
     FilePath		getFilePath( idx_type idx ) const override
 			{ return ValueSet::getFilePath( idx ); }
-
 
     bool		getBoolValue(const char*) const;
     od_int64		getIntValue(const char*) const;
