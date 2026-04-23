@@ -1281,6 +1281,25 @@ OD::JSON::Array& OD::JSON::Array::set( const FilePath& fp )
     return set( BufferStringSet(val.buf()) );
 }
 
+
+OD::JSON::Array& OD::JSON::Array::set( const FilePath& fp, size_type idx )
+{
+    if ( isData() && !isMixed() )
+	valArr().setFilePath( fp, idx );
+    else
+    {
+	if ( values_.validIdx(idx) )
+	{
+	    const BufferString fnm = getPathStr( fp );
+	    auto* newval = new Value( fnm.str() );
+	    delete values_.replace( idx, newval );
+	}
+    }
+
+    return *this;
+}
+
+
 OD::JSON::Array& OD::JSON::Array::set( bool val )
 {
     return set( BoolTypeSet(1,val) );
