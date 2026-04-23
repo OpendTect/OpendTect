@@ -24,6 +24,7 @@ ________________________________________________________________________
 #include "iopar.h"
 #include "oddirs.h"
 #include "od_helpids.h"
+#include "separstr.h"
 #include "settings.h"
 
 #include <math.h>
@@ -209,7 +210,7 @@ void uiSaveImageDlg::createGeomInpFlds( uiObject* fldabove )
     dpifld_->attach( alignedBelow, widthfld_ );
 
     fileinputfld_ = new uiFileInput( this, uiStrings::phrSelect(tr("filename")),
-				    uiFileInput::Setup(uiFileDialog::Gen)
+				    uiFileInput::Setup(uiFileDialog::Img)
 				    .forread(false)
 				    .defseldir(GetPicturesDir())
 				    .directories(false)
@@ -417,29 +418,27 @@ const char* uiSaveImageDlg::getExtension()
 	ifmt = 0;
 	selfilter_ = fileinputfld_->selectedFilter();
 	BufferString filter;
-	for ( int idx=0; idx<filters_.size(); idx++ )
+	const SeparString filters( filters_.buf(), ';' );
+	for ( int idx=0; idx<filters.size(); idx++ )
 	{
-	    if ( filters_[idx] == ';' )
+	    const StringView thisfilter = filters[idx];
+	    if ( !selfilter_.isEmpty() && selfilter_ == thisfilter.buf() )
 	    {
-		if ( !filter.isEmpty() )
-		{
-		    if ( filter == selfilter_ )
-			break;
-		}
-		filter.setEmpty();
-		continue;
+		filter = thisfilter;
+		break;
 	    }
-
-	    char tempstr[2];
-	    tempstr[0] = filters_[idx];
-	    tempstr[1] = '\0';
-	    filter += tempstr;
 	}
+
+	if ( filter.isEmpty() && !filters.isEmpty() )
+	    filter = filters.first().buf();
 
 	for ( int idx=0; imageformatdescs[idx]; idx++ )
 	{
 	    if ( !strncmp(imageformatdescs[idx],filter.buf(),3) )
+	    {
 		ifmt = idx;
+		break;
+	    }
 	}
     }
 
