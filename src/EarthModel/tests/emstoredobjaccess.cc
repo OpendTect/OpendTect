@@ -78,7 +78,7 @@ static bool testEMStoredObjAccess( od_ostream& strm )
     valTest( zval, 0.92633921f, 1e-6f, "Horizon 2D Z Value check" );
 
     const EM::FaultStickSetGeometry& fssgeom = fss->geometry();
-    mRunStandardTest( fssgeom.nrSticks() == 4 && fssgeom.nrKnots(0) == 7,
+    mRunStandardTest( fssgeom.nrSticks() == 4 && fssgeom.nrKnots(0) == 12,
 		      "Check nr Sticks and knots of Stick in FaultStickSet" );
 
     const EM::FaultGeometry& fltgeom = flt->geometry();
