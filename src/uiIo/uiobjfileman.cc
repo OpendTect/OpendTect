@@ -30,7 +30,11 @@ ________________________________________________________________________
 #include "od_iostream.h"
 #include "systeminfo.h"
 
+#include "hiddenparam.h"
+
 static const int cPrefHeight = 10;
+
+static HiddenParam<uiObjFileMan,Notifier<uiObjFileMan>*> hp_selchg( nullptr );
 
 uiObjFileMan::uiObjFileMan( uiParent* p, const uiDialog::Setup& s,
 			    const IOObjContext& ctxt,
@@ -39,6 +43,7 @@ uiObjFileMan::uiObjFileMan( uiParent* p, const uiDialog::Setup& s,
     , ctxt_(*new IOObjContext(ctxt))
     , ctxtfilter_(ctxtfilter)
 {
+    hp_selchg.setParam( this, new Notifier<uiObjFileMan>(this) );
     ctxt_.toselect_.allownonuserselectable_ = true;
     setCtrlStyle( CloseOnly );
     mAttachCB( preFinalize(), uiObjFileMan::finalizeStartCB );
@@ -49,8 +54,15 @@ uiObjFileMan::uiObjFileMan( uiParent* p, const uiDialog::Setup& s,
 uiObjFileMan::~uiObjFileMan()
 {
     detachAllNotifiers();
+    hp_selchg.removeAndDeleteParam( this );
     delete curioobj_;
     delete &ctxt_;
+}
+
+
+Notifier<uiObjFileMan>& uiObjFileMan::selectionChanged()
+{
+    return *hp_selchg.getParam( this );
 }
 
 
@@ -245,6 +257,7 @@ void uiObjFileMan::selChg( CallBacker* )
     curimplexists_ = curioobj_ && curioobj_->implExists(true);
 
     ownSelChg();
+    selectionChanged().trigger();
     if ( curioobj_ )
 	mkFileInfo();
     else

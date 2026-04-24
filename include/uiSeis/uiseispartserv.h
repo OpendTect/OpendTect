@@ -86,6 +86,7 @@ protected:
     bool		ioSeis(int,bool);
     void		survChangedCB(CallBacker*);
     MultiID		getDefault2DDataID() const;
+    void		manageSeismics3D(bool modal=false);
 
     uiBatchTime2DepthSetup* t2ddlgs2d_ = nullptr;
     uiBatchTime2DepthSetup* t2ddlgs3d_ = nullptr;

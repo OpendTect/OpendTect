@@ -735,6 +735,15 @@ void uiIOObjSelGrp::setIsBad( int idx )
 }
 
 
+void uiIOObjSelGrp::setIsOK( int idx )
+{
+    if ( !listfld_->validIdx(idx) )
+	return;
+
+    listfld_->setDefaultColor( idx );
+}
+
+
 bool uiIOObjSelGrp::isEntryOK( const MultiID& mid ) const
 {
     const int idx = dataset_.indexOfMID( mid );

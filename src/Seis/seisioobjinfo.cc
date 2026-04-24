@@ -313,6 +313,23 @@ bool SeisIOObjInfo::isOK( bool createtr ) const
 }
 
 
+bool SeisIOObjInfo::isLocal() const
+{
+    if ( !ioobj_ )
+	return false;
+
+    BufferStringSet implfilenames;
+    ioobj_->implFileNames( implfilenames );
+    for ( const auto* fnm : implfilenames )
+    {
+	if ( File::isURI(fnm->buf()) )
+	    return false;
+    }
+
+    return true;
+}
+
+
 void SeisIOObjInfo::setType()
 {
     if ( !ioobj_ )

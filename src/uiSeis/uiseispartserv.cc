@@ -325,9 +325,10 @@ MultiID uiSeisPartServer::getDefaultDataID( bool is2d ) const
 void uiSeisPartServer::manageSeismics( int opt, bool modal )
 {
     const bool is2d = opt == 1 || opt == 3;
+    // TODO: Reuse other manager dialogs similarly to preserve state.
     switch( opt )
     {
-	case 0: mManageSeisDlg(man3dseisdlg_,uiSeisFileMan)
+	case 0: manageSeismics3D( modal );
 		break;
 	case 1: mManageSeisDlg(man2dseisdlg_,uiSeisFileMan)
 		break;
@@ -336,6 +337,16 @@ void uiSeisPartServer::manageSeismics( int opt, bool modal )
 	case 3: mManageSeisDlg(man2dprestkdlg_,uiSeisPreStackMan)
 		break;
     }
+}
+
+
+void uiSeisPartServer::manageSeismics3D( bool modal )
+{
+    if ( !man3dseisdlg_ )
+	man3dseisdlg_ = new uiSeisFileMan( parent(), false );
+
+    man3dseisdlg_->setModal( modal );
+    man3dseisdlg_->show();
 }
 
 
