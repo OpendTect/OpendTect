@@ -84,6 +84,7 @@ uiMultiMapperRangeEditWin::uiMultiMapperRangeEditWin( uiParent* p, int nr )
 uiMultiMapperRangeEditWin::~uiMultiMapperRangeEditWin()
 {
     detachAllNotifiers();
+    deepErase( mapperdatas_ );
 }
 
 
