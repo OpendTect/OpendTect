@@ -430,6 +430,18 @@ bool uiIOObjManipGroup::relocEntry( IOObj& ioobj,
 			    "objects linked to this data in this or other "
 			    "surveys.") );
 
+    bool hasremotelink = false;
+    BufferStringSet linkedfnms;
+    ioobj.implFileNames( linkedfnms );
+    for ( const auto* fnm : linkedfnms )
+    {
+	if ( FilePath(fnm->buf()).isURI() )
+	    hasremotelink = true;
+    }
+
+    if ( hasremotelink )
+	return locateEntry( ioobj );
+
     uiString caption = tr("New file location for '%1'").arg(ioobj.uiName());
     BufferString oldfnm( iostrm.fullUserExpr() );
     BufferString filefilt;

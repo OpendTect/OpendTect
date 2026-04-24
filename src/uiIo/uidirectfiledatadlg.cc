@@ -16,8 +16,13 @@ ________________________________________________________________________
 #include "transl.h"
 
 #include "uifileinput.h"
+#include "uifilesel.h"
 #include "uilabel.h"
 #include "uimsg.h"
+
+#include "hiddenparam.h"
+
+static HiddenParam<uiEditDirectFileDataDlg,uiFileSel*> hp_selfld( nullptr );
 
 #define mErrLabelRet(s) \
 	{ isusable_ = false; lbl = new uiLabel( this, s ); return; }
@@ -35,6 +40,14 @@ uiEditDirectFileDataDlg::uiEditDirectFileDataDlg( uiParent* p,
 uiEditDirectFileDataDlg::~uiEditDirectFileDataDlg()
 {
     detachAllNotifiers();
+    if ( hp_selfld.hasParam(this) )
+	hp_selfld.removeParam( this );
+}
+
+
+uiFileSel* uiEditDirectFileDataDlg::selFld()
+{
+    return hp_selfld.getParam( this );
 }
 
 
@@ -68,8 +81,8 @@ void uiEditDirectFileDataDlg::createInterface()
 			 .arg(dispnm).arg(fp.fullPath().buf());
 
     lbl = new uiLabel( this, oldfiletxt );
-    const uiFileDialog::Mode mode = nrfiles > 1 ? uiFileDialog::Directory
-						: uiFileDialog::ExistingFile;
+    const OD::FileSelectionMode mode = nrfiles > 1 ? OD::SelectDirectory
+						   : OD::SelectFileForRead;
     const uiString newloctxt = nrfiles > 1
 				    ? tr("Specify new location for %1 files")
 					 .arg(dispnm)
@@ -105,11 +118,13 @@ void uiEditDirectFileDataDlg::createInterface()
     else
 	fientry = fp.fullPath();
 
-    selfld_ = new uiFileInput( this, newloctxt, fientry );
-    selfld_->setSelectMode( mode );
-    selfld_->setObjType( tr("Location") );
-    selfld_->valueChanged.notify( mCB(this,uiEditDirectFileDataDlg,dirSelCB) );
-    selfld_->attach( leftAlignedBelow, lbl );
+    uiFileSel::Setup fisu( fientry );
+    fisu.selmode( mode );
+    auto* selfld = new uiFileSel( this, newloctxt, fisu );
+    hp_selfld.setParam( this, selfld );
+    selfld->setObjType( tr("Location") );
+    selfld->newSelection.notify( mCB(this,uiEditDirectFileDataDlg,dirSelCB) );
+    selfld->attach( leftAlignedBelow, lbl );
 }
 
 

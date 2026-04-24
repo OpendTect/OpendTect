@@ -16,6 +16,7 @@ ________________________________________________________________________
 
 class IOObj;
 class uiFileInput;
+class uiFileSel;
 
 /*!\brief UI for manipulating fille names/paths for a SEGYDirect data-store */
 
@@ -30,6 +31,8 @@ protected:
     virtual void	prepareFileNames();
     virtual void	doDirSel();
     virtual void	createInterface();
+
+    uiFileSel*		selFld();
 
     const IOObj&	ioobj_;
     bool		isusable_;

@@ -17,6 +17,7 @@ ________________________________________________________________________
 
 #include "uibutton.h"
 #include "uifileinput.h"
+#include "uifilesel.h"
 #include "uilabel.h"
 #include "uimsg.h"
 #include "uitable.h"
@@ -38,12 +39,12 @@ uiSeisDirectFileDataDlg::uiSeisDirectFileDataDlg( uiParent* p,
 	const BufferString deffnm = ioobj_.fullUserExpr( true );
 	auto* lbl = new uiLabel( this,
 			tr("Invalid SEG-Y Definition file:\n%1").arg(deffnm) );
-	lbl->attach( alignedBelow, selfld_ );
+	lbl->attach( alignedBelow, selFld() );
 	return;
     }
 
     fillFileTable();
-    filetable_->attach( stretchedBelow, selfld_ );
+    filetable_->attach( stretchedBelow, selFld() );
 }
 
 
@@ -100,7 +101,7 @@ void uiSeisDirectFileDataDlg::updateFileTable( int rowidx )
 	return;
 
     NotifyStopper ns( filetable_->valueChanged );
-    const BufferString seldir = selfld_->fileName();
+    const BufferString seldir = selFld()->text();
     for ( int idx=0; idx<filenames_.size(); idx++ )
     {
 	if ( rowidx >= 0 && rowidx != idx )
@@ -153,7 +154,7 @@ void uiSeisDirectFileDataDlg::fileSelCB( CallBacker* cb )
 	return;
 
     BufferString newfnm = filetable_->text( RowCol(rowidx,cNewNameCol) );
-    FilePath fp( selfld_->fileName(), newfnm );
+    FilePath fp( selFld()->text(), newfnm );
     const bool selexists = File::exists( fp.fullPath() );
     // -->To-do  ==> fileFilter
     uiFileDialog dlg( this, true, selexists ? fp.fullPath().buf() : nullptr,
@@ -198,7 +199,7 @@ bool uiSeisDirectFileDataDlg::acceptOK( CallBacker* )
     bool allsuccess = true;
     if ( !filetable_ )
     {
-	const BufferString newfnm = selfld_->fileName();
+	const BufferString newfnm = selFld()->text();
 	if ( newfnm.isEmpty() )
 	    mErrRet( tr("New file name cannot be empty") );
 
@@ -215,7 +216,7 @@ bool uiSeisDirectFileDataDlg::acceptOK( CallBacker* )
     }
     else
     {
-	const BufferString seldir = selfld_->fileName();
+	const BufferString seldir = selFld()->text();
 	for ( int idx=0; idx<filetable_->nrRows(); idx++ )
 	{
 	    const BufferString oldfnm
