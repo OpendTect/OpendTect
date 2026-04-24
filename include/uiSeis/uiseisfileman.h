@@ -63,6 +63,7 @@ protected:
     void		extrFrom3D(CallBacker*);
     void		initObjRead(CallBacker*) override;
     void		doLocateCB(CallBacker*) override;
+    void		selectionChangedCB(CallBacker*);
 
     void		mkFileInfo() override;
     void		ownSelChg() override;

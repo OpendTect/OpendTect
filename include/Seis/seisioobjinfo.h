@@ -111,6 +111,7 @@ public:
 					      || geomtype_ == Seis::LinePS; }
 
     bool		isOK(bool createtr=false) const;
+    bool		isLocal() const;
     Seis::GeomType	geomType() const	{ return geomtype_; }
     const IOObj*	ioObj() const		{ return ioobj_; }
     const ZDomain::Info& zDomain() const;

@@ -45,6 +45,8 @@ public:
     void			getChosen(TypeSet<MultiID>&) const;
     void			fullUpdate(const MultiID&);
 
+    Notifier<uiObjFileMan>&	selectionChanged();
+
 protected:
 				uiObjFileMan(uiParent*,const uiDialog::Setup&,
 					     const IOObjContext&,
@@ -88,9 +90,9 @@ protected:
 
     void			selChg(CallBacker*);
     void			listUpdatedCB(CallBacker*);
-    virtual void		initDlg()		{}
-    virtual void		checkAllEntriesOK()	{}
-    virtual void		ownSelChg()		{}
+    virtual void		initDlg()			{}
+    virtual void		checkAllEntriesOK()		{}
+    virtual void		ownSelChg()			{}
     void			updateCB(CallBacker*);
-    virtual void		updateList()		{}
+    virtual void		updateList()			{}
 };
