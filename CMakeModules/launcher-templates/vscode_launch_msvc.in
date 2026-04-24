@@ -9,9 +9,6 @@
             "args": [],
             "stopAtEntry": false,
             "cwd": "${command:cmake.launchTargetDirectory}",
-            "MIMode": "@VSCODE_MIMODE@",
-            "miDebuggerPath": "@VSCODE_MIPATH@",
-            "setupCommands": @VSCODE_SETUPCOMMANDS@,
             "environment": @VSCODE_DEBUGENV@,
             "console": "integratedTerminal"
         },
@@ -23,9 +20,6 @@
             "args": [],
             "stopAtEntry": false,
             "cwd": "${command:cmake.launchTargetDirectory}",
-            "MIMode": "@VSCODE_MIMODE@",
-            "miDebuggerPath": "@VSCODE_MIPATH@",
-            "setupCommands": @VSCODE_SETUPCOMMANDS@,
             "environment": @VSCODE_RELENV@,
             "console": "integratedTerminal"
         }
