@@ -47,6 +47,7 @@ ________________________________________________________________________
 #include "arrayndimpl.h"
 #include "color.h"
 #include "ctxtioobj.h"
+#include "hiddenparam.h"
 #include "ioman.h"
 #include "ioobj.h"
 #include "multiid.h"
@@ -54,6 +55,7 @@ ________________________________________________________________________
 #include "survinfo.h"
 #include "timedepthmodel.h"
 
+static HiddenParam<uiWellPartServer,TypeSet<MultiID>*> hp_dispwellids(nullptr);
 
 namespace Well {
 
@@ -84,6 +86,7 @@ uiWellPartServer::uiWellPartServer( uiApplService& a )
     , randLineDlgClosed(this)
     , uiwellpropDlgClosed(this)
 {
+    hp_dispwellids.setParam( this, new TypeSet<MultiID> );
     updateEntries();
     mAttachCB( IOM().surveyChanged, uiWellPartServer::survChangedCB );
     mAttachCB( uiWellMan::instanceCreated(),
@@ -94,6 +97,7 @@ uiWellPartServer::uiWellPartServer( uiApplService& a )
 uiWellPartServer::~uiWellPartServer()
 {
     detachAllNotifiers();
+    hp_dispwellids.removeAndDeleteParam( this );
     delete manwelldlg_;
     delete impsimpledlg_;
     delete impbulktrackdlg_;
@@ -304,10 +308,12 @@ void uiWellPartServer::wellManCreatedCB( CallBacker* cb )
 
 void uiWellPartServer::importReadyCB( CallBacker* cb )
 {
+    auto* dispwellids = hp_dispwellids.getParam( this );
     if ( uiwellimpdlg_ && cb==uiwellimpdlg_ )
     {
 	crwellids_.erase();
 	crwellids_.add( uiwellimpdlg_->getWellID() );
+	*dispwellids = crwellids_;
 	sendEvent( evDisplayWell() );
     }
 }
@@ -570,6 +576,17 @@ void uiWellPartServer::displayIn2DViewer( const MultiID& mid )
 }
 
 
+bool uiWellPartServer::displayWellsIn3D( const TypeSet<MultiID>& wellids )
+{
+    auto* dispwellids = hp_dispwellids.getParam( this );
+    if ( wellids.isEmpty() )
+	return false;
+
+    *dispwellids = wellids;
+    return sendEvent( evDisplayWell() );
+}
+
+
 bool uiWellPartServer::hasLogs( const MultiID& wellid ) const
 {
     ConstRefMan<Well::Data> wd = Well::MGR().get( wellid,
@@ -669,6 +686,7 @@ void uiWellPartServer::simpImp( CallBacker* cb )
 
 void uiWellPartServer::simpleImpDlgClosed( CallBacker* )
 {
+    auto* dispwellids = hp_dispwellids.getParam( this );
     if ( !impsimpledlg_ )
 	return;
 
@@ -677,7 +695,10 @@ void uiWellPartServer::simpleImpDlgClosed( CallBacker* )
 	return;
 
     if ( impsimpledlg_->wantDisplay() )
+    {
+	*dispwellids = crwellids_;
 	sendEvent( evDisplayWell() );
+    }
 
     if ( !manwelldlg_ )
 	return;
@@ -824,6 +845,13 @@ bool uiWellPartServer::storeWell( const TypeSet<Coord3>& coords,
 
     delete ctio->ioobj_;
     return true;
+}
+
+
+const TypeSet<MultiID>& uiWellPartServer::displayWellIDs()
+{
+    auto* dispwellids = hp_dispwellids.getParam( this );
+    return *dispwellids;
 }
 
 
