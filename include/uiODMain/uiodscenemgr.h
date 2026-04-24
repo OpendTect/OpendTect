@@ -153,6 +153,8 @@ public:
 					      const SceneID& =SceneID::udf());
     VisID			addWellItem(const MultiID&,
 					      const SceneID& =SceneID::udf());
+    void			addWellItems(const TypeSet<MultiID>&,
+					      const SceneID& =SceneID::udf());
     VisID			add2DLineItem(const Pos::GeomID&,
 					      const SceneID& =SceneID::udf());
     VisID			add2DLineItem(const MultiID&,

@@ -1212,6 +1212,26 @@ VisID uiODSceneMgr::addWellItem( const MultiID& mid, const SceneID& scnid )
 }
 
 
+void uiODSceneMgr::addWellItems( const TypeSet<MultiID>& mids,
+				 const SceneID& scnid )
+{
+    if ( mids.isEmpty() )
+	return;
+
+    Scene* scene = getScene( scnid );
+    const SceneID sceneid = scene ? scnid : askSelectScene();
+    if ( !scene )
+	scene = getScene( sceneid );
+
+    if ( !scene )
+	return;
+
+    uiUserShowWait usw( &appl_, tr("Adding well(s) to 3D scene") );
+    for ( const auto& mid : mids )
+	addWellItem( mid, sceneid );
+}
+
+
 VisID uiODSceneMgr::addDisplayTreeItem( uiODDisplayTreeItem* itm,
 					const SceneID& scnid )
 {
