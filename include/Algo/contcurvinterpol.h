@@ -34,7 +34,7 @@ protected:
     od_int64		nrIterations() const override	{ return 1; }
     od_int64		totalNr() const override	{ return totalnr_; }
     uiString		uiNrDoneText() const override
-		       { return tr("Convergence iterations "); }
+			{ return tr("Convergence iterations "); }
 
 private:
     bool		fillInputData();
@@ -95,18 +95,18 @@ private:
     void		InterpolatingFault(const TypeSet<HorizonData>&,int);
 
     int			    totalnr_;
-    bool*		    curdefined_;
-    bool*		    nodestofill_;
-    double		    tension_;
-    float		    radius_;
-    double		    planec0_;
-    double		    planec1_;
-    double		    planec2_;
-    double		    convergelimit_;
-    double		    zscale_;
-    double		    zmean_;
-    int			    nfact_;
-    int			    nrdata_;
+    bool*		    curdefined_		    = nullptr;
+    bool*		    nodestofill_	    = nullptr;
+    double		    tension_		    = .25f;
+    float		    radius_		    = .0f;
+    double		    planec0_		    = .0f;
+    double		    planec1_		    = .0f;
+    double		    planec2_		    = .0f;
+    double		    convergelimit_	    = .0f;
+    double		    zscale_		    = .0f;
+    double		    zmean_		    = .0f;
+    int			    nfact_		    = 0;
+    int			    nrdata_		    = 0;
 
     int			    offset_[25][12];
     double		    coeff_[2][12];
