@@ -207,7 +207,7 @@ uiFlatViewStdControl::uiFlatViewStdControl( uiFlatViewer& vwr,
     , setup_(setup)
     , mousepressed_(false)
     , menu_(*new uiMenuHandler(0,-1))
-    , propertiesmnuitem_(m3Dots(tr("Properties")),100)
+    , propertiesmnuitem_(m3Dots(uiStrings::sProperties()),100)
 {
     if ( setup_.withfixedaspectratio_ )
 	getGlobalZoomLevel( defx1pospercm_, defx2pospercm_, setup.isvertical_ );
@@ -844,7 +844,8 @@ void uiFlatViewStdControl::setEditMode( bool yn )
     uiToolBar* edittb = editToolBar();
     if ( edittb )
 	edittb->turnOn( editbut_, yn );
-    editModeCB( const_cast<uiAction*>(edittb->findAction( editbut_ )) );
+
+    editModeCB( nullptr );
 }
 
 
