@@ -825,12 +825,17 @@ OD::JSON::ValueSet* OD::JSON::ValueSet::gtByParse( char* buf, int bufsz,
     if ( intovset && intovset->isArray() )
     {
 	const ValueType valtyp = intovset->asArray().valType();
-	if ( nexttag == Gason::JSON_OBJECT && valtyp != SubObject )
-	    uirv = tr("Cannot parse a JSON array of object as another "
-		       "type of array");
-	else if ( nexttag == Gason::JSON_ARRAY && valtyp != SubArray )
-	    uirv = tr("Cannot parse a JSON array of arrays as another "
-		       "type of array");
+	const bool tagisobj = nexttag == Gason::JSON_OBJECT;
+	const bool tagisarray = nexttag == Gason::JSON_ARRAY;
+	if ( tagisobj || tagisarray )
+	{
+	     if ( tagisobj && valtyp != SubObject )
+		 uirv = tr("Cannot parse a JSON array of object as another "
+			    "type of array");
+	     else if ( tagisarray && valtyp != SubArray )
+		 uirv = tr("Cannot parse a JSON array of arrays as another "
+			    "type of array");
+	}
 	else if ( valtyp != Data )
 	    uirv = tr("Cannot parse a JSON array of values as another "
 		       "type of array");
