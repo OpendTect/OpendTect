@@ -60,7 +60,7 @@ public:
 
 protected:
 
-    Well::Marker*		curmrk_;
+    Well::Marker*		curmrk_			= nullptr;
 
     uiGroup*			toolgrp_;
     uiToolButton*		pickbut_;
