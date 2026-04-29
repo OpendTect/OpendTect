@@ -21,4 +21,4 @@ OpenSceneGraph: 3.6.5
 OpenSSL: 3.5.2
 HDF5 (optional): 1.14.6
 SQLite3 (optional): 3.51.1
-PROJ (optional): 9.7.1
+PROJ (optional): 9.8.1
