@@ -23,7 +23,9 @@ ________________________________________________________________________
 #include <QByteArray>
 #include <QCheckBox>
 #include <QComboBox>
+#include <QColor>
 #include <QDate>
+#include <QEvent>
 #include <QHeaderView>
 #include <QItemSelectionModel>
 #include <QKeyEvent>
@@ -33,7 +35,9 @@ ________________________________________________________________________
 #include <QSortFilterProxyModel>
 #include <QStyledItemDelegate>
 #include <QTableView>
+#include <QUndoCommand>
 
+#include "hiddenparam.h"
 
 class ODStyledItemDelegate : public QStyledItemDelegate
 {
@@ -60,6 +64,12 @@ void paint( QPainter* painter, const QStyleOptionViewItem& option,
     QVariant background = index.data( Qt::BackgroundRole );
     if ( background.canConvert<QBrush>() )
 	painter->fillRect( option.rect, background.value<QBrush>() );
+    else if ( background.canConvert<QString>() )
+    {
+	const QColor bgcol( background.toString() );
+	if ( bgcol.isValid() )
+	    painter->fillRect( option.rect, bgcol );
+    }
 
     QStyledItemDelegate::paint( painter, myoption, index );
 }
@@ -113,9 +123,16 @@ void paint( QPainter* painter, const QStyleOptionViewItem& option,
     QVariant color = index.data( Qt::BackgroundRole );
     if ( color.canConvert<QColor>() )
 	painter->fillRect( option.rect, color.value<QColor>() );
+    else if ( color.canConvert<QString>() )
+    {
+	const QColor bgcol( color.toString() );
+	if ( bgcol.isValid() )
+	    painter->fillRect( option.rect, bgcol );
+    }
 
     const QVariant qvar = index.data( Qt::DecorationRole );
     ConstPtrMan<uiPixmap> pm = createPixmap( qvar, option.rect );
+    ODStyledItemDelegate::paint( painter, option, index );
     if ( pm )
     {
 	const QPixmap* qpm = pm->qpixmap();
@@ -125,8 +142,6 @@ void paint( QPainter* painter, const QStyleOptionViewItem& option,
 	const int ypos = option.rect.center().y() - qpmheight/2;
 	painter->drawPixmap( xpos, ypos, qpmwidth, qpmheight, *qpm );
     }
-
-    ODStyledItemDelegate::paint( painter, option, index );
 }
 
 }; // class DecorationItemDelegate
@@ -335,46 +350,222 @@ QString displayText( const QVariant& value,
 class ODTableView : public uiObjBodyImpl<uiTableView,QTableView>
 {
 public:
-ODTableView( uiTableView& hndl, uiParent* p, const char* nm )
+		     ODTableView( uiTableView&,uiParent*,const char* nm);
+		     ~ODTableView();
+
+    void	    currentChanged(const QModelIndex& current,
+				   const QModelIndex& previous) override;
+    void	    selectionChanged(const QItemSelection& selected,
+				     const QItemSelection& deselected) override;
+    void	    setModel(QAbstractItemModel*) override;
+    void	    init();
+    void	    initFrozenView();
+    void	    updateColumns();
+    void	    setNrFrozenColumns(int nrcols);
+    void	    setSortEnabled(bool yn);
+    void	    setContextMenuEnabled(bool yn);
+    bool	    setSourceDataDirect(const TableModelEditRequest&,
+					bool useoldval);
+    bool	    setSourceDataWithUndo(const TableModelEditRequest& req);
+    void	    setCurrentCell(const RowCol&,bool noselection);
+    void	    pushUndoCommand(QUndoCommand*);
+    void	    clearUndoStack();
+    void	    undo();
+    void	    redo();
+    void	    markUndoBaseline();
+    bool	    canUndo() const;
+    bool	    canRedo() const;
+
+    RowCol	    notifcell_;
+
+protected:
+
+    bool	    eventFilter(QObject*,QEvent*) override;
+    void	    keyPressEvent(QKeyEvent*) override;
+    void	    resizeEvent(QResizeEvent*) override;
+    void	    scrollTo(const QModelIndex&,ScrollHint) override;
+    QModelIndex     moveCursor(CursorAction,Qt::KeyboardModifiers) override;
+    void	    enableCustomContextMenu();
+    void	    setContextMenuPolicyToDefault();
+
+    QTableView*			frozenview_;
+    int				nrfrozencols_	= 1;
+    FrozenColumnsHelper*	helper_;
+    i_tableViewMessenger&	messenger_;
+    QUndoStack			undostack_;
+    int				undobaselineidx_ = 0;
+    bool			iscellundoactive_ = false;
+
+};
+
+
+class ODUndoCommand : public QUndoCommand
+{
+public:
+    ODUndoCommand( ODTableView* view, QUndoCommand* parent = nullptr )
+	: QUndoCommand(parent), view_(view)
+    {}
+
+protected:
+
+    ODTableView*	    view_;
+
+};
+
+static HiddenParam<uiTableView,char> hp_enableundo_(1);
+static HiddenParam<uiTableView,ODUndoCommand*> hp_activeundogroup_(nullptr);
+static HiddenParam<uiTableView,Notifier<uiTableView>*> hp_undoredohappened_(
+								    nullptr );
+
+
+class CellEditUndoCommand : public ODUndoCommand
+{
+public:
+CellEditUndoCommand( ODTableView* view,
+		     const TypeSet<TableModelEditRequest>& reqs,
+		     QUndoCommand* parent = nullptr )
+    : ODUndoCommand(view,parent)
+    , reqs_(reqs)
+{
+    setText( "Edit cell" );
+}
+
+void undo() override
+{
+    if ( !view_ )
+	return;
+
+    for ( int idx=reqs_.size()-1; idx>=0; idx-- )
+	view_->setSourceDataDirect( reqs_.get(idx), true );
+}
+
+void redo() override
+{
+    if ( !view_ )
+	return;
+
+    for ( const auto& req : reqs_ )
+	view_->setSourceDataDirect( req, false );
+}
+
+private:
+    TypeSet<TableModelEditRequest> reqs_;
+};
+
+
+class RowDisplayUndoCommand : public ODUndoCommand
+{
+public:
+RowDisplayUndoCommand( ODTableView* view, int row,
+		   bool dohide, ODUndoCommand* parent )
+    : ODUndoCommand( view, parent )
+    , row_(row)
+    , dohide_(dohide)
+{
+    setText( dohide ? "Hide row" : "Show row" );
+}
+
+void undo() override
+{
+    if ( view_ )
+	view_->setRowHidden( row_, !dohide_ );
+}
+
+void redo() override
+{
+    if ( view_ )
+	view_->setRowHidden( row_, dohide_ );
+}
+
+private:
+
+    int		    row_;
+    bool	    dohide_;
+};
+
+
+class ColDisplayUndoCommand : public ODUndoCommand
+{
+public:
+ColDisplayUndoCommand( ODTableView* view, int col,
+		   bool dohide, ODUndoCommand* parent )
+    : ODUndoCommand( view, parent )
+    , col_(col)
+    , dohide_(dohide)
+{
+    setText( dohide ? "Hide column" : "Show column" );
+}
+
+void undo() override
+{
+    if ( view_ )
+	view_->setColumnHidden( col_, !dohide_ );
+}
+
+void redo() override
+{
+    if ( view_ )
+	view_->setColumnHidden( col_, dohide_ );
+}
+
+private:
+
+    int		    col_;
+    bool	    dohide_;
+};
+
+
+ODTableView::ODTableView( uiTableView& hndl, uiParent* p, const char* nm )
     : uiObjBodyImpl<uiTableView,QTableView>(hndl,p,nm)
     , messenger_(*new i_tableViewMessenger(this,&hndl))
 {
     frozenview_ = new QTableView( this );
     helper_ = new FrozenColumnsHelper( this, frozenview_ );
+    installEventFilter( this );
+    if ( viewport() )
+	viewport()->installEventFilter( this );
+    if ( window() )
+	window()->installEventFilter( this );
 }
 
 
-~ODTableView()
+ODTableView::~ODTableView()
 {
+    if ( window() )
+	window()->removeEventFilter( this );
+    if ( viewport() )
+	viewport()->removeEventFilter( this );
+    removeEventFilter( this );
     delete helper_;
     delete frozenview_;
     delete &messenger_;
 }
 
 
-void currentChanged( const QModelIndex& current,
-		     const QModelIndex& previous ) override
+void ODTableView::currentChanged( const QModelIndex& current,
+				  const QModelIndex& previous )
 {
     QTableView::currentChanged( current, previous );
 }
 
 
-void selectionChanged( const QItemSelection& selected,
-		       const QItemSelection& deselected ) override
+void ODTableView::selectionChanged( const QItemSelection& selected,
+				    const QItemSelection& deselected )
 {
     QTableView::selectionChanged( selected, deselected );
     handle_.selectionChanged.trigger();
 }
 
 
-void setModel( QAbstractItemModel* tblmodel ) override
+void ODTableView::setModel( QAbstractItemModel* tblmodel )
 {
     QTableView::setModel( tblmodel );
     frozenview_->setModel( model() );
     frozenview_->setSelectionModel( selectionModel() );
 }
 
-void init()
+
+void ODTableView::init()
 {
     setStyleSheet( "selection-background-color: rgba(50, 50, 50, 50);"
 		   "selection-color: black;" );
@@ -383,12 +574,11 @@ void init()
 		Qt::AlignCenter | Qt::Alignment(Qt::TextWordWrap) );
 
     setHorizontalScrollMode( ScrollPerPixel );
-
     initFrozenView();
 }
 
 
-void initFrozenView()
+void ODTableView::initFrozenView()
 {
     viewport()->stackUnder( frozenview_ );
 
@@ -408,7 +598,7 @@ void initFrozenView()
 }
 
 
-void updateColumns()
+void ODTableView::updateColumns()
 {
     for ( int col=0; col<nrfrozencols_; col++ )
 	frozenview_->setColumnWidth( col, columnWidth(col) );
@@ -420,7 +610,7 @@ void updateColumns()
 }
 
 
-void setNrFrozenColumns( int nrcols )
+void ODTableView::setNrFrozenColumns( int nrcols )
 {
     nrfrozencols_ = nrcols;
     helper_->setNrColumns( nrcols );
@@ -432,35 +622,126 @@ void setNrFrozenColumns( int nrcols )
 }
 
 
-void setSortEnabled( bool yn )
+void ODTableView::setSortEnabled( bool yn )
 {
     setSortingEnabled( yn );
     frozenview_->setSortingEnabled( yn );
 }
 
 
-void setContextMenuEnabled( bool yn )
+void ODTableView::setContextMenuEnabled( bool yn )
 {
     yn ? enableCustomContextMenu() : setContextMenuPolicyToDefault();
 }
 
 
-void setCurrentCell( const RowCol& rc, bool noselection )
+bool ODTableView::setSourceDataDirect( const TableModelEditRequest& req,
+				       bool useoldval )
 {
-    notifcell_ = rc;
-    const QModelIndex index( model()->index(rc.row(),rc.col()) );
-    if ( noselection )
-	selectionModel()->setCurrentIndex( index,
-					   QItemSelectionModel::NoUpdate );
-    else
-	setCurrentIndex( index );
+    if ( !handle_.getModel() || req.row_<0 || req.col_<0 )
+	return false;
+
+    iscellundoactive_ = true;
+    const bool ret = handle_.getModel()->applyEditRequest( req, useoldval );
+    iscellundoactive_ = false;
+    return ret;
 }
 
-    RowCol		notifcell_;
 
-protected:
+void ODTableView::setCurrentCell( const RowCol& rc, bool noselection )
+{
+    notifcell_ = rc;
+    const QModelIndex idx( model()->index(rc.row(),rc.col()) );
+    if ( noselection )
+	selectionModel()->setCurrentIndex( idx, QItemSelectionModel::NoUpdate );
+    else
+	setCurrentIndex( idx );
+}
 
-void keyPressEvent( QKeyEvent* ev ) override
+
+void ODTableView::pushUndoCommand( QUndoCommand* command )
+{
+    undostack_.push( command );
+}
+
+
+void ODTableView::clearUndoStack()
+{
+    undostack_.clear();
+    undobaselineidx_ = 0;
+}
+
+
+void ODTableView::undo()
+{
+    if ( canUndo() )
+	undostack_.undo();
+}
+
+
+void ODTableView::redo()
+{
+    undostack_.redo();
+}
+
+
+void ODTableView::markUndoBaseline()
+{
+    undobaselineidx_ = undostack_.index();
+}
+
+
+bool ODTableView::canUndo() const
+{
+    return undostack_.index() > undobaselineidx_;
+}
+
+
+bool ODTableView::canRedo() const
+{
+    return undostack_.canRedo();
+}
+
+
+bool ODTableView::eventFilter( QObject* obj, QEvent* ev )
+{
+    if ( !ev )
+	return QObject::eventFilter( obj, ev );
+
+    const bool isshcoverride = ev->type() == QEvent::ShortcutOverride;
+    const bool iskeypress = ev->type() == QEvent::KeyPress;
+    if ( !isshcoverride && !iskeypress )
+	return QObject::eventFilter( obj, ev );
+
+    auto* keyev = static_cast<QKeyEvent*>( ev );
+    const bool isundo = keyev->matches( QKeySequence::Undo );
+    const bool isredo = keyev->matches( QKeySequence::Redo );
+    if ( !isundo && !isredo )
+	return QObject::eventFilter( obj, ev );
+
+    if ( isshcoverride )
+    {
+	keyev->accept();
+	return true;
+    }
+
+    QWidget* focuswdgt = QApplication::focusWidget();
+    QWidget* focuswindow = focuswdgt ? focuswdgt->window() : nullptr;
+    if ( focuswindow != window() )
+	return QObject::eventFilter( obj, ev );
+
+    if ( isundo )
+	undo();
+    else
+	redo();
+
+    handle_.undoRedoHappened().trigger();
+    keyev->accept();
+    return true;
+}
+
+
+void ODTableView::keyPressEvent( QKeyEvent* ev )
 {
     if ( !ev )
 	return;
@@ -468,7 +749,8 @@ void keyPressEvent( QKeyEvent* ev ) override
     if ( ev->key() == Qt::Key_Escape )
     {
 	clearSelection();
-	clearFocus();
+	setFocus( Qt::OtherFocusReason );
+	ev->setAccepted( true );
     }
     else if ( ev->matches(QKeySequence::Copy) )
     {
@@ -481,10 +763,23 @@ void keyPressEvent( QKeyEvent* ev ) override
 		text.add( model()->index(row,col).data().toString() );
 		text.addTab();
 	    }
+
 	    text.addNewLine();
 	}
 
 	uiClipboard::setText( text );
+	ev->setAccepted( true );
+    }
+    else if ( ev->matches(QKeySequence::Undo) )
+    {
+	undo();
+	handle_.undoRedoHappened().trigger();
+	ev->setAccepted( true );
+    }
+    else if ( ev->matches(QKeySequence::Redo) )
+    {
+	redo();
+	handle_.undoRedoHappened().trigger();
 	ev->setAccepted( true );
     }
     else
@@ -492,21 +787,22 @@ void keyPressEvent( QKeyEvent* ev ) override
 }
 
 
-void resizeEvent( QResizeEvent* event ) override
+void ODTableView::resizeEvent( QResizeEvent* event )
 {
     QTableView::resizeEvent( event );
     helper_->updateGeom();
 }
 
 
-void scrollTo( const QModelIndex& index, ScrollHint hint ) override
+void ODTableView::scrollTo( const QModelIndex& index, ScrollHint hint )
 {
     if ( index.column() > nrfrozencols_-1 )
 	QTableView::scrollTo( index, hint );
 }
 
 
-QModelIndex moveCursor( CursorAction act, Qt::KeyboardModifiers modif ) override
+QModelIndex ODTableView::moveCursor( CursorAction act,
+				     Qt::KeyboardModifiers modif )
 {
     QModelIndex current = QTableView::moveCursor( act, modif );
     const int mainviewx0 = visualRect(current).topLeft().x();
@@ -525,7 +821,7 @@ QModelIndex moveCursor( CursorAction act, Qt::KeyboardModifiers modif ) override
 }
 
 
-void enableCustomContextMenu()
+void ODTableView::enableCustomContextMenu()
 {
     if ( contextMenuPolicy() == Qt::CustomContextMenu )
 	return;
@@ -539,7 +835,7 @@ void enableCustomContextMenu()
 }
 
 
-void setContextMenuPolicyToDefault()
+void ODTableView::setContextMenuPolicyToDefault()
 {
     if ( contextMenuPolicy() == Qt::DefaultContextMenu )
 	return;
@@ -552,12 +848,41 @@ void setContextMenuPolicyToDefault()
 	       ->setContextMenuPolicy( Qt::DefaultContextMenu );
 }
 
-    QTableView*			frozenview_;
-    int				nrfrozencols_	= 1;
-    FrozenColumnsHelper*	helper_;
-    i_tableViewMessenger&	messenger_;
 
-};
+bool ODTableView::setSourceDataWithUndo( const TableModelEditRequest& req )
+{
+    if ( !handle_.getModel() )
+	return false;
+
+    if ( req.role_!=Qt::EditRole || !handle_.isUndoEnabled() ||
+	 iscellundoactive_ || req.row_ < 0 || req.col_ < 0 )
+	return false;
+
+    if ( handle_.getModel()->getColumnCellType(req.col_) == TableModel::Color )
+	return false;
+
+    if ( req.oldval_ == req.newval_ )
+	return true;
+
+    TypeSet<TableModelEditRequest> relatedreqs;
+    iscellundoactive_ = true;
+    const bool collected = handle_.getModel()->collectEditRequests( req,
+								 relatedreqs );
+    iscellundoactive_ = false;
+    if ( !collected )
+	return false;
+
+    if ( relatedreqs.isEmpty() )
+	return true;
+
+    iscellundoactive_ = true;
+    for ( int idx=relatedreqs.size()-1; idx>=0; idx-- )
+	handle_.getModel()->applyEditRequest( relatedreqs.get(idx), true );
+
+    iscellundoactive_ = false;
+    pushUndoCommand( new CellEditUndoCommand(this,relatedreqs,nullptr) );
+    return true;
+}
 
 
 uiTableView::uiTableView( uiParent* p, const char* nm )
@@ -568,6 +893,9 @@ uiTableView::uiTableView( uiParent* p, const char* nm )
     , columnClicked(this)
     , rowClicked(this)
 {
+    hp_enableundo_.setParam( this, 1 );
+    hp_activeundogroup_.setParam( this, nullptr );
+    hp_undoredohappened_.setParam( this, new Notifier<uiTableView>(this) );
     columndelegates_.setNullAllowed( true );
 }
 
@@ -575,6 +903,11 @@ uiTableView::uiTableView( uiParent* p, const char* nm )
 uiTableView::~uiTableView()
 {
     detachAllNotifiers();
+    hp_enableundo_.removeParam( this );
+    hp_activeundogroup_.removeParam( this );
+    hp_undoredohappened_.removeAndDeleteParam( this );
+    if ( tablemodel_ )
+	mDetachCB( tablemodel_->editRequested(), uiTableView::editRequestCB );
 
     delete horizontalheaderstate_;
     deepErase( columndelegates_ );
@@ -590,6 +923,9 @@ ODTableView& uiTableView::mkView( uiParent* p, const char* nm )
 
 void uiTableView::setModel( TableModel* mdl )
 {
+    if ( tablemodel_ )
+	mDetachCB( tablemodel_->editRequested(), uiTableView::editRequestCB );
+
     tablemodel_ = mdl;
     if ( !tablemodel_ )
 	return;
@@ -598,6 +934,7 @@ void uiTableView::setModel( TableModel* mdl )
     delete qproxymodel_;
     qproxymodel_ = new QSortFilterProxyModel();
     qproxymodel_->setSourceModel( tablemodel_->getAbstractModel() );
+    mAttachCB( tablemodel_->editRequested(), uiTableView::editRequestCB );
     odtableview_->setModel( qproxymodel_ );
     odtableview_->init();
 
@@ -608,6 +945,16 @@ void uiTableView::setModel( TableModel* mdl )
 	setColumnValueType( idx, mdl->getColumnCellType(idx),
 			    format, precision );
     }
+}
+
+
+void uiTableView::editRequestCB( CallBacker* cb )
+{
+    if ( !cb || !cb->isCapsule() )
+	return;
+
+    mCBCapsuleUnpack( const TableModelEditRequest&, req, cb );
+    req.handled_ = odtableview_ && odtableview_->setSourceDataWithUndo( req );
 }
 
 
@@ -711,17 +1058,190 @@ void uiTableView::sortByColumn( int col, bool asc )
 }
 
 
+void uiTableView::enableUndo( bool yn )
+{
+    hp_enableundo_.setParam( this, yn ? 1 : 0 );
+}
+
+
+bool uiTableView::isUndoEnabled() const
+{
+    return hp_enableundo_.getParam( this ) != 0;
+}
+
+
+Notifier<uiTableView>& uiTableView::undoRedoHappened()
+{
+    auto* notif = hp_undoredohappened_.getParam( this );
+    if ( !notif )
+    {
+	notif = new Notifier<uiTableView>( this );
+	hp_undoredohappened_.setParam( this, notif );
+    }
+
+    return *notif;
+}
+
+
+void uiTableView::clearUndo()
+{
+    odtableview_->clearUndoStack();
+}
+
+
+void uiTableView::markUndoBaseline()
+{
+    odtableview_->markUndoBaseline();
+}
+
+
+void uiTableView::beginUndoGroup()
+{
+    if ( !isUndoEnabled() || hp_activeundogroup_.getParam(this) )
+	return;
+
+    hp_activeundogroup_.setParam( this,	
+				  new ODUndoCommand(odtableview_,nullptr));
+}
+
+
+void uiTableView::endUndoGroup()
+{
+    ODUndoCommand* activeundogroup = hp_activeundogroup_.getParam( this );
+    if ( !activeundogroup )
+	return;
+
+    ODUndoCommand* finishedgroup = activeundogroup;
+    hp_activeundogroup_.setParam( this, nullptr );
+    if ( finishedgroup->childCount() )
+	odtableview_->pushUndoCommand( finishedgroup );
+    else
+	delete finishedgroup;
+}
+
+
+void uiTableView::undo()
+{
+    odtableview_->undo();
+
+    undoRedoHappened().trigger();
+}
+
+
+void uiTableView::redo()
+{
+    odtableview_->redo();
+
+    undoRedoHappened().trigger();
+}
+
+
+void uiTableView::doHideRow( int row, bool yn, ODUndoCommand* parent )
+{
+    if ( odtableview_->isRowHidden(row) == yn )
+	return;
+
+    if ( !isUndoEnabled() )
+    {
+	odtableview_->setRowHidden( row, yn );
+	return;
+    }
+
+    ODUndoCommand* undoparent = parent ? parent
+				       : hp_activeundogroup_.getParam(this);
+    auto* cmd = new RowDisplayUndoCommand( odtableview_, row, yn, undoparent );
+    if ( undoparent )
+	cmd->redo();
+    else
+	odtableview_->pushUndoCommand( cmd );
+}
+
+
 void uiTableView::setRowHidden( int row, bool yn )
-{ odtableview_->setRowHidden( row, yn ); }
+{
+    doHideRow( row, yn, nullptr );
+}
+
+
+void uiTableView::setRowsHidden( const TypeSet<int>& rows, bool yn )
+{
+    if ( rows.isEmpty() )
+	return;
+
+    if ( hp_activeundogroup_.getParam(this) )
+    {
+	for ( int idx=0; idx<rows.size(); idx++ )
+	    doHideRow( rows[idx], yn, nullptr );
+
+	return;
+    }
+
+    auto* undocommand = new ODUndoCommand( odtableview_, nullptr );
+    for ( int idx=0; idx<rows.size(); idx++ )
+	doHideRow( rows[idx], yn, undocommand );
+
+    odtableview_->pushUndoCommand( undocommand );
+}
+
 
 bool uiTableView::isRowHidden( int row ) const
-{ return odtableview_->isRowHidden( row ); }
+{
+    return odtableview_->isRowHidden( row );
+}
+
+
+void uiTableView::doHideColumn( int col, bool yn, ODUndoCommand* parent )
+{
+    if ( odtableview_->isColumnHidden(col) == yn )
+	return;
+
+    if ( !isUndoEnabled() )
+    {
+	odtableview_->setColumnHidden( col, yn );
+	return;
+    }
+
+    ODUndoCommand* undoparent = parent ? parent
+				       : hp_activeundogroup_.getParam(this);
+    auto* cmd = new ColDisplayUndoCommand( odtableview_, col, yn, undoparent );
+    if ( undoparent )
+	cmd->redo();
+    else
+	odtableview_->pushUndoCommand( cmd );
+}
+
 
 void uiTableView::setColumnHidden( int col, bool yn )
-{ odtableview_->setColumnHidden( col, yn ); }
+{
+    doHideColumn( col, yn, nullptr );
+}
+
+
+void uiTableView::setColumnsHidden( const TypeSet<int>& cols, bool yn )
+{
+    if ( cols.isEmpty() )
+	return;
+
+    if ( hp_activeundogroup_.getParam(this) )
+    {
+	for ( int idx=0; idx<cols.size(); idx++ )
+	    doHideColumn( cols[idx], yn, nullptr );
+
+	return;
+    }
+
+    auto* undocommand = new ODUndoCommand( odtableview_, nullptr );
+    for ( int idx=0; idx<cols.size(); idx++ )
+	doHideColumn( cols[idx], yn, undocommand );
+
+    odtableview_->pushUndoCommand( undocommand );
+}
+
 
 bool uiTableView::isColumnHidden( int col ) const
-{ return odtableview_->isColumnHidden( col ); }
+{
+    return odtableview_->isColumnHidden( col );
+}
 
 
 void uiTableView::getVisibleRows( TypeSet<int>& rows,
@@ -759,6 +1279,88 @@ void uiTableView::getVisibleColumns( TypeSet<int>& cols,
 	else
 	    cols += idx;
     }
+}
+
+
+void uiTableView::setRowsAndColsHidden( const TypeSet<int>& rows,
+					const TypeSet<int>& cols, bool yn )
+{
+    if ( rows.isEmpty() && cols.isEmpty() )
+	return;
+
+    ODUndoCommand* activeundogroup = hp_activeundogroup_.getParam( this );
+    auto* parent = activeundogroup ? activeundogroup
+				   : new ODUndoCommand( odtableview_, nullptr );
+    for ( const auto& row : rows )
+	doHideRow( row, yn, parent );
+
+    for ( const auto& col : cols )
+	doHideColumn( col, yn, parent );
+
+    if ( !activeundogroup )
+	odtableview_->pushUndoCommand( parent );
+}
+
+
+void uiTableView::setRowsVisibility( const TypeSet<int>& rowstoshow,
+				     const TypeSet<int>& rowstohide )
+{
+    if ( rowstoshow.isEmpty() && rowstohide.isEmpty() )
+	return;
+
+    if ( !isUndoEnabled() )
+    {
+	for ( const auto& row : rowstoshow )
+	    odtableview_->setRowHidden( row, false );
+
+	for ( const auto& row : rowstohide )
+	    odtableview_->setRowHidden( row, true );
+
+	return;
+    }
+
+    ODUndoCommand* activeundogroup = hp_activeundogroup_.getParam( this );
+    auto* parent = activeundogroup ? activeundogroup
+				   : new ODUndoCommand( odtableview_, nullptr );
+    for ( const auto& row : rowstoshow )
+	doHideRow( row, false, parent );
+
+    for ( const auto& row : rowstohide )
+	doHideRow( row, true, parent );
+
+    if ( !activeundogroup )
+	odtableview_->pushUndoCommand( parent );
+}
+
+
+void uiTableView::setColumnsVisibility( const TypeSet<int>& colstoshow,
+					const TypeSet<int>& colstohide )
+{
+    if ( colstoshow.isEmpty() && colstohide.isEmpty() )
+	return;
+
+    if ( !isUndoEnabled() )
+    {
+	for ( const auto& col : colstoshow )
+	    odtableview_->setColumnHidden( col, false );
+
+	for ( const auto& col : colstohide )
+	    odtableview_->setColumnHidden( col, true );
+
+	return;
+    }
+
+    ODUndoCommand* activeundogroup = hp_activeundogroup_.getParam( this );
+    auto* parent = activeundogroup ? activeundogroup
+				   : new ODUndoCommand( odtableview_, nullptr );
+    for ( const auto& col : colstoshow )
+	doHideColumn( col, false, parent );
+
+    for ( const auto& col : colstohide )
+	doHideColumn( col, true, parent );
+
+    if ( !activeundogroup )
+	odtableview_->pushUndoCommand( parent );
 }
 
 

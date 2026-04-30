@@ -14,16 +14,17 @@ ________________________________________________________________________
 #include "odcommonenums.h"
 #include "pixmapdesc.h"
 
-
 class QAbstractTableModel;
 class ODAbstractTableModel;
 class QByteArray;
 class QSortFilterProxyModel;
 class QVariant;
+class TableModelEditRequest;
 
 mExpClass(General) TableModel
 {
 public:
+
     mExpClass(General) CellData
     {
     public:
@@ -47,6 +48,8 @@ public:
 	void		setISODateTime(const char*);
 
 	CellData&	operator=(const CellData&);
+	bool		operator==(const CellData&) const;
+	bool		operator!=(const CellData&) const;
 
 	QVariant&	qvar_;
     };
@@ -85,8 +88,38 @@ public:
     void			beginReset();
     void			endReset();
 
+    bool			collectEditRequests(
+					    const TableModelEditRequest&,
+					    TypeSet<TableModelEditRequest>&);
+    bool			applyEditRequest(const TableModelEditRequest&,
+					    bool useoldval);
+
+    CNotifier<CallBacker,const TableModelEditRequest&>& editRequested();
+
 protected:
+
 				TableModel();
 
+    void			rowBulkDataChanged(int row,
+					    const TypeSet<int>& changedcols);
+
     ODAbstractTableModel*	odtablemodel_;
+};
+
+
+mExpClass(General) TableModelEditRequest
+{
+public:
+			TableModelEditRequest(int row,int col,
+				  const TableModel::CellData& oldval,
+				  const TableModel::CellData& newval,int role);
+    bool		operator==(const TableModelEditRequest&) const;
+    bool		operator!=(const TableModelEditRequest&) const;
+
+    int			    row_		= -1;
+    int			    col_		= -1;
+    TableModel::CellData    oldval_;
+    TableModel::CellData    newval_;
+    int			    role_		= 0;
+    mutable bool	    handled_		= false;
 };
