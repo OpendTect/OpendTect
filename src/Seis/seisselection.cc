@@ -615,7 +615,7 @@ Interval<float> Seis::TableSelData::zRange() const
     if ( !zrange->isUdf() )
 	return *zrange;
 
-    if ( bvs_.nrVals() )
+    if ( bvs_.nrVals() < 1 ) // No Z values in bvs_
 	return fixedzrange_;
 
     Interval<float> zrg( bvs_.valRange(0) + extraz_ );
