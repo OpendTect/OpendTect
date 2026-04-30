@@ -542,7 +542,7 @@ bool uiImportPickSet::acceptOK( CallBacker* )
 {
     uiMsgMainWinSetter mws( this );
 
-    const int sel = optionfld_->currentItem();
+    const int sel = optionfld_ ? optionfld_->currentItem() : 0;
     if ( !groups_.validIdx(sel) )
 	return false;
 
