@@ -17,6 +17,8 @@ ________________________________________________________________________
 #include <QDateTime>
 #include <QSortFilterProxyModel>
 
+#include "hiddenparam.h"
+
 class ODAbstractTableModel : public QAbstractTableModel
 {
 public:
@@ -33,10 +35,20 @@ public:
 				int role) override;
     void		beginReset();
     void		endReset();
+    bool		collectEditRequests(const TableModelEditRequest&,
+					    TypeSet<TableModelEditRequest>&);
+    bool		applyEditRequest(const TableModelEditRequest&,
+					 bool useoldval);
+    void		rowBulkDataChanged(int row,
+					   const TypeSet<int>&);
 
 protected:
     TableModel&		model_;
 };
+
+static HiddenParam<TableModel,
+		   CNotifier<CallBacker,const TableModelEditRequest&>*>
+					       hp_editrequested_( nullptr );
 
 
 Qt::ItemFlags ODAbstractTableModel::flags( const QModelIndex& qmodidx ) const
@@ -126,8 +138,22 @@ bool ODAbstractTableModel::setData( const QModelIndex& qmodidx,
 
     if ( role == Qt::EditRole )
     {
-	TableModel::CellData cd( qvar );
+	const TableModel::CellData oldval( data(qmodidx,role) );
+	const TableModel::CellData newval( qvar );
+	const TableModelEditRequest req( qmodidx.row(), qmodidx.column(),
+					 oldval, newval, role );
+	model_.editRequested().trigger( req );
+	if ( req.handled_ )
+	{
+	    emit dataChanged( qmodidx, qmodidx, {Qt::DisplayRole,Qt::EditRole,
+						 Qt::BackgroundRole} );
+	    return true;
+	}
+
+	const TableModel::CellData cd( qvar );
 	model_.setCellData( qmodidx.row(), qmodidx.column(), cd );
+	emit dataChanged( qmodidx, qmodidx, {Qt::DisplayRole,Qt::EditRole,
+					     Qt::BackgroundRole} );
 	return true;
     }
 
@@ -138,6 +164,7 @@ bool ODAbstractTableModel::setData( const QModelIndex& qmodidx,
 	    val = qvar==Qt::Checked ? 1 : 0;
 
 	model_.setChecked( qmodidx.row(), qmodidx.column(), val );
+	emit dataChanged( qmodidx, qmodidx, {Qt::CheckStateRole} );
     }
 
     return true;
@@ -163,6 +190,104 @@ void ODAbstractTableModel::beginReset()
 
 void ODAbstractTableModel::endReset()
 { endResetModel(); }
+
+
+void ODAbstractTableModel::rowBulkDataChanged( int row,
+					       const TypeSet<int>& changedcols )
+{
+    if ( changedcols.isEmpty() )
+	return;
+
+    bool inchangedcolrg = false;
+    int startcol = 0;
+    const int nrcols = columnCount( QModelIndex() );
+    for ( int col=0; col<nrcols; col++ )
+    {
+	const bool ischanged = changedcols.isPresent( col );
+	if ( ischanged && !inchangedcolrg )
+	{
+	    inchangedcolrg = true;
+	    startcol = col;
+	}
+	else if ( inchangedcolrg )
+	{
+	    const QModelIndex tl = index( row, startcol );
+	    const QModelIndex br = index( row, col-1 );
+	    if ( tl.isValid() && br.isValid() )
+		emit dataChanged( tl, br, {Qt::DisplayRole,Qt::EditRole,
+					   Qt::BackgroundRole} );
+	    inchangedcolrg = false;
+	}
+    }
+
+    if ( inchangedcolrg )
+    {
+	const QModelIndex startqmi = index( row, startcol );
+	const QModelIndex stopqmi = index( row, nrcols-1 );
+	if ( startqmi.isValid() && stopqmi.isValid() )
+	    emit dataChanged( startqmi, stopqmi, {Qt::DisplayRole,Qt::EditRole,
+						  Qt::BackgroundRole} );
+    }
+}
+
+
+bool ODAbstractTableModel::collectEditRequests(
+				const TableModelEditRequest& req,
+				TypeSet<TableModelEditRequest>& relatedreqs )
+{
+    relatedreqs.setEmpty();
+    if ( req.row_ < 0 || req.col_ < 0 )
+	return false;
+
+    const QModelIndex sourceidx = index( req.row_, req.col_ );
+    if ( !sourceidx.isValid() )
+	return false;
+
+    const int nrcols = columnCount( QModelIndex() );
+    TypeSet<TableModel::CellData> oldrowvals;
+    for ( int col=0; col<nrcols; col++ )
+    {
+	const QModelIndex idx = index( req.row_, col );
+	oldrowvals += TableModel::CellData( idx.isValid()
+						? data(idx,Qt::EditRole)
+						: QVariant() );
+    }
+
+    if ( !setData(sourceidx,req.newval_.qvar_,req.role_) )
+	return false;
+
+    for ( int col=0; col<nrcols; col++ )
+    {
+	const QModelIndex idx = index( req.row_, col );
+	if ( !idx.isValid() )
+	    continue;
+
+	const TableModel::CellData newval( data(idx,Qt::EditRole) );
+	const TableModel::CellData& oldval = oldrowvals.get( col );
+	if ( oldval == newval )
+	    continue;
+
+	relatedreqs += TableModelEditRequest( req.row_, col, oldval, newval,
+					      req.role_ );
+    }
+
+    return true;
+}
+
+
+bool ODAbstractTableModel::applyEditRequest( const TableModelEditRequest& req,
+					     bool useoldval )
+{
+    if ( req.row_ < 0 || req.col_ < 0 )
+	return false;
+
+    const QModelIndex sourceidx = index( req.row_, req.col_ );
+    if ( !sourceidx.isValid() )
+	return false;
+
+    const QVariant& val = useoldval ? req.oldval_.qvar_ : req.newval_.qvar_;
+    return setData( sourceidx, val, req.role_ );
+}
 
 
 // TableModel::CellData
@@ -240,6 +365,21 @@ TableModel::CellData& TableModel::CellData::operator=( const CellData& cd )
 }
 
 
+bool TableModel::CellData::operator==( const CellData& oth ) const
+{
+    if ( qvar_.metaType() != oth.qvar_.metaType() )
+	return false;
+
+    return qvar_.toString() == oth.qvar_.toString();
+}
+
+
+bool TableModel::CellData::operator!=( const CellData& oth ) const
+{
+    return !(*this == oth);
+}
+
+
 void TableModel::CellData::setDate( const char* datestr )
 {
     qvar_ = QDate::fromString( datestr );
@@ -253,14 +393,46 @@ void TableModel::CellData::setISODateTime( const char* datestr )
 
 
 // TableModel
+TableModelEditRequest::TableModelEditRequest( int row, int col,
+					  const TableModel::CellData& oldval,
+					  const TableModel::CellData& newval,
+					  int role )
+    : row_(row)
+    , col_(col)
+    , oldval_(oldval)
+    , newval_(newval)
+    , role_(role)
+{}
+
+
+bool TableModelEditRequest::operator==( const TableModelEditRequest& oth ) const
+{
+    return row_ == oth.row_ &&
+	   col_ == oth.col_ &&
+	   oldval_ == oth.oldval_ &&
+	   newval_ == oth.newval_ &&
+	   role_ == oth.role_ &&
+	   handled_ == oth.handled_;
+}
+
+
+bool TableModelEditRequest::operator!=( const TableModelEditRequest& oth ) const
+{
+    return !(*this == oth);
+}
+
+
 TableModel::TableModel()
 {
+    hp_editrequested_.setParam( this,
+	    new CNotifier<CallBacker,const TableModelEditRequest&>(nullptr) );
     odtablemodel_ = new ODAbstractTableModel(*this);
 }
 
 
 TableModel::~TableModel()
 {
+    hp_editrequested_.removeAndDeleteParam( this );
     delete odtablemodel_;
 }
 
@@ -280,6 +452,69 @@ void TableModel::beginReset()
 void TableModel::endReset()
 {
     odtablemodel_->endReset();
+}
+
+
+void TableModel::rowBulkDataChanged( int row,
+				     const TypeSet<int>& changedcols )
+{
+    if ( !odtablemodel_ || changedcols.isEmpty() )
+	return;
+
+    odtablemodel_->rowBulkDataChanged( row, changedcols );
+}
+
+
+bool TableModel::collectEditRequests( const TableModelEditRequest& req,
+				  TypeSet<TableModelEditRequest>& relatedreqs )
+{
+    return odtablemodel_ && odtablemodel_->collectEditRequests( req,
+								relatedreqs );
+}
+
+
+bool TableModel::applyEditRequest( const TableModelEditRequest& req,
+				   bool useoldval )
+{
+    return odtablemodel_ && odtablemodel_->applyEditRequest( req, useoldval );
+}
+
+
+CNotifier<CallBacker,const TableModelEditRequest&>&
+TableModel::editRequested()
+{
+    auto* notif = hp_editrequested_.getParam( this );
+    if ( !notif )
+    {
+	notif = new CNotifier<CallBacker,const TableModelEditRequest&>(nullptr);
+	hp_editrequested_.setParam( this, notif );
+    }
+
+    return *notif;
+}
+
+
+OD::Color TableModel::textColor( int row, int col ) const
+{
+    return OD::Color::Black();
+}
+
+
+OD::Color TableModel::cellColor( int row, int col ) const
+{
+    return OD::Color::NoColor();
+}
+
+
+PixmapDesc TableModel::pixmap( int row, int col ) const
+{
+    return PixmapDesc();
+}
+
+
+uiString TableModel::tooltip( int row, int col ) const
+{
+    return uiString::empty();
 }
 
 
