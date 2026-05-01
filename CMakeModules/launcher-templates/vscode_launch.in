@@ -7,13 +7,13 @@
             "request": "launch",
             "program": "${command:cmake.launchTargetPath}",
             "args": [],
+            "externalConsole": false,
             "stopAtEntry": false,
             "cwd": "${command:cmake.launchTargetDirectory}",
             "MIMode": "@VSCODE_MIMODE@",
             "miDebuggerPath": "@VSCODE_MIPATH@",
             "setupCommands": @VSCODE_SETUPCOMMANDS@,
-            "environment": @VSCODE_DEBUGENV@,
-            "console": "integratedTerminal"
+            "environment": @VSCODE_DEBUGENV@
         },
         {
             "name": "CMake Debug in release mode",
@@ -21,13 +21,13 @@
             "request": "launch",
             "program": "${command:cmake.launchTargetPath}",
             "args": [],
+            "externalConsole": false,
             "stopAtEntry": false,
             "cwd": "${command:cmake.launchTargetDirectory}",
             "MIMode": "@VSCODE_MIMODE@",
             "miDebuggerPath": "@VSCODE_MIPATH@",
             "setupCommands": @VSCODE_SETUPCOMMANDS@,
-            "environment": @VSCODE_RELENV@,
-            "console": "integratedTerminal"
+            "environment": @VSCODE_RELENV@
         }
     ]
 }
