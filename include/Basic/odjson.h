@@ -304,7 +304,7 @@ public:
 			mDeclJSONArraySetAddFns(float);
 			mDeclJSONArraySetAddFns(double);
 
-    Array&		set(const FilePath&,size_type);
+    Array&		set(const FilePath&,idx_type);
     Array&		add(bool);
     Array&		add(Coord);
     Array&		add(Coord3);
@@ -513,8 +513,7 @@ inline const Object& ValueSet::asObject() const
 template <class T, typename Enable>
 Array& Array::setVals( const TypeSet<T>& vals )
 {
-    setVals( vals.arr(), vals.size() );
-    return *this;
+    return setVals( vals.arr(), vals.size() );
 }
 
 
