@@ -16,6 +16,7 @@ ________________________________________________________________________
 
 class DBKeySet;
 class DBKey;
+class IdxPair;
 class SeparString;
 class StringBuilder;
 namespace Gason { struct JsonNode; }
@@ -257,7 +258,24 @@ public:
     BufferString	getStringValue(idx_type) const override;
     FilePath		getFilePath(idx_type) const override;
 
+    bool		get(::IdxPair&) const;
+    bool		get(Coord&) const;
+    bool		get(Coord3&) const;
+    bool		get(TypeSet<Coord>&) const;
+    bool		get(TypeSet<Coord3>&) const;
+    bool		get(BufferStringSet&) const;
+    bool		get(uiStringSet&) const;
+    bool		get(TypeSet<MultiID>&) const;
+    bool		get(DBKeySet&) const;
+    bool		get(TypeSet<FilePath>&) const;
+    template <class T>
+    bool		get(TypeSet<T>&) const;
+    bool		get(BoolTypeSet&) const;
+
 			// only usable if valType() == Data
+    Array&		set(const TypeSet<MultiID>&);
+    Array&		set(const TypeSet<FilePath>&);
+
 #   define		mDeclJSONArraySetFn( typ ) \
     Array&		set(typ)
 
@@ -268,7 +286,10 @@ public:
 #   define		mDeclJSONArraySetFns( typ ) \
 			mDeclJSONArrayAddAndSetFn(typ); \
     Array&		set(const typ*,size_type); \
-    Array&		set(const TypeSet<typ>&)
+    Array&		set(const TypeSet<typ>&); \
+    Array&		add(const TypeSet<typ>&); \
+    Array&		add(const typ*,size_type);
+			//!< Adding sets only for SubArray types
 
 			mDeclJSONArrayAddAndSetFn(const char*);
 			mDeclJSONArrayAddAndSetFn(const DBKey&);
@@ -291,8 +312,11 @@ public:
 			mDeclJSONArraySetFns(float);
 			mDeclJSONArraySetFns(double);
 
-    bool		get(BufferStringSet&) const;
     Array&		set(const FilePath&,size_type);
+    Array&		add(Coord);
+    Array&		add(Coord3);
+    Array&		add(const TypeSet<Coord>&);
+    Array&		add(const TypeSet<Coord3>&);
 
 protected:
 
@@ -303,6 +327,11 @@ protected:
     Array&		setVals(const TypeSet<T>&);
     template <class T>
     Array&		setVals(const T*,size_type);
+    template <class T>
+    Array&		addVals(const T*,size_type);
+    template <class T>
+    Array&		addVals(const TypeSet<T>&);
+
     void		addVS(ValueSet*);
 
     friend class	ValueSet;
@@ -378,8 +407,17 @@ public:
     bool		getStrings(const char*,BufferStringSet&) const;
     bool		getGeomID(const char*,Pos::GeomID&) const;
     MultiID		getMultiID(const char*) const;
+    bool		get(const char*,::IdxPair&) const;
+    bool		get(const char*,Coord&) const;
+    bool		get(const char*,Coord3&) const;
+    bool		get(const char*,uiStringSet&) const;
+    bool		get(const char*,TypeSet<MultiID>&) const;
+    bool		get(const char*,DBKeySet&) const;
     template <class T>
     bool		get(const char*,Interval<T>&) const;
+    template <class T>
+    bool		get(const char*,TypeSet<T>&) const;
+    bool		get(const char*,BoolTypeSet&) const;
     template <class T>
     bool		get(const char*,Array1D<T>&) const;
     template <class T>
@@ -414,12 +452,24 @@ public:
     void		set(const char* ky,const DBKey&);
     void		set(const char* ky,const MultiID&);
     void		set(const char* ky,const uiString&);
+    void		set(const char* ky,const ::IdxPair&);
+    void		set(const char* ky,const Coord&);
+    void		set(const char* ky,const Coord3&);
     template <class T>
     void		set(const char* ky,const Interval<T>&);
+    template <class T>
+    void		set(const char* ky,const TypeSet<T>&);
+    void		set(const char* ky,const TypeSet<Coord>&);
+    void		set(const char* ky,const TypeSet<Coord3>&);
+    void		set(const char* ky,const BoolTypeSet&);
     template <class T>
     void		set(const char* ky,const Array1D<T>&);
     template <class T>
     void		set(const char* ky,const Array2D<T>&);
+    void		set(const char* ky,const BufferStringSet&);
+    void		set(const char* ky,const uiStringSet&);
+    void		set(const char* ky,const TypeSet<MultiID>&);
+    void		set(const char* ky,const DBKeySet&);
 
     void		remove(const char*);
 
@@ -450,6 +500,90 @@ inline Object& ValueSet::asObject()
 { return *static_cast<Object*>( this ); }
 inline const Object& ValueSet::asObject() const
 { return *static_cast<const Object*>( this ); }
+
+
+template <class T>
+Array& Array::setVals( const TypeSet<T>& vals )
+{
+    return setVals( vals.arr(), vals.size() );
+}
+
+
+template <class T>
+OD::JSON::Array& OD::JSON::Array::setVals( const T* vals, size_type sz )
+{
+    setEmpty();
+    valtype_ = Data;
+    delete valarr_;
+    if constexpr (std::is_same_v<T, bool>)
+    {
+	valarr_ = new ValArr( Boolean );
+	valarr_->bools().setSize( sz );
+	for ( auto idx=0; idx<sz; idx++ )
+	    valarr_->bools()[idx] = vals[idx];
+    }
+    else if constexpr ( std::is_floating_point<T>::value ||
+			std::is_integral<T>::value )
+    {
+	valarr_ = new ValArr( Number );
+	valarr_->vals().setSize( sz );
+	if ( typeid(T)==typeid(NumberType) )
+	    OD::memCopy( valarr_->vals().arr(), vals, sz*sizeof(T) );
+	else
+	{
+	    for ( int idx=0; idx<sz; idx++ )
+	    {
+		const NumberType val = mIsUdf(vals[idx])
+				     ? mUdf(NumberType)
+				     : (NumberType) vals[idx];
+		valarr_->vals()[idx] = val;
+	    }
+	}
+    }
+
+    return *this;
+}
+
+
+template <class T>
+OD::JSON::Array& OD::JSON::Array::addVals( const TypeSet<T>& vals )
+{
+    return addVals( vals.arr(), vals.size() );
+}
+
+
+template <class T>
+OD::JSON::Array& OD::JSON::Array::addVals( const T* vals, size_type sz )
+{
+    if ( valType() != SubArray )
+	return *this;
+
+    auto* subarr = new Array( Number );
+    subarr->set( vals, sz );
+    add( subarr );
+
+    return *this;
+}
+
+
+template <class T>
+inline bool OD::JSON::Array::get( TypeSet<T>& arr ) const
+{
+    if ( !isData() && !isMixed() )
+	return false;
+
+    const int sz = size();
+    if ( !arr.setSize(sz) )
+	return false;
+
+    for ( int idx=0; idx<sz; idx++ )
+    {
+	const double val = getDoubleValue( idx );
+	arr[idx] = mIsUdf(val) ? mUdf(T) : mCast(T,val);
+    }
+
+    return true;
+}
 
 
 template <class T>
@@ -487,6 +621,23 @@ inline void OD::JSON::Object::set( const char* key, const Interval<T>& intrvl )
 
     arr->set( intrvals );
     set( key, arr );
+}
+
+
+template <class T>
+inline bool OD::JSON::Object::get( const char* key, TypeSet<T>& arr ) const
+{
+    const auto* jsarr = getArray( key );
+    return jsarr ? jsarr->get( arr ) : false;
+}
+
+
+template <class T>
+inline void OD::JSON::Object::set( const char* key, const TypeSet<T>& arr )
+{
+    auto* jsarr = new Array( DataType::Number );
+    jsarr->set( arr );
+    set( key, jsarr );
 }
 
 

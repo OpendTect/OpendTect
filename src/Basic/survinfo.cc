@@ -84,24 +84,13 @@ namespace Survey
     void fillObjFromRanges( const TrcKeyZSampling& tkzs, bool zistime,
 			    bool depthisfeet, OD::JSON::Object& jsonobj )
     {
-	OD::JSON::Array inlobj( OD::JSON::Number );
-	inlobj.add( tkzs.hsamp_.start_.inl() );
-	inlobj.add( tkzs.hsamp_.stop_.inl() );
-	inlobj.add( tkzs.hsamp_.step_.inl() );
-	jsonobj.set( SurveyInfo::sKeyInlRange(), new OD::JSON::Array(inlobj) );
-
-	OD::JSON::Array crlobj( OD::JSON::Number );
-	crlobj.add( tkzs.hsamp_.start_.crl() );
-	crlobj.add( tkzs.hsamp_.stop_.crl() );
-	crlobj.add( tkzs.hsamp_.step_.crl() );
-	jsonobj.set( SurveyInfo::sKeyCrlRange(), new OD::JSON::Array(crlobj) );
-
-	OD::JSON::Array zobj( OD::JSON::Number );
-	zobj.add( tkzs.zsamp_.start_ );
-	zobj.add( tkzs.zsamp_.stop_ );
-	zobj.add( tkzs.zsamp_.step_ );
+	const StepInterval<int> inlrg = tkzs.hsamp_.lineRange();
+	const StepInterval<int> crlrg = tkzs.hsamp_.trcRange();
+	const ZSampling& zrg = tkzs.zsamp_;
+	jsonobj.set( SurveyInfo::sKeyInlRange(), inlrg );
+	jsonobj.set( SurveyInfo::sKeyCrlRange(), crlrg );
 	OD::JSON::Object zdef;
-	zdef.set( sKey::Range(), new OD::JSON::Array(zobj) );
+	zdef.set( sKey::Range(), zrg );
 	zdef.set( SurveyInfo::sKeyDomain(), zistime
 			? sKey::Time().str()
 			: depthisfeet ? "Feet" : sKey::Depth().str() );
@@ -113,18 +102,10 @@ namespace Survey
 				  const TypeSet<double>& diry,
 				  OD::JSON::Object& obj )
     {
-	OD::JSON::Array dirxarr( OD::JSON::Number );
-	dirxarr.add( dirx[0] ).add( dirx[1] ).add( dirx[2] );
-
-	OD::JSON::Array diryarr( OD::JSON::Number );
-	diryarr.add( diry[0] ).add( diry[1] ).add( diry[2] );
-
 	OD::JSON::Object trans;
-	trans.set( sKeyXTransf, new OD::JSON::Array(dirxarr) );
-	OD::JSON::Object ytransf;
-	trans.set( sKeyYTransf, new OD::JSON::Array(diryarr) );
-	obj.set( SurveyInfo::sKeyTransformation(),
-		 new OD::JSON::Object(trans) );
+	trans.set( sKeyXTransf, dirx );
+	trans.set( sKeyYTransf, diry );
+	obj.set( SurveyInfo::sKeyTransformation(), new OD::JSON::Object(trans));
     }
 
 
@@ -146,7 +127,7 @@ namespace Survey
 
 
     void fillObjWithSetPts( const TypeSet<BinID>& bids,
-	const TypeSet<Coord>& crds, OD::JSON::Object& obj )
+			    const TypeSet<Coord>& crds, OD::JSON::Object& obj )
     {
 	if ( bids.size() < 3 || crds.size() < 3 )
 	    return;
@@ -154,17 +135,9 @@ namespace Survey
 	OD::JSON::Array setarr( true );
 	for ( int idx=0; idx<3; idx++ )
 	{
-	    const BinID bid = bids[idx];
-	    OD::JSON::Array arrint( OD::JSON::Number );
-	    arrint.add( bid.inl() ).add( bid.crl() );
 	    OD::JSON::Object ptobj;
-	    ptobj.set( SurveyInfo::sKeyIC(), new OD::JSON::Array(arrint) );
-
-	    const Coord crd = crds[idx];
-	    OD::JSON::Array arrdoub( OD::JSON::Number );
-            arrdoub.add( crd.x_ ).add( crd.y_ );
-	    ptobj.set( SurveyInfo::sKeyXY(), new OD::JSON::Array(arrdoub) );
-
+	    ptobj.set( SurveyInfo::sKeyIC(), bids[idx] );
+	    ptobj.set( SurveyInfo::sKeyXY(), crds[idx] );
 	    setarr.add( new OD::JSON::Object(ptobj) );
 	}
 
@@ -185,23 +158,12 @@ namespace Survey
     void fillRangesFromObj( const OD::JSON::Object& obj, SurveyInfo& si )
     {
 	TrcKeyZSampling tkzs( false );
-	//Inline range setting
-	const auto* inlarr = obj.getArray( SurveyInfo::sKeyInlRange() );
-	if ( inlarr )
-	{
-	    tkzs.hsamp_.start_.inl() = inlarr->getIntValue( 0 );
-	    tkzs.hsamp_.stop_.inl() = inlarr->getIntValue( 1 );
-	    tkzs.hsamp_.step_.inl() = inlarr->getIntValue( 2 );
-	}
+	StepInterval<int> inlrg, crlrg;
+	if ( obj.get(SurveyInfo::sKeyInlRange(),inlrg) )
+	    tkzs.hsamp_.setLineRange( inlrg );
 
-	//Crossline range setting
-	const auto* crlarr = obj.getArray( SurveyInfo::sKeyCrlRange() );
-	if ( crlarr )
-	{
-	    tkzs.hsamp_.start_.crl() = crlarr->getIntValue( 0 );
-	    tkzs.hsamp_.stop_.crl() = crlarr->getIntValue( 1 );
-	    tkzs.hsamp_.step_.crl() = crlarr->getIntValue( 2 );
-	}
+	if ( obj.get(SurveyInfo::sKeyCrlRange(),crlrg) )
+	    tkzs.hsamp_.setTrcRange( crlrg );
 
 	//ZRange setting
 	const auto* zobj = obj.getObject( SurveyInfo::sKeyZAxis() );
@@ -211,16 +173,13 @@ namespace Survey
 						SurveyInfo::sKeyDomain() );
 	    const bool isztime = domain.isEqual( sKey::Time() );
 	    const bool isdepthfeet = domain.isEqual( "Feet" );
-	    const auto* zarr = zobj->getArray( sKey::Range() );
-	    if ( zarr )
+	    ZSampling zrg = ZSampling::udf();
+	    if ( zobj->get(sKey::Range(),zrg) )
 	    {
-		tkzs.zsamp_.start_ = zarr->getDoubleValue( 0 );
-		tkzs.zsamp_.stop_ = zarr->getDoubleValue( 1 );
-		tkzs.zsamp_.step_ = zarr->getDoubleValue( 2 );
+		tkzs.zsamp_ = zrg;
 		if ( Values::isUdf(tkzs.zsamp_.step_)
 		    || mIsZero(tkzs.zsamp_.step_,mDefEps) )
 		    tkzs.zsamp_.step_ = 0.004;
-
 	    }
 
 	    si.setZUnit( isztime, isdepthfeet );
@@ -237,15 +196,12 @@ namespace Survey
 	if ( !transformobj )
 	    return;
 
-	const auto* xarr = transformobj->getArray( sKeyXTransf );
-	if ( xarr )
-	    si.setTr( xarr->getDoubleValue(0), xarr->getDoubleValue(1),
-				    xarr->getDoubleValue(2), true );
+	TypeSet<double> xarr, yarr;
+	if ( transformobj->get(sKeyXTransf,xarr) && xarr.size()>2 )
+	    si.setTr( xarr[0], xarr[1], xarr[2], true );
 
-	const auto* yarr = transformobj->getArray( sKeyYTransf );
-	if ( yarr )
-	    si.setTr( yarr->getDoubleValue(0), yarr->getDoubleValue(1),
-		yarr->getDoubleValue(2), false );
+	if ( transformobj->get(sKeyYTransf,yarr) && yarr.size()>2 )
+	    si.setTr( yarr[0], yarr[1], yarr[2], false );
     }
 
 
@@ -255,34 +211,17 @@ namespace Survey
 	if ( !setptsarr )
 	    return;
 
-	BinID bids[2];
 	Coord crds[3];
-	int xline = 0;
+	BinID bids[2];
+	BinID thirdbid( 0, 0 );
 	for ( int idx=0; idx<setptsarr->size(); idx++ )
 	{
-	    auto& ptobj = setptsarr->object( idx );
-	    const auto* icarr = ptobj.getArray( SurveyInfo::sKeyIC() );
-	    if ( icarr )
-	    {
-		if ( idx == 2 )
-		    xline = icarr->getIntValue( 1 );
-		else
-		{
-		    bids[idx].inl() = icarr->getIntValue( 0 );
-		    bids[idx].crl() = icarr->getIntValue( 1 );
-		}
-	    }
-
-	    const auto* xyarr = ptobj.getArray( SurveyInfo::sKeyXY() );
-	    if ( xyarr )
-	    {
-                crds[idx].x_ = xyarr->getDoubleValue( 0 );
-                crds[idx].y_ = xyarr->getDoubleValue( 1 );
-	    }
-
+	    const OD::JSON::Object& ptobj = setptsarr->object( idx );
+	    ptobj.get( SurveyInfo::sKeyXY(), crds[idx] );
+	    ptobj.get( SurveyInfo::sKeyIC(), idx < 2 ? bids[idx] : thirdbid );
 	}
 
-	si.set3PtsWithMsg( crds, bids, xline );
+	si.set3PtsWithMsg( crds, bids, thirdbid.crl() );
     }
 
     void setUnitsFromObj( const OD::JSON::Object& obj, SurveyInfo& si )
@@ -1697,19 +1636,17 @@ bool SurveyInfo::write( const char* basedir, bool isjson ) const
     }
 
     od_ostream& strm = sfio.ostrm();
-    OD::JSON::Object* jsonobj( nullptr );
+    OD::JSON::Object jsonobj;
     if ( isjson )
     {
-	jsonobj = new OD::JSON::Object();
-	jsonobj->set( sKey::Name(), name() );
-	jsonobj->set( sKeySurvDataType(), getPol2D3DString(survDataType()) );
-
-	Survey::fillObjFromRanges( tkzs_, zIsTime(), zInFeet(), *jsonobj );
+	jsonobj.set( sKey::Name(), name() );
+	jsonobj.set( sKeySurvDataType(), getPol2D3DString(survDataType()) );
+	Survey::fillObjFromRanges( tkzs_, zIsTime(), zInFeet(), jsonobj );
 
 	if ( !comment_.isEmpty() )
-	    jsonobj->set( sKeyComments(), comment_ );
+	    jsonobj.set( sKeyComments(), comment_ );
 
-	writeSpecLines( nullptr, jsonobj );
+	writeSpecLines( nullptr, &jsonobj );
     }
     else
     {
@@ -1739,7 +1676,7 @@ bool SurveyInfo::write( const char* basedir, bool isjson ) const
 	fms += zIsTime() ? "T" : ( zInFeet() ? "F" : "D" );
 	astream.put( sKeyZRange(), fms );
 
-	writeSpecLines( &astream );
+	writeSpecLines( &astream, nullptr );
 	astream.newParagraph();
 	const char* ptr = (const char*)comment_;
 	if ( *ptr )
@@ -1780,11 +1717,11 @@ bool SurveyInfo::write( const char* basedir, bool isjson ) const
 
     fp.set( basedir );
     fp.add( disklocation_.dirName() );
-    savePars( fp.fullPath(), jsonobj );
+    savePars( fp.fullPath(), &jsonobj );
     saveLog( fp.fullPath() );
     if ( isjson )
     {
-	const uiRetVal ret = jsonobj->write( strm, true );
+	const uiRetVal ret = jsonobj.write( strm, true );
 	if ( !sfio.closeSuccess() || ret.isError() )
 	{
 	    BufferString msg( "Error closing survey info file:\n" );
@@ -1798,7 +1735,7 @@ bool SurveyInfo::write( const char* basedir, bool isjson ) const
 
 
 void SurveyInfo::writeSpecLines( ascostream* astream,
-						OD::JSON::Object* obj ) const
+				 OD::JSON::Object* obj ) const
 {
     if ( astream )
     {
@@ -1809,7 +1746,6 @@ void SurveyInfo::writeSpecLines( ascostream* astream,
 	Survey::fillObjWithDirTransform( b2c_, *obj );
 
     FileMultiString fms;
-    OD::JSON::Array setarr( true );
     TypeSet<BinID> bids;
     TypeSet<Coord> crds;
     for ( int idx=0; idx<3; idx++ )
@@ -1829,7 +1765,6 @@ void SurveyInfo::writeSpecLines( ascostream* astream,
 	    fms += set3coords_[idx].toString();
 	    astream->put( ky.buf(), fms.buf() );
 	}
-
     }
 
     if ( coordsystem_ )
