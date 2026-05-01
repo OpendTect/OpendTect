@@ -68,8 +68,8 @@ public:
 			{ return set_->validIdx(idx); }
     bool		isEmpty() const		{ return set_->isEmpty(); }
     void		setEmpty()		{ set_->setEmpty(); }
-    void		setFilePath(const FilePath&, idx_type idx);
-    FilePath		getFilePath(idx_type idx) const;
+    void		setFilePath(const FilePath&,idx_type);
+    FilePath		getFilePath(idx_type) const;
 
     OD::Set&		odSet()			{ return *set_; }
     const OD::Set&	odSet() const		{ return *set_; }
@@ -312,7 +312,7 @@ public:
 			mDeclJSONArraySetFns(float);
 			mDeclJSONArraySetFns(double);
 
-    Array&		set(const FilePath&,size_type);
+    Array&		set(const FilePath&,idx_type);
     Array&		add(Coord);
     Array&		add(Coord3);
     Array&		add(const TypeSet<Coord>&);
@@ -413,6 +413,7 @@ public:
     bool		get(const char*,uiStringSet&) const;
     bool		get(const char*,TypeSet<MultiID>&) const;
     bool		get(const char*,DBKeySet&) const;
+
     template <class T>
     bool		get(const char*,Interval<T>&) const;
     template <class T>
@@ -540,6 +541,8 @@ OD::JSON::Array& OD::JSON::Array::setVals( const T* vals, size_type sz )
 	    }
 	}
     }
+    else
+	valarr_ = nullptr;
 
     return *this;
 }
