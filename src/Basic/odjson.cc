@@ -13,6 +13,7 @@ ________________________________________________________________________
 #include "gason.h"
 #include "od_iostream.h"
 #include "posgeomid.h"
+#include "posidxpair.h"
 #include "stringbuilder.h"
 #include "uistrings.h"
 
@@ -1073,6 +1074,230 @@ OD::JSON::DataType OD::JSON::Array::dataType() const
 }
 
 
+bool OD::JSON::Array::get( ::IdxPair& pos ) const
+{
+    if ( size() < 2 || (!isData() && !isMixed()) )
+	return false;
+
+    pos.first = mCast(int,getIntValue(0));
+    pos.second = mCast(int,getIntValue(1));
+    return true;
+}
+
+
+bool OD::JSON::Array::get( Coord& crd ) const
+{
+    if ( size() < 2 || (!isData() && !isMixed()) )
+	return false;
+
+    crd.x_ = getDoubleValue(0);
+    crd.y_ = getDoubleValue(1);
+    return true;
+}
+
+
+bool OD::JSON::Array::get( Coord3& crd ) const
+{
+    if ( size() < 3 || (!isData() && !isMixed()) )
+	return false;
+
+    crd.x_ = getDoubleValue(0);
+    crd.y_ = getDoubleValue(1);
+    crd.z_ = getDoubleValue(2);
+    return true;
+}
+
+
+bool OD::JSON::Array::get( TypeSet<Coord>& coords ) const
+{
+    if ( valType() != SubArray )
+	return false;
+
+    for ( int idx=0; idx<size(); idx++ )
+    {
+	if ( !isArrayChild(idx) )
+	    return false;
+
+	Coord crd = Coord::udf();
+	if ( !array(idx).get(crd) )
+	    return false;
+
+	coords += crd;
+    }
+
+    return true;
+}
+
+
+bool OD::JSON::Array::get( TypeSet<Coord3>& coords ) const
+{
+    if ( valType() != SubArray )
+	return false;
+
+    for ( int idx=0; idx<size(); idx++ )
+    {
+	if ( !isArrayChild(idx) )
+	    return false;
+
+	Coord3 crd = Coord3::udf();
+	if ( !array(idx).get(crd) )
+	    return false;
+
+	coords += crd;
+    }
+
+    return true;
+}
+
+
+bool OD::JSON::Array::get( BufferStringSet& bss ) const
+{
+    if ( !isData() || dataType() != String )
+	return false;
+
+    bss = valArr().strings();
+    return true;
+}
+
+
+bool OD::JSON::Array::get( uiStringSet& uistrs ) const
+{
+    BufferStringSet strs;
+    if ( !get(strs) )
+	return false;
+
+    uistrs.setEmpty();
+    for ( const auto* str : strs )
+	uistrs.add( toUiString(str->buf()) );
+
+    return true;
+}
+
+
+bool OD::JSON::Array::get( TypeSet<MultiID>& mids ) const
+{
+    BufferStringSet strs;
+    if ( !get(strs) )
+	return false;
+
+    mids.setEmpty();
+    bool allok = true;
+    for ( const auto* str : strs )
+    {
+	MultiID mid;
+	if ( !mid.fromString(str->buf()) )
+	    allok = false;
+
+	mids.add( mid );
+    }
+
+    return allok;
+}
+
+
+bool OD::JSON::Array::get( DBKeySet& keys ) const
+{
+    BufferStringSet strs;
+    if ( !get(strs) )
+	return false;
+
+    keys.setEmpty();
+    bool allok = true;
+    for ( const auto* str : strs )
+    {
+	DBKey dbky;
+	if ( !dbky.fromString(str->buf()) )
+	    allok = false;
+
+	keys.add( dbky );
+    }
+
+    return allok;
+}
+
+
+bool OD::JSON::Array::get( TypeSet<FilePath>& fps ) const
+{
+    BufferStringSet strs;
+    if ( !get(strs) )
+	return false;
+
+    fps.setEmpty();
+    for ( const auto* str : strs )
+	fps += FilePath( str->buf() );
+
+    return true;
+}
+
+
+bool OD::JSON::Array::get( BoolTypeSet& arr ) const
+{
+    if ( !isData() && !isMixed() )
+	return false;
+
+    const int sz = size();
+    if ( !arr.setSize(sz) )
+	return false;
+
+    for ( int idx=0; idx<sz; idx++ )
+	arr[idx] = getBoolValue( idx );
+
+    return true;
+}
+
+
+OD::JSON::Array& OD::JSON::Array::add( Coord crd )
+{
+    if ( valType() != SubArray )
+	return *this;
+
+    auto* jsarr = new Array( Number );
+    jsarr->add( crd.x_ ).add( crd.y_ );
+    add( jsarr );
+    return *this;
+}
+
+
+OD::JSON::Array& OD::JSON::Array::add( Coord3 crd )
+{
+    if ( valType() != SubArray )
+	return *this;
+
+    auto* jsarr = new Array( Number );
+    jsarr->add( crd.x_ ).add( crd.y_ ).add( crd.z_ );
+    add( jsarr );
+    return *this;
+}
+
+
+OD::JSON::Array& OD::JSON::Array::add( const TypeSet<Coord>& coords )
+{
+    if ( valType() != SubArray )
+	return *this;
+
+    auto* jsarr = new Array( false );
+    for ( const auto& crd : coords )
+	jsarr->add( crd );
+
+    add( jsarr );
+    return *this;
+}
+
+
+OD::JSON::Array& OD::JSON::Array::add( const TypeSet<Coord3>& coords )
+{
+    if ( valType() != SubArray )
+	return *this;
+
+    auto* jsarr = new Array( false );
+    for ( const auto& crd : coords )
+	jsarr->add( crd );
+
+    add( jsarr );
+    return *this;
+}
+
+
 void OD::JSON::Array::addVS( ValueSet* vset )
 {
     if ( isData() )
@@ -1213,28 +1438,26 @@ OD::JSON::Array& OD::JSON::Array::add( const FilePath& fp )
 }
 
 
-template<class T>
-OD::JSON::Array& OD::JSON::Array::setVals( const TypeSet<T>& vals )
+OD::JSON::Array& OD::JSON::Array::set( const TypeSet<MultiID>& mids )
 {
-    setEmpty();
-    valtype_ = Data;
-    delete valarr_; valarr_ = new ValArr( Number );
-    ValueSet::setEmpty();
-    copy( valarr_->vals(), vals );
-    return *this;
+    BufferStringSet bss;
+    for ( const auto& mid : mids )
+	bss.add( mid.toString() );
+
+    return set( bss );
 }
 
 
-template<class T>
-OD::JSON::Array& OD::JSON::Array::setVals( const T* vals, size_type sz )
+OD::JSON::Array& OD::JSON::Array::set( const TypeSet<FilePath>& fps )
 {
-    setEmpty();
-    valtype_ = Data;
-    delete valarr_; valarr_ = new ValArr( Number );
-    ValueSet::setEmpty();
-    valarr_->vals().setSize( sz );
-    OD::memCopy( valarr_->vals().arr(), vals, sz*sizeof(T) );
-    return *this;
+    BufferStringSet fpstrs;
+    for ( const auto& fp : fps )
+    {
+	const BufferString fnm = getPathStr( fp );
+	fpstrs.add( fnm.buf() );
+    }
+
+    return set( fpstrs );
 }
 
 
@@ -1244,7 +1467,12 @@ OD::JSON::Array& OD::JSON::Array::setVals( const T* vals, size_type sz )
     OD::JSON::Array& OD::JSON::Array::set( const TypeSet<typ>& vals ) \
 	{ return setVals(vals); } \
     OD::JSON::Array& OD::JSON::Array::set( const typ* vals, size_type sz ) \
-	{ return setVals(vals,sz); }
+	{ return setVals(vals,sz); } \
+    OD::JSON::Array& OD::JSON::Array::add( const TypeSet<typ>& vals ) \
+	{ return addVals(vals); } \
+    OD::JSON::Array& OD::JSON::Array::add( const typ* vals, size_type sz ) \
+	{ return addVals(vals,sz); }
+
 
 mDefArraySetVals( od_int16 )
 mDefArraySetVals( od_uint16 )
@@ -1360,16 +1588,6 @@ OD::JSON::Array& OD::JSON::Array::set( const uiStringSet& vals )
     }
 
     return set( bss );
-}
-
-
-bool OD::JSON::Array::get( BufferStringSet& bss ) const
-{
-    if ( !isData() || dataType() != String )
-	return false;
-
-    bss = valArr().strings();
-    return true;
 }
 
 
@@ -1573,6 +1791,27 @@ MultiID OD::JSON::Object::getMultiID( const char* ky ) const
 }
 
 
+bool OD::JSON::Object::get( const char* ky, ::IdxPair& pos ) const
+{
+    const Array* jsarr = getArray( ky );
+    return jsarr ? jsarr->get( pos ) : false;
+}
+
+
+bool OD::JSON::Object::get( const char* ky, Coord& crd ) const
+{
+    const Array* jsarr = getArray( ky );
+    return jsarr ? jsarr->get( crd ) : false;
+}
+
+
+bool OD::JSON::Object::get( const char* ky, Coord3& crd ) const
+{
+    const Array* jsarr = getArray( ky );
+    return jsarr ? jsarr->get( crd ) : false;
+}
+
+
 bool OD::JSON::Object::getStrings( const char* ky, BufferStringSet& bss ) const
 {
     return get( ky, bss );
@@ -1583,6 +1822,34 @@ bool OD::JSON::Object::get( const char* ky, BufferStringSet& bss ) const
 {
     const Array* stringsarr = getArray( ky );
     return stringsarr ? stringsarr->get( bss ) : false;
+}
+
+
+bool OD::JSON::Object::get( const char* ky, uiStringSet& uistrs ) const
+{
+    const Array* stringsarr = getArray( ky );
+    return stringsarr ? stringsarr->get( uistrs ) : false;
+}
+
+
+bool OD::JSON::Object::get( const char* ky, TypeSet<MultiID>& mids ) const
+{
+    const Array* stringsarr = getArray( ky );
+    return stringsarr ? stringsarr->get( mids ) : false;
+}
+
+
+bool OD::JSON::Object::get( const char* ky, DBKeySet& dbkeys ) const
+{
+    const Array* stringsarr = getArray( ky );
+    return stringsarr ? stringsarr->get( dbkeys ) : false;
+}
+
+
+bool OD::JSON::Object::get( const char* ky, BoolTypeSet& arr ) const
+{
+    const Array* boolarr = getArray( ky );
+    return boolarr ? boolarr->get( arr ) : false;
 }
 
 
@@ -1669,11 +1936,101 @@ void OD::JSON::Object::set( const char* ky, const MultiID& id )
 }
 
 
+void OD::JSON::Object::set( const char* ky, const ::IdxPair& pos )
+{
+    auto* jsarr = new Array( Number );
+    jsarr->add( pos.first ).add( pos.second );
+    set( ky, jsarr );
+}
+
+
+void OD::JSON::Object::set( const char* ky, const Coord& crd )
+{
+    auto* jsarr = new Array( Number );
+    jsarr->add( crd.x_ ).add( crd.y_ );
+    set( ky, jsarr );
+}
+
+
+void OD::JSON::Object::set( const char* ky, const Coord3& crd )
+{
+    auto* jsarr = new Array( Number );
+    jsarr->add( crd.x_ ).add( crd.y_ ).add( crd.z_ );
+    set( ky, jsarr );
+}
+
+
+void OD::JSON::Object::set( const char* ky, const TypeSet<Coord>& coords )
+{
+    auto* jsarr = new Array( false );
+    for ( const auto& crd : coords )
+    {
+	Array* coordarr = jsarr->add( new Array(Number) );
+	coordarr->add( crd.x_ ).add( crd.y_ );
+    }
+
+    set( ky, jsarr );
+}
+
+
+void OD::JSON::Object::set( const char* ky, const TypeSet<Coord3>& coords )
+{
+    auto* jsarr = new Array( false );
+    for ( const auto& crd : coords )
+    {
+	Array* coordarr = jsarr->add( new Array(Number) );
+	coordarr->add( crd.x_ ).add( crd.y_ ).add( crd.z_ );
+    }
+
+    set( ky, jsarr );
+}
+
+
+void OD::JSON::Object::set( const char* ky, const BoolTypeSet& arr )
+{
+    auto* jsarr = new Array( Boolean );
+    jsarr->set( arr );
+    set( ky, jsarr );
+}
+
+
 void OD::JSON::Object::set( const char* ky, const uiString& str )
 {
     BufferString bs;
     str.fillUTF8String( bs );
     setVal( ky, bs.buf() );
+}
+
+
+void OD::JSON::Object::set( const char* ky, const BufferStringSet& bss )
+{
+    auto* jsarr = new Array( OD::JSON::String );
+    jsarr->set( bss );
+    set( ky, jsarr );
+}
+
+
+void OD::JSON::Object::set( const char* ky, const uiStringSet& uistrs )
+{
+    auto* jsarr = new Array( OD::JSON::String );
+    jsarr->set( uistrs );
+    set( ky, jsarr );
+}
+
+
+void OD::JSON::Object::set( const char* ky, const TypeSet<MultiID>& mids )
+{
+    auto* jsarr = new Array( OD::JSON::String );
+    jsarr->set( mids );
+    set( ky, jsarr );
+}
+
+
+void OD::JSON::Object::set( const char* ky, const DBKeySet& dbkys )
+{
+    auto* jsarr = new Array( OD::JSON::String );
+    jsarr->set( dbkys );
+    set( ky, jsarr );
 }
 
 

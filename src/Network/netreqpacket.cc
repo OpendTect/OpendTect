@@ -241,20 +241,19 @@ PtrMan<Network::PacketFiller> Network::RequestPacket::setPayload(
 					 const TypeSet<OD::DataRepType>& types )
 {
     auto* shapes = new OD::JSON::Array( false );
-    auto* dtypes = new OD::JSON::Array( OD::JSON::String );
     od_int64 totsz = 0;
+    BufferStringSet dtypes;
     for ( int idx=0; idx<infos.size(); idx++ )
     {
 	const ArrayNDInfo& info = *infos.get( idx );
 	const OD::DataRepType type = types[idx];
 	const DataCharacteristics dc( type );
 	totsz += info.getTotalSz() * dc.nrBytes();
-	auto* shape = shapes->add( new OD::JSON::Array(OD::JSON::Number) );
 	TypeSet<ArrayNDInfo::dim_idx_type> ndpos;
 	for ( ArrayNDInfo::nr_dims_type idim=0; idim<info.getNDim(); idim++ )
 	    ndpos += info.getSize( idim );
-	shape->set( ndpos );
-	dtypes->add( OD::PythonAccess::getDataTypeStr(type) );
+	shapes->add( ndpos );
+	dtypes.add( OD::PythonAccess::getDataTypeStr(type) );
     }
 
     OD::JSON::Object hdr = getDefaultJsonHeader( false, totsz ); //More size?
@@ -384,18 +383,25 @@ PtrMan<Network::PacketInterpreter> Network::RequestPacket::getPayload(
     uiRetVal uirv;
     OD::JSON::Object hdr;
     Network::PacketInterpreter* interpreter = readJsonHeader( hdr, uirv );
-    if ( !interpreter || !hdr.isPresent("array-shape") )
+    if ( !interpreter || !hdr.isPresent("array-shape") ||
+	 !hdr.isPresent("content-encoding") )
 	return nullptr;
 
-    const auto shapes = hdr.getArray("array-shape");
-    const auto dtypes = hdr.getArray( "content-encoding" );
+    BufferStringSet dtypes;
+    const OD::JSON::Array* shapes = hdr.getArray( "array-shape" );
+    if ( !shapes || !hdr.get("content-encoding",dtypes) ||
+	 dtypes.size() != shapes->size() )
+	return nullptr;
+
     for ( int idx=0; idx<shapes->size(); idx++ )
     {
-	const TypeSet<double>& shape = shapes->array(idx).valArr().vals();
+	TypeSet<int> shape;
+	if ( !shapes->array(idx).get(shape) )
+	    return nullptr;
+
 	ArrayNDInfo* info = ArrayNDInfoImpl::create( shape.arr(), shape.size());
 	infos += info;
-	types += OD::PythonAccess::getDataType(
-					dtypes->valArr().strings().get(idx) );
+	types += OD::PythonAccess::getDataType( dtypes.get(idx).buf() );
     }
 
     return interpreter;

@@ -41,7 +41,7 @@ static bool testParseJSON()
 {
     BufferStringSet bss( jsonstrs );
     int idx = 0;
-    for ( auto strptr : bss )
+    for ( auto* strptr : bss )
     {
 	BufferString& str = *strptr;
 	if ( idx )
@@ -51,7 +51,7 @@ static bool testParseJSON()
 	ValueSet* tree = ValueSet::getFromJSon( str.getCStr(), str.size(),uirv);
 	const bool isok = uirv.isOK();
 	if ( !isok )
-	    logStream() << "\tmsg=" << toString(uirv) << od_endl;
+	    errStream() << "\tmsg=" << uirv << od_endl;
 
 	if ( idx )
 	    mRunStandardTest( !isok, "Parse bad string" )
@@ -120,9 +120,9 @@ static bool testUseJSON( bool created )
     mRunStandardTest( point3.valType()==OD::JSON::ValueSet::Data,
 			       "array type" );
 
-    const auto& val_ts = point3.valArr().vals();
-    const Coord3 coord( val_ts[0], val_ts[1], val_ts[2] );
-    mRunStandardTest( coord==Coord3(8,53.7419173548,0), "coordinate value" );
+    Coord3 coord;
+    mRunStandardTest( point3.get( coord ) &&
+		      coord==Coord3(8.,53.7419173548,0.), "coordinate value" );
 
     return true;
 }
@@ -145,16 +145,6 @@ static Array* createFeatCoordArray( Array* featarr,
 }
 
 
-static void addCoords( const TypeSet<Coord3>& coords, Array& poly )
-{
-    for ( const auto& coord : coords )
-    {
-	Array* coordarr = poly.add( new Array(Number) );
-        coordarr->add( coord.x_ ).add( coord.y_ ).add( coord.z_ );
-    }
-}
-
-
 static bool testCreateJSON()
 {
     Object topobj;
@@ -171,25 +161,16 @@ static bool testCreateJSON()
     Array* featarr = topobj.set( "features", new Array(true) );
     Array* polyarr = createFeatCoordArray( featarr, "Z3NAM1982A", "F3_Demo_d30",
 					   "Polygon" );
-    Array* poly = polyarr->add( new Array(false) );
-
-    // Once via TypeSet<double> for test
-    Array* coord = poly->add( new Array(Number) );
-    TypeSet<NumberType> cvals;
-    cvals += 7; cvals += 55.0554844553; cvals += 0.0;
-    coord->set( cvals );
-
-    // Once via TypeSet for test
     TypeSet<Coord3> coords;
+    coords += Coord3( 7, 55.0554844553, 0 );
     coords += Coord3( 6, 55.0556671475, 0 );
     coords += Coord3( 6, 54.9236026526, 0 );
     coords += Coord3( 7, 54.9229699809, 0 );
     coords += Coord3( 7, 55.0554844553, 0 );
-    addCoords( coords, *poly );
+    polyarr->add( coords );
 
     polyarr = createFeatCoordArray( featarr, "Z3GDF2010A", "MagellanesBasin",
 					   "Polygon" );
-    poly = polyarr->add( new Array(false) );
     coords.setEmpty();
     coords += Coord3( 9, 53.8820024932, 0 );
     coords += Coord3( 7, 53.877063624,  0 );
@@ -197,7 +178,7 @@ static bool testCreateJSON()
     coords += Coord3( 8, 53.7419173548, 0 );
     coords += Coord3( 9, 53.7461123222, 0 );
     coords += Coord3( 9, 53.8820024932, 0 );
-    addCoords( coords, *poly );
+    polyarr->add( coords );
 
     delete jsontree;
     jsontree = topobj.clone();
@@ -366,9 +347,8 @@ bool testArray2D()
 			       "Parsed an object string into a JSON::Object",
 			       uirv.getText() );
 
-
     Array2DImpl<int> arrin_int(1,1);
-    if ( jsobj_in.get("array2d_int", arrin_int) )
+    if ( jsobj_in.get("array2d_int",arrin_int) )
     {
 	const int szrows = arrin_int.getSize(0);
 	const int szcols = arrin_int.getSize(1);
@@ -515,63 +495,63 @@ static bool testDataType()
     mRunStandardTest( jsobj.valueType(idx) == ValueSet::Data &&
 		      jsobj.isPlainData(idx) &&
 		      jsobj.dType(idx++) == Boolean,
-		      "Boolean json data object - true" );
+		      "Boolean json data object - true" )
     mRunStandardTest( jsobj.valueType(idx) == ValueSet::Data &&
 		      jsobj.isPlainData(idx) &&
 		      jsobj.dType(idx++) == Boolean,
-		      "Boolean json data object - false" );
+		      "Boolean json data object - false" )
     mRunStandardTest( jsobj.valueType(idx) == ValueSet::Data &&
 		      jsobj.isPlainData(idx) &&
 		      jsobj.dType(idx++) == Number,
-		      "Number json data object - double" );
+		      "Number json data object - double" )
     mRunStandardTest( jsobj.valueType(idx) == ValueSet::Data &&
 		      jsobj.isPlainData(idx) &&
 		      jsobj.dType(idx++) == Number,
-		      "Number json data object - integer" );
+		      "Number json data object - integer" )
     mRunStandardTest( jsobj.valueType(idx) == ValueSet::Data &&
 		      jsobj.isPlainData(idx) &&
 		      jsobj.dType(idx++) == String,
-		      "String json data object - string" );
+		      "String json data object - string" )
     mRunStandardTest( jsobj.valueType(idx) == ValueSet::SubObject &&
 		      jsobj.isObjectChild(idx++) && !jssubobj->isArray(),
-		      "Object json data object - sub object" );
+		      "Object json data object - sub object" )
     mRunStandardTest( jsobj.valueType(idx++) == ValueSet::SubArray &&
 		      jsobj.isArrayChild(idx) && jsobjarr->isArray(),
-		      "Array json data object - sub array of objects" );
+		      "Array json data object - sub array of objects" )
     mRunStandardTest( jsobj.valueType(idx++) == ValueSet::SubArray &&
 		      jsobj.isArrayChild(idx) && jsarrarr->isArray(),
-		      "Array json data object - sub array of arrays" );
+		      "Array json data object - sub array of arrays" )
     mRunStandardTest( jsobj.valueType(idx++) == ValueSet::SubArray &&
 		      jsboolarr->isArray() &&
 		      jsboolarr->dataType() == DataType::Boolean,
-		      "Array json data object - sub array of booleans" );
+		      "Array json data object - sub array of booleans" )
     mRunStandardTest( jsobj.valueType(idx++) == ValueSet::SubArray &&
 		      jsnumarr->isArray() &&
 		      jsnumarr->dataType() == DataType::Number,
-		      "Array json data object - sub array of numbers" );
+		      "Array json data object - sub array of numbers" )
     mRunStandardTest( jsobj.valueType(idx++) == ValueSet::SubArray &&
 		      jsstringsarr->isArray() &&
 		      jsstringsarr->dataType() == DataType::String,
-		      "Array json data object - sub array of strings" );
+		      "Array json data object - sub array of strings" )
     mRunStandardTest( jsobj.valueType(idx++) == ValueSet::SubArray &&
 		      jsmixedarr->isArray() &&
 		      jsmixedarr->dataType() == DataType::Mixed,
-		      "Array json data object - sub array of mixed type" );
+		      "Array json data object - sub array of mixed type" )
 
     jsmixedarr->add( true ).add( false ).add( 3.142 ).add( 50 )
 	       .add( "Hello again" );
 
     idx = 0;
     mRunStandardTest( jsmixedarr->dType(idx++) == DataType::Boolean,
-		      "Boolean data type is mixed array - true" );
+		      "Boolean data type is mixed array - true" )
     mRunStandardTest( jsmixedarr->dType(idx++) == DataType::Boolean,
-		      "Boolean data type is mixed array - false" );
+		      "Boolean data type is mixed array - false" )
     mRunStandardTest( jsmixedarr->dType(idx++) == DataType::Number,
-		      "Boolean data type is mixed array - double" );
+		      "Boolean data type is mixed array - double" )
     mRunStandardTest( jsmixedarr->dType(idx++) == DataType::Number,
-		      "Boolean data type is mixed array - integer" );
+		      "Boolean data type is mixed array - integer" )
     mRunStandardTest( jsmixedarr->dType(idx++) == DataType::String,
-		      "Boolean data type is mixed array - string" );
+		      "Boolean data type is mixed array - string" )
 
     return true;
 }
