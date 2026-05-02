@@ -13,6 +13,7 @@ set( OpendTect_VERSION_MINOR @OpendTect_VERSION_MINOR@ )
 set( OpendTect_VERSION_PATCH @OpendTect_VERSION_PATCH@ )
 set( OpendTect_FULL_VERSION "@OpendTect_FULL_VERSION@" )
 set( OpendTect_INST_DIR "@OpendTect_INST_DIR@" )
+set( OpendTect_GIT_BRANCH "@MAIN_GIT_BRANCH@" )
 
 if ( IS_DIRECTORY "@QT_DIR@" AND NOT DEFINED QT_ROOT AND NOT DEFINED QT_DIR )
     set( QT_DIR "@QT_DIR@" )
