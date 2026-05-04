@@ -1,0 +1,33 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "CMake Debug",
+            "type": "@VSCODE_DEBUGGER_TYPE@",
+            "request": "launch",
+            "program": "${command:cmake.launchTargetPath}",
+            "args": [],
+            "externalConsole": false,
+            "stopAtEntry": false,
+            "cwd": "${command:cmake.launchTargetDirectory}",
+            "MIMode": "@VSCODE_MIMODE@",
+            "miDebuggerPath": "@VSCODE_MIPATH@",
+            "setupCommands": @VSCODE_SETUPCOMMANDS@,
+            "environment": @VSCODE_DEBUGENV@
+        },
+        {
+            "name": "CMake Debug in release mode",
+            "type": "@VSCODE_DEBUGGER_TYPE@",
+            "request": "launch",
+            "program": "${command:cmake.launchTargetPath}",
+            "args": [],
+            "externalConsole": false,
+            "stopAtEntry": false,
+            "cwd": "${command:cmake.launchTargetDirectory}",
+            "MIMode": "@VSCODE_MIMODE@",
+            "miDebuggerPath": "@VSCODE_MIPATH@",
+            "setupCommands": @VSCODE_SETUPCOMMANDS@,
+            "environment": @VSCODE_RELENV@
+        }
+    ]
+}

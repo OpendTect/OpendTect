@@ -126,7 +126,9 @@ else() # windows
     set ( OD_PLFSUBDIR "win64" )
 
     #Create Launchers on Windows
-    set ( OD_CREATE_LAUNCHERS TRUE )
+    if ( NOT OD_CREATE_VSCODE_LAUNCHERS )
+	set ( OD_CREATE_LAUNCHERS TRUE )
+    endif()
 
     #Setting Stack Reserve size for Executables only
     if ( NOT DEFINED STACK_RESERVE_SIZE )
