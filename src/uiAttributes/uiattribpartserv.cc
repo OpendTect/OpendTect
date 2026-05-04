@@ -877,7 +877,6 @@ ConstRefMan<RegularSeisDataPack> uiAttribPartServer::create2DOutputRM(
 		TypeSet<int> selcomps;
 		BufferStringSet complist;
 		SeisIOObjInfo::getCompNames( mid, complist );
-		const int nrcomps = complist.size();
 
 		const IOPar& pars = ioobj->pars();
 		bool issteering = false;

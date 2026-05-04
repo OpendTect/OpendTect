@@ -590,6 +590,9 @@ int mTestMainFnName( int argc, char** argv )
 {
     mInitTestProg();
 
+    eSI().setDepthInFeet( false );
+    eSI().setZUnit( true, false );
+
     if ( !testSimpleFormula() ||
 	 !testRepeatingVar() ||
 	 !testCastagna() ||
