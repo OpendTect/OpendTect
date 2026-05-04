@@ -157,28 +157,28 @@ bool FaultStickPainter::addPolyLine()
 			const Coord3 stkednor =
 			    emfss->geometry().getEditPlaneNormal(rc.row());
 			const bool equinormal =
-                                mIsEqual(nzednor.x_,stkednor.x_,.001) &&
-                                mIsEqual(nzednor.y_,stkednor.y_,.001) &&
-                                mIsEqual(nzednor.z_,stkednor.z_,.00001);
+				    mIsEqual(nzednor.x_,stkednor.x_,.001) &&
+				    mIsEqual(nzednor.y_,stkednor.y_,.001) &&
+				    mIsEqual(nzednor.z_,stkednor.z_,.00001);
 
 			if ( !equinormal ) continue;
 
 			const int posidx =
 			    Geometry::RandomLine::getNearestPathPosIdx(
 				    knots, *path_, trckey );
-                        const double z = zat ? zat->transform(pos) : pos.z_;
+			const double z = zat ? zat->transform(pos) : pos.z_;
 			stickauxdata->poly_ += FlatView::Point(
 					flatposdata_->position(true,posidx),z);
 		    }
 		}
 		else
 		{
-                    for ( rc.col()=colrg.start_;rc.col()<=colrg.stop_;
-                          rc.col()+=colrg.step_ )
+		    for ( rc.col()=colrg.start_;rc.col()<=colrg.stop_;
+			  rc.col()+=colrg.step_ )
 		    {
 			const Coord3 pos = fss->getKnot( rc );
 			float dist;
-                        const double z = zat ? zat->transform(pos) : pos.z_;
+			const double z = zat ? zat->transform(pos) : pos.z_;
 			if ( getNearestDistance(pos,dist) )
 			    stickauxdata->poly_ += FlatView::Point(dist,z);
 		    }
@@ -199,9 +199,9 @@ bool FaultStickPainter::addPolyLine()
 			emfss->geometry().getEditPlaneNormal( rc.row() );
 
 		const bool equinormal =
-                        mIsEqual(nzednor.x_,stkednor.x_,.001) &&
-                        mIsEqual(nzednor.y_,stkednor.y_,.001) &&
-                        mIsEqual(nzednor.z_,stkednor.z_,.00001);
+			mIsEqual(nzednor.x_,stkednor.x_,.001) &&
+			mIsEqual(nzednor.y_,stkednor.y_,.001) &&
+			mIsEqual(nzednor.z_,stkednor.z_,.00001);
 
 		if ( !equinormal ) continue;
 
@@ -212,16 +212,16 @@ bool FaultStickPainter::addPolyLine()
 		    if ( tkzs_.defaultDir() == TrcKeyZSampling::Inl )
 		    {
 			extrbid1.inl() = extrbid2.inl() =
-                                tkzs_.hsamp_.inlRange().start_;
-                        extrbid1.crl() = tkzs_.hsamp_.crlRange().start_;
-                        extrbid2.crl() = tkzs_.hsamp_.crlRange().stop_;
+				tkzs_.hsamp_.inlRange().start_;
+			extrbid1.crl() = tkzs_.hsamp_.crlRange().start_;
+			extrbid2.crl() = tkzs_.hsamp_.crlRange().stop_;
 		    }
 		    else if ( tkzs_.defaultDir() == TrcKeyZSampling::Crl )
 		    {
-                        extrbid1.inl() = tkzs_.hsamp_.inlRange().start_;
-                        extrbid2.inl() = tkzs_.hsamp_.inlRange().stop_;
+			extrbid1.inl() = tkzs_.hsamp_.inlRange().start_;
+			extrbid2.inl() = tkzs_.hsamp_.inlRange().stop_;
 			extrbid1.crl() = extrbid2.crl() =
-                                tkzs_.hsamp_.crlRange().start_;
+				tkzs_.hsamp_.crlRange().start_;
 		    }
 
 		    Coord extrcoord1, extrcoord2;
@@ -229,7 +229,7 @@ bool FaultStickPainter::addPolyLine()
 		    extrcoord2 = SI().transform( extrbid2 );
 
                     for ( rc.col()=colrg.start_;rc.col()<=colrg.stop_;
-                          rc.col()+=colrg.step_ )
+			rc.col()+=colrg.step_ )
 		    {
 			const Coord3& pos = fss->getKnot( rc );
 			BinID knotbinid = SI().transform( pos );
@@ -241,23 +241,23 @@ bool FaultStickPainter::addPolyLine()
 			{
 			    const Coord bidf =
 				bid2crd.transformBackNoSnap( pos.coord() );
-                            const double z = zat ? zat->transform(pos) : pos.z_;
+			    const double z = zat ? zat->transform(pos) : pos.z_;
 			    if ( tkzs_.defaultDir() == TrcKeyZSampling::Inl )
 				stickauxdata->poly_ += FlatView::Point(
-                                                           bidf.y_, z );
+							   bidf.y_, z );
 			    else if ( tkzs_.defaultDir()==TrcKeyZSampling::Crl )
 				stickauxdata->poly_ += FlatView::Point(
-                                                           bidf.x_, z );
+							   bidf.x_, z );
 			}
 		    }
 		}
 		else
 		{
-                    for ( rc.col()=colrg.start_; rc.col()<=colrg.stop_;
-                          rc.col()+=colrg.step_ )
+		    for ( rc.col()=colrg.start_; rc.col()<=colrg.stop_;
+			  rc.col()+=colrg.step_ )
 		    {
 			const Coord3 pos = fss->getKnot( rc );
-                        if ( !mIsEqual(pos.z_,tkzs_.zsamp_.start_,.0001) )
+			if ( !mIsEqual(pos.z_,tkzs_.zsamp_.start_,.0001) )
 			    break;
 
 			const Coord bidf =
