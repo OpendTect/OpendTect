@@ -127,6 +127,7 @@ CTestCustom.cmake
 qtcsettings.cmake
 .qt/*
 .qtc/*
+.qtcreator/*
 .cmake/*
 
 
