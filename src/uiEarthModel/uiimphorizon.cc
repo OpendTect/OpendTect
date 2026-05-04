@@ -528,8 +528,8 @@ bool uiImportHorizon::doImport()
 	return false;
 
     exec = nullptr;
-    if ( saveButtonChecked() )
-	horizon.setNoDelete( true );
+
+    horizon->ref();
 
     return true;
 }
@@ -543,25 +543,37 @@ bool uiImportHorizon::acceptOK( CallBacker* )
     if ( !doImport() )
 	return false;
 
+    outputfld_->reset();
+    const IOObj* ioobj = outputfld_->ioobj( true );
+    if ( !ioobj )
+	return false;
+
+    EM::EMManager& em = EM::EMM();
+    EM::ObjectID objid = em.getObjectID( ioobj->key() );
+    EM::EMObject* emobj = em.getObject( objid );
+    if ( !emobj ) // Count is 1
+	mErrRet( tr("Cannot find horizon after import") );
+
+    mDynamicCastGet( EM::Horizon3D*, horizon, emobj )
+    if ( !horizon )
+	mErrRet( tr("Cannot find horizon after import") );
+
     if ( isgeom_ )
     {
-	const IOObj* ioobj = outputfld_->ioobj();
-	if ( ioobj )
-	{
-	    EM::EMManager& em = EM::EMM();
-	    EM::ObjectID objid = em.getObjectID( ioobj->key() );
-	    mDynamicCastGet(EM::Horizon3D*,horizon,em.getObject(objid))
-	    const ZDomain::Info& info = horizon ? horizon->zDomain() :
-								zDomain();
-	    info.fillPar( ioobj->pars() );
-	    ioobj->pars().update( sKey::CrFrom(), inpfld_->fileName() );
-	    ioobj->updateCreationPars();
-	    IOM().commitChanges( *ioobj );
-	}
+	const ZDomain::Info& info = horizon ? horizon->zDomain()
+							: zDomain();
+	info.fillPar( ioobj->pars() );
+	ioobj->pars().update( sKey::CrFrom(), inpfld_->fileName() );
+	ioobj->updateCreationPars();
+	IOM().commitChanges( *ioobj );
     }
 
     if ( saveButtonChecked() )
-	importReady.trigger();
+    {
+	importReady.trigger(); // Count is 2
+    }
+
+    emobj->unRef(); // Here, Importer stops having a share of the refobj.
 
     uiString msg = tr("3D Horizon successfully imported."
 		      "\n\nDo you want to import more 3D Horizons?");
@@ -710,7 +722,6 @@ EM::Horizon3D* uiImportHorizon::createHor() const
     horizon->setMultiID( mid );
     horizon->setStratLevelID( stratlvlfld_->getID() );
     horizon->setZDomain( zDomain() );
-    horizon->ref();
     return horizon;
 }
 
