@@ -298,7 +298,6 @@ bool uiImportFault::handleLMKAscii()
 
 bool uiImportFault::handleAscii()
 {
-
     RefMan<EM::Fault> fault = createFault();
     if ( !fault )
 	mErrRet( uiStrings::phrCannotCreate(isfss_ ?
@@ -311,7 +310,7 @@ bool uiImportFault::handleAscii()
 
     od_istream strm( infld_->fileName() );
     if ( !strm.isOK() )
-	mErrRet( uiStrings::sCantOpenInpFile() )
+	mErrRet( strm.errMsg() )
 
     mDynamicCastGet(EM::Fault3D*,fault3d,fault.ptr())
 
@@ -327,20 +326,22 @@ bool uiImportFault::handleAscii()
     if ( !isexec )
 	mErrRet( uiStrings::phrCannotSave(tp) );
 
-    fault->convertZValues( fault->surveyDisplayUnit(), true );
-
-    if ( fault->zDomain().isDepth() )
+    if ( saveButtonChecked() )
     {
-	const auto& zdom = ZDomain::Info::getFrom(
+	fault->convertZValues( fault->surveyDisplayUnit(), true );
+
+	if ( fault->zDomain().isDepth() )
+	{
+	    const auto& zdom = ZDomain::Info::getFrom(
 				    fault->zDomain().key(),
 				    fault->surveyDisplayUnit()->getLabel() );
-	fault->setZDomain( zdom );
-    }
+	    fault->setZDomain( zdom );
+	}
 
-    fault->resetChangedFlag();
+	fault->resetChangedFlag();
 
-    if ( saveButtonChecked() )
 	importReady.trigger();
+    }
 
     uiString msg = tr("%1 successfully imported."
 		      "\n\nDo you want to import more %2?")

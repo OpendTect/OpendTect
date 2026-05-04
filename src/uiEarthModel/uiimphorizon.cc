@@ -36,7 +36,6 @@ ________________________________________________________________________
 #include "binidvalset.h"
 #include "ctxtioobj.h"
 #include "emhorizonascio.h"
-#include "emhorizon3d.h"
 #include "emioobjinfo.h"
 #include "emmanager.h"
 #include "emsurfaceauxdata.h"
@@ -454,8 +453,8 @@ void uiImportHorizon::stratLvlChg( CallBacker* )
 	colbut_->setColor( col );
 }
 
-#define mErrRet(s) { uiMSG().error(s); return 0; }
-bool uiImportHorizon::doImport()
+#define mErrAct(s, action) { uiMSG().error(s); action; }
+RefMan<EM::Horizon3D> uiImportHorizon::doImport()
 {
     BufferStringSet attrnms;
     attrlistfld_->getChosen( attrnms );
@@ -467,39 +466,39 @@ bool uiImportHorizon::doImport()
     }
 
     if ( attrnms.isEmpty() )
-	mErrRet( tr("No Attributes Selected") );
+	mErrAct( tr( "No Attributes Selected" ), return nullptr )
 
     RefMan<EM::Horizon3D> horizon = isgeom_ ? createHor() : loadHor();
     if ( !horizon )
-	return false;
+	return nullptr;
 
     if ( !scanner_ && !doScan() )
-	return false;
+	return nullptr;
 
     if ( scanner_->nrPositions() == 0 )
     {
 	const uiString msg( tr("No valid positions found\n"
 			"Please re-examine input file and format definition") );
-	mErrRet( msg );
+	mErrAct( msg, return nullptr )
     }
 
     ManagedObjectSet<BinIDValueSet> sections;
     deepCopy( sections, scanner_->getSections() );
 
     if ( sections.isEmpty() )
-	mErrRet( tr("Nothing to import") );
+	mErrAct( tr("Nothing to import"), return nullptr )
 
     const bool dofill = filludffld_ && filludffld_->getBoolValue();
     if ( dofill )
     {
 	if ( !interpol_ )
-	    mErrRet( tr("No interpolation selected") );
+	    mErrAct( tr("No interpolation selected"), return nullptr )
 	fillUdfs( sections );
     }
 
     const TrcKeySampling hs = subselfld_->envelope().hsamp_;
     if ( hs.lineRange().step_==0 || hs.trcRange().step_==0 )
-	mErrRet( tr("Cannot have '0' as a step value") )
+	mErrAct( tr("Cannot have '0' as a step value"), return nullptr )
 
     ExecutorGroup importer( "Importing horizon" );
     importer.setNrDoneText( tr("Nr positions done") );
@@ -517,7 +516,7 @@ bool uiImportHorizon::doImport()
     uiTaskRunner taskrunner( this );
     const bool success = TaskRunner::execute( &taskrunner, importer );
     if ( !success )
-	mErrRet(tr("Cannot import horizon"))
+	mErrAct( tr("Cannot import horizon") , return nullptr )
 
     horizon->setZDomain( zDomain() );
     PtrMan<Executor> exec;
@@ -530,34 +529,30 @@ bool uiImportHorizon::doImport()
 	exec = horizon->auxdata.auxDataSaver( -1, true );
 
     if ( !exec || !TaskRunner::execute(&taskrunner,*exec) )
-	return false;
+	return nullptr;
 
     exec = nullptr;
-    if ( saveButtonChecked() )
-	horizon.setNoDelete( true );
 
-    return true;
+    return horizon;
 }
 
-
+#define mErrRet(s) { uiMSG().error(s); return false; }
 bool uiImportHorizon::acceptOK( CallBacker* )
 {
     if ( !checkInpFlds() )
 	return false;
 
-    if ( !doImport() )
+    RefMan<EM::Horizon3D> horizon = doImport();
+    if ( !horizon )
+	mErrRet( tr("Cannot find horizon after import") )
+
+    outputfld_->reset();
+    const IOObj* ioobj = outputfld_->ioobj( true );
+    if ( !ioobj )
 	return false;
 
     if ( isgeom_ )
     {
-	outputfld_->reset();
-	const IOObj* ioobj = outputfld_->ioobj();
-	if ( !ioobj )
-	    return false;
-
-	EM::EMManager& em = EM::EMM();
-	EM::ObjectID objid = em.getObjectID( ioobj->key() );
-	mDynamicCastGet(EM::Horizon3D*,horizon,em.getObject(objid))
 	const ZDomain::Info& info = horizon ? horizon->zDomain()
 					    : zDomain();
 	info.fillPar( ioobj->pars() );
@@ -567,7 +562,22 @@ bool uiImportHorizon::acceptOK( CallBacker* )
     }
 
     if ( saveButtonChecked() )
+    {
+
+	horizon->convertZValues( horizon->surveyDisplayUnit(), true );
+
+	if ( horizon->zDomain().isDepth() )
+	{
+	    const auto& zdom = ZDomain::Info::getFrom(
+			       horizon->zDomain().key(),
+			       horizon->surveyDisplayUnit()->getLabel() );
+	    horizon->setZDomain( zdom );
+	}
+
+	horizon->resetChangedFlag();
+
 	importReady.trigger();
+    }
 
     const uiString msg = tr("3D Horizon successfully imported."
 			    "\n\nDo you want to import more 3D Horizons?");
@@ -700,7 +710,7 @@ bool uiImportHorizon::fillUdfs( ObjectSet<BinIDValueSet>& sections )
 }
 
 
-EM::Horizon3D* uiImportHorizon::createHor() const
+RefMan<EM::Horizon3D> uiImportHorizon::createHor() const
 {
     const char* horizonnm = outputfld_->getInput();
     EM::EMManager& em = EM::EMM();
@@ -709,40 +719,40 @@ EM::Horizon3D* uiImportHorizon::createHor() const
     if ( !objid.isValid() )
 	objid = em.createObject( EM::Horizon3D::typeStr(), horizonnm );
 
-    mDynamicCastGet(EM::Horizon3D*,horizon,em.getObject(objid))
-    if ( !horizon )
-	mErrRet( uiStrings::sCantCreateHor() );
+    mDynamicCastGet( EM::Horizon3D*,horizon,em.getObject(objid) )
+	if ( !horizon )
+	    mErrAct( uiStrings::sCantCreateHor(), return nullptr )
 
-    horizon->change.disable();
+	    horizon->change.disable();
     horizon->setMultiID( mid );
     horizon->setStratLevelID( stratlvlfld_->getID() );
     horizon->setZDomain( zDomain() );
-    horizon->ref();
     return horizon;
 }
 
 
-EM::Horizon3D* uiImportHorizon::loadHor()
+RefMan<EM::Horizon3D> uiImportHorizon::loadHor()
 {
     EM::EMManager& em = EM::EMM();
     EM::EMObject* emobj = em.createTempObject( EM::Horizon3D::typeStr() );
     emobj->setMultiID( outputfld_->key(true) );
     Executor* loader = emobj->loader();
     if ( !loader )
-	mErrRet( uiStrings::sCantReadHor());
+	mErrAct( uiStrings::sCantReadHor(), return nullptr )
 
-    uiTaskRunner taskrunner( this );
+	uiTaskRunner taskrunner( this );
     if ( !TaskRunner::execute( &taskrunner, *loader ) )
 	return nullptr;
 
     mDynamicCastGet(EM::Horizon3D*,horizon,emobj)
-    if ( !horizon )
-	mErrRet( tr("Error loading horizon"));
+	if ( !horizon )
+	    mErrAct( tr("Error loading horizon"), return nullptr )
 
-    horizon->ref();
+	    horizon->ref();
     delete loader;
     return horizon;
 }
+
 
 
 // uiImpHorFromZMap
@@ -821,7 +831,7 @@ EM::Horizon3D* uiImpHorFromZMap::createHor() const
 
     mDynamicCastGet(EM::Horizon3D*,horizon,em.getObject(objid))
     if ( !horizon )
-	mErrRet( uiStrings::sCantCreateHor() );
+	mErrAct( uiStrings::sCantCreateHor(), return nullptr )
 
     horizon->change.disable();
     horizon->setMultiID( mid );

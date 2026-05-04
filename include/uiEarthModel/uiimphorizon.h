@@ -11,6 +11,8 @@ ________________________________________________________________________
 #include "uiearthmodelmod.h"
 #include "uidialog.h"
 
+#include "emhorizon3d.h"
+
 class Array2DInterpol;
 class BinIDValueSet;
 class BufferStringSet;
@@ -29,7 +31,6 @@ class uiStratLevelSel;
 class uiTableImpDataSel;
 class uiUnitSel;
 namespace Coords { class uiCoordSystemSel; }
-namespace EM { class Horizon3D; }
 namespace Table { class FormatDesc; }
 namespace ZDomain { class Info; }
 
@@ -76,10 +77,12 @@ protected:
     bool		getFileNames(BufferStringSet&) const;
     bool		checkInpFlds();
     bool		doScan();
-    bool		doImport();
     bool		fillUdfs(ObjectSet<BinIDValueSet>&);
-    EM::Horizon3D*	createHor() const;
-    EM::Horizon3D*	loadHor();
+
+    RefMan<EM::Horizon3D>	doImport();
+    RefMan<EM::Horizon3D>	createHor() const;
+    RefMan<EM::Horizon3D>	loadHor();
+
 
     Table::FormatDesc&	fd_;
     HorizonScanner*	scanner_			= nullptr;
