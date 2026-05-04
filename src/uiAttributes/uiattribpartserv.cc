@@ -1308,7 +1308,7 @@ RefMan<RandomSeisDataPack> uiAttribPartServer::createRdmTrcsOutputRM(
 						const Interval<float>& zrg,
 						const RandomLineID& rdlid )
 {
-    RefMan<Geometry::RandomLine> rdmline = Geometry::RLM().get( rdlid );
+    const Geometry::RandomLine* rdmline = Geometry::RLM().get( rdlid );
     if ( !rdmline )
 	return nullptr;
 
@@ -1368,7 +1368,9 @@ RefMan<RandomSeisDataPack> uiAttribPartServer::createRdmTrcsOutputRM(
 	{
 	    const int trcidx = output.find( trckeys[idy].position() );
 	    const SeisTrc* trc = trcidx<0 ? nullptr : output.get( trcidx );
-	    if ( !trc ) continue;
+	    if ( !trc )
+		continue;
+
 	    for ( int idz=0; idz<newpack->data(idx).info().getSize(2);idz++)
 		newpack->data(idx).set( 0, idy, idz, trc->get(idz,idx) );
 	}

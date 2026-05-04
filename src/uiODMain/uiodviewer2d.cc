@@ -1052,10 +1052,15 @@ uiString uiODViewer2D::getInfoTitle() const
     uiString info = toUiString("%1: %2");
     if ( rdmlineid_.isValid() )
     {
-	const Geometry::RandomLine* rdmline =
-			Geometry::RLM().get( rdmlineid_ );
+	const Geometry::RandomLine* rdmline = Geometry::RLM().get( rdmlineid_ );
+	info.arg( uiStrings::sRandomLine() );
 	if ( rdmline )
-	    info.arg( uiStrings::sRandomLine() ).arg( rdmline->name() );
+	{
+	    info.arg( rdmline->name().isEmpty() ? OD::String::empty()
+						: rdmline->name() );
+	}
+	else
+	    info.arg( uiStrings::sEmptyString() );
     }
     else if ( tkzs_.is2D() )
     {
