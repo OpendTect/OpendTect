@@ -874,7 +874,27 @@ ConstRefMan<RegularSeisDataPack> uiAttribPartServer::create2DOutputRM(
 	    ConstPtrMan<IOObj> ioobj = IOM().get( mid );
 	    if ( ioobj )
 	    {
-		Seis::SequentialReader rdr( *ioobj, &tkzs );
+		TypeSet<int> selcomps;
+		BufferStringSet complist;
+		SeisIOObjInfo::getCompNames( mid, complist );
+		const int nrcomps = complist.size();
+
+		const IOPar& pars = ioobj->pars();
+		bool issteering = false;
+		BufferString typestr;
+		issteering = pars.get( sKey::Type(), typestr ) &&
+			     typestr == sKey::Steering();
+
+		if ( issteering )
+		    selcomps.add( 1 );
+		else
+		{
+		    Attrib::DescID attribid = getStoredID( mid, true );
+		    handleMultiComp( mid, true, issteering,
+				     complist, attribid, selcomps );
+		}
+
+		Seis::SequentialReader rdr( *ioobj, &tkzs, &selcomps );
 		if ( !TaskRunner::execute(taskr,rdr) )
 		{
 		    uiMSG().error( rdr.uiMessage() );
