@@ -125,10 +125,8 @@ void RandomLine::removeNode( const BinID& bid )
 int RandomLine::nodeIndex( const BinID& bid ) const
 {
     for ( int idx=0; idx<nodes_.size(); idx++ )
-    {
 	if ( bid == nodePosition(idx) )
 	    return idx;
-    }
 
     return -1;
 }
@@ -232,7 +230,7 @@ void RandomLine::setZRange( const Interval<float>& zrg )
 void RandomLine::limitTo( const TrcKeyZSampling& cs )
 {
     if ( !is3D(cs.hsamp_.survid_) )
-	{ pErrMsg( "Limiting go range in different survey"); }
+	pErrMsg( "Limiting go range in different survey");
 
     if ( nrNodes() != 2 )
 	return;
@@ -456,7 +454,9 @@ void RandomLine::getPathBids( const TrcKeySet& knots, TrcKeySet& tkpath,
     {
 	BinID start = knots[idx-1].position();
 	BinID stop = knots[idx].position();
-	if ( start == stop ) continue;
+	if ( start == stop )
+	    continue;
+
 	const int nrinl = int(abs(stop.inl()-start.inl()) / tks.step_.inl() +1);
 	const int nrcrl = int(abs(stop.crl()-start.crl()) / tks.step_.crl() +1);
 	bool inlwise = nrinl > nrcrl;
@@ -468,7 +468,8 @@ void RandomLine::getPathBids( const TrcKeySet& knots, TrcKeySet& tkpath,
 	int step = geom3d->sampling().hsamp_.step_[fastdim];
 	StepInterval<int> slowdimrg = inlwise ? tks.trcRange()
 					      : tks.lineRange();
-	if ( reverse ) step *= -1;
+	if ( reverse )
+	    step *= -1;
 
 	for ( int idi=0; idi<nrlines; idi++ )
 	{
@@ -641,7 +642,9 @@ void RandomLineSet::createParallelLines( const Line2& baseline,
 	    addLine( *rln );
 	}
 
-	if ( !idx ) continue;
+	if ( !idx )
+	    continue;
+
 	if ( endsnegline.size() < 2 )
 	    negfinished = true;
 	else
@@ -717,22 +720,18 @@ RandomLineManager& RLM()
 RandomLineManager::RandomLineManager()
     : added(this)
     , removed(this)
-{
-}
+{}
 
 
 RandomLineManager::~RandomLineManager()
-{
-}
+{}
 
 
 int RandomLineManager::indexOf( const MultiID& mid ) const
 {
     for ( int idx=0; idx<lines_.size(); idx++ )
-    {
 	if ( lines_[idx]->getMultiID() == mid )
 	    return idx;
-    }
 
     return -1;
 }
@@ -740,7 +739,9 @@ int RandomLineManager::indexOf( const MultiID& mid ) const
 
 RandomLine* RandomLineManager::get( const MultiID& mid )
 {
-    if ( mid.isUdf() ) return 0;
+    if ( mid.isUdf() )
+	return nullptr;
+
     const int rlidx = indexOf( mid );
     RandomLine* rl = lines_.validIdx(rlidx) ? lines_[rlidx] : nullptr;
     if ( rl )
@@ -771,10 +772,8 @@ RandomLine* RandomLineManager::get( const MultiID& mid )
 RandomLine* RandomLineManager::get( const RandomLineID& id )
 {
     for ( auto* line : lines_ )
-    {
 	if ( line->ID() == id )
 	    return line;
-    }
 
     return nullptr;
 }
@@ -810,10 +809,12 @@ RandomLineID RandomLineManager::add( RandomLine* rl )
 
 void RandomLineManager::remove( RandomLine* rl )
 {
-    if ( !rl ) return;
+    if ( !rl )
+	return;
 
     const int rlidx = lines_.indexOf( rl );
-    if ( rlidx<0 ) return;
+    if ( rlidx<0 )
+	return;
 
     removed.trigger( rl->ID() );
     lines_.removeSingle( rlidx );
