@@ -22,6 +22,7 @@ ________________________________________________________________________
 #include "datapointset.h"
 #include "ioman.h"
 #include "ioobj.h"
+#include "hiddenparam.h"
 #include "mousecursor.h"
 #include "pickset.h"
 #include "picksettr.h"
@@ -39,6 +40,30 @@ int uiPickPartServer::evGetHorDef2D()		{ return 3; }
 int uiPickPartServer::evFillPickSet()		{ return 4; }
 int uiPickPartServer::evDisplayPickSet()	{ return 7; }
 
+struct HP_uiPickPartServer
+{
+    HP_uiPickPartServer()
+    {}
+
+    ~HP_uiPickPartServer()
+    {
+	cleanup();
+    }
+
+    void cleanup()
+    {
+	closeAndNullPtr( imppsdlg_ );
+	closeAndNullPtr( exppsdlg_ );
+    }
+
+    uiImportPickSet* imppsdlg_		= nullptr;
+    uiExportPickSet* exppsdlg_		= nullptr;
+    TypeSet<MultiID> picksetids_;
+};
+
+static HiddenParam<uiPickPartServer,HP_uiPickPartServer*>
+						hp_uipickpartserver(nullptr);
+
 uiPickPartServer::uiPickPartServer( uiApplService& a )
     : uiApplPartServer(a)
     , psmgr_(Pick::Mgr())
@@ -46,6 +71,7 @@ uiPickPartServer::uiPickPartServer( uiApplService& a )
     , gendef_(*new BinIDValueSet(2,true))
     , selhs_(true)
 {
+    hp_uipickpartserver.setParam( this, new HP_uiPickPartServer() );
     mAttachCB( IOM().surveyChanged, uiPickPartServer::survChangedCB );
 }
 
@@ -53,11 +79,11 @@ uiPickPartServer::uiPickPartServer( uiApplService& a )
 uiPickPartServer::~uiPickPartServer()
 {
     detachAllNotifiers();
+    hp_uipickpartserver.removeAndDeleteParam( this );
+
     delete &uipsmgr_;
     delete &gendef_;
     deepErase( selhorids_ );
-    delete imppsdlg_;
-    delete exppsdlg_;
     delete manpicksetsdlg_;
     delete setmgrinfodlg_;
     delete emptypsdlg_;
@@ -74,8 +100,8 @@ void uiPickPartServer::survChangedCB( CallBacker* )
 
 void uiPickPartServer::cleanup()
 {
-    closeAndNullPtr( imppsdlg_ );
-    closeAndNullPtr( exppsdlg_ );
+    hp_uipickpartserver.getParam(this)->cleanup();
+
     closeAndNullPtr( manpicksetsdlg_ );
     closeAndNullPtr( setmgrinfodlg_ );
     closeAndNullPtr( emptypsdlg_ );
@@ -100,29 +126,32 @@ RefMan<Pick::Set> uiPickPartServer::pickSet()
 
 void uiPickPartServer::importSet()
 {
-    if ( !imppsdlg_ )
+    auto* imppsdlg = hp_uipickpartserver.getParam( this )->imppsdlg_;
+    if ( !imppsdlg )
     {
-	imppsdlg_ = new uiImpExpPickSet( parent(), this, true );
-	imppsdlg_->importReady.notify(
-		mCB(this,uiPickPartServer,importReadyCB) );
+	imppsdlg = new uiImportPickSet( parent(), this );
+	mAttachCB( imppsdlg->importReady, uiPickPartServer::importReadyCB );
+	hp_uipickpartserver.getParam( this )->imppsdlg_ = imppsdlg;
     }
 
-    imppsdlg_->show();
-    imppsdlg_->raise();
+    imppsdlg->show();
+    imppsdlg->raise();
 }
 
 
 void uiPickPartServer::importReadyCB( CallBacker* cb )
 {
     bool sendevent = true;
-    if ( cb==imppsdlg_ )
-	picksetid_ = imppsdlg_->getStoredID();
+    auto* imppsdlg = hp_uipickpartserver.getParam( this )->imppsdlg_;
+    auto& picksetids = hp_uipickpartserver.getParam( this )->picksetids_;
+    if ( cb==imppsdlg )
+	picksetids = imppsdlg->getStoredIDs();
     else if ( cb==genpsdlg_ )
-	picksetid_ = genpsdlg_->getStoredID();
+	picksetids.add( genpsdlg_->getStoredID() );
     else if ( cb==genps2ddlg_ )
-	picksetid_ = genps2ddlg_->getStoredID();
+	picksetids.add( genps2ddlg_->getStoredID() );
     else if ( cb==emptypsdlg_ )
-	picksetid_ = emptypsdlg_->getStoredID();
+	picksetids.add( emptypsdlg_->getStoredID() );
     else
 	sendevent = false;
 
@@ -133,11 +162,15 @@ void uiPickPartServer::importReadyCB( CallBacker* cb )
 
 void uiPickPartServer::exportSet()
 {
-    if ( !exppsdlg_ )
-	exppsdlg_ = new uiImpExpPickSet( parent(), this, false );
+    auto* exppsdlg = hp_uipickpartserver.getParam( this )->exppsdlg_;
+    if ( !exppsdlg )
+    {
+	exppsdlg = new uiExportPickSet( parent() );
+	hp_uipickpartserver.getParam( this )->exppsdlg_ = exppsdlg;
+    }
 
-    exppsdlg_->show();
-    exppsdlg_->raise();
+    exppsdlg->show();
+    exppsdlg->raise();
 }
 
 
@@ -559,4 +592,10 @@ void uiPickPartServer::convert( const Geometry::RandomLine& rl,
 	const Pick::Location loc( tk.getCoord() );
 	pickset.add( loc );
     }
+}
+
+
+const TypeSet<MultiID>& uiPickPartServer::pickSetIDs() const
+{
+    return hp_uipickpartserver.getParam( this )->picksetids_;
 }

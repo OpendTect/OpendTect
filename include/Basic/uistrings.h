@@ -308,7 +308,7 @@ public:
     static uiString sColor(int n=1)	{ return tr("Color",0, n); }
     static uiString sColorTable(int n=1) { return tr("Color Table",0,n); }
     static uiString sColumn(int n=1)	{ return tr("Column",0,n); }
-    static uiString sCommand(int n=1) { return tr("Command",0,n); }
+    static uiString sCommand(int n=1)	{ return tr("Command",0,n); }
     static uiString sComponent()	{ return tr("Component"); }
     static uiString sConnection()	{ return tr("Connection"); }
     static uiString sConstant()		{ return tr("Constant"); }
@@ -376,11 +376,11 @@ public:
     static uiString sFaultData()	{ return tr("Fault Data"); }
     static uiString sFaultSet(int n=1){ return tr("FaultSet",0,n); }
     static uiString sFaultStickSet(int n=1)
-					{ return tr( "FaultStickSet",0,n);}
+					{ return tr("FaultStickSet",0,n);}
     static uiString sFaultStickSet2D(int n=1)
-					{ return tr( "FaultStickSet 2D",0,n);}
+					{ return tr("FaultStickSet 2D",0,n);}
     static uiString sFaultStickSet3D(int n=1)
-					{ return tr( "FaultStickSet 3D",0,n);}
+					{ return tr("FaultStickSet 3D",0,n);}
     static uiString sFeet()		{ return tr("Feet"); }
     static uiString sFile()		{ return tr("File"); }
     static uiString sFileDoesntExist()	{ return phrDoesntExist(sFile(),1); }
@@ -527,6 +527,8 @@ public:
     static uiString sPetrelAlut()	{ return tr("Petrel *.alut"); }
     static uiString sPhase()		{ return tr("Phase"); }
     static uiString sPickSet(int n=1)	{ return tr("PickSet",0,n); }
+    static uiString sPicksetPolygon()
+    { return toUiString("Pointset/Polygon"); }
     static uiString sPlane()		{ return tr("Plane"); }
     static uiString sPlatform()		{ return tr("Platform"); }
     static uiString sPoint(int n=1)	{ return tr("Point",0,n); }

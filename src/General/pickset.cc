@@ -442,7 +442,7 @@ class PickSetKnotUndoEvent: public UndoEvent
 public:
     enum  UnDoType	    { Insert, PolygonClose, Remove, Move };
     PickSetKnotUndoEvent( UnDoType type, const MultiID& mid, int sidx,
-	const Pick::Location& pos )
+			  const Pick::Location& pos )
     : type_(type)
     , newpos_(Pick::Location(Coord3::udf()))
     , pos_(Pick::Location(Coord3::udf()))
@@ -1396,8 +1396,28 @@ Table::FormatDesc* PickSetAscIO::getDesc( bool iszreq )
 }
 
 
+Table::FormatDesc* PickSetAscIO::getDesc( bool iszreq, bool withnamecol )
+{
+    auto* fd = new Table::FormatDesc( "PickSet" );
+    createDescBody( fd, iszreq, withnamecol );
+    return fd;
+}
+
+
 void PickSetAscIO::createDescBody( Table::FormatDesc* fd, bool iszreq )
 {
+    fd->bodyinfos_ += Table::TargetInfo::mkHorPosition( true );
+    if ( iszreq )
+	fd->bodyinfos_ += Table::TargetInfo::mkZPosition( true );
+}
+
+
+void PickSetAscIO::createDescBody( Table::FormatDesc* fd, bool iszreq,
+				   bool withnamecol )
+{
+    if ( withnamecol )
+	fd->bodyinfos_ += new Table::TargetInfo( sKey::Name(),
+						 Table::Required );
     fd->bodyinfos_ += Table::TargetInfo::mkHorPosition( true );
     if ( iszreq )
 	fd->bodyinfos_ += Table::TargetInfo::mkZPosition( true );
@@ -1409,6 +1429,15 @@ void PickSetAscIO::updateDesc( Table::FormatDesc& fd, bool iszreq )
     fd.bodyinfos_.erase();
     createDescBody( &fd, iszreq );
 }
+
+
+void PickSetAscIO::updateDesc( Table::FormatDesc& fd, bool iszreq,
+			       bool withnamecol )
+{
+    fd.bodyinfos_.erase();
+    createDescBody( &fd, iszreq, withnamecol );
+}
+
 
 
 bool PickSetAscIO::isXY() const
@@ -1452,6 +1481,61 @@ bool PickSetAscIO::get( od_istream& strm, Pick::Set& ps,
 	}
 
 	ps.add( Pick::Location(pos,zread) );
+    }
+
+    return true;
+}
+
+
+bool PickSetAscIO::get( od_istream& strm, ObjectSet<Pick::Set>& picksets,
+			bool iszreq, float constz ) const
+{
+    Pick::Set* ps = nullptr;
+    BufferString psname;
+
+    while ( true )
+    {
+	const int ret = getNextBodyVals( strm );
+	if ( ret < 0 )
+	    mErrRet( errmsg_ )
+	else if ( ret==0 )
+	    break;
+
+	const BufferString currentname = getText( 0 );
+	if ( currentname=="" )
+	    continue;
+
+	if ( ps==nullptr || psname!=currentname )
+	{
+	    psname = currentname.buf();
+	    ps = new Pick::Set( psname.buf() );
+	    picksets.add( ps );
+	}
+
+	Coord pos( getPos(1,2) );
+	if ( pos.isUdf() )
+	    continue;
+
+	mPIEPAdj(Coord,pos,true);
+	if ( !isXY() )
+	{
+	    BinID bid( mNINT32(pos.x_), mNINT32(pos.y_) );
+	    mPIEPAdj(BinID,bid,true);
+	    SI().snap( bid );
+	    pos = SI().transform( bid );
+	}
+
+	float zread = constz;
+	if ( iszreq )
+	{
+	    zread = getFValue( 3 );
+	    if ( mIsUdf(zread) )
+		continue;
+
+	    mPIEPAdj(Z,zread,true);
+	}
+
+	ps->add( Pick::Location(pos,zread) );
     }
 
     return true;

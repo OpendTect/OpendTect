@@ -178,6 +178,7 @@ public:
     void		enableSaveButton(const uiString& txt);
     void		setSaveButtonChecked(bool yn);
     void		setButtonSensitive(uiDialog::Button,bool yn);
+    void		displayButton( uiDialog::Button but, bool yn );
     bool		isButtonSensitive(uiDialog::Button) const;
     bool		saveButtonChecked() const;
     bool		hasSaveButton() const;

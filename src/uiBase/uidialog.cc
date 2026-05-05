@@ -39,7 +39,7 @@ uiDialog::uiDialog( uiParent* p, const uiDialog::Setup& s )
     body_= new uiDialogBody( *this, p, s );
     setBody( body_ );
     body_->construct( s.nrstatusflds_, s.menubar_ );
-    uiGroup* cw = new uiGroup( body_->uiCentralWidg(), "Dialog central widget");
+    auto* cw = new uiGroup( body_->uiCentralWidg(), "Dialog central widget");
     cw->setStretch( 2, 2 );
     mBody->setDlgGrp( cw );
     setTitleText( s.dlgtitle_ );
@@ -132,6 +132,8 @@ void uiDialog::setOkCancelText( const uiString& oktxt, const uiString& cncltxt )
 
 void uiDialog::setButtonSensitive( Button b, bool s )
     { mBody->setButtonSensitive(b,s); }
+void uiDialog::displayButton( Button b, bool d )
+    { mBody->displayButton(b,d); }
 void uiDialog::setSaveButtonChecked(bool b)
     { mBody->setSaveButtonChecked(b); }
 bool uiDialog::isButtonSensitive( Button b ) const

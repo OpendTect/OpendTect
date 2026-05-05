@@ -232,13 +232,20 @@ public:
 				PickSetAscIO( const Table::FormatDesc& fd )
 				    : Table::AscIO(fd)          {}
 
-    static Table::FormatDesc*   getDesc(bool iszreq);
+    static Table::FormatDesc*	getDesc(bool iszreq);
+    static Table::FormatDesc*	getDesc(bool iszreq,bool withnamecol);
     static void			updateDesc(Table::FormatDesc&,bool iszreq);
+    static void			updateDesc(Table::FormatDesc&,bool iszreq,
+					   bool withnamecol);
     static void			createDescBody(Table::FormatDesc*,bool iszreq);
+    static void			createDescBody(Table::FormatDesc*,bool iszreq,
+					       bool withnamecol);
 
     bool			isXY() const;
     bool			get(od_istream&,Pick::Set&,bool iszreq,
 				    float zval) const;
+    bool			get(od_istream&,ObjectSet<Pick::Set>&,
+				    bool iszreq,float zval) const;
 };
 
 
