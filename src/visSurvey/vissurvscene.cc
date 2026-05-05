@@ -62,14 +62,14 @@ static const char* sKeyZScale()		{ return "Z Scale"; }
 
 Scene::Scene()
     : visBase::Scene(true)
-    , zscale_( SI().zScale(false) )
-    , infopar_(*new IOPar)
-    , zdomaininfo_(&SI().zDomainInfo())
     , mouseposchange(this)
     , mousecursorchange(this)
     , keypressed(this)
     , mouseclicked(this)
     , sceneboundingboxupdated(this)
+    , infopar_(*new IOPar)
+    , zdomaininfo_(&SI().zDomainInfo())
+    , zscale_( SI().zScale(false) )
 {
     ref();
     mAttachCB( events_->eventhappened, Scene::mouseCB );
@@ -112,14 +112,9 @@ void Scene::updateAnnotationText()
     if ( !annot_ )
 	return;
 
-    if ( SI().inlRange(true).width() )
-	annot_->setText( 0, uiStrings::sInline() );
-
-    if ( SI().crlRange(true).width() )
-	annot_->setText( 1, uiStrings::sCrossline() );
-
-    if ( SI().zRange(true).width() )
-	annot_->setText( 2, zDomainUserName() );
+    setAnnotText( 0, uiStrings::sInline() );
+    setAnnotText( 1, uiStrings::sCrossline() );
+    setAnnotText( 2, zDomainUserName() );
 
     const ZDomain::Info& zdom = zDomainInfo();
     TrcKeyZSampling scalecs = annot_->getTrcKeyZSampling();
@@ -128,22 +123,27 @@ void Scene::updateAnnotationText()
 	 ((zdom.isDepthMeter() && SI().depthsInFeet()) ||
 	  (zdom.isDepthFeet() && !SI().depthsInFeet())) )
     {
+	BufferString unitstr;
 	if ( zdom.isDepthMeter() )
 	{
 	    scalecs.zsamp_.scale( mToFeetFactorD );
 	    scalefac[2] = mToFeetFactorD;
+	    unitstr = getDistUnitString( true, false );
 	}
 	else if ( zdom.isDepthFeet() )
 	{
-	    scalecs.zsamp_.scale( mToFeetFactorD );
-	    scalefac[2] = mToFeetFactorD;
+	    scalecs.zsamp_.scale( mFromFeetFactorD );
+	    scalefac[2] = mFromFeetFactorD;
+	    unitstr = getDistUnitString( false, false );
 	}
 
+	setAnnotText( 2,
+		toUiString("%1 (%2)").arg(zDomainUserName()).arg(unitstr) );
 	annot_->setScale( scalecs, scalefac.arr(), scalefac.size(), true);
     }
     else
     {
-	scalecs.zsamp_.scale( zdom.userFactor() );
+	scalecs.zsamp_.scale( sCast(float,zdom.userFactor()) );
 	scalefac[2] = zdom.userFactor();
 	annot_->setScale( scalecs, scalefac.arr(), scalefac.size(), true );
     }
@@ -178,7 +178,7 @@ void Scene::setup()
     {
 	const float dist = Math::Sqrt( SI().getArea(false) );
 	curzstretch_ = 2.f * dist / SI().zRange().width();
-	curzstretch_ /= zDomainInfo().userFactor();
+	curzstretch_ /= sCast(float,zDomainInfo().userFactor());
     }
 
     const TrcKeyZSampling& tkzs = SI().sampling(true);
@@ -293,19 +293,33 @@ void Scene::setZDomainInfo( const ZDomain::Info& zdinf )
 
 
 const char* Scene::zDomainKey() const
-{ return zDomainInfo().key(); }
+{
+    return zDomainInfo().key();
+}
+
 
 uiString Scene::zDomainUserName() const
-{ return toUiString(zDomainInfo().userName()); }
+{
+    return zDomainInfo().userName();
+}
+
 
 const char* Scene::zDomainUnitStr( bool withparens ) const
-{ return zDomainInfo().unitStr( withparens ); }
+{
+    return zDomainInfo().unitStr( withparens );
+}
+
 
 int Scene::zDomainUserFactor() const
-{ return zDomainInfo().userFactor(); }
+{
+    return zDomainInfo().userFactor();
+}
+
 
 const MultiID Scene::zDomainID() const
-{ return zDomainInfo().getID(); }
+{
+    return zDomainInfo().getID();
+}
 
 
 void Scene::getAllowedZDomains( BufferString& dms ) const
@@ -419,6 +433,9 @@ const visBase::DataObject* Scene::getObject( int idx ) const
 
 void Scene::addUTMObject( visBase::VisualObject* obj )
 {
+    if ( !obj )
+	return;
+
     obj->setDisplayTransformation( utm2disptransform_.ptr() );
     tempzstretchtrans_->addObject( obj );
 }
@@ -426,6 +443,9 @@ void Scene::addUTMObject( visBase::VisualObject* obj )
 
 void Scene::addInlCrlZObject( visBase::DataObject* obj )
 {
+    if ( !obj )
+	return;
+
     mDynamicCastGet(SurveyObject*,so,obj);
     if ( so )
     {
@@ -613,9 +633,9 @@ bool Scene::isAnnotShown() const
 
 void Scene::setAnnotText( int dim, const uiString& txt )
 {
-    if ( (dim==0 && SI().inlRange(true).width()) ||
-	 (dim==1 && SI().crlRange(true).width()) ||
-	 (dim==2 && SI().zRange(true).width()) )
+    if ( (dim==0 && SI().inlRange(true).width()>0) ||
+	 (dim==1 && SI().crlRange(true).width()>0) ||
+	 (dim==2 && SI().zRange(true).width()>0) )
 	annot_->setText( dim, txt );
 }
 
@@ -734,15 +754,6 @@ void Scene::objectMoved( CallBacker* cb )
 }
 
 
-#define mGetPosModeManipObjInfo( idx, dataobj, so, canmove ) \
-\
-    const visBase::DataObject* dataobj = getObject( idx ); \
-    mDynamicCastGet( const SurveyObject*, so, dataobj ); \
-\
-    const bool canmove = so && so->hasPosModeManipulator() \
-			    && !so->isLocked() && dataobj->isOn();
-
-
 void Scene::selChangeCB( CallBacker* cb )
 {
     if ( !cb || !cb->isCapsule() )
@@ -751,8 +762,11 @@ void Scene::selChangeCB( CallBacker* cb )
     mCBCapsuleUnpack( VisID, selid, cb );
     for ( int idx=size()-1; idx>=0; idx-- )
     {
-	mGetPosModeManipObjInfo( idx, dataobj, so, canmoveposmodemanip );
-	if ( canmoveposmodemanip && selid==dataobj->id() )
+	const visBase::DataObject* dataobj = getObject( idx );
+	mDynamicCastGet( const SurveyObject*, so, dataobj );
+	const bool canmovemanip = so && so->hasPosModeManipulator()
+				&& !so->isLocked() && dataobj->isOn();
+	if ( canmovemanip && selid==dataobj->id() )
 	    return;
     }
 
@@ -768,17 +782,20 @@ void Scene::togglePosModeManipObjSel()
     TypeSet<VisID> movableposmodemanipobjids;
     for ( int idx=size()-1; idx>=0; idx-- )
     {
-	mGetPosModeManipObjInfo( idx, dataobj, so, canmoveposmodemanip );
+	const visBase::DataObject* dataobj = getObject( idx );
+	mDynamicCastGet( const SurveyObject*, so, dataobj );
+	const bool canmovemanip = so && so->hasPosModeManipulator()
+				&& !so->isLocked() && dataobj->isOn();
 	if ( !so )
 	    continue;
 
-	if ( canmoveposmodemanip )
+	if ( canmovemanip )
 	    movableposmodemanipobjids += dataobj->id();
 
 	if ( !selectedids.isPresent(dataobj->id()) )
 	    continue;
 
-	if ( canmoveposmodemanip && so->isManipulatorShown() )
+	if ( canmovemanip && so->isManipulatorShown() )
 	{
 	    visBase::DM().selMan().select( posmodemanipdeselobjid_ );
 	    posmodemanipdeselobjid_.setUdf();
@@ -816,10 +833,13 @@ void Scene::selectPosModeManipObj( const VisID& selid )
 
     for ( int idx=size()-1; idx>=0; idx-- )
     {
-	mGetPosModeManipObjInfo( idx, dataobj, so, canmoveposmodemanip );
+	const visBase::DataObject* dataobj = getObject( idx );
+	mDynamicCastGet( const SurveyObject*, so, dataobj );
+	const bool canmovemanip = so && so->hasPosModeManipulator()
+				&& !so->isLocked() && dataobj->isOn();
 	if ( selid == dataobj->id() )
 	{
-	    if ( canmoveposmodemanip )
+	    if ( canmovemanip )
 	    {
 		if ( !posmodemanipdeselobjid_.isValid() )
 		{
