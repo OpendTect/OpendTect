@@ -26,6 +26,7 @@ set( OD_TEST_PROGS
 	memcopying.cc
 	od_iostream.cc
 	odjson.cc
+	odlockfile.cc
 	oscommand.cc
 	pythoncomm.cc
 	ranges.cc
@@ -93,6 +94,7 @@ set( OD_MODULE_SOURCES
 	odimage.cc
 	odinst.cc
 	odjson.cc
+	odlockfile.cc
 	odmemory.cc
 	odstring.cc
 	oduuid.cc
