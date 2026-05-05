@@ -992,6 +992,7 @@ void uiDialogBody::closeEvent( QCloseEvent* ce )
 void uiDialogBody::enableSaveButton( const uiString& txt )
 { setup_.savetext_ = txt; setup_.savebutton_ = true; }
 
+
 void uiDialogBody::setSaveButtonChecked( bool yn )
 {
     setup_.savechecked_ = yn;
@@ -1029,6 +1030,14 @@ void uiDialogBody::setButtonSensitive( uiDialog::Button but, bool yn )
     uiButton* butobj = button( but );
     if ( butobj )
 	butobj->setSensitive( yn );
+}
+
+
+void uiDialogBody::displayButton( uiDialog::Button but, bool yn )
+{
+    uiButton* butobj = button( but );
+    if ( butobj )
+	butobj->display( yn );
 }
 
 

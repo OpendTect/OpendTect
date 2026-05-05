@@ -14,6 +14,7 @@ ________________________________________________________________________
 #include "uibatchlaunch.h"
 #include "uiclusterjobprov.h"
 #include "uilatlong2coord.h"
+#include "uiimppickset.h"
 #include "uiposprovgroupstd.h"
 #include "uiposfiltgroupstd.h"
 #include "uisimpletimedepthmodel.h"
@@ -65,6 +66,8 @@ static bool enabClusterProc()
 mDefModInitFn(uiIo)
 {
     mIfNotFirstTime( return );
+
+    uiSinglePickSetImportGroup::initClass();
 
     uiRangePosProvGroup::initClass();
     uiPolyPosProvGroup::initClass();

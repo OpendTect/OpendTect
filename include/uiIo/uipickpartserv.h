@@ -21,7 +21,10 @@ ________________________________________________________________________
 class uiCreatePicks;
 class uiGenPosPicks;
 class uiGenRandPicks2D;
+
 class uiImpExpPickSet;
+class uiImportPickSet;
+class uiExportPickSet;
 class uiPickSetMan;
 class uiPickSetMgr;
 class uiPickSetMgrInfoDlg;
@@ -96,6 +99,7 @@ public:
 				// Interaction stuff
     BinIDValueSet&		genDef()		{ return gendef_; }
     MultiID			pickSetID() const	{ return picksetid_; }
+    const TypeSet<MultiID>&	pickSetIDs() const;
 
     ObjectSet<SurfaceInfo>&	horInfos()		{ return hinfos_; }
     const ObjectSet<MultiID>&	selHorIDs() const	{ return selhorids_; }
@@ -127,8 +131,11 @@ protected:
     TypeSet<BinID>		trcpos2d_;
     TypeSet< Interval<float> >	hor2dzrgs_;
 
+    // TODO: When safe, remove imppsdlg_ and exppsdlg_ since they were
+    //	     replaced by uiImpPickSet and uiExpPickSet
     uiImpExpPickSet*		imppsdlg_		= nullptr;
     uiImpExpPickSet*		exppsdlg_		= nullptr;
+
     uiPickSetMan*		manpicksetsdlg_		= nullptr;
     uiPickSetMgrInfoDlg*	setmgrinfodlg_		= nullptr;
 
