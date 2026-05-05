@@ -6,16 +6,37 @@
 #
 
 function( get_buildinsrc REQUIRED_ARG )
-    if ( NOT "${CMAKE_SOURCE_DIR}" STREQUAL "${CMAKE_BINARY_DIR}" )
-	get_filename_component( SRCDIR "${CMAKE_SOURCE_DIR}" REALPATH )
-	get_filename_component( BINDIR "${CMAKE_BINARY_DIR}" REALPATH )
-	if ( NOT "${SRCDIR}" STREQUAL "${BINDIR}" )
-	    set(${REQUIRED_ARG} False PARENT_SCOPE )
-	else()
-	    set(${REQUIRED_ARG} True PARENT_SCOPE )
-	endif()
+    if ( "${CMAKE_SOURCE_DIR}" STREQUAL "${CMAKE_BINARY_DIR}" )
+	set(${REQUIRED_ARG} True PARENT_SCOPE)
     else()
-	set(${REQUIRED_ARG} True PARENT_SCOPE )
+	file(REAL_PATH "${CMAKE_SOURCE_DIR}" SRCDIR)
+	file(REAL_PATH "${CMAKE_BINARY_DIR}" BINDIR)
+	if ( "${SRCDIR}" STREQUAL "${BINDIR}" )
+	    set(${REQUIRED_ARG} True PARENT_SCOPE)
+	else()
+	    if ( WIN32 OR APPLE )
+		set(${REQUIRED_ARG} False PARENT_SCOPE)
+	    else()
+		execute_process(
+		      COMMAND stat -c "%d" "${CMAKE_SOURCE_DIR}"
+		      OUTPUT_VARIABLE DEV1
+		      ERROR_QUIET
+		      OUTPUT_STRIP_TRAILING_WHITESPACE
+		)
+		execute_process(
+		      COMMAND stat -c "%d" "${CMAKE_BINARY_DIR}"
+		      OUTPUT_VARIABLE DEV2
+		      ERROR_QUIET
+		      OUTPUT_STRIP_TRAILING_WHITESPACE
+		)
+		if ( DEV1 STREQUAL DEV2 )
+		    set(${REQUIRED_ARG} True PARENT_SCOPE)
+		    message( WARNING "Unsupported configuration:\nCurrent source dir: ${CMAKE_SOURCE_DIR}\nCurrent build dir: ${CMAKE_BINARY_DIR}" )
+		else()
+		    set(${REQUIRED_ARG} False PARENT_SCOPE)
+		endif()
+	    endif()
+	endif()
     endif()
 endfunction( get_buildinsrc )
 
