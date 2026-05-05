@@ -62,6 +62,15 @@ set_property( GLOBAL PROPERTY USE_FOLDERS ON )
 #    set( CMAKE_DEBUG_POSTFIX "d" )
 #endif()
 
+if ( UNIX )
+    file(REAL_PATH "${CMAKE_SOURCE_DIR}" CANON_SOURCE)
+    if (NOT CANON_SOURCE STREQUAL CMAKE_SOURCE_DIR)
+      message(FATAL_ERROR
+	"Please invoke CMake using the canonical source path:\n  ${CANON_SOURCE}\n"
+	"Do not use a symlinked path to the source directory.")
+    endif()
+endif()
+
 set( OpendTect_DIR ${CMAKE_SOURCE_DIR} )
 set( OD_BINARY_BASEDIR ${CMAKE_BINARY_DIR} )
 
