@@ -17,19 +17,11 @@ function( get_buildinsrc REQUIRED_ARG )
 	    if ( WIN32 OR APPLE )
 		set(${REQUIRED_ARG} False PARENT_SCOPE)
 	    else()
-		execute_process(
-		      COMMAND stat -c "%d" "${CMAKE_SOURCE_DIR}"
-		      OUTPUT_VARIABLE DEV1
-		      ERROR_QUIET
-		      OUTPUT_STRIP_TRAILING_WHITESPACE
-		)
-		execute_process(
-		      COMMAND stat -c "%d" "${CMAKE_BINARY_DIR}"
-		      OUTPUT_VARIABLE DEV2
-		      ERROR_QUIET
-		      OUTPUT_STRIP_TRAILING_WHITESPACE
-		)
-		if ( DEV1 STREQUAL DEV2 )
+		execute_process( COMMAND stat -c "%d" "${SRCDIR}" OUTPUT_VARIABLE DEV1 ERROR_QUIET OUTPUT_STRIP_TRAILING_WHITESPACE )
+		execute_process( COMMAND stat -c "%d" "${BINDIR}" OUTPUT_VARIABLE DEV2 ERROR_QUIET OUTPUT_STRIP_TRAILING_WHITESPACE )
+		execute_process(COMMAND stat -c "%i" "${SRCDIR}" OUTPUT_VARIABLE INO1 OUTPUT_STRIP_TRAILING_WHITESPACE)
+		execute_process(COMMAND stat -c "%i" "${BINDIR}" OUTPUT_VARIABLE INO2 OUTPUT_STRIP_TRAILING_WHITESPACE)
+		if ( DEV1 STREQUAL DEV2 AND INO1 STREQUAL INO2 )
 		    set(${REQUIRED_ARG} True PARENT_SCOPE)
 		    message( WARNING "Unsupported configuration:\nCurrent source dir: ${CMAKE_SOURCE_DIR}\nCurrent build dir: ${CMAKE_BINARY_DIR}" )
 		else()
