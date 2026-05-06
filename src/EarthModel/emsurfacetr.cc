@@ -469,26 +469,27 @@ static BufferString getFileName( const IOObj& ioobj, const char* attrnm )
 
 
 Executor* dgbEMHorizon3DTranslator::getAuxdataReader( EM::Surface& surface,
-							    int selidx )
+						      int selidx )
 {
     if ( selidx >= sels_.sd.valnames.size() )
-	return 0;
+	return nullptr;
 
     auto* grp = new ExecutorGroup( "Surface attributes reader" );
     for ( int idx=0; idx<sels_.sd.valnames.size(); idx++ )
     {
-	if ( selidx>=0 && selidx != idx )
+	if ( selidx>=0 && selidx!=idx )
 	    continue;
 
 	const BufferString filenm = getFileName( *ioobj_,
-					    sels_.sd.valnames[selidx]->buf() );
+						sels_.sd.valnames[idx]->buf() );
 	if ( filenm.isEmpty() )
 	    continue;
 
 	EM::dgbSurfDataReader* rdr = new EM::dgbSurfDataReader( filenm.buf() );
 	mDynamicCastGet(EM::Horizon3D*,hor3d,&surface)
 	if ( !hor3d )
-	    return 0;
+	    return nullptr;
+
 	rdr->setSurface( *hor3d );
 	grp->add( rdr );
     }

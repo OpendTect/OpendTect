@@ -721,7 +721,7 @@ int dgbSurfaceReader::currentRow() const
 { return firstrow_+rowindex_*rowrange_.step_; }
 
 
-bool dgbSurfaceReader::doPrepare( od_ostream* )
+bool dgbSurfaceReader::doPrepare( od_ostream* strm )
 {
     isinited_ = true;
     if ( !conn_ )
@@ -737,7 +737,7 @@ bool dgbSurfaceReader::doPrepare( od_ostream* )
     setGeometry();
     par_->getYN( sKeyDepthOnly(), readonlyz_ );
 
-    return true;
+    return executors_.isEmpty() ? true : ExecutorGroup::doPrepare( strm );
 }
 
 

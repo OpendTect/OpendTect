@@ -403,6 +403,9 @@ bool dgbSurfDataReader::doPrepare( od_ostream* strm )
 
 int dgbSurfDataReader::nextStep()
 {
+    if ( !stream_ )
+	mErrRetRead( uiStrings::phrCannotRead( sHorizonData() ) )
+
     PosID posid( surf_->id() );
     for ( int idx=0; idx<chunksize_; idx++ )
     {
@@ -416,7 +419,14 @@ int dgbSurfDataReader::nextStep()
 	    }
 	    else
 	    {
-		readInt( nrsections_ );
+		if ( !readInt(nrsections_) )
+		{
+		    if ( stream_->atEOF() )
+			return Finished();
+
+		    mErrRetRead( uiStrings::phrCannotRead( sHorizonData() ) )
+		}
+
 		if ( stream_->atEOF() )
 		    return Finished();
 
