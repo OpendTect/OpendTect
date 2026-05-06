@@ -408,7 +408,14 @@ int dgbSurfDataReader::nextStep()
 	    }
 	    else
 	    {
-		readInt( nrsections_ );
+		if ( !readInt(nrsections_) )
+		{
+		    if ( stream_->atEOF() )
+			return Finished();
+
+		    mErrRetRead( uiStrings::phrCannotRead( sHorizonData() ) )
+		}
+
 		if ( stream_->atEOF() )
 		{
 		    deleteAndNullPtr( stream_ );
