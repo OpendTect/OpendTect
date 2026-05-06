@@ -1,5 +1,5 @@
 # Distributed under the OSI-approved BSD 3-Clause License.  See accompanying
-# file Copyright.txt or https://cmake.org/licensing for details.
+# file LICENSE.rst or https://cmake.org/licensing for details.
 
 #[=======================================================================[.rst:
 FindSQLite3
@@ -7,38 +7,80 @@ FindSQLite3
 
 .. versionadded:: 3.14
 
-Find the SQLite libraries, v3
+Finds the SQLite 3 library:
 
-IMPORTED targets
+.. code-block:: cmake
+
+  find_package(SQLite3 [<version>] [...])
+
+SQLite is a small, fast, self-contained, high-reliability, and full-featured
+SQL database engine written in C, intended for embedding in applications.
+
+Imported Targets
 ^^^^^^^^^^^^^^^^
 
-This module defines the following :prop_tgt:`IMPORTED` target:
+This module provides the following :ref:`Imported Targets`:
+
+``SQLite3::SQLite3``
+  Target encapsulating SQLite library usage requirements.  It is available only
+  when SQLite is found.
+
+  .. versionadded:: 4.3
 
 ``SQLite::SQLite3``
+  Deprecated.  Identical to ``SQLite3::SQLite3``.
 
-Result variables
+  If your project needs to support CMake < 4.3, consider adding the following
+  to your project after calling ``find_package(SQLite3 ...)``:
+
+  .. code-block:: cmake
+
+    if(NOT TARGET SQLite3::SQLite3) # CMake < 4.3
+      add_library(SQLite3::SQLite3 ALIAS SQLite::SQLite3)
+    endif()
+
+  This will allow your project to use the new name while still permitting it to
+  compile with older versions of CMake.
+
+Result Variables
 ^^^^^^^^^^^^^^^^
 
-This module will set the following variables if found:
+This module defines the following variables:
+
+``SQLite3_FOUND``
+  Boolean indicating whether the (requested version of) SQLite library was
+  found.
+
+``SQLite3_VERSION``
+  The version of SQLite library found.
 
 ``SQLite3_INCLUDE_DIRS``
-  where to find sqlite3.h, etc.
-``SQLite3_LIBRARIES``
-  the libraries to link against to use SQLite3.
-``SQLite3_VERSION``
-  version of the SQLite3 library found
-``SQLite3_FOUND``
-  TRUE if found
+  Include directories containing the ``<sqlite3.h>`` and related headers
+  needed to use SQLite.
 
+``SQLite3_LIBRARIES``
+  Libraries needed to link against to use SQLite.
+
+Examples
+^^^^^^^^
+
+Finding the SQLite library and linking it to a project target:
+
+.. code-block:: cmake
+
+  find_package(SQLite3)
+  target_link_libraries(project_target PRIVATE SQLite3::SQLite3)
 #]=======================================================================]
 
 cmake_policy(PUSH)
-if ( POLICY CMP0159 )
+if(POLICY CMP0159)
     cmake_policy(SET CMP0159 NEW) # file(STRINGS) with REGEX updates CMAKE_MATCH_<n>
 endif()
 
 find_package(PkgConfig QUIET)
-pkg_check_modules(PC_SQLite3 QUIET sqlite3)
+if(PkgConfig_FOUND)
+  pkg_check_modules(PC_SQLite3 QUIET sqlite3)
+endif()
 
 # Look for the necessary header
 find_path(SQLite3_INCLUDE_DIR NAMES sqlite3.h
@@ -66,7 +108,7 @@ endif()
 
 include(${CMAKE_ROOT}/Modules/FindPackageHandleStandardArgs.cmake)
 find_package_handle_standard_args(SQLite3
-    REQUIRED_VARS SQLite3_INCLUDE_DIR SQLite3_LIBRARY
+    REQUIRED_VARS SQLite3_LIBRARY SQLite3_INCLUDE_DIR
     VERSION_VAR SQLite3_VERSION)
 
 # Create the imported target

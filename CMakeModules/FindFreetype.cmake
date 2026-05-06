@@ -1,51 +1,108 @@
 # Distributed under the OSI-approved BSD 3-Clause License.  See accompanying
-# file Copyright.txt or https://cmake.org/licensing for details.
+# file LICENSE.rst or https://cmake.org/licensing for details.
 
 #[=======================================================================[.rst:
 FindFreetype
 ------------
 
-Find the FreeType font renderer includes and library.
+Finds the FreeType font renderer library:
+
+.. code-block:: cmake
+
+  find_package(Freetype [<version>] [...])
+
+.. versionadded:: 3.7
+  Debug and Release (optimized) library variants are found separately.
 
 Imported Targets
 ^^^^^^^^^^^^^^^^
 
-.. versionadded:: 3.10
-
-This module defines the following :prop_tgt:`IMPORTED` target:
+This module provides the following :ref:`Imported Targets`:
 
 ``Freetype::Freetype``
-  The Freetype ``freetype`` library, if found
+  .. versionadded:: 3.10
+
+  Target encapsulating the Freetype library usage requirements, available if
+  Freetype is found.
 
 Result Variables
 ^^^^^^^^^^^^^^^^
 
-This module will set the following variables in your project:
+This module defines the following variables:
 
-``FREETYPE_FOUND``
-  true if the Freetype headers and libraries were found
+``Freetype_FOUND``
+  .. versionadded:: 3.3
+
+  Boolean indicating whether (the requested version of) Freetype was found.
+
+``Freetype_VERSION``
+  .. versionadded:: 4.2
+
+  The version of Freetype found.
+
 ``FREETYPE_INCLUDE_DIRS``
-  directories containing the Freetype headers. This is the
-  concatenation of the variables:
+  Include directories containing headers needed to use Freetype.  This is the
+  concatenation of ``FREETYPE_INCLUDE_DIR_ft2build`` and
+  ``FREETYPE_INCLUDE_DIR_freetype2`` variables.
 
-  ``FREETYPE_INCLUDE_DIR_ft2build``
-    directory holding the main Freetype API configuration header
-  ``FREETYPE_INCLUDE_DIR_freetype2``
-    directory holding Freetype public headers
 ``FREETYPE_LIBRARIES``
-  the library to link against
-``FREETYPE_VERSION_STRING``
-  the version of freetype found
+  Libraries needed to link against for using Freetype.
 
 .. versionadded:: 3.7
-  Debug and Release variants are found separately.
+  Debug and Release library variants are found separately.
+
+Cache Variables
+^^^^^^^^^^^^^^^
+
+The following cache variables may also be set:
+
+``FREETYPE_INCLUDE_DIR_ft2build``
+  The directory containing the main Freetype API configuration header.
+
+``FREETYPE_INCLUDE_DIR_freetype2``
+  The directory containing Freetype public headers.
 
 Hints
 ^^^^^
 
-The user may set the environment variable ``FREETYPE_DIR`` to the root
-directory of a Freetype installation.
+This module accepts the following variables:
+
+``FREETYPE_DIR``
+  The user may set this environment variable to the root directory of a Freetype
+  installation to find Freetype in non-standard locations.
+
+Deprecated Variables
+^^^^^^^^^^^^^^^^^^^^
+
+The following variables are provided for backward compatibility:
+
+``FREETYPE_FOUND``
+  .. deprecated:: 4.2
+    Use ``Freetype_FOUND``, which has the same value.
+
+  Boolean indicating whether (the requested version of) Freetype was found.
+
+``FREETYPE_VERSION_STRING``
+  .. deprecated:: 4.2
+    Superseded by the ``Freetype_VERSION``.
+
+  The version of Freetype found.
+
+Examples
+^^^^^^^^
+
+Finding Freetype and linking it to a project target:
+
+.. code-block:: cmake
+
+  find_package(Freetype)
+  target_link_libraries(project_target PRIVATE Freetype::Freetype)
 #]=======================================================================]
+
+cmake_policy(PUSH)
+if(POLICY CMP0159)
+    cmake_policy(SET CMP0159 NEW) # file(STRINGS) with REGEX updates CMAKE_MATCH_<n>
+endif()
 
 # Created by Eric Wing.
 # Modifications by Alexander Neundorf.
@@ -141,20 +198,21 @@ if(FREETYPE_INCLUDE_DIR_freetype2 AND FREETYPE_H)
   file(STRINGS "${FREETYPE_H}" freetype_version_str
        REGEX "^#[\t ]*define[\t ]+FREETYPE_(MAJOR|MINOR|PATCH)[\t ]+[0-9]+$")
 
-  unset(FREETYPE_VERSION_STRING)
+  unset(Freetype_VERSION)
   foreach(VPART MAJOR MINOR PATCH)
     foreach(VLINE ${freetype_version_str})
       if(VLINE MATCHES "^#[\t ]*define[\t ]+FREETYPE_${VPART}[\t ]+([0-9]+)$")
         set(FREETYPE_VERSION_PART "${CMAKE_MATCH_1}")
-        if(FREETYPE_VERSION_STRING)
-          string(APPEND FREETYPE_VERSION_STRING ".${FREETYPE_VERSION_PART}")
+	if(Freetype_VERSION)
+	  string(APPEND Freetype_VERSION ".${FREETYPE_VERSION_PART}")
         else()
-          set(FREETYPE_VERSION_STRING "${FREETYPE_VERSION_PART}")
+	  set(Freetype_VERSION "${FREETYPE_VERSION_PART}")
         endif()
         unset(FREETYPE_VERSION_PART)
       endif()
     endforeach()
   endforeach()
+  set(FREETYPE_VERSION_STRING ${Freetype_VERSION})
 endif()
 
 include(${CMAKE_ROOT}/Modules/FindPackageHandleStandardArgs.cmake)
@@ -165,7 +223,7 @@ find_package_handle_standard_args(
     FREETYPE_LIBRARY
     FREETYPE_INCLUDE_DIRS
   VERSION_VAR
-    FREETYPE_VERSION_STRING
+    Freetype_VERSION
 )
 
 mark_as_advanced(
@@ -202,3 +260,5 @@ if(Freetype_FOUND)
     endif()
   endif()
 endif()
+
+cmake_policy(POP)
