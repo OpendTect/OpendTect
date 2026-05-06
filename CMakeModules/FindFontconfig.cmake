@@ -1,5 +1,5 @@
 # Distributed under the OSI-approved BSD 3-Clause License.  See accompanying
-# file Copyright.txt or https://cmake.org/licensing for details.
+# file LICENSE.rst or https://cmake.org/licensing for details.
 
 #[=======================================================================[.rst:
 FindFontconfig
@@ -7,38 +7,61 @@ FindFontconfig
 
 .. versionadded:: 3.14
 
-Find Fontconfig headers and library.
+Finds Fontconfig, a library for font configuration and customization:
+
+.. code-block:: cmake
+
+  find_package(Fontconfig [<version>] [...])
 
 Imported Targets
 ^^^^^^^^^^^^^^^^
 
+This module provides the following :ref:`Imported Targets`:
+
 ``Fontconfig::Fontconfig``
-  The Fontconfig library, if found.
+  Target encapsulating the Fontconfig usage requirements, available if
+  Fontconfig is found.
 
 Result Variables
 ^^^^^^^^^^^^^^^^
 
-This will define the following variables in your project:
+This module defines the following variables:
 
 ``Fontconfig_FOUND``
-  true if (the requested version of) Fontconfig is available.
+  Boolean indicating whether (the requested version of) Fontconfig was found.
 ``Fontconfig_VERSION``
-  the version of Fontconfig.
+  The version of Fontconfig found.
 ``Fontconfig_LIBRARIES``
-  the libraries to link against to use Fontconfig.
+  The libraries to link against to use Fontconfig.
 ``Fontconfig_INCLUDE_DIRS``
-  where to find the Fontconfig headers.
+  The include directories containing headers needed to use Fontconfig.
 ``Fontconfig_COMPILE_OPTIONS``
-  this should be passed to target_compile_options(), if the
-  target is not used for linking
+  Compiler options needed to use Fontconfig.  These should be passed to
+  :command:`target_compile_options` when not using the
+  ``Fontconfig::Fontconfig`` imported target.
 
+Examples
+^^^^^^^^
+
+Finding Fontconfig and linking it to a project target:
+
+.. code-block:: cmake
+
+  find_package(Fontconfig)
+  target_link_libraries(project_target PRIVATE Fontconfig::Fontconfig)
 #]=======================================================================]
 
+cmake_policy(PUSH)
+if(POLICY CMP0159)
+    cmake_policy(SET CMP0159 NEW) # file(STRINGS) with REGEX updates CMAKE_MATCH_<n>
+endif()
 
 # use pkg-config to get the directories and then use these values
-# in the FIND_PATH() and FIND_LIBRARY() calls
+# in the find_path() and find_library() calls
 find_package(PkgConfig QUIET)
-pkg_check_modules(PKG_FONTCONFIG QUIET fontconfig)
+if(PkgConfig_FOUND)
+  pkg_check_modules(PKG_FONTCONFIG QUIET fontconfig)
+endif()
 set(Fontconfig_COMPILE_OPTIONS ${PKG_FONTCONFIG_CFLAGS_OTHER})
 set(Fontconfig_VERSION ${PKG_FONTCONFIG_VERSION})
 
@@ -76,8 +99,6 @@ endif ()
 
 include(FindPackageHandleStandardArgs)
 find_package_handle_standard_args(Fontconfig
-  FOUND_VAR
-    Fontconfig_FOUND
   REQUIRED_VARS
     Fontconfig_LIBRARY
     Fontconfig_INCLUDE_DIR
@@ -101,3 +122,5 @@ if(Fontconfig_FOUND)
   set(Fontconfig_LIBRARIES ${Fontconfig_LIBRARY})
   set(Fontconfig_INCLUDE_DIRS ${Fontconfig_INCLUDE_DIR})
 endif()
+
+cmake_policy(POP)
