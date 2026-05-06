@@ -483,7 +483,19 @@ macro( OD_ADD_WAYLANDQPAMOD )
     list ( APPEND GUIINSTMODS WaylandClient )
     if ( QT_VERSION_MAJOR GREATER_EQUAL 6 )
 	set( QT_NO_PRIVATE_MODULE_WARNING ON )
-	list ( APPEND GUIINSTMODS WaylandEglClientHwIntegrationPrivate )
+	foreach( WAYLANDEGLMOD WaylandEglClientHwIntegrationPrivate
+				WaylandEglCompositorHwIntegrationPrivate )
+	    if ( NOT TARGET Qt${QT_VERSION_MAJOR}::${WAYLANDEGLMOD} )
+		find_package( Qt${QT_VERSION_MAJOR} QUIET
+			      COMPONENTS ${WAYLANDEGLMOD}
+			      GLOBAL )
+	    endif()
+	    if ( TARGET Qt${QT_VERSION_MAJOR}::${WAYLANDEGLMOD} )
+		list ( APPEND GUIINSTMODS ${WAYLANDEGLMOD} )
+		break()
+	    endif()
+	endforeach()
+	unset( WAYLANDEGLMOD )
     endif()
 endmacro( OD_ADD_WAYLANDQPAMOD )
 
