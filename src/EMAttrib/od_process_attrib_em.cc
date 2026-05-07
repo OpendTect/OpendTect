@@ -177,6 +177,7 @@ static bool process( od_ostream& strm, Processor*& proc, bool useoutwfunc,
 	    strm << "Estimated number of positions to be processed"
 		 <<"(regular survey): " << proc->totalNr() << od_newline;
 	    strm << "Loading cube data ..." << od_newline;
+	    progressmeter.setTotalNr( proc->totalNr() );
 	}
 
 	if ( needswriterinit )
@@ -382,9 +383,9 @@ bool BatchProgram::doWork( od_ostream& strm )
 	    if ( idx )
 	    {
                 zbounds4mmproc.start_ = sd.zrg.start_ < zbounds4mmproc.start_ ?
-                                            sd.zrg.start_ : zbounds4mmproc.start_;
+					sd.zrg.start_ : zbounds4mmproc.start_;
                 zbounds4mmproc.stop_ = sd.zrg.stop_ > zbounds4mmproc.stop_ ?
-                                           sd.zrg.stop_ : zbounds4mmproc.stop_;
+					sd.zrg.stop_ : zbounds4mmproc.stop_;
 	    }
 	    else
 		zbounds4mmproc = sd.zrg;
