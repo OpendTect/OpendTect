@@ -80,6 +80,7 @@ public:
 
     void			useTexture(bool yn,bool trigger) override;
     bool			canShowTexture() const override;
+    bool			canHaveMultipleTextures() const override;
 
     void			setDepthAsAttrib(int);
     void			enableAttrib(int attrib,bool yn) override;

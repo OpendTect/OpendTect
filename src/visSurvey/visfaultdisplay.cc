@@ -505,6 +505,12 @@ bool FaultDisplay::canShowTexture() const
 }
 
 
+bool FaultDisplay::canHaveMultipleTextures() const
+{
+    return false;
+}
+
+
 OD::Color FaultDisplay::getColor() const
 {
     return nontexturecol_;

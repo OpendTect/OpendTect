@@ -644,6 +644,12 @@ bool HorizonDisplay::canShowTexture() const
 }
 
 
+bool HorizonDisplay::canHaveMultipleTextures() const
+{
+    return true;
+}
+
+
 bool HorizonDisplay::displayedOnlyAtSections() const
 {
     return EMObjectDisplay::displayedOnlyAtSections();

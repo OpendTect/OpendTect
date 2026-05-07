@@ -172,11 +172,26 @@ bool uiODApplMgrAttrVisHandler::selectAttrib( const VisID& id, int attrib )
     Attrib::SelSpec myas( *as );
     const bool selok = am_.attrServer()->selectAttrib( myas, issi ? 0 : zdinf,
 						    geomid, attribposname);
-    const TypeSet<Attrib::SelSpec>& ass = am_.attrServer()->getTargetSelSpecs();
-    if ( selok && !ass.isEmpty() )
-	visserv->setSelSpecs( id, attrib, ass );
+    const TypeSet<Attrib::SelSpec>& aslist =
+			am_.attrServer()->getTargetSelSpecs();
+    if ( !selok || aslist.isEmpty() )
+	return selok;
 
-    return selok;
+    if ( aslist.size() > 1 )
+    {
+	mDynamicCastGet( visSurvey::SurveyObject*, so,
+			 visserv->getObject(id));
+	if ( so && !so->canHaveMultipleTextures() )
+	{
+	    uiMSG().warning( tr("This object cannot yet display more "
+				"than the first component selected") );
+	    visserv->setSelSpec( id, attrib, aslist.first() );
+	    return true;
+	}
+    }
+
+    visserv->setSelSpecs( id, attrib, aslist );
+    return true;
 }
 
 

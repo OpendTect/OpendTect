@@ -20,6 +20,7 @@ ________________________________________________________________________
 #include "ioman.h"
 #include "ioobj.h"
 #include "keystrs.h"
+#include "seisioobjinfo.h"
 #include "threadwork.h"
 #include "timefun.h"
 
@@ -760,6 +761,27 @@ void uiODEarthModelSurfaceDataTreeItem::selectAndLoadData()
 
     Attrib::SelSpec as;
     dlg.fillSelSpec( as );
+    if ( as.isStored() && dlg.compNr()==-1 )
+    {
+	const MultiID storedkey = as.getStoredMultiID();
+	const SeisIOObjInfo seisinfo( storedkey );
+	const int nrtotalcomps = seisinfo.nrComponents();
+	if ( nrtotalcomps > 1 )
+	{
+	    TypeSet<int> selcomps( nrtotalcomps, 0 );
+	    selcomps.fillWithIncreasingValues( 0 );
+	    applMgr()->attrServer()->prepMultCompSpecs(
+					selcomps, storedkey, false, true );
+	    visserv_->setSelObjectId( displayID(), attrib );
+	    Attrib::SelSpec mtas( "Multi-Textures",
+				    Attrib::SelSpec::cOtherAttrib() );
+	    applMgr()->calcMultipleAttribs( mtas );
+	    updateColumnText( uiODSceneMgr::cNameColumn() );
+	    updateColumnText( uiODSceneMgr::cColorColumn() );
+	    return;
+	}
+    }
+
     visserv_->setSelSpec( displayID(), attrib, as );
     applMgr()->calcRandomPosAttrib( displayID(), attrib );
     updateColumnText( uiODSceneMgr::cNameColumn() );
