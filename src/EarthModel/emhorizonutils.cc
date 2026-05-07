@@ -159,6 +159,9 @@ void HorizonUtils::getPositions( od_ostream& strm, const MultiID& id,
     data += res;
 
     PtrMan<EMObjectIterator> iterator = horizon->createIterator();
+    if ( iterator )
+	pm.setTotalNr( iterator->maximumSize() );
+
     while ( iterator )
     {
 	const EM::PosID pid = iterator->next();
