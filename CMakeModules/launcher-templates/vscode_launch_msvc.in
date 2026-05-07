@@ -1,27 +1,27 @@
 {
-    "version": "0.2.0",
-    "configurations": [
-        {
-            "name": "CMake Debug",
-            "type": "@VSCODE_DEBUGGER_TYPE@",
-            "request": "launch",
-            "program": "${command:cmake.launchTargetPath}",
-            "args": [],
-            "console": "integratedTerminal",
-            "stopAtEntry": false,
-            "cwd": "${command:cmake.launchTargetDirectory}",
-            "environment": @VSCODE_DEBUGENV@
-        },
-        {
-            "name": "CMake Debug in release mode",
-            "type": "@VSCODE_DEBUGGER_TYPE@",
-            "request": "launch",
-            "program": "${command:cmake.launchTargetPath}",
-            "args": [],
-            "console": "integratedTerminal",
-            "stopAtEntry": false,
-            "cwd": "${command:cmake.launchTargetDirectory}",
-            "environment": @VSCODE_RELENV@
-        }
-    ]
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "CMake Debug",
+      "type": "@VSCODE_DEBUGGER_TYPE@",
+      "request": "launch",
+      "program": "${command:cmake.launchTargetPath}",
+      "args": [],
+      "console": "integratedTerminal",
+      "stopAtEntry": false,
+      "cwd": "${command:cmake.launchTargetDirectory}",
+      "environment": @VSCODE_DEBUGENV@
+    },
+    {
+      "name": "CMake Debug in release mode",
+      "type": "@VSCODE_DEBUGGER_TYPE@",
+      "request": "launch",
+      "program": "${command:cmake.launchTargetPath}",
+      "args": [],
+      "console": "integratedTerminal",
+      "stopAtEntry": false,
+      "cwd": "${command:cmake.launchTargetDirectory}",
+      "environment": @VSCODE_RELENV@
+    }
+  ]
 }
