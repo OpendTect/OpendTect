@@ -30,7 +30,6 @@ ________________________________________________________________________
 #include "uitreeview.h"
 #include "uiviscoltabed.h"
 #include "uivispartserv.h"
-#include "vishorizondisplay.h"
 #include "vissurvobj.h"
 #include "vissurvscene.h"
 
@@ -223,9 +222,7 @@ bool uiODAttribTreeItem::handleSelMenu( int mnuid, const VisID& visid,
 	{
 	    mDynamicCastGet( visSurvey::SurveyObject*, so,
 			     visserv->getObject(visid));
-	    mDynamicCastGet( visSurvey::HorizonDisplay*, hd, so );
-
-	    if ( so && !so->canHaveMultipleTextures() && !hd )
+	    if ( so && !so->canHaveMultipleTextures() )
 	    {
 		const TypeSet<Attrib::SelSpec>& selspecs =
 						attrserv->getTargetSelSpecs();

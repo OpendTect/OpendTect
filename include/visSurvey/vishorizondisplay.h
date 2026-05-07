@@ -76,6 +76,7 @@ public:
 
     void			useTexture(bool yn,bool trigger=false) override;
     bool			canShowTexture() const override;
+    bool			canHaveMultipleTextures() const override;
 
     void			setOnlyAtSectionsDisplay(bool yn) override;
     bool			displayedOnlyAtSections() const override;
