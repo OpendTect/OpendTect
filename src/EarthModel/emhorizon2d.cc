@@ -838,7 +838,8 @@ void Horizon2DAscIO::updateDesc( Table::FormatDesc& fd,
 #define mErrRet(s) { if ( s ) errmsg_ = s; return 0; }
 
 int Horizon2DAscIO::getNextLine( BufferString& lnm, Coord& crd, int& nr,
-				 float& spnr, TypeSet<float>& data )
+				 float& spnr, TypeSet<float>& data,
+				 const UnitOfMeasure* dataoutunit )
 {
     data.erase();
     if ( !finishedreadingheader_ )
@@ -862,7 +863,7 @@ int Horizon2DAscIO::getNextLine( BufferString& lnm, Coord& crd, int& nr,
 
     const int nrhors = nrVals()-4;
     for ( int idx=0; idx<nrhors; idx++ )
-	data += getFValue( idx+4, udfval_ );
+	data += getFValue( idx+4, udfval_, dataoutunit );
 
     return ret;
 }

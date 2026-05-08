@@ -72,7 +72,9 @@ public:
 					   uiString&);
     int				getNextLine(BufferString& lnm,Coord& crd,
 					    int& trcnr,float& spnm,
-					    TypeSet<float>& data);
+					    TypeSet<float>& data,
+					    const UnitOfMeasure*
+					    dataoutunit=nullptr);
     bool			isTraceNr() const;
     bool			isOK() const { return strm_.isOK(); }
 

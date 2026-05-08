@@ -24,6 +24,7 @@ ________________________________________________________________________
 #include "survgeom2d.h"
 #include "survinfo.h"
 #include "tabledef.h"
+#include "unitofmeasure.h"
 
 #include "uibutton.h"
 #include "uicombobox.h"
@@ -435,8 +436,27 @@ bool uiImportHorizon2D::acceptOK( CallBacker* )
     if ( !res )
 	return false;
 
+    mDynamicCastGet( EM::Horizon2D*, horizon, emobj_.ptr() );
+    if ( !horizon )
+    {
+	uiMSG().error( tr( "Cannot find horizon after import" ) );
+	return false;
+    }
+
     if ( saveButtonChecked() )
+    {
+	horizon->convertZValues( horizon->surveyDisplayUnit(), true );
+	if ( horizon->zDomain().isDepth() )
+	{
+	    const auto& zdom = ZDomain::Info::getFrom(
+			       horizon->zDomain().key(),
+			       horizon->surveyDisplayUnit()->getLabel() );
+	    horizon->setZDomain( zdom );
+	}
+
+	horizon->resetChangedFlag();
 	readyForDisplay.trigger();
+    }
 
     uiString msg = tr("2D Horizon successfully imported."
 		      "\n\nDo you want to import more 2D Horizons?");

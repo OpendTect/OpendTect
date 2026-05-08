@@ -19,9 +19,11 @@ ________________________________________________________________________
 #include "oddirs.h"
 #include "trckeyzsampling.h"
 #include "keystrs.h"
+#include "survgeom2d.h"
 #include "tabledef.h"
 #include "uistrings.h"
-#include "survgeom2d.h"
+#include "unitofmeasure.h"
+
 
 
 Horizon2DScanner::Horizon2DScanner( const BufferStringSet& fnms,
@@ -178,7 +180,9 @@ int Horizon2DScanner::nextStep()
     int nr = mUdf(int);
     float spnr = mUdf(float);
     TypeSet<float> data;
-    const int ret = ascio_->getNextLine( linenm, crd, nr, spnr, data );
+    const auto* hor2dzunit = UnitOfMeasure::zUnit( zinfo_ );
+    const int ret = ascio_->getNextLine( linenm, crd, nr, spnr,
+					 data, hor2dzunit );
     if ( ret < 0 )
     {
 	msg_ = tr( "Error while reading file %1: %2" )
