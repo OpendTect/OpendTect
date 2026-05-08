@@ -225,6 +225,9 @@ void SeisSingleTraceProc::setProcPars( const IOPar& iop, bool is2d )
 
 uiString SeisSingleTraceProc::uiMessage() const
 {
+    if ( !errmsg_.isEmpty() )
+	return errmsg_;
+
     if ( !curmsg_.isEmpty() )
 	return curmsg_;
 
