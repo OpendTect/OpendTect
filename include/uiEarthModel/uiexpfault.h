@@ -39,7 +39,7 @@ protected:
     uiMultiSurfaceRead* multisurftimeread_		= nullptr;
     uiFaultSel*		timefld_		= nullptr;
     uiFaultSel*		depthfld_		= nullptr;
-    uiGenInput*		zdomypefld_		= nullptr;
+    uiGenInput*		zdomtypefld_		= nullptr;
     uiGenInput*		coordfld_;
     uiCheckList*	stickidsfld_;
     uiCheckBox*		linenmfld_		= nullptr;
@@ -55,8 +55,8 @@ protected:
     bool		getInputMIDs(TypeSet<MultiID>&);
 
     void		exportCoordSysChgCB(CallBacker*);
-    void		inpSelChg(CallBacker*);
-    void		zDomainTypeChg(CallBacker*);
+    void		inpSelChgCB(CallBacker*);
+    void		zDomainTypeChgCB(CallBacker*);
     void		initGrpCB(CallBacker*);
     bool		acceptOK(CallBacker*) override;
 

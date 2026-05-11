@@ -87,37 +87,41 @@ uiExportFault::uiExportFault( uiParent* p, const char* typ, bool isbulk )
     setDeleteOnClose( false );
     setOkCancelText( uiStrings::sExport(), uiStrings::sClose() );
 
-    zdomypefld_ = new uiGenInput( this, tr("Z Domain"),
-	BoolInpSpec(SI().zIsTime(),
-	uiStrings::sTime(), uiStrings::sDepth()) );
-    mAttachCB( zdomypefld_->valueChanged, uiExportFault::zDomainTypeChg );
+    zdomtypefld_ = new uiGenInput( this, tr("Z Domain"),
+				  BoolInpSpec(SI().zIsTime(),uiStrings::sTime(),
+					      uiStrings::sDepth()) );
+    mAttachCB( zdomtypefld_->valueChanged, uiExportFault::zDomainTypeChgCB );
 
     coordfld_ = new uiGenInput( this, tr("Write coordinates as"),
 				BoolInpSpec(true,tr("X/Y"),tr("Inl/Crl")) );
     mAttachCB( coordfld_->valueChanged, uiExportFault::exportCoordSysChgCB );
 
+    const ZDomain::Info* depthinfo = nullptr;
+    if ( SI().zIsTime() )
+	depthinfo = SI().depthsInFeet() ? &ZDomain::DepthFeet()
+					: &ZDomain::DepthMeter();
+    else
+	depthinfo = &SI().zDomainInfo();
+
     if ( isbulk_ )
     {
-	const ZDomain::Info& depthinfo = SI().depthsInFeet() ?
-	    ZDomain::DepthFeet() : ZDomain::DepthMeter();
-	multisurfdepthread_ = new uiMultiSurfaceRead( this, typ, &depthinfo );
+	multisurfdepthread_ = new uiMultiSurfaceRead( this, typ, depthinfo );
 	multisurftimeread_ =
 			new uiMultiSurfaceRead( this, typ, &ZDomain::TWT() );
-	multisurfdepthread_->attach( alignedBelow, zdomypefld_ );
-	multisurftimeread_->attach( alignedBelow, zdomypefld_ );
+	multisurfdepthread_->attach( alignedBelow, zdomtypefld_ );
+	multisurftimeread_->attach( alignedBelow, zdomtypefld_ );
 	coordfld_->attach( alignedBelow, multisurftimeread_ );
+	coordfld_->attach( alignedBelow, multisurfdepthread_ );
     }
     else
     {
 	const EM::ObjectType flttype = getFaultObjectType( typ );
-	const ZDomain::Info& depthinfo = SI().depthsInFeet() ?
-	    ZDomain::DepthFeet() : ZDomain::DepthMeter();
 	timefld_ = new uiFaultSel( this, flttype, &ZDomain::TWT(), true );
-	depthfld_ = new uiFaultSel( this, flttype, &depthinfo, true );
-	mAttachCB( timefld_->selectionDone, uiExportFault::inpSelChg );
-	mAttachCB( depthfld_->selectionDone, uiExportFault::inpSelChg );
-	timefld_->attach( alignedBelow, zdomypefld_ );
-	depthfld_->attach( alignedBelow, zdomypefld_ );
+	depthfld_ = new uiFaultSel( this, flttype, depthinfo, true );
+	mAttachCB( timefld_->selectionDone, uiExportFault::inpSelChgCB );
+	mAttachCB( depthfld_->selectionDone, uiExportFault::inpSelChgCB );
+	timefld_->attach( alignedBelow, zdomtypefld_ );
+	depthfld_->attach( alignedBelow, zdomtypefld_ );
 	coordfld_->attach( alignedBelow, depthfld_ );
     }
 
@@ -131,13 +135,14 @@ uiExportFault::uiExportFault( uiParent* p, const char* typ, bool isbulk )
 
     zunitsel_ = new uiUnitSel( this, uiUnitSel::Setup(tr("Z Unit")) );
     zunitsel_->setUnit( UnitOfMeasure::surveyDefZUnit() );
-    zunitsel_->attach( alignedBelow, attachobj);
+    zunitsel_->attach( alignedBelow, attachobj );
 
     stickidsfld_ = new uiCheckList( this, uiCheckList::ChainAll,
 				    OD::Horizontal );
     stickidsfld_->setLabel( uiStrings::sWrite() );
-    stickidsfld_->addItem( tr("Stick index") ).addItem( tr("Node index" ));
-    stickidsfld_->setChecked( 0, true ); stickidsfld_->setChecked( 1, true );
+    stickidsfld_->addItem( tr("Stick index") ).addItem( tr("Node index" ) );
+    stickidsfld_->setChecked( 0, true );
+    stickidsfld_->setChecked( 1, true );
     stickidsfld_->attach( alignedBelow, zunitsel_ );
 
     if ( mGet(typ,true,false,false) )
@@ -173,15 +178,15 @@ uiExportFault::~uiExportFault()
 
 void uiExportFault::initGrpCB( CallBacker* )
 {
-    zDomainTypeChg( nullptr );
+    zDomainTypeChgCB( nullptr );
     if ( !isbulk_ )
-	inpSelChg( nullptr );
+	inpSelChgCB( nullptr );
 }
 
 
-void uiExportFault::zDomainTypeChg(CallBacker*)
+void uiExportFault::zDomainTypeChgCB(CallBacker*)
 {
-    const bool istime = zdomypefld_->getBoolValue();
+    const bool istime = zdomtypefld_->getBoolValue();
     if ( isbulk_ )
     {
 	multisurfdepthread_->display( !istime );
@@ -198,12 +203,12 @@ void uiExportFault::zDomainTypeChg(CallBacker*)
 }
 
 
-void uiExportFault::inpSelChg( CallBacker* )
+void uiExportFault::inpSelChgCB( CallBacker* )
 {
     if ( isbulk_ || !timefld_ )
 	return;
 
-    const bool istime = zdomypefld_->getBoolValue();
+    const bool istime = zdomtypefld_->getBoolValue();
     uiFaultSel* selfld = istime ? timefld_ : depthfld_;
     const IOObj* ioobj = selfld->ioobj( true );
     if ( !ioobj )
@@ -224,7 +229,7 @@ bool uiExportFault::getInputMIDs( TypeSet<MultiID>& midset )
 {
     if ( isbulk_ )
     {
-	const bool istime = zdomypefld_->getBoolValue();
+	const bool istime = zdomtypefld_->getBoolValue();
 	if ( istime )
 	    multisurftimeread_->getSurfaceIds( midset );
 	else
@@ -232,7 +237,7 @@ bool uiExportFault::getInputMIDs( TypeSet<MultiID>& midset )
     }
     else
     {
-	const bool istime = zdomypefld_->getBoolValue();
+	const bool istime = zdomtypefld_->getBoolValue();
 	uiFaultSel* selfld = istime ? timefld_ : depthfld_;
 	const IOObj* ioobj = selfld->ioobj( false );
 	if ( !ioobj )
@@ -417,7 +422,7 @@ bool uiExportFault::acceptOK( CallBacker* )
     bool isobjsel = true;
     if ( !isbulk_ )
     {
-	const bool istime = zdomypefld_->getBoolValue();
+	const bool istime = zdomtypefld_->getBoolValue();
 	uiFaultSel* selfld = istime ? timefld_ : depthfld_;
 	isobjsel = selfld && selfld->ioobj( false );
     }
