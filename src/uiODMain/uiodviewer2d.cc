@@ -306,7 +306,6 @@ void uiODViewer2D::makeUpView( FlatDataPack* indp,
 	if ( tkzs_ != tkzs )
 	{
 	    removeAvailablePacks();
-	    setTrcKeyZSampling( tkzs );
 	}
     }
 
