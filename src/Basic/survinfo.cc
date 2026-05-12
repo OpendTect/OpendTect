@@ -1717,7 +1717,7 @@ bool SurveyInfo::write( const char* basedir, bool isjson ) const
 
     fp.set( basedir );
     fp.add( disklocation_.dirName() );
-    savePars( fp.fullPath(), &jsonobj );
+    savePars( fp.fullPath(), isjson ? &jsonobj : nullptr );
     saveLog( fp.fullPath() );
     if ( isjson )
     {
