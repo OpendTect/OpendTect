@@ -328,10 +328,11 @@ bool uiImportFault::handleAscii()
 
     if ( saveButtonChecked() )
     {
-	fault->convertZValues( fault->surveyDisplayUnit(), true );
-
+	// If fault is in Time, No need to convert.
+	// The visualization will take care of it.
 	if ( fault->zDomain().isDepth() )
 	{
+	    fault->convertZValues( fault->surveyDisplayUnit(), true );
 	    const auto& zdom = ZDomain::Info::getFrom(
 				    fault->zDomain().key(),
 				    fault->surveyDisplayUnit()->getLabel() );

@@ -445,9 +445,11 @@ bool uiImportHorizon2D::acceptOK( CallBacker* )
 
     if ( saveButtonChecked() )
     {
-	horizon->convertZValues( horizon->surveyDisplayUnit(), true );
+	// If horizon is in Time, No need to convert.
+	// The visualization will take care of it.
 	if ( horizon->zDomain().isDepth() )
 	{
+	    horizon->convertZValues( horizon->surveyDisplayUnit(), true );
 	    const auto& zdom = ZDomain::Info::getFrom(
 			       horizon->zDomain().key(),
 			       horizon->surveyDisplayUnit()->getLabel() );
