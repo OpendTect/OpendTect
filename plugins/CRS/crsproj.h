@@ -11,6 +11,7 @@ ________________________________________________________________________
 #include "crsmod.h"
 #include "latlong.h"
 #include "manobjectset.h"
+#include "tablemodel.h"
 #include "uistring.h"
 
 class BufferStringSet;
@@ -121,7 +122,7 @@ public:
     virtual const char*		projMethod(int) const			= 0;
     virtual int			indexOf(const AuthorityCode&) const	= 0;
 
-    uiString			getDispString(int) const;
+    virtual uiString		getDispString(int) const;
     uiString			getDescString(int) const;
 
 protected:
@@ -131,8 +132,31 @@ protected:
 };
 
 
+mExpClass(CRS) CRSInfoTableModel : public TableModel
+{ mODTextTranslationClass(CRSInfoTableModel);
+public:
+			CRSInfoTableModel(const CRSInfoList&);
+			~CRSInfoTableModel();
+
+    int			nrRows() const override;
+    int			nrCols() const override;
+    int			flags(int row,int col) const override;
+    void		setCellData(int row,int col,const CellData&) override;
+    CellData		getCellData(int row,int col) const override;
+    OD::Color		textColor(int row,int col) const override;
+    OD::Color		cellColor(int row,int col) const override;
+    PixmapDesc		pixmap(int row,int col) const override;
+    uiString		headerText(int rowcol,OD::Orientation) const override;
+    uiString		tooltip(int row,int col) const override;
+
+protected:
+
+    const CRSInfoList&	crslist_;
+};
+
+
 mGlobal(CRS) const char*	initCRSDatabase();
-mGlobal(CRS) CRSInfoList*	getCRSInfoList(bool orthogonal = true);
+mGlobal(CRS) const CRSInfoList& getCRSInfoList(bool orthogonal = true);
 mGlobal(CRS) BufferString	getProjVersion();
 mGlobal(CRS) BufferString	getEPSGDBStr();
 
