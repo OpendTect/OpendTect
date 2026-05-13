@@ -22,9 +22,9 @@ ________________________________________________________________________
 #include "uilabel.h"
 #include "uilatlonginp.h"
 #include "uilineedit.h"
-#include "uilistbox.h"
 #include "uimsg.h"
 #include "uistring.h"
+#include "uitableview.h"
 #include "uitextedit.h"
 #include "uitoolbutton.h"
 
@@ -38,20 +38,25 @@ static AuthorityCode cDefProjID()
 
 uiProjectionBasedSystem::uiProjectionBasedSystem( uiParent* p )
     : uiCoordSystem( p,sFactoryDisplayName() )
+    , crsinfolist_(getCRSInfoList(true))
 {
+    dispidxs_.setSize( crsinfolist_.size(), 0 );
+    dispidxs_.fillWithIncreasingValues();
+    curselidx_ = crsinfolist_.indexOf( cDefProjID() );
     createGUI();
-    fetchList();
     fillList();
-
 }
 
 
 uiProjectionBasedSystem::uiProjectionBasedSystem( uiParent* p, bool orthogonal )
     : uiCoordSystem( p,sFactoryDisplayName() )
+    , crsinfolist_(getCRSInfoList(orthogonal))
 {
     orthogonal_ = orthogonal;
+    dispidxs_.setSize( crsinfolist_.size(), 0 );
+    dispidxs_.fillWithIncreasingValues();
+    curselidx_ = crsinfolist_.indexOf( cDefProjID() );
     createGUI();
-    fetchList();
     fillList();
 }
 
@@ -63,11 +68,22 @@ uiProjectionBasedSystem::~uiProjectionBasedSystem()
 
 void uiProjectionBasedSystem::createGUI()
 {
-    uiListBox::Setup su( OD::ChooseOnlyOne, tr("Select projection") );
-    projselfld_ = new uiListBox( this, su, "ProjectionList" );
-    projselfld_->setHSzPol( uiObject::WideVar );
-    projselfld_->setNrLines( 10 );
-    projselfld_->selectionChanged.notify(
+    tablemodel_ = new CRSInfoTableModel( crsinfolist_ );
+    projtable_ = new uiTableView( this, "ProjectionTable" );
+    projtable_->setModel( tablemodel_ );
+    projtable_->setSelectionBehavior( uiTableView::SelectRows );
+    projtable_->setSelectionMode( uiTableView::SingleSelection );
+    projtable_->setHeaderVisible( OD::Vertical, false );
+    projtable_->setSortingEnabled( true );
+    projtable_->sortByColumn( 0, true );
+    projtable_->setHSzPol( uiObject::WideMax );
+    projtable_->setStretch( 2, 2 );
+    projtable_->resizeColumnToContents( 0 );
+    projtable_->resizeColumnToContents( 1 );
+    projtable_->setColumnStretchable( 2, true );
+    projtable_->setColumnStretchable( 3, true );
+    projtable_->setColumnStretchable( 4, true );
+    projtable_->selectionChanged.notify(
 				mCB(this,uiProjectionBasedSystem,selChgCB) );
 
     uiStringSet filteroptions;
@@ -76,11 +92,12 @@ void uiProjectionBasedSystem::createGUI()
 		 .add( tr("Projection method") );
     filtersel_ = new uiLabeledComboBox( this, filteroptions, tr("Filter by") );
     filtersel_->box()->setCurrentItem( 3 );
-    filtersel_->attach( alignedAbove, projselfld_ );
+    filtersel_->attach( alignedAbove, projtable_ );
     filtersel_->setStretch( 0, 0 );
 
     searchfld_ = new uiLineEdit( this, "Search" );
     searchfld_->setPlaceholderText( tr("ID or name") );
+    searchfld_->setStretch( 2, 0 );
     searchfld_->attach( rightOf, filtersel_ );
     searchfld_->returnPressed.notify(
 				mCB(this,uiProjectionBasedSystem,searchCB) );
@@ -89,12 +106,7 @@ void uiProjectionBasedSystem::createGUI()
 				mCB(this,uiProjectionBasedSystem,searchCB) );
     searchbut->attach( rightOf, searchfld_ );
 
-    uiToolButton* infobut = new uiToolButton( projselfld_, "info",
-		tr("View details"), mCB(this,uiProjectionBasedSystem,infoCB) );
-    infobut->attach( rightTo, projselfld_->box() );
-    infobut->attach( rightBorder );
-
-    setHAlignObj( projselfld_ );
+    setHAlignObj( projtable_ );
 }
 
 
@@ -107,7 +119,7 @@ bool uiProjectionBasedSystem::initFields( const Coords::CoordSystem* sys )
     Coords::AuthorityCode pid = orthogonal_ ?
 				projsys->getProjection()->authCode() :
 				projsys->getProjection()->getGeodeticAuthCode();
-    curselidx_ = crsinfolist_->indexOf( pid );
+    curselidx_ = crsinfolist_.indexOf( pid );
     setCurrent();
     return true;
 }
@@ -119,8 +131,8 @@ void uiProjectionBasedSystem::searchCB( CallBacker* )
     if ( str.isEmpty() ) // No Filter, display all.
     {
 	dispidxs_.erase();
-	dispidxs_.setCapacity( crsinfolist_->size(), true );
-	for ( int idx=0; idx<crsinfolist_->size(); idx++ )
+	dispidxs_.setCapacity( crsinfolist_.size(), true );
+	for ( int idx=0; idx<crsinfolist_.size(); idx++ )
 	    dispidxs_.add( idx );
 
 	fillList();
@@ -139,16 +151,16 @@ void uiProjectionBasedSystem::searchCB( CallBacker* )
     MouseCursorChanger mcch( MouseCursor::Wait );
     dispidxs_.erase();
     const int filtertype = filtersel_->box()->currentItem();
-    for ( int idx=0; idx<crsinfolist_->size(); idx++ )
+    for ( int idx=0; idx<crsinfolist_.size(); idx++ )
     {
 	BufferString crsattr;
 	switch ( filtertype )
 	{
-	    case 0: crsattr = crsinfolist_->areaName( idx ); break;
-	    case 1: crsattr = crsinfolist_->authCode( idx ); break;
-	    case 2: crsattr = crsinfolist_->authName( idx ); break;
-	    case 3: crsattr = crsinfolist_->name( idx ); break;
-	    case 4: crsattr = crsinfolist_->projMethod( idx ); break;
+	    case 0: crsattr = crsinfolist_.areaName( idx ); break;
+	    case 1: crsattr = crsinfolist_.authCode( idx ); break;
+	    case 2: crsattr = crsinfolist_.authName( idx ); break;
+	    case 3: crsattr = crsinfolist_.name( idx ); break;
+	    case 4: crsattr = crsinfolist_.projMethod( idx ); break;
 	}
 
 	if ( crsattr.matches(gestr,OD::CaseInsensitive) )
@@ -159,44 +171,46 @@ void uiProjectionBasedSystem::searchCB( CallBacker* )
 }
 
 
-void uiProjectionBasedSystem::fetchList()
-{
-    crsinfolist_ = getCRSInfoList( orthogonal_ );
-    curselidx_ = crsinfolist_->indexOf( cDefProjID() );
-    dispidxs_.setCapacity( crsinfolist_->size(), true ); \
-    for ( int idx=0; idx<crsinfolist_->size(); idx++ ) \
-	dispidxs_.add( idx );
-}
-
-
 void uiProjectionBasedSystem::fillList()
 {
     MouseCursorChanger cursorchanger( MouseCursor::Wait );
-    projselfld_->setEmpty();
-    uiStringSet itemstodisplay;
-    for ( int idx=0; idx<dispidxs_.size(); idx++ )
-	itemstodisplay.add( crsinfolist_->getDispString(dispidxs_[idx]) );
+    TypeSet<int> showrows, hiderows;
+    for ( int idx=0; idx<crsinfolist_.size(); idx++ )
+    {
+	if ( dispidxs_.isPresent(idx) )
+	    showrows.add( idx );
+	else
+	    hiderows.add( idx );
+    }
 
-    projselfld_->addItems( itemstodisplay );
+    projtable_->setRowsVisibility( showrows, hiderows );
     setCurrent();
 }
 
 
 void uiProjectionBasedSystem::setCurrent()
 {
-    const int selidx = curselidx_ < 0 ? -1 : dispidxs_.indexOf( curselidx_ );
-    projselfld_->setCurrentItem( selidx );
+    if ( curselidx_ >= 0 )
+    {
+	const RowCol rc = projtable_->mapFromSource( RowCol(curselidx_,0) );
+	projtable_->selectRow( rc.row() );
+    }
 }
 
 
 bool uiProjectionBasedSystem::acceptOK()
 {
-    const int selidx = projselfld_->currentItem();
-    if ( !dispidxs_.validIdx(selidx) )
+    TypeSet<int> selrows;
+    if ( !projtable_->getSelectedRows(selrows) || selrows.isEmpty() )
 	return false;
 
-    const AuthorityCode pid( crsinfolist_->authName(dispidxs_[selidx]),
-			     crsinfolist_->authCode(dispidxs_[selidx]) );
+    const RowCol srcrc = projtable_->mapToSource( RowCol(selrows[0],0) );
+    const int srcrow = srcrc.row();
+    if ( srcrow < 0 || srcrow >= crsinfolist_.size() )
+	return false;
+
+    const AuthorityCode pid( crsinfolist_.authName(srcrow),
+			     crsinfolist_.authCode(srcrow) );
     RefMan<ProjectionBasedSystem> res = new ProjectionBasedSystem;
     res->setProjection( pid );
     outputsystem_ = res;
@@ -206,22 +220,6 @@ bool uiProjectionBasedSystem::acceptOK()
 
 void uiProjectionBasedSystem::selChgCB( CallBacker* )
 {
-}
-
-
-void uiProjectionBasedSystem::infoCB( CallBacker* )
-{
-    const int selidx = projselfld_->currentItem();
-    if ( !dispidxs_.validIdx(selidx) )
-	return;
-
-    const uiString nm = crsinfolist_->getDispString( dispidxs_[selidx] );
-    uiDialog infodlg( this, uiDialog::Setup(nm,mNoHelpKey));
-    infodlg.setCtrlStyle( uiDialog::CloseOnly );
-    auto* txtfld = new uiTextEdit( &infodlg );
-    txtfld->setText( crsinfolist_->getDescString(dispidxs_[selidx]) );
-    txtfld->setPrefHeightInChar( 10 );
-    infodlg.go();
 }
 
 

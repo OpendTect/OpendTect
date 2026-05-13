@@ -16,14 +16,15 @@ ________________________________________________________________________
 class uiCheckBox;
 class uiLabeledComboBox;
 class uiFileInput;
-class uiListBox;
 class uiLineEdit;
 class uiLatLongInp;
+class uiTableView;
 
 namespace Coords
 {
 
 class CRSInfoList;
+class CRSInfoTableModel;
 
 mExpClass(uiCRS) uiProjectionBasedSystem : public uiCoordSystem
 { mODTextTranslationClass(uiProjectionBasedSystem);
@@ -41,25 +42,22 @@ public:
 
 protected:
 
-    uiListBox*		projselfld_;
+    uiTableView*	projtable_;
     uiLineEdit*		searchfld_;
     uiLabeledComboBox*	filtersel_;
 
     bool			orthogonal_	= true;
-    PtrMan<CRSInfoList>		crsinfolist_;
+    const CRSInfoList&		crsinfolist_;
+    CRSInfoTableModel*		tablemodel_	= nullptr;
     int				curselidx_	= -1;
     TypeSet<int>		dispidxs_;
-				// Indexes of ids_/names_ displayed in ListBox.
 
     bool		acceptOK() override;
     void		createGUI();
-    void		fetchList();
     void		fillList();
     void		setCurrent();
     void		selChgCB(CallBacker*);
     void		searchCB(CallBacker*);
-    void		infoCB(CallBacker*);
-
 };
 
 
