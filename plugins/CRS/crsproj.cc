@@ -15,6 +15,10 @@ ________________________________________________________________________
 #include "oddirs.h"
 #include "odjson.h"
 #include "separstr.h"
+#include "tablemodel.h"
+#include "thread.h"
+#include "threadwork.h"
+#include "uistrings.h"
 #include "unitofmeasure.h"
 
 #include "proj.h"
@@ -669,6 +673,48 @@ const PROJ_CRS_INFO* getInfo( int index ) const
 };
 
 
+static ProjCRSInfoList* xycrslist_ = nullptr;
+static ProjCRSInfoList* latlongcrslist_ = nullptr;
+
+static Threads::ConditionVar& getXYListCondVar()
+{
+    static Threads::ConditionVar condvar;
+    return condvar;
+}
+
+static Threads::ConditionVar& getLLListCondVar()
+{
+    static Threads::ConditionVar condvar;
+    return condvar;
+}
+
+
+static bool createOrthogonalList()
+{
+    auto* list = new ProjCRSInfoList( true );
+
+    Threads::ConditionVar& condvar = getXYListCondVar();
+    condvar.lock();
+    xycrslist_ = list;
+    condvar.signal( true );
+    condvar.unLock();
+    return true;
+}
+
+
+static bool createGeographicalList()
+{
+    auto* list = new ProjCRSInfoList( false );
+
+    Threads::ConditionVar& condvar = getLLListCondVar();
+    condvar.lock();
+    latlongcrslist_ = list;
+    condvar.signal( true );
+    condvar.unLock();
+    return true;
+}
+
+
 const char* Coords::initCRSDatabase()
 {
     static bool inited = false;
@@ -694,6 +740,20 @@ const char* Coords::initCRSDatabase()
 #else
 	msg.set( "Cannot load the proj database" );
 #endif
+
+	if ( msg.isEmpty() )
+	{
+	    Threads::WorkManager::twm().addWork(
+				Threads::Work(&createOrthogonalList) );
+	    Threads::WorkManager::twm().addWork(
+				Threads::Work(&createGeographicalList) );
+	}
+	else
+	{
+	    xycrslist_ = new ProjCRSInfoList( true );
+	    latlongcrslist_ = new ProjCRSInfoList( false );
+	}
+
 	inited = true;
     }
 
@@ -701,9 +761,17 @@ const char* Coords::initCRSDatabase()
 }
 
 
-Coords::CRSInfoList* Coords::getCRSInfoList( bool orthogonal )
+const Coords::CRSInfoList& Coords::getCRSInfoList( bool orthogonal )
 {
-    return new ProjCRSInfoList( orthogonal );
+    Threads::ConditionVar& condvar = orthogonal ? getXYListCondVar()
+						: getLLListCondVar();
+    condvar.lock();
+    ProjCRSInfoList*& list = orthogonal ? xycrslist_ : latlongcrslist_;
+    while ( !list )
+	condvar.wait();
+
+    condvar.unLock();
+    return *list;
 }
 
 
@@ -767,4 +835,129 @@ uiString Coords::CRSInfoList::getDescString( int idx ) const
 			 .arg( authName(idx) ).arg( authCode(idx) )
 			 .arg( name(idx) ).arg( projMethod(idx) )
 			 .arg( areapretty );
+}
+
+
+// CRSInfoTableModel
+
+static const int sAuthCol	= 0;
+static const int sCodeCol	= 1;
+static const int sNameCol	= 2;
+static const int sProjCol	= 3;
+static const int sAreaCol	= 4;
+
+
+Coords::CRSInfoTableModel::CRSInfoTableModel( const CRSInfoList& crslist )
+    : TableModel()
+    , crslist_(crslist)
+{
+}
+
+
+Coords::CRSInfoTableModel::~CRSInfoTableModel()
+{
+}
+
+
+int Coords::CRSInfoTableModel::nrRows() const
+{
+    return crslist_.size();
+}
+
+
+int Coords::CRSInfoTableModel::nrCols() const
+{
+    return 5;
+}
+
+
+int Coords::CRSInfoTableModel::flags( int row, int col ) const
+{
+    return ItemSelectable | ItemEnabled;
+}
+
+
+void Coords::CRSInfoTableModel::setCellData( int row, int col,
+					      const CellData& )
+{
+}
+
+
+TableModel::CellData Coords::CRSInfoTableModel::getCellData( int row,
+							      int col ) const
+{
+    if ( row < 0 || row >= crslist_.size() )
+	return CellData();
+
+    if ( col == sAuthCol )
+	return CellData( crslist_.authName(row) );
+    if ( col == sCodeCol )
+	return CellData( crslist_.authCode(row) );
+    if ( col == sNameCol )
+	return CellData( crslist_.name(row) );
+    if ( col == sProjCol )
+	return CellData( crslist_.projMethod(row) );
+    if ( col == sAreaCol )
+	return CellData( crslist_.areaName(row) );
+
+    return CellData();
+}
+
+
+OD::Color Coords::CRSInfoTableModel::textColor( int row, int col ) const
+{
+    return OD::Color::Black();
+}
+
+
+OD::Color Coords::CRSInfoTableModel::cellColor( int row, int col ) const
+{
+    return OD::Color::NoColor();
+}
+
+
+PixmapDesc Coords::CRSInfoTableModel::pixmap( int row, int col ) const
+{
+    return PixmapDesc();
+}
+
+
+uiString Coords::CRSInfoTableModel::headerText( int rowcol,
+						 OD::Orientation orient ) const
+{
+    if ( orient == OD::Vertical )
+	return toUiString( rowcol+1 );
+
+    if ( rowcol == sAuthCol )
+	return tr("Authority");
+    if ( rowcol == sCodeCol )
+	return tr("Code");
+    if ( rowcol == sNameCol )
+	return uiStrings::sName();
+    if ( rowcol == sProjCol )
+	return tr("Projection Method");
+    if ( rowcol == sAreaCol )
+	return tr("Area of use");
+
+    return uiString::empty();
+}
+
+
+uiString Coords::CRSInfoTableModel::tooltip( int row, int col ) const
+{
+    if ( row < 0 || row >= crslist_.size() )
+	return uiString::empty();
+
+    if ( col == sAuthCol )
+	return toUiString( crslist_.authName(row) );
+    if ( col == sCodeCol )
+	return toUiString( crslist_.authCode(row) );
+    if ( col == sNameCol )
+	return toUiString( crslist_.name(row) );
+    if ( col == sProjCol )
+	return toUiString( crslist_.projMethod(row) );
+    if ( col == sAreaCol )
+	return toUiString( crslist_.areaName(row) );
+
+    return uiString::empty();
 }
