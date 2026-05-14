@@ -661,7 +661,7 @@ bool Engine::isSelSpecSame( const Attrib::SelSpec& setupss,
 			    const Attrib::SelSpec& clickedss ) const
 {
     return setupss.id().asInt()==clickedss.id().asInt() &&
-	setupss.isStored()==clickedss.id().isStored() &&
+	setupss.id().isStored()==clickedss.id().isStored() &&
 	setupss.isNLA()==clickedss.isNLA() &&
 	BufferString(setupss.defString())==
 	   BufferString(clickedss.defString()) &&
@@ -677,7 +677,7 @@ int Engine::getCacheIndexOf( const Attrib::SelSpec& as ) const
 	if ( cachespecs.attrsel_.is2D()		!= as.is2D()  ||
 	     cachespecs.attrsel_.isNLA()	!= as.isNLA() ||
 	     cachespecs.attrsel_.id().asInt()	!= as.id().asInt() ||
-	     cachespecs.attrsel_.id().isStored() != as.isStored() )
+	     cachespecs.attrsel_.id().isStored() != as.id().isStored() )
 	    continue;
 
 	if ( cachespecs.geomid_ != activeGeomID() )
