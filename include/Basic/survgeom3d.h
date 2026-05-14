@@ -58,6 +58,7 @@ public:
     bool		isRightHandSystem() const;
 			/*!< Orientation is determined by rotating the
 			     inline axis to the crossline axis. */
+    mDeprecated("Use isRightHandSystem")
     bool		isClockWise() const { return isRightHandSystem(); }
 			/*!< Legacy, will be removed. */
 
