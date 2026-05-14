@@ -382,7 +382,7 @@ uiSurvey::uiSurvey( uiParent* p )
 
     auto* infogrp = new uiGroup( tabs->tabGroup(), "Info Group" );
     infofld_ = new uiTextEdit( infogrp, "Info", true );
-    infofld_->setPrefHeightInChar( 11 );
+    infofld_->setPrefHeightInChar( 13 );
     infofld_->setStretch( 2, 2 );
     tabs->addTab( infogrp, uiStrings::sInformation(), "info" );
 
@@ -1299,6 +1299,8 @@ void uiSurvey::putToScreen()
     infoset_.add( "Area", areainfo );
     infoset_.add( "Survey type", survtypeinfo );
     infoset_.add( "In-line orientation", orientinfo );
+    infoset_.add( "Handedness",
+		  si.isRightHandSystem() ? "Right-handed" : "Left-handed" );
     infoset_.add( "Location", locinfo );
 
     BufferString infostr;
