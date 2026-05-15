@@ -1,0 +1,11 @@
+{
+  "version": 4,
+  "configurations": [
+    {
+      "name": "@VSCODE_CPP_PROPERTIES_NAME@",
+      "compileCommands": "${workspaceFolder}/build/compile_commands.json",
+      "intelliSenseMode": "@VSCODE_CPP_PROPERTIES_INTELLISENSE_MODE@",
+      "cppStandard": "c++@CMAKE_CXX_STANDARD@"
+    }
+  ]
+}
