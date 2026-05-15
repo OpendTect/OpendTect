@@ -1,0 +1,25 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "CMake Debug",
+      "type": "@VSCODE_DEBUGGER_TYPE@",
+      "request": "launch",
+      "program": "${command:cmake.launchTargetPath}",
+      "args": [],
+      "terminal": "integrated",
+      "cwd": "${command:cmake.launchTargetDirectory}",
+      "env": @VSCODE_DEBUGENV@
+    },
+    {
+      "name": "CMake Debug in release mode",
+      "type": "@VSCODE_DEBUGGER_TYPE@",
+      "request": "launch",
+      "program": "${command:cmake.launchTargetPath}",
+      "args": [],
+      "terminal": "integrated",
+      "cwd": "${command:cmake.launchTargetDirectory}",
+      "env": @VSCODE_RELENV@
+    }
+  ]
+}
