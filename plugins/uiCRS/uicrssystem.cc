@@ -36,6 +36,9 @@ static StringView sKeyEPSG()	{ return StringView("EPSG"); }
 static AuthorityCode cDefProjID()
 { return AuthorityCode(sKeyEPSG(),32631); }
 
+#define cMethodCol  3
+#define cAreaCol  4
+
 uiProjectionBasedSystem::uiProjectionBasedSystem( uiParent* p )
     : uiCoordSystem( p,sFactoryDisplayName() )
     , crsinfolist_(getCRSInfoList(true))
@@ -76,13 +79,16 @@ void uiProjectionBasedSystem::createGUI()
     projtable_->setHeaderVisible( OD::Vertical, false );
     projtable_->setSortingEnabled( true );
     projtable_->sortByColumn( 0, true );
+    projtable_->setNrFrozenColumns( 0 );
     projtable_->setHSzPol( uiObject::WideMax );
     projtable_->setStretch( 2, 2 );
     projtable_->resizeColumnToContents( 0 );
     projtable_->resizeColumnToContents( 1 );
-    projtable_->setColumnStretchable( 2, true );
-    projtable_->setColumnStretchable( 3, true );
+    projtable_->resizeColumnToContents( 2 );
+    projtable_->resizeColumnToContents( 3 );
     projtable_->setColumnStretchable( 4, true );
+    projtable_->setColumnHidden( cMethodCol, true );
+    projtable_->setColumnHidden( cAreaCol, true );
     projtable_->selectionChanged.notify(
 				mCB(this,uiProjectionBasedSystem,selChgCB) );
 
@@ -106,6 +112,14 @@ void uiProjectionBasedSystem::createGUI()
 				mCB(this,uiProjectionBasedSystem,searchCB) );
     searchbut->attach( rightOf, searchfld_ );
 
+    showmethodfld_ = new uiCheckBox( this, tr("Show Projection Method"),
+			mCB(this,uiProjectionBasedSystem,showColumnsCB) );
+    showmethodfld_->attach( alignedBelow, projtable_ );
+
+    showareafld_ = new uiCheckBox( this, tr("Show Area of use"),
+			mCB(this,uiProjectionBasedSystem,showColumnsCB) );
+    showareafld_->attach( rightTo, showmethodfld_ );
+
     setHAlignObj( projtable_ );
 }
 
@@ -125,16 +139,23 @@ bool uiProjectionBasedSystem::initFields( const Coords::CoordSystem* sys )
 }
 
 
+void uiProjectionBasedSystem::showColumnsCB( CallBacker* cb )
+{
+    if ( cb == showmethodfld_ )
+	projtable_->setColumnHidden( cMethodCol, !showmethodfld_->isChecked() );
+    if ( cb == showareafld_ )
+	projtable_->setColumnHidden( cAreaCol, !showareafld_->isChecked() );
+}
+
+
 void uiProjectionBasedSystem::searchCB( CallBacker* )
 {
     BufferString str = searchfld_->text();
     if ( str.isEmpty() ) // No Filter, display all.
     {
-	dispidxs_.erase();
-	dispidxs_.setCapacity( crsinfolist_.size(), true );
-	for ( int idx=0; idx<crsinfolist_.size(); idx++ )
-	    dispidxs_.add( idx );
-
+	dispidxs_.setEmpty();
+	dispidxs_.setSize( crsinfolist_.size(), 0 );
+	dispidxs_.fillWithIncreasingValues( 0 );
 	fillList();
 	return;
     }
@@ -175,12 +196,21 @@ void uiProjectionBasedSystem::fillList()
 {
     MouseCursorChanger cursorchanger( MouseCursor::Wait );
     TypeSet<int> showrows, hiderows;
+    const bool dispall = dispidxs_.size() == crsinfolist_.size();
+    if ( dispall )
+    {
+	// Just display all the rows without any checks;
+	TypeSet<int> nothing;
+	projtable_->setRowsVisibility( dispidxs_, nothing );
+    }
+
     for ( int idx=0; idx<crsinfolist_.size(); idx++ )
     {
+	const int viewidx = projtable_->mapFromSource( RowCol(idx,0) ).row();
 	if ( dispidxs_.isPresent(idx) )
-	    showrows.add( idx );
+	    showrows.add( viewidx );
 	else
-	    hiderows.add( idx );
+	    hiderows.add( viewidx );
     }
 
     projtable_->setRowsVisibility( showrows, hiderows );

@@ -45,6 +45,8 @@ protected:
     uiTableView*	projtable_;
     uiLineEdit*		searchfld_;
     uiLabeledComboBox*	filtersel_;
+    uiCheckBox*		showmethodfld_;
+    uiCheckBox*		showareafld_;
 
     bool			orthogonal_	= true;
     const CRSInfoList&		crsinfolist_;
@@ -58,6 +60,7 @@ protected:
     void		setCurrent();
     void		selChgCB(CallBacker*);
     void		searchCB(CallBacker*);
+    void		showColumnsCB(CallBacker*);
 };
 
 
