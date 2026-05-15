@@ -57,6 +57,86 @@ public:
 	ApplicationData::exit( res ? 0 : 1 );
     }
 
+    bool testShutdown( bool multithreaded )
+    {
+	const BufferString pfx = multithreaded ? "[shutdown multithreaded] "
+					       : "[shutdown singlethreaded] ";
+	Network::RequestConnection conn( authority_, multithreaded );
+	mRunStandardTestWithError( conn.isOK(),
+				   BufferString(pfx,"Connection is OK"),
+				   toString(conn.errMsg()) );
+
+	if ( multithreaded )
+	{
+	    mRunStandardTest( conn.isMultiThreaded(),
+			      BufferString(pfx,"Connection is multithreaded") );
+	}
+
+	conn.shutdown();
+
+	mRunStandardTest( !conn.isOK(),
+		    BufferString(pfx,"Connection not OK after shutdown") );
+	mRunStandardTest( !conn.isMultiThreaded(),
+		    BufferString(pfx,"Socket thread stopped after shutdown") );
+
+	RefMan<Network::RequestPacket> packet = new Network::RequestPacket;
+	packet->setIsNewRequest();
+	packet->setStringPayload( "After shutdown" );
+	mRunStandardTest( !conn.sendPacket( *packet ),
+			  BufferString(pfx,"Cannot send after shutdown") );
+
+	return true;
+    }
+
+    bool testShutdownAfterPickupTimeout( bool multithreaded )
+    {
+	const BufferString pfx = multithreaded
+			    ? "[shutdown after pickup timeout multithreaded] "
+			    : "[shutdown after pickup timeout singlethreaded] ";
+	Network::RequestConnection conn( authority_, multithreaded );
+	mRunStandardTestWithError( conn.isOK(),
+				   BufferString(pfx,"Connection is OK"),
+				   toString(conn.errMsg()) );
+
+	if ( !multithreaded && conn.socket() )
+	    conn.socket()->setTimeout( 200 );
+
+	RefMan<Network::RequestPacket> packet = new Network::RequestPacket;
+	packet->setIsNewRequest();
+	packet->setStringPayload( "NoReply" );
+	mRunStandardTestWithError( conn.sendPacket( *packet ),
+				   BufferString(pfx,"Sending NoReply packet"),
+				   toString(conn.errMsg()) );
+
+	int errorcode = 0;
+	const int waittime = 500;
+	RefMan<Network::RequestPacket> received =
+		conn.pickupPacket( packet->requestID(), waittime, &errorcode );
+	mRunStandardTest( !received.ptr(),
+			  BufferString(pfx,"pickupPacket timed out") );
+
+	if ( multithreaded )
+	{
+	    mRunStandardTest( errorcode==Network::RequestConnection::cTimeout(),
+			      BufferString(pfx,"Timeout error code") );
+	}
+
+	conn.shutdown();
+
+	mRunStandardTest( !conn.isOK(),
+		    BufferString(pfx,"Connection not OK after shutdown") );
+	mRunStandardTest( !conn.isMultiThreaded(),
+		    BufferString(pfx,"Socket thread stopped after shutdown") );
+
+	RefMan<Network::RequestPacket> afterpacket = new Network::RequestPacket;
+	afterpacket->setIsNewRequest();
+	afterpacket->setStringPayload( "After shutdown" );
+	mRunStandardTest( !conn.sendPacket( *afterpacket ),
+			  BufferString(pfx,"Cannot send after shutdown") );
+
+	return true;
+    }
+
     bool runTest( bool sendkill, bool multithreaded )
     {
 	Network::RequestConnection conn( authority_, multithreaded );
@@ -323,6 +403,14 @@ int mTestMainFnName( int argc, char** argv )
     Tester runner( auth );
     runner.prefix_ = "[singlethreaded] ";
     if ( !runner.runTest(false,false) )
+    {
+	terminateServer( serverpid );
+	return 1;
+    }
+
+    if ( !runner.testShutdown(false) || !runner.testShutdown(true) ||
+	 !runner.testShutdownAfterPickupTimeout(false) ||
+	 !runner.testShutdownAfterPickupTimeout(true) )
     {
 	terminateServer( serverpid );
 	return 1;
