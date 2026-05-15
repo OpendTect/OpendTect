@@ -201,16 +201,15 @@ void uiProjectionBasedSystem::setCurrent()
 bool uiProjectionBasedSystem::acceptOK()
 {
     TypeSet<int> selrows;
-    if ( !projtable_->getSelectedRows(selrows) || selrows.isEmpty() )
+    if ( !projtable_->getSelectedRows(selrows,true) || selrows.isEmpty() )
 	return false;
 
-    const RowCol srcrc = projtable_->mapToSource( RowCol(selrows[0],0) );
-    const int srcrow = srcrc.row();
-    if ( srcrow < 0 || srcrow >= crsinfolist_.size() )
+    const int selrow = selrows.first();
+    if ( selrow < 0 || selrow >= crsinfolist_.size() )
 	return false;
 
-    const AuthorityCode pid( crsinfolist_.authName(srcrow),
-			     crsinfolist_.authCode(srcrow) );
+    const AuthorityCode pid( crsinfolist_.authName(selrow),
+			     crsinfolist_.authCode(selrow) );
     RefMan<ProjectionBasedSystem> res = new ProjectionBasedSystem;
     res->setProjection( pid );
     outputsystem_ = res;
