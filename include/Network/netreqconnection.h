@@ -50,6 +50,8 @@ public:
 
 			~RequestConnection();
 
+    void		shutdown();
+
     bool		isOK() const;		//!< is the conn usable?
     bool		stillTrying() const;	//!< if not OK, may it become?
     BufferString	server() const;
@@ -107,6 +109,7 @@ private:
 				//Called from socketthread
 
     void			socketThreadFunc(CallBacker*);
+    void			stopSocketThreadCB(CallBacker*);
     void			connectToHost( bool witheventloop );
     void			connCloseCB(CallBacker*);
     void			newConnectionCB(CallBacker*);

@@ -63,6 +63,7 @@ RequestConnection::RequestConnection( const Authority& authority,
 	eventlooplock_ = &eventlooplock;
 	while ( !eventloop_ )
 	    eventlooplock.wait(); //Wait for thread to create connection.
+
         eventlooplock.unLock();
 	eventlooplock_ = nullptr;
     }
@@ -89,22 +90,68 @@ RequestConnection::RequestConnection( Socket* sock )
 }
 
 
+void RequestConnection::shutdown()
+{
+    if ( !socketthread_ )
+    {
+	if ( socket_ && ownssocket_ )
+	    socket_->disconnectFromHost( true );
+
+	return;
+    }
+
+    if ( Threads::currentThread() == socketthread_->threadID() )
+    {
+	stopSocketThreadCB( nullptr );
+	return;
+    }
+
+    if ( eventloop_ )
+    {
+	mQtclass(QObject)* qsock = socket_ ? socket_->qSocket() : nullptr;
+	if ( qsock )
+	{
+	    QMetaObject::invokeMethod(
+		qsock, [this]()
+		{
+		    stopSocketThreadCB( nullptr );
+		},
+		Qt::BlockingQueuedConnection
+	    );
+	}
+	else
+	{
+	    QMetaObject::invokeMethod( eventloop_, "exit",
+				       Qt::BlockingQueuedConnection,
+				       Q_ARG(int,0) );
+	}
+    }
+
+    socketthread_->waitForFinish();
+    deleteAndNullPtr( socketthread_ );
+}
+
+
+void RequestConnection::stopSocketThreadCB( CallBacker* )
+{
+    if ( socket_ )
+    {
+	socket_->abort();
+	socket_->disconnectFromHost( true );
+    }
+
+    if ( eventloop_ )
+	eventloop_->exit( 0 );
+}
+
+
 RequestConnection::~RequestConnection()
 {
     detachAllNotifiers();
+    shutdown();
 
     delete authority_;
-    if ( eventloop_ )
-    {
-	eventloop_->exit();
-
-	socketthread_->waitForFinish();
-	deleteAndNullPtr( socketthread_ );
-    }
-    else
-    {
-	deleteAndNullPtr( socket_, ownssocket_ );
-    }
+    deleteAndNullPtr( socket_, ownssocket_ );
 
     if ( !receivedpackets_.isEmpty() )
     {
