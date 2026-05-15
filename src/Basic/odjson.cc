@@ -925,6 +925,18 @@ static QString formatJson2Spaces( const QString& compact )
 	{
 	    if ( c == '{' || c == '[' )
 	    {
+		if ( i+1 < compact.size() )
+		{
+		    const QChar nextc = compact[i+1];
+		    if ( (c == '{' && nextc == '}') || (c == '[' && nextc == ']') )
+		    {
+			out += c;
+			out += nextc;
+			i++;
+			continue;
+		    }
+		}
+
 		out += c;
 		out += '\n';
 		indent++;
