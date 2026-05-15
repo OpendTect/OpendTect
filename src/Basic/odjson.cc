@@ -18,6 +18,7 @@ ________________________________________________________________________
 #include "uistrings.h"
 
 #include <QJsonDocument>
+#include <QString>
 
 #include <string.h>
 
@@ -828,6 +829,85 @@ BufferString OD::JSON::ValueSet::dumpJSon( bool pretty ) const
 }
 
 
+namespace OD
+{
+
+static QString formatJson2Spaces( const QString& compact )
+{
+    QString out;
+    int indent = 0;
+    bool instring = false;
+    for ( int i=0; i<compact.size(); i++ )
+    {
+	QChar c = compact[i];
+	if ( c == '"' )
+	{
+	    int bslashcount = 0;
+	    for ( int j=i-1; j>=0 && compact[j] == '\\'; j-- )
+		bslashcount++;
+
+	    const bool isescapedquote = (bslashcount % 2) == 1;
+	    if ( !isescapedquote )
+		instring = !instring;
+	}
+
+	if ( !instring )
+	{
+	    if ( c == '{' || c == '[' )
+	    {
+		if ( i+1 < compact.size() )
+		{
+		    const QChar nextc = compact[i+1];
+		    if ( (c == '{' && nextc == '}') || (c == '[' && nextc == ']') )
+		    {
+			out += c;
+			out += nextc;
+			i++;
+			continue;
+		    }
+		}
+
+		out += c;
+		out += '\n';
+		indent++;
+		out += QString( indent * 2, ' ' );
+		continue;
+	    }
+
+	    if ( c == '}' || c == ']' )
+	    {
+		out += '\n';
+		indent--;
+		out += QString( indent * 2, ' ' );
+		out += c;
+		continue;
+	    }
+
+	    if ( c == ',' )
+	    {
+		out += c;
+		out += '\n';
+		out += QString( indent * 2, ' ' );
+		continue;
+	    }
+
+	    if ( c == ':' )
+	    {
+		out += c;
+		out += ' ';
+		continue;
+	    }
+	}
+
+	out += c;
+    }
+
+    return out;
+}
+
+} // namespace OD
+
+
 void OD::JSON::ValueSet::dumpJSon( BufferString& bs, bool pretty ) const
 {
     StringBuilder sb;
@@ -835,8 +915,10 @@ void OD::JSON::ValueSet::dumpJSon( BufferString& bs, bool pretty ) const
     bs = sb.result();
     if ( pretty )
     {
-	QJsonDocument qjsondoc = QJsonDocument::fromJson( bs.str() );
-	bs = qjsondoc.toJson( QJsonDocument::Indented ).constData();
+	const QJsonDocument qjsondoc = QJsonDocument::fromJson( bs.buf() );
+	const QString qcompact = qjsondoc.toJson( QJsonDocument::Compact );
+	const QString qpretty = formatJson2Spaces( qcompact );
+	bs.set( qpretty );
     }
 }
 
