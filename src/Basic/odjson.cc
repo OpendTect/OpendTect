@@ -200,6 +200,18 @@ static BufferString getPathStr( const FilePath& fp )
     return ret;
 }
 
+
+static void setPathStr( const char* str, FilePath& fp )
+{
+    BufferString ret = str;
+    fp.set( str );
+    if ( __iswin__ && !fp.isURI() )
+	ret.replace( "/", "\\" );
+
+    fp.set( ret );
+}
+
+
 } // namespace JSON
 
 } // namespace OD
@@ -309,7 +321,7 @@ FilePath OD::JSON::ValArr::getFilePath( idx_type idx ) const
 
     FilePath ret;
     if ( type_ == String )
-	ret.set( strings().get(idx) );
+	setPathStr( strings().get(idx), ret );
 
     return ret;
 }
@@ -491,7 +503,7 @@ FilePath OD::JSON::ValueSet::getFilePath( idx_type idx ) const
 
     FilePath ret;
     if ( DataType(val->type_) == String )
-	ret.set( val->str() );
+	setPathStr( val->str(), ret );
 
     return ret;
 }
