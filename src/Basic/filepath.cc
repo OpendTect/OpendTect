@@ -458,12 +458,18 @@ bool FilePath::isSubDirOf( const FilePath& oth, FilePath* relpath ) const
 bool FilePath::makeCanonical()
 {
     BufferString fullpath = fullPath();
+    if ( fullpath.isEmpty() )
+	return false;
+
+    BufferString canon = File::getCanonicalPath( fullpath.buf() );
+    if ( canon.isEmpty() )
+	return false;
+
 #ifndef __win__
-    set( File::getCanonicalPath( fullpath.buf() ) );
+    set( canon.buf() );
 #else
-    BufferString winpath = File::getCanonicalPath( fullpath.buf() );
-    winpath.replace( '/', '\\' );
-    set( winpath );
+    canon.replace( '/', '\\' );
+    set( canon.buf() );
 #endif
     return true;
 }

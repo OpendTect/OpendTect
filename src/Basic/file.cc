@@ -547,11 +547,25 @@ BufferString findExecutable( const char* exenm, const BufferStringSet& paths,
     return ret;
 }
 
+
 const char* getCanonicalPath( const char* dir )
 {
     mDeclStaticString( ret );
-    const QDir qdir( dir );
-    ret = qdir.canonicalPath();
+    if ( StringView(dir).isEmpty() )
+    {
+	ret.setEmpty();
+	return ret.buf();
+    }
+
+    // QDir::canonicalPath() returns empty string if the path is \\server
+    QString canpath = QDir( dir ).canonicalPath();
+    if ( canpath.isEmpty() )
+	canpath = QFileInfo( dir ).absoluteFilePath();
+
+    if ( canpath.isEmpty() )
+	canpath = dir;
+
+    ret = canpath;
     return ret.buf();
 }
 
