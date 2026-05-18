@@ -117,6 +117,10 @@ public:
 	    newpacket->setStringPayload( sentmessage );
 	    conn->sendPacket( *newpacket );
 	}
+	else if ( packetstring=="NoReply" )
+	{
+	    // Intentional: No response (used by netreq timeout tests).
+	}
 	else
 	{
 	    conn->sendPacket( *packet );
