@@ -9,8 +9,8 @@ ________________________________________________________________________
 -*/
 
 #include "crsmod.h"
+
 #include "latlong.h"
-#include "manobjectset.h"
 #include "tablemodel.h"
 #include "uistring.h"
 

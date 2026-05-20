@@ -16,7 +16,6 @@ ________________________________________________________________________
 #include "odjson.h"
 #include "separstr.h"
 #include "tablemodel.h"
-#include "thread.h"
 #include "threadwork.h"
 #include "uistrings.h"
 #include "unitofmeasure.h"
@@ -673,44 +672,10 @@ const PROJ_CRS_INFO* getInfo( int index ) const
 };
 
 
-static ProjCRSInfoList* xycrslist_ = nullptr;
-static ProjCRSInfoList* latlongcrslist_ = nullptr;
-
-static Threads::ConditionVar& getXYListCondVar()
+static bool createCRSLists()
 {
-    static Threads::ConditionVar condvar;
-    return condvar;
-}
-
-static Threads::ConditionVar& getLLListCondVar()
-{
-    static Threads::ConditionVar condvar;
-    return condvar;
-}
-
-
-static bool createOrthogonalList()
-{
-    auto* list = new ProjCRSInfoList( true );
-
-    Threads::ConditionVar& condvar = getXYListCondVar();
-    condvar.lock();
-    xycrslist_ = list;
-    condvar.signal( true );
-    condvar.unLock();
-    return true;
-}
-
-
-static bool createGeographicalList()
-{
-    auto* list = new ProjCRSInfoList( false );
-
-    Threads::ConditionVar& condvar = getLLListCondVar();
-    condvar.lock();
-    latlongcrslist_ = list;
-    condvar.signal( true );
-    condvar.unLock();
+    (void) Coords::getCRSInfoList( true );
+    (void) Coords::getCRSInfoList( false );
     return true;
 }
 
@@ -736,23 +701,15 @@ const char* Coords::initCRSDatabase()
 	{
 	    proj_context_set_database_path( PJ_DEFAULT_CTX, fp.fullPath(),
 					    nullptr, nullptr );
-	}
-#else
-	msg.set( "Cannot load the proj database" );
-#endif
-
-	if ( msg.isEmpty() )
-	{
 	    Threads::WorkManager::twm().addWork(
-				Threads::Work(&createOrthogonalList) );
-	    Threads::WorkManager::twm().addWork(
-				Threads::Work(&createGeographicalList) );
+				Threads::Work(&createCRSLists) );
 	}
 	else
-	{
-	    xycrslist_ = new ProjCRSInfoList( true );
-	    latlongcrslist_ = new ProjCRSInfoList( false );
-	}
+	    createCRSLists();
+#else
+	msg.set( "Cannot load the proj database" );
+	createCRSLists();
+#endif
 
 	inited = true;
     }
@@ -763,15 +720,9 @@ const char* Coords::initCRSDatabase()
 
 const Coords::CRSInfoList& Coords::getCRSInfoList( bool orthogonal )
 {
-    Threads::ConditionVar& condvar = orthogonal ? getXYListCondVar()
-						: getLLListCondVar();
-    condvar.lock();
-    ProjCRSInfoList*& list = orthogonal ? xycrslist_ : latlongcrslist_;
-    while ( !list )
-	condvar.wait();
-
-    condvar.unLock();
-    return *list;
+    static const ProjCRSInfoList xycrslist( true );
+    static const ProjCRSInfoList latlongcrslist( false );
+    return orthogonal ? xycrslist : latlongcrslist;
 }
 
 
