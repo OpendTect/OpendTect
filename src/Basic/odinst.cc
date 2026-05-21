@@ -191,7 +191,7 @@ static const char* softwareDir()
 
 static const char* qtEditorName()
 {
-    return "dGB_Earth_Sciences";
+    return __islinux__ ? "dGB_Earth_Sciences" : "dGB Earth Sciences";
 }
 
 
