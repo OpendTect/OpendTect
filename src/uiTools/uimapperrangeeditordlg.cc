@@ -238,6 +238,5 @@ ConstRefMan<DataPack> uiMultiMapperRangeEditWin::MapperData::getDataPack() const
 void uiMultiMapperRangeEditWin::MapperData::dataPackDeleted( CallBacker* )
 {
     datapack_ = nullptr;
-    closeAndNullPtr( statsdisplay_ );
     mapperrgeditor_->display( false );
 }
