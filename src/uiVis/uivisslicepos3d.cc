@@ -83,7 +83,6 @@ void uiSlicePos3DDisp::setDisplay( const VisID& dispid )
     curpdd_ = isvalidso ? curpdd.ptr() : nullptr;
     curvol_ = isvalidso ? curvol.ptr() : nullptr;
     currtd_ = isvalidso ? currtd.ptr() : nullptr;
-    toolbar_->display( isvalidso );
     if ( !isvalidso )
 	return;
 
