@@ -177,6 +177,7 @@ int Table::Converter::nextStep()
 
 bool Table::Converter::doFinish( bool success, od_ostream* strm )
 {
+    imphndlr_.strm().reOpen();
     exphndlr_.finish();
     return SequentialTask::doFinish( success, strm );
 }
