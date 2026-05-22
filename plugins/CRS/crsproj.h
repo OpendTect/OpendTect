@@ -143,15 +143,17 @@ public:
     int			flags(int row,int col) const override;
     void		setCellData(int row,int col,const CellData&) override;
     CellData		getCellData(int row,int col) const override;
-    OD::Color		textColor(int row,int col) const override;
     OD::Color		cellColor(int row,int col) const override;
-    PixmapDesc		pixmap(int row,int col) const override;
     uiString		headerText(int rowcol,OD::Orientation) const override;
     uiString		tooltip(int row,int col) const override;
+
+    int			currentSelection() const;
+    void		setCurrentSelection(int);
 
 protected:
 
     const CRSInfoList&	crslist_;
+    int			curselidx_		 = -1;
 };
 
 

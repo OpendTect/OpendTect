@@ -61,6 +61,9 @@ public:
     bool			isSortingEnabled() const;
     void			sortByColumn(int col,bool asc=true);
 
+    void			scrollTo(const RowCol&);
+				//!<Needs model RowCol
+
     void			setRowHidden(int row,bool);
     void			setRowsHidden(const TypeSet<int>&,bool);
     bool			isRowHidden(int row) const;

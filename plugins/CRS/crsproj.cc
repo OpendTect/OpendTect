@@ -599,9 +599,11 @@ ProjCRSInfoList( bool orthogonal )
 	params->typesCount = 1;
     }
 
-    infos_ = proj_get_crs_info_list_from_database( nullptr, nullptr, params,
+    PJ_CONTEXT* ctx = proj_context_clone( PJ_DEFAULT_CTX );
+    infos_ = proj_get_crs_info_list_from_database( ctx, nullptr, params,
 						   &sz_ );
     proj_get_crs_list_parameters_destroy( params );
+    proj_context_destroy( ctx );
 }
 
 ~ProjCRSInfoList()
@@ -720,9 +722,14 @@ const char* Coords::initCRSDatabase()
 
 const Coords::CRSInfoList& Coords::getCRSInfoList( bool orthogonal )
 {
-    static const ProjCRSInfoList xycrslist( true );
+    if ( orthogonal )
+    {
+	static const ProjCRSInfoList xycrslist( true );
+	return xycrslist;
+    }
+
     static const ProjCRSInfoList latlongcrslist( false );
-    return orthogonal ? xycrslist : latlongcrslist;
+    return latlongcrslist;
 }
 
 
@@ -855,21 +862,9 @@ TableModel::CellData Coords::CRSInfoTableModel::getCellData( int row,
 }
 
 
-OD::Color Coords::CRSInfoTableModel::textColor( int row, int col ) const
-{
-    return OD::Color::Black();
-}
-
-
 OD::Color Coords::CRSInfoTableModel::cellColor( int row, int col ) const
 {
-    return OD::Color::NoColor();
-}
-
-
-PixmapDesc Coords::CRSInfoTableModel::pixmap( int row, int col ) const
-{
-    return PixmapDesc();
+    return row == curselidx_ ? OD::Color(150,255,150) : OD::Color::NoColor();
 }
 
 
@@ -911,4 +906,22 @@ uiString Coords::CRSInfoTableModel::tooltip( int row, int col ) const
 	return toUiString( crslist_.areaName(row) );
 
     return uiString::empty();
+}
+
+
+int Coords::CRSInfoTableModel::currentSelection() const
+{
+    return curselidx_;
+}
+
+
+void Coords::CRSInfoTableModel::setCurrentSelection( int idx )
+{
+    const int previdx = curselidx_;
+    if ( previdx == idx )
+	return;
+
+    beginReset();
+    curselidx_ = idx;
+    endReset();
 }

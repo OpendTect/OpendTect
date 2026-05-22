@@ -28,16 +28,12 @@ ________________________________________________________________________
 #include "uitextedit.h"
 #include "uitoolbutton.h"
 
-
 using namespace Coords;
 
-static StringView sKeyEPSG()	{ return StringView("EPSG"); }
-
-static AuthorityCode cDefProjID()
-{ return AuthorityCode(sKeyEPSG(),32631); }
-
+#define cNameCol  2
 #define cMethodCol  3
 #define cAreaCol  4
+#define cRowHeight  18
 
 uiProjectionBasedSystem::uiProjectionBasedSystem( uiParent* p )
     : uiCoordSystem( p,sFactoryDisplayName() )
@@ -45,9 +41,7 @@ uiProjectionBasedSystem::uiProjectionBasedSystem( uiParent* p )
 {
     dispidxs_.setSize( crsinfolist_.size(), 0 );
     dispidxs_.fillWithIncreasingValues();
-    curselidx_ = crsinfolist_.indexOf( cDefProjID() );
     createGUI();
-    fillList();
 }
 
 
@@ -58,9 +52,7 @@ uiProjectionBasedSystem::uiProjectionBasedSystem( uiParent* p, bool orthogonal )
     orthogonal_ = orthogonal;
     dispidxs_.setSize( crsinfolist_.size(), 0 );
     dispidxs_.fillWithIncreasingValues();
-    curselidx_ = crsinfolist_.indexOf( cDefProjID() );
     createGUI();
-    fillList();
 }
 
 
@@ -74,6 +66,7 @@ void uiProjectionBasedSystem::createGUI()
     tablemodel_ = new CRSInfoTableModel( crsinfolist_ );
     projtable_ = new uiTableView( this, "ProjectionTable" );
     projtable_->setModel( tablemodel_ );
+    projtable_->setRowHeight( cRowHeight );
     projtable_->setSelectionBehavior( uiTableView::SelectRows );
     projtable_->setSelectionMode( uiTableView::SingleSelection );
     projtable_->setHeaderVisible( OD::Vertical, false );
@@ -82,20 +75,18 @@ void uiProjectionBasedSystem::createGUI()
     projtable_->setNrFrozenColumns( 0 );
     projtable_->setHSzPol( uiObject::WideMax );
     projtable_->setStretch( 2, 2 );
-    projtable_->resizeColumnToContents( 0 );
-    projtable_->resizeColumnToContents( 1 );
-    projtable_->resizeColumnToContents( 2 );
-    projtable_->resizeColumnToContents( 3 );
-    projtable_->setColumnStretchable( 4, true );
-    projtable_->setColumnHidden( cMethodCol, true );
-    projtable_->setColumnHidden( cAreaCol, true );
+    for ( int col=0; col<=cMethodCol; col++ )
+	projtable_->resizeColumnToContents( col );
+
     projtable_->selectionChanged.notify(
 				mCB(this,uiProjectionBasedSystem,selChgCB) );
 
     uiStringSet filteroptions;
     filteroptions.add( tr("Area of use") ).add( tr("Authority code") )
-		 .add( tr("Authority name") ).add( uiStrings::sName() )
-		 .add( tr("Projection method") );
+		 .add( tr("Authority name") ).add( uiStrings::sName() );
+    if ( orthogonal_ )
+	filteroptions.add( tr("Projection method") );
+
     filtersel_ = new uiLabeledComboBox( this, filteroptions, tr("Filter by") );
     filtersel_->box()->setCurrentItem( 3 );
     filtersel_->attach( alignedAbove, projtable_ );
@@ -112,15 +103,27 @@ void uiProjectionBasedSystem::createGUI()
 				mCB(this,uiProjectionBasedSystem,searchCB) );
     searchbut->attach( rightOf, searchfld_ );
 
-    showmethodfld_ = new uiCheckBox( this, tr("Show Projection Method"),
-			mCB(this,uiProjectionBasedSystem,showColumnsCB) );
-    showmethodfld_->attach( alignedBelow, projtable_ );
+    if ( orthogonal_ )
+    {
+	showmethodfld_ = new uiCheckBox( this, tr("Show Projection Method"),
+			    mCB(this,uiProjectionBasedSystem,showColumnsCB) );
+	showmethodfld_->attach( alignedBelow, projtable_ );
+    }
 
     showareafld_ = new uiCheckBox( this, tr("Show Area of use"),
 			mCB(this,uiProjectionBasedSystem,showColumnsCB) );
-    showareafld_->attach( rightTo, showmethodfld_ );
+    if ( showmethodfld_ )
+	showareafld_->attach( rightTo, showmethodfld_ );
+    else
+	showareafld_->attach( alignedBelow, projtable_ );
+
+    gotocurrentbut_ = new uiPushButton( this, tr("Go to current"), "updown",
+			mCB(this,uiProjectionBasedSystem,goToCurrentCB), true );
+    gotocurrentbut_->attach( rightAlignedBelow, projtable_ );
+    gotocurrentbut_->setSensitive( false );
 
     setHAlignObj( projtable_ );
+    postFinalize().notify( mCB(this,uiProjectionBasedSystem,showColumnsCB) );
 }
 
 
@@ -133,18 +136,54 @@ bool uiProjectionBasedSystem::initFields( const Coords::CoordSystem* sys )
     Coords::AuthorityCode pid = orthogonal_ ?
 				projsys->getProjection()->authCode() :
 				projsys->getProjection()->getGeodeticAuthCode();
-    curselidx_ = crsinfolist_.indexOf( pid );
-    setCurrent();
+    const int curidx = crsinfolist_.indexOf( pid );
+    if ( curidx < 0 )
+    {
+	pErrMsg("Survey CRS not found");
+	return false;
+    }
+
+    tablemodel_->setCurrentSelection( curidx );
+    gotocurrentbut_->setSensitive( true );
+    goToCurrentCB( nullptr );
     return true;
 }
 
 
-void uiProjectionBasedSystem::showColumnsCB( CallBacker* cb )
+void uiProjectionBasedSystem::showColumnsCB( CallBacker* )
 {
-    if ( cb == showmethodfld_ )
-	projtable_->setColumnHidden( cMethodCol, !showmethodfld_->isChecked() );
-    if ( cb == showareafld_ )
-	projtable_->setColumnHidden( cAreaCol, !showareafld_->isChecked() );
+    const bool showmethod = showmethodfld_ ? showmethodfld_->isChecked()
+					   : false;
+    const bool showarea = showareafld_->isChecked();
+    projtable_->setColumnHidden( cMethodCol, !showmethod );
+    projtable_->setColumnHidden( cAreaCol, !showarea );
+    projtable_->setColumnStretchable( cNameCol, !showmethod && !showarea );
+    if ( showmethod || showarea )
+    {
+	projtable_->resizeColumnToContents( cNameCol );
+	if ( showmethod )
+	{
+	    projtable_->setColumnStretchable( cMethodCol, !showarea );
+	    if ( showarea )
+		projtable_->resizeColumnToContents( cMethodCol );
+	}
+
+	if ( showarea )
+	    projtable_->setColumnStretchable( cAreaCol, true );
+    }
+}
+
+
+
+void uiProjectionBasedSystem::goToCurrentCB( CallBacker* )
+{
+    const int curidx = tablemodel_->currentSelection();
+    if ( curidx < 0 )
+	return;
+
+    const RowCol sourcerc( curidx, 0 );
+    projtable_->scrollTo( sourcerc );
+    projtable_->selectRow( projtable_->mapFromSource(sourcerc).row() );
 }
 
 
@@ -195,15 +234,27 @@ void uiProjectionBasedSystem::searchCB( CallBacker* )
 void uiProjectionBasedSystem::fillList()
 {
     MouseCursorChanger cursorchanger( MouseCursor::Wait );
-    TypeSet<int> showrows, hiderows;
+    const int curidx = tablemodel_->currentSelection();
+    TypeSet<int> selrows;
+    projtable_->getSelectedRows( selrows, true );
     const bool dispall = dispidxs_.size() == crsinfolist_.size();
     if ( dispall )
     {
 	// Just display all the rows without any checks;
 	TypeSet<int> nothing;
 	projtable_->setRowsVisibility( dispidxs_, nothing );
+	if ( !selrows.isEmpty() )
+	{
+	    const RowCol rc = projtable_->mapFromSource(
+						RowCol(selrows.first(),0) );
+	    projtable_->selectRow( rc.row() );
+	}
+
+	gotocurrentbut_->setSensitive( curidx >= 0 );
+	return;
     }
 
+    TypeSet<int> showrows, hiderows;
     for ( int idx=0; idx<crsinfolist_.size(); idx++ )
     {
 	const int viewidx = projtable_->mapFromSource( RowCol(idx,0) ).row();
@@ -214,15 +265,11 @@ void uiProjectionBasedSystem::fillList()
     }
 
     projtable_->setRowsVisibility( showrows, hiderows );
-    setCurrent();
-}
-
-
-void uiProjectionBasedSystem::setCurrent()
-{
-    if ( curselidx_ >= 0 )
+    gotocurrentbut_->setSensitive( curidx>=0 && dispidxs_.isPresent(curidx) );
+    if ( !selrows.isEmpty() && dispidxs_.isPresent(selrows.first()) )
     {
-	const RowCol rc = projtable_->mapFromSource( RowCol(curselidx_,0) );
+	const RowCol rc = projtable_->mapFromSource(
+					    RowCol(selrows.first(),0) );
 	projtable_->selectRow( rc.row() );
     }
 }
@@ -243,6 +290,7 @@ bool uiProjectionBasedSystem::acceptOK()
     RefMan<ProjectionBasedSystem> res = new ProjectionBasedSystem;
     res->setProjection( pid );
     outputsystem_ = res;
+    initFields( outputsystem_.ptr() );
     return true;
 }
 

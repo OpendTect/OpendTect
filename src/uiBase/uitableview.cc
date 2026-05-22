@@ -366,6 +366,7 @@ public:
 					bool useoldval);
     bool	    setSourceDataWithUndo(const TableModel::EditRequest& req);
     void	    setCurrentCell(const RowCol&,bool noselection);
+    void	    scrollTo(const QModelIndex&,ScrollHint) override;
     void	    pushUndoCommand(QUndoCommand*);
     void	    clearUndoStack();
     void	    undo();
@@ -381,7 +382,6 @@ protected:
     bool	    eventFilter(QObject*,QEvent*) override;
     void	    keyPressEvent(QKeyEvent*) override;
     void	    resizeEvent(QResizeEvent*) override;
-    void	    scrollTo(const QModelIndex&,ScrollHint) override;
     QModelIndex     moveCursor(CursorAction,Qt::KeyboardModifiers) override;
     void	    enableCustomContextMenu();
     void	    setContextMenuPolicyToDefault();
@@ -1133,6 +1133,18 @@ void uiTableView::redo()
     odtableview_->redo();
 
     undoRedoHappened.trigger();
+}
+
+
+void uiTableView::scrollTo( const RowCol& rc )
+{
+    const QModelIndex sourceidx =
+	tablemodel_->getAbstractModel()->index( rc.row(), rc.col() );
+    const QModelIndex proxyidx = qproxymodel_->mapFromSource( sourceidx );
+    if ( !proxyidx.isValid() )
+	return;
+
+    odtableview_->scrollTo( proxyidx, QAbstractItemView::PositionAtCenter );
 }
 
 
