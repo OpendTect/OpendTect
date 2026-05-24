@@ -45,22 +45,22 @@ protected:
     uiTableView*	projtable_;
     uiLineEdit*		searchfld_;
     uiLabeledComboBox*	filtersel_;
-    uiCheckBox*		showmethodfld_;
+    uiCheckBox*		showmethodfld_		= nullptr;
     uiCheckBox*		showareafld_;
+    uiButton*		gotocurrentbut_;
 
     bool			orthogonal_	= true;
     const CRSInfoList&		crsinfolist_;
     CRSInfoTableModel*		tablemodel_	= nullptr;
-    int				curselidx_	= -1;
     TypeSet<int>		dispidxs_;
 
     bool		acceptOK() override;
     void		createGUI();
     void		fillList();
-    void		setCurrent();
     void		selChgCB(CallBacker*);
     void		searchCB(CallBacker*);
     void		showColumnsCB(CallBacker*);
+    void		goToCurrentCB(CallBacker*);
 };
 
 

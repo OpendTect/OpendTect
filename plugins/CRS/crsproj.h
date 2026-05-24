@@ -149,9 +149,13 @@ public:
     uiString		headerText(int rowcol,OD::Orientation) const override;
     uiString		tooltip(int row,int col) const override;
 
+    int			currentSelection() const;
+    void		setCurrentSelection(int);
+
 protected:
 
     const CRSInfoList&	crslist_;
+    int			curselidx_		 = -1;
 };
 
 
