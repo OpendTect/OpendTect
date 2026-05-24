@@ -45,6 +45,7 @@ public:
     void			resizeColumnsToContents();
     void			resizeColumnToContents(int column);
     void			setRowHeight(int row,int height);
+    void			setRowHeight(int row);
 
     void			setSectionsMovable(bool);
     void			moveColumn(int from,int to);
@@ -52,6 +53,9 @@ public:
     void			setSortingEnabled(bool);
     bool			isSortingEnabled() const;
     void			sortByColumn(int col,bool asc=true);
+
+    void			scrollTo(const RowCol&);
+				//!<Needs model RowCol
 
     void			setRowHidden(int row,bool);
     void			setRowsHidden(const TypeSet<int>&,bool);
