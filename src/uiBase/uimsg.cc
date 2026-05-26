@@ -812,6 +812,7 @@ uiUserShowWait::uiUserShowWait( uiParent* p, const uiString& msg, int fldidx )
 	mw = uiMainWin::activeWindow();
     if ( !mw || !mw->statusBar() )
 	mw = uiMain::instance().topLevel();
+
     sb_ = mw ? mw->statusBar() : nullptr;
     if ( sb_ )
     {
@@ -828,7 +829,7 @@ uiUserShowWait::~uiUserShowWait()
     detachAllNotifiers();
     readyNow();
     if ( sb_ )
-	sb_->message( prevmessages_ );
+	sb_->message( prevmessages_, -1, true );
 }
 
 
@@ -841,7 +842,7 @@ void uiUserShowWait::deleteSbCB( CallBacker* )
 void uiUserShowWait::setMessage( const uiString& msg )
 {
     if ( sb_ )
-	sb_->message( msg, fldidx_ );
+	sb_->message( msg, fldidx_, -1, true );
 }
 
 
@@ -850,7 +851,7 @@ void uiUserShowWait::readyNow()
     if ( !mcc_ )
 	return;
 
-    setMessage( uiString::emptyString() );
+    setMessage( uiString::empty() );
     mcc_->restore();
     deleteAndNullPtr( mcc_ );
 }

@@ -13,13 +13,13 @@ ________________________________________________________________________
 #include "uimainwin.h"
 #include "uimain.h"
 #include "uiobj.h"
-#include "uistrings.h"
 #include "envvars.h"
 
 #include "q_uiimpl.h"
 
-#include <QStatusBar>
+#include <QCoreApplication>
 #include <QLabel>
+#include <QStatusBar>
 #include <QToolTip>
 
 static Threads::Atomic<int> nodispatall_( -1 );
@@ -167,32 +167,45 @@ int uiStatusBar::nrFields() const
 }
 
 
-void uiStatusBar::setEmpty( int startat )
+void uiStatusBar::setEmpty( int startat, bool processevents )
 {
     const int nrflds = nrFields();
     for ( int idx=startat; idx<nrflds; idx++ )
-	body_->message( uiStrings::sEmptyString(), idx, -1 );
-}
+	body_->message( uiString::empty(), idx, -1 );
 
+    if ( processevents )
+	QCoreApplication::processEvents( QEventLoop::ExcludeUserInputEvents );
 
-void uiStatusBar::message( const uiString& msg, int fldidx, int msecs )
-{
-    while( messages_.size() <= fldidx )
-	messages_.add( uiString::emptyString() );
-
-    messages_[fldidx] = msg;
-    body_->message( msg, fldidx, msecs );
-    body_->repaint();
     uiMain::instance().repaint();
 }
 
 
-void uiStatusBar::message( const uiStringSet& msgs, int msecs )
+void uiStatusBar::message( const uiString& msg, int fldidx, int msecs,
+			   bool processevents )
+{
+    while( messages_.size() <= fldidx )
+	messages_.add( uiString::empty() );
+
+    messages_[fldidx] = msg;
+    body_->message( msg, fldidx, msecs );
+    body_->repaint();
+    if ( processevents )
+	QCoreApplication::processEvents( QEventLoop::ExcludeUserInputEvents );
+
+    uiMain::instance().repaint();
+}
+
+
+void uiStatusBar::message( const uiStringSet& msgs, int msecs,
+			   bool processevents )
 {
     messages_ = msgs;
     for ( int idx=0; idx<msgs.size(); idx++ )
 	body_->message( msgs[idx], idx, msecs );
     body_->repaint();
+    if ( processevents )
+	QCoreApplication::processEvents( QEventLoop::ExcludeUserInputEvents );
+
     uiMain::instance().repaint();
 }
 
@@ -212,7 +225,7 @@ OD::Color uiStatusBar::getBGColor( int fldidx ) const
 int uiStatusBar::addMsgFld( const uiString& lbltxt, const uiString& tooltip,
 			    Alignment::HPos al, int stretch )
 {
-    int idx = body_->addMsgFld( lbltxt, stretch );
+    const int idx = body_->addMsgFld( lbltxt, stretch );
 
     setLabelTxt( idx, lbltxt );
     setToolTip( idx, tooltip );
@@ -224,7 +237,7 @@ int uiStatusBar::addMsgFld( const uiString& lbltxt, const uiString& tooltip,
 int uiStatusBar::addMsgFld( const uiString& tooltip,
 			    Alignment::HPos al, int stretch )
 {
-    int idx = body_->addMsgFld( uiStrings::sEmptyString(), stretch );
+    const int idx = body_->addMsgFld( uiString::empty(), stretch );
 
     setToolTip( idx, tooltip );
     setTxtAlign( idx, al );
@@ -237,6 +250,7 @@ bool uiStatusBar::addObject( uiObject* obj )
 {
     if ( !obj )
 	return false;
+
     QWidget* qw = obj->qwidget();
     if ( !qw )
 	return false;
@@ -248,7 +262,8 @@ bool uiStatusBar::addObject( uiObject* obj )
 
 void uiStatusBar::setToolTip( int idx, const uiString& tooltip )
 {
-    if ( !body_->msgs_.validIdx(idx) ) return;
+    if ( !body_->msgs_.validIdx(idx) )
+	return;
 
     if ( !tooltip.isEmpty() && body_->msgs_[idx] )
 	body_->msgs_[idx]->setToolTip( toQString(tooltip) );
@@ -257,7 +272,8 @@ void uiStatusBar::setToolTip( int idx, const uiString& tooltip )
 
 void uiStatusBar::setTxtAlign( int idx, Alignment::HPos hal )
 {
-    if ( !body_->msgs_.validIdx(idx) ) return;
+    if ( !body_->msgs_.validIdx(idx) )
+	return;
 
     Alignment al( hal );
     body_->msgs_[idx]->setAlignment( (Qt::Alignment)al.hPos() );
@@ -269,9 +285,10 @@ void uiStatusBar::setLabelTxt( int idx, const uiString& lbltxt )
     if ( nodispatall_ )
 	return;
 
-    if ( !body_->msgs_.validIdx(idx) ) return;
+    if ( !body_->msgs_.validIdx(idx) )
+	return;
 
     QLabel* lbl = dynamic_cast<QLabel*>(body_->msgs_[idx]->buddy());
-
-    if ( lbl ) lbl->setText( toQString(lbltxt) );
+    if ( lbl )
+	lbl->setText( toQString(lbltxt) );
 }
