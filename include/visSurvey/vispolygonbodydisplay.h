@@ -77,9 +77,10 @@ public:
     bool			setEMID(const EM::ObjectID&);
     EM::ObjectID		getEMID() const;
 
-    void			touchAll(bool,bool updatemarker=false);
-    const EM::PolygonBody*	getEMPolygonBody() const
-				{ return empolygonsurf_.ptr(); }
+	void			touchAll(bool,bool updatemarker=false);
+	void			closePolygon();
+	const EM::PolygonBody*	getEMPolygonBody() const
+			{ return empolygonsurf_.ptr(); }
     EM::PolygonBody*		getEMPolygonBody()
 				{ return empolygonsurf_.ptr(); }
     bool			canRemoveSelection() const override
@@ -114,6 +115,9 @@ protected:
     bool			isPicking() const override;
     void			mouseCB(CallBacker*);
     void			emChangeCB(CallBacker*);
+    void			sowingFinishedCB(CallBacker*);
+    void			eraseKnotsNearPosition(const Coord3& pos);
+    void			eraseKnotsBetweenDragPositions();
 
     void			updateNearestPolygonMarker();
     void			setNewIntersectingPolygon(const Coord3& normal,
@@ -145,14 +149,22 @@ protected:
 
     RefMan<visBase::PolyLine3D>		nearestpolygonmarker_;
     int					nearestpolygon_		= mUdf(int);
+    RefMan<visBase::PolyLine>		openpolygonline_;
 
     RefMan<EM::PolygonBody>		empolygonsurf_;
     RefMan<MPE::PolygonBodyEditor>	polygonsurfeditor_;
+
+    bool				polygonclosed_		= false;
     RefMan<MPEEditor>			viseditor_;
 
     Coord3				mousepos_;
 
     bool				showmanipulator_	= false;
+
+    // For Ctrl+Drag deletion
+    bool				iserasing_		= false;
+    Coord3				erasestartpos_;
+    Coord3				eraseendpos_;
 
     OD::Color				nontexturecol_;
 

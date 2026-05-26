@@ -89,6 +89,7 @@ private:
     MenuItem				displayintersectionmnuitem_;
     MenuItem				singlecolormnuitem_;
     MenuItem				volcalmnuitem_;
+    MenuItem				closepolygonmnuitem_;
 
     ConstRefMan<visSurvey::PolygonBodyDisplay> getPBDisplay() const;
     ConstRefMan<visSurvey::MarchingCubesDisplay> getMCDisplay() const;

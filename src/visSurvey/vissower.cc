@@ -39,7 +39,7 @@ Sower::Sower( visBase::VisualObjectImpl* editobj )
     sowingline_ = visBase::PolyLine::create();
     RefMan<visBase::Material> newmat = visBase::Material::create();
     sowingline_->setMaterial( newmat.ptr() );
-    sowingline_->setLineStyle( OD::LineStyle(OD::LineStyle::Solid,1) );
+    sowingline_->setLineStyle( OD::LineStyle(OD::LineStyle::Solid,2) );
     sowingline_->setPickable( false, false );
     addChild( sowingline_->osgNode() );
     reInitSettings();
