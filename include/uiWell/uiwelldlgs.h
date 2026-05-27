@@ -129,7 +129,7 @@ protected:
     Well::Data&		wd_;
     bool		cksh_;
     bool		writable_;
-    Well::D2TModel*	orgd2t_; // Must be declared *below* others
+    const Well::D2TModel* orgd2t_; // Must be declared *below* others
     float		origreplvel_;
 
     uiTable*		tbl_;

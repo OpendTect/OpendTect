@@ -874,14 +874,25 @@ void uiWellTrackDlg::exportCB( CallBacker* )
 static const int cMDCol = 0;
 static const int cTVDCol = 1;
 
-#define mD2TModel (cksh_ ? wd_.checkShotModel() : wd_.d2TModel())
+
+static Well::D2TModel* getD2TModel( Well::Data& wd, bool cksh )
+{
+    return cksh ? wd.checkShotModel() : wd.d2TModel();
+}
+
+
+static const Well::D2TModel* getConstD2TModel( const Well::Data& wd, bool cksh )
+{
+    return cksh ? wd.checkShotModel() : wd.d2TModel();
+}
 
 
 uiD2TModelDlg::uiD2TModelDlg( uiParent* p, Well::Data& wd, bool cksh )
     : uiDialog(p,mGetDlgSetup(wd,mTDName(cksh),mD2TModelDlgHelpID))
     , wd_(wd)
     , cksh_(cksh)
-    , orgd2t_(mD2TModel ? new Well::D2TModel(*mD2TModel) : nullptr)
+    , orgd2t_(getConstD2TModel(wd,cksh) ?
+		new Well::D2TModel(*getConstD2TModel(wd,cksh)) : nullptr)
     , origreplvel_(wd.info().replvel_)
 {
     tbl_ = new uiTable( this, uiTable::Setup()
@@ -1140,14 +1151,22 @@ int uiD2TModelDlg::nrZDecimals() const
     return 2;
 }
 
-#define mGetVel(dah,d2t) \
-{ \
-    Interval<float> replvellayer( wd_.track().getKbElev(), srd ); \
-    replvellayer.widen( 1e-2f, true ); \
-    vint = replvellayer.includes( -1.f * wd_.track().getPos(dah).z_, true ) && \
-	   !mIsUdf(wd_.info().replvel_) \
-	 ? wd_.info().replvel_ \
-	 : mCast(float,d2t->getVelocityForDah( dah, wd_.track() )); \
+
+static float getVelocity( const Well::Data& wd, float dah,
+			  float srd, bool cksh )
+{
+    const auto* d2t = getConstD2TModel( wd, cksh );
+    if ( !d2t )
+	return mUdf(float);
+
+    Interval<float> replvellayer( wd.track().getKbElev(), srd );
+    replvellayer.widen( 1e-2f, true );
+    const bool z_in_replvellayer =
+	replvellayer.includes( -1.f * wd.track().getPos(dah).z_, true );
+    const float vint = z_in_replvellayer && !mIsUdf(wd.info().replvel_)
+			? wd.info().replvel_
+			: sCast(float,d2t->getVelocityForDah(dah,wd.track()));
+   return vint;
 }
 
 
@@ -1155,7 +1174,7 @@ void uiD2TModelDlg::fillTable( CallBacker* )
 {
     NotifyStopper ns( tbl_->valueChanged );
     tbl_->setColumnReadOnly( getVintCol(), false );
-    const Well::D2TModel* d2t = mD2TModel;
+    const Well::D2TModel* d2t = getConstD2TModel( wd_, cksh_ );
     const Well::Track& track = wd_.track();
     const int tracksz = wd_.track().size();
     if ( !d2t || d2t->size()<2 )
@@ -1181,13 +1200,12 @@ void uiD2TModelDlg::fillTable( CallBacker* )
     const float srd = SI().seismicReferenceDatum();
     const bool hastvdgl = !mIsUdf( groundevel );
     const bool hastvdsd = !mIsZero( srd, 1e-3f );
-    float vint;
     for ( int idz=0; idz<dtsz; idz++ )
     {
 	const float dah = d2t->dah(idz);
-        const float tvdss = mCast(float,track.getPos(dah).z_);
+	const float tvdss = mCast(float,track.getPos(dah).z_);
 	const float tvd = tvdss + kbelev;
-	mGetVel(dah,d2t)
+	const float vint = getVelocity( wd_, dah, srd, cksh_ );
 	setDepthValue( idz, cMDCol, dah );
 	setDepthValue( idz, cTVDCol, tvd );
 	if ( hastvdgl )
@@ -1254,7 +1272,7 @@ void uiD2TModelDlg::dtpointAddedCB( CallBacker* )
 
 void uiD2TModelDlg::dtpointRemovedCB( CallBacker* )
 {
-    Well::D2TModel* d2t = mD2TModel;
+    Well::D2TModel* d2t = getD2TModel( wd_, cksh_ );
     if ( !d2t || d2t->size()<3 )
     {
 	uiMSG().error(tr("Invalid time-depth model"));
@@ -1277,8 +1295,7 @@ void uiD2TModelDlg::dtpointRemovedCB( CallBacker* )
     idah = d2t->indexOf( getDepthValue(nextrow,cMDCol) );
     const float nextdah = d2t->dah( idah );
     const float srd = SI().seismicReferenceDatum();
-    float vint;
-    mGetVel( nextdah, d2t );
+    const float vint = getVelocity( wd_, nextdah, srd, cksh_ );
     NotifyStopper ns( tbl_->valueChanged );
     setDepthValue( nextrow, getVintCol(), vint );
 }
@@ -1290,7 +1307,7 @@ void uiD2TModelDlg::selectionDeletedCB( CallBacker* )
     if ( notifrows.isEmpty() )
 	return;
 
-    Well::D2TModel* d2t = mD2TModel;
+    Well::D2TModel* d2t = getD2TModel( wd_, cksh_ );
     if ( !d2t || d2t->size()<3 )
     {
 	uiMSG().error(tr("Invalid time-depth model"));
@@ -1314,7 +1331,7 @@ void uiD2TModelDlg::selectionDeletedCB( CallBacker* )
 
 	idah = d2t->indexOf( getDepthValue(nextrow,cMDCol) );
 	const float nextdah = d2t->dah( idah );
-	mGetVel( nextdah, d2t );
+	vint = getVelocity( wd_, nextdah, srd, cksh_ );
 	setDepthValue( nextrow, getVintCol(), vint );
     }
 }
@@ -1333,7 +1350,7 @@ void uiD2TModelDlg::selectionChangedCB( CallBacker* )
 bool uiD2TModelDlg::updateDtpointDepth( int row )
 {
     NotifyStopper ns( tbl_->valueChanged );
-    const Well::D2TModel* d2t = mD2TModel;
+    const Well::D2TModel* d2t = getConstD2TModel( wd_, cksh_ );
     const Well::Track& track = wd_.track();
     const int tracksz = wd_.track().size();
     if ( !d2t || tracksz<2 )
@@ -1474,7 +1491,7 @@ bool uiD2TModelDlg::updateDtpointDepth( int row )
 bool uiD2TModelDlg::updateDtpointTime( int row )
 {
     NotifyStopper ns( tbl_->valueChanged );
-    const Well::D2TModel* d2t = mD2TModel;
+    const Well::D2TModel* d2t = getConstD2TModel( wd_, cksh_ );
     const Well::Track& track = wd_.track();
     const int tracksz = wd_.track().size();
     if ( !d2t || tracksz<2 )
@@ -1536,7 +1553,7 @@ bool uiD2TModelDlg::updateDtpoint( int row, float oldval )
 {
     NotifyStopper ns( tbl_->valueChanged );
     tbl_->setColumnReadOnly( getVintCol(), false );
-    Well::D2TModel* d2t = mD2TModel;
+    Well::D2TModel* d2t = getD2TModel( wd_, cksh_ );
     const Well::Track& track = wd_.track();
     const int tracksz = wd_.track().size();
     if ( !d2t || tracksz<2 )
@@ -1574,8 +1591,7 @@ bool uiD2TModelDlg::updateDtpoint( int row, float oldval )
     wd_.d2tchanged.trigger();
 
     const float srd = SI().seismicReferenceDatum();
-    float vint;
-    mGetVel(dah,d2t);
+    float vint = getVelocity( wd_, dah, srd, cksh_ );
     setDepthValue( row, getVintCol(), vint );
 
     for ( int irow=row+1; irow<tbl_->nrRows(); irow++ )
@@ -1584,7 +1600,7 @@ bool uiD2TModelDlg::updateDtpoint( int row, float oldval )
 	    continue;
 
 	const float nextdah = getDepthValue( irow, cMDCol );
-	mGetVel(nextdah,d2t);
+	vint = getVelocity( wd_, nextdah, srd, cksh_ );
 	setDepthValue( irow, getVintCol(), vint );
 	break;
     }
@@ -1596,7 +1612,7 @@ bool uiD2TModelDlg::updateDtpoint( int row, float oldval )
 
 bool uiD2TModelDlg::rowIsIncomplete( int row ) const
 {
-    Well::D2TModel* d2t = mD2TModel;
+    const Well::D2TModel* d2t = getConstD2TModel( wd_, cksh_ );
     if ( !d2t )
 	mErrRet( tr("Invalid time-depth model") )
 
@@ -1666,7 +1682,7 @@ bool acceptOK( CallBacker* ) override
     if ( !d2tgrp->warnMsg().isEmpty() )
 	uiMSG().warning( d2tgrp->warnMsg() );
 
-    Well::D2TModel* d2t = mD2TModel;
+    Well::D2TModel* d2t = getD2TModel( wd_, cksh_ );
     if ( d2t && !d2t->isEmpty() )
     {
 	uiString msg;
@@ -1697,7 +1713,7 @@ void uiD2TModelDlg::readNew( CallBacker* )
 
 void uiD2TModelDlg::expData( CallBacker* )
 {
-    Well::D2TModel* d2t = mD2TModel;
+    Well::D2TModel* d2t = getD2TModel( wd_, cksh_ );
     getModel( *d2t );
     if ( !d2t || d2t->size() < 2 )
 	{ uiMSG().error( tr("No valid data entered") ); return; }
@@ -1738,9 +1754,9 @@ void uiD2TModelDlg::expData( CallBacker* )
     {
 	const float dah = d2t->dah(idx);
 	const float tvdss = mConvertVal(
-                                mCast(float,wd_.track().getPos(dah).z_), true );
+			mCast(float,wd_.track().getPos(dah).z_), true );
 	const float tvd = tvdss + kbelev;
-	mGetVel(dah,d2t);
+	vint = getVelocity( wd_, dah, srd, cksh_ );
 	strm << mConvertVal(dah,true) << od_tab << tvd << od_tab;
 	if ( hastvdgl )
 	{
@@ -1761,7 +1777,7 @@ void uiD2TModelDlg::expData( CallBacker* )
 
 bool uiD2TModelDlg::getFromScreen()
 {
-    Well::D2TModel* d2t = mD2TModel;
+    Well::D2TModel* d2t = getD2TModel( wd_, cksh_ );
     getModel( *d2t );
 
     if ( wd_.track().zRange().stop_ < SI().seismicReferenceDatum() && !d2t )
@@ -1779,7 +1795,7 @@ void uiD2TModelDlg::updNow( CallBacker* )
     if ( !getFromScreen() )
 	return;
 
-    Well::D2TModel* d2t = mD2TModel;
+    const Well::D2TModel* d2t = getConstD2TModel( wd_, cksh_ );
     if ( d2t && d2t->size() > 1 )
 	wd_.d2tchanged.trigger();
 
@@ -1798,7 +1814,7 @@ void uiD2TModelDlg::updReplVelNow( CallBacker* )
 	return;
     }
 
-    Well::D2TModel* d2t = mD2TModel;
+    const Well::D2TModel* d2t = getConstD2TModel( wd_, cksh_ );
     const Well::Track& track = wd_.track();
     if ( track.zRange().stop_ < SI().seismicReferenceDatum() &&
 	 ( !d2t || d2t->size() < 2 ) )
@@ -1884,7 +1900,7 @@ void uiD2TModelDlg::getModel( Well::D2TModel& d2t )
 
 bool uiD2TModelDlg::rejectOK( CallBacker* )
 {
-    Well::D2TModel* d2t = mD2TModel;
+    Well::D2TModel* d2t = getD2TModel( wd_, cksh_ );
     if ( d2t )
 	*d2t = *orgd2t_;
 
@@ -1898,7 +1914,7 @@ bool uiD2TModelDlg::rejectOK( CallBacker* )
 
 void uiD2TModelDlg::correctD2TModelIfInvalid()
 {
-    Well::D2TModel* d2t = mD2TModel;
+    Well::D2TModel* d2t = getD2TModel( wd_, cksh_ );
     if ( !d2t || d2t->size() < 2 )
 	return;
 
@@ -2798,12 +2814,19 @@ bool uiSetD2TFromOtherWell::acceptOK( CallBacker* )
     const float newreplvel = UnitOfMeasure::surveyDefVelUnit()->internalValue(
 					replvelfld_->getFValue() );
 
+    const UnitOfMeasure* depthstoruom =
+			 UnitOfMeasure::surveyDefDepthStorageUnit();
+    const UnitOfMeasure* depthuom = UnitOfMeasure::surveyDefDepthUnit();
+
     const int mdlsz = dtmodel.size();
     TypeSet<double> inputdepths( mdlsz, 0. );
     TypeSet<double> inputtimes( mdlsz, 0. );
     for ( int idx=0; idx<mdlsz; idx++ )
     {
-	inputdepths[idx] = dtmodel.getDepth( idx );
+	const float modeldepth = dtmodel.getDepth( idx );
+	const float depth =
+		getConvertedValue( modeldepth, depthuom, depthstoruom );
+	inputdepths[idx] = depth;
 	inputtimes[idx] = dtmodel.getTime( idx );
     }
 
