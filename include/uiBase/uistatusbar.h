@@ -9,6 +9,7 @@ ________________________________________________________________________
 -*/
 
 #include "uibasemod.h"
+
 #include "uibaseobject.h"
 #include "draw.h"
 #include "uistring.h"
@@ -28,8 +29,8 @@ public:
 			~uiStatusBar();
 			mOD_DisableCopy(uiStatusBar)
 
-    int		addMsgFld(const uiString& lbltxt=uiString::emptyString(),
-			  const uiString& tooltip =uiString::emptyString(),
+    int		addMsgFld(const uiString& lbltxt=uiString::empty(),
+			  const uiString& tooltip =uiString::empty(),
 			  Alignment::HPos al=Alignment::Left,
 			  int stretch=1);
 
@@ -43,9 +44,14 @@ public:
     void		setLabelTxt(int,const uiString&);
 
     int			nrFields() const;
-    void		message(const uiString&,int fldidx=0, int msecs=-1);
+    void		message(const uiString&,int fldidx=0,int msecs=-1);
+    void		message(const uiString&,int fldidx,int msecs,
+				bool processevents);
     void		message(const uiStringSet&,int msecs=-1);
+    void		message(const uiStringSet&,int msecs,
+				bool processevents);
     void		setEmpty(int startat=0);
+    void		setEmpty(int startat,bool processevents);
     void		setBGColor(int fldidx,const OD::Color&);
     OD::Color		getBGColor(int fldidx) const;
     void		getMessages( uiStringSet& msgs ) const
