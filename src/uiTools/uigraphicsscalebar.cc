@@ -15,12 +15,12 @@ ________________________________________________________________________
 
 uiScaleBarItem::uiScaleBarItem( int pxwidth, int pxheight )
     : uiGraphicsItem()
-    , preferablepxwidth_(pxwidth)
+    , worldwidth_((float)pxwidth)
     , pxwidth_(pxwidth)
     , pxheight_(pxheight)
-    , w2ui_(uiWorld2Ui())
     , unitstr_(SI().getUiXYUnitString(true,false))
-    , worldwidth_((float)pxwidth)
+    , w2ui_(uiWorld2Ui())
+    , preferablepxwidth_(pxwidth)
     , annotpos_(OD::Top)
 {
     initDefaultScale();
@@ -71,12 +71,18 @@ void uiScaleBarItem::setWorld2Ui( const uiWorld2Ui& w2ui )
 void uiScaleBarItem::update()
 {
     adjustValues();
+
+    const bool isvisible = pxwidth_>0 && pxheight_>0;
+    setVisible( isvisible );
+    if ( !isvisible )
+	return;
+
     setPolygons( pxwidth_/4, pxheight_ );
 
     startnr_->setPlainText( toUiString("0") );
     midnr_->setPlainText( toUiString(worldwidth_/2) );
-    stopnr_->setPlainText( (toUiString("%1 %2")).arg(toUiString(worldwidth_))
-								.arg(unitstr_));
+    stopnr_->setPlainText(
+	toUiString("%1 %2").arg(toUiString(worldwidth_)).arg(unitstr_));
 }
 
 
@@ -93,9 +99,9 @@ void uiScaleBarItem::setPolygons( int width, int height )
     const Alignment al = Alignment( Alignment::HCenter,
 		annotpos_==OD::Top ? Alignment::Bottom : Alignment::Top );
     const int ypos = annotpos_==OD::Top ? 1 : 2*height;
-    startnr_->setPos( -4.0f*width, ypos );
-    midnr_->setPos( -2.0f * width, ypos );
-    stopnr_->setPos( 0, ypos );
+    startnr_->setPos( -4.0f*sCast(float,width), sCast(float,ypos) );
+    midnr_->setPos( -2.0f*sCast(float,width), sCast(float,ypos) );
+    stopnr_->setPos( 0, sCast(float,ypos) );
     startnr_->setAlignment( al );
     midnr_->setAlignment( al );
     stopnr_->setAlignment( al );
@@ -104,22 +110,22 @@ void uiScaleBarItem::setPolygons( int width, int height )
 
 void uiScaleBarItem::adjustValues()
 {
-    float scalex, scaley;
+    double scalex, scaley;
     getScale( scalex, scaley );
     worldwidth_ = w2ui_.toWorldX(preferablepxwidth_) - w2ui_.toWorldX(0);
     worldwidth_ *= scalex;
     worldwidth_ = Math::Abs( worldwidth_ );
 
-    float rval = 1.f;
-    while ( worldwidth_/10.f > rval )
-	rval *= 10.f;
+    double rval = 0.05;
+    while ( worldwidth_/10. > rval )
+	rval *= 10.;
 
-    const float vroundedtotenth = Math::Floor(worldwidth_/rval+.5f)*rval;
+    const double vroundedtotenth = Math::Floor(worldwidth_/rval+.5f)*rval;
     if ( worldwidth_ != vroundedtotenth )
     {
 	worldwidth_ = vroundedtotenth;
 	pxwidth_ = mNINT32( Math::Abs( worldwidth_/
-                                       (w2ui_.worldPerPixel().x_*scalex) ) );
+				       (w2ui_.worldPerPixel().x_*scalex) ) );
     }
 }
 

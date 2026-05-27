@@ -266,27 +266,27 @@ void uiGraphicsItem::moveBy( float x, float y )
 }
 
 
-float uiGraphicsItem::getRotation()
+double uiGraphicsItem::getRotation() const
 {
     return qgraphicsitem_->rotation();
 }
 
 
-void uiGraphicsItem::getScale( float &sx, float &sy )
+void uiGraphicsItem::getScale( double &sx, double &sy ) const
 {
     sx = scale_.x_;
     sy = scale_.y_;
 }
 
 
-void uiGraphicsItem::setRotation( float angle )
+void uiGraphicsItem::setRotation( double angle )
 {
     angle_ = angle;
     updateTransform();
 }
 
 
-void uiGraphicsItem::setScale( float sx, float sy )
+void uiGraphicsItem::setScale( double sx, double sy )
 {
     scale_.x_ = sx;
     scale_.y_ = sy;

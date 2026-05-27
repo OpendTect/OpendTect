@@ -55,15 +55,15 @@ public:
     virtual bool	isVisible() const;
 
     Geom::Point2D<float> getPos() const;
-    void		setPos( const uiWorldPoint&);
-    void		setPos( const uiPoint& p );
-    void		setPos( const Geom::Point2D<float>& );
-    void		setPos( float x, float y );
+    void		setPos(const uiWorldPoint&);
+    void		setPos(const uiPoint& p);
+    void		setPos(const Geom::Point2D<float>&);
+    void		setPos(float x,float y);
     void		moveBy(float x,float y);
-    float		getRotation();
-    void		getScale(float& sx,float& sy);
-    void		setRotation(float angle);
-    void		setScale(float sx,float sy);
+    double		getRotation() const;
+    void		getScale(double& sx,double& sy) const;
+    void		setRotation(double angle);
+    void		setScale(double sx,double sy);
     void		setZValue(int); //<! z value decides the stacking order
 
 

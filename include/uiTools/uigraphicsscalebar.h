@@ -29,10 +29,10 @@ public:
 			~uiScaleBarItem();
 
     inline int		getPxHeight() const	{ return pxheight_; }
-    inline float	getLength() const	{ return worldwidth_; }
+    inline double	getLength() const	{ return worldwidth_; }
     inline int		getPxWidth() const	{ return pxwidth_; }
     inline void		setPxHeight(int pxh)	{ pxheight_ = pxh; }
-    inline void		setLength(float len)	{ worldwidth_ = len; }
+    inline void		setLength(double len)	{ worldwidth_ = len; }
     inline void		setPxWidth(int pxw)	{ pxwidth_ = pxw;
 						  preferablepxwidth_ = pxw; }
     inline void		setUnit( const uiString& unit )	{ unitstr_=unit; }
@@ -43,7 +43,7 @@ public:
     void		update();
 
 protected:
-    float		worldwidth_;
+    double		worldwidth_;
     int			pxwidth_;
     int			pxheight_;
     uiString		unitstr_;
