@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "odjson.h"
 #include "separstr.h"
 #include "tablemodel.h"
+#include "thread.h"
 #include "threadwork.h"
 #include "uistrings.h"
 #include "unitofmeasure.h"
@@ -585,7 +586,12 @@ Coords::Projection* Coords::Projection::fromString( const char* str,
 }
 
 
-class ProjCRSInfoList : public Coords::CRSInfoList
+namespace Coords {
+
+static int crstwmqueueid_ = mUdf(int);
+
+class ProjCRSInfoList : public CRSInfoList
+		      , public CallBacker
 {
 public:
 ProjCRSInfoList( bool orthogonal )
@@ -604,10 +610,12 @@ ProjCRSInfoList( bool orthogonal )
 						   &sz_ );
     proj_get_crs_list_parameters_destroy( params );
     proj_context_destroy( ctx );
+    mAttachCB( Threads::WorkManager::twm().isShuttingDown, ProjCRSInfoList::shutdownCB );
 }
 
 ~ProjCRSInfoList()
 {
+    detachAllNotifiers();
     proj_crs_info_list_destroy( infos_ );
 }
 
@@ -669,6 +677,16 @@ const PROJ_CRS_INFO* getInfo( int index ) const
     return infos_[index];
 }
 
+void shutdownCB( CallBacker* )
+{
+    if ( mIsUdf(crstwmqueueid_) )
+	return;
+
+    auto& twm = Threads::WorkManager::twm();
+    twm.removeQueue( crstwmqueueid_, false );
+    crstwmqueueid_ = mUdf(int);
+}
+
     PROJ_CRS_INFO**	infos_	= nullptr;
     int			sz_	= 0;
 };
@@ -676,16 +694,23 @@ const PROJ_CRS_INFO* getInfo( int index ) const
 
 static bool createCRSLists()
 {
-    (void) Coords::getCRSInfoList( true );
-    (void) Coords::getCRSInfoList( false );
+    (void) getCRSInfoList( true );
+    (void) getCRSInfoList( false );
     return true;
 }
+
+} // namespace Coords
 
 
 const char* Coords::initCRSDatabase()
 {
     static bool inited = false;
+    static Threads::Mutex initlock;
     static BufferString msg;
+    Threads::MutexLocker locker( initlock, false );
+    if ( !locker.isLocked() )
+	return msg.buf();
+
     if ( !inited )
     {
 #ifdef __PROJ_DB_FILEPATH__
@@ -703,8 +728,9 @@ const char* Coords::initCRSDatabase()
 	{
 	    proj_context_set_database_path( PJ_DEFAULT_CTX, fp.fullPath(),
 					    nullptr, nullptr );
-	    Threads::WorkManager::twm().addWork(
-				Threads::Work(&createCRSLists) );
+	    auto& twm = Threads::WorkManager::twm();
+	    crstwmqueueid_ = twm.addQueue( Threads::WorkManager::SingleThread, "CRS" );
+	    twm.addWork( Threads::Work(&createCRSLists), nullptr, crstwmqueueid_ );
 	}
 	else
 	    createCRSLists();
@@ -737,19 +763,22 @@ BufferString Coords::getProjVersion()
 {
     BufferString version;
     version.add( PROJ_VERSION_MAJOR ).add(".")
-	.add(PROJ_VERSION_MINOR).add(".")
-	.add(PROJ_VERSION_PATCH);
+	   .add(PROJ_VERSION_MINOR).add(".")
+	   .add(PROJ_VERSION_PATCH);
     return version;
 }
 
 
 BufferString Coords::getEPSGDBStr()
 {
-    initCRSDatabase();
-    BufferString dbstr;
-    const PJ_INIT_INFO info = proj_init_info( "EPSG" );
-    dbstr.set( "Using " ).add( info.origin ).add( " database " )
-	 .add( info.version ).add( " from " ).add( info.lastupdate );
+    mDeclStaticString( dbstr );
+    if ( dbstr.isEmpty() )
+    {
+	initCRSDatabase();
+	const PJ_INIT_INFO info = proj_init_info( "EPSG" );
+	dbstr.set( "Using " ).add( info.origin ).add( " database " )
+	     .add( info.version ).add( " from " ).add( info.lastupdate );
+    }
 
     return dbstr;
 }
