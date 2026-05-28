@@ -650,6 +650,7 @@ int nextStep() override
 	return MoreToDo();
     }
 
+    fltset_.setZDomain( newflt->zDomain() );
     tkzsenvelope_.include( newflt->geometry().getEnvelope() );
     newflt->setName( fltnm );
     fltset_.addFault( newflt, id );

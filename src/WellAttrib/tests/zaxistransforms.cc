@@ -13,6 +13,7 @@ ________________________________________________________________________
 #include "emhorizon3d.h"
 #include "emhorizon2d.h"
 #include "emfault3d.h"
+#include "emfaultset3d.h"
 #include "emstoredobjaccess.h"
 #include "emsurfaceiodata.h"
 #include "emsurft2dtransformer.h"
@@ -147,14 +148,14 @@ static const BufferStringSet& survDirNames()
 
 
 static const TypeSet<OD::Pair<MultiID,EM::ObjectType> >&
-				getNativeInputData( bool is3d )
+				getNativeInputData( bool is2d )
 {
     static TypeSet<OD::Pair<MultiID, EM::ObjectType>> inpdataset;
     inpdataset.setEmpty();
     const int grpid = IOObjContext::getStdDirData(
 		      IOObjContext::Surf )->groupID();
 
-    if ( is3d )
+    if ( !is2d )
     {
 	if ( SI().zIsTime() )
 	    inpdataset.add( OD::Pair(MultiID(grpid, 3),
@@ -167,6 +168,7 @@ static const TypeSet<OD::Pair<MultiID,EM::ObjectType> >&
 	}
 
 	inpdataset.add( OD::Pair(MultiID(grpid, 9), EM::ObjectType::Flt3D) );
+	inpdataset.add( OD::Pair(MultiID(grpid, 16), EM::ObjectType::FltSet) );
     }
     else
 	inpdataset.add( OD::Pair(MultiID(grpid, 82), EM::ObjectType::Hor2D) );
@@ -176,16 +178,17 @@ static const TypeSet<OD::Pair<MultiID,EM::ObjectType> >&
 
 
 static const TypeSet<OD::Pair<MultiID,EM::ObjectType>>&
-				getTranformedInputData( bool is3d )
+				getTranformedInputData( bool is2d )
 {
     static TypeSet<OD::Pair<MultiID,EM::ObjectType>> inpdataset;
     inpdataset.setEmpty();
     const int grpid = IOObjContext::getStdDirData(
 		      IOObjContext::Surf )->groupID();
-    if ( is3d )
+    if ( !is2d )
     {
-	inpdataset.add( OD::Pair(MultiID(grpid,13), EM::ObjectType::Hor3D) );
-	inpdataset.add( OD::Pair(MultiID(grpid,14), EM::ObjectType::Flt3D) );
+	inpdataset.add( OD::Pair(MultiID(grpid, 13), EM::ObjectType::Hor3D) );
+	inpdataset.add( OD::Pair(MultiID(grpid, 14), EM::ObjectType::Flt3D) );
+	inpdataset.add( OD::Pair(MultiID(grpid, 17), EM::ObjectType::FltSet) );
     }
     else
 	inpdataset.add( OD::Pair( MultiID(grpid, 219), EM::ObjectType::Hor2D) );
@@ -359,18 +362,75 @@ bool testFltOutput( const EM::EMObject* emobj, int survidx, int zatfidx )
 
 bool testFltSetOutput( const EM::EMObject* emobj, int survidx, int zatfidx )
 {
-    //TODO
+    mDynamicCastGet( const EM::FaultSet3D* , fltset, emobj );
+    mRunStandardTest( fltset, mMsg("FaultSet3D has been processed") )
+
+    const int nrflts = fltset->nrFaults();
+    mRunStandardTest( nrflts==1, mMsg("FaultSet3D has single member Fault3D") )
+
+    const EM::FaultID fid = fltset->getFaultID( 0 );
+    const EM::Fault3D* flt = fltset->getFault3D( fid ).ptr();
+    mRunStandardTest( flt, mMsg("Member Fault3D has been retreived") )
+
+    const EM::Fault3DGeometry& geometry = flt->geometry();
+    const int nrsticks = geometry.nrSticks();
+    const BufferString expnrstick( "Expected: ", 2 );
+    const BufferString nrstickstr( "Actual: ", nrsticks );
+    BufferString expnrstickerrmsg( expnrstick, " ; ", nrstickstr );
+    mRunStandardTestWithError( nrsticks == 2,
+			       mMsg("Number of member's sticks"),
+			       expnrstickerrmsg );
+
+    const Geometry::FaultStickSurface* fltsurf = geometry.geometryElement();
+    mRunStandardTest( fltsurf, mMsg("Member Fault surface created"));
+
+    const Geometry::FaultStick* stick = fltsurf->getStick( 0 );
+    mRunStandardTest( !stick->locs_.isEmpty(),
+		      mMsg("Member's Stick has data") );
+
+    const Coord3 firstcrd = stick->getCoordAtIndex( 0 );
+    mRunStandardTest( !firstcrd.isUdf(),
+		      mMsg("Member Fault 3D position is defined") );
+    const Coord3 lastcrd = stick->getCoordAtIndex( stick->size()-1 );
+    mRunStandardTest( !lastcrd.isUdf(),
+		      mMsg("Member Fault 3D position is defined") );
+
+    const float* zvals = zvalues_flt[zatfidx];
+    float zval1 = zvals[0];
+    float zval2 = zvals[1];
+    if ( emobj->zDomain().isDepthFeet() )
+    {
+	zval1 *= mToFeetFactorF;
+	zval2 *= mToFeetFactorF;
+    }
+
+    const float firstz = mCast(float,firstcrd.z_);
+    const float secondz = mCast(float,lastcrd.z_);
+    BufferString readvalstr( "Z-Values read: [" );
+    readvalstr.add(toStringPrecise(firstz)).add(',')
+	      .add(toStringPrecise(secondz)).add("]");
+    BufferString expvalstr( "Expected Z-Values: [" );
+    expvalstr.add(toStringPrecise(zval1)).add(',')
+	     .add(toStringPrecise(zval2)).add("]; ");
+    const BufferString errmsg( expvalstr.buf(), readvalstr.buf() );
+
+    const float eps = emobj->zDomain().isTime() ? 1e-4f : 1e-0f;
+    mRunStandardTestWithError( (mIsEqual(firstz,zval1,eps) &&
+				mIsEqual(secondz,zval2,eps)),
+				mMsg("Member Fault 3D position testing"),
+				errmsg );
+
     return true;
 }
 
 
 static bool handleEarthModelObjects( ZAxisTransform& zatf,
-				     int survidx, int zatfidx, bool is3d=true )
+				     int survidx, int zatfidx, bool is2d=false )
 {
     const TypeSet<OD::Pair<MultiID,EM::ObjectType> >& inpdataset =
 			    (zatf.fromZDomainInfo().def_ == SI().zDomain() ) ?
-			    getNativeInputData( is3d ) :
-			    getTranformedInputData( is3d );
+			    getNativeInputData( is2d ) :
+			    getTranformedInputData( is2d );
 
     const int grpid = IOObjContext::getStdDirData(
 						IOObjContext::Surf )->groupID();
@@ -506,7 +566,7 @@ int mTestMainFnName( int argc, char** argv )
 					zatf->factoryDisplayName() <<
 					" transformation on 2D emobjs" <<
 					od_endl;
-		if ( !handleEarthModelObjects(*zatf, survidx, zatfidx, false) )
+		if ( !handleEarthModelObjects(*zatf, survidx, zatfidx, true) )
 		{
 		    zatfs.erase();
 		    return 1;
