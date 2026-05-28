@@ -11,7 +11,6 @@ ________________________________________________________________________
 #include "geom2dinit.h"
 
 #include "geom2dintersections.h"
-#include "odruncontext.h"
 #include "survgeom.h"
 #include "survinfo.h"
 #include "threadwork.h"

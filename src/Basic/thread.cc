@@ -188,7 +188,6 @@ bool Threads::lockSimpleSpinLock( volatile int& lock,
 #endif
 
 
-#include "qatomic.h"
 #include <QMutex>
 #include <QRecursiveMutex>
 #include <QThread>
