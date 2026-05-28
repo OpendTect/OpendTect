@@ -11,6 +11,7 @@ ________________________________________________________________________
 
 #include "ctxtioobj.h"
 #include "emhorizon3d.h"
+#include "emhorizon2d.h"
 #include "emfault3d.h"
 #include "emstoredobjaccess.h"
 #include "emsurfaceiodata.h"
@@ -27,10 +28,15 @@ ________________________________________________________________________
 #include "unitofmeasure.h"
 
 
-//Velocity Object IDs
+//3D Velocity Object IDs
 static const int velids_direct[] =   {	8,  9,	9, 14, 14, 16, 16 };
 static const int velids_reverse1[] = { 14, 16, 16,  8,	8,  9,	9 };
 static const int velids_reverse2[] = { 16, 14, 14,  9,	9,  8,	8 };
+
+//2D Velocity Object IDs
+static const int velids2d_direct[] = { 121, 122, 122, 123, 123, 126, 126 };
+static const int velids2d_reverse1[] = { 123, 126, 126, 121, 121, 122, 122 };
+static const int velids2d_reverse2[] = { 126, 123, 123, 122, 122, 121, 121 };
 
 //Simple Time-Depth Parameters
 static const MultiID tablet2did_m = MultiID( 100090, 6 );
@@ -67,6 +73,24 @@ static const float zvalues_hor3d[12][2] =
     { 0.959009528f, 0.938030362f }, //D2T : Velocity (Model: Depth)
     { 0.959009528f, 0.938030362f }, //D2T : Velocity (Model: Time)
     { 0.959009528f, 0.938030362f }  //D2T : Velocity (Model: Time)
+};
+
+#define mHorizon2DIdxPair1 Pos::IdxPair( 8, 622 ), true
+//Horizon2D : Output Values (SI units)
+static const float zvalues_hor2d[12][1] =
+{
+    { 2071.964f },  //T2D : tablet2did_m
+    { 2071.964f },  //T2D : tablet2did_ft
+    { 2379.512f },  //T2D : Linear
+    { 2377.433f },  //T2D : Velocity (Model: Time)
+    { 2377.433f },  //T2D : Velocity (Model: Depth)
+    { 2377.433f },  //T2D : Velocity (Model: Depth)
+    { 1.688717f },  //D2T : tablet2did_m
+    { 1.688717f },  //D2T : tablet2did_ft
+    { 1.534697f },  //D2T : Linear
+    { 1.535982f },  //D2T : Velocity (Model: Depth)
+    { 1.535982f },  //D2T : Velocity (Model: Time)
+    { 1.535982f }  //D2T : Velocity (Model: Time)
 };
 
 //Fault : Output Values
@@ -122,36 +146,49 @@ static const BufferStringSet& survDirNames()
 }
 
 
-static const TypeSet<OD::Pair<MultiID,EM::ObjectType> >& getNativeInputData()
+static const TypeSet<OD::Pair<MultiID,EM::ObjectType> >&
+				getNativeInputData( bool is3d )
 {
-    static TypeSet<OD::Pair<MultiID,EM::ObjectType>> inpdataset;
+    static TypeSet<OD::Pair<MultiID, EM::ObjectType>> inpdataset;
     inpdataset.setEmpty();
     const int grpid = IOObjContext::getStdDirData(
-					    IOObjContext::Surf )->groupID();
-    if ( SI().zIsTime() )
-	inpdataset.add( OD::Pair(MultiID(grpid,3),EM::ObjectType::Hor3D) );
-    else
-    {
-	// Depth data for SRD=50ft
-	inpdataset.add( OD::Pair(MultiID(grpid,11),EM::ObjectType::Hor3D) );
-    }
+		      IOObjContext::Surf )->groupID();
 
-    inpdataset.add( OD::Pair(MultiID(grpid,9),EM::ObjectType::Flt3D) );
+    if ( is3d )
+    {
+	if ( SI().zIsTime() )
+	    inpdataset.add( OD::Pair(MultiID(grpid, 3),
+			    EM::ObjectType::Hor3D) );
+	else
+	{
+	    // Depth data for SRD=50ft
+	    inpdataset.add( OD::Pair(MultiID(grpid, 11),
+			    EM::ObjectType::Hor3D) );
+	}
+
+	inpdataset.add( OD::Pair(MultiID(grpid, 9), EM::ObjectType::Flt3D) );
+    }
+    else
+	inpdataset.add( OD::Pair(MultiID(grpid, 82), EM::ObjectType::Hor2D) );
 
     return inpdataset;
 }
 
 
-static const TypeSet<OD::Pair<MultiID,EM::ObjectType>>& getTranformedInputData()
+static const TypeSet<OD::Pair<MultiID,EM::ObjectType>>&
+				getTranformedInputData( bool is3d )
 {
     static TypeSet<OD::Pair<MultiID,EM::ObjectType>> inpdataset;
-    if ( inpdataset.isEmpty() )
+    inpdataset.setEmpty();
+    const int grpid = IOObjContext::getStdDirData(
+		      IOObjContext::Surf )->groupID();
+    if ( is3d )
     {
-	const int grpid = IOObjContext::getStdDirData(
-					    IOObjContext::Surf )->groupID();
-	inpdataset.add( OD::Pair(MultiID(grpid,13),EM::ObjectType::Hor3D) );
-	inpdataset.add( OD::Pair(MultiID(grpid,14),EM::ObjectType::Flt3D) );
+	inpdataset.add( OD::Pair(MultiID(grpid,13), EM::ObjectType::Hor3D) );
+	inpdataset.add( OD::Pair(MultiID(grpid,14), EM::ObjectType::Flt3D) );
     }
+    else
+	inpdataset.add( OD::Pair( MultiID(grpid, 219), EM::ObjectType::Hor2D) );
 
     return inpdataset;
 }
@@ -178,6 +215,30 @@ static RefObjectSet<ZAxisTransform>& get3DTransforms( int survidx )
     zatfs.add( new Depth2TimeStretcher(getVelID(velids_direct,survidx)) );
     zatfs.add( new Depth2TimeStretcher(getVelID(velids_reverse1,survidx)) );
     zatfs.add( new Depth2TimeStretcher(getVelID(velids_reverse2,survidx)) );
+
+    return zatfs;
+}
+
+
+static RefObjectSet<ZAxisTransform>& get2DTransforms( int survidx )
+{
+    static RefObjectSet<ZAxisTransform> zatfs;
+    zatfs.setEmpty();
+    //Time to Depth
+    zatfs.add( new SimpleT2DTransform(tablet2did_m) );
+    zatfs.add( new SimpleT2DTransform(tablet2did_ft) );
+    zatfs.add( new LinearT2DTransform(v0(), k));
+    zatfs.add( new Time2DepthStretcher( getVelID(velids2d_direct,survidx)) );
+    zatfs.add( new Time2DepthStretcher( getVelID(velids2d_reverse1,survidx)) );
+    zatfs.add( new Time2DepthStretcher( getVelID(velids2d_reverse2,survidx)) );
+
+    //Depth to Time
+    zatfs.add( new SimpleD2TTransform(tablet2did_m) );
+    zatfs.add( new SimpleD2TTransform(tablet2did_ft) );
+    zatfs.add( new LinearD2TTransform(v0(), k));
+    zatfs.add( new Depth2TimeStretcher( getVelID(velids2d_direct,survidx)) );
+    zatfs.add( new Depth2TimeStretcher( getVelID(velids2d_reverse1,survidx)) );
+    zatfs.add( new Depth2TimeStretcher( getVelID(velids2d_reverse2,survidx)) );
 
     return zatfs;
 }
@@ -213,6 +274,33 @@ bool testHorizon3DOutput( const EM::EMObject* emobj, int survidx, int zatfidx )
     mRunStandardTestWithError( (mIsEqual(z1,zval1,eps) &&
 				mIsEqual(z2,zval2,eps)),
 			       mMsg("Horizon 3D position testing"), errmsg  );
+
+    return true;
+}
+
+
+bool testHorizon2DOutput( const EM::EMObject* emobj, int survidx, int zatfidx )
+{
+    mDynamicCastGet( const EM::Horizon2D*, hor, emobj );
+    mRunStandardTest( hor, mMsg("Horizon 2D has been processed") );
+
+
+    const TrcKey trckey( mHorizon2DIdxPair1 );
+    float z = hor->getZ( trckey );
+    const float* zvals = zvalues_hor2d[zatfidx];
+    float zval = zvals[0];
+    if ( emobj->zDomain().isDepthFeet() )
+	zval *= mToFeetFactorF;
+
+    BufferString readvalstr( "Z-Values read: [" );
+    readvalstr.add(toStringPrecise(z)).add(']');
+    BufferString expvalstr( "Expected Z-Values: [" );
+    expvalstr.add(toStringPrecise(zval)).add(']');
+    const BufferString errmsg( expvalstr.buf(), readvalstr.buf() );
+
+    const float eps = hor->zDomain().isTime() ? 1e-3f : 1e1f;
+    mRunStandardTestWithError( (mIsEqual(z,zval,eps)),
+			       mMsg("Horizon 2D position testing"), errmsg  );
 
     return true;
 }
@@ -277,11 +365,12 @@ bool testFltSetOutput( const EM::EMObject* emobj, int survidx, int zatfidx )
 
 
 static bool handleEarthModelObjects( ZAxisTransform& zatf,
-				     int survidx, int zatfidx )
+				     int survidx, int zatfidx, bool is3d=true )
 {
     const TypeSet<OD::Pair<MultiID,EM::ObjectType> >& inpdataset =
-	(zatf.fromZDomainInfo().def_ == SI().zDomain() ) ?
-			    getNativeInputData() : getTranformedInputData();
+			    (zatf.fromZDomainInfo().def_ == SI().zDomain() ) ?
+			    getNativeInputData( is3d ) :
+			    getTranformedInputData( is3d );
 
     const int grpid = IOObjContext::getStdDirData(
 						IOObjContext::Surf )->groupID();
@@ -344,6 +433,10 @@ static bool handleEarthModelObjects( ZAxisTransform& zatf,
 
 		break;
 	    case EM::ObjectType::Hor2D:
+		if ( !testHorizon2DOutput(emobj.ptr(),survidx,zatfidx) )
+		    return false;
+		break;
+
 	    case EM::ObjectType::FltSS2D:
 	    case EM::ObjectType::FltSS2D3D:
 	    case EM::ObjectType::FltSS3D:
@@ -382,18 +475,44 @@ int mTestMainFnName( int argc, char** argv )
 	const float srd =
 	  UnitOfMeasure::surveyDefSRDStorageUnit()->getUserValueFromSI( srd_ );
 	eSI().setSeismicReferenceDatum( srd );
-	ObjectSet<ZAxisTransform>& zatfs = get3DTransforms( survidx );
-	for ( int zatfidx=0; zatfidx<zatfs.size(); zatfidx++ )
+
+	//3D EMObjects
 	{
-	    tstStream() << od_endl;
-	    RefMan<ZAxisTransform> zatf = zatfs.get( zatfidx );
-	    logStream() << "Testing " << survdirnm << " for " <<
-		zatf->factoryDisplayName() << " transformation" << od_endl;
-	    if ( !handleEarthModelObjects(*zatf,survidx,zatfidx) )
+	    ObjectSet<ZAxisTransform>& zatfs = get3DTransforms( survidx );
+	    for ( int zatfidx = 0; zatfidx < zatfs.size(); zatfidx++ )
 	    {
-		zatfs.erase();
-		return 1;
+		tstStream() << od_endl;
+		RefMan<ZAxisTransform> zatf = zatfs.get( zatfidx );
+		logStream() << "Testing " << survdirnm << " for " <<
+					zatf->factoryDisplayName() <<
+					" transformation on 3D emobjs" <<
+					od_endl;
+		if ( !handleEarthModelObjects(*zatf, survidx, zatfidx) )
+		{
+		    zatfs.erase();
+		    return 1;
+		}
 	    }
+	}
+
+	//2D EMObjects
+	{
+	    ObjectSet<ZAxisTransform>& zatfs = get2DTransforms( survidx );
+	    for ( int zatfidx = 0; zatfidx < zatfs.size(); zatfidx++ )
+	    {
+		tstStream() << od_endl;
+		RefMan<ZAxisTransform> zatf = zatfs.get( zatfidx );
+		logStream() << "Testing " << survdirnm << " for " <<
+					zatf->factoryDisplayName() <<
+					" transformation on 2D emobjs" <<
+					od_endl;
+		if ( !handleEarthModelObjects(*zatf, survidx, zatfidx, false) )
+		{
+		    zatfs.erase();
+		    return 1;
+		}
+	    }
+
 	}
     }
 

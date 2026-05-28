@@ -115,13 +115,8 @@ bool SurfaceT2DTransformer::addVolumeOfInterest( const TrcKeyZSampling& tkzsext,
     }
 
     const bool fromzdomain = zinfo.def_ == fromzinfo.def_ ;
+
     TrcKeyZSampling tkzs( tkzsext );
-    tkzs.zsamp_ = zatf_.getZInterval( fromzdomain );
-    if ( fromzdomain && mIsUdf(tkzsext.zsamp_.stop_) )
-    {
-	tkzs.zsamp_.stop_ = tkzs.zsamp_.snap( tkzsext.zsamp_.stop_,
-					      OD::SnapUpward );
-    }
 
     zatvoi_ = zatf_.addVolumeOfInterest( tkzs, !fromzdomain );
     if ( !zatf_.loadDataIfMissing(zatvoi_) )
@@ -231,8 +226,7 @@ bool Horizon3DT2DTransformer::doPrepare( od_ostream* strm )
 
     TrcKeyZSampling tkzs;
     tkzs.hsamp_ = datas_.first()->surfsel_.rg;
-    ZSampling& zsamp = tkzs.zsamp_;
-    zsamp.step_ = mUdf(float);
+    ZGate zrg( Interval<float>::udf() );
     const ZDomain::Info* zinfo = nullptr;
     for ( const auto* data : datas_ )
     {
@@ -248,13 +242,14 @@ bool Horizon3DT2DTransformer::doPrepare( od_ostream* strm )
 	}
 
 	const SurfaceIODataSelection& surfsel = data->surfsel_;
-	const Interval<float>& datagate = surfsel.sd.zrg;
-	zsamp.include( datagate );
+	const ZGate& datagate = surfsel.sd.zrg;
+	zrg.include( datagate );
     }
 
     if ( !zinfo )
 	zinfo = &SI().zDomainInfo();
 
+    tkzs.zsamp_.set( zrg, mUdf(float) );
     if ( !addVolumeOfInterest(tkzs,*zinfo) )
 	return false;
 
@@ -507,6 +502,7 @@ bool Horizon2DT2DTransformer::do2DHorizon( const
     const TypeSet<MultiID>& inpmids = dataholder.getMIDSet();
     TypeSet<int> horidxs;
     StepInterval<int> trcrangeenvelop( Interval<int>::udf(), 1 );
+    ZGate zrg( Interval<float>::udf() );
     const ZDomain::Info* zinfo = nullptr;
     for ( const auto& inpmid : inpmids )
     {
@@ -524,22 +520,41 @@ bool Horizon2DT2DTransformer::do2DHorizon( const
 	else if ( !zinfo )
 	    zinfo = &inpsurf->zDomain();
 
+	if ( !zinfo )
+	{
+	    errmsg_.add( tr("Cannot determine horizon ZDomain") );
+	    return false;
+	}
+
 	const StepInterval<int>& trcrng =
 				inphor2D->geometry().colRange( geomid );
 	trcrangeenvelop.include( trcrng );
 
-	horidxs.add( horidx );
-    }
+	const bool fromzdomain = zinfo->def_ == zatf_.fromZDomainInfo().def_;
+	ZGate inphorzrg = inphor2D->getZRange();
+	if ( fromzdomain && zatf_.needsVolumeOfInterest() && zinfo->isDepth() )
+	{
+	    const IOObjInfo ioobjinfo( inpmid );
+	    const auto* voizunit =
+				UnitOfMeasure::zUnit( zatf_.fromZDomainInfo() );
+	    const auto* zrgzunit = UnitOfMeasure::zUnit( ioobjinfo.zDomain() );
+	    if ( voizunit && zrgzunit &&
+		 voizunit->isCompatibleWith( *zrgzunit ) &&
+		 zrgzunit != voizunit )
+	    {
+		convValue( inphorzrg.start_, zrgzunit, voizunit );
+		convValue( inphorzrg.stop_, zrgzunit, voizunit );
+	    }
+	}
 
-    if ( !zinfo )
-    {
-	errmsg_.add( tr("Cannot determine horizon ZDomain") );
-	return false;
+	zrg.include( inphorzrg );
+
+	horidxs.add( horidx );
     }
 
     TrcKeyZSampling tkzs( geomid );
     tkzs.hsamp_.setTrcRange( trcrangeenvelop );
-    tkzs.zsamp_ = ZSampling::udf();
+    tkzs.zsamp_.set( zrg, mUdf(float) );
     if ( zatf_.needsVolumeOfInterest() && !addVolumeOfInterest(tkzs,*zinfo) )
 	return false;
 

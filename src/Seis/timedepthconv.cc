@@ -371,22 +371,8 @@ bool VelocityStretcher::loadDataIfMissing( int id, TaskRunner* taskr )
     if ( idx<0 )
 	return false;
 
-    const TrcKeyZSampling& voi = voivols_[idx];
-    Array3D<float>* arr = voidata_[idx];
-    if ( !arr )
-    {
-	arr = new Array3DImpl<float>( voi.nrInl(), voi.nrCrl(), voi.nrZ() );
-	if ( !arr->isOK() )
-	{
-	    delete arr;
-	    return false;
-	}
+    const TrcKeySampling& voitks = voivols_[idx].hsamp_;
 
-	delete voidata_.replace( idx, arr );
-    }
-
-    const TrcKeySampling& voitks = voi.hsamp_;
-    const ZSampling& voizsamp = voi.zsamp_;
     PtrMan<IOObj> ioobj = velreader_->ioObj()->clone();
     const SeisIOObjInfo info( *ioobj );
     if ( !info.isOK() )
@@ -411,6 +397,54 @@ bool VelocityStretcher::loadDataIfMissing( int id, TaskRunner* taskr )
     else
     {
 	info.getRanges( seltkzs );
+    }
+
+    if ( !velzinfo_ || !voizinfos_[idx] )
+	return false;
+
+    ZSampling recalczsamp = selzsamp;
+    const auto* velzunit = UnitOfMeasure::zUnit( *velzinfo_ );
+    const auto* voizunit = UnitOfMeasure::zUnit( *voizinfos_[idx] );
+    if ( velzunit && voizunit &&
+	    velzunit->isCompatibleWith(*voizunit) &&
+	    velzunit != voizunit )
+    {
+	convValue( recalczsamp.start_, velzunit, voizunit );
+	convValue( recalczsamp.stop_, velzunit, voizunit );
+	convValue( recalczsamp.step_, velzunit, voizunit );
+    }
+
+    recalczsamp = getZInterval( recalczsamp, *velzinfo_, *voizinfos_[idx] );
+    ZSampling extzsamp = voivols_[idx].zsamp_;
+    const bool zistrans = toZDomainInfo().def_ == voizinfos_[idx]->def_;
+    if ( zistrans )
+	extzsamp = getZInterval( voivols_[idx].zsamp_,
+				       *velzinfo_, *voizinfos_[idx] );
+
+    if ( !mIsUdf( extzsamp.start_ ) && !mIsUdf( extzsamp.stop_ ) &&
+	extzsamp.start_ <= extzsamp.stop_ &&
+	recalczsamp.start_ <= extzsamp.stop_ &&
+	recalczsamp.stop_ >= extzsamp.start_ )
+    {
+	recalczsamp.start_ = mMAX( recalczsamp.start_, extzsamp.start_ );
+	recalczsamp.stop_ = mMIN( recalczsamp.stop_, extzsamp.stop_ );
+    }
+
+    voivols_[idx].zsamp_ = recalczsamp;
+    const TrcKeyZSampling& voi = voivols_[idx];
+    const ZSampling& voizsamp = voi.zsamp_;
+
+    Array3D<float>* arr = voidata_[idx];
+    if ( !arr )
+    {
+	arr = new Array3DImpl<float>( voi.nrInl(), voi.nrCrl(), voi.nrZ() );
+	if ( !arr->isOK() )
+	{
+	    delete arr;
+	    return false;
+	}
+
+	delete voidata_.replace( idx, arr );
     }
 
     seltkzs.hsamp_ = voitks;
