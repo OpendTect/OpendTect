@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 #include "bufstringset.h"
 #include "callback.h"
-#include "genc.h"
 #include "objectset.h"
 #include "task.h"
 #include "uistring.h"

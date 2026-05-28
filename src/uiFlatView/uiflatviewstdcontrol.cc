@@ -13,7 +13,6 @@ ________________________________________________________________________
 #include "uicolortable.h"
 #include "uiflatviewcoltabed.h"
 #include "uiflatviewer.h"
-#include "uigraphicsscene.h"
 #include "uigeninput.h"
 #include "uimainwin.h"
 #include "uimain.h"
@@ -25,11 +24,11 @@ ________________________________________________________________________
 #include "uitoolbar.h"
 #include "uitoolbutton.h"
 
+#include "genc.h"
 #include "keyboardevent.h"
 #include "mousecursor.h"
 #include "mouseevent.h"
 #include "survinfo.h"
-#include "texttranslator.h"
 
 #define sLocalHZIdx	0
 #define sGlobalHZIdx	1

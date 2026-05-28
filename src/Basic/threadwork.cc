@@ -9,6 +9,7 @@ ________________________________________________________________________
 
 #include "threadwork.h"
 
+#include "genc.h"
 #include "sighndl.h"
 #include "task.h"
 #include "thread.h"
