@@ -65,7 +65,9 @@ void Geom2DInit::geomReadyCB( CallBacker* retcb )
 {
     auto& twm = Threads::WorkManager::twm();
     const bool res = twm.getWorkExitStatus( retcb );
-    if ( !res || queueid_ < 0 || !continue_ )
+    if ( !res || queueid_ < 0 || !continue_ ||
+	 !twm.isQueuePresent(queueid_) ||
+	  twm.isQueueClosing(queueid_) )
 	return;
 
     const CallBack cb = mCB(this,Geom2DInit,computeBendpointsCB);
@@ -78,7 +80,9 @@ void Geom2DInit::bendPointsReadyCB( CallBacker* retcb )
 {
     auto& twm = Threads::WorkManager::twm();
     const bool res = twm.getWorkExitStatus( retcb );
-    if ( !res || queueid_ < 0 || !continue_ )
+    if ( !res || queueid_ < 0 || !continue_ ||
+	 !twm.isQueuePresent(queueid_) ||
+	  twm.isQueueClosing(queueid_) )
 	return;
 
     const CallBack cb = mCB(this,Geom2DInit,computeIntersectionsCB);
