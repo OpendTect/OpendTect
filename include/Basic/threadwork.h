@@ -55,6 +55,8 @@ public:
     void			removeQueue(int queueid,bool finishall);
 				/*!<Removes queue. If finishall is true,
 				    all work in the queue will be finished. */
+    int				isQueuePresent(int queueid) const;
+    bool			isQueueClosing(int queueid) const;
     static int			cDefaultQueueID() { return 0; }
     bool			executeQueue(int queueid);
 				/*!<Runs all jobs in a que. Only for manual
