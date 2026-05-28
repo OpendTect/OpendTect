@@ -681,7 +681,12 @@ void PolygonBodyDisplay::mouseCB( CallBacker* cb )
 		// Handle Ctrl+Drag deletion - record start/end positions
 		if ( eventinfo.type == visBase::MouseClick && eventinfo.pressed )
 		{
-		// Start of Ctrl+Drag - record start position
+		// Start of Ctrl+Drag - ALWAYS reset state first
+		iserasing_ = false;
+		erasestartpos_ = Coord3::udf();
+		eraseendpos_ = Coord3::udf();
+
+		// Now record start position
 		Coord3 pos = disp2world( eventinfo.displaypickedpos );
 		if ( pos.isDefined() )
 		{
@@ -689,11 +694,6 @@ void PolygonBodyDisplay::mouseCB( CallBacker* cb )
 			erasestartpos_ = pos;
 			eraseendpos_ = pos;
 			eventcatcher_->setHandled();
-		}
-		else
-		{
-			// Invalid position - reset state
-			iserasing_ = false;
 		}
 		return;
 		}
@@ -744,6 +744,13 @@ void PolygonBodyDisplay::mouseCB( CallBacker* cb )
 			erasestartpos_ = Coord3::udf();
 			eraseendpos_ = Coord3::udf();
 			eventcatcher_->setHandled();
+		}
+		else
+		{
+			// Release without being in erase mode - ensure clean state
+			iserasing_ = false;
+			erasestartpos_ = Coord3::udf();
+			eraseendpos_ = Coord3::udf();
 		}
 		return;
 		}
@@ -921,7 +928,10 @@ void PolygonBodyDisplay::eraseKnotsBetweenDragPositions()
 	if ( !polygonsurface )
 	return;
 
-	// Step 1: Find the knot nearest to the start position (in 3D space)
+	// Step 1: Find the knot nearest to the START position
+	// CRITICAL FIX: Use 2D (X,Y) distance to find nearest knot,
+	// because the Z from mouse click might be on a different plane!
+
 	int startknotidx = -1;
 	double mindist_start = 1e30;
 
@@ -931,7 +941,12 @@ void PolygonBodyDisplay::eraseKnotsBetweenDragPositions()
 	if ( !knotpos.isDefined() )
 		continue;
 
-	const double dist = erasestartpos_.distTo( knotpos );
+	// Use 2D (X,Y) distance only - ignore Z from mouse click
+	// because mouse Z depends on which plane was clicked
+	const double dx = knotpos.x_ - erasestartpos_.x_;
+	const double dy = knotpos.y_ - erasestartpos_.y_;
+	const double dist = sqrt(dx*dx + dy*dy);
+
 	if ( dist < mindist_start )
 	{
 		mindist_start = dist;
@@ -963,85 +978,138 @@ void PolygonBodyDisplay::eraseKnotsBetweenDragPositions()
 	if ( endknotidx == -1 || startknotidx == endknotidx )
 	return;
 
-	// Step 3: Determine deletion path by checking proximity to drag trajectory
-	// We want to delete knots that are close to the line segment from start to end
+	// SIMPLE APPROACH: Follow the polygon from nearest start point 
+	// and delete until we pass the end position
+
+	// Step 1 & 2: Find nearest knot to START position (already done above)
+	// startknotidx is the nearest knot to erasestartpos_
+
+	// We don't use endknotidx from the global search - we'll find it sequentially!
+
+	// Step 3: Determine direction by checking which neighbor of startknotidx 
+	// is closer to the END position
+
+	// Get the two neighbors of startknotidx
+	const int neighbor_forward = (startknotidx + 1 < nrknots) ? startknotidx + 1 : -1;
+	const int neighbor_backward = (startknotidx - 1 >= 0) ? startknotidx - 1 : -1;
+
+	// Calculate distances from neighbors to end position
+	double dist_forward = 1e30;
+	double dist_backward = 1e30;
+
+	if ( neighbor_forward >= 0 )
+	{
+	const Coord3 knotpos = polygonsurface->getKnot( RowCol(activepolygon, neighbor_forward) );
+	if ( knotpos.isDefined() )
+		dist_forward = eraseendpos_.distTo( knotpos );
+	}
+
+	if ( neighbor_backward >= 0 )
+	{
+	const Coord3 knotpos = polygonsurface->getKnot( RowCol(activepolygon, neighbor_backward) );
+	if ( knotpos.isDefined() )
+		dist_backward = eraseendpos_.distTo( knotpos );
+	}
+
+	// Determine search direction
+	bool search_forward = true;
+
+	if ( neighbor_forward < 0 && neighbor_backward >= 0 )
+	{
+	// Only backward neighbor exists
+	search_forward = false;
+	}
+	else if ( neighbor_backward < 0 && neighbor_forward >= 0 )
+	{
+	// Only forward neighbor exists
+	search_forward = true;
+	}
+	else
+	{
+	// Both neighbors exist, choose the one closer to end position
+	search_forward = (dist_forward <= dist_backward);
+	}
+
+	// Step 4: Follow the direction SEQUENTIALLY and find where to stop
+	// Stop when the distance to end position starts INCREASING
+	// (meaning we've passed the endpoint region)
 
 	TypeSet<int> indicestodelete;
 
-	// Build both possible paths and check which one is closer to the drag trajectory
-	TypeSet<int> path1, path2;
-
-	// Path 1: From start to end going forward (increasing indices, wrapping if needed)
-	int idx = startknotidx;
-	while ( true )
+	if ( search_forward )
 	{
-	path1 += idx;
-	if ( idx == endknotidx )
-		break;
-	idx = (idx + 1) % nrknots;
-	if ( path1.size() > nrknots )
-		break; // Safety check
-	}
+	// Search forward from startknotidx
+	int currentidx = startknotidx;
+	double prev_dist = 1e30;
 
-	// Path 2: From start to end going backward (decreasing indices, wrapping if needed)
-	idx = startknotidx;
-	while ( true )
-	{
-	path2 += idx;
-	if ( idx == endknotidx )
-		break;
-	idx = (idx - 1 + nrknots) % nrknots;
-	if ( path2.size() > nrknots )
-		break; // Safety check
-	}
+	// Start with the first knot
+	const Coord3 firstpos = polygonsurface->getKnot( RowCol(activepolygon, currentidx) );
+	if ( firstpos.isDefined() )
+		prev_dist = eraseendpos_.distTo( firstpos );
 
-	// Calculate which path is closer to the drag trajectory
-	double avgdist_path1 = 0.0;
-	double avgdist_path2 = 0.0;
-	int count1 = 0, count2 = 0;
+	indicestodelete += currentidx;
+	currentidx++;
 
-	// For each knot in path1, calculate distance to drag line segment
-	for ( int i=0; i<path1.size(); i++ )
+	// Continue while distance is decreasing (getting closer to endpoint)
+	while ( currentidx < nrknots )
 	{
-	const Coord3 knotpos = polygonsurface->getKnot( RowCol(activepolygon, path1[i]) );
-	if ( knotpos.isDefined() )
-	{
-		// Distance from point to line segment (simplified - using distance to midpoint)
-		const Coord3 dragmidpoint = (erasestartpos_ + eraseendpos_) * 0.5;
-		avgdist_path1 += knotpos.distTo( dragmidpoint );
-		count1++;
+		const Coord3 knotpos = polygonsurface->getKnot( RowCol(activepolygon, currentidx) );
+		if ( knotpos.isDefined() )
+		{
+		const double current_dist = eraseendpos_.distTo( knotpos );
+
+		// Add this knot
+		indicestodelete += currentidx;
+
+		// If distance started increasing, we've passed the endpoint
+		if ( current_dist > prev_dist )
+		{
+			// We've included one knot past the closest point - that's fine
+			break;
+		}
+
+		prev_dist = current_dist;
+		}
+		currentidx++;
 	}
 	}
-	if ( count1 > 0 )
-	avgdist_path1 /= count1;
+	else
+	{
+	// Search backward from startknotidx
+	int currentidx = startknotidx;
+	double prev_dist = 1e30;
 
-	// For each knot in path2, calculate distance to drag line segment
-	for ( int i=0; i<path2.size(); i++ )
+	// Start with the first knot
+	const Coord3 firstpos = polygonsurface->getKnot( RowCol(activepolygon, currentidx) );
+	if ( firstpos.isDefined() )
+		prev_dist = eraseendpos_.distTo( firstpos );
+
+	indicestodelete += currentidx;
+	currentidx--;
+
+	// Continue while distance is decreasing (getting closer to endpoint)
+	while ( currentidx >= 0 )
 	{
-	const Coord3 knotpos = polygonsurface->getKnot( RowCol(activepolygon, path2[i]) );
-	if ( knotpos.isDefined() )
-	{
-		const Coord3 dragmidpoint = (erasestartpos_ + eraseendpos_) * 0.5;
-		avgdist_path2 += knotpos.distTo( dragmidpoint );
-		count2++;
+		const Coord3 knotpos = polygonsurface->getKnot( RowCol(activepolygon, currentidx) );
+		if ( knotpos.isDefined() )
+		{
+		const double current_dist = eraseendpos_.distTo( knotpos );
+
+		// Add this knot
+		indicestodelete += currentidx;
+
+		// If distance started increasing, we've passed the endpoint
+		if ( current_dist > prev_dist )
+		{
+			// We've included one knot past the closest point - that's fine
+			break;
+		}
+
+		prev_dist = current_dist;
+		}
+		currentidx--;
 	}
 	}
-	if ( count2 > 0 )
-	avgdist_path2 /= count2;
-
-	// Choose the path that's closer to the drag trajectory
-	const TypeSet<int>& pathToDelete = (avgdist_path1 <= avgdist_path2) ? path1 : path2;
-
-	// Safety check: don't delete all knots
-	if ( pathToDelete.size() >= nrknots )
-	{
-	// Would delete everything - abort
-	return;
-	}
-
-	// Copy indices to delete
-	for ( int i=0; i<pathToDelete.size(); i++ )
-	indicestodelete += pathToDelete[i];
 
 	// Delete knots in reverse order of their indices (to maintain valid indices)
 	// Sort indices in descending order first
@@ -1060,18 +1128,33 @@ void PolygonBodyDisplay::eraseKnotsBetweenDragPositions()
 	}
 
 	// Now delete in descending order
+	// Each removeKnot with true creates its own undo event
+	// They will be grouped together if no setUserInteractionEnd is called between them
+
+	// Safety check: ensure we have valid geometry
+	if ( !empolygonsurf_ || indicestodelete.isEmpty() )
+		return;
+
+	int deletedcount = 0;
 	for ( int i=0; i<indicestodelete.size(); i++ )
 	{
 	const int knotidx = indicestodelete[i];
-	if ( knotidx >= 0 && knotidx < empolygonsurf_->geometry().nrKnots(activepolygon) )
+	const int currentnrknots = empolygonsurf_->geometry().nrKnots(activepolygon);
+
+	// Bounds check with current knot count
+	if ( knotidx >= 0 && knotidx < currentnrknots )
 	{
 		const EM::SubID subid = RowCol(activepolygon, knotidx).toInt64();
-		empolygonsurf_->geometry().removeKnot( subid, true );
+		// Use true to properly register undo events
+		const bool success = empolygonsurf_->geometry().removeKnot( subid, true );
+		if ( success )
+			deletedcount++;
 	}
 	}
 
-	// Update undo and display
-	if ( indicestodelete.size() > 0 )
+	// Close the undo event ONLY ONCE after all deletions
+	// This groups all the individual undo events into one user interaction
+	if ( deletedcount > 0 )
 	{
 	EM::EMM().undo(empolygonsurf_->id()).setUserInteractionEnd(
 		EM::EMM().undo(empolygonsurf_->id()).currentEventID() );
