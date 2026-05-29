@@ -31,7 +31,7 @@ static const char* sProgName = "od_copy_seis";
 
 
 uiSeisCopyCube::uiSeisCopyCube( uiParent* p, const IOObj* startobj )
-    : uiDialog(p,Setup(tr("Copy cube"),mODHelpKey(mSeisCopyHelpID)))
+    : uiDialog(p,Setup(tr("Copy Cube"),mODHelpKey(mSeisCopyHelpID)))
     , ismc_(false)
 {
     setCtrlStyle( RunAndClose );
@@ -39,7 +39,8 @@ uiSeisCopyCube::uiSeisCopyCube( uiParent* p, const IOObj* startobj )
     const Seis::GeomType gt = Seis::Vol;
     IOObjContext inctxt( uiSeisSel::ioContext(gt,true) );
     uiSeisSel::Setup sssu( gt );
-    sssu.steerpol( uiSeisSel::Setup::InclSteer ).enabotherdomain( true );
+    sssu.steerpol( uiSeisSel::Setup::InclSteer ).enabotherdomain( true )
+	.withinserters(false);
 
     inpfld_ = new uiSeisSel( this, inctxt, sssu );
     if ( startobj )
@@ -57,6 +58,7 @@ uiSeisCopyCube::uiSeisCopyCube( uiParent* p, const IOObj* startobj )
     transffld_->attach( alignedBelow, compfld_ );
 
     IOObjContext outctxt( uiSeisSel::ioContext(gt,false) );
+    sssu.setWithUnitSel(false);
     outfld_ = new uiSeisSel( this, outctxt, sssu );
     outfld_->attach( alignedBelow, transffld_ );
 
@@ -243,7 +245,8 @@ uiSeisCopy2DDataSet::uiSeisCopy2DDataSet( uiParent* p, const IOObj* obj,
     outpfld_ = new uiSeisSel( this, ioctxt, sssu );
     outpfld_->attach( alignedBelow, scalefld_ );
 
-    Batch::JobSpec js( sProgName ); js.execpars_.needmonitor_ = true;
+    Batch::JobSpec js( sProgName );
+    js.execpars_.needmonitor_ = true;
     batchfld_ = new uiBatchJobDispatcherSel( this, true, js );
     batchfld_->attach( alignedBelow, outpfld_ );
 

@@ -49,6 +49,8 @@ public:
 						     False */
 
 	Setup&		wantSteering(bool yn=true);
+	Setup&		setWithUnitSel(bool yn=true);
+	bool		withUnitSel() const;
     };
 
 			uiSeisSel(uiParent*,const IOObjContext&,const Setup&);
