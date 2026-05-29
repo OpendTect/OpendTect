@@ -2798,12 +2798,19 @@ bool uiSetD2TFromOtherWell::acceptOK( CallBacker* )
     const float newreplvel = UnitOfMeasure::surveyDefVelUnit()->internalValue(
 					replvelfld_->getFValue() );
 
+    const UnitOfMeasure* depthstoruom =
+			 UnitOfMeasure::surveyDefDepthStorageUnit();
+    const UnitOfMeasure* depthuom = UnitOfMeasure::surveyDefDepthUnit();
+
     const int mdlsz = dtmodel.size();
     TypeSet<double> inputdepths( mdlsz, 0. );
     TypeSet<double> inputtimes( mdlsz, 0. );
     for ( int idx=0; idx<mdlsz; idx++ )
     {
-	inputdepths[idx] = dtmodel.getDepth( idx );
+	const float modeldepth = dtmodel.getDepth( idx );
+	const float depth =
+		getConvertedValue( modeldepth, depthuom, depthstoruom );
+	inputdepths[idx] = depth;
 	inputtimes[idx] = dtmodel.getTime( idx );
     }
 
