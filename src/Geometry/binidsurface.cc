@@ -589,7 +589,7 @@ float BinIDSurface::getZ( const BinID& bid ) const
 {
     const int index = getKnotIndex( bid );
     if ( !depths_ || index<0 )
-	return false;
+	return mUdf(float);
 
     const int colsz = depths_->info().getSize(1);
     const int row = index / colsz;
