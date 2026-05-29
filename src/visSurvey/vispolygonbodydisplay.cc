@@ -23,6 +23,8 @@ ________________________________________________________________________
 #include "vispolygonoffset.h"
 #include "vistristripset.h"
 
+#include <osg/Node>
+
 
 namespace visSurvey
 {
@@ -303,8 +305,17 @@ bool PolygonBodyDisplay::setEMID( const EM::ObjectID& emid )
 	OD::LineStyle lnstyle( OD::LineStyle::Solid, 3, OD::Color(255, 255, 0) );
 	openpolygonline_->setLineStyle( lnstyle );
 
-	// Add to scene graph
-	addChild( openpolygonline_->osgNode() );
+	// CRITICAL: Add to scene root, not as child of this object
+	// This keeps it visible even when PolygonBodyDisplay is deselected
+	if ( scene_ )
+	{
+		scene_->addObject( openpolygonline_.ptr() );
+	}
+	else
+	{
+		// Fallback: add as child if no scene
+		addChild( openpolygonline_->osgNode() );
+	}
 
 	// Note: setLineStyle with width>0 automatically turns it on (line 100 in vispolyline.cc)
 	}
@@ -339,15 +350,19 @@ bool PolygonBodyDisplay::setEMID( const EM::ObjectID& emid )
     if ( polygonsurfeditor )
 	polygonsurfeditor->addUser();
 
-    viseditor_->setEditor( polygonsurfeditor_.ptr() );
-    bodydisplay_->turnOn( true );
-    displaypolygons_ = false;
+	viseditor_->setEditor( polygonsurfeditor_.ptr() );
+	bodydisplay_->turnOn( true );
 
-    nontexturecol_ = empolygonsurf_->preferredColor();
-    updateSingleColor();
-    updatePolygonDisplay();
+	// For new polygons being drawn, show polygons by default (not body yet)
+	// This ensures the polygon line is visible when drawing
+	displaypolygons_ = true;
+	display( true, false );  // Show polygons, hide body
 
-    return true;
+	nontexturecol_ = empolygonsurf_->preferredColor();
+	updateSingleColor();
+	updatePolygonDisplay();
+
+	return true;
 }
 
 
@@ -396,12 +411,17 @@ void PolygonBodyDisplay::touchAll( bool yn, bool updatemarker )
 	// Notify that coordinates have changed
 	openpolygonline_->dirtyCoordinates();
 
+	// Keep the polygon line visible even when not selected
 	// Only turn on line if we have at least 2 points
 	const int nrpoints = openpolygonline_->size();
 	if ( nrpoints >= 2 )
 		openpolygonline_->turnOn( true );
 	else
 		openpolygonline_->turnOn( false );
+
+	// Ensure the line stays on even if the object is deselected
+	// This allows the polygon to remain visible in the scene
+	openpolygonline_->enableTraversal( visBase::cDraggerIntersecTraversalMask() );
 	}
 	else
 	{
@@ -503,6 +523,34 @@ void PolygonBodyDisplay::updatePolygonDisplay()
 
 	// Never show the default Bezier polygon display - we use custom openpolygonline_ instead
 	polygondisplay_->turnOn( false );
+}
+
+
+bool PolygonBodyDisplay::turnOn( bool yn )
+{
+	// Call base class and get previous state
+	const bool wason = visBase::VisualObjectImpl::turnOn( yn );
+
+	// CRITICAL: Keep polygon line visible ALWAYS
+	// Force it on regardless of parent's state
+	if ( openpolygonline_ )
+	{
+	const int nrpoints = openpolygonline_->size();
+	if ( nrpoints >= 2 )
+	{
+		// Force the line to stay visible by calling turnOn on it directly
+		// This overrides any parent state changes
+		openpolygonline_->turnOn( true );
+
+		// Also ensure its OSG node is enabled
+		if ( openpolygonline_->osgNode() )
+		{
+		openpolygonline_->osgNode()->setNodeMask( ~0 );  // All bits set = fully visible
+		}
+	}
+	}
+
+	return wason;
 }
 
 

@@ -93,6 +93,8 @@ public:
     void			setMarkerStyle(const MarkerStyle3D&) override;
     const MarkerStyle3D*	markerStyle() const override;
 
+    bool			turnOn(bool) override;
+
     void			fillPar(IOPar&) const override;
     bool			usePar(const IOPar&) override;
 
