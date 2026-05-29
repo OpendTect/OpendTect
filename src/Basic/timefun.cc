@@ -335,7 +335,7 @@ const char* getTimeDiffString( od_int64 deltasec, int precision )
     if ( adddays )
     {
 	const int days = sCast(int,deltasec/daysec);
-	ret.add( days ).add( "d:" );
+	ret.add( days ).add( "d" );
 	deltasec = deltasec%daysec;
 	usedprec++;
     }
@@ -343,8 +343,10 @@ const char* getTimeDiffString( od_int64 deltasec, int precision )
     const bool addhours = (adddays || deltasec>hoursec) && usedprec<precision;
     if ( addhours )
     {
+	if ( !ret.isEmpty() )
+	    ret.add( ":" );
 	const int hours = sCast(int,deltasec/hoursec);
-	ret.add( hours ).add( "h:" );
+	ret.add( hours ).add( "h" );
 	deltasec = deltasec%hoursec;
 	usedprec++;
     }
@@ -352,15 +354,21 @@ const char* getTimeDiffString( od_int64 deltasec, int precision )
     const bool addmin = (addhours || deltasec>minsec) && usedprec<precision;
     if ( addmin )
     {
+	if ( !ret.isEmpty() )
+	    ret.add( ":" );
 	const int mins = sCast(int,deltasec/minsec);
-	ret.add( mins ).add( "m:" );
+	ret.add( mins ).add( "m" );
 	deltasec = deltasec%minsec;
 	usedprec++;
     }
 
     const bool addsec = usedprec < precision;
     if ( addsec )
+    {
+	if ( !ret.isEmpty() )
+	    ret.add( ":" );
 	ret.add( deltasec ).add( "s" );
+    }
 
     return ret;
 }
