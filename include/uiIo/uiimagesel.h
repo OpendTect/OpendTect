@@ -53,6 +53,7 @@ private:
 
     void		finalizeCB(CallBacker*);
     void		fileSelectedCB(CallBacker*);
+    bool		isFileFormatSupported(const char* fnm);
     bool		acceptOK(CallBacker*) override;
 
     uiFileInput*	inputfld_;
