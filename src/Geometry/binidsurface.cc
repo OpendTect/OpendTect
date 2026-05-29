@@ -595,7 +595,7 @@ float BinIDSurface::getZ( const BinID& bid ) const
     const int row = index / colsz;
     const int col = index % colsz;
     if ( !depths_->info().validPos(row,col) )
-	return false;
+	return mUdf(float);
 
     return depths_->get( row, col );
 }
