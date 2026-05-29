@@ -44,6 +44,8 @@ ________________________________________________________________________
 #include "uitextedit.h"
 #include "uitoolbutton.h"
 
+#include "hiddenparam.h"
+
 mDefineInstanceCreatedNotifierAccess(uiSeisFileMan)
 
 class uiSeisCBVSBrowerMgr : public CallBacker
@@ -98,6 +100,10 @@ static bool isRemoteObj( const IOObj& ioobj )
 }
 
 
+
+static HiddenParam<uiSeisFileMan,uiSeisCopyCube*> hp_copycubedlg_(nullptr);
+
+
 #define mHelpID is2d ? mODHelpKey(mSeisFileMan2DHelpID) : \
 		       mODHelpKey(mSeisFileMan3DHelpID)
 uiSeisFileMan::uiSeisFileMan( uiParent* p, bool is2d )
@@ -110,6 +116,8 @@ uiSeisFileMan::uiSeisFileMan( uiParent* p, bool is2d )
     , is2d_(is2d)
     , segyhdrbut_(nullptr)
 {
+    hp_copycubedlg_.setParam( this, nullptr );
+
     if ( !cbvsbrowsermgr_ )
 	cbvsbrowsermgr_ = new uiSeisCBVSBrowerMgr;
 
@@ -165,6 +173,10 @@ uiSeisFileMan::uiSeisFileMan( uiParent* p, bool is2d )
 uiSeisFileMan::~uiSeisFileMan()
 {
     detachAllNotifiers();
+
+    uiSeisCopyCube* dlg = hp_copycubedlg_.getParam( this );
+    closeAndNullPtr( dlg );
+    hp_copycubedlg_.removeParam( this );
 }
 
 
@@ -585,13 +597,18 @@ void uiSeisFileMan::getBasicFileInfo( BufferString& txt ) const
     seisobjinfo.getAllFileNames( filenames, true );
     if ( !filenames.isEmpty() )
     {
-	txt.add( "\nLinked file(s): " );
-	for ( const auto* nm : filenames )
+	if ( filenames.size()==1 )
+	    txt.add("\nLinked file: ").add( filenames.first()->buf() );
+	else
 	{
-	    if ( *nm == fname )
-		continue;
+	    txt.add( "\nLinked files: " );
+	    for ( const auto* nm : filenames )
+	    {
+		if ( *nm == fname )
+		    continue;
 
-	    txt.add( "\n" ).add( nm->buf() );
+		txt.add( "\n" ).add( nm->buf() );
+	    }
 	}
     }
 
@@ -663,8 +680,15 @@ void uiSeisFileMan::copyPush( CallBacker* )
     }
     else
     {
-	uiSeisCopyCube dlg( this, curioobj_ );
-	needrefresh = dlg.go();
+	auto* dlg = hp_copycubedlg_.getParam( this );
+	if ( !dlg )
+	{
+	    dlg = new uiSeisCopyCube( this, curioobj_ );
+	    dlg->setModal( false );
+	    hp_copycubedlg_.setParam( this, dlg );
+	}
+
+	dlg->show();
     }
 
     if ( needrefresh )
