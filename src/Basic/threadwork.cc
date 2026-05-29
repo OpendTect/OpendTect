@@ -478,6 +478,29 @@ void Threads::WorkManager::removeQueue( int queueid, bool finishall )
 }
 
 
+int Threads::WorkManager::isQueuePresent( int queueid ) const
+{
+    int res = mUdf(int);
+    workloadcond_.lock();
+    res = queueids_.isPresent( queueid );
+    workloadcond_.unLock();
+    return res >= 0 && !mIsUdf(res);
+}
+
+
+bool Threads::WorkManager::isQueueClosing( int queueid ) const
+{
+    bool res = false;
+    workloadcond_.lock();
+    const int queueidx = queueids_.indexOf( queueid );
+    if ( queueidx >= 0 && !mIsUdf(queueidx) )
+	res = queueisclosing_[queueidx];
+
+    workloadcond_.unLock();
+    return res;
+}
+
+
 void Threads::WorkManager::setQueueName( int queueid, const char* name )
 {
     Threads::MutexLocker lock(workloadcond_);
