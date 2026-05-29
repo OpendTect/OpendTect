@@ -361,5 +361,50 @@ void getImageFileFilter( BufferString& filter, bool forread,
 {
     BufferStringSet descs;
     getImageFormatDescs( descs, forread, withprintformats );
-    filter = descs.cat( ";;" );
+    if ( !forread )
+    {
+	filter = descs.cat( ";;" );
+	return;
+    }
+
+    // if forread, combine all the filters with spaces in between
+    filter.setEmpty();
+    for ( const auto* desc : descs )
+    {
+	const char* openingpar = desc->find( '(' ) ;
+	BufferString fmtstr = openingpar + 1;
+	char* closingpar = fmtstr.find( ')' );
+	if ( !closingpar )
+	    continue;
+
+	if ( filter.isEmpty() )
+	    filter.add( "Image (" );
+	else
+	    filter.add( " " );
+
+	*closingpar = '\0';
+	filter.add( fmtstr );
+    }
+
+    if ( !filter.isEmpty() )
+	filter.add( ")" );
+}
+
+
+const char* getImageFormat( const char* fnm )
+{
+    static BufferString ret;
+    const QString qfnm( fnm );
+    const QByteArray fmt = QImageReader::imageFormat( qfnm );
+    ret = fmt.data();
+    return ret.buf();
+}
+
+
+bool isImageFormatSupported( const char* fnm )
+{
+    BufferStringSet supportedformats;
+    supportedImageFormats( supportedformats, true, false );
+    const BufferString fmt = getImageFormat( fnm );
+    return !fmt.isEmpty() && supportedformats.isPresent( fmt );
 }

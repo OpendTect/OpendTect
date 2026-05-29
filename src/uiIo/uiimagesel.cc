@@ -21,6 +21,7 @@ ________________________________________________________________________
 #include "uifileinput.h"
 #include "uimenu.h"
 #include "uimsg.h"
+#include "uipixmap.h"
 
 
 //uiImageSel
@@ -138,7 +139,10 @@ uiImportImageDlg::uiImportImageDlg( uiParent* p )
 {
     setOkCancelText( uiStrings::sImport(), uiStrings::sClose() );
 
-    uiFileInput::Setup su( uiFileDialog::Img ); su.defseldir( GetDataDir() );
+    BufferString filefilter;
+    getImageFileFilter( filefilter, true, false );
+    uiFileInput::Setup su( uiFileDialog::Img );
+    su.filter( filefilter ).defseldir( GetDataDir() );
     inputfld_ = new uiFileInput( this, tr("Input image file"), su );
     mAttachCB( inputfld_->valueChanged, uiImportImageDlg::fileSelectedCB );
 
@@ -177,6 +181,20 @@ void uiImportImageDlg::finalizeCB( CallBacker* )
 }
 
 
+bool uiImportImageDlg::isFileFormatSupported( const char* fnm )
+{
+    if ( isImageFormatSupported(fnm) )
+	return true;
+
+    BufferStringSet formatdescs;
+    getImageFormatDescs( formatdescs, true, false );
+    uiMSG().error( tr("The selected file format is not supported.\n\n"
+		"Following is the list of supported formats:\n%1")
+		.arg(formatdescs.cat()) );
+    return false;
+}
+
+
 bool uiImportImageDlg::acceptOK( CallBacker* )
 {
     const StringView fnm = inputfld_->fileName();
@@ -191,6 +209,9 @@ bool uiImportImageDlg::acceptOK( CallBacker* )
 	uiMSG().error( tr("Selected image file does not exist") );
 	return false;
     }
+
+    if ( !isFileFormatSupported(fnm) )
+	return false;
 
     outputfld_->reset();
     const IOObj* ioobj = outputfld_->ioobj();
@@ -224,6 +245,9 @@ bool uiImportImageDlg::acceptOK( CallBacker* )
 void uiImportImageDlg::fileSelectedCB( CallBacker* )
 {
     const FilePath fnmfp( inputfld_->fileName() );
+    if ( !isFileFormatSupported(fnmfp.fullPath().buf()) )
+	return;
+
     outputfld_->setInputText( fnmfp.baseName() );
 }
 

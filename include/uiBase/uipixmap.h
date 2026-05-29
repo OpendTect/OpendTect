@@ -83,3 +83,6 @@ mGlobal(uiBase) void getImageFormatDescs(BufferStringSet& descs,bool forread,
 					bool withprintformats=false);
 mGlobal(uiBase) void getImageFileFilter(BufferString& filter,bool forread,
 					bool withprintformats=false);
+mGlobal(uiBase) bool isImageFormatSupported(const char* filenm);
+mGlobal(uiBase) const char* getImageFormat(const char* filenm);
+			    // Returns empty string if format is not supported.
