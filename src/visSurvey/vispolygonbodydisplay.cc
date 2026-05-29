@@ -670,9 +670,7 @@ void PolygonBodyDisplay::mouseCB( CallBacker* cb )
 				? scene_->getZScale() *scene_->getFixedZStretch()
 				: SI().zScale();
 
-	// Enable sower for click-and-drag if not closed
-	if ( !polygonclosed_ )
-	{
+	// Enable sower for click-and-drag (works for both open and closed polygons)
 	// Check if Ctrl is pressed for erase mode
 	const bool iserasemode = OD::ctrlKeyboardButton(eventinfo.buttonstate_);
 
@@ -780,7 +778,6 @@ void PolygonBodyDisplay::mouseCB( CallBacker* cb )
 		if ( viseditor_->sower().accept(eventinfo) )
 		return;
 	}
-	}
 
 	if ( eventinfo.type != visBase::MouseClick ||
 	 !OD::leftMouseButton(eventinfo.buttonstate_) )
@@ -807,6 +804,11 @@ void PolygonBodyDisplay::mouseCB( CallBacker* cb )
 
 	// Get interaction info for knot manipulation
 	EM::PosID nearestpid0, nearestpid1, insertpid;
+
+	// Safety check before calling getInteractionInfo
+	if ( !polygonsurfeditor_ || !empolygonsurf_ )
+	return;
+
 	polygonsurfeditor_->getInteractionInfo( nearestpid0, nearestpid1,
 						insertpid, pos, zscale );
 	const int nearestpolygon =
@@ -819,6 +821,9 @@ void PolygonBodyDisplay::mouseCB( CallBacker* cb )
 	}
 
 	// Handle Ctrl+Click to remove knot/polygon
+	if ( !viseditor_ )
+	return;
+
 	const EM::PosID pid = viseditor_->mouseClickDragger(eventinfo.pickedobjids);
 	if ( !pid.isUdf() )
 	{
@@ -854,11 +859,12 @@ void PolygonBodyDisplay::mouseCB( CallBacker* cb )
 	 OD::shiftKeyboardButton(eventinfo.buttonstate_) )
 	return;
 
-	// Don't add points if polygon is closed
-	if ( polygonclosed_ )
-	return;
+	// Allow adding points to both open and closed polygons
+	// The geometry supports this - polygonclosed_ is just a visual flag
+	// Just ensure the event is handled to prevent deselection
 
 	// Handle sower activation on press for drag mode
+	// Works for both open and closed polygons
 	if ( eventinfo.pressed )
 	{
 	// Try to activate sower for click-and-drag
@@ -868,6 +874,8 @@ void PolygonBodyDisplay::mouseCB( CallBacker* cb )
 
 	return; // Don't add point on press, wait for release
 	}
+
+	// On release, continue to point insertion
 
 	// Only add points on mouse release
 	// Determine edit normal from plane
@@ -897,11 +905,112 @@ void PolygonBodyDisplay::mouseCB( CallBacker* cb )
 	}
 	else
 	{
-	// Add knot to existing polygon
-	const int nrknots = empolygonsurf_->geometry().nrKnots(activepolygon);
-	const EM::SubID subid = RowCol(activepolygon, nrknots).toInt64();
-	if ( !empolygonsurf_->geometry().insertKnot(subid, pos, true) )
+	// Insert knot at the appropriate position
+	// Safety check: ensure we have valid polygon geometry
+	if ( !empolygonsurf_ )
+	{
+		eventcatcher_->setHandled();
 		return;
+	}
+
+	const int nrknots = empolygonsurf_->geometry().nrKnots(activepolygon);
+	if ( nrknots < 0 )
+	{
+		eventcatcher_->setHandled();
+		return;
+	}
+
+	// Get the geometry element for additional validation
+	mDynamicCastGet( Geometry::PolygonSurface*, polygonsurface,
+			 empolygonsurf_->geometryElement() )
+	if ( !polygonsurface )
+	{
+		eventcatcher_->setHandled();
+		return;
+	}
+
+	// Smart mode detection: Insert between neighbors OR add at end
+	// Decision based on: Are we clicking NEAR an existing line segment?
+
+	bool shouldInsertBetweenNeighbors = false;
+
+	// Check if we have valid neighbors and insertion point
+	if ( nrknots >= 2 && !insertpid.isUdf() && !nearestpid0.isUdf() && !nearestpid1.isUdf() )
+	{
+		// Get the two nearest knot positions
+		const RowCol rc0 = nearestpid0.getRowCol();
+		const RowCol rc1 = nearestpid1.getRowCol();
+		const Coord3 knotpos0 = polygonsurface->getKnot( rc0 );
+		const Coord3 knotpos1 = polygonsurface->getKnot( rc1 );
+
+		if ( knotpos0.isDefined() && knotpos1.isDefined() )
+		{
+		// Calculate distance from click position to the line segment between neighbors
+		const Coord3 segvec = knotpos1 - knotpos0;
+		const double seglen = segvec.abs();
+
+		if ( seglen > 0.001 )
+		{
+			// Project click position onto the line segment
+			const Coord3 clickvec = pos - knotpos0;
+			const double t = clickvec.dot(segvec) / (seglen * seglen);
+			const double t_clamped = t < 0.0 ? 0.0 : (t > 1.0 ? 1.0 : t);
+			const Coord3 projection = knotpos0 + segvec * t_clamped;
+
+			// Calculate distance to line segment
+			const double dist_to_segment = pos.distTo( projection );
+
+			// Use normalized distance threshold (in sample space)
+			const double inl_dist = SI().inlDistance();
+			const double crl_dist = SI().crlDistance();
+			const double xy_step = (inl_dist + crl_dist) / 2.0;
+			const double threshold_distance = xy_step * 2.0; // 2 bins away
+
+			// If click is close to the line segment, insert between neighbors
+			if ( dist_to_segment < threshold_distance )
+			{
+			shouldInsertBetweenNeighbors = true;
+			}
+		}
+		}
+	}
+
+	// Execute the appropriate insertion strategy
+	if ( shouldInsertBetweenNeighbors )
+	{
+		// INSERT MODE: Click is near existing line - insert between neighbors
+		const RowCol insertrc = insertpid.getRowCol();
+		const int insertcol = insertrc.col();
+
+		if ( insertcol >= 0 && insertcol <= nrknots )
+		{
+		if ( !empolygonsurf_->geometry().insertKnot(insertpid.subID(), pos, true) )
+		{
+			eventcatcher_->setHandled();
+			return;
+		}
+		}
+		else
+		{
+		// Fallback to end if insertion position invalid
+		const EM::SubID subid = RowCol(activepolygon, nrknots).toInt64();
+		if ( !empolygonsurf_->geometry().insertKnot(subid, pos, true) )
+		{
+			eventcatcher_->setHandled();
+			return;
+		}
+		}
+	}
+	else
+	{
+		// CONSTRUCTION MODE: Click is away from polygon - add at end
+		const EM::SubID subid = RowCol(activepolygon, nrknots).toInt64();
+		if ( !empolygonsurf_->geometry().insertKnot(subid, pos, true) )
+		{
+		eventcatcher_->setHandled();
+		return;
+		}
+	}
 	}
 
 	EM::EMM().undo(empolygonsurf_->id()).setUserInteractionEnd(
