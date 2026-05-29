@@ -929,11 +929,19 @@ void PolygonBodyDisplay::eraseKnotsBetweenDragPositions()
 	return;
 
 	// Step 1: Find the knot nearest to the START position
-	// CRITICAL FIX: Use 2D (X,Y) distance to find nearest knot,
-	// because the Z from mouse click might be on a different plane!
+	// CRITICAL: Normalize by sampling intervals (bin size and time sample rate)
+	// to compute distance in terms of SAMPLE distance, not raw coordinate distance
 
 	int startknotidx = -1;
 	double mindist_start = 1e30;
+
+	// Get sampling intervals from survey info
+	const double inl_dist = SI().inlDistance();  // Inline spacing in meters
+	const double crl_dist = SI().crlDistance();  // Crossline spacing in meters
+	const double z_step = SI().zStep();          // Z sample rate (e.g., 0.004 for 4ms)
+
+	// Use the average horizontal bin size for X,Y normalization
+	const double xy_step = (inl_dist + crl_dist) / 2.0;
 
 	for ( int idx=0; idx<nrknots; idx++ )
 	{
@@ -941,11 +949,13 @@ void PolygonBodyDisplay::eraseKnotsBetweenDragPositions()
 	if ( !knotpos.isDefined() )
 		continue;
 
-	// Use 2D (X,Y) distance only - ignore Z from mouse click
-	// because mouse Z depends on which plane was clicked
-	const double dx = knotpos.x_ - erasestartpos_.x_;
-	const double dy = knotpos.y_ - erasestartpos_.y_;
-	const double dist = sqrt(dx*dx + dy*dy);
+	// Normalize distances by sampling intervals
+	const double dx_norm = (knotpos.x_ - erasestartpos_.x_) / xy_step;
+	const double dy_norm = (knotpos.y_ - erasestartpos_.y_) / xy_step;
+	const double dz_norm = (knotpos.z_ - erasestartpos_.z_) / z_step;
+
+	// Now compute distance in "sample space"
+	const double dist = sqrt(dx_norm*dx_norm + dy_norm*dy_norm + dz_norm*dz_norm);
 
 	if ( dist < mindist_start )
 	{
@@ -987,13 +997,14 @@ void PolygonBodyDisplay::eraseKnotsBetweenDragPositions()
 	// We don't use endknotidx from the global search - we'll find it sequentially!
 
 	// Step 3: Determine direction by checking which neighbor of startknotidx 
-	// is closer to the END position
+	// is closer to the END position (using normalized distances)
 
 	// Get the two neighbors of startknotidx
 	const int neighbor_forward = (startknotidx + 1 < nrknots) ? startknotidx + 1 : -1;
 	const int neighbor_backward = (startknotidx - 1 >= 0) ? startknotidx - 1 : -1;
 
-	// Calculate distances from neighbors to end position
+	// Calculate normalized distances from neighbors to end position
+	// (using xy_step and z_step already defined above)
 	double dist_forward = 1e30;
 	double dist_backward = 1e30;
 
@@ -1001,14 +1012,24 @@ void PolygonBodyDisplay::eraseKnotsBetweenDragPositions()
 	{
 	const Coord3 knotpos = polygonsurface->getKnot( RowCol(activepolygon, neighbor_forward) );
 	if ( knotpos.isDefined() )
-		dist_forward = eraseendpos_.distTo( knotpos );
+	{
+		const double dx = (knotpos.x_ - eraseendpos_.x_) / xy_step;
+		const double dy = (knotpos.y_ - eraseendpos_.y_) / xy_step;
+		const double dz = (knotpos.z_ - eraseendpos_.z_) / z_step;
+		dist_forward = sqrt(dx*dx + dy*dy + dz*dz);
+	}
 	}
 
 	if ( neighbor_backward >= 0 )
 	{
 	const Coord3 knotpos = polygonsurface->getKnot( RowCol(activepolygon, neighbor_backward) );
 	if ( knotpos.isDefined() )
-		dist_backward = eraseendpos_.distTo( knotpos );
+	{
+		const double dx = (knotpos.x_ - eraseendpos_.x_) / xy_step;
+		const double dy = (knotpos.y_ - eraseendpos_.y_) / xy_step;
+		const double dz = (knotpos.z_ - eraseendpos_.z_) / z_step;
+		dist_backward = sqrt(dx*dx + dy*dy + dz*dz);
+	}
 	}
 
 	// Determine search direction
@@ -1031,8 +1052,7 @@ void PolygonBodyDisplay::eraseKnotsBetweenDragPositions()
 	}
 
 	// Step 4: Follow the direction SEQUENTIALLY and find where to stop
-	// Stop when the distance to end position starts INCREASING
-	// (meaning we've passed the endpoint region)
+	// Stop when the normalized distance to end position starts INCREASING
 
 	TypeSet<int> indicestodelete;
 
@@ -1045,18 +1065,26 @@ void PolygonBodyDisplay::eraseKnotsBetweenDragPositions()
 	// Start with the first knot
 	const Coord3 firstpos = polygonsurface->getKnot( RowCol(activepolygon, currentidx) );
 	if ( firstpos.isDefined() )
-		prev_dist = eraseendpos_.distTo( firstpos );
+	{
+		const double dx = (firstpos.x_ - eraseendpos_.x_) / xy_step;
+		const double dy = (firstpos.y_ - eraseendpos_.y_) / xy_step;
+		const double dz = (firstpos.z_ - eraseendpos_.z_) / z_step;
+		prev_dist = sqrt(dx*dx + dy*dy + dz*dz);
+	}
 
 	indicestodelete += currentidx;
 	currentidx++;
 
-	// Continue while distance is decreasing (getting closer to endpoint)
+	// Continue while distance is decreasing
 	while ( currentidx < nrknots )
 	{
 		const Coord3 knotpos = polygonsurface->getKnot( RowCol(activepolygon, currentidx) );
 		if ( knotpos.isDefined() )
 		{
-		const double current_dist = eraseendpos_.distTo( knotpos );
+		const double dx = (knotpos.x_ - eraseendpos_.x_) / xy_step;
+		const double dy = (knotpos.y_ - eraseendpos_.y_) / xy_step;
+		const double dz = (knotpos.z_ - eraseendpos_.z_) / z_step;
+		const double current_dist = sqrt(dx*dx + dy*dy + dz*dz);
 
 		// Add this knot
 		indicestodelete += currentidx;
@@ -1064,7 +1092,6 @@ void PolygonBodyDisplay::eraseKnotsBetweenDragPositions()
 		// If distance started increasing, we've passed the endpoint
 		if ( current_dist > prev_dist )
 		{
-			// We've included one knot past the closest point - that's fine
 			break;
 		}
 
@@ -1082,18 +1109,26 @@ void PolygonBodyDisplay::eraseKnotsBetweenDragPositions()
 	// Start with the first knot
 	const Coord3 firstpos = polygonsurface->getKnot( RowCol(activepolygon, currentidx) );
 	if ( firstpos.isDefined() )
-		prev_dist = eraseendpos_.distTo( firstpos );
+	{
+		const double dx = (firstpos.x_ - eraseendpos_.x_) / xy_step;
+		const double dy = (firstpos.y_ - eraseendpos_.y_) / xy_step;
+		const double dz = (firstpos.z_ - eraseendpos_.z_) / z_step;
+		prev_dist = sqrt(dx*dx + dy*dy + dz*dz);
+	}
 
 	indicestodelete += currentidx;
 	currentidx--;
 
-	// Continue while distance is decreasing (getting closer to endpoint)
+	// Continue while distance is decreasing
 	while ( currentidx >= 0 )
 	{
 		const Coord3 knotpos = polygonsurface->getKnot( RowCol(activepolygon, currentidx) );
 		if ( knotpos.isDefined() )
 		{
-		const double current_dist = eraseendpos_.distTo( knotpos );
+		const double dx = (knotpos.x_ - eraseendpos_.x_) / xy_step;
+		const double dy = (knotpos.y_ - eraseendpos_.y_) / xy_step;
+		const double dz = (knotpos.z_ - eraseendpos_.z_) / z_step;
+		const double current_dist = sqrt(dx*dx + dy*dy + dz*dz);
 
 		// Add this knot
 		indicestodelete += currentidx;
@@ -1101,7 +1136,6 @@ void PolygonBodyDisplay::eraseKnotsBetweenDragPositions()
 		// If distance started increasing, we've passed the endpoint
 		if ( current_dist > prev_dist )
 		{
-			// We've included one knot past the closest point - that's fine
 			break;
 		}
 
