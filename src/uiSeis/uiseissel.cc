@@ -309,6 +309,7 @@ uiSeisSel::Setup& uiSeisSel::Setup::wantSteering( bool yn )
 uiSeisSel::Setup& uiSeisSel::Setup::setWithUnitSel( bool yn )
 {
     hp_withunitsel_.setParam( this, yn );
+    return *this;
 }
 
 
