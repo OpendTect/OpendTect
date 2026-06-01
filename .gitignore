@@ -130,6 +130,9 @@ qtcsettings.cmake
 .qtcreator/*
 .cmake/*
 
+#pixi stuff
+.pixi/*
+pixi.lock
 
 #Temporary files
 *.sw?

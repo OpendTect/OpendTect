@@ -32,46 +32,59 @@ endmacro(ADD_TO_LIST_IF_NEW)
 
 macro( QT_INSTALL_PLUGINS )
     OD_FIND_QT()
+	if ( DEFINED ENV{CONDA_PREFIX} )
+		message( STATUS "Pixi environment detected. Adjust QT_ROOT used for plugin install" )
+		set( QT_ROOT_OLD "${QT_ROOT}" )
+		if ( WIN32 )
+		    cmake_path(SET CMK_CONDA_PREFIX NORMALIZE $ENV{CONDA_PREFIX})
+			set( QT_ROOT "${CMK_CONDA_PREFIX}/Library/lib/qt6" )
+		else()
+			set( QT_ROOT "$ENV{CONDA_PREFIX}/lib/qt6" )
+		endif()
+	endif()
     foreach( QTPLUGIN_FILE ${QT_REQ_PLUGINS} )
-	if ( NOT EXISTS "${QT_ROOT}/plugins/${QTPLUGIN_FILE}" )
-	    continue()
-	endif()
-	cmake_path( GET QTPLUGIN_FILE PARENT_PATH QTPLUGIN_DIR )
-	if ( WIN32 )
-	    cmake_path( GET QTPLUGIN_FILE STEM QTPLUGIN_STEM )
-	    cmake_path( GET QTPLUGIN_FILE EXTENSION QTPLUGIN_FILEEXT )
-	    install( FILES "${QT_ROOT}/plugins/${QTPLUGIN_FILE}"
-		     CONFIGURATIONS MinSizeRel;RelWithDebInfo;Release
-		     DESTINATION "${OD_RUNTIME_DIRECTORY}/../plugins/${QTPLUGIN_DIR}" )
-	    if ( EXISTS "${QT_ROOT}/plugins/${QTPLUGIN_DIR}/${QTPLUGIN_STEM}.pdb" )
-		install( FILES "${QT_ROOT}/plugins/${QTPLUGIN_DIR}/${QTPLUGIN_STEM}.pdb"
-			 CONFIGURATIONS RelWithDebInfo
-			 DESTINATION "${OD_RUNTIME_DIRECTORY}/../plugins/${QTPLUGIN_DIR}" )
-	    endif()
-	    if ( EXISTS "${QT_ROOT}/plugins/${QTPLUGIN_DIR}/${QTPLUGIN_STEM}d${QTPLUGIN_FILEEXT}" )
-		install( FILES "${QT_ROOT}/plugins/${QTPLUGIN_DIR}/${QTPLUGIN_STEM}d${QTPLUGIN_FILEEXT}"
-			 CONFIGURATIONS Debug
-			 DESTINATION "${OD_RUNTIME_DIRECTORY}/../plugins/${QTPLUGIN_DIR}" )
-	    endif()
-	    if ( EXISTS "${QT_ROOT}/plugins/${QTPLUGIN_DIR}/${QTPLUGIN_STEM}d.pdb" )
-		install( FILES "${QT_ROOT}/plugins/${QTPLUGIN_DIR}/${QTPLUGIN_STEM}d.pdb"
-			 CONFIGURATIONS Debug
-			 DESTINATION "${OD_RUNTIME_DIRECTORY}/../plugins/${QTPLUGIN_DIR}" )
-	    endif()
-	else()
-	    if ( APPLE )
-		install( PROGRAMS "${QT_ROOT}/plugins/${QTPLUGIN_FILE}"
-			 CONFIGURATIONS MinSizeRel;RelWithDebInfo;Release
-			 DESTINATION "${OD_RUNTIME_DIRECTORY}/../plugins/${QTPLUGIN_DIR}" )
-		install( PROGRAMS "${QT_ROOT}/plugins/${QTPLUGIN_FILE}"
-			 CONFIGURATIONS Debug
-			 DESTINATION "${OD_RUNTIME_DIRECTORY}/../../plugins/${QTPLUGIN_DIR}" )
-	    else()
-		install( PROGRAMS "${QT_ROOT}/plugins/${QTPLUGIN_FILE}"
-			 DESTINATION "${OD_RUNTIME_DIRECTORY}/../plugins/${QTPLUGIN_DIR}" )
-	    endif()
-	endif()
+		if ( NOT EXISTS "${QT_ROOT}/plugins/${QTPLUGIN_FILE}" )
+	    	continue()
+		endif()
+		cmake_path( GET QTPLUGIN_FILE PARENT_PATH QTPLUGIN_DIR )
+		if ( WIN32 )
+	    	cmake_path( GET QTPLUGIN_FILE STEM QTPLUGIN_STEM )
+	    	cmake_path( GET QTPLUGIN_FILE EXTENSION QTPLUGIN_FILEEXT )
+	    	install( FILES "${QT_ROOT}/plugins/${QTPLUGIN_FILE}"
+		    	CONFIGURATIONS MinSizeRel;RelWithDebInfo;Release
+		    	DESTINATION "${OD_RUNTIME_DIRECTORY}/../plugins/${QTPLUGIN_DIR}" )
+	    	if ( EXISTS "${QT_ROOT}/plugins/${QTPLUGIN_DIR}/${QTPLUGIN_STEM}.pdb" )
+				install( FILES "${QT_ROOT}/plugins/${QTPLUGIN_DIR}/${QTPLUGIN_STEM}.pdb"
+					CONFIGURATIONS RelWithDebInfo
+					DESTINATION "${OD_RUNTIME_DIRECTORY}/../plugins/${QTPLUGIN_DIR}" )
+	    	endif()
+	    	if ( EXISTS "${QT_ROOT}/plugins/${QTPLUGIN_DIR}/${QTPLUGIN_STEM}d${QTPLUGIN_FILEEXT}" )
+				install( FILES "${QT_ROOT}/plugins/${QTPLUGIN_DIR}/${QTPLUGIN_STEM}d${QTPLUGIN_FILEEXT}"
+			 		CONFIGURATIONS Debug
+					DESTINATION "${OD_RUNTIME_DIRECTORY}/../plugins/${QTPLUGIN_DIR}" )
+	    	endif()
+	    	if ( EXISTS "${QT_ROOT}/plugins/${QTPLUGIN_DIR}/${QTPLUGIN_STEM}d.pdb" )
+				install( FILES "${QT_ROOT}/plugins/${QTPLUGIN_DIR}/${QTPLUGIN_STEM}d.pdb"
+				CONFIGURATIONS Debug
+				DESTINATION "${OD_RUNTIME_DIRECTORY}/../plugins/${QTPLUGIN_DIR}" )
+	    	endif()
+		else()
+	    	if ( APPLE )
+				install( PROGRAMS "${QT_ROOT}/plugins/${QTPLUGIN_FILE}"
+					CONFIGURATIONS MinSizeRel;RelWithDebInfo;Release
+					DESTINATION "${OD_RUNTIME_DIRECTORY}/../plugins/${QTPLUGIN_DIR}" )
+				install( PROGRAMS "${QT_ROOT}/plugins/${QTPLUGIN_FILE}"
+					CONFIGURATIONS Debug
+					DESTINATION "${OD_RUNTIME_DIRECTORY}/../../plugins/${QTPLUGIN_DIR}" )
+	    	else()
+				install( PROGRAMS "${QT_ROOT}/plugins/${QTPLUGIN_FILE}"
+					DESTINATION "${OD_RUNTIME_DIRECTORY}/../plugins/${QTPLUGIN_DIR}" )
+	    	endif()
+		endif()
     endforeach()
+	if ( DEFINED ENV{CONDA_PREFIX} )
+		set( QT_ROOT "${QT_ROOT_OLD}" )
+	endif()
 
     list( APPEND OD_QTPLUGINS ${QT_REQ_PLUGINS} )
     list( REMOVE_DUPLICATES OD_QTPLUGINS )
@@ -375,7 +388,12 @@ endmacro(QT_SETUP_CORE_EXTERNALS)
 macro( QT_SETUP_GUI_EXTERNALS )
     OD_FIND_QT()
     if ( WIN32 )
-	set( QT_GUI_ADDS "${QT_ROOT}/bin/d3dcompiler_47.dll" "${QT_ROOT}/bin/opengl32sw.dll" )
+	set( D3D_FILE "d3dcompiler_47.dll" )
+	if ( DEFINED ENV{CONDA_PREFIX} AND NOT EXISTS "${QT_ROOT}/bin/${D3D_FILE}" )
+	    message(STATUS "Pixi environment detected. Copying ${D3D_FILE} into environment.")
+		file( COPY "$ENV{WINDIR}/System32/${D3D_FILE}" DESTINATION "${QT_ROOT}/bin/" )
+	endif()
+	set( QT_GUI_ADDS "${QT_ROOT}/bin/${D3D_FILE}" "${QT_ROOT}/bin/opengl32sw.dll" )
 	get_target_property( QT_GUI_IMPORTED_OBJECTS Qt${QT_VERSION_MAJOR}::Gui
 			     IMPORTED_OBJECTS )
 	if ( QT_GUI_IMPORTED_OBJECTS )
