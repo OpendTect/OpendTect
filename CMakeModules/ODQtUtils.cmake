@@ -175,6 +175,19 @@ macro( QT_SETUP_GUI_INTERNALS )
 					wayland-shell-integration/libqt-shell.so
 					egldeviceintegrations/libqeglfs-kms-integration.so )
 	endif()
+	if ( EXISTS "${QT_DIR}/../../../plugins/imageformats/${SHLIB_PREFIX}qtiff.${SHLIB_EXTENSION}" )
+	    list( APPEND QT_REQ_PLUGINS imageformats/${SHLIB_PREFIX}qicns.${SHLIB_EXTENSION}
+					imageformats/${SHLIB_PREFIX}qtga.${SHLIB_EXTENSION}
+					imageformats/${SHLIB_PREFIX}qtiff.${SHLIB_EXTENSION}
+					imageformats/${SHLIB_PREFIX}qwbmp.${SHLIB_EXTENSION}
+					imageformats/${SHLIB_PREFIX}qwebp.${SHLIB_EXTENSION} )
+	    if ( APPLE )
+		list( APPEND QT_REQ_PLUGINS imageformats/libqmacheif.dylib
+					    imageformats/libqmacjp2.dylib )
+	    endif()
+	else()
+	    message( AUTHOR_WARNING "Cannot find the tiff image format plugin: Install the 'Qt Image formats' optional Qt package" )
+	endif()
     else()
 	list( APPEND QT_REQ_PLUGINS imageformats/${SHLIB_PREFIX}qicns.${SHLIB_EXTENSION}
 				    imageformats/${SHLIB_PREFIX}qtga.${SHLIB_EXTENSION}
