@@ -93,8 +93,6 @@ public:
     void			setMarkerStyle(const MarkerStyle3D&) override;
     const MarkerStyle3D*	markerStyle() const override;
 
-    bool			turnOn(bool) override;
-
     void			fillPar(IOPar&) const override;
     bool			usePar(const IOPar&) override;
 
@@ -167,6 +165,10 @@ protected:
     bool				iserasing_		= false;
     Coord3				erasestartpos_;
     Coord3				eraseendpos_;
+
+    // For drag mode (sowing) - track mode
+    bool				isdragging_		= false;
+    int				draginsertmode_		= 0; // 0=append, 1=prepend
 
     OD::Color				nontexturecol_;
 

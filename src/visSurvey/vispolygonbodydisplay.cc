@@ -23,8 +23,6 @@ ________________________________________________________________________
 #include "vispolygonoffset.h"
 #include "vistristripset.h"
 
-#include <osg/Node>
-
 
 namespace visSurvey
 {
@@ -305,17 +303,8 @@ bool PolygonBodyDisplay::setEMID( const EM::ObjectID& emid )
 	OD::LineStyle lnstyle( OD::LineStyle::Solid, 3, OD::Color(255, 255, 0) );
 	openpolygonline_->setLineStyle( lnstyle );
 
-	// CRITICAL: Add to scene root, not as child of this object
-	// This keeps it visible even when PolygonBodyDisplay is deselected
-	if ( scene_ )
-	{
-		scene_->addObject( openpolygonline_.ptr() );
-	}
-	else
-	{
-		// Fallback: add as child if no scene
-		addChild( openpolygonline_->osgNode() );
-	}
+	// Add to scene graph
+	addChild( openpolygonline_->osgNode() );
 
 	// Note: setLineStyle with width>0 automatically turns it on (line 100 in vispolyline.cc)
 	}
@@ -350,19 +339,15 @@ bool PolygonBodyDisplay::setEMID( const EM::ObjectID& emid )
     if ( polygonsurfeditor )
 	polygonsurfeditor->addUser();
 
-	viseditor_->setEditor( polygonsurfeditor_.ptr() );
-	bodydisplay_->turnOn( true );
+    viseditor_->setEditor( polygonsurfeditor_.ptr() );
+    bodydisplay_->turnOn( true );
+    displaypolygons_ = false;
 
-	// For new polygons being drawn, show polygons by default (not body yet)
-	// This ensures the polygon line is visible when drawing
-	displaypolygons_ = true;
-	display( true, false );  // Show polygons, hide body
+    nontexturecol_ = empolygonsurf_->preferredColor();
+    updateSingleColor();
+    updatePolygonDisplay();
 
-	nontexturecol_ = empolygonsurf_->preferredColor();
-	updateSingleColor();
-	updatePolygonDisplay();
-
-	return true;
+    return true;
 }
 
 
@@ -411,17 +396,12 @@ void PolygonBodyDisplay::touchAll( bool yn, bool updatemarker )
 	// Notify that coordinates have changed
 	openpolygonline_->dirtyCoordinates();
 
-	// Keep the polygon line visible even when not selected
 	// Only turn on line if we have at least 2 points
 	const int nrpoints = openpolygonline_->size();
 	if ( nrpoints >= 2 )
 		openpolygonline_->turnOn( true );
 	else
 		openpolygonline_->turnOn( false );
-
-	// Ensure the line stays on even if the object is deselected
-	// This allows the polygon to remain visible in the scene
-	openpolygonline_->enableTraversal( visBase::cDraggerIntersecTraversalMask() );
 	}
 	else
 	{
@@ -523,34 +503,6 @@ void PolygonBodyDisplay::updatePolygonDisplay()
 
 	// Never show the default Bezier polygon display - we use custom openpolygonline_ instead
 	polygondisplay_->turnOn( false );
-}
-
-
-bool PolygonBodyDisplay::turnOn( bool yn )
-{
-	// Call base class and get previous state
-	const bool wason = visBase::VisualObjectImpl::turnOn( yn );
-
-	// CRITICAL: Keep polygon line visible ALWAYS
-	// Force it on regardless of parent's state
-	if ( openpolygonline_ )
-	{
-	const int nrpoints = openpolygonline_->size();
-	if ( nrpoints >= 2 )
-	{
-		// Force the line to stay visible by calling turnOn on it directly
-		// This overrides any parent state changes
-		openpolygonline_->turnOn( true );
-
-		// Also ensure its OSG node is enabled
-		if ( openpolygonline_->osgNode() )
-		{
-		openpolygonline_->osgNode()->setNodeMask( ~0 );  // All bits set = fully visible
-		}
-	}
-	}
-
-	return wason;
 }
 
 
@@ -911,19 +863,108 @@ void PolygonBodyDisplay::mouseCB( CallBacker* cb )
 	// The geometry supports this - polygonclosed_ is just a visual flag
 	// Just ensure the event is handled to prevent deselection
 
-	// Handle sower activation on press for drag mode
-	// Works for both open and closed polygons
+	// SIMPLIFIED DRAG HANDLING
+	// Rule 1: First drag (no polygon) - always use sower
+	// Rule 2: Drag from first point - prepend (for future implementation)
+	// Rule 3: Drag from last point - append
+	// Rule 4: Drag from middle - DO NOTHING (disabled)
+
+	// Handle sower activation on press
 	if ( eventinfo.pressed )
 	{
-	// Try to activate sower for click-and-drag
-	const OD::Color& prefcol = empolygonsurf_->preferredColor();
-	if ( viseditor_->sower().activate(prefcol, eventinfo) )
+	if ( !empolygonsurf_ )
 		return;
+
+	const int activepolygon = 0;
+	const int nrpolygons = empolygonsurf_->geometry().nrPolygons();
+	const int nrknots = (nrpolygons > 0) ? empolygonsurf_->geometry().nrKnots(activepolygon) : 0;
+
+	if ( nrpolygons == 0 || nrknots == 0 )
+	{
+		// No polygon yet or empty polygon - always use sower for initial creation
+		const OD::Color& prefcol = empolygonsurf_->preferredColor();
+		if ( viseditor_->sower().activate(prefcol, eventinfo) )
+		{
+		isdragging_ = true;
+		draginsertmode_ = 0; // Append
+		return;
+		}
+	}
+	else if ( nrknots > 0 )
+	{
+		// Polygon exists - check if dragging from first or last point
+		mDynamicCastGet( Geometry::PolygonSurface*, polygonsurface,
+				 empolygonsurf_->geometryElement() )
+		if ( !polygonsurface )
+		return;
+
+		// Get sampling intervals
+		const double inl_dist = SI().inlDistance();
+		const double crl_dist = SI().crlDistance();
+		const double z_step = SI().zStep();
+		const double xy_step = (inl_dist + crl_dist) / 2.0;
+
+		// Find nearest knot to drag start
+		int nearest_idx = -1;
+		double min_dist = 1e30;
+
+		for ( int idx=0; idx<nrknots; idx++ )
+		{
+		const Coord3 knotpos = polygonsurface->getKnot( RowCol(activepolygon, idx) );
+		if ( !knotpos.isDefined() )
+			continue;
+
+		const double dx_norm = (knotpos.x_ - pos.x_) / xy_step;
+		const double dy_norm = (knotpos.y_ - pos.y_) / xy_step;
+		const double dz_norm = (knotpos.z_ - pos.z_) / z_step;
+		const double dist = sqrt(dx_norm*dx_norm + dy_norm*dy_norm + dz_norm*dz_norm);
+
+		if ( dist < min_dist )
+		{
+			min_dist = dist;
+			nearest_idx = idx;
+		}
+		}
+
+		// Only allow drag from first or last point
+		if ( nearest_idx == 0 )
+		{
+		// Drag from first point - use sower for prepend (future: change to mode 1)
+		draginsertmode_ = 0; // For now, append
+		const OD::Color& prefcol = empolygonsurf_->preferredColor();
+		if ( viseditor_->sower().activate(prefcol, eventinfo) )
+		{
+			isdragging_ = true;
+			return;
+		}
+		}
+		else if ( nearest_idx == nrknots - 1 )
+		{
+		// Drag from last point - use sower for append
+		draginsertmode_ = 0; // Append
+		const OD::Color& prefcol = empolygonsurf_->preferredColor();
+		if ( viseditor_->sower().activate(prefcol, eventinfo) )
+		{
+			isdragging_ = true;
+			return;
+		}
+		}
+		else
+		{
+		// Drag from middle - DO NOTHING
+		// Don't activate sower, mark event as handled to prevent click insertion
+		eventcatcher_->setHandled();
+		return;
+		}
+	}
 
 	return; // Don't add point on press, wait for release
 	}
 
 	// On release, continue to point insertion
+	// Reset drag state - if we reach here, it's a single click (not drag)
+	isdragging_ = false;
+	draginsertmode_ = 0;
 
 	// Only add points on mouse release
 	// Determine edit normal from plane
@@ -942,7 +983,7 @@ void PolygonBodyDisplay::mouseCB( CallBacker* cb )
 	const int nrpolygons = empolygonsurf_->geometry().nrPolygons();
 	const int activepolygon = 0;
 
-	// If no polygon exists, create one
+	// If no polygon exists, create one with the first point
 	if ( nrpolygons == 0 )
 	{
 	if ( !empolygonsurf_->geometry().insertPolygon(
@@ -950,6 +991,15 @@ void PolygonBodyDisplay::mouseCB( CallBacker* cb )
 		return;
 
 	polygonclosed_ = false; // Start with open polygon
+
+	// Polygon created with first point - done for this point
+	// Subsequent drag points will go through the else block below
+	EM::EMM().undo(empolygonsurf_->id()).setUserInteractionEnd(
+		EM::EMM().undo(empolygonsurf_->id()).currentEventID() );
+	touchAll( false );
+	polygonsurfeditor_->editpositionchange.trigger();
+	eventcatcher_->setHandled();
+	return;
 	}
 	else
 	{
@@ -977,88 +1027,144 @@ void PolygonBodyDisplay::mouseCB( CallBacker* cb )
 		return;
 	}
 
-	// Smart mode detection: Insert between neighbors OR add at end
-	// Decision based on: Are we clicking NEAR an existing line segment?
+	// REFINED INSERTION ALGORITHM:
+	// For DRAG mode: Use consistent prepend/append
+	// For CLICK mode: Find nearest knot and determine best insertion point
 
-	bool shouldInsertBetweenNeighbors = false;
+	// Get sampling intervals for normalized distance calculation
+	const double inl_dist = SI().inlDistance();
+	const double crl_dist = SI().crlDistance();
+	const double z_step = SI().zStep();
+	const double xy_step = (inl_dist + crl_dist) / 2.0;
 
-	// Check if we have valid neighbors and insertion point
-	if ( nrknots >= 2 && !insertpid.isUdf() && !nearestpid0.isUdf() && !nearestpid1.isUdf() )
+	int insert_position = -1;
+
+	if ( isdragging_ )
 	{
-		// Get the two nearest knot positions
-		const RowCol rc0 = nearestpid0.getRowCol();
-		const RowCol rc1 = nearestpid1.getRowCol();
-		const Coord3 knotpos0 = polygonsurface->getKnot( rc0 );
-		const Coord3 knotpos1 = polygonsurface->getKnot( rc1 );
-
-		if ( knotpos0.isDefined() && knotpos1.isDefined() )
-		{
-		// Calculate distance from click position to the line segment between neighbors
-		const Coord3 segvec = knotpos1 - knotpos0;
-		const double seglen = segvec.abs();
-
-		if ( seglen > 0.001 )
-		{
-			// Project click position onto the line segment
-			const Coord3 clickvec = pos - knotpos0;
-			const double t = clickvec.dot(segvec) / (seglen * seglen);
-			const double t_clamped = t < 0.0 ? 0.0 : (t > 1.0 ? 1.0 : t);
-			const Coord3 projection = knotpos0 + segvec * t_clamped;
-
-			// Calculate distance to line segment
-			const double dist_to_segment = pos.distTo( projection );
-
-			// Use normalized distance threshold (in sample space)
-			const double inl_dist = SI().inlDistance();
-			const double crl_dist = SI().crlDistance();
-			const double xy_step = (inl_dist + crl_dist) / 2.0;
-			const double threshold_distance = xy_step * 2.0; // 2 bins away
-
-			// If click is close to the line segment, insert between neighbors
-			if ( dist_to_segment < threshold_distance )
-			{
-			shouldInsertBetweenNeighbors = true;
-			}
-		}
-		}
-	}
-
-	// Execute the appropriate insertion strategy
-	if ( shouldInsertBetweenNeighbors )
-	{
-		// INSERT MODE: Click is near existing line - insert between neighbors
-		const RowCol insertrc = insertpid.getRowCol();
-		const int insertcol = insertrc.col();
-
-		if ( insertcol >= 0 && insertcol <= nrknots )
-		{
-		if ( !empolygonsurf_->geometry().insertKnot(insertpid.subID(), pos, true) )
-		{
-			eventcatcher_->setHandled();
-			return;
-		}
-		}
-		else
-		{
-		// Fallback to end if insertion position invalid
-		const EM::SubID subid = RowCol(activepolygon, nrknots).toInt64();
-		if ( !empolygonsurf_->geometry().insertKnot(subid, pos, true) )
-		{
-			eventcatcher_->setHandled();
-			return;
-		}
-		}
+		// DRAG MODE: Always append - simplest, most predictable
+		insert_position = nrknots;
 	}
 	else
 	{
-		// CONSTRUCTION MODE: Click is away from polygon - add at end
-		const EM::SubID subid = RowCol(activepolygon, nrknots).toInt64();
-		if ( !empolygonsurf_->geometry().insertKnot(subid, pos, true) )
+		// CLICK MODE: Find nearest knot and determine insertion strategy
+		int nearest_knot_idx = -1;
+		double min_dist = 1e30;
+
+		for ( int idx=0; idx<nrknots; idx++ )
+		{
+		const Coord3 knotpos = polygonsurface->getKnot( RowCol(activepolygon, idx) );
+		if ( !knotpos.isDefined() )
+			continue;
+
+		// Normalized distance in sample space
+		const double dx_norm = (knotpos.x_ - pos.x_) / xy_step;
+		const double dy_norm = (knotpos.y_ - pos.y_) / xy_step;
+		const double dz_norm = (knotpos.z_ - pos.z_) / z_step;
+		const double dist = sqrt(dx_norm*dx_norm + dy_norm*dy_norm + dz_norm*dz_norm);
+
+		if ( dist < min_dist )
+		{
+			min_dist = dist;
+			nearest_knot_idx = idx;
+		}
+		}
+
+		if ( nearest_knot_idx == -1 )
 		{
 		eventcatcher_->setHandled();
 		return;
 		}
+
+		// Determine insertion position based on nearest knot
+		if ( nearest_knot_idx == 0 )
+		{
+		// Case 1: Nearest is FIRST point - insert at beginning
+		insert_position = 0;
+		}
+		else if ( nearest_knot_idx == nrknots - 1 )
+		{
+		// Case 2: Nearest is LAST point - add at end
+		insert_position = nrknots;
+		}
+		else
+		{
+		// Case 3: Nearest is MIDDLE point - find which neighbor is closer
+		// Better approach: check which SEGMENT the new point is closest to
+		const int prev_idx = nearest_knot_idx - 1;
+		const int next_idx = nearest_knot_idx + 1;
+
+		const Coord3 nearest_pos = polygonsurface->getKnot( RowCol(activepolygon, nearest_knot_idx) );
+		const Coord3 prev_pos = polygonsurface->getKnot( RowCol(activepolygon, prev_idx) );
+		const Coord3 next_pos = polygonsurface->getKnot( RowCol(activepolygon, next_idx) );
+
+		double dist_to_prev_segment = 1e30;
+		double dist_to_next_segment = 1e30;
+
+		// Distance to segment between prev and nearest
+		if ( prev_pos.isDefined() && nearest_pos.isDefined() )
+		{
+			const Coord3 segvec = nearest_pos - prev_pos;
+			const double seglen = segvec.abs();
+			if ( seglen > 0.001 )
+			{
+			const Coord3 pointvec = pos - prev_pos;
+			double t = pointvec.dot(segvec) / (seglen * seglen);
+			t = t < 0.0 ? 0.0 : (t > 1.0 ? 1.0 : t);
+			const Coord3 projection = prev_pos + segvec * t;
+			dist_to_prev_segment = pos.distTo( projection );
+			}
+		}
+
+		// Distance to segment between nearest and next
+		if ( nearest_pos.isDefined() && next_pos.isDefined() )
+		{
+			const Coord3 segvec = next_pos - nearest_pos;
+			const double seglen = segvec.abs();
+			if ( seglen > 0.001 )
+			{
+			const Coord3 pointvec = pos - nearest_pos;
+			double t = pointvec.dot(segvec) / (seglen * seglen);
+			t = t < 0.0 ? 0.0 : (t > 1.0 ? 1.0 : t);
+			const Coord3 projection = nearest_pos + segvec * t;
+			dist_to_next_segment = pos.distTo( projection );
+			}
+		}
+
+		// Insert on the segment that's closer
+		if ( dist_to_prev_segment <= dist_to_next_segment )
+		{
+		// Closer to prev-nearest segment - insert between them
+		insert_position = nearest_knot_idx;
+		}
+		else
+		{
+		// Closer to nearest-next segment - insert between them
+		insert_position = next_idx;
+		}
+		}
 	}
+
+	// Reset drag state after insertion (in case sower adds multiple points)
+	// We'll keep the mode consistent for the entire drag operation
+	// isdragging_ will be reset when drag finishes
+
+	// Perform the insertion
+	const EM::SubID subid = RowCol(activepolygon, insert_position).toInt64();
+	if ( !empolygonsurf_->geometry().insertKnot(subid, pos, true) )
+	{
+		eventcatcher_->setHandled();
+		// Reset drag state on failure
+		isdragging_ = false;
+		draginsertmode_ = 0;
+		return;
+	}
+
+	// If this was a single click (not dragging), reset drag state
+	if ( !isdragging_ )
+	{
+		draginsertmode_ = 0;
+	}
+	// If dragging, keep the state for subsequent points in the drag
 	}
 
 	EM::EMM().undo(empolygonsurf_->id()).setUserInteractionEnd(
@@ -1356,10 +1462,12 @@ void PolygonBodyDisplay::eraseKnotsBetweenDragPositions()
 
 void PolygonBodyDisplay::sowingFinishedCB( CallBacker* )
 {
-	// The sower has finished, update the display
-	// Note: We can't access sowinghistory_ directly as it's private
-	// The points should have been added already by the standard mechanism
-	// Just update the display
+	// The sower has finished
+	// Reset drag state
+	isdragging_ = false;
+	draginsertmode_ = 0;
+
+	// Update the display
 	touchAll( false );
 }
 
