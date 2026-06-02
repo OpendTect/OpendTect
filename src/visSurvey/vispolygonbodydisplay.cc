@@ -374,12 +374,19 @@ void PolygonBodyDisplay::touchAll( bool yn, bool updatemarker )
 		if ( !colrg.isUdf() )
 		{
 		// Add all knots as straight line segments
+		// CRITICAL: Apply display transformation to convert world ? display coordinates
 		for ( int col=colrg.start_; col<=colrg.stop_; col+=colrg.step_ )
 		{
 			const Coord3 pos = 
 			polygonsurface->getKnot( RowCol(activepolygon,col) );
 			if ( pos.isDefined() )
-			openpolygonline_->addPoint( pos );
+			{
+			Coord3 displaypos = pos;
+			// Apply display transformation if available
+			if ( displaytransform_ )
+				displaytransform_->transform( displaypos );
+			openpolygonline_->addPoint( displaypos );
+			}
 		}
 
 		// If closed, add first point again to close the loop
@@ -388,7 +395,13 @@ void PolygonBodyDisplay::touchAll( bool yn, bool updatemarker )
 			const Coord3 firstpos = 
 			polygonsurface->getKnot( RowCol(activepolygon, colrg.start_) );
 			if ( firstpos.isDefined() )
-			openpolygonline_->addPoint( firstpos );
+			{
+			Coord3 displaypos = firstpos;
+			// Apply display transformation if available
+			if ( displaytransform_ )
+				displaytransform_->transform( displaypos );
+			openpolygonline_->addPoint( displaypos );
+			}
 		}
 		}
 	}
