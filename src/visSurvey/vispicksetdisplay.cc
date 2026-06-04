@@ -731,12 +731,13 @@ void PickSetDisplay::otherObjectsMoved(
 			const ObjectSet<const SurveyObject>& objs,
 			const VisID& movedid )
 {
-    mCheckReadyOnly(set_)
+	mCheckReadyOnly(set_)
 
-    if ( showall_ && areallshown_ )
+	// If not in "display only at sections" mode and everything is shown, nothing to do
+	if ( !displayonlyatsections_ && areallshown_ )
 	return;
 
-    const bool singleobjectmoved = movedid.isValid() && movedid != id();
+	const bool singleobjectmoved = movedid.isValid() && movedid != id();
     ObjectSet<const SurveyObject> objstouse;
     const SurveyObject* validmovedobj = nullptr;
     for ( int idx=0; idx<objs.size(); idx++ )
@@ -774,20 +775,25 @@ void PickSetDisplay::otherObjectsMoved(
 	}
 
 	if ( validmovedobj == objs[idx] )
-	    validmovedobj = nullptr;
-    }
+		validmovedobj = nullptr;
+	}
 
-    if ( singleobjectmoved && !validmovedobj )
+	// If a single object moved but we didn't find it in the active objects list,
+	// it might have been turned off. In "display only at sections" mode, we still
+	// need to update to hide markers that were on that section.
+	if ( singleobjectmoved && !validmovedobj && !displayonlyatsections_ )
 	return;
 
-    if ( objstouse.isEmpty() && showall_ == areallshown_ )
+	// In "display only at sections" mode, we must process even if objstouse is empty
+	// to hide all markers when no sections are present
+	if ( objstouse.isEmpty() && !displayonlyatsections_ )
 	return;
 
-    for ( int idx=0; idx<markerset_->getCoordinates()->size(); idx++ )
-    {
+	for ( int idx=0; idx<markerset_->getCoordinates()->size(); idx++ )
+	{
 	bool showmarker = false;
-	if ( showall_ )
-	    showmarker = true;
+	if ( !displayonlyatsections_ )
+		showmarker = true;
 	else
 	{
 	    for ( int idy=0; idy<objstouse.size(); idy++ )
@@ -805,11 +811,55 @@ void PickSetDisplay::otherObjectsMoved(
 
 	markerset_->turnMarkerOn( idx, showmarker );
 	markerset_->requestSingleRedraw();
-    }
+	}
 
-    updateLineAtSection();
-    if ( showall_ )
+	updateLineAtSection();
+
+	// Force visual update
+	if ( markerset_ )
+	markerset_->forceRedraw( true );
+
+	if ( !displayonlyatsections_ )
 	areallshown_ = true;
+	else if ( objstouse.isEmpty() )
+	areallshown_ = false;  // No sections visible, so markers should be hidden
+}
+
+
+void PickSetDisplay::setOnlyAtSectionsDisplay( bool yn )
+{
+	if ( displayonlyatsections_ == yn )
+	return;
+
+	displayonlyatsections_ = yn;
+
+	// Update showall_ to match (inverse relationship)
+	showall_ = !yn;
+
+	// Force state to be inconsistent so otherObjectsMoved will definitely process
+	areallshown_ = false;
+
+	// If switching to "show all", immediately turn on all markers and rebuild lines
+	if ( !displayonlyatsections_ && markerset_ )
+	{
+	for ( int idx=0; idx<markerset_->getCoordinates()->size(); idx++ )
+		markerset_->turnMarkerOn( idx, true );
+	markerset_->forceRedraw( true );
+	areallshown_ = true;
+
+	// Also update the polylines to show all connections
+	updateLineAtSection();
+	}
+
+	// Update display via scene notification
+	if ( scene_ )
+	scene_->objectMoved( nullptr );
+}
+
+
+bool PickSetDisplay::displayedOnlyAtSections() const
+{
+	return displayonlyatsections_;
 }
 
 
@@ -828,12 +878,12 @@ bool PickSetDisplay::updateMarkerAtSection( const SurveyObject* obj, int idx )
     if ( scene_ )
 	scene_->getUTM2DisplayTransform()->transform( pos );
 
-    bool onsection = false;
-    if ( !pos.isDefined() )
+	bool onsection = false;
+	if ( !pos.isDefined() )
 	return false;
-    else if ( showall_ )
+	else if ( !displayonlyatsections_ )
 	onsection = true;
-    else
+	else
     {
 	mDynamicCastGet( const EMObjectDisplay*,emobj,obj )
 	if ( emobj && emobj->displayedOnlyAtSections() )
@@ -1105,14 +1155,254 @@ bool PickSetDisplay::removeSelections( TaskRunner* )
 	}
     }
 
-    Pick::Mgr().undo().setUserInteractionEnd(
-			    Pick::Mgr().undo().currentEventID() );
+	Pick::Mgr().undo().setUserInteractionEnd(
+				Pick::Mgr().undo().currentEventID() );
 
-    unSelectAll();
-    if ( changed )
+	unSelectAll();
+	if ( changed )
 	SurveyObject::removeSelections( nullptr );
 
-    return changed;
+	return changed;
+}
+
+
+void PickSetDisplay::erasePointsBetweenDragPositions()
+{
+	if ( !set_ || !erasestartpos_.isDefined() || !eraseendpos_.isDefined() )
+	return;
+
+	const int nrpts = set_->size();
+	if ( nrpts < 2 )
+	return;
+
+	// Get sampling intervals from survey info for normalized distance calculation
+	const double inl_dist = SI().inlDistance();  // Inline spacing in meters
+	const double crl_dist = SI().crlDistance();  // Crossline spacing in meters
+	const double z_step = SI().zStep();          // Z sample rate (e.g., 0.004 for 4ms)
+	const double xy_step = (inl_dist + crl_dist) / 2.0;
+
+	// Find the point nearest to the START position using normalized distances
+	int startknotidx = -1;
+	double mindist_start = 1e30;
+
+	for ( int idx=0; idx<nrpts; idx++ )
+	{
+	const Coord3 ptpos = set_->getPos( idx );
+	if ( !ptpos.isDefined() )
+		continue;
+
+	// Normalize distances by sampling intervals (sample space)
+	const double dx_norm = (ptpos.x_ - erasestartpos_.x_) / xy_step;
+	const double dy_norm = (ptpos.y_ - erasestartpos_.y_) / xy_step;
+	const double dz_norm = (ptpos.z_ - erasestartpos_.z_) / z_step;
+
+	// Compute distance in "sample space"
+	const double dist = sqrt(dx_norm*dx_norm + dy_norm*dy_norm + dz_norm*dz_norm);
+
+	if ( dist < mindist_start )
+	{
+		mindist_start = dist;
+		startknotidx = idx;
+	}
+	}
+
+	if ( startknotidx == -1 )
+	return;
+
+	// Determine direction by checking which neighbor is closer to END (also normalized)
+	const int neighbor_forward = (startknotidx + 1 < nrpts) ? startknotidx + 1 : -1;
+	const int neighbor_backward = (startknotidx - 1 >= 0) ? startknotidx - 1 : -1;
+
+	double dist_forward = 1e30;
+	double dist_backward = 1e30;
+
+	if ( neighbor_forward >= 0 )
+	{
+	const Coord3 knotpos = set_->getPos( neighbor_forward );
+	if ( knotpos.isDefined() )
+	{
+		const double dx_norm = (knotpos.x_ - eraseendpos_.x_) / xy_step;
+		const double dy_norm = (knotpos.y_ - eraseendpos_.y_) / xy_step;
+		const double dz_norm = (knotpos.z_ - eraseendpos_.z_) / z_step;
+		dist_forward = sqrt(dx_norm*dx_norm + dy_norm*dy_norm + dz_norm*dz_norm);
+	}
+	}
+
+	if ( neighbor_backward >= 0 )
+	{
+	const Coord3 knotpos = set_->getPos( neighbor_backward );
+	if ( knotpos.isDefined() )
+	{
+		const double dx_norm = (knotpos.x_ - eraseendpos_.x_) / xy_step;
+		const double dy_norm = (knotpos.y_ - eraseendpos_.y_) / xy_step;
+		const double dz_norm = (knotpos.z_ - eraseendpos_.z_) / z_step;
+		dist_backward = sqrt(dx_norm*dx_norm + dy_norm*dy_norm + dz_norm*dz_norm);
+	}
+	}
+
+	// Determine search direction
+	bool search_forward = true;
+	if ( neighbor_forward < 0 && neighbor_backward >= 0 )
+	search_forward = false;
+	else if ( neighbor_backward < 0 && neighbor_forward >= 0 )
+	search_forward = true;
+	else
+	search_forward = (dist_forward <= dist_backward);
+
+	// Collect indices to delete
+	TypeSet<int> indicestodelete;
+
+	if ( search_forward )
+	{
+	int currentidx = startknotidx;
+	const Coord3 curpos = set_->getPos(currentidx);
+	const double dx_norm = (curpos.x_ - eraseendpos_.x_) / xy_step;
+	const double dy_norm = (curpos.y_ - eraseendpos_.y_) / xy_step;
+	const double dz_norm = (curpos.z_ - eraseendpos_.z_) / z_step;
+	double prev_dist = sqrt(dx_norm*dx_norm + dy_norm*dy_norm + dz_norm*dz_norm);
+	indicestodelete += currentidx;
+	currentidx++;
+
+	while ( currentidx < nrpts )
+	{
+		const Coord3 knotpos = set_->getPos( currentidx );
+		if ( knotpos.isDefined() )
+		{
+		const double dx_norm = (knotpos.x_ - eraseendpos_.x_) / xy_step;
+		const double dy_norm = (knotpos.y_ - eraseendpos_.y_) / xy_step;
+		const double dz_norm = (knotpos.z_ - eraseendpos_.z_) / z_step;
+		const double current_dist = sqrt(dx_norm*dx_norm + dy_norm*dy_norm + dz_norm*dz_norm);
+		indicestodelete += currentidx;
+
+		if ( current_dist > prev_dist )
+			break;
+
+		prev_dist = current_dist;
+		}
+		currentidx++;
+	}
+	}
+	else
+	{
+	int currentidx = startknotidx;
+	const Coord3 curpos = set_->getPos(currentidx);
+	const double dx_norm = (curpos.x_ - eraseendpos_.x_) / xy_step;
+	const double dy_norm = (curpos.y_ - eraseendpos_.y_) / xy_step;
+	const double dz_norm = (curpos.z_ - eraseendpos_.z_) / z_step;
+	double prev_dist = sqrt(dx_norm*dx_norm + dy_norm*dy_norm + dz_norm*dz_norm);
+	indicestodelete += currentidx;
+	currentidx--;
+
+	while ( currentidx >= 0 )
+	{
+		const Coord3 knotpos = set_->getPos( currentidx );
+		if ( knotpos.isDefined() )
+		{
+		const double dx_norm = (knotpos.x_ - eraseendpos_.x_) / xy_step;
+		const double dy_norm = (knotpos.y_ - eraseendpos_.y_) / xy_step;
+		const double dz_norm = (knotpos.z_ - eraseendpos_.z_) / z_step;
+		const double current_dist = sqrt(dx_norm*dx_norm + dy_norm*dy_norm + dz_norm*dz_norm);
+		indicestodelete += currentidx;
+
+		if ( current_dist > prev_dist )
+			break;
+
+		prev_dist = current_dist;
+		}
+		currentidx--;
+	}
+	}
+
+	// Sort indices in descending order
+	for ( int i=0; i<indicestodelete.size()-1; i++ )
+	{
+	for ( int j=i+1; j<indicestodelete.size(); j++ )
+	{
+		if ( indicestodelete[i] < indicestodelete[j] )
+		{
+		const int temp = indicestodelete[i];
+		indicestodelete[i] = indicestodelete[j];
+		indicestodelete[j] = temp;
+		}
+	}
+	}
+
+	// Delete in descending order
+	for ( int i=0; i<indicestodelete.size(); i++ )
+	{
+	const int idx = indicestodelete[i];
+	if ( set_->validIdx(idx) )
+		set_->removeSingleWithUndo( idx );
+	}
+
+	if ( !indicestodelete.isEmpty() )
+	{
+	Pick::Mgr().undo().setUserInteractionEnd(
+		Pick::Mgr().undo().currentEventID() );
+
+	// Trigger proper redraw
+	redrawAll();
+
+	// Also notify scene so section visibility is updated
+	if ( scene_ )
+		scene_->objectMoved( nullptr );
+	}
+}
+
+
+void PickSetDisplay::erasePointsNearPosition( const Coord3& pos )
+{
+	if ( !set_ || !pos.isDefined() )
+	return;
+
+	const int nrpts = set_->size();
+	if ( nrpts == 0 )
+	return;
+
+	// Get sampling intervals from survey info for normalized distance calculation
+	const double inl_dist = SI().inlDistance();
+	const double crl_dist = SI().crlDistance();
+	const double z_step = SI().zStep();
+	const double xy_step = (inl_dist + crl_dist) / 2.0;
+
+	// Find nearest point using normalized distances
+	int nearestidx = -1;
+	double mindist = 1e30;
+
+	for ( int idx=0; idx<nrpts; idx++ )
+	{
+	const Coord3 ptpos = set_->getPos( idx );
+	if ( !ptpos.isDefined() )
+		continue;
+
+	// Normalize distances by sampling intervals (sample space)
+	const double dx_norm = (ptpos.x_ - pos.x_) / xy_step;
+	const double dy_norm = (ptpos.y_ - pos.y_) / xy_step;
+	const double dz_norm = (ptpos.z_ - pos.z_) / z_step;
+
+	// Compute distance in "sample space"
+	const double dist = sqrt(dx_norm*dx_norm + dy_norm*dy_norm + dz_norm*dz_norm);
+
+	if ( dist < mindist )
+	{
+		mindist = dist;
+		nearestidx = idx;
+	}
+	}
+
+	if ( nearestidx >= 0 && set_->validIdx(nearestidx) )
+	{
+	set_->removeSingleWithUndo( nearestidx );
+	Pick::Mgr().undo().setUserInteractionEnd(
+		Pick::Mgr().undo().currentEventID() );
+
+	// Trigger proper redraw
+	redrawAll();
+
+	// Also notify scene so section visibility is updated
+	if ( scene_ )
+		scene_->objectMoved( nullptr );
+	}
 }
 
 } // namespace visSurvey
