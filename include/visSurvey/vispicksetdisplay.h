@@ -76,15 +76,15 @@ public:
     bool			usePar(const IOPar&) override;
 
 protected:
-				~PickSetDisplay();
+			~PickSetDisplay();
 
-    void			setPosition(int loc,const Pick::Location&);
-    void			setPosition(int idx,const Pick::Location&,
-					    bool add=false) override;
-    Coord3			getPosition(int loc) const;
-    void			removePosition(int idx) override;
-    void			removeAll() override;
-    void			redrawMultiSets() override;
+	void			setPosition(int loc,const Pick::Location&);
+	void			setPosition(int idx,const Pick::Location&,
+					bool add=false) override;
+	Coord3			getPosition(int loc) const;
+	void			removePosition(int idx) override;
+	void			removeAll() override;
+	void			redrawMultiSets() override;
 
     void			setPolylinePos(int,const Coord3&);
     void			removePolylinePos(int);

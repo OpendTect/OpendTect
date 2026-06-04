@@ -163,6 +163,10 @@ void PickSetDisplay::setChg( CallBacker* cb )
 {
     LocationDisplay::setChg( cb );
     setBodyDisplay();
+
+    // For polygons, ensure smooth curve is drawn after set changes
+    if ( set_ && set_->isPolygon() && set_->nrSets() <= 1 )
+    redrawLine();
 }
 
 
@@ -250,44 +254,44 @@ Coord3 PickSetDisplay::getPosition( int loc ) const
 
 void PickSetDisplay::setPolylinePos( int idx, const Coord3& pos )
 {
-    if ( !polylines_ )
+	if ( !polylines_ )
 	createLine();
 
-    if ( set_->nrSets() > 1 )
+	if ( set_->nrSets() > 1 )
 	return;
 
-    const bool doredraw = set_->isPolygon() && set_->disp3d().polyDisp() &&
-	    set_->disp3d().polyDisp()->connect_==Pick::Set::Connection::Close;
-    if ( doredraw )
-    {
+	const bool doredraw = set_->isPolygon() && set_->disp3d().polyDisp() &&
+		set_->disp3d().polyDisp()->connect_!=Pick::Set::Connection::None;
+	if ( doredraw )
+	{
 	redrawLine();
 	return;
-    }
+	}
 
-    polylines_->setPoint( idx, pos );
-    polylines_->dirtyCoordinates();
+	polylines_->setPoint( idx, pos );
+	polylines_->dirtyCoordinates();
 }
 
 
 void PickSetDisplay::removePosition( int idx )
 {
-    mCheckReadyOnly( set_ )
+	mCheckReadyOnly( set_ )
 
-    const bool doredraw = set_->isPolygon() && set_->disp3d().polyDisp() &&
-	    set_->disp3d().polyDisp()->connect_==Pick::Set::Connection::Close;
-    if ( doredraw )
-    {
+	const bool doredraw = set_->isPolygon() && set_->disp3d().polyDisp() &&
+		set_->disp3d().polyDisp()->connect_!=Pick::Set::Connection::None;
+	if ( doredraw )
+	{
 	redrawAll( idx );
 	return;
-    }
+	}
 
-    if ( !markerset_ || idx>=markerset_->size() )
+	if ( !markerset_ || idx>=markerset_->size() )
 	return;
 
-    markerset_->removeMarker( idx );
-    removePolylinePos( idx );
+	markerset_->removeMarker( idx );
+	removePolylinePos( idx );
 
-    dragger_->turnOn( false );
+	dragger_->turnOn( false );
 }
 
 
@@ -382,24 +386,24 @@ void PickSetDisplay::redrawMultiSets()
 
 void PickSetDisplay::redrawAll( int drageridx )
 {
-    if ( !markerset_ )
+	if ( !markerset_ )
 	return;
 
-    if ( !polylines_ && needLine() )
+	if ( !polylines_ && needLine() )
 	createLine();
 
-    markerset_->clearMarkers();
-    for ( int idx=0; idx<set_->size(); idx++ )
-    {
+	markerset_->clearMarkers();
+	for ( int idx=0; idx<set_->size(); idx++ )
+	{
 	Coord3 pos = set_->getPos( idx );
 	if ( datatransform_ )
-            pos.z_ = datatransform_->transform( pos );
-        if ( !mIsUdf(pos.z_) )
-	    markerset_->addPos( pos );
-    }
+			pos.z_ = datatransform_->transform( pos );
+		if ( !mIsUdf(pos.z_) )
+		markerset_->addPos( pos );
+	}
 
-    markerset_->forceRedraw( true );
-    redrawLine();
+	markerset_->forceRedraw( true );
+	redrawLine();
 }
 
 
@@ -439,33 +443,123 @@ void PickSetDisplay::createLine()
 
 void PickSetDisplay::redrawLine()
 {
-    if ( !polylines_ || !set_ )
+	if ( !polylines_ || !set_ )
 	return;
 
-    const bool ispoly = set_->isPolygon() && set_->disp3d().polyDisp();
-    polylines_->setLineStyle( ispoly ? set_->disp3d().polyDisp()->linestyle_
-				     : OD::LineStyle() );
+	const bool ispoly = set_->isPolygon() && set_->disp3d().polyDisp();
+	polylines_->setLineStyle( ispoly ? set_->disp3d().polyDisp()->linestyle_
+					 : OD::LineStyle() );
 
-    if ( set_->nrSets() > 1 )
+	if ( set_->nrSets() > 1 )
 	return;
 
-    polylines_->removeAllPoints();
+	polylines_->removeAllPoints();
 
-    int idx=0;
-    for ( ; idx<set_->size(); idx++ )
-    {
+	// Collect all valid knot positions
+	TypeSet<Coord3> rawknots;
+	for ( int idx=0; idx<set_->size(); idx++ )
+	{
 	Coord3 pos = set_->getPos( idx );
 	if ( datatransform_ )
-            pos.z_ = datatransform_->transform( pos );
-        if ( !mIsUdf(pos.z_) )
-	    polylines_->addPoint( pos );
-    }
+		pos.z_ = datatransform_->transform( pos );
+	if ( !mIsUdf(pos.z_) )
+		rawknots += pos;
+	}
 
-    if ( idx && ispoly &&
-	 set_->disp3d().polyDisp()->connect_==Pick::Set::Connection::Close )
-	polylines_->setPoint( idx, polylines_->getPoint(0) );
+	const int nrknots = rawknots.size();
+	if ( nrknots == 0 )
+	return;
 
-    polylines_->dirtyCoordinates();
+	// For polygons with >= 2 points, apply Catmull-Rom spline interpolation
+	if ( ispoly && nrknots >= 2 )
+	{
+	const int interpsteps = 10; // Points per segment for smooth curve
+
+	// Add interpolated points between each pair of knots
+	for ( int kidx=0; kidx<nrknots-1; kidx++ )
+	{
+		const Coord3& p0 = rawknots[kidx];
+		const Coord3& p1 = rawknots[kidx+1];
+
+		// Get neighboring points for polynomial interpolation
+		const Coord3 pm1 = kidx > 0 ? rawknots[kidx-1] : p0;
+		const Coord3 p2 = kidx < nrknots-2 ? rawknots[kidx+2] : p1;
+
+		// Interpolate between p0 and p1 using 4-point Catmull-Rom spline
+		for ( int step=0; step<interpsteps; step++ )
+		{
+		const float t = float(step) / float(interpsteps);
+		const float t2 = t * t;
+		const float t3 = t2 * t;
+
+		Coord3 interp;
+		interp.x_ = 0.5f * ((2.0f*p0.x_) +
+			(-pm1.x_ + p1.x_) * t +
+			(2.0f*pm1.x_ - 5.0f*p0.x_ + 4.0f*p1.x_ - p2.x_) * t2 +
+			(-pm1.x_ + 3.0f*p0.x_ - 3.0f*p1.x_ + p2.x_) * t3);
+		interp.y_ = 0.5f * ((2.0f*p0.y_) +
+			(-pm1.y_ + p1.y_) * t +
+			(2.0f*pm1.y_ - 5.0f*p0.y_ + 4.0f*p1.y_ - p2.y_) * t2 +
+			(-pm1.y_ + 3.0f*p0.y_ - 3.0f*p1.y_ + p2.y_) * t3);
+		interp.z_ = 0.5f * ((2.0f*p0.z_) +
+			(-pm1.z_ + p1.z_) * t +
+			(2.0f*pm1.z_ - 5.0f*p0.z_ + 4.0f*p1.z_ - p2.z_) * t2 +
+			(-pm1.z_ + 3.0f*p0.z_ - 3.0f*p1.z_ + p2.z_) * t3);
+
+		polylines_->addPoint( interp );
+		}
+	}
+
+	// Add the final knot
+	polylines_->addPoint( rawknots[nrknots-1] );
+
+	// If closed polygon, interpolate from last knot back to first
+	const bool isclosed = set_->disp3d().polyDisp()->connect_ ==
+				  Pick::Set::Connection::Close;
+	if ( isclosed && nrknots > 2 )
+	{
+		const Coord3& p0 = rawknots[nrknots-1];
+		const Coord3& p1 = rawknots[0];
+		const Coord3& pm1 = rawknots[nrknots-2];
+		const Coord3& p2 = rawknots[1];
+
+		for ( int step=1; step<=interpsteps; step++ )
+		{
+		const float t = float(step) / float(interpsteps);
+		const float t2 = t * t;
+		const float t3 = t2 * t;
+
+		Coord3 interp;
+		interp.x_ = 0.5f * ((2.0f*p0.x_) +
+			(-pm1.x_ + p1.x_) * t +
+			(2.0f*pm1.x_ - 5.0f*p0.x_ + 4.0f*p1.x_ - p2.x_) * t2 +
+			(-pm1.x_ + 3.0f*p0.x_ - 3.0f*p1.x_ + p2.x_) * t3);
+		interp.y_ = 0.5f * ((2.0f*p0.y_) +
+			(-pm1.y_ + p1.y_) * t +
+			(2.0f*pm1.y_ - 5.0f*p0.y_ + 4.0f*p1.y_ - p2.y_) * t2 +
+			(-pm1.y_ + 3.0f*p0.y_ - 3.0f*p1.y_ + p2.y_) * t3);
+		interp.z_ = 0.5f * ((2.0f*p0.z_) +
+			(-pm1.z_ + p1.z_) * t +
+			(2.0f*pm1.z_ - 5.0f*p0.z_ + 4.0f*p1.z_ - p2.z_) * t2 +
+			(-pm1.z_ + 3.0f*p0.z_ - 3.0f*p1.z_ + p2.z_) * t3);
+
+		polylines_->addPoint( interp );
+		}
+	}
+	}
+	else
+	{
+	// For non-polygons or single point, use linear interpolation
+	for ( int idx=0; idx<nrknots; idx++ )
+		polylines_->addPoint( rawknots[idx] );
+
+	// Close the polygon if needed (for polygons with < 2 points)
+	if ( ispoly && nrknots > 0 &&
+		 set_->disp3d().polyDisp()->connect_==Pick::Set::Connection::Close )
+		polylines_->addPoint( rawknots[0] );
+	}
+
+	polylines_->dirtyCoordinates();
 }
 
 

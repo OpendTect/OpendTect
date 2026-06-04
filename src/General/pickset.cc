@@ -47,6 +47,25 @@ static MarkerStyle3D		defMarkerStyle3D()
     return MarkerStyle3D( defMarkerStyle(), defPixSz(), defcolor() );
 }
 
+// Polygon-specific defaults (matching PolygonBodyDisplay)
+static OD::Color		defPolygonColor()    { return OD::Color(0, 255, 0); }  // Green
+static int			defPolygonPixSz()    { return 5; }
+static MarkerStyle3D::Type	defPolygonMarkerStyle() { return MarkerStyle3D::Cube; }
+static OD::LineStyle		defPolygonLineStyle()
+{
+    return OD::LineStyle( OD::LineStyle::Solid, 5, OD::Color::Black() );
+}
+
+static MarkerStyle2D		defPolygonMarkerStyle2D()
+{
+    return MarkerStyle2D( MarkerStyle2D::Square, defPolygonPixSz(), defPolygonColor() );
+}
+
+static MarkerStyle3D		defPolygonMarkerStyle3D()
+{
+    return MarkerStyle3D( defPolygonMarkerStyle(), defPolygonPixSz(), defPolygonColor() );
+}
+
 
 int Pick::Set::getSizeThreshold()
 {
@@ -1382,26 +1401,28 @@ void Set::setDefaultDispPars( bool ispolygon )
 
 void Set::setDefaultDispPars2D( bool ispolygon )
 {
-    disp2d_.markerstyle_ = defMarkerStyle2D();
-    if ( !ispolygon )
+	disp2d_.markerstyle_ = ispolygon ? defPolygonMarkerStyle2D() 
+									 : defMarkerStyle2D();
+	if ( !ispolygon )
 	return;
 
-    disp2d_.polyDisp()->fillcolor_ = defcolor();
-    disp2d_.polyDisp()->linestyle_ = defLineStyle();
-    if ( disp2d_.polyDisp()->connect_==Connection::None )
+	disp2d_.polyDisp()->fillcolor_ = defPolygonColor();
+	disp2d_.polyDisp()->linestyle_ = defPolygonLineStyle();
+	if ( disp2d_.polyDisp()->connect_==Connection::None )
 	disp2d_.polyDisp()->connect_ = Connection::Close;
 }
 
 
 void Set::setDefaultDispPars3D( bool ispolygon )
 {
-    disp3d_.markerstyle_ = defMarkerStyle3D();
-    if ( !ispolygon )
+	disp3d_.markerstyle_ = ispolygon ? defPolygonMarkerStyle3D() 
+									 : defMarkerStyle3D();
+	if ( !ispolygon )
 	return;
 
-    disp3d_.polyDisp()->fillcolor_ = defcolor();
-    disp3d_.polyDisp()->linestyle_ = defLineStyle();
-    if ( disp3d_.polyDisp()->connect_==Connection::None )
+	disp3d_.polyDisp()->fillcolor_ = defPolygonColor();
+	disp3d_.polyDisp()->linestyle_ = defPolygonLineStyle();
+	if ( disp3d_.polyDisp()->connect_==Connection::None )
 	disp3d_.polyDisp()->connect_ = Connection::Close;
 }
 
