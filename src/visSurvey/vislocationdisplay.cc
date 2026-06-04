@@ -254,9 +254,10 @@ void LocationDisplay::pickCB( CallBacker* cb )
 		picksetdisp->erasestartpos_ = Coord3::udf();
 		picksetdisp->eraseendpos_ = Coord3::udf();
 
-		// Now record start position
-		Coord3 pos, normal;
-		if ( getPickSurface(eventinfo, pos, normal) )
+		// Now record start position - use displaypickedpos directly
+		Coord3 pos = display2World( eventinfo.displaypickedpos );
+
+		if ( pos.isDefined() )
 		{
 		picksetdisp->iserasing_ = true;
 		picksetdisp->erasestartpos_ = pos;
@@ -270,8 +271,9 @@ void LocationDisplay::pickCB( CallBacker* cb )
 		// During drag - update end position
 		if ( picksetdisp->iserasing_ )
 		{
-		Coord3 pos, normal;
-		if ( getPickSurface(eventinfo, pos, normal) )
+		Coord3 pos = display2World( eventinfo.displaypickedpos );
+
+		if ( pos.isDefined() )
 		{
 			picksetdisp->eraseendpos_ = pos;
 			eventcatcher_->setHandled();
@@ -284,8 +286,9 @@ void LocationDisplay::pickCB( CallBacker* cb )
 		// End of Ctrl+Drag - check if it was a drag or just a click
 		if ( picksetdisp->iserasing_ )
 		{
-		Coord3 pos, normal;
-		if ( getPickSurface(eventinfo, pos, normal) )
+		Coord3 pos = display2World( eventinfo.displaypickedpos );
+
+		if ( pos.isDefined() )
 		{
 			picksetdisp->eraseendpos_ = pos;
 
