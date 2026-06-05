@@ -76,7 +76,9 @@ Value* clone( ValueSet* parent ) const
     if ( isValSet() )
     {
 	ValueSet* newset = vSet() ? vSet()->clone() : nullptr;
-	newset->setParent( parent );
+	if ( newset )
+	    newset->setParent( parent );
+
 	newval->setValue( newset );
     }
     else
@@ -2217,7 +2219,7 @@ OD::JSON::Object* OD::JSON::Object::set( const char* ky, Object* obj )
 
 void OD::JSON::Object::setNull( const char* ky )
 {
-    Object* nullobj = nullptr;
+    ValueSet* nullobj = nullptr;
     setVS( ky, nullobj );
 }
 
