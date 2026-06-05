@@ -119,7 +119,7 @@ public:
 
     typedef ValArr::size_type	size_type;
     typedef size_type		idx_type;
-    enum ValueType		{ Data, SubArray, SubObject };
+    enum ValueType		{ Data, SubArray, SubObject, Null };
     typedef Gason::JsonNode	GasonNode;
 
     virtual			~ValueSet();
@@ -151,6 +151,8 @@ public:
 				{ return valueType(i) == SubArray; }
     inline bool			isObjectChild( idx_type i ) const
 				{ return valueType(i) == SubObject; }
+    inline bool			isNull( idx_type i ) const
+				{ return valueType(i) == Null; }
 
     bool			isTop() const		{ return !parent_; }
     ValueSet*			top();
@@ -368,6 +370,8 @@ public:
     idx_type		indexOf(const char*) const;
     bool		isPresent( const char* ky ) const
 						{ return indexOf(ky) >= 0; }
+    bool		isNull(const char*) const;
+			//<! Cannot be true if they key is missing
 
     inline ValueSet*	getChild( const char* ky )
 			{ return gtChildByKey(ky); }
