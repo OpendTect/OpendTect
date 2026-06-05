@@ -447,6 +447,7 @@ public:
     FilePath		getFilePath( const OD::String& str ) const
 			{ return getFilePath( str.buf() ); }
 
+    void		setNull(const char*);
     Array*		set(const char* ky,Array*);
     Object*		set(const char* ky,Object*);
 

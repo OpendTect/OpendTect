@@ -2189,13 +2189,13 @@ static const char* errnoemptykey = "Empty key not allowed for Object's";
 
 void OD::JSON::Object::setVS( const char* ky, ValueSet* vset )
 {
-    if ( !vset )
-	{}
-    else if ( !ky || !*ky )
-	{ pErrMsg(errnoemptykey); }
+    if ( StringView(ky).isEmpty() )
+	pErrMsg( errnoemptykey );
     else
     {
-	vset->setParent( this );
+	if ( vset )
+	    vset->setParent( this );
+
 	set( new KeyedValue(ky,vset) );
     }
 }
@@ -2212,6 +2212,13 @@ OD::JSON::Object* OD::JSON::Object::set( const char* ky, Object* obj )
 {
     setVS( ky, obj );
     return obj;
+}
+
+
+void OD::JSON::Object::setNull( const char* ky )
+{
+    Object* nullobj = nullptr;
+    setVS( ky, nullobj );
 }
 
 
