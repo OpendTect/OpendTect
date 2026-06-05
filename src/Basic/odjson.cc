@@ -2124,20 +2124,20 @@ bool OD::JSON::Object::get( const char* ky, DBKeySet& dbkeys ) const
 
 bool OD::JSON::Object::get( const char* ky, BoolTypeSet& arr ) const
 {
-	const int validx = indexOf( ky );
-	if ( !validIdx(validx) )
-	    return false;
+    const int validx = indexOf( ky );
+    if ( !validIdx(validx) )
+	return false;
 
-	if ( isArrayChild(validx) )
-	    return array(validx).get( arr );
+    if ( isArrayChild(validx) )
+	return array(validx).get( arr );
 
-	if ( valueType(validx) != Data || dType(validx) != Boolean )
-	    return false;
+    if ( valueType(validx) != Data || dType(validx) != Boolean )
+	return false;
 
-	const bool res = getBoolValue( validx );
-	arr.setEmpty();
-	arr.add( res );
-	return true;
+    const bool res = getBoolValue( validx );
+    arr.setEmpty();
+    arr.add( res );
+    return true;
 }
 
 
@@ -2185,7 +2185,7 @@ template <class T, typename Enable>
 void OD::JSON::Object::setVal( const char* ky, T t )
 {
     if ( !ky || !*ky )
-        { pErrMsg(errnoemptykey); return; }
+	{ pErrMsg(errnoemptykey); return; }
 
     set( new KeyedValue(ky,t) );
 }
