@@ -123,6 +123,8 @@ public:
     virtual bool		isEmpty() const
 				{ return values_.isEmpty(); }
     virtual void		setEmpty();
+    bool			validIdx_( idx_type idx ) const
+				{ return values_.validIdx(idx); }
 
     virtual ValueType		valueType(idx_type) const;
     const BufferString&		key(idx_type) const;
@@ -232,6 +234,7 @@ public:
     bool		isEmpty() const override;
     bool		isData() const;
     bool		isMixed() const;
+    bool		validIdx(idx_type) const;
 
     ValueType		valueType(idx_type) const override
 			{ return valtype_; }
@@ -354,6 +357,8 @@ public:
     bool		isArray() const override { return false; }
 
     idx_type		indexOf(const char*) const;
+    bool		validIdx( idx_type idx ) const
+			{ return ValueSet::validIdx_(idx); }
     bool		isPresent( const char* ky ) const
 						{ return indexOf(ky) >= 0; }
     DataType		dType(idx_type) const;

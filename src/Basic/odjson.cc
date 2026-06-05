@@ -11,9 +11,10 @@ ________________________________________________________________________
 
 #include "dbkey.h"
 #include "gason.h"
-#include "od_iostream.h"
+#include "od_istream.h"
+#include "od_ostream.h"
 #include "posgeomid.h"
-#include "posidxpair.h"
+#include "idxpair.h"
 #include "stringbuilder.h"
 #include "uistrings.h"
 
@@ -858,7 +859,8 @@ static QString formatJson2Spaces( const QString& compact )
 		if ( i+1 < compact.size() )
 		{
 		    const QChar nextc = compact[i+1];
-		    if ( (c == '{' && nextc == '}') || (c == '[' && nextc == ']') )
+		    if ( (c == '{' && nextc == '}') ||
+			 (c == '[' && nextc == ']') )
 		    {
 			out += c;
 			out += nextc;
@@ -1134,6 +1136,13 @@ bool OD::JSON::Array::isMixed() const
 bool OD::JSON::Array::isEmpty() const
 {
     return isData() && !isMixed() ? valArr().isEmpty() : ValueSet::isEmpty();
+}
+
+
+bool OD::JSON::Array::validIdx( idx_type idx ) const
+{
+    return isData() && !isMixed() ? valArr().validIdx( idx )
+				  : ValueSet::validIdx_( idx );
 }
 
 
@@ -1906,44 +1915,102 @@ bool OD::JSON::Object::get( const char* ky, Coord3& crd ) const
 }
 
 
-bool OD::JSON::Object::getStrings( const char* ky, BufferStringSet& bss ) const
+bool OD::JSON::Object::get( const char* ky, BufferStringSet& strs ) const
 {
-    return get( ky, bss );
-}
+    const int validx = indexOf( ky );
+    if ( !validIdx(validx) )
+	return false;
 
+    if ( isArrayChild(validx) )
+	return array(validx).get( strs );
 
-bool OD::JSON::Object::get( const char* ky, BufferStringSet& bss ) const
-{
-    const Array* stringsarr = getArray( ky );
-    return stringsarr ? stringsarr->get( bss ) : false;
+    const BufferString str = getStringValue( validx );
+    if ( str.isEmpty() )
+	return false;
+
+    strs.setEmpty();
+    strs.add( str );
+    return true;
 }
 
 
 bool OD::JSON::Object::get( const char* ky, uiStringSet& uistrs ) const
 {
-    const Array* stringsarr = getArray( ky );
-    return stringsarr ? stringsarr->get( uistrs ) : false;
+    const int validx = indexOf( ky );
+    if ( !validIdx(validx) )
+	return false;
+
+    if ( isArrayChild(validx) )
+	return array(validx).get( uistrs );
+
+    const BufferString str = getStringValue( validx );
+    if ( str.isEmpty() )
+	return false;
+
+    uistrs.setEmpty();
+    uistrs.add( toUiString(str.buf()) );
+    return true;
 }
 
 
 bool OD::JSON::Object::get( const char* ky, TypeSet<MultiID>& mids ) const
 {
-    const Array* stringsarr = getArray( ky );
-    return stringsarr ? stringsarr->get( mids ) : false;
+    const int validx = indexOf( ky );
+    if ( !validIdx(validx) )
+	return false;
+
+    if ( isArrayChild(validx) )
+	return array(validx).get( mids );
+
+    const MultiID mid = getMultiID( ky );
+    if ( mid.isUdf() )
+	return false;
+
+    mids.setEmpty();
+    mids.add( mid );
+    return true;
 }
 
 
 bool OD::JSON::Object::get( const char* ky, DBKeySet& dbkeys ) const
 {
-    const Array* stringsarr = getArray( ky );
-    return stringsarr ? stringsarr->get( dbkeys ) : false;
+    const int validx = indexOf( ky );
+    if ( !validIdx(validx) )
+	return false;
+
+    if ( isArrayChild(validx) )
+	return array(validx).get( dbkeys );
+
+    const BufferString dbkystr = getStringValue( ky );
+    if ( dbkystr.isEmpty() )
+	return false;
+
+    DBKey dbky;
+    if ( !dbky.fromString(dbkystr.buf()) )
+	return false;
+
+    dbkeys.setEmpty();
+    dbkeys.add( &dbky );
+    return true;
 }
 
 
 bool OD::JSON::Object::get( const char* ky, BoolTypeSet& arr ) const
 {
-    const Array* boolarr = getArray( ky );
-    return boolarr ? boolarr->get( arr ) : false;
+    const int validx = indexOf( ky );
+    if ( !validIdx(validx) )
+	return false;
+
+    if ( isArrayChild(validx) )
+	return array(validx).get( arr );
+
+    if ( valueType(validx) != Data || dType(validx) != Boolean )
+	return false;
+
+    const bool res = getBoolValue( validx );
+    arr.setEmpty();
+    arr.add( res );
+    return true;
 }
 
 
