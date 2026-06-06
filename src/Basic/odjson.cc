@@ -71,8 +71,10 @@ Value* clone( ValueSet* parent ) const
     Value* newval = getEmptyClone();
     if ( isValSet() )
     {
-	ValueSet* newset = vSet()->clone();
-	newset->setParent( parent );
+	ValueSet* newset = vSet() ? vSet()->clone() : nullptr;
+	if ( newset )
+	    newset->setParent( parent );
+
 	newval->setValue( newset );
     }
     else
@@ -213,6 +215,23 @@ static void setPathStr( const char* str, FilePath& fp )
 }
 
 
+static void addString( const OD::String& str, StringBuilder& sb )
+{
+    sb.add( "\"" );
+    const char* strptr = str.buf();
+    const int sz = str.size();
+    for ( int ichar=0; ichar<sz; ichar++ )
+    {
+	if ( strptr[ichar] == '"' || strptr[ichar] == '\\' )
+	    sb.add( '\\' );
+
+	sb.add( strptr[ichar] );
+    }
+
+    sb.add( "\"" );
+}
+
+
 } // namespace JSON
 
 } // namespace OD
@@ -289,8 +308,8 @@ void OD::JSON::ValArr::dumpJSon( StringBuilder& sb ) const
 	    } break;
 	    case String:
 	    {
-		const BufferString toadd( "\"", strings().get(idx), "\"" );
-		sb.add( toadd );
+		const OD::String& str = strings().get(idx);
+		addString( str, sb );
 	    } break;
 	    case Mixed:
 		break;
@@ -366,7 +385,8 @@ OD::JSON::ValueSet::ValueType OD::JSON::ValueSet::valueType(
 
     const Value& val = *values_[idx];
     if ( val.isValSet() )
-	ret = val.vSet()->isArray() ? SubArray : SubObject;
+	ret = val.vSet() ? val.vSet()->isArray() ? SubArray : SubObject
+			 : Null;
 
     return ret;
 }
@@ -577,7 +597,7 @@ static JsonTag getNextTag( const JsonValue& gasonval, bool allowmixed )
     {
 	const JsonTag tag = gasonnode->value.getTag();
 	if ( tag == JSON_NULL )
-	    continue;
+	    return JSON_NULL;
 
 	if ( tag != ret && ret != JSON_NULL )
 	    return JSON_MIXED;
@@ -612,12 +632,14 @@ static JSON::ValueSet* getSubVS( JSON::ValueSet* parent,
 	return new JSON::Array( nextisobj, parent );
 
     JSON::DataType dt = JSON::Boolean;
-    if ( nexttag == Gason::JSON_NUMBER || nexttag == Gason::JSON_NULL )
+    if ( nexttag == Gason::JSON_NUMBER )
 	dt = JSON::Number;
     else if ( nexttag == Gason::JSON_STRING )
 	dt = JSON::String;
     else if ( nexttag == Gason::JSON_MIXED )
 	dt = JSON::Mixed;
+    else if ( nexttag == Gason::JSON_NULL ) //TODO update?
+	dt = JSON::Number;
 
     return new JSON::Array( dt, parent );
 }
@@ -694,7 +716,7 @@ void OD::JSON::ValueSet::use( const GasonNode& gasonnode, bool allowmixed )
 
 	case Gason::JSON_OBJECT:
 	{
-	    Object* obj = new Object( this );
+	    auto* obj = new Object( this );
 	    if ( isobj )
 		values_ += new KeyedValue( gasonnode.key, obj );
 	    else
@@ -705,8 +727,13 @@ void OD::JSON::ValueSet::use( const GasonNode& gasonnode, bool allowmixed )
 	} break;
 
 	case Gason::JSON_MIXED:
+	{
+	} break;
+
 	case Gason::JSON_NULL:
 	{
+	    Object* nullobj = nullptr;
+	    values_ += new KeyedValue( gasonnode.key, nullobj );
 	} break;
     }
 }
@@ -785,7 +812,7 @@ OD::JSON::ValueSet* OD::JSON::ValueSet::gtByParse( char* buf, int bufsz,
 	    intovset->asObject().set( "JSON", &usevset->asArray() );
     }
 
-    for ( auto gasonnode : rootgasonval )
+    for ( const auto* gasonnode : rootgasonval )
 	usevset->use( *gasonnode, allowmixedarr );
 
     return usevset;
@@ -941,13 +968,15 @@ void OD::JSON::ValueSet::dumpJSon( StringBuilder& sb ) const
 
 	if ( val.isValSet() )
 	{
-	    const ValueSet& vset = *val.vSet();
-	    if ( !vset.isArray() || vset.asArray().valType() != Data )
-		vset.dumpJSon( sb );
-	    else if ( vset.asArray().isMixed() )
-		vset.dumpJSon( sb );
+	    const ValueSet* vset = val.vSet();
+	    if ( !vset )
+		sb.add( "null" );
+	    else if ( !vset->isArray() || vset->asArray().valType() != Data )
+		vset->dumpJSon( sb );
+	    else if ( vset->asArray().isMixed() )
+		vset->dumpJSon( sb );
 	    else
-		vset.asArray().valArr().dumpJSon( sb );
+		vset->asArray().valArr().dumpJSon( sb );
 	}
 	else
 	{
@@ -960,8 +989,10 @@ void OD::JSON::ValueSet::dumpJSon( StringBuilder& sb ) const
 		    sb.add( val.val() );
 		    break;
 		case String:
-		    sb.add( "\"" ).add( val.str() ).add( "\"" );
-		    break;
+		{
+		    const StringView valstr( val.str() );
+		    addString( valstr, sb );
+		} break;
 		case Mixed:
 		    break;
 	    }
@@ -1729,9 +1760,9 @@ OD::JSON::Object::~Object()
 OD::JSON::ValueSet::idx_type OD::JSON::Object::indexOf( const char* nm ) const
 {
     idx_type idx = 0;
-    for ( auto val : values_ )
+    for ( const auto* val : values_ )
     {
-	const KeyedValue& kydval = *static_cast<KeyedValue*>( val );
+	const auto& kydval = static_cast<const KeyedValue&>( *val );
 	if ( kydval.key_ == nm )
 	    return idx;
 	idx++;
@@ -1741,14 +1772,21 @@ OD::JSON::ValueSet::idx_type OD::JSON::Object::indexOf( const char* nm ) const
 }
 
 
+bool OD::JSON::Object::isNull( const char* nm ) const
+{
+    const int idx = indexOf( nm );
+    return validIdx(idx) ? valueType(idx) == Null : false;
+}
+
+
 void OD::JSON::Object::getSubObjKeys( BufferStringSet& bss ) const
 {
-    for ( auto val : values_ )
+    for ( const auto* val : values_ )
     {
 	if ( !val->isKeyed() )
 	    continue;
 
-	const KeyedValue& kydval = *static_cast<KeyedValue*>( val );
+	const auto& kydval = static_cast<const KeyedValue&>( *val );
 	bss.add( kydval.key_ );
     }
 }
@@ -1757,7 +1795,7 @@ void OD::JSON::Object::getSubObjKeys( BufferStringSet& bss ) const
 OD::JSON::ValueSet* OD::JSON::Object::gtChildByKey( const char* ky ) const
 {
     const idx_type idx = indexOf( ky );
-    return idx < 0 ? nullptr : gtChildByIdx( idx );
+    return validIdx(idx) ? gtChildByIdx( idx ) : nullptr;
 }
 
 
@@ -2017,10 +2055,10 @@ bool OD::JSON::Object::get( const char* ky, BoolTypeSet& arr ) const
 void OD::JSON::Object::set( KeyedValue* val )
 {
     const idx_type idx = indexOf( val->key_ );
-    if ( idx >= 0 )
-	delete values_.removeSingle( idx );
-
-    values_ += val;
+    if ( validIdx(idx) )
+	delete values_.replace( idx, val );
+    else
+	values_.add( val );
 }
 
 
@@ -2028,13 +2066,13 @@ static const char* errnoemptykey = "Empty key not allowed for Object's";
 
 void OD::JSON::Object::setVS( const char* ky, ValueSet* vset )
 {
-    if ( !vset )
-	{}
-    else if ( !ky || !*ky )
-	{ pErrMsg(errnoemptykey); }
+    if ( StringView(ky).isEmpty() )
+	pErrMsg( errnoemptykey );
     else
     {
-	vset->setParent( this );
+	if ( vset )
+	    vset->setParent( this );
+
 	set( new KeyedValue(ky,vset) );
     }
 }
@@ -2051,6 +2089,13 @@ OD::JSON::Object* OD::JSON::Object::set( const char* ky, Object* obj )
 {
     setVS( ky, obj );
     return obj;
+}
+
+
+void OD::JSON::Object::setNull( const char* ky )
+{
+    ValueSet* nullobj = nullptr;
+    setVS( ky, nullobj );
 }
 
 
