@@ -58,6 +58,18 @@ static const TrcKey& getTk()
     return tk;
 }
 
+// True values for the 2D velocity model case @ geomid=8, trcnr=622
+static const float timeval2d_ = 1.535982f;
+static const float depthmval2d_ = 2377.433f;
+
+static const TrcKey& getTk2D()
+{
+    static Pos::GeomID geomid( 8 );
+    static Pos::TraceID trcid( 622 );
+    static TrcKey tk( geomid, trcid );
+    return tk;
+}
+
 static bool printranges_ = false;
 
 /* The first Z of the surveys in always in the first layer, hence a single
@@ -102,6 +114,17 @@ static const int vavgids_otherdomain_sameunit[] = { 26, 27, 27, 18, 18, 19, 19};
 static const int vavgids_otherdomain_otherunit[] ={ 27, 26, 26, 19, 19, 18, 18};
 
 static const int vrmsids[] = { 20, 21, 21, 20, 20, 21, 21 };
+
+//2D Velocity Object IDs
+static const int velids2d_direct[] =
+					{ 121, 122, 122, 123, 123, 126, 126 };
+static const int velids2d_samedomain_otherunit[] =
+					{ 122, 121, 121, 124, 124, 125, 125 };
+static const int velids2d_otherdomain_sameunit[] =
+					{ 123, 124, 124, 121, 121, 122, 122 };
+static const int velids2d_otherdomain_otherunit[] =
+					{ 124, 123, 123, 122, 122, 121, 121 };
+
 
 static MultiID getVelID( const int* grps, int idx )
 {
@@ -423,6 +446,139 @@ bool testVelocityStretcher( const MultiID& mid )
 }
 
 
+bool testTime2DepthStretcher2D( const MultiID& mid )
+{
+    RefMan<ZAxisTransform> stretcher = new Time2DepthStretcher( mid );
+    mRunStandardTest( stretcher->isOK() && stretcher->needsVolumeOfInterest(),
+		      mMsg("2D Time-to-depth stretcher") )
+    mRunStandardTest( stretcher->fromZDomainInfo().def_.isTime() &&
+		      stretcher->toZDomainInfo().def_.isDepth(),
+		      mMsg("2D Time-to-depth stretcher from-to domains") )
+
+    const ZSampling zrgfrom = stretcher->getZInterval( true, false );
+    const ZSampling zrgto = stretcher->getZInterval( false, false );
+    mRunStandardTest( !zrgfrom.isUdf() && !zrgto.isUdf(),
+		mMsg("2D Time-to-depth stretcher ranges") )
+
+    const TrcKey& tk = getTk2D();
+    TrcKeyZSampling tkzs( tk.geomID() );
+    tkzs.hsamp_.set( tk );
+
+    bool zistrans = false;
+    tkzs.zsamp_ = ZSampling::udf();
+    mRunStandardTestWithError(
+			stretcher->addVolumeOfInterest(tkzs,zistrans) == 0 &&
+			stretcher->loadDataIfMissing(0),
+			"Load 2D input velocity model (from zDomain)",
+			stretcher->errMsg().getString() )
+
+    float depthval = stretcher->transformTrc( tk, timeval2d_ );
+    float sidepthval = SI().depthsInFeet() ? depthval * mFromFeetFactorF
+					   : depthval;
+    mRunStandardTest( mIsEqual(sidepthval,depthmval2d_,1e-1f),
+		      mMsg("2D Transformed Z value") )
+
+    depthval = SI().depthsInFeet() ? depthmval2d_ * mToFeetFactorF :
+				     depthmval2d_;
+    float timeval = stretcher->transformTrcBack( tk, depthval );
+    mRunStandardTest( mIsEqual(timeval,timeval2d_,1e-4f),
+		      mMsg("2D Transformed back Z value") )
+
+    stretcher->removeVolumeOfInterest( 0 );
+    zistrans = true;
+
+    tkzs.zsamp_ = ZSampling::udf();
+    mRunStandardTestWithError(
+			stretcher->addVolumeOfInterest(tkzs,zistrans) == 0 &&
+			stretcher->loadDataIfMissing(0),
+			"Load 2D input velocity model (to zDomain)",
+			stretcher->errMsg().getString() )
+
+    depthval = stretcher->transformTrc( tk, timeval2d_ );
+    sidepthval = SI().depthsInFeet() ? depthval * mFromFeetFactorF : depthval;
+    mRunStandardTest( mIsEqual(sidepthval,depthmval2d_,1e-1f),
+		      mMsg("2D Transformed Z value") )
+
+    depthval = SI().depthsInFeet() ? depthmval2d_ * mToFeetFactorF :
+				     depthmval2d_;
+    timeval = stretcher->transformTrcBack( tk, depthval );
+    mRunStandardTest( mIsEqual(timeval,timeval2d_,1e-4f),
+		      mMsg("2D Transformed back Z value") )
+
+	return true;
+}
+
+
+bool testDepth2TimeStretcher2D( const MultiID& mid )
+{
+    RefMan<ZAxisTransform> stretcher = new Depth2TimeStretcher( mid );
+    mRunStandardTest( stretcher->isOK(), mMsg("2D Depth-to-time stretcher") )
+    mRunStandardTest( stretcher->fromZDomainInfo().def_.isDepth() &&
+			stretcher->toZDomainInfo().def_.isTime(),
+			mMsg("2D Depth-to-time stretcher from-to domains") )
+
+    const ZSampling zrgfrom = stretcher->getZInterval( true, false );
+    const ZSampling zrgto = stretcher->getZInterval( false, false );
+    mRunStandardTest( !zrgfrom.isUdf() && !zrgto.isUdf(),
+		      mMsg("2D Depth-to-time stretcher ranges") )
+
+    mPrintWorkZrg()
+
+    const TrcKey& tk = getTk2D();
+    TrcKeyZSampling tkzs( tk.geomID() );
+    tkzs.hsamp_.set( tk );
+
+    bool zistrans = false;
+    tkzs.zsamp_ = ZSampling::udf();
+    mRunStandardTestWithError(
+			stretcher->addVolumeOfInterest(tkzs,zistrans) == 0 &&
+			stretcher->loadDataIfMissing(0),
+			"Load 2D input velocity model (from zDomain)",
+			stretcher->errMsg().getString() )
+
+    float sidepthval = depthmval2d_;
+    float depthval = SI().depthsInFeet() ? sidepthval * mToFeetFactorF
+					 : sidepthval;
+    float timeval = stretcher->transformTrc( tk, depthval );
+    mRunStandardTest( mIsEqual(timeval,timeval2d_,1e-4f),
+		      mMsg("2D Transformed Z value") )
+
+    depthval = stretcher->transformTrcBack( tk, timeval2d_ );
+    sidepthval = SI().depthsInFeet() ? depthval * mFromFeetFactorF : depthval;
+    mRunStandardTest( mIsEqual(sidepthval,depthmval2d_,1e-1f),
+		      mMsg("2D Transformed back Z value") )
+
+    stretcher->removeVolumeOfInterest( 0 );
+    zistrans = true;
+
+    tkzs.zsamp_ = ZSampling::udf();
+    mRunStandardTestWithError(
+			stretcher->addVolumeOfInterest(tkzs,zistrans) == 0 &&
+			stretcher->loadDataIfMissing(0),
+			"Load 2D input velocity model (to zDomain)",
+			stretcher->errMsg().getString() )
+
+    sidepthval = depthmval2d_;
+    depthval = SI().depthsInFeet() ? sidepthval * mToFeetFactorF : sidepthval;
+    timeval = stretcher->transformTrc( tk, depthval );
+    mRunStandardTest( mIsEqual(timeval,timeval2d_,1e-4f),
+		      mMsg("2D Transformed Z value") )
+
+    depthval = stretcher->transformTrcBack( tk, timeval2d_ );
+    sidepthval = SI().depthsInFeet() ? depthval * mFromFeetFactorF : depthval;
+    mRunStandardTest( mIsEqual(sidepthval,depthmval2d_,1e-1f),
+		      mMsg("2D Transformed back Z value") )
+
+	return true;
+}
+
+
+bool testVelocityStretcher2D( const MultiID& mid )
+{
+    return testTime2DepthStretcher2D( mid ) && testDepth2TimeStretcher2D( mid );
+}
+
+
 static bool testVelocityModelScanner( const MultiID& mid )
 {
     PtrMan<IOObj> velobj = IOM().get( mid );
@@ -534,6 +690,12 @@ int mTestMainFnName( int argc, char** argv )
     velids += vavgids_otherdomain_otherunit;
     velids += vrmsids;
 
+    TypeSet<const int*> velids2d;
+    velids2d += velids2d_direct;
+    velids2d += velids2d_samedomain_otherunit;
+    velids2d += velids2d_otherdomain_sameunit;
+    velids2d += velids2d_otherdomain_otherunit;
+
     const MultiID tablet2did_m( 100090,6 );
     const MultiID tablet2did_ft( 100090,7 );
     SurveyDiskLocation sdl( IOM().rootDir() );
@@ -564,6 +726,13 @@ int mTestMainFnName( int argc, char** argv )
 		return 1;
 
 	    idx++;
+	}
+
+	for ( const auto& velidset2d : velids2d )
+	{
+	    const MultiID velmid = getVelID( velidset2d, isurv );
+	    if ( !testVelocityStretcher2D(velmid) )
+		return 1;
 	}
 
 	isurv++;

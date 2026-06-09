@@ -417,7 +417,7 @@ bool VelocityStretcher::loadDataIfMissing( int id, TaskRunner* taskr )
     recalczsamp = getZInterval( recalczsamp, *velzinfo_, *voizinfos_[idx] );
     ZSampling extzsamp = voivols_[idx].zsamp_;
     const bool zistrans = toZDomainInfo().def_ == voizinfos_[idx]->def_;
-    if ( zistrans )
+    if ( zistrans && !extzsamp.isUdf() )
 	extzsamp = getZInterval( voivols_[idx].zsamp_,
 				       *velzinfo_, *voizinfos_[idx] );
 

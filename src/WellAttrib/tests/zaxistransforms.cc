@@ -76,7 +76,7 @@ static const float zvalues_hor3d[12][2] =
     { 0.959009528f, 0.938030362f }  //D2T : Velocity (Model: Time)
 };
 
-#define mHorizon2DIdxPair1 Pos::IdxPair( 8, 622 ), true
+#define mHorizon2DGeomTrcPair Pos::GeomID(8), Pos::TraceID(622)
 //Horizon2D : Output Values (SI units)
 static const float zvalues_hor2d[12][1] =
 {
@@ -288,7 +288,7 @@ bool testHorizon2DOutput( const EM::EMObject* emobj, int survidx, int zatfidx )
     mRunStandardTest( hor, mMsg("Horizon 2D has been processed") );
 
 
-    const TrcKey trckey( mHorizon2DIdxPair1 );
+    const TrcKey trckey( mHorizon2DGeomTrcPair );
     float z = hor->getZ( trckey );
     const float* zvals = zvalues_hor2d[zatfidx];
     float zval = zvals[0];
