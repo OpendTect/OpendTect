@@ -279,7 +279,7 @@ const SurveyInfo& SurveyDiskLocation::surveyInfo() const
 	    }
 	}
 
-	newinfo = SurveyInfo::readFile( fullpath );
+	newinfo = SurveyInfo::readFile( survinfofnm );
     }
 
     if ( !newinfo )
