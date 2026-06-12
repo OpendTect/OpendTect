@@ -230,7 +230,7 @@ void odSurvey::getObjInfoByID( const MultiID& mid,
     }
 
     PtrMan<IOObj> ioobj = IOM().get( mid );
-    if ( !ioobj || !IOM().to(ioobj->key()) )
+    if ( !ioobj )
     {
 	errmsg_ = BufferString( "invalid database object" );
 	return;
@@ -270,7 +270,7 @@ void odSurvey::getObjInfo( const char* objname, const char* trgrpnm,
     }
 
     PtrMan<IOObj> ioobj = IOM().get( objname, trgrpnm );
-    if ( !ioobj || !IOM().to(ioobj->key()) )
+    if ( !ioobj )
     {
 	errmsg_ = BufferString( "object not found" );
 	return;
@@ -401,8 +401,7 @@ void odSurvey::removeObj( const char* objname, const char* trgrpnm ) const
     }
 
     PtrMan<IOObj> ioobj = IOM().get( objname, trgrpnm );
-    if ( !ioobj || !IOM().to(ioobj->key()) ||
-				!IOM().implRemove(ioobj->key(), true) )
+    if ( !ioobj || !IOM().implRemove(ioobj->key(), true) )
 	errmsg_ = "cannot remove object";
 }
 
@@ -411,8 +410,7 @@ void odSurvey::removeObjByID( const MultiID& mid ) const
 {
     if ( mid.isUdf() )
 	errmsg_ = "invalid database id";
-    else if ( !activate() || !IOM().to(mid) ||
-					!IOM().implRemove(mid, true) )
+    else if ( !activate() || !IOM().implRemove(mid, true) )
 	errmsg_ = "cannot remove object";
 }
 

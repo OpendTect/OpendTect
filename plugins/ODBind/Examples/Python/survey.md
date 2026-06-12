@@ -6,7 +6,7 @@ jupyter:
       extension: .md
       format_name: markdown
       format_version: '1.3'
-      jupytext_version: 1.14.5
+      jupytext_version: 1.16.1
   kernelspec:
     display_name: Python 3 (ipykernel)
     language: python
@@ -143,6 +143,10 @@ f3demo.get_object_names('Well')
 ```
 
 ```python
+f3demo.get_object_names('Geometry')
+```
+
+```python
 f3demo.has_object('F02-1', 'Geometry')
 ```
 
@@ -151,19 +155,23 @@ f3demo.has_object('SSIS-Grid-Dip1', 'Geometry')
 ```
 
 ```python
-f3demo.has_object('SSIS-Grid-Dip1')
+f3demo.has_object('SSIS-Grid-Dip2','Geometry')
 ```
 
 ```python
-f3demo.get_object_info('SSIS-Grid-Dip1', 'Geometry')
+f3demo.has_object('Seis', '2D Seismic Data')
 ```
 
 ```python
-f3demo.get_object_info('4 Dip steered median filter')
+f3demo.get_object_info('Seis', '2D Seismic Data')
 ```
 
 ```python
-f3demo.get_object_info_byid('100100.3')
+f3demo.get_object_info('4 Dip steered median filter', 'Seismic Data')
+```
+
+```python
+f3demo.get_object_info_byid('100100.2')
 ```
 
 ```python
@@ -172,10 +180,18 @@ f3demo.get_object_infos('Well')
 
 ```python
 f3demo.create_object('test_object', 'Seismic Data', 'CBVS', True)
-f3demo.get_object_info('test_object')
+f3demo.get_object_info('test_object', 'Seismic Data')
+```
+
+```python
+f3demo.has_object('test_object','Seismic Data')
 ```
 
 ```python
 f3demo.remove_object('test_object','Seismic Data')
-f3demo.has_object('test_object')
+f3demo.has_object('test_object', 'Seismic Data')
+```
+
+```python
+
 ```
