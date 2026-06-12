@@ -1,22 +1,42 @@
-import numpy as np
 import ctypes as ct
+import itertools
 import math
 from collections import namedtuple
-from collections.abc import Sequence
+from collections.abc import Generator, Sequence
+from concurrent.futures import ThreadPoolExecutor
 from enum import IntEnum
+from typing import NamedTuple
+
+import numpy as np
 import xarray as xr
-from odbind import wrap_function, LIBODB, makestrlist, NumpyAllocator, pyjsonstr, pystr, pystrlist, stringset_del, unpack_slice, is_none_slice
+from odbind import (
+    LIBODB,
+    NumpyAllocator,
+    is_none_slice,
+    makestrlist,
+    pyjsonstr,
+    pystr,
+    pystrlist,
+    stringset_del,
+    unpack_slice,
+    wrap_function,
+)
 from odbind.survey import Survey, _SurveyObject
+
+UseThreadPool = True
+
 
 class SliceType(IntEnum):
     Inline = 0
     Crossline = 1
     ZSlice = 2
 
+
 class MergeMode(IntEnum):
     Average = 0
     Crop = 1
     Blend = 2
+
 
 class Seismic3D(_SurveyObject):
     """
@@ -26,34 +46,104 @@ class Seismic3D(_SurveyObject):
     @classmethod
     def _initbindings(clss, bindnm):
         clss._initbasebindings(bindnm)
-        clss._newout = wrap_function(LIBODB, f'{bindnm}_newout', ct.c_void_p, [ct.c_void_p, ct.c_char_p, ct.c_char_p, ct.c_void_p,
-                                                                                ct.POINTER(ct.c_int), ct.POINTER(ct.c_int),
-                                                                                ct.POINTER(ct.c_float), ct.c_bool, ct.c_bool])
-        clss._close = wrap_function(LIBODB, f'{bindnm}_close', None, [ct.c_void_p])
-        clss._compnames = wrap_function(LIBODB, f'{bindnm}_compnames', ct.c_void_p, [ct.c_void_p])
-        clss._nrbins = wrap_function(LIBODB, f'{bindnm}_nrbins', ct.c_int, [ct.c_void_p])
-        clss._nrtrcs = wrap_function(LIBODB, f'{bindnm}_nrtrcs', ct.c_int, [ct.c_void_p])
-        clss._getzidx = wrap_function(LIBODB, f'{bindnm}_getzidx', ct.c_int, [ct.c_void_p, ct.c_float])
-        clss._getzval = wrap_function(LIBODB, f'{bindnm}_getzval', ct.c_float, [ct.c_void_p, ct.c_int])
-        clss._gettrcidx = wrap_function(LIBODB, f'{bindnm}_gettrcidx', ct.c_int, [ct.c_void_p, ct.c_int, ct.c_int])
-        clss._getinlcrl = wrap_function(LIBODB, f'{bindnm}_getinlcrl', None, [ct.c_void_p, ct.c_int, ct.POINTER(ct.c_int), ct.POINTER(ct.c_int)])
-        clss._getinlcrldist = wrap_function(LIBODB, f'{bindnm}_getinlcrldist', None, [ct.c_void_p, ct.POINTER(ct.c_float)])
-        clss._shape = wrap_function(LIBODB, f'{bindnm}_shape', None, [ct.c_void_p, ct.POINTER(ct.c_int)])
-        clss._ranges = wrap_function(LIBODB, f'{bindnm}_ranges', None, [ct.c_void_p, ct.POINTER(ct.c_int), ct.POINTER(ct.c_int), ct.POINTER(ct.c_float)])
-        clss._zrange = wrap_function(LIBODB, f'{bindnm}_zrange', None, [ct.c_void_p, ct.POINTER(ct.c_float)])
-        clss._getdata = wrap_function(LIBODB, f'{bindnm}_getdata', None, [ct.c_void_p, NumpyAllocator.CFUNCTYPE,
-                                                                            ct.POINTER(ct.c_int), ct.POINTER(ct.c_int), ct.POINTER(ct.c_float)
-                                                                        ])
-        putdataargs = [ ct.c_void_p, ct.POINTER(ct.POINTER(ct.c_float)),
-                        ct.POINTER(ct.c_int), ct.POINTER(ct.c_int), ct.POINTER(ct.c_float)
-                    ]
-        clss._putdata = wrap_function(LIBODB, f'{bindnm}_putdata', None, putdataargs)
-        putblockargs =  [   ct.c_void_p,
-                            np.ctypeslib.ndpointer(dtype=np.float32, ndim=3, flags="C_CONTIGUOUS"),
-                            ct.POINTER(ct.c_int), ct.POINTER(ct.c_int), ct.POINTER(ct.c_float)
-                        ]
-        clss._putblock = wrap_function(LIBODB, f'{bindnm}_putblock', None, putblockargs)
-        clss._setblockpars = wrap_function(LIBODB, f'{bindnm}_setblockpars', None, [ct.c_void_p, ct.c_char_p, ct.POINTER(ct.c_float)])
+        clss._newout = wrap_function(
+            LIBODB,
+            f"{bindnm}_newout",
+            ct.c_void_p,
+            [
+                ct.c_void_p,
+                ct.c_char_p,
+                ct.c_char_p,
+                ct.c_void_p,
+                ct.POINTER(ct.c_int),
+                ct.POINTER(ct.c_int),
+                ct.POINTER(ct.c_float),
+                ct.c_bool,
+                ct.c_bool,
+            ],
+        )
+        clss._close = wrap_function(LIBODB, f"{bindnm}_close", None, [ct.c_void_p])
+        clss._compnames = wrap_function(
+            LIBODB, f"{bindnm}_compnames", ct.c_void_p, [ct.c_void_p]
+        )
+        clss._nrbins = wrap_function(
+            LIBODB, f"{bindnm}_nrbins", ct.c_int, [ct.c_void_p]
+        )
+        clss._nrtrcs = wrap_function(
+            LIBODB, f"{bindnm}_nrtrcs", ct.c_int, [ct.c_void_p]
+        )
+        clss._getzidx = wrap_function(
+            LIBODB, f"{bindnm}_getzidx", ct.c_int, [ct.c_void_p, ct.c_float]
+        )
+        clss._getzval = wrap_function(
+            LIBODB, f"{bindnm}_getzval", ct.c_float, [ct.c_void_p, ct.c_int]
+        )
+        clss._gettrcidx = wrap_function(
+            LIBODB, f"{bindnm}_gettrcidx", ct.c_int, [ct.c_void_p, ct.c_int, ct.c_int]
+        )
+        clss._getinlcrl = wrap_function(
+            LIBODB,
+            f"{bindnm}_getinlcrl",
+            None,
+            [ct.c_void_p, ct.c_int, ct.POINTER(ct.c_int), ct.POINTER(ct.c_int)],
+        )
+        clss._getinlcrldist = wrap_function(
+            LIBODB,
+            f"{bindnm}_getinlcrldist",
+            None,
+            [ct.c_void_p, ct.POINTER(ct.c_float)],
+        )
+        clss._shape = wrap_function(
+            LIBODB, f"{bindnm}_shape", None, [ct.c_void_p, ct.POINTER(ct.c_int)]
+        )
+        clss._ranges = wrap_function(
+            LIBODB,
+            f"{bindnm}_ranges",
+            None,
+            [
+                ct.c_void_p,
+                ct.POINTER(ct.c_int),
+                ct.POINTER(ct.c_int),
+                ct.POINTER(ct.c_float),
+            ],
+        )
+        clss._zrange = wrap_function(
+            LIBODB, f"{bindnm}_zrange", None, [ct.c_void_p, ct.POINTER(ct.c_float)]
+        )
+        clss._getdata = wrap_function(
+            LIBODB,
+            f"{bindnm}_getdata",
+            None,
+            [
+                ct.c_void_p,
+                NumpyAllocator.CFUNCTYPE,
+                ct.POINTER(ct.c_int),
+                ct.POINTER(ct.c_int),
+                ct.POINTER(ct.c_float),
+            ],
+        )
+        putdataargs = [
+            ct.c_void_p,
+            ct.POINTER(ct.POINTER(ct.c_float)),
+            ct.POINTER(ct.c_int),
+            ct.POINTER(ct.c_int),
+            ct.POINTER(ct.c_float),
+        ]
+        clss._putdata = wrap_function(LIBODB, f"{bindnm}_putdata", None, putdataargs)
+        putblockargs = [
+            ct.c_void_p,
+            np.ctypeslib.ndpointer(dtype=np.float32, ndim=3, flags="C_CONTIGUOUS"),
+            ct.POINTER(ct.c_int),
+            ct.POINTER(ct.c_int),
+            ct.POINTER(ct.c_float),
+        ]
+        clss._putblock = wrap_function(LIBODB, f"{bindnm}_putblock", None, putblockargs)
+        clss._setblockpars = wrap_function(
+            LIBODB,
+            f"{bindnm}_setblockpars",
+            None,
+            [ct.c_void_p, ct.c_char_p, ct.POINTER(ct.c_float)],
+        )
 
     def __init__(self, survey: Survey, name: str):
         """Initialise an OpendTect 3D seismic volume object
@@ -73,14 +163,18 @@ class Seismic3D(_SurveyObject):
         self._xline = Slice3D(self, SliceType.Crossline)
         self._zslice = Slice3D(self, SliceType.ZSlice)
         self._chunk = Chunks3D(self)
+        self._writepool = None
+
+    def __del__(self):
+        self.close()
 
     @property
-    def bin_count(self) ->int:
+    def bin_count(self) -> int:
         """int : Number of bins within the extent of this seismic volume, number_of_bins>=number_of_traces"""
         return self._nrbins(self._handle)
 
     @property
-    def comp_names(self) ->list[str]:
+    def comp_names(self) -> list[str]:
         """list[str]: Names of components in this seismic volume (readonly)"""
         return pystrlist(self._compnames(self._handle))
 
@@ -99,7 +193,7 @@ class Seismic3D(_SurveyObject):
 
     @trace.setter
     def trace(self, val):
-        self.trace[:,:] = val
+        self.trace[:, :] = val
 
     @property
     def volume(self):
@@ -183,7 +277,7 @@ class Seismic3D(_SurveyObject):
         return self._zslice
 
     @property
-    def trace_count(self) ->int:
+    def trace_count(self) -> int:
         """int : Expected number of traces in this seismic volume."""
         res = self._nrtrcs(self._handle)
         if not self.isok:
@@ -192,16 +286,16 @@ class Seismic3D(_SurveyObject):
         return res
 
     @property
-    def shape(self) ->tuple[int,int,int]:
+    def shape(self) -> tuple[int, int, int]:
         """tuple[nriln, nrcrl, nrz]: number of inlines, crosslines and z samples of 3D seismic volume (readonly)"""
         ct_shape = (ct.c_int * 3)()
         self._shape(self._handle, ct_shape)
         return tuple(ct_shape)
 
     @property
-    def ranges(self) ->namedtuple:
+    def ranges(self) -> NamedTuple:
         """namedtuple[inlrg, crlrg, zrg]: inline, crossline and z range of 3D seismic volume (readonly)"""
-        Sampling = namedtuple('Sampling', ['inlrg', 'crlrg', 'zrg'])
+        Sampling = namedtuple("Sampling", ["inlrg", "crlrg", "zrg"])
 
         ct_inlrg = (ct.c_int * 3)()
         ct_crlrg = (ct.c_int * 3)()
@@ -211,8 +305,18 @@ class Seismic3D(_SurveyObject):
         return Sampling(list(ct_inlrg), list(ct_crlrg), list(ct_zrg))
 
     @classmethod
-    def create(clss, survey: Survey, name: str, inl_rg: list[int], crl_rg: list[int], z_rg: list[float], components: list[str]=['Component 1'],
-                fmt: str='CBVS', zistime: bool=True, overwrite: bool=False):
+    def create(
+        cls,
+        survey: Survey,
+        name: str,
+        inl_rg: list[int],
+        crl_rg: list[int],
+        z_rg: list[float],
+        components: list[str] = ["Component 1"],
+        fmt: str = "CBVS",
+        zistime: bool = True,
+        overwrite: bool = False,
+    ):
         """Create a new OpendTect 3D seismic volume object
 
         Parameters
@@ -239,14 +343,24 @@ class Seismic3D(_SurveyObject):
 
         """
 
-        newseis = clss.__new__(clss)
+        newseis = cls.__new__(cls)
         newseis._handle = None
         newseis._survey = survey
         ct_inlrg = (ct.c_int * 3)(*inl_rg)
         ct_crlrg = (ct.c_int * 3)(*crl_rg)
         ct_zrg = (ct.c_float * 3)(*z_rg)
         compnmsptr = makestrlist(components)
-        newseis._handle = clss._newout(survey._handle, name.encode(), fmt.encode(), compnmsptr, ct_inlrg, ct_crlrg, ct_zrg, zistime, overwrite)
+        newseis._handle = cls._newout(
+            survey._handle,
+            name.encode(),
+            fmt.encode(),
+            compnmsptr,
+            ct_inlrg,
+            ct_crlrg,
+            ct_zrg,
+            zistime,
+            overwrite,
+        )
         stringset_del(compnmsptr)
         if not newseis._handle or not survey.isok:
             raise TypeError(survey.errmsg)
@@ -259,18 +373,27 @@ class Seismic3D(_SurveyObject):
         newseis._xline = Slice3D(newseis, SliceType.Crossline)
         newseis._zslice = Slice3D(newseis, SliceType.ZSlice)
         newseis._chunk = Chunks3D(newseis)
+        newseis._writepool = None
         return newseis
+
+    def writepool(self):
+        if self._writepool is None and UseThreadPool:
+            self._writepool = ThreadPoolExecutor(max_workers=1)
+        return self._writepool
 
     def __enter__(self):
         return self
 
     def __exit__(self, type, value, traceback):
-        self._close(self._handle)
+        self.close()
 
     def close(self):
+        if self._writepool:
+            self._writepool.shutdown(wait=True, cancel_futures=False)
+            self._writepool = None
         self._close(self._handle)
 
-    def z_index(self, zval: float) ->int:
+    def z_index(self, zval: float) -> int:
         """Return the z index for a given z value in this seismic volume
 
         A returned index of -1 corresponds to a zval outside the dataset
@@ -285,13 +408,13 @@ class Seismic3D(_SurveyObject):
         int : the corresponding z index or -1 if the z value is outside the seismic volume
 
         """
-        res =self._getzidx(self._handle, zval)
+        res = self._getzidx(self._handle, zval)
         if not self.isok:
             raise IndexError(self.errmsg)
 
         return res
 
-    def z_value(self, zidx: int) ->float:
+    def z_value(self, zidx: int) -> float:
         """Return the z value for a given z index in this seismic volume
 
         if zidx is outside the datset returns NaN
@@ -306,15 +429,13 @@ class Seismic3D(_SurveyObject):
         float : the corresponding z value or NaN if the z index is outside the seismic volume
 
         """
-        res =self._getzval(self._handle, zidx)
+        res = self._getzval(self._handle, zidx)
         if not self.isok:
             raise IndexError(self.errmsg)
 
         return res
 
-
-
-    def trace_index(self, inline: int, crossline: int) ->int:
+    def trace_index(self, inline: int, crossline: int) -> int:
         """Return the trace index for a given inline, crossline location in this seismic volume.
 
         The first trace has an index of 0, the last trace has an index of number_of_traces-1.
@@ -332,13 +453,13 @@ class Seismic3D(_SurveyObject):
         int : the corresponding trace number or -1 if the inline, crossline location is not within the seismic volume
 
         """
-        res =self._gettrcidx(self._handle, inline, crossline)
+        res = self._gettrcidx(self._handle, inline, crossline)
         if not self.isok:
             raise IndexError(self.errmsg)
 
         return res
 
-    def bin(self, trace_index: int) ->tuple[int]:
+    def bin(self, trace_index: int) -> tuple[int, int]:
         """Return a tuple with the inline and crossline of the trace_index'th trace in this seismic volume
 
         Parameters
@@ -359,7 +480,7 @@ class Seismic3D(_SurveyObject):
 
         return (inline.value, crline.value)
 
-    def bin_steps(self) ->tuple[float]:
+    def bin_steps(self) -> tuple[float, float]:
         """Return a tuple with the inline and crossline spacing in this seismic volume
 
         Returns
@@ -438,28 +559,35 @@ class Seismic3D(_SurveyObject):
             raise ValueError(self.errmsg)
 
         dims = []
-        if inlrg[0]!=inlrg[1]:
-            dims.append('iline')
+        if inlrg[0] != inlrg[1]:
+            dims.append("iline")
 
-        if crlrg[0]!=crlrg[1]:
-            dims.append('xline')
+        if crlrg[0] != crlrg[1]:
+            dims.append("xline")
 
-        zdim = 'twt' if self.zistime else 'depth'
-        if zrg[0]!=zrg[1]:
+        zdim = "twt" if self.zistime else "depth"
+        if zrg[0] != zrg[1]:
             dims.append(zdim)
 
         compnms = self.comp_names
-        info =  {
-                    'comp': compnms,
-                    'iline': inlrg[0] if inlrg[0]==inlrg[1] else inlrg,
-                    'xline': crlrg[0] if crlrg[0]==crlrg[1] else crlrg,
-                    'x': allocator.allocated_arrays[-2],
-                    'y': allocator.allocated_arrays[-1],
-                    zdim: zrg[0] if zrg[0]==zrg[1] else zrg,
-                    'dims': dims
-                }
+        info = {
+            "comp": compnms,
+            "iline": inlrg[0] if inlrg[0] == inlrg[1] else inlrg,
+            "xline": crlrg[0] if crlrg[0] == crlrg[1] else crlrg,
+            "x": allocator.allocated_arrays[-2],
+            "y": allocator.allocated_arrays[-1],
+            zdim: zrg[0] if zrg[0] == zrg[1] else zrg,
+            "dims": dims,
+        }
         data = [allocator.allocated_arrays[compnms.index(compnm)] for compnm in compnms]
-        return self.to_xarray(data, info) if Seismic3D.use_xarray else (data, info,)
+        return (
+            self.to_xarray(data, info)
+            if Seismic3D.use_xarray
+            else (
+                data,
+                info,
+            )
+        )
 
     def putdata(self, indata):
         """Write a 3D seismic volume from either a tuple or Xarray.Dataset of 3D seismic data
@@ -490,30 +618,32 @@ class Seismic3D(_SurveyObject):
             data, info = self.from_xarray(indata)
 
         compnms = self.comp_names
-        zdim = 'twt' if self.zistime else 'depth'
-        inlrg = info['iline']
+        zdim = "twt" if self.zistime else "depth"
+        inlrg = info["iline"]
         inlrg = inlrg if isinstance(inlrg, list) else [inlrg, inlrg, 1]
-        crlrg = info['xline']
+        crlrg = info["xline"]
         crlrg = crlrg if isinstance(crlrg, list) else [crlrg, crlrg, 1]
         zrg = info[zdim]
         zrg = zrg if isinstance(zrg, list) else [zrg, zrg, 1]
         datashp = []
-        if inlrg[0]!=inlrg[1]:
-            datashp.append(((inlrg[1]-inlrg[0])//inlrg[2])+1)
+        if inlrg[0] != inlrg[1]:
+            datashp.append(((inlrg[1] - inlrg[0]) // inlrg[2]) + 1)
 
-        if crlrg[0]!=crlrg[1]:
-            datashp.append(((crlrg[1]-crlrg[0])//crlrg[2])+1)
+        if crlrg[0] != crlrg[1]:
+            datashp.append(((crlrg[1] - crlrg[0]) // crlrg[2]) + 1)
 
-        if zrg[0]!=zrg[1]:
-            datashp.append(round((zrg[1]-zrg[0])/zrg[2])+1)
+        if zrg[0] != zrg[1]:
+            datashp.append(round((zrg[1] - zrg[0]) / zrg[2]) + 1)
         datas = []
         for idx, compnm in enumerate(compnms):
             datum = np.zeros(datashp, dtype=np.float32)
-            if idx<len(data):
+            if idx < len(data):
                 datum = data[idx]
 
-            if datum.shape!=tuple(datashp):
-                raise ValueError(f'ranges {tuple(datashp)} and data shape {datum.shape} are incompatible.')
+            if datum.shape != tuple(datashp):
+                raise ValueError(
+                    f"ranges {tuple(datashp)} and data shape {datum.shape} are incompatible."
+                )
 
             datum = np.ascontiguousarray(datum, dtype=np.float32)
             datas.append(datum.ctypes.data_as(ct.POINTER(ct.c_float)))
@@ -523,7 +653,7 @@ class Seismic3D(_SurveyObject):
         ct_crlrg = (ct.c_int * 3)(*crlrg)
         ct_zrg = (ct.c_float * 3)(*zrg)
 
-        self._putdata( self._handle, dataptr, ct_inlrg, ct_crlrg, ct_zrg)
+        self._putdata(self._handle, dataptr, ct_inlrg, ct_crlrg, ct_zrg)
         if not self.isok:
             raise ValueError(self.errmsg)
 
@@ -556,36 +686,40 @@ class Seismic3D(_SurveyObject):
         else:
             data, info = self.from_xarray(indata)
 
-        zdim = 'twt' if self.zistime else 'depth'
-        inlrg = info['iline']
+        zdim = "twt" if self.zistime else "depth"
+        inlrg = info["iline"]
         inlrg = inlrg if isinstance(inlrg, list) else [inlrg, inlrg, 1]
-        crlrg = info['xline']
+        crlrg = info["xline"]
         crlrg = crlrg if isinstance(crlrg, list) else [crlrg, crlrg, 1]
         zrg = info[zdim]
         zrg = zrg if isinstance(zrg, list) else [zrg, zrg, 1]
         datashp = []
-        if inlrg[0]!=inlrg[1]:
-            datashp.append(((inlrg[1]-inlrg[0])//inlrg[2])+1)
+        if inlrg[0] != inlrg[1]:
+            datashp.append(((inlrg[1] - inlrg[0]) // inlrg[2]) + 1)
 
-        if crlrg[0]!=crlrg[1]:
-            datashp.append(((crlrg[1]-crlrg[0])//crlrg[2])+1)
+        if crlrg[0] != crlrg[1]:
+            datashp.append(((crlrg[1] - crlrg[0]) // crlrg[2]) + 1)
 
-        if zrg[0]!=zrg[1]:
-            datashp.append(round((zrg[1]-zrg[0])/zrg[2])+1)
+        if zrg[0] != zrg[1]:
+            datashp.append(round((zrg[1] - zrg[0]) / zrg[2]) + 1)
 
-        if data[0].shape!=tuple(datashp):
-            raise ValueError(f'ranges {tuple(datashp)} and data shape {data[0].shape} are incompatible.')
+        if data[0].shape != tuple(datashp):
+            raise ValueError(
+                f"ranges {tuple(datashp)} and data shape {data[0].shape} are incompatible."
+            )
 
         datum = np.ascontiguousarray(data[0], dtype=np.float32)
         ct_inlrg = (ct.c_int * 3)(*inlrg)
         ct_crlrg = (ct.c_int * 3)(*crlrg)
         ct_zrg = (ct.c_float * 3)(*zrg)
 
-        self._putblock( self._handle, datum, ct_inlrg, ct_crlrg, ct_zrg)
+        self._putblock(self._handle, datum, ct_inlrg, ct_crlrg, ct_zrg)
         if not self.isok:
             raise ValueError(self.errmsg)
 
-    def putdata_byrange(self, data, inlrg: list[int], crlrg: list[int], zrg: list[float]):
+    def putdata_byrange(
+        self, data, inlrg: list[int], crlrg: list[int], zrg: list[float]
+    ):
         """Write a rectangular block of data  to a 3D seismic volume
 
         See notes of _putdata method
@@ -602,15 +736,16 @@ class Seismic3D(_SurveyObject):
 
 
         """
-        zdim = 'twt' if self.zistime else 'depth'
-        info = {
-                    'iline': inlrg,
-                    'xline': crlrg,
-                    zdim: zrg
-                }
-        self.putdata((data, info,))
+        zdim = "twt" if self.zistime else "depth"
+        info = {"iline": inlrg, "xline": crlrg, zdim: zrg}
+        self.putdata(
+            (
+                data,
+                info,
+            )
+        )
 
-    def to_xarray(self, data: list[np.ndarray], info: dict ):
+    def to_xarray(self, data: list[np.ndarray], info: dict):
         """Convert 3D seismic data in simple list+dict format to an Xarray Dataset
 
         See Seismic3D.getdata for details of the input and output formats.
@@ -628,31 +763,48 @@ class Seismic3D(_SurveyObject):
 
         """
         from xarray import DataArray, Dataset
+
         si = self._survey.info()
         di = self.info()
-        zdim = 'twt' if self.zistime else 'depth'
-        dims_xy = [dim for dim in info['dims'] if dim!=zdim]
-        xyattrs = {'units': si['xyunit']}
-        zattrs = {'units': di['zunit']}
-        inlrg = info['iline']
-        crlrg = info['xline']
+        zdim = "twt" if self.zistime else "depth"
+        dims_xy = [dim for dim in info["dims"] if dim != zdim]
+        xyattrs = {"units": si["xyunit"]}
+        zattrs = {"units": di["zunit"]}
+        inlrg = info["iline"]
+        crlrg = info["xline"]
         zrg = info[zdim]
-        ns = 1 if isinstance(zrg, float) else round((zrg[1]-zrg[0])/zrg[2])+1
-        coords =    {
-                        'iline': inlrg if isinstance(inlrg, int) else np.arange(inlrg[0],inlrg[1]+inlrg[2],inlrg[2], dtype=np.int32),
-                        'xline': crlrg if isinstance(crlrg, int) else np.arange(crlrg[0],crlrg[1]+crlrg[2],crlrg[2], dtype=np.int32),
-                        'x': info['x'][0] if len(info['x'])==1 else DataArray(info['x'], dims=dims_xy, attrs=xyattrs),
-                        'y': info['y'][0] if len(info['y'])==1 else DataArray(info['y'], dims=dims_xy, attrs=xyattrs),
-                        zdim: zrg if isinstance(zrg, float) else DataArray(np.linspace(zrg[0],zrg[1],ns,endpoint=True,dtype=np.float32), dims=[zdim], attrs=zattrs)
-                    }
-        attribs =   {
-                        'description': di['name'],
-                        'units': di['zunit'],
-                        'crs': si['crs']
-                    }
-        return Dataset(data_vars={dv: (info['dims'], data[idx]) for idx, dv in enumerate(info['comp'])}, coords=coords, attrs=attribs)
+        ns = 1 if isinstance(zrg, float) else round((zrg[1] - zrg[0]) / zrg[2]) + 1
+        coords = {
+            "iline": inlrg
+            if isinstance(inlrg, int)
+            else np.arange(inlrg[0], inlrg[1] + inlrg[2], inlrg[2], dtype=np.int32),
+            "xline": crlrg
+            if isinstance(crlrg, int)
+            else np.arange(crlrg[0], crlrg[1] + crlrg[2], crlrg[2], dtype=np.int32),
+            "x": info["x"][0]
+            if len(info["x"]) == 1
+            else DataArray(info["x"], dims=dims_xy, attrs=xyattrs),
+            "y": info["y"][0]
+            if len(info["y"]) == 1
+            else DataArray(info["y"], dims=dims_xy, attrs=xyattrs),
+            zdim: zrg
+            if isinstance(zrg, float)
+            else DataArray(
+                np.linspace(zrg[0], zrg[1], ns, endpoint=True, dtype=np.float32),
+                dims=[zdim],
+                attrs=zattrs,
+            ),
+        }
+        attribs = {"description": di["name"], "units": di["zunit"], "crs": si["crs"]}
+        return Dataset(
+            data_vars={
+                dv: (info["dims"], data[idx]) for idx, dv in enumerate(info["comp"])
+            },
+            coords=coords,
+            attrs=attribs,
+        )
 
-    def from_xarray(self, xrdata) ->tuple:
+    def from_xarray(self, xrdata) -> tuple:
         """Convert 3D seismic data in Xarray.Dataset to simple list+dict format
 
         See Seismic3D.getdata for details of the input and output formats.
@@ -669,59 +821,101 @@ class Seismic3D(_SurveyObject):
         info : dict
 
         """
-        zdim = 'twt' if self.zistime else 'depth'
+        zdim = "twt" if self.zistime else "depth"
         data = [xrdata[key].to_numpy() for key in list(xrdata.data_vars)]
-        info = { key: xrdata[key].to_numpy() for key in list(xrdata.coords) if key in ['iline','xline']}
-        il0 = xrdata['iline'].item() if xrdata['iline'].size==1 else xrdata['iline'][0].item()
-        il1 = xrdata['iline'].item() if xrdata['iline'].size==1 else xrdata['iline'][-1].item()
-        il2 = 1 if xrdata['iline'].size==1 else round((il1-il0)/(data[0].shape[0]-1))
-        xl0 =  xrdata['xline'].item() if xrdata['xline'].size==1 else xrdata['xline'][0].item()
-        xl1 = xrdata['xline'].item() if xrdata['xline'].size==1 else xrdata['xline'][-1].item()
-        xl2 = 1 if xrdata['xline'].size==1 else round((xl1-xl0)/(data[0].shape[-2]-1))
-        z0 = xrdata[zdim].item() if xrdata[zdim].size==1 else xrdata[zdim][0].item()
-        z1= xrdata[zdim].item() if xrdata[zdim].size==1 else xrdata[zdim][-1].item()
-        z2 = 1 if xrdata[zdim].size==1 else(z1-z0)/(data[0].shape[-1]-1)
-        info['iline'] = [il0, il1, il2]
-        info['xline'] = [xl0, xl1, xl2]
+        info = {
+            key: xrdata[key].to_numpy()
+            for key in list(xrdata.coords)
+            if key in ["iline", "xline"]
+        }
+        il0 = (
+            xrdata["iline"].item()
+            if xrdata["iline"].size == 1
+            else xrdata["iline"][0].item()
+        )
+        il1 = (
+            xrdata["iline"].item()
+            if xrdata["iline"].size == 1
+            else xrdata["iline"][-1].item()
+        )
+        il2 = (
+            1
+            if xrdata["iline"].size == 1
+            else round((il1 - il0) / (data[0].shape[0] - 1))
+        )
+        xl0 = (
+            xrdata["xline"].item()
+            if xrdata["xline"].size == 1
+            else xrdata["xline"][0].item()
+        )
+        xl1 = (
+            xrdata["xline"].item()
+            if xrdata["xline"].size == 1
+            else xrdata["xline"][-1].item()
+        )
+        xl2 = (
+            1
+            if xrdata["xline"].size == 1
+            else round((xl1 - xl0) / (data[0].shape[-2] - 1))
+        )
+        z0 = xrdata[zdim].item() if xrdata[zdim].size == 1 else xrdata[zdim][0].item()
+        z1 = xrdata[zdim].item() if xrdata[zdim].size == 1 else xrdata[zdim][-1].item()
+        z2 = 1 if xrdata[zdim].size == 1 else (z1 - z0) / (data[0].shape[-1] - 1)
+        info["iline"] = [il0, il1, il2]
+        info["xline"] = [xl0, xl1, xl2]
         info[zdim] = [z0, z1, z2]
-        info['comp'] = list(xrdata.data_vars)
+        info["comp"] = list(xrdata.data_vars)
         dims = []
-        if il0!=il1:
-            dims.append('iline')
+        if il0 != il1:
+            dims.append("iline")
 
-        if xl0!=xl1:
-            dims.append('xline')
+        if xl0 != xl1:
+            dims.append("xline")
 
-        if z0!=z1:
+        if z0 != z1:
             dims.append(zdim)
 
-        info['dims'] = dims
-        return (data, info,)
+        info["dims"] = dims
+        return (
+            data,
+            info,
+        )
 
-    def is_seisdata(self, data) ->bool:
+    def is_seisdata(self, data) -> bool:
         from xarray import Dataset
-        zdim = 'twt' if self.zistime else 'depth'
-        if isinstance(data, (list, tuple,)):
-            return len(data)==2 \
-                and isinstance(data[0], list) \
-                and isinstance(data[1], dict) \
-                and 'iline' in data[1] \
-                and 'xline' in data[1] \
-                and zdim in data[1] \
+
+        zdim = "twt" if self.zistime else "depth"
+        if isinstance(
+            data,
+            (
+                list,
+                tuple,
+            ),
+        ):
+            return (
+                len(data) == 2
+                and isinstance(data[0], list)
+                and isinstance(data[1], dict)
+                and "iline" in data[1]
+                and "xline" in data[1]
+                and zdim in data[1]
                 and all(isinstance(itm, np.ndarray) for itm in data[0])
+            )
         elif isinstance(data, Dataset):
             return True
         else:
             return False
 
-Seismic3D._initbindings('seismic3d')
+
+Seismic3D._initbindings("seismic3d")
+
 
 class Trace3D(Sequence):
-    def __init__(self, seis: Seismic3D ):
+    def __init__(self, seis: Seismic3D):
         self._seis3d = seis
 
     @property
-    def seis3d(self) ->Seismic3D:
+    def seis3d(self) -> Seismic3D:
         return self._seis3d
 
     def wrapindex(self, i):
@@ -729,7 +923,7 @@ class Trace3D(Sequence):
             i += len(self)
 
         if not 0 <= i < len(self):
-            raise IndexError('trace index out of range')
+            raise IndexError("trace index out of range")
 
         return i
 
@@ -773,33 +967,65 @@ class Trace3D(Sequence):
         if isinstance(idx, int):
             idx = self.wrapindex(idx)
             inl, crl = self.seis3d.bin(idx)
-            return self.seis3d.getdata([inl,inl,1], [crl,crl,1], sampling.zrg)
-        elif isinstance(idx, tuple) and len(idx)==2 and isinstance(idx[0], int) and isinstance(idx[1], int):
+            return self.seis3d.getdata([inl, inl, 1], [crl, crl, 1], sampling.zrg)
+        elif (
+            isinstance(idx, tuple)
+            and len(idx) == 2
+            and isinstance(idx[0], int)
+            and isinstance(idx[1], int)
+        ):
             inl, crl = idx
-            return self.seis3d.getdata([inl,inl,1], [crl,crl,1], sampling.zrg)
-        elif isinstance(idx, tuple) and len(idx)==2 and isinstance(idx[0], slice) and isinstance(idx[1], slice):
-            inls, crls = idx
-            inlrg = unpack_slice(inls, sampling.inlrg)
-            crlrg = unpack_slice(crls, sampling.crlrg)
-            def gen():
-                for inl in range(inlrg[0], inlrg[1]+inlrg[2],inlrg[2]):
-                    for crl in range(crlrg[0], crlrg[1]+crlrg[2],crlrg[2]):
-                        data = self.seis3d.getdata([inl,inl,1], [crl,crl,1], sampling.zrg)
-                        yield data
-
-            return gen()
+            return self.seis3d.getdata([inl, inl, 1], [crl, crl, 1], sampling.zrg)
+        elif (
+            isinstance(idx, tuple)
+            and len(idx) == 2
+            and isinstance(idx[0], slice)
+            and isinstance(idx[1], slice)
+        ):
+            return self._get_slicetuple_generator(idx, sampling)
         elif isinstance(idx, slice):
-            trcs = idx
-            trcrg = unpack_slice(trcs, [0, len(self)-1, 1])
-            def gen():
-                for trc in range(trcrg[0], trcrg[1]+trcrg[2],trcrg[2]):
-                    inl, crl = self.seis3d.bin(trc)
-                    data = self.seis3d.getdata([inl,inl,1], [crl,crl,1], sampling.zrg)
-                    yield data
-
-            return gen()
+            return self._get_slice_generator(idx, sampling)
         else:
-            raise TypeError('index should be either [trc_number], [inl, crl], [trc_number_slice] or [inline_slice, crossline_slice].')
+            raise TypeError(
+                "index should be either [trc_number], [inl, crl], [trc_number_slice] or [inline_slice, crossline_slice]."
+            )
+
+    def _get_slicetuple_generator(self, idx: tuple[slice, slice], sampling: NamedTuple):
+        inls, crls = idx
+        inlrg = unpack_slice(inls, sampling.inlrg)
+        crlrg = unpack_slice(crls, sampling.crlrg)
+        inls = []
+        crls = []
+        for inl in range(inlrg[0], inlrg[1] + inlrg[2], inlrg[2]):
+            for crl in range(crlrg[0], crlrg[1] + crlrg[2], crlrg[2]):
+                inls.append([inl, inl, 1])
+                crls.append([crl, crl, 1])
+        if UseThreadPool:
+            with ThreadPoolExecutor(max_workers=1) as executor:
+                yield from executor.map(
+                    self.seis3d.getdata, inls, crls, itertools.repeat(sampling.zrg)
+                )
+        else:
+            for inl, crl in zip(inls, crls):
+                yield self.seis3d.getdata(inl, crl, sampling.zrg)
+
+    def _get_slice_generator(self, idx: slice, sampling: NamedTuple):
+        trcs = idx
+        trcrg = unpack_slice(trcs, [0, len(self) - 1, 1])
+        inls = []
+        crls = []
+        for trc in range(trcrg[0], trcrg[1] + trcrg[2], trcrg[2]):
+            inl, crl = self.seis3d.bin(trc)
+            inls.append((inl, inl, 1))
+            crls.append((crl, crl, 1))
+        if UseThreadPool:
+            with ThreadPoolExecutor(max_workers=1) as executor:
+                yield from executor.map(
+                    self.seis3d.getdata, inls, crls, itertools.repeat(sampling.zrg)
+                )
+        else:
+            for inl, crl in zip(inls, crls):
+                yield self.seis3d.getdata(inl, crl, sampling.zrg)
 
     def __setitem__(self, idx, data):
         """Write trace data to the associated OpendTect 3D seismic volume. Only supports index mode trace[:].
@@ -813,57 +1039,62 @@ class Trace3D(Sequence):
         """
         if self.seis3d.is_seisdata(data):
             if isinstance(idx, slice) and is_none_slice(idx):
-                self.seis3d.putdata(data)
+                pool = self.seis3d.writepool()
+                if pool and UseThreadPool:
+                    pool.submit(self.seis3d.putdata, data)
+                else:
+                    self.seis3d.putdata(data)
             else:
-                raise TypeError('index should be [:].')
+                raise TypeError("index should be [:].")
         else:
             try:
                 for datum in data:
                     self[:] = datum
-            except:
-                raise TypeError(f'expected input of tuple[list[np.ndarray], dict] or Xarray.Dataset but got {data}')
+            except Exception:
+                raise TypeError(
+                    f"expected input of tuple[list[np.ndarray], dict] or Xarray.Dataset but got {data}"
+                )
 
     def __len__(self):
         """x.__len__() <==> len(x)"""
         return self.seis3d.trace_count
 
-class Slice3D(Sequence):
-    def __init__(self, seis: Seismic3D, slice_type: SliceType ):
+
+class Slice3D:
+    def __init__(self, seis: Seismic3D, slice_type: SliceType):
         self._seis3d = seis
         self._slicetype = slice_type
 
     @property
-    def seis3d(self) ->Seismic3D:
+    def seis3d(self) -> Seismic3D:
         return self._seis3d
 
     def __len__(self):
         """x.__len__() <==> len(x)"""
         sampling = self.seis3d.ranges
         sdx = self._slicetype
-        if sdx==SliceType.ZSlice:
-            return int((sampling.zrg[1]-sampling.zrg[0])/sampling.zrg[2]) + 1
+        if sdx == SliceType.ZSlice:
+            return int((sampling.zrg[1] - sampling.zrg[0]) / sampling.zrg[2]) + 1
         else:
-            return (sampling[sdx][1]-sampling[sdx][0])//sampling[sdx][2] + 1
+            return (sampling[sdx][1] - sampling[sdx][0]) // sampling[sdx][2] + 1
 
-    def slicerg_for(self, idx: int) ->tuple[list]:
+    def slicerg_for(self, idx: int) -> tuple[list, list, list]:
         sampling = self._seis3d.ranges
         sdx = self._slicetype
         inlrg = sampling.inlrg
         crlrg = sampling.crlrg
         zrg = sampling.zrg
-        if sdx==SliceType.ZSlice:
+        if sdx == SliceType.ZSlice:
             zval = self.seis3d.z_value(idx)
             zrg = [zval, zval, zrg[2]]
-        elif sdx==SliceType.Inline:
+        elif sdx == SliceType.Inline:
             inlrg = [idx, idx, 1]
         else:
             crlrg = [idx, idx, 1]
 
         return inlrg, crlrg, zrg
 
-
-
-    def __getitem__(self, idx):
+    def __getitem__(self, idx: int | slice):
         """Either [number] or [number_slice] for slice types of inline, crossline or zsclice.
 
         [number] returns a single inline, crossline or zslice depending on the slice type.
@@ -893,27 +1124,37 @@ class Slice3D(Sequence):
             inlrg, crlrg, zrg = self.slicerg_for(idx)
             return self.seis3d.getdata(inlrg, crlrg, zrg)
         elif isinstance(idx, slice):
-            sampling = self.seis3d.ranges
-            sdx = self._slicetype
-            mainrg = []
-            if sdx==SliceType.ZSlice:
-                zrg = sampling.zrg
-                mainrg = [self.seis3d.z_index(zrg[0]), self.seis3d.z_index(zrg[1]), 1]
-            elif sdx==SliceType.Inline:
-                mainrg = sampling.inlrg
-            else:
-                mainrg = sampling.crlrg
-
-            slrg = unpack_slice(idx, mainrg)
-            def gen():
-                for sdx in range(slrg[0], slrg[1]+slrg[2],slrg[2]):
-                    inlrg, crlrg, zrg = self.slicerg_for(sdx)
-                    data = self.seis3d.getdata(inlrg, crlrg, zrg)
-                    yield data
-
-            return gen()
+            return self._get_slice_generator(idx)
         else:
-            raise TypeError('index should be [number] or [slice].')
+            raise TypeError("index should be [number] or [slice].")
+
+    def _get_slice_generator(self, idx: slice):
+        """Helper method containing the generator logic."""
+        sampling = self.seis3d.ranges
+        sdx = self._slicetype
+        mainrg = []
+        if sdx == SliceType.ZSlice:
+            zrg = sampling.zrg
+            mainrg = [self.seis3d.z_index(zrg[0]), self.seis3d.z_index(zrg[1]), 1]
+        elif sdx == SliceType.Inline:
+            mainrg = sampling.inlrg
+        else:
+            mainrg = sampling.crlrg
+
+        slrg = unpack_slice(idx, mainrg)
+        inlrgs, crlrgs, zrgs = [], [], []
+        for sdx_idx in range(slrg[0], slrg[1] + slrg[2], slrg[2]):
+            inlrg, crlrg, zrg = self.slicerg_for(sdx_idx)
+            inlrgs.append(inlrg)
+            crlrgs.append(crlrg)
+            zrgs.append(zrg)
+
+        if UseThreadPool:
+            with ThreadPoolExecutor(max_workers=1) as executor:
+                yield from executor.map(self.seis3d.getdata, inlrgs, crlrgs, zrgs)
+        else:
+            for inlrg, crlrg, zrg in zip(inlrgs, crlrgs, zrgs):
+                yield self.seis3d.getdata(inlrg, crlrg, zrg)
 
     def __setitem__(self, idx, data):
         """Write a slice to the associated OpendTect 3D seismic volume. Only supports index mode iline|xline|zslice[:].
@@ -926,27 +1167,34 @@ class Slice3D(Sequence):
 
 
         """
-        if self._slicetype!=SliceType.Inline:
-            raise TypeError(f'This operation only supports inline slices.')
+        if self._slicetype != SliceType.Inline:
+            raise TypeError(f"This operation only supports inline slices.")
 
         if self.seis3d.is_seisdata(data):
             if isinstance(idx, slice) and is_none_slice(idx):
-                self.seis3d.putdata(data)
+                pool = self.seis3d.writepool()
+                if pool and UseThreadPool:
+                    pool.submit(self.seis3d.putdata, data)
+                else:
+                    self.seis3d.putdata(data)
             else:
-                raise TypeError('index should be [:].')
+                raise TypeError("index should be [:].")
         else:
             try:
                 for datum in data:
                     self[:] = datum
             except:
-                raise TypeError(f'expected input of tuple[list[np.ndarray], dict] or Xarray.Dataset but got {data}')
+                raise TypeError(
+                    f"expected input of tuple[list[np.ndarray], dict] or Xarray.Dataset but got {data}"
+                )
 
-class Volume3D():
-    def __init__(self, seis: Seismic3D ):
+
+class Volume3D:
+    def __init__(self, seis: Seismic3D):
         self._seis3d = seis
 
     @property
-    def seis3d(self) ->Seismic3D:
+    def seis3d(self) -> Seismic3D:
         return self._seis3d
 
     def __getitem__(self, idx):
@@ -982,14 +1230,32 @@ class Volume3D():
         inls = None
         crls = None
         zrg = []
-        if isinstance(idx, tuple) and len(idx)==3 and isinstance(idx[2], list) and isinstance(idx[1], slice) and isinstance(idx[0], slice):
+        if (
+            isinstance(idx, tuple)
+            and len(idx) == 3
+            and isinstance(idx[2], list)
+            and isinstance(idx[1], slice)
+            and isinstance(idx[0], slice)
+        ):
             inls, crls, zrg = idx
-        elif isinstance(idx, tuple) and len(idx)==3 and isinstance(idx[2], slice) and isinstance(idx[1], slice) and isinstance(idx[0], slice):
+        elif (
+            isinstance(idx, tuple)
+            and len(idx) == 3
+            and isinstance(idx[2], slice)
+            and isinstance(idx[1], slice)
+            and isinstance(idx[0], slice)
+        ):
             inls, crls, zs = idx
-            zs = unpack_slice(zs,zsamprg)
-            zrg = [self.seis3d.z_value(zs[0]), self.seis3d.z_value(zs[1]), zs[2]*sampling.zrg[2]]
+            zs = unpack_slice(zs, zsamprg)
+            zrg = [
+                self.seis3d.z_value(zs[0]),
+                self.seis3d.z_value(zs[1]),
+                zs[2] * sampling.zrg[2],
+            ]
         else:
-            raise TypeError('index should be [inline_slice, crossline_slice, Z_range_list] or [inline_slice, crossline_slice, zsample_slice].')
+            raise TypeError(
+                "index should be [inline_slice, crossline_slice, Z_range_list] or [inline_slice, crossline_slice, zsample_slice]."
+            )
 
         inlrg = unpack_slice(inls, sampling.inlrg)
         crlrg = unpack_slice(crls, sampling.crlrg)
@@ -1009,17 +1275,20 @@ class Volume3D():
             if isinstance(idx, slice) and is_none_slice(idx):
                 self.seis3d.putdata(vol)
             else:
-                raise TypeError('index should be [:].')
+                raise TypeError("index should be [:].")
         else:
-            raise TypeError(f'expected input of tuple[list[np.ndarray], dict] or Xarray.Dataset but got {vol}')
+            raise TypeError(
+                f"expected input of tuple[list[np.ndarray], dict] or Xarray.Dataset but got {vol}"
+            )
+
 
 class Chunks3D(Sequence):
-    def __init__(self, seis: Seismic3D ):
+    def __init__(self, seis: Seismic3D):
         self._seis3d = seis
         self.set_chunkpars()
 
     @property
-    def seis3d(self) ->Seismic3D:
+    def seis3d(self) -> Seismic3D:
         return self._seis3d
 
     @property
@@ -1037,23 +1306,29 @@ class Chunks3D(Sequence):
     @property
     def ranges(self):
         """namedtuple[inlrg, crlrg, zrg]: inline, crossline and z range of the 3D seismic volume to chunk (readonly)"""
-        Sampling = namedtuple('Sampling', ['inlrg', 'crlrg', 'zrg'])
+        Sampling = namedtuple("Sampling", ["inlrg", "crlrg", "zrg"])
         return Sampling(self._inlrg, self._crlrg, self._zrg)
 
     @property
-    def shape(self) ->tuple[int,int,int]:
+    def shape(self) -> tuple[int, int, int]:
         """tuple[nriln, nrcrl, nrz]: number of inlines, crosslines and z samples of 3D seismic volume being chunked (readonly)"""
-        niln = int((self._inlrg[1]-self._inlrg[0])/self._inlrg[2]) + 1
-        ncrl = int((self._crlrg[1]-self._crlrg[0])/self._crlrg[2]) + 1
+        niln = int((self._inlrg[1] - self._inlrg[0]) / self._inlrg[2]) + 1
+        ncrl = int((self._crlrg[1] - self._crlrg[0]) / self._crlrg[2]) + 1
         nz = self._seis3d.z_index(self._zrg[1]) - self._seis3d.z_index(self._zrg[0]) + 1
         return (niln, ncrl, nz)
 
-    def set_chunkpars(self, volume=([],[],[]), chunkshape=(100,100,100), overlap=(0,0,0), mergemode=MergeMode.Blend):
+    def set_chunkpars(
+        self,
+        volume=([], [], []),
+        chunkshape=(100, 100, 100),
+        overlap=(0, 0, 0),
+        mergemode=MergeMode.Blend,
+    ):
         """Set chunking parameters
 
         Parameters:
         -----------
-        volume : tuple[list[inlstart, inlstop, inlstep], list[crlstart,crlstop, crlstep], listzstart, zstop, zstep] 
+        volume : tuple[list[inlstart, inlstop, inlstep], list[crlstart,crlstop, crlstep], listzstart, zstop, zstep]
             the subvolume to source chunks from, default is the entire volume
         chunkshape : tuple[int]
             the chunk dimensions as (inline, crossline, zsamples)
@@ -1070,10 +1345,18 @@ class Chunks3D(Sequence):
         inlrg = []
         crlrg = []
         zrg = []
-        if isinstance(volume, tuple) and len(volume)==3 and isinstance(volume[2], list) and isinstance(volume[1], list) and isinstance(volume[0], list):
+        if (
+            isinstance(volume, tuple)
+            and len(volume) == 3
+            and isinstance(volume[2], list)
+            and isinstance(volume[1], list)
+            and isinstance(volume[0], list)
+        ):
             inlrg, crlrg, zrg = volume
         else:
-            raise TypeError('volume should be [inline_range_list, crossline_range_list, Z_range_list].')
+            raise TypeError(
+                "volume should be [inline_range_list, crossline_range_list, Z_range_list]."
+            )
 
         self._inlrg = inlrg if inlrg else sampling.inlrg
         self._crlrg = crlrg if crlrg else sampling.crlrg
@@ -1083,7 +1366,7 @@ class Chunks3D(Sequence):
         self._mergemode = mergemode
         overlap_frac = []
         for sz, ov in zip(chunkshape, overlap):
-            overlap_frac.append(ov/sz)
+            overlap_frac.append(ov / sz)
 
         ct_overlap = (ct.c_float * 3)(*overlap_frac)
         mode = mergemode.name
@@ -1095,7 +1378,7 @@ class Chunks3D(Sequence):
 
     def __len__(self):
         """x.__len__() <==> len(x)
-        
+
         Returns
         -------
         number of chunks in dataset
@@ -1103,26 +1386,62 @@ class Chunks3D(Sequence):
 
         return self._numchunks
 
-    def __getitem__(self, idx):
-        """Get the chunk at the given index
+    def _getchunk(self, idx: int):
+        inlidx, crlidx, zidx = self.subvol(idx)
+        inlrg, crlrg, zrg = self.ranges
+        inlgetrg = [
+            inlrg[0] + inlidx[0] * inlrg[2],
+            inlrg[0] + inlidx[1] * inlrg[2],
+            inlrg[2],
+        ]
+        crlgetrg = [
+            crlrg[0] + crlidx[0] * crlrg[2],
+            crlrg[0] + crlidx[1] * crlrg[2],
+            crlrg[2],
+        ]
+        zgetrg = [
+            zrg[0] + self._seis3d.z_value(zidx[0]),
+            zrg[0] + self._seis3d.z_value(zidx[1]),
+            zrg[2],
+        ]
+        return self.seis3d.getdata(inlgetrg, crlgetrg, zgetrg)
+
+    def __getitem__(self, idx: int | slice):
+        """Either [chunk_number] or [chunk_number_slice]Get the chunk at the given index
+
+        [chunk_number] returns a single chunk, negative indices wrap around.
+        [chunk_number_slice] return a generator for a range of chunk numbers.
 
         Parameters
         ----------
-        idx : int
-            chunk index between 0 and len(chunks)
+        idx : int | slice
+            chunk index between 0 and len(chunks) or a range of chunks
 
         Returns
         -------
-        tuple(list[np.ndarray], dict) | Xarray.Datatset
+        tuple(list[np.ndarray], dict) | Xarray.Datatset | generator
             see Seismic3D.getdata for output format details
 
         """
-        inlidx, crlidx, zidx = self.subvol(idx)
-        inlrg, crlrg, zrg = self.ranges
-        inlgetrg = [inlrg[0]+inlidx[0]*inlrg[2], inlrg[0]+inlidx[1]*inlrg[2], inlrg[2]]
-        crlgetrg = [crlrg[0]+crlidx[0]*crlrg[2], crlrg[0]+crlidx[1]*crlrg[2], crlrg[2]]
-        zgetrg = [zrg[0]+self._seis3d.z_value(zidx[0]), zrg[0]+self._seis3d.z_value(zidx[1]), zrg[2]]
-        return self.seis3d.getdata(inlgetrg, crlgetrg, zgetrg)
+        if isinstance(idx, int):
+            return self._getchunk(idx)
+        elif isinstance(idx, slice):
+            return self._get_slice_generator(idx)
+        else:
+            raise TypeError("index should be [chunk_number] or [chunk_number_slice].")
+
+    def _get_slice_generator(self, idx: slice):
+        """Helper method containing the generator logic."""
+        chunkrg = unpack_slice(idx, [0, len(self) - 1, 1])
+        chunks = []
+        for chunk in range(chunkrg[0], chunkrg[1] + chunkrg[2], chunkrg[2]):
+            chunks.append(chunk)
+        if UseThreadPool:
+            with ThreadPoolExecutor(max_workers=1) as executor:
+                yield from executor.map(self._getchunk, chunks)
+        else:
+            for chunk in chunks:
+                yield self._getchunk(chunk)
 
     def __setitem__(self, idx, vol):
         """Write the chunk to the seismic volume. Only supports index mode volume[:].
@@ -1136,19 +1455,40 @@ class Chunks3D(Sequence):
         """
         if self.seis3d.is_seisdata(vol):
             if isinstance(idx, slice) and is_none_slice(idx):
-                self.seis3d.putblock(vol)
+                pool = self.seis3d.writepool()
+                if pool and UseThreadPool:
+                    pool.submit(self.seis3d.putblock, vol)
+                else:
+                    self.seis3d.putblock(vol)
             else:
-                raise TypeError('index should be [:].')
+                raise TypeError("index should be [:].")
         else:
-            raise TypeError(f'expected input of tuple[list[np.ndarray], dict] or Xarray.Dataset but got {vol}')
+            raise TypeError(
+                f"expected input of tuple[list[np.ndarray], dict] or Xarray.Dataset but got {vol}"
+            )
 
     def _compute_number_of_chunks(self):
         """Recompute the number of chunks"""
 
         niln, ncrl, nz = self.shape
-        self._ninl_chunks = 1 + int(math.ceil(max(0,niln-self._chunkshape[0])/(self._chunkshape[0]-self._overlap[0])))
-        self._ncrl_chunks = 1 + int(math.ceil(max(0,ncrl-self._chunkshape[1])/(self._chunkshape[1]-self._overlap[1])))
-        self._nz_chunks = 1 + int(math.ceil(max(0, nz-self._chunkshape[2])/(self._chunkshape[2]-self._overlap[2])))
+        self._ninl_chunks = 1 + int(
+            math.ceil(
+                max(0, niln - self._chunkshape[0])
+                / (self._chunkshape[0] - self._overlap[0])
+            )
+        )
+        self._ncrl_chunks = 1 + int(
+            math.ceil(
+                max(0, ncrl - self._chunkshape[1])
+                / (self._chunkshape[1] - self._overlap[1])
+            )
+        )
+        self._nz_chunks = 1 + int(
+            math.ceil(
+                max(0, nz - self._chunkshape[2])
+                / (self._chunkshape[2] - self._overlap[2])
+            )
+        )
         self._numchunks = self._ninl_chunks * self._ncrl_chunks * self._nz_chunks
 
     def subvol(self, idx):
@@ -1160,36 +1500,41 @@ class Chunks3D(Sequence):
         -----------
         idx : int
             the chunk index. Negative indicies are wrapped
-        
+
         Returns:
         --------
         tuple : [list[int], list[int], list[int]]
             (inline range, crossline range, zsample range)
         """
-        
-        if idx>=self._numchunks:
-            raise IndexError(f'idx must be less than number of chunks({self._numchunks})')
+
+        if idx >= self._numchunks:
+            raise IndexError(
+                f"idx must be less than number of chunks({self._numchunks})"
+            )
 
         ninl, ncrl, nz = self.shape
         idx = idx % self._numchunks
         z_idx = idx % self._nz_chunks
-        crl_idx = int(idx/self._nz_chunks) % self._ncrl_chunks
-        inl_idx = int(idx/(self._ncrl_chunks*self._nz_chunks))
+        crl_idx = int(idx / self._nz_chunks) % self._ncrl_chunks
+        inl_idx = int(idx / (self._ncrl_chunks * self._nz_chunks))
 
-        zstartidx = int(round(z_idx*(self.chunkshape[2]-self._overlap[2])))
-        zstopidx = zstartidx+self._chunkshape[2]-1
-        if zstopidx>nz-1:
-            zstopidx = nz-1
-            zstartidx = zstopidx-self._chunkshape[2]+1
-        crlstartidx = int(round(crl_idx*(self.chunkshape[1]-self._overlap[1])))
-        crlstopidx = crlstartidx+self._chunkshape[1]-1
-        if crlstopidx>ncrl-1:
-            crlstopidx = ncrl-1
-            crlstartidx = crlstopidx-self._chunkshape[1]+1
-        inlstartidx = int(round(inl_idx*(self.chunkshape[0]-self._overlap[0])))
-        inlstopidx = inlstartidx+self._chunkshape[0]-1
-        if inlstopidx>ninl-1:
-            inlstopidx = ninl-1
-            inlstartidx = inlstopidx-self._chunkshape[0]+1
-        return ([inlstartidx, inlstopidx, 1], [crlstartidx, crlstopidx, 1], [zstartidx, zstopidx, 1])
-
+        zstartidx = int(round(z_idx * (self.chunkshape[2] - self._overlap[2])))
+        zstopidx = zstartidx + self._chunkshape[2] - 1
+        if zstopidx > nz - 1:
+            zstopidx = nz - 1
+            zstartidx = zstopidx - self._chunkshape[2] + 1
+        crlstartidx = int(round(crl_idx * (self.chunkshape[1] - self._overlap[1])))
+        crlstopidx = crlstartidx + self._chunkshape[1] - 1
+        if crlstopidx > ncrl - 1:
+            crlstopidx = ncrl - 1
+            crlstartidx = crlstopidx - self._chunkshape[1] + 1
+        inlstartidx = int(round(inl_idx * (self.chunkshape[0] - self._overlap[0])))
+        inlstopidx = inlstartidx + self._chunkshape[0] - 1
+        if inlstopidx > ninl - 1:
+            inlstopidx = ninl - 1
+            inlstartidx = inlstopidx - self._chunkshape[0] + 1
+        return (
+            [inlstartidx, inlstopidx, 1],
+            [crlstartidx, crlstopidx, 1],
+            [zstartidx, zstopidx, 1],
+        )
