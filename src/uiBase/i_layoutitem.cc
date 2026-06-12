@@ -414,7 +414,7 @@ bool i_LayoutItem::layout( LayoutMode lom, const int iternr, bool finalloop )
 	{
 	    if ( !constr->other_ )
 	    {
-		pErrMsg("alignedWith: other is null");
+		pErrMsgOnce("alignedWith: other is null");
 		break;
 	    }
 
@@ -437,7 +437,7 @@ bool i_LayoutItem::layout( LayoutMode lom, const int iternr, bool finalloop )
 
 	    if ( !constr->other_ )
 	    {
-		pErrMsg("alignedBelow: other is null");
+		pErrMsgOnce("alignedBelow: other is null");
 		break;
 	    }
 
@@ -457,7 +457,7 @@ bool i_LayoutItem::layout( LayoutMode lom, const int iternr, bool finalloop )
 	{
 	    if ( !constr->other_ )
 	    {
-		pErrMsg("alignedAbove: other is null");
+		pErrMsgOnce("alignedAbove: other is null");
 		break;
 	    }
 
@@ -480,7 +480,7 @@ bool i_LayoutItem::layout( LayoutMode lom, const int iternr, bool finalloop )
 
 	    if ( !constr->other_ )
 	    {
-		pErrMsg("centeredBelow: other is null");
+		pErrMsgOnce("centeredBelow: other is null");
 		break;
 	    }
 
@@ -497,7 +497,7 @@ bool i_LayoutItem::layout( LayoutMode lom, const int iternr, bool finalloop )
 	{
 	    if ( !constr->other_ )
 	    {
-		pErrMsg("centeredAbove: other is null");
+		pErrMsgOnce("centeredAbove: other is null");
 		break;
 	    }
 
@@ -518,7 +518,7 @@ bool i_LayoutItem::layout( LayoutMode lom, const int iternr, bool finalloop )
 
 	    if ( !constr->other_ )
 	    {
-		pErrMsg("centeredLeftOf: other is null");
+		pErrMsgOnce("centeredLeftOf: other is null");
 		break;
 	    }
 
@@ -540,7 +540,7 @@ bool i_LayoutItem::layout( LayoutMode lom, const int iternr, bool finalloop )
 
 	    if ( !constr->other_ )
 	    {
-		pErrMsg("centeredRightOf: other is null");
+		pErrMsgOnce("centeredRightOf: other is null");
 		break;
 	    }
 
