@@ -84,9 +84,13 @@ uiSize i_LayoutItem::prefSize() const
 	self->prefszdone_ = true;
 	mQtclass(QSize) ps( qlayoutItm().sizeHint() );
 	int width = ps.width();
-	if ( width==0 ) width = 1;
+	if ( width==0 )
+	    width = 1;
+
 	int height = ps.height();
-	if ( height==0 ) height = 1;
+	if ( height==0 )
+	    height = 1;
+
 	self->prefsz_ = uiSize(width,height);
     }
 
@@ -126,7 +130,7 @@ int i_LayoutItem::stretch( bool hor ) const
 void i_LayoutItem::commitGeometrySet( bool store2prefpos )
 {
 #ifdef __debug__
-    const BufferString objnm = objLayouted()->name();
+    const BufferString objnm = objLayouted() ? objLayouted()->name() : "";
 #endif
     uiRect itmgeom = curpos( setGeom );
 
@@ -244,9 +248,9 @@ void i_LayoutItem::initLayout( LayoutMode lom, int mngrtop, int mngrleft )
     }
 
     if ( itmgeom.left() < 0 )
-	{ pErrMsg("left < 0"); }
+	pErrMsg("left < 0");
     if ( itmgeom.top() < 0 )
-	{ pErrMsg("top < 0"); }
+	pErrMsg("top < 0");
 }
 
 
@@ -408,10 +412,17 @@ bool i_LayoutItem::layout( LayoutMode lom, const int iternr, bool finalloop )
 
 	case alignedWith:
 	{
+	    if ( !constr->other_ )
+	    {
+		pErrMsg("alignedWith: other is null");
+		break;
+	    }
+
 	    int malign = horAlign( lom );
 	    int othalign = constr->other_->horAlign( lom );
 
-	    if ( malign < 0 || othalign < 0 ) break;
+	    if ( malign < 0 || othalign < 0 )
+		break;
 
 	    if ( itmgeom.leftToAtLeast( mCP(itmgeom.left()+othalign-malign)) )
 		mUpdated();
@@ -424,10 +435,17 @@ bool i_LayoutItem::layout( LayoutMode lom, const int iternr, bool finalloop )
 	    if ( itmgeom.topToAtLeast( mCP(otherPos.bottom() + mVerSpacing)))
 		mUpdated();
 
+	    if ( !constr->other_ )
+	    {
+		pErrMsg("alignedBelow: other is null");
+		break;
+	    }
+
 	    int malign = horAlign( lom );
 	    int othalign = constr->other_->horAlign( lom );
 
-	    if ( malign < 0 || othalign < 0 ) break;
+	    if ( malign < 0 || othalign < 0 )
+		break;
 
 	    if ( itmgeom.leftToAtLeast( mCP(itmgeom.left()+othalign-malign)) )
 		mUpdated();
@@ -437,10 +455,17 @@ bool i_LayoutItem::layout( LayoutMode lom, const int iternr, bool finalloop )
 
 	case alignedAbove:
 	{
+	    if ( !constr->other_ )
+	    {
+		pErrMsg("alignedAbove: other is null");
+		break;
+	    }
+
 	    int malign = horAlign( lom );
 	    int othalign = constr->other_->horAlign( lom );
 
-	    if ( malign < 0 || othalign < 0 ) break;
+	    if ( malign < 0 || othalign < 0 )
+		break;
 
 	    if ( itmgeom.leftToAtLeast( mCP(itmgeom.left()+othalign-malign)) )
 		mUpdated();
@@ -453,6 +478,12 @@ bool i_LayoutItem::layout( LayoutMode lom, const int iternr, bool finalloop )
 	    if ( itmgeom.topToAtLeast( mCP(otherPos.bottom() + mVerSpacing)))
 		mUpdated();
 
+	    if ( !constr->other_ )
+	    {
+		pErrMsg("centeredBelow: other is null");
+		break;
+	    }
+
 	    if ( center(lom) > 0 && constr->other_->center(lom) > 0 &&
 		itmgeom.leftToAtLeast( mCP(itmgeom.left()
 				    + constr->other_->center(lom)
@@ -464,6 +495,12 @@ bool i_LayoutItem::layout( LayoutMode lom, const int iternr, bool finalloop )
 	}
 	case centeredAbove:
 	{
+	    if ( !constr->other_ )
+	    {
+		pErrMsg("centeredAbove: other is null");
+		break;
+	    }
+
 	    if ( center(lom) > 0 && constr->other_->center(lom) > 0 &&
 		itmgeom.leftToAtLeast( mCP(itmgeom.left()
 				    + constr->other_->center(lom)
@@ -478,6 +515,12 @@ bool i_LayoutItem::layout( LayoutMode lom, const int iternr, bool finalloop )
 	{
 	    if ( itmgeom.rightToAtLeast(mCP(otherPos.left() - mHorSpacing)))
 		mUpdated();
+
+	    if ( !constr->other_ )
+	    {
+		pErrMsg("centeredLeftOf: other is null");
+		break;
+	    }
 
 	    if ( center(lom,false) > 0 &&
 		 constr->other_->center(lom,false) > 0 &&
@@ -494,6 +537,12 @@ bool i_LayoutItem::layout( LayoutMode lom, const int iternr, bool finalloop )
 	{
 	    if ( itmgeom.leftToAtLeast(mCP(otherPos.right() + mHorSpacing)))
 		mUpdated();
+
+	    if ( !constr->other_ )
+	    {
+		pErrMsg("centeredRightOf: other is null");
+		break;
+	    }
 
 	    if ( center(lom,false) > 0 &&
 		 constr->other_->center(lom,false) > 0 &&
@@ -644,7 +693,7 @@ bool i_LayoutItem::layout( LayoutMode lom, const int iternr, bool finalloop )
 	    }
 
 	    int nwWidth = mFullStretch() ? mngr().winpos(lom).hNrPics()
-					: mngr().curpos(lom).hNrPics();
+					 : mngr().curpos(lom).hNrPics();
 
 	    if ( finalloop &&  itmgeom.hNrPics() < nwWidth )
 	    {
