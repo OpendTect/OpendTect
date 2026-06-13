@@ -589,7 +589,7 @@ bool SynthGenerator::computeReflectivities()
     refsampler_->setInput( *refmodel_.ptr(), spikestwt_, sampling );
     if ( outputSampledFreqReflectivities() )
 	refsampler_->setFreqOutput( *sampledfreqreflectivities_.ptr() );
-    if ( needSampledTimeReflectivities() )
+    if ( needSampledTimeReflectivities() && temprefs )
 	refsampler_->setTimeOutput( *sampledtimereflectivities_.ptr(),
 				    temprefs->arr(), temprefs->size() );
 
@@ -612,13 +612,10 @@ bool SynthGenerator::computeTrace()
 {
     SeisTrc& res = *outtrc_;
     res.zero();
-    const int outsz = res.size();
-
     PtrMan<ValueSeries<float> > tmpvs;
-    int uncorrsz = outsz;
     if ( applynmo_ )
     {
-	uncorrsz = convolvesize_ > 0
+	const int uncorrsz = convolvesize_ > 0
 		 ? convolvesize_
 		 : (uncorrsampling_ ? uncorrsampling_->nrSteps()+1
 				    : -1);
@@ -1454,7 +1451,10 @@ bool RaySynthGenerator::getTraces( ObjectSet<SeisTrcBuf>& seisbufs,
     {
 	auto* tbuf = new SeisTrcBuf( true );
 	if ( !getTraces(*tbuf,idx,steal) )
+	{
+	    delete tbuf;
 	    return false;
+	}
 
 	seisbufs += tbuf;
     }
