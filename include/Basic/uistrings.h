@@ -354,11 +354,15 @@ public:
     static uiString sDisabled()		{ return tr("Disabled"); }
     static uiString sDiscard()		{ return tr("Discard"); }
     static uiString sDisplay()		{ return tr("Display"); }
+    static uiString sDisplayAfterImport()
+					{ return tr("Display after import"); }
+    static uiString sDisplayAfterCreate()
+					{ return tr("Display after create"); };
     static uiString sDistance()		{ return tr("Distance"); }
     static uiString sDone()		{ return tr("Done"); }
     static uiString sDown()		{ return tr("Down"); }
     static uiString sDraw()		{ return tr("Draw"); }
-    static uiString sEast(bool abb)	{ return abb ? tr("E"):tr("East"); }
+    static uiString sEast(bool abb)	{ return abb ? tr("E") : tr("East"); }
     static uiString sEdit()		{ return tr("Edit"); }
     static uiString sEmptyString()	{ return uiString::emptyString(); }
     static uiString sEnable()		{ return tr("Enable"); }

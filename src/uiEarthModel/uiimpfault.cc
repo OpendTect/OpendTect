@@ -64,7 +64,7 @@ uiImportFault::uiImportFault( uiParent* p, const char* type, bool is2d )
 {
     setOkCancelText( uiStrings::sImport(), uiStrings::sClose() );
 
-    enableSaveButton( tr("Display after import") );
+    enableSaveButton( uiStrings::sDisplayAfterImport() );
 }
 
 

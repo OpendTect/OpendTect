@@ -502,7 +502,7 @@ uiImportPickSet::uiImportPickSet( uiParent* p, uiPickPartServer* pps )
 	grp->attach( alignedBelow, topobj );
     }
 
-    enableSaveButton( tr("Display after import") );
+    enableSaveButton( uiStrings::sDisplayAfterImport() );
 
     mAttachCB( postFinalize(), uiImportPickSet::optionSelCB );
 }

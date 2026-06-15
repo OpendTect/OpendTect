@@ -47,7 +47,7 @@ uiCreateHorizon::uiCreateHorizon( uiParent* p, bool is2d )
     outfld_ = new uiSurfaceWrite( this, swsu );
     outfld_->attach( alignedBelow, zfld_ );
 
-    enableSaveButton( tr("Display after create") );
+    enableSaveButton( uiStrings::sDisplayAfterCreate() );
 }
 
 

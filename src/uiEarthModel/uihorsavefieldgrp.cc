@@ -74,7 +74,7 @@ void uiHorSaveFieldGrp::init( bool withsubsel )
 				 uiStrings::phrOutput(uiStrings::sHorizon(1)) );
     outputfld_->attach( alignedBelow, savefld_ );
 
-    addnewfld_ = new uiCheckBox( this, tr("Display after create") );
+    addnewfld_ = new uiCheckBox( this, uiStrings::sDisplayAfterCreate() );
     addnewfld_->attach( alignedBelow, outputfld_ );
 
     setHAlignObj( savefld_ );

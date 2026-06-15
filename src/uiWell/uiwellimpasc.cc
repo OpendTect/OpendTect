@@ -50,7 +50,7 @@ uiWellImportAsc::uiWellImportAsc( uiParent* p )
     , vertwelllbl_(0)
 {
     setVideoKey( mODVideoKey(mWellImportAscHelpID) );
-    enableSaveButton( tr("Display after import") );
+    enableSaveButton( uiStrings::sDisplayAfterImport() );
     setOkCancelText( uiStrings::sImport(), uiStrings::sClose() );
 
     uiStringSet options;

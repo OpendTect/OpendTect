@@ -190,7 +190,7 @@ uiImportHorizon2D::uiImportHorizon2D( uiParent* p )
     , readyForDisplay(this)
     , fd_(*EM::Horizon2DAscIO::getDesc(SI().zDomain()))
 {
-    enableSaveButton( tr("Display after import") );
+    enableSaveButton( uiStrings::sDisplayAfterImport() );
     setCtrlStyle( RunAndClose );
     setOkText( uiStrings::sImport() );
 

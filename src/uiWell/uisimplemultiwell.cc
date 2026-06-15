@@ -59,7 +59,8 @@ public:
 uiSimpleMultiWellCreate::uiSimpleMultiWellCreate( uiParent* p )
     : uiDialog(p,Setup(tr("Import Well Locations"),
 		       mODHelpKey(mSimpleMultiWellCreateHelpID))
-		    .savebutton(true).savetext(tr("Display after import"))
+		    .savebutton(true).savetext(uiStrings::sDisplayAfterImport()
+				)
 		    .modal(false))
     , velfld_(nullptr)
     , zinft_(SI().depthsInFeet())

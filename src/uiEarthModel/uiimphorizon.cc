@@ -93,7 +93,7 @@ uiImportHorizon::uiImportHorizon( uiParent* p, bool isgeom )
 			uiStrings::phrImport(mJoinUiStrs(sHorizon(),sData())));
     setOkCancelText( uiStrings::sImport(), uiStrings::sClose() );
     if ( isgeom )
-	enableSaveButton( tr("Display after import") );
+	enableSaveButton( uiStrings::sDisplayAfterImport() );
 
     setDeleteOnClose( false );
 
@@ -787,7 +787,7 @@ uiImpHorFromZMap::uiImpHorFromZMap( uiParent* p )
     , importReady(this)
 {
     setOkCancelText( uiStrings::sImport(), uiStrings::sClose() );
-    enableSaveButton( tr("Display after import") );
+    enableSaveButton( uiStrings::sDisplayAfterImport() );
 
     inpfld_ = new uiASCIIFileInput( this, tr("ZMap file"), true );
     mAttachCB( inpfld_->valueChanged, uiImpHorFromZMap::inputChgd );
