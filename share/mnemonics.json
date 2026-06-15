@@ -1,0 +1,1225 @@
+{
+  "name": "Mnemonics",
+  "application": "OpendTect",
+  "version": "8.1.0",
+  "date": "Mon 15 Jun 2026, 08:00:00",
+  "mnemonics": [
+    {
+      "name": "AI",
+      "description": "Acoustic Impedance",
+      "property": "Impedance",
+      "scale": "Linear",
+      "range": { "min": 2000.0, "max": 23000.0, "unit": "meter/second x gram/cm3" },
+      "typicalRange": { "min": 2200.0, "max": 22000.0, "unit": "meter/second x gram/cm3" },
+      "color": { "r": 255, "g": 150, "b": 0 },
+      "aliases": ["P Imp", "ImpedanceP"]
+    },
+    {
+      "name": "AZIM",
+      "description": "Welltrack Azimuth",
+      "property": "Angle",
+      "scale": "Linear",
+      "range": { "min": 0, "max": 360, "unit": "degrees" },
+      "typicalRange": { "min": 0, "max": 360, "unit": "degrees" },
+      "aliases": ["Azimuth"]
+    },
+    {
+      "name": "BI",
+      "description": "Brittleness index",
+      "property": "Elastic Ratio",
+      "scale": "Linear",
+      "color": { "r": 72, "g": 209, "b": 204 }
+    },
+    {
+      "name": "BMK",
+      "description": "Bulk modulus",
+      "property": "Pressure",
+      "scale": "Linear",
+      "range": { "min": 0, "max": 500, "unit": "gigapascal" },
+      "typicalRange": { "min": 0, "max": 100, "unit": "gigapascal" },
+      "color": { "r": 100, "g": 255, "b": 155 },
+      "aliases": ["Incompressibility"]
+    },
+    {
+      "name": "BS",
+      "description": "Bit Size",
+      "property": "Distance/Depth",
+      "scale": "Linear",
+      "range": { "min": -5, "max": 20, "unit": "inch" },
+      "typicalRange": { "min": -5, "max": 20, "unit": "inch" },
+      "color": { "r": 0, "g": 0, "b": 0 },
+      "aliases": ["BIT", "WellBoreRadius"]
+    },
+    {
+      "name": "CAL",
+      "description": "Caliper",
+      "property": "Distance/Depth",
+      "scale": "Linear",
+      "range": { "min": 0, "max": 25, "unit": "inch" },
+      "typicalRange": { "min": 0, "max": 25, "unit": "inch" },
+      "color": { "r": 0, "g": 0, "b": 0 },
+      "aliases": ["CALI", "CAL1"]
+    },
+    {
+      "name": "CB",
+      "description": "Compressibility Bulk",
+      "property": "Compressibility",
+      "scale": "Linear",
+      "range": { "min": 0, "max": 0.002, "unit": "1/gigapascal" },
+      "typicalRange": { "min": 0, "max": 0.1, "unit": "1/gigapascal" },
+      "color": { "r": 100, "g": 150, "b": 250 },
+      "aliases": ["BT", "Comp"]
+    },
+    {
+      "name": "CONF",
+      "description": "Confidence",
+      "property": "Other",
+      "scale": "Linear"
+    },
+    {
+      "name": "DEL",
+      "description": "Delta",
+      "property": "Anisotropy",
+      "scale": "Linear",
+      "range": { "min": -1, "max": 1 },
+      "typicalRange": { "min": -1, "max": 1 },
+      "color": { "r": 150, "g": 200, "b": 150 },
+      "aliases": ["DL"]
+    },
+    {
+      "name": "DEV",
+      "description": "Welltrack Deviation",
+      "property": "Angle",
+      "scale": "Linear",
+      "range": { "min": 0, "max": 90, "unit": "degrees" },
+      "typicalRange": { "min": 0, "max": 90, "unit": "degrees" },
+      "aliases": ["Deviation"]
+    },
+    {
+      "name": "DF",
+      "description": "Downhole Force",
+      "property": "Force",
+      "scale": "Linear"
+    },
+    {
+      "name": "DRHO",
+      "description": "Bulk Density Correction",
+      "property": "Density",
+      "scale": "Linear",
+      "color": { "r": 0, "g": 205, "b": 205 },
+      "aliases": ["LDNC", "ZCOR", "FDCC"]
+    },
+    {
+      "name": "DT",
+      "description": "Sonic",
+      "property": "Sonic travel time",
+      "scale": "Linear",
+      "range": { "min": 220, "max": 30, "unit": "microseconds/foot" },
+      "typicalRange": { "min": 200, "max": 50, "unit": "microseconds/foot" },
+      "color": { "r": 0, "g": 255, "b": 255 },
+      "aliases": ["AC", "ACL", "BHC", "BCS", "SonicTT", "LSDT"]
+    },
+    {
+      "name": "DTS",
+      "description": "Shear Sonic",
+      "property": "Sonic travel time",
+      "scale": "Linear",
+      "range": { "min": 440, "max": 60, "unit": "microseconds/foot" },
+      "typicalRange": { "min": 400, "max": 100, "unit": "microseconds/foot" },
+      "color": { "r": 255, "g": 20, "b": 147 },
+      "aliases": ["DSI", "FWS", "DTSH_FAST"]
+    },
+    {
+      "name": "DX",
+      "description": "Welltrack X Offset",
+      "property": "Distance/Depth",
+      "scale": "Linear"
+    },
+    {
+      "name": "DY",
+      "description": "Welltrack Y Offset",
+      "property": "Distance/Depth",
+      "scale": "Linear"
+    },
+    {
+      "name": "EI",
+      "description": "Elastic Impedance",
+      "property": "Impedance",
+      "scale": "Linear",
+      "range": { "min": 2000.0, "max": 23000.0, "unit": "meter/second x gram/cm3" },
+      "typicalRange": { "min": 2200.0, "max": 22000.0, "unit": "meter/second x gram/cm3" },
+      "color": { "r": 200, "g": 255, "b": 100 },
+      "aliases": ["EEI", "ExtendedElasticImpedance"]
+    },
+    {
+      "name": "EPS",
+      "description": "Epsilon",
+      "property": "Anisotropy",
+      "scale": "Linear",
+      "range": { "min": -1, "max": 1 },
+      "typicalRange": { "min": -1, "max": 1 },
+      "color": { "r": 200, "g": 150, "b": 150 },
+      "aliases": ["EP"]
+    },
+    {
+      "name": "ETA",
+      "description": "Eta",
+      "property": "Anisotropy",
+      "scale": "Linear",
+      "range": { "min": -1, "max": 1 },
+      "typicalRange": { "min": -1, "max": 1 },
+      "color": { "r": 200, "g": 150, "b": 250 }
+    },
+    {
+      "name": "FRACRHO",
+      "description": "Fracture Density",
+      "property": "Volumetrics",
+      "scale": "Linear",
+      "range": { "min": 0, "max": 10, "unit": "fraction" },
+      "typicalRange": { "min": 0, "max": 2, "unit": "fraction" },
+      "color": { "r": 169, "g": 172, "b": 148 },
+      "aliases": ["VolumeFrac"]
+    },
+    {
+      "name": "FRACSTRIKE",
+      "description": "Fracture Orientation",
+      "property": "Angle",
+      "scale": "Linear",
+      "range": { "min": 0, "max": 360, "unit": "degrees" },
+      "typicalRange": { "min": 0, "max": 360, "unit": "degrees" },
+      "color": { "r": 93, "g": 72, "b": 200 },
+      "aliases": ["FracOrient"]
+    },
+    {
+      "name": "GR",
+      "description": "Gamma ray",
+      "property": "Gamma Ray",
+      "scale": "Linear",
+      "range": { "min": 0, "max": 250, "unit": "api" },
+      "typicalRange": { "min": 0, "max": 150, "unit": "api" },
+      "color": { "r": 255, "g": 0, "b": 0 },
+      "aliases": ["CGR", "GRS", "SGR", "KTH", "GR1", "GRC", "GAMMA"]
+    },
+    {
+      "name": "IL",
+      "description": "Induction Log",
+      "property": "Resistivity",
+      "scale": "Logarithmic",
+      "range": { "min": 0.2, "max": 2000, "unit": "ohmmeter" },
+      "typicalRange": { "min": 0.2, "max": 20, "unit": "ohmmeter" },
+      "color": { "r": 200, "g": 200, "b": 0 },
+      "aliases": ["ILD", "ILM", "AHT", "AHO", "HDIL", "HRI", "InductionResistivity", "ILD"]
+    },
+    {
+      "name": "IMP",
+      "description": "Impedance",
+      "property": "Impedance",
+      "scale": "Linear",
+      "range": { "min": 2000.0, "max": 23000.0, "unit": "meter/second x gram/cm3" },
+      "typicalRange": { "min": 2200.0, "max": 22000.0, "unit": "meter/second x gram/cm3" },
+      "color": { "r": 255, "g": 150, "b": 0 },
+      "aliases": ["AIMP"]
+    },
+    {
+      "name": "LITHO",
+      "description": "Lithology",
+      "property": "Classification",
+      "scale": "Linear",
+      "color": { "r": 0, "g": 255, "b": 255 },
+      "aliases": ["LITHOF1_FACIES"]
+    },
+    {
+      "name": "LR",
+      "description": "LambdaRho",
+      "property": "Pressure-Weight",
+      "scale": "Linear",
+      "range": { "min": 5, "max": 80, "unit": "gigapascal.g/cm3" },
+      "typicalRange": { "min": 5, "max": 80, "unit": "gigapascal.g/cm3" },
+      "color": { "r": 100, "g": 150, "b": 255 }
+    },
+    {
+      "name": "MD",
+      "description": "Measured Depth",
+      "property": "Distance/Depth",
+      "scale": "Linear",
+      "aliases": ["Depth"]
+    },
+    {
+      "name": "MR",
+      "description": "MuRho",
+      "property": "Pressure-Weight",
+      "scale": "Linear",
+      "range": { "min": 5, "max": 60, "unit": "gigapascal.g/cm3" },
+      "typicalRange": { "min": 5, "max": 60, "unit": "gigapascal.g/cm3" },
+      "color": { "r": 100, "g": 255, "b": 150 }
+    },
+    {
+      "name": "MSFL",
+      "description": "Micro Spherically Focused Resistivity",
+      "property": "Resitivity",
+      "scale": "Logarithmic",
+      "color": { "r": 200, "g": 200, "b": 0 }
+    },
+    {
+      "name": "NET_FLAG",
+      "description": "Net Flag",
+      "property": "Classification",
+      "scale": "Linear",
+      "range": { "min": 0, "max": 1 },
+      "typicalRange": { "min": 0, "max": 1 },
+      "color": { "r": 255, "g": 255, "b": 0 },
+      "aliases": ["NETF", "RSV", "Reservoir"]
+    },
+    {
+      "name": "NET_PAY_FLAG",
+      "description": "Net Pay Flag",
+      "property": "Classification",
+      "scale": "Linear",
+      "range": { "min": 0, "max": 1 },
+      "typicalRange": { "min": 0, "max": 1 },
+      "color": { "r": 255, "g": 255, "b": 0 },
+      "aliases": ["NETP", "NetPay"]
+    },
+    {
+      "name": "NMR",
+      "description": "Nuclear Magnetic Resonance",
+      "property": "Time",
+      "scale": "Linear",
+      "range": { "min": 0.1, "max": 10000, "unit": "milliseconds" },
+      "typicalRange": { "min": 0.3, "max": 3000, "unit": "milliseconds" },
+      "color": { "r": 0, "g": 0, "b": 0 },
+      "aliases": ["CMR", "MRIL", "MREX", "NuclearMagRes"]
+    },
+    {
+      "name": "NPHI",
+      "description": "Compensated Neutron",
+      "property": "Volumetrics",
+      "scale": "Linear",
+      "range": { "min": 45, "max": -15, "unit": "percent" },
+      "typicalRange": { "min": 30, "max": 0, "unit": "percent" },
+      "color": { "r": 200, "g": 200, "b": 0 },
+      "aliases": ["CNL", "CN", "CNC", "CNCF"]
+    },
+    {
+      "name": "OWT",
+      "description": "One-way traveltime",
+      "property": "Time",
+      "scale": "Linear"
+    },
+    {
+      "name": "PEF",
+      "description": "Photoelectric Factor",
+      "property": "Other",
+      "scale": "Linear",
+      "range": { "min": 0, "max": 10 },
+      "typicalRange": { "min": 0, "max": 10 },
+      "color": { "r": 0, "g": 0, "b": 0 },
+      "aliases": ["PE", "PEFZ"]
+    },
+    {
+      "name": "PERM",
+      "description": "Permeability",
+      "property": "Permeability",
+      "scale": "Logarithmic",
+      "range": { "min": 0.01, "max": 5000, "unit": "mdarcy" },
+      "typicalRange": { "min": 1, "max": 2000, "unit": "mdarcy" },
+      "color": { "r": 200, "g": 0, "b": 0 },
+      "aliases": ["Permeab"]
+    },
+    {
+      "name": "PHI",
+      "description": "Porosity",
+      "property": "Volumetrics",
+      "scale": "Linear",
+      "range": { "min": 0, "max": 30, "unit": "percent" },
+      "typicalRange": { "min": 0, "max": 40, "unit": "percent" },
+      "color": { "r": 200, "g": 200, "b": 0 }
+    },
+    {
+      "name": "PHID",
+      "description": "Density Porosity",
+      "property": "Volumetrics",
+      "scale": "Linear",
+      "range": { "min": 0, "max": 30, "unit": "percent" },
+      "typicalRange": { "min": 0, "max": 30, "unit": "percent" },
+      "color": { "r": 200, "g": 200, "b": 0 },
+      "aliases": ["DPHI", "DPOR", "PorosityDensity", "PORZ"]
+    },
+    {
+      "name": "PHIE",
+      "description": "Effective Porosity",
+      "property": "Volumetrics",
+      "scale": "Linear",
+      "range": { "min": 0, "max": 30, "unit": "percent" },
+      "typicalRange": { "min": 0, "max": 40, "unit": "percent" },
+      "color": { "r": 200, "g": 200, "b": 0 }
+    },
+    {
+      "name": "PHIN",
+      "description": "Neutron Porosity",
+      "property": "Volumetrics",
+      "scale": "Linear",
+      "range": { "min": 0, "max": 30, "unit": "percent" },
+      "typicalRange": { "min": 0, "max": 30, "unit": "percent" },
+      "color": { "r": 200, "g": 200, "b": 0 },
+      "aliases": ["BPHI", "TNHP"]
+    },
+    {
+      "name": "PHIS",
+      "description": "Sonic Porosity",
+      "property": "Volumetrics",
+      "scale": "Linear",
+      "range": { "min": 0, "max": 30, "unit": "percent" },
+      "typicalRange": { "min": 0, "max": 30, "unit": "percent" },
+      "color": { "r": 200, "g": 200, "b": 0 },
+      "aliases": ["PORA"]
+    },
+    {
+      "name": "PHIT",
+      "description": "Total Porosity",
+      "property": "Volumetrics",
+      "scale": "Linear",
+      "range": { "min": 0, "max": 30, "unit": "percent" },
+      "typicalRange": { "min": 0, "max": 40, "unit": "percent" },
+      "color": { "r": 200, "g": 200, "b": 0 }
+    },
+    {
+      "name": "POTA",
+      "description": "Spectral Gamma Ray",
+      "property": "Volumetrics",
+      "scale": "Linear",
+      "range": { "min": 0, "max": 100, "unit": "percent" },
+      "typicalRange": { "min": 0, "max": 100, "unit": "percent" },
+      "color": { "r": 255, "g": 0, "b": 0 },
+      "aliases": ["GammaRayPotassium"]
+    },
+    {
+      "name": "PP",
+      "description": "Pressure",
+      "property": "Pressure",
+      "scale": "Linear",
+      "range": { "min": 0, "max": 200, "unit": "bar" },
+      "typicalRange": { "min": 0, "max": 200, "unit": "bar" },
+      "color": { "r": 0, "g": 0, "b": 255 },
+      "aliases": ["PRES"]
+    },
+    {
+      "name": "PR",
+      "description": "Poissons Ratio",
+      "property": "Elastic Ratio",
+      "scale": "Linear",
+      "range": { "min": 0.1, "max": 0.5 },
+      "typicalRange": { "min": 0.1, "max": 0.5 },
+      "color": { "r": 200, "g": 100, "b": 200 },
+      "aliases": ["POI", "PoissonRatio"]
+    },
+    {
+      "name": "PVEL",
+      "description": "Pwave Velocity",
+      "property": "Velocity",
+      "scale": "Linear",
+      "range": { "min": 500, "max": 7500, "unit": "meter/second" },
+      "typicalRange": { "min": 1500, "max": 6500, "unit": "meter/second" },
+      "color": { "r": 0, "g": 200, "b": 0 },
+      "aliases": ["P wave", "Vp", "VelocityP"]
+    },
+    {
+      "name": "RAI",
+      "description": "Relative Acoustic Impedance",
+      "property": "Impedance",
+      "scale": "Linear",
+      "range": { "min": -2000.0, "max": 2000.0, "unit": "meter/second x gram/cm3" },
+      "typicalRange": { "min": -2200.0, "max": 2200.0, "unit": "meter/second x gram/cm3" },
+      "color": { "r": 255, "g": 150, "b": 0 }
+    },
+    {
+      "name": "REFL",
+      "description": "Reflectivity",
+      "property": "Other",
+      "scale": "Linear",
+      "range": { "min": -0.1, "max": 0.1 },
+      "typicalRange": { "min": -0.1, "max": 0.1 },
+      "color": { "r": 0, "g": 0, "b": 0 }
+    },
+    {
+      "name": "REI",
+      "description": "Relative Elastic Impedance",
+      "property": "Impedance",
+      "scale": "Linear",
+      "range": { "min": -2000.0, "max": 2000.0, "unit": "meter/second x gram/cm3" },
+      "typicalRange": { "min": -2200.0, "max": 2200.0, "unit": "meter/second x gram/cm3" },
+      "color": { "r": 200, "g": 255, "b": 100 }
+    },
+    {
+      "name": "RESD",
+      "description": "Deep Resistivity",
+      "property": "Resistivity",
+      "scale": "Logarithmic",
+      "range": { "min": 0.2, "max": 2000, "unit": "ohmmeter" },
+      "typicalRange": { "min": 0.2, "max": 20, "unit": "ohmmeter" },
+      "color": { "r": 200, "g": 200, "b": 0 },
+      "aliases": ["LLD", "LLS", "MLL", "RIPD", "M0RX", "M0R1", "M0R2", "M0R3", "M0R6", "M0R9", "RFOC"]
+    },
+    {
+      "name": "RESM",
+      "description": "Medium Resistivity",
+      "property": "Resistivity",
+      "scale": "Logarithmic",
+      "range": { "min": 0.2, "max": 2000, "unit": "ohmmeter" },
+      "typicalRange": { "min": 0.2, "max": 20, "unit": "ohmmeter" },
+      "color": { "r": 200, "g": 200, "b": 0 },
+      "aliases": ["RIPM"]
+    },
+    {
+      "name": "RESS",
+      "description": "Shallow Resistivity",
+      "property": "Resistivity",
+      "scale": "Logarithmic",
+      "range": { "min": 0.2, "max": 2000, "unit": "ohmmeter" },
+      "typicalRange": { "min": 0.2, "max": 2000, "unit": "ohmmeter" },
+      "color": { "r": 200, "g": 200, "b": 0 },
+      "aliases": ["HRLS"]
+    },
+    {
+      "name": "RFOC",
+      "description": "Calibrated Real Focus",
+      "property": "Electrical Potential",
+      "scale": "Linear",
+      "color": { "r": 0, "g": 255, "b": 100 }
+    },
+    {
+      "name": "RHOB",
+      "description": "Bulk Density",
+      "property": "Density",
+      "scale": "Linear",
+      "range": { "min": 1.5, "max": 3.5, "unit": "gram/cm3" },
+      "typicalRange": { "min": 2, "max": 3, "unit": "gram/cm3" },
+      "color": { "r": 0, "g": 0, "b": 205 },
+      "aliases": ["RHOZ", "DEN", "ZDEN", "RHO8", "LDEN", "RHGX", "FDC"]
+    },
+    {
+      "name": "ROP",
+      "description": "Rate of Penetration",
+      "property": "Other",
+      "scale": "Linear"
+    },
+    {
+      "name": "RSI",
+      "description": "Relative Shear Impedance",
+      "property": "Impedance",
+      "scale": "Linear",
+      "range": { "min": -1000.0, "max": 1000.0, "unit": "meter/second x gram/cm3" },
+      "typicalRange": { "min": -1100.0, "max": 1100.0, "unit": "meter/second x gram/cm3" },
+      "color": { "r": 100, "g": 255, "b": 100 }
+    },
+    {
+      "name": "RT",
+      "description": "Resistivity",
+      "property": "Resistivity",
+      "scale": "Logarithmic",
+      "range": { "min": 0.2, "max": 2000, "unit": "ohmmeter" },
+      "typicalRange": { "min": 0.2, "max": 20, "unit": "ohmmeter" },
+      "color": { "r": 200, "g": 200, "b": 0 },
+      "aliases": ["LL", "ML", "HALS", "HRLD", "HRLS", "DLL", "LLG"]
+    },
+    {
+      "name": "SEGMENT",
+      "description": "Segment",
+      "property": "Classification",
+      "scale": "Linear",
+      "color": { "r": 0, "g": 255, "b": 255 }
+    },
+    {
+      "name": "SEIS",
+      "description": "Seismic",
+      "property": "Other",
+      "scale": "Linear",
+      "color": { "r": 255, "g": 0, "b": 0 }
+    },
+    {
+      "name": "SFL",
+      "description": "Spherically Focused Resistivity",
+      "property": "Resitivity",
+      "scale": "Logarithmic",
+      "color": { "r": 200, "g": 200, "b": 0 },
+      "aliases": ["SFLA", "SFLB", "SFLU"]
+    },
+    {
+      "name": "SG",
+      "description": "Gas Saturation",
+      "property": "Volumetrics",
+      "scale": "Linear",
+      "range": { "min": 0, "max": 100, "unit": "percent" },
+      "typicalRange": { "min": 0, "max": 100, "unit": "percent" },
+      "color": { "r": 0, "g": 0, "b": 220 }
+    },
+    {
+      "name": "SI",
+      "description": "Shear Impedance",
+      "property": "Impedance",
+      "scale": "Linear",
+      "range": { "min": 1000.0, "max": 12000.0, "unit": "meter/second x gram/cm3" },
+      "typicalRange": { "min": 1100.0, "max": 11000.0, "unit": "meter/second x gram/cm3" },
+      "color": { "r": 100, "g": 255, "b": 100 },
+      "aliases": ["S Imp", "ImpedanceS"]
+    },
+    {
+      "name": "SMG",
+      "description": "Shear modulus",
+      "property": "Pressure",
+      "scale": "Linear",
+      "range": { "min": 0, "max": 500, "unit": "gigapascal" },
+      "typicalRange": { "min": 0, "max": 100, "unit": "gigapascal" },
+      "color": { "r": 100, "g": 255, "b": 155 },
+      "aliases": ["Rigidity"]
+    },
+    {
+      "name": "SO",
+      "description": "Oil Saturation",
+      "property": "Volumetrics",
+      "scale": "Linear",
+      "range": { "min": 0, "max": 100, "unit": "percent" },
+      "typicalRange": { "min": 0, "max": 100, "unit": "percent" },
+      "color": { "r": 0, "g": 220, "b": 0 }
+    },
+    {
+      "name": "SP",
+      "description": "Spontaneous Potential",
+      "property": "Electrical Potential",
+      "scale": "Linear",
+      "range": { "min": -250, "max": 100, "unit": "mvolt" },
+      "typicalRange": { "min": -80, "max": 20, "unit": "mvolt" },
+      "color": { "r": 0, "g": 255, "b": 100 },
+      "aliases": ["SSP", "SPAR"]
+    },
+    {
+      "name": "SVEL",
+      "description": "Swave Velocity",
+      "property": "Velocity",
+      "scale": "Linear",
+      "range": { "min": 250, "max": 3800, "unit": "meter/second" },
+      "typicalRange": { "min": 800, "max": 3800, "unit": "meter/second" },
+      "color": { "r": 0, "g": 200, "b": 0 },
+      "aliases": ["S wave", "Vs", "VelocityS"]
+    },
+    {
+      "name": "SW",
+      "description": "Water Saturation",
+      "property": "Volumetrics",
+      "scale": "Linear",
+      "range": { "min": 0, "max": 100, "unit": "percent" },
+      "typicalRange": { "min": 0, "max": 100, "unit": "percent" },
+      "color": { "r": 0, "g": 0, "b": 255 },
+      "aliases": ["SAT", "SWE", "SUWI"]
+    },
+    {
+      "name": "SWO",
+      "description": "Water Saturation in Flushed Zone",
+      "property": "Volumetrics",
+      "scale": "Linear",
+      "range": { "min": 0, "max": 100, "unit": "percent" },
+      "typicalRange": { "min": 0, "max": 100, "unit": "percent" },
+      "color": { "r": 0, "g": 0, "b": 255 }
+    },
+    {
+      "name": "SWT",
+      "description": "Total Water Saturation",
+      "property": "Volumetrics",
+      "scale": "Linear",
+      "range": { "min": 0, "max": 100, "unit": "percent" },
+      "typicalRange": { "min": 0, "max": 100, "unit": "percent" },
+      "color": { "r": 0, "g": 0, "b": 255 }
+    },
+    {
+      "name": "SYNTH",
+      "description": "Synthetic",
+      "property": "Other",
+      "scale": "Linear",
+      "color": { "r": 0, "g": 0, "b": 255 }
+    },
+    {
+      "name": "TEMP",
+      "description": "Temperature",
+      "property": "Temperature",
+      "scale": "Linear",
+      "range": { "min": 5, "max": 300, "unit": "degrees celcius" },
+      "typicalRange": { "min": 10, "max": 150, "unit": "degrees celcius" },
+      "color": { "r": 0, "g": 0, "b": 0 },
+      "aliases": ["GTEM"]
+    },
+    {
+      "name": "TENS",
+      "description": "Cable Tension",
+      "property": "Force",
+      "scale": "Linear"
+    },
+    {
+      "name": "THOR",
+      "description": "Spectral Gamma Ray",
+      "property": "Fluid",
+      "scale": "Linear",
+      "range": { "min": 0, "max": 40, "unit": "parts-per-million" },
+      "typicalRange": { "min": 0, "max": 40, "unit": "parts-per-million" },
+      "color": { "r": 255, "g": 0, "b": 0 },
+      "aliases": ["GammaRayThorium"]
+    },
+    {
+      "name": "TOC",
+      "description": "Total Organic Carbon",
+      "property": "Elastic Ratio",
+      "scale": "Linear",
+      "color": { "r": 255, "g": 215, "b": 0 }
+    },
+    {
+      "name": "TVD",
+      "description": "True Vertical Depth",
+      "property": "Distance/Depth",
+      "scale": "Linear"
+    },
+    {
+      "name": "TVDGL",
+      "description": "True Vertical Depth below Ground Level",
+      "property": "Distance/Depth",
+      "scale": "Linear"
+    },
+    {
+      "name": "TVDSD",
+      "description": "True Vertical Depth below Seismic Datum",
+      "property": "Distance/Depth",
+      "scale": "Linear"
+    },
+    {
+      "name": "TVDSS",
+      "description": "True Vertical Depth Subsea",
+      "property": "Distance/Depth",
+      "scale": "Linear"
+    },
+    {
+      "name": "TWT",
+      "description": "Two-way traveltime",
+      "property": "Time",
+      "scale": "Linear",
+      "aliases": ["Time"]
+    },
+    {
+      "name": "URAN",
+      "description": "Spectral Gamma Ray",
+      "property": "Fluid",
+      "scale": "Linear",
+      "range": { "min": 0, "max": 30, "unit": "parts-per-million" },
+      "typicalRange": { "min": 0, "max": 30, "unit": "parts-per-million" },
+      "color": { "r": 255, "g": 0, "b": 0 },
+      "aliases": ["GammaRayUranium"]
+    },
+    {
+      "name": "VALB",
+      "description": "Volume Fraction of Albite Relative to Total Volume",
+      "property": "Volumetrics",
+      "scale": "Linear",
+      "range": { "min": 0, "max": 100, "unit": "percent" },
+      "typicalRange": { "min": 0, "max": 100, "unit": "percent" },
+      "color": { "r": 100, "g": 200, "b": 100 },
+      "aliases": ["Valbite"]
+    },
+    {
+      "name": "VANH",
+      "description": "Volume of Anhydrite Relative to Total Volume",
+      "property": "Volumetrics",
+      "scale": "Linear",
+      "range": { "min": 0, "max": 100, "unit": "percent" },
+      "typicalRange": { "min": 0, "max": 100, "unit": "percent" },
+      "color": { "r": 100, "g": 200, "b": 100 },
+      "aliases": ["Vanhydrite"]
+    },
+    {
+      "name": "VBIO",
+      "description": "Volume of Biotite Relative to Total Volume",
+      "property": "Volumetrics",
+      "scale": "Linear",
+      "range": { "min": 0, "max": 100, "unit": "percent" },
+      "typicalRange": { "min": 0, "max": 100, "unit": "percent" },
+      "color": { "r": 100, "g": 200, "b": 100 },
+      "aliases": ["Vbiotite"]
+    },
+    {
+      "name": "VCAR",
+      "description": "Volume Fraction of Carbonate Relative to Total Volume",
+      "property": "Volumetrics",
+      "scale": "Linear",
+      "range": { "min": 0, "max": 100, "unit": "percent" },
+      "typicalRange": { "min": 0, "max": 100, "unit": "percent" },
+      "color": { "r": 100, "g": 200, "b": 100 },
+      "aliases": ["Vcarbonate"]
+    },
+    {
+      "name": "VCHL",
+      "description": "Volume of Chlorite Relative to Total Volume",
+      "property": "Volumetrics",
+      "scale": "Linear",
+      "range": { "min": 0, "max": 100, "unit": "percent" },
+      "typicalRange": { "min": 0, "max": 100, "unit": "percent" },
+      "color": { "r": 100, "g": 200, "b": 100 },
+      "aliases": ["Vchlorite"]
+    },
+    {
+      "name": "VCL",
+      "description": "Volume of Clay Type Material Relative to Total Volume",
+      "property": "Volumetrics",
+      "scale": "Linear",
+      "range": { "min": 0, "max": 100, "unit": "percent" },
+      "typicalRange": { "min": 0, "max": 100, "unit": "percent" },
+      "color": { "r": 100, "g": 200, "b": 100 },
+      "aliases": ["Vclay", "VCLU", "VCLF"]
+    },
+    {
+      "name": "VCLC",
+      "description": "Volume of Calcite Relative to Total Volume",
+      "property": "Volumetrics",
+      "scale": "Linear",
+      "range": { "min": 0, "max": 100, "unit": "percent" },
+      "typicalRange": { "min": 0, "max": 100, "unit": "percent" },
+      "color": { "r": 100, "g": 200, "b": 100 },
+      "aliases": ["Vcalcite"]
+    },
+    {
+      "name": "VCOA",
+      "description": "Volume of Coal Relative to Total Volume",
+      "property": "Volumetrics",
+      "scale": "Linear",
+      "range": { "min": 0, "max": 100, "unit": "percent" },
+      "typicalRange": { "min": 0, "max": 100, "unit": "percent" },
+      "color": { "r": 100, "g": 200, "b": 100 },
+      "aliases": ["Vcoal"]
+    },
+    {
+      "name": "VDCL",
+      "description": "Volume of Dry Clay",
+      "property": "Volumetrics",
+      "scale": "Linear",
+      "range": { "min": 0, "max": 100, "unit": "percent" },
+      "typicalRange": { "min": 0, "max": 100, "unit": "percent" },
+      "color": { "r": 100, "g": 200, "b": 100 },
+      "aliases": ["Vdryclay"]
+    },
+    {
+      "name": "VDOL",
+      "description": "Volume of Dolomite Relative to Total Volume",
+      "property": "Volumetrics",
+      "scale": "Linear",
+      "range": { "min": 0, "max": 100, "unit": "percent" },
+      "typicalRange": { "min": 0, "max": 100, "unit": "percent" },
+      "color": { "r": 100, "g": 200, "b": 100 },
+      "aliases": ["Vdolomite"]
+    },
+    {
+      "name": "VEL",
+      "description": "Velocity",
+      "property": "Velocity",
+      "scale": "Linear",
+      "range": { "min": 500, "max": 7500, "unit": "meter/second" },
+      "typicalRange": { "min": 1500, "max": 6500, "unit": "meter/second" },
+      "color": { "r": 0, "g": 200, "b": 0 },
+      "aliases": ["Vint", "Vrms", "Vavg"]
+    },
+    {
+      "name": "VEVA",
+      "description": "Volume Fraction of Evaporite Relative to Total Volume",
+      "property": "Volumetrics",
+      "scale": "Linear",
+      "range": { "min": 0, "max": 100, "unit": "percent" },
+      "typicalRange": { "min": 0, "max": 100, "unit": "percent" },
+      "color": { "r": 100, "g": 200, "b": 100 },
+      "aliases": ["Vevaporite"]
+    },
+    {
+      "name": "VFEL",
+      "description": "Volume of Feldspar Relative to Total Volume",
+      "property": "Volumetrics",
+      "scale": "Linear",
+      "range": { "min": 0, "max": 100, "unit": "percent" },
+      "typicalRange": { "min": 0, "max": 100, "unit": "percent" },
+      "color": { "r": 100, "g": 200, "b": 100 },
+      "aliases": ["Vfeldspar"]
+    },
+    {
+      "name": "VGLA",
+      "description": "Volume of Glauconite Relative to Total Volume",
+      "property": "Volumetrics",
+      "scale": "Linear",
+      "range": { "min": 0, "max": 100, "unit": "percent" },
+      "typicalRange": { "min": 0, "max": 100, "unit": "percent" },
+      "color": { "r": 100, "g": 200, "b": 100 },
+      "aliases": ["Vglauconite"]
+    },
+    {
+      "name": "VGYP",
+      "description": "Volume of Gypsum Relative to Total Volume",
+      "property": "Volumetrics",
+      "scale": "Linear",
+      "range": { "min": 0, "max": 100, "unit": "percent" },
+      "typicalRange": { "min": 0, "max": 100, "unit": "percent" },
+      "color": { "r": 100, "g": 200, "b": 100 },
+      "aliases": ["Vgypsum"]
+    },
+    {
+      "name": "VHAL",
+      "description": "Volume of Halite Relative to Total Volume",
+      "property": "Volumetrics",
+      "scale": "Linear",
+      "range": { "min": 0, "max": 100, "unit": "percent" },
+      "typicalRange": { "min": 0, "max": 100, "unit": "percent" },
+      "color": { "r": 100, "g": 200, "b": 100 },
+      "aliases": ["Vhalite"]
+    },
+    {
+      "name": "VIGN",
+      "description": "Volume of Igneous Rock Relative to Total Volume",
+      "property": "Volumetrics",
+      "scale": "Linear",
+      "range": { "min": 0, "max": 100, "unit": "percent" },
+      "typicalRange": { "min": 0, "max": 100, "unit": "percent" },
+      "color": { "r": 100, "g": 200, "b": 100 },
+      "aliases": ["Vigneous"]
+    },
+    {
+      "name": "VILL",
+      "description": "Volume of Illite (dry) Relative to Total Volume",
+      "property": "Volumetrics",
+      "scale": "Linear",
+      "range": { "min": 0, "max": 100, "unit": "percent" },
+      "typicalRange": { "min": 0, "max": 100, "unit": "percent" },
+      "color": { "r": 100, "g": 200, "b": 100 },
+      "aliases": ["Villite"]
+    },
+    {
+      "name": "VISO",
+      "description": "Volume of Isolated Fluid Relative to Total Volume",
+      "property": "Volumetrics",
+      "scale": "Linear",
+      "range": { "min": 0, "max": 100, "unit": "percent" },
+      "typicalRange": { "min": 0, "max": 100, "unit": "percent" },
+      "color": { "r": 100, "g": 200, "b": 100 },
+      "aliases": ["Visolated fluid"]
+    },
+    {
+      "name": "VKAO",
+      "description": "Volume of Kaolinite (dry) Relative to Total Volume",
+      "property": "Volumetrics",
+      "scale": "Linear",
+      "range": { "min": 0, "max": 100, "unit": "percent" },
+      "typicalRange": { "min": 0, "max": 100, "unit": "percent" },
+      "color": { "r": 100, "g": 200, "b": 100 },
+      "aliases": ["Vkaolinite"]
+    },
+    {
+      "name": "VLIM",
+      "description": "Volume of Limestone Relative to Total Volume",
+      "property": "Volumetrics",
+      "scale": "Linear",
+      "range": { "min": 0, "max": 100, "unit": "percent" },
+      "typicalRange": { "min": 0, "max": 100, "unit": "percent" },
+      "color": { "r": 100, "g": 200, "b": 100 },
+      "aliases": ["Vlimestone"]
+    },
+    {
+      "name": "VMET",
+      "description": "Volume of Metamorphic Rock Relative to Total Volume",
+      "property": "Volumetrics",
+      "scale": "Linear",
+      "range": { "min": 0, "max": 100, "unit": "percent" },
+      "typicalRange": { "min": 0, "max": 100, "unit": "percent" },
+      "color": { "r": 100, "g": 200, "b": 100 },
+      "aliases": ["Vmetamorphic"]
+    },
+    {
+      "name": "VMHY",
+      "description": "Volume of Moved Hydrocarbon Relative to Total Volume",
+      "property": "Volumetrics",
+      "scale": "Linear",
+      "range": { "min": 0, "max": 100, "unit": "percent" },
+      "typicalRange": { "min": 0, "max": 100, "unit": "percent" },
+      "color": { "r": 100, "g": 200, "b": 100 },
+      "aliases": ["Vmoved hydrogen"]
+    },
+    {
+      "name": "VMON",
+      "description": "Volume of Montmorillonite (dry) Relative to Total Volume",
+      "property": "Volumetrics",
+      "scale": "Linear",
+      "range": { "min": 0, "max": 100, "unit": "percent" },
+      "typicalRange": { "min": 0, "max": 100, "unit": "percent" },
+      "color": { "r": 100, "g": 200, "b": 100 },
+      "aliases": ["Vmontmorillonite"]
+    },
+    {
+      "name": "VMUS",
+      "description": "Volume of Muscovite Relative to Total Volume",
+      "property": "Volumetrics",
+      "scale": "Linear",
+      "range": { "min": 0, "max": 100, "unit": "percent" },
+      "typicalRange": { "min": 0, "max": 100, "unit": "percent" },
+      "color": { "r": 100, "g": 200, "b": 100 },
+      "aliases": ["Vmuscovite"]
+    },
+    {
+      "name": "VORT",
+      "description": "Volume of Orthoclase Relative to Total Volume",
+      "property": "Volumetrics",
+      "scale": "Linear",
+      "range": { "min": 0, "max": 100, "unit": "percent" },
+      "typicalRange": { "min": 0, "max": 100, "unit": "percent" },
+      "color": { "r": 100, "g": 200, "b": 100 },
+      "aliases": ["Vorthoclase"]
+    },
+    {
+      "name": "VPAR",
+      "description": "Volume of Parallel Porosity Relative to Total Volume",
+      "property": "Volumetrics",
+      "scale": "Linear",
+      "range": { "min": 0, "max": 100, "unit": "percent" },
+      "typicalRange": { "min": 0, "max": 100, "unit": "percent" },
+      "color": { "r": 100, "g": 200, "b": 100 },
+      "aliases": ["Vparallel porosity"]
+    },
+    {
+      "name": "VPVS",
+      "description": "Vp/Vs",
+      "property": "Elastic Ratio",
+      "scale": "Linear",
+      "range": { "min": 1.5, "max": 10 },
+      "typicalRange": { "min": 2, "max": 10 },
+      "color": { "r": 200, "g": 150, "b": 150 },
+      "aliases": ["VelocityRatioVpVs"]
+    },
+    {
+      "name": "VPYR",
+      "description": "Volume of Pyrite Relative to Total Volume",
+      "property": "Volumetrics",
+      "scale": "Linear",
+      "range": { "min": 0, "max": 100, "unit": "percent" },
+      "typicalRange": { "min": 0, "max": 100, "unit": "percent" },
+      "color": { "r": 100, "g": 200, "b": 100 },
+      "aliases": ["Vpyrite"]
+    },
+    {
+      "name": "VQUA",
+      "description": "Volume of Quartz Relative to Total Volume",
+      "property": "Volumetrics",
+      "scale": "Linear",
+      "range": { "min": 0, "max": 100, "unit": "percent" },
+      "typicalRange": { "min": 0, "max": 100, "unit": "percent" },
+      "color": { "r": 100, "g": 200, "b": 100 },
+      "aliases": ["Vquartz"]
+    },
+    {
+      "name": "VSH",
+      "description": "Volume of Shale",
+      "property": "Volumetrics",
+      "scale": "Linear",
+      "range": { "min": 0, "max": 100, "unit": "percent" },
+      "typicalRange": { "min": 0, "max": 100, "unit": "percent" },
+      "color": { "r": 100, "g": 200, "b": 100 },
+      "aliases": ["Vshale"]
+    },
+    {
+      "name": "VSID",
+      "description": "Volume of Siderite Relative to Total Volume",
+      "property": "Volumetrics",
+      "scale": "Linear",
+      "range": { "min": 0, "max": 100, "unit": "percent" },
+      "typicalRange": { "min": 0, "max": 100, "unit": "percent" },
+      "color": { "r": 100, "g": 200, "b": 100 },
+      "aliases": ["Vsiderite"]
+    },
+    {
+      "name": "VSIL",
+      "description": "Volume of Silt Relative to Total Volume",
+      "property": "Volumetrics",
+      "scale": "Linear",
+      "range": { "min": 0, "max": 100, "unit": "percent" },
+      "typicalRange": { "min": 0, "max": 100, "unit": "percent" },
+      "color": { "r": 100, "g": 200, "b": 100 },
+      "aliases": ["Vsilt"]
+    },
+    {
+      "name": "VSM1",
+      "description": "Volume of Special Mineral 1 Relative to Total Volume",
+      "property": "Volumetrics",
+      "scale": "Linear",
+      "range": { "min": 0, "max": 100, "unit": "percent" },
+      "typicalRange": { "min": 0, "max": 100, "unit": "percent" },
+      "color": { "r": 100, "g": 200, "b": 100 },
+      "aliases": ["Vspecial1"]
+    },
+    {
+      "name": "VSM2",
+      "description": "Volume of Special Mineral 2 Relative to Total Volume",
+      "property": "Volumetrics",
+      "scale": "Linear",
+      "range": { "min": 0, "max": 100, "unit": "percent" },
+      "typicalRange": { "min": 0, "max": 100, "unit": "percent" },
+      "color": { "r": 100, "g": 200, "b": 100 },
+      "aliases": ["Vspecial2"]
+    },
+    {
+      "name": "VSM3",
+      "description": "Volume of Special Mineral 3 Relative to Total Volume",
+      "property": "Volumetrics",
+      "scale": "Linear",
+      "range": { "min": 0, "max": 100, "unit": "percent" },
+      "typicalRange": { "min": 0, "max": 100, "unit": "percent" },
+      "color": { "r": 100, "g": 200, "b": 100 },
+      "aliases": ["Vspecial3"]
+    },
+    {
+      "name": "VSM4",
+      "description": "Volume of Special Mineral 4 Relative to Total Volume",
+      "property": "Volumetrics",
+      "scale": "Linear",
+      "range": { "min": 0, "max": 100, "unit": "percent" },
+      "typicalRange": { "min": 0, "max": 100, "unit": "percent" },
+      "color": { "r": 100, "g": 200, "b": 100 },
+      "aliases": ["Vspecial4"]
+    },
+    {
+      "name": "VSND",
+      "description": "Volume of Sand Relative to Total Volume",
+      "property": "Volumetrics",
+      "scale": "Linear",
+      "range": { "min": 0, "max": 100, "unit": "percent" },
+      "typicalRange": { "min": 0, "max": 100, "unit": "percent" },
+      "color": { "r": 100, "g": 200, "b": 100 },
+      "aliases": ["Vsand"]
+    },
+    {
+      "name": "VSVP",
+      "description": "Vs/Vp",
+      "property": "Elastic Ratio",
+      "scale": "Linear",
+      "range": { "min": 0.1, "max": 0.67 },
+      "typicalRange": { "min": 0.1, "max": 0.5 },
+      "color": { "r": 200, "g": 150, "b": 200 },
+      "aliases": ["VelocityRatioVSVP"]
+    },
+    {
+      "name": "VUGA",
+      "description": "Volume of Gas in Undisturbed Zone",
+      "property": "Volumetrics",
+      "scale": "Linear",
+      "range": { "min": 0, "max": 100, "unit": "percent" },
+      "typicalRange": { "min": 0, "max": 100, "unit": "percent" },
+      "color": { "r": 100, "g": 200, "b": 100 },
+      "aliases": ["Vgas undisturbed zone"]
+    },
+    {
+      "name": "VUIW",
+      "description": "Volume of Irreducible Water In Undisturbed Zone",
+      "property": "Volumetrics",
+      "scale": "Linear",
+      "range": { "min": 0, "max": 100, "unit": "percent" },
+      "typicalRange": { "min": 0, "max": 100, "unit": "percent" },
+      "color": { "r": 100, "g": 200, "b": 100 },
+      "aliases": ["Virreducible water undisturbed zone"]
+    },
+    {
+      "name": "VUOI",
+      "description": "Volume of Oil in Undisturbed Zone",
+      "property": "Volumetrics",
+      "scale": "Linear",
+      "range": { "min": 0, "max": 100, "unit": "percent" },
+      "typicalRange": { "min": 0, "max": 100, "unit": "percent" },
+      "color": { "r": 100, "g": 200, "b": 100 },
+      "aliases": ["Voil undisturbed zone"]
+    },
+    {
+      "name": "VUSF",
+      "description": "Volume of Special Fluid In Undisturbed Zone",
+      "property": "Volumetrics",
+      "scale": "Linear",
+      "range": { "min": 0, "max": 100, "unit": "percent" },
+      "typicalRange": { "min": 0, "max": 100, "unit": "percent" },
+      "color": { "r": 100, "g": 200, "b": 100 },
+      "aliases": ["Vspecial fluid undisturbed zone"]
+    },
+    {
+      "name": "VUWA",
+      "description": "Volume of Water in Undisturbed Zone",
+      "property": "Volumetrics",
+      "scale": "Linear",
+      "range": { "min": 0, "max": 100, "unit": "percent" },
+      "typicalRange": { "min": 0, "max": 100, "unit": "percent" },
+      "color": { "r": 100, "g": 200, "b": 100 },
+      "aliases": ["Vwater undisturbed zone"]
+    },
+    {
+      "name": "VXBW",
+      "description": "Volume of Bound Water in Flushed Zone",
+      "property": "Volumetrics",
+      "scale": "Linear",
+      "range": { "min": 0, "max": 100, "unit": "percent" },
+      "typicalRange": { "min": 0, "max": 100, "unit": "percent" },
+      "color": { "r": 100, "g": 200, "b": 100 },
+      "aliases": ["Vbound water flushed zone"]
+    },
+    {
+      "name": "VXGA",
+      "description": "Volume of Gas in Flushed Zone",
+      "property": "Volumetrics",
+      "scale": "Linear",
+      "range": { "min": 0, "max": 100, "unit": "percent" },
+      "typicalRange": { "min": 0, "max": 100, "unit": "percent" },
+      "color": { "r": 100, "g": 200, "b": 100 },
+      "aliases": ["Vgas flushed zone"]
+    },
+    {
+      "name": "VXIW",
+      "description": "Volume of Irreducible Water In Flushed Zone",
+      "property": "Volumetrics",
+      "scale": "Linear",
+      "range": { "min": 0, "max": 100, "unit": "percent" },
+      "typicalRange": { "min": 0, "max": 100, "unit": "percent" },
+      "color": { "r": 100, "g": 200, "b": 100 },
+      "aliases": ["Vireducible water flushed zone"]
+    },
+    {
+      "name": "VXOI",
+      "description": "Volume of Oil in Flushed Zone",
+      "property": "Volumetrics",
+      "scale": "Linear",
+      "range": { "min": 0, "max": 100, "unit": "percent" },
+      "typicalRange": { "min": 0, "max": 100, "unit": "percent" },
+      "color": { "r": 100, "g": 200, "b": 100 },
+      "aliases": ["Voil flushed zone"]
+    },
+    {
+      "name": "VXSF",
+      "description": "Volume of Special Fluid in Flushed Zone",
+      "property": "Volumetrics",
+      "scale": "Linear",
+      "range": { "min": 0, "max": 100, "unit": "percent" },
+      "typicalRange": { "min": 0, "max": 100, "unit": "percent" },
+      "color": { "r": 100, "g": 200, "b": 100 },
+      "aliases": ["Vspecial fluid flushed zone"]
+    },
+    {
+      "name": "VXWA",
+      "description": "Volume of Water in Flushed Zone",
+      "property": "Volumetrics",
+      "scale": "Linear",
+      "range": { "min": 0, "max": 100, "unit": "percent" },
+      "typicalRange": { "min": 0, "max": 100, "unit": "percent" },
+      "color": { "r": 100, "g": 200, "b": 100 },
+      "aliases": ["Vwater flushed zone"]
+    },
+    {
+      "name": "YME",
+      "description": "Young's modulus",
+      "property": "Pressure",
+      "scale": "Linear",
+      "range": { "min": 0, "max": 100, "unit": "gigapascal" },
+      "typicalRange": { "min": 0, "max": 50, "unit": "gigapascal" },
+      "color": { "r": 100, "g": 255, "b": 155 },
+      "aliases": ["Young Modulus"]
+    }
+  ]
+}

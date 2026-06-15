@@ -82,7 +82,7 @@ DF: Downhole Force`Force`Lin`````N````
 TENS: Cable Tension`Force`Lin`````N````
 BI: Brittleness index`Elastic Ratio`lin`````Ratio`72`209`204`
 TOC: Total Organic Carbon`Elastic Ratio`lin`````Ratio`255`215`0`
-PEF: Photoelectric Factor`Other`0`10`0`10``0`0`0`PE`PEFZ
+PEF: Photoelectric Factor`Other`Lin`0`10`0`10``0`0`0`PE`PEFZ
 REFL: Reflectivity`Other`Lin`-0.1`0.1`-0.1`0.1``0`0`0`
 SYNTH: Synthetic`Other`Lin``````0`0`255`
 SEIS: Seismic`Other`Lin``````255`0`0`
