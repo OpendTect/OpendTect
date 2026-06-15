@@ -291,7 +291,7 @@ bool uiImportFault::handleLMKAscii()
 		      "\n\nDo you want to import more %1?")
 		      .arg(tp);
     bool ret = uiMSG().askGoOn( msg, uiStrings::sYes(),
-				tr("No, close window") );
+				uiStrings::sNoCloseWindow() );
     return !ret;
 }
 
@@ -348,7 +348,7 @@ bool uiImportFault::handleAscii()
 		      "\n\nDo you want to import more %2?")
 		      .arg(tp).arg(tp);
     bool ret= uiMSG().askGoOn( msg, uiStrings::sYes(),
-				tr("No, close window") );
+				uiStrings::sNoCloseWindow() );
     return !ret;
 }
 

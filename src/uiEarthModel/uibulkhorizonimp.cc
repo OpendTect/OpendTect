@@ -251,7 +251,7 @@ bool uiBulkHorizonImport::acceptOK( CallBacker* )
 		      "\n\nDo you want to import more %1?")
 		      .arg( uiStrings::sHorizon(mPlural) );
 	const bool retval = uiMSG().askGoOn( msg, uiStrings::sYes(),
-				tr("No, close window") );
+					     uiStrings::sNoCloseWindow() );
 	return !retval;
     }
     else

@@ -201,7 +201,7 @@ bool uiSeisWvltGen::acceptOK( CallBacker* cb )
     const uiString msg = tr("Wavelet successfully created.\n\n"
 			    "Do you want to create more Wavelets?");
     const bool ret =
-	uiMSG().askGoOn( msg, uiStrings::sYes(),tr("No, close window") );
+	uiMSG().askGoOn( msg, uiStrings::sYes(),uiStrings::sNoCloseWindow() );
 
     return !ret;
 }
@@ -549,7 +549,7 @@ bool uiSeisWvltMerge::acceptOK( CallBacker* cb )
     const uiString msg = tr("Wavelets successfully merged.\n\n"
 			    "Do you want to merge more Wavelets?");
     const bool ret =
-	uiMSG().askGoOn( msg, uiStrings::sYes(), tr("No, close window") );
+	uiMSG().askGoOn( msg, uiStrings::sYes(), uiStrings::sNoCloseWindow() );
 
     return !ret;
 }

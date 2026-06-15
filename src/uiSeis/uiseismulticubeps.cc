@@ -373,6 +373,6 @@ bool uiSeisMultiCubePS::acceptOK( CallBacker* )
     const uiString msg = tr("Prestack Data Store creation successful. "
 			    "Create more?");
     const bool ret = uiMSG().askGoOn( msg, uiStrings::sYes(),
-				      tr("No, close window") );
+				      uiStrings::sNoCloseWindow() );
     return !ret;
 }

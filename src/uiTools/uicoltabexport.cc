@@ -247,6 +247,6 @@ bool uiColTabExport::acceptOK( CallBacker* )
     const uiString msg = tr( "Color Table(s) successfully exported."
 			    "\n\nDo you want to export more Color Tables?" );
     const bool ret = uiMSG().askGoOn( msg, uiStrings::sYes(),
-					   tr("No, close window") );
+					   uiStrings::sNoCloseWindow() );
     return !ret;
 }

@@ -265,7 +265,7 @@ bool uiWaveletExtraction::acceptOK( CallBacker* )
     const uiString msg = tr("Wavelet successfully extracted.\n\n"
 		      "Do you want to extract more Wavelets?");
     const bool ret =
-	uiMSG().askGoOn( msg, uiStrings::sYes(),tr("No, close window") );
+	uiMSG().askGoOn( msg, uiStrings::sYes(),uiStrings::sNoCloseWindow() );
 
     return !ret;
 }

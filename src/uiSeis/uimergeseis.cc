@@ -114,7 +114,7 @@ bool uiMergeSeis::acceptOK( CallBacker* )
 
     const uiString msg = tr("Seismic Data merge was successful. Merge more?");
     const bool ret = uiMSG().askGoOn( msg, uiStrings::sYes(),
-					   tr("No, close window") );
+					   uiStrings::sNoCloseWindow() );
     return !ret;
 }
 

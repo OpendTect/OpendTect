@@ -317,7 +317,7 @@ bool uiPreStackMergeDlg::acceptOK( CallBacker* )
 
     const uiString msg = tr("Prestack Merge was successful. Merge more?");
     const bool ret = uiMSG().askGoOn( msg, uiStrings::sYes(),
-					   tr("No, close window") );
+					   uiStrings::sNoCloseWindow() );
     return !ret;
 }
 
@@ -456,6 +456,6 @@ bool uiPreStackCopyDlg::acceptOK( CallBacker* )
 
     const uiString msg = tr("Prestack Copy was successful. Copy more?");
     const bool ret = uiMSG().askGoOn( msg, uiStrings::sYes(),
-					   tr("No, close window") );
+					   uiStrings::sNoCloseWindow() );
     return !ret;
 }

@@ -447,11 +447,14 @@ bool uiExport2DHorizon::acceptOK( CallBacker* )
 	return false;
     }
 
-    uiString msg = tr("2D %1 successfully exported."
-		      "\n\nDo you want to export more 2D %2?")
-		      .arg(uiStrings::sHorizon(isbulk_ ? mPlural:1))
-		      .arg(uiStrings::sHorizon(mPlural));
-    return !uiMSG().askGoOn(msg, uiStrings::sYes(), tr("No, close window"));
+    const uiString msg = tr("2D %1 successfully exported.\n\n"
+			    "Do you want to export more 2D %2?")
+			      .arg( uiStrings::sHorizon(isbulk_ ? mPlural:1) )
+			      .arg( uiStrings::sHorizon(mPlural) );
+    const bool ret = !uiMSG().askGoOn( msg, uiStrings::sYes(),
+				       uiStrings::sNoCloseWindow() );
+
+    return ret;
 }
 
 

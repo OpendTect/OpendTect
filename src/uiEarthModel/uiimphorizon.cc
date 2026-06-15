@@ -607,7 +607,7 @@ bool uiImportHorizon::acceptOK( CallBacker* )
     const uiString msg = tr("3D Horizon successfully imported."
 			    "\n\nDo you want to import more 3D Horizons?");
     const bool ret = uiMSG().askGoOn( msg, uiStrings::sYes(),
-					   tr("No, close window") );
+					   uiStrings::sNoCloseWindow() );
     return !ret;
 }
 
@@ -926,6 +926,6 @@ bool uiImpHorFromZMap::acceptOK( CallBacker* )
     const uiString msg = tr("ZMap grid successfully imported."
 			    "\n\nDo you want to import more grids?");
     const bool ret = uiMSG().askGoOn( msg, uiStrings::sYes(),
-					   tr("No, close window") );
+					   uiStrings::sNoCloseWindow() );
     return !ret;
 }

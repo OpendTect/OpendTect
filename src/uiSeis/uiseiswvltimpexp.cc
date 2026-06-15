@@ -135,7 +135,7 @@ bool uiSeisWvltImp::acceptOK( CallBacker* )
     const uiString msg = tr("Wavelet successfully imported."
 			    "\n\nDo you want to import more Wavelets?");
     const bool ret = uiMSG().askGoOn( msg, uiStrings::sYes(),
-				      tr("No, close window") );
+				      uiStrings::sNoCloseWindow() );
     return !ret;
 }
 
@@ -227,7 +227,7 @@ bool uiSeisWvltExp::acceptOK( CallBacker* )
     const uiString msg = tr("Wavelet successfully exported."
 			    "\nDo you want to export more Wavelets?");
     const bool ret = uiMSG().askGoOn( msg, uiStrings::sYes(),
-				      tr("No, close window") );
+				      uiStrings::sNoCloseWindow() );
     return !ret;
 }
 
@@ -298,6 +298,6 @@ bool uiSeisWvltCopy::acceptOK( CallBacker* )
     const uiString msg = tr("Wavelet successfully copied."
 			    "\nDo you want to copy more Wavelets?");
     const bool ret = uiMSG().askGoOn( msg, uiStrings::sYes(),
-				      tr("No, close window") );
+				      uiStrings::sNoCloseWindow() );
     return !ret;
 }

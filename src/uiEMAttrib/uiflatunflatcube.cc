@@ -225,6 +225,6 @@ bool uiFlatUnflatCube::acceptOK( CallBacker* )
 			.arg(doflat ? "flattened" : "unflattened" )
 			.arg(doflat ? "flattend" : "unflatten");
     const bool ret = uiMSG().askGoOn( msg, uiStrings::sYes(),
-				      tr("No, close window") );
+				      uiStrings::sNoCloseWindow() );
     return !ret;
 }

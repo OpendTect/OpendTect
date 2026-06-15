@@ -208,7 +208,7 @@ bool uiSeisCopyCube::acceptOK( CallBacker* )
 			     "Do you want to copy more %2?" )
 			     .arg(outioobj->name()).arg(outioobj->group());
     const bool ret = uiMSG().askGoOn( msg, uiStrings::sYes(),
-				      tr("No, close window") );
+				      uiStrings::sNoCloseWindow() );
 
     return !ret;
 }
@@ -362,6 +362,6 @@ bool uiSeisCopy2DDataSet::acceptOK( CallBacker* )
 			     "Do you want to copy more %2?" )
 			     .arg(outioobj->name()).arg(outioobj->group());
     const bool ret = uiMSG().askGoOn( msg, uiStrings::sYes(),
-				      tr("No, close window") );
+				      uiStrings::sNoCloseWindow() );
     return !ret;
 }

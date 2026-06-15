@@ -193,7 +193,7 @@ bool uiSeisImportCBVS::acceptOK( CallBacker* )
 	const uiString msg = tr("CBVS cube successfully imported."
 				"\n\nDo you want to import more cubes?");
 	const bool ret = uiMSG().askGoOn( msg, uiStrings::sYes(),
-				tr("No, close window") );
+				uiStrings::sNoCloseWindow() );
 	return !ret;
     }
 

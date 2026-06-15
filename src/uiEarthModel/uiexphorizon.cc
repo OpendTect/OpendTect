@@ -611,12 +611,12 @@ bool uiExportHorizon::acceptOK( CallBacker* )
       return false;
     }
 
-    uiString msg = tr("%1 successfully exported."
-			"\n\nDo you want to export more %2?").arg(
+    const uiString msg = tr("%1 successfully exported.\n\n"
+			    "Do you want to export more %2?").arg(
 				  uiStrings::sHorizon(!isbulk_?1:mPlural))
 				  .arg(uiStrings::sHorizon(mPlural));
-    bool ret = uiMSG().askGoOn( msg, uiStrings::sYes(),
-				tr("No, close window") );
+    const bool ret = uiMSG().askGoOn( msg, uiStrings::sYes(),
+				      uiStrings::sNoCloseWindow() );
     return !ret;
 }
 

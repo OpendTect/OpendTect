@@ -525,14 +525,14 @@ bool uiImpRokDocPDF::acceptOK( CallBacker* )
 	return false;
     }
 
-    uiString msg = tr("Successfully imported %1x%2 PDF as '%3'.\n\n"
-		      "Do you want to import more?" )
-		       .arg( pdf->size(0) )
-		       .arg( pdf2d ? pdf2d->size(1) : 1 )
-		       .arg( pdfioobj->getName().buf() );
+    const uiString msg = tr("Successfully imported %1x%2 PDF as '%3'.\n\n"
+			    "Do you want to import more?" )
+			       .arg( pdf->size(0) )
+			       .arg( pdf2d ? pdf2d->size(1) : 1 )
+			       .arg( pdfioobj->getName().buf() );
     delete pdf;
     const bool ret = uiMSG().askGoOn( msg, uiStrings::sYes(),
-				      tr("No, close window") );
+				      uiStrings::sNoCloseWindow() );
     return !ret;
 }
 

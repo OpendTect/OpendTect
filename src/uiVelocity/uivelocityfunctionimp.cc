@@ -178,7 +178,7 @@ bool uiImportVelFunc::acceptOK( CallBacker* )
 		      "\n\nDo you want to import more Velocity Functions?");
 
     bool ret = uiMSG().askGoOn( msg, uiStrings::sYes(),
-			       tr("No, close window") );
+			       uiStrings::sNoCloseWindow() );
     return !ret;
 }
 

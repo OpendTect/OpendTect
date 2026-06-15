@@ -145,11 +145,11 @@ bool uiImportMute::acceptOK( CallBacker* )
 	    uiMSG().error( errormsg );
     }
 
-    const uiString msg = tr("Mute Function '%1' successfully imported."
-			    " Import more?")
+    const uiString msg = tr("Mute Function '%1' successfully imported. "
+			    "Import more?")
 			     .arg( outfld_->getInput() );
     const bool ret = uiMSG().askGoOn( msg, uiStrings::sYes(),
-					   tr("No, close window") );
+					   uiStrings::sNoCloseWindow() );
     return !ret;
 }
 

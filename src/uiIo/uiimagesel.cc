@@ -236,9 +236,11 @@ bool uiImportImageDlg::acceptOK( CallBacker* )
     const MultiID dbky = ioobj->key();;
     importDone.trigger( dbky );
 
-    uiString msg = tr("Image successfully imported."
-		      "\nDo you want to import more Images?");
-    return !uiMSG().askGoOn(msg, uiStrings::sYes(), tr("No, close window"));
+    const uiString msg = tr("Image successfully imported.\n"
+			    "Do you want to import more Images?");
+    const bool ret = uiMSG().askGoOn( msg, uiStrings::sYes(),
+				      uiStrings::sNoCloseWindow() );
+    return !ret;
 }
 
 

@@ -288,11 +288,7 @@ void uiMeasureDlg::fill( const TypeSet<Coord3>& points )
 	if ( dipunitfld_->currentItem() == 0 ) // Degrees
 	{
 	    if ( SI().zIsTime() )
-	    {
 		totzdist *= velocity / 2;
-		if ( SI().depthsInFeet() )
-		    totzdist *= mFromFeetFactorD;
-	    }
 
 	    dipval = mIsZero(tothdist,1e-3) ? 90.f
 			: Math::toDegrees( Math::Atan2(totzdist,tothdist) );

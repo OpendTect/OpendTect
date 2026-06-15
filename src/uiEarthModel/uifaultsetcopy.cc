@@ -111,7 +111,7 @@ bool uiFault2FaultSet::acceptOK( CallBacker* )
     const uiString msg = tr("Faults successfully written to FaultSet.\n"
 			    "Do you want to copy more faults?");
     const bool ret = uiMSG().askGoOn( msg, uiStrings::sYes(),
-				    tr("No, close window") );
+				      uiStrings::sNoCloseWindow() );
     return !ret;
 }
 

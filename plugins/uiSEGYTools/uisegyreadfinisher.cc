@@ -937,6 +937,7 @@ bool uiSEGYReadFinisher::acceptOK( CallBacker* )
 			     .arg( outioobj->getName().buf() )
 			     .arg( importmore );
 
-    const bool ret = uiMSG().askGoOn( msg, importmore, tr("No, close window") );
+    const bool ret = uiMSG().askGoOn( msg, importmore,
+				      uiStrings::sNoCloseWindow() );
     return !ret;
 }

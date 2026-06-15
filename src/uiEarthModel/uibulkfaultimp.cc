@@ -601,7 +601,7 @@ bool uiBulkFaultImport::acceptOK( CallBacker* )
 	}
 
 	const bool ret = uiMSG().askGoOn( msg, uiStrings::sYes(),
-				    tr("No, close window") );
+				    uiStrings::sNoCloseWindow() );
 	return !ret;
     }
     else

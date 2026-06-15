@@ -569,7 +569,7 @@ bool uiImportPickSet::acceptOK( CallBacker* )
 						  : tr("s") );
 
 	return !uiMSG().askGoOn( msg, uiStrings::sYes(),
-				      tr("No, close window") );
+				      uiStrings::sNoCloseWindow() );
     }
     else
 	mErrRet( tr("Not able to import the %1(s) requested").arg(shape) );
@@ -663,7 +663,10 @@ bool uiExportPickSet::acceptOK( CallBacker* )
     if ( !doExport() )
 	return false;
 
-    uiString msg = tr("Data successfully exported."
-		      "\n\nDo you want to export more PointSets or Polygons?");
-    return !uiMSG().askGoOn( msg, uiStrings::sYes(), tr("No, close window") );
+    const uiString msg = tr("Data successfully exported.\n\n"
+			"Do you want to export more PointSets or Polygons?");
+    const bool ret = uiMSG().askGoOn( msg, uiStrings::sYes(),
+				      uiStrings::sNoCloseWindow() );
+
+    return !ret;
 }

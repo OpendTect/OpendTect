@@ -2954,7 +2954,7 @@ bool uiCopyWellDlg::acceptOK( CallBacker* )
     const uiString msg = tr("Well successfully copied.\n\n"
 		      "Do you want to copy more Wells?");
     const bool ret =
-	uiMSG().askGoOn( msg, uiStrings::sYes(),tr("No, close window") );
+	uiMSG().askGoOn( msg, uiStrings::sYes(),uiStrings::sNoCloseWindow() );
 
     return !ret;
 }

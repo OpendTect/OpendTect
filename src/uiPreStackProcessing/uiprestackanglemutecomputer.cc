@@ -89,7 +89,7 @@ bool uiAngleMuteComputer::acceptOK(CallBacker*)
     const uiString msg = tr("Angle Mute Definition '%1' Computed. "
 			    "Compute more?").arg(mutedeffld_->getInput());
     const bool ret = uiMSG().askGoOn( msg, uiStrings::sYes(),
-				      tr("No, close window") );
+				      uiStrings::sNoCloseWindow() );
     return !ret;
 }
 

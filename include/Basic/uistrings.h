@@ -357,7 +357,7 @@ public:
     static uiString sDisplayAfterImport()
 					{ return tr("Display after import"); }
     static uiString sDisplayAfterCreate()
-					{ return tr("Display after create"); };
+					{ return tr("Display after create"); }
     static uiString sDistance()		{ return tr("Distance"); }
     static uiString sDone()		{ return tr("Done"); }
     static uiString sDown()		{ return tr("Down"); }
@@ -490,6 +490,7 @@ public:
     static uiString sNew()		{ return tr("New"); }
     static uiString sNext()		{ return tr("Next"); }
     static uiString sNo()		{ return tr("No"); }
+    static uiString sNoCloseWindow()	{ return tr("No, close window"); }
     static uiString sNoInfoAvailable(){ return tr("No information available"); }
     static uiString sNoLicense()	{ return tr("No License"); }
     static uiString sNoLogSel()		{ return tr("No log selected"); }

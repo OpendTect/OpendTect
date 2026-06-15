@@ -257,7 +257,7 @@ bool uiImportLogsDlg::acceptOK( CallBacker* )
     uiString msg = tr("Well Log successfully imported."
 		      "\n\nDo you want to import more Well Logs?");
     bool ret = uiMSG().askGoOn( msg, uiStrings::sYes(),
-				tr("No, close window") );
+				uiStrings::sNoCloseWindow() );
     return !ret;
 }
 

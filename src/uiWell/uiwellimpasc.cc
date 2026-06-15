@@ -354,7 +354,7 @@ bool uiWellImportAsc::acceptOK( CallBacker* )
 		      "\n\nDo you want to import more Well Tracks?")
 		       .arg(wd_.name());
     bool ret = uiMSG().askGoOn( msg, uiStrings::sYes(),
-				tr("No, close window") );
+				uiStrings::sNoCloseWindow() );
     return !ret;
 }
 
