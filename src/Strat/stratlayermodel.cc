@@ -224,19 +224,28 @@ bool Strat::LayerModel::readHeader( od_istream& strm,
     BufferString word;
     strm.getWord( word, false );
     if ( word[0] != '#' || word[1] != 'M' )
-	{ ErrMsg( "File needs to start with '#M'" ); return false; }
+    {
+	ErrMsg( "File needs to start with '#M'" );
+	return false;
+    }
 
     int nrprops = 0;
     strm >> nrprops >> nrseqs;
     if ( nrprops < 1 )
-	{ ErrMsg( "No properties found in file" ); return false; }
+    {
+	ErrMsg( "No properties found in file" );
+	return false;
+    }
     strm.skipLine();
 
     BufferString keyw;
     strm.getWord( keyw );
     mathpreserve = keyw == "#MATH";
     if ( mathpreserve )
-	{ strm.skipLine(); strm.skipWord(); }
+    {
+	strm.skipLine();
+	strm.skipWord();
+    }
 
     for ( int iprop=0; iprop<nrprops; iprop++ )
     {
@@ -258,7 +267,10 @@ bool Strat::LayerModel::readHeader( od_istream& strm,
     }
 
     if ( !strm.isOK() )
-	{ ErrMsg("No sequences found"); return false; }
+    {
+	ErrMsg("No sequences found");
+	return false;
+    }
 
     return true;
 }
@@ -341,7 +353,10 @@ int nextStep() override
     const float ovvel = separlinestr.size()>3 ? separlinestr.getFValue( 3 )
 					      : abovevel_;
     if ( !strm_.isOK() )
+    {
+	delete seq;
 	return ErrorOccurred();
+    }
 
     const int nrprops = lm_.propertyRefs().size();
     BufferString word;
@@ -369,7 +384,8 @@ int nextStep() override
 	    newlay->setContent( c ? *c : Content::unspecified() );
 	}
 
-	float val; strm_ >> val;
+	float val;
+	strm_ >> val;
 	newlay->setThickness( val );
 	if ( mathpreserve_ )
 	{
@@ -381,7 +397,8 @@ int nextStep() override
 		    newlay->setValue( iprop, toFloat(txt) );
 		else
 		{
-		    IOPar iop; iop.getFrom( txt );
+		    IOPar iop;
+		    iop.getFrom( txt );
 		    newlay->setValue( iprop, iop, lm_.proprefs_ );
 		}
 	    }
@@ -593,7 +610,10 @@ void Strat::LayerModelSuite::addModel( const char* dsc, const uiString& uidsc )
 void Strat::LayerModelSuite::removeModel( int idx )
 {
     if ( idx < 1 )
-	{ pErrMsg("attempt to remove base model"); return; }
+    {
+	pErrMsg("attempt to remove base model");
+	return;
+    }
 
     const bool haded = hasEditedData();
 

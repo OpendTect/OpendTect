@@ -111,7 +111,7 @@ namespace Strat
 {
 
 RefTree::RefTree()
-    : NodeOnlyUnitRef(0,"","Contains all units")
+    : NodeOnlyUnitRef(nullptr,"","Contains all units")
     , objectToBeDeleted(this)
     , unitAdded(this)
     , unitChanged(this)
@@ -191,11 +191,17 @@ void RefTree::setToActualTypes()
 	LeavedUnitRef* un = chrefs[idx];
 	NodeUnitRef* par = un->upNode();
 	if ( un->hasChildren() )
-	    { norefs += un; continue; }
+	{
+	    norefs += un;
+	    continue;
+	}
 
 	const LithologyID lithid( un->levelID().asInt() );
 	auto* newun = new LeafUnitRef( par, lithid, un->description() );
-	IOPar iop; un->putPropsTo( iop ); newun->getPropsFrom( iop );
+
+	IOPar iop;
+	un->putPropsTo( iop );
+	newun->getPropsFrom( iop );
 	delete par->replace( par->indexOf(un), newun );
     }
     for ( int idx=0; idx<norefs.size(); idx++ )
@@ -207,7 +213,10 @@ void RefTree::setToActualTypes()
 	NodeUnitRef* par = un->upNode();
 	auto* newun = new NodeOnlyUnitRef( par, un->code(), un->description() );
 	newun->takeChildrenFrom( un );
-	IOPar iop; un->putPropsTo( iop ); newun->getPropsFrom( iop );
+
+	IOPar iop;
+	un->putPropsTo( iop );
+	newun->getPropsFrom( iop );
 	delete par->replace( par->indexOf(un), newun );
     }
 }
@@ -215,10 +224,15 @@ void RefTree::setToActualTypes()
 
 bool RefTree::read( od_istream& strm )
 {
-    deepErase( refs_ ); liths_.setEmpty(); deepErase( contents_ );
+    deepErase( refs_ );
+    liths_.setEmpty();
+    deepErase( contents_ );
     ascistream astrm( strm, true );
     if ( !astrm.isOfFileType(sKeyStratTree) )
-	{ initTree(); return false; }
+    {
+	initTree();
+	return false;
+    }
 
     while ( !atEndOfSection( astrm.next() ) )
     {
@@ -245,7 +259,8 @@ bool RefTree::read( od_istream& strm )
 	    {
 		char* contnm = keyw.find( '.' ) + 1;
 		char* contkeyw = firstOcc( contnm, '.' );
-		*contkeyw = '\0'; contkeyw++;
+		*contkeyw = '\0';
+		contkeyw++;
 		Content* c = contents_.getByName( contnm );
 		if ( c )
 		{
@@ -257,7 +272,10 @@ bool RefTree::read( od_istream& strm )
     }
 
     if ( !astrm.isOK() )
-	{ initTree(); return false; }
+    {
+	initTree();
+	return false;
+    }
 
     astrm.next(); // Read away the line: 'Units'
     while ( !atEndOfSection( astrm.next() ) )
@@ -403,13 +421,16 @@ void Strat::RefTree::addLevelUnit( const Strat::Level& lvl )
 	}
     }
 
-    auto* belownoderef = const_cast<Strat::NodeOnlyUnitRef*> (belownode);
+    auto* belownoderef = const_cast<Strat::NodeOnlyUnitRef*>(belownode);
     auto* lur =	new Strat::LeavedUnitRef( belownoderef, lvl.name(),
 					  BufferString("Below",lvl.name()) );
     lur->setLevelID( lvl.id() );
     lur->add( new Strat::LeafUnitRef(lur) );
-    belownoderef->add( lur );
 
+    if ( belownoderef )
+	belownoderef->add( lur );
+    else
+	pErrMsg( "Below node ref is null" );
 }
 
 
