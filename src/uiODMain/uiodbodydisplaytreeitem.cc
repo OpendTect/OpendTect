@@ -98,7 +98,11 @@ bool uiODBodyDisplayParentTreeItem::showSubMenu()
 	plg->setNewName();
 	plg->setFullyLoaded( true );
 	addChild( new uiODBodyDisplayTreeItem( plg->id() ), false );
-    }
+
+	// Switch to Interact mode for polygon editing
+	ODMainWin()->applMgr().visServer()->setWorkMode( 
+		uiVisPartServer::Interactive, true );
+	}
     else if ( mnuid==2 || mnuid==3 )
     {
 	MouseCursorChanger mcc( MouseCursor::Wait );
@@ -197,23 +201,24 @@ uiTreeItem* uiODBodyDisplayTreeItemFactory::createForVis( const VisID& visid,
 
 
 uiODBodyDisplayTreeItem::uiODBodyDisplayTreeItem()
-    : uiODDisplayTreeItem()
-    , savemnuitem_(uiStrings::sSave())
-    , saveasmnuitem_(uiStrings::sSaveAs())
-    , displaybodymnuitem_(uiStrings::sGeobody())
-    , displaypolygonmnuitem_(uiODBodyDisplayTreeItem::sPickedPolygons())
-    , displayintersectionmnuitem_(uiStrings::sOnlyAtSections())
-    , singlecolormnuitem_(uiStrings::sUseSingleColor())
-    , volcalmnuitem_(m3Dots(uiODBodyDisplayTreeItem::sCalcVolume()))
+	: uiODDisplayTreeItem()
+	, savemnuitem_(uiStrings::sSave())
+	, saveasmnuitem_(uiStrings::sSaveAs())
+	, displaybodymnuitem_(uiStrings::sGeobody())
+	, displaypolygonmnuitem_(uiODBodyDisplayTreeItem::sPickedPolygons())
+	, displayintersectionmnuitem_(uiStrings::sOnlyAtSections())
+	, singlecolormnuitem_(uiStrings::sUseSingleColor())
+	, volcalmnuitem_(m3Dots(uiODBodyDisplayTreeItem::sCalcVolume()))
+	, closepolygonmnuitem_(tr("Close Polygon"))
 {
-    displaybodymnuitem_.checkable = true;
-    displaypolygonmnuitem_.checkable = true;
-    displayintersectionmnuitem_.checkable = true;
-    singlecolormnuitem_.checkable = true;
-    savemnuitem_.iconfnm = "save";
-    saveasmnuitem_.iconfnm = "saveas";
-    mAttachCB( NotSavedPrompter::NSP().promptSaving,
-	       uiODBodyDisplayTreeItem::askSaveCB );
+	displaybodymnuitem_.checkable = true;
+	displaypolygonmnuitem_.checkable = true;
+	displayintersectionmnuitem_.checkable = true;
+	singlecolormnuitem_.checkable = true;
+	savemnuitem_.iconfnm = "save";
+	saveasmnuitem_.iconfnm = "saveas";
+	mAttachCB( NotSavedPrompter::NSP().promptSaving,
+		   uiODBodyDisplayTreeItem::askSaveCB );
 }
 
 
@@ -269,13 +274,16 @@ bool uiODBodyDisplayTreeItem::init()
 	mDynamicCastGet( EM::RandomPosBody*, emrpb, object );
 	if ( emplg )
 	{
-	    RefMan<visSurvey::PolygonBodyDisplay> plg =
-					    new visSurvey::PolygonBodyDisplay;
-	    if ( !plg->setEMID(emid_) )
+		RefMan<visSurvey::PolygonBodyDisplay> plg =
+						new visSurvey::PolygonBodyDisplay;
+		if ( !plg->setEMID(emid_) )
 		return false;
 
-	    displayid_ = plg->id();
-	    visserv_->addObject( plg.ptr(), sceneID(), true);
+		displayid_ = plg->id();
+		visserv_->addObject( plg.ptr(), sceneID(), true);
+
+		// Switch to Interact mode for polygon editing
+		visserv_->setWorkMode( uiVisPartServer::Interactive, true );
 	}
 	else if ( emmcs )
 	{
@@ -461,17 +469,20 @@ void uiODBodyDisplayTreeItem::createMenu( MenuHandler* menu, bool istb )
     const bool enablesave = applMgr()->EMServer()->isChanged(emid_) &&
 			    applMgr()->EMServer()->isFullyLoaded(emid_);
 
-    ConstRefMan<visSurvey::PolygonBodyDisplay> plg = getPBDisplay();
-    if ( plg )
-    {
+	ConstRefMan<visSurvey::PolygonBodyDisplay> plg = getPBDisplay();
+	if ( plg )
+	{
 	mAddMenuItem( &displaymnuitem_, &displaybodymnuitem_, true,
-		      plg->isBodyDisplayed() );
+			  plg->isBodyDisplayed() );
 	mAddMenuItem( &displaymnuitem_, &displaypolygonmnuitem_, true,
-		      plg->arePolygonsDisplayed() );
+			  plg->arePolygonsDisplayed() );
 	mAddMenuItem( &displaymnuitem_, &displayintersectionmnuitem_, true,
-		      plg->displayedOnlyAtSections() );
+			  plg->displayedOnlyAtSections() );
 	mAddMenuItem( menu, &displaymnuitem_, true, true );
-    }
+
+	// Add "Close Polygon" menu item - always show for polygon bodies
+	mAddMenuItem( menu, &closepolygonmnuitem_, true, false );
+	}
 
     ConstRefMan<visSurvey::MarchingCubesDisplay> mcd = getMCDisplay();
     if ( mcd )
@@ -572,12 +583,19 @@ void uiODBodyDisplayTreeItem::handleMenuCB( CallBacker* cb )
 	plg->display( polygondisplay, bodydisplayed );
 	plg->setOnlyAtSectionsDisplay( !polygondisplay && !bodydisplayed );
     }
-    else if ( mnuid==displayintersectionmnuitem_.id )
-    {
+	else if ( mnuid==displayintersectionmnuitem_.id )
+	{
 	const bool intersectdisplay = !displayintersectionmnuitem_.checked;
 	setOnlyAtSectionsDisplay( intersectdisplay );
-    }
-    else if ( mnuid==singlecolormnuitem_.id )
+	}
+	else if ( mnuid==closepolygonmnuitem_.id )
+	{
+	// Close Polygon action
+	RefMan<visSurvey::PolygonBodyDisplay> plg = getPBDisplay();
+	if ( plg )
+		plg->closePolygon();
+	}
+	else if ( mnuid==singlecolormnuitem_.id )
     {
 	mcd->useTexture( !mcd->showsTexture(), true );
     }

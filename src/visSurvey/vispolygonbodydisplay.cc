@@ -30,24 +30,27 @@ namespace visSurvey
 PolygonBodyDisplay::PolygonBodyDisplay()
     : visBase::VisualObjectImpl(true)
 {
-    ref();
-    nearestpolygonmarker_ = visBase::PolyLine3D::create();
-    drawstyle_ = visBase::DrawStyle::create();
-    intsurf_ = visBase::TriangleStripSet::create();
-    if ( !nearestpolygonmarker_->getMaterial() )
-    {
+	ref();
+	nearestpolygonmarker_ = visBase::PolyLine3D::create();
+	drawstyle_ = visBase::DrawStyle::create();
+	intsurf_ = visBase::TriangleStripSet::create();
+	if ( !nearestpolygonmarker_->getMaterial() )
+	{
 	RefMan<visBase::Material> newmat = visBase::Material::create();
+	newmat->setColor( OD::Color(255, 255, 0) );  // Yellow
 	nearestpolygonmarker_->setMaterial( newmat.ptr() );
-    }
+	}
 
-    addChild( nearestpolygonmarker_->osgNode() );
-    getMaterial()->setAmbience( 0.2 );
+	addChild( nearestpolygonmarker_->osgNode() );
+	getMaterial()->setAmbience( 0.2 );
 
-    nearestpolygonmarker_->setPrimitiveType(Geometry::PrimitiveSet::LineStrips);
+	nearestpolygonmarker_->setPrimitiveType(Geometry::PrimitiveSet::LineStrips);
 
-    drawstyle_->setLineStyle( OD::LineStyle(OD::LineStyle::Solid,2) );
+	// Set line style with width 3 and yellow color
+	drawstyle_->setLineStyle( OD::LineStyle(OD::LineStyle::Solid, 3, OD::Color(255, 255, 0)) );
+	nearestpolygonmarker_->setLineStyle( OD::LineStyle(OD::LineStyle::Solid, 3, OD::Color(255, 255, 0)) );
 
-    intsurf_->turnOn( false );
+	intsurf_->turnOn( false );
     intsurf_->setNormalBindType( visBase::VertexShape::BIND_PER_VERTEX );
     intsurf_->setColorBindType( visBase::VertexShape::BIND_OVERALL );
     intsurf_->setRenderMode( visBase::RenderBothSides );
@@ -235,8 +238,8 @@ bool PolygonBodyDisplay::setEMID( const EM::ObjectID& emid )
 	setLineRadius( intersectiondisplay_.ptr() );
     }
 
-    if ( !polygondisplay_ )
-    {
+	if ( !polygondisplay_ )
+	{
 	polygondisplay_ = visBase::GeomIndexedShape::create();
 	polygondisplay_->setDisplayTransformation( displaytransform_.ptr() );
 	polygondisplay_->setMaterial( getMaterial() );
@@ -246,7 +249,9 @@ bool PolygonBodyDisplay::setEMID( const EM::ObjectID& emid )
 					Geometry::PrimitiveSet::LineStrips );
 	addChild( polygondisplay_->osgNode() );
 	setLineRadius( polygondisplay_.ptr() );
-    }
+	// Always keep this off - we use openpolygonline_ instead
+	polygondisplay_->turnOn( false );
+	}
 
     const float zscale = scene_
 			? scene_->getZScale() *scene_->getFixedZStretch()
@@ -258,35 +263,77 @@ bool PolygonBodyDisplay::setEMID( const EM::ObjectID& emid )
 	explicitbody_->display( false, true );
     }
 
-    if ( !explicitpolygons_ )
-    {
+	if ( !explicitpolygons_ )
+	{
 	explicitpolygons_ = new Geometry::ExplPolygonSurface( 0, zscale );
-	explicitpolygons_->display( true, false );
-    }
+	explicitpolygons_->display( false, false );  // Don't display - we use openpolygonline_
+	}
 
-    if ( !explicitintersections_ )
+	if ( !explicitintersections_ )
 	explicitintersections_ = new Geometry::ExplPlaneIntersection();
 
-    mDynamicCastGet( Geometry::PolygonSurface*, polygonsurface,
-		     empolygonsurf_->geometryElement())
+	mDynamicCastGet( Geometry::PolygonSurface*, polygonsurface,
+			 empolygonsurf_->geometryElement())
 
-    explicitbody_->setPolygonSurface( polygonsurface );
-    bodydisplay_->setSurface( explicitbody_ );
+	explicitbody_->setPolygonSurface( polygonsurface );
+	bodydisplay_->setSurface( explicitbody_ );
 
-    explicitintersections_->setShape( *explicitbody_ );
-    intersectiondisplay_->setSurface( explicitintersections_ );
+	explicitintersections_->setShape( *explicitbody_ );
+	intersectiondisplay_->setSurface( explicitintersections_ );
 
-    explicitpolygons_->setPolygonSurface( polygonsurface );
-    polygondisplay_->setSurface( explicitpolygons_ );
+	// Don't set surface for polygon display - we're not using it
+	// explicitpolygons_->setPolygonSurface( polygonsurface );
+	// polygondisplay_->setSurface( explicitpolygons_ );
 
-    if ( !viseditor_ )
-    {
+	// Force polygon display OFF - never use it
+	polygondisplay_->turnOn( false );
+
+	// Create our custom polygon line early
+	if ( !openpolygonline_ )
+	{
+	openpolygonline_ = visBase::PolyLine::create();
+	openpolygonline_->setDisplayTransformation( displaytransform_.ptr() );
+
+	// Create and set material with yellow color
+	RefMan<visBase::Material> linemat = visBase::Material::create();
+	linemat->setColor( OD::Color(255, 255, 0) );  // Yellow
+	openpolygonline_->setMaterial( linemat.ptr() );
+
+	// Set line style with width 3 and YELLOW color
+	OD::LineStyle lnstyle( OD::LineStyle::Solid, 3, OD::Color(255, 255, 0) );
+	openpolygonline_->setLineStyle( lnstyle );
+
+	// Add to scene graph
+	addChild( openpolygonline_->osgNode() );
+
+	// Note: setLineStyle with width>0 automatically turns it on (line 100 in vispolyline.cc)
+	}
+
+	if ( !viseditor_ )
+	{
 	viseditor_ = MPEEditor::create();
 	viseditor_->setSceneEventCatcher( eventcatcher_.ptr() );
 	viseditor_->setDisplayTransformation( displaytransform_.ptr() );
-	viseditor_->sower().alternateSowingOrder();
+
+	// DON'T use alternateSowingOrder - it causes zig-zag
+	// viseditor_->sower().alternateSowingOrder();
+
+	// Connect to sowing finished callback
+	viseditor_->sower().sowingend.notify( mCB(this,PolygonBodyDisplay,sowingFinishedCB) );
+
 	addChild( viseditor_->osgNode() );
-    }
+
+	// Ensure markers render on top of lines
+	viseditor_->turnOn( true );
+
+	// Set marker style: size 5, yellow color, Cube shape
+	MarkerStyle3D markerstyle;
+	markerstyle.type_ = MarkerStyle3D::Cube;
+	markerstyle.size_ = 5;
+	markerstyle.color_ = OD::Color(255, 255, 0);  // Yellow
+	viseditor_->setMarkerStyle( markerstyle );
+	viseditor_->setMarkerSize( 5.0f );
+	}
 
     RefMan<MPE::ObjectEditor> polygonsurfeditor = getMPEEditor( true );
     if ( polygonsurfeditor )
@@ -306,20 +353,101 @@ bool PolygonBodyDisplay::setEMID( const EM::ObjectID& emid )
 
 void PolygonBodyDisplay::touchAll( bool yn, bool updatemarker )
 {
-    if ( bodydisplay_ )
+	if ( bodydisplay_ )
 	bodydisplay_->touch( yn );
 
-    if ( polygondisplay_ )
-	polygondisplay_->touch( yn );
+	// Always use custom rendering for polygon tracking (no Bezier)
+	const int nrpolygons = empolygonsurf_ ? 
+		empolygonsurf_->geometry().nrPolygons() : 0;
 
-    if ( intersectiondisplay_ )
-    {
+	if ( nrpolygons > 0 && openpolygonline_ )
+	{
+	// Update polygon line with current knots (straight line segments)
+	openpolygonline_->removeAllPoints();
+	mDynamicCastGet( const Geometry::PolygonSurface*, polygonsurface,
+			 empolygonsurf_->geometryElement() )
+	if ( polygonsurface )
+	{
+		const int activepolygon = 0;
+		const StepInterval<int> colrg = 
+		polygonsurface->colRange( activepolygon );
+		if ( !colrg.isUdf() )
+		{
+		// Add all knots as straight line segments
+		// CRITICAL: Apply display transformation to convert world ? display coordinates
+		for ( int col=colrg.start_; col<=colrg.stop_; col+=colrg.step_ )
+		{
+			const Coord3 pos = 
+			polygonsurface->getKnot( RowCol(activepolygon,col) );
+			if ( pos.isDefined() )
+			{
+			Coord3 displaypos = pos;
+			// Apply display transformation if available
+			if ( displaytransform_ )
+				displaytransform_->transform( displaypos );
+			openpolygonline_->addPoint( displaypos );
+			}
+		}
+
+		// If closed, add first point again to close the loop
+		if ( polygonclosed_ && colrg.width() > 0 )
+		{
+			const Coord3 firstpos = 
+			polygonsurface->getKnot( RowCol(activepolygon, colrg.start_) );
+			if ( firstpos.isDefined() )
+			{
+			Coord3 displaypos = firstpos;
+			// Apply display transformation if available
+			if ( displaytransform_ )
+				displaytransform_->transform( displaypos );
+			openpolygonline_->addPoint( displaypos );
+			}
+		}
+		}
+	}
+
+	// Notify that coordinates have changed
+	openpolygonline_->dirtyCoordinates();
+
+	// Only turn on line if we have at least 2 points
+	const int nrpoints = openpolygonline_->size();
+	if ( nrpoints >= 2 )
+		openpolygonline_->turnOn( true );
+	else
+		openpolygonline_->turnOn( false );
+	}
+	else
+	{
+	// No polygons - hide everything
+	if ( openpolygonline_ )
+		openpolygonline_->turnOn( false );
+	}
+
+	// ALWAYS hide the default Bezier-based polygon display
+	if ( polygondisplay_ )
+	{
+	polygondisplay_->turnOn( false );
+	polygondisplay_->touch( yn );
+	}
+
+	if ( intersectiondisplay_ )
+	{
 	intersectiondisplay_->touch( yn );
 	reMakeIntersectionSurface();
-    }
+	}
 
-    if ( updatemarker )
+	if ( updatemarker )
 	updateNearestPolygonMarker();
+}
+
+
+void PolygonBodyDisplay::closePolygon()
+{
+	if ( !polygonclosed_ )
+	{
+	polygonclosed_ = true;
+	touchAll( false, true );  // Force marker update to show closing segment
+	}
 }
 
 
@@ -383,30 +511,31 @@ OD::Color PolygonBodyDisplay::getColor() const
 
 void PolygonBodyDisplay::updatePolygonDisplay()
 {
-    if ( !polygondisplay_ )
+	if ( !polygondisplay_ )
 	return;
 
-    const bool dodisplay = displaypolygons_ ||
-	(isBodyDisplayed() && isManipulatorShown()) ||
-	(isBodyDisplayed() && empolygonsurf_->geometry().nrPolygons()==1);
-
-    polygondisplay_->turnOn( dodisplay );
+	// Never show the default Bezier polygon display - we use custom openpolygonline_ instead
+	polygondisplay_->turnOn( false );
 }
 
 
 void PolygonBodyDisplay::display( bool polygons, bool body )
 {
-    displaypolygons_ = polygons;
+	displaypolygons_ = polygons;
 
-    if ( nearestpolygonmarker_ )
+	if ( nearestpolygonmarker_ )
 	nearestpolygonmarker_->turnOn( polygons || body );
 
-    viseditor_->turnOn( (polygons || body) && showmanipulator_ );
+	viseditor_->turnOn( (polygons || body) && showmanipulator_ );
 
-    if ( bodydisplay_ )
+	if ( bodydisplay_ )
 	bodydisplay_->turnOn( body );
 
-    updatePolygonDisplay();
+	// Show our custom polygon line if polygons should be displayed
+	if ( openpolygonline_ )
+	openpolygonline_->turnOn( polygons );
+
+	updatePolygonDisplay();
 }
 
 
@@ -523,147 +652,884 @@ Coord3 PolygonBodyDisplay::disp2world( const Coord3& displaypos ) const
 
 void PolygonBodyDisplay::mouseCB( CallBacker* cb )
 {
-    if ( !empolygonsurf_ || !polygonsurfeditor_ || !isOn() || !viseditor_ ||
-	 !viseditor_->isOn() || eventcatcher_->isHandled() || !isSelected() )
+	if ( !empolygonsurf_ || !polygonsurfeditor_ || !isOn() || !viseditor_ ||
+	 !viseditor_->isOn() || !isSelected() )
 	return;
 
-    mCBCapsuleUnpack(const visBase::EventInfo&,eventinfo,cb);
+	mCBCapsuleUnpack(const visBase::EventInfo&,eventinfo,cb);
 
-    polygonsurfeditor_->setSowingPivot(
-				disp2world(viseditor_->sower().pivotPos()) );
-    if ( viseditor_->sower().accept(eventinfo) )
+	if ( locked_ )
 	return;
 
-    TrcKeyZSampling mouseplanecs;
-    mouseplanecs.setEmpty();
+	// Handle double-click to close polygon BEFORE checking if handled
+	if ( eventinfo.type == visBase::MouseDoubleClick )
+	{
+	const int nrpolygons = empolygonsurf_->geometry().nrPolygons();
+	if ( nrpolygons > 0 && !polygonclosed_ )
+	{
+		// Close the polygon
+		polygonclosed_ = true;
+		touchAll( false, true );  // Force marker update to show closing segment
+		eventcatcher_->setHandled();
+	}
+	return;
+	}
 
-    for ( int idx=0; idx<eventinfo.pickedobjids.size(); idx++ )
-    {
+	// Check if already handled after double-click check
+	if ( eventcatcher_->isHandled() )
+	return;
+
+	const float zscale = scene_
+				? scene_->getZScale() *scene_->getFixedZStretch()
+				: SI().zScale();
+
+	// Enable sower for click-and-drag (works for both open and closed polygons)
+	// Check if Ctrl is pressed for erase mode
+	const bool iserasemode = OD::ctrlKeyboardButton(eventinfo.buttonstate_);
+
+	if ( iserasemode )
+	{
+		// Handle Ctrl+Drag deletion - record start/end positions
+		if ( eventinfo.type == visBase::MouseClick && eventinfo.pressed )
+		{
+		// Start of Ctrl+Drag - ALWAYS reset state first
+		iserasing_ = false;
+		erasestartpos_ = Coord3::udf();
+		eraseendpos_ = Coord3::udf();
+
+		// Now record start position
+		Coord3 pos = disp2world( eventinfo.displaypickedpos );
+		if ( pos.isDefined() )
+		{
+			iserasing_ = true;
+			erasestartpos_ = pos;
+			eraseendpos_ = pos;
+			eventcatcher_->setHandled();
+		}
+		return;
+		}
+		else if ( eventinfo.type == visBase::MouseMovement && eventinfo.pressed )
+		{
+		// During drag - update end position
+		if ( iserasing_ )
+		{
+			Coord3 pos = disp2world( eventinfo.displaypickedpos );
+			if ( pos.isDefined() )
+			{
+			eraseendpos_ = pos;
+			eventcatcher_->setHandled();
+			}
+		}
+		return;
+		}
+		else if ( eventinfo.type == visBase::MouseClick && !eventinfo.pressed )
+		{
+		// End of Ctrl+Drag - check if it was a drag or just a click
+		if ( iserasing_ )
+		{
+			Coord3 pos = disp2world( eventinfo.displaypickedpos );
+			if ( pos.isDefined() )
+			{
+			eraseendpos_ = pos;
+
+			// Check if there was actual movement (drag) vs just a click
+			const double dx = fabs(eraseendpos_.x_ - erasestartpos_.x_);
+			const double dy = fabs(eraseendpos_.y_ - erasestartpos_.y_);
+			const double dragdist = sqrt(dx*dx + dy*dy);
+			const double clickthreshold = 10.0; // Minimum distance to be considered a drag
+
+			if ( dragdist > clickthreshold )
+			{
+				// It was a drag - delete all points in rectangle
+				eraseKnotsBetweenDragPositions();
+			}
+			else
+			{
+				// It was just a click - delete single nearest point
+				eraseKnotsNearPosition( pos );
+			}
+			}
+
+			// Always reset state after release
+			iserasing_ = false;
+			erasestartpos_ = Coord3::udf();
+			eraseendpos_ = Coord3::udf();
+			eventcatcher_->setHandled();
+		}
+		else
+		{
+			// Release without being in erase mode - ensure clean state
+			iserasing_ = false;
+			erasestartpos_ = Coord3::udf();
+			eraseendpos_ = Coord3::udf();
+		}
+		return;
+		}
+		else if ( !eventinfo.pressed && !iserasing_ )
+		{
+		// Ctrl is held but we're not in erase mode - might be leftover state
+		// Make sure state is clean
+		iserasing_ = false;
+		erasestartpos_ = Coord3::udf();
+		eraseendpos_ = Coord3::udf();
+		}
+	}
+	else
+	{
+		// Normal sowing mode - if we were erasing, cancel it
+		if ( iserasing_ )
+		{
+		iserasing_ = false;
+		erasestartpos_ = Coord3::udf();
+		eraseendpos_ = Coord3::udf();
+		}
+
+		// Normal sowing mode
+		polygonsurfeditor_->setSowingPivot( 
+		disp2world(viseditor_->sower().pivotPos()) );
+
+		if ( viseditor_->sower().accept(eventinfo) )
+		return;
+	}
+
+	if ( eventinfo.type != visBase::MouseClick ||
+	 !OD::leftMouseButton(eventinfo.buttonstate_) )
+	return;
+
+	Coord3 pos = disp2world( eventinfo.displaypickedpos );
+	if ( !pos.isDefined() )
+	return;
+
+	// Get plane information for edit normal
+	TrcKeyZSampling mouseplanecs;
+	mouseplanecs.setEmpty();
+	for ( int idx=0; idx<eventinfo.pickedobjids.size(); idx++ )
+	{
 	const VisID visid = eventinfo.pickedobjids[idx];
 	visBase::DataObject* dataobj = visBase::DM().getObject( visid );
 	mDynamicCastGet(PlaneDataDisplay*,plane,dataobj)
 	if ( plane )
 	{
-	    mouseplanecs = plane->getTrcKeyZSampling();
-	    break;
+		mouseplanecs = plane->getTrcKeyZSampling();
+		break;
 	}
-    }
+	}
 
-    if ( locked_ )
+	// Get interaction info for knot manipulation
+	EM::PosID nearestpid0, nearestpid1, insertpid;
+
+	// Safety check before calling getInteractionInfo
+	if ( !polygonsurfeditor_ || !empolygonsurf_ )
 	return;
 
-    Coord3 pos = disp2world( eventinfo.displaypickedpos );
-
-    EM::PosID nearestpid0, nearestpid1, insertpid;
-    const float zscale = scene_
-			    ? scene_->getZScale() *scene_->getFixedZStretch()
-			    : SI().zScale();
-
-    polygonsurfeditor_->getInteractionInfo( nearestpid0, nearestpid1,
-					    insertpid, pos, zscale );
-    const int nearestpolygon =
+	polygonsurfeditor_->getInteractionInfo( nearestpid0, nearestpid1,
+						insertpid, pos, zscale );
+	const int nearestpolygon =
 	nearestpid0.isUdf() ? mUdf(int) : insertpid.getRowCol().row();
 
-    if ( nearestpolygon_!=nearestpolygon )
-    {
+	if ( nearestpolygon_!=nearestpolygon )
+	{
 	nearestpolygon_ = nearestpolygon;
 	updateNearestPolygonMarker();
-    }
+	}
 
-    if ( !pos.isDefined() )
+	// Handle Ctrl+Click to remove knot/polygon
+	if ( !viseditor_ )
 	return;
 
-    if ( eventinfo.type!=visBase::MouseClick )
-	return;
-
-    const EM::PosID pid = viseditor_->mouseClickDragger(eventinfo.pickedobjids);
-    if ( !pid.isUdf() )
-    {
-	if ( OD::ctrlKeyboardButton(eventinfo.buttonstate_) &&
-	     !OD::altKeyboardButton(eventinfo.buttonstate_) &&
-	     !OD::shiftKeyboardButton(eventinfo.buttonstate_) &&
-	     OD::leftMouseButton(eventinfo.buttonstate_) )
+	const EM::PosID pid = viseditor_->mouseClickDragger(eventinfo.pickedobjids);
+	if ( !pid.isUdf() )
 	{
-	    eventcatcher_->setHandled();
-	    if ( !eventinfo.pressed )
-	    {
+	if ( OD::ctrlKeyboardButton(eventinfo.buttonstate_) &&
+		 !OD::altKeyboardButton(eventinfo.buttonstate_) &&
+		 !OD::shiftKeyboardButton(eventinfo.buttonstate_) &&
+		 !eventinfo.pressed )
+	{
 		const int removepolygon = pid.getRowCol().row();
 		const bool res = empolygonsurf_->geometry().nrKnots(
 			removepolygon)==1  ?
-		    empolygonsurf_->geometry().removePolygon(
-			    removepolygon, true )
-		    : empolygonsurf_->geometry().removeKnot(
-			    pid.subID(), true );
+		empolygonsurf_->geometry().removePolygon(
+			removepolygon, true )
+		: empolygonsurf_->geometry().removeKnot(
+			pid.subID(), true );
 
 		polygonsurfeditor_->setLastClicked( EM::PosID::udf() );
 
-		if ( res && !viseditor_->sower().moreToSow() )
+		if ( res )
 		{
-		    EM::EMM().undo(empolygonsurf_->id()).setUserInteractionEnd(
+		EM::EMM().undo(empolygonsurf_->id()).setUserInteractionEnd(
 			EM::EMM().undo(empolygonsurf_->id()).currentEventID() );
-		    touchAll( false );
+		touchAll( false );
 		}
-	    }
+		eventcatcher_->setHandled();
+	}
+	return;
 	}
 
-	return;
-    }
-
-    if ( OD::altKeyboardButton(eventinfo.buttonstate_) ||
+	// Don't add points if modifier keys are pressed
+	if ( OD::altKeyboardButton(eventinfo.buttonstate_) ||
 	 OD::ctrlKeyboardButton(eventinfo.buttonstate_) ||
-	 !OD::leftMouseButton(eventinfo.buttonstate_) )
+	 OD::shiftKeyboardButton(eventinfo.buttonstate_) )
 	return;
 
-    if ( mouseplanecs.isEmpty() )
-	return;
+	// Allow adding points to both open and closed polygons
+	// The geometry supports this - polygonclosed_ is just a visual flag
+	// Just ensure the event is handled to prevent deselection
 
-    const OD::Color& prefcol = empolygonsurf_->preferredColor();
-    if ( viseditor_->sower().activate(prefcol, eventinfo) )
-	return;
+	// SIMPLIFIED DRAG HANDLING
+	// Rule 1: First drag (no polygon) - always use sower
+	// Rule 2: Drag from first point - prepend (for future implementation)
+	// Rule 3: Drag from last point - append
+	// Rule 4: Drag from middle - DO NOTHING (disabled)
 
-    if ( eventinfo.pressed || insertpid.isUdf() )
-	return;
+	// Handle sower activation on press
+	if ( eventinfo.pressed )
+	{
+	if ( !empolygonsurf_ )
+		return;
 
-    if ( nearestpid0.isUdf() )
-    {
+	const int activepolygon = 0;
+	const int nrpolygons = empolygonsurf_->geometry().nrPolygons();
+	const int nrknots = (nrpolygons > 0) ? empolygonsurf_->geometry().nrKnots(activepolygon) : 0;
+
+	if ( nrpolygons == 0 || nrknots == 0 )
+	{
+		// No polygon yet or empty polygon - always use sower for initial creation
+		const OD::Color& prefcol = empolygonsurf_->preferredColor();
+		if ( viseditor_->sower().activate(prefcol, eventinfo) )
+		{
+		isdragging_ = true;
+		draginsertmode_ = 0; // Append
+		return;
+		}
+	}
+	else if ( nrknots > 0 )
+	{
+		// Polygon exists - check if dragging from first or last point
+		mDynamicCastGet( Geometry::PolygonSurface*, polygonsurface,
+				 empolygonsurf_->geometryElement() )
+		if ( !polygonsurface )
+		return;
+
+		// Get sampling intervals
+		const double inl_dist = SI().inlDistance();
+		const double crl_dist = SI().crlDistance();
+		const double z_step = SI().zStep();
+		const double xy_step = (inl_dist + crl_dist) / 2.0;
+
+		// Find nearest knot to drag start
+		int nearest_idx = -1;
+		double min_dist = 1e30;
+
+		for ( int idx=0; idx<nrknots; idx++ )
+		{
+		const Coord3 knotpos = polygonsurface->getKnot( RowCol(activepolygon, idx) );
+		if ( !knotpos.isDefined() )
+			continue;
+
+		const double dx_norm = (knotpos.x_ - pos.x_) / xy_step;
+		const double dy_norm = (knotpos.y_ - pos.y_) / xy_step;
+		const double dz_norm = (knotpos.z_ - pos.z_) / z_step;
+		const double dist = sqrt(dx_norm*dx_norm + dy_norm*dy_norm + dz_norm*dz_norm);
+
+		if ( dist < min_dist )
+		{
+			min_dist = dist;
+			nearest_idx = idx;
+		}
+		}
+
+		// Only allow drag from first or last point
+		if ( nearest_idx == 0 )
+		{
+		// Drag from first point - use sower for prepend (future: change to mode 1)
+		draginsertmode_ = 0; // For now, append
+		const OD::Color& prefcol = empolygonsurf_->preferredColor();
+		if ( viseditor_->sower().activate(prefcol, eventinfo) )
+		{
+			isdragging_ = true;
+			return;
+		}
+		}
+		else if ( nearest_idx == nrknots - 1 )
+		{
+		// Drag from last point - use sower for append
+		draginsertmode_ = 0; // Append
+		const OD::Color& prefcol = empolygonsurf_->preferredColor();
+		if ( viseditor_->sower().activate(prefcol, eventinfo) )
+		{
+			isdragging_ = true;
+			return;
+		}
+		}
+		else
+		{
+		// Drag from middle - DO NOTHING
+		// Don't activate sower, mark event as handled to prevent click insertion
+		eventcatcher_->setHandled();
+		return;
+		}
+	}
+
+	return; // Don't add point on press, wait for release
+	}
+
+	// On release, continue to point insertion
+	// Reset drag state - if we reach here, it's a single click (not drag)
+	isdragging_ = false;
+	draginsertmode_ = 0;
+
+	// Only add points on mouse release
+	// Determine edit normal from plane
 	Coord3 editnormal(0,0,1);
-
+	if ( !mouseplanecs.isEmpty() )
+	{
 	if ( mouseplanecs.defaultDir()==TrcKeyZSampling::Inl )
-	    editnormal = Coord3( SI().transform(BinID(1,0)) -
+		editnormal = Coord3( SI().transform(BinID(1,0)) -
 				 SI().transform(BinID(0,0)), 0 );
 	else if ( mouseplanecs.defaultDir()==TrcKeyZSampling::Crl )
-	    editnormal = Coord3( SI().transform(BinID(0,1)) -
+		editnormal = Coord3( SI().transform(BinID(0,1)) -
 				 SI().transform(BinID(0,0)), 0 );
+	}
 
-	if ( empolygonsurf_->geometry().insertPolygon(
-	       insertpid.getRowCol().row(), 0, pos, editnormal, true ) )
+	// Get or create active polygon (always use polygon 0 for simplicity)
+	const int nrpolygons = empolygonsurf_->geometry().nrPolygons();
+	const int activepolygon = 0;
+
+	// If no polygon exists, create one with the first point
+	if ( nrpolygons == 0 )
 	{
-	    polygonsurfeditor_->setLastClicked( insertpid );
-	    if ( !viseditor_->sower().moreToSow() )
-	    {
-		EM::EMM().undo(empolygonsurf_->id()).setUserInteractionEnd(
-		    EM::EMM().undo(empolygonsurf_->id()).currentEventID() );
+	if ( !empolygonsurf_->geometry().insertPolygon(
+		activepolygon, 0, pos, editnormal, true ) )
+		return;
 
+	polygonclosed_ = false; // Start with open polygon
+
+	// Polygon created with first point - done for this point
+	// Subsequent drag points will go through the else block below
+	EM::EMM().undo(empolygonsurf_->id()).setUserInteractionEnd(
+		EM::EMM().undo(empolygonsurf_->id()).currentEventID() );
+	touchAll( false );
+	polygonsurfeditor_->editpositionchange.trigger();
+	eventcatcher_->setHandled();
+	return;
+	}
+	else
+	{
+	// Insert knot at the appropriate position
+	// Safety check: ensure we have valid polygon geometry
+	if ( !empolygonsurf_ )
+	{
+		eventcatcher_->setHandled();
+		return;
+	}
+
+	const int nrknots = empolygonsurf_->geometry().nrKnots(activepolygon);
+	if ( nrknots < 0 )
+	{
+		eventcatcher_->setHandled();
+		return;
+	}
+
+	// Get the geometry element for additional validation
+	mDynamicCastGet( Geometry::PolygonSurface*, polygonsurface,
+			 empolygonsurf_->geometryElement() )
+	if ( !polygonsurface )
+	{
+		eventcatcher_->setHandled();
+		return;
+	}
+
+	// REFINED INSERTION ALGORITHM:
+	// For DRAG mode: Use consistent prepend/append
+	// For CLICK mode: Find nearest knot and determine best insertion point
+
+	// Get sampling intervals for normalized distance calculation
+	const double inl_dist = SI().inlDistance();
+	const double crl_dist = SI().crlDistance();
+	const double z_step = SI().zStep();
+	const double xy_step = (inl_dist + crl_dist) / 2.0;
+
+	int insert_position = -1;
+
+	if ( isdragging_ )
+	{
+		// DRAG MODE: Always append - simplest, most predictable
+		insert_position = nrknots;
+	}
+	else
+	{
+		// CLICK MODE: Find nearest knot and determine insertion strategy
+		int nearest_knot_idx = -1;
+		double min_dist = 1e30;
+
+		for ( int idx=0; idx<nrknots; idx++ )
+		{
+		const Coord3 knotpos = polygonsurface->getKnot( RowCol(activepolygon, idx) );
+		if ( !knotpos.isDefined() )
+			continue;
+
+		// Normalized distance in sample space
+		const double dx_norm = (knotpos.x_ - pos.x_) / xy_step;
+		const double dy_norm = (knotpos.y_ - pos.y_) / xy_step;
+		const double dz_norm = (knotpos.z_ - pos.z_) / z_step;
+		const double dist = sqrt(dx_norm*dx_norm + dy_norm*dy_norm + dz_norm*dz_norm);
+
+		if ( dist < min_dist )
+		{
+			min_dist = dist;
+			nearest_knot_idx = idx;
+		}
+		}
+
+		if ( nearest_knot_idx == -1 )
+		{
+		eventcatcher_->setHandled();
+		return;
+		}
+
+		// Determine insertion position based on nearest knot
+		if ( nearest_knot_idx == 0 )
+		{
+		// Case 1: Nearest is FIRST point - insert at beginning
+		insert_position = 0;
+		}
+		else if ( nearest_knot_idx == nrknots - 1 )
+		{
+		// Case 2: Nearest is LAST point - add at end
+		insert_position = nrknots;
+		}
+		else
+		{
+		// Case 3: Nearest is MIDDLE point - find which neighbor is closer
+		// Better approach: check which SEGMENT the new point is closest to
+		const int prev_idx = nearest_knot_idx - 1;
+		const int next_idx = nearest_knot_idx + 1;
+
+		const Coord3 nearest_pos = polygonsurface->getKnot( RowCol(activepolygon, nearest_knot_idx) );
+		const Coord3 prev_pos = polygonsurface->getKnot( RowCol(activepolygon, prev_idx) );
+		const Coord3 next_pos = polygonsurface->getKnot( RowCol(activepolygon, next_idx) );
+
+		double dist_to_prev_segment = 1e30;
+		double dist_to_next_segment = 1e30;
+
+		// Distance to segment between prev and nearest
+		if ( prev_pos.isDefined() && nearest_pos.isDefined() )
+		{
+			const Coord3 segvec = nearest_pos - prev_pos;
+			const double seglen = segvec.abs();
+			if ( seglen > 0.001 )
+			{
+			const Coord3 pointvec = pos - prev_pos;
+			double t = pointvec.dot(segvec) / (seglen * seglen);
+			t = t < 0.0 ? 0.0 : (t > 1.0 ? 1.0 : t);
+			const Coord3 projection = prev_pos + segvec * t;
+			dist_to_prev_segment = pos.distTo( projection );
+			}
+		}
+
+		// Distance to segment between nearest and next
+		if ( nearest_pos.isDefined() && next_pos.isDefined() )
+		{
+			const Coord3 segvec = next_pos - nearest_pos;
+			const double seglen = segvec.abs();
+			if ( seglen > 0.001 )
+			{
+			const Coord3 pointvec = pos - nearest_pos;
+			double t = pointvec.dot(segvec) / (seglen * seglen);
+			t = t < 0.0 ? 0.0 : (t > 1.0 ? 1.0 : t);
+			const Coord3 projection = nearest_pos + segvec * t;
+			dist_to_next_segment = pos.distTo( projection );
+			}
+		}
+
+		// Insert on the segment that's closer
+		if ( dist_to_prev_segment <= dist_to_next_segment )
+		{
+		// Closer to prev-nearest segment - insert between them
+		insert_position = nearest_knot_idx;
+		}
+		else
+		{
+		// Closer to nearest-next segment - insert between them
+		insert_position = next_idx;
+		}
+		}
+	}
+
+	// Reset drag state after insertion (in case sower adds multiple points)
+	// We'll keep the mode consistent for the entire drag operation
+	// isdragging_ will be reset when drag finishes
+
+	// Perform the insertion
+	const EM::SubID subid = RowCol(activepolygon, insert_position).toInt64();
+	if ( !empolygonsurf_->geometry().insertKnot(subid, pos, true) )
+	{
+		eventcatcher_->setHandled();
+		// Reset drag state on failure
+		isdragging_ = false;
+		draginsertmode_ = 0;
+		return;
+	}
+
+	// If this was a single click (not dragging), reset drag state
+	if ( !isdragging_ )
+	{
+		draginsertmode_ = 0;
+	}
+	// If dragging, keep the state for subsequent points in the drag
+	}
+
+	EM::EMM().undo(empolygonsurf_->id()).setUserInteractionEnd(
+	EM::EMM().undo(empolygonsurf_->id()).currentEventID() );
+	touchAll( false );
+	polygonsurfeditor_->editpositionchange.trigger();
+	eventcatcher_->setHandled();
+}
+
+
+void PolygonBodyDisplay::eraseKnotsBetweenDragPositions()
+{
+	if ( !empolygonsurf_ || !erasestartpos_.isDefined() || !eraseendpos_.isDefined() )
+	return;
+
+	const int activepolygon = 0;
+	const int nrknots = empolygonsurf_->geometry().nrKnots( activepolygon );
+	if ( nrknots < 2 )
+	return;
+
+	// Get the geometry element to access knot positions
+	mDynamicCastGet( Geometry::PolygonSurface*, polygonsurface,
+			 empolygonsurf_->geometryElement() )
+	if ( !polygonsurface )
+	return;
+
+	// Step 1: Find the knot nearest to the START position
+	// CRITICAL: Normalize by sampling intervals (bin size and time sample rate)
+	// to compute distance in terms of SAMPLE distance, not raw coordinate distance
+
+	int startknotidx = -1;
+	double mindist_start = 1e30;
+
+	// Get sampling intervals from survey info
+	const double inl_dist = SI().inlDistance();  // Inline spacing in meters
+	const double crl_dist = SI().crlDistance();  // Crossline spacing in meters
+	const double z_step = SI().zStep();          // Z sample rate (e.g., 0.004 for 4ms)
+
+	// Use the average horizontal bin size for X,Y normalization
+	const double xy_step = (inl_dist + crl_dist) / 2.0;
+
+	for ( int idx=0; idx<nrknots; idx++ )
+	{
+	const Coord3 knotpos = polygonsurface->getKnot( RowCol(activepolygon, idx) );
+	if ( !knotpos.isDefined() )
+		continue;
+
+	// Normalize distances by sampling intervals
+	const double dx_norm = (knotpos.x_ - erasestartpos_.x_) / xy_step;
+	const double dy_norm = (knotpos.y_ - erasestartpos_.y_) / xy_step;
+	const double dz_norm = (knotpos.z_ - erasestartpos_.z_) / z_step;
+
+	// Now compute distance in "sample space"
+	const double dist = sqrt(dx_norm*dx_norm + dy_norm*dy_norm + dz_norm*dz_norm);
+
+	if ( dist < mindist_start )
+	{
+		mindist_start = dist;
+		startknotidx = idx;
+	}
+	}
+
+	if ( startknotidx == -1 )
+	return;
+
+	// Step 2: Find the knot nearest to the end position
+	int endknotidx = -1;
+	double mindist_end = 1e30;
+
+	for ( int idx=0; idx<nrknots; idx++ )
+	{
+	const Coord3 knotpos = polygonsurface->getKnot( RowCol(activepolygon, idx) );
+	if ( !knotpos.isDefined() )
+		continue;
+
+	const double dist = eraseendpos_.distTo( knotpos );
+	if ( dist < mindist_end )
+	{
+		mindist_end = dist;
+		endknotidx = idx;
+	}
+	}
+
+	if ( endknotidx == -1 || startknotidx == endknotidx )
+	return;
+
+	// SIMPLE APPROACH: Follow the polygon from nearest start point 
+	// and delete until we pass the end position
+
+	// Step 1 & 2: Find nearest knot to START position (already done above)
+	// startknotidx is the nearest knot to erasestartpos_
+
+	// We don't use endknotidx from the global search - we'll find it sequentially!
+
+	// Step 3: Determine direction by checking which neighbor of startknotidx 
+	// is closer to the END position (using normalized distances)
+
+	// Get the two neighbors of startknotidx
+	const int neighbor_forward = (startknotidx + 1 < nrknots) ? startknotidx + 1 : -1;
+	const int neighbor_backward = (startknotidx - 1 >= 0) ? startknotidx - 1 : -1;
+
+	// Calculate normalized distances from neighbors to end position
+	// (using xy_step and z_step already defined above)
+	double dist_forward = 1e30;
+	double dist_backward = 1e30;
+
+	if ( neighbor_forward >= 0 )
+	{
+	const Coord3 knotpos = polygonsurface->getKnot( RowCol(activepolygon, neighbor_forward) );
+	if ( knotpos.isDefined() )
+	{
+		const double dx = (knotpos.x_ - eraseendpos_.x_) / xy_step;
+		const double dy = (knotpos.y_ - eraseendpos_.y_) / xy_step;
+		const double dz = (knotpos.z_ - eraseendpos_.z_) / z_step;
+		dist_forward = sqrt(dx*dx + dy*dy + dz*dz);
+	}
+	}
+
+	if ( neighbor_backward >= 0 )
+	{
+	const Coord3 knotpos = polygonsurface->getKnot( RowCol(activepolygon, neighbor_backward) );
+	if ( knotpos.isDefined() )
+	{
+		const double dx = (knotpos.x_ - eraseendpos_.x_) / xy_step;
+		const double dy = (knotpos.y_ - eraseendpos_.y_) / xy_step;
+		const double dz = (knotpos.z_ - eraseendpos_.z_) / z_step;
+		dist_backward = sqrt(dx*dx + dy*dy + dz*dz);
+	}
+	}
+
+	// Determine search direction
+	bool search_forward = true;
+
+	if ( neighbor_forward < 0 && neighbor_backward >= 0 )
+	{
+	// Only backward neighbor exists
+	search_forward = false;
+	}
+	else if ( neighbor_backward < 0 && neighbor_forward >= 0 )
+	{
+	// Only forward neighbor exists
+	search_forward = true;
+	}
+	else
+	{
+	// Both neighbors exist, choose the one closer to end position
+	search_forward = (dist_forward <= dist_backward);
+	}
+
+	// Step 4: Follow the direction SEQUENTIALLY and find where to stop
+	// Stop when the normalized distance to end position starts INCREASING
+
+	TypeSet<int> indicestodelete;
+
+	if ( search_forward )
+	{
+	// Search forward from startknotidx
+	int currentidx = startknotidx;
+	double prev_dist = 1e30;
+
+	// Start with the first knot
+	const Coord3 firstpos = polygonsurface->getKnot( RowCol(activepolygon, currentidx) );
+	if ( firstpos.isDefined() )
+	{
+		const double dx = (firstpos.x_ - eraseendpos_.x_) / xy_step;
+		const double dy = (firstpos.y_ - eraseendpos_.y_) / xy_step;
+		const double dz = (firstpos.z_ - eraseendpos_.z_) / z_step;
+		prev_dist = sqrt(dx*dx + dy*dy + dz*dz);
+	}
+
+	indicestodelete += currentidx;
+	currentidx++;
+
+	// Continue while distance is decreasing
+	while ( currentidx < nrknots )
+	{
+		const Coord3 knotpos = polygonsurface->getKnot( RowCol(activepolygon, currentidx) );
+		if ( knotpos.isDefined() )
+		{
+		const double dx = (knotpos.x_ - eraseendpos_.x_) / xy_step;
+		const double dy = (knotpos.y_ - eraseendpos_.y_) / xy_step;
+		const double dz = (knotpos.z_ - eraseendpos_.z_) / z_step;
+		const double current_dist = sqrt(dx*dx + dy*dy + dz*dz);
+
+		// Add this knot
+		indicestodelete += currentidx;
+
+		// If distance started increasing, we've passed the endpoint
+		if ( current_dist > prev_dist )
+		{
+			break;
+		}
+
+		prev_dist = current_dist;
+		}
+		currentidx++;
+	}
+	}
+	else
+	{
+	// Search backward from startknotidx
+	int currentidx = startknotidx;
+	double prev_dist = 1e30;
+
+	// Start with the first knot
+	const Coord3 firstpos = polygonsurface->getKnot( RowCol(activepolygon, currentidx) );
+	if ( firstpos.isDefined() )
+	{
+		const double dx = (firstpos.x_ - eraseendpos_.x_) / xy_step;
+		const double dy = (firstpos.y_ - eraseendpos_.y_) / xy_step;
+		const double dz = (firstpos.z_ - eraseendpos_.z_) / z_step;
+		prev_dist = sqrt(dx*dx + dy*dy + dz*dz);
+	}
+
+	indicestodelete += currentidx;
+	currentidx--;
+
+	// Continue while distance is decreasing
+	while ( currentidx >= 0 )
+	{
+		const Coord3 knotpos = polygonsurface->getKnot( RowCol(activepolygon, currentidx) );
+		if ( knotpos.isDefined() )
+		{
+		const double dx = (knotpos.x_ - eraseendpos_.x_) / xy_step;
+		const double dy = (knotpos.y_ - eraseendpos_.y_) / xy_step;
+		const double dz = (knotpos.z_ - eraseendpos_.z_) / z_step;
+		const double current_dist = sqrt(dx*dx + dy*dy + dz*dz);
+
+		// Add this knot
+		indicestodelete += currentidx;
+
+		// If distance started increasing, we've passed the endpoint
+		if ( current_dist > prev_dist )
+		{
+			break;
+		}
+
+		prev_dist = current_dist;
+		}
+		currentidx--;
+	}
+	}
+
+	// Delete knots in reverse order of their indices (to maintain valid indices)
+	// Sort indices in descending order first
+	for ( int i=0; i<indicestodelete.size()-1; i++ )
+	{
+	for ( int j=i+1; j<indicestodelete.size(); j++ )
+	{
+		if ( indicestodelete[i] < indicestodelete[j] )
+		{
+		// Swap
+		const int temp = indicestodelete[i];
+		indicestodelete[i] = indicestodelete[j];
+		indicestodelete[j] = temp;
+		}
+	}
+	}
+
+	// Now delete in descending order
+	// Each removeKnot with true creates its own undo event
+	// They will be grouped together if no setUserInteractionEnd is called between them
+
+	// Safety check: ensure we have valid geometry
+	if ( !empolygonsurf_ || indicestodelete.isEmpty() )
+		return;
+
+	int deletedcount = 0;
+	for ( int i=0; i<indicestodelete.size(); i++ )
+	{
+	const int knotidx = indicestodelete[i];
+	const int currentnrknots = empolygonsurf_->geometry().nrKnots(activepolygon);
+
+	// Bounds check with current knot count
+	if ( knotidx >= 0 && knotidx < currentnrknots )
+	{
+		const EM::SubID subid = RowCol(activepolygon, knotidx).toInt64();
+		// Use true to properly register undo events
+		const bool success = empolygonsurf_->geometry().removeKnot( subid, true );
+		if ( success )
+			deletedcount++;
+	}
+	}
+
+	// Close the undo event ONLY ONCE after all deletions
+	// This groups all the individual undo events into one user interaction
+	if ( deletedcount > 0 )
+	{
+	EM::EMM().undo(empolygonsurf_->id()).setUserInteractionEnd(
+		EM::EMM().undo(empolygonsurf_->id()).currentEventID() );
+	touchAll( false );
+	}
+}
+
+
+void PolygonBodyDisplay::sowingFinishedCB( CallBacker* )
+{
+	// The sower has finished
+	// Reset drag state
+	isdragging_ = false;
+	draginsertmode_ = 0;
+
+	// Update the display
+	touchAll( false );
+}
+
+
+void PolygonBodyDisplay::eraseKnotsNearPosition( const Coord3& pos )
+{
+	if ( !empolygonsurf_ || !polygonsurfeditor_ )
+	return;
+
+	const float zscale = scene_ ? scene_->getZScale() * scene_->getFixedZStretch()
+				: SI().zScale();
+
+	// Get interaction info to find nearest knot
+	EM::PosID nearestpid0, nearestpid1, insertpid;
+	polygonsurfeditor_->getInteractionInfo( nearestpid0, nearestpid1,
+						insertpid, pos, zscale );
+
+	// Define a threshold distance for erasing (in display units)
+	const float erasethreshold = 50.0f * zscale; // Adjust as needed
+
+	// Check if we're close enough to a knot to erase it
+	if ( !nearestpid0.isUdf() )
+	{
+	const Coord3 knotpos = empolygonsurf_->getPos( nearestpid0 );
+	if ( knotpos.isDefined() )
+	{
+		const float dist = (float) pos.distTo( knotpos );
+		if ( dist < erasethreshold )
+		{
+		// Remove this knot
+		const int polygon = nearestpid0.getRowCol().row();
+		const int nrknots = empolygonsurf_->geometry().nrKnots( polygon );
+
+		if ( nrknots == 1 )
+		{
+			// Last knot - remove entire polygon
+			empolygonsurf_->geometry().removePolygon( polygon, true );
+		}
+		else
+		{
+			// Remove just this knot
+			empolygonsurf_->geometry().removeKnot( nearestpid0.subID(), true );
+		}
+
+		// Update display
 		touchAll( false );
-		polygonsurfeditor_->editpositionchange.trigger();
-	    }
+		}
 	}
-    }
-    else
-    {
-	if ( empolygonsurf_->geometry().insertKnot(insertpid.subID(),pos,true) )
-	{
-	    polygonsurfeditor_->setLastClicked( insertpid );
-	    if ( !viseditor_->sower().moreToSow() )
-	    {
-		EM::EMM().undo(empolygonsurf_->id()).setUserInteractionEnd(
-		    EM::EMM().undo(empolygonsurf_->id()).currentEventID() );
-		polygonsurfeditor_->editpositionchange.trigger();
-	    }
 	}
-    }
-
-    eventcatcher_->setHandled();
 }
 
 
@@ -696,65 +1562,175 @@ void PolygonBodyDisplay::emChangeCB( CallBacker* cb )
 
 void PolygonBodyDisplay::updateNearestPolygonMarker()
 {
-    if ( mIsUdf(nearestpolygon_) || !isManipulatorShown() )
+	if ( mIsUdf(nearestpolygon_) || !isManipulatorShown() )
 	nearestpolygonmarker_->turnOn( false );
-    else
-    {
+	else
+	{
 	mDynamicCastGet( Geometry::PolygonSurface*, plgs,
 			 empolygonsurf_->geometryElement())
 
 	const StepInterval<int> rowrg = plgs->rowRange();
-	if ( rowrg.isUdf() || !rowrg.includes(nearestpolygon_,false) )
+	if ( rowrg.isUdf() || rowrg.width() < 0 )
 	{
-	    nearestpolygonmarker_->turnOn( false );
-	    return;
+		nearestpolygonmarker_->turnOn( false );
+		return;
 	}
 
-	const StepInterval<int> colrg = plgs->colRange( nearestpolygon_ );
+	// Always use polygon 0 for our single-polygon workflow
+	const int displaypolygon = 0;
+	if ( !rowrg.includes(displaypolygon, false) )
+	{
+		nearestpolygonmarker_->turnOn( false );
+		return;
+	}
+
+	const StepInterval<int> colrg = plgs->colRange( displaypolygon );
 	if ( colrg.isUdf() || colrg.start_==colrg.stop_ )
 	{
-	    nearestpolygonmarker_->turnOn( false );
-	    return;
+		nearestpolygonmarker_->turnOn( false );
+		return;
 	}
 
 	nearestpolygonmarker_->removeAllPrimitiveSets();
 	nearestpolygonmarker_->getCoordinates()->setEmpty();
 
-	int markeridx = 0;
-	TypeSet<Coord3> knots;
+	// Use nearestpolygonmarker to draw SMOOTH interpolated lines
+	// Get the knots and interpolate between them
 	TypeSet<int> idxps;
-	const float zfactor = scene_ ? scene_->getZScale() : SI().zScale();
-	plgs->getCubicBezierCurve( nearestpolygon_, knots, zfactor  );
-	for ( int idy=0; idy<knots.size(); idy++ )
+
+	// Collect all knot positions
+	TypeSet<Coord3> rawknots;
+	for ( int col=colrg.start_; col<=colrg.stop_; col+=colrg.step_ )
 	{
-	    nearestpolygonmarker_->getCoordinates()->addPos(knots[idy]);
-	    idxps.add( markeridx++ );
+		const Coord3 pos = plgs->getKnot( RowCol(displaypolygon, col) );
+		if ( pos.isDefined() )
+		rawknots += pos;
 	}
 
-	if ( markeridx>2 )
+	// Generate smooth interpolated curve through knots
+	const int nrknots = rawknots.size();
+	if ( nrknots >= 2 )
 	{
-	    nearestpolygonmarker_->getCoordinates()->addPos(knots[0]);
-	    idxps.add( markeridx++ );
-	}
+		// Add interpolated points between each pair of knots
+		const int interpsteps = 10; // Points per segment for smooth curve
 
-	RefMan<Geometry::IndexedPrimitiveSet> primitiveset =
-			    Geometry::IndexedPrimitiveSet::create( false );
-	idxps.add( idxps[0] );
-	primitiveset->append( idxps.arr(), idxps.size() );
-	nearestpolygonmarker_->addPrimitiveSet( primitiveset.ptr() );
-	nearestpolygonmarker_->turnOn( true );
-    }
+		for ( int kidx=0; kidx<nrknots-1; kidx++ )
+		{
+		const Coord3& p0 = rawknots[kidx];
+		const Coord3& p1 = rawknots[kidx+1];
+
+		// Get neighboring points for polynomial interpolation
+		const Coord3 pm1 = kidx > 0 ? rawknots[kidx-1] : p0;
+		const Coord3 p2 = kidx < nrknots-2 ? rawknots[kidx+2] : p1;
+
+		// Interpolate between p0 and p1 using 4-point polynomial
+		for ( int step=0; step<interpsteps; step++ )
+		{
+			const float t = float(step) / float(interpsteps);
+
+			// Catmull-Rom spline interpolation
+			const float t2 = t * t;
+			const float t3 = t2 * t;
+
+			Coord3 interp;
+			interp.x_ = 0.5f * ((2.0f*p0.x_) +
+				(-pm1.x_ + p1.x_) * t +
+				(2.0f*pm1.x_ - 5.0f*p0.x_ + 4.0f*p1.x_ - p2.x_) * t2 +
+				(-pm1.x_ + 3.0f*p0.x_ - 3.0f*p1.x_ + p2.x_) * t3);
+			interp.y_ = 0.5f * ((2.0f*p0.y_) +
+				(-pm1.y_ + p1.y_) * t +
+				(2.0f*pm1.y_ - 5.0f*p0.y_ + 4.0f*p1.y_ - p2.y_) * t2 +
+				(-pm1.y_ + 3.0f*p0.y_ - 3.0f*p1.y_ + p2.y_) * t3);
+			interp.z_ = 0.5f * ((2.0f*p0.z_) +
+				(-pm1.z_ + p1.z_) * t +
+				(2.0f*pm1.z_ - 5.0f*p0.z_ + 4.0f*p1.z_ - p2.z_) * t2 +
+				(-pm1.z_ + 3.0f*p0.z_ - 3.0f*p1.z_ + p2.z_) * t3);
+
+			nearestpolygonmarker_->getCoordinates()->addPos( interp );
+		}
+		}
+
+		// Add the final knot
+		nearestpolygonmarker_->getCoordinates()->addPos( rawknots[nrknots-1] );
+
+		// If closed, interpolate from last knot back to first
+		if ( polygonclosed_ && nrknots > 2 )
+		{
+		const Coord3& p0 = rawknots[nrknots-1];
+		const Coord3& p1 = rawknots[0];
+		const Coord3& pm1 = rawknots[nrknots-2];
+		const Coord3& p2 = rawknots[1];
+
+		for ( int step=1; step<=interpsteps; step++ )
+		{
+			const float t = float(step) / float(interpsteps);
+			const float t2 = t * t;
+			const float t3 = t2 * t;
+
+			Coord3 interp;
+			interp.x_ = 0.5f * ((2.0f*p0.x_) +
+				(-pm1.x_ + p1.x_) * t +
+				(2.0f*pm1.x_ - 5.0f*p0.x_ + 4.0f*p1.x_ - p2.x_) * t2 +
+				(-pm1.x_ + 3.0f*p0.x_ - 3.0f*p1.x_ + p2.x_) * t3);
+			interp.y_ = 0.5f * ((2.0f*p0.y_) +
+				(-pm1.y_ + p1.y_) * t +
+				(2.0f*pm1.y_ - 5.0f*p0.y_ + 4.0f*p1.y_ - p2.y_) * t2 +
+				(-pm1.y_ + 3.0f*p0.y_ - 3.0f*p1.y_ + p2.y_) * t3);
+			interp.z_ = 0.5f * ((2.0f*p0.z_) +
+				(-pm1.z_ + p1.z_) * t +
+				(2.0f*pm1.z_ - 5.0f*p0.z_ + 4.0f*p1.z_ - p2.z_) * t2 +
+				(-pm1.z_ + 3.0f*p0.z_ - 3.0f*p1.z_ + p2.z_) * t3);
+
+			nearestpolygonmarker_->getCoordinates()->addPos( interp );
+		}
+		}
+
+		// Create primitive set for line strip
+		const int nrpoints = nearestpolygonmarker_->getCoordinates()->size();
+		if ( nrpoints >= 2 )
+		{
+		// Build sequential indices
+		TypeSet<int> indices;
+		for ( int idx=0; idx<nrpoints; idx++ )
+			indices += idx;
+
+		RefMan<Geometry::IndexedPrimitiveSet> primitiveset =
+			Geometry::IndexedPrimitiveSet::create( false );
+		primitiveset->setPrimitiveType( Geometry::PrimitiveSet::LineStrips );
+		primitiveset->append( indices.arr(), indices.size() );
+		nearestpolygonmarker_->addPrimitiveSet( primitiveset.ptr() );
+
+		nearestpolygonmarker_->turnOn( true );
+		}
+		else
+		{
+		nearestpolygonmarker_->turnOn( false );
+		}
+	}
+	else
+	{
+		nearestpolygonmarker_->turnOn( false );
+	}
+	}
 }
 
 
 void PolygonBodyDisplay::showManipulator( bool yn )
 {
-    if ( showmanipulator_==yn )
+	if ( showmanipulator_==yn )
 	return;
 
-    showmanipulator_ = yn;
-    updatePolygonDisplay();
-    updateManipulator();
+	showmanipulator_ = yn;
+
+	// When showing manipulator (editing mode), request interact mode
+	if ( yn && scene_ )
+	{
+	// Signal that we need interact mode
+	scene_->objectMoved( nullptr );
+	}
+
+	updatePolygonDisplay();
+	updateManipulator();
 }
 
 

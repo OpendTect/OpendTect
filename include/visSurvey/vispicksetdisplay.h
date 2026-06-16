@@ -72,19 +72,30 @@ public:
 
     void			redrawAll(int draggeridx=-1);
 
-    void			fillPar(IOPar&) const override;
-    bool			usePar(const IOPar&) override;
+	void			fillPar(IOPar&) const override;
+	bool			usePar(const IOPar&) override;
+
+	void			setOnlyAtSectionsDisplay(bool) override;
+	bool			displayedOnlyAtSections() const override;
+
+	void			erasePointsBetweenDragPositions();
+	void			erasePointsNearPosition(const Coord3&);
+
+	bool			iserasing_	= false;
+	Coord3			erasestartpos_	= Coord3::udf();
+	Coord3			eraseendpos_	= Coord3::udf();
+	bool			displayonlyatsections_ = false;
 
 protected:
-				~PickSetDisplay();
+			~PickSetDisplay();
 
-    void			setPosition(int loc,const Pick::Location&);
-    void			setPosition(int idx,const Pick::Location&,
-					    bool add=false) override;
-    Coord3			getPosition(int loc) const;
-    void			removePosition(int idx) override;
-    void			removeAll() override;
-    void			redrawMultiSets() override;
+	void			setPosition(int loc,const Pick::Location&);
+	void			setPosition(int idx,const Pick::Location&,
+					bool add=false) override;
+	Coord3			getPosition(int loc) const;
+	void			removePosition(int idx) override;
+	void			removeAll() override;
+	void			redrawMultiSets() override;
 
     void			setPolylinePos(int,const Coord3&);
     void			removePolylinePos(int);
@@ -107,25 +118,25 @@ protected:
 
     void			turnOnSelectionMode(bool) override;
     void			polygonFinishedCB(CallBacker*);
-    void			updateSelections(
-					    const visBase::PolygonSelection*);
-    bool			updateMarkerAtSection(const SurveyObject*,int);
-    void			updateLineAtSection();
+	void			updateSelections(
+					const visBase::PolygonSelection*);
+	bool			updateMarkerAtSection(const SurveyObject*,int);
+	void			updateLineAtSection();
 
-    bool			removeSelections(TaskRunner*) override;
-    bool			draggerNormal() const override;
-    void			setDraggerNormal(const Coord3&) override;
+	bool			removeSelections(TaskRunner*) override;
+	bool			draggerNormal() const override;
+	void			setDraggerNormal(const Coord3&) override;
 
-    RefMan<visBase::MarkerSet>	markerset_;
-    bool			needline_	= false;
+	RefMan<visBase::MarkerSet>	markerset_;
+	bool			needline_	= false;
 
-    RefMan<visBase::RandomPos2Body> bodydisplay_;
-    bool			shoulddisplaybody_	= false;
-    RefMan<visBase::Dragger>	dragger_;
-    int				draggeridx_	= -1;
-    bool			showdragger_	= false;
+	RefMan<visBase::RandomPos2Body> bodydisplay_;
+	bool			shoulddisplaybody_	= false;
+	RefMan<visBase::Dragger>	dragger_;
+	int				draggeridx_	= -1;
+	bool			showdragger_	= false;
 
-    static const char*		sKeyNrPicks();
+	static const char*		sKeyNrPicks();
     static const char*		sKeyPickPrefix();
     static const char*		sKeyDisplayBody();
 

@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "survgeom2d.h"
 #include "uistrings.h"
 #include "vismaterial.h"
+#include "vispicksetdisplay.h"
 #include "visplanedatadisplay.h"
 #include "visrandomtrackdisplay.h"
 #include "visseis2ddisplay.h"
@@ -226,18 +227,107 @@ bool LocationDisplay::displayedOnlyAtSections() const
 
 void LocationDisplay::pickCB( CallBacker* cb )
 {
-    if ( painter_ && painter_->isActive() )
+	if ( painter_ && painter_->isActive() )
 	return;
 
-    if ( !set_ || set_->isReadOnly() )
+	if ( !set_ || set_->isReadOnly() )
 	return;
 
-    if ( !isSelected() || !isOn() || isLocked() ) return;
+	if ( !isSelected() || !isOn() || isLocked() ) return;
 
-    mCBCapsuleUnpack( const visBase::EventInfo&, eventinfo, cb );
-    ctrldown_ = OD::ctrlKeyboardButton( eventinfo.buttonstate_ );
+	mCBCapsuleUnpack( const visBase::EventInfo&, eventinfo, cb );
+	ctrldown_ = OD::ctrlKeyboardButton( eventinfo.buttonstate_ );
 
-    if ( eventinfo.dragging )
+	// Handle Ctrl+Drag for polygon erasing
+	const bool ispolygon = set_->isPolygon();
+	const bool iserasemode = ispolygon && OD::ctrlKeyboardButton(eventinfo.buttonstate_);
+
+	mDynamicCastGet(visSurvey::PickSetDisplay*,picksetdisp,this);
+
+	if ( iserasemode && picksetdisp )
+	{
+	// Handle Ctrl+Drag deletion - record start/end positions
+	if ( eventinfo.type == visBase::MouseClick && eventinfo.pressed )
+	{
+		// Start of Ctrl+Drag - reset state first
+		picksetdisp->iserasing_ = false;
+		picksetdisp->erasestartpos_ = Coord3::udf();
+		picksetdisp->eraseendpos_ = Coord3::udf();
+
+		// Now record start position - use displaypickedpos directly
+		Coord3 pos = display2World( eventinfo.displaypickedpos );
+
+		if ( pos.isDefined() )
+		{
+		picksetdisp->iserasing_ = true;
+		picksetdisp->erasestartpos_ = pos;
+		picksetdisp->eraseendpos_ = pos;
+		eventcatcher_->setHandled();
+		}
+		return;
+	}
+	else if ( eventinfo.type == visBase::MouseMovement && eventinfo.pressed )
+	{
+		// During drag - update end position
+		if ( picksetdisp->iserasing_ )
+		{
+		Coord3 pos = display2World( eventinfo.displaypickedpos );
+
+		if ( pos.isDefined() )
+		{
+			picksetdisp->eraseendpos_ = pos;
+			eventcatcher_->setHandled();
+		}
+		}
+		return;
+	}
+	else if ( eventinfo.type == visBase::MouseClick && !eventinfo.pressed )
+	{
+		// End of Ctrl+Drag - check if it was a drag or just a click
+		if ( picksetdisp->iserasing_ )
+		{
+		Coord3 pos = display2World( eventinfo.displaypickedpos );
+
+		if ( pos.isDefined() )
+		{
+			picksetdisp->eraseendpos_ = pos;
+
+			// Check if there was actual movement (drag) vs just a click
+			const double dx = fabs(picksetdisp->eraseendpos_.x_ - picksetdisp->erasestartpos_.x_);
+			const double dy = fabs(picksetdisp->eraseendpos_.y_ - picksetdisp->erasestartpos_.y_);
+			const double dragdist = sqrt(dx*dx + dy*dy);
+			const double clickthreshold = 10.0; // Minimum distance to be considered a drag
+
+			if ( dragdist > clickthreshold )
+			{
+			// It was a drag - delete all points in range
+			picksetdisp->erasePointsBetweenDragPositions();
+			}
+			else
+			{
+			// It was just a click - delete single nearest point
+			picksetdisp->erasePointsNearPosition( pos );
+			}
+		}
+
+		// Always reset state after release
+		picksetdisp->iserasing_ = false;
+		picksetdisp->erasestartpos_ = Coord3::udf();
+		picksetdisp->eraseendpos_ = Coord3::udf();
+		eventcatcher_->setHandled();
+		}
+		return;
+	}
+	}
+	else if ( picksetdisp && picksetdisp->iserasing_ )
+	{
+	// Not in erase mode anymore - reset state
+	picksetdisp->iserasing_ = false;
+	picksetdisp->erasestartpos_ = Coord3::udf();
+	picksetdisp->eraseendpos_ = Coord3::udf();
+	}
+
+	if ( eventinfo.dragging )
 	updateDragger();
 
     VisID eventid;
@@ -726,25 +816,28 @@ bool LocationDisplay::isPainting() const
 }
 
 bool LocationDisplay::addPick( const Coord3& pos, const Sphere& dir,
-			       bool notif )
+				   bool notif )
 {
-    if ( selectionmodel_ )
+	if ( selectionmodel_ )
 	return false;
 
-    mDefineStaticLocalObject( TypeSet<Coord3>, sowinghistory, );
+	mDefineStaticLocalObject( TypeSet<Coord3>, sowinghistory, );
 
-    int locidx = -1;
-    bool insertpick = false;
-    const bool isclosedpoly = set_->isPolygon() && set_->disp3d().polyDisp() &&
-	    set_->disp3d().polyDisp()->connect_==Pick::Set::Connection::Close;
-    if ( isclosedpoly )
-    {
+	int locidx = -1;
+	bool insertpick = false;
+	const bool isclosedpoly = set_->isPolygon() && set_->disp3d().polyDisp() &&
+		set_->disp3d().polyDisp()->connect_==Pick::Set::Connection::Close;
+	const bool isopenpoly = set_->isPolygon() && set_->disp3d().polyDisp() &&
+		set_->disp3d().polyDisp()->connect_==Pick::Set::Connection::Open;
+
+	if ( isclosedpoly )
+	{
 	sower_->alternateSowingOrder( true );
 	Coord3 displaypos = world2Display( pos );
 	if ( sower_->mode() == Sower::FirstSowing )
 	{
-	    displaypos = sower_->pivotPos();
-	    sowinghistory.erase();
+		displaypos = sower_->pivotPos();
+		sowinghistory.erase();
 	}
 
 	float mindist = mUdf(float);
@@ -772,8 +865,73 @@ bool LocationDisplay::addPick( const Coord3& pos, const Sphere& dir,
 
 	sowinghistory.insert( 0, pos );
 	sowinghistory.removeSingle( 2 );
-    }
-    else
+	}
+	else if ( isopenpoly && set_->size() > 0 )
+	{
+	// Smart insertion for open polygons:
+	// 1) Click near first point: prepend (insert at 0)
+	// 2) Click near last point: append
+	// 3) Click near midpoint: insert between nearest neighbors
+	// 4) Drag from midpoint: do nothing (handled by sower logic)
+
+	sower_->alternateSowingOrder( false );
+
+	const int nrpts = set_->size();
+	const Coord3 displaypos = world2Display( pos );
+
+	// Find nearest existing point
+	int nearestidx = -1;
+	float mindist = mUdf(float);
+	for ( int idx=0; idx<nrpts; idx++ )
+	{
+		const Coord3 ptpos = world2Display( set_->getPos(idx) );
+		const float dist = sCast(float,ptpos.distTo( displaypos ));
+		if ( mIsUdf(mindist) || dist < mindist )
+		{
+		mindist = dist;
+		nearestidx = idx;
+		}
+	}
+
+	if ( nearestidx == 0 )
+	{
+		// Near first point - prepend
+		locidx = 0;
+		insertpick = true;
+	}
+	else if ( nearestidx == nrpts - 1 )
+	{
+		// Near last point - append (will be handled below with insertpick=false)
+		insertpick = false;
+	}
+	else
+	{
+		// Near midpoint - find which segment to insert into
+		const Coord3 nearpt = world2Display( set_->getPos(nearestidx) );
+		const Coord3 prevpt = world2Display( set_->getPos(nearestidx-1) );
+		const Coord3 nextpt = world2Display( set_->getPos(nearestidx+1) );
+
+		const float dist_to_prev_seg = findDistance( prevpt, nearpt, displaypos );
+		const float dist_to_next_seg = findDistance( nearpt, nextpt, displaypos );
+
+		if ( !mIsUdf(dist_to_prev_seg) && !mIsUdf(dist_to_next_seg) )
+		{
+		if ( dist_to_prev_seg < dist_to_next_seg )
+		{
+			// Closer to segment before nearest point
+			locidx = nearestidx;
+			insertpick = true;
+		}
+		else
+		{
+			// Closer to segment after nearest point
+			locidx = nearestidx + 1;
+			insertpick = true;
+		}
+		}
+	}
+	}
+	else
 	sower_->alternateSowingOrder( false );
 
     Pick::Location newloc( pos, dir );

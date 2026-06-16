@@ -74,42 +74,45 @@ uiCreatePicks::~uiCreatePicks()
 
 void uiCreatePicks::addStdFields( uiObject* lastobject )
 {
-    outfld_ = uiPointSetPolygonSel::create( this, false, aspolygon_ );
+	outfld_ = uiPointSetPolygonSel::create( this, false, aspolygon_ );
 
-    colsel_ = new uiColorInput( this,
-				uiColorInput::Setup(OD::getRandStdDrawColor())
+	// Use green for polygons, random color for point sets
+	const OD::Color defcolor = aspolygon_ ? OD::Color(0,255,0) 
+					  : OD::getRandStdDrawColor();
+	colsel_ = new uiColorInput( this,
+				uiColorInput::Setup(defcolor)
 						.lbltxt(uiStrings::sColor()) );
-    colsel_->attach( alignedBelow, outfld_ );
-    if ( lastobject )
+	colsel_->attach( alignedBelow, outfld_ );
+	if ( lastobject )
 	outfld_->attach( alignedBelow, lastobject );
 
-    if ( iszvalreq_ )
-    {
-        float zval = SI().zRange(true).start_;
+	if ( iszvalreq_ )
+	{
+		float zval = SI().zRange(true).start_;
 	zval *= SI().zDomain().userFactor();
 	const uiString lbl(
 		tr("Z value for Points %1").arg(SI().getUiZUnitString()) );
 	zvalfld_ = new uiGenInput( this, lbl, FloatInpSpec(zval) );
 	zvalfld_->attach( alignedBelow, colsel_ );
-    }
+	}
 }
 
 
 RefMan<Pick::Set> uiCreatePicks::getPickSet() const
 {
-    RefMan<Pick::Set> ret = new Pick::Set( name_, aspolygon_ );
-    ret->disp3d().markerstyle_.color_ = colsel_->color();
-    ret->disp2d().markerstyle_.color_ = colsel_->color();
-    if ( !ret->isPolygon() )
+	RefMan<Pick::Set> ret = new Pick::Set( name_, aspolygon_ );
+	ret->disp3d().markerstyle_.color_ = colsel_->color();
+	ret->disp2d().markerstyle_.color_ = colsel_->color();
+	if ( !ret->isPolygon() )
 	return ret;
 
-    if ( ret->disp3d().polyDisp() )
+	if ( ret->disp3d().polyDisp() )
 	ret->disp3d().polyDisp()->connect_ = Pick::Set::Connection::Open;
 
-    if ( ret->disp2d().polyDisp() )
+	if ( ret->disp2d().polyDisp() )
 	ret->disp2d().polyDisp()->connect_ = Pick::Set::Connection::Open;
 
-    return ret;
+	return ret;
 }
 
 
