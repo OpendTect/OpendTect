@@ -208,18 +208,11 @@ bool SVNAccess::commit( const BufferStringSet& fnms, const char* msg )
 
 bool SVNAccess::rename( const char* subdir, const char* from, const char* to )
 {
-    const FilePath sdfp( dir_, subdir );
-    FilePath fromfp( sdfp, from ), tofp( sdfp, to );
-    const BufferString fromfullfnm( fromfp.fullPath() );
-    const BufferString tofullfnm( tofp.fullPath() );
-    fromfp.set( subdir );
-    fromfp.add( from );
-    tofp.set( subdir );
-    tofp.add( to );
-
+    const FilePath fromfp( subdir, from );
+    const FilePath tofp( subdir, to );
     OS::MachineCommand machcomm( "svn", "rename" );
     machcomm.addArg( fromfp.fullPath() )
-	    .addArg( tofp.fullPath() ).addArg( "." );
+	    .addArg( tofp.fullPath() );
     return executeCommand( machcomm, dir_ );
 }
 
@@ -227,20 +220,11 @@ bool SVNAccess::rename( const char* subdir, const char* from, const char* to )
 bool SVNAccess::changeFolder( const char* fnm, const char* fromsubdir,
 			      const char* tosubdir )
 {
-    FilePath tofp( dir_, tosubdir, fnm );
-    FilePath fromfp( dir_, fromsubdir, fnm );
-    const BufferString fromfullfnm( fromfp.fullPath() );
-    const BufferString tofullfnm( tofp.fullPath() );
-    fromfp.set( fromsubdir );
-    fromfp.add( fnm );
-    tofp.set( tosubdir );
-    tofp.add( fnm );
-    const BufferString fromfnm( fromfp.fullPath() );
-    const BufferString tofnm( tofp.fullPath() );
-
+    const FilePath fromfp( fromsubdir, fnm );
+    const FilePath tofp( tosubdir, fnm );
     OS::MachineCommand machcomm( "svn", "move" );
-    machcomm.addArg( fromfnm.buf() )
-	    .addArg( tofnm.buf() );
+    machcomm.addArg( fromfp.fullPath() )
+	    .addArg( tofp.fullPath() );
     return executeCommand( machcomm, dir_ );
 }
 
