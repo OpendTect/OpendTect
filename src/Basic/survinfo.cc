@@ -709,6 +709,12 @@ SurveyInfo& SurveyInfo::empty()
 }
 
 
+bool SurveyInfo::isCurrentSurvey() const
+{
+    return !survInfoStack().isEmpty() && this==survInfoStack().last();
+}
+
+
 SurveyInfo* SurveyInfo::readDirectory( const char* loc )
 {
     FilePath fp( loc );
@@ -1484,11 +1490,16 @@ float SurveyInfo::zScale( bool display ) const
 
 
 Coord SurveyInfo::transform( const BinID& b ) const
-{ return get3DGeometry(false)->transform( b ); }
+{
+    return b2c_.transform( b );
+}
 
 
 BinID SurveyInfo::transform( const Coord& c ) const
-{ return get3DGeometry(false)->transform( c ); }
+{
+    return b2c_.transformBack( c, tkzs_.hsamp_.start_,
+				  tkzs_.hsamp_.step_ );
+}
 
 
 void SurveyInfo::get3Pts( Coord c[3], BinID b[2], int& xline ) const
@@ -1885,6 +1896,9 @@ bool SurveyInfo::has3D() const
 
 void SurveyInfo::update3DGeometry()
 {
+    if ( !isCurrentSurvey() )
+	return;
+
     RefMan<Survey::Geometry> s3dgeom =
 		    Survey::GMAdmin().getGeometry( Survey::default3DGeomID() );
     if ( s3dgeom && !s3dgeom->is2D() )
@@ -1906,7 +1920,7 @@ RefMan<Survey::Geometry3D> SurveyInfo::get3DGeometry( bool work )
     RefMan<Survey::Geometry3D> ret;
     if ( work )
 	ret = work_s3dgeom_;
-    else
+    else if ( isCurrentSurvey() )
 	ret = Survey::GMAdmin().getGeometry( Survey::default3DGeomID() );
 
     if ( !ret )
