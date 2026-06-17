@@ -333,6 +333,7 @@ public:
 			/*!< Full path to an OpendTect project directory
 			     Exclusively for usage in modules below General */
 
+    bool		isCurrentSurvey() const;
     static const char*	curSurveyName();
 			//!< Survey directory name (not a full path)
 
