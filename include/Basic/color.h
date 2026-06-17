@@ -22,7 +22,7 @@ mExpClass(Basic) Color
 {
 public:
 			Color(unsigned char r_=255,unsigned char g_=255,
-				unsigned char b_=255,unsigned char t_=0);
+			      unsigned char b_=255,unsigned char t_=0);
 			Color(unsigned int rgbval);
 			~Color();
 
@@ -51,22 +51,20 @@ public:
     TypeSet<Color>	complimentaryColors(int) const;
     TypeSet<Color>	distinctColors(int) const;
     Color		lighter(float fac) const;
-    Color		darker( float fac ) const
-					{ return lighter( -fac ); }
+    Color		darker(float fac) const { return lighter( -fac ); }
     float		contrast(const Color&) const;
 
     float		getRelLuminance() const;
-    void		setRgb( unsigned int rgb_  );
-    void		setTransparency( unsigned char t_ );
-    void		setTransparencyF( float tf );
+    void		setRgb(unsigned int rgb_);
+    void		setTransparency(unsigned char t_);
+    void		setTransparencyF(float tf);
 //	All components have range 0-255, hue angle in degrees will be h/255*360
     void		setHSV(unsigned char h,unsigned char s,unsigned char v);
 //	All components have range 0-255, hue angle in degrees will be h/255*360
     void		getHSV(unsigned char& h,unsigned char& s,
 			       unsigned char& v) const;
     void		setStdStr(const char*); //!< e.g. "#00ff32"
-    const char*		getStdStr(bool withhash=true,
-				  int transpopt=0) const;
+    const char*		getStdStr(bool withhash=true,int transpopt=0) const;
 			//!< without hash Google KML standard -> order reversed
 			//!< transpopt -1=opacity 0=not 1=transparency
     static void		convertToStr(const TypeSet<Color>&,BufferStringSet&);
@@ -91,7 +89,7 @@ public:
 
     static Color	interpolate(const Color&,const Color&,float frac=0.5);
 
-    static unsigned char getUChar( float v );
+    static unsigned char getUChar(float v);
     static float	 getFloat(unsigned char);
 
     static int		nrStdDrawColors();
