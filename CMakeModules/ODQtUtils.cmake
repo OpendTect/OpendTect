@@ -101,9 +101,9 @@ macro( QT_SETUP_CORE_INTERNALS )
 	set( QTCONFTXT_DEBUG "${QTCONFTXT_DEBUG}Translations=Contents/translations\n" )
 	install( CODE "
 		    if( \"$<CONFIG>\" STREQUAL \"Debug\" )
-		        file( WRITE \"${CMAKE_INSTALL_PREFIX_ed}/${OD_RUNTIME_DIRECTORY}/qt.conf\" \"${QTCONFTXT_DEBUG}\" ) 
+		        file( WRITE \"${CMAKE_INSTALL_PREFIX_ed}/${OD_RUNTIME_DIRECTORY}/qt.conf\" \"${QTCONFTXT_DEBUG}\" )
 		    else()
-		        file( WRITE \"${CMAKE_INSTALL_PREFIX_ed}/${OD_RUNTIME_DIRECTORY}/qt.conf\" \"${QTCONFTXT}\" ) 
+		        file( WRITE \"${CMAKE_INSTALL_PREFIX_ed}/${OD_RUNTIME_DIRECTORY}/qt.conf\" \"${QTCONFTXT}\" )
 		    endif()
 		      " )
     else()
@@ -137,7 +137,7 @@ macro( QT_SETUP_CORE_INTERNALS )
 endmacro(QT_SETUP_CORE_INTERNALS)
 
 macro( QT_SETUP_GUI_INTERNALS )
-
+    OD_FIND_QT()
     list( APPEND QT_REQ_PLUGINS iconengines/${SHLIB_PREFIX}qsvgicon.${SHLIB_EXTENSION}
 				imageformats/${SHLIB_PREFIX}qgif.${SHLIB_EXTENSION}
 				imageformats/${SHLIB_PREFIX}qico.${SHLIB_EXTENSION}
@@ -175,49 +175,56 @@ macro( QT_SETUP_GUI_INTERNALS )
 		xcbglintegrations/libqxcb-glx-integration.so )
     endif()
     if ( QT_VERSION VERSION_GREATER_EQUAL 6 )
-	list( APPEND QT_REQ_PLUGINS tls/${SHLIB_PREFIX}qcertonlybackend.${SHLIB_EXTENSION}
-	    tls/${SHLIB_PREFIX}qopensslbackend.${SHLIB_EXTENSION} )
+	list( APPEND QT_REQ_PLUGINS
+		tls/${SHLIB_PREFIX}qcertonlybackend.${SHLIB_EXTENSION}
+		tls/${SHLIB_PREFIX}qopensslbackend.${SHLIB_EXTENSION} )
 	if ( WIN32 )
-	    list( APPEND QT_REQ_PLUGINS styles/qmodernwindowsstyle.dll
-		tls/qschannelbackend.dll )
+	    list( APPEND QT_REQ_PLUGINS
+			styles/qmodernwindowsstyle.dll
+			tls/qschannelbackend.dll )
 	elseif ( APPLE )
-	    list( APPEND QT_REQ_PLUGINS tls/libqsecuretransportbackend.dylib )
+	    list( APPEND QT_REQ_PLUGINS
+	    		tls/libqsecuretransportbackend.dylib )
 	else()
-	    list( APPEND QT_REQ_PLUGINS wayland-decoration-client/libadwaita.so
-		wayland-shell-integration/libqt-shell.so
-		egldeviceintegrations/libqeglfs-kms-integration.so )
+	    list( APPEND QT_REQ_PLUGINS
+			wayland-decoration-client/libadwaita.so
+			wayland-shell-integration/libqt-shell.so
+			egldeviceintegrations/libqeglfs-kms-integration.so )
 	endif()
 	if ( EXISTS "${QT_ROOT}/plugins/imageformats/${SHLIB_PREFIX}qtiff.${SHLIB_EXTENSION}" )
-	    list( APPEND QT_REQ_PLUGINS imageformats/${SHLIB_PREFIX}qicns.${SHLIB_EXTENSION}
-		imageformats/${SHLIB_PREFIX}qtga.${SHLIB_EXTENSION}
-		imageformats/${SHLIB_PREFIX}qtiff.${SHLIB_EXTENSION}
-		imageformats/${SHLIB_PREFIX}qwbmp.${SHLIB_EXTENSION}
-		imageformats/${SHLIB_PREFIX}qwebp.${SHLIB_EXTENSION} )
+	    list( APPEND QT_REQ_PLUGINS
+	    		imageformats/${SHLIB_PREFIX}qicns.${SHLIB_EXTENSION}
+			imageformats/${SHLIB_PREFIX}qtga.${SHLIB_EXTENSION}
+			imageformats/${SHLIB_PREFIX}qtiff.${SHLIB_EXTENSION}
+			imageformats/${SHLIB_PREFIX}qwbmp.${SHLIB_EXTENSION}
+			imageformats/${SHLIB_PREFIX}qwebp.${SHLIB_EXTENSION} )
 	    if ( APPLE )
 		list( APPEND QT_REQ_PLUGINS imageformats/libqmacheif.dylib
-		    imageformats/libqmacjp2.dylib )
+		    	imageformats/libqmacjp2.dylib )
 	    endif()
 	else()
 	    message( AUTHOR_WARNING "Cannot find the tiff image format plugin: Install the 'Qt Image formats' optional Qt package" )
 	endif()
     else()
-	list( APPEND QT_REQ_PLUGINS imageformats/${SHLIB_PREFIX}qicns.${SHLIB_EXTENSION}
-	    imageformats/${SHLIB_PREFIX}qtga.${SHLIB_EXTENSION}
-	    imageformats/${SHLIB_PREFIX}qtiff.${SHLIB_EXTENSION}
-	    imageformats/${SHLIB_PREFIX}qwbmp.${SHLIB_EXTENSION}
-	    imageformats/${SHLIB_PREFIX}qwebp.${SHLIB_EXTENSION} )
+	list( APPEND QT_REQ_PLUGINS
+		imageformats/${SHLIB_PREFIX}qicns.${SHLIB_EXTENSION}
+		imageformats/${SHLIB_PREFIX}qtga.${SHLIB_EXTENSION}
+		imageformats/${SHLIB_PREFIX}qtiff.${SHLIB_EXTENSION}
+		imageformats/${SHLIB_PREFIX}qwbmp.${SHLIB_EXTENSION}
+		imageformats/${SHLIB_PREFIX}qwebp.${SHLIB_EXTENSION} )
 	if ( WIN32 )
 	    list( APPEND QT_REQ_PLUGINS styles/qwindowsvistastyle.dll )
 	elseif ( APPLE )
 	    list( APPEND QT_REQ_PLUGINS imageformats/libqmacheif.dylib
-		imageformats/libqmacjp2.dylib )
+					imageformats/libqmacjp2.dylib )
 	else()
-	    list( APPEND QT_REQ_PLUGINS platforms/libqwayland-xcomposite-egl.so
-		platforms/libqwayland-xcomposite-glx.so
-		wayland-graphics-integration-client/libxcomposite-egl.so
-		wayland-graphics-integration-client/libxcomposite-glx.so
-		wayland-shell-integration/libxdg-shell-v5.so
-		wayland-shell-integration/libxdg-shell-v6.so )
+	    list( APPEND QT_REQ_PLUGINS
+	    		platforms/libqwayland-xcomposite-egl.so
+			platforms/libqwayland-xcomposite-glx.so
+			wayland-graphics-integration-client/libxcomposite-egl.so
+			wayland-graphics-integration-client/libxcomposite-glx.so
+			wayland-shell-integration/libxdg-shell-v5.so
+			wayland-shell-integration/libxdg-shell-v6.so )
 	endif()
     endif()
 
@@ -294,7 +301,7 @@ macro( QT_SETUP_WEBENGINE_INTERNALS )
     if ( QT_VERSION VERSION_LESS 6 )
 	list( APPEND QT_REQ_PLUGINS bearer/${SHLIB_PREFIX}qgenericbearer.${SHLIB_EXTENSION} )
 	if ( UNIX AND NOT APPLE )
-	    list( APPEND QT_REQ_PLUGINS bearer/libqconnmanbearer.so 
+	    list( APPEND QT_REQ_PLUGINS bearer/libqconnmanbearer.so
 					bearer/libqnmbearer.so )
 	endif()
     endif()
