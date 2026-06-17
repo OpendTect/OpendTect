@@ -52,6 +52,7 @@ public:
 
     void		hideFrame();
     void		scrollToBottom();
+
     void		showScrollBar(OD::Orientation,bool alwayson=false);
 			//!<alwayson=false means showAsNeeded
     void		hideScrollBar(OD::Orientation);
