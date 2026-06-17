@@ -10,6 +10,7 @@ ________________________________________________________________________
 #include "uicoltabmarker.h"
 
 #include "uicolor.h"
+#include "uicoltabman.h"
 #include "uigraphicsscene.h"
 #include "uigraphicsitem.h"
 #include "uigraphicsitemimpl.h"

@@ -8,6 +8,7 @@ ________________________________________________________________________
 
 -*/
 
+#include "uibutton.h"
 #include "uitoolsmod.h"
 #include "uidialog.h"
 #include "bufstring.h"
@@ -52,6 +53,60 @@ protected:
     void			handleColorPos();
     void			handleDataVal();
 };
+
+
+mClass(uiTools) uiTranspValuesDlgPlus : public uiDialog
+{ mODTextTranslationClass(uiTranspValuesDlgPlus);
+public:
+				uiTranspValuesDlgPlus(uiParent*,
+						      ColTab::Sequence&,
+						      const Interval<float>&);
+				~uiTranspValuesDlgPlus();
+
+    Notifier<uiTranspValuesDlgPlus> valuesChanged;
+    Notifier<uiTranspValuesDlgPlus> segmentInserted_;
+    Notifier<uiTranspValuesDlgPlus> segmentRemoved_;
+    Notifier<uiTranspValuesDlgPlus> markersChanged_;
+
+protected:
+
+    uiTable*			table_;
+    uiTable*			anchortable_	    = nullptr;
+    uiPushButton*		syncanchors_;
+    uiPushButton*		resettransp_;
+    ColTab::Sequence&		ctab_;
+    Interval<float>		ctabrange_;
+
+    // these are for the transparency values
+    void			doFinalizeCB(CallBacker*);
+    void			setPtsToAnchSegCB(CallBacker*);
+    void			dataChgdCB(CallBacker*);
+    void			pointInsertedCB(CallBacker*);
+    void			pointDeletedCB(CallBacker*);
+    void			resetTranspPtsCB(CallBacker*);
+
+    // these are for the anchor values
+    void			mouseClick(CallBacker*);
+    void			markerInserted(CallBacker*);
+    void			markerDeleted(CallBacker*);
+    void			markerPosChgd(CallBacker*);
+    int				reverseAnchIdx(int);
+    int				reverseTranspIdx(int);
+    int				reverseSegIdx(int);
+    void			setAllPtsSegmentsCB(CallBacker*);
+    bool			acceptOK(CallBacker*) override;
+
+    void			fillTableWithPts();
+    void			fillAnchorTable();
+    void			fillTableWithSegments(bool resettransp);
+    void			updateTable();
+    void			setPtsToAnchSeg(bool extrapolate);
+    void			setPtsToAnchSeg(bool extrapolate,bool setzero);
+    void			handleColorPos();
+    void			handleDataVal();
+    void			handleTranspVal();
+};
+
 
 mExpClass(uiTools) uiColorTableMan : public uiDialog
 { mODTextTranslationClass(uiColorTableMan);
@@ -110,8 +165,8 @@ protected:
     void			itemRenamedCB(CallBacker*);
     bool			acceptOK(CallBacker*) override;
     bool			rejectOK(CallBacker*) override;
-    void			reDraw( bool deep ) override	{ reDrawCB(0); }
-
+    void			reDraw(bool deep) override
+				{ reDrawCB(nullptr); }
 
     void			refreshColTabList(const char*);
     void			updateTransparencyGraph();
