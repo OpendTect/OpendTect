@@ -21,6 +21,7 @@ public:
 			~IOX();
 
     bool		isBad() const override;
+    bool		isXObject() const override	{ return true; }
 
     void		copyFrom(const IOObj*) override;
     const char*		fullUserExpr(bool forread=true) const override;

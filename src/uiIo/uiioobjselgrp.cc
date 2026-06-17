@@ -432,7 +432,10 @@ void uiIOObjSelGrp::init( const uiString& seltxt )
 {
     ctio_.ctxt_.fillTrGroup();
     if ( !ctio_.ctxt_.forread_ )
+    {
 	setup_.choicemode( OD::ChooseOnlyOne );
+	setup_.allowxobj( false );
+    }
 
     IOM().to( ctio_.ctxt_.getSelKey() );
     mkTopFlds( seltxt );
@@ -1037,6 +1040,9 @@ void uiIOObjSelGrp::fullUpdate( int curidx )
     for ( int idx=0; idx<del.size(); idx++ )
     {
 	const IOObj* ioobj = del[idx]->ioobj_;
+	if ( !setup_.allowxobj_ && ioobj->isXObject() )
+	    continue;
+
 	// 'uiIOObjEntryInfo'
 	BufferString dispnm( del[idx]->name() );
 	BufferString ioobjnm;

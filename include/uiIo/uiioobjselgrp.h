@@ -122,6 +122,7 @@ public:
 	mDefSetupMembInit(bool,withinserters,true);
 	mDefSetupMembInit(bool,withwriteopts,true);
 	mDefSetupMembInit(bool,confirmoverwrite,true);
+	mDefSetupMembInit(bool,allowxobj,true);
 	mDefSetupMemb(BufferString,withctxtfilter);
 	mDefSetupMemb(BufferStringSet,trsnotallwed);
 	//!<key can be either a translator group name or omf metadata key
