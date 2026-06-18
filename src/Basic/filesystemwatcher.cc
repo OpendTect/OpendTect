@@ -24,8 +24,13 @@ FileSystemWatcher::FileSystemWatcher()
 
 FileSystemWatcher::~FileSystemWatcher()
 {
-    delete qfswatchercomm_;
-    delete qfswatcher_;
+    deleteAndNullPtr( qfswatchercomm_ );
+    if ( qfswatcher_ )
+    {
+	qfswatcher_->disconnect();
+	qfswatcher_->deleteLater();
+	qfswatcher_ = nullptr;
+    }
 }
 
 
