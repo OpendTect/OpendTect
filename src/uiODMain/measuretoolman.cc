@@ -120,7 +120,7 @@ void MeasureToolMan::manageDlg( bool show )
 		       MeasureToolMan::lineStyleChangeCB );
 	    mAttachCB( measuredlg_->velocityChange,
 		       MeasureToolMan::velocityChangeCB );
-	    mAttachCB( measuredlg_->dipUnitChange,
+	    mAttachCB( measuredlg_->unitChange,
 		       MeasureToolMan::velocityChangeCB );
 	    mAttachCB( measuredlg_->clearPressed, MeasureToolMan::clearCB );
 	    mAttachCB( measuredlg_->windowClosed, MeasureToolMan::dlgClosed );

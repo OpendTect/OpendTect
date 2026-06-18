@@ -11,7 +11,7 @@ ________________________________________________________________________
 
 #include "bufstring.h"
 #include "draw.h"
-#include "position.h"
+#include "odcommonenums.h"
 #include "settings.h"
 #include "survinfo.h"
 #include "unitofmeasure.h"
@@ -22,6 +22,7 @@ ________________________________________________________________________
 #include "uiconstvel.h"
 #include "uigeninput.h"
 #include "uilabel.h"
+#include "uimsg.h"
 #include "uisellinest.h"
 #include "uispinbox.h"
 #include "od_helpids.h"
@@ -34,15 +35,12 @@ static const char* sKeyLineStyle = "Measure LineStyle";
 uiMeasureDlg::uiMeasureDlg( uiParent* p )
     : uiDialog(p,Setup(tr("Measure Distance"),mODHelpKey(mMeasureDlgHelpID))
 		    .modal(false))
-    , ls_(*new OD::LineStyle(OD::LineStyle::Solid,3))
-    , appvelfld_(0)
-    , zdist2fld_(0)
-    , dist2fld_(0)
-    , velocity_(Vel::getGUIDefaultVelocity())
     , lineStyleChange(this)
     , clearPressed(this)
     , velocityChange(this)
-    , dipUnitChange(this)
+    , unitChange(this)
+    , velocity_(Vel::getGUIDefaultVelocity())
+    , ls_(*new OD::LineStyle(OD::LineStyle::Solid,3))
 {
     setCtrlStyle( CloseOnly );
     showAlwaysOnTop();
@@ -53,55 +51,51 @@ uiMeasureDlg::uiMeasureDlg( uiParent* p )
 	ls_.fromString( str.buf() );
 
     auto* topgrp = new uiGroup( this, "Info fields" );
-    uiString hdistlbl = uiStrings::phrJoinStrings(uiStrings::sHorizontal(),
-			uiStrings::phrJoinStrings(uiStrings::sDistance(),
-			SI().getUiXYUnitString()) );
+    unitfld_ = new uiGenInput( topgrp, tr("Show distances in"),
+	BoolInpSpec(!SI().xyInFeet(),uiStrings::sMeter(),uiStrings::sFeet()) );
+    mAttachCB( unitfld_->valueChanged, uiMeasureDlg::unitSel );
+
+    uiString hdistlbl = uiStrings::phrJoinStrings( uiStrings::sHorizontal(),
+						   uiStrings::sDistance() );
     hdistfld_ = new uiGenInput( topgrp, hdistlbl, FloatInpSpec(0) );
+    hdistfld_->attach( alignedBelow, unitfld_ );
     hdistfld_->setReadOnly( true );
+    uiObject* attachobj = hdistfld_->attachObj();
 
-    uiString zdistlbl = uiStrings::phrJoinStrings(uiStrings::sVertical(),
-			uiStrings::phrJoinStrings(uiStrings::sDistance(),
-			SI().getUiZUnitString()) );
-    zdistfld_ = new uiGenInput( topgrp, zdistlbl, FloatInpSpec(0) );
-    zdistfld_->setReadOnly( true );
-    zdistfld_->attach( alignedBelow, hdistfld_ );
-
-    uiString zintimelbl = uiStrings::phrJoinStrings(uiStrings::sVertical(),
-			  uiStrings::phrJoinStrings(uiStrings::sDistance(),
-			  SI().getUiXYUnitString()) );
     if ( SI().zIsTime() )
     {
-	zdist2fld_ = new uiGenInput( topgrp, zintimelbl, FloatInpSpec(0) );
-	zdist2fld_->attach( alignedBelow, zdistfld_ );
+	uiString zdisttimelbl = uiStrings::phrJoinStrings(uiStrings::sTime(),
+			uiStrings::phrJoinStrings(uiStrings::sDistance(),
+			SI().getUiZUnitString()) );
+	zdisttimefld_ = new uiGenInput( topgrp, zdisttimelbl, FloatInpSpec(0) );
+	zdisttimefld_->setReadOnly( true );
+	zdisttimefld_->attach( alignedBelow, hdistfld_ );
 
-	zdistlbl = uiStrings::phrJoinStrings(uiStrings::sVelocity(),
-		   UnitOfMeasure::surveyDefVelUnitAnnot(true,true));
-	appvelfld_ = new uiGenInput(topgrp, zdistlbl, FloatInpSpec(velocity_));
+	uiString vellbl = uiStrings::phrJoinStrings( uiStrings::sVelocity(),
+		   UnitOfMeasure::surveyDefVelUnitAnnot(true,true) );
+	appvelfld_ = new uiGenInput( topgrp, vellbl, FloatInpSpec(velocity_) );
 	mAttachCB( appvelfld_->valueChanged, uiMeasureDlg::velocityChgd );
-	appvelfld_->attach( alignedBelow, zdist2fld_ );
+	appvelfld_->attach( alignedBelow, zdisttimefld_ );
+	attachobj = appvelfld_->attachObj();
     }
 
-    uiString distlbl = uiStrings::phrJoinStrings(uiStrings::sDistance(),
-		       SI().getUiXYUnitString());
-    distfld_ = new uiGenInput( topgrp, distlbl, FloatInpSpec(0) );
-    distfld_->setReadOnly( true );
-    distfld_->attach( alignedBelow, appvelfld_ ? appvelfld_ : zdistfld_ );
+    uiString zdistlbl = uiStrings::phrJoinStrings(uiStrings::sVertical(),
+			  uiStrings::sDistance() );
+    zdistfld_ = new uiGenInput( topgrp, zdistlbl, FloatInpSpec(0) );
+    zdistfld_->setReadOnly( true );
+    zdistfld_->attach( alignedBelow, attachobj );
 
-    if ( !SI().zIsTime() && SI().xyInFeet() != SI().zInFeet() )
-    {
-	uiString lbl = uiStrings::phrJoinStrings( uiStrings::sDistance(),
-		uiStrings::sDistUnitString(!SI().xyInFeet(),true,true) );
-	dist2fld_ = new uiGenInput( topgrp, lbl, FloatInpSpec(0) );
-	dist2fld_->setReadOnly( true );
-	dist2fld_->attach( alignedBelow, distfld_ );
-    }
+    totaldistfld_ = new uiGenInput( topgrp, tr("Total Distance"),
+				    FloatInpSpec(0) );
+    totaldistfld_->setReadOnly( true );
+    totaldistfld_->attach( alignedBelow, zdistfld_ );
 
     inlcrldistfld_ = new uiGenInput( topgrp, tr("Inl/Crl Distance"),
 				     FloatInpIntervalSpec(Interval<float>(0,0))
 				     .setName("InlDist",0)
 				     .setName("CrlDist",1) );
     inlcrldistfld_->setReadOnly( true, -1 );
-    inlcrldistfld_->attach( alignedBelow, dist2fld_ ? dist2fld_ : distfld_ );
+    inlcrldistfld_->attach( alignedBelow, totaldistfld_ );
 
     dipfld_ = new uiGenInput( topgrp, uiStrings::sDip(), FloatInpSpec(0) );
     dipfld_->setReadOnly( true );
@@ -110,7 +104,7 @@ uiMeasureDlg::uiMeasureDlg( uiParent* p )
     BufferStringSet unitstrs;
     unitstrs.add( "degrees" ).add( SI().zIsTime() ? "us/m" : "mm/m" );
     dipunitfld_ = new uiComboBox( topgrp, unitstrs, "Dip Units" );
-    mAttachCB( dipunitfld_->selectionChanged, uiMeasureDlg::dipUnitSel );
+    mAttachCB( dipunitfld_->selectionChanged, uiMeasureDlg::unitSel );
     dipunitfld_->attach( rightOf, dipfld_ );
 
     uiGroup* botgrp = new uiGroup( this, "Button group" );
@@ -142,11 +136,9 @@ void uiMeasureDlg::finalizeCB( CallBacker* )
 {
     hdistfld_->setNrDecimals( 2 );
     zdistfld_->setNrDecimals( 2 );
-    if ( zdist2fld_ )
-	zdist2fld_->setNrDecimals( 2 );
-    distfld_->setNrDecimals( 2 );
-    if ( dist2fld_ )
-	dist2fld_->setNrDecimals( 2 );
+    totaldistfld_->setNrDecimals( 2 );
+    if ( zdisttimefld_ )
+	zdisttimefld_->setNrDecimals( 2 );
     dipfld_->setNrDecimals( 2 );
 }
 
@@ -194,11 +186,18 @@ void uiMeasureDlg::stylebutCB( CallBacker* )
 
 void uiMeasureDlg::velocityChgd( CallBacker* )
 {
-    if ( !appvelfld_ ) return;
+    if ( !appvelfld_ )
+	return;
 
     const float newvel = appvelfld_->getFValue();
     if ( mIsEqual(velocity_,newvel,mDefEps) )
 	return;
+
+    if ( newvel<=10 || newvel>1e6 )
+    {
+	uiMSG().message( tr("Please enter a valid velocity value") );
+	return;
+    }
 
     velocity_ = newvel;
     velocityChange.trigger();
@@ -209,11 +208,13 @@ void uiMeasureDlg::reset()
 {
     hdistfld_->setValue( 0 );
     zdistfld_->setValue( 0 );
-    if ( zdist2fld_ ) zdist2fld_->setValue( 0 );
-    if ( appvelfld_ ) appvelfld_->setValue( velocity_ );
-    distfld_->setValue( 0 );
-    if ( dist2fld_ ) dist2fld_->setValue( 0 );
-    distfld_->setValue( 0 );
+    if ( zdisttimefld_ )
+	zdisttimefld_->setValue( 0 );
+
+    if ( appvelfld_ )
+	appvelfld_->setValue( velocity_ );
+
+    totaldistfld_->setValue( 0 );
     inlcrldistfld_->setValue( Interval<int>(0,0) );
     dipfld_->setEmpty();
     dipfld_->setSensitive( false );
@@ -222,7 +223,6 @@ void uiMeasureDlg::reset()
 
 void uiMeasureDlg::fill( const TypeSet<Coord3>& points )
 {
-    const double velocity = appvelfld_ ? appvelfld_->getDValue() : 0 ;
     const int size = points.size();
     if ( size<2 )
     {
@@ -230,84 +230,102 @@ void uiMeasureDlg::fill( const TypeSet<Coord3>& points )
 	return;
     }
 
-    int totinldist = 0, totcrldist = 0;
-    double tothdist = 0, totzdist = 0;
-    double totrealdist = 0; // in xy unit
-    const UnitOfMeasure* uom = UoMR().get( "Feet" );
+    // All values will be converted to SI here
+    const UnitOfMeasure* xyuom = UnitOfMeasure::surveyDefXYUnit();
+    const UnitOfMeasure* zuom = UnitOfMeasure::surveyDefZStorageUnit();
+    const UnitOfMeasure* veluom = UnitOfMeasure::surveyDefVelUnit();
+
+    int totalinldist = 0, totalcrldist = 0;
+    double totalxydist = 0, totalzdist = 0, totaltimedist = 0;
+    double totalrealdist = 0;
+    double velocity = 0;
+    if ( appvelfld_ )
+    {
+	velocity = appvelfld_->getDValue();
+	if ( !veluom->isSI() )
+	    velocity = veluom->getSIValue( velocity );
+    }
+
     for ( int idx=1; idx<size; idx++ )
     {
 	const Coord xy = points[idx].coord();
 	const Coord prevxy = points[idx-1].coord();
 	const BinID bid = SI().transform( xy );
 	const BinID prevbid = SI().transform( prevxy );
-        double zdist = fabs( points[idx-1].z_ - points[idx].z_ );
+	totalinldist += abs( bid.inl() - prevbid.inl() );
+	totalcrldist += abs( bid.crl() - prevbid.crl() );
 
-	totinldist += abs( bid.inl() - prevbid.inl() );
-	totcrldist += abs( bid.crl() - prevbid.crl() );
-	const double hdist = xy.distTo( prevxy );
-	tothdist += hdist;
-	totzdist += zdist;
+	double xydist = xy.distTo( prevxy );
+	if ( !xyuom->isSI() )
+	    xydist = xyuom->getSIValue( xydist );
+	totalxydist += xydist;
+
+	double zdiff = fabs( points[idx-1].z_ - points[idx].z_ );
+	double zdist = 0;
 	if ( SI().zIsTime() )
 	{
-	    totrealdist +=
-		Math::Sqrt( hdist*hdist + velocity*velocity*zdist*zdist/4 );
+	    totaltimedist += zdiff;
+	    zdist = zdiff * velocity / 2;
 	}
 	else
 	{
-	    if ( SI().zInMeter() && SI().xyInFeet() )
-		zdist = uom->getUserValueFromSI( zdist );
-
-	    if ( !SI().zInMeter() && !SI().xyInFeet() )
-		zdist = uom->getSIValue( zdist );
-
-	    totrealdist += Math::Sqrt( hdist*hdist + zdist*zdist );
+	    if ( zuom->isSI() )
+		zdist = zdiff;
+	    else
+		zdist = zuom->getSIValue( zdiff );
 	}
+
+	totalzdist += zdist;
+	totalrealdist += Math::Sqrt( xydist*xydist + zdist*zdist );
     }
-
-    double convdist = SI().xyInFeet() ? uom->getSIValue( totrealdist )
-				      : uom->getUserValueFromSI( totrealdist );
-
-    hdistfld_->setValue( tothdist );
-    zdistfld_->setValue( totzdist*SI().zDomain().userFactor() );
-    if ( zdist2fld_ ) zdist2fld_->setValue( totzdist*velocity/2 );
-    distfld_->setValue( totrealdist );
-    if ( dist2fld_ ) dist2fld_->setValue( convdist );
-    inlcrldistfld_->setValue( Interval<int>(totinldist,totcrldist) );
 
     const bool showdip = points.size() == 2;
     if ( !showdip )
 	dipfld_->setEmpty();
     else
     {
-	if ( SI().xyInFeet() )
-	    tothdist *= mFromFeetFactorD;
-	if ( SI().zInFeet() )
-	    totzdist *= mFromFeetFactorD;
-
-	float dipval = mUdf( float );
+	float dipval;
 	if ( dipunitfld_->currentItem() == 0 ) // Degrees
 	{
-	    if ( SI().zIsTime() )
-		totzdist *= velocity / 2;
-
-	    dipval = mIsZero(tothdist,1e-3) ? 90.f
-			: Math::toDegrees( Math::Atan2(totzdist,tothdist) );
+	    dipval = mIsZero(totalxydist,1e-3) ? 90.f
+		: Math::toDegrees( Math::Atan2(totalzdist,totalxydist) );
 	}
 	else
 	{
-	    const double zfac = SI().zIsTime() ? 1e6 : 1e3;
-	    dipval = totzdist * zfac / tothdist;
+	    if ( SI().zIsTime() )
+		dipval = totaltimedist * 1e6 / totalxydist;
+	    else
+		dipval = totalzdist * 1e3 / totalxydist;
 	}
 
 	dipfld_->setValue( dipval );
     }
 
     dipfld_->setSensitive( showdip );
+
+    const bool doconv = !unitfld_->getBoolValue();
+    if ( doconv )
+    {
+	const UnitOfMeasure* meteruom = UnitOfMeasure::meterUnit();
+	const UnitOfMeasure* feetuom = UnitOfMeasure::feetUnit();
+	totalxydist = getConvertedValue( totalxydist, meteruom, feetuom );
+	totalzdist = getConvertedValue( totalzdist, meteruom, feetuom );
+	totalrealdist = getConvertedValue( totalrealdist, meteruom, feetuom );
+    }
+
+    hdistfld_->setValue( totalxydist );
+    if ( zdisttimefld_ )
+	zdisttimefld_->setValue( totaltimedist*SI().zDomain().userFactor() );
+
+    zdistfld_->setValue( totalzdist );
+    totaldistfld_->setValue( totalrealdist );
+    inlcrldistfld_->setValue( Interval<int>(totalinldist,totalcrldist) );
+
     raise();
 }
 
 
-void uiMeasureDlg::dipUnitSel( CallBacker* )
+void uiMeasureDlg::unitSel( CallBacker* )
 {
-    dipUnitChange.trigger();
+    unitChange.trigger();
 }

@@ -32,19 +32,19 @@ public:
     Notifier<uiMeasureDlg>	lineStyleChange;
     Notifier<uiMeasureDlg>	clearPressed;
     Notifier<uiMeasureDlg>	velocityChange;
-    Notifier<uiMeasureDlg>	dipUnitChange;
+    Notifier<uiMeasureDlg>	unitChange;
 
 protected:
 
     float			velocity_;
     OD::LineStyle&		ls_;
 
+    uiGenInput*			unitfld_;
     uiGenInput*			hdistfld_;
+    uiGenInput*			zdisttimefld_			= nullptr;
+    uiGenInput*			appvelfld_			= nullptr;
     uiGenInput*			zdistfld_;
-    uiGenInput*			zdist2fld_;
-    uiGenInput*			appvelfld_;
-    uiGenInput*			distfld_;
-    uiGenInput*			dist2fld_;
+    uiGenInput*			totaldistfld_;
     uiGenInput*			inlcrldistfld_;
     uiGenInput*			dipfld_;
     uiComboBox*			dipunitfld_;
@@ -55,5 +55,5 @@ protected:
     void			clearCB(CallBacker*);
     void			stylebutCB(CallBacker*);
     void			velocityChgd(CallBacker*);
-    void			dipUnitSel( CallBacker* );
+    void			unitSel( CallBacker* );
 };
