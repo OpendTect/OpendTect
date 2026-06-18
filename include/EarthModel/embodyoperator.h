@@ -80,14 +80,14 @@ protected:
 
     ImplicitBody*	getOperandBody(bool body0,TaskRunner* tr) const;
 
-    MultiID		inputbody0_;
-    BodyOperator*	inputbodyop0_;
+    MultiID			inputbody0_;
+    BodyOperator*		inputbodyop0_		= nullptr;
 
-    MultiID		inputbody1_;
-    BodyOperator*	inputbodyop1_;
+    MultiID			inputbody1_;
+    BodyOperator*		inputbodyop1_		= nullptr;
 
-    int			id_;
-    Action		action_;
+    int				id_			= getFreeID();
+    Action			action_			= Union;
 };
 
 

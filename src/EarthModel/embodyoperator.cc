@@ -15,7 +15,6 @@ ________________________________________________________________________
 #include "emmanager.h"
 #include "executor.h"
 #include "ioman.h"
-#include "ioobj.h"
 #include "survinfo.h"
 #include "task.h"
 
@@ -34,13 +33,13 @@ BodyOperatorArrayFiller( const ImplicitBody& b0, const ImplicitBody& b1,
 	const StepInterval<int>& inlrg, const StepInterval<int>& crlrg,
 	const StepInterval<float>& zrg,	BodyOperator::Action act,
 	Array3D<float>& arr )
-    : arr_( arr )
-    , b0_( b0 )
-    , b1_( b1 )
-    , inlrg_( inlrg )
-    , crlrg_( crlrg )
-    , zrg_( zrg )
-    , action_( act )
+    : arr_(arr)
+    , b0_(b0)
+    , b1_(b1)
+    , inlrg_(inlrg)
+    , crlrg_(crlrg)
+    , zrg_(zrg)
+    , action_(act)
 {}
 
 float	 getThreshold() const		{ return 0.f; }
@@ -109,39 +108,25 @@ float getVal( char p0, char p1, float v0, float v1 ) const
 	if ( p1==mInsideVal )
 	{
 	    if ( action_==BodyOperator::Minus )
-	    {
 		res = useval ? b1_.threshold_-v1 : mOutsideVal;
-	    }
 	    else
-	    {
 		res = useval ? mMAX(v0,v1)-b1_.threshold_ : mInsideVal;
-	    }
 	}
 	else if ( p1==mOnBodyVal )
 	{
 	    if ( action_==BodyOperator::Union )
-	    {
 		res = useval ? v0-b0_.threshold_ : mInsideVal;
-	    }
 	    else if ( action_==BodyOperator::IntSect )
-	    {
-		res = mOnBodyVal;;
-	    }
+		res = mOnBodyVal;
 	    else
-	    {
 		res = useval ? -0.01f : mOutsideVal;
-	    }
 	}
 	else
 	{
 	    if ( action_==BodyOperator::IntSect )
-	    {
 		res = useval ? v1-b1_.threshold_ : mOutsideVal;
-	    }
 	    else
-	    {
 		res = useval ? v0-b0_.threshold_ : mInsideVal;
-	    }
 	}
     }
     else if ( p0==mOnBodyVal )
@@ -149,17 +134,11 @@ float getVal( char p0, char p1, float v0, float v1 ) const
 	if ( p1==mInsideVal )
 	{
 	    if ( action_==BodyOperator::Union )
-	    {
 		res = useval ? v1-b1_.threshold_ : mInsideVal;
-	    }
 	    else if ( action_==BodyOperator::IntSect )
-	    {
 		res = mOnBodyVal;
-	    }
 	    else
-	    {
 		res = useval ? b1_.threshold_-v1 : mOutsideVal;
-	    }
 	}
 	else if ( p1==mOnBodyVal )
 	{
@@ -171,13 +150,9 @@ float getVal( char p0, char p1, float v0, float v1 ) const
 	else
 	{
 	    if ( action_==BodyOperator::IntSect )
-	    {
 		res = useval ? -0.01f : mOutsideVal;
-	    }
 	    else
-	    {
 		res = mOnBodyVal;
-	    }
 	}
     }
     else
@@ -185,24 +160,16 @@ float getVal( char p0, char p1, float v0, float v1 ) const
 	if ( p1==mInsideVal )
 	{
 	    if ( action_==BodyOperator::Union )
-	    {
 		res = useval ? v1-b1_.threshold_ : mInsideVal;
-	    }
 	    else
-	    {
 		res = useval ? v0-b0_.threshold_ : mOutsideVal;
-	    }
 	}
 	else if ( p1==mOnBodyVal )
 	{
 	    if ( action_==BodyOperator::Union )
-	    {
 		res = mOnBodyVal;
-	    }
 	    else
-	    {
 		res = useval ? v0-b0_.threshold_ : mOutsideVal;
-	    }
 	}
 	else
 	{
@@ -226,11 +193,11 @@ float getVal( char p0, char p1, float v0, float v1 ) const
 Expl2ImplBodyExtracter::Expl2ImplBodyExtracter( const DAGTetrahedraTree& tree,
 	const StepInterval<int>& inlrg,	const StepInterval<int>& crlrg,
 	const StepInterval<float>& zrg,	Array3D<float>& arr )
-    : tree_( tree )
-    , arr_( arr )
-    , inlrg_( inlrg )
-    , crlrg_( crlrg )
-    , zrg_( zrg )
+    : tree_(tree)
+    , arr_(arr)
+    , inlrg_(inlrg)
+    , crlrg_(crlrg)
+    , zrg_(zrg)
 {}
 
 
@@ -251,7 +218,7 @@ bool Expl2ImplBodyExtracter::doPrepare( int nrthreads )
     for ( int idx=0; idx<planesz; idx++ )
     {
 	const int startid = 3 * idx;
-	Coord3 nm = (crds[tri_[startid]]- crds[tri_[startid+1]]).cross(
+	const Coord3 nm = (crds[tri_[startid]]- crds[tri_[startid+1]]).cross(
 		crds[tri_[startid+1]]-crds[tri_[startid+2]]);
 	planes_ += Plane3(nm.normalize(),crds[tri_[startid]],false);
     }
@@ -285,7 +252,7 @@ bool Expl2ImplBodyExtracter::doWork( od_int64 start, od_int64 stop, int )
 	const int crlidx = idx % crlsz;
 	const BinID bid( inlrg_.atIndex(inlidx), crlrg_.atIndex(crlidx) );
 	Coord3 pos( SI().transform(bid), 0 );
-	Line3 vtln( pos, Coord3(0,0,1) );
+	const Line3 vtln( pos, Coord3(0,0,1) );
 
 	Interval<float> segment;
 	int nrintersections = 0;
@@ -295,8 +262,8 @@ bool Expl2ImplBodyExtracter::doWork( od_int64 start, od_int64 stop, int )
 	    for ( int pidx=0; pidx<3; pidx++ )
 		v[pidx] = crds[tri_[3*pl+pidx]];
 
-            const double fv = planes_[pl].A_*pos.x_ + planes_[pl].B_*pos.y_ +
-		planes_[pl].D_;
+	    const double fv = planes_[pl].A_*pos.x_ + planes_[pl].B_*pos.y_ +
+			      planes_[pl].D_;
 	    if ( mIsZero(planes_[pl].C_,1e-3) )
 	    {
 		if ( mIsZero(fv,1e-3) )
@@ -304,25 +271,25 @@ bool Expl2ImplBodyExtracter::doWork( od_int64 start, od_int64 stop, int )
 		    for ( int pidx=0; pidx<3; pidx++ )
 		    {
 			const Coord3 dir = v[(pidx+1)%3]-v[pidx];
-                        if ( mIsZero(dir.x_,1e-3) && mIsZero(dir.y_,1e-3) )
+			if ( mIsZero(dir.x_,1e-3) && mIsZero(dir.y_,1e-3) )
 			{
-			    Coord diff = pos - v[pidx];
-                            if ( mIsZero(diff.x_,1e-3)&& mIsZero(diff.y_,1e-3) )
+			    const Coord diff = pos - v[pidx];
+			    if ( mIsZero(diff.x_,1e-3) && mIsZero(diff.y_,1e-3))
 			    {
-                                pos.z_ = v[pidx].z_;
+				pos.z_ = v[pidx].z_;
 				mSetSegment();
-                                pos.z_ = v[(pidx+1)%3].z_;
+				pos.z_ = v[(pidx+1)%3].z_;
 				mSetSegment();
 			    }
 			}
 			else
 			{
-			    Line3 edge( v[pidx], dir );
+			    const Line3 edge( v[pidx], dir );
 			    double te, tv;
 			    vtln.closestPoint(edge,tv,te);
 			    if ( te<=1 && te>=0 )
 			    {
-                                pos.z_ = v[pidx].z_+te*dir.z_;
+				pos.z_ = v[pidx].z_+te*dir.z_;
 				mSetSegment();
 			    }
 			}
@@ -331,7 +298,7 @@ bool Expl2ImplBodyExtracter::doWork( od_int64 start, od_int64 stop, int )
 	    }
 	    else
 	    {
-                pos.z_ = -fv/planes_[pl].C_;
+		pos.z_ = -fv/planes_[pl].C_;
 		if ( pointInTriangle3D(pos,v[0],v[1],v[2],0) )
 		{
 		    mSetSegment();
@@ -353,10 +320,21 @@ bool Expl2ImplBodyExtracter::doWork( od_int64 start, od_int64 stop, int )
 	    for ( int zidx=0; zidx<zsz; zidx++ )
 	    {
 		const float curz = zrg_.atIndex( zidx );
-                const float val = curz<segment.start_ ? curz-segment.start_ :
-                                                        ( curz>segment.stop_ ? segment.stop_-curz :
-		      (nrintersections>2 ? 0.f :
-                                           mMIN(curz-segment.start_, segment.stop_-curz)) );
+		float val = 0.f;
+
+		if ( curz < segment.start_ )
+		    val = curz - segment.start_;
+		else if ( curz > segment.stop_ )
+		    val = segment.stop_ - curz;
+		else
+		{
+		    if ( nrintersections > 2 )
+			val = 0.f;
+		    else
+			val = mMIN( curz - segment.start_,
+				    segment.stop_ - curz );
+		}
+
 		arr_.set( inlidx, crlidx, zidx, val );
 	    }
 	}
@@ -470,10 +448,6 @@ bool Expl2ImplBodyExtracter::doP2P( od_int64 start, od_int64 stop )
 
 
 BodyOperator::BodyOperator()
-    : inputbodyop0_( 0 )
-    , inputbodyop1_( 0 )
-    , id_( getFreeID() )
-    , action_( Union )
 {}
 
 
@@ -523,14 +497,12 @@ void BodyOperator::setInput( bool body0, const MultiID& mid )
 {
     if ( body0 )
     {
-	if ( inputbodyop0_ ) delete inputbodyop0_;
-	inputbodyop0_ = 0;
+	deleteAndNullPtr( inputbodyop0_ );
 	inputbody0_ = mid;
     }
     else
     {
-	if ( inputbodyop1_ ) delete inputbodyop1_;
-	inputbodyop1_ = 0;
+	deleteAndNullPtr( inputbodyop1_ );
 	inputbody1_ = mid;
     }
 }
@@ -563,7 +535,7 @@ BodyOperator* BodyOperator::getChildOprt( bool body0 ) const
 
 bool BodyOperator::getChildOprt( int freeid, BodyOperator& res )
 {
-   if ( freeid==id_ )
+   if ( freeid == id_ )
    {
        res = *this;
        return true;
@@ -571,7 +543,7 @@ bool BodyOperator::getChildOprt( int freeid, BodyOperator& res )
 
    for ( int idx=0; idx<2; idx++ )
    {
-       if ( getChildOprt(!idx) )
+	if ( getChildOprt(!idx) )
 	   return getChildOprt(!idx)->getChildOprt( freeid, res );
    }
 
@@ -581,35 +553,36 @@ bool BodyOperator::getChildOprt( int freeid, BodyOperator& res )
 
 ImplicitBody* BodyOperator::getOperandBody( bool body0, TaskRunner* tr ) const
 {
-    ImplicitBody* body = 0;
-    BodyOperator* oprt = body0 ? inputbodyop0_ : inputbodyop1_;
+    ImplicitBody* body = nullptr;
+    const BodyOperator* oprt = body0 ? inputbodyop0_ : inputbodyop1_;
     if ( !oprt )
     {
 	const MultiID mid = body0 ? inputbody0_ : inputbody1_;
 	const BufferString translt = EMM().objectType(mid);
 	EM::EMObject* obj = EMM().createTempObject( translt );
 
-	if ( !obj ) return 0;
+	if ( !obj )
+	    return nullptr;
 	obj->ref();
 
 	obj->setMultiID( mid );
 	if ( !obj->loader() || !obj->loader()->execute() )
 	{
 	    obj->unRef();
-	    return 0;
+	    return nullptr;
 	}
 
 	mDynamicCastGet( Body*, embody, obj );
 	if ( !embody )
 	{
 	    obj->unRef();
-	    return 0;
+	    return nullptr;
 	}
 
 	body = embody->createImplicitBody( tr, false );
 	obj->unRef();
     }
-    else if ( !oprt->createImplicitBody( body, tr ) )
+    else if ( !oprt->createImplicitBody(body,tr) )
     {
 	delete body;
 	body = 0;
@@ -620,10 +593,12 @@ ImplicitBody* BodyOperator::getOperandBody( bool body0, TaskRunner* tr ) const
 
 bool BodyOperator::createImplicitBody( ImplicitBody*& res, TaskRunner* tr) const
 {
-    if ( !isOK() ) return false;
+    if ( !isOK() )
+	return false;
 
     ImplicitBody* b0 = getOperandBody( true, tr );
-    if ( !b0 ) return false;
+    if ( !b0 )
+	return false;
 
     ImplicitBody* b1 = getOperandBody( false, tr );
     if ( !b1 )
@@ -635,9 +610,9 @@ bool BodyOperator::createImplicitBody( ImplicitBody*& res, TaskRunner* tr) const
     //Case 1: at least one implicit body is 0.
     if ( !b0 || !b1 )
     {
-	if ( action_==IntSect )
-	    res = 0;
-	else if ( action_==Union )
+	if ( action_ == IntSect )
+	    res = nullptr;
+	else if ( action_ == Union )
 	    res = b0 ? b0 : b1;
 	else
 	    res = b0 ? b0 : 0;
@@ -648,7 +623,9 @@ bool BodyOperator::createImplicitBody( ImplicitBody*& res, TaskRunner* tr) const
     //Case 2: two bodies exist but there is no array for at least one of them.
     if ( !b0->arr_ || !b1->arr_ )
     {
-	res = 0;
+	res = nullptr;
+	delete b0;
+	delete b1;
 	return true;//May discuss more similar to case 1.
     }
 
@@ -662,44 +639,48 @@ bool BodyOperator::createImplicitBody( ImplicitBody*& res, TaskRunner* tr) const
 
     //If action is Minus, make the new cube the same size as body0.
     StepInterval<int> newinlrg( inlrg0.start_, inlrg0.stop_,
-                                mMIN( inlrg0.step_, inlrg1.step_ ) );
+				mMIN( inlrg0.step_, inlrg1.step_ ) );
     StepInterval<int> newcrlrg( crlrg0.start_, crlrg0.stop_,
-                                mMIN( crlrg0.step_, crlrg1.step_ ) );
-    StepInterval<float> newzrg(zrg0.start_,zrg0.stop_,mMIN(zrg0.step_,zrg1.step_));
-    if ( action_==Union )
+				mMIN( crlrg0.step_, crlrg1.step_ ) );
+    StepInterval<float> newzrg( zrg0.start_,zrg0.stop_,
+				mMIN(zrg0.step_,zrg1.step_) );
+    if ( action_ == Union )
     {
-        newinlrg.start_ = mMIN( inlrg0.start_, inlrg1.start_ );
-        newinlrg.stop_ = mMAX( inlrg0.stop_, inlrg1.stop_ );
+	newinlrg.start_ = mMIN( inlrg0.start_, inlrg1.start_ );
+	newinlrg.stop_ = mMAX( inlrg0.stop_, inlrg1.stop_ );
 
-        newcrlrg.start_ = mMIN( crlrg0.start_, crlrg1.start_ );
-        newcrlrg.stop_ = mMAX( crlrg0.stop_, crlrg1.stop_ );
+	newcrlrg.start_ = mMIN( crlrg0.start_, crlrg1.start_ );
+	newcrlrg.stop_ = mMAX( crlrg0.stop_, crlrg1.stop_ );
 
-        newzrg.start_ = mMIN( zrg0.start_, zrg1.start_ );
-        newzrg.stop_ = mMAX( zrg0.stop_, zrg1.stop_ );
+	newzrg.start_ = mMIN( zrg0.start_, zrg1.start_ );
+	newzrg.stop_ = mMAX( zrg0.stop_, zrg1.stop_ );
     }
-    else if ( action_==IntSect )
+    else if ( action_ == IntSect )
     {
-        newinlrg.start_ = mMAX( inlrg0.start_, inlrg1.start_ );
-        newinlrg.stop_ = mMIN( inlrg0.stop_, inlrg1.stop_ );
+	newinlrg.start_ = mMAX( inlrg0.start_, inlrg1.start_ );
+	newinlrg.stop_ = mMIN( inlrg0.stop_, inlrg1.stop_ );
 
-        newcrlrg.start_ = mMAX( crlrg0.start_, crlrg1.start_ );
-        newcrlrg.stop_ = mMIN( crlrg0.stop_, crlrg1.stop_ );
+	newcrlrg.start_ = mMAX( crlrg0.start_, crlrg1.start_ );
+	newcrlrg.stop_ = mMIN( crlrg0.stop_, crlrg1.stop_ );
 
-        newzrg.start_ = mMAX( zrg0.start_, zrg1.start_ );
-        newzrg.stop_ = mMIN( zrg0.stop_, zrg1.stop_ );
+	newzrg.start_ = mMAX( zrg0.start_, zrg1.start_ );
+	newzrg.stop_ = mMIN( zrg0.stop_, zrg1.stop_ );
     }
 
     if ( newinlrg.start_>newinlrg.stop_ || newcrlrg.start_>newcrlrg.stop_ ||
          newzrg.start_>newzrg.stop_ )
     {
-	res = 0;
+	res = nullptr;
 	return true;
     }
 
     //Add one layer to the cube to make MarchingCubes display boundary nicely.
-    if ( newinlrg.start_-newinlrg.step_>=0 ) newinlrg.start_ -= newinlrg.step_;
-    if ( newcrlrg.start_-newcrlrg.step_>=0 ) newcrlrg.start_ -= newcrlrg.step_;
-    if ( newzrg.start_-newzrg.step_>=0 ) newzrg.start_ -= newzrg.step_;
+    if ( newinlrg.start_-newinlrg.step_>=0 )
+	newinlrg.start_ -= newinlrg.step_;
+    if ( newcrlrg.start_-newcrlrg.step_>=0 )
+	newcrlrg.start_ -= newcrlrg.step_;
+    if ( newzrg.start_-newzrg.step_>=0 )
+	newzrg.start_ -= newzrg.step_;
 
     newinlrg.stop_ += newinlrg.step_;
     newcrlrg.stop_ += newcrlrg.step_;
@@ -717,14 +698,14 @@ bool BodyOperator::createImplicitBody( ImplicitBody*& res, TaskRunner* tr) const
 		newinlrg.nrSteps()+1,newcrlrg.nrSteps()+1,newzrg.nrSteps()+1));
     if ( !arr )
     {
-	res = 0;
+	res = nullptr;
 	delete b0;
 	delete b1;
 	return false;
     }
 
     BodyOperatorArrayFiller arrfiller( *b0, *b1, newinlrg, newcrlrg, newzrg,
-					action_, *arr );
+				       action_, *arr );
     arrfiller.execute();
 
     res->arr_ = arr;
@@ -741,8 +722,8 @@ bool BodyOperator::createImplicitBody( ImplicitBody*& res, TaskRunner* tr) const
 ImplicitBody* BodyOperator::createImplicitBody( const TypeSet<Coord3>& bodypts,
 						TaskRunner* tr ) const
 {
-    if ( bodypts.size()<3 )
-	return 0;
+    if ( bodypts.size() < 3 )
+	return nullptr;
 
     StepInterval<int> inlrg( 0, 0, SI().inlStep() );
     StepInterval<int> crlrg( 0, 0, SI().crlStep() );
@@ -754,72 +735,84 @@ ImplicitBody* BodyOperator::createImplicitBody( const TypeSet<Coord3>& bodypts,
 
 	if ( !idx )
 	{
-            inlrg.start_ = inlrg.stop_ = bid.inl();
-            crlrg.start_ = crlrg.stop_ = bid.crl();
-            zrg.start_ = zrg.stop_ = (float) bodypts[idx].z_;
+	    inlrg.start_ = inlrg.stop_ = bid.inl();
+	    crlrg.start_ = crlrg.stop_ = bid.crl();
+	    zrg.start_ = zrg.stop_ = (float) bodypts[idx].z_;
 	}
 	else
 	{
 	    inlrg.include( bid.inl() );
 	    crlrg.include( bid.crl() );
-            zrg.include( (float) bodypts[idx].z_ );
+	    zrg.include( (float) bodypts[idx].z_ );
 	}
     }
 
-    if ( inlrg.start_-inlrg.step_>=0 ) inlrg.start_ -= inlrg.step_;
-    if ( crlrg.start_-crlrg.step_>=0 ) crlrg.start_ -= crlrg.step_;
-    if ( zrg.start_-zrg.step_>=0 ) zrg.start_ -= zrg.step_;
-    if ( inlrg.stop_+inlrg.step_<=SI().inlRange(true).stop_ )
-        inlrg.stop_ += inlrg.step_;
+    if ( inlrg.start_-inlrg.step_ >= 0 )
+	inlrg.start_ -= inlrg.step_;
+    if ( crlrg.start_-crlrg.step_ >= 0 )
+	crlrg.start_ -= crlrg.step_;
+    if ( zrg.start_-zrg.step_ >= 0 )
+	zrg.start_ -= zrg.step_;
+    if ( inlrg.stop_+inlrg.step_ <= SI().inlRange(true).stop_ )
+	inlrg.stop_ += inlrg.step_;
 
-    if ( crlrg.stop_+crlrg.step_<=SI().crlRange(true).stop_ )
+    if ( crlrg.stop_+crlrg.step_ <= SI().crlRange(true).stop_ )
         crlrg.stop_ += crlrg.step_;
 
-    if ( zrg.stop_+zrg.step_<=SI().zRange(true).stop_ )
+    if ( zrg.stop_+zrg.step_ <= SI().zRange(true).stop_ )
         zrg.stop_ += zrg.step_;
 
     mDeclareAndTryAlloc( Array3D<float>*, arr, Array3DImpl<float>(
-		inlrg.nrSteps()+1, crlrg.nrSteps()+1, zrg.nrSteps()+1 ) );
-    if ( !arr ) return 0;
+		    inlrg.nrSteps()+1, crlrg.nrSteps()+1, zrg.nrSteps()+1 ) );
+    if ( !arr )
+	return nullptr;
 
     mDeclareAndTryAlloc(ImplicitBody*,res,ImplicitBody);
     if ( !res )
     {
 	delete arr;
-	return 0;
+	return nullptr;
     }
+
+    PtrMan<ImplicitBody> resptrman = res;
+    PtrMan<Array3D<float>> arrptrman = arr;
 
     TypeSet<Coord3> pts = bodypts;
     const int zscale = SI().zDomain().userFactor();
     if ( zscale != 1 )
     {
 	for ( int idx=0; idx<bodypts.size(); idx++ )
-            pts[idx].z_ *= zscale;
+	    pts[idx].z_ *= zscale;
     }
 
     DAGTetrahedraTree dagtree;
-    if ( !dagtree.setCoordList( pts, false ) )
-	return 0;
+    if ( !dagtree.setCoordList(pts,false) )
+	return nullptr;
 
     ParallelDTetrahedralator triangulator( dagtree );
-    if ( TaskRunner::execute( tr, triangulator ) )
+    if ( TaskRunner::execute(tr,triangulator) )
     {
-	StepInterval<float> tmpzrg( zrg ); tmpzrg.scale( mCast(float,zscale) );
+	StepInterval<float> tmpzrg( zrg );
+	tmpzrg.scale( mCast(float,zscale) );
 	PtrMan<Expl2ImplBodyExtracter> extract = new
 	    Expl2ImplBodyExtracter( dagtree, inlrg, crlrg, tmpzrg, *arr );
-	if ( TaskRunner::execute( tr, *extract ) )
+	if ( TaskRunner::execute(tr,*extract) )
 	{
 	    res->arr_ = arr;
 	    res->threshold_ = 0;
-            res->tkzs_.hsamp_.start_ = BinID(inlrg.start_, crlrg.start_);
-            res->tkzs_.hsamp_.stop_ = BinID(inlrg.stop_, crlrg.stop_);
-            res->tkzs_.hsamp_.step_ = BinID(inlrg.step_, crlrg.step_);
+	    res->tkzs_.hsamp_.start_ = BinID(inlrg.start_, crlrg.start_);
+	    res->tkzs_.hsamp_.stop_ = BinID(inlrg.stop_, crlrg.stop_);
+	    res->tkzs_.hsamp_.step_ = BinID(inlrg.step_, crlrg.step_);
 	    res->tkzs_.zsamp_ = zrg;
+
+	    resptrman.release();
+	    arrptrman.release();
+
 	    return res;
 	}
     }
 
-    return 0;
+    return nullptr;
 }
 
 
@@ -829,15 +822,15 @@ bool BodyOperator::usePar( const IOPar& par )
     par.get( sKeyBodyID0(), inputbody0_ );
     par.get( sKeyBodyID1(), inputbody1_ );
 
-    if( (inputbodyop0_ && !inputbodyop0_->usePar(par)) ||
-	(inputbodyop1_ && !inputbodyop1_->usePar(par)) )
+    if ( (inputbodyop0_ && !inputbodyop0_->usePar(par)) ||
+	 (inputbodyop1_ && !inputbodyop1_->usePar(par)) )
 	return false;
 
-    if ( !par.get( sKeyID(), id_ ) )
+    if ( !par.get(sKeyID(),id_) )
 	return false;
 
     int act;
-    if ( !par.get( sKeyAction(), act ) )
+    if ( !par.get(sKeyAction(),act) )
 	return false;
 
     action_ = act==0 ? Union : (act==1 ? IntSect : Minus);
@@ -848,8 +841,10 @@ bool BodyOperator::usePar( const IOPar& par )
 
 void BodyOperator::fillPar( IOPar& par )
 {
-    if ( inputbodyop0_ )  inputbodyop0_->fillPar(par);
-    if ( inputbodyop1_ )  inputbodyop1_->fillPar(par);
+    if ( inputbodyop0_ )
+	inputbodyop0_->fillPar(par);
+    if ( inputbodyop1_ )
+	inputbodyop1_->fillPar(par);
 
     par.set( sKeyBodyID0(), inputbody0_ );
     par.set( sKeyBodyID1(), inputbody1_ );
