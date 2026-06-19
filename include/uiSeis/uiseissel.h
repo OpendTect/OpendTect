@@ -35,7 +35,9 @@ public:
 
 			Setup(Seis::GeomType);
 			Setup(bool is2d,bool isps);
+			Setup(const Setup&);
 			~Setup();
+	Setup&		operator=(const Setup&);
 
 	mDefSetupMemb(Seis::GeomType,geom)
 	mDefSetupMemb(bool,allowsetdefault) //!< Fill with def cube/line? True
