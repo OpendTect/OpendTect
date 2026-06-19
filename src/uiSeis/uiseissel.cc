@@ -289,7 +289,33 @@ uiSeisSel::Setup::Setup( Seis::GeomType gt )
 uiSeisSel::Setup::Setup( bool is2d, bool isps )
     : uiSeisSel::Setup(Seis::geomTypeOf(is2d,isps))
 {
+}
+
+
+uiSeisSel::Setup::Setup( const Setup& oth )
+{
     hp_withunitsel_.setParam( this, false );
+    *this = oth;
+}
+
+
+uiSeisSel::Setup& uiSeisSel::Setup::operator=( const Setup& oth )
+{
+    if ( this == &oth )
+	return *this;
+
+    geom_ = oth.geom_;
+    allowsetdefault_ = oth.allowsetdefault_;
+    enabotherdomain_ = oth.enabotherdomain_;
+    domainpol_ = oth.domainpol_;
+    compnrpol_ = oth.compnrpol_;
+    steerpol_ = oth.steerpol_;
+    allowsetsurvdefault_ = oth.allowsetsurvdefault_;
+    explprepost_ = oth.explprepost_;
+    selectcomp_ = oth.selectcomp_;
+
+    setWithUnitSel( oth.withUnitSel() );
+    return *this;
 }
 
 

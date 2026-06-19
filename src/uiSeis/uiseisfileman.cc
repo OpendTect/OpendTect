@@ -595,6 +595,7 @@ void uiSeisFileMan::getBasicFileInfo( BufferString& txt ) const
 
     BufferStringSet filenames;
     seisobjinfo.getAllFileNames( filenames, true );
+    filenames.remove( fname.buf() );
     if ( !filenames.isEmpty() )
     {
 	if ( filenames.size()==1 )
@@ -603,12 +604,7 @@ void uiSeisFileMan::getBasicFileInfo( BufferString& txt ) const
 	{
 	    txt.add( "\nLinked files: " );
 	    for ( const auto* nm : filenames )
-	    {
-		if ( *nm == fname )
-		    continue;
-
 		txt.add( "\n" ).add( nm->buf() );
-	    }
 	}
     }
 

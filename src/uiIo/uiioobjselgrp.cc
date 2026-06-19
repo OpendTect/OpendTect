@@ -731,7 +731,7 @@ void uiIOObjSelGrp::setIsBad( int idx )
     if ( !listfld_->validIdx(idx) )
 	return;
 
-    listfld_->setColor( idx, sNotOKColor );
+    listfld_->setIcon( idx, "abort" );
 }
 
 
