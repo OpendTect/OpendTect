@@ -9,13 +9,13 @@
 #		   OpendTect.
 #
 # Input variables:
-# 
+#
 # OD_MODULE_NAME			: Name of the module, or the plugin
 # OD_SUBSYSTEM                          : "od" or "dgb"
 # OD_MODULE_DEPS			: List of other modules that this
 #					  module is dependent on.
 # OD_MODULE_SOURCES			: Sources that should go into the library
-# OD_USEBATCH				: Whether to include include/Batch 
+# OD_USEBATCH				: Whether to include include/Batch
 # OD_USEQT				: Dependency on Qt is enabled if set.
 # OD_INSTQT				: Runtime libraries from Qt are required.
 #					  value should be a valid Qt component like
@@ -59,7 +59,7 @@
 # OD_${OD_MODULE_NAME}_RUNTIMEPATH	: The runtime path for its own library,
 #					  and all external libraries it is
 #					  dependent on.
-# OD_${OD_MODULE_NAME}_PROGS		: The list of all executable that 
+# OD_${OD_MODULE_NAME}_PROGS		: The list of all executable that
 #					  belong to a given module.
 # OD_MODULE_NAMES_${OD_SUBSYSTEM}	: A list of all modules
 # OD_CORE_MODULE_NAMES_${OD_SUBSYSTEM}  : A list of all non-plugin modules
@@ -72,6 +72,7 @@
 # OD_MODULE_RUNTIMEPATH		: All directories that are needed at runtime
 # OD_MODULE_INTERNAL_LIBS	: All OD libraries needed for the module
 # OD_MODULE_ALL_EXTERNAL_LIBS	: All external libraries needed for the module
+# OD_MODULE_STATIC_EXTERNALS    : The external libraries are static
 
 list( APPEND SETUPNMS
        USEQT
@@ -96,7 +97,7 @@ macro( OD_GET_MODULE_DEPS )
 	#Add dependencies to include-path
 	list(APPEND OD_MODULE_INCLUDEPATH ${OD_${DEP}_INCLUDEPATH} )
 	list(APPEND OD_MODULE_RUNTIMEPATH ${OD_${DEP}_RUNTIMEPATH} )
-	if ( NOT OD_SUBSYSTEM MATCHES ${OD_CORE_SUBSYSTEM} AND 
+	if ( NOT OD_SUBSYSTEM MATCHES ${OD_CORE_SUBSYSTEM} AND
 	     "${OD_DISABLE_EXTERNAL_LIBS_CHECK}" STREQUAL "OFF" )
 	    set( NEEDSSETUP FALSE )
 	    foreach( USENM ${SETUPNMS} )
@@ -143,7 +144,7 @@ if ( OD_MODULE_HAS_LIBRARY )
     set( OD_MODULE_NAMES_${OD_SUBSYSTEM} ${OD_MODULE_NAMES_${OD_SUBSYSTEM}}
 					 ${OD_MODULE_NAME} PARENT_SCOPE )
 
-    #Create init-header 
+    #Create init-header
     OD_CREATE_INIT_HEADER()
 endif(  OD_MODULE_HAS_LIBRARY )
 
@@ -152,6 +153,18 @@ set( OD_${OD_MODULE_NAME}_DEPS ${OD_MODULE_DEPS} ${OD_EXT_MODULE_DEPS} )
 
 #Setup all deps and set runtime and includepath
 if( OD_MODULE_DEPS )
+    set( OD_MODULE_STATIC_EXTERNALS FALSE )
+    if( OD_MODULE_EXTERNAL_LIBS )
+	set( OD_MODULE_STATIC_EXTERNALS TRUE )
+	foreach( _lib ${OD_MODULE_EXTERNAL_LIBS} )
+	    get_target_property( _LIBTYPE ${_lib} TYPE )
+	    if ( NOT "${_LIBTYPE}" STREQUAL "STATIC_LIBRARY" )
+		set( OD_MODULE_STATIC_EXTERNALS FALSE )
+		break()
+	    endif()
+	endforeach()
+	unset( _LIBTYPE )
+    endif()
     OD_GET_MODULE_DEPS()
     foreach( USENM ${SETUPNMS} )
 	if ( OD_${USENM} )
@@ -230,12 +243,12 @@ if ( OD_MODULE_HAS_LIBRARY )
 	    ${INITHEADER_DIR} )
 
 	if ( EXISTS ${CMAKE_SOURCE_DIR}/include/${OD_MODULE_NAME} )
-	    list( APPEND OD_${OD_MODULE_NAME}_INCLUDEPATH 
+	    list( APPEND OD_${OD_MODULE_NAME}_INCLUDEPATH
 		${CMAKE_SOURCE_DIR}/include/${OD_MODULE_NAME} )
 	endif()
 
 	if ( EXISTS ${CMAKE_SOURCE_DIR}/spec/${OD_MODULE_NAME} )
-	    list( APPEND OD_${OD_MODULE_NAME}_INCLUDEPATH 
+	    list( APPEND OD_${OD_MODULE_NAME}_INCLUDEPATH
 		${CMAKE_SOURCE_DIR}/spec/${OD_MODULE_NAME} )
 	endif()
     endif(OD_IS_PLUGIN)
@@ -337,7 +350,7 @@ foreach( STATIC_LIB ${OD_MODULE_STATIC_LIBS} )
 	file ( MAKE_DIRECTORY ${STATIC_LIB_DIR} )
     endif()
 
-    execute_process( 
+    execute_process(
 	COMMAND ${SHARED_LIB_COMMAND}
 	WORKING_DIRECTORY ${STATIC_LIB_DIR} )
 
@@ -407,7 +420,7 @@ if ( OD_MODULE_HAS_LIBRARY )
 	    ${OD_LIB_DEP_LIBS}
 	    ${OD_MODULE_EXTERNAL_LIBS}
 	    ${OD_MODULE_EXTERNAL_SYSLIBS} )
-	
+
     set ( TARGET_PROPERTIES ${OD_MODULE_NAME}
 	  PROPERTIES
 	  LABELS ${OD_MODULE_NAME}
@@ -511,7 +524,7 @@ if ( OD_MODULE_TESTPROGS OR OD_MODULE_PROGS OR OD_MODULE_GUI_PROGS OR OD_ELEVATE
 	    list ( APPEND OD_${OD_MODULE_NAME}_PROGS ${TARGET_NAME} )
 	endif()
 
-	add_executable( ${TARGET_NAME} ${OD_EXEC_GUI_SYSTEM} ${EXEC} 
+	add_executable( ${TARGET_NAME} ${OD_EXEC_GUI_SYSTEM} ${EXEC}
 			${OD_${TARGET_NAME}_RESOURCE} )
 	unset( OD_EXEC_GUI_SYSTEM )
 	if ( OD_EXECUTABLE_COMPILE_FLAGS )
@@ -524,7 +537,7 @@ if ( OD_MODULE_TESTPROGS OR OD_MODULE_PROGS OR OD_MODULE_GUI_PROGS OR OD_ELEVATE
 			EXEC IN_LIST OD_ELEVATED_PERMISSIONS_GUI_PROGS) )
 	    list ( APPEND OD_PROG_LINK_OPTIONS "${OD_UAC_LINKFLAGS}" )
 	endif()
-			
+
 	set( TARGET_PROPERTIES ${TARGET_NAME}
 	     PROPERTIES
 	     LABELS ${OD_MODULE_NAME}
@@ -798,7 +811,7 @@ endif( OD_USEBATCH )
 include_directories( SYSTEM ${OD_MODULE_INCLUDESYSPATH} )
 include_directories( ${OD_MODULE_INCLUDEPATH} )
 
-if ( WIN32 AND OD_MODULE_HAS_LIBRARY )
+if ( WIN32 AND OD_MODULE_HAS_LIBRARY AND NOT OD_MODULE_STATIC_EXTERNALS )
 
     if ( OD_IS_PLUGIN AND NOT "${OD_${OD_MODULE_NAME}_EXTERNAL_LIBS}" STREQUAL "" )
 	add_custom_command( TARGET ${OD_MODULE_NAME} POST_BUILD
@@ -833,7 +846,7 @@ if ( WIN32 AND OD_MODULE_HAS_LIBRARY )
 
 endif()
 
-if ( APPLE AND OD_MODULE_HAS_LIBRARY )
+if ( APPLE AND OD_MODULE_HAS_LIBRARY AND NOT OD_MODULE_STATIC_EXTERNALS )
     set (ALL_OD_MODULE_EXTERNAL_LIBS ${OD_${OD_MODULE_NAME}_EXTERNAL_LIBS})
     if ( NOT "${ALL_OD_MODULE_EXTERNAL_LIBS}" STREQUAL "" )
     OD_MACOS_ADD_EXTERNAL_LIBS( ALL_OD_MODULE_EXTERNAL_LIBS )
@@ -845,7 +858,7 @@ if ( APPLE AND OD_MODULE_HAS_LIBRARY )
             "$<TARGET_FILE_DIR:${OD_MODULE_NAME}>/"
         COMMAND_EXPAND_LISTS
         COMMENT "Copying runtime libraries of the plugin ${OD_MODULE_NAME}")
-    endforeach()				
+    endforeach()
     endif()
     unset(ALL_OD_MODULE_EXTERNAL_LIBS)
 endif()
@@ -874,7 +887,7 @@ endmacro ( OD_GET_ALL_DEPS_ADD )
 # OD_ADD_PLUGIN_SOURCES(SOURCES) - Adds sources in a submodule of a plugin
 #
 # Input variables:
-# 
+#
 # OD_PLUGINSUBDIR			: Name sub-module of the plugin
 # SOURCES				: List of sources to add
 #
@@ -890,7 +903,7 @@ endmacro()
 # OD_ADD_PLUGIN_EXECS(SOURCES) - Adds sources in a submodule of a plugin
 #
 # Input variables:
-# 
+#
 # OD_PLUGINSUBDIR			: Name sub-module of the plugin
 # SOURCES				: List of sources to add
 #
@@ -907,7 +920,7 @@ endmacro()
 # OD_ADD_PLUGIN_BATCHPROGS(SOURCES) - Adds sources in a submodule of a plugin
 #
 # Input variables:
-# 
+#
 # OD_PLUGINSUBDIR			: Name sub-module of the plugin
 # SOURCES				: List of sources to add
 #
@@ -924,7 +937,7 @@ endmacro()
 macro ( OD_ADD_SOURCE_FILES )
     foreach ( THEFILE ${ARGV} )
 	get_filename_component( PATH ${THEFILE} ABSOLUTE )
-	file ( RELATIVE_PATH RELPATH "${CMAKE_BINARY_DIR}" ${PATH} ) 
+	file ( RELATIVE_PATH RELPATH "${CMAKE_BINARY_DIR}" ${PATH} )
         file ( APPEND ${OD_SOURCELIST_FILE} ${RELPATH} "\n" )
     endforeach()
 endmacro()
