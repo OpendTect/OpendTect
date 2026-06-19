@@ -992,16 +992,17 @@ RefMan<RegularSeisDataPack> uiAttribPartServer::createOutputRM(
 			// Very fast for few translators
 			SeisTrcReader trcrdr( *ioobj.ptr() );
 			trcrdr.setSelData( new Seis::RangeSelData(tkzs) );
+			trcrdr.setComponents( selcomps );
 			RefMan<RegularSeisDataPack> sdp =
 				new RegularSeisDataPack(
-					    VolumeDataPack::categoryStr(tkzs) );
-			//TODO should be:
-			//if ( trcrdr.getDataPack(*sdp,selcomps,taskr) )
-			if ( trcrdr.getDataPack(*sdp,taskr) )
-			    return sdp;
-			else if ( taskr &&
-				  uitaskr.uiResult()==uiDialog::Rejected )
-			    aborted = true;
+					VolumeDataPack::categoryStr(tkzs) );
+			if ( trcrdr.canGetDataPack() )
+			{
+			    if ( trcrdr.getDataPack(*sdp,taskr) )
+				return sdp;
+			    else
+				return nullptr;
+			}
 
 			sdp = nullptr;
 			// Somewhat fast, but for all formats

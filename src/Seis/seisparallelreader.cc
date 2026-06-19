@@ -1036,9 +1036,15 @@ bool Seis::SequentialReader::init()
     seissummary_ = is2d_ ? new ObjectSummary( *ioobj_, tkzs_.hsamp_.getGeomID())
 			 : new ObjectSummary( *ioobj_ );
     if ( !seissummary_ || !seissummary_->isOK() )
-	{ deleteAndNullPtr(seissummary_); return false; }
+    {
+	deleteAndNullPtr( seissummary_ );
+	return false;
+    }
 
     const SeisIOObjInfo& seisinfo = seissummary_->getFullInformation();
+    if ( !seisinfo.isOK() )
+	return false;
+
     TrcKeyZSampling seistkzs( tkzs_ );
     seisinfo.getRanges( seistkzs );
     const DataCharacteristics datasetdc( seissummary_->getDataChar() );

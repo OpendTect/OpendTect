@@ -183,6 +183,7 @@ public:
     virtual bool	readInfo(SeisTrcInfo&)		{ return false; }
     virtual bool	read(SeisTrc&);
     virtual bool	readData(TraceData* extbuf=nullptr) { return false; }
+    virtual bool	supportsReadDataPack()		{ return false; }
     virtual bool	readDataPack(RegularSeisDataPack&,
 				     TaskRunner* =nullptr)  { return false; }
     virtual bool	skip( int nrtrcs=1 )		{ return false; }

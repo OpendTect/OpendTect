@@ -574,6 +574,12 @@ bool SeisTrcReader::getData( TraceData& data )
 }
 
 
+bool SeisTrcReader::canGetDataPack()
+{
+    return strl() && strl()->supportsReadDataPack();
+}
+
+
 bool SeisTrcReader::getDataPack( RegularSeisDataPack& sdp, TaskRunner* taskr )
 {
     needskip_ = false;

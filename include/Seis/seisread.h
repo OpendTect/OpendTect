@@ -90,6 +90,7 @@ public:
 			      get(SeisTrc&). */
 
     bool		getData(TraceData&);
+    bool		canGetDataPack();
     bool		getDataPack(RegularSeisDataPack&,TaskRunner* =nullptr);
 
     bool		get(SeisTrc&);

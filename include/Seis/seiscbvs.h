@@ -30,6 +30,7 @@ public:
 			~CBVSSeisTrcTranslator();
 
     bool		readInfo(SeisTrcInfo&) override;
+    bool		supportsReadDataPack() override;
     bool		readDataPack(RegularSeisDataPack&,TaskRunner*) override;
     bool		skip(int nrtrcs=1) override;
 

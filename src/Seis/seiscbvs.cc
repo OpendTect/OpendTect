@@ -597,11 +597,16 @@ bool CBVSSeisTrcTranslator::readInfo( SeisTrcInfo& ti )
 }
 
 
+bool CBVSSeisTrcTranslator::supportsReadDataPack()
+{
+    return GetEnvVarYN("OD_ENABLE_TRANSLATOR_DATAPACK",false);
+}
+
+
 bool CBVSSeisTrcTranslator::readDataPack( RegularSeisDataPack& rsdp,
 					  TaskRunner* )
 {
-    const bool res = GetEnvVarYN("OD_ENABLE_TRANSLATOR_DATAPACK",false);
-    if ( !res )
+    if ( !supportsReadDataPack() )
 	return false;
 
     if ( !storbuf_ && !commitSelections() )
