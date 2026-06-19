@@ -1,0 +1,120 @@
+[workspace]
+channels = ["conda-forge"]
+name = "odmain"
+platforms = ["linux-64", "win-64"]
+version = "1.0"
+description = "Pixi setup to build the OpendTect main branch"
+
+[dependencies]
+cmake = "<4.0"
+git = "*"
+ninja = "*"
+7zip = "*"
+bzip2 = "*"
+openssl = "*"
+pkg-config = "*"
+hdf5 = "1.14.*"
+openscenegraph = "3.6.5.*"
+proj = "9.7.*"
+qt6-main = "6.9.3.*"
+sqlite = "3.52.*"
+libzlib = "1.3.*"
+
+[target.win-64.dependencies]
+vs2022_win-64 = ">=19.44"
+
+[target.linux-64.dependencies]
+gxx = "<13.4"
+alsa-lib = "*"
+binutils = "*"
+curl = "*"
+fontconfig = "*"
+glib = "*"
+libcups = "*"
+libegl-devel = "*"
+libgl-devel = "*"
+libglu = "*"
+libstdcxx-ng = "*"
+libtree = "*"
+libxcb = "*"
+libxkbcommon = "*"
+libxkbfile = "*"
+nspr = "*"
+nss = "*"
+qt6-wayland = "6.9.3.*"
+sysroot_linux-64 = "*"
+wayland = "*"
+xcb-util = "*"
+xkeyboard-config = "*"
+xorg-xorgproto = "*"
+xorg-libx11 = "*"
+xorg-libxcomposite = "*"
+xorg-libxdamage = "*"
+xorg-libxi = "*"
+xorg-libxinerama = "*"
+xorg-libxrandr = "*"
+xorg-libxtst = "*"
+
+#[tasks.clone]
+# git clone the OpendTect main branch
+#cmd = "git clone -b main --depth 1 https://github.com/OpendTect/OpendTect.git"
+
+[target.win-64.tasks.config]
+cmd = [
+    "cmake",
+    "-G", "Ninja Multi-Config",
+    "-S", "./",
+    "-B", "./build",
+    "-D", "OSG_ROOT=$CONDA_PREFIX/Library/lib",
+    "-D", "ZLIB_ROOT=$CONDA_PREFIX/Library",
+    "-D", "ZLIB_LIBRARY=$CONDA_PREFIX/Library/lib/zlib.lib",
+    "-D", "CMAKE_INSTALL_PREFIX=./inst",
+    "-D", "CMAKE_PREFIX_PATH=$CONDA_PREFIX"
+]
+
+[target.linux-64.tasks.config]
+cmd = [
+    "cmake",
+    "-G", "Ninja Multi-Config",
+    "-S", "./",
+    "-B", "./build",
+    "-D", "OSG_ROOT=$CONDA_PREFIX/lib",
+    "-D", "CMAKE_INSTALL_PREFIX=./inst",
+    "-D", "CMAKE_PREFIX_PATH=$CONDA_PREFIX"
+]
+
+[tasks.build-dev]
+cmd = [
+    "cmake",
+    "--build", "./build",
+    "--config", "Debug",
+    "&&",
+    "cmake",
+    "--install", "./build",
+    "--config", "Debug"
+]
+
+[tasks.build]
+cmd = [
+    "cmake",
+    "--build", "./build",
+    "--config", "Release",
+    "&&",
+    "cmake",
+    "--install", "./build",
+    "--config", "Release"
+]
+
+[target.linux-64.tasks.release]
+cmd = "./inst/bin/lux64/Release/od_main"
+env = {QT_QPA_PLATFORM="xcb"}
+
+[target.linux-64.tasks.debug]
+cmd = "./inst/bin/lux64/Debug/od_maind"
+env = {QT_QPA_PLATFORM="xcb"}
+
+[target.win-64.tasks.release]
+cmd = "./inst/bin/win64/Release/od_main.exe"
+
+[target.win-64.tasks.debug]
+cmd = "./inst/bin/win64/Debug/od_maind.exe"

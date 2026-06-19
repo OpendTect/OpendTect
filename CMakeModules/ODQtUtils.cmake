@@ -21,6 +21,19 @@ macro( OD_FIND_QT )
     if ( IS_DIRECTORY "${QT_ROOT}" AND NOT "${QT_ROOT}" IN_LIST CMAKE_PREFIX_PATH )
 	list ( APPEND CMAKE_PREFIX_PATH "${QT_ROOT}" )
     endif()
+    if ( DEFINED ENV{CONDA_PREFIX} )
+	if ( WIN32 )
+	    cmake_path(SET CMK_CONDA_PREFIX NORMALIZE $ENV{CONDA_PREFIX})
+	    if ( NOT "${QT_ROOT}" STREQUAL "${CMK_CONDA_PREFIX}/Library/lib/qt6" )
+		message( STATUS "Pixi environment detected. Adjust QT_ROOT" )
+		set( QT_ROOT "${CMK_CONDA_PREFIX}/Library/lib/qt6" )
+	    endif()
+	elseif( NOT "${QT_ROOT}" STREQUAL "$ENV{CONDA_PREFIX}/lib/qt6" )
+	    message( STATUS "Pixi environment detected. Adjust QT_ROOT" )
+	    set( QT_ROOT "$ENV{CONDA_PREFIX}/lib/qt6" )
+	endif()
+    endif()
+
 endmacro(OD_FIND_QT)
 
 macro(ADD_TO_LIST_IF_NEW LISTNAME ITEMNAME)
@@ -41,38 +54,37 @@ macro( QT_INSTALL_PLUGINS )
 	    cmake_path( GET QTPLUGIN_FILE STEM QTPLUGIN_STEM )
 	    cmake_path( GET QTPLUGIN_FILE EXTENSION QTPLUGIN_FILEEXT )
 	    install( FILES "${QT_ROOT}/plugins/${QTPLUGIN_FILE}"
-		     CONFIGURATIONS MinSizeRel;RelWithDebInfo;Release
-		     DESTINATION "${OD_RUNTIME_DIRECTORY}/../plugins/${QTPLUGIN_DIR}" )
+		CONFIGURATIONS MinSizeRel;RelWithDebInfo;Release
+		DESTINATION "${OD_RUNTIME_DIRECTORY}/../plugins/${QTPLUGIN_DIR}" )
 	    if ( EXISTS "${QT_ROOT}/plugins/${QTPLUGIN_DIR}/${QTPLUGIN_STEM}.pdb" )
 		install( FILES "${QT_ROOT}/plugins/${QTPLUGIN_DIR}/${QTPLUGIN_STEM}.pdb"
-			 CONFIGURATIONS RelWithDebInfo
-			 DESTINATION "${OD_RUNTIME_DIRECTORY}/../plugins/${QTPLUGIN_DIR}" )
+		    CONFIGURATIONS RelWithDebInfo
+		    DESTINATION "${OD_RUNTIME_DIRECTORY}/../plugins/${QTPLUGIN_DIR}" )
 	    endif()
 	    if ( EXISTS "${QT_ROOT}/plugins/${QTPLUGIN_DIR}/${QTPLUGIN_STEM}d${QTPLUGIN_FILEEXT}" )
 		install( FILES "${QT_ROOT}/plugins/${QTPLUGIN_DIR}/${QTPLUGIN_STEM}d${QTPLUGIN_FILEEXT}"
-			 CONFIGURATIONS Debug
-			 DESTINATION "${OD_RUNTIME_DIRECTORY}/../plugins/${QTPLUGIN_DIR}" )
+		    CONFIGURATIONS Debug
+		    DESTINATION "${OD_RUNTIME_DIRECTORY}/../plugins/${QTPLUGIN_DIR}" )
 	    endif()
 	    if ( EXISTS "${QT_ROOT}/plugins/${QTPLUGIN_DIR}/${QTPLUGIN_STEM}d.pdb" )
 		install( FILES "${QT_ROOT}/plugins/${QTPLUGIN_DIR}/${QTPLUGIN_STEM}d.pdb"
-			 CONFIGURATIONS Debug
-			 DESTINATION "${OD_RUNTIME_DIRECTORY}/../plugins/${QTPLUGIN_DIR}" )
+		    CONFIGURATIONS Debug
+		    DESTINATION "${OD_RUNTIME_DIRECTORY}/../plugins/${QTPLUGIN_DIR}" )
 	    endif()
 	else()
 	    if ( APPLE )
 		install( PROGRAMS "${QT_ROOT}/plugins/${QTPLUGIN_FILE}"
-			 CONFIGURATIONS MinSizeRel;RelWithDebInfo;Release
-			 DESTINATION "${OD_RUNTIME_DIRECTORY}/../plugins/${QTPLUGIN_DIR}" )
+		    CONFIGURATIONS MinSizeRel;RelWithDebInfo;Release
+		    DESTINATION "${OD_RUNTIME_DIRECTORY}/../plugins/${QTPLUGIN_DIR}" )
 		install( PROGRAMS "${QT_ROOT}/plugins/${QTPLUGIN_FILE}"
-			 CONFIGURATIONS Debug
-			 DESTINATION "${OD_RUNTIME_DIRECTORY}/../../plugins/${QTPLUGIN_DIR}" )
+		    CONFIGURATIONS Debug
+		    DESTINATION "${OD_RUNTIME_DIRECTORY}/../../plugins/${QTPLUGIN_DIR}" )
 	    else()
 		install( PROGRAMS "${QT_ROOT}/plugins/${QTPLUGIN_FILE}"
-			 DESTINATION "${OD_RUNTIME_DIRECTORY}/../plugins/${QTPLUGIN_DIR}" )
+		    DESTINATION "${OD_RUNTIME_DIRECTORY}/../plugins/${QTPLUGIN_DIR}" )
 	    endif()
 	endif()
     endforeach()
-
     list( APPEND OD_QTPLUGINS ${QT_REQ_PLUGINS} )
     list( REMOVE_DUPLICATES OD_QTPLUGINS )
 
@@ -89,9 +101,9 @@ macro( QT_SETUP_CORE_INTERNALS )
 	set( QTCONFTXT_DEBUG "${QTCONFTXT_DEBUG}Translations=Contents/translations\n" )
 	install( CODE "
 		    if( \"$<CONFIG>\" STREQUAL \"Debug\" )
-		        file( WRITE \"${CMAKE_INSTALL_PREFIX_ed}/${OD_RUNTIME_DIRECTORY}/qt.conf\" \"${QTCONFTXT_DEBUG}\" ) 
+		        file( WRITE \"${CMAKE_INSTALL_PREFIX_ed}/${OD_RUNTIME_DIRECTORY}/qt.conf\" \"${QTCONFTXT_DEBUG}\" )
 		    else()
-		        file( WRITE \"${CMAKE_INSTALL_PREFIX_ed}/${OD_RUNTIME_DIRECTORY}/qt.conf\" \"${QTCONFTXT}\" ) 
+		        file( WRITE \"${CMAKE_INSTALL_PREFIX_ed}/${OD_RUNTIME_DIRECTORY}/qt.conf\" \"${QTCONFTXT}\" )
 		    endif()
 		      " )
     else()
@@ -125,7 +137,7 @@ macro( QT_SETUP_CORE_INTERNALS )
 endmacro(QT_SETUP_CORE_INTERNALS)
 
 macro( QT_SETUP_GUI_INTERNALS )
-
+    OD_FIND_QT()
     list( APPEND QT_REQ_PLUGINS iconengines/${SHLIB_PREFIX}qsvgicon.${SHLIB_EXTENSION}
 				imageformats/${SHLIB_PREFIX}qgif.${SHLIB_EXTENSION}
 				imageformats/${SHLIB_PREFIX}qico.${SHLIB_EXTENSION}
@@ -163,49 +175,56 @@ macro( QT_SETUP_GUI_INTERNALS )
 		xcbglintegrations/libqxcb-glx-integration.so )
     endif()
     if ( QT_VERSION VERSION_GREATER_EQUAL 6 )
-	list( APPEND QT_REQ_PLUGINS tls/${SHLIB_PREFIX}qcertonlybackend.${SHLIB_EXTENSION}
-				    tls/${SHLIB_PREFIX}qopensslbackend.${SHLIB_EXTENSION} )
+	list( APPEND QT_REQ_PLUGINS
+		tls/${SHLIB_PREFIX}qcertonlybackend.${SHLIB_EXTENSION}
+		tls/${SHLIB_PREFIX}qopensslbackend.${SHLIB_EXTENSION} )
 	if ( WIN32 )
-	    list( APPEND QT_REQ_PLUGINS styles/qmodernwindowsstyle.dll
-					tls/qschannelbackend.dll )
+	    list( APPEND QT_REQ_PLUGINS
+			styles/qmodernwindowsstyle.dll
+			tls/qschannelbackend.dll )
 	elseif ( APPLE )
-	    list( APPEND QT_REQ_PLUGINS tls/libqsecuretransportbackend.dylib )
+	    list( APPEND QT_REQ_PLUGINS
+	    		tls/libqsecuretransportbackend.dylib )
 	else()
-	    list( APPEND QT_REQ_PLUGINS wayland-decoration-client/libadwaita.so
-					wayland-shell-integration/libqt-shell.so
-					egldeviceintegrations/libqeglfs-kms-integration.so )
+	    list( APPEND QT_REQ_PLUGINS
+			wayland-decoration-client/libadwaita.so
+			wayland-shell-integration/libqt-shell.so
+			egldeviceintegrations/libqeglfs-kms-integration.so )
 	endif()
-	if ( EXISTS "${QT_DIR}/../../../plugins/imageformats/${SHLIB_PREFIX}qtiff.${SHLIB_EXTENSION}" )
-	    list( APPEND QT_REQ_PLUGINS imageformats/${SHLIB_PREFIX}qicns.${SHLIB_EXTENSION}
-					imageformats/${SHLIB_PREFIX}qtga.${SHLIB_EXTENSION}
-					imageformats/${SHLIB_PREFIX}qtiff.${SHLIB_EXTENSION}
-					imageformats/${SHLIB_PREFIX}qwbmp.${SHLIB_EXTENSION}
-					imageformats/${SHLIB_PREFIX}qwebp.${SHLIB_EXTENSION} )
+	if ( EXISTS "${QT_ROOT}/plugins/imageformats/${SHLIB_PREFIX}qtiff.${SHLIB_EXTENSION}" )
+	    list( APPEND QT_REQ_PLUGINS
+	    		imageformats/${SHLIB_PREFIX}qicns.${SHLIB_EXTENSION}
+			imageformats/${SHLIB_PREFIX}qtga.${SHLIB_EXTENSION}
+			imageformats/${SHLIB_PREFIX}qtiff.${SHLIB_EXTENSION}
+			imageformats/${SHLIB_PREFIX}qwbmp.${SHLIB_EXTENSION}
+			imageformats/${SHLIB_PREFIX}qwebp.${SHLIB_EXTENSION} )
 	    if ( APPLE )
 		list( APPEND QT_REQ_PLUGINS imageformats/libqmacheif.dylib
-					    imageformats/libqmacjp2.dylib )
+		    	imageformats/libqmacjp2.dylib )
 	    endif()
 	else()
 	    message( AUTHOR_WARNING "Cannot find the tiff image format plugin: Install the 'Qt Image formats' optional Qt package" )
 	endif()
     else()
-	list( APPEND QT_REQ_PLUGINS imageformats/${SHLIB_PREFIX}qicns.${SHLIB_EXTENSION}
-				    imageformats/${SHLIB_PREFIX}qtga.${SHLIB_EXTENSION}
-				    imageformats/${SHLIB_PREFIX}qtiff.${SHLIB_EXTENSION}
-				    imageformats/${SHLIB_PREFIX}qwbmp.${SHLIB_EXTENSION}
-				    imageformats/${SHLIB_PREFIX}qwebp.${SHLIB_EXTENSION} )
+	list( APPEND QT_REQ_PLUGINS
+		imageformats/${SHLIB_PREFIX}qicns.${SHLIB_EXTENSION}
+		imageformats/${SHLIB_PREFIX}qtga.${SHLIB_EXTENSION}
+		imageformats/${SHLIB_PREFIX}qtiff.${SHLIB_EXTENSION}
+		imageformats/${SHLIB_PREFIX}qwbmp.${SHLIB_EXTENSION}
+		imageformats/${SHLIB_PREFIX}qwebp.${SHLIB_EXTENSION} )
 	if ( WIN32 )
 	    list( APPEND QT_REQ_PLUGINS styles/qwindowsvistastyle.dll )
 	elseif ( APPLE )
 	    list( APPEND QT_REQ_PLUGINS imageformats/libqmacheif.dylib
 					imageformats/libqmacjp2.dylib )
 	else()
-	    list( APPEND QT_REQ_PLUGINS platforms/libqwayland-xcomposite-egl.so
-					platforms/libqwayland-xcomposite-glx.so
-					wayland-graphics-integration-client/libxcomposite-egl.so
-					wayland-graphics-integration-client/libxcomposite-glx.so
-					wayland-shell-integration/libxdg-shell-v5.so
-					wayland-shell-integration/libxdg-shell-v6.so )
+	    list( APPEND QT_REQ_PLUGINS
+	    		platforms/libqwayland-xcomposite-egl.so
+			platforms/libqwayland-xcomposite-glx.so
+			wayland-graphics-integration-client/libxcomposite-egl.so
+			wayland-graphics-integration-client/libxcomposite-glx.so
+			wayland-shell-integration/libxdg-shell-v5.so
+			wayland-shell-integration/libxdg-shell-v6.so )
 	endif()
     endif()
 
@@ -282,7 +301,7 @@ macro( QT_SETUP_WEBENGINE_INTERNALS )
     if ( QT_VERSION VERSION_LESS 6 )
 	list( APPEND QT_REQ_PLUGINS bearer/${SHLIB_PREFIX}qgenericbearer.${SHLIB_EXTENSION} )
 	if ( UNIX AND NOT APPLE )
-	    list( APPEND QT_REQ_PLUGINS bearer/libqconnmanbearer.so 
+	    list( APPEND QT_REQ_PLUGINS bearer/libqconnmanbearer.so
 					bearer/libqnmbearer.so )
 	endif()
     endif()
@@ -388,7 +407,17 @@ endmacro(QT_SETUP_CORE_EXTERNALS)
 macro( QT_SETUP_GUI_EXTERNALS )
     OD_FIND_QT()
     if ( WIN32 )
-	set( QT_GUI_ADDS "${QT_ROOT}/bin/d3dcompiler_47.dll" "${QT_ROOT}/bin/opengl32sw.dll" )
+	set( D3D_FILE "d3dcompiler_47.dll" )
+	set( OPENGL_FILE "opengl32sw.dll" )
+	if ( DEFINED ENV{CONDA_PREFIX} )
+	    if ( NOT EXISTS "${QT_ROOT}/bin/${D3D_FILE}" )
+		message(STATUS "Pixi environment detected. Copying ${D3D_FILE} into environment.")
+		file( COPY "$ENV{WINDIR}/System32/${D3D_FILE}" DESTINATION "${QT_ROOT}/bin/" )
+	    endif()
+	    set( QT_GUI_ADDS "${QT_ROOT}/bin/${D3D_FILE}" "${QT_ROOT}/../../bin/opengl32sw.dll" )
+	else()
+	    set( QT_GUI_ADDS "${QT_ROOT}/bin/${D3D_FILE}" "${QT_ROOT}/bin/opengl32sw.dll" )
+	endif()
 	get_target_property( QT_GUI_IMPORTED_OBJECTS Qt${QT_VERSION_MAJOR}::Gui
 			     IMPORTED_OBJECTS )
 	if ( QT_GUI_IMPORTED_OBJECTS )

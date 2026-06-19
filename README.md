@@ -1,11 +1,11 @@
-[![OpendTect header logo][header-img]](https://dgbes.com/index.php/software#free)
+[![OpendTect header logo][header-img]](https://dgbes.com/software/opendtect)
 [![Example][example-img]]()
 
-OpendTect is a free, open source seismic interpretation system and software development platform. The system supports all tools needed for visualizing, analyzing and interpreting 2D, 3D and 4D seismic and Ground Penetrating Radar (GPR) data. The software is written in C++ and the same codebase compiles and runs on [Windows, macOS and Linux](https://dgbes.com/index.php/software/supported-platforms). It also has a mature plugin programming interface that allows third parties to [develop plugins](https://dgbes.com/index.php/services/research-development#develop-your-own-plugins) to add functionality to the system without touching the OpendTect source code. A binary installer for OpendTect can be downloaded from the [dGB download page](https://dgbes.com/index.php/download).
+OpendTect is a free, open source seismic interpretation system and software development platform. The system supports all tools needed for visualizing, analyzing and interpreting 2D, 3D and 4D seismic and Ground Penetrating Radar (GPR) data. The software is written in C++ and the same codebase compiles and runs on [Windows, macOS and Linux](https://dgbes.com/software/supported-platforms). It also has a mature plugin programming interface that allows third parties to [develop plugins](https://dgbes.com/library#documentation) to add functionality to the system without touching the OpendTect source code. A binary installer for OpendTect can be downloaded from the [dGB download page](https://dgbes.com/software/download).
 
-This source code is released under the [GPLv3 or higher](https://www.gnu.org/licenses/gpl-3.0.html) license. Commercial and Academic licenses are offered by [dGB Earth Sciences](https://dgbes.com) for [OpendTect Pro](https://dgbes.com/index.php/software#commercial), an extension of OpendTect that adds special functions for professional users and the potential to [rent or purchase commercial plugins](https://prostore.dgbes.com/) offering access to [unique seismic interpretation workflows](https://dgbes.com/index.php/software/plugins). The differences in functionality of the open source OpendTect, commercial OpendTect Pro and commercial plugins is compared [here](https://dgbes.com/index.php/software/supported-functionality).
+This source code is released under the [GPLv3 or higher](https://www.gnu.org/licenses/gpl-3.0.html) license. Commercial and Academic licenses are offered by [dGB Earth Sciences](https://dgbes.com) for [OpendTect Pro](https://dgbes.com/software/opendtect-pro), an extension of OpendTect that adds special functions for professional users and the potential to [rent or purchase commercial plugins](https://prostore.dgbes.com/) offering access to [unique seismic interpretation workflows](https://dgbes.com/software/commercial-plugins). The differences in functionality of the open source OpendTect, commercial OpendTect Pro and commercial plugins is compared [here](https://dgbes.com/software/supported-functionality).
 
-OpendTect is a flexible and powerful R&D software platform that you can extend for seismic data analysis. [dGB Earth Sciences](https://dgbes.com/index.php/services/research-development) is also available to undertake industry funded (single or multi-client) projects to enhance OpendTect itself or create advanced plugin functionality. 
+OpendTect is a flexible and powerful R&D software platform that you can extend for seismic data analysis. [dGB Earth Sciences](https://www.dgbes.com/services#custom-software-development) is also available to undertake industry funded (single or multi-client) projects to enhance OpendTect itself or create advanced plugin functionality. 
 
 OpendTect is used worldwide by thousands of open source users, thousands of academic users and hundreds of commercial users.
 ## Table of Contents
@@ -13,16 +13,18 @@ OpendTect is used worldwide by thousands of open source users, thousands of acad
 - [Repository Structure](#repository-structure)
 - [License](#license)
 - [Building the Software](#building-the-software)
-	- [Requirements](#requirements)
-	- [Dependencies](#dependencies)
-		- [Qt Install](#qt-install)
-		- [OpenSceneGraph Build](#openscenegraph-build)
-		- [Proj Build](#proj-build)
-		- [Sqlite Install](#sqlite-install)
-		- [HDF5 Install](#hdf5-install)
- 	- [Windows](#windows)
- 	- [macOS](#macos)
- 	- [Linux](#linux)
+	- [Build Using Pixi](#build-using-pixi)
+	- [Build Manually](#build-manual)
+		- [Requirements](#requirements)
+		- [Dependencies](#dependencies)
+			- [Qt Install](#qt-install)
+			- [OpenSceneGraph Build](#openscenegraph-build)
+			- [Proj Build](#proj-build)
+			- [Sqlite Install](#sqlite-install)
+			- [HDF5 Install](#hdf5-install)
+ 		- [Windows](#windows)
+ 		- [macOS](#macos)
+ 		- [Linux](#linux)
 - [Contributing](#contributing)
 - [Contacts and More Information](#contacts-and-more-information)
 
@@ -41,7 +43,65 @@ The development branches are:
 OpendTect is released under the [GPLv3 or higher](https://www.gnu.org/licenses/gpl-3.0.html) license.
 
 ## Building the Software
-### Requirements
+### Build Using Pixi
+The [Pixi](https://pixi.prefix.dev/latest/) package manager can be used to obtain all required dependencies and build the OpendTect development (main) branch. Everything is kept within the source code folder to avoid cluttering your system. A fully functional build of OpendTect is created in the **inst** folder. OpendTect can be built from source and run with just 3 commands.
+
+**Note for Windows**: you will need to install msvc2022 64 bit (>= v17.8.4 - free community edition is sufficient).
+
+**Note for macOS**: the supplied **pixi.toml** file is only set up for Windows and Linux. Extending it to **macOS** should be relatively simple if you have access to that hardware.
+
+#### Install Pixi
+<details>
+  <summary><b>Linux and macOS</b></summary>
+ 
+```bash
+  curl -fsSL https://pixi.sh/install.sh | sh
+```
+</details>
+<details>
+  <summary><b>Windows</b></summary>
+
+  <kbd>[**Download installer**](https://github.com/prefix-dev/pixi/releases/latest/download/pixi-x86_64-pc-windows-msvc.msi)</kbd>
+
+  Or run:
+
+```powershell
+powershell -ExecutionPolicy ByPass -c "irm -useb https://pixi.sh/install.ps1 | iex"
+```
+</details>
+
+#### Git Clone the OpendTect Main Branch
+Assuming **git** is installed, open a shell window and enter:
+```bash
+git clone -b main --depth 1 https://github.com/OpendTect/OpendTect.git
+```
+This will create a folder called **OpendTect** with the source code.
+#### Configure
+To configure the build, change to the source code folder and enter:
+```bash
+pixi run config
+```
+#### Build
+To build in Release mode, open a shell, change to the source code folder (unless already there) and enter:
+```bash
+pixi run build
+```
+Or to build in Debug mode, open a shell, change to the source code folder (unless already there) and enter:
+```bash
+pixi run build-dev
+```
+#### Run
+To run the Release build, open a shell, change to the source code folder (unless already there) and enter:
+```bash
+pixi run release
+```
+Or to run the Debug build, open a shell, change to the source code folder (unless already there) and enter:
+```bash
+pixi run debug
+```
+
+### Build Manually
+#### Requirements
 
 - A C++ compiler and compilation tool chain:
 	- Windows: msvc2022 64 bit (>= v17.8.4). The free community edition is sufficient.
@@ -50,17 +110,17 @@ OpendTect is released under the [GPLv3 or higher](https://www.gnu.org/licenses/g
 - CMake version 3.24 or higher (3.27 or higher recommended)
 - The c++17 version is enabled by default on all platforms.
 
-### Dependencies
+#### Dependencies
 To build the software you need to also download and install/build a few dependencies which probably are not installed in your system. The version of dependencies varies between the branches. The Qt dependencies are available in binary installers, the others have to be built from source.
 
 | BRANCH | DEPENDENCIES |
 | -------------| ----------------- |
-| main | [Qt 6.9.1](https://download.qt.io/archive/qt/6.9/6.9.1/), [OpenSceneGraph 3.6.5](https://github.com/openscenegraph/OpenSceneGraph/archive/OpenSceneGraph-3.6.5.tar.gz), [Proj 9.6.0 (optional)](https://download.osgeo.org/proj/proj-9.6.0.tar.gz), [Sqlite 3.49.1 (optional)](https://www.sqlite.org/download.html), [HDF5 1.14.6 (optional)](https://www.hdfgroup.org/downloads/hdf5) |
-| od8.0 | [Qt 6.8.3](https://download.qt.io/archive/qt/6.8/6.8.3/), [OpenSceneGraph 3.6.5](https://github.com/openscenegraph/OpenSceneGraph/archive/OpenSceneGraph-3.6.5.tar.gz), [Proj 9.6.0 (optional)](https://download.osgeo.org/proj/proj-9.6.0.tar.gz), [Sqlite 3.49.1 (optional)](https://www.sqlite.org/download.html), [HDF5 1.14.6 (optional)](https://www.hdfgroup.org/downloads/hdf5) |
-| od7.0_rel, od7.0 | [Qt 5.15.2](https://download.qt.io/archive/qt/5.15/5.15.2/), [OpenSceneGraph 3.6.5](https://github.com/openscenegraph/OpenSceneGraph/archive/OpenSceneGraph-3.6.5.tar.gz), [Proj 9.6.0 (optional)](https://download.osgeo.org/proj/proj-9.6.0.tar.gz), [Sqlite 3.44.2 (optional)](https://www.sqlite.org/download.html), [HDF5 1.14.5 (optional)](https://www.hdfgroup.org/downloads/hdf5) |
+| main | [Qt 6.9.3](https://download.qt.io/archive/qt/6.9/6.9.3/), [OpenSceneGraph 3.6.5](https://github.com/openscenegraph/OpenSceneGraph/archive/OpenSceneGraph-3.6.5.tar.gz), [Proj 9.8.1 (optional)](https://download.osgeo.org/proj/proj-9.8.1.tar.gz), [Sqlite 3.51.1 (optional)](https://www.sqlite.org/download.html), [HDF5 1.14.6 (optional)](https://www.hdfgroup.org/downloads/hdf5) |
+| od8.0 | [Qt 6.8.3](https://download.qt.io/archive/qt/6.8/6.8.3/), [OpenSceneGraph 3.6.5](https://github.com/openscenegraph/OpenSceneGraph/archive/OpenSceneGraph-3.6.5.tar.gz), [Proj 9.6.2 (optional)](https://download.osgeo.org/proj/proj-9.6.2.tar.gz), [Sqlite 3.49.2 (optional)](https://www.sqlite.org/download.html), [HDF5 1.14.6 (optional)](https://www.hdfgroup.org/downloads/hdf5) |
+| od7.0_rel, od7.0 | [Qt 5.15.2](https://download.qt.io/archive/qt/5.15/5.15.2/), [OpenSceneGraph 3.6.5](https://github.com/openscenegraph/OpenSceneGraph/archive/OpenSceneGraph-3.6.5.tar.gz), [Proj 9.6.0 (optional)](https://download.osgeo.org/proj/proj-9.6.2.tar.gz), [Sqlite 3.44.2 (optional)](https://www.sqlite.org/download.html), [HDF5 1.14.5 (optional)](https://www.hdfgroup.org/downloads/hdf5) |
 | od6.6_rel, od6.6 | [Qt 5.15.2](https://download.qt.io/archive/qt/5.15/5.15.2/), [OpenSceneGraph 3.6.5](https://github.com/openscenegraph/OpenSceneGraph/archive/OpenSceneGraph-3.6.5.tar.gz), [HDF5 1.12.2 (optional)](https://www.hdfgroup.org/downloads/hdf5) |
 
-#### Qt Install
+##### Qt Install
 For the Qt install the following components must be selected depending on your build platform:
 
 -  'MSVC 2022 64-bit' (Windows), 'Desktop' (Linux/macOS)
@@ -68,23 +128,23 @@ For the Qt install the following components must be selected depending on your b
 -  Extensions: Qt WebEngine (MSVC 2022 x64/Desktop)
 -  Optionally debug information files (recommended on Windows)
 -  Optionally Qt source code is available for all the versions in use:
-	- [Qt 6.9.1](https://dgbearthsciences.sharefile.com/public/share/web-scea7367143a64252a651d5da19352d81) : main
+	- [Qt 6.9.3](https://dgbearthsciences.sharefile.com/public/share/web-sec0cfb8f691b4aed8c4a91c528f9bcac) : main
 	- [Qt 6.8.3](https://dgbearthsciences.sharefile.com/public/share/web-sad64fa4ce9974762a877a682d9d1a679) : od8.0
 	- [Qt 5.15.2](https://dgbearthsciences.sharefile.com/public/share/web-s519e08d71a7044b8934d9b0f2b4563eb) : od7.0
 
-#### OpenSceneGraph Build
+##### OpenSceneGraph Build
 Configure using CMake, compile and install. 
 
-#### Proj Build
+##### Proj Build
 Configure using CMake, compile and install. 
 
-#### Sqlite Install
+##### Sqlite Install
 Retrieve from their download site or the OpendTect SDK
 
-#### HDF5 Install
+##### HDF5 Install
 The link to HDF5 requires to provide the path to an existing HDF5 installation. All versions above 1.10.3 are supported, but using the current API 1.14 is preferred. Installation is best done using their binary installations (on Windows especially), or from the package manager on Linux. Windows developers however need to recompile the sources since no debug binary libraries can be downloaded.
 
-### Windows
+#### Windows
 Configure CMake ensuring to set the following variables:
 
 - QT_ROOT= set this to the Qt install location for the appropriate version of Qt for the OpendTect version
@@ -95,8 +155,8 @@ Configure CMake ensuring to set the following variables:
 
 Start Visual Studio 2022, open the OpendTect solution and build.
 
-### macOS
-### Linux
+#### macOS
+#### Linux
 Configure CMake ensuring to set the following variables:
 
 - QT_ROOT= set this to the Qt install location for the appropriate version of Qt for the OpendTect version
@@ -120,8 +180,8 @@ An overview of the design principles and preferred coding style/practices employ
 
 ## Contacts and More Information
 
-- [dGB Earth Sciences](https://dgbes.com/index.php/contact)
-- [OpendTect Documentation](https://dgbes.com/index.php/support#documentation)
+- [dGB Earth Sciences](https://dgbes.com/about#contact)
+- [OpendTect Documentation](https://dgbes.com/library#documentation)
 - [OpendTect Programmer's Manual](https://doc.opendtect.org/7.0.0/doc/Programmer/Default.htm)
 - [OpendTect developers Google Group](https://dgbes.com/index.php/support/faq-developers-google-group)
 
