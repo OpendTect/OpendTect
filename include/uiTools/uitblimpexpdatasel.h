@@ -9,9 +9,11 @@ ________________________________________________________________________
 -*/
 
 #include "uitoolsmod.h"
+
 #include "uigroup.h"
-#include "iopar.h"
 #include "uistring.h"
+
+#include "iopar.h"
 
 class HelpKey;
 class uiGenInput;
@@ -63,8 +65,8 @@ protected:
     friend class		uiTableFormatDescFldsEd;
 
     bool			commitHdr(bool witherror);
-    void			typChg(CallBacker*);
-    void			hdrChg(CallBacker*);
-    void			descChg(CallBacker*);
-    void			openFmt(CallBacker*);
+    void			typeChgdCB(CallBacker*);
+    void			headerChgdCB(CallBacker*);
+    void			descChgdCB(CallBacker*);
+    void			openFormatCB(CallBacker*);
 };
