@@ -313,6 +313,21 @@ function(od_map_configurations _trgt)
     endforeach()
 endfunction(od_map_configurations)
 
+function( od_replace_link_libraries _lib _srctrgt _desttrgt )
+    get_target_property( _link_libs ${_lib} INTERFACE_LINK_LIBRARIES )
+    if ( NOT _link_libs )
+	return()
+    endif()
+
+    if ( NOT "${_link_libs}" MATCHES ".*${_srctrgt}.*" )
+	return()
+    endif()
+
+    string( REPLACE ${_srctrgt} ${_desttrgt} _link_libs "${_link_libs}" )
+    set_target_properties( ${_lib} PROPERTIES INTERFACE_LINK_LIBRARIES "${_link_libs}" )
+    set( ${_lib} ${_lib} PARENT_SCOPE )
+endfunction(od_replace_link_libraries)
+
 function( get_install_dir _trgt _var prepend )
     set( _instdir )
     if ( ${_trgt} STREQUAL "OpenSSL::SSL" OR ${_trgt} STREQUAL "OpenSSL::Crypto" )
@@ -1138,7 +1153,9 @@ macro( testprops tgt )
 	IMPORTED_PREFIX
 	IMPORTED_SUFFIX
         IMPORTED_TARGETS
+	INTERFACE_COMPILE_DEFINITIONS
         INTERFACE_INCLUDE_DIRECTORIES
+	INTERFACE_LINK_LIBRARIES
 	MAP_IMPORTED_CONFIG_DEBUG
 	MAP_IMPORTED_CONFIG_MINSIZEREL
 	MAP_IMPORTED_CONFIG_RELWITHDEBINFO

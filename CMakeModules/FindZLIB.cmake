@@ -272,8 +272,17 @@ if(ZLIB_FOUND)
       endif()
 
       if(NOT ZLIB_LIBRARY_RELEASE AND NOT ZLIB_LIBRARY_DEBUG)
-        set_property(TARGET ZLIB::ZLIB APPEND PROPERTY
-          IMPORTED_LOCATION "${ZLIB_LIBRARY}")
+	if(DEFINED ENV{CONDA_PREFIX} AND WIN32)
+	  message(STATUS "Pixi environment detected. Set IMPORTED_IMPLIB")
+	  cmake_path(SET CMK_CONDA_PREFIX NORMALIZE $ENV{CONDA_PREFIX})
+	  set_target_properties(ZLIB::ZLIB PROPERTIES
+			    IMPORTED_IMPLIB "${CMK_CONDA_PREFIX}/Library/lib/zlib.lib"
+			    IMPORTED_LOCATION "${CMK_CONDA_PREFIX}/Library/bin/zlib.dll"
+	  )
+	else()
+	  set_property(TARGET ZLIB::ZLIB APPEND PROPERTY
+		       IMPORTED_LOCATION "${ZLIB_LIBRARY}")
+	endif()
       endif()
     endif()
 endif()
