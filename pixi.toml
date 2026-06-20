@@ -16,7 +16,7 @@ pkg-config = "*"
 hdf5 = "1.14.*"
 openscenegraph = "3.6.5.*"
 proj = "9.7.*"
-qt6-main = "6.9.3.*"
+qt6-main = "6.8.3.*"
 sqlite = "3.52.*"
 libzlib = "1.3.*"
 
@@ -41,7 +41,7 @@ libxkbcommon = "*"
 libxkbfile = "*"
 nspr = "*"
 nss = "*"
-qt6-wayland = "6.9.3.*"
+qt6-wayland = "6.8.3.*"
 sysroot_linux-64 = "*"
 wayland = "*"
 xcb-util = "*"
@@ -110,11 +110,11 @@ cmd = "./inst/bin/lux64/Release/od_main"
 env = {QT_QPA_PLATFORM="xcb"}
 
 [target.linux-64.tasks.debug]
-cmd = "./inst/bin/lux64/Debug/od_maind"
+cmd = "./inst/bin/lux64/Debug/od_main"
 env = {QT_QPA_PLATFORM="xcb"}
 
 [target.win-64.tasks.release]
 cmd = "./inst/bin/win64/Release/od_main.exe"
 
 [target.win-64.tasks.debug]
-cmd = "./inst/bin/win64/Debug/od_maind.exe"
+cmd = "./inst/bin/win64/Debug/od_main.exe"
