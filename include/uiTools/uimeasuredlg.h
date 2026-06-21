@@ -56,4 +56,9 @@ protected:
     void			stylebutCB(CallBacker*);
     void			velocityChgd(CallBacker*);
     void			dipUnitSel( CallBacker* );
+    void			unitSelCB( CallBacker* );
+
+private:
+    uiGenInput*			zDistTimeField();
+    uiGenInput*			totalDistField();
 };
