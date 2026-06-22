@@ -401,7 +401,8 @@ void PolygonBodyDisplay::display( bool polygons, bool body )
     if ( nearestpolygonmarker_ )
 	nearestpolygonmarker_->turnOn( polygons || body );
 
-    viseditor_->turnOn( (polygons || body) && showmanipulator_ );
+    if ( viseditor_ )
+	viseditor_->turnOn( (polygons || body) && showmanipulator_ );
 
     if ( bodydisplay_ )
 	bodydisplay_->turnOn( body );
