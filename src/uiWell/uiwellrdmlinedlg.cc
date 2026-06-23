@@ -254,6 +254,7 @@ void uiWellSelGrp::getCoordinates( TypeSet<Coord>& coords )
 {
     setSelectedWells();
     const bool onlytop = onlytopfld_ ? onlytopfld_->getBoolValue() : false;
+    BinID prevbid = BinID::udf();
     for ( int idx=0; idx<selwellsids_.size(); idx++ )
     {
 	ConstRefMan<Well::Data> wd = Well::MGR().get( selwellsids_[idx] );
@@ -261,21 +262,25 @@ void uiWellSelGrp::getCoordinates( TypeSet<Coord>& coords )
 	    return;
 
 	if ( onlytop )
-	    coords += wd->track().pos(0).coord();
+	{
+	    const Coord& welltop = wd->track().pos( 0 );
+	    if ( coords.isEmpty() ||
+		    !mIsZero(coords.last().sqDistTo(welltop),1e-2) )
+		coords.add( welltop );
+	}
 	else
 	{
-	    const int firstidx = selwellstypes_[idx] ? wd->track().size()-1 : 0;
-	    const int stopidx = selwellstypes_[idx] ? -1 : wd->track().size();
-	    const int incidx = selwellstypes_[idx] ? -1 : 1;
-
-	    BinID prevbid( SI().transform(wd->track().pos(firstidx)) );
-	    coords += SI().transform( prevbid );
+	    const bool startfromtop = selwellstypes_[idx] == 0;
+	    const int firstidx = startfromtop ? 0 : wd->track().size()-1;
+	    const int stopidx = startfromtop ? wd->track().size() : -1;
+	    const int incidx = startfromtop ? 1 : -1;
 	    for ( int posidx=firstidx; posidx!=stopidx; posidx+=incidx )
 	    {
-		BinID bid( SI().transform(wd->track().pos(posidx)) );
+		const Coord& wellpos = wd->track().pos( posidx );
+		const BinID bid = SI().transform( wellpos );
 		if ( bid != prevbid )
 		{
-		    coords += SI().transform( bid );
+		    coords.add( wellpos );
 		    prevbid = bid;
 		}
 	    }
@@ -490,15 +495,7 @@ bool uiWell2RandomLineDlg::acceptOK( CallBacker* )
 
     RefMan<Geometry::RandomLine> rl = new Geometry::RandomLine;
     for ( int idx=0; idx<wellcoord.size(); idx++ )
-    {
-	Coord c( wellcoord[idx] );
-	if ( !SI().isInside(SI().transform(c),false) )
-	{
-	    Coord othcoord = wellcoord[idx ? idx - 1 : 1];
-	    c = SurveyGeometry::getEdgePoint( othcoord, c );
-	}
-	rl->addNode( SI().transform(c) );
-    }
+	rl->addNode( wellcoord[idx] );
 
     Geometry::RandomLineSet outrls;
     outrls.addLine( *rl );

@@ -422,12 +422,11 @@ void RandomTrackDisplay::setNodePos( int nodeidx, const BinID& bid )
 
 void RandomTrackDisplay::setNodePos( int nodeidx, const BinID& bid, bool check )
 {
-    const BinID sbid = snapPosition(bid);
-    if ( !check || checkPosition(sbid) )
+    if ( !check || checkPosition(bid) )
     {
-	nodes_[nodeidx] = sbid;
-	dragger_->setKnot( nodeidx, Coord(sbid.inl(),sbid.crl()) );
-	mUpdateRandomLineGeometry( setNodePosition(nodeidx,sbid) );
+	nodes_[nodeidx] = bid;
+	dragger_->setKnot( nodeidx, Coord(bid.inl(),bid.crl()) );
+	mUpdateRandomLineGeometry( setNodePosition(nodeidx,bid) );
 	updatePanelStripPath();
 	updateOrientation();
 	moving_.trigger();
