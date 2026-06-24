@@ -185,7 +185,9 @@ uiEditPolygonGroup::uiEditPolygonGroup( uiParent* p, Pick::Set& ps )
 
 
 uiEditPolygonGroup::~uiEditPolygonGroup()
-{}
+{
+    detachAllNotifiers();
+}
 
 
 uiButtonGroup* uiEditPolygonGroup::tblButGrp()
@@ -397,7 +399,9 @@ uiFilterPicksGrp::uiFilterPicksGrp( uiParent* p, Pick::Set& ps )
 
 
 uiFilterPicksGrp::~uiFilterPicksGrp()
-{}
+{
+    detachAllNotifiers();
+}
 
 
 void uiFilterPicksGrp::finalizeCB( CallBacker* )
@@ -586,7 +590,9 @@ uiEditPicksDlg::uiEditPicksDlg( uiParent* p, Pick::Set& ps )
 
 
 uiEditPicksDlg::~uiEditPicksDlg()
-{}
+{
+    detachAllNotifiers();
+}
 
 
 void uiEditPicksDlg::initClass()
