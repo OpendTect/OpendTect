@@ -170,7 +170,8 @@ DescID DescSet::addDesc( Desc* nd, DescID id )
 {
     nd->setDescSet( this );
     descs_ += nd;
-    const DescID newid = id.isValid() ? id : getFreeID();
+    DescID newid = id.isValid() ? id : getFreeID();
+    newid.setStored( nd->isStored() );
     ids_ += newid;
     return newid;
 }
@@ -180,7 +181,8 @@ DescID DescSet::insertDesc( Desc* nd, int idx, DescID id )
 {
     nd->setDescSet( this );
     descs_.insertAt( nd, idx );
-    const DescID newid = id.isValid() ? id : getFreeID();
+    DescID newid = id.isValid() ? id : getFreeID();
+    newid.setStored( nd->isStored() );
     ids_.insert( idx, newid );
     return newid;
 }
