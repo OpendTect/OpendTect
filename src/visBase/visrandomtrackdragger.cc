@@ -898,6 +898,23 @@ void RandomTrackDragger::insertKnot( int knotidx, const Coord& pos )
 }
 
 
+void RandomTrackDragger::removeAllKnots()
+{
+    for ( auto* dragger : draggers_ )
+    {
+	removeChild( dragger->osgNode() );
+	mDetachCB( dragger->started, RandomTrackDragger::startCB );
+	mDetachCB( dragger->motion, RandomTrackDragger::moveCB );
+	mDetachCB( dragger->finished, RandomTrackDragger::finishCB );
+    }
+
+    draggers_.erase();
+    draggermarkers_.erase();
+    showadjacents_.erase();
+    updatePanels();
+}
+
+
 void RandomTrackDragger::removeKnot( int knotidx )
 {
     if ( !draggers_.validIdx(4*knotidx) )

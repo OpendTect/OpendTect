@@ -42,6 +42,7 @@ public:
     void			setKnot(int,const Coord&);
     void			insertKnot(int,const Coord&);
     void			removeKnot(int);
+    void			removeAllKnots();
 
     void			showAdjacentPanels(int knotidx,bool yn);
     bool			areAdjacentPanelsShown(int knotidx) const;
