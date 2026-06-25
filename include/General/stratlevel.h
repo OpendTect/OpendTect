@@ -46,7 +46,7 @@ public:
     typedef int		ChangeType;
 
 			Level(const char* nm,const OD::Color&,
-			      LevelID =LevelID::udf());
+			      const LevelID& =LevelID::udf());
 			Level(const Level&);
     virtual		~Level();
 
@@ -59,7 +59,7 @@ public:
     OD::Color		color() const		{ return color_; }
     const IOPar&	pars() const		{ return pars_; }
 
-    Level&		setID(LevelID);
+    Level&		setID(const LevelID&);
     void		setName(const char*) override;
     Level&		setColor(OD::Color);
     Level&		setPars(const IOPar&);
@@ -94,14 +94,14 @@ mExpClass(General) RegMarker : public Level
 {
 public:
 			RegMarker(const char* nm,const OD::Color&,
-				  LevelID =LevelID::udf());
+				  const LevelID& =LevelID::udf());
 			RegMarker(const RegMarker&);
 			~RegMarker();
 
-    RegMarker&		setID(LevelID);
+    RegMarker&		setID(const LevelID&);
 
     static bool		isRegMarker(const Level&);
-    static bool		isRegMarker(const LevelID);
+    static bool		isRegMarker(const LevelID&);
     static int		minID();
 
 private:
@@ -134,24 +134,24 @@ public:
     int			size() const;
     void		setEmpty();
 
-    bool		isPresent(LevelID) const;
+    bool		isPresent(const LevelID&) const;
     bool		isPresent(const char*) const;
     LevelID		getIDByName(const char*) const;
     LevelID		getIDByIdx(int) const;
-    int			indexOf(LevelID) const;
+    int			indexOf(const LevelID&) const;
     int			indexOf(const char*) const;
     void		getNames(BufferStringSet&) const;
-    BufferString	nameOf(LevelID) const;
-    OD::Color		colorOf(LevelID) const;
-    IOPar		parsOf(LevelID) const;
+    BufferString	nameOf(const LevelID&) const;
+    OD::Color		colorOf(const LevelID&) const;
+    IOPar		parsOf(const LevelID&) const;
 
-    Level		get(LevelID) const;
+    Level		get(const LevelID&) const;
     Level		getByIdx(int) const;
     Level		getByName(const char*) const;
     Level		first() const;
 
     LevelID		add(const char*,const OD::Color&);
-    void		remove(LevelID);
+    void		remove(const LevelID&);
 
     LevelID		set(const Level&);
 			//!< copy stuff, but new ID/name
@@ -182,7 +182,7 @@ protected:
     void		addRegMarkers();
     void		regMarkerAdded(CallBacker*);
     void		regMarkerRemoved(CallBacker*);
-    int			gtIdxOf(const char*,LevelID) const;
+    int			gtIdxOf(const char*,const LevelID&) const;
     Level		gtLvl(int) const;
     void		doSetEmpty();
     LevelID		doSet(const Level&,bool* isnew=nullptr);
