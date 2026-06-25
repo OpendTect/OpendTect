@@ -123,7 +123,7 @@ RandomTrackDisplay::RandomTrackDisplay()
 		    mCast(float,SI().crlStep()) );
 
     const BinID start( mNINT32(inlrange.snappedCenter()),
-                       mNINT32(crlrange.start_) );
+		       mNINT32(crlrange.start_) );
     const BinID stop(start.inl(), mNINT32(crlrange.stop_) );
 
     RefMan<Geometry::RandomLine> rl = new Geometry::RandomLine( getName() );
@@ -132,11 +132,11 @@ RandomTrackDisplay::RandomTrackDisplay()
     rl_->addNode( stop );
 
     setDepthInterval( Interval<float>( survinterval.start_,
-                                       survinterval.stop_ ));
+				       survinterval.stop_ ));
     dragger_->setLimits(
-                Coord3( inlrange.start_, crlrange.start_, survinterval.start_ ),
-                Coord3( inlrange.stop_, crlrange.stop_, survinterval.stop_ ),
-                Coord3( inlrange.step_, crlrange.step_, survinterval.step_ ) );
+		Coord3( inlrange.start_, crlrange.start_, survinterval.start_ ),
+		Coord3( inlrange.stop_, crlrange.stop_, survinterval.stop_ ),
+		Coord3( inlrange.step_, crlrange.step_, survinterval.step_ ) );
 
     init();		// sets default resolution -> update texture mapping
     updatePanelStripPath();
@@ -190,13 +190,16 @@ void RandomTrackDisplay::setRandomLineID( const RandomLineID& rlid )
     for ( const auto& tk : nodes )
 	bids += tk.position();
 
+    removeAllNodes();
     setNodePositions( bids, true );
     setDepthInterval( rl_->zRange() );
 }
 
 
 RandomLineID RandomTrackDisplay::getRandomLineID() const
-{ return rl_ ? rl_->ID() : RandomLineID::udf(); }
+{
+    return rl_ ? rl_->ID() : RandomLineID::udf();
+}
 
 
 const Geometry::RandomLine* RandomTrackDisplay::getRandomLine() const
@@ -232,9 +235,8 @@ const mVisTrans* RandomTrackDisplay::getDisplayTransformation() const
 
 float RandomTrackDisplay::appliedZRangeStep() const
 {
-    float step = datatransform_
-                 ? datatransform_->getZInterval( false ).step_
-	       : SI().zStep();
+    float step = datatransform_ ? datatransform_->getZInterval( false ).step_
+				: SI().zStep();
     if ( scene_ )
         step = scene_->getTrcKeyZSampling().zsamp_.step_;
 
@@ -293,11 +295,15 @@ void RandomTrackDisplay::setResolution( int res, TaskRunner* taskr )
 
 
 Interval<float> RandomTrackDisplay::getDataTraceRange() const
-{ return depthrg_; }
+{
+    return depthrg_;
+}
 
 
 int RandomTrackDisplay::nrNodes() const
-{ return nodes_.size(); }
+{
+    return nodes_.size();
+}
 
 
 #define mUpdateRandomLineGeometry( functioncall ) \
@@ -368,7 +374,7 @@ BinID RandomTrackDisplay::getManipNodePos( int nodeidx ) const
 {
     const Coord crd = dragger_->getKnot( nodeidx );
     return BinID( SI().inlRange(false).snap(crd.x_),
-                  SI().crlRange(false).snap(crd.y_) );
+		  SI().crlRange(false).snap(crd.y_) );
 }
 
 
@@ -390,7 +396,9 @@ void RandomTrackDisplay::getAllNodePos( TrcKeySet& nodes ) const
 
 
 void RandomTrackDisplay::setNodePos( int nodeidx, const BinID& bid )
-{ setNodePos( nodeidx, bid, true ); }
+{
+    setNodePos( nodeidx, bid, true );
+}
 
 
 void RandomTrackDisplay::setNodePos( int nodeidx, const BinID& bid, bool check )
@@ -504,11 +512,9 @@ void RandomTrackDisplay::removeNodeInternal( int nodeidx )
 
 void RandomTrackDisplay::removeAllNodes()
 {
+    dragger_->removeAllKnots();
     for ( int idx=nodes_.size()-1; idx>=0; idx-- )
-    {
-	dragger_->removeKnot( idx );
 	mUpdateRandomLineGeometry( removeNode(idx) );
-    }
 
     for ( int idx=0; idx<nrAttribs(); idx++ )
 	setVolumeDataPack( idx, nullptr, nullptr );
@@ -521,7 +527,7 @@ void RandomTrackDisplay::removeAllNodes()
 
 
 void RandomTrackDisplay::getTraceKeyPath( TrcKeySet& path,
-                                          TypeSet<Coord>* crds ) const
+					  TypeSet<Coord>* crds ) const
 {
     path = trckeypath_;
     if ( !crds )
@@ -537,31 +543,31 @@ void RandomTrackDisplay::getTraceKeyPath( TrcKeySet& path,
     {
 	const TrcKey& tk = trckeypath_[idx];
 	if ( curlinesegment!=segments_[idx] )
-        {
-            curlinesegment = -1;
+	{
+	    curlinesegment = -1;
 
 	    const int cursegment = segments_[idx];
-            if ( cursegment<nodes.size()-1 )
-            {
+	    if ( cursegment<nodes.size()-1 )
+	    {
 		const TrcKey& startnode = nodes[segments_[idx]];
 		const TrcKey& stopnode = nodes[segments_[idx]+1];
 		const Coord startpos = startnode.getCoord();
 		const Coord stoppos = stopnode.getCoord();
 
-                if ( startpos.isDefined() && stoppos.isDefined() &&
+		if ( startpos.isDefined() && stoppos.isDefined() &&
 		     startpos.sqDistTo(stoppos) > 1e-3 )
-                {
-                    curline = Line2( startpos, stoppos );
-                    curlinesegment = cursegment;
-                }
-            }
-        }
+		{
+		    curline = Line2( startpos, stoppos );
+		    curlinesegment = cursegment;
+		}
+	    }
+	}
 
 	Coord pathpos = tk.getCoord();
-        if ( curlinesegment>=0 )
-            pathpos = curline.closestPoint( pathpos );
+	if ( curlinesegment>=0 )
+	    pathpos = curline.closestPoint( pathpos );
 
-        (*crds) += pathpos;
+	(*crds) += pathpos;
     }
 }
 
@@ -573,8 +579,8 @@ void RandomTrackDisplay::updatePath()
     TrcKeySet nodes;
     getAllNodePos( nodes );
     Geometry::RandomLine::getPathBids( nodes, trckeypath_,
-				Geometry::RandomLine::NoConsecutiveDups,
-				&segments_ );
+				       Geometry::RandomLine::NoConsecutiveDups,
+				       &segments_ );
 }
 
 
@@ -591,13 +597,13 @@ TypeSet<Coord> RandomTrackDisplay::getTrueCoords() const
 	const int nrtraces = nrinl > nrcrl ? nrinl : nrcrl;
 	const Coord startcoord = SI().transform( start );
 	const Coord stopcoord = SI().transform( stop );
-        const float delx = (float) ( stopcoord.x_ - startcoord.x_ ) / nrtraces;
-        const float dely = (float) ( stopcoord.y_ - startcoord.y_ ) / nrtraces;
+	const float delx = (float) ( stopcoord.x_ - startcoord.x_ ) / nrtraces;
+	const float dely = (float) ( stopcoord.y_ - startcoord.y_ ) / nrtraces;
 
 	for ( int idx=0; idx<nrtraces; idx++ )
 	{
-            const float x = (float) ( startcoord.x_ + delx * idx );
-            const float y = (float) ( startcoord.y_ + dely * idx );
+	    const float x = (float) ( startcoord.x_ + delx * idx );
+	    const float y = (float) ( startcoord.y_ + dely * idx );
 	    coords += Coord( x, y );
 	}
     }
@@ -606,7 +612,7 @@ TypeSet<Coord> RandomTrackDisplay::getTrueCoords() const
 
 
 bool RandomTrackDisplay::setVolumeDataPack( int attrib, VolumeDataPack* voldp,
-					  TaskRunner* taskr )
+					    TaskRunner* taskr )
 {
     mDynamicCastGet(RandomSeisDataPack*,randsdp,voldp);
     if ( !randsdp || randsdp->isEmpty() )
@@ -948,9 +954,13 @@ void RandomTrackDisplay::annotateNextUpdateStage( bool yn )
 
 bool RandomTrackDisplay::canAddNode( int nodenr ) const
 {
-    if ( lockgeometry_ ) return false;
-    if ( nodenr<0 ) nodenr=0;
-    if ( nodenr>nrNodes() ) nodenr=nrNodes();
+    if ( lockgeometry_ )
+	return false;
+
+    if ( nodenr<0 )
+	nodenr=0;
+    if ( nodenr>nrNodes() )
+	nodenr=nrNodes();
 
     const BinID newpos = proposeNewPos(nodenr);
     return checkPosition(newpos);
@@ -959,10 +969,13 @@ bool RandomTrackDisplay::canAddNode( int nodenr ) const
 
 void RandomTrackDisplay::addNode( int nodenr )
 {
-    if ( nodenr<0 ) nodenr=0;
-    if ( nodenr>nrNodes() ) nodenr=nrNodes();
+    if ( nodenr<0 )
+	nodenr=0;
+    if ( nodenr>nrNodes() )
+	nodenr=nrNodes();
 
-    if ( !canAddNode(nodenr) ) return;
+    if ( !canAddNode(nodenr) )
+	return;
 
     ismanip_ = true;
 
@@ -1194,7 +1207,8 @@ void RandomTrackDisplay::nodeMoved( CallBacker* cb )
 	dragger_->showAdjacentPanels( idx, getNodePos(idx)!=bid );
 	mUpdateRandomLineGeometry( setNodePosition(idx,bid,true) );
 
-	if ( sel>=0 ) break;
+	if ( sel>=0 )
+	    break;
     }
 
     if ( getDepthInterval().isEqual(dragger_->getDepthRange(),1e-5) )
@@ -1251,10 +1265,17 @@ BinID RandomTrackDisplay::snapPosition( const BinID& bid ) const
 {
     BinID binid( bid );
     const TrcKeySampling& hs = SI().sampling(true).hsamp_;
-    if ( binid.inl() < hs.start_.inl() ) binid.inl() = hs.start_.inl();
-    if ( binid.inl() > hs.stop_.inl() ) binid.inl() = hs.stop_.inl();
-    if ( binid.crl() < hs.start_.crl() ) binid.crl() = hs.start_.crl();
-    if ( binid.crl() > hs.stop_.crl() ) binid.crl() = hs.stop_.crl();
+    if ( binid.inl() < hs.start_.inl() )
+	binid.inl() = hs.start_.inl();
+
+    if ( binid.inl() > hs.stop_.inl() )
+	binid.inl() = hs.stop_.inl();
+
+    if ( binid.crl() < hs.start_.crl() )
+	binid.crl() = hs.start_.crl();
+
+    if ( binid.crl() > hs.stop_.crl() )
+	binid.crl() = hs.stop_.crl();
 
     SI().snap( binid );
     return binid;
@@ -1345,9 +1366,9 @@ float RandomTrackDisplay::calcDist( const Coord3& pos ) const
     bool ontrack = false;
     for ( int idx=0; idx<nodes_.size()-1; idx++ )
     {
-	int x = binid.inl(); int y = binid.crl();
-	int x0 = nodes_[ idx ].inl(); int y0 = nodes_[ idx ].crl();
-	int x1 = nodes_[idx+1].inl(); int y1 = nodes_[idx+1].crl();
+	int x = binid.inl(), y = binid.crl(),
+	x0 = nodes_[ idx ].inl(), y0 = nodes_[ idx ].crl(),
+	x1 = nodes_[idx+1].inl(),  y1 = nodes_[idx+1].crl();
 
 	if ( x0<x1 ? (x<x0 || x>x1) : (x>x0 || x<x1) )
 	    continue;
@@ -1364,7 +1385,11 @@ float RandomTrackDisplay::calcDist( const Coord3& pos ) const
 	}
 
 	if ( abs(x1-x0) < abs(y1-y0) )
-	    { Swap(x,y); Swap(x0,y0); Swap(x1,y1); }
+	{
+	    Swap(x,y);
+	    Swap(x0,y0);
+	    Swap(x1,y1);
+	}
 
 	const float slope = mCast(float,y1-y0) / mCast(float,x1-x0);
 	const float ydiff = y - y0 - slope * (x-x0);
@@ -1393,7 +1418,8 @@ float RandomTrackDisplay::calcDist( const Coord3& pos ) const
 void RandomTrackDisplay::lockGeometry( bool yn )
 {
     lockgeometry_ = yn;
-    if ( yn ) showManipulator( false );
+    if ( yn )
+	showManipulator( false );
 }
 
 
@@ -1472,7 +1498,8 @@ bool RandomTrackDisplay::usePar( const IOPar& par )
 
     BufferString linename;
     par.get( sKey::Name(), linename );
-    if ( !linename.isEmpty() ) setName( linename );
+    if ( !linename.isEmpty() )
+	setName( linename );
 
     par.getYN( sKeyLockGeometry(), lockgeometry_ );
 
