@@ -17,7 +17,7 @@ hdf5 = "1.14.*"
 openscenegraph = "3.6.5.*"
 proj = "9.7.*"
 qt6-main = "6.9.3.*"
-sqlite = "3.52.*"
+sqlite = "3.51.*"
 libzlib = "1.3.*"
 
 [target.win-64.dependencies]
@@ -41,7 +41,7 @@ libxkbcommon = "*"
 libxkbfile = "*"
 nspr = "*"
 nss = "*"
-qt6-wayland = "6.9.3.*"
+qt6-wayland = "*"
 sysroot_linux-64 = "*"
 wayland = "*"
 xcb-util = "*"
@@ -65,11 +65,8 @@ cmd = [
     "-G", "Ninja Multi-Config",
     "-S", "./",
     "-B", "./build",
-    "-D", "OSG_ROOT=$CONDA_PREFIX/Library/lib",
-    "-D", "ZLIB_ROOT=$CONDA_PREFIX/Library",
-    "-D", "ZLIB_LIBRARY=$CONDA_PREFIX/Library/lib/zlib.lib",
     "-D", "CMAKE_INSTALL_PREFIX=./inst",
-    "-D", "CMAKE_PREFIX_PATH=$CONDA_PREFIX"
+    "-D", "CMAKE_PREFIX_PATH=$CONDA_PREFIX/Library"
 ]
 
 [target.linux-64.tasks.config]
@@ -78,7 +75,6 @@ cmd = [
     "-G", "Ninja Multi-Config",
     "-S", "./",
     "-B", "./build",
-    "-D", "OSG_ROOT=$CONDA_PREFIX/lib",
     "-D", "CMAKE_INSTALL_PREFIX=./inst",
     "-D", "CMAKE_PREFIX_PATH=$CONDA_PREFIX"
 ]
