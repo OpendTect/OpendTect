@@ -864,10 +864,10 @@ Strat::RegMarker& Strat::RegMarker::setID( LevelID id )
 
 bool Strat::RegMarker::isRegMarker( const LevelID lvlid )
 {
-    if ( lvlid.isUdf() || !lvlid.isValid() )
+    if ( !lvlid.isValid() )
 	return false;
 
-    return lvlid.asInt() >= cRegMarkerIDStart;
+    return RGMLVLS().isPresent( lvlid );
 }
 
 
