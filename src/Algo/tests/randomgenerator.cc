@@ -176,6 +176,8 @@ static bool testSetSeedRejectsZeroOrUdf()
 		      "RandGen::setSeed on expected" );
     gen.get();
     expected.get();
+
+    const bool crashaborted = DBG::setCrashOnProgError( false );
     mRunStandardTest( !gen.setSeed(cInvalidSeed),
 		      "RandGen::setSeed(0) returns false" );
     mRunStandardTest( gen.get()==expected.get(),
@@ -209,6 +211,7 @@ static bool testSetSeedRejectsZeroOrUdf()
 		  "NormalRandGen::setSeed(mUdf(int)) returns false" );
     mRunStandardTest( ngen.get()==nexpected.get(),
 		  "NormalRandGen sequence unchanged after setSeed(mUdf(int))" );
+    DBG::setCrashOnProgError( crashaborted );
 
     return true;
 }
