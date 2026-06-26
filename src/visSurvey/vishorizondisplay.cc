@@ -564,6 +564,8 @@ bool HorizonDisplay::activateTracker()
 
     tracker_ = MPE::Horizon3DTracker::create( *horizon3d );
     MPE::engine().setActiveTracker( tracker_.ptr() );
+    horizon3d->initTrackingArrays();
+    horizon3d->initTrackingAuxData();
     updateFromMPE();
 
     return true;
