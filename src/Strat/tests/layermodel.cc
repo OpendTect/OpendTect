@@ -355,8 +355,8 @@ int mTestMainFnName( int argc, char** argv )
 
     if ( !simpledraw_ )
     {
-	uniformrg_.init( 12345 );
-	gaussianrg_.init( 54321 );
+	uniformrg_.setSeed( 12345 );
+	gaussianrg_.setSeed( 54321 );
     }
 
     OD::getSystemMemory( totmem_, freemem_ );

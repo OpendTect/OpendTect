@@ -12,9 +12,6 @@ ________________________________________________________________________
 #include "statruncalc.h"
 #include "statrand.h"
 #include "settings.h"
-#include "timefun.h"
-
-#include <QDateTime>
 
 
 Threads::Atomic<int> partsortglobalseed( 0 );
@@ -86,31 +83,24 @@ int Stats::CalcSetup::medianEvenHandling()
 }
 
 
-namespace Stats
-{
-
-bool initSeed( int seed, Threads::Atomic<int>& seedval )
-{
-    if ( seed == 0 )
-    {
-	if ( seedval != 0 && !mIsUdf(seedval.load()) )
-	    return false;
-
-	seed = QDateTime::currentDateTime().time().msecsSinceStartOfDay();
-    }
-
-    seedval = seed;
-    return true;
-}
-
-} // namespace Stats
-
-
-Stats::RandGen::RandGen()
+void Stats::RandGen::seedRandom()
 {
     std::seed_seq seed{rd_(), rd_(), rd_(), rd_(), rd_(), rd_(), rd_(), rd_()};
     gen_ = std::mt19937( seed );
     gen64_ = std::mt19937_64( seed );
+}
+
+
+void Stats::RandGen::seedFromInt( int seed )
+{
+    gen_ = std::mt19937( seed );
+    gen64_ = std::mt19937_64( seed );
+}
+
+
+Stats::RandGen::RandGen()
+{
+    seedRandom();
 }
 
 
@@ -159,19 +149,30 @@ od_int64 Stats::RandGen::getIndex( od_int64 sz ) const
 }
 
 
-bool Stats::RandGen::init( int seed )
+bool Stats::RandGen::setSeed( int seed )
 {
-    if ( seed != 0 && seedval_ != 0 && !mIsUdf(seedval_.load()) )
+    if ( seed == 0 || mIsUdf(seed) )
     {
-	pErrMsg("The seed should only be set once per generator");
+	pErrMsg( "The seed should be a non-zero, defined value" );
 	return false;
     }
-    else if ( !initSeed(seed,seedval_) )
-	return false;
 
-    gen_ = std::mt19937( seedval_.load() );
-    gen64_ = std::mt19937_64( seedval_.load() );
+    seedval_ = seed;
+    seedFromInt( seed );
     return true;
+}
+
+
+void Stats::RandGen::clearSeed()
+{
+    seedval_ = mUdf(int);
+    seedRandom();
+}
+
+
+bool Stats::RandGen::init( int seed )
+{
+    return setSeed( seed );
 }
 
 
@@ -184,17 +185,30 @@ Stats::RandGen& Stats::randGen()
 
 
 
-Stats::NormalRandGen::NormalRandGen()
+void Stats::NormalRandGen::seedRandom()
 {
     std::seed_seq seed{rd_(), rd_(), rd_(), rd_(), rd_(), rd_(), rd_(), rd_()};
     gen64_ = std::mt19937_64( seed );
+    normdis_ = std::normal_distribution<double>( 0., 1. );
+}
+
+
+void Stats::NormalRandGen::seedFromInt( int seed )
+{
+    gen64_ = std::mt19937_64( seed );
+    normdis_ = std::normal_distribution<double>( 0., 1. );
+}
+
+
+Stats::NormalRandGen::NormalRandGen()
+{
+    seedRandom();
 }
 
 
 double Stats::NormalRandGen::get() const
 {
-    static std::normal_distribution<double> dis( 0., 1. );
-    return dis( gen64_ );
+    return normdis_( gen64_ );
 }
 
 
@@ -210,11 +224,28 @@ double Stats::NormalRandGen::get( double exp, double s ) const
 }
 
 
+bool Stats::NormalRandGen::setSeed( int seed )
+{
+    if ( seed == 0 || mIsUdf(seed) )
+    {
+	pErrMsg( "The seed should be a non-zero, defined value" );
+	return false;
+    }
+
+    seedval_ = seed;
+    seedFromInt( seed );
+    return true;
+}
+
+
+void Stats::NormalRandGen::clearSeed()
+{
+    seedval_ = mUdf(int);
+    seedRandom();
+}
+
+
 bool Stats::NormalRandGen::init( int seed )
 {
-    if ( !initSeed(seed,seedval_) )
-	return false;
-
-    gen64_ = std::mt19937_64( seedval_.load() );
-    return true;
+    return setSeed( seed );
 }
