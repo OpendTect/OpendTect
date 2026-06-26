@@ -127,7 +127,6 @@ int SurfaceAuxData::addAuxData( const char* name )
     auxdatashift_ += 0.0;
     auxdatatypes_ += NoType;
 
-    init( auxdatanames_.size()-1, false );
     for ( int idx=0; idx<auxdata_.size(); idx++ )
     {
 	if ( auxdata_[idx] )
@@ -233,15 +232,11 @@ void SurfaceAuxData::setAuxDataVal( int dataidx, const PosID& posid, float val,
     if ( geomrc.isUdf() )
 	return;
 
-    const BinIDValueSet::SPos pos = auxdata_[sectionidx]->find( geomrc );
+    BinIDValueSet::SPos pos = auxdata_[sectionidx]->find( geomrc );
     if ( !pos.isValid() )
     {
-	mAllocVarLenArr( float, vals, auxdata_[sectionidx]->nrVals() );
-	for ( int idx=0; idx<auxdata_[sectionidx]->nrVals(); idx++ )
-	    vals[idx] = mUdf(float);
-
-	vals[dataidx] = val;
-	auxdata_[sectionidx]->add( geomrc, mVarLenArr(vals) );
+	pos = auxdata_[sectionidx]->add( geomrc );
+	auxdata_[sectionidx]->getVals( pos )[dataidx] = val;
     }
     else if ( !onlynewpos )
 	auxdata_[sectionidx]->getVals( pos )[dataidx] = val;
