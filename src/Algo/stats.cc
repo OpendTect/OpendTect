@@ -188,6 +188,30 @@ Stats::NormalRandGen::NormalRandGen()
 {
     std::seed_seq seed{rd_(), rd_(), rd_(), rd_(), rd_(), rd_(), rd_(), rd_()};
     gen64_ = std::mt19937_64( seed );
+    *hp_normalrandgendis.getParam( this )
+				= std::normal_distribution<double>( 0., 1. );
+}
+
+
+void Stats::NormalRandGen::seedFromInt( int seed )
+{
+    gen64_ = std::mt19937_64( seed );
+    *hp_normalrandgendis.getParam( this )
+				= std::normal_distribution<double>( 0., 1. );
+}
+
+
+Stats::NormalRandGen::NormalRandGen()
+{
+    hp_normalrandgendis.setParam( this,
+			new std::normal_distribution<double>( 0., 1. ) );
+    seedRandom();
+}
+
+
+Stats::NormalRandGen::~NormalRandGen()
+{
+    hp_normalrandgendis.removeAndDeleteParam( this );
 }
 
 
