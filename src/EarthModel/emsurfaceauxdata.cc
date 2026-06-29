@@ -247,13 +247,17 @@ void SurfaceAuxData::setAuxDataVal( int dataidx, const PosID& posid, float val,
 
 void SurfaceAuxData::setAuxDataVal( int dataidx, const BinID& bid, float val )
 {
-    if ( auxdata_.isEmpty() || !auxdatanames_.validIdx(dataidx) )
+    if ( !auxdatanames_.validIdx(dataidx) )
 	return;
 
-    const BinIDValueSet::SPos pos = auxdata_[0]->find( bid );
-    if ( pos.isValid() )
-	auxdata_[0]->getVals( pos )[dataidx] = val;
+    if ( auxdata_.isEmpty() )
+	auxdata_.add( new BinIDValueSet(nrAuxData(),false) );
 
+    BinIDValueSet::SPos pos = auxdata_[0]->find( bid );
+    if ( !pos.isValid() )
+	pos = auxdata_[0]->add( bid );
+
+    auxdata_[0]->getVals( pos )[dataidx] = val;
     changed_ = true;
 }
 
