@@ -81,6 +81,7 @@ set( OD_TEST_PROGS
 	arraytonpy.cc
 	contcurvinterpol.cc
 	gaussianprobdenfunc.cc
+	randomgenerator.cc
 	simpnumer.cc
 	sorting.cc
 	timedepthmodel.cc
