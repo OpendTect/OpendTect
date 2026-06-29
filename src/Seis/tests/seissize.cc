@@ -99,7 +99,7 @@ bool testCBVSSize( const IOObj& obj, od_ostream& strm )
 
     od_int64 totalsz = File::getFileSize( obj.fullUserExpr() );
     mCalcAuxFileSize(totalsz)
-    BufferString errmsg( "Calculated size: ", dssize );
+    BufferString errmsg( "Calculated size: ", totalsz );
     errmsg.add( "; Actual size: " ).add( sCBVSSize );
     mRunStandardTestWithError( totalsz == sCBVSSize,
 			       "CBVS dataset size calculated from Files",
@@ -147,7 +147,7 @@ bool testZSliceCBVSSize( const IOObj& obj, od_ostream& strm )
 
     mRunStandardTest( nrfiles == sNrFilesZSlice, "Number of files" );
     mCalcAuxFileSize(totalsz)
-    BufferString errmsg( "Calculated size: ", dssize );
+    BufferString errmsg( "Calculated size: ", totalsz );
     errmsg.add( "; Actual size: " ).add( sZSliceCBVSSize );
     mRunStandardTestWithError( totalsz == sZSliceCBVSSize,
 			   "Z-Slice CBVS dataset size calculated from Files",
@@ -191,7 +191,7 @@ bool test2DSize( const IOObj& obj, od_ostream& strm )
     else
 	totalsz += File::getFileSize( filenm );
 
-    BufferString errmsg( "Calculated size: ", dssize );
+    BufferString errmsg( "Calculated size: ", totalsz );
     errmsg.add( "; Actual size: " ).add( s2DSize );
     mRunStandardTestWithError( totalsz == s2DSize,
 			       "2-D dataset size calculated from Files",
@@ -244,7 +244,7 @@ bool testSEGYDirectSize( const IOObj& obj, od_ostream& strm )
 	totalsz += size;
     }
 
-    BufferString errmsg( "Calculated size: ", dssize );
+    BufferString errmsg( "Calculated size: ", totalsz );
     errmsg.add( "; Actual size: " ).add( sSEGYSize );
     mRunStandardTestWithError( totalsz == sSEGYSize,
 			   "SEG-Y Direct dataset size calculated from Files",
