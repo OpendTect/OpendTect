@@ -29,12 +29,8 @@ public:
 
     virtual double	get() const		= 0;	// returns in [0,1)
 
-    // Not for production usage:
-    virtual bool	init(int seed)		{ return false; }
-				/* seed != 0 gives repeatable numbers
-				   Use exclusively with non-zero values when
-				   you need reproducibility, like in a test
-				   program */
+    mDeprecated("Use setSeed or clearSeed")
+    virtual bool	init(int seed)	{ return false; }
 
 
 };
@@ -72,11 +68,14 @@ public:
 			//!< Does not preserve order
 			//!< The removed items will really be erased
 
-    bool		init(int seed) override;
-			//!< Not for production
+    bool		setSeed(int seed);
+    void		clearSeed();
 
 private:
 			mOD_DisableCopy(RandGen);
+
+    void		seedRandom();
+    void		seedFromInt(int seed);
 
     std::random_device	rd_;
     mutable std::mt19937 gen_;
@@ -90,6 +89,9 @@ public:
     mDeprecated("Use getIndex")
     od_int64		getIndexFast( od_int64 sz, od_int64 /* seed */ ) const
 			{ return getIndex(sz); }
+
+    mDeprecated("Use setSeed or clearSeed")
+    bool		init(int seed) override;
 
 };
 
@@ -107,20 +109,29 @@ mExpClass(Algo) NormalRandGen : public RandomGenerator
 public:
 
 			NormalRandGen();
+			~NormalRandGen();
 
     double		get() const override;
     float		get(float expect,float stdev) const;
     double		get(double expect,double stdev) const;
 
-    bool		init(int seed) override;
-			//!< Not for production
+    bool		setSeed(int seed);
+    void		clearSeed();
 
 private:
 			mOD_DisableCopy(NormalRandGen);
 
+    void		seedRandom();
+    void		seedFromInt(int seed);
+
     std::random_device	rd_;
     mutable std::mt19937_64 gen64_;
     Threads::Atomic<int> seedval_ = mUdf(int);
+
+public:
+
+    mDeprecated("Use setSeed or clearSeed")
+    bool		init(int seed) override;
 
 };
 
