@@ -11,8 +11,6 @@ ________________________________________________________________________
 #include "generalmod.h"
 #include "survinfo.h"
 
-#include "uistringset.h"
-
 class SurveyChanger;
 class TaskRunner;
 namespace OD { namespace JSON { class Object; } }
@@ -119,26 +117,23 @@ mExpClass(General) EmptyTempSurvey : public SurveyCreator
 public:
 
 			EmptyTempSurvey(const char* survnm =nullptr,
-					const char* dataroot =nullptr,
-					bool automount=false,
-					bool ismanaged=true);
-			EmptyTempSurvey(const OD::JSON::Object&,
-					bool automount=false,
-					bool ismanaged=false);
+				    const char* dataroot =nullptr,
+				    const OD::JSON::Object* createpars=nullptr,
+				    bool automount=false,bool ismanaged=true);
 			mOD_DisableCopy(EmptyTempSurvey);
 			~EmptyTempSurvey();
 
-    BufferString	getZipArchiveLocation() const override
-						{ return zipfileloc_;  }
-    void		setSaveLocation(const char* saveloc =nullptr);
+    static const char*	sKeyCreateEnvVar()
+				{ return "DTECT_SURVEY_CREATE_JSON"; }
 
-    static const char*	sKeyCRSID()	{ return "CRSID"; }
-    static const char*	sKeySaveLoc()	{ return "Save Location"; }
+    BufferString	getZipArchiveLocation() const override
+				{ return zipfileloc_;  }
 
 protected:
 
     bool		createSurvey(TaskRunner*) override;
     bool		writeSurveyInfo();
+    void		setSaveLocation(const char* saveloc =nullptr);
 
     OD::JSON::Object*	createpars_	= nullptr;
     BufferString	zipfileloc_;
