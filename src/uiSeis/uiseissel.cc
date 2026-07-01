@@ -304,6 +304,8 @@ uiSeisSel::Setup& uiSeisSel::Setup::operator=( const Setup& oth )
     if ( this == &oth )
 	return *this;
 
+    uiIOObjSel::Setup::operator=( oth );
+
     geom_ = oth.geom_;
     allowsetdefault_ = oth.allowsetdefault_;
     enabotherdomain_ = oth.enabotherdomain_;
