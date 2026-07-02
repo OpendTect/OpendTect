@@ -88,12 +88,12 @@ uiFKSpectrum::uiFKSpectrum( uiParent* p, bool setbp )
     app.ddpars_.vd_.mappersetup_.cliprate_ = Interval<float>(0.005,0.005);
     addControl( new uiFlatViewStdControl(vwr,uiFlatViewStdControl::Setup(0)) );
 
+    lineitm_ = initAuxData();
+
     mAttachCB( vwr.rgbCanvas().getMouseEventHandler().movement,
 	       uiFKSpectrum::mouseMoveCB );
     mAttachCB( vwr.rgbCanvas().getMouseEventHandler().buttonPressed,
 	       uiFKSpectrum::mousePressCB );
-
-    lineitm_ = initAuxData();
 
     ffld_ = new uiGenInput( this, SI().zIsTime() ? tr("F") : tr("Kz") );
     ffld_->setReadOnly();

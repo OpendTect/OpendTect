@@ -41,7 +41,7 @@ uiODDataTreeItem::uiODDataTreeItem( const char* parenttype )
     , statswin_(0)
     , ampspectrumwin_(0)
     , fkspectrumwin_(0)
-    , movemnuitem_(tr("Move"))
+    , movemnuitem_(uiStrings::sMove())
     , movetotopmnuitem_(tr("To Top"))
     , movetobottommnuitem_(tr("To Bottom"))
     , moveupmnuitem_(uiStrings::sUp())
@@ -79,6 +79,7 @@ uiODDataTreeItem::~uiODDataTreeItem()
 
     delete statswin_;
     delete ampspectrumwin_;
+    delete fkspectrumwin_;
 
     MenuHandler* tb = visserv_->getToolBarHandler();
     tb->createnotifier.remove( mCB(this,uiODDataTreeItem,addToToolBarCB) );
@@ -100,7 +101,7 @@ int uiODDataTreeItem::uiTreeViewItemType() const
 
 uiODApplMgr* uiODDataTreeItem::applMgr() const
 {
-    void* res = 0;
+    void* res = nullptr;
     getPropertyPtr( uiODTreeTop::applmgrstr(), res );
     return reinterpret_cast<uiODApplMgr*>( res );
 }
@@ -409,6 +410,7 @@ void uiODDataTreeItem::handleMenuCB( CallBacker* cb )
 		    delete fkspectrumwin_;
 		    fkspectrumwin_ =
 			new uiFKSpectrum( applMgr()->applService().parent() );
+		    fkspectrumwin_->setDeleteOnClose( false );
 		    fkspectrumwin_->setDataPack( *voldp.ptr(), version );
 		    fkspectrumwin_->show();
 		}
