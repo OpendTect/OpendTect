@@ -24,6 +24,7 @@ class uiDockWin;
 class uiLabel;
 class uiMenu;
 class uiMenuBar;
+class uiSeparator;
 class uiStatusBar;
 class uiToolBar;
 class uiToolButton;
@@ -197,6 +198,7 @@ public:
 
     void		setDlgGrp( uiGroup* cw )	{ dlggrp_=cw; }
     uiGroup*		getDlgGrp()			{ return dlggrp_; }
+    uiSeparator*	getDlgSeparator();
 
     void		setHSpacing( int spc )	{ dlggrp_->setHSpacing(spc); }
     void		setVSpacing( int spc )	{ dlggrp_->setVSpacing(spc); }

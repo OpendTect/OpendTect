@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "od_helpids.h"
 
 class uiButton;
+class uiSeparator;
 
 /*!\brief Stand-alone dialog window with optional 'OK', 'Cancel' and
 'Save defaults' button.
@@ -146,6 +147,7 @@ public:
     static void		setTitlePos(TitlePos);
 
     uiGroup*		getDlgGroup();
+    uiSeparator*	getDlgSeparator();
 
     Notifier<uiDialog>	applyPushed;
 
