@@ -26,6 +26,8 @@ ________________________________________________________________________
 #include "keyboardevent.h"
 #include "oddirs.h"
 
+#include "hiddenparam.h"
+
 #include <QApplication>
 #include <QCloseEvent>
 #include <QMainWindow>
@@ -845,6 +847,8 @@ void uiMainWinBody::managePopupPos()
 }
 
 
+static HiddenParam<uiDialogBody,uiSeparator*> dlgsephp_mgr_(nullptr);
+
 // uiDialogBody
 uiDialogBody::uiDialogBody( uiDialog& hndle, uiParent* parnt,
 			    const uiDialog::Setup& s )
@@ -864,6 +868,7 @@ uiDialogBody::uiDialogBody( uiDialog& hndle, uiParent* parnt,
     , titlelbl_(nullptr)
     , dlghandle_(hndle)
 {
+    dlgsephp_mgr_.setParam( this, nullptr );
     setContentsMargins( 10, 2, 10, 2 );
 
     Qt::WindowFlags flags = windowFlags();
@@ -877,6 +882,7 @@ uiDialogBody::uiDialogBody( uiDialog& hndle, uiParent* parnt,
 
 uiDialogBody::~uiDialogBody()
 {
+    dlgsephp_mgr_.removeParam( this );
     if ( okbut_ )
 	okbut_->activated.remove( mCB(this,uiDialogBody,accept) );
 
@@ -1208,15 +1214,22 @@ uiObject* uiDialogBody::createChildren()
     if ( setup_.separator_ && (okbut_ || cnclbut_ || savebutcb_ ||
 			       savebuttb_ || helpbut_ || videobut_) )
     {
-	uiSeparator* horSepar = new uiSeparator( centralwidget_ );
+	auto* horSepar = new uiSeparator( centralwidget_ );
 	horSepar->attach( stretchedBelow, dlggrp_, -2 );
 	lowestobj = horSepar;
+	dlgsephp_mgr_.setParam( this, horSepar );
     }
 
     butgrp->attach( ensureBelow, lowestobj );
     butgrp->attach( rightBorder, 1 );
 
     return lowestobj;
+}
+
+
+uiSeparator* uiDialogBody::getDlgSeparator()
+{
+    return dlgsephp_mgr_.getParam( this );
 }
 
 

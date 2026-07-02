@@ -151,3 +151,9 @@ uiGroup* uiDialog::getDlgGroup()
 {
     return mBody->getDlgGrp();
 }
+
+
+uiSeparator* uiDialog::getDlgSeparator()
+{
+    return mBody->getDlgSeparator();
+}
