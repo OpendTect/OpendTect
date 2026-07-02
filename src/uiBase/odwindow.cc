@@ -849,19 +849,7 @@ void uiMainWinBody::managePopupPos()
 uiDialogBody::uiDialogBody( uiDialog& hndle, uiParent* parnt,
 			    const uiDialog::Setup& s )
     : uiMainWinBody(hndle,parnt,s.wintitle_.getFullString(),s.modal_)
-    , result_(0)
-    , initchildrendone_(false)
-    , dlggrp_(nullptr)
     , setup_(s)
-    , okbut_(nullptr)
-    , cnclbut_(nullptr)
-    , applybut_(nullptr)
-    , helpbut_(nullptr)
-    , videobut_(nullptr)
-    , creditsbut_(nullptr)
-    , savebutcb_(nullptr)
-    , savebuttb_(nullptr)
-    , titlelbl_(nullptr)
     , dlghandle_(hndle)
 {
     setContentsMargins( 10, 2, 10, 2 );
@@ -1208,9 +1196,9 @@ uiObject* uiDialogBody::createChildren()
     if ( setup_.separator_ && (okbut_ || cnclbut_ || savebutcb_ ||
 			       savebuttb_ || helpbut_ || videobut_) )
     {
-	uiSeparator* horSepar = new uiSeparator( centralwidget_ );
-	horSepar->attach( stretchedBelow, dlggrp_, -2 );
-	lowestobj = horSepar;
+	dlgsep_ = new uiSeparator( centralwidget_ );
+	dlgsep_->attach( stretchedBelow, dlggrp_, -2 );
+	lowestobj = dlgsep_;
     }
 
     butgrp->attach( ensureBelow, lowestobj );
