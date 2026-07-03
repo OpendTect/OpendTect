@@ -11,10 +11,14 @@ ________________________________________________________________________
 
 #include "arrayndimpl.h"
 #include "coord.h"
+#include "file.h"
+#include "filesystemaccess.h"
 #include "geometry.h"
 #include "odjson.h"
 #include "stringbuilder.h"
 #include "ranges.h"
+
+#include <csignal>
 
 using namespace OD::JSON;
 
@@ -35,6 +39,26 @@ nullptr
 };
 
 static const char* sKeyInterval()	{ return  "Interval"; }
+
+static BufferString writefnm_;
+static BufferString writeprettyfnm_;
+
+
+void cleanup()
+{
+    if ( File::exists(writefnm_.buf()) )
+	File::remove( writefnm_.buf() );
+
+    if ( File::exists(writeprettyfnm_.buf()) )
+	File::remove( writeprettyfnm_.buf() );
+}
+
+
+void signalHandler( int signum )
+{
+    errStream() << "Interrupt signal (" << signum << ") received." << od_endl;
+    exit( signum );
+}
 
 
 static bool testParseJSON()
@@ -557,9 +581,87 @@ static bool testDataType()
 }
 
 
+static void fillWriteTestObject( Object& jsobj )
+{
+    jsobj.setEmpty();
+    jsobj.set( "name", "odjson write test" );
+    jsobj.set( "value", 42 );
+    jsobj.set( "ratio", 3.14 );
+}
+
+
+static bool verifyWriteTestObject( const Object& jsobj, const char* desc )
+{
+    mRunStandardTest( jsobj.getStringValue("name")=="odjson write test",
+		      BufferString(desc," - string value") )
+    mRunStandardTest( jsobj.getIntValue("value")==42,
+		      BufferString(desc," - int value") )
+    mRunStandardTest( mIsEqual(jsobj.getDoubleValue("ratio"),3.14,1e-6),
+		      BufferString(desc," - double value") )
+
+    return true;
+}
+
+
+static bool testReadWrite( const char* fnm, bool pretty, const char* desc )
+{
+    Object jsobj;
+    fillWriteTestObject( jsobj );
+
+    uiRetVal uirv = jsobj.write( fnm, pretty );
+    mRunStandardTestWithError( uirv.isOK(), BufferString(desc," - write"),
+			       uirv.getText() )
+
+    mRunStandardTest( File::exists(fnm), BufferString(desc," - file exists") )
+
+    if ( pretty )
+    {
+	BufferString content;
+	if ( !handleTestResult(File::getContent(fnm,content),
+			   BufferString(desc," - read pretty content").str(),
+			   toString(OD::FileSystemAccess::get(fnm).errMsg())) )
+	    return false;
+
+	if ( !handleTestResult(content.indexOf('\n') >= 0,
+			   BufferString(desc," - pretty has newlines").str()) )
+	    return false;
+    }
+
+    uiRetVal readuirv;
+    PtrMan<ValueSet> readtree = ValueSet::read( fnm, readuirv );
+    if ( !handleTestResult(readuirv.isOK() && readtree,
+			   BufferString(desc," - read").str(),
+			   readuirv.getText()) )
+	return false;
+
+    return verifyWriteTestObject( readtree->asObject(), desc );
+}
+
+
+static bool testReadWriteJSON()
+{
+    cleanup();
+
+    writefnm_ = FilePath::getTempFullPath( "odjson write", "json" );
+    writeprettyfnm_
+	      = FilePath::getTempFullPath( "odjson write pretty", "json" );
+
+    if ( !testReadWrite(writefnm_,false,"Local JSON write") )
+	return false;
+
+    if ( !testReadWrite(writeprettyfnm_,true,"Local JSON write (pretty)") )
+	return false;
+
+    return true;
+}
+
+
 int mTestMainFnName( int argc, char** argv )
 {
     mInitTestProg();
+    signal( SIGINT, signalHandler );
+    signal( SIGTERM, signalHandler );
+    atexit( cleanup );
 
     if ( !testParseJSON()
       || !testUseJSON(false)
@@ -571,6 +673,7 @@ int mTestMainFnName( int argc, char** argv )
       || !testArray2D()
       || !testMixedArray()
       || !testDataType()
+      || !testReadWriteJSON()
     )
 	return 1;
 
