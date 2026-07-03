@@ -200,7 +200,7 @@ OD_INIT_MODULE()
 if ( WIN32 AND NOT OD_NO_QT )
     add_custom_command( TARGET ${OD_MODULE_NAME} POST_BUILD
 	COMMAND ECHO [Paths] > qt.conf
-	COMMAND ECHO Prefix=\"${QT_ROOT}\" >> qt.conf
+	COMMAND ECHO Prefix=\"${QT_INSTALL_PREFIX}\" >> qt.conf
 	WORKING_DIRECTORY "$<TARGET_FILE_DIR:${OD_MODULE_NAME}>"
 	COMMENT "Setting up qt.conf" )
 endif()
