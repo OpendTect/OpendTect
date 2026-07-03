@@ -826,21 +826,52 @@ if ( WIN32 AND OD_MODULE_HAS_LIBRARY AND NOT OD_MODULE_STATIC_EXTERNALS )
 			-DDESTINATION="$<TARGET_FILE_DIR:${OD_MODULE_NAME}>"
 			-P "${OpendTect_DIR}/CMakeModules/CopyPDBs.cmake"
 	    COMMENT "\nCopying runtime PDBs of the plugin ${OD_MODULE_NAME}" )
+	foreach( TRGT ${OD_${OD_MODULE_NAME}_EXTERNAL_LIBS} )
+	    get_target_property( TARGET_TYPE ${TRGT} TYPE )
+	    if ( ${TARGET_TYPE} STREQUAL "UNKNOWN_LIBRARY" )
+		get_target_property( _loc ${TRGT} IMPORTED_LOCATION )
+		if ( EXISTS "${_loc}" )
+		    od_get_dll( "${_loc}" _loc )
+		    if ( EXISTS "${_loc}" )
+			add_custom_command( TARGET ${OD_MODULE_NAME} POST_BUILD
+			    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+				    "${_loc}"
+				    "$<TARGET_FILE_DIR:${OD_MODULE_NAME}>"
+			    COMMENT "\nCopying runtime DLLs of the plugin ${OD_MODULE_NAME}" )
+		    endif()
+		endif()
+	    endif()
+	endforeach()
     endif()
     if ( NOT "${OD_${OD_MODULE_NAME}_EXTERNAL_RUNTIME_LIBS}" STREQUAL "" )
 	foreach( TRGT ${OD_${OD_MODULE_NAME}_EXTERNAL_RUNTIME_LIBS} )
-	    add_custom_command( TARGET ${OD_MODULE_NAME} POST_BUILD
-		COMMAND ${CMAKE_COMMAND} -E copy_if_different
-			"$<TARGET_FILE:${TRGT}>"
-			"$<TARGET_FILE_DIR:${OD_MODULE_NAME}>"
-		COMMAND_EXPAND_LISTS
-		COMMENT "\nCopying runtime DLLs of the dependency ${TRGT}" )
-	    add_custom_command( TARGET ${OD_MODULE_NAME} POST_BUILD
-		COMMAND ${CMAKE_COMMAND}
+	    get_target_property( TARGET_TYPE ${TRGT} TYPE )
+	    if ( ${TARGET_TYPE} STREQUAL "SHARED_LIBRARY" )
+		add_custom_command( TARGET ${OD_MODULE_NAME} POST_BUILD
+		    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+			    "$<TARGET_FILE:${TRGT}>"
+			    "$<TARGET_FILE_DIR:${OD_MODULE_NAME}>"
+		    COMMAND_EXPAND_LISTS
+		    COMMENT "\nCopying runtime DLLs of the dependency ${TRGT}" )
+		add_custom_command( TARGET ${OD_MODULE_NAME} POST_BUILD
+		    COMMAND ${CMAKE_COMMAND}
 			    -DDLLFILES="$<TARGET_FILE:${TRGT}>"
 			    -DDESTINATION="$<TARGET_FILE_DIR:${OD_MODULE_NAME}>"
 			    -P "${OpendTect_DIR}/CMakeModules/CopyPDBs.cmake"
-		COMMENT "\nCopying runtime PDBs of the dependency ${TRGT}" )
+		    COMMENT "\nCopying runtime PDBs of the dependency ${TRGT}" )
+	    elseif ( ${TARGET_TYPE} STREQUAL "UNKNOWN_LIBRARY" )
+		get_target_property( _loc ${TRGT} IMPORTED_LOCATION )
+		if ( EXISTS "${_loc}" )
+		    od_get_dll( "${_loc}" _loc )
+		    if ( EXISTS "${_loc}" )
+			add_custom_command( TARGET ${OD_MODULE_NAME} POST_BUILD
+			    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+				    "${_loc}"
+				    "$<TARGET_FILE_DIR:${OD_MODULE_NAME}>"
+			    COMMENT "\nCopying runtime DLLs of the plugin ${OD_MODULE_NAME}" )
+		    endif()
+		endif()
+	    endif()
 	endforeach()
     endif()
 
@@ -849,16 +880,48 @@ endif()
 if ( APPLE AND OD_MODULE_HAS_LIBRARY AND NOT OD_MODULE_STATIC_EXTERNALS )
     set (ALL_OD_MODULE_EXTERNAL_LIBS ${OD_${OD_MODULE_NAME}_EXTERNAL_LIBS})
     if ( NOT "${ALL_OD_MODULE_EXTERNAL_LIBS}" STREQUAL "" )
-    OD_MACOS_ADD_EXTERNAL_LIBS( ALL_OD_MODULE_EXTERNAL_LIBS )
-    foreach(LIB ${ALL_OD_MODULE_EXTERNAL_LIBS})
-        add_custom_command(TARGET ${OD_MODULE_NAME} POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy_if_different
-            "$<TARGET_FILE:${LIB}>"
-            "$<TARGET_SONAME_FILE:${LIB}>"
-            "$<TARGET_FILE_DIR:${OD_MODULE_NAME}>/"
-        COMMAND_EXPAND_LISTS
-        COMMENT "Copying runtime libraries of the plugin ${OD_MODULE_NAME}")
-    endforeach()
+	OD_MACOS_ADD_EXTERNAL_LIBS( ALL_OD_MODULE_EXTERNAL_LIBS )
+	foreach( LIB ${ALL_OD_MODULE_EXTERNAL_LIBS} )
+	    get_target_property( _LIBTYPE ${LIB} TYPE )
+	    if ( "${_LIBTYPE}" STREQUAL "SHARED_LIBRARY" )
+		add_custom_command(TARGET ${OD_MODULE_NAME} POST_BUILD
+		    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+			"$<TARGET_FILE:${LIB}>"
+			"$<TARGET_SONAME_FILE:${LIB}>"
+			"$<TARGET_FILE_DIR:${OD_MODULE_NAME}>/"
+		    COMMAND_EXPAND_LISTS
+		    COMMENT "Copying runtime libraries of the plugin ${OD_MODULE_NAME}")
+	    else()
+		get_target_property( IMPORTEDLOC ${LIB} IMPORTED_LOCATION )
+		if ( NOT IMPORTEDLOC )
+		    get_target_property( IMPORTEDLOC ${LIB} IMPORTED_LOCATION_RELEASE )
+		endif()
+		if ( IMPORTEDLOC )
+		    add_custom_command(TARGET ${OD_MODULE_NAME} POST_BUILD
+			COMMAND ${CMAKE_COMMAND} -E copy_if_different
+			    "${IMPORTEDLOC}"
+			    "$<TARGET_FILE_DIR:${OD_MODULE_NAME}>/"
+			COMMAND_EXPAND_LISTS
+			COMMENT "Copying runtime libraries of the plugin ${OD_MODULE_NAME}")
+		endif()
+		get_target_property( SONAME ${LIB} IMPORTED_SONAME )
+		if ( NOT SONAME )
+		    get_target_property( SONAME ${LIB} IMPORTED_SONAME_RELEASE )
+		endif()
+		if ( SONAME )
+		    string( REPLACE "\@rpath/" "" SONAME "${SONAME}" )
+		    cmake_path( GET IMPORTEDLOC FILENAME IMPORTEDLOCFNM )
+		    add_custom_command( TARGET ${OD_MODULE_NAME} POST_BUILD
+			COMMAND ${CMAKE_COMMAND} -E create_symlink
+			    "${IMPORTEDLOCFNM}" "$<TARGET_FILE_DIR:${OD_MODULE_NAME}>/${SONAME}"
+			COMMENT "Copying runtime libraries of the plugin ${OD_MODULE_NAME}")
+		endif()
+		unset( IMPORTEDLOC )
+		unset( IMPORTEDLOCFNM )
+		unset( SONAME )
+	    endif()
+	    unset( _LIBTYPE )
+	endforeach()
     endif()
     unset(ALL_OD_MODULE_EXTERNAL_LIBS)
 endif()
