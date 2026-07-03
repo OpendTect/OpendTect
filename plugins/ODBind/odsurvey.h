@@ -157,4 +157,5 @@ mExternC(ODBind) const char*	isValidSurveyDir(const char*);
 mExternC(ODBind) const char*	isValidDataRoot(const char*);
 			    //!< Full path to a writable directory
 mExternC(ODBind) const char*	survey_createtemp(const char* surveynm,
-							const char* basedir);
+					  const char* basedir,
+					  const char* createpars_json=nullptr);

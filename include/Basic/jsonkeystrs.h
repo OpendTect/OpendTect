@@ -43,6 +43,8 @@ namespace sJSONKey
     inline StringView Content()		{ return "content"; }
     inline StringView CoordSys()	{ return "coordinateSystem"; }
     inline StringView Coordinate()	{ return "coordinate"; }
+    inline StringView CRS()		{ return "crs"; }
+    inline StringView CRSID()		{ return "crsId"; }
     inline StringView CrlRange()	{ return "crosslineRange"; }
     inline StringView Crossline()	{ return "crossline"; }
     inline StringView Current()		{ return "current"; }
@@ -56,6 +58,7 @@ namespace sJSONKey
     inline StringView DefaultDataRoot() { return "defaultDataRoot"; }
     inline StringView Depth()		{ return "depth"; }
     inline StringView DepthRange()	{ return "depthRange"; }
+    inline StringView DepthInFeet()	{ return "depthInFeet"; }
     inline StringView Desc()		{ return "description"; }
     inline StringView Distribution()	{ return "distribution"; }
     inline StringView Enable()		{ return "enable"; }
@@ -131,9 +134,11 @@ namespace sJSONKey
     inline StringView Region()		{ return "region"; }
     inline StringView RevZ()		{ return "reverseZ"; }
     inline StringView Sampling()	{ return "sampling"; }
+    inline StringView SaveLocation()	{ return "saveLocation"; }
     inline StringView Scale()		{ return "scale"; }
     inline StringView Scaling()		{ return "scaling"; }
     inline StringView Selection()	{ return "selection"; }
+    inline StringView SeismicRefDatum() { return "seismicReferenceDatum"; }
     inline StringView Server()		{ return "server"; }
     inline StringView ServerNm()	{ return "serverName"; }
     inline StringView Setup()		{ return "setup"; }
@@ -199,6 +204,7 @@ namespace sJSONKey
     inline StringView XCoords()		{ return "xCoords"; }
     inline StringView XOffset()		{ return "xOffset"; }
     inline StringView XRange()		{ return "xRange"; }
+    inline StringView XYInFeet()	{ return "xyInFeet"; }
     inline StringView Y()		{ return "y"; }
     inline StringView Y2()		{ return "y2"; }
     inline StringView YCoord()		{ return "yCoord"; }

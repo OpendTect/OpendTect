@@ -11,6 +11,7 @@ ________________________________________________________________________
 
 #include "commandlineparser.h"
 #include "compoundkey.h"
+#include "envvars.h"
 #include "file.h"
 #include "filepath.h"
 #include "genc.h"
@@ -19,6 +20,7 @@ ________________________________________________________________________
 #include "iosubdir.h"
 #include "keystrs.h"
 #include "msgh.h"
+#include "odjson.h"
 #include "oddirs.h"
 #include "oddskey.h"
 #include "perthreadrepos.h"
@@ -2023,17 +2025,49 @@ uiRetVal IOMan::setDataSource( const IOPar& iop, bool refresh )
 }
 
 
-EmptyTempSurvey& StartupSurvey( const char* surveydir, const char* dataroot )
+static OD::JSON::Object* parseCreateParamsFromEnv( uiRetVal& uirv )
 {
-    static PtrMan<EmptyTempSurvey> theinst =
-				   new EmptyTempSurvey( surveydir, dataroot );
-    return *theinst.ptr();
+    uirv.setOK();
+    const BufferString jsonstr =
+			GetEnvVar( EmptyTempSurvey::sKeyCreateEnvVar() );
+    if ( jsonstr.isEmpty() )
+	return nullptr;
+
+    PtrMan<OD::JSON::Object> jsonobj = new OD::JSON::Object;
+    BufferString jsonbuf( jsonstr );
+    uirv = jsonobj->parseJSon( jsonbuf.getCStr(), jsonbuf.size() );
+    if ( uirv.isError() )
+	return nullptr;
+
+    return jsonobj.release();
+}
+
+
+static PtrMan<EmptyTempSurvey>& startupSurveyInst()
+{
+    static PtrMan<EmptyTempSurvey> inst;
+    return inst;
+}
+
+
+static EmptyTempSurvey& getStartupSurvey( const char* surveydir,
+					  const char* dataroot,
+					  const OD::JSON::Object* createpars )
+{
+    if ( createpars )
+	startupSurveyInst() = new EmptyTempSurvey( surveydir, dataroot,
+						   *createpars, false, false );
+    else
+	startupSurveyInst() = new EmptyTempSurvey( surveydir, dataroot,
+						   false, false );
+    return *startupSurveyInst().ptr();
 }
 
 
 static void UnmountStartupSurvey( CallBacker* )
 {
-    StartupSurvey( nullptr, nullptr ).unmount( false );
+    if ( startupSurveyInst() )
+	startupSurveyInst()->unmount( false );
 }
 
 
@@ -2044,25 +2078,39 @@ uiRetVal IOMan::setDataSource( const CommandLineParser& clp, bool refresh )
 					 dataroot );
     const bool hassurveynm = clp.getVal( CommandLineParser::sSurveyArg(),
 					 survdir );
-    const bool needtempsurvey = clp.hasKey( CommandLineParser::sNeedTempSurv());
-    if ( needtempsurvey )
-    {
-	EmptyTempSurvey& tempsurvey =
-			 StartupSurvey( survdir.buf(), dataroot.buf() );
-	uiRetVal uirv = tempsurvey.mount();
-	if ( !uirv.isOK() )
-	    return uirv;
-
-	uirv = tempsurvey.activate();
-	if ( uirv.isOK() && isOK() )
-	    IOM().applicationClosing.notify( mSCB(UnmountStartupSurvey) );
-    }
-
     if ( !hasdataroot )
 	dataroot.set( GetBaseDataDir() );
 
     if ( !hassurveynm )
 	survdir.set( SurveyInfo::curSurveyName() );
+
+    const bool needtempsurvey = clp.hasKey( CommandLineParser::sNeedTempSurv());
+    if ( needtempsurvey )
+    {
+	const FilePath survfp( dataroot.buf(), survdir.buf() );
+	if ( !File::exists(survfp.fullPath()) )
+	{
+	    uiRetVal parseuirv;
+	    PtrMan<OD::JSON::Object> createpars =
+					parseCreateParamsFromEnv( parseuirv );
+	    if ( parseuirv.isError() )
+		return parseuirv;
+
+	    EmptyTempSurvey& tempsurvey =
+			getStartupSurvey( survdir.buf(), dataroot.buf(),
+					  createpars.ptr() );
+	    uiRetVal uirv = tempsurvey.mount();
+	    if ( uirv.isError() )
+		return uirv;
+
+	    uirv = tempsurvey.activate();
+	    if ( uirv.isError() )
+		return uirv;
+
+	    if ( isOK() )
+		IOM().applicationClosing.notify( mSCB(UnmountStartupSurvey) );
+	}
+    }
 
     return setDataSource( dataroot.buf(), survdir.buf(), refresh );
 }
