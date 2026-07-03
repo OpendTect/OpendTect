@@ -15,6 +15,8 @@ ________________________________________________________________________
 #include "file.h"
 #include "filepath.h"
 #include "iodir.h"
+#include "iopar.h"
+#include "jsonkeystrs.h"
 #include "keystrs.h"
 #include "oddirs.h"
 #include "odjson.h"
@@ -374,7 +376,20 @@ uiRetVal SurveyFile::activate()
 // EmptyTempSurvey
 
 EmptyTempSurvey::EmptyTempSurvey( const char* survnm, const char* dataroot,
+				  const OD::JSON::Object& createpars,
 				  bool automount, bool ismanaged )
+    : SurveyCreator(survnm,dataroot,ismanaged)
+{
+    createpars_ = createpars.clone();
+
+    setSaveLocation( nullptr );
+    if ( automount && isOK() )
+	mount();
+}
+
+
+EmptyTempSurvey::EmptyTempSurvey( const char* survnm, const char* dataroot,
+    bool automount, bool ismanaged )
     : SurveyCreator(survnm,dataroot,ismanaged)
 {
     setSaveLocation( nullptr );
@@ -384,11 +399,11 @@ EmptyTempSurvey::EmptyTempSurvey( const char* survnm, const char* dataroot,
 
 
 EmptyTempSurvey::EmptyTempSurvey( const OD::JSON::Object& obj, bool automount,
-				  bool ismanaged )
+    bool ismanaged )
     : SurveyCreator(
-	    obj.getStringValue(CommandLineParser::sSurveyArg()).buf(),
-	    obj.getStringValue(CommandLineParser::sDataRootArg()).buf(),
-	    ismanaged)
+	obj.getStringValue(CommandLineParser::sSurveyArg()).buf(),
+	obj.getStringValue(CommandLineParser::sDataRootArg()).buf(),
+	ismanaged)
 {
     createpars_ = obj.clone();
     const BufferString saveloc = obj.getStringValue( sKeySaveLoc() );
@@ -431,6 +446,37 @@ bool EmptyTempSurvey::createSurvey( TaskRunner* taskrun )
 }
 
 
+static BufferString coordKey( int idx, bool isx )
+{
+    return BufferString( "coord", idx, isx ? "X" : "Y" );
+}
+
+
+static void setDefaultTempSurveyPars( SurveyInfo& si, TrcKeySampling& hs,
+				      Coord crd[3] )
+{
+    si.setXYInFeet( false );
+    si.setZUnit( true );
+    si.getPars().setYN( SurveyInfo::sKeyDpthInFt(), false );
+    si.setSeismicReferenceDatum( 0. );
+    hs.start_.inl() = hs.start_.crl() = 0;
+    hs.stop_.inl() = hs.stop_.crl() = 1000000;
+    hs.step_.inl() = hs.step_.crl() = 1;
+    crd[0] = Coord( 0., 0. );
+    crd[1] = Coord( 1000000000., 1000000000. );
+    crd[2] = Coord( 0., 1000000000. );
+    si.setCoordSystem( Coords::CoordSystem::getWGS84LLSystem() );
+}
+
+
+static bool hasValidInlCrlRange( const TrcKeySampling& hs )
+{
+    return hs.step_.inl() > 0 && hs.step_.crl() > 0 &&
+	   hs.stop_.inl() >= hs.start_.inl() &&
+	   hs.stop_.crl() >= hs.start_.crl();
+}
+
+
 bool EmptyTempSurvey::writeSurveyInfo()
 {
     const OD::JSON::Object* obj = createpars_;
@@ -443,56 +489,124 @@ bool EmptyTempSurvey::writeSurveyInfo()
     Coord crd[3];
     if ( obj )
     {
-	const BufferString zdom( obj->getStringValue(sKey::ZDomain()) );
-	const bool istime = zdom.isEqual( sKey::Time() );
-	const bool isfeet = obj->getBoolValue( SurveyInfo::sKeyDpthInFt() );
-	si.setXYInFeet( false );
+	const BufferString zdom( obj->getStringValue(sJSONKey::ZDomain()) );
+	const bool istime = zdom.isEmpty() || zdom.isEqual( sKey::Time() );
+	const bool isfeet = obj->getBoolValue( sJSONKey::DepthInFeet() );
+	bool xyinfeet = false;
+	if ( obj->isPresent(sJSONKey::XYInFeet()) )
+	    xyinfeet = obj->getBoolValue( sJSONKey::XYInFeet() );
+
+	si.setXYInFeet( xyinfeet );
 	si.setZUnit( istime, isfeet );
 	si.getPars().setYN( SurveyInfo::sKeyDpthInFt(), isfeet );
-	const double srd = obj->getDoubleValue(
-				    SurveyInfo::sKeySeismicRefDatum() );
+	const double srd = obj->getDoubleValue( sJSONKey::SeismicRefDatum() );
 	si.setSeismicReferenceDatum( srd );
-	hs.start_.inl() = obj->getDoubleValue( sKey::FirstInl() );
-	hs.start_.crl() = obj->getDoubleValue( sKey::FirstCrl() );
-	hs.stop_.inl() = obj->getDoubleValue( sKey::LastInl() );
-	hs.stop_.crl() = obj->getDoubleValue( sKey::LastCrl() );
-	hs.step_.inl() = obj->getDoubleValue( sKey::StepInl() );
-	hs.step_.crl() = obj->getDoubleValue( sKey::StepCrl() );
-	//TODO: set crd[0]. crd[1], crd[2]
-	const int crsid = obj->getIntValue( sKeyCRSID() );
-	if ( crsid >= 0 )
+
+	const bool havehline = obj->isPresent(sJSONKey::FirstInl()) &&
+			       obj->isPresent(sJSONKey::LastInl()) &&
+			       obj->isPresent(sJSONKey::StepInl()) &&
+			       obj->isPresent(sJSONKey::FirstCrl()) &&
+			       obj->isPresent(sJSONKey::LastCrl()) &&
+			       obj->isPresent(sJSONKey::StepCrl());
+	if ( havehline )
 	{
-	    IOPar crspar;
-	    crspar.set( Coords::CoordSystem::sKeyFactoryName(),
-			sKey::ProjSystem() );
-	    crspar.set( IOPar::compKey(sKey::Projection(),sKey::ID()), crsid );
-	    RefMan<Coords::CoordSystem> coordsys =
-				Coords::CoordSystem::createSystem( crspar );
+	    hs.start_.inl() = obj->getIntValue( sJSONKey::FirstInl() );
+	    hs.start_.crl() = obj->getIntValue( sJSONKey::FirstCrl() );
+	    hs.stop_.inl() = obj->getIntValue( sJSONKey::LastInl() );
+	    hs.stop_.crl() = obj->getIntValue( sJSONKey::LastCrl() );
+	    hs.step_.inl() = obj->getIntValue( sJSONKey::StepInl() );
+	    hs.step_.crl() = obj->getIntValue( sJSONKey::StepCrl() );
+	}
+
+	if ( obj->isPresent(sJSONKey::FirstZ()) &&
+	     obj->isPresent(sJSONKey::LastZ()) &&
+	     obj->isPresent(sJSONKey::StepZ()) )
+	{
+	    StepInterval<float> zrg(
+			mCast(float,obj->getDoubleValue(sJSONKey::FirstZ())),
+			mCast(float,obj->getDoubleValue(sJSONKey::LastZ())),
+			mCast(float,obj->getDoubleValue(sJSONKey::StepZ())) );
+	    cs.zsamp_ = zrg;
+	}
+
+	bool havecorners = true;
+	for ( int idx=0; idx<3; idx++ )
+	{
+	    const BufferString xkey = coordKey( idx, true );
+	    const BufferString ykey = coordKey( idx, false );
+	    if ( !obj->isPresent(xkey) || !obj->isPresent(ykey) )
+	    {
+		havecorners = false;
+		break;
+	    }
+
+	    crd[idx].x_ = obj->getDoubleValue( xkey );
+	    crd[idx].y_ = obj->getDoubleValue( ykey );
+	}
+
+	if ( !havecorners )
+	{
+	    crd[0] = Coord( 0., 0. );
+	    crd[1] = Coord( 1000000000., 1000000000. );
+	    crd[2] = Coord( 0., 1000000000. );
+	}
+
+	if ( !havehline )
+	{
+	    hs.start_.inl() = hs.start_.crl() = 0;
+	    hs.stop_.inl() = hs.stop_.crl() = 1000000;
+	    hs.step_.inl() = hs.step_.crl() = 1;
+	    if ( !havecorners )
+	    {
+		crd[0] = Coord( 0., 0. );
+		crd[1] = Coord( 1000000000., 1000000000. );
+		crd[2] = Coord( 0., 1000000000. );
+	    }
+
+	}
+	else if ( !hasValidInlCrlRange(hs) )
+	{
+	    lasterrs_ = tr("Invalid in-line/cross-line range in survey setup");
+	    return false;
+	}
+
+	RefMan<Coords::CoordSystem> coordsys;
+	const BufferString crsstr = obj->getStringValue( sJSONKey::CRS() );
+	if ( !crsstr.isEmpty() )
+	{
+	    BufferString msg;
+	    coordsys = Coords::CoordSystem::createSystem( crsstr.buf(), msg );
+	}
+
+	if ( !coordsys )
+	{
+	    const int crsid = obj->getIntValue( sJSONKey::CRSID() );
+	    if ( crsid >= 0 )
+	    {
+		IOPar crspar;
+		crspar.set( Coords::CoordSystem::sKeyFactoryName(),
+			    sKey::ProjSystem() );
+		crspar.set( IOPar::compKey(sKey::Projection(),sKey::ID()),
+			    crsid );
+		coordsys = Coords::CoordSystem::createSystem( crspar );
+	    }
+	}
+
+	if ( coordsys )
+	{
 	    si.setCoordSystem( coordsys.ptr() );
-	    si.setXYInFeet( coordsys->isFeet() );
+	    if ( !obj->isPresent(sJSONKey::XYInFeet()) )
+		si.setXYInFeet( coordsys->isFeet() );
 	}
 	else
 	{
-	    ConstRefMan<Coords::CoordSystem> coordsys =
-				Coords::CoordSystem::getWGS84LLSystem();
-	    si.setCoordSystem( coordsys.ptr() );
-	    si.setXYInFeet( coordsys->isFeet() );
+	    si.setCoordSystem( Coords::CoordSystem::getWGS84LLSystem() );
+	    if ( !obj->isPresent(sJSONKey::XYInFeet()) )
+		si.setXYInFeet( false );
 	}
     }
     else
-    {
-	si.setXYInFeet( false );
-	si.setZUnit( true );
-	si.getPars().setYN( SurveyInfo::sKeyDpthInFt(), false );
-	si.setSeismicReferenceDatum( 0. );
-	hs.start_.inl() = hs.start_.crl() = 0;
-	hs.stop_.inl() = hs.stop_.crl() = 1000000;
-	hs.step_.inl() = hs.step_.crl() = 1;
-	crd[0] = Coord( 0., 0. );
-	crd[1] = Coord( 1000000000., 1000000000. );
-	crd[2] = Coord( 0., 1000000000. );
-	si.setCoordSystem( Coords::CoordSystem::getWGS84LLSystem() );
-    }
+	setDefaultTempSurveyPars( si, hs, crd );
 
     si.setRange( cs, false );
     si.setRange( cs, true );

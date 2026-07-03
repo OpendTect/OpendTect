@@ -26,7 +26,6 @@ ________________________________________________________________________________
 #include "genc.h"
 #include "iodir.h"
 #include "ioman.h"
-#include "iopar.h"
 #include "keystrs.h"
 #include "latlong.h"
 #include "moddepmgr.h"
@@ -849,9 +848,34 @@ const char* isValidDataRoot( const char* loc )
 }
 
 
-const char* survey_createtemp( const char* surveynm, const char* bsedir )
+const char* survey_createtemp( const char* surveynm, const char* bsedir,
+			       const char* createpars_json )
 {
-    EmptyTempSurvey tempsurvey( surveynm, bsedir, true, false );
+    if ( StringView(createpars_json).isEmpty() )
+    {
+	EmptyTempSurvey tempsurvey( surveynm, bsedir, true, false );
+	if ( !tempsurvey.isOK() )
+	{
+	    mDeclStaticString( errmsg );
+	    errmsg.set( tempsurvey.errMsg().getText().buf() );
+	    return errmsg.buf();
+	}
+
+	return nullptr;
+    }
+
+    OD::JSON::Object jsonobj;
+    BufferString jsonbuf( createpars_json );
+    const uiRetVal uirv = jsonobj.parseJSon( jsonbuf.getCStr(),
+					     jsonbuf.size() );
+    if ( !uirv.isOK() )
+    {
+	mDeclStaticString( errmsg );
+	errmsg.set( uirv.getText().buf() );
+	return errmsg.buf();
+    }
+
+    EmptyTempSurvey tempsurvey( surveynm, bsedir, jsonobj, true, false );
     if ( !tempsurvey.isOK() )
     {
 	mDeclStaticString( errmsg );

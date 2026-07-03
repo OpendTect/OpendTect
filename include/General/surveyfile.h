@@ -11,8 +11,6 @@ ________________________________________________________________________
 #include "generalmod.h"
 #include "survinfo.h"
 
-#include "uistringset.h"
-
 class SurveyChanger;
 class TaskRunner;
 namespace OD { namespace JSON { class Object; } }
@@ -118,21 +116,27 @@ mExpClass(General) EmptyTempSurvey : public SurveyCreator
 { mODTextTranslationClass(EmptyTempSurvey)
 public:
 
+			EmptyTempSurvey(const char* survnm,
+				    const char* dataroot,
+				    const OD::JSON::Object& createpars,
+				    bool automount=false,bool ismanaged=true);
 			EmptyTempSurvey(const char* survnm =nullptr,
-					const char* dataroot =nullptr,
-					bool automount=false,
-					bool ismanaged=true);
+				    const char* dataroot =nullptr,
+				    bool automount=false,
+				    bool ismanaged=true);
 			EmptyTempSurvey(const OD::JSON::Object&,
-					bool automount=false,
-					bool ismanaged=false);
+				    bool automount=false,
+				    bool ismanaged=false);
 			mOD_DisableCopy(EmptyTempSurvey);
 			~EmptyTempSurvey();
 
+    static const char*	sKeyCreateEnvVar()
+				{ return "DTECT_SURVEY_CREATE_JSON"; }
+
     BufferString	getZipArchiveLocation() const override
-						{ return zipfileloc_;  }
+				{ return zipfileloc_;  }
     void		setSaveLocation(const char* saveloc =nullptr);
 
-    static const char*	sKeyCRSID()	{ return "CRSID"; }
     static const char*	sKeySaveLoc()	{ return "Save Location"; }
 
 protected:
@@ -142,4 +146,9 @@ protected:
 
     OD::JSON::Object*	createpars_	= nullptr;
     BufferString	zipfileloc_;
+
+public:
+    mDeprecated( "Deprecated" )
+    static const char*	sKeyCRSID()	{ return "CRSID"; }
+
 };
