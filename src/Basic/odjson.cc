@@ -10,6 +10,8 @@ ________________________________________________________________________
 #include "odjson.h"
 
 #include "dbkey.h"
+#include "file.h"
+#include "filesystemaccess.h"
 #include "gason.h"
 #include "od_istream.h"
 #include "od_ostream.h"
@@ -22,13 +24,6 @@ ________________________________________________________________________
 #include <QString>
 
 #include <string.h>
-
-#ifdef __debug__
-# ifdef __win__
-#  include "file.h"
-# endif
-#endif
-
 
 namespace OD
 {
@@ -1013,11 +1008,16 @@ uiRetVal OD::JSON::ValueSet::read( const char* fnm )
 
 uiRetVal OD::JSON::ValueSet::read( const char* fnm, bool allowmixedarr )
 {
-    od_istream istrm( fnm );
-    if ( istrm.isBad() )
-	return uiStrings::phrCannotRead( toUiString(fnm) );
+    BufferString buf;
+    if ( File::getContent(fnm,buf) )
+	return parseJSon( buf.getCStr(), buf.size(), allowmixedarr );
 
-    return read( istrm, allowmixedarr );
+    uiRetVal uirv( uiStrings::phrCannotRead(fnm) );
+    const uiString errmsg = OD::FileSystemAccess::get( fnm ).errMsg();
+    if ( !errmsg.isEmpty() )
+	uirv.add( errmsg );
+
+    return uirv;
 }
 
 
@@ -1030,21 +1030,36 @@ OD::JSON::ValueSet* OD::JSON::ValueSet::read( const char* fnm, uiRetVal& uirv )
 OD::JSON::ValueSet* OD::JSON::ValueSet::read( const char* fnm, uiRetVal& uirv,
 					      bool allowmixedarr )
 {
-    od_istream istrm( fnm );
-    if ( istrm.isBad() )
-    {
-	uirv.set( uiStrings::phrCannotRead( toUiString(fnm) ) );
-	return nullptr;
-    }
+    BufferString buf;
+    if ( File::getContent(fnm,buf) )
+	return getFromJSon( buf.getCStr(), buf.size(), uirv, allowmixedarr );
 
-    return read( istrm, uirv, allowmixedarr );
+    uirv.set( uiStrings::phrCannotRead(fnm) );
+    const uiString errmsg = OD::FileSystemAccess::get( fnm ).errMsg();
+    if ( !errmsg.isEmpty() )
+	uirv.add( errmsg );
+
+    return nullptr;
 }
 
 
 uiRetVal OD::JSON::ValueSet::write( const char* fnm, bool pretty )
 {
-    od_ostream ostrm( fnm );
-    return write( ostrm, pretty );
+    BufferString jsonstr;
+    dumpJSon( jsonstr, pretty );
+    if ( jsonstr.isEmpty() )
+	return uiRetVal::OK();
+
+    if ( File::putContent(jsonstr,fnm) )
+	return uiRetVal::OK();
+
+    uiRetVal uirv;
+    uirv.set( uiStrings::phrCannotWrite(fnm) );
+    const uiString errmsg = OD::FileSystemAccess::get( fnm ).errMsg();
+    if ( !errmsg.isEmpty() )
+	uirv.add( errmsg );
+
+    return uirv;
 }
 
 
