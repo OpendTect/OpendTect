@@ -10,6 +10,7 @@ ________________________________________________________________________
 #include "odjson.h"
 
 #include "dbkey.h"
+#include "file.h"
 #include "gason.h"
 #include "od_istream.h"
 #include "od_ostream.h"
@@ -22,13 +23,6 @@ ________________________________________________________________________
 #include <QString>
 
 #include <string.h>
-
-#ifdef __debug__
-# ifdef __win__
-#  include "file.h"
-# endif
-#endif
-
 
 namespace OD
 {
@@ -1090,32 +1084,52 @@ void OD::JSON::ValueSet::dumpJSon( StringBuilder& sb ) const
 
 uiRetVal OD::JSON::ValueSet::read( const char* fnm, bool allowmixedarr )
 {
-    od_istream istrm( fnm );
-    if ( istrm.isBad() )
-	return uiStrings::phrCannotRead( toUiString(fnm) );
+    BufferString buf;
+    uiString errmsg;
+    if ( File::getContent(fnm,buf,&errmsg) )
+	return parseJSon( buf.getCStr(), buf.size(), allowmixedarr );
 
-    return read( istrm, allowmixedarr );
+    uiRetVal uirv( uiStrings::phrCannotRead(fnm) );
+    if ( !errmsg.isEmpty() )
+	uirv.add( errmsg );
+
+    return uirv;
 }
 
 
 OD::JSON::ValueSet* OD::JSON::ValueSet::read( const char* fnm, uiRetVal& uirv,
 					      bool allowmixedarr )
 {
-    od_istream istrm( fnm );
-    if ( istrm.isBad() )
-    {
-	uirv.set( uiStrings::phrCannotRead( toUiString(fnm) ) );
-	return nullptr;
-    }
+    BufferString buf;
+    uiString errmsg;
+    if ( File::getContent(fnm,buf,&errmsg) )
+	return getFromJSon( buf.getCStr(), buf.size(), uirv, allowmixedarr );
 
-    return read( istrm, uirv, allowmixedarr );
+    uirv.set( uiStrings::phrCannotRead(fnm) );
+    if ( !errmsg.isEmpty() )
+	uirv.add( errmsg );
+
+    return nullptr;
 }
 
 
 uiRetVal OD::JSON::ValueSet::write( const char* fnm, bool pretty )
 {
-    od_ostream ostrm( fnm );
-    return write( ostrm, pretty );
+    BufferString jsonstr;
+    dumpJSon( jsonstr, pretty );
+    if ( jsonstr.isEmpty() )
+	return uiRetVal::OK();
+
+    uiString errmsg;
+    if ( File::putContent(jsonstr,fnm,&errmsg) )
+	return uiRetVal::OK();
+
+    uiRetVal uirv;
+    uirv.set( uiStrings::phrCannotWrite(fnm) );
+    if ( !errmsg.isEmpty() )
+	uirv.add( errmsg );
+
+    return uirv;
 }
 
 
