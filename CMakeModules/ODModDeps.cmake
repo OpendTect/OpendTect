@@ -5,7 +5,7 @@
 #________________________________________________________________________
 #
 
-# OD_WRITE_MODDEP - Macro that writes all modules and their dependencies to a file. 
+# OD_WRITE_MODDEP - Macro that writes all modules and their dependencies to a file.
 # Input variables:
 # OD_SUBSYSTEM				: "od" or "dgb"
 # OD_CORE_MODULE_NAMES_${OD_SUBSYSTEM}	: List of all modules.
@@ -76,17 +76,17 @@ foreach ( MODULE ${OD_MODULE_NAMES_${OD_SUBSYSTEM}} )
 				${INCLUDEPATH} )
 	    set( PRINTPATH "${PRINTPATH} ${INCLUDEPATH}" )
 	endforeach()
-	set ( MODULE_INCLUDES 
+	set ( MODULE_INCLUDES
 	   "${MODULE_INCLUDES}set( OD_${MODULE}_INCLUDEPATH ${PRINTPATH} )${OD_LINESEP}" )
     endif()
 
     if ( OD_${MODULE}_EXTERNAL_LIBS )
-	set ( MODULE_EXTERNAL_LIBS 
+	set ( MODULE_EXTERNAL_LIBS
 	    "${MODULE_EXTERNAL_LIBS}set( OD_${MODULE}_EXTERNAL_LIBS ${OD_${MODULE}_EXTERNAL_LIBS} )${OD_LINESEP}" )
     endif()
 
     if ( OD_${MODULE}_EXTERNAL_RUNTIME_LIBS )
-	set ( MODULE_EXTERNAL_RUNTIME_LIBS 
+	set ( MODULE_EXTERNAL_RUNTIME_LIBS
 	    "${MODULE_EXTERNAL_RUNTIME_LIBS}set( OD_${MODULE}_EXTERNAL_RUNTIME_LIBS ${OD_${MODULE}_EXTERNAL_RUNTIME_LIBS} )${OD_LINESEP}" )
     endif()
 
@@ -98,9 +98,6 @@ foreach ( MODULE ${OD_MODULE_NAMES_${OD_SUBSYSTEM}} )
     endforeach()
 endforeach()
 
-if ( NOT OD_NO_OSG )
-   OD_FIND_OSGDIR()
-endif()
 configure_file( ${CMAKE_SOURCE_DIR}/CMakeModules/templates/FindOpendTect.cmake.in
 		${OD_FIND_OD_FILE}
 		@ONLY )
@@ -108,7 +105,7 @@ endmacro()
 
 
 # OD_WRITE_TEST_PROJECT_DESC - Marcro that writes an xml-file for cdash submition
-#		    a file. 
+#		    a file.
 # Input variables:
 # OD_MODULE_NAMES_${OD_SUBSYSTEM}	: List of all modules.
 # OD_${OD_MODULE_NAME}_DEPS		: The modules this module is dependent

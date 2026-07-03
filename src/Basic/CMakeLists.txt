@@ -173,15 +173,15 @@ if ( IS_DIRECTORY "${CMAKE_SOURCE_DIR}/external/safety" )
 endif()
 
 if ( UNIX )
-set( FILEEXT sh )
+    set( FILEEXT sh )
 else()
-set( FILEEXT cmd )
+    set( FILEEXT cmd )
 endif()
 
 file( COPY "${CMAKE_SOURCE_DIR}/testscripts/script with space.${FILEEXT}"
-  DESTINATION "${PROJECT_BINARY_DIR}/${MISC_INSTALL_PREFIX}/bin" )
+      DESTINATION "${PROJECT_BINARY_DIR}/${MISC_INSTALL_PREFIX}/bin" )
 file( COPY "${CMAKE_SOURCE_DIR}/testscripts/count_to_1000.csh"
-  DESTINATION "${PROJECT_BINARY_DIR}/${MISC_INSTALL_PREFIX}/bin" )
+      DESTINATION "${PROJECT_BINARY_DIR}/${MISC_INSTALL_PREFIX}/bin" )
 
 if ( NOT ${BUILDINSRC} )
     if ( UNIX )
@@ -199,7 +199,7 @@ OD_INIT_MODULE()
 if ( WIN32 AND NOT OD_NO_QT )
     add_custom_command( TARGET ${OD_MODULE_NAME} POST_BUILD
 	COMMAND ECHO [Paths] > qt.conf
-	COMMAND ECHO Prefix=\"${QT_ROOT}\" >> qt.conf
+	COMMAND ECHO Prefix=\"${QT_INSTALL_PREFIX}\" >> qt.conf
 	WORKING_DIRECTORY "$<TARGET_FILE_DIR:${OD_MODULE_NAME}>"
 	COMMENT "Setting up qt.conf" )
 endif()

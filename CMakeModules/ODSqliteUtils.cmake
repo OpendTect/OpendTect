@@ -8,18 +8,22 @@
 macro( OD_FIND_SQLITE )
 
     if ( NOT TARGET SQLite::SQLite3 )
-	find_package( SQLite3 QUIET GLOBAL )
+	find_package( SQLite3 QUIET CONFIG GLOBAL PATHS "${SQLite3_ROOT}" HINTS "${CMAKE_PREFIX_PATH}" NO_DEFAULT_PATH )
+	if ( NOT TARGET SQLite::SQLite3 )
+	    find_package( SQLite3 QUIET GLOBAL )
+	    unset( SQLite3_DIR CACHE )
+	endif()
 	if ( TARGET SQLite::SQLite3 )
-	    od_map_configurations( SQLite::SQLite3 )
+	    od_setup_external_target( SQLite::SQLite3 )
 	    set( SQLite3_VERSION ${SQLite3_VERSION} CACHE INTERNAL
-		 "The version of sqlite3 which was detected" )
+		"The version of SQLite3 which was detected" )
 	    unset( SQLite3_ROOT CACHE )
 	endif()
     endif()
 
 endmacro(OD_FIND_SQLITE)
 
-macro ( OD_SETUP_SQLITE )
+macro( OD_SETUP_SQLITE )
 
     if ( SQLite3_FOUND AND TARGET SQLite::SQLite3 )
 	if ( OD_LINKSQLITE )
