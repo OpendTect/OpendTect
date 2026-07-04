@@ -10,6 +10,7 @@ IF %argC% LSS 1 (
     GOTO :eof
 )
 
+SET DTECT_APPL=
 IF DEFINED HOMEDRIVE IF DEFINED HOMEPATH IF EXIST %HOMEDRIVE%%HOMEPATH% (
     chdir /D %HOMEDRIVE%%HOMEPATH%
     Set "WindowsAppDir=%HOMEDRIVE%%HOMEPATH%\AppData\Local\Microsoft\WindowsApps"
