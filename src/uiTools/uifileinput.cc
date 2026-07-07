@@ -201,6 +201,9 @@ void uiFileInput::inputChg( CallBacker* )
 
 void uiFileInput::fnmEntered( CallBacker* )
 {
+    filenames_.setEmpty();
+    filenames_.add( text() );
+
     const bool isdir = selmode_==uiFileDialog::Directory ||
 		       selmode_==uiFileDialog::DirectoryOnly;
     if ( isdir || forread_ || defaultext_.isEmpty() )
