@@ -25,8 +25,10 @@ mExpClass(EMAttrib) StratAmpCalc  : public Executor
 { mODTextTranslationClass(StratAmpCalc)
 public:
 
+    enum class SumMode		{ All, Positive, Negative };
+
 			StratAmpCalc(const EM::Horizon3D*,const EM::Horizon3D*,
-				     Stats::Type,const TrcKeySampling&,bool);
+				     const TrcKeySampling&,bool);
 			~StratAmpCalc();
 
     int			nextStep() override;
@@ -56,9 +58,13 @@ public:
     static const char*	sKeyIsClassification();
     static const char*	sKeyIsOverwriteYN();
 
+    mDeprecated("Skip the Stats type argument, it is set in the init function")
+			StratAmpCalc(const EM::Horizon3D*,const EM::Horizon3D*,
+				     Stats::Type,const TrcKeySampling&,bool);
 protected:
 
     Stats::Type			stattyp_;
+    SumMode			summode_			= SumMode::All;
     bool			isclassification_		= false;
     SeisTrcReader*		rdr_				= nullptr;
     bool			usesstored_			= false;

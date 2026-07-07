@@ -46,7 +46,8 @@ uiStratAmpCalc::Setup::~Setup()
 
 
 static const char* statstrs[] =
-	{ "Min", "Max", "Average", "Median", "RMS", "Sum", "MostFrequent", 0 };
+	{ "Min", "Max", "Average", "Median", "RMS", "Sum", "MostFrequent",
+	  "Sum of positive", "Sum of negative", 0 };
 
 
 uiStratAmpCalc::uiStratAmpCalc( uiParent* p, const Setup& setup )

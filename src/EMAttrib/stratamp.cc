@@ -9,6 +9,7 @@ ________________________________________________________________________
 
 #include "stratamp.h"
 
+#include "stringview.h"
 #include "attribdesc.h"
 #include "attribdescid.h"
 #include "attribdescset.h"
@@ -47,12 +48,37 @@ const char* StratAmpCalc::sKeyIsOverwriteYN()	{ return "Overwrite"; }
 const char* StratAmpCalc::sKeyIsClassification()
 	    { return "Is Classification"; }
 
+
+bool parseAmplitudeOption( const char* optstr, Stats::Type& typ,
+			   StratAmpCalc::SumMode& summode )
+{
+    summode = StratAmpCalc::SumMode::All;
+    if ( !optstr || !*optstr )
+	return false;
+
+    if ( StringView(optstr) == "Sum of positive" )
+    {
+	typ = Stats::Sum;
+	summode = StratAmpCalc::SumMode::Positive;
+	return true;
+    }
+
+    if ( StringView(optstr) == "Sum of negative" )
+    {
+	typ = Stats::Sum;
+	summode = StratAmpCalc::SumMode::Negative;
+	return true;
+    }
+
+    typ = Stats::parseEnumType( optstr );
+    return true;
+}
+
+
 StratAmpCalc::StratAmpCalc( const EM::Horizon3D* tophor,
 			    const EM::Horizon3D* bothor,
-			    Stats::Type stattyp, const TrcKeySampling& hs,
-			    bool outputfold )
+			    const TrcKeySampling& hs, bool outputfold )
     : Executor("Stratal amplitude Executor")
-    , stattyp_(stattyp)
     , tophorizon_(tophor)
     , bothorizon_(bothor)
     , nrdone_(0)
@@ -64,6 +90,16 @@ StratAmpCalc::StratAmpCalc( const EM::Horizon3D* tophor,
     totnr_ = hs.nrInl() * hs.nrCrl();
     descset_ = new Attrib::DescSet( false );
     msg_ = tr("Computing trace statistics");
+}
+
+
+StratAmpCalc::StratAmpCalc( const EM::Horizon3D* tophor,
+			    const EM::Horizon3D* bothor,
+			    Stats::Type stattyp, const TrcKeySampling& hs,
+			    bool outputfold )
+    : StratAmpCalc( tophor, bothor, hs, outputfold )
+{
+    stattyp_ = stattyp;
 }
 
 
@@ -86,7 +122,14 @@ bool StratAmpCalc::init( const IOPar& pars )
     if ( !tophorizon_ )
 	return false;
 
+    addtotop_ = false;
+    pars.getYN( sKeyAddToTopYN(), addtotop_ );
     if ( !addtotop_ && !bothorizon_ )
+	return false;
+
+    BufferString ampopt;
+    if ( pars.get(sKeyAmplitudeOption(),ampopt) &&
+	 !parseAmplitudeOption(ampopt,stattyp_,summode_) )
 	return false;
 
     pars.get( sKeyTopShift(), tophorshift_ );
@@ -97,8 +140,6 @@ bool StratAmpCalc::init( const IOPar& pars )
     isclassification_ = false;
     pars.getYN( sKeyIsClassification(), isclassification_ );
 
-    addtotop_ = false;
-    pars.getYN( sKeyAddToTopYN(), addtotop_ );
     const EM::Horizon3D& addtohor = addtotop_ ? *tophorizon_ : *bothorizon_;
 
     //determine whether stored data is used
@@ -297,8 +338,18 @@ int StratAmpCalc::nextStep()
 	    const float zval = sampintv.atIndex( sidx );
 	    const float val = trc->getValue( zval, usesstored_ ? selcomps_[idx]
 							       : idx );
-	    if ( !mIsUdf(val) )
-		runcalc.addValue( val );
+	    if ( mIsUdf(val) )
+		continue;
+
+	    if ( stattyp_ == Stats::Sum && summode_ != SumMode::All )
+	    {
+		if ( summode_ == SumMode::Positive && val <= 0 )
+		    continue;
+		if ( summode_ == SumMode::Negative && val >= 0 )
+		    continue;
+	    }
+
+	    runcalc.addValue( val );
 	}
 
 	float outval = mUdf(float);

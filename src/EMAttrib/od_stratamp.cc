@@ -19,7 +19,6 @@ ________________________________________________________________________
 #include "moddepmgr.h"
 #include "multiid.h"
 #include "stratamp.h"
-#include "stattype.h"
 
 #include <iostream>
 
@@ -96,13 +95,10 @@ bool BatchProgram::doWork( od_ostream& strm )
 
     strm << "Horizon(s) loaded successfully" << od_newline;
 
-    BufferString type;
-    pars().get( StratAmpCalc::sKeyAmplitudeOption(), type );
-    Stats::Type sttype = Stats::parseEnumType( type );
     bool outputfold = false;
     pars().getYN( StratAmpCalc::sKeyOutputFoldYN(), outputfold );
     StratAmpCalc exec( tophor.ptr(), usesingle ? nullptr : bothor.ptr(),
-		       sttype, hs, outputfold );
+		       hs, outputfold );
     if ( !exec.init(pars()) )
     {
 	strm << "Cannot add attribute to Horizon" << od_newline;
