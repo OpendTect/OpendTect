@@ -1069,8 +1069,9 @@ void RandomTrackDragger::updatePanels()
     if ( postponepanelupdate_ )
 	return;
 
-    if ( panels_->getNumChildren() >= nrKnots() )
-	panels_->removeChildren( 0, panels_->getNumChildren()-nrKnots()-1 );
+    const int nrpanels = mMAX( nrKnots()-1, 0 );
+    if ( panels_->getNumChildren() > nrpanels )
+	panels_->removeChildren( 0, panels_->getNumChildren()-nrpanels );
 
     for ( int knotidx=0; knotidx<nrKnots()-1; knotidx++ )
     {
