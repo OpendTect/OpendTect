@@ -13,8 +13,10 @@ ________________________________________________________________________
 #include "uifileinput.h"
 #include "uilistbox.h"
 #include "uimsg.h"
+#include "uistrings.h"
 #include "uiwellsel.h"
 
+#include "file.h"
 #include "filepath.h"
 #include "ioobj.h"
 #include "laswriter.h"
@@ -43,27 +45,26 @@ uiLASWriter::uiLASWriter( uiParent* p )
     mAttachCB( logsfld_->selectionChanged, uiLASWriter::logSelCB );
 
     lognmfld_ = new uiGenInput( this, tr("In LAS file MNEM column write"),
-			BoolInpSpec(true,tr("Mnemonic"),tr("Log name")) );
+				BoolInpSpec(true,uiStrings::sMnemonic(),
+						 uiStrings::sLogName()) );
     lognmfld_->attach( alignedBelow, logsfld_ );
 
-    mdrangefld_ = new uiGenInput( this, tr("MD range"),
-				 FloatInpIntervalSpec(true) );
+    mdrangefld_ = new uiGenInput( this, mJoinUiStrs(sMD(),sRange()),
+				  FloatInpIntervalSpec(true) );
     mdrangefld_->attach( alignedBelow, lognmfld_ );
     mdrangefld_->setValue( SI().depthsInFeet() ? 0.5f : 0.1524f, 2 );
-
     zunitfld_ = new uiComboBox( this, "Z units" );
     zunitfld_->addItem( uiStrings::sMeter() );
     zunitfld_->addItem( uiStrings::sFeet() );
     zunitfld_->attach( rightTo, mdrangefld_ );
     zunitfld_->setCurrentItem( SI().depthsInFeet() ? 1 : 0 );
 
-    nullfld_ = new uiGenInput( this, tr("Null value"),
-				FloatInpSpec(-999.25) );
+    nullfld_ = new uiGenInput( this, tr("Null value"), FloatInpSpec(-999.25) );
     nullfld_->attach( alignedBelow, mdrangefld_ );
 
     colwidthfld_ = new uiGenInput( this, tr("Log data column width"),
-				IntInpSpec(LASWriter::defaultColumnWidth(),
-					   LASWriter::minimumColumnWidth()) );
+				   IntInpSpec(LASWriter::defaultColumnWidth(),
+					     LASWriter::minimumColumnWidth()) );
     colwidthfld_->attach( rightOf, nullfld_ );
 
     lasfld_ = new uiASCIIFileInput( this, false );
@@ -117,7 +118,7 @@ void uiLASWriter::wellSelCB( CallBacker* )
     logsfld_->resizeToContents();
 
     const FilePath fp = ioobj->fullUserExpr();
-    BufferString fnm( fp.baseName(), "_logs" );
+    const BufferString fnm( fp.baseName(), "_logs" );
     FilePath laspath( GetSurveyExportDir(), fnm );
     laspath.setExtension( "las" );
     lasfld_->setFileName( laspath.fullPath() );
@@ -168,6 +169,10 @@ bool uiLASWriter::acceptOK( CallBacker* )
 	uiMSG().error( tr("Please enter an output file name") );
 	return false;
     }
+
+    if ( File::exists(lasfnm.buf()) &&
+	 !uiMSG().askOverwrite(uiStrings::sOutputFileExistsOverwrite()) )
+	return false;
 
     Well::Reader rdr( ioobj->key(), *wd_ );
     if ( !rdr.isUsable() )
