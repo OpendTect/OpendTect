@@ -9,6 +9,7 @@ ________________________________________________________________________
 
 #include "stratamp.h"
 
+#include "stringview.h"
 #include "attribdesc.h"
 #include "attribdescid.h"
 #include "attribdescset.h"
@@ -51,13 +52,39 @@ const char* StratAmpCalc::sKeyIsClassification()
 static HiddenParam<StratAmpCalc,TypeSet<int>*> hp_selcomps( nullptr );
 static HiddenParam<StratAmpCalc,TypeSet<int>*> hp_dataidxs( nullptr );
 static HiddenParam<StratAmpCalc,TypeSet<int>*> hp_dataidxsfold( nullptr );
+static HiddenParam<StratAmpCalc,StratAmpCalc::SumMode> hp_summode(
+						StratAmpCalc::SumMode::All );
+
+bool parseAmplitudeOption( const char* optstr, Stats::Type& typ,
+			   StratAmpCalc::SumMode& summode )
+{
+    summode = StratAmpCalc::SumMode::All;
+    if ( !optstr || !*optstr )
+	return false;
+
+    if ( StringView(optstr) == "Sum of positive" )
+    {
+	typ = Stats::Sum;
+	summode = StratAmpCalc::SumMode::Positive;
+	return true;
+    }
+
+    if ( StringView(optstr) == "Sum of negative" )
+    {
+	typ = Stats::Sum;
+	summode = StratAmpCalc::SumMode::Negative;
+	return true;
+    }
+
+    typ = Stats::parseEnumType( optstr );
+    return true;
+}
+
 
 StratAmpCalc::StratAmpCalc( const EM::Horizon3D* tophor,
 			    const EM::Horizon3D* bothor,
-			    Stats::Type stattyp, const TrcKeySampling& hs,
-			    bool outputfold )
+			    const TrcKeySampling& hs, bool outputfold )
     : Executor("Stratal amplitude Executor")
-    , stattyp_(stattyp)
     , rdr_(nullptr)
     , usesstored_(false)
     , tophorizon_(tophor)
@@ -73,6 +100,7 @@ StratAmpCalc::StratAmpCalc( const EM::Horizon3D* tophor,
     hp_selcomps.setParam( this, new TypeSet<int> );
     hp_dataidxs.setParam( this, new TypeSet<int> );
     hp_dataidxsfold.setParam( this, new TypeSet<int> );
+    hp_summode.setParam( this, SumMode::All );
     TrcKeyZSampling cs;
     cs.hsamp_ = hs;
     totnr_ = hs.nrInl() * hs.nrCrl();
@@ -81,11 +109,22 @@ StratAmpCalc::StratAmpCalc( const EM::Horizon3D* tophor,
 }
 
 
+StratAmpCalc::StratAmpCalc( const EM::Horizon3D* tophor,
+			    const EM::Horizon3D* bothor,
+			    Stats::Type stattyp, const TrcKeySampling& hs,
+			    bool outputfold )
+    : StratAmpCalc( tophor, bothor, hs, outputfold )
+{
+    stattyp_ = stattyp;
+}
+
+
 StratAmpCalc::~StratAmpCalc()
 {
     hp_selcomps.removeAndDeleteParam( this );
     hp_dataidxs.removeAndDeleteParam( this );
     hp_dataidxsfold.removeAndDeleteParam( this );
+    hp_summode.removeParam( this );
     delete descset_;
     delete proc_;
     delete rdr_;
@@ -112,9 +151,18 @@ bool StratAmpCalc::doInit( const IOPar& pars )
     if ( !tophorizon_ )
 	return false;
 
+    addtotop_ = false;
+    pars.getYN( sKeyAddToTopYN(), addtotop_ );
     if ( !addtotop_ && !bothorizon_ )
 	return false;
 
+    SumMode summode;
+    BufferString ampopt;
+    if ( pars.get(sKeyAmplitudeOption(),ampopt) &&
+	 !parseAmplitudeOption(ampopt,stattyp_,summode) )
+	return false;
+
+    hp_summode.setParam( this, summode );
     pars.get( sKeyTopShift(), tophorshift_ );
     pars.get( sKeyBottomShift(), bothorshift_ );
     if ( mIsUdf(tophorshift_) || mIsUdf(bothorshift_) )
@@ -123,8 +171,6 @@ bool StratAmpCalc::doInit( const IOPar& pars )
     isclassification_ = false;
     pars.getYN( sKeyIsClassification(), isclassification_ );
 
-    addtotop_ = false;
-    pars.getYN( sKeyAddToTopYN(), addtotop_ );
     const EM::Horizon3D& addtohor = addtotop_ ? *tophorizon_ : *bothorizon_;
 
     //determine whether stored data is used
@@ -300,6 +346,7 @@ int StratAmpCalc::nextStep()
     }
 
     const BinID bid = trc->info().binID();
+    SumMode summode = hp_summode.getParam( this );
     for ( int idx=0; idx<dataidxs->size(); idx++ )
     {
 	const EM::SubID subid = bid.toInt64();
@@ -329,8 +376,18 @@ int StratAmpCalc::nextStep()
 	    const float val = trc->getValue( zval,
 					     usesstored_ ? selcomps->get(idx)
 							 : idx );
-	    if ( !mIsUdf(val) )
-		runcalc.addValue( val );
+	    if ( mIsUdf(val) )
+		continue;
+
+	    if ( stattyp_ == Stats::Sum && summode != SumMode::All )
+	    {
+		if ( summode == SumMode::Positive && val <= 0 )
+		    continue;
+		if ( summode == SumMode::Negative && val >= 0 )
+		    continue;
+	    }
+
+	    runcalc.addValue( val );
 	}
 
 	float outval = mUdf(float);
@@ -355,7 +412,6 @@ int StratAmpCalc::nextStep()
 	    addtohor.auxdata.setAuxDataVal( dataidxsfold->get(idx), posidfold_,
 					      mCast(float,runcalc.count()) );
 	}
-
     }
 
     if ( usesstored_ )

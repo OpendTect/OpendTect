@@ -25,6 +25,10 @@ mExpClass(EMAttrib) StratAmpCalc  : public Executor
 { mODTextTranslationClass(StratAmpCalc)
 public:
 
+    enum class SumMode		{ All, Positive, Negative };
+
+			StratAmpCalc(const EM::Horizon3D*,const EM::Horizon3D*,
+				     const TrcKeySampling&,bool);
 			StratAmpCalc(const EM::Horizon3D*,const EM::Horizon3D*,
 				     Stats::Type,const TrcKeySampling&,bool);
 			~StratAmpCalc();
