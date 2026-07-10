@@ -29,8 +29,7 @@ public:
 			i_uiGroupLayoutItem( i_LayoutMngr& mgr,
 					     uiGroupObjBody& obj,
 					     uiGroupParentBody& par );
-			~i_uiGroupLayoutItem()
-			{}
+			~i_uiGroupLayoutItem();
 			mOD_DisableCopy(i_uiGroupLayoutItem)
 
     int		horAlign(LayoutMode) const override;
@@ -42,9 +41,10 @@ public:
 
 protected:
 
-    i_LayoutMngr*	loMngr();
+    void	childMngrDelCB(CallBacker*);
 
     uiGroupParentBody&	grpprntbody;
+    i_LayoutMngr*	childmngr_		= nullptr;
 
     int			horalign[ nLayoutMode ];
 
@@ -200,7 +200,7 @@ uiGroupParentBody::~uiGroupParentBody()
 {
     detachAllNotifiers();
     handle_.body_ = nullptr;
-    delete lomngr_;
+    deleteAndNullPtr( lomngr_ );
 }
 
 
@@ -328,7 +328,9 @@ uiGroupObjBody::uiGroupObjBody( uiGroupObj& hndle, uiParent* parnt,
 void uiGroupObjBody::reDraw( bool deep )
 {
     prntbody_->handle_.reDraw_( deep );
-    prntbody_->lomngr_->forceChildrenRedraw( this, deep );
+    if ( prntbody_->lomngr_ )
+	prntbody_->lomngr_->forceChildrenRedraw( this, deep );
+
     uiObjectBody::reDraw( deep ); // calls qWidget().update()
 }
 
@@ -400,7 +402,19 @@ i_uiGroupLayoutItem::i_uiGroupLayoutItem( i_LayoutMngr& mgr,
 {
     for( int idx=0; idx<nLayoutMode; idx++ )
 	horalign[idx]=-1;
+
+    childmngr_ = par.lomngr_;
+    if ( childmngr_ )
+	mAttachCB( childmngr_->objectToBeDeleted(),
+		   i_uiGroupLayoutItem::childMngrDelCB );
 }
+
+
+i_uiGroupLayoutItem::~i_uiGroupLayoutItem()
+{
+    detachAllNotifiers();
+}
+
 
 void i_uiGroupLayoutItem::invalidate()
 {
@@ -418,14 +432,15 @@ void i_uiGroupLayoutItem::updatedAlignment( LayoutMode lm )
 
 void i_uiGroupLayoutItem::initChildLayout( LayoutMode lm )
 {
-     if ( loMngr() )
-	loMngr()->initChildLayout( lm );
+    if ( childmngr_ )
+	childmngr_->initChildLayout( lm );
 }
 
 
-i_LayoutMngr* i_uiGroupLayoutItem::loMngr()
+void i_uiGroupLayoutItem::childMngrDelCB( CallBacker* cb )
 {
-    return grpprntbody.lomngr_;
+    if ( cb == childmngr_ )
+	childmngr_ = nullptr;
 }
 
 
