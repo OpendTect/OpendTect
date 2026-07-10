@@ -822,7 +822,7 @@ void uiGraphicsViewBase::translateText()
 
 bool uiGraphicsViewBase::print()
 {
-    QGraphicsScene* qscene = (QGraphicsScene*)(body_);
+    QGraphicsScene* qscene = scene_ ? scene_->qGraphicsScene() : nullptr;
     return qscene ? doPrintDialog( *qscene ) : false;
 }
 
