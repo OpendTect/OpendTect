@@ -159,6 +159,9 @@ void i_LayoutItem::commitGeometrySet( bool store2prefpos )
 
 void i_LayoutItem::initLayout( LayoutMode lom, int mngrtop, int mngrleft )
 {
+    if ( !mngr_ )
+	return;
+
     uiRect& itmgeom = curpos( lom );
     int pref_h_nr_pics =0;
     int pref_v_nr_pics =0;
@@ -332,6 +335,9 @@ int i_LayoutItem::isPosOk( uiConstraint* constraint, int iter, bool chknriters )
 
 bool i_LayoutItem::layout( LayoutMode lom, const int iternr, bool finalloop )
 {
+    if ( !mngr_ )
+	return false;
+
     bool updated = false;
     uiRect& itmgeom = curpos(lom);
 
