@@ -123,7 +123,7 @@ void uiSEGYSurvInfoProvider::startImport( uiParent* p, const IOPar& iop )
 	 fullspec.linenames_.size() != fullspec.spec_.nrFiles() )
     {
 	int wcidx = 0;
-	uiSEGYMultiLineSel linedlg( p, fullspec.spec_, wcidx,
+	uiSEGYMultiLineSel linedlg( p, true, fullspec.spec_, wcidx,
 			   fullspec.linenames_ );
 	if ( !linedlg.go() )
 	    return;

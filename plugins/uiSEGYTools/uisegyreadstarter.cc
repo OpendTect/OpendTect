@@ -126,13 +126,7 @@ uiSEGYReadStarter::uiSEGYReadStarter( uiParent* p, bool forsurvsetup,
 					  false );
 	mAttachCB( multilinebut_->activated, uiSEGYReadStarter::multiLineSelCB);
 	multilinebut_->display( false );
-	if ( typfld_ )
-	    multilinebut_->attach( rightTo, typfld_ );
-	else
-	{
-	    multilinebut_->attach( alignedBelow, inpfld_ );
-	    attachobj = multilinebut_;
-	}
+	multilinebut_->attach( rightTo, zdomfld_ );
     }
 
     coordsysselfld_ = new Coords::uiCoordSystemSel( topgrp_ );
@@ -345,7 +339,8 @@ void uiSEGYReadStarter::multiLineSelCB( CallBacker* )
 
 bool uiSEGYReadStarter::reviewAndEditLineNames()
 {
-    uiSEGYMultiLineSel linedlg( this, filespec_, wcidx_, linenames_ );
+    uiSEGYMultiLineSel linedlg( this, forsurvsetup_, filespec_, wcidx_,
+				linenames_ );
     return linedlg.go();
 }
 
