@@ -21,7 +21,8 @@ mExpClass(uiSEGYTools) uiSEGYMultiLineSel : public uiDialog
 { mODTextTranslationClass(uiSEGYMultiLineSel);
 public:
 
-			uiSEGYMultiLineSel(uiParent*,const SEGY::FileSpec& fs,
+			uiSEGYMultiLineSel(uiParent*,bool forsurveysetup,
+					const SEGY::FileSpec& fs,
 					int& wcidx,BufferStringSet& linenames);
 			~uiSEGYMultiLineSel();
 
@@ -33,6 +34,7 @@ protected:
     void		checkCB(CallBacker*);
     void		lineEditCB(CallBacker*);
     void		initTable();
+    int			lineNameCol() const;
     bool		acceptOK(CallBacker*) override;
 
     SEGY::FileSpec	filespec_;
@@ -40,6 +42,7 @@ protected:
     int&		selwcidx_;
     int			curwcidx_;
     BufferStringSet&	linenames_;
+    bool		forsurveysetup_;
 
     uiTable*		tbl_;
 

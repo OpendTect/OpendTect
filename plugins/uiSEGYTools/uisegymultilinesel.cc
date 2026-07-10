@@ -18,8 +18,9 @@ ________________________________________________________________________
 #include "survgeom.h"
 
 
-uiSEGYMultiLineSel::uiSEGYMultiLineSel( uiParent* p, const SEGY::FileSpec& fs,
-					int& wcidx, BufferStringSet& linenames )
+uiSEGYMultiLineSel::uiSEGYMultiLineSel( uiParent* p, bool forsurveysetup,
+					const SEGY::FileSpec& fs, int& wcidx,
+					BufferStringSet& linenames )
     : uiDialog(p,Setup(tr("Select Line names"),
 		       tr("Review/Edit Line names"),
 		       mNoHelpKey))
@@ -27,6 +28,7 @@ uiSEGYMultiLineSel::uiSEGYMultiLineSel( uiParent* p, const SEGY::FileSpec& fs,
     , linenames_(linenames)
     , selwcidx_(wcidx)
     , curwcidx_(wcidx)
+    , forsurveysetup_(forsurveysetup)
 {
     BufferString userfilenm = FilePath( filespec_.usrStr() ).fileName();
     nrwc_ = userfilenm.count( '*' );
@@ -36,7 +38,9 @@ uiSEGYMultiLineSel::uiSEGYMultiLineSel( uiParent* p, const SEGY::FileSpec& fs,
     if ( needwcsel )
 	nrrows++;
 
-    const int nrcols = needwcsel ? nrwc_ + 3 : 3;
+    const int defnrcols = forsurveysetup_ ? 2 : 3;
+    const int nrcols = needwcsel ? nrwc_ + defnrcols : defnrcols;
+    const int linenamecol = forsurveysetup_ ? nrcols-1 : nrcols-2;
     tbl_ = new uiTable( this, uiTable::Setup(nrrows,nrcols).defrowlbl(true)
 				.rowdesc(uiStrings::sFile())
 				.defrowstartidx(needwcsel? 0 : 1),
@@ -45,13 +49,17 @@ uiSEGYMultiLineSel::uiSEGYMultiLineSel( uiParent* p, const SEGY::FileSpec& fs,
     tbl_->setPrefWidthInChar( 120 );
     tbl_->setPrefHeightInRows( mMIN(nrrows,15) );
     tbl_->setColumnResizeMode( uiTable::Interactive );
-    tbl_->setColumnStretchable( nrcols-2, true );
+    tbl_->setColumnStretchable( linenamecol, true );
     tbl_->setColumnLabel( 0, uiStrings::sFileName() );
-    tbl_->setColumnLabel( nrcols-1, tr("Line Status") );
-    tbl_->setColumnToolTip( nrcols-1,
+    tbl_->setColumnLabel( linenamecol, needwcsel ? tr("Final Line name")
+						 : uiStrings::sLineName() );
+    if ( !forsurveysetup_ )
+    {
+	tbl_->setColumnLabel( nrcols-1, tr("Line Status") );
+	tbl_->setColumnToolTip( nrcols-1,
 	    tr("Tells if line geometry already exists in the survey") );
-    tbl_->setColumnLabel( nrcols-2, needwcsel ? tr("Final Line name")
-					      : uiStrings::sLineName() );
+	tbl_->setColumnReadOnly( nrcols-1, true );
+    }
 
     if ( needwcsel )
     {
@@ -70,7 +78,6 @@ uiSEGYMultiLineSel::uiSEGYMultiLineSel( uiParent* p, const SEGY::FileSpec& fs,
     }
 
     tbl_->setColumnReadOnly( 0, true );
-    tbl_->setColumnReadOnly( nrcols-1, true );
     tbl_->valueChanged.notify( mCB(this,uiSEGYMultiLineSel,lineEditCB) );
 
     initTable();
@@ -112,7 +119,7 @@ void uiSEGYMultiLineSel::initTable()
 	userfnmparts.add( filebuf );
 
     const bool needwcsel = nrwc_ > 1;
-    const int linecol = tbl_->nrCols() - 2;
+    const int linecol = lineNameCol();
     for ( int idx=0; idx<filespec_.nrFiles(); idx++ )
     {
 	const int rowidx = needwcsel ? idx + 1 : idx;
@@ -220,7 +227,7 @@ void uiSEGYMultiLineSel::checkCB( CallBacker* cb )
 void uiSEGYMultiLineSel::lineEditCB( CallBacker* )
 {
     const RowCol& rc = tbl_->notifiedCell();
-    const int linenmcol = tbl_->nrCols() - 2;
+    const int linenmcol = lineNameCol();
     tbl_->resizeColumnsToContents();
     tbl_->setColumnStretchable( linenmcol, true );
     if ( rc.col() == linenmcol )
@@ -231,6 +238,9 @@ void uiSEGYMultiLineSel::lineEditCB( CallBacker* )
 int uiSEGYMultiLineSel::guessWCIdx() const
 {
     int retidx = -1;
+    if ( forsurveysetup_ )
+	return retidx;
+
     int maxscore = -1;
     for ( int idx=0; idx<nrwc_; idx++ )
     {
@@ -255,9 +265,18 @@ int uiSEGYMultiLineSel::guessWCIdx() const
 }
 
 
+int uiSEGYMultiLineSel::lineNameCol() const
+{
+    return forsurveysetup_ ? tbl_->nrCols()-1 : tbl_->nrCols()-2;
+}
+
+
 void uiSEGYMultiLineSel::updateLineAvailability( int rowidx )
 {
-    const int linecol = tbl_->nrCols() - 2;
+    if ( forsurveysetup_ )
+	return;
+
+    const int linecol = lineNameCol();
     const int statuscol = tbl_->nrCols() - 1;
     RowCol rc( rowidx, linecol );
     const BufferString linenm = tbl_->text( rc );
@@ -281,7 +300,7 @@ void uiSEGYMultiLineSel::updateLineAvailability( int rowidx )
 bool uiSEGYMultiLineSel::acceptOK( CallBacker* )
 {
     linenames_.setEmpty();
-    const int linecol = tbl_->nrCols() - 2;
+    const int linecol = lineNameCol();
     const bool haswcselrow = nrwc_ > 1;
     for ( int idx=0; idx<filespec_.nrFiles(); idx++ )
     {
