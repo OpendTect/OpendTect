@@ -46,7 +46,8 @@ uiStratAmpCalc::Setup::~Setup()
 
 
 static const char* statstrs[] =
-	{ "Min", "Max", "Average", "Median", "RMS", "Sum", "MostFrequent", 0 };
+	{ "Min", "Max", "Average", "Median", "RMS", "Sum", "MostFrequent",
+	  "Sum of positive", "Sum of negative", 0 };
 
 static HiddenParam<uiStratAmpCalc,Attrib::CurrentSel*> hp_sel( nullptr );
 static HiddenParam<uiStratAmpCalc,TypeSet<int>*> hp_seloutputs( nullptr );
