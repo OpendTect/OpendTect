@@ -206,11 +206,11 @@ int uiColTabMarkerDlg::reverseIdx( int idx )
 bool uiColTabMarkerDlg::acceptOK( CallBacker* )
 {
     NotifyStopper ns( ctab_.colorChanged );
-    for ( int idx=0; idx<table_->nrRows(); idx++ )
+    for ( int cidx=0; cidx<ctab_.size(); cidx++ )
     {
-	const RowCol colrc( reverseIdx(idx), sColorCol );
+	const RowCol colrc( reverseIdx(cidx), sColorCol );
 	const OD::Color col( table_->getColor(colrc) );
-	ctab_.changeColor( idx, col );
+	ctab_.changeColor( cidx, col );
     }
 
     ctab_.colorChanged.trigger();
@@ -644,7 +644,8 @@ void uiColTabMarkerCanvas::markerChgd( CallBacker* )
 
 void uiColTabMarkerCanvas::setRange( const Interval<float> rg )
 {
-    hp_ctabrg.setParam( this, new Interval<float>(rg.start_, rg.stop_) );
+    Interval<float>* ctabrg = hp_ctabrg.getParam( this );
+    *ctabrg = rg;
 }
 
 
