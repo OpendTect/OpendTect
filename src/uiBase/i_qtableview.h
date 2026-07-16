@@ -183,13 +183,11 @@ void cellContextMenuRequested( const QPoint& pos )
 
 void horHeaderContextMenuRequested( const QPoint& pos )
 {
-    const QModelIndex index = sender_->indexAt( pos );
-    const int col = index.column();
-    if ( col<0 )
+    const int col = sender_->horizontalHeader()->logicalIndexAt( pos );
+    if ( col < 0 )
 	return;
 
-    receiver_->setCurrentCell( RowCol(-1,col) );
-    receiver_->selectColumn( col );
+    receiver_->setCurrentCell( RowCol(-1,col), true );
     handleSlot( "cellRightClicked", -1, col, &receiver_->rightClicked );
 }
 
