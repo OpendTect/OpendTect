@@ -473,7 +473,7 @@ void ODGraphicsTextItem::paint( QPainter* painter,
 
 
     const QRectF br = getTextRect( this );
-    painter->drawText( br, Qt::AlignCenter, toPlainText() );
+    painter->drawText( br, Qt::AlignCenter | Qt::TextDontClip, toPlainText() );
 
     static bool showtextbb = GetEnvVarYN( "OD_SHOW_TEXT_BOX" );
     if ( showtextbb )
