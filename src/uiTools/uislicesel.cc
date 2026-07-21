@@ -494,7 +494,9 @@ void uiSliceSel::doAuto()
 
 void uiSliceSel::stopAuto()
 {
-    timer_->stop();
+    if ( timer_ )
+	    timer_->stop();
+
     asprops_.autoon_ = false;
 }
 
