@@ -1182,8 +1182,11 @@ void uiColorTableMan::selChgdCB( CallBacker* )
 
     selstatus_ = itm->text( 1 );
     removebut_->setSensitive( selstatus_ != sKeyDefault().getFullString() );
-    removebut_->setText( selstatus_==sKeyEdited().getFullString()
-				? tr("Revert") : uiStrings::sRemove() );
+    removebut_->setToolTip( selstatus_==sKeyEdited().getFullString()
+			? tr("Restore to original Color Table")
+			: tr("Delete own-made Color Table") );
+    removebut_->setIcon( selstatus_==sKeyEdited().getFullString()
+			? "reload" : "delete" );
 
     undefcolfld_->setColor( ctab_.undefColor() );
     markercolfld_->setColor( ctab_.markColor() );
@@ -1210,7 +1213,7 @@ void uiColorTableMan::removeCB( CallBacker* )
     if ( selstatus_ == sKeyDefault().getFullString() )
     {
 	uiMSG().error(
-		tr("This is a default colortable and connot be deleted") );
+		tr("This is a default Color Table and connot be deleted") );
 	return;
     }
 
@@ -1295,20 +1298,20 @@ bool uiColorTableMan::saveColTab( bool saveas )
 	ColTab::Sequence::Type tp = ColTab::SM().get(newidx)->type();
 	if ( tp == ColTab::Sequence::System )
 	{
-	    msg = tr("The default color table will be replaced.\n"
+	    msg = tr("The default Color Table will be replaced.\n"
 		     "Do you wish to continue?\n"
-		     "(Default color table can be recovered by "
+		     "(Default Color Table can be recovered by "
 		     "removing the edited one)");
 	    newctab.setType( ColTab::Sequence::Edited );
 	}
 	else if ( tp == ColTab::Sequence::User )
 	{
-	    msg = tr("Your own made color table will be replaced\n"
+	    msg = tr("Your own made Color Table will be replaced\n"
 		     "Do you wish to continue?");
 	}
 	else if ( tp == ColTab::Sequence::Edited )
 	{
-	    msg = tr("The Edited color table will be replaced\n"
+	    msg = tr("The Edited Color Table will be replaced\n"
 		     "Do you wish to continue?");
 	}
     }
@@ -2042,7 +2045,7 @@ bool acceptOK( CallBacker* ) override
 	    break;
 	}
 
-	const bool res = uiMSG().askGoOn( tr("Rename color table to '%1'?")
+	const bool res = uiMSG().askGoOn( tr("Rename Color Table to '%1'?")
 					  .arg(altnm) );
 	if ( !res )
 	    return false;
@@ -2068,7 +2071,7 @@ void uiColorTableMan::renameColTabCB( CallBacker* )
 
     if ( ctab_.type() != ColTab::Sequence::User )
     {
-	uiMSG().error( tr("You can only rename user defined color tables") );
+	uiMSG().error( tr("You can only rename user defined Color Tables") );
 	return;
     }
 
