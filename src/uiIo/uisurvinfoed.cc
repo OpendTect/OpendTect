@@ -525,8 +525,8 @@ void uiSurveyInfoEditor::updateLabels()
 {
     const StepInterval<int> irg( inlfld_->getIStepInterval() );
     const StepInterval<int> crg( crlfld_->getIStepInterval() );
-    nrinlslbl_->setText( tr("Nr. In-lines: %1").arg(irg.nrSteps()+1) );
-    nrcrlslbl_->setText( tr("Nr. Cross-lines: %1").arg(crg.nrSteps()+1) );
+    nrinlslbl_->setText( tr("Number of In-lines: %1").arg(irg.nrSteps()+1) );
+    nrcrlslbl_->setText( tr("Number of Cross-lines: %1").arg(crg.nrSteps()+1) );
 }
 
 
