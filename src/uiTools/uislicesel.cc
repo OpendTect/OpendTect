@@ -161,7 +161,7 @@ uiSliceSel::uiSliceSel( uiParent* p, Type type, const ZDomain::Info& zi,
 				 mCB(this,uiSliceSel,playRevCB) );
 	revsu.istoggle( true );
 	playrevbut_ = new uiToolButton( playgrp, revsu );
-	uiToolButtonSetup psu( "resume", tr("Start auto-scroll"),
+	uiToolButtonSetup psu( "stop", tr("Start auto-scroll"),
 			       mCB(this,uiSliceSel,playPauseCB) );
 	playpausebut_ = new uiToolButton( playgrp, psu );
 	uiToolButtonSetup fsu( "forward", tr("Auto-scroll forwards"),
@@ -297,7 +297,7 @@ void uiSliceSel::setApplyCB( const CallBack& acb )
 }
 
 
-void uiSliceSel::prevCB( CallBacker* cb )
+void uiSliceSel::prevCB( CallBacker* )
 {
     doPrevious( slider_->step() );
 }
@@ -309,7 +309,7 @@ void uiSliceSel::doPrevious( int step )
 }
 
 
-void uiSliceSel::nextCB( CallBacker* cb )
+void uiSliceSel::nextCB( CallBacker* )
 {
     doNext( slider_->step() );
 }
@@ -332,7 +332,6 @@ void uiSliceSel::doMove( int step )
 	if ( asprops_.astype_ == AutoScrollType::Stop )
 	{
 	    asprops_.autoon_ = false;
-	    playpausebut_->setIcon( "resume" );
 	    stopAuto();
 	}
 	else if ( asprops_.astype_ == AutoScrollType::ContRev )
@@ -351,7 +350,7 @@ void uiSliceSel::doMove( int step )
 }
 
 
-void uiSliceSel::sliderMovedCB( CallBacker* cb )
+void uiSliceSel::sliderMovedCB( CallBacker* )
 {
     slideractive_ = true;
     sliderValChanged();
@@ -359,7 +358,7 @@ void uiSliceSel::sliderMovedCB( CallBacker* cb )
 }
 
 
-void uiSliceSel::sliderReleasedCB( CallBacker* cb )
+void uiSliceSel::sliderReleasedCB( CallBacker* )
 {
     slideractive_ = false;
     sliderValChanged();
@@ -391,7 +390,7 @@ void uiSliceSel::sliderValChanged()
 }
 
 
-void uiSliceSel::settingsCB( CallBacker* cb )
+void uiSliceSel::settingsCB( CallBacker* )
 {
     uiSliderSettings dlg( this, asprops_.step_,
 			  asprops_.dt_, asprops_.astype_ );
@@ -407,7 +406,7 @@ void uiSliceSel::settingsCB( CallBacker* cb )
 }
 
 
-void uiSliceSel::playRevCB( CallBacker* cb )
+void uiSliceSel::playRevCB( CallBacker* )
 {
     const bool ison = playrevbut_->isOn();
     if ( ison )
@@ -420,45 +419,27 @@ void uiSliceSel::playRevCB( CallBacker* cb )
 
 	asprops_.isforward_ = false;
 	asprops_.autoon_ = true;
-	playpausebut_->setIcon( "pause" );
 	doAuto();
     }
     else
     {
 	asprops_.autoon_ = false;
-	playpausebut_->setIcon( "resume" );
 	stopAuto();
     }
 }
 
 
-void uiSliceSel::playPauseCB( CallBacker* cb )
+void uiSliceSel::playPauseCB( CallBacker* )
 {
     if ( asprops_.autoon_ )
     {
 	asprops_.autoon_ = false;
-	playpausebut_->setIcon( "resume" );
 	stopAuto();
-    }
-    else
-    {
-	asprops_.autoon_ = true;
-	playpausebut_->setIcon( "pause" );
-	if ( asprops_.isforward_ )
-	{
-	    playforwardbut_->setOn( true );
-	    playForwardCB( nullptr );
-	}
-	else
-	{
-	    playrevbut_->setOn( true );
-	    playRevCB( nullptr );
-	}
     }
 }
 
 
-void uiSliceSel::playForwardCB( CallBacker* cb )
+void uiSliceSel::playForwardCB( CallBacker* )
 {
     const bool ison = playforwardbut_->isOn();
     if ( ison )
@@ -471,13 +452,11 @@ void uiSliceSel::playForwardCB( CallBacker* cb )
 
 	asprops_.isforward_ = true;
 	asprops_.autoon_ = true;
-	playpausebut_->setIcon( "pause" );
 	doAuto();
     }
     else
     {
 	asprops_.autoon_ = false;
-	playpausebut_->setIcon( "resume" );
 	stopAuto();
     }
 
@@ -495,9 +474,13 @@ void uiSliceSel::doAuto()
 void uiSliceSel::stopAuto()
 {
     if ( timer_ )
-	    timer_->stop();
+	timer_->stop();
 
     asprops_.autoon_ = false;
+
+    playrevbut_->setOn( false );
+    playrevbut_->deepRedraw();
+    playforwardbut_->setOn( false );
 }
 
 
@@ -510,7 +493,7 @@ void uiSliceSel::disableAutoScroll( bool yn )
 }
 
 
-void uiSliceSel::timerTickCB( CallBacker* cb )
+void uiSliceSel::timerTickCB( CallBacker* )
 {
     if ( !asprops_.autoon_ )
 	return;
