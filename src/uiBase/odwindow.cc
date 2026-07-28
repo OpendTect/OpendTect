@@ -61,26 +61,15 @@ static bool hasChildWindows( uiMainWin& curwin )
 
 
 // uiMainWinBody
-#define mParent p && p->pbody() ? p->pbody()->qwidget() : 0
+#define mParent p && p->pbody() ? p->pbody()->qwidget() : nullptr
+
 uiMainWinBody::uiMainWinBody( uiMainWin& uimw, uiParent* p,
 			      const char* nm, bool modal )
 	: uiCentralWidgetBody(nm)
 	, QMainWindow(mParent)
-	, force_finalize_(false)
-	, exitapponclose_(false)
-	, nractivated_(0)
-	, statusbar_(nullptr)
-	, menubar_(nullptr)
-	, toolbarsmnu_(0)
 	, handle_(uimw)
 	, modal_(p && modal)
 	, poptimer_("Popup timer")
-	, poppedup_(false)
-	, prefsz_(-1,-1)
-	, prefpos_(uiPoint::udf())
-	, moved_(false)
-	, createtbmenu_(false)
-	, hasguisettings_(false)
 {
     if ( nm && *nm )
 	setObjectName( nm );
@@ -372,15 +361,19 @@ void uiMainWinBody::getPosForParentMiddle( int& xpos, int& ypos )
     }
 
     const QScreen* qscreen = screen( false );
-    if ( !qscreen ) return;
+    if ( !qscreen )
+	return;
+
     const QRect screenrect = qscreen->availableGeometry();
     const int mywidth = frameGeometry().width();
     const int myheight = frameGeometry().height();
     const QPoint parentcenter = parentwidget->frameGeometry().center();
     xpos = parentcenter.x() - mywidth/2;
     ypos = parentcenter.y() - myheight/2;
-    if ( xpos<screenrect.left() ) xpos = screenrect.left();
-    if ( ypos<screenrect.top() ) ypos = screenrect.top();
+    if ( xpos<screenrect.left() )
+	xpos = screenrect.left();
+    if ( ypos<screenrect.top() )
+	ypos = screenrect.top();
     if ( xpos+mywidth > screenrect.right() )
 	xpos = screenrect.right() - mywidth;
     if ( ypos+myheight > screenrect.bottom() )
@@ -391,7 +384,9 @@ void uiMainWinBody::getPosForParentMiddle( int& xpos, int& ypos )
 void uiMainWinBody::move( uiMainWin::PopupArea pa )
 {
     const QScreen* qscreen = screen( true );
-    if ( !qscreen ) return;
+    if ( !qscreen )
+	return;
+
     const QRect screenrect = qscreen->availableGeometry();
     const int mywidth = frameGeometry().width();
     const int myheight = frameGeometry().height();
@@ -456,20 +451,32 @@ bool uiMainWinBody::touch()
 
 
 QMenu* uiMainWinBody::createPopupMenu()
-{ return createtbmenu_ ? QMainWindow::createPopupMenu() : 0; }
+{
+    return createtbmenu_ ? QMainWindow::createPopupMenu() : nullptr;
+}
 
 
 void uiMainWinBody::popTimTick( CallBacker* )
 {
     if ( poppedup_ )
-	{ pErrMsg( "huh?" ); return; }
+    {
+	pErrMsg( "huh?" );
+	return;
+    }
+
     poppedup_ = true;
 
-// TODO: Remove when we can get rid of the popTimTick
     if ( prefsz_.hNrPics()>0 && prefsz_.vNrPics()>0 )
 	resize( prefsz_.hNrPics(), prefsz_.vNrPics() );
     if ( prefpos_ != uiPoint::udf() )
-        move( prefpos_.x_, prefpos_.y_ );
+	move( prefpos_.x_, prefpos_.y_ );
+
+    // After window size: dock widths in state are relative to it.
+    if ( !prefstate_.isEmpty() )
+    {
+	restoreState( prefstate_ );
+	updateToolbarsMenu();
+    }
 }
 
 
@@ -558,7 +565,8 @@ uiMenuBar* uiMainWinBody::uimenubar()
 
 void uiMainWinBody::removeDockWin( uiDockWin* dwin )
 {
-    if ( !dwin ) return;
+    if ( !dwin )
+	return;
 
     removeDockWidget( dwin->qwidget() );
     dockwins_ -= dwin;
@@ -580,8 +588,9 @@ void uiMainWinBody::addDockWin( uiDockWin& dwin, uiMainWin::Dock dock )
 
 void uiMainWinBody::toggleToolbar( CallBacker* cb )
 {
-    mDynamicCastGet( uiAction*, action, cb );
-    if ( !action ) return;
+    mDynamicCastGet(uiAction*,action,cb)
+    if ( !action )
+	return;
 
     for ( int idx=0; idx<toolbars_.size(); idx++ )
     {
@@ -594,7 +603,8 @@ void uiMainWinBody::toggleToolbar( CallBacker* cb )
 
 void uiMainWinBody::updateToolbarsMenu()
 {
-    if ( !toolbarsmnu_ ) return;
+    if ( !toolbarsmnu_ )
+	return;
 
     const ObjectSet<uiAction>& items = toolbarsmnu_->actions();
 
@@ -611,7 +621,11 @@ void uiMainWinBody::updateToolbarsMenu()
 void uiMainWinBody::addToolBar( uiToolBar* tb )
 {
     if ( toolbars_.isPresent(tb) )
-	{ pErrMsg("Toolbar is already added"); return; }
+    {
+	pErrMsg("Toolbar is already added");
+	return;
+    }
+
     QMainWindow::addToolBar( (Qt::ToolBarArea)tb->prefArea(), tb->qwidget() );
     toolbars_ += tb;
     renewToolbarsMenu();
@@ -624,14 +638,14 @@ uiToolBar* uiMainWinBody::findToolBar( const char* nm )
 	if ( toolbars_[idx]->name() == nm )
 	    return toolbars_[idx];
 
-    return 0;
+    return nullptr;
 }
 
 
 uiToolBar* uiMainWinBody::removeToolBar( uiToolBar* tb )
 {
     if ( !toolbars_.isPresent(tb) )
-	return 0;
+	return nullptr;
 
     QMainWindow::removeToolBar( tb->qwidget() );
     toolbars_ -= tb;
@@ -645,16 +659,15 @@ void uiMainWinBody::renewToolbarsMenu()
     if ( !toolbarsmnu_ ) return;
 
     for ( int idx=0; idx<toolbars_.size(); idx++ )
-	toolbars_[idx]->setToolBarMenuAction( 0 );
+	toolbars_[idx]->setToolBarMenuAction( nullptr );
 
     toolbarsmnu_->clear();
     for ( int idx=0; idx<toolbars_.size(); idx++ )
     {
 	uiToolBar& tb = *toolbars_[idx];
 	uiString strnm = tb.getDispNm();
-	uiAction* itm =
-	    new uiAction( tb.getDispNm(),
-	    mCB(this,uiMainWinBody,toggleToolbar) );
+	auto* itm = new uiAction( tb.getDispNm(),
+				  mCB(this,uiMainWinBody,toggleToolbar) );
 	toolbarsmnu_->insertAction( itm );
 	tb.setToolBarMenuAction( itm );
 	itm->setCheckable( true );
@@ -727,11 +740,9 @@ void uiMainWinBody::readSettings()
     }
 
     prefpos_.setXY( qwinpos.x(), qwinpos.y() );
-
-    restoreState( settings.value("state").toByteArray() );
+    prefstate_ = settings.value("state").toByteArray();
     settings.endGroup();
 
-    updateToolbarsMenu();
     hasguisettings_ = true;
 }
 
@@ -828,13 +839,13 @@ bool uiMainWinBody::event( QEvent* ev )
 void uiMainWinBody::managePopupPos()
 {
     uiParent* myparent = handle_.parent();
-    uiMainWin* myparentsmw = myparent ? myparent->mainwin() : 0;
+    uiMainWin* myparentsmw = myparent ? myparent->mainwin() : nullptr;
     if ( myparentsmw && !myparentsmw->isHidden() )
 	return;
 
     uiMainWin* parwin = handle_.programmedActiveWindow();
     while ( parwin && parwin->isHidden() )
-	parwin = parwin->parent() ? parwin->parent()->mainwin() : 0;
+	parwin = parwin->parent() ? parwin->parent()->mainwin() : nullptr;
 
     if ( !parwin || moved_ )
 	return;
@@ -967,7 +978,7 @@ void uiDialogBody::closeEvent( QCloseEvent* ce )
 {
     const int refnr = handle_.beginCmdRecEvent( "Close" );
 
-    reject(0);
+    reject( nullptr );
     if ( result_ == -1 )
 	ce->ignore();
     else
@@ -1227,7 +1238,7 @@ void uiDialogBody::layoutChildren( uiObject* lowestobj )
     uiObject* leftbut = setup_.okcancelrev_ ? cnclbut_ : okbut_;
     uiObject* rightbut = setup_.okcancelrev_ ? okbut_ : cnclbut_;
 
-    uiObject* prevbut = 0;
+    uiObject* prevbut = nullptr;
     attachButton( videobut_, prevbut );
     attachButton( helpbut_, prevbut );
     attachButton( applybut_, prevbut );
