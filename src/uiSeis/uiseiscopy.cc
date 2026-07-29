@@ -163,7 +163,7 @@ bool uiSeisCopyCube::acceptOK( CallBacker* )
 
 	IOPar inppar;
 	inpfld_->fillPar( inppar );
-	if ( compnr > 0 )
+	if ( compnr >= 0 )
 	    inppar.set( sKey::Component(), compnr );
 
 	jobpars.mergeComp( inppar, sKey::Input() );
