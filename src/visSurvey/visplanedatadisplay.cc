@@ -145,6 +145,12 @@ void PlaneDataDisplay::setOrientation( SliceType nt )
 }
 
 
+void PlaneDataDisplay::updateWorkArea()
+{
+    updateRanges( true, true );
+}
+
+
 void PlaneDataDisplay::updateRanges( bool resetic, bool resetz )
 {
     if ( !scene_ )

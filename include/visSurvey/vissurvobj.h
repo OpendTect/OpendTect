@@ -334,6 +334,7 @@ public:
     SceneID			getSceneID() const;
 
     virtual void		setTrcKeyZSampling(const TrcKeyZSampling&)  {}
+    virtual void		updateWorkArea()			{}
     virtual bool		setZAxisTransform(ZAxisTransform*,TaskRunner*)
 				{ return false; }
     virtual const ZAxisTransform* getZAxisTransform() const

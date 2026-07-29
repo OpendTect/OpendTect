@@ -214,6 +214,7 @@ protected:
     TrcKeyZSampling		snapPosition(const TrcKeyZSampling&,
 					     bool onlyic=false) const;
     void			updateTexShiftAndGrowth();
+    void			updateWorkArea() override;
 
     RefMan<visBase::EventCatcher>	eventcatcher_;
     MouseCursor				mousecursor_;
