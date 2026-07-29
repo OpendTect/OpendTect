@@ -8,11 +8,11 @@
 macro( OD_FIND_PROJ )
 
     if ( NOT OD_NO_PROJ AND NOT TARGET PROJ::proj )
-	if ( NOT TARGET SQLite::SQLite3 )
+	if ( NOT TARGET SQLite3::SQLite3 )
 	    OD_FIND_SQLITE()
 	endif()
 
-	if ( TARGET SQLite::SQLite3 )
+	if ( TARGET SQLite3::SQLite3 )
 	    find_package( PROJ QUIET CONFIG GLOBAL PATHS "${PROJ_ROOT}" HINTS "${CMAKE_PREFIX_PATH}" NO_DEFAULT_PATH )
 	    if ( NOT TARGET PROJ::proj )
 		find_package( PROJ QUIET GLOBAL )
