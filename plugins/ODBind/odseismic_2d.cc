@@ -184,7 +184,10 @@ void odSeismic2D::getData( hAllocator allocator, const char* linenm,
     zrg[2] = zrange.step_;
 
     const int ndim = 2;
-    ArrPtrMan<int> dims = new int[ndim];
+    mAllocLargeVarLenArr( int, dims, ndim )
+    if ( !mIsVarLenArrOK(dims) )
+	return;
+
     dims[0] = ntrc;
     dims[1] = nsamp;
     const float valnan = std::nanf("");
@@ -206,7 +209,10 @@ void odSeismic2D::getData( hAllocator allocator, const char* linenm,
     }
 
     const int ndim_xy = 1;
-    ArrPtrMan<int> dims_xy = new int[ndim_xy];
+    mAllocLargeVarLenArr( int, dims_xy, ndim_xy )
+    if ( !mIsVarLenArrOK(dims_xy) )
+	return;
+
     dims_xy[0] = tbuf.size();
     int* trcdata = static_cast<int*>(allocator(ndim_xy, dims_xy.ptr(), 'i'));
     float* refdata =

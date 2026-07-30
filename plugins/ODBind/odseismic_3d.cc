@@ -33,8 +33,6 @@ ________________________________________________________________________________
 #include "seistrc.h"
 #include "seisread.h"
 #include "seiswrite.h"
-#include "tracedata.h"
-
 
 
 mDefineEnumUtils(odSeismic3D, Seis3DFormat, "Output format/translator")
@@ -269,8 +267,12 @@ void odSeismic3D::getData( hAllocator allocator,
 				   array.totalSize() );
 	udfrepl.execute();
     }
+
     const int ndim_xy = ndim==3 || iszslice ? 2 : 1;
-    ArrPtrMan<int> dims_xy = new int[ndim_xy];
+    mAllocLargeVarLenArr( int, dims_xy, ndim_xy )
+    if ( !mIsVarLenArrOK(dims_xy) )
+	return;
+
     if ( ndim_xy==1 )
 	dims_xy[0] = dp->nrTrcs();
     else

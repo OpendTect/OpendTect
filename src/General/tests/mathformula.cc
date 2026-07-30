@@ -501,7 +501,7 @@ static bool testMathProperty()
     defiop.putTo( defstr ); defstr.insertAt( 0, formstr.buf() );
     mathden2prop->setDef( defstr.buf() );
 
-    defiop.set( "Expression", "sqrt( 0.452*Vp^2 - 1.743 )" );
+    defiop.set( "Expression", "sqrt ( 0.452*Vp^2 - 1.743 )" );
     defiop.set( "Input.0.Def", PropertyRef::standardPVelStr() );
     defiop.putTo( defstr ); defstr.insertAt( 0, formstr.buf() );
     mathvsfromvpprop->setDef( defstr.buf() );

@@ -191,14 +191,14 @@ void uiMdiArea::addWindow( uiMdiAreaWindow* grp )
 
 uiMdiAreaWindow* uiMdiArea::getWindow( const char* nm )
 {
-    const BufferString nmbufstr( nm );
+    const StringView nmview( nm );
     for ( int idx=0; idx<grps_.size(); idx++ )
     {
-	if ( !strcmp(nmbufstr.buf(),grps_[idx]->getTitle().getFullString()) )
+	if ( nmview == grps_[idx]->getTitle().getFullString() )
 	    return grps_[idx];
     }
 
-    return 0;
+    return nullptr;
 }
 
 

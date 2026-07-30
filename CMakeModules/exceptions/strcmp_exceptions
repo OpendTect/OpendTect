@@ -1,2 +1,2 @@
-src/Basic/genc.cc
-src/Basic/bufstring.cc
+src/Basic/odstring.cc
+spec/ODvisBase/od_glxinfo.c
