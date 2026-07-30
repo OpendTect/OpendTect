@@ -70,6 +70,7 @@ void uiProjectionBasedSystem::createGUI()
     projtable_->setSelectionBehavior( uiTableView::SelectRows );
     projtable_->setSelectionMode( uiTableView::SingleSelection );
     projtable_->setHeaderVisible( OD::Vertical, false );
+    projtable_->setAlternatingRowColors( true );
     projtable_->setSortingEnabled( true );
     projtable_->sortByColumn( 0, true );
     projtable_->setNrFrozenColumns( 0 );
