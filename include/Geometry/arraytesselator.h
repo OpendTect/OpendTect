@@ -34,20 +34,19 @@ public:
 					const StepInterval<int>& crg);
 			~ArrayTesselator();
 
-    od_int64		nrIterations() const override
-			{ return (rowrange_.nrSteps()+1) *
-				 (colrange_.nrSteps()+1); }
+    uiString		uiMessage() const override
+			{ return tr("Tesselating geometry"); }
+    uiString		uiNrDoneText() const override;
 
     virtual int		getCoordIndex(int row,int col)	{ return 0; }
-    const char*		message() const override
-			    { return "Tesselating geometry"; }
 
 			/*<s= 0 for points, 1 for lines, 2 for triangles.*/
     const TypeSet<int>&	arrayIndexes(char s=2) const;
 
-    uiString			uiNrDoneText() const override;
-
-protected:
+private:
+    od_int64		nrIterations() const override
+			{ return (rowrange_.nrSteps()+1) *
+				 (colrange_.nrSteps()+1); }
 
     bool			doWork(od_int64 start,
 				       od_int64 stop,int) override;

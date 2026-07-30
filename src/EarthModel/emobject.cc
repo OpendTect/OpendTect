@@ -319,19 +319,15 @@ bool EMObject::setSectionName( const SectionID&, const char*, bool )
 
 
 const Geometry::Element* EMObject::geometryElement() const
-{ return const_cast<EMObject*>(this)->geometryElementInternal(); }
+{
+    return getNonConst(*this).geometryElementInternal();
+}
 
 
 Geometry::Element* EMObject::geometryElement()
-{ return geometryElementInternal(); }
-
-
-const Geometry::Element* EMObject::sectionGeometry( const SectionID& ) const
-{ return const_cast<EMObject*>(this)->geometryElementInternal(); }
-
-
-Geometry::Element* EMObject::sectionGeometry( const SectionID& )
-{ return geometryElementInternal(); }
+{
+    return geometryElementInternal();
+}
 
 
 Coord3 EMObject::getPos( const PosID& pid ) const
@@ -1079,6 +1075,58 @@ Interval<float> EMObject::getZRange( bool docompute ) const
     }
 
     return zrg;
+}
+
+
+const Geometry::Element* EMObject::sectionGeometry( const SectionID& ) const
+{
+    return getNonConst(*this).geometryElementInternal();
+}
+
+
+Geometry::Element* EMObject::sectionGeometry( const SectionID& )
+{
+    return geometryElementInternal();
+}
+
+
+void EMObject::removeListOfSubIDs( const TypeSet<EM::SubID>& subids,
+				   const EM::SectionID& )
+{
+    removeListOfSubIDs( subids );
+}
+
+
+EMObjectIterator* EMObject::createIterator( const EM::SectionID&,
+					    const TrcKeyZSampling* tkzs ) const
+{
+    return createIterator( tkzs );
+}
+
+
+Coord3 EMObject::getPos( const EM::SectionID&, const EM::SubID& subid ) const
+{
+    return getPos( subid );
+}
+
+
+bool EMObject::isDefined( const EM::SectionID&, const EM::SubID& subid ) const
+{
+    return isDefined( subid );
+}
+
+
+bool EMObject::setPos( const EM::SectionID&, const EM::SubID& subid,
+		       const Coord3& crd, bool addtohistory )
+{
+    return setPos( subid, crd, addtohistory );
+}
+
+
+bool EMObject::unSetPos( const EM::SectionID&, const EM::SubID& subid,
+			 bool addtohistory )
+{
+    return unSetPos( subid, addtohistory );
 }
 
 

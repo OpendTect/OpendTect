@@ -110,8 +110,8 @@ Write3DHorASCII( od_ostream&, int sectionidx, int sidx, const EM::Horizon3D*,
 			    const Setup& );
 
     int				nextStep() override;
-    const char*			message() const override    { return msg_; }
-    const char*			nrDoneText() const override;
+    uiString			uiMessage() const override    { return msg_; }
+    uiString			uiNrDoneText() const override;
     od_int64			nrDone() const override;
     od_int64			totalNr() const override;
 
@@ -122,7 +122,7 @@ protected:
     const EM::Horizon3D*	hor_;
     EM::EMObjectIterator*	it_;
     const UnitOfMeasure*	zunitout_;
-    BufferString		msg_;
+    uiString			msg_;
     int				counter_;
     ConstRefMan<Coords::CoordSystem>  coordsys_;
     const Setup			setup_;
@@ -152,9 +152,9 @@ od_int64 Write3DHorASCII::nrDone() const
 }
 
 
-const char* Write3DHorASCII::nrDoneText() const
+uiString Write3DHorASCII::uiNrDoneText() const
 {
-    return "Number of points processed";
+    return tr("Number of points processed");
 }
 
 
@@ -198,7 +198,7 @@ int Write3DHorASCII::nextStep()
     BufferString str;
     const EM::PosID posid = it_->next();
     if ( !posid.objectID().isValid() || counter_ > maxsize_ )
-	return Executor::Finished();
+	return Finished();
 
     if ( !setup_.issingle_ )
     {
@@ -225,7 +225,7 @@ int Write3DHorASCII::nextStep()
 	    ? hor_->auxdata.getAuxDataVal(0,posid) : mUdf(float);
         writeGF( stream_, bid, (float) crd.z_, auxvalue,
 		 crd.coord(), sidx_ );
-	Executor::MoreToDo();
+	return MoreToDo();
     }
 
     str.setEmpty();
@@ -275,11 +275,11 @@ int Write3DHorASCII::nextStep()
     stream_.flush();
     if ( stream_.isBad() )
     {
-	msg_ =  "Cannot write output file";
-	Executor::ErrorOccurred();
+	msg_ =	tr("Cannot write output file");
+	ErrorOccurred();
     }
 
-    return Executor::MoreToDo();
+    return MoreToDo();
 }
 
 

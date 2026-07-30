@@ -103,12 +103,12 @@ public:
     Notifier<uiBaseObject>& postFinalize() override
 				{ return mainObject()->postFinalize(); }
 
+mStartAllowDeprecatedSection
     mDeprecated("Use preFinalize()")
-    Notifier<uiBaseObject>& preFinalise() override
-			{ return preFinalize(); }
+    Notifier<uiBaseObject>& preFinalise() override;
     mDeprecated("Use postFinalize()")
-    Notifier<uiBaseObject>& postFinalise() override
-			{ return postFinalize(); }
+    Notifier<uiBaseObject>& postFinalise() override;
+mStopAllowDeprecatedSection
 
 protected:
 

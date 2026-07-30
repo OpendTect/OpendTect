@@ -170,23 +170,19 @@ bool uiHorizonInterpolDlg::interpolate3D( const IOPar& par )
 
     MouseCursorManager::setOverride( MouseCursor::Wait );
     uiStringSet errors;
-    for ( int idx=0; idx<hor3d->geometry().nrSections(); idx++ )
-    {
-	Interval<int> polyinlrg( Interval<int>::udf() );
-	Interval<int> polycrlrg( Interval<int>::udf() );
+    Interval<int> polyinlrg = Interval<int>::udf();
+    Interval<int> polycrlrg = Interval<int>::udf();
+    bool usepolygon = false;
+    if ( interpolhor3dsel_ )
+	usepolygon = interpolhor3dsel_->getPolygonRange( polyinlrg,
+							 polycrlrg );
 
-	bool usepolygon = false;
-	if ( interpolhor3dsel_ )
-	    usepolygon = interpolhor3dsel_->getPolygonRange( polyinlrg,
-							     polycrlrg );
-
-	uiRetVal rv = HorizonGridder::executeGridding(
+    uiRetVal rv = HorizonGridder::executeGridding(
 		interpolator.ptr(), hor3d, interpolhor3dsel_->getStep(),
 		usepolygon ? &polyinlrg : nullptr,
 		usepolygon ? &polycrlrg : nullptr, &taskrunner );
-	if ( rv.isError() )
-	    errors += rv;
-    }
+    if ( rv.isError() )
+	errors += rv;
 
     MouseCursorManager::restoreOverride();
     const bool success = errors.isEmpty();

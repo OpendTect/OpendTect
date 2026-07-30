@@ -91,8 +91,8 @@ bool Seis2DTo3DInterPol::usePar( const IOPar& pars )
     if ( !setIO(pars) )
 	return false;
     PtrMan<IOPar> parampars = pars.subselect( sKey::Pars() );
-    if ( !parampars)
-	mErrRet( " No processing parameters found")
+    if ( !parampars )
+	mErrRet( tr(" No processing parameters found") )
 
     parampars->get( sKeyPow() , pow_);
     parampars->get( sKeyTaper() , taperangle_);
@@ -108,19 +108,19 @@ bool Seis2DTo3DInterPol::setIO( const IOPar& pars )
     pars.get( sKeyInput(), key );
     inioobj_ = IOM().get( key );
     if ( !inioobj_ )
-	mErrRet( "2DDataSet not found" )
+	mErrRet( tr("2DDataSet not found") )
 
     pars.get( SeisJobExecProv::sKeySeisOutIDKey(), key );
     outioobj_ = IOM().get( key );
     if ( !outioobj_ )
-	mErrRet( "Output cube entry not found" )
+	mErrRet( tr("Output cube entry not found") )
 
     PtrMan<IOPar> subsel = pars.subselect( sKey::Output() );
     if ( !subsel ) return false;
 
     PtrMan<IOPar> sampling = subsel->subselect( sKey::Subsel() );
     if ( !sampling )
-	mErrRet( "No volume processing area found" )
+	mErrRet( tr("No volume processing area found") )
     tkzs_.usePar( *sampling );
     return true;
 }
@@ -129,7 +129,7 @@ bool Seis2DTo3DInterPol::setIO( const IOPar& pars )
 bool Seis2DTo3DInterPol::checkParameters()
 {
     if (taperangle_ < 0 || taperangle_ > 90)
-	mErrRet( " Taper angle should be between 0 and 90 degrees" )
+	mErrRet( tr(" Taper angle should be between 0 and 90 degrees") )
     return readData();
 }
 
@@ -137,7 +137,7 @@ bool Seis2DTo3DInterPol::checkParameters()
 bool Seis2DTo3DInterPol::readData()
 {
     if (!read() )
-	mErrRet( "Cannot Read Data" )
+	mErrRet( tr("Cannot Read Data") )
 
     const SeisTrc* trc = seisbuf_.get( 0 );
     totnr_ = trc->nrComponents();
@@ -154,7 +154,7 @@ bool Seis2DTo3DInterPol::read()
     TypeSet<Pos::GeomID> gids;
     seisinfo.getGeomIDs( gids );
     if ( gids.isEmpty() )
-	mErrRet( "Input dataset has no lines" )
+	mErrRet( tr("Input dataset has no lines") )
 
     const TrcKeySampling& tks = tkzs_.hsamp_;
     const int ns = tkzs_.zsamp_.nrSteps() + 1;
@@ -444,6 +444,7 @@ int Seis2DTo3DInterPol::nextStep()
 	taskrun_->execute( meexec );
 	mDoTransform( fft_, false, geom_ , taskrun_);
     }
+
     ArrayMultiplierExec meexec( butterfly_->info().getTotalSz(),
 			       butterfly_->getData(), trcarr_->getData() );
     taskrun_->execute( meexec );
@@ -482,8 +483,8 @@ bool Seis2DTo3DInterPol::butterflyOperator()
 
     OperatorComputerExecutor opcompexec(tkzs_, butterfly_->info(),
 				butterfly_->getData(), taperangle_, pow_);
-    taskrun_->execute(opcompexec);
-	return true;
+    taskrun_->execute( opcompexec );
+    return true;
 }
 
 
@@ -565,7 +566,7 @@ bool Seis2DTo3DInterPol::writeOutput()
 	    trc.set( idz, val, nrdone_ );
 	}
 	if ( !wrr_->put(trc) )
-	    mErrRet( "Cannot write traces" );
+	    mErrRet( tr("Cannot write traces") );
 
     } while ( iter.next(bid) );
 

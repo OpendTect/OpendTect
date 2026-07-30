@@ -489,8 +489,7 @@ bool SequentialTask::execute()
 class ParallelTaskRunner : public CallBacker
 {
 public:
-		ParallelTaskRunner()
-		    : task_( 0 )					{}
+		ParallelTaskRunner()				{}
 
     void	set( ParallelTask* task, od_int64 start, od_int64 stop,
 		     int threadidx )
@@ -513,10 +512,10 @@ public:
 		}
 
 protected:
-    od_int64		start_;
-    od_int64		stop_;
-    int			threadidx_;
-    ParallelTask*	task_;
+    od_int64		start_	    = 0;
+    od_int64		stop_	    = -1;
+    int			threadidx_  = 0;
+    ParallelTask*	task_	    = nullptr;
 };
 
 

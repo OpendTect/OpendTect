@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "uistring.h"
 #include "od_ostream.h"
 #include "factory.h"
+#include "paralleltask.h"
 
 class IOObj;
 class Seis2DDataSet;
@@ -32,13 +33,14 @@ mExpClass(Seis) Seis2DTo3DInterPol : public Executor
 public:
     mDefineFactoryInClass(Seis2DTo3DInterPol,factory);
 			Seis2DTo3DInterPol();
-    virtual		~Seis2DTo3DInterPol();
+			~Seis2DTo3DInterPol();
 
-    const char*		message() const override
-			{ return errmsg_ ? "interpolating"
+    uiString		uiMessage() const override
+			{ return errmsg_.isEmpty() ? tr("interpolating")
 						   : errmsg_; }
     od_int64		nrDone() const override		{ return nrdone_; }
-    const char*		nrDoneText() const override	{ return "Done"; }
+    uiString		uiNrDoneText() const override
+			{ return ParallelTask::sPosFinished(); }
     od_int64		totalNr() const override;
     int			nextStep() override;
     void		setStream(od_ostream&);
@@ -61,7 +63,7 @@ protected:
     IOObj*			inioobj_;
     IOObj*			outioobj_;
     TrcKeyZSampling		tkzs_;
-    const char*			errmsg_;
+    uiString			errmsg_;
 
     SeisTrcBuf&			seisbuf_;
     TrcKeySampling		seisbuftks_;

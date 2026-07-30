@@ -27,7 +27,7 @@ class FaultStickSetGeometry;
 mExpClass(EarthModel) FaultGeometry : public SurfaceGeometry
 {
 public:
-    virtual		~FaultGeometry();
+			~FaultGeometry();
 
     virtual bool	insertStick(int sticknr,int firstcol,
 				    const Coord3& pos,const Coord3& editnormal,
@@ -43,9 +43,9 @@ public:
 
     virtual const Coord3&	getEditPlaneNormal(int sticknr) const;
     virtual const MultiID*	pickedMultiID(int stcknr) const
-							{ return 0; }
+							{ return nullptr; }
     virtual const char*		pickedName(int sticknr) const
-							{ return 0; }
+							{ return nullptr; }
 
     virtual void	copySelectedSticksTo(FaultStickSetGeometry& destfssg,
 					     bool addtohistory) const;
@@ -55,52 +55,11 @@ public:
     virtual void	removeSelectedSticks(bool addtohistory);
 
     virtual void	selectStickDoubles(bool select=true,
-					   const FaultGeometry* ref=0);
+					   const FaultGeometry* ref=nullptr);
     virtual void	removeSelectedDoubles(bool addtohistory,
-					      const FaultGeometry* ref=0);
+					      const FaultGeometry* ref=nullptr);
     virtual int		nrStickDoubles(int sticknr,
-				       const FaultGeometry* ref=0) const;
-
-// Deprecated public functions
-    mDeprecated("Use without SectionID")
-    virtual bool	insertStick(const SectionID&,int sticknr,int firstcol,
-				    const Coord3& pos,const Coord3& editnormal,
-				    bool addtohistory)
-			{ return insertStick(sticknr,firstcol,pos,
-					     editnormal,addtohistory); }
-    mDeprecated("Use without SectionID")
-    virtual bool	insertKnot(const SectionID&,const SubID& subid,
-				   const Coord3& pos,bool addtohistory)
-			{ return insertKnot(subid,pos,addtohistory); }
-    mDeprecated("Use without SectionID")
-    virtual bool	removeStick(const SectionID&,int sticknr,
-				    bool addtohistory)
-			{ return removeSelStick(sticknr,addtohistory); }
-    mDeprecated("Use without SectionID")
-    virtual bool	removeKnot(const SectionID&,const SubID& subid,
-				   bool addtohistory)
-			{ return removeKnot(subid,addtohistory); }
-
-    mDeprecated("Use without SectionID")
-    virtual const Coord3&	getEditPlaneNormal(const SectionID&,
-						   int sticknr) const
-				{ return getEditPlaneNormal(sticknr); }
-    mDeprecated("Use without SectionID")
-    virtual const MultiID*	pickedMultiID(const SectionID&,int stcknr) const
-				{ return pickedMultiID(stcknr); }
-    mDeprecated("Use without SectionID")
-    virtual const char*		pickedName(const SectionID&,int sticknr) const
-				{ return pickedName(sticknr); }
-
-    mDeprecated("Use without SectionID")
-    virtual void	copySelectedSticksTo(FaultStickSetGeometry& dest,
-					     const SectionID& sid,
-					     bool addtohistory) const
-			{ copySelectedSticksTo(dest,addtohistory); }
-    mDeprecated("Use without SectionID")
-    virtual int		nrStickDoubles(const SectionID&,int sticknr,
-				       const FaultGeometry* ref=0) const
-			{ return nrStickDoubles(sticknr,ref); }
+				       const FaultGeometry* ref=nullptr) const;
 
 protected:
 			FaultGeometry(Surface&);
@@ -109,6 +68,40 @@ protected:
 				     const FaultGeometry* doublesref=0);
     bool		removeSelStick(int selidx,bool addtohistory,
 				       const FaultGeometry* doublesref=0);
+
+public:
+// Deprecated public functions
+
+    mDeprecated("Use without SectionID")
+    virtual bool	insertStick(const SectionID&,int sticknr,int firstcol,
+				    const Coord3& pos,const Coord3& editnormal,
+				    bool addtohistory);
+
+    mDeprecated("Use without SectionID")
+    virtual bool	insertKnot(const SectionID&,const SubID& subid,
+				   const Coord3& pos,bool addtohistory);
+    mDeprecated("Use without SectionID")
+    virtual bool	removeStick(const SectionID&,int sticknr,
+				    bool addtohistory);
+    mDeprecated("Use without SectionID")
+    virtual bool	removeKnot(const SectionID&,const SubID& subid,
+				   bool addtohistory);
+
+    mDeprecated("Use without SectionID")
+    virtual const Coord3&	getEditPlaneNormal(const SectionID&,
+						   int sticknr) const;
+    mDeprecated("Use without SectionID")
+    virtual const MultiID*	pickedMultiID(const SectionID&,int stknr) const;
+    mDeprecated("Use without SectionID")
+    virtual const char*		pickedName(const SectionID&,int sticknr) const;
+
+    mDeprecated("Use without SectionID")
+    virtual void	copySelectedSticksTo(FaultStickSetGeometry& dest,
+					     const SectionID& sid,
+					     bool addtohistory) const;
+    mDeprecated("Use without SectionID")
+    virtual int		nrStickDoubles(const SectionID&,int sticknr,
+				       const FaultGeometry* ref=nullptr) const;
 };
 
 

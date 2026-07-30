@@ -35,9 +35,9 @@ class SurfaceIODataSelection;
 mExpClass(EarthModel) SurfaceGeometry : public CallBacker
 { mODTextTranslationClass(SurfaceGeometry);
 public:
-    virtual		~SurfaceGeometry();
-    virtual void	removeAll();
+			~SurfaceGeometry();
 
+    virtual void	removeAll();
     virtual bool	enableChecks(bool yn);
     virtual bool	isChecksEnabled() const;
     virtual bool	isNodeOK(const PosID&) const;
@@ -60,11 +60,6 @@ public:
     virtual Executor*	saver(const SurfaceIODataSelection* =nullptr,
 			      const MultiID* =nullptr);
 
-    mDeprecatedDef
-    virtual int		findPos(const SectionID&,const Interval<float>& x,
-				const Interval<float>& y,
-				const Interval<float>& z,
-				TypeSet<PosID>* res) const;
     virtual int		findPos(const Interval<float>& x,
 				const Interval<float>& y,
 				const Interval<float>& z,TypeSet<PosID>*) const;
@@ -76,12 +71,31 @@ public:
     virtual bool	usePar(const IOPar&);
     virtual void	fillPar(IOPar&) const;
 
+protected:
+				SurfaceGeometry(Surface&);
+
+    virtual Geometry::Element*		createGeometryElement() const = 0;
+    void				geomChangeCB(CallBacker*);
+
+    Surface&				surface_;
+    ObjectSet<Geometry::Element>	sections_;
+
+    bool				changed_;
+
+public:
 // Deprecated public functions
+    mDeprecatedDef
+    virtual int		findPos(const SectionID&,const Interval<float>& x,
+				const Interval<float>& y,
+				const Interval<float>& z,
+				TypeSet<PosID>* res) const;
+
     mDeprecated("Use createIterator(const TrcKeyZSampling*)")
     EMObjectIterator*		createIterator(const EM::SectionID&,
-					       const TrcKeyZSampling* t=0) const
-				{ return createIterator(t); }
-//    mDeprecatedObs
+				    const TrcKeyZSampling* tkzs=nullptr) const
+				{ return createIterator( tkzs ); }
+
+    mDeprecatedObs
     int			nrSections() const;
     mDeprecatedObs
     SectionID		sectionID(int idx) const;
@@ -95,7 +109,7 @@ public:
     const char*		sectionName(const SectionID&) const;
     mDeprecatedObs
     bool		setSectionName(const SectionID&,const char*,
-					bool addtohistory );
+				       bool addtohistory);
     mDeprecatedObs
     SectionID		addSection(const char* nm,bool addtohistory);
     mDeprecatedObs
@@ -113,21 +127,12 @@ public:
     virtual Geometry::Element*		sectionGeometry(const SectionID&);
 
 protected:
-				SurfaceGeometry(Surface&);
 
+// Deprecated public functions
     mDeprecatedObs
-    SectionID			addSectionInternal(Geometry::Element*,
+    SectionID		addSectionInternal(Geometry::Element*,
 					   const char* nm,const SectionID&,
 					   bool addtohistory);
-
-
-    virtual Geometry::Element*		createGeometryElement() const = 0;
-    void				geomChangeCB(CallBacker*);
-
-    Surface&				surface_;
-    ObjectSet<Geometry::Element>	sections_;
-
-    bool				changed_;
 };
 
 
@@ -139,7 +144,7 @@ mExpClass(EarthModel) RowColSurfaceGeometry : public SurfaceGeometry
 { mODTextTranslationClass(RowColSurfaceGeometry);
 public:
 			RowColSurfaceGeometry(Surface&);
-    virtual		~RowColSurfaceGeometry();
+			~RowColSurfaceGeometry();
 
 
     const Geometry::RowColSurface* geometryElement() const override;
@@ -152,20 +157,20 @@ public:
     EMObjectIterator*	createIterator(
 				const TrcKeyZSampling* =nullptr) const override;
 
+public:
 // Deprecated public functions
+mStartAllowDeprecatedSection
     mDeprecated("Use geometryElement() const")
     const Geometry::RowColSurface* sectionGeometry(
-					const SectionID&) const override
-				{ return geometryElement(); }
+					const SectionID&) const override;
     mDeprecated("Use geometryElement()")
-    Geometry::RowColSurface*	sectionGeometry(const SectionID&) override
-				{ return geometryElement(); }
+    Geometry::RowColSurface*	sectionGeometry(const SectionID&) override;
+mStopAllowDeprecatedSection
 
     mDeprecated("Use without SectionID")
     StepInterval<int>		rowRange(const SectionID&) const;
     mDeprecated("Use without SectionID")
-    StepInterval<int>		colRange(const SectionID&,int row) const
-				{ return colRange(row); }
+    StepInterval<int>		colRange(const SectionID&,int row) const;
 };
 
 } // namespace EM

@@ -48,7 +48,9 @@ public:
     StepInterval<double> posRange(bool forx1) const;
     uiWorldRect		boundingBox() const;
 
+mStartAllowDeprecatedSection
     void		removePack(::DataPackID) override;
+mStopAllowDeprecatedSection
     void		removePack(FlatView::Viewer::VwrDest);
 
     const uiWorld2Ui&	getWorld2Ui() const		{ return w2ui_; }

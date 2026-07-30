@@ -741,12 +741,7 @@ int SurfaceGeometry::findPos( const Interval<float>& x,
 			      const Interval<float>& z,
 			      TypeSet<PosID>* res ) const
 {
-    int sum = 0;
-    const int nrsections = nrSections();
-    for ( int idx=0; idx<nrsections; idx++ )
-	sum += findPos( x, y, z, res );
-
-    return sum;
+    return findPos( x, y, z, res );
 }
 
 
@@ -801,7 +796,7 @@ void SurfaceGeometry::getLinkedPos( const PosID& posid,
 
 bool SurfaceGeometry::isLoaded() const
 {
-    return nrSections();
+    return true;
 }
 
 
@@ -836,13 +831,13 @@ Executor* SurfaceGeometry::loader( const SurfaceIODataSelection* newsel )
 	sel.seltrcranges = newsel->seltrcranges;
 
 	sel.rg.start_.inl() = sel.rg.inlRange().limitValue(
-                                  sel.rg.inlRange().snap( newsel->rg.inlRange().start_ ) );
+		sel.rg.inlRange().snap( newsel->rg.inlRange().start_ ) );
 	sel.rg.start_.crl() = sel.rg.crlRange().limitValue(
-                                  sel.rg.crlRange().snap( newsel->rg.crlRange().start_ ) );
+		sel.rg.crlRange().snap( newsel->rg.crlRange().start_ ) );
 	sel.rg.stop_.inl() = sel.rg.inlRange().limitValue(
-                                 sel.rg.inlRange().snap( newsel->rg.inlRange().stop_ ) );
+		sel.rg.inlRange().snap( newsel->rg.inlRange().stop_ ) );
 	sel.rg.stop_.crl() = sel.rg.crlRange().limitValue(
-                                 sel.rg.crlRange().snap( newsel->rg.crlRange().stop_ ) );
+		sel.rg.crlRange().snap( newsel->rg.crlRange().stop_ ) );
 	int stepfactorinl = mNINT32(((float)newsel->rg.step_.inl()
 			  / sel.rg.step_.inl()));
 	if ( stepfactorinl<1 ) stepfactorinl = 1;
@@ -942,13 +937,6 @@ const Geometry::RowColSurface* RowColSurfaceGeometry::geometryElement() const
 }
 
 
-StepInterval<int> RowColSurfaceGeometry::rowRange( const SectionID& ) const
-{
-    const Geometry::RowColSurface* elem = geometryElement();
-    return elem ? elem->rowRange() : StepInterval<int>::udf();
-}
-
-
 StepInterval<int> RowColSurfaceGeometry::rowRange() const
 {
     auto* surf = geometryElement();
@@ -988,6 +976,34 @@ EMObjectIterator* RowColSurfaceGeometry::createIterator(
 			const TrcKeyZSampling* tkzs ) const
 {
     return new RowColIterator( surface_, tkzs );
+}
+
+
+const Geometry::RowColSurface* RowColSurfaceGeometry::sectionGeometry(
+							const SectionID& ) const
+{
+    return geometryElement();
+}
+
+
+Geometry::RowColSurface*  RowColSurfaceGeometry::sectionGeometry(
+							const SectionID& )
+{
+    return geometryElement();
+}
+
+
+StepInterval<int> RowColSurfaceGeometry::rowRange( const SectionID& ) const
+{
+    const Geometry::RowColSurface* elem = geometryElement();
+    return elem ? elem->rowRange() : StepInterval<int>::udf();
+}
+
+
+StepInterval<int> RowColSurfaceGeometry::colRange( const SectionID&,
+						   int row ) const
+{
+    return colRange( row );
 }
 
 } // namespace EM

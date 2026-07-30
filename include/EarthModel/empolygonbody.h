@@ -59,15 +59,19 @@ public:
     void		fillPar(IOPar&) const override;
     bool		usePar(const IOPar&) override;
 
-// Deprecated public functions
+protected:
+    Geometry::PolygonSurface*	createGeometryElement() const override;
+
+public:
+    // Deprecated public functions
+mStartAllowDeprecatedSection
     mDeprecated("Use geometryElement()")
     Geometry::PolygonSurface*
-			sectionGeometry(const SectionID&) override
-			{ return geometryElement(); }
+			sectionGeometry(const SectionID&) override;
     mDeprecated("Use geometryElement() const")
     const Geometry::PolygonSurface*
-			sectionGeometry(const SectionID&) const override
-			{ return geometryElement(); }
+			sectionGeometry(const SectionID&) const override;
+mStopAllowDeprecatedSection
 
     mDeprecated("Use without SectionID")
     int			nrPolygons(const SectionID&) const
@@ -97,9 +101,6 @@ public:
     mDeprecated("Use without SectionID")
     const Coord3&	getPolygonNormal(const SectionID&,int polygon) const
 			{ return getPolygonNormal(polygon); }
-
-protected:
-    Geometry::PolygonSurface*	createGeometryElement() const override;
 };
 
 

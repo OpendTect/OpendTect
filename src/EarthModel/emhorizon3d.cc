@@ -605,8 +605,9 @@ Array2D<float>* Horizon3D::createArray2D(
 		    {
 			const TrcKey tk( bid );
 			convValue( pos.z_, emuom, zatfinpuom );
-			const float zval =
-				zaxistransform->transformTrc( tk, pos.z_ );
+			const float zval = zaxistransform
+			    ? zaxistransform->transformTrc( tk, pos.z_ )
+			    : pos.z_;
 			arr->set( rowrg.getIndex(row),
 				  colrg.getIndex(col), zval );
 		    }
@@ -1704,6 +1705,30 @@ EMObjectIterator* Horizon3DGeometry::createIterator(
     return new RowColIterator( surface_, rowrg, colrg );
 }
 
+
+const Geometry::BinIDSurface*
+		    Horizon3DGeometry::sectionGeometry( const SectionID& ) const
+{
+    return geometryElement();
+}
+
+
+Geometry::BinIDSurface* Horizon3DGeometry::sectionGeometry( const SectionID& )
+{
+    return geometryElement();
+}
+
+
+bool Horizon3DGeometry::removeSection( const SectionID&, bool hist )
+{
+    return false;
+}
+
+
+EM::SectionID Horizon3DGeometry::cloneSection( const SectionID& )
+{
+    return SectionID::udf();
+}
 
 
 // Horizon3DAscIO

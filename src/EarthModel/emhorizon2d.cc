@@ -368,6 +368,20 @@ bool Horizon2DGeometry::usePar( const IOPar& par )
 }
 
 
+Geometry::Horizon2DLine* Horizon2DGeometry::sectionGeometry( const SectionID& )
+{
+    return geometryElement();
+}
+
+
+const Geometry::Horizon2DLine*
+		    Horizon2DGeometry::sectionGeometry( const SectionID& ) const
+{
+    return geometryElement();
+}
+
+
+
 mImplementEMObjFuncs( Horizon2D, EMHorizon2DTranslatorGroup::sGroupName() )
 
 Horizon2D::Horizon2D( EMManager& emm )

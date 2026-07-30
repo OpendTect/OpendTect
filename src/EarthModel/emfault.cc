@@ -266,6 +266,68 @@ int FaultGeometry::nrStickDoubles( int sticknr,
 }
 
 
+bool FaultGeometry::insertStick( const SectionID&, int sticknr, int firstcol,
+				 const Coord3& pos, const Coord3& editnormal,
+				 bool addtohistory )
+{
+    return insertStick( sticknr, firstcol, pos, editnormal, addtohistory );
+}
+
+
+bool FaultGeometry::insertKnot( const SectionID&, const SubID& subid,
+				const Coord3& pos, bool addtohistory )
+{
+    return insertKnot( subid, pos, addtohistory );
+}
+
+
+bool FaultGeometry::removeStick( const SectionID&, int sticknr,
+				 bool addtohistory )
+{
+    return removeSelStick( sticknr, addtohistory );
+}
+
+
+bool FaultGeometry::removeKnot( const SectionID&, const SubID& subid,
+				bool addtohistory )
+{
+    return removeKnot( subid, addtohistory );
+}
+
+const Coord3& FaultGeometry::getEditPlaneNormal( const SectionID&,
+						 int sticknr ) const
+{
+    return getEditPlaneNormal( sticknr );
+}
+
+
+const MultiID* FaultGeometry::pickedMultiID( const SectionID&,
+					     int sticknr ) const
+{
+    return pickedMultiID( sticknr );
+}
+
+
+const char* FaultGeometry::pickedName( const SectionID&, int sticknr ) const
+{
+    return pickedName( sticknr );
+}
+
+
+void FaultGeometry::copySelectedSticksTo( FaultStickSetGeometry& dest,
+				const SectionID&, bool addtohistory ) const
+{
+    copySelectedSticksTo( dest, addtohistory );
+}
+
+
+int FaultGeometry::nrStickDoubles( const SectionID&, int sticknr,
+				   const FaultGeometry* ref ) const
+{
+    return nrStickDoubles( sticknr, ref );
+}
+
+
 // FaultStickUndoEvent
 FaultStickUndoEvent::FaultStickUndoEvent( const EM::PosID& posid )
     : posid_( posid )

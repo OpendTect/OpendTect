@@ -312,42 +312,6 @@ public:
     EMObject&			setZDomain(const ZDomain::Info&);
     const ZDomain::Info&	zDomain() const { return *zdominfo_; }
 
-// Deprecated public functions
-    mDeprecated("Use geometryElement() const")
-    const Geometry::Element*	sectionGeometry(const SectionID&) const;
-    mDeprecated("Use geometryElement()")
-    Geometry::Element*		sectionGeometry(const SectionID&);
-
-    mDeprecated("Use removeListOfSubIDs without SectionID")
-    void			removeListOfSubIDs(const TypeSet<EM::SubID>&,
-						   const EM::SectionID&);
-    mDeprecated("Use createIterator(const TrcKeyZSampling*)")
-    EMObjectIterator*		createIterator(const EM::SectionID&,
-					       const TrcKeyZSampling* t=0) const
-				{ return createIterator(t); }
-				/*!< creates an iterator. If the sectionid is
-				     -1, all sections will be traversed. */
-
-    mDeprecated("Use without SectionID")
-    Coord3			getPos(const EM::SectionID&,
-				       const EM::SubID& subid) const
-				{ return getPos(subid); }
-    mDeprecated("Use without SectionID")
-    bool			isDefined(const EM::SectionID&,
-					  const EM::SubID& subid) const
-				{ return isDefined(subid); }
-    mDeprecated("Use without SectionID")
-    bool			setPos(const EM::SectionID&,
-					const EM::SubID& subid,
-					const Coord3& crd,bool addtohistory)
-				{ return setPos(subid,crd,addtohistory); }
-    mDeprecated("Use without SectionID")
-    bool			unSetPos(const EM::SectionID&,
-					const EM::SubID& subid,
-					bool addtohistory)
-				{ return unSetPos(subid,addtohistory); }
-    mDeprecated("Use zDomain")
-    bool			isZInDepth() const;
 protected:
 				~EMObject();
 				EMObject( EMManager& );
@@ -399,10 +363,45 @@ protected:
     static const char*		posattrsectionstr();
     static const char*		posattrposidstr();
 
+
 // Deprecated protected functions
     mDeprecated("Use geometryElementInternal()")
     virtual Geometry::Element*	sectionGeometryInternal(const SectionID&)
-				{ return nullptr; }
+    { return nullptr; }
+
+public:
+// Deprecated public functions
+
+    mDeprecated("Use geometryElement() const")
+    const Geometry::Element*	sectionGeometry(const SectionID&) const;
+    mDeprecated("Use geometryElement()")
+    Geometry::Element*		sectionGeometry(const SectionID&);
+
+    mDeprecated("Use removeListOfSubIDs without SectionID")
+    void			removeListOfSubIDs(const TypeSet<EM::SubID>&,
+						   const EM::SectionID&);
+    mDeprecated("Use createIterator(const TrcKeyZSampling*)")
+    EMObjectIterator*		createIterator(const EM::SectionID&,
+				    const TrcKeyZSampling* tkzs=nullptr) const;
+				/*!< creates an iterator. If the sectionid is
+				     -1, all sections will be traversed. */
+
+    mDeprecated("Use without SectionID")
+    Coord3			getPos(const EM::SectionID&,
+				       const EM::SubID&) const;
+    mDeprecated("Use without SectionID")
+    bool			isDefined(const EM::SectionID&,
+					  const EM::SubID&) const;
+    mDeprecated("Use without SectionID")
+    bool			setPos(const EM::SectionID&,
+				       const EM::SubID&,const Coord3&,
+				       bool addtohistory);
+    mDeprecated("Use without SectionID")
+    bool			unSetPos(const EM::SectionID&,
+					 const EM::SubID&,bool addtohistory);
+    mDeprecated("Use zDomain")
+    bool			isZInDepth() const;
+
 };
 
 } // namespace EM

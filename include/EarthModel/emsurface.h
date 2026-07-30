@@ -70,8 +70,10 @@ protected:
 
     Geometry::Element*	geometryElementInternal() override;
 
+mStartAllowDeprecatedSection
     mDeprecated("Use geometryElementInternal()")
     Geometry::Element*	sectionGeometryInternal(const SectionID&) override;
+mStopAllowDeprecatedSection
 
     BufferString	dbinfo;
 };

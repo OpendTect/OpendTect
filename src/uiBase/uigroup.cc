@@ -786,3 +786,15 @@ void uiGroupObj::grpDel( CallBacker* cb )
     else
 	{ pErrMsg("huh?"); }
 }
+
+
+Notifier<uiBaseObject>& uiGroup::preFinalise()
+{
+    return preFinalize();
+}
+
+
+Notifier<uiBaseObject>& uiGroup::postFinalise()
+{
+    return postFinalize();
+}

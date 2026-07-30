@@ -33,10 +33,6 @@ public:
 				/*!< seed must be non-zero and defined */
     virtual void	clearSeed()		{}
 
-    mDeprecated("Use setSeed or clearSeed")
-    virtual bool	init(int seed)	{ return false; }
-
-
 };
 
 
@@ -95,7 +91,7 @@ public:
 			{ return getIndex(sz); }
 
     mDeprecated("Use setSeed or clearSeed")
-    bool		init(int seed) override;
+    bool	init(int seed);
 
 };
 
@@ -135,7 +131,7 @@ private:
 public:
 
     mDeprecated("Use setSeed or clearSeed")
-    bool		init(int seed) override;
+    bool	init(int seed);
 
 };
 

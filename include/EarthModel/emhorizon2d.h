@@ -79,20 +79,6 @@ public:
 					    TypeSet<PosID>* res) const override;
     StepInterval<int>		colRange(const Pos::GeomID&) const;
 
-// Deprecated public functions
-    mDeprecated("Use geometryElement()")
-    Geometry::Horizon2DLine*	sectionGeometry(const SectionID&) override
-				{ return geometryElement(); }
-    mDeprecated("Use geometryElement() const")
-    const Geometry::Horizon2DLine* sectionGeometry(
-					const SectionID&) const override
-				{ return geometryElement(); }
-    mDeprecated("Use colRange() without SectionID")
-    StepInterval<int>		colRange( const SectionID&,
-					  const Pos::GeomID& geomid ) const
-				{ return colRange(geomid); }
-
-
 protected:
     Geometry::Horizon2DLine*	createGeometryElement() const override;
 
@@ -102,6 +88,21 @@ protected:
 
     void			fillPar(IOPar&) const override;
     bool			usePar(const IOPar&) override;
+
+public:
+// Deprecated public functions
+mStartAllowDeprecatedSection
+    mDeprecated("Use geometryElement()")
+    Geometry::Horizon2DLine*	sectionGeometry(const SectionID&) override;
+    mDeprecated("Use geometryElement() const")
+    const Geometry::Horizon2DLine* sectionGeometry(
+					const SectionID&) const override;
+mStopAllowDeprecatedSection
+
+    mDeprecated("Use colRange() without SectionID")
+    StepInterval<int>		colRange( const SectionID&,
+					  const Pos::GeomID& geomid ) const
+				{ return colRange(geomid); }
 
 };
 

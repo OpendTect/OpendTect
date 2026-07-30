@@ -63,14 +63,14 @@ public:
     inline TrcKeyZSampling	getEnvelope() const { return tkzsenvelope_; }
 
 // Deprecated public functions
+mStartAllowDeprecatedSection
     mDeprecated("Use geometryElement()")
     Geometry::FaultStickSurface*
-			sectionGeometry(const SectionID&) override
-			{ return geometryElement(); }
+			sectionGeometry(const SectionID&) override;
     mDeprecated("Use geometryElement() const")
     const Geometry::FaultStickSurface*
-			sectionGeometry(const SectionID&) const override
-			{ return geometryElement(); }
+			sectionGeometry(const SectionID&) const override;
+mStopAllowDeprecatedSection
 
     mDeprecated("Use without SectionID")
     int			nrSticks(const SectionID&) const
@@ -79,27 +79,23 @@ public:
     int			nrKnots(const SectionID&,int sticknr) const
 			{ return nrKnots(sticknr); }
 
+mStartAllowDeprecatedSection
     mDeprecated("Use without SectionID")
     bool		insertStick(const SectionID&,int sticknr,int firstcol,
 				    const Coord3& pos,const Coord3& editnormal,
-				    bool addtohistory) override
-			{ return insertStick(sticknr,firstcol,pos,
-					     editnormal,addtohistory); }
+				    bool addtohistory) override;
     mDeprecated("Use without SectionID")
     bool		removeStick(const SectionID&,int sticknr,
-				    bool addtohistory) override
-			{ return removeStick(sticknr,addtohistory); }
+				    bool addtohistory) override;
     mDeprecated("Use without SectionID")
     bool		insertKnot(const SectionID&,const SubID& subid,
-			       const Coord3& pos,bool addtohistory) override
-			{ return insertKnot(subid,pos,addtohistory); }
+			       const Coord3& pos,bool addtohistory) override;
     mDeprecated("Use without SectionID")
     bool		removeKnot(const SectionID&,const SubID& subid,
-				   bool addtohistory) override
-			{ return removeKnot(subid,addtohistory); }
+				   bool addtohistory) override;
+mStopAllowDeprecatedSection
     mDeprecated("Use without SectionID")
-    bool		areSticksVertical(const SectionID&) const
-			{ return areSticksVertical(); }
+    bool		areSticksVertical(const SectionID&) const;
 
 
 protected:
@@ -134,7 +130,7 @@ protected:
     friend class		EMManager;
     friend class		EMObject;
     Fault3DGeometry		geometry_;
-    FaultAuxData*		auxdata_;
+    FaultAuxData*		auxdata_    = nullptr;
 };
 
 

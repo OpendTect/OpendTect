@@ -53,50 +53,19 @@ public:
     bool			isChecksEnabled() const override;
     bool			isNodeOK(const PosID&) const override;
 
-    bool			isAtEdge(const PosID& pid) const override;
+    bool			isAtEdge(const PosID&) const override;
     PosID			getNeighbor(const PosID&,const RowCol&) const;
     int				getConnectedPos(const PosID&,
 						TypeSet<PosID>*) const override;
 
     bool			getBoundingPolygon(Pick::Set&) const;
     void			getDataPointSet(DataPointSet&,
-						float shift=0.0) const;
+						float shift=0.f) const;
     void			fillBinIDValueSet(BinIDValueSet&,
-						 Pos::Provider3D* prov=0) const;
+					Pos::Provider3D* prov=nullptr) const;
     EMObjectIterator*		createIterator(
-				    const TrcKeyZSampling* =0) const override;
+				const TrcKeyZSampling* =nullptr) const override;
 
-// Deprecated public functions
-    mDeprecated("Use geometryElement() const")
-    const Geometry::BinIDSurface* sectionGeometry(
-					const SectionID&) const override
-				{ return geometryElement(); }
-    mDeprecated("Use geometryElement()")
-    Geometry::BinIDSurface*	sectionGeometry(const SectionID&) override
-				{ return geometryElement(); }
-
-    mDeprecatedObs
-    bool			removeSection(const SectionID&,
-					      bool hist) override
-				{ return false; }
-    mDeprecatedObs
-    SectionID			cloneSection(const SectionID&) override
-				{ return SectionID::udf(); }
-
-    mDeprecated("Use without SectionID")
-    bool			getBoundingPolygon(const SectionID&,
-						   Pick::Set& ps) const
-				{ return getBoundingPolygon(ps); }
-    mDeprecated("Use without SectionID")
-    void			getDataPointSet( const SectionID&,
-						  DataPointSet& dps,
-						  float shift=0.0) const
-				{ getDataPointSet(dps,shift); }
-    mDeprecated("Use without SectionID")
-    void			fillBinIDValueSet(const SectionID&,
-						 BinIDValueSet& bvs,
-						 Pos::Provider3D* prov=0) const
-				{ fillBinIDValueSet(bvs,prov); }
 protected:
 
     Geometry::BinIDSurface*	createGeometryElement() const override;
@@ -104,6 +73,37 @@ protected:
     RowCol			loadedstep_;
     RowCol			step_;
     bool			checksupport_;
+
+public:
+    // Deprecated public functions
+mStartAllowDeprecatedSection
+    mDeprecated("Use geometryElement() const")
+    const Geometry::BinIDSurface* sectionGeometry(
+					const SectionID&) const override;
+    mDeprecated("Use geometryElement()")
+    Geometry::BinIDSurface*	sectionGeometry(const SectionID&) override;
+
+    mDeprecatedObs
+    bool			removeSection(const SectionID&,
+					      bool hist) override;
+    mDeprecatedObs
+    SectionID			cloneSection(const SectionID&) override;
+mStopAllowDeprecatedSection
+
+    mDeprecated("Use without SectionID")
+    bool			getBoundingPolygon( const SectionID&,
+						    Pick::Set& ps ) const
+				{ return getBoundingPolygon( ps ); }
+    mDeprecated("Use without SectionID")
+    void			getDataPointSet( const SectionID&,
+						 DataPointSet& dps,
+						 float shift=0.f ) const
+				{ getDataPointSet( dps, shift ); }
+    mDeprecated("Use without SectionID")
+    void			fillBinIDValueSet( const SectionID&,
+					BinIDValueSet& bvs,
+					Pos::Provider3D* prov=nullptr ) const
+				{ fillBinIDValueSet( bvs, prov ); }
 };
 
 

@@ -538,4 +538,18 @@ bool PolygonBodyGeometry::usePar( const IOPar& par )
     return true;
 }
 
+
+Geometry::PolygonSurface*
+		PolygonBodyGeometry::sectionGeometry( const SectionID& )
+{
+    return geometryElement();
+}
+
+
+const Geometry::PolygonSurface*
+		PolygonBodyGeometry::sectionGeometry( const SectionID& ) const
+{
+    return geometryElement();
+}
+
 } // namespace EM

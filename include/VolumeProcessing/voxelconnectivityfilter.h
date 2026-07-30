@@ -67,9 +67,6 @@ public:
 
     Task*		createTask() override;
 
-    mDeprecatedDef od_int64	getProcTimeExtraMemory() const override
-				{ return 0; }
-
     od_int64		extraMemoryUsage(OutputSlotID,const TrcKeySampling&,
 				     const StepInterval<int>&) const override;
 

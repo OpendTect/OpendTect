@@ -38,11 +38,10 @@ public:
 	mDefSetupMemb(StepInterval<float>,contzrg) //!< default SI().zRange()
 	mDefSetupMemb(Interval<float>,linezrg)	//!< default 30 samples
 	mDefSetupMemb(bool,isrel)		//!< default true
-	mDefSetupMemb(int,sectionnr)		//!< default -1: all sections
-	mDefSetupMemb(const ODPolygon<float>*,selpoly)
+	mDefSetupMembInit(const ODPolygon<float>*,selpoly,nullptr);
 						//!< default null: entire survey
-	mDefSetupMemb(int,nrlargestonly)	//!< default -1: all contours
-	mDefSetupMemb(int,minnrvertices)	//!< default 2
+	mDefSetupMembInit(int,nrlargestonly,-1) //!< default: all contours
+	mDefSetupMembInit(int,minnrvertices,2)
     };
 
 			RandomLineSetByContourGenerator(const Horizon3D&,

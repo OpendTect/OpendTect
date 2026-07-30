@@ -30,7 +30,7 @@ ________________________________________________________________________
 
 
 #define mDestroyWorkers \
-{ delete proc; proc = 0; }
+{ deleteAndNullPtr( proc ); }
 
 
 #define mRetFileProb(fdesc,fnm,s) \
@@ -310,7 +310,7 @@ bool BatchProgram::doWork( od_ostream& strm )
 	pars().get( "Startup delay time", startup_wait );
 	sleepSeconds( startup_wait );
 
-	const double pause_sleep_time = GetEnvVarDVal( "OD_BATCH_SLEEP_TIME", 1 );
+	const double pause_sleep_time = GetEnvVarDVal("OD_BATCH_SLEEP_TIME",1.);
 	int nriter = 0, nrdone = 0;
 
 	while ( true )
@@ -335,7 +335,8 @@ bool BatchProgram::doWork( od_ostream& strm )
 		if ( nriter == 0 )
 		{
 		    strm << od_newline << "Number of components";
-		    strm << " to be processed: " << proc->totalNr() << od_newline;
+		    strm << " to be processed: " << proc->totalNr()
+			 << od_newline;
 		    strm << "Calculating results ..." << od_endl;
 		    progressmeter.setTotalNr( proc->totalNr() );
 		}
@@ -358,7 +359,7 @@ bool BatchProgram::doWork( od_ostream& strm )
 		{
 		    if ( res == -1 )
 			mRetJobErr( BufferString("Cannot reach next position",
-				    ":\n",proc->message()) )
+				    ":\n",::toString(proc->uiMessage())) )
 		    break;
 		}
 

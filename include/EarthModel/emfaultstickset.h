@@ -75,7 +75,18 @@ public:
     void		    getTrcKeyZSamplingForGeomID(const Pos::GeomID&,
 						    TrcKeyZSampling&) const;
 
-// Deprecated public functions
+protected:
+    Geometry::FaultStickSet*	createGeometryElement() const override;
+    bool		insertStick(int sticknr,int firstcol,
+			    const Coord3& pos,const Coord3& editnormal,
+			    const MultiID& pickedmid,
+			    const Pos::GeomID& pickedgeomid,bool addtohistory);
+
+    Interval<float>			zgate_;
+
+public:
+
+    // Deprecated protected functions
     mDeprecated("Use without SectionID")
     int			nrSticks(const SectionID&) const
 			{ return nrSticks(); }
@@ -83,12 +94,13 @@ public:
     int			nrKnots(const SectionID&,int sticknr) const
 			{ return nrKnots(sticknr); }
 
+mStartAllowDeprecatedSection
     mDeprecated("Use without SectionID")
     bool		insertStick(const SectionID&,int sticknr,int firstcol,
 				    const Coord3& pos,const Coord3& editnormal,
-				    bool addtohistory) override
-			{ return insertStick(sticknr,firstcol,pos,editnormal,
-					     addtohistory); }
+				    bool addtohistory) override;
+mStopAllowDeprecatedSection
+
     mDeprecated("Use without SectionID")
     bool		insertStick(const SectionID&,int sticknr,int firstcol,
 				    const Coord3& pos,const Coord3& editnormal,
@@ -103,18 +115,17 @@ public:
 				    bool addtohistory)
 			{ return insertStick(sticknr,firstcol,pos,editnormal,
 					     pickedgeomid,addtohistory); }
+mStartAllowDeprecatedSection
     mDeprecated("Use without SectionID")
     bool		removeStick(const SectionID&,int sticknr,
-				    bool addtohistory) override
-			{ return removeStick(sticknr,addtohistory); }
+				    bool addtohistory) override;
     mDeprecated("Use without SectionID")
     bool		insertKnot(const SectionID&,const SubID& subid,
-			       const Coord3& pos,bool addtohistory) override
-			{ return insertKnot(subid,pos,addtohistory); }
+			       const Coord3& pos,bool addtohistory) override;
     mDeprecated("Use without SectionID")
     bool		removeKnot(const SectionID&,const SubID& subid,
-				   bool addtohistory) override
-			{ return removeKnot(subid,addtohistory); }
+				   bool addtohistory) override;
+mStopAllowDeprecatedSection
 
     mDeprecated("Use without SectionID")
     bool		pickedOnPlane(const SectionID&,int sticknr) const
@@ -125,35 +136,27 @@ public:
     mDeprecated("Use without SectionID")
     bool		pickedOnHorizon(const SectionID&,int sticknr) const
 			{ return pickedOnHorizon(sticknr); }
-
+mStartAllowDeprecatedSection
     mDeprecated("Use without SectionID")
     const MultiID*	pickedMultiID(const SectionID&,
-				      int sticknr) const override
-			{ return pickedMultiID(sticknr); }
+				      int sticknr) const override;
+
     mDeprecated("Use without SectionID")
-    const char*		pickedName(const SectionID&,int sticknr) const override
-			{ return pickedName(sticknr); }
+    const char*		pickedName(const SectionID&,int sticknr) const override;
+mStopAllowDeprecatedSection
+
     mDeprecated("Use without SectionID")
-    Pos::GeomID		pickedGeomID(const SectionID&,int sticknr)const
+    Pos::GeomID		pickedGeomID(const SectionID&,int sticknr) const
 			{ return pickedGeomID(sticknr); }
 
-    mDeprecated("Use geometryElement()")
+mStartAllowDeprecatedSection
+    mDeprecated("Use without SectionID")
     Geometry::FaultStickSet*
-			sectionGeometry(const SectionID&) override
-			{ return geometryElement(); }
-    mDeprecated("Use geometryElement() const")
+			sectionGeometry(const SectionID&) override;
+    mDeprecated("Use without SectionID")
     const Geometry::FaultStickSet*
-			sectionGeometry(const SectionID&) const override
-			{ return geometryElement(); }
-
-protected:
-    Geometry::FaultStickSet*	createGeometryElement() const override;
-    bool		insertStick(int sticknr,int firstcol,
-			    const Coord3& pos,const Coord3& editnormal,
-			    const MultiID& pickedmid,
-			    const Pos::GeomID& pickedgeomid,bool addtohistory);
-
-    Interval<float>			zgate_;
+			sectionGeometry(const SectionID&) const override;
+mStopAllowDeprecatedSection
 
 class GeomGroup
 {

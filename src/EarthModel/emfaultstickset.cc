@@ -681,6 +681,63 @@ bool FaultStickSetGeometry::usePar( const IOPar& par )
 }
 
 
+bool FaultStickSetGeometry::insertStick( const SectionID&, int sticknr,
+			int firstcol, const Coord3& pos,
+			const Coord3& editnormal, bool addtohistory )
+{
+    return insertStick( sticknr, firstcol, pos, editnormal, addtohistory );
+}
+
+
+bool FaultStickSetGeometry::removeStick( const SectionID&, int sticknr,
+					 bool addtohistory )
+{
+    return removeStick( sticknr, addtohistory );
+}
+
+
+bool FaultStickSetGeometry::insertKnot( const SectionID&, const SubID& subid,
+					const Coord3& pos, bool addtohistory )
+{
+    return insertKnot( subid, pos, addtohistory );
+}
+
+
+bool FaultStickSetGeometry::removeKnot( const SectionID&, const SubID& subid,
+					bool addtohistory )
+{
+    return removeKnot( subid, addtohistory );
+}
+
+
+const MultiID* FaultStickSetGeometry::pickedMultiID( const SectionID&,
+						     int sticknr ) const
+{
+    return pickedMultiID( sticknr );
+}
+
+
+const char* FaultStickSetGeometry::pickedName( const SectionID&,
+					       int sticknr ) const
+{
+    return pickedName( sticknr );
+}
+
+
+Geometry::FaultStickSet* FaultStickSetGeometry::sectionGeometry(
+						const SectionID& )
+{
+    return geometryElement();
+}
+
+
+const Geometry::FaultStickSet* FaultStickSetGeometry::sectionGeometry(
+						const SectionID& ) const
+{
+    return geometryElement();
+}
+
+
 //FaultStickDataUpdater
 FaultStickSetGeometry::GeomGroupUpdater::GeomGroupUpdater(
 	    Geometry::FaultStickSet& fss, ObjectSet<GeomGroup>& geomgrps )

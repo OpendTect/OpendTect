@@ -293,11 +293,11 @@ mExternC( Basic ) void SetInSysAdmMode(void) { insysadmmode_ = 1; }
 
 
 #ifdef __win__
-int initWinSock()
+static int initWinSock()
 {
     WSADATA wsaData;
     WORD wVersion = MAKEWORD( 2, 0 ) ;
-    return !WSAStartup( wVersion, &wsaData );
+    return WSAStartup( wVersion, &wsaData );
 }
 #endif
 
@@ -680,12 +680,14 @@ static void loadEntries( const char* fnm, IOPar* iop=nullptr )
     {
 	char* nmptr = line.getCStr();
 	mSkipBlanks(nmptr);
-	if ( !*nmptr || *nmptr == '#' )
+	if ( !nmptr || !*nmptr || *nmptr == '#' )
 	    continue;
 
 	char* valptr = nmptr;
 	mSkipNonBlanks( valptr );
-	if ( !*valptr ) continue;
+	if ( !valptr || !*valptr )
+	    continue;
+
 	*valptr++ = '\0';
 	mTrimBlanks(valptr);
 	if ( !*valptr ) continue;

@@ -31,12 +31,10 @@ mImplementEMObjFuncs( Fault3D, EMFault3DTranslatorGroup::sGroupName() )
 Fault3D::Fault3D( EMManager& em )
     : Fault(em)
     , geometry_( *this )
-    , auxdata_( 0 )
 {
     setPreferredColor( OD::getRandomColor() );
     setPosAttrMarkerStyle( 0,
 	MarkerStyle3D(MarkerStyle3D::Cube,3,OD::Color::Yellow()) );
-
 }
 
 
@@ -52,10 +50,7 @@ FaultAuxData* Fault3D::auxData()
     {
 	auxdata_ = new FaultAuxData( *this );
 	if ( !auxdata_->init() )
-	{
-	    delete auxdata_;
-	    auxdata_ = 0;
-	}
+	    deleteAndNullPtr( auxdata_ );
     }
 
     return auxdata_;
@@ -115,7 +110,6 @@ EMObjectIterator* Fault3D::createIterator( const TrcKeyZSampling* tkzs ) const
 {
     return geometry_.createIterator( tkzs );
 }
-
 
 
 // Fault3DGeometry
@@ -354,6 +348,54 @@ bool Fault3DGeometry::usePar( const IOPar& par )
 	tkzsenvelope_ = fssupdater.getEnvelope(); //Does not have zrange
 
     return true;
+}
+
+
+Geometry::FaultStickSurface* Fault3DGeometry::sectionGeometry( const SectionID&)
+{
+    return geometryElement();
+}
+
+
+const Geometry::FaultStickSurface*
+		    Fault3DGeometry::sectionGeometry( const SectionID& ) const
+{
+    return geometryElement();
+}
+
+
+bool Fault3DGeometry::insertStick( const SectionID&, int sticknr,
+				   int firstcol, const Coord3& pos,
+				   const Coord3& editnormal, bool addtohistory )
+{
+    return insertStick( sticknr, firstcol, pos, editnormal, addtohistory );
+}
+
+
+bool Fault3DGeometry::removeStick( const SectionID&, int sticknr,
+				   bool addtohistory )
+{
+    return removeStick( sticknr, addtohistory );
+}
+
+
+bool Fault3DGeometry::insertKnot( const SectionID&, const SubID& subid,
+				  const Coord3& pos, bool addtohistory )
+{
+    return insertKnot( subid, pos, addtohistory );
+}
+
+
+bool Fault3DGeometry::removeKnot( const SectionID&, const SubID& subid,
+				  bool addtohistory )
+{
+    return removeKnot( subid, addtohistory );
+}
+
+
+bool Fault3DGeometry::areSticksVertical( const SectionID& ) const
+{
+    return areSticksVertical();
 }
 
 
