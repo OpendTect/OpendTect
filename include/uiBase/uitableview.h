@@ -47,6 +47,13 @@ public:
     void			setRowHeight(int row,int height);
     void			setRowHeight(int row);
 
+    void			setAlternatingRowColors(bool yn);
+				//!<Follows the displayed row order, thus
+				//!<also after sorting or hiding rows
+    bool			hasAlternatingRowColors() const;
+    void			setAlternatingRowColor(const OD::Color&);
+				//!<Default is a grey
+
     void			setSectionsMovable(bool);
     void			moveColumn(int from,int to);
 

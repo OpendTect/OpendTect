@@ -32,6 +32,7 @@ ________________________________________________________________________
 #include <QLineEdit>
 #include <QMargins>
 #include <QPainter>
+#include <QPalette>
 #include <QSortFilterProxyModel>
 #include <QStyledItemDelegate>
 #include <QTableView>
@@ -364,6 +365,9 @@ public:
     void	    setNrFrozenColumns(int nrcols);
     void	    setSortEnabled(bool yn);
     void	    setContextMenuEnabled(bool yn);
+    void	    setAlternatingColors(bool yn);
+		    //!<Not setAlternatingRowColors: would shadow QTableView's
+    void	    setAlternatingRowColor(const OD::Color&);
     bool	    setSourceDataDirect(const TableModelEditRequest&,
 					bool useoldval);
     bool	    setSourceDataWithUndo(const TableModelEditRequest& req);
@@ -515,12 +519,21 @@ private:
 };
 
 
+static const char* sBaseStyleSheet()
+{
+    return "selection-background-color: rgba(173,216,230,120);"
+	   "selection-color: black;";
+}
+
+
 ODTableView::ODTableView( uiTableView& hndl, uiParent* p, const char* nm )
     : uiObjBodyImpl<uiTableView,QTableView>(hndl,p,nm)
     , messenger_(*new i_tableViewMessenger(this,&hndl))
 {
     frozenview_ = new QTableView( this );
     helper_ = new FrozenColumnsHelper( this, frozenview_ );
+    setStyleSheet( sBaseStyleSheet() );
+    setAlternatingRowColor( OD::Color(232,232,232) );
     installEventFilter( this );
     if ( viewport() )
 	viewport()->installEventFilter( this );
@@ -567,8 +580,6 @@ void ODTableView::setModel( QAbstractItemModel* tblmodel )
 
 void ODTableView::init()
 {
-    setStyleSheet( "selection-background-color: rgba(50, 50, 50, 50);"
-		   "selection-color: black;" );
     if ( horizontalHeader() )
 	horizontalHeader()->setDefaultAlignment(
 		Qt::AlignCenter | Qt::Alignment(Qt::TextWordWrap) );
@@ -632,6 +643,23 @@ void ODTableView::setSortEnabled( bool yn )
 void ODTableView::setContextMenuEnabled( bool yn )
 {
     yn ? enableCustomContextMenu() : setContextMenuPolicyToDefault();
+}
+
+
+void ODTableView::setAlternatingColors( bool yn )
+{
+    setAlternatingRowColors( yn );
+    frozenview_->setAlternatingRowColors( yn );
+}
+
+
+void ODTableView::setAlternatingRowColor( const OD::Color& col )
+{
+    QPalette qpal = palette();
+    qpal.setColor( QPalette::AlternateBase,
+		   QColor(col.r(),col.g(),col.b()) );
+    setPalette( qpal );
+    frozenview_->setPalette( qpal );
 }
 
 
@@ -1041,6 +1069,24 @@ void uiTableView::setRowHeight( int height )
 
     header->setDefaultSectionSize( height );
     header->setSectionResizeMode( QHeaderView::Fixed );
+}
+
+
+void uiTableView::setAlternatingRowColors( bool yn )
+{
+    odtableview_->setAlternatingColors( yn );
+}
+
+
+bool uiTableView::hasAlternatingRowColors() const
+{
+    return odtableview_->alternatingRowColors();
+}
+
+
+void uiTableView::setAlternatingRowColor( const OD::Color& col )
+{
+    odtableview_->setAlternatingRowColor( col );
 }
 
 
