@@ -115,19 +115,17 @@ bool TextTranslatorLanguage::load()
     BufferStringSet locdirfnms;
     GetSetupShareFilesInDir( "localizations", filenamesearch.str(), locdirfnms,
 			     true );
-    for ( const auto* filename : locdirfnms )
+    for ( const auto* locfnm : locdirfnms )
     {
-	BufferString application;
-	const char* applicationend =
-		filename->find(TextTranslateMgr::cApplicationEnd());
-	if ( !applicationend )
+	const FilePath fp( locfnm->buf() );
+	BufferString application = fp.baseName();
+	if ( !application.contains(TextTranslateMgr::cApplicationEnd()) )
 	    continue;
 
-	application = filename->str();
-	*application.find(TextTranslateMgr::cApplicationEnd()) = 0;
+	*application.find( TextTranslateMgr::cApplicationEnd() ) = 0;
 
 	PtrMan<QTranslator> trans = new QTranslator;
-	if ( !trans->load(filename->str()) )
+	if ( !trans->load(fp.fullPath().buf()) )
 	    continue;
 
 	translators_.add( trans.release() );
