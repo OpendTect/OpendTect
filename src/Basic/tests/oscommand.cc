@@ -10,8 +10,8 @@ ________________________________________________________________________
 #include "applicationdata.h"
 #include "envvars.h"
 #include "filepath.h"
-#include "oddirs.h"
 #include "od_iostream.h"
+#include "oddirs.h"
 #include "oscommand.h"
 #include "testprog.h"
 #include "timer.h"
@@ -150,9 +150,6 @@ static bool runCommandWithSpace()
 
 static bool runCommandWithLongOutput()
 {
-#ifdef __win__
-    return true;
-#else
     //Run a command that will cause overflow in the input buffer. Output
     //Should be 100% correct, meaning that no bytes have been skipped or
     //inserted.
@@ -184,7 +181,6 @@ static bool runCommandWithLongOutput()
 
     mRunStandardTest( res, "Correctly reading long input stream" );
     return true;
-#endif
 }
 
 
