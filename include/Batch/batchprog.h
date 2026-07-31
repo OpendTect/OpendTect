@@ -14,8 +14,7 @@ ________________________________________________________________________
 #include "batchjobdispatch.h"
 #include "enums.h"
 
-#include "plugins.h"
-#include "debug.h"
+#include "moddepmgr.h" // IWYU pragma: keep  (needed by mLoad*Modules macros)
 #include "od_ostream.h"
 #include "odruncontext.h"
 #include "genc.h"
@@ -198,7 +197,7 @@ mGlobal(Batch) BatchProgram& BP();
 	OD::ModDeps().ensureLoaded( mod3nm ); }
 
 #define mRetError(s) \
-{ errorMsg(::toUiString(s)); mDestroyWorkers; return false; }
+{ errorMsg(::toUiString(s)); deleteAndNullPtr( proc ); return false; }
 
 #define mRetJobErr(s) \
 {  \
@@ -229,7 +228,6 @@ if ( comm_ ) \
 
 #ifdef __prog__
 # ifdef __win__
-#  include "moddepmgr.h"
 #  include "_execbatch.h"
 # endif
 #define mMainIsDefined

@@ -29,10 +29,6 @@ ________________________________________________________________________
 #include "separstr.h"
 
 
-#define mDestroyWorkers \
-{ deleteAndNullPtr( proc ); }
-
-
 #define mRetFileProb(fdesc,fnm,s) \
 	{ \
 	    BufferString msg(fdesc); \
@@ -199,8 +195,7 @@ bool BatchProgram::doWork( od_ostream& strm )
 	{ mMessage( "Could not close output data." ); }
 
 
-	mDestroyWorkers
-
+	deleteAndNullPtr( proc );
 	PtrMan<IOObj> ioobj = IOM().get( outmid );
 	if ( ioobj )
 	{
@@ -368,8 +363,7 @@ bool BatchProgram::doWork( od_ostream& strm )
 	    }
 	}
 
-	mDestroyWorkers
-
+	deleteAndNullPtr( proc );
 	PtrMan<IOObj> ioobj = IOM().get( outmid );
 	if ( ioobj )
 	{

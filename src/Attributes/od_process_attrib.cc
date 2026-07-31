@@ -29,16 +29,11 @@ ________________________________________________________________________
 #include "seis2ddata.h"
 #include "separstr.h"
 #include "jobcommunic.h"
-#include "moddepmgr.h"
 
 
 
 defineTranslatorGroup(AttribDescSet,"Attribute definitions");
 mDefSimpleTranslatorSelector(AttribDescSet);
-
-#define mDestroyWorkers \
-{ deleteAndNullPtr( proc ); }
-
 
 #define mRetFileProb(fdesc,fnm,s) \
 	{ \
@@ -150,14 +145,14 @@ bool BatchProgram::doWork( od_ostream& strm )
     int indexoutp = 0; BufferStringSet alllinenames;
     while ( true )
     {
-        BufferString multoutpstr = IOPar::compKey( "Output", indexoutp );
-        PtrMan<IOPar> output = pars().subselect( multoutpstr );
-        if ( !output )
-        {
-            if ( !indexoutp )
+	BufferString multoutpstr = IOPar::compKey( "Output", indexoutp );
+	PtrMan<IOPar> output = pars().subselect( multoutpstr );
+	if ( !output )
+	{
+	    if ( indexoutp == 0 )
 		{ indexoutp++; continue; }
 	    else
-	        break;
+		break;
 	}
 
 	output->get( sKey::LineKey(), alllinenames );
@@ -341,7 +336,7 @@ bool BatchProgram::doWork( od_ostream& strm )
 		     << " finished.\n" << od_endl;
 	}
 
-	mDestroyWorkers
+	deleteAndNullPtr( proc );
     }
 
     PtrMan<IOObj> ioobj = IOM().get( outmid );

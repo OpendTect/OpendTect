@@ -13,15 +13,13 @@ ________________________________________________________________________
 #include "ioman.h"
 #include "ioobj.h"
 #include "iopar.h"
-#include "keystrs.h"
 #include "jobcommunic.h"
-#include "moddepmgr.h"
-#include "progressmeter.h"
 #include "posinfo.h"
 #include "posinfo2d.h"
 #include "prestackgather.h"
 #include "prestackprocessor.h"
 #include "prestackprocessortransl.h"
+#include "progressmeterimpl.h"
 #include "seispsread.h"
 #include "seispswrite.h"
 #include "seispsioprov.h"
@@ -30,12 +28,7 @@ ________________________________________________________________________
 #include "survinfo.h"
 #include "trckeysampling.h"
 
-#include <iostream>
-
 using namespace PreStack;
-
-#define mDestroyWorkers \
-{ deleteAndNullPtr( procman ); writer = nullptr; }
 
 
 mLoad1Module("PreStackProcessing")
@@ -43,7 +36,7 @@ mLoad1Module("PreStackProcessing")
 bool BatchProgram::doWork( od_ostream& strm )
 {
     PtrMan<SeisPSWriter> writer;
-    ProcessManager* procman = nullptr;
+    ProcessManager* proc = nullptr;
 
     const int odversion = pars().odVersion();
     if ( odversion < 320 )
@@ -86,14 +79,14 @@ bool BatchProgram::doWork( od_ostream& strm )
     }
 
     const OD::GeomSystem gs = geomtype == Seis::VolPS ? OD::Geom3D : OD::Geom2D;
-    procman = new ProcessManager( gs );
-    if ( !procman )
+    proc = new ProcessManager( gs );
+    if ( !proc )
     {
 	mRetError( "Cannot create processor");
     }
 
     uiString errmsg;
-    if ( !PreStackProcTranslator::retrieve(*procman,setupioobj.ptr(),errmsg) )
+    if ( !PreStackProcTranslator::retrieve(*proc,setupioobj.ptr(),errmsg) )
     {
 	mRetError( errmsg );
     }
@@ -104,7 +97,7 @@ bool BatchProgram::doWork( od_ostream& strm )
     }
 
     PtrMan<IOObj> inputioobj;
-    if ( procman->needsPreStackInput() )
+    if ( proc->needsPreStackInput() )
     {
 	MultiID inputmid;
 	if ( !pars().get(ProcessManager::sKeyInputData(),inputmid) )
@@ -135,7 +128,7 @@ bool BatchProgram::doWork( od_ostream& strm )
     PtrMan<SeisPS3DReader> reader3d;
     PtrMan<SeisPS2DReader> reader2d;
     StepInterval<int> cdprange(0,0,1);
-    const bool needpsinput = procman->needsPreStackInput();
+    const bool needpsinput = proc->needsPreStackInput();
     if ( needpsinput )
     {
 	if ( geomtype==Seis::VolPS )
@@ -187,7 +180,7 @@ bool BatchProgram::doWork( od_ostream& strm )
     }
     else
     {
-	procman->getProcessor(0)->adjustPossibleCompArea( trcsampling );
+	proc->getProcessor(0)->adjustPossibleCompArea( trcsampling );
 	progressmeter.setTotalNr( trcsampling.totalNr() );
     }
 
@@ -246,15 +239,15 @@ bool BatchProgram::doWork( od_ostream& strm )
 	    setResumed();
 	}
 
-	procman->reset( false );
+	proc->reset( false );
 	BinID relbid;
 
-	if ( !procman->prepareWork() )
+	if ( !proc->prepareWork() )
 	{
 	    mRetError("\nCannot prepare processing.");
 	}
 
-	const BinID stepout = procman->getInputStepout();
+	const BinID stepout = proc->getInputStepout();
 
 	int nrfound = 0;
 	RefMan<Gather> sparegather;
@@ -264,7 +257,7 @@ bool BatchProgram::doWork( od_ostream& strm )
 	    for ( relbid.crl()=-stepout.crl(); relbid.crl()<=stepout.crl();
 					       relbid.crl()++)
 	    {
-		if ( !procman->wantsInput(relbid) )
+		if ( !proc->wantsInput(relbid) )
 		    continue;
 
 		const BinID inputbid( curbid.inl()+relbid.inl()*step.inl(),
@@ -297,7 +290,7 @@ bool BatchProgram::doWork( od_ostream& strm )
 			  .setTrcNr( inputbid.trcNr() );
 		    }
 
-		    if ( procman->needsPreStackInput() &&
+		    if ( proc->needsPreStackInput() &&
 			 !gather->readFrom(*inputioobj,*reader,tk) )
 		    {
 			sparegather = gather;
@@ -314,19 +307,19 @@ bool BatchProgram::doWork( od_ostream& strm )
 
 		nrfound ++;
 
-		procman->setInput( relbid, gather->id() );
+		proc->setInput( relbid, gather->id() );
 	    }
 	}
 
 	sparegather = nullptr;
 
 	if ( !needpsinput )
-	    procman->getProcessor(0)->retainCurBID( curbid );
+	    proc->getProcessor(0)->retainCurBID( curbid );
 
-	if ( nrfound && procman->process() )
+	if ( nrfound && proc->process() )
 	{
 	    auto gather = DPM(DataPackMgr::FlatID()).get<Gather>(
-						    procman->getOutputID() );
+						    proc->getOutputID() );
 	    if ( gather )
 	    {
 		const int nrtraces =
@@ -406,8 +399,8 @@ bool BatchProgram::doWork( od_ostream& strm )
 	}
     }
 
-    // It is VERY important workers are destroyed BEFORE the last sendState!!!
-    deleteAndNullPtr( procman );
+    // It is VERY important proc is destroyed BEFORE the last sendState!!!
+    deleteAndNullPtr( proc );
     writer = nullptr;
     gathers.setEmpty();
 

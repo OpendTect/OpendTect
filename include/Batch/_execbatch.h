@@ -8,11 +8,11 @@ ________________________________________________________________________
 
 -*/
 
+#include "batchprog.h"
 #include "commandlineparser.h"
-#include "envvars.h"
-#include "od_ostream.h"
-#include "oddirs.h"
+#include "moddepmgr.h"
 #include "oscommand.h"
+#include "plugins.h"
 
 #ifdef __win__
 # include <tchar.h>

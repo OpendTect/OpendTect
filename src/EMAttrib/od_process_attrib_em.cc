@@ -27,9 +27,8 @@ ________________________________________________________________________
 #include "executor.h"
 #include "ioman.h"
 #include "keystrs.h"
-#include "moddepmgr.h"
 #include "posprovider.h"
-#include "progressmeter.h"
+#include "progressmeterimpl.h"
 #include "seisbuf.h"
 #include "seistrc.h"
 #include "seiswrite.h"
@@ -37,10 +36,6 @@ ________________________________________________________________________
 
 using namespace Attrib;
 using namespace EM;
-
-#define mDestroyWorkers \
-	{ deleteAndNullPtr( proc ); }
-
 
 #define mErrRet(s) \
 { \
@@ -145,7 +140,7 @@ static bool prepare( od_ostream& strm, const IOPar& iopar, const char* idstr,
 
 #undef mErrRet
 #define mErrRet(s) \
-    { strm << '\n' << s << "\n\n"; mDestroyWorkers ; return false; }
+    { strm << '\n' << s << "\n\n"; deleteAndNullPtr( proc ); ; return false; }
 
 #define mErrRetNoProc(s) \
     { strm << '\n' << s << "\n\n"; return false; }
@@ -229,7 +224,8 @@ static bool process( od_ostream& strm, Processor*& proc, bool useoutwfunc,
 	    if ( !writer->put(*(tbuf->get(0))) )
 	    { mErrRet( writer->errMsg().getFullString() ); }
 
-	    delete tbuf->remove(0);
+	    SeisTrc* trc = tbuf->remove(0);
+	    delete trc;
 	}
 	else if ( useoutwfunc && res>= 0 )
 	    proc->outputs_[0]->writeTrc();
@@ -243,8 +239,8 @@ static bool process( od_ostream& strm, Processor*& proc, bool useoutwfunc,
     progressmeter.setFinished();
     mPIDMsg( "Processing done." );
 
-    // It is VERY important workers are destroyed BEFORE the last writeStatus!!!
-    mDestroyWorkers
+    // It is VERY important proc is destroyed BEFORE the last writeStatus!!!
+    deleteAndNullPtr( proc );
     return true;
 }
 
@@ -376,15 +372,15 @@ bool BatchProgram::doWork( od_ostream& strm )
 	    mErrRetNoProc( errstr.buf() );
 	}
 
-        if ( mIsUdf( sd.zrg.start_ ) )
+	if ( mIsUdf( sd.zrg.start_ ) )
 	    zbounds4mmproc = SI().zRange( true );
 	else
 	{
 	    if ( idx )
 	    {
-                zbounds4mmproc.start_ = sd.zrg.start_ < zbounds4mmproc.start_ ?
+		zbounds4mmproc.start_ = sd.zrg.start_ < zbounds4mmproc.start_ ?
 					sd.zrg.start_ : zbounds4mmproc.start_;
-                zbounds4mmproc.stop_ = sd.zrg.stop_ > zbounds4mmproc.stop_ ?
+		zbounds4mmproc.stop_ = sd.zrg.stop_ > zbounds4mmproc.stop_ ?
 					sd.zrg.stop_ : zbounds4mmproc.stop_;
 	    }
 	    else
