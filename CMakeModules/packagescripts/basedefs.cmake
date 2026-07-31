@@ -129,7 +129,7 @@ if ( MATLABLink IN_LIST PLUGINS )
 endif()
 
 set( LEGALOPTS zlib openssl sqlite proj hdf5 )
-set( LEGALTRGTS ZLIB::ZLIB OpenSSL::SSL SQLite::SQLite3 PROJ::proj hdf5::hdf5-shared )
+set( LEGALTRGTS ZLIB::ZLIB OpenSSL::SSL SQLite3::SQLite3 PROJ::proj hdf5::hdf5-shared )
 foreach( opt trgt IN ZIP_LISTS LEGALOPTS LEGALTRGTS )
     if ( ${trgt} IN_LIST OD_THIRDPARTY_TARGETS )
         list( APPEND LEGALLIST ${opt} )
