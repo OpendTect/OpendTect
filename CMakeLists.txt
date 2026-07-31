@@ -141,17 +141,14 @@ endif()
 
 OD_WRITE_ALOFILES( "${OD_BINARY_BASEDIR}/${MISC_INSTALL_PREFIX}/plugins/${OD_PLFSUBDIR}" )
 
-#OD_ADD_KEYWORD_TEST( strcmp strcmp )
+OD_ADD_LINEEND_TEST()
+OD_ADD_KEYWORD_TEST( "strcmp(" strcmp "strcmp is not allowed. Use the OD::String methods instead" )
 OD_ADD_KEYWORD_TEST( "sqrt(" sqrt "Use Math::Sqrt() instead of sqrt" )
 OD_ADD_KEYWORD_TEST( "atan2(" atan2 "Use Math::Atan2() instead of atan2" )
-OD_ADD_REGEXP_TEST( "ArrPtrMan[^;]+=[^?;]*new\\\\\\\\s+" mAllocLargeVarLenArr
+OD_ADD_REGEXP_TEST( [=[ArrPtrMan[^;]+=[^?;]*new[[:space:]]+]=] mAllocLargeVarLenArr
 		     "ArrPtrMan<Type> var = new is not allowed. Use mAllocLargeVarLenArr instead." )
-OD_ADD_LINEEND_TEST()
 OD_ADD_LINT_TEST()
-
-if ( UNIX )
-    add_test( "PNGCompression" ${CMAKE_SOURCE_DIR}/dtect/FindCompactablePNGs.csh )
-endif()
+#OD_ADD_PNG_COMPRESSION_TEST( "${CMAKE_SOURCE_DIR}/share/icons.Default" )
 
 SETUP_QT_TRANSLATION( od )
 

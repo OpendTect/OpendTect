@@ -13,7 +13,6 @@ ________________________________________________________________________
 #include "uimain.h"
 #include "uiparent.h"
 #include "bufstringset.h"
-#include "od_helpids.h"
 #include "settings.h"
 
 #include "q_uiimpl.h"
@@ -229,31 +228,35 @@ void uiFontList::listKeys( BufferStringSet& ids )
 uiFont& uiFontList::gtFont( const char* ky, const FontData* fd, const QFont* qf)
 {
     initialize();
-    if ( (!ky || !*ky) && !qf ) return *fonts_[0];
+    if ( StringView(ky).isEmpty() && !qf )
+	return *fonts_.first();
 
     for ( int idx=0; idx<fonts_.size(); idx++ )
     {
 	uiFont* fnt = fonts_[ idx ];
-	if ( ky && !strcmp(fnt->key(),ky) )
+	if ( ky && StringView(fnt->key()) == ky )
 	{
-	    if ( fd ) fnt->setFontData( *fd );
+	    if ( fd )
+		fnt->setFontData( *fd );
+
 	    return *fnt;
 	}
+
 	if( qf && fnt->qFont() == *qf )
 	{
-	    if ( fd ) fnt->setFontData( *fd );
+	    if ( fd )
+		fnt->setFontData( *fd );
+
 	    return *fnt;
 	}
     }
 
     if ( !fd && !fonts_.isEmpty() )
-	return *fonts_[0];
-    else
-    {
-	uiFont* nwFont = fd ? new uiFont( ky, *fd ) : new uiFont(ky);
-	fonts_ += nwFont;
-	return *nwFont;
-    }
+	return *fonts_.first();
+
+    auto* nwFont = fd ? new uiFont( ky, *fd ) : new uiFont(ky);
+    fonts_ += nwFont;
+    return *nwFont;
 }
 
 
@@ -308,7 +311,7 @@ void uiFontList::use( const Settings& settings )
 				    fontpar->find(ky) : BufferString::empty();
 	if ( !res.isEmpty() )
 	    add( ky, FontData(res.buf()) );
-	else if ( fontpar && strcmp(ky,"Fixed width") )
+	else if ( fontpar && StringView(ky) != "Fixed width" )
 	    { addOldGuess( *fontpar, ky ); haveguessed = true; }
 	else
 	{

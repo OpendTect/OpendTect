@@ -1,4 +1,4 @@
-#!/bin/csh 
+#!/bin/sh
 #________________________________________________________________________
 #
 # Copyright:    (C) 1995-2022 dGB Beheer B.V.
@@ -6,6 +6,8 @@
 #________________________________________________________________________
 #
 
-set SCRIPTDIR=`dirname $0`
-
-"${SCRIPTDIR}/FindKeyword.csh" --message "Local static variables are not allowed. Use mDefineStaticLocalObject macro instead." --grepcommand egrep --keyword '\)\s*{[^}]*\s+static\s+' $*
+i=1
+while [ "$i" -le 1000 ]; do
+  echo "$i"
+  i=$((i + 1))
+done

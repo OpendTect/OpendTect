@@ -1,4 +1,4 @@
-#!/bin/sh 
+#!/bin/sh
 #________________________________________________________________________
 #
 # Copyright:    (C) 1995-2022 dGB Beheer B.V.
@@ -48,7 +48,7 @@ if [ ! -z "${listfile+xxx}" ]; then
   bindir=`dirname $bindir`
   binfiles=`cd ${bindir}; cat $listfile | grep \\mod.h | awk -v dirnm=${bindir} '{print dirnm"/"$1;}'`
   inputfiles=${srcfiles}" "${binfiles}
-    
+
   for onefile in ${inputfiles};
   do
     if [ ! -f ${onefile} ]; then
@@ -60,6 +60,7 @@ if [ ! -z "${listfile+xxx}" ]; then
   if [ ! -z "${files}" ];then
     echo "Missing EOL at end of file found in: "
     echo $files
+    exit 1
   fi
 else
   for onefile in "$@"
@@ -73,7 +74,4 @@ else
       exit 1
     fi
   done
-  exit 0
 fi
-
-exit ${status}

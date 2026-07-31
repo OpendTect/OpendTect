@@ -20,7 +20,6 @@ ________________________________________________________________________________
 -*/
 #include "odgeom_2d.h"
 #include "odsurvey.h"
-#include "ioman.h"
 #include "posinfo2d.h"
 #include "survgeom2d.h"
 
@@ -103,7 +102,10 @@ void odGeom2D::getData( hAllocator allocator ) const
     const int sz = pos.size();
 
     const int ndim = 1;
-    ArrPtrMan<int> dims = new int[ndim];
+    mAllocLargeVarLenArr( int, dims, ndim )
+    if ( !mIsVarLenArrOK(dims) )
+	return;
+
     dims[0] = sz;
     int* trcnrs = static_cast<int*>(allocator(ndim, dims.ptr(), 'i'));
     float* spnrs = static_cast<float*>(allocator(ndim, dims.ptr(), 'f'));
