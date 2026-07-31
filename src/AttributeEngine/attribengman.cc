@@ -34,7 +34,6 @@ ________________________________________________________________________
 #include "unitofmeasure.h"
 #include "zdomain.h"
 
-#include <string.h>
 
 namespace Attrib
 {
@@ -776,8 +775,8 @@ void EngineMan::addNLADesc( const char* specstr, DescID& nladescid,
 	    //because constructor has strange behavior with embeded strings
 		    rawnmbufstr += inpname;
 		    rawnmbufstr.unEmbed( '[', ']' );
-		    if ( rawnmbufstr.buf() && inpname &&
-			 strcmp( rawnmbufstr.buf(), inpname ) )
+		    if ( !rawnmbufstr.isEmpty() && inpname &&
+			 rawnmbufstr != inpname )
 		    {
 			const char* tgname = descset.is2D() ? "2D Seismic Data"
 							    : "Seismic Data";

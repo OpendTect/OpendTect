@@ -80,7 +80,8 @@ bool uiKeyDesc::set( const char* statestr, const char* keystr )
 	state_ = OD::ControlButton;
     // Not considering 'Alt' button because that's usually OS-related
 
-    if ( !keystr || *keystr == '\0' )
+    const StringView keystrview( keystr );
+    if ( keystrview.isEmpty() )
 	return false;
 
     if ( keystr[1] != '\0' )
@@ -88,7 +89,7 @@ bool uiKeyDesc::set( const char* statestr, const char* keystr )
 	const char** strs = sKeyKeyStrs();
 	for ( int idx=26; strs[idx]; idx++ )
 	{
-	    if ( !strcmp( keystr, strs[idx] ) )
+	    if ( keystrview == strs[idx] )
 		{ key_ = speckeystransbl[idx-26]; break; }
 	}
     }

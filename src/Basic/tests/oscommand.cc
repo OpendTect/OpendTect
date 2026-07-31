@@ -136,11 +136,10 @@ static bool testAllPipes()
 static bool runCommandWithSpace()
 {
     FilePath scriptfp( GetScriptDir(), "script with space");
-#ifdef __win__
-    scriptfp.setExtension( "cmd" );
-#else
-    scriptfp.setExtension( "sh" );
-#endif
+    if ( __iswin__ )
+	scriptfp.setExtension( "cmd" );
+    else
+	scriptfp.setExtension( "sh" );
 
     OS::MachineCommand machcomm( scriptfp.fullPath() );
     mRunStandardTest( machcomm.execute(), "Command with space" );
@@ -157,12 +156,17 @@ static bool runCommandWithLongOutput()
     //Run a command that will cause overflow in the input buffer. Output
     //Should be 100% correct, meaning that no bytes have been skipped or
     //inserted.
-    //
-    const FilePath scriptfp( GetScriptDir(), "count_to_1000.csh" );
+
+    FilePath scriptfp( GetScriptDir(), "count_to_1000" );
+    if ( __iswin__ )
+	scriptfp.setExtension( "cmd" );
+    else
+	scriptfp.setExtension( "sh" );
+
     BufferString output, errmsg;
     OS::MachineCommand machcomm( scriptfp.fullPath() );
     mRunStandardTestWithError( machcomm.execute(output,&errmsg),
-		"Executing count_to_1000.csh script", errmsg );
+		"Executing count_to_1000 script", errmsg );
     mRunStandardTest( output.size() == 3892,
 		      "Output has expected size" );
 

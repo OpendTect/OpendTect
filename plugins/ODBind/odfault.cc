@@ -18,21 +18,18 @@ ________________________________________________________________________________
 ________________________________________________________________________________
 
 -*/
-#include "arrayndimpl.h"
+
+
 #include "coord.h"
 #include "emioobjinfo.h"
 #include "emmanager.h"
 #include "emsurfacetr.h"
-#include "executor.h"
 #include "faultstickset.h"
 #include "ioman.h"
 #include "ioobj.h"
 #include "odjson.h"
 #include "survinfo.h"
-#include "task.h"
 #include "zdomain.h"
-
-#include <string.h>
 
 #include "odsurvey.h"
 #include "odfault.h"
@@ -143,7 +140,10 @@ void odFaultObject::getStick( int idx, hAllocator allocator ) const
     }
 
     const int ndim_xy = 1;
-    ArrPtrMan<int> dims_xy = new int[ndim_xy];
+    mAllocLargeVarLenArr( int, dims_xy, ndim_xy )
+    if ( !mIsVarLenArrOK(dims_xy) )
+	return;
+
     const Geometry::FaultStick* stick = fss->getStick( idx );
     if ( !stick )
 	return;

@@ -180,7 +180,7 @@ endif()
 
 file( COPY "${CMAKE_SOURCE_DIR}/testscripts/script with space.${FILEEXT}"
       DESTINATION "${PROJECT_BINARY_DIR}/${MISC_INSTALL_PREFIX}/bin" )
-file( COPY "${CMAKE_SOURCE_DIR}/testscripts/count_to_1000.csh"
+file( COPY "${CMAKE_SOURCE_DIR}/testscripts/count_to_1000.${FILEEXT}"
       DESTINATION "${PROJECT_BINARY_DIR}/${MISC_INSTALL_PREFIX}/bin" )
 
 if ( NOT ${BUILDINSRC} )
