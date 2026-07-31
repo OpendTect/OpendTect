@@ -28,14 +28,12 @@ ________________________________________________________________________________
 #include "ioman.h"
 #include "keystrs.h"
 #include "latlong.h"
-#include "moddepmgr.h"
 #include "odjson.h"
 #include "settings.h"
 #include "surveyfile.h"
 #include "survinfo.h"
 #include "transl.h"
 
-#include <cstring>
 #include <filesystem>
 
 BufferString odSurvey::curbasedir_;
@@ -613,12 +611,6 @@ void survey_coords( hSurvey self, int iline, int xline, double* x, double* y )
         *x = coord.x_;
         *y = coord.y_;
     }
-}
-
-static const char* survey_crs( hSurvey self )
-{
-    const auto* p = static_cast<odSurvey*>(self);
-    return strdup( p->get_crsCode().buf() );
 }
 
 const char* survey_feature( hSurvey self )
