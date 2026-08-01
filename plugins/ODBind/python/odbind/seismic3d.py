@@ -37,6 +37,10 @@ class MergeMode(IntEnum):
     Crop = 1
     Blend = 2
 
+class Sampling(NamedTuple):
+    inlrg: tuple[int,int,int]
+    crlrg: tuple[int,int,int]
+    zrg: tuple[float,float,float]
 
 class Seismic3D(_SurveyObject):
     """
@@ -293,10 +297,8 @@ class Seismic3D(_SurveyObject):
         return tuple(ct_shape)
 
     @property
-    def ranges(self) -> NamedTuple:
+    def ranges(self) -> Sampling:
         """namedtuple[inlrg, crlrg, zrg]: inline, crossline and z range of 3D seismic volume (readonly)"""
-        Sampling = namedtuple("Sampling", ["inlrg", "crlrg", "zrg"])
-
         ct_inlrg = (ct.c_int * 3)()
         ct_crlrg = (ct.c_int * 3)()
         ct_zrg = (ct.c_float * 3)()
@@ -1333,7 +1335,9 @@ class Chunks3D(Sequence):
         chunkshape : tuple[int]
             the chunk dimensions as (inline, crossline, zsamples)
         overlap : tuple[int]
-            the overlap between chunks as (inline_overlap, crossline_overlap, zsample_overlap)
+            the minimum overlap between chunks as a percentage of the chunk size (inline_overlap, crossline_overlap,
+            zsample_overlap). The actual overlap will be determined by the chunk size and the work area shape so that
+            the first and last in any dimension is aligned with the work area boundary.
         mergemode : MergeMode
             how to handle data in the overlap, options are MergeMode.Average, MergeMode.Clip and MergeMode.Blend
             Average is just a simple mean of the overlapping chunks
@@ -1362,10 +1366,11 @@ class Chunks3D(Sequence):
         self._crlrg = crlrg if crlrg else sampling.crlrg
         self._zrg = zrg if zrg else sampling.zrg
         self._chunkshape = chunkshape
-        self._overlap = overlap
+        min_overlap = [round(sz*ov/100) for sz, ov in zip(chunkshape, overlap)]
+        self._compute_chunks(min_overlap)
         self._mergemode = mergemode
         overlap_frac = []
-        for sz, ov in zip(chunkshape, overlap):
+        for sz, ov in zip(chunkshape, self._overlap):
             overlap_frac.append(ov / sz)
 
         ct_overlap = (ct.c_float * 3)(*overlap_frac)
@@ -1373,8 +1378,6 @@ class Chunks3D(Sequence):
         self._seis3d._setblockpars(self._seis3d._handle, mode.encode(), ct_overlap)
         if not self._seis3d.isok:
             raise ValueError(self.errmsg)
-
-        self._compute_number_of_chunks()
 
     def __len__(self):
         """x.__len__() <==> len(x)
@@ -1384,26 +1387,30 @@ class Chunks3D(Sequence):
         number of chunks in dataset
         """
 
-        return self._numchunks
+        return self._chunks.shape[0]
 
-    def _getchunk(self, idx: int):
+    def get_chunk_range(self, idx: int) -> Sampling:
         inlidx, crlidx, zidx = self.subvol(idx)
         inlrg, crlrg, zrg = self.ranges
         inlgetrg = [
-            inlrg[0] + inlidx[0] * inlrg[2],
-            inlrg[0] + inlidx[1] * inlrg[2],
+            inlrg[0] + inlidx.start * inlrg[2],
+            inlrg[0] + (inlidx.stop-1) * inlrg[2],
             inlrg[2],
         ]
         crlgetrg = [
-            crlrg[0] + crlidx[0] * crlrg[2],
-            crlrg[0] + crlidx[1] * crlrg[2],
+            crlrg[0] + crlidx.start * crlrg[2],
+            crlrg[0] + (crlidx.stop-1) * crlrg[2],
             crlrg[2],
         ]
         zgetrg = [
-            zrg[0] + self._seis3d.z_value(zidx[0]),
-            zrg[0] + self._seis3d.z_value(zidx[1]),
+            zrg[0] + self._seis3d.z_value(zidx.start),
+            zrg[0] + self._seis3d.z_value(zidx.stop-1),
             zrg[2],
         ]
+        return Sampling(inlgetrg, crlgetrg, zgetrg)
+
+    def _getchunk(self, idx: int):
+        inlgetrg, crlgetrg, zgetrg = self.get_chunk_range(idx)
         return self.seis3d.getdata(inlgetrg, crlgetrg, zgetrg)
 
     def __getitem__(self, idx: int | slice):
@@ -1411,6 +1418,7 @@ class Chunks3D(Sequence):
 
         [chunk_number] returns a single chunk, negative indices wrap around.
         [chunk_number_slice] return a generator for a range of chunk numbers.
+        Chunks are ordered so the zsample ranges change the fastest and inline ranges the slowest.
 
         Parameters
         ----------
@@ -1467,34 +1475,39 @@ class Chunks3D(Sequence):
                 f"expected input of tuple[list[np.ndarray], dict] or Xarray.Dataset but got {vol}"
             )
 
-    def _compute_number_of_chunks(self):
-        """Recompute the number of chunks"""
+    def _compute_chunks(self, min_overlap):
+        """
+        Calculate the 3D chunk origin coordinates with a constant overlap
+        is each dimension of at least min_overlap such that the
+        first and last chunks align perfectly with the volume boundaries.
 
-        niln, ncrl, nz = self.shape
-        self._ninl_chunks = 1 + int(
-            math.ceil(
-                max(0, niln - self._chunkshape[0])
-                / (self._chunkshape[0] - self._overlap[0])
-            )
-        )
-        self._ncrl_chunks = 1 + int(
-            math.ceil(
-                max(0, ncrl - self._chunkshape[1])
-                / (self._chunkshape[1] - self._overlap[1])
-            )
-        )
-        self._nz_chunks = 1 + int(
-            math.ceil(
-                max(0, nz - self._chunkshape[2])
-                / (self._chunkshape[2] - self._overlap[2])
-            )
-        )
-        self._numchunks = self._ninl_chunks * self._ncrl_chunks * self._nz_chunks
+        Chunks are ordered so the zsample ranges change the fastest and inline ranges the slowest.
+        This corresponds to  the order expected by the C++ dataglueer.
+        The origin coordinates are indices relative to the work area volume origin
+        """
+        axis_starts = []
+        volume_shape = self.shape
+        chunk_shape = self.chunkshape
+        self._overlap = []
+        for L, C, O_min in zip(volume_shape, chunk_shape, min_overlap):
+            if L <= C:
+                raise ValueError("The work area shape must be bigger than the chunk size")
+            max_stride = C - O_min
+            if max_stride <= 0:
+                raise ValueError("Minimum overlap cannot be larger than the chunk size.")
+            num_chunks = int(np.ceil((L - C) / max_stride)) + 1
+            stride = (L - C) / (num_chunks - 1)
+            starts = np.round(np.arange(num_chunks) * stride).astype(int)
+            starts[-1] = L - C
+            axis_starts.append(starts)
+            self._overlap.append(round(C-stride))
+        X_start, Y_start, Z_start = np.meshgrid(axis_starts[0], axis_starts[1], axis_starts[2], indexing='ij')
+        self._chunks = np.stack([X_start.ravel(), Y_start.ravel(), Z_start.ravel()], axis=-1)
 
-    def subvol(self, idx):
-        """Return the inline, crossline and zsample ranges of the chunk at the given index
+    def subvol(self, idx: int) -> tuple[slice,slice,slice]:
+        """Return the inline, crossline and zsample index slices of the chunk at the given index
 
-        Chunks are ordered so the zsample ranges change the fastest and inline ranges te slowest
+        The slice indices are relative to the work_area origin.
 
         Parameters:
         -----------
@@ -1503,38 +1516,17 @@ class Chunks3D(Sequence):
 
         Returns:
         --------
-        tuple : [list[int], list[int], list[int]]
+        tuple : [slice, slice, slice]
             (inline range, crossline range, zsample range)
         """
 
-        if idx >= self._numchunks:
+        if idx >= self.__len__():
             raise IndexError(
-                f"idx must be less than number of chunks({self._numchunks})"
+                f"idx must be less than number of chunks({self.__len__()})"
             )
-
-        ninl, ncrl, nz = self.shape
-        idx = idx % self._numchunks
-        z_idx = idx % self._nz_chunks
-        crl_idx = int(idx / self._nz_chunks) % self._ncrl_chunks
-        inl_idx = int(idx / (self._ncrl_chunks * self._nz_chunks))
-
-        zstartidx = int(round(z_idx * (self.chunkshape[2] - self._overlap[2])))
-        zstopidx = zstartidx + self._chunkshape[2] - 1
-        if zstopidx > nz - 1:
-            zstopidx = nz - 1
-            zstartidx = zstopidx - self._chunkshape[2] + 1
-        crlstartidx = int(round(crl_idx * (self.chunkshape[1] - self._overlap[1])))
-        crlstopidx = crlstartidx + self._chunkshape[1] - 1
-        if crlstopidx > ncrl - 1:
-            crlstopidx = ncrl - 1
-            crlstartidx = crlstopidx - self._chunkshape[1] + 1
-        inlstartidx = int(round(inl_idx * (self.chunkshape[0] - self._overlap[0])))
-        inlstopidx = inlstartidx + self._chunkshape[0] - 1
-        if inlstopidx > ninl - 1:
-            inlstopidx = ninl - 1
-            inlstartidx = inlstopidx - self._chunkshape[0] + 1
+        startidx = self._chunks[idx]
         return (
-            [inlstartidx, inlstopidx, 1],
-            [crlstartidx, crlstopidx, 1],
-            [zstartidx, zstopidx, 1],
+            slice(int(startidx[0]), int(startidx[0]+self._chunkshape[0])),
+            slice(int(startidx[1]), int(startidx[1]+self._chunkshape[1])),
+            slice(int(startidx[2]), int(startidx[2]+self._chunkshape[2])),
         )
