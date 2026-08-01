@@ -711,6 +711,21 @@ hStringSet survey_trgroups()
     return res;
 }
 
+hStringSet survey_translkeys( const char* trgrpnm, bool forread )
+{
+    auto* res = new BufferStringSet;
+    if ( trgrpnm && TranslatorGroup::hasGroup(trgrpnm) )
+    {
+	auto& trgrp = TranslatorGroup::getGroup( trgrpnm );
+	const ObjectSet<const Translator>& templs = trgrp.templates();
+	for ( const auto* templ : templs )
+	    if ( templ->isUserSelectable(forread) )
+		res->add( templ->userName() );
+    }
+
+    return res;
+}
+
 const char* survey_info( hSurvey self )
 {
     const auto* p = static_cast<odSurvey*>(self);
