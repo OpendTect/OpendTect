@@ -18,25 +18,27 @@ ________________________________________________________________________
 #include "trigonometry.h"
 #include "undo.h"
 
+namespace MPE
+{
 
-RefMan<MPE::PolygonBodyEditor>
-	MPE::PolygonBodyEditor::create( const EM::PolygonBody& polygonsurf )
+RefMan<PolygonBodyEditor>
+	PolygonBodyEditor::create( const EM::PolygonBody& polygonsurf )
 {
     return new PolygonBodyEditor( polygonsurf );
 }
 
 
-MPE::PolygonBodyEditor::PolygonBodyEditor( const EM::PolygonBody& polygonsurf )
+PolygonBodyEditor::PolygonBodyEditor( const EM::PolygonBody& polygonsurf )
     : ObjectEditor(polygonsurf)
     , sowingpivot_(Coord3::udf())
 {}
 
 
-MPE::PolygonBodyEditor::~PolygonBodyEditor()
+PolygonBodyEditor::~PolygonBodyEditor()
 {}
 
 
-Geometry::ElementEditor* MPE::PolygonBodyEditor::createEditor()
+Geometry::ElementEditor* PolygonBodyEditor::createEditor()
 {
     RefMan<EM::EMObject> emobject = emObject();
     Geometry::Element* ge = emobject ? emobject->geometryElement() : nullptr;
@@ -45,7 +47,7 @@ Geometry::ElementEditor* MPE::PolygonBodyEditor::createEditor()
 }
 
 
-void MPE::PolygonBodyEditor::setLastClicked( const EM::PosID& pid )
+void PolygonBodyEditor::setLastClicked( const EM::PosID& pid )
 {
     RefMan<EM::EMObject> emobject = emObject();
     if ( !emobject )
@@ -62,7 +64,7 @@ void MPE::PolygonBodyEditor::setLastClicked( const EM::PosID& pid )
 }
 
 
-void MPE::PolygonBodyEditor::setSowingPivot( const Coord3 pos )
+void PolygonBodyEditor::setSowingPivot( const Coord3 pos )
 {
     if ( sowingpivot_.isDefined() && !pos.isDefined() )
 	sowinghistory_.erase();
@@ -73,7 +75,7 @@ void MPE::PolygonBodyEditor::setSowingPivot( const Coord3 pos )
 
 #define mCompareCoord( crd ) Coord3( crd, crd.z_*zfactor )
 
-void MPE::PolygonBodyEditor::getInteractionInfo( EM::PosID& nearestpid0,
+void PolygonBodyEditor::getInteractionInfo( EM::PosID& nearestpid0,
 					    EM::PosID& nearestpid1,
 					    EM::PosID& insertpid,
 					    const Coord3& mousepos,
@@ -145,7 +147,7 @@ void MPE::PolygonBodyEditor::getInteractionInfo( EM::PosID& nearestpid0,
 }
 
 
-bool MPE::PolygonBodyEditor::removeSelection( const Selector<Coord3>& selector )
+bool PolygonBodyEditor::removeSelection( const Selector<Coord3>& selector )
 {
     RefMan<EM::EMObject> emobject = emObject();
     mDynamicCastGet(EM::PolygonBody*,polygonsurf,emobject.ptr());
@@ -203,7 +205,7 @@ bool MPE::PolygonBodyEditor::removeSelection( const Selector<Coord3>& selector )
 }
 
 
-float MPE::PolygonBodyEditor::getNearestPolygon( int& polygon,
+float PolygonBodyEditor::getNearestPolygon( int& polygon,
 				const Coord3& mousepos, float zfactor ) const
 {
     if ( !mousepos.isDefined() )
@@ -290,7 +292,7 @@ float MPE::PolygonBodyEditor::getNearestPolygon( int& polygon,
 	return false;
 
 
-bool MPE::PolygonBodyEditor::setPosition( const EM::PosID& pid,
+bool PolygonBodyEditor::setPosition( const EM::PosID& pid,
 					  const Coord3& mpos )
 {
     if ( !mpos.isDefined() )
@@ -367,7 +369,7 @@ bool MPE::PolygonBodyEditor::setPosition( const EM::PosID& pid,
 }
 
 
-void MPE::PolygonBodyEditor::getPidsOnPolygon(	EM::PosID& nearestpid0,
+void PolygonBodyEditor::getPidsOnPolygon(	EM::PosID& nearestpid0,
 		    EM::PosID& nearestpid1, EM::PosID& insertpid, int polygon,
 		    const Coord3& mousepos, float zfactor ) const
 {
@@ -547,8 +549,10 @@ void MPE::PolygonBodyEditor::getPidsOnPolygon(	EM::PosID& nearestpid0,
 }
 
 
-EM::PosID& MPE::PolygonBodyEditor::lastclickedpid()
+EM::PosID& PolygonBodyEditor::lastclickedpid()
 {
     static EM::PosID lastclickedpid_;
     return lastclickedpid_;
 }
+
+} // namespace MPE

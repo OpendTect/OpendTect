@@ -11,47 +11,48 @@ ________________________________________________________________________
 
 #include "emhorizon3d.h"
 #include "emmanager.h"
-#include "emtracker.h"
 #include "geeditor.h"
 #include "mpeengine.h"
 #include "survinfo.h"
 #include "undo.h"
 
+namespace MPE
+{
 
-MPE::ObjectEditor::ObjectEditor( const EM::EMObject& emobj )
+ObjectEditor::ObjectEditor( const EM::EMObject& emobj )
     : editpositionchange(this)
 {
     emobject_ = const_cast<EM::EMObject*>( &emobj );
 }
 
 
-MPE::ObjectEditor::~ObjectEditor()
+ObjectEditor::~ObjectEditor()
 {
     detachAllNotifiers();
     deepErase( geeditors );
 }
 
 
-ConstRefMan<EM::EMObject> MPE::ObjectEditor::emObject() const
+ConstRefMan<EM::EMObject> ObjectEditor::emObject() const
 {
     return emobject_.get();
 }
 
 
-RefMan<EM::EMObject> MPE::ObjectEditor::emObject()
+RefMan<EM::EMObject> ObjectEditor::emObject()
 {
     return emobject_.get();
 }
 
 
-BufferString MPE::ObjectEditor::objectName() const
+BufferString ObjectEditor::objectName() const
 {
     ConstRefMan<EM::EMObject> emobject = emObject();
     return emobject ? emobject->name() : BufferString::empty();
 }
 
 
-EM::ObjectID MPE::ObjectEditor::objectID() const
+EM::ObjectID ObjectEditor::objectID() const
 {
     ConstRefMan<EM::EMObject> emobject = emObject();
     return emobject ? emobject->id() : EM::ObjectID::udf();
@@ -61,13 +62,13 @@ EM::ObjectID MPE::ObjectEditor::objectID() const
 static bool nodecloningenabled = false;
 static int nodeclonecountdown = -1;
 
-void MPE::ObjectEditor::enableNodeCloning( bool yn )
+void ObjectEditor::enableNodeCloning( bool yn )
 {
     nodecloningenabled = yn;
 }
 
 
-void MPE::ObjectEditor::startEdit( const EM::PosID& pid )
+void ObjectEditor::startEdit( const EM::PosID& pid )
 {
     changedpids.erase();
 
@@ -104,7 +105,7 @@ void MPE::ObjectEditor::startEdit( const EM::PosID& pid )
 }
 
 
-bool MPE::ObjectEditor::setPosition(const Coord3& np)
+bool ObjectEditor::setPosition(const Coord3& np)
 {
     if ( !movingnode.isValid() )
     {
@@ -138,15 +139,15 @@ bool MPE::ObjectEditor::setPosition(const Coord3& np)
 }
 
 
-void MPE::ObjectEditor::finishEdit()
+void ObjectEditor::finishEdit()
 {
     if ( changedpids.isEmpty() )
 	return;
 
     if ( snapafterthisedit )
     {
-//	const int trackeridx = MPE::engine().getTrackerByObject(emobject.id());
-//	EMTracker* tracker = MPE::engine().getTracker(trackeridx);
+//	const int trackeridx = engine().getTrackerByObject(emobject.id());
+//	EMTracker* tracker = engine().getTracker(trackeridx);
 //	tracker->snapPositions(alongmovingnodes);
     }
 
@@ -157,14 +158,14 @@ void MPE::ObjectEditor::finishEdit()
 }
 
 
-bool MPE::ObjectEditor::canSnapAfterEdit( const EM::PosID& pid ) const
+bool ObjectEditor::canSnapAfterEdit( const EM::PosID& pid ) const
 {
     ConstRefMan<EM::EMObject> emobject = emObject();
     if ( !emobject || pid.objectID()!=emobject->id() ||
 	 !engine().hasTracker(emobject->id()) )
 	return false;
 
-    const TrcKeyZSampling& trackvolume = MPE::engine().activeVolume();
+    const TrcKeyZSampling& trackvolume = engine().activeVolume();
 
     TypeSet<EM::PosID> nodes;
     getAlongMovingNodes( pid, nodes, 0 );
@@ -183,18 +184,18 @@ bool MPE::ObjectEditor::canSnapAfterEdit( const EM::PosID& pid ) const
 }
 
 
-bool MPE::ObjectEditor::getSnapAfterEdit() const { return snapafteredit; }
+bool ObjectEditor::getSnapAfterEdit() const { return snapafteredit; }
 
 
-void MPE::ObjectEditor::setSnapAfterEdit(bool yn) { snapafteredit=yn; }
+void ObjectEditor::setSnapAfterEdit(bool yn) { snapafteredit=yn; }
 
 
-void MPE::ObjectEditor::setEditIDs( const TypeSet<EM::PosID>* /* ids */ )
+void ObjectEditor::setEditIDs( const TypeSet<EM::PosID>* /* ids */ )
 {
 }
 
 
-void MPE::ObjectEditor::getEditIDs( TypeSet<EM::PosID>& ids ) const
+void ObjectEditor::getEditIDs( TypeSet<EM::PosID>& ids ) const
 {
     ConstRefMan<EM::EMObject> emobject = emObject();
     if ( !emobject )
@@ -215,26 +216,26 @@ void MPE::ObjectEditor::getEditIDs( TypeSet<EM::PosID>& ids ) const
 }
 
 
-bool MPE::ObjectEditor::addEditID( const EM::PosID& )
+bool ObjectEditor::addEditID( const EM::PosID& )
 {
     return false;
 }
 
 
-bool MPE::ObjectEditor::removeEditID( const EM::PosID& )
+bool ObjectEditor::removeEditID( const EM::PosID& )
 {
     return false;
 }
 
 
-Coord3 MPE::ObjectEditor::getPosition( const EM::PosID& pid ) const
+Coord3 ObjectEditor::getPosition( const EM::PosID& pid ) const
 {
     ConstRefMan<EM::EMObject> emobject = emObject();
     return emobject ? emobject->getPos( pid ) : Coord3::udf();
 }
 
 
-bool MPE::ObjectEditor::setPosition( const EM::PosID& pid,  const Coord3& np )
+bool ObjectEditor::setPosition( const EM::PosID& pid,  const Coord3& np )
 {
     RefMan<EM::EMObject> emobject = emObject();
     if ( !emobject )
@@ -248,7 +249,7 @@ bool MPE::ObjectEditor::setPosition( const EM::PosID& pid,  const Coord3& np )
 }
 
 #define mMayFunction( func ) \
-bool MPE::ObjectEditor::func( const EM::PosID& pid ) const \
+bool ObjectEditor::func( const EM::PosID& pid ) const \
 { \
     const Geometry::ElementEditor* ge = getEditor(); \
     if ( !ge ) return false; \
@@ -258,7 +259,7 @@ bool MPE::ObjectEditor::func( const EM::PosID& pid ) const \
 
 
 #define mGetFunction( func ) \
-Coord3 MPE::ObjectEditor::func( const EM::PosID& pid ) const\
+Coord3 ObjectEditor::func( const EM::PosID& pid ) const\
 {\
     const Geometry::ElementEditor* ge = getEditor();\
     if ( !ge ) return Coord3::udf();\
@@ -283,13 +284,13 @@ mGetFunction( getDirectionPlaneNormal )
 mGetFunction( getDirection )
 
 
-const Geometry::ElementEditor* MPE::ObjectEditor::getEditor() const
+const Geometry::ElementEditor* ObjectEditor::getEditor() const
 {
     return getNonConst(*this).getEditor();
 }
 
 
-Geometry::ElementEditor* MPE::ObjectEditor::getEditor()
+Geometry::ElementEditor* ObjectEditor::getEditor()
 {
     if ( !geeditors.isEmpty() )
 	return geeditors.first();
@@ -306,13 +307,13 @@ Geometry::ElementEditor* MPE::ObjectEditor::getEditor()
 }
 
 
-void MPE::ObjectEditor::editPosChangeTrigger( CallBacker* )
+void ObjectEditor::editPosChangeTrigger( CallBacker* )
 {
     editpositionchange.trigger();
 }
 
 
-void MPE::ObjectEditor::getAlongMovingNodes( const EM::PosID&,
+void ObjectEditor::getAlongMovingNodes( const EM::PosID&,
 					     TypeSet<EM::PosID>& nodes,
 					     TypeSet<float>* factors ) const
 {
@@ -320,3 +321,5 @@ void MPE::ObjectEditor::getAlongMovingNodes( const EM::PosID&,
     if ( factors )
 	factors->erase();
 }
+
+} // namespace MPE

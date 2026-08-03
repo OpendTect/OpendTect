@@ -17,66 +17,67 @@ ________________________________________________________________________
 #include "horizon2dselector.h"
 #include "sectiontracker.h"
 
+namespace MPE
+{
 
-RefMan<MPE::Horizon2DTracker>
-			MPE::Horizon2DTracker::create( EM::Horizon2D& hor )
+RefMan<Horizon2DTracker> Horizon2DTracker::create( EM::Horizon2D& hor )
 {
     return new Horizon2DTracker( hor );
 }
 
 
-MPE::Horizon2DTracker::Horizon2DTracker( EM::Horizon2D& hor )
+Horizon2DTracker::Horizon2DTracker( EM::Horizon2D& hor )
     : EMTracker(hor)
 {
     setTypeStr( EM::Horizon2D::typeStr() );
 }
 
 
-MPE::Horizon2DTracker::~Horizon2DTracker()
+Horizon2DTracker::~Horizon2DTracker()
 {
     delete seedpicker_;
 }
 
 // following override function implementations are added if ever we need them
 
-bool MPE::Horizon2DTracker::hasTrackingMgr() const
+bool Horizon2DTracker::hasTrackingMgr() const
 {
     return EMTracker::hasTrackingMgr();
 }
 
 
-bool MPE::Horizon2DTracker::createMgr()
+bool Horizon2DTracker::createMgr()
 {
     return EMTracker::createMgr();
 }
 
 
-void MPE::Horizon2DTracker::startFromSeeds( const TypeSet<TrcKey>& seeds )
+void Horizon2DTracker::startFromSeeds( const TypeSet<TrcKey>& seeds )
 {
     EMTracker::startFromSeeds( seeds );
 }
 
 
-void MPE::Horizon2DTracker::initTrackingMgr()
+void Horizon2DTracker::initTrackingMgr()
 {
     EMTracker::initTrackingMgr();
 }
 
 
-bool MPE::Horizon2DTracker::trackingInProgress() const
+bool Horizon2DTracker::trackingInProgress() const
 {
     return EMTracker::trackingInProgress();
 }
 
 
-void MPE::Horizon2DTracker::updateFlatCubesContainer(
+void Horizon2DTracker::updateFlatCubesContainer(
 				const TrcKeyZSampling& tkzs, bool addremove )
 {
     EMTracker::updateFlatCubesContainer( tkzs, addremove );
 }
 
 
-void MPE::Horizon2DTracker::stopTracking()
+void Horizon2DTracker::stopTracking()
 {
     EMTracker::stopTracking();
 }
@@ -84,7 +85,7 @@ void MPE::Horizon2DTracker::stopTracking()
 
 #define mErrRet(msg) { errmsg = msg; return false; }
 
-MPE::SectionTracker* MPE::Horizon2DTracker::createSectionTracker()
+SectionTracker* Horizon2DTracker::createSectionTracker()
 {
     RefMan<EM::EMObject> emobject = emObject();
     mDynamicCastGet(EM::Horizon2D*,hor2d,emobject.ptr());
@@ -100,7 +101,7 @@ MPE::SectionTracker* MPE::Horizon2DTracker::createSectionTracker()
 }
 
 
-MPE::EMSeedPicker*  MPE::Horizon2DTracker::getSeedPicker( bool createnew )
+EMSeedPicker*  Horizon2DTracker::getSeedPicker( bool createnew )
 {
     if ( seedpicker_ )
 	return seedpicker_;
@@ -111,3 +112,5 @@ MPE::EMSeedPicker*  MPE::Horizon2DTracker::getSeedPicker( bool createnew )
     seedpicker_ = new Horizon2DSeedPicker( *this );
     return seedpicker_;
 }
+
+} // namespace MPE

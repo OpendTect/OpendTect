@@ -15,7 +15,6 @@ ________________________________________________________________________
 #include "emtracker.h"
 #include "emundo.h"
 #include "horizonadjuster.h"
-#include "mpeengine.h"
 #include "sectionadjuster.h"
 #include "sectionextender.h"
 #include "sectiontracker.h"
@@ -31,7 +30,7 @@ class TrackerTask : public Task
 {
 public:
 TrackerTask( HorizonTrackerMgr& mgr, const TrcKeyValue& seed,
-		const TrcKeyValue& srcpos, const int seedid )
+		const TrcKeyValue& srcpos, int seedid )
     : mgr_(mgr)
     , seed_(seed)
     , srcpos_(srcpos)
@@ -97,9 +96,9 @@ bool execute() override
 
 
 HorizonTrackerMgr::HorizonTrackerMgr( EMTracker& emt )
-    : twm_(Threads::WorkManager::twm())
+    : finished(this)
     , tracker_(&emt)
-    , finished(this)
+    , twm_(Threads::WorkManager::twm())
 {
     queueid_ = twm_.addQueue(
 		    Threads::WorkManager::MultiThread, "Horizon Tracker" );

@@ -19,18 +19,21 @@ ________________________________________________________________________
 mImplFactory1Param( MPE::Horizon2DExtenderBase, EM::Horizon2D&,
 		    MPE::Horizon2DExtenderBase::factory );
 
-MPE::Horizon2DExtenderBase::Horizon2DExtenderBase( EM::Horizon2D& hor )
+namespace MPE
+{
+
+Horizon2DExtenderBase::Horizon2DExtenderBase( EM::Horizon2D& hor )
     : SectionExtender()
     , hor2d_(hor)
 {}
 
 
-MPE::Horizon2DExtenderBase::~Horizon2DExtenderBase()
+Horizon2DExtenderBase::~Horizon2DExtenderBase()
 {}
 
 
-MPE::Horizon2DExtenderBase*
-	MPE::Horizon2DExtenderBase::createInstance( EM::Horizon2D& hor )
+Horizon2DExtenderBase*
+	Horizon2DExtenderBase::createInstance( EM::Horizon2D& hor )
 {
     const auto& horextfact = factory();
     BufferString typestr = horextfact.getDefaultName();
@@ -41,17 +44,19 @@ MPE::Horizon2DExtenderBase*
 }
 
 
-void MPE::Horizon2DExtenderBase::setAngleThreshold( float rad )
+void Horizon2DExtenderBase::setAngleThreshold( float rad )
 {
     anglethreshold_ = cos( rad );
 }
 
 
-float MPE::Horizon2DExtenderBase::getAngleThreshold() const
-{ return Math::ACos(anglethreshold_); }
+float Horizon2DExtenderBase::getAngleThreshold() const
+{
+    return Math::ACos( anglethreshold_ );
+}
 
 
-void MPE::Horizon2DExtenderBase::setDirection( const TrcKeyValue& dir )
+void Horizon2DExtenderBase::setDirection( const TrcKeyValue& dir )
 {
     direction_ = dir;
     xydirection_ =
@@ -63,25 +68,25 @@ void MPE::Horizon2DExtenderBase::setDirection( const TrcKeyValue& dir )
 }
 
 
-const TrcKeyValue* MPE::Horizon2DExtenderBase::getDirection() const
+const TrcKeyValue* Horizon2DExtenderBase::getDirection() const
 {
     return &direction_;
 }
 
 
-void MPE::Horizon2DExtenderBase::setGeomID( const Pos::GeomID& geomid )
+void Horizon2DExtenderBase::setGeomID( const Pos::GeomID& geomid )
 {
     geomid_ = geomid;
 }
 
 
-Pos::GeomID MPE::Horizon2DExtenderBase::geomID() const
+Pos::GeomID Horizon2DExtenderBase::geomID() const
 {
     return geomid_;
 }
 
 
-int MPE::Horizon2DExtenderBase::nextStep()
+int Horizon2DExtenderBase::nextStep()
 {
     for ( int idx=0; idx<startpos_.size(); idx++ )
     {
@@ -93,7 +98,7 @@ int MPE::Horizon2DExtenderBase::nextStep()
 }
 
 
-void MPE::Horizon2DExtenderBase::addNeighbor( bool upwards, const TrcKey& src )
+void Horizon2DExtenderBase::addNeighbor( bool upwards, const TrcKey& src )
 {
     const StepInterval<int> colrange = hor2d_.geometry().colRange( geomid_ );
     TrcKey neighbor = src;
@@ -119,7 +124,7 @@ void MPE::Horizon2DExtenderBase::addNeighbor( bool upwards, const TrcKey& src )
 }
 
 
-float MPE::Horizon2DExtenderBase::getDepth( const TrcKey& src,
+float Horizon2DExtenderBase::getDepth( const TrcKey& src,
 					    const TrcKey& /* dest */) const
 {
     return hor2d_.getZ( src );
@@ -128,10 +133,12 @@ float MPE::Horizon2DExtenderBase::getDepth( const TrcKey& src,
 
 // MPE::Horizon2DExtender
 
-MPE::Horizon2DExtender::Horizon2DExtender( EM::Horizon2D& hor )
+Horizon2DExtender::Horizon2DExtender( EM::Horizon2D& hor )
     : Horizon2DExtenderBase(hor)
 {}
 
 
-MPE::Horizon2DExtender::~Horizon2DExtender()
+Horizon2DExtender::~Horizon2DExtender()
 {}
+
+} // namespace MPE

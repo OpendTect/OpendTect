@@ -143,13 +143,13 @@ protected:
     TypeSet<TrcKey>	junctions_;
     TypeSet<TrcKey>	eraselist_;
 
-    bool		blockpicking_;
-    bool		didchecksupport_;
+    bool		blockpicking_				= false;
+    bool		didchecksupport_			= false;
     EM::SectionID	sectionid_;
     TrackMode		trackmode_;
     TrcKeySampling	seedpickarea_;
-    bool		sowermode_;
-    Patch*		patch_;
+    bool		sowermode_				= false;
+    Patch*		patch_					= nullptr;
     Undo&		patchundo_;
 
 public:

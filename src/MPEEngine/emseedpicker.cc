@@ -19,7 +19,8 @@ ________________________________________________________________________
 #include "undo.h"
 
 
-namespace MPE {
+namespace MPE
+{
 
 class PatchUndoEvent: public UndoEvent
 {
@@ -63,11 +64,14 @@ Patch::Patch( const EMSeedPicker* seedpicker )
 {}
 
 
-Patch::~Patch() {}
+Patch::~Patch()
+{}
 
 
 const TypeSet<TrcKeyValue>&  Patch::getPath() const
-{ return seeds_; }
+{
+    return seeds_;
+}
 
 
 void Patch::getTrcKeySampling( TrcKeySampling& samplings ) const
@@ -79,7 +83,9 @@ void Patch::getTrcKeySampling( TrcKeySampling& samplings ) const
 
 
 int Patch::nrSeeds()
-{ return seeds_.size(); }
+{
+    return seeds_.size();
+}
 
 
 EM::PosID Patch::seedNode( int idx ) const
@@ -89,7 +95,6 @@ EM::PosID Patch::seedNode( int idx ) const
 	return EM::PosID::udf();
 
     const TrcKey tck = seeds_[idx].tk_;
-
     return EM::PosID( emobj->id(), tck.position() );
 }
 
@@ -119,6 +124,7 @@ Coord3 Patch::seedCoord( int idx ) const
 	    pos = hor2d->getPos( tck.geomID(), tck.trcNr());
 	}
     }
+
     pos.z_ = seeds_[idx].val_;
     return pos;
 }
@@ -128,6 +134,7 @@ int Patch::addSeed( const TrcKeyValue& tckv )
 {
     return addSeed( tckv, true );
 }
+
 
 int Patch::addSeed( const TrcKeyValue& tckv, bool sort )
 {
@@ -308,8 +315,8 @@ int Patch::findClosedSeed3d( const EM::PosID& pid )
 	    minidx = idx;
 	}
     }
-    return minidx;
 
+    return minidx;
 }
 
 
@@ -332,21 +339,21 @@ int Patch::findClosedSeed2d( const TrcKeyValue& tkv )
 
 
 void Patch::clear()
-{ seeds_.erase(); }
+{
+    seeds_.erase();
+}
 
+
+// MPE::EMSeedPicker
 
 EMSeedPicker::EMSeedPicker( EMTracker& tracker )
-    : tracker_(tracker)
-    , seedAdded(this)
+    : seedAdded(this)
     , seedRemoved(this)
     , seedToBeAddedRemoved(this)
-    , blockpicking_(false)
-    , didchecksupport_(false)
-    , trackmode_(TrackFromSeeds)
+    , tracker_(tracker)
     , selspec_(0)
-    , sowermode_(false)
-    , patch_(0)
-    , patchundo_( *new Undo() )
+    , trackmode_(TrackFromSeeds)
+    , patchundo_(*new Undo())
 {
     sectionid_ = EM::SectionID::def();
 }
@@ -394,20 +401,39 @@ void EMSeedPicker::endPatch( bool yn )
 
 
 void EMSeedPicker::setSeedPickArea( const TrcKeySampling& tks )
-{ seedpickarea_ = tks; }
+{
+    seedpickarea_ = tks;
+}
+
 
 const TrcKeySampling& EMSeedPicker::getSeedPickArea() const
-{ return seedpickarea_; }
+{
+    return seedpickarea_;
+}
+
 
 void EMSeedPicker::setTrackMode( TrackMode tm )
-{ trackmode_ = tm; }
+{
+    trackmode_ = tm;
+}
+
 
 EMSeedPicker::TrackMode EMSeedPicker::getTrackMode() const
-{ return trackmode_; }
+{
+    return trackmode_;
+}
 
 
-const Undo& EMSeedPicker::horPatchUndo() const	{ return patchundo_; }
-Undo& EMSeedPicker::horPatchUndo()		{ return patchundo_; }
+const Undo& EMSeedPicker::horPatchUndo() const
+{
+    return patchundo_;
+}
+
+
+Undo& EMSeedPicker::horPatchUndo()
+{
+    return patchundo_;
+}
 
 
 void EMSeedPicker::setSelSpec( const Attrib::SelSpec* as )
@@ -426,7 +452,9 @@ void EMSeedPicker::setSelSpec( const Attrib::SelSpec* as )
 
 
 const Attrib::SelSpec* EMSeedPicker::getSelSpec() const
-{ return &selspec_; }
+{
+    return &selspec_;
+}
 
 
 bool EMSeedPicker::startSeedPick()
@@ -456,6 +484,7 @@ void EMSeedPicker::addSeedToPatch( const TrcKeyValue& tckv )
     addSeedToPatch( tckv, true );
 }
 
+
 void EMSeedPicker::addSeedToPatch( const TrcKeyValue& tckv, bool sort )
 {
     if ( !patch_ )
@@ -473,18 +502,27 @@ void EMSeedPicker::addSeedToPatch( const TrcKeyValue& tckv, bool sort )
 
 
 bool EMSeedPicker::canUndo()
-{  return patchundo_.canUnDo(); }
+{
+    return patchundo_.canUnDo();
+}
+
 
 bool EMSeedPicker::canReDo()
-{  return patchundo_.canReDo(); }
+{
+    return patchundo_.canReDo();
+}
 
 
 bool EMSeedPicker::addSeed( const TrcKeyValue& seed, bool drop )
-{ return addSeed( seed, drop, seed ); }
+{
+    return addSeed( seed, drop, seed );
+}
 
 
 TrcKeyValue EMSeedPicker::getAddedSeed() const
-{ return addedseed_; }
+{
+    return addedseed_;
+}
 
 
 int EMSeedPicker::nrSeeds() const
@@ -524,8 +562,7 @@ int EMSeedPicker::indexOf( const TrcKey& tk ) const
 }
 
 
-bool EMSeedPicker::lineTrackDirection( BinID& dir,
-					    bool perptotrackdir ) const
+bool EMSeedPicker::lineTrackDirection( BinID& dir, bool perptotrackdir ) const
 {
     const TrcKeyZSampling& activevol = engine().activeVolume();
     dir = activevol.hsamp_.step_;
@@ -543,6 +580,5 @@ bool EMSeedPicker::lineTrackDirection( BinID& dir,
 
     return true;
 }
-
 
 } // namespace MPE

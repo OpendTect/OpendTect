@@ -22,46 +22,49 @@ ________________________________________________________________________
 #include "sectiontracker.h"
 
 
-MPE::EMTracker::EMTracker( EM::EMObject& emobj )
-    : emobject_(&emobj)
-    , trackingFinished(this)
+namespace MPE
+{
+
+EMTracker::EMTracker( EM::EMObject& emobj )
+    : trackingFinished(this)
+    , emobject_(&emobj)
 {
 }
 
 
-MPE::EMTracker::~EMTracker()
+EMTracker::~EMTracker()
 {
     deepErase( sectiontrackers_ );
 }
 
 
-ConstRefMan<EM::EMObject> MPE::EMTracker::emObject() const
+ConstRefMan<EM::EMObject> EMTracker::emObject() const
 {
     return emobject_.get();
 }
 
 
-RefMan<EM::EMObject> MPE::EMTracker::emObject()
+RefMan<EM::EMObject> EMTracker::emObject()
 {
     return emobject_.get();
 }
 
 
-BufferString MPE::EMTracker::objectName() const
+BufferString EMTracker::objectName() const
 {
     ConstRefMan<EM::EMObject> emobject = emObject();
     return emobject ? emobject->name() : BufferString::empty();
 }
 
 
-EM::ObjectID MPE::EMTracker::objectID() const
+EM::ObjectID EMTracker::objectID() const
 {
     ConstRefMan<EM::EMObject> emobject = emObject();
     return emobject ? emobject->id() : EM::ObjectID::udf();
 }
 
 
-bool MPE::EMTracker::snapPositions( const TypeSet<TrcKey>& list )
+bool EMTracker::snapPositions( const TypeSet<TrcKey>& list )
 {
     if ( !emobject_ )
 	return false;
@@ -90,8 +93,7 @@ bool MPE::EMTracker::snapPositions( const TypeSet<TrcKey>& list )
 }
 
 
-TrcKeyZSampling MPE::EMTracker::getAttribCube(
-					const Attrib::SelSpec& spec ) const
+TrcKeyZSampling EMTracker::getAttribCube( const Attrib::SelSpec& spec ) const
 {
     TrcKeyZSampling res( engine().activeVolume() );
     for ( const auto* sectiontracker : sectiontrackers_ )
@@ -104,7 +106,7 @@ TrcKeyZSampling MPE::EMTracker::getAttribCube(
 }
 
 
-void MPE::EMTracker::getNeededAttribs( TypeSet<Attrib::SelSpec>& res ) const
+void EMTracker::getNeededAttribs( TypeSet<Attrib::SelSpec>& res ) const
 {
     for ( const auto* sectiontracker : sectiontrackers_ )
     {
@@ -115,13 +117,13 @@ void MPE::EMTracker::getNeededAttribs( TypeSet<Attrib::SelSpec>& res ) const
     }
 }
 
-const char* MPE::EMTracker::errMsg() const
+const char* EMTracker::errMsg() const
 {
     return errmsg_.str();
 }
 
 
-MPE::SectionTracker* MPE::EMTracker::cloneSectionTracker()
+SectionTracker* EMTracker::cloneSectionTracker()
 {
     if ( sectiontrackers_.isEmpty() )
 	return nullptr;
@@ -145,7 +147,7 @@ MPE::SectionTracker* MPE::EMTracker::cloneSectionTracker()
 }
 
 
-MPE::SectionTracker* MPE::EMTracker::getSectionTracker( bool create )
+SectionTracker* EMTracker::getSectionTracker( bool create )
 {
     if ( !sectiontrackers_.isEmpty() )
 	return sectiontrackers_.first();
@@ -170,7 +172,7 @@ MPE::SectionTracker* MPE::EMTracker::getSectionTracker( bool create )
 }
 
 
-void MPE::EMTracker::applySetupAsDefault()
+void EMTracker::applySetupAsDefault()
 {
     SectionTracker* defaultsetuptracker = sectiontrackers_.isEmpty()
 					? nullptr : sectiontrackers_.last();
@@ -185,7 +187,7 @@ void MPE::EMTracker::applySetupAsDefault()
 }
 
 
-void MPE::EMTracker::fillPar( IOPar& iopar ) const
+void EMTracker::fillPar( IOPar& iopar ) const
 {
     for ( int idx=0; idx<sectiontrackers_.size(); idx++ )
     {
@@ -200,7 +202,7 @@ void MPE::EMTracker::fillPar( IOPar& iopar ) const
 }
 
 
-bool MPE::EMTracker::usePar( const IOPar& iopar )
+bool EMTracker::usePar( const IOPar& iopar )
 {
     int idx=0;
     while ( true )
@@ -250,7 +252,9 @@ bool MPE::EMTracker::usePar( const IOPar& iopar )
 }
 
 
-void MPE::EMTracker::trackingFinishedCB( CallBacker* )
+void EMTracker::trackingFinishedCB( CallBacker* )
 {
     trackingFinished.trigger();
 }
+
+} // namespace MPE

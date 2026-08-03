@@ -10,6 +10,7 @@ ________________________________________________________________________
 #include "horizon3dextender.h"
 
 #include "binidsurface.h"
+#include "emsurfaceauxdata.h"
 #include "horizon3dtracker.h"
 #include "mpeengine.h"
 
@@ -19,18 +20,21 @@ ________________________________________________________________________
 mImplFactory1Param( MPE::Horizon3DExtenderBase, EM::Horizon3D&,
 		    MPE::Horizon3DExtenderBase::factory );
 
-MPE::Horizon3DExtenderBase::Horizon3DExtenderBase( EM::Horizon3D& hor3d )
+namespace MPE
+{
+
+Horizon3DExtenderBase::Horizon3DExtenderBase( EM::Horizon3D& hor3d )
     : SectionExtender()
     , horizon_( hor3d )
 {}
 
 
-MPE::Horizon3DExtenderBase::~Horizon3DExtenderBase()
+Horizon3DExtenderBase::~Horizon3DExtenderBase()
 {}
 
 
-MPE::Horizon3DExtenderBase*
-	MPE::Horizon3DExtenderBase::createInstance( EM::Horizon3D& hor )
+Horizon3DExtenderBase*
+	Horizon3DExtenderBase::createInstance( EM::Horizon3D& hor )
 {
     const auto& horextfact = factory();
     BufferString typestr = horextfact.getDefaultName();
@@ -41,19 +45,19 @@ MPE::Horizon3DExtenderBase*
 }
 
 
-void MPE::Horizon3DExtenderBase::setDirection( const TrcKeyValue& bdval )
+void Horizon3DExtenderBase::setDirection( const TrcKeyValue& bdval )
 {
     direction_ = bdval;
 }
 
 
-int MPE::Horizon3DExtenderBase::maxNrPosInExtArea() const
+int Horizon3DExtenderBase::maxNrPosInExtArea() const
 {
     return mCast( int, getExtBoundary().hsamp_.totalNr() );
 }
 
 
-void MPE::Horizon3DExtenderBase::preallocExtArea()
+void Horizon3DExtenderBase::preallocExtArea()
 {
     const TrcKeySampling hrg = getExtBoundary().hsamp_;
     Geometry::BinIDSurface* bidsurf = horizon_.geometry().geometryElement();
@@ -62,13 +66,14 @@ void MPE::Horizon3DExtenderBase::preallocExtArea()
 }
 
 
-int MPE::Horizon3DExtenderBase::nextStep()
+int Horizon3DExtenderBase::nextStep()
 {
     if ( startpos_.isEmpty() )
 	return Finished();
 
     const bool fourdirs = direction_.lineNr()==0 && direction_.trcNr()==0;
     const bool eightdirs = direction_.lineNr()==1 && direction_.trcNr()==1;
+    const bool linetracking = !fourdirs && !eightdirs;
 
     TypeSet<TrcKey> sourcenodes( startpos_ );
 
@@ -133,15 +138,30 @@ int MPE::Horizon3DExtenderBase::nextStep()
 		    continue;
 		}
 */
+
 		if ( horizon_.isDefined(neighbor) )
+		{
+		    if ( linetracking )
+			continue;
+
+		    const float seedid =
+				horizon_.auxdata.getAuxDataVal( 2, neighbtk );
+		    if ( mIsZero(seedid,mDefEpsF) )
+		    {
+			const float newseedid =
+				horizon_.auxdata.getAuxDataVal( 2, sourcenode );
+			horizon_.auxdata.setAuxDataVal( 2, neighbtk, newseedid);
+		    }
+
 		    continue;
+		}
 
 		if ( !isExcludedPos(neighbtk) )
 		{
 		    const float depth = getDepth( sourcenode, neighbtk );
 		    if ( !mIsUdf(depth) &&
 			 horizon_.setZAndNodeSourceType(
-			 neighbtk,depth,setundo_,EM::EMObject::Auto) )
+				neighbtk,depth,setundo_,EM::EMObject::Auto) )
 		    {
 			addTarget( neighbtk, sourcenode );
 			change = true;
@@ -155,14 +175,14 @@ int MPE::Horizon3DExtenderBase::nextStep()
 }
 
 
-float MPE::Horizon3DExtenderBase::getDepth( const TrcKey& src,
+float Horizon3DExtenderBase::getDepth( const TrcKey& src,
 					    const TrcKey& /* dest */) const
 {
     return horizon_.getZ( src );
 }
 
 
-const TrcKeyZSampling& MPE::Horizon3DExtenderBase::getExtBoundary() const
+const TrcKeyZSampling& Horizon3DExtenderBase::getExtBoundary() const
 {
     return extboundary_.isEmpty() || extboundary_.hsamp_.totalNr()==1
 	    ? engine().activeVolume() : extboundary_;
@@ -171,10 +191,12 @@ const TrcKeyZSampling& MPE::Horizon3DExtenderBase::getExtBoundary() const
 
 // MPE::Horizon3DExtender
 
-MPE::Horizon3DExtender::Horizon3DExtender( EM::Horizon3D& hor3d )
+Horizon3DExtender::Horizon3DExtender( EM::Horizon3D& hor3d )
    : Horizon3DExtenderBase(hor3d)
 {}
 
 
-MPE::Horizon3DExtender::~Horizon3DExtender()
+Horizon3DExtender::~Horizon3DExtender()
 {}
+
+} // namespace MPE

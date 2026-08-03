@@ -14,7 +14,6 @@ ________________________________________________________________________
 #include "emtracker.h"
 #include "horizon2dextender.h"
 #include "horizonadjuster.h"
-#include "mpeengine.h"
 #include "sectiontracker.h"
 #include "sorting.h"
 #include "survgeom2d.h"
