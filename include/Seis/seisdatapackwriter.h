@@ -32,6 +32,11 @@ public:
     void		setSelection(const TrcKeyZSampling&);
     void		setSelection(const TrcKeySampling&,
 				     const Interval<int>&);
+			/*!< Sets the full output selection, applied as SelData
+			     to the underlying SeisTrcWriter. Use this for the
+			     complete volume that will be written, including
+			     when processing is split into memory-sized chunks.
+			*/
     const RegularSeisDataPack* dataPack() const { return dp_.ptr(); }
     void		setNextDataPack(const RegularSeisDataPack&);
     void		releaseDataPack();
@@ -54,6 +59,13 @@ private:
     void			setCubeIdxRange();
     bool			setTrc();
     void			adjustSteeringScaler(int compidx);
+    void			setCurrentDataPackScope(const TrcKeySampling&);
+				/*!< Sets the current scope of this writer as
+				     a Task, i.e. the sampling of the datapack
+				     that is being written now. Called from
+				     setNextDataPack when each chunk's datapack
+				     is provided.
+				*/
 
     TypeSet<int>		compidxs_;
     MultiID			mid_;

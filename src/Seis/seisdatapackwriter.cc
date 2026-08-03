@@ -171,7 +171,7 @@ void SeisDataPackWriter::setNextDataPack( const RegularSeisDataPack& dp )
 
     nrdone_ = 0;
     zrg_ = Interval<int>( 0, dp_->sampling().nrZ()-1 );
-    setSelection( dp_->sampling().hsamp_, cubezrgidx_ );
+    setCurrentDataPackScope( dp_->sampling().hsamp_ );
 }
 
 
@@ -197,7 +197,6 @@ void SeisDataPackWriter::setSelection( const TrcKeyZSampling& tkzs )
 void SeisDataPackWriter::setSelection( const TrcKeySampling& tks,
 				       const Interval<int>& cubezrgidx )
 {
-    tks_ = tks;
     if ( !zrg_.includes(cubezrgidx) )
     {
 	pErrMsg("Invalid selection");
@@ -206,13 +205,18 @@ void SeisDataPackWriter::setSelection( const TrcKeySampling& tks,
     }
 
     cubezrgidx_.set( cubezrgidx, 1 );
+    auto* seldata = new Seis::RangeSelData( tks );
+    if ( writer_ )
+	writer_->setSelData( seldata );
+}
 
+
+void SeisDataPackWriter::setCurrentDataPackScope( const TrcKeySampling& tks )
+{
+    tks_ = tks;
     iterator_.setSampling( tks_ );
     totalnr_ = posinfo_ ? posinfo_->totalSizeInside( tks_ )
 			: mCast(int,tks_.totalNr());
-    auto* seldata = new Seis::RangeSelData( tks_ );
-    if ( writer_ )
-	writer_->setSelData( seldata );
 }
 
 
