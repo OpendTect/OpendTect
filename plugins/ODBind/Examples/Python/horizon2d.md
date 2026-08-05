@@ -114,7 +114,7 @@ hors
 ```
 
 ### Horizon2D.infos() function
-This returns a dictionary or a Pandas DataFrame (depending on the value of Horizon2D.use_dataframe) with basic information for the listed horizons (or all horizons if no list provided) in the given survey.
+This returns a dictionary or a Pandas DataFrame (depending on the value of the optional use_dataframe parameter) with basic information for the listed horizons (or all horizons if no list provided) in the given survey.
 
 ```python
 Horizon2D.infos(f3demo)

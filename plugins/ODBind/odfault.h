@@ -21,7 +21,7 @@ ________________________________________________________________________________
 -*/
 #include "odbindmod.h"
 
-#include "emhorizon2d.h"
+#include "faultstickset.h"
 #include "odjson.h"
 #include "ptrman.h"
 #include "trckeysampling.h"
@@ -38,9 +38,10 @@ class Array2D;
 class odFaultObject : public odSurveyObject
 {
 public:
-    odFaultObject(const odSurvey& thesurvey, const char* name, const char* tgname);
-    odFaultObject(const odSurvey& thesurvey, const char* name, const char* tgname,
-	       bool overwrite );
+    odFaultObject(const odSurvey& thesurvey, const char* name,
+		  const char* tgname);
+    odFaultObject(const odSurvey& thesurvey, const char* name,
+		  const char* tgname, bool overwrite );
     ~odFaultObject();
 
     void	getFeature(OD::JSON::Object&, bool towgs=true) const override;
@@ -100,4 +101,3 @@ mDeclareRemoveBindings(FaultStickSet, faultstickset)
 
 mExternC(ODBind) void faultstickset_getstick(hFaultStickSet, int, hAllocator);
 mExternC(ODBind) int faultstickset_stickcount(hFaultStickSet);
-
