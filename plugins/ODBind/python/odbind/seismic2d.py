@@ -100,13 +100,16 @@ class Seismic2D(_SurveyObject):
     def close(self):
         self._close(self._handle)
 
-    def line_info(self, forlinenms: list[str]=[]):
+    def line_info(self, forlinenms: list[str]=[], use_dataframe: bool|None=None):
         """Return basic information for all or a subset of lines in this 2D dataset.
         
         Parameters
         ----------
         forlinenms : list[str]=[]
             (Optional) a list of line names to use. For an empty list information for all lines in the dataset is provided.
+        use_dataframe : bool | None
+            Return a Pandas Dataframe instead of a list of dicts. Overrides the class
+            default of Seismic2D.use_dataframe when set.
         
         Returns
         -------
@@ -116,9 +119,10 @@ class Seismic2D(_SurveyObject):
         fornmsptr = makestrlist(forlinenms)
         infolist = pyjsonstr(self._lineinfo(self._handle, fornmsptr ))
         stringset_del(fornmsptr)
-        return self.dictlist_to_dataframe(infolist) if Seismic2D.use_dataframe else infolist 
+        use_dataframe = self.use_dataframe if use_dataframe is None else use_dataframe
+        return self.dictlist_to_dataframe(infolist) if use_dataframe else infolist 
 
-    def getdata(self, linenm: str):
+    def getdata(self, linenm: str, use_xarray: bool|None=None):
         """Return the 2D seismic data for the given linenm
 
         Reads all components and various supporting data. Return format determined by
@@ -157,6 +161,9 @@ class Seismic2D(_SurveyObject):
         ----------
         linenm : str
             line name to read
+        use_xarray : bool | None
+            Return an Xarray.Dataset instead of a tuple. Overrides the class
+            default of Seismic2D.use_xarray when set.
 
         Returns
         -------
@@ -187,7 +194,8 @@ class Seismic2D(_SurveyObject):
                     'dims': dims
                 }
         data = [allocator.allocated_arrays[compnms.index(compnm)] for compnm in compnms]
-        return self.to_xarray(data, info) if Seismic2D.use_xarray else (data, info,)
+        use_xarray = self.use_xarray if use_xarray is None else use_xarray
+        return self.to_xarray(data, info) if use_xarray else (data, info,)
 
     def to_xarray(self, data: list, info: dict):
         """Convert 2D seismic data in simple list+dict format to an Xarray Dataset

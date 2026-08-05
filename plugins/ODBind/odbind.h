@@ -23,6 +23,8 @@ ________________________________________________________________________________
 #include "odbindmod.h"
 #include "gendefs.h"
 
+// Returned const char* (getUserDataDir, getUserSurvey, stringset_get) is
+// malloc'd by the callee; the caller must release it with cstring_del().
 mExternC(ODBind) void		cstring_del(char*);
 mExternC(ODBind) const char*	getUserDataDir();
 mExternC(ODBind) const char*	getUserSurvey();

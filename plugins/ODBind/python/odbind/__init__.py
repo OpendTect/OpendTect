@@ -187,7 +187,7 @@ def pystrlist(stringsetptr: ct.c_void_p, autodel: bool=True) ->list[str]:
     """
     res = []
     for idx in range(stringset_size(stringsetptr)):
-        res.append(pystr(stringset_get(stringsetptr, idx), False))
+        res.append(pystr(stringset_get(stringsetptr, idx)))
     if autodel:
         stringset_del(stringsetptr)
     return res
@@ -223,4 +223,6 @@ def is_none_slice(x: slice) ->bool:
     """Return True if all slice components are None"""
     return x==slice(None, None, None)
 
-__all__ = ['survey', 'horizon2d', 'horizon3d', 'well']
+__all__ = ['get_lib_name', 'wrap_function', 'load_gssapi', 'NumpyAllocator',
+           'pystr', 'get_user_datadir', 'get_user_survey', 'makestrlist',
+           'pystrlist', 'pyjsonstr', 'unpack_slice', 'is_none_slice']

@@ -144,6 +144,8 @@ pixi.lock
 
 #Other
 relinfo/ver.*
+.codegraph/
+Agents.md
 
 #Platform dependent files
 # Windows

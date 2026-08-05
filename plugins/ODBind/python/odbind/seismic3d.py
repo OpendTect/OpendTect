@@ -497,7 +497,7 @@ class Seismic3D(_SurveyObject):
 
         return tuple(ct_dist)
 
-    def getdata(self, inlrg: list[int], crlrg: list[int], zrg: list[float]):
+    def getdata(self, inlrg: list[int], crlrg: list[int], zrg: list[float], use_xarray: bool|None=None):
         """Read a rectangular block of data from the 3D seismic volume
 
         Reads all components and various supporting data. Return format determined by
@@ -545,6 +545,9 @@ class Seismic3D(_SurveyObject):
             Crossline start, stop and step to read
         zrg : list[float]
             Z start, stop and step to read (in display units)
+        use_xarray : bool | None
+            Return an Xarray.Dataset instead of a tuple. Overrides the class
+            default of Seismic3D.use_xarray when set.
 
         Returns
         -------
@@ -582,14 +585,8 @@ class Seismic3D(_SurveyObject):
             "dims": dims,
         }
         data = [allocator.allocated_arrays[compnms.index(compnm)] for compnm in compnms]
-        return (
-            self.to_xarray(data, info)
-            if Seismic3D.use_xarray
-            else (
-                data,
-                info,
-            )
-        )
+        use_xarray = self.use_xarray if use_xarray is None else use_xarray
+        return self.to_xarray(data, info) if use_xarray else (data, info,)
 
     def putdata(self, indata):
         """Write a 3D seismic volume from either a tuple or Xarray.Dataset of 3D seismic data
@@ -1491,7 +1488,9 @@ class Chunks3D(Sequence):
         self._overlap = []
         for L, C, O_min in zip(volume_shape, chunk_shape, min_overlap):
             if L <= C:
-                raise ValueError("The work area shape must be bigger than the chunk size")
+                axis_starts.append([0])
+                self._overlap.append(0)
+                continue
             max_stride = C - O_min
             if max_stride <= 0:
                 raise ValueError("Minimum overlap cannot be larger than the chunk size.")
@@ -1525,8 +1524,7 @@ class Chunks3D(Sequence):
                 f"idx must be less than number of chunks({self.__len__()})"
             )
         startidx = self._chunks[idx]
-        return (
-            slice(int(startidx[0]), int(startidx[0]+self._chunkshape[0])),
-            slice(int(startidx[1]), int(startidx[1]+self._chunkshape[1])),
-            slice(int(startidx[2]), int(startidx[2]+self._chunkshape[2])),
+        return tuple(
+            slice(int(s), min(int(s + cs), L))
+            for s, cs, L in zip(startidx, self._chunkshape, self.shape)
         )

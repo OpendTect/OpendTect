@@ -22,6 +22,7 @@ ________________________________________________________________________________
 #include "coord.h"
 #include "emioobjinfo.h"
 #include "emmanager.h"
+#include "emobject.h"
 #include "emsurfacetr.h"
 #include "faultstickset.h"
 #include "ioman.h"

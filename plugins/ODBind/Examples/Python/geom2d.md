@@ -85,7 +85,7 @@ datasets
 ```
 
 ### Geom2D.infos() function
-This returns a dictionary or a Pandas DataFrame (depending on the value of Geom2D.use_dataframe) with basic information for the listed 2D seismic line geometries (or all lines if no list provided) in the given survey.
+This returns a dictionary or a Pandas DataFrame (depending on the value of the optional use_dataframe parameter) with basic information for the listed 2D seismic line geometries (or all lines if no list provided) in the given survey.
 
 ```python
 Geom2D.infos(f3demo)

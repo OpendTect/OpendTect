@@ -6,7 +6,7 @@ jupyter:
       extension: .md
       format_name: markdown
       format_version: '1.3'
-      jupytext_version: 1.14.5
+      jupytext_version: 1.19.5
   kernelspec:
     display_name: Python 3 (ipykernel)
     language: python
@@ -132,11 +132,10 @@ wells
 ```
 
 ### Well.infos() functions
-This returns a dictionary or a Pandas DataFrame (depending on the value of Well.use_dataframe) with basic information for the listed wells (or all wells if no list provided) in the given survey.
+This returns a dictionary or a Pandas DataFrame (depending on the optional use_dataframe parameter) with basic information for the listed wells (or all wells if no list provided) in the given survey.
 
 ```python
-Well.use_dataframe = True
-Well.infos(f3demo)
+Well.infos(f3demo, use_dataframe=True)
 ```
 
 ### Well.features() function

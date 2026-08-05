@@ -6,7 +6,7 @@ jupyter:
       extension: .md
       format_name: markdown
       format_version: '1.3'
-      jupytext_version: 1.14.5
+      jupytext_version: 1.19.5
   kernelspec:
     display_name: Python 3 (ipykernel)
     language: python
@@ -226,8 +226,12 @@ vols = Seismic3D.names(f3demo)
 vols
 ```
 
+```python
+
+```
+
 ### Seismic3D.infos() functions
-Return basic information for the listed 3D volumes (or all volumes if no list provided) in the given survey in either a Pandas DataFrame or simple list+dict format depending on the value of Seismic3D.use_dataframe.
+Return basic information for the listed 3D volumes (or all volumes if no list provided) in the given survey in either a Pandas DataFrame or simple list+dict format depending on the value of the optional use_dataframe parameter.
 
 ```python
 Seismic3D.infos(f3demo)

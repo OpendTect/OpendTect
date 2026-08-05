@@ -1,12 +1,7 @@
 import pytest
 import json
 import numpy as np
-from odbind.survey import Survey
 from odbind.geom2d import Geom2D
-
-@pytest.fixture
-def survey(request):
-    return Survey(request.config.getoption('--survey'))
 
 
 def test_Geom2D_class(survey):

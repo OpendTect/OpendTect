@@ -1,11 +1,6 @@
 import pytest
 import numpy as np
-from odbind.survey import Survey
 from odbind.horizon3d import Horizon3D
-
-@pytest.fixture
-def survey(request):
-    return Survey(request.config.getoption('--survey'))
 
 def make_horizon3d(survey):
     si = survey.info()
@@ -64,12 +59,10 @@ def test_Horizon3D_class(survey):
     assert test.ranges == (data_info['iline'], data_info['xline'],)
 #
 # Read and verify horizon z and data
-    Horizon3D.use_xarray = False
-    test_data, test_info = test.getdata(data_info['comp'][1:])
+    test_data, test_info = test.getdata(data_info['comp'][1:], use_xarray=False)
     for key in data_info:
         assert data_info[key] == pytest.approx(test_info[key])
     np.testing.assert_allclose(data, test_data, atol=1e-3)
-    Horizon3D.use_xarray = True
 #
 # Convert to/from Xarray Dataset
     xrdata = test.to_xarray(test_data, test_info)
