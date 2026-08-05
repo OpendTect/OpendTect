@@ -137,7 +137,7 @@ class Horizon3D(_SurveyObject):
 
         return allocator.allocated_arrays[0]
 
-    def getdata(self, attribnms : list[str]=[]):
+    def getdata(self, attribnms : list[str]=[], use_xarray: bool|None=None):
         """Return the 3D horizon data
 
         Return format determined by current setting of Horizon3D.use_xarray.
@@ -167,6 +167,9 @@ class Horizon3D(_SurveyObject):
         ----------
         attribs : list[str] = []
             list of attributes to include, default is none
+        use_xarray : bool | None
+            Return an Xarray.Dataset instead of a tuple. Overrides the class
+            default of Horizon3D.use_xarray when set.
 
         Returns
         -------
@@ -191,7 +194,7 @@ class Horizon3D(_SurveyObject):
                 info['comp'].append(attrib)
                 data.append( self.get_attrib(attrib))
 
-        return self.to_xarray(data, info) if Horizon3D.use_xarray else (data, info,)
+        return self.to_xarray(data, info) if (self.use_xarray if use_xarray is None else use_xarray) else (data, info,)
 
     def to_xarray(self, data: list[np.ndarray], info: dict):
         """Convert 3D horizon data in simple list+dict format to an Xarray Dataset

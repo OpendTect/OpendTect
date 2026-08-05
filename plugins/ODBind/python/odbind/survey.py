@@ -1,4 +1,4 @@
-from odbind import wrap_function, LIBODB, makestrlist, NumpyAllocator, pyjsonstr, pystr, pystrlist, stringset_del 
+from odbind import wrap_function, LIBODB, makestrlist, NumpyAllocator, pyjsonstr, pystr, pystrlist, stringset_del
 import ctypes as ct
 
 class Survey(object):
@@ -51,7 +51,8 @@ class Survey(object):
             raise ValueError(self.errmsg)
 
     def __del__(self):
-        Survey._del(self._handle)
+        if self._handle:
+            Survey._del(self._handle)
 
     @property
     def handle(self) ->ct.c_void_p:
@@ -124,7 +125,7 @@ class Survey(object):
         -------
         tuple[int, int] : The nearest inline and crossline location to the given X and Y coordinates
 
-        """ 
+        """
         iline = ct.c_int()
         xline = ct.c_int()
         Survey._bin(self._handle, x, y, ct.byref(iline), ct.byref(xline))
@@ -178,7 +179,7 @@ class Survey(object):
 
     def info(self) ->dict:
         """Return basic information for the OpendTect survey.
-        
+
         Returns
         -------
         dict
@@ -186,7 +187,7 @@ class Survey(object):
         """
         return pyjsonstr(Survey._info(self._handle))
 
-    def has_object(self, objname:str, trgrpnm:str=None)  ->bool:
+    def has_object(self, objname:str, trgrpnm:str)  ->bool:
         """Return True if the specified object exists for the specified translator group in the current survey
 
         Parameters
@@ -201,11 +202,11 @@ class Survey(object):
         True of it exists, False otherwise
 
         """
-        return Survey._hasobject(self._handle, objname.encode(), trgrpnm.encode() if trgrpnm else None)
+        return Survey._hasobject(self._handle, objname.encode(), trgrpnm.encode())
 
-    def get_object_info(self, objname:str, trgrpnm:str=None) ->dict:
+    def get_object_info(self, objname:str, trgrpnm:str) ->dict:
         """Return information for the specified object and translator group in the current survey.
-        
+
         Parameters
         ----------
         objname : str
@@ -218,18 +219,18 @@ class Survey(object):
         dict
 
         """
-        res = Survey._getobjinfo(self._handle, objname.encode(), trgrpnm.encode() if trgrpnm else None)
+        res = Survey._getobjinfo(self._handle, objname.encode(), trgrpnm.encode())
         if not self.isok:
             raise TypeError(self.errmsg)
         return pyjsonstr(res)
 
     def get_object_info_byid(self, id:str) ->dict:
         """Return information for the specfied database id
-        
+
         Parameters
         ----------
         id : str
-            the database id 
+            the database id
 
         Returns
         -------
@@ -243,11 +244,11 @@ class Survey(object):
 
     def get_object_infos(self, trgrpnm:str, all:bool=False) ->dict:
         """Return information for all objects of the specified translator group.
-        
+
         Parameters
         ----------
         trgrpnm : str
-            the translator group name 
+            the translator group name
 
         Returns
         -------
@@ -256,9 +257,9 @@ class Survey(object):
         """
         return pyjsonstr(Survey._getobjinfos(self._handle, trgrpnm.encode(), all))
 
-    def remove_object(self, objname:str, trgrpnm:str=None):
+    def remove_object(self, objname:str, trgrpnm:str):
         """Remove the specified object in the specified translator group from the current survey.
-        
+
         Parameters
         ----------
         objname : str
@@ -267,13 +268,13 @@ class Survey(object):
             the translator group name
 
         """
-        Survey._removeobj(self._handle, objname.encode(), trgrpnm.encode() if trgrpnm else None)
+        Survey._removeobj(self._handle, objname.encode(), trgrpnm.encode())
         if not self.isok:
             raise TypeError(self.errmsg)
 
     def remove_object_byid(self, id:str):
         """Remove the object associated with the specified database id in the current survey.
-        
+
         Parameters
         ----------
         id : str
@@ -287,7 +288,7 @@ class Survey(object):
     def create_object(self, objname:str, trgrpnm:str, translkey:str, overwrite:bool=False):
         """Create a new object associated with the specified parameters, optionally overwriting if an object
         of the given name already exists in the current survey.
-        
+
         Parameters
         ----------
         objname : str
@@ -303,7 +304,7 @@ class Survey(object):
         if not self.isok:
             raise TypeError(self.errmsg)
 
-    def get_object_names(self, trgrpnm:str) ->list[str]: 
+    def get_object_names(self, trgrpnm:str) ->list[str]:
         """ Return the names of all objects in the specified translator group
 
         Parameters
@@ -319,7 +320,7 @@ class Survey(object):
         return pystrlist(Survey._getobjnames(self._handle, trgrpnm.encode()))
 
     @staticmethod
-    def names(basedir: str=None) ->list[str]:
+    def names(basedir: str|None=None) ->list[str]:
         """ Return the names of all surveys
 
         Parameters
@@ -335,7 +336,7 @@ class Survey(object):
         return pystrlist(Survey._names(basedir.encode() if basedir else None))
 
     @staticmethod
-    def infos(fornms: list=[], basedir: str=None) ->dict:
+    def infos(fornms: list[str]|None=None, basedir: str|None=None) ->dict:
         """ Return basic information for all or a subset of surveys
 
         Parameters
@@ -344,19 +345,19 @@ class Survey(object):
             (Optional) a list of survey names to use. For an empty list information for all surveys is provided.
         basedir : str=None
             (Optional) an OpendTect data directory/folder to use, defaults to location set in user's OpendTect settings
-            
+
         Returns
         -------
         dict
 
-        """ 
-        fornmsptr = makestrlist(fornms)
+        """
+        fornmsptr = makestrlist(fornms if fornms else [])
         infolist = pyjsonstr(Survey._infos(fornmsptr, basedir.encode() if basedir else None))
         stringset_del(fornmsptr)
         return infolist
 
     @staticmethod
-    def infos_dataframe(fornms: list=[], basedir: str=None):
+    def infos_dataframe(fornms: list[str]|None=None, basedir: str|None=None):
         """ Return basic information for all or a subset of surveys as a Pandas DataFrame.
 
         Parameters
@@ -365,7 +366,7 @@ class Survey(object):
             (Optional) a list of survey names to use. For an empty list information for all surveys is provided.
         basedir : str=None
             (Optional) an OpendTect data directory/folder to use, defaults to location set in user's OpendTect settings
-            
+
         Returns
         -------
         Pandas DataFrame
@@ -377,23 +378,23 @@ class Survey(object):
 
 
     @staticmethod
-    def features(fornms: list=[], basedir: str=None) ->str:
-        """ Return a GeoJSON Feature Collection with the outlines and basic information for all 
+    def features(fornms: list[str]|None=None, basedir: str|None=None) ->str:
+        """ Return a GeoJSON Feature Collection with the outlines and basic information for all
         or a subset of surveys.
 
         Parameters
         ----------
-        fornms : list[str]=[]
-            (Optional) a list of survey names to use. For an empty list information for all surveys is provided.
-        basedir : str=None
+        fornms : list[str]|None=None
+            (Optional) a list of survey names to use. Defaults to listing for all surveys.
+        basedir : str|None=None
             (Optional) an OpendTect data directory/folder to use, defaults to location set in user's OpendTect settings
-            
+
         Returns
         -------
         dict
 
-        """ 
-        fornmsptr = makestrlist(fornms)
+        """
+        fornmsptr = makestrlist(fornms if fornms else [])
         res = pystr(Survey._features(fornmsptr, basedir.encode() if basedir else None ))
         stringset_del(fornmsptr)
         return res
@@ -405,7 +406,7 @@ class Survey(object):
         """
 
         return pystrlist(Survey._trgroups())
-    
+
     @staticmethod
     def translkeys(trgrpnm:str, forread:bool) -> list[str]:
         """ Returns a list of the translator keys for the given translator group
@@ -456,7 +457,7 @@ class _SurveyObject(object):
             raise TypeError(self.errmsg)
 
     @property
-    def survey(self) ->Survey: 
+    def survey(self) ->Survey:
         """ Return the Survey object that this item is from."""
         return self._survey
 
@@ -499,12 +500,12 @@ class _SurveyObject(object):
 
         Requires all dicts to have the same keys. The keys of the first dict of the list
         are used for the DataFrame column names
-        
+
         Parameters
         ----------
         inlist : list[dict]
             a list of Python dicts. All dicts must have identical keys.
-        
+
         Returns
         -------
         Pandas Dataframe
@@ -525,13 +526,13 @@ class _SurveyObject(object):
         survey : Survey
             An OpendTect survey object
         fornms : list[str]
-            A list of object names to use, an empty list will give information for all objects.            
+            A list of object names to use, an empty list will give information for all objects.
 
         Returns
         -------
         dict
 
-        """ 
+        """
         fornmsptr = makestrlist(fornms)
         res = pystr(clss._features(survey._handle, fornmsptr ))
         stringset_del(fornmsptr)
@@ -539,7 +540,7 @@ class _SurveyObject(object):
 
     def info(self) ->dict:
         """Return basic information for this object.
-        
+
         Returns
         -------
         dict
@@ -556,7 +557,7 @@ class _SurveyObject(object):
         return i
 
     @classmethod
-    def infos(clss, survey: Survey, fornms: list=[]):
+    def infos(clss, survey: Survey, fornms: list=[], use_dataframe: bool|None=None):
         """ Return basic information for all or a subset of objects in the given survey.
 
         Parameters
@@ -565,16 +566,20 @@ class _SurveyObject(object):
             An OpendTect survey object
         fornms : list[str]
             A list of object names to use, an empty list will give information for all objects.
-            
+        use_dataframe : bool | None
+            Return a Pandas Dataframe instead of a list of dicts. Overrides the class
+            default of <class>.use_dataframe when set.
+
         Returns
         -------
         dict or Pandas Dataframe
 
-        """ 
+        """
         fornmsptr = makestrlist(fornms)
         infolist = pyjsonstr(clss._infos(survey._handle, fornmsptr ))
         stringset_del(fornmsptr)
-        return clss.dictlist_to_dataframe(infolist) if clss.use_dataframe else infolist
+        use_dataframe = clss.use_dataframe if use_dataframe is None else use_dataframe
+        return clss.dictlist_to_dataframe(infolist) if use_dataframe else infolist
 
     @classmethod
     def names(clss, survey: Survey) ->list[str]:
@@ -609,9 +614,4 @@ class _SurveyObject(object):
         clss._removeobjs(survey._handle, nmsptr)
         stringset_del(nmsptr)
         if not survey.isok:
-            raise OSError(survey.errmsg) 
-
-
-
-
-
+            raise OSError(survey.errmsg)

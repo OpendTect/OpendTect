@@ -2,14 +2,12 @@ import pytest
 import json
 import numpy as np
 import odbind.pytest_helper as pytest_helper
-from odbind.survey import Survey
 from odbind.well import Well
 
-def test_Well_class():
-    f3demo = Survey("F3_Demo_2020")
-    wells = Well.names(f3demo)
+def test_Well_class(survey):
+    wells = Well.names(survey)
     assert 'F02-1' in wells
-    well = Well(f3demo, 'F03-4')
+    well = Well(survey, 'F03-4')
     info =  {
                 'name': 'F03-4',
                 'uwid': '',

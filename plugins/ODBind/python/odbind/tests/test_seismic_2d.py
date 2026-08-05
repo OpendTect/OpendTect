@@ -1,13 +1,8 @@
 import pytest
 import json
 import numpy as np
-from odbind.survey import Survey
 from odbind.seismic2d import Seismic2D
 from odbind.geom2d import Geom2D
-
-@pytest.fixture
-def survey(request):
-    return Survey(request.config.getoption('--survey'))
 
 def make_data(survey):
     si = survey.info()
@@ -57,8 +52,6 @@ def test_Seismic2D_class(survey):
 
 #
 # Verify the saved data
-    Seismic2D.use_dataframe = False
-    Seismic2D.use_xarray = False
     assert 'pytest' in Seismic2D.names(survey)
     info = {
                 'name': 'pytest',
@@ -77,13 +70,11 @@ def test_Seismic2D_class(survey):
                     'trc_range': [data_info['trc'][0], data_info['trc'][-1], data_info['trc'][1]-data_info['trc'][0]],
                     'z_range': data_info[si['zdomain']]
     }]
-    assert test.line_info(test.line_names) == line_info
-    test_data, test_info = test.getdata(linenm)
+    assert test.line_info(test.line_names, use_dataframe=False) == line_info
+    test_data, test_info = test.getdata(linenm, use_xarray=False)
     for key in data_info:
         assert data_info[key] == pytest.approx(test_info[key])
     np.testing.assert_equal(data, test_data)
-    Seismic2D.use_dataframe = True
-    Seismic2D.use_xarray = True
 #
 # Convert to/from Xarray Dataset
     xrdata = test.to_xarray(test_data, test_info)

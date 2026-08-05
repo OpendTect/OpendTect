@@ -6,7 +6,7 @@ jupyter:
       extension: .md
       format_name: markdown
       format_version: '1.3'
-      jupytext_version: 1.14.5
+      jupytext_version: 1.19.5
   kernelspec:
     display_name: Python 3 (ipykernel)
     language: python
@@ -67,12 +67,11 @@ mfs4.ranges
 
 ### Reading 3D Horizon Data
 
-The Horizon3D.getdata() function returns the horizon z values and optionally the horizon data attributes listed by named in the only parameter as either an Xarray.Dataset or simple list+dict format.
+The Horizon3D.getdata() function returns the horizon z values and optionally the horizon data attributes listed by name as either an Xarray.Dataset or simple list+dict format.
 
 ```python
 import xarray as xr
-Horizon3D.use_xarray = True
-hor = mfs4.getdata(['SD_24Hz[-8,24ms]','SD_64Hz[-8,24ms]'])
+hor = mfs4.getdata(['SD_24Hz[-8,24ms]','SD_64Hz[-8,24ms]'], use_xarray=True)
 hor
 ```
 
@@ -132,7 +131,7 @@ hors
 ```
 
 ### Horizon3D.infos() functions
-Return basic information for the listed horizons (or all horizons if no list provided) in the given survey in either a Pandas DataFrame or simple list+dict format depending on the value of Horizon3D.use_dataframe.
+Return basic information for the listed horizons (or all horizons if no list provided) in the given survey in either a Pandas DataFrame or simple list+dict format depending on the value of the optional use_dataframe parameter.
 
 ```python
 Horizon3D.infos(f3demo)

@@ -6,7 +6,7 @@ jupyter:
       extension: .md
       format_name: markdown
       format_version: '1.3'
-      jupytext_version: 1.14.5
+      jupytext_version: 1.19.5
   kernelspec:
     display_name: Python 3 (ipykernel)
     language: python
@@ -85,7 +85,7 @@ data.line_names
 ```
 
 ### Seismic2D.line_info functions
-This returns a Pandas DataFrame or a list of dictionaries (depending on the value of Seismic2D.use_dataframe) with basic information for the listed lines (or all lines if no list provided) in this 2D dataset.
+This returns a Pandas DataFrame or a list of dictionaries (depending on the value of the optional use_dataframe parameter) with basic information for the listed lines (or all lines if no list provided) in this 2D dataset.
 
 ```python
 data.line_info()

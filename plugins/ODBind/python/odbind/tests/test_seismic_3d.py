@@ -4,12 +4,7 @@ import json
 import numpy as np
 import random
 import xarray as xr
-from odbind.survey import Survey
 from odbind.seismic3d import Seismic3D
-
-@pytest.fixture
-def survey(request):
-    return Survey(request.config.getoption('--survey'))
 
 def make_data_volume(survey):
     si = survey.info()
@@ -79,8 +74,8 @@ def test_Seismic3D_class(survey):
                 'nrsamp': nz,
                 'bin_count': niln*ncrl,
                 'trc_count': niln*ncrl,
-                'inl_step': 25.0,
-                'crl_step': 25.0
+                'inl_step': si['inl_step'],
+                'crl_step': si['crl_step']
             }
     test = Seismic3D(survey, 'pytest')
     assert info == pytest_helper.approx(test.info(), rel=0.001)
@@ -94,14 +89,10 @@ def test_Seismic3D_class(survey):
     assert rgs.inlrg == inlrg and rgs.crlrg == crlrg and rgs.zrg == pytest.approx(zrg)
 #
 # Read as a subvolume
-    Seismic3D.use_dataframe = False
-    Seismic3D.use_xarray = False
-    test_data, test_info = test.getdata(rgs.inlrg, rgs.crlrg, rgs.zrg)
+    test_data, test_info = test.getdata(rgs.inlrg, rgs.crlrg, rgs.zrg, use_xarray=False)
     for key in data_info:
         assert data_info[key] == pytest.approx(test_info[key])
     np.testing.assert_equal(data, test_data)
-    Seismic3D.use_dataframe = True
-    Seismic3D.use_xarray = True
 #
 # Convert to/from Xarray Dataset
     xrdata = test.to_xarray(test_data, test_info)
