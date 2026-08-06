@@ -34,12 +34,14 @@ class EventPatchWriter;
 */
 
 mExpClass(PreStackProcessing) EventReader : public Executor
-{ mODTextTranslationClass(EventReader);
+{
+mODTextTranslationClass(EventReader)
 public:
-			EventReader(IOObj*,EventManager*,bool trigger);
+			EventReader(const IOObj&,EventManager*,bool trigger);
 			//!<If not mgr is given, only prepareWork &
 			//!<getPositions can be run, no real work
 			~EventReader();
+			mOD_DisableCopy(EventReader)
 
     void		setSelection(const BinIDValueSet*);
     void		setSelection(const TrcKeySampling*);
@@ -57,6 +59,8 @@ public:
 
     uiString		uiMessage() const override
 			{ return tr("Loading events"); }
+    od_int64		totalNr() const override	{ return totalnr_; }
+    od_int64		nrDone() const override		{ return nrdone_; }
 
     uiString		errMsg() const;
 
@@ -81,21 +85,25 @@ public:
     static const char*	sHorizonFileType()	{ return "PS Horizon info"; }
     static const char*	sHorizonFileVersion()	{ return "PS Horizon version"; }
 
+protected:
+    bool		doPrepare(od_ostream*) override;
     int			nextStep() override;
 
-protected:
-    bool					addReader( const char* fnm );
-    bool					readAuxData(const char* fnm);
+    bool		addReader(const char* fnm);
+    bool		readAuxData(const char* fnm);
 
-    const IOObj*				ioobj_;
-    EventManager*				eventmanager_;
-    const BinIDValueSet*			bidsel_ = nullptr;
-    const TrcKeySampling*			horsel_ = nullptr;
+    const IOObj*			ioobj_;
+    EventManager*			eventmanager_;
+    const BinIDValueSet*		bidsel_			= nullptr;
+    const TrcKeySampling*		horsel_			= nullptr;
 
-    ObjectSet<EventPatchReader>			patchreaders_;
+    ManagedObjectSet<EventPatchReader>	patchreaders_;
 
-    uiString					errmsg_;
-    bool					trigger_;
+    uiString				errmsg_;
+    bool				trigger_;
+
+    od_int64				totalnr_		= 0;
+    od_int64				nrdone_			= 0;
 };
 
 
@@ -104,26 +112,33 @@ protected:
 */
 
 mExpClass(PreStackProcessing) EventWriter : public Executor
-{ mODTextTranslationClass(EventWriter);
+{
+mODTextTranslationClass(EventWriter)
 public:
-			EventWriter(IOObj*,EventManager&);
+			EventWriter(const IOObj&,EventManager&);
 			~EventWriter();
+			mOD_DisableCopy(EventWriter)
 
-    int			nextStep() override;
     uiString		errMsg() const;
     uiString		uiMessage() const override
 			{ return tr("Storing events"); }
-
+    od_int64		totalNr() const override	{ return totalnr_; }
+    od_int64		nrDone() const override		{ return nrdone_; }
 
 protected:
 
-    bool			writeAuxData(const char* fnm);
+    bool		doPrepare(od_ostream*) override;
+    bool		writeAuxData(const char* fnm);
+    int			nextStep() override;
 
-    ObjectSet<EventPatchWriter> patchwriters_;
-    IOObj*			ioobj_;
-    IOPar			auxinfo_;
-    EventManager&		eventmanager_;
-    uiString			errmsg_;
+    ManagedObjectSet<EventPatchWriter>	patchwriters_;
+    const IOObj*			ioobj_;
+    IOPar				auxinfo_;
+    EventManager&			eventmanager_;
+    uiString				errmsg_;
+
+    od_int64				totalnr_		= 0;
+    od_int64				nrdone_			= 0;
 };
 
 
@@ -132,10 +147,12 @@ protected:
 */
 
 mExpClass(PreStackProcessing) EventDuplicator : public Executor
-{ mODTextTranslationClass(EventDuplicator);
+{
+mODTextTranslationClass(EventDuplicator)
 public:
-			EventDuplicator(IOObj* from,IOObj* to);
+			EventDuplicator(const IOObj& from,const IOObj& to);
 			~EventDuplicator();
+			mOD_DisableCopy(EventDuplicator)
 
     od_int64		totalNr() const override { return totalnr_; }
     od_int64		nrDone() const override
@@ -151,13 +168,13 @@ public:
 protected:
     void			errorCleanup();
 
-    int				totalnr_;
+    od_int64			totalnr_			= -1;
     BufferStringSet		filestocopy_;
     uiString			errmsg_;
     uiString			message_;
 
-    IOObj*			from_;
-    IOObj*			to_;
+    const IOObj*		from_;
+    const IOObj*		to_;
 };
 
 } // namespace PreStack

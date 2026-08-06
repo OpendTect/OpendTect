@@ -253,11 +253,11 @@ public:
     void		setChecked(bool,bool trigger=false);
 			//!< does nothing if not checkable
     void		checkAll(bool yn,bool trigger=false);
-
-    void		setToolTip(int column,const uiString&);
+    void		setHidden(bool yn);
+    bool		isHidden() const;
 
     void		translateText();
-
+    void		setToolTip(int column,const uiString&);
     static void		updateToolTips();
 
     void		insertItem(int,uiTreeViewItem*);

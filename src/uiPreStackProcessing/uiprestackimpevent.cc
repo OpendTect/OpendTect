@@ -10,12 +10,13 @@ ________________________________________________________________________
 #include "uiprestackimpevent.h"
 
 #include "ctxtioobj.h"
-#include "executor.h"
-#include "ioman.h"
+#include "filepath.h"
 #include "ioobj.h"
 #include "prestackeventascio.h"
 #include "prestackeventio.h"
 #include "prestackeventtransl.h"
+#include "tabledef.h"
+
 #include "uifileinput.h"
 #include "uimsg.h"
 #include "uiioobjsel.h"
@@ -23,7 +24,6 @@ ________________________________________________________________________
 #include "uitblimpexpdatasel.h"
 #include "od_helpids.h"
 
-#include <fstream>
 
 namespace PreStack
 {
@@ -36,6 +36,7 @@ uiEventImport::uiEventImport( uiParent* p )
     setOkCancelText( uiStrings::sImport(), uiStrings::sClose() );
 
     filefld_ = new uiASCIIFileInput( this, true );
+    mAttachCB( filefld_->valueChanged, uiEventImport::inputChgd );
 
     dataselfld_ = new uiTableImpDataSel( this, fd_,
 				      mODHelpKey(mTableImpDataSelpicksHelpID));
@@ -49,30 +50,47 @@ uiEventImport::uiEventImport( uiParent* p )
 
 
 uiEventImport::~uiEventImport()
-{}
+{
+    delete &fd_;
+}
+
+
+void uiEventImport::inputChgd( CallBacker* )
+{
+    const FilePath fp( filefld_->fileName() );
+    outputfld_->setInputText( fp.baseName() );
+}
 
 
 bool uiEventImport::acceptOK( CallBacker* )
 {
     if ( !filefld_->fileName() )
     {
-	uiMSG().error(tr("No input file selected"));
+	uiMSG().error( tr("No input file selected") );
 	return false;
     }
 
     outputfld_->reset();
-    if ( !outputfld_->ioobj() )
+    const IOObj* ioobj = outputfld_->ioobj();
+    if ( !ioobj )
 	return false;
 
     RefMan<EventManager> mgr = new EventManager;
     mgr->setStorageID( outputfld_->key(), false );
     EventImporter importer( filefld_->fileName(), fd_, *mgr );
     uiTaskRunner taskrunner( this );
-    if ( !TaskRunner::execute( &taskrunner, importer ) )
+    if ( !TaskRunner::execute(&taskrunner,importer) )
 	return false;
 
-    EventWriter writer( outputfld_->getIOObj(), *mgr );
-    return TaskRunner::execute( &taskrunner, writer );
+    EventWriter writer( *ioobj, *mgr );
+    if ( !TaskRunner::execute(&taskrunner,writer) )
+	return false;
+
+    const uiString msg = tr("Prestack events successfully imported."
+				"\n\nDo you want to import more data?");
+    const bool ret= uiMSG().askGoOn( msg, uiStrings::sYes(),
+				uiStrings::sNoCloseWindow() );
+    return !ret;
 }
 
 } // namespace PreStack

@@ -196,6 +196,19 @@ bool uiTreeItem::isCollapsed() const
 }
 
 
+void uiTreeItem::setHidden( bool yn )
+{
+    if ( uitreeviewitem_ )
+	uitreeviewitem_->setHidden( yn );
+}
+
+
+bool uiTreeItem::isHidden() const
+{
+    return uitreeviewitem_ ? uitreeviewitem_->isHidden() : true;
+}
+
+
 bool uiTreeItem::hasChildren() const
 {
     return !children_.isEmpty();

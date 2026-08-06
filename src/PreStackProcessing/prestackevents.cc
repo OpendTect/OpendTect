@@ -459,18 +459,17 @@ bool EventManager::getHorRanges( TrcKeySampling& hrg ) const
 	}
     }
 
-    IOObj* ioobj = IOM().get( storageid_ );
+    ConstPtrMan<IOObj> ioobj = IOM().get( storageid_ );
     if ( !ioobj )
 	return !first;
 
 
-    PtrMan<EventReader> reader = new EventReader(ioobj,0,false);
+    PtrMan<EventReader> reader = new EventReader( *ioobj, nullptr, false );
     if ( !reader->prepareWork() )
 	return false;
 
     Interval<int> inlrg, crlrg;
-
-    if ( reader->getBoundingBox( inlrg, crlrg ) )
+    if ( reader->getBoundingBox(inlrg,crlrg) )
     {
 	if ( first )
 	{
@@ -496,11 +495,11 @@ bool EventManager::getLocations( BinIDValueSet& bvs ) const
 	bvs.add( bid );
     }
 
-    IOObj* ioobj = IOM().get( storageid_ );
+    ConstPtrMan<IOObj> ioobj = IOM().get( storageid_ );
     if ( !ioobj )
 	return false;
 
-    PtrMan<EventReader> reader = new EventReader(ioobj,0,false);
+    PtrMan<EventReader> reader = new EventReader( *ioobj, nullptr , false );
     if ( !reader )
 	return false;
 
@@ -510,25 +509,28 @@ bool EventManager::getLocations( BinIDValueSet& bvs ) const
 
 Executor* EventManager::commitChanges()
 {
-    IOObj* ioobj = IOM().get( storageid_ );
+    ConstPtrMan<IOObj> ioobj = IOM().get( storageid_ );
     if ( !ioobj )
-	{ pErrMsg("No ioobj"); return 0; }
+	{ pErrMsg("No ioobj"); return nullptr; }
 
-    return PSEventTranslator::writer( *this, ioobj );
+    return PSEventTranslator::writer( *this, *ioobj );
 }
 
 
 Executor* EventManager::load( const BinIDValueSet& bidset, bool trigger )
 {
-    IOObj* ioobj = IOM().get( storageid_ );
-    if ( !ioobj ) return 0;
-    return PSEventTranslator::reader( *this, &bidset, 0, ioobj, trigger );
+    ConstPtrMan<IOObj> ioobj = IOM().get( storageid_ );
+    if ( !ioobj )
+	return nullptr;
+
+    return PSEventTranslator::reader( *this, &bidset, nullptr, *ioobj, trigger);
 }
 
 
 bool EventManager::isChanged() const
 {
-    if ( auxdatachanged_ ) return true;
+    if ( auxdatachanged_ )
+	return true;
 
     RowCol pos( -1, -1 );
     while ( events_.next( pos, false ) )
@@ -630,11 +632,15 @@ void EventManager::cleanUp( bool keepchanged )
 
 
 void EventManager::addReloadPositions( const BinIDValueSet& bvs )
-{ reloadbids_->append( bvs ); }
+{
+    reloadbids_->append( bvs );
+}
 
 
 void EventManager::addReloadPosition( const BinID& bid )
-{ reloadbids_->add( bid ); }
+{
+    reloadbids_->add( bid );
+}
 
 
 void EventManager::blockChange( bool yn, bool sendnow )
@@ -740,9 +746,9 @@ bool EventManager::getDip( const BinIDValue& bidv,int horid,
 	if ( previnl==nextinl )
 	    return false;
 
-	const float inldiff = (float)
-                              (emhorizons_[horidx]->getPos(nextinl.toInt64() ).z_ -
-                               emhorizons_[horidx]->getPos(previnl.toInt64() ).z_);
+	const float inldiff =
+		float(emhorizons_[horidx]->getPos(nextinl.toInt64()).z_ -
+		      emhorizons_[horidx]->getPos(previnl.toInt64()).z_);
 
 	BinID prevcrl( bidv.inl(), bidv.crl()-horstep.crl() );
 	BinID nextcrl( bidv.inl(), bidv.crl()+horstep.crl() );
@@ -754,9 +760,9 @@ bool EventManager::getDip( const BinIDValue& bidv,int horid,
 	if ( prevcrl==nextcrl )
 	    return false;
 
-	const float crldiff = (float)
-                              (emhorizons_[horidx]->getPos(nextcrl.toInt64() ).z_ -
-                               emhorizons_[horidx]->getPos(prevcrl.toInt64() ).z_);
+	const float crldiff =
+		float(emhorizons_[horidx]->getPos(nextcrl.toInt64()).z_ -
+		      emhorizons_[horidx]->getPos(prevcrl.toInt64()).z_);
 
 	inldip = inldiff/((nextinl.inl()-previnl.inl())*SI().inlDistance() );
 	crldip = crldiff/((nextcrl.crl()-prevcrl.crl())*SI().crlDistance() );
@@ -819,9 +825,9 @@ SetPickUndo::SetPickUndo( EventManager& man, const BinID& bid, int horidx,
 			  const OffsetAzimuth& oa,
 			  float depth, unsigned char pickquality )
     : manager_( man )
-    , oa_( oa )
     , bid_( bid )
     , horidx_( horidx )
+    , oa_( oa )
     , olddepth_( depth )
     , oldquality_( pickquality )
 {
@@ -903,9 +909,9 @@ SetEventUndo::SetEventUndo( EventManager& man, const BinID& bid, int horidx,
     : manager_( man )
     , bid_( bid )
     , horidx_( horidx )
+    , quality_( quality )
     , horid_( horid )
     , eventtype_( evt )
-    , quality_( quality )
     , isremove_( true )
 {
 }
@@ -980,6 +986,5 @@ bool SetEventUndo::removeEvent()
 
     return true;
 }
-
 
 } // namespace PreStack

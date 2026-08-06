@@ -24,7 +24,8 @@ namespace PreStack { class EventManager; }
 */
 
 mExpClass(PreStackProcessing) PSEventTranslatorGroup : public TranslatorGroup
-{ isTranslatorGroup(PSEvent);
+{
+isTranslatorGroup(PSEvent);
 public:
 				PSEventTranslatorGroup();
 
@@ -45,16 +46,16 @@ public:
 
     virtual Executor*	createReader(PreStack::EventManager&,
 				     const BinIDValueSet*,
-				     const TrcKeySampling*,IOObj*,
+				     const TrcKeySampling*,const IOObj&,
 				     bool trigger)	= 0;
-    virtual Executor*	createWriter(PreStack::EventManager&,IOObj*) = 0;
-    virtual Executor*	createSaveAs(PreStack::EventManager&,IOObj*)	= 0;
-    virtual Executor*	createOptimizer(IOObj*)				= 0;
+    virtual Executor*	createWriter(PreStack::EventManager&,const IOObj&) = 0;
+    virtual Executor*	createSaveAs(PreStack::EventManager&,const IOObj&) = 0;
+    virtual Executor*	createOptimizer(const IOObj&)			= 0;
 
-    static Executor*	reader(PreStack::EventManager&, const BinIDValueSet*,
-			       const TrcKeySampling*, IOObj*, bool trigger );
-    static Executor*	writer(PreStack::EventManager&,IOObj*);
-    static Executor*	writeAs(PreStack::EventManager&,IOObj*);
+    static Executor*	reader(PreStack::EventManager&,const BinIDValueSet*,
+			       const TrcKeySampling*,const IOObj&,bool trigger);
+    static Executor*	writer(PreStack::EventManager&,const IOObj&);
+    static Executor*	writeAs(PreStack::EventManager&,const IOObj&);
 
 protected:
 			PSEventTranslator(const char* nm,const char* unm);
@@ -66,15 +67,19 @@ protected:
 */
 
 mExpClass(PreStackProcessing) dgbPSEventTranslator : public PSEventTranslator
-{ isTranslator(dgb,PSEvent)
+{
+isTranslator(dgb,PSEvent)
 public:
 			dgbPSEventTranslator(const char* nm,const char* unm);
 
     Executor*		createReader(PreStack::EventManager&,
-				 const BinIDValueSet*,
-				 const TrcKeySampling*,IOObj*,bool) override;
-    Executor*		createWriter(PreStack::EventManager&,IOObj*) override;
-    Executor*		createSaveAs(PreStack::EventManager&,IOObj*) override;
-    Executor*		createOptimizer(IOObj*) override { return 0; }
-
+				const BinIDValueSet*,
+				const TrcKeySampling*,
+				const IOObj&,bool) override;
+    Executor*		createWriter(PreStack::EventManager&,
+				     const IOObj&) override;
+    Executor*		createSaveAs(PreStack::EventManager&,
+				     const IOObj&) override;
+    Executor*		createOptimizer(const IOObj&) override
+			{ return nullptr; }
 };

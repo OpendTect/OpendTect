@@ -52,7 +52,8 @@ uiTreeItem* uiODPSEventsTreeItemFactory::createForVis(
 
 uiODPSEventsParentTreeItem::uiODPSEventsParentTreeItem()
     : uiODParentTreeItem( uiStrings::sPreStackEvents() )
-{}
+{
+}
 
 
 uiODPSEventsParentTreeItem::~uiODPSEventsParentTreeItem()
@@ -118,8 +119,13 @@ SceneID uiODPSEventsParentTreeItem::sceneID() const
 
 bool uiODPSEventsParentTreeItem::init()
 {
-    bool ret = uiODTreeItem::init();
-    if ( !ret ) return false;
+    const bool ret = uiODTreeItem::init();
+    if ( !ret )
+	return false;
+
+    const IOObjContext& ctxt = PSEventTranslatorGroup::ioContext();
+    const bool hasdata = ctxt.nrMatches(true) > 0;
+    setHidden( !hasdata );
 
     return true;
 }
@@ -138,11 +144,11 @@ const char* uiODPSEventsParentTreeItem::parentType() const
 
 uiODPSEventsTreeItem::uiODPSEventsTreeItem( const MultiID& key,
 					    const char* eventname )
-    : key_(key)
-    , psem_(new PreStack::EventManager)
+    : psem_(new PreStack::EventManager)
     , eventname_(eventname)
     , dir_(Coord(1,0))
     , coloritem_(new MenuItem(uiStrings::sColor(mPlural)))
+    , key_(key)
 {
     psem_->setStorageID( key, true );
 }

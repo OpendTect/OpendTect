@@ -705,8 +705,8 @@ void doDlgCB( CallBacker* )
 uiTableImpDataSel::uiTableImpDataSel( uiParent* p, Table::FormatDesc& fd,
 				      const HelpKey& helpkey )
     : uiGroup(p,fd.name())
-    , fd_(fd)
     , descChanged(this)
+    , fd_(fd)
 {
     const char* hdrtyps[] = { "No header", "Fixed size", "Variable", nullptr };
     hdrtypefld_ = new uiGenInput( this, tr("File header"),

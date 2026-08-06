@@ -156,21 +156,24 @@ protected:
 
 // EventReader
 
-EventReader::EventReader( IOObj* ioobj, EventManager* events, bool trigger )
+EventReader::EventReader( const IOObj& ioobj, EventManager* eventmgr,
+			  bool trigger )
     : Executor( "Reading Prestack events" )
-    , eventmanager_( events )
-    , ioobj_( ioobj )
-    , trigger_( trigger )
+    , ioobj_(ioobj.clone())
+    , eventmanager_(eventmgr)
+    , trigger_(trigger)
 {
-    if ( eventmanager_ ) eventmanager_->blockChange( true, true );
+    if ( eventmanager_ )
+	eventmanager_->blockChange( true, true );
 }
 
 
 EventReader::~EventReader()
 {
-    if ( eventmanager_ ) eventmanager_->blockChange( false, trigger_ );
+    if ( eventmanager_ )
+	eventmanager_->blockChange( false, trigger_ );
+
     delete ioobj_;
-    deepErase( patchreaders_ );
 }
 
 
@@ -195,10 +198,10 @@ bool EventReader::getBoundingBox( Interval<int>& inlrg,
 	const TrcKeySampling& hrg = reader->getRange();
 	if ( !idx )
 	{
-            inlrg.start_ = hrg.start_.inl();
-            inlrg.stop_ = hrg.stop_.inl();
-            crlrg.start_ = hrg.start_.crl();
-            crlrg.stop_ = hrg.stop_.crl();
+	    inlrg.start_ = hrg.start_.inl();
+	    inlrg.stop_ = hrg.stop_.inl();
+	    crlrg.start_ = hrg.start_.crl();
+	    crlrg.stop_ = hrg.stop_.crl();
 	}
 	else
 	{
@@ -247,29 +250,32 @@ uiString EventReader::errMsg() const
 { return errmsg_; }
 
 
-int EventReader::nextStep()
+bool EventReader::doPrepare( od_ostream* )
 {
-    if ( !eventmanager_ ) return Finished();
+    if ( !eventmanager_ )
+	return false;
 
-    if ( !patchreaders_.size() )
+    if ( !prepareWork() )
     {
-	if ( !prepareWork() )
-	{
-	    //ErrMsg set in prepareWork
-	    return ErrorOccurred();
-	}
-
-	const BufferString fnm( ioobj_->fullUserExpr(true) );
-	if ( !readAuxData( fnm.buf() ) )
-	{
-	    if ( errmsg_.isEmpty() )
-		errmsg_ = tr("Error: Cannot read horizon information");
-	    return ErrorOccurred();
-	}
-
-	return patchreaders_.size() ? MoreToDo() : Finished();
+	//ErrMsg set in prepareWork
+	return false;
     }
 
+    const BufferString fnm( ioobj_->fullUserExpr(true) );
+    if ( !readAuxData(fnm.buf()) )
+    {
+	if ( errmsg_.isEmpty() )
+	    errmsg_ = tr("Error: Cannot read horizon information");
+	return false;
+    }
+
+    totalnr_ = patchreaders_.size();
+    return !patchreaders_.isEmpty();
+}
+
+
+int EventReader::nextStep()
+{
     const int res = patchreaders_[0]->doStep();
     if ( res<0 )
     {
@@ -280,12 +286,13 @@ int EventReader::nextStep()
     if ( !res )
     {
 	delete patchreaders_.removeSingle( 0 );
-	if ( patchreaders_.size() )
+	if ( !patchreaders_.isEmpty() )
 	    return MoreToDo();
 
 	return	Finished();
     }
 
+    nrdone_++;
     return MoreToDo();
 }
 
@@ -520,10 +527,10 @@ bool EventReader::readAuxData(const char* fnm)
 
 // EventWriter
 
-EventWriter::EventWriter( IOObj* ioobj, EventManager& events )
+EventWriter::EventWriter( const IOObj& ioobj, EventManager& events )
     : Executor( "Writing Prestack events" )
-    , eventmanager_( events )
-    , ioobj_( ioobj )
+    , ioobj_(ioobj.clone())
+    , eventmanager_(events)
 {
     eventmanager_.blockChange( true, true );
 }
@@ -533,132 +540,132 @@ EventWriter::~EventWriter()
 {
     eventmanager_.blockChange( false, false );
     delete ioobj_;
-    deepErase( patchwriters_ );
+}
+
+
+bool EventWriter::doPrepare( od_ostream* )
+{
+    SamplingData<int> inlsampling;
+    SamplingData<int> crlsampling;
+    if ( !EventReader::readSamplingData(*ioobj_,inlsampling, crlsampling ) )
+    {
+	const StepInterval<int> inlrg = SI().inlRange(false);
+	const StepInterval<int> crlrg = SI().crlRange(false);
+	inlsampling.start_ = inlrg.start_;
+	inlsampling.step_ = inlrg.step_*25;
+	crlsampling.start_ = crlrg.start_;
+	crlsampling.step_ = crlrg.step_*25;
+    }
+
+    auxinfo_.set( EventReader::sKeyISamp(), inlsampling.start_,
+		  inlsampling.step_ );
+    auxinfo_.set( EventReader::sKeyCSamp(), crlsampling.start_,
+		  crlsampling.step_ );
+
+    const BufferString fnm( ioobj_->fullUserExpr(true) );
+    if ( !File::exists(fnm.buf()) || !File::isDirectory(fnm.buf()) )
+    {
+	if ( !File::isDirectory( fnm.buf() ) )
+	{
+	    if ( File::exists(fnm.buf()) && !File::remove(fnm.buf()) )
+	    {
+		errmsg_ = tr("Cannot remove %1").arg(fnm);
+		return false;
+	    }
+	}
+
+	if ( !File::createDir(fnm.buf()) )
+	{
+	    errmsg_ = uiStrings::phrCannotCreateDirectory(toUiString(fnm));
+	    return false;
+	}
+    }
+
+    eventmanager_.cleanUp( true );
+
+    if ( !writeAuxData( fnm.buf() ) )
+	return false;
+
+    const MultiDimStorage<EventSet*>& evstor = eventmanager_.getStorage();
+    int pos[] = { -1, -1 };
+    TypeSet<RowCol> rcols;
+    while ( evstor.next( pos, true ) )
+    {
+	BinID bid;
+	evstor.getPos( pos, bid );
+	EventSet* ge = evstor.getRef( pos, 0 );
+
+	if ( !ge->ischanged_ )
+	    continue;
+
+	const RowCol rc( (bid.inl()-inlsampling.start_)/inlsampling.step_,
+			 (bid.crl()-crlsampling.start_)/crlsampling.step_ );
+
+	if ( !rcols.isPresent( rc ) )
+	    rcols += rc;
+    }
+
+    if ( rcols.isEmpty() )
+	return false;
+
+    TrcKeySampling hrg( true );
+
+    for ( int idx=0; idx<rcols.size(); idx++ )
+    {
+	const RowCol& rc( rcols[idx] );
+	hrg.start_.inl() = inlsampling.atIndex( rc.row() );
+	hrg.stop_.inl() = inlsampling.atIndex(rc.row()+1) - hrg.step_.inl();
+	hrg.start_.crl() = crlsampling.atIndex( rc.col() );
+	hrg.stop_.crl() = crlsampling.atIndex(rc.col()+1) - hrg.step_.crl();
+
+	SeparString filenamebase( 0, '_' );
+	filenamebase += hrg.start_.inl();
+	filenamebase += hrg.stop_.inl();
+	filenamebase += hrg.start_.crl();
+	filenamebase += hrg.stop_.crl();
+
+	FilePath filename;
+	filename.setPath( fnm.buf() );
+	filename.add( filenamebase.buf() );
+	filename.setExtension( PSEventTranslatorGroup::sDefExtension() );
+
+	const BufferString patchfnm = filename.fullPath().buf();
+
+	EventPatchWriter* writer =
+	    new EventPatchWriter( patchfnm.buf(), eventmanager_);
+
+	if ( !File::isEmpty(patchfnm.buf()) )
+	{
+	    StreamConn* conn = new StreamConn( patchfnm.buf(), Conn::Read );
+	    if ( conn && conn->forRead() )
+	    {
+		EventPatchReader* reader =
+			    new EventPatchReader( conn, &eventmanager_ );
+
+		if (reader->errMsg().isSet())
+		{
+		    errmsg_ = reader->errMsg();
+		    delete reader;
+		    return ErrorOccurred();
+		}
+
+		writer->setReader( reader );
+	    }
+	    else
+		delete conn;
+	}
+
+	writer->setSelection( hrg );
+	patchwriters_ += writer;
+    }
+
+    totalnr_ = patchwriters_.size();
+    return !patchwriters_.isEmpty();
 }
 
 
 int EventWriter::nextStep()
 {
-    if ( !patchwriters_.size() )
-    {
-	SamplingData<int> inlsampling;
-	SamplingData<int> crlsampling;
-	if ( !EventReader::readSamplingData(*ioobj_,inlsampling, crlsampling ) )
-	{
-	    const StepInterval<int> inlrg = SI().inlRange(false);
-	    const StepInterval<int> crlrg = SI().crlRange(false);
-	    inlsampling.start_ = inlrg.start_; 
-	    inlsampling.step_ = inlrg.step_*25;
-	    crlsampling.start_ = crlrg.start_; 
-	    crlsampling.step_ = crlrg.step_*25;
-	}
-
-        auxinfo_.set( EventReader::sKeyISamp(), inlsampling.start_,
-                      inlsampling.step_ );
-        auxinfo_.set( EventReader::sKeyCSamp(), crlsampling.start_,
-                      crlsampling.step_ );
-
-	const BufferString fnm( ioobj_->fullUserExpr(true) );
-	if ( !File::exists( fnm.buf() ) || !File::isDirectory( fnm.buf() ) )
-	{
-	    if ( !File::isDirectory( fnm.buf() ) )
-	    {
-		if ( !File::remove( fnm.buf() ) )
-		{
-		    errmsg_ = tr("Cannot remove %1").arg(fnm);
-		    return ErrorOccurred();
-		}
-	    }
-
-	    if ( !File::createDir(fnm.buf()) )
-	    {
-		errmsg_ = uiStrings::phrCannotCreateDirectory(toUiString(fnm));
-		return ErrorOccurred();
-	    }
-	}
-
-	eventmanager_.cleanUp( true );
-
-	if ( !writeAuxData( fnm.buf() ) )
-	    return ErrorOccurred();
-
-	const MultiDimStorage<EventSet*>& evstor = eventmanager_.getStorage();
-	int pos[] = { -1, -1 };
-	TypeSet<RowCol> rcols;
-	while ( evstor.next( pos, true ) )
-	{
-	    BinID bid;
-	    evstor.getPos( pos, bid );
-	    EventSet* ge = evstor.getRef( pos, 0 );
-
-	    if ( !ge->ischanged_ )
-		continue;
-
-            const RowCol rc( (bid.inl()-inlsampling.start_)/inlsampling.step_,
-                             (bid.crl()-crlsampling.start_)/crlsampling.step_ );
-
-	    if ( !rcols.isPresent( rc ) )
-		rcols += rc;
-	}
-
-	if ( !rcols.size() )
-	    return Finished();
-
-	TrcKeySampling hrg( true );
-
-	for ( int idx=0; idx<rcols.size(); idx++ )
-	{
-	    const RowCol& rc( rcols[idx] );
-	    hrg.start_.inl() = inlsampling.atIndex( rc.row() );
-	    hrg.stop_.inl() = inlsampling.atIndex(rc.row()+1) - hrg.step_.inl();
-	    hrg.start_.crl() = crlsampling.atIndex( rc.col() );
-	    hrg.stop_.crl() = crlsampling.atIndex(rc.col()+1) - hrg.step_.crl();
-
-	    SeparString filenamebase( 0, '_' );
-	    filenamebase += hrg.start_.inl();
-	    filenamebase += hrg.stop_.inl();
-	    filenamebase += hrg.start_.crl();
-	    filenamebase += hrg.stop_.crl();
-
-
-	    FilePath filename;
-	    filename.setPath( fnm.buf() );
-	    filename.add( filenamebase.buf() );
-	    filename.setExtension( PSEventTranslatorGroup::sDefExtension() );
-
-	    const BufferString patchfnm = filename.fullPath().buf();
-
-	    EventPatchWriter* writer =
-		new EventPatchWriter( patchfnm.buf(), eventmanager_);
-
-	    if ( !File::isEmpty(patchfnm.buf()) )
-	    {
-		StreamConn* conn = new StreamConn( patchfnm.buf(), Conn::Read );
-		if ( conn && conn->forRead() )
-		{
-		    EventPatchReader* reader =
-				new EventPatchReader( conn, &eventmanager_ );
-
-		    if (reader->errMsg().isSet())
-		    {
-			errmsg_ = reader->errMsg();
-			delete reader;
-			return ErrorOccurred();
-		    }
-
-		    writer->setReader( reader );
-		}
-		else
-		    delete conn;
-	    }
-
-	    writer->setSelection( hrg );
-	    patchwriters_ += writer;
-	}
-
-	return patchwriters_.size() ? MoreToDo() : Finished();
-    }
-
     const int res = patchwriters_[0]->doStep();
     if ( res<0 )
     {
@@ -676,6 +683,7 @@ int EventWriter::nextStep()
 	return	Finished();
     }
 
+    nrdone_++;
     return MoreToDo();
 }
 
@@ -749,11 +757,10 @@ bool EventWriter::writeAuxData( const char* fnm )
 //Duplicator
 
 
-EventDuplicator::EventDuplicator( IOObj* from, IOObj* to )
+EventDuplicator::EventDuplicator( const IOObj& from, const IOObj& to )
     : Executor( "Copying Prestack events" )
-    , from_( from )
-    , to_( to )
-    , totalnr_( -1 )
+    , from_(from.clone())
+    , to_(to.clone())
 {
     const BufferString fromnm( from_->fullUserExpr(true) );
     if ( !File::isDirectory(fromnm.buf()) )

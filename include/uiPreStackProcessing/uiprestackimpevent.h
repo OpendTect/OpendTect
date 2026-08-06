@@ -26,6 +26,7 @@ public:
 			~uiEventImport();
 
 protected:
+    void		inputChgd(CallBacker*);
     bool		acceptOK(CallBacker*) override;
 
     Table::FormatDesc&	fd_;
