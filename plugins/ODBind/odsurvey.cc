@@ -28,14 +28,12 @@ ________________________________________________________________________________
 #include "ioman.h"
 #include "keystrs.h"
 #include "latlong.h"
-#include "moddepmgr.h"
 #include "odjson.h"
 #include "settings.h"
 #include "surveyfile.h"
 #include "survinfo.h"
 #include "transl.h"
 
-#include <cstring>
 #include <filesystem>
 
 BufferString odSurvey::curbasedir_;
@@ -584,7 +582,7 @@ void survey_bin( hSurvey self, double x, double y, int* iline, int* xline )
     const auto* p = static_cast<odSurvey*>(self);
     if ( p && iline && xline )
     {
-	auto b2c = p->si().binID2Coord();
+	const Pos::IdxPair2Coord& b2c = p->si().binID2Coord();
 	const IdxPair binpos = b2c.transformBack( Coord(x, y) );
 	*iline = binpos.first;
 	*xline = binpos.second;
@@ -597,7 +595,7 @@ void survey_bincoords( hSurvey self, double x, double y,
     const auto* p = static_cast<odSurvey*>(self);
     if ( p && iline && xline )
     {
-	auto b2c = p->si().binID2Coord();
+	const Pos::IdxPair2Coord& b2c = p->si().binID2Coord();
 	const Coord coord = b2c.transformBackNoSnap( Coord(x, y) );
         *iline = coord.x_;
         *xline = coord.y_;
@@ -613,12 +611,6 @@ void survey_coords( hSurvey self, int iline, int xline, double* x, double* y )
         *x = coord.x_;
         *y = coord.y_;
     }
-}
-
-const char* survey_crs( hSurvey self )
-{
-    const auto* p = static_cast<odSurvey*>(self);
-    return strdup( p->get_crsCode().buf() );
 }
 
 const char* survey_feature( hSurvey self )
