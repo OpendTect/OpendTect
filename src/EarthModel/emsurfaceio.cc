@@ -1512,6 +1512,7 @@ void dgbSurfaceWriter::init( const char* fulluserexpr )
     nrrows_ = 0;
     shift_ = 0;
     writingfinished_ = false;
+    auxwritersprepared_ = false;
     geometry_ = reinterpret_cast<const EM::RowColSurfaceGeometry*>(
 							&surface_.geometry() );
 
@@ -1783,6 +1784,24 @@ int dgbSurfaceWriter::nextStep()
 
 	    BufferString fnm = hor->auxdata.getFileName( fulluserexpr_,
 							auxDataName(dataidx) );
+	    if ( fnm.isEmpty() )
+	    {
+		PtrMan<IOObj> ioobj = IOM().get( objectmid_ );
+		if ( !ioobj )
+		    ioobj = IOM().get( surface_.multiID() );
+
+		if ( ioobj )
+		    fnm = hor->auxdata.getFreeFileName( *ioobj );
+	    }
+
+	    if ( fnm.isEmpty() )
+	    {
+		msg_ = tr("Cannot write surface attribute '%1': "
+			  "no free attribute filename available.")
+			.arg( auxDataName(dataidx) );
+		return ErrorOccurred();
+	    }
+
 	    add(new dgbSurfDataWriter(*hor,dataidx,0,binary_,fnm.buf()));
 	    // TODO:: Change binid sampler so not all values are written when
 	    // there is a subselection
@@ -1791,6 +1810,19 @@ int dgbSurfaceWriter::nextStep()
 
     if ( sectionindex_>=sectionsel_.size() )
     {
+	if ( !auxwritersprepared_ && !executors_.isEmpty() )
+	{
+	    auxwritersprepared_ = true;
+	    if ( !ExecutorGroup::doPrepare(nullptr) )
+	    {
+		msg_ = ExecutorGroup::uiMessage();
+		if ( msg_.isEmpty() )
+		    msg_ = tr("Cannot prepare surface attribute writer");
+
+		return ErrorOccurred();
+	    }
+	}
+
 	const int res = ExecutorGroup::nextStep();
 	if ( !res && objectmid_==surface_.multiID() )
 	    const_cast<Surface*>(&surface_)->resetChangedFlag();
@@ -1853,6 +1885,13 @@ int dgbSurfaceWriter::nextStep()
 
 uiString dgbSurfaceWriter::uiMessage() const
 {
+    if ( executors_.size() > 0 )
+    {
+	const uiString grpmsg = ExecutorGroup::uiMessage();
+	if ( !grpmsg.isEmpty() )
+	    return grpmsg;
+    }
+
     return msg_;
 }
 
@@ -1988,7 +2027,11 @@ void dgbSurfaceWriter::setShift( float s )
 bool dgbSurfaceWriter::writeRow( od_ostream& strm )
 {
     if ( !colrange_.step_ || !rowrange_.step_ )
-	{ pErrMsg("Steps not set"); return false; }
+    {
+	msg_ = tr("Cannot write surface: inline/crossline step is not set.");
+	pErrMsg("Steps not set");
+	return false;
+    }
 
     rowoffsettable_ += strm.position();
     const int row = firstrow_ + rowindex_ *

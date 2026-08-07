@@ -68,17 +68,32 @@ bool dgbSurfDataWriter::writeHeader()
     {
 	PtrMan<IOObj> ioobj = IOM().get( surf_.multiID() );
 	if ( !ioobj )
+	{
+	    msg_ = tr("Cannot write surface attribute '%1': "
+		      "output database entry not found.")
+			.arg( surf_.auxdata.auxDataName(dataidx_) );
 	    return false;
+	}
 
 	filename_ = SurfaceAuxData::getFreeFileName( *ioobj );
 	if ( filename_.isEmpty() )
+	{
+	    msg_ = tr("Cannot write surface attribute '%1': "
+		      "no free attribute filename available.")
+			.arg( surf_.auxdata.auxDataName(dataidx_) );
 	    return false;
+	}
     }
 
     delete stream_;
     stream_ = new od_ostream( filename_ );
     if ( !stream_ || !stream_->isOK() )
+    {
+	msg_ = tr("Cannot open surface attribute file:\n%1")
+		    .arg( filename_ );
+	deleteAndNullPtr( stream_ );
 	return false;
+    }
 
     ascostream astream( *stream_ );
     astream.putHeader( sKeyFileType() );
@@ -105,6 +120,14 @@ bool dgbSurfDataWriter::writeHeader()
     }
 
     par.putTo( astream );
+    if ( !stream_->isOK() )
+    {
+	msg_ = tr("Cannot write surface attribute header:\n%1")
+		    .arg( filename_ );
+	deleteAndNullPtr( stream_ );
+	return false;
+    }
+
     return true;
 }
 
@@ -145,6 +168,13 @@ bool dgbSurfDataWriter::doPrepare( od_ostream* strm )
 
 int dgbSurfDataWriter::nextStep()
 {
+    if ( !stream_ )
+    {
+	if ( !writeHeader() )
+	    mErrRetWrite( tr("Cannot open surface attribute file for "
+			     "writing") );
+    }
+
     PosID posid( surf_.id() );
     for ( int idx=0; idx<chunksize_; idx++ )
     {
@@ -159,7 +189,9 @@ int dgbSurfDataWriter::nextStep()
 	    else
 	    {
 		if ( !writeInt(surf_.nrSections()) )
-		    mErrRetWrite(tr("Error in writing data information"))
+		    mErrRetWrite( tr("Error writing attribute '%1' to:\n%2" )
+			.arg( surf_.auxdata.auxDataName(dataidx_) )
+			.arg( filename_ ))
 	    }
 
 	    const Geometry::BinIDSurface* meshsurf =
@@ -198,7 +230,9 @@ int dgbSurfDataWriter::nextStep()
 
 	    if ( !writeInt(SectionID::def().asInt()) ||
 		 !writeInt(subids_.size()) )
-		mErrRetWrite(tr("Error in writing data information"))
+		mErrRetWrite( tr("Error writing attribute '%1' to:\n%2" )
+		    .arg( surf_.auxdata.auxDataName(dataidx_) )
+		    .arg( filename_ ))
 	}
 
 	const int subidindex = subids_.size()-1;
@@ -206,7 +240,9 @@ int dgbSurfDataWriter::nextStep()
 	const float auxvalue = values_[subidindex];
 
 	if ( !writeInt64(subid) || !writeFloat(auxvalue) )
-	    mErrRetWrite(tr("Error in writing datavalues"))
+	    mErrRetWrite(tr( "Error writing attribute values for '%1' to:\n%2" )
+		.arg( surf_.auxdata.auxDataName(dataidx_) )
+		.arg( filename_ ))
 
 	subids_.removeSingle( subidindex );
 	values_.removeSingle( subidindex );
@@ -240,7 +276,7 @@ BufferString dgbSurfDataWriter::createHovName( const char* base, int idx )
 	stream_->addBin( val ); \
     else \
 	stream_->add( val ).add( od_newline ); \
-    return true
+    return stream_->isOK()
 
 
 bool dgbSurfDataWriter::writeInt( int val )

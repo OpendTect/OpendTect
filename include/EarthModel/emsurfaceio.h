@@ -326,6 +326,7 @@ protected:
 
     void			finishWriting();
     bool			writingfinished_;
+    bool			auxwritersprepared_;
 
     StreamConn*			conn_;
 
