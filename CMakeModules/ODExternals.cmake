@@ -7,11 +7,11 @@
 
 find_package( Git QUIET )
 if ( Git_FOUND )
-    set ( GIT_EXEC ${GIT_EXECUTABLE} )
+    set( GIT_EXEC "${GIT_EXECUTABLE}" )
 else()
-    set ( GIT_EXEC "git" ) # In user-defined path
+    set( GIT_EXEC "git" ) # In user-defined path
     execute_process(
-	COMMAND ${GIT_EXEC} --version
+	COMMAND "${GIT_EXEC}" --version
 		RESULT_VARIABLE STATUS
 		OUTPUT_VARIABLE GIT_VERSION_STRING
 		OUTPUT_QUIET OUTPUT_STRIP_TRAILING_WHITESPACE )
@@ -21,9 +21,9 @@ else()
 endif()
 
 if ( ${GIT_VERSION_STRING} LESS "2.2" )
-  set( GET_GIT_URL ${GIT_EXEC} ls-remote --get-url )
+  set( GET_GIT_URL "${GIT_EXEC}" ls-remote --get-url )
 else()
-  set( GET_GIT_URL ${GIT_EXEC} remote get-url origin )
+  set( GET_GIT_URL "${GIT_EXEC}" remote get-url origin )
 endif()
 
 macro( DEFINE_GIT_EXTERNAL DIR URL_STR BRANCH )
@@ -40,7 +40,7 @@ macro( DEFINE_GIT_EXTERNAL DIR URL_STR BRANCH )
     SET( URL ${URL_STR} )
     execute_process(
 	COMMAND ${GET_GIT_URL}
-	    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+	    WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
 	    RESULT_VARIABLE STATUS
 	    OUTPUT_VARIABLE MAIN_URL
 	    OUTPUT_STRIP_TRAILING_WHITESPACE )
@@ -62,22 +62,22 @@ macro( DEFINE_GIT_EXTERNAL DIR URL_STR BRANCH )
 	# Check URL and Branch of the old checkout
 	execute_process(
 	    COMMAND ${GET_GIT_URL}
-		WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/external/${DIR}
+		WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}/external/${DIR}"
 		RESULT_VARIABLE STATUS
 		OUTPUT_VARIABLE OLDURL
 		OUTPUT_STRIP_TRAILING_WHITESPACE )
 	if ( NOT ${OLDURL} STREQUAL ${URL} )
 	    if ( NOT (${SSHTSTATUS} EQUAL 255 AND IS_DIRECTORY "${CMAKE_SOURCE_DIR}/external/${DIR}") )
 		message( STATUS "Removing external/${DIR} having URL ${OLDURL}" )
-		file ( REMOVE_RECURSE ${CMAKE_SOURCE_DIR}/external/${DIR} ) 
+		file ( REMOVE_RECURSE "${CMAKE_SOURCE_DIR}/external/${DIR}" )
 		if ( IS_DIRECTORY "${OD_BINARY_BASEDIR}/external/${DIR}" )
 		    file ( REMOVE_RECURSE "${OD_BINARY_BASEDIR}/external/${DIR}" )
 		endif()
 	    endif()
 	else()
 	    execute_process(
-		COMMAND ${GIT_EXEC} symbolic-ref --short HEAD 
-		    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/external/${DIR}
+		COMMAND "${GIT_EXEC}" symbolic-ref --short HEAD 
+		    WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}/external/${DIR}"
 		    OUTPUT_VARIABLE OLDBRANCH
 		    ERROR_QUIET
 		    RESULT_VARIABLE STATUS
@@ -97,7 +97,7 @@ macro( DEFINE_GIT_EXTERNAL DIR URL_STR BRANCH )
 
     if ( NOT IS_DIRECTORY "${CMAKE_SOURCE_DIR}/external/${DIR}" )
 	execute_process(
-	    COMMAND ${GIT_EXEC} clone ${URL} --branch ${BRANCH} --depth 1 ${DIR}
+	    COMMAND "${GIT_EXEC}" clone ${URL} --branch ${BRANCH} --depth 1 ${DIR}
 		WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}/external"
 		OUTPUT_VARIABLE OUTPUT
 		ERROR_VARIABLE OUTPUT
@@ -111,15 +111,15 @@ macro( DEFINE_GIT_EXTERNAL DIR URL_STR BRANCH )
 	endif()
 	if ( ISTAG )
 	    execute_process(
-		COMMAND ${GIT_EXEC} checkout -b ${BRANCH}
-		WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/external/${DIR}
+		COMMAND "${GIT_EXEC}" checkout -b ${BRANCH}
+		WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}/external/${DIR}"
 		OUTPUT_QUIET
 		ERROR_QUIET
 	    )
 	endif()
     else()
 	execute_process(
-	    COMMAND ${GIT_EXEC} pull
+	    COMMAND "${GIT_EXEC}" pull
 	    WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}/external/${DIR}"
 	    OUTPUT_VARIABLE OUTPUT
 	    ERROR_VARIABLE OUTPUT
