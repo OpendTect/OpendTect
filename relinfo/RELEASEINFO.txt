@@ -1,4 +1,4 @@
-OpendTect 2025.1 release info
+OpendTect 2026.1 release info
 
 Build platforms/distributions:
 
