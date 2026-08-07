@@ -18,10 +18,10 @@ if ( NOT DEFINED OpendTect_VERSION_PATCH OR OpendTect_VERSION_PATCH STREQUAL "" 
 endif()
 
 if ( NOT DEFINED OpendTect_FULL_VERSION )
-    set( OpendTect_FULL_VERSION "2025.DEV" )
+    set( OpendTect_FULL_VERSION "2026.DEV" )
 endif()
 if ( NOT DEFINED OpendTect_INST_DIR )
-    set( OpendTect_INST_DIR "2025" )
+    set( OpendTect_INST_DIR "2026" )
 endif()
 
 if ( POLICY CMP0048 )
