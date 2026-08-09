@@ -116,3 +116,28 @@ cmd = "./inst/bin/win64/Release/od_main.exe"
 
 [target.win-64.tasks.debug]
 cmd = "./inst/bin/win64/Debug/od_maind.exe"
+
+
+[environments.odbind]
+no-default-feature = true
+dependencies = {
+    python  = "3.12.*",
+    pytest = "*",
+    numpy = "*",
+    jupyterlab = "*",
+    matplotlib-base = "*",
+    tqdm = "*",
+    folium = "*",
+    xarray = "*",
+    pandas = "*",
+    jupytext = "*"
+}
+solve-group = "shared"
+
+[environments.odbind.activation.env]
+PYTHONPATH = "$PIXI_PROJECT_ROOT/inst/bin/python"
+
+[environments.odbind.tasks]
+python = {cmd="python"}
+jupyter = {cmd="jupyter lab", cwd="plugins/ODBind/Examples/Python"}
+odbind-tests = {cmd="pytest", cwd="plugins/ODBind"}

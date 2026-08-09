@@ -156,3 +156,8 @@ x64
 
 # Mac
 
+#AI
+.codegraph/
+.opencode/
+
+
