@@ -333,21 +333,20 @@ Executor* SurfaceAuxData::auxDataLoader( const char* nm )
 
 BufferString SurfaceAuxData::getFreeFileName( const IOObj& ioobj )
 {
-    PtrMan<StreamConn> conn =
-	dynamic_cast<StreamConn*>(ioobj.getConn(Conn::Read));
-    if ( !conn )
-	return nullptr;
+    const BufferString basefnm( ioobj.fullUserExpr(true) );
+    if ( basefnm.isEmpty() )
+	return BufferString::empty();
 
     const int maxnrfiles = 100000; // just a big number to make this loop end
     for ( int idx=0; idx<maxnrfiles; idx++ )
     {
 	BufferString fnm =
-	    dgbSurfDataWriter::createHovName( conn->fileName(), idx );
+	    dgbSurfDataWriter::createHovName( basefnm.buf(), idx );
 	if ( !File::exists(fnm.buf()) )
 	    return fnm;
     }
 
-    return nullptr;
+    return BufferString::empty();
 }
 
 
