@@ -52,8 +52,8 @@ Horizon2DDisplay::Horizon2DDisplay()
 Horizon2DDisplay::~Horizon2DDisplay()
 {
     setZAxisTransform( nullptr, nullptr );
-    for ( const auto& sid : sids_ )
-	removeSectionDisplay( sid );
+    for ( int idx=sids_.size()-1; idx>=0; idx-- )
+	removeSectionDisplay( sids_[idx] );
 
     removeEMStuff();
     intersectmkset_ = nullptr;
@@ -742,6 +742,7 @@ void Horizon2DDisplay::removeEMStuff()
     if ( mpeeditor_ )
 	mpeeditor_->removeUser();
 
+    sids_.erase();
     mpeeditor_ = nullptr;
     tracker_ = nullptr;
     EMObjectDisplay::removeEMStuff();
