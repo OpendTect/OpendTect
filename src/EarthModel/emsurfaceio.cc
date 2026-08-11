@@ -1771,19 +1771,16 @@ int dgbSurfaceWriter::nextStep()
 		if ( !ioobj )
 		    ioobj = IOM().get( surface_.multiID() );
 
-		if ( ioobj )
-		    fnm = hor->auxdata.getFreeFileName( *ioobj );
+		if ( !ioobj )
+		{
+		    msg_ = tr("Cannot write surface attribute '%1': "
+			      "output database entry not found.")
+			    .arg( auxDataName(dataidx) );
+		    return ErrorOccurred();
+		}
 	    }
 
-	    if ( fnm.isEmpty() )
-	    {
-		msg_ = tr("Cannot write surface attribute '%1': "
-			  "no free attribute filename available.")
-			.arg( auxDataName(dataidx) );
-		return ErrorOccurred();
-	    }
-
-	    add(new dgbSurfDataWriter(*hor,dataidx,0,binary_,fnm.buf()));
+	    add( new dgbSurfDataWriter(*hor,dataidx,0,binary_,fnm.buf()) );
 	    // TODO:: Change binid sampler so not all values are written when
 	    // there is a subselection
 	}
