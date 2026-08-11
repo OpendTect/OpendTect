@@ -222,8 +222,6 @@ public:
     void		saveAsPS(const char* fnm,int w,int h,int res)
 			{ saveAsPDF( fnm, w, h, res ); }
 
-    static bool		hasPrintSupport();
-
     Notifier<uiMainWin> activatedone;
     Notifier<uiMainWin> ctrlCPressed;
     Notifier<uiMainWin> afterPopup;

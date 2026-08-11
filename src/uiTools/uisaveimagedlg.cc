@@ -537,7 +537,7 @@ void uiSaveImageDlg::setSizeInPix( int width, int height )
 
 void uiSaveImageDlg::addPrintFmtFilters( BufferString& filters )
 {
-    if ( !uiMainWin::hasPrintSupport() )
+    if ( !uiMain::hasPrintSupport() )
 	return;
 
     filters += ";;";

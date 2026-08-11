@@ -15,7 +15,9 @@ ________________________________________________________________________
 #include "settingsaccess.h"
 #include "uigraphicsitemimpl.h"
 #include "uigraphicsscene.h"
+#include "uimain.h"
 #include "uimouseeventblockerbygesture.h"
+#include "uimsg.h"
 #include "uiobjbodyimpl.h"
 
 #include <QApplication>
@@ -822,6 +824,13 @@ void uiGraphicsViewBase::translateText()
 
 bool uiGraphicsViewBase::print()
 {
+    const bool hasprinters = uiMain::arePrintersAvailable();
+    if ( !hasprinters )
+    {
+	uiMSG().message( toUiString("No printers available on this device.") );
+	return false;
+    }
+
     QGraphicsScene* qscene = scene_ ? scene_->qGraphicsScene() : nullptr;
     return qscene ? doPrintDialog( *qscene ) : false;
 }
