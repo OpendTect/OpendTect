@@ -56,6 +56,8 @@ public:
     bool			isExpanded() const;
     void			collapse();
     bool			isCollapsed() const;
+    void			setHidden(bool yn);
+    bool			isHidden() const;
 
     bool			hasChildren() const;
     bool			hasGrandChildren() const;

@@ -1304,6 +1304,18 @@ void uiTreeViewItem::checkAll( bool yn, bool trigger )
 }
 
 
+void uiTreeViewItem::setHidden( bool yn )
+{
+    qItem()->setHidden( yn );
+}
+
+
+bool uiTreeViewItem::isHidden() const
+{
+    return qItem()->isHidden();
+}
+
+
 void uiTreeViewItem::setToolTip( int column, const uiString& txt )
 {
     if ( column < 0 )
