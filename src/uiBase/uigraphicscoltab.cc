@@ -118,6 +118,13 @@ void uiColTabItem::setColTabMapperSetup( const ColTab::MapperSetup& ms )
 {
     ctms_ = ms;
 
+    if ( ms.range_.isUdf() )
+    {
+	minvalitm_->setPlainText( toUiString(0) );
+	maxvalitm_->setPlainText( toUiString(1) );
+	return;
+    }
+
     minvalitm_->setPlainText( toUiString(ms.range_.start_,0,'f',2) );
     maxvalitm_->setPlainText( toUiString(ms.range_.stop_,0,'f',2) );
 }
