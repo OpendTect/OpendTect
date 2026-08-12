@@ -1127,9 +1127,23 @@ mExternC(Basic) const char* GetPersonalDir()
     return dirnm.buf();
 }
 
+static BufferString logsdir;
+
+extern "C" { mGlobal(Basic) void SetLogsDir(const char*); }
+mExternC(Basic) void SetLogsDir( const char* dirnm )
+{
+    if ( dirnm && *dirnm )
+	logsdir = dirnm;
+    else
+	logsdir.setEmpty();
+}
+
 
 mExternC(Basic) const char* GetLogsDir()
 {
+    if ( !logsdir.isEmpty() )
+	return logsdir.str();
+
     mDeclStaticString( ret );
     if ( ret.isEmpty() )
     {
