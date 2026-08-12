@@ -21,6 +21,7 @@ ________________________________________________________________________
 #include "posvecdataset.h"
 #include "settings.h"
 #include "uistrings.h"
+#include "visdataman.h"
 #include "vishorizondisplay.h"
 #include "vismaterial.h"
 #include "visplanedatadisplay.h"
@@ -1038,22 +1039,61 @@ void FaultSetDisplay::updateHorizonIntersections( const VisID& whichobj,
 }
 
 
+void FaultSetDisplay::removeIntersectionObject( const SurveyObject* so,
+						bool updatedisplay )
+{
+    for ( int idx=intersectionobjs_.size()-1; idx>=0; idx-- )
+    {
+	if ( intersectionobjs_[idx] == so )
+	{
+	    for ( int fidx=0; fidx<explicitintersections_.size(); fidx++ )
+		explicitintersections_[fidx]->removePlane( planeids_[idx] );
+
+	    planeids_.removeSingle( idx );
+	    intersectionobjs_.removeSingle( idx );
+	}
+    }
+
+    if ( updatedisplay )
+	updateIntersectionDisplay();
+}
+
+
 void FaultSetDisplay::otherObjectsMoved(
 				    const ObjectSet<const SurveyObject>& objs,
-				    const VisID& whichobj )
+				    const VisID& movedid )
 {
-    updateHorizonIntersections( whichobj, objs );
+    updateHorizonIntersections( movedid, objs );
 
     if ( explicitintersections_.isEmpty() ) return;
 
-    const bool doall = !whichobj.isValid() || whichobj==id();
-    const int onlyidx = getValidIntersectionObjectIdx( false, objs, whichobj );
+    const bool doall = !movedid.isValid() || movedid==id();
+    const int onlyidx = getValidIntersectionObjectIdx( false, objs, movedid );
+    const SurveyObject* movedso = onlyidx<0 ? nullptr : objs[onlyidx];
     if ( !doall && onlyidx<0 )
-	return;
+    {
+	mDynamicCast(const SurveyObject*,movedso,
+		     visBase::DM().getObject(movedid))
+	if ( movedso )
+	    removeIntersectionObject( movedso, true );
 
-    ObjectSet<const SurveyObject> usedobjects;
-    TypeSet<int> planeids;
+	return;
+    }
+
     otherobjects_ = false;
+    if ( movedso )
+	removeIntersectionObject( movedso, false );
+    else // doall
+    {
+	for ( int idx=planeids_.size()-1; idx>=0; idx-- )
+	{
+	    for ( int fidx=0; fidx<explicitintersections_.size(); fidx++ )
+		explicitintersections_[fidx]->removePlane( planeids_[idx] );
+	}
+
+	intersectionobjs_.setEmpty();
+	planeids_.setEmpty();
+    }
 
     for ( int idx=0; idx<objs.size(); idx++ )
     {
@@ -1062,49 +1102,49 @@ void FaultSetDisplay::otherObjectsMoved(
 
 	mDynamicCastGet( const RandomTrackDisplay*, rdtd, objs[idx] );
 	mDynamicCastGet( const PlaneDataDisplay*, plane, objs[idx] );
-	if ( !plane || !plane->isOn() )
-	{
-	    if ( !rdtd || !rdtd->isOn() )
-		continue;
-	}
+	if ( !plane && !rdtd )
+	    continue;
 
 	otherobjects_ = true;
-
-	const TrcKeyZSampling cs = plane ?
-				   plane->getTrcKeyZSampling(true,true,-1) :
-				   rdtd->getTrcKeyZSampling(false,-1);
-
-	const BinID b00 = cs.hsamp_.start_, b11 = cs.hsamp_.stop_;
-	BinID b01, b10;
-
-	if ( plane && plane->getOrientation()==OD::SliceType::Z )
+	const int nrplanes = rdtd ? rdtd->nrNodes()-1 : 1;
+	TrcKeyZSampling tkzs = plane ? plane->getTrcKeyZSampling(true,true,-1)
+				     : rdtd->getTrcKeyZSampling(false,-1);
+	for ( int idy=0; idy<nrplanes; idy++ )
 	{
-	    b01 = BinID( cs.hsamp_.start_.inl(), cs.hsamp_.stop_.crl() );
-	    b10 = BinID( cs.hsamp_.stop_.inl(), cs.hsamp_.start_.crl() );
-	}
-	else
-	{
-	    b01 = b00;
-	    b10 = b11;
-	}
+	    if ( rdtd )
+	    {
+		tkzs.hsamp_.start_ = rdtd->getNodePos( idy );
+		tkzs.hsamp_.stop_ = rdtd->getNodePos( idy+1 );
+	    }
 
-	const Coord3 c00( s3dgeom_->transform(b00),cs.zsamp_.start_ );
-	const Coord3 c01( s3dgeom_->transform(b01),cs.zsamp_.stop_ );
-	const Coord3 c11( s3dgeom_->transform(b11),cs.zsamp_.stop_ );
-	const Coord3 c10( s3dgeom_->transform(b10),cs.zsamp_.start_ );
+	    const BinID b00 = tkzs.hsamp_.start_, b11 = tkzs.hsamp_.stop_;
+	    BinID b01, b10;
 
-	const Coord3 normal = (c01-c00).cross(c10-c00).normalize();
+	    if ( plane && plane->getOrientation()==OD::SliceType::Z )
+	    {
+		b01 = BinID( tkzs.hsamp_.start_.inl(), tkzs.hsamp_.stop_.crl());
+		b10 = BinID( tkzs.hsamp_.stop_.inl(), tkzs.hsamp_.start_.crl());
+	    }
+	    else
+	    {
+		b01 = b00;
+		b10 = b11;
+	    }
 
-	TypeSet<Coord3> positions;
-	positions += c00;
-	positions += c01;
-	positions += c11;
-	positions += c10;
+	    const Coord3 c00( s3dgeom_->transform(b00),tkzs.zsamp_.start_ );
+	    const Coord3 c01( s3dgeom_->transform(b01),tkzs.zsamp_.stop_ );
+	    const Coord3 c11( s3dgeom_->transform(b11),tkzs.zsamp_.stop_ );
+	    const Coord3 c10( s3dgeom_->transform(b10),tkzs.zsamp_.start_ );
 
-	const int idy = intersectionobjs_.indexOf( objs[idx] );
-	if ( idy==-1 )
-	{
-	    usedobjects += objs[idx];
+	    const Coord3 normal = (c01-c00).cross(c10-c00).normalize();
+
+	    TypeSet<Coord3> positions;
+	    positions += c00;
+	    positions += c01;
+	    positions += c11;
+	    positions += c10;
+
+	    intersectionobjs_ += objs[idx];
 	    int planeid = -1;
 	    for ( int fidx=0; fidx<explicitintersections_.size(); fidx++ )
 	    {
@@ -1114,30 +1154,10 @@ void FaultSetDisplay::otherObjectsMoved(
 		    planeid = pid;
 	    }
 
-	    planeids.add( planeid );
-	}
-	else
-	{
-	    usedobjects += objs[idx];
-	    for ( int fidx=0; fidx<explicitintersections_.size(); fidx++ )
-		explicitintersections_[fidx]->setPlane( planeids_[idy],
-							normal, positions );
-
-	    planeids += planeids_[idy];
-
-	    intersectionobjs_.removeSingle( idy );
-	    planeids_.removeSingle( idy );
+	    planeids_ += planeid;
 	}
     }
 
-    for ( int idx=planeids_.size()-1; idx>=0; idx-- )
-    {
-	for ( int fidx=0; fidx<explicitintersections_.size(); fidx++ )
-	    explicitintersections_[fidx]->removePlane( planeids_[idx] );
-    }
-
-    intersectionobjs_ = usedobjects;
-    planeids_ = planeids;
     updateIntersectionDisplay();
 }
 
