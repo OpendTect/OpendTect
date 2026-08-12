@@ -1375,12 +1375,11 @@ bool OD::PythonAccess::getInternalEnvironmentLocation( FilePath& fp,
     }
 
     fp.set( GetSoftwareDir(false) );
-
     if (__ismac__)
         fp.set( fp.pathOnly() );
 
     DirList dl( fp.pathOnly(), File::DirListType::DirsInDir );
-    const BufferStringSet::idx_type defidx = dl.nearestMatch( "Python" );
+    BufferStringSet::idx_type defidx = dl.nearestMatch( "Python" );
     if ( dl.validIdx(defidx) )
 	dl.swap( 0, defidx );
 
@@ -1392,6 +1391,26 @@ bool OD::PythonAccess::getInternalEnvironmentLocation( FilePath& fp,
 
 	fp = pythfp;
 	return true;
+    }
+
+    if ( isDeveloperBuild() )
+    {
+	const FilePath srcdir(__FILE__);
+	dl = DirList( fp.dirUpTo( srcdir.nrLevels() - 5 ),
+		      File::DirListType::DirsInDir );
+	defidx = dl.nearestMatch( "Python" );
+	if ( dl.validIdx(defidx) )
+	    dl.swap( 0, defidx );
+
+	for ( int idx=0; idx<dl.size(); idx++ )
+	{
+	    const FilePath pythfp( dl.fullPath(idx) );
+	    if ( !validInternalEnvironment(pythfp) )
+		continue;
+
+	    fp = pythfp;
+	    return true;
+	}
     }
 
     if ( !userdef )
