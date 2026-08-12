@@ -566,10 +566,14 @@ bool uiSeisIOSimple::acceptOK( CallBacker* )
     {
         data().sd_.start_ = sdfld_->getFValue(0);
         data().sd_.step_ = sdfld_->getFValue(1);
-	const LinScaler& scaler =
-	    UnitOfMeasure::zUnit( seisfld_->getZDomain(), false )->scaler();
-        data().sd_.start_ = scaler.scale( data().sd_.start_ );
-        data().sd_.step_ = scaler.scale( data().sd_.step_ );
+	const UnitOfMeasure* uom =
+	    UnitOfMeasure::zUnit( seisfld_->getZDomain(), false );
+	if ( uom )
+	{
+	    data().sd_.start_ = uom->internalValue( data().sd_.start_ );
+	    data().sd_.step_ = uom->internalValue( data().sd_.step_ );
+	}
+
 	data().nrsamples_ = sdfld_->getIntValue(2);
     }
 
