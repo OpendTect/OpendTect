@@ -124,7 +124,7 @@ void uiODMenuMgr::initSceneMgrDepObjs( uiODApplMgr* appman,
     langmnumgr_ = new uiODLangMenuMgr( this );
 
     fillDtectTB( appman );
-    fillCoinTB( sceneman );
+    fillCoinTB( sceneman );    
     fillManTB();
     uiSettsMgr().loadToolBarCmds( appl_ );
 
@@ -1355,6 +1355,10 @@ void uiODMenuMgr::fillCoinTB( uiODSceneMgr* scenemgr )
     viewtb_->setButtonMenu( coltabid_, colbarmnu );
 
     mAddTB(viewtb_,"snapshot",uiStrings::sTakeSnapshot(),false,mkSnapshot);
+    
+    viewtb_->addButton( "video", tr("Record Screen Session"),
+	mCB(this,uiODMenuMgr,recordScreenCB), false );
+    
     polyselectid_ = viewtb_->addButton( "polygonselect",
 		tr("Polygon Selection mode"),
 		mCB(this,uiODMenuMgr,selectionMode), true );
@@ -1370,6 +1374,12 @@ void uiODMenuMgr::fillCoinTB( uiODSceneMgr* scenemgr )
 
     soloid_ = mAddTB(viewtb_,"solo",tr("Display current element only"),
 		     true,soloMode);
+}
+
+void uiODMenuMgr::recordScreenCB( CallBacker* )
+{
+    uiMSG().message(
+	tr("Screen recording is not implemented yet.") );
 }
 
 

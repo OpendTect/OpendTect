@@ -152,6 +152,7 @@ protected:
     void		handleViewClick(CallBacker*);
     void		handleClick(CallBacker*);
     void		removeSelection(CallBacker*);
+    void        recordScreenCB(CallBacker*);
     void		dispColorBar(CallBacker*);
     void		manSeis(CallBacker*);
     void		manHor(CallBacker*);

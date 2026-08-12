@@ -14,6 +14,7 @@ set( OD_MODULE_DEPS
 	uiViewer2D
 )
 set( OD_FOLDER "Base (GUI)" )
+set( OD_USEQT Multimedia )
 
 set( OD_MODULE_SOURCES
 	inituiodmain.cc
@@ -66,6 +67,8 @@ set( OD_MODULE_SOURCES
 	uiodlangmenumgr.cc
 	uifirewallprocsetterdlg.cc
 	uiserviceclientmgr.cc
+	uiodscreenrecordermgr.cc
+	uiodscreenrecorderdlg.cc
 )
 
 set( OD_FIREWALL_EXCEPTION_EXEC od_main.cc )
