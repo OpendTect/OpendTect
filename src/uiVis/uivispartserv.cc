@@ -14,8 +14,6 @@ ________________________________________________________________________
 #include "coltabsequence.h"
 #include "envvars.h"
 #include "flatview.h"
-#include "genc.h"
-#include "hiddenparam.h"
 #include "ioman.h"
 #include "iopar.h"
 #include "mousecursor.h"
@@ -59,6 +57,8 @@ ________________________________________________________________________
 #include "vistexturechannels.h"
 #include "visvolumedisplay.h"
 
+#include "hiddenparam.h"
+
 
 int uiVisPartServer::evUpdateTree()			{ return 0; }
 int uiVisPartServer::evSelection()			{ return 1; }
@@ -93,8 +93,22 @@ static const int cResetManipIdx = 800;
 static const int cPropertiesIdx = 600;
 static const int cResolutionIdx = 500;
 
-static HiddenParam<uiVisPartServer,CNotifier<uiVisPartServer,VisAttribID>*>
-						hp_datapackdisplayed(nullptr);
+class uiVisPartServerHPImpl
+{
+public:
+	uiVisPartServerHPImpl( uiVisPartServer& server )
+	  : attribAdded(&server)
+	  , attribRemoved(&server)
+	  , datapackDisplayed(&server)
+	{}
+
+	CNotifier<uiVisPartServer,VisAttribID> attribAdded;
+	CNotifier<uiVisPartServer,VisAttribID> attribRemoved;
+	CNotifier<uiVisPartServer,VisAttribID> datapackDisplayed;
+};
+
+static HiddenParam<uiVisPartServer,uiVisPartServerHPImpl*>
+					uivispartserverhpmgr(nullptr);
 
 uiVisPartServer::uiVisPartServer( uiApplService& a )
     : uiApplPartServer(a)
@@ -113,8 +127,7 @@ uiVisPartServer::uiVisPartServer( uiApplService& a )
     , pickretriever_(new uiVisPickRetriever(this))
     , nrscenesChange(this)
 {
-    hp_datapackdisplayed.setParam( this,
-	    new CNotifier<uiVisPartServer,VisAttribID>(this) );
+    uivispartserverhpmgr.setParam( this, new uiVisPartServerHPImpl(*this) );
     changematerialmnuitem_.iconfnm = "disppars";
 
     mAttachCB( menu_->createnotifier, uiVisPartServer::createMenuCB );
@@ -161,15 +174,28 @@ uiVisPartServer::~uiVisPartServer()
     delete dirlightdlg_;
     delete topbotdlg_;
     mousecursorexchange_ = nullptr;
-    hp_datapackdisplayed.removeAndDeleteParam( this );
+    uivispartserverhpmgr.removeAndDeleteParam( this );
 }
 
 
 const char* uiVisPartServer::name() const  { return "Visualization"; }
 
+
+CNotifier<uiVisPartServer,VisAttribID>& uiVisPartServer::attribAdded()
+{
+    return uivispartserverhpmgr.getParam( this )->attribAdded;
+}
+
+
+CNotifier<uiVisPartServer,VisAttribID>& uiVisPartServer::attribRemoved()
+{
+    return uivispartserverhpmgr.getParam( this )->attribRemoved;
+}
+
+
 CNotifier<uiVisPartServer,VisAttribID>& uiVisPartServer::datapackDisplayed()
 {
-    return *hp_datapackdisplayed.getParam( this );
+    return uivispartserverhpmgr.getParam( this )->datapackDisplayed;
 }
 
 
@@ -695,19 +721,28 @@ int uiVisPartServer::addAttrib( const VisID& id )
     if ( !so )
 	return -1;
 
-    return so->addAttrib() ? so->nrAttribs()-1 : -1;
+    const int attrib = so->addAttrib() ? so->nrAttribs()-1 : -1;
+    if ( attrib != -1 )
+    {
+	const VisAttribID layerid( id, attrib );
+	attribAdded().trigger( layerid );
+    }
+
+    return attrib;
 }
 
 
 void uiVisPartServer::removeAttrib( const VisID& id, int attrib )
 {
     mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(id));
-    if ( !so )
+    if ( !so || !so->canRemoveAttrib() || !so->removeAttrib(attrib) )
 	return;
 
-    so->removeAttrib( attrib );
+    const VisAttribID layerid( id, attrib );
+    attribRemoved().trigger( layerid );
     selattrib_ = -1;
 }
+
 
 int uiVisPartServer::getNrAttribs( const VisID& id ) const
 {
