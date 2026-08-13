@@ -97,6 +97,8 @@ uiVisPartServer::uiVisPartServer( uiApplService& a )
     : uiApplPartServer(a)
     , objectAdded(this)
     , objectRemoved(this)
+    , attribAdded(this)
+    , attribRemoved(this)
     , datapackDisplayed(this)
     , keyEvent(this)
     , mouseEvent(this)
@@ -685,19 +687,28 @@ int uiVisPartServer::addAttrib( const VisID& id )
     if ( !so )
 	return -1;
 
-    return so->addAttrib() ? so->nrAttribs()-1 : -1;
+    const int attrib = so->addAttrib() ? so->nrAttribs()-1 : -1;
+    if ( attrib != -1 )
+    {
+	const VisAttribID layerid( id, attrib );
+	attribAdded.trigger( layerid );
+    }
+
+    return attrib;
 }
 
 
 void uiVisPartServer::removeAttrib( const VisID& id, int attrib )
 {
     mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(id));
-    if ( !so )
+    if ( !so || !so->canRemoveAttrib() || !so->removeAttrib(attrib) )
 	return;
 
-    so->removeAttrib( attrib );
+    const VisAttribID layerid( id, attrib );
+    attribRemoved.trigger( layerid );
     selattrib_ = -1;
 }
+
 
 int uiVisPartServer::getNrAttribs( const VisID& id ) const
 {
