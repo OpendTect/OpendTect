@@ -45,7 +45,7 @@ ________________________________________________________________________
 
 namespace
 {
-struct GpuDiagnostics
+/*struct GpuDiagnostics
 {
     bool valid = false;
 
@@ -59,8 +59,22 @@ struct GpuDiagnostics
 
     int maximumTextureSize = 0;
     bool computeShaders = false;
-};    
+};*/   
 
+QString openGLString( QOpenGLFunctions* gl, GLenum name )
+{
+    const GLubyte* value = gl->glGetString( name );
+
+    return value
+         ? QString::fromLatin1(
+               reinterpret_cast<const char*>(value) )
+         : QString();
+}
+
+QString yesNo( bool yn )
+{
+    return yn ? QStringLiteral("yes") : QStringLiteral("no");
+}
 
 void addSection( BufferString& report, const QString& title )
 {
@@ -71,12 +85,216 @@ void addSection( BufferString& report, const QString& title )
 }
 
 
+QString openGLProfileText( QSurfaceFormat::OpenGLContextProfile profile )
+{
+    switch ( profile )
+    {
+        case QSurfaceFormat::CoreProfile:
+            return QStringLiteral("Core");
+
+        case QSurfaceFormat::CompatibilityProfile:
+            return QStringLiteral("Compatibility");
+
+        case QSurfaceFormat::NoProfile:
+            return QStringLiteral("No profile");
+    }
+
+    return QStringLiteral("Unknown");
+}
+
 void addValue( BufferString& report, const char* key, const QString& value )
 {
     report.add( key ).add( ": " )
 	  .add( value.isEmpty() ? QStringLiteral("<empty>") : value )
 	  .addNewLine();
 }
+
+void addCurrentOpenGLDiagnostics( BufferString& report,
+                                  QOpenGLContext& context,
+                                  const QString& contextsource )
+{
+    QOpenGLFunctions* gl = context.functions();
+    if ( !gl )
+    {
+        addValue( report, "Status",
+                  QStringLiteral("No QOpenGLFunctions interface") );
+        return;
+    }
+
+    const QSurfaceFormat format = context.format();
+
+    addValue( report, "Context source", contextsource );
+    addValue( report, "Graphics API",
+              context.isOpenGLES()
+                  ? QStringLiteral("OpenGL ES")
+                  : QStringLiteral("OpenGL") );
+
+    addValue( report, "GPU vendor",
+              openGLString(gl,GL_VENDOR) );
+    addValue( report, "GPU renderer",
+              openGLString(gl,GL_RENDERER) );
+    addValue( report, "OpenGL version",
+              openGLString(gl,GL_VERSION) );
+    addValue( report, "GLSL version",
+              openGLString(gl,GL_SHADING_LANGUAGE_VERSION) );
+
+    addValue( report, "Context version",
+              QStringLiteral("%1.%2")
+                  .arg(format.majorVersion())
+                  .arg(format.minorVersion()) );
+
+    addValue( report, "Context profile",
+              openGLProfileText(format.profile()) );
+
+    GLint maxtexturesize = 0;
+    gl->glGetIntegerv( GL_MAX_TEXTURE_SIZE, &maxtexturesize );
+
+    addValue( report, "Maximum 2D texture dimension",
+              QString::number(maxtexturesize) );
+
+    const int major = format.majorVersion();
+    const int minor = format.minorVersion();
+
+    bool compute = false;
+
+    if ( context.isOpenGLES() )
+    {
+        // Compute shaders are core in OpenGL ES 3.1.
+        compute = major > 3 || (major == 3 && minor >= 1);
+    }
+    else
+    {
+        // Compute shaders are core in desktop OpenGL 4.3.
+        compute =
+            major > 4
+            || (major == 4 && minor >= 3)
+            || context.hasExtension(
+                QByteArrayLiteral("GL_ARB_compute_shader") );
+    }
+
+    addValue( report, "Compute shaders", yesNo(compute) );
+
+#ifdef GL_MAX_COMPUTE_WORK_GROUP_INVOCATIONS
+    if ( compute )
+    {
+        GLint maxinvocations = 0;
+        gl->glGetIntegerv(
+            GL_MAX_COMPUTE_WORK_GROUP_INVOCATIONS,
+            &maxinvocations );
+
+        addValue( report,
+                  "Maximum compute work-group invocations",
+                  QString::number(maxinvocations) );
+    }
+#endif
+}
+
+
+void addGpuDiagnostics( BufferString& report )
+{
+    addSection( report, QStringLiteral("Application graphics and GPU") );
+
+#if QT_CONFIG(opengl)
+
+    /*
+     * If an OpenGL context happens to be current on this thread,
+     * use it directly.
+     */
+    if ( QOpenGLContext* current = QOpenGLContext::currentContext() )
+    {
+        addCurrentOpenGLDiagnostics(
+            report, *current,
+            QStringLiteral("Existing current context") );
+        return;
+    }
+
+    /*
+     * Otherwise create a temporary context for capability queries.
+     */
+    QScreen* probescreen = nullptr;
+
+    if ( QWindow* focuswindow = QGuiApplication::focusWindow() )
+        probescreen = focuswindow->screen();
+
+    if ( !probescreen )
+        probescreen = QGuiApplication::primaryScreen();
+
+    QOpenGLContext probecontext;
+
+    if ( probescreen )
+        probecontext.setScreen( probescreen );
+
+    /*
+     * If Qt has an application-wide share context, sharing with it
+     * ties this context to the same OpenGL implementation/share group.
+     */
+    QOpenGLContext* sharecontext =
+        QOpenGLContext::globalShareContext();
+
+    if ( sharecontext )
+    {
+        probecontext.setShareContext( sharecontext );
+        probecontext.setFormat( sharecontext->format() );
+    }
+    else
+    {
+        probecontext.setFormat( QSurfaceFormat::defaultFormat() );
+    }
+
+    if ( !probecontext.create() )
+    {
+        addValue( report, "Status",
+                  QStringLiteral(
+                      "Failed to create temporary OpenGL context") );
+        return;
+    }
+
+    QOffscreenSurface surface( probescreen );
+    surface.setFormat( probecontext.format() );
+    surface.create();
+
+    if ( !surface.isValid() )
+    {
+        addValue( report, "Status",
+                  QStringLiteral(
+                      "Failed to create OpenGL offscreen surface") );
+        return;
+    }
+
+    if ( !probecontext.makeCurrent(&surface) )
+    {
+        addValue( report, "Status",
+                  QStringLiteral(
+                      "Failed to make temporary OpenGL context current") );
+        return;
+    }
+
+    addCurrentOpenGLDiagnostics(
+        report, probecontext,
+        sharecontext
+            ? QStringLiteral(
+                  "Temporary context sharing with Qt application")
+            : QStringLiteral(
+                  "Temporary context on active/default screen") );
+
+    probecontext.doneCurrent();
+
+#else
+
+    addValue( report, "Status",
+              QStringLiteral(
+                  "This Qt build has no OpenGL support") );
+
+#endif
+}
+
+
+/*void addValue( BufferString& report, const char* key, const QString& value )
+{
+    report.add( key ).add( ": " )
+	  .add( value.isEmpty() ? QStringLiteral("<empty>") : value )
+	  .addNewLine();
+}*/
 
 
 QString environmentValue( const char* name )
@@ -85,11 +303,6 @@ QString environmentValue( const char* name )
     return value ? QString::fromUtf8(value) : QStringLiteral("<unset>");
 }
 
-
-QString yesNo( bool yn )
-{
-    return yn ? QStringLiteral("yes") : QStringLiteral("no");
-}
 
 
 QString rectangleText( const QRect& rect )
@@ -139,86 +352,6 @@ bool isVideoContainer( QMediaFormat::FileFormat format )
     }
 }
 
-GpuDiagnostics queryCurrentOpenGLGpu()
-{
-    GpuDiagnostics result;
-
-    QOpenGLContext* context = QOpenGLContext::currentContext();
-    if ( !context )
-        return result;
-
-    QOpenGLFunctions* gl = context->functions();
-    if ( !gl )
-        return result;
-
-    const auto getString = [gl]( GLenum name )
-    {
-        const GLubyte* value = gl->glGetString( name );
-        return value
-             ? QString::fromLatin1(
-                   reinterpret_cast<const char*>(value) )
-             : QString();
-    };
-
-    result.backend = context->isOpenGLES()
-                   ? QStringLiteral("OpenGL ES")
-                   : QStringLiteral("OpenGL");
-
-    result.vendor = getString( GL_VENDOR );
-    result.renderer = getString( GL_RENDERER );
-    result.apiVersion = getString( GL_VERSION );
-    result.shadingLanguageVersion =
-        getString( GL_SHADING_LANGUAGE_VERSION );
-
-    const QSurfaceFormat format = context->format();
-
-    result.contextVersion =
-        QStringLiteral("%1.%2")
-            .arg(format.majorVersion())
-            .arg(format.minorVersion());
-
-    switch ( format.profile() )
-    {
-        case QSurfaceFormat::CoreProfile:
-            result.contextProfile = QStringLiteral("Core");
-            break;
-
-        case QSurfaceFormat::CompatibilityProfile:
-            result.contextProfile = QStringLiteral("Compatibility");
-            break;
-
-        case QSurfaceFormat::NoProfile:
-            result.contextProfile = QStringLiteral("No profile");
-            break;
-    }
-
-    GLint maximumTextureSize = 0;
-    gl->glGetIntegerv( GL_MAX_TEXTURE_SIZE,
-                       &maximumTextureSize );
-
-    result.maximumTextureSize = maximumTextureSize;
-
-    const int major = format.majorVersion();
-    const int minor = format.minorVersion();
-
-    if ( context->isOpenGLES() )
-    {
-        // Compute shaders are core in OpenGL ES 3.1.
-        result.computeShaders =
-            major > 3 || (major == 3 && minor >= 1);
-    }
-    else
-    {
-        // Compute shaders are core in desktop OpenGL 4.3.
-        result.computeShaders =
-            major > 4 || (major == 4 && minor >= 3)
-            || context->hasExtension(
-                QByteArrayLiteral("GL_ARB_compute_shader") );
-    }
-
-    result.valid = !result.renderer.isEmpty();
-    return result;
-}
 
 
 BufferString collectDiagnostics()
@@ -238,8 +371,8 @@ BufferString collectDiagnostics()
 	      QGuiApplication::platformName() );
 
    
-    addSection( report, QStringLiteral("Qt RHI and GPU") );
-
+    //addSection( report, QStringLiteral("Qt RHI and GPU") );
+    addGpuDiagnostics( report );    
 
     /*QRhiDriverInfo info = rhi->driverInfo();
 
@@ -439,7 +572,7 @@ BufferString collectDiagnostics()
 }
 
 
-} // namespace
+} // End namespace
 
 
 uiODScreenRecorderDlg::uiODScreenRecorderDlg( uiODMain& appl )
