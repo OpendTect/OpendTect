@@ -1,7 +1,7 @@
 /*+
 ________________________________________________________________________
 
- Copyright:	(C) 1995-2022 dGB Beheer B.V.
+ Copyright:	(C) 1995-2026 dGB Beheer B.V.
  License:	https://dgbes.com/licensing
 ________________________________________________________________________
 
@@ -22,6 +22,7 @@ ________________________________________________________________________
 #include "uiodhelpmenumgr.h"
 #include "uiodlangmenumgr.h"
 #include "uiodscenemgr.h"
+#include "uiodscreenrecordermgr.h"
 #include "uiodstdmenu.h"
 #include "uipickpartserv.h"
 #include "uipythonsettings.h"
@@ -1379,7 +1380,8 @@ void uiODMenuMgr::fillCoinTB( uiODSceneMgr* scenemgr )
 void uiODMenuMgr::recordScreenCB( CallBacker* )
 {
     uiMSG().message(
-	tr("Screen recording is not implemented yet.") );
+	tr("Screen recording is not implemented fully yet.") );
+    screenRecorderMgr().toggleRecording();
 }
 
 

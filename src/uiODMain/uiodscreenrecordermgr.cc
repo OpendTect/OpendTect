@@ -1,0 +1,37 @@
+/*+
+________________________________________________________________________
+
+ Copyright:	(C) 1995-2022 dGB Beheer B.V.
+ License:	https://dgbes.com/licensing
+________________________________________________________________________
+
+-*/
+
+#include "uiodscreenrecordermgr.h"
+
+#include "uimsg.h"
+#include "uiodmain.h"
+#include "uiodscreenrecorderdlg.h"
+
+
+uiODScreenRecorderMgr::uiODScreenRecorderMgr( uiODMain& appl )
+    : appl_(appl)
+{
+}
+
+
+uiODScreenRecorderMgr::~uiODScreenRecorderMgr()
+{
+    delete dialog_;
+}
+
+
+void uiODScreenRecorderMgr::toggleRecording()
+{
+    uiMSG().message( tr("Screen recorder manager callback reached.") );
+
+    if ( !dialog_ )
+	dialog_ = new uiODScreenRecorderDlg( appl_ );
+
+    dialog_->show();
+}

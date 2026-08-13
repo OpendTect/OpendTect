@@ -22,6 +22,7 @@ class uiODApplMgr;
 class uiODMain;
 class uiODMenuMgr;
 class uiODSceneMgr;
+class uiODScreenRecorderMgr;
 class uiODViewer2DMgr;
 class uiServiceClientMgr;
 class uiToolBar;
@@ -51,6 +52,8 @@ public:
     uiODApplMgr&	applMgr()	{ return *applmgr_; }
     uiODMenuMgr&	menuMgr()	{ return *menumgr_; } //!< + toolbar
     uiODSceneMgr&	sceneMgr()	{ return *scenemgr_; }
+    uiODScreenRecorderMgr& screenRecorderMgr()
+					{ return *screenrecordermgr_; }
     uiODViewer2DMgr&	viewer2DMgr()	{ return *viewer2dmgr_; }
     uiVisColTabEd&	colTabEd()	{ return *ctabed_; }
     uiToolBar*		colTabToolBar()	{ return ctabtb_; }
@@ -92,6 +95,7 @@ protected:
     uiODApplMgr*	applmgr_;
     uiODMenuMgr*	menumgr_;
     uiODSceneMgr*	scenemgr_;
+    uiODScreenRecorderMgr* screenrecordermgr_		= nullptr;
     uiODViewer2DMgr*	viewer2dmgr_;
     uiVisColTabEd*	ctabed_;
     uiToolBar*		ctabtb_;

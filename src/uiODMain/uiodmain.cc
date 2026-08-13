@@ -30,6 +30,7 @@ ________________________________________________________________________
 #include "uiodapplmgr.h"
 #include "uiodmenumgr.h"
 #include "uiodscenemgr.h"
+#include "uiodscreenrecordermgr.h"
 #include "uiodviewer2dmgr.h"
 #include "uipixmap.h"
 #include "uiseispartserv.h"
@@ -363,6 +364,7 @@ uiODMain::~uiODMain()
     delete &newsurvinittimer_;
     delete &autoloadsessiontimer_;
 
+    delete screenrecordermgr_;
     delete menumgr_;
     delete scenemgr_;
     delete viewer2dmgr_;
@@ -374,6 +376,7 @@ bool uiODMain::buildUI()
 {
     scenemgr_ = new uiODSceneMgr( this );
     viewer2dmgr_ = new uiODViewer2DMgr( this );
+    screenrecordermgr_ = new uiODScreenRecorderMgr( *this );
     menumgr_ = new uiODMenuMgr( this );
     menumgr_->initSceneMgrDepObjs( applmgr_, scenemgr_ );
 

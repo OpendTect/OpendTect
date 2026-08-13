@@ -2,7 +2,7 @@
 /*+
 ________________________________________________________________________
 
- Copyright:	(C) 1995-2022 dGB Beheer B.V.
+ Copyright:	(C) 1995-2026 dGB Beheer B.V.
  License:	https://dgbes.com/licensing
 ________________________________________________________________________
 
@@ -192,6 +192,8 @@ protected:
 
     inline uiODApplMgr&	applMgr()	{ return appl_.applMgr(); }
     inline uiODSceneMgr& sceneMgr()	{ return appl_.sceneMgr(); }
+    inline uiODScreenRecorderMgr& screenRecorderMgr()
+					{ return appl_.screenRecorderMgr(); }
 
     void		showLogFile();
     void		showFirewallProcDlg();
