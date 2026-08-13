@@ -17,6 +17,7 @@ ________________________________________________________________________
 
 class uiODMain;
 class uiTextEdit;
+class QPushButton;
 
 
 /*!\brief Temporary screen recorder diagnostics dialog. */
@@ -33,5 +34,6 @@ protected:
     void		refreshCB(CallBacker*);
     void		copyCB(CallBacker*);
 
-    uiTextEdit*		diagnosticstxt_	= nullptr;
+    uiTextEdit* diagnosticstxt_	{nullptr};
+	uiPushButton* startStopButton_ {nullptr};
 };

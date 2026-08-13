@@ -1,7 +1,9 @@
+/** @file src/uiODMain/uiodscreenrecordermgr.cc */
+
 /*+
 ________________________________________________________________________
 
- Copyright:	(C) 1995-2022 dGB Beheer B.V.
+ Copyright:	(C) 1995-2026 dGB Beheer B.V.
  License:	https://dgbes.com/licensing
 ________________________________________________________________________
 
@@ -11,6 +13,7 @@ ________________________________________________________________________
 
 #include "uiodmain.h"
 #include "uiodscreenrecorderdlg.h"
+#include "uirubberband.h"
 
 
 uiODScreenRecorderMgr::uiODScreenRecorderMgr( uiODMain& appl )

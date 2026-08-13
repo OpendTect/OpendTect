@@ -102,12 +102,14 @@ QString openGLProfileText( QSurfaceFormat::OpenGLContextProfile profile )
     return QStringLiteral("Unknown");
 }
 
+
 void addValue( BufferString& report, const char* key, const QString& value )
 {
     report.add( key ).add( ": " )
 	  .add( value.isEmpty() ? QStringLiteral("<empty>") : value )
 	  .addNewLine();
 }
+
 
 void addCurrentOpenGLDiagnostics( BufferString& report,
                                   QOpenGLContext& context,
@@ -620,7 +622,7 @@ void uiODScreenRecorderDlg::refreshCB( CallBacker* )
     diagnosticstxt_->setText( collectDiagnostics() );
 }
 
-
+/** @brief Copies the diagnostic information to the clipboard. */
 void uiODScreenRecorderDlg::copyCB( CallBacker* )
 {
     uiClipboard::setText( diagnosticstxt_->text() );
