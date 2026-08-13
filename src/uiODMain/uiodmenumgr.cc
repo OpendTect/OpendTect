@@ -1379,8 +1379,6 @@ void uiODMenuMgr::fillCoinTB( uiODSceneMgr* scenemgr )
 
 void uiODMenuMgr::recordScreenCB( CallBacker* )
 {
-    uiMSG().message(
-	tr("Screen recording is not implemented fully yet.") );
     screenRecorderMgr().toggleRecording();
 }
 

@@ -16,9 +16,10 @@ ________________________________________________________________________
 #include "uidialog.h"
 
 class uiODMain;
+class uiTextEdit;
 
 
-/*!\brief Temporary screen recorder dialog used to verify UI wiring. */
+/*!\brief Temporary screen recorder diagnostics dialog. */
 
 mExpClass(uiODMain) uiODScreenRecorderDlg : public uiDialog
 { mODTextTranslationClass(uiODScreenRecorderDlg);
@@ -26,5 +27,11 @@ public:
 	uiODScreenRecorderDlg(uiODMain&);
 	~uiODScreenRecorderDlg();
 	mOD_DisableCopy(uiODScreenRecorderDlg)
-	QString environmentQt(const char* name) const;
+
+protected:
+
+    void		refreshCB(CallBacker*);
+    void		copyCB(CallBacker*);
+
+    uiTextEdit*		diagnosticstxt_	= nullptr;
 };

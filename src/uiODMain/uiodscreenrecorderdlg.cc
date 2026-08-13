@@ -1,68 +1,479 @@
-/** file@  src/uiODMain/uiodscreenrecorderdlg.cc */
+/** @file src/uiODMain/uiodscreenrecorderdlg.cc */
 
 /*+
 ________________________________________________________________________
 
- Copyright:	(C) 1995-2026 dGB Beheer B.V.
- License:	https://dgbes.com/licensing
+ Copyright:     (C) 1995-2026 dGB Beheer B.V.
+ License:       https://dgbes.com/licensing
 ________________________________________________________________________
 
 -*/
 
 #include "uiodscreenrecorderdlg.h"
 
+#include "bufstring.h"
+#include "envvars.h"
+#include "odver.h"
+#include "uibutton.h"
+#include "uiclipboard.h"
 #include "uilabel.h"
+#include "uimain.h"
 #include "uiodmain.h"
+#include "uitextedit.h"
 
+#include <QCoreApplication>
 #include <QGuiApplication>
-#include <QScreen>
 #include <QLibraryInfo>
+#include <QMediaFormat>
+#include <QMediaRecorder>
+#include <QScreen>
+#include <QSysInfo>
+#include <QWindowCapture>
 
+#include <QStringList>
+/* For GPU reporting */
+#include <QOffscreenSurface>
+#include <QOpenGLContext>
+#include <QOpenGLFunctions>
+#include <QSurfaceFormat>
+#include <QWindow>
+//#include <rhi/qrhi.h>
+/* End for GPU reporting */
+
+
+
+
+namespace
+{
+struct GpuDiagnostics
+{
+    bool valid = false;
+
+    QString backend;
+    QString vendor;
+    QString renderer;
+    QString apiVersion;
+    QString shadingLanguageVersion;
+    QString contextVersion;
+    QString contextProfile;
+
+    int maximumTextureSize = 0;
+    bool computeShaders = false;
+};    
+
+
+void addSection( BufferString& report, const QString& title )
+{
+    if ( !report.isEmpty() )
+	report.addNewLine();
+
+    report.add( "== " ).add( title ).add( " ==" ).addNewLine();
+}
+
+
+void addValue( BufferString& report, const char* key, const QString& value )
+{
+    report.add( key ).add( ": " )
+	  .add( value.isEmpty() ? QStringLiteral("<empty>") : value )
+	  .addNewLine();
+}
+
+
+QString environmentValue( const char* name )
+{
+    const char* value = GetOSEnvVar( name );
+    return value ? QString::fromUtf8(value) : QStringLiteral("<unset>");
+}
+
+
+QString yesNo( bool yn )
+{
+    return yn ? QStringLiteral("yes") : QStringLiteral("no");
+}
+
+
+QString rectangleText( const QRect& rect )
+{
+    return QStringLiteral("%1,%2  %3 x %4")
+	.arg( rect.x() )
+	.arg( rect.y() )
+	.arg( rect.width() )
+	.arg( rect.height() );
+}
+
+
+QString orientationText( Qt::ScreenOrientation orientation )
+{
+    switch ( orientation )
+    {
+        case Qt::PrimaryOrientation:
+	        return QStringLiteral("Primary");
+        case Qt::PortraitOrientation:
+	        return QStringLiteral("Portrait");
+        case Qt::LandscapeOrientation:
+	        return QStringLiteral("Landscape");
+        case Qt::InvertedPortraitOrientation:
+	        return QStringLiteral("Inverted portrait");
+        case Qt::InvertedLandscapeOrientation:
+	        return QStringLiteral("Inverted landscape");
+    }
+
+    return QStringLiteral("Unknown");
+}
+
+
+bool isVideoContainer( QMediaFormat::FileFormat format )
+{
+    switch ( format )
+    {
+        case QMediaFormat::WMV:
+        case QMediaFormat::AVI:
+        case QMediaFormat::Matroska:
+        case QMediaFormat::MPEG4:
+        case QMediaFormat::Ogg:
+        case QMediaFormat::QuickTime:
+        case QMediaFormat::WebM:
+	        return true;
+        default:
+	        return false;
+    }
+}
+
+GpuDiagnostics queryCurrentOpenGLGpu()
+{
+    GpuDiagnostics result;
+
+    QOpenGLContext* context = QOpenGLContext::currentContext();
+    if ( !context )
+        return result;
+
+    QOpenGLFunctions* gl = context->functions();
+    if ( !gl )
+        return result;
+
+    const auto getString = [gl]( GLenum name )
+    {
+        const GLubyte* value = gl->glGetString( name );
+        return value
+             ? QString::fromLatin1(
+                   reinterpret_cast<const char*>(value) )
+             : QString();
+    };
+
+    result.backend = context->isOpenGLES()
+                   ? QStringLiteral("OpenGL ES")
+                   : QStringLiteral("OpenGL");
+
+    result.vendor = getString( GL_VENDOR );
+    result.renderer = getString( GL_RENDERER );
+    result.apiVersion = getString( GL_VERSION );
+    result.shadingLanguageVersion =
+        getString( GL_SHADING_LANGUAGE_VERSION );
+
+    const QSurfaceFormat format = context->format();
+
+    result.contextVersion =
+        QStringLiteral("%1.%2")
+            .arg(format.majorVersion())
+            .arg(format.minorVersion());
+
+    switch ( format.profile() )
+    {
+        case QSurfaceFormat::CoreProfile:
+            result.contextProfile = QStringLiteral("Core");
+            break;
+
+        case QSurfaceFormat::CompatibilityProfile:
+            result.contextProfile = QStringLiteral("Compatibility");
+            break;
+
+        case QSurfaceFormat::NoProfile:
+            result.contextProfile = QStringLiteral("No profile");
+            break;
+    }
+
+    GLint maximumTextureSize = 0;
+    gl->glGetIntegerv( GL_MAX_TEXTURE_SIZE,
+                       &maximumTextureSize );
+
+    result.maximumTextureSize = maximumTextureSize;
+
+    const int major = format.majorVersion();
+    const int minor = format.minorVersion();
+
+    if ( context->isOpenGLES() )
+    {
+        // Compute shaders are core in OpenGL ES 3.1.
+        result.computeShaders =
+            major > 3 || (major == 3 && minor >= 1);
+    }
+    else
+    {
+        // Compute shaders are core in desktop OpenGL 4.3.
+        result.computeShaders =
+            major > 4 || (major == 4 && minor >= 3)
+            || context->hasExtension(
+                QByteArrayLiteral("GL_ARB_compute_shader") );
+    }
+
+    result.valid = !result.renderer.isEmpty();
+    return result;
+}
+
+
+BufferString collectDiagnostics()
+{
+    BufferString report;
+
+    addSection( report, QStringLiteral("Application and Qt") );
+
+    addValue( report, "OpendTect version",
+	      QString::fromUtf8(GetFullODVersion()) );
+    addValue( report, "Application", QCoreApplication::applicationName() );
+    addValue( report, "Executable", QCoreApplication::applicationFilePath() );
+    addValue( report, "Qt compile-time version",
+	      QStringLiteral(QT_VERSION_STR) );
+    addValue( report, "Qt runtime version", QString::fromLatin1(qVersion()) );
+    addValue( report, "Active Qt platform plugin",
+	      QGuiApplication::platformName() );
+
+   
+    addSection( report, QStringLiteral("Qt RHI and GPU") );
+
+
+    /*QRhiDriverInfo info = rhi->driverInfo();
+
+    qInfo() << "Backend:"  << rhi->backendName();
+    qInfo() << "Device:"   << info.deviceName;
+    qInfo() << "Vendor ID:" << Qt::hex << info.vendorId;
+    qInfo() << "Device ID:" << Qt::hex << info.deviceId;
+    qInfo() << "Type:"      << info.deviceType;
+    qInfo() << "Compute:"<< rhi->isFeatureSupported(QRhi::Compute);
+
+    qInfo() << "Max texture size:"
+        << rhi->resourceLimit(QRhi::TextureSizeMax);
+
+    qInfo() << "Max threads/workgroup:"
+        << rhi->resourceLimit(QRhi::MaxThreadsPerThreadGroup);*/
+          
+
+    addSection( report, QStringLiteral("Qt installation") );
+
+    addValue( report, "Prefix", QLibraryInfo::path(QLibraryInfo::PrefixPath) );
+    addValue( report, "Libraries",
+	      QLibraryInfo::path(QLibraryInfo::LibrariesPath) );
+    addValue( report, "Plugins",
+	      QLibraryInfo::path(QLibraryInfo::PluginsPath) );
+
+    const QStringList librarypaths = QCoreApplication::libraryPaths();
+    addValue( report, "Runtime plugin search paths",
+	      librarypaths.join(QStringLiteral("\n    ")) );
+
+    addSection( report, QStringLiteral("Operating system") );
+
+    addValue( report, "Product", QSysInfo::prettyProductName() );
+    addValue( report, "Kernel", QSysInfo::kernelType()
+			       + QStringLiteral(" ")
+			       + QSysInfo::kernelVersion() );
+    addValue( report, "Current CPU architecture",
+	      QSysInfo::currentCpuArchitecture() );
+    addValue( report, "Build CPU architecture",
+	      QSysInfo::buildCpuArchitecture() );
+    addValue( report, "Build ABI", QSysInfo::buildAbi() );
+
+    addSection( report, QStringLiteral("Capture-related environment") );
+
+    static const char* environmentnames[] =
+    {
+	"XDG_SESSION_TYPE",
+	"XDG_CURRENT_DESKTOP",
+	"XDG_SESSION_DESKTOP",
+	"XDG_SESSION_ID",
+	"XDG_SEAT",
+	"XDG_RUNTIME_DIR",
+	"DISPLAY",
+	"WAYLAND_DISPLAY",
+	"XAUTHORITY",
+	"DBUS_SESSION_BUS_ADDRESS",
+	"PIPEWIRE_REMOTE",
+	"QT_QPA_PLATFORM",
+	"QT_QPA_PLATFORMTHEME",
+	"QT_PLUGIN_PATH",
+	"QT_MEDIA_BACKEND",
+	"QT_SCREEN_CAPTURE_BACKEND",
+	"QT_WINDOW_CAPTURE_BACKEND",
+	"QT_SCALE_FACTOR",
+	"QT_SCREEN_SCALE_FACTORS",
+	"QT_DEBUG_PLUGINS",
+	"QT_LOGGING_RULES"
+    };
+
+    for ( const char* name : environmentnames )
+	    addValue( report, name, environmentValue(name) );
+
+    const QString qpaplatform = QGuiApplication::platformName();
+    const QString xdgsession = environmentValue( "XDG_SESSION_TYPE" );
+
+    if ( qpaplatform == QStringLiteral("xcb")
+	 && xdgsession.compare(QStringLiteral("x11"),Qt::CaseInsensitive) != 0 )
+    {
+	report.addNewLine()
+	      .add( "WARNING: Qt is using the XCB/X11 platform plugin, but "
+		    "XDG_SESSION_TYPE does not report x11." )
+	      .addNewLine()
+	      .add( "Qt Multimedia may use XDG_SESSION_TYPE when selecting "
+		    "its screen-capture implementation." )
+	      .addNewLine();
+    }
+    else if ( qpaplatform.startsWith(QStringLiteral("wayland"))
+	      && xdgsession.compare(QStringLiteral("wayland"),
+				    Qt::CaseInsensitive) != 0 )
+    {
+	report.addNewLine()
+	      .add( "WARNING: Qt is using a Wayland platform plugin, but "
+		    "XDG_SESSION_TYPE does not report wayland." )
+	      .addNewLine();
+    }
+
+    addSection( report, QStringLiteral("Screens") );
+
+    uiMain& uimain = uiMain::instance();
+    const QList<QScreen*> screens = QGuiApplication::screens();
+
+    addValue( report, "Qt screen count", QString::number(screens.size()) );
+    addValue( report, "OD screen count", QString::number(uimain.nrScreens()) );
+
+    for ( int idx=0; idx<screens.size(); idx++ )
+    {
+	const QScreen* screen = screens[idx];
+	const uiSize fullsz = uimain.getScreenSize( idx, false );
+	const uiSize availablesz = uimain.getScreenSize( idx, true );
+
+	addSection( report, QStringLiteral("Screen %1: %2")
+			    .arg(idx).arg(screen->name()) );
+
+	addValue( report, "Primary",
+		  yesNo(screen == QGuiApplication::primaryScreen()) );
+	addValue( report, "Manufacturer", screen->manufacturer() );
+	addValue( report, "Model", screen->model() );
+	addValue( report, "Serial number", screen->serialNumber() );
+	addValue( report, "Geometry", rectangleText(screen->geometry()) );
+	addValue( report, "Available geometry",
+		  rectangleText(screen->availableGeometry()) );
+	addValue( report, "Virtual geometry",
+		  rectangleText(screen->virtualGeometry()) );
+	addValue( report, "OD full size", QStringLiteral("%1 x %2")
+					.arg(fullsz.width()).arg(fullsz.height()) );
+	addValue( report, "OD available size", QStringLiteral("%1 x %2")
+				.arg(availablesz.width())
+				.arg(availablesz.height()) );
+	addValue( report, "Device pixel ratio",
+		  QString::number(screen->devicePixelRatio(),'f',3) );
+	addValue( report, "Logical DPI", QStringLiteral("%1 x %2")
+				 .arg(screen->logicalDotsPerInchX(),0,'f',2)
+				 .arg(screen->logicalDotsPerInchY(),0,'f',2) );
+	addValue( report, "Physical DPI", QStringLiteral("%1 x %2")
+				  .arg(screen->physicalDotsPerInchX(),0,'f',2)
+				  .arg(screen->physicalDotsPerInchY(),0,'f',2) );
+	addValue( report, "Refresh rate", QStringLiteral("%1 Hz")
+				   .arg(screen->refreshRate(),0,'f',2) );
+	addValue( report, "Orientation",
+		  orientationText(screen->orientation()) );
+	addValue( report, "Color depth",
+		  QStringLiteral("%1 bits").arg(screen->depth()) );
+    }
+
+    addSection( report, QStringLiteral("Qt Multimedia video capabilities") );
+
+    // This intentionally does not create or query any audio objects.
+    QMediaRecorder recorder;
+    addValue( report, "QMediaRecorder available",
+	      yesNo(recorder.isAvailable()) );
+
+    QMediaFormat capabilities;
+    QStringList containernames;
+    const auto containers =
+	capabilities.supportedFileFormats( QMediaFormat::Encode );
+    for ( const QMediaFormat::FileFormat container : containers )
+    {
+	if ( isVideoContainer(container) )
+	    containernames.append( QMediaFormat::fileFormatName(container) );
+    }
+
+    addValue( report, "Encodable video containers",
+	      containernames.join(QStringLiteral(", ")) );
+
+    QStringList videocodecnames;
+    const auto videocodecs =
+        capabilities.supportedVideoCodecs( QMediaFormat::Encode );
+    for ( const QMediaFormat::VideoCodec codec : videocodecs )
+    {
+	    videocodecnames.append( QMediaFormat::videoCodecName(codec) );
+    }
+
+    addValue( report, "Encodable video codecs",
+	      videocodecnames.join(QStringLiteral(", ")) );
+
+    QMediaFormat mp4h264( QMediaFormat::MPEG4 );
+    mp4h264.setVideoCodec( QMediaFormat::VideoCodec::H264 );
+    mp4h264.setAudioCodec( QMediaFormat::AudioCodec::Unspecified );
+    addValue( report, "MPEG-4/H.264 video-only supported",
+	      yesNo(mp4h264.isSupported(QMediaFormat::Encode)) );
+
+    const auto windows = QWindowCapture::capturableWindows();
+    addValue( report, "Enumerated capturable windows",
+	      QString::number(windows.size()) );
+    for ( int idx=0; idx<windows.size(); idx++ )
+    {
+	    report.add( "  Window " ).add( idx ).add( ": " )
+	      .add( windows[idx].description() ).addNewLine();
+    }
+
+    report.addNewLine()
+	  .add( "Note: an empty capturable-window list is diagnostic "
+		"information, not by itself proof that screen capture is "
+		"unsupported. Wayland may require portal-based selection." )
+	  .addNewLine();
+
+    return report;
+}
+
+
+} // namespace
 
 
 uiODScreenRecorderDlg::uiODScreenRecorderDlg( uiODMain& appl )
-    : uiDialog( &appl, Setup(tr("Screen Recorder"),mNoHelpKey)
+    : uiDialog( &appl, Setup(tr("Screen Recorder Diagnostics"),mNoHelpKey)
 				.modal(false) )
 {
     setCtrlStyle( CloseOnly );
     setDeleteOnClose( false );
 
-    new uiLabel( this,
-	tr("Screen recorder dialog wiring is operational.\n"
-	   "Active Qt platform plugin: %1")
-	.arg(toUiString(QGuiApplication::platformName())) );
+    auto* infolbl = new uiLabel(
+	this, tr("Qt screen-capture runtime diagnostics. "
+		 "No recording or audio capture is performed.") );
 
-    for (const char *name : {
-             "XDG_SESSION_TYPE",
-             "XDG_CURRENT_DESKTOP",
-             "DISPLAY",
-             "WAYLAND_DISPLAY",
-             "QT_QPA_PLATFORM",
-             "QT_PLUGIN_PATH",
-             "QT_MEDIA_BACKEND"
-         }) {
-        qInfo().noquote() << name << "=" << environmentQt(name);
-    }
+    diagnosticstxt_ =
+	new uiTextEdit( this, "Screen capture diagnostics", true );
+    diagnosticstxt_->setWordWrapMode( uiTextEdit::NoWrap );
+    diagnosticstxt_->setPrefWidthInChar( 110 );
+    diagnosticstxt_->setPrefHeightInChar( 34 );
+    diagnosticstxt_->allowTextSelection( true );
+    diagnosticstxt_->showScrollBar( OD::Horizontal );
+    diagnosticstxt_->showScrollBar( OD::Vertical );
+    diagnosticstxt_->attach( alignedBelow, infolbl );
 
-    qInfo().noquote() << "Qt compile-time version:" << QT_VERSION_STR;
-    qInfo().noquote() << "Qt runtime version:     " << qVersion();
-    qInfo().noquote() << "Qt installation prefix: "
-                      << QLibraryInfo::path(QLibraryInfo::PrefixPath);
-    qInfo().noquote() << "Qt plugin directory:    "
-                      << QLibraryInfo::path(QLibraryInfo::PluginsPath);
-    qInfo().noquote() << "Qt platform plugin:     "
-                      << QGuiApplication::platformName();
-    
-    
-     for (QScreen *screen : QGuiApplication::screens()) 
-     {
-        qInfo().noquote()
-            << "Screen:" << screen->name()
-            << "geometry:" << screen->geometry()
-            << "DPR:" << screen->devicePixelRatio()
-            << "refresh rate:" << screen->refreshRate();
-    }
+    auto* refreshbut =
+	new uiPushButton( this, tr("Refresh"),
+			  mCB(this,uiODScreenRecorderDlg,refreshCB), true );
+    refreshbut->attach( alignedBelow, diagnosticstxt_ );
 
+    auto* copybut =
+	new uiPushButton( this, tr("Copy"),
+			  mCB(this,uiODScreenRecorderDlg,copyCB), true );
+    copybut->attach( rightOf, refreshbut );
+
+    refreshCB( nullptr );
 }
 
 
@@ -71,21 +482,13 @@ uiODScreenRecorderDlg::~uiODScreenRecorderDlg()
 }
 
 
-QString uiODScreenRecorderDlg::environmentQt( const char* name ) const
+void uiODScreenRecorderDlg::refreshCB( CallBacker* )
 {
-    return qEnvironmentVariableIsSet(name)
-        ? qEnvironmentVariable(name)
-        : QStringLiteral("<unset>");
-
-    /*const QByteArray val = qgetenv(name);
-    return val.isEmpty() ? tr("<not set>") : toUiString(val.constData());*/
+    diagnosticstxt_->setText( collectDiagnostics() );
 }
 
 
-/*uiODScreenRecorderDlg::uiODScreenRecorderDlg( const uiODScreenRecorderDlg& )
-    : uiDialog( nullptr, Setup(tr("Screen Recorder"),mNoHelpKey)
-                .modal(false) )
+void uiODScreenRecorderDlg::copyCB( CallBacker* )
 {
-    setCtrlStyle( CloseOnly );
-    setDeleteOnClose( false )
-}*/
+    uiClipboard::setText( diagnosticstxt_->text() );
+}

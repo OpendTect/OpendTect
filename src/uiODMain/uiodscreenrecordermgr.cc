@@ -9,7 +9,6 @@ ________________________________________________________________________
 
 #include "uiodscreenrecordermgr.h"
 
-#include "uimsg.h"
 #include "uiodmain.h"
 #include "uiodscreenrecorderdlg.h"
 
@@ -28,8 +27,6 @@ uiODScreenRecorderMgr::~uiODScreenRecorderMgr()
 
 void uiODScreenRecorderMgr::toggleRecording()
 {
-    uiMSG().message( tr("Screen recorder manager callback reached.") );
-
     if ( !dialog_ )
 	dialog_ = new uiODScreenRecorderDlg( appl_ );
 
