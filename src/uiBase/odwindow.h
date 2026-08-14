@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "thread.h"
 #include "timer.h"
 
+#include <QByteArray>
 #include <QEventLoop>
 #include <QMainWindow>
 
@@ -80,7 +81,7 @@ public:
 
     void		activateInGUIThread(const CallBack&,bool busywait);
 
-    bool		force_finalize_;
+    bool		force_finalize_		= false;
 
     static QScreen*	primaryScreen();
     QScreen*		screen(bool usetoplevel=false) const;
@@ -108,17 +109,17 @@ protected:
     void		readSettings();
     void		restoreDefaultState();
 
-    bool		exitapponclose_;
+    bool		exitapponclose_		= false;
 
     Threads::Mutex	activatemutex_;
     ObjectSet<CallBack> activatecbs_;
-    int			nractivated_;
+    int			nractivated_		= 0;
 
     int			eventrefnr_ = -1;
 
-    uiStatusBar*	statusbar_;
-    uiMenuBar*		menubar_;
-    uiMenu*		toolbarsmnu_;
+    uiStatusBar*	statusbar_		= nullptr;
+    uiMenuBar*		menubar_		= nullptr;
+    uiMenu*		toolbarsmnu_		= nullptr;
 
     ObjectSet<uiToolBar> toolbars_;
     ObjectSet<uiDockWin> dockwins_;
@@ -136,17 +137,18 @@ private:
     void		getPosForScreenMiddle(int& x,int& y);
     void		getPosForParentMiddle(int& x,int& y);
     Timer		poptimer_;
-    bool		poppedup_;
-    uiSize		prefsz_;
-    uiPoint		prefpos_;
-    bool		moved_;
-    bool		createtbmenu_;
-    bool		intray_ = false;
+    bool		poppedup_		= false;
+    uiSize		prefsz_			= uiSize(-1,-1);
+    uiPoint		prefpos_		= uiPoint::udf();
+    QByteArray		prefstate_;
+    bool		moved_			= false;
+    bool		createtbmenu_		= false;
+    bool		intray_			= false;
 
     bool		deletefrombody_;
     bool		deletefromod_;
 
-    bool		hasguisettings_;
+    bool		hasguisettings_		= false;
 };
 
 
@@ -196,9 +198,9 @@ public:
     int			nrVideos() const;
     void		removeVideo(int);
 
-    void		setDlgGrp( uiGroup* cw )	{ dlggrp_=cw; }
+    void		setDlgGrp( uiGroup* cw )	{ dlggrp_ = cw; }
     uiGroup*		getDlgGrp()			{ return dlggrp_; }
-    uiSeparator*	getDlgSeparator();
+    uiSeparator*	getDlgSeparator()		{ return dlgsep_; }
 
     void		setHSpacing( int spc )	{ dlggrp_->setHSpacing(spc); }
     void		setVSpacing( int spc )	{ dlggrp_->setVSpacing(spc); }
@@ -223,23 +225,24 @@ protected:
 			    return uiMainWinBody::managewidg_();
 			}
 
-    int			result_;
-    bool		initchildrendone_;
+    int			result_			= 0;
+    bool		initchildrendone_	= false;
 
-    uiGroup*		dlggrp_;
+    uiGroup*		dlggrp_			= nullptr;
+    uiSeparator*	dlgsep_			= nullptr;
     uiDialog::Setup	setup_;
 
-    uiButton*		okbut_;
-    uiButton*		cnclbut_;
-    uiButton*		applybut_;
-    uiButton*		helpbut_;
-    uiButton*		videobut_;
-    uiToolButton*	creditsbut_;
+    uiButton*		okbut_			= nullptr;
+    uiButton*		cnclbut_		= nullptr;
+    uiButton*		applybut_		= nullptr;
+    uiButton*		helpbut_		= nullptr;
+    uiButton*		videobut_		= nullptr;
+    uiToolButton*	creditsbut_		= nullptr;
 
-    uiCheckBox*		savebutcb_;
-    uiToolButton*	savebuttb_;
+    uiCheckBox*		savebutcb_		= nullptr;
+    uiToolButton*	savebuttb_		= nullptr;
 
-    uiLabel*		titlelbl_;
+    uiLabel*		titlelbl_		= nullptr;
 
     TypeSet<HelpKey>	videokeys_;
 
