@@ -109,7 +109,7 @@ void uiTextEditBase::scrollToBottom()
     if ( !verticalscrollbar )
 	return;
 
-    verticalscrollbar->setSliderDown( true );
+    verticalscrollbar->setValue( verticalscrollbar->maximum() );
 }
 
 
