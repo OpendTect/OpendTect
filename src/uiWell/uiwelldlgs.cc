@@ -2581,7 +2581,7 @@ uiWellDefMnemLogDlg::uiWellDefMnemLogDlg( uiParent* p,
     MultiWellReader wtrdr( keys, wds, loadreqs );
     TaskRunner::execute( nullptr, wtrdr );
     if ( !wtrdr.allWellsRead() )
-	uiMSG().errorWithDetails( wtrdr.errMsg(),
+	uiMSG().errorWithDetails( wtrdr.uiMessage(),
 			    tr("Some wells could not be read") );
 
     BufferStringSet wellnms;

@@ -140,17 +140,17 @@ bool Well::HDF5Writer::initGroups()
 	return false;
 
     uiRetVal uirv;
-    if ( !wrr_->ensureGroup(sTrackGrpName(),uirv) )
+    if ( wrr_->ensureGroup(sTrackGrpName(),uirv).isUdf() )
 	return false;
-    if ( !wrr_->ensureGroup(sLogsGrpName(),uirv) )
+    if ( wrr_->ensureGroup(sLogsGrpName(),uirv).isUdf() )
 	return false;
-    if ( !wrr_->ensureGroup(sMarkersGrpName(),uirv) )
+    if ( wrr_->ensureGroup(sMarkersGrpName(),uirv).isUdf() )
 	return false;
-    if ( !wrr_->ensureGroup(sTDsGrpName(),uirv) )
+    if ( wrr_->ensureGroup(sTDsGrpName(),uirv).isUdf() )
 	return false;
-    if ( !wrr_->ensureGroup(sCSsGrpName(),uirv) )
+    if ( wrr_->ensureGroup(sCSsGrpName(),uirv).isUdf() )
 	return false;
-    if ( !wrr_->ensureGroup(sDispParsGrpName(),uirv) )
+    if ( wrr_->ensureGroup(sDispParsGrpName(),uirv).isUdf() )
 	return false;
 
     return true;
@@ -311,9 +311,9 @@ bool Well::HDF5Writer::doPutD2T( bool csmdl ) const
     uiRetVal uirv;
     const int modelid = 0; // TODO: suppport multiple models
     const HDF5::DataSetKey grpky =
-	HDF5::DataSetKey::groupKey( csmdl ? sCSsGrpName() : sTDsGrpName(),
-				    toString(modelid) );
-    if ( !wrr.ensureGroup(grpky.groupName(),uirv) )
+    HDF5::DataSetKey::groupKey( csmdl ? sCSsGrpName() : sTDsGrpName(),
+				toString(modelid) );
+    if ( !wrr.ensureGroup(grpky.groupName(),uirv).isValid() )
 	return false;
 
     HDF5::DataSetKey dsky( nullptr, sMDsDSName() );
@@ -399,7 +399,6 @@ bool Well::HDF5Writer::putLogs() const
     return putDefLogs();
 }
 
-
 bool Well::HDF5Writer::putDefLogs() const
 {
     IOPar defiop;
@@ -444,7 +443,7 @@ bool Well::HDF5Writer::setLogAttribs( const HDF5::DataSetKey& dsky,
 	else
 	    iop.set( Log::sKeyUnitLbl(), uomlbl );
 
-	const bool havemnemonics = !StringView(wl->mnemonicLabel()).isEmpty();
+	const bool havemnemonics = !StringView( wl->mnemonicLabel() ).isEmpty();
 	if ( havemnemonics )
 	    iop.set( Log::sKeyMnemLbl(), wl->mnemonicLabel());
 	else
@@ -465,9 +464,7 @@ bool Well::HDF5Writer::setLogAttribs( const HDF5::DataSetKey& dsky,
     }
 
     iop.setYN( sKeyLogDel(), !wl );
-
     auto& wrr = cCast(HDF5::Writer&,*wrr_);
-
     putDepthUnit( iop );
     const uiRetVal uirv = wrr.set( iop, &dsky );
     return uirv.isOK();
@@ -513,8 +510,9 @@ bool Well::HDF5Writer::putLog( const Log& wl ) const
 
     const int logidx = getLogIndex( wl.name() );
     HDF5::DataSetKey grpky =
-	HDF5::DataSetKey::groupKey( sLogsGrpName(), toString(logidx) );
-    if ( !wrr.ensureGroup(grpky.groupName(),uirv) )
+	HDF5::DataSetKey::groupKey( sLogsGrpName(),
+				    toString(logidx) );
+    if ( wrr.ensureGroup(grpky.groupName(),uirv).isUdf() )
 	return false;
 
     HDF5::DataSetKey dsky( nullptr, sMDsDSName() );

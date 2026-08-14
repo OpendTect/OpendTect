@@ -8,10 +8,8 @@ ________________________________________________________________________
 
 -*/
 
-#include "hdf5common.h"
 #include "hdf5accessimpl.h"
 #include "hdf5reader.h"
-
 
 namespace HDF5
 {
@@ -22,65 +20,68 @@ mExpClass(ODHDF5) ReaderImpl : public Reader
 public:
 
 			ReaderImpl();
-			ReaderImpl(const H5::H5File&);
+			ReaderImpl(const FileID&);
     virtual		~ReaderImpl();
 
 private:
 
-    const char*		fileName() const override { return gtFileName(); }
+    const char*		fileName() const override
+					{ return AccessImpl::gtFileName(); }
     void		openFile(const char*,uiRetVal&,bool) override;
     void		closeFile() override		{ doCloseFile(*this); }
 
-    DataSetKey		scope() const override		{ return gtScope(); }
-    od_int64		curGroupID() const override	{ return gtGroupID(); }
-    H5::H5Location*	setLocation( const DataSetKey* dsky ) override
-						{ return stLocation( dsky ); }
-    H5::H5Location*	getLocation( const DataSetKey* dsky ) const override
-						{ return stLocation( dsky ); }
-    H5::H5Object*	setScope( const DataSetKey* dsky ) override
-						{ return stScope( dsky ); }
-    H5::H5Object*	getScope( const DataSetKey* dsky ) const override
-						{ return stScope( dsky ); }
-    H5::Group*		setGrpScope( const DataSetKey* dsky ) override
-						{ return stGrpScope( dsky ); }
-    H5::Group*		getGrpScope( const DataSetKey* dsky ) const override
-						{ return stGrpScope( dsky ); }
-    H5::DataSet*	setDSScope( const DataSetKey& dsky ) override
-						{ return stDSScope( dsky ); }
-    H5::DataSet*	getDSScope( const DataSetKey& dsky ) const override
-						{ return stDSScope( dsky ); }
+    DataSetKey		scope() const override
+				{ return AccessImpl::gtScope(); }
+    od_int64		curGroupID() const override
+				{ return AccessImpl::gtGroupID(); }
+    LocationID		setLocation( const DataSetKey* dsky ) override
+				{ return AccessImpl::stLocation( dsky ); }
+    LocationID		getLocation( const DataSetKey* dsky ) const override
+				{ return AccessImpl::stLocation( dsky ); }
+    ObjectID		setScope( const DataSetKey* dsky ) override
+				{ return AccessImpl::stScope( dsky ); }
+    ObjectID		getScope( const DataSetKey* dsky ) const override
+				{ return AccessImpl::stScope( dsky ); }
+    GroupID		setGrpScope( const DataSetKey* dsky ) override
+				{ return AccessImpl::stGrpScope( dsky ); }
+    GroupID		getGrpScope( const DataSetKey* dsky ) const override
+				{ return AccessImpl::stGrpScope( dsky ); }
+    DatasetID		setDSScope( const DataSetKey& dsky ) override
+				{ return AccessImpl::stDSScope( dsky ); }
+    DatasetID		getDSScope( const DataSetKey& dsky ) const override
+				{ return AccessImpl::stDSScope( dsky ); }
+
 
     void		getGroups(BufferStringSet&) const override;
     void		getSubGroups(const char* grpnm,
 				     BufferStringSet&) const override;
     void		getDataSets(const char* grpnm,
 				    BufferStringSet&) const override;
-    void		gtComment(const H5::H5Location&,const char* name,
+    void		gtComment(const LocationID&,const char* name,
 				  BufferString&,uiRetVal&) const override;
-    unsigned		gtVersion(const H5::H5Object&,uiRetVal&) const override;
-    template <class H5Dir>
-    void		listObjs(const H5Dir&,BufferStringSet&,
-				 bool wantgroups) const;
+    unsigned		gtVersion(const ObjectID&,uiRetVal&) const override;
 
-    const H5DataType&	h5DataType(const H5::DataSet&) const;
-    ODDataType		gtDataType(const H5::DataSet&) const override;
-    ArrayNDInfo*	gtDataSizes(const H5::DataSet&) const override;
+    void		listObjs(const GroupID&,BufferStringSet&,
+				 bool wantgroups) const;
+    DatatypeID		h5DataType(const DatasetID&) const;
+    ODDataType		gtDataType(const DatasetID&) const override;
+    ArrayNDInfo*	gtDataSizes(const DatasetID&) const override;
     nr_dims_type	gtNrDims() const override	{ return nrdims_; }
 
-    void		gtSlab(const H5::DataSet&,const SlabSpec&,void*,
+    void		gtSlab(const DatasetID&,const SlabSpec&,void*,
 			       uiRetVal&) const override;
-    void		gtAll(const H5::DataSet&,void*,
+    void		gtAll(const DatasetID&,void*,
 			      uiRetVal&) const override;
-    void		gtStrings(const H5::DataSet&,BufferStringSet&,
+    void		gtStrings(const DatasetID&,BufferStringSet&,
 				  uiRetVal&) const override;
-    void		gtValues(const H5::DataSet&,const NDPosBufSet&,
+    void		gtValues(const DatasetID&,const NDPosBufSet&,
 				 void*,uiRetVal&) const override;
 
     bool		hasAttribute(const char*,
 				     const DataSetKey* =nullptr) const override;
     int			getNrAttributes(
 				    const DataSetKey* =nullptr) const override;
-    void		gtAttribNames(const H5::H5Object&,
+    void		gtAttribNames(const ObjectID&,
 				BufferStringSet&) const override;
 
     bool		getAttribute(const char*,BufferString&,
@@ -97,7 +98,7 @@ private:
 			mHDF5DeclFns(float);
 			mHDF5DeclFns(double);
 #undef mHDF5DeclFns
-    void		gtInfo(const H5::H5Object&,IOPar&,
+    void		gtInfo(const ObjectID&,IOPar&,
 			       uiRetVal&) const override;
     uiRetVal		readJSonAttribute(const char*,OD::JSON::ValueSet&,
 				  const DataSetKey* =nullptr) const override;

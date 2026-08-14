@@ -10,20 +10,110 @@ ________________________________________________________________________
 
 #include "generalmod.h"
 #include "arrayndinfo.h"
+#include "integerid.h"
 #include "factory.h"
 
-namespace H5 { class DataSet; class Group; class H5File; class H5Location;
-	       class H5Object; }
 
 namespace HDF5
 {
+
+typedef od_int64 hid_t;
+#define H5I_INVALID_HID (-1)
 
 class Reader;
 class Writer;
 
 typedef OD::DataRepType	ODDataType;
 
+mExpClass(General) LocationID : public IntegerID<hid_t>
+{
+public:
+    using IntegerID::IntegerID;
+    static inline LocationID	get(hid_t nr)  { return LocationID(nr); }
+    static inline LocationID	udf()		 { return LocationID(); }
+    BufferString getComment() const;
+private:
+    hid_t			udfVal() const override
+				{ return H5I_INVALID_HID; }
+};
 
+
+mExpClass(General) ObjectID : public IntegerID<hid_t>
+{
+public:
+    using IntegerID::IntegerID;
+    static inline ObjectID	get(hid_t nr)  { return ObjectID(nr); }
+    static inline ObjectID	udf()		 { return ObjectID(); }
+
+private:
+    hid_t			udfVal() const override
+				{ return H5I_INVALID_HID; }
+};
+
+
+mExpClass(General) FileID : public IntegerID<hid_t>
+{
+public:
+    using IntegerID::IntegerID;
+    static inline FileID	get(hid_t nr)  { return FileID(nr); }
+    static inline FileID	udf()		 { return FileID(); }
+
+private:
+    hid_t			udfVal() const override
+				{ return H5I_INVALID_HID; }
+};
+
+
+mExpClass(General) GroupID : public IntegerID<hid_t>
+{
+public:
+    using IntegerID::IntegerID;
+    static inline GroupID	get(hid_t nr)  { return GroupID(nr); }
+    static inline GroupID	udf()		 { return GroupID();   }
+    bool operator!()				{ return !isValid(); }
+private:
+    hid_t			udfVal() const override
+				{ return H5I_INVALID_HID; }
+};
+
+
+mExpClass(General) DatasetID : public IntegerID<hid_t>
+{
+public:
+    using IntegerID::IntegerID;
+    static inline DatasetID	get(hid_t nr)  { return DatasetID(nr); }
+    static inline DatasetID	udf()		 { return DatasetID(); }
+
+private:
+    hid_t			udfVal() const override
+				{ return H5I_INVALID_HID; }
+};
+
+
+mExpClass(General) DatatypeID : public IntegerID<hid_t>
+{
+public:
+    using IntegerID::IntegerID;
+    static inline DatatypeID	get(hid_t nr)  { return DatatypeID(nr); }
+    static inline DatatypeID	udf()		 { return DatatypeID(); }
+
+private:
+    hid_t			udfVal() const override
+				{ return H5I_INVALID_HID; }
+};
+
+
+mExpClass(General) DataspaceID : public IntegerID<hid_t>
+{
+public:
+    using IntegerID::IntegerID;
+    static inline DataspaceID	get(hid_t nr)  { return DataspaceID(nr); }
+    static inline DataspaceID	udf()		 { return DataspaceID(); }
+
+private:
+    hid_t			udfVal() const override
+				{ return H5I_INVALID_HID; }
+};
 /*\brief Key to groups and data sets in HDF5 files.
 
   The group name and dataset key correspond to one dataset. Some attributes
@@ -113,13 +203,13 @@ public:
 			mTypeDefArrNDTypes;
 
 			SlabSpec()			{}
-			SlabSpec( nr_dims_type nrdims )	{ setNrDims( nrdims ); }
+			SlabSpec( nr_dims_type nrdims ) { setNrDims( nrdims ); }
 
-    void		setNrDims( nr_dims_type nrdims )
+    void		setNrDims(nr_dims_type nrdims)
 			{
-			    for ( int idim=nrdims; idim<size(); idim++ )
+			    for (int idim=nrdims; idim<size(); idim++)
 				removeSingle( size()-1 );
-			    for ( int idim=size(); idim<nrdims; idim++ )
+			    for (int idim=size(); idim<nrdims; idim++)
 				*this += SlabDimSpec();
 			}
 };
@@ -175,8 +265,8 @@ public:
     virtual DataSetKey	scope() const			= 0;
     virtual od_int64	curGroupID() const		= 0;
 
-    bool		isOpen() const			{ return file_; }
-    H5::H5File*		getHDF5File()			{ return file_; }
+    bool		isOpen() const		{ return fileid_.isValid(); }
+    FileID		getHDF5File()		{ return fileid_; }
     bool		hasGroup(const char* grpnm) const;
     bool		hasDataSet(const DataSetKey&) const;
 
@@ -200,20 +290,20 @@ public:
 protected:
 			Access();
 
-    H5::H5File*		file_;
+    FileID		fileid_;
     bool		myfile_;
 
     virtual void	closeFile()					= 0;
     virtual void	openFile(const char*,uiRetVal&,bool ed)		= 0;
 
-    virtual H5::H5Location*	setLocation(const DataSetKey*)		= 0;
-    virtual H5::H5Location*	getLocation(const DataSetKey*) const	= 0;
-    virtual H5::H5Object*	setScope(const DataSetKey*)		= 0;
-    virtual H5::H5Object*	getScope(const DataSetKey*) const	= 0;
-    virtual H5::Group*		setGrpScope(const DataSetKey*)		= 0;
-    virtual H5::Group*		getGrpScope(const DataSetKey*) const	= 0;
-    virtual H5::DataSet*	setDSScope(const DataSetKey&)		= 0;
-    virtual H5::DataSet*	getDSScope(const DataSetKey&) const	= 0;
+    virtual LocationID		setLocation(const DataSetKey*)		= 0;
+    virtual LocationID		getLocation(const DataSetKey*) const	= 0;
+    virtual ObjectID		setScope(const DataSetKey*)		= 0;
+    virtual ObjectID		getScope(const DataSetKey*) const	= 0;
+    virtual GroupID		setGrpScope(const DataSetKey*)		= 0;
+    virtual GroupID		getGrpScope(const DataSetKey*) const	= 0;
+    virtual DatasetID		setDSScope(const DataSetKey&)		= 0;
+    virtual DatasetID		getDSScope(const DataSetKey&) const	= 0;
 			//!< Returns (new) scope. null for root scope
 
     static uiString	sHDF5Err(const uiString&);

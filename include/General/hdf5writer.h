@@ -55,7 +55,7 @@ public:
 			/*!< Compression level (0-9)
 			See gzip documentation. 0=None */
 
-    virtual H5::Group*	ensureGroup(const char* grpnm,uiRetVal&) = 0;
+    virtual GroupID	ensureGroup(const char* grpnm,uiRetVal&) = 0;
 			//!< Creates a new group if necessary
 
     uiRetVal		createDataSet(const DataSetKey&,const ArrayNDInfo&,
@@ -118,26 +118,26 @@ public:
 
 private:
 
-    virtual H5::DataSet*	crDS(const DataSetKey&,const ArrayNDInfo&,
+    virtual DatasetID		crDS(const DataSetKey&,const ArrayNDInfo&,
 				     ODDataType,uiRetVal&)		= 0;
-    virtual H5::DataSet*	crTxtDS(const DataSetKey&,uiRetVal&)	= 0;
-    virtual void	reSzDS(const ArrayNDInfo&,H5::DataSet&,
+    virtual DatasetID		crTxtDS(const DataSetKey&,uiRetVal&)	= 0;
+    virtual void	reSzDS(const ArrayNDInfo&, const DatasetID&,
 				uiRetVal&)				= 0;
     virtual void	ptSlab(const SlabSpec&,const void*,
-			       H5::DataSet&,uiRetVal&)	= 0;
-    virtual void	ptAll(const void*,H5::DataSet&,uiRetVal&)	= 0;
+			       const DatasetID&,uiRetVal&) = 0;
+    virtual void	ptAll(const void*,const DatasetID&,uiRetVal&) = 0;
     virtual void	ptStrings(const BufferStringSet&,
-				  H5::Group&,H5::DataSet*,
+				  const GroupID&,const DatasetID&,
 				  const char* dsnm,uiRetVal&) = 0;
-    virtual void	rmAttrib(const char*,H5::H5Object&)		= 0;
-    virtual void	stComment(const H5::H5Location&,const char* name,
+    virtual void	rmAttrib(const char*,const ObjectID&)		= 0;
+    virtual void	stComment(const LocationID&,const char* name,
 				  const char* comment,uiRetVal&)	= 0;
-    virtual void	rmAllAttribs(H5::H5Object&)			= 0;
+    virtual void	rmAllAttribs(const ObjectID&)			= 0;
 
-    virtual void	ptInfo(const IOPar&,H5::H5Object&,uiRetVal&)	= 0;
+    virtual void	ptInfo(const IOPar&,const ObjectID&,uiRetVal&)	= 0;
 
     virtual bool	rmObj(const DataSetKey&)			= 0;
-    virtual void	renObj(const H5::H5Location&,const char* from,
+    virtual void	renObj(const LocationID&,const char* from,
 			       const char* to,uiRetVal&)		= 0;
 
 };

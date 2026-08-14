@@ -8,10 +8,8 @@ ________________________________________________________________________
 
 -*/
 
-#include "hdf5common.h"
 #include "hdf5accessimpl.h"
 #include "hdf5writer.h"
-
 
 namespace HDF5
 {
@@ -31,49 +29,53 @@ private:
     void		setCompressionLevel( unsigned lvl ) override
 			{ compressionlvl_ = lvl; }
 
-    const char*		fileName() const override	{ return gtFileName(); }
+    const char*		fileName() const override
+					{ return AccessImpl::gtFileName(); }
+    uiRetVal		open(const char* fnm);
     void		openFile(const char*,uiRetVal&,bool) override;
     void		closeFile() override		{ doCloseFile(*this); }
 
-    DataSetKey		scope() const override		{ return gtScope(); }
-    od_int64		curGroupID() const override	{ return gtGroupID(); }
-    H5::H5Location*	setLocation( const DataSetKey* dsky ) override
-						{ return stLocation( dsky ); }
-    H5::H5Location*	getLocation( const DataSetKey* dsky ) const override
-						{ return stLocation( dsky ); }
-    H5::H5Object*	setScope( const DataSetKey* dsky ) override
-						{ return stScope( dsky ); }
-    H5::H5Object*	getScope( const DataSetKey* dsky ) const override
-						{ return stScope( dsky ); }
-    H5::Group*		setGrpScope( const DataSetKey* dsky ) override
-						{ return stGrpScope( dsky ); }
-    H5::Group*		getGrpScope( const DataSetKey* dsky ) const override
-						{ return stGrpScope( dsky ); }
-    H5::DataSet*	setDSScope( const DataSetKey& dsky ) override
-						{ return stDSScope( dsky ); }
-    H5::DataSet*	getDSScope( const DataSetKey& dsky ) const override
-						{ return stDSScope( dsky ); }
+    DataSetKey		scope() const override
+				{ return AccessImpl::gtScope(); }
+    od_int64		curGroupID() const override
+				{ return AccessImpl::gtGroupID(); }
+    LocationID		setLocation( const DataSetKey* dsky ) override
+				{ return AccessImpl::stLocation( dsky ); }
+    LocationID		getLocation( const DataSetKey* dsky ) const override
+				{ return AccessImpl::stLocation( dsky ); }
+    ObjectID		setScope( const DataSetKey* dsky ) override
+				{ return AccessImpl::stScope( dsky ); }
+    ObjectID		getScope( const DataSetKey* dsky ) const override
+				{ return AccessImpl::stScope( dsky ); }
+    GroupID		setGrpScope( const DataSetKey* dsky ) override
+				{ return AccessImpl::stGrpScope( dsky ); }
+    GroupID		getGrpScope( const DataSetKey* dsky ) const override
+				{ return AccessImpl::stGrpScope( dsky ); }
+    DatasetID		setDSScope( const DataSetKey& dsky ) override
+				{ return AccessImpl::stDSScope( dsky ); }
+    DatasetID		getDSScope( const DataSetKey& dsky ) const override
+				{ return AccessImpl::stDSScope( dsky ); }
 
-    H5::Group*		ensureGroup(const char*,uiRetVal&) override;
-    H5::DataSet*	crDS(const DataSetKey&,const ArrayNDInfo&,ODDataType,
+    GroupID		ensureGroup(const char*,uiRetVal&) override;
+    DatasetID		crDS(const DataSetKey&,const ArrayNDInfo&,ODDataType,
 			     uiRetVal&) override;
-    H5::DataSet*	crTxtDS(const DataSetKey&,uiRetVal&) override;
-    void		reSzDS(const ArrayNDInfo&,H5::DataSet&,
+    DatasetID		crTxtDS(const DataSetKey&,uiRetVal&) override;
+    void		reSzDS(const ArrayNDInfo&,const DatasetID&,
 			       uiRetVal&) override;
 
-    void		ptSlab(const SlabSpec&,const void*,H5::DataSet&,
+    void		ptSlab(const SlabSpec&,const void*,const DatasetID&,
 			       uiRetVal&) override;
-    void		ptAll(const void*,H5::DataSet&,uiRetVal&) override;
-    void		ptStrings(const BufferStringSet&,H5::Group&,
-				  H5::DataSet*,const char* dsnm,
+    void		ptAll(const void*,const DatasetID&,uiRetVal&) override;
+    void		ptStrings(const BufferStringSet&,const GroupID&,
+				  const DatasetID&,const char* dsnm,
 				  uiRetVal&) override;
 
-    void		stComment(const H5::H5Location&,const char* name,
+    void		stComment(const LocationID& ,const char* name,
 				  const char* comment,uiRetVal&) override;
     void		setAttribute(const char* ky,const char* val,
 				     const DataSetKey* =nullptr) override;
     void		setAttribute(const char* ky,const char* val,
-				     H5::H5Object&);
+				     const ObjectID&);
 #define mHDF5DeclFns(fnnm,type) \
     void		fnnm##Attribute(const char*,type, \
 					const DataSetKey* =nullptr) override;
@@ -86,15 +88,15 @@ private:
 			mHDF5DeclFns(set,float);
 			mHDF5DeclFns(set,double);
 #undef mHDF5DeclFns
-    void		rmAttrib(const char*,H5::H5Object&) override;
-    void		rmAllAttribs(H5::H5Object&) override;
-    void		ptInfo(const IOPar&,H5::H5Object&,uiRetVal&) override;
+    void		rmAttrib(const char*,const ObjectID&) override;
+    void		rmAllAttribs(const ObjectID&) override;
+    void		ptInfo(const IOPar&,const ObjectID&,uiRetVal&) override;
     uiRetVal		writeJSonAttribute(const char*,
 				    const OD::JSON::ValueSet&,
 				    const DataSetKey* =nullptr) override;
 
     bool		rmObj(const DataSetKey&) override;
-    void		renObj(const H5::H5Location&,const char* from,
+    void		renObj(const LocationID&,const char* from,
 			       const char* to,uiRetVal&) override;
 
     unsigned		compressionlvl_ = 1;

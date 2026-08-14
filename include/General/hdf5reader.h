@@ -9,7 +9,6 @@ ________________________________________________________________________
 -*/
 
 #include "hdf5access.h"
-#include "ranges.h"
 
 
 namespace OD {
@@ -98,27 +97,27 @@ protected:
 
 private:
 
-    virtual ODDataType	gtDataType(const H5::DataSet&) const	= 0;
-    virtual ArrayNDInfo* gtDataSizes(const H5::DataSet&) const		= 0;
+    virtual ODDataType	gtDataType(const DatasetID&) const	= 0;
+    virtual ArrayNDInfo* gtDataSizes(const DatasetID&) const		= 0;
     virtual nr_dims_type gtNrDims() const				= 0;
-    size_type		dimSize(const H5::DataSet&,dim_idx_type) const;
+    size_type		dimSize(const DatasetID&,dim_idx_type) const;
 
-    virtual void	gtSlab(const H5::DataSet&,const SlabSpec&,void*,
+    virtual void	gtSlab(const DatasetID&,const SlabSpec&,void*,
 			       uiRetVal&) const = 0;
-    virtual void	gtAll(const H5::DataSet&,void*,uiRetVal&) const = 0;
-    virtual void	gtStrings(const H5::DataSet&,BufferStringSet&,
+    virtual void	gtAll(const DatasetID&,void*,uiRetVal&) const = 0;
+    virtual void	gtStrings(const DatasetID&,BufferStringSet&,
 				  uiRetVal&) const			= 0;
-    virtual void	gtValues(const H5::DataSet&,const NDPosBufSet&,void*,
+    virtual void	gtValues(const DatasetID&,const NDPosBufSet&,void*,
 				 uiRetVal&) const			= 0;
 
-    virtual void	gtComment(const H5::H5Location&,const char* name,
+    virtual void	gtComment(const LocationID&,const char* name,
 				  BufferString&,uiRetVal&) const = 0;
-    virtual void	gtAttribNames(const H5::H5Object&,
+    virtual void	gtAttribNames(const ObjectID&,
 				BufferStringSet&) const = 0;
 
-    virtual void	gtInfo(const H5::H5Object&,IOPar&,
+    virtual void	gtInfo(const ObjectID&,IOPar&,
 				uiRetVal&) const			= 0;
-    virtual unsigned	gtVersion(const H5::H5Object&,uiRetVal&) const	= 0;
+    virtual unsigned	gtVersion(const ObjectID&,uiRetVal&) const	= 0;
 
 };
 
@@ -127,7 +126,10 @@ template <class T>
 inline uiRetVal Reader::get( const DataSetKey& dsky, TypeSet<T>& vals ) const
 {
     uiRetVal uirv;
-    if ( getNrDims(dsky,uirv) != 1 )
+    const nr_dims_type nrdims = getNrDims( dsky, uirv );
+    if ( nrdims < 0 )
+	return uirv;
+    if ( nrdims != 1 )
 	{ pErrMsg("Only read TypeSet from 1-D dataset"); return uirv; }
     if ( getDataType(dsky,uirv) != OD::GetDataRepType<T>() )
 	{ pErrMsg("Wrong type"); return uirv; }

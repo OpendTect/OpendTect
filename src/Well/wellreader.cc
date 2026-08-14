@@ -107,7 +107,8 @@ bool Well::ReadAccess::updateDTModel( D2TModel* dtmodel, bool iscs,
 				      BufferString& errmsg ) const
 {
     uiString msg;
-    const bool ret = updateDTModel( new D2TModel(*dtmodel), iscs, msg );
+    const bool ret = updateDTModel( new D2TModel(*dtmodel),
+				    iscs, msg );
     msg.getFullString( &errmsg );
     return ret;
 }
@@ -120,7 +121,8 @@ bool Well::ReadAccess::updateDTModel( D2TModel* dtmodel, const Track&, float,
 	return false;
 
     uiString dum;
-    return updateDTModel( new D2TModel(*dtmodel), iscs, dum );
+    return updateDTModel( new D2TModel(*dtmodel), iscs,
+			  dum );
 }
 
 

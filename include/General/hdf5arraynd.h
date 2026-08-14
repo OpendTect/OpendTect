@@ -8,6 +8,8 @@ ________________________________________________________________________
 
 -*/
 
+#include "generalmod.h"
+
 #include "arrayndimpl.h"
 #include "hdf5reader.h"
 #include "hdf5writer.h"

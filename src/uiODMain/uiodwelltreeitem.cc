@@ -156,7 +156,7 @@ bool uiODWellParentTreeItem::handleSubMenu( int mnuid )
 
 	uiString msg;
 	if ( !mwr.allWellsRead() )
-	    msg = mwr.errMsg();
+	    msg = mwr.uiMessage();
 
 	MouseCursorChanger mcc( MouseCursor::Wait );
 	TypeSet<MultiID> remids;

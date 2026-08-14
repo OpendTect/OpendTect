@@ -375,7 +375,8 @@ static bool testReadData( HDF5::Reader& rdr )
 				toString(uirv) );
     unsigned version = 0;
     uirv = rdr.getVersion( dsky2, version );
-    mRunStandardTestWithError( uirv.isOK() && version == 1, "DataSet version",
+    mRunStandardTestWithError( uirv.isOK() && ( version == 1 || version == 2 ) ,
+			       "DataSet version",
 			       toString(uirv) );
 
     dsky2.setDataSetName( "Strings" );

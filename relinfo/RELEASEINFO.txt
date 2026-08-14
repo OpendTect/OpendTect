@@ -18,7 +18,7 @@ OpenSource packages/versions used:
 
 Qt: 6.9.3
 OpenSceneGraph: 3.6.5
-OpenSSL: 3.5.2
-HDF5 (optional): 1.14.6
+OpenSSL: 3.5.7
+HDF5 (optional): 2.1.1
 SQLite3 (optional): 3.51.1
 PROJ (optional): 9.8.1

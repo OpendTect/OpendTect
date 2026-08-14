@@ -8,8 +8,13 @@ ________________________________________________________________________
 
 -*/
 
-#include "hdf5common.h"
-#include "H5Cpp.h"
+#include "odhdf5mod.h"
+
+#include "hdf5access.h"
+#include "threadlock.h"
+#include "typeset.h"
+
+#include <hdf5.h>
 
 
 namespace HDF5
@@ -44,38 +49,37 @@ protected:
 			// no throw
     void		doCloseFile(Access&);
 
-    H5::Group*		selectGroup(const char*) const;
-    H5::DataSet*	selectDataSet(const char*) const;
-    H5::H5Location*	stLocation(const DataSetKey*) const;
-    H5::H5Location*	stLocation(const DataSetKey*);
-    H5::H5Object*	stScope(const DataSetKey*) const;
-    H5::H5Object*	stScope(const DataSetKey*);
-    H5::Group*		stGrpScope(const DataSetKey*) const;
-    H5::Group*		stGrpScope(const DataSetKey*);
-    H5::DataSet*	stDSScope(const DataSetKey&) const;
-    H5::DataSet*	stDSScope(const DataSetKey&);
+    GroupID		selectGroup(const char*) const;
+    DatasetID		selectDataSet(const char*) const;
+    LocationID		stLocation(const DataSetKey*) const;
+    LocationID		stLocation(const DataSetKey*);
+    ObjectID		stScope(const DataSetKey*) const;
+    ObjectID		stScope(const DataSetKey*);
+    GroupID		stGrpScope(const DataSetKey*) const;
+    GroupID		stGrpScope(const DataSetKey*);
+    DatasetID		stDSScope(const DataSetKey&) const;
+    DatasetID		stDSScope(const DataSetKey&);
 
-    void		selectSlab(H5::DataSpace&,const SlabSpec&,
+    mutable		Threads::Lock	lock_;
+    void		selectSlab(const DataspaceID&,const SlabSpec&,
 				   TypeSet<hsize_t>* pcounts=0) const;
 				//!< can throw, use in try block
     static bool		haveErrPrint();
 
-    typedef H5::PredType H5DataType;
-    static const H5DataType& h5DataTypeFor(ODDataType);
+    static DatatypeID h5DataTypeFor(ODDataType);
 
     Access&		acc_;
-    mutable H5::Group	group_;
-    mutable H5::DataSet	dataset_;
-    mutable ArrayNDInfo::nr_dims_type nrdims_;
+    mutable GroupID	group_;
+    mutable TypeSet<hid_t> previousgroupids_;
+    mutable DatasetID	dataset_;
+    mutable ArrayNDInfo::nr_dims_type nrdims_ = -1;
 
 private:
 			mOD_DisableCopy(AccessImpl);
 
-    static bool		validH5Obj(const H5::H5Object&);
+    static bool		validH5Obj(const ObjectID&);
 
     static void		disableErrPrint(); // before action with 'normal' throw
-    static void		restoreErrPrint(); // after such an action
-    static void		enableErrPrint();
 
 };
 
@@ -103,4 +107,4 @@ public:
 
 #define mGetDataSpaceDims( dims, nrdims, dataspace ) \
     TypeSet<hsize_t> dims( nrdims, (hsize_t)0 ); \
-    dataspace.getSimpleExtentDims( dims.arr() )
+    H5Sget_simple_extent_dims( dataspace, dims.arr(), nullptr )
