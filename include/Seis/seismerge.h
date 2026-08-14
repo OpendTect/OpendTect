@@ -57,6 +57,8 @@ protected:
     SamplingData<float>		sd_;
     Scaler*			scaler_;
 
+    void			init3DWorkSampling();
+    bool			posInAnyInput(const BinID&) const;
     SeisTrc*			getNewTrc();
     SeisTrc*			getTrcFrom(SeisTrcReader&);
     void			get3DTraces();
