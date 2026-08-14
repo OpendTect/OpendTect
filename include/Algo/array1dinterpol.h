@@ -28,9 +28,7 @@ public:
 
     void		setArray(Array1D<float>&);
 
-    od_int64		nrDone() const override		{ return nrdone_; }
-    od_int64		nrIterations() const;
-    void		setExtrapol( bool yn )	{ doextrapol_ = yn; }
+    void		setExtrapol( bool yn )	    { doextrapol_ = yn; }
     void		setFillWithExtremes( bool yn )
 			{ fillwithextremes_ = yn; }
     void		reset();
@@ -39,6 +37,8 @@ protected:
 			Array1DInterpol();
     uiString		uiNrDoneText() const override
 			{ return tr("Points interpolated"); }
+    od_int64		totalNr() const override;
+    od_int64		nrDone() const override     { return nrdone_; }
 
     Array1D<float>*	arr_;
     bool		arrstarted_;

@@ -29,7 +29,7 @@ Array1DInterpol::~Array1DInterpol()
 }
 
 
-od_int64 Array1DInterpol::nrIterations() const
+od_int64 Array1DInterpol::totalNr() const
 { return arr_ ? arr_->info().getTotalSz() : 0; }
 
 
