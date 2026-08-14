@@ -26,6 +26,7 @@ ________________________________________________________________________
 #include "visevent.h"
 #include "visfaultdisplay.h"
 #include "vismaterial.h"
+#include "visplanedatadisplay.h"
 #include "visrandomtrackdisplay.h"
 #include "visselman.h"
 #include "vissurvobj.h"
@@ -345,10 +346,11 @@ void Scene::setTrcKeyZSampling( const TrcKeyZSampling& tkzs, bool workarea )
     else
         tkzs_.zsamp_.step_ = inittkzs_.zsamp_.step_;
 
-    if ( !annot_ )
-	return;
+    if ( annot_ )
+	annot_->setTrcKeyZSampling( tkzs );
 
-    annot_->setTrcKeyZSampling( tkzs );
+    if ( workarea )
+	updateWorkArea();
 }
 
 
@@ -375,6 +377,17 @@ void Scene::setAnnotScale( const TrcKeyZSampling& tkzs,
 const TrcKeyZSampling& Scene::getAnnotScale( bool getdefault ) const
 {
     return annot_ ? annot_->getScale( getdefault ) : annotscale_;
+}
+
+
+void Scene::updateWorkArea()
+{
+    for ( int idx=0; idx<size(); idx++ )
+    {
+	mDynamicCastGet(PlaneDataDisplay*,pdd,getObject(idx))
+	if ( pdd )
+	    pdd->updateWorkArea();
+    }
 }
 
 

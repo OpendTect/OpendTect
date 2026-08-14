@@ -59,6 +59,7 @@ public:
     bool			hasPosModeManipulator() const override
 				{ return true; }
     void			showManipulator(bool) override;
+    void			displayDraggerPlane(bool);
     bool			isManipulatorShown() const override;
     bool			isManipulated() const override;
     bool			canResetManipulation() const override
@@ -163,6 +164,7 @@ public:
 
     void			setEditMode(bool yn)	{ ineditmode_ = yn; };
     bool			inEditMode() const	{ return ineditmode_; }
+    void			updateWorkArea();
 
 protected:
 				~PlaneDataDisplay();
