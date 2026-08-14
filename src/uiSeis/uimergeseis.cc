@@ -141,6 +141,7 @@ bool uiMergeSeis::getInput( ObjectSet<IOPar>& inpars, IOPar& outpar )
     }
 
     outpar.set( sKey::ID(), outioobj->key() );
+    transffld_->fillPar( outpar );
 
     BufferString typestr, zdomstr;
     for ( int idx=0; idx<chosenids.size(); idx++ )
