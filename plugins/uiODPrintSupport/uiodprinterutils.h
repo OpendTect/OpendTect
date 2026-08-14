@@ -19,6 +19,7 @@ class QWidget;
 namespace OD
 {
 
+    mGlobal(uiODPrintSupport) bool ArePrintersAvailable();
     mGlobal(uiODPrintSupport) bool SaveAsPDF(QWidget&,const char* fnm,
 					     int width,int height,int res);
     mGlobal(uiODPrintSupport) bool DoPrintDialog(QGraphicsScene&);

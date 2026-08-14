@@ -13,7 +13,15 @@ ________________________________________________________________________
 #include <QPaintDevice>
 #include <QPainter>
 #include <QPrinter>
+#include <QPrinterInfo>
 #include <QPrintDialog>
+
+
+bool OD::ArePrintersAvailable()
+{
+    QList<QPrinterInfo> printers = QPrinterInfo::availablePrinters();
+    return !printers.isEmpty();
+}
 
 
 bool OD::SaveAsPDF( QWidget& qwin, const char* filename, int w, int h, int res )

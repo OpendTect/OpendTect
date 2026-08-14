@@ -21,6 +21,7 @@ ________________________________________________________________________
 #include "uirgbarray.h"
 #include "odgraphicsitem.h"
 #include "uigraphicsviewbase.h"
+#include "uimain.h"
 #include "uimainwin.h"
 
 void Init_uiLocalFileSelToolProvider_Class();
@@ -41,23 +42,35 @@ static const FilePath& GetuiODPrintSupportFp()
 
 const char* sODPrintSupport = "uiODPrintSupport";
 
+using boolPrintersAvailableFn = bool(*)();
 using boolFromQWidgetWithGeomFnm = bool(*)(QWidget&,const char*,int,int,int);
 using boolFromQGraphicsSceneFn = bool(*)(QGraphicsScene&);
 using boolFromQPaintDeviceFn = bool(*)(QPaintDevice*);
 
+static boolPrintersAvailableFn areprintersavailablefn_ = nullptr;
 static boolFromQWidgetWithGeomFnm saveaspdffn_ = nullptr;
 static boolFromQGraphicsSceneFn doprintdlgfn_ = nullptr;
 static boolFromQPaintDeviceFn isqprinterfn_ = nullptr;
 
-mGlobal(uiBase) void setGlobal_QPrintSupport_Fns(boolFromQWidgetWithGeomFnm,
-			boolFromQGraphicsSceneFn,boolFromQPaintDeviceFn);
-void setGlobal_QPrintSupport_Fns( boolFromQWidgetWithGeomFnm saveaspdffn,
-				  boolFromQGraphicsSceneFn doprintdlgfn,
-				  boolFromQPaintDeviceFn isqprinterfn )
+mGlobal(uiBase) void setGlobal_QPrintSupport_Fns(boolPrintersAvailableFn,
+			boolFromQWidgetWithGeomFnm,boolFromQGraphicsSceneFn,
+			boolFromQPaintDeviceFn);
+void setGlobal_QPrintSupport_Fns(
+			boolPrintersAvailableFn areprintersavailablefn,
+			boolFromQWidgetWithGeomFnm saveaspdffn,
+			boolFromQGraphicsSceneFn doprintdlgfn,
+			boolFromQPaintDeviceFn isqprinterfn )
 {
+    areprintersavailablefn_ = areprintersavailablefn;
     saveaspdffn_ = saveaspdffn;
     doprintdlgfn_ = doprintdlgfn;
     isqprinterfn_ = isqprinterfn;
+}
+
+
+bool uiMain::arePrintersAvailable()
+{
+    return areprintersavailablefn_ ? (*areprintersavailablefn_)() : false;
 }
 
 
@@ -81,7 +94,7 @@ bool ODGraphicsDynamicImageItem::isQPrinter( QPaintDevice* qpaintdevice )
 }
 
 
-bool uiMainWin::hasPrintSupport()
+bool uiMain::hasPrintSupport()
 {
     const FilePath& libfp = GetuiODPrintSupportFp();
     const PluginManager::Data* pidata = PIM().findData( libfp.fileName() );

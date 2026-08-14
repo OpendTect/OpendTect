@@ -901,6 +901,12 @@ Notifier<uiMainWin>& uiMainWin::iconSetChanged()
 }
 
 
+bool uiMainWin::hasPrintSupport()
+{
+    return uiMain::hasPrintSupport();
+}
+
+
 // uiMainWinTracker
 uiMainWinTracker::uiMainWinTracker()
     : windowAdded(this)
