@@ -13,12 +13,16 @@ ________________________________________________________________________
 #include "uibasemod.h"
 #include "uiodprinterutils.h"
 
+using boolPrintersAvailableFn = bool(*)();
 using boolFromQWidgetWithGeomFnm = bool(*)(QWidget&,const char*,int,int,int);
 using boolFromQGraphicsSceneFn = bool(*)(QGraphicsScene&);
 using boolFromQPaintDeviceFn = bool(*)(QPaintDevice*);
 
-mGlobal(uiBase) void setGlobal_QPrintSupport_Fns(boolFromQWidgetWithGeomFnm,
-			boolFromQGraphicsSceneFn,boolFromQPaintDeviceFn);
+mGlobal(uiBase) void setGlobal_QPrintSupport_Fns(
+		boolPrintersAvailableFn,
+		boolFromQWidgetWithGeomFnm,
+		boolFromQGraphicsSceneFn,
+		boolFromQPaintDeviceFn);
 
 mDefODPluginInfo(uiODPrintSupport)
 {
@@ -32,7 +36,7 @@ mDefODPluginInfo(uiODPrintSupport)
 
 mDefODInitPlugin(uiODPrintSupport)
 {
-    setGlobal_QPrintSupport_Fns( OD::SaveAsPDF, OD::DoPrintDialog,
-				 OD::IsQPrinter );
+    setGlobal_QPrintSupport_Fns( OD::ArePrintersAvailable, OD::SaveAsPDF,
+				 OD::DoPrintDialog, OD::IsQPrinter );
     return nullptr;
 }

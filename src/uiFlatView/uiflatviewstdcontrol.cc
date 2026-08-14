@@ -280,7 +280,7 @@ uiFlatViewStdControl::uiFlatViewStdControl( uiFlatViewer& vwr,
     {
 	vwr_.rgbCanvas().enableImageSave();
 	tb_->addObject( vwr_.rgbCanvas().getSaveImageButton(tb_) );
-	if ( uiMainWin::hasPrintSupport() )
+	if ( uiMain::arePrintersAvailable() )
 	    tb_->addObject( vwr_.rgbCanvas().getPrintImageButton(tb_) );
     }
 

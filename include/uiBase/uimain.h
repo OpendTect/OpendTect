@@ -96,6 +96,9 @@ public:
 				 bool* needdisabledarkmode=nullptr);
     static const char* sKeylookstyle();
 
+    static bool		hasPrintSupport();
+    static bool		arePrintersAvailable();
+
 protected:
 
     static uiMain*	themain_;
