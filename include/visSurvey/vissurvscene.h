@@ -207,6 +207,8 @@ protected:
     void			setup();
     void			updateAnnotationText();
     void			updateTransforms(const TrcKeyZSampling&);
+    void			updateWorkArea();
+
     void			mouseCB(CallBacker*);
     void			keyPressCB(CallBacker*);
     RefMan<visBase::MarkerSet>	createMarkerSet() const;

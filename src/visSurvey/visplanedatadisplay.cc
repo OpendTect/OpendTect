@@ -145,6 +145,12 @@ void PlaneDataDisplay::setOrientation( SliceType nt )
 }
 
 
+void PlaneDataDisplay::updateWorkArea()
+{
+    updateRanges( true, true );
+}
+
+
 void PlaneDataDisplay::updateRanges( bool resetic, bool resetz )
 {
     if ( !scene_ )
@@ -492,6 +498,16 @@ void PlaneDataDisplay::showManipulator( bool yn )
 }
 
 
+void PlaneDataDisplay::displayDraggerPlane( bool yn )
+{
+    if ( !dragger_ || !isManipulatorShown() )
+	return;
+
+    dragger_->showPlane( yn );
+    dragger_->showDraggerBorder( !yn );
+}
+
+
 bool PlaneDataDisplay::isManipulatorShown() const
 {
     return dragger_->isOn();
@@ -705,7 +721,8 @@ void PlaneDataDisplay::setTrcKeyZSampling( const TrcKeyZSampling& wantedcs )
     texturerect_->swapTextureAxes();
 
     setDraggerPos( cs );
-    if ( gridlines_ ) gridlines_->setPlaneTrcKeyZSampling( cs );
+    if ( gridlines_ )
+	gridlines_->setPlaneTrcKeyZSampling( cs );
 
     curicstep_ = cs.hsamp_.step_;
 
