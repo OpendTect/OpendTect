@@ -10,6 +10,7 @@ ________________________________________________________________________
 #include "seismerge.h"
 #include "seisbounds.h"
 #include "seisread.h"
+#include "seisselectionimpl.h"
 #include "seiswrite.h"
 #include "seistrc.h"
 #include "seistrctr.h"
@@ -102,7 +103,7 @@ SeisMerger::SeisMerger( const ObjectSet<IOPar>& iops, const IOPar& outiop,
 
     currdridx_ = 0;
     if ( !is2d_ )
-	totnrpos_ = mCast( int, SI().sampling(false).hsamp_.totalNr() );
+	init3DWorkSampling();
 }
 
 
@@ -176,7 +177,7 @@ SeisMerger::SeisMerger( const IOPar& iop )
     }
 
     currdridx_ = 0;
-    totnrpos_ = mCast( int, SI().sampling(false).hsamp_.totalNr() );
+    init3DWorkSampling();
 }
 
 
@@ -200,6 +201,66 @@ void SeisMerger::setScaler( Scaler* scaler )
 {
     delete scaler_;
     scaler_ = scaler;
+}
+
+
+void SeisMerger::init3DWorkSampling()
+{
+    hsamp_ = SI().sampling(false).hsamp_;
+    rdrhsamps_.erase();
+    TrcKeyZSampling worktkzs;
+    bool havework = false;
+
+    for ( const auto* rdr : rdrs_ )
+    {
+	// Bounds honor the reader's selection, so any subselection is included
+	PtrMan<Seis::Bounds> bds = rdr->getBounds();
+	mDynamicCastGet(const Seis::Bounds3D*,b3d,bds.ptr())
+	if ( !b3d )
+	{
+	    rdrhsamps_ += TrcKeySampling();
+	    continue;
+	}
+
+	const TrcKeyZSampling& tkzs = b3d->tkzs_;
+	rdrhsamps_ += tkzs.hsamp_;
+	if ( havework )
+	    worktkzs.include( tkzs );
+	else
+	{
+	    worktkzs = tkzs;
+	    havework = true;
+	}
+    }
+
+    if ( havework && !worktkzs.hsamp_.isEmpty() )
+    {
+	hsamp_ = worktkzs.hsamp_;
+	if ( wrr_ )
+	    wrr_->setSelData( new Seis::RangeSelData(worktkzs) );
+    }
+
+    totnrpos_ = 0;
+    for ( const auto& rdrhs : rdrhsamps_ )
+	totnrpos_ += mCast( int, rdrhs.totalNr() );
+    if ( totnrpos_ < 1 )
+	totnrpos_ = mCast( int, hsamp_.totalNr() );
+
+    curbid_ = hsamp_.start_;
+    if ( !posInAnyInput(curbid_) && !toNextPos() )
+	curbid_ = hsamp_.start_;
+}
+
+
+bool SeisMerger::posInAnyInput( const BinID& bid ) const
+{
+    for ( const auto& rdrhs : rdrhsamps_ )
+    {
+	if ( rdrhs.lineOK(bid.inl()) && rdrhs.trcOK(bid.crl()) )
+	    return true;
+    }
+
+    return false;
 }
 
 
@@ -245,15 +306,17 @@ SeisTrc* SeisMerger::getNewTrc()
 	if ( is2d_ )
 	{
 	    ret = getTrcFrom( *rdrs_[currdridx_] );
-	    if ( !ret )
-	    {
-		if ( !errmsg_.isEmpty() )
-		    return 0;
+	    if ( ret )
+		break;
 
-		currdridx_++;
-		if ( currdridx_ >= rdrs_.size() )
-		    return 0;
-	    }
+	    if ( !errmsg_.isEmpty() )
+		return 0;
+
+	    currdridx_++;
+	    if ( currdridx_ >= rdrs_.size() )
+		return 0;
+
+	    continue;
 	}
 
 	get3DTraces();
@@ -284,17 +347,23 @@ void SeisMerger::get3DTraces()
     trcbuf_.deepErase();
     for ( int idx=0; idx<rdrs_.size(); idx++ )
     {
-	SeisTrcReader& rdr = *rdrs_[idx];
-	if ( rdr.seisTranslator()->goTo(curbid_) )
-	{
-	    SeisTrc* newtrc = getTrcFrom( rdr );
-	    if ( !newtrc )
-		continue;
+	if ( rdrhsamps_.validIdx(idx) &&
+	     !( rdrhsamps_[idx].lineOK(curbid_.inl()) &&
+		rdrhsamps_[idx].trcOK(curbid_.crl()) ) )
+	    continue;
 
-	    trcbuf_.add( newtrc );
-	    if ( !stacktrcs_ )
-		break;
-	}
+	SeisTrcReader& rdr = *rdrs_[idx];
+	SeisTrcTranslator* trl = rdr.seisTranslator();
+	if ( !trl || !trl->goTo(curbid_) )
+	    continue;
+
+	SeisTrc* newtrc = getTrcFrom( rdr );
+	if ( !newtrc )
+	    continue;
+
+	trcbuf_.add( newtrc );
+	if ( !stacktrcs_ )
+	    break;
     }
 }
 
@@ -342,17 +411,23 @@ SeisTrc* SeisMerger::getStacked( SeisTrcBuf& buf )
 
 bool SeisMerger::toNextPos()
 {
-    TrcKeySampling hs = SI().sampling(false).hsamp_;
-    curbid_.crl() += hs.step_.crl();
-    if ( curbid_.crl() > hs.stop_.crl() )
-    {
-	curbid_.inl() += hs.step_.inl();
-	curbid_.crl() = hs.start_.crl();
-	if ( curbid_.inl() > hs.stop_.inl() )
-	    return false;
-    }
+    if ( hsamp_.isEmpty() )
+	return false;
 
-    return true;
+    while ( true )
+    {
+	curbid_.crl() += hsamp_.step_.crl();
+	if ( curbid_.crl() > hsamp_.stop_.crl() )
+	{
+	    curbid_.inl() += hsamp_.step_.inl();
+	    curbid_.crl() = hsamp_.start_.crl();
+	    if ( curbid_.inl() > hsamp_.stop_.inl() )
+		return false;
+	}
+
+	if ( posInAnyInput(curbid_) )
+	    return true;
+    }
 }
 
 

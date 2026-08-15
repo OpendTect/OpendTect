@@ -12,6 +12,7 @@ ________________________________________________________________________
 #include "executor.h"
 #include "binid.h"
 #include "samplingdata.h"
+#include "trckeysampling.h"
 
 class Scaler;
 class SeisTrc;
@@ -45,6 +46,7 @@ protected:
 
     bool			is2d_;
     ObjectSet<SeisTrcReader>	rdrs_;
+    TypeSet<TrcKeySampling>	rdrhsamps_;
     SeisTrcWriter*		wrr_;
     int				currdridx_;
     int				nrpos_;
@@ -52,11 +54,14 @@ protected:
     uiString			errmsg_;
 
     BinID			curbid_;
+    TrcKeySampling		hsamp_;
     SeisTrcBuf&			trcbuf_;
     int				nrsamps_;
     SamplingData<float>		sd_;
     Scaler*			scaler_;
 
+    void			init3DWorkSampling();
+    bool			posInAnyInput(const BinID&) const;
     SeisTrc*			getNewTrc();
     SeisTrc*			getTrcFrom(SeisTrcReader&);
     void			get3DTraces();
