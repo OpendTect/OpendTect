@@ -465,7 +465,10 @@ void uiIOObjSelGrp::omfChgCB( CallBacker* )
 {
     if ( grpobj_->visible() )
     {
+	TypeSet<MultiID> chosenmids;
+	getChosen( chosenmids );
 	fullUpdate( -1 );
+	setChosen( chosenmids );
 	/* FileSystemWatcher stops watching omf file after the first change.
 	   Here is an excerpt from QFileSystemWatcher's documentation:
 	    "QFileSystemWatcher stops monitoring files once they have been
