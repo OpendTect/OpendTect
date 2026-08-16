@@ -133,6 +133,12 @@ i_tableViewMessenger( QTableView* sndr, uiTableView* rcvr )
 	    this, &i_tableViewMessenger::rowPressed );
     connect( sndr->horizontalHeader(), &QHeaderView::sectionPressed,
 	    this, &i_tableViewMessenger::columnPressed );
+    connect( sndr, &QTableView::clicked,
+	    this, &i_tableViewMessenger::cellClicked );
+    connect( sndr, &QTableView::pressed,
+	    this, &i_tableViewMessenger::cellPressed );
+
+    connectSelectionModel();
 }
 
 
@@ -183,13 +189,11 @@ void cellContextMenuRequested( const QPoint& pos )
 
 void horHeaderContextMenuRequested( const QPoint& pos )
 {
-    const QModelIndex index = sender_->indexAt( pos );
-    const int col = index.column();
-    if ( col<0 )
+    const int col = sender_->horizontalHeader()->logicalIndexAt( pos );
+    if ( col < 0 )
 	return;
 
-    receiver_->setCurrentCell( RowCol(-1,col) );
-    receiver_->selectColumn( col );
+    receiver_->setCurrentCell( RowCol(-1,col), true );
     handleSlot( "cellRightClicked", -1, col, &receiver_->rightClicked );
 }
 
@@ -228,6 +232,43 @@ void rowPressed( int row )
 void columnPressed( int col )
 {
     handleSlot( "columnPressed", -1, col );
+}
+
+
+void cellClicked( const QModelIndex& index )
+{
+    const int row = index.row();
+    const int col = index.column();
+    receiver_->setNotifCell( RowCol(row,col) );
+    handleSlot( "cellLeftClicked", row, col, &receiver_->leftClicked() );
+}
+
+
+void cellPressed( const QModelIndex& index )
+{
+    const int row = index.row();
+    const int col = index.column();
+    receiver_->setNotifCell( RowCol(row,col) );
+    handleSlot( "cellPressed", row, col, nullptr );
+}
+
+
+void connectSelectionModel()
+{
+    QItemSelectionModel* selmdl = sender_->selectionModel();
+    if ( !selmdl )
+	return;
+
+    connect( selmdl, &QItemSelectionModel::selectionChanged,
+	     this, &i_tableViewMessenger::selectionChanged,
+	     Qt::UniqueConnection );
+}
+
+
+void selectionChanged( const QItemSelection& selected,
+		       const QItemSelection& deselected )
+{
+    handleSlot( "selectionChanged", -1, -1, &receiver_->selectionChanged );
 }
 
 };

@@ -27,6 +27,8 @@ public:
     enum SelectionBehavior	{ SelectItems, SelectRows, SelectColumns };
     enum SelectionMode		{ SingleSelection=1, ExtendedSelection=3,
 				  NoSelection=0 };
+    enum ResizeMode		{ Interactive=0, Fixed=2, Stretch=1,
+				  ResizeToContents=3 };
 
 				uiTableView(uiParent*,const char* nm);
 				~uiTableView();
@@ -44,8 +46,13 @@ public:
     void			setColumnStretchable(int,bool);
     void			resizeColumnsToContents();
     void			resizeColumnToContents(int column);
+    void			setColumnResizeMode(ResizeMode);
+				//!<Default is Stretch
+
+    void			setRowHeight(int height);
     void			setRowHeight(int row,int height);
-    void			setRowHeight(int row);
+    void			setRowResizeMode(ResizeMode);
+				//!<Default is ResizeToContents
 
     void			setAlternatingRowColors(bool yn);
 				//!<Follows the displayed row order, thus
@@ -108,6 +115,10 @@ public:
 
     bool			getSelectedRows(TypeSet<int>&) const;
     bool			getSelectedColumns(TypeSet<int>&) const;
+    bool			getSelectedRows(TypeSet<int>&,
+						bool mappedtosource) const;
+    bool			getSelectedColumns(TypeSet<int>&,
+						   bool mappedtosource) const;
     bool			getSelectedCells(TypeSet<RowCol>&,
 						 bool mappedtosource) const;
     void			selectAll();
@@ -134,6 +145,10 @@ public:
 
     TableModel::CellType	getCellType(int col) const;
 
+    void			setNotifCell(const RowCol&);
+    RowCol			getNotifCell() const;
+
+    Notifier<uiTableView>&			leftClicked();
     Notifier<uiTableView>			doubleClicked;
     Notifier<uiTableView>			rightClicked;
     Notifier<uiTableView>			selectionChanged;
@@ -141,6 +156,8 @@ public:
     CNotifier<uiTableView,int>			rowClicked;
     Notifier<uiTableView>&			undoRedoHappened();
 
+    mDeprecated("Use clearSelection()")
+    void		removeAllSelections()	{ clearSelection(); }
 protected:
 
     ODTableView&		mkView(uiParent*,const char*);

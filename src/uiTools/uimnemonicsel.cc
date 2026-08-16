@@ -11,7 +11,6 @@ ________________________________________________________________________
 
 #include "uibuttongroup.h"
 #include "uicolor.h"
-#include "uilabel.h"
 #include "uilistbox.h"
 #include "uimsg.h"
 #include "uitable.h"
@@ -203,8 +202,8 @@ public:
 uiMnSelFlds( uiTable& tbl, int rowidx, const Mnemonic* mn )
     : NamedCallBacker(mn ? mn->name().str() : nullptr)
     , tbl_(tbl)
-    , iscustom_(mn)
     , editstate_(mn ? EditType::None : EditType::StdType)
+    , iscustom_(mn)
 {
     lastusedmns_.setNullAllowed();
     const BufferStringSet alltypnms( Mnemonic::StdTypeNames() );
@@ -258,7 +257,9 @@ uiMnSelFlds( uiTable& tbl, int rowidx, const Mnemonic* mn )
     }
 
     const OD::Color color = mn ? mn->disp_.color_
-			     : mnselfld_->mnemonic()->disp_.color_;
+			       : (mnselfld_->mnemonic() ?
+					mnselfld_->mnemonic()->disp_.color_ :
+					OD::Color::NoColor());
     NotifyStopper ns( tbl_.valueChanged );
     tbl_.setColor( RowCol(rowidx,sMnemonicColorCol), color );
 
@@ -579,7 +580,7 @@ void uiCustomMnemonicsSel::removeEntries( const TypeSet<int>& rows,
 	for ( int irow=nrrows; irow<tbl_->nrRows(); irow++ )
 	    tbl_->hideRow( irow, true );
 
-	tbl_->removeAllSelections();
+	tbl_->clearSelection();
     }
 }
 
