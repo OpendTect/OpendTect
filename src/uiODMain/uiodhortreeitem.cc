@@ -960,8 +960,8 @@ bool uiODHorizon2DParentTreeItem::showSubMenu()
     mnu.insertAction( new uiAction( m3Dots(uiStrings::sAdd()) ), 0 );
     auto* newmenu = new uiAction( m3Dots(tr("Track New")) );
     mnu.insertAction( newmenu, 1 );
-    mnu.insertAction( new uiAction(m3Dots(tr("Create from 3D"))), 2 );
-    newmenu->setEnabled( !hastransform );
+	mnu.insertAction(new uiAction(m3Dots(tr("Create from 3D"))), 2);
+	newmenu->setEnabled( !hastransform );
     showMenuNotifier().trigger( &mnu, this );
 
     if ( children_.size() )
@@ -1006,8 +1006,8 @@ bool uiODHorizon2DParentTreeItem::showSubMenu()
 	mps->addTracker( EM::Horizon2D::typeStr(), sceneID() );
 	return true;
     }
-    else if ( mnuid == 2 )
-    {
+	else if (mnuid == 2)
+	{
 	uiHor2DFrom3DDlg dlg( getUiParent() );
 	if ( dlg.go() && dlg.doDisplay() )
 	{
