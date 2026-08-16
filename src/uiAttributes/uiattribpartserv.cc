@@ -824,9 +824,13 @@ static bool getCompNrsForStoredTarget(
 	return false;
 
     const bool is2d = targetspecs[0].is2D();
-    const DescSet* attrds = DSHolder().getDescSet( is2d, false );
+    const DescSet* attrds = DSHolder().getDescSet( is2d, true );
     if ( !attrds || attrds->isEmpty() )
-	return false;
+    {
+	attrds = DSHolder().getDescSet( is2d, false );
+	if ( !attrds || attrds->isEmpty() )
+	    return false;
+    }
 
     for ( const auto& spec : targetspecs )
     {
