@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include <QByteArray>
 #include <QDate>
 #include <QDateTime>
+#include <QHash>
 #include <QSortFilterProxyModel>
 
 class ODAbstractTableModel : public QAbstractTableModel
@@ -39,9 +40,12 @@ public:
 					 bool useoldval);
     void		rowBulkDataChanged(int row,
 					   const TypeSet<int>&);
+    Alignment		storedAlignment(int col) const;
+    void		setColumnAlignment(int col,const Alignment&);
 
 protected:
     TableModel&		model_;
+    QHash<int,int>	colalignments_;
 };
 
 
@@ -119,6 +123,9 @@ QVariant ODAbstractTableModel::data( const QModelIndex& qmodidx,
 
 	return val==1 ? Qt::Checked : Qt::Unchecked;
     }
+
+    if ( role == Qt::TextAlignmentRole )
+	return model_.columnAlignment( qmodidx.column() ).uiValue();
 
     return QVariant();
 }
@@ -281,6 +288,30 @@ bool ODAbstractTableModel::applyEditRequest( const TableModel::EditRequest& req,
 
     const QVariant& val = useoldval ? req.oldval_.qvar_ : req.newval_.qvar_;
     return setData( sourceidx, val, req.role_ );
+}
+
+
+Alignment ODAbstractTableModel::storedAlignment( int col ) const
+{
+    Alignment al( Alignment::Left, Alignment::VCenter );
+    if ( colalignments_.contains(col) )
+	al.setUiValue( colalignments_.value(col) );
+
+    return al;
+}
+
+
+void ODAbstractTableModel::setColumnAlignment( int col, const Alignment& al )
+{
+    colalignments_.insert( col, al.uiValue() );
+    const int nrrows = rowCount( QModelIndex() );
+    if ( nrrows < 1 )
+	return;
+
+    const QModelIndex tl = index( 0, col );
+    const QModelIndex br = index( nrrows-1, col );
+    if ( tl.isValid() && br.isValid() )
+	emit dataChanged( tl, br, {Qt::TextAlignmentRole} );
 }
 
 
@@ -479,6 +510,18 @@ OD::Color TableModel::textColor( int row, int col ) const
 OD::Color TableModel::cellColor( int row, int col ) const
 {
     return OD::Color::NoColor();
+}
+
+
+Alignment TableModel::columnAlignment( int col ) const
+{
+    return odtablemodel_->storedAlignment( col );
+}
+
+
+void TableModel::setColumnAlignment( int col, const Alignment& al )
+{
+    odtablemodel_->setColumnAlignment( col, al );
 }
 
 

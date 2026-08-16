@@ -11,6 +11,7 @@ ________________________________________________________________________
 #include "generalmod.h"
 
 #include "color.h"
+#include "draw.h"
 #include "odcommonenums.h"
 #include "pixmapdesc.h"
 #include "callback.h"
@@ -90,6 +91,8 @@ public:
 
     virtual OD::Color		textColor(int row,int col) const;
     virtual OD::Color		cellColor(int row,int col) const;
+    virtual Alignment		columnAlignment(int col) const;
+    void			setColumnAlignment(int col,const Alignment&);
     virtual PixmapDesc		pixmap(int row,int col) const;
     virtual void		setChecked(int row,int col,int val)	{}
     virtual int			isChecked(int row,int col) const  { return -1; }
