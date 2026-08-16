@@ -98,7 +98,8 @@ bool TableViewCmd::parTableSelPre( const char* prefix, TableViewTag tag,
 }
 
 
-bool TableViewCmd::isSelected( const uiTableView* table, const RowCol& rc ) const
+bool TableViewCmd::isSelected( const uiTableView* table,
+				const RowCol& rc ) const
 {
     const TableModel* model = table->getModel();
     if ( rc.row()>=0 && rc.col()>=0 )
@@ -245,7 +246,8 @@ bool TableViewClickCmd::act( const char* parstr )
 }
 
 
-TableViewActivator::TableViewActivator( const uiTableView& uitable, const RowCol& rc,
+TableViewActivator::TableViewActivator( const uiTableView& uitable,
+				const RowCol& rc,
 				const BufferStringSet& clicktags )
     : acttable_( const_cast<uiTableView&>(uitable) )
     , actrc_( rc )
@@ -263,7 +265,8 @@ TableViewActivator::TableViewActivator( const uiTableView& uitable, const RowCol
     { \
 	for ( rc.col()=lowrc.col(); rc.col()<=highrc.col(); rc.col()++ ) \
 	{ \
-	    acttable_.setCellSelected( rc, !toggle || !acttable_.isCellSelected(rc) ); \
+	    acttable_.setCellSelected( rc, !toggle || \
+		!acttable_.isCellSelected(rc) ); \
 	} \
     } \
     acttable_.setCurrentCell( lowrc ); \
@@ -1037,7 +1040,7 @@ bool GetTableViewMenuItemCmd::act( const char* parstr )
 }
 
 
-//====== TableViewState class =====================================================
+//====== TableViewState class =================================================
 
 bool TableViewState::headInsert( const RowCol& rc )
 {
@@ -1680,11 +1683,11 @@ bool TableViewCmdComposer::accept( const CmdRecEvent& ev )
 
     if ( accepted )
     {
-	const bool notileft = mMatchCI(notifiername, "leftClicked") ||
+	const bool notileft = mMatchCI(notifiername, "cellLeftClicked") ||
 			      mMatchCI(notifiername, "rowClicked")  ||
 			      mMatchCI(notifiername, "columnClicked");
 
-	const bool notiright = mMatchCI( notifiername, "rightClicked" );
+	const bool notiright = mMatchCI( notifiername, "cellRightClicked" );
 
 	if ( stagenr_ == -1 )
 	    return true;

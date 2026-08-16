@@ -736,7 +736,7 @@ uiSelectPosDlg( uiParent* p, const BufferStringSet& grpnames )
 
     if ( grpnames.size()>1 )
     {
-	uiLabeledComboBox* lcb = new uiLabeledComboBox( this,
+	auto* lcb = new uiLabeledComboBox( this,
 					  uiStrings::phrSelect(tr("group" )) );
 	grpfld_ = lcb->box();
 	grpfld_->addItems( grpnames );
@@ -919,7 +919,7 @@ void uiDataPointSet::notifySelectedCell()
     TypeSet<RowCol> selectedrowcols(xplotwin_->plotter().getDPSSelectedCells());
     if ( selectedrowcols.isEmpty() )
     {
-	tbl_->removeAllSelections();
+	tbl_->clearSelection();
 	return;
     }
 
@@ -1452,10 +1452,15 @@ void uiDataPointSet::manage( CallBacker* )
 {
     uiDataPointSetMan dlg( this );
     dlg.go();
+    if ( !curseldlg_ )
+	return;
+
     MultiID mid;
-    if ( curseldlg_ && curseldlg_->ioObj() )
+    if ( curseldlg_->ioObj() )
 	mid = curseldlg_->ioObj()->key();
-    curseldlg_->selGrp()->fullUpdate( mid );
+
+    if ( curseldlg_->selGrp() )
+	curseldlg_->selGrp()->fullUpdate( mid );
 }
 
 

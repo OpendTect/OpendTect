@@ -1170,10 +1170,19 @@ void uiTable::setRowStretchable( int row, bool yn )
 
 
 bool uiTable::isColumnStretchable( int col ) const
-{  pErrMsg( "Not impl yet" ); return false; }
+{
+    QHeaderView* header = body_->horizontalHeader();
+    const int idx = header->logicalIndex( col );
+    return idx>=0 && header->sectionResizeMode(idx)==QHeaderView::Stretch;
+}
+
 
 bool uiTable::isRowStretchable( int row ) const
-{  pErrMsg( "Not impl yet" ); return false; }
+{
+    QHeaderView* header = body_->verticalHeader();
+    const int idx = header->logicalIndex( row );
+    return idx>=0 && header->sectionResizeMode(idx)==QHeaderView::Stretch;
+}
 
 
 void uiTable::setSortable( bool yn )
@@ -1842,7 +1851,7 @@ void uiTable::clearTable()
 }
 
 
-void uiTable::removeAllSelections()
+void uiTable::clearSelection()
 {
     mBlockCmdRec;
     body_->clearSelection();
@@ -2102,7 +2111,7 @@ int uiTable::maxNrOfSelections() const
 void uiTable::selectItems( const TypeSet<RowCol>& rcs, bool yn )
 {
     mBlockCmdRec;
-    removeAllSelections();
+    clearSelection();
     for ( int idx=0; idx<rcs.size(); idx++ )
     {
 	if ( mIsUdf(rcs[idx].row()) || mIsUdf(rcs[idx].col()) )

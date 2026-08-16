@@ -416,10 +416,6 @@ protected:
 
 };
 
-static HiddenParam<uiTableView,char> hp_enableundo_(1);
-static HiddenParam<uiTableView,ODUndoCommand*> hp_activeundogroup_(nullptr);
-static HiddenParam<uiTableView,Notifier<uiTableView>*> hp_undoredohappened_(
-								    nullptr );
 
 
 class CellEditUndoCommand : public ODUndoCommand
@@ -566,7 +562,6 @@ void ODTableView::selectionChanged( const QItemSelection& selected,
 				    const QItemSelection& deselected )
 {
     QTableView::selectionChanged( selected, deselected );
-    handle_.selectionChanged.trigger();
 }
 
 
@@ -575,6 +570,7 @@ void ODTableView::setModel( QAbstractItemModel* tblmodel )
     QTableView::setModel( tblmodel );
     frozenview_->setModel( model() );
     frozenview_->setSelectionModel( selectionModel() );
+    messenger_.connectSelectionModel();
 }
 
 
@@ -913,6 +909,32 @@ bool ODTableView::setSourceDataWithUndo( const TableModelEditRequest& req )
 }
 
 
+
+// uiTableView
+
+class HP_uiTableView
+{
+public:
+HP_uiTableView()
+{}
+
+~HP_uiTableView()
+{
+    delete activeundogroup_;
+    delete undoredohappened_;
+    delete leftclicked_;
+}
+
+    bool			enableundo_			= true;
+    ODUndoCommand*		activeundogroup_		= nullptr;
+    Notifier<uiTableView>*	undoredohappened_		= nullptr;
+    Notifier<uiTableView>*	leftclicked_			= nullptr;
+    RowCol			notifcell_			= RowCol::udf();
+};
+
+static HiddenParam<uiTableView,HP_uiTableView*> hp_tv( nullptr );
+
+
 uiTableView::uiTableView( uiParent* p, const char* nm )
     : uiObject(p,nm,mkView(p,nm))
     , doubleClicked(this)
@@ -921,9 +943,7 @@ uiTableView::uiTableView( uiParent* p, const char* nm )
     , columnClicked(this)
     , rowClicked(this)
 {
-    hp_enableundo_.setParam( this, 1 );
-    hp_activeundogroup_.setParam( this, nullptr );
-    hp_undoredohappened_.setParam( this, new Notifier<uiTableView>(this) );
+    hp_tv.setParam( this, new HP_uiTableView );
     columndelegates_.setNullAllowed( true );
 }
 
@@ -931,9 +951,7 @@ uiTableView::uiTableView( uiParent* p, const char* nm )
 uiTableView::~uiTableView()
 {
     detachAllNotifiers();
-    hp_enableundo_.removeParam( this );
-    hp_activeundogroup_.removeParam( this );
-    hp_undoredohappened_.removeAndDeleteParam( this );
+    hp_tv.removeAndDeleteParam( this );
     if ( tablemodel_ )
 	mDetachCB( tablemodel_->editRequested(), uiTableView::editRequestCB );
 
@@ -1047,6 +1065,22 @@ void uiTableView::resizeColumnToContents( int column )
 }
 
 
+void uiTableView::setColumnResizeMode( ResizeMode mode )
+{
+    QHeaderView* header = odtableview_->horizontalHeader();
+    if ( header )
+	header->setSectionResizeMode( (QHeaderView::ResizeMode)(int)mode );
+}
+
+
+void uiTableView::setRowResizeMode( ResizeMode mode )
+{
+    QHeaderView* header = odtableview_->verticalHeader();
+    if ( header )
+	header->setSectionResizeMode( (QHeaderView::ResizeMode)(int)mode );
+}
+
+
 void uiTableView::setRowHeight( int row, int height )
 {
     if ( row >= 0 )
@@ -1117,23 +1151,36 @@ void uiTableView::sortByColumn( int col, bool asc )
 
 void uiTableView::enableUndo( bool yn )
 {
-    hp_enableundo_.setParam( this, yn ? 1 : 0 );
+    hp_tv.getParam( this )->enableundo_ = yn;
 }
 
 
 bool uiTableView::isUndoEnabled() const
 {
-    return hp_enableundo_.getParam( this ) != 0;
+    return hp_tv.getParam( this )->enableundo_;
 }
 
 
 Notifier<uiTableView>& uiTableView::undoRedoHappened()
 {
-    auto* notif = hp_undoredohappened_.getParam( this );
+    auto* notif =  hp_tv.getParam(this)->undoredohappened_;
     if ( !notif )
     {
 	notif = new Notifier<uiTableView>( this );
-	hp_undoredohappened_.setParam( this, notif );
+	hp_tv.getParam(this)->undoredohappened_ = notif;
+    }
+
+    return *notif;
+}
+
+
+Notifier<uiTableView>& uiTableView::leftClicked()
+{
+    auto* notif =  hp_tv.getParam(this)->leftclicked_;
+    if ( !notif )
+    {
+	notif = new Notifier<uiTableView>( this );
+	hp_tv.getParam(this)->leftclicked_ = notif;
     }
 
     return *notif;
@@ -1154,22 +1201,22 @@ void uiTableView::markUndoBaseline()
 
 void uiTableView::beginUndoGroup()
 {
-    if ( !isUndoEnabled() || hp_activeundogroup_.getParam(this) )
+    if ( !isUndoEnabled() || hp_tv.getParam(this)->activeundogroup_ )
 	return;
 
-    hp_activeundogroup_.setParam( this,	
-				  new ODUndoCommand(odtableview_,nullptr));
+    hp_tv.getParam(this)->activeundogroup_ =
+				  new ODUndoCommand( odtableview_, nullptr );
 }
 
 
 void uiTableView::endUndoGroup()
 {
-    ODUndoCommand* activeundogroup = hp_activeundogroup_.getParam( this );
+    ODUndoCommand* activeundogroup = hp_tv.getParam(this)->activeundogroup_;
     if ( !activeundogroup )
 	return;
 
     ODUndoCommand* finishedgroup = activeundogroup;
-    hp_activeundogroup_.setParam( this, nullptr );
+    hp_tv.getParam(this)->activeundogroup_ = nullptr;
     if ( finishedgroup->childCount() )
 	odtableview_->pushUndoCommand( finishedgroup );
     else
@@ -1216,8 +1263,8 @@ void uiTableView::doHideRow( int row, bool yn, ODUndoCommand* parent )
 	return;
     }
 
-    ODUndoCommand* undoparent = parent ? parent
-				       : hp_activeundogroup_.getParam(this);
+    ODUndoCommand* activeundogroup = hp_tv.getParam(this)->activeundogroup_;
+    ODUndoCommand* undoparent = parent ? parent : activeundogroup;
     auto* cmd = new RowDisplayUndoCommand( odtableview_, row, yn, undoparent );
     if ( undoparent )
 	cmd->redo();
@@ -1237,7 +1284,8 @@ void uiTableView::setRowsHidden( const TypeSet<int>& rows, bool yn )
     if ( rows.isEmpty() )
 	return;
 
-    if ( hp_activeundogroup_.getParam(this) )
+    ODUndoCommand* activeundogroup = hp_tv.getParam(this)->activeundogroup_;
+    if ( activeundogroup )
     {
 	for ( int idx=0; idx<rows.size(); idx++ )
 	    doHideRow( rows[idx], yn, nullptr );
@@ -1270,8 +1318,8 @@ void uiTableView::doHideColumn( int col, bool yn, ODUndoCommand* parent )
 	return;
     }
 
-    ODUndoCommand* undoparent = parent ? parent
-				       : hp_activeundogroup_.getParam(this);
+    ODUndoCommand* activeundogroup = hp_tv.getParam(this)->activeundogroup_;
+    ODUndoCommand* undoparent = parent ? parent : activeundogroup;
     auto* cmd = new ColDisplayUndoCommand( odtableview_, col, yn, undoparent );
     if ( undoparent )
 	cmd->redo();
@@ -1291,7 +1339,8 @@ void uiTableView::setColumnsHidden( const TypeSet<int>& cols, bool yn )
     if ( cols.isEmpty() )
 	return;
 
-    if ( hp_activeundogroup_.getParam(this) )
+    ODUndoCommand* activeundogroup = hp_tv.getParam(this)->activeundogroup_;
+    if ( activeundogroup )
     {
 	for ( int idx=0; idx<cols.size(); idx++ )
 	    doHideColumn( cols[idx], yn, nullptr );
@@ -1357,7 +1406,7 @@ void uiTableView::setRowsAndColsHidden( const TypeSet<int>& rows,
     if ( rows.isEmpty() && cols.isEmpty() )
 	return;
 
-    ODUndoCommand* activeundogroup = hp_activeundogroup_.getParam( this );
+    ODUndoCommand* activeundogroup = hp_tv.getParam(this)->activeundogroup_;
     auto* parent = activeundogroup ? activeundogroup
 				   : new ODUndoCommand( odtableview_, nullptr );
     for ( const auto& row : rows )
@@ -1388,7 +1437,7 @@ void uiTableView::setRowsVisibility( const TypeSet<int>& rowstoshow,
 	return;
     }
 
-    ODUndoCommand* activeundogroup = hp_activeundogroup_.getParam( this );
+    ODUndoCommand* activeundogroup = hp_tv.getParam(this)->activeundogroup_;
     auto* parent = activeundogroup ? activeundogroup
 				   : new ODUndoCommand( odtableview_, nullptr );
     for ( const auto& row : rowstoshow )
@@ -1419,7 +1468,7 @@ void uiTableView::setColumnsVisibility( const TypeSet<int>& colstoshow,
 	return;
     }
 
-    ODUndoCommand* activeundogroup = hp_activeundogroup_.getParam( this );
+    ODUndoCommand* activeundogroup = hp_tv.getParam(this)->activeundogroup_;
     auto* parent = activeundogroup ? activeundogroup
 				   : new ODUndoCommand( odtableview_, nullptr );
     for ( const auto& col : colstoshow )
@@ -1519,7 +1568,8 @@ int uiTableView::maxNrOfSelections() const
 }
 
 
-bool uiTableView::getSelectedRows( TypeSet<int>& rows ) const
+bool uiTableView::getSelectedRows( TypeSet<int>& rows,
+				   bool mappedtosource ) const
 {
     QItemSelectionModel* selmdl = odtableview_->selectionModel();
     if ( !selmdl->hasSelection() )
@@ -1529,7 +1579,15 @@ bool uiTableView::getSelectedRows( TypeSet<int>& rows ) const
     for ( int idx=0; idx<selection.size(); idx++ )
     {
 	const int selrow = selection[idx].row();
-	if ( !isRowHidden(selrow) )
+	if ( isRowHidden(selrow) )
+	    continue;
+
+	if ( mappedtosource )
+	{
+	    const RowCol rc( selrow, 0 );
+	    rows += mapToSource( rc ).row();
+	}
+	else
 	    rows += selrow;
     }
 
@@ -1537,7 +1595,8 @@ bool uiTableView::getSelectedRows( TypeSet<int>& rows ) const
 }
 
 
-bool uiTableView::getSelectedColumns( TypeSet<int>& cols ) const
+bool uiTableView::getSelectedColumns( TypeSet<int>& cols,
+				      bool mappedtosource ) const
 {
     QItemSelectionModel* selmdl = odtableview_->selectionModel();
     if ( !selmdl->hasSelection() )
@@ -1547,11 +1606,31 @@ bool uiTableView::getSelectedColumns( TypeSet<int>& cols ) const
     for ( int idx=0; idx<selection.size(); idx++ )
     {
 	const int selcol = selection[idx].column();
-	if ( !isColumnHidden(selcol) )
+	if ( isColumnHidden(selcol) )
+	    continue;
+
+	if ( mappedtosource )
+	{
+	    const RowCol rc( 0, selcol );
+	    cols += mapToSource( rc ).col();
+	}
+	else
 	    cols += selcol;
     }
 
     return cols.size();
+}
+
+
+bool uiTableView::getSelectedRows( TypeSet<int>& rows ) const
+{
+    return getSelectedRows( rows, false );
+}
+
+
+bool uiTableView::getSelectedColumns( TypeSet<int>& cols ) const
+{
+    return getSelectedColumns( cols, false );
 }
 
 
@@ -1749,6 +1828,18 @@ TableModel::CellType uiTableView::getCellType( int col ) const
 	return columndelegates_[col]->cellType();
 
     return TableModel::Other;
+}
+
+
+void uiTableView::setNotifCell( const RowCol& rc )
+{
+    hp_tv.getParam( this )->notifcell_ = rc;
+}
+
+
+RowCol uiTableView::getNotifCell() const
+{
+    return hp_tv.getParam( this )->notifcell_;
 }
 
 
