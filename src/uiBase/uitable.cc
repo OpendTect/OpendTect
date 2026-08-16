@@ -22,7 +22,6 @@ ________________________________________________________________________
 #include "uivirtualkeyboard.h"
 
 #include "bufstringset.h"
-#include "convert.h"
 #include "perthreadrepos.h"
 #include "i_layoutitem.h"
 
@@ -1170,10 +1169,19 @@ void uiTable::setRowStretchable( int row, bool yn )
 
 
 bool uiTable::isColumnStretchable( int col ) const
-{  pErrMsg( "Not impl yet" ); return false; }
+{
+    QHeaderView* header = body_->horizontalHeader();
+    const int idx = header->logicalIndex( col );
+    return idx>=0 && header->sectionResizeMode(idx)==QHeaderView::Stretch;
+}
+
 
 bool uiTable::isRowStretchable( int row ) const
-{  pErrMsg( "Not impl yet" ); return false; }
+{
+    QHeaderView* header = body_->verticalHeader();
+    const int idx = header->logicalIndex( row );
+    return idx>=0 && header->sectionResizeMode(idx)==QHeaderView::Stretch;
+}
 
 
 void uiTable::setSortable( bool yn )
