@@ -9,21 +9,41 @@ ________________________________________________________________________
 
 -*/
 
+/**
+    Recorder dialog ──requests──► uiODScreenRecorderMgr
+                                  │
+                 QScreenCapture or QWindowCapture
+                                  │
+                         QMediaCaptureSession
+                                  │
+                           QMediaRecorder
+                                  │
+                               MP4 file
+*/
+
 #include "uiodscreenrecorderdlg.h"
 
 #include "bufstring.h"
 #include "envvars.h"
+#include "filepath.h"
+#include "oddirs.h"
 #include "odver.h"
 #include "uibutton.h"
 #include "uiclipboard.h"
+#include "uicombobox.h"
+#include "uifileinput.h"
 #include "uilabel.h"
 #include "uimain.h"
 #include "uiodmain.h"
+#include "uistatusbar.h"
+#include "uistringset.h"
+#include "uistrings.h"
 #include "uitextedit.h"
 
 #include <QCoreApplication>
 #include <QGuiApplication>
 #include <QLibraryInfo>
+#include <QMediaCaptureSession>
 #include <QMediaFormat>
 #include <QMediaRecorder>
 #include <QScreen>
@@ -521,7 +541,9 @@ BufferString collectDiagnostics()
     addSection( report, QStringLiteral("Qt Multimedia video capabilities") );
 
     // This intentionally does not create or query any audio objects.
+    QMediaCaptureSession capturesession;
     QMediaRecorder recorder;
+    capturesession.setRecorder( &recorder );
     addValue( report, "QMediaRecorder available",
 	      yesNo(recorder.isAvailable()) );
 
@@ -551,7 +573,6 @@ BufferString collectDiagnostics()
 
     QMediaFormat mp4h264( QMediaFormat::MPEG4 );
     mp4h264.setVideoCodec( QMediaFormat::VideoCodec::H264 );
-    mp4h264.setAudioCodec( QMediaFormat::AudioCodec::Unspecified );
     addValue( report, "MPEG-4/H.264 video-only supported",
 	      yesNo(mp4h264.isSupported(QMediaFormat::Encode)) );
 
@@ -578,15 +599,62 @@ BufferString collectDiagnostics()
 
 
 uiODScreenRecorderDlg::uiODScreenRecorderDlg( uiODMain& appl )
-    : uiDialog( &appl, Setup(tr("Screen Recorder Diagnostics"),mNoHelpKey)
-				.modal(false) )
+    : uiDialog( &appl, Setup(tr("Screen Recorder"),mNoHelpKey)
+				.modal(false).nrstatusflds(1) )
+    , startRequested(this)
+    , stopRequested(this)
+    , refreshSourcesRequested(this)
+    , sourceTypeChanged(this)
 {
     setCtrlStyle( CloseOnly );
     setDeleteOnClose( false );
 
     auto* infolbl = new uiLabel(
-	this, tr("Qt screen-capture runtime diagnostics. "
-		 "No recording or audio capture is performed.") );
+	this, tr("Record a screen/display or application window to an MP4 "
+		 "video. No audio is captured.") );
+
+    sourcetypefld_ = new uiLabeledComboBox( this, tr("Source type") );
+    sourcetypefld_->box()->addItem( tr("Screen/display"),
+				    static_cast<int>(SourceType::Screen) );
+    sourcetypefld_->box()->addItem( uiStrings::sWindow(),
+				    static_cast<int>(SourceType::Window) );
+    sourcetypefld_->attach( alignedBelow, infolbl );
+    mAttachCB( sourcetypefld_->box()->selectionChanged,
+	       uiODScreenRecorderDlg::sourceTypeCB );
+
+    sourcefld_ = new uiLabeledComboBox( this, tr("Source") );
+    sourcefld_->box()->setHSzPol( uiObject::Wide );
+    sourcefld_->attach( alignedBelow, sourcetypefld_ );
+
+    refreshsourcesbut_ =
+	new uiPushButton( this, tr("Refresh"), "refresh",
+			  mCB(this,uiODScreenRecorderDlg,refreshSourcesCB), true );
+    refreshsourcesbut_->attach( rightOf, sourcefld_ );
+
+    BufferString outputbase( "OpendTect-screen-recording-" );
+    outputbase.add( FilePath::getTimeStampFileName("mp4") );
+    const BufferString defaultoutput =
+	FilePath( GetPicturesDir(), outputbase ).fullPath();
+    // Start performs one overwrite check after normalizing the MP4 filename.
+    uiFileInput::Setup outputsu( uiFileDialog::Gen, defaultoutput.buf() );
+    outputsu.filter( "MPEG-4 video (*.mp4)" )
+	    .defseldir( GetPicturesDir() )
+	    .forread( false )
+	    .allowallextensions( false )
+	    .confirmoverwrite( false )
+	    .displaylocalpath( true );
+    outputfld_ = new uiFileInput( this, uiStrings::sOutputFile(), outputsu );
+    outputfld_->setDefaultExtension( "mp4" );
+    outputfld_->attach( alignedBelow, sourcefld_ );
+
+    startStopButton_ =
+	new uiPushButton( this, uiStrings::sStart(), "video",
+			  mCB(this,uiODScreenRecorderDlg,startStopCB), true );
+    startStopButton_->attach( leftAlignedBelow, outputfld_ );
+
+    auto* diagnosticslbl = new uiLabel(
+	this, tr("Qt screen-capture runtime diagnostics") );
+    diagnosticslbl->attach( alignedBelow, startStopButton_ );
 
     diagnosticstxt_ =
 	new uiTextEdit( this, "Screen capture diagnostics", true );
@@ -596,11 +664,12 @@ uiODScreenRecorderDlg::uiODScreenRecorderDlg( uiODMain& appl )
     diagnosticstxt_->allowTextSelection( true );
     diagnosticstxt_->showScrollBar( OD::Horizontal );
     diagnosticstxt_->showScrollBar( OD::Vertical );
-    diagnosticstxt_->attach( alignedBelow, infolbl );
+    diagnosticstxt_->attach( alignedBelow, diagnosticslbl );
 
     auto* refreshbut =
 	new uiPushButton( this, tr("Refresh"),
-			  mCB(this,uiODScreenRecorderDlg,refreshCB), true );
+			  mCB(this,uiODScreenRecorderDlg,refreshDiagnosticsCB),
+			  true );
     refreshbut->attach( alignedBelow, diagnosticstxt_ );
 
     auto* copybut =
@@ -608,16 +677,109 @@ uiODScreenRecorderDlg::uiODScreenRecorderDlg( uiODMain& appl )
 			  mCB(this,uiODScreenRecorderDlg,copyCB), true );
     copybut->attach( rightOf, refreshbut );
 
-    refreshCB( nullptr );
+    refreshDiagnosticsCB( nullptr );
+    setIdle( tr("Ready") );
 }
 
 
 uiODScreenRecorderDlg::~uiODScreenRecorderDlg()
 {
+    detachAllNotifiers();
 }
 
 
-void uiODScreenRecorderDlg::refreshCB( CallBacker* )
+uiODScreenRecorderDlg::SourceType uiODScreenRecorderDlg::sourceType() const
+{
+    return sourcetypefld_->box()->currentItemID()
+	 == static_cast<int>(SourceType::Window)
+	? SourceType::Window : SourceType::Screen;
+}
+
+
+int uiODScreenRecorderDlg::sourceIndex() const
+{
+    return sourcefld_->box()->currentItemID();
+}
+
+
+bool uiODScreenRecorderDlg::hasSource() const
+{
+    return !sourcefld_->box()->isEmpty() && sourceIndex() >= 0;
+}
+
+
+BufferString uiODScreenRecorderDlg::outputFileName() const
+{
+    return outputfld_->fileName();
+}
+
+
+void uiODScreenRecorderDlg::setOutputFileName( const char* fnm )
+{
+    outputfld_->setFileName( fnm );
+}
+
+
+void uiODScreenRecorderDlg::setSources( const uiStringSet& sourcenames )
+{
+    uiComboBox* sourcebox = sourcefld_->box();
+    sourcebox->setEmpty();
+    for ( int idx=0; idx<sourcenames.size(); idx++ )
+	sourcebox->addItem( sourcenames[idx], idx );
+
+    if ( !sourcebox->isEmpty() )
+	sourcebox->setCurrentItem( 0 );
+
+    updateActionSensitivity();
+}
+
+
+void uiODScreenRecorderDlg::setIdle( const uiString& status )
+{
+    setActivity( true, false, true, uiStrings::sStart(), "video", status );
+}
+
+
+void uiODScreenRecorderDlg::setStarting( const uiString& status )
+{
+    setActivity( false, true, true, uiStrings::sCancel(), "stop", status );
+}
+
+
+void uiODScreenRecorderDlg::setRecording( const uiString& status )
+{
+    setActivity( false, true, true, uiStrings::sStop(), "stop", status );
+}
+
+
+void uiODScreenRecorderDlg::setFinalizing( const uiString& status )
+{
+    setActivity( false, true, false, tr("Finalizing"), "stop", status );
+}
+
+
+void uiODScreenRecorderDlg::sourceTypeCB( CallBacker* )
+{
+    sourceTypeChanged.trigger();
+}
+
+
+void uiODScreenRecorderDlg::startStopCB( CallBacker* )
+{
+    if ( stopmode_ )
+	stopRequested.trigger();
+    else
+	startRequested.trigger();
+}
+
+
+void uiODScreenRecorderDlg::refreshSourcesCB( CallBacker* )
+{
+    refreshSourcesRequested.trigger();
+}
+
+
+void uiODScreenRecorderDlg::refreshDiagnosticsCB( CallBacker* )
 {
     diagnosticstxt_->setText( collectDiagnostics() );
 }
@@ -626,4 +788,30 @@ void uiODScreenRecorderDlg::refreshCB( CallBacker* )
 void uiODScreenRecorderDlg::copyCB( CallBacker* )
 {
     uiClipboard::setText( diagnosticstxt_->text() );
+}
+
+
+void uiODScreenRecorderDlg::setActivity( bool inputsensitive, bool stopmode,
+					 bool actionenabled,
+					 const uiString& actiontext,
+					 const char* actionicon,
+					 const uiString& status )
+{
+    stopmode_ = stopmode;
+    actionenabled_ = actionenabled;
+    sourcetypefld_->setSensitive( inputsensitive );
+    sourcefld_->setSensitive( inputsensitive );
+    refreshsourcesbut_->setSensitive( inputsensitive );
+    outputfld_->setSensitive( inputsensitive );
+    startStopButton_->setText( actiontext );
+    startStopButton_->setIcon( actionicon );
+    updateActionSensitivity();
+    statusBar()->message( status );
+}
+
+
+void uiODScreenRecorderDlg::updateActionSensitivity()
+{
+    startStopButton_->setSensitive(
+	actionenabled_ && (stopmode_ || hasSource()) );
 }
