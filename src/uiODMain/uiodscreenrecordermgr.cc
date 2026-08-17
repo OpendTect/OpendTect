@@ -40,10 +40,17 @@ ________________________________________________________________________
 namespace
 {
 
-bool isWaylandPlatform()
+bool isWaylandCaptureSession()
 {
+    const QByteArray sessiontype = qgetenv("XDG_SESSION_TYPE").toLower();
+    if ( sessiontype == QByteArrayLiteral("wayland") )
+	    return true;
+    if ( sessiontype == QByteArrayLiteral("x11") )
+	    return false;
+
     return QGuiApplication::platformName().startsWith(
-	QStringLiteral("wayland"), Qt::CaseInsensitive );
+	       QStringLiteral("wayland"), Qt::CaseInsensitive )
+	|| !qgetenv("WAYLAND_DISPLAY").isEmpty();
 }
 
 
@@ -52,15 +59,59 @@ void normalizeCaptureSessionType()
     /*
      * Qt 6.9 through 6.12 use XDG_SESSION_TYPE to select the Linux
      * screen-capture implementation. Some OD launch environments report
-     * "tty" even though Qt has loaded XCB or Wayland. The loaded QPA plugin
-     * is the authoritative description of how this application is running.
+     * "tty" even though the desktop session is X11 or Wayland. Preserve a
+     * valid login-session value: the QPA plugin describes how OD renders,
+     * but an XCB application may be running through XWayland in a Wayland
+     * session. Infer a value only when the inherited one is inconclusive.
      */
+    const QByteArray sessiontype = qgetenv("XDG_SESSION_TYPE").toLower();
+    if ( ( sessiontype == QByteArrayLiteral("wayland")
+      || sessiontype == QByteArrayLiteral("x11") ) )
+    {
+	    return;
+    }
+
     const QString platformname = QGuiApplication::platformName();
-    if ( platformname.compare(QStringLiteral("xcb"),Qt::CaseInsensitive) == 0 )
-	qputenv( "XDG_SESSION_TYPE", QByteArrayLiteral("x11") );
-    else if ( platformname.startsWith(QStringLiteral("wayland"),
-				       Qt::CaseInsensitive) )
+    if ( isWaylandCaptureSession() )
 	qputenv( "XDG_SESSION_TYPE", QByteArrayLiteral("wayland") );
+    else if ( platformname.compare(QStringLiteral("xcb"),
+				    Qt::CaseInsensitive) == 0 )
+	qputenv( "XDG_SESSION_TYPE", QByteArrayLiteral("x11") );
+}
+
+
+void selectScreenCaptureBackend()
+{
+    if ( qEnvironmentVariableIsSet("QT_SCREEN_CAPTURE_BACKEND") )
+	return;
+
+    const QByteArray sessiontype = qgetenv("XDG_SESSION_TYPE").toLower();
+    const QString platformname = QGuiApplication::platformName();
+    if ( sessiontype != QByteArrayLiteral("x11")
+      || platformname.compare(QStringLiteral("xcb"),
+			      Qt::CaseInsensitive) != 0 )
+	return;
+
+    const QList<QScreen*> screens = QGuiApplication::screens();
+    if ( screens.size() < 2 )
+	return;
+
+    for ( const QScreen* screen : screens )
+    {
+	if ( screen && screen->virtualSiblings().size() > 1
+	  && screen->virtualGeometry() != screen->geometry() )
+	{
+	    /*
+	     * Qt's X11 capture backend treats an XRandR monitor index as an
+	     * Xlib screen number. The grabwindow backend uses QScreen geometry
+	     * and correctly crops a monitor in an extended desktop.
+	     * This must be selected before QScreenCapture is constructed.
+	     */
+	    qputenv( "QT_SCREEN_CAPTURE_BACKEND",
+		     QByteArrayLiteral("grabwindow") );
+	    return;
+	}
+    }
 }
 
 } // End namespace
@@ -200,7 +251,7 @@ void uiODScreenRecorderMgr::RecorderEngine::refreshSources(
     if ( sourcetype == uiODScreenRecorderDlg::SourceType::Screen )
     {
 	screens_.clear();
-	if ( isWaylandPlatform() )
+	if ( isWaylandCaptureSession() )
 	{
 	    screens_.append( QPointer<QScreen>() );
 	    sourcenames.add( owner_.tr(
@@ -308,13 +359,14 @@ bool uiODScreenRecorderMgr::RecorderEngine::start(
 	}
 
 	QScreen* screen = screens_[sourceidx].data();
-	if ( !isWaylandPlatform() && !screen )
+	if ( !isWaylandCaptureSession() && !screen )
 	{
 	    errmsg = owner_.tr("The selected screen is no longer available.");
 	    return false;
 	}
 
-	screencapture_.setScreen( isWaylandPlatform() ? nullptr : screen );
+	screencapture_.setScreen(
+		isWaylandCaptureSession() ? nullptr : screen );
 	session_.setScreenCapture( &screencapture_ );
 	sourcekind_ = SourceKind::Screen;
     }
@@ -571,6 +623,7 @@ uiODScreenRecorderMgr::uiODScreenRecorderMgr( uiODMain& appl )
     , appl_(appl)
 {
     normalizeCaptureSessionType();
+    selectScreenCaptureBackend();
     engine_ = new RecorderEngine( *this );
     mAttachCB( appl_.beforeExit, uiODScreenRecorderMgr::beforeExitCB );
 }

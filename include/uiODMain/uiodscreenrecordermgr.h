@@ -50,7 +50,9 @@ public:
     }
 
     inline const BufferString& lastOutputFile() const
-    { return lastoutputfile_; }
+    {
+         return lastoutputfile_; 
+        }
 
     Notifier<uiODScreenRecorderMgr> stateChanged;
     Notifier<uiODScreenRecorderMgr> recordingFinished;
@@ -59,27 +61,27 @@ protected:
 
     class RecorderEngine;
 
-    void                showDialog();
-    void                setState(RecorderState,const uiString&);
+    void showDialog();
+    void setState(RecorderState,const uiString&);
 
-    void                startCB(CallBacker*);
-    void                stopCB(CallBacker*);
-    void                refreshSourcesCB(CallBacker*);
-    void                sourceTypeChangedCB(CallBacker*);
-    void                beforeExitCB(CallBacker*);
+    void startCB(CallBacker*);
+    void stopCB(CallBacker*);
+    void refreshSourcesCB(CallBacker*);
+    void sourceTypeChangedCB(CallBacker*);
+    void beforeExitCB(CallBacker*);
 
-    void                recordingStarted();
-    void                recordingDone(const BufferString&);
-    void                recordingFailed(const uiString&);
-    void                recordingCancelled();
-    void                durationChanged(od_int64);
+    void recordingStarted();
+    void recordingDone(const BufferString&);
+    void recordingFailed(const uiString&);
+    void recordingCancelled();
+    void durationChanged(od_int64);
 
 ////////////////////////////////////DATA SECTION///////////////////////////////
 
-    uiODMain&                   appl_;
-    uiODScreenRecorderDlg*     dialog_            {nullptr};
-    RecorderEngine*            engine_            {nullptr};
-    RecorderState              state_             {RecorderState::Idle};
-    BufferString               lastoutputfile_;
-    bool                       exiting_            {false};
+    uiODMain& appl_;
+    uiODScreenRecorderDlg* dialog_ {nullptr};
+    RecorderEngine* engine_ {nullptr};
+    RecorderState state_ {RecorderState::Idle};
+    BufferString lastoutputfile_;
+    bool exiting_ {false};
 };
