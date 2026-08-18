@@ -603,22 +603,11 @@ void uiSeisFileMan::mergePush( CallBacker* )
 	return;
 
     const MultiID key( curioobj_->key() );
-    uiMergeSeis dlg( this );
-    mAttachCB( dlg.postFinalize(), uiSeisFileMan::passSelToMergeDlgCB );
+    TypeSet<MultiID> chosenmids;
+    selgrp_->getChosen( chosenmids );
+    uiMergeSeis dlg( this, &chosenmids );
     if ( dlg.go() )
 	selgrp_->fullUpdate( key );
-}
-
-
-void uiSeisFileMan::passSelToMergeDlgCB( CallBacker* cb )
-{
-    mDynamicCastGet( uiMergeSeis*, dlg, cb )
-    if (!dlg)
-	return;
-
-    TypeSet<MultiID> chsnmids;
-    selgrp_->getChosen( chsnmids );
-    dlg->setInputIds( chsnmids );
 }
 
 

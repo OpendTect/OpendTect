@@ -54,7 +54,6 @@ protected:
     uiSeisCopyCube*	copydlg_				= nullptr;
 
     void		mergePush(CallBacker*);
-    void		passSelToMergeDlgCB(CallBacker*);
     void		browsePush(CallBacker*);
     void		copyPush(CallBacker*);
     void		man2DPush(CallBacker*);
