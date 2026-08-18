@@ -84,6 +84,7 @@ set( OD_MODULE_SOURCES
 
 set( OD_MODULE_BATCHPROGS
 	od_copy_seis.cc
+	od_merge_seis.cc
 	od_process_2dto3d.cc
 	od_process_time2depth.cc
 	od_process_segyio.cc
