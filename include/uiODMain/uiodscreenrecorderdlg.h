@@ -45,11 +45,15 @@ public:
 
 	SourceType sourceType() const;
 	int	sourceIndex() const;
+	int	codecIndex() const;
+	int	targetFrameRate() const;
 	bool hasSource() const;
 	BufferString outputFileName() const;
 
 	void setOutputFileName(const char*);
 	void setSources(const uiStringSet&);
+	void setCodecOptions(const uiStringSet&);
+	void setRecorderAvailability(bool,const uiString&);
 	void setIdle(const uiString&);
 	void setStarting(const uiString&);
 	void setRecording(const uiString&);
@@ -73,10 +77,13 @@ protected:
 
 	uiLabeledComboBox* sourcetypefld_ {nullptr};
 	uiLabeledComboBox*	sourcefld_ {nullptr};
+	uiLabeledComboBox*	codecfld_ {nullptr};
+	uiLabeledComboBox*	frameratefld_ {nullptr};
 	uiFileInput* outputfld_	{nullptr};
 	uiPushButton* refreshsourcesbut_ {nullptr};
 	uiPushButton* startStopButton_	{nullptr};
 	uiTextEdit* diagnosticstxt_	{nullptr};
 	bool stopmode_ {false};
 	bool actionenabled_	{true};
+	bool recorderavailable_ {false};
 };

@@ -114,6 +114,16 @@ void selectScreenCaptureBackend()
     }
 }
 
+
+QString videoCodecDisplayName( QMediaFormat::VideoCodec codec )
+{
+    QString name = QMediaFormat::videoCodecDescription( codec );
+    if ( name.isEmpty() )
+	name = QMediaFormat::videoCodecName( codec );
+
+    return name;
+}
+
 } // End namespace
 
 
@@ -124,9 +134,10 @@ public:
     explicit RecorderEngine(uiODScreenRecorderMgr&);
     ~RecorderEngine() override;
 
+    bool refreshCapabilities(uiStringSet&,uiString&);
     void refreshSources(uiODScreenRecorderDlg::SourceType,uiStringSet&);
-    bool start(uiODScreenRecorderDlg::SourceType,int,const BufferString&,
-	       uiString&);
+    bool start(uiODScreenRecorderDlg::SourceType,int,int,int,
+	       const BufferString&,uiString&);
     void stop();
     void finishBeforeExit();
 
@@ -139,12 +150,13 @@ private:
 	Window
     };
 
-    bool configureRecorder(const BufferString&,uiString&);
+    bool configureRecorder(int,int,const BufferString&,uiString&);
     void sourceActiveChanged(SourceKind,bool);
     void sourceError(SourceKind,const QString&);
     void recorderStateChanged(QMediaRecorder::RecorderState);
-    void recorderError(const QString&);
+    void recorderError(QMediaRecorder::Error,const QString&);
     void recorderDurationChanged(qint64);
+    uiString recorderErrorMessage(QMediaRecorder::Error,const QString&) const;
     void fail(const uiString&);
     void finishRun();
     void stopCaptureSource();
@@ -157,11 +169,14 @@ private:
     QTimer starttimer_;
     QList<QPointer<QScreen>> screens_;
     QList<QCapturableWindow> windows_;
+    QList<QMediaFormat::VideoCodec> availablecodecs_;
     SourceKind sourcekind_ {SourceKind::None};
     QString requestedoutput_;
     QString actualoutput_;
+    QString requestedcodecname_;
     uiString pendingerror_;
     qint64 durationms_ {0};
+    int targetframerate_ {0};
     bool activejob_ {false};
     bool recorderrequested_ {false};
     bool userstop_ {false};
@@ -202,9 +217,9 @@ uiODScreenRecorderMgr::RecorderEngine::RecorderEngine(
 	    recorderStateChanged( state );
 	} );
     connect( &recorder_, &QMediaRecorder::errorOccurred, this,
-	[this]( QMediaRecorder::Error, const QString& errmsg )
+	[this]( QMediaRecorder::Error error, const QString& errmsg )
 	{
-	    recorderError( errmsg );
+	    recorderError( error, errmsg );
 	} );
     connect( &recorder_, &QMediaRecorder::durationChanged, this,
 	[this]( qint64 duration )
@@ -240,6 +255,45 @@ uiODScreenRecorderMgr::RecorderEngine::~RecorderEngine()
     session_.setScreenCapture( nullptr );
     session_.setWindowCapture( nullptr );
     session_.setRecorder( nullptr );
+}
+
+
+bool uiODScreenRecorderMgr::RecorderEngine::refreshCapabilities(
+	uiStringSet& codecnames, uiString& unavailablemsg )
+{
+    codecnames.setEmpty();
+    availablecodecs_.clear();
+    unavailablemsg.setEmpty();
+
+    if ( !recorder_.isAvailable() )
+    {
+	unavailablemsg = owner_.tr(
+	    "Qt Multimedia has no available video-recording backend.");
+	return false;
+    }
+
+    QMediaFormat mp4format( QMediaFormat::MPEG4 );
+    const QList<QMediaFormat::VideoCodec> advertisedcodecs =
+	mp4format.supportedVideoCodecs( QMediaFormat::Encode );
+    for ( const QMediaFormat::VideoCodec codec : advertisedcodecs )
+    {
+	QMediaFormat candidate( QMediaFormat::MPEG4 );
+	candidate.setVideoCodec( codec );
+	if ( !candidate.isSupported(QMediaFormat::Encode) )
+	    continue;
+
+	availablecodecs_.append( codec );
+	codecnames.add( toUiString(videoCodecDisplayName(codec)) );
+    }
+
+    if ( availablecodecs_.isEmpty() )
+    {
+	unavailablemsg = owner_.tr(
+	    "The active Qt Multimedia backend has no MP4 video encoder.");
+	return false;
+    }
+
+    return true;
 }
 
 
@@ -292,42 +346,82 @@ void uiODScreenRecorderMgr::RecorderEngine::refreshSources(
 
 
 bool uiODScreenRecorderMgr::RecorderEngine::configureRecorder(
-	const BufferString& outputfnm, uiString& errmsg )
+	int codecidx, int targetframerate, const BufferString& outputfnm,
+	uiString& errmsg )
 {
     if ( !recorder_.isAvailable() )
     {
-	errmsg = owner_.tr("QMediaRecorder is unavailable. Check the Qt "
-			    "Multimedia FFmpeg backend.");
+	errmsg = owner_.tr(
+	    "Qt Multimedia has no available video-recording backend.");
+	return false;
+    }
+
+    if ( targetframerate < 0 || targetframerate > 240 )
+    {
+	errmsg = owner_.tr("The selected target frame rate is invalid.");
+	return false;
+    }
+
+    if ( codecidx < -1 || codecidx >= availablecodecs_.size() )
+    {
+	errmsg = owner_.tr("The selected video codec is no longer available.");
 	return false;
     }
 
     QMediaFormat format( QMediaFormat::MPEG4 );
-    const QList<QMediaFormat::VideoCodec> codecs =
-	format.supportedVideoCodecs( QMediaFormat::Encode );
-    if ( codecs.isEmpty() )
+    QMediaFormat::VideoCodec videocodec =
+	QMediaFormat::VideoCodec::Unspecified;
+    if ( codecidx >= 0 )
     {
-	errmsg = owner_.tr(
-	    "The active Qt Multimedia backend cannot encode video in MP4.");
-	return false;
+	videocodec = availablecodecs_[codecidx];
+	format.setVideoCodec( videocodec );
+	if ( !format.isSupported(QMediaFormat::Encode) )
+	{
+	    errmsg = owner_.tr(
+		"The selected codec '%1' is no longer available for MP4 "
+		"encoding.")
+		.arg( toUiString(videoCodecDisplayName(videocodec)) );
+	    return false;
+	}
     }
 
     /*
-     * The Qt Online Installer's LGPL FFmpeg build commonly has a software
-     * MPEG-4 Part 2 encoder, while H.264 may be hardware-only. Prefer the
-     * software-capable path already proven by the standalone recorder.
+     * In Automatic mode the codec remains unspecified so the active Qt
+     * Multimedia backend can select an MP4-compatible encoder. A codec
+     * explicitly chosen by the user is never silently replaced.
      */
-    QMediaFormat::VideoCodec videocodec = codecs.constFirst();
-    if ( codecs.contains(QMediaFormat::VideoCodec::MPEG4) )
-	videocodec = QMediaFormat::VideoCodec::MPEG4;
-    else if ( codecs.contains(QMediaFormat::VideoCodec::H264) )
-	videocodec = QMediaFormat::VideoCodec::H264;
-
-    format.setVideoCodec( videocodec );
+    if ( codecidx < 0 )
+	owner_.tr("Automatic (Qt chooses)").fillQString(
+		requestedcodecname_ );
+    else
+	requestedcodecname_ = videoCodecDisplayName( videocodec );
+    targetframerate_ = targetframerate;
     requestedoutput_ = QString::fromUtf8( outputfnm.buf() );
     outputexisted_ = QFileInfo::exists( requestedoutput_ );
     recorder_.setMediaFormat( format );
-    recorder_.setQuality( QMediaRecorder::HighQuality );
-    recorder_.setVideoFrameRate( 30.0 );
+    // Set quality explicitly.
+    //recorder_.setQuality( QMediaRecorder::HighQuality );
+    recorder_.setEncodingMode( QMediaRecorder::ConstantQualityEncoding );
+    recorder_.setQuality( videocodec == QMediaFormat::VideoCodec::MPEG4
+	? QMediaRecorder::VeryHighQuality
+	: QMediaRecorder::HighQuality );
+    recorder_.setVideoFrameRate(
+	targetframerate > 0 ? static_cast<qreal>(targetframerate) : 0.0 );
+
+    // Qt 6.12 can also request the target rate from the capture source.
+#if QT_VERSION >= QT_VERSION_CHECK(6,12,0)
+    if ( targetframerate > 0 )
+    {
+	screencapture_.setFrameRate( targetframerate );
+	windowcapture_.setFrameRate( targetframerate );
+    }
+    else
+    {
+	screencapture_.resetFrameRate();
+	windowcapture_.resetFrameRate();
+    }
+#endif
+
     recorder_.setOutputLocation( QUrl::fromLocalFile(requestedoutput_) );
     return true;
 }
@@ -335,7 +429,8 @@ bool uiODScreenRecorderMgr::RecorderEngine::configureRecorder(
 
 bool uiODScreenRecorderMgr::RecorderEngine::start(
 	uiODScreenRecorderDlg::SourceType sourcetype, int sourceidx,
-	const BufferString& outputfnm, uiString& errmsg )
+	int codecidx, int targetframerate, const BufferString& outputfnm,
+	uiString& errmsg )
 {
     if ( activejob_ )
     {
@@ -343,7 +438,7 @@ bool uiODScreenRecorderMgr::RecorderEngine::start(
 	return false;
     }
 
-    if ( !configureRecorder(outputfnm,errmsg) )
+    if ( !configureRecorder(codecidx,targetframerate,outputfnm,errmsg) )
 	return false;
 
     session_.setScreenCapture( nullptr );
@@ -414,7 +509,7 @@ void uiODScreenRecorderMgr::RecorderEngine::sourceActiveChanged(
 	    recorderrequested_ = true;
 	    recorder_.record();
 	    if ( recorder_.error() != QMediaRecorder::NoError )
-		recorderError( recorder_.errorString() );
+		recorderError( recorder_.error(), recorder_.errorString() );
 	}
 	return;
     }
@@ -446,9 +541,7 @@ void uiODScreenRecorderMgr::RecorderEngine::recorderStateChanged(
     {
 	const QString recordererrmsg = recorder_.errorString();
 	pendingerror_ = recorder_.error() != QMediaRecorder::NoError
-	    && !recordererrmsg.isEmpty()
-	    ? owner_.tr("Media recorder failed: %1")
-		.arg(toUiString(recordererrmsg))
+	    ? recorderErrorMessage( recorder_.error(), recordererrmsg )
 	    : owner_.tr("The media recorder stopped unexpectedly.");
     }
 
@@ -457,14 +550,56 @@ void uiODScreenRecorderMgr::RecorderEngine::recorderStateChanged(
 
 
 void uiODScreenRecorderMgr::RecorderEngine::recorderError(
-	const QString& errmsg )
+	QMediaRecorder::Error error, const QString& errmsg )
 {
     if ( !activejob_ )
 	return;
 
-    fail( errmsg.isEmpty()
-	? owner_.tr("The media recorder reported an error.")
-	: owner_.tr("Media recorder failed: %1").arg(toUiString(errmsg)) );
+    fail( recorderErrorMessage(error,errmsg) );
+}
+
+
+uiString uiODScreenRecorderMgr::RecorderEngine::recorderErrorMessage(
+	QMediaRecorder::Error error, const QString& details ) const
+{
+    uiString reason;
+    switch ( error )
+    {
+    case QMediaRecorder::FormatError:
+	reason = owner_.tr("The selected format or codec could not be used.");
+	break;
+    case QMediaRecorder::ResourceError:
+	reason = owner_.tr("The video encoder or another recording resource "
+			   "could not be initialized.");
+	break;
+    case QMediaRecorder::OutOfSpaceError:
+	reason = owner_.tr("There is not enough space to continue recording.");
+	break;
+    case QMediaRecorder::LocationNotWritable:
+	reason = owner_.tr("The output location is not writable.");
+	break;
+    case QMediaRecorder::NoError:
+	reason = owner_.tr("The media recorder reported an error.");
+	break;
+    }
+
+    const uiString codecname = requestedcodecname_.isEmpty()
+	? owner_.tr("the selected codec")
+	: toUiString(requestedcodecname_);
+    const uiString frameratetext = targetframerate_ > 0
+	? owner_.tr("%1 fps").arg(targetframerate_)
+	: owner_.tr("automatic frame rate");
+    uiString message = owner_.tr(
+	"Video recording with %1 at %2 failed. %3")
+	.arg( codecname ).arg( frameratetext ).arg( reason );
+    if ( !details.isEmpty() )
+	message.appendPhrase( toUiString(details), uiString::Space,
+			      uiString::OnNewLine );
+
+    message.appendPhrase(
+	owner_.tr("Try Automatic, another codec, or a lower frame rate."),
+	uiString::Space, uiString::OnNewLine );
+    return message;
 }
 
 
@@ -563,7 +698,9 @@ void uiODScreenRecorderMgr::RecorderEngine::finishRun()
     pendingerror_.setEmpty();
     requestedoutput_.clear();
     actualoutput_.clear();
+    requestedcodecname_.clear();
     durationms_ = 0;
+    targetframerate_ = 0;
     recorderrequested_ = false;
     userstop_ = false;
     outputexisted_ = false;
@@ -573,8 +710,7 @@ void uiODScreenRecorderMgr::RecorderEngine::finishRun()
     else if ( cancelled )
 	owner_.recordingCancelled();
     else
-	owner_.recordingDone(
-	    BufferString(outputfnm.toUtf8().constData()) );
+	owner_.recordingDone( BufferString(outputfnm.toUtf8().constData()) );
 }
 
 
@@ -609,7 +745,9 @@ void uiODScreenRecorderMgr::RecorderEngine::finishBeforeExit()
 	pendingerror_.setEmpty();
 	requestedoutput_.clear();
 	actualoutput_.clear();
+	requestedcodecname_.clear();
 	durationms_ = 0;
+	targetframerate_ = 0;
 	recorderrequested_ = false;
 	userstop_ = false;
 	outputexisted_ = false;
@@ -762,6 +900,7 @@ void uiODScreenRecorderMgr::startCB( CallBacker* )
     setState( RecorderState::Starting, tr("Starting screen recording...") );
     uiString errmsg;
     if ( !engine_->start(dialog_->sourceType(),dialog_->sourceIndex(),
+			 dialog_->codecIndex(),dialog_->targetFrameRate(),
 			 outputfnm,errmsg) )
     {
 	if ( state_ != RecorderState::Idle )
@@ -792,10 +931,20 @@ void uiODScreenRecorderMgr::refreshSourcesCB( CallBacker* )
     if ( !dialog_ || state_ != RecorderState::Idle )
 	return;
 
+    uiStringSet codecnames;
+    uiString capabilityerrmsg;
+    const bool recorderavailable =
+	engine_->refreshCapabilities( codecnames, capabilityerrmsg );
+    dialog_->setCodecOptions( codecnames );
+    dialog_->setRecorderAvailability( recorderavailable,
+				      capabilityerrmsg );
+
     uiStringSet sourcenames;
     engine_->refreshSources( dialog_->sourceType(), sourcenames );
     dialog_->setSources( sourcenames );
-    if ( sourcenames.isEmpty() )
+    if ( !recorderavailable )
+	dialog_->setIdle( capabilityerrmsg );
+    else if ( sourcenames.isEmpty() )
     {
 	const uiString msg = dialog_->sourceType()
 	    == uiODScreenRecorderDlg::SourceType::Window

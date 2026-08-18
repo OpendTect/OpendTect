@@ -561,14 +561,18 @@ BufferString collectDiagnostics()
 	      containernames.join(QStringLiteral(", ")) );
 
     QStringList videocodecnames;
+    QMediaFormat mp4capabilities( QMediaFormat::MPEG4 );
     const auto videocodecs =
-        capabilities.supportedVideoCodecs( QMediaFormat::Encode );
+	mp4capabilities.supportedVideoCodecs( QMediaFormat::Encode );
     for ( const QMediaFormat::VideoCodec codec : videocodecs )
     {
-	    videocodecnames.append( QMediaFormat::videoCodecName(codec) );
+	QString name = QMediaFormat::videoCodecDescription( codec );
+	if ( name.isEmpty() )
+	    name = QMediaFormat::videoCodecName( codec );
+	videocodecnames.append( name );
     }
 
-    addValue( report, "Encodable video codecs",
+    addValue( report, "MP4-compatible video codecs",
 	      videocodecnames.join(QStringLiteral(", ")) );
 
     QMediaFormat mp4h264( QMediaFormat::MPEG4 );
@@ -631,6 +635,22 @@ uiODScreenRecorderDlg::uiODScreenRecorderDlg( uiODMain& appl )
 			  mCB(this,uiODScreenRecorderDlg,refreshSourcesCB), true );
     refreshsourcesbut_->attach( rightOf, sourcefld_ );
 
+    codecfld_ = new uiLabeledComboBox( this, tr("Video codec") );
+    codecfld_->box()->setHSzPol( uiObject::Wide );
+    codecfld_->attach( alignedBelow, sourcefld_ );
+
+    frameratefld_ =
+	new uiLabeledComboBox( this, tr("Target frame rate") );
+    frameratefld_->box()->addItem( tr("Automatic"), 0 );
+    frameratefld_->box()->addItem( tr("15 fps"), 15 );
+    frameratefld_->box()->addItem( tr("24 fps"), 24 );
+    frameratefld_->box()->addItem( tr("25 fps"), 25 );
+    frameratefld_->box()->addItem( tr("30 fps"), 30 );
+    frameratefld_->box()->addItem( tr("60 fps"), 60 );
+    frameratefld_->box()->setCurrentItem(
+	frameratefld_->box()->getItemIndex(30) );
+    frameratefld_->attach( alignedBelow, codecfld_ );
+
     BufferString outputbase( "OpendTect-screen-recording-" );
     outputbase.add( FilePath::getTimeStampFileName("mp4") );
     const BufferString defaultoutput =
@@ -645,7 +665,7 @@ uiODScreenRecorderDlg::uiODScreenRecorderDlg( uiODMain& appl )
 	    .displaylocalpath( true );
     outputfld_ = new uiFileInput( this, uiStrings::sOutputFile(), outputsu );
     outputfld_->setDefaultExtension( "mp4" );
-    outputfld_->attach( alignedBelow, sourcefld_ );
+    outputfld_->attach( alignedBelow, frameratefld_ );
 
     startStopButton_ =
 	new uiPushButton( this, uiStrings::sStart(), "video",
@@ -702,6 +722,18 @@ int uiODScreenRecorderDlg::sourceIndex() const
 }
 
 
+int uiODScreenRecorderDlg::codecIndex() const
+{
+    return codecfld_->box()->currentItemID();
+}
+
+
+int uiODScreenRecorderDlg::targetFrameRate() const
+{
+    return frameratefld_->box()->currentItemID();
+}
+
+
 bool uiODScreenRecorderDlg::hasSource() const
 {
     return !sourcefld_->box()->isEmpty() && sourceIndex() >= 0;
@@ -731,6 +763,37 @@ void uiODScreenRecorderDlg::setSources( const uiStringSet& sourcenames )
 	sourcebox->setCurrentItem( 0 );
 
     updateActionSensitivity();
+}
+
+
+void uiODScreenRecorderDlg::setCodecOptions(
+	const uiStringSet& codecnames )
+{
+    uiComboBox* codecbox = codecfld_->box();
+    const int previousid = codecbox->isEmpty()
+	? -1 : codecbox->currentItemID();
+    codecbox->setEmpty();
+    if ( codecnames.isEmpty() )
+	return;
+
+    codecbox->addItem( tr("Automatic (Qt chooses)"), -1 );
+    for ( int idx=0; idx<codecnames.size(); idx++ )
+	codecbox->addItem( codecnames[idx], idx );
+
+    const int previousidx = codecbox->getItemIndex( previousid );
+    codecbox->setCurrentItem( previousidx < 0 ? 0 : previousidx );
+}
+
+
+void uiODScreenRecorderDlg::setRecorderAvailability(
+	bool available, const uiString& unavailablemsg )
+{
+    recorderavailable_ = available;
+    codecfld_->setSensitive( available );
+    frameratefld_->setSensitive( available );
+    updateActionSensitivity();
+    if ( !available && !unavailablemsg.isEmpty() )
+	statusBar()->message( unavailablemsg );
 }
 
 
@@ -802,6 +865,8 @@ void uiODScreenRecorderDlg::setActivity( bool inputsensitive, bool stopmode,
     sourcetypefld_->setSensitive( inputsensitive );
     sourcefld_->setSensitive( inputsensitive );
     refreshsourcesbut_->setSensitive( inputsensitive );
+    codecfld_->setSensitive( inputsensitive && recorderavailable_ );
+    frameratefld_->setSensitive( inputsensitive && recorderavailable_ );
     outputfld_->setSensitive( inputsensitive );
     startStopButton_->setText( actiontext );
     startStopButton_->setIcon( actionicon );
@@ -813,5 +878,8 @@ void uiODScreenRecorderDlg::setActivity( bool inputsensitive, bool stopmode,
 void uiODScreenRecorderDlg::updateActionSensitivity()
 {
     startStopButton_->setSensitive(
-	actionenabled_ && (stopmode_ || hasSource()) );
+	actionenabled_
+	&& ( stopmode_
+	  || (recorderavailable_ && hasSource()
+	      && !codecfld_->box()->isEmpty()) ) );
 }
