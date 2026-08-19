@@ -98,6 +98,7 @@ void Viewer2DPosDataSel::clean()
 #define mToPosTypeStr( postype ) \
     Viewer2DPosDataSel::toString( postype )
 
+
 uiODViewer2DPosGrp::uiODViewer2DPosGrp( uiParent* p,
 	Viewer2DPosDataSel* posdatasel, bool onlyvertical, bool withpostype )
     : uiGroup(p)
@@ -197,7 +198,8 @@ uiODViewer2DPosGrp::~uiODViewer2DPosGrp()
 
 void uiODViewer2DPosGrp::initGrp( CallBacker* )
 {
-    updateFlds();
+    updatePosFlds();
+    updateDataSelFld();
     commitSel( false );
 }
 
@@ -276,17 +278,17 @@ void uiODViewer2DPosGrp::createSliceSel( uiSliceSel::Type dir )
     TrcKeyZSampling seltkzs( tkzs.hsamp_.getGeomID() );
     getSelAttrSamp( seltkzs );
     TrcKeyZSampling sliceseltkzs;
-
-    if( dir == uiSliceSel::Inl )
+    if ( dir == uiSliceSel::Inl )
     {
-	sliceseltkzs.hsamp_.start_.inl() = seltkzs.hsamp_.lineRange()
-								    .center();
-	sliceseltkzs.hsamp_.stop_.inl() = sliceseltkzs.hsamp_.start_.inl();
+	const int inl = seltkzs.hsamp_.lineRange().center();
+	sliceseltkzs.hsamp_.start_.inl() = inl;
+	sliceseltkzs.hsamp_.stop_.inl() = inl;
     }
     else if ( dir == uiSliceSel::Crl )
     {
-	sliceseltkzs.hsamp_.start_.crl() = seltkzs.hsamp_.trcRange().center();
-	sliceseltkzs.hsamp_.stop_.crl() = sliceseltkzs.hsamp_.start_.crl();
+	const int crl = seltkzs.hsamp_.trcRange().center();
+	sliceseltkzs.hsamp_.start_.crl() = crl;
+	sliceseltkzs.hsamp_.stop_.crl() = crl;
     }
     else
     {
