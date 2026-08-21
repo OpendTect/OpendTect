@@ -1051,7 +1051,7 @@ MnemonicSelection MnemonicSelection::getAllPorosity()
     {
 	const Mnemonic& mn = *mnsel.get( idx );
 	const StringView desc( mn.description() );
-	if ( !desc.contains("Porosity") )
+	if ( !desc.contains("Porosity") && desc!="Compensated Neutron" )
 	    mnsel.removeSingle( idx );
     }
 

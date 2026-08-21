@@ -192,6 +192,10 @@ static const int sStdTypeCol = 0;
 static const int sTemplateNmCol = 1;
 static const int sMnemonicNmCol = 2;
 static const int sMnemonicColorCol = 3;
+static const char* sMineralsStr = "Minerals";
+static const char* sPorosityStr = "Porosity";
+static const char* sSaturationStr = "Saturation";
+static const char* sOthVolumetricsStr = "Other Volumetrics";
 
 class uiMnSelFlds : public NamedCallBacker
 { mODTextTranslationClass(uiMnSelFlds);
@@ -206,35 +210,71 @@ uiMnSelFlds( uiTable& tbl, int rowidx, const Mnemonic* mn )
     , iscustom_(mn)
 {
     lastusedmns_.setNullAllowed();
-    const BufferStringSet alltypnms( Mnemonic::StdTypeNames() );
+
+    MnemonicSelection porsel = MnemonicSelection::getAllPorosity();
+    const MnemonicSelection minsel = MnemonicSelection::getAllVolumetrics();
+    const MnemonicSelection satsel = MnemonicSelection::getAllSaturations();
+    for ( int idx=porsel.size()-1; idx>=0; idx-- )
+    {
+	if ( minsel.isPresent(porsel.get(idx)) )
+	    porsel.removeSingle( idx );
+    }
+
+    MnemonicSelection othvolsel( Mnemonic::Volum );
+    for ( int idx=othvolsel.size()-1; idx>=0; idx-- )
+    {
+	const Mnemonic* currmn = othvolsel.get( idx );
+	if ( porsel.isPresent(currmn) || minsel.isPresent(currmn) ||
+	     satsel.isPresent(currmn) )
+	    othvolsel.removeSingle( idx );
+    }
+
     BufferStringSet typnms;
+    const BufferStringSet alltypnms( Mnemonic::StdTypeNames() );
     for ( const auto* typnm : alltypnms )
     {
 	const Mnemonic::StdType typ =
 				Mnemonic::parseEnumStdType( typnm->buf() );
-	const bool isall = typ == Mnemonic::Other;
-	MnemonicSelection mnsel( typ );
-	if ( mnsel.isEmpty() )
+	if ( typ == Mnemonic::Other )
 	    continue;
 
-	if ( isall )
-	    mnsel = MnemonicSelection( nullptr );
-
-	for ( int idx=mnsel.size()-1; idx>=0; idx-- )
+	if ( typ == Mnemonic::Volum )
 	{
-	    if ( !mnsel.get(idx)->isTemplate() )
-		mnsel.removeSingle( idx );
+	    addTypeEntry( typnms, sOthVolumetricsStr, othvolsel );
+	    continue;
 	}
 
-	typnms.add( typnm->buf() );
-	mnsels_.add( new MnemonicSelection(mnsel) );
-	lastusedmns_.add( nullptr );
+	addTypeEntry( typnms, typnm->buf(), MnemonicSelection(typ) );
     }
+
+    addTypeEntry( typnms, sPorosityStr, porsel, true );
+    addTypeEntry( typnms, sMineralsStr, minsel, true );
+    addTypeEntry( typnms, sSaturationStr, satsel, true );
 
     typfld_ = new uiComboBox( nullptr, typnms, "Property Type" );
     typfld_->setHSzPol( uiObject::SmallVar );
-    const Mnemonic::StdType typ = mn ? mn->stdType() : Mnemonic::Imp;
-    const int firstitm = typnms.indexOf( Mnemonic::toString(typ) );
+    int firstitm = typnms.indexOf( Mnemonic::toString(Mnemonic::Imp) );
+    if ( mn )
+    {
+	const Mnemonic* srcmn = mn->getOrigin();
+	if ( !srcmn )
+	    srcmn = mn;
+
+	BufferString typnm( Mnemonic::toString(mn->stdType()) );
+	if ( minsel.isPresent(srcmn) )
+	    typnm.set( sMineralsStr );
+	else if ( satsel.isPresent(srcmn) )
+	    typnm.set( sSaturationStr );
+	else if ( othvolsel.isPresent(srcmn) )
+	    typnm.set( sOthVolumetricsStr );
+	else if ( porsel.isPresent(srcmn) )
+	    typnm.set( sPorosityStr );
+
+	const int idx = typnms.indexOf( typnm.buf() );
+	if ( idx >= 0 )
+	    firstitm = idx;
+    }
+
     typfld_->setCurrentItem( firstitm );
     tbl_.setCellObject( RowCol(rowidx,sStdTypeCol), typfld_ );
     mAttachCB( typfld_->selectionChanged, uiMnSelFlds::typeChgCB );
@@ -257,9 +297,8 @@ uiMnSelFlds( uiTable& tbl, int rowidx, const Mnemonic* mn )
     }
 
     const OD::Color color = mn ? mn->disp_.color_
-			       : (mnselfld_->mnemonic() ?
-					mnselfld_->mnemonic()->disp_.color_ :
-					OD::Color::NoColor());
+			       : getTemplateMn().disp_.color_;
+
     NotifyStopper ns( tbl_.valueChanged );
     tbl_.setColor( RowCol(rowidx,sMnemonicColorCol), color );
 
@@ -338,6 +377,35 @@ void setName( const char* nm ) override
 
 private:
 
+void addTypeEntry( BufferStringSet& typnms, const char* nm,
+		   MnemonicSelection mnsel, bool sorted=false )
+{
+    for ( int idx=mnsel.size()-1; idx>=0; idx-- )
+    {
+	if ( !mnsel.get(idx)->isTemplate() )
+	    mnsel.removeSingle( idx );
+    }
+
+    if ( mnsel.isEmpty() )
+	return;
+
+    int ins = typnms.size();
+    if ( sorted )
+    {
+	ins = 0;
+	for ( ; ins<typnms.size(); ins++ )
+	{
+	    if ( typnms.get(ins) > nm )
+		break;
+	}
+    }
+
+    typnms.insertAt( new BufferString(nm), ins );
+    mnsels_.insertAt( new MnemonicSelection(mnsel), ins );
+    lastusedmns_.insertAt( nullptr, ins );
+}
+
+
 void typeChgCB( CallBacker* )
 {
     const int curidx = typfld_->currentItem();
@@ -350,14 +418,8 @@ void typeChgCB( CallBacker* )
 	mnselfld_ = nullptr;
     }
 
-    const bool isother = curidx == typfld_->size()-1;
     const MnemonicSelection& mnsel = *mnsels_.get( curidx );
-    tbl_.setCellReadOnly( rc, isother || mnsel.size() < 2 );
-    if ( isother )
-    {
-	editstate_ = EditType::StdType;
-	return;
-    }
+    tbl_.setCellReadOnly( rc, mnsel.size() < 2 );
 
     const uiMnemonicsSel::Setup uimnsu( &mnsel, uiString::empty() );
     mnselfld_ = new uiMnemonicsSel( nullptr, uimnsu );
@@ -389,7 +451,7 @@ void updateColor()
     if ( newname.isEmpty() && mnselfld_ )
     {
 	tbl_.setColor( RowCol(currrow,sMnemonicColorCol),
-		       mnselfld_->mnemonic()->disp_.color_ );
+		       getTemplateMn().disp_.color_ );
 	colorChanged();
     }
 }
