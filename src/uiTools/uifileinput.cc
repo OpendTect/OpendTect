@@ -223,7 +223,10 @@ void uiFileInput::fnmEntered( CallBacker* )
 {
     BufferStringSet& filenames = filenames_();
     filenames.setEmpty();
-    filenames.add( text() );
+    if ( selmode_ == uiFileDialog::ExistingFiles )
+	uiFileDialog::string2List( text(), filenames );
+    else
+	filenames.add( text() );
 
     const bool isdir = selmode_==uiFileDialog::Directory ||
 		       selmode_==uiFileDialog::DirectoryOnly;
