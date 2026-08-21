@@ -17,10 +17,10 @@ ________________________________________________________________________
 #include "zdomain.h"
 
 uiT2DConvSel::Setup::Setup( uiIOObjSel* tied, bool opt, bool is2d )
-    : tiedto_(tied)
-    , optional_(opt)
+    : optional_(opt)
     , ist2d_(SI().zIsTime())
     , is2d_(is2d)
+    , tiedto_(tied)
 {
 }
 

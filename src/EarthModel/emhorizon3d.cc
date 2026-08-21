@@ -308,11 +308,11 @@ static const char* sParentColor()	{ return "Parent Color"; }
 // EM::Horizon3D
 Horizon3D::Horizon3D( EMManager& man )
     : Horizon(man)
-    , geometry_(*this)
     , auxdata(*new SurfaceAuxData(*this))
+    , geometry_(*this)
     , lockednodes_(nullptr)
-    , parents_(nullptr)
     , children_(nullptr)
+    , parents_(nullptr)
     , parentcolor_(OD::Color::Yellow())
     , survgeomid_(OD::Geom3D)
     , nodesource_(nullptr)
