@@ -150,8 +150,11 @@ public:
 			     as uiParent* at construction. */
     uiGroup*		getCellGroup(const RowCol&) const;
     RowCol		getCell(uiGroup*);
+
+    void		setColumnForCheckBox(int col);
     void		setCellChecked(const RowCol&,bool yn);
     bool		isCellChecked(const RowCol&) const;
+    void		setColumnChecked(int col,bool yn);
 
     int			nrRows() const;
     int			nrCols() const;
@@ -391,6 +394,7 @@ protected:
     void		update(bool row,int nr);
 
     bool		istablereadonly_;
+    TypeSet<int>	checkboxcols_;
 
 private:
 

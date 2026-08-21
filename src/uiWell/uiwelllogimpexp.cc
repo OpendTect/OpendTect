@@ -69,13 +69,15 @@ uiImportLogsDlg::uiImportLogsDlg( uiParent* p, const IOObj* ioobj, bool wtable )
     if ( wtable )
     {
 	uiStringSet colnms;
+	colnms.add( uiStrings::sImport() );
 	colnms.add( uiStrings::sCurve() );
 	colnms.add( uiStrings::sUnit() );
 	colnms.add( uiStrings::sDescription() );
-	logstable_ = new uiTable( this, uiTable::Setup(3,3), "Logs in file" );
+	logstable_ = new uiTable( this, uiTable::Setup(5,4), "Logs in file" );
 	logstable_->setColumnLabels( colnms );
 	logstable_->setSelectionMode( uiTable::Multi );
 	logstable_->setSelectionBehavior( uiTable::SelectRows );
+	logstable_->setColumnForCheckBox( 0 );
 	logstable_->attach( ensureBelow, udffld_ );
 
 	lognmfld_ = new uiGenInput( this, tr("Name log after"),
@@ -126,13 +128,13 @@ void uiImportLogsDlg::lasSel( CallBacker* )
 	for ( int idx=0; idx<lfi.size(); idx++ )
 	{
 	    logstable_->setCellChecked( RowCol(idx,0), true );
-	    logstable_->setText( RowCol(idx,0), lfi.logcurves_.get(idx) );
-	    logstable_->setText( RowCol(idx,1), lfi.logunits_.get(idx) );
-	    logstable_->setText( RowCol(idx,2), lfi.lognms_.get(idx) );
+	    logstable_->setText( RowCol(idx,1), lfi.logcurves_.get(idx) );
+	    logstable_->setText( RowCol(idx,2), lfi.logunits_.get(idx) );
+	    logstable_->setText( RowCol(idx,3), lfi.lognms_.get(idx) );
 	}
 
 	logstable_->setColumnResizeMode( uiTable::ResizeToContents );
-	logstable_->setColumnStretchable( 2, true );
+	logstable_->setColumnStretchable( 3, true );
     }
     else if ( logsfld_ )
     {
@@ -195,7 +197,7 @@ bool uiImportLogsDlg::acceptOK( CallBacker* )
     BufferStringSet lognms;
     if ( logstable_ )
     {
-	const int colidx = usecurvenms ? 0 : 2;
+	const int colidx = usecurvenms ? 1 : 3;
 	for ( int idx=0; idx<logstable_->nrRows(); idx++ )
 	{
 	    if ( logstable_->isCellChecked(RowCol(idx,0)))
@@ -223,8 +225,7 @@ bool uiImportLogsDlg::acceptOK( CallBacker* )
     if ( nrexisting > 0 )
     {
 	uiString msg = tr("The following logs already exist and will not "
-			  "be imported:\n\n%1\n\nPlease remove them before "
-			  "import.").arg(existlogs.getDispString());
+			  "be imported:\n\n%1").arg(existlogs.getDispString());
 	if ( lognms.isEmpty() )
 	    mErrRet( msg )
 
