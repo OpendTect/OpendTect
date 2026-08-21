@@ -143,7 +143,8 @@ void resizeEvent( QResizeEvent* ev ) override
 void customEvent( QEvent* ev ) override
 {
     mDynamicCastGet(IconUpdateEvent*,iue,ev)
-    if ( !iue ) return;
+    if ( !iue )
+	return;
 
     handle_.setIcon( iue->iconnm_ );
 }
@@ -177,45 +178,93 @@ uiObject& uiObjHandle() override
 
 };
 
-#define mDefButtonBodyClass(nm,reactsto,constr_code,extr) \
-class ui##nm##Body : public uiButtonTemplBody<Q##nm> \
-{ \
-public: \
- \
-ui##nm##Body( uiButton& uibut, uiParent* parnt, const uiString& txt ) \
-    : uiButtonTemplBody<Q##nm>(uibut,parnt,txt) \
-{ \
-    setText( toQString(txt) ); \
-    constr_code; \
-} \
- \
-ui##nm##Body( uiButton& uibut, const uiPixmap& pm, \
-	      uiParent* parnt, const uiString& txt ) \
-    : uiButtonTemplBody<Q##nm>(uibut,parnt,txt) \
-{ \
-    setText( toQString(txt) ); \
-    constr_code; \
-} \
- \
-protected: \
- \
-void notifyHandler( notifyTp tp ) override \
-{ \
-    if ( tp == uiButtonMessenger::reactsto ) \
-	doNotify(); \
-} \
-\
-extr; \
- \
-}
-
-
 // uiButton
 
-mDefButtonBodyClass(PushButton,clicked,,);
-mDefButtonBodyClass(RadioButton,clicked,,);
-mDefButtonBodyClass(CheckBox,toggled,,void nextCheckState() override);
-mDefButtonBodyClass(ToolButton,clicked,setFocusPolicy( Qt::ClickFocus ),);
+class uiPushButtonBody : public uiButtonTemplBody<QPushButton>
+{
+public:
+
+uiPushButtonBody( uiButton& uibut, uiParent* parnt, const uiString& txt )
+    : uiButtonTemplBody<QPushButton>(uibut,parnt,txt)
+{
+    setText( toQString(txt) );
+}
+
+protected:
+
+void notifyHandler( notifyTp tp ) override
+{
+    if ( tp == uiButtonMessenger::clicked )
+	doNotify();
+}
+
+};
+
+
+class uiRadioButtonBody : public uiButtonTemplBody<QRadioButton>
+{
+public:
+
+uiRadioButtonBody( uiButton& uibut, uiParent* parnt, const uiString& txt )
+    : uiButtonTemplBody<QRadioButton>(uibut,parnt,txt)
+{
+    setText( toQString(txt) );
+}
+
+protected:
+
+void notifyHandler( notifyTp tp ) override
+{
+    if ( tp == uiButtonMessenger::clicked )
+	doNotify();
+}
+
+};
+
+
+class uiCheckBoxBody : public uiButtonTemplBody<QCheckBox>
+{
+public:
+
+uiCheckBoxBody( uiButton& uibut, uiParent* parnt, const uiString& txt )
+    : uiButtonTemplBody<QCheckBox>(uibut,parnt,txt)
+{
+    setText( toQString(txt) );
+}
+
+protected:
+
+void notifyHandler( notifyTp tp ) override
+{
+    if ( tp == uiButtonMessenger::toggled )
+	doNotify();
+}
+
+void nextCheckState() override;
+
+};
+
+
+class uiToolButtonBody : public uiButtonTemplBody<QToolButton>
+{
+public:
+
+uiToolButtonBody( uiButton& uibut, uiParent* parnt, const uiString& txt )
+    : uiButtonTemplBody<QToolButton>(uibut,parnt,txt)
+{
+    setText( toQString(txt) );
+    setFocusPolicy( Qt::ClickFocus );
+}
+
+protected:
+
+void notifyHandler( notifyTp tp ) override
+{
+    if ( tp == uiButtonMessenger::clicked )
+	doNotify();
+}
+
+};
 
 
 void uiCheckBoxBody::nextCheckState()
@@ -721,6 +770,7 @@ uiPushButton* uiToolButtonSetup::getPushButton( uiParent* p, bool wic ) const
 	ret = new uiPushButton( p, name_, uiPixmap(icid_), cb_, isimmediate_ );
     else
 	ret = new uiPushButton( p, name_, cb_, isimmediate_ );
+
     ret->setToolTip( tooltip_ );
     return ret;
 }
@@ -773,8 +823,7 @@ uiToolButton::uiToolButton( uiParent* parnt, const char* fnm,
 
 uiToolButton::uiToolButton( uiParent* parnt, uiToolButton::ArrowType at,
 			    const uiString& tt, const CallBack& cb )
-    : uiButton( parnt, tt, &cb,
-		mkbody(parnt,"empty",tt) )
+    : uiButton(parnt,tt,&cb,mkbody(parnt,"empty",tt))
 {
     mSetDefPrefSzs();
     setArrowType( at );
@@ -802,14 +851,16 @@ uiToolButtonBody& uiToolButton::mkbody( uiParent* parnt, const char* iconnm,
 uiToolButton* uiToolButton::getStd( uiParent* p, OD::StdActionType typ,
 				    const CallBack& cb, const uiString& tt )
 {
-    uiButton* but = uiButton::getStd( p, typ, cb, true,
-					uiString::emptyString() );
+    auto* but = uiButton::getStd( p, typ, cb, true, uiString::emptyString() );
     if ( !but )
-	return 0;
+	return nullptr;
 
     mDynamicCastGet(uiToolButton*,tb,but)
     if ( !tb )
-	{ pFreeFnErrMsg("uiButton::getStd delivered PB"); return 0; }
+    {
+	pFreeFnErrMsg("uiButton::getStd delivered PB");
+	return nullptr;
+    }
 
     tb->setToolTip( tt );
     return tb;
@@ -826,31 +877,51 @@ void uiToolButton::setOn( bool yn )
 }
 
 
-bool uiToolButton::isToggleButton() const     { return tbbody_->isCheckable();}
-void uiToolButton::setToggleButton( bool yn ) { tbbody_->setCheckable( yn ); }
+bool uiToolButton::isToggleButton() const
+{
+    return tbbody_->isCheckable();
+}
+
+
+void uiToolButton::setToggleButton( bool yn )
+{
+    tbbody_->setCheckable( yn );
+}
 
 
 void uiToolButton::click()
 {
     if ( isToggleButton() )
 	setOn( !isOn() );
+
     activated.trigger();
 }
 
 
 void uiToolButton::setArrowType( ArrowType type )
 {
-#ifdef __win__
     switch ( type )
     {
 	case UpArrow: setPixmap( "uparrow" ); break;
 	case DownArrow: setPixmap( "downarrow" ); break;
 	case LeftArrow: setPixmap( "leftarrow" ); break;
 	case RightArrow: setPixmap( "rightarrow" ); break;
+	default: break;
     }
-#else
-    tbbody_->setArrowType( (Qt::ArrowType)(int)type );
-#endif
+}
+
+
+void uiToolButton::setToolButtonStyle( ButtonStyle style )
+{
+    auto qstyle = mCast(Qt::ToolButtonStyle,style);
+    tbbody_->setToolButtonStyle( qstyle );
+}
+
+
+uiToolButton::ButtonStyle uiToolButton::toolButtonStyle() const
+{
+    auto qstyle = tbbody_->toolButtonStyle();
+    return mCast(ButtonStyle,qstyle);
 }
 
 
