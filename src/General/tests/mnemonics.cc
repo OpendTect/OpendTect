@@ -112,8 +112,9 @@ static bool testMnemonicsSel()
 		      !volmnsel.isPresent( &Mnemonic::defPHI() ) &&
 		      !volmnsel.isPresent( &Mnemonic::defSW() ),
 		      "Volumetric mnemonic selection" );
-    mRunStandardTest( pormnsel.size() == 7 &&
-		      pormnsel.isPresent( &Mnemonic::defPHI() ),
+    mRunStandardTest( pormnsel.size() == 8 &&
+		      pormnsel.isPresent( &Mnemonic::defPHI() ) &&
+		      pormnsel.isPresent( MNC().getByName("NPHI",false) ),
 		      "Porosity mnemonic selection" );
     mRunStandardTest( statsmnsel.size() == 5 &&
 		      statsmnsel.isPresent( &Mnemonic::defSW() ),
