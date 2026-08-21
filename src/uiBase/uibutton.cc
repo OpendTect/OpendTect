@@ -871,17 +871,28 @@ void uiToolButton::click()
 
 void uiToolButton::setArrowType( ArrowType type )
 {
-#ifdef __win__
     switch ( type )
     {
 	case UpArrow: setPixmap( "uparrow" ); break;
 	case DownArrow: setPixmap( "downarrow" ); break;
 	case LeftArrow: setPixmap( "leftarrow" ); break;
 	case RightArrow: setPixmap( "rightarrow" ); break;
+	default: break;
     }
-#else
-    tbbody_->setArrowType( (Qt::ArrowType)(int)type );
-#endif
+}
+
+
+void uiToolButton::setToolButtonStyle( ButtonStyle style )
+{
+    auto qstyle = mCast(Qt::ToolButtonStyle,style);
+    tbbody_->setToolButtonStyle( qstyle );
+}
+
+
+uiToolButton::ButtonStyle uiToolButton::toolButtonStyle() const
+{
+    auto qstyle = tbbody_->toolButtonStyle();
+    return mCast(ButtonStyle,qstyle);
 }
 
 
