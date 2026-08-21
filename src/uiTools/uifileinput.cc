@@ -202,7 +202,10 @@ void uiFileInput::inputChg( CallBacker* )
 void uiFileInput::fnmEntered( CallBacker* )
 {
     filenames_.setEmpty();
-    filenames_.add( text() );
+    if ( selmode_ == uiFileDialog::ExistingFiles )
+	uiFileDialog::string2List( text(), filenames_ );
+    else
+	filenames_.add( text() );
 
     const bool isdir = selmode_==uiFileDialog::Directory ||
 		       selmode_==uiFileDialog::DirectoryOnly;
