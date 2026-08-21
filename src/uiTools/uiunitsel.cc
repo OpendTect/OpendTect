@@ -21,15 +21,9 @@ static const uiString sDispNone = toUiString(sKeyDispNone);
 
 uiUnitSel::Setup::Setup( Mnemonic::StdType st, const uiString& labeltxt,
 			 const Mnemonic* mn )
-    : ptype_(st)
-    , mn_(mn)
+    : mn_(mn)
+    , ptype_(st)
     , lbltxt_(labeltxt)
-    , mode_(Full)
-    , selproptype_(false)
-    , selmnemtype_(false)
-    , variableszpol_(false)
-    , allowneg_(false)
-    , withnone_(false)
 {
 }
 
@@ -50,9 +44,9 @@ uiUnitSel::Setup::~Setup()
 
 uiUnitSel::uiUnitSel( uiParent* p, const uiUnitSel::Setup& su )
     : uiGroup(p,"UnitSel")
-    , setup_(su)
     , selChange(this)
     , propSelChange(this)
+    , setup_(su)
 {
     init();
 }
@@ -60,9 +54,9 @@ uiUnitSel::uiUnitSel( uiParent* p, const uiUnitSel::Setup& su )
 
 uiUnitSel::uiUnitSel( uiParent* p, Mnemonic::StdType st )
     : uiGroup(p,"UnitSel")
-    , setup_(st)
     , selChange(this)
     , propSelChange(this)
+    , setup_(st)
 {
     init();
 }
@@ -70,10 +64,10 @@ uiUnitSel::uiUnitSel( uiParent* p, Mnemonic::StdType st )
 
 uiUnitSel::uiUnitSel( uiParent* p, const Mnemonic* mn )
     : uiGroup(p,"UnitSel")
-    , setup_(mn ? mn->stdType()
-		: Mnemonic::Dist, uiString::empty(), mn )
     , selChange(this)
     , propSelChange(this)
+    , setup_(mn ? mn->stdType()
+		: Mnemonic::Dist, uiString::empty(), mn )
 {
     init();
 }
@@ -81,10 +75,10 @@ uiUnitSel::uiUnitSel( uiParent* p, const Mnemonic* mn )
 
 uiUnitSel::uiUnitSel( uiParent* p, const char* lbltxt )
     : uiGroup(p,"UnitSel")
-    , setup_(SI().zIsTime() ? Mnemonic::Time : Mnemonic::Dist,
-	     mToUiStringTodo(lbltxt))
     , selChange(this)
     , propSelChange(this)
+    , setup_(SI().zIsTime() ? Mnemonic::Time : Mnemonic::Dist,
+	     toUiString(lbltxt))
 {
     init();
 }

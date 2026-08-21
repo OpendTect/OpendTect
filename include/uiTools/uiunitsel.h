@@ -49,15 +49,15 @@ public:
 				//<! For Z unit only
 				~Setup();
 
+	mDefSetupMembInit(const Mnemonic*,mn,nullptr);
 	mDefSetupMemb(Mnemonic::StdType,ptype)
-	mDefSetupMemb(const Mnemonic*,mn)
 	mDefSetupMemb(uiString,lbltxt)
-	mDefSetupMemb(Mode,mode)		// Full
-	mDefSetupMemb(bool,selproptype)		// False
-	mDefSetupMemb(bool,selmnemtype)		// false
-	mDefSetupMemb(bool,variableszpol)	// false
-	mDefSetupMemb(bool,allowneg)		// false
-	mDefSetupMemb(bool,withnone)		// false
+	mDefSetupMembInit(Mode,mode,Full)
+	mDefSetupMembInit(bool,selproptype,false)
+	mDefSetupMembInit(bool,selmnemtype,false)
+	mDefSetupMembInit(bool,variableszpol,false)
+	mDefSetupMembInit(bool,allowneg,false)
+	mDefSetupMembInit(bool,withnone,false)
     };
 
 				uiUnitSel(uiParent*,const Setup&);
