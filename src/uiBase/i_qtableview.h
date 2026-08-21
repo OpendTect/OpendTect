@@ -138,8 +138,7 @@ i_tableViewMessenger( QTableView* sndr, uiTableView* rcvr )
     connect( sndr, &QTableView::pressed,
 	    this, &i_tableViewMessenger::cellPressed );
 
-    connect( sndr->selectionModel(), &QItemSelectionModel::selectionChanged,
-	     this, &i_tableViewMessenger::selectionChanged );
+    connectSelectionModel();
 }
 
 
@@ -251,6 +250,18 @@ void cellPressed( const QModelIndex& index )
     const int col = index.column();
     receiver_->notifcell_ = RowCol(row,col);
     handleSlot( "cellPressed", row, col, nullptr );
+}
+
+
+void connectSelectionModel()
+{
+    QItemSelectionModel* selmdl = sender_->selectionModel();
+    if ( !selmdl )
+	return;
+
+    connect( selmdl, &QItemSelectionModel::selectionChanged,
+	     this, &i_tableViewMessenger::selectionChanged,
+	     Qt::UniqueConnection );
 }
 
 

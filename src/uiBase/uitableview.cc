@@ -559,7 +559,6 @@ void ODTableView::selectionChanged( const QItemSelection& selected,
 				    const QItemSelection& deselected )
 {
     QTableView::selectionChanged( selected, deselected );
-    handle_.selectionChanged.trigger();
 }
 
 
@@ -568,6 +567,7 @@ void ODTableView::setModel( QAbstractItemModel* tblmodel )
     QTableView::setModel( tblmodel );
     frozenview_->setModel( model() );
     frozenview_->setSelectionModel( selectionModel() );
+    messenger_.connectSelectionModel();
 }
 
 
