@@ -93,8 +93,7 @@ void uiStratDisplay::setRange()
 void uiStratDisplay::addControl( uiToolBar* tb )
 {
     mDynamicCastGet(uiGraphicsView*,v,const_cast<uiStratDisplay*>(this))
-    uiStratViewControl::Setup su( maxrg_ ); su.tb_ = tb;
-    uicontrol_ = new uiStratViewControl( *v, su );
+    uicontrol_ = new uiStratViewControl( *v, tb, maxrg_ );
     mAttachCB( uicontrol_->rangeChanged, uiStratDisplay::controlRange );
     uicontrol_->setRange( rangefld_->getFInterval() );
 }
@@ -684,31 +683,18 @@ void uiStratDrawer::drawUnits( ColumnItem& colitm )
 }
 
 
-// uiStratViewControl::Setup
-
-uiStratViewControl::Setup::Setup( const Interval<float>& rg )
-    : maxrg_(rg)
-    , tb_(nullptr)
-{
-}
-
-
-uiStratViewControl::Setup::~Setup()
-{
-}
-
-
 // uiStratViewControl
 
 #define mDefBut(but,fnm,cbnm,tt) \
     but = new uiToolButton( tb_, fnm, tt, mCB(this,uiStratViewControl,cbnm) ); \
     tb_->addObject( but );
 
-uiStratViewControl::uiStratViewControl( uiGraphicsView& v, Setup& su )
-    : viewer_(v)
-    , rangeChanged(this)
-    , tb_(su.tb_)
-    , boundingrange_(su.maxrg_)
+uiStratViewControl::uiStratViewControl( uiGraphicsView& v, uiToolBar* tb,
+					const Interval<float>& maxrg )
+    : rangeChanged(this)
+    , viewer_(v)
+    , tb_(tb)
+    , boundingrange_(maxrg)
 {
     if ( !tb_ )
 	tb_ = new uiToolBar( v.parent(), toUiString("Viewer toolbar"),

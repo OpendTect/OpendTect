@@ -38,6 +38,7 @@ public:
 				uiStratDrawer(uiGraphicsScene&,
 						const StratDispData&);
 				~uiStratDrawer();
+				mOD_DisableCopy(uiStratDrawer)
 
     void			setZRange(const StepInterval<float>&);
 
@@ -153,20 +154,13 @@ protected :
 
 
 mExpClass(uiStrat) uiStratViewControl : public CallBacker
-{ mODTextTranslationClass(uiStratViewControl)
+{
+mODTextTranslationClass(uiStratViewControl)
 public:
-
-    struct Setup
-    {
-				Setup(const Interval<float>& rg);
-				~Setup();
-
-	mDefSetupMemb(uiToolBar*,tb)
-	mDefSetupMemb(Interval<float>,maxrg)
-    };
-
-				uiStratViewControl(uiGraphicsView&,Setup&);
+				uiStratViewControl(uiGraphicsView&,uiToolBar*,
+						const Interval<float>& maxrg);
 				~uiStratViewControl();
+				mOD_DisableCopy(uiStratViewControl)
 
     void			setRange( const Interval<float>& rg )
 				{ range_ = rg; }
