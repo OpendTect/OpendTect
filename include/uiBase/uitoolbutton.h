@@ -22,6 +22,8 @@ public:
     enum ArrowType		{ NoArrow,
 				  UpArrow, DownArrow, LeftArrow, RightArrow };
     enum PopupMode		{ DelayedPopup, MenuButtonPopup, InstantPopup };
+    enum ButtonStyle		{ IconOnly, ButtonTextOnly, TextBesideIcon,
+				  TextUnderIcon, FollowStyle };
 
 				uiToolButton(uiParent*,
 					     const uiToolButtonSetup&);
@@ -46,6 +48,8 @@ public:
     bool			isToggleButton() const;
 
     void			setArrowType(ArrowType);
+    void			setToolButtonStyle(ButtonStyle);
+    ButtonStyle			toolButtonStyle() const;
 
     void			setShortcut(const char*);
     void			setMenu(uiMenu*,PopupMode=MenuButtonPopup);
