@@ -10,7 +10,6 @@ ________________________________________________________________________
 #include "ioobj.h"
 
 #include "ascstream.h"
-#include "compoundkey.h"
 #include "conn.h"
 #include "file.h"
 #include "filepath.h"
@@ -119,6 +118,43 @@ class IOXProducer : public IOObjProducer
 int IOX::prodid = IOObj::addProducer( new IOXProducer );
 
 
+mDefineEnumUtils( IOObj, Status, "Dataset status" )
+{
+    "Unknown",
+    "OK",
+    "FileNotPresent",
+    "ReadPermissionInvalid",
+    "WrongObject",
+    "BrokenLink",
+    "FileEmpty",
+    "FileDataCorrupt",
+    "LibraryNotLoaded",
+    "DataVersionInvalid",
+    "Deleted",
+    "Hidden",
+    "Other",
+    nullptr
+};
+
+template <>
+void EnumDefImpl<IOObj::Status>::init()
+{
+    uistrings_ += uiStrings::sUnknown();
+    uistrings_ += uiStrings::sOk();
+    uistrings_ += tr( "File not present" );
+    uistrings_ += tr( "Invalid read permissions" );
+    uistrings_ += tr( "Wrong object" );
+    uistrings_ += tr( "Broken link" );
+    uistrings_ += tr( "File empty" );
+    uistrings_ += tr( "File data corrupt" );
+    uistrings_ += tr( "Library not loaded" );
+    uistrings_ += tr( "Data version invalid" );
+    uistrings_ += tr( "Deleted" );
+    uistrings_ += tr( "Hidden" );
+    uistrings_ += uiStrings::sOther();
+}
+
+
 // IOObj::IOObj
 
 int IOObj::addProducer( IOObjProducer* prod )
@@ -171,24 +207,23 @@ IOObj::~IOObj()
 }
 
 
-void IOObj::copyStuffFrom( const IOObj& obj )
+void IOObj::copyStuffFrom( const IOObj& oth )
 {
-    setGroup( obj.group() );
-    setTranslator( obj.translator() );
-    setName( obj.name() );
-    setDirName( obj.dirName() );
-    pars_ = obj.pars_;
+    setGroup( oth.group() );
+    setTranslator( oth.translator() );
+    setName( oth.name() );
+    setDirName( oth.dirName() );
+    pars_ = oth.pars_;
+    status_ = oth.status_;
     delete dskey_;
-    dskey_ = obj.dskey_ ? new OD::DataSetKey( *obj.dskey_ ) : nullptr;
+    dskey_ = oth.dskey_ ? new OD::DataSetKey( *oth.dskey_ ) : nullptr;
 }
 
 
 void IOObj::copyFrom( const IOObj* obj )
 {
-    if ( !obj )
-	return;
-
-    copyStuffFrom( *obj );
+    if ( obj )
+	copyStuffFrom( *obj );
 }
 
 
@@ -267,6 +302,10 @@ IOObj* IOObj::get( ascistream& astream, const char* dirnm, int groupid )
 				OD::DataSetKey::getFrom( objptr->pars_ );
 		if ( !dsky.isUdf() )
 		    objptr->setDSKey( dsky );
+
+		Status stat = Status::Unknown;
+		if ( StatusDef().parse(objptr->pars_,sKey::Status(),stat) )
+		    objptr->setStatus( stat );
 	    }
 	}
     }
@@ -422,6 +461,19 @@ int IOObj::myKey() const
 }
 
 
+bool IOObj::isHidden() const
+{
+    if ( status() == Status::Hidden )
+	return true;
+
+    Status stat = Status::Unknown;
+    if ( !StatusDef().parse(pars(),sKey::Status(),stat) )
+	return false;
+
+    return stat == Status::Hidden;
+}
+
+
 bool IOObj::isProcTmp() const
 {
     return name().startsWith( "~Proc" );
@@ -477,11 +529,11 @@ bool IOObj::isSurveyDefault( const MultiID& ky )
 }
 
 
-#define mQuotedName toUiString(name()).quote(true)
+#define mQuotedName ::toUiString(name()).quote(true)
 
 uiString IOObj::phrCannotOpenObj() const
 {
-    return uiStrings::phrCannotOpen( toUiString( name() ).quote( true ) );
+    return uiStrings::phrCannotOpen( ::toUiString( name() ).quote( true ) );
 }
 
 

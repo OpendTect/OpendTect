@@ -103,8 +103,12 @@ public:
 	FileDataCorrupt=7,
 	LibraryNotLoaded=8,
 	DataVersionInvalid=9,
-	Other=10
+	Deleted=10,
+	Hidden=11,
+	Other=12,
     };
+
+    mDeclareEnumUtils(Status);
 
     uiString			uiName() const { return ::toUiString(name()); }
 
@@ -126,6 +130,7 @@ public:
     virtual Conn*		getConn(bool forread) const	= 0;
 
     virtual bool		isXObject() const	{ return false; }
+    virtual bool		isHidden() const;
     virtual const OD::String&	translator() const	{ return transl_; }
     virtual void		setTranslator( const char* s ) { transl_ = s; }
     virtual const OD::String&	group() const		{ return group_; }

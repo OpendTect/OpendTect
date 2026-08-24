@@ -30,9 +30,6 @@ IOPar& uiIOFileSelect::tmpstoragehistory()
 uiIOSelect::Setup::Setup( const uiString& seltext )
     : seltxt_(seltext)
     , buttontxt_(uiStrings::sSelect())
-    , withclear_(false)
-    , optional_(false)
-    , keepmytxt_(false)
 {}
 
 

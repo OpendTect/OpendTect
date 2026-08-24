@@ -12,6 +12,7 @@ ________________________________________________________________________
 
 #include "uiiosel.h"
 #include "helpview.h"
+#include "odcommonenums.h"
 
 class IOObj;
 class CtxtIOObj;
@@ -41,16 +42,18 @@ public:
     {
     public:
 			Setup(const uiString& seltxt=uiString::empty());
-	virtual		~Setup();
+			~Setup();
 
-	mDefSetupMemb(bool,confirmoverwr) //!< true
-	mDefSetupMemb(bool,withinserters) //!< true, only if forread
-	mDefSetupMemb(bool,withwriteopts) //!< true, only if !forread
-	mDefSetupMemb(bool,autoupdate)	  //!< false, only if forread
-	mDefSetupMemb(bool,filldef)	  /*!< true, only if forread and
+	mDefSetupMembInit(bool,confirmoverwr,true)
+	mDefSetupMembInit(bool,withinserters,false) //!< only for read
+	mDefSetupMembInit(bool,withwriteopts,true)  //!< only for write
+	mDefSetupMembInit(bool,autoupdate,true)     //!< only if forread
+	mDefSetupMembInit(bool,filldef,true)	    /*!< only if forread and
 							     !ctio.ioobj */
 	mDefSetupMemb(BufferString,withctxtfilter);  //!< empty (no filter)
 	mDefSetupMemb(BufferStringSet,trsnotallwed); //!< empty (all allowed)
+	mDefSetupMembInit(OD::HiddenPolicy,hiddenpolicy,
+			  OD::HiddenPolicy::HideHidden);
 
     };
 
@@ -85,6 +88,7 @@ public:
 				       bool allowempty=true);
     const ZDomain::Def* requiredZDef() const;
     const ZDomain::Info* requiredZDomain() const;
+    void		setHiddenPolicy(OD::HiddenPolicy);
 
     virtual void	updateInput();	//!< a.o. updates from CtxtIOObj
     void		processInput() override;

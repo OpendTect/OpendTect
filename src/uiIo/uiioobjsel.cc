@@ -169,11 +169,6 @@ void uiIOObjSelDlg::statusMsgCB( CallBacker* cb )
 
 uiIOObjSel::Setup::Setup( const uiString& seltxt )
     : uiIOSelect::Setup(seltxt)
-    , confirmoverwr_(true)
-    , withinserters_(false)
-    , withwriteopts_(true)
-    , autoupdate_(true)
-    , filldef_(true)
 {}
 
 
@@ -275,6 +270,8 @@ void uiIOObjSel::init()
 	mAttachCB( IOM().entriesRemoved, uiIOObjSel::entriesRemovedCB );
 	mAttachCB( IOM().entryChanged, uiIOObjSel::entryChangedCB );
     }
+
+    setHiddenPolicy( setup_.hiddenpolicy_ );
 }
 
 
@@ -413,6 +410,12 @@ const ZDomain::Def* uiIOObjSel::requiredZDef() const
 const ZDomain::Info* uiIOObjSel::requiredZDomain() const
 {
     return workctio_.ctxt_.requiredZDomain();
+}
+
+
+void uiIOObjSel::setHiddenPolicy( OD::HiddenPolicy policy )
+{
+    workctio_.ctxt_.setHiddenPolicy( policy );
 }
 
 

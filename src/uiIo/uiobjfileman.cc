@@ -58,10 +58,11 @@ void uiObjFileMan::createDefaultUI( bool withreloc, bool withrm, bool multisel )
 {
     listgrp_ = new uiGroup( this, "List Group" );
     IOM().to( ctxt_.getSelKey(), true );
+    const OD::HiddenPolicy hidpol = ctxt_.hiddenPolicy();
     uiIOObjSelGrp::Setup sgsu( multisel ? OD::ChooseAtLeastOne
 					: OD::ChooseOnlyOne );
     sgsu.allowreloc( withreloc ).allowremove( withrm )
-	.allowsetdefault( true ).allowxobj( false );
+	.allowsetdefault( true ).allowxobj( false ).hiddenpolicy( hidpol );
     sgsu.withctxtfilter_.add( ctxtfilter_ );
 
     selgrp_ = new uiIOObjSelGrp( listgrp_, ctxt_, uiString::empty(), sgsu );

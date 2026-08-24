@@ -9,9 +9,10 @@ ________________________________________________________________________
 -*/
 
 #include "uiearthmodelmod.h"
+
+#include "emposid.h"
+#include "odcommonenums.h"
 #include "uiobjfileman.h"
-#include "emmanager.h"
-#include "enums.h"
 
 class BufferStringSet;
 
@@ -23,7 +24,8 @@ class uiToolButton;
 mExpClass(uiEarthModel) uiSurfaceMan : public uiObjFileMan
 { mODTextTranslationClass(uiSurfaceMan);
 public:
-			uiSurfaceMan(uiParent*,EM::ObjectType);
+			uiSurfaceMan(uiParent*,EM::ObjectType,
+				OD::HiddenPolicy=OD::HiddenPolicy::HideHidden);
 			~uiSurfaceMan();
 
     mDeclInstanceCreatedNotifierAccess(uiSurfaceMan);

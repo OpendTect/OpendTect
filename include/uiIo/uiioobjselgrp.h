@@ -126,6 +126,8 @@ public:
 	mDefSetupMemb(BufferString,withctxtfilter);
 	mDefSetupMemb(BufferStringSet,trsnotallwed);
 	//!<key can be either a translator group name or omf metadata key
+	mDefSetupMembInit(OD::HiddenPolicy,hiddenpolicy,
+			  OD::HiddenPolicy::HideHidden);
 
 	bool		isMultiChoice() const;
     };

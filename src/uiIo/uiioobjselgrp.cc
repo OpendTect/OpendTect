@@ -1046,6 +1046,13 @@ void uiIOObjSelGrp::fullUpdate( int curidx )
 	if ( !setup_.allowxobj_ && ioobj->isXObject() )
 	    continue;
 
+	const bool ishidden = ioobj->isHidden();
+	if ( (setup_.hiddenpolicy_ == OD::HiddenPolicy::HideHidden &&
+	     ishidden) ||
+	    (setup_.hiddenpolicy_ == OD::HiddenPolicy::ShowOnlyHidden &&
+	     !ishidden) )
+	    continue;
+
 	// 'uiIOObjEntryInfo'
 	BufferString dispnm( del[idx]->name() );
 	BufferString ioobjnm;

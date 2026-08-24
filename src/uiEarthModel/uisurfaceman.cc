@@ -119,12 +119,14 @@ static HelpKey getHelpID( EM::ObjectType typ )
 }
 
 
-uiSurfaceMan::uiSurfaceMan( uiParent* p, EM::ObjectType typ )
+uiSurfaceMan::uiSurfaceMan( uiParent* p, EM::ObjectType typ,
+			    OD::HiddenPolicy hidpol )
     : uiObjFileMan(p,Setup(getActStr(typ,tr("Manage")),
 			   getHelpID(typ)).nrstatusflds(1).modal(false),
 		   getIOCtxt(typ),ZDomain::sKey())
     , type_(typ)
 {
+    ctxt_.setHiddenPolicy( hidpol );
     createDefaultUI();
     if ( type_ != EM::ObjectType::Body )
 	copybut_ = addManipButton( "copyobj", tr("Copy to new object"),

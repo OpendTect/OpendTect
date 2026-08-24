@@ -37,9 +37,9 @@ public:
 
 	mDefSetupMemb(uiString,seltxt)		//!< empty
 	mDefSetupMemb(uiString,buttontxt)	//!< Select
-	mDefSetupMemb(bool,withclear)		//!< false
-	mDefSetupMemb(bool,optional)		//!< false
-	mDefSetupMemb(bool,keepmytxt)		//!< false
+	mDefSetupMembInit(bool,withclear,false)
+	mDefSetupMembInit(bool,optional,false)
+	mDefSetupMembInit(bool,keepmytxt,false)
     };
 
 			uiIOSelect(uiParent*,const Setup&,const CallBack&);
