@@ -26,6 +26,8 @@ ________________________________________________________________________
 #include "od_helpids.h"
 #include "transl.h"
 
+#include "hiddenparam.h"
+
 
 // uiIOObjRetDlg
 
@@ -145,6 +147,7 @@ void uiIOObjSelDlg::init( const CtxtIOObj& ctio )
 	captn = captn.arg( ctio.ctxt_.trgroup_->typeName(nr) );
     else
 	captn = captn.arg( toUiString(ctio.ctxt_.name()) );
+
     setCaption( captn );
 
     mAttachCB(selgrp_->getListField()->doubleClicked, uiDialog::accept);
@@ -167,17 +170,36 @@ void uiIOObjSelDlg::statusMsgCB( CallBacker* cb )
 
 // uiIOObjSel::Setup
 
+static HiddenParam<uiIOObjSel::Setup,int> uiioobjselhpmgr_(0);
+
 uiIOObjSel::Setup::Setup( const uiString& seltxt )
     : uiIOSelect::Setup(seltxt)
     , confirmoverwr_(true)
     , withinserters_(true)
     , withwriteopts_(true)
     , filldef_(true)
-{}
+{
+    uiioobjselhpmgr_.setParam( this, (int) OD::HiddenPolicy::HideHidden );
+}
 
 
 uiIOObjSel::Setup::~Setup()
-{}
+{
+    uiioobjselhpmgr_.removeParam( this );
+}
+
+
+OD::HiddenPolicy uiIOObjSel::Setup::hiddenpolicy_() const
+{
+    return (OD::HiddenPolicy) uiioobjselhpmgr_.getParam( this );
+}
+
+
+uiIOObjSel::Setup& uiIOObjSel::Setup::hiddenpolicy( OD::HiddenPolicy hidpol )
+{
+    uiioobjselhpmgr_.setParam( this, (int) hidpol );
+    return *this;
+}
 
 
 // uiIOObjSel
@@ -266,6 +288,7 @@ void uiIOObjSel::init()
     mAttachCB( preFinalize(), uiIOObjSel::preFinalizeCB );
     mAttachCB( IOM().afterSurveyChange, uiIOObjSel::survChangedCB );
     mAttachCB( optionalChecked, uiIOObjSel::optCheckCB );
+    setHiddenPolicy( setup_.hiddenpolicy_() );
 }
 
 
@@ -404,6 +427,12 @@ const ZDomain::Def* uiIOObjSel::requiredZDef() const
 const ZDomain::Info* uiIOObjSel::requiredZDomain() const
 {
     return workctio_.ctxt_.requiredZDomain();
+}
+
+
+void uiIOObjSel::setHiddenPolicy( OD::HiddenPolicy policy )
+{
+    workctio_.ctxt_.setHiddenPolicy( policy );
 }
 
 

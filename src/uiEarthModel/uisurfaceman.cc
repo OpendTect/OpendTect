@@ -125,16 +125,49 @@ uiSurfaceMan::uiSurfaceMan( uiParent* p, EM::ObjectType typ )
 		   getIOCtxt(typ),ZDomain::sKey())
     , type_(typ)
     , attribfld_(nullptr)
-    , man2dbut_(0)
-    , surfdatarenamebut_(0)
-    , surfdataremovebut_(0)
-    , copybut_(0)
-    , mergehorbut_(0)
-    , applybodybut_(0)
-    , createregbodybut_(0)
-    , volestimatebut_(0)
-    , switchvalbut_(0)
+    , man2dbut_(nullptr)
+    , surfdatarenamebut_(nullptr)
+    , surfdataremovebut_(nullptr)
+    , copybut_(nullptr)
+    , mergehorbut_(nullptr)
+    , applybodybut_(nullptr)
+    , createregbodybut_(nullptr)
+    , volestimatebut_(nullptr)
+    , switchvalbut_(nullptr)
 {
+    init( OD::HiddenPolicy::HideHidden );
+}
+
+
+uiSurfaceMan::uiSurfaceMan( uiParent* p, EM::ObjectType typ,
+			    OD::HiddenPolicy hidpol )
+			    : uiObjFileMan(p,Setup(getActStr(typ,tr("Manage")),
+			    getHelpID(typ)).nrstatusflds(1).modal(false),
+		    getIOCtxt(typ),ZDomain::sKey())
+     , type_(typ)
+     , attribfld_(nullptr)
+     , man2dbut_(nullptr)
+     , surfdatarenamebut_(nullptr)
+     , surfdataremovebut_(nullptr)
+     , copybut_(nullptr)
+     , mergehorbut_(nullptr)
+     , applybodybut_(nullptr)
+     , createregbodybut_(nullptr)
+     , volestimatebut_(nullptr)
+     , switchvalbut_(nullptr)
+{
+    init( hidpol );
+}
+
+
+uiSurfaceMan::~uiSurfaceMan()
+{
+}
+
+
+void uiSurfaceMan::init( OD::HiddenPolicy hidpol )
+{
+    ctxt_.setHiddenPolicy( hidpol );
     createDefaultUI();
     if ( type_ != EM::ObjectType::Body )
 	copybut_ = addManipButton( "copyobj", tr("Copy to new object"),
@@ -220,11 +253,6 @@ uiSurfaceMan::uiSurfaceMan( uiParent* p, EM::ObjectType typ )
     }
 
     mTriggerInstanceCreatedNotifier();
-}
-
-
-uiSurfaceMan::~uiSurfaceMan()
-{
 }
 
 

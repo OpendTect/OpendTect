@@ -12,6 +12,7 @@ ________________________________________________________________________
 
 #include "uiiosel.h"
 #include "helpview.h"
+#include "odcommonenums.h"
 
 class IOObj;
 class CtxtIOObj;
@@ -50,6 +51,8 @@ public:
 							     !ctio.ioobj */
 	mDefSetupMemb(BufferString,withctxtfilter);  //!< empty (no filter)
 	mDefSetupMemb(BufferStringSet,trsnotallwed); //!< empty (all allowed)
+	OD::HiddenPolicy hiddenpolicy_() const;  //!< HideHidden by default
+	Setup&		hiddenpolicy(OD::HiddenPolicy);
 
     };
 
@@ -84,6 +87,7 @@ public:
 				       bool allowempty=true);
     const ZDomain::Def* requiredZDef() const;
     const ZDomain::Info* requiredZDomain() const;
+    void		setHiddenPolicy(OD::HiddenPolicy);
 
     virtual void	updateInput();	//!< a.o. updates from CtxtIOObj
     void		processInput() override;

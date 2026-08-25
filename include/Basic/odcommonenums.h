@@ -217,6 +217,14 @@ enum class VelocityType
 
 mDeclareNameSpaceEnumUtils(Basic,VelocityType)
 
+
+enum class HiddenPolicy
+{
+    ShowAll = 0,
+    HideHidden = 1,
+    ShowOnlyHidden = 2
+};
+
 } // namespace OD
 
 

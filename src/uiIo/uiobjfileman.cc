@@ -70,12 +70,15 @@ void uiObjFileMan::createDefaultUI( bool withreloc, bool withrm, bool multisel )
 {
     listgrp_ = new uiGroup( this, "List Group" );
     IOM().to( ctxt_.getSelKey(), true );
+    const OD::HiddenPolicy hidpol = ctxt_.hiddenPolicy();
     uiIOObjSelGrp::Setup sgsu( multisel ? OD::ChooseAtLeastOne
 					: OD::ChooseOnlyOne );
-    sgsu.allowreloc( withreloc ).allowremove( withrm ).allowsetdefault( true );
+    sgsu.allowreloc( withreloc ).allowremove( withrm )
+	.allowsetdefault( true );
     sgsu.withctxtfilter_.add( ctxtfilter_ );
 
     selgrp_ = new uiIOObjSelGrp( listgrp_, ctxt_, uiString::empty(), sgsu );
+    selgrp_->setHiddenPolicy( hidpol );
     selgrp_->getListField()->setHSzPol( uiObject::Medium );
     mAttachCB( selgrp_->itemInitRead, uiObjFileMan::initObjRead );
     mAttachCB( selgrp_->launchLocate, uiObjFileMan::doLocateCB );

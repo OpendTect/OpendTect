@@ -8,21 +8,25 @@ ________________________________________________________________________
 -*/
 
 #include "ctxtioobj.h"
+
+#include "file.h"
+#include "filepath.h"
+#include "globexpr.h"
 #include "iostrm.h"
 #include "ioman.h"
 #include "iodir.h"
 #include "iodirentry.h"
 #include "ioobj.h"
 #include "iopar.h"
+#include "keystrs.h"
 #include "oddirs.h"
-#include "transl.h"
-#include "globexpr.h"
 #include "separstr.h"
 #include "stringview.h"
-#include "file.h"
-#include "filepath.h"
 #include "survinfo.h"
-#include "keystrs.h"
+#include "transl.h"
+
+#include "hiddenparam.h"
+
 
 mDefineEnumUtils(IOObjContext,StdSelType,"Std sel type") {
 
@@ -73,11 +77,14 @@ const IOObjContext::StdDirData* IOObjContext::getStdDirData(
 { return stddirdata + (int)sst; }
 
 
+static HiddenParam<IOObjSelConstraints,int> ioobjselconsthpmgr_(0);
+
 IOObjSelConstraints::IOObjSelConstraints()
     : require_(*new IOPar)
     , dontallow_(*new IOPar)
     , allownonuserselectable_(false)
 {
+    ioobjselconsthpmgr_.setParam( this, (int) OD::HiddenPolicy::HideHidden );
 }
 
 
@@ -87,6 +94,7 @@ IOObjSelConstraints::IOObjSelConstraints( const IOObjSelConstraints& oth )
     , allowtransls_(oth.allowtransls_)
     , allownonuserselectable_(oth.allownonuserselectable_)
 {
+    ioobjselconsthpmgr_.setParam( this, (int) oth.hiddenPolicy() );
 }
 
 
@@ -94,19 +102,22 @@ IOObjSelConstraints::~IOObjSelConstraints()
 {
     delete &require_;
     delete &dontallow_;
+    ioobjselconsthpmgr_.removeParam( this );
 }
 
 
 IOObjSelConstraints& IOObjSelConstraints::operator =(
 				const IOObjSelConstraints& oth )
 {
-    if ( this != &oth )
-    {
-	require_ = oth.require_;
-	dontallow_ = oth.dontallow_;
-	allowtransls_ = oth.allowtransls_;
-	allownonuserselectable_ = oth.allownonuserselectable_;
-    }
+    if ( &oth == this )
+	return *this;
+
+    require_ = oth.require_;
+    dontallow_ = oth.dontallow_;
+    allowtransls_ = oth.allowtransls_;
+    allownonuserselectable_ = oth.allownonuserselectable_;
+    setHiddenPolicy( oth.hiddenPolicy() );
+
     return *this;
 }
 
@@ -184,12 +195,25 @@ const ZDomain::Info* IOObjSelConstraints::requiredZDomain() const
 }
 
 
+void IOObjSelConstraints::setHiddenPolicy( const OD::HiddenPolicy hidpol )
+{
+    ioobjselconsthpmgr_.setParam( this, (int) hidpol );
+}
+
+
+OD::HiddenPolicy IOObjSelConstraints::hiddenPolicy() const
+{
+    return (OD::HiddenPolicy) ioobjselconsthpmgr_.getParam( this );
+}
+
+
 void IOObjSelConstraints::clear()
 {
     require_.setEmpty();
     dontallow_.setEmpty();
     allowtransls_.setEmpty();
     allownonuserselectable_ = false;
+    setHiddenPolicy( OD::HiddenPolicy::HideHidden );
 }
 
 
@@ -199,14 +223,15 @@ bool IOObjSelConstraints::isAllowedTranslator( const char* trnm,
     if ( !allowtrs || !*allowtrs )
 	return true;
 
-    FileMultiString fms( allowtrs );
+    const FileMultiString fms( allowtrs );
     const int sz = fms.size();
     for ( int idx=0; idx<sz; idx++ )
     {
-	GlobExpr ge( fms[idx] );
-	if ( ge.matches( trnm ) )
+	const GlobExpr ge( fms[idx] );
+	if ( ge.matches(trnm) )
 	    return true;
     }
+
     return false;
 }
 
@@ -218,11 +243,17 @@ bool IOObjSelConstraints::isGood( const IOObj& ioobj, bool forread ) const
     else if ( !isAllowedTranslator(ioobj.translator(),allowtransls_) )
 	return false;
 
+    const bool ishidden = ioobj.isHidden();
+    const OD::HiddenPolicy hiddenpolicy_ = hiddenPolicy();
+    if ( (hiddenpolicy_ == OD::HiddenPolicy::HideHidden && ishidden) ||
+	 (hiddenpolicy_ == OD::HiddenPolicy::ShowOnlyHidden && !ishidden) )
+	return false;
+
     IOParIterator iter( require_ );
     BufferString key, val;
     while ( iter.next(key,val) )
     {
-	FileMultiString fms( val );
+	const FileMultiString fms( val );
 	int fmssz = fms.size();
 	const BufferString ioobjval = ioobj.pars().find( key );
 	if ( fmssz == 0 && ioobjval.isEmpty() )
@@ -571,6 +602,12 @@ void IOObjContext::requireZDomain( const ZDomain::Info& zinfo, bool allowempty )
 }
 
 
+void IOObjContext::setHiddenPolicy( OD::HiddenPolicy hidpol )
+{
+    toselect_.setHiddenPolicy( hidpol );
+}
+
+
 const ZDomain::Def* IOObjContext::requiredZDef() const
 {
     return toselect_.requiredZDef();
@@ -580,6 +617,12 @@ const ZDomain::Def* IOObjContext::requiredZDef() const
 const ZDomain::Info* IOObjContext::requiredZDomain() const
 {
     return toselect_.requiredZDomain();
+}
+
+
+OD::HiddenPolicy IOObjContext::hiddenPolicy() const
+{
+    return toselect_.hiddenPolicy();
 }
 
 
