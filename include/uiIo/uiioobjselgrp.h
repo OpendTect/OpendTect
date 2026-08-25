@@ -178,6 +178,8 @@ public:
     const IOObjContext& getContext() const;
     void		setContext(const IOObjContext&);
     void		setDefTranslator(const Translator*);
+    void		setHiddenPolicy(OD::HiddenPolicy);
+    OD::HiddenPolicy	hiddenPolicy() const;
 
     uiGroup*		getTopGroup()			{ return topgrp_; }
     uiGenInput*		getNameField()			{ return nmfld_; }

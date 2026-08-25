@@ -30,9 +30,12 @@ ________________________________________________________________________
 #include "uilistbox.h"
 #include "uilistboxchoiceio.h"
 #include "uimsg.h"
-#include "uipixmap.h"
 #include "uistrings.h"
 #include "uitoolbutton.h"
+
+#include "hiddenparam.h"
+
+static HiddenParam<uiIOObjSelGrp,int> uiioobjselgrphidpolhpmgr_(0);
 
 
 static const char* NoIconNm = "empty";
@@ -416,6 +419,8 @@ uiIOObjSelGrp::uiIOObjSelGrp( uiParent* p, const CtxtIOObj& c,
 
 void uiIOObjSelGrp::init( const uiString& seltxt )
 {
+    uiioobjselgrphidpolhpmgr_.setParam( this,
+					(int) OD::HiddenPolicy::HideHidden );
     ctio_.ctxt_.fillTrGroup();
     if ( !ctio_.ctxt_.forread_ )
 	setup_.choicemode( OD::ChooseOnlyOne );
@@ -647,6 +652,19 @@ uiIOObjSelGrp::~uiIOObjSelGrp()
     delete &ctio_;
     delete lbchoiceio_;
     delete fswatcher_;
+    uiioobjselgrphidpolhpmgr_.removeParam( this );
+}
+
+
+OD::HiddenPolicy uiIOObjSelGrp::hiddenPolicy() const
+{
+    return (OD::HiddenPolicy) uiioobjselgrphidpolhpmgr_.getParam( this );
+}
+
+
+void uiIOObjSelGrp::setHiddenPolicy( OD::HiddenPolicy policy )
+{
+    uiioobjselgrphidpolhpmgr_.setParam( this, (int) policy );
 }
 
 
@@ -1032,6 +1050,14 @@ void uiIOObjSelGrp::fullUpdate( int curidx )
     for ( int idx=0; idx<del.size(); idx++ )
     {
 	const IOObj* ioobj = del[idx]->ioobj_;
+
+	const bool ishidden = ioobj->isHidden();
+	if ( (hiddenPolicy() == OD::HiddenPolicy::HideHidden &&
+	     ishidden) ||
+	    (hiddenPolicy() == OD::HiddenPolicy::ShowOnlyHidden &&
+	     !ishidden) )
+	    continue;
+
 	// 'uiIOObjEntryInfo'
 	BufferString dispnm( del[idx]->name() );
 	BufferString ioobjnm;

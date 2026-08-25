@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "iopar.h"
 #include "multiid.h"
 #include "namedobj.h"
+#include "odcommonenums.h"
 
 class TranslatorGroup;
 class IOStream;
@@ -51,6 +52,8 @@ public:
 				       bool allowempty=true);
     const ZDomain::Def* requiredZDef() const; //!< nullptr if not restricted
     const ZDomain::Info* requiredZDomain() const; //!< nullptr if not restricted
+    void		setHiddenPolicy(OD::HiddenPolicy);
+    OD::HiddenPolicy	hiddenPolicy() const;
 
 };
 
@@ -138,8 +141,10 @@ public:
 				       bool allowempty=true);
     void		requireZDomain(const ZDomain::Def&,
 				       bool allowempty=true) = delete;
+    void		setHiddenPolicy(OD::HiddenPolicy);
     const ZDomain::Def* requiredZDef() const;
     const ZDomain::Info* requiredZDomain() const;
+    OD::HiddenPolicy	hiddenPolicy() const;
 
     mDeprecated("Use stdseltype_")	StdSelType&		stdseltype;
     mDeprecated("Use trgroup_")		const TranslatorGroup*& trgroup;

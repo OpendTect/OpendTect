@@ -9,6 +9,9 @@ ________________________________________________________________________
 -*/
 
 #include "uiearthmodelmod.h"
+
+#include "emposid.h"
+#include "odcommonenums.h"
 #include "uiobjfileman.h"
 #include "emmanager.h"
 #include "enums.h"
@@ -24,6 +27,8 @@ mExpClass(uiEarthModel) uiSurfaceMan : public uiObjFileMan
 { mODTextTranslationClass(uiSurfaceMan);
 public:
 			uiSurfaceMan(uiParent*,EM::ObjectType);
+			uiSurfaceMan(uiParent*,EM::ObjectType,
+				     OD::HiddenPolicy);
 			~uiSurfaceMan();
 
     mDeclInstanceCreatedNotifierAccess(uiSurfaceMan);
@@ -73,6 +78,7 @@ protected:
     void		copyFault2FaultSetCB(CallBacker*);
 
 private:
+    void		init(OD::HiddenPolicy);
     uiString		sRenameSelData();
     uiString		sRemoveSelData();
 
