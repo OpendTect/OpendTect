@@ -65,6 +65,13 @@ RowColSurface::~RowColSurface()
 {}
 
 
+RowColSurface& RowColSurface::operator =( const RowColSurface& oth )
+{
+    Element::operator =( oth );
+    return *this;
+}
+
+
 Iterator* RowColSurface::createIterator() const
 {
     return new RowColSurfaceIterator( *this );

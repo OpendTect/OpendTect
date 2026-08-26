@@ -36,6 +36,8 @@ SurfaceGeometry::SurfaceGeometry( Surface& surf )
 SurfaceGeometry::~SurfaceGeometry()
 {
     surface_.change.remove( mCB(this,SurfaceGeometry,geomChangeCB) );
+
+    deepErase( sections_ );
     removeAll();
 }
 

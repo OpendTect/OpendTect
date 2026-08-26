@@ -29,6 +29,11 @@ mExpClass(EarthModel) FaultGeometry : public SurfaceGeometry
 public:
 			~FaultGeometry();
 
+			//!<Only works for FaultStickSurface
+			//! (Fault3DGeometry Element); Triggers change
+			//! notification.
+    FaultGeometry&	operator =(const FaultGeometry&);
+
     virtual bool	insertStick(int sticknr,int firstcol,
 				    const Coord3& pos,const Coord3& editnormal,
 				    bool addtohistory)
@@ -60,6 +65,7 @@ public:
 					      const FaultGeometry* ref=nullptr);
     virtual int		nrStickDoubles(int sticknr,
 				       const FaultGeometry* ref=nullptr) const;
+    virtual TrcKeyZSampling	getEnvelope() const;
 
 protected:
 			FaultGeometry(Surface&);
@@ -68,6 +74,7 @@ protected:
 				     const FaultGeometry* doublesref=0);
     bool		removeSelStick(int selidx,bool addtohistory,
 				       const FaultGeometry* doublesref=0);
+    virtual void	setEnvelope(const TrcKeyZSampling&) {};
 
 public:
 // Deprecated public functions

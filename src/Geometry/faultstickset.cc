@@ -143,6 +143,22 @@ FaultStickSet::~FaultStickSet()
 }
 
 
+FaultStickSet& FaultStickSet::operator =( const FaultStickSet& oth )
+{
+    if ( &oth == this )
+	return *this;
+
+    RowColSurface::operator =( oth );
+
+    deepCopy( sticks_, oth.sticks_ );
+    firstcols_ = oth.firstcols_;
+    firstrow_ = oth.firstrow_;
+    stickstatus_ = oth.stickstatus_;
+    deepCopy( knotstatus_, oth.knotstatus_ );
+    return *this;
+}
+
+
 Element* FaultStickSet::clone() const
 {
     FaultStickSet* res = new FaultStickSet;
@@ -154,7 +170,6 @@ Element* FaultStickSet::clone() const
 
     return res;
 }
-
 
 
 bool FaultStickSet::insertStick( const Coord3& firstpos, 
@@ -491,7 +506,8 @@ void FaultStickSet::geometricStickOrder( TypeSet<int>& sticknrs,
     if ( orderall )
     {
 	sticknrs.erase();
-        for (int sticknr=rowrg.start_; sticknr<=rowrg.stop_; sticknr+=rowrg.step_)
+	for (int sticknr=rowrg.start_; sticknr<=rowrg.stop_;
+						    sticknr+=rowrg.step_)
 	    sticknrs += sticknr;
     }
     else

@@ -35,6 +35,8 @@ public:
 			Fault3DGeometry(Surface&);
 			~Fault3DGeometry();
 
+    Fault3DGeometry&	operator =(const Fault3DGeometry&);
+
     int			nrSticks() const;
     int			nrKnots(int sticknr) const;
 
@@ -60,7 +62,7 @@ public:
     void		fillPar(IOPar&) const override;
     bool		usePar(const IOPar&) override;
 
-    inline TrcKeyZSampling	getEnvelope() const { return tkzsenvelope_; }
+    TrcKeyZSampling	getEnvelope() const override { return tkzsenvelope_; }
 
 // Deprecated public functions
 mStartAllowDeprecatedSection
@@ -100,6 +102,8 @@ mStopAllowDeprecatedSection
 
 protected:
     Geometry::FaultStickSurface*	createGeometryElement() const override;
+    void			setEnvelope(const TrcKeyZSampling&) override;
+
     TrcKeyZSampling			tkzsenvelope_;
 
 };

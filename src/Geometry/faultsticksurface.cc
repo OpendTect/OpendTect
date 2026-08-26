@@ -23,6 +23,17 @@ FaultStickSurface::~FaultStickSurface()
 {}
 
 
+FaultStickSurface& FaultStickSurface::operator =( const FaultStickSurface& oth )
+{
+    if ( &oth == this )
+	return *this;
+
+    FaultStickSet::operator =( oth );
+    sticksvertical_ = oth.sticksvertical_;
+    return *this;
+}
+
+
 bool FaultStickSurface::insertStick( const Coord3& firstpos, 
 				     const Coord3& editnormal, int sticknr,
 				     int firstcol, const Pos::GeomID& geomid )
@@ -48,6 +59,5 @@ bool FaultStickSurface::areSticksVertical() const
 {
     return sticksvertical_;
 }
-
 
 } // namespace Geometry

@@ -24,6 +24,8 @@ mExpClass(Geometry) RowColSurface : public Element
 public:
 				~RowColSurface();
 
+    RowColSurface&		operator =(const RowColSurface&);
+
     void			getPosIDs(TypeSet<GeomPosID>&,
 					  bool=true) const override;
 

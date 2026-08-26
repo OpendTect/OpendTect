@@ -122,6 +122,17 @@ Fault3DGeometry::~Fault3DGeometry()
 {}
 
 
+Fault3DGeometry& Fault3DGeometry::operator =( const Fault3DGeometry& oth )
+{
+    if ( &oth == this )
+	return *this;
+
+    FaultGeometry::operator =( oth );
+
+    return *this;
+}
+
+
 Geometry::FaultStickSurface* Fault3DGeometry::geometryElement()
 {
     Geometry::Element* res = SurfaceGeometry::geometryElement();
@@ -133,6 +144,12 @@ const Geometry::FaultStickSurface* Fault3DGeometry::geometryElement() const
 {
     const Geometry::Element* res = SurfaceGeometry::geometryElement();
     return sCast(const Geometry::FaultStickSurface*,res);
+}
+
+
+void Fault3DGeometry::setEnvelope( const TrcKeyZSampling& tkzs )
+{
+    tkzsenvelope_ = tkzs;
 }
 
 

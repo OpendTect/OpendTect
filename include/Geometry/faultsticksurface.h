@@ -20,6 +20,8 @@ public:
 			FaultStickSurface();
 			~FaultStickSurface();
 
+    FaultStickSurface&	operator =(const FaultStickSurface&);
+
     bool		insertStick(const Coord3& firstpos,
 			    const Coord3& editnormal,int stick=0,
 			    int firstcol=0,

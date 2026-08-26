@@ -54,6 +54,8 @@ public:
 			FaultStickSet();
 			~FaultStickSet();
 
+    FaultStickSet&	operator = (const FaultStickSet&);
+
     bool		isEmpty() const override  { return !sticks_.size(); }
     Element*		clone() const override;
 

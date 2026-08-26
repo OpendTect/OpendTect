@@ -46,6 +46,41 @@ FaultGeometry::~FaultGeometry()
 {}
 
 
+FaultGeometry& FaultGeometry::operator =( const FaultGeometry& oth )
+{
+    auto* geoelm = geometryElement();
+    const auto* srcgeoelm = oth.geometryElement();
+    mDynamicCastGet( Geometry::FaultStickSurface*, fssurf, geoelm );
+    mDynamicCastGet( const Geometry::FaultStickSurface*, srcfssurf, srcgeoelm );
+
+    // The following checks that the geometry is EM::Fault3D's geometryElement.
+    // For EM::FaultStickSet a new case should be added here.
+    if ( !fssurf || !srcfssurf )
+	return *this;
+
+    fssurf->blockCallBacks( true, false );
+
+    *fssurf = *srcfssurf;
+
+    fssurf->blockCallBacks( false, true );
+
+    setEnvelope( oth.getEnvelope() );
+
+    changed_ = true;
+    surface_.setChangedFlag();
+
+    EMObjectCallbackData cbdata;
+    cbdata.pid0 = PosID( surface_.id(), SectionID::def() );
+    cbdata.event = EMObjectCallbackData::SectionChange;
+    surface_.change.trigger( cbdata );
+
+    cbdata.event = EMObjectCallbackData::BurstAlert;
+    surface_.change.trigger( cbdata );
+
+    return *this;
+}
+
+
 const Coord3& FaultGeometry::getEditPlaneNormal( int sticknr ) const
 {
     mDynamicCastGet(const Geometry::FaultStickSet*,fss,geometryElement())
@@ -102,6 +137,13 @@ void FaultGeometry::copySelectedSticksTo( FaultStickSetGeometry& destfssg,
 	}
 	sticknr++;
     }
+}
+
+
+TrcKeyZSampling FaultGeometry::getEnvelope() const
+{
+    const TrcKeyZSampling tksz;
+    return tksz;
 }
 
 
