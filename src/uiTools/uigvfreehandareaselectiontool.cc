@@ -106,7 +106,7 @@ void uiGVFreehandAreaSelectionTool::mouseMoveCB( CallBacker* )
 	    if ( odpolygon_.isEmpty() )
 		odpolygon_.add( ev.pos() );
 
-	    const Geom::Point2D<int>& startpos = odpolygon_.getVertex( 0 );
+	    const Geom::Point2D<int> startpos = odpolygon_.getVertex( 0 );
 	    odpolygon_.setEmpty();
 	    odpolygon_.add( startpos );
             odpolygon_.add( Geom::Point2D<int>(startpos.x_,ev.pos().y_) );
