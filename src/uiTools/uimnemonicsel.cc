@@ -519,22 +519,26 @@ void uiCustomMnemonicsSel::createTable()
     tbl_->setPrefWidth( 600 );
     tbl_->setSelectionBehavior( uiTable::SelectRows );
     tbl_->setLeftHeaderHidden( true );
+    tbl_->showGrid( false );
+
     tbl_->setColumnReadOnly( sStdTypeCol, true );
-    tbl_->setColumnReadOnly( sTemplateNmCol, true );
-    tbl_->setColumnReadOnly( sMnemonicColorCol, true );
     tbl_->setColumnStretchable( sStdTypeCol, false );
-    tbl_->setColumnStretchable( sTemplateNmCol, false );
-    tbl_->setColumnStretchable( sMnemonicColorCol, true );
     tbl_->setColumnLabel( sStdTypeCol, uiStrings::sProperty() );
+
+    tbl_->setColumnReadOnly( sTemplateNmCol, true );
+    tbl_->setColumnStretchable( sTemplateNmCol, false );
     tbl_->setColumnLabel( sTemplateNmCol,
 			  tr("Existing %1").arg(uiStrings::sMnemonic()) );
+
     tbl_->setColumnLabel( sMnemonicNmCol,
 			  tr("Custom %1").arg(uiStrings::sMnemonic()) );
+
+    tbl_->setColumnReadOnly( sMnemonicColorCol, true );
+    tbl_->setColumnForColorSelection( sMnemonicColorCol );
+    tbl_->setColumnStretchable( sMnemonicColorCol, true );
     tbl_->setColumnLabel( sMnemonicColorCol,
-			  tr("Custom %1 %2").arg(uiStrings::sMnemonic())
-					   .arg(uiStrings::sColor()) );
-    tbl_->showGrid( false );
-    tbl_->setTableReadOnly( true );
+			  tr("Custom %1").arg(tr("Mnemonic Color")) );
+
     mAttachCB( tbl_->valueChanged, uiCustomMnemonicsSel::cellEditCB );
     mAttachCB( tbl_->doubleClicked, uiCustomMnemonicsSel::changeColCB );
     mAttachCB( tbl_->rowInserted, uiCustomMnemonicsSel::addRowTblRowCB );
@@ -651,22 +655,17 @@ void uiCustomMnemonicsSel::changeColCB( CallBacker* )
 {
     const RowCol rc = tbl_->notifiedCell();
     const int currrow = rc.row();
-    if ( rc.col() != sMnemonicColorCol )
+    if ( rc.col() != sMnemonicColorCol || !selflds_.validIdx(currrow) )
 	return;
 
-    const OD::Color oldcol = tbl_->getColor( rc );
-    OD::Color newcol = oldcol;
-    if ( selectColor(newcol, this, tr("Marker color")) )
-    {
-	if ( newcol != oldcol )
-	{
-	    tbl_->setColor( rc, newcol );
-	    selflds_[rc.row()]->colorChanged();
-	    if ( originalcustommns_.validIdx(currrow) )
-		newcolors_ += new std::pair<int,const OD::Color>( currrow,
-								  newcol );
-	}
-    }
+    OD::Color newcol = tbl_->getColor( rc );
+    if ( !selectColor(newcol, this, tr("Mnemonic Color")) )
+	return;
+
+    tbl_->setColor( rc, newcol );
+    selflds_[currrow]->colorChanged();
+    if ( originalcustommns_.validIdx(currrow) )
+	newcolors_ += new std::pair<int,const OD::Color>( currrow, newcol );
 }
 
 
