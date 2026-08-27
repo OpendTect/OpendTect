@@ -134,6 +134,9 @@ public:
     void		setText(const RowCol&,const char*);
     void		setText(const RowCol&,const OD::String&);
     void		setText(const RowCol&,const uiString&);
+    void		setWordWrap(bool);
+    bool		wordWrap() const;
+
     void		clearCell(const RowCol&);
     void		clearTable();
     void		showGrid(bool);

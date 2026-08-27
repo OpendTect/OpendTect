@@ -349,46 +349,48 @@ QString displayText( const QVariant& value,
 class ODTableView : public uiObjBodyImpl<uiTableView,QTableView>
 {
 public:
-		     ODTableView( uiTableView&,uiParent*,const char* nm);
-		     ~ODTableView();
+		ODTableView( uiTableView&,uiParent*,const char* nm);
+		~ODTableView();
 
-    void	    currentChanged(const QModelIndex& current,
-				   const QModelIndex& previous) override;
-    void	    selectionChanged(const QItemSelection& selected,
-				     const QItemSelection& deselected) override;
-    void	    setModel(QAbstractItemModel*) override;
-    void	    init();
-    void	    initFrozenView();
-    void	    updateColumns();
-    void	    setNrFrozenColumns(int nrcols);
-    void	    setSortEnabled(bool yn);
-    void	    setContextMenuEnabled(bool yn);
-    void	    setAlternatingColors(bool yn);
-		    //!<Not setAlternatingRowColors: would shadow QTableView's
-    void	    setAlternatingRowColor(const OD::Color&);
-    bool	    setSourceDataDirect(const TableModel::EditRequest&,
+    void	currentChanged(const QModelIndex& current,
+				const QModelIndex& previous) override;
+    void	selectionChanged(const QItemSelection& selected,
+				 const QItemSelection& deselected) override;
+    void	setModel(QAbstractItemModel*) override;
+    void	init();
+    void	initFrozenView();
+    void	updateColumns();
+    void	setNrFrozenColumns(int nrcols);
+    void	setSortEnabled(bool yn);
+    void	setContextMenuEnabled(bool yn);
+    void	setAlternatingColors(bool yn);
+		//!<Not setAlternatingRowColors: would shadow QTableView's
+    void	setAlternatingRowColor(const OD::Color&);
+    bool	setSourceDataDirect(const TableModel::EditRequest&,
 					bool useoldval);
-    bool	    setSourceDataWithUndo(const TableModel::EditRequest& req);
-    void	    setCurrentCell(const RowCol&,bool noselection);
-    void	    scrollTo(const QModelIndex&,ScrollHint) override;
-    void	    pushUndoCommand(QUndoCommand*);
-    void	    clearUndoStack();
-    void	    undo();
-    void	    redo();
-    void	    markUndoBaseline();
-    bool	    canUndo() const;
-    bool	    canRedo() const;
+    bool	setSourceDataWithUndo(const TableModel::EditRequest& req);
+    void	setCurrentCell(const RowCol&,bool noselection);
+    void	scrollTo(const QModelIndex&,ScrollHint) override;
+    void	pushUndoCommand(QUndoCommand*);
+    void	clearUndoStack();
+    void	undo();
+    void	redo();
+    void	markUndoBaseline();
+    bool	canUndo() const;
+    bool	canRedo() const;
+    void	_setWordWrap(bool);
+    bool	_wordWrap() const;
 
-    RowCol	    notifcell_;
+    RowCol	notifcell_;
 
 protected:
 
-    bool	    eventFilter(QObject*,QEvent*) override;
-    void	    keyPressEvent(QKeyEvent*) override;
-    void	    resizeEvent(QResizeEvent*) override;
-    QModelIndex     moveCursor(CursorAction,Qt::KeyboardModifiers) override;
-    void	    enableCustomContextMenu();
-    void	    setContextMenuPolicyToDefault();
+    bool	eventFilter(QObject*,QEvent*) override;
+    void	keyPressEvent(QKeyEvent*) override;
+    void	resizeEvent(QResizeEvent*) override;
+    QModelIndex moveCursor(CursorAction,Qt::KeyboardModifiers) override;
+    void	enableCustomContextMenu();
+    void	setContextMenuPolicyToDefault();
 
     QTableView*			frozenview_;
     int				nrfrozencols_	= 1;
@@ -906,6 +908,20 @@ bool ODTableView::setSourceDataWithUndo( const TableModel::EditRequest& req )
 }
 
 
+void ODTableView::_setWordWrap( bool yn )
+{
+    setWordWrap( yn );
+    frozenview_->setWordWrap( yn );
+}
+
+
+bool ODTableView::_wordWrap() const
+{
+    return wordWrap();
+}
+
+
+
 uiTableView::uiTableView( uiParent* p, const char* nm )
     : uiObject(p,nm,mkView(p,nm))
     , leftClicked(this)
@@ -1180,6 +1196,18 @@ void uiTableView::redo()
     odtableview_->redo();
 
     undoRedoHappened.trigger();
+}
+
+
+void uiTableView::setWordWrap( bool yn )
+{
+    odtableview_->_setWordWrap( yn );
+}
+
+
+bool uiTableView::wordWrap() const
+{
+    return odtableview_->_wordWrap();
 }
 
 

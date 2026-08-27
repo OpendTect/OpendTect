@@ -1024,6 +1024,18 @@ void uiTable::setText( const RowCol& rc, const uiString& txt )
 }
 
 
+void uiTable::setWordWrap( bool yn )
+{
+    body_->setWordWrap( yn );
+}
+
+
+bool uiTable::wordWrap() const
+{
+    return body_->wordWrap();
+}
+
+
 static QAbstractItemView::EditTriggers triggers_ro =
 				QAbstractItemView::NoEditTriggers;
 static QAbstractItemView::EditTriggers triggers =
