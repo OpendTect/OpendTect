@@ -886,13 +886,16 @@ ConstRefMan<RegularSeisDataPack> uiAttribPartServer::create2DOutputRM(
 		issteering = pars.get( sKey::Type(), typestr ) &&
 			     typestr == sKey::Steering();
 
-		if ( issteering )
-		    selcomps.add( 1 );
-		else
+		if (!getCompNrsForStoredTarget(targetspecs_, selcomps))
 		{
-		    Attrib::DescID attribid = getStoredID( mid, true );
-		    handleMultiComp( mid, true, issteering,
-				     complist, attribid, selcomps );
+		    if ( issteering )
+			selcomps.add( 1 );
+		    else
+		    {
+			Attrib::DescID attribid = getStoredID( mid, true );
+			handleMultiComp( mid, true, issteering,
+					complist, attribid, selcomps );
+		    }
 		}
 
 		Seis::SequentialReader rdr( *ioobj, &tkzs, &selcomps );
