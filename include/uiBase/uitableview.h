@@ -68,6 +68,9 @@ public:
     bool			isSortingEnabled() const;
     void			sortByColumn(int col,bool asc=true);
 
+    void			setWordWrap(bool);
+    bool			wordWrap() const;
+
     void			scrollTo(const RowCol&);
 				//!<Needs model RowCol
 

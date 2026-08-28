@@ -134,6 +134,9 @@ public:
     void		setText(const RowCol&,const char*);
     void		setText(const RowCol&,const OD::String&);
     void		setText(const RowCol&,const uiString&);
+    void		setWordWrap(bool);
+    bool		wordWrap() const;
+
     void		clearCell(const RowCol&);
     void		clearTable();
     void		showGrid(bool);
@@ -150,8 +153,11 @@ public:
 			     as uiParent* at construction. */
     uiGroup*		getCellGroup(const RowCol&) const;
     RowCol		getCell(uiGroup*);
+
+    void		setColumnForCheckBox(int col);
     void		setCellChecked(const RowCol&,bool yn);
     bool		isCellChecked(const RowCol&) const;
+    void		setColumnChecked(int col,bool yn);
 
     int			nrRows() const;
     int			nrCols() const;
