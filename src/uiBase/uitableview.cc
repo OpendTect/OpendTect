@@ -951,12 +951,12 @@ uiTableView::uiTableView( uiParent* p, const char* nm )
 uiTableView::~uiTableView()
 {
     detachAllNotifiers();
-    hp_tv.removeAndDeleteParam( this );
     if ( tablemodel_ )
 	mDetachCB( tablemodel_->editRequested(), uiTableView::editRequestCB );
 
     delete horizontalheaderstate_;
     deepErase( columndelegates_ );
+    hp_tv.removeAndDeleteParam( this );
 }
 
 
