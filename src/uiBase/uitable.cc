@@ -93,6 +93,63 @@ void paint( QPainter* painter, const QStyleOptionViewItem& option,
 
 }; // class ColorDelegate
 
+class CheckBoxDelegate : public QStyledItemDelegate
+{
+public:
+using QStyledItemDelegate::QStyledItemDelegate;
+
+void paint( QPainter* painter, const QStyleOptionViewItem& option,
+	    const QModelIndex& index) const override
+{
+    QStyleOptionButton checkbox;
+    checkbox.state = QStyle::State_Enabled;
+
+    if ( index.data(Qt::CheckStateRole).toInt() == Qt::Checked )
+	checkbox.state |= QStyle::State_On;
+    else
+	checkbox.state |= QStyle::State_Off;
+
+    checkbox.rect = checkBoxRect( option.rect );
+
+    QApplication::style()->drawControl( QStyle::CE_CheckBox, &checkbox,
+					painter );
+}
+
+
+QWidget* createEditor( QWidget*, const QStyleOptionViewItem&,
+		       const QModelIndex& ) const override
+{
+    return nullptr;
+}
+
+
+bool editorEvent( QEvent* event, QAbstractItemModel* model,
+		  const QStyleOptionViewItem& option,
+		  const QModelIndex& index ) override
+{
+    if ( event->type() != QEvent::MouseButtonRelease &&
+	 event->type() != QEvent::MouseButtonDblClick )
+	return false;
+
+    mDynamicCastGet(QMouseEvent*,mouseevent,event)
+    if ( !mouseevent || mouseevent->button() != Qt::LeftButton ||
+	 !checkBoxRect(option.rect).contains(mouseevent->pos()) )
+	return false;
+
+    const int state = index.data( Qt::CheckStateRole ).toInt();
+    return model->setData( index,
+		state==Qt::Checked ? Qt::Unchecked : Qt::Checked,
+		Qt::CheckStateRole );
+}
+
+protected:
+
+static QRect checkBoxRect( const QRect& cellrect )
+{
+    return QRect( cellrect.center()-QPoint(10,10), QSize(20,20) );
+}
+
+}; // class CheckBoxDelegate
 
 
 class CellObject
@@ -149,6 +206,7 @@ public:
 
 
     QTableWidgetItem&	getRCItem(int,bool isrow);
+    TypeSet<int>	checkboxcols_;
 
 protected:
 
@@ -968,6 +1026,18 @@ void uiTable::setText( const RowCol& rc, const uiString& txt )
 }
 
 
+void uiTable::setWordWrap( bool yn )
+{
+    body_->setWordWrap( yn );
+}
+
+
+bool uiTable::wordWrap() const
+{
+    return body_->wordWrap();
+}
+
+
 static QAbstractItemView::EditTriggers triggers_ro =
 				QAbstractItemView::NoEditTriggers;
 static QAbstractItemView::EditTriggers triggers =
@@ -1433,7 +1503,7 @@ const char* uiTable::columnLabel( int col ) const
 {
     QTableWidgetItem* itm = body_->horizontalHeaderItem( col );
     if ( !itm )
-	return 0;
+	return nullptr;
 
     mDeclStaticString( ret );
     ret = itm->text();
@@ -1684,6 +1754,16 @@ void uiTable::popupMenu( CallBacker* )
 	cptxt = mnu->insertAction( new uiAction(itmtxt), 8 );
     }
 
+    int checkall = 0;
+    int uncheckall = 0;
+    if ( body_->checkboxcols_.isPresent(cur.col()) )
+    {
+	if ( mnu->nrActions() > 0 )
+	    mnu->insertSeparator();
+	checkall = mnu->insertAction( new uiAction(tr("Check all")), 9 );
+	uncheckall = mnu->insertAction( new uiAction(tr("Uncheck all")), 10 );
+    }
+
     int virkeyboardid = mUdf(int);
     if ( needOfVirtualKeyboard() )
     {
@@ -1757,6 +1837,10 @@ void uiTable::popupMenu( CallBacker* )
 
 	QApplication::clipboard()->setText( QString(str) );
     }
+    else if ( ret == checkall )
+	setColumnChecked( cur.col(), true );
+    else if ( ret == uncheckall )
+	setColumnChecked( cur.col(), false );
 
     setCurrentCell( newcell_ );
 //    updateCellSizes();
@@ -2061,10 +2145,20 @@ void uiTable::cellObjChangedCB( CallBacker* cb )
 }
 
 
+void uiTable::setColumnForCheckBox( int col )
+{
+    body_->setItemDelegateForColumn( col, new CheckBoxDelegate );
+    body_->checkboxcols_.addIfNew( col );
+}
+
+
 void uiTable::setCellChecked( const RowCol& rc, bool yn )
 {
     QTableWidgetItem* itm = body_->getItem( rc );
+    itm->setFlags( (itm->flags() | Qt::ItemIsUserCheckable)
+			& ~Qt::ItemIsEditable );
     itm->setCheckState( yn ? Qt::Checked : Qt::Unchecked );
+    itm->setTextAlignment( Qt::AlignCenter );
 }
 
 
@@ -2072,6 +2166,13 @@ bool uiTable::isCellChecked( const RowCol& rc ) const
 {
     QTableWidgetItem* itm = body_->getItem( rc, false );
     return itm && itm->checkState()==Qt::Checked;
+}
+
+
+void uiTable::setColumnChecked( int col, bool yn )
+{
+    for ( int row=0; row<nrRows(); row++ )
+	setCellChecked( RowCol(row,col), yn );
 }
 
 
