@@ -55,6 +55,8 @@ public:
     void		setColumnWidth(int column,int width);
     void		setFixedColumnWidth(int column,int width);
     int			columnWidth(int column) const;
+    void		hideColumn(int column,bool yn);
+    bool		isColumnHidden(int column) const;
 
     enum		WidthMode { Manual, Fixed, Stretch, ResizeToContents,
 				    Custom };

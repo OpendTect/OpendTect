@@ -118,7 +118,9 @@ uiTreeViewBody::uiTreeViewBody( uiTreeView& hndle, uiParent* p,
 
 
 uiTreeViewBody::~uiTreeViewBody()
-{ delete &messenger_; }
+{
+    delete &messenger_;
+}
 
 
 void uiTreeViewBody::resizeEvent( QResizeEvent* ev )
@@ -361,11 +363,15 @@ uiTreeViewBody& uiTreeView::mkbody( uiParent* p, const char* nm, int nl )
 
 
 void uiTreeView::setHScrollBarMode( ScrollMode mode )
-{ body_->setHorizontalScrollBarPolicy( (Qt::ScrollBarPolicy)(int)mode ); }
+{
+    body_->setHorizontalScrollBarPolicy( (Qt::ScrollBarPolicy)(int)mode );
+}
 
 
 void uiTreeView::setVScrollBarMode( ScrollMode mode )
-{ body_->setVerticalScrollBarPolicy( (Qt::ScrollBarPolicy)(int)mode ); }
+{
+    body_->setVerticalScrollBarPolicy( (Qt::ScrollBarPolicy)(int)mode );
+}
 
 
 /*! \brief Set preferred number of lines.
@@ -374,7 +380,9 @@ void uiTreeView::setVScrollBarMode( ScrollMode mode )
     therefore can not grow/shrink vertically.
 */
 void uiTreeView::setNrLines( int prefNrLines )
-{ body_->setNrLines(prefNrLines); }
+{
+    body_->setNrLines(prefNrLines);
+}
 
 
 
@@ -412,14 +420,21 @@ void uiTreeView::resizeHeightToContents( int minh, int maxh )
 
 
 bool uiTreeView::rootDecorated() const
-{ return body_->rootIsDecorated(); }
+{
+    return body_->rootIsDecorated();
+}
 
 
 void uiTreeView::setRootDecorated( bool yn )
-{ body_->setRootIsDecorated(yn); }
+{
+    body_->setRootIsDecorated(yn);
+}
+
 
 void uiTreeView::showHeader( bool yn )
-{ body_->setHeaderHidden( !yn ); }
+{
+    body_->setHeaderHidden( !yn );
+}
 
 
 /*! \brief insert an already existing item in this object's tree of children
@@ -515,11 +530,15 @@ uiString uiTreeView::getColumnText( int col ) const
 }
 
 const char* uiTreeView::columnText(int column) const
-{ return getColumnText(column).getFullString(); }
+{
+    return getColumnText(column).getFullString();
+}
 
 
 void uiTreeView::setColumnWidth( int col, int w )
-{ body_->setColumnWidth( col, w ); }
+{
+    body_->setColumnWidth( col, w );
+}
 
 
 void uiTreeView::setFixedColumnWidth( int col, int w )
@@ -535,8 +554,23 @@ int uiTreeView::columnWidth( int col ) const
 { return body_->columnWidth( col ); }
 
 
+void uiTreeView::hideColumn( int col, bool yn )
+{
+    mBlockCmdRec;
+    body_->setColumnHidden( col, yn );
+}
+
+
+bool uiTreeView::isColumnHidden( int col ) const
+{
+    return body_->isColumnHidden( col );
+}
+
+
 int uiTreeView::nrColumns() const
-{ return body_->columnCount(); }
+{
+    return body_->columnCount();
+}
 
 
 void uiTreeView::setColumnWidthMode( WidthMode widthmode )
@@ -632,7 +666,9 @@ void uiTreeView::setSelected( uiTreeViewItem* itm, bool yn )
 
 
 bool uiTreeView::isSelected( const uiTreeViewItem* itm ) const
-{ return  itm->qItem()->isSelected(); }
+{
+    return  itm->qItem()->isSelected();
+}
 
 
 uiTreeViewItem* uiTreeView::selectedItem() const
@@ -673,23 +709,33 @@ void uiTreeView::setCurrentItem( uiTreeViewItem* itm, int column )
 
 
 uiTreeViewItem* uiTreeView::currentItem() const
-{ return mItemFor( body_->currentItem() ); }
+{
+    return mItemFor( body_->currentItem() );
+}
 
 
 int uiTreeView::currentColumn() const
-{ return body_->currentColumn(); }
+{
+    return body_->currentColumn();
+}
 
 
 uiTreeViewItem* uiTreeView::getItem( int idx ) const
-{ return idx<0 || idx >=nrItems() ? 0 : mItemFor( body_->topLevelItem(idx) ); }
+{
+    return idx<0 || idx >=nrItems() ? 0 : mItemFor( body_->topLevelItem(idx) );
+}
 
 
 uiTreeViewItem* uiTreeView::firstItem() const
-{ return getItem( 0 ); }
+{
+    return getItem( 0 );
+}
 
 
 uiTreeViewItem* uiTreeView::lastItem() const
-{ return getItem( nrItems()-1 ); }
+{
+    return getItem( nrItems()-1 );
+}
 
 
 int uiTreeView::nrItems( bool recursive ) const
@@ -844,7 +890,9 @@ bool uiTreeView::handleLongTabletPress()
 
 
 void uiTreeView::setNotifiedItem( QTreeWidgetItem* itm )
-{ lastitemnotified_ = mItemFor( itm ); }
+{
+    lastitemnotified_ = mItemFor( itm );
+}
 
 
 void uiTreeView::translateText()
@@ -1135,15 +1183,21 @@ uiTreeViewItem* uiTreeViewItem::prevSibling() const
 
 
 uiTreeViewItem* uiTreeViewItem::parent() const
-{ return mItemFor( qItem()->parent() ); }
+{
+    return mItemFor( qItem()->parent() );
+}
 
 
 uiTreeViewItem* uiTreeViewItem::itemAbove()
-{ return mItemFor( qItem()->treeWidget()->itemAbove(qItem()) ); }
+{
+    return mItemFor( qItem()->treeWidget()->itemAbove(qItem()) );
+}
 
 
 uiTreeViewItem* uiTreeViewItem::itemBelow()
-{ return mItemFor( qItem()->treeWidget()->itemBelow(qItem()) ); }
+{
+    return mItemFor( qItem()->treeWidget()->itemBelow(qItem()) );
+}
 
 
 uiTreeView* uiTreeViewItem::treeView() const
@@ -1209,18 +1263,27 @@ void uiTreeViewItem::setDropEnabled( bool yn )
 
 
 bool uiTreeViewItem::dragEnabled() const
-{ return qItem()->flags().testFlag( Qt::ItemIsDragEnabled ); }
+{
+    return qItem()->flags().testFlag( Qt::ItemIsDragEnabled );
+}
+
 
 bool uiTreeViewItem::dropEnabled() const
-{ return qItem()->flags().testFlag( Qt::ItemIsDropEnabled ); }
+{
+    return qItem()->flags().testFlag( Qt::ItemIsDropEnabled );
+}
 
 
 void uiTreeViewItem::setVisible( bool yn )
-{ qItem()->setHidden( !yn ); }
+{
+    qItem()->setHidden( !yn );
+}
 
 
 bool uiTreeViewItem::isVisible() const
-{ return !qItem()->isHidden(); }
+{
+    return !qItem()->isHidden();
+}
 
 
 void uiTreeViewItem::setRenameEnabled( int column, bool yn )
@@ -1231,15 +1294,21 @@ void uiTreeViewItem::setRenameEnabled( int column, bool yn )
 
 
 bool uiTreeViewItem::renameEnabled( int column ) const
-{ return qItem()->flags().testFlag( Qt::ItemIsEditable ); }
+{
+    return qItem()->flags().testFlag( Qt::ItemIsEditable );
+}
 
 
 void uiTreeViewItem::setEnabled( bool yn )
-{ qItem()->setDisabled( !yn ); }
+{
+    qItem()->setDisabled( !yn );
+}
 
 
 bool uiTreeViewItem::isEnabled() const
-{ return !qItem()->isDisabled(); }
+{
+    return !qItem()->isDisabled();
+}
 
 
 void uiTreeViewItem::setSelectable( bool yn )
@@ -1250,7 +1319,9 @@ void uiTreeViewItem::setSelectable( bool yn )
 
 
 bool uiTreeViewItem::isSelectable() const
-{ return qItem()->flags().testFlag( Qt::ItemIsSelectable ); }
+{
+    return qItem()->flags().testFlag( Qt::ItemIsSelectable );
+}
 
 
 void uiTreeViewItem::edit( int col )
@@ -1381,10 +1452,15 @@ void uiTreeViewItem::updateFlags()
 
 
 uiTreeViewItem* uiTreeViewItem::itemFor( QTreeWidgetItem* itm )
-{ return odqtobjects_.getODObject( *itm ); }
+{
+    return odqtobjects_.getODObject( *itm );
+}
+
 
 const uiTreeViewItem* uiTreeViewItem::itemFor( const QTreeWidgetItem* itm )
-{ return odqtobjects_.getODObject( *itm ); }
+{
+    return odqtobjects_.getODObject( *itm );
+}
 
 
 // uiTreeViewItemIterator
