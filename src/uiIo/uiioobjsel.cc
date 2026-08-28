@@ -183,9 +183,32 @@ uiIOObjSel::Setup::Setup( const uiString& seltxt )
 }
 
 
+uiIOObjSel::Setup::Setup( const Setup& oth )
+{
+    *this = oth;
+}
+
+
 uiIOObjSel::Setup::~Setup()
 {
     uiioobjselhpmgr_.removeParam( this );
+}
+
+
+uiIOObjSel::Setup& uiIOObjSel::Setup::operator=( const Setup& oth )
+{
+    if ( &oth == this )
+	return *this;
+
+    confirmoverwr_ = oth.confirmoverwr_;
+    withinserters_ = oth.withinserters_;
+    withwriteopts_ = oth.withwriteopts_;
+    filldef_ = oth.filldef_;
+    withctxtfilter_ = oth.withctxtfilter_;
+    trsnotallwed_ = oth.trsnotallwed_;
+    hiddenpolicy( oth.hiddenpolicy_() );
+
+    return *this;
 }
 
 

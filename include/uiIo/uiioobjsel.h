@@ -42,6 +42,7 @@ public:
     {
     public:
 			Setup(const uiString& seltxt=uiString::empty());
+			Setup(const Setup&);
 	virtual		~Setup();
 
 	mDefSetupMemb(bool,confirmoverwr) //!< true
@@ -54,6 +55,7 @@ public:
 	OD::HiddenPolicy hiddenpolicy_() const;  //!< HideHidden by default
 	Setup&		hiddenpolicy(OD::HiddenPolicy);
 
+	Setup&		operator=(const Setup&);
     };
 
 			uiIOObjSel(uiParent*,const IOObjContext&,
