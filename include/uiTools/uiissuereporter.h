@@ -18,13 +18,15 @@ class uiLineEdit;
 class uiTextBrowser;
 class uiTextEdit;
 
-/*! \brief reports issues to opendtect.org. Usually crash reports. */
+/*! \brief reports issues to opendtect.org. Usually crash reports.
+ * This API is likely to change */
 
 mExpClass(uiTools) uiIssueReporterDlg : public uiDialog
 {  mODTextTranslationClass(uiIssueReporterDlg);
 public:
 				uiIssueReporterDlg(uiParent*,
-						   System::IssueReporter&);
+						   System::IssueReporter&,
+						   bool withproxysettings=true);
 				~uiIssueReporterDlg();
     
     System::IssueReporter&	reporter() { return reporter_; }
