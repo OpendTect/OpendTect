@@ -32,7 +32,8 @@ static StringView sKeyAskBeforeSending()
 #define mPrefWidthInChar 70
 
 uiIssueReporterDlg::uiIssueReporterDlg( uiParent* p,
-					System::IssueReporter& rep )
+					System::IssueReporter& rep,
+					bool withproxysettings )
     : uiDialog(p,Setup(tr("Problem reporter"),mNoHelpKey))
     , reporter_(rep)
 {
@@ -90,11 +91,14 @@ uiIssueReporterDlg::uiIssueReporterDlg( uiParent* p,
     auto* emaillbl = new uiLabel( this, tr("Your email"), emailfld_ );
     emaillbl->setAlignment( Alignment::Right );
 
-    uiButton* proxybut = new uiPushButton( this, tr("Proxy settings"),
-					   false );
-    proxybut->setIcon( "proxysettings" );
-    proxybut->activated.notify( mCB(this,uiIssueReporterDlg,proxySetCB) );
-    proxybut->attach( rightOf, emailfld_ );
+    if ( withproxysettings )
+    {
+	uiButton* proxybut = new uiPushButton( this, tr("Proxy settings"),
+					       false );
+	proxybut->setIcon( "proxysettings" );
+	proxybut->activated.notify( mCB(this,uiIssueReporterDlg,proxySetCB) );
+	proxybut->attach( rightOf, emailfld_ );
+    }
 
     setCancelText( sDontSendReport() );
     setOkText( sSendReport() );
