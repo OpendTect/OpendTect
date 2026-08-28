@@ -32,6 +32,27 @@ static const char* sdTectNumberFormat()
 { return "dTect.Color table.Number format"; }
 
 
+static char fmtFromSetting( const BufferString& str )
+{
+    if ( str.isEmpty() )
+	return 'g';
+
+    const char first = str.firstChar();
+    if ( first=='e' || first=='f' || first=='g' )
+	return first;
+
+    const char code = mCast( char, toInt(str.buf()) );
+    return (code=='e' || code=='f' || code=='g') ? code : 'g';
+}
+
+
+static uiParent* colTabDlgParent( uiParent* p )
+{
+    mDynamicCastGet(uiToolBar*,toolbar,p)
+    return toolbar ? toolbar->parent() : p;
+}
+
+
 class uiAutoRangeClipDlg : public uiDialog
 { mODTextTranslationClass(uiAutoRangeClipDlg);
 public:
@@ -96,8 +117,6 @@ uiAutoRangeClipDlg( uiParent* p, ColTab::MapperSetup& ms,
 
     precisioninfolbl_ = new uiLabel( this, getPrecicionInfo(2) );
     precisioninfolbl_->attach( rightTo, precisionfld_ );
-
-    updateFields();
 }
 
 
@@ -223,7 +242,7 @@ bool acceptOK( CallBacker* ) override
 	getNumberFormat( fmt, prec );
 	BufferString fmtstr; fmtstr.add( fmt );
 	FileMultiString fullstr;
-	fullstr.add( fmt ).add( prec );
+	fullstr.add( fmtstr ).add( prec );
 	Settings::common().set( sdTectNumberFormat(), fullstr );
 	Settings::common().write();
     }
@@ -388,10 +407,7 @@ void uiColorTable::createFields( uiParent* parnt, OD::Orientation orient,
 						 str1, str2 );
 	if ( res )
 	{
-	    const char fmt = str1.isEmpty() ? 'g' : str1.getCStr()[0];
-	    if ( fmt=='e' || fmt=='f' || fmt=='g' )
-		sNumberFormat = fmt;
-
+	    sNumberFormat = fmtFromSetting( str1 );
 	    const int prec = toInt( str2.buf() );
 	    if ( prec>=0 && prec<8 )
 		sNumberPrecision = prec;
@@ -444,6 +460,16 @@ void uiColorTable::setInterval( const Interval<float>& range )
 }
 
 
+void uiColorTable::setEditable( bool yn )
+{
+    seqeditable_ = yn;
+    mappereditable_ = yn;
+    if ( selfld_ )
+	selfld_->setSensitive( seqeditable_ );
+    updateRgFld();
+}
+
+
 void uiColorTable::setNumberFormat( char format, int precision )
 {
     sNumberFormat = format;
@@ -484,6 +510,9 @@ void uiColorTable::updateRgFld()
 
     setValue( minfld_, mapsetup_.range_.start_ );
     setValue( maxfld_, mapsetup_.range_.stop_ );
+    const bool rgsens = mappereditable_ && !mapsetup_.range_.isUdf();
+    minfld_->setSensitive( rgsens );
+    maxfld_->setSensitive( rgsens );
 }
 
 
@@ -507,7 +536,8 @@ void uiColorTable::setSequence( const ColTab::Sequence* ctseq, bool edit,
 	    seqChanged.trigger();
     }
 
-    selfld_->setSensitive( ctseq && edit );
+    seqeditable_ = ctseq && edit;
+    selfld_->setSensitive( seqeditable_ );
 }
 
 
@@ -524,19 +554,17 @@ void uiColorTable::setMapperSetup( const ColTab::MapperSetup* ms,
     if ( ms )
     {
 	mapsetup_ = *ms;
-	updateRgFld();
 	if ( scalingdlg_ )
 	    scalingdlg_->updateFields();
 
 	if ( !emitnotif )
 	    scaleChanged.trigger();
     }
+    else
+	mapsetup_.range_ = Interval<float>::udf();
 
-    if ( minfld_ )
-    {
-	minfld_->setSensitive( ms );
-	maxfld_->setSensitive( ms );
-    }
+    mappereditable_ = ms != nullptr;
+    updateRgFld();
 }
 
 
@@ -577,9 +605,7 @@ void uiColorTable::canvasClick( CallBacker* )
     if ( !showmenu )
 	return;
 
-    const bool hasseq = selfld_->sensitive();
-    const bool hasmapper = minfld_ && minfld_->sensitive();
-    if ( !hasseq && !hasmapper )
+    if ( !seqeditable_ && !mappereditable_ )
 	return;
 
     PtrMan<uiMenu> mnu = new uiMenu( parent_, uiStrings::sAction() );
@@ -589,10 +615,10 @@ void uiColorTable::canvasClick( CallBacker* )
     itm->setCheckable( true );
     itm->setChecked( mapsetup_.flipseq_ );
 
-    if ( enabclipdlg_ && hasmapper )
+    if ( enabclipdlg_ && mappereditable_ )
 	mnu->insertAction( new uiAction(m3Dots(tr("Ranges/Clipping")),
 			   mCB(this,uiColorTable,editScaling)), 1 );
-    if ( enabmanage_ && hasseq )
+    if ( enabmanage_ && seqeditable_ )
     {
 	mnu->insertAction( new uiAction(m3Dots(tr("Manage")),
 			   mCB(this,uiColorTable,doManage)), 2 );
@@ -608,7 +634,7 @@ void uiColorTable::canvasClick( CallBacker* )
 
 void uiColorTable::canvasDoubleClick( CallBacker* )
 {
-    if ( enabmanage_ && selfld_->sensitive() )
+    if ( enabmanage_ && seqeditable_ )
 	doManage(0);
 }
 
@@ -661,14 +687,16 @@ void uiColorTable::editScaling( CallBacker* )
 {
     if ( !scalingdlg_ )
     {
-	scalingdlg_ = new uiAutoRangeClipDlg( parent_, mapsetup_,
-					      scaleChanged, enabmanage_ );
+	scalingdlg_ = new uiAutoRangeClipDlg( colTabDlgParent(parent_),
+					      mapsetup_, scaleChanged,
+					      enabmanage_ );
 	mAttachCB( scalingdlg_->formatChanged,
 		   uiColorTable::numberFormatChgdCB );
     }
 
     scalingdlg_->setNumberFormat( sNumberFormat, sNumberPrecision );
     scalingdlg_->show();
+    scalingdlg_->updateFields();
     scalingdlg_->raise();
 }
 
@@ -711,14 +739,13 @@ void uiColorTable::doManage( CallBacker* )
 {
     if ( !coltabman_ )
     {
-	mDynamicCastGet( uiToolBar*, toolbar, parent_ );
-	uiParent* dlgparent = toolbar ? toolbar->parent() : parent_;
-	coltabman_ = new uiColorTableMan( dlgparent, coltabseq_, enabletrans_);
+	coltabman_ = new uiColorTableMan( colTabDlgParent(parent_),
+					  coltabseq_, enabletrans_ );
 	coltabman_->setModal( false );
 
 	mAttachCB( coltabman_->tableChanged, uiColorTable::colTabManChgd );
 	mAttachCB( coltabman_->tableAddRem, uiColorTable::tableAdded );
-	mAttachCB( coltabman_->rangeChanged, uiColorTable::colTabManRgChangeCB );
+	mAttachCB( coltabman_->rangeChanged, uiColorTable::colTabManRgChangeCB);
 	mAttachCB( coltabman_->windowClosed, uiColorTable::colTabManClosedCB );
     }
 

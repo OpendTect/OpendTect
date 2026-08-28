@@ -31,6 +31,7 @@ public:
 					  bool edittrans);
     void			setColTab(visSurvey::SurveyObject*,int ch,
 					  int version);
+    void			clearBinding();
     const ColTab::Sequence&	getColTabSequence() const;
     const ColTab::MapperSetup&	getColTabMapperSetup() const;
 

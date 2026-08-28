@@ -245,9 +245,10 @@ void uiODApplMgrAttrVisHandler::updateColorTable( const VisID& visid,
 						  int attrib  )
 {
     uiVisPartServer* visserv = am_.visServer();
-    if ( attrib<0 || attrib>=visserv->getNrAttribs(visid) )
+    if ( !visid.isValid() || attrib < 0 ||
+	 attrib >= visserv->getNrAttribs(visid) )
     {
-	am_.colTabEd().setColTab( 0, false, 0, false );
+	am_.colTabEd().clearBinding();
 	return;
     }
 
@@ -273,10 +274,11 @@ void uiODApplMgrAttrVisHandler::colMapperChg()
     ConstRefMan<visBase::DataObject> dataobj = am_.colTabEd().getDataObj();
     const VisID visid = dataobj ? dataobj->id()
 				: visserv->getSelObjectId();
-    int attrib = dataobj ? am_.colTabEd().getChannel()
-			 : visserv->getSelAttribNr();
-    if ( attrib == -1 )
-	attrib = 0;
+    const int attrib = dataobj ? am_.colTabEd().getChannel()
+			       : visserv->getSelAttribNr();
+    if ( !visid.isValid() || attrib < 0 ||
+	 attrib >= visserv->getNrAttribs(visid) )
+	return;
 
     visserv->setColTabMapperSetup( visid, attrib,
 				   am_.colTabEd().getColTabMapperSetup());
@@ -302,11 +304,11 @@ void uiODApplMgrAttrVisHandler::colSeqChg()
     uiVisPartServer* visserv = am_.visServer();
     ConstRefMan<visBase::DataObject> dataobj = am_.colTabEd().getDataObj();
     const VisID visid = dataobj ? dataobj->id() : visserv->getSelObjectId();
-    int attrib = dataobj ? am_.colTabEd().getChannel()
-			 : visserv->getSelAttribNr();
-
-    if ( attrib == -1 )
-	attrib = 0;
+    const int attrib = dataobj ? am_.colTabEd().getChannel()
+			       : visserv->getSelAttribNr();
+    if ( !visid.isValid() || attrib < 0 ||
+	 attrib >= visserv->getNrAttribs(visid) )
+	return;
 
     setHistogram( visid, attrib );
     visserv->setColTabSequence( visid, attrib,

@@ -126,7 +126,9 @@ bool uiODView2DVariableDensityTreeItem::select()
 
 void uiODView2DVariableDensityTreeItem::deSelectCB( CallBacker* )
 {
-    viewer2D()->viewControl()->colTabEd()->setSensitive( false );
+    uiFlatViewColTabEd* coltabed = viewer2D()->viewControl()->colTabEd();
+    coltabed->setInterval( Interval<float>::udf() );
+    coltabed->setEditable( false );
 }
 
 

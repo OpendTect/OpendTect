@@ -57,6 +57,9 @@ public:
 			/*!If ptr is null, mapper edit will be disabled. */
     void		setHistogram(const TypeSet<float>*);
     void		setInterval(const Interval<float>&);
+    void		setEditable(bool yn);
+			/*!<Enable/disable sequence and mapper field edit.
+			    The color bar canvas stays active. */
     void		enableTransparencyEdit(bool);
     void		commitInput();
 
@@ -95,6 +98,8 @@ protected:
     uiColorTableMan*	coltabman_				= nullptr;
 
     bool		enabletrans_				= true;
+    bool		seqeditable_				= true;
+    bool		mappereditable_				= true;
 
     void		updateRgFld();
     void		canvasreDraw(CallBacker*);

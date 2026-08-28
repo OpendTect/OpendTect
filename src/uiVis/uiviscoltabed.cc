@@ -37,6 +37,15 @@ uiVisColTabEd::~uiVisColTabEd()
 }
 
 
+void uiVisColTabEd::clearBinding()
+{
+    if ( dataobj_ )
+	removeAllVisCB( nullptr );
+
+    uicoltab_.setInterval( Interval<float>::udf() );
+}
+
+
 void uiVisColTabEd::setColTab( const ColTab::Sequence* seq, bool editseq,
 			       const ColTab::MapperSetup* setup,
 			       bool enabletrans )

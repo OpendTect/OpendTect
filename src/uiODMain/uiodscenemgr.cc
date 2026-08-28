@@ -1140,6 +1140,8 @@ void uiODSceneMgr::updateSelectedTreeItem()
     }
 
     updateItemToolbar( id );
+    applMgr().updateColorTable( id, visServ().getSelAttribNr() );
+
     if ( !applMgr().attrServer() )
 	return;
 

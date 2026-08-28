@@ -26,6 +26,8 @@ public:
 			~uiFlatViewColTabEd();
 
     void		setColTab(const FlatView::DataDispPars::VD&);
+    void		setInterval(const Interval<float>&);
+    void		setEditable(bool yn);
     void		setSensitive(bool yn);
 
     FlatView::DataDispPars::VD&		getDisplayPars()
@@ -33,9 +35,8 @@ public:
     Notifier<uiFlatViewColTabEd>	colTabChgd;
 
 protected:
+    uiColorTableToolBar&		uicoltab_;
+    FlatView::DataDispPars::VD		vdpars_;
 
-    uiColorTableToolBar&	uicoltab_;
-    FlatView::DataDispPars::VD	vdpars_;
-
-    void			colTabChanged(CallBacker*);
+    void		colTabChangedCB(CallBacker*);
 };
