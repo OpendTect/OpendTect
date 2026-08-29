@@ -33,7 +33,10 @@ IODirTableModel::IODirTableModel( const IOObjContext& ctxt )
 
 
 IODirTableModel::~IODirTableModel()
-{}
+{
+    delete iodirentrylist_;
+    delete iodir_;
+}
 
 
 void IODirTableModel::setFilter( const char* filter )
