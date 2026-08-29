@@ -42,9 +42,9 @@ const char* RandomTrackDisplay::sKeyLockGeometry()  { return "Lock geometry"; }
 
 RandomTrackDisplay::RandomTrackDisplay()
     : MultiTextureSurveyObject()
-    , depthrg_(SI().zRange(true))
-    , nodemoving_(this)
     , moving_(this)
+    , nodemoving_(this)
+    , depthrg_(SI().zRange(true))
 {
     ref();
     datapacks_.setNullAllowed();
@@ -74,10 +74,6 @@ RandomTrackDisplay::RandomTrackDisplay()
 
     namenr_ = highestnamenr+1;
     setUiName( tr( "%1 %2" ).arg( uiStrings::sRandomLine() ).arg( namenr_ ) );
-
-    material_->setColor( OD::Color::White() );
-    material_->setAmbience( 0.8 );
-    material_->setDiffIntensity( 0.2 );
 
     dragger_ = visBase::RandomTrackDragger::create();
     addChild( dragger_->osgNode() );
