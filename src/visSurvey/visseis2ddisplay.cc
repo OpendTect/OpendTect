@@ -73,10 +73,6 @@ Seis2DDisplay::Seis2DDisplay()
     addChild( linename_->osgNode() );
     linename_->addText();
 
-    getMaterial()->setColor( OD::Color::White() );
-    getMaterial()->setAmbience( 0.8 );
-    getMaterial()->setDiffIntensity( 0.2 );
-
     setColor( OD::Color(0,150,75) );
 
     init();
