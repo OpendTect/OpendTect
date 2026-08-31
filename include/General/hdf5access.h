@@ -29,6 +29,7 @@ mExpClass(General) LocationID : public IntegerID<hid_t>
 {
 public:
     using IntegerID::IntegerID;
+				LocationID() : IntegerID(udfVal()) {}
     static inline LocationID	get(hid_t nr)  { return LocationID(nr); }
     static inline LocationID	udf()		 { return LocationID(); }
     BufferString getComment() const;
@@ -42,6 +43,7 @@ mExpClass(General) ObjectID : public IntegerID<hid_t>
 {
 public:
     using IntegerID::IntegerID;
+				ObjectID() : IntegerID(udfVal()) {}
     static inline ObjectID	get(hid_t nr)  { return ObjectID(nr); }
     static inline ObjectID	udf()		 { return ObjectID(); }
 
@@ -55,6 +57,7 @@ mExpClass(General) FileID : public IntegerID<hid_t>
 {
 public:
     using IntegerID::IntegerID;
+				FileID() : IntegerID(udfVal()) {}
     static inline FileID	get(hid_t nr)  { return FileID(nr); }
     static inline FileID	udf()		 { return FileID(); }
 
@@ -68,6 +71,7 @@ mExpClass(General) GroupID : public IntegerID<hid_t>
 {
 public:
     using IntegerID::IntegerID;
+				GroupID() : IntegerID(udfVal()) {}
     static inline GroupID	get(hid_t nr)  { return GroupID(nr); }
     static inline GroupID	udf()		 { return GroupID();   }
     bool operator!()				{ return !isValid(); }
@@ -81,6 +85,7 @@ mExpClass(General) DatasetID : public IntegerID<hid_t>
 {
 public:
     using IntegerID::IntegerID;
+				DatasetID() : IntegerID(udfVal()) {}
     static inline DatasetID	get(hid_t nr)  { return DatasetID(nr); }
     static inline DatasetID	udf()		 { return DatasetID(); }
 
@@ -94,6 +99,7 @@ mExpClass(General) DatatypeID : public IntegerID<hid_t>
 {
 public:
     using IntegerID::IntegerID;
+				DatatypeID() : IntegerID(udfVal()) {}
     static inline DatatypeID	get(hid_t nr)  { return DatatypeID(nr); }
     static inline DatatypeID	udf()		 { return DatatypeID(); }
 
@@ -107,6 +113,7 @@ mExpClass(General) DataspaceID : public IntegerID<hid_t>
 {
 public:
     using IntegerID::IntegerID;
+				DataspaceID() : IntegerID(udfVal()) {}
     static inline DataspaceID	get(hid_t nr)  { return DataspaceID(nr); }
     static inline DataspaceID	udf()		 { return DataspaceID(); }
 
@@ -114,6 +121,8 @@ private:
     hid_t			udfVal() const override
 				{ return H5I_INVALID_HID; }
 };
+
+
 /*\brief Key to groups and data sets in HDF5 files.
 
   The group name and dataset key correspond to one dataset. Some attributes

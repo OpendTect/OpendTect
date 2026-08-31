@@ -94,7 +94,7 @@ void HDF5::ReaderImpl::listObjs( const GroupID& dir,
 	return;
 
     const hsize_t nrobjs = ginfo.nlinks;
-    for ( hsize_t iobj = 0; iobj < nrobjs; iobj++ )
+    for ( hsize_t iobj =0 ; iobj < nrobjs; iobj++ )
     {
 	ssize_t name_len = H5Lget_name_by_idx( dirid, ".",
 			       H5_INDEX_NAME, H5_ITER_NATIVE,
@@ -103,16 +103,15 @@ void HDF5::ReaderImpl::listObjs( const GroupID& dir,
 	if ( name_len < 0 )
 	    continue;
 
-	std::vector<char> name_buf( name_len + 1 );
-	if ( H5Lget_name_by_idx(dirid, ".", H5_INDEX_NAME,
-			       H5_ITER_NATIVE, iobj,
-			       name_buf.data(), name_len + 1,
-			       H5P_DEFAULT) < 0 )
+	BufferString nm( (int)name_len + 1, true );
+	if ( H5Lget_name_by_idx(dirid, ".",
+				H5_INDEX_NAME, H5_ITER_NATIVE,
+				iobj, nm.getCStr(), nm.bufSize(),
+				H5P_DEFAULT) < 0 )
 	    continue;
 
-	const BufferString nm( name_buf.data() );
 	H5O_info_t oinfo;
-	if ( H5Oget_info_by_name(dirid, name_buf.data(), &oinfo,
+	if ( H5Oget_info_by_name(dirid, nm.buf(), &oinfo,
 	     H5O_INFO_BASIC, H5P_DEFAULT) < 0 )
 	    continue;
 
@@ -125,39 +124,43 @@ void HDF5::ReaderImpl::listObjs( const GroupID& dir,
 
 	if ( wantgroups )
 	{
-	    const ::hid_t grp_hid = H5Gopen2( dirid, name_buf.data(),
+	    const ::hid_t grp_hid = H5Gopen2( dirid, nm.buf(),
 					      H5P_DEFAULT );
 	    if ( grp_hid < 0 )
 		continue;
 
-	    const GroupID grp = GroupID::get( mCast(hid_t, grp_hid) );
-	    BufferStringSet subnms;
-	    listObjs( grp, subnms, true );
-
-	    for ( int idx = 0; idx < subnms.size(); idx++ )
-	    {
-		BufferString fullname = "/";
-		fullname += nm;
-		fullname += "/";
-		fullname += subnms.get( idx );
-		while ( fullname.contains("//") )
-		    fullname.replace( "//", "/" );
-		nms.add( fullname );
-	    }
-	    H5Gclose( grp_hid );
+	BufferStringSet subnms;
+	listObjs( GroupID::get(mCast(hid_t,grp_hid)), subnms,
+	true );
+	for ( int idx = 0; idx < subnms.size(); idx++ )
+	{
+	    BufferString fullname = "/";
+	    fullname += nm;
+	    fullname += "/";
+	    fullname += subnms.get( idx );
+	    while ( fullname.contains("//") )
+		fullname.replace( "//", "/" );
+	    nms.add( fullname );
 	}
+
+	H5Gclose( grp_hid );
+    }
     }
 }
+
 
 void HDF5::ReaderImpl::getGroups( BufferStringSet& nms ) const
 {
     Threads::Locker locker( lock_ );
-    nms.setEmpty();
     if ( !fileid_.isValid() )
 	return;
 
-    listObjs( GroupID::get( mCast(hid_t, fileid_.asInt())), nms,
-	      true);
+    nms.setEmpty();
+    const GroupID rootgrpid = selectGroup( nullptr );
+    if ( !rootgrpid.isValid() )
+	return;
+
+    listObjs( rootgrpid, nms, true );
 }
 
 
@@ -165,23 +168,30 @@ void HDF5::ReaderImpl::getSubGroups( const char* grpnm,
 				     BufferStringSet& nms ) const
 {
     Threads::Locker locker( lock_ );
+    if ( !fileid_.isValid() )
+	return;
+
+    nms.setEmpty();
     const GroupID group = selectGroup( grpnm );
     if ( !group.isValid() )
 	return;
 
-    nms.setEmpty();
     listObjs( group, nms, true );
 }
+
 
 void HDF5::ReaderImpl::getDataSets( const char* grpnm,
 				    BufferStringSet& nms ) const
 {
     Threads::Locker locker( lock_ );
+    if ( !fileid_.isValid() )
+	return;
+
+    nms.setEmpty();
     const GroupID group = selectGroup( grpnm );
     if ( !group.isValid() )
 	return;
 
-    nms.setEmpty();
     listObjs( group, nms, false );
 }
 
@@ -196,25 +206,20 @@ void HDF5::ReaderImpl::gtComment( const LocationID& h5loc, const char* name,
 	return;
     }
 
-    const size_t bufsz = 2048;
-    BufferString buf;
-    buf.setBufSize( bufsz );
+    const ::hid_t loc = h5loc.asInt();
     BufferString nm;
     if ( *name == '/' )
-    {
 	nm.set( name );
-    }
-
     else
     {
 	nm.set( "/" );
 	nm.add( name );
     }
 
-    const ssize_t outsz = H5Oget_comment_by_name( h5loc.asInt(),
-						  nm.buf(),
+    BufferString buf( 2048, true );
+    const ssize_t outsz = H5Oget_comment_by_name( loc, nm.buf(),
 						  buf.getCStr(),
-						  bufsz,
+						  buf.bufSize(),
 						  H5P_DEFAULT );
     if ( outsz < 0 )
     {
@@ -237,12 +242,6 @@ unsigned HDF5::ReaderImpl::gtVersion( const ObjectID& h5obj,
     }
 
     const ::hid_t oid = h5obj.asInt();
-    if ( !H5Iis_valid(oid) )
-    {
-	uirv.add( uiStrings::phrErrDuringRead(fileName()) );
-	return 0;
-    }
-
     unsigned version = 0;
 #if H5_VERSION_GE(1,12,0)
     H5O_native_info_t ninfo;
@@ -253,7 +252,7 @@ unsigned HDF5::ReaderImpl::gtVersion( const ObjectID& h5obj,
 	return 0;
     }
 
-    version =ninfo.hdr.version;
+    version = ninfo.hdr.version;
 #else
     H5O_info_t info;
     if ( H5Oget_info1(oid, &info) < 0 )
@@ -262,26 +261,28 @@ unsigned HDF5::ReaderImpl::gtVersion( const ObjectID& h5obj,
 	return 0;
     }
 
-    version =info.hdr.version;
+    version = info.hdr.version;
 #endif
     return version;
 }
+
 
 HDF5::DatatypeID HDF5::ReaderImpl::h5DataType(
     const DatasetID& h5ds ) const
 {
     Threads::Locker locker( lock_ );
     if ( !h5ds.isValid() )
-	return DatatypeID::get( H5I_INVALID_HID );
+	return DatatypeID::udf();
 
     const ::hid_t dt = H5Dget_type( h5ds.asInt() );
     if ( dt < 0 )
-	return DatatypeID::get( H5I_INVALID_HID );
+	return DatatypeID::udf();
 
-    const DatatypeID ret = DatatypeID::get( mCast(hid_t, dt) );
+    const DatatypeID ret = DatatypeID::get( mCast(hid_t,dt) );
     H5Tclose( dt );
     return ret;
 }
+
 
 HDF5::ODDataType HDF5::ReaderImpl::gtDataType( const DatasetID& h5ds ) const
 {
@@ -290,22 +291,21 @@ HDF5::ODDataType HDF5::ReaderImpl::gtDataType( const DatasetID& h5ds ) const
     if ( !h5ds.isValid() )
 	return ret;
 
-    const ::hid_t dt = H5Dget_type( h5ds.asInt() );
+    const ::hid_t dt = H5Dget_type( h5ds.asInt());
     if ( dt < 0 )
 	return ret;
 
     const H5T_class_t cls = H5Tget_class( dt );
     const size_t sz = H5Tget_size( dt );
-    bool issigned = true, isfp = true;
+    bool issigned = true;
+    bool isfp = true;
     if ( cls == H5T_INTEGER )
     {
 	isfp = false;
 	issigned = H5Tget_sign( dt ) != H5T_SGN_NONE;
     }
-
     else if ( cls == H5T_FLOAT )
 	isfp = true;
-
     else
     {
 	H5Tclose( dt );
@@ -337,19 +337,20 @@ ArrayNDInfo* HDF5::ReaderImpl::gtDataSizes( const DatasetID& h5ds ) const
 
     TypeSet<hsize_t> dims( nrdims, 0 );
     if ( H5Sget_simple_extent_dims( space, dims.arr(),
-	 nullptr ) < 0 )
+				    nullptr ) < 0 )
     {
 	H5Sclose( space );
 	return nullptr;
     }
 
-
     H5Sclose( space );
     ArrayNDInfo* ret = ArrayNDInfoImpl::create( nrdims );
     for ( int idim=0; idim<nrdims; idim++ )
 	ret->setSize( idim, (int)dims[idim] );
+
     return ret;
 }
+
 
 void HDF5::ReaderImpl::gtSlab( const DatasetID& h5ds,
 			       const SlabSpec& spec,
@@ -363,14 +364,7 @@ void HDF5::ReaderImpl::gtSlab( const DatasetID& h5ds,
 	return;
     }
 
-    const ::hid_t dsetid = h5ds.asInt();
-    if ( dsetid < 0 || mIsUdf(dsetid) || H5Iis_valid(dsetid) <= 0 )
-    {
-	uirv.add( uiStrings::phrCannotOpenForRead(fileName()) );
-	return;
-    }
-
-    const ::hid_t filespace = H5Dget_space( dsetid );
+    const ::hid_t filespace = H5Dget_space( h5ds.asInt() );
     if ( filespace < 0 )
     {
 	uirv.add( uiStrings::phrCannotOpenForRead(fileName()) );
@@ -391,7 +385,7 @@ void HDF5::ReaderImpl::gtSlab( const DatasetID& h5ds,
 	return;
     }
 
-    const ::hid_t dtype = H5Dget_type( dsetid );
+    const ::hid_t dtype = H5Dget_type( h5ds.asInt() );
     if ( dtype < 0 )
     {
 	H5Sclose( memspace );
@@ -400,8 +394,9 @@ void HDF5::ReaderImpl::gtSlab( const DatasetID& h5ds,
 	return;
     }
 
-    if ( H5Dread(dsetid, dtype, memspace,
-		 filespace, H5P_DEFAULT, data) < 0 )
+    if ( H5Dread(h5ds.asInt(), dtype,
+		 memspace, filespace,
+		 H5P_DEFAULT, data) < 0 )
     {
 	uirv.add( uiStrings::phrErrDuringRead(fileName()) );
     }
@@ -422,26 +417,25 @@ void HDF5::ReaderImpl::gtAll( const DatasetID& h5ds, void* data,
 	return;
     }
 
-    const ::hid_t dsetid = h5ds.asInt();
-    if ( dsetid < 0 || H5Iis_valid(dsetid) <= 0 )
-    {
-	uirv.add( tr("Invalid dataset ID") );
-	return;
-    }
-
-    const ::hid_t filespace = H5Dget_space( dsetid );
-    const ::hid_t dtype = H5Dget_type( dsetid );
+    const ::hid_t filespace = H5Dget_space( h5ds.asInt() );
+    const ::hid_t dtype = H5Dget_type( h5ds.asInt() );
     if ( filespace < 0 || dtype < 0 )
     {
-	if ( dtype >= 0 ) H5Tclose( dtype );
-	if ( filespace >= 0 ) H5Sclose( filespace );
-	uirv.add( tr("Failed to get dataspace or type") );
-	return;
+	if ( dtype >= 0 )
+	    H5Tclose( dtype );
+
+	if ( filespace >= 0 )
+	{
+		H5Sclose( filespace );
+		uirv.add( uiStrings::phrErrDuringRead(fileName()) );
+		return;
+	}
     }
 
     H5Sselect_all( filespace );
-    if ( H5Dread(dsetid, dtype, filespace,
-	 filespace, H5P_DEFAULT, data) < 0 )
+    if ( H5Dread(h5ds.asInt(), dtype,
+		 filespace, filespace,
+		 H5P_DEFAULT, data) < 0 )
     {
 	uirv.add( uiStrings::phrErrDuringRead(fileName()) );
 	return;
@@ -450,6 +444,7 @@ void HDF5::ReaderImpl::gtAll( const DatasetID& h5ds, void* data,
     H5Tclose( dtype );
     H5Sclose( filespace );
 }
+
 
 void HDF5::ReaderImpl::gtStrings( const DatasetID& h5ds,
 				  BufferStringSet& bss, uiRetVal& uirv ) const
@@ -461,28 +456,25 @@ void HDF5::ReaderImpl::gtStrings( const DatasetID& h5ds,
 	return;
     }
 
-    const ::hid_t dsetid = h5ds.asInt();
-    if ( !H5Iis_valid(dsetid) )
-    {
-	uirv.add( uiStrings::phrCannotOpenForRead(fileName()) );
-	return;
-    }
-
-    const ::hid_t space = H5Dget_space( dsetid );
-    const ::hid_t dtype = H5Dget_type( dsetid );
+    const ::hid_t space = H5Dget_space( h5ds.asInt() );
+    const ::hid_t dtype = H5Dget_type( h5ds.asInt() );
     if ( space < 0 || dtype < 0 )
     {
+	if ( dtype >= 0 )
+	    H5Tclose( dtype );
+
+	if ( space >= 0 )
+	    H5Sclose( space );
+
 	uirv.add( uiStrings::phrErrDuringRead(fileName()) );
-	if ( dtype >= 0 ) H5Tclose( dtype );
-	if ( space >= 0 ) H5Sclose( space );
 	return;
     }
 
     if ( H5Tget_class(dtype) != H5T_STRING )
     {
-	uirv.add( uiStrings::phrErrDuringRead(fileName()) );
 	H5Tclose( dtype );
 	H5Sclose( space );
+	uirv.add( uiStrings::phrErrDuringRead(fileName()) );
 	return;
     }
 
@@ -490,9 +482,9 @@ void HDF5::ReaderImpl::gtStrings( const DatasetID& h5ds,
     if ( H5Sget_simple_extent_dims( space, dims,
 				    nullptr ) < 0 )
     {
-	uirv.add( uiStrings::phrErrDuringRead(fileName()) );
 	H5Tclose( dtype );
 	H5Sclose( space );
+	uirv.add( uiStrings::phrErrDuringRead(fileName()) );
 	return;
     }
 
@@ -501,18 +493,26 @@ void HDF5::ReaderImpl::gtStrings( const DatasetID& h5ds,
     if ( isvariable )
     {
 	const ::hid_t memtype = H5Tcopy( H5T_C_S1 );
+	if ( memtype < 0 )
+	{
+	    H5Tclose( dtype );
+	    H5Sclose( space );
+	    uirv.add( uiStrings::phrErrDuringRead(fileName()) );
+	    return;
+	}
+
 	H5Tset_size( memtype, H5T_VARIABLE );
 
 	char** strs = new char* [nrstrs];
-	if ( H5Dread( dsetid, memtype,
-		      H5S_ALL, H5S_ALL,
-		      H5P_DEFAULT, strs ) < 0 )
+	if ( H5Dread(h5ds.asInt(), memtype,
+		     H5S_ALL, H5S_ALL,
+		     H5P_DEFAULT, strs) < 0 )
 	{
-	    uirv.add( uiStrings::phrErrDuringRead(fileName()) );
 	    delete [] strs;
 	    H5Tclose( memtype );
 	    H5Tclose( dtype );
 	    H5Sclose( space );
+	    uirv.add( uiStrings::phrErrDuringRead(fileName()) );
 	    return;
 	}
 
@@ -532,13 +532,13 @@ void HDF5::ReaderImpl::gtStrings( const DatasetID& h5ds,
     {
 	const size_t strsize = H5Tget_size( dtype );
 	mAllocLargeVarLenArr( char, buf, (nrstrs * strsize) + 1 );
-	if ( H5Dread( dsetid, dtype, H5S_ALL,
-		      H5S_ALL, H5P_DEFAULT,
-		      buf.ptr() ) < 0 )
+	if ( H5Dread(h5ds.asInt(), dtype,
+		     H5S_ALL, H5S_ALL,
+		     H5P_DEFAULT, buf.ptr()) < 0 )
 	{
-	    uirv.add( uiStrings::phrErrDuringRead(fileName()) );
 	    H5Tclose( dtype );
 	    H5Sclose( space );
+	    uirv.add( uiStrings::phrErrDuringRead(fileName()) );
 	    return;
 	}
 
@@ -557,6 +557,7 @@ void HDF5::ReaderImpl::gtStrings( const DatasetID& h5ds,
     H5Tclose( dtype );
     H5Sclose( space );
 }
+
 
 void HDF5::ReaderImpl::gtValues( const DatasetID& h5ds,
 				 const NDPosBufSet& posbufs, void* data,
@@ -582,8 +583,8 @@ void HDF5::ReaderImpl::gtValues( const DatasetID& h5ds,
     mAllocVarLenArr( hsize_t, hdfcoordarr, nrdims_ * nrpts );
     if ( !mIsVarLenArrOK(hdfcoordarr) )
     {
-	uirv.add( uiStrings::phrCannotAllocateMemory() );
 	H5Sclose( filespace );
+	uirv.add( uiStrings::phrCannotAllocateMemory() );
 	return;
     }
 
@@ -598,8 +599,8 @@ void HDF5::ReaderImpl::gtValues( const DatasetID& h5ds,
     if ( H5Sselect_elements( filespace, H5S_SELECT_SET,
 	 nrpts, mVarLenArr(hdfcoordarr) ) < 0 )
     {
-	uirv.add( uiStrings::phrErrDuringRead(fileName()) );
 	H5Sclose( filespace );
+	uirv.add( uiStrings::phrErrDuringRead(fileName()) );
 	return;
     }
 
@@ -609,10 +610,10 @@ void HDF5::ReaderImpl::gtValues( const DatasetID& h5ds,
     if ( H5Dread(dsetid, dtype, memspace,
 	 filespace, H5P_DEFAULT, data) < 0 )
     {
-	uirv.add( uiStrings::phrErrDuringRead(fileName()) );
 	H5Tclose( dtype );
 	H5Sclose( memspace );
 	H5Sclose( filespace );
+	uirv.add( uiStrings::phrErrDuringRead(fileName()) );
     }
 
 }
@@ -629,12 +630,9 @@ bool HDF5::ReaderImpl::hasAttribute( const char* attrnm,
     if ( !h5scope.isValid() )
 	return false;
 
-    const ::hid_t scope = h5scope.asInt();
-    if ( scope < 0 || mIsUdf(scope) || H5Iis_valid(scope) <= 0 )
-	return false;
-
-    return H5Aexists( scope, attrnm ) > 0;
+    return H5Aexists( h5scope.asInt(), attrnm ) > 0;
 }
+
 
 int HDF5::ReaderImpl::getNrAttributes( const DataSetKey* dsky ) const
 {
@@ -645,11 +643,12 @@ int HDF5::ReaderImpl::getNrAttributes( const DataSetKey* dsky ) const
 
     H5O_info2_t info;
     if ( H5Oget_info3(h5scope.asInt(), &info,
-	 H5O_INFO_NUM_ATTRS) < 0 )
+		      H5O_INFO_NUM_ATTRS) < 0 )
 	return 0;
 
     return (int)info.num_attrs;
 }
+
 
 static herr_t addAttrName( hid_t loc_id, const char* name,
 			   const H5A_info_t*, void* opdata )
@@ -658,6 +657,7 @@ static herr_t addAttrName( hid_t loc_id, const char* name,
     nms->add( name );
     return 0;
 }
+
 
 void HDF5::ReaderImpl::gtAttribNames( const ObjectID& h5obj,
 				      BufferStringSet& nms ) const
@@ -674,11 +674,9 @@ void HDF5::ReaderImpl::gtAttribNames( const ObjectID& h5obj,
     hsize_t idx = 0;
     herr_t ret = H5Aiterate2(hid, H5_INDEX_NAME,
 			     H5_ITER_INC, &idx, addAttrName,
-			    &nms );
+			     &nms );
     ( void )ret;
 }
-
-
 
 
 bool HDF5::ReaderImpl::getAttribute( const char* attrnm,
@@ -694,11 +692,7 @@ bool HDF5::ReaderImpl::getAttribute( const char* attrnm,
 	return false;
 
     const ::hid_t scope = scopeid.asInt();
-
-    if ( scope < 0 || mIsUdf(scope) || H5Iis_valid(scope) <= 0 )
-	return false;
-
-    if (  H5Aexists(scope, attrnm) <= 0 )
+    if ( H5Aexists(scope, attrnm) <= 0 )
 	return false;
 
     const ::hid_t attr = H5Aopen( scope, attrnm,
@@ -777,9 +771,6 @@ static bool readNativeIntAttr( ::hid_t scope, const char* attrnm,
     if ( !attrnm || !*attrnm )
 	return false;
 
-    if ( scope < 0 || mIsUdf(scope) || H5Iis_valid(scope) <= 0 )
-	return false;
-
     if ( H5Aexists(scope, attrnm) <= 0 )
 	return false;
 
@@ -789,8 +780,21 @@ static bool readNativeIntAttr( ::hid_t scope, const char* attrnm,
 	return false;
 
     const ::hid_t atype = H5Aget_type( attr );
+    if ( atype < 0 )
+    {
+	H5Aclose( attr );
+	return false;
+    }
+
     const ::hid_t ntype = H5Tget_native_type( atype,
 					      H5T_DIR_ASCEND );
+    if ( ntype < 0 )
+    {
+	H5Tclose( atype );
+	H5Aclose( attr );
+	return false;
+    }
+
     if ( H5Tget_class(ntype) != H5T_INTEGER )
     {
 	H5Tclose( ntype );
@@ -815,14 +819,14 @@ static bool readNativeIntAttr( ::hid_t scope, const char* attrnm,
     return true;
 }
 
+
 static bool readAttrValueAsString( ::hid_t scope, const char* attrnm,
 				   BufferString& res )
 {
-    if ( scope < 0 || mIsUdf(scope) || !attrnm || !*attrnm )
+    if ( !attrnm || !*attrnm )
 	return false;
 
-    if ( H5Iis_valid(scope) <= 0 || H5Aexists(scope,
-						  attrnm) <= 0 )
+    if ( H5Aexists(scope, attrnm) <= 0 )
 	return false;
 
     const ::hid_t attr = H5Aopen( scope, attrnm,
@@ -953,13 +957,11 @@ static herr_t addAttrToIOPar( hid_t loc_id, const char* name,
     return 0;
 }
 
+
 static bool readNativeFloatAttr( ::hid_t scope, const char* attrnm,
 				 double& res )
 {
     if ( !attrnm || !*attrnm )
-	return false;
-
-    if ( scope < 0 || mIsUdf(scope) || H5Iis_valid(scope) <= 0 )
 	return false;
 
     if ( H5Aexists(scope, attrnm) <= 0 )
@@ -971,8 +973,21 @@ static bool readNativeFloatAttr( ::hid_t scope, const char* attrnm,
 	return false;
 
     const ::hid_t atype = H5Aget_type( attr );
+    if ( atype < 0 )
+    {
+	H5Aclose( attr );
+	return false;
+    }
+
     const ::hid_t ntype = H5Tget_native_type( atype,
 					      H5T_DIR_ASCEND );
+    if ( ntype < 0 )
+    {
+	H5Tclose( atype );
+	H5Aclose( attr );
+	return false;
+    }
+
     if ( H5Tget_class(ntype) != H5T_FLOAT )
     {
 	H5Tclose( ntype );
@@ -1113,6 +1128,7 @@ uiRetVal HDF5::ReaderImpl::readJSonAttribute( const char* attrnm,
 	return uirv;
     }
 
+    vs.setEmpty();
     BufferString valstr;
     if ( !getAttribute(attrnm,valstr,dsky) )
     {

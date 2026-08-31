@@ -55,9 +55,6 @@ namespace HDF5
     } while (0)
 
 #define mCatchUnexpected( act ) \
-    catch ( H5::Exception& exc ) \
-	{ const char* mUnusedVar exc_msg = exc.getCDetailMsg(); \
-	  ErrMsg(exc_msg); act; } \
     catch ( std::exception& exc ) \
 	{ const char* mUnusedVar exc_msg = exc.what(); pErrMsg(exc_msg); \
 	  act; } \
