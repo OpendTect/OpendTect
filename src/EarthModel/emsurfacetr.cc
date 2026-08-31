@@ -471,30 +471,22 @@ static BufferString getFileName( const IOObj& ioobj, const char* attrnm )
 Executor* dgbEMHorizon3DTranslator::getAuxdataReader( EM::Surface& surface,
 						      int selidx )
 {
-    if ( selidx >= sels_.sd.valnames.size() )
+    mDynamicCastGet( EM::Horizon3D*, hor3d, &surface )
+    if ( !hor3d )
 	return nullptr;
 
-    auto* grp = new ExecutorGroup( "Surface attributes reader" );
-    for ( int idx=0; idx<sels_.sd.valnames.size(); idx++ )
-    {
-	if ( selidx>=0 && selidx!=idx )
-	    continue;
+    if ( !sels_.sd.valnames.validIdx(selidx) )
+	return nullptr;
 
-	const BufferString filenm = getFileName( *ioobj_,
-						sels_.sd.valnames[idx]->buf() );
-	if ( filenm.isEmpty() )
-	    continue;
+    const BufferString filenm = getFileName( *ioobj_,
+					    sels_.sd.valnames[selidx]->buf() );
+    if ( filenm.isEmpty() )
+	return nullptr;
 
-	EM::dgbSurfDataReader* rdr = new EM::dgbSurfDataReader( filenm.buf() );
-	mDynamicCastGet(EM::Horizon3D*,hor3d,&surface)
-	if ( !hor3d )
-	    return nullptr;
+    auto* rdr = new EM::dgbSurfDataReader( filenm.buf() );
+    rdr->setSurface( *hor3d );
 
-	rdr->setSurface( *hor3d );
-	grp->add( rdr );
-    }
-
-    return grp;
+    return rdr;
 }
 
 

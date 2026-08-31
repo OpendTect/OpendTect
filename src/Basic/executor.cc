@@ -129,10 +129,19 @@ void ExecutorGroup::add( Executor* n )
 }
 
 
-bool ExecutorGroup::doPrepare( od_ostream* s )
+bool ExecutorGroup::doPrepare( od_ostream* strm )
 {
-    if ( !executors_.isEmpty() )
-	return executors_[0]->doPrepare( s );
+    if ( executors_.isEmpty() )
+	return true;
+
+    if ( !parallel_ )
+	return executors_.first()->doPrepare( strm );
+
+    for ( int idx=0; idx<executors_.size(); idx++ )
+    {
+	if ( !executors_[idx]->doPrepare( strm ) )
+	    return false;
+    }
 
     return true;
 }
@@ -157,7 +166,8 @@ int ExecutorGroup::nextStep()
 
 	res = goToNextExecutor() ? MoreToDo() : Finished();
 	needsnextexec = needsnextexec && res == MoreToDo();
-	if ( needsnextexec && !executors_[currentexec_]->doPrepare(strm) )
+	if ( needsnextexec && !parallel_ &&
+	     !executors_[currentexec_]->doPrepare(strm) )
 	    return ErrorOccurred();
     }
 
