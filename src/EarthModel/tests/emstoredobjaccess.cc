@@ -305,6 +305,82 @@ static bool testHorizon3D( const char* hornm )
 }
 
 
+static EMSurfaceTranslator* getTranslator( EM::Horizon3D* hor3d )
+{
+    PtrMan<IOObj> ioobj = IOM().get( hor3d->multiID() );
+    if ( !ioobj )
+    {
+	return nullptr;
+    }
+
+    EMSurfaceTranslator* transl =
+	( EMSurfaceTranslator* )ioobj->createTranslator();
+    if ( !transl || !transl->startRead( *ioobj ) )
+    {
+	delete transl;
+	return nullptr;
+    }
+
+    return transl;
+}
+
+
+static bool testHorizon3dAuxData()
+{
+    auto& emm = EM::EMM();
+    RefMan<EM::EMObject> emobj = emm.loadIfNotFullyLoaded( MultiID(100020, 2) );
+    mDynamicCastGet( EM::Horizon3D*, hor3d, emobj.ptr() );
+
+    mRunStandardTestWithError( hor3d,
+			       "Loading horizon for aux data",
+			       "Failed to load horizon for aux data" );
+
+    const BufferString horname = hor3d->name();
+    const BufferString expectedname( "1-Top" );
+    mRunStandardTestWithError( horname == expectedname,
+			       "Validating horizon name for aux data",
+			       "Failed to validate horizon name for aux data" );
+
+    PtrMan<EMSurfaceTranslator> transl = getTranslator( hor3d );
+    mRunStandardTestWithError( transl, "Finding translator for aux data",
+			       "No suitable translator found for aux data" );
+
+    // Make a selection name set with fail cases and 2 correct auxdata names
+    EM::SurfaceIODataSelection& sel = transl->selections();
+    BufferStringSet attrnms = sel.sd.valnames;
+
+    BufferStringSet selattribs;
+    selattribs.add( "Fail0" ).add( "Fail1" );
+    selattribs.append( attrnms );
+    selattribs.add( "FailLast" );
+
+    hor3d->auxdata.removeAll();
+    ExecutorGroup loaders( "Loading Horizon Data", false );
+
+    for ( const auto* attrname : selattribs )
+    {
+	const int fileidx = attrnms.indexOf( attrname->buf() );
+	if ( fileidx < 0 )
+	    continue;
+
+	auto* loader = hor3d->auxdata.auxDataLoader( fileidx );
+	if ( loader )
+	    loaders.add( loader );
+    }
+
+    mRunStandardTestWithError( loaders.nrExecutors()==2,
+			       "Adding two loaders for aux data",
+			       "Found incorrect number of "
+			       "loaders for aux data" );
+
+    mRunStandardTestWithError( loaders.execute(),
+			       "Loading Horizon3d Aux data",
+			       "Failed to load Horizon3d Aux data" );
+
+    return true;
+}
+
+
 mLoad1Module("EarthModel")
 
 bool BatchProgram::doWork( od_ostream& strm )
@@ -315,7 +391,8 @@ bool BatchProgram::doWork( od_ostream& strm )
 	 !testHorizonSorting(strm,true) ||
 	 !createHorizon3D(hor3dnm.str()) ||
 	 !testHorizon3D(hor3dnm.str()) ||
-	 !removeHorizon3D(hor3dnm.str()) )
+	 !removeHorizon3D(hor3dnm.str()) ||
+	 !testHorizon3dAuxData() )
 	return false;
 
     return true;
