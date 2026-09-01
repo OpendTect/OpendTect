@@ -5,7 +5,7 @@ OpendTect is a free, open source seismic interpretation system and software deve
 
 This source code is released under the [GPLv3 or higher](https://www.gnu.org/licenses/gpl-3.0.html) license. Commercial and Academic licenses are offered by [dGB Earth Sciences](https://dgbes.com) for [OpendTect Pro](https://dgbes.com/software/opendtect-pro), an extension of OpendTect that adds special functions for professional users and the potential to [rent or purchase commercial plugins](https://prostore.dgbes.com/) offering access to [unique seismic interpretation workflows](https://dgbes.com/software/commercial-plugins). The differences in functionality of the open source OpendTect, commercial OpendTect Pro and commercial plugins is compared [here](https://dgbes.com/software/supported-functionality).
 
-OpendTect is a flexible and powerful R&D software platform that you can extend for seismic data analysis. [dGB Earth Sciences](https://www.dgbes.com/services#custom-software-development) is also available to undertake industry funded (single or multi-client) projects to enhance OpendTect itself or create advanced plugin functionality. 
+OpendTect is a flexible and powerful R&D software platform that you can extend for seismic data analysis. [dGB Earth Sciences](https://www.dgbes.com/services#custom-software-development) is also available to undertake industry funded (single or multi-client) projects to enhance OpendTect itself or create advanced plugin functionality.
 
 OpendTect is used worldwide by thousands of open source users, thousands of academic users and hundreds of commercial users.
 ## Table of Contents
@@ -53,7 +53,7 @@ The [Pixi](https://pixi.prefix.dev/latest/) package manager can be used to obtai
 #### Install Pixi
 <details>
   <summary><b>Linux and macOS</b></summary>
- 
+
 ```bash
   curl -fsSL https://pixi.sh/install.sh | sh
 ```
@@ -106,7 +106,7 @@ pixi run debug
 - A C++ compiler and compilation tool chain:
 	- Windows: msvc2022 64 bit (>= v17.8.4). The free community edition is sufficient.
 	- macOS: SDK 14 (deployment version >= 12.0)
-	- Linux: gcc 64 bit version 10.3 or higher
+	- Linux: gcc 64 bit version 13.3.1 or higher
 - CMake version 3.24 or higher (3.27 or higher recommended)
 - The c++17 version is enabled by default on all platforms.
 
@@ -115,10 +115,9 @@ To build the software you need to also download and install/build a few dependen
 
 | BRANCH | DEPENDENCIES |
 | -------------| ----------------- |
-| main | [Qt 6.9.3](https://download.qt.io/archive/qt/6.9/6.9.3/), [OpenSceneGraph 3.6.5](https://github.com/openscenegraph/OpenSceneGraph/archive/OpenSceneGraph-3.6.5.tar.gz), [Proj 9.8.1 (optional)](https://download.osgeo.org/proj/proj-9.8.1.tar.gz), [Sqlite 3.51.1 (optional)](https://www.sqlite.org/download.html), [HDF5 1.14.6 (optional)](https://www.hdfgroup.org/downloads/hdf5) |
-| od8.0 | [Qt 6.8.3](https://download.qt.io/archive/qt/6.8/6.8.3/), [OpenSceneGraph 3.6.5](https://github.com/openscenegraph/OpenSceneGraph/archive/OpenSceneGraph-3.6.5.tar.gz), [Proj 9.6.2 (optional)](https://download.osgeo.org/proj/proj-9.6.2.tar.gz), [Sqlite 3.49.2 (optional)](https://www.sqlite.org/download.html), [HDF5 1.14.6 (optional)](https://www.hdfgroup.org/downloads/hdf5) |
-| od7.0_rel, od7.0 | [Qt 5.15.2](https://download.qt.io/archive/qt/5.15/5.15.2/), [OpenSceneGraph 3.6.5](https://github.com/openscenegraph/OpenSceneGraph/archive/OpenSceneGraph-3.6.5.tar.gz), [Proj 9.6.0 (optional)](https://download.osgeo.org/proj/proj-9.6.2.tar.gz), [Sqlite 3.44.2 (optional)](https://www.sqlite.org/download.html), [HDF5 1.14.5 (optional)](https://www.hdfgroup.org/downloads/hdf5) |
-| od6.6_rel, od6.6 | [Qt 5.15.2](https://download.qt.io/archive/qt/5.15/5.15.2/), [OpenSceneGraph 3.6.5](https://github.com/openscenegraph/OpenSceneGraph/archive/OpenSceneGraph-3.6.5.tar.gz), [HDF5 1.12.2 (optional)](https://www.hdfgroup.org/downloads/hdf5) |
+| main | [Qt 6.9.3](https://download.qt.io/archive/qt/6.9/6.9.3/), [OpenSceneGraph 3.6.5](https://github.com/openscenegraph/OpenSceneGraph/archive/OpenSceneGraph-3.6.5.tar.gz), [Proj 9.8.1 (optional)](https://download.osgeo.org/proj/proj-9.8.1.tar.gz), [Sqlite 3.51.1 (optional)](https://www.sqlite.org/download.html), [HDF5 2.1.1 (optional)](https://www.hdfgroup.org/downloads/hdf5) |
+| od8.0_rel, od8.0 | [Qt 6.8.3](https://download.qt.io/archive/qt/6.8/6.8.3/), [OpenSceneGraph 3.6.5](https://github.com/openscenegraph/OpenSceneGraph/archive/OpenSceneGraph-3.6.5.tar.gz), [Proj 9.8.1 (optional)](https://download.osgeo.org/proj/proj-9.8.1.tar.gz), [Sqlite 3.51.1 (optional)](https://www.sqlite.org/download.html), [HDF5 1.14.6 (optional)](https://www.hdfgroup.org/downloads/hdf5) |
+| od7.0_rel, od7.0 | [Qt 5.15.2](https://download.qt.io/archive/qt/5.15/5.15.2/), [OpenSceneGraph 3.6.5](https://github.com/openscenegraph/OpenSceneGraph/archive/OpenSceneGraph-3.6.5.tar.gz), [Proj 9.3.1 (optional)](https://download.osgeo.org/proj/proj-9.3.1.tar.gz), [Sqlite 3.44.2 (optional)](https://www.sqlite.org/download.html), [HDF5 1.14.6 (optional)](https://www.hdfgroup.org/downloads/hdf5) |
 
 ##### Qt Install
 For the Qt install the following components must be selected depending on your build platform:
@@ -128,15 +127,15 @@ For the Qt install the following components must be selected depending on your b
 -  Extensions: Qt WebEngine (MSVC 2022 x64/Desktop)
 -  Optionally debug information files (recommended on Windows)
 -  Optionally Qt source code is available for all the versions in use:
-	- [Qt 6.9.3](https://dgbearthsciences.sharefile.com/public/share/web-sec0cfb8f691b4aed8c4a91c528f9bcac) : main
+	- [Qt 6.9.3](https://dgbearthsciences.sharefile.com/public/share/web-sef14c254e42342d5bfdb1a36ae955420) : main
 	- [Qt 6.8.3](https://dgbearthsciences.sharefile.com/public/share/web-sad64fa4ce9974762a877a682d9d1a679) : od8.0
 	- [Qt 5.15.2](https://dgbearthsciences.sharefile.com/public/share/web-s519e08d71a7044b8934d9b0f2b4563eb) : od7.0
 
 ##### OpenSceneGraph Build
-Configure using CMake, compile and install. 
+Configure using CMake, compile and install.
 
 ##### Proj Build
-Configure using CMake, compile and install. 
+Configure using CMake, compile and install.
 
 ##### Sqlite Install
 Retrieve from their download site or the OpendTect SDK
@@ -165,7 +164,7 @@ Configure CMake ensuring to set the following variables:
 - SQLite3_ROOT="SQLite3 install location" (optional, but required by Proj)
 - HDF5_ROOT="HDF5 install location" (optional)
 - ZLIB_ROOT="ZLIB install location" (optional)
-- OpenGL\_GL\_PREFERENCE=LEGACY 
+- OpenGL_GL_PREFERENCE=LEGACY
 
 Run make in the toplevel folder (i.e. where this README.MD file is located)
 
@@ -173,7 +172,7 @@ Run make in the toplevel folder (i.e. where this README.MD file is located)
 [//]: # (PROBABLY WANT TO EXPAND THIS WITH GUIDANCE ON WHAT TYPE OF CONTRIBUTIONS WILL BE WELCOME AND WHERE  IN THE CODEBASE)
 You can contribute to the enhancement of OpendTect either by:
 
-- providing bug fixes or enhancements to the OpendTect source code following the usual Github Fork-Pull Request process. 
+- providing bug fixes or enhancements to the OpendTect source code following the usual Github Fork-Pull Request process.
 - or independently by developing and releasing open source plugins from your own Github or equivalent repository. See the [wmplugins repository](https://github.com/waynegm/OpendTect-Plugins) as an example of this approach.
 
 An overview of the design principles and preferred coding style/practices employed by **dGB** in the development of OpendTect are described in [dGB's coding guide](https://doc.opendtect.org/7.0.0/doc/Programmer/Default.htm#6_principles_and_best_practices_in_opendtect_coding.htm)
@@ -182,7 +181,7 @@ An overview of the design principles and preferred coding style/practices employ
 
 - [dGB Earth Sciences](https://dgbes.com/about#contact)
 - [OpendTect Documentation](https://dgbes.com/library#documentation)
-- [OpendTect Programmer's Manual](https://doc.opendtect.org/7.0.0/doc/Programmer/Default.htm)
+- [OpendTect Programmer's Manual](https://doc.opendtect.org/2025/doc/Programmer/Default.htm)
 - [OpendTect developers Google Group](https://dgbes.com/index.php/support/faq-developers-google-group)
 
 [header-img]: doc/pics/opendtect_header.png
