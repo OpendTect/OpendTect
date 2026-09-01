@@ -2,20 +2,23 @@ Opendtect 7.0 release info
 
 Build platforms/distributions:
 
+Windows : Windows Server 2012
 Linux   : CentOS Linux release 7.2.1511
 macOS   : macOS 12.10 (Monterey)
-Windows : Windows Server 2012
 
 
 Compiler:
 
-Linux   : gcc/g++ 9.5.0
-Mac     : SDK 10.15
-Windows : Visual Studio 2022 (version 17.4.3)
+Windows : Visual Studio 2022 Professional (version 17.4.3)
+Linux   : gcc/g++ 10.5.0
+macOS   : clang14 (SDK 10.15, deployment version 10.15)
 
 
 OpenSource packages/versions used:
 
 Qt: 5.15.2
 OpenSceneGraph: 3.6.5
-HDF5 (optional): 1.14.0
+OpenSSL: 1.1.1w
+HDF5 (optional): 1.14.6
+SQLite3 (optional): 3.44.2
+PROJ (optional): 9.3.1
