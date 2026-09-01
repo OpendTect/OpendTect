@@ -184,6 +184,7 @@ uiIOObjSel::Setup::Setup( const uiString& seltxt )
 
 
 uiIOObjSel::Setup::Setup( const Setup& oth )
+    : uiIOSelect::Setup(oth)
 {
     *this = oth;
 }
@@ -199,6 +200,8 @@ uiIOObjSel::Setup& uiIOObjSel::Setup::operator=( const Setup& oth )
 {
     if ( &oth == this )
 	return *this;
+
+    uiIOSelect::Setup::operator=( oth );
 
     confirmoverwr_ = oth.confirmoverwr_;
     withinserters_ = oth.withinserters_;
