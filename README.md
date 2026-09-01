@@ -106,7 +106,7 @@ pixi run debug
 - A C++ compiler and compilation tool chain:
 	- Windows: msvc2022 64 bit (>= v17.8.4). The free community edition is sufficient.
 	- macOS: SDK 14 (deployment version >= 12.0)
-	- Linux: gcc 64 bit version 10.3 or higher
+	- Linux: gcc 64 bit version 13.3.1 or higher
 - CMake version 3.24 or higher (3.27 or higher recommended)
 - The c++17 version is enabled by default on all platforms.
 
@@ -116,9 +116,8 @@ To build the software you need to also download and install/build a few dependen
 | BRANCH | DEPENDENCIES |
 | -------------| ----------------- |
 | main | [Qt 6.9.3](https://download.qt.io/archive/qt/6.9/6.9.3/), [OpenSceneGraph 3.6.5](https://github.com/openscenegraph/OpenSceneGraph/archive/OpenSceneGraph-3.6.5.tar.gz), [Proj 9.8.1 (optional)](https://download.osgeo.org/proj/proj-9.8.1.tar.gz), [Sqlite 3.51.1 (optional)](https://www.sqlite.org/download.html), [HDF5 2.1.1 (optional)](https://www.hdfgroup.org/downloads/hdf5) |
-| od8.0_rel, od8.0 | [Qt 6.8.3](https://download.qt.io/archive/qt/6.8/6.8.3/), [OpenSceneGraph 3.6.5](https://github.com/openscenegraph/OpenSceneGraph/archive/OpenSceneGraph-3.6.5.tar.gz), [Proj 9.6.2 (optional)](https://download.osgeo.org/proj/proj-9.6.2.tar.gz), [Sqlite 3.49.2 (optional)](https://www.sqlite.org/download.html), [HDF5 1.14.6 (optional)](https://www.hdfgroup.org/downloads/hdf5) |
-| od7.0_rel, od7.0 | [Qt 5.15.2](https://download.qt.io/archive/qt/5.15/5.15.2/), [OpenSceneGraph 3.6.5](https://github.com/openscenegraph/OpenSceneGraph/archive/OpenSceneGraph-3.6.5.tar.gz), [Proj 9.6.0 (optional)](https://download.osgeo.org/proj/proj-9.6.2.tar.gz), [Sqlite 3.44.2 (optional)](https://www.sqlite.org/download.html), [HDF5 1.14.5 (optional)](https://www.hdfgroup.org/downloads/hdf5) |
-| od6.6_rel, od6.6 | [Qt 5.15.2](https://download.qt.io/archive/qt/5.15/5.15.2/), [OpenSceneGraph 3.6.5](https://github.com/openscenegraph/OpenSceneGraph/archive/OpenSceneGraph-3.6.5.tar.gz), [HDF5 1.12.2 (optional)](https://www.hdfgroup.org/downloads/hdf5) |
+| od8.0_rel, od8.0 | [Qt 6.8.3](https://download.qt.io/archive/qt/6.8/6.8.3/), [OpenSceneGraph 3.6.5](https://github.com/openscenegraph/OpenSceneGraph/archive/OpenSceneGraph-3.6.5.tar.gz), [Proj 9.8.1 (optional)](https://download.osgeo.org/proj/proj-9.8.1.tar.gz), [Sqlite 3.51.1 (optional)](https://www.sqlite.org/download.html), [HDF5 1.14.6 (optional)](https://www.hdfgroup.org/downloads/hdf5) |
+| od7.0_rel, od7.0 | [Qt 5.15.2](https://download.qt.io/archive/qt/5.15/5.15.2/), [OpenSceneGraph 3.6.5](https://github.com/openscenegraph/OpenSceneGraph/archive/OpenSceneGraph-3.6.5.tar.gz), [Proj 9.3.1 (optional)](https://download.osgeo.org/proj/proj-9.3.1.tar.gz), [Sqlite 3.44.2 (optional)](https://www.sqlite.org/download.html), [HDF5 1.14.6 (optional)](https://www.hdfgroup.org/downloads/hdf5) |
 
 ##### Qt Install
 For the Qt install the following components must be selected depending on your build platform:
@@ -182,7 +181,7 @@ An overview of the design principles and preferred coding style/practices employ
 
 - [dGB Earth Sciences](https://dgbes.com/about#contact)
 - [OpendTect Documentation](https://dgbes.com/library#documentation)
-- [OpendTect Programmer's Manual](https://doc.opendtect.org/7.0.0/doc/Programmer/Default.htm)
+- [OpendTect Programmer's Manual](https://doc.opendtect.org/2025/doc/Programmer/Default.htm)
 - [OpendTect developers Google Group](https://dgbes.com/index.php/support/faq-developers-google-group)
 
 [header-img]: doc/pics/opendtect_header.png
