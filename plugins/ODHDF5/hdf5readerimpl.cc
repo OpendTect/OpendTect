@@ -867,12 +867,20 @@ static bool readAttrValueAsString( ::hid_t scope, const char* attrnm,
     {
 	if ( H5Tis_variable_str(ntype) )
 	{
+	    const H5T_cset_t cset = H5Tget_cset( ntype );
+	    if ( cset != H5T_CSET_ASCII )
+	    {
+		pFreeFnErrMsg(
+		"Only H5 files using ASCII character encoding are supported" );
+		return false;
+	    }
+
 	    const ::hid_t memtype = H5Tcopy( H5T_C_S1 );
 	    if ( memtype >= 0 &&
 		 H5Tset_size(memtype, H5T_VARIABLE) >= 0 )
 	    {
 		char* buf = nullptr;
-		if ( H5Aread(attr, memtype, &buf) >= 0 )
+		if ( H5Aread(attr, memtype, static_cast<void*>(&buf)) >= 0 )
 		{
 		    res.set( buf ? buf : "" );
 		    H5free_memory( buf );
