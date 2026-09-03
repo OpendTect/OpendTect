@@ -10,62 +10,40 @@ ________________________________________________________________________
 
 #include "odhdf5mod.h"
 
+#include "bufstring.h"
+
 namespace HDF5
 {
+
+BufferString	hdf5ErrMsg();
 
 } // namespace HDF5
 
 
-// Catch stuff. Helpers first:
-
-#define mCatchHDF(id, act) \
+#define mCatchHDF( id, act ) \
     do { \
-	if ((id) < 0) { \
-	    const char* exc_msg = nullptr; \
-	    H5Eget_auto2(H5E_DEFAULT, &my_error_handler, (void**)&exc_msg); \
+	if ( (id) == H5I_INVALID_HID ) \
+	{ \
+	    const BufferString hdfmsg = HDF5::hdf5ErrMsg(); \
+	    const char* mUnusedVar exc_msg = hdfmsg.buf(); \
 	    act; \
-	    if (exc_msg) free((void*)exc_msg); \
 	} \
-    } while (0)
+    } while ( 0 )
 
-    #define mCatchHDFAdd2uiRv() \
-    mCatchHDF( uirv.add( sHDF5Err( toUiString(exc_msg) ) ) )
+#define mAddHDFErr2uiRv( msg ) \
+    uirv.add( (msg).addMoreInfo( sHDF5Err( toUiString(exc_msg) ) ) )
 
-#define mCatchNonHDF( act ) \
-    catch ( std::exception& exc ) \
-       { const char* mUnusedVar exc_msg = exc.what(); act; } \
-    catch ( ... ) \
-       { const char* mUnusedVar exc_msg = "Unexpected non-std exception"; \
-	 act; }
+#define mCatchHDFAdd2uiRv( id, msg ) \
+    mCatchHDF( id, mAddHDFErr2uiRv(msg); return )
 
-#define mCatchNonHDFAdd2uiRv( err ) \
-    mCatchNonHDF( uirv.add(err.addMoreInfo(toUiString(exc_msg))) )
-
-
-// Catch stuff. To use:
 
 #define mCatchAnyNoMsg( act ) \
     catch ( ... ) \
 	{ act; }
 
-#define mCatchAdd2uiRv(msg) \
-    do { \
-	mCatchHDFAdd2uiRv(newfile); \
-	mCatchNonHDFAdd2uiRv(msg); \
-    } while (0)
-
 #define mCatchUnexpected( act ) \
     catch ( std::exception& exc ) \
-	{ const char* mUnusedVar exc_msg = exc.what(); pErrMsg(exc_msg); \
-	  act; } \
+	{ const char* mUnusedVar exc_msg = exc.what(); pErrMsg(exc_msg); act;} \
     catch ( ... ) \
 	{ const char* mUnusedVar exc_msg = "Unexpected non-std exception"; \
 	    pErrMsg(exc_msg); act; }
-
-// Err Ret stuff
-
-#define mRetNoFile(action) \
-    { pErrMsg( sOpenFileFirst() ); action; }
-
-#define mRetNeedScopeInUiRv() \
-    mPutInternalInUiRv( uirv, sNeedScope(), return )

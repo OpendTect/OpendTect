@@ -21,7 +21,7 @@ public:
 
 			ReaderImpl();
 			ReaderImpl(const FileID&);
-    virtual		~ReaderImpl();
+			~ReaderImpl();
 
 private:
 

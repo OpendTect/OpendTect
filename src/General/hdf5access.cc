@@ -250,9 +250,10 @@ PtrMan<HDF5::Writer> HDF5::AccessProvider::mkWriter( int idx )
     return wrr;
 }
 
+
+// HDF5::Access
+
 HDF5::Access::Access()
-    : fileid_(0)
-    , myfile_(true)
 {
 }
 

@@ -20,7 +20,7 @@ mExpClass(ODHDF5) WriterImpl : public Writer
 public:
 
 			WriterImpl();
-    virtual		~WriterImpl();
+			~WriterImpl();
 
 private:
 

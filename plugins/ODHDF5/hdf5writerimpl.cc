@@ -9,36 +9,40 @@ ________________________________________________________________________
 
 #include "hdf5writerimpl.h"
 
+#include "datachar.h"
+#include "debug.h"
 #include "envvars.h"
+#include "hdf5common.h"
 #include "hdf5readerimpl.h"
 #include "iopar.h"
+#include "math2.h"
 #include "odjson.h"
 #include "od_ostream.h"
 #include "uistrings.h"
 
 
-/*static unsigned gzip_pixels_per_block = 16;
-		    // can be an even number [2,32]*/
+static unsigned gzip_pixels_per_block = 16;
+		    // can be an even number [2,32]
 static int gzip_encoding_status = -1;
 
-#define mCatchErrDuringWrite() \
-    mCatchAdd2uiRv( uiStrings::phrErrDuringWrite(fileName()) )
+#define mAddErrDuringWrite() \
+    mAddHDFErr2uiRv( uiStrings::phrErrDuringWrite(fileName()) )
+
+#define mCatchErrDuringWrite( id ) \
+    mCatchHDF( id, mAddErrDuringWrite(); return )
 
 
 HDF5::WriterImpl::WriterImpl()
     : AccessImpl(*this)
 {
     Threads::Locker locker( lock_ );
-    fileid_.setUdf();
-    myfile_ = false;
     if ( gzip_encoding_status < 0 )
     {
-       gzip_encoding_status = H5Zfilter_avail( H5Z_FILTER_DEFLATE ) ? 1 : 0;
+	gzip_encoding_status = H5Zfilter_avail( H5Z_FILTER_DEFLATE ) ? 1 : 0;
 	if ( gzip_encoding_status == 1 )
 	{
 	    unsigned int filter_info;
-	    H5Zget_filter_info( H5Z_FILTER_DEFLATE,
-				&filter_info );
+	    H5Zget_filter_info( H5Z_FILTER_DEFLATE, &filter_info );
 	    if ( !(filter_info & H5Z_FILTER_CONFIG_ENCODE_ENABLED) ||
 		 !(filter_info & H5Z_FILTER_CONFIG_DECODE_ENABLED) )
 		gzip_encoding_status = 0;
@@ -56,12 +60,7 @@ HDF5::WriterImpl::~WriterImpl()
 
 HDF5::Reader* HDF5::WriterImpl::createCoupledReader() const
 {
-    if ( !fileid_.isValid() )
-    {
-	return nullptr;
-    }
-
-    return new HDF5::ReaderImpl( fileid_ );
+    return fileid_.isValid() ? new HDF5::ReaderImpl( fileid_ ) : nullptr;
 }
 
 
@@ -75,20 +74,13 @@ void HDF5::WriterImpl::openFile( const char* fnm, uiRetVal& uirv, bool edit )
     ? H5Fopen( fnm, H5F_ACC_RDWR, H5P_DEFAULT )
     : H5Fcreate( fnm, H5F_ACC_TRUNC, H5P_DEFAULT,
 		     H5P_DEFAULT );
-
-    if ( fid < 0 )
-    {
-	uirv.add( tr("Cannot open or create file") );
-	return;
-    }
+    mCatchHDFAdd2uiRv( fid, uiStrings::phrErrDuringWrite(fnm) );
 
     const ::hid_t gid = H5Gopen2( fid, "/", H5P_DEFAULT );
-    if ( gid < 0 )
-    {
+    mCatchHDF( gid,
 	H5Fclose( fid );
-	uirv.add( tr("Cannot open root group") );
-	return;
-    }
+	mAddHDFErr2uiRv( uiStrings::phrErrDuringWrite(fnm) );
+	return );
 
     fileid_ = FileID::get( mCast(hid_t,fid) );
     group_ = GroupID::get( mCast(hid_t,gid) );
@@ -99,12 +91,6 @@ void HDF5::WriterImpl::openFile( const char* fnm, uiRetVal& uirv, bool edit )
 HDF5::GroupID HDF5::WriterImpl::ensureGroup( const char* grpnm,
 					     uiRetVal& uirv )
 {
-    if ( !fileid_.isValid() )
-    {
-	uirv.add( uiStrings::phrErrDuringWrite(fileName()) );
-	return GroupID::udf();
-    }
-
     const GroupID existing = selectGroup( grpnm );
     if ( existing.isValid() )
 	return existing;
@@ -125,22 +111,18 @@ HDF5::GroupID HDF5::WriterImpl::ensureGroup( const char* grpnm,
     }
 
     const hid_t lcpl = H5Pcreate( H5P_LINK_CREATE );
-    if ( lcpl < 0 )
-    {
-	uirv.add( tr("Cannot create Group '%1'").arg(grpnm) );
-	return GroupID::udf();
-    }
+    mCatchHDF( lcpl,
+	mAddErrDuringWrite();
+	return GroupID::udf() );
 
     H5Pset_create_intermediate_group( lcpl, 1 );
     const hid_t newgrp = H5Gcreate2( fileid_.asInt(), path.buf(),
 				     lcpl, H5P_DEFAULT,
 				     H5P_DEFAULT );
     H5Pclose( lcpl );
-    if ( newgrp < 0 )
-    {
-	uirv.add( tr("Cannot create Group '%1'").arg(grpnm) );
-	return GroupID::udf();
-    }
+    mCatchHDF( newgrp,
+	mAddErrDuringWrite();
+	return GroupID::udf() );
 
     group_ = GroupID::get( mCast(hid_t,newgrp) );
     previousgroupids_.add( newgrp );
@@ -166,21 +148,86 @@ HDF5::DatasetID HDF5::WriterImpl::crDS( const DataSetKey& dsky,
     if ( nrdims_ <= 0 )
 	return DatasetID::udf();
 
-    TypeSet<hsize_t> dims( nrdims_, (hsize_t)0 );
-    TypeSet<hsize_t> maxszs( nrdims_, (hsize_t)0 );
-    TypeSet<hsize_t> chunkdims( nrdims_, (hsize_t)0 );
-    for ( int idim=0; idim<nrdims_; idim++ )
+    TypeSet<hsize_t> dims, chunkdims;
+    hsize_t maxdim = 0;
+    hsize_t maxchunkdim = 0;
+    const bool editable = dsky.isEditable();
+    bool mustchunk = editable;
+    for ( ArrayNDInfo::dim_idx_type idim=0; idim<nrdims_; idim++ )
     {
-	const int sz = info.getSize( idim );
-	dims[idim] = sz > 0 ? sz : 1;
-	const int maxchunkzs = dsky.maxDimSz( idim );
-	if ( !mIsUdf(maxchunkzs) )
-	    chunkdims[idim] = maxchunkzs;
-	else
-	    chunkdims[idim] = dims[idim];
-
-	maxszs[idim] = H5S_UNLIMITED;
+	const auto dimsz = info.getSize( idim );
+	if ( dimsz > maxdim )
+	    maxdim = dimsz;
+	dims += dimsz > 0 ? dimsz : 1;
     }
+
+    TypeSet<hsize_t> maxszs;
+    bool hasmaxsz = false;
+    od_uint64 totsz = 1;
+    for ( ArrayNDInfo::dim_idx_type idim=0; idim<nrdims_; idim++ )
+    {
+	const hsize_t dimsz = dims[idim];
+	const int chunksz = dsky.chunkSz( idim );
+	const int maxchunkzs = dsky.maxDimSz( idim );
+	hsize_t chunkdim = dimsz < (hsize_t)chunksz ? dimsz
+						    : (hsize_t)chunksz;
+	const bool hasmaxresize = !mIsUdf(maxchunkzs);
+	if ( mustchunk && hasmaxresize )
+	{
+	    chunkdim = maxchunkzs;
+	    hasmaxsz = true;
+	}
+	if ( maxchunkdim < chunkdim )
+	    maxchunkdim = chunkdim;
+	chunkdims += chunkdim;
+	maxszs += hasmaxresize ? H5S_UNLIMITED : dimsz;
+	totsz *= chunkdim;
+    }
+
+    const DataCharacteristics dc( dt );
+    totsz *= dc.nrBytes();
+    static od_uint64 maxhdf5chunksz = mDef4GB;
+    if ( totsz >= maxhdf5chunksz && !chunkdims.isEmpty() )
+    {
+	int maxdimidx = 0;
+	for ( int idim=1; idim<nrdims_; idim++ )
+	{
+	    if ( chunkdims[idim] > chunkdims[maxdimidx] )
+		maxdimidx = idim;
+	}
+
+	const double chunkratio = double(totsz) / (maxhdf5chunksz-1);
+	const double new1dsz = double(chunkdims[maxdimidx]) / chunkratio;
+	if ( new1dsz > 1. )
+	{
+	    maxchunkdim = (hsize_t)Math::Floor( new1dsz );
+	    if ( maxchunkdim > 0 )
+	    {
+		maxszs[maxdimidx] = H5S_UNLIMITED;
+		chunkdims[maxdimidx] = maxchunkdim;
+		hasmaxsz = true;
+		mustchunk = true;
+		const_cast<DataSetKey&>( dsky ).setMaximumSize( maxdimidx,
+								maxchunkdim );
+	    }
+	}
+    }
+
+    if ( mustchunk && !hasmaxsz )
+    {
+	for ( auto& maxsz : maxszs )
+	    maxsz = H5S_UNLIMITED;
+    }
+
+    mDefineStaticLocalObject(bool, allowzip,
+		= GetEnvVarYN("OD_HDF5_ALLOWZIP",false) );
+    mDefineStaticLocalObject(bool, allowshuffle,
+		= GetEnvVarYN("OD_HDF5_ALLOWSHUFFLE",true) );
+
+    const bool wantchunk = maxdim > maxchunkdim;
+    const bool canzip = allowzip && (mustchunk || wantchunk) &&
+		     gzip_encoding_status>0
+		     && maxdim >= gzip_pixels_per_block;
 
     const DatatypeID h5dt = h5DataTypeFor( dt );
     if ( !h5dt.isValid() )
@@ -188,26 +235,33 @@ HDF5::DatasetID HDF5::WriterImpl::crDS( const DataSetKey& dsky,
 
     const ::hid_t space = H5Screate_simple( nrdims_, dims.arr(),
 					    maxszs.arr() );
-    if ( space < 0 )
-    {
-	uirv.add( uiStrings::phrErrDuringWrite(fileName()) );
-	return DatasetID::udf();
-    }
+    mCatchHDF( space,
+	mAddErrDuringWrite();
+	return DatasetID::udf() );
 
     const ::hid_t dcpl = H5Pcreate( H5P_DATASET_CREATE );
-    if ( dcpl < 0 )
-    {
+    mCatchHDF( dcpl,
 	H5Sclose( space );
-	uirv.add( uiStrings::phrErrDuringWrite(fileName()) );
-	return DatasetID::udf();
-    }
+	mAddErrDuringWrite();
+	return DatasetID::udf() );
 
-    H5Pset_chunk( dcpl, nrdims_, chunkdims.arr() );
-    if ( compressionlvl_ > 0 )
+    if ( mustchunk || wantchunk )
+	H5Pset_chunk( dcpl, nrdims_, chunkdims.arr() );
+
+    if ( canzip )
     {
 	H5Pset_deflate( dcpl, compressionlvl_ );
-	H5Pset_shuffle( dcpl );
+	if ( allowshuffle && compressionlvl_ > 0 )
+	    H5Pset_shuffle( dcpl );
     }
+
+#ifdef __debug__
+    if ( DBG::isOn(DGB_HDF5) )
+    {
+	od_cout() << "Create DataSet: "
+		  << dsky.fullDataSetName() << od_endl;
+    }
+#endif
 
     const ::hid_t grpid = grp.asInt();
     if ( H5Lexists(grpid ,dsnm, H5P_DEFAULT) > 0 )
@@ -230,11 +284,9 @@ HDF5::DatasetID HDF5::WriterImpl::crDS( const DataSetKey& dsky,
 				     H5P_DEFAULT );
     H5Pclose( dcpl );
     H5Sclose( space );
-    if ( dsid < 0 )
-    {
-	uirv.add( uiStrings::phrErrDuringWrite(fileName()) );
-	return DatasetID::udf();
-    }
+    mCatchHDF( dsid,
+	mAddErrDuringWrite();
+	return DatasetID::udf() );
 
     const ::hid_t oldid = dataset_.asInt();
     dataset_.setUdf();
@@ -265,30 +317,24 @@ HDF5::DatasetID HDF5::WriterImpl::crTxtDS( const DataSetKey& dsky,
     TypeSet<hsize_t> chunks( 1, (hsize_t)1 );
 
     const ::hid_t strtype = H5Tcopy( H5T_C_S1 );
-    if ( strtype < 0 )
-    {
-	uirv.add( uiStrings::phrErrDuringWrite(fileName()) );
-	return DatasetID::udf();
-    }
+    mCatchHDF( strtype,
+	mAddErrDuringWrite();
+	return DatasetID::udf() );
 
     H5Tset_size( strtype, H5T_VARIABLE );
     const ::hid_t space = H5Screate_simple( 1, dims.arr(),
 					    maxdims.arr() );
-    if ( space < 0 )
-    {
+    mCatchHDF( space,
 	H5Tclose( strtype );
-	uirv.add( uiStrings::phrErrDuringWrite(fileName()) );
-	return DatasetID::udf();
-    }
+	mAddErrDuringWrite();
+	return DatasetID::udf() );
 
     const ::hid_t dcpl = H5Pcreate( H5P_DATASET_CREATE );
-    if ( dcpl < 0 )
-    {
+    mCatchHDF( dcpl,
 	H5Sclose( space );
 	H5Tclose( strtype );
-	uirv.add( uiStrings::phrErrDuringWrite(fileName()) );
-	return DatasetID::udf();
-    }
+	mAddErrDuringWrite();
+	return DatasetID::udf() );
 
     H5Pset_chunk( dcpl, 1, chunks.arr() );
     const ::hid_t grpid = grp.asInt();
@@ -311,12 +357,10 @@ HDF5::DatasetID HDF5::WriterImpl::crTxtDS( const DataSetKey& dsky,
 				     dcpl, H5P_DEFAULT );
     H5Pclose( dcpl );
     H5Sclose( space );
-    if ( dsid < 0 )
-    {
+    mCatchHDF( dsid,
 	H5Tclose( strtype );
-	uirv.add( uiStrings::phrErrDuringWrite(fileName()) );
-	return DatasetID::udf();
-    }
+	mAddErrDuringWrite();
+	return DatasetID::udf() );
 
     const char* empty = "";
     if ( H5Dwrite(dsid, strtype, H5S_ALL,
@@ -381,11 +425,7 @@ void HDF5::WriterImpl::ptSlab( const SlabSpec& spec, const void* data,
     }
 
     const ::hid_t filespace = H5Dget_space( h5ds.asInt() );
-    if ( filespace < 0 )
-    {
-	uirv.add( uiStrings::phrErrDuringWrite(fileName()) );
-	return;
-    }
+    mCatchErrDuringWrite( filespace );
 
     H5Sselect_all( filespace );
     TypeSet<hsize_t> counts;
@@ -393,21 +433,17 @@ void HDF5::WriterImpl::ptSlab( const SlabSpec& spec, const void* data,
     const ::hid_t memspace = H5Screate_simple( counts.size(),
 					       counts.arr(),
 					       nullptr );
-    if ( memspace < 0 )
-    {
+    mCatchHDF( memspace,
 	H5Sclose( filespace );
-	uirv.add( uiStrings::phrErrDuringWrite(fileName()) );
-	return;
-    }
+	mAddErrDuringWrite();
+	return );
 
     const ::hid_t dtype = H5Dget_type( h5ds.asInt() );
-    if ( dtype < 0 )
-    {
+    mCatchHDF( dtype,
 	H5Sclose( memspace );
 	H5Sclose( filespace );
-	uirv.add( uiStrings::phrErrDuringWrite(fileName()) );
-	return;
-    }
+	mAddErrDuringWrite();
+	return );
 
     if ( H5Dwrite(h5ds.asInt(), dtype, memspace,
 		  filespace, H5P_DEFAULT, data) < 0 )
@@ -430,16 +466,12 @@ void HDF5::WriterImpl::ptAll( const void* data, const DatasetID& h5ds,
     }
 
     const ::hid_t filespace = H5Dget_space( h5ds.asInt() );
+    mCatchErrDuringWrite( filespace );
     const ::hid_t dtype = H5Dget_type( h5ds.asInt() );
-    if ( filespace < 0 || dtype < 0 )
-    {
-	if ( dtype >= 0 )
-	    H5Tclose( dtype );
-	if ( filespace >= 0 )
-	    H5Sclose( filespace );
-	uirv.add( uiStrings::phrErrDuringWrite(fileName()) );
-	return;
-    }
+    mCatchHDF( dtype,
+	H5Sclose( filespace );
+	mAddErrDuringWrite();
+	return );
 
     H5Sselect_all( filespace );
     if ( H5Dwrite(h5ds.asInt(), dtype, filespace,
@@ -470,11 +502,7 @@ void HDF5::WriterImpl::ptStrings( const BufferStringSet& bss,
 	if ( H5Lexists(grpid,dsnm,H5P_DEFAULT) > 0 )
 	{
 	    const ::hid_t dsid = H5Dopen2( grpid, dsnm, H5P_DEFAULT );
-	    if ( dsid < 0 )
-	    {
-		uirv.add( uiStrings::phrErrDuringWrite(fileName()) );
-		return;
-	    }
+	    mCatchErrDuringWrite( dsid );
 
 	    const ::hid_t oldid = dataset_.asInt();
 	    dataset_.setUdf();
@@ -493,30 +521,22 @@ void HDF5::WriterImpl::ptStrings( const BufferStringSet& bss,
 	    TypeSet<hsize_t> chunks( 1, (hsize_t)1 );
 
 	    ::hid_t strtype = H5Tcopy( H5T_C_S1 );
-	    if ( strtype < 0 )
-	    {
-		uirv.add( uiStrings::phrErrDuringWrite(fileName()) );
-		return;
-	    }
+	    mCatchErrDuringWrite( strtype );
 
 	    H5Tset_size( strtype, H5T_VARIABLE );
 	    ::hid_t space = H5Screate_simple( 1, dims.arr(),
 						    maxdims.arr() );
-	    if ( space < 0 )
-	    {
+	    mCatchHDF( space,
 		H5Tclose( strtype );
-		uirv.add( uiStrings::phrErrDuringWrite(fileName()) );
-		return;
-	    }
+		mAddErrDuringWrite();
+		return );
 
 	    ::hid_t dcpl = H5Pcreate( H5P_DATASET_CREATE );
-	    if ( dcpl < 0 )
-	    {
+	    mCatchHDF( dcpl,
 		H5Sclose( space );
 		H5Tclose( strtype );
-		uirv.add( uiStrings::phrErrDuringWrite(fileName()) );
-		return;
-	    }
+		mAddErrDuringWrite();
+		return );
 
 	    H5Pset_chunk( dcpl, 1, chunks.arr() );
 	    ::hid_t dsid = H5Dcreate2( grpid, dsnm, strtype, space,
@@ -524,11 +544,7 @@ void HDF5::WriterImpl::ptStrings( const BufferStringSet& bss,
 	    H5Pclose( dcpl );
 	    H5Sclose( space );
 	    H5Tclose( strtype );
-	    if ( dsid < 0 )
-	    {
-		uirv.add( uiStrings::phrErrDuringWrite(fileName()) );
-		return;
-	    }
+	    mCatchErrDuringWrite( dsid );
 
 	    const ::hid_t oldid = dataset_.asInt();
 	    dataset_.setUdf();
@@ -554,17 +570,16 @@ void HDF5::WriterImpl::ptStrings( const BufferStringSet& bss,
 	strs[i] = (char*)bss.get( (int)i ).buf();
 
     ::hid_t dtype = H5Dget_type( ds.asInt() );
-    ::hid_t space = H5Dget_space( ds.asInt() );
-    if ( dtype < 0 || space < 0 )
-    {
-	if ( dtype >= 0 )
-	    H5Tclose( dtype );
-	if ( space >= 0 )
-	    H5Sclose( space );
+    mCatchHDF( dtype,
 	delete [] strs;
-	uirv.add( uiStrings::phrErrDuringWrite(fileName()) );
-	return;
-    }
+	mAddErrDuringWrite();
+	return );
+    ::hid_t space = H5Dget_space( ds.asInt() );
+    mCatchHDF( space,
+	H5Tclose( dtype );
+	delete [] strs;
+	mAddErrDuringWrite();
+	return );
 
     H5Sselect_all( space );
     if ( H5Dwrite(ds.asInt(), dtype, space, space, H5P_DEFAULT, strs) < 0 )
@@ -743,16 +758,11 @@ void HDF5::WriterImpl::setAttribute( const char* ky, const char* val,
 	return;
 
     const ::hid_t strtype = H5Tcopy( H5T_C_S1 );
-    if ( strtype < 0 )
-	return;
+    mCatchHDF( strtype, return );
 
     H5Tset_size( strtype, H5T_VARIABLE );
     const ::hid_t space = H5Screate( H5S_SCALAR );
-    if ( space < 0 )
-    {
-	H5Tclose( strtype );
-	return;
-    }
+    mCatchHDF( space, H5Tclose( strtype ); return );
 
     if ( H5Aexists(scope, ky) > 0 )
 	H5Adelete( scope, ky );
@@ -761,12 +771,14 @@ void HDF5::WriterImpl::setAttribute( const char* ky, const char* val,
 				     strtype, space,
 				     H5P_DEFAULT,
 				     H5P_DEFAULT );
-    if ( attr >= 0 )
-    {
-	const char* s = (val && *val) ? val : "";
-	H5Awrite( attr, strtype, &s );
-	H5Aclose( attr );
-    }
+    mCatchHDF( attr,
+	H5Sclose( space );
+	H5Tclose( strtype );
+	return );
+
+    const char* s = (val && *val) ? val : "";
+    H5Awrite( attr, strtype, &s );
+    H5Aclose( attr );
 
     H5Sclose( space );
     H5Tclose( strtype );

@@ -10,11 +10,33 @@ ________________________________________________________________________
 #include "hdf5accessimpl.h"
 
 #include "envvars.h"
-//#include "filepath.h"
 #include "hdf5common.h"
 #include "hdf5readerimpl.h"
 #include "hdf5writerimpl.h"
 #include "od_ostream.h"
+
+namespace {
+
+herr_t hdf5ErrWalkCB( unsigned n, const H5E_error2_t* err, void* data )
+{
+    if ( n != 0 || !err || !err->desc )
+	return 0;
+
+    static_cast<BufferString*>( data )->set( err->desc );
+    return 0;
+}
+
+} // namespace
+
+
+BufferString HDF5::hdf5ErrMsg()
+{
+    BufferString msg( "Unknown HDF5 error" );
+    H5Ewalk2( H5E_DEFAULT, H5E_WALK_DOWNWARD, hdf5ErrWalkCB, &msg );
+    H5Eclear2( H5E_DEFAULT );
+    return msg;
+}
+
 
 namespace HDF5 {
 

@@ -300,7 +300,7 @@ protected:
 			Access();
 
     FileID		fileid_;
-    bool		myfile_;
+    bool		myfile_		= false;
 
     virtual void	closeFile()					= 0;
     virtual void	openFile(const char*,uiRetVal&,bool ed)		= 0;
