@@ -705,8 +705,16 @@ int nextStep() override
 	return Finished();
     }
 
-    if ( !File::isDirectory(basedir_) && !File::createDir(basedir_) )
-	return ErrorOccurred();
+    if ( !File::isDirectory(basedir_) )
+    {
+	if ( !File::createDir(basedir_) )
+	    return ErrorOccurred();
+    }
+    else
+    {
+	if ( !File::removeDir(basedir_) || !File::createDir(basedir_) )
+	    return ErrorOccurred();
+    }
 
     const EM::FaultID id = fltset_.getFaultID( curidx_ );
     FilePath fp( basedir_, toString(id.asInt()) );
