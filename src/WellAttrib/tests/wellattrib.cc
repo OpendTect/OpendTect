@@ -30,6 +30,8 @@ ________________________________________________________________________
 #include "welllogset.h"
 #include "wellman.h"
 
+#include <QDir>
+
 #include <csignal>
 #include <cstdlib>
 
@@ -69,7 +71,7 @@ void cleanup()
     if ( welllogfp.exists() )
 	File::remove( welllogfp.fullPath() );
 
-    if ( chdir(surveydir_.buf()) != 0 )
+    if ( !QDir::setCurrent(QString::fromLocal8Bit(surveydir_.buf())) )
 	return;
 
     const FilePath seisomf( surveydir_,"Seismics", ".omf*" );
@@ -356,7 +358,9 @@ bool BatchProgram::doWork( od_ostream& strm )
 
     signal( SIGABRT, signalHandler );
     signal( SIGTERM, signalHandler );
+#ifdef __lux64__
     signal( SIGKILL, signalHandler );
+#endif
     atexit( cleanup );
     surveydir_ = SI().diskLocation().fullPath();
 
