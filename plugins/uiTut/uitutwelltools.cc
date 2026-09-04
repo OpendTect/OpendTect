@@ -30,11 +30,11 @@ ________________________________________________________________________
 static const StepInterval<int> sSampleGateRange( 3, 99, 2 );
 
 uiTutWellTools::uiTutWellTools( uiParent* p, const MultiID& wellid )
-	: uiDialog( p, Setup( tr("Log Smoothing"),
-			      tr("Specify parameters for smoothing"),
-			      HelpKey("tut","well") ) )
-	, wd_(Well::MGR().get(wellid, Well::LoadReqs(Well::LogInfos)))
-	, wellid_(wellid)
+    : uiDialog( p, Setup( tr("Log Smoothing"),
+			  tr("Specify parameters for smoothing"),
+			  HelpKey("tut","well") ) )
+    , wd_(Well::MGR().get(wellid, Well::LoadReqs(Well::LogInfos)))
+    , wellid_(wellid)
 {
     if ( !wd_ )
 	return;
@@ -93,7 +93,6 @@ bool uiTutWellTools::acceptOK( CallBacker* )
     const int outpidx = logset.indexOf( lognm );
     if ( outpidx>=0 && outpidx<logset.size() )
 	mErrRet( tr("Output Log already exists. Enter a new name") )
-
 
 
     const int gate = gatefld_->box()->getIntValue();
