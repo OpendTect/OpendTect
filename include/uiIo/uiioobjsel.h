@@ -90,6 +90,7 @@ public:
     const ZDomain::Def* requiredZDef() const;
     const ZDomain::Info* requiredZDomain() const;
     void		setHiddenPolicy(OD::HiddenPolicy);
+    OD::HiddenPolicy	hiddenPolicy() const;
 
     virtual void	updateInput();	//!< a.o. updates from CtxtIOObj
     void		processInput() override;
