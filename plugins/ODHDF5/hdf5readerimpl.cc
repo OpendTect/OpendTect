@@ -15,7 +15,13 @@ ________________________________________________________________________
 #include "iopar.h"
 #include "od_ostream.h"
 #include "odjson.h"
+#include "odmemory.h"
 #include "uistrings.h"
+#include "varlenarray.h"
+
+#ifndef OD_NO_QT
+# include <QString>
+#endif
 
 #define mAddErrDuringRead() \
     mAddHDFErr2uiRv( uiStrings::phrErrDuringRead(fileName()) )
@@ -628,6 +634,172 @@ void HDF5::ReaderImpl::gtAttribNames( const ObjectID& h5obj,
 }
 
 
+namespace HDF5 {
+
+static void setFromH5CharData( BufferString& res, const char* bytes,
+			       H5T_cset_t cset )
+{
+    if ( !bytes || !*bytes )
+    {
+	res.setEmpty();
+	return;
+    }
+
+    if ( cset != H5T_CSET_UTF8 )
+    {
+	res.set( bytes );
+	return;
+    }
+
+#ifndef OD_NO_QT
+    const QString qstr = QString::fromUtf8( bytes );
+    const QString decomp = qstr.normalized( QString::NormalizationForm_KD );
+    BufferString ascii;
+    ascii.setBufSize( decomp.size() + 1 );
+    for ( int idx=0; idx<decomp.size(); idx++ )
+    {
+	const QChar qch = decomp.at( idx );
+	const QChar::Category cat = qch.category();
+	if ( cat == QChar::Mark_NonSpacing ||
+	     cat == QChar::Mark_Enclosing ||
+	     cat == QChar::Mark_SpacingCombining )
+	    continue;
+
+	const ushort uc = qch.unicode();
+	ascii.add( uc < 0x80 ? static_cast<char>(uc) : '?' );
+    }
+
+    res.set( ascii.buf() );
+#else
+    res.setEmpty();
+    const unsigned char* ptr =
+			reinterpret_cast<const unsigned char*>( bytes );
+    while ( *ptr )
+    {
+	if ( *ptr < 0x80 )
+	{
+	    res.add( static_cast<char>(*ptr) );
+	    ptr++;
+	    continue;
+	}
+
+	int nextra = 0;
+	if ( (*ptr & 0xE0) == 0xC0 )
+	    nextra = 1;
+	else if ( (*ptr & 0xF0) == 0xE0 )
+	    nextra = 2;
+	else if ( (*ptr & 0xF8) == 0xF0 )
+	    nextra = 3;
+
+	res.add( '?' );
+	ptr++;
+	while ( nextra-- > 0 && (*ptr & 0xC0) == 0x80 )
+	    ptr++;
+    }
+#endif
+}
+
+
+static hsize_t nrH5ArrayTypeElems( ::hid_t atype )
+{
+    if ( H5Tget_class(atype) != H5T_ARRAY )
+	return 1;
+
+    const int nd = H5Tget_array_ndims( atype );
+    if ( nd < 1 )
+	return 1;
+
+    hsize_t adims[H5S_MAX_RANK];
+    if ( H5Tget_array_dims2( atype, adims ) < 0 )
+	return 1;
+
+    hsize_t nrelems = 1;
+    for ( int idx=0; idx<nd; idx++ )
+	nrelems *= adims[idx];
+
+    return nrelems;
+}
+
+
+static bool readH5StringAttr( ::hid_t attr, ::hid_t atype, ::hid_t space,
+			      BufferString& res )
+{
+    ::hid_t strtype = atype;
+    bool closestype = false;
+    if ( H5Tget_class(atype) == H5T_ARRAY )
+    {
+	strtype = H5Tget_super( atype );
+	if ( strtype < 0 )
+	    return false;
+
+	closestype = true;
+    }
+
+    if ( H5Tget_class(strtype) != H5T_STRING )
+    {
+	if ( closestype )
+	    H5Tclose( strtype );
+	return false;
+    }
+
+    const hssize_t npoints = H5Sget_simple_extent_npoints( space );
+    if ( npoints < 1 )
+    {
+	if ( closestype )
+	    H5Tclose( strtype );
+	return false;
+    }
+
+    const H5T_cset_t cset = H5Tget_cset( strtype );
+    const hsize_t nelems = (hsize_t)npoints * nrH5ArrayTypeElems( atype );
+    bool ok = false;
+    if ( H5Tis_variable_str(strtype) > 0 )
+    {
+	mAllocLargeVarLenArr( char*, ptrs, nelems );
+	if ( ptrs.ptr() )
+	{
+	    OD::sysMemZero( ptrs.ptr(), (size_t)nelems * sizeof(char*) );
+	    if ( H5Aread(attr, atype, ptrs.ptr()) >= 0 )
+	    {
+		BufferString joined;
+		for ( hsize_t idx=0; idx<nelems; idx++ )
+		{
+		    BufferString piece;
+		    setFromH5CharData( piece, ptrs.ptr()[idx], cset );
+		    joined.add( piece );
+		}
+
+		joined.trimBlanks();
+		res = joined;
+		ok = true;
+	    }
+
+	    for ( hsize_t idx=0; idx<nelems; idx++ )
+		H5free_memory( ptrs.ptr()[idx] );
+	}
+    }
+    else
+    {
+	const size_t nbytes = (size_t)npoints * H5Tget_size( atype );
+	mAllocLargeVarLenArr( char, buf, nbytes + 1 );
+	if ( buf.ptr() && H5Aread(attr, atype, buf.ptr()) >= 0 )
+	{
+	    buf.ptr()[nbytes] = '\0';
+	    setFromH5CharData( res, buf.ptr(), cset );
+	    res.trimBlanks();
+	    ok = true;
+	}
+    }
+
+    if ( closestype )
+	H5Tclose( strtype );
+
+    return ok;
+}
+
+} // namespace HDF5
+
+
 bool HDF5::ReaderImpl::getAttribute( const char* attrnm,
 				     BufferString& res,
 				     const DataSetKey* dsky ) const
@@ -650,72 +822,17 @@ bool HDF5::ReaderImpl::getAttribute( const char* attrnm,
 
     const ::hid_t atype = H5Aget_type( attr );
     mCatchHDF( atype, H5Aclose( attr ); return false );
-    const ::hid_t ntype = H5Tget_native_type( atype,
-					      H5T_DIR_ASCEND );
-    mCatchHDF( ntype,
+    const ::hid_t space = H5Aget_space( attr );
+    mCatchHDF( space,
 	H5Tclose( atype );
 	H5Aclose( attr );
 	return false );
-    if ( H5Tget_class(ntype) != H5T_STRING )
-    {
-	H5Tclose( ntype );
-	H5Tclose( atype );
-	H5Aclose( attr );
-	return false;
-    }
 
-    if ( H5Tis_variable_str(ntype) )
-    {
-	const ::hid_t memtype = H5Tcopy( H5T_C_S1 );
-	mCatchHDF( memtype,
-	    H5Tclose( ntype );
-	    H5Tclose( atype );
-	    H5Aclose( attr );
-	    return false );
-	if ( H5Tset_size(memtype, H5T_VARIABLE) < 0 )
-	{
-	    H5Tclose( memtype );
-	    H5Tclose( ntype );
-	    H5Tclose( atype );
-	    H5Aclose( attr );
-	    return false;
-	}
-
-	char* buf = nullptr;
-	if ( H5Aread(attr, memtype, &buf) < 0 )
-	{
-	    H5Tclose( memtype );
-	    H5Tclose( ntype );
-	    H5Tclose( atype );
-	    H5Aclose( attr );
-	    return false;
-	}
-
-	res.set( buf ? buf : "" );
-	H5free_memory( buf );
-	H5Tclose( memtype );
-    }
-    else
-    {
-	const size_t sz = H5Tget_size( ntype );
-	BufferString buf;
-	buf.setBufSize( (int)sz + 1 );
-	if ( H5Aread(attr, ntype, buf.getCStr()) < 0 )
-	{
-	    H5Tclose( ntype );
-	    H5Tclose( atype );
-	    H5Aclose( attr );
-	    return false;
-	}
-
-	buf.getCStr()[sz] = '\0';
-	res.set( buf.str() );
-    }
-
-    H5Tclose( ntype );
+    const bool ok = readH5StringAttr( attr, atype, space, res );
+    H5Sclose( space );
     H5Tclose( atype );
     H5Aclose( attr );
-    return true;
+    return ok;
 }
 
 
@@ -790,104 +907,63 @@ static bool readAttrValueAsString( ::hid_t scope, const char* attrnm,
 	H5Tclose( atype );
 	H5Aclose( attr );
 	return false );
-    if ( H5Sget_simple_extent_type(space) != H5S_SCALAR )
+
+    const H5T_class_t cls = H5Tget_class( atype );
+    bool ok = false;
+    if ( cls == H5T_STRING || cls == H5T_ARRAY )
+	ok = HDF5::readH5StringAttr( attr, atype, space, res );
+    else if ( H5Sget_simple_extent_type(space) != H5S_SCALAR )
     {
 	H5Sclose( space );
 	H5Tclose( atype );
 	H5Aclose( attr );
 	return false;
     }
-
-    const ::hid_t ntype = H5Tget_native_type( atype,
-					      H5T_DIR_ASCEND );
-    mCatchHDF( ntype,
-	H5Sclose( space );
-	H5Tclose( atype );
-	H5Aclose( attr );
-	return false );
-
-    const H5T_class_t cls = H5Tget_class( ntype );
-    bool ok = false;
-    if ( cls == H5T_STRING )
+    else
     {
-	if ( H5Tis_variable_str(ntype) )
-	{
-	    const H5T_cset_t cset = H5Tget_cset( ntype );
-	    if ( cset != H5T_CSET_ASCII )
-	    {
-		pFreeFnErrMsg(
-		"Only H5 files using ASCII character encoding are supported" );
-		return false;
-	    }
+	const ::hid_t ntype = H5Tget_native_type( atype,
+						  H5T_DIR_ASCEND );
+	mCatchHDF( ntype,
+	    H5Sclose( space );
+	    H5Tclose( atype );
+	    H5Aclose( attr );
+	    return false );
 
-	    const ::hid_t memtype = H5Tcopy( H5T_C_S1 );
-	    mCatchHDF( memtype,
-		H5Tclose( ntype );
-		H5Sclose( space );
-		H5Tclose( atype );
-		H5Aclose( attr );
-		return false );
-	    if ( H5Tset_size(memtype, H5T_VARIABLE) >= 0 )
+	if ( cls == H5T_INTEGER )
+	{
+	    od_int64 ival = 0;
+	    if ( H5Aread(attr, ntype, &ival) >= 0 )
 	    {
-		char* buf = nullptr;
-		if ( H5Aread(attr,memtype,static_cast<void*>(&buf)) >= 0 )
+		res.set( ival );
+		ok = true;
+	    }
+	}
+	else if ( cls == H5T_FLOAT )
+	{
+	    const size_t typesz = H5Tget_size( ntype );
+	    if ( typesz <= sizeof(float) )
+	    {
+		float fval = 0;
+		if ( H5Aread(attr, ntype, &fval) >= 0 )
 		{
-		    res.set( buf ? buf : "" );
-		    H5free_memory( buf );
+		    res.set( fval );
 		    ok = true;
 		}
 	    }
+	    else
+	    {
+		double dval = 0;
+		if ( H5Aread(attr, ntype, &dval) >= 0 )
+		{
+		    res.set( dval );
+		    ok = true;
+		}
+	    }
+	}
 
-	    if ( memtype >= 0 )
-		H5Tclose( memtype );
-	}
-	else
-	{
-	    const size_t sz = H5Tget_size( ntype );
-	    BufferString buf;
-	    buf.setBufSize( (int)sz + 1 );
-	    if ( H5Aread(attr, ntype,
-			 buf.getCStr()) >= 0 )
-	    {
-		buf.getCStr()[sz] = '\0';
-		res.set( buf.str() );
-		ok = true;
-	    }
-	}
-    }
-    else if ( cls == H5T_INTEGER )
-    {
-	od_int64 ival = 0;
-	if ( H5Aread(attr, ntype, &ival) >= 0 )
-	{
-	    res.set( ival );
-	    ok = true;
-	}
-    }
-    else if ( cls == H5T_FLOAT )
-    {
-	const size_t typesz = H5Tget_size( ntype );
-	if ( typesz <= sizeof(float) )
-	{
-	    float fval = 0;
-	    if ( H5Aread(attr, ntype, &fval) >= 0 )
-	    {
-		res.set( fval );
-		ok = true;
-	    }
-	}
-	else
-	{
-	    double dval = 0;
-	    if ( H5Aread(attr, ntype, &dval) >= 0 )
-	    {
-		res.set( dval );
-		ok = true;
-	    }
-	}
+	H5Tclose( ntype );
     }
 
-    H5Tclose( ntype );
     H5Sclose( space );
     H5Tclose( atype );
     H5Aclose( attr );
@@ -900,18 +976,10 @@ static herr_t addAttrToIOPar( hid_t loc_id, const char* name,
 {
     IOPar* iop = static_cast<IOPar*>( opdata );
     BufferString res;
-    if ( readAttrValueAsString( loc_id, name, res ) )
-    {
-	if ( res.isEmpty() || !res.buf() )
-	{
-	    iop->set( name, "" );
-	}
-	else
-	{
-	    iop->set( name, res.buf() );
-	}
-    }
+    if ( !readAttrValueAsString(loc_id,name,res) )
+	return -1;
 
+    iop->set( name, res.buf() );
     return 0;
 }
 
@@ -1038,7 +1106,7 @@ bool HDF5::ReaderImpl::getAttribute( const char* attrnm, double& res,
 
 
 void HDF5::ReaderImpl::gtInfo( const ObjectID& h5obj, IOPar& iop,
-	uiRetVal& uirv ) const
+			       uiRetVal& uirv ) const
 {
     Threads::Locker locker( lock_ );
     if ( !h5obj.isValid() )
