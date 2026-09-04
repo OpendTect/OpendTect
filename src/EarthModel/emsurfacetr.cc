@@ -696,6 +696,22 @@ uiString uiNrDoneText() const override
     return tr("Faults written");
 }
 
+bool doPrepare( od_ostream* /*strm*/ ) override
+{
+    if ( !File::isDirectory( basedir_ ) )
+    {
+	if ( !File::createDir( basedir_ ) )
+	    return false;
+    }
+    else
+    {
+	if ( !File::removeDir( basedir_ ) || !File::createDir( basedir_ ) )
+	    return false;
+    }
+
+    return true;
+}
+
 int nextStep() override
 {
     const int nrfaults = fltset_.nrFaults();
@@ -705,16 +721,8 @@ int nextStep() override
 	return Finished();
     }
 
-    if ( !File::isDirectory(basedir_) )
-    {
-	if ( !File::createDir(basedir_) )
-	    return ErrorOccurred();
-    }
-    else
-    {
-	if ( !File::removeDir(basedir_) || !File::createDir(basedir_) )
-	    return ErrorOccurred();
-    }
+    if (!File::isDirectory(basedir_) )
+	return ErrorOccurred();
 
     const EM::FaultID id = fltset_.getFaultID( curidx_ );
     FilePath fp( basedir_, toString(id.asInt()) );
