@@ -1041,6 +1041,10 @@ void Well::odReader::readLogData( Log& wl, od_istream& strm, int bintype ) const
 
 bool Well::odReader::getDefLogs() const
 {
+    const BufferString deflogfnm = getFileName(sExtDefaults());
+    if ( !File::exists(deflogfnm) )
+	return true; // Not a reason for failure
+
     mGetInpStream( sExtDefaults(), 0, true, return false )
     return getDefLogs( strm );
 }
