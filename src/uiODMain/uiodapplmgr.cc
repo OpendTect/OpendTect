@@ -1174,15 +1174,15 @@ bool uiODApplMgr::handleEMServEv( int evid )
 			      faultdisplayids );
 	emdisplayids.append( faultdisplayids );
 
-	TypeSet<VisID> faultsetdisplay;
+	TypeSet<VisID> faultsetdisplayids;
 	visserv_->findObject( typeid( visSurvey::FaultSetDisplay ),
-			      faultsetdisplay );
-	emdisplayids.append( faultsetdisplay );
+			      faultsetdisplayids );
+	emdisplayids.append( faultsetdisplayids );
 
-	TypeSet<VisID> faultstickdisplay;
+	TypeSet<VisID> faultstickdisplayids;
 	visserv_->findObject( typeid(visSurvey::FaultStickSetDisplay),
-			      faultstickdisplay );
-	emdisplayids.append( faultstickdisplay );
+			      faultstickdisplayids );
+	emdisplayids.append( faultstickdisplayids );
 
 	for ( int idx=0; idx<emdisplayids.size(); idx++ )
 	{
