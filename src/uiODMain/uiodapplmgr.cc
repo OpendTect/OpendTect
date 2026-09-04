@@ -44,6 +44,7 @@ ________________________________________________________________________
 #include "uizaxistransform.h"
 
 #include "visfaultdisplay.h"
+#include "visfaultsetdisplay.h"
 #include "visfaultsticksetdisplay.h"
 #include "vishorizon2ddisplay.h"
 #include "vishorizondisplay.h"
@@ -1173,6 +1174,11 @@ bool uiODApplMgr::handleEMServEv( int evid )
 			      faultdisplayids );
 	emdisplayids.append( faultdisplayids );
 
+	TypeSet<VisID> faultsetdisplay;
+	visserv_->findObject( typeid( visSurvey::FaultSetDisplay ),
+			      faultsetdisplay );
+	emdisplayids.append( faultsetdisplay );
+
 	TypeSet<VisID> faultstickdisplay;
 	visserv_->findObject( typeid(visSurvey::FaultStickSetDisplay),
 			      faultstickdisplay );
@@ -1191,9 +1197,14 @@ bool uiODApplMgr::handleEMServEv( int evid )
 	    if ( fd && fd->getEMObjectID()==emid )
 		remove = true;
 
-	    mDynamicCastGet(visSurvey::FaultStickSetDisplay*,fsd,
+	    mDynamicCastGet(visSurvey::FaultSetDisplay*, fsd,
 		    visserv_->getObject(emdisplayids[idx]));
 	    if ( fsd && fsd->getEMObjectID()==emid )
+		remove = true;
+
+	    mDynamicCastGet(visSurvey::FaultStickSetDisplay*,fssd,
+		    visserv_->getObject(emdisplayids[idx]));
+	    if ( fssd && fssd->getEMObjectID()==emid )
 		remove = true;
 
 	    if ( !remove ) continue;
