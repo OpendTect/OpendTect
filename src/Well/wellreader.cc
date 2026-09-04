@@ -876,6 +876,10 @@ void Well::odReader::readLogData( Log& wl, od_istream& strm, int bintype ) const
 
 bool Well::odReader::getDefLogs() const
 {
+    const BufferString deflogfnm = getFileName(sExtDefaults());
+    if ( !File::exists(deflogfnm) )
+	return true; // Not a reason for failure
+
     mGetInpStream( sExtDefaults(), 0, true, return false )
     return getDefLogs( strm );
 }
@@ -972,8 +976,9 @@ bool Well::odReader::getD2T() const	{ return doGetD2T( false ); }
 bool Well::odReader::getCSMdl() const	{ return doGetD2T( true ); }
 bool Well::odReader::doGetD2T( bool csmdl ) const
 {
-    mGetInpStream( csmdl ? sExtCSMdl() : sExtD2T(), 0, true, return false )
-    return doGetD2T( strm, csmdl );
+    mGetInpStream( csmdl ? sExtCSMdl() : sExtD2T(), 0, false, )
+    return File::exists(strm.fileName()) ? strm.isOK() && doGetD2T(strm,csmdl)
+					 : true;
 }
 
 
