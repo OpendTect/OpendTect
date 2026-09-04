@@ -44,6 +44,7 @@ ________________________________________________________________________
 #include "uizaxistransform.h"
 
 #include "visfaultdisplay.h"
+#include "visfaultsetdisplay.h"
 #include "visfaultsticksetdisplay.h"
 #include "vishorizon2ddisplay.h"
 #include "vishorizondisplay.h"
@@ -1166,10 +1167,15 @@ bool uiODApplMgr::handleEMServEv( int evid )
 			      faultdisplayids );
 	emdisplayids.append( faultdisplayids );
 
-	TypeSet<VisID> faultstickdisplay;
+	TypeSet<VisID> faultsetdisplayids;
+	visserv_->findObject( typeid(visSurvey::FaultSetDisplay),
+			      faultsetdisplayids );
+	emdisplayids.append( faultsetdisplayids );
+
+	TypeSet<VisID> faultstickdisplayids;
 	visserv_->findObject( typeid(visSurvey::FaultStickSetDisplay),
-			      faultstickdisplay );
-	emdisplayids.append( faultstickdisplay );
+			      faultstickdisplayids );
+	emdisplayids.append( faultstickdisplayids );
 
 	for ( int idx=0; idx<emdisplayids.size(); idx++ )
 	{
@@ -1184,9 +1190,14 @@ bool uiODApplMgr::handleEMServEv( int evid )
 	    if ( fd && fd->getEMObjectID()==emid )
 		remove = true;
 
-	    mDynamicCastGet(visSurvey::FaultStickSetDisplay*,fsd,
+	    mDynamicCastGet(visSurvey::FaultSetDisplay*,fsd,
 		    visserv_->getObject(emdisplayids[idx]));
 	    if ( fsd && fsd->getEMObjectID()==emid )
+		remove = true;
+
+	    mDynamicCastGet(visSurvey::FaultStickSetDisplay*,fssd,
+		    visserv_->getObject(emdisplayids[idx]));
+	    if ( fssd && fssd->getEMObjectID()==emid )
 		remove = true;
 
 	    if ( !remove ) continue;
