@@ -42,6 +42,7 @@ public:
     {
     public:
 			Setup(const uiString& seltxt=uiString::empty());
+			Setup(const Setup&);
 			~Setup();
 
 	mDefSetupMembInit(bool,confirmoverwr,true)
@@ -55,6 +56,7 @@ public:
 	mDefSetupMembInit(OD::HiddenPolicy,hiddenpolicy,
 			  OD::HiddenPolicy::HideHidden);
 
+	Setup&		operator=(const Setup&);
     };
 
 			uiIOObjSel(uiParent*,const IOObjContext&,
@@ -89,6 +91,7 @@ public:
     const ZDomain::Def* requiredZDef() const;
     const ZDomain::Info* requiredZDomain() const;
     void		setHiddenPolicy(OD::HiddenPolicy);
+    OD::HiddenPolicy	hiddenPolicy() const;
 
     virtual void	updateInput();	//!< a.o. updates from CtxtIOObj
     void		processInput() override;

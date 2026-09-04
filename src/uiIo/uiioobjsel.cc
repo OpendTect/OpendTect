@@ -38,6 +38,18 @@ uiIOObjRetDlg::~uiIOObjRetDlg()
 {}
 
 
+
+// uiIOObjSelDlg::Setup
+
+uiIOObjSelDlg::Setup::Setup( const uiString& titletxt )
+    : titletext_(titletxt)
+{}
+
+
+uiIOObjSelDlg::Setup::~Setup()
+{}
+
+
 // uiIOObjSelDlg
 
 static HelpKey getHelpKey( bool forread )
@@ -141,10 +153,11 @@ void uiIOObjSelDlg::init( const CtxtIOObj& ctio )
     else
 	captn = tr( "Select %1" );
 
-   if ( selgrp_->getContext().name().isEmpty() )
+    if ( selgrp_->getContext().name().isEmpty() )
 	captn = captn.arg( ctio.ctxt_.trgroup_->typeName(nr) );
     else
 	captn = captn.arg( toUiString(ctio.ctxt_.name()) );
+
     setCaption( captn );
 
     mAttachCB(selgrp_->getListField()->doubleClicked, uiDialog::accept);
@@ -174,6 +187,32 @@ uiIOObjSel::Setup::Setup( const uiString& seltxt )
 
 uiIOObjSel::Setup::~Setup()
 {}
+
+
+uiIOObjSel::Setup::Setup( const Setup& oth )
+    : uiIOSelect::Setup(oth)
+{
+    *this = oth;
+}
+
+
+uiIOObjSel::Setup& uiIOObjSel::Setup::operator=( const Setup& oth )
+{
+    if ( &oth == this )
+	return *this;
+
+    uiIOSelect::Setup::operator=( oth );
+
+    confirmoverwr_ = oth.confirmoverwr_;
+    withinserters_ = oth.withinserters_;
+    withwriteopts_ = oth.withwriteopts_;
+    filldef_ = oth.filldef_;
+    withctxtfilter_ = oth.withctxtfilter_;
+    trsnotallwed_ = oth.trsnotallwed_;
+    hiddenpolicy_ = oth.hiddenpolicy_;
+
+    return *this;
+}
 
 
 // uiIOObjSel
@@ -416,6 +455,12 @@ const ZDomain::Info* uiIOObjSel::requiredZDomain() const
 void uiIOObjSel::setHiddenPolicy( OD::HiddenPolicy policy )
 {
     workctio_.ctxt_.setHiddenPolicy( policy );
+}
+
+
+OD::HiddenPolicy uiIOObjSel::hiddenPolicy() const
+{
+    return workctio_.ctxt_.hiddenPolicy();
 }
 
 
@@ -747,7 +792,8 @@ uiIOObjRetDlg* uiIOObjSel::mkDlg()
     sdsu.multisel( false )
 	.withwriteopts( setup_.withwriteopts_ )
 	.withinserters( setup_.withinserters_ )
-	.trsnotallwed( setup_.trsnotallwed_ );
+	.trsnotallwed( setup_.trsnotallwed_ )
+	.hiddenpolicy( hiddenPolicy() );
     auto* ret = new uiIOObjSelDlg( this, sdsu, workctio_ );
     uiIOObjSelGrp* selgrp = ret->selGrp();
     if ( selgrp )
