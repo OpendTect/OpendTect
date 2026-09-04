@@ -588,11 +588,15 @@ bool Well::HDF5Reader::getDispProps() const
 	return false;
 
     const char* usernm = GetInterpreterName();
-    const HDF5::DataSetKey dsky( sDispParsGrpName(), usernm );
+    HDF5::DataSetKey dsky( sDispParsGrpName(), usernm );
     if ( !rdr_->hasDataSet(dsky) )
     {
-	errmsg_.set( rdr_->sCannotReadDataSet(dsky) );
-	return false;
+	BufferStringSet dispgrps;
+	rdr_->getDataSets(dsky.groupName(), dispgrps );
+	if ( dispgrps.isEmpty() )
+	    return true;
+
+	dsky.setDataSetName( dispgrps.first()->buf() );
     }
 
     IOPar iop;
