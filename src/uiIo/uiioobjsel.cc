@@ -143,7 +143,7 @@ void uiIOObjSelDlg::init( const CtxtIOObj& ctio )
     else
 	captn = tr( "Select %1" );
 
-   if ( selgrp_->getContext().name().isEmpty() )
+    if ( selgrp_->getContext().name().isEmpty() )
 	captn = captn.arg( ctio.ctxt_.trgroup_->typeName(nr) );
     else
 	captn = captn.arg( toUiString(ctio.ctxt_.name()) );
@@ -459,6 +459,12 @@ const ZDomain::Info* uiIOObjSel::requiredZDomain() const
 void uiIOObjSel::setHiddenPolicy( OD::HiddenPolicy policy )
 {
     workctio_.ctxt_.setHiddenPolicy( policy );
+}
+
+
+OD::HiddenPolicy uiIOObjSel::hiddenPolicy() const
+{
+    return workctio_.ctxt_.hiddenPolicy();
 }
 
 
@@ -795,6 +801,7 @@ uiIOObjRetDlg* uiIOObjSel::mkDlg()
     uiIOObjSelGrp* selgrp = ret->selGrp();
     if ( selgrp )
     {
+	selgrp->setHiddenPolicy( hiddenPolicy() );
 	selgrp->setConfirmOverwrite( false );
 	if ( wrtrselfld_ )
 	    selgrp->setDefTranslator( wrtrselfld_->selectedTranslator() );
