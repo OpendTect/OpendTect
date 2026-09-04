@@ -417,7 +417,7 @@ bool Well::odWriter::putLogs() const
 	if ( !wl )
 	    continue;
 
-	const int bintype = bintypes.validIdx( idx) ? bintypes[idx] : mUdf(int);
+	const int bintype = bintypes.validIdx(idx) ? bintypes[idx] : mUdf(int);
 	const DataBuffer* dbuf = wl->isLoaded() ? nullptr :
 			    (databufset.validIdx(idy) ? databufset.get(idy++)
 						      : nullptr);
@@ -483,15 +483,15 @@ bool Well::odWriter::wrLogHdr( const Log& wl, int bintype,
 
     astrm.putYN( Log::sKeyHdrInfo(), havepars );
     const char* stortype;
-    if ( mIsUdf(bintype) || (bintype < 1 && bintype > 1) )
-    {
-	stortype = binwrlogs_ ? (__islittle__ ? "Binary" : "Swapped")
-			      : "Ascii";
-    }
-    else
+    if ( !mIsUdf(bintype) && bintype >= -1 && bintype <= 1 )
     {
 	stortype = bintype == 0 ? "Ascii"
 				: (bintype == 1 ? "Binary" : "Swapped");
+    }
+    else
+    {
+	stortype = binwrlogs_ ? (__islittle__ ? "Binary" : "Swapped")
+			      : "Ascii";
     }
 
     astrm.put( Log::sKeyStorage(), stortype );
