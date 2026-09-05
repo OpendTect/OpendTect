@@ -106,8 +106,19 @@ Well::Well()
 
 Well::~Well()
 {
-    removeChild( track_->osgNode() );
+    if ( track_ && track_->osgNode() &&track_->osgNode()->getNumParents() > 0 )
+	removeChild( track_->osgNode() );
+
     removeLogs();
+    if ( leftlogdisplay_ && leftlogdisplay_->getNumParents() > 0 )
+	removeChild( leftlogdisplay_ );
+
+    if ( rightlogdisplay_ && rightlogdisplay_->getNumParents() > 0 )
+	removeChild( rightlogdisplay_ );
+
+    if ( centerlogdisplay_ && centerlogdisplay_->getNumParents() > 0 )
+	removeChild( centerlogdisplay_ );
+
     unRefOsgPtr( leftlogdisplay_ );
     unRefOsgPtr( rightlogdisplay_ );
     unRefOsgPtr( centerlogdisplay_ );
