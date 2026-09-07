@@ -29,8 +29,24 @@ FaultSet3D::FaultSet3D( EMManager& man )
 
 
 FaultSet3D::~FaultSet3D()
+{}
+
+
+FaultSet3D& FaultSet3D::operator =( const FaultSet3D& oth )
 {
-    deepUnRef( faults_ );
+    if ( &oth == this )
+	return *this;
+
+    faults_ = oth.faults_;
+    ids_ = oth.ids_;
+    curidnr_ = oth.curidnr_;
+    tkzsenvelope_ = oth.tkzsenvelope_;
+
+    EM::EMObjectCallbackData cbdata;
+    cbdata.event = EM::EMObjectCallbackData::BurstAlert;
+    change.trigger( cbdata );
+
+    return *this;
 }
 
 
@@ -78,7 +94,6 @@ FaultID FaultSet3D::getFaultID( int idx ) const
 
 FaultID FaultSet3D::addFault( RefMan<Fault3D> flt )
 {
-    flt->ref();
     faults_.add( flt.ptr() );
     FaultID newid( ++curidnr_ );
     ids_.add( newid );
@@ -91,7 +106,6 @@ bool FaultSet3D::addFault( RefMan<Fault3D> flt, FaultID fid )
     if ( ids_.isPresent(fid) )
 	return false;
 
-    flt->ref();
     faults_.add( flt.ptr() );
     ids_.add( fid );
     return true;
@@ -105,7 +119,7 @@ bool FaultSet3D::removeFault( FaultID fid )
 	return false;
 
     ids_.removeSingle( idx );
-    faults_.removeSingle( idx )->unRef();
+    faults_.removeSingle( idx );
     return true;
 }
 

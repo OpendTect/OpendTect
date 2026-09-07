@@ -21,6 +21,8 @@ mExpClass(EarthModel) FaultSet3D : public EMObject
 { mDefineEMObjFuncs( FaultSet3D );
 public:
 
+    FaultSet3D&			operator =(const FaultSet3D&);
+
     uiString			getUserTypeStr() const override;
 
     int				nrFaults() const;
@@ -53,7 +55,7 @@ protected:
 
     friend class		ObjectManager;
 
-    ObjectSet<Fault3D>		faults_;
+    RefObjectSet<Fault3D>	faults_;
     TypeSet<FaultID>		ids_;
     int				curidnr_ = 0;
     TrcKeyZSampling		tkzsenvelope_;
