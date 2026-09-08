@@ -67,6 +67,7 @@ protected:
     MouseEventHandler& 		mouseEventHandler(int);
 
     void 			getPosInfo(BufferString&) const;
+    bool			isDrawnMarker(const Well::Marker*) const;
     float 			mousePos() const; 
     
     float			time_;
