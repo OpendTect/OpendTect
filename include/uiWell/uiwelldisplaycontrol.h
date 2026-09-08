@@ -54,25 +54,26 @@ public:
 protected:
 
     ObjectSet<uiWellDahDisplay> logdisps_;
-    uiWellDahDisplay* 		seldisp_;
+    uiWellDahDisplay*		seldisp_	= nullptr;
 
     BufferString                info_;
-    bool			ismousedown_;
-    bool			isctrlpressed_;
+    bool			ismousedown_	= false;
+    bool			isctrlpressed_	= false;
 
-    const Well::Marker* 	selmarker_;
-    const Well::Marker* 	lastselmarker_;
+    const Well::Marker*		selmarker_	= nullptr;
+    const Well::Marker*		lastselmarker_	= nullptr;
 
     void			highlightMarker(const Well::Marker&,bool);
     MouseEventHandler& 		mouseEventHandler(int);
 
     void 			getPosInfo(BufferString&) const;
+    bool			isDrawnMarker(const Well::Marker*) const;
     float 			mousePos() const; 
     
-    float			time_;
-    float			dah_;
-    float			xpos_;
-    float			ypos_;
+    float			time_		= 0.f;
+    float			dah_		= 0.f;
+    float			xpos_		= 0.f;
+    float			ypos_		= 0.f;
 
     void 			mouseMovedCB(CallBacker*);
     void                        mousePressedCB(CallBacker*);

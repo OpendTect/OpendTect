@@ -12,26 +12,17 @@ ________________________________________________________________________
 #include "uiaxishandler.h"
 #include "uigraphicsitemimpl.h"
 #include "uigraphicsscene.h"
-#include "uiwelllogdisplay.h"
+#include "uiwelldahdisplay.h"
 
 #include "mouseevent.h"
+#include "unitofmeasure.h"
 #include "welld2tmodel.h"
-#include "welllog.h"
 #include "wellmarker.h"
 #include "welltrack.h"
 
 
 uiWellDisplayControl::uiWellDisplayControl( uiWellDahDisplay& l )
-    : selmarker_(0)
-    , seldisp_(0)
-    , lastselmarker_(0)
-    , ismousedown_(false)
-    , isctrlpressed_(false)
-    , xpos_(0)
-    , ypos_(0)
-    , time_(0)
-    , dah_(0)
-    , posChanged(this)
+    : posChanged(this)
     , mousePressed(this)
     , mouseReleased(this)
     , markerSel(this)
@@ -74,25 +65,28 @@ void uiWellDisplayControl::removeDahDisplay( uiWellDahDisplay& disp )
 void uiWellDisplayControl::clear()
 {
     logdisps_.erase();
-    seldisp_ = 0;
-    lastselmarker_ = 0;
+    seldisp_ = nullptr;
+    selmarker_ = nullptr;
+    lastselmarker_ = nullptr;
 }
 
 
 MouseEventHandler& uiWellDisplayControl::mouseEventHandler( int dispidx )
-    { return logdisps_[dispidx]->scene().getMouseEventHandler(); }
+{
+    return logdisps_[dispidx]->scene().getMouseEventHandler();
+}
 
 
 MouseEventHandler* uiWellDisplayControl::mouseEventHandler()
-    { return seldisp_ ? &seldisp_->scene().getMouseEventHandler() : 0; }
+{
+    return seldisp_ ? &seldisp_->scene().getMouseEventHandler() : nullptr;
+}
 
 
 void uiWellDisplayControl::mouseMovedCB( CallBacker* cb )
 {
     mDynamicCastGet(MouseEventHandler*,mevh,cb)
-    if ( !mevh )
-	return;
-    if ( !mevh->hasEvent() || mevh->isHandled() )
+    if ( !mevh || !mevh->hasEvent() || mevh->isHandled() )
 	return;
 
     if ( seldisp_ )
@@ -119,6 +113,12 @@ void uiWellDisplayControl::mouseMovedCB( CallBacker* cb )
 	}
     }
 
+    if ( selmarker_ && !isDrawnMarker(selmarker_) )
+	selmarker_ = nullptr;
+
+    if ( lastselmarker_ && !isDrawnMarker(lastselmarker_) )
+	lastselmarker_ = nullptr;
+
     BufferString info;
     getPosInfo( info );
     CBCapsule<BufferString> caps( info, this );
@@ -136,7 +136,11 @@ void uiWellDisplayControl::getPosInfo( BufferString& info ) const
     const uiWellDahDisplay::DahObjData& data2 = seldisp_->dahObjData(false);
     if ( data1.hasData() ) { info += "  "; data1.getInfoForDah(dah_,info); }
     if ( data2.hasData() ) { info += "  "; data2.getInfoForDah(dah_,info); }
-    if ( selmarker_ ) { info += "  Marker:"; info += selmarker_->name(); }
+    if ( isDrawnMarker(selmarker_) )
+    {
+	info += "  Marker:";
+	info += selmarker_->name();
+    }
 
     const UnitOfMeasure* zduom = UnitOfMeasure::surveyDefDepthUnit();
     const UnitOfMeasure* zsuom = UnitOfMeasure::surveyDefDepthStorageUnit();
@@ -173,7 +177,9 @@ void uiWellDisplayControl::setPosInfo( CallBacker* cb )
 {
     info_.setEmpty();
     mCBCapsuleUnpack(BufferString,mesg,cb);
-    if ( mesg.isEmpty() ) return;
+    if ( mesg.isEmpty() )
+	return;
+
     info_ += mesg;
 }
 
@@ -181,9 +187,7 @@ void uiWellDisplayControl::setPosInfo( CallBacker* cb )
 void uiWellDisplayControl::mousePressedCB( CallBacker* cb )
 {
     mDynamicCastGet(MouseEventHandler*,mevh,cb)
-    if ( !mevh )
-	return;
-    if ( !mevh->hasEvent() || mevh->isHandled() )
+    if ( !mevh || !mevh->hasEvent() || mevh->isHandled() )
 	return;
 
     ismousedown_ = true;
@@ -196,9 +200,7 @@ void uiWellDisplayControl::mousePressedCB( CallBacker* cb )
 void uiWellDisplayControl::mouseReleasedCB( CallBacker* cb )
 {
     mDynamicCastGet(MouseEventHandler*,mevh,cb)
-    if ( !mevh )
-	return;
-    if ( !mevh->hasEvent() || mevh->isHandled() )
+    if ( !mevh || !mevh->hasEvent() || mevh->isHandled() )
 	return;
 
     ismousedown_ = false;
@@ -209,7 +211,7 @@ void uiWellDisplayControl::mouseReleasedCB( CallBacker* cb )
 
 void uiWellDisplayControl::setSelDahDisplay( CallBacker* cb )
 {
-    seldisp_ = 0;
+    seldisp_ = nullptr;
     if ( cb )
     {
 	mDynamicCastGet(MouseEventHandler*,mevh,cb)
@@ -254,6 +256,24 @@ void uiWellDisplayControl::setSelMarkerCB( CallBacker* cb )
 }
 
 
+bool uiWellDisplayControl::isDrawnMarker( const Well::Marker* mrk ) const
+{
+    if ( !mrk )
+	return false;
+
+    for ( const auto* ld : logdisps_ )
+    {
+	for ( const auto* markerdraw : ld->markerdraws_ )
+	{
+	    if ( &markerdraw->mrk_ == mrk )
+		return true;
+	}
+    }
+
+    return false;
+}
+
+
 void uiWellDisplayControl::setSelMarker( const Well::Marker* mrk )
 {
     if ( !mrk )
@@ -266,7 +286,7 @@ void uiWellDisplayControl::setSelMarker( const Well::Marker* mrk )
     selmarker_ = mrk;
     if ( seldisp_ )
 	seldisp_->setToolTip( mrk ? toUiString(mrk->name()) :
-						    uiStrings::sEmptyString() );
+						    uiString::empty() );
 
     if ( lastselmarker_ != mrk )
 	lastselmarker_ = mrk;
@@ -277,7 +297,7 @@ void uiWellDisplayControl::highlightMarker( const Well::Marker& mrk, bool yn )
 {
     for ( auto* ld : logdisps_ )
     {
-	const uiWellDahDisplay::MarkerDraw* mrkdraw = ld->getMarkerDraw( mrk );
+	uiWellDahDisplay::MarkerDraw* mrkdraw = ld->getMarkerDraw( mrk );
 	if ( !mrkdraw )	
 	    continue;
 
