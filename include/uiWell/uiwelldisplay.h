@@ -9,11 +9,13 @@ ________________________________________________________________________
 -*/
 
 #include "uiwellmod.h"
+
 #include "uigroup.h"
 #include "uimainwin.h"
-#include "welldata.h"
 #include "uigeom.h"
 #include "uigraphicsview.h"
+
+#include "welldata.h"
 #include "welldisp.h"
 
 class uiWellDahDisplay;
@@ -22,7 +24,6 @@ class uiWellDisplayControl;
 class uiWellLogDisplay;
 class uiWellStratDisplay;
 
-namespace Well { class Data; }
 
 /*!
 \brief Well display.
@@ -34,39 +35,24 @@ public:
 
     mStruct(uiWell) Setup
     {
-				Setup()
-				    : nobackground_(false)  
-				    , nologborder_(false)
-				    , noxannot_(false)
-				    , noyannot_(false)
-				    , xaxisinpercents_(false)
-				    , withcontrol_(true)
-				    , takedisplayfrom3d_(false)
-				    {}
-	virtual		~Setup()	{}
+				Setup();
+	virtual			~Setup();
 
-	mDefSetupMemb(bool,nobackground)
-	mDefSetupMemb(bool,noxannot)
-	mDefSetupMemb(bool,xaxisinpercents)
-	mDefSetupMemb(bool,noyannot)
-	mDefSetupMemb(int,nologborder)
-	mDefSetupMemb(bool,withcontrol) //will add a control 
-	mDefSetupMemb(bool,takedisplayfrom3d) //read 3d scene display pars 
+	mDefSetupMembInit(bool,nobackground,false)
+	mDefSetupMembInit(bool,noxannot,false)
+	mDefSetupMembInit(bool,xaxisinpercents,false)
+	mDefSetupMembInit(bool,noyannot,false)
+	mDefSetupMembInit(int,nologborder,false)
+	mDefSetupMembInit(bool,withcontrol,true)
+				//!< will add a control
+	mDefSetupMembInit(bool,takedisplayfrom3d,false)
+				//!< read 3d scene display pars
 
-	void copyFrom(const Setup& su)
-	{
-	    nobackground_	= su.nobackground_;
-	    nologborder_	= su.nologborder_;
-	    withcontrol_	= su.withcontrol_;
-	    noxannot_		= su.noxannot_;
-	    noyannot_		= su.noyannot_;
-	    xaxisinpercents_	= su.xaxisinpercents_;
-	    takedisplayfrom3d_	= su.takedisplayfrom3d_;
-	}
+	void			copyFrom(const Setup&);
     };
 
 				uiWellDisplay(uiParent*,Well::Data& wd,
-							const Setup& su );
+					      const Setup& su );
 				~uiWellDisplay();
 
     Interval<float>		zRange() const	{ return zrg_; }
@@ -88,7 +74,7 @@ public:
 
 protected:
 
-    Well::Data&			wd_;
+    RefMan<Well::Data>		wd_;
 
     Interval<float>		zrg_;
     bool			dispzinft_;
@@ -98,8 +84,8 @@ protected:
     const Setup			setup_;
 
     ObjectSet<uiWellLogDisplay> logdisps_;
-    uiWellDisplayControl*	control_;
-    uiWellStratDisplay*		stratdisp_; 
+    uiWellDisplayControl*	control_	= nullptr;
+    uiWellStratDisplay*		stratdisp_	= nullptr;
 
     void			setDahData();
     void			setDisplayProperties();

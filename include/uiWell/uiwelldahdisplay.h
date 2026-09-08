@@ -9,18 +9,13 @@ ________________________________________________________________________
 -*/
 
 #include "uiwellmod.h"
+
 #include "uigraphicsview.h"
 #include "draw.h"
+#include "welldata.h"
 #include "welldisp.h"
 
-namespace Well
-{
-    class D2TModel;
-    class DahObj;
-    class Marker;
-    class MarkerSet;
-    class Track;
-}
+namespace Well { class DahObj; }
 
 class uiAxisHandler;
 class uiGraphicsScene;
@@ -59,31 +54,21 @@ mExpClass(uiWell) uiWellDahDisplay : public uiGraphicsView
 public:
     mStruct(uiWell) Setup
     {
-			    Setup()
-			    : nrmarkerchars_(2)
-			    , pickls_(OD::LineStyle::Solid,1,OD::Color(0,200,0))
-			    , border_(5)
-			    , noxannot_(false)
-			    , noyannot_(false)
-			    , annotinside_(false)
-			    , samexaxisrange_(false)
-			    , symetricalxaxis_(false)
-			    , drawcurvenames_(false)
-			    , xannotinpercents_(false)
-			    {}
-	virtual		~Setup()	{}
+				Setup();
+	virtual			~Setup();
 
-	mDefSetupMemb(uiBorder,border)
-	mDefSetupMemb(int,nrmarkerchars)  //!< Will display up to this nr chars
+	mDefSetupMembInit(uiBorder,border,5)
+	mDefSetupMembInit(int,nrmarkerchars,2)
+				//!< Will display up to this nr chars
 	mDefSetupMemb(OD::LineStyle,pickls) //!< color used if no PickData color
-	mDefSetupMemb(int,axisticsz)
-	mDefSetupMemb(bool,noxannot)
-	mDefSetupMemb(bool,noyannot)
-	mDefSetupMemb(bool,annotinside)
-	mDefSetupMemb(bool,drawcurvenames)
-	mDefSetupMemb(bool,samexaxisrange)
-	mDefSetupMemb(bool,symetricalxaxis)
-	mDefSetupMemb(bool,xannotinpercents)
+	mDefSetupMembInit(int,axisticsz,1)
+	mDefSetupMembInit(bool,noxannot,false)
+	mDefSetupMembInit(bool,noyannot,false)
+	mDefSetupMembInit(bool,annotinside,false)
+	mDefSetupMembInit(bool,drawcurvenames,false)
+	mDefSetupMembInit(bool,samexaxisrange,false)
+	mDefSetupMembInit(bool,symetricalxaxis,false)
+	mDefSetupMembInit(bool,xannotinpercents,false)
     };
 
 				uiWellDahDisplay(uiParent*,const Setup&);
@@ -91,7 +76,7 @@ public:
 
     mStruct(uiWell) DahObjData : public CallBacker
     {
-	virtual			~DahObjData();
+				~DahObjData();
 
 	//Set these
 	void			setData(const Well::DahObj* d) { dahobj_ = d; }
@@ -129,7 +114,7 @@ public:
 
     mStruct(uiWell) Data
     {
-				Data( const Well::Data* wd );
+				Data(const Well::Data*);
 				~Data();
 
 	void			copyFrom(const uiWellDahDisplay::Data&);
@@ -137,10 +122,10 @@ public:
 	const Well::Track*	track() const;
 	const Well::MarkerSet*	mrks() const;
 
-	Interval<float>		zrg_;
+	Interval<float>		zrg_		= Interval<float>::udf();
 	bool			dispzinft_;
-	bool			zistime_		= false;
-	const Well::Data*	wd_;
+	bool			zistime_	= false;
+	ConstRefMan<Well::Data> wd_;
     };
 
     mStruct(uiWell) PickData

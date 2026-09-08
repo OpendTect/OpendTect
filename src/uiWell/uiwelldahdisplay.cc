@@ -14,19 +14,26 @@ ________________________________________________________________________
 #include "uigraphicsitemimpl.h"
 #include "uistrings.h"
 
-#include "coltabsequence.h"
 #include "dataclipper.h"
-#include "mouseevent.h"
 #include "survinfo.h"
 #include "unitofmeasure.h"
-
-#include "welldata.h"
 #include "welld2tmodel.h"
-#include "welllog.h"
 #include "wellman.h"
 #include "wellmarker.h"
 #include "welltrack.h"
 
+
+// uiWellDahDisplay::Setup
+
+uiWellDahDisplay::Setup::Setup()
+    : pickls_(OD::LineStyle::Solid,1,OD::Color(0,200,0))
+{}
+
+uiWellDahDisplay::Setup::~Setup()
+{}
+
+
+// uiWellDahDisplay::DahObjData
 
 uiWellDahDisplay::DahObjData::DahObjData( uiGraphicsScene& scn, bool isfirst,
 				    const uiWellDahDisplay::Setup& s )
@@ -70,7 +77,8 @@ uiWellDahDisplay::DahObjData::~DahObjData()
 
 void uiWellDahDisplay::DahObjData::plotAxis()
 {
-    xax_.updateScene();  yax_.updateScene();
+    xax_.updateScene();
+    yax_.updateScene();
     if ( xaxprcts_ )
 	xaxprcts_->updateScene();
 }
@@ -85,7 +93,9 @@ void uiWellDahDisplay::DahObjData::getInfoForDah( float dah,
     msg += dahobj_->name();
 
     const int idx = dahobj_->indexOf( dah );
-    if ( idx < 0 ) return;
+    if ( idx < 0 )
+	return;
+
     msg += ":";
     msg += toString( dahobj_->value( idx ) );
 }
@@ -94,36 +104,24 @@ void uiWellDahDisplay::DahObjData::getInfoForDah( float dah,
 
 // uiWellDahDisplay::Data
 uiWellDahDisplay::Data::Data( const Well::Data* wd )
-    : zrg_(mUdf(float),mUdf(float))
-    , dispzinft_(SI().depthsInFeet())
+    : dispzinft_(SI().depthsInFeet())
     , wd_(wd)
-{
-    if ( wd_ )
-	wd_->ref();
-}
+{}
 
 
 uiWellDahDisplay::Data::~Data()
-{
-    if ( wd_ )
-	wd_->unRef();
-}
+{}
 
 
-void uiWellDahDisplay::Data::copyFrom(const uiWellDahDisplay::Data& d)
+void uiWellDahDisplay::Data::copyFrom( const uiWellDahDisplay::Data& oth )
 {
-    if ( &d == this )
+    if ( &oth == this )
 	return;
 
-    zrg_ = d.zrg_;
-    zistime_ = d.zistime_;
-    dispzinft_ = d.dispzinft_;
-    if ( wd_ )
-	wd_->unRef();
-
-    wd_ = d.wd_;
-    if ( wd_ )
-	wd_->ref();
+    zrg_ = oth.zrg_;
+    dispzinft_ = oth.dispzinft_;
+    zistime_ = oth.zistime_;
+    wd_ = oth.wd_;
 }
 
 
@@ -164,19 +162,20 @@ uiWellDahDisplay::uiWellDahDisplay( uiParent* p, const Setup& su )
     , setup_(su)
     , ld1_(new DahObjData(scene(),true,su))
     , ld2_(new DahObjData(scene(),false,su))
-    , zdata_(0)
+    , zdata_(nullptr)
 {
     disableScrollZoom();
     setStretch( 2, 2 );
-    reSize.notify( mCB(this,uiWellDahDisplay,reSized) );
-    postFinalize().notify( mCB(this,uiWellDahDisplay,init) );
+    mAttachCB( reSize, uiWellDahDisplay::reSized );
+    mAttachCB( postFinalize(), uiWellDahDisplay::init );
 }
 
 
 uiWellDahDisplay::~uiWellDahDisplay()
 {
     detachAllNotifiers();
-    delete ld1_; delete ld2_;
+    delete ld1_;
+    delete ld2_;
 }
 
 
@@ -194,7 +193,7 @@ void uiWellDahDisplay::gatherInfo()
     gatherDataInfo( false );
 
     if ( !ld1_->dahobj_ && !ld2_->dahobj_ )
-	ld1_->valrg_ = ld2_->valrg_ = Interval<float>(mUdf(float),mUdf(float));
+	ld1_->valrg_ = ld2_->valrg_ = Interval<float>::udf();
 
     setAxisRanges( true );
     setAxisRanges( false );
@@ -253,7 +252,8 @@ void uiWellDahDisplay::gatherDataInfo( bool first )
 {
     uiWellDahDisplay::DahObjData& ld = first ? *ld1_ : *ld2_;
     const int sz = ld.dahobj_ ? ld.dahobj_->size() : 0;
-    if ( sz < 2 ) return;
+    if ( sz < 2 )
+	return;
 
     if ( mIsUdf( ld.valrg_.start_ ) )
     {
@@ -310,11 +310,13 @@ void uiWellDahDisplay::setAxisRanges( bool first )
     if ( mIsUdf(zdata_.zrg_.start_) )
     {
 	dispzrg = ld1_->zrg_;
-	if ( mIsUdf( dispzrg.start_ ) )
+	if ( mIsUdf(dispzrg.start_) )
 	    dispzrg = ld2_->zrg_;
-	if ( !mIsUdf( ld2_->zrg_.start_ ) )
+
+	if ( !mIsUdf(ld2_->zrg_.start_) )
 	    dispzrg.include( ld2_->zrg_ );
     }
+
     if ( dispzrg.start_ < dispzrg.stop_ )
 	dispzrg.sort( false );
 
@@ -355,7 +357,8 @@ void uiWellDahDisplay::drawCurve( bool first )
     uiWellDahDisplay::DahObjData& ld = first ? *ld1_ : *ld2_;
     deepErase( ld.curveitms_ ); ld.curvepolyitm_ = 0;
     const int sz = ld.dahobj_ ? ld.dahobj_->size() : 0;
-    if ( sz < 2 ) return;
+    if ( sz < 2 )
+	return;
 
     TypeSet<uiPoint> pts;
     pts.setCapacity( sz, false );
@@ -396,6 +399,7 @@ void uiWellDahDisplay::drawCurve( bool first )
 	ld.curveitms_.add( pli );
 	ld.curvepolyitm_ = pli;
     }
+
     if ( ld.drawaspoints_ )
     {
 	for ( int idx=0; idx<pts.size(); idx++ )
@@ -460,6 +464,7 @@ void uiWellDahDisplay::drawMarkers()
 	OD::LineStyle ls = OD::LineStyle( OD::LineStyle::Dot, drawsize, col );
 	if ( shapeint == 1 )
 	    ls.type_ =	OD::LineStyle::Solid;
+
 	if ( shapeint == 2 )
 	    ls.type_ = OD::LineStyle::Dash;
 
@@ -470,7 +475,8 @@ void uiWellDahDisplay::drawMarkers()
 
 	BufferString mtxt( mrkr.name() );
 	if ( setup_.nrmarkerchars_ < mtxt.size() )
-	mtxt[setup_.nrmarkerchars_] = '\0';
+	    mtxt[setup_.nrmarkerchars_] = '\0';
+
 	uiTextItem* ti = scene().addItem(
 	new uiTextItem(toUiString(mtxt),mAlignment(Right,VCenter)) );
 	ti->setPos( uiPoint(x1-1,y) );
@@ -483,12 +489,13 @@ void uiWellDahDisplay::drawMarkers()
 uiWellDahDisplay::MarkerDraw* uiWellDahDisplay::getMarkerDraw(
 						const Well::Marker& mrk )
 {
-    for ( int idx=0; idx<markerdraws_.size(); idx++)
+    for ( auto* md : markerdraws_ )
     {
-	if ( &(markerdraws_[idx]->mrk_) == &mrk )
-	    return markerdraws_[idx];
+	if ( &md->mrk_ == &mrk )
+	    return md;
     }
-    return 0;
+
+    return nullptr;
 }
 
 
@@ -516,6 +523,7 @@ void uiWellDahDisplay::drawZPicks()
 	OD::Color lcol( setup_.pickls_.color_ );
 	if ( pd.color_ != OD::Color::NoColor() )
 	    lcol = pd.color_;
+
 	li->setPenStyle(
 	    OD::LineStyle(setup_.pickls_.type_,setup_.pickls_.width_,lcol) );
 	li->setZValue( 2 );

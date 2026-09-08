@@ -80,6 +80,7 @@ uiSeisWvltMan::uiSeisWvltMan( uiParent* p )
     wvnamdisp_ = new uiLabel( wvltdispgrp, uiStrings::sWavelet() );
     wvnamdisp_->attach(centeredAbove, waveletdisplay_->uiobj());
     wvnamdisp_->setAlignment( Alignment::HCenter );
+    wvnamdisp_->setPrefWidthInChar( 60 );
 
     mTriggerInstanceCreatedNotifier();
     mAttachCB( windowClosed, uiSeisWvltMan::closeDlgCB );
@@ -416,14 +417,16 @@ void uiSeisWvltMan::rotUpdateCB( CallBacker* cb )
 
 void uiSeisWvltMan::dispWavelet( const Wavelet* wvlt )
 {
-    wvnamdisp_->setText( curioobj_->uiName() );
-    wvnamdisp_->setPrefWidthInChar( 60 );
-    if( !wvlt || !wvlt->samples() )
+    if ( curioobj_ )
+	wvnamdisp_->setText( curioobj_->uiName() );
+
+    const int wvltsz = wvlt->size();
+    if ( !wvlt || !wvlt->samples() || wvltsz < 2 )
     {
 	waveletdisplay_->setEmpty();
 	return;
     }
-    const int wvltsz = wvlt->size();
+
     StepInterval<float> intxval = wvlt->samplePositions();
     const float zfac = mCast(float,SI().zDomain().userFactor());
     intxval.scale( zfac );

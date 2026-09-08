@@ -9,31 +9,51 @@ ________________________________________________________________________
 
 #include "uiwelldisplay.h"
 
-#include "welldata.h"
-#include "welllog.h"
-#include "welllogset.h"
-#include "wellmarker.h"
 #include "uistatusbar.h"
 #include "uiwelldisplaycontrol.h"
 #include "uiwelllogdisplay.h"
 #include "uiwellstratdisplay.h"
 
-#include  "uimainwin.h"
+#include "welldata.h"
+#include "welllog.h"
+#include "welllogset.h"
+
+
+// uiWellDisplay::Setup
+
+uiWellDisplay::Setup::Setup()
+{}
+
+
+uiWellDisplay::Setup::~Setup()
+{}
+
+
+void uiWellDisplay::Setup::copyFrom( const Setup& oth )
+{
+    nobackground_ = oth.nobackground_;
+    nologborder_ = oth.nologborder_;
+    withcontrol_ = oth.withcontrol_;
+    noxannot_ = oth.noxannot_;
+    noyannot_ = oth.noyannot_;
+    xaxisinpercents_ = oth.xaxisinpercents_;
+    takedisplayfrom3d_ = oth.takedisplayfrom3d_;
+}
+
+
+// uiWellDisplay
 
 uiWellDisplay::uiWellDisplay( uiParent* p, Well::Data& w,
 			      const Setup& s )
     : uiGroup(p,w.name())
-    , wd_(w)
+    , wd_(&w)
     , setup_(s)
-    , zrg_(mUdf(float),0)
+    , zrg_(mUdf(float),0.f)
     , dispzinft_(SI().depthsInFeet())
     , zistime_(w.haveD2TModel() && SI().zIsTime())
     , use3ddisp_(s.takedisplayfrom3d_)
-    , control_(0)
-    , stratdisp_(0)
 {
-    wd_.ref();
-    const Well::DisplayProperties& disp = wd_.displayProperties( !use3ddisp_ );
+    const Well::DisplayProperties& disp = wd_->displayProperties( !use3ddisp_ );
 
     for ( int idx=0; idx<disp.getNrLogPanels(); idx++ )
     {
@@ -46,6 +66,7 @@ uiWellDisplay::uiWellDisplay( uiParent* p, Well::Data& w,
 	    wlsu.border_ = uiBorder(0);
 	    wlsu.annotinside_ = true;
 	}
+
 	auto* wld = new uiWellLogDisplay( this, wlsu );
 	logdisps_ += wld;
 	if ( s.nobackground_ )
@@ -61,12 +82,14 @@ uiWellDisplay::uiWellDisplay( uiParent* p, Well::Data& w,
 		control_->addDahDisplay( *wld );
 	}
     }
+
     if ( disp.displayStrat() )
     {
 	stratdisp_ = new uiWellStratDisplay( this );
 	if ( !logdisps_.isEmpty() )
 	    stratdisp_->attach( rightOf, logdisps_[logdisps_.size()-1] );
     }
+
     if ( s.nobackground_ )
     {
 	setNoBackGround();
@@ -80,20 +103,19 @@ uiWellDisplay::uiWellDisplay( uiParent* p, Well::Data& w,
     setDahData();
     setDisplayProperties();
 
-    mAttachCB( wd_.logschanged, uiWellDisplay::logsChanged );
-    mAttachCB( wd_.d2tchanged, uiWellDisplay::applyWDChanges );
-    mAttachCB( wd_.markerschanged, uiWellDisplay::applyWDChanges );
+    mAttachCB( wd_->logschanged, uiWellDisplay::logsChanged );
+    mAttachCB( wd_->d2tchanged, uiWellDisplay::applyWDChanges );
+    mAttachCB( wd_->markerschanged, uiWellDisplay::applyWDChanges );
     if ( use3ddisp_ )
-	mAttachCB( wd_.disp3dparschanged, uiWellDisplay::applyWDChanges );
+	mAttachCB( wd_->disp3dparschanged, uiWellDisplay::applyWDChanges );
     else
-	mAttachCB( wd_.disp2dparschanged, uiWellDisplay::applyWDChanges );
+	mAttachCB( wd_->disp2dparschanged, uiWellDisplay::applyWDChanges );
 }
 
 
 uiWellDisplay::~uiWellDisplay()
 {
     detachAllNotifiers();
-    wd_.unRef();
     delete control_;
     deepErase( logdisps_ );
 }
@@ -101,18 +123,17 @@ uiWellDisplay::~uiWellDisplay()
 
 void uiWellDisplay::setControl( uiWellDisplayControl& ctrl )
 {
-    if ( control_ ) delete control_;
-    for ( int idx=0; idx<logdisps_.size(); idx++ )
-    {
-	ctrl.addDahDisplay( *logdisps_[idx] );
-    }
+    delete control_;
+    for ( auto* ld : logdisps_ )
+	ctrl.addDahDisplay( *ld );
+
     control_ = &ctrl;
 }
 
 
 void uiWellDisplay::setDahData()
 {
-    uiWellDahDisplay::Data data( &wd_ );
+    uiWellDahDisplay::Data data( wd_.ptr() );
     data.zrg_ = zrg_;
     data.dispzinft_ = dispzinft_;
     data.zistime_ = zistime_;
@@ -127,7 +148,11 @@ void uiWellDisplay::setDahData()
 
 void uiWellDisplay::setDisplayProperties()
 {
-    const Well::DisplayProperties& dpp = wd_.displayProperties( !use3ddisp_ );
+    if ( !wd_ )
+	return;
+
+    const Well::DisplayProperties& dpp =
+			wd_->displayProperties( !use3ddisp_ );
 
     for ( int idx=0; idx<logdisps_.size(); idx ++ )
     {
@@ -142,9 +167,22 @@ void uiWellDisplay::setDisplayProperties()
 				lc.left_.name_ != sKey::None() ? lc.left_ :
 								 lc.center_;
 	const Well::DisplayProperties::Log& lp2 = lc.right_;
+	BufferStringSet lognames;
+	if ( !lp1.name_.isEmpty() && lp1.name_ != sKey::None() )
+	    lognames.add( lp1.name_.buf() );
 
-	const Well::Log* l1 = wd_.logs().getLog( lp1.name_.buf() );
-	const Well::Log* l2 = wd_.logs().getLog( lp2.name_.buf() );
+	if ( !lp2.name_.isEmpty() && lp2.name_ != sKey::None() )
+	    lognames.add( lp2.name_.buf() );
+
+	if ( !lognames.isEmpty() )
+	{
+	    const Well::LoadReqs lreqs( lognames );
+	    if ( !Well::MGR().get(wd_->multiID(),lreqs) )
+		return;
+	}
+
+	const Well::Log* l1 = wd_->logs().getLog( lp1.name_.buf() );
+	const Well::Log* l2 = wd_->logs().getLog( lp2.name_.buf() );
 
 	ld1.setLog( l1 );			ld2.setLog( l2 );
 	ld1.xrev_ = false;			ld2.xrev_ = false;
@@ -175,7 +213,7 @@ void uiWellDisplay::applyWDChanges( CallBacker* )
 }
 
 
-uiWellDisplayWin::uiWellDisplayWin(uiParent* p, const MultiID& mid )
+uiWellDisplayWin::uiWellDisplayWin( uiParent* p, const MultiID& mid )
     : uiMainWin(p)
 {
     const Well::LoadReqs lreqs( Well::LogInfos, Well::DispProps2D );
@@ -193,8 +231,7 @@ uiWellDisplayWin::uiWellDisplayWin(uiParent* p, const MultiID& mid )
     welldisp_ = new uiWellDisplay( this, *wd, su );
     welldisp_->setPrefWidth( 60 );
     welldisp_->setPrefHeight( 600 );
-    welldisp_->control()->posChanged.notify(
-				    mCB(this,uiWellDisplayWin,dispInfoMsg) );
+    mAttachCB( welldisp_->control()->posChanged, uiWellDisplayWin::dispInfoMsg);
 }
 
 
