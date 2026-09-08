@@ -56,7 +56,7 @@ public:
 protected:
     void		contextMenuEvent(QContextMenuEvent*) override;
     void		focusOutEvent(QFocusEvent*) override;
-
+    void		wheelEvent(QWheelEvent*) override;
 
 private:
 
@@ -149,7 +149,9 @@ void uiSpinBoxBody::setNrDecimals( int dec )
 
 
 bool uiSpinBoxBody::isModified() const
-{ return lineEdit()->isModified(); }
+{
+    return lineEdit()->isModified();
+}
 
 
 void uiSpinBoxBody::contextMenuEvent( QContextMenuEvent* ev )
@@ -166,6 +168,15 @@ void uiSpinBoxBody::focusOutEvent( QFocusEvent* ev )
     hadfocuschg_ = true;
     QAbstractSpinBox::focusOutEvent( ev );
     hadfocuschg_ = false;
+}
+
+
+void uiSpinBoxBody::wheelEvent( QWheelEvent* ev )
+{
+    if ( handle_.scrollLock() )
+	ev->ignore();
+    else
+	QDoubleSpinBox::wheelEvent( ev );
 }
 
 
@@ -202,17 +213,22 @@ uiSpinBoxBody& uiSpinBox::mkbody(uiParent* parnt, const char* nm )
 
 
 void uiSpinBox::setReadOnly( bool yn )
-{ body_->setReadOnly( yn ); }
+{
+    body_->setReadOnly( yn );
+}
 
 
 bool uiSpinBox::isReadOnly() const
-{ return body_->isReadOnly(); }
+{
+    return body_->isReadOnly();	
+}
 
 
 void uiSpinBox::setSpecialValueText( const char* txt )
 {
     body_->setSpecialValueText( txt );
-    if ( isAlpha() ) setMaxValue( 26 );
+    if ( isAlpha() )
+	setMaxValue( 26 );
 }
 
 
@@ -223,15 +239,20 @@ void uiSpinBox::setAlpha( bool yn )
 }
 
 bool uiSpinBox::isAlpha() const
-{ return body_->isAlpha(); }
+{
+    return body_->isAlpha();
+}
 
 void uiSpinBox::setNrDecimals( int dec )
-{ body_->setDecimals( dec ); }
+{
+    body_->setDecimals( dec );
+}
 
 
 void uiSpinBox::snapToStep( CallBacker* )
 {
-    if ( !dosnap_ ) return;
+    if ( !dosnap_ )
+	return;
 
     const double diff = body_->value() - body_->minimum();
     const double stp = body_->singleStep();
@@ -278,19 +299,29 @@ StepInterval<float> uiSpinBox::getFInterval() const
 
 
 int uiSpinBox::getIntValue() const
-{ return mNINT32(body_->value()); }
+{
+    return mNINT32(body_->value());
+}
 
 od_int64 uiSpinBox::getInt64Value() const
-{ return mNINT64(body_->value()); }
+{
+    return mNINT64(body_->value());
+}
 
 double uiSpinBox::getDValue() const
-{ return body_->value(); }
+{
+    return body_->value();
+}
 
 float uiSpinBox::getFValue() const
-{ return (float)body_->value(); }
+{
+    return (float)body_->value();
+}
 
 bool uiSpinBox::getBoolValue() const
-{ return getIntValue(); }
+{
+    return getIntValue();
+}
 
 
 const char* uiSpinBox::text() const
@@ -301,7 +332,9 @@ const char* uiSpinBox::text() const
 }
 
 static bool isNotSet( int val )
-{ return mIsUdf(val) || val == INT_MAX; }
+{
+    return mIsUdf(val) || val == INT_MAX;
+}
 
 
 void uiSpinBox::setValue( od_int64 val )
@@ -364,10 +397,14 @@ void uiSpinBox::setMinValue( float val )
 
 
 int uiSpinBox::minValue() const
-{ return mNINT32(body_->minimum()); }
+{
+    return mNINT32(body_->minimum());
+}
 
 float uiSpinBox::minFValue() const
-{ return (float)body_->minimum(); }
+{
+    return (float)body_->minimum();
+}
 
 
 void uiSpinBox::setMaxValue( int val )
@@ -407,10 +444,14 @@ float uiSpinBox::maxFValue() const
 
 
 int uiSpinBox::step() const
-{ return mNINT32(body_->singleStep()); }
+{
+    return mNINT32(body_->singleStep());
+}
 
 float uiSpinBox::fstep() const
-{ return (float)body_->singleStep(); }
+{
+    return (float)body_->singleStep();
+}
 
 void uiSpinBox::stepBy( int nrsteps )
 {
@@ -419,7 +460,9 @@ void uiSpinBox::stepBy( int nrsteps )
 }
 
 void uiSpinBox::setStep( int stp, bool snapcur )
-{ setStep( (float)stp, snapcur ); }
+{
+    setStep( (float)stp, snapcur );
+}
 
 void uiSpinBox::setStep( float stp, bool snapcur )
 {
@@ -471,16 +514,35 @@ void uiSpinBox::translateText()
 
 
 void uiSpinBox::setKeyboardTracking( bool yn )
-{ body_->setKeyboardTracking( yn ); }
+{
+    body_->setKeyboardTracking( yn );
+}
 
 bool uiSpinBox::keyboardTracking() const
-{ return body_->keyboardTracking(); }
+{
+    return body_->keyboardTracking();
+}
 
 void uiSpinBox::setFocusChangeTrigger( bool yn )
-{ focuschgtrigger_ = yn; }
+{
+    focuschgtrigger_ = yn;
+}
 
 bool uiSpinBox::focusChangeTrigger() const
-{ return focuschgtrigger_; }
+{
+    return focuschgtrigger_;
+}
+
+
+void uiSpinBox::setScrollLock( bool yn )
+{
+    scrolllock_ = yn;
+}
+
+bool uiSpinBox::scrollLock() const
+{
+    return scrolllock_;
+}
 
 
 void uiSpinBox::notifyHandler( bool editingfinished )

@@ -96,6 +96,9 @@ public:
     void		setFocusChangeTrigger(bool);
     bool		focusChangeTrigger() const;
 
+    void		setScrollLock(bool);
+    bool		scrollLock() const;
+
     bool		handleLongTabletPress() override;
     void		popupVirtualKeyboard(int globalx=-1,int globaly=-1);
 
@@ -117,6 +120,7 @@ private:
     bool		dosnap_; /*!< If true, value in spinbox will be snapped
 				  to a value equal to N*step. */
     bool		focuschgtrigger_;
+    bool		scrolllock_			= false;
     void		snapToStep(CallBacker*);
 
 public:
