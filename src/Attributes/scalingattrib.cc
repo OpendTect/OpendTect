@@ -280,7 +280,12 @@ void Scaling::getScaleFactorsFromStats( const TypeSet<Interval<int> >& sgates,
 	}
 
 	for ( int idx=sg.start_; idx<=sg.stop_; idx++ )
-	    stats += getInputValue( *inputdata_, dataidx_, idx-z0, z0 );
+	{
+	    const float val = getInputValue( *inputdata_, dataidx_, idx-z0,
+					     z0 );
+	    if ( !mIsUdf(val) )
+		stats += val;
+	}
 
 	float val = (float)stats.getValue( statstype );
 	scalefactors += !mIsZero(val,mDefEps) ? 1.f/val : 1;
@@ -310,11 +315,15 @@ void Scaling::getTrendsFromStats( const TypeSet<Interval<int> >& sgates,
 	int nrindexes = 0;
 	for ( int idx=sg.start_; idx<=sg.stop_; idx++ )
 	{
-	    float val = getInputValue( *inputdata_, dataidx_, idx-z0, z0 );
-	    stats += val;
-	    statsidx += mCast(float,idx);
-	    crosssum += val*idx;
-	    nrindexes++;
+	    const float val = getInputValue( *inputdata_, dataidx_, idx-z0,
+					     z0 );
+	    if ( !mIsUdf(val) )
+	    {
+		stats += val;
+		statsidx += mCast(float,idx);
+		crosssum += val*idx;
+		nrindexes++;
+	    }
 	}
 
 	const float sumvalues = (float)stats.getValue( Stats::Sum );
@@ -423,8 +432,9 @@ void Scaling::scaleSqueeze( const DataHolder& output, int z0,
     dsq.setUntouchedRange( squrg_ );
     for ( int idx=0; idx<nrsamples; idx++ )
     {
-	const float v = getInputValue( *inputdata_, dataidx_, idx, z0 );
-	setOutputValue( output, 0, idx, z0, dsq.value(v) );
+	const float val = getInputValue( *inputdata_, dataidx_, idx, z0 );
+	const float result = mIsUdf(val) ? val : dsq.value(val);
+	setOutputValue( output, 0, idx, z0, result );
     }
 }
 
@@ -434,9 +444,9 @@ void Scaling::scaleZN( const DataHolder& output, int z0, int nrsamples) const
 {
     for ( int idx=0; idx<nrsamples; idx++ )
     {
+	const float val = getInputValue( *inputdata_, dataidx_, idx, z0 );
 	const float curt = (idx+z0)*refstep_;
-	const float result = pow(curt,powerval_) *
-			     getInputValue( *inputdata_, dataidx_, idx, z0 );
+	const float result = mIsUdf(val) ? val : pow(curt,powerval_) * val;
 	setOutputValue( output, 0, idx, z0, result );
     }
 }
@@ -467,7 +477,7 @@ void Scaling::scaleGain( const DataHolder& output, int z0, int nrsamples ) const
 		(curt<gates_[0].start_ || curt>gates_[gates_.size()-1].stop_) ?
 	    1.0f : interpolator( scalefacstart, scalefacstop,
 				 curgate.start_, curgate.stop_, curt );
-	const float result = val*factor;
+	const float result = mIsUdf(val) ? val : val*factor;
 	setOutputValue( output, 0, idx, z0, result );
     }
 }
