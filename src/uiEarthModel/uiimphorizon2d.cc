@@ -90,7 +90,7 @@ int nextStep() override
 	vals[idx] = mUdf(float);
 
     bvalset_->get( pos_, bid, mVarLenArr(vals) );
-    if ( bid.inl() < 0 )
+    if ( !geomids_.validIdx(bid.inl()) )
 	return ErrorOccurred();
 
     const Pos::GeomID geomid = geomids_[bid.inl()];
