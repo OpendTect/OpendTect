@@ -10,7 +10,6 @@ ________________________________________________________________________
 #include "stratsynthgenparams.h"
 
 #include "fftfilter.h"
-#include "genc.h"
 #include "ioman.h"
 #include "prestackanglemute.h"
 #include "propertyref.h"
