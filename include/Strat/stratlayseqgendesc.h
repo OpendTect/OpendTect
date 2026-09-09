@@ -20,6 +20,7 @@ namespace Strat
 {
 class RefTree;
 class LayerSequence;
+class LayerModel;
 class LayerGenerator;
 
 
@@ -56,6 +57,8 @@ public:
     bool		putTo(od_ostream&) const;
 
     bool		prepareGenerate() const;
+    bool		prepareUse(LayerModel&) const;
+				//!< After all sequences are generated
     bool		generate(LayerSequence&,float modpos) const;
 
     uiString		errMsg() const			{ return errmsg_; }
