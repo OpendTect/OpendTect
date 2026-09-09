@@ -163,7 +163,7 @@ void uiSeisWvltMan::extractPushCB( CallBacker* )
     }
 
     wvltext_ = new uiWaveletExtraction( this, is2d );
-    wvltext_->extractionDone.notify( mCB(this,uiSeisWvltMan,wvltCreatedCB) );
+    mAttachCB( wvltext_->extractionDone, uiSeisWvltMan::wvltCreatedCB );
     wvltext_->show();
 }
 
@@ -381,7 +381,7 @@ void uiSeisWvltMan::rotatePhaseCB( CallBacker* )
     if ( dlg.go() )
 	waveletSaveAs( *wvlt, tr("rotated phase wavelet") );
 
-    dlg.acting.remove( mCB(this,uiSeisWvltMan,rotUpdateCB) );
+    mDetachCB( dlg.acting, uiSeisWvltMan::rotUpdateCB );
     mkFileInfo();
 }
 
