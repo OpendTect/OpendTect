@@ -448,7 +448,9 @@ bool uiODHorizonTreeItem::init()
 	bool istracking = false;
 	if ( !applMgr()->isRestoringSession() )
 	{
-	    hd->setDepthAsAttrib( 0 );
+	    if ( !rgba_ )
+		hd->setDepthAsAttrib( 0 );
+
 	    const int nrauxdata = hor3d->auxdata.nrAuxData();
 	    for ( int idx=0; !rgba_ && idx<nrauxdata; idx++ )
 	    {
