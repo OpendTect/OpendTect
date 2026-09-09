@@ -527,6 +527,17 @@ void SynthGenParams::usePar( const IOPar& par )
 
 	setReqType();
 	MultiID wvltkey;
+	if ( !synthpar && !wvltnm_.isEmpty() )
+	{
+	    PtrMan<IOObj> wvltobj = Wavelet::getIOObj( wvltnm_.buf() );
+	    if ( wvltobj )
+	    {
+		wvltkey = wvltobj->key();
+		createName( name_ );
+		synthpars_.set( sKey::WaveletID(), wvltkey );
+	    }
+	}
+
 	if ( synthpars_.get(sKey::WaveletID(),wvltkey) )
 	{
 	    PtrMan<IOObj> wvltobj = IOM().get( wvltkey );
