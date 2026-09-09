@@ -12,7 +12,7 @@ ________________________________________________________________________
 
 #include "uistratlaymoddisp.h"
 
-#include "datapack.h"
+#include "flatview.h"
 
 
 mExpClass(uiStrat) uiStratSimpleLayerModelDisp : public uiStratLayerModelDisp

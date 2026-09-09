@@ -10,7 +10,6 @@ ________________________________________________________________________
 
 #include "uistratmod.h"
 
-#include "flatview.h"
 #include "uigroup.h"
 #include "uistring.h"
 

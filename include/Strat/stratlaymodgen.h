@@ -39,7 +39,9 @@ public:
 private:
 
     bool		goImpl(od_ostream*,bool,bool,int) override;
+    bool		doPrepare(od_ostream*) override;
     int			nextStep() override;
+    bool		doFinish(bool,od_ostream*) override;
 
     const LayerSequenceGenDesc& desc_;
     LayerModel&			lm_;

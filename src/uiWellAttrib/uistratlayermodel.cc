@@ -15,7 +15,8 @@ ________________________________________________________________________
 #include "keystrs.h"
 #include "objdisposer.h"
 #include "od_helpids.h"
-#include "od_iostream.h"
+#include "od_istream.h"
+#include "od_ostream.h"
 #include "stratlayermodel.h"
 #include "stratlayersequence.h"
 #include "stratlaymodgen.h"
@@ -62,7 +63,8 @@ uiStratLayerModel::uiStratLayerModel( uiParent* p, const char* edtyp, int opt )
     , afterRetrieve(this)
     , desc_(*new Strat::LayerSequenceGenDesc(Strat::RT()))
     , lms_(*new Strat::LayerModelSuite)
-    , descctio_(*mMkCtxtIOObj(StratLayerSequenceGenDesc))
+    , descctio_(
+	*new CtxtIOObj(StratLayerSequenceGenDescTranslatorGroup::ioContext()))
     , helpkey_(*new HelpKey(mODHelpKey(mSingleLayerGeneratorEdHelpID)))
 {
     setDeleteOnClose( true );

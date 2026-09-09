@@ -18,8 +18,9 @@ ________________________________________________________________________
 #include "stratlayer.h"
 #include "stratlayermodel.h"
 #include "stratlayersequence.h"
+#include "stratlaygen.h"
 #include "stratlaymodgen.h"
-#include "strattransl.h"
+#include "strattransl.h" // IWYU pragma: keep
 #include "stratsinglaygen.h"
 #include "stratreftree.h"
 #include "unitofmeasure.h"
@@ -56,26 +57,28 @@ Strat::LayerModelGenerator::~LayerModelGenerator()
 bool Strat::LayerModelGenerator::goImpl( od_ostream* strm, bool first,
 					 bool last, int delay )
 {
+    return Executor::goImpl( strm, first, last, delay );
+}
+
+
+bool Strat::LayerModelGenerator::doPrepare( od_ostream* /*strm*/ )
+{
     lm_.setEmpty();
     seqnr_ = 0;
-    if ( desc_.prepareGenerate() )
-	msg_ = tr("Generating layer sequences");
-    else
+    if ( !desc_.prepareGenerate() )
     {
 	msg_ = desc_.errMsg();
-	seqnr_ = -1;
+	return false;
     }
 
+    msg_ = tr("Generating layer sequences");
     lm_.propertyRefs() = desc_.propSelection();
-    return Executor::goImpl( strm, first, last, delay );
+    return true;
 }
 
 
 int Strat::LayerModelGenerator::nextStep()
 {
-    if ( seqnr_ == -1 )
-	return ErrorOccurred();
-
     const float modpos = nrseqs_ < 2 ? 0.5f : ((float)seqnr_)/(nrseqs_-1);
     if ( !desc_.generate(lm_.addSequence(),modpos) )
     {
@@ -84,9 +87,26 @@ int Strat::LayerModelGenerator::nextStep()
     }
 
     seqnr_++;
-    return seqnr_ >= nrseqs_ ? Finished() : MoreToDo();
+    return nrDone() < totalNr() ? MoreToDo() : Finished();
 }
 
+
+bool Strat::LayerModelGenerator::doFinish( bool res, od_ostream* /*strm*/ )
+{
+    if ( !res )
+	return false;
+
+    if ( !desc_.prepareUse(lm_) )
+    {
+	msg_ = desc_.errMsg();
+	return false;
+    }
+
+    return true;
+}
+
+
+// Strat::LayerGenerator
 
 Strat::LayerGenerator::~LayerGenerator()
 {}
@@ -327,6 +347,26 @@ bool Strat::LayerSequenceGenDesc::prepareGenerate() const
 	if ( !lgen.reset() )
 	    errmsg_ = lgen.errMsg();
     }
+    return true;
+}
+
+
+bool Strat::LayerSequenceGenDesc::prepareUse( LayerModel& lm ) const
+{
+    errmsg_.setEmpty();
+    for ( int idx=0; idx<size(); idx++ )
+    {
+	const LayerGenerator& lgen = *(*this)[idx];
+	if ( !lgen.prepareUse(lm) )
+	{
+	    errmsg_ = lgen.errMsg();
+	    if ( errmsg_.isEmpty() )
+		errmsg_ = tr("Error preparing %1").arg( lgen.name() );
+	    return false;
+	}
+    }
+
+    lm.prepareUse();
     return true;
 }
 

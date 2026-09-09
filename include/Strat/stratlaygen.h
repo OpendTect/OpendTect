@@ -16,6 +16,7 @@ namespace Strat
 {
 class RefTree;
 class LayerSequence;
+class LayerModel;
 class LayerSequenceGenDesc;
 
 /*!\brief Description that can generate layers and add these to a sequence.
@@ -49,6 +50,8 @@ public:
 			    Property::EvalOpts eo=Property::EvalOpts()) const;
 
     virtual bool	reset() const	{ return true; }
+    virtual bool	prepareUse(LayerModel&) const	{ return true; }
+				//!< After all sequences are generated
     virtual uiString	errMsg() const	{ return uiString::emptyString(); }
     virtual void	syncProps(const PropertyRefSelection&)		= 0;
     virtual void	updateUsedProps(PropertyRefSelection&) const	= 0;
