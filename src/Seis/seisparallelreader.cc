@@ -1234,7 +1234,7 @@ bool Seis::SequentialReader::init()
 	return false;
     }
 
-    if ( !trcssampling_ )
+    if ( !trcssampling_ && dp_->getTrcsSampling() )
 	trcssampling_ = new PosInfo::CubeData( *dp_->getTrcsSampling() );
 
     trcssampling_->limitTo( tkzs_.hsamp_ );

@@ -9,6 +9,7 @@ ________________________________________________________________________
 
 #include "posinfo.h"
 
+#include "errmsg.h"
 #include "math2.h"
 #include "od_iostream.h"
 #include "survinfo.h"
@@ -306,7 +307,15 @@ void PosInfo::CubeData::copyContents( const PosInfo::CubeData& cd )
     {
 	erase();
 	for ( int idx=0; idx<cd.size(); idx++ )
-	    *this += new PosInfo::LineData( *cd[idx] );
+	{
+	    const LineData* srcd = cd[idx];
+	    if ( !srcd )
+	    {
+		pErrMsg( "Null LineData in CubeData being copied" );
+		continue;
+	    }
+	    *this += new PosInfo::LineData( *srcd );
+	}
     }
 }
 
