@@ -66,7 +66,7 @@ uiSeisWvltMan::uiSeisWvltMan( uiParent* p )
     taperbut_ = manipgrp->addButton( "wavelet_taper", tr("Taper"),
 				     mCB(this,uiSeisWvltMan,taper) );
     addButtons();
-    uiGroup* wvltdispgrp = new uiGroup( listgrp_,"Wavelet Display" );
+    auto* wvltdispgrp = new uiGroup( listgrp_,"Wavelet Display" );
     wvltdispgrp->attach( rightOf, selgrp_ );
 
     uiFuncDispBase::Setup fdsu;
@@ -82,6 +82,7 @@ uiSeisWvltMan::uiSeisWvltMan( uiParent* p )
     wvnamdisp_ = new uiLabel( wvltdispgrp, uiStrings::sWavelet() );
     wvnamdisp_->attach(centeredAbove, waveletdisplay_->uiobj());
     wvnamdisp_->setAlignment( Alignment::HCenter );
+    wvnamdisp_->setPrefWidthInChar( 60 );
 
     mTriggerInstanceCreatedNotifier();
     mAttachCB( windowClosed, uiSeisWvltMan::closeDlg );
@@ -418,14 +419,16 @@ void uiSeisWvltMan::rotUpdateCB( CallBacker* cb )
 
 void uiSeisWvltMan::dispWavelet( const Wavelet* wvlt )
 {
-    wvnamdisp_->setText( curioobj_->uiName() );
-    wvnamdisp_->setPrefWidthInChar( 60 );
-    if( !wvlt || !wvlt->samples() )
+    if ( curioobj_ )
+	wvnamdisp_->setText( curioobj_->uiName() );
+
+    const int wvltsz = wvlt->size();
+    if ( !wvlt || !wvlt->samples() || wvltsz < 2 )
     {
 	waveletdisplay_->setEmpty();
 	return;
     }
-    const int wvltsz = wvlt->size();
+
     StepInterval<float> intxval = wvlt->samplePositions();
     const float zfac = mCast(float,SI().zDomain().userFactor());
     intxval.scale( zfac );
