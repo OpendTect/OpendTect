@@ -16,6 +16,7 @@ namespace Strat
 {
 class RefTree;
 class LayerSequence;
+class LayerModel;
 class LayerSequenceGenDesc;
 
 /*!\brief Description that can generate layers and add these to a sequence.
@@ -67,6 +68,13 @@ protected:
     friend class	LayerSequenceGenDesc;
 
 };
+
+
+//! ABI-safe hook for post-generation work on a LayerModel.
+using LayerGeneratorFinalizer = bool (*)( const LayerGenerator&, LayerModel&,
+					  uiString& );
+mGlobal(Strat) void setLayerGeneratorFinalizer( const char* typestr,
+						LayerGeneratorFinalizer );
 
 
 #define mDefLayerGeneratorFns(clss,typstr) \

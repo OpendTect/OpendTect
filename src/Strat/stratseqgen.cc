@@ -10,6 +10,7 @@ ________________________________________________________________________
 #include "stratlayseqgendesc.h"
 
 #include "ascstream.h"
+#include "bufstring.h"
 #include "iopar.h"
 #include "keystrs.h"
 #include "mathproperty.h"
@@ -18,10 +19,12 @@ ________________________________________________________________________
 #include "stratlayer.h"
 #include "stratlayermodel.h"
 #include "stratlayersequence.h"
+#include "stratlaygen.h"
 #include "stratlaymodgen.h"
-#include "strattransl.h"
+#include "strattransl.h" // IWYU pragma: keep
 #include "stratsinglaygen.h"
 #include "stratreftree.h"
+#include "typeset.h"
 #include "unitofmeasure.h"
 
 
@@ -58,24 +61,30 @@ bool Strat::LayerModelGenerator::goImpl( od_ostream* strm, bool first,
 {
     lm_.setEmpty();
     seqnr_ = 0;
-    if ( desc_.prepareGenerate() )
-	msg_ = tr("Generating layer sequences");
-    else
+    if ( !desc_.prepareGenerate() )
     {
 	msg_ = desc_.errMsg();
-	seqnr_ = -1;
+	return false;
     }
 
+    msg_ = tr("Generating layer sequences");
     lm_.propertyRefs() = desc_.propSelection();
-    return Executor::goImpl( strm, first, last, delay );
+
+    if ( !Executor::goImpl(strm,first,last,delay) )
+	return false;
+
+    if ( !desc_.prepareUse(lm_) )
+    {
+	msg_ = desc_.errMsg();
+	return false;
+    }
+
+    return true;
 }
 
 
 int Strat::LayerModelGenerator::nextStep()
 {
-    if ( seqnr_ == -1 )
-	return ErrorOccurred();
-
     const float modpos = nrseqs_ < 2 ? 0.5f : ((float)seqnr_)/(nrseqs_-1);
     if ( !desc_.generate(lm_.addSequence(),modpos) )
     {
@@ -84,12 +93,63 @@ int Strat::LayerModelGenerator::nextStep()
     }
 
     seqnr_++;
-    return seqnr_ >= nrseqs_ ? Finished() : MoreToDo();
+    return nrDone() < totalNr() ? MoreToDo() : Finished();
 }
 
 
 Strat::LayerGenerator::~LayerGenerator()
 {}
+
+
+static BufferStringSet& sLayerGenFinalizerKeys()
+{
+    static BufferStringSet keys;
+    return keys;
+}
+
+static TypeSet<Strat::LayerGeneratorFinalizer>& sLayerGenFinalizers()
+{
+    static TypeSet<Strat::LayerGeneratorFinalizer> finalizers;
+    return finalizers;
+}
+
+
+void Strat::setLayerGeneratorFinalizer( const char* typestr,
+					LayerGeneratorFinalizer fn )
+{
+    if ( !typestr || !*typestr || !fn )
+	return;
+
+    const BufferString key( typestr );
+    for ( int idx=0; idx<sLayerGenFinalizerKeys().size(); idx++ )
+    {
+	if ( sLayerGenFinalizerKeys().get(idx) == key )
+	{
+	    sLayerGenFinalizers()[idx] = fn;
+	    return;
+	}
+    }
+
+    sLayerGenFinalizerKeys().add( new BufferString(key) );
+    sLayerGenFinalizers().add( fn );
+}
+
+
+static Strat::LayerGeneratorFinalizer getLayerGeneratorFinalizer(
+							const char* typestr )
+{
+    if ( !typestr || !*typestr )
+	return nullptr;
+
+    const BufferString key( typestr );
+    for ( int idx=0; idx<sLayerGenFinalizerKeys().size(); idx++ )
+    {
+	if ( sLayerGenFinalizerKeys().get(idx) == key )
+	    return sLayerGenFinalizers()[idx];
+    }
+
+    return nullptr;
+}
 
 
 Strat::LayerGenerator* Strat::LayerGenerator::get( const IOPar& iop,
@@ -327,6 +387,30 @@ bool Strat::LayerSequenceGenDesc::prepareGenerate() const
 	if ( !lgen.reset() )
 	    errmsg_ = lgen.errMsg();
     }
+    return true;
+}
+
+
+bool Strat::LayerSequenceGenDesc::prepareUse( LayerModel& lm ) const
+{
+    errmsg_.setEmpty();
+    for ( int idx=0; idx<size(); idx++ )
+    {
+	const LayerGenerator& lgen = *(*this)[idx];
+	LayerGeneratorFinalizer fn =
+			getLayerGeneratorFinalizer( lgen.factoryKeyword() );
+	if ( !fn )
+	    continue;
+
+	if ( !fn(lgen,lm,errmsg_) )
+	{
+	    if ( errmsg_.isEmpty() )
+		errmsg_ = tr("Error preparing %1").arg( lgen.name() );
+	    return false;
+	}
+    }
+
+    lm.prepareUse();
     return true;
 }
 
