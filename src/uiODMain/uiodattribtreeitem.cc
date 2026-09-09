@@ -30,6 +30,7 @@ ________________________________________________________________________
 #include "uitreeview.h"
 #include "uiviscoltabed.h"
 #include "uivispartserv.h"
+#include "visrgbatexturechannel2rgba.h"
 #include "vissurvobj.h"
 #include "vissurvscene.h"
 
@@ -284,7 +285,28 @@ uiString uiODAttribTreeItem::createDisplayName( const VisID& visid, int attrib )
     }
 
     if ( as && as->id().asInt()==Attrib::SelSpec::cAttribNotSel().asInt() )
+    {
 	dispname = uiStrings::sRightClick();
+	mDynamicCastGet(const visSurvey::SurveyObject*,so,
+			visserv->getObject(visid))
+	mDynamicCastGet(const visBase::RGBATextureChannel2RGBA*,rgba,
+			so ? so->getChannels2RGBA() : nullptr)
+	if ( rgba )
+	{
+	    uiString colornm;
+	    switch ( attrib )
+	    {
+		case 0: colornm = uiStrings::sRed(); break;
+		case 1: colornm = uiStrings::sGreen(); break;
+		case 2: colornm = uiStrings::sBlue(); break;
+		case 3: colornm = uiStrings::sAlpha(); break;
+		default: break;
+	    }
+
+	    if ( !colornm.isEmpty() )
+		dispname = uiStrings::phrJoinStrings( colornm, dispname );
+	}
+    }
     else if ( !as )
 	dispname = visserv->getUiObjectName( visid );
     else if ( as->id().asInt() == Attrib::SelSpec::cNoAttrib().asInt() )
