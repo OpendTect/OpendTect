@@ -1608,24 +1608,20 @@ void uiStratSynthDisp::fillPar( IOPar& iop ) const
     datamgr_.fillPar( iop, &dispiops );
     const BufferString startviewstr(
 			IOPar::compKey(sKey::Synthetic(2),sKeyViewArea()) );
-    if ( !control().zoomMgr().atStart() )
-    {
-	const uiWorldRect& curvw = vwr_->curView();
-	if ( StratSynth::isEmpty(curvw) )
-	    iop.removeWithKey( startviewstr );
-	else
-	{
-	    TypeSet<double> startviewareapts;
-	    startviewareapts.setSize( 4 );
-	    startviewareapts[0] = curvw.left();
-	    startviewareapts[1] = curvw.top();
-	    startviewareapts[2] = curvw.right();
-	    startviewareapts[3] = curvw.bottom();
-	    iop.set( startviewstr, startviewareapts );
-	}
-    }
-    else
+    const uiWorldRect& curvw = vwr_->curView();
+    const uiWorldRect bbwr = vwr_->boundingBox();
+    if ( StratSynth::isEmpty(curvw) || StratSynth::isEqual(bbwr,curvw) )
 	iop.removeWithKey( startviewstr );
+    else
+    {
+	TypeSet<double> startviewareapts;
+	startviewareapts.setSize( 4 );
+	startviewareapts[0] = curvw.left();
+	startviewareapts[1] = curvw.top();
+	startviewareapts[2] = curvw.right();
+	startviewareapts[3] = curvw.bottom();
+	iop.set( startviewstr, startviewareapts );
+    }
 }
 
 
