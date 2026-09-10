@@ -50,10 +50,10 @@ uiIssueReporterDlg::uiIssueReporterDlg( uiParent* p,
     mUnusedVar auto* filelbl =
 	new uiLabel( this, tr("Error report "), filenamefld );
 
-    auto* showbut = new uiPushButton( this, tr("Show in folder"),
+    showbut_ = new uiPushButton( this, tr("Show in folder"),
 			mCB(this,uiIssueReporterDlg,viewReportCB), false );
-    showbut->setIcon( "folder" );
-    showbut->attach( rightOf, filenamefld );
+    showbut_->setIcon( "folder" );
+    showbut_->attach( rightOf, filenamefld );
     infolbl->attach( centeredAbove, filenamefld, mExtraSpacing );
 
     machinfofld_ = new uiTextBrowser( this );
