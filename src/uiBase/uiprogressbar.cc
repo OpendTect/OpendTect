@@ -14,17 +14,17 @@ ________________________________________________________________________
 
 mUseQtnamespace
 
-class uiProgressBarBody : public uiObjBodyImpl<uiProgressBar,QProgressBar>
+class uiProgressBarBody : public uiObjBodyImpl2<uiProgressBar,QProgressBar>
 {
 public:
 			uiProgressBarBody( uiProgressBar& hndle,
 					   uiParent* parnt, const char* nm )
-			    : uiObjBodyImpl<uiProgressBar,QProgressBar>
+			    : uiObjBodyImpl2<uiProgressBar,QProgressBar>
 				(hndle,parnt,nm)
-			    {
-				setStretch( 1, 0 );
-				setHSzPol( uiObject::MedVar );
-			    }
+			{
+			    setStretch( 1, 0 );
+			    setHSzPol( uiObject::MedVar );
+			}
 
     int			nrTxtLines() const override		{ return 1; }
 };

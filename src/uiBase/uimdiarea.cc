@@ -28,7 +28,7 @@ mUseQtnamespace
 
 static bool sNoCloseMessage = false;
 
-class uiMdiAreaBody : public uiObjBodyImpl<uiMdiArea,QMdiArea>
+class uiMdiAreaBody : public uiObjBodyImpl2<uiMdiArea,QMdiArea>
 {
 public:
 			uiMdiAreaBody(uiMdiArea&,uiParent*,const char*);
@@ -42,7 +42,7 @@ protected:
 
 
 uiMdiAreaBody::uiMdiAreaBody( uiMdiArea& hndle, uiParent* p, const char* nm )
-    : uiObjBodyImpl<uiMdiArea,QMdiArea>(hndle,p,nm)
+    : uiObjBodyImpl2<uiMdiArea,QMdiArea>(hndle,p,nm)
     , messenger_(*new i_MdiAreaMessenger(this,&hndle))
 {}
 

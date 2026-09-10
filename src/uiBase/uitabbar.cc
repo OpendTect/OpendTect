@@ -34,17 +34,16 @@ void uiTab::setCaption( const uiString& caption )
 }
 
 
-class uiTabBarBody : public uiObjBodyImpl<uiTabBar,QTabBar>
+class uiTabBarBody : public uiObjBodyImpl2<uiTabBar,QTabBar>
 {
 public:
 			uiTabBarBody( uiTabBar& hndl, uiParent* p,
 				      const char* nm )
-			    : uiObjBodyImpl<uiTabBar,QTabBar>(hndl,p,
-									nm)
+			    : uiObjBodyImpl2<uiTabBar,QTabBar>(hndl,p,nm)
 			    , messenger_(*new i_tabbarMessenger(this,&hndl))
-			    {
-				setHSzPol( uiObject::MedVar );
-			    }
+			{
+			    setHSzPol( uiObject::MedVar );
+			}
 
     virtual		~uiTabBarBody()	{ delete &messenger_; }
 

@@ -174,3 +174,21 @@ private:
     Timer*		displaytimer_		= nullptr;
 #endif
 };
+
+
+mExpClass(uiBase) uiObjectBody2 : public uiObjectBody
+{
+protected:
+			uiObjectBody2(uiParent*,const char* nm);
+			~uiObjectBody2();
+			mOD_DisableCopy(uiObjectBody2)
+
+public:
+
+    bool		isShrunk() const		{ return shrunk_; }
+    void		setShrunk( bool yn )		{ shrunk_ = yn; }
+
+protected:
+
+    bool		shrunk_		= false;
+};

@@ -275,7 +275,7 @@ int uiTextEditBase::nrLines() const
 }
 
 
-class uiTextEditBody : public uiObjBodyImpl<uiTextEdit,QTextEdit>
+class uiTextEditBody : public uiObjBodyImpl2<uiTextEdit,QTextEdit>
 {
 public:
 
@@ -298,7 +298,7 @@ protected:
 
 uiTextEditBody::uiTextEditBody( uiTextEdit& hndl, uiParent* p,
 				const char* nm, bool ro )
-    : uiObjBodyImpl<uiTextEdit,QTextEdit>( hndl, p, nm )
+    : uiObjBodyImpl2<uiTextEdit,QTextEdit>(hndl,p,nm)
     , messenger_(*new i_TextEditMessenger(this,&hndl))
 {
     setStretch( 2, 2 );
@@ -426,7 +426,7 @@ void uiTextEdit::setWordWrapMode( WrapMode mode )
 //-------------------------------------------------------
 
 
-class uiTextBrowserBody : public uiObjBodyImpl<uiTextBrowser,QTextBrowser>
+class uiTextBrowserBody : public uiObjBodyImpl2<uiTextBrowser,QTextBrowser>
 {
 public:
 
@@ -455,7 +455,7 @@ private:
 
 uiTextBrowserBody::uiTextBrowserBody( uiTextBrowser& hndl, uiParent* p,
 				      const char* nm, bool plaintxt )
-    : uiObjBodyImpl<uiTextBrowser,QTextBrowser>( hndl, p, nm )
+    : uiObjBodyImpl2<uiTextBrowser,QTextBrowser>(hndl,p,nm)
     , messenger_( *new i_BrowserMessenger(this, &hndl))
     , vertscrollbarmessenger_(
 		    *new i_ScrollBarMessenger(this->verticalScrollBar(),&hndl))

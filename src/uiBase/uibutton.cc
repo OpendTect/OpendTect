@@ -48,14 +48,14 @@ uiButtonMessenger::~uiButtonMessenger()
 
 
 
-class uiButtonBody : public uiObjectBody
+class uiButtonBody : public uiObjectBody2
 		   , public uiButtonMessenger
 {
 public:
 
 uiButtonBody( uiButton& uibut, uiParent* p, const uiString& txt,
 	      QAbstractButton& qbut )
-    : uiObjectBody(p,txt.getFullString())
+    : uiObjectBody2(p,txt.getFullString())
     , uibut_(uibut)
     , qbut_(qbut)
     , messenger_(qbut,*this)

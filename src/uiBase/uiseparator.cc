@@ -14,13 +14,13 @@ ________________________________________________________________________
 
 mUseQtnamespace
 
-class uiSeparatorBody : public uiObjBodyImpl<uiSeparator,QFrame>
+class uiSeparatorBody : public uiObjBodyImpl2<uiSeparator,QFrame>
 {
 public:
 
 uiSeparatorBody( uiSeparator& hndl, uiParent* p, const char* nm,
 		 bool hor, bool raised )
-    : uiObjBodyImpl<uiSeparator,QFrame>(hndl,p,nm)
+    : uiObjBodyImpl2<uiSeparator,QFrame>(hndl,p,nm)
 {
     setFrameStyle( (hor ? QFrame::HLine : QFrame::VLine)
 		 | (raised ? QFrame::Raised

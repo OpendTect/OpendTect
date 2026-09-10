@@ -27,7 +27,7 @@ ________________________________________________________________________
 
 mUseQtnamespace
 
-class uiSpinBoxBody : public uiObjBodyImpl<uiSpinBox,QDoubleSpinBox>
+class uiSpinBoxBody : public uiObjBodyImpl2<uiSpinBox,QDoubleSpinBox>
 {
 public:
 			uiSpinBoxBody(uiSpinBox&,uiParent*,const char*);
@@ -70,7 +70,7 @@ private:
 
 
 uiSpinBoxBody::uiSpinBoxBody( uiSpinBox& hndl, uiParent* p, const char* nm )
-    : uiObjBodyImpl<uiSpinBox,QDoubleSpinBox>(hndl,p,nm)
+    : uiObjBodyImpl2<uiSpinBox,QDoubleSpinBox>(hndl,p,nm)
     , messenger_(*new i_SpinBoxMessenger(this,&hndl))
     , dval(new QDoubleValidator(this))
     , isalpha_(false)

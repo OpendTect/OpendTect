@@ -180,7 +180,7 @@ CellObject::~CellObject()
 }
 
 
-class uiTableBody : public uiObjBodyImpl<uiTable,QTableWidget>
+class uiTableBody : public uiObjBodyImpl2<uiTable,QTableWidget>
 {
 public:
 			uiTableBody(uiTable&,uiParent*,const char*,int,int);
@@ -251,7 +251,7 @@ static void setResizeMode( QHeaderView* hdr, QHeaderView::ResizeMode mode,
 
 uiTableBody::uiTableBody( uiTable& hndl, uiParent* parnt, const char* nm,
 			  int nrows, int ncols )
-    : uiObjBodyImpl<uiTable,QTableWidget>(hndl,parnt,nm)
+    : uiObjBodyImpl2<uiTable,QTableWidget>(hndl,parnt,nm)
     , messenger_ (*new i_tableMessenger(this,&hndl))
 {
     if ( nrows >= 0 )

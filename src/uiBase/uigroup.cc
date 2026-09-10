@@ -51,7 +51,7 @@ protected:
 };
 
 
-class uiGroupObjBody : public uiObjectBody, public QFrame
+class uiGroupObjBody : public uiObjectBody2, public QFrame
 {
     friend class		uiMainWin;
     friend class		uiDialog;
@@ -317,11 +317,10 @@ void uiGroupParentBody::finalize( bool trigger_finalize_start_stop )
 
 // ----- uiGroupObjBody -----
 uiGroupObjBody::uiGroupObjBody( uiGroupObj& hndle, uiParent* parnt,
-				    const char* nm )
-    : uiObjectBody( parnt, nm )
-    , QFrame( parnt && parnt->pbody() ?  parnt->pbody()->managewidg() : 0 )
-    , prntbody_( 0 )
-    , handle_( hndle )
+				const char* nm )
+    : uiObjectBody2(parnt,nm)
+    , QFrame(parnt && parnt->pbody() ?	parnt->pbody()->managewidg() : nullptr)
+    , handle_(hndle)
 {}
 
 

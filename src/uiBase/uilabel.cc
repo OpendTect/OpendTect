@@ -22,12 +22,12 @@ ________________________________________________________________________
 
 mUseQtnamespace
 
-class uiLabelBody : public uiObjBodyImpl<uiLabel,QLabel>
+class uiLabelBody : public uiObjBodyImpl2<uiLabel,QLabel>
 {
 public:
 
 uiLabelBody( uiLabel& hndle, uiParent* parnt, const uiString& txt )
-    : uiObjBodyImpl<uiLabel,QLabel>(hndle,parnt,txt.getString())
+    : uiObjBodyImpl2<uiLabel,QLabel>(hndle,parnt,txt.getString())
 {}
 
 int nrTxtLines() const override

@@ -26,7 +26,7 @@ ________________________________________________________________________
 
 mUseQtnamespace
 
-class uiLineEditBody : public uiObjBodyImpl<uiLineEdit,QLineEdit>
+class uiLineEditBody : public uiObjBodyImpl2<uiLineEdit,QLineEdit>
 {
 public:
 
@@ -50,7 +50,7 @@ private:
 
 uiLineEditBody::uiLineEditBody( uiLineEdit& hndle,uiParent* parnt,
 				const char* nm )
-    : uiObjBodyImpl<uiLineEdit,QLineEdit>(hndle,parnt,nm)
+    : uiObjBodyImpl2<uiLineEdit,QLineEdit>(hndle,parnt,nm)
     , messenger_ ( *new i_lineEditMessenger(this,&hndle) )
 {
     setStretch( 1, 0 );

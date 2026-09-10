@@ -30,11 +30,11 @@ ________________________________________________________________________
 
 mUseQtnamespace
 
-class uiComboBoxBody : public uiObjBodyImpl<uiComboBox,QComboBox>
+class uiComboBoxBody : public uiObjBodyImpl2<uiComboBox,QComboBox>
 {
 public:
 uiComboBoxBody( uiComboBox& hndle, uiParent* p, const char* nm )
-    : uiObjBodyImpl<uiComboBox,QComboBox>(hndle,p,nm)
+    : uiObjBodyImpl2<uiComboBox,QComboBox>(hndle,p,nm)
     , messenger_( *new i_comboMessenger( this, &hndle))
 {
     setEditable( false );

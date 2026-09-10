@@ -348,7 +348,7 @@ QString displayText( const QVariant& value,
 }; // class DateTimeItemDelegate
 
 
-class ODTableView : public uiObjBodyImpl<uiTableView,QTableView>
+class ODTableView : public uiObjBodyImpl2<uiTableView,QTableView>
 {
 public:
 		ODTableView( uiTableView&,uiParent*,const char* nm);
@@ -525,7 +525,7 @@ static const char* sBaseStyleSheet()
 
 
 ODTableView::ODTableView( uiTableView& hndl, uiParent* p, const char* nm )
-    : uiObjBodyImpl<uiTableView,QTableView>(hndl,p,nm)
+    : uiObjBodyImpl2<uiTableView,QTableView>(hndl,p,nm)
     , messenger_(*new i_tableViewMessenger(this,&hndl))
 {
     frozenview_ = new QTableView( this );

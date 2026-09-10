@@ -48,7 +48,7 @@ int styleHint( QStyle::StyleHint hint, const QStyleOption* option=nullptr,
 
 //------------------------------------------------------------------------------
 
-class uiSliderBody : public uiObjBodyImpl<uiSliderObj,QSlider>
+class uiSliderBody : public uiObjBodyImpl2<uiSliderObj,QSlider>
 {
 public:
 
@@ -65,7 +65,7 @@ private:
 
 
 uiSliderBody::uiSliderBody( uiSliderObj& hndl, uiParent* p, const char* nm )
-    : uiObjBodyImpl<uiSliderObj,QSlider>(hndl,p,nm)
+    : uiObjBodyImpl2<uiSliderObj,QSlider>(hndl,p,nm)
     , messenger_( *new i_SliderMessenger(this,(uiSlider*)p) )
 {
     setHSzPol( uiObject::Medium );

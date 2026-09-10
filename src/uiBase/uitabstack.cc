@@ -12,8 +12,25 @@ ________________________________________________________________________
 #include "objectset.h"
 
 #include <QFrame>
+#include <QSizePolicy>
 
 mUseQtnamespace
+
+// All pages but the current one are hidden. Qt considers a hidden widget absent
+// from its layout: it reports a zero size hint and silently ignores
+// setGeometry(). A page that is hidden while the layout runs would thus keep
+// the default widget geometry, and never be laid out again when shown.
+static void retainLayoutSpace( uiGroup& grp )
+{
+    QWidget* qwidget = grp.mainObject() ? grp.mainObject()->qwidget() : nullptr;
+    if ( !qwidget )
+	return;
+
+    QSizePolicy szpol = qwidget->sizePolicy();
+    szpol.setRetainSizeWhenHidden( true );
+    qwidget->setSizePolicy( szpol );
+}
+
 
 uiTabStack::uiTabStack( uiParent* parnt, const char* nm, bool mnge )
     : uiGroup( parnt, nm, mnge )
@@ -62,6 +79,7 @@ int uiTabStack::addTab( uiGroup* grp, const uiString& txt, const char* iconnm )
     if ( !grp )
 	return -1;
 
+    retainLayoutSpace( *grp );
     const uiString tabcaption = !txt.isEmpty() ? txt : toUiString(grp->name());
     auto* tab = new uiTab( *grp, tabcaption );
     const int tabidx = tabbar_->addTab( tab );
@@ -77,8 +95,10 @@ int uiTabStack::addTab( uiGroup* grp, const uiString& txt, const char* iconnm )
 
 int uiTabStack::insertTab( uiGroup* grp, int index, const uiString& txt )
 {
-    if ( !grp ) return -1;
+    if ( !grp )
+	return -1;
 
+    retainLayoutSpace( *grp );
     const uiString tabcaption = !txt.isEmpty() ? txt : toUiString(grp->name());
     uiTab* tab = new uiTab( *grp, tabcaption );
     if ( !hAlignObj() )
@@ -110,6 +130,7 @@ bool uiTabStack::isTabEnabled( int idx ) const
 {
     return tabbar_->isTabEnabled( idx );
 }
+
 
 void uiTabStack::setTabEnabled( uiGroup* grp, bool yn )
 {
@@ -146,10 +167,15 @@ bool uiTabStack::isTabVisible( uiGroup* grp ) const
 
 
 int uiTabStack::indexOf( uiGroup* grp ) const
-{ return tabbar_->indexOf( grp ); }
+{
+    return tabbar_->indexOf( grp );
+}
+
 
 int uiTabStack::size() const
-{ return tabbar_->size(); }
+{
+    return tabbar_->size();
+}
 
 
 void uiTabStack::setCurrentPage( int id )
@@ -161,7 +187,7 @@ void uiTabStack::setCurrentPage( int id )
 
 void uiTabStack::setCurrentPage( uiGroup* grp )
 {
-    if( !grp )
+    if ( !grp )
 	return;
 
     setCurrentPage( indexOf(grp) );
@@ -219,10 +245,18 @@ void uiTabStack::setTabIcon( uiGroup* grp, const char* icnnm )
 
 
 uiGroup* uiTabStack::currentPage() const
-{ return page( currentPageId() ); }
+{
+    return page( currentPageId() );
+}
+
 
 uiGroup* uiTabStack::page( int id ) const
-{ return tabbar_->page( id ); }
+{
+    return tabbar_->page( id );
+}
+
 
 int uiTabStack::currentPageId() const
-{ return tabbar_->currentTabId(); }
+{
+    return tabbar_->currentTabId();
+}

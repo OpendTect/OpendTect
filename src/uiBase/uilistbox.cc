@@ -68,7 +68,7 @@ uiListBoxItem( const QString& txt )
 };
 
 
-class uiListBoxBody : public uiObjBodyImpl<uiListBoxObj,QListWidget>
+class uiListBoxBody : public uiObjBodyImpl2<uiListBoxObj,QListWidget>
 {
 public:
 			uiListBoxBody(uiListBoxObj&,uiParent*,
@@ -165,7 +165,7 @@ static bool doslidesel_ = true;
 uiListBoxBody::uiListBoxBody( uiListBoxObj& hndle, uiParent* p,
 			const char* nm, OD::ChoiceMode cm,
 			int prefnrlines, int preffieldwidth )
-    : uiObjBodyImpl<uiListBoxObj,QListWidget>( hndle, p, nm )
+    : uiObjBodyImpl2<uiListBoxObj,QListWidget>(hndle,p,nm)
     , messenger_(*new i_listMessenger(this,(uiListBox*)p))
     , fieldwidth_(preffieldwidth)
     , prefnrlines_(prefnrlines)

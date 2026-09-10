@@ -16,12 +16,12 @@ ________________________________________________________________________
 
 mUseQtnamespace
 
-class uiSplitterBody : public uiObjBodyImpl<uiSplitter,QSplitter>
+class uiSplitterBody : public uiObjBodyImpl2<uiSplitter,QSplitter>
 {
 public:
 
 uiSplitterBody( uiSplitter& hndl, uiParent* p, const char* nm )
-    : uiObjBodyImpl<uiSplitter,QSplitter>(hndl,p,nm)
+    : uiObjBodyImpl2<uiSplitter,QSplitter>(hndl,p,nm)
 {
 }
 
