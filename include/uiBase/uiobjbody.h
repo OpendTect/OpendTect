@@ -145,6 +145,7 @@ private:
     bool		allowshrnk_		= false;
 
     bool		is_hidden_		= false;
+    bool		shrunk_			= false;
     bool		finalized_		= false;
     bool		display_		= true;
     bool		display_maximized_	= false;

@@ -67,10 +67,12 @@ void uiObjectBody::display( bool yn, bool shrink, bool maximized )
 	pref_width_  = 0;
 	pref_height_ = 0;
 	is_hidden_ = true;
+	shrunk_ = true;
 	qwidget()->hide();
     }
     else
     {
+	shrunk_ = false;
 #ifdef USE_DISPLAY_TIMER
 	if ( displaytimer_->isActive() )
 	    displaytimer_->stop();
@@ -273,7 +275,7 @@ int uiObjectBody::prefHNrPics() const
     if ( !layoutitem_ )
 	return 0;
 
-    if ( is_hidden_ )
+    if ( shrunk_ )
 	return pref_width_;
 
     if ( pref_width_set_ >= 0 )
@@ -390,7 +392,7 @@ int uiObjectBody::prefVNrPics() const
     if ( !layoutitem_ )
 	return 0;
 
-    if ( is_hidden_ )
+    if ( shrunk_ )
 	return pref_height_;
 
     if ( pref_height_set_ >= 0 )
