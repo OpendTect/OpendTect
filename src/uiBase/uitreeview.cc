@@ -38,7 +38,7 @@ static ODQtObjectSet<uiTreeViewItem,QTreeWidgetItem> odqtobjects_;
 
 #define mItemFor(itm)		uiTreeViewItem::itemFor(itm)
 
-class uiTreeViewBody : public uiObjBodyImpl<uiTreeView,QTreeWidget>
+class uiTreeViewBody : public uiObjBodyImpl2<uiTreeView,QTreeWidget>
 {
 
 friend class uiTreeView;
@@ -86,7 +86,7 @@ private:
 
 uiTreeViewBody::uiTreeViewBody( uiTreeView& hndle, uiParent* p,
 				const char* nm, int nrl )
-    : uiObjBodyImpl<uiTreeView,QTreeWidget>( hndle, p, nm )
+    : uiObjBodyImpl2<uiTreeView,QTreeWidget>(hndle,p,nm)
     , mousepos_(0,0)
     , prefnrlines_( nrl )
     , messenger_( *new i_treeVwMessenger(*this,hndle) )

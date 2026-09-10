@@ -65,12 +65,12 @@ bool eventFilter(QObject* obj, QEvent* ev ) override
 
 
 class uiGraphicsViewBody :
-    public uiObjBodyImpl<uiGraphicsViewBase,QGraphicsView>
+    public uiObjBodyImpl2<uiGraphicsViewBase,QGraphicsView>
 {
 public:
 
 uiGraphicsViewBody( uiGraphicsViewBase& hndle, uiParent* p, const char* nm )
-    : uiObjBodyImpl<uiGraphicsViewBase,QGraphicsView>(hndle,p,nm)
+    : uiObjBodyImpl2<uiGraphicsViewBase,QGraphicsView>(hndle,p,nm)
     , mousehandler_(*new MouseEventHandler)
     , keyboardhandler_(*new KeyboardEventHandler)
     , gestureeventhandler_(*new GestureEventHandler)

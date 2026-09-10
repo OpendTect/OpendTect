@@ -17,7 +17,7 @@ ________________________________________________________________________
 
 mUseQtnamespace
 
-class ODScrollArea : public uiObjBodyImpl<uiScrollArea,QScrollArea>
+class ODScrollArea : public uiObjBodyImpl2<uiScrollArea,QScrollArea>
 {
 public:
 			ODScrollArea(uiScrollArea&,uiParent*,const char*);
@@ -32,7 +32,7 @@ protected:
 
 
 ODScrollArea::ODScrollArea( uiScrollArea& hndle, uiParent* p, const char* nm )
-    : uiObjBodyImpl<uiScrollArea,QScrollArea>(hndle,p,nm)
+    : uiObjBodyImpl2<uiScrollArea,QScrollArea>(hndle,p,nm)
 {}
 
 ODScrollArea::~ODScrollArea()

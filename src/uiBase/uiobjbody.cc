@@ -62,15 +62,22 @@ void uiObjectBody::display( bool yn, bool shrink, bool maximized )
     display_ = yn;
     display_maximized_ = maximized;
 
+    mDynamicCastGet(uiObjectBody2*,bod2,this)
     if ( !display_ && shrink )
     {
 	pref_width_  = 0;
 	pref_height_ = 0;
 	is_hidden_ = true;
+	if ( bod2 )
+	    bod2->setShrunk( true );
+
 	qwidget()->hide();
     }
     else
     {
+	if ( bod2 )
+	    bod2->setShrunk( false );
+
 #ifdef USE_DISPLAY_TIMER
 	if ( displaytimer_->isActive() )
 	    displaytimer_->stop();
@@ -273,7 +280,9 @@ int uiObjectBody::prefHNrPics() const
     if ( !layoutitem_ )
 	return 0;
 
-    if ( is_hidden_ )
+    mDynamicCastGet(const uiObjectBody2*,bod2,this)
+    if ( (bod2 && bod2->isShrunk()) ||
+	 (!bod2 && is_hidden_) )
 	return pref_width_;
 
     if ( pref_width_set_ >= 0 )
@@ -390,7 +399,9 @@ int uiObjectBody::prefVNrPics() const
     if ( !layoutitem_ )
 	return 0;
 
-    if ( is_hidden_ )
+    mDynamicCastGet(const uiObjectBody2*,bod2,this)
+    if ( (bod2 && bod2->isShrunk()) ||
+	 (!bod2 && is_hidden_) )
 	return pref_height_;
 
     if ( pref_height_set_ >= 0 )
@@ -663,3 +674,12 @@ void uiObjectBody::gtFntWdtHgt() const
 	}
     }
 }
+
+
+uiObjectBody2::uiObjectBody2( uiParent* p, const char* nm )
+    : uiObjectBody( p, nm )
+{}
+
+
+uiObjectBody2::~uiObjectBody2()
+{}

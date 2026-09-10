@@ -20,7 +20,7 @@ mUseQtnamespace
 
 // TODO: Combine with uiSlider
 
-class uiDialBody : public uiObjBodyImpl<uiDial,QDial>
+class uiDialBody : public uiObjBodyImpl2<uiDial,QDial>
 {
 public:
 
@@ -37,7 +37,7 @@ private:
 
 
 uiDialBody::uiDialBody( uiDial& hndle, uiParent* p, const char* nm )
-    : uiObjBodyImpl<uiDial,QDial>(hndle,p,nm)
+    : uiObjBodyImpl2<uiDial,QDial>(hndle,p,nm)
     , messenger_( *new i_DialMessenger(this,&hndle) )
 {
     setHSzPol( uiObject::Medium );

@@ -23,12 +23,12 @@ ________________________________________________________________________
 
 mUseQtnamespace
 
-class uiCalendarBody : public uiObjBodyImpl<uiCalendar,QCalendarWidget>
+class uiCalendarBody : public uiObjBodyImpl2<uiCalendar,QCalendarWidget>
 {
 public:
 
 uiCalendarBody( uiCalendar& hndl, uiParent* p)
-    : uiObjBodyImpl<uiCalendar,QCalendarWidget>(hndl,p,0)
+    : uiObjBodyImpl2<uiCalendar,QCalendarWidget>(hndl,p,nullptr)
 {}
 
 };

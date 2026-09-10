@@ -78,8 +78,10 @@ uiSize i_LayoutItem::prefSize() const
     {
 	pErrMsg("PrefSize already done.");
     }
-    else
+    else if ( !qlayoutItm().isEmpty() )
     {
+	// An empty item means the widget is hidden: its size hint is then 0,
+	// which must not be cached as the preferred size.
 	i_LayoutItem* self = const_cast<i_LayoutItem*>(this);
 	self->prefszdone_ = true;
 	mQtclass(QSize) ps( qlayoutItm().sizeHint() );
@@ -420,7 +422,7 @@ bool i_LayoutItem::layout( LayoutMode lom, const int iternr, bool finalloop )
 	{
 	    if ( !constr->other_ )
 	    {
-		pErrMsg("alignedWith: other is null");
+		pErrMsgOnce("alignedWith: other is null");
 		break;
 	    }
 
@@ -443,7 +445,7 @@ bool i_LayoutItem::layout( LayoutMode lom, const int iternr, bool finalloop )
 
 	    if ( !constr->other_ )
 	    {
-		pErrMsg("alignedBelow: other is null");
+		pErrMsgOnce("alignedBelow: other is null");
 		break;
 	    }
 
@@ -463,7 +465,7 @@ bool i_LayoutItem::layout( LayoutMode lom, const int iternr, bool finalloop )
 	{
 	    if ( !constr->other_ )
 	    {
-		pErrMsg("alignedAbove: other is null");
+		pErrMsgOnce("alignedAbove: other is null");
 		break;
 	    }
 
@@ -486,7 +488,7 @@ bool i_LayoutItem::layout( LayoutMode lom, const int iternr, bool finalloop )
 
 	    if ( !constr->other_ )
 	    {
-		pErrMsg("centeredBelow: other is null");
+		pErrMsgOnce("centeredBelow: other is null");
 		break;
 	    }
 
@@ -503,7 +505,7 @@ bool i_LayoutItem::layout( LayoutMode lom, const int iternr, bool finalloop )
 	{
 	    if ( !constr->other_ )
 	    {
-		pErrMsg("centeredAbove: other is null");
+		pErrMsgOnce("centeredAbove: other is null");
 		break;
 	    }
 
@@ -524,7 +526,7 @@ bool i_LayoutItem::layout( LayoutMode lom, const int iternr, bool finalloop )
 
 	    if ( !constr->other_ )
 	    {
-		pErrMsg("centeredLeftOf: other is null");
+		pErrMsgOnce("centeredLeftOf: other is null");
 		break;
 	    }
 
@@ -546,7 +548,7 @@ bool i_LayoutItem::layout( LayoutMode lom, const int iternr, bool finalloop )
 
 	    if ( !constr->other_ )
 	    {
-		pErrMsg("centeredRightOf: other is null");
+		pErrMsgOnce("centeredRightOf: other is null");
 		break;
 	    }
 

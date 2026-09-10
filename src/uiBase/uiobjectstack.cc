@@ -16,12 +16,14 @@ ________________________________________________________________________
 
 mUseQtnamespace
 
-class uiObjStackBody : public uiObjBodyImpl<uiObjectStack,QStackedWidget>
+class uiObjStackBody : public uiObjBodyImpl2<uiObjectStack,QStackedWidget>
 {
 public:
 uiObjStackBody( uiObjectStack& hndle, uiParent* parnt,
 		const char* txt )
-    : uiObjBodyImpl<uiObjectStack,QStackedWidget>(hndle,parnt,txt) {}
+    : uiObjBodyImpl2<uiObjectStack,QStackedWidget>(hndle,parnt,txt)
+{}
+
 };
 
 
