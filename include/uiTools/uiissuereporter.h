@@ -36,8 +36,9 @@ public:
 				{ return "Allow sending of issue-reports"; }
 
 protected:
+    virtual void		viewReportCB(CallBacker*);
+
     bool			allowSending() const;
-    void			viewReportCB(CallBacker*);
     void			proxySetCB(CallBacker*);
     void			machInfoCB(CallBacker*);
     
@@ -48,6 +49,7 @@ protected:
     static uiString		sSendReport() { return tr("Send report"); }
     static uiString		sDontSendReport() { return tr("Do not send"); }
     
+    uiButton*			showbut_;
     uiTextBrowser*		machinfofld_;
     uiCheckBox*			machinfobut_;
     uiTextEdit*			commentfld_;
