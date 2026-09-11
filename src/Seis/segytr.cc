@@ -17,8 +17,8 @@ ________________________________________________________________________
 #include "filepath.h"
 #include "ioman.h"
 #include "iopar.h"
-#include "iostrm.h"
-#include "od_iostream.h"
+#include "od_istream.h"
+#include "od_ostream.h"
 #include "scaler.h"
 #include "segyfiledef.h"
 #include "segyhdr.h"
@@ -32,7 +32,7 @@ ________________________________________________________________________
 #include "zdomain.h"
 
 #include <math.h>
-#include <ctype.h>
+
 
 #define mBPS(cd) (int)cd->datachar_.nrBytes()
 #define mInDepth \
@@ -375,10 +375,11 @@ void SEGYSeisTrcTranslator::interpretBuf( SeisTrcInfo& ti )
 
     if ( fileopts_.coorddef_ == SEGY::FileReadOpts::Generate )
     {
-        if ( mIsUdf(curcoord_.x_) )
+	if ( mIsUdf(curcoord_.x_) )
 	    curcoord_ = fileopts_.startcoord_;
 	else
 	    curcoord_ += fileopts_.stepcoord_;
+
 	ti.coord_ = curcoord_;
     }
     else if ( fileopts_.coorddef_ == SEGY::FileReadOpts::ReadFile )
@@ -484,7 +485,11 @@ void SEGYSeisTrcTranslator::fillHeaderBuf( const SeisTrc& trc )
     SamplingData<float> sdtoput( useinpsd_ ? infotouse.sampling_ : outsd_ );
     const int nstoput = useinpsd_ ? trc.size() : outnrsamples_;
     if ( othdomain_ )
-	sdtoput.step_ *= SI().zIsTime() ? 0.001f : 1000;
+    {
+	const float zfac = SI().zIsTime() ? 0.001f : 1000.f;
+	sdtoput.start_ *= zfac;
+	sdtoput.step_ *= zfac;
+    }
 
     trchead_.putSampling( sdtoput, mCast(unsigned short,nstoput) );
 }
@@ -935,7 +940,8 @@ bool SEGYSeisTrcTranslator::writeTrc_( const SeisTrc& trc )
 	    nrtrcsinbuffer_ = 0;
 	}
 
-	const int offset = nrtrcsinbuffer_ * (tracedatabytes_+cTraceHeaderBytes);
+	const int offset = nrtrcsinbuffer_ *
+				( tracedatabytes_+cTraceHeaderBytes );
 	OD::memCopy( writebuffer_+offset, headerbuf_, mSEGYTraceHeaderBytes );
     }
     else
