@@ -10,6 +10,7 @@ ________________________________________________________________________
 #include "uituthortools.h"
 #include "tuthortools.h"
 
+#include "arraynd.h"
 #include "binidvalset.h"
 #include "emmanager.h"
 #include "emobject.h"
