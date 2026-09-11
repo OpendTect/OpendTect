@@ -1420,7 +1420,7 @@ bool uiDataPointSet::doSave()
     if ( dps_->nrActive() < 1 )
 	return true;
 
-    RefMan<DataPointSet> savedps = new DataPointSet( dps_ );
+    RefMan<DataPointSet> savedps = new DataPointSet( *dps_ );
     savedps->dataSet().pars() = storepars_;
     if ( !grpnames_.isEmpty() )
 	savedps->dataSet().pars().set( sKeyGroups, grpnames_ );
@@ -1438,7 +1438,7 @@ bool uiDataPointSet::doSave()
 
 void uiDataPointSet::exportCB( CallBacker* )
 {
-    RefMan<DataPointSet> savedps = new DataPointSet( dps_ );
+    RefMan<DataPointSet> savedps = new DataPointSet( *dps_ );
     savedps->dataSet().pars() = storepars_;
     if ( !grpnames_.isEmpty() )
 	savedps->dataSet().pars().set( sKeyGroups, grpnames_ );
