@@ -27,6 +27,8 @@ public:
 			BinIDSurface(const BinIDSurface&);
 			~BinIDSurface();
 
+    BinIDSurface&	operator =(const BinIDSurface&);
+
     BinIDSurface*	clone() const override;
     bool		isEmpty() const override { return !depths_; }
 
@@ -72,9 +74,8 @@ protected:
     int			nrRows() const override;
     int			nrCols() const override;
 
-    Array2D<float>*	depths_;
-    const SurveyInfo*	surveyinfo_;
-    Interval<float>	zrange_;
+    Array2D<float>*	depths_			=nullptr;
+    Interval<float>	zrange_			=Interval<float>::udf();
 };
 
 } // namespace Geometry

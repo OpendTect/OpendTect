@@ -381,6 +381,66 @@ static bool testHorizon3dAuxData()
 }
 
 
+static bool testHorizon3dCopyGeom()
+{
+    auto& emm = EM::EMM();
+    RefMan<EM::EMObject> emobj = emm.loadIfNotFullyLoaded( MultiID(100020, 2) );
+    mDynamicCastGet( EM::Horizon3D*, hor3d, emobj.ptr() );
+
+    mRunStandardTestWithError( hor3d,
+			       "Loading horizon for copy geom",
+			       "Failed to load horizon for copy geom" );
+
+    BufferString horname = hor3d->name();
+    const BufferString newhorname = horname.add( "_copy" );
+
+    const char* typestr = EM::Horizon3D::typeStr();
+    const EM::ObjectID emid = emm.createObject( typestr, newhorname );
+    mDynamicCastGet( EM::Horizon3D*, tmphor3d, emm.getObject(emid) );
+    RefMan<EM::Horizon3D> newhor3d = tmphor3d;
+
+    mRunStandardTestWithError( newhor3d,
+			       "Creating new horizon for copy geom",
+			       "Failed to create new horizon for copy geom" );
+
+    const auto* geomel = hor3d->geometry().geometryElement();
+    auto* newgeomel = newhor3d->geometry().geometryElement();
+
+    mRunStandardTestWithError( geomel && newgeomel,
+			      "Getting geometry elements for copy geom",
+			      "Failed to get geometry elements for copy geom" );
+
+    *newgeomel = *geomel;
+
+    mRunStandardTestWithError( !newgeomel->isEmpty(),
+		    "Checking copied geometry elements for copy geom",
+		    "Copied geometry element is empty, after copy geom" );
+
+    mRunStandardTestWithError(
+	newgeomel->getArray()->totalSize() == geomel->getArray()->totalSize(),
+	"Checking copied geometry elements for copy geom",
+	"Copied geometry elements have incorrect size, after copy geom" );
+
+    BufferString errmsg;
+    const Coord crd_ix_400_900( 620620, 6081472 );
+    float zval = newhor3d->getZValue( crd_ix_400_900 );
+    valTest( zval, 0.549256265f, 1e-6f,
+	     "Horizon 3D Z Value check for copy geom" );
+
+    Geometry::BinIDSurface bids( *geomel );
+    mRunStandardTestWithError( !bids.isEmpty(),
+		    "Checking copied geometry elements for copy geom bids",
+		    "Copied geometry element is empty, after copy geom bids" );
+
+    const BinID bid = SI().transform( crd_ix_400_900 );
+    zval = bids.getZ( bid );
+    valTest( zval, 0.549256265f, 1e-6f,
+	     "Horizon 3D Z Value check for copy geom bids" );
+
+    return true;
+}
+
+
 mLoad1Module("EarthModel")
 
 bool BatchProgram::doWork( od_ostream& strm )
@@ -392,7 +452,8 @@ bool BatchProgram::doWork( od_ostream& strm )
 	 !createHorizon3D(hor3dnm.str()) ||
 	 !testHorizon3D(hor3dnm.str()) ||
 	 !removeHorizon3D(hor3dnm.str()) ||
-	 !testHorizon3dAuxData() )
+	 !testHorizon3dAuxData() ||
+	 !testHorizon3dCopyGeom() )
 	return false;
 
     return true;

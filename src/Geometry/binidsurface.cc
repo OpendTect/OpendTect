@@ -23,23 +23,34 @@ namespace Geometry
 
 BinIDSurface::BinIDSurface( const BinID& newstep )
     : ParametricSurface( RowCol(0,0), RowCol(newstep) )
-    , depths_( 0 )
-    , zrange_(Interval<float>::udf())
-{
-}
+{}
 
 
 BinIDSurface::BinIDSurface( const BinIDSurface& b )
-    : ParametricSurface( b.origin_, b.step_ )
-    , depths_( b.depths_ ? new Array2DImpl<float>(*b.depths_) : 0 )
-    , zrange_(Interval<float>::udf())
-{
-}
+    : ParametricSurface( b )
+    , depths_( b.depths_ ? new Array2DImpl<float>(*b.depths_) : nullptr )
+    , zrange_( b.depths_ ? b.zrange_ : Interval<float>::udf() )
+{}
 
 
 BinIDSurface::~BinIDSurface()
 {
     delete depths_;
+}
+
+
+BinIDSurface& BinIDSurface::operator =( const BinIDSurface& oth )
+{
+    if ( &oth == this )
+	return *this;
+
+    ParametricSurface::operator =( oth );
+
+    delete depths_;
+    depths_ = oth.depths_ ? new Array2DImpl<float>( *oth.depths_ ) : nullptr;
+    zrange_ = oth.depths_ ? oth.zrange_ : Interval<float>::udf();
+
+    return *this;
 }
 
 

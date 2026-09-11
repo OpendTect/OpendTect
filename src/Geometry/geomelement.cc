@@ -43,7 +43,10 @@ Element::~Element()
 Element& Element::operator =( const Element& el )
 {
     if ( &el != this && el.errmsg_ )
+    {
+	delete	errmsg_;
 	errmsg_ = new uiString( *el.errmsg_ );
+    }
 
     return *this;
 }

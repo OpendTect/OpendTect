@@ -49,6 +49,7 @@ public:
 
 protected:
 				RowColSurface();
+				RowColSurface(const RowColSurface&);
 };
 
 } // namespace Geometry

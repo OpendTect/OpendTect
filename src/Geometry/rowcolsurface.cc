@@ -61,6 +61,11 @@ RowColSurface::RowColSurface()
 {}
 
 
+RowColSurface::RowColSurface( const RowColSurface& rcs )
+    : Element( rcs )
+{}
+
+
 RowColSurface::~RowColSurface()
 {}
 

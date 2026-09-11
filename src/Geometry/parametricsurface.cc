@@ -22,12 +22,36 @@ ParametricSurface::ParametricSurface( const RowCol& origin, const RowCol& step )
     , checkselfintersection_( true )
     , origin_( origin )
     , step_( step )
-{ }
+{}
+
+
+ParametricSurface::ParametricSurface( const ParametricSurface& ps )
+    : RowColSurface( ps )
+    , checksupport_( ps.checksupport_ )
+    , checkselfintersection_( ps.checkselfintersection_ )
+    , origin_( ps.origin_ )
+    , step_( ps.step_ )
+{}
 
 
 ParametricSurface::~ParametricSurface()
-{ }
+{}
 
+
+ParametricSurface& ParametricSurface::operator =( const ParametricSurface& oth )
+{
+    if ( &oth == this )
+	return *this;
+
+    RowColSurface::operator =( oth );
+
+    origin_ = oth.origin_;
+    step_ = oth.step_;
+    checksupport_ = oth.checksupport_;
+    checkselfintersection_ = oth.checkselfintersection_;
+
+    return *this;
+}
 
 
 Coord3 ParametricSurface::computePosition( const Coord& param ) const
