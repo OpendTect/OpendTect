@@ -26,7 +26,6 @@ ________________________________________________________________________
 #include "uistrings.h"
 #include "unitofmeasure.h"
 #include "survgeom.h"
-#include "survgeom2d.h"
 #include "survinfo.h"
 #include "zaxistransform.h"
 
@@ -249,7 +248,12 @@ bool Horizon3DT2DTransformer::doPrepare( od_ostream* strm )
     if ( !zinfo )
 	zinfo = &SI().zDomainInfo();
 
-    tkzs.zsamp_.set( zrg, mUdf(float) );
+    if ( !zrg.isUdf() )
+    {
+	tkzs.zsamp_.start_ = zrg.start_;
+	tkzs.zsamp_.stop_ = zrg.stop_;
+    }
+
     if ( !addVolumeOfInterest(tkzs,*zinfo) )
 	return false;
 
@@ -554,7 +558,12 @@ bool Horizon2DT2DTransformer::do2DHorizon( const
 
     TrcKeyZSampling tkzs( geomid );
     tkzs.hsamp_.setTrcRange( trcrangeenvelop );
-    tkzs.zsamp_.set( zrg, mUdf(float) );
+    if ( !zrg.isUdf() )
+    {
+	tkzs.zsamp_.start_ = zrg.start_;
+	tkzs.zsamp_.stop_ = zrg.stop_;
+    }
+
     if ( zatf_.needsVolumeOfInterest() && !addVolumeOfInterest(tkzs,*zinfo) )
 	return false;
 

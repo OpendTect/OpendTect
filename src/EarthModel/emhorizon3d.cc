@@ -601,16 +601,18 @@ Array2D<float>* Horizon3D::createArray2D(
 		{
 		    const BinID bid( row, col );
 		    Coord3 pos = geom->getKnot( bid, false );
+		    float zval = mUdf(float);
 		    if ( pos.isDefined() )
 		    {
+			zval = (float) pos.z_;
+			convValue( zval, emuom, zatfinpuom );
 			const TrcKey tk( bid );
-			convValue( pos.z_, emuom, zatfinpuom );
-			const float zval = zaxistransform
-			    ? zaxistransform->transformTrc( tk, pos.z_ )
-			    : pos.z_;
-			arr->set( rowrg.getIndex(row),
-				  colrg.getIndex(col), zval );
+			if ( zaxistransform )
+			    zval = zaxistransform->transformTrc( tk, zval );
 		    }
+
+		    arr->set( rowrg.getIndex(row),
+			   colrg.getIndex(col), zval );
 		}
 	    }
 	}
@@ -621,7 +623,7 @@ Array2D<float>* Horizon3D::createArray2D(
     if ( arr && !arr->isOK() )
     {
 	delete arr;
-	arr = 0;
+	return nullptr;
     }
 
     return arr;
