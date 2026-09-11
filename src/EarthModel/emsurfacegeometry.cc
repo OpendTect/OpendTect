@@ -817,8 +817,8 @@ Executor* SurfaceGeometry::loader( const SurfaceIODataSelection* newsel )
 	return nullptr;
     }
 
-    PtrMan<EMSurfaceTranslator> trans =
-			(EMSurfaceTranslator*)ioobj->createTranslator();
+    PtrMan<Translator> transl = ioobj->createTranslator();
+    mDynamicCastGet(EMSurfaceTranslator*,trans,transl.ptr());
     if ( !trans || !trans->startRead(*ioobj) )
     {
 	surface_.errmsg_ = trans ? trans->errMsg() :
@@ -873,8 +873,8 @@ Executor* SurfaceGeometry::saver( const SurfaceIODataSelection* newsel,
 	return nullptr;
     }
 
-    PtrMan<EMSurfaceTranslator> trans =
-			(EMSurfaceTranslator*)ioobj->createTranslator();
+    PtrMan<Translator> transl = ioobj->createTranslator();
+    mDynamicCastGet(EMSurfaceTranslator*,trans,transl.ptr());
     if ( !trans )
     {
 	surface_.errmsg_ = ::toUiString("Internal: No Translator");
