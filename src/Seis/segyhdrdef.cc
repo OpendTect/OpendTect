@@ -12,7 +12,6 @@ ________________________________________________________________________
 #include "ibmformat.h"
 #include "settings.h"
 #include "genc.h"
-#include <string.h>
 
 static const char* sKeyBytesFor = "Nr bytes for ";
 
@@ -266,15 +265,20 @@ void SEGY::HdrDef::mkTrc()
     mAddHead( "sstat", "source static correction" );		// 30
     mAddHead( "gstat", "group static correction" );
     mAddHead( "tstat", "total static applied" );
-    mAddHead( "laga", "lag time A, time in ms between end of 240-byte trace "
+    mAddHead( "laga", "lag time A, time in ms between end of "
+	    "240-byte trace "
 	    "identification header and time break, positive if time break "
-	    "occurs after end of header" );
-    mAddHead( "lagb", "lag time B, time in ms between the time break and the "
-	    "initiation time of the energy source, "
+	    "occurs after end of header\n"
+	    "In a depth dataset, this is the elevation from the sea level"
+	    " of the first sample in the trace" );
+    mAddHead( "lagb", "lag time B, time in ms between the time break "
+	    "and the initiation time of the energy source, "
 	    "may be positive or negative" );
-    mAddHead( "delrt", "delay recording time, time in ms between initiation "
-	    "time of energy source and time when recording of data samples "
-	    "begins" );						// 35
+    mAddHead( "delrt", "delay recording time, time in ms between "
+	    "initiation time of energy source and time when recording of "
+	    "data samples begins\n"
+	    "In a depth dataset, this is the depth between the sea level "
+	    "and the first sample in the trace" );			// 35
     mAddHead( "muts", "mute time--start" );
     mAddHead( "mute", "mute time--end" );			// 37
 
