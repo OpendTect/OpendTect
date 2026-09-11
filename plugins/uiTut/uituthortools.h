@@ -11,8 +11,12 @@ ________________________________________________________________________
 #include "uitutmod.h"
 #include "uidialog.h"
 
+#include "emhorizon3d.h"
+
 class uiIOObjSel;
+class uiCheckBox;
 class uiGenInput;
+
 
 mExpClass(uiTut) uiTutHorTools : public uiDialog
 { mODTextTranslationClass(uiTutHorTools);
@@ -37,4 +41,10 @@ protected:
     uiGenInput*		attribnamefld_;
     uiIOObjSel*		outfld_;
     uiGenInput*		strengthfld_;
+    uiCheckBox*		displayfld_;
+    uiGenInput*		copymethodfld_;
+
+private:
+
+    RefMan<EM::Horizon3D>	horizonoutput_;
 };

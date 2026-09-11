@@ -10,19 +10,23 @@ ________________________________________________________________________
 #include "uituthortools.h"
 #include "tuthortools.h"
 
-#include "emhorizon3d.h"
+#include "binidvalset.h"
 #include "emmanager.h"
 #include "emobject.h"
 #include "emsurfacetr.h"
 #include "keystrs.h"
 #include "transl.h"
 
+#include "uibutton.h"
 #include "uigeninput.h"
 #include "uiioobjsel.h"
 #include "uiiosurface.h"
 #include "uimsg.h"
 #include "uistrings.h"
 #include "uitaskrunner.h"
+
+#include "uiodapplmgr.h"
+#include "uiempartserv.h"
 
 
 uiTutHorTools::uiTutHorTools( uiParent* p )
@@ -59,6 +63,19 @@ uiTutHorTools::uiTutHorTools( uiParent* p )
 				   BoolInpSpec(true,tr("Low"),tr("High")) );
     strengthfld_->attach( alignedBelow, outfld_ );
 
+    uiStringSet options;
+    options.add( tr("BinIDValueSet Importer") )
+	   .add( tr("SetArray2D") )
+	   .add( tr("Direct Geometry Element") );
+    copymethodfld_ = new uiGenInput( this,
+				 tr("Copy Method: Use"),
+				 StringListInpSpec(options) );
+    copymethodfld_->attach( alignedBelow, strengthfld_ );
+
+    displayfld_ = new uiCheckBox( this, tr("Display Result") );
+    displayfld_->attach( alignedBelow, copymethodfld_ );
+    displayfld_->setChecked( true );
+
     mAttachCB( postFinalize(), uiTutHorTools::choiceSel );
 }
 
@@ -79,6 +96,8 @@ void uiTutHorTools::choiceSel( CallBacker* )
     attribnamefld_->display( isthick );
     outfld_->display( !isthick );
     strengthfld_->display( !isthick );
+    copymethodfld_->display( !isthick );
+    displayfld_->display( !isthick );
 }
 
 
@@ -147,19 +166,20 @@ bool uiTutHorTools::doThicknessCalc()
 	return false;
 
     uiTaskRunner taskrunner( this );
-    auto* calc = new Tut::ThicknessCalculator;
+
     const bool top = selfld_->getBoolValue();
     mGetHor( hor1, top ? inpfld_ : inpfld2_ );
     mGetHor( hor2, top ? inpfld2_ : inpfld_ );
-    calc->setHorizons( hor1, hor2 );
+
+    PtrMan<Tut::ThicknessCalculator> calc = new Tut::ThicknessCalculator;
+    calc->setHorizons( *hor1, hor2 );
     calc->setAttribName( attribnamefld_->text() );
 
     if ( !taskrunner.execute(*calc) )
 	return false;
 
     PtrMan<Executor> saver = calc->dataSaver();
-
-    if ( !taskrunner.execute(*saver) )
+    if ( !saver || !taskrunner.execute(*saver) )
     {
 	uiMSG().error(tr("Thickness calculation failed"));
 	return false;
@@ -178,20 +198,84 @@ bool uiTutHorTools::doSmoother()
     if ( !outfld_->ioobj() )
 	return false;
 
+    const EM::ObjectID emid = EM::EMM().createObject( EM::Horizon3D::typeStr(),
+						      outfld_->name() );
+    mDynamicCastGet( EM::Horizon3D*, horizonoutput, EM::EMM().getObject(emid) )
+    horizonoutput_ = horizonoutput;
+    if ( !horizonoutput_ )
+	return false;
+
+    horizonoutput_->setName( outfld_->ioobj()->name() );
+    horizonoutput_->setMultiID( outfld_->ioobj()->key() );
+
+    PtrMan<Tut::HorSmoother> calc =
+				new Tut::HorSmoother( *horizonoutput_ );
+
     uiTaskRunner taskrunner( this );
-    Tut::HorSmoother* calc = new Tut::HorSmoother;
+
     mGetHor( hor, inpfld_ );
-    calc->setHorizons( hor );
+    calc->setHorizons( *hor );
     calc->setWeak( strengthfld_->getBoolValue() );
+
+    if( copymethodfld_->getIntValue() == 0 )
+    {
+	ManagedObjectSet<BinIDValueSet> sections;
+	auto* section = new BinIDValueSet( 1, true );
+	sections.add( section );
+
+	const auto& geom = hor->geometry();
+	geom.fillBinIDValueSet( *sections.first(), nullptr );
+
+	if ( sections.isEmpty() ||
+	    !sections.first() ||
+	     sections.first()->isEmpty() )
+	    return false;
+
+	PtrMan<Executor> importer =
+	    horizonoutput_->importer( sections, hor->range() );
+	if ( !taskrunner.execute( *importer ) )
+	    return false;
+    }
+    else if ( copymethodfld_->getIntValue() == 1 )
+    {
+	PtrMan<Array2D<float>> arr = hor->createArray2D();
+	if ( !arr )
+	    return false;
+
+	if ( !horizonoutput_->setArray2D(arr.ptr(), hor->range().start_,
+					 hor->range().step_, false) )
+	    return false;
+    }
+    else if ( copymethodfld_->getIntValue() == 2 )
+    {
+	const auto* geomel = hor->geometry().geometryElement();
+	auto* outgeomel = horizonoutput_->geometry().geometryElement();
+	if ( !geomel || !outgeomel )
+	    return false;
+
+	*outgeomel = *geomel;
+    }
+    else
+	return false;
 
     if ( !taskrunner.execute(*calc) )
 	return false;
 
     PtrMan<Executor> saver = calc->dataSaver( outfld_->key() );
-    if ( !taskrunner.execute(*saver) )
+    if ( !saver || !taskrunner.execute(*saver) )
     {
 	uiMSG().error(tr("Smoothing operation failed"));
 	return false;
+    }
+
+    if ( displayfld_->isChecked() )
+    {
+	mDynamicCastGet( uiODMain*, odmain, parent() );
+	if ( odmain )
+	{
+	    auto* emserv = odmain->applMgr().EMServer();
+	    emserv->displayEMObject( outfld_->key() );
+	}
     }
 
     const uiString msg = tr("Process finished successfully.\n"

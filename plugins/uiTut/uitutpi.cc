@@ -134,6 +134,7 @@ public:
 private:
     void		init() override;
     void		dTectMenuChanged() override;
+    void		cleanup() override;
 
     void		createVisObjMenu(CallBacker*);
     void		handleVisObjMenu(CallBacker*);
@@ -144,8 +145,10 @@ private:
     void		doHor(CallBacker*);
     void		doWells(CallBacker*);
 
-    uiVisMenuItemHandler* wellmnuitmhandler_ = nullptr;
-    MenuItem		addrandomattribmnuitem_;
+    uiVisMenuItemHandler*   wellmnuitmhandler_			=nullptr;
+    MenuItem		    addrandomattribmnuitem_;
+
+    uiTutHorTools*	    hortoolsdlg_			=nullptr;
 };
 
 
@@ -193,22 +196,42 @@ void uiTutMgr::dTectMenuChanged()
     if ( !ODMainWin() )
 	return;
 
-    auto* mnu = new uiMenu( &appl(), tr( "Tut Tools" ) );
-    if ( SI().has2D() && SI().has3D() )
+    auto* toolsmnu = appl().menuMgr().toolsMnu();
+    auto* mnuaction = toolsmnu->findAction( tr("Tut Tools") );
+    uiMenu* mnu = mnuaction ?
+		  cCast( uiAction*, mnuaction )->getMenu() :
+		  nullptr;
+    if ( mnu )
     {
-	mnu->insertAction( new uiAction( m3Dots( tr( "Seismic 2D (Direct)" ) ),
-	    mCB( this, uiTutMgr, do2DSeis ) ) );
-	mnu->insertAction( new uiAction( m3Dots( tr( "Seismic 3D (Direct)" ) ),
-	    mCB( this, uiTutMgr, do3DSeis ) ) );
+	TypeSet<int> ids = mnu->ids();
+	mnu->removeActions( ids );
     }
     else
-	mnu->insertAction( new uiAction( m3Dots( tr( "Seismic (Direct)" ) ),
-	    mCB( this, uiTutMgr, doSeis ) ) );
+	mnu = new uiMenu( &appl(), tr("Tut Tools") );
 
-    mnu->insertAction( new uiAction( m3Dots( uiStrings::sHorizon( 1 ) ),
-	mCB( this, uiTutMgr, doHor ) ) );
+    if ( SI().has2D() && SI().has3D() )
+    {
+	mnu->insertAction( new uiAction(m3Dots(tr("Seismic 2D (Direct)")),
+					mCB(this, uiTutMgr, do2DSeis)) );
+	mnu->insertAction( new uiAction(m3Dots(tr("Seismic 3D (Direct)")),
+					mCB(this, uiTutMgr, do3DSeis)) );
+    }
+    else
+	mnu->insertAction( new uiAction(m3Dots(tr("Seismic (Direct)")),
+					mCB(this, uiTutMgr, doSeis)) );
 
-    appl().menuMgr().toolsMnu()->addMenu( mnu );
+    mnu->insertAction( new uiAction(m3Dots(uiStrings::sHorizon(1)),
+				    mCB(this, uiTutMgr, doHor)) );
+
+    toolsmnu->addMenu( mnu );
+}
+
+
+void uiTutMgr::cleanup()
+{
+    closeAndNullPtr( hortoolsdlg_ );
+    deleteAndNullPtr( wellmnuitmhandler_ );
+    uiPluginInitMgr::cleanup();
 }
 
 
@@ -319,8 +342,13 @@ void uiTutMgr::launchDialog( Seis::GeomType tp )
 
 void uiTutMgr::doHor( CallBacker* )
 {
-    uiTutHorTools dlg( &appl() );
-    dlg.go();
+    if ( !hortoolsdlg_ )
+    {
+	hortoolsdlg_ = new uiTutHorTools( &appl() );
+	hortoolsdlg_->setModal( false );
+    }
+
+    hortoolsdlg_->go();
 }
 
 

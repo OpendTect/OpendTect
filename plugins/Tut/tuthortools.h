@@ -9,14 +9,13 @@ ________________________________________________________________________
 -*/
 
 #include "tutmod.h"
-#include "executor.h"
+
+#include "emhorizon3d.h"
 #include "emposid.h"
-#include "trckeysampling.h"
+#include "executor.h"
 #include "ranges.h"
+#include "trckeysampling.h"
 
-class TrcKeySamplingIterator;
-
-namespace EM { class Horizon3D; }
 
 namespace Tut
 {
@@ -24,25 +23,29 @@ namespace Tut
 mExpClass(Tut) HorTool : public Executor
 { mODTextTranslationClass(HorTool);
 public:
-    virtual	    ~HorTool();
+		    ~HorTool();
 
-    void	    setHorizons(EM::Horizon3D* hor1,
-						EM::Horizon3D* hor2=nullptr);
+    void	    setHorizons(EM::Horizon3D& hor1,
+				EM::Horizon3D* hor2=nullptr);
     od_int64	    totalNr() const override;
     od_int64	    nrDone() const override { return nrdone_; }
     uiString	    uiNrDoneText() const override { return msg_; }
 
     void	    setHorSamp(const StepInterval<int>& inlrg,
-				    const StepInterval<int>& crlrg);
+			       const StepInterval<int>& crlrg);
 
 protected:
-				HorTool(const char* title);
+		    HorTool(const char* title);
+
+    bool	    doPrepare(od_ostream* =nullptr) override;
+    bool	    doFinish(bool success, od_ostream* = nullptr) override;
 
     TrcKeySampling		hs_;
-    int				nrdone_ = 0;
+    int				nrdone_			=0;
     uiString			msg_;
 
-    TrcKeySamplingIterator*	iter_ = nullptr;
+    TrcKeySamplingIterator*	iter_			=nullptr;
+    BinID			bid_;
 
     RefMan<EM::Horizon3D>	horizon1_;
     RefMan<EM::Horizon3D>	horizon2_;
@@ -68,14 +71,14 @@ protected:
 
 private:
     int			nextStep() override;
-
+    bool		doPrepare( od_ostream* =nullptr) override;
 };
 
 
 mExpClass(Tut) HorSmoother : public HorTool
 { mODTextTranslationClass(HorSmoother);
 public:
-			HorSmoother();
+			HorSmoother(EM::Horizon3D&);
 
     void		setWeak( bool yn ) { weak_ = yn; }
     Executor*		dataSaver(const MultiID&);
@@ -84,10 +87,12 @@ public:
 
 protected:
 
-    bool		weak_ = false;
+    bool			weak_			=false;
 
 private:
-    int			nextStep() override;
+    int				nextStep() override;
+    bool			doPrepare(od_ostream* = nullptr) override;
+    RefMan<EM::Horizon3D>	horizonoutput_;
 };
 
 } // namespace
