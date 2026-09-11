@@ -736,11 +736,16 @@ Array1D<float>* Horizon2D::createArray1D( const Pos::GeomID& geomid,
     for ( int col=colrg.start_; col<=colrg.stop_; col+=colrg.step_ )
     {
 	Coord3 pos = geom->getKnot( RowCol(lineidx,col) );
-        float val = (float)pos.z_;
-	if ( trans )
-	    val = trans->transformTrc( TrcKey(geomid,col), val );
+	float zval = mUdf(float);
+	if ( pos.isDefined() )
+	{
+	    zval = (float) pos.z_;
+	    const TrcKey tk( geomid, col );
+	    if ( trans )
+		zval = trans->transformTrc( tk, zval );
+	}
 
-	arr->set( colrg.getIndex(col), val );
+	arr->set( colrg.getIndex(col), zval );
     }
 
     return arr;
