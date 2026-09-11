@@ -13,6 +13,7 @@ ________________________________________________________________________
 #include "elasticpropsel.h"
 #include "mathproperty.h"
 #include "stratlayer.h"
+#include "stratlayermodel.h"
 #include "stratlayersequence.h"
 #include "stratlayseqgendesc.h"
 #include "stratsinglaygen.h"
@@ -51,6 +52,8 @@ static bool fillPRS( PropertyRefSelection& prs )
     prs.add( PROPS().getByName( PropertyRef::standardPVelStr(), false ) );
 
     mRunStandardTest( prs.size() == 4, "PropertyRef selection" );
+    mRunStandardTest( prs.get(1)->hasFixedDef(),
+		      "AI property has a fixed math definition" );
 
     return true;
 }
@@ -100,14 +103,63 @@ static bool testGenerator( const PropertyRefSelection& prs )
 			       seq.layers().last()->nrValues() == prs.size(),
 			       "Generating a single layer",
 			       toString(slg.errMsg()) );
-    mRunStandardTest( testLayer(*seq.layers().last()), "Layer values" );
+    const Layer& lay0 = *seq.layers().last();
+    mRunStandardTest( lay0.isMath(1), "Generated AI value is math-based" );
+    mRunStandardTest( testLayer(lay0), "Layer values" );
 
     mRunStandardTestWithError( slgcp->generateMaterial(seq,eo) &&
 			       seq.size() == 2 && seq.propertyRefs() == prs &&
 			       seq.layers().last()->nrValues() == prs.size(),
 			       "Generating a single layer",
 			       toString(slgcp->errMsg()) );
+    mRunStandardTest( seq.layers().last()->isMath(1),
+		      "Cloned generator AI value is math-based" );
     mRunStandardTest( testLayer(*seq.layers().last()), "Layer values" );
+
+    // Regression: syncProps used to destroy MathProperty formulas while
+    // generated layers still evaluated them (use-after-free in synthetics).
+    slg.syncProps( prs );
+    if ( !setProperties(prs,slg.properties()) )
+	return false;
+
+    mRunStandardTest( testLayer(*seq.layers().get(0)),
+		      "Math layer survives generator syncProps (layer 0)" );
+    mRunStandardTest( testLayer(*seq.layers().get(1)),
+		      "Math layer survives generator syncProps (layer 1)" );
+
+    return true;
+}
+
+
+static bool testSharedFormulaCache( const PropertyRefSelection& prs )
+{
+    LayerModel lm;
+    lm.propertyRefs() = prs;
+    LayerSequence& seq = lm.addSequence();
+
+    const int aidx = 1;
+    const Math::Formula& aiform = prs.get(aidx)->fixedDef().getForm();
+    ConstRefMan<SharedFormula> sf0 = lm.getSharedFormula( aidx, aiform );
+    ConstRefMan<SharedFormula> sf1 = lm.getSharedFormula( aidx, aiform );
+    mRunStandardTest( sf0.ptr() && sf0.ptr() == sf1.ptr(),
+		      "LayerModel reuses one SharedFormula per property" );
+
+    auto* lay = new Layer( RT().undefLeaf() );
+    lay->setThickness( 75.f );
+    lay->setValue( 2, 2.6f );
+    lay->setValue( 3, 3200.f );
+    lay->setValue( aidx, *sf0, prs, xpos );
+    seq.layers() += lay;
+
+    mRunStandardTest( lay->isMath(aidx), "SharedFormula attaches as math" );
+    mRunStandardTest( testLayer(*lay), "SharedFormula evaluates AI = Den*Vp" );
+
+    Layer laycopy( *lay );
+    mRunStandardTest( laycopy.isMath(aidx) && testLayer(laycopy),
+		      "Cloned layer keeps shared math evaluation" );
+
+    lm.setEmpty();
+    mRunStandardTest( true, "LayerModel clear after shared math use" );
 
     return true;
 }
@@ -137,8 +189,17 @@ static bool testDesc( const PropertyRefSelection& prs )
 			       seq.propertyRefs() == prs,
 			       "Generating a sequence from a set of generators",
 			       toString(gendesccp.errMsg()) );
+    mRunStandardTest( seq.layers().last()->isMath(1),
+		      "Sequence AI value is math-based" );
     mRunStandardTest( testLayer(*seq.layers().last()), "Layer values" );
     mRunStandardTest( mIsEqual(seq.startDepth(),z0,z0*1e-6f), "Top depth" );
+
+    // Prop selection refresh reclones generator properties; existing sequences
+    // must keep evaluating math.
+    gendesccp.setPropSelection( prs );
+    mRunStandardTest( testLayer(*seq.layers().first()) &&
+		      testLayer(*seq.layers().last()),
+		      "Math layers survive setPropSelection" );
 
     const LayerSequenceGenDesc& gendesccp2 = layerGenDesc( &gendesccp );
     LayerSequence seq2( &prs );
@@ -163,7 +224,8 @@ int mTestMainFnName( int argc, char** argv )
     OD::ModDeps().ensureLoaded("Strat");
 
     PropertyRefSelection prs;
-    if ( !fillPRS(prs) || !testGenerator(prs) || !testDesc(prs) )
+    if ( !fillPRS(prs) || !testGenerator(prs) || !testSharedFormulaCache(prs)
+      || !testDesc(prs) )
 	return 1;
 
     return 0;

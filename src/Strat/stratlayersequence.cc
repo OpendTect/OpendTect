@@ -10,6 +10,7 @@ ________________________________________________________________________
 #include "stratlayersequence.h"
 
 #include "stratlayer.h"
+#include "stratlayermodel.h"
 #include "stratreftree.h"
 #include "stratunitrefiter.h"
 
@@ -44,6 +45,7 @@ Strat::LayerSequence& Strat::LayerSequence::operator =(
 	z0_ = oth.z0_;
 	velabove_ = oth.velabove_;
 	props_ = oth.props_;
+	// layermodel_ intentionally not copied; parent stays with this seq
     }
 
     return *this;
@@ -59,6 +61,22 @@ bool Strat::LayerSequence::isEmpty() const
 void Strat::LayerSequence::setEmpty()
 {
     deepErase( layers_ );
+}
+
+
+void Strat::LayerSequence::setLayerModel( LayerModel* lm )
+{
+    layermodel_ = lm;
+}
+
+
+ConstRefMan<Strat::SharedFormula> Strat::LayerSequence::getSharedFormula(
+			int iprop, const Math::Formula& form ) const
+{
+    if ( layermodel_ )
+	return layermodel_->getSharedFormula( iprop, form );
+
+    return new SharedFormula( form );
 }
 
 

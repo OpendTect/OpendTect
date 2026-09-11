@@ -313,6 +313,74 @@ bool doWork( od_int64 start, od_int64 stop, int ) override \
 };
 
 
+static bool testSharedMathOnModel( const PropertyRefSelection& prs )
+{
+    aiform_ = ROCKPHYSFORMS().getByName( Mnemonic::defAI(),
+			     "Acoustic Impedance from P-wave velocity" );
+    castagnaform_ = ROCKPHYSFORMS().getByName( Mnemonic::defSVEL(),
+				"Castagna's equation" );
+    mRunStandardTest( aiform_ && castagnaform_,
+		      "Rock-physics formulas for AI and SVel" );
+
+    ObjectSet<Math::Formula> forms;
+    forms.add( const_cast<Math::Formula*>( castagnaform_ ) );
+    forms.add( const_cast<Math::Formula*>( aiform_ ) );
+    for ( auto* form : forms )
+    {
+	for ( int iinp=0; iinp<form->nrInputs(); iinp++ )
+	{
+	    if ( form->isConst(iinp) || form->isSpec(iinp) )
+		continue;
+
+	    form->setInputDef( iinp,
+		    prs.getByMnemonic(*form->inputMnemonic(iinp) )->name() );
+	}
+
+	mRunStandardTest( form->isOK(), "Configured rock-physics formula" );
+    }
+
+    LayerModel lm;
+    lm.propertyRefs() = prs;
+    LayerSequence& seq = lm.addSequence();
+
+    ConstRefMan<SharedFormula> vsform = lm.getSharedFormula(3,*castagnaform_);
+    ConstRefMan<SharedFormula> aiform = lm.getSharedFormula(4,*aiform_);
+    mRunStandardTest(
+	vsform.ptr() == lm.getSharedFormula( 3, *castagnaform_ ).ptr() &&
+	aiform.ptr() == lm.getSharedFormula( 4, *aiform_ ).ptr(),
+	"LayerModel SharedFormula cache hits" );
+
+    const float xpos = 0.5f;
+    const float den = 2.7f;
+    const float vp = 2300.f;
+    auto* lay = new Layer( RT().undefLeaf() );
+    lay->setThickness( 1.f );
+    lay->setValue( 1, den );
+    lay->setValue( 2, vp );
+    lay->setValue( 3, *vsform, prs, xpos );
+    lay->setValue( 4, *aiform, prs, xpos );
+    seq.layers() += lay;
+
+    mRunStandardTest( lay->isMath(3) && lay->isMath(4),
+		      "Vs and AI attached as math properties" );
+
+    const float vs = lay->value( 3 );
+    const float ai = lay->value( 4 );
+    mRunStandardTest( !mIsUdf(vs) && vs > 0.f, "Castagna Vs evaluates" );
+    mRunStandardTest( mIsEqual(ai,den*vp,1e-2f),
+		      "Shared AI formula evaluates Den*Vp" );
+
+    LayerSequence& seq2 = lm.addSequence();
+    auto* lay2 = new Layer( *lay );
+    seq2.layers() += lay2;
+    mRunStandardTest( lay2->isMath(3) && lay2->isMath(4) &&
+		      mIsEqual(lay2->value(4),ai,1e-2f),
+		      "Copied layer reuses math evaluation" );
+
+    return true;
+}
+
+
 static bool mUnusedVar createModel( const PropertyRefSelection& prs )
 {
     printMem( "Free memory before creating layer model" );
@@ -368,6 +436,7 @@ int mTestMainFnName( int argc, char** argv )
     PropertyRefSelection prs;
     if ( !fillPRS(prs)
 	 || !getMathForms(prs)
+	 || !testSharedMathOnModel(prs)
 //	 || !testArrayLayers(prs)
 //	 || !testObjectSetLayers(prs)
 	 || !createModel(prs)

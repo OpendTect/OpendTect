@@ -11,17 +11,20 @@ ________________________________________________________________________
 #include "stratmod.h"
 
 #include "elasticpropsel.h"
+#include "ptrman.h"
 #include "stattype.h"
 
 class od_istream;
 class od_ostream;
 class TaskRunner;
+namespace Math { class Formula; }
 
 namespace Strat
 {
 class Layer;
 class LayerSequence;
 class RefTree;
+class SharedFormula;
 
 /*!\brief A model consisting of layer sequences.
 
@@ -62,6 +65,10 @@ public:
     const PropertyRefSelection& propertyRefs() const	{ return proprefs_; }
     void			prepareUse() const;
 
+    ConstRefMan<SharedFormula>	getSharedFormula(int iprop,
+						 const Math::Formula&) const;
+				//!< One formula snapshot per property index
+
     void			setElasticPropSel(const ElasticPropSelection&);
     const ElasticPropSelection& elasticPropSel() const
 				{ return elasticpropsel_; }
@@ -87,6 +94,7 @@ protected:
 
     PropertyRefSelection	proprefs_;
     ElasticPropSelection	elasticpropsel_;
+    mutable RefObjectSet<SharedFormula> sharedforms_;
 
 };
 

@@ -25,6 +25,7 @@ mDefSimpleTranslators(StratLayerModels,"Pseudo Wells",od,Mdl)
 
 Strat::LayerModel::LayerModel()
 {
+    sharedforms_.setNullAllowed( true );
     if ( !proprefs_.isPresent(&Layer::thicknessRef()) )
     {
 	pErrMsg("No thickness in property ref selection");
@@ -36,7 +37,10 @@ Strat::LayerModel::LayerModel()
 
 
 Strat::LayerModel::LayerModel( const LayerModel& lm )
-{ *this = lm; }
+{
+    sharedforms_.setNullAllowed( true );
+    *this = lm;
+}
 
 
 Strat::LayerModel::~LayerModel()
@@ -57,6 +61,7 @@ Strat::LayerModel& Strat::LayerModel::operator =( const LayerModel& oth )
     {
 	auto* newseq = new LayerSequence( *seq );
 	newseq->propertyRefs() = proprefs_;
+	newseq->setLayerModel( this );
 	seqs_ += newseq;
     }
 
@@ -152,12 +157,14 @@ float Strat::LayerModel::overburdenVelocity( Stats::Type st ) const
 void Strat::LayerModel::setEmpty()
 {
     deepErase( seqs_ );
+    sharedforms_.erase();
 }
 
 
 Strat::LayerSequence& Strat::LayerModel::addSequence()
 {
     auto* newseq = new LayerSequence( &proprefs_ );
+    newseq->setLayerModel( this );
     seqs_ += newseq;
     return *newseq;
 }
@@ -167,6 +174,7 @@ Strat::LayerSequence& Strat::LayerModel::addSequence(
 				const LayerSequence& inpls )
 {
     auto* newls = new LayerSequence( &proprefs_ );
+    newls->setLayerModel( this );
     const PropertyRefSelection& inpprops = inpls.propertyRefs();
     for ( int ilay=0; ilay<inpls.size(); ilay++ )
     {
@@ -202,6 +210,19 @@ void Strat::LayerModel::append( const LayerModel& oth )
 {
     for ( int iseq=0; iseq<oth.size(); iseq++ )
 	addSequence( oth.sequence(iseq) );
+}
+
+
+ConstRefMan<Strat::SharedFormula> Strat::LayerModel::getSharedFormula(
+			int iprop, const Math::Formula& form ) const
+{
+    while ( sharedforms_.size() <= iprop )
+	sharedforms_ += nullptr;
+
+    if ( !sharedforms_[iprop] )
+	sharedforms_.replace( iprop, new SharedFormula(form) );
+
+    return sharedforms_[iprop];
 }
 
 
@@ -424,6 +445,7 @@ int nextStep() override
 	seq->setOverburdenVelocity( ovvel );
 
     seq->prepareUse();
+    seq->setLayerModel( &lm_ );
     lm_.seqs_ += seq;
     curidx_++;
     nextreadidx_ += readrg_.step_;

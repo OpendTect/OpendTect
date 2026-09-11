@@ -10,17 +10,20 @@ ________________________________________________________________________
 
 #include "stratmod.h"
 
-#include "ailayer.h"
 #include "propertyref.h"
+#include "ptrman.h"
 
 class ElasticPropSelection;
+namespace Math { class Formula; }
 
 namespace Strat
 {
 class Layer;
+class LayerModel;
 class Level;
 class RefTree;
 class UnitRef;
+class SharedFormula;
 
 /*!\brief A sequence of layers.
 
@@ -61,6 +64,14 @@ public:
     PropertyRefSelection& propertyRefs()	{ return props_; }
     const PropertyRefSelection& propertyRefs() const	{ return props_; }
 
+    LayerModel*		layerModel()		{ return layermodel_; }
+    const LayerModel*	layerModel() const	{ return layermodel_; }
+    void		setLayerModel(LayerModel*);
+
+    ConstRefMan<SharedFormula> getSharedFormula(int iprop,
+						const Math::Formula&) const;
+				//!< Forwards to LayerModel when attached
+
     void		getLayersFor( const UnitRef* ur,
 				      ObjectSet<Layer>& lys )
 			{return getLayersFor(ur,(ObjectSet<const Layer>&)lys);}
@@ -97,6 +108,7 @@ protected:
     float		z0_ = 0.f;
     float		velabove_ = 2000.f;
     PropertyRefSelection props_;
+    LayerModel*		layermodel_ = nullptr;
 
 };
 

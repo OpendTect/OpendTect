@@ -9,6 +9,8 @@ ________________________________________________________________________
 -*/
 
 #include "stratmod.h"
+
+#include "ptrman.h"
 #include "stratlaygen.h"
 
 
@@ -16,6 +18,7 @@ namespace Strat
 {
 class LeafUnitRef;
 class Content;
+class SharedFormula;
 
 /*!\brief Layer generator based on Leaf Unit */
 
@@ -50,6 +53,9 @@ protected:
     PropertySet		props_;
     const Content*	content_;
     mutable uiString	errmsg_;
+    mutable RefObjectSet<SharedFormula> sharedforms_;
+
+    ConstRefMan<SharedFormula> getSharedForm(int iprop) const;
 
 };
 
