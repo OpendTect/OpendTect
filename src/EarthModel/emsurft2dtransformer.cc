@@ -25,7 +25,6 @@ ________________________________________________________________________
 #include "ioman.h"
 #include "uistrings.h"
 #include "survgeom.h"
-#include "survgeom2d.h"
 #include "survinfo.h"
 #include "zaxistransform.h"
 
