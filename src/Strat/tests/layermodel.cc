@@ -343,8 +343,10 @@ static bool testSharedMathOnModel( const PropertyRefSelection& prs )
     lm.propertyRefs() = prs;
     LayerSequence& seq = lm.addSequence();
 
-    ConstRefMan<SharedFormula> vsform = lm.getSharedFormula(3,*castagnaform_);
-    ConstRefMan<SharedFormula> aiform = lm.getSharedFormula(4,*aiform_);
+    ConstRefMan<Math::SharedFormula> vsform =
+			lm.getSharedFormula( 3, *castagnaform_ );
+    ConstRefMan<Math::SharedFormula> aiform =
+			lm.getSharedFormula( 4, *aiform_ );
     mRunStandardTest(
 	vsform.ptr() == lm.getSharedFormula( 3, *castagnaform_ ).ptr() &&
 	aiform.ptr() == lm.getSharedFormula( 4, *aiform_ ).ptr(),

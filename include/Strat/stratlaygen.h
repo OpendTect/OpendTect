@@ -9,6 +9,7 @@ ________________________________________________________________________
 -*/
 
 #include "stratmod.h"
+
 #include "property.h"
 
 
@@ -32,7 +33,7 @@ mExpClass(Strat) LayerGenerator : public CallBacker
 {
 public:
 
-    virtual		~LayerGenerator();
+			~LayerGenerator();
 
     virtual LayerGenerator* clone() const
 			{ return canBeCloned() ? createClone() : nullptr; }

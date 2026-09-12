@@ -10,7 +10,8 @@ ________________________________________________________________________
 #include "stratlayermodel.h"
 
 #include "executor.h"
-#include "od_iostream.h"
+#include "od_istream.h"
+#include "od_ostream.h"
 #include "separstr.h"
 #include "statparallelcalc.h"
 #include "stratlayer.h"
@@ -213,14 +214,14 @@ void Strat::LayerModel::append( const LayerModel& oth )
 }
 
 
-ConstRefMan<Strat::SharedFormula> Strat::LayerModel::getSharedFormula(
+ConstRefMan<Math::SharedFormula> Strat::LayerModel::getSharedFormula(
 			int iprop, const Math::Formula& form ) const
 {
     while ( sharedforms_.size() <= iprop )
 	sharedforms_ += nullptr;
 
     if ( !sharedforms_[iprop] )
-	sharedforms_.replace( iprop, new SharedFormula(form) );
+	sharedforms_.replace( iprop, new Math::SharedFormula(form) );
 
     return sharedforms_[iprop];
 }

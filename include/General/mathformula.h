@@ -12,6 +12,7 @@ ________________________________________________________________________
 
 #include "namedobj.h"
 #include "ranges.h"
+#include "refcount.h"
 #include "threadlock.h"
 #include "typeset.h"
 #include "uistring.h"
@@ -272,6 +273,30 @@ public:
     float		getValue(const float* vals,bool internuns=true) const;
     mDeprecated("Use getValue")
     double		getValue(const double* vals,bool internuns) const;
+
+};
+
+
+/*!\brief Refcounted Formula snapshot.
+
+  Many objects can share one SharedFormula to avoid cloning the formula
+  while remaining safe if the originating Formula destroyed.
+*/
+
+mExpClass(General) SharedFormula : public ReferencedObject
+{
+public:
+			SharedFormula(const Formula&);
+
+    Formula&		form();
+    const Formula&	form() const;
+
+protected:
+			~SharedFormula();
+
+private:
+
+    Formula		form_;
 
 };
 

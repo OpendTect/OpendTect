@@ -10,37 +10,12 @@ ________________________________________________________________________
 #include "stratlayer.h"
 
 #include "keystrs.h"
-#include "mathformula.h"
 #include "mathproperty.h"
 #include "stratreftree.h"
 
 
 static const char* sKeyXPos = "XPos";
 static const char* sKeyRelZ = "RelZ";
-
-//------ SharedFormula ------
-
-Strat::SharedFormula::SharedFormula( const Math::Formula& form )
-    : form_(new Math::Formula(form))
-{}
-
-
-Strat::SharedFormula::~SharedFormula()
-{
-    delete form_;
-}
-
-
-Math::Formula& Strat::SharedFormula::form()
-{
-    return *form_;
-}
-
-
-const Math::Formula& Strat::SharedFormula::form() const
-{
-    return *form_;
-}
 
 
 //------ LayerValue ------
@@ -81,18 +56,18 @@ Strat::SimpleLayerValue::~SimpleLayerValue()
 Strat::FormulaLayerValue::FormulaLayerValue( const Math::Formula& form,
 	const Layer& lay, const PropertyRefSelection& prs, int outpridx,
 	float xpos )
-    : FormulaLayerValue(*new SharedFormula(form),lay,prs,outpridx,xpos)
+    : FormulaLayerValue(*new Math::SharedFormula(form),lay,prs,outpridx,xpos)
 {}
 
 
 Strat::FormulaLayerValue::FormulaLayerValue( const Math::Formula& form,
 	const Layer& lay, const PropertyRefSelection& prs, int outpridx,
 	const Property::EvalOpts& eo )
-    : FormulaLayerValue(*new SharedFormula(form),lay,prs,outpridx,eo)
+    : FormulaLayerValue(*new Math::SharedFormula(form),lay,prs,outpridx,eo)
 {}
 
 
-Strat::FormulaLayerValue::FormulaLayerValue( const SharedFormula& form,
+Strat::FormulaLayerValue::FormulaLayerValue( const Math::SharedFormula& form,
 	const Layer& lay, const PropertyRefSelection& prs, int outpridx,
 	float xpos )
     : LayerValue()
@@ -104,7 +79,7 @@ Strat::FormulaLayerValue::FormulaLayerValue( const SharedFormula& form,
 }
 
 
-Strat::FormulaLayerValue::FormulaLayerValue( const SharedFormula& form,
+Strat::FormulaLayerValue::FormulaLayerValue( const Math::SharedFormula& form,
 	const Layer& lay, const PropertyRefSelection& prs, int outpridx,
 	const Property::EvalOpts& eo )
     : LayerValue()
@@ -121,7 +96,7 @@ Strat::FormulaLayerValue::FormulaLayerValue( const IOPar& iop,
 		const Layer& lay, const PropertyRefSelection& prs,
 		int outpridx )
     : LayerValue()
-    , form_(new SharedFormula(
+    , form_(new Math::SharedFormula(
 		Math::Formula(false,MathProperty::getSpecVars())))
     , lay_(lay)
 {
@@ -139,7 +114,7 @@ Strat::FormulaLayerValue::FormulaLayerValue( const IOPar& iop,
 }
 
 
-Strat::FormulaLayerValue::FormulaLayerValue( const SharedFormula& form,
+Strat::FormulaLayerValue::FormulaLayerValue( const Math::SharedFormula& form,
 			    const Layer& lay, float xpos )
     : LayerValue()
     , form_(&form)
@@ -442,7 +417,7 @@ void Strat::Layer::setValue( int ival, const Math::Formula& form,
 }
 
 
-void Strat::Layer::setValue( int ival, const SharedFormula& form,
+void Strat::Layer::setValue( int ival, const Math::SharedFormula& form,
 			     const PropertyRefSelection& prs, float xpos )
 {
     mEnsureEnoughVals();
@@ -451,7 +426,7 @@ void Strat::Layer::setValue( int ival, const SharedFormula& form,
 }
 
 
-void Strat::Layer::setValue( int ival, const SharedFormula& form,
+void Strat::Layer::setValue( int ival, const Math::SharedFormula& form,
 			     const PropertyRefSelection& prs,
 			     const Property::EvalOpts& eo )
 {

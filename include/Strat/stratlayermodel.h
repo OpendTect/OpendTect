@@ -11,13 +11,12 @@ ________________________________________________________________________
 #include "stratmod.h"
 
 #include "elasticpropsel.h"
-#include "ptrman.h"
+#include "mathformula.h"
 #include "stattype.h"
 
 class od_istream;
 class od_ostream;
 class TaskRunner;
-namespace Math { class Formula; }
 
 namespace Strat
 {
@@ -65,7 +64,7 @@ public:
     const PropertyRefSelection& propertyRefs() const	{ return proprefs_; }
     void			prepareUse() const;
 
-    ConstRefMan<SharedFormula>	getSharedFormula(int iprop,
+    ConstRefMan<Math::SharedFormula> getSharedFormula(int iprop,
 						 const Math::Formula&) const;
 				//!< One formula snapshot per property index
 
@@ -94,7 +93,7 @@ protected:
 
     PropertyRefSelection	proprefs_;
     ElasticPropSelection	elasticpropsel_;
-    mutable RefObjectSet<SharedFormula> sharedforms_;
+    mutable RefObjectSet<Math::SharedFormula> sharedforms_;
 
 };
 
@@ -109,7 +108,7 @@ mExpClass(Strat) LayerModelSuite : public CallBacker
 public:
 
 			LayerModelSuite();
-    virtual		~LayerModelSuite();
+			~LayerModelSuite();
 
     int			size() const		{ return mdls_.size(); }
     LayerModel&		get( int idx )		{ return *mdls_.get(idx); }

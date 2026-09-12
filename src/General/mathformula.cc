@@ -849,3 +849,27 @@ const Math::Formula* Math::getRelevant( const Mnemonic& retmn,
     ObjectSet<const Math::Formula> forms;
     return getRelevant(retmn,inpforms,forms,inpmns) ? forms.first() : nullptr;
 }
+
+
+//------ SharedFormula ------
+
+Math::SharedFormula::SharedFormula( const Formula& form )
+    : form_(form)
+{
+}
+
+
+Math::SharedFormula::~SharedFormula()
+{}
+
+
+Math::Formula& Math::SharedFormula::form()
+{
+    return form_;
+}
+
+
+const Math::Formula& Math::SharedFormula::form() const
+{
+    return form_;
+}

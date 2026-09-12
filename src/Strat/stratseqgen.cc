@@ -642,7 +642,7 @@ void Strat::SingleLayerGenerator::updateUsedProps(
 }
 
 
-ConstRefMan<Strat::SharedFormula>
+ConstRefMan<Math::SharedFormula>
 Strat::SingleLayerGenerator::getSharedForm( int iprop ) const
 {
     while ( sharedforms_.size() <= iprop )
@@ -652,7 +652,8 @@ Strat::SingleLayerGenerator::getSharedForm( int iprop ) const
     {
 	mDynamicCastGet(const MathProperty*,mprop,props_.get(iprop))
 	if ( mprop )
-	    sharedforms_.replace( iprop, new SharedFormula(mprop->getForm()) );
+	    sharedforms_.replace( iprop,
+		    new Math::SharedFormula(mprop->getForm()) );
     }
 
     return sharedforms_.validIdx(iprop) ? sharedforms_[iprop] : nullptr;
@@ -793,7 +794,7 @@ bool Strat::SingleLayerGenerator::genMaterial( Strat::LayerSequence& seq,
 	    newlay->setValue( ipr, prop.value( eo ) );
 	else
 	{
-	    ConstRefMan<SharedFormula> form = getSharedForm( iprop );
+	    ConstRefMan<Math::SharedFormula> form = getSharedForm( iprop );
 	    if ( form )
 		newlay->setValue( ipr, *form, prs, eo );
 	    else

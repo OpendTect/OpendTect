@@ -139,8 +139,8 @@ static bool testSharedFormulaCache( const PropertyRefSelection& prs )
 
     const int aidx = 1;
     const Math::Formula& aiform = prs.get(aidx)->fixedDef().getForm();
-    ConstRefMan<SharedFormula> sf0 = lm.getSharedFormula( aidx, aiform );
-    ConstRefMan<SharedFormula> sf1 = lm.getSharedFormula( aidx, aiform );
+    ConstRefMan<Math::SharedFormula> sf0 = lm.getSharedFormula( aidx, aiform );
+    ConstRefMan<Math::SharedFormula> sf1 = lm.getSharedFormula( aidx, aiform );
     mRunStandardTest( sf0.ptr() && sf0.ptr() == sf1.ptr(),
 		      "LayerModel reuses one SharedFormula per property" );
 

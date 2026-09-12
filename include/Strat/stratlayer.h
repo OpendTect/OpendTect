@@ -11,13 +11,12 @@ ________________________________________________________________________
 #include "stratmod.h"
 
 #include "compoundkey.h"
+#include "mathformula.h"
 #include "property.h"
-#include "ptrman.h"
 #include "stratcontent.h"
 #include "typeset.h"
 #include "uistring.h"
 
-namespace Math { class Formula; }
 
 namespace Strat
 {
@@ -25,30 +24,6 @@ class LeafUnitRef;
 class RefTree;
 class Lithology;
 class LayerValue;
-
-/*!\brief Refcounted Math::Formula snapshot for layer evaluation.
-
-  Many FormulaLayerValue instances can share one SharedFormula so that
-  generated layer models stay cheap in memory while remaining safe if the
-  originating MathProperty is destroyed or replaced.
-*/
-
-mExpClass(Strat) SharedFormula : public ReferencedObject
-{
-public:
-			SharedFormula(const Math::Formula&);
-
-    Math::Formula&	form();
-    const Math::Formula& form() const;
-
-protected:
-			~SharedFormula();
-
-private:
-
-    Math::Formula*	form_;
-
-};
 
 
 /*!\brief data for a layer.
@@ -96,9 +71,9 @@ public:
     void		setValue(int,const Math::Formula&,
 				 const PropertyRefSelection&,
 				 const Property::EvalOpts&);
-    void		setValue(int,const SharedFormula&,
+    void		setValue(int,const Math::SharedFormula&,
 				 const PropertyRefSelection&,float xpos=0.5f);
-    void		setValue(int,const SharedFormula&,
+    void		setValue(int,const Math::SharedFormula&,
 				 const PropertyRefSelection&,
 				 const Property::EvalOpts&);
     void		setValue(int,const IOPar&,const PropertyRefSelection&);
@@ -126,8 +101,9 @@ mExpClass(Strat) LayerValue
 { mODTextTranslationClass(LayerValue);
 public:
 
-    virtual LayerValue* clone(const Layer* =nullptr) const	= 0;
     virtual		~LayerValue();
+
+    virtual LayerValue* clone(const Layer* =nullptr) const	= 0;
     virtual bool	isSimple() const		{ return false; }
     virtual float	value() const			= 0;
 
@@ -179,11 +155,11 @@ public:
 					  const PropertyRefSelection&,
 					  int outpridx,
 					  const Property::EvalOpts&);
-			FormulaLayerValue(const SharedFormula&,
+			FormulaLayerValue(const Math::SharedFormula&,
 					  const Strat::Layer&,
 					  const PropertyRefSelection&,
 					  int outpridx,float xpos);
-			FormulaLayerValue(const SharedFormula&,
+			FormulaLayerValue(const Math::SharedFormula&,
 					  const Strat::Layer&,
 					  const PropertyRefSelection&,
 					  int outpridx,
@@ -204,10 +180,10 @@ public:
 
 protected:
 
-				FormulaLayerValue(const SharedFormula&,
+				FormulaLayerValue(const Math::SharedFormula&,
 				      const Strat::Layer&,float xpos);
 
-    ConstRefMan<SharedFormula>	form_;
+    ConstRefMan<Math::SharedFormula> form_;
     const Layer&		lay_;
     float			xpos_			= 0.f;
     float			relz_			= 0.f;
@@ -222,6 +198,5 @@ protected:
 				{ return getNonConst(form_->form()); }
 
 };
-
 
 } // namespace Strat

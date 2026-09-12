@@ -70,13 +70,13 @@ void Strat::LayerSequence::setLayerModel( LayerModel* lm )
 }
 
 
-ConstRefMan<Strat::SharedFormula> Strat::LayerSequence::getSharedFormula(
+ConstRefMan<Math::SharedFormula> Strat::LayerSequence::getSharedFormula(
 			int iprop, const Math::Formula& form ) const
 {
     if ( layermodel_ )
 	return layermodel_->getSharedFormula( iprop, form );
 
-    return new SharedFormula( form );
+    return new Math::SharedFormula( form );
 }
 
 

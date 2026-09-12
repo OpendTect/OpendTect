@@ -14,7 +14,7 @@ ________________________________________________________________________
 #include "ptrman.h"
 
 class ElasticPropSelection;
-namespace Math { class Formula; }
+namespace Math { class Formula; class SharedFormula; }
 
 namespace Strat
 {
@@ -68,7 +68,7 @@ public:
     const LayerModel*	layerModel() const	{ return layermodel_; }
     void		setLayerModel(LayerModel*);
 
-    ConstRefMan<SharedFormula> getSharedFormula(int iprop,
+    ConstRefMan<Math::SharedFormula> getSharedFormula(int iprop,
 						const Math::Formula&) const;
 				//!< Forwards to LayerModel when attached
 
