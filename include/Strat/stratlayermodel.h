@@ -11,6 +11,7 @@ ________________________________________________________________________
 #include "stratmod.h"
 
 #include "elasticpropsel.h"
+#include "mathformula.h"
 #include "stattype.h"
 
 class od_istream;
@@ -91,6 +92,10 @@ protected:
 };
 
 mDefContainerSwapFunction( Strat, LayerModel )
+
+/*! ABI-safe SharedFormula cache for a LayerModel (no LayerModel members). */
+mGlobal(Strat) ConstRefMan<Math::SharedFormula>
+getSharedFormula(const LayerModel&,int iprop,const Math::Formula&);
 
 
 /*!\brief set of related LayerModels that are edits of an original

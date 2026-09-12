@@ -9,13 +9,13 @@ ________________________________________________________________________
 -*/
 
 #include "stratmod.h"
+
 #include "compoundkey.h"
+#include "mathformula.h"
 #include "property.h"
 #include "stratcontent.h"
 #include "typeset.h"
 #include "uistring.h"
-
-namespace Math { class Formula; }
 
 namespace Strat
 {
@@ -23,6 +23,7 @@ class LeafUnitRef;
 class RefTree;
 class Lithology;
 class LayerValue;
+
 
 /*!\brief data for a layer.
 
@@ -67,6 +68,11 @@ public:
     void		setValue(int,const Math::Formula&,
 				 const PropertyRefSelection&,float xpos=0.5f);
     void		setValue(int,const Math::Formula&,
+				 const PropertyRefSelection&,
+				 const Property::EvalOpts&);
+    void		setValue(int,const Math::SharedFormula&,
+				 const PropertyRefSelection&,float xpos=0.5f);
+    void		setValue(int,const Math::SharedFormula&,
 				 const PropertyRefSelection&,
 				 const Property::EvalOpts&);
     void		setValue(int,const IOPar&,const PropertyRefSelection&);
@@ -128,7 +134,10 @@ private:
 
 
 /*!\brief returns a layer value based on Math::Formula. It does not copy the
-  Formula, so keep the formula alive while the layer is alive! */
+  Formula, so keep the formula alive while the layer is alive!
+
+  Prefer SharedFormulaLayerValue for generated models (ABI-safe ownership).
+*/
 
 mExpClass(Strat) FormulaLayerValue : public LayerValue
 { mODTextTranslationClass(FormulaLayerValue);
@@ -174,6 +183,49 @@ protected:
     mutable uiString	        errmsg_;
 
     void			useForm(const PropertyRefSelection&,int outidx);
+
+};
+
+
+/*!\brief FormulaLayerValue that keeps a SharedFormula alive via ConstRefMan.
+
+  Extends FormulaLayerValue without changing its layout: base form_ references
+  the shared snapshot with myform_ == false; shared_ owns the lifetime.
+*/
+
+mExpClass(Strat) SharedFormulaLayerValue : public FormulaLayerValue
+{ mODTextTranslationClass(SharedFormulaLayerValue);
+public:
+
+			SharedFormulaLayerValue(const Math::SharedFormula&,
+					  const Strat::Layer&,
+					  const PropertyRefSelection&,
+					  int outpridx,float xpos);
+			SharedFormulaLayerValue(const Math::SharedFormula&,
+					  const Strat::Layer&,
+					  const PropertyRefSelection&,
+					  int outpridx,
+					  const Property::EvalOpts&);
+			SharedFormulaLayerValue(const Math::Formula&,
+					  const Strat::Layer&,
+					  const PropertyRefSelection&,
+					  int outpridx,float xpos);
+			SharedFormulaLayerValue(const Math::Formula&,
+					  const Strat::Layer&,
+					  const PropertyRefSelection&,
+					  int outpridx,
+					  const Property::EvalOpts&);
+			~SharedFormulaLayerValue();
+    SharedFormulaLayerValue* clone(const Layer*) const override;
+
+    const Math::SharedFormula&	sharedFormula() const	{ return *shared_; }
+
+protected:
+
+			SharedFormulaLayerValue(const Math::SharedFormula&,
+						const Strat::Layer&,float xpos);
+
+    ConstRefMan<Math::SharedFormula>	shared_;
 
 };
 

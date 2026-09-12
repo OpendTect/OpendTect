@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "keystrs.h"
 #include "mathproperty.h"
 #include "ptrman.h"
+#include "refcount.h"
 #include "separstr.h"
 #include "stratlayer.h"
 #include "stratlayermodel.h"
@@ -24,8 +25,90 @@ ________________________________________________________________________
 #include "strattransl.h" // IWYU pragma: keep
 #include "stratsinglaygen.h"
 #include "stratreftree.h"
+#include "threadlock.h"
 #include "typeset.h"
 #include "unitofmeasure.h"
+
+
+namespace Strat
+{
+
+class GenFormCache
+{
+public:
+    const SingleLayerGenerator* gen_;
+    RefObjectSet<Math::SharedFormula> forms_;
+
+    GenFormCache( const SingleLayerGenerator* gen )
+	: gen_(gen)
+    {
+	forms_.setNullAllowed( true );
+    }
+};
+
+
+static Threads::Lock& genFormCacheLock()
+{
+    mDefineStaticLocalObject( Threads::Lock, lock, );
+    return lock;
+}
+
+
+static ManagedObjectSet<GenFormCache>& genFormCaches()
+{
+    mDefineStaticLocalObject( ManagedObjectSet<GenFormCache>, caches, );
+    return caches;
+}
+
+
+static void clearGenFormCache( const SingleLayerGenerator& gen )
+{
+    Threads::Locker lckr( genFormCacheLock() );
+    auto& caches = genFormCaches();
+    for ( int idx=caches.size()-1; idx>=0; idx-- )
+    {
+	if ( caches[idx]->gen_ == &gen )
+	    caches.removeSingle( idx );
+    }
+}
+
+
+static ConstRefMan<Math::SharedFormula> getGenSharedForm(
+		const SingleLayerGenerator& gen, int iprop )
+{
+    Threads::Locker lckr( genFormCacheLock() );
+    auto& caches = genFormCaches();
+    GenFormCache* entry = nullptr;
+    for ( auto* cache : caches )
+    {
+	if ( cache->gen_ == &gen )
+	{
+	    entry = cache;
+	    break;
+	}
+    }
+
+    if ( !entry )
+    {
+	entry = new GenFormCache( &gen );
+	caches += entry;
+    }
+
+    while ( entry->forms_.size() <= iprop )
+	entry->forms_ += nullptr;
+
+    if ( !entry->forms_[iprop] && gen.properties().validIdx(iprop) )
+    {
+	mDynamicCastGet(const MathProperty*,mprop,gen.properties().get(iprop))
+	if ( mprop )
+	    entry->forms_.replace( iprop,
+			new Math::SharedFormula(mprop->getForm()) );
+    }
+
+    return entry->forms_.validIdx(iprop) ? entry->forms_[iprop] : nullptr;
+}
+
+} // namespace Strat
 
 
 #define mFileType "Layer Sequence Generator Description"
@@ -573,6 +656,7 @@ Strat::SingleLayerGenerator::SingleLayerGenerator(
 
 Strat::SingleLayerGenerator::~SingleLayerGenerator()
 {
+    clearGenFormCache( *this );
 }
 
 
@@ -586,6 +670,7 @@ Strat::SingleLayerGenerator& Strat::SingleLayerGenerator::operator =(
     unit_ = oth.unit_;
     props_ = oth.props_;
     content_ = oth.content_;
+    clearGenFormCache( *this );
 
     return *this;
 }
@@ -646,26 +731,28 @@ void Strat::SingleLayerGenerator::syncProps( const PropertyRefSelection& prsel )
 	if ( !prsel.isPresent(&pr) )
 	    delete props_.removeSingle( idx );
     }
-    // add new
+
+    // Reorder / add without destroying retained MathProperty formulas
+    ObjectSet<Property> ordered;
     for ( const auto* pr : prsel )
     {
-	if ( !props_.getByName(pr->name(),false) )
+	Property* prop = props_.getByName( pr->name(), false );
+	if ( prop )
 	{
-	    if ( pr->hasFixedDef() )
-		props_.add( pr->fixedDef().clone() );
-	    else
-		props_.add( new ValueProperty(*pr) );
+	    props_ -= prop;
+	    ordered += prop;
 	}
+	else if ( pr->hasFixedDef() )
+	    ordered += pr->fixedDef().clone();
+	else
+	    ordered += new ValueProperty( *pr );
     }
 
-    //put everything in same order
-    PropertySet copypropset( props_ );
-    props_.erase();
-    for ( const auto* pr : prsel )
-    {
-	const Property* copyprop = copypropset.getByName( pr->name() );
-	props_.add( copyprop ? copyprop->clone() : new ValueProperty(*pr) );
-    }
+    deepErase( props_ );
+    for ( auto* prop : ordered )
+	props_ += prop;
+
+    clearGenFormCache( *this );
 }
 
 
@@ -700,6 +787,7 @@ bool Strat::SingleLayerGenerator::usePar( const IOPar& iop, const RefTree& rt )
     }
 
     props_.erase();
+    clearGenFormCache( *this );
     for ( int pidx=0; ; pidx++ )
     {
 	PtrMan<IOPar> proppar = iop.subselect(
@@ -806,15 +894,23 @@ bool Strat::SingleLayerGenerator::genMaterial( Strat::LayerSequence& seq,
     {
 	const int ipr = indexesofprsmath[mathidx];
 	const PropertyRef* pr = prs[ipr];
-	const Property& prop = *props_.get( correspondingidxinprops[mathidx] );
+	const int iprop = correspondingidxinprops[mathidx];
+	const Property& prop = *props_.get( iprop );
 	if ( pr != &prop.ref() )
 	    { pErrMsg("Huh? should never happen"); continue; }
 	if ( eo.isPrev() )
 	    newlay->setValue( ipr, prop.value( eo ) );
 	else
 	{
-	    mDynamicCastGet(const MathProperty&,mprop,prop)
-	    newlay->setValue( ipr, mprop.getForm(), prs, eo );
+	    ConstRefMan<Math::SharedFormula> form =
+				getGenSharedForm( *this, iprop );
+	    if ( form )
+		newlay->setValue( ipr, *form, prs, eo );
+	    else
+	    {
+		mDynamicCastGet(const MathProperty&,mprop,prop)
+		newlay->setValue( ipr, mprop.getForm(), prs, eo );
+	    }
 	}
     }
 
