@@ -10,15 +10,92 @@ ________________________________________________________________________
 #include "stratlayermodel.h"
 
 #include "executor.h"
-#include "od_iostream.h"
+#include "od_istream.h"
+#include "od_ostream.h"
 #include "separstr.h"
 #include "statparallelcalc.h"
 #include "stratlayer.h"
 #include "stratlayersequence.h"
 #include "stratreftree.h"
-#include "strattransl.h"
+#include "strattransl.h" // IWYU pragma: keep
+#include "threadlock.h"
 
 mDefSimpleTranslators(StratLayerModels,"Pseudo Wells",od,Mdl)
+
+
+namespace Strat
+{
+
+class LayerModelFormCache
+{
+public:
+    const LayerModel*		lm_;
+    RefObjectSet<Math::SharedFormula> forms_;
+
+    LayerModelFormCache( const LayerModel* lm )
+	: lm_(lm)
+    {
+	forms_.setNullAllowed( true );
+    }
+};
+
+static Threads::Lock& lmFormCacheLock()
+{
+    mDefineStaticLocalObject( Threads::Lock, lock, );
+    return lock;
+}
+
+
+static ManagedObjectSet<LayerModelFormCache>& lmFormCaches()
+{
+    mDefineStaticLocalObject( ManagedObjectSet<LayerModelFormCache>, caches, );
+    return caches;
+}
+
+
+static void clearLayerModelFormCache( const LayerModel& lm )
+{
+    Threads::Locker lckr( lmFormCacheLock() );
+    auto& caches = lmFormCaches();
+    for ( int idx=caches.size()-1; idx>=0; idx-- )
+    {
+	if ( caches[idx]->lm_ == &lm )
+	    caches.removeSingle( idx );
+    }
+}
+
+
+ConstRefMan<Math::SharedFormula> getSharedFormula( const LayerModel& lm,
+				int iprop, const Math::Formula& form )
+{
+    Threads::Locker lckr( lmFormCacheLock() );
+    auto& caches = lmFormCaches();
+    LayerModelFormCache* entry = nullptr;
+    for ( auto* cache : caches )
+    {
+	if ( cache->lm_ == &lm )
+	{
+	    entry = cache;
+	    break;
+	}
+    }
+
+    if ( !entry )
+    {
+	entry = new LayerModelFormCache( &lm );
+	caches += entry;
+    }
+
+    while ( entry->forms_.size() <= iprop )
+	entry->forms_ += nullptr;
+
+    if ( !entry->forms_[iprop] )
+	entry->forms_.replace( iprop, new Math::SharedFormula(form) );
+
+    return entry->forms_[iprop];
+}
+
+} // namespace Strat
 
 
 //------ LayerModel ------
@@ -42,6 +119,7 @@ Strat::LayerModel::LayerModel( const LayerModel& lm )
 Strat::LayerModel::~LayerModel()
 {
     deepErase( seqs_ );
+    clearLayerModelFormCache( *this );
 }
 
 
@@ -152,6 +230,7 @@ float Strat::LayerModel::overburdenVelocity( Stats::Type st ) const
 void Strat::LayerModel::setEmpty()
 {
     deepErase( seqs_ );
+    clearLayerModelFormCache( *this );
 }
 
 

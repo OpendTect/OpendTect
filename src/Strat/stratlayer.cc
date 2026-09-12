@@ -10,14 +10,13 @@ ________________________________________________________________________
 #include "stratlayer.h"
 
 #include "keystrs.h"
-#include "mathformula.h"
 #include "mathproperty.h"
 #include "stratreftree.h"
-#include "unitofmeasure.h"
 
 
 static const char* sKeyXPos = "XPos";
 static const char* sKeyRelZ = "RelZ";
+
 
 //------ LayerValue ------
 
@@ -214,6 +213,7 @@ Strat::FormulaLayerValue* Strat::FormulaLayerValue::clone(
     ret->inpidxs_ = inpidxs_;
     ret->inpvals_ = inpvals_;
     ret->errmsg_ = errmsg_;
+    ret->relz_ = relz_;
     return ret;
 }
 
@@ -247,6 +247,72 @@ void Strat::FormulaLayerValue::fillPar( IOPar& iop ) const
 {
     form_.fillPar( iop );
     iop.set( sKeyXPos, xpos_ );
+    iop.set( sKeyRelZ, relz_ );
+}
+
+
+//------ SharedFormulaLayerValue ------
+
+Strat::SharedFormulaLayerValue::SharedFormulaLayerValue(
+	const Math::SharedFormula& form, const Layer& lay,
+	const PropertyRefSelection& prs, int outpridx, float xpos )
+    : FormulaLayerValue( form.form(), lay, xpos, false )
+    , shared_(&form)
+{
+    useForm( prs, outpridx );
+}
+
+
+Strat::SharedFormulaLayerValue::SharedFormulaLayerValue(
+	const Math::SharedFormula& form, const Layer& lay,
+	const PropertyRefSelection& prs, int outpridx,
+	const Property::EvalOpts& eo )
+    : FormulaLayerValue( form.form(), lay, eo.relpos_, false )
+    , shared_(&form)
+{
+    setRelZ( eo.relz_ );
+    useForm( prs, outpridx );
+}
+
+
+Strat::SharedFormulaLayerValue::SharedFormulaLayerValue(
+	const Math::Formula& form, const Layer& lay,
+	const PropertyRefSelection& prs, int outpridx, float xpos )
+    : SharedFormulaLayerValue( *new Math::SharedFormula(form), lay, prs,
+			       outpridx, xpos )
+{}
+
+
+Strat::SharedFormulaLayerValue::SharedFormulaLayerValue(
+	const Math::Formula& form, const Layer& lay,
+	const PropertyRefSelection& prs, int outpridx,
+	const Property::EvalOpts& eo )
+    : SharedFormulaLayerValue( *new Math::SharedFormula(form), lay, prs,
+			       outpridx, eo )
+{}
+
+
+Strat::SharedFormulaLayerValue::SharedFormulaLayerValue(
+	const Math::SharedFormula& form, const Layer& lay, float xpos )
+    : FormulaLayerValue( form.form(), lay, xpos, false )
+    , shared_(&form)
+{}
+
+
+Strat::SharedFormulaLayerValue::~SharedFormulaLayerValue()
+{}
+
+
+Strat::SharedFormulaLayerValue* Strat::SharedFormulaLayerValue::clone(
+					const Layer* lay ) const
+{
+    auto* ret = new SharedFormulaLayerValue( *shared_,
+					     lay ? *lay : lay_, xpos_ );
+    ret->inpidxs_ = inpidxs_;
+    ret->inpvals_ = inpvals_;
+    ret->errmsg_ = errmsg_;
+    ret->relz_ = relz_;
+    return ret;
 }
 
 
@@ -391,7 +457,7 @@ void Strat::Layer::setValue( int ival, const Math::Formula& form,
 {
     mEnsureEnoughVals();
 
-    setLV( ival, new FormulaLayerValue(form,*this,prs,ival,xpos) );
+    setLV( ival, new SharedFormulaLayerValue(form,*this,prs,ival,xpos) );
 }
 
 
@@ -401,7 +467,26 @@ void Strat::Layer::setValue( int ival, const Math::Formula& form,
 {
     mEnsureEnoughVals();
 
-    setLV( ival, new FormulaLayerValue(form,*this,prs,ival,eo) );
+    setLV( ival, new SharedFormulaLayerValue(form,*this,prs,ival,eo) );
+}
+
+
+void Strat::Layer::setValue( int ival, const Math::SharedFormula& form,
+			     const PropertyRefSelection& prs, float xpos )
+{
+    mEnsureEnoughVals();
+
+    setLV( ival, new SharedFormulaLayerValue(form,*this,prs,ival,xpos) );
+}
+
+
+void Strat::Layer::setValue( int ival, const Math::SharedFormula& form,
+			     const PropertyRefSelection& prs,
+			     const Property::EvalOpts& eo )
+{
+    mEnsureEnoughVals();
+
+    setLV( ival, new SharedFormulaLayerValue(form,*this,prs,ival,eo) );
 }
 
 
