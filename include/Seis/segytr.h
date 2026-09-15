@@ -47,6 +47,7 @@ public:
     void		toSupported(DataCharacteristics&) const;
     void		usePar(const IOPar&) override;
 
+    SEGY::TxtHeader*	txtHeader()		{ return txthead_; }
     const SEGY::TxtHeader* txtHeader() const	{ return txthead_; }
     const SEGY::BinHeader& binHeader() const	{ return binhead_; }
     const SEGY::TrcHeader& trcHeader() const	{ return trchead_; }

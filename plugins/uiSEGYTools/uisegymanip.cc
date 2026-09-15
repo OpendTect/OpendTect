@@ -204,7 +204,8 @@ uiSEGYFileManip::uiSEGYFileManip( uiParent* p, const char* fnm )
     txthdrfld_->setDefaultWidth( 80 );
     txthdrfld_->setDefaultHeight( 5 );
     txthdrfld_->setPrefHeightInChar( 5 );
-    BufferString txt; txthdr_.getText( txt );
+    BufferString txt;
+    txthdr_.getFormattedText( txt );
     txthdrfld_->setText( txt );
     uiLabel* lbl = new uiLabel( filehdrgrp, tr("Text Header") );
     lbl->attach( centeredLeftOf, txthdrfld_ );
@@ -336,7 +337,8 @@ bool uiSEGYFileManip::openInpFile()
     if ( !strm_ || !strm_->isOK() )
 	{ errmsg_ = uiStrings::phrCannotOpenInpFile(); return false; }
 
-    if ( !strm().getBin( txthdr_.txt_, SegyTxtHeaderLength ) )
+    unsigned char txthdrbuf[SegyTxtHeaderLength];
+    if ( !strm().getBin( txthdrbuf, SegyTxtHeaderLength ) )
     {
 	errmsg_ = tr("Input file is too small to be a SEG-Y file:\n"
 	      "Cannot fully read the text header"); return false;
@@ -348,7 +350,7 @@ bool uiSEGYFileManip::openInpFile()
 	  "Cannot read full binary header"); return false;
     }
 
-    txthdr_.setAscii();
+    txthdr_.setText( txthdrbuf );
     binhdr_.setInput( buf );
     binhdr_.guessIsSwapped();
 
@@ -774,7 +776,7 @@ bool uiSEGYFileManip::acceptOK( CallBacker* )
     if ( !outstrm.isOK() )
 	{ mErrRet(uiStrings::sCantOpenOutpFile()) }
 
-    txthdr_.setText( txthdrfld_->text() );
+    txthdr_.setFormattedText( txthdrfld_->text() );
     calcset_.reSetSeqNr( 1 );
 
     const int bptrc = binhdr_.nrSamples() * binhdr_.bytesPerSample();

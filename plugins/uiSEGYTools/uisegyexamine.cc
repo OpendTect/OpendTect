@@ -9,6 +9,7 @@ ________________________________________________________________________
 
 #include "uisegyexamine.h"
 
+#include "uicombobox.h"
 #include "uifiledlg.h"
 #include "uiflatviewer.h"
 #include "uilabel.h"
@@ -85,6 +86,16 @@ uiSEGYExamine::uiSEGYExamine( uiParent* p, const uiSEGYExamine::Setup& su )
 					tr("Save textual header to a file"),
 					mCB(this,uiSEGYExamine,saveHdr) );
     savesettb->attach( rightBorder );
+
+    auto* encodingfld = new uiLabeledComboBox( txtgrp,
+				SEGY::TxtHeader::EncodingTypeDef(),
+				tr("Text header encoding") );
+    txtencodingfld_ = encodingfld->box();
+    txtencodingfld_->setHSzPol( uiObject::Medium );
+    encodingfld->attach( leftOf, savesettb );
+    mAttachCB( txtencodingfld_->selectionChanged,
+	       uiSEGYExamine::txtEncodingChgCB );
+
     txtfld_ = new uiTextEdit( txtgrp, "", true );
     txtfld_->setPrefHeightInChar( 14 );
     txtfld_->setPrefWidthInChar( 80 );
@@ -199,7 +210,8 @@ void uiSEGYExamine::saveHdr( CallBacker* )
 
     mDynamicCastGet(SEGYSeisTrcTranslator*,trans,rdr_->translator())
     const SEGY::TxtHeader& th = *trans->txtHeader();
-    BufferString buf; th.getText( buf );
+    BufferString buf;
+    th.getFormattedText( buf );
     strm << buf << od_endl;
 }
 
@@ -495,22 +507,16 @@ void uiSEGYExamine::updateInp()
 
 
 void uiSEGYExamine::handleFirstTrace( const SeisTrc& trc,
-				      const SEGYSeisTrcTranslator& trans )
+				      SEGYSeisTrcTranslator& trans )
 {
-    const SEGY::TxtHeader& txthead = *trans.txtHeader();
-    const SEGY::BinHeader& binhead = trans.binHeader();
-    od_ostrstream thstrm, bhstrm;
-    txthead.dump( thstrm );
-    binhead.dump( bhstrm );
+    SEGY::TxtHeader* txthead = trans.txtHeader();
+    if ( txthead )
+    {
+	NotifyStopper ns( txtencodingfld_->selectionChanged );
+	txtencodingfld_->setCurrentItem( (int)txthead->encodingType() );
+    }
 
-    txtinfo_ = toUiString(thstrm.result());
-    txtinfo_.appendPhrase( toUiString("------") );
-    txtinfo_.addNewLine();
-    txtinfo_.appendPhrase(
-	tr("Binary header info (non-zero values displayed only):"),
-	uiString::NoSep);
-    txtinfo_.addNewLine();
-    txtinfo_.appendPhrase( toUiString(bhstrm.result()), uiString::NoSep );
+    updateTxtHeaderDisplay();
 
     const SEGY::HdrDef& hdef = SEGY::TrcHeader::hdrDef();
     const int nrvals = hdef.size();
@@ -525,6 +531,53 @@ void uiSEGYExamine::handleFirstTrace( const SeisTrc& trc,
 
     tbl_->resizeRowsToContents();
     tbl_->resizeHeaderToContents( false );
+}
+
+
+void uiSEGYExamine::txtEncodingChgCB( CallBacker* )
+{
+    if ( !rdr_ )
+	return;
+
+    mDynamicCastGet(SEGYSeisTrcTranslator*,trans,rdr_->translator())
+    if ( !trans || !trans->txtHeader() )
+	return;
+
+    SEGY::TxtHeader& txthead = *trans->txtHeader();
+    const auto wanttype = sCast(SEGY::TxtHeader::EncodingType,
+				 txtencodingfld_->currentItem());
+    if ( wanttype == txthead.encodingType() )
+	return;
+
+    txthead.setEncodingType( wanttype );
+    updateTxtHeaderDisplay();
+}
+
+
+void uiSEGYExamine::updateTxtHeaderDisplay()
+{
+    if ( !rdr_ )
+	return;
+
+    mDynamicCastGet(SEGYSeisTrcTranslator*,trans,rdr_->translator())
+    if ( !trans || !trans->txtHeader() )
+	return;
+
+    const SEGY::TxtHeader& txthead = *trans->txtHeader();
+    const SEGY::BinHeader& binhead = trans->binHeader();
+    od_ostrstream thstrm, bhstrm;
+    txthead.dump( thstrm );
+    binhead.dump( bhstrm );
+
+    txtinfo_ = toUiString(thstrm.result());
+    txtinfo_.appendPhrase( toUiString("------") );
+    txtinfo_.addNewLine();
+    txtinfo_.appendPhrase(
+	tr("Binary header info (non-zero values displayed only):"),
+	uiString::NoSep);
+    txtinfo_.addNewLine();
+    txtinfo_.appendPhrase( toUiString(bhstrm.result()), uiString::NoSep );
+    txtfld_->setText( txtinfo_ );
 }
 
 

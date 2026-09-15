@@ -13,6 +13,7 @@ ________________________________________________________________________
 #include "coord.h"
 #include "coordsystem.h"
 #include "datachar.h"
+#include "enums.h"
 #include "samplingdata.h"
 #include "segythdef.h"
 #include "seistype.h"
@@ -32,43 +33,56 @@ class Hdrdef;
 
 /*!\brief 3200 byte SEG-Y text header.
 
-  On construction, the 'txt' buffer is filled with data for writing the header.
-  If used for reading, fill the buffer yourself and use getFrom.
+  On construction, the text buffer is filled with data for writing the header.
+  If used for reading, load bytes via setText(const unsigned char*).
+  Use getFormattedText() for newline-separated ASCII, or getText() for the
+  header bytes in a requested encoding.
 
 */
 
 mExpClass(Seis) TxtHeader
 {
 public:
-		TxtHeader();
-		TxtHeader(int rev);	//!< rev only relevant when writing
-		~TxtHeader();
 
-    void	clear();
+    enum EncodingType	{ ASCII=0, EBCDIC=1 };
+			mDeclareEnumUtils(EncodingType)
 
-    int		setInfo(const char* datanm,const Coords::CoordSystem*,
-			const TrcHeaderDef&);
-    void	setUserInfo(int firstlinenr,const char*);
-		//!< Optional, should be called last
+			TxtHeader();
+			TxtHeader(int rev); //!< rev only relevant when writing
+			~TxtHeader();
 
-    void	setGeomID(const Pos::GeomID&);
-    void	setGeomType( Seis::GeomType tp )	{ geomtype_ = tp; }
-		//!< Used when writing header
+    void		clear();
 
-    void	getText(BufferString&) const;
+    int			setInfo(const char* datanm,const Coords::CoordSystem*,
+				const TrcHeaderDef&);
+    void		setUserInfo(int firstlinenr,const char*);
+			//!< Optional, should be called last
+
+    void		setGeomID(const Pos::GeomID&);
+    void		setGeomType( Seis::GeomType tp )
+			{ geomtype_ = tp; }
+			//!< Used when writing header
+
+    void		getFormattedText(BufferString&) const;
+			//!< Newline-separated ASCII text
+    void		getText(unsigned char*,EncodingType typ) const;
+			//!< Fills SegyTxtHeaderLength bytes in the requested
+			//!< encoding
+
     RefMan<Coords::CoordSystem> getCoordSystem(
 					const char* filenm=nullptr) const;
 
-    void	setText(const char*);
+    void		setFormattedText(const char*);
+			//!< Sets from newline-separated ASCII text
+    void		setText(const unsigned char*);
+			//!< Sets from SegyTxtHeaderLength raw bytes.
+			//!< Encoding is detected using detectEncodingType()
 
-    bool	isAscii() const;
-    void	setAscii();
-    void	setEbcdic();
+    EncodingType	encodingType() const	{ return encodingtype_; }
+    void		setEncodingType(EncodingType);
 
-    unsigned char txt_[SegyTxtHeaderLength];
-
-    void	setLineStarts();
-    void	dump(od_ostream&) const;
+    void		setLineStarts();
+    void		dump(od_ostream&) const;
 
     static const char*	sKeySettingEBCDIC()
 			{ return "SEGY.Text Header EBCDIC"; }
@@ -77,15 +91,19 @@ private:
 
     int			revision_	= 1;
     Seis::GeomType	geomtype_	= Seis::Vol;
+    EncodingType	encodingtype_	= ASCII;
+    unsigned char	txt_[SegyTxtHeaderLength];
 
-    void	putAt(int row,int startpos,int endpos,const char* txt);
-    void	getFrom(int,int,int,char*) const;
+    EncodingType	detectEncodingType() const;
+    void		putAt(int row,int startpos,int endpos,const char* txt);
+    void		getFrom(const unsigned char*,int,int,int,char*) const;
 
-    void	clearText();
+    void		clearText();
 
-    int		setGeneralInfo(const char* datanm);
-    int		setSurveySetupInfo(int firstlinenr,const Coords::CoordSystem*);
-    int		setPosInfo(int firstlinenr,const TrcHeaderDef&);
+    int			setGeneralInfo(const char* datanm);
+    int			setSurveySetupInfo(int firstlinenr,
+					   const Coords::CoordSystem*);
+    int			setPosInfo(int firstlinenr,const TrcHeaderDef&);
 
     static RefMan<Coords::CoordSystem> getCoordSystemFrom(const char* filenm);
 

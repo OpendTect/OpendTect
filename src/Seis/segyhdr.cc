@@ -23,6 +23,7 @@ ________________________________________________________________________
 #include "survinfo.h"
 #include "timefun.h"
 #include "trckeyzsampling.h"
+#include "uistrings.h"
 
 
 static const int sTxtHeadNrLines = 40;
@@ -93,6 +94,22 @@ static const char* sSeparatorLine()
 }
 
 
+mDefineEnumUtils(SEGY::TxtHeader,EncodingType,"Encoding type")
+{
+	"ASCII",
+	"EBCDIC",
+	nullptr
+};
+
+
+template <>
+void EnumDefImpl<SEGY::TxtHeader::EncodingType>::init()
+{
+    uistrings_ += uiStrings::sASCII();
+    uistrings_ += ::toUiString( "EBCDIC" );
+}
+
+
 SEGY::TxtHeader::TxtHeader()
     : revision_(1)
 {
@@ -121,6 +138,7 @@ void SEGY::TxtHeader::clear()
 void SEGY::TxtHeader::clearText()
 {
     OD::memSet( txt_, ' ', SegyTxtHeaderLength );
+    encodingtype_ = ASCII;
 }
 
 
@@ -368,7 +386,16 @@ void SEGY::TxtHeader::setGeomID( const Pos::GeomID& geomid )
 	return;
 
     const BufferString linenm = Survey::GM().getName( geomid );
-    putAt( 4, 21, 75, linenm );
+    for ( int iln=1; iln<=sTxtHeadNrLines; iln++ )
+    {
+	char buf[sTxtHeadCharsPerLine+1];
+	getFrom( txt_, iln, sDefStartPos, 75, buf );
+	if ( !StringView(buf).startsWith("Line name") )
+	    continue;
+
+	putAt( iln, 21, 75, linenm );
+	return;
+    }
 }
 
 
@@ -388,41 +415,59 @@ void SEGY::TxtHeader::setLineStarts()
 }
 
 
-void SEGY::TxtHeader::setAscii()
+SEGY::TxtHeader::EncodingType SEGY::TxtHeader::detectEncodingType() const
 {
-    if ( !isAscii() )
-	Ebcdic2Ascii( txt_, SegyTxtHeaderLength );
+    int nrascii = 0;
+    int nrebcdic = 0;
+    for ( int idx=0; idx<SegyTxtHeaderLength; idx++ )
+    {
+	if ( txt_[idx] == 0x20 )
+	    nrascii++;
+	else if ( txt_[idx] == 0x40 )
+	    nrebcdic++;
+    }
+
+    return nrascii >= nrebcdic ? ASCII : EBCDIC;
 }
 
 
-void SEGY::TxtHeader::setEbcdic()
+void SEGY::TxtHeader::setEncodingType( EncodingType typ )
 {
-    if ( isAscii() )
-	Ascii2Ebcdic( txt_, SegyTxtHeaderLength );
+    encodingtype_ = typ;
 }
 
 
-bool SEGY::TxtHeader::isAscii() const
+void SEGY::TxtHeader::getText( unsigned char* buf, EncodingType typ ) const
 {
-    return txt_[0]!=0xC3 && txt_[0]!=0x83;
+    OD::memCopy( buf, txt_, SegyTxtHeaderLength );
+    if ( typ == encodingtype_ )
+	return;
+
+    if ( typ == ASCII )
+	Ebcdic2Ascii( buf, SegyTxtHeaderLength );
+    else
+	Ascii2Ebcdic( buf, SegyTxtHeaderLength );
 }
 
 
-void SEGY::TxtHeader::getText( BufferString& bs ) const
+void SEGY::TxtHeader::getFormattedText( BufferString& bs ) const
 {
-    char buf[sTxtHeadCharsPerLine+1];
-    getFrom( 1, 1, sTxtHeadCharsPerLine, buf );
-    bs = buf;
+    unsigned char buf[SegyTxtHeaderLength];
+    getText( buf, ASCII );
+
+    char linebuf[sTxtHeadCharsPerLine+1];
+    getFrom( buf, 1, 1, sTxtHeadCharsPerLine, linebuf );
+    bs = linebuf;
     for ( int iln=2; iln<=sTxtHeadNrLines; iln++ )
     {
 	bs += "\n";
-	getFrom( iln, 1, sTxtHeadCharsPerLine, buf );
-	bs += buf;
+	getFrom( buf, iln, 1, sTxtHeadCharsPerLine, linebuf );
+	bs += linebuf;
     }
 }
 
 
-void SEGY::TxtHeader::setText( const char* txt )
+void SEGY::TxtHeader::setFormattedText( const char* txt )
 {
     clearText();
 
@@ -439,6 +484,17 @@ void SEGY::TxtHeader::setText( const char* txt )
     }
 
     setLineStarts();
+    encodingtype_ = ASCII;
+}
+
+
+void SEGY::TxtHeader::setText( const unsigned char* raw )
+{
+    if ( !raw )
+	return;
+
+    OD::memCopy( txt_, raw, SegyTxtHeaderLength );
+    encodingtype_ = detectEncodingType();
 }
 
 
@@ -454,7 +510,7 @@ RefMan<Coords::CoordSystem> SEGY::TxtHeader::getCoordSystem(
     }
 
     BufferString txt;
-    getText( txt );
+    getFormattedText( txt );
     if ( txt.size() < SegyTxtHeaderLength )
 	return nullptr;
 
@@ -548,16 +604,17 @@ RefMan<Coords::CoordSystem> SEGY::TxtHeader::getCoordSystemFrom(
 }
 
 
-void SEGY::TxtHeader::getFrom( int line, int pos, int endpos, char* str ) const
+void SEGY::TxtHeader::getFrom( const unsigned char* src, int line, int pos,
+			       int endpos, char* str ) const
 {
-    if ( !str ) return;
+    if ( !str || !src ) return;
 
     int charnr = (line-1)*sTxtHeadCharsPerLine + pos - 1;
     if ( endpos > sTxtHeadCharsPerLine ) endpos = sTxtHeadCharsPerLine;
     int maxcharnr = (line-1)*sTxtHeadCharsPerLine + endpos;
 
-    while ( iswspace(txt_[charnr]) && charnr < maxcharnr ) charnr++;
-    while ( charnr < maxcharnr ) *str++ = txt_[charnr++];
+    while ( iswspace(src[charnr]) && charnr < maxcharnr ) charnr++;
+    while ( charnr < maxcharnr ) *str++ = src[charnr++];
     *str = '\0';
     removeTrailingBlanks( str );
 }
@@ -581,7 +638,7 @@ void SEGY::TxtHeader::putAt( int line, int pos, int endpos, const char* str )
 
 void SEGY::TxtHeader::dump( od_ostream& stream ) const
 {
-    BufferString buf; getText( buf );
+    BufferString buf; getFormattedText( buf );
     stream << buf << od_endl;
 }
 

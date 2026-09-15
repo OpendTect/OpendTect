@@ -158,10 +158,11 @@ bool SEGYSeisTrcTranslator::readTapeHeader()
 	txthead_->setGeomType( Seis::geomTypeOf(is_2d,is_prestack) );
     }
 
-    if ( !strm.getBin(txthead_->txt_,SegyTxtHeaderLength) )
+    unsigned char txthdrbuf[SegyTxtHeaderLength];
+    if ( !strm.getBin(txthdrbuf,SegyTxtHeaderLength) )
 	mErrRet( tr("Cannot read SEG-Y Textual header (aka 'EBCDIC header')") )
 
-    txthead_->setAscii();
+    txthead_->setText( txthdrbuf );
 
     const int revcodeentry = SEGY::BinHeader::EntryRevCode();
     unsigned char binheaderbuf[400];
@@ -202,7 +203,7 @@ bool SEGYSeisTrcTranslator::readTapeHeader()
 	}
     }
 
-    txthead_->getText( pinfo_.usrinfo_ );
+    txthead_->getFormattedText( pinfo_.usrinfo_ );
     pinfo_.nr_ = binhead_.entryVal( SEGY::BinHeader::EntryLino() );
     pinfo_.zrg_.step_ = binhead_.sampleRate( mInDepth );
     insd_.step_ = pinfo_.zrg_.step_;
@@ -447,11 +448,14 @@ bool SEGYSeisTrcTranslator::writeTapeHeader()
 	txthead_->setGeomID( curGeomID() );
 
 	txthead_->setUserInfo( ++lastlnr, pinfo_.usrinfo_ );
-	if ( Settings::common().isTrue(SEGY::TxtHeader::sKeySettingEBCDIC()) )
-	    txthead_->setEbcdic();
     }
 
-    if ( !sConn().oStream().addBin(txthead_->txt_,SegyTxtHeaderLength) )
+    unsigned char txthdrbuf[SegyTxtHeaderLength];
+    const SEGY::TxtHeader::EncodingType outtyp =
+	Settings::common().isTrue( SEGY::TxtHeader::sKeySettingEBCDIC() )
+	    ? SEGY::TxtHeader::EBCDIC : SEGY::TxtHeader::ASCII;
+    txthead_->getText( txthdrbuf, outtyp );
+    if ( !sConn().oStream().addBin(txthdrbuf,SegyTxtHeaderLength) )
 	mErrRet(tr("Cannot write SEG-Y Textual header"))
 
     binhead_.setForWrite();
@@ -514,7 +518,7 @@ void SEGYSeisTrcTranslator::usePar( const IOPar& iopar )
 	 !hdrtxt.isEmpty() )
     {
 	auto* txthdr = new SEGY::TxtHeader( rev0Forced() ? 0 : 1 );
-	txthdr->setText( hdrtxt );
+	txthdr->setFormattedText( hdrtxt );
 	setTxtHeader( txthdr );
     }
 
@@ -940,8 +944,8 @@ bool SEGYSeisTrcTranslator::writeTrc_( const SeisTrc& trc )
 	    nrtrcsinbuffer_ = 0;
 	}
 
-	const int offset = nrtrcsinbuffer_ *
-				( tracedatabytes_+cTraceHeaderBytes );
+	const int offset =
+	    nrtrcsinbuffer_ * (tracedatabytes_+cTraceHeaderBytes);
 	OD::memCopy( writebuffer_+offset, headerbuf_, mSEGYTraceHeaderBytes );
     }
     else
@@ -1092,7 +1096,7 @@ bool SEGYSeisTrcTranslator::writeSEGYHeader( const SeisStoreAccess& ssa,
 	return false;
 
     BufferString hdr;
-    segytr->txtHeader()->getText( hdr );
+    segytr->txtHeader()->getFormattedText( hdr );
 
     FilePath sgyhdr( outfnm );
     sgyhdr.setExtension( "sgyhdr" );

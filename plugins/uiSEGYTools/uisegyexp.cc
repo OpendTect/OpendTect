@@ -237,12 +237,10 @@ void readPush( CallBacker* )
     if ( txt.size() >= SegyTxtHeaderLength && !txt.find('\n') && txt[0] != 'C' )
     {
 	SEGY::TxtHeader ebcidichdr;
-	OD::memCopy( ebcidichdr.txt_, txt.getCStr(), SegyTxtHeaderLength );
-	if ( !ebcidichdr.isAscii() )
-	{
-	    ebcidichdr.setAscii();
-	    ebcidichdr.getText( txt );
-	}
+	ebcidichdr.setText(
+		reinterpret_cast<const unsigned char*>( txt.buf() ) );
+	if ( ebcidichdr.encodingType() == SEGY::TxtHeader::EBCDIC )
+	    ebcidichdr.getFormattedText( txt );
     }
 
     setText( txt );
@@ -745,14 +743,39 @@ void uiSEGYExp::generateAutoTextHeader( BufferString& hdrtxt ) const
     if ( seldata )
     {
 	thdef.pinfo = new SeisPacketInfo;
-	thdef.pinfo->inlrg_.setInterval( seldata->inlRange() );
-	thdef.pinfo->crlrg_.setInterval( seldata->crlRange() );
+	if ( Seis::is2D(geom_) )
+	{
+	    const Pos::GeomID gid = seldata->geomID();
+	    thdef.pinfo->inlrg_.start_ = gid.asInt();
+	    thdef.pinfo->inlrg_.stop_ = thdef.pinfo->inlrg_.start_;
+	    thdef.pinfo->inlrg_.step_ = 1;
+	    thdef.pinfo->crlrg_.setInterval( seldata->crlRange() );
+	}
+	else
+	{
+	    thdef.pinfo->inlrg_.setInterval( seldata->inlRange() );
+	    thdef.pinfo->crlrg_.setInterval( seldata->crlRange() );
+	}
+
 	thdef.pinfo->zrg_.setInterval( seldata->zRange() );
     }
 
     SEGY::TxtHeader txthdr( 1 );
+    txthdr.setGeomType( geom_ );
     txthdr.setInfo( datanm.getCompString(), crs.ptr(), thdef );
-    txthdr.getText( hdrtxt );
+    if ( Seis::is2D(geom_) )
+    {
+	Pos::GeomID gid;
+	if ( seldata )
+	    gid = seldata->geomID();
+	else
+	    gid = Survey::GM().getGeomID( transffld_->selectedLine() );
+
+	if ( gid.isValid() )
+	    txthdr.setGeomID( gid );
+    }
+
+    txthdr.getFormattedText( hdrtxt );
 }
 
 

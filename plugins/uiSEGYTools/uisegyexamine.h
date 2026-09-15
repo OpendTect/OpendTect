@@ -17,6 +17,7 @@ class SeisTrc;
 class SeisTrcBuf;
 class SeisTrcReader;
 class Timer;
+class uiComboBox;
 class uiSEGYTrcHdrValPlot;
 class uiSpinBox;
 class uiTable;
@@ -67,6 +68,7 @@ protected:
     Timer*		timer_;
 
     uiTextEdit*		txtfld_;
+    uiComboBox*		txtencodingfld_;
     uiTable*		tbl_;
     uiSpinBox*		trc0fld_;
     uiSpinBox*		stepfld_;
@@ -79,11 +81,13 @@ protected:
     void		updateInput(CallBacker*);
     void		vwrClose(CallBacker*);
     void		rowClck(CallBacker*);
+    void		txtEncodingChgCB(CallBacker*);
 
     void		updateInp();
     void		setRow(int);
     void		handleFirstTrace(const SeisTrc&,
-					 const SEGYSeisTrcTranslator&);
+					 SEGYSeisTrcTranslator&);
+    void		updateTxtHeaderDisplay();
     bool		rejectOK(CallBacker*) override;
 
     void		outInfo(const uiString&);

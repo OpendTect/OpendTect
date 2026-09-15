@@ -903,7 +903,7 @@ bool SEGYDirectSeisTrcTranslator::getFileHeader( const IOObj& ioobj,
 
     const SEGY::TxtHeader* txthdr = trl ? trl->txtHeader(): nullptr;
     if ( txthdr )
-	txthdr->getText( hdr );
+	txthdr->getFormattedText( hdr );
 
     return txthdr && !hdr.isEmpty();
 }

@@ -162,10 +162,12 @@ uiString SEGY::BasicFileInfo::getFrom( od_istream& strm, bool& inft,
 	mErrRetWithFileName( "is empty" )
 
     SEGY::TxtHeader txthdr;
-    strm.getBin( txthdr.txt_, SegyTxtHeaderLength );
+    unsigned char txthdrbuf[SegyTxtHeaderLength];
+    strm.getBin( txthdrbuf, SegyTxtHeaderLength );
     if ( !strm.isOK() )
 	mErrRetWithFileName( "has no textual header" )
 
+    txthdr.setText( txthdrbuf );
     coordsystem_ = txthdr.getCoordSystem( strm.fileName() );
 
     SEGY::BinHeader binhdr;

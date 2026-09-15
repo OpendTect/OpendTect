@@ -224,7 +224,7 @@ SEGYHdrCalcSetapplier( const SEGY::HdrCalcSet& cs,
     else
     {
 	if ( th )
-	    OD::memCopy( buf_, th->txt_, 3200 );
+	    th->getText( buf_, th->encodingType() );
 	if ( bh )
 	{
 	    OD::memCopy( buf_+3200, bh->buf(), 400 );
