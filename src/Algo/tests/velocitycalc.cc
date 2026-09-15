@@ -135,13 +135,48 @@ static bool testLinearD2T( double v0 )
 }
 
 
+static bool testResampleExtrapolation()
+{
+    const int nr_in = 5;
+    double times_arr[nr_in] = { 0.0, 0.5, 1.0, 1.5, 2.0 };
+    double vels_arr[nr_in]  = { 2000., 2000., 2000., 2000., 2000. };
+
+    const ArrayZValues<double> times( times_arr, nr_in, ZDomain::TWT() );
+    ArrayValueSeries<double,double> vels( vels_arr, false, nr_in );
+
+    const int nr_out = 10;
+    const SamplingData<double> sd_out( 0.5, 0.25 );
+    const RegularZValues outz( sd_out, nr_out, ZDomain::TWT() );
+    const double expected[nr_out] = { 500., 750., 1000., 1250., 1500.,
+				      1750., 2000., 2250., 2500., 2750. };
+
+    ArrayValueSeries<double,double> zout( nr_out );
+    if ( !Vel::getSampledZ( vels, times, OD::VelocityType::Interval,
+			    outz, zout ) )
+	return false;
+
+    for ( int idx=0; idx<nr_out; idx++ )
+    {
+	BufferString desc( "Sampled depth per idx " );
+	desc.add( idx );
+	mRunStandardTestWithError( mIsEqual(zout[idx],expected[idx],1e-4) ? true
+		: setMsg( "testResampleExtrapolation", 2000., 0., 0.,
+			  0.5 + 0.25*idx, true, zout[idx], expected[idx] ),
+	    desc, msg_ );
+    }
+
+    return true;
+}
+
+
 int mTestMainFnName( int argc, char** argv )
 {
     mInitTestProg();
 
     const double v0 = 2000.f;
     if ( !testLinearT2D(v0) ||
-	 !testLinearD2T(v0) )
+	 !testLinearD2T(v0) ||
+	 !testResampleExtrapolation() )
 	return 1;
 
     return 0;
