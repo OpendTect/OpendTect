@@ -886,7 +886,8 @@ ConstRefMan<RegularSeisDataPack> uiAttribPartServer::create2DOutputRM(
 		issteering = pars.get( sKey::Type(), typestr ) &&
 			     typestr == sKey::Steering();
 
-		if (!getCompNrsForStoredTarget(targetspecs_, selcomps))
+		if ( !getCompNrsForStoredTarget(targetspecs_, selcomps) ||
+		     selcomps.isEmpty() )
 		{
 		    if ( issteering )
 			selcomps.add( 1 );
