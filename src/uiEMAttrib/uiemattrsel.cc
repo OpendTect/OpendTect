@@ -191,13 +191,13 @@ void uiEMAttrSelDlg::createSelectionButtons()
     const bool havesteered = attrinf_->steernms_.size();
 
     selgrp_ = new uiButtonGroup( this, "Input selection", OD::Vertical );
-    storbut_ = new uiRadioButton( selgrp_, uiStrings::sStored() );
+    storbut_ = new uiRadioButton( selgrp_, tr("Stored Volumes") );
     mAttachCB( storbut_->activated, uiEMAttrSelDlg::selDone );
     storbut_->setSensitive( havestored );
 
     if ( showsteerdata_ )
     {
-	steerbut_ = new uiRadioButton( selgrp_, uiStrings::sSteering() );
+	steerbut_ = new uiRadioButton( selgrp_, tr("Steering Cubes") );
 	mAttachCB( steerbut_->activated, uiEMAttrSelDlg::selDone );
 	steerbut_->setSensitive( havesteered );
     }
