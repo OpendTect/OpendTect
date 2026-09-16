@@ -291,23 +291,25 @@ uiRetVal Well::Reader::readReqData( const LoadReqs& lreqs ) const
 {
     uiRetVal uirv;
     const Data* wd = data();
-    const bool isusable = isUsable() && wd;
-    if ( !isusable )
+    if ( !isUsable() || !wd )
+    {
+	uirv.add( errMsg() );
+	return uirv;
+    }
+
+    if ( lreqs.includes(Inf) && !getInfo() )
 	uirv.add( errMsg() );
 
-    if ( isusable && lreqs.includes(Inf) && !getInfo() )
+    if ( lreqs.includes(Trck) && !getTrack() )
 	uirv.add( errMsg() );
 
-    if ( isusable && lreqs.includes(Trck) && !getTrack() )
+    if ( lreqs.includes(CSMdl) && !getCSMdl() )
 	uirv.add( errMsg() );
 
-    if ( isusable && lreqs.includes(CSMdl) && !getCSMdl() )
+    if ( lreqs.includes(D2T) && !getD2T() )
 	uirv.add( errMsg() );
 
-    if ( isusable && lreqs.includes(D2T) && !getD2T() )
-	uirv.add( errMsg() );
-
-    if ( isusable && lreqs.includes(Mrkrs) && !getMarkers() )
+    if ( lreqs.includes(Mrkrs) && !getMarkers() )
 	uirv.add( errMsg() );
 
     bool logres = true;
@@ -315,7 +317,7 @@ uiRetVal Well::Reader::readReqData( const LoadReqs& lreqs ) const
     const BufferStringSet& reqlognms = lreqs.logNames();
     const bool allowmissinglogs = lreqs.allowMissingLogs();
     BufferStringSet lognms;
-    if ( isusable && lreqs.includes(Logs) )
+    if ( lreqs.includes(Logs) )
     {
 	if ( wd->loadState().includes(LogInfos) )
 	{
@@ -354,7 +356,7 @@ uiRetVal Well::Reader::readReqData( const LoadReqs& lreqs ) const
 	else
 	    logres = getLogs( false );
     }
-    else if ( isusable && lreqs.includes(LogInfos) )
+    else if ( lreqs.includes(LogInfos) )
     {
 	logres = getLogs( true );
 	BufferStringSet alllognms;
@@ -380,8 +382,7 @@ uiRetVal Well::Reader::readReqData( const LoadReqs& lreqs ) const
     if ( !logres )
 	uirv.add( errMsg() );
 
-    if ( isusable && (lreqs.includes(DispProps2D) ||
-		      lreqs.includes(DispProps3D)) )
+    if ( lreqs.includes(DispProps2D) || lreqs.includes(DispProps3D) )
     {
 	if ( !getDispProps() )
 	    uirv.add( errMsg() );
