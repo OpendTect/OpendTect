@@ -210,7 +210,7 @@ void uiSaveImageDlg::createGeomInpFlds( uiObject* fldabove )
     dpifld_->attach( alignedBelow, widthfld_ );
 
     fileinputfld_ = new uiFileInput( this, uiStrings::phrSelect(tr("filename")),
-				    uiFileInput::Setup(uiFileDialog::Img)
+				    uiFileInput::Setup(uiFileDialog::Gen)
 				    .forread(false)
 				    .defseldir(GetPicturesDir())
 				    .directories(false)

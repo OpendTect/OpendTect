@@ -144,9 +144,10 @@ static uiODRandomLineTreeItem::Type getType( int mnuid )
 {
     switch ( mnuid )
     {
-	case 0: return uiODRandomLineTreeItem::Empty; break;
-	case 2: return uiODRandomLineTreeItem::Select; break;
-	case 1: case 3: return uiODRandomLineTreeItem::RGBA; break;
+	case cAddDefIdx: return uiODRandomLineTreeItem::Empty; break;
+	case cAddStoredIdx: return uiODRandomLineTreeItem::Select; break;
+	case cAddRGBNewIdx: case cAddRGBStoredIdx:
+				return uiODRandomLineTreeItem::RGBA; break;
 	default: return uiODRandomLineTreeItem::Empty;
     }
 }
