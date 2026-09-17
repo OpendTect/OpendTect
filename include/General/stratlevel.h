@@ -280,6 +280,8 @@ public:
     void		popLevelSet();
     void		setLVLS(LevelSet*);
 
+    bool		hasPushedLevelSet() const;
+
     Notifier<LevelSetMgr> curChanged;
 
 private:
