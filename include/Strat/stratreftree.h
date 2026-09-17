@@ -99,6 +99,7 @@ inline RefTree& eRT()	{ return const_cast<RefTree&>( RT() ); }
 // default RefTree is restored
 mGlobal(Strat) void pushRefTree(RefTree*);
 mGlobal(Strat) void popRefTree();
+mGlobal(Strat) bool hasPushedRefTree();
 
 mGlobal(Strat) void setRT(RefTree*);
 //!< replaces (and deletes) the current RT. No write.

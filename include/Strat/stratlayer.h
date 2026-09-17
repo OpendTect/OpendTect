@@ -88,9 +88,9 @@ public:
 protected:
 
     const LeafUnitRef*	ref_;
-    float		ztop_;
+    float		ztop_				= mUdf(float);
     ObjectSet<LayerValue> vals_;
-    const Content*	content_ = nullptr;
+    const Content*	content_			= nullptr;
 
     void		setLV(int,LayerValue*);
 };
