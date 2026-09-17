@@ -65,7 +65,17 @@ void add( RefTree* rt )
 void pop()
 {
     Threads::Locker lkr( lock_ );
+    if ( rts_.size() < 2 )
+	return;
+
     rts_.pop();
+}
+
+
+bool hasPushedRT() const
+{
+    Threads::Locker lkr( lock_ );
+    return rts_.size() > 1;
 }
 
 
@@ -140,7 +150,7 @@ void afterSurveyChangeCB( CallBacker* )
 }
 
     ManagedObjectSet<RefTree>	rts_;
-    Threads::Lock		lock_;
+    mutable Threads::Lock	lock_;
 
 };
 
@@ -173,6 +183,12 @@ void pushRefTree( RefTree* rt )
 void popRefTree()
 {
     refTreeMgr().pop();
+}
+
+
+bool hasPushedRefTree()
+{
+    return refTreeMgr().hasPushedRT();
 }
 
 

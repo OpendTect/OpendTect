@@ -82,9 +82,18 @@ void Strat::LevelSetMgr::pushLevelSet( LevelSet* ls )
 void Strat::LevelSetMgr::popLevelSet()
 {
     Threads::Locker locker( lock_ );
-    lss_.pop();
+    if ( lss_.size() < 2 )
+	return;
 
+    lss_.pop();
     curChanged.trigger();
+}
+
+
+bool Strat::LevelSetMgr::hasPushedLevelSet() const
+{
+    Threads::Locker locker( lock_ );
+    return lss_.size() > 1;
 }
 
 
