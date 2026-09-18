@@ -178,6 +178,9 @@ public:
     inline Size2D<T>	size() const;
     inline void		zero();
     inline bool		isDefined() const;
+    static Rectangle	udf()
+			{ return Rectangle(Point2D<T>::udf(),
+					   Point2D<T>::udf()); }
 
     inline Rectangle<T>& operator+=(const Point2D<T>&); // shifts
     inline Rectangle<T>& operator-=(const Point2D<T>&);
@@ -223,6 +226,8 @@ public:
     inline bool		isInside(const PixRectangle<T>&) const;
 
     inline PixRectangle<T> grownBy(double sidesincreasebyfactor=1) const;
+
+    static PixRectangle udf()	{ return PixRectangle(Rectangle<T>::udf()); }
 
 protected:
 
