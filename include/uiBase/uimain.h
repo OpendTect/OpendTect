@@ -63,6 +63,7 @@ public:
 
     int			nrScreens() const;
     uiSize		getScreenSize(int screennr,bool availablesz) const;
+    uiRect		getScreenGeometry(int screennr,bool available) const;
     uiSize		desktopSize() const;
 			//!<\returns mUdf(int) if unknown
     double		getDevicePixelRatio(int screennr) const;

@@ -70,6 +70,9 @@ public:
 
     int			get(Side) const;
     void		set(Side,int);
+
+    static uiRect	udf()
+			{ return uiRect(Geom::PixRectangle<int>::udf()); }
 };
 
 
