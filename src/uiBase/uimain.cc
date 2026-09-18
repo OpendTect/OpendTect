@@ -770,15 +770,22 @@ static QScreen* getScreen( int screennr )
 }
 
 
-uiSize uiMain::getScreenSize( int screennr, bool available ) const
+uiRect uiMain::getScreenGeometry( int screennr, bool available ) const
 {
     const QScreen* qscreen = getScreen( screennr );
     if ( !qscreen )
-	return uiSize::udf();
+	return uiRect::udf();
 
     const QRect qrect = available ? qscreen->availableGeometry()
 				  : qscreen->geometry();
-    return uiSize( qrect.width(), qrect.height() );
+    return uiRect( qrect.left(), qrect.top(), qrect.right(), qrect.bottom() );
+}
+
+
+uiSize uiMain::getScreenSize( int screennr, bool available ) const
+{
+    const uiRect geom = getScreenGeometry( screennr, available );
+    return geom.isDefined() ? geom.getPixelSize() : uiSize::udf();
 }
 
 
