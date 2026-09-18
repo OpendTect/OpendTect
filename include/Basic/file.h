@@ -38,8 +38,8 @@ enum class Type
     Fifo=7, //named pipe
     Socket=8,
     URI=9,
-    Other=9,
-    Unknown=10
+    Other=10,
+    Unknown=11
 };
 
 enum class Permission
