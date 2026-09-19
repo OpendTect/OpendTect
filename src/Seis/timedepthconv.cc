@@ -343,8 +343,7 @@ bool VelocityStretcher::setVelData( const MultiID& mid )
 	return false;
     }
 
-    fromzdomaininfo_.setID( mid );
-    tozdomaininfo_.setID( mid );
+    setModelID( mid );
     veldesc_.usePar( velioobj->pars() );
     velzinfo_ = &velreader_->zDomain();
 

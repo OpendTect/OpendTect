@@ -296,6 +296,18 @@ void ZAxisTransform::setDataToZDomainInfo( const ZDomain::Info& dtzdinf )
 }
 
 
+void ZAxisTransform::setModelID( const MultiID& mid )
+{
+    fromzdomaininfo_.setID( mid );
+    tozdomaininfo_.setID( mid );
+    if ( datafromzdominfo_ && datafromzdominfo_ != &fromzdomaininfo_ )
+	getNonConst( datafromzdominfo_ )->setID( mid );
+
+    if ( datatozdominfo_ && datatozdominfo_ != &tozdomaininfo_ )
+	getNonConst( datatozdominfo_ )->setID( mid );
+}
+
+
 const ZDomain::Info& ZAxisTransform::zDomain( bool from ) const
 {
     const ZDomain::Info& zdom = from ? fromZDomainInfo()
@@ -335,8 +347,7 @@ bool ZAxisTransform::usePar( const IOPar& par )
     if ( mid.isUdf() )
 	par.get( "ZDomain ID", mid );
 
-    fromzdomaininfo_.setID( mid );
-    tozdomaininfo_.setID( mid );
+    setModelID( mid );
     return true;
 }
 
