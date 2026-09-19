@@ -75,8 +75,7 @@ void HorizonZTransform::setHorizon( const Horizon& hor )
     horizon_ = &hor;
     mAttachCB( horizon_->change, HorizonZTransform::horChangeCB );
 
-    fromzdomaininfo_.setID( horizon_->multiID() );
-    tozdomaininfo_.setID( horizon_->multiID() );
+    setModelID( horizon_->multiID() );
 
     horchanged_ = true;
     calculateHorizonRange();

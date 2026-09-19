@@ -92,6 +92,7 @@ public:
 
     void			setDataFromZDomainInfo(const ZDomain::Info&);
     void			setDataToZDomainInfo(const ZDomain::Info&);
+    void			setModelID(const MultiID&);
 
     virtual float		toZScale() const;
 				/*!<\returns the target domain z-scale. */
