@@ -416,6 +416,9 @@ bool uiODViewer2D::setZAxisTransform( ZAxisTransform* zat )
 
 void uiODViewer2D::pldmChangedCB( CallBacker* )
 {
+    if ( !slicepos_ )
+	return;
+
     const MultiID wvltid = selSpec( true ).getStoredMultiID();
     const MultiID vdid = selSpec( false ).getStoredMultiID();
     const bool ispreloaded = !wvltid.isUdf() && !vdid.isUdf()
