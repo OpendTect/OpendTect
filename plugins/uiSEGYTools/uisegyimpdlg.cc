@@ -243,7 +243,7 @@ bool doImp( const FilePath& fp )
 		Survey::Geometry* geom = Survey::GMAdmin().getGeometry(geomid );
 		mDynamicCastGet(Survey::Geometry2D*,geom2d,geom);
 		if ( geom2d )
-		    geom2d->dataAdmin().setEmpty();
+		    geom2d->setEmpty();
 	    }
 
 	}
@@ -298,7 +298,7 @@ bool uiSEGYImpDlg::doWork( const IOObj& inioobj )
 		Survey::Geometry* geom = Survey::GMAdmin().getGeometry(geomid );
 		mDynamicCastGet(Survey::Geometry2D*,geom2d,geom);
 		if ( geom2d )
-		    geom2d->dataAdmin().setEmpty();
+		    geom2d->setEmpty();
 	    }
 	}
 

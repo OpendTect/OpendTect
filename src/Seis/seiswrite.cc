@@ -369,6 +369,26 @@ bool SeisTrcWriter::next2DLine()
 }
 
 
+static void addPosWithSPNr( const SeisTrc& trc, PosInfo::Line2DData& l2dd,
+			    TypeSet<float>& spnrs )
+{
+    PosInfo::Line2DPos pos( trc.info().trcNr() );
+    pos.coord_ = trc.info().coord_;
+    const int oldsz = l2dd.positions().size();
+    l2dd.add( pos );
+
+    // Line2DData::add() may reject a duplicate trace number or insert
+    // mid-list; mirror its outcome so SP numbers stay index-aligned
+    spnrs.setSize( oldsz, -1 );
+    if ( l2dd.positions().size() > oldsz )
+    {
+	const int posidx = l2dd.indexOf( pos.nr_ );
+	if ( posidx >= 0 )
+	    spnrs.insert( posidx, trc.info().refnr_ );
+    }
+}
+
+
 bool SeisTrcWriter::put2D( const SeisTrc& trc )
 {
     if ( !putter_ || !linedata_ )
@@ -384,10 +404,7 @@ bool SeisTrcWriter::put2D( const SeisTrc& trc )
     if ( !res )
 	errmsg_ = putter_->errMsg();
 
-    PosInfo::Line2DPos pos( trc.info().trcNr() );
-    pos.coord_ = trc.info().coord_;
-    linedata_->add( pos );
-    spnrs_ += trc.info().refnr_;
+    addPosWithSPNr( trc, *linedata_, spnrs_ );
 
     return res;
 }
@@ -414,10 +431,7 @@ bool SeisTrcWriter::put( const SeisTrc& trc )
 
 	if ( is2d_ && linedata_ && linedata_->indexOf(trc.info().trcNr()) < 0 )
 	{
-	    PosInfo::Line2DPos pos( trc.info().trcNr() );
-	    pos.coord_ = trc.info().coord_;
-	    linedata_->add( pos );
-	    spnrs_ += trc.info().refnr_;
+	    addPosWithSPNr( trc, *linedata_, spnrs_ );
 	}
     }
     else if ( is2d_ )
