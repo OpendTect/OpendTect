@@ -134,6 +134,12 @@ int TimeDepthDataLoader::nextStep()
 	    return Finished();
 
 	const int globidx = seisdatapack_->getGlobalIdx( tk );
+	if ( !seisdatapack_->sampling().hsamp_.includes(tk) )
+	{
+	    nrdone_++;
+	    return MoreToDo();
+	}
+
 	const OffsetValueSeries<float> dptrcvs =
 				seisdatapack_->getTrcStorage( icomp, globidx );
 	trcvs = dptrcvs.clone();
@@ -162,11 +168,11 @@ int TimeDepthDataLoader::nextStep()
 				       veltrace->size(), velzinfo_ );
     }
 
-    Vin = ScaledValueSeries<double,float>::getFrom( *trcvs );
+     Vin = ScaledValueSeries<double,float>::getFrom( *trcvs );
     PtrMan<ValueSeries<float> > zsrc;
     PtrMan<ArrayZValues<float> > zout;
     const od_int64 offset = arr_.info().getOffset( tks_.inlIdx(tk.inl()),
-						   tks_.crlIdx(tk.crl()), 0 );
+						tks_.crlIdx(tk.crl()), 0 );
     OffsetValueSeries<float> arrvs( *arr_.getStorage(), offset, nrz );
     if ( arrvs.arr() )
     {
