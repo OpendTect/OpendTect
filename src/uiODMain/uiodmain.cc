@@ -562,11 +562,17 @@ bool acceptOK( CallBacker* ) override
 	return true;
     }
 
-    const IOObj* ioobj = sessionfld_->ioobj();
-    if ( !ioobj )
-	return false;
+    MultiID sessionkey;
+    if ( douse )
+    {
+	const IOObj* ioobj = sessionfld_->ioobj();
+	if ( !ioobj )
+	    return false;
 
-    ODSession::setStartupData( douse, sessionfld_->key() );
+	sessionkey = ioobj->key();
+    }
+
+    ODSession::setStartupData( douse, sessionkey );
     loadnow_ = douse && loadnowfld_->getBoolValue();
     return true;
 }

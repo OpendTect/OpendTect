@@ -84,7 +84,6 @@ uiWellPartServer::uiWellPartServer( uiApplService& a )
     , randLineDlgClosed(this)
     , uiwellpropDlgClosed(this)
 {
-    updateEntries();
     mAttachCB( IOM().surveyChanged, uiWellPartServer::survChangedCB );
     mAttachCB( uiWellMan::instanceCreated(),
 	       uiWellPartServer::wellManCreatedCB );

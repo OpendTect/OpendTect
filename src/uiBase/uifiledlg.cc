@@ -85,17 +85,17 @@ uiFileDialog::uiFileDialog( uiParent* parnt, Mode md,
 			    const char* fname, const char* fltr,
 			    const uiString& caption )
 	: mode_(md)
-        , forread_(true)
 	, filter_(fltr)
 	, addallexts_(true)
+	, forread_(true)
 { mCommon }
 
 
 uiFileDialog::uiFileDialog( uiParent* parnt, uiFileDialog::Type typ,
 			    const char* fname, const uiString& caption )
 	: mode_(AnyFile)
-        , forread_(true)
 	, addallexts_(true)
+	, forread_(true)
 {
     mCommon
 

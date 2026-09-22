@@ -545,6 +545,8 @@ uiExpRokDocPDF::uiExpRokDocPDF( uiParent* p )
 			.savebutton(true).savechecked(true)
 			.modal(false))
 {
+    setOkCancelText( uiStrings::sExport(), uiStrings::sClose() );
+
     IOObjContext ioobjctxt = mIOObjContext(ProbDenFunc);
     ioobjctxt.forread_ = true;
     inpfld_ = new uiIOObjSel( this, ioobjctxt );
@@ -555,8 +557,7 @@ uiExpRokDocPDF::uiExpRokDocPDF( uiParent* p )
     outfld_->setSelectMode( uiFileDialog::AnyFile );
     outfld_->attach( alignedBelow, inpfld_ );
 
-    setOkCancelText( uiStrings::sExport(), uiStrings::sCancel() );
-    mAttachCB(postFinalize(),uiExpRokDocPDF::initGrpCB);
+    mAttachCB( postFinalize(), uiExpRokDocPDF::initGrpCB );
 }
 
 
