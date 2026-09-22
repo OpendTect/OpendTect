@@ -41,6 +41,14 @@ uiString WaveletTranslatorGroup::sTypeName(int num)
 static const char* sKeyScaled = "Scaled";
 #define mDefaultSnapdist (1e-4f);
 
+
+uiString Wavelet::sTooManyWaveletSamples()
+{
+    return tr("Too many samples in wavelet");
+}
+
+
+
 Wavelet::Wavelet( const char* nm )
     : NamedCallBacker(nm)
     , dpos_(SeisTrcInfo::defaultSampleInterval(true))
@@ -54,10 +62,13 @@ Wavelet::Wavelet( bool isricker, float fpeak, float sr, float scale )
 {
     if ( mIsUdf(dpos_) )
 	dpos_ = SeisTrcInfo::defaultSampleInterval(true);
+
     if ( mIsUdf(scale) )
 	scale = 1;
+
     if ( mIsUdf(fpeak) || fpeak <= 0 )
 	fpeak = 25;
+
     cidx_ = (int)( ( 1 + 1. / (fpeak*dpos_) ) );
 
     BufferString nm( isricker ? "Ricker " : "Sinc " );
@@ -90,6 +101,7 @@ Wavelet::Wavelet( const TypeSet<float>& freq, float sr, float scale )
 {
     if ( mIsUdf(dpos_) )
 	dpos_ = SeisTrcInfo::defaultSampleInterval(true);
+
     if ( mIsUdf(scale) )
 	scale = 1;
 
@@ -317,6 +329,32 @@ bool doFFT( bool isfwd )
 };
 
 
+int Wavelet::getNrOutSamples( float newsr, const Interval<float>& twtrg )
+{
+    const float maxlag = -1 * twtrg.start_ > twtrg.stop_
+    ? -1 * twtrg.start_ : twtrg.stop_;
+    return mNINT32( 2.f * maxlag / newsr ) + 1;
+}
+
+
+int Wavelet::getNrOutSamples( float newsr, float fpeak )
+{
+    const float dpos = mIsUdf(newsr) ?
+			    SeisTrcInfo::defaultSampleInterval(true) : newsr;
+    const int cidx = (int)( ( 1 + 1. / (fpeak*dpos) ) );
+    return 1 + 2*cidx;
+}
+
+
+int Wavelet::getNrOutSamples( float newsr, float f1, float f2 )
+{
+    const float dpos = mIsUdf(newsr) ?
+			    SeisTrcInfo::defaultSampleInterval(true) : newsr;
+    const int cidx = (int)( ( 1 + 1. / ((f1+f2)/2.f*dpos) ) )*2+1;
+    return 1 + 2*cidx;
+}
+
+
 bool Wavelet::reSample( float newsr )
 {
     const Interval<float> twtrg = samplePositions();
@@ -464,7 +502,8 @@ bool Wavelet::trimPaddedZeros()
 	return false;
 
     Interval<int> nonzerorg( 0, sz_-1 );
-    while ( samps_[nonzerorg.start_] == 0 && nonzerorg.start_ < nonzerorg.stop_ )
+    while ( samps_[nonzerorg.start_] == 0 &&
+					    nonzerorg.start_ < nonzerorg.stop_ )
         nonzerorg.start_++;
     while ( samps_[nonzerorg.stop_] == 0 && nonzerorg.stop_ > nonzerorg.start_ )
         nonzerorg.stop_--;
@@ -720,7 +759,7 @@ Table::FormatDesc* WaveletAscIO::getDesc()
 {
     Table::FormatDesc* fd = new Table::FormatDesc( "Wavelet" );
     fd->headerinfos_ += new Table::TargetInfo( "Sample interval",
-                                               FloatInpSpec(SI().zRange(true).step_), Table::Required,
+			FloatInpSpec(SI().zRange(true).step_), Table::Required,
 			Mnemonic::surveyZType() );
     fd->headerinfos_ += new Table::TargetInfo( "Center sample",
 						IntInpSpec(), Table::Optional );

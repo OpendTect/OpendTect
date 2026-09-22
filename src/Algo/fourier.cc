@@ -102,8 +102,11 @@ void CC::getFrequencies( mType samplespacing, int nrsamples,
 }
 
 
+static bool isPfaSize( int sz );
+
+
 bool CC::isFast( int sz ) const
-{ return sz==getFastSize(sz); }
+{ return isPfaSize( sz ); }
 
 
 int CC::getFastSize( int nmin ) const
@@ -128,7 +131,7 @@ CC::CC1D::~CC1D()
 
 bool CC::CC1D::init()
 {
-    dopfa_ = getFastSize(sz_)==sz_;
+    dopfa_ = isPfaSize( sz_ );
     direction_ = forward_ ? -1 : 1;
     return true;
 }
@@ -2103,122 +2106,122 @@ bool FFTCC1D::doFinish()
 			    c11 = -P663; \
 			    c12 = -P239; \
 		    } \
-		    for (l=0; l<m; l++) { \
-			    const int j00i = j00+1; \
-			    const int j01i = j01+1; \
-			    const int j2i = j2+1; \
-			    const int j3i = j3+1; \
-			    const int j4i = j4+1; \
-			    const int j5i = j5+1; \
-			    const int j6i = j6+1; \
-			    const int j7i = j7+1; \
-			    const int j8i = j8+1; \
-			    const int j9i = j9+1; \
-			    const int j10i = j10+1; \
-			    const int j11i = j11+1; \
-			    const int j12i = j12+1; \
-			    t1r = z[j01]+z[j12]; \
-			    t1i = z[j01i]+z[j12i]; \
-			    t2r = z[j2]+z[j11]; \
-			    t2i = z[j2i]+z[j11i]; \
-			    t3r = z[j3]+z[j10]; \
-			    t3i = z[j3i]+z[j10i]; \
-			    t4r = z[j4]+z[j9]; \
-			    t4i = z[j4i]+z[j9i]; \
-			    t5r = z[j5]+z[j8]; \
-			    t5i = z[j5i]+z[j8i]; \
-			    t6r = z[j6]+z[j7]; \
-			    t6i = z[j6i]+z[j7i]; \
-			    t7r = z[j01]-z[j12]; \
-			    t7i = z[j01i]-z[j12i]; \
-			    t8r = z[j2]-z[j11]; \
-			    t8i = z[j2i]-z[j11i]; \
-			    t9r = z[j3]-z[j10]; \
-			    t9i = z[j3i]-z[j10i]; \
-			    t10r = z[j4]-z[j9]; \
-			    t10i = z[j4i]-z[j9i]; \
-			    t11r = z[j5]-z[j8]; \
-			    t11i = z[j5i]-z[j8i]; \
-			    t12r = z[j6]-z[j7]; \
-			    t12i = z[j6i]-z[j7i]; \
-			    t13r = z[j00]-mFloatOrDouble(0.5)*t6r; \
-			    t13i = z[j00i]-mFloatOrDouble(0.5)*t6i; \
-			    t14r = t1r-t6r; \
-			    t14i = t1i-t6i; \
-			    t15r = t2r-t6r; \
-			    t15i = t2i-t6i; \
-			    t16r = t3r-t6r; \
-			    t16i = t3i-t6i; \
-			    t17r = t4r-t6r; \
-			    t17i = t4i-t6i; \
-			    t18r = t5r-t6r; \
-			    t18i = t5i-t6i; \
-			    y1r = t13r+c1*t14r+c2*t15r+c3*t16r+c4*t17r+c5*t18r; \
-			    y1i = t13i+c1*t14i+c2*t15i+c3*t16i+c4*t17i+c5*t18i; \
-			    y2r = t13r+c2*t14r+c4*t15r+c6*t16r+c5*t17r+c3*t18r; \
-			    y2i = t13i+c2*t14i+c4*t15i+c6*t16i+c5*t17i+c3*t18i; \
-			    y3r = t13r+c3*t14r+c6*t15r+c4*t16r+c1*t17r+c2*t18r; \
-			    y3i = t13i+c3*t14i+c6*t15i+c4*t16i+c1*t17i+c2*t18i; \
-			    y4r = t13r+c4*t14r+c5*t15r+c1*t16r+c3*t17r+c6*t18r; \
-			    y4i = t13i+c4*t14i+c5*t15i+c1*t16i+c3*t17i+c6*t18i; \
-			    y5r = t13r+c5*t14r+c3*t15r+c2*t16r+c6*t17r+c1*t18r; \
-			    y5i = t13i+c5*t14i+c3*t15i+c2*t16i+c6*t17i+c1*t18i; \
-			    y6r = t13r+c6*t14r+c1*t15r+c5*t16r+c2*t17r+c4*t18r; \
-			    y6i = t13i+c6*t14i+c1*t15i+c5*t16i+c2*t17i+c4*t18i; \
-			    y7r = c12*t7r-c7*t8r+c11*t9r-c8*t10r+c10*t11r-c9*t12r; \
-			    y7i = c12*t7i-c7*t8i+c11*t9i-c8*t10i+c10*t11i-c9*t12i; \
-			    y8r = c11*t7r-c9*t8r+c8*t9r-c12*t10r-c7*t11r+c10*t12r; \
-			    y8i = c11*t7i-c9*t8i+c8*t9i-c12*t10i-c7*t11i+c10*t12i; \
-			    y9r = c10*t7r-c11*t8r-c7*t9r+c9*t10r-c12*t11r-c8*t12r; \
-			    y9i = c10*t7i-c11*t8i-c7*t9i+c9*t10i-c12*t11i-c8*t12i; \
-			    y10r = c9*t7r+c12*t8r-c10*t9r-c7*t10r+c8*t11r+c11*t12r; \
-			    y10i = c9*t7i+c12*t8i-c10*t9i-c7*t10i+c8*t11i+c11*t12i; \
-			    y11r = c8*t7r+c10*t8r+c12*t9r-c11*t10r-c9*t11r-c7*t12r; \
-			    y11i = c8*t7i+c10*t8i+c12*t9i-c11*t10i-c9*t11i-c7*t12i; \
-			    y12r = c7*t7r+c8*t8r+c9*t9r+c10*t10r+c11*t11r+c12*t12r; \
-			    y12i = c7*t7i+c8*t8i+c9*t9i+c10*t10i+c11*t11i+c12*t12i; \
-			    z[j00] = z[j00]+t1r+t2r+t3r+t4r+t5r+t6r; \
-			    z[j00i] = z[j00i]+t1i+t2i+t3i+t4i+t5i+t6i; \
-			    z[j01] = y1r-y12i; \
-			    z[j01i] = y1i+y12r; \
-			    z[j2] = y2r-y11i; \
-			    z[j2i] = y2i+y11r; \
-			    z[j3] = y3r-y10i; \
-			    z[j3i] = y3i+y10r; \
-			    z[j4] = y4r-y9i; \
-			    z[j4i] = y4i+y9r; \
-			    z[j5] = y5r-y8i; \
-			    z[j5i] = y5i+y8r; \
-			    z[j6] = y6r-y7i; \
-			    z[j6i] = y6i+y7r; \
-			    z[j7] = y6r+y7i; \
-			    z[j7i] = y6i-y7r; \
-			    z[j8] = y5r+y8i; \
-			    z[j8i] = y5i-y8r; \
-			    z[j9] = y4r+y9i; \
-			    z[j9i] = y4i-y9r; \
-			    z[j10] = y3r+y10i; \
-			    z[j10i] = y3i-y10r; \
-			    z[j11] = y2r+y11i; \
-			    z[j11i] = y2i-y11r; \
-			    z[j12] = y1r+y12i; \
-			    z[j12i] = y1i-y12r; \
-			    const int jt = j12+(nextsampleinc); \
-			    j12 = j11+(nextsampleinc); \
-			    j11 = j10+(nextsampleinc); \
-			    j10 = j9+(nextsampleinc); \
-			    j9 = j8+(nextsampleinc); \
-			    j8 = j7+(nextsampleinc); \
-			    j7 = j6+(nextsampleinc); \
-			    j6 = j5+(nextsampleinc); \
-			    j5 = j4+(nextsampleinc); \
-			    j4 = j3+(nextsampleinc); \
-			    j3 = j2+(nextsampleinc); \
-			    j2 = j01+(nextsampleinc); \
-			    j01 = j00+(nextsampleinc); \
-			    j00 = jt; \
-		    } \
-		    continue; \
+		for (l=0; l<m; l++) { \
+		    const int j00i = j00+1; \
+		    const int j01i = j01+1; \
+		    const int j2i = j2+1; \
+		    const int j3i = j3+1; \
+		    const int j4i = j4+1; \
+		    const int j5i = j5+1; \
+		    const int j6i = j6+1; \
+		    const int j7i = j7+1; \
+		    const int j8i = j8+1; \
+		    const int j9i = j9+1; \
+		    const int j10i = j10+1; \
+		    const int j11i = j11+1; \
+		    const int j12i = j12+1; \
+		    t1r = z[j01]+z[j12]; \
+		    t1i = z[j01i]+z[j12i]; \
+		    t2r = z[j2]+z[j11]; \
+		    t2i = z[j2i]+z[j11i]; \
+		    t3r = z[j3]+z[j10]; \
+		    t3i = z[j3i]+z[j10i]; \
+		    t4r = z[j4]+z[j9]; \
+		    t4i = z[j4i]+z[j9i]; \
+		    t5r = z[j5]+z[j8]; \
+		    t5i = z[j5i]+z[j8i]; \
+		    t6r = z[j6]+z[j7]; \
+		    t6i = z[j6i]+z[j7i]; \
+		    t7r = z[j01]-z[j12]; \
+		    t7i = z[j01i]-z[j12i]; \
+		    t8r = z[j2]-z[j11]; \
+		    t8i = z[j2i]-z[j11i]; \
+		    t9r = z[j3]-z[j10]; \
+		    t9i = z[j3i]-z[j10i]; \
+		    t10r = z[j4]-z[j9]; \
+		    t10i = z[j4i]-z[j9i]; \
+		    t11r = z[j5]-z[j8]; \
+		    t11i = z[j5i]-z[j8i]; \
+		    t12r = z[j6]-z[j7]; \
+		    t12i = z[j6i]-z[j7i]; \
+		    t13r = z[j00]-mFloatOrDouble(0.5)*t6r; \
+		    t13i = z[j00i]-mFloatOrDouble(0.5)*t6i; \
+		    t14r = t1r-t6r; \
+		    t14i = t1i-t6i; \
+		    t15r = t2r-t6r; \
+		    t15i = t2i-t6i; \
+		    t16r = t3r-t6r; \
+		    t16i = t3i-t6i; \
+		    t17r = t4r-t6r; \
+		    t17i = t4i-t6i; \
+		    t18r = t5r-t6r; \
+		    t18i = t5i-t6i; \
+		    y1r = t13r+c1*t14r+c2*t15r+c3*t16r+c4*t17r+c5*t18r; \
+		    y1i = t13i+c1*t14i+c2*t15i+c3*t16i+c4*t17i+c5*t18i; \
+		    y2r = t13r+c2*t14r+c4*t15r+c6*t16r+c5*t17r+c3*t18r; \
+		    y2i = t13i+c2*t14i+c4*t15i+c6*t16i+c5*t17i+c3*t18i; \
+		    y3r = t13r+c3*t14r+c6*t15r+c4*t16r+c1*t17r+c2*t18r; \
+		    y3i = t13i+c3*t14i+c6*t15i+c4*t16i+c1*t17i+c2*t18i; \
+		    y4r = t13r+c4*t14r+c5*t15r+c1*t16r+c3*t17r+c6*t18r; \
+		    y4i = t13i+c4*t14i+c5*t15i+c1*t16i+c3*t17i+c6*t18i; \
+		    y5r = t13r+c5*t14r+c3*t15r+c2*t16r+c6*t17r+c1*t18r; \
+		    y5i = t13i+c5*t14i+c3*t15i+c2*t16i+c6*t17i+c1*t18i; \
+		    y6r = t13r+c6*t14r+c1*t15r+c5*t16r+c2*t17r+c4*t18r; \
+		    y6i = t13i+c6*t14i+c1*t15i+c5*t16i+c2*t17i+c4*t18i; \
+		    y7r = c12*t7r-c7*t8r+c11*t9r-c8*t10r+c10*t11r-c9*t12r; \
+		    y7i = c12*t7i-c7*t8i+c11*t9i-c8*t10i+c10*t11i-c9*t12i; \
+		    y8r = c11*t7r-c9*t8r+c8*t9r-c12*t10r-c7*t11r+c10*t12r; \
+		    y8i = c11*t7i-c9*t8i+c8*t9i-c12*t10i-c7*t11i+c10*t12i; \
+		    y9r = c10*t7r-c11*t8r-c7*t9r+c9*t10r-c12*t11r-c8*t12r; \
+		    y9i = c10*t7i-c11*t8i-c7*t9i+c9*t10i-c12*t11i-c8*t12i; \
+		    y10r = c9*t7r+c12*t8r-c10*t9r-c7*t10r+c8*t11r+c11*t12r; \
+		    y10i = c9*t7i+c12*t8i-c10*t9i-c7*t10i+c8*t11i+c11*t12i; \
+		    y11r = c8*t7r+c10*t8r+c12*t9r-c11*t10r-c9*t11r-c7*t12r; \
+		    y11i = c8*t7i+c10*t8i+c12*t9i-c11*t10i-c9*t11i-c7*t12i; \
+		    y12r = c7*t7r+c8*t8r+c9*t9r+c10*t10r+c11*t11r+c12*t12r; \
+		    y12i = c7*t7i+c8*t8i+c9*t9i+c10*t10i+c11*t11i+c12*t12i; \
+		    z[j00] = z[j00]+t1r+t2r+t3r+t4r+t5r+t6r; \
+		    z[j00i] = z[j00i]+t1i+t2i+t3i+t4i+t5i+t6i; \
+		    z[j01] = y1r-y12i; \
+		    z[j01i] = y1i+y12r; \
+		    z[j2] = y2r-y11i; \
+		    z[j2i] = y2i+y11r; \
+		    z[j3] = y3r-y10i; \
+		    z[j3i] = y3i+y10r; \
+		    z[j4] = y4r-y9i; \
+		    z[j4i] = y4i+y9r; \
+		    z[j5] = y5r-y8i; \
+		    z[j5i] = y5i+y8r; \
+		    z[j6] = y6r-y7i; \
+		    z[j6i] = y6i+y7r; \
+		    z[j7] = y6r+y7i; \
+		    z[j7i] = y6i-y7r; \
+		    z[j8] = y5r+y8i; \
+		    z[j8i] = y5i-y8r; \
+		    z[j9] = y4r+y9i; \
+		    z[j9i] = y4i-y9r; \
+		    z[j10] = y3r+y10i; \
+		    z[j10i] = y3i-y10r; \
+		    z[j11] = y2r+y11i; \
+		    z[j11i] = y2i-y11r; \
+		    z[j12] = y1r+y12i; \
+		    z[j12i] = y1i-y12r; \
+		    const int jt = j12+(nextsampleinc); \
+		    j12 = j11+(nextsampleinc); \
+		    j11 = j10+(nextsampleinc); \
+		    j10 = j9+(nextsampleinc); \
+		    j9 = j8+(nextsampleinc); \
+		    j8 = j7+(nextsampleinc); \
+		    j7 = j6+(nextsampleinc); \
+		    j6 = j5+(nextsampleinc); \
+		    j5 = j4+(nextsampleinc); \
+		    j4 = j3+(nextsampleinc); \
+		    j3 = j2+(nextsampleinc); \
+		    j2 = j01+(nextsampleinc); \
+		    j01 = j00+(nextsampleinc); \
+		    j00 = jt; \
+		} \
+		continue; \
 	    } \
 	    j13 = j12+jinc; \
 	    if (j13>=jmax) j13 = j13-jmax; \
@@ -4268,6 +4271,12 @@ int FFTCC1D::getFastSize( int nmin )
 }
 
 
+static bool isPfaSize( int sz )
+{
+     return sz>0 && sz<=nctab[NTAB-1].n && FFTCC1D::getFastSize(sz)==sz;
+}
+
+
 int CC::npfao( int nmin, int nmax )
 {
     int i,j;
@@ -4286,50 +4295,53 @@ int CC::npfaro( int nmin, int nmax )
 
 uiString* CC::legalInfo()
 {
-        uiString* res = new uiString;
-	    *res = toUiString(
-		    "Copyright (C) 2007, Colorado School of Mines,\n"
-		    "All rights reserved.\n"
-		    "\n"
-		    "\n"
-		    "Redistribution and use in source and binary forms, with or \n"
-		    "without modification, are permitted provided that the following \n"
-		    "conditions are met:\n"
-		    "\n"
-		    "*  Redistributions of source code must retain the above copyright \n"
-		    "   notice, this list of conditions and the following disclaimer.\n"
-		    "*  Redistributions in binary form must reproduce the above \n"
-		    "   copyright notice, this list of conditions and the following \n"
-		    "   disclaimer in the documentation and/or other materials provided \n"
-		    "   with the distribution.\n"
-		    "*  Neither the name of the Colorado School of Mines nor the names of\n"
-		    "   its contributors may be used to endorse or promote products \n"
-		    "   derived from this software without specific prior written permission.\n"
-		    "\n"
-		    "Warranty Disclaimer:\n"
-		    "THIS SOFTWARE IS PROVIDED BY THE COLORADO SCHOOL OF MINES AND CONTRIBUTORS \n"
-		    "\"AS IS\" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT \n"
-		    "LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS \n"
-		    "FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE \n"
-		    "COLORADO SCHOOL OF MINES OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,\n"
-		    "INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, \n"
-		    "BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; \n"
-		    "LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER \n"
-		    "CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, \n"
-		    "STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING \n"
-		    "IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE \n"
-		    "POSSIBILITY OF SUCH DAMAGE.\n"
-		    "\n"
-		    "\n"
-		    "Export Restriction Disclaimer:\n"
-		    "We believe that CWP/SU: Seismic Un*x is a low technology product that does\n"
-		    "not appear on the Department of Commerce CCL list of restricted exports.\n"
-		    "Accordingly, we believe that our product meets the qualifications of\n"
-		    "an ECCN (export control classification number) of EAR99 and we believe\n"
-		    "it fits the qualifications of NRR (no restrictions required), and\n"
-		    "is thus not subject to export restrictions of any variety.\n" );
+    uiString* res = new uiString;
+    *res = toUiString(
+	"Copyright (C) 2007, Colorado School of Mines,\n"
+	"All rights reserved.\n"
+	"\n"
+	"\n"
+	"Redistribution and use in source and binary forms, with or \n"
+	"without modification, are permitted provided that the following \n"
+	"conditions are met:\n"
+	"\n"
+	"*  Redistributions of source code must retain the above copyright \n"
+	"   notice, this list of conditions and the following disclaimer.\n"
+	"*  Redistributions in binary form must reproduce the above \n"
+	"   copyright notice, this list of conditions and the following \n"
+	"   disclaimer in the documentation and/or other materials provided \n"
+	"   with the distribution.\n"
+	"*  Neither the name of the Colorado School of Mines nor the names of\n"
+	"   its contributors may be used to endorse or promote products \n"
+	"   derived from this software without specific prior written \n"
+	"   permission.\n"
+	"\n"
+	"Warranty Disclaimer:\n"
+	"THIS SOFTWARE IS PROVIDED BY THE COLORADO SCHOOL OF MINES AND \n"
+	"CONTRIBUTORS \"AS IS\" AND ANY EXPRESS OR IMPLIED WARRANTIES, \n"
+	"INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF \n"
+	"MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.\n"
+	"IN NO EVENT SHALL THE COLORADO SCHOOL OF MINES OR CONTRIBUTORS BE \n"
+	"LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR\n"
+	"CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF\n"
+	"SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR \n"
+	"BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF \n"
+	"LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT \n"
+	"(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE \n"
+	"USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH \n"
+	"DAMAGE.\n"
+	"\n"
+	"\n"
+	"Export Restriction Disclaimer:\n"
+	"We believe that CWP/SU: Seismic Un*x is a low technology product \n"
+	"that does not appear on the Department of Commerce CCL list of \n"
+	"restricted exports. Accordingly, we believe that our product meets \n"
+	"the qualifications of an ECCN (export control classification \n"
+	"number) of EAR99 and we believe it fits the qualifications of NRR \n"
+	"(no restrictions required), and is thus not subject to export \n"
+	"restrictions of any variety.\n" );
 
-	        return res;
+    return res;
 }
 
 

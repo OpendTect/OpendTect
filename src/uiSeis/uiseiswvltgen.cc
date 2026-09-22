@@ -186,14 +186,22 @@ bool uiSeisWvltGen::acceptOK( CallBacker* cb )
     bool res;
     if ( isrickfld_->getBoolValue() )
     {
+	if ( Wavelet::getNrOutSamples(sr, freq[0])>mMaxWaveletSamples )
+	    mErrRet( Wavelet::sTooManyWaveletSamples() );
+
 	Wavelet wvlt( true, freq[0], sr, peakampl );
 	res = putWvlt( wvlt );
     }
-    else
+    else if ( freq.size()==4 )
     {
+	if ( Wavelet::getNrOutSamples(sr, freq[1], freq[2])>mMaxWaveletSamples )
+	    mErrRet( Wavelet::sTooManyWaveletSamples() );
+
 	Wavelet wvlt( freq, sr, peakampl );
 	res = putWvlt( wvlt );
     }
+    else
+	mErrRet( tr("Invalid wavelet specification."))
 
     if ( !res )
 	return res;
@@ -398,7 +406,16 @@ void uiSeisWvltMerge::reloadWvlts()
 	Wavelet* wvlt = wvltset_[idx];
 
 	if ( !mIsEqual(wvltsampling_.step_,wvlt->sampleRate(),mDefEps) )
+	{
+	    if ( Wavelet::getNrOutSamples(wvltsampling_.step_,
+				wvlt->samplePositions())>mMaxWaveletSamples )
+	    {
+		uiMSG().error( Wavelet::sTooManyWaveletSamples() );
+		return;
+	    }
+
 	    wvlt->reSample( wvltsampling_.step_ );
+	}
 
 	if ( normalizefld_->isChecked() )
 	    wvlt->normalize();
@@ -540,7 +557,16 @@ bool uiSeisWvltMerge::acceptOK( CallBacker* cb )
 
     Wavelet wvlt( *stackedwvlt_ );
     if ( sr != wvlt.sampleRate() )
-	wvlt.reSample( sr );
+    {
+	if ( Wavelet::getNrOutSamples(sr,
+				wvlt.samplePositions())>mMaxWaveletSamples )
+	{
+	    uiMSG().error( Wavelet::sTooManyWaveletSamples() );
+	    return false;
+	}
+
+	    wvlt.reSample( sr );
+    }
 
     if ( !putWvlt(wvlt) )
 	return false;
