@@ -629,6 +629,12 @@ void uiManageLineGeomDlg::setTrcSPNrCB( CallBacker* )
     if ( readonly_ || !geom2d )
 	return;
 
+    if ( geom2d->data().positions().isEmpty() || geom2d->spnrs().isEmpty() )
+    {
+	uiMSG().error( tr("No trace/SP number information available") );
+	return;
+    }
+
     uiTrc2SPDlg dlg( this, *geom2d );
     if ( !dlg.go() )
 	return;
@@ -787,7 +793,7 @@ void Geom2DImpHandler::setGeomEmpty( Pos::GeomID geomid )
     if ( !geom2d )
 	return;
 
-    geom2d->dataAdmin().setEmpty();
+    geom2d->setEmpty();
     geom2d->touch();
 }
 

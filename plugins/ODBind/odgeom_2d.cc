@@ -51,7 +51,7 @@ odGeom2D::odGeom2D( const odSurvey& survey, const char* name, bool overwrite )
 					Survey::GMAdmin().getGeometry(geomid) );
 	if ( geom2d )
 	{
-	    geom2d->dataAdmin().setEmpty();
+	    geom2d->setEmpty();
 	    geom2d->touch();
 	}
 	else
@@ -98,7 +98,6 @@ void odGeom2D::getData( hAllocator allocator ) const
 
     const Survey::Geometry2D& geom2d = Survey::GM().get2D( geomid );
     const TypeSet<PosInfo::Line2DPos>& pos = geom2d.data().positions();
-    const TypeSet<float>& sps = geom2d.spnrs();
     const int sz = pos.size();
 
     const int ndim = 1;
@@ -114,7 +113,7 @@ void odGeom2D::getData( hAllocator allocator ) const
     for ( int idx=0; idx<sz; idx++ )
     {
 	*trcnrs++ = pos[idx].nr_;
-	*spnrs++ = sps[idx];
+	*spnrs++ = geom2d.spnrAt( idx );
         *xdata++ = pos[idx].coord_.x_;
         *ydata++ = pos[idx].coord_.y_;
     }
@@ -171,8 +170,12 @@ void odGeom2D::getInfo( OD::JSON::Object& jsobj ) const
     const int sz = pos.size();
 
     jsobj.set( "name", getName().buf() );
+    if ( sz < 1 )
+	return;
+
     jsobj.set( "trc_range", Interval<int>(pos[0].nr_, pos[sz-1].nr_) );
-    jsobj.set( "sp_range", Interval<float>(sps[0], sps[sz-1]) );
+    if ( sps.size() == sz )
+	jsobj.set( "sp_range", Interval<float>(sps[0], sps[sz-1]) );
     jsobj.set( "line_length", geom2d.lineLength() );
     jsobj.set( "average_trace_distance", geom2d.averageTrcDist() );
 }

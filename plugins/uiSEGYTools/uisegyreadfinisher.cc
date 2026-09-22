@@ -761,7 +761,7 @@ bool uiSEGYReadFinisher::handleExistingGeometry( const char* lnm, bool morelns,
 	Survey::Geometry* geom = Survey::GMAdmin().getGeometry(geomid );
 	mDynamicCastGet(Survey::Geometry2D*,geom2d,geom);
 	if ( geom2d )
-	    geom2d->dataAdmin().setEmpty();
+	    geom2d->setEmpty();
     }
 
     return true;

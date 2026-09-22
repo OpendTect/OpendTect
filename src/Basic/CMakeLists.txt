@@ -32,6 +32,7 @@ set( OD_TEST_PROGS
 	ranges.cc
 	refcount.cc
 	sets.cc
+	spnr2d.cc
 	string.cc
 	svnversion.cc
 	trckeyzsampling.cc
