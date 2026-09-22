@@ -347,7 +347,9 @@ BufferStringSet names() const override
 
 void chgsOccurred() override
 {
-    selgrp_->fullUpdate( selgrp_->listfld_->currentItem() );
+    const MultiID curid = selgrp_->currentID();
+    selgrp_->fullUpdate( -1 );
+    selgrp_->setCurrent( curid );
 }
 
 void itemInitRead( const IOObj* obj ) override
