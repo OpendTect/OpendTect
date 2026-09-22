@@ -9,6 +9,7 @@ ________________________________________________________________________
 
 #include "fourier.h"
 
+#include "arrayndinfo.h"
 #include "testprog.h"
 #include "math2.h"
 #include "threadlock.h"
@@ -121,10 +122,80 @@ bool FFTChecker::execute()
 }
 
 
+class CCFFTChecker : public Task
+{
+public:
+    CCFFTChecker( int sz, float eps )
+    : sz_( sz )
+    , eps_(eps)
+
+    {}
+
+    bool	execute();
+
+private:
+
+    int		sz_;
+    float	eps_;
+};
+
+
+bool testCCRoundTrip( const TypeSet<float_complex>& input, float eps )
+{
+    TypeSet<float_complex> data( input );
+    TypeSet<float_complex> reference( input );
+
+    Fourier::CC cc;
+    cc.setInputInfo( Array1DInfoImpl( input.size() ) );
+    cc.setDir( true );
+    cc.setNormalization( true );
+    cc.setInput( data.arr() );
+    cc.setOutput( data.arr() );
+
+    if ( !cc.run( false ) )
+	return false;
+
+    cc.setDir( false );
+    if ( !cc.run( false ) )
+	return false;
+
+    BufferString testname( "CC roundtrip size ", toString( input.size() ) );
+    mTest( testname.buf(), checkRMSDifference( data, reference, eps ) );
+    return true;
+}
+
+
+bool CCFFTChecker::execute()
+{
+    TypeSet<float_complex> testdata( sz_, float_complex(0,0) );
+
+    const double anglefactor = 2.0 * M_PI / sz_;
+    for ( int idx=sz_-1; idx>=0; idx-- )
+    {
+	const double angle = anglefactor * idx;
+	testdata[idx] = float_complex( (float)cos(angle), (float)sin(angle) );
+    }
+
+    return testCCRoundTrip( testdata, eps_ );
+}
+
+
+bool testFastnessSizes()
+{
+    Fourier::CC cc;
+    mRunStandardTest( cc.isFast( 720720 ), "Fast size 720720 detected" );
+    mRunStandardTest( !cc.isFast( 720721 ), "Oversized 720721 not fast" );
+    mRunStandardTest( !cc.isFast( 1048576 ), "Oversized 1048576 not fast" );
+    return true;
+}
+
 
 int mTestMainFnName( int argc, char** argv )
 {
     mInitTestProg();
+
+    if ( !testFastnessSizes() )
+	return 1;
 
     const int sizes[] = { 4, 8, 9, 22, 37, 182, 1111, 9873, 12345, -1};
 
@@ -143,6 +214,20 @@ int mTestMainFnName( int argc, char** argv )
             workload += Threads::Work(*new FFTChecker(fastsz), true );
 
         idx++;
+    }
+
+    const int oversized[] = { 720720, 720721, 1048576, -1 };
+//
+// Per size eps needed - note 720721 is prime and falls back to DFT
+// 104876 falls back to radix 4 FFT
+//
+    const float overeps[] = { 2e-5f, 5e-3f, 2e-4f, -1 };
+    idx = 0;
+    while ( oversized[idx]>0 )
+    {
+	workload += Threads::Work(
+	    *new CCFFTChecker( oversized[idx], overeps[idx] ), true );
+	idx++;
     }
 
     if ( !Threads::WorkManager::twm().addWork( workload ) )

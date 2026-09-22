@@ -420,13 +420,13 @@ void uiSeisWvltMan::dispWavelet( const Wavelet* wvlt )
     if ( curioobj_ )
 	wvnamdisp_->setText( curioobj_->uiName() );
 
-    const int wvltsz = wvlt->size();
-    if ( !wvlt || !wvlt->samples() || wvltsz < 2 )
+    if ( !wvlt || !wvlt->samples() || wvlt->size() < 2 )
     {
 	waveletdisplay_->setEmpty();
 	return;
     }
 
+    const int wvltsz = wvlt->size();
     StepInterval<float> intxval = wvlt->samplePositions();
     const float zfac = mCast(float,SI().zDomain().userFactor());
     intxval.scale( zfac );

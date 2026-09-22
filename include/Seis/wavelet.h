@@ -17,11 +17,13 @@ ________________________________________________________________________
 class IOObj;
 template <class T> class ValueSeriesInterpolator;
 
+#define mMaxWaveletSamples 50000
+
 
 mExpClass(Seis) Wavelet : public NamedCallBacker
 { mODTextTranslationClass(Wavelet);
 public:
-			Wavelet(const char* nm=0);
+			Wavelet(const char* nm=nullptr);
 			Wavelet(bool ricker_else_sinc,float fpeak,
 				float sample_intv=mUdf(float),float scale=1);
 			Wavelet( const TypeSet<float>& freq,
@@ -29,6 +31,8 @@ public:
 			Wavelet(const Wavelet&);
     Wavelet&		operator=(const Wavelet&);
     virtual		~Wavelet();
+
+    static uiString	sTooManyWaveletSamples();
 
     static Wavelet*	get(const IOObj*);
     static IOObj*	getIOObj(const char* wvltnm);
@@ -58,6 +62,11 @@ public:
     void		setCenterSample(int cidx)	{ cidx_ = cidx; }
 			//!< positive for starttwt < 0
     void		reSize(int); // destroys current sample data!
+
+    static int		getNrOutSamples(float newsr,
+					const Interval<float>&);
+    static int		getNrOutSamples(float newsr, float fp);
+    static int		getNrOutSamples(float newsr, float f1, float f2);
 
     bool		reSample(float newsr);
     bool		reSampleTime(float newsr);

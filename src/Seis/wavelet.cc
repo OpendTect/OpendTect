@@ -41,6 +41,14 @@ uiString WaveletTranslatorGroup::sTypeName(int num)
 static const char* sKeyScaled = "Scaled";
 #define mDefaultSnapdist (1e-4f);
 
+
+uiString Wavelet::sTooManyWaveletSamples()
+{
+    return tr("Too many samples in wavelet");
+}
+
+
+
 Wavelet::Wavelet( const char* nm )
     : NamedCallBacker(nm)
     , dpos_(SeisTrcInfo::defaultSampleInterval(true))
@@ -325,6 +333,32 @@ bool doFFT( bool isfwd )
     const float		freqstep_;
 
 };
+
+
+int Wavelet::getNrOutSamples( float newsr, const Interval<float>& twtrg )
+{
+    const float maxlag = -1 * twtrg.start_ > twtrg.stop_
+    ? -1 * twtrg.start_ : twtrg.stop_;
+    return mNINT32( 2.f * maxlag / newsr ) + 1;
+}
+
+
+int Wavelet::getNrOutSamples( float newsr, float fpeak )
+{
+    const float dpos = mIsUdf(newsr) ?
+			    SeisTrcInfo::defaultSampleInterval(true) : newsr;
+    const int cidx = (int)( ( 1 + 1. / (fpeak*dpos) ) );
+    return 1 + 2*cidx;
+}
+
+
+int Wavelet::getNrOutSamples( float newsr, float f1, float f2 )
+{
+    const float dpos = mIsUdf(newsr) ?
+			    SeisTrcInfo::defaultSampleInterval(true) : newsr;
+    const int cidx = (int)( ( 1 + 1. / ((f1+f2)/2.f*dpos) ) )*2+1;
+    return 1 + 2*cidx;
+}
 
 
 bool Wavelet::reSample( float newsr )

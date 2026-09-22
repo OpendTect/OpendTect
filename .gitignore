@@ -87,6 +87,7 @@ ipch
 *.recipe
 compile_commands.json
 CMakeSettings.json
+*_crash_report.txt
 
 #Doxygen stuff
 CMakeModules/Doxyfile
