@@ -147,7 +147,7 @@ WellTie::Data::Data( const Setup& wts, Well::Data& wdata )
     : logset_(*new Well::LogSet)
     , wd_(&wdata)
     , setup_(wts)
-    , initwvlt_(*Wavelet::get(IOM().get( wts.sgp_.getWaveletID())))
+    , initwvlt_(*getInitialWavelet())
     , estimatedwvlt_(*new Wavelet("Deterministic wavelet"))
     , seistrcs_(*new SeisTrcBuf(true))
 {
@@ -176,7 +176,12 @@ WellTie::Data::Data( const Setup& wts, Well::Data& wdata )
 
     dispparams_.mrkdisp_.setMarkerNms( dispparams_.allmarkernms_, true );
     dispparams_.mrkdisp_.setMarkerNms( emptynms, false );
-    initwvlt_.reSample( cDefSeisSr() );
+    if ( Wavelet::getNrOutSamples(cDefSeisSr(),
+			    initwvlt_.samplePositions())<=mMaxWaveletSamples )
+	initwvlt_.reSample( cDefSeisSr() );
+    else
+	ErrMsg( "Too many samples in output wavelet" );
+
     BufferString wvltnm( estimatedwvlt_.name(), " from well ", wd_->name() );
     estimatedwvlt_.setName( wvltnm );
 }
@@ -189,6 +194,16 @@ WellTie::Data::~Data()
     delete &initwvlt_;
     delete &estimatedwvlt_;
     delete &seistrcs_;
+}
+
+
+Wavelet* WellTie::Data::getInitialWavelet()
+{
+    Wavelet* wvlt = Wavelet::get( IOM().get(setup_.sgp_.getWaveletID()) );
+    if ( !wvlt )
+	wvlt = new Wavelet( true, 30.0f, 0.001f, 1.0f );
+
+    return wvlt;
 }
 
 

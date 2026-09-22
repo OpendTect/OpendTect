@@ -226,7 +226,13 @@ bool WellTie::uiSaveDataDlg::saveWvlt( bool isestimated )
 
     sr /= SI().zDomain().userFactor();
     if ( !mIsEqual(sr,wvlt.sampleRate(),mDefEps) )
+    {
+	if ( Wavelet::getNrOutSamples(sr,
+				    wvlt.samplePositions())>mMaxWaveletSamples )
+	    mErrRet( Wavelet::sTooManyWaveletSamples() );
+
 	wvlt.reSample( sr );
+    }
 
     if ( !wvlt.put(wvltioobj) )
 	mErrRet( tr( "Cannot write output wavelet" ) )

@@ -594,7 +594,7 @@ uiRetVal uiSynthSeis::isOK() const
 	uirv.add( uiStrings::phrSelect(tr("a valid wavelet")) );
 
     if ( advgrp_ )
-	uirv = advgrp_->isOK();
+	uirv.add( advgrp_->isOK() );
 
     return uirv;
 }
