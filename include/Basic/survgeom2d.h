@@ -54,6 +54,8 @@ public:
     const PosInfo::Line2DData&	data() const		{ return data_; }
     TypeSet<float>&		spnrs()			{ return spnrs_; }
     const TypeSet<float>&	spnrs() const		{ return spnrs_; }
+    float			spnrAt(int posidx) const;
+				//!<mUdf(float) if not available
 
     StepInterval<float>		zRange() const;
 

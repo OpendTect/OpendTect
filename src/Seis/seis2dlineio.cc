@@ -547,8 +547,8 @@ int Seis2DLineMerger::doWork()
 	    if ( !geom2d )
 		mErrRet( tr("Output 2D Geometry not written properly") );
 
-	    PosInfo::Line2DData& outl2dd = geom2d->dataAdmin();
-	    outl2dd.add( pos );
+	    geom2d->add( pos.coord_.x_, pos.coord_.y_, pos.nr_,
+			 trc.info().refnr_ );
 	}
 	nrdone_++;
 	return MoreToDo();

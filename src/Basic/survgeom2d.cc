@@ -56,8 +56,19 @@ void Survey::Geometry2D::add( double x, double y, int trcnr, float spnr )
     PosInfo::Line2DPos pos( trcnr );
     pos.coord_.x_ = x;
     pos.coord_.y_ = y;
+
+    const int oldsz = data_.positions().size();
     data_.add( pos );
-    spnrs_ += spnr;
+
+    // Line2DData::add() may reject a duplicate trace number or insert
+    // mid-list; mirror its outcome so SP numbers stay index-aligned
+    spnrs_.setSize( oldsz, -1 );
+    if ( data_.positions().size() > oldsz )
+    {
+	const int posidx = data_.indexOf( trcnr );
+	if ( posidx >= 0 )
+	    spnrs_.insert( posidx, spnr );
+    }
 }
 
 
@@ -77,6 +88,12 @@ void Survey::Geometry2D::setEmpty()
 {
     data_.setEmpty();
     spnrs_.erase();
+}
+
+
+float Survey::Geometry2D::spnrAt( int posidx ) const
+{
+    return spnrs_.validIdx(posidx) ? spnrs_[posidx] : mUdf(float);
 }
 
 
