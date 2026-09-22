@@ -198,7 +198,7 @@ WellTie::Data::~Data()
 }
 
 
-Wavelet* WellTie:Data::getInitialWavelet()
+Wavelet* WellTie::Data::getInitialWavelet()
 {
     Wavelet* wvlt = Wavelet::get( IOM().get(setup_.sgp_.getWaveletID()) );
     if ( !wvlt )
