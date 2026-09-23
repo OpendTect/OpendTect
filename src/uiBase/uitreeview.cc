@@ -257,6 +257,9 @@ bool uiTreeViewBody::moveItem( QKeyEvent* ev )
     if ( newchildidx<0 || newchildidx>=twpar->childCount() )
 	return false;
 
+    // Block selectionChanged while the item is detached; otherwise
+    // updateSelection -> setBold can run with treeView() == nullptr.
+    NotifyStopper ns( lvhandle_.selectionChanged );
     const bool isopen = currentitem->isExpanded();
     twpar->takeChild( childidx );
     twpar->insertChild( newchildidx, currentitem );
@@ -1083,7 +1086,14 @@ void uiTreeViewItem::setPixmap( int column, const ColTab::Sequence& seq,
 
 void uiTreeViewItem::setBold( int column, bool yn )
 {
-    for ( int idx=0; idx<treeView()->nrColumns(); idx++ )
+    const uiTreeView* tv = treeView();
+    int nrcols = tv ? tv->nrColumns() : 0;
+    if ( nrcols < 1 )
+	nrcols = qtreeitem_ ? qtreeitem_->columnCount() : 0;
+    if ( nrcols < 1 && column >= 0 )
+	nrcols = column + 1;
+
+    for ( int idx=0; idx<nrcols; idx++ )
     {
 	if ( column>=0 && column!=idx )
 	    continue;
