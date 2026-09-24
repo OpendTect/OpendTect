@@ -87,7 +87,6 @@ uiWellPartServer::uiWellPartServer( uiApplService& a )
     , uiwellpropDlgClosed(this)
 {
     hp_dispwellids.setParam( this, new TypeSet<MultiID> );
-    updateEntries();
     mAttachCB( IOM().surveyChanged, uiWellPartServer::survChangedCB );
     mAttachCB( uiWellMan::instanceCreated(),
 	       uiWellPartServer::wellManCreatedCB );

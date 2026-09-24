@@ -568,15 +568,18 @@ bool CloseCmd::actCloseCurWin( const char* parstr )
 
 #define mFindMdiAreaSubWin( subwinnames, mdiobj, winstr, selnr ) \
 \
-    uiStringSet subwinnames; \
-    mdiobj->getWindowNames( subwinnames ); \
+    BufferStringSet subwinnames; \
+    uiStringSet uinms; \
+    mdiobj->getWindowNames( uinms ); \
+    for ( const auto* uinm : uinms ) \
+	subwinnames.add( uinm->getFullString() ); \
     for ( int idx=subwinnames.size()-1; idx>=0; idx-- ) \
     { \
-	if ( !mSearchKey(winstr).isMatching(subwinnames[idx].getFullString()) )\
+	if ( !mSearchKey(winstr).isMatching(subwinnames.get(idx).buf()) )\
 	    subwinnames.removeSingle(idx); \
     } \
     mParStrPre( "subwindow", subwinnames, 0, winstr, selnr, "string", true ); \
-    wildcardMan().check( mSearchKey(winstr), subwinnames[0].getFullString() );
+    wildcardMan().check( mSearchKey(winstr), subwinnames.get(0).buf() );
 
 bool CloseCmd::act( const char* parstr )
 {
@@ -603,7 +606,7 @@ bool CloseCmd::act( const char* parstr )
     mFindMdiAreaSubWin( subwinnames, mdiarea, winstr, winselnr );
 
     mActivate( MdiAreaClose,
-	       Activator(*mdiarea,subwinnames[0].getFullString()) );
+	       Activator(*mdiarea,subwinnames.get(0).buf()) );
     return true;
 }
 
@@ -692,11 +695,11 @@ bool ShowCmd::act( const char* parstr )
     mFindMdiAreaSubWin( subwinnames, mdiarea, winstr, winselnr );
 
     const uiMdiAreaWindow* mdiwin =
-	mdiarea->getWindow( subwinnames[0].getFullString() );
+	mdiarea->getWindow( subwinnames.get(0).buf() );
     mParShowTagPre( "subwindow", mdiwin ? mdiwin->isMinimized() : false,
 		    mdiwin ? mdiwin->isMaximized() : false, minnormmax );
 
-    mActivate( MdiAreaShow, Activator(*mdiarea,subwinnames[0].getFullString(),
+    mActivate( MdiAreaShow, Activator(*mdiarea,subwinnames.get(0).buf(),
 				      minnormmax) );
 
     return true;
@@ -765,7 +768,7 @@ bool IsShownCmd::act( const char* parstr )
     mDynamicCastGet( const uiMdiArea*, mdiarea, objsfound[0] );
     mFindMdiAreaSubWin( subwinnames, mdiarea, winstr, winselnr );
 
-    mGetShowStatus(answer, mdiarea->getWindow(subwinnames[0].getFullString()),
+    mGetShowStatus(answer, mdiarea->getWindow(subwinnames.get(0).buf()),
 		   minnormmax);
     mParIdentPost( identname.buf(), answer.buf(), parnext );
     return true;

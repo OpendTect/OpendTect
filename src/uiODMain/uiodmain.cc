@@ -568,11 +568,17 @@ bool acceptOK( CallBacker* ) override
 	return true;
     }
 
-    const IOObj* ioobj = sessionfld_->ioobj();
-    if ( !ioobj )
-	return false;
+    MultiID sessionkey;
+    if ( douse )
+    {
+	const IOObj* ioobj = sessionfld_->ioobj();
+	if ( !ioobj )
+	    return false;
 
-    ODSession::setStartupData( douse, sessionfld_->key() );
+	sessionkey = ioobj->key();
+    }
+
+    ODSession::setStartupData( douse, sessionkey );
     loadnow_ = douse && loadnowfld_->getBoolValue();
     return true;
 }
@@ -996,7 +1002,8 @@ bool uiODMain::closeOK( bool withinteraction, bool doconfirm )
 	 }
      }
 
-     // Clean up all scenes manually. If QT closes it down, it will trigger new rendering,
+     // Clean up all scenes manually. If QT closes it down,
+     // it will trigger new rendering,
      // which requires a GL context, which is only partially available.
      if ( scenemgr_ )
         scenemgr_->cleanUp(false);
