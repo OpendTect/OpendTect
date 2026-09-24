@@ -923,30 +923,29 @@ public:
 ZValSetter( BinIDValueSet& bivs, int zcol, const ZAxisTransform* zat )
     : ParallelTask()
     , bivs_(bivs), zcol_(zcol), zat_(zat)
-{
-    hs_.set( bivs_.inlRange(), bivs_.crlRange() );
-}
+{}
 
 
-od_int64 nrIterations() const override	{ return hs_.totalNr(); }
+od_int64 nrIterations() const override	{ return bivs_.totalSize(); }
 
 protected:
 
-bool doWork( od_int64 start, od_int64 stop, int thread ) override
+bool doWork( od_int64 start, od_int64 stop, int ) override
 {
     const ZAxisTransform* zat = zat_.ptr();
     for ( od_int64 idx=start; idx<=stop; idx++ )
     {
-	const TrcKey tk = hs_.trcKeyAt( idx );
-	BinIDValueSet::SPos pos = bivs_.findOccurrence( tk.position() );
+	const BinIDValueSet::SPos pos = bivs_.getPos( idx );
 	if ( !pos.isValid() )
 	    continue;
 
-	float* vals = bivs_.getVals(pos);
+	float* vals = bivs_.getVals( pos );
 	if ( !vals )
 	    continue;
 
-	vals[zcol_] = zat ? zat->transformTrc( tk, vals[0] ) : vals[0];
+	const BinID bid = bivs_.getBinID( pos );
+	vals[zcol_] = zat ? zat->transformTrc( TrcKey(bid), vals[0] )
+			  : vals[0];
     }
 
     return true;
@@ -955,7 +954,6 @@ bool doWork( od_int64 start, od_int64 stop, int thread ) override
     BinIDValueSet&	bivs_;
     int			zcol_;
     ConstRefMan<ZAxisTransform> zat_;
-    TrcKeySampling	hs_;
 
 };
 
