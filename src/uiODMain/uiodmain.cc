@@ -271,7 +271,10 @@ mExternCPP(uiODMain) void ODMain( std::unique_ptr<uiDialog>& prodseldlgman,
 	    prodseldlg->show();
 	}
 	else
+	{
+	    ODMainWin()->updateCaption();
 	    prodselnotif->trigger();
+	}
     });
 
     starthandler->set( [&,starthandler,prodselnotif,skippluginsel]()
@@ -982,7 +985,8 @@ bool uiODMain::closeOK( bool withinteraction, bool doconfirm )
      }
 
 
-     //Clean up all scenes manually. If QT closes it down, it will trigger new rendering,
+     //Clean up all scenes manually.
+     // If QT closes it down, it will trigger new rendering,
      //which required GL context, which is only partial.
      if ( scenemgr_ )
         scenemgr_->cleanUp(false);
