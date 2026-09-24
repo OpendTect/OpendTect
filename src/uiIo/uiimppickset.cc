@@ -417,7 +417,7 @@ bool uiSinglePickSetImportGroup::doImport( bool display_on_import )
 	displayPointSet( *ps, storedid_ );
 
     impcount_++;
-
+    storedid_ = ioobj->key();
     return true;
 }
 

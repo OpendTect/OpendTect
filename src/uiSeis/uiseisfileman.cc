@@ -56,7 +56,7 @@ uiSeisCBVSBrowerMgr()
 {
     uiSeisFileMan::BrowserDef* bdef = new uiSeisFileMan::BrowserDef(
 			    CBVSSeisTrcTranslator::translKey() );
-    bdef->tooltip_ = tr("Browse/Edit CBVS cube '%1'");
+    bdef->tooltip_ = tr("Browse CBVS cube '%1'");
     bdef->cb_ = mCB(this,uiSeisCBVSBrowerMgr,doBrowse);
     uiSeisFileMan::addBrowser( bdef );
 }
@@ -142,7 +142,7 @@ uiSeisFileMan::uiSeisFileMan( uiParent* p, bool is2d )
 	segyhdrbut_ = addManipButton( "header",tr("Show file header/meta data"),
 				      mCB(this,uiSeisFileMan,showFileHeader) );
 	browsebut_ = addManipButton( "browseseis",
-				tr("Browse/edit this cube"),
+				tr("Browse this cube"),
 				mCB(this,uiSeisFileMan,browsePush) );
     }
 
