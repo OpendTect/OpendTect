@@ -89,6 +89,21 @@ od_int64 nrIterations() const override
 }
 
 
+bool doPrepare( int ) override
+{
+    if ( !toptr_ && !to_ )
+	return false;
+
+    if ( from_.size() >= 0 && nrelements_ > from_.size() )
+	return false;
+
+    if ( !toptr_ && to_->size() >= 0 && nrelements_ > to_->size() )
+	return false;
+
+    return true;
+}
+
+
 bool doWork( od_int64 start, od_int64 stop, int ) override
 {
     od_int64 nrleft = stop-start+1;

@@ -37,6 +37,7 @@ Contents/
 plugins/lux64
 packages/
 __pycache__
+*_crash_report.txt
 
 build*/
 src/*/moc_*
