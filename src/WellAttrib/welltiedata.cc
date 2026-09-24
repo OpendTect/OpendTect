@@ -148,7 +148,7 @@ WellTie::Data::Data( const Setup& wts, Well::Data& wdata )
     : logset_(*new Well::LogSet)
     , wd_(&wdata)
     , setup_(wts)
-    , initwvlt_(*getInitialWavelet())
+    , initwvlt_(*getInitialWavelet(wts.sgp_.getWaveletID()))
     , estimatedwvlt_(*new Wavelet("Deterministic wavelet"))
     , seistrcs_(*new SeisTrcBuf(true))
 {
@@ -198,9 +198,9 @@ WellTie::Data::~Data()
 }
 
 
-Wavelet* WellTie::Data::getInitialWavelet()
+Wavelet* WellTie::Data::getInitialWavelet( const MultiID& wvltid )
 {
-    Wavelet* wvlt = Wavelet::get( IOM().get(setup_.sgp_.getWaveletID()) );
+    Wavelet* wvlt = Wavelet::get( IOM().get(wvltid) );
     if ( !wvlt )
 	wvlt = new Wavelet( true, 30.0f, 0.001f, 1.0f );
 
