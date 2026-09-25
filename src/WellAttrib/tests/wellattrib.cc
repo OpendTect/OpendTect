@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "createlogcube.h"
 #include "file.h"
 #include "filepath.h"
+#include "hdf5access.h"
 #include "mnemonics.h"
 #include "moddepmgr.h"
 #include "multiid.h"
@@ -29,11 +30,17 @@ ________________________________________________________________________
 #include "welllog.h"
 #include "welllogset.h"
 #include "wellman.h"
+#include "wellreader.h"
 
 #include <QDir>
 
 #include <csignal>
 #include <cstdlib>
+
+namespace HDF5
+{
+    mGlobal(General) int getNumOfOpenHDF5Objs();
+}
 
 
 BufferString surveydir_;
@@ -117,7 +124,6 @@ static bool testGetWellPosition( const MultiID& wellid, TrcKey& tk )
     tk.setIs3D().setFrom( wd->info().surfacecoord_ );
     mRunStandardTest( tk.is3D() && tk.inl() == 646 && tk.crl() == 880,
 		      "Well position as TrcKey" )
-
     return true;
 }
 
@@ -144,6 +150,9 @@ static bool testLogCubeCreator( const MultiID& wellida, const MultiID& wellidb,
 
     mRunStandardTestWithError( trun.execute( cr ), "Log cube creator execution",
 			       cr.allMessages().getText() )
+
+    mRunStandardTest( HDF5::getNumOfOpenHDF5Objs() == 0,
+		      "Closing HDF5 objs after read" )
 
     return true;
 }
@@ -261,6 +270,9 @@ static bool testAttribLogCreator( const MultiID& wellida,const MultiID& wellidb,
 
 	wds.add( wd.getNonConstPtr() );
     }
+
+    mRunStandardTest( HDF5::getNumOfOpenHDF5Objs() == 0,
+		      "Closing HDF5 objs after read/delete" )
     mRunStandardTest( wds.size() == 2, "Well data set size" )
     wds.setEmpty();
 
@@ -269,17 +281,23 @@ static bool testAttribLogCreator( const MultiID& wellida,const MultiID& wellidb,
     BulkAttribLogCreator cr1( su, wellids, *outmn, overwrite );
     mRunStandardTestWithError( trun.execute( cr1 ), "Attribute to Log Creator",
 			       cr1.allMessages().getText() )
+    mRunStandardTest( HDF5::getNumOfOpenHDF5Objs() == 0,
+		      "Closing HDF5 objs after write" )
 
     overwrite = true;
     BulkAttribLogCreator cr2( su, wellids, *outmn, overwrite );
     mRunStandardTestWithError( trun.execute( cr2 ),
 			       "Attribute to Log Creator (overwrite)",
 			       cr2.allMessages().getText() )
+    mRunStandardTest( HDF5::getNumOfOpenHDF5Objs() == 0,
+		      "Closing HDF5 objs after write" )
 
     overwrite = false;
     BulkAttribLogCreator cr3( su, wellids, *outmn, overwrite );
     mRunStandardTest( !trun.execute( cr3 ) && cr3.details().isError(),
 		      "Attribute to Log Creator (overwrite should fail)" )
+    mRunStandardTest( HDF5::getNumOfOpenHDF5Objs() == 0,
+		      "Closing HDF5 objs after write" )
 
     return true;
 }
@@ -296,6 +314,8 @@ static bool testLogsIntegrity( const MultiID& wellida, const MultiID& wellidb,
     ConstRefMan<Well::Data> wdb = Well::MGR().get( wellidb, lreqs );
     mRunStandardTestWithError( wdb, "Well data B",
 			       Well::MGR().errMsg().getFullString() )
+    mRunStandardTest( HDF5::getNumOfOpenHDF5Objs() == 0,
+		      "Closing HDF5 objs after read" )
 
     const Well::Log* loga = wda->logs().getLog( lognms.first()->buf() );
     const Well::Log* logb = wdb->logs().getLog( lognms.first()->buf() );
@@ -335,7 +355,33 @@ static bool testLogsIntegrity( const MultiID& wellida, const MultiID& wellidb,
     mRunStandardTestWithError( Well::MGR().deleteLogs(wellidb,lognms),
 			       "Delete created log for Well B",
 			       Well::MGR().errMsg().getFullString() )
+    mRunStandardTest( HDF5::getNumOfOpenHDF5Objs() == 0,
+		      "Closing HDF5 objs after read" )
 
+    return true;
+}
+
+
+static bool testNumOfOpenObjs( const MultiID& wellid )
+{
+    {
+	Well::LoadReqs lreqs( Well::Inf );
+	RefMan<Well::Data> wd = new Well::Data;
+	const Well::Reader rdr ( wellid, *wd );
+
+	mRunStandardTest( HDF5::getNumOfOpenHDF5Objs() == 1,
+			  "HDF5 File is Open; Count is 1" )
+
+	const uiRetVal uirv = rdr.readReqData( lreqs );
+	mRunStandardTest( uirv.isOK(),
+			  "Read requested HDF5 data" )
+
+	mRunStandardTest( HDF5::getNumOfOpenHDF5Objs() == 2,
+			  "HDF5 File and 1 group id are Open; Count is 2" )
+    }
+
+    mRunStandardTest( HDF5::getNumOfOpenHDF5Objs() == 0,
+			  "Closing HDF5 objs after read" )
     return true;
 }
 
@@ -353,6 +399,9 @@ mLoad1Module("WellAttrib")
 
 bool BatchProgram::doWork( od_ostream& strm )
 {
+    mRunStandardTest( HDF5::getNumOfOpenHDF5Objs() == -1,
+		 "Function Impl is not available before loading ODHDF5 plugin" )
+
     if ( !loadOpendTectPlugins("ODHDF5") )
 	return false;
 
@@ -375,7 +424,8 @@ bool BatchProgram::doWork( od_ostream& strm )
 	 !testAttribLogCreator(wellAmid_,wellBmid_,lognms,strm) ||
 	 !testLogsIntegrity(wellAmid_,wellBmid_,lognms) ||
 	 !testLogAttribute(wellAmid_) ||
-	 !testLogAttribute(wellBmid_) )
+	 !testLogAttribute(wellBmid_) ||
+	 !testNumOfOpenObjs(wellBmid_) )
 	return false;
 
     return true;

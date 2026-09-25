@@ -124,6 +124,11 @@ HDF5::GroupID HDF5::WriterImpl::ensureGroup( const char* grpnm,
 	mAddErrDuringWrite();
 	return GroupID::udf() );
 
+    const hid_t oldgrpid = group_.asInt();
+    if ( group_.isValid() && oldgrpid != fileid_.asInt() &&
+	 H5Iis_valid(oldgrpid) > 0 && H5Iget_type(oldgrpid) == H5I_GROUP )
+	previousgroupids_.addIfNew( oldgrpid );
+
     group_ = GroupID::get( mCast(hid_t,newgrp) );
     previousgroupids_.add( newgrp );
     return group_;

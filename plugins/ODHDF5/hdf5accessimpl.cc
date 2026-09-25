@@ -100,6 +100,11 @@ static BufferString getH5ObjName( ::hid_t id )
     return BufferString::empty();
 }
 
+int getNumOfOpenImpl()
+{
+    return sCast( int, H5Fget_obj_count(H5F_OBJ_ALL, H5F_OBJ_ALL) );
+}
+
 } // namespace HDF5
 
 
@@ -116,6 +121,10 @@ HDF5::Writer* HDF5::AccessProviderImpl::getWriter() const
 
 static bool errprint_ = false;
 
+using GetNumOfOpenHDF5ObjsFn = int(*)();
+
+mExternC(General) void setNumOfOpenHDF5ObjsFn(GetNumOfOpenHDF5ObjsFn);
+
 void HDF5::AccessProviderImpl::initHDF5()
 {
     Threads::Locker locker( hdf5InitLock() );
@@ -125,6 +134,8 @@ void HDF5::AccessProviderImpl::initHDF5()
     H5open();
     H5Eset_auto2( H5E_DEFAULT, nullptr, nullptr );
     H5close();
+
+    setNumOfOpenHDF5ObjsFn( getNumOfOpenImpl );
 }
 
 
@@ -257,6 +268,12 @@ HDF5::GroupID HDF5::AccessImpl::selectGroup( const char* grpnm ) const
 
     if ( haveerr )
 	return GroupID::udf();
+
+    const hid_t oldgrpid = group_.asInt();
+
+    if ( group_.isValid() && oldgrpid != acc_.fileid_.asInt() &&
+	 H5Iis_valid(oldgrpid) > 0 && H5Iget_type(oldgrpid) == H5I_GROUP )
+	previousgroupids_.addIfNew( oldgrpid );
 
     group_ = GroupID::get( mCast(hid_t,grpid) );
     previousgroupids_.add( grpid );

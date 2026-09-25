@@ -263,6 +263,30 @@ bool HDF5::isParallelEnabled()
     return ret == 1;
 }
 
+
+namespace HDF5
+{
+    using GetNumOfOpenHDF5ObjsFn = int(*)();
+    static GetNumOfOpenHDF5ObjsFn getnumofopenhdf5objsfn_ = nullptr;
+
+    //!< Returns the number of open HDF5 objects (files, groups, datasets,
+    // datatypes, dataspaces). This is useful for debugging.
+    mGlobal( General ) int getNumOfOpenHDF5Objs();
+
+    int getNumOfOpenHDF5Objs()
+    {
+	return getnumofopenhdf5objsfn_ ? getnumofopenhdf5objsfn_() : -1;
+    }
+}
+
+mExternC(General) void setNumOfOpenHDF5ObjsFn(HDF5::GetNumOfOpenHDF5ObjsFn);
+
+void setNumOfOpenHDF5ObjsFn( HDF5::GetNumOfOpenHDF5ObjsFn fn )
+{
+    HDF5::getnumofopenhdf5objsfn_ = fn;
+}
+
+
 // HDF5::Access
 
 HDF5::Access::Access()
