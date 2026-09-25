@@ -498,9 +498,14 @@ static bool testAllMgrs( const Strat::LayerModelSuite& lms )
 	return false;
 
     StratSynth::DataMgr* prodmgr = datamgr.getProdMgr();
-    if ( !prodmgr || prodmgr == &datamgr || prodmgr->calcEach() != 1 ||
-	 !testDataMgr(*prodmgr,defid,presdid,anglestackid,avogradid,
-		      instantattribids,propids,offsets) )
+    if ( !prodmgr || prodmgr == &datamgr )
+	return false;
+
+    const bool prodok = prodmgr->calcEach() == 1 &&
+		  testDataMgr(*prodmgr,defid,presdid,anglestackid,avogradid,
+			      instantattribids,propids,offsets);
+    delete prodmgr;
+    if ( !prodok )
 	return false;
 
     return true;
