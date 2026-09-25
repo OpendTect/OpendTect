@@ -484,6 +484,14 @@ void ZipFileInfo::setFileName( const char* fnm, const FilePath& basepath )
 {
     filenminzip_.set( fnm );
     nrlevels_ = FilePath( filenminzip_ ).nrLevels();
+    // APPNOTE: directory entries are stored with a trailing slash
+    if ( !filenminzip_.isEmpty() )
+    {
+	const char lastch = filenminzip_[filenminzip_.size()-1];
+	if ( lastch == '/' || lastch == '\\' )
+	    type_ = File::Type::Directory;
+    }
+
     fullfnm_.setEmpty();
     if ( basepath.isEmpty() )
 	return;
@@ -588,10 +596,20 @@ void ZipFileInfo::setAttr( const unsigned char* buf, bool fromwin )
 {
     if ( OD::getBitValue(buf[mLDOSFileAttr],4) )
 	type_ = File::Type::Directory;
-    else if ( !fromwin &&
-	      OD::getBitValue(buf[mLUNIXFileAttr+1],5) &&
-	      OD::getBitValue(buf[mLUNIXFileAttr+1],7) )
-	type_ = File::Type::SymLink;
+    else if ( !fromwin )
+    {
+	/* Unix external attributes: high word is st_mode. Do not infer
+	   directory from the execute bits (see D18284). */
+	const od_uint16 unixmode =
+			*mCast( const od_uint16*, buf + mLUNIXFileAttr );
+	const od_uint16 ifmt = unixmode & 0xF000; // S_IFMT
+	if ( ifmt == 0x4000 )	    // S_IFDIR
+	    type_ = File::Type::Directory;
+	else if ( ifmt == 0xA000 )  // S_IFLNK
+	    type_ = File::Type::SymLink;
+	else
+	    type_ = File::Type::File;
+    }
     else
 	type_ = File::Type::File;
 
