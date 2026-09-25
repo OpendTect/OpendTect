@@ -28,6 +28,7 @@ set( OD_TEST_PROGS
 	odjson.cc
 	odlockfile.cc
 	oscommand.cc
+	paralleltask.cc
 	pythoncomm.cc
 	ranges.cc
 	refcount.cc
@@ -39,6 +40,7 @@ set( OD_TEST_PROGS
 	threads.cc
 	threadwork.cc
 	uistring.cc
+	valseries.cc
 )
 
 if ( UNIX )
