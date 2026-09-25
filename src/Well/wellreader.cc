@@ -988,6 +988,12 @@ bool Well::odReader::addLog( od_istream& strm, bool needjustinfo ) const
     if ( !needjustinfo || udfranges )
 	readLogData( *newlog, strm, bintype );
 
+    if ( newlog->isEmpty() )
+    {
+	delete newlog;
+	return true;
+    }
+
     if ( wd_.track().isEmpty() )
 	getTrack();
 
