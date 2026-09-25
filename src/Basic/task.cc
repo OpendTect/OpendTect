@@ -597,8 +597,8 @@ bool ParallelTask::executeParallel( bool parallel )
 	    continue;
 
 	const od_int64 stop = start + threadsize-1;
-	runners[nrtasks].set( this, start, stop, idx );
-	tasks[nrtasks] = mWMT(&runners[idx],ParallelTaskRunner,doRun);
+	runners[nrtasks].set( this, start, stop, nrtasks );
+	tasks[nrtasks] = mWMT(&runners[nrtasks],ParallelTaskRunner,doRun);
 
 	nrtasks++;
 	start = stop+1;

@@ -3172,12 +3172,10 @@ bool doWork( od_int64 start, od_int64 stop, int threadid ) override
 	 !anglegathers_.validIdx(threadid) )
 	return false;
 
-    const int setidx = anglegathers_.size() - threadid - 1;
-
     PreStack::ModelBasedAngleComputer& anglecomputer =
-				       *anglecomputers_.get( setidx );
+				       *anglecomputers_.get( threadid );
     ObjectSet<PreStack::Gather>& anglegathers =
-				       *anglegathers_.get( setidx );
+				       *anglegathers_.get( threadid );
 
     for ( int idx=int(start); idx<=stop; idx++, addToNrDone(1) )
     {

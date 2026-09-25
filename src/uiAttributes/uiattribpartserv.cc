@@ -1087,13 +1087,25 @@ RefMan<RegularSeisDataPack> uiAttribPartServer::createOutputRM(
 	    output->setSampling( tkzs );
 	    output->setZDomain( *posvals.ptr() );
 	    if ( !output->addComponent(targetspecs_[0].userRef()) ||
-		 !output->data(0).getStorage() )
+		 !output->data().getStorage() )
 		output = nullptr;
 	    else
 	    {
-		ValueSeries<float>* arr3dvs = output->data(0).getStorage();
-		ValueSeriesGetAll<float> copier( avs, *arr3dvs, vals.size() );
-		success = copier.execute();
+		ValueSeries<float>* arr3dvs = output->data().getStorage();
+		if ( arr3dvs->size() != vals.size() )
+		{
+		    BufferString msg( "Attribute volume size mismatch: " );
+		    msg.add( vals.size() ).add( " values for " )
+		       .add( arr3dvs->size() ).add( " samples" );
+		    pErrMsg( msg.str() );
+		    output = nullptr;
+		}
+		else
+		{
+		    ValueSeriesGetAll<float> copier( avs, *arr3dvs,
+						     vals.size() );
+		    success = copier.execute();
+		}
 	    }
 	}
     }

@@ -91,6 +91,10 @@ od_int64 nrIterations() const override
 
 bool doWork( od_int64 start, od_int64 stop, int ) override
 {
+    if ( (toptr_ && !to_) || (from_.size() >= 0 && nrelements_ > from_.size())
+	 || (!toptr_ && to_->size() >= 0 && nrelements_ > to_->size()) )
+	return false;
+
     od_int64 nrleft = stop-start+1;
     const T* fromarr = from_.arr();
     T* toarr = toptr_ ? toptr_ : to_->arr();
