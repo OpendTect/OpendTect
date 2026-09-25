@@ -38,7 +38,7 @@ public:
 			Setup(uiFileDialog::Type,const char* filenm=nullptr);
 	virtual		~Setup();
 
-	BufferString	fnm;
+	BufferString	fnm_;
 
 	mDefSetupMemb(BufferString,filter)	//!< empty
 	mDefSetupMemb(BufferString,defseldir)	//!< empty

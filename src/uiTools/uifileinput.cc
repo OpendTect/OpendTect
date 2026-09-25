@@ -26,7 +26,7 @@ ________________________________________________________________________
 // uiFileInput::Setup
 
 uiFileInput::Setup::Setup( const char* filenm )
-    : fnm(filenm)
+    : fnm_(filenm)
     , forread_(true)
     , withexamine_(false)
     , examstyle_(File::ViewStyle::Text)
@@ -38,11 +38,13 @@ uiFileInput::Setup::Setup( const char* filenm )
     , defseldir_(GetDataDir())
     , displaylocalpath_(false)
 {
+    if ( !fnm_.isEmpty() && __iswin__ )
+	fnm_ = FilePath::getLongPath( fnm_.str() );
 }
 
 
 uiFileInput::Setup::Setup( uiFileDialog::Type t, const char* filenm )
-    : fnm(filenm)
+    : fnm_(filenm)
     , forread_(true)
     , withexamine_(t==uiFileDialog::Txt)
     , examstyle_(t==uiFileDialog::Img ? File::ViewStyle::Bin
@@ -55,6 +57,8 @@ uiFileInput::Setup::Setup( uiFileDialog::Type t, const char* filenm )
     , defseldir_(GetDataDir())
     , displaylocalpath_(false)
 {
+    if ( !fnm_.isEmpty() && __iswin__ )
+	fnm_ = FilePath::getLongPath( fnm_.str() );
 }
 
 
@@ -65,7 +69,7 @@ uiFileInput::Setup::~Setup()
 // uiFileInput
 
 uiFileInput::uiFileInput( uiParent* p, const uiString& txt, const Setup& setup )
-    : uiGenInput( p, txt, FileNameInpSpec(setup.fnm) )
+    : uiGenInput( p, txt, FileNameInpSpec(setup.fnm_.buf()) )
     , forread_(setup.forread_)
     , filter_(setup.filter_)
     , defseldir_(setup.defseldir_)
@@ -79,7 +83,7 @@ uiFileInput::uiFileInput( uiParent* p, const uiString& txt, const Setup& setup )
     , filedlgtype_(setup.filedlgtype_)
 {
     setStretch( 2, 0 );
-    setFileName( setup.fnm );
+    setFileName( setup.fnm_.buf() );
     setWithSelect( true );
     if ( setup.withexamine_ )
     {
@@ -105,7 +109,9 @@ uiFileInput::uiFileInput( uiParent* p, const uiString& txt, const Setup& setup )
 
 
 uiFileInput::uiFileInput( uiParent* p, const uiString& txt, const char* fnm )
-    : uiGenInput( p, txt, FileNameInpSpec(fnm) )
+    : uiGenInput( p, txt,
+	FileNameInpSpec(fnm && *fnm
+		? FilePath::getLongPath( fnm ).buf() : nullptr) )
     , forread_(true)
     , filter_("")
     , defseldir_(GetDataDir())
@@ -116,7 +122,8 @@ uiFileInput::uiFileInput( uiParent* p, const uiString& txt, const char* fnm )
     , filedlgtype_(uiFileDialog::Gen)
 {
     setStretch( 2, 0 );
-    setFileName( fnm );
+    setFileName( fnm);
+
     setWithSelect( true );
     mAttachCB( valueChanged, uiFileInput::fnmEntered );
     mAttachCB( checked, uiFileInput::checkCB );
@@ -150,11 +157,15 @@ void uiFileInput::setDefaultSelectionDir( const char* s )
 }
 
 
-void uiFileInput::setFileName( const char* fnm )
+void uiFileInput::setFileName( const char* fnmin )
 {
+    BufferString fnm( fnmin );
+    if ( !fnm.isEmpty() && __iswin__ )
+	fnm = FilePath::getLongPath( fnm.str() );
+
     filenames_.setEmpty();
-    filenames_.add( fnm );
-    setText( fnm );
+    filenames_.add( fnm.buf() );
+    setText( fnm.buf() );
 
     if ( displaylocalpath_ )
     {
@@ -364,13 +375,11 @@ const char* uiFileInput::fileName() const
     if ( fname.isEmpty() || fname.firstChar() == '@' )
 	return fname;
 
-#ifdef __win__
-    if ( fname.size() == 2 )
-	fname += "\\";
-#endif
+    if ( __iswin__&& fname.size() == 2 && fname.lastChar() == ':' )
+	fname.add( "\\" );
 
     ensureAbsolutePath( fname );
-    return fname;
+    return fname.buf();
 }
 
 
