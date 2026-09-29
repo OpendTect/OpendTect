@@ -400,6 +400,7 @@ void uiSimpleTimeDepthTransform::createCB( CallBacker* )
     if ( !dlg.go() )
 	return;
 
+    rangechanged_ = false;
     selfld_->setInput( dlg.getKey() );
     setZRangeCB( nullptr );
 }
@@ -407,18 +408,16 @@ void uiSimpleTimeDepthTransform::createCB( CallBacker* )
 
 void uiSimpleTimeDepthTransform::setZRangeCB( CallBacker* )
 {
-    ConstRefMan<ZAxisTransform> trans = getSelection();
-    if ( !rangefld_ )
+    if ( !rangefld_ || rangechanged_ )
 	return;
 
-    if ( !rangechanged_ )
-    {
-	ZSampling range = ZSampling::udf();
-	if ( trans )
-	    range = trans->getModelZSampling();
+    ConstRefMan<ZAxisTransform> trans = getSelection();
+    ZSampling range = ZSampling::udf();
+    if ( trans )
+	range = trans->getModelZSampling();
 
-	rangefld_->setZRange( range );
-    }
+    NotifyStopper stopper( rangefld_->valueChanging );
+    rangefld_->setZRange( range );
 }
 
 
@@ -439,6 +438,7 @@ void uiSimpleTimeDepthTransform::editCB( CallBacker* )
     if ( !dlg.go() )
 	return;
 
+    rangechanged_ = false;
     selfld_->setInput( mid );
     setZRangeCB( nullptr );
 }
