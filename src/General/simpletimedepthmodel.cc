@@ -262,15 +262,24 @@ ZSampling SimpleTimeDepthTransform::getWorkZSampling( const ZSampling& zsamp,
 
     const int nrsamples = zsamp.nrSteps();
     ZSampling ret = zsamp;
+    const UnitOfMeasure* modelzuom = SimpleTimeDepthModel::getDepthUnit();
     if ( from.isTime() && to.isDepth() )
     {
-	ret.start_ = tdmodel_->getDepth( ret.start_ );
-	ret.stop_ = tdmodel_->getDepth( ret.stop_ );
+	const UnitOfMeasure* tozuom = UnitOfMeasure::zUnit( to );
+	ret.start_ = getConvertedValue( tdmodel_->getDepth(ret.start_),
+					modelzuom, tozuom );
+	ret.stop_ = getConvertedValue( tdmodel_->getDepth(ret.stop_),
+				       modelzuom, tozuom );
     }
     else if ( from.isDepth() && to.isTime() )
     {
-	ret.start_ = tdmodel_->getTime( ret.start_ );
-	ret.stop_ = tdmodel_->getTime( ret.stop_ );
+	const UnitOfMeasure* fromzuom = UnitOfMeasure::zUnit( from );
+	const float zstart = getConvertedValue( ret.start_, fromzuom,
+						 modelzuom );
+	const float zstop = getConvertedValue( ret.stop_, fromzuom,
+						modelzuom );
+	ret.start_ = tdmodel_->getTime( zstart );
+	ret.stop_ = tdmodel_->getTime( zstop );
     }
 
     if ( to != from )
