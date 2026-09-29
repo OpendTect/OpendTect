@@ -272,7 +272,6 @@ mExternCPP(uiODMain) void ODMain( std::unique_ptr<uiDialog>& prodseldlgman,
 	}
 	else
 	{
-	    ODMainWin()->updateCaption();
 	    prodselnotif->trigger();
 	}
     });
@@ -301,6 +300,7 @@ mExternCPP(uiODMain) void ODMain( std::unique_ptr<uiDialog>& prodseldlgman,
 	odmain->initScene();
 	odmain->setActivateOnFirstShow();
 	odmain->go();
+	odmain->updateCaption();
 	splash.finish( odmain.get() );
     });
 
