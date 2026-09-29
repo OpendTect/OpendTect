@@ -55,10 +55,6 @@ void paint( QPainter* painter, const QStyleOptionViewItem& option,
 	    const QModelIndex& index ) const override
 {
     QStyleOptionViewItem myoption = option;
-    if ( option.state & QStyle::State_Selected )
-	myoption.font.setBold( true );
-    else
-	myoption.font.setBold( false );
     initStyleOption( &myoption, index );
 
     // Give cells their original background color
