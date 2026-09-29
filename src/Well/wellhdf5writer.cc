@@ -261,9 +261,9 @@ bool Well::HDF5Writer::putTrack() const
     {
 	const Coord3 c = iter.pos();
 	const int idx = iter.curIdx();
-        crdarr.set( idx, 0, c.x_ );
-        crdarr.set( idx, 1, c.y_ );
-        crdarr.set( idx, 2, c.z_ );
+	crdarr.set( idx, 0, c.x_ );
+	crdarr.set( idx, 1, c.y_ );
+	crdarr.set( idx, 2, c.z_ );
 	mdarr.set( idx, iter.dah() );
     }
     iter.retire();
@@ -367,21 +367,6 @@ bool Well::HDF5Writer::putLogs() const
     if ( !ensureFileOpen() )
 	return false;
 
-    HDF5::DataSetKey logdsky( sLogsGrpName() );
-    logdsky.setMaximumSize( 0, nrrowsperblock );
-    const LogSet& logs = wd_.logs();
-    const int nrlogs = logs.size();
-    uiRetVal uirv;
-    for ( int idx=0; idx<nrlogs; idx++ )
-    {
-	const Log& wl = logs.getLogByIdx( idx );
-	HDF5::DataSetKey dsky = logdsky;
-	dsky.setDataSetName( toString(idx) );
-	const bool success = putLog( wl );
-	if ( !success || !uirv.isOK() )
-	    mErrRetIfUiRvNotOK( dsky );
-    }
-
     PtrMan<HDF5::Reader> rdr = createCoupledHDFReader();
     if ( !rdr )
     {
@@ -389,17 +374,51 @@ bool Well::HDF5Writer::putLogs() const
 	return false;
     }
 
-    // remove possible extra data sets (can be there if logs were removed)
-    for ( int idx=nrlogs+1; ; idx++ )
+    HDF5::DataSetKey logdsky( sLogsGrpName() );
+    logdsky.setMaximumSize( 0, nrrowsperblock );
+    const LogSet& logs = wd_.logs();
+
+    int logidx = 0;
+
+    while ( !mIsUdf(logidx) ) // Soft deletion first
     {
+	logidx++; // preincrement to match the HDF5 log indexing (1-based)
+
 	HDF5::DataSetKey dsky = logdsky;
-	dsky.setDataSetName( toString(idx) );
+	dsky.setDataSetName( toString(logidx) );
 	HDF5::DataSetKey grpkey;
 	grpkey.setGroupName( dsky.fullDataSetName() );
-	if ( rdr->hasGroup(grpkey.fullDataSetName()) )
-	    setLogAttribs( grpkey, nullptr );
+	BufferString grpname = grpkey.fullDataSetName();
+
+	if ( rdr->hasGroup(grpname.buf()) )
+	{
+	    IOPar iop;
+	    const uiRetVal uirv = rdr->get( iop, &grpkey );
+	    if ( !uirv.isOK() || iop.isEmpty() )
+		continue;
+
+	    BufferString lognm;
+	    iop.get( sKey::Name(), lognm );
+	    const auto* wl = logs.getLog( lognm );
+	    if ( !wl && !setLogAttribs(grpkey, nullptr) )
+	    {
+		errmsg_.set( mINTERNAL("Write logs: cannot delete log") );
+		return false;
+	    }
+	}
 	else
 	    break;
+    }
+
+    for ( int idx=0; idx<logs.size(); idx++ ) // Put existing and new logs
+    {
+	const auto& wl = logs.getLogByIdx( idx );
+	const bool success = putLog( wl );
+	if ( !success )
+	{
+	    errmsg_.set( mINTERNAL("Write logs: cannot write log") );
+	    return false;
+	}
     }
 
     return putDefLogs();
@@ -479,16 +498,54 @@ bool Well::HDF5Writer::setLogAttribs( const HDF5::DataSetKey& dsky,
 
 int Well::HDF5Writer::getLogIndex( const char* lognm ) const
 {
-    const int nrlogs = wd_.logs().size();
-    int logidx = wd_.logs().indexOf( lognm );
-    //TODO: to be replaced by a proper well log identifier:
-    if ( logidx < 0 )
+    PtrMan<HDF5::Reader> rdr = createCoupledHDFReader();
+    if ( !rdr )
     {
-	//Unsafe !!!
-	logidx = nrlogs < 0 ? 0 : nrlogs;
+	errmsg_.set( mINTERNAL( "Finding log idx: "
+				"cannot create coupled reader" ) );
+	return 0;
     }
 
-    logidx++;
+    HDF5::DataSetKey logdsky( sLogsGrpName() );
+    logdsky.setMaximumSize( 0, nrrowsperblock );
+
+    uiRetVal uirv;
+
+    int logidx = 0;
+
+    while ( !mIsUdf(logidx) )
+    {
+	logidx++;
+
+	HDF5::DataSetKey dsky = logdsky;
+	dsky.setDataSetName( toString(logidx) );
+	HDF5::DataSetKey grpkey;
+	grpkey.setGroupName( dsky.fullDataSetName() );
+	BufferString grpname = grpkey.fullDataSetName();
+
+	if ( rdr->hasGroup(grpname.buf()) )
+	{
+	    IOPar iop;
+	    uirv = rdr->get( iop, &grpkey );
+	    if ( !uirv.isOK() || iop.isEmpty() )
+	    {
+		// Safer not to write than overwrite the wrong log
+		logidx = mUdf( int );
+		errmsg_.set( mINTERNAL("Finding log idx: "
+				       "cannot read log pars") );
+		return logidx;
+	    }
+
+	    BufferString lognmbuff;
+	    iop.get( sKey::Name(), lognmbuff );
+
+	    if ( lognmbuff == lognm )
+		break;
+	}
+	else
+	    break;
+    }
+
     return logidx;
 }
 
@@ -512,12 +569,15 @@ bool Well::HDF5Writer::putLog( const Log& wl ) const
 
     auto& wrr = cCast(HDF5::Writer&,*wrr_);
 
+    const int logidx = getLogIndex( wl.name() );
+    if ( mIsUdf(logidx) )
+	return false;
+
+    HDF5::DataSetKey grpky =
+	    HDF5::DataSetKey::groupKey( sLogsGrpName(), toString(logidx) );
+
     uiRetVal uirv;
 
-    const int logidx = getLogIndex( wl.name() );
-    HDF5::DataSetKey grpky =
-	HDF5::DataSetKey::groupKey( sLogsGrpName(),
-				    toString(logidx) );
     if ( wrr.ensureGroup(grpky.groupName(),uirv).isUdf() )
 	return false;
 

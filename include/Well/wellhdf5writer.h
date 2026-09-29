@@ -55,9 +55,9 @@ private:
 
     const uiString&	errMsg() const override		{ return errmsg_; }
 
-    PtrMan<HDF5::Writer> wrr_;
-    BufferString	filename_;
-    uiString&		errmsg_;
+    PtrMan<HDF5::Writer>	wrr_;
+    BufferString		filename_;
+    uiString&			errmsg_;
 
     void		init(const char*,bool* nmchg=nullptr);
     bool		initGroups();

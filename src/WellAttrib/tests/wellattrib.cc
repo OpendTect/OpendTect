@@ -31,6 +31,7 @@ ________________________________________________________________________
 #include "welllogset.h"
 #include "wellman.h"
 #include "wellreader.h"
+#include "wellwriter.h"
 
 #include <QDir>
 
@@ -74,9 +75,9 @@ void cleanup()
     if ( aicubefp.exists() )
 	File::remove( aicubefp.fullPath() );
 
-    const FilePath welllogfp( surveydir_, "WellInfo", "Well_A^5.wll" );
-    if ( welllogfp.exists() )
-	File::remove( welllogfp.fullPath() );
+    const FilePath welllog5fp( surveydir_, "WellInfo", "Well_A^5.wll" );
+    if ( welllog5fp.exists() )
+	File::remove( welllog5fp.fullPath() );
 
     if ( !QDir::setCurrent(QString::fromLocal8Bit(surveydir_.buf())) )
 	return;
@@ -237,7 +238,9 @@ static bool testAttribLogCreator( const MultiID& wellida,const MultiID& wellidb,
 
     Attrib::SelSpec as;
     as.set( *desc );
-    const char* lognm = as.userRef();
+    BufferString logbuff( as.userRef() );
+    logbuff.add( "_to_SoftRemove1" );
+    const char* lognm = logbuff.buf();
 
     const Well::ExtractParams pars = getWellLogExtractPars( 0.1524f );
     AttribLogCreator::Setup su( &ads, &pars );
@@ -299,6 +302,68 @@ static bool testAttribLogCreator( const MultiID& wellida,const MultiID& wellidb,
     mRunStandardTest( HDF5::getNumOfOpenHDF5Objs() == 0,
 		      "Closing HDF5 objs after write" )
 
+    // multiple logs creation
+    ConstRefMan<Well::Data> wdb = Well::MGR().get( wellidb );
+    mRunStandardTestWithError( wdb, "Has wellB data",
+			       Well::MGR().errMsg().getFullString() )
+
+    const auto& logset = wdb->logs();
+    mRunStandardTest( logset.size() == 5, "WellB has 5 logs" )
+
+    const auto* seislog = logset.getLog( lognm );
+    mRunStandardTest( seislog, "Has seismic_to_SoftRemove1 log" )
+
+    BufferString logbuff1( as.userRef() );
+    logbuff1.add( "_to_SoftRemove_HDF5Only_1" );
+    const char* lognm1 = logbuff1.buf();
+    PtrMan<Well::Log> log1 = seislog->clone();
+    log1->setName( lognm1 );
+
+    BufferString logbuff2( as.userRef() );
+    logbuff2.add( "_to_SoftRemove_HDF5Only_2" );
+    const char* lognm2 = logbuff2.buf();
+    PtrMan<Well::Log> log2 = seislog->clone();
+    log2->setName( lognm2 );
+
+    BufferString logbuff3( as.userRef() );
+    logbuff3.add( "_to_Stay_HDF5Only_writer_put" );
+    const char* lognm3 = logbuff3.buf();
+    PtrMan<Well::Log> log3 = seislog->clone();
+    log3->setName( lognm3 );
+
+    wdb = nullptr;
+
+    Well::MGR().writeAndRegister( wellidb, log1 );
+    Well::MGR().writeAndRegister( wellidb, log2 );
+
+    RefMan<Well::Data> wdbnonconst = Well::MGR().get( wellidb );
+    mRunStandardTestWithError( wdbnonconst, "Has wellB data",
+			       Well::MGR().errMsg().getFullString() )
+
+    Well::LogSet& currlogset = wdbnonconst->logs();
+    if ( currlogset.isPresent(lognm3) )
+    {
+	Well::Log& currlog = *currlogset.getLog( lognm3 );
+	currlog = *log3;
+	log3 = nullptr;
+    }
+    else
+    {
+	NotifyStopper ns( currlogset.logAdded );
+	currlogset.add( log3.release() );
+    }
+
+    {
+	Well::Writer wwr( wdbnonconst->multiID(), *wdbnonconst );
+	mRunStandardTestWithError( wwr.put(), "Well::Writer::put() for wellB",
+				   wwr.errMsg().getFullString() );
+    }
+
+    wdbnonconst = nullptr;
+
+    mRunStandardTest( HDF5::getNumOfOpenHDF5Objs() == 0,
+		      "Closing HDF5 objs after multiple writes" )
+
     return true;
 }
 
@@ -355,8 +420,23 @@ static bool testLogsIntegrity( const MultiID& wellida, const MultiID& wellidb,
     mRunStandardTestWithError( Well::MGR().deleteLogs(wellidb,lognms),
 			       "Delete created log for Well B",
 			       Well::MGR().errMsg().getFullString() )
+
+    BufferStringSet lognms2;
+    lognms2.add("Seismic_to_SoftRemove_HDF5Only_1");
+    lognms2.add("Seismic_to_SoftRemove_HDF5Only_2");
+
+    mRunStandardTestWithError( Well::MGR().deleteLogs(wellidb,lognms2),
+			       "Multiple delete created logs for Well B",
+			       Well::MGR().errMsg().getFullString() )
+
+    wdb = Well::MGR().get( wellidb );
+    mRunStandardTestWithError( wdb, "Re-read Well data B",
+			       Well::MGR().errMsg().getFullString() )
+
+    mRunStandardTest( wdb->logs().size() == 5, "Well B has 5 logs" )
+
     mRunStandardTest( HDF5::getNumOfOpenHDF5Objs() == 0,
-		      "Closing HDF5 objs after read" )
+		      "Closing HDF5 objs after read/write" )
 
     return true;
 }
@@ -382,6 +462,14 @@ static bool testNumOfOpenObjs( const MultiID& wellid )
 
     mRunStandardTest( HDF5::getNumOfOpenHDF5Objs() == 0,
 			  "Closing HDF5 objs after read" )
+    return true;
+}
+
+
+static bool testHardRmObj( od_ostream& strm )
+{
+    //TODO: Implement a test for hard removal of HDF5 objects, if applicable.
+
     return true;
 }
 
@@ -425,7 +513,8 @@ bool BatchProgram::doWork( od_ostream& strm )
 	 !testLogsIntegrity(wellAmid_,wellBmid_,lognms) ||
 	 !testLogAttribute(wellAmid_) ||
 	 !testLogAttribute(wellBmid_) ||
-	 !testNumOfOpenObjs(wellBmid_) )
+	 !testNumOfOpenObjs(wellBmid_) ||
+	 !testHardRmObj(strm)  )
 	return false;
 
     return true;
