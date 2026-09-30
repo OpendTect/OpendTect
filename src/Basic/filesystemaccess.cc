@@ -11,7 +11,8 @@ ________________________________________________________________________
 
 #include "file.h"
 #include "filepath.h"
-#include "od_iostream.h"
+#include "od_istream.h"
+#include "od_ostream.h"
 #include "oscommand.h"
 #include "uistrings.h"
 
@@ -132,7 +133,7 @@ private:
     bool	copy(const char* from,const char* to,bool preserve,
 		     uiString* errmsg,TaskRunner*) const override;
     bool	remove(const char*,bool recursive) const override;
-    od_int64	getFileSize(const char*, bool followlink) const override;
+    od_int64	getFileSize(const char*,bool followlink) const override;
     bool	createDirectory(const char*) const override;
     bool	createLink(const char* src,const char* lnkfnm) const override;
     bool	listDirectory(const char*,File::DirListType,
@@ -450,8 +451,7 @@ bool LocalFileSystemAccess::listDirectory( const char* uri,
     if ( !isDirectory(uri) )
 	return false;
 
-    BufferString fnm = withoutProtocol( uri );
-
+    const BufferString fnm = withoutProtocol( uri );
     QDir qdir( fnm.str() );
     if ( mask && *mask )
     {
@@ -462,12 +462,12 @@ bool LocalFileSystemAccess::listDirectory( const char* uri,
 
     QDir::Filters dirfilters;
     if ( dlt == File::DirListType::FilesInDir )
-	dirfilters = QDir::Files | QDir::Hidden;
+	dirfilters = QDir::Files | QDir::Hidden | QDir::System;
     else if ( dlt == File::DirListType::DirsInDir )
-	dirfilters = QDir::Dirs | QDir::NoDotAndDotDot | QDir::Hidden;
+	dirfilters = QDir::Dirs | QDir::Hidden | QDir::NoDotAndDotDot;
     else
-	dirfilters = QDir::Dirs | QDir::NoDotAndDotDot | QDir::Files
-				| QDir::Hidden;
+	dirfilters = QDir::Files | QDir::Dirs |
+		     QDir::Hidden | QDir::System | QDir::NoDotAndDotDot;
 
     const QStringList qlist = qdir.entryList( dirfilters );
     for ( int idx=0; idx<qlist.size(); idx++ )
