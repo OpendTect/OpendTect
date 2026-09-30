@@ -304,6 +304,7 @@ mExternCPP(uiODMain) void ODMain( std::unique_ptr<uiDialog>& prodseldlgman,
 	odmain->initScene_();
 	odmain->setActivateOnFirstShow();
 	odmain->go_void();
+	odmain->updateCaption();
 	splash.finish( odmain.get() );
     });
 
