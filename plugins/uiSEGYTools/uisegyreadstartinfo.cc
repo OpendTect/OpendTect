@@ -936,18 +936,23 @@ void uiSEGYReadStartInfo::useLoadDef()
     const Seis::GeomType gt = imptype_.geomType();
     if ( Seis::is2D(gt) )
     {
-	trcnrsrcfld_->setCurrentItem( loaddef_.havetrcnrs_ ? 0 : 1 );
-	refnrbytefld_->setHdrEntry( loaddef_.hdrdef_->refnr_ );
+	if ( trcnrsrcfld_ )
+	    trcnrsrcfld_->setCurrentItem( loaddef_.havetrcnrs_ ? 0 : 1 );
+
+	if ( refnrbytefld_ )
+	    refnrbytefld_->setHdrEntry( loaddef_.hdrdef_->refnr_ );
+
 	if ( trcnrbytefld_ )
 	    trcnrbytefld_->setHdrEntry( loaddef_.hdrdef_->trnr_ );
-	if ( trcnrgengrp_ )
+
+	if ( trcnrgenstartfld_ && trcnrgenstepfld_ )
 	{
             trcnrgenstartfld_->setValue( loaddef_.trcnrdef_.start_ );
             trcnrgenstepfld_->setValue( loaddef_.trcnrdef_.step_ );
 	}
     }
 
-    if ( xcoordbytefld_ )
+    if ( xcoordbytefld_ && ycoordbytefld_ )
     {
 	const bool isic = loaddef_.icvsxytype_==SEGY::FileReadOpts::ICOnly;
 	xcoordbytefld_->setSensitive( !isic );
@@ -956,7 +961,7 @@ void uiSEGYReadStartInfo::useLoadDef()
 	ycoordbytefld_->setHdrEntry( loaddef_.hdrdef_->ycoord_ );
     }
 
-    if ( inlbytefld_ )
+    if ( inlbytefld_ && crlbytefld_ )
     {
 	const bool isxy = loaddef_.icvsxytype_==SEGY::FileReadOpts::XYOnly;
 	inlbytefld_->setSensitive( !isxy );
@@ -967,15 +972,20 @@ void uiSEGYReadStartInfo::useLoadDef()
 
     if ( Seis::isPS(gt) )
     {
-	psoffsrcfld_->setCurrentItem( (int)loaddef_.psoffssrc_ );
-	offsetbytefld_->setHdrEntry( loaddef_.hdrdef_->offs_ );
-	if ( offsgenstartfld_ )
+	if ( psoffsrcfld_ )
+	    psoffsrcfld_->setCurrentItem( (int)loaddef_.psoffssrc_ );
+
+	if ( offsetbytefld_ )
+	    offsetbytefld_->setHdrEntry( loaddef_.hdrdef_->offs_ );
+
+	if ( offsgenstartfld_ && offsgenstepfld_ )
 	{
             offsgenstartfld_->setValue( loaddef_.psoffsdef_.start_ );
             offsgenstepfld_->setValue( loaddef_.psoffsdef_.step_ );
 	}
 
-	azimuthbytefld_->setHdrEntry( loaddef_.hdrdef_->azim_ );
+	if ( azimuthbytefld_ )
+	    azimuthbytefld_->setHdrEntry( loaddef_.hdrdef_->azim_ );
     }
 
     parsbeingset_ = false;
@@ -1006,6 +1016,7 @@ void uiSEGYReadStartInfo::fillLoadDef()
     sampling.start_ = zstartfld_->getFValue();
     if ( !mIsUdf(sampling.start_) )
         loaddef_.sampling_.start_ = sampling.start_;
+
     sampling.step_ = srfld_->getFValue();
     if ( !mIsUdf(sampling.step_) && sampling.step_ != 0.f )
         loaddef_.sampling_.step_ = sampling.step_;
@@ -1013,7 +1024,7 @@ void uiSEGYReadStartInfo::fillLoadDef()
     if ( imptype_.isVSP() )
 	return;
 
-    if ( xcoordbytefld_ )
+    if ( xcoordbytefld_ && ycoordbytefld_ )
     {
 	loaddef_.hdrdef_->xcoord_ = xcoordbytefld_->hdrEntry();
 	loaddef_.hdrdef_->ycoord_ = ycoordbytefld_->hdrEntry();
@@ -1024,10 +1035,14 @@ void uiSEGYReadStartInfo::fillLoadDef()
     {
 	if ( refnrbytefld_ )
 	    loaddef_.hdrdef_->refnr_ = refnrbytefld_->hdrEntry();
+
 	if ( trcnrbytefld_ )
 	    loaddef_.hdrdef_->trnr_ = trcnrbytefld_->hdrEntry();
-	loaddef_.havetrcnrs_ = trcnrsrcfld_->currentItem() == 0;
-	if ( trcnrgengrp_ )
+
+	if ( trcnrsrcfld_ )
+	    loaddef_.havetrcnrs_ = trcnrsrcfld_->currentItem() == 0;
+
+	if ( trcnrgenstartfld_ && trcnrgenstepfld_ )
 	{
 	    SamplingData<int>& def = loaddef_.trcnrdef_;
             def.start_ = trcnrgenstartfld_->getIntValue();
@@ -1039,7 +1054,7 @@ void uiSEGYReadStartInfo::fillLoadDef()
                 def.step_ = 1;
 	}
     }
-    else if ( inlbytefld_ )
+    else if ( inlbytefld_ && crlbytefld_ )
     {
 	loaddef_.hdrdef_->inl_ = inlbytefld_->hdrEntry();
 	loaddef_.hdrdef_->crl_ = crlbytefld_->hdrEntry();
@@ -1047,10 +1062,14 @@ void uiSEGYReadStartInfo::fillLoadDef()
 
     if ( Seis::isPS(gt) )
     {
-	loaddef_.psoffssrc_ = (SEGY::FileReadOpts::PSDefType)
-				    psoffsrcfld_->currentItem();
-	loaddef_.hdrdef_->offs_ = offsetbytefld_->hdrEntry();
-	if ( offsgenstartfld_ )
+	if ( psoffsrcfld_ )
+	    loaddef_.psoffssrc_ = (SEGY::FileReadOpts::PSDefType)
+					psoffsrcfld_->currentItem();
+
+	if ( offsetbytefld_ )
+	    loaddef_.hdrdef_->offs_ = offsetbytefld_->hdrEntry();
+
+	if ( offsgenstartfld_ && offsgenstepfld_ )
 	{
 	    SamplingData<float>& def = loaddef_.psoffsdef_;
             def.start_ = offsgenstartfld_->getFValue();
