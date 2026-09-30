@@ -1688,7 +1688,7 @@ mStartAllowDeprecatedSection
 
 const char* linkTarget( const char* linknm )
 {
-	if ( !isSane(linknm) )
+    if ( !isSane(linknm) )
 	return "";
     else if ( fnmIsURI(linknm) )
 	return linknm;
