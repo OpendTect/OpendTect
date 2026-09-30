@@ -219,10 +219,15 @@ endif()
 
 #Add current module to include-path
 if ( OD_MODULE_HAS_LIBRARY )
+    # INITHEADER_DIR: generated headers (*mod.h, *deps.h) in the build tree
+    # EXPORTHEADER_DIR: module's own headers (include/<Mod>, spec/<Mod>,
+    # or CMAKE_CURRENT_SOURCE_DIR for plugins / co-located layouts)
+    list( APPEND OD_${OD_MODULE_NAME}_INCLUDEPATH
+	  ${INITHEADER_DIR} ${EXPORTHEADER_DIR} )
+
     if ( OD_IS_PLUGIN )
 
         set( PLUGINDIR ${CMAKE_CURRENT_SOURCE_DIR} )
-	list( APPEND OD_${OD_MODULE_NAME}_INCLUDEPATH ${PLUGINDIR} ${INITHEADER_DIR} )
 	foreach ( OD_PLUGINSUBDIR ${OD_PLUGINMODULES} )
 	    list(APPEND OD_${OD_MODULE_NAME}_INCLUDEPATH
 		${PLUGINDIR}/include/${OD_PLUGINSUBDIR})
@@ -239,18 +244,6 @@ if ( OD_MODULE_HAS_LIBRARY )
 	set( OD_CORE_MODULE_NAMES_${OD_SUBSYSTEM}
 	     ${OD_CORE_MODULE_NAMES_${OD_SUBSYSTEM}}
 		${OD_MODULE_NAME} PARENT_SCOPE )
-	list( APPEND OD_${OD_MODULE_NAME}_INCLUDEPATH
-	    ${INITHEADER_DIR} )
-
-	if ( EXISTS ${CMAKE_SOURCE_DIR}/include/${OD_MODULE_NAME} )
-	    list( APPEND OD_${OD_MODULE_NAME}_INCLUDEPATH
-		${CMAKE_SOURCE_DIR}/include/${OD_MODULE_NAME} )
-	endif()
-
-	if ( EXISTS ${CMAKE_SOURCE_DIR}/spec/${OD_MODULE_NAME} )
-	    list( APPEND OD_${OD_MODULE_NAME}_INCLUDEPATH
-		${CMAKE_SOURCE_DIR}/spec/${OD_MODULE_NAME} )
-	endif()
     endif(OD_IS_PLUGIN)
 
     list( REMOVE_DUPLICATES OD_${OD_MODULE_NAME}_INCLUDEPATH )
