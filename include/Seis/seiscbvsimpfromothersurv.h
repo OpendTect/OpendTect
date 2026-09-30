@@ -83,7 +83,7 @@ protected:
     int			sz_;
     int			newsz_;
     int			szz_;
-    int			nrcomponents_;
+    int			nrcomponents_			= 0;
 
     Fourier::CC*	fft_				= nullptr;
     ObjectSet<SeisTrc>	trcsset_;

@@ -146,7 +146,7 @@ int SeisImpCBVSFromOtherSurvey::nextStep()
     const Pos::IdxPair2Coord& b2c = tr_->getTransform();
     const BinID oldbid = b2c.transformBack( curcoord,
 	olddata_.tkzs_.hsamp_.start_, olddata_.tkzs_.hsamp_.step_ );
-    SeisTrc* outtrc = 0;
+    SeisTrc* outtrc = nullptr;
     if ( interpol_==Nearest || padfac_<=1 )
     {
 	outtrc = readTrc( oldbid );
@@ -222,14 +222,18 @@ int SeisImpCBVSFromOtherSurvey::nextStep()
 
 SeisTrc* SeisImpCBVSFromOtherSurvey::readTrc( const BinID& bid ) const
 {
-    SeisTrc* trc = 0;
-    if ( tr_->goTo( bid )  )
+    if ( !tr_ || !tr_->goTo(bid) )
+	return nullptr;
+
+    auto* trc = new SeisTrc;
+    trc->info().setPos( bid );
+    if ( !tr_->readInfo(trc->info()) || !tr_->read(*trc) || trc->isEmpty() ||
+	(nrcomponents_ > 0 && trc->nrComponents() != nrcomponents_) )
     {
-	trc = new SeisTrc;
-	trc->info().setPos( bid );
-	tr_->readInfo( trc->info() );
-	tr_->read( *trc );
+	delete trc;
+	return nullptr;
     }
+
     return trc;
 }
 
