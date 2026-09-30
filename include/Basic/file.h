@@ -196,13 +196,26 @@ mGlobal(Basic) bool		checkDir(const char* fnm,bool forread,
 				     is readable/writable */
 
 mGlobal(Basic) bool		getContent(const char*,BufferString&);
+mGlobal(Basic) bool		getContent(const char*,BufferString&,
+					   uiString* errmsg,
+					   TaskRunner* =nullptr);
+mGlobal(Basic) bool		putContent(const OD::String&,const char* tofnm);
+mGlobal(Basic) bool		putContent(const OD::String&,const char* tofnm,
+					   uiString* errmsg,
+					   TaskRunner* =nullptr);
 mGlobal(Basic) bool		putContent(const char* buf,int sz,
 					   const char* tofnm);
-mGlobal(Basic) bool		putContent(const OD::String&,const char* tofnm);
+mGlobal(Basic) bool		putContent(const char* buf,int sz,
+					   const char* tofnm,
+					   uiString* errmsg,
+					   TaskRunner* =nullptr);
 mGlobal(Basic) BufferString	getHash(const char*,Crypto::Algorithm);
 mGlobal(Basic) bool		isEmpty(const char*);
 mGlobal(Basic) od_int64		getFileSize(const char* fnm,
 					    bool followlink=true);
+mGlobal(Basic) od_int64		getFileSize(const char* fnm,
+					    bool followlink,
+					    uiString* errmsg);
 				// -> returns size in bytes
 mGlobal(Basic) BufferString	getFileSizeString(od_int64 filesz,
 					File::SizeUnit=File::SizeUnit::Auto);
