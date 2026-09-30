@@ -877,6 +877,15 @@ bool setSystemFileAttrib( const char* fnm, bool yn )
 
 bool getContent( const char* fnm, BufferString& txt )
 {
+    uiString* errmsg = nullptr;
+    TaskRunner* taskrun = nullptr;
+    return getContent( fnm, txt, errmsg, taskrun );
+}
+
+
+bool getContent( const char* fnm, BufferString& txt, uiString* errmsg,
+		 TaskRunner* taskrun )
+{
     if ( !exists(fnm) )
 	return false;
 
@@ -885,23 +894,49 @@ bool getContent( const char* fnm, BufferString& txt )
 	return false;
 
     const auto& fsa = OD::FileSystemAccess::get( fnm );
-    return fsa.getContent( fnm, txt );
+    const bool res = fsa.getContent( fnm, txt );
+    if ( !res && errmsg )
+        *errmsg = fsa.errMsg();
+
+    return res;
 }
 
 
 bool putContent( const OD::String& str, const char* tofnm )
 {
-    return putContent( str.buf(), str.size(), tofnm );
+    uiString* errmsg = nullptr;
+    TaskRunner* taskrun = nullptr;
+    return putContent( str, tofnm, errmsg, taskrun );
+}
+
+
+bool putContent( const OD::String& str, const char* tofnm, uiString* errmsg,
+		 TaskRunner* taskrun )
+{
+    return putContent( str.buf(), str.size(), tofnm, errmsg, taskrun );
 }
 
 
 bool putContent( const char* buf, int sz, const char* tofnm )
 {
+    uiString* errmsg = nullptr;
+    TaskRunner* taskrun = nullptr;
+    return putContent( buf, sz, tofnm, errmsg, taskrun );
+}
+
+
+bool putContent( const char* buf, int sz, const char* tofnm, uiString* errmsg,
+		 TaskRunner* taskrun )
+{
     if ( !isSane(tofnm) || sz < 0 )
 	return false;
 
     const auto& fsa = OD::FileSystemAccess::get( tofnm );
-    return fsa.putContent( buf, sz, tofnm );
+    const bool res = fsa.putContent( buf, sz, tofnm );
+    if ( !res && errmsg )
+        *errmsg = fsa.errMsg();
+
+    return res;
 }
 
 
@@ -922,8 +957,19 @@ bool isEmpty( const char* fnm )
 
 od_int64 getFileSize( const char* fnm, bool followlink )
 {
+    uiString* errmsg = nullptr;
+    return getFileSize( fnm, followlink, errmsg );
+}
+
+
+od_int64 getFileSize( const char* fnm, bool followlink, uiString* errmsg )
+{
     const auto& fsa = OD::FileSystemAccess::get( fnm );
-    return fsa.getFileSize( fnm, followlink );
+    const od_int64 res = fsa.getFileSize( fnm, followlink );
+    if ( errmsg )
+        *errmsg = fsa.errMsg();
+
+    return res;
 }
 
 
