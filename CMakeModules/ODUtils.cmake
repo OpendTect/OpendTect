@@ -100,8 +100,16 @@ macro( OD_ADD_EXTERNALS )
 	endif()
     endif()
     if ( CMAKE_GENERATOR MATCHES "Ninja" )
-	if ( UNIX AND EXISTS "${CMAKE_MAKE_PROGRAM}" )
+	if ( EXISTS "${CMAKE_MAKE_PROGRAM}" )
 	    set( EXTMAKEPROG "-DCMAKE_MAKE_PROGRAM=${CMAKE_MAKE_PROGRAM}" )
+	else()
+	    find_program( NINJA_BIN "ninja"
+		PATHS "${QT_DIR}" "${Qt5Core_Dir}" "${Qt6Core_Dir}"
+		PATH_SUFFIXES "../../Tools/Ninja"
+			      "../../../../../Tools/Ninja" )
+	    if ( EXISTS "${NINJA_BIN}" )
+		set( EXTMAKEPROG "-DCMAKE_MAKE_PROGRAM=${NINJA_BIN}" )
+	    endif()
 	endif()
 	set( EXTGENERATOR "-GNinja Multi-Config" )
     elseif ( WIN32 AND CMAKE_GENERATOR MATCHES "Visual Studio" )
@@ -110,15 +118,6 @@ macro( OD_ADD_EXTERNALS )
 	    set( EXTPLFARCH "-A ${CMAKE_VS_PLATFORM_NAME_DEFAULT}" )
 	endif()
 	set( EXTPLFTOOLSET "-T v${MSVC_TOOLSET_VERSION}" )
-    else()
-	find_program( NINJA_BIN "ninja"
-		PATHS "${QT_DIR}" "${Qt5Core_Dir}" "${Qt6Core_Dir}"
-		PATH_SUFFIXES "../../Tools/Ninja"
-			      "../../../../../Tools/Ninja" )
-	if ( EXISTS "${NINJA_BIN}" )
-	    set( EXTGENERATOR "-GNinja Multi-Config" )
-	    set( EXTMAKEPROG "-DCMAKE_MAKE_PROGRAM=${NINJA_BIN}" )
-	endif()
     endif()
     OD_ADD_BREAKPAD()
     OD_FIND_ZLIB()
