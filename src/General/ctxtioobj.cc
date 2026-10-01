@@ -195,6 +195,47 @@ const ZDomain::Info* IOObjSelConstraints::requiredZDomain() const
 }
 
 
+void IOObjSelConstraints::fillParsForNewObject( IOPar& iop ) const
+{
+    IOParIterator iter( require_ );
+    BufferString key, val;
+    while ( iter.next(key,val) )
+    {
+	FileMultiString fms( val );
+	int fmssz = fms.size();
+	if ( fmssz < 1 )
+	    continue;
+
+	StringView lastfld;
+	if ( fmssz > 1 )
+	    lastfld = fms.last();
+
+	const bool allowmissing = fmssz > 1 &&
+				  ( lastfld.isEmpty() || lastfld == " " );
+	if ( allowmissing )
+	    fmssz--;
+
+	BufferString firstval;
+	int nreal = 0;
+	for ( int ifms=0; ifms<fmssz; ifms++ )
+	{
+	    const BufferString fmsstr( fms[ifms] );
+	    if ( fmsstr.isEmpty() )
+		continue;
+
+	    if ( nreal == 0 )
+		firstval = fmsstr;
+
+	    nreal++;
+	}
+
+	// Only stamp when there is exactly one required value
+	if ( nreal == 1 )
+	    iop.set( key, firstval );
+    }
+}
+
+
 void IOObjSelConstraints::setHiddenPolicy( const OD::HiddenPolicy hidpol )
 {
     ioobjselconsthpmgr_.setParam( this, (int) hidpol );
