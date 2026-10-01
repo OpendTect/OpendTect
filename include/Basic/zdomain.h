@@ -174,4 +174,8 @@ mGlobal(Basic) const char*	sKeyDepth();
 mGlobal(Basic) const char*	sKeyUnit();
 mGlobal(Basic) const char*	sKeyDec();
 
+mGlobal(Basic) BufferString	getKey(const char*);
+				//!< Strips FileMultiString separators / empty
+				//!< markers from a stored ZDomain key or unit
+
 } // namespace ZDomain

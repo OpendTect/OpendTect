@@ -1019,7 +1019,9 @@ const IOObj* IOMan::getIOObjFromCtxt( const CtxtIOObj& ctio, bool isnew,
 	    return nullptr;
     }
 
-    ioobj->pars().merge( ctio.ctxt_.toselect_.require_ );
+    IOPar requirepars;
+    ctio.ctxt_.toselect_.fillParsForNewObject( requirepars );
+    ioobj->pars().merge( requirepars );
     return ioobj;
 }
 
