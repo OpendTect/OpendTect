@@ -30,7 +30,6 @@ ________________________________________________________________________
 #include "uilistbox.h"
 #include "uilistboxchoiceio.h"
 #include "uimsg.h"
-#include "uipixmap.h"
 #include "uistrings.h"
 #include "uitoolbutton.h"
 
@@ -1495,7 +1494,14 @@ void uiIOObjSelGrp::ctxtZDomainChgCB( CallBacker* cb )
 	const BufferString curzdom( ctxtfiltfld->textOfItem( curitm ));
 	IOPar iop;
 	iop.set( ZDomain::sKey(), curzdom );
-	ctio_.ctxt_.require( withctxtfilter, curzdom.buf() );
+	const ZDomain::Info* zdom = ZDomain::Info::getFrom( iop );
+	if ( zdom )
+	{
+	    ctio_.ctxt_.requireZDomain( *zdom,
+					*zdom == SI().zDomainInfo() );
+	}
+	else
+	    ctio_.ctxt_.require( withctxtfilter, curzdom.buf() );
     }
 
     fullUpdate( -2 );
