@@ -239,7 +239,7 @@ static bool testAttribLogCreator( const MultiID& wellida,const MultiID& wellidb,
     Attrib::SelSpec as;
     as.set( *desc );
     BufferString logbuff( as.userRef() );
-    logbuff.add( "_to_SoftRemove1" );
+    logbuff.add( "_to_Remove" );
     const char* lognm = logbuff.buf();
 
     const Well::ExtractParams pars = getWellLogExtractPars( 0.1524f );
@@ -266,7 +266,7 @@ static bool testAttribLogCreator( const MultiID& wellida,const MultiID& wellidb,
 	if ( wd->logs().isPresent(lognm) )
 	{
 	    mRunStandardTestWithError(
-		    Well::MGR().deleteLogs( wid, lognms ),
+		    Well::MGR().deleteLogs( wid, lognms),
 		    "Delete pre-existing log",
 		    Well::MGR().errMsg().getFullString() )
 	}
@@ -311,46 +311,60 @@ static bool testAttribLogCreator( const MultiID& wellida,const MultiID& wellidb,
     mRunStandardTest( logset.size() == 5, "WellB has 5 logs" )
 
     const auto* seislog = logset.getLog( lognm );
-    mRunStandardTest( seislog, "Has seismic_to_SoftRemove1 log" )
+    mRunStandardTest( seislog, "Has seismic_to_Remove log" )
 
     BufferString logbuff1( as.userRef() );
-    logbuff1.add( "_to_SoftRemove_HDF5Only_1" );
+    logbuff1.add( "_to_Remove_HDF5Only_1" );
     const char* lognm1 = logbuff1.buf();
     PtrMan<Well::Log> log1 = seislog->clone();
     log1->setName( lognm1 );
 
     BufferString logbuff2( as.userRef() );
-    logbuff2.add( "_to_SoftRemove_HDF5Only_2" );
+    logbuff2.add( "_to_Remove_HDF5Only_2" );
     const char* lognm2 = logbuff2.buf();
     PtrMan<Well::Log> log2 = seislog->clone();
     log2->setName( lognm2 );
 
     BufferString logbuff3( as.userRef() );
-    logbuff3.add( "_to_Stay_HDF5Only_writer_put" );
+    logbuff3.add( "_to_Stay_HDF5Only_3" );
     const char* lognm3 = logbuff3.buf();
     PtrMan<Well::Log> log3 = seislog->clone();
     log3->setName( lognm3 );
 
+    BufferString logbuff4( as.userRef() );
+    logbuff4.add( "_to_Remove_HDF5Only_4" );
+    const char* lognm4 = logbuff4.buf();
+    PtrMan<Well::Log> log4 = seislog->clone();
+    log4->setName( lognm4 );
+
     wdb = nullptr;
 
-    Well::MGR().writeAndRegister( wellidb, log1 );
-    Well::MGR().writeAndRegister( wellidb, log2 );
+    mRunStandardTestWithError( Well::MGR().writeAndRegister(wellidb, log1),
+			       "Write and register log1 for wellB",
+			       Well::MGR().errMsg().getFullString() )
+    mRunStandardTestWithError( Well::MGR().writeAndRegister(wellidb, log2),
+			       "Write and register log2 for wellB",
+			       Well::MGR().errMsg().getFullString() )
+    mRunStandardTestWithError( Well::MGR().writeAndRegister( wellidb, log3 ),
+			       "Write and register log3 for wellB",
+			       Well::MGR().errMsg().getFullString() )
 
     RefMan<Well::Data> wdbnonconst = Well::MGR().get( wellidb );
     mRunStandardTestWithError( wdbnonconst, "Has wellB data",
 			       Well::MGR().errMsg().getFullString() )
 
+    // Add log4 to wellB using put()
     Well::LogSet& currlogset = wdbnonconst->logs();
-    if ( currlogset.isPresent(lognm3) )
+    if ( currlogset.isPresent(lognm4) )
     {
-	Well::Log& currlog = *currlogset.getLog( lognm3 );
-	currlog = *log3;
-	log3 = nullptr;
+	Well::Log& currlog = *currlogset.getLog( lognm4 );
+	currlog = *log4;
+	log4 = nullptr;
     }
     else
     {
 	NotifyStopper ns( currlogset.logAdded );
-	currlogset.add( log3.release() );
+	currlogset.add( log4.release() );
     }
 
     {
@@ -414,26 +428,27 @@ static bool testLogsIntegrity( const MultiID& wellida, const MultiID& wellidb,
     wda = nullptr;
     wdb = nullptr;
 
-    mRunStandardTestWithError( Well::MGR().deleteLogs(wellida,lognms),
+    mRunStandardTestWithError( Well::MGR().deleteLogs(wellida, lognms),
 			       "Delete created log for Well A",
 			       Well::MGR().errMsg().getFullString() )
     mRunStandardTestWithError( Well::MGR().deleteLogs(wellidb,lognms),
 			       "Delete created log for Well B",
 			       Well::MGR().errMsg().getFullString() )
 
+    // HDF5 Only
     BufferStringSet lognms2;
-    lognms2.add("Seismic_to_SoftRemove_HDF5Only_1");
-    lognms2.add("Seismic_to_SoftRemove_HDF5Only_2");
+    lognms2.add("Seismic_to_Remove_HDF5Only_1");
+    lognms2.add("Seismic_to_Remove_HDF5Only_2");
 
     mRunStandardTestWithError( Well::MGR().deleteLogs(wellidb,lognms2),
-			       "Multiple delete created logs for Well B",
+			       "Multiple delete logs for Well B",
 			       Well::MGR().errMsg().getFullString() )
 
     wdb = Well::MGR().get( wellidb );
     mRunStandardTestWithError( wdb, "Re-read Well data B",
 			       Well::MGR().errMsg().getFullString() )
 
-    mRunStandardTest( wdb->logs().size() == 5, "Well B has 5 logs" )
+    mRunStandardTest( wdb->logs().size() == 6, "Well B has 6 logs" )
 
     mRunStandardTest( HDF5::getNumOfOpenHDF5Objs() == 0,
 		      "Closing HDF5 objs after read/write" )
@@ -466,10 +481,54 @@ static bool testNumOfOpenObjs( const MultiID& wellid )
 }
 
 
-static bool testHardRmObj( od_ostream& strm )
+static bool testRemoveLogs( od_ostream& strm )
 {
-    //TODO: Implement a test for hard removal of HDF5 objects, if applicable.
+    BufferStringSet todellognms1;
+    todellognms1.add( "Seismic_to_Remove_HDF5Only_1" );
+    todellognms1.add( "Seismic_to_Remove_HDF5Only_2" );
 
+    mRunStandardTestWithError(
+			!Well::MGR().deleteLogs(wellBmid_, todellognms1),
+			"Delete non-existing logs for Well B",
+			Well::MGR().errMsg().getFullString() )
+
+    BufferStringSet todellognms2;
+    todellognms2.add( "Seismic_to_Remove_HDF5Only_4" );
+
+    mRunStandardTestWithError(
+			Well::MGR().deleteLogs(wellBmid_, todellognms2),
+			"Delete created logs for Well B",
+			Well::MGR().errMsg().getFullString() )
+
+    mRunStandardTest( HDF5::getNumOfOpenHDF5Objs() == 0,
+			  "Closing HDF5 objs after read/write" )
+    return true;
+}
+
+
+static bool testAddLogAgain( od_ostream& strm )
+{
+    ConstRefMan<Well::Data> wdb = Well::MGR().get( wellBmid_ );
+    mRunStandardTestWithError( wdb, "Has wellB data",
+			       Well::MGR().errMsg().getFullString() )
+
+    const auto& logset = wdb->logs();
+    mRunStandardTest( logset.size() == 5, "WellB has 5 logs" )
+
+    const auto* seislog = logset.getLog( "Seismic_to_Stay_HDF5Only_3" );
+    mRunStandardTest( seislog, "Has seismic_to_Stay_HDF5Only_3 log" )
+
+    BufferString logbuff1( "Seismic_to_AddAgain_HDF5Only_5" );
+    const char* lognm1 = logbuff1.buf();
+    PtrMan<Well::Log> log1 = seislog->clone();
+    log1->setName( lognm1 );
+
+    mRunStandardTestWithError( Well::MGR().writeAndRegister(wellBmid_, log1),
+			       "Write and register log1 for wellB",
+			       Well::MGR().errMsg().getFullString() )
+
+    mRunStandardTest( HDF5::getNumOfOpenHDF5Objs() == 0,
+			  "Closing HDF5 objs after read/write" )
     return true;
 }
 
@@ -514,7 +573,8 @@ bool BatchProgram::doWork( od_ostream& strm )
 	 !testLogAttribute(wellAmid_) ||
 	 !testLogAttribute(wellBmid_) ||
 	 !testNumOfOpenObjs(wellBmid_) ||
-	 !testHardRmObj(strm)  )
+	 !testRemoveLogs(strm) ||
+	 !testAddLogAgain(strm) )
 	return false;
 
     return true;

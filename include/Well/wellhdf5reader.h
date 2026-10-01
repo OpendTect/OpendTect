@@ -48,6 +48,8 @@ public:
     static const char*		sLvlIDsDSName();
 
     static const char*		sKeyLogDel();
+
+    static const char*		sKeyLastLogID();
 };
 
 

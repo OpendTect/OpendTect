@@ -32,6 +32,8 @@ public:
 
     HDF5::Reader*	createCoupledHDFReader() const;
     static bool		useHDF5(const IOObj&,uiString&);
+    static bool		convSubgrpNamesToIndexes( const BufferStringSet&,
+						  TypeSet<int>&, bool =false);
 
 private:
     bool		isFunctional() const override;
@@ -39,6 +41,8 @@ private:
     bool		canWriteInParallel() const override;
     bool		needsInfoAndTrackCombined() const override
 			{ return false; }
+    bool		canRemoveIndividualLogs() const override
+			{ return true; }
 
     bool		put() const override;
     bool		putInfo() const override;
@@ -52,6 +56,7 @@ private:
     bool		putDispProps() const override;
     bool		renameLog(const char* oldnm,
 				  const char* newnm) override;
+    bool		removeLogs(const BufferStringSet&) const override;
 
     const uiString&	errMsg() const override		{ return errmsg_; }
 
@@ -69,6 +74,8 @@ private:
     int			getLogIndex(const char* lognm ) const;
     bool		setLogAttribs(const HDF5::DataSetKey&,const Log*) const;
 
+    bool		setLastLogIndex(int) const;
+    int			getLastLogIndex() const;
 };
 
 } // namespace Well

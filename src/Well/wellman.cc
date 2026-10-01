@@ -875,7 +875,7 @@ bool Well::Man::getAllMarkerInfo( BufferStringSet& nms,
 
 
 bool Well::Man::deleteLogs( const MultiID& key,
-			    const BufferStringSet& logstodel )
+			    const BufferStringSet& logstodel)
 {
     const LoadReqs loadreq( Logs );
     RefMan<Data> wd = get( key, loadreq );
@@ -895,10 +895,21 @@ bool Well::Man::deleteLogs( const MultiID& key,
     }
 
     PtrMan<Writer> wwr = new Writer( wd->multiID(), *wd );
-    if ( !wwr || !wwr->putLogs() )
+    if ( wwr && wwr->canRemoveIndividualLogs(wd->multiID()) )
     {
-	errmsg_ = wwr->errMsg();
-	return false;
+	if ( !wwr->removeLogs(logstodel) )
+	{
+	    errmsg_ = wwr->errMsg();
+	    return false;
+	}
+    }
+    else
+    {
+	if ( !wwr || !wwr->putLogs() )
+	{
+	    errmsg_ = wwr->errMsg();
+	    return false;
+	}
     }
 
     wwr.erase();

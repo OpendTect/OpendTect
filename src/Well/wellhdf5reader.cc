@@ -31,6 +31,7 @@ const char* Well::HDF5Access::sMarkersGrpName() { return "Markers"; }
 const char* Well::HDF5Access::sTDsGrpName()	{ return "Time-Depth Models"; }
 const char* Well::HDF5Access::sCSsGrpName()	{ return "Checkshots"; }
 const char* Well::HDF5Access::sDispParsGrpName(){ return "Display Parameters"; }
+const char* Well::HDF5Access::sKeyLastLogID()	{ return "Last Log ID"; }
 
 // Datasets
 const char* Well::HDF5Access::sCoordsDSName()	{ return "Coordinates"; }

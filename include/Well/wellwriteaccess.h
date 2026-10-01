@@ -43,6 +43,9 @@ public:
     virtual bool	renameLog(const char* oldnm,const char* newnm)
 			{ return false; }
 
+    virtual bool	removeLogs(const BufferStringSet&) const
+			{ return false; }
+
     virtual const uiString& errMsg() const		= 0;
 
     const Data&		data() const			{ return wd_; }
@@ -50,6 +53,7 @@ public:
     virtual bool	isFunctional() const		{ return true; }
     virtual bool	canRenameLogs() const		{ return false; }
     virtual bool	canWriteInParallel() const	{ return false; }
+    virtual bool	canRemoveIndividualLogs() const { return false; }
 
 protected:
 			WriteAccess(const Data&);

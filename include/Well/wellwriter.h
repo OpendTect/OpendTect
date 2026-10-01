@@ -55,6 +55,7 @@ public:
     bool		putDispProps() const;	//!< Write display pars only
 
     bool		renameLog(const char* oldnm,const char* newnm);
+    bool		removeLogs(const BufferStringSet&) const;
 
     const uiString&	errMsg() const		{ return errmsg_; }
 
@@ -64,6 +65,7 @@ public:
     static bool		isFunctional(const IOObj&);
     static bool		canRenameLogs(const MultiID&);
     static bool		canWriteInParallel(const MultiID&);
+    static bool		canRemoveIndividualLogs(const MultiID&);
 
 protected:
 

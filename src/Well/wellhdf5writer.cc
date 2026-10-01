@@ -98,6 +98,33 @@ bool Well::HDF5Writer::useHDF5( const IOObj& ioobj, uiString& emsg )
 }
 
 
+bool Well::HDF5Writer::convSubgrpNamesToIndexes(
+					    const BufferStringSet& subgrpnms,
+					    TypeSet<int>& subgrpidxs,
+					    bool needssort )
+{
+    subgrpidxs.erase();
+    TypeSet<int> subidxs;
+    for ( const auto* subgrpnm : subgrpnms )
+    {
+	const FilePath fp( subgrpnm->buf() );
+	const auto& subgrpidxstr = fp.fileName();
+	const int subidx = subgrpidxstr.isNumber() ?
+			   subgrpidxstr.toInt() : mUdf( int );
+	if ( subidx <= 0 || mIsUdf(subidx) )
+	    return false;
+
+	subidxs += subidx;
+    }
+
+    if ( needssort )
+	sort(subidxs);
+
+    subgrpidxs = subidxs;
+    return true;
+}
+
+
 HDF5::Reader* Well::HDF5Writer::createCoupledHDFReader() const
 {
     return wrr_ ? wrr_->createCoupledReader() : nullptr;
@@ -374,18 +401,27 @@ bool Well::HDF5Writer::putLogs() const
 	return false;
     }
 
+    BufferStringSet subgrps; // links' names
+    rdr->getSubGroups( sLogsGrpName(), subgrps );
+
+    TypeSet<int> subgrpidxs;
+    if ( !convSubgrpNamesToIndexes(subgrps, subgrpidxs, true) ||
+	 subgrpidxs.size() != subgrps.size() )
+    {
+	errmsg_.set( mINTERNAL("Finding log idx: "
+			       "cannot convert subgrp names to indexes") );
+	return false;
+    }
+
     HDF5::DataSetKey logdsky( sLogsGrpName() );
     logdsky.setMaximumSize( 0, nrrowsperblock );
+
     const LogSet& logs = wd_.logs();
 
-    int logidx = 0;
-
-    while ( !mIsUdf(logidx) ) // Soft deletion first
+    for ( int idx=0; idx<subgrpidxs.size(); idx++ ) // Soft delete first
     {
-	logidx++; // preincrement to match the HDF5 log indexing (1-based)
-
 	HDF5::DataSetKey dsky = logdsky;
-	dsky.setDataSetName( toString(logidx) );
+	dsky.setDataSetName( toString(subgrpidxs[idx]) );
 	HDF5::DataSetKey grpkey;
 	grpkey.setGroupName( dsky.fullDataSetName() );
 	BufferString grpname = grpkey.fullDataSetName();
@@ -407,7 +443,10 @@ bool Well::HDF5Writer::putLogs() const
 	    }
 	}
 	else
-	    break;
+	{
+	    errmsg_.set( mINTERNAL("Write logs: cannot find log group") );
+	    return false;
+	}
     }
 
     for ( int idx=0; idx<logs.size(); idx++ ) // Put existing and new logs
@@ -496,14 +535,102 @@ bool Well::HDF5Writer::setLogAttribs( const HDF5::DataSetKey& dsky,
 }
 
 
+bool Well::HDF5Writer::setLastLogIndex( int idx ) const
+{
+    if ( mIsUdf(idx) )
+	return false;
+
+    const int lastlogidx = getLastLogIndex();
+    if ( mIsUdf(lastlogidx) )
+	return false;
+
+    if ( idx < lastlogidx )
+	return true;
+
+    if ( !ensureFileOpen() )
+	return false;
+
+    auto& wrr = cCast( HDF5::Writer&, *wrr_ );
+    HDF5::DataSetKey dsky( sLogsGrpName() );
+    IOPar iop;
+    iop.set( sKeyLastLogID(), idx );
+    const uiRetVal uirv = wrr.set( iop, &dsky );
+    return uirv.isOK();
+}
+
+
+int Well::HDF5Writer::getLastLogIndex() const
+{
+    PtrMan<HDF5::Reader> rdr = createCoupledHDFReader();
+    if ( !rdr )
+    {
+	errmsg_.set( mINTERNAL("Finding last log idx: "
+			       "cannot create coupled reader") );
+	return mUdf( int );
+    }
+
+    BufferStringSet subgrps; // links' names
+    rdr->getSubGroups( sLogsGrpName(), subgrps );
+
+    TypeSet<int> subgrpidxs;
+    if ( !convSubgrpNamesToIndexes(subgrps, subgrpidxs, true) ||
+	 subgrpidxs.size() != subgrps.size() )
+    {
+	errmsg_.set( mINTERNAL("Finding last log idx: "
+			       "cannot convert subgrp names to indexes") );
+	return mUdf( int );
+    }
+
+    const int lastlogpresent = subgrpidxs.isEmpty() ? 0 : subgrpidxs.last();
+
+    HDF5::DataSetKey logdsky( sLogsGrpName() );
+    logdsky.setMaximumSize( 0, nrrowsperblock );
+
+    BufferString grpname = logdsky.fullDataSetName();
+
+    if ( !rdr->hasGroup( grpname.buf() ) )
+    {
+	errmsg_.set( mINTERNAL("Finding last log idx: "
+			       "cannot find existing log group") );
+	return mUdf( int );
+    }
+
+    IOPar iop;
+    int lastbookedlogidx;
+    const uiRetVal uirv = rdr->get( iop, &logdsky );
+
+    if ( !uirv.isOK() || iop.isEmpty() ||
+	 !iop.get(sKeyLastLogID(), lastbookedlogidx) )
+    {
+	return mIsUdf( lastlogpresent ) ? mUdf( int ) : lastlogpresent;
+    }
+
+    const int lastlogidx = mMAX( lastbookedlogidx, lastlogpresent );
+
+    return mIsUdf( lastlogidx ) ? mUdf( int ) : lastlogidx;
+}
+
+
 int Well::HDF5Writer::getLogIndex( const char* lognm ) const
 {
     PtrMan<HDF5::Reader> rdr = createCoupledHDFReader();
     if ( !rdr )
     {
-	errmsg_.set( mINTERNAL( "Finding log idx: "
-				"cannot create coupled reader" ) );
-	return 0;
+	errmsg_.set( mINTERNAL("Finding log idx: "
+			       "cannot create coupled reader") );
+	return mUdf( int );
+    }
+
+    BufferStringSet subgrps; // links' names
+    rdr->getSubGroups( sLogsGrpName(), subgrps );
+
+    TypeSet<int> subgrpidxs;
+    if ( !convSubgrpNamesToIndexes(subgrps, subgrpidxs, true) ||
+	 subgrpidxs.size() != subgrps.size() )
+    {
+	errmsg_.set( mINTERNAL("Finding log idx: "
+			       "cannot convert subgrp names to indexes") );
+	return mUdf( int );
     }
 
     HDF5::DataSetKey logdsky( sLogsGrpName() );
@@ -511,14 +638,10 @@ int Well::HDF5Writer::getLogIndex( const char* lognm ) const
 
     uiRetVal uirv;
 
-    int logidx = 0;
-
-    while ( !mIsUdf(logidx) )
+    for ( int idx=0; idx<subgrpidxs.size(); idx++ )
     {
-	logidx++;
-
 	HDF5::DataSetKey dsky = logdsky;
-	dsky.setDataSetName( toString(logidx) );
+	dsky.setDataSetName( toString(subgrpidxs[idx]) );
 	HDF5::DataSetKey grpkey;
 	grpkey.setGroupName( dsky.fullDataSetName() );
 	BufferString grpname = grpkey.fullDataSetName();
@@ -530,23 +653,27 @@ int Well::HDF5Writer::getLogIndex( const char* lognm ) const
 	    if ( !uirv.isOK() || iop.isEmpty() )
 	    {
 		// Safer not to write than overwrite the wrong log
-		logidx = mUdf( int );
 		errmsg_.set( mINTERNAL("Finding log idx: "
 				       "cannot read log pars") );
-		return logidx;
+		return mUdf( int );
 	    }
 
 	    BufferString lognmbuff;
 	    iop.get( sKey::Name(), lognmbuff );
 
 	    if ( lognmbuff == lognm )
-		break;
+		return subgrpidxs[idx];
 	}
 	else
-	    break;
+	{
+	    errmsg_.set( mINTERNAL("Finding log idx: "
+				   "cannot find existing log group") );
+	    return mUdf( int );
+	}
     }
 
-    return logidx;
+    int lastlogidx = getLastLogIndex();
+    return mIsUdf(lastlogidx) ? mUdf( int ) : lastlogidx + 1;
 }
 
 
@@ -599,7 +726,7 @@ bool Well::HDF5Writer::putLog( const Log& wl ) const
     uirv = wrr.put( dsky, valarr.arr(), sz );
     mErrRetIfUiRvNotOK( dsky );
 
-    return setLogAttribs( grpky, &wl );
+    return setLogAttribs( grpky, &wl ) && setLastLogIndex( logidx );
 }
 
 
@@ -609,6 +736,9 @@ bool Well::HDF5Writer::renameLog( const char* oldnm, const char* newnm )
 	return false;
 
     const int logidx = getLogIndex( oldnm );
+    if ( mIsUdf(logidx) )
+	return false;
+
     const Log* wl = wd_.logs().getLogInfos( oldnm );
     getNonConst( wl )->setName( newnm );
 
@@ -616,6 +746,42 @@ bool Well::HDF5Writer::renameLog( const char* oldnm, const char* newnm )
     const HDF5::DataSetKey grpky =
 	HDF5::DataSetKey::groupKey( sLogsGrpName(), toString(logidx) );
     wrr.setAttribute( sKey::Name().str(), wl->name().buf(), &grpky );
+    return true;
+}
+
+
+bool Well::HDF5Writer::removeLogs( const BufferStringSet& logstodel ) const
+{
+    if ( logstodel.isEmpty() )
+	return true;
+
+    if ( !ensureFileOpen() )
+	return false;
+
+    TypeSet<int> grpindexes;
+
+    for ( int idx = 0; idx < logstodel.size(); idx++ )
+    {
+	const int logidx = getLogIndex( logstodel.get(idx) );
+	if ( mIsUdf(logidx) )
+	    return false;
+
+	grpindexes += logidx;
+    }
+
+    if ( grpindexes.size() != logstodel.size() )
+	return false;
+
+    auto& wwr = cCast( HDF5::Writer&, *wrr_ );
+
+    for ( const auto& grpidx : grpindexes )
+    {
+	const HDF5::DataSetKey todelgrpkey( sLogsGrpName(), toString(grpidx) );
+
+	if ( !wwr.deleteObject(todelgrpkey) )
+	    return false;
+    }
+
     return true;
 }
 

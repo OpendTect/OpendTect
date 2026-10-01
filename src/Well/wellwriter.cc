@@ -80,6 +80,21 @@ bool Well::Writer::canWriteInParallel( const MultiID& ky )
 }
 
 
+bool Well::Writer::canRemoveIndividualLogs( const MultiID& ky )
+{
+    PtrMan<IOObj> ioobj = IOM().get( ky );
+    if ( !ioobj )
+	return false;
+
+    RefMan<Data> wd = new Data;
+    Writer wrr( *ioobj, *wd );
+    if ( !wrr.isUsable() )
+	return false;
+
+    return wrr.wa_ ? wrr.wa_->canRemoveIndividualLogs() : false;
+}
+
+
 Well::Writer::Writer( const IOObj& ioobj, const Data& wd )
 {
     nsfile_ = new NotifyStopper( FSW().fileChanged );
@@ -139,6 +154,7 @@ mImplSimpleWWFn(putDefLogs)
 mImplSimpleWWFn(isFunctional)
 
 mImplWWFn(bool,putLog,const Log&,wl,false)
+mImplWWFn(bool,removeLogs,const BufferStringSet&,logstodel,false)
 
 
 bool Well::Writer::put( const StoreReqs& reqs ) const
