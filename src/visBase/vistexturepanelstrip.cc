@@ -44,6 +44,11 @@ TexturePanelStrip::~TexturePanelStrip()
 void TexturePanelStrip::setTextureChannels( TextureChannels* channels )
 {
     channels_ = channels;
+    // One shared envelope coordinate. Attributes past the 8 built-in
+    // texture coordinates are placed with their own scale and bias.
+    if ( channels_ && channels_->getOsgTexture() )
+	channels_->getOsgTexture()->useNormalizedTexCoords( true );
+
     osgpanelstrip_->setTexture( channels_->getOsgTexture() );
 
     const int maxtexsize = channels_->getOsgTexture()->maxTextureSize();
@@ -150,7 +155,8 @@ Interval<float> TexturePanelStrip::getZRange() const
 void TexturePanelStrip::setZRange2TextureMapping(
 					    const Interval<float>& offsets )
 {
-    osgpanelstrip_->setZRange2TextureMapping(true, offsets.start_, offsets.stop_);
+    osgpanelstrip_->setZRange2TextureMapping( true, offsets.start_,
+					      offsets.stop_ );
 }
 
 

@@ -250,14 +250,24 @@ void VertexShape::NodeCallbackHandler::updateTexture()
     vtxshape_.osggeom_->setStateSet( !laytex->isOn() ? 0 :
 		    laytex->createCutoutStateSet(origin, opposite, tcdata) );
 
-    for ( int unit=0; unit<laytex->nrTextureUnits(); unit++ )
+    const int maxbuiltin = osgGeo::LayeredTexture::maxBuiltinTextureCoords();
+    const int nrunits = laytex->nrTextureUnits();
+    for ( int unit=0; unit<nrunits && unit<maxbuiltin; unit++ )
 	vtxshape_.osggeom_->setTexCoordArray( unit, 0 );
 
+    osg::Vec2Array* sharedcoords =
+		mGetOsgVec2Arr( vtxshape_.texturecoords_->osgArray() );
     for ( int idx=0; idx<tcdata.size(); idx++ )
     {
-	vtxshape_.osggeom_->setTexCoordArray( tcdata[idx]._textureUnit,
-			mGetOsgVec2Arr(vtxshape_.texturecoords_->osgArray()) );
+	const int unit = tcdata[idx]._textureUnit;
+	if ( unit<0 || unit>=maxbuiltin )
+	    continue;
+
+	vtxshape_.osggeom_->setTexCoordArray( unit, sharedcoords );
     }
+
+    if ( !tcdata.empty() )
+	vtxshape_.osggeom_->setTexCoordArray( 0, sharedcoords );
 
     vtxshape_.setUpdateVar( vtxshape_.needstextureupdate_ , false );
 }
