@@ -181,9 +181,13 @@ ColTabTextureChannel2RGBA::ColTabTextureChannel2RGBA()
 
 int ColTabTextureChannel2RGBA::maxNrChannels() const
 {
-    return 7;
-    // It seems that gl_MultiTexCoord0 is already in use. Therefor only
-    // 7 remaining. See shader code in osgGeo/LayeredTexture.cpp
+    const int nrunits = laytex_ ? laytex_->nrTextureUnits() : -1;
+    // Unit 0 is the shared color table. Until a context reports its limit,
+    // keep the previous cap so attributes cannot be added without bound.
+    if ( nrunits < 2 )
+	return 7;
+
+    return nrunits - 1;
 }
 
 

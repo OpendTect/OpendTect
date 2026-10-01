@@ -704,11 +704,10 @@ int HorizonDisplay::nrAttribs() const
 
 int HorizonDisplay::maxNrAttribs() const
 {
-    return 7;
-/*    if ( sections_.isEmpty() || sections_.first()->getChannels2RGBA() )
-	return 1;
+    if ( sections_.isEmpty() || !sections_.first()->getChannels2RGBA() )
+	return 7;
 
-    return sections_.first()->getChannels2RGBA()->maxNrChannels();*/
+    return sections_.first()->getChannels2RGBA()->maxNrChannels();
 }
 
 
