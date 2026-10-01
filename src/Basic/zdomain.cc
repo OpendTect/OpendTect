@@ -13,7 +13,9 @@ ________________________________________________________________________
 #include "keystrs.h"
 #include "odruncontext.h"
 #include "perthreadrepos.h"
+#include "separstr.h"
 #include "settings.h"
+#include "stringview.h"
 #include "survinfo.h"
 #include "uistrings.h"
 
@@ -75,10 +77,27 @@ const ZDomain::Def& ZDomain::Depth()
 namespace ZDomain
 {
 
+BufferString getKey( const char* ky )
+{
+    if ( !ky || !*ky )
+	return BufferString::empty();
+
+    const FileMultiString fms( ky );
+    for ( int idx=0; idx<fms.size(); idx++ )
+    {
+	const StringView el = fms[idx];
+	if ( !el.isEmpty() && el != " " )
+	    return BufferString( el );
+    }
+
+    return BufferString::empty();
+}
+
+
 static bool zIsTime( const IOPar& iop, bool* isfound =nullptr )
 {
-    BufferString domstr;
-    if ( iop.get(sKey(),domstr) &&
+    BufferString domstr = getKey( iop.find(sKey()) );
+    if ( !domstr.isEmpty() &&
 	 (domstr == Time().key() || domstr == Depth().key() ||
 	  domstr == sKey::Time()) )
     {
@@ -129,7 +148,7 @@ static const ZDomain::Info* get( const IOPar& iop )
     if ( !isfound )
     {
 	const ObjectSet<const Info>& otherzdoms = ZDOMAINS();
-	const BufferString keystr( iop.find(sKey()) );
+	const BufferString keystr = getKey( iop.find(sKey()) );
 	if ( keystr.isEmpty() )
 	    return nullptr;
 
@@ -144,10 +163,12 @@ static const ZDomain::Info* get( const IOPar& iop )
     if ( zit )
 	return &TWT();
 
-    BufferString unitstr;
-    if ( !iop.get(sKeyUnit(),unitstr) || unitstr.isEmpty() )
-	if ( !iop.get(sKey::ZUnit(),unitstr) || unitstr.isEmpty() )
-	    return &DefaultDepth(false);
+    BufferString unitstr = getKey( iop.find(sKeyUnit()) );
+    if ( unitstr.isEmpty() )
+	unitstr = getKey( iop.find(sKey::ZUnit()) );
+
+    if ( unitstr.isEmpty() )
+	return &DefaultDepth(false);
 
     if ( unitstr.isEqual(sKeyMeter,OD::CaseInsensitive) ||
 	 unitstr.isEqual(sKeyMeterSymbol,OD::CaseInsensitive) )
@@ -176,11 +197,12 @@ const ZDomain::Info& ZDomain::Info::getFrom( const ZDomain::Info& oth )
 const ZDomain::Info& ZDomain::Info::getFrom( const char* zdomkey,
 					     const char* zunitstr )
 {
-    if ( !zdomkey || !*zdomkey )
+    const BufferString cleankey = getKey( zdomkey );
+    if ( cleankey.isEmpty() )
 	return ::SI().zDomainInfo();
 
     IOPar iop;
-    iop.set( sKey(), zdomkey );
+    iop.set( sKey(), cleankey );
     if ( zunitstr && *zunitstr )
 	iop.set( sKeyUnit(), zunitstr );
 
@@ -191,7 +213,7 @@ const ZDomain::Info& ZDomain::Info::getFrom( const char* zdomkey,
 
 const ZDomain::Info* ZDomain::Info::getFrom( const IOPar& iop )
 {
-    const BufferString keystr( iop.find(sKey()) );
+    const BufferString keystr = getKey( iop.find(sKey()) );
     if ( keystr.isEmpty() )
 	return nullptr;
 
@@ -364,15 +386,13 @@ int ZDomain::Def::nrZDecimals( float zstepfp ) const
 
 const ZDomain::Def& ZDomain::Def::get( const char* ky )
 {
-    if ( !ky || !*ky )
+    const BufferString keystr = getKey( ky );
+    if ( keystr.isEmpty() )
 	return ZDomain::SI();
-
-    if ( *ky == '`' )
-	ky++; // cope with "`TWT"
 
     const ObjectSet<const ZDomain::Def>& defs = DEFS();
     for ( const auto* def : defs )
-	if ( def->key_ == ky )
+	if ( def->key_ == keystr )
 	    return *def;
 
     return ZDomain::SI();

@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "iopar.h"
 #include "globexpr.h"
 #include "filepath.h"
+#include "zdomain.h"
 
 
 // IODirEntry
@@ -209,6 +210,9 @@ void IODirEntryList::getIOObjNames( BufferStringSet& nms ) const
 BufferStringSet IODirEntryList::getValuesFor( const char* key ) const
 {
     BufferStringSet res;
+    const BufferString keystr( key );
+    const bool iszdomain = keystr == ZDomain::sKey();
+    const bool iszunit = keystr == ZDomain::sKeyUnit();
     for ( idx_type idx=0; idx<size(); idx++ )
     {
 	const IOObj* ioobj = (*this)[idx]->ioobj_;
@@ -219,6 +223,9 @@ BufferStringSet IODirEntryList::getValuesFor( const char* key ) const
 		val = ioobj->translator();
 	    else if ( !ioobj->pars().get( key, val ) )
 		continue;
+
+	    if ( iszdomain || iszunit )
+		val = ZDomain::getKey( val );
 
 	    if ( !val.isEmpty() )
 		res.addIfNew( val );
