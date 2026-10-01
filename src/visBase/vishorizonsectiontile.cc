@@ -569,6 +569,13 @@ void HorizonSectionTile::setTexture( const Coord& origincrd,
 
 	txunits_ += tcit->_textureUnit;
     }
+
+    if ( !txcoords_.empty() && stateset_ )
+    {
+	for ( char res=0; res<hrsection_.nrhorsectnrres_; res++ )
+	    tileresolutiondata_[res]->setTexture( 0,
+			mGetOsgVec2Arr(txcoords_[0]), stateset_ );
+    }
 }
 
 

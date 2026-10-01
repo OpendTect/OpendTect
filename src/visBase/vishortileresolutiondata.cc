@@ -108,8 +108,12 @@ void TileResolutionData::setGeometryTexture( const unsigned int unit,
     osg::Geometry* geom = getOSGGeometry( geode );
     if ( geom )
     {
-	auto* carr = sCast(const osg::Vec2Array*,arr);
-	geom->setTexCoordArray( unit, cCast(osg::Vec2Array*,carr) );
+	if ( (int)unit < osgGeo::LayeredTexture::maxBuiltinTextureCoords() )
+	{
+	    auto* carr = sCast(const osg::Vec2Array*,arr);
+	    geom->setTexCoordArray( unit, cCast(osg::Vec2Array*,carr) );
+	}
+
 	geode->setStateSet( stateset );
     }
 }

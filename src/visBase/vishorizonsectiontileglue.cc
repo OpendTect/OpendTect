@@ -19,6 +19,7 @@ ________________________________________________________________________
 #include <osg/PrimitiveSet>
 #include <osg/Geometry>
 #include <osg/Geode>
+#include <osgGeo/LayeredTexture>
 
 namespace visBase
 {
@@ -202,12 +203,20 @@ void HorizonSectionTileGlue::buildGlue( HorizonSectionTile* thistile,
 	refOsgPtr( glueosgps_ );
 	gluegeom_->addPrimitiveSet( glueosgps_ ) ;
 
+	const int maxbuiltin =
+		osgGeo::LayeredTexture::maxBuiltinTextureCoords();
 	for ( int layeridx=0; layeridx<gluetile->txunits_.size(); layeridx++ )
 	{
-	    const int tcidx = mMIN( layeridx, gluetxcoords_.size()-1 );
-	    gluegeom_->setTexCoordArray( gluetile->txunits_[layeridx],
-					 gluetxcoords_[tcidx] );
+	    const int unit = gluetile->txunits_[layeridx];
+	    if ( unit<0 || unit>=maxbuiltin )
+		continue;
+
+	    const int tcidx = mMIN( layeridx, (int)gluetxcoords_.size()-1 );
+	    gluegeom_->setTexCoordArray( unit, gluetxcoords_[tcidx] );
 	}
+
+	if ( !gluetxcoords_.empty() )
+	    gluegeom_->setTexCoordArray( 0, gluetxcoords_[0] );
 
 	gluegeode_->setStateSet( stateset );
 	datalock_.unLock();

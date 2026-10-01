@@ -47,6 +47,11 @@ TextureRectangle::~TextureRectangle()
 void TextureRectangle::setTextureChannels( TextureChannels* channels )
 {
     channels_ = channels;
+    // Bricks share one envelope coordinate. Each attribute is placed with
+    // its own scale and bias, so units past the 8 built-in coordinates work.
+    if ( channels_ && channels_->getOsgTexture() )
+	channels_->getOsgTexture()->useNormalizedTexCoords( true );
+
     textureplane_->setLayeredTexture( channels_->getOsgTexture() );
 
     const int maxtexsize = channels_->getOsgTexture()->maxTextureSize();
