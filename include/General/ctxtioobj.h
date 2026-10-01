@@ -52,6 +52,10 @@ public:
 				       bool allowempty=true);
     const ZDomain::Def* requiredZDef() const; //!< nullptr if not restricted
     const ZDomain::Info* requiredZDomain() const; //!< nullptr if not restricted
+    void		fillParsForNewObject(IOPar&) const;
+			/*!< Extracts unambiguous require_ values suitable for
+			     stamping onto a newly created IOObj (no FMS
+			     allow-empty markers / multi-value lists). */
     void		setHiddenPolicy(OD::HiddenPolicy);
     OD::HiddenPolicy	hiddenPolicy() const;
 
