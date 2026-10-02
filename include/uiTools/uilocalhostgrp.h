@@ -27,12 +27,14 @@ public:
 
     BufferString	hostname() const;
     BufferString	address() const;
+    BufferString	subnet() const;
 
 protected:
 
     uiGenInput*		hostnmfld_;
     uiGenInput*		hostnmoverrulefld_		= nullptr;
     uiGenInput*		hostaddrfld_;
+    uiGenInput*		subnetfld_;
     uiGenInput*		domainfld_			= nullptr;
 
     void		overrulecheckedCB(CallBacker*);

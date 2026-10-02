@@ -9,10 +9,14 @@ ________________________________________________________________________
 -*/
 
 #include "networkmod.h"
-#include "gendefs.h"
 
+#include "commondefs.h"
+#include "plftypes.h"
+
+class BufferString;
 class BufferStringSet;
 class IOObj;
+class IOPar;
 class uiString;
 
 namespace System
@@ -34,6 +38,12 @@ namespace System
     mGlobal(Network) const char*	localAddress(bool ipv4only=true);
     mGlobal(Network) bool		isLocalAddressInUse(
 						const char* ipaddr=nullptr);
+    mGlobal(Network) bool		getLocalNetMask(const char* localaddr,
+						BufferString& netmask,
+						int& prefixlength);
+					/*!< Fills dotted netmask and CIDR
+					     prefix length for localaddr.
+					     Returns false if not found. */
 
     mGlobal(Network) const char*	hostName(const char* ip);
     mGlobal(Network) const char*	hostAddress(const char* hostname,

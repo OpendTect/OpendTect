@@ -19,10 +19,8 @@ ________________________________________________________________________
 #include "iostrm.h"
 #include "odcommonenums.h"
 #include "oddirs.h"
-#include "odplatform.h"
 #include "perthreadrepos.h"
 #include "settingsaccess.h"
-#include "winutils.h"
 
 #include <QHostAddress>
 #include <QHostInfo>
@@ -50,9 +48,6 @@ static bool isAcceptable( const QHostAddress& addr, bool ipv4only )
     if ( addr.isNull() )
 	return false;
 
-    if ( addr.isInSubnet(QHostAddress("172.16.0.0"),12) )
-	return false;
-
     const QAbstractSocket::NetworkLayerProtocol protocol = addr.protocol();
 #if QT_VERSION >= QT_VERSION_CHECK(5,11,0)
     if ( addr.isGlobal() )
@@ -68,6 +63,15 @@ static bool isAcceptable( const QHostAddress& addr, bool ipv4only )
 
     return ipv4only ? protocol == QAbstractSocket::IPv4Protocol
 		    : protocol > QAbstractSocket::IPv4Protocol;
+}
+
+
+/*! 172.16.0.0/12 is used by WSL's virtual NIC on Windows hosts, but also
+    by AWS VPCs, Docker, etc. Prefer other addresses when available; only
+    fall back to this range when no better non-loopback address exists. */
+static bool isDeprioritizedLocalSubnet( const QHostAddress& addr )
+{
+    return addr.isInSubnet( QHostAddress("172.16.0.0"), 12 );
 }
 
 
@@ -104,6 +108,7 @@ const char* localHostName()
     mDeclStaticString( str );
     if ( str.isEmpty() )
 	str = GetLocalHostName();
+
     return str.buf();
 }
 
@@ -132,6 +137,7 @@ const char* localFullHostName()
 	if ( domainnm && *domainnm && !str.endsWith(domainnm) )
 	    str.add( "." ).add( domainnm );
     }
+
     if ( __iswin__ )
 	str.toLower();
 
@@ -168,7 +174,7 @@ const char* localAddress( bool ipv4only )
     str.setEmpty(); // Network configuration may change during runtime
 
     const QList<QNetworkInterface> allif = QNetworkInterface::allInterfaces();
-    QHostAddress ethaddr, wifiaddr, loopbackaddr, otheraddr;
+    QHostAddress ethaddr, wifiaddr, loopbackaddr, otheraddr, deprioritizedaddr;
     for ( const auto& qni : allif )
     {
 	if ( !qni.isValid() )
@@ -190,10 +196,27 @@ const char* localAddress( bool ipv4only )
 	    if ( !isAcceptable(addr,ipv4only) )
 		continue;
 
+	    if ( typ == QNetworkInterface::Loopback )
+	    {
+		if ( loopbackaddr.isNull() )
+		    loopbackaddr = addr;
+
+		break;
+	    }
+
+	    if ( isDeprioritizedLocalSubnet(addr) )
+	    {
+		if ( deprioritizedaddr.isNull() )
+		    deprioritizedaddr = addr;
+
+		continue;
+	    }
+
 	    if ( typ == QNetworkInterface::Ethernet )
 	    {
 		if ( ethaddr.isNull() )
 		    ethaddr = addr;
+
 		break;
 	    }
 
@@ -202,13 +225,7 @@ const char* localAddress( bool ipv4only )
 	    {
 		if ( wifiaddr.isNull() )
 		    wifiaddr = addr;
-		break;
-	    }
 
-	    if ( typ == QNetworkInterface::Loopback )
-	    {
-		if ( loopbackaddr.isNull() )
-		    loopbackaddr = addr;
 		break;
 	    }
 
@@ -224,11 +241,49 @@ const char* localAddress( bool ipv4only )
     else if ( !wifiaddr.isNull() )
 	str.set( wifiaddr.toString() );
     else if ( !otheraddr.isNull() )
-	str.set(otheraddr.toString());
+	str.set( otheraddr.toString() );
+    else if ( !deprioritizedaddr.isNull() )
+	str.set( deprioritizedaddr.toString() );
     else if ( !loopbackaddr.isNull() )
 	str.set( loopbackaddr.toString() );
 
      return str.buf();
+}
+
+
+bool getLocalNetMask( const char* localaddr, BufferString& netmask,
+		      int& prefixlength )
+{
+    netmask.setEmpty();
+    prefixlength = -1;
+    if ( StringView(localaddr).isEmpty() )
+	return false;
+
+    const QList<QNetworkInterface> allif = QNetworkInterface::allInterfaces();
+    for ( const auto& qni : allif )
+    {
+	if ( !qni.isValid() )
+	    continue;
+
+	const QNetworkInterface::InterfaceFlags flags = qni.flags();
+	if ( !flags.testFlag(QNetworkInterface::IsUp) ||
+	     !flags.testFlag(QNetworkInterface::IsRunning) )
+	    continue;
+
+	const QList<QNetworkAddressEntry> entries = qni.addressEntries();
+	for ( const auto& ent : entries )
+	{
+	    const QHostAddress addr = ent.ip();
+	    if ( BufferString(addr.toString()) != localaddr )
+		continue;
+
+	    netmask.set( ent.netmask().toString() );
+	    prefixlength = ent.prefixLength();
+	    return prefixlength >= 0;
+	}
+    }
+
+    return false;
 }
 
 
@@ -273,6 +328,7 @@ const char* hostName( const char* ip )
     str = qhi.hostName();
     if ( str == ip )
 	str.setEmpty();
+
     return str.buf();
 }
 
@@ -319,8 +375,10 @@ bool lookupHost( const char* host_ip, BufferString* msg )
 		msg->add( "Corresponding host name not found" );
 	    return false;
 	}
+
 	if ( msg )
 	    msg->add( "Found hostname: " ).add( hostname );
+
 	ipaddr.set( host_ip );
     }
     else
@@ -330,10 +388,13 @@ bool lookupHost( const char* host_ip, BufferString* msg )
 	{
 	    if ( msg )
 		msg->add( "Corresponding IP address not found" );
+
 	    return false;
 	}
+
 	if ( msg )
 	     msg->add( "Found IP address " ).add( ipaddr );
+
 	hostname.set( host_ip );
     }
 
@@ -342,6 +403,7 @@ bool lookupHost( const char* host_ip, BufferString* msg )
     {
 	if ( msg )
 	    msg->add( qhi.errorString() );
+
 	return false;
     }
 
@@ -410,6 +472,7 @@ const char* fileSystemName( const char* path )
     str = storageinfo.name();
     if ( str.isEmpty() )
 	str = storageinfo.displayName();
+
     return str.buf();
 }
 

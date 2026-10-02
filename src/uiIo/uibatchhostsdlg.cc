@@ -21,6 +21,7 @@ ________________________________________________________________________
 #include "uitextedit.h"
 #include "uitoolbutton.h"
 
+#include "bufstringset.h"
 #include "file.h"
 #include "hostdata.h"
 #include "mmpserverclient.h"
@@ -29,6 +30,7 @@ ________________________________________________________________________
 #include "od_helpids.h"
 #include "remjobexec.h"
 #include "systeminfo.h"
+#include "typeset.h"
 
 #include <limits>
 
@@ -218,12 +220,71 @@ void uiBatchHostsDlg::initUI( CallBacker* )
 }
 
 
+static BufferString ipv4NetMaskFromPrefix( int prefix )
+{
+    if ( prefix < 0 )
+	prefix = 0;
+    else if ( prefix > 32 )
+	prefix = 32;
+
+    const od_uint32 bits = prefix == 0 ? 0u
+				       : (0xFFFFFFFFu << (32 - prefix));
+    return BufferString()
+	.add( (bits >> 24) & 0xFF ).add( "." )
+	.add( (bits >> 16) & 0xFF ).add( "." )
+	.add( (bits >> 8) & 0xFF ).add( "." )
+	.add( bits & 0xFF );
+}
+
+
+static BufferString subnetMaskDispStr( int prefix )
+{
+    return BufferString( ipv4NetMaskFromPrefix(prefix) )
+		.add( " (/" ).add( prefix ).add( ")" );
+}
+
+
+static void fillSubnetMaskList( BufferStringSet& masks, TypeSet<int>& prefixes,
+				int curprefix )
+{
+    static const int sCommonPrefs[] =
+	{ 0, 8, 16, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 32 };
+    for ( const int pref : sCommonPrefs )
+    {
+	prefixes += pref;
+	masks.add( subnetMaskDispStr(pref) );
+    }
+
+    if ( curprefix < 0 || curprefix > 32 || prefixes.isPresent(curprefix) )
+	return;
+
+    int insertidx = prefixes.size();
+    for ( int idx=0; idx<prefixes.size(); idx++ )
+    {
+	if ( prefixes[idx] > curprefix )
+	{
+	    insertidx = idx;
+	    break;
+	}
+    }
+
+    prefixes.insert( insertidx, curprefix );
+    masks.insertAt( new BufferString(subnetMaskDispStr(curprefix)), insertidx );
+}
+
+
 void uiBatchHostsDlg::advbutCB( CallBacker* )
 {
     uiDialog dlg( this, Setup(tr("Advanced Settings"),mNoHelpKey) );
 
     if ( readonly_ )
 	dlg.setCtrlStyle( CloseOnly );
+
+    if ( prefixlength_ < 0 )
+    {
+	uiStringSet msgs;
+	hostdatalist_.isOK( msgs, false, &localaddr_, &prefixlength_ );
+    }
 
     auto* albl = new uiLabel( &dlg, tr("Settings for all platforms:") );
     albl->attach( leftBorder );
@@ -233,12 +294,17 @@ void uiBatchHostsDlg::advbutCB( CallBacker* )
     auto* portnrfld = new uiGenInput( &dlg, tr("First Port"),
 				      IntInpSpec(portnr,portrg) );
     portnrfld->attach( ensureBelow, albl );
-    BufferStringSet mask( "0.0.0.0", "255.0.0.0", "255.255.0.0" );
-    mask.add( "255.255.255.0" );
+
+    BufferStringSet maskstrs;
+    TypeSet<int> maskprefs;
+    const int curprefix = prefixlength_ >= 0 ? prefixlength_ : 24;
+    fillSubnetMaskList( maskstrs, maskprefs, curprefix );
     auto* subnetfld = new uiGenInput( &dlg, tr("Subnet Mask"),
-						      StringListInpSpec(mask) );
+					StringListInpSpec(maskstrs) );
     subnetfld->attach( alignedBelow, portnrfld );
-    subnetfld->setValue( prefixlength_/8 );
+    subnetfld->setElemSzPol( uiObject::Wide );
+    const int curidx = maskprefs.indexOf( curprefix );
+    subnetfld->setValue( curidx >= 0 ? curidx : maskprefs.indexOf(24) );
 
     auto* sep = new uiSeparator( &dlg );
     sep->attach( stretchedBelow, subnetfld );
@@ -293,7 +359,9 @@ void uiBatchHostsDlg::advbutCB( CallBacker* )
     hostdatalist_.setFirstPort( PortNr_Type(portnrfld->getIntValue()) );
     hostdatalist_.setUnixDataRoot( unixdrfld->text() );
     hostdatalist_.setWinDataRoot( windrfld->text() );
-    prefixlength_ = subnetfld->getIntValue() * 8;
+
+    const int selidx = subnetfld->getIntValue();
+    prefixlength_ = maskprefs.validIdx(selidx) ? maskprefs[selidx] : curprefix;
     hostdatalist_.setPrefixLength( prefixlength_ );
 }
 
