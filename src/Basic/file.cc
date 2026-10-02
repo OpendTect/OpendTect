@@ -876,6 +876,19 @@ bool setSystemFileAttrib( const char* fnm, bool yn )
 }
 
 
+bool getContent( const char* fnm, BufferStringSet& lines, uiString* errmsg,
+	TaskRunner* taskrun )
+{
+    BufferString content;
+    if ( !getContent(fnm,content,errmsg,taskrun) )
+	return false;
+
+    lines.unCat( content.buf() );
+
+    return true;
+}
+
+
 bool getContent( const char* fnm, BufferString& txt, uiString* errmsg,
 		 TaskRunner* taskrun )
 {
@@ -888,6 +901,16 @@ bool getContent( const char* fnm, BufferString& txt, uiString* errmsg,
 
     const auto& fsa = OD::FileSystemAccess::get( fnm );
     return fsa.getContent( fnm, txt, errmsg, taskrun );
+}
+
+
+bool putContent( const BufferStringSet& lines, const char* tofnm, uiString* errmsg,
+		 TaskRunner* taskrun )
+{
+    BufferString content = lines.cat();
+    content.addNewLine();
+
+    return putContent( content.buf(), content.size(), tofnm, errmsg, taskrun );
 }
 
 

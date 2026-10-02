@@ -194,7 +194,14 @@ mGlobal(Basic) bool		checkDir(const char* fnm,bool forread,
 				/*!< checks if the parent directory of a file
 				     is readable/writable */
 
+mGlobal(Basic) bool		getContent(const char*,BufferStringSet&,
+					   uiString* errmsg=nullptr,
+					   TaskRunner* =nullptr);
 mGlobal(Basic) bool		getContent(const char*,BufferString&,
+					   uiString* errmsg=nullptr,
+					   TaskRunner* =nullptr);
+mGlobal(Basic) bool		putContent(const BufferStringSet&,
+					   const char* tofnm,
 					   uiString* errmsg=nullptr,
 					   TaskRunner* =nullptr);
 mGlobal(Basic) bool		putContent(const OD::String&,const char* tofnm,

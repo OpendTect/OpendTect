@@ -9,7 +9,8 @@ ________________________________________________________________________
 
 #include "file.h"
 #include "filepath.h"
-#include "od_iostream.h"
+#include "od_istream.h"
+#include "od_ostream.h"
 #include "oddirs.h"
 #include "testprog.h"
 #include "timefun.h"
@@ -18,6 +19,36 @@ ________________________________________________________________________
 #ifdef __unix__
 # include <sys/stat.h>
 #endif
+
+static StringView testcontent_ = "test text";
+static const BufferStringSet& testcontentSet()
+{
+    static BufferStringSet content;
+    if ( content.isEmpty() )
+    {
+	content.add( testcontent_.str() );
+	content.add( "A second line" );
+	content.add( "A third line" );
+	content.add( "" );
+	content.add( "A fifth line" );
+	content.add( "" );
+	content.add( "A seventh line" );
+    }
+
+    return content;
+};
+
+static int testcontentSetSize()
+{
+    int size = 0;
+    for ( const auto* line : testcontentSet() )
+    {
+	size += line->size();
+	size++;
+    }
+
+    return size;
+}
 
 
 class FileDisposer
@@ -37,62 +68,113 @@ FileDisposer( const char* fnm )
 	File::remove( fnm );
 }
 
+void detach()
+{
+    fnm_.setEmpty();
+}
+
 private:
     BufferString fnm_;
 };
 
 
-static bool testEmptyReadContent( const BufferString& tempfile )
+static bool testWriteContent( BufferString& emptytmpcontentfnm,
+			      BufferString& tmpcontentfnm,
+			      BufferString& tmpcontentsetfnm )
 {
-    od_ostream stream( tempfile );
-    stream.close();
-    BufferString buf;
-    mRunStandardTest( File::getContent(tempfile,buf), "Empty file read" );
-    mRunStandardTest( buf.isEmpty(), "empty file: No data to be read" );
+    emptytmpcontentfnm = FilePath::getTempFullPath( "test", "txt" );
+    tmpcontentfnm = FilePath::getTempFullPath( "test", "txt" );
+    tmpcontentsetfnm = FilePath::getTempFullPath( "test", "txt" );
+    mRunStandardTest( !emptytmpcontentfnm.isEmpty(), "Temp filepath created" )
+    mRunStandardTest( !tmpcontentfnm.isEmpty(), "Temp filepath created " )
+    mRunStandardTest( !tmpcontentsetfnm.isEmpty(), "Temp filepath created" )
+    FileDisposer disposer1( emptytmpcontentfnm.buf() );
+    FileDisposer disposer2( tmpcontentfnm.buf() );
+    FileDisposer disposer3( tmpcontentsetfnm.buf() );
+
+    od_ostream emptystrm( emptytmpcontentfnm.buf() );
+    mRunStandardTest( emptystrm.isOK(), "Empty file stream is open" )
+    emptystrm.close();
+    mRunStandardTest( File::exists(emptytmpcontentfnm.buf()),
+		      "Empty file exists" )
+    mRunStandardTest( File::getFileSize(emptytmpcontentfnm.buf()) == 0,
+	    	      "Empty file size is 0" )
+
+    od_ostream tmpstrm( tmpcontentfnm.buf() );
+    mRunStandardTest( tmpstrm.isOK(), "Non-empty file stream is open" )
+    tmpstrm << testcontent_.buf();
+    mRunStandardTest( tmpstrm.isOK(), "Non-empty file stream is written" )
+    tmpstrm.close();
+
+    mRunStandardTest( File::exists(tmpcontentfnm.buf()),
+		      "Non-empty file exists" )
+    mRunStandardTest( File::getFileSize(tmpcontentfnm.buf()) ==
+		      testcontent_.size(),
+		      "Non-empty file size is correct" )
+
+    od_ostream tmpcontentsetstrm( tmpcontentsetfnm.buf() );
+    mRunStandardTest( tmpcontentsetstrm.isOK(),
+	    	      "Non-empty file set stream is open" )
+    for ( const auto* line : testcontentSet() )
+    {
+	if ( !line->isEmpty() )
+	    tmpcontentsetstrm << line->buf();
+
+	tmpcontentsetstrm << od_endl;
+    }
+    mRunStandardTest( tmpcontentsetstrm.isOK(),
+		      "Non-empty file set stream is written" )
+    tmpcontentsetstrm.close();
+
+    mRunStandardTest( File::exists(tmpcontentsetfnm.buf()),
+	    	      "Non-empty file exists" );
+    mRunStandardTest( File::getFileSize(tmpcontentsetfnm.buf()) ==
+		      testcontentSetSize(),
+		      "Non-empty file size is correct" )
+
+    disposer1.detach();
+    disposer2.detach();
+    disposer3.detach();
+
     return true;
 }
 
 
-static bool testNonEmptyReadContent( const BufferString& tempfile )
+static bool testReadContent( const char* emptytempfile,
+			     const char* tmpcontentfile,
+			     const char* tmpcontentsetfile )
 {
-    const BufferString content( "test text" );
-    mRunStandardTest( File::putContent(content,tempfile.str()) &&
-		      File::getFileSize(tempfile) == content.size(),
-		      "Non-empty file write");
-    BufferString retcontent;
-    mRunStandardTest( File::getContent(tempfile,retcontent),
+    FileDisposer disposer1( emptytempfile );
+    FileDisposer disposer2( tmpcontentfile );
+    FileDisposer disposer3( tmpcontentsetfile );
+
+    const BufferString nonexitfnm =
+	FilePath::getTempFullPath( "nonexistent", "txt" ).str();
+    BufferString content;
+    mRunStandardTest( (!File::getContent(nonexitfnm.buf(),content) &&
+    		       content.isEmpty()), "Non-existent file read")
+
+    content.setEmpty();
+    mRunStandardTest( File::getContent(emptytempfile,content),
+	    	      "Empty file read" );
+    mRunStandardTest( content.isEmpty(), "empty file: No data to be read" )
+
+    content.setEmpty();
+    mRunStandardTest( File::getContent(tmpcontentfile,content),
 		      "Non-empty file read" );
-    mRunStandardTest( retcontent == content, "Valid data read" );
-    return true;
-}
+    mRunStandardTest( content == testcontent_.str(), "Valid data read" )
 
+    BufferStringSet contents;
+    mRunStandardTest( File::getContent(tmpcontentsetfile,contents),
+		      "Non-empty file set read" );
+    mRunStandardTest( contents == testcontentSet(), "Valid data read" )
 
-static bool testReadContent()
-{
-    //Read non existent file - should fail.
-    const BufferString tempfile = FilePath::getTempFullPath( "test", "txt" );
-    mRunStandardTest(!tempfile.isEmpty(),"Temp filepath created")
-    BufferString buf;
-    mRunStandardTest((!File::getContent(tempfile,buf) && buf.isEmpty()),
-		      "Non-existent file read");
-
-    //Create empty file
-    //Read empty file - should work fine.
-    if ( !testEmptyReadContent(tempfile) )
-    {
-	File::remove( tempfile );
-	return false;
-    }
-
-    //Read non empty file - should work fine.
-    if ( !testNonEmptyReadContent(tempfile) )
-    {
-	File::remove( tempfile );
-	return false;
-    }
-
-    mRunStandardTest(File::remove(tempfile),"Remove temporary file")
-    mRunStandardTest(!File::exists(tempfile),"Temp file removed");
+    mRunStandardTest( File::remove(emptytempfile), "Remove temporary file" )
+    mRunStandardTest( File::remove(tmpcontentfile), "Remove temporary file" )
+    mRunStandardTest( File::remove(tmpcontentsetfile), "Remove temporary file" )
+    mRunStandardTest( !File::exists(emptytempfile), "Temp file removed" )
+    mRunStandardTest( !File::exists(tmpcontentfile), "Temp file removed" )
+    mRunStandardTest( !File::exists(tmpcontentsetfile), "Temp file removed" )
 
     return true;
 }
@@ -101,22 +183,22 @@ static bool testReadContent()
 static bool testIStream( const char* file )
 {
     od_istream invalidstream( "IUOIUOUOF");
-    mRunStandardTest( !invalidstream.isOK(), "isOK on open non-existing file" );
+    mRunStandardTest( !invalidstream.isOK(), "isOK on open non-existing file" )
 
     od_istream stream( file );
-    mRunStandardTest( stream.isOK(), "isOK on open existing file" );
+    mRunStandardTest( stream.isOK(), "isOK on open existing file" )
 
     int i;
     stream.get(i);
     mRunStandardTest( i==1 && stream.isOK(),
-		      "Reading positive integer to int" );
+		      "Reading positive integer to int" )
 
     stream.get(i);
     mRunStandardTest( i==-1 && stream.isOK(),
-		      "Reading negative integer to int" );
+		      "Reading negative integer to int" )
 
     stream.get(i);
-    mRunStandardTest( stream.isOK(), "Reading float into integer" );
+    mRunStandardTest( stream.isOK(), "Reading float into integer" )
 
     return true;
 }
@@ -142,59 +224,59 @@ static bool testFilePath( const char* inputpath,
 				? FilePath::Windows : FilePath::Unix );
 
     mRunStandardTest( path.isAbsolute()==absolute,
-	    BufferString( inputpath, " detects absolute status" ) );
+	    BufferString( inputpath, " detects absolute status" ) )
 
     mRunStandardTest( path.isURI()==isuri,
-	BufferString( inputpath, " detects URI status" ) );
+	BufferString( inputpath, " detects URI status" ) )
 
     mRunStandardTest( StringView(path.prefix())==prefix,
-	BufferString( inputpath, " prefix: ", path.prefix() ) );
+	BufferString( inputpath, " prefix: ", path.prefix() ) )
 
     mRunStandardTest( StringView(path.domain())==domain,
-	BufferString( inputpath, " domain: ", path.domain() ) );
+	BufferString( inputpath, " domain: ", path.domain() ) )
 
     mRunStandardTest( path.fullPath(st)==expfp,
-	BufferString( inputpath, " fullpath: ", path.fullPath(st) ) );
+	BufferString( inputpath, " fullpath: ", path.fullPath(st) ) )
 
     mRunStandardTest( path.pathOnly(st)==pathonly,
-	BufferString( inputpath, " path: ", path.pathOnly(st) ) );
+	BufferString( inputpath, " path: ", path.pathOnly(st) ) )
 
     mRunStandardTest( path.fileFrom(0,st)==localpath,
-	BufferString( inputpath, " local path: ", path.fileFrom(0,st) ) );
+	BufferString( inputpath, " local path: ", path.fileFrom(0,st) ) )
 
     mRunStandardTest( path.baseName() == basename,
-	BufferString( inputpath, " basename: ", path.baseName() ) );
+	BufferString( inputpath, " basename: ", path.baseName() ) )
 
     mRunStandardTest( path.fileName()==filename,
-	    BufferString( inputpath, " filename: ", path.fileName() ) );
+	    BufferString( inputpath, " filename: ", path.fileName() ) )
 
     mRunStandardTest( StringView(path.extension())==extension,
-	    BufferString( inputpath, " extension: ", path.extension() ) );
+	    BufferString( inputpath, " extension: ", path.extension() ) )
 
     mRunStandardTest( StringView(path.postfix())==postfix,
-	    BufferString( inputpath, " postfix: ", path.postfix() ) );
+	    BufferString( inputpath, " postfix: ", path.postfix() ) )
 
     mRunStandardTest( path.nrLevels()==nrlevels,
-	    BufferString( inputpath, " nrLevels: ", toString(path.nrLevels())));
+	    BufferString( inputpath, " nrLevels: ", toString(path.nrLevels())) )
 
     FilePath newpath( path );
     newpath.insert( "inserted/folder" );
     mRunStandardTest( newpath.fullPath( st )==modifiedfullpath,
 	BufferString( modifiedfullpath, " extended path: ",
-		      newpath.fullPath(st) ) );
+		      newpath.fullPath(st) ) )
     mRunStandardTest( newpath.isURI() == path.isURI() &&
 		      newpath.isAbsolute() == path.isAbsolute(),
-		      BufferString(inputpath,": Paths types remain identical"));
+		      BufferString(inputpath,": Paths types remain identical") )
 
     newpath = StringView(postfix).isEmpty() ? FilePath(filename)
 			    : FilePath(BufferString(filename, "?", postfix));
     newpath.insert( pathonly );
     mRunStandardTest( newpath.fullPath(st)==expfp, BufferString(
 				"Expected: ", expfp,
-				" got: " ).add(newpath.fullPath(st)) );
+				" got: " ).add(newpath.fullPath(st)) )
     mRunStandardTest( newpath.isURI() == path.isURI() &&
 		      newpath.isAbsolute() == path.isAbsolute(),
-		      BufferString(inputpath,": Paths types remain identical"));
+		      BufferString(inputpath,": Paths types remain identical") )
 
     return true;
 }
@@ -310,15 +392,15 @@ static bool testCleanPath()
     const BufferString uri = "s3://od-awsplugin/vdsdata/VDS_small";
     const BufferString uriunix = getCleanUnixPath( uri.buf() );
     const BufferString uriwin = getCleanWinPath( uri.buf() );
-    mRunStandardTest( uriunix==uri, "getCleanUnixPath" );
-    mRunStandardTest( uriwin==uri, "getCleanWinPath" );
+    mRunStandardTest( uriunix==uri, "getCleanUnixPath" )
+    mRunStandardTest( uriwin==uri, "getCleanWinPath" )
 
     const BufferString unixpath = "RawData/file.vds";
     const BufferString winpath = "RawData\\file.vds";
     const BufferString unixpath2win = getCleanWinPath( unixpath.buf() );
     const BufferString winpath2unix = getCleanUnixPath( winpath.buf() );
-    mRunStandardTest( unixpath==winpath2unix, "Windows style path to Unix" );
-    mRunStandardTest( winpath==unixpath2win, "Unix style path to Windows" );
+    mRunStandardTest( unixpath==winpath2unix, "Windows style path to Unix" )
+    mRunStandardTest( winpath==unixpath2win, "Unix style path to Windows" )
 
     const BufferString cwinpath =
 		"C:\\Program Files\\OpendTect\\7.0.0\\INSTALL.txt";
@@ -326,11 +408,11 @@ static bool testCleanPath()
 		FilePath(cwinpath.buf()).fullPath( FilePath::Unix );
     const BufferString cunixpathres =
 		"C:/Program Files/OpendTect/7.0.0/INSTALL.txt";
-    mRunStandardTest( cunixpath==cunixpathres, "Windows path with Unix delim" );
+    mRunStandardTest( cunixpath==cunixpathres, "Windows path with Unix delim" )
 
     FilePath fp( cunixpathres );
     mRunStandardTest( cwinpath==fp.fullPath(FilePath::Windows),
-		"From Windows path with Unix delim back to Windows delim" );
+		"From Windows path with Unix delim back to Windows delim" )
     return true;
 }
 
@@ -340,26 +422,26 @@ static bool testFileReadWrite()
     const BufferString filenm =
 		FilePath::getTempFullPath( "test with space", "txt" );
     const char* fnm = filenm.str();
-    mRunStandardTest( !File::exists(fnm), "Temporary file does not exist" );
+    mRunStandardTest( !File::exists(fnm), "Temporary file does not exist" )
     od_ostream strm( fnm );
     strm << "some content";
     mRunStandardTestWithError( strm.isOK(), "test file is created",
-			       strm.errMsg().getString() );
+			       strm.errMsg().getString() )
     if ( __iswin__ )
-	mRunStandardTest( File::isInUse(fnm), "File is being used" );
+	mRunStandardTest( File::isInUse(fnm), "File is being used" )
 
     strm.close();
     FileDisposer disposer( fnm );
 
     if ( __iswin__ )
-	mRunStandardTest( !File::isInUse(fnm), "File is not being used" );
+	mRunStandardTest( !File::isInUse(fnm), "File is not being used" )
 
-    mRunStandardTest( File::exists(fnm), "File exists" );
-    mRunStandardTest( File::isReadable(fnm), "File is readable" );
-    mRunStandardTest( File::setReadOnly(fnm), "File set read-only" );
-    mRunStandardTest( !File::isWritable(fnm), "File is read-only" );
-    mRunStandardTest( File::setWritable(fnm,true), "File set writable" );
-    mRunStandardTest( File::isWritable(fnm), "File is writable" );
+    mRunStandardTest( File::exists(fnm), "File exists" )
+    mRunStandardTest( File::isReadable(fnm), "File is readable" )
+    mRunStandardTest( File::setReadOnly(fnm), "File set read-only" )
+    mRunStandardTest( !File::isWritable(fnm), "File is read-only" )
+    mRunStandardTest( File::setWritable(fnm,true), "File set writable" )
+    mRunStandardTest( File::isWritable(fnm), "File is writable" )
 
     if ( __iswin__ )
     {
@@ -375,8 +457,8 @@ static bool testFileReadWrite()
 	res = File::isWritable("F:");
     }
 
-    mRunStandardTest( File::remove(fnm), "Remove file" );
-    mRunStandardTest( !File::exists(fnm), "File is removed" );
+    mRunStandardTest( File::remove(fnm), "Remove file" )
+    mRunStandardTest( !File::exists(fnm), "File is removed" )
 
     return true;
 }
@@ -426,35 +508,35 @@ static bool testFileTime( const char* fnm )
 {
     const od_int64 timesec = File::getTimeInSeconds( fnm );
     mRunStandardTest( !mIsUdf(timesec) && timesec > 0,
-		      "File time in seconds from path" );
+		      "File time in seconds from path" )
     const od_int64 timeinms = File::getTimeInMilliSeconds( fnm );
     mRunStandardTest( !mIsUdf(timeinms) && timeinms > 0,
-		      "File time in milliseconds from path");
+		      "File time in milliseconds from path")
     BufferString crtimestr = File::timeCreated( fnm );
     mRunStandardTest( !crtimestr.isEmpty() && crtimestr != "-",
-		      "File time created string from path" );
+		      "File time created string from path" )
     BufferString modtimestr = File::timeLastModified( fnm );
     mRunStandardTest( !modtimestr.isEmpty() && modtimestr != "-",
-		      "File time last modified string from path" );
+		      "File time last modified string from path" )
 
     Time::FileTimeSet times;
     mRunStandardTest( File::getTimes( fnm, times ),
-		      "Get all file timestamps from path" );
+		      "Get all file timestamps from path" )
 
     modtimestr.set( Time::getDateTimeString(timeinms) );
     mRunStandardTest( !modtimestr.isEmpty() && modtimestr != "-",
-		      "File time last modified string from od_int64" );
+		      "File time last modified string from od_int64" )
 
     modtimestr.set( Time::getDateTimeString(times.getModificationTime()) );
     mRunStandardTest( !modtimestr.isEmpty() && modtimestr != "-",
-		      "File time last modified string from std::timespec" );
+		      "File time last modified string from std::timespec" )
     const BufferString acctimestr(
 		Time::getDateTimeString(times.getAccessTime()) );
     mRunStandardTest( !acctimestr.isEmpty() && acctimestr != "-",
-		      "File time access string from std::timespec" );
+		      "File time access string from std::timespec" )
     crtimestr.set( Time::getDateTimeString(times.getCreationTime()) );
     mRunStandardTest( !crtimestr.isEmpty() && crtimestr != "-",
-		      "File time creation string from std::timespec" );
+		      "File time creation string from std::timespec" )
 
     FilePath fp( fnm );
     fp.makeCanonical();
@@ -464,42 +546,42 @@ static bool testFileTime( const char* fnm )
 			__iswin__ ? "lnk" : fp.extension() );
     FileDisposer disposer1( linknm.buf() );
     mRunStandardTest( File::createLink(realfnm,linknm.buf()),
-		      "Created symbolic link" );
+		      "Created symbolic link" )
     const BufferString linkend = File::linkEnd( linknm.buf() );
     mRunStandardTest( linkend == realfnm,
-		      "Retrieve absolule path to a symbolic link" );
+		      "Retrieve absolule path to a symbolic link" )
 
     const od_int64 filesz = File::getFileSize( realfnm );
     mRunStandardTest( File::getFileSize(linknm.buf()) == filesz,
-		      "File size by following a link" );
+		      "File size by following a link" )
     if ( !__iswin__ )
     {
 	mRunStandardTest(
 		File::getFileSize(linknm.buf(),false) == realfnm.size(),
-			 "File size of a symbolic link" );
+			 "File size of a symbolic link" )
     }
 
     Threads::sleep( 0.1 ); //100ms
     Time::FileTimeSet filetimes, linktimes;
     mRunStandardTest( File::getTimes( linknm.buf(), filetimes ),
-		      "Get all file timestamps from a link target" );
+		      "Get all file timestamps from a link target" )
     mRunStandardTest( File::getTimes( linknm.buf(), linktimes, false ),
-		      "Get all file timestamps from a symbolic link" );
+		      "Get all file timestamps from a symbolic link" )
     mRunStandardTestWithError(
 	isLarger( linktimes.getCreationTime(), times.getCreationTime() ),
 	"File timestamps of a symbolic link - creation time",
-	getErrString( linktimes.getCreationTime(), times.getCreationTime() ) );
+	getErrString( linktimes.getCreationTime(), times.getCreationTime() ) )
     mRunStandardTestWithError(
 	isLarger( linktimes.getModificationTime(), times.getModificationTime()),
 	"File timestamps of a symbolic link - modification time",
 	getErrString( linktimes.getModificationTime(),
-		      times.getModificationTime() ) );
+		      times.getModificationTime() ) )
     mRunStandardTestWithError(
 	isLarger( linktimes.getAccessTime(), times.getAccessTime() ),
 	"File timestamps of a symbolic link - access time",
-	getErrString( linktimes.getAccessTime(), times.getAccessTime() ) );
+	getErrString( linktimes.getAccessTime(), times.getAccessTime() ) )
     mRunStandardTest( !isEqual( linktimes, times ),
-		      "File timestamps of a symbolic link (object)" );
+		      "File timestamps of a symbolic link (object)" )
     std::timespec modtime = linktimes.getModificationTime();
     od_int64 timens = modtime.tv_nsec + 5e7; //50ms
     if ( timens > 999999999ULL )
@@ -514,18 +596,18 @@ static bool testFileTime( const char* fnm )
     linktimesedit.setModificationTime( modtime );
     Threads::sleep( 0.1 ); //100ms
     mRunStandardTest( File::setTimes( linknm.buf(), linktimesedit, false ),
-		      "Set the modification time of a symbolic link" );
+		      "Set the modification time of a symbolic link" )
     Threads::sleep( 0.1 ); //100ms
     Time::FileTimeSet linktimesret;
     mRunStandardTest( File::getTimes( linknm.buf(), linktimesret, false ),
-		      "Get all file timestamps from a symbolic link" );
+		      "Get all file timestamps from a symbolic link" )
     mRunStandardTest( isEqual( linktimesret.getModificationTime(),
 			       linktimesedit.getModificationTime() ) &&
 		      !isEqual( linktimesret.getModificationTime(),
 				linktimes.getModificationTime() ) &&
 	isLarger( linktimesret.getModificationTime(),
 		  linktimes.getModificationTime() ),
-		      "File timestamps of a modified symbolic link" );
+		      "File timestamps of a modified symbolic link" )
 
     uiString msg;
     const BufferString linkcpnm =
@@ -535,7 +617,7 @@ static bool testFileTime( const char* fnm )
     mRunStandardTestWithError(
 	    File::copy( linknm.buf(), linkcpnm.buf(), true, &msg ) &&
 	    File::exists(linkcpnm.buf()) && File::isSymLink(linkcpnm),
-	    "Copying a link as a link", msg.getString().buf() );
+	    "Copying a link as a link", msg.getString().buf() )
 
     msg.setEmpty();
     const BufferString linkdeepcpnm =
@@ -545,17 +627,17 @@ static bool testFileTime( const char* fnm )
 	    File::copy( linknm.buf(), linkdeepcpnm.buf(), false, &msg )
 		 && File::exists(linkdeepcpnm.buf()) &&
 		      !File::isSymLink(linkdeepcpnm),
-		      "Deep copy from a link", msg.getString().buf() );
+		      "Deep copy from a link", msg.getString().buf() )
     const bool isdir = File::isDirectory( fnm );
     if ( isdir )
     {
 	mRunStandardTest( File::isDirectory(linkdeepcpnm.buf()),
-			  "Deep copied link of a directory" );
+			  "Deep copied link of a directory" )
     }
     else
     {
 	mRunStandardTest( File::isFile(linkdeepcpnm.buf()),
-			  "Deep copied link of a file" );
+			  "Deep copied link of a file" )
     }
 
     if ( !isdir )
@@ -563,12 +645,12 @@ static bool testFileTime( const char* fnm )
 
     mRunStandardTest( File::remove( linkcpnm ) &&
 		      File::removeDir( linkdeepcpnm ),
-		      "Removed temporary files" );
+		      "Removed temporary files" )
     msg.setEmpty();
     mRunStandardTestWithError(
 	    File::copyDir( linknm.buf(), linkcpnm.buf(), true, &msg ) &&
 	    File::exists(linkcpnm.buf()) && File::isSymLink(linkcpnm),
-	    "Copying a link to a directory as a link", msg.getString().buf() );
+	    "Copying a link to a directory as a link", msg.getString().buf() )
 
     msg.setEmpty();
     mRunStandardTestWithError(
@@ -576,7 +658,7 @@ static bool testFileTime( const char* fnm )
 	    File::exists( linkdeepcpnm.buf() ) &&
 	    !File::isSymLink( linkdeepcpnm ) &&
 	    File::isDirectory( linkdeepcpnm.buf() ),
-	      "Deep copy from a link to a directory", msg.getString().buf() );
+	      "Deep copy from a link to a directory", msg.getString().buf() )
 
     return true;
 }
@@ -607,14 +689,14 @@ static bool testFilePermissions()
     const auto windirperms = File::Permissions::getDefault( false, true );
     mRunStandardTest( unixfileperms.asInt() == 26180 ||
 		      unixfileperms.asInt() == 26212 ,
-		      "default Unix file permissions" );
+		      "default Unix file permissions" )
     mRunStandardTest( unixdirperms.asInt() == 30549 ||
 		      unixdirperms.asInt() == 30581 ,
-		      "default Unix directory permissions" );
+		      "default Unix directory permissions" )
     mRunStandardTest( winfileperms.asInt() == 32,
-		      "default Windows file permissions" );
+		      "default Windows file permissions" )
     mRunStandardTest( windirperms.asInt() == 16,
-		      "default Windows directory permissions" );
+		      "default Windows directory permissions" )
 
     const BufferString filename =
 		FilePath::getTempFullPath( "test_file", "txt" );
@@ -623,7 +705,7 @@ static bool testFilePermissions()
     od_ostream strm( fnm );
     strm.add( "some text" );
     mRunStandardTestWithError( strm.isOK(), "test file is created",
-			       strm.errMsg().getString() );
+			       strm.errMsg().getString() )
     strm.close();
 
 #ifdef __win__
@@ -631,7 +713,7 @@ static bool testFilePermissions()
     if ( !(perms.asInt() & FILE_ATTRIBUTE_ARCHIVE) )
 	return false;
 
-    mRunStandardTest( testPerms(fnm,perms), "Standard file permissions" );
+    mRunStandardTest( testPerms(fnm,perms), "Standard file permissions" )
 
     File::Permissions permstest( perms );
     permstest.setHidden( true );
@@ -639,28 +721,28 @@ static bool testFilePermissions()
 		      File::isHidden(fnm) &&
 		      permstest.isHidden() &&
 		      testPerms(fnm,permstest),
-		      "Hidden file permissions (set)" );
+		      "Hidden file permissions (set)" )
 
     permstest.setHidden( false );
     mRunStandardTest( File::setHiddenFileAttrib(fnm,false) &&
 		      !File::isHidden(fnm) &&
 		      !permstest.isHidden() &&
 		      testPerms(fnm,permstest),
-		      "Hidden file permissions (unset)" );
+		      "Hidden file permissions (unset)" )
 
     permstest.setSystem( true );
     mRunStandardTest( File::setSystemFileAttrib(fnm,true) &&
 		      File::isSystem(fnm) &&
 		      permstest.isSystem() &&
 		      testPerms(fnm,permstest),
-		      "System file permissions (set)" );
+		      "System file permissions (set)" )
 
     permstest.setSystem( false );
     mRunStandardTest( File::setSystemFileAttrib(fnm,false) &&
 		      !File::isSystem(fnm) &&
 		      !permstest.isSystem() &&
 		      testPerms(fnm,permstest),
-		      "System file permissions (unset)" );
+		      "System file permissions (unset)" )
 
     return true;
 #else
@@ -669,7 +751,7 @@ static bool testFilePermissions()
     const File::Permissions stdperms =
 		File::Permissions::getFrom( filestat.st_mode, filestat.st_uid );
     const File::Permissions perms = File::getPermissions( fnm );
-    mRunStandardTest( perms == stdperms, "Retrieve default file permissions" );
+    mRunStandardTest( perms == stdperms, "Retrieve default file permissions" )
     const bool hasgroupmask = perms.testFlag( File::Permission::WriteGroup );
     const bool hasothermask = perms.testFlag( File::Permission::WriteOther );
 
@@ -679,7 +761,7 @@ static bool testFilePermissions()
 	     .setFlag( File::Permission::WriteGroup, false )
 	     .setFlag( File::Permission::WriteOther, false );
     mRunStandardTest( File::setReadOnly(fnm) && testPerms(fnm,permstest),
-		      "Read-only file permissions" );
+		      "Read-only file permissions" )
     permstest.setFlag( File::Permission::WriteOwner, true )
 	     .setFlag( File::Permission::WriteUser, true );
     if ( hasgroupmask )
@@ -688,7 +770,7 @@ static bool testFilePermissions()
 	permstest.setFlag( File::Permission::WriteOther, true );
 
     mRunStandardTest( File::setWritable(fnm,true) && testPerms(fnm,permstest),
-		      "Writable file permissions" );
+		      "Writable file permissions" )
 
     permstest.setFlag( File::Permission::ExeOwner, true )
 	     .setFlag( File::Permission::ExeUser, true )
@@ -698,7 +780,7 @@ static bool testFilePermissions()
     mRunStandardTest( File::setExecutable(fnm,true) &&
 		      File::isExecutable(fnm) &&
 		      testPerms(fnm,permstest),
-		      "Executable file permissions (set)" );
+		      "Executable file permissions (set)" )
 
     permstest.setFlag( File::Permission::ExeOwner, false )
 	     .setFlag( File::Permission::ExeUser, false )
@@ -708,7 +790,7 @@ static bool testFilePermissions()
     mRunStandardTest( File::setExecutable(fnm,false) &&
 		      !File::isExecutable(fnm) &&
 		      testPerms(fnm,permstest),
-		      "Executable file permissions (unset)" );
+		      "Executable file permissions (unset)" )
     return true;
 #endif
 }
@@ -719,7 +801,7 @@ static bool testDirPermissions()
 #ifdef __win__
     const BufferString dirname = FilePath::getTempFullPath( "test_dir",nullptr);
     mRunStandardTest( File::createDir(dirname.buf()),
-		      "Create new directory" );
+		      "Create new directory" )
     const char* dirnm = dirname.str();
     FileDisposer disposer( dirnm );
 
@@ -727,7 +809,7 @@ static bool testDirPermissions()
     if ( !(perms.asInt() & FILE_ATTRIBUTE_DIRECTORY) )
 	return false;
 
-    mRunStandardTest( testPerms(dirnm,perms), "Standard directory permissions");
+    mRunStandardTest( testPerms(dirnm,perms), "Standard directory permissions" )
 
     File::Permissions permstest( perms );
     permstest.setHidden( true );
@@ -735,28 +817,28 @@ static bool testDirPermissions()
 		      File::isHidden(dirnm) &&
 		      permstest.isHidden() &&
 		      testPerms(dirnm,permstest),
-		      "Hidden directory permissions (set)" );
+		      "Hidden directory permissions (set)" )
 
     permstest.setHidden( false );
     mRunStandardTest( File::setHiddenFileAttrib(dirnm,false) &&
 		      !File::isHidden(dirnm) &&
 		      !permstest.isHidden() &&
 		      testPerms(dirnm,permstest),
-		      "Hidden directory permissions (unset)" );
+		      "Hidden directory permissions (unset)" )
 
     permstest.setSystem( true );
     mRunStandardTest( File::setSystemFileAttrib(dirnm,true) &&
 		      File::isSystem(dirnm) &&
 		      permstest.isSystem() &&
 		      testPerms(dirnm,permstest),
-		      "System directory permissions (set)" );
+		      "System directory permissions (set)" )
 
     permstest.setSystem( false );
     mRunStandardTest( File::setSystemFileAttrib(dirnm,false) &&
 		      !File::isSystem(dirnm) &&
 		      !permstest.isSystem() &&
 		      testPerms(dirnm,permstest),
-		      "System directory permissions (unset)" );
+		      "System directory permissions (unset)" )
 #endif
     return true;
 
@@ -781,7 +863,10 @@ int mTestMainFnName( int argc, char** argv )
 
     const BufferString parfile( fp.fullPath() );
     const BufferString pardir( fp.pathOnly() );
-    if ( !testReadContent() ||
+    BufferString emptytmpcontentfnm, tmpcontentfnm, tmpcontentsetfnm;
+    if ( !testWriteContent(emptytmpcontentfnm,tmpcontentfnm,tmpcontentsetfnm) ||
+	 !testReadContent(emptytmpcontentfnm.str(),tmpcontentfnm.str(),
+			  tmpcontentsetfnm.str()) ||
 	 !testIStream(parfile.buf()) ||
 	 !testFilePathParsing() ||
 	 !testCleanPath() ||
