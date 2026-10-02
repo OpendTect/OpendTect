@@ -11,12 +11,12 @@ ________________________________________________________________________
 #include "uiearthmodelmod.h"
 
 #include "uicompoundparsel.h"
-#include "uidialog.h"
 #include "uigroup.h"
 #include "uiioobjsel.h"
 #include "uisurfaceman.h"
 
 #include "bufstringset.h"
+#include "ctxtioobj.h"
 #include "emmanager.h"
 #include "emposid.h"
 #include "faulttrace.h"
@@ -62,6 +62,7 @@ public:
     bool		haveAttrSel() const;
     uiIOObjSel*		getObjSel()		{ return objfld_; }
     uiPosSubSel*	getPosSubSel()		{ return rgfld_; }
+    void		applyConstraints(const IOObjSelConstraints&);
 
 protected:
 			uiIOSurface(uiParent*,bool forread,const char* type,
@@ -76,7 +77,8 @@ protected:
     void		mkAttribFld(bool);
     void		mkSectionFld(bool);
     void		mkRangeFld(bool multiss=false);
-    void		mkObjFld(const uiString&);
+    void		mkObjFld(const uiString&,
+				 const uiIOObjSel::Setup& ={});
 
     void		objSel(CallBacker*);
     void		attrSel(CallBacker*);
@@ -101,24 +103,15 @@ public:
     mExpClass(uiEarthModel) Setup
     {
     public:
-			Setup( const char* surftyp, const uiString& type_name )
-			    : typ_(surftyp)
-			    , typname_( type_name )
-			    , withsubsel_(false)
-			    , withcolorfld_(false)
-			    , withstratfld_(false)
-			    , withdisplayfld_(false)
-			    , displaytext_(tr("Replace in tree"))
-			{}
-			~Setup()
-			{}
+			Setup(const char* surftyp,const uiString& type_name);
+			~Setup();
 
 	mDefSetupMemb(BufferString,typ)
 	mDefSetupMemb(uiString,typname)
-	mDefSetupMemb(bool,withsubsel)
-	mDefSetupMemb(bool,withcolorfld)
-	mDefSetupMemb(bool,withstratfld)
-	mDefSetupMemb(bool,withdisplayfld)
+	mDefSetupMembInit(bool,withsubsel,false)
+	mDefSetupMembInit(bool,withcolorfld,false)
+	mDefSetupMembInit(bool,withstratfld,false)
+	mDefSetupMembInit(bool,withdisplayfld,false)
 	mDefSetupMemb(uiString,displaytext)
     };
 
@@ -154,23 +147,17 @@ public:
     mExpClass(uiEarthModel) Setup
     {
     public:
-			Setup( const char* surftyp )
-			    : typ_(surftyp)
-			    , withattribfld_(true)
-			    , withsectionfld_(true)
-			    , withsubsel_(false)
-			    , multisubsel_(false)
-			    , multiattribsel_(true)
-			{}
-			~Setup()
-			{}
+			Setup(const char* surftyp);
+			~Setup();
 
 	mDefSetupMemb(BufferString,typ)
-	mDefSetupMemb(bool,withattribfld)
-	mDefSetupMemb(bool,withsectionfld)
-	mDefSetupMemb(bool,withsubsel)
-	mDefSetupMemb(bool,multisubsel)
-	mDefSetupMemb(bool,multiattribsel)
+	mDefSetupMembInit(bool,withattribfld,true)
+	mDefSetupMembInit(bool,withsectionfld,true)
+	mDefSetupMembInit(bool,withsubsel,false)
+	mDefSetupMembInit(bool,multisubsel,false)
+	mDefSetupMembInit(bool,multiattribsel,true)
+	mDefSetupMemb(uiIOObjSel::Setup,objsel)
+	mDefSetupMemb(IOObjSelConstraints,constraints)
     };
 
 			uiSurfaceRead(uiParent*,const Setup&,

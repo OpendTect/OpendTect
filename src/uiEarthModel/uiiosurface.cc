@@ -124,12 +124,32 @@ void uiIOSurface::mkRangeFld( bool multisubsel )
 }
 
 
-void uiIOSurface::mkObjFld( const uiString& lbl )
+void uiIOSurface::mkObjFld( const uiString& lbl, const uiIOObjSel::Setup& objsu)
 {
     ctio_->ctxt_.forread_ = forread_;
-    objfld_ = new uiIOObjSel( this, *ctio_, lbl );
+    uiIOObjSel::Setup su( objsu );
+    if ( su.seltxt_.isEmpty() )
+	su.seltxt( lbl );
+
+    objfld_ = new uiIOObjSel( this, *ctio_, su );
     if ( forread_ )
 	objfld_->selectionDone.notify( mCB(this,uiIOSurface,objSel) );
+}
+
+
+void uiIOSurface::applyConstraints( const IOObjSelConstraints& constr )
+{
+    if ( !ctio_ )
+	return;
+
+    ctio_->ctxt_.toselect_.require_.merge( constr.require_ );
+    ctio_->ctxt_.toselect_.dontallow_.merge( constr.dontallow_ );
+    if ( !constr.allowtransls_.isEmpty() )
+	ctio_->ctxt_.toselect_.allowtransls_ = constr.allowtransls_;
+
+    ctio_->ctxt_.toselect_.allownonuserselectable_ =
+						constr.allownonuserselectable_;
+    ctio_->ctxt_.setHiddenPolicy( constr.hiddenPolicy() );
 }
 
 
@@ -305,6 +325,18 @@ void uiIOSurface::attrSel( CallBacker* )
 
 
 // uiSurfaceWrite
+
+uiSurfaceWrite::Setup::Setup( const char* surftyp, const uiString& type_name )
+    : typ_(surftyp)
+    , typname_(type_name)
+    , displaytext_(tr("Replace in tree"))
+{
+}
+
+
+uiSurfaceWrite::Setup::~Setup()
+{}
+
 
 uiSurfaceWrite::uiSurfaceWrite( uiParent* p, const Setup& setup,
 				const ZDomain::Info* zinfo )
@@ -502,17 +534,31 @@ void uiSurfaceWrite::ioDataSelChg( CallBacker* )
 
 // uiSurfaceRead
 
+uiSurfaceRead::Setup::Setup( const char* surftyp )
+    : typ_(surftyp)
+{
+}
+
+
+uiSurfaceRead::Setup::~Setup()
+{}
+
+
 uiSurfaceRead::uiSurfaceRead( uiParent* p, const Setup& setup,
 			      const ZDomain::Info* zinfo )
     : uiIOSurface(p,true,setup.typ_,zinfo)
     , inpChange(this)
 {
+    applyConstraints( setup.constraints_ );
+    ctio_->ctxt_.setHiddenPolicy( setup.objsel_.hiddenpolicy_ );
+
     if ( setup.typ_ == EMFault3DTranslatorGroup::sGroupName() )
-	mkObjFld( uiStrings::phrInput(uiStrings::sFault()));
+	mkObjFld( uiStrings::phrInput(uiStrings::sFault()), setup.objsel_ );
     else if ( setup.typ_ == EMFaultStickSetTranslatorGroup::sGroupName() )
-	mkObjFld( uiStrings::phrInput(uiStrings::sFaultStickSet()));
+	mkObjFld( uiStrings::phrInput(uiStrings::sFaultStickSet()),
+		  setup.objsel_ );
     else
-	mkObjFld( uiStrings::phrInput(toUiString(setup.typ_)) );
+	mkObjFld( uiStrings::phrInput(toUiString(setup.typ_)), setup.objsel_ );
 
     uiGroup* attachobj = objfld_;
 
