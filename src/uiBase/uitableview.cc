@@ -369,6 +369,8 @@ public:
     bool	setSourceDataWithUndo(const TableModelEditRequest& req);
     void	setCurrentCell(const RowCol&,bool noselection);
     void	scrollTo(const QModelIndex&,ScrollHint) override;
+    void	applyColumnSort(int col,Qt::SortOrder);
+    void	currentColumnSort(int& col,Qt::SortOrder& order) const;
     void	pushUndoCommand(QUndoCommand*);
     void	clearUndoStack();
     void	undo();
@@ -513,6 +515,41 @@ private:
 };
 
 
+class SortUndoCommand : public ODUndoCommand
+{
+public:
+SortUndoCommand( ODTableView* view, int oldcol, Qt::SortOrder oldorder,
+		 int newcol, Qt::SortOrder neworder, ODUndoCommand* parent )
+    : ODUndoCommand(view,parent)
+    , oldcol_(oldcol)
+    , oldorder_(oldorder)
+    , newcol_(newcol)
+    , neworder_(neworder)
+{
+    setText( "Sort column" );
+}
+
+void undo() override
+{
+    if ( view_ )
+	view_->applyColumnSort( oldcol_, oldorder_ );
+}
+
+void redo() override
+{
+    if ( view_ )
+	view_->applyColumnSort( newcol_, neworder_ );
+}
+
+private:
+
+    int			oldcol_;
+    Qt::SortOrder	oldorder_;
+    int			newcol_;
+    Qt::SortOrder	neworder_;
+};
+
+
 static const char* sBaseStyleSheet()
 {
     return "selection-background-color: rgba(173,216,230,120);"
@@ -631,6 +668,25 @@ void ODTableView::setSortEnabled( bool yn )
 {
     setSortingEnabled( yn );
     frozenview_->setSortingEnabled( yn );
+}
+
+
+void ODTableView::applyColumnSort( int col, Qt::SortOrder order )
+{
+    if ( col < 0 )
+	return;
+
+    sortByColumn( col, order );
+    if ( frozenview_ && frozenview_->horizontalHeader() )
+	frozenview_->horizontalHeader()->setSortIndicator( col, order );
+}
+
+
+void ODTableView::currentColumnSort( int& col, Qt::SortOrder& order ) const
+{
+    const QHeaderView* header = horizontalHeader();
+    col = header ? header->sortIndicatorSection() : -1;
+    order = header ? header->sortIndicatorOrder() : Qt::AscendingOrder;
 }
 
 
@@ -1154,8 +1210,28 @@ bool uiTableView::isSortingEnabled() const
 
 void uiTableView::sortByColumn( int col, bool asc )
 {
-    odtableview_->sortByColumn( col,
-			asc ? Qt::AscendingOrder : Qt::DescendingOrder );
+    if ( !odtableview_ || col < 0 )
+	return;
+
+    const Qt::SortOrder neworder = asc ? Qt::AscendingOrder
+				       : Qt::DescendingOrder;
+    int oldcol = -1;
+    Qt::SortOrder oldorder = Qt::AscendingOrder;
+    odtableview_->currentColumnSort( oldcol, oldorder );
+    const bool unchanged = oldcol == col && oldorder == neworder;
+    if ( !hp_tv.getParam(this)->enableundo_ || unchanged )
+    {
+	odtableview_->applyColumnSort( col, neworder );
+	return;
+    }
+
+    ODUndoCommand* undoparent = hp_tv.getParam(this)->activeundogroup_;
+    auto* cmd = new SortUndoCommand( odtableview_, oldcol, oldorder,
+				     col, neworder, undoparent );
+    if ( undoparent )
+	cmd->redo();
+    else
+	odtableview_->pushUndoCommand( cmd );
 }
 
 
