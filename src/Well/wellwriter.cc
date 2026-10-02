@@ -451,6 +451,9 @@ bool Well::odWriter::putLogs() const
 bool Well::odWriter::putLog( const Log& wl ) const
 {
     const int logidx = getLogIndex( wl.name() );
+    if ( mIsUdf(logidx) )
+	return false;
+
     const BufferString logfnm = getFileName( odIO::sExtLog(), logidx );
 
     const int bintype = odReader::getStorageType( logfnm.str() );
@@ -592,6 +595,9 @@ bool Well::odWriter::wrLogData( const Log& wl, int bintype,
 bool Well::odWriter::renameLog( const char* oldnm, const char* newnm )
 {
     const int logidx = getLogIndex( oldnm );
+    if ( mIsUdf(logidx) )
+	return false;
+
     const BufferString logfnm = getFileName( odIO::sExtLog(), logidx );
     const int bintype = odReader::getStorageType( logfnm );
     od_istream istrm( logfnm );
@@ -608,31 +614,68 @@ bool Well::odWriter::renameLog( const char* oldnm, const char* newnm )
 }
 
 
+bool Well::odWriter::removeLogs( const BufferStringSet& logstodel ) const
+{
+    TypeSet<int> alllogids;
+    getFileIds( alllogids ); // get all log ids on disk
+    if ( alllogids.isEmpty() )
+    {
+	errmsg_ = tr( "Cannot remove logs: No logs on disk" );
+	return false;
+    }
+
+    TypeSet<int> logstodelids;
+    for ( const auto* lognm : logstodel ) // get log ids to delete
+    {
+	int logidx = getLogIndex( lognm->buf() );
+	if ( mIsUdf(logidx) || !alllogids.isPresent(logidx) )
+	{
+	    errmsg_ = tr( "Cannot remove logs: log '%1' Not found on disk" )
+		      .arg( lognm->buf() );
+	    return false;
+	}
+
+	logstodelids += logidx;
+    }
+
+    for ( const auto& logidx : logstodelids ) // remove the logs from disk
+    {
+	if ( !removeLogFile(logidx) )
+	    continue;
+    }
+
+    // rename the remaining logs to have consecutive ids
+    int fileidx = 1;
+    for ( int idx=0; idx<alllogids.size(); idx++ )
+    {
+	if ( logstodelids.isPresent(alllogids[idx]) )
+	    continue;
+
+	renameLogFile( alllogids[idx], fileidx );
+	fileidx++;
+    }
+
+    return true;
+}
+
+
 int Well::odWriter::getLogIndex( const char* lognm ) const
 {
-    int logidx = -1;
-    //TODO: to be replaced by a proper well log identifier:
-    int nrlogs = -1;
-    if ( isFunctional() )
-    {
-	Reader rdr( wd_.multiID(), const_cast<Data&>( wd_ ) );
-	if ( rdr.isUsable() )
-	{
-	    BufferStringSet lognms;
-	    rdr.getLogNames( lognms );
-	    logidx = lognms.indexOf( lognm );
-	    nrlogs = lognms.size();
-	}
-    }
+    RefMan<Data> wd = new Data;
+    const Reader rdr( data().multiID(), *wd );
 
-    if ( logidx < 0 )
-    {
-	//Unsafe !!!
-	logidx = nrlogs < 0 ? 0 : nrlogs;
-    }
+    BufferStringSet lognms;
+    rdr.getLogNames( lognms );
 
-    logidx++;
-    return logidx;
+    TypeSet<int> alllogids;
+    getFileIds( alllogids );
+
+    if ( alllogids.size() != lognms.size() )
+	return mUdf( int ); // just to be sure, should not happen
+
+    int logidx = lognms.indexOf( lognm );
+
+    return logidx == -1 ? lognms.size() + 1 : ++logidx; // 1-based index
 }
 
 

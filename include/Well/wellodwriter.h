@@ -46,6 +46,8 @@ private:
     bool		canWriteInParallel() const override	{ return true; }
     bool		needsInfoAndTrackCombined() const override
 			{ return true; }
+    bool		canRemoveIndividualLogs() const override
+			{ return true; }
 
     bool		put() const override;
     bool		putInfo() const override;
@@ -59,6 +61,7 @@ private:
     bool		putDispProps() const override;
     bool		renameLog(const char* oldnm,
 				  const char* newnm) override;
+    bool		removeLogs(const BufferStringSet&) const override;
 
     const uiString&	errMsg() const override { return odIO::errMsg(); }
 
