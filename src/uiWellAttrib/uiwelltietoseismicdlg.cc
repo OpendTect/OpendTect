@@ -614,8 +614,10 @@ WellTie::uiInfoDlg::uiInfoDlg( uiParent* p, Server& server )
     }
 
     markernames_.add( Well::ExtractParams::sKeyDataEnd() );
-    StringListInpSpec slis( markernames_ );
-    const char* markernms[] = { "Top Marker", "Bottom Marker", 0 };
+    StringListInpSpec slistop( markernames_ );
+    slistop.setName( "top_marker" );
+    StringListInpSpec slisbot( markernames_ );
+    slisbot.setName( "bottom_marker" );
 
     zrginft_ = SI().depthsInFeet();
     const uiString units[] = { uiString::emptyString(),
@@ -623,8 +625,7 @@ WellTie::uiInfoDlg::uiInfoDlg( uiParent* p, Server& server )
 		UnitOfMeasure::surveyDefDepthUnitAnnot(false,false) };
 
     zrangeflds_ += new uiGenInput( markergrp, uiString::emptyString(),
-				   slis.setName(markernms[0]),
-				   slis.setName(markernms[1]) );
+				   slistop, slisbot );
     zrangeflds_[mMarkerFldIdx]->setValue( markernames_.size()-1, 1 );
 
     const int maxtwtval = mNINT32( server_.data().getTraceRange().stop_ *

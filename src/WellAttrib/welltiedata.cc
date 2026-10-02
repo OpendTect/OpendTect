@@ -144,12 +144,12 @@ WellTie::Data::CorrelData::~CorrelData()
 // Data
 
 WellTie::Data::Data( const Setup& wts, Well::Data& wdata )
-    : logset_(*new Well::LogSet)
-    , wd_(&wdata)
+    : wd_(&wdata)
+    , logset_(*new Well::LogSet)
+    , seistrcs_(*new SeisTrcBuf(true))
     , setup_(wts)
     , initwvlt_(*getInitialWavelet(wts.sgp_.getWaveletID()))
     , estimatedwvlt_(*new Wavelet("Deterministic wavelet"))
-    , seistrcs_(*new SeisTrcBuf(true))
 {
     const Well::Track& track = wd_->track();
     const Well::D2TModel* d2t = wd_->d2TModel();
