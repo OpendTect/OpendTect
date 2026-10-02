@@ -71,12 +71,13 @@ macro( DEFINE_GIT_EXTERNAL DIR URL_STR BRANCH )
 		message( STATUS "Removing external/${DIR} having URL ${OLDURL}" )
 		file ( REMOVE_RECURSE "${CMAKE_SOURCE_DIR}/external/${DIR}" )
 		if ( IS_DIRECTORY "${OD_BINARY_BASEDIR}/external/${DIR}" )
+		    message( STATUS "Removing ${OD_BINARY_BASEDIR}/external/${DIR} build" )
 		    file ( REMOVE_RECURSE "${OD_BINARY_BASEDIR}/external/${DIR}" )
 		endif()
 	    endif()
 	else()
 	    execute_process(
-		COMMAND "${GIT_EXEC}" symbolic-ref --short HEAD 
+		COMMAND "${GIT_EXEC}" symbolic-ref --short HEAD
 		    WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}/external/${DIR}"
 		    OUTPUT_VARIABLE OLDBRANCH
 		    ERROR_QUIET
@@ -89,10 +90,11 @@ macro( DEFINE_GIT_EXTERNAL DIR URL_STR BRANCH )
 		message( STATUS "Removing external/${DIR} ${branchtag} ${OLDBRANCH}" )
 		file ( REMOVE_RECURSE "${CMAKE_SOURCE_DIR}/external/${DIR}" )
 		if ( IS_DIRECTORY "${OD_BINARY_BASEDIR}/external/${DIR}" )
+		    message( STATUS "Removing ${OD_BINARY_BASEDIR}/external/${DIR} build" )
 		    file ( REMOVE_RECURSE "${OD_BINARY_BASEDIR}/external/${DIR}" )
 		endif()
 	    endif()
-	endif() 
+	endif()
     endif()
 
     if ( NOT IS_DIRECTORY "${CMAKE_SOURCE_DIR}/external/${DIR}" )
