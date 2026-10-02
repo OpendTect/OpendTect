@@ -42,9 +42,9 @@ const char* RandomTrackDisplay::sKeyLockGeometry()  { return "Lock geometry"; }
 
 RandomTrackDisplay::RandomTrackDisplay()
     : MultiTextureSurveyObject()
-    , depthrg_(SI().zRange(true))
-    , nodemoving_(this)
     , moving_(this)
+    , nodemoving_(this)
+    , depthrg_(SI().zRange(true))
 {
     ref();
     datapacks_.setNullAllowed();
@@ -186,7 +186,19 @@ void RandomTrackDisplay::setRandomLineID( const RandomLineID& rlid )
     for ( const auto& tk : nodes )
 	bids += tk.position();
 
-    removeAllNodes();
+    // Clear the visualization only. Do not call removeAllNodes(): that uses
+    // mUpdateRandomLineGeometry(removeNode), which mutates the newly attached
+    // RandomLine. A fresh display has 2 knots, so the first two RL nodes were
+    // dropped while the display was rebuilt from the pre-captured bids -
+    // display/RL node counts diverged (black end panels, OOB on move).
+    dragger_->removeAllKnots();
+    for ( int idx=0; idx<nrAttribs(); idx++ )
+	setVolumeDataPack( idx, nullptr, nullptr );
+
+    nodes_.setEmpty();
+    trckeypath_.setEmpty();
+    segments_.setEmpty();
+
     setNodePositions( bids, true );
     setDepthInterval( rl_->zRange() );
 }
@@ -784,6 +796,9 @@ void RandomTrackDisplay::updateChannels( int attrib, TaskRunner* )
     if ( !randsdp )
 	return;
 
+    // Keep path in sync even while annotateNextUpdateStage has frozen
+    // updatePanelStripPath (e.g. calcManipulatedAttribs for multi-panel RGB).
+    updatePath();
     updateTexOriginAndScale( attrib, randsdp->getPath(), randsdp->zRange() );
 
     const int nrversions = randsdp->nrComponents();
@@ -876,10 +891,13 @@ void RandomTrackDisplay::createTransformedDataPack( int attrib,
 
 void RandomTrackDisplay::updatePanelStripPath()
 {
-    if ( nodes_.size()<2 || getUpdateStageNr() )
+    if ( nodes_.size()<2 )
 	return;
 
     updatePath();
+    if ( getUpdateStageNr() )
+	return;
+
     TypeSet<Coord> pathcrds;
     TypeSet<float> mapping;
     pathcrds.setCapacity( nodes_.size(), false );
@@ -1335,6 +1353,11 @@ Coord3 RandomTrackDisplay::getNormal( const Coord3& pos ) const
     }
 
     const TypeSet<Coord>& coords = panelstrip_->getPath();
+    if ( !segments_.validIdx(idx) ||
+	 !coords.validIdx(segments_[idx]) ||
+	 !coords.validIdx(segments_[idx]+1) )
+	return Coord3::udf();
+
     const Coord pos0 = coords[segments_[idx]];
     const Coord pos1 = coords[segments_[idx]+1];
     const BinID bid0( mNINT32(pos0.x_), mNINT32(pos0.y_));

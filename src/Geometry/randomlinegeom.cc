@@ -174,6 +174,9 @@ void RandomLine::insertNode( int idx, const Coord& crd )
 
 void RandomLine::setNodePosition( int idx, const Coord& crd, bool moving )
 {
+    if ( !nodes_.validIdx(idx) )
+	return;
+
     nodes_[idx] = crd;
     ChangeData cd( moving ? ChangeData::Moving : ChangeData::Moved, idx );
     nodeChanged.trigger( cd );
