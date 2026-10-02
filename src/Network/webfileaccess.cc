@@ -11,7 +11,6 @@ ________________________________________________________________________
 #include "netfilecache.h"
 #include "odnetworkaccess.h"
 #include "odhttp.h"
-#include "genc.h"
 #include "timefun.h"
 #include "uistrings.h"
 

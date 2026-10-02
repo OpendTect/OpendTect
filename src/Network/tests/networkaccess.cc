@@ -9,7 +9,8 @@ ________________________________________________________________________
 
 
 #include "applicationdata.h"
-#include "databuf.h"
+#include "commondefs.h"
+#include "executor.h"
 #include "file.h"
 #include "filepath.h"
 #include "iopar.h"
@@ -165,27 +166,29 @@ bool testDownloadFiles()
     BufferStringSet pkgurls;
     BufferStringSet failpkgurls;
 
-    if ( !testGetUrls(pkgurls, false) )
+    if ( !testGetUrls(pkgurls,false) )
 	return false;
 
-    if ( !testGetUrls(failpkgurls, true) )
+    if ( !testGetUrls(failpkgurls,true) )
 	return false;
 
+    TextTaskRunner taskr( tstStream() );
     const uiRetVal uirv1 = Network::downloadFiles( pkgurls,
-				tempfile1_.fullPath() );
-    const uiRetVal uirv2 = Network::downloadFiles( failpkgurls,
-				tempfile1_.fullPath(), nullptr, true );
-    const uiRetVal uirv3 = Network::downloadFiles( failpkgurls,
-				tempfile1_.fullPath() );
-
+				tempfile1_.fullPath(), &taskr );
     mRunStandardTestWithError( uirv1.isOK(),
-	BufferString(prefix_, "Download files, Good urls, CanFail: False"),
+	BufferString(prefix_, "Download files, 3/3 good urls"),
 		     uirv1.getText() );
+
+    const uiRetVal uirv2 = Network::downloadFiles( failpkgurls,
+				tempfile1_.fullPath(), &taskr, true );
     mRunStandardTestWithError( !uirv2.isOK(),
-	BufferString(prefix_, "Download files, Fail urls, CanFail: True"),
+	BufferString(prefix_, "Download files, 2/3 good urls, CanFail: True"),
 		     uirv2.getText() );
+
+    const uiRetVal uirv3 = Network::downloadFiles( failpkgurls,
+				tempfile1_.fullPath(), &taskr );
     mRunStandardTestWithError( !uirv3.isOK(),
-	BufferString(prefix_, "Download files, Fail urls, CanFail: False"),
+	BufferString(prefix_, "Download files, 2/3 good urls, CanFail: False"),
 		     uirv3.getText() );
 
     if ( File::exists(tempfile1_.fullPath()) )
@@ -202,7 +205,7 @@ bool testFileUpload()
     uiString err;
     IOPar postvars;
     mRunStandardTestWithError(
-    Network::uploadFile(url.buf(), tempfile_.fullPath(), remotefn,
+    Network::uploadFile( url.buf(), tempfile_.fullPath(), remotefn,
 			"dumpfile", postvars, err),
 	    BufferString(prefix_, "Upload file "), toString(err) );
 
@@ -219,6 +222,42 @@ bool testQueryUpload()
     uiString err;
     mRunStandardTestWithError( Network::uploadQuery(url, querypars, err),
 		BufferString(prefix_, "UploadQuery"), toString(err) );
+
+    return true;
+}
+
+
+static double expectedRetryDelaySec( od_int64 filesz, int attempt )
+{
+    const double base = filesz < (od_int64)mDef1MB ? 0.5 : 2.0;
+    double delay = base;
+    for ( int i=1; i<attempt; i++ )
+	delay *= 2.;
+
+    const double maxdelay = Network::sKeyTimeOutMs() / 1000.;
+    if ( delay > maxdelay )
+	delay = maxdelay;
+
+    const double jitterfrac = 0.1 * ( ( attempt % 5 ) - 2 ) / 2.;
+    delay *= ( 1. + jitterfrac );
+    return delay;
+}
+
+
+bool testDownloadRetryDelay()
+{
+    mRunStandardTest(
+	mIsEqual(expectedRetryDelaySec(100,1),0.475,1e-9),
+	BufferString(prefix_,"Download retry delay small file attempt 1") );
+    mRunStandardTest(
+	mIsEqual(expectedRetryDelaySec((od_int64)mDef1MB,1),1.9,1e-9),
+	BufferString(prefix_,"Download retry delay large file attempt 1") );
+    mRunStandardTest(
+	mIsEqual(expectedRetryDelaySec((od_int64)mDef1MB,3),8.4,1e-9),
+	BufferString(prefix_,"Download retry delay large file attempt 3") );
+    mRunStandardTest(
+	mIsEqual(expectedRetryDelaySec((od_int64)mDef1MB,6),9.5,1e-9),
+	BufferString(prefix_,"Download retry delay capped before jitter") );
 
     return true;
 }
@@ -252,6 +291,9 @@ bool runTests()
 	return false;
 
     if ( !testDownloadToFile() )
+	return false;
+
+    if ( !testDownloadRetryDelay() )
 	return false;
 
     if ( !testDownloadFiles() )

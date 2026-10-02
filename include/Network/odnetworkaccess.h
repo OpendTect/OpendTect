@@ -63,6 +63,9 @@ namespace Network
     mGlobal(Network) void   setHttpProxyFromIOPar(const IOPar&);
     mGlobal(Network) bool   getProxySettingsFromUser();
 
+    inline const char*	    cKeyDLTimeOut()	{ return "Download.Timeout"; }
+    inline const char*	    cKeyULTimeOut()	{ return "Upload.Timeout"; }
+    inline int		    sKeyTimeOutMs()	{ return 10000; }
     inline const char*	    sKeyUseProxy()  { return "Use Proxy"; }
     inline const char*	    sKeyUseAuthentication()
 					    { return "Use Authentication";}
