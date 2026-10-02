@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "odhttp.h"
 #include "ptrman.h"
 #include "uistring.h"
+#include "uistringset.h"
 
 class QByteArray;
 class QEventLoop;
@@ -70,6 +71,9 @@ namespace Network
     mGlobal(Network) void   setHttpProxyFromIOPar(const IOPar&);
     mGlobal(Network) bool   getProxySettingsFromUser();
 
+    inline const char*	    cKeyDLTimeOut()	{ return "Download.Timeout"; }
+    inline const char*	    cKeyULTimeOut()	{ return "Upload.Timeout"; }
+    inline int		    sKeyTimeOutMs()	{ return 10000; }
     inline const char*	    sKeyUseProxy()  { return "Use Proxy"; }
     inline const char*	    sKeyUseAuthentication()
 					    { return "Use Authentication";}
@@ -177,9 +181,15 @@ public:
 
 protected:
 
+    void		readTimeOutFromSettings();
+    bool		startUpload();
     int			errorOccured();
 
-    bool		init_ = true;
+    bool		initneeded_ = true;
+    bool		waitingforretry_ = false;
+    int			retrycount_ = 0;
+    double		maxretrydelaysec_ = 10.;
+    double		retrywaitremaining_ = 0.;
     BufferString	url_;
     BufferString	header_;
 
@@ -189,6 +199,7 @@ protected:
     od_int64		nrdone_ = 0;
     od_int64		totalnr_ = 0;
     uiString		msg_;
+    uiRetVal		retryattemptmsgs_;
 };
 
 

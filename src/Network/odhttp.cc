@@ -21,6 +21,7 @@ ________________________________________________________________________
 
 #include <QCoreApplication>
 #include <QEventLoop>
+#include <QNetworkRequest>
 #include <QSslError>
 #include <QUrlQuery>
 
@@ -272,6 +273,21 @@ void HttpRequestProcess::reportReadyRead()
 od_int64 HttpRequestProcess::getContentLengthHeader() const
 {
     return contentlengthheader_;
+}
+
+
+int HttpRequestProcess::httpStatusCode() const
+{
+#ifndef OD_NO_QT
+    if ( !qnetworkreply_ )
+	return 0;
+
+    const QVariant attr =
+	qnetworkreply_->attribute( QNetworkRequest::HttpStatusCodeAttribute );
+    return attr.isValid() ? attr.toInt() : 0;
+#else
+    return 0;
+#endif
 }
 
 
