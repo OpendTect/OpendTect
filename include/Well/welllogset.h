@@ -44,6 +44,7 @@ public:
     void		setEmpty(bool withdelete=true);
     void		swap(int idx0,int idx1) { logs_.swap( idx0, idx1 ); }
 
+    bool		isLogEmpty(const char*) const;
     const char*		getLogNameByIdx(int) const;
     const char*		getLogNameFor(const Mnemonic&) const;
 			/*<! default if default is present, otherwise first

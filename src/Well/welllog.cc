@@ -114,6 +114,13 @@ void Well::LogSet::setEmpty( bool withdelete )
 }
 
 
+bool Well::LogSet::isLogEmpty( const char* lognm ) const
+{
+    const Log* log = gtLog( lognm, true );
+    return log ? log->isEmpty() : true;
+}
+
+
 const char* Well::LogSet::getLogNameByIdx( int idx ) const
 {
     const Log* log = gtLogByIdx( idx, true );

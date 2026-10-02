@@ -50,7 +50,9 @@ WellTie::uiSaveDataDlg::uiSaveDataDlg( uiParent* p, Server& wdserv )
     mAttachCB( logchk_->activated, uiSaveDataDlg::saveLogsSelCB );
 
     BufferStringSet lognms;
-    data.logset_.getNames( lognms );
+    for ( int idx=cLogShift; idx<data.logset_.size(); idx++ )
+	lognms.add( data.logset_.getLogNameByIdx(idx) );
+
     logsfld_ = new uiCheckList( loggrp, uiCheckList::Unrel, OD::Horizontal );
     logsfld_->addItems( lognms );
     logsfld_->attach( rightOf, logchk_ );
@@ -161,6 +163,9 @@ bool WellTie::uiSaveDataDlg::saveLogs()
 	logset.add( newlog );
 	lognms.add( lognm );
     }
+
+    if ( logsfld_->firstChecked() != -1 && logset.isEmpty() && !msg.isSet() )
+	mErrRet( tr("Cannot save the selected log(s)") )
 
     uiString endmsg = tr( "Please choose another postfix" );
     if ( msg.isSet() )

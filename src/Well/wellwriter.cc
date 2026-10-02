@@ -401,8 +401,11 @@ bool Well::odWriter::putLogs() const
     const LogSet& logs = wd_.logs();
     for ( int idx=logs.size()-1; idx>=0; idx-- )
     {
-	const Log& wl = logs.getLogByIdx( idx );
-	if ( wl.isEmpty() )
+	const char* lognm = logs.getLogNameByIdx( idx );
+	if ( !logs.isPresent(lognm) )
+	    continue;
+
+	if ( logs.isLoaded(lognm) && logs.isLogEmpty(lognm) )
 	    delete getNonConst( logs ).remove( idx );
     }
 
