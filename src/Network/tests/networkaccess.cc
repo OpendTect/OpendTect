@@ -9,7 +9,8 @@ ________________________________________________________________________
 
 
 #include "applicationdata.h"
-#include "databuf.h"
+#include "commondefs.h"
+#include "executor.h"
 #include "file.h"
 #include "filepath.h"
 #include "iopar.h"
@@ -82,22 +83,6 @@ bool testDownloadToString()
     mRunStandardTest( str.size()==54,
 	      BufferString(prefix_, "Download to string size") );
 
-    mStartAllowDeprecatedSection
-
-    DataBuffer db( 1000, 4 );
-    const uiRetVal uirv = Network::downloadToBuffer_( url, db );
-    mRunStandardTestWithError( uirv.isOK(),
-	    BufferString(prefix_, "downloadToBuffer_(): Download to buffer"),
-	    uirv.getText() );
-    uiString err;
-    mRunStandardTestWithError( Network::downloadToBuffer( url, db, err ),
-	    BufferString(prefix_, "downloadToBuffer(): Download to buffer"),
-	    uirv.getText() );
-    mRunStandardTest( db.size()==54,
-		     BufferString(prefix_, "Download to buffer size") );
-
-    mStopAllowDeprecatedSection
-
     return true;
 }
 
@@ -169,18 +154,8 @@ bool testDownloadToFile()
     const char* url = "https://opendtect.org/dlsites.txt";
     const uiRetVal uirv = Network::downloadFile_( url, tempfile_.fullPath() );
     const uiString err = uirv.messages().cat();
-    uiString err1;
-
-    mStartAllowDeprecatedSection
-    mRunStandardTestWithError( Network::downloadFile(url,
-		    tempfile_.fullPath(), err1),
-		    BufferString(prefix_, "downloadFile(): Download to file"),
-		    toString(err) );
-    mStopAllowDeprecatedSection
-
     mRunStandardTestWithError( uirv.isOK(),
-		BufferString(prefix_, "downloadFile_(): Download to file"),
-		toString(err) );
+		BufferString(prefix_, "Download to file"), toString(err) );
 
     return true;
 }
@@ -191,39 +166,29 @@ bool testDownloadFiles()
     BufferStringSet pkgurls;
     BufferStringSet failpkgurls;
 
-    if ( !testGetUrls(pkgurls, false) )
+    if ( !testGetUrls(pkgurls,false) )
 	return false;
 
-    if ( !testGetUrls(failpkgurls, true) )
+    if ( !testGetUrls(failpkgurls,true) )
 	return false;
 
+    TextTaskRunner taskr( tstStream() );
     const uiRetVal uirv1 = Network::downloadFiles_( pkgurls,
-				tempfile1_.fullPath() );
-    const uiRetVal uirv2 = Network::downloadFiles_( failpkgurls,
-				tempfile1_.fullPath(), nullptr, true );
-    const uiRetVal uirv3 = Network::downloadFiles_( failpkgurls,
-				tempfile1_.fullPath() );
-    uiString err;
-
-    mStartAllowDeprecatedSection
-    mRunStandardTestWithError( Network::downloadFiles( pkgurls,
-			    tempfile1_.fullPath(), err ),
-			    BufferString(prefix_, "downloadFiles(), Good urls"),
-			    toString(err) );
-    mRunStandardTestWithError( !Network::downloadFiles( failpkgurls,
-			    tempfile1_.fullPath(), err ),
-			    BufferString(prefix_, "downloadFiles(), Fail urls"),
-			    toString(err) );
-    mStopAllowDeprecatedSection
-
+				tempfile1_.fullPath(), &taskr );
     mRunStandardTestWithError( uirv1.isOK(),
-	BufferString(prefix_, "Download files, Good urls, CanFail: False"),
+	BufferString(prefix_, "Download files, 3/3 good urls"),
 		     uirv1.getText() );
+
+    const uiRetVal uirv2 = Network::downloadFiles_( failpkgurls,
+				tempfile1_.fullPath(), &taskr, true );
     mRunStandardTestWithError( !uirv2.isOK(),
-	BufferString(prefix_, "Download files, Fail urls, CanFail: True"),
+	BufferString(prefix_, "Download files, 2/3 good urls, CanFail: True"),
 		     uirv2.getText() );
+
+    const uiRetVal uirv3 = Network::downloadFiles_( failpkgurls,
+				tempfile1_.fullPath(), &taskr );
     mRunStandardTestWithError( !uirv3.isOK(),
-	BufferString(prefix_, "Download files, Fail urls, CanFail: False"),
+	BufferString(prefix_, "Download files, 2/3 good urls, CanFail: False"),
 		     uirv3.getText() );
 
     if ( File::exists(tempfile1_.fullPath()) )
@@ -262,6 +227,42 @@ bool testQueryUpload()
 }
 
 
+static double expectedRetryDelaySec( od_int64 filesz, int attempt )
+{
+    const double base = filesz < (od_int64)mDef1MB ? 0.5 : 2.0;
+    double delay = base;
+    for ( int i=1; i<attempt; i++ )
+	delay *= 2.;
+
+    const double maxdelay = Network::sKeyTimeOutMs() / 1000.;
+    if ( delay > maxdelay )
+	delay = maxdelay;
+
+    const double jitterfrac = 0.1 * ( ( attempt % 5 ) - 2 ) / 2.;
+    delay *= ( 1. + jitterfrac );
+    return delay;
+}
+
+
+bool testDownloadRetryDelay()
+{
+    mRunStandardTest(
+	mIsEqual(expectedRetryDelaySec(100,1),0.475,1e-9),
+	BufferString(prefix_,"Download retry delay small file attempt 1") );
+    mRunStandardTest(
+	mIsEqual(expectedRetryDelaySec((od_int64)mDef1MB,1),1.9,1e-9),
+	BufferString(prefix_,"Download retry delay large file attempt 1") );
+    mRunStandardTest(
+	mIsEqual(expectedRetryDelaySec((od_int64)mDef1MB,3),8.4,1e-9),
+	BufferString(prefix_,"Download retry delay large file attempt 3") );
+    mRunStandardTest(
+	mIsEqual(expectedRetryDelaySec((od_int64)mDef1MB,6),9.5,1e-9),
+	BufferString(prefix_,"Download retry delay capped before jitter") );
+
+    return true;
+}
+
+
 bool testFileSizes()
 {
     const char* url = "https://opendtect.org/dlsites.txt";
@@ -290,6 +291,9 @@ bool runTests()
 	return false;
 
     if ( !testDownloadToFile() )
+	return false;
+
+    if ( !testDownloadRetryDelay() )
 	return false;
 
     if ( !testDownloadFiles() )

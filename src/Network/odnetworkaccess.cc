@@ -13,16 +13,39 @@ ________________________________________________________________________
 #include "file.h"
 #include "filepath.h"
 #include "iopar.h"
-#include "od_iostream.h"
+#include "od_istream.h"
+#include "od_ostream.h"
 #include "oddirs.h"
 #include "opensslaccess.h"
-#include "perthreadrepos.h"
 #include "separstr.h"
 #include "settings.h"
-#include "uistrings.h"
+#include "task.h"
+#include "thread.h"
+#include "typeset.h"
 
 # include <QByteArray>
 # include <QNetworkProxy>
+
+
+static const int cMaxTransferRetries = 5;
+static const int cMaxSizeCheckRetries = 3;
+static const double cSizeCheckRetryDelaySec = 0.25;
+
+
+static double retryDelaySec( od_int64 filesz, int attempt, double maxdelaysec )
+{
+    const double base = filesz < (od_int64)mDef1MB ? 0.5 : 2.0;
+    double delay = base;
+    for ( int i=1; i<attempt; i++ )
+	delay *= 2.;
+
+    if ( delay > maxdelaysec )
+	delay = maxdelaysec;
+
+    const double jitterfrac = 0.1 * ( ( attempt % 5 ) - 2 ) / 2.;
+    delay *= ( 1. + jitterfrac );
+    return delay;
+}
 
 
 class FileDownloaderTask : public SequentialTask
@@ -31,7 +54,7 @@ public:
 			FileDownloaderTask(const char* url);
 			FileDownloaderTask(const char* url,DataBuffer&);
 			FileDownloaderTask(const BufferStringSet& urls,
-					   const BufferStringSet& outputpaths);
+				       const BufferStringSet& outputpaths);
 			~FileDownloaderTask();
 
     od_int64		getDownloadSize();
@@ -43,16 +66,19 @@ public:
     void		setContinueOnFail( bool yn )  { continueonfail_ = yn; }
 
 private:
-    double		progressFactor() const;
-    bool		doPrepare(od_ostream* =nullptr) override;
-    int			nextStep() override;
     od_int64		nrDone() const override;
     od_int64		totalNr() const override;
-
-protected:
+    bool		doPrepare(od_ostream* =nullptr) override;
+    int			nextStep() override;
+    bool		doFinish(bool success,od_ostream* =nullptr) override;
 
     void		setSaveAsPaths(const BufferStringSet&,const char*);
+    void		readTimeOutFromSettings();
     int			errorOccured();
+    bool		startDownload();
+    bool		checkRangeResponse();
+    void		handleRangeNotSatisfiable();
+    void		handleFullResponseAfterRange();
 
     bool		writeData();
     bool		writeDataToFile(const char* buffer,int size);
@@ -60,19 +86,33 @@ protected:
 
     bool		initneeded_ = true;
     bool		continueonfail_ = false;
+    bool		waitingforretry_ = false;
+    bool		resuming_ = false;
+    bool		rangerequested_ = false;
+    bool		rangestatuschecked_ = false;
+    bool		forcefullrestart_ = false;
     BufferStringSet	urls_;
     BufferStringSet	saveaspaths_;
+    TypeSet<od_int64>	filesizes_;
     int			currurlidx_	    = 0;
     int			nrfilesdownloaded_  = 0;
+    int			retrycount_	    = 0;
+    double		maxretrydelaysec_  =
+				Network::sKeyTimeOutMs() / 1000.;
     DataBuffer*		databuffer_ = nullptr;
     od_ostream*		osd_ = nullptr;
 
     RefMan<Network::HttpRequestProcess> odnr_;
 
     od_int64		nrdone_ = 0;
+    od_int64		nrdoneaturlstart_ = 0;
+    od_int64		bytesondisk_ = 0;
+    od_int64		currfilesize_ = -1;
     od_int64		totalnr_ = 0;
+    double		retrywaitremaining_ = 0.;
     uiString		msg_;
     uiRetVal		uirv_;
+    uiRetVal		retryattemptmsgs_;
 };
 
 
@@ -84,9 +124,8 @@ FileDownloaderTask::FileDownloaderTask( const BufferStringSet& urls,
     , urls_(urls)
 {
     OD::OpenSSLAccess::loadOpenSSL(); //Keep at the first line
+    readTimeOutFromSettings();
     totalnr_ = getDownloadSize();
-    if ( totalnr_ < 0 )
-	msg_ = tr( "Cannot determine download size" );
 }
 
 
@@ -95,10 +134,9 @@ FileDownloaderTask::FileDownloaderTask( const char* url, DataBuffer& db )
     , databuffer_(&db)
 {
     OD::OpenSSLAccess::loadOpenSSL(); //Keep at the first line
+    readTimeOutFromSettings();
     urls_.add( url );
     totalnr_ = getDownloadSize();
-    if ( totalnr_ < 0 )
-	msg_ = tr( "Cannot determine download size" );
 }
 
 
@@ -107,6 +145,7 @@ FileDownloaderTask::FileDownloaderTask( const char* url )
     , osd_(new od_ostream())
 {
     OD::OpenSSLAccess::loadOpenSSL(); //Keep at the first line
+    readTimeOutFromSettings();
     urls_.add(url);
 }
 
@@ -114,6 +153,17 @@ FileDownloaderTask::FileDownloaderTask( const char* url )
 FileDownloaderTask::~FileDownloaderTask()
 {
     delete osd_;
+}
+
+
+void FileDownloaderTask::readTimeOutFromSettings()
+{
+    int timeoutms = Network::sKeyTimeOutMs();
+    Settings::common().get( Network::cKeyDLTimeOut(), timeoutms );
+    if ( timeoutms <= 0 )
+	timeoutms = Network::sKeyTimeOutMs();
+
+    maxretrydelaysec_ = timeoutms / 1000.;
 }
 
 
@@ -133,14 +183,40 @@ bool FileDownloaderTask::doPrepare( od_ostream* strm )
     if ( totalnr_ < 1 )
 	totalnr_ = 1;
 
+    if ( !continueonfail_ )
+    {
+	for ( int idx=0; idx<filesizes_.size(); idx++ )
+	{
+	    if ( filesizes_[idx] < 0 )
+	    {
+		msg_ = tr( "Cannot determine download size" );
+		return false;
+	    }
+	}
+    }
+
     return SequentialTask::doPrepare( strm );
 }
 
 
 int FileDownloaderTask::nextStep()
 {
-    if ( totalnr_ < 0 )
-	return errorOccured();
+    if ( waitingforretry_ )
+    {
+	if ( !shouldContinue() )
+	    return ErrorOccurred();
+
+	const double slice = 0.1;
+	retrywaitremaining_ -= slice;
+	if ( retrywaitremaining_ > 0. )
+	{
+	    Threads::sleep( slice );
+	    return MoreToDo();
+	}
+
+	waitingforretry_ = false;
+	initneeded_ = true;
+    }
 
     if ( initneeded_ )
     {
@@ -148,23 +224,54 @@ int FileDownloaderTask::nextStep()
 	if ( !urls_.validIdx(currurlidx_) )
 	    return Finished();
 
-	const char* url = urls_.get(nrfilesdownloaded_).buf();
-	msg_ = tr( "Downloading %1" ).arg( url );
-	odnr_ = Network::HttpRequestManager::instance().get( url );
+	if ( filesizes_.validIdx(currurlidx_) && filesizes_[currurlidx_] < 0 )
+	{
+	    // HEAD already failed after retries: never attempt GET
+	    currurlidx_++;
+	    initneeded_ = true;
+	    return MoreToDo();
+	}
+
+	if ( !startDownload() )
+	    return ErrorOccurred();
     }
 
     if ( odnr_->isError() )
+    {
+	if ( rangerequested_ && odnr_->httpStatusCode()==416 )
+	{
+	    handleRangeNotSatisfiable();
+	    initneeded_ = true;
+	    return MoreToDo();
+	}
+
 	return errorOccured();
+    }
+
+    if ( !checkRangeResponse() )
+	return ErrorOccurred();
+
+    if ( !odnr_ )
+	return MoreToDo();
 
     if ( !writeData() )
 	return ErrorOccurred();
 
     if ( odnr_->isFinished() )
     {
+	if ( !checkRangeResponse() )
+	    return ErrorOccurred();
+
+	if ( !odnr_ )
+	    return MoreToDo();
+
 	// Check for any residue data received since the last read
 	if ( !writeData() )
 	    return ErrorOccurred();
 
+	retrycount_ = 0;
+	retryattemptmsgs_.setEmpty();
+	forcefullrestart_ = false;
 	initneeded_ = true;
 	nrfilesdownloaded_++;
 	currurlidx_++;
@@ -176,24 +283,227 @@ int FileDownloaderTask::nextStep()
 }
 
 
+bool FileDownloaderTask::doFinish( bool success, od_ostream* strm )
+{
+    odnr_ = nullptr;
+    return SequentialTask::doFinish( success, strm );
+}
+
+
 od_int64 FileDownloaderTask::getDownloadSize()
 {
     od_int64 totalbytes = 0;
+    filesizes_.setEmpty();
+    bool anyfailed = false;
     for ( int idx=0; idx<urls_.size(); idx++ )
     {
 	const char* url = urls_.get( idx ).buf();
-	odnr_ = Network::HttpRequestManager::instance().head( url );
-	odnr_->waitForFinish();
+	msg_ = tr( "Determining size of %1" ).arg( url );
 
-	if ( odnr_->isError() )
-	    return errorOccured();
+	od_int64 filesize = -1;
+	uiRetVal headerr;
+	for ( int attempt=1; attempt<=cMaxSizeCheckRetries; attempt++ )
+	{
+	    odnr_ = Network::HttpRequestManager::instance().head( url );
+	    odnr_->waitForFinish();
 
-	const od_int64 filesize = odnr_->getContentLengthHeader();
-	totalbytes += filesize;
+	    if ( !odnr_->isError() )
+	    {
+		filesize = odnr_->getContentLengthHeader();
+		odnr_ = nullptr;
+		break;
+	    }
+
+	    headerr = odnr_->errMsgs();
+	    odnr_ = nullptr;
+
+	    if ( attempt < cMaxSizeCheckRetries )
+	    {
+		msg_ = tr( "Retrying size check (%1/%2): %3" )
+			.arg( attempt ).arg( cMaxSizeCheckRetries ).arg( url );
+		Threads::sleep( cSizeCheckRetryDelaySec );
+	    }
+	}
+
+	filesizes_ += filesize;
+	if ( filesize < 0 )
+	{
+	    anyfailed = true;
+	    uirv_.add( tr("Cannot determine size of %1").arg(url) );
+	    if ( !headerr.isOK() )
+		uirv_.add( headerr );
+	}
+	else if ( !mIsUdf(filesize) )
+	    totalbytes += filesize;
     }
 
     odnr_ = nullptr;
+    if ( anyfailed && urls_.size() == 1 )
+    {
+	msg_ = tr( "Cannot determine download size" );
+	return -1;
+    }
+
+    msg_.setEmpty();
     return totalbytes;
+}
+
+
+bool FileDownloaderTask::startDownload()
+{
+    rangestatuschecked_ = false;
+    resuming_ = false;
+
+    if ( retrycount_ == 0 )
+	nrdoneaturlstart_ = nrdone_;
+
+    currfilesize_ = filesizes_.validIdx(currurlidx_)
+		  ? filesizes_[currurlidx_] : mUdf(od_int64);
+
+    const char* url = urls_.get( currurlidx_ ).buf();
+    bool userange = false;
+
+    if ( databuffer_ )
+    {
+	if ( retrycount_ > 0 )
+	{
+	    nrdone_ = nrdoneaturlstart_;
+	    databuffer_->reSize( 0, false );
+	}
+    }
+    else if ( saveaspaths_.validIdx(currurlidx_) )
+    {
+	const FilePath fp( saveaspaths_.get(currurlidx_) );
+	const BufferString dest = fp.fullPath();
+
+	if ( forcefullrestart_ ||
+	     (retrycount_>0 && currfilesize_<(od_int64)mDef1MB) )
+	{
+	    if ( osd_ && osd_->isOK() )
+		osd_->close();
+
+	    if ( File::exists(dest) )
+		File::remove( dest );
+
+	    nrdone_ = nrdoneaturlstart_;
+	    bytesondisk_ = 0;
+	}
+	else if ( retrycount_>0 && currfilesize_>=(od_int64)mDef1MB )
+	{
+	    const od_int64 ondisk = File::exists(dest)
+				  ? File::getFileSize(dest) : 0;
+	    if ( ondisk>0 && ondisk<currfilesize_ )
+	    {
+		userange = true;
+		bytesondisk_ = ondisk;
+		resuming_ = true;
+	    }
+	}
+
+	if ( userange )
+	{
+	    if ( !File::exists(fp.pathOnly()) )
+		File::createDir( fp.pathOnly() );
+
+	    if ( osd_->isOK() )
+		osd_->close();
+
+	    osd_->open( dest, true );
+	    if ( osd_->isBad() )
+	    {
+		uirv_.add( tr("Didn't have permission to write to: %1")
+			  .arg(dest) );
+		return false;
+	    }
+	}
+	else if ( osd_ && osd_->isOK() )
+	    osd_->close();
+    }
+
+    if ( userange )
+    {
+	RefMan<Network::HttpRequest> req =
+	    new Network::HttpRequest( url, Network::HttpRequest::Get );
+	BufferString hdrstr( "bytes=", bytesondisk_, "-" );
+	req->setRawHeader( "Range", hdrstr.str() );
+	odnr_ = Network::HttpRequestManager::instance().request( req.ptr() );
+	rangerequested_ = true;
+    }
+    else
+    {
+	odnr_ = Network::HttpRequestManager::instance().get( url );
+	rangerequested_ = false;
+    }
+
+    if ( retrycount_ > 0 )
+    {
+	msg_ = tr("Retrying download (%1/%2): %3")
+		    .arg( retrycount_ ).arg( cMaxTransferRetries ).arg( url );
+    }
+    else
+	msg_ = tr( "Downloading %1" ).arg( url );
+
+    return true;
+}
+
+
+bool FileDownloaderTask::checkRangeResponse()
+{
+    if ( !rangerequested_ || rangestatuschecked_ || !odnr_ )
+	return true;
+
+    const int code = odnr_->httpStatusCode();
+    if ( !code && !odnr_->isFinished() && !odnr_->downloadBytesAvailable() )
+	return true;
+
+    rangestatuschecked_ = true;
+
+    if ( code==416 )
+    {
+	handleRangeNotSatisfiable();
+	return true;
+    }
+
+    if ( code==200 )
+	handleFullResponseAfterRange();
+
+    return true;
+}
+
+
+void FileDownloaderTask::handleRangeNotSatisfiable()
+{
+    forcefullrestart_ = true;
+    rangerequested_ = false;
+    resuming_ = false;
+    bytesondisk_ = 0;
+
+    if ( osd_ && osd_->isOK() )
+	osd_->close();
+
+    if ( saveaspaths_.validIdx(currurlidx_) )
+    {
+	const FilePath fp( saveaspaths_.get(currurlidx_) );
+	if ( File::exists(fp.fullPath()) )
+	    File::remove( fp.fullPath() );
+    }
+
+    nrdone_ = nrdoneaturlstart_;
+    odnr_ = nullptr;
+    initneeded_ = true;
+}
+
+
+void FileDownloaderTask::handleFullResponseAfterRange()
+{
+    resuming_ = false;
+    bytesondisk_ = 0;
+    rangerequested_ = false;
+
+    if ( osd_ && osd_->isOK() )
+	osd_->close();
+
+    nrdone_ = nrdoneaturlstart_;
 }
 
 
@@ -245,7 +555,7 @@ bool FileDownloaderTask::writeDataToBuffer( const char* buffer, int size )
 	return false;
 
     int buffersize = databuffer_->size();
-    databuffer_->reSize(nrdone_);
+    databuffer_->reSize( nrdone_ );
     OD::memCopy( databuffer_->data()+buffersize, buffer, size );
     return true;
 }
@@ -260,14 +570,29 @@ int FileDownloaderTask::errorOccured()
     if ( uiretval.isEmpty() )
 	uiretval.add( tr("Oops! Something went wrong with the connection") );
 
+    odnr_ = nullptr;
+    if ( osd_ && osd_->isOK() )
+	osd_->close();
+
+    retrycount_++;
+    if ( retrycount_ <= cMaxTransferRetries )
+    {
+	retryattemptmsgs_.add( uiretval );
+	retrywaitremaining_ = retryDelaySec( currfilesize_, retrycount_,
+						     maxretrydelaysec_ );
+	waitingforretry_ = true;
+	return MoreToDo();
+    }
+
+    uirv_.add( retryattemptmsgs_ );
     uirv_.add( uiretval );
+    retryattemptmsgs_.setEmpty();
+    retrycount_ = 0;
+
     if ( continueonfail_ )
     {
 	initneeded_ = true;
 	currurlidx_++;
-	if ( osd_ && osd_->isOK() )
-	    osd_->close();
-
 	return MoreToDo();
     }
 
@@ -280,7 +605,7 @@ uiString FileDownloaderTask::uiMessage() const
 
 
 od_int64 FileDownloaderTask::nrDone() const
-{return nrdone_/1024;}
+{ return nrdone_/1024; }
 
 
 uiString FileDownloaderTask::uiNrDoneText() const
@@ -289,10 +614,6 @@ uiString FileDownloaderTask::uiNrDoneText() const
 
 od_int64 FileDownloaderTask::totalNr() const
 { return totalnr_/1024; }
-
-
-double FileDownloaderTask::progressFactor() const
-{ return 1./mDef1KB; }
 
 
 uiRetVal Network::downloadFile_( const char* url, const char* path,
@@ -775,11 +1096,14 @@ bool Network::uploadQuery( const char* url, const IOPar& querypars,
 
 DataUploader::DataUploader( const char* url, const DataBuffer& data,
 			    BufferString& header )
-    : data_( data )
+    : SequentialTask("Uploading data")
+    , data_( data )
     , url_(url)
     , header_(header)
+    , maxretrydelaysec_( Network::sKeyTimeOutMs() / 1000. )
 {
     OD::OpenSSLAccess::loadOpenSSL(); //Keep at the first line
+    readTimeOutFromSettings();
 }
 
 
@@ -788,29 +1112,77 @@ DataUploader::~DataUploader()
 }
 
 
+void DataUploader::readTimeOutFromSettings()
+{
+    int timeoutms = Network::sKeyTimeOutMs();
+    Settings::common().get( Network::cKeyULTimeOut(), timeoutms );
+    if ( timeoutms <= 0 )
+	timeoutms = Network::sKeyTimeOutMs();
+
+    maxretrydelaysec_ = timeoutms / 1000.;
+}
+
+
+bool DataUploader::startUpload()
+{
+    nrdone_ = 0;
+    RefMan<Network::HttpRequest> req = new Network::HttpRequest( url_,
+					   Network::HttpRequest::Post );
+    req->contentType( header_ );
+    req->payloadData( data_ );
+    odnr_ = Network::HttpRequestManager::instance().request( req.ptr() );
+
+    if ( retrycount_ > 0 )
+    {
+	msg_ = tr("Retrying upload (%1/%2): %3")
+		    .arg( retrycount_ ).arg( cMaxTransferRetries ).arg( url_ );
+    }
+    else
+	msg_ = tr( "Uploading to %1" ).arg( url_ );
+
+    return true;
+}
+
+
 int DataUploader::nextStep()
 {
-    if ( init_ )
+    if ( waitingforretry_ )
     {
-	RefMan<Network::HttpRequest> req = new Network::HttpRequest( url_,
-					       Network::HttpRequest::Post );
-	req->contentType( header_ );
-	req->payloadData( data_ );
+	if ( !shouldContinue() )
+	    return ErrorOccurred();
 
-	odnr_ = Network::HttpRequestManager::instance().request(req.ptr());
-	init_ = false;
+	const double slice = 0.1;
+	retrywaitremaining_ -= slice;
+	if ( retrywaitremaining_ > 0. )
+	{
+	    Threads::sleep( slice );
+	    return MoreToDo();
+	}
+
+	waitingforretry_ = false;
+	initneeded_ = true;
+    }
+
+    if ( initneeded_ )
+    {
+	initneeded_ = false;
+	if ( !startUpload() )
+	    return ErrorOccurred();
     }
 
     if ( odnr_->isError() )
 	return errorOccured();
-    else if ( odnr_->isFinished() )
+
+    if ( odnr_->isFinished() )
     {
 	odnr_->waitForDownloadData( 500 );
 	msg_ = toUiString( odnr_->readAll() );
-
+	retrycount_ = 0;
+	retryattemptmsgs_.setEmpty();
 	return Finished();
     }
-    else if ( odnr_->isRunning() )
+
+    if ( odnr_->isRunning() )
     {
 	nrdone_ = odnr_->getBytesUploaded();
 	totalnr_ = odnr_->getTotalBytesToUpload();
@@ -822,14 +1194,29 @@ int DataUploader::nextStep()
 
 int DataUploader::errorOccured()
 {
-    uiRetVal uirv;
+    uiRetVal uiretval;
     if ( odnr_ )
-	uirv.add( odnr_->errMsgs() );
+	uiretval.add( odnr_->errMsgs() );
 
-    if ( uirv.isEmpty() )
-	uirv.add( tr( "Oops! Something went wrong with the connection" ) );
+    if ( uiretval.isEmpty() )
+	uiretval.add( tr( "Oops! Something went wrong with the connection" ) );
 
-    msg_ = uirv.messages().cat();
+    odnr_ = nullptr;
+
+    retrycount_++;
+    if ( retrycount_ <= cMaxTransferRetries )
+    {
+	retryattemptmsgs_.add( uiretval );
+	retrywaitremaining_ = retryDelaySec( data_.size(), retrycount_,
+					     maxretrydelaysec_ );
+	waitingforretry_ = true;
+	return MoreToDo();
+    }
+
+    uiRetVal allerrs( retryattemptmsgs_ );
+    allerrs.add( uiretval );
+    msg_ = allerrs.messages().cat();
+    retryattemptmsgs_.setEmpty();
     return ErrorOccurred();
 }
 

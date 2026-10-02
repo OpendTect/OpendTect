@@ -140,6 +140,7 @@ public:
     BufferString		readAll();
 
     od_int64			getContentLengthHeader() const;
+    int				httpStatusCode() const;
 
 				//Upload access
     Notifier<HttpRequestProcess> uploadProgress;
