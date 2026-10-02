@@ -159,6 +159,7 @@ public :
 private:
 
     Wavelet*			getInitialWavelet();
+    Wavelet*			getInitialWavelet(const MultiID&);
     SeisTrc*			getTrc(bool synth,int ioff=0);
     SeisTrc*			getRealTrc(int ioff=0);
     SeisTrc*			getSynthTrc(int ioff=0);
