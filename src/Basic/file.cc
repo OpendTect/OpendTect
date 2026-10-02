@@ -127,11 +127,12 @@ class RecursiveCopier : public Executor
 { mODTextTranslationClass(RecursiveCopier);
 public:
 			RecursiveCopier( const char* from, const char* to,
-					 bool preserve )
+					 bool preserve, bool merge )
 			    : Executor("Copying Folder")
+			    , preserve_(preserve)
+			    , merge_(merge)
 			    , src_(from)
 			    , dest_(to)
-			    , preserve_(preserve)
 			    , msg_(tr("Copying files"))
 			{
 			    makeRecursiveFileList(src_,filelist_,false);
@@ -157,6 +158,7 @@ private:
     od_int64		nrdone_		= 0;
     BufferStringSet	filelist_;
     bool		preserve_;
+    bool		merge_		= false;
     ManagedObjectSet<FilePathAttribs> dirsfp_;
     BufferString	src_;
     BufferString	dest_;
@@ -180,19 +182,34 @@ int RecursiveCopier::nextStep()
 {
     if ( !fileidx_ )
     {
-	if ( File::exists(dest_) )
+	if ( merge_ )
 	{
-	    if ( File::isDirectory(dest_) && !File::isSymLink(dest_) )
+	    if ( File::exists(dest_) )
 	    {
-		if ( !File::removeDir(dest_) )
+		if ( !File::isDirectory(dest_) )
+		    mErrRet(tr("Cannot merge into %1").arg(dest_) )
+	    }
+	    else if ( !File::createDir(dest_) )
+		mErrRet( uiStrings::phrCannotCreateDirectory(
+						toUiString(dest_)) )
+	}
+	else
+	{
+	    if ( File::exists(dest_) )
+	    {
+		if ( File::isDirectory(dest_) && !File::isSymLink(dest_) )
+		{
+		    if ( !File::removeDir(dest_) )
+			mErrRet(tr("Cannot overwrite %1").arg(dest_) )
+		}
+		else if ( !File::remove(dest_) )
 		    mErrRet(tr("Cannot overwrite %1").arg(dest_) )
 	    }
-	    else if ( !File::remove(dest_) )
-		mErrRet(tr("Cannot overwrite %1").arg(dest_) )
-	}
 
-	if ( !File::createDir(dest_) )
-	    mErrRet( uiStrings::phrCannotCreateDirectory(toUiString(dest_)) )
+	    if ( !File::createDir(dest_) )
+		mErrRet( uiStrings::phrCannotCreateDirectory(
+						toUiString(dest_)) )
+	}
     }
 
     if ( fileidx_ >= filelist_.size() )
@@ -204,6 +221,14 @@ int RecursiveCopier::nextStep()
     const BufferString destfile = FilePath(dest_,relpath).fullPath();
     if ( File::isSymLink(srcfile) )
     {
+	if ( merge_ && File::exists(destfile) )
+	{
+	    if ( File::isDirectory(destfile) && !File::isSymLink(destfile) )
+		mErrRet(tr("Cannot overwrite directory %1").arg(destfile))
+	    else if ( !File::remove(destfile) )
+		mErrRet(tr("Cannot overwrite %1").arg(destfile))
+	}
+
 #if QT_VERSION >= QT_VERSION_CHECK(6,6,0)
 	const QFileInfo qfi( srcfile.buf() );
 	const BufferString linkval( qfi.readSymLink() );
@@ -232,7 +257,13 @@ int RecursiveCopier::nextStep()
     }
     else if ( isDirectory(srcfile) )
     {
-	if ( !File::createDir(destfile) )
+	if ( merge_ && File::exists(destfile) )
+	{
+	    if ( !File::isDirectory(destfile) )
+		mErrRet(tr("Cannot merge directory onto file %1")
+			.arg(destfile))
+	}
+	else if ( !File::createDir(destfile) )
 	    mErrRet( uiStrings::phrCannotCreateDirectory(toUiString(destfile)) )
 
 	if ( preserve_ )
@@ -338,10 +369,11 @@ int RecursiveDeleter::nextStep()
 }
 
 
-Executor* getRecursiveCopier( const char* from, const char* to, bool preserve )
+Executor* getRecursiveCopier( const char* from, const char* to,
+			       bool preserve, bool merge )
 {
     return !isSane(from) || !isSane(to) ? nullptr
-	: new File::RecursiveCopier( from, to, preserve );
+	: new File::RecursiveCopier( from, to, preserve, merge );
 }
 
 
@@ -718,6 +750,49 @@ bool copyDir( const char* from, const char* to, bool preserve,
 }
 
 
+bool mergeDir( const char* from, const char* to, bool preserve,
+	       uiString* errmsg, TaskRunner* taskrun )
+{
+    if ( !isLocal(from) || !isLocal(to) )
+	return false;
+
+    if ( !exists(from) )
+	return false;
+
+    if ( exists(to) && !isDirectory(to) )
+	return false;
+
+    if ( !checkDir(from,true,errmsg) || !checkDir(to,false,errmsg) )
+	return false;
+
+    const bool islink = isSymLink( from );
+    BufferString fromfnm( from );
+    if ( islink )
+    {
+	if ( preserve )
+	{
+	    if ( exists(to) )
+		return false;
+
+	    return copy( from, to, preserve, errmsg, taskrun );
+	}
+
+	fromfnm = linkEnd( from );
+	preserve = true;
+    }
+
+    PtrMan<Executor> copier = getRecursiveCopier( fromfnm, to, preserve, true );
+    if ( !copier )
+	return false;
+
+    const bool res = TaskRunner::execute( taskrun, *copier.ptr() );
+    if ( !res && errmsg )
+	*errmsg = copier->uiMessage();
+
+    return res;
+}
+
+
 bool resize( const char* fnm, od_int64 newsz )
 {
     if ( !isLocal(fnm) )
@@ -904,13 +979,14 @@ bool getContent( const char* fnm, BufferString& txt, uiString* errmsg,
 }
 
 
-bool putContent( const BufferStringSet& lines, const char* tofnm, uiString* errmsg,
-		 TaskRunner* taskrun )
+bool putContent( const BufferStringSet& lines, const char* tofnm,
+		 uiString* errmsg, TaskRunner* taskrun )
 {
     BufferString content = lines.cat();
     content.addNewLine();
 
-    return putContent( content.buf(), content.size(), tofnm, errmsg, taskrun );
+    return putContent( content.buf(), content.size(), tofnm,
+		       errmsg, taskrun );
 }
 
 
