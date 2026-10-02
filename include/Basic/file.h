@@ -177,6 +177,10 @@ mGlobal(Basic) bool		copy(const char* from,const char* to,
 mGlobal(Basic) Executor*	getRecursiveCopier(const char* from,
 					       const char* to,
 					       bool preserve=true);
+mGlobal(Basic) Executor*	getRecursiveCopier(const char* from,
+					       const char* to,
+					       bool preserve,
+					       bool merge);
 mGlobal(Basic) Executor*	getRecursiveDeleter(const char* dirnm,
 				    const BufferStringSet* externallist=nullptr,
 				    bool filesonly=false);
@@ -186,6 +190,15 @@ mGlobal(Basic) bool		copyDir(const char* from,const char* to,
 					bool preserve=true,
 					uiString* errmsg=nullptr,
 					TaskRunner* =nullptr);
+mGlobal(Basic) bool		mergeDir(const char* from,const char* to,
+					bool preserve=true,
+					uiString* errmsg=nullptr,
+					TaskRunner* =nullptr);
+				/*!< Recursively merges contents of 'from' into
+				     'to'. Missing files are added, existing
+				     files are overwritten, existing directories
+				     are kept. Creates 'to' if it does not
+				     exist. */
 mGlobal(Basic) bool		removeDir(const char*);
 				/*!< If path is a link, the target directory
 				  is recursively removed, the link remains */
