@@ -961,6 +961,7 @@ int mTestMainFnName( int argc, char** argv )
 	 !testFileReadWrite() ||
 	 !testFileTime(parfile.buf()) ||
 	 !testFileTime(pardir.buf()) ||
+	 !testMergeDir() ||
 	 !testFilePermissions() ||
 	 !testDirPermissions() )
 	return 1;
