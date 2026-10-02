@@ -664,6 +664,94 @@ static bool testFileTime( const char* fnm )
 }
 
 
+static bool testMergeDir()
+{
+    const BufferString input1 =
+		FilePath::getTempFullPath( "test_merge_in1", nullptr );
+    const BufferString input2 =
+		FilePath::getTempFullPath( "test_merge_in2", nullptr );
+    const BufferString output =
+		FilePath::getTempFullPath( "test_merge_out", nullptr );
+    mRunStandardTest( File::createDir(input1.buf()) &&
+		      File::createDir(input2.buf()) &&
+		      File::createDir(output.buf()),
+		      "Create merge source directories" )
+    FileDisposer disposer1( input1.buf() );
+    FileDisposer disposer2( input2.buf() );
+    FileDisposer disposer3( output.buf() );
+
+    const BufferString input1sub = FilePath(input1,"My Folder").fullPath();
+    const BufferString input2sub = FilePath(input2,"My Folder").fullPath();
+    const BufferString outputsub = FilePath(output,"My Folder").fullPath();
+    mRunStandardTest( File::createDir(input1sub.buf()) &&
+		      File::createDir(input2sub.buf()),
+		      "Create merge source subdirectories" )
+
+    const BufferString file_a = FilePath(input1sub,"a.txt").fullPath();
+    const BufferString file_b1 = FilePath(input1sub,"b.txt").fullPath();
+    const BufferString file_b2 = FilePath(input2sub,"b.txt").fullPath();
+    const BufferString file_c = FilePath(input2sub,"c.txt").fullPath();
+    const BufferString only1dir = FilePath(input1sub,"only1").fullPath();
+    const BufferString only2dir = FilePath(input2sub,"only2").fullPath();
+    const BufferString file_x = FilePath(only1dir,"x.txt").fullPath();
+    const BufferString file_y = FilePath(only2dir,"y.txt").fullPath();
+    mRunStandardTest( File::createDir(only1dir.buf()) &&
+		      File::createDir(only2dir.buf()) &&
+		      File::putContent(BufferString("from1-a"),file_a.buf()) &&
+		      File::putContent(BufferString("from1-b"),file_b1.buf()) &&
+		      File::putContent(BufferString("from2-b"),file_b2.buf()) &&
+		      File::putContent(BufferString("from2-c"),file_c.buf()) &&
+		      File::putContent(BufferString("x"),file_x.buf()) &&
+		      File::putContent(BufferString("y"),file_y.buf()),
+		      "Populate merge source trees" )
+
+    uiString msg;
+    mRunStandardTestWithError(
+	    File::mergeDir( input1sub.buf(), outputsub.buf(), true, &msg ),
+	    "First mergeDir into non-existing destination",
+	    msg.getString().buf() )
+
+    BufferString content;
+    mRunStandardTest(
+	    File::exists(FilePath(outputsub,"a.txt").fullPath()) &&
+	    File::exists(FilePath(outputsub,"b.txt").fullPath()) &&
+	    File::exists(FilePath(outputsub,"only1","x.txt").fullPath()) &&
+	    File::getContent(FilePath(outputsub,"b.txt").fullPath(),content) &&
+	    content == "from1-b",
+	    "First mergeDir copied all source files" )
+
+    msg.setEmpty();
+    mRunStandardTestWithError(
+	    File::mergeDir( input2sub.buf(), outputsub.buf(), true, &msg ),
+	    "Second mergeDir into existing destination",
+	    msg.getString().buf() )
+
+    mRunStandardTest(
+	    File::exists(FilePath(outputsub,"a.txt").fullPath()) &&
+	    File::exists(FilePath(outputsub,"c.txt").fullPath()) &&
+	    File::exists(FilePath(outputsub,"only1","x.txt").fullPath()) &&
+	    File::exists(FilePath(outputsub,"only2","y.txt").fullPath()),
+	    "Second mergeDir kept existing and added missing files" )
+
+    content.setEmpty();
+    mRunStandardTest(
+	    File::getContent(FilePath(outputsub,"b.txt").fullPath(),content) &&
+	    content == "from2-b",
+	    "Second mergeDir overwrote existing file" )
+
+    content.setEmpty();
+    mRunStandardTest(
+	    File::getContent(FilePath(outputsub,"a.txt").fullPath(),content) &&
+	    content == "from1-a",
+	    "Second mergeDir left non-conflicting file unchanged" )
+
+    mRunStandardTest( !File::copyDir( input2sub.buf(), outputsub.buf() ),
+		      "copyDir still refuses existing destination" )
+
+    return true;
+}
+
+
 static bool testPerms( const char* fnm, const File::Permissions& expperms )
 {
     const File::Permissions perms = File::getPermissions( fnm );
