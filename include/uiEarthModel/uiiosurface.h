@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "uisurfaceman.h"
 
 #include "bufstringset.h"
+#include "ctxtioobj.h"
 #include "emmanager.h"
 #include "emposid.h"
 #include "faulttrace.h"
@@ -62,6 +63,7 @@ public:
     bool		haveAttrSel() const;
     uiIOObjSel*		getObjSel()		{ return objfld_; }
     uiPosSubSel*	getPosSubSel()		{ return rgfld_; }
+    void		applyConstraints(const IOObjSelConstraints&);
 
 protected:
 			uiIOSurface(uiParent*,bool forread,const char* type,
@@ -77,6 +79,7 @@ protected:
     void		mkSectionFld(bool);
     void		mkRangeFld(bool multiss=false);
     void		mkObjFld(const uiString&);
+    void		mkObjFld(const uiString&,const uiIOObjSel::Setup&);
 
     void		objSel(CallBacker*);
     void		attrSel(CallBacker*);
@@ -173,7 +176,19 @@ public:
 	mDefSetupMemb(bool,multiattribsel)
     };
 
+    mExpClass(uiEarthModel) SelSetup : public Setup
+    {
+    public:
+			SelSetup(const char* surftyp);
+			~SelSetup();
+
+	mDefSetupMemb(uiIOObjSel::Setup,objsel)
+	mDefSetupMemb(IOObjSelConstraints,constraints)
+    };
+
 			uiSurfaceRead(uiParent*,const Setup&,
+			    const ZDomain::Info* =nullptr);
+			uiSurfaceRead(uiParent*,const SelSetup&,
 			    const ZDomain::Info* =nullptr);
 			~uiSurfaceRead();
 
@@ -185,6 +200,8 @@ public:
 protected:
 
     void		inpChanged() override	{ inpChange.trigger(); }
+    void		initRead(const Setup&,
+				 const uiIOObjSel::Setup* =nullptr);
 
 };
 

@@ -11,6 +11,7 @@ ________________________________________________________________________
 #include "uiearthmodelmod.h"
 #include "uiiosurface.h"
 #include "uidialog.h"
+#include "uiioobjselgrp.h"
 
 class uiIOObjSelGrp;
 class uiDialog;
@@ -23,6 +24,10 @@ mExpClass(uiEarthModel) uiMultiSurfaceRead : public uiIOSurface
 public:
 			uiMultiSurfaceRead(uiParent*,const char* type,
 				const ZDomain::Info*);
+			uiMultiSurfaceRead(uiParent*,const char* type,
+				const ZDomain::Info*,
+				const uiIOObjSelGrp::Setup&,
+				const IOObjSelConstraints&);
 			~uiMultiSurfaceRead();
 
     void		update();
