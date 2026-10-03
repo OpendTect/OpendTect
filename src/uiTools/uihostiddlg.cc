@@ -137,6 +137,7 @@ void addInfo( BufferStringSet& infos ) const override
     const BufferString idstr( "HostIDs: ", hostidfld_->text() );
     const BufferString namestr( "Host name: ", localhostgrp_->hostname() );
     const BufferString ipstr( "IP Address: ", localhostgrp_->address() );
+    const BufferString subnetstr( "Subnet Mask: ", localhostgrp_->subnet() );
     const BufferString timestr( "Time Zone: ", timezonefld_->text() );
     const BufferString osstr( "Operating System: ", osfld_->text() );
     const BufferString productstr( "Product name: ", productnmfld_->text() );
@@ -145,6 +146,7 @@ void addInfo( BufferStringSet& infos ) const override
     infos.add( idstr );
     infos.add( namestr );
     infos.add( ipstr );
+    infos.add( subnetstr );
     infos.add( timestr );
     infos.add( osstr );
     infos.add( productstr );

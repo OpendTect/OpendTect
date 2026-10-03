@@ -43,7 +43,7 @@ private:
 
     void timerTick( CallBacker* )
     {
-	retval_ = testNetAuthority() && testSystemInfo() ? 0 : 1;
+	retval_ = testSystemInfo() && testNetAuthority() ? 0 : 1;
 	CallBack::addToMainThread( mCB(this,TestClass,closeTesterCB) );
     }
 
@@ -84,6 +84,13 @@ private:
 	// TODO: enable when supported by DNS:
 	hostaddress = System::hostAddress( dgb29hostname, false );
 	mRunStandardTest( hostaddress.isEmpty(), "dgb29.domain ipv6 (fail)" );
+
+	BufferString subnet;
+	int prefixlength = mUdf(int);
+	mRunStandardTest(
+	    System::getLocalNetMask(localaddress.buf(),subnet,prefixlength) &&
+	    subnet == "255.255.255.0" && prefixlength == 24,
+	    "subnet is 255.255.255.0" );
 
 	if ( __iswin__ )
 	    return true;
