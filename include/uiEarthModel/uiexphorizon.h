@@ -9,8 +9,11 @@ ________________________________________________________________________
 -*/
 
 #include "uiearthmodelmod.h"
+
+#include "ctxtioobj.h"
 #include "uidialog.h"
-#include "stringview.h"
+#include "uiioobjsel.h"
+#include "uiioobjselgrp.h"
 
 class uiFileInput;
 class uiGenInput;
@@ -25,6 +28,20 @@ namespace Coords { class uiCoordSystemSel; }
 mExpClass(uiEarthModel) uiExportHorizon : public uiDialog
 { mODTextTranslationClass(uiExportHorizon);
 public:
+
+    mExpClass(uiEarthModel) Setup
+    {
+    public:
+			Setup(bool isbulk=false);
+			~Setup();
+
+	mDefSetupMembInit(bool,isbulk,false)
+	mDefSetupMemb(uiIOObjSel::Setup,objsel)
+	mDefSetupMemb(uiIOObjSelGrp::Setup,multisel)
+	mDefSetupMemb(IOObjSelConstraints,constraints)
+    };
+
+			uiExportHorizon(uiParent*,const Setup&);
 			uiExportHorizon(uiParent*,bool isbulk);
 			~uiExportHorizon();
 

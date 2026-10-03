@@ -285,19 +285,35 @@ int Write3DHorASCII::nextStep()
 
 // uiExportHorizon
 
+uiExportHorizon::Setup::Setup( bool isbulk )
+    : isbulk_(isbulk)
+    , multisel_(OD::ChooseAtLeastOne)
+{
+    multisel_.allowsetdefault( true );
+}
+
+
+uiExportHorizon::Setup::~Setup()
+{}
+
+
 uiExportHorizon::uiExportHorizon( uiParent* p, bool isbulk )
-    : uiDialog(p,Setup(uiStrings::phrExport(uiStrings::sHorizon()),
-		       mODHelpKey(mExportHorizonHelpID)))
-    , isbulk_(isbulk)
+    : uiExportHorizon( p, Setup(isbulk) )
+{
+}
+
+
+uiExportHorizon::uiExportHorizon( uiParent* p, const Setup& su )
+    : uiDialog(p,uiDialog::Setup(uiStrings::phrExport(uiStrings::sHorizon()),
+				 mODHelpKey(mExportHorizonHelpID)))
+    , isbulk_(su.isbulk_)
 {
     setOkCancelText( uiStrings::sExport(), uiStrings::sClose() );
     setDeleteOnClose( false );
 
-    uiIOObjSelGrp::Setup stup;
-    stup.choicemode_ = OD::ChooseAtLeastOne;
     uiObject* attachobj = nullptr;
 
-    if ( isbulk )
+    if ( isbulk_ )
     {
 	horzdomypefld_ = new uiGenInput( this, tr("Depth Domain"),
 				    BoolInpSpec(SI().zIsTime(),
@@ -311,16 +327,20 @@ uiExportHorizon::uiExportHorizon( uiParent* p, bool isbulk )
 	const ZDomain::Info& depthinfo = SI().depthsInFeet() ?
 			ZDomain::DepthFeet() : ZDomain::DepthMeter();
 	multisurfdepthread_ = new uiMultiSurfaceRead( multigrp, surftype,
-								&depthinfo );
+				&depthinfo, su.multisel_, su.constraints_ );
 	multisurftimeread_ = new uiMultiSurfaceRead( multigrp, surftype,
-							    &ZDomain::TWT() );
+				&ZDomain::TWT(), su.multisel_, su.constraints_);
 	attachobj = multigrp->attachObj();
     }
     else
     {
-	infld_ = new uiSurfaceRead( this, uiSurfaceRead::Setup(
-				    EMHorizon3DTranslatorGroup::sGroupName())
-				    .withsubsel(true).withsectionfld(false) );
+	uiSurfaceRead::SelSetup srsu(
+				EMHorizon3DTranslatorGroup::sGroupName() );
+	srsu.withsubsel_ = true;
+	srsu.withsectionfld_ = false;
+	srsu.objsel_ = su.objsel_;
+	srsu.constraints_ = su.constraints_;
+	infld_ = new uiSurfaceRead( this, srsu );
 	mAttachCB( infld_->inpChange, uiExportHorizon::inpSel );
 	mAttachCB( infld_->attrSelChange, uiExportHorizon::attrSel );
 	attachobj = infld_->attachObj();
@@ -428,7 +448,24 @@ void uiExportHorizon::writeHeader( od_ostream& strm )
 	return;
 
     BufferStringSet selattribs;
-    if ( !isbulk_ && infld_->haveAttrSel() )
+    if ( isbulk_ )
+    {
+	TypeSet<MultiID> midset;
+	if ( getInputMIDs(midset) )
+	{
+	    EM::SurfaceIOData sd;
+	    uiString errmsg;
+	    for ( int idx=0; idx<midset.size(); idx++ )
+	    {
+		if ( !EM::EMM().getSurfaceData(midset[idx],sd,errmsg) )
+		    continue;
+
+		for ( int iattr=0; iattr<sd.valnames.size(); iattr++ )
+		    selattribs.addIfNew( sd.valnames.get(iattr) );
+	    }
+	}
+    }
+    else if ( infld_->haveAttrSel() )
 	infld_->getSelAttributes( selattribs );
 
     const int typ = typfld_->getIntValue();
@@ -529,7 +566,9 @@ bool uiExportHorizon::writeAscii()
 	    mErrRet( errmsg )
 
 	EM::SurfaceIODataSelection sels( sd );
-	if ( !isbulk_ )
+	if ( isbulk_ )
+	    sels.setDefault();
+	else
 	    infld_->getSelection( sels );
 
 	RefMan<EM::EMObject> emobj = em.createTempObject( ioobj->group() );
@@ -700,7 +739,8 @@ bool uiExportHorizon::exportToGF() const
 void uiExportHorizon::attrSel( CallBacker* )
 {
     const bool isgf = exportToGF();
-    udffld_->display( !isgf && infld_ && infld_->haveAttrSel() );
+    const bool haveattrs = isbulk_ || (infld_ && infld_->haveAttrSel());
+    udffld_->display( !isgf && haveattrs );
 }
 
 

@@ -81,11 +81,23 @@ bool uiMultiSurfaceReadDlg::acceptOK( CallBacker* )
 // ***** uiMultiSurfaceRead *****
 uiMultiSurfaceRead::uiMultiSurfaceRead( uiParent* p, const char* typ,
 						const ZDomain::Info* zinfo )
+    : uiMultiSurfaceRead( p, typ, zinfo,
+	uiIOObjSelGrp::Setup(OD::ChooseAtLeastOne).allowsetdefault(true),
+	IOObjSelConstraints() )
+{
+}
+
+
+uiMultiSurfaceRead::uiMultiSurfaceRead( uiParent* p, const char* typ,
+					const ZDomain::Info* zinfo,
+					const uiIOObjSelGrp::Setup& objsu,
+					const IOObjSelConstraints& constr )
     : uiIOSurface(p,true,typ,zinfo)
     , singleSurfaceSelected(this)
 {
-    ioobjselgrp_ = new uiIOObjSelGrp( this, *ctio_,
-	uiIOObjSelGrp::Setup(OD::ChooseAtLeastOne).allowsetdefault(true) );
+    applyConstraints( constr );
+    ioobjselgrp_ = new uiIOObjSelGrp( this, *ctio_, objsu );
+    ioobjselgrp_->setHiddenPolicy( constr.hiddenPolicy() );
     mAttachCB( ioobjselgrp_->selectionChanged, uiMultiSurfaceRead::selCB );
     mAttachCB( ioobjselgrp_->getListField()->doubleClicked,
 		uiMultiSurfaceRead::doubleClickCB );
