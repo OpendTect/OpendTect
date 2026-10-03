@@ -37,6 +37,8 @@ ________________________________________________________________________
 #endif
 
 #ifdef __win__
+# include "odplatform.h"
+# include "winutils.h"
 # include <windows.h>
 #endif
 
