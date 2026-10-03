@@ -38,6 +38,7 @@ public:
 				::toUiString(sFactoryKeyword()) )
 
     MultiID			getMultiID() const override;
+    bool			getSaveInSessionsFlag() const override;
     bool			isInlCrl() const override	{ return true; }
 
     bool			hasColor() const override	{ return true; }

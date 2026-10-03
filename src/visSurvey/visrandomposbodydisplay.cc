@@ -130,6 +130,12 @@ MultiID RandomPosBodyDisplay::getMultiID() const
 }
 
 
+bool RandomPosBodyDisplay::getSaveInSessionsFlag() const
+{
+    return saveInSessionsFlagFor( getMultiID() );
+}
+
+
 void RandomPosBodyDisplay::setColor( OD::Color nc )
 {
     if ( embody_ )

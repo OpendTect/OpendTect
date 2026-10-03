@@ -558,6 +558,12 @@ MultiID MarchingCubesDisplay::getMultiID() const
 }
 
 
+bool MarchingCubesDisplay::getSaveInSessionsFlag() const
+{
+    return saveInSessionsFlagFor( getMultiID() );
+}
+
+
 void MarchingCubesDisplay::setColor( OD::Color nc )
 {
     if ( emsurface_ )

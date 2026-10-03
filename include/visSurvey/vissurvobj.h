@@ -392,7 +392,7 @@ public:
 
     void			setSaveInSessionsFlag( bool yn )
 				{ saveinsessionsflag_ = yn; }
-    bool			getSaveInSessionsFlag() const
+    virtual bool		getSaveInSessionsFlag() const
 				{ return saveinsessionsflag_; }
 
     virtual bool		canBeRemoved() const { return true; }
@@ -400,6 +400,8 @@ public:
 protected:
 				SurveyObject();
     virtual			~SurveyObject();
+
+    bool			saveInSessionsFlagFor(const MultiID&) const;
 
     void			initAdaptiveMouseCursor(CallBacker* eventcb,
 						const VisID&,

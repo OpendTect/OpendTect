@@ -340,6 +340,12 @@ MultiID PolygonBodyDisplay::getMultiID() const
 }
 
 
+bool PolygonBodyDisplay::getSaveInSessionsFlag() const
+{
+    return saveInSessionsFlagFor( getMultiID() );
+}
+
+
 void PolygonBodyDisplay::setColor( OD::Color nc )
 {
     if ( empolygonsurf_ )

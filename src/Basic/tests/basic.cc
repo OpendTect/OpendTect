@@ -147,11 +147,14 @@ static bool testPointerAlignment()
 bool testCompoundKey()
 {
     mRunStandardTest( MultiID::udf().isUdf(), "Undefined multiid" );
+    mRunStandardTest( MultiID::udf().isTransientObjID(),
+		      "Undefined multiid is transient" );
     MultiID testid;
     mRunStandardTest( testid.isUdf(), "Empty multiid is undefined" );
     testid.fromString( "100010.2" );
     mRunStandardTest( testid.isDatabaseID() && !testid.isSyntheticID() &&
-		      !testid.isInMemoryDPID(), "Valid database MultiID" );
+		      !testid.isInMemoryDPID() && !testid.isTransientObjID(),
+		      "Valid database MultiID" );
     testid.fromString( "100050.999998" );
     const MultiID testid2( 100010, MultiID::cSyntheticObjID() );
     mRunStandardTest( testid.isSyntheticID() && !testid.isInMemoryDPID() &&
@@ -166,6 +169,12 @@ bool testCompoundKey()
 		       testid.groupID() == DataPackMgr::SeisID().asInt() &&
 		       testid.toString() == "3.33",
 		      "Valid in-memory MultiID" );
+    const MultiID memobjid( 100010, MultiID::cMemoryObjID() );
+    mRunStandardTest( memobjid.isInMemoryObjID() && memobjid.isTransientObjID(),
+		      "In-memory object MultiID is transient" );
+    const MultiID tmpobjid( 100010, MultiID::cTmpObjID() );
+    mRunStandardTest( tmpobjid.isTmpObjectID() && tmpobjid.isTransientObjID(),
+		      "Temporary object MultiID is transient" );
 
     return true;
 }

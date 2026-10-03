@@ -96,6 +96,7 @@ public:
     const char*			errMsg() const override { return errmsg_.str();}
 
     MultiID			getMultiID() const override;
+    bool			getSaveInSessionsFlag() const override;
     BufferStringSet		displayedSections() const;
 
     void			setOnlyAtSectionsDisplay(bool yn) override;

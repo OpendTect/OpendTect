@@ -273,6 +273,12 @@ MultiID FaultStickSetDisplay::getMultiID() const
 }
 
 
+bool FaultStickSetDisplay::getSaveInSessionsFlag() const
+{
+    return saveInSessionsFlagFor( getMultiID() );
+}
+
+
 void FaultStickSetDisplay::setColor( OD::Color nc )
 {
     if ( fault_ )

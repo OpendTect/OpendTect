@@ -279,6 +279,12 @@ MultiID EMObjectDisplay::getMultiID() const
 }
 
 
+bool EMObjectDisplay::getSaveInSessionsFlag() const
+{
+    return saveInSessionsFlagFor( getMultiID() );
+}
+
+
 BufferStringSet EMObjectDisplay::displayedSections() const
 {
     if ( !emobject_ )

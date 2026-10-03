@@ -114,6 +114,12 @@ bool MultiID::isSyntheticID() const
 }
 
 
+bool MultiID::isTransientObjID() const
+{
+    return isUdf() || isInMemoryObjID() || isTmpObjectID();
+}
+
+
 const MultiID& MultiID::udf()
 {
    static MultiID _udf;

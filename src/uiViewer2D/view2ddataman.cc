@@ -9,8 +9,10 @@ ________________________________________________________________________
 
 #include "view2ddataman.h"
 
+#include "emmanager.h"
 #include "iopar.h"
 #include "keystrs.h"
+#include "view2ddata.h"
 #include "view2dfault.h"
 #include "view2dfaultss2d.h"
 #include "view2dfaultss3d.h"
@@ -151,15 +153,26 @@ void DataManager::getObjects( ObjectSet<DataObject>& objs ) const
 
 void DataManager::fillPar( IOPar& par ) const
 {
+    int nrobjects = 0;
     for ( int idx=0; idx<objects_.size(); idx++ )
     {
-	IOPar dataobjpar;
 	const DataObject& dataobj = *objects_[idx];
+	mDynamicCastGet(const EMDataObject*,emdataobj,&dataobj)
+	if ( emdataobj )
+	{
+	    const MultiID mid =
+		EM::EMM().getMultiID( emdataobj->getEMObjectID() );
+	    if ( mid.isTransientObjID() )
+		continue;
+	}
+
+	IOPar dataobjpar;
 	dataobj.fillPar( dataobjpar );
-	par.mergeComp( dataobjpar, toString(dataobj.id().asInt()) );
+	par.mergeComp( dataobjpar, toString(nrobjects) );
+	nrobjects++;
     }
 
-    par.set( sKeyNrObjects(), objects_.size() );
+    par.set( sKeyNrObjects(), nrobjects );
 }
 
 

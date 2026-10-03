@@ -40,6 +40,8 @@ public:
     bool		isInMemoryObjID() const;
     bool		isTmpObjectID() const;
     bool		isSyntheticID() const;
+    bool		isTransientObjID() const;
+				//!< udf, in-memory, or temporary object ID
 
     MultiID&		setID(int idx,int id);
     inline MultiID&	setGroupID( int id )		{ return setID(0,id); }

@@ -500,4 +500,10 @@ bool SurveyObject::removeSelections( TaskRunner* )
     return true;
 }
 
+
+bool SurveyObject::saveInSessionsFlagFor( const MultiID& mid ) const
+{
+    return saveinsessionsflag_ && !mid.isTransientObjID();
+}
+
 } // namespace visSurvey

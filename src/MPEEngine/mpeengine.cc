@@ -17,8 +17,6 @@ ________________________________________________________________________
 #include "emseedpicker.h"
 #include "emsurface.h"
 #include "emundo.h"
-#include "envvars.h"
-#include "executor.h"
 #include "flatposdata.h"
 #include "geomelement.h"
 #include "ioman.h"
@@ -841,8 +839,8 @@ RefMan<FlatDataPack> Engine::getSeedPosDataPack( const TrcKey& tk, float z,
     }
 
     StepInterval<double> trcrg;
-    trcrg.start_ = tk.trcNr() - (nrtrcs)/2;
-    trcrg.stop_ = tk.trcNr() + (nrtrcs)/2;
+    trcrg.start_ = (double) tk.trcNr() - ((double) nrtrcs)/2;
+    trcrg.stop_ = (double) tk.trcNr() + ((double) nrtrcs)/2;
     StepInterval<double> zrg;
     zrg.start_ = mCast(double,zsamp.atIndex(zidx0));
     zrg.stop_ = mCast(double,zsamp.atIndex(zidx0+nrz-1));
@@ -878,8 +876,12 @@ void Engine::fillPar( IOPar& iopar ) const
 	if ( !tracker )
 	    continue;
 
+	const MultiID mid = EM::EMM().getMultiID( tracker->objectID() );
+	if ( mid.isTransientObjID() )
+	    continue;
+
 	IOPar localpar;
-	localpar.set( sKeyObjectID(),EM::EMM().getMultiID(tracker->objectID()));
+	localpar.set( sKeyObjectID(), mid );
 	localpar.setYN( sKeyEnabled(), tracker->isEnabled() );
 
 	EMSeedPicker* seedpicker =
@@ -918,7 +920,7 @@ bool Engine::usePar( const IOPar& par )
 	PtrMan<IOPar> localpar = par.subselect( idx );
 	MultiID midtoload;
 	if ( !localpar || !localpar->get(sKeyObjectID(),midtoload) ||
-	     midtoload.isUdf() )
+	     midtoload.isTransientObjID() )
 	{
 	    haserrors = true;
 	    continue;
