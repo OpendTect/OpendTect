@@ -34,6 +34,12 @@ namespace System
     mGlobal(Network) const char*	localAddress(bool ipv4only=true);
     mGlobal(Network) bool		isLocalAddressInUse(
 						const char* ipaddr=nullptr);
+    mGlobal(Network) bool		getLocalNetMask(const char* localaddr,
+						BufferString& netmask,
+						int& prefixlength);
+					/*!< Fills dotted netmask and CIDR
+					     prefix length for localaddr.
+					     Returns false if not found. */
 
     mGlobal(Network) const char*	hostName(const char* ip);
     mGlobal(Network) const char*	hostAddress(const char* hostname,

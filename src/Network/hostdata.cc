@@ -13,10 +13,8 @@ ________________________________________________________________________
 #include "debug.h"
 #include "envvars.h"
 #include "filepath.h"
-#include "genc.h"
 #include "iopar.h"
 #include "keystrs.h"
-#include "msgh.h"
 #include "netsocket.h"
 #include "oddirs.h"
 #include "od_strstream.h"
@@ -24,7 +22,6 @@ ________________________________________________________________________
 #include "perthreadrepos.h"
 #include "safefileio.h"
 #include "separstr.h"
-#include "strmoper.h"
 #include "strmprov.h"
 #include "systeminfo.h"
 
@@ -36,43 +33,6 @@ ________________________________________________________________________
 #endif
 
 #include <QHostAddress>
-#include <QNetworkInterface>
-
-namespace System
-{
-
-static bool getLocalNetMask( const char* localaddr,
-			     QHostAddress& qnetmask, int& prefixlength )
-{
-    const QList<QNetworkInterface> allif = QNetworkInterface::allInterfaces();
-    for ( const auto& qni : allif )
-    {
-	if ( !qni.isValid() )
-	    continue;
-
-	const QNetworkInterface::InterfaceFlags flags = qni.flags();
-	if ( !flags.testFlag(QNetworkInterface::IsUp) ||
-	     !flags.testFlag(QNetworkInterface::IsRunning) )
-	    continue;
-
-	const QList<QNetworkAddressEntry> entries = qni.addressEntries();
-	for ( const auto& ent : entries )
-	{
-	    const QHostAddress addr = ent.ip();
-	    const BufferString addrstr( addr.toString() );
-	    if ( addrstr == localaddr )
-	    {
-		qnetmask = ent.netmask();
-		prefixlength = ent.prefixLength();
-		return true;
-	    }
-	}
-    }
-
-    return false;
-}
-
-} // namespace System
 
 #define mDebugOn        (DBG::isOn(DBG_FILEPATH))
 
@@ -87,22 +47,26 @@ HostData::HostData( const OD::String& nm )
 {}
 
 
-HostData::HostData( const char* nm, const OD::Platform& plf )
-    : platform_(plf)
-{ init( nm ); }
-
-
 HostData::HostData( const char* nm, const HostData& localhost,
 		    const OD::Platform& plf )
     : platform_(plf)
     , localhd_(&localhost)
-{ init( nm ); }
+{
+    init( nm );
+}
 
 
 HostData::HostData( const OD::String& nm, const HostData& localhost,
 		    const OD::Platform& plf )
     : HostData(nm.buf(),localhost,plf)
 {}
+
+
+HostData::HostData( const char* nm, const OD::Platform& plf )
+    : platform_(plf)
+{
+    init( nm );
+}
 
 
 HostData::HostData( const HostData& oth )
@@ -952,13 +916,13 @@ bool HostDataList::isOK( uiStringSet& errors, bool testall,
     if ( localaddrret )
 	localaddrret->set( localaddr.buf() );
 
-    QHostAddress qnetmask; int prefixlength = -1;
+    BufferString netmask; int prefixlength = -1;
     if ( localaddr.isEmpty() )
 	errors.add( tr("Cannot determine Ip address of the localhost") );
     else
     {
 	const bool hasprefix =
-	    System::getLocalNetMask( localaddr.str(), qnetmask, prefixlength )
+	    System::getLocalNetMask( localaddr.str(), netmask, prefixlength )
 	    && prefixlength != -1;
 	if ( prefixlengthret && *prefixlengthret==-1 )
 	{

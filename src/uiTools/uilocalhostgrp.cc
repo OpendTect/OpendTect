@@ -14,8 +14,12 @@ ________________________________________________________________________
 #include "uigeninput.h"
 #include "uimsg.h"
 
+#include "hiddenparam.h"
+
 extern "C" { mGlobal(Basic) void SetLocalHostNameOverrule(const char*); }
 
+
+static HiddenParam<uiLocalHostGrp,uiGenInput*> localhostgrphpmgr_(nullptr);
 
 uiLocalHostGrp::uiLocalHostGrp( uiParent* p, const uiString& txt,
 				bool withoverride )
@@ -44,6 +48,13 @@ uiLocalHostGrp::uiLocalHostGrp( uiParent* p, const uiString& txt,
 			   uiStrings::phrJoinStrings( txt, tr("Address") ) );
     hostaddrfld_->setReadOnly();
     hostaddrfld_->attach( alignedBelow, attachobj );
+    attachobj = hostaddrfld_->attachObj();
+
+    auto* subnetfld = new uiGenInput( this, tr("Subnet Mask") );
+    subnetfld->setReadOnly();
+    subnetfld->attach( alignedBelow, attachobj );
+    attachobj = subnetfld->attachObj();
+    localhostgrphpmgr_.setParam( this, subnetfld );
 
     const StringView domainnm = System::localDomainName();
     if ( !domainnm.isEmpty() )
@@ -51,7 +62,7 @@ uiLocalHostGrp::uiLocalHostGrp( uiParent* p, const uiString& txt,
 	domainfld_ = new uiGenInput( this, tr("Domain name") );
 	domainfld_->setText( domainnm );
 	domainfld_->setReadOnly();
-	domainfld_->attach( alignedBelow, hostaddrfld_ );
+	domainfld_->attach( alignedBelow, attachobj );
     }
 
     setHAlignObj( hostnmfld_ );
@@ -59,6 +70,7 @@ uiLocalHostGrp::uiLocalHostGrp( uiParent* p, const uiString& txt,
     hostnmfld_->setText( System::localHostName() );
     if ( hostnmoverrulefld_ )
 	hostnmoverrulefld_->setText( SettingsAccess().getHostNameOverrule() );
+
     lookupaddrCB( nullptr );
 }
 
@@ -66,6 +78,7 @@ uiLocalHostGrp::uiLocalHostGrp( uiParent* p, const uiString& txt,
 uiLocalHostGrp::~uiLocalHostGrp()
 {
     detachAllNotifiers();
+    localhostgrphpmgr_.removeParam( this );
 }
 
 
@@ -73,8 +86,10 @@ void uiLocalHostGrp::setHSzPol( uiObject::SzPolicy szpol )
 {
     hostnmfld_->setElemSzPol( szpol );
     hostaddrfld_->setElemSzPol( szpol );
+    subnetfld_()->setElemSzPol( szpol );
     if ( hostnmoverrulefld_ )
 	hostnmoverrulefld_->setElemSzPol( szpol );
+
     if ( domainfld_ )
 	domainfld_->setElemSzPol( szpol );
 }
@@ -92,6 +107,24 @@ BufferString uiLocalHostGrp::address() const
 }
 
 
+BufferString uiLocalHostGrp::subnet() const
+{
+    return subnetfld_()->text();
+}
+
+
+const uiGenInput* uiLocalHostGrp::subnetfld_() const
+{
+    return localhostgrphpmgr_.getParam( getNonConst(this) );
+}
+
+
+uiGenInput* uiLocalHostGrp::subnetfld_()
+{
+    return localhostgrphpmgr_.getParam( this );
+}
+
+
 bool uiLocalHostGrp::overruleOK() const
 {
     const BufferString overrule( hostnmoverrulefld_->text() );
@@ -101,10 +134,11 @@ bool uiLocalHostGrp::overruleOK() const
     const BufferString address = System::hostAddress( overrule );
     if ( address.isEmpty() )
     {
-	uiMSG().error(tr("No address found for overrule host: %1").
-								arg(overrule));
+	uiMSG().error(tr("No address found for overrule host: %1")
+				.arg(overrule));
 	return false;
     }
+
     return true;
 }
 
@@ -121,6 +155,7 @@ void uiLocalHostGrp::hostnmoverruleCB( CallBacker* )
 	else
 	{
 	    hostaddrfld_->setEmpty();
+	    subnetfld_()->setEmpty();
 	    return;
 	}
     }
@@ -140,5 +175,17 @@ void uiLocalHostGrp::overrulecheckedCB( CallBacker* )
 
 void uiLocalHostGrp::lookupaddrCB( CallBacker* )
 {
-    hostaddrfld_->setText( System::localAddress() );
+    const BufferString addr( System::localAddress() );
+    hostaddrfld_->setText( addr );
+
+    BufferString netmask;
+    int prefixlength = -1;
+    if ( System::getLocalNetMask(addr,netmask,prefixlength) &&
+	 prefixlength >= 0 )
+    {
+	subnetfld_()->setText( BufferString(netmask)
+				.add( " (/" ).add( prefixlength ).add( ")" ) );
+    }
+    else
+	subnetfld_()->setEmpty();
 }
