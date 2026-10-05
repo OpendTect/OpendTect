@@ -10,10 +10,12 @@ ________________________________________________________________________
 #include "uiglinfo.h"
 
 #include "settings.h"
+#include "systeminfo.h"
 #include "uimsg.h"
 #include "visosg.h"
 
 #include <osgGeo/GLInfo>
+#include <osgGeo/LayeredTexture>
 
 
 GLInfo::GLInfo()
@@ -97,6 +99,11 @@ uiRetVal uiGLInfo::getInfo( IOPar& iop, uiRetVal* warnings, bool needupdate )
     iop.set( "GL-vendor", glvendor.buf() );
     iop.set( "GL-renderer", glrender.buf() );
     iop.set( "GL-version", glversion.buf() );
+    const int maxtextureimageunits =
+		osgGeo::LayeredTexture::queryMaxTextureImageUnits();
+    const BufferString maxtexturelayers( maxtextureimageunits>0
+			? toString(maxtextureimageunits) : "Unknown" );
+    iop.set( "Maximum texture layers", maxtexturelayers.buf() );
     if ( !warnings )
 	return uiRetVal::OK();
 
@@ -232,6 +239,23 @@ void uiGLInfo::showMessage( const uiString& msg, bool warn,
 	    Settings::common().write();
 	}
     }
+}
+
+
+void uiGLInfo::updateMaxTextureLayers()
+{
+    mDefineStaticLocalObject( bool, done, = false );
+    if ( done )
+	return;
+
+    const int maxtextureimageunits =
+		osgGeo::LayeredTexture::queryMaxTextureImageUnits();
+    if ( maxtextureimageunits <= 0 )
+	return;
+
+    done = true;
+    IOPar& graphicspar = const_cast<IOPar&>( System::graphicsInformation() );
+    graphicspar.set( "Maximum texture layers", toString(maxtextureimageunits) );
 }
 
 

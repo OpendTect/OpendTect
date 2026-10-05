@@ -48,6 +48,7 @@ public:
     void		createAndShowMessage(bool addwarnings=false,
 				    IOPar* graphicspar=nullptr,
 				    const char* dontshowagainkey=nullptr);
+    void		updateMaxTextureLayers();
 
 private:
     uiRetVal		getInfo(IOPar&,uiRetVal* warnings,bool needupdate=true);

@@ -245,6 +245,7 @@ uiGraphicInfoGrp( uiParent* p, const IOPar& pars )
     const IOPar& graphicsinfo = System::graphicsInformation();
     BufferStringSet keys_;
     graphicsinfo.getKeys( keys_ );
+    keys_.sort();
     uiGenInput* prevfld = nullptr;
     for ( const auto* key : keys_ )
     {

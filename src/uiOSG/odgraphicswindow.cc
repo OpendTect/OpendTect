@@ -13,6 +13,7 @@
 
 #include "odgraphicswindow.h"
 #include "notify.h"
+#include "uiglinfo.h"
 #include "uimain.h"
 #include "uimainwin.h"
 #include "uiosgutil.h"
@@ -1232,11 +1233,13 @@ void HeartBeat::timerEvent( QTimerEvent * )
 	    if( viewer->checkNeedToDoFrame() )
 	    {
 		viewer->frame();
+		uiGLI().updateMaxTextureLayers();
 	    }
 	}
 	else
 	{
 	    viewer->frame();
+	    uiGLI().updateMaxTextureLayers();
 	}
     }
 }

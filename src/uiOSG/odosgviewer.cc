@@ -14,6 +14,7 @@ ________________________________________________________________________
 
 #include "notify.h"
 #include "odopenglwidget.h"
+#include "uiglinfo.h"
 #include "uiosgutil.h"
 
 #include <QThread>
@@ -173,6 +174,8 @@ void ODOSGViewer::frame( double simulationtime )
     // make frame
 #if 1
     osgViewer::Viewer::frame( simulationtime );
+    if ( isRealized() )
+	uiGLI().updateMaxTextureLayers();
 #else
 
     if ( _done) return;
