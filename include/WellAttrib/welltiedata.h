@@ -110,8 +110,6 @@ public :
     void			setSynthetics(const SyntheticData*);
     void			reverseTrc(bool synth,int ioff=0);
     Well::LogSet&		logset_;
-    Wavelet&			initwvlt_;
-    Wavelet&			estimatedwvlt_;
     const Well::Log*		cslog_;
 
     const SeisTrc*		getTrc(bool synth,int ioff=0) const;
@@ -173,6 +171,11 @@ private:
     ZSampling			modelrg_;
     ZSampling			reflrg_;
     const Setup			setup_;
+
+// Do not change this order! initwvlt_ needs an initialized setup_
+public:
+    Wavelet&			initwvlt_;
+    Wavelet&			estimatedwvlt_;
 };
 
 
