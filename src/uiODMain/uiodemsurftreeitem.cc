@@ -418,8 +418,12 @@ bool uiODEarthModelSurfaceTreeItem::askSave()
 
 void uiODEarthModelSurfaceTreeItem::askSaveCB( CallBacker* )
 {
-    uiEMPartServer* ems = applMgr()->EMServer();
-    if ( !ems->isChanged( emid_ ) )
+    uiODApplMgr* mgr = applMgr();
+    if ( !mgr )
+	return;
+
+    uiEMPartServer* ems = mgr->EMServer();
+    if ( !ems || !ems->isChanged( emid_ ) )
 	return;
 
     bool savewithname = EM::EMM().getMultiID( emid_ ).isUdf();
@@ -451,10 +455,15 @@ void uiODEarthModelSurfaceTreeItem::saveCB( CallBacker* cb )
 
 bool uiODEarthModelSurfaceTreeItem::doSave()
 {
-    uiMPEPartServer* mps = applMgr()->mpeServer();
-    uiEMPartServer* ems = applMgr()->EMServer();
-    mps->setCurrentAttribDescSet( applMgr()->attrServer()->curDescSet(false) );
-    mps->setCurrentAttribDescSet( applMgr()->attrServer()->curDescSet(true) );
+    uiODApplMgr* mgr = applMgr();
+    if ( !mgr || !mgr->mpeServer() || !mgr->EMServer() ||
+	 !mgr->attrServer() || !mgr->visServer() )
+	return false;
+
+    uiMPEPartServer* mps = mgr->mpeServer();
+    uiEMPartServer* ems = mgr->EMServer();
+    mps->setCurrentAttribDescSet( mgr->attrServer()->curDescSet(false) );
+    mps->setCurrentAttribDescSet( mgr->attrServer()->curDescSet(true) );
     const bool hastracker = mps->hasTracker( emid_ );
 
     if ( !hastracker && ems->isGeometryChanged(emid_)
@@ -475,13 +484,11 @@ bool uiODEarthModelSurfaceTreeItem::doSave()
 	savewithname = !ioobj;
     }
 
-    const bool stored =
-	applMgr()->EMServer()->storeObject( emid_, savewithname );
+    const bool stored = mgr->EMServer()->storeObject( emid_, savewithname );
     if ( !stored )
 	return false;
 
-    applMgr()->visServer()->setUiObjectName( displayid_,
-					     ems->getUiName(emid_) );
+    mgr->visServer()->setUiObjectName( displayid_, ems->getUiName(emid_) );
     const MultiID mid = ems->getStorageID( emid_ );
     mps->saveSetup( mid );
     updateColumnText( uiODSceneMgr::cNameColumn() );

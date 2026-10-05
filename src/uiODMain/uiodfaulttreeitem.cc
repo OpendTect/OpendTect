@@ -263,8 +263,12 @@ uiODFaultTreeItem::~uiODFaultTreeItem()
 
 void uiODFaultTreeItem::askSaveCB( CallBacker* )
 {
-    uiEMPartServer* ems = applMgr()->EMServer();
-    if ( !ems->isChanged(emid_) )
+    uiODApplMgr* mgr = applMgr();
+    if ( !mgr )
+	return;
+
+    uiEMPartServer* ems = mgr->EMServer();
+    if ( !ems || !ems->isChanged(emid_) )
 	return;
 
     bool savewithname = EM::EMM().getMultiID( emid_ ).isUdf();
@@ -284,6 +288,10 @@ void uiODFaultTreeItem::askSaveCB( CallBacker* )
 
 void uiODFaultTreeItem::saveCB( CallBacker* cb )
 {
+    uiODApplMgr* mgr = applMgr();
+    if ( !mgr || !mgr->EMServer() )
+	return;
+
     bool dosaveas = EM::EMM().getMultiID( emid_ ).isUdf();
     if ( !dosaveas )
     {
@@ -291,12 +299,12 @@ void uiODFaultTreeItem::saveCB( CallBacker* cb )
 	dosaveas = !ioobj;
     }
 
-    const bool issaved = applMgr()->EMServer()->storeObject( emid_, dosaveas );
+    const bool issaved = mgr->EMServer()->storeObject( emid_, dosaveas );
     RefMan<visSurvey::FaultDisplay> faultdisplay = getDisplay();
     if ( issaved && faultdisplay &&
-	 !applMgr()->EMServer()->getUiName(emid_).isEmpty() )
+	 !mgr->EMServer()->getUiName(emid_).isEmpty() )
     {
-	faultdisplay->setName( applMgr()->EMServer()->getName(emid_) );
+	faultdisplay->setName( mgr->EMServer()->getName(emid_) );
 	updateColumnText( uiODSceneMgr::cNameColumn() );
     }
 
@@ -374,7 +382,11 @@ RefMan<visSurvey::FaultDisplay> uiODFaultTreeItem::getDisplay()
 
 bool uiODFaultTreeItem::askContinueAndSaveIfNeeded( bool withcancel )
 {
-    return applMgr()->EMServer()->askUserToSave( emid_, withcancel );
+    uiODApplMgr* mgr = applMgr();
+    if ( !mgr || !mgr->EMServer() )
+	return true;
+
+    return mgr->EMServer()->askUserToSave( emid_, withcancel );
 }
 
 
@@ -714,8 +726,12 @@ void uiODFaultStickSetTreeItem::colorChCB( CallBacker* )
 
 void uiODFaultStickSetTreeItem::askSaveCB( CallBacker* )
 {
-    uiEMPartServer* ems = applMgr()->EMServer();
-    if ( !ems->isChanged(emid_) )
+    uiODApplMgr* mgr = applMgr();
+    if ( !mgr )
+	return;
+
+    uiEMPartServer* ems = mgr->EMServer();
+    if ( !ems || !ems->isChanged(emid_) )
 	return;
 
     bool savewithname = EM::EMM().getMultiID( emid_ ).isUdf();
@@ -736,12 +752,16 @@ void uiODFaultStickSetTreeItem::askSaveCB( CallBacker* )
 
 void uiODFaultStickSetTreeItem::saveCB( CallBacker* cb )
 {
-    const bool issaved = applMgr()->EMServer()->storeObject( emid_, true );
+    uiODApplMgr* mgr = applMgr();
+    if ( !mgr || !mgr->EMServer() )
+	return;
+
+    const bool issaved = mgr->EMServer()->storeObject( emid_, true );
     RefMan<visSurvey::FaultStickSetDisplay> faultsticksetdisplay = getDisplay();
     if ( issaved && faultsticksetdisplay &&
-	 !applMgr()->EMServer()->getUiName(emid_).isEmpty() )
+	 !mgr->EMServer()->getUiName(emid_).isEmpty() )
     {
-	faultsticksetdisplay->setName( applMgr()->EMServer()->getName(emid_) );
+	faultsticksetdisplay->setName( mgr->EMServer()->getName(emid_) );
 	updateColumnText( uiODSceneMgr::cNameColumn() );
     }
 
@@ -752,7 +772,11 @@ void uiODFaultStickSetTreeItem::saveCB( CallBacker* cb )
 
 bool uiODFaultStickSetTreeItem::askContinueAndSaveIfNeeded( bool withcancel )
 {
-    return applMgr()->EMServer()->askUserToSave( emid_, withcancel );
+    uiODApplMgr* mgr = applMgr();
+    if ( !mgr || !mgr->EMServer() )
+	return true;
+
+    return mgr->EMServer()->askUserToSave( emid_, withcancel );
 }
 
 
