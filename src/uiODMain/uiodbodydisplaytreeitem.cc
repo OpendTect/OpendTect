@@ -407,8 +407,12 @@ void uiODBodyDisplayTreeItem::keyPressedCB( CallBacker* )
 
 void uiODBodyDisplayTreeItem::askSaveCB( CallBacker* )
 {
-    uiEMPartServer* ems = applMgr()->EMServer();
-    if ( !ems->isChanged(emid_) )
+    uiODApplMgr* mgr = applMgr();
+    if ( !mgr )
+	return;
+
+    uiEMPartServer* ems = mgr->EMServer();
+    if ( !ems || !ems->isChanged(emid_) )
 	return;
 
     bool savewithname = EM::EMM().getMultiID( emid_ ).isUdf();
@@ -429,14 +433,16 @@ void uiODBodyDisplayTreeItem::askSaveCB( CallBacker* )
 
 void uiODBodyDisplayTreeItem::saveCB( CallBacker* )
 {
-    const bool issaved =
-	applMgr()->EMServer()->storeObject( emid_, true );
+    uiODApplMgr* mgr = applMgr();
+    if ( !mgr || !mgr->EMServer() || !mgr->visServer() )
+	return;
 
-    if ( issaved && !applMgr()->EMServer()->getUiName(emid_).isEmpty() )
+    const bool issaved = mgr->EMServer()->storeObject( emid_, true );
+
+    if ( issaved && !mgr->EMServer()->getUiName(emid_).isEmpty() )
     {
-	const uiEMPartServer* emps = applMgr()->EMServer();
-	applMgr()->visServer()->setUiObjectName( displayid_,
-						 emps->getUiName(emid_) );
+	const uiEMPartServer* emps = mgr->EMServer();
+	mgr->visServer()->setUiObjectName( displayid_, emps->getUiName(emid_) );
 	updateColumnText( uiODSceneMgr::cNameColumn() );
 	NotSavedPrompter::NSP().reportSuccessfullSave();
     }
@@ -445,7 +451,11 @@ void uiODBodyDisplayTreeItem::saveCB( CallBacker* )
 
 bool uiODBodyDisplayTreeItem::askContinueAndSaveIfNeeded( bool withcancel )
 {
-    return applMgr()->EMServer()->askUserToSave( emObjectID(), withcancel );
+    uiODApplMgr* mgr = applMgr();
+    if ( !mgr || !mgr->EMServer() )
+	return true;
+
+    return mgr->EMServer()->askUserToSave( emObjectID(), withcancel );
 }
 
 
