@@ -690,10 +690,21 @@ bool Well::Man::deleteLogs( const MultiID& key,
     }
 
     PtrMan<Writer> wwr = new Writer( wd->multiID(), *wd );
-    if ( !wwr->putLogs() )
+    if ( wwr->canRemoveIndividualLogs() )
     {
-	errmsg_ = wwr->errMsg();
-	return false;
+	if ( !wwr->removeLogs( logstodel ) )
+	{
+	    errmsg_ = wwr->errMsg();
+	    return false;
+	}
+    }
+    else
+    {
+	if ( !wwr->putLogs() )
+	{
+	    errmsg_ = wwr->errMsg();
+	    return false;
+	}
     }
 
     wwr.erase();
