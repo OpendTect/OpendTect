@@ -31,6 +31,7 @@ const char* Well::HDF5Access::sMarkersGrpName() { return "Markers"; }
 const char* Well::HDF5Access::sTDsGrpName()	{ return "Time-Depth Models"; }
 const char* Well::HDF5Access::sCSsGrpName()	{ return "Checkshots"; }
 const char* Well::HDF5Access::sDispParsGrpName(){ return "Display Parameters"; }
+const char* Well::HDF5Access::sKeyLastLogID()	{ return "Last Log ID"; }
 
 // Datasets
 const char* Well::HDF5Access::sCoordsDSName()	{ return "Coordinates"; }
@@ -245,17 +246,21 @@ bool Well::HDF5Reader::getLogs( bool needjustinfo ) const
     if ( !ensureFileOpen() )
 	return false;
 
+    BufferStringSet subgrps;
+    rdr_->getSubGroups( sLogsGrpName(), subgrps );
+
     HDF5::DataSetKey dsky( sLogsGrpName() );
     errmsg_.setEmpty();
-    for ( int ilog=1; ; ilog++ )
+    for ( const auto* subgrp : subgrps )
     {
-	dsky.setDataSetName( toString(ilog) );
+	dsky.setDataSetName( subgrp->buf() );
 	HDF5::DataSetKey grpkey;
 	grpkey.setGroupName( dsky.fullDataSetName() );
 	Log* wl = getWL( grpkey );
-	addToLogSet( wl, needjustinfo );
 	if ( !wl )
-	    break;
+	    continue;
+
+	addToLogSet( wl, needjustinfo );
     }
 
     return errmsg_.isEmpty() && getDefLogs();
@@ -409,15 +414,18 @@ void Well::HDF5Reader::getLogInfo( BufferStringSet& nms ) const
     if ( !ensureFileOpen() )
 	return;
 
+    BufferStringSet subgrps;
+    rdr_->getSubGroups( sLogsGrpName(), subgrps );
+
     HDF5::DataSetKey dsky( sLogsGrpName() );
-    for ( int ilog=1; ; ilog++ )
+    for ( const auto* subgrp : subgrps )
     {
-	dsky.setDataSetName( toString(ilog) );
+	dsky.setDataSetName( subgrp->buf() );
 	HDF5::DataSetKey grpkey;
 	grpkey.setGroupName( dsky.fullDataSetName() );
 	IOPar iop;
 	if ( !getLogPars(grpkey,iop) )
-	    break;
+	    continue;
 
 	BufferString lognm;
 	iop.get( sKey::Name(), lognm );

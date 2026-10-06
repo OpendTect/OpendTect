@@ -9,6 +9,7 @@ ________________________________________________________________________
 
 #include "wellwriter.h"
 
+#include "wellhdf5writer.h"
 #include "wellioprov.h"
 #include "wellodwriter.h"
 #include "wellreader.h"
@@ -46,6 +47,14 @@ bool Well::Writer::isFunctional( const IOObj& ioobj )
     RefMan<Well::Data> wd = new Well::Data;
     Well::Writer wrr( ioobj, *wd );
     return wrr.isFunctional();
+}
+
+
+bool Well::Writer::canRemoveIndividualLogs()
+{
+    mDynamicCastGet( Well::odWriter*, odwa, wa_ );
+    mDynamicCastGet( Well::HDF5Writer*, hdf5wa, wa_ );
+    return odwa || hdf5wa;
 }
 
 
@@ -109,7 +118,6 @@ mImplSimpleWWFn(isFunctional)
 
 mImplWWFn(bool,putLog,const Log&,wl,false)
 
-
 bool Well::Writer::put( const StoreReqs& reqs ) const
 {
     if ( wa_->needsInfoAndTrackCombined() &&
@@ -167,6 +175,21 @@ bool Well::Writer::swapLogs( const Well::Log& log1,
 bool Well::Writer::renameLog( const char* oldnm, const char* newnm )
 {
     return wa_ ? wa_->renameLog( oldnm, newnm ) : false;
+}
+
+
+bool Well::Writer::removeLogs( const BufferStringSet& lognms )
+{
+    mDynamicCastGet( Well::odWriter*, odwa, wa_ );
+    mDynamicCastGet( Well::HDF5Writer*, hdf5wa, wa_ );
+
+    if ( odwa )
+	return odwa->removeLogs( lognms );
+
+    if ( hdf5wa )
+	return hdf5wa->removeLogs( lognms );
+
+    return false;
 }
 
 
@@ -535,31 +558,69 @@ bool Well::odWriter::renameLog( const char* oldnm, const char* newnm )
 }
 
 
+bool Well::odWriter::removeLogs( const BufferStringSet& logstodel ) const
+{
+    TypeSet<int> alllogids;
+    getFileIds( alllogids ); // get all log ids on disk
+    if ( alllogids.isEmpty() )
+    {
+	errmsg_ = tr( "Cannot remove logs: No logs on disk" );
+	return false;
+    }
+
+    TypeSet<int> logstodelids;
+    for ( const auto* lognm : logstodel ) // get log ids to delete
+    {
+	int logidx = getLogIndex( lognm->buf() );
+	if ( mIsUdf(logidx) || !alllogids.isPresent(logidx) )
+	{
+	    errmsg_ = tr( "Cannot remove logs: log '%1' Not found on disk" )
+		      .arg( lognm->buf() );
+	    return false;
+	}
+
+	logstodelids += logidx;
+    }
+
+    for ( const auto& logidx : logstodelids ) // remove the logs from disk
+    {
+	if ( !removeLogFile(logidx) )
+	    continue;
+    }
+
+    // rename the remaining logs to have consecutive ids
+    int fileidx = 1;
+    for ( int idx=0; idx<alllogids.size(); idx++ )
+    {
+	if ( logstodelids.isPresent(alllogids[idx]) )
+	    continue;
+
+	renameLogFile( alllogids[idx], fileidx );
+	fileidx++;
+    }
+
+    return true;
+}
+
+
 int Well::odWriter::getLogIndex( const char* lognm ) const
 {
-    int logidx = -1;
-    //TODO: to be replaced by a proper well log identifier:
-    int nrlogs = -1;
-    if ( isFunctional() )
-    {
-	Reader rdr( wd_.multiID(), const_cast<Data&>( wd_ ) );
-	if ( rdr.isUsable() )
-	{
-	    BufferStringSet lognms;
-	    rdr.getLogInfo( lognms );
-	    logidx = lognms.indexOf( lognm );
-	    nrlogs = lognms.size();
-	}
-    }
+    RefMan<Data> wd = new Data;
+    const Reader rdr( wd_.multiID(), *wd );
 
-    if ( logidx < 0 )
-    {
-	//Unsafe !!!
-	logidx = nrlogs < 0 ? 0 : nrlogs;
-    }
+    BufferStringSet lognms;
+    if ( rdr.getLogs( true ) && rdr.data() )
+	rdr.data()->logs().getNames( lognms );
 
-    logidx++;
-    return logidx;
+    TypeSet<int> alllogids;
+    getFileIds( alllogids );
+
+    if ( alllogids.size() != lognms.size() )
+	return mUdf( int ); // just to be sure, should not happen
+
+    int logidx = lognms.indexOf( lognm );
+
+    return logidx == -1 ? lognms.size() + 1 : ++logidx; // 1-based index
 }
 
 
