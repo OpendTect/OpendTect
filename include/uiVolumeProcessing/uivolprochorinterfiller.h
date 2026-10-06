@@ -12,7 +12,7 @@ ________________________________________________________________________
 #include "uivolprocstepdlg.h"
 #include "volprochorinterfiller.h"
 
-class uiIOObjSel;
+class uiHorizonSel;
 
 namespace VolProc
 {
@@ -38,11 +38,11 @@ protected:
     HorInterFiller*		horinterfiller_;
 
     uiGenInput*			usetophorfld_;
-    uiIOObjSel*			tophorfld_;
+    uiHorizonSel*		tophorfld_;
     uiGenInput*			topvalfld_;
 
     uiGenInput*			usebottomhorfld_;
-    uiIOObjSel*			bottomhorfld_;
+    uiHorizonSel*		bottomhorfld_;
 
     uiGenInput*			usegradientfld_;
 

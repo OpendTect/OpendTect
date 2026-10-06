@@ -10,11 +10,8 @@ ________________________________________________________________________
 #include "uigmt2dlines.h"
 
 #include "draw.h"
-#include "gmtpar.h"
+#include "gmtdef.h"
 #include "ioman.h"
-#include "ioobj.h"
-#include "seisioobjinfo.h"
-#include "seistrctr.h"
 #include "survinfo.h"
 #include "uibutton.h"
 #include "uigeninput.h"

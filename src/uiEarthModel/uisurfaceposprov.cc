@@ -11,6 +11,7 @@ ________________________________________________________________________
 #include "emsurfaceposprov.h"
 
 #include "ctxtioobj.h"
+#include "emhorizon.h"
 #include "emsurfacetr.h"
 #include "ioobj.h"
 #include "iopar.h"
@@ -31,12 +32,6 @@ uiSurfacePosProvGroup::uiSurfacePosProvGroup( uiParent* p,
 					const uiPosProvGroup::Setup& su )
     : uiPosProvGroup(p,su)
     , zfac_(sCast(float,SI().zDomain().userFactor()))
-    , surf1fld_(nullptr)
-    , surf2fld_(nullptr)
-    , zstepfld_(nullptr)
-    , extrazfld_(nullptr)
-    , samplingfld_(nullptr)
-    , nrsamplesfld_(nullptr)
 {
     if ( su.is2d_ )
     {
@@ -44,16 +39,16 @@ uiSurfacePosProvGroup::uiSurfacePosProvGroup( uiParent* p,
 	return;
     }
 
-    surf1fld_ = new uiHorizon3DSel( this, true, uiStrings::sHorizon() );
+    const IOObjContext ctxt = EM::Horizon::ioContext3D( true );
+    surf1fld_ = new uiHorizon3DSel( this, ctxt, uiStrings::sHorizon() );
 
-    const CallBack selcb( mCB(this,uiSurfacePosProvGroup,selChg) );
     issingfld_ = new uiGenInput( this, uiStrings::sSelect(),
 			BoolInpSpec(true,tr("On Horizon"),
 				    tr("To a 2nd Horizon")) );
     issingfld_->attach( alignedBelow, surf1fld_ );
-    issingfld_->valueChanged.notify( selcb );
+    mAttachCB( issingfld_->valueChanged, uiSurfacePosProvGroup::selChg );
 
-    surf2fld_ = new uiHorizon3DSel( this, true, uiStrings::sBottomHor() );
+    surf2fld_ = new uiHorizon3DSel( this, ctxt, uiStrings::sBottomHor() );
     surf2fld_->attach( alignedBelow, issingfld_ );
 
     uiString txt;
@@ -98,7 +93,7 @@ uiSurfacePosProvGroup::uiSurfacePosProvGroup( uiParent* p,
     }
 
     setHAlignObj( surf1fld_ );
-    postFinalize().notify( selcb );
+    mAttachCB( postFinalize(), uiSurfacePosProvGroup::selChg );
 }
 
 

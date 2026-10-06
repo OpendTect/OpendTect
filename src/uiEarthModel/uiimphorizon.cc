@@ -153,7 +153,8 @@ uiImportHorizon::uiImportHorizon( uiParent* p, bool isgeom )
     subselfld_->attach( ensureBelow, sep );
     subselfld_->setSensitive( false );
 
-    outputfld_ = new uiHorizon3DSel( this, !isgeom_ );
+    const IOObjContext ctxt = EM::Horizon::ioContext3D( !isgeom_ );
+    outputfld_ = new uiHorizon3DSel( this, ctxt );
     outputfld_->setLabelText( isgeom_
 			     ? uiStrings::phrOutput( uiStrings::sHorizon() )
 			     : tr("Add to Horizon") );
@@ -807,7 +808,8 @@ uiImpHorFromZMap::uiImpHorFromZMap( uiParent* p )
     unitfld_->setUnit( UnitOfMeasure::surveyDefZUnit() );
     unitfld_->attach( alignedBelow, attachobj );
 
-    outputfld_ = new uiHorizon3DSel( this, false );
+    const IOObjContext ctxt = EM::Horizon::ioContext3D( false );
+    outputfld_ = new uiHorizon3DSel( this, ctxt );
     outputfld_->attach( alignedBelow, unitfld_ );
 }
 

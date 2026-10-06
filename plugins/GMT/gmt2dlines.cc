@@ -12,6 +12,7 @@ ________________________________________________________________________
 #include "bufstringset.h"
 #include "draw.h"
 #include "initgmtplugin.h"
+#include "gmtdef.h"
 #include "ioman.h"
 #include "ioobj.h"
 #include "keystrs.h"
@@ -209,7 +210,8 @@ bool GMT2DLines::doExecute( od_ostream& strm, const char* fnm )
 		{
 		    cvec = posns[tdx+5].coord_ - posns[tdx-5].coord_;
 		    angle = mCast( float,
-                                   Math::toDegrees( Math::Atan2( cvec.y_, cvec.x_ ) ) );
+			   Math::toDegrees(
+				 Math::Atan2( cvec.y_, cvec.x_ ) ) );
 		    perpangle = angle > 0 ? angle - 90 : angle + 90;
 		}
 

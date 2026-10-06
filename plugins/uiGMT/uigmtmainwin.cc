@@ -13,7 +13,7 @@ ________________________________________________________________________
 #include "filepath.h"
 #include "genc.h"
 #include "gmtclip.h"
-#include "gmtpar.h"
+#include "gmtdef.h"
 #include "gmtprocflow.h"
 #include "gmtprocflowtr.h"
 #include "initgmtplugin.h"
@@ -40,11 +40,7 @@ ________________________________________________________________________
 uiGMTMainWin::uiGMTMainWin( uiParent* p )
     : uiDialog(p,Setup(getCaptionStr(),mODHelpKey(mGMTMainWinHelpID))
 		    .modal(false))
-    , addbut_(0)
-    , editbut_(0)
     , ctio_(*mMkCtxtIOObj(ODGMTProcFlow))
-    , tim_(0)
-    , needsave_(false)
 {
     setCtrlStyle( CloseOnly );
 
@@ -270,15 +266,15 @@ void uiGMTMainWin::butPush( CallBacker* cb )
     if ( curidx >= 0 )
 	flowfld_->setCurrentItem( curidx );
 
-    setButStates(0);
+    setButStates( nullptr );
 }
 
 
-void uiGMTMainWin::setButStates( CallBacker* cb )
+void uiGMTMainWin::setButStates( CallBacker* )
 {
     const bool havesel = !flowfld_->isEmpty();
     rmbut_->setSensitive( havesel );
-    selChg( 0 );
+    selChg( nullptr );
 }
 
 
@@ -331,7 +327,7 @@ void uiGMTMainWin::addCB( CallBacker* )
     pars_ += par;
     flowfld_->setCurrentItem( flowfld_->size() - 1 );
     needsave_ = true;
-    setButStates( 0 );
+    setButStates( nullptr );
 }
 
 

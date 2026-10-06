@@ -47,6 +47,6 @@ protected:
     uiIOObjSel*		objfld_;
     uiGenInput*		filludffld_;
     uiPushButton*	settingsbut_;
-    Array2DInterpol*	interpol_;
+    Array2DInterpol*	interpol_	= nullptr;
     BufferString	methodname_;
 };

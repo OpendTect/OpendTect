@@ -121,6 +121,7 @@ void uiIOObjSelDlg::init( const CtxtIOObj& ctio )
     sgsu.withwriteopts( setup_.withwriteopts_ );
     sgsu.withinserters( setup_.withinserters_ );
     sgsu.trsnotallwed( setup_.trsnotallwed_ );
+    sgsu.hiddenpolicy( setup_.hiddenpolicy_ );
     selgrp_ = new uiIOObjSelGrp( this, ctio, sgsu );
     selgrp_->getListField()->resizeToContents();
     statusBar()->setTxtAlign( 0, Alignment::Right );

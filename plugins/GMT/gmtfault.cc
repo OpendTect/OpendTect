@@ -11,26 +11,25 @@ ________________________________________________________________________
 
 #include "binidsurface.h"
 #include "emfault3d.h"
-#include "emfaultstickset.h"
 #include "emhorizon3d.h"
 #include "emmanager.h"
 #include "emobject.h"
 #include "explfaultsticksurface.h"
 #include "explplaneintersection.h"
 #include "faulthorintersect.h"
+#include "gmtdef.h"
 #include "indexedshape.h"
 #include "iopar.h"
 #include "keystrs.h"
 #include "multiid.h"
-#include "position.h"
 #include "positionlist.h"
 #include "ptrman.h"
 #include "refcount.h"
+#include "od_ostream.h"
 #include "string2.h"
 #include "survinfo.h"
 #include "typeset.h"
 
-#include "od_ostream.h"
 
 
 int GMTFault::factoryid_ = -1;

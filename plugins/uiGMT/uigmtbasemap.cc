@@ -9,8 +9,8 @@ ________________________________________________________________________
 
 #include "uigmtbasemap.h"
 
-#include "gmtpar.h"
 #include "axislayout.h"
+#include "gmtdef.h"
 #include "separstr.h"
 #include "survinfo.h"
 #include "uibutton.h"
@@ -79,7 +79,7 @@ uiGMTBaseMapGrp::uiGMTBaseMapGrp( uiParent* p )
 }
 
 
-void uiGMTBaseMapGrp::xyrgChg( CallBacker* cb )
+void uiGMTBaseMapGrp::xyrgChg( CallBacker* )
 {
     if ( !xrgfld_ || !yrgfld_ || !lebelintvfld_ )
 	return;
@@ -145,7 +145,7 @@ void uiGMTBaseMapGrp::resetCB( CallBacker* )
 }
 
 
-void uiGMTBaseMapGrp::scaleChg( CallBacker* cb )
+void uiGMTBaseMapGrp::scaleChg( CallBacker* )
 {
     const float factor = (float)scalefld_->getIntValue();
     const Interval<int> xrg = xrgfld_->getIInterval();

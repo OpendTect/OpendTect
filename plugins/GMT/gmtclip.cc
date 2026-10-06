@@ -9,7 +9,7 @@ ________________________________________________________________________
 
 #include "gmtclip.h"
 
-#include "filepath.h"
+#include "gmtdef.h"
 #include "ioman.h"
 #include "ioobj.h"
 #include "keystrs.h"

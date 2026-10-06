@@ -48,7 +48,8 @@ uiGenRanLinesByContour::uiGenRanLinesByContour( uiParent* p )
 		       uiGenRanLinesByContour::sSpecGenPar(),
 		       mODHelpKey(mGenRanLinesByContourHelpID)))
 {
-    infld_ = new uiHorizon3DSel( this, true );
+    const IOObjContext ctxt = EM::Horizon::ioContext3D( true );
+    infld_ = new uiHorizon3DSel( this, ctxt );
 
     IOObjContext polyctxt = mIOObjContext( PickSet );
     PickSetTranslator::fillConstraints( polyctxt, true );
@@ -74,7 +75,7 @@ uiGenRanLinesByContour::uiGenRanLinesByContour( uiParent* p )
     nrlargestfld_->attach( alignedBelow, contzrgfld_ );
     largestfld_->attach( leftOf, nrlargestfld_ );
     largestendfld_->attach( rightOf, nrlargestfld_ );
-    largestOnlyChg( 0 );
+    largestOnlyChg( nullptr );
 
     vtxthreshfld_ = new uiLabeledSpinBox( this, tr("Minimum number of points"));
     vtxthreshfld_->box()->setInterval( 2, INT_MAX );
@@ -102,12 +103,13 @@ uiGenRanLinesByContour::uiGenRanLinesByContour( uiParent* p )
     dispfld_->attach( alignedBelow, outfld_ );
     dispfld_->setChecked( true );
 
-    postFinalize().notify( cb );
+    mAttachCB( postFinalize(), uiGenRanLinesByContour::isrelChg );
 }
 
 
 uiGenRanLinesByContour::~uiGenRanLinesByContour()
 {
+    detachAllNotifiers();
 }
 
 
@@ -157,9 +159,9 @@ bool uiGenRanLinesByContour::acceptOK( CallBacker* )
 	   mErrRet( errmsg )
     }
 
-    uiTaskRunner taskrunner( this );
+    uiTaskRunner runner( this );
     RefMan<EM::EMObject> emobj =
-	EM::EMM().loadIfNotFullyLoaded( horioobj->key(), &taskrunner );
+	EM::EMM().loadIfNotFullyLoaded( horioobj->key(), &runner );
     mDynamicCastGet(EM::Horizon3D*,hor,emobj.ptr())
     if ( !hor )
 	return false;

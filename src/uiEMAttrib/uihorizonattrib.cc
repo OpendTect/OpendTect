@@ -11,10 +11,10 @@ ________________________________________________________________________
 #include "horizonattrib.h"
 
 #include "attribdesc.h"
-#include "attribparam.h"
+#include "attribparam.h" // IWYU pragma: keep
 #include "ctxtioobj.h"
 #include "emioobjinfo.h"
-#include "emsurfaceiodata.h"
+#include "emhorizon.h"
 #include "emsurfacetr.h"
 #include "ioman.h"
 #include "ioobj.h"
@@ -53,8 +53,10 @@ uiHorizonAttrib::uiHorizonAttrib( uiParent* p, bool is2d )
 {
     inpfld_ = createInpFld( is2d );
 
-    horfld_ = new uiHorizonSel( this, is2d, true );
-    horfld_->selectionDone.notify( mCB(this,uiHorizonAttrib,horSel) );
+    const IOObjContext ctxt = EM::Horizon::ioContext( is2d, true );
+    horfld_ = uiHorizonSel::create( this, ctxt );
+
+    mAttachCB( horfld_->selectionDone, uiHorizonAttrib::horSel );
     horfld_->attach( alignedBelow, inpfld_ );
 
     uiStringSet strs;
@@ -72,12 +74,13 @@ uiHorizonAttrib::uiHorizonAttrib( uiParent* p, bool is2d )
     surfdatafld_->attach( alignedBelow, typefld_ );
 
     setHAlignObj( inpfld_ );
-    typeSel(0);
+    typeSel( nullptr );
 }
 
 
 uiHorizonAttrib::~uiHorizonAttrib()
 {
+    detachAllNotifiers();
 }
 
 
@@ -89,7 +92,7 @@ bool uiHorizonAttrib::setParameters( const Attrib::Desc& desc )
     mIfGetMultiID(Horizon::sKeyHorID(),horid,horfld_->setInput(horid))
 
     if ( horfld_->ioobj(true) )
-	horSel(0);
+	horSel(nullptr);
 
     mIfGetEnum(Horizon::sKeyType(), typ, typefld_->setValue(typ));
 
@@ -99,7 +102,7 @@ bool uiHorizonAttrib::setParameters( const Attrib::Desc& desc )
 
     mIfGetBool(Horizon::sKeyRelZ(), isrel, isrelbox_->setChecked(isrel));
 
-    typeSel(0);
+    typeSel(nullptr);
 
     return true;
 }

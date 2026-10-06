@@ -38,26 +38,28 @@ uiChangeHorizonDlg::uiChangeHorizonDlg( uiParent* p, EM::Horizon* hor,
     , is2d_(is2d)
 {
     setCtrlStyle( RunAndClose );
+    if ( !horizon_ )
+    {
+	const IOObjContext ctxt = EM::Horizon::ioContext( is2d, true );
+	const uiIOObjSel::Setup su(
+			uiStrings::phrInput(uiStrings::sHorizon(1)) );
+	inputfld_ = uiHorizonSel::create( this, ctxt, su );
+    }
 
-    if ( horizon_ )
-	horizon_->ref();
-    else
-	inputfld_ = new uiHorizonSel( this, is2d, true,
-			    uiStrings::phrInput(uiStrings::sHorizon(1)) );
-
-    savefldgrp_ = new uiHorSaveFieldGrp( this, horizon_ );
+    savefldgrp_ = new uiHorSaveFieldGrp( this, horizon_.ptr() );
     savefldgrp_->setSaveFieldName( "Save interpolated horizon" );
 }
 
 
 void uiChangeHorizonDlg::attachPars()
 {
-    if ( !parsgrp_ ) return;
+    if ( !parsgrp_ )
+	return;
 
     if ( inputfld_ )
 	parsgrp_->attach( alignedBelow, inputfld_ );
 
-    uiSeparator* sep = new uiSeparator( this, "Hor sep" );
+    auto* sep = new uiSeparator( this, "Hor sep" );
     sep->attach( stretchedBelow, parsgrp_ );
 
     savefldgrp_->attach( alignedBelow, parsgrp_ );
@@ -67,7 +69,6 @@ void uiChangeHorizonDlg::attachPars()
 
 uiChangeHorizonDlg::~uiChangeHorizonDlg()
 {
-    if ( horizon_ ) horizon_->unRef();
 }
 
 
@@ -80,14 +81,11 @@ bool uiChangeHorizonDlg::readHorizon()
 	return false;
 
     const MultiID& mid = inputfld_->ctxtIOObj().ioobj_->key();
-    EM::Horizon* hor = savefldgrp_->readHorizon( mid );
+    ConstRefMan<EM::Horizon> hor = savefldgrp_->readHorizon( mid );
     if ( !hor )
 	return false;
 
-    if ( horizon_ )//does this unref need to be removed?
-	horizon_->unRef();
-    horizon_ = hor;
-    horizon_->ref();
+    horizon_ = hor.getNonConstPtr();
 
     return true;
 }
@@ -108,14 +106,16 @@ bool uiChangeHorizonDlg::doProcessing3D()
 {
     MouseCursorChanger chgr( MouseCursor::Wait );
     bool change = false;
-    EM::Horizon* usedhor = savefldgrp_->getNewHorizon() ?
-	savefldgrp_->getNewHorizon() : horizon_;
-    mDynamicCastGet(EM::Horizon3D*,usedhor3d,usedhor)
-    mDynamicCastGet(EM::Horizon3D*,hor3d,horizon_)
+    ConstRefMan<EM::Horizon> usedhor = savefldgrp_->getNewHorizon();
+    if ( !usedhor )
+	usedhor = horizon_;
+
+    mDynamicCastGet(EM::Horizon3D*,usedhor3d,usedhor.getNonConstPtr())
+    mDynamicCastGet(EM::Horizon3D*,hor3d,horizon_.ptr())
     if ( !usedhor3d || !hor3d )
 	return false;
 
-    uiTaskRunner dlg( this );
+    uiTaskRunner runner( this );
     PtrMan<Array2D<float> > arr = hor3d->createArray2D();
     if ( !arr )
     {
@@ -126,11 +126,11 @@ bool uiChangeHorizonDlg::doProcessing3D()
 
     const StepInterval<int> rowrg = hor3d->geometry().rowRange();
     const StepInterval<int> colrg = hor3d->geometry().colRange( -1 );
-    PtrMan<Executor> worker = getWorker( *arr, rowrg, colrg );
+    PtrMan<Task> worker = getWorker( *arr, rowrg, colrg );
     if ( !worker )
 	return false;
 
-    if ( !TaskRunner::execute(&dlg,*worker) )
+    if ( !runner.execute(*worker) )
 	return false;
 
     if ( hor3d != usedhor3d )
@@ -206,8 +206,8 @@ uiFilterHorizonDlg::~uiFilterHorizonDlg()
 
 
 Executor* uiFilterHorizonDlg::getWorker( Array2D<float>& a2d,
-					 const StepInterval<int>& rowrg,
-					 const StepInterval<int>& colrg )
+					 const StepInterval<int>& /*rowrg*/,
+					 const StepInterval<int>& /*colrg*/ )
 {
     Array2DFilterPars pars = ((uiArr2DFilterPars*)parsgrp_)->getInput();
     auto* exec = new Array2DFilterer<float>( a2d, pars );

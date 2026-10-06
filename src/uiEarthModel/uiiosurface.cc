@@ -1239,14 +1239,13 @@ void uiAuxDataGrp::selChg( CallBacker* )
 uiAuxDataSel::uiAuxDataSel( uiParent* p, const char* typ, bool withobjsel,
 			    bool forread )
     : uiGroup(p,"AuxDataSel")
-    , objfld_(nullptr)
     , objtype_(typ)
-    , key_(MultiID::udf())
     , forread_(forread)
 {
     if ( withobjsel )
     {
-	objfld_ = new uiHorizon3DSel( this, true );
+	const IOObjContext ctxt = EM::Horizon::ioContext3D( true );
+	objfld_ = new uiHorizon3DSel( this, ctxt );
 	mAttachCB( objfld_->selectionDone, uiAuxDataSel::objSelCB );
     }
 
@@ -1256,6 +1255,7 @@ uiAuxDataSel::uiAuxDataSel( uiParent* p, const char* typ, bool withobjsel,
 				  mCB(this,uiAuxDataSel,auxSelCB) );
     if ( objfld_ )
 	auxdatafld_->attach( alignedBelow, objfld_ );
+
     setHAlignObj( auxdatafld_ );
 
     mAttachCB( postFinalize(), uiAuxDataSel::finalizeCB );
@@ -1359,24 +1359,15 @@ uiBodySel::~uiBodySel()
 
 // uiHorizonSel
 
-uiHorizonSel::uiHorizonSel( uiParent* p, bool is2d, const ZDomain::Info* zinfo,
-			    bool forread, const uiIOObjSel::Setup& setup )
-    : uiIOObjSel(p,EM::Horizon::ioContext(is2d,zinfo,forread),setup)
+uiHorizonSel::uiHorizonSel( uiParent* p, const IOObjContext& ctxt,
+			    const uiIOObjSel::Setup& setup )
+    : uiIOObjSel(p,ctxt,setup)
 {
     if ( setup.seltxt_.isEmpty() )
-	setLabelText( forread ? uiStrings::phrInput( uiStrings::sHorizon() )
-			      : uiStrings::phrOutput( uiStrings::sHorizon() ) );
-    fillEntries();
-}
+	setLabelText( ctxt.forread_
+			? uiStrings::phrInput( uiStrings::sHorizon() )
+			: uiStrings::phrOutput( uiStrings::sHorizon() ) );
 
-
-uiHorizonSel::uiHorizonSel( uiParent* p, bool is2d,
-			    bool forread, const uiIOObjSel::Setup& setup )
-    : uiIOObjSel(p,EM::Horizon::ioContext(is2d,forread),setup)
-{
-    if ( setup.seltxt_.isEmpty() )
-	setLabelText( forread ? uiStrings::phrInput( uiStrings::sHorizon() )
-			      : uiStrings::phrOutput( uiStrings::sHorizon() ) );
     fillEntries();
 }
 
@@ -1385,26 +1376,63 @@ uiHorizonSel::~uiHorizonSel()
 {}
 
 
+uiHorizonSel* uiHorizonSel::create( uiParent* p, const IOObjContext& ctxt,
+				    const uiIOObjSel::Setup& setup )
+{
+    if ( ctxt.trgroup_ == &EMHorizon2DTranslatorGroup::theInst() )
+	return new uiHorizon2DSel( p, ctxt, setup );
+    if ( ctxt.trgroup_ == &EMHorizon3DTranslatorGroup::theInst() )
+	return new uiHorizon3DSel( p, ctxt, setup );
+
+    return nullptr;
+}
+
+
 // uiHorizon3DSel
+uiHorizon3DSel::uiHorizon3DSel( uiParent* p, const IOObjContext& ctxt,
+				const uiIOObjSel::Setup& setup )
+    : uiHorizonSel(p,ctxt,setup)
+{
+}
+
+
+mStartAllowDeprecatedSection
+
 uiHorizon3DSel::uiHorizon3DSel( uiParent* p, const ZDomain::Info* zinfo,
 			    bool forread, const uiIOObjSel::Setup& setup )
-    : uiHorizonSel(p,false,zinfo,forread,setup)
+    : uiHorizonSel(p,EM::Horizon::ioContext3D(forread,zinfo),setup)
 {
 }
 
 
-uiHorizon3DSel::uiHorizon3DSel( uiParent* p,
-			    bool forread, const uiIOObjSel::Setup& setup )
-    : uiHorizonSel(p,false,forread,setup)
+uiHorizon3DSel::uiHorizon3DSel( uiParent* p, bool forread,
+				const uiIOObjSel::Setup& setup )
+    : uiHorizonSel(p,EM::Horizon::ioContext3D(forread),setup)
 {
 }
+
+mStopAllowDeprecatedSection
 
 
 uiHorizon3DSel::~uiHorizon3DSel()
 {}
 
 
-//uiFaultSel
+// uiHorizon2DSel
+uiHorizon2DSel::uiHorizon2DSel( uiParent* p, const IOObjContext& ctxt,
+				const uiIOObjSel::Setup& setup )
+    : uiHorizonSel(p,ctxt,setup)
+{
+}
+
+
+uiHorizon2DSel::~uiHorizon2DSel()
+{}
+
+
+namespace EM
+{
+
 static uiString getLabelText( bool forread, EM::ObjectType type )
 {
     uiString showstr;
@@ -1419,15 +1447,14 @@ static uiString getLabelText( bool forread, EM::ObjectType type )
 		   : uiStrings::phrOutput( showstr );
 }
 
-
 static IOObjContext ioContext( bool isforread,
-		EM::ObjectType type, const ZDomain::Info* zinfo )
+		ObjectType type, const ZDomain::Info* zinfo )
 {
 
     IOObjContext ctxt( nullptr );
-    if ( type == EM::ObjectType::Flt3D )
+    if ( type == ObjectType::Flt3D )
 	ctxt = mIOObjContext(EMFault3D);
-    else if ( EM::isFaultStickSet(type) )
+    else if ( isFaultStickSet(type) )
 	ctxt = mIOObjContext(EMFaultStickSet);
     else
 	ctxt = mIOObjContext(EMFaultSet3D);
@@ -1442,6 +1469,8 @@ static IOObjContext ioContext( bool isforread,
     return ctxt;
 }
 
+} // namespace EM
+
 
 uiFaultSel::uiFaultSel( uiParent* p, EM::ObjectType type,
 			const ZDomain::Info* zinfo, bool isforread,
@@ -1449,7 +1478,7 @@ uiFaultSel::uiFaultSel( uiParent* p, EM::ObjectType type,
     : uiIOObjSel(p,ioContext(isforread,type,zinfo),su)
 {
     if ( su.seltxt_.isEmpty() )
-	setLabelText( getLabelText(isforread,type) );
+	setLabelText( EM::getLabelText(isforread,type) );
 
     fillEntries();
 }

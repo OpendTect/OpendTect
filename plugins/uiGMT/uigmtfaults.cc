@@ -21,9 +21,10 @@ ________________________________________________________________________
 
 #include "bufstring.h"
 #include "draw.h"
+#include "emhorizon.h"
 #include "emmanager.h"
 #include "emsurfacetr.h"
-#include "gmtpar.h"
+#include "gmtdef.h"
 #include "ioman.h"
 #include "iopar.h"
 #include "multiid.h"
@@ -61,14 +62,15 @@ uiGMTFaultsGrp::uiGMTFaultsGrp( uiParent* p )
     optionfld_ = new uiGenInput( this, tr("Intersection with "),
 				 BoolInpSpec(true, tr("Z Slice"),
 				 uiStrings::sHorizon()) );
-    optionfld_->valueChanged.notify( mCB(this,uiGMTFaultsGrp,typeChgCB) );
+    mAttachCB( optionfld_->valueChanged, uiGMTFaultsGrp::typeChgCB );
     optionfld_->attach( alignedBelow, namefld_ );
 
     const uiString lbl = tr("Z Value %1").arg( SI().getZUnitString() );
     zvaluefld_ = new uiGenInput( this, lbl, IntInpSpec(0) );
     zvaluefld_->attach( alignedBelow, optionfld_ );
 
-    horfld_ = new uiHorizon3DSel( this, true, uiStrings::sHorizon() );
+    const IOObjContext ctxt = EM::Horizon::ioContext3D( true );
+    horfld_ = new uiHorizon3DSel( this, ctxt, uiStrings::sHorizon() );
     horfld_->attach( alignedBelow, optionfld_ );
 
     linestfld_ = new uiSelLineStyle( this, OD::LineStyle(),
@@ -83,7 +85,13 @@ uiGMTFaultsGrp::uiGMTFaultsGrp( uiParent* p )
     usecolorbut_ = new uiCheckBox( this, tr("Use fault color"),
 				   mCB(this,uiGMTFaultsGrp,useColorCB) );
     usecolorbut_->attach( rightOf, colorfld_ );
-    postFinalize().notify( mCB(this,uiGMTFaultsGrp,typeChgCB) );
+    mAttachCB( postFinalize(), uiGMTFaultsGrp::typeChgCB );
+}
+
+
+uiGMTFaultsGrp::~uiGMTFaultsGrp()
+{
+    detachAllNotifiers();
 }
 
 
@@ -152,7 +160,7 @@ bool uiGMTFaultsGrp::fillPar( IOPar& iop ) const
 
 bool uiGMTFaultsGrp::usePar( const IOPar& iop )
 {
-    IOPar* fltpar = iop.subselect( ODGMT::sKeyFaultID() );
+    PtrMan<IOPar> fltpar = iop.subselect( ODGMT::sKeyFaultID() );
     if ( !fltpar )
 	return false;
 
@@ -163,10 +171,9 @@ bool uiGMTFaultsGrp::usePar( const IOPar& iop )
 	MultiID mid;
 	if (!fltpar->get( toString(idx), mid ) )
 	    break;
-	IOObj* obj = IOM().get( mid );
+	PtrMan<IOObj> obj = IOM().get( mid );
 	if ( obj )
 	    tosel += mid;
-	delete obj;
     }
     faultfld_->setChosen( tosel );
 
@@ -206,7 +213,7 @@ bool uiGMTFaultsGrp::usePar( const IOPar& iop )
 	colorfld_->setColor( clr );
     }
 
-    typeChgCB( 0 );
+    typeChgCB( nullptr );
     return true;
 }
 
@@ -217,5 +224,5 @@ void uiGMTFaultsGrp::reset()
     optionfld_->setValue( true, 0 );
     zvaluefld_->setValue( 0 );
     horfld_->clear();
-    typeChgCB( 0 );
+    typeChgCB( nullptr );
 }

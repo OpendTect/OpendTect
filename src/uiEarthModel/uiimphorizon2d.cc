@@ -223,13 +223,17 @@ uiImportHorizon2D::uiImportHorizon2D( uiParent* p )
     udftreatfld_->attach( alignedBelow, scanbut_ );
     udftreatfld_->attach( ensureBelow, sep );
 
-    timeoutputfld_ = new uiHorizonSel( this, true, &ZDomain::TWT(), false );
+    const IOObjContext timectxt =
+			EM::Horizon::ioContext2D( false, &ZDomain::TWT() );
+    timeoutputfld_ = new uiHorizon2DSel( this, timectxt );
     timeoutputfld_->setLabelText(  tr("Output time horizon") );
     timeoutputfld_->attach( alignedBelow, udftreatfld_ );
 
     const ZDomain::Info& depthinfo = SI().zInFeet() ? ZDomain::DepthFeet()
 						    : ZDomain::DepthMeter();
-    depthoutputfld_ = new uiHorizonSel( this, true, &depthinfo, false );
+    const IOObjContext depthctxt =
+			EM::Horizon::ioContext2D( false, &depthinfo );
+    depthoutputfld_ = new uiHorizon2DSel( this, depthctxt );
     depthoutputfld_->setLabelText( tr("Output depth horizon") );
     depthoutputfld_->attach( alignedBelow, udftreatfld_ );
 

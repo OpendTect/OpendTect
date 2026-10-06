@@ -13,6 +13,7 @@ ________________________________________________________________________
 #include "envvars.h"
 #include "filepath.h"
 #include "gmt2dlines.h"
+#include "gmtdef.h"
 #include "initgmtplugin.h"
 #include "ioman.h"
 #include "ioobj.h"

@@ -9,13 +9,15 @@ ________________________________________________________________________
 -*/
 
 #include "uidpsdemomod.h"
+
+#include "datapointset.h"
 #include "uidialog.h"
+
 class IOObj;
 class uiSeisSel;
 class TaskRunner;
 class uiIOObjSel;
 class uiGenInput;
-class DataPointSet;
 class DataPointSetDisplayMgr;
 namespace EM { class Horizon3D; }
 
@@ -23,19 +25,19 @@ namespace EM { class Horizon3D; }
 /*!\brief Show a few uses of (ui)DataPointSet.
 
   Case is: extract amplitudes and frequencies along a horizon.
- 
+
  */
 
 mExpClass(uiDPSDemo) uiDPSDemo : public uiDialog
 {  mODTextTranslationClass(uiDPSDemo);
 public:
 
-			uiDPSDemo(uiParent*,DataPointSetDisplayMgr* mgr=0);
+			uiDPSDemo(uiParent*,DataPointSetDisplayMgr* =nullptr);
 			~uiDPSDemo();
 
 protected:
 
-    DataPointSet*	dps_;
+    RefMan<DataPointSet> dps_;
     DataPointSetDisplayMgr* dpsdispmgr_;
     uiIOObjSel*		horfld_;
     uiSeisSel*		seisfld_;

@@ -25,11 +25,11 @@ ________________________________________________________________________
 #include "coltabsequence.h"
 #include "emhorizon3d.h"
 #include "emioobjinfo.h"
+#include "gmtdef.h"
 #include "emmanager.h"
 #include "emsurfaceauxdata.h"
 #include "emsurfacetr.h"
 #include "executor.h"
-#include "gmtpar.h"
 #include "ioobj.h"
 #include "survinfo.h"
 
@@ -52,31 +52,29 @@ uiGMTOverlayGrp* uiGMTContourGrp::createInstance( uiParent* p )
 
 uiGMTContourGrp::uiGMTContourGrp( uiParent* p )
     : uiGMTOverlayGrp(p,uiStrings::sContour())
-    , hor_(0)
     , sd_(*new EM::SurfaceIOData)
-    , lsfld_(0)
 {
-    inpfld_ = new uiHorizon3DSel( this, true, uiStrings::sHorizon() );
-    inpfld_->selectionDone.notify( mCB(this,uiGMTContourGrp,objSel) );
+    const IOObjContext ctxt = EM::Horizon::ioContext3D( true );
+    inpfld_ = new uiHorizon3DSel( this, ctxt, uiStrings::sHorizon() );
+    mAttachCB( inpfld_->selectionDone, uiGMTContourGrp::objSel );
 
     subselfld_ = new uiPosSubSel( this, uiPosSubSel::Setup(false,false) );
     subselfld_->attach( alignedBelow, inpfld_ );
-    subselfld_->selChange.notify( mCB(this,uiGMTContourGrp,selChg) );
+    mAttachCB( subselfld_->selChange, uiGMTContourGrp::selChg );
 
-    uiLabeledComboBox* lcb = new uiLabeledComboBox( this,
-                                                    uiStrings::sAttribute() );
+    auto* lcb = new uiLabeledComboBox( this, uiStrings::sAttribute() );
     attribfld_ = lcb->box();
-    attribfld_->selectionChanged.notify( mCB(this,uiGMTContourGrp,readCB) );
+    mAttachCB( attribfld_->selectionChanged, uiGMTContourGrp::readCB );
     lcb->attach( alignedBelow, subselfld_ );
 
     uiString ztag = tr("Value range ");
     rgfld_ = new uiGenInput( this, ztag, FloatInpIntervalSpec(true) );
-    rgfld_->valueChanged.notify( mCB(this,uiGMTContourGrp,rgChg) );
+    mAttachCB( rgfld_->valueChanged, uiGMTContourGrp::rgChg );
     rgfld_->attach( alignedBelow, lcb );
 
     nrcontourfld_ = new uiGenInput( this, tr("Number of contours"),
 				    IntInpSpec() );
-    nrcontourfld_->valueChanged.notify( mCB(this,uiGMTContourGrp,rgChg) );
+    mAttachCB( nrcontourfld_->valueChanged, uiGMTContourGrp::rgChg );
     nrcontourfld_->attach( alignedBelow, rgfld_ );
 
     resetbut_ = new uiPushButton( this, tr("Reset range"),
@@ -100,23 +98,20 @@ uiGMTContourGrp::uiGMTContourGrp( uiParent* p )
 
     lsfld_ = new uiSelLineStyle( this, OD::LineStyle(), tr("Line Style") );
     lsfld_->attach( alignedBelow, fillfld_ );
-    drawSel( 0 );
+    drawSel( nullptr );
 }
 
 
 uiGMTContourGrp::~uiGMTContourGrp()
 {
+    detachAllNotifiers();
     delete &sd_;
-    if ( hor_ )
-	hor_->unRef();//do these unref calls need to be removed?
 }
 
 
 void uiGMTContourGrp::reset()
 {
-    if ( hor_ )
-	hor_->unRef();//same as before
-    hor_ = 0;
+    hor_ = nullptr;
     inpfld_->clear();
     subselfld_->setToAll();
     rgfld_->clear();
@@ -124,7 +119,7 @@ void uiGMTContourGrp::reset()
     linefld_->setChecked( true );
     lsfld_->setStyle( OD::LineStyle() );
     fillfld_->setChecked( false );
-    drawSel( 0 );
+    drawSel( nullptr );
 }
 
 
@@ -148,7 +143,7 @@ void uiGMTContourGrp::objSel( CallBacker* )
     if ( !ioobj )
 	return;
 
-    EM::IOObjInfo eminfo( ioobj->key() );
+    const EM::IOObjInfo eminfo( ioobj->key() );
     if ( !eminfo.isOK() )
     {
 	uiString msg = uiStrings::phrCannotRead( ioobj->name() );
@@ -174,7 +169,7 @@ void uiGMTContourGrp::objSel( CallBacker* )
 	attribfld_->setSensitive( true );
     }
 
-    readCB(0);
+    readCB(nullptr);
 }
 
 
@@ -201,7 +196,7 @@ void uiGMTContourGrp::selChg( CallBacker* )
     if ( hs == sd_.rg )
 	return;
 
-    readCB(0);
+    readCB(nullptr);
     resetbut_->setSensitive( false );
 }
 
@@ -213,7 +208,7 @@ void uiGMTContourGrp::rgChg( CallBacker* cb )
 
     mDynamicCastGet(uiGenInput*,fld,cb)
     StepInterval<float> datarg = rgfld_->getFStepInterval();
-    rgfld_->valueChanged.disable();
+    NotifyStopper ns( rgfld_->valueChanged );
     if ( fld == rgfld_ )
     {
 	int nrcontours = datarg.nrSteps() + 1;
@@ -226,7 +221,6 @@ void uiGMTContourGrp::rgChg( CallBacker* cb )
 
 	    datarg.step_ = (datarg.stop_ - datarg.start_) / (nrcontours - 1);
 	    rgfld_->setValue( datarg );
-	    rgfld_->valueChanged.enable();
 	    return;
 	}
 
@@ -243,7 +237,6 @@ void uiGMTContourGrp::rgChg( CallBacker* cb )
 
 	    nrcontours = datarg.nrSteps() + 1;
 	    nrcontourfld_->setValue( nrcontours );
-	    rgfld_->valueChanged.enable();
 	    return;
 	}
 
@@ -251,7 +244,6 @@ void uiGMTContourGrp::rgChg( CallBacker* cb )
 	rgfld_->setValue( datarg );
     }
 
-    rgfld_->valueChanged.enable();
     if ( !valrg_.isUdf() )
 	resetbut_->setSensitive( true );
 }
@@ -275,7 +267,8 @@ void uiGMTContourGrp::readCB( CallBacker* )
 	const int selidx = sd_.valnames.indexOf( attrnm.buf() );
 	if ( selidx < 0 ) return;
 	PtrMan<Executor> exec = hor_->auxdata.auxDataLoader( selidx );
-	if ( exec ) exec->execute();
+	if ( exec )
+	    exec->execute();
 
 	dataidx = hor_->auxdata.auxDataIndex( attrnm.buf() );
     }
@@ -301,7 +294,7 @@ void uiGMTContourGrp::readCB( CallBacker* )
     }
 
     valrg_ = rg;
-    resetCB( 0 );
+    resetCB( nullptr );
 }
 
 
@@ -309,14 +302,12 @@ void uiGMTContourGrp::readCB( CallBacker* )
 
 bool uiGMTContourGrp::loadHor()
 {
-    if ( hor_ )
-	hor_->unRef();//does this need to be removed?
 
     const IOObj* ioobj = inpfld_->ioobj();
     if ( !ioobj )
 	return false;
 
-    EM::EMObject* obj = 0;
+    RefMan<EM::EMObject> obj;
     EM::ObjectID id = EM::EMM().getObjectID( ioobj->key() );
     if ( !id.isValid() || !EM::EMM().getObject(id)->isFullyLoaded() )
     {
@@ -333,15 +324,13 @@ bool uiGMTContourGrp::loadHor()
 
 	id = EM::EMM().getObjectID( ioobj->key() );
 	obj = EM::EMM().getObject( id );
-	obj->ref();
     }
     else
     {
 	obj = EM::EMM().getObject( id );
-	obj->ref();
     }
 
-    mDynamicCastGet(EM::Horizon3D*,hor3d,obj)
+    mDynamicCastGet(EM::Horizon3D*,hor3d,obj.ptr())
     if ( !hor3d )
 	return false;
 
@@ -426,6 +415,6 @@ bool uiGMTContourGrp::usePar( const IOPar& par )
 	flipfld_->setChecked( doflip );
     }
 
-    drawSel( 0 );
+    drawSel( nullptr );
     return true;
 }

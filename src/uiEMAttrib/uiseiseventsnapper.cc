@@ -18,15 +18,12 @@ ________________________________________________________________________
 #include "uiseparator.h"
 #include "uitaskrunner.h"
 
-#include "binidvalset.h"
 #include "ctxtioobj.h"
 #include "emhorizon3d.h"
 #include "emhorizon2d.h"
 #include "emmanager.h"
-#include "emposid.h"
 #include "emsurfacetr.h"
 #include "ioobj.h"
-#include "mousecursor.h"
 #include "seiseventsnapper.h"
 #include "seis2deventsnapper.h"
 #include "seistrctr.h"
@@ -38,16 +35,19 @@ uiSeisEventSnapper::uiSeisEventSnapper( uiParent* p, const IOObj* inp,
 					bool is2d )
     : uiDialog(p,Setup(tr("Snap horizon to seismic event"),
 		       mODHelpKey(mSnapToEventHelpID)).modal(false))
-    , is2d_(is2d)
     , readyForDisplay(this)
 {
     setCtrlStyle( RunAndClose );
 
-    horinfld_ = new uiHorizonSel( this, is2d, true,
-			        tr("%1 to snap").arg(uiStrings::sHorizon()) );
-    if ( inp ) horinfld_->setInput( *inp );
+    const uiIOObjSel::Setup su(
+			tr("%1 to snap").arg(uiStrings::sHorizon()) );
+    const IOObjContext ctxt = EM::Horizon::ioContext( is2d, true );
+    horinfld_ = uiHorizonSel::create( this, ctxt, su );
 
-    const Seis::GeomType gt = is2d_ ? Seis::Line : Seis::Vol;
+    if ( inp )
+	horinfld_->setInput( *inp );
+
+    const Seis::GeomType gt = is2d ? Seis::Line : Seis::Vol;
     seisfld_ = new uiSeisSel( this, uiSeisSel::ioContext(gt,true),
 			      uiSeisSel::Setup(gt));
     seisfld_->attach( alignedBelow, horinfld_ );
@@ -70,7 +70,7 @@ uiSeisEventSnapper::uiSeisEventSnapper( uiParent* p, const IOObj* inp,
 						  true) );
     undefpolicyfld_->attach( alignedBelow, gatefld_ );
 
-    uiSeparator* sep = new uiSeparator( this, "Hor sep" );
+    auto* sep = new uiSeparator( this, "Hor sep" );
     sep->attach( stretchedBelow, undefpolicyfld_ );
 
     savefldgrp_ = new uiHorSaveFieldGrp( this, horizon_.ptr(), is2d);
@@ -93,7 +93,7 @@ bool uiSeisEventSnapper::readHorizon()
 	return false;
 
     const MultiID& mid = horinfld_->key();
-    horizon_ = savefldgrp_->readHorizon( mid );
+    horizon_ = savefldgrp_->readHorizon( mid ).getNonConstPtr();
     if ( !horizon_ )
 	mErrRet( tr("Could not load horizon") );
 
@@ -115,44 +115,29 @@ bool uiSeisEventSnapper::acceptOK( CallBacker* cb )
     if ( !savefldgrp_->acceptOK( cb ) )
 	return false;
 
-    EM::Horizon* outputhor = savefldgrp_->getNewHorizon() ?
-				savefldgrp_->getNewHorizon() : horizon_.ptr();
+    RefMan<EM::Horizon> outputhor =
+		savefldgrp_->getNewHorizon().getNonConstPtr();
+    if ( !outputhor )
+	outputhor = horizon_;
 
     Interval<float> rg = gatefld_->getFInterval();
     rg.scale( 1.f / SI().zDomain().userFactor() );
     const bool eraseundef = undefpolicyfld_->getBoolValue();
-    uiTaskRunner dlg( this );
-    if ( !is2d_ )
-    {
-	mDynamicCastGet(const EM::Horizon3D*,inhor3d,horizon_.ptr())
-	if ( !inhor3d )
-	    return false;
-
-	mDynamicCastGet(EM::Horizon3D*,outhor3d,outputhor)
-	if ( !outhor3d )
-	    return false;
-
-	SeisEventSnapper3D snapper( *seisioobj, *inhor3d, *outhor3d,
-				    rg, eraseundef );
-	snapper.setEvent( VSEvent::Type(eventfld_->getIntValue()+1) );
-
-	if ( !TaskRunner::execute(&dlg,snapper) )
-	    return false;
-    }
-    else
+    uiTaskRunner runner( this );
+    if ( horinfld_->is2D() )
     {
 	ExecutorGroup execgrp( "Event Snapper" );
 	mDynamicCastGet(const EM::Horizon2D*,inhor2d,horizon_.ptr())
 	if ( !inhor2d )
 	    return false;
 
-	mDynamicCastGet(EM::Horizon2D*,outhor2d,outputhor)
+	mDynamicCastGet(EM::Horizon2D*,outhor2d,outputhor.ptr())
 	if ( !outhor2d )
 	    return false;
 
 	TypeSet<Pos::GeomID> geomids;
 	inhor2d->geometry().getGeomIDs( geomids );
-	for ( auto geomid : geomids )
+	for ( const auto& geomid : geomids )
 	{
 	    auto* snapper = new SeisEventSnapper2D( *seisioobj, geomid,
 		    				    *inhor2d, *outhor2d,
@@ -160,7 +145,24 @@ bool uiSeisEventSnapper::acceptOK( CallBacker* cb )
 	    execgrp.add( snapper );
 	}
 
-	if ( !TaskRunner::execute( &dlg, execgrp ) )
+	if ( !runner.execute(execgrp) )
+	    return false;
+    }
+    else
+    {
+	mDynamicCastGet(const EM::Horizon3D*,inhor3d,horizon_.ptr())
+	if ( !inhor3d )
+	    return false;
+
+	mDynamicCastGet(EM::Horizon3D*,outhor3d,outputhor.ptr())
+	if ( !outhor3d )
+	    return false;
+
+	SeisEventSnapper3D snapper( *seisioobj, *inhor3d, *outhor3d,
+				    rg, eraseundef );
+	snapper.setEvent( VSEvent::Type(eventfld_->getIntValue()+1) );
+
+	if ( !runner.execute(snapper) )
 	    return false;
     }
 

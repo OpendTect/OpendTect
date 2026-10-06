@@ -116,8 +116,8 @@ uiSurfaceLimitedFiller::uiSurfaceLimitedFiller( uiParent* p,
 		BoolInpSpec( !hasauxdata || surfacefiller_->usesStartValue(),
 			 uiStrings::sConstant(), fromhorattribstr ) );
 	usestartvalfld_->setSensitive( hasauxdata );
-	usestartvalfld_->valueChanged.notify(
-		mCB(this, uiSurfaceLimitedFiller,useStartValCB) );
+	mAttachCB( usestartvalfld_->valueChanged,
+		   uiSurfaceLimitedFiller::useStartValCB );
 	usestartvalfld_->attach( ensureBelow, table_ );
 	startvalfld_->attach( alignedBelow, usestartvalfld_ );
 
@@ -136,8 +136,8 @@ uiSurfaceLimitedFiller::uiSurfaceLimitedFiller( uiParent* p,
 		BoolInpSpec( !hasauxdata || surfacefiller_->usesGradientValue(),
 			 uiStrings::sConstant(), gradientsurfdatalabel ) );
 	usegradientfld_->setSensitive( hasauxdata );
-	usegradientfld_->valueChanged.notify(
-		mCB(this,uiSurfaceLimitedFiller,useGradientCB) );
+	mAttachCB( usegradientfld_->valueChanged,
+		   uiSurfaceLimitedFiller::useGradientCB );
 	usegradientfld_->attach( alignedBelow, startvalfld_ );
 	gradientfld_->attach( alignedBelow, usegradientfld_ );
 
@@ -160,8 +160,8 @@ uiSurfaceLimitedFiller::uiSurfaceLimitedFiller( uiParent* p,
     userefdepthfld_ = new uiGenInput( this, labl,
 	    BoolInpSpec(surfacefiller_->usesRefZValue(),uiStrings::sConstant(),
 	    uiStrings::sHorizon()));
-    userefdepthfld_->valueChanged.notify(
-	    mCB(this,uiSurfaceLimitedFiller,useRefValCB) );
+    mAttachCB( userefdepthfld_->valueChanged,
+	       uiSurfaceLimitedFiller::useRefValCB );
     userefdepthfld_->attach( alignedBelow, gradientfld_ );
 
     float refdepth = surfacefiller_->getRefZValue();
@@ -172,21 +172,25 @@ uiSurfaceLimitedFiller::uiSurfaceLimitedFiller( uiParent* p,
 	    FloatInpSpec( refdepth ) );
     refdepthfld_->attach( alignedBelow, userefdepthfld_ );
 
-    refhorizonfld_ = new uiHorizonSel( this, is2d, true, uiStrings::sHorizon());
+    const IOObjContext ctxt = EM::Horizon::ioContext( is2d, true );
+    refhorizonfld_ = uiHorizonSel::create( this, ctxt, uiStrings::sHorizon() );
+
     refhorizonfld_->attach( alignedBelow, userefdepthfld_ );
     if ( !surfacefiller_->usesRefZValue() && surfacefiller_->getRefHorizonID() )
 	refhorizonfld_->setInput( *surfacefiller_->getRefHorizonID() );
 
     addNameFld( refhorizonfld_ );
 
-    useStartValCB( 0 );
-    useGradientCB( 0 );
-    useRefValCB( 0 );
+    useStartValCB( nullptr );
+    useGradientCB( nullptr );
+    useRefValCB( nullptr );
 }
 
 
 uiSurfaceLimitedFiller::~uiSurfaceLimitedFiller()
-{}
+{
+    detachAllNotifiers();
+}
 
 
 void uiSurfaceLimitedFiller::addSurfaceCB( CallBacker* )

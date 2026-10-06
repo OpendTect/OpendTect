@@ -21,6 +21,8 @@ class uiColorInput;
 mExpClass(uiGMT) uiGMTFaultsGrp : public uiGMTOverlayGrp
 { mODTextTranslationClass(uiGMTFaultsGrp);
 public:
+			~uiGMTFaultsGrp();
+
     static void         initClass();
     bool		fillPar(IOPar&) const override;
     bool		usePar(const IOPar&) override;

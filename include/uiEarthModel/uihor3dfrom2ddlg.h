@@ -9,6 +9,9 @@ ________________________________________________________________________
 -*/
 
 #include "uiearthmodelmod.h"
+
+#include "emhorizon2d.h"
+#include "emhorizon3d.h"
 #include "multiid.h"
 
 #include "uidialog.h"
@@ -17,7 +20,6 @@ class uiArray2DInterpolSel;
 class uiIOObjSel;
 class uiCheckBox;
 class uiEMPartServer;
-namespace EM { class Horizon2D; class Horizon3D; }
 
 
 /*! \brief Dialog to expand a 2D horizon to create a 3D horizon */
@@ -27,19 +29,19 @@ mExpClass(uiEarthModel) uiHor3DFrom2DDlg : public uiDialog
 public:
 				uiHor3DFrom2DDlg(uiParent*,
 						 const EM::Horizon2D&,
-						 uiEMPartServer* emsrv=0);
+						 uiEMPartServer* =nullptr);
 				~uiHor3DFrom2DDlg();
 
     bool			doDisplay() const;
     MultiID			getSelID() const;
-    EM::Horizon3D*		getHor3D();
+    ConstRefMan<EM::Horizon3D>	getHor3D() const;
 
 protected:
 
     bool			acceptOK(CallBacker*) override;
 
-    const EM::Horizon2D& 	hor2d_;
-    EM::Horizon3D*		hor3d_			    = nullptr;
+    ConstRefMan<EM::Horizon2D>	hor2d_;
+    RefMan<EM::Horizon3D>	hor3d_;
     uiEMPartServer*		emserv_;
 
     uiArray2DInterpolSel*	interpolsel_;

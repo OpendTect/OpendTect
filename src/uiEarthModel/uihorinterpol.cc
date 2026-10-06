@@ -55,28 +55,31 @@ uiHorizonInterpolDlg::uiHorizonInterpolDlg( uiParent* p, EM::Horizon* hor,
     : uiDialog(p,Setup(tr("Horizon Gridding"),
 		       mODHelpKey(mInverseDistanceArray2DInterpolHelpID))
 		    .modal(true))
-    , horizon_(hor)
-    , is2d_(is2d)
-    , inputhorsel_(nullptr)
-    , interpolhor3dsel_(nullptr)
-    , interpol1dsel_(nullptr)
-    , savefldgrp_(nullptr)
     , finished(this)
     , horReadyForDisplay(this)
+    , horizon_(hor)
 {
     if ( !hor )
 	setCtrlStyle( RunAndClose );
 
-    if ( horizon_ )
-	horizon_->ref();
-    else
+    if ( !horizon_ )
     {
-	inputhorsel_ = new uiHorizonSel( this, is2d, true );
+	const IOObjContext ctxt = EM::Horizon::ioContext( is2d, true );
+	inputhorsel_ = uiHorizonSel::create( this, ctxt );
+
 	mAttachCB( inputhorsel_->selectionDone,
 		   uiHorizonInterpolDlg::selChangeCB );
     }
 
-    if ( !is2d )
+    if ( is2d )
+    {
+	interpol1dsel_ = new uiArray1DInterpolSel( this, false, true );
+	interpol1dsel_->setDistanceUnit( SI().xyInFeet() ?
+			uiStrings::sFeet() : uiStrings::sMeter() );
+	if ( inputhorsel_ )
+	    interpol1dsel_->attach( alignedBelow, inputhorsel_ );
+    }
+    else
     {
 	interpolhor3dsel_ = new uiHor3DInterpolSel( this, false );
 	if ( inputhorsel_ )
@@ -90,18 +93,10 @@ uiHorizonInterpolDlg::uiHorizonInterpolDlg( uiParent* p, EM::Horizon* hor,
 	    interpolhor3dsel_->setStep( step );
 	}
     }
-    else
-    {
-	interpol1dsel_ = new uiArray1DInterpolSel( this, false, true );
-	interpol1dsel_->setDistanceUnit( SI().xyInFeet() ?
-			uiStrings::sFeet() : uiStrings::sMeter() );
-	if ( inputhorsel_ )
-	    interpol1dsel_->attach( alignedBelow, inputhorsel_ );
-    }
 
-    uiSeparator* sep = new uiSeparator( this, "Hor sep" );
+    auto* sep = new uiSeparator( this, "Hor sep" );
 
-    savefldgrp_ = new uiHorSaveFieldGrp( this, horizon_, is2d, true );
+    savefldgrp_ = new uiHorSaveFieldGrp( this, horizon_.ptr(), is2d, true );
     savefldgrp_->setSaveFieldName( "Save gridded horizon" );
     if ( is2d )
     {
@@ -113,6 +108,7 @@ uiHorizonInterpolDlg::uiHorizonInterpolDlg( uiParent* p, EM::Horizon* hor,
 	sep->attach( stretchedBelow, interpolhor3dsel_ );
 	savefldgrp_->attach( alignedBelow, interpolhor3dsel_ );
     }
+
     savefldgrp_->attach( ensureBelow, sep );
 }
 
@@ -120,7 +116,6 @@ uiHorizonInterpolDlg::uiHorizonInterpolDlg( uiParent* p, EM::Horizon* hor,
 uiHorizonInterpolDlg::~uiHorizonInterpolDlg()
 {
     detachAllNotifiers();
-    if ( horizon_ ) horizon_->unRef();
 }
 
 
@@ -156,15 +151,15 @@ bool uiHorizonInterpolDlg::interpolate3D( const IOPar& par )
     if ( !savefldgrp_->acceptOK(nullptr) )
 	return false;
 
-    EM::Horizon* usedhor = savefldgrp_->getNewHorizon() ?
-	savefldgrp_->getNewHorizon() : horizon_;
+    ConstRefMan<EM::Horizon> usedhor = savefldgrp_->getNewHorizon();
+    if ( !usedhor )
+	usedhor = horizon_;
 
-    mDynamicCastGet(EM::Horizon3D*,hor3d,usedhor)
+    mDynamicCastGet(EM::Horizon3D*,hor3d,usedhor.getNonConstPtr())
     if ( !hor3d )
 	return false;
 
     uiTaskRunner taskrunner( this );
-
     if ( !savefldgrp_->getNewHorizon() )
 	hor3d->setBurstAlert( true );
 
@@ -208,20 +203,19 @@ bool uiHorizonInterpolDlg::interpolate2D()
     if ( !savefldgrp_->acceptOK(nullptr) )
 	return false;
 
-    EM::Horizon* usedhor = !savefldgrp_->overwriteHorizon() ?
-	savefldgrp_->getNewHorizon() : horizon_;
+    ConstRefMan<EM::Horizon> usedhor = savefldgrp_->overwriteHorizon()
+	? horizon_ : savefldgrp_->getNewHorizon();
 
-    mDynamicCastGet(EM::Horizon2D*,usedhor2d,usedhor)
+    mDynamicCastGet(EM::Horizon2D*,usedhor2d,usedhor.getNonConstPtr())
     if ( !usedhor2d )
 	return false;
 
-    mDynamicCastGet(EM::Horizon2D*,hor2d,horizon_)
+    mDynamicCastGet(EM::Horizon2D*,hor2d,horizon_.ptr())
     if ( !hor2d )
 	return false;
 
     const EM::Horizon2DGeometry& geom = hor2d->geometry();
-
-    uiTaskRunner taskrunner( this );
+    uiTaskRunner runner( this );
 
     ObjectSet< Array1D<float> > arr1d;
     for ( int lineidx=0; lineidx<geom.nrLines(); lineidx++ )
@@ -234,7 +228,7 @@ bool uiHorizonInterpolDlg::interpolate2D()
     for ( int idx=0; idx<arr1d.size(); idx++ )
 	execgrp.add( interpol1dsel_->getResult(idx) );
 
-    if ( !TaskRunner::execute( &taskrunner, execgrp ) )
+    if ( !runner.execute(execgrp) )
     {
 	uiString msg = tr("Cannot interpolate horizon");
 	ErrMsg( msg.getFullString() );
@@ -254,8 +248,9 @@ bool uiHorizonInterpolDlg::interpolate2D()
 bool uiHorizonInterpolDlg::acceptOK( CallBacker* )
 {
     IOPar par;
-    const bool isok = is2d_ ? interpol1dsel_->acceptOK()
-			    : interpolhor3dsel_->fillPar( par );
+    const bool isok = interpol1dsel_
+	? interpol1dsel_->acceptOK()
+	: (interpolhor3dsel_ ?interpolhor3dsel_->fillPar( par ) : false);
     if ( !isok )
 	return false;
 
@@ -265,12 +260,8 @@ bool uiHorizonInterpolDlg::acceptOK( CallBacker* )
 	if ( !ioobj )
 	    return false;
 
-	EM::Horizon* hor = savefldgrp_->readHorizon( ioobj->key() );
-
-	if ( horizon_ ) horizon_->unRef();
-
-	horizon_ = hor;
-	horizon_->ref();
+	ConstRefMan<EM::Horizon> hor = savefldgrp_->readHorizon( ioobj->key() );
+	horizon_ = hor.getNonConstPtr();
     }
 
     if ( !horizon_ )
@@ -278,16 +269,18 @@ bool uiHorizonInterpolDlg::acceptOK( CallBacker* )
 
     MouseCursorChanger mcc( MouseCursor::Wait );
 
-    if ( !is2d_ )
+    if ( interpol1dsel_ )
+    {
+	if ( !interpolate2D() )
+	    return false;
+    }
+    else if ( interpolhor3dsel_ )
     {
 	if ( !interpolate3D(par) )
 	    return false;
     }
     else
-    {
-	if ( !interpolate2D() )
-	    return false;
-    }
+	return false;
 
     const bool res = savefldgrp_->saveHorizon();
     if ( res )
@@ -302,7 +295,7 @@ bool uiHorizonInterpolDlg::acceptOK( CallBacker* )
 
 mImplFactory1Param(uiHor3DInterpol,uiParent*,uiHor3DInterpol::factory)
 
-uiHor3DInterpolSel::uiHor3DInterpolSel( uiParent* p, bool musthandlefaults )
+uiHor3DInterpolSel::uiHor3DInterpolSel( uiParent* p, bool /*musthandlefaults*/ )
     : uiGroup(p,"Horizon3D Interpolation")
 {
     methodgrps_.allowNull( true );

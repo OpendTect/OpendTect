@@ -16,7 +16,7 @@ namespace EM { class Horizon; }
 class IOObj;
 class uiGenInput;
 class uiHorSaveFieldGrp;
-class uiIOObjSel;
+class uiHorizonSel;
 class uiSeisSel;
 
 /*! \brief Part Server for Wells */
@@ -33,12 +33,11 @@ public:
 protected:
 
     uiHorSaveFieldGrp*	savefldgrp_;
-    uiIOObjSel*		horinfld_;
+    uiHorizonSel*	horinfld_;
     uiSeisSel*		seisfld_;
     uiGenInput*		eventfld_;
     uiGenInput*		gatefld_;
     uiGenInput*		undefpolicyfld_;
-    bool		is2d_;
 
     bool		acceptOK(CallBacker*) override;
     bool		readHorizon();

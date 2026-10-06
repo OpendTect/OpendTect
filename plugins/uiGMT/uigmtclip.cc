@@ -10,9 +10,7 @@ ________________________________________________________________________
 #include "uigmtclip.h"
 
 #include "ctxtioobj.h"
-#include "draw.h"
-#include "gmtpar.h"
-#include "pickset.h"
+#include "gmtdef.h"
 #include "picksettr.h"
 #include "uigeninput.h"
 #include "uiioobjsel.h"

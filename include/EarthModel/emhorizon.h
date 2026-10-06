@@ -75,9 +75,16 @@ public:
 
     virtual OD::GeomSystem getSurveyID() const				= 0;
 
-    static IOObjContext		ioContext(bool is2d,const ZDomain::Info* zinfo,
-					  bool forread);
-    static IOObjContext		ioContext(bool is2d,bool forread);
+    static IOObjContext ioContext3D(bool forread,const ZDomain::Info* =nullptr,
+				OD::HiddenPolicy=OD::HiddenPolicy::HideHidden);
+    static IOObjContext ioContext2D(bool forread,const ZDomain::Info* =nullptr,
+				OD::HiddenPolicy=OD::HiddenPolicy::HideHidden);
+    static IOObjContext ioContext(bool is2d,bool forread,OD::HiddenPolicy
+					=OD::HiddenPolicy::HideHidden);
+    static IOObjContext ioContext(bool is2d,const ZDomain::Info*,
+				  bool forread,OD::HiddenPolicy
+					=OD::HiddenPolicy::HideHidden);
+
 
 protected:
 			Horizon(EMManager&);

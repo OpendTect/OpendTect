@@ -31,10 +31,8 @@ ________________________________________________________________________
 uiHorSaveFieldGrp::uiHorSaveFieldGrp( uiParent* p, EM::Horizon* hor, bool is2d )
     : uiGroup( p )
     , horizon_( hor )
-    , is2d_( is2d )
-    , usefullsurvey_( false )
 {
-    init( false );
+    init( false, is2d );
 }
 
 
@@ -42,36 +40,33 @@ uiHorSaveFieldGrp::uiHorSaveFieldGrp( uiParent* p, EM::Horizon* hor,
 				      bool is2d, bool withsubsel )
     : uiGroup( p )
     , horizon_( hor )
-    , is2d_( is2d )
-    , usefullsurvey_( false )
 {
-    init( withsubsel );
+    init( withsubsel, is2d );
 }
 
 
-void uiHorSaveFieldGrp::init( bool withsubsel )
+void uiHorSaveFieldGrp::init( bool withsubsel, bool is2d )
 {
-   if ( horizon_ ) horizon_->ref();
-
    if ( withsubsel )
     {
-	uiPosSubSel::Setup su( is2d_, false );
+	uiPosSubSel::Setup su( is2d, false );
 	su.choicetype( uiPosSubSel::Setup::RangewithPolygon );
 	rgfld_ = new uiPosSubSel( this, su );
     }
-
 
     savefld_ = new uiGenInput( this, uiStrings::phrSave(uiStrings::sHorizon(1)),
 				BoolInpSpec(true,tr("As new"),
 				uiStrings::sOverwrite()) );
 
-    savefld_->valueChanged.notify( mCB(this,uiHorSaveFieldGrp,saveCB) );
-
+    mAttachCB( savefld_->valueChanged, uiHorSaveFieldGrp::saveCB );
     if ( withsubsel )
 	savefld_->attach( alignedBelow, rgfld_ );
 
-    outputfld_ = new uiHorizonSel( this, is2d_, false,
-				 uiStrings::phrOutput(uiStrings::sHorizon(1)) );
+    const uiIOObjSel::Setup su(
+			uiStrings::phrOutput(uiStrings::sHorizon(1)) );
+    const IOObjContext ctxt = EM::Horizon::ioContext( is2d, false );
+    outputfld_ = uiHorizonSel::create( this, ctxt, su );
+
     outputfld_->attach( alignedBelow, savefld_ );
 
     addnewfld_ = new uiCheckBox( this, uiStrings::sDisplayAfterCreate() );
@@ -87,10 +82,7 @@ void uiHorSaveFieldGrp::init( bool withsubsel )
 
 uiHorSaveFieldGrp::~uiHorSaveFieldGrp()
 {
-    if ( horizon_ )
-	horizon_->unRef();
-    if ( newhorizon_ )
-	newhorizon_->unRef();
+    detachAllNotifiers();
 }
 
 
@@ -126,8 +118,9 @@ void uiHorSaveFieldGrp::allowOverWrite( bool yn )
 
     if ( !yn )
 	savefld_->setValue( true );
+
     savefld_->setSensitive( yn );
-    saveCB( 0 );
+    saveCB( nullptr );
 }
 
 
@@ -148,24 +141,30 @@ bool uiHorSaveFieldGrp::needsFullSurveyArray() const
 }
 
 
-#define mErrRet(msg) { if ( !msg.isEmpty() ) uiMSG().error( msg ); return 0; }
+ConstRefMan<EM::Horizon> uiHorSaveFieldGrp::getNewHorizon() const
+{
+    return newhorizon_;
+}
 
-EM::Horizon* uiHorSaveFieldGrp::readHorizon( const MultiID& mid )
+
+#define mErrRet(msg) \
+    { if ( !msg.isEmpty() ) uiMSG().error( msg ); return nullptr; }
+
+ConstRefMan<EM::Horizon> uiHorSaveFieldGrp::readHorizon( const MultiID& mid )
 {
     EM::ObjectID oid = EM::EMM().getObjectID( mid );
     EM::EMObject* emobj = EM::EMM().getObject( oid );
 
-    Executor* reader = 0;
+    PtrMan<Task> reader;
     if ( !emobj || !emobj->isFullyLoaded() )
     {
 	reader = EM::EMM().objectLoader( mid );
 	if ( !reader )
 	    mErrRet( uiStrings::phrCannotRead(uiStrings::sHorizon(1)));
 
-	uiTaskRunner dlg( this );
-	if ( !TaskRunner::execute( &dlg, *reader ) )
+	uiTaskRunner runner( this );
+	if ( !runner.execute(*reader.ptr()) )
 	{
-	    delete reader;
 	    mErrRet( uiStrings::phrCannotRead(uiStrings::sHorizon(1)));
 	}
 
@@ -175,8 +174,6 @@ EM::Horizon* uiHorSaveFieldGrp::readHorizon( const MultiID& mid )
 
     mDynamicCastGet(EM::Horizon*,hor,emobj)
     horizon_ = hor;
-    horizon_->ref();
-    delete reader;
     return horizon_;
 }
 
@@ -244,14 +241,10 @@ bool uiHorSaveFieldGrp::createNewHorizon()
     if ( !horizon_ )
 	mErrRet( tr("No selected horizon, cannot create a new one.") );
 
-    if ( newhorizon_ )
-    {
-	newhorizon_->unRef();
-	newhorizon_ = 0;
-    }
-
+    newhorizon_ = nullptr;
     EM::EMManager& em = EM::EMM();
-    EM::ObjectID objid = em.createObject( is2d_ ? EM::Horizon2D::typeStr()
+    EM::ObjectID objid = em.createObject( outputfld_->is2D()
+						? EM::Horizon2D::typeStr()
 						: EM::Horizon3D::typeStr(),
 					  outputfld_->getInput() );
 
@@ -260,7 +253,6 @@ bool uiHorSaveFieldGrp::createNewHorizon()
 	mErrRet( uiStrings::sCantCreateHor() );
 
     newhorizon_ = horizon;
-    newhorizon_->ref();
     newhorizon_->setMultiID( horizon_->multiID() );
 
     EM::SurfaceIOData sd;
@@ -270,14 +262,13 @@ bool uiHorSaveFieldGrp::createNewHorizon()
 
     EM::SurfaceIODataSelection sdsel( sd );
 
-    uiTaskRunner taskrunner( this );
-    PtrMan<Executor> loader = newhorizon_->geometry().loader( &sdsel );
-    if ( !loader || !TaskRunner::execute( &taskrunner, *loader ) )
+    uiTaskRunner runner( this );
+    PtrMan<Task> loader = newhorizon_->geometry().loader( &sdsel );
+    if ( !loader || !runner.execute(*loader.ptr()) )
 	mErrRet( tr("New horizon data loading failed") );
 
     newhorizon_->setMultiID( outputfld_->ioobj()->key() );
     File::copy( horizon_->name(), newhorizon_->name() );
-
     if ( needsFullSurveyArray() )
 	expandToFullSurveyArray();
 
@@ -296,7 +287,7 @@ void uiHorSaveFieldGrp::expandToFullSurveyArray()
 void uiHorSaveFieldGrp::setHorRange( const Interval<int>& newinlrg,
 				     const Interval<int>& newcrlrg )
 {
-    EM::Horizon* hor = overwriteHorizon() ? horizon_ : newhorizon_;
+    RefMan<EM::Horizon> hor = overwriteHorizon() ? horizon_ : newhorizon_;
     if ( !hor )
 	return;
 

@@ -15,12 +15,10 @@ ________________________________________________________________________
 #include "emioobjinfo.h"
 #include "emsurfaceauxdata.h"
 #include "emsurfacetr.h"
-#include "executor.h"
 #include "genc.h"
 #include "iopar.h"
 #include "isopachmaker.h"
 #include "multiid.h"
-#include "posvecdataset.h"
 #include "survinfo.h"
 
 #include "uibatchjobdispatchersel.h"
@@ -38,10 +36,11 @@ uiIsochronMakerGrp::uiIsochronMakerGrp( uiParent* p, EM::ObjectID horid )
     , horid_(horid)
 {
     baseemobj_ = EM::EMM().getObject( horid_ );
+    const IOObjContext ctxt = EM::Horizon::ioContext3D( true );
     if ( !baseemobj_ )
-	basehorsel_ = new uiHorizon3DSel( this, true, uiStrings::sHorizon() );
+	basehorsel_ = new uiHorizon3DSel( this, ctxt, uiStrings::sHorizon() );
 
-    horsel_ = new uiHorizon3DSel( this, true, tr("Calculate to") );
+    horsel_ = new uiHorizon3DSel( this, ctxt, tr("Calculate to") );
     horsel_->setInput( baseemobj_ ? baseemobj_->multiID() : MultiID::udf() );
     mAttachCB( horsel_->selectionDone, uiIsochronMakerGrp::toHorSelCB );
     if ( !baseemobj_ )
@@ -246,27 +245,24 @@ bool uiIsochronMakerDlg::doWork()
     MultiID mid1, mid2;
     par.get( IsochronMaker::sKeyHorizonID(), mid1 );
     par.get( IsochronMaker::sKeyCalculateToHorID(), mid2 );
-    uiTaskRunner taskrunner( this );
-    EM::EMObject* emobj = EM::EMM().loadIfNotFullyLoaded( mid2, &taskrunner );
-    mDynamicCastGet(EM::Horizon3D*,h2,emobj)
+    uiTaskRunner runner( this );
+    ConstRefMan<EM::EMObject> emobj =
+		EM::EMM().loadIfNotFullyLoaded( mid2, &runner );
+    mDynamicCastGet(const EM::Horizon3D*,h2,emobj.ptr())
     if ( !h2 )
 	mErrRet(uiStrings::phrCannotLoad(tr("selected horizon")))
-    h2->ref();
 
     const EM::ObjectID emidbase = EM::EMM().getObjectID( mid1 );
-    EM::EMObject* emobjbase = EM::EMM().getObject( emidbase );
-    mDynamicCastGet(EM::Horizon3D*,h1,emobjbase)
+    ConstRefMan<EM::EMObject> emobjbase = EM::EMM().getObject( emidbase );
+    mDynamicCastGet(const EM::Horizon3D*,h1,emobjbase.ptr())
     if ( !h1 )
     {
-	h2->unRef();
 	mErrRet(uiStrings::phrCannotFind(tr("reference horizon")))
     }
 
-    h1->ref();
-
     int dataidx = -1;
     BufferString attrnm;
-    if ( !par.get( IsochronMaker::sKeyAttribName(), attrnm ) )
+    if ( !par.get(IsochronMaker::sKeyAttribName(),attrnm) )
 	return false;
 
     dataidx = h1->auxdata.addAuxData( attrnm );
@@ -278,9 +274,5 @@ bool uiIsochronMakerDlg::doWork()
 	ipmaker.setUnits( isinmsec );
     }
 
-    const bool rv = TaskRunner::execute( &taskrunner, ipmaker );
-
-    h1->unRef();
-    h2->unRef();
-    return rv;
+    return runner.execute( ipmaker );
 }

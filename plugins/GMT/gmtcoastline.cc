@@ -12,9 +12,9 @@ ________________________________________________________________________
 #include "draw.h"
 #include "file.h"
 #include "filepath.h"
+#include "gmtdef.h"
 #include "keystrs.h"
-#include "strmprov.h"
-#include "od_iostream.h"
+#include "od_istream.h"
 
 
 mDefineNameSpaceEnumUtils(ODGMT,Resolution,"Resolutions")

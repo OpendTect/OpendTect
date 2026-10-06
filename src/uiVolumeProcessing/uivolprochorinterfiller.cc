@@ -17,11 +17,11 @@ ________________________________________________________________________
 #include "uistrings.h"
 #include "uivolprocchain.h"
 
+#include "emhorizon.h"
 #include "emsurfacetr.h"
 #include "mousecursor.h"
 #include "od_helpids.h"
 #include "survinfo.h"
-#include "volprocchain.h"
 
 
 namespace VolProc
@@ -36,10 +36,10 @@ uiHorInterFiller::uiHorInterFiller( uiParent* p, HorInterFiller* hf, bool is2d )
     usetophorfld_ = new uiGenInput( this, tr("Top boundary"),
 	    BoolInpSpec(hf->getTopHorizonID(),uiStrings::sHorizon(),
 		tr("Survey top")) );
-    usetophorfld_->valueChanged.notify(mCB(this, uiHorInterFiller,updateFlds));
+    mAttachCB( usetophorfld_->valueChanged, uiHorInterFiller::updateFlds );
 
-    tophorfld_ = new uiHorizonSel( this, is2d, true,
-				   uiStrings::sTopHor() );
+    const IOObjContext ctxt = EM::Horizon::ioContext( is2d, true );
+    tophorfld_ = uiHorizonSel::create( this, ctxt, uiStrings::sTopHor() );
     tophorfld_->attach( alignedBelow, usetophorfld_ );
     topvalfld_ = new uiGenInput( this, tr("Top Value"),
 				 FloatInpSpec( hf->getTopValue() ) );
@@ -48,19 +48,18 @@ uiHorInterFiller::uiHorInterFiller( uiParent* p, HorInterFiller* hf, bool is2d )
     usebottomhorfld_ = new uiGenInput( this, tr("Bottom boundary"),
 	BoolInpSpec(hf->getBottomHorizonID(),uiStrings::sHorizon(),
 			    tr("Survey bottom")) );
-    usebottomhorfld_->valueChanged.notify(
-	    mCB(this, uiHorInterFiller,updateFlds) );
+    mAttachCB( usebottomhorfld_->valueChanged, uiHorInterFiller::updateFlds );
     usebottomhorfld_->attach( alignedBelow, topvalfld_ );
 
-    bottomhorfld_ = new uiHorizonSel( this, is2d, true,
-				      uiStrings::sBottomHor() );
+    bottomhorfld_ = uiHorizonSel::create( this, ctxt, uiStrings::sBottomHor() );
+
     bottomhorfld_->attach( alignedBelow, usebottomhorfld_ );
 
     usegradientfld_ = new uiGenInput( this, tr("Slope type"),
 	    BoolInpSpec(hf->usesGradient(), tr("Gradient") ,
 			tr("Bottom value") ));
     usegradientfld_->attach( alignedBelow, bottomhorfld_ );
-    usegradientfld_->valueChanged.notify(mCB(this,uiHorInterFiller,updateFlds));
+    mAttachCB( usegradientfld_->valueChanged, uiHorInterFiller::updateFlds );
 
     const uiString gradientlabel = tr( "Gradient [/%1]")
 	    .arg( SI().getUiZUnitString( false ) );
@@ -68,6 +67,7 @@ uiHorInterFiller::uiHorInterFiller( uiParent* p, HorInterFiller* hf, bool is2d )
     const float gradient = hf->getGradient();
     if ( !mIsUdf(gradient) )
 	gradientfld_->setValue( gradient/SI().zDomain().userFactor() );
+
     gradientfld_->attach( alignedBelow, usegradientfld_ );
 
     bottomvalfld_ = new uiGenInput( this, tr("Bottom Value"),
@@ -80,16 +80,18 @@ uiHorInterFiller::uiHorInterFiller( uiParent* p, HorInterFiller* hf, bool is2d )
     {
 	if ( hf->getTopHorizonID() )
 	    tophorfld_->setInput( *hf->getTopHorizonID() );
+
 	if ( hf->getBottomHorizonID() )
 	    bottomhorfld_->setInput( *hf->getBottomHorizonID() );
     }
 
-    updateFlds( 0 );
+    updateFlds( nullptr );
 }
 
 
 uiHorInterFiller::~uiHorInterFiller()
 {
+    detachAllNotifiers();
 }
 
 
@@ -106,7 +108,8 @@ uiStepDialog* uiHorInterFiller::createInstance( uiParent* parent, Step* ps,
 						bool is2d )
 {
     mDynamicCastGet( HorInterFiller*, hf, ps );
-    if ( !hf ) return 0;
+    if ( !hf )
+	return nullptr;
 
     return new uiHorInterFiller( parent, hf, is2d );
 }
@@ -136,29 +139,30 @@ bool uiHorInterFiller::acceptOK( CallBacker* cb )
     const IOObj* ioobjbot = bottomhorfld_->ioobj( true );
     if ( usetophor && !ioobjtop )
 	mErrRet(tr("Please select the top horizon"))
+
     if ( usebothor && !ioobjbot )
 	mErrRet(tr("Please select the bottom horizon"))
 
     if ( usetophor && usebothor && ioobjtop->key() == ioobjbot->key() )
 	mErrRet(tr("Top and bottom horizons cannot be the same"))
 
-    if ( !usetophor )
-	horinterfiller_->setTopHorizon( nullptr );
-    else
+    if ( usetophor )
     {
 	const MultiID mid = ioobjtop->key();
 	if ( !horinterfiller_->setTopHorizon(&mid) )
 	    mErrRet(tr("Cannot use top horizon"))
     }
-
-    if ( !usebothor )
-	horinterfiller_->setBottomHorizon( nullptr );
     else
+	horinterfiller_->setTopHorizon( nullptr );
+
+    if ( usebothor )
     {
 	const MultiID mid = ioobjbot->key();
 	if ( !horinterfiller_->setBottomHorizon(&mid) )
 	    mErrRet(tr("Cannot use bottom horizon"))
     }
+    else
+	horinterfiller_->setBottomHorizon( nullptr );
 
     horinterfiller_->setTopValue( topvalfld_->getFValue() );
     horinterfiller_->setBottomValue( bottomvalfld_->getFValue() );

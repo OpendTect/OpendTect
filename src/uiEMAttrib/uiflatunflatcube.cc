@@ -9,12 +9,10 @@ ________________________________________________________________________
 
 #include "uiflatunflatcube.h"
 
-#include "emhorizon3d.h"
 #include "emhorizonztransform.h"
 #include "emioobjinfo.h"
 #include "emmanager.h"
 #include "emsurfacetr.h"
-#include "executor.h"
 #include "ioman.h"
 #include "od_helpids.h"
 #include "seiszaxisstretcher.h"
@@ -52,7 +50,8 @@ uiFlatUnflatCube::uiFlatUnflatCube( uiParent* p )
     mAttachCB( flatinfld_->selectionDone, uiFlatUnflatCube::inpSelCB );
     flatinfld_->attach( alignedBelow, modefld_ );
 
-    horfld_ = new uiHorizon3DSel( this, true );
+    const IOObjContext ctxt = EM::Horizon::ioContext3D( true );
+    horfld_ = new uiHorizon3DSel( this, ctxt );
     mAttachCB( horfld_->selectionDone, uiFlatUnflatCube::horSelCB );
     horfld_->attach( alignedBelow, seisinfld_ );
 

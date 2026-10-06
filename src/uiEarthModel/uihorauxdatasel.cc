@@ -124,7 +124,7 @@ uiHorizonAuxDataSel::HorizonAuxDataInfo::HorizonAuxDataInfo( bool load )
     if ( !load ) return;
 
     MouseCursorChanger cursorlock( MouseCursor::Wait );
-    const IOObjContext ctxt = EM::Horizon::ioContext(false,true);
+    const IOObjContext ctxt = EM::Horizon::ioContext3D( true );
     const IODir iodir( ctxt.getSelKey() );
     const IODirEntryList horlist( iodir, ctxt );
     for ( int idx=0; idx<horlist.size(); idx++ )

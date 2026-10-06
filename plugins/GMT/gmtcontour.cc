@@ -17,15 +17,12 @@ ________________________________________________________________________
 #include "executor.h"
 #include "file.h"
 #include "filepath.h"
+#include "gmtdef.h"
 #include "initgmtplugin.h"
-#include "ioobj.h"
 #include "keystrs.h"
-#include "pickset.h"
+#include "od_ostream.h"
 #include "strmprov.h"
 #include "survinfo.h"
-
-#include "od_ostream.h"
-
 
 
 int GMTContour::factoryid_ = -1;
@@ -169,7 +166,7 @@ bool GMTContour::doExecute( od_ostream& strm, const char* fnm )
     Coord botleft( mMIN( mMIN( spt1.x_, spt2.x_ ), mMIN( spt3.x_, spt4.x_ ) ),
                    mMIN( mMIN( spt1.y_, spt2.y_ ), mMIN( spt3.y_, spt4.y_ ) ) );
     Coord topright( mMAX( mMAX( spt1.x_, spt2.x_ ), mMAX( spt3.x_, spt4.x_ ) ),
-                    mMAX( mMAX( spt1.y_, spt2.y_ ), mMAX( spt3.y_, spt4.y_ ) ) );
+		    mMAX( mMAX( spt1.y_, spt2.y_ ), mMAX( spt3.y_, spt4.y_ )));
     fp.setExtension( "gd1" );
     BufferString grd100fnm( fp.fileName() );
     grd100fnm.clean( BufferString::AllowDots );

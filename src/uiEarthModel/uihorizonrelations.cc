@@ -161,7 +161,9 @@ HorizonModifyDlg( uiParent* p, const MultiID& mid1, const MultiID& mid2,
     savefld_->attach( alignedBelow, modefld_ );
     savefld_->setSensitive( EM::canOverwrite(mid1) );
 
-    objfld_ = new uiHorizonSel( this, is2d, false );
+    const IOObjContext ctxt = EM::Horizon::ioContext( is2d, false );
+    objfld_ = uiHorizonSel::create( this, ctxt );
+
     objfld_->display( false );
     objfld_->attach( alignedBelow, savefld_ );
 
@@ -275,10 +277,10 @@ protected:
     MultiID	mid1_;
     MultiID	mid2_;
 
-    uiGenInput*	horizonfld_;
-    uiGenInput*	modefld_;
-    uiGenInput*	savefld_;
-    uiIOObjSel*	objfld_;
+    uiGenInput*		horizonfld_;
+    uiGenInput*		modefld_;
+    uiGenInput*		savefld_;
+    uiHorizonSel*	objfld_;
 };
 
 

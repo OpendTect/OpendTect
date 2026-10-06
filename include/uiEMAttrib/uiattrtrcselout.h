@@ -14,7 +14,7 @@ ________________________________________________________________________
 class TrcKeySampling;
 class NLAModel;
 class uiGenInput;
-class uiIOObjSel;
+class uiHorizonSel;
 class uiSeisSel;
 class uiSeisSubSel;
 
@@ -68,8 +68,8 @@ protected:
 
     uiString		createAddWidthLabel();
 
-    uiIOObjSel*		objfld_;
-    uiIOObjSel*		obj2fld_		= nullptr;
+    uiHorizonSel*	objfld_;
+    uiHorizonSel*	obj2fld_		= nullptr;
     uiGenInput*		gatefld_		= nullptr;
     uiGenInput*		extraztopfld_		= nullptr;
     uiGenInput*		extrazbotfld_		= nullptr;

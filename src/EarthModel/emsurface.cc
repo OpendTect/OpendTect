@@ -390,13 +390,34 @@ bool Horizon::usePar( const IOPar& par )
     return Surface::usePar( par );
 }
 
+IOObjContext Horizon::ioContext3D( bool forread, const ZDomain::Info* zinfo,
+				   OD::HiddenPolicy hiddenpolicy )
+{
+    return ioContext( false, zinfo, forread, hiddenpolicy );
+}
+
+
+IOObjContext Horizon::ioContext2D( bool forread, const ZDomain::Info* zinfo,
+				   OD::HiddenPolicy hiddenpolicy )
+{
+    return ioContext( true, zinfo, forread, hiddenpolicy );
+}
+
+
+IOObjContext Horizon::ioContext( bool is2d,  bool forread,
+				 OD::HiddenPolicy hiddenpolicy )
+{
+    return ioContext( is2d, &SI().zDomainInfo(), forread, hiddenpolicy);
+}
+
 
 IOObjContext Horizon::ioContext( bool is2d, const ZDomain::Info* zinfo,
-			       bool forread )
+				 bool forread, OD::HiddenPolicy hiddenpolicy )
 {
     IOObjContext ctxt = is2d ? mIOObjContext(EMHorizon2D)
 			     : mIOObjContext(EMHorizon3D);
     ctxt.forread_ = forread;
+    ctxt.setHiddenPolicy( hiddenpolicy );
     if ( zinfo )
     {
 	const ZDomain::Info& siinfo = SI().zDomainInfo();
@@ -404,12 +425,6 @@ IOObjContext Horizon::ioContext( bool is2d, const ZDomain::Info* zinfo,
     }
 
     return ctxt;
-}
-
-
-IOObjContext Horizon::ioContext( bool is2d,  bool forread )
-{
-    return ioContext( is2d, &SI().zDomainInfo(), forread);
 }
 
 } // namespace EM

@@ -278,7 +278,7 @@ public:
     const char*			getDataName() const;
 
 protected:
-    uiIOObjSel*			objfld_;
+    uiIOObjSel*			objfld_		= nullptr;
     uiIOSelect*			auxdatafld_;
 
     void			finalizeCB(CallBacker*);
@@ -306,14 +306,17 @@ mExpClass(uiEarthModel) uiHorizonSel : public uiIOObjSel
 {
 mODTextTranslationClass(uiHorizonSel)
 public:
-			uiHorizonSel(uiParent*,bool is2d,
-				     const ZDomain::Info*,bool isforread,
-				     const uiIOObjSel::Setup& ={});
-			uiHorizonSel(uiParent*,bool is2d,bool isforread,
-				     const uiIOObjSel::Setup& ={});
+
 			~uiHorizonSel();
+
+    virtual bool	is2D() const		= 0;
+
+    static uiHorizonSel* create(uiParent*,const IOObjContext&,
+				const uiIOObjSel::Setup& ={});
+
 protected:
-    const uiString	getLabelText(const ZDomain::Info&,bool forread) const;
+			uiHorizonSel(uiParent*,const IOObjContext&,
+				     const uiIOObjSel::Setup& ={});
 };
 
 
@@ -321,11 +324,34 @@ mExpClass(uiEarthModel) uiHorizon3DSel : public uiHorizonSel
 { mODTextTranslationClass(uiHorizon3DSel)
 public:
 			uiHorizon3DSel(uiParent*,
+				       const IOObjContext&,
+				       const uiIOObjSel::Setup& ={});
+
+    bool		is2D() const override { return false; }
+
+mStartAllowDeprecatedSection
+    mDeprecated("Use with an IOObjContext")
+			uiHorizon3DSel(uiParent*,
 				       const ZDomain::Info*,bool isforread,
 				       const uiIOObjSel::Setup& ={});
+    mDeprecated("Use with an IOObjContext")
 			uiHorizon3DSel(uiParent*,bool isforread,
 				       const uiIOObjSel::Setup& ={});
+mStopAllowDeprecatedSection
 			~uiHorizon3DSel();
+};
+
+
+mExpClass(uiEarthModel) uiHorizon2DSel : public uiHorizonSel
+{ mODTextTranslationClass( uiHorizon2DSel )
+public:
+			uiHorizon2DSel(uiParent*,
+				       const IOObjContext&,
+				       const uiIOObjSel::Setup& ={});
+			~uiHorizon2DSel();
+
+    bool		is2D() const override { return true; }
+
 };
 
 
@@ -340,4 +366,5 @@ public:
 				   bool isforread,
 				   const uiIOObjSel::Setup& ={});
 			~uiFaultSel();
+
 };

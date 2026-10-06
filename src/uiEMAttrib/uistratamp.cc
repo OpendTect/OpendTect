@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "attriboutput.h"
 #include "attribsel.h"
 #include "emioobjinfo.h"
+#include "emhorizon.h"
 #include "emmanager.h"
 #include "emsurfacetr.h"
 #include "genc.h"
@@ -73,11 +74,12 @@ uiStratAmpCalc::uiStratAmpCalc( uiParent* p, const Setup& setup )
     mAttachCB( winoption_->valueChanged, uiStratAmpCalc::choiceSel );
     winoption_->attach( alignedBelow, classfld_ );
 
-    horfld1_ = new uiHorizon3DSel( this, true, uiStrings::sHorizon() );
+    const IOObjContext ctxt = EM::Horizon::ioContext3D( true );
+    horfld1_ = new uiHorizon3DSel( this, ctxt, uiStrings::sHorizon() );
     mAttachCB( horfld1_->selectionDone, uiStratAmpCalc::inpSel );
     horfld1_->attach( alignedBelow, winoption_ );
 
-    horfld2_ = new uiHorizon3DSel( this, true, uiStrings::sBottomHor() );
+    horfld2_ = new uiHorizon3DSel( this, ctxt, uiStrings::sBottomHor() );
     mAttachCB( horfld2_->selectionDone, uiStratAmpCalc::inpSel );
     horfld2_->attach( alignedBelow, horfld1_ );
 

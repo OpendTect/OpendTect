@@ -9,6 +9,8 @@ ________________________________________________________________________
 -*/
 
 #include "uiearthmodelmod.h"
+
+#include "emhorizon.h"
 #include "factory.h"
 #include "polygon.h"
 #include "uidialog.h"
@@ -16,11 +18,11 @@ ________________________________________________________________________
 
 class uiCheckBox;
 class uiGenInput;
-namespace EM { class Horizon; }
 
 class uiFaultParSel;
 class uiHorSaveFieldGrp;
 class uiArray1DInterpolSel;
+class uiHorizonSel;
 class uiIOObjSel;
 class uiHor3DInterpol;
 class uiHor3DInterpolSel;
@@ -46,13 +48,12 @@ protected:
     bool			interpolate2D();
     void			selChangeCB(CallBacker*);
 
-    bool			is2d_;
-    uiIOObjSel*			inputhorsel_;
-    uiHor3DInterpolSel*		interpolhor3dsel_;
-    uiArray1DInterpolSel*	interpol1dsel_;
-    uiHorSaveFieldGrp*		savefldgrp_;
+    uiHorizonSel*		inputhorsel_		= nullptr;
+    uiHor3DInterpolSel*		interpolhor3dsel_	= nullptr;
+    uiArray1DInterpolSel*	interpol1dsel_		= nullptr;
+    uiHorSaveFieldGrp*		savefldgrp_		= nullptr;
 
-    EM::Horizon*		horizon_;
+    RefMan<EM::Horizon>		horizon_;
 };
 
 

@@ -12,6 +12,7 @@ ________________________________________________________________________
 #include "array2dinterpolimpl.h"
 #include "attribdesc.h"
 #include "attriboutput.h"
+#include "emhorizon.h"
 #include "emsurfacetr.h"
 #include "emsurfaceauxdata.h"
 #include "emsurfauxdataio.h"
@@ -37,7 +38,6 @@ using namespace Attrib;
 uiAttrSurfaceOut::uiAttrSurfaceOut( uiParent* p, const DescSet& ad,
 				    const NLAModel* n, const MultiID& mid )
     : uiAttrEMOut( p, ad, n, mid, "Calculate Horizon Data" )
-    , interpol_(0)
 {
     setHelpKey( mODHelpKey(mAttrSurfaceOutHelpID) );
     setCtrlStyle( RunAndClose );
@@ -50,7 +50,7 @@ uiAttrSurfaceOut::uiAttrSurfaceOut( uiParent* p, const DescSet& ad,
 
     filludffld_ = new uiGenInput( pargrp_, tr("Fill undefined parts"),
 				  BoolInpSpec(false) );
-    filludffld_->valueChanged.notify( mCB(this,uiAttrSurfaceOut,fillUdfSelCB) );
+    mAttachCB( filludffld_->valueChanged, uiAttrSurfaceOut::fillUdfSelCB );
     filludffld_->attach( alignedBelow, attrnmfld_ );
 
     settingsbut_ = new uiPushButton( pargrp_, uiStrings::sSettings(),
@@ -58,10 +58,11 @@ uiAttrSurfaceOut::uiAttrSurfaceOut( uiParent* p, const DescSet& ad,
     settingsbut_->display( false );
     settingsbut_->attach( rightOf, filludffld_ );
 
-    objfld_ = new uiHorizon3DSel( pargrp_, true,
+    const IOObjContext ctxt = EM::Horizon::ioContext3D( true );
+    objfld_ = new uiHorizon3DSel( pargrp_, ctxt,
 				  uiStrings::phrCalculate(tr("on Horizon")) );
     objfld_->attach( alignedBelow, filludffld_ );
-    objfld_->selectionDone.notify( mCB(this,uiAttrSurfaceOut,objSelCB) );
+    mAttachCB( objfld_->selectionDone, uiAttrSurfaceOut::objSelCB );
     pargrp_->setHAlignObj( objfld_ );
 
     batchjobfld_->jobSpec().pars_.set( IOPar::compKey(sKey::Output(),
@@ -71,7 +72,10 @@ uiAttrSurfaceOut::uiAttrSurfaceOut( uiParent* p, const DescSet& ad,
 
 
 uiAttrSurfaceOut::~uiAttrSurfaceOut()
-{}
+{
+    detachAllNotifiers();
+    delete interpol_;
+}
 
 
 void uiAttrSurfaceOut::fillUdfSelCB( CallBacker* )
@@ -106,9 +110,7 @@ void uiAttrSurfaceOut::settingsCB( CallBacker* )
     interpolsel->fillPar( iop );
     iop.get( sKey::Name(), methodname_ );
 
-    if ( interpol_ )
-	delete interpol_;
-
+    delete interpol_;
     interpol_ = interpolsel->getResult();
 }
 
@@ -120,7 +122,8 @@ void uiAttrSurfaceOut::attribSel( CallBacker* )
 	attrnmfld_->setText( sp.first() );
     else
 	attrnmfld_->setText( sp.getCompString(true) );
-    objSelCB(0);
+
+    objSelCB( nullptr );
 }
 
 

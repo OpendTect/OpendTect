@@ -17,6 +17,7 @@ ________________________________________________________________________
 
 class uiCheckList;
 class uiGenInput;
+class uiHorizon3DSel;
 class uiIOObjSel;
 class uiUnitSel;
 
@@ -28,7 +29,7 @@ mExpClass(uiEarthModel) uiCalcHorVol : public uiDialog
 mODTextTranslationClass(uiCalcHorVol)
 protected:
 			uiCalcHorVol(uiParent*,const uiString&);
-    virtual		~uiCalcHorVol();
+			~uiCalcHorVol();
 
     uiGroup*		mkStdGrp();
 
@@ -47,8 +48,8 @@ protected:
     void		haveChg(CallBacker*);
     void		calcReq(CallBacker*);
 
-    virtual const Pick::Set*		getPickSet() const		= 0;
-    virtual const EM::Horizon3D*	getHorizon() const		= 0;
+    virtual ConstRefMan<Pick::Set>	getPickSet() const		= 0;
+    virtual ConstRefMan<EM::Horizon3D>	getHorizon() const		= 0;
 
 };
 
@@ -65,14 +66,14 @@ public:
 
 protected:
 
-    uiIOObjSel*			horsel_		= nullptr;
+    uiHorizon3DSel*		horsel_		= nullptr;
 
     ConstRefMan<Pick::Set>	ps_;
-    RefMan<EM::Horizon3D>	hor_		= nullptr;
+    RefMan<EM::Horizon3D>	hor_;
 
-    const Pick::Set*		getPickSet() const override
+    ConstRefMan<Pick::Set>	getPickSet() const override
 				{ return ps_.ptr(); }
-    const EM::Horizon3D*	getHorizon() const override;
+    ConstRefMan<EM::Horizon3D>	getHorizon() const override;
 
     void			horSel(CallBacker*);
 };
@@ -92,11 +93,11 @@ protected:
 
     uiIOObjSel*			pssel_		= nullptr;
 
-    RefMan<Pick::Set>		ps_		= nullptr;
+    RefMan<Pick::Set>		ps_;
     ConstRefMan<EM::Horizon3D>	hor_;
 
-    const Pick::Set*		getPickSet() const override;
-    const EM::Horizon3D*	getHorizon() const override
+    ConstRefMan<Pick::Set>	getPickSet() const override;
+    ConstRefMan<EM::Horizon3D>	getHorizon() const override
 				{ return hor_.ptr(); }
 
     void			psSel(CallBacker*);

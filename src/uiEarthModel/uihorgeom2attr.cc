@@ -283,16 +283,19 @@ bool uiHorAttr2Geom::acceptOK( CallBacker* )
     if ( !savefldgrp_->acceptOK(0) )
 	return false;
 
-    EM::Horizon3D* usedhor = &hor_;
+    ConstRefMan<EM::Horizon3D> usedhor = &hor_;
     if ( !savefldgrp_->overwriteHorizon() )
-	mDynamicCast( EM::Horizon3D*, usedhor, savefldgrp_->getNewHorizon() );
+    {
+	ConstRefMan<EM::Horizon> newhor = savefldgrp_->getNewHorizon();
+	mDynamicCast( const EM::Horizon3D*, usedhor, newhor.ptr() );
+    }
 
     if ( !usedhor )
 	return false;
 
-    uiHorAttr2GeomExec exec( *usedhor, *dps_, colid_, zfac, isdelta );
-    uiTaskRunner taskrunner( this );
-    const bool res = TaskRunner::execute( &taskrunner, exec )
-	&& savefldgrp_->saveHorizon();
+    uiHorAttr2GeomExec exec( *usedhor.getNonConstPtr(), *dps_, colid_,
+			     zfac, isdelta );
+    uiTaskRunner runner( this );
+    const bool res = runner.execute( exec ) && savefldgrp_->saveHorizon();
     return res;
 }

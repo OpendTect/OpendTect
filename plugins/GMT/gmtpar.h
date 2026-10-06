@@ -10,12 +10,10 @@ ________________________________________________________________________
 
 #include "gmtmod.h"
 
-#include "gmtdef.h"
 #include "iopar.h"
 #include "manobjectset.h"
 #include "od_ostream.h"
 #include "oscommand.h"
-#include "uistring.h"
 
 
 mExpClass(GMT) GMTPar : public IOPar

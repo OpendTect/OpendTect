@@ -15,7 +15,7 @@ namespace Attrib { class Desc; }
 
 class uiAttrSel;
 class uiGenInput;
-class uiIOObjSel;
+class uiHorizonSel;
 class uiCheckBox;
 
 
@@ -31,7 +31,7 @@ public:
 protected:
 
     uiAttrSel*		inpfld_;
-    uiIOObjSel*		horfld_;
+    uiHorizonSel*	horfld_;
     uiGenInput*		typefld_;
     uiGenInput*		surfdatafld_;
     uiCheckBox*		isrelbox_;

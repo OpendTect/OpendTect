@@ -145,11 +145,13 @@ void uiCalcHorVol::haveChg( CallBacker* )
 
 void uiCalcHorVol::calcReq( CallBacker* )
 {
-    const Pick::Set* ps = getPickSet();
-    if ( !ps ) mErrRet( tr("No Polygon selected") );
+    ConstRefMan<Pick::Set> ps = getPickSet();
+    if ( !ps )
+	mErrRet( tr("No Polygon selected") );
 
-    const EM::Horizon3D* hor = getHorizon();
-    if ( !hor ) mErrRet( tr("No Horizon selected") );
+    ConstRefMan<EM::Horizon3D> hor = getHorizon();
+    if ( !hor )
+	mErrRet( tr("No Horizon selected") );
 
     float vel = 1;
     if ( velfld_ )
@@ -163,7 +165,7 @@ void uiCalcHorVol::calcReq( CallBacker* )
 
     const bool allownegativevalues = !optsfld_->isChecked( 0 );
     const bool upward = optsfld_->isChecked( 1 );
-    Poly2HorVol ph2v( ps, const_cast<EM::Horizon3D*>(hor) );
+    Poly2HorVol ph2v( ps.ptr(), hor.getNonConstPtr() );
     volumeinm3_ = ph2v.getM3( vel, upward, allownegativevalues );
     unitChgCB( volumeunitfld_ );
 
@@ -187,8 +189,9 @@ uiCalcPolyHorVol::uiCalcPolyHorVol( uiParent* p, const Pick::Set& ps )
 	return;
     }
 
-    horsel_ = new uiHorizonSel( this, false, true, tr("Calculate to") );
-    horsel_->selectionDone.notify( mCB(this,uiCalcPolyHorVol,horSel) );
+    const IOObjContext ctxt = EM::Horizon::ioContext3D( true );
+    horsel_ = new uiHorizon3DSel( this, ctxt, tr("Calculate to") );
+    mAttachCB( horsel_->selectionDone, uiCalcPolyHorVol::horSel );
 
     mkStdGrp()->attach( alignedBelow, horsel_ );
 }
@@ -196,10 +199,11 @@ uiCalcPolyHorVol::uiCalcPolyHorVol( uiParent* p, const Pick::Set& ps )
 
 uiCalcPolyHorVol::~uiCalcPolyHorVol()
 {
+    detachAllNotifiers();
 }
 
 
-const EM::Horizon3D* uiCalcPolyHorVol::getHorizon() const
+ConstRefMan<EM::Horizon3D> uiCalcPolyHorVol::getHorizon() const
 {
     if ( !hor_ )
 	cCast(uiCalcPolyHorVol*,this)->horSel( nullptr);
@@ -214,9 +218,9 @@ void uiCalcPolyHorVol::horSel( CallBacker* cb )
     if ( !ioobj )
 	return;
 
-    uiTaskRunner taskrunner( this );
+    uiTaskRunner runner( this );
     EM::EMObject* emobj =
-		EM::EMM().loadIfNotFullyLoaded( ioobj->key(), &taskrunner );
+		EM::EMM().loadIfNotFullyLoaded( ioobj->key(), &runner );
     hor_ = sCast(EM::Horizon3D*,emobj);
     haveChg( cb );
 }
@@ -238,7 +242,7 @@ uiCalcHorPolyVol::uiCalcHorPolyVol( uiParent* p, const EM::Horizon3D& h )
     ctxt.requireType( sKey::Polygon() );
     pssel_ = new uiIOObjSel( this, ctxt, uiStrings::phrCalculateFrom(
 			     uiStrings::sPolygon()));
-    pssel_->selectionDone.notify( mCB(this,uiCalcHorPolyVol,psSel) );
+    mAttachCB( pssel_->selectionDone, uiCalcHorPolyVol::psSel );
 
     mkStdGrp()->attach( alignedBelow, pssel_ );
 }
@@ -246,10 +250,11 @@ uiCalcHorPolyVol::uiCalcHorPolyVol( uiParent* p, const EM::Horizon3D& h )
 
 uiCalcHorPolyVol::~uiCalcHorPolyVol()
 {
+    detachAllNotifiers();
 }
 
 
-const Pick::Set* uiCalcHorPolyVol::getPickSet() const
+ConstRefMan<Pick::Set> uiCalcHorPolyVol::getPickSet() const
 {
     if ( !ps_ )
 	cCast(uiCalcHorPolyVol*,this)->psSel( nullptr);

@@ -9,14 +9,14 @@ ________________________________________________________________________
 -*/
 
 #include "uiearthmodelmod.h"
-#include "uidialog.h"
 
-namespace EM { class Horizon; }
+#include "emhorizon.h"
+#include "uidialog.h"
 
 class uiHorSaveFieldGrp;
 class Executor;
 class uiGenInput;
-class uiIOObjSel;
+class uiHorizonSel;
 template <class T> class Array2D;
 
 /*!\brief Base class for surface changers. At the moment only does horizons. */
@@ -34,10 +34,10 @@ public:
 protected:
 
     uiHorSaveFieldGrp*		savefldgrp_;
-    uiIOObjSel*			inputfld_;
-    uiGroup*			parsgrp_;
+    uiHorizonSel*		inputfld_	= nullptr;
+    uiGroup*			parsgrp_	= nullptr;
 
-    EM::Horizon*		horizon_;
+    RefMan<EM::Horizon>		horizon_;
     bool			is2d_;
 
     bool			acceptOK(CallBacker*) override;

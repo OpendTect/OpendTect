@@ -13,6 +13,7 @@ ________________________________________________________________________
 #include "attribengman.h"
 #include "attriboutput.h"
 #include "emioobjinfo.h"
+#include "emhorizon.h"
 #include "emmanager.h"
 #include "emsurfacetr.h"
 #include "ioman.h"
@@ -46,15 +47,6 @@ uiAttrTrcSelOut::uiAttrTrcSelOut( uiParent* p, const DescSet& ad,
 				  bool usesinglehor )
     : uiAttrEMOut( p, ad, n, mid, "Create Horizon delimited cube output" )
     , usesinglehor_(usesinglehor)
-    , extraztopfld_(0)
-    , extrazbotfld_(0)
-    , gatefld_(0)
-    , mainhorfld_(0)
-    , widthfld_(0)
-    , addwidthfld_(0)
-    , interpfld_(0)
-    , nrsampfld_(0)
-    , xparsdlg_(0)
     , is2d_(ad.is2D())
 {
     setCtrlStyle( RunAndClose );
@@ -68,12 +60,12 @@ uiAttrTrcSelOut::uiAttrTrcSelOut( uiParent* p, const DescSet& ad,
 	createTwoHorUI();
 
     pargrp_->setHAlignObj( outpfld_ );
-    objSel(0);
+    objSel(nullptr);
     if ( usesinglehor_ && !ads_->is2D() )
-	interpSel(0);
+	interpSel(nullptr);
 
     if ( usesinglehor_ || ads_->is2D() )
-	cubeBoundsSel(0);
+	cubeBoundsSel(nullptr);
 
     batchjobfld_->jobSpec().pars_.set( IOPar::compKey(sKey::Output(),
 				       sKey::Type()), Output::tskey() );
@@ -82,8 +74,11 @@ uiAttrTrcSelOut::uiAttrTrcSelOut( uiParent* p, const DescSet& ad,
 
 void uiAttrTrcSelOut::createSingleHorUI()
 {
-    objfld_ = new uiHorizonSel( pargrp_, is2d_, true,
-				uiStrings::phrCalculate(tr("along Horizon")) );
+    const uiIOObjSel::Setup su(
+			uiStrings::phrCalculate(tr("along Horizon")) );
+    const IOObjContext ctxt = EM::Horizon::ioContext( is2d_, true );
+    objfld_ = uiHorizonSel::create( pargrp_, ctxt, su );
+
     objfld_->attach( alignedBelow, attrfld_ );
     objfld_->selectionDone.notify( mCB(this,uiAttrTrcSelOut,objSel) );
 
@@ -105,15 +100,18 @@ void uiAttrTrcSelOut::createTwoHorUI()
 {
     xparsdlg_ = new uiDialog( pargrp_, uiDialog::Setup(tr("Set Extra Options"),
 			      mODHelpKey(mAttrTrcSelOutBetweenHelpID)) );
-    xparsdlg_->postFinalize().notify( mCB(this,uiAttrTrcSelOut,extraDlgDone) );
+    mAttachCB( xparsdlg_->postFinalize(),
+	       uiAttrTrcSelOut::extraDlgDone );
 
     uiIOObjSel::Setup su( tr("Calculate between top Horizon") );
     su.filldef(false);
-    objfld_ = new uiHorizonSel( pargrp_, is2d_, true, su );
+    const IOObjContext ctxt = EM::Horizon::ioContext( is2d_, true );
+    objfld_ = uiHorizonSel::create( pargrp_, ctxt, su );
     objfld_->attach( alignedBelow, attrfld_ );
 
     su.seltxt( tr("and bottom Horizon") );
-    obj2fld_ = new uiHorizonSel( pargrp_, is2d_, true, su );
+    obj2fld_ = uiHorizonSel::create( pargrp_, ctxt, su );
+
     obj2fld_->setInput( MultiID::udf() );
     obj2fld_->attach( alignedBelow, objfld_ );
     obj2fld_->selectionDone.notify( mCB(this,uiAttrTrcSelOut,objSel) );
@@ -147,6 +145,7 @@ void uiAttrTrcSelOut::createTwoHorUI()
 
 uiAttrTrcSelOut::~uiAttrTrcSelOut()
 {
+    detachAllNotifiers();
 }
 
 

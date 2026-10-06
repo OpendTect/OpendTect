@@ -9,7 +9,7 @@ ________________________________________________________________________
 
 #include "uigmtadv.h"
 
-#include "gmtpar.h"
+#include "gmtdef.h"
 #include "uilabel.h"
 #include "uilineedit.h"
 #include "uimsg.h"

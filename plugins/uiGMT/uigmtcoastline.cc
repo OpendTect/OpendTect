@@ -10,7 +10,7 @@ ________________________________________________________________________
 #include "uigmtcoastline.h"
 
 #include "draw.h"
-#include "gmtpar.h"
+#include "gmtdef.h"
 #include "uicolor.h"
 #include "uicombobox.h"
 #include "uigeninput.h"
@@ -57,7 +57,7 @@ uiGMTCoastlineGrp::uiGMTCoastlineGrp( uiParent* p )
     ewfld_->attach( rightTo, cmfld_ );
     ewfld_->valueChanged.notify( mCB(this,uiGMTCoastlineGrp,utmSel) );
 
-    uiLabeledComboBox* lcb = new uiLabeledComboBox( this,
+    auto* lcb = new uiLabeledComboBox( this,
 	    ODGMT::ResolutionDef(), uiStrings::sResolution() );
     resolutionfld_ = lcb->box();
 

@@ -10,6 +10,8 @@ ________________________________________________________________________
 
 #include "uigmtoverlay.h"
 
+#include "emhorizon3d.h"
+
 class uiCheckBox;
 class uiColorTableSel;
 class uiComboBox;
@@ -19,15 +21,14 @@ class uiPosSubSel;
 class uiPushButton;
 class uiSelLineStyle;
 
-namespace EM { class SurfaceIOData; class Horizon3D; }
+namespace EM { class SurfaceIOData; }
 
 mClass(uiGMT) uiGMTContourGrp : public uiGMTOverlayGrp
 { mODTextTranslationClass(uiGMTContourGrp);
 public:
+			~uiGMTContourGrp();
 
     static void		initClass();
-
-    			~uiGMTContourGrp();
 
     bool		fillPar(IOPar&) const override;
     bool		usePar(const IOPar&) override;
@@ -40,7 +41,7 @@ protected:
     static uiGMTOverlayGrp*	createInstance(uiParent*);
     static int			factoryid_;
 
-    EM::Horizon3D*	hor_;
+    RefMan<EM::Horizon3D>	hor_;
     EM::SurfaceIOData&	sd_;
     Interval<float>	valrg_;
 
@@ -51,7 +52,7 @@ protected:
     uiPushButton*	resetbut_;
     uiGenInput*		nrcontourfld_;
     uiCheckBox*		linefld_;
-    uiSelLineStyle*	lsfld_;
+    uiSelLineStyle*	lsfld_	= nullptr;
     uiCheckBox*		fillfld_;
     uiColorTableSel*	colseqfld_;
     uiCheckBox*		flipfld_;

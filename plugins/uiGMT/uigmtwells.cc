@@ -9,10 +9,9 @@ ________________________________________________________________________
 
 #include "uigmtwells.h"
 
-#include "gmtpar.h"
 #include "ioman.h"
 #include "ioobj.h"
-#include "welldata.h"
+#include "gmtdef.h"
 #include "wellextractdata.h"
 #include "uibutton.h"
 #include "uicombobox.h"

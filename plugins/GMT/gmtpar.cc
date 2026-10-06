@@ -10,14 +10,12 @@ ________________________________________________________________________
 #include "gmtpar.h"
 
 #include "debug.h"
-#include "envvars.h"
 #include "file.h"
 #include "filepath.h"
+#include "gmtdef.h"
 #include "initgmtplugin.h"
-#include "keystrs.h"
 #include "oddirs.h"
 #include "od_istream.h"
-#include "strmprov.h"
 
 
 GMTParFactory& GMTPF()

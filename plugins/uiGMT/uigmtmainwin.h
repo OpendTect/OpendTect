@@ -42,16 +42,16 @@ protected:
     uiPushButton*	createbut_;
     uiPushButton*	viewbut_;
 
-    uiPushButton*	addbut_;
-    uiPushButton*	editbut_;
+    uiPushButton*	addbut_			= nullptr;
+    uiPushButton*	editbut_		= nullptr;
     uiPushButton*	resetbut_;
 
     uiTabStack*		tabstack_;
     ObjectSet<uiGMTOverlayGrp> overlaygrps_;
 
     ObjectSet<GMTPar>	pars_;
-    Timer*		tim_;
-    bool		needsave_;
+    Timer*		tim_			= nullptr;
+    bool		needsave_		= false;
     uiBatchJobDispatcherSel*	batchfld_;
 
     void		createPush(CallBacker*);

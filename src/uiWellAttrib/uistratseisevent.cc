@@ -37,12 +37,13 @@ uiStratLevelHorSel::uiStratLevelHorSel( uiParent* p,
     lvlsel_ = new uiStratLevelSel( this, false, tr("Reference level"));
 
     uiIOObjSel::Setup hsu( tr("Horizon at that level") );
-    horsel3d_ = new uiIOObjSel( this, EM::Horizon::ioContext(false,true), hsu );
+    const IOObjContext ctxt3d = EM::Horizon::ioContext3D( true );
+    horsel3d_ = new uiIOObjSel( this, ctxt3d, hsu );
     horsel3d_->attach( alignedBelow, lvlsel_ );
     if ( SI().has2D() )
     {
-	horsel2d_ = new uiIOObjSel( this, EM::Horizon::ioContext(true,true),
-				    hsu );
+	const IOObjContext ctxt2d = EM::Horizon::ioContext2D( true );
+	horsel2d_ = new uiIOObjSel( this, ctxt2d, hsu );
 	horsel2d_->attach( alignedBelow, lvlsel_ );
     }
 

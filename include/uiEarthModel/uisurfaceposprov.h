@@ -9,11 +9,11 @@ ________________________________________________________________________
 -*/
 
 #include "uiearthmodelmod.h"
+
 #include "uiposprovgroup.h"
 
 class uiGenInput;
 class uiIOObjSel;
-class uiLabel;
 class uiLabeledSpinBox;
 class uiSelZRange;
 class uiSpinBox;

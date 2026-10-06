@@ -152,7 +152,7 @@ uiSurface2DSelGrp::~uiSurface2DSelGrp()
 
 // uiHorizon2DSelGrp
 uiHorizon2DSelGrp::uiHorizon2DSelGrp( uiParent* p )
-    : uiSurface2DSelGrp(p,EM::Horizon::ioContext(true,true))
+    : uiSurface2DSelGrp(p,EM::Horizon::ioContext2D(true))
 {}
 
 
@@ -162,7 +162,7 @@ uiHorizon2DSelGrp::~uiHorizon2DSelGrp()
 
 // uiHorizon3DSelGrp
 uiHorizon3DSelGrp::uiHorizon3DSelGrp( uiParent* p )
-    : uiSurface3DSelGrp(p,EM::Horizon::ioContext(false,true))
+    : uiSurface3DSelGrp(p,EM::Horizon::ioContext3D(true))
 {
     getFullList();
 }

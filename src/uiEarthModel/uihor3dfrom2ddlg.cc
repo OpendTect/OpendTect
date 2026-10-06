@@ -33,13 +33,14 @@ uiHor3DFrom2DDlg::uiHor3DFrom2DDlg( uiParent* p, const EM::Horizon2D& h2d,
 				    uiEMPartServer* ems )
     : uiDialog( p, Setup(tr("Derive 3D Horizon"),
 			 mODHelpKey(mHor3DFrom2DDlgHelpID)))
-    , hor2d_( h2d )
+    , hor2d_( &h2d )
     , emserv_( ems )
 {
     interpolsel_ = new uiArray2DInterpolSel( this, false, false, false, 0 );
     interpolsel_->setDistanceUnit( SI().xyInFeet() ? tr("[ft]") : tr("[m]") );
 
-    outfld_ = new uiHorizon3DSel( this, false );
+    const IOObjContext ctxt = EM::Horizon::ioContext3D( false );
+    outfld_ = new uiHorizon3DSel( this, ctxt );
     outfld_->attach( alignedBelow, interpolsel_ );
     outfld_->setInputText( BufferString(h2d.name()," ","3D") );
 
@@ -53,8 +54,6 @@ uiHor3DFrom2DDlg::uiHor3DFrom2DDlg( uiParent* p, const EM::Horizon2D& h2d,
 
 uiHor3DFrom2DDlg::~uiHor3DFrom2DDlg()
 {
-    if ( hor3d_ )
-	hor3d_->unRef();
 }
 
 
@@ -64,7 +63,7 @@ MultiID uiHor3DFrom2DDlg::getSelID() const
 }
 
 
-EM::Horizon3D* uiHor3DFrom2DDlg::getHor3D()
+ConstRefMan<EM::Horizon3D> uiHor3DFrom2DDlg::getHor3D() const
 {
     return hor3d_;
 }
@@ -99,42 +98,37 @@ bool uiHor3DFrom2DDlg::acceptOK( CallBacker* )
 	emserv_->removeTreeObject( em.getObjectID(ioobj->key()) );
 
     const EM::ObjectID emobjid = em.createObject( typ, ioobj->name() );
-    mDynamicCastGet(EM::Horizon3D*,hor3d,em.getObject(emobjid));
+    RefMan<EM::EMObject> emobj = em.getObject( emobjid );
+    mDynamicCastGet(EM::Horizon3D*,hor3d,emobj.ptr())
     if ( !hor3d )
 	mErrRet( toUiString("Cannot create 3D horizon") );
 
-    if ( hor3d_ )
-	hor3d_->unRef();
-
     hor3d_ = hor3d;
-
-    hor3d_->ref();
-    hor3d_->setPreferredColor( hor2d_.preferredColor() );
-    hor3d_->setMultiID( ioobj->key() );
 
     Array2DInterpol* interpolator = interpolsel_->getResult();
     if ( !interpolator )
 	mErrRet( toUiString("Cannot create interpolator") );
 
-    uiTaskRunner taskrunner( this );
+    uiTaskRunner runner( this );
     //Takes over interpolator
-    EM::Hor2DTo3D converter( hor2d_, interpolator, *hor3d_, &taskrunner );
-    bool rv = TaskRunner::execute( &taskrunner, converter );
+    EM::Hor2DTo3D converter( *hor2d_.ptr(), interpolator, *hor3d_.ptr(),
+			     &runner );
+    bool rv = runner.execute( converter );
 
 #undef mErrRet
     if ( !rv )
 	return false;
 
-    PtrMan<Executor> exec = hor3d->saver();
-    if ( !exec )
+    PtrMan<Task> saver = hor3d->saver();
+    if ( !saver )
 	return false;
 
-    rv = TaskRunner::execute( &taskrunner, *exec );
+    rv = runner.execute( *saver.ptr() );
     if ( rv )
     {
 	selid_ = ioobj->key();
-	BufferString source = hor2d_.multiID().toString();
-	source.add( " (" ).add( hor2d_.name() ).add( ")" );
+	BufferString source = hor2d_->multiID().toString();
+	source.add( " (" ).add( hor2d_->name() ).add( ")" );
 	ioobj->pars().update( sKey::CrFrom(), source );
 	ioobj->updateCreationPars();
 	IOM().commitChanges( *ioobj );

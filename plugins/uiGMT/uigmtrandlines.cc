@@ -11,7 +11,7 @@ ________________________________________________________________________
 
 #include "ctxtioobj.h"
 #include "draw.h"
-#include "gmtpar.h"
+#include "gmtdef.h"
 #include "ioman.h"
 #include "ioobj.h"
 #include "randomlinegeom.h"

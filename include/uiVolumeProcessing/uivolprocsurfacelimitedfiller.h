@@ -14,7 +14,7 @@ ________________________________________________________________________
 #include "volprocsurfacelimitedfiller.h"
 
 class uiGenInput;
-class uiIOObjSel;
+class uiHorizonSel;
 class IOObj;
 class uiPushButton;
 class uiTable;
@@ -72,7 +72,7 @@ protected:
 
     uiGenInput*			userefdepthfld_			= nullptr;
     uiGenInput*			refdepthfld_			= nullptr;
-    uiIOObjSel*			refhorizonfld_			= nullptr;
+    uiHorizonSel*		refhorizonfld_			= nullptr;
 };
 
 } // namespace VolProc

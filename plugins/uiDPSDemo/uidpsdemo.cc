@@ -12,7 +12,6 @@ ________________________________________________________________________
 #include "binidsurface.h"
 #include "binidvalset.h"
 #include "datacoldef.h"
-#include "datapointset.h"
 #include "emhorizon3d.h"
 #include "emmanager.h"
 #include "emsurfacetr.h"
@@ -37,13 +36,13 @@ uiDPSDemo::uiDPSDemo( uiParent* p, DataPointSetDisplayMgr* dpsdispmgr )
     : uiDialog(p,Setup(tr("DataPointSet demo"),
 		       tr("Data extraction parameters"),
 		       mNoHelpKey))
-    , dps_(0)
     , dpsdispmgr_(dpsdispmgr)
 {
-    horfld_ = new uiHorizon3DSel( this, true );
+    const IOObjContext horctxt = EM::Horizon::ioContext3D( true );
+    horfld_ = new uiHorizon3DSel( this, horctxt );
 
-    IOObjContext ctxt( mIOObjContext(SeisTrc) );
-    seisfld_ = new uiSeisSel( this, ctxt, uiSeisSel::Setup(false,false) );
+    const IOObjContext seisctxt( mIOObjContext(SeisTrc) );
+    seisfld_ = new uiSeisSel( this, seisctxt, uiSeisSel::Setup(false,false) );
     seisfld_->attach( alignedBelow, horfld_ );
 
     nrptsfld_ = new uiGenInput( this, tr("Number of points to extract"),
@@ -64,9 +63,12 @@ uiDPSDemo::~uiDPSDemo()
 bool uiDPSDemo::acceptOK( CallBacker* )
 {
     const IOObj* horioobj = horfld_->ioobj(); // emits its own error message
-    if ( !horioobj ) return false;
+    if ( !horioobj )
+	return false;
+
     const IOObj* seisioobj = seisfld_->ioobj(); // this one, too
-    if ( !seisioobj ) return false;
+    if ( !seisioobj )
+	return false;
 
     const int nrpts = nrptsfld_->getIntValue();
     if ( nrpts < 2 )
@@ -81,10 +83,11 @@ bool uiDPSDemo::doWork( const IOObj& horioobj, const IOObj& seisioobj,
 			int nrpts )
 {
     uiTaskRunner taskrunner( this );
-    EM::EMObject* emobj = EM::EMM().loadIfNotFullyLoaded( horioobj.key(),
+    RefMan<EM::EMObject> emobj = EM::EMM().loadIfNotFullyLoaded( horioobj.key(),
 							  &taskrunner );
-    mDynamicCastGet(EM::Horizon3D*,hor,emobj)
-    if ( !hor ) return false;
+    mDynamicCastGet(EM::Horizon3D*,hor,emobj.ptr())
+    if ( !hor )
+	return false;
 
     dps_ = new DataPointSet( false );
     dps_->dataSet().add( new DataColDef("Amplitude") );
@@ -93,10 +96,7 @@ bool uiDPSDemo::doWork( const IOObj& horioobj, const IOObj& seisioobj,
     dps_->dataSet().add( new DataColDef("Frequency") );
     DPM(DataPackMgr::PointID()).add( dps_ );
 
-    hor->ref();
-    const bool isok = getRandPositions(*hor,nrpts,*dps_);
-    hor->unRef();
-
+    const bool isok = getRandPositions(*hor,nrpts,*dps_.ptr());
     if ( !isok || !getSeisData(seisioobj,*dps_,taskrunner) )
 	return false;
 
@@ -104,7 +104,7 @@ bool uiDPSDemo::doWork( const IOObj& horioobj, const IOObj& seisioobj,
 		      arg(seisioobj.uiName()) );
     uiDataPointSet::Setup su( wintitl, false );
     su.canaddrow( true );
-    uiDataPointSet* uidps =
+    auto* uidps =
 	new uiDataPointSet( parent(), *dps_, su, dpsdispmgr_ );
 
     uidps->show();

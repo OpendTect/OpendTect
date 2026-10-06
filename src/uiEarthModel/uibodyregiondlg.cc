@@ -726,7 +726,7 @@ void uiBodyRegionDlg::addSurfaceCB( CallBacker* cb )
 
     PtrMan<CtxtIOObj> objio =
 		isflt ? mMkCtxtIOObj(EMFault3D)
-		      : new CtxtIOObj( EM::Horizon::ioContext(false,true) );
+		      : new CtxtIOObj( EM::Horizon::ioContext3D(true) );
     uiIOObjSelDlg::Setup sdsu; sdsu.multisel( true );
     PtrMan<uiIOObjSelDlg> dlg = new uiIOObjSelDlg( this, sdsu, *objio );
     if ( !dlg->go() )

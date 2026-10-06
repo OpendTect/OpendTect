@@ -13,11 +13,10 @@ ________________________________________________________________________
 #include "file.h"
 #include "filepath.h"
 #include "gmtbasemap.h"
+#include "gmtdef.h"
 #include "initgmtplugin.h"
 #include "keystrs.h"
 #include "strmprov.h"
-#include "survinfo.h"
-#include "od_iostream.h"
 
 
 static const int cTitleBoxHeight = 4;
@@ -423,7 +422,7 @@ static bool setFromSingleStringRep( const char* inp, OS::MachineCommand& mc )
 }
 
 
-bool GMTCommand::doExecute( od_ostream& strm, const char* fnm )
+bool GMTCommand::doExecute( od_ostream& strm, const char* /*fnm*/ )
 {
     strm << "Executing custom command" << od_endl;
     const BufferString res = find( ODGMT::sKeyCustomComm() );

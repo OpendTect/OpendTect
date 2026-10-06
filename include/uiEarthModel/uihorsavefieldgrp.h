@@ -9,13 +9,15 @@ ________________________________________________________________________
 -*/
 
 #include "uiearthmodelmod.h"
+
+#include "emhorizon.h"
 #include "uigroup.h"
 
-namespace EM { class Horizon; class SurfaceIODataSelection; }
+namespace EM { class SurfaceIODataSelection; }
 
 class uiCheckBox;
 class uiGenInput;
-class uiIOObjSel;
+class uiHorizonSel;
 class uiPosSubSel;
 
 /*!\brief save or overwrite horizon field set up. It will create new horizon
@@ -37,9 +39,8 @@ public:
     bool			displayNewHorizon() const;
     bool			overwriteHorizon() const;
     void			allowOverWrite(bool);
-    EM::Horizon*		getNewHorizon() const	{ return newhorizon_; }
-
-    EM::Horizon*		readHorizon(const MultiID&);
+    ConstRefMan<EM::Horizon>	getNewHorizon() const;
+    ConstRefMan<EM::Horizon>	readHorizon(const MultiID&);
     bool			saveHorizon();
 
     void			setHorRange(const Interval<int>& newinlrg,
@@ -52,17 +53,16 @@ protected:
 
     uiGenInput*			savefld_		    = nullptr;
     uiCheckBox*			addnewfld_		    = nullptr;
-    uiIOObjSel*			outputfld_		    = nullptr;
+    uiHorizonSel*		outputfld_		    = nullptr;
     uiPosSubSel*		rgfld_			    = nullptr;
 
-    EM::Horizon*		horizon_;
-    EM::Horizon*		newhorizon_		    = nullptr;
-    bool			usefullsurvey_;
-    bool			is2d_;
+    RefMan<EM::Horizon>		horizon_;
+    RefMan<EM::Horizon>		newhorizon_;
+    bool			usefullsurvey_		    = false;
 
     EM::SurfaceIODataSelection	getSelection(bool) const;
     bool			createNewHorizon();
     void			saveCB(CallBacker*);
     void			expandToFullSurveyArray();
-    void			init(bool);
+    void			init(bool withsubsel,bool is2d);
 };

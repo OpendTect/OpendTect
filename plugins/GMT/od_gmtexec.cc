@@ -9,13 +9,11 @@ ________________________________________________________________________
 
 #include "batchprog.h"
 
-#include "file.h"
 #include "filepath.h"
+#include "gmtdef.h"
 #include "gmtpar.h"
-#include "initgmtplugin.h"
 #include "keystrs.h"
 #include "oddirs.h"
-#include "moddepmgr.h"
 #include "od_ostream.h"
 
 #define mErrFatalRet(msg) \
