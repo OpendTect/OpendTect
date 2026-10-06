@@ -385,7 +385,7 @@ bool Horizon::usePar( const IOPar& par )
 
 
 IOObjContext Horizon::ioContext( bool is2d, const ZDomain::Info* zinfo,
-			       bool forread )
+			       bool forread, OD::HiddenPolicy hiddenpolicy )
 {
     IOObjContext ctxt = is2d ? mIOObjContext(EMHorizon2D)
 			     : mIOObjContext(EMHorizon3D);
@@ -396,13 +396,29 @@ IOObjContext Horizon::ioContext( bool is2d, const ZDomain::Info* zinfo,
 	ctxt.requireZDomain( *zinfo, siinfo == *zinfo );
     }
 
+    ctxt.setHiddenPolicy( hiddenpolicy );
+
     return ctxt;
+}
+
+
+IOObjContext Horizon::ioContext( bool is2d, bool forread,
+				 OD::HiddenPolicy hiddenpolicy )
+{
+    return ioContext( is2d, &SI().zDomainInfo(), forread, hiddenpolicy );
+}
+
+
+IOObjContext Horizon::ioContext( bool is2d, const ZDomain::Info* zinfo,
+				 bool forread )
+{
+    return ioContext( is2d, zinfo, forread, OD::HiddenPolicy::HideHidden );
 }
 
 
 IOObjContext Horizon::ioContext( bool is2d,  bool forread )
 {
-    return ioContext( is2d, &SI().zDomainInfo(), forread);
+    return ioContext( is2d, &SI().zDomainInfo(), forread );
 }
 
 } // namespace EM
