@@ -75,7 +75,11 @@ public:
 
     virtual OD::GeomSystem getSurveyID() const				= 0;
 
-    static IOObjContext		ioContext(bool is2d,const ZDomain::Info* zinfo,
+    static IOObjContext		ioContext(bool is2d,const ZDomain::Info*,
+					  bool forread,OD::HiddenPolicy);
+    static IOObjContext		ioContext(bool is2d,bool forread,
+					  OD::HiddenPolicy);
+    static IOObjContext		ioContext(bool is2d,const ZDomain::Info*,
 					  bool forread);
     static IOObjContext		ioContext(bool is2d,bool forread);
 
