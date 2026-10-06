@@ -1377,7 +1377,8 @@ uiBodySel::~uiBodySel()
 
 uiHorizonSel::uiHorizonSel( uiParent* p, bool is2d, const ZDomain::Info* zinfo,
 			    bool forread, const uiIOObjSel::Setup& setup )
-    : uiIOObjSel(p,EM::Horizon::ioContext(is2d,zinfo,forread),setup)
+    : uiIOObjSel(p,EM::Horizon::ioContext(is2d,zinfo,forread,
+					  setup.hiddenpolicy_()),setup)
 {
     if ( setup.seltxt_.isEmpty() )
 	setLabelText( forread ? uiStrings::phrInput( uiStrings::sHorizon() )
@@ -1388,7 +1389,8 @@ uiHorizonSel::uiHorizonSel( uiParent* p, bool is2d, const ZDomain::Info* zinfo,
 
 uiHorizonSel::uiHorizonSel( uiParent* p, bool is2d,
 			    bool forread, const uiIOObjSel::Setup& setup )
-    : uiIOObjSel(p,EM::Horizon::ioContext(is2d,forread),setup)
+    : uiIOObjSel(p,EM::Horizon::ioContext(is2d,forread,
+					  setup.hiddenpolicy_()),setup)
 {
     if ( setup.seltxt_.isEmpty() )
 	setLabelText( forread ? uiStrings::phrInput( uiStrings::sHorizon() )
