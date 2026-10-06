@@ -263,10 +263,10 @@ void WellTie::uiTieView::setDataPack()
 {
     const bool canupdate = vwr_->enableChange( false );
     vwr_->clearAllPacks();
-    RefMan<SeisTrcBufDataPack> dp = new SeisTrcBufDataPack( &trcbuf_, Seis::Vol,
-				       SeisTrcInfo::TrcNr, "Seismic",
-				       ZDomain::TWT() );
-    dp->trcBufArr2D().setBufMine( false );
+    RefMan<SeisTrcBufDataPack> dp =
+	new SeisTrcBufDataPack( trcbuf_.clone(), Seis::Vol,
+				SeisTrcInfo::TrcNr, "Seismic",
+				ZDomain::TWT() );
     StepInterval<double> xrange( 1, trcbuf_.size(), 1 );
     dp->posData().setRange( true, xrange );
     dp->setName( data_.sKeySeismic() );
