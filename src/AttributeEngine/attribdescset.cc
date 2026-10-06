@@ -310,7 +310,7 @@ void DescSet::sortDescSet()
 	userrefs.add( descs_[idx]->userRef() );
 
     ConstArrPtrMan<int> sortindexes = userrefs.getSortIndexes();
-    ObjectSet<Desc> descscopy( descs_ );
+    RefObjectSet<Desc> descscopy( descs_ );
     TypeSet<DescID> idscopy( ids_ );
     descs_.erase();
     ids_.erase();
