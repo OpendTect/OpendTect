@@ -31,6 +31,7 @@ ________________________________________________________________________
 
 #include <QHash>
 #include <QHashIterator>
+#include <QList>
 #include <QRegularExpression>
 #include <QString>
 
@@ -65,20 +66,27 @@ bool includes( const ODHashMap& oth )
 
 bool removeWithKeyPattern( const char* pattern )
 {
+    if ( !pattern || !*pattern )
+	return false;
+
+    const QRegularExpression expr(
+	QRegularExpression::wildcardToRegularExpression(pattern) );
+    if ( !expr.isValid() )
+	return false;
+
+    QList<QString> todelete;
     ODHashMapIterator iter( *this );
-    QRegularExpression expr( pattern );
-    bool ret = false;
     while( iter.hasNext() )
     {
 	iter.next();
 	if ( iter.key().contains(expr) )
-	{
-	    remove( iter.key() );
-	    ret = true;
-	}
+	    todelete.append( iter.key() );
     }
 
-    return ret;
+    for ( const auto& key : todelete )
+	remove( key );
+
+    return !todelete.isEmpty();
 }
 
 void addFrom( const ODHashMap& oth )
@@ -119,19 +127,19 @@ bool removeSubSelection( const char* kystr )
     if ( subselkey.last() != '.' )
 	subselkey.add( "." );
 
+    QList<QString> todelete;
     ODHashMapIterator iter( *this );
-    bool ret = false;
     while( iter.hasNext() )
     {
 	iter.next();
-	if ( !iter.key().startsWith(subselkey.buf()) )
-	    continue;
-
-	ret = true;
-	remove( iter.key() );
+	if ( iter.key().startsWith(subselkey.buf()) )
+	    todelete.append( iter.key() );
     }
 
-    return ret;
+    for ( const auto& key : todelete )
+	remove( key );
+
+    return !todelete.isEmpty();
 }
 
 bool mergeComp( const ODHashMap& oth, const char* key )
@@ -1755,14 +1763,17 @@ void IOPar::fillJSON( OD::JSON::Object& jsonobj, const BufferStringSet& keys,
     while ( idx < keys.size() )
     {
 	BufferString key = keys.get( idx );
-	char* keystr = key.getCStr();
 	if ( subkey )
 	{
 	    if ( !key.startsWith(subkey) )
 		return;
 
-	    keystr += StringView(subkey).size();
-	    key = keystr;
+	    // NB: must copy via a second object. Assigning a pointer
+	    // into key's own buffer (key = key.getCStr()+len) reads
+	    // freed memory: assignTo() reallocates before strcpy.
+	    const BufferString stripped(
+				key.buf() + StringView(subkey).size() );
+	    key = stripped;
 	}
 
 	char* dotptr = key.find( '.' );
@@ -1904,7 +1915,7 @@ void IOPar::fillJSON( OD::JSON::Object& jsonobj, const BufferStringSet& keys,
 	    index++;
 	}
 
-	const bool shouldmakearray = aresubparsindexed;
+	const bool shouldmakearray = aresubparsindexed && index >= 0;
 	if ( shouldmakearray )
 	{
 	    const int lastindex = index;
