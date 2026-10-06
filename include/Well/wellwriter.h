@@ -40,6 +40,7 @@ public:
 
     bool		put() const;		//!< Just write all
     bool		put(const StoreReqs&) const;
+    bool		canRemoveIndividualLogs();
 
     bool		putInfoAndTrack() const;//!< Write Info and Track
     bool		putInfo() const;	//!< Write Info only
@@ -54,6 +55,7 @@ public:
     bool		swapLogs(const Log&,const Log&) const;
     bool		canSwapLogs()		{ return true; }
     bool		renameLog(const char* oldnm,const char* newnm);
+    bool		removeLogs(const BufferStringSet&);
 
     const uiString&	errMsg() const		{ return errmsg_; }
 
@@ -61,7 +63,6 @@ public:
 
     static bool		isFunctional(const MultiID&);
     static bool		isFunctional(const IOObj&);
-
 protected:
 
     WriteAccess*	wa_		= nullptr;

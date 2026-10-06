@@ -91,6 +91,10 @@ private:
     void		setStrmErrMsg(od_stream&,const uiString&) const;
     uiString		startWriteStr() const;
 
+public:
+
+    bool		removeLogs(const BufferStringSet&) const;
+
 };
 
 } // namespace Well

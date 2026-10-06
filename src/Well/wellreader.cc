@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "ascstream.h"
 #include "bufstringset.h"
 #include "dbkey.h"
+#include "dirlist.h"
 #include "file.h"
 #include "filepath.h"
 #include "genc.h"
@@ -426,9 +427,78 @@ bool Well::odIO::removeAll( const char* ext ) const
 	if ( !File::exists(fnm) )
 	    break;
 	else if ( !File::remove(fnm) )
-	    { errmsg_ = uiStrings::phrCannotRemove( fnm ); return false; }
+	{ 
+	    errmsg_ = uiStrings::phrCannotRemove( fnm );
+	    return false;
+	}
     }
     return true;
+}
+
+
+bool Well::odIO::renameLogFile( int fromidx, int toidx ) const
+{
+    if ( fromidx == toidx )
+	return true;
+
+    BufferString fromfnm( getFileName(sExtLog(),fromidx) );
+    if ( !File::exists(fromfnm) )
+    {
+	errmsg_ = tr( "Cannot rename: log file %1 does not exist" )
+		  .arg( fromfnm );
+	return false;
+    }
+
+    BufferString tofnm( getFileName(sExtLog(),toidx) );
+    if ( File::exists(tofnm) )
+    {
+	errmsg_ = tr( "Cannot rename: log file %1 already exists" )
+		  .arg( tofnm );
+	return false;
+    }
+
+    return File::rename( fromfnm, tofnm, &errmsg_ );
+}
+
+
+bool Well::odIO::removeLogFile( int idx ) const
+{
+    BufferString fnm( getFileName(sExtLog(),idx) );
+    if ( !File::exists(fnm) )
+	return true;
+
+    if ( !File::remove(fnm) )
+    {
+	errmsg_ = uiStrings::phrCannotRemove( fnm );
+	return false;
+    }
+
+    return true;
+}
+
+
+void Well::odIO::getFileIds( TypeSet<int>& ids ) const
+{
+    ids.erase();
+
+    const FilePath basefp( basenm_ );
+    const BufferString dirnm( basefp.pathOnly() );
+    const BufferString basestem( basefp.fileName() );
+
+    const BufferString mask( basestem, "^*", sExtLog() );
+    const DirList files( dirnm, File::DirListType::FilesInDir, mask );
+
+    for ( const auto* fnm : files )
+    {
+	BufferString stem( FilePath( fnm->buf() ).baseName() );
+	char* hat = lastOcc( stem.getCStr(), '^' );
+	if ( !hat || !*(hat+1) )
+	    continue;
+
+	const BufferString id( hat + 1 );
+	if ( id.isNumber() )
+	    ids.addIfNew( toInt(id) );
+    }
 }
 
 

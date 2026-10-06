@@ -20,6 +20,8 @@ namespace Well
 
 mExpClass(Well) odIO
 {
+mODTextTranslationClass(odIO)
+
 public:
     virtual		~odIO();
 
@@ -54,6 +56,10 @@ protected:
 
 
 			odIO(const char*,uiString&);
+
+    bool		renameLogFile(int, int) const;
+    bool		removeLogFile(int) const;
+    void		getFileIds(TypeSet<int>&) const;
 
     uiString&		errmsg_;
     const BufferString	basenm_;

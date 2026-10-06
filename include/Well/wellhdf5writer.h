@@ -32,6 +32,8 @@ public:
 
     HDF5::Reader*	createCoupledHDFReader() const;
     static bool		useHDF5(const IOObj&,uiString&);
+    static bool		convSubgrpNamesToIndexes(const BufferStringSet&,
+						 TypeSet<int>&, bool =false);
 
 private:
     bool		needsInfoAndTrackCombined() const override
@@ -65,6 +67,12 @@ private:
     bool		setLogAttribs(const HDF5::DataSetKey&,const Log*) const;
 
     bool		isFunctional() const override;
+
+    bool		setLastLogIndex( int ) const;
+    int			getLastLogIndex() const;
+
+public:
+    bool		removeLogs(const BufferStringSet&) const;
 
 };
 
