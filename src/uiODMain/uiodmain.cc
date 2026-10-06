@@ -277,10 +277,7 @@ mExternCPP(uiODMain) void ODMain( std::unique_ptr<uiDialog>& prodseldlgman,
 	    prodseldlg->show();
 	}
 	else
-	{
-	    ODMainWin()->updateCaption();
 	    prodselnotif->trigger();
-	}
     });
 
     starthandler->set( [&,starthandler,prodselnotif,skippluginsel]()
