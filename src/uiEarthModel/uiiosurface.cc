@@ -1244,8 +1244,7 @@ uiAuxDataSel::uiAuxDataSel( uiParent* p, const char* typ, bool withobjsel,
 {
     if ( withobjsel )
     {
-	const IOObjContext ctxt = EM::Horizon::ioContext3D( true );
-	objfld_ = new uiHorizon3DSel( this, ctxt );
+	objfld_ = new uiHorizon3DSel( this, true );
 	mAttachCB( objfld_->selectionDone, uiAuxDataSel::objSelCB );
     }
 
@@ -1389,6 +1388,13 @@ uiHorizonSel* uiHorizonSel::create( uiParent* p, const IOObjContext& ctxt,
 
 
 // uiHorizon3DSel
+
+uiHorizon3DSel::uiHorizon3DSel( uiParent* p, bool forread,
+				const uiIOObjSel::Setup& setup )
+    : uiHorizon3DSel(p,EM::Horizon::ioContext3D(forread),setup)
+{}
+
+
 uiHorizon3DSel::uiHorizon3DSel( uiParent* p, const IOObjContext& ctxt,
 				const uiIOObjSel::Setup& setup )
     : uiHorizonSel(p,ctxt,setup)
@@ -1396,29 +1402,29 @@ uiHorizon3DSel::uiHorizon3DSel( uiParent* p, const IOObjContext& ctxt,
 }
 
 
+uiHorizon3DSel::~uiHorizon3DSel()
+{}
+
+
 mStartAllowDeprecatedSection
 
 uiHorizon3DSel::uiHorizon3DSel( uiParent* p, const ZDomain::Info* zinfo,
-			    bool forread, const uiIOObjSel::Setup& setup )
+				bool forread, const uiIOObjSel::Setup& setup )
     : uiHorizonSel(p,EM::Horizon::ioContext3D(forread,zinfo),setup)
-{
-}
-
-
-uiHorizon3DSel::uiHorizon3DSel( uiParent* p, bool forread,
-				const uiIOObjSel::Setup& setup )
-    : uiHorizonSel(p,EM::Horizon::ioContext3D(forread),setup)
 {
 }
 
 mStopAllowDeprecatedSection
 
 
-uiHorizon3DSel::~uiHorizon3DSel()
+// uiHorizon2DSel
+
+uiHorizon2DSel::uiHorizon2DSel( uiParent* p, bool forread,
+				const uiIOObjSel::Setup& setup )
+    : uiHorizon2DSel(p,EM::Horizon::ioContext2D(forread),setup)
 {}
 
 
-// uiHorizon2DSel
 uiHorizon2DSel::uiHorizon2DSel( uiParent* p, const IOObjContext& ctxt,
 				const uiIOObjSel::Setup& setup )
     : uiHorizonSel(p,ctxt,setup)
@@ -1429,6 +1435,8 @@ uiHorizon2DSel::uiHorizon2DSel( uiParent* p, const IOObjContext& ctxt,
 uiHorizon2DSel::~uiHorizon2DSel()
 {}
 
+
+// uiFaultSel
 
 namespace EM
 {

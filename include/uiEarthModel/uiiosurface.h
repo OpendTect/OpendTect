@@ -323,9 +323,12 @@ protected:
 mExpClass(uiEarthModel) uiHorizon3DSel : public uiHorizonSel
 { mODTextTranslationClass(uiHorizon3DSel)
 public:
+			uiHorizon3DSel(uiParent*,bool forread,
+				       const uiIOObjSel::Setup& ={});
 			uiHorizon3DSel(uiParent*,
 				       const IOObjContext&,
 				       const uiIOObjSel::Setup& ={});
+			~uiHorizon3DSel();
 
     bool		is2D() const override { return false; }
 
@@ -334,17 +337,17 @@ mStartAllowDeprecatedSection
 			uiHorizon3DSel(uiParent*,
 				       const ZDomain::Info*,bool isforread,
 				       const uiIOObjSel::Setup& ={});
-    mDeprecated("Use with an IOObjContext")
-			uiHorizon3DSel(uiParent*,bool isforread,
-				       const uiIOObjSel::Setup& ={});
+
 mStopAllowDeprecatedSection
-			~uiHorizon3DSel();
+
 };
 
 
 mExpClass(uiEarthModel) uiHorizon2DSel : public uiHorizonSel
 { mODTextTranslationClass( uiHorizon2DSel )
 public:
+			uiHorizon2DSel(uiParent*,bool forread,
+				       const uiIOObjSel::Setup& ={});
 			uiHorizon2DSel(uiParent*,
 				       const IOObjContext&,
 				       const uiIOObjSel::Setup& ={});

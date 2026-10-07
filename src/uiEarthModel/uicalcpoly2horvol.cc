@@ -189,8 +189,7 @@ uiCalcPolyHorVol::uiCalcPolyHorVol( uiParent* p, const Pick::Set& ps )
 	return;
     }
 
-    const IOObjContext ctxt = EM::Horizon::ioContext3D( true );
-    horsel_ = new uiHorizon3DSel( this, ctxt, tr("Calculate to") );
+    horsel_ = new uiHorizon3DSel( this, true, tr("Calculate to") );
     mAttachCB( horsel_->selectionDone, uiCalcPolyHorVol::horSel );
 
     mkStdGrp()->attach( alignedBelow, horsel_ );

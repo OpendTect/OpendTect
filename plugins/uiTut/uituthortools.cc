@@ -40,12 +40,11 @@ uiTutHorTools::uiTutHorTools( uiParent* p )
 			      tr("Smooth a horizon")) );
     mAttachCB( taskfld_->valueChanged, uiTutHorTools::choiceSel );
 
-    const IOObjContext inpctxt = EM::Horizon::ioContext3D( true );
-    inpfld_ = new uiHorizon3DSel( this, inpctxt );
+    inpfld_ = new uiHorizon3DSel( this, true );
     inpfld_->attach( alignedBelow, taskfld_ );
 
     // For thickness calculation
-    inpfld2_ = new uiHorizon3DSel( this, inpctxt, uiStrings::sBottomHor() );
+    inpfld2_ = new uiHorizon3DSel( this, true, uiStrings::sBottomHor() );
     inpfld2_->attach( alignedBelow, inpfld_ );
 
     selfld_= new uiGenInput( this, tr("Add Result as an Attribute to "),
@@ -58,8 +57,7 @@ uiTutHorTools::uiTutHorTools( uiParent* p )
     attribnamefld_->attach( alignedBelow, selfld_ );
 
     // For smoothing
-    const IOObjContext outctxt = EM::Horizon::ioContext3D( false );
-    outfld_ = new uiHorizon3DSel( this, outctxt );
+    outfld_ = new uiHorizon3DSel( this, false );
     outfld_->attach( alignedBelow, inpfld_ );
 
     strengthfld_ = new uiGenInput( this, tr("Filter Strength"),

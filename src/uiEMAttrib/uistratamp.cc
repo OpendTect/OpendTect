@@ -74,12 +74,11 @@ uiStratAmpCalc::uiStratAmpCalc( uiParent* p, const Setup& setup )
     mAttachCB( winoption_->valueChanged, uiStratAmpCalc::choiceSel );
     winoption_->attach( alignedBelow, classfld_ );
 
-    const IOObjContext ctxt = EM::Horizon::ioContext3D( true );
-    horfld1_ = new uiHorizon3DSel( this, ctxt, uiStrings::sHorizon() );
+    horfld1_ = new uiHorizon3DSel( this, true, uiStrings::sHorizon() );
     mAttachCB( horfld1_->selectionDone, uiStratAmpCalc::inpSel );
     horfld1_->attach( alignedBelow, winoption_ );
 
-    horfld2_ = new uiHorizon3DSel( this, ctxt, uiStrings::sBottomHor() );
+    horfld2_ = new uiHorizon3DSel( this, true, uiStrings::sBottomHor() );
     mAttachCB( horfld2_->selectionDone, uiStratAmpCalc::inpSel );
     horfld2_->attach( alignedBelow, horfld1_ );
 

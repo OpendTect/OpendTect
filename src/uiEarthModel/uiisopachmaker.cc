@@ -36,11 +36,10 @@ uiIsochronMakerGrp::uiIsochronMakerGrp( uiParent* p, EM::ObjectID horid )
     , horid_(horid)
 {
     baseemobj_ = EM::EMM().getObject( horid_ );
-    const IOObjContext ctxt = EM::Horizon::ioContext3D( true );
     if ( !baseemobj_ )
-	basehorsel_ = new uiHorizon3DSel( this, ctxt, uiStrings::sHorizon() );
+	basehorsel_ = new uiHorizon3DSel( this, true, uiStrings::sHorizon() );
 
-    horsel_ = new uiHorizon3DSel( this, ctxt, tr("Calculate to") );
+    horsel_ = new uiHorizon3DSel( this, true, tr("Calculate to") );
     horsel_->setInput( baseemobj_ ? baseemobj_->multiID() : MultiID::udf() );
     mAttachCB( horsel_->selectionDone, uiIsochronMakerGrp::toHorSelCB );
     if ( !baseemobj_ )

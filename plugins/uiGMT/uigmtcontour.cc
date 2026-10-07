@@ -54,8 +54,7 @@ uiGMTContourGrp::uiGMTContourGrp( uiParent* p )
     : uiGMTOverlayGrp(p,uiStrings::sContour())
     , sd_(*new EM::SurfaceIOData)
 {
-    const IOObjContext ctxt = EM::Horizon::ioContext3D( true );
-    inpfld_ = new uiHorizon3DSel( this, ctxt, uiStrings::sHorizon() );
+    inpfld_ = new uiHorizon3DSel( this, true, uiStrings::sHorizon() );
     mAttachCB( inpfld_->selectionDone, uiGMTContourGrp::objSel );
 
     subselfld_ = new uiPosSubSel( this, uiPosSubSel::Setup(false,false) );

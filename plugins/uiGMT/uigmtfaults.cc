@@ -69,8 +69,7 @@ uiGMTFaultsGrp::uiGMTFaultsGrp( uiParent* p )
     zvaluefld_ = new uiGenInput( this, lbl, IntInpSpec(0) );
     zvaluefld_->attach( alignedBelow, optionfld_ );
 
-    const IOObjContext ctxt = EM::Horizon::ioContext3D( true );
-    horfld_ = new uiHorizon3DSel( this, ctxt, uiStrings::sHorizon() );
+    horfld_ = new uiHorizon3DSel( this, true, uiStrings::sHorizon() );
     horfld_->attach( alignedBelow, optionfld_ );
 
     linestfld_ = new uiSelLineStyle( this, OD::LineStyle(),

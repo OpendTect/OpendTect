@@ -48,8 +48,7 @@ uiGenRanLinesByContour::uiGenRanLinesByContour( uiParent* p )
 		       uiGenRanLinesByContour::sSpecGenPar(),
 		       mODHelpKey(mGenRanLinesByContourHelpID)))
 {
-    const IOObjContext ctxt = EM::Horizon::ioContext3D( true );
-    infld_ = new uiHorizon3DSel( this, ctxt );
+    infld_ = new uiHorizon3DSel( this, true );
 
     IOObjContext polyctxt = mIOObjContext( PickSet );
     PickSetTranslator::fillConstraints( polyctxt, true );

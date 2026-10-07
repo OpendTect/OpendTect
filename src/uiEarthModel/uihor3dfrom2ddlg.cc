@@ -39,8 +39,7 @@ uiHor3DFrom2DDlg::uiHor3DFrom2DDlg( uiParent* p, const EM::Horizon2D& h2d,
     interpolsel_ = new uiArray2DInterpolSel( this, false, false, false, 0 );
     interpolsel_->setDistanceUnit( SI().xyInFeet() ? tr("[ft]") : tr("[m]") );
 
-    const IOObjContext ctxt = EM::Horizon::ioContext3D( false );
-    outfld_ = new uiHorizon3DSel( this, ctxt );
+    outfld_ = new uiHorizon3DSel( this, false );
     outfld_->attach( alignedBelow, interpolsel_ );
     outfld_->setInputText( BufferString(h2d.name()," ","3D") );
 

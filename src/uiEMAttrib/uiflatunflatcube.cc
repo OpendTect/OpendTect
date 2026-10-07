@@ -50,8 +50,7 @@ uiFlatUnflatCube::uiFlatUnflatCube( uiParent* p )
     mAttachCB( flatinfld_->selectionDone, uiFlatUnflatCube::inpSelCB );
     flatinfld_->attach( alignedBelow, modefld_ );
 
-    const IOObjContext ctxt = EM::Horizon::ioContext3D( true );
-    horfld_ = new uiHorizon3DSel( this, ctxt );
+    horfld_ = new uiHorizon3DSel( this, true );
     mAttachCB( horfld_->selectionDone, uiFlatUnflatCube::horSelCB );
     horfld_->attach( alignedBelow, seisinfld_ );
 

@@ -58,8 +58,7 @@ uiAttrSurfaceOut::uiAttrSurfaceOut( uiParent* p, const DescSet& ad,
     settingsbut_->display( false );
     settingsbut_->attach( rightOf, filludffld_ );
 
-    const IOObjContext ctxt = EM::Horizon::ioContext3D( true );
-    objfld_ = new uiHorizon3DSel( pargrp_, ctxt,
+    objfld_ = new uiHorizon3DSel( pargrp_, true,
 				  uiStrings::phrCalculate(tr("on Horizon")) );
     objfld_->attach( alignedBelow, filludffld_ );
     mAttachCB( objfld_->selectionDone, uiAttrSurfaceOut::objSelCB );

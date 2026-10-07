@@ -38,8 +38,7 @@ uiDPSDemo::uiDPSDemo( uiParent* p, DataPointSetDisplayMgr* dpsdispmgr )
 		       mNoHelpKey))
     , dpsdispmgr_(dpsdispmgr)
 {
-    const IOObjContext horctxt = EM::Horizon::ioContext3D( true );
-    horfld_ = new uiHorizon3DSel( this, horctxt );
+    horfld_ = new uiHorizon3DSel( this, true );
 
     const IOObjContext seisctxt( mIOObjContext(SeisTrc) );
     seisfld_ = new uiSeisSel( this, seisctxt, uiSeisSel::Setup(false,false) );

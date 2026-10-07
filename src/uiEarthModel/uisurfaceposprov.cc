@@ -39,8 +39,7 @@ uiSurfacePosProvGroup::uiSurfacePosProvGroup( uiParent* p,
 	return;
     }
 
-    const IOObjContext ctxt = EM::Horizon::ioContext3D( true );
-    surf1fld_ = new uiHorizon3DSel( this, ctxt, uiStrings::sHorizon() );
+    surf1fld_ = new uiHorizon3DSel( this, true, uiStrings::sHorizon() );
 
     issingfld_ = new uiGenInput( this, uiStrings::sSelect(),
 			BoolInpSpec(true,tr("On Horizon"),
@@ -48,7 +47,7 @@ uiSurfacePosProvGroup::uiSurfacePosProvGroup( uiParent* p,
     issingfld_->attach( alignedBelow, surf1fld_ );
     mAttachCB( issingfld_->valueChanged, uiSurfacePosProvGroup::selChg );
 
-    surf2fld_ = new uiHorizon3DSel( this, ctxt, uiStrings::sBottomHor() );
+    surf2fld_ = new uiHorizon3DSel( this, true, uiStrings::sBottomHor() );
     surf2fld_->attach( alignedBelow, issingfld_ );
 
     uiString txt;

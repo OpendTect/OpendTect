@@ -37,8 +37,7 @@ uiPolygonZChanger::uiPolygonZChanger( uiParent* p, Pick::Set& ps )
 						.zDomain().userFactor()) );
     zvalfld_->attach( alignedBelow, isconstzfld_ );
 
-    const IOObjContext ctxt = EM::Horizon::ioContext3D( true );
-    horinpfld_ = new uiHorizon3DSel( this, ctxt,
+    horinpfld_ = new uiHorizon3DSel( this, true,
 			uiStrings::phrSelect(uiStrings::sHorizon()) );
     horinpfld_->attach( alignedBelow, isconstzfld_ );
     horinpfld_->display( false );
