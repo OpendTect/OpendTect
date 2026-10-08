@@ -83,7 +83,8 @@ private:
 
     void			cloneMovingNode(CallBacker*) override;
 
-    const TypeSet<EM::PosID>*	editpids_	= nullptr;
+    TypeSet<EM::PosID>		ownededitpids_;
+    bool			haseditpids_	= false;
 
     Coord3			sowingpivot_	= Coord3::udf();
     TypeSet<Coord3>		sowinghistory_;

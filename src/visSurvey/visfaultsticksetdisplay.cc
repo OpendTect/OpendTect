@@ -87,9 +87,16 @@ FaultStickSetDisplay::~FaultStickSetDisplay()
 {
     detachAllNotifiers();
     setSceneEventCatcher( nullptr );
-    if ( fsseditor_ )
-	fsseditor_->removeUser();
+    if ( viseditor_ )
+	viseditor_->setEditor( nullptr );
 
+    if ( fsseditor_ )
+    {
+	fsseditor_->setEditIDs( nullptr );
+	fsseditor_->removeUser();
+    }
+
+    fsseditor_ = nullptr;
     if ( fault_ )
 	mDetachCB( fault_->change, FaultStickSetDisplay::emChangeCB );
 
@@ -356,32 +363,36 @@ void FaultStickSetDisplay::updateEditPids()
     editpids_.erase();
 
     const bool displayknots = !hideallknots_ && !stickselectmode_;
-    if ( !displayknots )
-	return;
-
-    mDynamicCastGet(const Geometry::FaultStickSet*,fss,
-		    fault_->geometryElement())
-    if ( !fss || fss->isEmpty() )
-	return;
-
-    RowCol rc;
-    const StepInterval<int> rowrg = fss->rowRange();
-    for ( rc.row()=rowrg.start_; rc.row()<=rowrg.stop_; rc.row()+=rowrg.step_ )
+    if ( displayknots )
     {
-	if ( fss->isStickHidden(rc.row(),mSceneIdx) )
-	    continue;
-
-	const StepInterval<int> colrg = fss->colRange( rc.row() );
-        for ( rc.col()=colrg.start_; rc.col()<=colrg.stop_;
-              rc.col()+=colrg.step_ )
+	mDynamicCastGet(const Geometry::FaultStickSet*,fss,
+			fault_->geometryElement())
+	if ( fss && !fss->isEmpty() )
 	{
-	    if ( !fss->isKnotHidden(rc,mSceneIdx) )
-		editpids_ += EM::PosID( fault_->id(), rc );
+	    RowCol rc;
+	    const StepInterval<int> rowrg = fss->rowRange();
+	    for ( rc.row()=rowrg.start_; rc.row()<=rowrg.stop_;
+		  rc.row()+=rowrg.step_ )
+	    {
+		if ( fss->isStickHidden(rc.row(),mSceneIdx) )
+		    continue;
+
+		const StepInterval<int> colrg = fss->colRange( rc.row() );
+		for ( rc.col()=colrg.start_; rc.col()<=colrg.stop_;
+		      rc.col()+=colrg.step_ )
+		{
+		    if ( !fss->isKnotHidden(rc,mSceneIdx) )
+			editpids_ += EM::PosID( fault_->id(), rc );
+		}
+	    }
 	}
     }
 
     if ( fsseditor_ )
+    {
+	fsseditor_->setEditIDs( &editpids_ );
 	fsseditor_->editpositionchange.trigger();
+    }
 }
 
 

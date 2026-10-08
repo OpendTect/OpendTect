@@ -49,14 +49,18 @@ Geometry::ElementEditor* FaultStickSetEditor::createEditor()
 
 void FaultStickSetEditor::setEditIDs( const TypeSet<EM::PosID>* editpids )
 {
-    editpids_ = editpids;
+    haseditpids_ = editpids;
+    if ( editpids )
+	ownededitpids_ = *editpids;
+    else
+	ownededitpids_.erase();
 }
 
 
 void FaultStickSetEditor::getEditIDs( TypeSet<EM::PosID>& ids ) const
 {
-    if ( editpids_ )
-	ids = *editpids_;
+    if ( haseditpids_ )
+	ids = ownededitpids_;
     else
 	ObjectEditor::getEditIDs( ids );
 }
