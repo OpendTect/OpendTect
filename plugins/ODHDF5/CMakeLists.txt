@@ -1,6 +1,6 @@
 #________________________________________________________________________
 #
-# Copyright:	(C) 1995-2026 dGB Beheer B.V.
+# Copyright:	(C) 1995-2022 dGB Beheer B.V.
 # License:	https://dgbes.com/licensing
 #________________________________________________________________________
 #
@@ -25,7 +25,7 @@ set ( OD_PLUGIN_ALO_EXEC ${OD_MAIN_EXEC}
 	${OD_ZAXISTRANSFORM_EXECS} ${OD_DB_EXECS} test_hdf5 )
 
 OD_SETUP_HDF5()
-if ( HDF5_FOUND AND ( TARGET hdf5::hdf5-shared OR TARGET hdf5::hdf5-static ) )
+if ( HDF5_FOUND AND TARGET hdf5::hdf5-shared AND TARGET hdf5::hdf5_cpp-shared )
     OD_INIT_MODULE()
 else()
 
