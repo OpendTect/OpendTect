@@ -184,8 +184,8 @@ void odHorizon3D::save()
 	if ( hor3d->setArray2D(array_.ptr(),tk_.start_,tk_.step_) )
 	{
 	    hor3d->setFullyLoaded( true );
-	    PtrMan<Executor> saver = hor3d->saver();
-	    if (!saver || !TaskRunner::execute(nullptr, *saver) )
+	    PtrMan<Task> saver = hor3d->saver();
+	    if ( !saver || !saver->execute() )
 	    {
 		errmsg_ = "odHorizon3D::save - error during save.";
 		return;
@@ -311,8 +311,8 @@ void odHorizon3D::getAuxData( hAllocator allocator, const char* auxname )
     if ( !hor )
 	return;
 
-    PtrMan<Executor> auxloader = hor->auxdata.auxDataLoader( auxname );
-    if ( !auxloader || !TaskRunner::execute(nullptr,*auxloader) )
+    PtrMan<Task> auxloader = hor->auxdata.auxDataLoader( auxname );
+    if ( !auxloader || !auxloader->execute() )
     {
 	errmsg_ = "odHorizon3D::getAuxData - error loading attribute.";
 	return;
@@ -406,8 +406,8 @@ void odHorizon3D::putAuxData( const char* name, const float* data,
 	hor3d->auxdata.setAuxDataVal( auxidx, trckey, val );
     }
 
-    PtrMan<Executor> auxsaver = hor3d->auxdata.auxDataSaver( auxidx, true );
-    if ( !auxsaver || !TaskRunner::execute( nullptr, *auxsaver ) )
+    PtrMan<Task> auxsaver = hor3d->auxdata.auxDataSaver( auxidx, true );
+    if ( !auxsaver || !auxsaver->execute() )
 	errmsg_ = BufferString(
 		"odHorizon3D::putAuxData - error saving attribute: ", name );
 
@@ -524,8 +524,8 @@ odHorizon2D::~odHorizon2D()
 //	hor3d->setMultiID( ioobj_->key() );
 //	if ( hor3d->setArray2D(array_, tk_.start_, tk_.step_) )
 //	{
-//	    PtrMan<Executor> saver = hor3d->saver();
-//	    if (!saver || !TaskRunner::execute(nullptr, *saver) )
+//	    PtrMan<Task> saver = hor3d->saver();
+//	    if (!saver || !auxsaver->execute() )
 //		throw( pybind11::value_error("failed during horizon save") );
 //	}
 //     }

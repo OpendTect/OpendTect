@@ -42,8 +42,9 @@ int mProgMainFnName( int argc, char** argv )
     delete ioobj;
 
     EM::EMManager& em = EM::EMM();
-    PtrMan<Executor> exec = em.objectLoader( MultiID(argv[1]) );
-    exec->execute( &std::cerr );
+    PtrMan<Task> exec = em.objectLoader( MultiID(argv[1]) );
+    if ( exec )
+	exec->execute();
     EM::EMObject* emobj = em.getObject( em.getObjectID(ioobjkey) );
     mDynamicCastGet(EM::Horizon*,horizon,emobj)
     if ( !horizon ) return prUsage( "ID is not horizon" );

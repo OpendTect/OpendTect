@@ -198,7 +198,7 @@ int SurfaceLimitedFiller::setDataHorizon( const MultiID& mid,
 
     hor3d = newhor;
 
-    Executor* loader = hor3d->auxdata.auxDataLoader( auxdataidx );
+    PtrMan<Task> loader = hor3d->auxdata.auxDataLoader( auxdataidx );
     if ( !loader || !loader->execute() )
     {
 	unRefAndNullPtr( hor3d );

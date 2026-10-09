@@ -82,7 +82,7 @@ bool uiHorizonMergeDlg::acceptOK( CallBacker* )
     if ( !ioobj )
 	return false;
 
-    PtrMan<Executor> loader = EM::EMM().objectLoader( mids );
+    PtrMan<Task> loader = EM::EMM().objectLoader( mids );
     if ( loader && !TaskRunner::execute( &uitr, *loader ) )
     {
 	uiMSG().error( tr("Cannot load selected input horizons") );
@@ -115,7 +115,7 @@ bool uiHorizonMergeDlg::acceptOK( CallBacker* )
     hor3d->setPreferredColor( outfld_->getColor() );
     hor3d->setStratLevelID( outfld_->getStratLevelID() );
     hor3d->setMultiID( ioobj->key() );
-    PtrMan<Executor> saver = hor3d->saver();
+    PtrMan<Task> saver = hor3d->saver();
     if ( !saver || !TaskRunner::execute( &uitr, *saver ) )
     {
 	uiMSG().error( tr("Cannot save output horizon") );

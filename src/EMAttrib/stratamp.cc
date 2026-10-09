@@ -84,7 +84,7 @@ bool parseAmplitudeOption( const char* optstr, Stats::Type& typ,
 StratAmpCalc::StratAmpCalc( const EM::Horizon3D* tophor,
 			    const EM::Horizon3D* bothor,
 			    const TrcKeySampling& hs, bool outputfold )
-    : Executor("Stratal amplitude Executor")
+    : Executor("Stratal amplitude calculator")
     , rdr_(nullptr)
     , usesstored_(false)
     , tophorizon_(tophor)
@@ -412,6 +412,7 @@ int StratAmpCalc::nextStep()
 	    addtohor.auxdata.setAuxDataVal( dataidxsfold->get(idx), posidfold_,
 					      mCast(float,runcalc.count()) );
 	}
+
     }
 
     if ( usesstored_ )
@@ -428,7 +429,7 @@ bool StratAmpCalc::saveAttribute( const EM::Horizon3D* hor, int attribidx,
 				  bool overwrite, od_ostream* strm )
 {
     auto* dataidxsfold = hp_dataidxsfold.getParam( this );
-    return doSaveAttribute( *hor, attribidx, overwrite,	
+    return doSaveAttribute( *hor, attribidx, overwrite,
 			    dataidxsfold->first(), strm );
 }
 
@@ -438,16 +439,35 @@ bool StratAmpCalc::doSaveAttribute( const EM::Horizon3D& hor, int attribidx,
 				  od_ostream* strm )
 {
     auto* dataidxsfold = hp_dataidxsfold.getParam( this );
-    PtrMan<Executor> datasaver =
+    PtrMan<Executor> saver =
 			hor.auxdata.auxDataSaver( attribidx, overwrite );
-    if ( !(datasaver && datasaver->go(strm,false,false)) )
+    if ( !saver || !saver->go(strm) )
 	return false;
 
     if ( outfold_ && dataidxsfold->isPresent(foldidx) )
     {
-	datasaver.erase();
-	datasaver = hor.auxdata.auxDataSaver( foldidx, overwrite);
-	if ( !(datasaver && datasaver->go(strm,false,false)) )
+	saver = hor.auxdata.auxDataSaver( foldidx, overwrite);
+	if ( !saver || !saver->go(strm) )
+	    return false;
+    }
+
+    return true;
+}
+
+
+bool StratAmpCalc::saveAttribute( const EM::Horizon3D& hor, int attribidx,
+				  bool overwrite, int foldidx,
+				  TaskRunner* runner )
+{
+    auto* dataidxsfold = hp_dataidxsfold.getParam( this );
+    PtrMan<Executor> saver = hor.auxdata.auxDataSaver( attribidx, overwrite );
+    if ( !saver || !TaskRunner::execute(runner,*saver.ptr()) )
+	return false;
+
+    if ( outfold_ && dataidxsfold->isPresent(foldidx) )
+    {
+	saver = hor.auxdata.auxDataSaver( foldidx, overwrite);
+	if ( !saver || !TaskRunner::execute(runner,*saver.ptr()) )
 	    return false;
     }
 

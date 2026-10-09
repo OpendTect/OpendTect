@@ -739,6 +739,7 @@ bool dgbSurfaceReader::doPrepare( od_ostream* strm )
 
     setGeometry();
     par_->getYN( sKeyDepthOnly(), readonlyz_ );
+
     return executors_.isEmpty() ? true : ExecutorGroup::doPrepare( strm );
 }
 
@@ -860,7 +861,6 @@ int dgbSurfaceReader::nextStep()
 	}
 
 	createArray();
-
 	if ( geomids_.validIdx(rowindex_) )
 	{
 	    const Pos::GeomID geomid = geomids_[rowindex_];
@@ -1025,14 +1025,15 @@ bool dgbSurfaceReader::readVersion1Row( od_istream& strm, int firstcol,
 	}
 
 	createArray();
-	if ( !arr_ )
-	    surface_->setPos( surfrc.toInt64(), pos, false );
-	else
+	if ( arr_ )
 	{
 	    int i, j;
 	    if ( getIndices(surfrc,i,j) )
-                arr_->set( i, j, mCast(float,pos.z_) );
+		arr_->set( i, j, mCast(float,pos.z_) );
+
 	}
+	else
+	    surface_->setPos( surfrc.toInt64(), pos, false );
 
 	isrowused = true;
     }
@@ -1083,14 +1084,14 @@ bool dgbSurfaceReader::readVersion2Row( od_istream& strm,
 	}
 
 	createArray();
-	if ( !arr_ )
-	    surface_->setPos( rowcol.toInt64(), pos, false );
-	else
+	if ( arr_ )
 	{
 	    int i, j;
 	    if ( getIndices(rowcol,i,j) )
                 arr_->set( i, j, mCast(float,pos.z_) );
 	}
+	else
+	    surface_->setPos( rowcol.toInt64(), pos, false );
 
 	isrowused = true;
     }
@@ -1289,7 +1290,6 @@ bool dgbSurfaceReader::readVersion3Row( od_istream& strm, int firstcol,
 	if ( surface_ )
 	{
 	    createArray();
-
 	    RowCol myrc( rc );
 	    if ( hor2dok )
 		myrc.row() = hor2d->geometry().geometryElement()
@@ -1333,10 +1333,14 @@ void dgbSurfaceReader::createArray()
     StepInterval<int> crlrg = readcolrange_ ? *readcolrange_ : colrange_;
     inlrg.sort(); crlrg.sort();
 
-    mDeclareAndTryAlloc( Array2D<float>*, arr,
-	    Array2DImpl<float>(inlrg.nrSteps()+1, crlrg.nrSteps()+1) );
+    PtrMan<Array2D<float> > arr =
+	new Array2DImpl<float>( inlrg.nrSteps()+1, crlrg.nrSteps()+1 );
+    if ( !arr || !arr->isOK() )
+	return;
+
     arr->setAll( mUdf(float) );
-    arr_ = arr;
+    delete arr_;
+    arr_ = arr.release();
 }
 
 
@@ -1638,7 +1642,7 @@ int dgbSurfaceWriter::nrAuxVals() const
 const char* dgbSurfaceWriter::auxDataName( int idx ) const
 {
     mDynamicCastGet(const Horizon3D*,hor,&surface_);
-    return hor ? hor->auxdata.auxDataName(idx) : 0;
+    return hor ? hor->auxdata.auxDataName(idx) : nullptr;
 }
 
 
@@ -1662,15 +1666,15 @@ const StepInterval<int>& dgbSurfaceWriter::colInterval() const
 
 void dgbSurfaceWriter::setRowInterval( const StepInterval<int>& rg )
 {
-    if ( writerowrange_ ) delete writerowrange_;
-    writerowrange_ = new StepInterval<int>(rg);
+    delete writerowrange_;
+    writerowrange_ = new StepInterval<int>( rg );
 }
 
 
 void dgbSurfaceWriter::setColInterval( const StepInterval<int>& rg )
 {
-    if ( writecolrange_ ) delete writecolrange_;
-    writecolrange_ = new StepInterval<int>(rg);
+    delete writecolrange_;
+    writecolrange_ = new StepInterval<int>( rg );
 }
 
 
@@ -1726,10 +1730,11 @@ int dgbSurfaceWriter::nextStep()
 	conn_ = !fulluserexpr_.isEmpty() ?
 		    new StreamConn(fulluserexpr_,Conn::Write) : 0;
 	if ( !conn_ )
-	    {
-		msg_ = tr("Cannot open output surface file");
-                return ErrorOccurred();
-            }
+	{
+	    msg_ = tr("Cannot open output surface file");
+	    return ErrorOccurred();
+	}
+
 	od_ostream& strm = conn_->oStream();
 	if ( !strm.isOK() )
 	{
@@ -1805,6 +1810,7 @@ int dgbSurfaceWriter::nextStep()
 	const int res = ExecutorGroup::nextStep();
 	if ( !res && objectmid_==surface_.multiID() )
 	    const_cast<Surface*>(&surface_)->resetChangedFlag();
+
 	if ( res == Finished() )
 	    finishWriting();
 
@@ -1999,7 +2005,9 @@ bool dgbSurfaceWriter::writeNewSection( od_ostream& strm )
 
 
 void dgbSurfaceWriter::setShift( float s )
-{ shift_ = s; }
+{
+    shift_ = s;
+}
 
 
 bool dgbSurfaceWriter::writeRow( od_ostream& strm )

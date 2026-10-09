@@ -372,7 +372,7 @@ bool uiTime2DepthDlg::acceptOK( CallBacker* )
     ObjectSet<SurfaceT2DTransfData> datas;
     datas.add( data );
 
-    PtrMan<Executor> exec = SurfaceT2DTransformer::createExecutor( datas,
+    PtrMan<Task> exec = SurfaceT2DTransformer::createExecutor( datas,
 							    *zatf, objtype_ );
     mDynamicCastGet(SurfaceT2DTransformer*,surftrans,exec.ptr());
     if ( !surftrans )
@@ -395,7 +395,7 @@ bool uiTime2DepthDlg::acceptOK( CallBacker* )
     RefMan<Surface> surf = surftrans->getTransformedSurface( data->outmid_ );
     if ( surf )
     {
-	PtrMan<Executor> saver = surf->saver();
+	PtrMan<Task> saver = surf->saver();
 	if ( !saver || !TaskRunner::execute(&tskr,*saver) )
 	{
 	    deepErase( datas );

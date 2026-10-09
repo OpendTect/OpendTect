@@ -265,7 +265,7 @@ bool Horizon3DT2DTransformer::doHorizon( const SurfaceT2DTransfData& data )
 	mErrRet( tr("Cannot find input horizon in repository") );
 
     EM::EMManager& em = EM::EMM();
-    PtrMan<Executor> loader = em.objectLoader( inpmid, &data.surfsel_ );
+    PtrMan<Task> loader = em.objectLoader( inpmid, &data.surfsel_ );
     if ( !loader || !loader->execute() )
 	mErrRet( uiStrings::sCantCreateHor() )
 
@@ -456,7 +456,7 @@ void Horizon2DT2DTransformer::preStepCB( CallBacker* )
 	if ( !ioobj )
 	    continue;
 
-	PtrMan<Executor> loader = em.objectLoader( inpmid, &data->surfsel_ );
+	PtrMan<Task> loader = em.objectLoader( inpmid, &data->surfsel_ );
 	if ( !loader || !loader->execute() )
 	   continue;
 

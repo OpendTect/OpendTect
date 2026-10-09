@@ -42,7 +42,7 @@ HorizonPreLoader::~HorizonPreLoader()
 
 
 bool HorizonPreLoader::load( const TypeSet<MultiID>& newmids,
-							    TaskRunner* tskr )
+			     TaskRunner* runner )
 {
     errmsg_.setEmpty();
     if ( newmids.isEmpty() )
@@ -52,7 +52,7 @@ bool HorizonPreLoader::load( const TypeSet<MultiID>& newmids,
     uiString msg2;
     int nralreadyloaded = 0;
     int nrproblems = 0;
-    PtrMan<ExecutorGroup> execgrp = new ExecutorGroup("Pre-loading horizons");
+    ExecutorGroup execgrp( "Pre-loading horizons" );
     ObjectSet<EM::EMObject> emobjects;
     for ( int idx=0; idx<newmids.size(); idx++ )
     {
@@ -70,14 +70,14 @@ bool HorizonPreLoader::load( const TypeSet<MultiID>& newmids,
 	EM::EMObject* emobj = EM::EMM().getObject( emid );
 	if ( !emobj || !emobj->isFullyLoaded() )
 	{
-	    Executor* exec = EM::EMM().objectLoader( newmids[idx] );
+	    PtrMan<Executor> exec = EM::EMM().objectLoader( newmids[idx] );
 	    if ( !exec )
 	    {
 		nrproblems++;
 		continue;
 	    }
 
-	    execgrp->add( exec );
+	    execgrp.add( exec.release() );
 	}
 
 	emid = EM::EMM().getObjectID( newmids[idx] );
@@ -97,7 +97,6 @@ bool HorizonPreLoader::load( const TypeSet<MultiID>& newmids,
 
     msg2.addNewLine();
 
-
     if ( nralreadyloaded > 0 )
     {
 
@@ -109,7 +108,7 @@ bool HorizonPreLoader::load( const TypeSet<MultiID>& newmids,
     if ( nrproblems > 0 )
 	errmsg_.appendPhrase( msg2, uiString::NoSep );
 
-    if ( execgrp->nrExecutors()!=0 &&  !TaskRunner::execute( tskr, *execgrp) )
+    if ( execgrp.nrExecutors()!=0 &&!TaskRunner::execute(runner,execgrp) )
 	return false;
 
     for ( int idx=0; idx<emobjects.size(); idx++ )

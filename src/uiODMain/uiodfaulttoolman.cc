@@ -1120,7 +1120,7 @@ void uiODFaultToolMan::transferSticksCB( CallBacker* )
     bool saved = false;
     if ( saveAfterwards() )
     {
-	PtrMan<Executor> executor = destfault->saver();
+	PtrMan<Task> executor = destfault->saver();
 	saved = executor->execute();
 	if ( !saved )
 	    uiMSG().error( tr("Cannot save output object") );

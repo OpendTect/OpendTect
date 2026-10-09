@@ -13,6 +13,7 @@ ________________________________________________________________________
 #include "executor.h"
 #include "od_iosfwd.h"
 
+class BufferStringSet;
 class TrcKeySampling;
 template <class T> class DataInterpreter;
 
@@ -103,6 +104,16 @@ public:
     const char*			dataName() const;
     float			shift() const;
     const char*			dataInfo() const;
+    const char*			fileName() const    { return filename_.buf(); }
+    od_int64			bodyOffset() const;
+    bool			isBinary() const    { return intinterpreter_; }
+    const DataInterpreter<int>* intInterpreter() const
+				{ return intinterpreter_; }
+    const DataInterpreter<od_int64>* int64Interpreter() const
+				{ return int64interpreter_; }
+    const DataInterpreter<float>* floatInterpreter() const
+				{ return floatinterpreter_; }
+    uiString			errMsg() const	    { return errmsg_; }
 
     void			setSurface(EM::Horizon3D&);
 
@@ -146,5 +157,7 @@ protected:
 
     bool			readHeader();
 };
+
+Executor*	createAuxDataExecutor(Horizon3D&,const BufferStringSet&);
 
 };

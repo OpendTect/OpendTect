@@ -430,7 +430,7 @@ bool Horizon2DGridCreator::finish( TaskRunner* taskrunner )
 {
     for ( int idx=0; idx<horizons_.size(); idx++ )
     {
-	PtrMan<Executor> saver = horizons_[idx]->saver();
+	PtrMan<Task> saver = horizons_[idx]->saver();
 	TaskRunner::execute( taskrunner, *saver );
     }
 

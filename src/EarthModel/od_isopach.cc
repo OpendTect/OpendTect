@@ -18,19 +18,23 @@ ________________________________________________________________________
 #include "survinfo.h"
 #include "moddepmgr.h"
 
-static bool loadHorizon( const MultiID& mid, od_ostream& strm )
+
+static ConstRefMan<EM::Horizon3D> loadHorizon( const MultiID& mid,
+					       TaskRunner& runner )
 {
     EM::EMManager& em = EM::EMM();
-    strm << "Loading horizon '" << em.objectName( mid ) << "'" << od_newline;
-    Executor* exec = em.objectLoader( mid );
-    if ( !(exec && exec->go( strm, false, false, 0 )) )
-    {
-	strm << "Failed to load horizon: ";
-	strm << em.objectName( mid ).buf() << od_newline;
-	return false;
-    }
+    PtrMan<Task> loader = em.objectLoader( mid );
+    if ( !loader || !runner.execute(*loader.ptr()) )
+	return nullptr;
 
-    return true;
+    EM::ObjectID emid = em.getObjectID( mid );
+    ConstRefMan<EM::EMObject> emobj = em.getObject( emid );
+    if ( !emobj )
+	return nullptr;
+
+    ConstRefMan<EM::Horizon3D> horizon = dCast( const EM::Horizon3D*,
+						emobj.ptr() );
+    return horizon;
 }
 
 
@@ -38,47 +42,30 @@ mLoad1Module("EarthModel")
 
 bool BatchProgram::doWork( od_ostream& strm )
 {
-    strm << "Loading Horizons ..." << od_newline;
+    strm << GetProjectVersionName() << od_newline;
+    TextTaskRunner runner( strm );
+
     MultiID mid1;
     pars().get( IsochronMaker::sKeyHorizonID(), mid1 );
-    if ( !loadHorizon( mid1, strm ) )
-	return false;
-
-    EM::EMManager& em = EM::EMM();
-    EM::ObjectID emid1 = em.getObjectID( mid1 );
-    EM::EMObject* emobj1 = em.getObject( emid1 );
-    mDynamicCastGet(EM::Horizon3D*,horizon1,emobj1);
+    ConstRefMan<EM::Horizon3D> horizon1 = loadHorizon( mid1, runner );
     if ( !horizon1 )
 	return false;
 
     MultiID mid2;
     pars().get( IsochronMaker::sKeyCalculateToHorID(), mid2 );
-    if ( !loadHorizon( mid2, strm ) )
-	return false;
-
-    EM::ObjectID emid2 = em.getObjectID( mid2 );
-    EM::EMObject* emobj2 = em.getObject( emid2 );
-    mDynamicCastGet(EM::Horizon3D*,horizon2,emobj2)
+    ConstRefMan<EM::Horizon3D> horizon2 = loadHorizon( mid2, runner );
     if ( !horizon2 )
 	return false;
-
-    strm << "Horizons successfully loaded" << od_newline;
-    horizon1->ref();
-    horizon2->ref();
 
     BufferString attrnm;
     pars().get( IsochronMaker::sKeyAttribName(), attrnm );
     if ( attrnm.isEmpty() )
-    {
-	horizon1->unRef();horizon2->unRef();
 	return false;
-    }
 
     int dataidx = horizon1->auxdata.auxDataIndex( attrnm );
     if ( dataidx < 0 )
 	dataidx = horizon1->auxdata.addAuxData( attrnm );
 
-    strm << "Calculating Isochron ..." << od_newline;
     IsochronMaker maker( *horizon1, *horizon2, attrnm, dataidx );
     if ( SI().zIsTime() )
     {
@@ -87,26 +74,23 @@ bool BatchProgram::doWork( od_ostream& strm )
 	maker.setUnits( isinmsec );
     }
 
-    if ( !maker.go( strm, false, false, 0 ) )
+    if ( !runner.execute(maker) )
     {
 	strm << "Failed to calculate Isochron" << od_newline;
-	horizon1->unRef(); horizon2->unRef();
 	return false;
     }
 
     strm << "Isochron '" << attrnm.buf() << "' calculated successfully\n";
-    strm << "Saving Isochron Attribute ..." << od_newline;
     bool isoverwrite = false;
     pars().getYN( IsochronMaker::sKeyIsOverWriteYN(), isoverwrite );
-    if ( !maker.saveAttribute( horizon1, dataidx, isoverwrite, &strm ) )
+    if ( !maker.saveAttribute(horizon1.ptr(),dataidx,
+		   isoverwrite,&runner) )
     {
 	strm << "Failed to save Isochron Attribute" << od_newline;
-	horizon1->unRef(); horizon2->unRef();
 	return false;
     }
 
     strm << "Isochron '" << attrnm.buf() << "' saved successfully"
 	 << od_newline;
-    horizon1->unRef(); horizon2->unRef();
     return true;
 }

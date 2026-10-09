@@ -316,7 +316,7 @@ static bool handleEarthModelObjects( ZAxisTransform& zatf,
 	ManagedObjectSet<EM::SurfaceT2DTransfData> datas;
 	datas.add( data );
 
-	PtrMan<Executor> exec =
+	PtrMan<Task> exec =
 	EM::SurfaceT2DTransformer::createExecutor( datas, zatf, objtype );
 	mDynamicCastGet(EM::SurfaceT2DTransformer*,surftrans,exec.ptr());
 	const BufferString msg( "Run ", objtypestr, " transformation" );

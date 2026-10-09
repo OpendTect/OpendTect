@@ -29,7 +29,6 @@ ________________________________________________________________________
 #include "keystrs.h"
 #include "moddepmgr.h"
 #include "posprovider.h"
-#include "progressmeter.h"
 #include "seisbuf.h"
 #include "seistrc.h"
 #include "seiswrite.h"
@@ -291,11 +290,9 @@ static void interpolate( EM::Horizon3D* horizon,
 	    horizon->auxdata.createArray2D( dataid );
 	strm << "Gridding " << attribrefs.get(idx).buf() << "\n";
 
-	TextStreamProgressMeter runner( strm );
-	sCast(Task*,arr2dint.ptr())->setProgressMeter( &runner );
+	TextTaskRunner runner( strm );
 	arr2dint->setArray( *attrarr );
-	arr2dint->execute();
-	runner.setFinished();
+	runner.execute( *arr2dint.ptr() );
 	horizon->auxdata.setArray2D( dataid, *attrarr );
     }
 }
@@ -346,13 +343,12 @@ bool BatchProgram::doWork( od_ostream& strm )
 	    hsamp.limitTo( mmrange );
     }
 
+    TextTaskRunner runner( strm );
     Interval<float> zbounds4mmproc;
     ObjectSet<EMObject> objects;
     for ( int idx=0; idx<midset.size(); idx++ )
     {
 	MultiID* mid = midset[idx];
-	strm << "Loading: " << mid->toString() << "\n\n";
-
 	SurfaceIOData sd;
 	uiString uierr;
 	if ( !EM::EMM().getSurfaceData(*mid,sd,uierr) )
@@ -367,24 +363,24 @@ bool BatchProgram::doWork( od_ostream& strm )
 	for ( int ids=0; ids<sd.sections.size(); ids++ )
 	    sels.selsections += ids;
 	sels.rg = hsamp;
-	PtrMan<Executor> loader =
+	PtrMan<Task> loader =
 		EMM().objectLoader( *mid, iscubeoutp ? &sels : nullptr );
-	if ( !loader || !loader->go(strm) )
+	if ( !loader || !runner.execute(*loader.ptr()) )
 	{
 	    BufferString errstr = "Cannot load horizon: ";
 	    errstr += mid->toString();
 	    mErrRetNoProc( errstr.buf() );
 	}
 
-        if ( mIsUdf( sd.zrg.start_ ) )
+	if ( mIsUdf( sd.zrg.start_ ) )
 	    zbounds4mmproc = SI().zRange( true );
 	else
 	{
 	    if ( idx )
 	    {
-                zbounds4mmproc.start_ = sd.zrg.start_ < zbounds4mmproc.start_ ?
+		zbounds4mmproc.start_ = sd.zrg.start_ < zbounds4mmproc.start_ ?
 					sd.zrg.start_ : zbounds4mmproc.start_;
-                zbounds4mmproc.stop_ = sd.zrg.stop_ > zbounds4mmproc.stop_ ?
+		zbounds4mmproc.stop_ = sd.zrg.stop_ > zbounds4mmproc.stop_ ?
 					sd.zrg.stop_ : zbounds4mmproc.stop_;
 	    }
 	    else
@@ -392,7 +388,9 @@ bool BatchProgram::doWork( od_ostream& strm )
 	}
 
 	EMObject* emobj = EMM().getObject( EMM().getObjectID(*mid) );
-	if ( emobj ) emobj->ref();
+	if ( emobj )
+	    emobj->ref();
+
 	objects += emobj;
     }
 
@@ -404,10 +402,12 @@ bool BatchProgram::doWork( od_ostream& strm )
 	mErrRetNoProc( attribset.errMsg().getFullString() )
 
     PtrMan<IOPar> output = pars().subselect( IOPar::compKey(sKey::Output(),0) );
-    if ( !output ) mErrRetNoProc( "No output specified" );
+    if ( !output )
+	mErrRetNoProc( "No output specified" );
 
     PtrMan<IOPar> attribsiopar = output->subselect( sKey::Attributes() );
-    if ( !attribsiopar ) mErrRetNoProc( "No output specified" );
+    if ( !attribsiopar )
+	mErrRetNoProc( "No output specified" );
 
     TypeSet<DescID> attribids;
     int nrattribs = 1;
@@ -446,7 +446,8 @@ bool BatchProgram::doWork( od_ostream& strm )
 	uiString uierrmsg;
 	mSetEngineMan()
 	Processor* proc = aem.createLocationOutput( uierrmsg, bivs );
-	if ( !proc ) mErrRet( uierrmsg.getFullString() );
+	if ( !proc )
+	    mErrRet( uierrmsg.getFullString() );
 
 	if ( !process(strm,proc,false,attribrefs) )
 	    return false;
@@ -454,14 +455,15 @@ bool BatchProgram::doWork( od_ostream& strm )
 	HorizonUtils::addHorizonData( *(midset[0]), attribrefs, bivs );
 	EMObject* obj = EMM().getObject( EMM().getObjectID(*midset[0]) );
 	mDynamicCastGet(Horizon3D*,horizon,obj)
-	if ( !horizon ) mErrRet( "Huh" );
+	if ( !horizon )
+	    mErrRet( "Huh" );
 
 	interpolate( horizon, attribrefs, pars(), strm );
 
 	SurfaceIOData sd; sd.use( *horizon );
 	SurfaceIODataSelection sels( sd );
-	PtrMan<Executor> saver = horizon->auxdata.auxDataSaver( -1, true );
-	if ( !saver || !saver->go(strm) )
+	PtrMan<Task> saver = horizon->auxdata.auxDataSaver( -1, true );
+	if ( !saver || !runner.execute(*saver.ptr()) )
 	    mErrRet( "Cannot save data" );
     }
     else if ( geompar )

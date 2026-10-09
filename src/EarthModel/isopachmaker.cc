@@ -33,8 +33,7 @@ const char* IsochronMaker::sKeyIsOverWriteYN()
 IsochronMaker::IsochronMaker( const EM::Horizon3D& hor1,
 			    const EM::Horizon3D& hor2,
 			    const char* attrnm, int dataidx, DataPointSet* dps )
-    : Executor("Creating Isochron")
-    , msg_(tr("Creating Isochron"))
+    : Executor("Isochron calculator")
     , sidcolidx_(mUdf(int))
     , dataidx_(dataidx)
     , hor1_(&hor1)
@@ -57,6 +56,7 @@ IsochronMaker::IsochronMaker( const EM::Horizon3D& hor1,
     }
 
     nrdone_ = 0;
+    msg_ = tr("Creating Isochron");
 }
 
 
@@ -140,7 +140,6 @@ int IsochronMaker::finishWork()
 {
     if ( dps_ )
     {
-	dps_->dataChanged();
 	if ( dps_->isEmpty() )
 	{
 	    msg_ = tr("No thickness values collected");
@@ -155,10 +154,22 @@ int IsochronMaker::finishWork()
 bool IsochronMaker::saveAttribute( const EM::Horizon3D* hor, int attribidx,
 				  bool overwrite, od_ostream* strm )
 {
-    PtrMan<Executor> datasaver =
-			hor->auxdata.auxDataSaver( attribidx, overwrite );
-    if ( !(datasaver && datasaver->go(strm,false,false)) )
+    PtrMan<Executor> saver =
+		hor->auxdata.auxDataSaver( attribidx, overwrite );
+    if ( !saver || !saver->go(strm,false,false) )
 	return false;
+
+    return true;
+}
+
+
+bool IsochronMaker::saveAttribute( const EM::Horizon3D* hor, int attribidx,
+				  bool overwrite, TaskRunner* runner )
+{
+    PtrMan<Task> saver = hor->auxdata.auxDataSaver( attribidx, overwrite );
+    if ( !saver || !TaskRunner::execute(runner,*saver.ptr()) )
+	return false;
+
 
     return true;
 }

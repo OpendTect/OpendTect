@@ -130,7 +130,7 @@ uiVisEMObject::uiVisEMObject( uiParent* uip, const VisID& displayid,
     uiTaskRunner dlg( uiparent_ );
     if ( !EM::EMM().getObject(emid) )
     {
-	PtrMan<Executor> exec;
+	PtrMan<Task> exec;
 	const EM::IOObjInfo oi( mid );
 	EM::SurfaceIOData sd;
 	uiString errmsg;

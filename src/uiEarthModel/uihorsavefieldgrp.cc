@@ -155,7 +155,7 @@ EM::Horizon* uiHorSaveFieldGrp::readHorizon( const MultiID& mid )
     EM::ObjectID oid = EM::EMM().getObjectID( mid );
     EM::EMObject* emobj = EM::EMM().getObject( oid );
 
-    Executor* reader = 0;
+    PtrMan<Task> reader = 0;
     if ( !emobj || !emobj->isFullyLoaded() )
     {
 	reader = EM::EMM().objectLoader( mid );
@@ -164,10 +164,7 @@ EM::Horizon* uiHorSaveFieldGrp::readHorizon( const MultiID& mid )
 
 	uiTaskRunner dlg( this );
 	if ( !TaskRunner::execute( &dlg, *reader ) )
-	{
-	    delete reader;
 	    mErrRet( uiStrings::phrCannotRead(uiStrings::sHorizon(1)));
-	}
 
 	oid = EM::EMM().getObjectID( mid );
 	emobj = EM::EMM().getObject( oid );
@@ -176,7 +173,6 @@ EM::Horizon* uiHorSaveFieldGrp::readHorizon( const MultiID& mid )
     mDynamicCastGet(EM::Horizon*,hor,emobj)
     horizon_ = hor;
     horizon_->ref();
-    delete reader;
     return horizon_;
 }
 
@@ -215,7 +211,7 @@ bool uiHorSaveFieldGrp::saveHorizon()
 	return false;
 
     const EM::SurfaceIODataSelection sdsel = getSelection( savenew );
-    PtrMan<Executor> exec = savenew ? newhorizon_->geometry().saver( &sdsel )
+    PtrMan<Task> exec = savenew ? newhorizon_->geometry().saver( &sdsel )
 				    : horizon_->geometry().saver( &sdsel );
 
     if ( !exec )
@@ -271,7 +267,7 @@ bool uiHorSaveFieldGrp::createNewHorizon()
     EM::SurfaceIODataSelection sdsel( sd );
 
     uiTaskRunner taskrunner( this );
-    PtrMan<Executor> loader = newhorizon_->geometry().loader( &sdsel );
+    PtrMan<Task> loader = newhorizon_->geometry().loader( &sdsel );
     if ( !loader || !TaskRunner::execute( &taskrunner, *loader ) )
 	mErrRet( tr("New horizon data loading failed") );
 
