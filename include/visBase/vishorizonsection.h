@@ -57,8 +57,8 @@ public:
 						const mVisTrans*) override;
     const mVisTrans*		getDisplayTransformation() const override;
     void			setZAxisTransform(ZAxisTransform*,TaskRunner*);
-    ZAxisTransform*		getZAxisTransform()
-				{ return zaxistransform_.ptr(); }
+    const ZAxisTransform*	getZAxisTransform() const;
+    ZAxisTransform*		getZAxisTransform();
 
     //Texture information
     void			useChannel(bool);

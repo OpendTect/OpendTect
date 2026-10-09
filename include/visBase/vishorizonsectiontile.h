@@ -13,7 +13,6 @@ ________________________________________________________________________
 
 #include "callback.h"
 #include "thread.h"
-#include "position.h"
 #include "color.h"
 #include "rowcol.h"
 #include "visdata.h"
@@ -123,6 +122,8 @@ protected:
 					     const StepInterval<int>& rcrange,
 					     bool isrow);
     void			computeNormal(int nmidx, osg::Vec3&);
+    bool			fillDefinedNormals(
+						const unsigned char* knotdef);
     void			initvertices();
 
     HorizonSectionTile*		neighbors_[9];

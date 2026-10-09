@@ -8,6 +8,7 @@ ________________________________________________________________________
 -*/
 
 #include "vishortilescreatorandupdator.h"
+
 #include "vishorizonsection.h"
 #include "vishorizonsectiontile.h"
 #include "vishordatahandler.h"
@@ -15,10 +16,10 @@ ________________________________________________________________________
 #include "vishorthreadworks.h"
 #include "vishorizontexturehandler.h"
 #include "simpnumer.h"
-#include "mousecursor.h"
 
 #include "binidsurface.h"
 #include "thread.h"
+#include "threadwork.h"
 #include "ranges.h"
 #include "task.h"
 

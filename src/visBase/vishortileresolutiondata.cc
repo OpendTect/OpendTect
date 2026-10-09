@@ -178,12 +178,6 @@ void TileResolutionData::hideFromDisplay()
 }
 
 
-int getCoordinateIndex( int row, int col, int nrcoords )
-{
-    return row*nrcoords + col;
-}
-
-
 bool TileResolutionData::tesselateResolution( bool onlyifabsness )
 {
     const HorizonSection& hrsection = sectile_->hrsection_;
@@ -200,21 +194,47 @@ bool TileResolutionData::tesselateResolution( bool onlyifabsness )
     tesselatemutex_.lock();
 
     const osg::Vec3Array* osgvertices = mGetOsgVec3Arr( osgvertices_ );
+    const int nrcoords = hrsection.nrcoordspertileside_;
+    const int nverts = nrcoords * nrcoords;
+    const int nsteps = spacing>0 ? nrcoords/spacing : 0;
+    const unsigned int estcells = (unsigned int)(nsteps * nsteps);
+    if ( trianglesps_ )
+	trianglesps_->reserveElements( estcells * 6 );
 
-    for ( int row=0; row<hrsection.nrcoordspertileside_; row+=spacing )
+    if ( wireframesps_ )
+	wireframesps_->reserveElements( estcells * 4 );
+
+    if ( linesps_ )
+	linesps_->reserveElements( estcells );
+
+    if ( pointsps_ )
+	pointsps_->reserveElements( estcells );
+
+    TypeSet<unsigned char> isdef;
+    if ( nverts>0 && !isdef.setSize(nverts, 0) )
     {
-	for ( int col=0; col<hrsection.nrcoordspertileside_; col+=spacing )
+	tesselatemutex_.unLock();
+	return false;
+    }
+
+    const int vtxsz = osgvertices ? (int)osgvertices->size() : 0;
+    const int ncheck = mMIN( nverts, vtxsz );
+    for ( int idx=0; idx<ncheck; idx++ )
+	isdef[idx] = mIsOsgVec3Def( (*osgvertices)[idx] );
+
+    const unsigned char* defptr = isdef.arr();
+    for ( int row=0; row<nrcoords; row+=spacing )
+    {
+	for ( int col=0; col<nrcoords; col+=spacing )
 	{
-	    if ( row==hrsection.nrcoordspertileside_-1 &&
-		 col==hrsection.nrcoordspertileside_-1 )
+	    if ( row==nrcoords-1 && col==nrcoords-1 )
 		 continue;
 
-	    const int coordidx = getCoordinateIndex(
-		row, col, hrsection.nrcoordspertileside_ );
-	    if ( !mIsOsgVec3Def( (*osgvertices)[coordidx] ) )
+	    const int coordidx = row*nrcoords + col;
+	    if ( !defptr[coordidx] )
 		continue;
 
-	    tesselateCell( row, col );
+	    tesselateCell( defptr, nrcoords, spacing, row, col );
 	}
     }
 
@@ -233,10 +253,12 @@ void TileResolutionData::setPrimitiveSet( unsigned int geometrytype,
 	return;
 
     osg::Geode* geode = getOSGGeode( geodes_, geometrytype );
-    if( !geode ) return;
+    if( !geode )
+	return;
 
     osg::Geometry* geom = getOSGGeometry( geode );
-    if( !geom ) return;
+    if( !geom )
+	return;
 
     geom->removePrimitiveSet( 0, geom->getNumPrimitiveSets() );
     if ( geomps->size() )
@@ -327,31 +349,22 @@ static void addClockwiseTriangleIndexes( osg::DrawElementsUShort* geomps,
 }
 
 
-void TileResolutionData::tesselateCell( int row, int col )
+void TileResolutionData::tesselateCell( const unsigned char* isdef,
+				       int nrcoords, int spacing,
+				       int row, int col )
 {
-    const HorizonSection& section = sectile_->hrsection_;
-    const int spacing = section.spacing_[resolution_];
-    const int nrcoords = section.nrcoordspertileside_;
-    const int idxthis = getCoordinateIndex( row, col, nrcoords );
+    const int size = nrcoords * nrcoords;
+    const int idxthis = row*nrcoords + col;
+    const int idxright = idxthis + spacing;
+    const int idxbottom = idxthis + spacing*nrcoords;
+    const int idxrightbottom = idxbottom + spacing;
 
-    const int idxright = getCoordinateIndex( row, col+spacing, nrcoords );
-    const int idxbottom = getCoordinateIndex( row+spacing, col, nrcoords );
-    const int idxrightbottom = getCoordinateIndex(
-	row+spacing, col+spacing, nrcoords );
-
-    const osg::Vec3Array* osgvertices = mGetOsgVec3Arr( osgvertices_ );
-    const int size = nrcoords*nrcoords;
-
-    if ( !mIsOsgVec3Def( (*osgvertices)[idxthis] ) )
+    if ( idxthis<0 || idxthis>=size || !isdef[idxthis] )
 	return;
 
-    bool rightisdef =
-	idxright<size ? mIsOsgVec3Def( (*osgvertices)[idxright] ) : false;
-    const bool bottomisdef =
-	idxbottom<size ? mIsOsgVec3Def( (*osgvertices)[idxbottom] ) : false;
-    bool rightbottomisdef =
-	idxrightbottom<size ?
-	mIsOsgVec3Def( (*osgvertices)[idxrightbottom] ) : false;
+    bool rightisdef = idxright<size && isdef[idxright];
+    const bool bottomisdef = idxbottom<size && isdef[idxbottom];
+    bool rightbottomisdef = idxrightbottom<size && isdef[idxrightbottom];
 
     const bool atright = ( idxthis+1 ) % nrcoords == 0;
     if ( atright )
@@ -361,15 +374,11 @@ void TileResolutionData::tesselateCell( int row, int col )
     {
 	if ( !bottomisdef )
 	{
-	    const int idxleft = (col-spacing)>0 ?
-		getCoordinateIndex(row,col-spacing,nrcoords) : -1;
-	    const int idxtop = (row-spacing)>0 ?
-		getCoordinateIndex(row-spacing,col,nrcoords) : -1;
+	    const int idxleft = (col-spacing)>0 ? idxthis-spacing : -1;
+	    const int idxtop = (row-spacing)>0 ? idxthis-spacing*nrcoords : -1;
 
-	    const bool leftdef = (idxleft>=0 && idxleft<size) ?
-		mIsOsgVec3Def( (*osgvertices)[idxleft] ) : false;
-	    const bool topdef = (idxtop>=0 && idxtop<size) ?
-		mIsOsgVec3Def(( *osgvertices )[idxtop]) : false;
+	    const bool leftdef = idxleft>=0 && idxleft<size && isdef[idxleft];
+	    const bool topdef = idxtop>=0 && idxtop<size && isdef[idxtop];
 
 	    if ( !leftdef && !topdef )
 		addPointIndex( pointsps_, idxthis );

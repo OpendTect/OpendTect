@@ -12,6 +12,7 @@ ________________________________________________________________________
 #include "binidsurface.h"
 #include "mousecursor.h"
 #include "survinfo.h"
+#include "threadwork.h"
 #include "vishordatahandler.h"
 #include "vishorizonsectiontile.h"
 #include "vishorizonsectiontileglue.h"
@@ -605,6 +606,18 @@ void HorizonSection::setZAxisTransform( ZAxisTransform* zt, TaskRunner* )
 	CBCapsule<const TypeSet<GeomPosID>*> caps( 0, geometry_ );
 	surfaceChangeCB( &caps );
     }
+}
+
+
+const ZAxisTransform* HorizonSection::getZAxisTransform() const
+{
+    return zaxistransform_.ptr();
+}
+
+
+ZAxisTransform* HorizonSection::getZAxisTransform()
+{
+    return zaxistransform_.ptr();
 }
 
 

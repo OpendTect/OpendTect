@@ -12,11 +12,12 @@ ________________________________________________________________________
 #include "vishorizonsectiontileglue.h"
 
 
-#include "threadwork.h"
-#include "viscoord.h"
-#include "vishorthreadworks.h"
-#include "survinfo.h"
+#include "arraynd.h"
 #include "binidsurface.h"
+#include "survinfo.h"
+#include "threadwork.h"
+#include "vishorthreadworks.h"
+#include "vistransform.h"
 
 #include <osgGeo/LayeredTexture>
 
@@ -394,46 +395,253 @@ void HorizonSectionTile::dirtyGeometry()
 }
 
 
+struct NormalZLookup
+{
+    int				nrcoords;
+    int				tilerow0;
+    int				tilecol0;
+    int				rowstep;
+    int				colstep;
+    const float*		depths;
+    const Array2D<float>*	depthsarr;
+    int				nrows;
+    int				ncols;
+    int				originrow;
+    int				origincol;
+    int				georowstep;
+    int				geocolstep;
+    double			ax, bx, cx, ay, by, cy;
+    const Transformation*	trans;
+
+    bool			get(int absrow,int abscol,double& z) const;
+};
+
+
+bool NormalZLookup::get( int absrow, int abscol, double& z ) const
+{
+    const int rd = absrow - originrow;
+    const int cd = abscol - origincol;
+    if ( rd<0 || cd<0 || !georowstep || !geocolstep ||
+	 rd%georowstep || cd%geocolstep )
+	return false;
+
+    const int ri = rd / georowstep;
+    const int ci = cd / geocolstep;
+    if ( !depthsarr || ri>=nrows || ci>=ncols )
+	return false;
+
+    const float rawz = depths ? depths[(od_int64)ri*ncols + ci]
+			      : depthsarr->get( ri, ci );
+    if ( mIsUdf(rawz) )
+	return false;
+
+    Coord3 pos( ax + bx*absrow + cx*abscol,
+		ay + by*absrow + cy*abscol, rawz );
+    if ( !pos.isDefined() )
+	return false;
+
+    if ( trans )
+	trans->transform( pos );
+
+    z = pos.z_;
+    return true;
+}
+
+
+static bool sampleNormalZ( const NormalZLookup& lookup,
+	const double* rawtz, const unsigned char* rawdef,
+	int row, int col, double& z )
+{
+    if ( row>=0 && col>=0 && row<lookup.nrcoords && col<lookup.nrcoords )
+    {
+	const int idx = row*lookup.nrcoords + col;
+	if ( !rawdef[idx] )
+	    return false;
+
+	z = rawtz[idx];
+	return true;
+    }
+
+    const int absrow = lookup.tilerow0 + lookup.rowstep*row;
+    const int abscol = lookup.tilecol0 + lookup.colstep*col;
+    return lookup.get( absrow, abscol, z );
+}
+
+
+static double sideGradient( const NormalZLookup& lookup,
+	const double* rawtz, const unsigned char* rawdef,
+	int row, int col, bool alongrow, double denom )
+{
+    const int drow = alongrow ? 1 : 0;
+    const int dcol = alongrow ? 0 : 1;
+    double zbefore, zafter;
+    const bool before = sampleNormalZ( lookup, rawtz, rawdef,
+				       row-drow, col-dcol, zbefore );
+    const bool after = sampleNormalZ( lookup, rawtz, rawdef,
+				      row+drow, col+dcol, zafter );
+    if ( !before || !after )
+	return 0.;
+
+    if ( mIsUdf(zbefore) || mIsUdf(zafter) || !denom )
+	return mUdf(double);
+
+    return (zafter - zbefore) / denom;
+}
+
+
+bool HorizonSectionTile::fillDefinedNormals( const unsigned char* knotdef )
+{
+    const Geometry::BinIDSurface* geo = hrsection_.geometry_;
+    if ( !geo || !knotdef )
+	return false;
+
+    if ( !hrsection_.spacing_.validIdx(0) || hrsection_.spacing_[0]!=1 )
+	return false;
+
+    const StepInterval<int> grow = geo->rowRange();
+    const StepInterval<int> gcol = geo->colRange();
+    const int rowstep = hrsection_.userchangedisplayrg_
+		      ? hrsection_.displayrrg_.step_ : grow.step_;
+    const int colstep = hrsection_.userchangedisplayrg_
+		      ? hrsection_.displaycrg_.step_ : gcol.step_;
+    if ( rowstep!=grow.step_ || colstep!=gcol.step_ )
+	return false;
+
+    const Array2D<float>* depthsarr = geo->getArray();
+    if ( !depthsarr )
+	return false;
+
+    osg::Vec3Array* normals = mGetOsgVec3Arr( normals_ );
+    const int nrcoords = hrsection_.nrcoordspertileside_;
+    const int nverts = nrcoords * nrcoords;
+    if ( !normals || (int)normals->size()<nverts )
+	return false;
+
+    const Pos::IdxPair2Coord::DirTransform& xt =
+		SI().binID2Coord().getTransform( true );
+    const Pos::IdxPair2Coord::DirTransform& yt =
+		SI().binID2Coord().getTransform( false );
+
+    NormalZLookup lookup;
+    lookup.nrcoords = nrcoords;
+    lookup.tilerow0 = origin_.row();
+    lookup.tilecol0 = origin_.col();
+    lookup.rowstep = rowstep;
+    lookup.colstep = colstep;
+    lookup.depths = depthsarr->getData();
+    lookup.depthsarr = depthsarr;
+    lookup.nrows = depthsarr->info().getSize( 0 );
+    lookup.ncols = depthsarr->info().getSize( 1 );
+    lookup.originrow = grow.start_;
+    lookup.origincol = gcol.start_;
+    lookup.georowstep = grow.step_ ? grow.step_ : 1;
+    lookup.geocolstep = gcol.step_ ? gcol.step_ : 1;
+    lookup.ax = xt.a;
+    lookup.bx = xt.b;
+    lookup.cx = xt.c;
+    lookup.ay = yt.a;
+    lookup.by = yt.b;
+    lookup.cy = yt.c;
+    lookup.trans = hrsection_.transformation_.ptr();
+
+    mAllocLargeVarLenArr( double, rawtz, nverts );
+    mAllocLargeVarLenArr( unsigned char, rawdef, nverts );
+    double* rawtzptr = rawtz.ptr();
+    unsigned char* rawdefptr = rawdef.ptr();
+    if ( !rawtzptr || !rawdefptr )
+	return false;
+
+    for ( int row=0; row<nrcoords; row++ )
+    {
+	const int absrow = origin_.row() + rowstep*row;
+	for ( int col=0; col<nrcoords; col++ )
+	{
+	    const int idx = row*nrcoords + col;
+	    const int abscol = origin_.col() + colstep*col;
+	    double z = mUdf(double);
+	    rawdefptr[idx] = lookup.get( absrow, abscol, z );
+	    rawtzptr[idx] = z;
+	}
+    }
+
+    const double tworow = 2.0 * hrsection_.rowdistance_;
+    const double twocol = 2.0 * hrsection_.coldistance_;
+    for ( int row=0; row<nrcoords; row++ )
+    {
+	for ( int col=0; col<nrcoords; col++ )
+	{
+	    const int idx = row*nrcoords + col;
+	    if ( knotdef[idx] != 2 )
+		continue;
+
+	    const double drow = sideGradient( lookup, rawtzptr, rawdefptr,
+					      row, col, true, tworow );
+	    const double dcol = sideGradient( lookup, rawtzptr, rawdefptr,
+					      row, col, false, twocol );
+	    if ( mIsUdf(drow) || mIsUdf(dcol) )
+		continue;
+
+	    osg::Vec3 osgnormal;
+	    osgnormal[0] = drow*cosanglexinl_ + dcol*sinanglexinl_;
+	    osgnormal[1] = dcol*cosanglexinl_ - drow*sinanglexinl_;
+	    osgnormal[2] = -1;
+	    if ( mIsOsgVec3Def(osgnormal) )
+		(*normals)[idx] = osgnormal;
+	}
+    }
+
+    return true;
+}
+
+
 void HorizonSectionTile::setPositions( const TypeSet<Coord3>& pos )
 {
     nrdefinedvertices_ = 0;
     datalock_.lock();
 
     const int nrcoords = hrsection_.nrcoordspertileside_;
+    const int nverts = nrcoords * nrcoords;
     ConstRefMan<Transformation> trans = hrsection_.transformation_;
 
-    int crdidx = 0;
     bbox_.init();
     osg::Vec3Array* osgvertices = mGetOsgVec3Arr( osgvertices_ );
-    if ( osgvertices->size()<nrcoords*nrcoords )
-	osgvertices->resize( nrcoords*nrcoords );
+    if ( (int)osgvertices->size() < nverts )
+	osgvertices->resize( nverts );
 
-    for ( int row=0; row<nrcoords; row++ )
+    mAllocLargeVarLenArr( unsigned char, knotdef, nverts );
+    unsigned char* defptr = knotdef.ptr();
+    const bool havenormals = defptr;
+    const int possz = pos.size();
+
+    for ( int idx=0; idx<nverts; idx++ )
     {
-	for ( int col=0; col<nrcoords; col++ )
+	Coord3 vertex = idx<possz ? pos[idx] : Coord3::udf();
+	const bool defined = vertex.isDefined();
+	if ( !defined )
+	    vertex.z_ = mUdf(float);
+	else if ( trans )
+	    trans->transform( vertex );
+
+	if ( defined )
+	    nrdefinedvertices_++;
+
+	(*osgvertices)[idx] = Conv::to<osg::Vec3f>( vertex );
+	const bool zdef = vertex[2] != mUdf(float);
+	if ( zdef )
+	    bbox_.expandBy( (*osgvertices)[idx] );
+
+	if ( havenormals )
+	    defptr[idx] = !defined ? 0 : (zdef ? 2 : 1);
+    }
+
+    const bool filled = havenormals && fillDefinedNormals( defptr );
+    if ( !filled )
+    {
+	osg::Vec3Array* normals = mGetOsgVec3Arr( normals_ );
+	for ( int idx=0; idx<nverts; idx++ )
 	{
-	    int coordidx = col + row*nrcoords;
-	    Coord3 vertex = pos[coordidx];
-	    const int size = pos.size();
-	    if ( coordidx >= size || !vertex.isDefined() )
-	    {
-		vertex[2] = mUdf(float);
-	    }
-	    else
-	    {
-		if ( trans )
-		    trans->transform( vertex );
-		nrdefinedvertices_ ++;
-	    }
-
-	    (*osgvertices)[crdidx] = Conv::to<osg::Vec3f>( vertex );
-
-	    if ( vertex[2] != mUdf(float) )
-	    {
-		bbox_.expandBy( (*osgvertices)[crdidx] );
-		computeNormal( crdidx,(*mGetOsgVec3Arr(normals_))[crdidx] );
-	    }
-	    crdidx++;
+	    if ( (*osgvertices)[idx][2] != mUdf(float) )
+		computeNormal( idx, (*normals)[idx] );
 	}
     }
 

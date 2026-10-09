@@ -13,12 +13,8 @@ ________________________________________________________________________
 
 #include "visbasemod.h"
 
-#include "typeset.h"
-#include "vishorizonsectiontile.h"
-#include "vistransform.h"
-#include "zaxistransform.h"
-
 #include "thread.h"
+#include "vishorizonsectiontile.h"
 
 namespace osg
 {
@@ -98,7 +94,9 @@ private:
     void			setPrimitiveSet(unsigned int,
 						osg::DrawElementsUShort*);
 
-    void			tesselateCell(int row, int col);
+    void			tesselateCell(const unsigned char* isdef,
+					      int nrcoords,int spacing,
+					      int row,int col);
     void			refOsgPrimitiveSets();
     void			unRefOsgPrimitiveSets();
     void			createPrimitiveSets();

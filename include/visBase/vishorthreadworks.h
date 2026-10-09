@@ -17,7 +17,6 @@ ________________________________________________________________________
 #include "ranges.h"
 #include "rowcol.h"
 #include "thread.h"
-#include "threadwork.h"
 #include "vishorizonsectiondef.h"
 #include "zaxistransform.h"
 
@@ -31,6 +30,8 @@ namespace visBase
 {
     class HorizonSection;
     class HorizonSectionTile;
+    class HorTileSampleCache;
+
 /*!
 \brief HorizonTileResolutionTesselator class is an independent usage for
 tesselating coordinates, normals and primitive set of horizon tiles. it is
@@ -48,48 +49,51 @@ public:
 							char res);
 			~HorizonTileResolutionTesselator();
 
-    od_int64		nrIterations() const override { return nrtiles_; }
-    uiString		uiMessage() const override
-			{ return tr("Tessellating horizon"); }
-    uiString		uiNrDoneText() const override
-			{ return tr("Parts completed"); }
-
-    bool		doPrepare(int) override;
-    bool		doWork(od_int64,od_int64,int) override;
+    uiString		uiMessage() const override;
+    uiString		uiNrDoneText() const override;
 
     bool		getTileCoordinates(int,TypeSet<Coord3>&) const;
     bool		getTileNormals(int,TypeSet<Coord3>&) const;
     bool		getTilePrimitiveSet(int,TypeSet<int>&,
-						GeometryType) const;
+					    GeometryType) const;
 
 private:
-    bool		    createTiles();
+
+    od_int64		nrIterations() const override { return nrtiles_; }
+
+    bool		createTiles();
+    bool		doPrepare(int) override;
+    bool		doWork(od_int64,od_int64,int) override;
+    bool		doFinish(bool) override;
+
     ObjectSet<HorizonSectionTile>   hrtiles_;
     const HorizonSection*	horsection_;
-    int				nrtiles_;
+    int				nrtiles_	= 0;
     char			resolution_;
+    HorTileSampleCache*		cache_		= nullptr;
 };
 
 
 class HorizonTileRenderPreparer: public ParallelTask
 { mODTextTranslationClass(HorizonTileRenderPreparer);
 public:
-    HorizonTileRenderPreparer( HorizonSection& hrsection,
-			       const osg::CullStack* cs, char res );
+			HorizonTileRenderPreparer(HorizonSection&,
+				const osg::CullStack*,char res);
+			~HorizonTileRenderPreparer();
 
-    ~HorizonTileRenderPreparer()
-    { delete [] permutation_; }
+    uiString		uiMessage() const override;
+    uiString		uiNrDoneText() const override;
 
-    od_int64 nrIterations() const override { return nrtiles_; }
-    od_int64 totalNr() const override { return nrtiles_ * 2; }
-    uiString uiMessage() const override
-			 { return tr("Updating Horizon Display"); }
-    uiString uiNrDoneText() const override { return tr("Parts completed"); }
+private:
 
-    bool doPrepare(int) override;
-    bool doWork(od_int64,od_int64,int) override;
+    od_int64		nrIterations() const override { return nrtiles_; }
+    od_int64		totalNr() const override { return nrtiles_ * 2; }
 
-    od_int64*			permutation_;
+    bool		doPrepare(int) override;
+    bool		doWork(od_int64,od_int64,int) override;
+    bool		doFinish(bool) override;
+
+    od_int64*			permutation_	= nullptr;
     HorizonSectionTile**	hrsectiontiles_;
     HorizonSection&		hrsection_;
     int				nrtiles_;
@@ -120,33 +124,34 @@ private:
 class HorizonSectionTilePosSetup: public ParallelTask
 { mODTextTranslationClass(HorizonSectionTilePosSetup);
 public:
-    HorizonSectionTilePosSetup(TypeSet<RowCol>& tiles,TypeSet<RowCol>& indexes,
-	HorizonSection* horsection,StepInterval<int>rrg,StepInterval<int>crg );
+			HorizonSectionTilePosSetup(TypeSet<RowCol>& tiles,
+						   TypeSet<RowCol>& indexes,
+						   HorizonSection*,
+						   StepInterval<int>rrg,
+						   StepInterval<int>crg);
+			~HorizonSectionTilePosSetup();
 
-    ~HorizonSectionTilePosSetup();
+    uiString		uiMessage() const override;
+    uiString		uiNrDoneText() const override;
 
-    od_int64	nrIterations() const override;
-    uiString	uiMessage() const override
-		{ return tr("Creating Horizon Display"); }
-    uiString	uiNrDoneText() const override
-		{ return tr("Parts completed"); }
-    void	setTesselationResolution(char res);
+    void		setTesselationResolution(char res);
 
+private:
+    od_int64		nrIterations() const override;
 
-protected:
-
+    bool		doPrepare(int) override;
     bool		doWork(od_int64,od_int64,int) override;
     bool		doFinish(bool) override;
 
     int					nrcrdspertileside_;
     char				resolution_;
-    const Geometry::BinIDSurface*	geo_;
+    const Geometry::BinIDSurface*	geo_		= nullptr;
     StepInterval<int>			rrg_, crg_;
     RefMan<ZAxisTransform>		zaxistransform_;
     HorizonSection*			horsection_;
-    Threads::Lock			lock_;
     TypeSet<RowCol>&			hortiles_;
     TypeSet<RowCol>&			indexes_;
+    HorTileSampleCache*			cache_		= nullptr;
 };
 
 
@@ -154,6 +159,8 @@ class TileGlueTesselator : public SequentialTask
 {
 public:
 				TileGlueTesselator(HorizonSectionTile*);
+
+private:
 
     int				nextStep() override;
     HorizonSectionTile*		tile_;
