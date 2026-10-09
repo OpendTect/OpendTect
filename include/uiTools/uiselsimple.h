@@ -48,8 +48,10 @@ public:
 			uiSelectFromList(uiParent*,const Setup&);
 			~uiSelectFromList();
 
+    int			currentItem() const	{ return setup_.current_; }
     int			selection() const	{ return setup_.current_; }
 			//!< -1 = no selection made (cancelled or 0 list items)
+    void		getChosen(TypeSet<int>&) const;
 
     uiListBox*		selFld()		{ return selfld_; }
     uiListBoxFilter*	filtFld()		{ return filtfld_; }
