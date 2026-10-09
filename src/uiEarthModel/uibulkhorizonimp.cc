@@ -12,7 +12,6 @@ ________________________________________________________________________
 #include "binidvalset.h"
 #include "emhorizon3d.h"
 #include "emmanager.h"
-#include "executor.h"
 #include "file.h"
 #include "ioman.h"
 #include "paralleltask.h"
@@ -24,11 +23,9 @@ ________________________________________________________________________
 #include "task.h"
 
 #include <algorithm>
-#include <cstring>
 #include <istream>
 #include <streambuf>
 
-#include "uibutton.h"
 #include "uifiledlg.h"
 #include "uifileinput.h"
 #include "uigeninput.h"
@@ -512,14 +509,17 @@ bool uiBulkHorizonImport::acceptOK( CallBacker* )
 		{
 		    const BulkChunk& ca = *parser.chunks_[a.chunk];
 		    const BulkChunk& cb = *parser.chunks_[b.chunk];
-		    const int cmp = strcmp( ca.names.get(a.idx).buf(),
-					    cb.names.get(b.idx).buf() );
-		    if ( cmp != 0 )
-			return cmp < 0;
+		    const BufferString& na = ca.names.get( a.idx );
+		    const BufferString& nb = cb.names.get( b.idx );
+		    if ( na != nb )
+			return na < nb;
+
 		    if ( ca.inls[a.idx] != cb.inls[b.idx] )
 			return ca.inls[a.idx] < cb.inls[b.idx];
+
 		    if ( ca.crls[a.idx] != cb.crls[b.idx] )
 			return ca.crls[a.idx] < cb.crls[b.idx];
+
 		    return ca.seq[a.idx] < cb.seq[b.idx];
 		} );
 	}
