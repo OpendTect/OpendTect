@@ -700,11 +700,11 @@ bool Pos::IdxPairValueSet::setGridValues( const StepInterval<int>& rowrg,
 
     mAllocLargeVarLenArr( const float*, src, nrdata );
     mAllocLargeVarLenArr( int, useval, nrdata );
-    if ( !(mIsVarLenArrOK(src)) || !(mIsVarLenArrOK(useval)) )
+    if ( !src.ptr() || !useval.ptr() )
 	return false;
 
-    const float** srcarr = mVarLenArr(src);
-    int* usevalarr = mVarLenArr(useval);
+    const float** srcarr = src.ptr();
+    int* usevalarr = useval.ptr();
     int nuse = 0;
     for ( int idx=0; idx<nrdata; idx++ )
     {
@@ -723,10 +723,10 @@ bool Pos::IdxPairValueSet::setGridValues( const StepInterval<int>& rowrg,
     if ( allowdup_ )
     {
 	mAllocLargeVarLenArr( float, cell, nrvals_ );
-	if ( !(mIsVarLenArrOK(cell)) )
+	if ( !cell.ptr() )
 	    return false;
 
-	float* cellarr = mVarLenArr(cell);
+	float* cellarr = cell.ptr();
 	for ( int irow=0; irow<nrows; irow++ )
 	{
 	    const int inl = rowrg.atIndex( irow );
@@ -777,7 +777,7 @@ bool Pos::IdxPairValueSet::setGridValues( const StepInterval<int>& rowrg,
     ObjectSet< TypeSet<IdxType> > newscnds;
     ObjectSet< TypeSet<float> > newvals;
     mAllocLargeVarLenArr( const float*, rowbase, nuse );
-    if ( !(mIsVarLenArrOK(rowbase)) ||
+    if ( !rowbase.ptr() ||
 	 !newfrsts.setCapacity(nrows,false) )
     {
 	deepErase( newscnds );
@@ -785,7 +785,7 @@ bool Pos::IdxPairValueSet::setGridValues( const StepInterval<int>& rowrg,
 	return false;
     }
 
-    const float** rowbasearr = mVarLenArr(rowbase);
+    const float** rowbasearr = rowbase.ptr();
 
     const int nb = frsts_.size();
     int ib = 0;

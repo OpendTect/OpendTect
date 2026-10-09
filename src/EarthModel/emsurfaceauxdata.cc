@@ -587,11 +587,11 @@ bool SurfaceAuxData::setArray2Ds( const TypeSet<int>& dataidxs,
 
     mAllocLargeVarLenArr( const float*, ptrs, arrays.size() );
     mAllocLargeVarLenArr( int, validxs, arrays.size() );
-    if ( !(mIsVarLenArrOK(ptrs)) || !(mIsVarLenArrOK(validxs)) )
+    if ( !ptrs.ptr() || !validxs.ptr() )
 	return false;
 
-    const float** ptrsarr = mVarLenArr(ptrs);
-    int* validxsarr = mVarLenArr(validxs);
+    const float** ptrsarr = ptrs.ptr();
+    int* validxsarr = validxs.ptr();
     int nuse = 0;
     for ( int idx=0; idx<arrays.size(); idx++ )
     {
