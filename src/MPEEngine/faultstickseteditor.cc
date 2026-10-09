@@ -33,7 +33,9 @@ MPE::FaultStickSetEditor::FaultStickSetEditor( const EM::FaultStickSet& emfss )
 
 
 MPE::FaultStickSetEditor::~FaultStickSetEditor()
-{}
+{
+    deleteAndNullPtr( editpids_ );
+}
 
 
 Geometry::ElementEditor* MPE::FaultStickSetEditor::createEditor()
@@ -47,7 +49,12 @@ Geometry::ElementEditor* MPE::FaultStickSetEditor::createEditor()
 
 void MPE::FaultStickSetEditor::setEditIDs( const TypeSet<EM::PosID>* editpids )
 {
-    editpids_ = editpids;
+    if ( !editpids )
+	deleteAndNullPtr( editpids_ );
+    else if ( !editpids_ )
+	editpids_ = new TypeSet<EM::PosID>( *editpids );
+    else if ( editpids_ != editpids )
+	*const_cast<TypeSet<EM::PosID>*>( editpids_ ) = *editpids;
 }
 
 
