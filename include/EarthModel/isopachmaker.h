@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "executor.h"
 
 class od_ostream;
+class TaskRunner;
 namespace EM { class Horizon3D; class EMObjectIterator; }
 
 
@@ -42,6 +43,8 @@ public:
     void		setUnits( const bool isinmsc) { inmsec_ = isinmsc; }
     bool		saveAttribute(const EM::Horizon3D*,int attribidx,
 				      bool overwrite,od_ostream* strm=0);
+    bool		saveAttribute(const EM::Horizon3D*,int attribidx,
+				      bool overwrite,TaskRunner*);
     static const char*	sKeyHorizonID();
     static const char*	sKeyCalculateToHorID();
     static const char*	sKeyAttribName();

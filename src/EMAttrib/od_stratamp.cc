@@ -20,8 +20,6 @@ ________________________________________________________________________
 #include "multiid.h"
 #include "stratamp.h"
 
-#include <iostream>
-
 
 static bool getHorsampling( const IOPar& par, TrcKeySampling& hs )
 {
@@ -36,28 +34,20 @@ static bool getHorsampling( const IOPar& par, TrcKeySampling& hs )
 
 static ConstRefMan<EM::Horizon3D> loadHorizon( const MultiID& mid,
 					       const TrcKeySampling& hs,
-					       od_ostream& strm )
+					       TaskRunner& runner )
 {
     EM::EMManager& em = EM::EMM();
     EM::SurfaceIOData sd;
     EM::SurfaceIODataSelection sdsel( sd );
     sdsel.rg = hs;
-    strm << "Loading " << em.objectName( mid ) << od_newline;
-    Executor* exec = em.objectLoader( mid, &sdsel );
-    TextTaskRunner taskr( strm );
-    if ( !exec || !taskr.execute(*exec) )
+    PtrMan<Task> loader = em.objectLoader( mid, &sdsel );
+    if ( !loader || !runner.execute(*loader.ptr()) )
 	return nullptr;
 
     EM::ObjectID emid = em.getObjectID( mid );
     ConstRefMan<EM::EMObject> emobj = em.getObject( emid );
     if ( !emobj )
-    {
-	BufferString msg;
-	msg = "Error while loading horizon '";
-	msg.add( em.objectName( mid ) ).add( "'" );
-	strm << msg << od_newline;
 	return nullptr;
-    }
 
     ConstRefMan<EM::Horizon3D> horizon = dCast( const EM::Horizon3D*,
 						emobj.ptr() );
@@ -69,6 +59,8 @@ mLoad3Modules("EMAttrib","WellAttrib","PreStackProcessing")
 
 bool BatchProgram::doWork( od_ostream& strm )
 {
+    strm << GetProjectVersionName() << od_newline;
+    TextTaskRunner runner( strm );
     TrcKeySampling hs;
     if ( !getHorsampling( pars(), hs ) )
 	return false;
@@ -77,9 +69,7 @@ bool BatchProgram::doWork( od_ostream& strm )
     pars().getYN( StratAmpCalc::sKeySingleHorizonYN(), usesingle );
     MultiID mid1;
     pars().get( StratAmpCalc::sKeyTopHorizonID(), mid1 );
-    strm << GetProjectVersionName() << od_newline;
-    strm << "Loading horizons ..." << od_newline;
-    ConstRefMan<EM::Horizon3D> tophor = loadHorizon( mid1, hs, strm );
+    ConstRefMan<EM::Horizon3D> tophor = loadHorizon( mid1, hs, runner );
     if ( !tophor )
 	return false;
 
@@ -88,12 +78,10 @@ bool BatchProgram::doWork( od_ostream& strm )
     {
 	MultiID mid2;
 	pars().get( StratAmpCalc::sKeyBottomHorizonID(), mid2 );
-	bothor = loadHorizon( mid2, hs, strm );
+	bothor = loadHorizon( mid2, hs, runner );
 	if ( !bothor )
 	    return false;
     }
-
-    strm << "Horizon(s) loaded successfully" << od_newline;
 
     bool outputfold = false;
     pars().getYN( StratAmpCalc::sKeyOutputFoldYN(), outputfold );
@@ -105,13 +93,8 @@ bool BatchProgram::doWork( od_ostream& strm )
 	return false;
     }
 
-    strm << "Calculating attribute ..." << od_newline;
-    TextTaskRunner taskr( strm );
-    if ( !taskr.execute(exec) )
-    {
-	strm << "Failed to calculate attribute." << od_newline;
+    if ( !runner.execute(exec) )
 	return false;
-    }
 
     infoMsg( "Attribute calculated successfully\n" );
     strm << "Saving attribute..." << od_newline;
@@ -125,14 +108,11 @@ bool BatchProgram::doWork( od_ostream& strm )
     {
 	const int attribidx = attribidxs[idx];
 	const int foldidx = exec.doOutputFold() ? foldidxs[idx] : -1;
-	if ( !exec.doSaveAttribute( addtotop ? *tophor : *bothor, attribidx,
-				  isoverwrite, foldidx, &strm ) )
-	{
-	    strm << "Failed to save attribute";
+	if ( !exec.saveAttribute(addtotop ? *tophor : *bothor,attribidx,
+				 isoverwrite,foldidx,&runner) )
 	    return false;
-	}
     }
-    
+
     strm << "Attribute saved successfully";
     return true;
 }

@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "trckeysampling.h"
 
 class od_ostream;
+class TaskRunner;
 class SeisTrcReader;
 
 namespace EM { class Horizon3D; }
@@ -46,6 +47,9 @@ public:
     mDeprecated("Use doSaveAttribute.")
     bool		saveAttribute(const EM::Horizon3D*,int attribidx,
 				      bool overwrite,od_ostream* s=0);
+    bool		saveAttribute(const EM::Horizon3D&,int dataidx,
+				      bool overwrite,int foldidx,
+				      TaskRunner*);
     bool		doSaveAttribute(const EM::Horizon3D&,int dataidx,
 				      bool overwrite,int foldidx=-1,
 				      od_ostream* s=nullptr);

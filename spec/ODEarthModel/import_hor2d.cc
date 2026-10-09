@@ -304,8 +304,9 @@ int mProgMainFnName( int argc, char** argv )
     std::cerr << "Saving data ..." << std::endl;
     for ( int hdx=0; hdx<horizons.size(); hdx++ )
     {
-	PtrMan<Executor> saver = horizons[hdx]->saver();
-	saver->execute();
+	PtrMan<Task> saver = horizons[hdx]->saver();
+	if ( saver )
+	    saver->execute();
 	horizons[hdx]->unRef();
     }
 

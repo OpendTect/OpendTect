@@ -263,7 +263,7 @@ bool uiExportFault::writeAscii()
 	return false;
 
     uiTaskRunner taskrunner( this );
-    PtrMan<Executor> objloader = EM::EMM().objectLoader( midset );
+    PtrMan<Task> objloader = EM::EMM().objectLoader( midset );
 
     if ( objloader && !TaskRunner::execute(&taskrunner, *objloader) )
 	return false;

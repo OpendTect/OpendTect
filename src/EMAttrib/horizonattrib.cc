@@ -129,21 +129,24 @@ void Horizon::prepareForComputeData()
     EM::EMManager& em = EM::EMM();
     EM::SurfaceIOData sd;
     uiString errmsg;
-    if ( !em.getSurfaceData(horid_,sd,errmsg) ) mRet
+    if ( !em.getSurfaceData(horid_,sd,errmsg) )
+	mRet
 
     const int surfdtidx = sd.valnames.indexOf( surfdatanm_ );
-    if ( surfdtidx<0 && outtype_==mOutTypeSurfData ) mRet
+    if ( surfdtidx<0 && outtype_==mOutTypeSurfData )
+	mRet
 
     EM::ObjectID objid = em.getObjectID( horid_ );
     EM::SurfaceIODataSelection sel( sd );
-    PtrMan<Executor> loader = 0;
+    PtrMan<Task> loader;
     if ( !objid.isValid() )
     {
 	if ( getDesiredVolume() )
 	    sel.rg = getDesiredVolume()->hsamp_;
 
 	loader = em.objectLoader( horid_, &sel );
-	if ( !loader ) mRet
+	if ( !loader )
+	    mRet
 
 	loader->execute();
 	objid = em.getObjectID( horid_ );
@@ -163,7 +166,7 @@ void Horizon::prepareForComputeData()
     const int auxdataidx = hor3d ? hor3d->auxdata.auxDataIndex(surfdatanm_) :-1;
     if ( auxdataidx != -1 ) mRet
 
-    PtrMan<Executor> adl = hor3d ? hor3d->auxdata.auxDataLoader(surfdtidx) : 0;
+    PtrMan<Task> adl = hor3d ? hor3d->auxdata.auxDataLoader(surfdtidx) : 0;
     if ( !adl || !adl->execute() )
     {
 	uiString msg = tr("Loading Horizon Data %1 failed.")

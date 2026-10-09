@@ -563,7 +563,7 @@ bool uiStratSynthExport::createHor2Ds()
 			       stratlvl->zvals_[trcidx], false );
 	}
 
-	PtrMan<Executor> saver = horizon2d->saver();
+	PtrMan<Task> saver = horizon2d->saver();
 	uiTaskRunner taskrunner( this );
 	if ( !TaskRunner::execute(&taskrunner,*saver) )
 	    mErrRet( saver->uiMessage(), false );

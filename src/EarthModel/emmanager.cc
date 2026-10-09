@@ -391,7 +391,7 @@ EMObject* EMManager::loadIfNotFullyLoaded( const MultiID& mid,
 
     if ( !emobj || !emobj->isFullyLoaded() )
     {
-	PtrMan<Executor> exec = EM::EMM().objectLoader( mid, nullptr );
+	PtrMan<Task> exec = EM::EMM().objectLoader( mid, nullptr );
 	if ( !exec )
 	    return nullptr;
 

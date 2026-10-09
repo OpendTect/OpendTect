@@ -10,7 +10,10 @@ ________________________________________________________________________
 #include "emsurfaceauxdata.h"
 
 #include "arrayndimpl.h"
+#include "binidsurface.h"
 #include "binidvalset.h"
+#include "datacoldef.h"
+#include "datapointset.h"
 #include "emhorizon3d.h"
 #include "emsurfacegeometry.h"
 #include "emsurfacetr.h"
@@ -20,9 +23,14 @@ ________________________________________________________________________
 #include "ioman.h"
 #include "ioobj.h"
 #include "iopar.h"
+#include "odmemory.h"
+#include "paralleltask.h"
 #include "posfilter.h"
+#include "posvecdataset.h"
 #include "ptrman.h"
 #include "survinfo.h"
+#include "trckey.h"
+#include "trckeyzsampling.h"
 #include "uistrings.h"
 #include "varlenarray.h"
 
@@ -331,6 +339,52 @@ Executor* SurfaceAuxData::auxDataLoader( const char* nm )
 }
 
 
+Executor* SurfaceAuxData::auxDataLoader( const TypeSet<int>& idxs )
+{
+    PtrMan<EMSurfaceTranslator> transl = getTranslator( horizon_ );
+    if ( !transl )
+	return nullptr;
+
+    PtrMan<IOObj> ioobj = IOM().get( horizon_.multiID() );
+    if ( !ioobj )
+	return nullptr;
+
+    const SurfaceIODataSelection& sel = transl->selections();
+    const BufferString expr = ioobj->fullUserExpr( true );
+    BufferStringSet fnms;
+    for ( int idx=0; idx<idxs.size(); idx++ )
+    {
+	const int selidx = idxs[idx];
+	if ( !sel.sd.valnames.validIdx(selidx) )
+	    continue;
+
+	BufferString found;
+	for ( int fidx=0, gap=0; gap<=100; fidx++ )
+	{
+	    const BufferString fnm =
+			dgbSurfDataWriter::createHovName( expr.buf(), fidx );
+	    if ( File::isEmpty(fnm.buf()) )
+		{ gap++; continue; }
+
+	    const dgbSurfDataReader rdr( fnm.buf() );
+	    if ( sel.sd.valnames.get(selidx) == rdr.dataName() )
+	    {
+		found = fnm;
+		break;
+	    }
+	}
+
+	if ( !found.isEmpty() )
+	    fnms.add( found );
+    }
+
+    if ( fnms.isEmpty() )
+	return nullptr;
+
+    return createAuxDataExecutor( horizon_, fnms );
+}
+
+
 BufferString SurfaceAuxData::getFreeFileName( const IOObj& ioobj )
 {
     const BufferString basefnm( ioobj.fullUserExpr(true) );
@@ -363,7 +417,7 @@ Executor* SurfaceAuxData::auxDataSaver( int dataidx, bool overwrite )
 		sCast(EMSurfaceTranslator*,ioobj->createTranslator());
     if ( transl && transl->startWrite(horizon_) )
     {
-	PtrMan<Executor> exec = transl->writer( *ioobj, false );
+	PtrMan<Task> exec = transl->writer( *ioobj, false );
 	if ( exec )
 	    return transl->getAuxdataWriter( horizon_, dataidx, overwrite );
     }
@@ -529,8 +583,118 @@ void SurfaceAuxData::setArray2D( int dataidx,
 }
 
 
+bool SurfaceAuxData::setArray2Ds( const TypeSet<int>& dataidxs,
+				  const ObjectSet<Array2D<float>>& arrays )
+{
+    if ( dataidxs.size() != arrays.size() || arrays.isEmpty() )
+	return arrays.isEmpty();
+
+    const Geometry::RowColSurface* rcgeom =
+				horizon_.geometry().geometryElement();
+    if ( !rcgeom || rcgeom->isEmpty() )
+	return false;
+
+    const StepInterval<int> rowrg = rcgeom->rowRange();
+    const StepInterval<int> colrg = rcgeom->colRange();
+    const int nrows = rowrg.nrSteps() + 1;
+    const int nrcols = colrg.nrSteps() + 1;
+    if ( rowrg.step_<=0 || colrg.step_<=0 || nrows<=0 || nrcols<=0 )
+	return false;
+
+    mAllocLargeVarLenArr( const float*, ptrs, arrays.size() );
+    mAllocLargeVarLenArr( int, validxs, arrays.size() );
+    if ( !ptrs.ptr() || !validxs.ptr() )
+	return false;
+
+    const float** ptrsarr = ptrs.ptr();
+    int* validxsarr = validxs.ptr();
+    int nuse = 0;
+    for ( int idx=0; idx<arrays.size(); idx++ )
+    {
+	const Array2D<float>* arr = arrays.get( idx );
+	if ( !arr || !arr->getData() || arr->getSize(0)!=nrows ||
+	     arr->getSize(1)!=nrcols )
+	    return false;
+
+	if ( !dataidxs.validIdx(idx) || dataidxs[idx]<0 ||
+	     dataidxs[idx]>=nrAuxData() )
+	    continue;
+
+	ptrsarr[nuse] = arr->getData();
+	validxsarr[nuse] = dataidxs[idx];
+	nuse++;
+    }
+
+    if ( nuse == 0 )
+	return true;
+
+    const char* skip = nullptr;
+    ArrPtrMan<char> mask;
+    const Array2D<char>* locked = horizon_.getLockedNodes();
+    if ( locked && locked->getData() )
+    {
+	const char* ldata = locked->getData();
+	const od_int64 lsz = locked->info().getTotalSz();
+	bool anylocked = false;
+	for ( od_int64 idx=0; idx<lsz; idx++ )
+	{
+	    if ( ldata[idx] == '1' )
+	    {
+		anylocked = true;
+		break;
+	    }
+	}
+
+	if ( anylocked && locked->getSize(0)==nrows &&
+	     locked->getSize(1)==nrcols &&
+	     horizon_.getTrackingSampling().inlRange()==rowrg &&
+	     horizon_.getTrackingSampling().crlRange()==colrg )
+	    skip = ldata;
+	else if ( anylocked )
+	{
+	    const od_int64 total = (od_int64)nrows * nrcols;
+	    mTryAllocPtrMan( mask, char[total] );
+	    if ( !mask.ptr() )
+		return false;
+
+	    OD::memZero( mask.ptr(), total );
+	    for ( int irow=0; irow<nrows; irow++ )
+	    {
+		const int inl = rowrg.atIndex( irow );
+		for ( int icol=0; icol<nrcols; icol++ )
+		{
+		    const BinID bid( inl, colrg.atIndex(icol) );
+		    if ( horizon_.isNodeLocked(TrcKey(bid)) )
+			mask[(od_int64)irow*nrcols + icol] = '1';
+		}
+	    }
+
+	    skip = mask.ptr();
+	}
+    }
+
+    if ( !auxdata_.validIdx(0) )
+	auxdata_ += nullptr;
+
+    if ( !auxdata_[0] )
+	auxdata_.replace( 0, new BinIDValueSet(nrAuxData(),false) );
+    else if ( auxdata_[0]->nrVals() < nrAuxData() )
+	auxdata_[0]->setNrVals( nrAuxData(), true );
+
+    if ( !auxdata_[0] ||
+	 !auxdata_[0]->setGridValues(rowrg,colrg,validxsarr,ptrsarr,
+				     nuse,skip) )
+	return false;
+
+    changed_ = true;
+    return true;
+}
+
+
 bool SurfaceAuxData::usePar( const IOPar& )
-{ return true; }
+{
+    return true;
+}
 
 
 void SurfaceAuxData::fillPar( IOPar& ) const
@@ -562,6 +726,304 @@ void SurfaceAuxData::applyPosFilter( const Pos::Filter& pf, int dataidx )
 	    }
 	}
     }
+}
+
+
+class AuxDataPointSetTask : public ParallelTask
+{ mODTextTranslationClass(AuxDataPointSetTask);
+public:
+AuxDataPointSetTask( const SurfaceAuxData& aux, DataPointSet& dps,
+		     TypeSet<float>* shifts, const TrcKeyZSampling* cs,
+		     const TypeSet<int>* auxidxs )
+    : ParallelTask("Horizon data datapack filler")
+    , aux_(aux)
+    , dps_(dps)
+    , geom_(aux.horizon_.geometry().geometryElement())
+{
+    dps_.dataSet().add( new DataColDef("Section ID") );
+    for ( int idx=0; idx<aux_.nrAuxData(); idx++ )
+    {
+	if ( auxidxs && !auxidxs->isPresent(idx) )
+	    continue;
+
+	const char* nm = aux_.auxDataName( idx );
+	if ( !nm )
+	    continue;
+
+	if ( shifts )
+	    *shifts += aux_.auxDataShift( idx );
+
+	auxidxs_ += idx;
+	dps_.dataSet().add( new DataColDef(nm) );
+    }
+
+    sectionval_ = (float)SectionID::def().asInt();
+    if ( cs )
+    {
+	hassamp_ = true;
+	samp_ = *cs;
+    }
+
+    if ( geom_ && !geom_->isEmpty() )
+	rowrg_ = geom_->rowRange();
+
+    if ( hassamp_ && geom_ )
+	rowrg_.limitTo( samp_.hsamp_.inlRange() );
+
+    if ( !geom_ || geom_->isEmpty() || mIsUdf(rowrg_.start_) ||
+	 mIsUdf(rowrg_.stop_) || rowrg_.step_<=0 ||
+	 rowrg_.start_>rowrg_.stop_ )
+	nrows_ = 0;
+    else
+	nrows_ = rowrg_.nrSteps() + 1;
+
+    if ( nrows_ == 0 )
+	dps_.dataChanged();
+
+    msg_ = tr("Transferring horizon data");
+}
+
+~AuxDataPointSetTask()
+{
+    releaseLines();
+}
+
+uiString uiMessage() const override
+{
+    return msg_;
+}
+
+uiString uiNrDoneText() const override
+{
+    return tr("Gridlines");
+}
+
+od_int64 nrIterations() const override
+{
+    return prepok_ ? nrows_ : 0;
+}
+
+int minThreadSize() const override
+{
+    return 4;
+}
+
+bool executeParallel( bool parallel ) override
+{
+    return prepok_ && ParallelTask::executeParallel(parallel);
+}
+
+private:
+
+struct PosLine
+{
+    TypeSet<int>	crls;
+    TypeSet<float>	vals;
+};
+
+bool keep( const BinID& bid ) const
+{
+    if ( !hassamp_ )
+	return true;
+
+    if ( !samp_.hsamp_.includes(bid) )
+	return false;
+
+    const BinID diff = bid - samp_.hsamp_.start_;
+    const int inlstep = samp_.hsamp_.step_.inl();
+    const int crlstep = samp_.hsamp_.step_.crl();
+    if ( (inlstep && diff.inl()%inlstep) || (crlstep && diff.crl()%crlstep) )
+	return false;
+
+    return true;
+}
+
+void releaseLines()
+{
+    delete [] auxlines_;
+    auxlines_ = nullptr;
+    delete [] rows_;
+    rows_ = nullptr;
+}
+
+bool doPrepare( int ) override
+{
+    releaseLines();
+    if ( nrows_ <= 0 )
+	return true;
+
+    mTryAlloc( auxlines_, PosLine[nrows_] );
+    mTryAlloc( rows_, PosLine[nrows_] );
+    if ( !auxlines_ || !rows_ )
+    {
+	releaseLines();
+	msg_ = ::toUiString("Not enough memory to extract horizon data");
+	return false;
+    }
+
+    const BinIDValueSet* src = aux_.auxdata_.validIdx(0)
+			     ? aux_.auxdata_[0] : nullptr;
+    if ( !src )
+	return true;
+
+    const int naux = auxidxs_.size();
+    const int nrvals = src->nrVals();
+    BinIDValueSet::SPos pos;
+    while ( src->next(pos) )
+    {
+	const BinID bid = src->getBinID( pos );
+	if ( !rowrg_.includes(bid.inl(),false) ||
+	     (bid.inl()-rowrg_.start_)%rowrg_.step_ )
+	    continue;
+
+	const int irow = rowrg_.getIndex( bid.inl() );
+	if ( irow<0 || irow>=nrows_ )
+	    continue;
+
+	PosLine& line = auxlines_[irow];
+	line.crls += bid.crl();
+	const float* srcvals = src->getVals( pos );
+	for ( int ia=0; ia<naux; ia++ )
+	{
+	    const int col = auxidxs_[ia];
+	    line.vals += col>=0 && col<nrvals ? srcvals[col] : mUdf(float);
+	}
+    }
+
+    return true;
+}
+
+bool doWork( od_int64 start, od_int64 stop, int ) override
+{
+    const int naux = auxidxs_.size();
+    const int npack = dps_.bivSet().nrVals();
+    const bool minimal = dps_.isMinimal();
+    for ( int irow=mCast(int,start); irow<=stop; irow++ )
+    {
+	if ( !shouldContinue() )
+	    return false;
+
+	PosLine& out = rows_[irow];
+	out.crls.setEmpty();
+	out.vals.setEmpty();
+	const int inl = rowrg_.atIndex( irow );
+	StepInterval<int> colrg = geom_->colRange( inl );
+	if ( hassamp_ )
+	    colrg.limitTo( samp_.hsamp_.crlRange() );
+	if ( mIsUdf(colrg.start_) || mIsUdf(colrg.stop_) ||
+	     colrg.step_<=0 || colrg.start_>colrg.stop_ )
+	{
+	    addToNrDone( 1 );
+	    continue;
+	}
+
+	const PosLine& aux = auxlines_[irow];
+	int iaux = 0;
+	const int nauxpos = aux.crls.size();
+	for ( int crl=colrg.start_; crl<=colrg.stop_; crl+=colrg.step_ )
+	{
+	    const BinID bid( inl, crl );
+	    if ( !keep(bid) )
+		continue;
+
+	    const float z = geom_->getZ( bid );
+	    if ( mIsUdf(z) )
+		continue;
+
+	    while ( iaux<nauxpos && aux.crls[iaux]<crl )
+		iaux++;
+
+	    const bool hasaux = iaux<nauxpos && aux.crls[iaux]==crl;
+	    out.crls += crl;
+	    const int base = out.vals.size();
+	    if ( npack>0 &&
+		 (!out.vals.setSize(base+npack,mUdf(float)) || !out.vals.arr()))
+		return false;
+
+	    if ( npack > 0 )
+	    {
+		float* dst = out.vals.arr() + base;
+		dst[0] = z;
+		if ( !minimal && npack>3 )
+		{
+		    dst[1] = 0.f;
+		    dst[2] = 0.f;
+		    dst[3] = -1.f;
+		}
+
+		const int aux0 = npack - naux;
+		if ( aux0 > 0 )
+		    dst[aux0-1] = sectionval_;
+		for ( int ia=0; ia<naux && aux0+ia<npack; ia++ )
+		    dst[aux0+ia] = hasaux ? aux.vals[iaux*naux+ia]
+					  : mUdf(float);
+	    }
+
+	    if ( hasaux )
+		iaux++;
+	}
+
+	addToNrDone( 1 );
+    }
+
+    return true;
+}
+
+bool doFinish( bool success ) override
+{
+    bool res = success;
+    if ( res && rows_ )
+    {
+	dps_.clearData();
+	dps_.bivSet().allowDuplicateBinIDs( false );
+	const int npack = dps_.bivSet().nrVals();
+	for ( int irow=0; irow<nrows_; irow++ )
+	{
+	    const PosLine& row = rows_[irow];
+	    if ( row.crls.isEmpty() )
+		continue;
+	    if ( row.vals.size()!=row.crls.size()*npack ||
+		 !dps_.bivSet().appendSortedLine(rowrg_.atIndex(irow),
+						 row.crls.arr(),
+						 row.vals.arr(),
+						 row.crls.size()) )
+	    {
+		res = false;
+		break;
+	    }
+	}
+
+	dps_.dataChanged();
+    }
+
+    releaseLines();
+    if ( !res && msg_.isEmpty() )
+	msg_ = tr("Cannot extract horizon data");
+
+    return res;
+}
+
+const SurfaceAuxData&		aux_;
+DataPointSet&			dps_;
+const Geometry::BinIDSurface*	geom_;
+TrcKeyZSampling			samp_;
+StepInterval<int>		rowrg_;
+TypeSet<int>			auxidxs_;
+PosLine*			auxlines_	= nullptr;
+PosLine*			rows_		= nullptr;
+float				sectionval_	= 0.f;
+int				nrows_		= 0;
+bool				hassamp_	= false;
+bool				prepok_		= true;
+uiString			msg_;
+
+};
+
+Task* SurfaceAuxData::createDataPointSetTask( DataPointSet& dps,
+		TypeSet<float>* shifts, const TrcKeyZSampling* cs,
+		const TypeSet<int>* auxidxs ) const
+{
+    return new AuxDataPointSetTask( *this, dps, shifts, cs, auxidxs );
 }
 
 } // namespace EM

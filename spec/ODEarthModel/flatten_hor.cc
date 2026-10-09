@@ -46,8 +46,9 @@ static EM::Horizon* loadHorizon( const char* id, BufferString& err )
 
     std::cerr << "Reading " << ioobj->name() << " ..." << std::endl;
     EM::EMManager& em = EM::EMM();
-    PtrMan<Executor> exec = em.objectLoader( ioobj->key() );
-    exec->execute( &std::cerr );
+    PtrMan<Task> exec = em.objectLoader( ioobj->key() );
+    if ( exec )
+	exec->execute();
     EM::EMObject* emobj = em.getObject( em.getObjectID(ioobj->key()) );
     mDynamicCastGet(EM::Horizon*,horizon,emobj)
     if ( !horizon ) { err = "ID "; err += id; err += " is not horizon"; }
@@ -111,7 +112,8 @@ int mProgMainFnName( int argc, char** argv )
     }
 
     std::cerr << "Saving new horizon ..." << std::endl;
-    PtrMan<Executor> saver = newhorizon->saver();
-    saver->execute();
+    PtrMan<Task> saver = newhorizon->saver();
+    if ( saver )
+	saver->execute();
     return 0;
 }

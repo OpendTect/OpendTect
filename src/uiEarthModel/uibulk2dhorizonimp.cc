@@ -414,7 +414,7 @@ bool uiBulk2DHorizonImport::acceptOK( CallBacker* )
 	    continue;
 	}
 
-	PtrMan<Executor> saver = hor->saver();
+	PtrMan<Task> saver = hor->saver();
 	if ( !saver->execute() )
 	{
 	    errors.add( uiStrings::phrCannotSave(toUiString(hornm)) );

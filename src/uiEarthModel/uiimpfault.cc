@@ -266,7 +266,7 @@ bool uiImportFault::handleLMKAscii()
 	lmkEMFault3DTranslator::instance();
     Conn* conn = new StreamConn( infld_->fileName(), true );
 
-    PtrMan<Executor> exec =
+    PtrMan<Task> exec =
 	transl->reader( *fault3d, conn, formatfld_->fileName() );
 
     if ( !exec )
@@ -315,7 +315,7 @@ bool uiImportFault::handleAscii()
     if ( !res )
 	mErrRet( uiStrings::phrImport(tp));
 
-    PtrMan<Executor> exec = fault->saver();
+    PtrMan<Task> exec = fault->saver();
     bool isexec = exec->execute();
     if ( !isexec )
 	mErrRet( uiStrings::phrCannotSave(tp) );

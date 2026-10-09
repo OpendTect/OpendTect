@@ -95,7 +95,7 @@ bool BodyFiller::setSurface( const MultiID& mid )
     RefMan<EM::EMObject> emobj = EM::EMM().getObject( emid );
     if ( !emobj || !emobj->isFullyLoaded() )
     {
-	PtrMan<Executor> loader = EM::EMM().objectLoader( mid );
+	PtrMan<Task> loader = EM::EMM().objectLoader( mid );
 	if ( !loader || !loader->execute() )
 	    return false;
 
@@ -450,7 +450,7 @@ bool BodyFiller::getFlatPlgZRange( const BinID& bid, Interval<double>& res )
 
 	    const Coord diff = coord - plgknots_[0].coord();
             const double z = plgknots_[0].z_ -
-                             ( normal.x_ * diff.x_ + normal.y_ * diff.y_ ) / normal.z_;
+		     ( normal.x_ * diff.x_ + normal.y_ * diff.y_ ) / normal.z_;
 	    res.start_ = z - 0.5 * zstep;
 	    res.stop_ = z + 0.5 * zstep;
 	}

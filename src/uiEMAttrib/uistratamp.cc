@@ -320,7 +320,7 @@ Attrib::DescSet* uiStratAmpCalc::getFromInpFld(
     auto* setup = hp_setup.getParam( this );
     Attrib::DescID targetid = inpfld_->attribID();
     Attrib::DescSet* ads = Attrib::eDSHolder().getDescSet(false,
-						setup->allowattributes_);
+						!setup->allowattributes_);
     RefMan<Attrib::Desc> seldesc = ads->getDesc( targetid );
     if ( seldesc )
     {

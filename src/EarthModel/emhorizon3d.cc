@@ -579,9 +579,9 @@ Array2D<float>* Horizon3D::createArray2D(
 {
     const Geometry::BinIDSurface* geom = geometry_.geometryElement();
     if ( !geom || geom->isEmpty() )
-	return 0;
+	return nullptr;
 
-    Array2DImpl<float>* arr = 0;
+    Array2DImpl<float>* arr = nullptr;
     if ( zaxistransform || !geom->getArray() )
     {
 	const StepInterval<int> rowrg = geom->rowRange();

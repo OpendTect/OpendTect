@@ -515,7 +515,7 @@ bool uiImportHorizon::doImport()
 	mErrRet(tr("Cannot import horizon"))
 
     horizon->setZDomain( zDomain() );
-    PtrMan<Executor> exec;
+    PtrMan<Task> exec;
     if ( isgeom_ )
     {
 	horizon->setPreferredColor( colbut_->color() );
@@ -731,7 +731,7 @@ EM::Horizon3D* uiImportHorizon::loadHor()
     EM::EMManager& em = EM::EMM();
     EM::EMObject* emobj = em.createTempObject( EM::Horizon3D::typeStr() );
     emobj->setMultiID( outputfld_->key(true) );
-    Executor* loader = emobj->loader();
+    PtrMan<Task> loader = emobj->loader();
     if ( !loader )
 	mErrRet( uiStrings::sCantReadHor());
 
@@ -744,7 +744,6 @@ EM::Horizon3D* uiImportHorizon::loadHor()
 	mErrRet( tr("Error loading horizon"));
 
     horizon->ref();
-    delete loader;
     return horizon;
 }
 
@@ -870,7 +869,7 @@ bool uiImpHorFromZMap::acceptOK( CallBacker* )
 
     RefMan<EM::Horizon3D> hor3d = createHor();
     hor3d->setArray2D( conv.getOutput(), tks.start_, tks.step_, false );
-    PtrMan<Executor> saver = hor3d->saver();
+    PtrMan<Task> saver = hor3d->saver();
     if ( !saver || !uitr.execute(*saver) )
     {
 	uiMSG().error( tr("Can not save output horizon.") );

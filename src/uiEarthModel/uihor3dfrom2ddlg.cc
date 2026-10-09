@@ -125,7 +125,7 @@ bool uiHor3DFrom2DDlg::acceptOK( CallBacker* )
     if ( !rv )
 	return false;
 
-    PtrMan<Executor> exec = hor3d->saver();
+    PtrMan<Task> exec = hor3d->saver();
     if ( !exec )
 	return false;
 
