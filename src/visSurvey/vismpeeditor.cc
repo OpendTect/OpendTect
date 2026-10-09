@@ -95,11 +95,15 @@ void MPEEditor::setEditor( MPE::ObjectEditor* eme )
     if ( emeditor_ )
     {
 	RefMan<MPE::ObjectEditor> emeditor = getMPEEditor();
-	RefMan<EM::EMObject> emobj = emeditor ? emeditor->emObject() : nullptr;
-	if ( emobj )
-	    mDetachCB( emobj->change, MPEEditor::nodeMovement );
+	if ( emeditor )
+	{
+	    RefMan<EM::EMObject> emobj = emeditor->emObject();
+	    if ( emobj )
+		mDetachCB( emobj->change, MPEEditor::nodeMovement );
 
-	mDetachCB( emeditor->editpositionchange, MPEEditor::changeNumNodes );
+	    mDetachCB( emeditor->editpositionchange,
+		       MPEEditor::changeNumNodes );
+	}
     }
 
     emeditor_ = eme;
@@ -223,6 +227,9 @@ bool MPEEditor::mouseClick( const EM::PosID& pid,
     if ( !shift && !alt && ctrl && emeditor_ )
     {
 	RefMan<MPE::ObjectEditor> emeditor = getMPEEditor();
+	if ( !emeditor )
+	    return false;
+
 	TypeSet<EM::PosID> pids;
 	emeditor->getEditIDs(pids);
 	for ( int idx=0; idx<pids.size(); idx++ )
@@ -253,7 +260,11 @@ void MPEEditor::changeNumNodes( CallBacker* )
 	setActiveDragger( EM::PosID::udf() );
 
     for ( int idx=0; idx<nodestoremove.size(); idx++ )
-	removeDragger( posids_.indexOf(nodestoremove[idx]) );
+    {
+	const int posidx = posids_.indexOf( nodestoremove[idx] );
+	if ( posidx >= 0 )
+	    removeDragger( posidx );
+    }
 
     TypeSet<EM::PosID> nodestoadd( editnodes );
     nodestoadd.createDifference( posids_, false );
@@ -265,6 +276,9 @@ void MPEEditor::changeNumNodes( CallBacker* )
 
 void MPEEditor::removeDragger( int idx )
 {
+    if ( !draggers_.validIdx(idx) )
+	return;
+
     draggers_[idx]->started.remove(mCB(this,MPEEditor,dragStart));
     draggers_[idx]->motion.remove(mCB(this,MPEEditor,dragMotion));
     draggers_[idx]->finished.remove(mCB(this,MPEEditor,dragStop));
