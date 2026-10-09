@@ -68,6 +68,7 @@ ________________________________________________________________________
 #include "uiiosurfacedlg.h"
 #include "uiisopachmaker.h"
 #include "uilistbox.h"
+#include "uilistboxfilter.h"
 #include "uimsg.h"
 #include "uimultisurfaceread.h"
 #include "uirandlinegen.h"
@@ -1064,7 +1065,7 @@ bool uiEMPartServer::showLoadAuxDataDlg( const EM::ObjectID& id )
 	return false;
 
     TypeSet<int> selattribs;
-    dlg.selFld()->getChosen( selattribs );
+    dlg.filtFld()->getChosen( selattribs );
     if ( selattribs.isEmpty() )
     {
 	const int current = dlg.selFld()->currentItem();
