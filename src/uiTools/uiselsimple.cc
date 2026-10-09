@@ -53,7 +53,17 @@ uiSelectFromList::~uiSelectFromList()
 
 uiObject* uiSelectFromList::bottomFld()
 {
-    return selfld_->attachObj();
+    return selfld_ ? selfld_->attachObj() : nullptr;
+}
+
+
+void uiSelectFromList::getChosen( TypeSet<int>& sel ) const
+{
+    sel.erase();
+    if ( !selfld_ )
+	return;
+
+    filtfld_->getChosen( sel );
 }
 
 
