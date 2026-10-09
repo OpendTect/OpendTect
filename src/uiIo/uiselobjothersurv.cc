@@ -106,7 +106,7 @@ bool uiSelObjFromOtherSurvey::acceptOK( CallBacker* )
 	return false;
     }
 
-    const int selidx = objseldlg.selection();
+    const int selidx = objseldlg.currentItem();
     if ( !ioobjs.validIdx(selidx) )
     {
 	deepErase( ioobjs );

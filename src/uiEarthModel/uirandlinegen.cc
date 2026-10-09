@@ -277,7 +277,7 @@ bool uiGenRanLinesByShift::acceptOK( CallBacker* )
 	if ( !dlg.go() )
 	    return false;
 
-	lnr = dlg.selection();
+	lnr = dlg.currentItem();
     }
 
     const int choice = sidefld_->getIntValue();

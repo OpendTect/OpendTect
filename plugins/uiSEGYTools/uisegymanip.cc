@@ -565,11 +565,11 @@ void uiSEGYFileManip::openReq( CallBacker* )
     uiSelectFromList::Setup sflsu( uiStrings::phrSelect(
 					    tr("header manipulation")), nms );
     uiSelectFromList dlg( this, sflsu );
-    if ( !dlg.go() || dlg.selection() < 0 )
+    if ( !dlg.go() || dlg.currentItem() < 0 )
 	return;
 
     trchdrfld_->setEmpty();
-    calcset_.getFromSettings( nms.get(dlg.selection()) );
+    calcset_.getFromSettings( nms.get(dlg.currentItem()) );
 
     fillDefCalcs( 0 );
     updTrcVals();

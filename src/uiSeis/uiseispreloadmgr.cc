@@ -1001,13 +1001,13 @@ void uiSeisPreLoadedDataSel::selCB( CallBacker* )
 	const uiSelectFromList::Setup su(
 		uiStrings::phrSelect(uiStrings::sComponent()), compnms );
 	uiSelectFromList seldlg( this, su );
-	if ( !seldlg.go() || seldlg.selection() < 0 )
+	if ( !seldlg.go() || seldlg.currentItem() < 0 )
 	{
 	    setInput( selkey_, compnr_ );
 	    return;
 	}
 
-	compnr_ = seldlg.selection();
+	compnr_ = seldlg.currentItem();
     }
 
     selkey_ = selkey;
@@ -1041,7 +1041,7 @@ uiSeisPLDataSelDlg( uiParent* p, const uiSelectFromList::Setup& su,
 void selCB( CallBacker* )
 {
     compfld_->box()->setEmpty();
-    const int selidx = selFld()->currentItem();
+    const int selidx = currentItem();
     if ( !keys_.validIdx(selidx) )
 	return;
 
@@ -1082,12 +1082,12 @@ void uiSeisPreLoadedDataSel::selPushCB( CallBacker* )
 
     uiSelectFromList::Setup su( uiStrings::sSelect(), names_ );
     uiSeisPLDataSelDlg seldlg( this, su, keys_ );
-    if ( !seldlg.go() || seldlg.selection() < 0 )
+    if ( !seldlg.go() || seldlg.currentItem() < 0 )
 	return;
 
     NotifyStopper ns( nmfld_->selectionChanged );
-    nmfld_->setCurrentItem( seldlg.selection() + 1 );
-    selkey_ = keys_.get( seldlg.selection() );
+    nmfld_->setCurrentItem( seldlg.currentItem() + 1 );
+    selkey_ = keys_.get( seldlg.currentItem() );
     compnr_ = seldlg.compfld_->box()->currentItem();
     if ( compnr_ < 0 )
 	compnr_ = 0;

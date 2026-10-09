@@ -102,7 +102,7 @@ void uiStratLayerModelManager::startCB( CallBacker* cb )
 	if ( !dlg.go() )
 	    return;
 
-	const int sel = dlg.selection();
+	const int sel = dlg.currentItem();
 	if ( sel < 0 )
 	    return;
 

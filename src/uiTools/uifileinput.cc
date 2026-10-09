@@ -427,7 +427,7 @@ void uiFileInput::examineFile( CallBacker* )
 	if ( !listdlg.go() )
 	    return;
 
-	selidx = listdlg.selection();
+	selidx = listdlg.currentItem();
 	if ( selidx < 0 )
 	    return;
     }

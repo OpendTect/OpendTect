@@ -110,9 +110,9 @@ void uiSrchProcFiles::srchDir( CallBacker* )
 	uiSelectFromList::Setup sflsu( tr("Select the apropriate file"), fnms );
 	sflsu.dlgtitle( tr("Pick one of the matches") );
 	uiSelectFromList dlg( this, sflsu );
-	if ( !dlg.go() || dlg.selection() < 0 )
+	if ( !dlg.go() || dlg.currentItem() < 0 )
 	    mRet(uiStrings::sEmptyString())
-	sel = dlg.selection();
+	sel = dlg.currentItem();
     }
 
     fnamefld->setText( fnms.get(sel) );

@@ -299,7 +299,7 @@ void uiStratTreeWin::setNewRT()
     if ( !dlg.go() )
 	return;
 
-    const char* nm = opts.get( dlg.selection() );
+    const char* nm = opts.get( dlg.currentItem() );
     Strat::RefTree* rt = 0;
     Strat::LevelSet* ls = Strat::LevelSet::createStd( nm );
     if ( !ls )

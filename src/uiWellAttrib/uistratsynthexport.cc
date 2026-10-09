@@ -488,7 +488,7 @@ bool uiStratSynthExport::getGeometry( const char* linenm )
 	    {
 		uiSelectFromList seldlg( this,
 			uiSelectFromList::Setup(tr("Random lines"),linenames) );
-		selitem = seldlg.selection();
+		selitem = seldlg.currentItem();
 	    }
 
 	    const Geometry::RandomLine& rdmline = *lset.lines()[ selitem ];

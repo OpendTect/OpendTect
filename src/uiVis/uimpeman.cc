@@ -1337,7 +1337,7 @@ bool uiMPEMan::selectAttribForTracking()
     if ( !uiseldlg.go() )
 	return false;
 
-    const int selidx = uiseldlg.selection();
+    const int selidx = uiseldlg.currentItem();
     if ( selidx < 0 || selidx == curidx )
 	return false;
 

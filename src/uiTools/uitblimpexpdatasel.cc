@@ -783,10 +783,10 @@ void uiTableImpDataSel::openFormatCB( CallBacker* )
     uiSelectFromList::Setup listsetup( tr("Retrieve data format"), avfmts );
     listsetup.dlgtitle( tr("Select a format to retrieve") );
     uiSelectFromList dlg( this, listsetup );
-    if ( !dlg.go() || dlg.selection() < 0 )
+    if ( !dlg.go() || dlg.currentItem() < 0 )
 	return;
 
-    const BufferString& fmtnm = avfmts.get( dlg.selection() );
+    const BufferString& fmtnm = avfmts.get( dlg.currentItem() );
     const IOPar* iop = Table::FFR().get( fd_.name(), fmtnm );
     if ( !iop )
 	return; //Huh?

@@ -1123,7 +1123,7 @@ void uiAttribDescSetEd::defaultSet( CallBacker* )
     if ( !dlg.go() )
 	return;
 
-    const int selitm = dlg.selection();
+    const int selitm = dlg.currentItem();
     if ( selitm < 0 )
 	return;
 
