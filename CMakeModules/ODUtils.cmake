@@ -723,7 +723,12 @@ endmacro()
 function( od_setup_external_target _trgt )
     set_target_location( ${_trgt} )
     if ( UNIX )
-	set_target_soname( ${_trgt} )
+	get_target_property( trgt_type ${_trgt} TYPE )
+	if ( "${trgt_type}" STREQUAL "SHARED_LIBRARY" OR
+	     "${trgt_type}" STREQUAL "UNKNOWN_LIBRARY" OR
+	     "${trgt_type}" STREQUAL "INTERFACE_LIBRARY" )
+	    set_target_soname( ${_trgt} )
+	endif()
     endif()
     od_map_configurations( ${_trgt} )
 endfunction( od_setup_external_target _trgt )
