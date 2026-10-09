@@ -117,7 +117,7 @@ int Tut::ThicknessCalculator::nextStep()
 }
 
 
-Executor* Tut::ThicknessCalculator::dataSaver()
+Task* Tut::ThicknessCalculator::dataSaver()
 {
     if ( !horizon1_ )
 	return nullptr;
@@ -168,7 +168,7 @@ int Tut::HorSmoother::nextStep()
 }
 
 
-Executor* Tut::HorSmoother::dataSaver( const MultiID& id )
+Task* Tut::HorSmoother::dataSaver( const MultiID& id )
 {
     if ( !horizonoutput_ )
 	return nullptr;

@@ -49,6 +49,7 @@ ________________________________________________________________________
 #include "randcolor.h"
 #include "survinfo.h"
 #include "tabledef.h"
+#include "task.h"
 #include "unitofmeasure.h"
 #include "zaxistransform.h"
 #include "od_helpids.h"
@@ -525,18 +526,20 @@ RefMan<EM::Horizon3D> uiImportHorizon::doImport()
     if ( hs.lineRange().step_==0 || hs.trcRange().step_==0 )
 	mErrAct( tr("Cannot have '0' as a step value"), return nullptr )
 
-    ExecutorGroup importer( "Importing horizon" );
-    importer.setNrDoneText( tr("Nr positions done") );
+    TaskGroup importer;
+    importer.setName( "Importing horizon" );
+    importer.showCumulativeCount( true );
     int startidx = 0;
     if ( isgeom_ )
     {
-	importer.add( horizon->importer(sections,hs) );
+	importer.addTask( horizon->importer(sections,hs) );
 	attrnms.removeSingle( 0 );
 	startidx = 1;
     }
 
     if ( attrnms.size() )
-	importer.add( horizon->auxDataImporter(sections,attrnms,startidx,hs) );
+	importer.addTask(
+	    horizon->auxDataImporter(sections,attrnms,startidx,hs) );
 
     uiTaskRunner taskrunner( this );
     const bool success = TaskRunner::execute( &taskrunner, importer );
@@ -544,7 +547,7 @@ RefMan<EM::Horizon3D> uiImportHorizon::doImport()
 	mErrAct( tr("Cannot import horizon") , return nullptr )
 
     horizon->setZDomain( zDomain() );
-    PtrMan<Executor> exec;
+    PtrMan<Task> exec;
     if ( isgeom_ )
     {
 	horizon->setPreferredColor( colbut_->color() );
@@ -761,7 +764,7 @@ RefMan<EM::Horizon3D> uiImportHorizon::loadHor()
     EM::EMManager& em = EM::EMM();
     EM::EMObject* emobj = em.createTempObject( EM::Horizon3D::typeStr() );
     emobj->setMultiID( outputfld_->key(true) );
-    Executor* loader = emobj->loader();
+    Task* loader = emobj->loader();
     if ( !loader )
 	mErrAct( uiStrings::sCantReadHor(), return nullptr )
 
@@ -906,7 +909,7 @@ bool uiImpHorFromZMap::acceptOK( CallBacker* )
 
     RefMan<EM::Horizon3D> hor3d = createHor();
     hor3d->setArray2D( conv.getOutput(), tks.start_, tks.step_, false );
-    PtrMan<Executor> saver = hor3d->saver();
+    PtrMan<Task> saver = hor3d->saver();
     if ( !saver || !uitr.execute(*saver) )
     {
 	uiMSG().error( tr("Can not save output horizon.") );

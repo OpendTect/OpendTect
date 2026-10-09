@@ -63,7 +63,7 @@ odEMBodyTranslator::~odEMBodyTranslator()
 {}
 
 
-Executor* odEMBodyTranslator::reader( const IOObj& ioobj )
+Task* odEMBodyTranslator::reader( const IOObj& ioobj )
 {
     const IOPar& iopar = ioobj.pars();
     BufferString objtype;
@@ -72,11 +72,11 @@ Executor* odEMBodyTranslator::reader( const IOObj& ioobj )
     EM::EMObject* emobj = EM::EMM().createTempObject(objtype);
     mDynamicCastGet(EM::Body*,bdy,emobj);
     readbody_ = bdy;
-    return emobj ? emobj->loader() : 0;
+    return emobj ? emobj->loader() : nullptr;
 }
 
 
-Executor* odEMBodyTranslator::writer( const EM::Body& body, IOObj& ioobj )
+Task* odEMBodyTranslator::writer( const EM::Body& body, IOObj& ioobj )
 {
     IOPar& iopar = ioobj.pars();
     iopar.set( sKey::Type(), body.type() );
@@ -84,14 +84,16 @@ Executor* odEMBodyTranslator::writer( const EM::Body& body, IOObj& ioobj )
     IOM().commitChanges( ioobj );
 
     mDynamicCastGet(EM::PolygonBody*,plgbdy,const_cast<EM::Body*>(&body));
-    if ( plgbdy ) return plgbdy->saver(&ioobj);
+    if ( plgbdy )
+	return plgbdy->saver(&ioobj);
 
     mDynamicCastGet(EM::MarchingCubesSurface*,mcbdy,
 	    const_cast<EM::Body*>(&body));
-    if ( mcbdy ) return mcbdy->saver(&ioobj);;
+    if ( mcbdy )
+	return mcbdy->saver(&ioobj);;
 
     mDynamicCastGet(EM::RandomPosBody*,rdpbdy,const_cast<EM::Body*>(&body));
-    return rdpbdy ? rdpbdy->saver(&ioobj) : 0;
+    return rdpbdy ? rdpbdy->saver(&ioobj) : nullptr;
 }
 
 

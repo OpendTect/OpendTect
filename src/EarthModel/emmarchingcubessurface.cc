@@ -301,21 +301,21 @@ BufferString MarchingCubesSurface::storageName() const
 { return EMObject::name(); }
 
 
-Executor* MarchingCubesSurface::loader()
+Task* MarchingCubesSurface::loader()
 {
     PtrMan<IOObj> ioobj = IOM().get( multiID() );
-    Conn* conn = ioobj ? ioobj->getConn( Conn::Read ) : 0;
-    return conn ? new MarchingCubesSurfaceReader( *this, conn ) : 0;
+    Conn* conn = ioobj ? ioobj->getConn( Conn::Read ) : nullptr;
+    return conn ? new MarchingCubesSurfaceReader( *this, conn ) : nullptr;
 }
 
 
-Executor* MarchingCubesSurface::saver()
-{ return saver(0); }
+Task* MarchingCubesSurface::saver()
+{ return saver(nullptr); }
 
 
-Executor* MarchingCubesSurface::saver( const IOObj* inpioobj )
+Task* MarchingCubesSurface::saver( const IOObj* inpioobj )
 {
-    PtrMan<IOObj> ioobj = nullptr;
+    PtrMan<IOObj> ioobj;
     if ( inpioobj )
 	ioobj = inpioobj->clone();
     else

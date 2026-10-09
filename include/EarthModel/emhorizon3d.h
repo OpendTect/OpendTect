@@ -9,20 +9,20 @@ ________________________________________________________________________
 -*/
 
 #include "earthmodelmod.h"
-#include "emhorizon.h"
+
 #include "binidsurface.h"
-#include "task.h"
+#include "emhorizon.h"
 
 class BinIDValueSet;
 class DataPointSet;
 class BufferStringSet;
+class Task;
 class TrcKeySampling;
 class Scaler;
 class ZAxisTransform;
 namespace Pick { class Set; }
 namespace Pos { class Provider3D; }
 namespace Table { class FormatDesc; }
-namespace Threads { class WorkManager; }
 namespace EM
 {
 class SurfaceAuxData;
@@ -164,7 +164,8 @@ public:
 					const BinID& step, Array2D<float>* arr,
 					bool takeover);
     static Horizon3D*		createWithConstZ(float z,const TrcKeySampling&);
-    Array2D<float>*		createArray2D(const ZAxisTransform* zt=0) const;
+    Array2D<float>*		createArray2D(
+					const ZAxisTransform* =nullptr) const;
     bool			setArray2D(const Array2D<float>&,
 					   bool onlyfillundefs,
 					   const char* histdesc,bool trimundef);
@@ -178,12 +179,12 @@ public:
 				     when takeoverarr=true.
 				     Removes any existing data. */
 
-    Executor*			importer(const ObjectSet<BinIDValueSet>&,
+    Task*			importer(const ObjectSet<BinIDValueSet>&,
 					 const TrcKeySampling& hs);
 					/*!< Removes all data and creates
 					  a section for every BinIDValueSet
 					*/
-    Executor*			auxDataImporter(const ObjectSet<BinIDValueSet>&,
+    Task*			auxDataImporter(const ObjectSet<BinIDValueSet>&,
 					const BufferStringSet& attribnms,int,
 					const TrcKeySampling& hs);
 
@@ -299,35 +300,6 @@ public:
 
     static OD::Color		sDefaultSelectionColor();
     static OD::Color		sDefaultLockColor();
-};
-
-
-mExpClass(EarthModel) ChildFinder : public SequentialTask
-{
-friend class FindTask;
-friend class Horizon3D;
-protected:
-				ChildFinder(const TrcKeySampling& tks,
-					    const Array2D<od_int64>& parents,
-					    Array2D<char>& children );
-				~ChildFinder();
-
-
-    void			addTask(od_int64);
-    void			taskFinished(CallBacker*);
-    int				nextStep() override;
-
-    Threads::WorkManager&	twm_;
-    int				queueid_;
-    const Array2D<od_int64>&	parents_;
-    Array2D<char>&		children_;
-    TrcKeySampling		tks_;
-
-    Threads::Atomic<int>	nrtodo_;
-    Threads::Atomic<int>	nrdone_;
-
-    Threads::Lock		addlock_;
-    Threads::Lock		finishlock_;
 };
 
 } // namespace EM

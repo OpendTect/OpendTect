@@ -270,7 +270,7 @@ bool uiCopySurface::acceptOK( CallBacker* )
     emobj->setMultiID( ioobj->key() );
 
     mDynamicCastGet(EM::Surface*,surface,emobj.ptr())
-    PtrMan<Executor> loader = surface->geometry().loader( &sdsel );
+    PtrMan<Task> loader = surface->geometry().loader( &sdsel );
     if ( !loader ) mErrRet(uiStrings::phrCannotRead(uiStrings::sSurface()))
 
     uiTaskRunner taskrunner( this );
@@ -295,7 +295,7 @@ bool uiCopySurface::acceptOK( CallBacker* )
     IOObj* newioobj = outfld->ctxtIOObj().ioobj_;
     const MultiID& mid = newioobj->key();
     emobj->setMultiID( mid );
-    PtrMan<Executor> saver = surface->geometry().saver( &outsdsel, &mid );
+    PtrMan<Task> saver = surface->geometry().saver( &outsdsel, &mid );
     if ( !saver ) mErrRet(uiStrings::phrCannotSave(uiStrings::sSurface()))
 
     if ( !TaskRunner::execute(&taskrunner,*saver) )

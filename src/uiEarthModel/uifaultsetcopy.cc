@@ -83,7 +83,7 @@ bool uiFault2FaultSet::acceptOK( CallBacker* )
     TypeSet<MultiID> inputids;
 
     infld_->getChosen( inputids );
-    PtrMan<Executor> fltloader = EM::EMM().objectLoader( inputids );
+    PtrMan<Task> fltloader = EM::EMM().objectLoader( inputids );
     if ( fltloader && !TaskRunner::execute(&taskrunner,*fltloader) )
     {
 	uiMSG().error( fltloader->uiMessage() );
@@ -101,7 +101,7 @@ bool uiFault2FaultSet::acceptOK( CallBacker* )
 	fltset->addFault( f3d );
     }
 
-    PtrMan<Executor> saver = fltset->saver();
+    PtrMan<Task> saver = fltset->saver();
     if ( saver && !TaskRunner::execute(&taskrunner,*saver) )
     {
 	uiMSG().error( saver->uiMessage() );

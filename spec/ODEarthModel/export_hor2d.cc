@@ -84,7 +84,7 @@ int mProgMainFnName( int argc, char** argv )
     for ( int idx=0; idx<list.size(); idx++ )
 	horids += list[idx]->ioobj->key();
 
-    PtrMan<Executor> loader = EM::EMM().objectLoader( horids, 0 );
+    PtrMan<Task> loader = EM::EMM().objectLoader( horids, 0 );
     if ( !loader->execute() )
 	return prError( "Cannot load horizons" );
 

@@ -519,7 +519,8 @@ bool uiBulkFaultImport::acceptOK( CallBacker* )
     if ( stickselfld_ && StringView(stickselfld_->text()) == sKeySlopeThres() )
 	convsu.stickslopethres_ = thresholdfld_->getDValue();
 
-    ExecutorGroup saver( savernm );
+    TaskGroup saver;
+    saver.setName( savernm );
     TypeSet<MultiID> mids;
     const ZDomain::Info& zdominfo = zDomain();
     for ( int idx=0; idx<pars.size(); idx++ )
@@ -560,7 +561,7 @@ bool uiBulkFaultImport::acceptOK( CallBacker* )
 
 	if ( !isfltset_)
 	{
-	    saver.add( emobj->saver() );
+	    saver.addTask( emobj->saver() );
 	    mids.add( emobj->multiID() );
 	}
 	else
@@ -572,7 +573,7 @@ bool uiBulkFaultImport::acceptOK( CallBacker* )
 
     if ( isfltset_ )
     {
-	saver.add( fltset->saver() );
+	saver.addTask( fltset->saver() );
 	mids.add( fltset->multiID() );
     }
 

@@ -24,13 +24,14 @@ ________________________________________________________________________
 #include "emsurfaceauxdata.h"
 #include "emsurfacetr.h"
 #include "emundo.h"
-#include "executor.h"
 #include "ioobj.h"
+#include "paralleltask.h"
 #include "pickset.h"
 #include "posprovider.h"
 #include "ptrman.h"
 #include "survinfo.h"
 #include "tabledef.h"
+#include "thread.h"
 #include "threadwork.h"
 #include "uistrings.h"
 #include "unitofmeasure.h"
@@ -44,29 +45,25 @@ OD::Color Horizon3D::sDefaultSelectionColor()	{ return OD::Color::Orange(); }
 OD::Color Horizon3D::sDefaultLockColor()	{ return OD::Color::Blue(); }
 
 
-class AuxDataImporter : public Executor
+class AuxDataImporter : public ParallelTask
 { mODTextTranslationClass(AuxDataImporter);
 public:
 
 AuxDataImporter( Horizon3D& hor, const ObjectSet<BinIDValueSet>& sects,
 		 const BufferStringSet& attribnames, const int start,
 		 TrcKeySampling hs )
-    : Executor("Data Import")
+    : ParallelTask("Data Import")
     , horizon_(hor)
     , bvss_(sects)
     , startidx_(start)
-    , totalnr_(0)
-    , nrdone_(0)
     , hs_(hs)
-    , inl_(0)
     , nrattribs_(-1)
 {
     if ( bvss_.isEmpty() || attribnames.isEmpty() )
 	{ msg_ = tr("Internal error: empty input"); return; }
+
     nrattribs_ = attribnames.size();
-    for ( int idx=0; idx<bvss_.size(); idx++ )
-	totalnr_ += bvss_[idx]->nrInls();
-    if ( totalnr_ < 1 )
+    if ( bvss_[0]->isEmpty() )
 	{ msg_ = uiStrings::sNoValidData(); return; }
 
     for ( int iattr=0; iattr<nrattribs_; iattr++ )
@@ -84,127 +81,228 @@ AuxDataImporter( Horizon3D& hor, const ObjectSet<BinIDValueSet>& sects,
 }
 
 
-bool doPrepare( od_ostream* ) override
+~AuxDataImporter()
 {
-    if ( nrattribs_ < 0 )
-	return false;
-
-    const Geometry::BinIDSurface* rcgeom =
-	    horizon_.geometry().geometryElement();
-    if ( !rcgeom )
-	return false;
-
-    inlrg_ = rcgeom->rowRange();
-    crlrg_ = rcgeom->colRange();
-    inl_ = inlrg_.start_;
-    return true;
+    delete [] cols_;
 }
-
-
-int nextStep() override
-{
-    if ( inl_ > inlrg_.stop_ )
-	return Finished();
-
-    PosID posid( horizon_.id() );
-    const BinIDValueSet& bvs = *bvss_[0];
-    for ( int crl=crlrg_.start_; crl<=crlrg_.stop_; crl+=crlrg_.step_ )
-    {
-	const BinID bid( inl_, crl );
-	if ( !hs_.includes(bid) )
-	    continue;
-
-	BinIDValueSet::SPos pos = bvs.find( bid );
-	if ( !pos.isValid() )
-	    continue;
-
-	const float* vals = bvs.getVals( pos );
-	if ( !vals )
-	    continue;
-
-	posid.setSubID( bid.toInt64() );
-	for ( int iattr=0; iattr<nrattribs_; iattr++ )
-	{
-	    const float val = vals[iattr+startidx_];
-	    if ( !mIsUdf(val) )
-		horizon_.auxdata.setAuxDataVal( attrindexes_[iattr],
-						posid, val );
-	}
-    }
-
-    inl_ += inlrg_.step_;
-    nrdone_++;
-    return MoreToDo();
-}
-
 
 uiString	uiMessage() const override	{ return msg_; }
-od_int64	totalNr() const override	{ return totalnr_; }
-od_int64	nrDone() const override		{ return nrdone_; }
 uiString	uiNrDoneText() const override
 					{ return tr("Positions handled"); }
 
+bool execute() override
+{
+    if ( nrattribs_ < 0 || !snapshot() )
+	return false;
+
+    if ( bids_.isEmpty() )
+	return true;
+
+    const int nrthreads = Threads::getNrProcessors();
+    const bool oneperthread = nrattribs_ > 1
+	&& nrattribs_ * 2 >= nrthreads
+	&& nrattribs_ <= nrthreads;
+    if ( oneperthread )
+    {
+	byattribute_ = true;
+	return allocCols(nrattribs_) && ParallelTask::execute();
+    }
+
+    byattribute_ = false;
+    if ( !allocCols(1) )
+	return false;
+
+    for ( curattr_=0; curattr_<nrattribs_; curattr_++ )
+    {
+	if ( !ParallelTask::execute() )
+	    return false;
+    }
+
+    return true;
+}
+
 protected:
 
+od_int64 nrIterations() const override
+{
+    if ( bids_.isEmpty() )
+	return 0;
+
+    return byattribute_ ? nrattribs_ : bids_.size();
+}
+
+int minThreadSize() const override
+{
+    return byattribute_ ? 1 : 1024;
+}
+
+bool doWork( od_int64 start, od_int64 stop, int ) override
+{
+    if ( byattribute_ )
+    {
+	for ( od_int64 attr=start; attr<=stop; attr++ )
+	{
+	    if ( !shouldContinue() )
+		return false;
+
+	    float* col = cols_ + attr * bids_.size();
+	    for ( od_int64 ipos=0; ipos<bids_.size(); ipos++ )
+		col[ipos] = vals_[ipos*nrattribs_+attr];
+
+	    addToNrDone( 1 );
+	}
+
+	return true;
+    }
+
+    float* col = cols_;
+    for ( od_int64 ipos=start; ipos<=stop; ipos++ )
+	col[ipos] = vals_[ipos*nrattribs_+curattr_];
+
+    addToNrDone( stop - start + 1 );
+    return true;
+}
+
+bool doFinish( bool success ) override
+{
+    if ( !success )
+	return false;
+
+    if ( byattribute_ )
+    {
+	for ( int attr=0; attr<nrattribs_; attr++ )
+	{
+	    if ( !commitAttr(attr, cols_+attr*bids_.size()) )
+		return false;
+	}
+
+	return true;
+    }
+
+    return commitAttr( curattr_, cols_ );
+}
+
+bool snapshot()
+{
+    bids_.setEmpty();
+    vals_.setEmpty();
+    const Geometry::BinIDSurface* rcgeom =
+	    horizon_.geometry().geometryElement();
+    if ( !rcgeom || bvss_.isEmpty() || !bvss_[0] )
+	return false;
+
+    const StepInterval<int> inlrg = rcgeom->rowRange();
+    const StepInterval<int> crlrg = rcgeom->colRange();
+    if ( inlrg.step_==0 || crlrg.step_==0 )
+	return false;
+
+    // BinIDValueSet is not safe to use from more than one thread.
+    const BinIDValueSet& bvs = *bvss_[0];
+    BinIDValueSet::SPos pos;
+    BinID bid;
+    while ( bvs.next(pos) )
+    {
+	bvs.get( pos, bid );
+	if ( !hs_.includes(bid) )
+	    continue;
+
+	if ( !inlrg.includes(bid.inl(),false) ||
+	     !crlrg.includes(bid.crl(),false) )
+	    continue;
+
+	if ( ((bid.inl()-inlrg.start_) % inlrg.step_) != 0 ||
+	     ((bid.crl()-crlrg.start_) % crlrg.step_) != 0 )
+	    continue;
+
+	const float* src = bvs.getVals( pos );
+	if ( !src )
+	    continue;
+
+	bids_ += bid;
+	for ( int iattr=0; iattr<nrattribs_; iattr++ )
+	{
+	    const int srcidx = iattr + startidx_;
+	    const float val = srcidx < bvs.nrVals() ? src[srcidx]
+						    : mUdf(float);
+	    vals_ += val;
+	}
+    }
+
+    return true;
+}
+
+bool allocCols( int ncols )
+{
+    deleteAndNullArrPtr( cols_ );
+    if ( ncols<1 || bids_.isEmpty() )
+	return false;
+
+    const od_int64 sz = bids_.size() * (od_int64)ncols;
+    mTryAlloc( cols_, float[sz] );
+    return cols_;
+}
+
+bool commitAttr( int attr, const float* col ) const
+{
+    if ( !col || !attrindexes_.validIdx(attr) )
+	return false;
+
+    PosID posid( horizon_.id() );
+    for ( od_int64 ipos=0; ipos<bids_.size(); ipos++ )
+    {
+	const float val = col[ipos];
+	if ( mIsUdf(val) )
+	    continue;
+
+	posid.setSubID( bids_[ipos].toInt64() );
+	horizon_.auxdata.setAuxDataVal( attrindexes_[attr], posid, val );
+    }
+
+    return true;
+}
+
     const ObjectSet<BinIDValueSet>&	bvss_;
-    Horizon3D&			horizon_;
+    Horizon3D&				horizon_;
     const TrcKeySampling		hs_;
-    uiString			msg_;
-    int				nrattribs_;
-    int				startidx_;
-    TypeSet<int>		attrindexes_;
-
-    int				inl_;
-    StepInterval<int>		inlrg_;
-    StepInterval<int>		crlrg_;
-
-    int				totalnr_;
-    int				nrdone_;
+    uiString				msg_;
+    int					nrattribs_;
+    int					startidx_;
+    int					curattr_	= 0;
+    bool				byattribute_	= false;
+    TypeSet<int>			attrindexes_;
+    TypeSet<BinID>			bids_;
+    TypeSet<float>			vals_;
+    float*				cols_		= nullptr;
 };
 
 
-class HorizonImporter : public Executor
+class HorizonImporter : public ParallelTask
 { mODTextTranslationClass(HorizonImporter);
 public:
 
 HorizonImporter( Horizon3D& hor, const ObjectSet<BinIDValueSet>& sects,
 		 const TrcKeySampling& hs )
-    : Executor("Horizon Import")
+    : ParallelTask("Horizon Import")
     , horizon_(hor)
     , bvss_(sects)
-    , totalnr_(0)
-    , nrdone_(0)
     , hs_(hs)
-    , sectionidx_(0)
     , nrvals_(-1)
     , msg_(tr("Adding nodes"))
 {
-    if ( bvss_.isEmpty() ) return;
+    if ( bvss_.isEmpty() )
+	return;
+
     nrvals_ = bvss_[0]->nrVals();
     const RowCol step( hs_.step_.inl(), hs_.step_.crl() );
     horizon_.geometry().setStep( step, step );
-
     for ( int idx=0; idx<bvss_.size(); idx++ )
     {
-	const BinIDValueSet& bvs = *bvss_[idx];
-	if ( bvs.nrVals() != nrvals_ )
-	    { msg_ = tr("Incompatible sections"); return; }
-
-	totalnr_ += mCast( int, bvs.totalSize() );
-
-	TrcKeySampling sectrg;
-	sectrg.set( bvs.inlRange(), bvs.crlRange(mUdf(int)) );
-	sectrg.step_ = step;
-	sectrg.limitTo( hs_ );
-	mDeclareAndTryAlloc( Array2D<float>*, arr,
-		Array2DImpl<float>( sectrg.nrInl(), sectrg.nrCrl() ) );
-	if ( arr && !arr->isEmpty() )
+	if ( bvss_[idx]->nrVals() != nrvals_ )
 	{
-	    arr->setAll( mUdf(float) );
-	    horarrays_ += arr;
+	    msg_ = tr("Incompatible sections");
+	    nrvals_ = -1;
+	    return;
 	}
-	else
-	    msg_ = tr("No valid positions");
     }
 
     horizon_.enableGeometryChecks( false );
@@ -212,94 +310,170 @@ HorizonImporter( Horizon3D& hor, const ObjectSet<BinIDValueSet>& sects,
 
 ~HorizonImporter()
 {
-    deepErase( horarrays_ );
+    delete arr_;
+    deepErase( lines_ );
 }
 
 uiString	uiMessage() const override	{ return msg_; }
-od_int64	totalNr() const override	{ return totalnr_; }
-od_int64	nrDone() const override		{ return nrdone_; }
 uiString	uiNrDoneText() const override
 					{ return tr("Positions handled"); }
 
-bool doPrepare( od_ostream* ) override
+bool execute() override
 {
-    return nrvals_ >= 0 && !horarrays_.isEmpty();
-}
+    if ( nrvals_ < 0 )
+	return false;
 
-int nextStep() override
-{
-    if ( nrvals_ == -1 || horarrays_.isEmpty() )
-	return ErrorOccurred();
-
-    if ( sectionidx_ >= bvss_.size() )
-	return Finished();
-
-    const BinIDValueSet& bvs = *bvss_[sectionidx_];
-    BinID bid;
-    for ( int idx=0; idx<10000; idx++ )
+    if ( hs_.nrInl()<1 || hs_.nrCrl()<1 )
     {
-	nrdone_++;
-	if ( !bvs.next(pos_) )
+	msg_ = tr("No valid positions");
+	return false;
+    }
+
+    for ( int sidx=0; sidx<bvss_.size(); sidx++ )
+    {
+	deleteAndNullPtr( arr_ );
+	deepErase( lines_ );
+	lineend_.setEmpty();
+	if ( !snapshot(*bvss_[sidx]) )
+	    return false;
+
+	PtrMan<Array2D<float> > arr =
+		new Array2DImpl<float>( hs_.nrInl(), hs_.nrCrl() );
+	if ( !arr || arr->isOK() )
 	{
-	    sectionidx_++;
-	    pos_.reset();
-	    return MoreToDo();
+	    msg_ = tr("No valid positions");
+	    return false;
 	}
 
-	bvs.get( pos_, bid );
-	if ( !hs_.includes(bid,true) || !horarrays_.validIdx(sectionidx_) )
-	    continue;
+	arr->setAll( mUdf(float) );
+	arr_ = arr.release();
+	if ( !lineend_.isEmpty() && !ParallelTask::execute() )
+	    return false;
 
-	const int inlidx = hs_.inlIdx( bid.inl() );
-	const int crlidx = hs_.crlIdx( bid.crl() );
+	Geometry::BinIDSurface* geom =
+		horizon_.geometry().geometryElement();
+	if ( !geom )
+	    return false;
 
-	Array2D<float>* horarr = horarrays_[sectionidx_];
-	if ( !horarr->info().validPos(inlidx,crlidx) )
-	    continue;
-
-	const float z = bvs.getVals(pos_)[ 0 ];
-	horarr->set( inlidx, crlidx, z );
+	geom->setArray( hs_.start_, hs_.step_, arr_, true );
+	arr_ = nullptr;
     }
 
-    return MoreToDo();
-}
-
-bool doFinish( bool success, od_ostream* ) override
-{
-    if ( success )
-    {
-	fillHorizonArray();
-	horizon_.enableGeometryChecks( true );
-    }
-
-    return success;
-}
-
-void fillHorizonArray()
-{
-    for ( int sidx=0; sidx<horarrays_.size(); sidx++ )
-    {
-	Geometry::BinIDSurface* geom = horizon_.geometry().geometryElement();
-	geom->setArray( hs_.start_, hs_.step_, horarrays_[sidx], true );
-    }
-
-    horarrays_.erase();
+    horizon_.enableGeometryChecks( true );
+    return true;
 }
 
 protected:
 
+struct InlSamples
+{
+    int			inlidx;
+    TypeSet<int>	crlidx;
+    TypeSet<float>	z;
+};
+
+od_int64 nrIterations() const override
+{
+    return lineend_.isEmpty() ? 0 : lineend_.last();
+}
+
+int minThreadSize() const override
+{
+    return 1024;
+}
+
+bool doWork( od_int64 start, od_int64 stop, int ) override
+{
+    float* data = arr_->getData();
+    const int nrcrl = hs_.nrCrl();
+    od_int64 pt = start;
+    while ( pt<=stop )
+    {
+	if ( !shouldContinue() )
+	    return false;
+
+	const int line = findLine( pt );
+	const od_int64 beg = line ? lineend_[line-1] : 0;
+	const od_int64 end = lineend_[line];
+	const InlSamples& smp = *lines_[line];
+	float* row = data + (od_int64)smp.inlidx * nrcrl;
+	const od_int64 from = pt - beg;
+	const od_int64 to = mMIN(stop, end-1) - beg;
+	for ( od_int64 idx=from; idx<=to; idx++ )
+	    row[smp.crlidx[(int)idx]] = smp.z[(int)idx];
+
+	pt = end;
+    }
+
+    addToNrDone( stop - start + 1 );
+    return true;
+}
+
+bool snapshot( const BinIDValueSet& bvs )
+{
+    // One thread. BinIDValueSet offers no thread-safety guarantee.
+    InlSamples* cur = nullptr;
+    BinID bid;
+    BinIDValueSet::SPos pos;
+    od_int64 npts = 0;
+    while ( bvs.next(pos) )
+    {
+	bvs.get( pos, bid );
+	if ( !hs_.includes(bid,true) )
+	    continue;
+
+	const int inlidx = hs_.inlIdx( bid.inl() );
+	const int crlidx = hs_.crlIdx( bid.crl() );
+	if ( inlidx<0 || crlidx<0 ||
+	     inlidx>=hs_.nrInl() || crlidx>=hs_.nrCrl() )
+	    continue;
+
+	if ( !cur || cur->inlidx!=inlidx )
+	{
+	    if ( cur )
+		lineend_ += npts;
+
+	    cur = new InlSamples;
+	    cur->inlidx = inlidx;
+	    lines_ += cur;
+	}
+
+	const float* vals = bvs.getVals( pos );
+	cur->crlidx += crlidx;
+	cur->z += vals ? vals[0] : mUdf(float);
+	npts++;
+    }
+
+    if ( cur )
+	lineend_ += npts;
+
+    return true;
+}
+
+int findLine( od_int64 pt ) const
+{
+    int lo = 0;
+    int hi = lineend_.size() - 1;
+    while ( lo < hi )
+    {
+	const int mid = (lo + hi) / 2;
+	if ( lineend_[mid] <= pt )
+	    lo = mid + 1;
+	else
+	    hi = mid;
+    }
+
+    return lo;
+}
+
     const ObjectSet<BinIDValueSet>&	bvss_;
     Horizon3D&				horizon_;
-    BinIDValueSet::SPos			pos_;
     TrcKeySampling			hs_;
     uiString				msg_;
     int					nrvals_;
-
-    ObjectSet<Array2D<float> > horarrays_;
-
-    int			sectionidx_;
-    int			totalnr_;
-    int			nrdone_;
+    Array2D<float>*			arr_		= nullptr;
+    ObjectSet<InlSamples>		lines_;
+    TypeSet<od_int64>			lineend_;
 };
 
 
@@ -719,17 +893,17 @@ const IOObjContext& Horizon3D::getIOObjContext() const
 { return EMHorizon3DTranslatorGroup::ioContext(); }
 
 
-Executor* Horizon3D::importer( const ObjectSet<BinIDValueSet>& sections,
-			   const TrcKeySampling& hs )
+Task* Horizon3D::importer( const ObjectSet<BinIDValueSet>& sections,
+				   const TrcKeySampling& hs )
 {
     removeAll();
     return new HorizonImporter( *this, sections, hs );
 }
 
 
-Executor* Horizon3D::auxDataImporter( const ObjectSet<BinIDValueSet>& sections,
-				      const BufferStringSet& attribnms,
-				      const int start, const TrcKeySampling& hs)
+Task* Horizon3D::auxDataImporter( const ObjectSet<BinIDValueSet>& sections,
+				  const BufferStringSet& attribnms,
+				  const int start, const TrcKeySampling& hs )
 {
     return new AuxDataImporter( *this, sections, attribnms, start, hs );
 }
@@ -1126,6 +1300,36 @@ void Horizon3D::getParents( const TrcKey& node, TypeSet<TrcKey>& parents ) const
 }
 
 
+namespace {
+
+class ChildFinder : public SequentialTask
+{
+friend class FindTask;
+friend class EM::Horizon3D;
+protected:
+				ChildFinder(const TrcKeySampling&,
+					    const Array2D<od_int64>&,
+					    Array2D<char>&);
+				~ChildFinder();
+
+    void			addTask(od_int64);
+    void			taskFinished(CallBacker*);
+    int				nextStep() override;
+
+    Threads::WorkManager&	twm_;
+    int				queueid_;
+    const Array2D<od_int64>&	parents_;
+    Array2D<char>&		children_;
+    TrcKeySampling		tks_;
+
+    Threads::Atomic<int>	nrtodo_;
+    Threads::Atomic<int>	nrdone_;
+
+    Threads::Lock		addlock_;
+    Threads::Lock		finishlock_;
+};
+
+
 class FindTask : public Task
 {
 public:
@@ -1206,6 +1410,8 @@ int ChildFinder::nextStep()
 {
     return nrtodo_>0 ? MoreToDo() : Finished();
 }
+
+} // namespace
 
 
 bool Horizon3D::selectChildren( const TrcKey& node )
@@ -1664,6 +1870,7 @@ bool Horizon3DGeometry::getBoundingPolygon( Pick::Set& set ) const
     {
 	if ( set.disp3d().polyDisp() )
 	    set.disp3d().polyDisp()->connect_ = Pick::Set::Connection::Close;
+
 	if ( set.disp2d().polyDisp() )
 	    set.disp2d().polyDisp()->connect_ = Pick::Set::Connection::Close;
     }
@@ -1737,7 +1944,14 @@ EM::SectionID Horizon3DGeometry::cloneSection( const SectionID& )
 Horizon3DAscIO::Horizon3DAscIO( const Table::FormatDesc& fd,
 				const char* filenm )
     : Table::AscIO(fd)
-    , strm_(filenm)
+    , ownedstrm_(filenm)
+    , strm_(&ownedstrm_)
+{}
+
+
+Horizon3DAscIO::Horizon3DAscIO( const Table::FormatDesc& fd, od_istream& strm )
+    : Table::AscIO(fd)
+    , strm_(&strm)
 {}
 
 
@@ -1817,19 +2031,49 @@ const UnitOfMeasure* Horizon3DAscIO::getSelZUnit() const
 }
 
 
+bool Horizon3DAscIO::readHeader()
+{
+    if ( !strm_ || !getHdrVals(*strm_) )
+	return false;
+
+    udfval_ = getFValue( 0 );
+    finishedreadingheader_ = true;
+    return true;
+}
+
+
+void Horizon3DAscIO::prepareForBody( float udfval )
+{
+    const Table::TargetInfo* sepinfo = fd_.headerinfos_.isEmpty()
+				? nullptr : fd_.headerinfos_.first();
+    if ( sepinfo && sepinfo->name()=="Field separator" )
+    {
+	const BufferString val = sepinfo->selection_.getVal( 0 );
+	iscsv_ = val.startsWith( "Com" );
+    }
+
+    udfval_ = udfval;
+    finishedreadingheader_ = true;
+    hdrread_ = true;
+}
+
+
 int Horizon3DAscIO::getNextLine( Coord& pos, TypeSet<float>& data )
 {
     data.erase();
+    if ( !strm_ )
+	return -1;
+
     if ( !finishedreadingheader_ )
     {
-	if ( !getHdrVals(strm_) )
+	if ( !getHdrVals(*strm_) )
 	    return -1;
 
 	udfval_ = getFValue( 0 );
 	finishedreadingheader_ = true;
     }
 
-    const int ret = getNextBodyVals( strm_ );
+    const int ret = getNextBodyVals( *strm_ );
     const int nrattribs = fd_.bodyinfos_.size() - 1;
     if ( ret <= 0 || nrattribs < 1 )
 	return ret;

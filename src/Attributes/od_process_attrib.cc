@@ -22,13 +22,14 @@ ________________________________________________________________________
 #include "ioman.h"
 #include "ioobj.h"
 #include "iopar.h"
+#include "jobcommunic.h"
 #include "keystrs.h"
 #include "progressmeter.h"
 #include "ptrman.h"
 #include "seisjobexecprov.h"
 #include "seis2ddata.h"
 #include "separstr.h"
-#include "jobcommunic.h"
+#include "survgeom.h"
 
 
 

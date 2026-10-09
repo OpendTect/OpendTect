@@ -9,10 +9,13 @@ ________________________________________________________________________
 -*/
 
 #include "earthmodelmod.h"
+
+#include "bufstringset.h"
 #include "emposid.h"
 #include "executor.h"
 #include "od_iosfwd.h"
 
+class ParallelTask;
 class TrcKeySampling;
 template <class T> class DataInterpreter;
 
@@ -106,6 +109,17 @@ public:
     const char*			dataName() const;
     float			shift() const;
     const char*			dataInfo() const;
+    const char*			fileName() const    { return filename_.buf(); }
+    od_int64			bodyOffset() const	{ return bodyoffset_; }
+    bool			isBinary() const
+				{ return intinterpreter_; }
+    const DataInterpreter<int>* intInterpreter() const
+				{ return intinterpreter_; }
+    const DataInterpreter<od_int64>* int64Interpreter() const
+				{ return int64interpreter_; }
+    const DataInterpreter<float>* floatInterpreter() const
+				{ return floatinterpreter_; }
+    uiString			errMsg() const		{ return msg_; }
 
     void			setSurface(EM::Horizon3D&);
 
@@ -144,6 +158,7 @@ private:
 
     od_istream*			stream_			= nullptr;
     BufferString		filename_;
+    od_int64			bodyoffset_		= -1;
 
     DataInterpreter<int>*	intinterpreter_		= nullptr;
     DataInterpreter<od_int64>*	int64interpreter_	= nullptr;
@@ -151,5 +166,9 @@ private:
 
     bool			readHeader();
 };
+
+BufferString		findAuxDataFile(const char* fulluserexp,
+					const char* attrnm);
+ParallelTask*		createAuxDataTask(Horizon3D&,const BufferStringSet&);
 
 };

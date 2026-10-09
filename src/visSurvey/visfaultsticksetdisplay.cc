@@ -1302,13 +1302,16 @@ bool FaultStickSetDisplay::usePar( const IOPar& par )
 	RefMan<EM::EMObject> emobject = EM::EMM().getObject( emid );
 	if ( !emobject )
 	{
-	    PtrMan<Executor> loader = EM::EMM().objectLoader( newmid );
-	    if ( loader ) loader->execute();
+	    PtrMan<Task> loader = EM::EMM().objectLoader( newmid );
+	    if ( loader )
+		loader->execute();
+
 	    emid = EM::EMM().getObjectID( newmid );
 	    emobject = EM::EMM().getObject( emid );
 	}
 
-	if ( emobject ) setEMObjectID( emobject->id() );
+	if ( emobject )
+	    setEMObjectID( emobject->id() );
     }
 
     par.getYN(  sKeyDisplayOnlyAtSections(), displayonlyatsections_ );

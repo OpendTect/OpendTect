@@ -111,7 +111,7 @@ bool uiHorGeom2Attr::acceptOK( CallBacker* cb )
     }
     delete iter;
 
-    PtrMan<Executor> saver = hor_.auxdata.auxDataSaver( auxidx, true );
+    PtrMan<Task> saver = hor_.auxdata.auxDataSaver( auxidx, true );
     if ( !saver )
 	return false;
 

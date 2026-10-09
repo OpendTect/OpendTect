@@ -56,8 +56,8 @@ public:
     Coord3		getPos(const StickID&, const KnotID&) const;
 
     bool		isLoaded() const;
-    Executor*		saver();
-    Executor*		loader();
+    Task*		saver() override;
+    Task*		loader() override;
 
 protected:
     int			getStickIndex(const StickID&) const;

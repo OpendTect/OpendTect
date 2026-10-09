@@ -172,7 +172,7 @@ bool RandomPosBodyDisplay::usePar( const IOPar& par )
     RefMan<EM::EMObject> emobject = EM::EMM().getObject( emid );
     if ( !emobject )
     {
-	PtrMan<Executor> loader = EM::EMM().objectLoader( newmid );
+	PtrMan<Task> loader = EM::EMM().objectLoader( newmid );
 	if ( loader )
 	    loader->execute();
 

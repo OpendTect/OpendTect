@@ -34,8 +34,18 @@ public:
     static void			createDescBody(Table::FormatDesc*,
 					   const BufferStringSet&);
 
+				Horizon3DAscIO(const Table::FormatDesc&,
+						od_istream&);
+
     bool			isXY() const;
-    bool			isOK() const { return strm_.isOK(); }
+    bool			isOK() const
+				{ return strm_ && strm_->isOK(); }
+    bool			readHeader();
+				/*!<Reads the format header from the current
+				   stream and remembers the undefined value. */
+    void			prepareForBody(float udfval);
+				//!<Body-only stream: header was read elsewhere.
+    float			udfValue() const	{ return udfval_; }
     int				getNextLine(Coord&,TypeSet<float>&);
     const UnitOfMeasure*	getSelZUnit() const;
 
@@ -44,7 +54,8 @@ public:
 
 protected:
 
-    od_istream			strm_;
+    od_istream			ownedstrm_;
+    od_istream*			strm_				= nullptr;
     float			udfval_				= mUdf(float);
     bool			finishedreadingheader_		= false;
 

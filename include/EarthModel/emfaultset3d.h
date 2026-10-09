@@ -36,8 +36,8 @@ public:
     RefMan<Fault3D>		getFault3D(FaultID);
     ConstRefMan<Fault3D>	getFault3D(FaultID) const;
 
-    Executor*			loader() override;
-    virtual Executor*		saver() override;
+    Task*			loader() override;
+    virtual Task*		saver() override;
 
     EMObjectIterator*		createIterator(
 				 const TrcKeyZSampling* =nullptr) const override

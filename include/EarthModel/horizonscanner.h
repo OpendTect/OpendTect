@@ -9,7 +9,8 @@ ________________________________________________________________________
 -*/
 
 #include "earthmodelmod.h"
-#include "executor.h"
+#include "task.h"
+#include "atomic.h"
 #include "bufstringset.h"
 #include "ranges.h"
 
@@ -24,7 +25,7 @@ namespace ZDomain { class Info; }
 \brief Executor to scan horizons.
 */
 
-mExpClass(EarthModel) HorizonScanner : public Executor
+mExpClass(EarthModel) HorizonScanner : public ReportingTask
 { mODTextTranslationClass(HorizonScanner);
 public:
 			HorizonScanner(const BufferStringSet& fnms,
@@ -33,6 +34,8 @@ public:
     mDeprecatedDef	HorizonScanner(const BufferStringSet& fnms,
 					Table::FormatDesc& fd, bool isgeom);
 			~HorizonScanner();
+
+    bool		execute() override;
 
     uiString		uiMessage() const override;
     od_int64		totalNr() const override;
@@ -59,21 +62,18 @@ public:
 
 protected:
 
-    int				nextStep() override;
     void			getConvValue(float&);
 
     void			init();
+    bool			importFile(const char*);
     bool			isInsideSurvey(const BinID&,float) const;
 
-    mutable int			totalnr_;
-    int				nrdone_		= 0;
+    Threads::Atomic<od_int64>	totalnr_	= -1;
+    Threads::Atomic<od_int64>	nrdone_		= -1;
     PosInfo::Detector&		dtctor_;
     EM::Horizon3DAscIO*		ascio_		= nullptr;
     BufferStringSet		filenames_;
-    int				fileidx_	= 0;
     BufferStringSet		rejectedlines_;
-
-    bool			firsttime_	= true;
     bool			isgeom_;
     bool			isxy_		= false;
     bool			selxy_		= false;
@@ -81,7 +81,6 @@ protected:
     TypeSet<Interval<float> >	valranges_;
     Table::FormatDesc&		fd_;
 
-    BinIDValueSet*		bvalset_	= nullptr;
     ObjectSet<BinIDValueSet>	sections_;
 
     const ZDomain::Info&	zinfo_;

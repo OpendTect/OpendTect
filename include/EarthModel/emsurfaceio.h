@@ -17,6 +17,7 @@ ________________________________________________________________________
 
 
 class IOObj;
+class ParallelTask;
 class StreamConn;
 class UnitOfMeasure;
 namespace ZDomain { class Info; }
@@ -28,6 +29,7 @@ namespace EM
 {
 class Surface;
 class dgbSurfDataReader;
+class HorFileReader;
 class RowColSurfaceGeometry;
 
 
@@ -55,6 +57,8 @@ public:
 				  row/col selection.
 			    \note size in third dim must fit number of
 			          sections given by selSections. */
+
+    Task*		createReadTask();
 
     int			version() const		{ return version_; }
 
@@ -138,6 +142,9 @@ protected:
     bool		doPrepare(od_ostream* =nullptr) override;
     int			nextStep() override;
     bool		doFinish(bool,od_ostream* =nullptr) override;
+    void		prepareSurface();
+
+    friend class	HorFileReader;
 
     bool		isBinary() const;
     double		readDouble(od_istream&) const;
@@ -158,7 +165,7 @@ protected:
     bool		prepareRowRead(od_istream&);
     int			currentRow() const;
     void		goToNextRow();
-    void		createArray();
+    bool		createArray();
 
     BufferString	filename_;
     StreamConn*		conn_				= nullptr;
@@ -221,6 +228,7 @@ protected:
     TypeSet<od_int64>	rowoffsets_;
     TypeSet<od_int64>	sectionoffsets_;
     int			parsoffset_			= -1;
+    od_int64		bodystart_			= 0;
 
 //  Version 1 stuff
     bool		readVersion1Row(od_istream&,int,int);

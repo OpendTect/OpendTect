@@ -402,7 +402,7 @@ bool uiImportHorizon2D::doImport()
 	return false;
     }
 
-    PtrMan<Executor> saver = horizon->saver();
+    PtrMan<Task> saver = horizon->saver();
     if ( saver && saver->execute() )
     {
 	zinfo.fillPar( ioobj->pars() );

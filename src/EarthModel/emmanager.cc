@@ -17,16 +17,15 @@ ________________________________________________________________________
 #include "emsurfacegeometry.h"
 #include "emsurfaceiodata.h"
 #include "emsurfacetr.h"
-#include "executor.h"
 #include "filepath.h"
 #include "ioman.h"
 #include "iopar.h"
-#include "iostrm.h"
 #include "keystrs.h"
 #include "od_istream.h"
 #include "ptrman.h"
 #include "selector.h"
 #include "stratlevel.h"
+#include "task.h"
 
 
 mDefineNameSpaceEnumUtils(EM,ObjectType,"Surface type")
@@ -295,19 +294,23 @@ ObjectID EMManager::objectID( int idx ) const
 }
 
 
-Executor* EMManager::objectLoader( const TypeSet<MultiID>& mids,
+Task* EMManager::objectLoader( const TypeSet<MultiID>& mids,
 				   const SurfaceIODataSelection* iosel,
 				   TypeSet<MultiID>* idstobeloaded )
 {
-    ExecutorGroup* execgrp = mids.size()>1 ? new ExecutorGroup( "Reading" ) :
-								nullptr;
+    TaskGroup* execgrp = mids.size()>1 ? new TaskGroup : nullptr;
+    if ( execgrp )
+	execgrp->setName( "Reading" );
+
+    bool added = false;
     for ( int idx=0; idx<mids.size(); idx++ )
     {
 	const ObjectID objid = getObjectID( mids[idx] );
 	const EMObject* obj = getObject( objid );
-	Executor* loader =
-	    obj && obj->isFullyLoaded() ? nullptr :
-					    objectLoader( mids[idx], iosel );
+	PtrMan<Task> loader;
+	if ( !obj || !obj->isFullyLoaded() )
+	    loader = objectLoader( mids[idx], iosel );
+
 	if ( idstobeloaded && loader )
 	    *idstobeloaded += mids[idx];
 
@@ -315,18 +318,17 @@ Executor* EMManager::objectLoader( const TypeSet<MultiID>& mids,
 	{
 	    if ( loader )
 	    {
-		if ( !execgrp->nrExecutors() )
-		    execgrp->setNrDoneText( loader->uiNrDoneText() );
-		execgrp->add( loader );
+		execgrp->addTask( loader.release() );
+		added = true;
 	    }
 	}
 	else
 	{
-	    return loader;
+	    return loader.release();
 	}
     }
 
-    if ( execgrp && !execgrp->nrExecutors() )
+    if ( execgrp && !added )
 	deleteAndNullPtr( execgrp );
 
     return execgrp;
@@ -334,7 +336,7 @@ Executor* EMManager::objectLoader( const TypeSet<MultiID>& mids,
 }
 
 
-Executor* EMManager::objectLoader( const MultiID& mid,
+Task* EMManager::objectLoader( const MultiID& mid,
 				   const SurfaceIODataSelection* iosel )
 {
     const ObjectID id = getObjectID( mid );
@@ -391,7 +393,7 @@ EMObject* EMManager::loadIfNotFullyLoaded( const MultiID& mid,
 
     if ( !emobj || !emobj->isFullyLoaded() )
     {
-	PtrMan<Executor> exec = EM::EMM().objectLoader( mid, nullptr );
+	PtrMan<Task> exec = EM::EMM().objectLoader( mid, nullptr );
 	if ( !exec )
 	    return nullptr;
 

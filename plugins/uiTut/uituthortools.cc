@@ -24,6 +24,7 @@ ________________________________________________________________________
 #include "uiiosurface.h"
 #include "uimsg.h"
 #include "uistrings.h"
+#include "task.h"
 #include "uitaskrunner.h"
 
 #include "uiodapplmgr.h"
@@ -179,7 +180,7 @@ bool uiTutHorTools::doThicknessCalc()
     if ( !taskrunner.execute(*calc) )
 	return false;
 
-    PtrMan<Executor> saver = calc->dataSaver();
+    PtrMan<Task> saver = calc->dataSaver();
     if ( !saver || !taskrunner.execute(*saver) )
     {
 	uiMSG().error(tr("Thickness calculation failed"));
@@ -232,7 +233,7 @@ bool uiTutHorTools::doSmoother()
 	     sections.first()->isEmpty() )
 	    return false;
 
-	PtrMan<Executor> importer =
+	PtrMan<Task> importer =
 	    horizonoutput_->importer( sections, hor->range() );
 	if ( !taskrunner.execute( *importer ) )
 	    return false;
@@ -262,7 +263,7 @@ bool uiTutHorTools::doSmoother()
     if ( !taskrunner.execute(*calc) )
 	return false;
 
-    PtrMan<Executor> saver = calc->dataSaver( outfld_->key() );
+    PtrMan<Task> saver = calc->dataSaver( outfld_->key() );
     if ( !saver || !taskrunner.execute(*saver) )
     {
 	uiMSG().error(tr("Smoothing operation failed"));

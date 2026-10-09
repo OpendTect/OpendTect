@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "emsurfacegeometry.h"
 #include "msgh.h"
 #include "executor.h"
+#include "od_ostream.h"
 #include "ioobj.h"
 #include "ioman.h"
 #include "posinfo.h"
@@ -54,8 +55,13 @@ int mProgMainFnName( int argc, char** argv )
     PtrMan<IOObj> horioobj = IOM().get( argv[2] );
     if ( !horioobj ) mErrRet( "Horizon ID not OK" );
     EM::EMManager& em = EM::EMM();
-    PtrMan<Executor> exec = em.objectLoader( horioobj->key() );
-    exec->execute( &std::cerr );
+    PtrMan<Task> exec = em.objectLoader( horioobj->key() );
+    if ( exec )
+    {
+	TextTaskRunner runner( od_cerr() );
+	runner.execute( *exec );
+    }
+
     EM::EMObject* emobj = em.getObject( em.getObjectID(horioobj->key()) );
     mDynamicCastGet(EM::Horizon*,horizon,emobj)
     if ( !horizon ) mErrRet( "ID is not horizon" );

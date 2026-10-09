@@ -9,7 +9,7 @@ ________________________________________________________________________
 -*/
 
 #include "earthmodelmod.h"
-#include "emposid.h"
+
 #include "emobject.h"
 #include "rowcolsurface.h"
 
@@ -56,8 +56,8 @@ public:
 
     virtual bool	isLoaded() const;
     virtual bool	isFullResolution() const;
-    virtual Executor*	loader(const SurfaceIODataSelection* =nullptr);
-    virtual Executor*	saver(const SurfaceIODataSelection* =nullptr,
+    virtual Task*	loader(const SurfaceIODataSelection* =nullptr);
+    virtual Task*	saver(const SurfaceIODataSelection* =nullptr,
 			      const MultiID* =nullptr);
 
     virtual int		findPos(const Interval<float>& x,

@@ -9,10 +9,11 @@ ________________________________________________________________________
 -*/
 
 #include "earthmodelmod.h"
+
 #include "transl.h"
 
-class Executor;
 class IOObj;
+class Task;
 namespace EM { class Body; }
 
 typedef EM::Body	EMBody;
@@ -37,8 +38,8 @@ mExpClass(EarthModel) EMBodyTranslator : public Translator
 public:
 			mDefEmptyTranslatorBaseConstructor(EMBody)
 
-    virtual Executor*	writer(const EM::Body&,IOObj&)		= 0;
-    virtual Executor*	reader(const IOObj&)			= 0;
+    virtual Task*	reader(const IOObj&)			= 0;
+    virtual Task*	writer(const EM::Body&,IOObj&)		= 0;
     virtual EMBody*	getReadBody()				= 0;
     virtual uiString	errMsg() const				= 0;
 };
@@ -53,8 +54,8 @@ public:
 			odEMBodyTranslator(const char* nm,const char* unm);
 			~odEMBodyTranslator();
 
-    Executor*		writer(const EM::Body&,IOObj&) override;
-    Executor*		reader(const IOObj&) override;
+    Task*		reader(const IOObj&) override;
+    Task*		writer(const EM::Body&,IOObj&) override;
 
     bool		implRemove(const IOObj*,bool deep) const override;
     bool		implRename(const IOObj*,const char*) const override;

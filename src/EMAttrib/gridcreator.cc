@@ -9,7 +9,6 @@ ________________________________________________________________________
 
 #include "gridcreator.h"
 
-#include "trckeyzsampling.h"
 #include "emmanager.h"
 #include "emhorizon3d.h"
 #include "emhorizon2d.h"
@@ -20,6 +19,7 @@ ________________________________________________________________________
 #include "iopar.h"
 #include "keystrs.h"
 #include "multiid.h"
+#include "posinfo2d.h"
 #include "randomlinegeom.h"
 #include "seis2ddata.h"
 #include "seisrandlineto2d.h"
@@ -29,6 +29,7 @@ ________________________________________________________________________
 #include "seiswrite.h"
 #include "separstr.h"
 #include "survgeom2d.h"
+#include "trckeyzsampling.h"
 
 
 const char* Seis2DGridCreator::sKeyOverWrite()	{ return "Do Overwrite"; }
@@ -105,7 +106,7 @@ int Seis2DLineCreator::nextStep()
     if ( res == -1 )
     {
 	msg_ = rdr_->errMsg();
-	return ErrorOccurred();	
+	return ErrorOccurred();
     }
 
     if ( res == 0 )
@@ -430,7 +431,7 @@ bool Horizon2DGridCreator::finish( TaskRunner* taskrunner )
 {
     for ( int idx=0; idx<horizons_.size(); idx++ )
     {
-	PtrMan<Executor> saver = horizons_[idx]->saver();
+	PtrMan<Task> saver = horizons_[idx]->saver();
 	TaskRunner::execute( taskrunner, *saver );
     }
 

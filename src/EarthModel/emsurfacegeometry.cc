@@ -808,7 +808,7 @@ bool SurfaceGeometry::isFullResolution() const
 }
 
 
-Executor* SurfaceGeometry::loader( const SurfaceIODataSelection* newsel )
+Task* SurfaceGeometry::loader( const SurfaceIODataSelection* newsel )
 {
     PtrMan<IOObj> ioobj = IOM().get( surface_.multiID() );
     if ( !ioobj )
@@ -856,13 +856,13 @@ Executor* SurfaceGeometry::loader( const SurfaceIODataSelection* newsel )
     else
 	sel.selvalues.erase();
 
-    Executor* exec = trans->reader( surface_ );
+    Task* exec = trans->reader( surface_ );
     surface_.errmsg_ = trans->errMsg();
     return exec;
 }
 
 
-Executor* SurfaceGeometry::saver( const SurfaceIODataSelection* newsel,
+Task* SurfaceGeometry::saver( const SurfaceIODataSelection* newsel,
 			          const MultiID* key )
 {
     const MultiID& mid = key && !key->isUdf() ? *key : surface_.multiID();
@@ -887,7 +887,6 @@ Executor* SurfaceGeometry::saver( const SurfaceIODataSelection* newsel,
 	return nullptr;
     }
 
-
     SurfaceIODataSelection& sel = trans->selections();
     if ( newsel )
     {
@@ -896,7 +895,7 @@ Executor* SurfaceGeometry::saver( const SurfaceIODataSelection* newsel,
 	sel.selsections = newsel->selsections;
     }
 
-    Executor* exec = trans->writer( *ioobj, changed_ );
+    Task* exec = trans->writer( *ioobj, changed_ );
     surface_.errmsg_ = trans->errMsg();
     return exec;
 }

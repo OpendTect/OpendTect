@@ -84,7 +84,7 @@ bool uiHorizonSortDlg::acceptOK( CallBacker* )
 
     const bool sorted = sortFromRelationTree( horids );
     uiTaskRunner taskrunner( this );
-    PtrMan<Executor> horreader = 0;
+    PtrMan<Task> horreader = nullptr;
     if ( !sorted || loadneeded_ )
     {
 	TypeSet<MultiID> loadids;

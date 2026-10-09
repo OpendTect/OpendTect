@@ -212,7 +212,7 @@ bool uiHorSaveFieldGrp::saveHorizon()
 	return false;
 
     const EM::SurfaceIODataSelection sdsel = getSelection( savenew );
-    PtrMan<Executor> exec = savenew ? newhorizon_->geometry().saver( &sdsel )
+    PtrMan<Task> exec = savenew ? newhorizon_->geometry().saver( &sdsel )
 				    : horizon_->geometry().saver( &sdsel );
 
     if ( !exec )

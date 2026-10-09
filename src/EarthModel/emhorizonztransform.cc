@@ -121,7 +121,7 @@ bool HorizonZTransform::usePar( const IOPar& par )
     RefMan<EM::EMObject> emobj = EM::EMM().getObject( emid );
     if ( !emobj )
     {
-	PtrMan<Executor> loader = EM::EMM().objectLoader( mid );
+	PtrMan<Task> loader = EM::EMM().objectLoader( mid );
 	if ( !loader || !loader->execute() ) return false;
 
 	emid = EM::EMM().getObjectID( mid );

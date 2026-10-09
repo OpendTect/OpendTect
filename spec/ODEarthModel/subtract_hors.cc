@@ -18,6 +18,7 @@ ________________________________________________________________________
 #include "emsurfacegeometry.h"
 #include "emposid.h"
 #include "executor.h"
+#include "od_ostream.h"
 #include "ioman.h"
 #include "ioobj.h"
 #include "position.h"
@@ -50,8 +51,12 @@ static EM::Horizon3D* loadHorizon( const char* id, BufferString& err )
 
     std::cerr << "Reading " << ioobj->name() << " ..." << std::endl;
     EM::EMManager& em = EM::EMM();
-    PtrMan<Executor> exec = em.objectLoader( ioobj->key() );
-    exec->execute( &std::cerr );
+    PtrMan<Task> exec = em.objectLoader( ioobj->key() );
+    if ( exec )
+    {
+	TextTaskRunner runner( od_cerr() );
+	runner.execute( *exec );
+    }
     EM::EMObject* emobj = em.getObject( em.getObjectID(ioobj->key()) );
     mDynamicCastGet(EM::Horizon3D*,horizon,emobj)
     if ( !horizon ) { err = "ID "; err += id; err += " is not horizon"; }
@@ -99,7 +104,7 @@ int mProgMainFnName( int argc, char** argv )
     }
 
     std::cerr << "Saving data ..." << std::endl;
-    PtrMan<Executor> saver = addtohor.auxdata.auxDataSaver();
+    PtrMan<Task> saver = addtohor.auxdata.auxDataSaver();
     saver->execute();
     return 0;
 }

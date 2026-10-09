@@ -57,7 +57,7 @@ mExpClass(Tut) ThicknessCalculator : public HorTool
 public:
 			ThicknessCalculator();
 
-    Executor*		dataSaver();
+    Task*		dataSaver();
     void		setAttribName(const char*);
 
     uiString		uiMessage() const override
@@ -81,7 +81,7 @@ public:
 			HorSmoother(EM::Horizon3D&);
 
     void		setWeak( bool yn ) { weak_ = yn; }
-    Executor*		dataSaver(const MultiID&);
+    Task*		dataSaver(const MultiID&);
 
     uiString		uiMessage() const override  { return tr("Smoothing"); }
 

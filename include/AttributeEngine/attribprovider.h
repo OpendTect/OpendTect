@@ -11,7 +11,8 @@ ________________________________________________________________________
 #include "attributeenginemod.h"
 
 #include "attribdesc.h"
-#include "posinfo2dsurv.h"
+#include "binid.h"
+#include "posgeomid.h"
 #include "ranges.h"
 #include "uistring.h"
 
@@ -19,6 +20,7 @@ class BinDataDesc;
 class RegularSeisDataPack;
 class SeisMSCProvider;
 class SeisTrcInfo;
+class TrcKeyZSampling;
 namespace Seis { class SelData; }
 template <class T> class Array2DImpl;
 

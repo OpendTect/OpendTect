@@ -263,15 +263,15 @@ lmkEMFault3DTranslator::~lmkEMFault3DTranslator()
 }
 
 
-Executor* lmkEMFault3DTranslator::reader( EM::Fault3D& hor, Conn* conn,
-					const char* formatfilename )
+Task* lmkEMFault3DTranslator::reader( EM::Fault3D& hor, Conn* conn,
+				      const char* formatfilename )
 {
     return new lmkEMFault3DReader( hor, conn, formatfilename );
 }
 
 
-Executor* lmkEMFault3DTranslator::writer( const EM::Fault3D& hor, Conn* conn,
-					const char* formatfilename )
+Task* lmkEMFault3DTranslator::writer( const EM::Fault3D& hor, Conn* conn,
+				      const char* formatfilename )
 {
-    return 0;
+    return nullptr;
 }

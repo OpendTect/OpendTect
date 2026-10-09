@@ -51,9 +51,9 @@ public:
     Geometry::PolygonSurface* geometryElement() override;
     const Geometry::PolygonSurface* geometryElement() const override;
 
-    Executor*		loader(const SurfaceIODataSelection* =nullptr)
+    Task*		loader(const SurfaceIODataSelection* =nullptr)
 								    override;
-    Executor*		saver(const SurfaceIODataSelection* =nullptr,
+    Task*		saver(const SurfaceIODataSelection* =nullptr,
 			      const MultiID* =nullptr) override;
 
     void		fillPar(IOPar&) const override;
@@ -115,9 +115,9 @@ public:
     const PolygonBodyGeometry&	geometry() const override;
 
     const char*			type() const override	{ return typeStr(); }
-    Executor*			loader() override;
-    Executor*			saver() override;
-    Executor*			saver(IOObj*) override;
+    Task*			loader() override;
+    Task*			saver() override;
+    Task*			saver(IOObj*) override;
 
     ImplicitBody*		createImplicitBody(TaskRunner*,
 						   bool) const override;

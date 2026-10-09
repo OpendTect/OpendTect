@@ -9,9 +9,9 @@ ________________________________________________________________________
 -*/
 
 #include "basicmod.h"
+
 #include "posinfo2d.h"
 #include "separstr.h"
-#include "survgeom.h"
 #include "threadlock.h"
 #include "callback.h"
 #include "idxpair.h"

@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "emsurfaceauxdata.h"
 #include "emsurfaceiodata.h"
 #include "executor.h"
+#include "paralleltask.h"
 #include "ioman.h"
 #include "ioobj.h"
 #include "keystrs.h"
@@ -198,7 +199,7 @@ int SurfaceLimitedFiller::setDataHorizon( const MultiID& mid,
 
     hor3d = newhor;
 
-    Executor* loader = hor3d->auxdata.auxDataLoader( auxdataidx );
+    Task* loader = hor3d->auxdata.auxDataLoader( auxdataidx );
     if ( !loader || !loader->execute() )
     {
 	unRefAndNullPtr( hor3d );

@@ -1370,11 +1370,12 @@ bool FaultTrcDataProvider::init( const TypeSet<MultiID>& faultids,
     EM::SurfaceIOData sd;
     EM::SurfaceIODataSelection sel( sd );
     sd.rg = hrg;
-    ExecutorGroup loadergrp( "Loading Fault" );
+    TaskGroup loadergrp;
+    loadergrp.setName( "Loading Fault" );
     for (int idx = 0; idx < faultids.size(); idx++)
     {
 	if ( !EM::EMM().getObjectID( faultids[idx] ).isValid() )
-	    loadergrp.add( EM::EMM().objectLoader( faultids[idx], &sel ) );
+	    loadergrp.addTask( EM::EMM().objectLoader( faultids[idx], &sel ) );
     }
 
     if ( !TaskRunner::execute(taskrunner, loadergrp) )

@@ -9,13 +9,12 @@ ________________________________________________________________________
 
 #include "emhorizonpreload.h"
 
-#include "bufstring.h"
 #include "emmanager.h"
 #include "emobject.h"
-#include "executor.h"
 #include "ioman.h"
 #include "multiid.h"
 #include "ptrman.h"
+#include "task.h"
 
 namespace EM
 {
@@ -42,7 +41,7 @@ HorizonPreLoader::~HorizonPreLoader()
 
 
 bool HorizonPreLoader::load( const TypeSet<MultiID>& newmids,
-							    TaskRunner* tskr )
+			     TaskRunner* runner )
 {
     errmsg_.setEmpty();
     if ( newmids.isEmpty() )
@@ -52,7 +51,9 @@ bool HorizonPreLoader::load( const TypeSet<MultiID>& newmids,
     uiString msg2;
     int nralreadyloaded = 0;
     int nrproblems = 0;
-    PtrMan<ExecutorGroup> execgrp = new ExecutorGroup("Pre-loading horizons");
+    TaskGroup execgrp;
+    execgrp.setName( "Pre-loading horizons" );
+    int nrtasks = 0;
     ObjectSet<EM::EMObject> emobjects;
     for ( int idx=0; idx<newmids.size(); idx++ )
     {
@@ -70,14 +71,15 @@ bool HorizonPreLoader::load( const TypeSet<MultiID>& newmids,
 	EM::EMObject* emobj = EM::EMM().getObject( emid );
 	if ( !emobj || !emobj->isFullyLoaded() )
 	{
-	    Executor* exec = EM::EMM().objectLoader( newmids[idx] );
+	    PtrMan<Task> exec = EM::EMM().objectLoader( newmids[idx] );
 	    if ( !exec )
 	    {
 		nrproblems++;
 		continue;
 	    }
 
-	    execgrp->add( exec );
+	    execgrp.addTask( exec.release() );
+	    nrtasks++;
 	}
 
 	emid = EM::EMM().getObjectID( newmids[idx] );
@@ -97,7 +99,6 @@ bool HorizonPreLoader::load( const TypeSet<MultiID>& newmids,
 
     msg2.addNewLine();
 
-
     if ( nralreadyloaded > 0 )
     {
 
@@ -109,7 +110,7 @@ bool HorizonPreLoader::load( const TypeSet<MultiID>& newmids,
     if ( nrproblems > 0 )
 	errmsg_.appendPhrase( msg2, uiString::NoSep );
 
-    if ( execgrp->nrExecutors()!=0 &&  !TaskRunner::execute( tskr, *execgrp) )
+    if ( nrtasks!=0 && !TaskRunner::execute(runner,execgrp) )
 	return false;
 
     for ( int idx=0; idx<emobjects.size(); idx++ )

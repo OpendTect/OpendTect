@@ -9,7 +9,7 @@ ________________________________________________________________________
 -*/
 
 #include "basicmod.h"
-#include "posidxpair.h"
+
 #include "typeset.h"
 
 
@@ -59,7 +59,7 @@ protected:
 
     FT		val_;
 
-};	
+};
 
 
 

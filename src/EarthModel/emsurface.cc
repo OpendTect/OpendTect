@@ -261,11 +261,11 @@ bool Surface::isAtEdge( const PosID& posid ) const
 bool Surface::isLoaded() const
 { return geometry().isLoaded(); }
 
-Executor* Surface::saver()
-{ return geometry().saver(); }
-
-Executor* Surface::loader()
+Task* Surface::loader()
 { return geometry().loader(); }
+
+Task* Surface::saver()
+{ return geometry().saver(); }
 
 Geometry::Element* Surface::geometryElementInternal()
 { return geometry().geometryElement(); }

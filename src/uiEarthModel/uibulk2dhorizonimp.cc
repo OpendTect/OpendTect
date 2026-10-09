@@ -20,6 +20,7 @@ ________________________________________________________________________
 #include "mousecursor.h"
 #include "od_helpids.h"
 #include "od_istream.h"
+#include "posinfo2d.h"
 #include "randcolor.h"
 #include "survgeom2d.h"
 #include "survinfo.h"
@@ -414,7 +415,7 @@ bool uiBulk2DHorizonImport::acceptOK( CallBacker* )
 	    continue;
 	}
 
-	PtrMan<Executor> saver = hor->saver();
+	PtrMan<Task> saver = hor->saver();
 	if ( !saver->execute() )
 	{
 	    errors.add( uiStrings::phrCannotSave(toUiString(hornm)) );

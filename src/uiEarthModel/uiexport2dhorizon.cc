@@ -263,7 +263,7 @@ bool uiExport2DHorizon::doExport()
 	RefMan<EM::EMObject> obj = em.getObject( em.getObjectID(horid) );
 	if ( !obj )
 	{
-	    PtrMan<Executor> exec = em.objectLoader( horid );
+	    PtrMan<Task> exec = em.objectLoader( horid );
 	    if ( !exec || !exec->execute() )
 		mErrRet(uiStrings::sCantReadHor())
 

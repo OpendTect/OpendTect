@@ -12,6 +12,7 @@ ________________________________________________________________________
 #include "emobject.h"
 #include "emsurfaceiodata.h"
 #include "executor.h"
+#include "task.h"
 #include "threadwork.h"
 #include "uistrings.h"
 
@@ -31,7 +32,7 @@ public:
 
     MultiID		key_;
     RefMan<EM::EMObject> obj_;
-    Executor*		rdr_	= nullptr;
+    Task*		rdr_	= nullptr;
     Threads::Work*	work_	= nullptr;
     uiString		errmsg_;
 
@@ -249,7 +250,7 @@ float EM::StoredObjAccess::ratioDone( int iobj ) const
     if ( !data_.validIdx(iobj) || isError(iobj) )
 	return 0.f;
 
-    Executor* rdr = data_[iobj]->rdr_;
+    Task* rdr = data_[iobj]->rdr_;
     if ( !rdr )
 	return 1.0f;
 
@@ -330,7 +331,7 @@ int nextStep() override
 } // namespace EM
 
 
-Executor* EM::StoredObjAccess::reader()
+Task* EM::StoredObjAccess::reader()
 {
     return new StoredObjAccessReader( *this );
 }

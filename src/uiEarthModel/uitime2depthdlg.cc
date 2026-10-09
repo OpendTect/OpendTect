@@ -416,7 +416,7 @@ bool uiTime2DepthDlg::acceptOK( CallBacker* )
     RefMan<Surface> surf = surftrans->getTransformedSurface( data->outmid_ );
     if ( surf )
     {
-	PtrMan<Executor> saver = surf->saver();
+	PtrMan<Task> saver = surf->saver();
 	if ( !saver || !TaskRunner::execute(&tskr,*saver) )
 	    mErrRet( tr("Can not save tranformed data.") );
 

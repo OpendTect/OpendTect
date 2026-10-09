@@ -262,7 +262,7 @@ void PolygonBody::fillBodyPar( IOPar& par ) const
 }
 
 
-Executor* PolygonBody::saver()
+Task* PolygonBody::saver()
 {
     PtrMan<IOObj> ioobj = IOM().get( multiID() );
     if ( !ioobj )
@@ -272,25 +272,28 @@ Executor* PolygonBody::saver()
 }
 
 
-Executor* PolygonBody::saver( IOObj* inpioobj )
+Task* PolygonBody::saver( IOObj* inpioobj )
 {
-    dgbSurfaceWriter* res =
-	new dgbSurfaceWriter( inpioobj, typeStr(), *this, false );
+    auto* res = new dgbSurfaceWriter( inpioobj, typeStr(), *this, false );
     res->setWriteOnlyZ( false );
     return res;
 }
 
 
-Executor* PolygonBody::loader()
+Task* PolygonBody::loader()
 {
     PtrMan<IOObj> ioobj = IOM().get( multiID() );
-    if ( !ioobj ) { errmsg_ = uiStrings::sCantFindSurf(); return 0; }
+    if ( !ioobj )
+    {
+	errmsg_ = uiStrings::sCantFindSurf();
+	return nullptr;
+    }
 
-    dgbSurfaceReader* rd = new dgbSurfaceReader( *ioobj, typeStr() );
+    auto* rd = new dgbSurfaceReader( *ioobj, typeStr() );
     if ( !rd->isOK() )
     {
 	delete rd;
-	return 0;
+	return nullptr;
     }
 
     rd->setOutput( *this );
@@ -308,14 +311,14 @@ PolygonBodyGeometry::~PolygonBodyGeometry()
 {}
 
 
-Executor* PolygonBodyGeometry::saver( const SurfaceIODataSelection* newsel,
+Task* PolygonBodyGeometry::saver( const SurfaceIODataSelection* newsel,
 				      const MultiID* key )
 {
     const MultiID& mid = key && !key->isUdf() ? *key : surface_.multiID();
     PtrMan<IOObj> ioobj = IOM().get( mid );
     if ( !ioobj )
     {
-	surface_.setErrMsg(uiStrings::sCantFindSurf() );
+	surface_.setErrMsg( uiStrings::sCantFindSurf() );
 	return nullptr;
     }
 
@@ -323,8 +326,11 @@ Executor* PolygonBodyGeometry::saver( const SurfaceIODataSelection* newsel,
 }
 
 
-Executor* PolygonBodyGeometry::loader( const SurfaceIODataSelection* )
-{ return surface_.loader(); }
+Task* PolygonBodyGeometry::loader( const SurfaceIODataSelection* )
+{
+    return surface_.loader();
+}
+
 
 Geometry::PolygonSurface* PolygonBodyGeometry::geometryElement()
 {
@@ -341,12 +347,16 @@ const Geometry::PolygonSurface* PolygonBodyGeometry::geometryElement() const
 
 
 Geometry::PolygonSurface* PolygonBodyGeometry::createGeometryElement() const
-{ return new Geometry::PolygonSurface; }
+{
+    return new Geometry::PolygonSurface;
+}
 
 
 EMObjectIterator* PolygonBodyGeometry::createIterator(
 					const TrcKeyZSampling* tkzs ) const
-{ return new RowColIterator( surface_, tkzs ); }
+{
+    return new RowColIterator( surface_, tkzs );
+}
 
 
 int PolygonBodyGeometry::nrPolygons() const
@@ -368,7 +378,7 @@ bool PolygonBodyGeometry::insertPolygon( int polygonnr,
 				const Coord3& normal, bool addtohistory )
 {
     Geometry::PolygonSurface* pol = geometryElement();
-    if ( !pol || !pol->insertPolygon(pos, normal, polygonnr, firstknot) )
+    if ( !pol || !pol->insertPolygon(pos,normal,polygonnr,firstknot) )
 	return false;
 
     if ( addtohistory )
@@ -391,7 +401,8 @@ bool PolygonBodyGeometry::removePolygon( int polygonnr,
 					 bool addtohistory )
 {
     Geometry::PolygonSurface* pol = geometryElement();
-    if ( !pol )	return false;
+    if ( !pol )
+	return false;
 
     const StepInterval<int> colrg = pol->colRange( polygonnr );
     if ( colrg.isUdf() || colrg.width() )
@@ -457,7 +468,8 @@ bool PolygonBodyGeometry::removeKnot( const SubID& subid,
 				      bool addtohistory )
 {
     Geometry::PolygonSurface* pol = geometryElement();
-    if ( !pol ) return false;
+    if ( !pol )
+	return false;
 
     RowCol rc = RowCol::fromInt64( subid );
     const Coord3 pos = pol->getKnot( rc );
@@ -499,7 +511,8 @@ void PolygonBodyGeometry::fillPar( IOPar& par ) const
 {
     SectionID sid = SectionID::def();
     const Geometry::PolygonSurface* pol = geometryElement();
-    if ( !pol ) return;
+    if ( !pol )
+	return;
 
     mDefPlgBezierNr( bez, sid.asInt() );
     par.set( bez.buf(), pol->getBezierCurveSmoothness() );
@@ -518,7 +531,8 @@ bool PolygonBodyGeometry::usePar( const IOPar& par )
 {
     SectionID sid = SectionID::def();
     Geometry::PolygonSurface* pol = geometryElement();
-    if ( !pol ) return false;
+    if ( !pol )
+	return false;
 
     int beziernr;
     mDefPlgBezierNr( bez, sid.asInt() );

@@ -9,16 +9,19 @@ ________________________________________________________________________
 -*/
 
 #include "earthmodelmod.h"
+
 #include "typeset.h"
 #include "bufstringset.h"
 #include "emposid.h"
 #include "uistring.h"
 
 class BinIDValueSet;
-class Executor;
+class DataPointSet;
 class IOObj;
+class Task;
 class TrcKey;
 class TrcKeySampling;
+class TrcKeyZSampling;
 
 template <class T> class Array2D;
 namespace Pos { class Filter; }
@@ -26,6 +29,7 @@ namespace Pos { class Filter; }
 namespace EM
 {
 
+class AuxDataPointSetTask;
 class Horizon3D;
 class PosID;
 
@@ -36,13 +40,16 @@ class PosID;
 
 mExpClass(EarthModel) SurfaceAuxData
 { mODTextTranslationClass(SurfaceAuxData)
+friend class AuxDataPointSetTask;
 public:
 			SurfaceAuxData(Horizon3D&);
     virtual		~SurfaceAuxData();
 
-    Executor*		auxDataLoader(int selidx=-1);
-    Executor*		auxDataLoader(const char* nm);
-    Executor*		auxDataSaver(int dataidx=0,bool overwrite=false);
+    Task*		auxDataLoader(int selidx=-1);
+			/*!<selidx==-1: load all*/
+    Task*		auxDataLoader(const char* nm);
+    Task*		auxDataLoader(const TypeSet<int>&);
+    Task*		auxDataSaver(int dataidx=0,bool overwrite=false);
 
     void		removeAll();
 
@@ -103,6 +110,16 @@ public:
 				   const TrcKeySampling* tks=nullptr);
 			/*!tks=nullptr assumes that array has same origin
 			   as horizon*/
+    bool		setArray2Ds(const TypeSet<int>& dataidxs,
+				    const ObjectSet<Array2D<float>>& arrays);
+			/*!< Arrays use the horizon geometry sampling.
+			     Undefined samples are skipped and locked nodes
+			     are left unchanged. */
+    Task*		createDataPointSetTask(DataPointSet&,
+				    TypeSet<float>* shifts=nullptr,
+				    const TrcKeyZSampling* =nullptr,
+				    const TypeSet<int>* auxidxs=nullptr) const;
+			/*!< auxidxs==nullptr selects every named attribute. */
 
     const ObjectSet<BinIDValueSet>& getData() const	{ return auxdata_; }
 

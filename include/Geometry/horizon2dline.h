@@ -9,9 +9,10 @@ ________________________________________________________________________
 -*/
 
 #include "geometrymod.h"
+
+#include "posgeomid.h"
 #include "rowcolsurface.h"
 #include "samplingdata.h"
-#include "posinfo2dsurv.h"
 
 class Plane3;
 class RowCol;

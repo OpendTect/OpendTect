@@ -10,7 +10,6 @@ ________________________________________________________________________
 #include "isopachmaker.h"
 
 #include "emhorizon3d.h"
-#include "executor.h"
 #include "emsurfaceauxdata.h"
 #include "datacoldef.h"
 #include "datapointset.h"
@@ -33,8 +32,7 @@ const char* IsochronMaker::sKeyIsOverWriteYN()
 IsochronMaker::IsochronMaker( const EM::Horizon3D& hor1,
 			      const EM::Horizon3D& hor2,
 			    const char* attrnm, int dataidx, DataPointSet* dps )
-    : Executor("Creating Isochron")
-    , sidcolidx_(mUdf(int))
+    : SequentialTask("Isochron calculator")
     , dataidx_(dataidx)
     , hor1_(&hor1)
     , hor2_(&hor2)
@@ -42,7 +40,6 @@ IsochronMaker::IsochronMaker( const EM::Horizon3D& hor1,
 {
     iter_ = hor1.createIterator();
     totnr_ = iter_->approximateSize();
-
     if ( dps_ )
     {
 	const DataColDef sidcol( "Section ID" );
@@ -53,6 +50,8 @@ IsochronMaker::IsochronMaker( const EM::Horizon3D& hor1,
 		sidcol, PosVecDataSet::NameExact ) - dps_->nrFixedCols();
 	dps_->dataSet().add( new DataColDef(attrnm) );
     }
+
+    msg_ = tr("Creating Isochron");
 }
 
 
@@ -62,9 +61,20 @@ IsochronMaker::~IsochronMaker()
 }
 
 
+uiString IsochronMaker::uiMessage() const
+{
+    return msg_;
+}
+
+
+bool IsochronMaker::doPrepare( od_ostream* strm )
+{
+    return SequentialTask::doPrepare( strm );
+}
+
+
 int IsochronMaker::nextStep()
 {
-    status_ = Running;
     mAllocVarLenArr( float, vals, dps_ ? dps_->bivSet().nrVals() : 0 );
     int startsourceidx = mUdf(int);
     if ( dps_ )
@@ -84,7 +94,7 @@ int IsochronMaker::nextStep()
 	const EM::PosID posid = iter_->next();
 	nrdone_++;
 	if ( !posid.isValid() )
-	    return finishWork();
+	    return Finished();
 
 	const EM::SubID subid = posid.subID();
 	const Coord3 pos1( hor1_->getPos( subid ) );
@@ -133,43 +143,17 @@ int IsochronMaker::nextStep()
 }
 
 
-int IsochronMaker::finishWork()
+bool IsochronMaker::doFinish( bool success, od_ostream* strm )
 {
-    if ( dps_ )
+    if ( success && dps_)
     {
-	dps_->dataChanged();
 	if ( dps_->isEmpty() )
 	{
-	    status_ = NoValuesCollected;
-	    return ErrorOccurred();
+	    msg_ = tr("No Thickness Values Collected");
+	    return false;
 	}
     }
 
-    status_ = Done;
-    return Finished();
+    return success;
 }
 
-
-bool IsochronMaker::saveAttribute( const EM::Horizon3D* hor, int attribidx,
-				   bool overwrite, od_ostream* strm )
-{
-    PtrMan<Executor> datasaver =
-			hor->auxdata.auxDataSaver( attribidx, overwrite );
-    if ( !(datasaver && datasaver->go(strm,false,false)) )
-	return false;
-
-    return true;
-}
-
-
-uiString IsochronMaker::uiMessage() const
-{
-    switch ( status_ )
-    {
-	case NotStarted:	return tr("Initializing Isochron");
-	case Running:		return tr("Calculating Isochron");
-	case NoValuesCollected: return tr("No Thickness Values Collected");
-	case Done:		return tr("Isochron Calculation Complete");
-	default:		return tr("Uknown Status");
-    }
-}

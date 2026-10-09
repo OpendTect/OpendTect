@@ -1047,7 +1047,8 @@ void extractCB( CallBacker* )
 	mid = ioobj->key();
     }
 
-    ExecutorGroup savergroup( "Saving Faults" );
+    TaskGroup savergroup;
+    savergroup.setName( "Saving Faults" );
 
     for( int idx=0; idx< nrflts; idx++ )
     {
@@ -1071,7 +1072,7 @@ void extractCB( CallBacker* )
 	if ( !isbulk )
 	    newflt->setMultiID( mid );
 
-	savergroup.add( newflt->saver() );
+	savergroup.addTask( newflt->saver() );
     }
 
     savergroup.execute();

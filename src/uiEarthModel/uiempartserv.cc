@@ -31,7 +31,6 @@ ________________________________________________________________________
 #include "emsurfaceio.h"
 #include "emsurfaceiodata.h"
 #include "emsurfacetr.h"
-#include "executor.h"
 #include "iodir.h"
 #include "ioman.h"
 #include "ioobj.h"
@@ -41,7 +40,6 @@ ________________________________________________________________________
 #include "surfaceinfo.h"
 #include "survinfo.h"
 #include "variogramcomputers.h"
-#include "varlenarray.h"
 
 #include "uiarray2dchg.h"
 #include "uiarray2dinterpol.h"
@@ -777,7 +775,8 @@ static void selectEMObjects( uiParent* p, RefObjectSet<EM::EMObject>& objs,
     if ( mids.isEmpty() )
 	return;
 
-    ExecutorGroup loaders( exectext );
+    TaskGroup loaders;
+    loaders.setName( exectext );
     for ( int idx=0; idx<mids.size(); idx++ )
     {
 	PtrMan<IOObj> ioobj = IOM().get( mids[idx] );
@@ -794,7 +793,7 @@ static void selectEMObjects( uiParent* p, RefObjectSet<EM::EMObject>& objs,
 
 	object->setMultiID( mids[idx] );
 	objs += object;
-	loaders.add( object->loader() );
+	loaders.addTask( object->loader() );
     }
 
     uiTaskRunner execdlg( p );
@@ -832,7 +831,6 @@ void uiEMPartServer::selectSurfaces( uiParent* p,
     if ( !p )
 	p = parent();
 
-
     uiMultiSurfaceReadDlg dlg( p, typ, zinfo );
     if ( !dlg.go() )
 	return;
@@ -845,12 +843,11 @@ void uiEMPartServer::selectSurfaces( uiParent* p,
     dlg.iogrp()->getSurfaceSelection( sel );
 
     const bool hor3d = EMHorizon3DTranslatorGroup::sGroupName() == typ;
-
     if ( hor3d )
 	selectedrg_ = sel.rg;
 
     TypeSet<MultiID> idstobeloaded;
-    PtrMan<Executor> exec = EM::EMM().objectLoader( surfaceids,
+    PtrMan<Task> loader = EM::EMM().objectLoader( surfaceids,
 						    hor3d ? &sel : &orisel,
 						    &idstobeloaded);
 
@@ -877,10 +874,10 @@ void uiEMPartServer::selectSurfaces( uiParent* p,
 	objstobeloaded += obj;
     }
 
-    if ( exec )
+    if ( loader )
     {
-	uiTaskRunner execdlg( p );
-	if ( !TaskRunner::execute(&execdlg,*exec) )
+	uiTaskRunner runner( p );
+	if ( !runner.execute(*loader.ptr()) )
 	    objs.setEmpty();
     }
 
@@ -900,24 +897,18 @@ bool uiEMPartServer::loadAuxData( const EM::ObjectID& id,
 {
     EM::EMObject* object = EM::EMM().getObject( id );
     mDynamicCastGet( EM::Horizon3D*, hor3d, object );
-    if ( !hor3d ) return false;
+    if ( !hor3d )
+	return false;
 
     if ( removeold )
 	hor3d->auxdata.removeAll();
 
-    bool retval = false;
-    for ( int idx=0; idx<selattribs.size(); idx++ )
-    {
-	Executor* executor = hor3d->auxdata.auxDataLoader( selattribs[idx] );
-	if ( !executor )
-	    continue;
+    PtrMan<Task> task = hor3d->auxdata.auxDataLoader( selattribs );
+    if ( !task )
+	return false;
 
-	uiTaskRunner runer( parent() );
-	if ( runer.execute( *executor) )
-	    retval = true;
-    }
-
-    return retval;
+    uiTaskRunner runner( parent() );
+    return runner.execute( *task );
 }
 
 
@@ -1075,12 +1066,12 @@ bool uiEMPartServer::showLoadAuxDataDlg( const EM::ObjectID& id )
     }
 
     hor3d->auxdata.removeAll();
-    ExecutorGroup exgrp( "Loading Horizon Data" );
-    for ( int idx=0; idx<selattribs.size(); idx++ )
-	exgrp.add( hor3d->auxdata.auxDataLoader(selattribs[idx]) );
+    PtrMan<Task> task = hor3d->auxdata.auxDataLoader( selattribs );
+    if ( !task )
+	return false;
 
     uiTaskRunner exdlg( parent() );
-    return TaskRunner::execute( &exdlg, exgrp );
+    return TaskRunner::execute( &exdlg, *task );
 }
 
 
@@ -1101,7 +1092,7 @@ bool uiEMPartServer::storeObject( const EM::ObjectID& id, bool storeas,
     mDynamicCastGet(EM::Surface*,surface,object);
     mDynamicCastGet(EM::Body*,body,object);
 
-    PtrMan<Executor> exec = nullptr;
+    PtrMan<Task> exec = nullptr;
     MultiID key = object->multiID();
 
     if ( storeas )
@@ -1222,7 +1213,7 @@ bool uiEMPartServer::storeAuxData( const EM::ObjectID& id,
 	}
     }
 
-    PtrMan<Executor> saver = hor3d->auxdata.auxDataSaver(dataidx,overwrite);
+    PtrMan<Task> saver = hor3d->auxdata.auxDataSaver(dataidx,overwrite);
     if ( !saver )
     {
 	uiMSG().error( tr("Cannot save attribute") );
@@ -1282,32 +1273,20 @@ bool uiEMPartServer::getAuxData( const EM::ObjectID& oid, int auxdataidx,
 {
     EM::EMObject* object = EM::EMM().getObject( oid );
     mDynamicCastGet( EM::Horizon3D*, hor3d, object );
+    if ( !hor3d || !hor3d->geometry().geometryElement() )
+	return false;
+
     const StringView nm = hor3d->auxdata.auxDataName( auxdataidx );
-    if ( !hor3d || !hor3d->geometry().geometryElement() || nm.isEmpty() )
+    if ( nm.isEmpty() )
 	return false;
 
     shift = hor3d->auxdata.auxDataShift( auxdataidx );
-    data.dataSet().add( new DataColDef(sKeySectionID()) );
-    data.dataSet().add( new DataColDef(nm) );
-
-    float auxvals[3];
-    auxvals[1] = EM::SectionID::def().asInt();
-
-    PtrMan<EM::EMObjectIterator> iterator = hor3d->createIterator();
-    while ( true )
-    {
-	const EM::PosID pid = iterator->next();
-	if ( !pid.isValid() )
-	    break;
-
-        auxvals[0] = (float) hor3d->getPos( pid ).z_;
-	auxvals[2] = hor3d->auxdata.getAuxDataVal( auxdataidx, pid );
-	BinID bid = BinID::fromInt64( pid.subID() );
-	data.bivSet().add( bid, auxvals );
-    }
-
-    data.dataChanged();
-    return true;
+    TypeSet<int> auxidxs;
+    auxidxs += auxdataidx;
+    uiTaskRunner runner( parent() );
+    PtrMan<Task> task = hor3d->auxdata.createDataPointSetTask( data, nullptr,
+							nullptr, &auxidxs );
+    return task && runner.execute( *task.ptr() );
 }
 
 
@@ -1315,64 +1294,14 @@ bool uiEMPartServer::getAllAuxData( const EM::ObjectID& oid,
 	DataPointSet& data, TypeSet<float>* shifts,
 	const TrcKeyZSampling* cs ) const
 {
-    mDynamicCastGet(EM::Horizon3D*,hor3d,EM::EMM().getObject(oid))
+    mDynamicCastGet(const EM::Horizon3D*,hor3d,EM::EMM().getObject(oid))
     if ( !hor3d || !hor3d->geometry().geometryElement() )
 	return false;
 
-    data.dataSet().add( new DataColDef(sKeySectionID()) );
-
-    BufferStringSet nms;
-    for ( int idx=0; idx<hor3d->auxdata.nrAuxData(); idx++ )
-    {
-	if ( hor3d->auxdata.auxDataName(idx) )
-	{
-	    const char* nm = hor3d->auxdata.auxDataName( idx );
-	    *shifts += hor3d->auxdata.auxDataShift( idx );
-	    nms.add( nm );
-	    data.dataSet().add( new DataColDef(nm) );
-	}
-    }
-
-    data.bivSet().allowDuplicateBinIDs(false);
-    mAllocVarLenArr( float, auxvals, nms.size()+2 );
-    for ( int sidx=0; sidx<hor3d->nrSections(); sidx++ )
-    {
-	if ( !hor3d->geometry().geometryElement() )
-	    continue;
-
-	auxvals[0] = 0;
-	auxvals[1] = EM::SectionID::def().asInt();
-	PtrMan<EM::EMObjectIterator> iterator = hor3d->createIterator( cs );
-	while ( true )
-	{
-	    const EM::PosID pid = iterator->next();
-	    if ( !pid.isValid() )
-		break;
-
-	    BinID bid = BinID::fromInt64( pid.subID() );
-	    if ( cs )
-	    {
-		if ( !cs->hsamp_.includes(bid) )
-		    continue;
-
-		BinID diff = bid - cs->hsamp_.start_;
-		if ( diff.inl() % cs->hsamp_.step_.inl() ||
-		     diff.crl() % cs->hsamp_.step_.crl() )
-		    continue;
-	    }
-
-	    auxvals[0] = hor3d->getZ( bid );
-	    for ( int idx=0; idx<nms.size(); idx++ )
-	    {
-		const int auxidx = hor3d->auxdata.auxDataIndex( nms.get(idx) );
-		auxvals[idx+2] = hor3d->auxdata.getAuxDataVal( auxidx, pid );
-	    }
-	    data.bivSet().add( bid, mVarLenArr(auxvals) );
-	}
-    }
-
-    data.dataChanged();
-    return true;
+    uiTaskRunner runner( parent() );
+    PtrMan<Task> task = hor3d->auxdata.createDataPointSetTask( data, shifts,
+							       cs );
+    return task && runner.execute( *task.ptr() );
 }
 
 
@@ -1589,7 +1518,7 @@ bool uiEMPartServer::loadSurface( const MultiID& mid, bool force,
     if ( !force && EM::EMM().getObject(EM::EMM().getObjectID(mid)) )
 	return true;
 
-    PtrMan<Executor> exec = EM::EMM().objectLoader( mid, newsel );
+    PtrMan<Task> exec = EM::EMM().objectLoader( mid, newsel );
     if ( !exec )
     {
 	PtrMan<IOObj> ioobj = IOM().get(mid);

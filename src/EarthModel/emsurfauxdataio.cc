@@ -9,7 +9,9 @@ ________________________________________________________________________
 
 #include "emsurfauxdataio.h"
 
+#include "arrayndimpl.h"
 #include "ascstream.h"
+#include "binidsurface.h"
 #include "datachar.h"
 #include "datainterp.h"
 #include "emhorizon3d.h"
@@ -17,10 +19,12 @@ ________________________________________________________________________
 #include "file.h"
 #include "ioman.h"
 #include "iopar.h"
-#include "parametricsurface.h"
-#include "streamconn.h"
+#include "paralleltask.h"
 #include "survinfo.h"
 #include "uistrings.h"
+
+#include <istream>
+#include <streambuf>
 
 
 namespace EM
@@ -376,6 +380,9 @@ bool dgbSurfDataReader::readHeader()
 	floatinterpreter_ = new DataInterpreter<float>( writtendatachar );
     }
 
+    if ( stream_ )
+	bodyoffset_ = stream_->position();
+
     return true;
 }
 
@@ -552,5 +559,632 @@ uiString dgbSurfDataReader::uiMessage() const
 
 uiString dgbSurfDataReader::uiNrDoneText() const
 { return tr("Positions Read"); }
+
+
+BufferString findAuxDataFile( const char* fulluserexp, const char* attrnmptr )
+{
+    const StringView attrnm( attrnmptr );
+    const BufferString basefnm( fulluserexp );
+    for ( int idx=0, gap=0; gap<=100; idx++ )
+    {
+	const BufferString fnm =
+		dgbSurfDataWriter::createHovName( basefnm, idx );
+	if ( File::isEmpty(fnm.buf()) )
+	    { gap++; continue; }
+
+	const dgbSurfDataReader rdr( fnm.buf() );
+	if ( attrnm == rdr.dataName() )
+	    return fnm;
+    }
+
+    return BufferString::empty();
+}
+
+
+namespace
+{
+
+class CharRangeBuf : public std::streambuf
+{
+public:
+CharRangeBuf( const char* start, od_int64 len )
+{
+    char* buf = const_cast<char*>( start );
+    setg( buf, buf, buf + len );
+}
+
+protected:
+std::streampos seekoff( std::streamoff off, std::ios_base::seekdir way,
+			std::ios_base::openmode which ) override
+{
+    if ( (which & std::ios_base::in) == 0 )
+	return std::streampos(-1);
+
+    char* ptr = nullptr;
+    if ( way == std::ios_base::beg )
+	ptr = eback() + off;
+    else if ( way == std::ios_base::cur )
+	ptr = gptr() + off;
+    else
+	ptr = egptr() + off;
+
+    if ( ptr < eback() || ptr > egptr() )
+	return std::streampos(-1);
+
+    setg( eback(), ptr, egptr() );
+    return std::streampos( ptr - eback() );
+}
+
+std::streampos seekpos( std::streampos pos,
+			std::ios_base::openmode which ) override
+{ return seekoff( off_type(pos), std::ios_base::beg, which ); }
+
+};
+
+
+class CharRangeStream : public std::istream
+{
+public:
+CharRangeStream( const char* start, od_int64 len )
+    : std::istream(nullptr)
+    , buf_(start,len)
+{ rdbuf( &buf_ ); }
+
+private:
+    CharRangeBuf	buf_;
+};
+
+
+class OneAuxFile
+{
+public:
+			OneAuxFile(const char* fnm, Horizon3D& hor)
+			    : probe_(fnm)
+			    , hor_(hor)
+			{}
+
+			~OneAuxFile();
+    bool		index();
+    bool		prepare();
+    bool		allocArray(const StepInterval<int>& rowrg,
+				   const StepInterval<int>& colrg);
+    bool		ensureText();
+    bool		decode(od_int64 start,od_int64 stop);
+    void		releaseCalcData();
+    void		setGlobalOffset(od_int64 off)	{ globaloff_ = off; }
+    od_int64		globalOffset() const		{ return globaloff_; }
+    od_int64		valueCount() const		{ return nvals_; }
+    int			dataIndex() const		{ return dataidx_; }
+    Array2D<float>*	array()				{ return arr_; }
+    uiString		message() const			{ return msg_; }
+
+private:
+
+    bool		slurp();
+    bool		readHeaderVals(int& nrsections,int& nvals,
+				       od_int64& recpos);
+    bool		putValue(const BinID&,float val);
+
+    dgbSurfDataReader	probe_;
+    Horizon3D&		hor_;
+    int			dataidx_	= -1;
+    uiString		msg_;
+    char*		text_		= nullptr;
+    od_int64		filesz_		= 0;
+    od_int64		recpos_		= 0;
+    od_int64		globaloff_	= 0;
+    int			nvals_		= 0;
+    int			i64sz_		= 0;
+    int			flsz_		= 0;
+    bool		binary_		= false;
+    StepInterval<int>	rowrg_;
+    StepInterval<int>	colrg_;
+    int			nrows_		= 0;
+    int			nrcols_		= 0;
+    Array2D<float>*	arr_		= nullptr;
+    TypeSet<od_int64>	ascoffs_;
+};
+
+
+bool OneAuxFile::prepare()
+{
+    if ( !probe_.dataName() )
+    {
+	msg_ = probe_.errMsg().isEmpty()
+	    ? uiStrings::phrCannotRead( dgbSurfDataReader::sHorizonData() )
+	    : probe_.errMsg();
+	return false;
+    }
+
+    dataidx_ = hor_.auxdata.addAuxData( probe_.dataName() );
+    hor_.auxdata.setAuxDataShift( dataidx_, probe_.shift() );
+    return true;
+}
+
+
+bool OneAuxFile::slurp()
+{
+    filesz_ = File::getFileSize( probe_.fileName() );
+    if ( filesz_ < 0 )
+    {
+	msg_ = uiStrings::phrCannotRead( dgbSurfDataReader::sHorizonData() );
+	return false;
+    }
+
+    delete [] text_;
+    text_ = nullptr;
+    if ( filesz_ == 0 )
+	return true;
+
+    mTryAlloc( text_, char[filesz_+1] );
+    if ( !text_ )
+    {
+	msg_ = ::toUiString("Not enough memory to read horizon data");
+	return false;
+    }
+
+    od_istream strm( probe_.fileName() );
+    if ( !strm.isOK() || !strm.getBin(text_,filesz_) )
+    {
+	delete [] text_;
+	text_ = nullptr;
+	msg_ = uiStrings::phrCannotRead( dgbSurfDataReader::sHorizonData() );
+	return false;
+    }
+
+    text_[filesz_] = '\0';
+    return true;
+}
+
+
+bool OneAuxFile::readHeaderVals( int& nrsections, int& nvals, od_int64& recpos )
+{
+    nrsections = 0;
+    nvals = 0;
+    recpos = probe_.bodyOffset();
+    if ( recpos < 0 || !text_ || recpos > filesz_ )
+	return true;
+
+    binary_ = probe_.isBinary();
+    if ( binary_ )
+    {
+	const char* p = text_ + recpos;
+	const char* end = text_ + filesz_;
+	const DataInterpreter<int>* di = probe_.intInterpreter();
+	if ( !di )
+	    return false;
+
+	const int isz = di->nrBytes();
+	if ( p + 3*isz > end )
+	    return true;
+
+	nrsections = di->get( p, 0 );
+	p += isz;
+	p += isz;
+	nvals = di->get( p, 0 );
+	p += isz;
+	recpos = p - text_;
+	if ( nrsections != 1 )
+	{
+	    msg_ = ::toUiString(
+			"Cannot read horizon data with more than one section");
+	    return false;
+	}
+
+	i64sz_ = probe_.int64Interpreter()
+			? probe_.int64Interpreter()->nrBytes() : 0;
+	flsz_ = probe_.floatInterpreter()
+			? probe_.floatInterpreter()->nrBytes() : 0;
+	if ( i64sz_<=0 || flsz_<=0 )
+	    return false;
+
+	return true;
+    }
+
+    CharRangeStream crs( text_, filesz_ );
+    od_istream strm( crs );
+    if ( recpos > 0 )
+	strm.setReadPosition( recpos );
+    if ( !strm.isOK() )
+	return false;
+
+    if ( strm.get(nrsections).isBad() )
+	return true;
+
+    int sectionid = -1;
+    if ( strm.get(sectionid).isBad() || strm.get(nvals).isBad() )
+	return false;
+
+    if ( nrsections != 1 )
+    {
+	msg_ = ::toUiString(
+			"Cannot read horizon data with more than one section");
+	return false;
+    }
+
+    ascoffs_.setSize( nvals, 0 );
+    for ( int idx=0; idx<nvals; idx++ )
+    {
+	ascoffs_[idx] = strm.position();
+	od_int64 subid;
+	float val;
+	if ( strm.get(subid).isBad() || strm.get(val).isBad() )
+	    return false;
+    }
+
+    return true;
+}
+
+
+bool OneAuxFile::decode( od_int64 start, od_int64 stop )
+{
+    if ( start > stop )
+	return true;
+
+    if ( binary_ )
+    {
+	const DataInterpreter<od_int64>* i64 = probe_.int64Interpreter();
+	const DataInterpreter<float>* flt = probe_.floatInterpreter();
+	const int rec = i64sz_ + flsz_;
+	const char* base = text_ + recpos_;
+	const char* end = text_ + filesz_;
+	for ( od_int64 idx=start; idx<=stop; idx++ )
+	{
+	    const char* p = base + idx * rec;
+	    if ( p + rec > end )
+		return false;
+
+	    const od_int64 subid = i64->get( p, 0 );
+	    const float val = flt->get( p + i64sz_, 0 );
+	    if ( !putValue(BinID::fromInt64(subid),val) )
+		return false;
+	}
+
+	return true;
+    }
+
+    CharRangeStream crs( text_, filesz_ );
+    od_istream strm( crs );
+    for ( od_int64 idx=start; idx<=stop; idx++ )
+    {
+	strm.setReadPosition( ascoffs_[(int)idx] );
+	if ( !strm.isOK() )
+	    return false;
+
+	od_int64 subid;
+	float val;
+	if ( strm.get(subid).isBad() || strm.get(val).isBad() )
+	    return false;
+
+	if ( !putValue(BinID::fromInt64(subid),val) )
+	    return false;
+    }
+
+    return true;
+}
+
+
+bool OneAuxFile::putValue( const BinID& bid, float val )
+{
+    if ( !arr_ || !arr_->getData() )
+	return false;
+    if ( !rowrg_.includes(bid.inl(),false) ||
+	 !colrg_.includes(bid.crl(),false) )
+	return true;
+    if ( (bid.inl()-rowrg_.start_) % rowrg_.step_ ||
+	 (bid.crl()-colrg_.start_) % colrg_.step_ )
+	return true;
+
+    const int rowidx = rowrg_.getIndex( bid.inl() );
+    const int colidx = colrg_.getIndex( bid.crl() );
+    if ( rowidx<0 || colidx<0 || rowidx>=nrows_ || colidx>=nrcols_ )
+	return true;
+
+    arr_->getData()[(od_int64)rowidx*nrcols_ + colidx] = val;
+    return true;
+}
+
+
+bool OneAuxFile::index()
+{
+    if ( !slurp() )
+	return false;
+
+    int nrsections = 0;
+    od_int64 recpos = 0;
+    if ( !readHeaderVals(nrsections,nvals_,recpos) )
+    {
+	if ( msg_.isEmpty() )
+	    msg_ = uiStrings::phrCannotRead(
+				dgbSurfDataReader::sHorizonData() );
+	return false;
+    }
+
+    recpos_ = recpos;
+    return true;
+}
+
+
+bool OneAuxFile::allocArray( const StepInterval<int>& rowrg,
+			    const StepInterval<int>& colrg )
+{
+    deleteAndNullPtr( arr_ );
+    rowrg_ = rowrg;
+    colrg_ = colrg;
+    nrows_ = 0;
+    nrcols_ = 0;
+    if ( nvals_ <= 0 )
+	return true;
+
+    nrows_ = rowrg_.nrSteps() + 1;
+    nrcols_ = colrg_.nrSteps() + 1;
+    if ( rowrg_.step_<=0 || colrg_.step_<=0 || nrows_<=0 || nrcols_<=0 )
+    {
+	msg_ = uiStrings::phrCannotRead( dgbSurfDataReader::sHorizonData() );
+	return false;
+    }
+
+    PtrMan<Array2D<float> > arr =
+			new Array2DImpl<float>( nrows_, nrcols_ );
+    if ( !arr || !arr->isOK() )
+    {
+	msg_ = ::toUiString("Not enough memory to read horizon data");
+	return false;
+    }
+
+    arr->setAll( mUdf(float) );
+    arr_ = arr.release();
+    return true;
+}
+
+
+bool OneAuxFile::ensureText()
+{
+    return text_ || slurp();
+}
+
+
+void OneAuxFile::releaseCalcData()
+{
+    delete [] text_;
+    text_ = nullptr;
+    delete arr_;
+    arr_ = nullptr;
+}
+
+
+OneAuxFile::~OneAuxFile()
+{
+    releaseCalcData();
+}
+
+
+class AuxGroupTask : public ParallelTask
+{ mODTextTranslationClass(AuxGroupTask);
+public:
+    AuxGroupTask( Horizon3D& hor, const BufferStringSet& fnms )
+	: ParallelTask("Surface attributes reader")
+	, hor_(hor)
+    {
+	for ( int idx=0; idx<fnms.size(); idx++ )
+	    files_ += new OneAuxFile( fnms.get(idx).buf(), hor_ );
+
+	od_int64 offset = 0;
+	prepok_ = true;
+	for ( int idx=0; idx<files_.size(); idx++ )
+	{
+	    OneAuxFile& file = *files_[idx];
+	    if ( !file.index() )
+	    {
+		msg_ = file.message();
+		prepok_ = false;
+		break;
+	    }
+
+	    file.setGlobalOffset( offset );
+	    offset += file.valueCount();
+	}
+
+	total_ = offset;
+	if ( prepok_ && total_>0 )
+	{
+	    const Geometry::BinIDSurface* geom =
+				hor_.geometry().geometryElement();
+	    if ( !geom || geom->isEmpty() )
+	    {
+		msg_ = tr("Cannot read surface attributes without "
+			  "horizon geometry");
+		prepok_ = false;
+	    }
+	    else
+	    {
+		rowrg_ = geom->rowRange();
+		colrg_ = geom->colRange();
+		if ( rowrg_.step_<=0 || colrg_.step_<=0 )
+		{
+		    msg_ = tr("Cannot read surface attributes without "
+			      "horizon geometry");
+		    prepok_ = false;
+		}
+	    }
+	}
+
+	if ( prepok_ )
+	{
+	    for ( int idx=0; idx<files_.size(); idx++ )
+	    {
+		if ( !files_[idx]->prepare() )
+		{
+		    msg_ = files_[idx]->message();
+		    prepok_ = false;
+		    break;
+		}
+	    }
+	}
+
+	if ( prepok_ && !total_ )
+	{
+	    for ( int idx=0; idx<files_.size(); idx++ )
+		files_[idx]->releaseCalcData();
+	}
+
+	if ( prepok_ && colrg_.step_>0 )
+	{
+	    const int nrcols = colrg_.nrSteps() + 1;
+	    if ( nrcols>1 && total_>=nrcols )
+		pergridline_ = nrcols;
+	}
+
+	if ( prepok_ )
+	    msg_ = tr("Reading surface attributes");
+    }
+
+    ~AuxGroupTask()
+    {
+	deepErase( files_ );
+    }
+
+    uiString uiMessage() const override
+    { return msg_; }
+
+    uiString uiNrDoneText() const override
+    {
+	return pergridline_>1 ? tr("Gridlines read") : tr("Positions read");
+    }
+
+    od_int64 nrIterations() const override
+    { return prepok_ ? total_ : 0; }
+
+    double progressFactor() const override
+    { return pergridline_>1 ? 1./pergridline_ : 1.; }
+
+    int minThreadSize() const override
+    { return 1024; }
+
+    bool executeParallel( bool parallel ) override
+    { return prepok_ && ParallelTask::executeParallel(parallel); }
+
+private:
+
+    bool doPrepare( int ) override
+    {
+	for ( int idx=0; idx<files_.size(); idx++ )
+	{
+	    OneAuxFile& file = *files_[idx];
+	    if ( !file.ensureText() )
+	    {
+		msg_ = file.message();
+		return false;
+	    }
+
+	    if ( !file.allocArray(rowrg_,colrg_) )
+	    {
+		msg_ = file.message();
+		return false;
+	    }
+	}
+
+	return true;
+    }
+
+
+    bool doWork( od_int64 start, od_int64 stop, int ) override
+    {
+	const od_int64 chunksz = 100000;
+	for ( int idx=0; idx<files_.size(); idx++ )
+	{
+	    OneAuxFile& file = *files_[idx];
+	    const od_int64 nvals = file.valueCount();
+	    if ( nvals <= 0 )
+		continue;
+
+	    const od_int64 file0 = file.globalOffset();
+	    const od_int64 file1 = file0 + nvals - 1;
+	    if ( file1<start || file0>stop )
+		continue;
+
+	    const od_int64 localstart = start>file0 ? start-file0 : 0;
+	    const od_int64 localstop = stop<file1 ? stop-file0 : nvals-1;
+	    for ( od_int64 pos=localstart; pos<=localstop; )
+	    {
+		if ( !shouldContinue() )
+		    return false;
+
+		const od_int64 substop = mMIN( localstop, pos+chunksz-1 );
+		if ( !file.decode(pos,substop) )
+		{
+		    msg_ = file.message();
+		    if ( msg_.isEmpty() )
+			msg_ = uiStrings::phrCannotRead(
+					dgbSurfDataReader::sHorizonData() );
+		    return false;
+		}
+
+		addToNrDone( substop-pos+1 );
+		pos = substop + 1;
+	    }
+	}
+
+	return true;
+    }
+
+
+    bool doFinish( bool success ) override
+    {
+	bool res = success;
+	if ( res )
+	    res = commitArrays();
+
+	if ( !res && msg_.isEmpty() )
+	    msg_ = uiStrings::phrCannotRead(
+				dgbSurfDataReader::sHorizonData() );
+
+	for ( int idx=0; idx<files_.size(); idx++ )
+	    files_[idx]->releaseCalcData();
+
+	return res;
+    }
+
+    bool commitArrays()
+    {
+	TypeSet<int> dataidxs;
+	ObjectSet<Array2D<float>> arrays;
+	for ( int idx=0; idx<files_.size(); idx++ )
+	{
+	    Array2D<float>* arr = files_[idx]->array();
+	    if ( !arr )
+		continue;
+
+	    dataidxs += files_[idx]->dataIndex();
+	    arrays += arr;
+	}
+
+	if ( arrays.isEmpty() )
+	    return true;
+
+	if ( hor_.auxdata.setArray2Ds(dataidxs,arrays) )
+	    return true;
+
+	msg_ = uiStrings::phrCannotRead( dgbSurfDataReader::sHorizonData() );
+	return false;
+    }
+
+    Horizon3D&			hor_;
+    ObjectSet<OneAuxFile>	files_;
+    StepInterval<int>		rowrg_;
+    StepInterval<int>		colrg_;
+    od_int64			total_		= 0;
+    int				pergridline_	= 1;
+    bool			prepok_		= false;
+    uiString			msg_;
+};
+
+} // namespace
+
+
+ParallelTask* createAuxDataTask( Horizon3D& hor, const BufferStringSet& fnms )
+{
+    return new AuxGroupTask( hor, fnms );
+}
 
 } // namespace EM

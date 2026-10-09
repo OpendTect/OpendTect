@@ -10,41 +10,35 @@ ________________________________________________________________________
 
 #include "emattribmod.h"
 
-#include "executor.h"
 #include "emposid.h"
 #include "stattype.h"
+#include "task.h"
 #include "trckeysampling.h"
 
-class od_ostream;
+class TaskRunner;
 class SeisTrcReader;
 
 namespace EM { class Horizon3D; }
 namespace Attrib { class DescSet; class Processor; }
 
-mExpClass(EMAttrib) StratAmpCalc  : public Executor
+mExpClass(EMAttrib) StratAmpCalc  : public SequentialTask
 { mODTextTranslationClass(StratAmpCalc)
 public:
 
     enum class SumMode		{ All, Positive, Negative };
 
-			StratAmpCalc(const EM::Horizon3D*,const EM::Horizon3D*,
-				     const TrcKeySampling&,bool);
+			StratAmpCalc(const EM::Horizon3D&,const EM::Horizon3D*,
+				     const TrcKeySampling&,bool outputfold);
 			~StratAmpCalc();
-
-    int			nextStep() override;
-    od_int64		totalNr() const override	{ return totnr_; }
-    od_int64		nrDone() const override		{ return nrdone_; }
 
     uiString		uiMessage() const override	{ return msg_; }
     uiString		uiNrDoneText() const override;
 
-    bool		init(const IOPar&);
-    bool		saveAttribute(const EM::Horizon3D&,int dataidx,
-				      bool overwrite,int foldidx=-1,
-				      od_ostream* s=nullptr);
+    bool		usePar(const IOPar&);
+
     const TypeSet<int>& attribIdxs() const;
     const TypeSet<int>& foldAttribIdxs() const;
-    bool		doOutputFold() const;
+    int			getFoldIdx() const;
 
     static const char*	sKeyTopHorizonID();
     static const char*	sKeyBottomHorizonID();
@@ -58,10 +52,14 @@ public:
     static const char*	sKeyIsClassification();
     static const char*	sKeyIsOverwriteYN();
 
-    mDeprecated("Skip the Stats type argument, it is set in the init function")
-			StratAmpCalc(const EM::Horizon3D*,const EM::Horizon3D*,
-				     Stats::Type,const TrcKeySampling&,bool);
-protected:
+private:
+
+    bool		doPrepare(od_ostream* =nullptr) override;
+    int			nextStep() override;
+    bool		doFinish(bool success,od_ostream* =nullptr) override;
+
+    od_int64		totalNr() const override	{ return totnr_; }
+    od_int64		nrDone() const override		{ return nrdone_; }
 
     Stats::Type			stattyp_;
     SumMode			summode_			= SumMode::All;
@@ -85,7 +83,5 @@ protected:
     Attrib::DescSet*		descset_;
     Attrib::Processor*		proc_				= nullptr;
 
-private:
-
-    uiString			msg_;
+    mutable uiString		msg_;
 };

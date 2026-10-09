@@ -12,16 +12,16 @@ ________________________________________________________________________
 
 #include "datapointset.h"
 #include "emhorizon3d.h"
-#include "executor.h"
+#include "task.h"
 
-class od_ostream;
+class TaskRunner;
 namespace EM { class Horizon3D; class EMObjectIterator; }
 
 
 // Will calculate the distance between hor2 and hor1 (hor2-hor1).
 // When signed_=false (default) the result is the absolute value
 
-mExpClass(EarthModel) IsochronMaker : public Executor
+mExpClass(EarthModel) IsochronMaker : public SequentialTask
 { mODTextTranslationClass(IsochronMaker)
 public:
 			IsochronMaker(const EM::Horizon3D& hor1,
@@ -30,40 +30,33 @@ public:
 				      DataPointSet* dps=nullptr);
 			~IsochronMaker();
 
-    int			nextStep() override;
-    int			finishWork();
     uiString		uiMessage() const override;
     uiString		uiNrDoneText() const override
 			{ return tr("Positions handled"); }
-    od_int64		nrDone() const override		{ return nrdone_; }
-    od_int64		totalNr() const override	{ return totnr_; }
 
     void		useSignedValue( bool yn )	{ signed_ = yn; }
     void		setUnits( const bool isinmsc )	{ inmsec_ = isinmsc; }
-    bool		saveAttribute(const EM::Horizon3D*,int attribidx,
-				      bool overwrite,od_ostream* strm=0);
+
     static const char*	sKeyHorizonID();
     static const char*	sKeyCalculateToHorID();
     static const char*	sKeyAttribName();
     static const char*	sKeyOutputInMilliSecYN();
     static const char*	sKeyIsOverWriteYN();
 
-protected:
+private:
 
-    enum IsochronMakerStatus
-    {
-	NotStarted,
-	Running,
-	NoValuesCollected,
-	Done
-    };
+    bool		doPrepare(od_ostream* =nullptr) override;
+    int			nextStep() override;
+    bool		doFinish(bool success,od_ostream* =nullptr) override;
 
-    IsochronMakerStatus		status_			= NotStarted;
+    od_int64		nrDone() const override		{ return nrdone_; }
+    od_int64		totalNr() const override	{ return totnr_; }
 
     int				totnr_;
     od_int64			nrdone_			= 0;
+    mutable uiString		msg_;
 
-    int				sidcolidx_;
+    int				sidcolidx_		= mUdf(int);
     int				dataidx_;
     ConstRefMan<EM::Horizon3D>	hor1_;
     ConstRefMan<EM::Horizon3D>	hor2_;

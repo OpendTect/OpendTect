@@ -264,7 +264,7 @@ bool acceptOK( CallBacker* ) override
     modifier.setStaticHorizon( topisstatic );
     modifier.doWork();
 
-    PtrMan<Executor> exec = !saveas ? emobj->saver() : outemobj->saver();
+    PtrMan<Task> exec = !saveas ? emobj->saver() : outemobj->saver();
     if ( !exec )
 	mErrRet(uiStrings::phrCannotSave(uiStrings::sHorizon(1)));
 

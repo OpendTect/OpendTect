@@ -9,13 +9,18 @@ ________________________________________________________________________
 -*/
 
 #include "generalmod.h"
+
 #include "posprovider.h"
 #include "transl.h"
 #include "sortedlist.h"
 #include <tuple>
 
+class TrcKeySampling;
+class TrcKeyZSampling;
+
 namespace PosInfo { class Line2DData; }
 namespace Stats { class RandGen; }
+namespace Survey { class Geometry2D; }
 
 mDeclEmptyTranslatorBundle(General,PosProviders,dgb,"subsel")
 
@@ -60,9 +65,8 @@ public:
     void		getTrcKeyZSampling(TrcKeyZSampling&) const override;
 
     const TrcKeyZSampling&	sampling() const	{ return tkzs_; }
-    void		setSampling( const TrcKeyZSampling& tkzs );
-    void		setHSampling( const TrcKeySampling& tks ) const
-						{ tkzs_.hsamp_ = tks; }
+    void		setSampling(const TrcKeyZSampling&);
+    void		setHSampling(const TrcKeySampling&) const;
 
     bool		includes( const Coord& c,
 				  float z=mUdf(float) ) const override

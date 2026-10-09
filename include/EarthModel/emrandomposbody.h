@@ -46,9 +46,9 @@ public:
     bool			setPos(const SubID&,
 				    const Coord3&,bool addtohistory) override;
     const IOObjContext&		getIOObjContext() const override;
-    Executor*			saver() override;
-    virtual Executor*		saver(IOObj*);
-    Executor*			loader() override;
+    Task*			loader() override;
+    Task*			saver() override;
+    virtual Task*		saver(IOObj*);
     bool			isEmpty() const override;
 
     ImplicitBody*		createImplicitBody(TaskRunner*,

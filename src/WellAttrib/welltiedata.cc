@@ -361,7 +361,7 @@ void WellTie::HorizonMgr::setUpHorizons( const TypeSet<MultiID>& horids,
 	if ( !emobj || !emobj->isFullyLoaded() )
 	{
 	    success = false;
-	    PtrMan<Executor> exec = em.objectLoader( horids[idx] );
+	    PtrMan<Task> exec = em.objectLoader( horids[idx] );
 	    if ( exec )
 	    {
 		if ( TaskRunner::execute( &taskr, *exec ) )

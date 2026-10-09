@@ -21,7 +21,7 @@ class Undo;
 class IOObj;
 class IOObjContext;
 class TaskRunner;
-class Executor;
+class Task;
 class uiEMPartServer;
 class ZAxisTransform;
 
@@ -118,9 +118,9 @@ public:
 
     void		setEmpty();
 
-    Executor*		objectLoader(const MultiID&,
+    Task*		objectLoader(const MultiID&,
 				    const SurfaceIODataSelection* =nullptr);
-    Executor*		objectLoader(const TypeSet<MultiID>&,
+    Task*		objectLoader(const TypeSet<MultiID>&,
 				    const SurfaceIODataSelection* =nullptr,
 				    TypeSet<MultiID>* idstobeloaded =nullptr);
 			/*!< idstobeloaded are the ids for which the objects

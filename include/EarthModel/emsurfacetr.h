@@ -9,13 +9,13 @@ ________________________________________________________________________
 -*/
 
 #include "earthmodelmod.h"
+
 #include "emsurfaceiodata.h"
 #include "transl.h"
-#include "zaxistransform.h"
 #include "uistring.h"
 
-class Executor;
 class IOObj;
+class Task;
 
 namespace EM
 {
@@ -125,13 +125,14 @@ public:
 
     EM::SurfaceIODataSelection& selections()		{ return sels_; }
 
-    virtual Executor*		reader(EM::Surface&)	{ return nullptr; }
-				/*!< Executor is managed by client. */
-    Executor*			writer(const IOObj&,bool fullimplremove=true);
-				/*!< Executor is managed by client. */
-    virtual Executor*		getAuxdataReader(EM::Surface&,int)
+    virtual Task*		reader(EM::Surface&)	{ return nullptr; }
+				/*!< Task is managed by client. */
+    Task*			writer(const IOObj&,bool fullimplremove=true);
+				/*!< Task is managed by client. */
+    virtual Task*		getAuxdataReader(EM::Surface&,int)
+				/*!<selidx==-1: read all*/
 				{ return nullptr; }
-    virtual Executor*		getAuxdataWriter(const EM::Surface&,int,
+    virtual Task*		getAuxdataWriter(const EM::Surface&,int,
 						 bool dooverwrite=false)
 				{ return nullptr; }
 
@@ -161,7 +162,7 @@ protected:
 
     virtual bool		prepRead()		{ return true; }
     virtual bool		prepWrite()		{ return true; }
-    virtual Executor*		getWriter()		{ return 0; }
+    virtual Task*		getWriter()		{ return nullptr; }
 
     void			init(const EM::Surface*,const IOObj*);
     void			setIOObj(const IOObj*);
@@ -177,7 +178,7 @@ mExpClass(EarthModel) dgbEMSurfaceTranslator : public EMSurfaceTranslator
 public:
 				~dgbEMSurfaceTranslator();
 
-    Executor*			reader(EM::Surface&) override;
+    Task*			reader(EM::Surface&) override;
 
 protected:
 				dgbEMSurfaceTranslator(const char* nm,
@@ -188,7 +189,7 @@ protected:
     void			getSels(StepInterval<int>&,StepInterval<int>&);
 
     bool			prepRead() override;
-    Executor*			getWriter() override;
+    Task*			getWriter() override;
 
     virtual bool		readOnlyZ() const		{ return true; }
     virtual bool		writeOnlyZ() const		{ return true; }
@@ -210,8 +211,8 @@ public:
 						       const char* usernm);
 				~dgbEMHorizon3DTranslator();
 
-    Executor*			getAuxdataReader(EM::Surface&,int) override;
-    Executor*			getAuxdataWriter(const EM::Surface&,int,
+    Task*			getAuxdataReader(EM::Surface&,int) override;
+    Task*			getAuxdataWriter(const EM::Surface&,int,
 						    bool ovwrt=false) override;
 
 protected:
@@ -292,8 +293,8 @@ mExpClass(EarthModel) EMFaultSet3DTranslator : public Translator
 public:
 				~EMFaultSet3DTranslator();
 
-    virtual Executor*		writer(const EM::FaultSet3D&,const IOObj&) = 0;
-    virtual Executor*		reader(EM::FaultSet3D&,const IOObj&)	= 0;
+    virtual Task*		writer(const EM::FaultSet3D&,const IOObj&) = 0;
+    virtual Task*		reader(EM::FaultSet3D&,const IOObj&)	= 0;
 
 protected:
 				EMFaultSet3DTranslator(const char* nm,
@@ -309,9 +310,9 @@ public:
 						       const char* usernm);
 				~dgbEMFaultSet3DTranslator();
 
-    Executor*			writer(const EM::FaultSet3D&,
+    Task*			reader(EM::FaultSet3D&,const IOObj&) override;
+    Task*			writer(const EM::FaultSet3D&,
 				       const IOObj&) override;
-    Executor*			reader(EM::FaultSet3D&,const IOObj&) override;
 };
 
 

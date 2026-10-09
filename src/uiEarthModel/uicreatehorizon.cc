@@ -92,7 +92,7 @@ bool uiCreateHorizon::acceptOK( CallBacker* )
 
     uiTaskRunner uitr( this );
     hor3d->setMultiID( outfld_->selIOObj()->key() );
-    PtrMan<Executor> saver = hor3d->saver();
+    PtrMan<Task> saver = hor3d->saver();
     if ( !saver || !uitr.execute(*saver) )
     {
 	uiMSG().error( tr("Cannot save horizon") );

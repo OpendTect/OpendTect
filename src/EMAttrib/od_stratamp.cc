@@ -12,15 +12,14 @@ ________________________________________________________________________
 #include "emhorizon3d.h"
 #include "emmanager.h"
 #include "emobject.h"
+#include "emsurfaceauxdata.h"
 #include "emsurfaceiodata.h"
+#include "executor.h"
 #include "genc.h"
 #include "iopar.h"
 #include "keystrs.h"
-#include "moddepmgr.h"
 #include "multiid.h"
 #include "stratamp.h"
-
-#include <iostream>
 
 
 static bool getHorsampling( const IOPar& par, TrcKeySampling& hs )
@@ -36,28 +35,20 @@ static bool getHorsampling( const IOPar& par, TrcKeySampling& hs )
 
 static ConstRefMan<EM::Horizon3D> loadHorizon( const MultiID& mid,
 					       const TrcKeySampling& hs,
-					       od_ostream& strm )
+					       TaskRunner& runner )
 {
     EM::EMManager& em = EM::EMM();
     EM::SurfaceIOData sd;
     EM::SurfaceIODataSelection sdsel( sd );
     sdsel.rg = hs;
-    strm << "Loading " << em.objectName( mid ) << od_newline;
-    Executor* exec = em.objectLoader( mid, &sdsel );
-    TextTaskRunner taskr( strm );
-    if ( !exec || !taskr.execute(*exec) )
+    PtrMan<Task> loader = em.objectLoader( mid, &sdsel );
+    if ( !loader || !runner.execute(*loader.ptr()) )
 	return nullptr;
 
     EM::ObjectID emid = em.getObjectID( mid );
     ConstRefMan<EM::EMObject> emobj = em.getObject( emid );
     if ( !emobj )
-    {
-	BufferString msg;
-	msg = "Error while loading horizon '";
-	msg.add( em.objectName( mid ) ).add( "'" );
-	strm << msg << od_newline;
 	return nullptr;
-    }
 
     ConstRefMan<EM::Horizon3D> horizon = dCast( const EM::Horizon3D*,
 						emobj.ptr() );
@@ -69,6 +60,8 @@ mLoad3Modules("EMAttrib","WellAttrib","PreStackProcessing")
 
 bool BatchProgram::doWork( od_ostream& strm )
 {
+    strm << GetProjectVersionName() << od_newline;
+    TextTaskRunner runner( strm );
     TrcKeySampling hs;
     if ( !getHorsampling( pars(), hs ) )
 	return false;
@@ -77,9 +70,7 @@ bool BatchProgram::doWork( od_ostream& strm )
     pars().getYN( StratAmpCalc::sKeySingleHorizonYN(), usesingle );
     MultiID mid1;
     pars().get( StratAmpCalc::sKeyTopHorizonID(), mid1 );
-    strm << GetProjectVersionName() << od_newline;
-    strm << "Loading horizons ..." << od_newline;
-    ConstRefMan<EM::Horizon3D> tophor = loadHorizon( mid1, hs, strm );
+    ConstRefMan<EM::Horizon3D> tophor = loadHorizon( mid1, hs, runner );
     if ( !tophor )
 	return false;
 
@@ -88,51 +79,46 @@ bool BatchProgram::doWork( od_ostream& strm )
     {
 	MultiID mid2;
 	pars().get( StratAmpCalc::sKeyBottomHorizonID(), mid2 );
-	bothor = loadHorizon( mid2, hs, strm );
+	bothor = loadHorizon( mid2, hs, runner );
 	if ( !bothor )
 	    return false;
     }
 
-    strm << "Horizon(s) loaded successfully" << od_newline;
-
     bool outputfold = false;
     pars().getYN( StratAmpCalc::sKeyOutputFoldYN(), outputfold );
-    StratAmpCalc exec( tophor.ptr(), usesingle ? nullptr : bothor.ptr(),
+    StratAmpCalc exec( *tophor.ptr(), usesingle ? nullptr : bothor.ptr(),
 		       hs, outputfold );
-    if ( !exec.init(pars()) )
+    if ( !exec.usePar(pars()) )
     {
 	strm << "Cannot add attribute to Horizon" << od_newline;
 	return false;
     }
 
-    strm << "Calculating attribute ..." << od_newline;
-    TextTaskRunner taskr( strm );
-    if ( !taskr.execute(exec) )
-    {
-	strm << "Failed to calculate attribute." << od_newline;
+    if ( !runner.execute(exec) )
 	return false;
-    }
 
     infoMsg( "Attribute calculated successfully\n" );
     strm << "Saving attribute..." << od_newline;
     bool addtotop = false;
     pars().getYN( StratAmpCalc::sKeyAddToTopYN(), addtotop );
-    bool isoverwrite = false;
-    pars().getYN( StratAmpCalc::sKeyIsOverwriteYN(), isoverwrite );
+    bool overwrite = false;
+    pars().getYN( StratAmpCalc::sKeyIsOverwriteYN(), overwrite );
+    const EM::Horizon3D& hor = addtotop ? *tophor : *bothor;
     const TypeSet<int>& attribidxs = exec.attribIdxs();
     const TypeSet<int>& foldidxs = exec.foldAttribIdxs();
+    TaskGroup group;
     for ( int idx=0; idx<attribidxs.size(); idx++ )
     {
 	const int attribidx = attribidxs[idx];
-	const int foldidx = exec.doOutputFold() ? foldidxs[idx] : -1;
-	if ( !exec.saveAttribute( addtotop ? *tophor : *bothor, attribidx,
-				  isoverwrite, foldidx, &strm ) )
-	{
-	    strm << "Failed to save attribute";
-	    return false;
-	}
+	const int foldidx = outputfold ? foldidxs[idx] : -1;
+	group.addTask( hor.auxdata.auxDataSaver( attribidx, overwrite ) );
+	if ( outputfold )
+	    group.addTask( hor.auxdata.auxDataSaver( foldidx, overwrite ) );
     }
-    
+
+    if ( !runner.execute(group) )
+	return false;
+
     strm << "Attribute saved successfully";
     return true;
 }

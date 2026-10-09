@@ -14,7 +14,6 @@ ________________________________________________________________________
 #include "emhorizon2d.h"
 #include "emhorizon3d.h"
 #include "emsurfacetr.h"
-#include "executor.h"
 #include "hor2dfrom3dcreator.h"
 #include "ioman.h"
 
@@ -59,7 +58,7 @@ bool uiHor2DFrom3DDlg::acceptOK( CallBacker* )
     if ( !checkFlds() || !checkOutNames(outnms) )
 	return false;
 
-    uiTaskRunner uitr( this );
+    uiTaskRunner runner( this );
 
     TypeSet<Pos::GeomID> geomids;
     linesetinpsel_->getSelGeomIDs( geomids );
@@ -70,33 +69,43 @@ bool uiHor2DFrom3DDlg::acceptOK( CallBacker* )
     for ( int idx=0; idx<horids.size(); idx++ )
     {
 	const MultiID mid = horids[idx];
-	RefMan<EM::EMObject> emobj = em.loadIfNotFullyLoaded( mid, &uitr );
-	mDynamicCastGet(EM::Horizon3D*,hor3d, emobj.ptr());
+	RefMan<EM::EMObject> em3dobj = em.loadIfNotFullyLoaded( mid, &runner );
+	mDynamicCastGet(EM::Horizon3D*,hor3d, em3dobj.ptr());
 	if ( !hor3d )
 	    continue;
-	hor3d->ref();
 
 	EM::ObjectID emid = em.createObject( EM::Horizon2D::typeStr(),
 					     outnms[idx]->buf() );
-	EM::EMObject* em2dobj = em.getObject(emid);
-	mDynamicCastGet(EM::Horizon2D*,hor2d,em2dobj);
+	RefMan<EM::EMObject> em2dobj = em.getObject(emid);
+	mDynamicCastGet(EM::Horizon2D*,hor2d,em2dobj.ptr());
 	if ( !hor2d )
 	    continue;
-	hor2d->ref();
 
 	PtrMan<Hor2DFrom3DCreatorGrp> creator = new Hor2DFrom3DCreatorGrp(
 							    *hor3d, *hor2d );
 	hor2d->setPreferredColor( hor3d->preferredColor() );
 	hor2d->setPreferredLineStyle( hor3d->preferredLineStyle() );
 	creator->init( geomids );
-	creator->add( hor2d->saver() );
-	TaskRunner::execute( &uitr, *creator );
+	if ( !runner.execute(*creator.ptr()) )
+	{
+	    uiMSG().errorWithDetails( creator->uiMessage(),
+			tr("Failed to create 2D Horizon from 3D") );
+	    return false;
+	}
+
+	PtrMan<Task> saver = hor2d->saver();
+	if ( !runner.execute(*saver.ptr()) )
+	{
+	    uiMSG().errorWithDetails( saver->uiMessage(),
+			tr("Failed to save 2D Horizon") );
+	    return false;
+	}
 
 	if ( doDisplay() )
+	{
 	    emobjids_ += emid;
-	else
-	    hor2d->unRef();
-	hor3d->unRef();
+	    em2dobj->unRefNoDelete(); //Should not be needed
+	}
     }
 
     return true;
@@ -109,6 +118,7 @@ bool uiHor2DFrom3DDlg::checkFlds()
 {
     if ( !hor3dselfld_->getSelected().size() )
 	mErrRet( tr("Please select at least one 3D Horizon. ") )
+
     if ( !linesetinpsel_->nrSelected() )
 	mErrRet( tr("Please select at least one 2D line") )
 

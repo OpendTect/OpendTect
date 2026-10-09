@@ -18,7 +18,6 @@ ________________________________________________________________________
 #include "emsurfauxdataio.h"
 #include "emhorizon3d.h"
 #include "emfaultset3d.h"
-#include "executor.h"
 #include "file.h"
 #include "filepath.h"
 #include "ioman.h"
@@ -164,10 +163,10 @@ bool EMSurfaceTranslator::startWrite( const EM::Surface& surf )
 }
 
 
-Executor* EMSurfaceTranslator::writer( const IOObj& ioobj, bool fullremove )
+Task* EMSurfaceTranslator::writer( const IOObj& ioobj, bool fullremove )
 {
     setIOObj( &ioobj );
-    Executor* ret = getWriter();
+    Task* ret = getWriter();
     if ( fullremove && ret )
 	IOM().implRemove( ioobj );
 
@@ -380,34 +379,35 @@ void dgbEMSurfaceTranslator::getSels( StepInterval<int>& rrg,
 }
 
 
-Executor* dgbEMSurfaceTranslator::reader( EM::Surface& surf )
+Task* dgbEMSurfaceTranslator::reader( EM::Surface& surf )
 {
     surface_ = &surf;
-    Executor* res = reader_;
-    if ( reader_ )
+    if ( !reader_ )
+	return nullptr;
+
+    reader_->setOutput( surf );
+    if ( hasRangeSelection() )
     {
-	reader_->setOutput( surf );
-	if ( hasRangeSelection() )
-	{
-	    StepInterval<int> rrg, crg; getSels( rrg, crg );
-	    reader_->setRowInterval( rrg ); reader_->setColInterval( crg );
-	}
-
-	if ( !sels_.sellinenames.isEmpty() && !sels_.seltrcranges.isEmpty() )
-	{
-	    reader_->setLineNames( sels_.sellinenames );
-	    reader_->setLinesTrcRngs( sels_.seltrcranges );
-	}
-
-	reader_->selAuxData( sels_.selvalues );
+	StepInterval<int> rrg, crg;
+	getSels( rrg, crg );
+	reader_->setRowInterval( rrg );
+	reader_->setColInterval( crg );
     }
 
+    if ( !sels_.sellinenames.isEmpty() && !sels_.seltrcranges.isEmpty() )
+    {
+	reader_->setLineNames( sels_.sellinenames );
+	reader_->setLinesTrcRngs( sels_.seltrcranges );
+    }
+
+    reader_->selAuxData( sels_.selvalues );
+    Task* res = reader_->createReadTask();
     reader_ = nullptr;
     return res;
 }
 
 
-Executor* dgbEMSurfaceTranslator::getWriter()
+Task* dgbEMSurfaceTranslator::getWriter()
 {
     const BufferString unm( group() ? group()->groupName().buf() : nullptr );
     auto* res = new EM::dgbSurfaceWriter( ioobj_, unm.buf(),
@@ -444,21 +444,7 @@ dgbEMHorizon3DTranslator::~dgbEMHorizon3DTranslator()
 
 static BufferString getFileName( const char* fulluserexp, const char* attrnmptr)
 {
-    const StringView attrnm( attrnmptr );
-    const BufferString basefnm( fulluserexp );
-    BufferString fnm;
-    for ( int idx=0, gap=0; gap<=100; idx++ )
-    {
-	fnm = EM::dgbSurfDataWriter::createHovName(basefnm,idx);
-	if ( File::isEmpty(fnm.buf()) )
-	    { gap++; continue; }
-
-	const EM::dgbSurfDataReader rdr( fnm.buf() );
-	if ( attrnm == rdr.dataName() )
-	    return fnm;
-    }
-
-    return "";
+    return EM::findAuxDataFile( fulluserexp, attrnmptr );
 }
 
 
@@ -468,29 +454,37 @@ static BufferString getFileName( const IOObj& ioobj, const char* attrnm )
 }
 
 
-Executor* dgbEMHorizon3DTranslator::getAuxdataReader( EM::Surface& surface,
-						      int selidx )
+Task* dgbEMHorizon3DTranslator::getAuxdataReader( EM::Surface& surface,
+						  int selidx )
 {
     mDynamicCastGet( EM::Horizon3D*, hor3d, &surface )
     if ( !hor3d )
 	return nullptr;
 
-    if ( !sels_.sd.valnames.validIdx(selidx) )
+    if ( selidx>=0 && !sels_.sd.valnames.validIdx(selidx) )
 	return nullptr;
 
-    const BufferString filenm = getFileName( *ioobj_,
-					    sels_.sd.valnames[selidx]->buf() );
-    if ( filenm.isEmpty() )
+    BufferStringSet fnms;
+    const int nraux = sels_.sd.valnames.size();
+    for ( int idx=0; idx<nraux; idx++ )
+    {
+	if ( selidx>=0 && idx!=selidx )
+	    continue;
+
+	const BufferString filenm = getFileName( *ioobj_,
+					sels_.sd.valnames.get(idx).buf() );
+	if ( !filenm.isEmpty() )
+	    fnms.add( filenm );
+    }
+
+    if ( fnms.isEmpty() )
 	return nullptr;
 
-    auto* rdr = new EM::dgbSurfDataReader( filenm.buf() );
-    rdr->setSurface( *hor3d );
-
-    return rdr;
+    return EM::createAuxDataTask( *hor3d, fnms );
 }
 
 
-Executor* dgbEMHorizon3DTranslator::getAuxdataWriter(
+Task* dgbEMHorizon3DTranslator::getAuxdataWriter(
 			  const EM::Surface& surf, int dataidx, bool overwrite )
 {
     mDynamicCastGet(const EM::Horizon3D*,hor3d,&surf)
@@ -500,8 +494,8 @@ Executor* dgbEMHorizon3DTranslator::getAuxdataWriter(
     bool isbinary = true;
     mSettUse(getYN,"dTect.Surface","Binary format",isbinary);
 
-    ExecutorGroup* grp = new ExecutorGroup( "Surface Data saver" );
-    grp->setNrDoneText( toUiString("Positions written") );
+    auto* grp = new TaskGroup();
+    grp->setName( "Surface Data saver" );
     BufferString fnm;
     for ( int selidx=0; selidx<sels_.sd.valnames.size(); selidx++ )
     {
@@ -511,9 +505,9 @@ Executor* dgbEMHorizon3DTranslator::getAuxdataWriter(
 	if ( overwrite )
 	    fnm = getFileName( *ioobj_, sels_.sd.valnames.get(selidx) );
 
-	Executor* exec =
+	auto* exec =
 	    new EM::dgbSurfDataWriter(*hor3d,selidx,nullptr,isbinary,fnm.buf());
-	grp->add( exec );
+	grp->addTask( exec );
     }
 
     return grp;
@@ -742,14 +736,14 @@ int nextStep() override
 };
 
 
-Executor* dgbEMFaultSet3DTranslator::reader( EM::FaultSet3D& fltset,
+Task* dgbEMFaultSet3DTranslator::reader( EM::FaultSet3D& fltset,
 					     const IOObj& ioobj )
 {
     return new dGBFaultSet3DReader( ioobj, fltset );
 }
 
 
-Executor* dgbEMFaultSet3DTranslator::writer( const EM::FaultSet3D& fltset,
+Task* dgbEMFaultSet3DTranslator::writer( const EM::FaultSet3D& fltset,
 					     const IOObj& ioobj )
 {
     return new dGBFaultSet3DWriter( ioobj, fltset );

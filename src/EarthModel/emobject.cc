@@ -863,11 +863,25 @@ bool EMObject::usePar( const IOPar& par )
 {
     useDisplayPars( par );
 
-    for ( int idx=0; idx<nrPosAttribs(); idx++ )
-	removePosAttribList( posAttrib(idx), false );
-
     int nrattribs = 0;
     par.get( nrposattrstr(), nrattribs );
+    const bool restoreattribs = nrattribs>0 || nrPosAttribs()>0;
+    if ( restoreattribs )
+	setBurstAlert( true );
+
+    for ( int idx=0; idx<nrPosAttribs(); idx++ )
+    {
+	const int attridx = attribs_.indexOf( posAttrib(idx) );
+	if ( attridx<0 || !posattribs_[attridx] )
+	    continue;
+
+	TypeSet<PosID>& posids = posattribs_[attridx]->posids_;
+	if ( !posids.isEmpty() )
+	    changed_ = true;
+
+	posids.setEmpty();
+    }
+
     for ( int idx=0; idx<nrattribs; idx++ )
     {
 	BufferString attribkey = posattrprefixstr();
@@ -883,16 +897,28 @@ bool EMObject::usePar( const IOPar& par )
 	subidkey += posattrposidstr();
 
 	par.get( subidkey.buf(), subids );
+	if ( subids.isEmpty() )
+	    continue;
 
+	addPosAttrib( attrib );
+	const int attridx = attribs_.indexOf( attrib );
+	if ( attridx<0 || !posattribs_[attridx] )
+	    continue;
+
+	TypeSet<PosID>& posids = posattribs_[attridx]->posids_;
+	posids.setCapacity( posids.size()+subids.size(), false );
 	for ( int idy=0; idy<subids.size(); idy++ )
 	{
 	    if ( !isDefined(subids[idy]) )
 		continue;
 
-	    const PosID pid = PosID( id(), subids[idy] );
-	    setPosAttrib( pid, attrib, true, false );
+	    posids += PosID( id(), subids[idy] );
+	    changed_ = true;
 	}
     }
+
+    if ( restoreattribs )
+	setBurstAlert( false );
 
     const ZDomain::Info* zinfo = ZDomain::Info::getFrom( par );
     if ( !zinfo )

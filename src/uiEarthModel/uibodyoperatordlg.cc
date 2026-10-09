@@ -338,7 +338,7 @@ bool uiBodyOperatorDlg::acceptOK( CallBacker* )
     emcs->setChangedFlag();
 
     EM::EMM().addObject( emcs.ptr() );
-    PtrMan<Executor> exec = emcs->saver();
+    PtrMan<Task> exec = emcs->saver();
     if ( !exec )
 	mRetErr(uiStrings::sSaveBodyFail())
 
@@ -510,7 +510,7 @@ bool uiImplicitBodyValueSwitchDlg::acceptOK( CallBacker* )
     emcs->setChangedFlag();
 
     EM::EMM().addObject( emcs.ptr() );
-    PtrMan<Executor> exec = emcs->saver();
+    PtrMan<Task> exec = emcs->saver();
     if ( !exec )
 	mRetErr( uiStrings::sSaveBodyFail() );
 

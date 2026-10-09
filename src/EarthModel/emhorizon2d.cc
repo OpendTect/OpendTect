@@ -15,6 +15,8 @@ ________________________________________________________________________
 #include "emmanager.h"
 #include "horizon2dline.h"
 #include "ioman.h"
+#include "posinfo2d.h"
+#include "posinfo2dsurv.h"
 #include "selector.h"
 #include "toplist.h"
 #include "survinfo.h"

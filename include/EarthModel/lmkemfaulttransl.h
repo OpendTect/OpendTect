@@ -9,6 +9,7 @@ ________________________________________________________________________
 -*/
 
 #include "earthmodelmod.h"
+
 #include "emsurfacetr.h"
 #include "rowcol.h"
 #include "executor.h"
@@ -25,10 +26,10 @@ isTranslator(lmk,EMFault3D)
 public:
 			lmkEMFault3DTranslator(const char* nm,
 					     const char* unm);
-    virtual		~lmkEMFault3DTranslator();
+			~lmkEMFault3DTranslator();
 
-    virtual Executor*	reader(EM::Fault3D&,Conn*,const char* formatfilename);
-    virtual Executor*	writer(const EM::Fault3D&,Conn*,
+    virtual Task*	reader(EM::Fault3D&,Conn*,const char* formatfilename);
+    virtual Task*	writer(const EM::Fault3D&,Conn*,
 			       const char* formatfilename);
 
     bool		isUserSelectable(bool) const override { return false; }
@@ -46,7 +47,7 @@ public:
     static const char*	lineidstr();
     static const char*	tracestr();
 
-    Executor*		reader( EM::Surface& s ) override
+    Task*	reader( EM::Surface& s ) override
 			{ return EMSurfaceTranslator::reader(s); }
 };
 

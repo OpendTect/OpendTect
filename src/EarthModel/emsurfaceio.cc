@@ -28,7 +28,12 @@ ________________________________________________________________________
 #include "ioobj.h"
 #include "iopar.h"
 #include "keystrs.h"
+#include "math2.h"
+#include "od_istream.h"
+#include "paralleltask.h"
+#include "posinfo2dsurv.h"
 #include "ptrman.h"
+#include "samplingdata.h"
 #include "streamconn.h"
 #include "survgeom2d.h"
 #include "survinfo.h"
@@ -36,7 +41,9 @@ ________________________________________________________________________
 #include "unitofmeasure.h"
 #include "zdomain.h"
 
+#include <istream>
 #include <limits.h>
+#include <streambuf>
 
 
 namespace EM
@@ -353,6 +360,7 @@ bool dgbSurfaceReader::readHeaders( StreamConn& conn, const char* filetype )
 
     par_->get( sKeyDBInfo(), dbinfo_ );
 
+    bodystart_ = strm.position();
     if ( version_==1 )
 	return parseVersion1( *par_ );
 
@@ -616,23 +624,12 @@ od_int64 dgbSurfaceReader::totalNr() const
 }
 
 
-void dgbSurfaceReader::setGeometry()
+void dgbSurfaceReader::prepareSurface()
 {
     if ( surface_ )
     {
 	surface_->removeAll();
 	surface_->setDBInfo( dbinfo_.buf() );
-	for ( int idx=0; idx<auxdatasel_.size(); idx++ )
-	{
-	    if ( auxdatasel_[idx]>=auxdataexecs_.size() )
-		continue;
-
-	    auxdataexecs_[auxdatasel_[idx]]->setSurface(
-		    reinterpret_cast<Horizon3D&>(*surface_));
-
-	    add( auxdataexecs_[auxdatasel_[idx]] );
-	    auxdataexecs_.replace( auxdatasel_[idx], 0 );
-	}
     }
 
     if ( readrowrange_ )
@@ -659,6 +656,26 @@ void dgbSurfaceReader::setGeometry()
 			    : filestep;
 
 	hor->geometry().setStep( filestep, loadedstep );
+    }
+}
+
+
+void dgbSurfaceReader::setGeometry()
+{
+    prepareSurface();
+    if ( !surface_ )
+	return;
+
+    for ( int idx=0; idx<auxdatasel_.size(); idx++ )
+    {
+	if ( auxdatasel_[idx]>=auxdataexecs_.size() )
+	    continue;
+
+	auxdataexecs_[auxdatasel_[idx]]->setSurface(
+		reinterpret_cast<Horizon3D&>(*surface_) );
+
+	add( auxdataexecs_[auxdatasel_[idx]] );
+	auxdataexecs_.replace( auxdatasel_[idx], 0 );
     }
 }
 
@@ -858,7 +875,6 @@ int dgbSurfaceReader::nextStep()
 	}
 
 	createArray();
-
 	if ( geomids_.validIdx(rowindex_) )
 	{
 	    const Pos::GeomID geomid = geomids_[rowindex_];
@@ -1034,14 +1050,15 @@ bool dgbSurfaceReader::readVersion1Row( od_istream& strm, int firstcol,
 	}
 
 	createArray();
-	if ( !arr_ )
-	    surface_->setPos( surfrc.toInt64(), pos, false );
-	else
+	if ( arr_ )
 	{
 	    int i, j;
 	    if ( getIndices(surfrc,i,j) )
-                arr_->set( i, j, mCast(float,pos.z_) );
+		arr_->set( i, j, mCast(float,pos.z_) );
+
 	}
+	else
+	    surface_->setPos( surfrc.toInt64(), pos, false );
 
 	isrowused = true;
     }
@@ -1092,14 +1109,14 @@ bool dgbSurfaceReader::readVersion2Row( od_istream& strm,
 	}
 
 	createArray();
-	if ( !arr_ )
-	    surface_->setPos( rowcol.toInt64(), pos, false );
-	else
+	if ( arr_ )
 	{
 	    int i, j;
 	    if ( getIndices(rowcol,i,j) )
                 arr_->set( i, j, mCast(float,pos.z_) );
 	}
+	else
+	    surface_->setPos( rowcol.toInt64(), pos, false );
 
 	isrowused = true;
     }
@@ -1298,7 +1315,6 @@ bool dgbSurfaceReader::readVersion3Row( od_istream& strm, int firstcol,
 	if ( surface_ )
 	{
 	    createArray();
-
 	    RowCol myrc( rc );
 	    if ( hor2dok )
 		myrc.row() = hor2d->geometry().geometryElement()
@@ -1331,21 +1347,27 @@ bool dgbSurfaceReader::readVersion3Row( od_istream& strm, int firstcol,
 }
 
 
-void dgbSurfaceReader::createArray()
+bool dgbSurfaceReader::createArray()
 {
     mDynamicCastGet(Geometry::BinIDSurface*,bidsurf,
 		    surface_->geometry().geometryElement())
     if ( !bidsurf || arr_ )
-	return;
+	return true;
 
     StepInterval<int> inlrg = readrowrange_ ? *readrowrange_ : rowrange_;
     StepInterval<int> crlrg = readcolrange_ ? *readcolrange_ : colrange_;
     inlrg.sort(); crlrg.sort();
 
-    mDeclareAndTryAlloc( Array2D<float>*, arr,
-	    Array2DImpl<float>(inlrg.nrSteps()+1, crlrg.nrSteps()+1) );
+    PtrMan<Array2D<float> > arr =
+	new Array2DImpl<float>( inlrg.nrSteps()+1, crlrg.nrSteps()+1 );
+    if ( !arr || !arr->isOK() )
+	return false;
+
     arr->setAll( mUdf(float) );
-    arr_ = arr;
+    delete arr_;
+    arr_ = arr.release();
+
+    return true;
 }
 
 
@@ -1467,6 +1489,1091 @@ bool dgbSurfaceReader::parseVersion1( const IOPar& par )
 
 
 
+namespace
+{
+
+class CharRangeBuf : public std::streambuf
+{
+public:
+CharRangeBuf( const char* start, od_int64 len )
+{
+    char* buf = const_cast<char*>( start );
+    setg( buf, buf, buf + len );
+}
+
+protected:
+std::streampos seekoff( std::streamoff off, std::ios_base::seekdir way,
+			std::ios_base::openmode which ) override
+{
+    if ( (which & std::ios_base::in) == 0 )
+	return std::streampos(-1);
+
+    char* ptr = nullptr;
+    if ( way == std::ios_base::beg )
+	ptr = eback() + off;
+    else if ( way == std::ios_base::cur )
+	ptr = gptr() + off;
+    else
+	ptr = egptr() + off;
+
+    if ( ptr < eback() || ptr > egptr() )
+	return std::streampos(-1);
+
+    setg( eback(), ptr, egptr() );
+    return std::streampos( ptr - eback() );
+}
+
+std::streampos seekpos( std::streampos pos,
+			std::ios_base::openmode which ) override
+{ return seekoff( off_type(pos), std::ios_base::beg, which ); }
+
+};
+
+
+class CharRangeStream : public std::istream
+{
+public:
+CharRangeStream( const char* start, od_int64 len )
+    : std::istream(nullptr)
+    , buf_(start,len)
+{ rdbuf( &buf_ ); }
+
+private:
+    CharRangeBuf	buf_;
+};
+
+} // namespace
+
+
+class HorFileReader : public ParallelTask
+{ mODTextTranslationClass(HorFileReader);
+public:
+
+enum Mode { V3Bin, V3Asc, OldBin, OldAsc };
+
+HorFileReader( dgbSurfaceReader& rdr, Mode mode, bool is2d )
+    : ParallelTask("Horizon Reader")
+    , rdr_(rdr)
+    , mode_(mode)
+    , is2d_(is2d)
+{
+    if ( rdr_.surface_ )
+    {
+	msg_ = tr("Reading surface '%1'").arg( rdr_.surface_->name() );
+	rdr_.surface_->enableGeometryChecks( false );
+    }
+    else
+	msg_ = tr("Reading horizon");
+
+    if ( rdr_.par_ )
+	rdr_.par_->getYN( dgbSurfaceReader::sKeyDepthOnly(), rdr_.readonlyz_ );
+
+    rdr_.prepareSurface();
+    prepok_ = slurp() && indexRows();
+    if ( prepok_ && !nrows_ )
+    {
+	releaseCalcData();
+	if ( !loadAux() || !finishSurface() )
+	    prepok_ = false;
+    }
+}
+
+~HorFileReader()
+{
+    releaseCalcData();
+    delete &rdr_;
+}
+
+uiString uiMessage() const override
+{ return msg_; }
+
+uiString uiNrDoneText() const override
+{ return tr("Gridlines read"); }
+
+od_int64 nrIterations() const override
+{ return prepok_ ? nrows_ : 0; }
+
+bool executeParallel( bool parallel ) override
+{ return prepok_ && ParallelTask::executeParallel(parallel); }
+
+int minThreadSize() const override
+{ return 4; }
+
+private:
+
+struct RowInfo
+{
+    int		row		= 0;
+    int		nrcols		= 0;
+    int		nsamples	= 0;
+    int		firstcol	= 0;
+    int		colstep		= 1;
+    int		colstoskip	= 0;
+    od_int64	payloadoff	= 0;
+    double	zstart		= 0;
+    double	zstep		= 0;
+    bool	skip		= false;
+    bool	haszsd		= false;
+
+    bool operator==( const RowInfo& oth ) const
+    { return row==oth.row && payloadoff==oth.payloadoff; }
+};
+
+struct LineNodes
+{
+    TypeSet<int>	cols;
+    TypeSet<od_int64>	subids;
+    TypeSet<float>	z;
+    TypeSet<double>	x;
+    TypeSet<double>	y;
+    bool		hasxy		= false;
+};
+
+bool slurp()
+{
+    const od_int64 filesz = File::getFileSize( rdr_.filename_.buf() );
+    if ( filesz < 0 )
+    {
+	msg_ = tr("Cannot open horizon file");
+	return false;
+    }
+
+    mTryAlloc( text_, char[filesz+1] );
+    if ( !text_ )
+    {
+	msg_ = tr("Not enough memory to read the horizon file");
+	return false;
+    }
+
+    filesz_ = filesz;
+    if ( filesz == 0 )
+    {
+	text_[0] = '\0';
+	return true;
+    }
+
+    od_istream strm( rdr_.filename_.buf() );
+    if ( !strm.isOK() || !strm.getBin(text_,filesz) )
+    {
+	delete [] text_;
+	text_ = nullptr;
+	msg_ = tr("Cannot open horizon file");
+	return false;
+    }
+
+    text_[filesz] = '\0';
+    return true;
+}
+
+bool indexRows()
+{
+    CharRangeStream crs( text_, filesz_ );
+    od_istream strm( crs );
+    if ( rdr_.version_ == 3 )
+    {
+	if ( rdr_.sectionoffsets_.isEmpty() )
+	{
+	    msg_ = dgbSurfaceReader::sMsgReadError();
+	    return false;
+	}
+
+	strm.setReadPosition( rdr_.sectionoffsets_[0] );
+    }
+    else
+	strm.setReadPosition( rdr_.bodystart_ );
+
+    if ( !strm.isOK() )
+    {
+	msg_ = dgbSurfaceReader::sMsgReadError();
+	return false;
+    }
+
+    nrows_ = rdr_.readInt32( strm );
+    if ( !strm.isOK() )
+    {
+	msg_ = dgbSurfaceReader::sMsgReadError();
+	return false;
+    }
+
+    if ( !nrows_ )
+	return true;
+
+    firstrow_ = rdr_.readInt32( strm );
+    if ( !strm.isOK() )
+    {
+	msg_ = dgbSurfaceReader::sMsgReadError();
+	return false;
+    }
+
+    TypeSet<od_int64> rowoffsets;
+    if ( rdr_.version_ == 3 )
+    {
+	rowoffsets.setSize( nrows_, 0 );
+	for ( int idx=0; idx<nrows_; idx++ )
+	{
+	    rowoffsets[idx] = rdr_.readInt64( strm );
+	    if ( !strm.isOK() || !rowoffsets[idx] )
+	    {
+		msg_ = dgbSurfaceReader::sMsgReadError();
+		return false;
+	    }
+	}
+    }
+
+    rows_.setSize( nrows_ );
+    for ( int idx=0; idx<nrows_; idx++ )
+    {
+	if ( rdr_.version_ == 3 )
+	    strm.setReadPosition( rowoffsets[idx] );
+
+	if ( !readRowHeader(strm,idx) )
+	    return false;
+    }
+
+    return strm.isOK();
+}
+
+bool readRowHeader( od_istream& strm, int idx )
+{
+    RowInfo& info = rows_[idx];
+    info.row = firstrow_ + idx * rdr_.rowrange_.step_;
+    info.colstep = rdr_.colrange_.step_;
+    if ( rdr_.par_ )
+	rdr_.par_->get( dgbSurfaceReader::sColStepKey(info.row).buf(),
+			 info.colstep );
+
+    info.nsamples = rdr_.readInt32( strm );
+    info.nrcols = info.nsamples;
+    info.firstcol = info.nsamples ? rdr_.readInt32( strm ) : 0;
+    if ( !strm.isOK() )
+    {
+	msg_ = dgbSurfaceReader::sMsgReadError();
+	return false;
+    }
+
+    int colstoskip = 0;
+    if ( rdr_.readlinenames_ && rdr_.linestrcrgs_ &&
+	 !rdr_.linenames_.isEmpty() &&
+	 rdr_.linenames_.validIdx(idx) )
+    {
+	const int trcrgidx = rdr_.readlinenames_->indexOf(
+				rdr_.linenames_.get(idx).buf() );
+	int callastcols = (info.firstcol - 1) + info.nsamples;
+	StepInterval<int> trcrg = rdr_.linestrcrgs_->validIdx(trcrgidx)
+		? (*rdr_.linestrcrgs_)[trcrgidx]
+		: StepInterval<int>(0,0,1);
+	if ( trcrg.width() > 1 )
+	{
+	    if ( info.firstcol < trcrg.start_ )
+		colstoskip = trcrg.start_ - info.firstcol;
+
+	    if ( trcrg.stop_ < callastcols )
+		callastcols = trcrg.stop_;
+	}
+
+	info.nrcols = callastcols - info.firstcol - colstoskip + 1;
+    }
+
+    info.colstoskip = colstoskip;
+    if ( mode_==V3Bin || mode_==V3Asc )
+    {
+	if ( rdr_.readonlyz_ && info.nsamples )
+	{
+	    info.zstart = rdr_.readDouble( strm );
+	    info.zstep = rdr_.readDouble( strm );
+	    info.haszsd = true;
+	}
+    }
+
+    info.payloadoff = strm.position();
+    info.skip = shouldSkip( info.row, idx );
+    if ( info.skip && rdr_.rowrange_.includes(info.row,false) )
+	notfull_ = 1;
+
+    return skipPayload( strm, info, idx );
+}
+
+bool shouldSkip( int row, int idx ) const
+{
+    if ( rdr_.version_==1 || (rdr_.version_==2 && !rdr_.isBinary()) )
+	return false;
+
+    if ( rdr_.readlinenames_ && rdr_.linenames_.validIdx(idx) )
+    {
+	const BufferString& nm = rdr_.linenames_.get( idx );
+	return !rdr_.readlinenames_->isPresent( nm.buf() );
+    }
+
+    if ( !rdr_.readrowrange_ )
+	return false;
+
+    if ( !rdr_.readrowrange_->includes(row,false) )
+	return true;
+
+    return (row-rdr_.readrowrange_->start_) % rdr_.readrowrange_->step_;
+}
+
+int sampleBytes() const
+{
+    const int dblsz = rdr_.floatinterpreter_
+		? rdr_.floatinterpreter_->nrBytes() : (int)sizeof(double);
+    const int i16sz = rdr_.int16interpreter_
+		? rdr_.int16interpreter_->nrBytes() : (int)sizeof(short);
+    if ( mode_==V3Bin && rdr_.readonlyz_ )
+	return i16sz;
+
+    if ( mode_==V3Bin )
+	return 3 * dblsz;
+
+    if ( mode_==OldBin )
+	return (rdr_.readonlyz_ ? 1 : 3) * dblsz;
+
+    return 0;
+}
+
+int nodesToConsume( const RowInfo& info ) const
+{
+    if ( info.skip )
+	return info.nsamples;
+
+    if ( mode_==V3Bin || mode_==V3Asc )
+	return info.nrcols + info.colstoskip;
+
+    return info.nrcols;
+}
+
+bool readFillType( int idx, int colindex, int nconsume ) const
+{
+    return rdr_.version_==1 && idx!=nrows_-1 && colindex!=nconsume-1;
+}
+
+bool skipPayload( od_istream& strm, const RowInfo& info, int idx )
+{
+    const int nconsume = nodesToConsume( info );
+    if ( nconsume <= 0 )
+	return true;
+
+    if ( mode_==V3Bin || mode_==OldBin )
+    {
+	od_int64 nbytes = (od_int64)nconsume * sampleBytes();
+	if ( rdr_.version_ == 1 )
+	{
+	    const int i32sz = rdr_.int32interpreter_
+			? rdr_.int32interpreter_->nrBytes() : (int)sizeof(int);
+	    for ( int col=0; col<nconsume; col++ )
+	    {
+		if ( readFillType(idx,col,nconsume) )
+		    nbytes += i32sz;
+	    }
+	}
+
+	if ( nbytes > 0 )
+	    strm.ignore( nbytes );
+
+	return strm.isOK();
+    }
+
+    for ( int col=0; col<nconsume; col++ )
+    {
+	if ( rdr_.readonlyz_ && (mode_==V3Asc) )
+	    rdr_.readInt16( strm );
+	else
+	{
+	    if ( !rdr_.readonlyz_ )
+	    {
+		rdr_.readDouble( strm );
+		rdr_.readDouble( strm );
+	    }
+
+	    rdr_.readDouble( strm );
+	}
+
+	if ( readFillType(idx,col,nconsume) )
+	    rdr_.readInt32( strm );
+    }
+
+    return strm.isOK();
+}
+
+bool allocDest()
+{
+    deleteAndNullPtr( arr_ );
+    deepErase( lines_ );
+    anyread_ = 0;
+    notfull_ = 0;
+
+    if ( !is2d_ )
+    {
+	mDynamicCastGet(Geometry::BinIDSurface*,bidsurf,
+		rdr_.surface_ ? rdr_.surface_->geometry().geometryElement()
+			       : nullptr)
+	if ( !bidsurf && !rdr_.cube_ )
+	    return true;
+
+	StepInterval<int> inlrg = rdr_.readrowrange_ ? *rdr_.readrowrange_
+						      : rdr_.rowrange_;
+	StepInterval<int> crlrg = rdr_.readcolrange_ ? *rdr_.readcolrange_
+						      : rdr_.colrange_;
+	inlrg.sort();
+	crlrg.sort();
+	nrcrl_ = crlrg.nrSteps() + 1;
+	PtrMan<Array2D<float> > arr =
+		new Array2DImpl<float>(inlrg.nrSteps()+1, nrcrl_);
+	if ( !arr || !arr->isOK() )
+	{
+	    msg_ = tr("Not enough memory to read the horizon file");
+	    return false;
+	}
+
+	arr->setAll( mUdf(float) );
+	arr_ = arr.release();
+	inlrg_ = inlrg;
+	crlrg_ = crlrg;
+	if ( rdr_.version_ == 1 )
+	{
+	    for ( int idx=0; idx<nrows_; idx++ )
+		lines_ += new LineNodes;
+	}
+
+	return true;
+    }
+
+    for ( int idx=0; idx<nrows_; idx++ )
+	lines_ += new LineNodes;
+
+    return true;
+}
+
+
+bool doPrepare( int ) override
+{
+    if ( rdr_.surface_ )
+	rdr_.surface_->enableGeometryChecks( false );
+
+    rdr_.prepareSurface();
+    if ( !text_ && !slurp() )
+	return false;
+
+    return allocDest();
+}
+
+
+bool doWork( od_int64 start, od_int64 stop, int ) override
+{
+    CharRangeStream crs( text_, filesz_ );
+    od_istream strm( crs );
+    for ( od_int64 idx=start; idx<=stop; idx++ )
+    {
+	if ( !shouldContinue() )
+	    return false;
+
+	if ( !decodeRow((int)idx,strm) )
+	    return false;
+    }
+
+    return true;
+}
+
+
+bool doFinish( bool success ) override
+{
+    bool res = success;
+    if ( res && (!commit() || !loadAux() || !finishSurface()) )
+	res = false;
+
+    if ( !res && msg_.isEmpty() )
+	msg_ = dgbSurfaceReader::sMsgReadError();
+
+    releaseCalcData();
+    return res;
+}
+
+void releaseCalcData()
+{
+    deleteAndNullArrPtr( text_ );
+    deleteAndNullPtr( arr_ );
+    deepErase( lines_ );
+}
+
+
+bool decodeRow( int idx, od_istream& strm )
+{
+    const RowInfo& info = rows_[idx];
+    if ( info.skip || info.nsamples<=0 )
+    {
+	addToNrDone( 1 );
+	return true;
+    }
+
+    if ( mode_==V3Bin || mode_==OldBin )
+	return decodeBinary( idx, info );
+
+    strm.setReadPosition( info.payloadoff );
+    if ( !strm.isOK() )
+	return false;
+
+    const int nread = nodesToConsume( info );
+    for ( int colindex=0; colindex<nread; colindex++ )
+    {
+	Coord3 pos;
+	if ( mode_==V3Asc && rdr_.readonlyz_ )
+	{
+	    const int zidx = rdr_.readInt16( strm );
+	    if ( colindex < info.colstoskip-1 )
+		continue;
+	    pos.z_ = zidx==65535 ? mUdf(float)
+		    : SamplingData<double>(info.zstart,info.zstep)
+				.atIndex(zidx);
+	}
+	else
+	{
+	    if ( !rdr_.readonlyz_ )
+	    {
+		pos.x_ = rdr_.readDouble( strm );
+		pos.y_ = rdr_.readDouble( strm );
+	    }
+
+	    pos.z_ = rdr_.readDouble( strm );
+	    if ( readFillType(idx,colindex,nread) )
+		rdr_.readInt32( strm );
+
+	    if ( colindex < info.colstoskip-1 )
+		continue;
+	}
+
+	if ( !strm.isOK() )
+	    return false;
+	if ( !keepNode(info,colindex,pos) )
+	    return false;
+    }
+
+    addToNrDone( 1 );
+    return true;
+}
+
+bool decodeBinary( int idx, const RowInfo& info )
+{
+    const char* p = text_ + info.payloadoff;
+    const char* end = text_ + filesz_;
+    const int nread = nodesToConsume( info );
+    const int dblsz = rdr_.floatinterpreter_
+			? rdr_.floatinterpreter_->nrBytes() : 0;
+    const int i16sz = rdr_.int16interpreter_
+			? rdr_.int16interpreter_->nrBytes() : 0;
+    const int i32sz = rdr_.int32interpreter_
+			? rdr_.int32interpreter_->nrBytes() : 0;
+    for ( int colindex=0; colindex<nread; colindex++ )
+    {
+	Coord3 pos;
+	if ( (mode_==V3Bin && rdr_.readonlyz_) )
+	{
+	    if ( !rdr_.int16interpreter_ || p+i16sz > end )
+		return false;
+
+	    const int zidx = rdr_.int16interpreter_->get( p, 0 );
+	    p += i16sz;
+	    if ( colindex < info.colstoskip-1 )
+		continue;
+
+	    pos.z_ = zidx==65535 ? mUdf(float)
+		    : SamplingData<double>(info.zstart,info.zstep)
+				.atIndex(zidx);
+	}
+	else
+	{
+	    const int ncoord = rdr_.readonlyz_ ? 1 : 3;
+	    if ( !rdr_.floatinterpreter_ || p+ncoord*dblsz > end )
+		return false;
+
+	    if ( !rdr_.readonlyz_ )
+	    {
+		pos.x_ = rdr_.floatinterpreter_->get( p, 0 );
+		p += dblsz;
+		pos.y_ = rdr_.floatinterpreter_->get( p, 0 );
+		p += dblsz;
+	    }
+
+	    pos.z_ = rdr_.floatinterpreter_->get( p, 0 );
+	    p += dblsz;
+	    if ( readFillType(idx,colindex,nread) )
+	    {
+		if ( p+i32sz > end )
+		    return false;
+
+		p += i32sz;
+	    }
+
+	    if ( colindex < info.colstoskip-1 )
+		continue;
+	}
+
+	if ( !keepNode(info,colindex,pos) )
+	    return false;
+    }
+
+    addToNrDone( 1 );
+    return true;
+}
+
+bool keepNode( const RowInfo& info, int colindex, const Coord3& pos )
+{
+    const int filecol = info.firstcol + colindex * info.colstep;
+    RowCol rc( info.row, filecol );
+    if ( rdr_.version_ == 1 )
+	rc = rdr_.convertRowCol( info.row, filecol );
+
+    if ( rdr_.readcolrange_ &&
+	 (!rdr_.readcolrange_->includes(rc.col(),false) ||
+	  (rc.col()-rdr_.readcolrange_->start_)%rdr_.readcolrange_->step_) )
+    {
+	notfull_ = 1;
+	return true;
+    }
+
+    if ( rdr_.readrowrange_ &&
+	 (!rdr_.readrowrange_->includes(rc.row(),false) ||
+	  (rc.row()-rdr_.readrowrange_->start_)%rdr_.readrowrange_->step_) )
+    {
+	notfull_ = 1;
+	return true;
+    }
+
+    if ( !Math::IsNormalNumber(pos.z_) || !Math::IsNormalNumber(pos.x_) ||
+	 !Math::IsNormalNumber(pos.y_) )
+	return true;
+
+    if ( !is2d_ && rdr_.version_==1 )
+    {
+	const int rowidx = &info - rows_.arr();
+	if ( !lines_.validIdx(rowidx) )
+	    return true;
+
+	LineNodes& nodes = *lines_[rowidx];
+	nodes.cols += rc.col();
+	nodes.subids += rc.row();
+	nodes.z += (float)pos.z_;
+    }
+    else if ( !is2d_ && arr_ )
+    {
+	int i, j;
+	if ( !indices(rc,i,j) )
+	    return true;
+
+	float* data = arr_->getData();
+	if ( data )
+	    data[(od_int64)i*nrcrl_+j] = (float)pos.z_;
+	else
+	    arr_->set( i, j, (float)pos.z_ );
+
+	if ( rdr_.cube_ )
+	    rdr_.cube_->set( i, j, 0, (float)pos.z_ );
+    }
+    else if ( is2d_ )
+    {
+	const int rowidx = &info - rows_.arr();
+	if ( !lines_.validIdx(rowidx) )
+	    return true;
+
+	LineNodes& nodes = *lines_[rowidx];
+	nodes.cols += rc.col();
+	nodes.subids += rc.toInt64();
+	nodes.z += (float)pos.z_;
+	if ( !rdr_.readonlyz_ )
+	{
+	    nodes.x += pos.x_;
+	    nodes.y += pos.y_;
+	    nodes.hasxy = true;
+	}
+    }
+    else if ( rdr_.cube_ )
+    {
+	int i, j;
+	if ( indices(rc,i,j) )
+	    rdr_.cube_->set( i, j, 0, (float)pos.z_ );
+    }
+
+    anyread_ = 1;
+    return true;
+}
+
+bool indices( const RowCol& rc, int& i, int& j ) const
+{
+    if ( !inlrg_.includes(rc.row(),false) ||
+	 !crlrg_.includes(rc.col(),false) )
+	return false;
+
+    if ( inlrg_.step_ && (rc.row()-inlrg_.start_)%inlrg_.step_ )
+	return false;
+
+    if ( crlrg_.step_ && (rc.col()-crlrg_.start_)%crlrg_.step_ )
+	return false;
+
+    i = inlrg_.getIndex( rc.row() );
+    j = crlrg_.getIndex( rc.col() );
+    return i>=0 && j>=0;
+}
+
+bool commit()
+{
+    if ( !anyread_.load() )
+	return true;
+
+    return is2d_ ? commit2D() : commit3D();
+}
+
+bool commit3D()
+{
+    mDynamicCastGet(Geometry::BinIDSurface*,bidsurf,
+	    rdr_.surface_ ? rdr_.surface_->geometry().geometryElement()
+			   : nullptr)
+    if ( rdr_.version_==1 )
+    {
+	for ( int idx=0; idx<lines_.size(); idx++ )
+	{
+	    const LineNodes& nodes = *lines_[idx];
+	    for ( int inode=0; inode<nodes.z.size(); inode++ )
+	    {
+		const RowCol rc( (int)nodes.subids[inode],
+				 nodes.cols[inode] );
+		int i, j;
+		if ( !indices(rc,i,j) )
+		    continue;
+
+		if ( arr_ )
+		    arr_->set( i, j, nodes.z[inode] );
+
+		if ( rdr_.cube_ )
+		    rdr_.cube_->set( i, j, 0, nodes.z[inode] );
+	    }
+	}
+    }
+
+    if ( !bidsurf || !arr_ )
+	return true;
+
+    const int nrrows = arr_->info().getSize( 0 );
+    const int nrcols = arr_->info().getSize( 1 );
+    const BinID start( inlrg_.start_, crlrg_.start_ );
+    const BinID step( inlrg_.step_, crlrg_.step_ );
+    Array2D<float>* depths = bidsurf->getArray();
+    const StepInterval<int> rowrg = bidsurf->rowRange();
+    const StepInterval<int> colrg = bidsurf->colRange();
+    const bool issamelayout = depths
+	&& depths->info().getSize(0)==nrrows
+	&& depths->info().getSize(1)==nrcols
+	&& rowrg.start_==start.inl() && rowrg.step_==step.inl()
+	&& colrg.start_==start.crl() && colrg.step_==step.crl();
+    if ( !issamelayout )
+    {
+	PtrMan<Array2D<float> > blank = new Array2DImpl<float>(nrrows,nrcols);
+	if ( !blank || !blank->isOK() )
+	{
+	    msg_ = tr("Not enough memory to read the horizon file");
+	    return false;
+	}
+
+	blank->setAll( mUdf(float) );
+	bidsurf->setArray( start, step, blank.release(), true );
+	depths = bidsurf->getArray();
+    }
+
+    if ( !depths )
+	return false;
+
+    const float* src = arr_->getData();
+    if ( src )
+	depths->setData( src );
+    else
+    {
+	for ( int irow=0; irow<nrrows; irow++ )
+	    for ( int icol=0; icol<nrcols; icol++ )
+		depths->set( irow, icol, arr_->get(irow,icol) );
+    }
+
+    bidsurf->trimUndefParts();
+    return true;
+}
+
+bool commit2D()
+{
+    mDynamicCastGet(Horizon2D*,hor2d,rdr_.surface_.ptr())
+    if ( !hor2d )
+	return true;
+
+    Geometry::Horizon2DLine* geom = hor2d->geometry().geometryElement();
+    if ( !geom )
+	return true;
+
+    for ( int idx=0; idx<rows_.size(); idx++ )
+    {
+	const RowInfo& info = rows_[idx];
+	if ( info.skip || !lines_.validIdx(idx) || lines_[idx]->z.isEmpty() )
+	    continue;
+	if ( !rdr_.geomids_.validIdx(idx) || !rdr_.geomids_[idx].isValid() )
+	    continue;
+
+	const int startcol = info.firstcol + info.colstoskip;
+	const int nr = info.nrcols>0 ? info.nrcols : 1;
+	const int stopcol = info.firstcol + info.colstoskip +
+			    info.colstep * (nr-1);
+	geom->addUdfRow( rdr_.geomids_[idx], startcol, stopcol, info.colstep );
+	const int rowidx = geom->getRowIndex( rdr_.geomids_[idx] );
+	if ( rowidx < 0 )
+	    continue;
+
+	const LineNodes& nodes = *lines_[idx];
+	for ( int inode=0; inode<nodes.z.size(); inode++ )
+	{
+	    Coord3 pos;
+	    if ( nodes.hasxy )
+	    {
+		pos.x_ = nodes.x[inode];
+		pos.y_ = nodes.y[inode];
+	    }
+
+	    pos.z_ = nodes.z[inode];
+	    const RowCol rc = rdr_.version_==1
+		    ? RowCol::fromInt64( nodes.subids[inode] )
+		    : RowCol( rowidx, nodes.cols[inode] );
+	    geom->setKnot( rc, pos );
+	}
+    }
+
+    geom->trimUndefParts();
+    return true;
+}
+
+bool loadAux()
+{
+    mDynamicCastGet(Horizon3D*,hor,rdr_.surface_.ptr())
+    if ( !hor || rdr_.auxdatasel_.isEmpty() )
+	return true;
+
+    BufferStringSet fnms;
+    for ( int idx=0; idx<rdr_.auxdatasel_.size(); idx++ )
+    {
+	const int iaux = rdr_.auxdatasel_[idx];
+	if ( !rdr_.auxdataexecs_.validIdx(iaux) || !rdr_.auxdataexecs_[iaux] )
+	    continue;
+
+	fnms.add( rdr_.auxdataexecs_[iaux]->fileName() );
+    }
+
+    if ( fnms.isEmpty() )
+	return true;
+
+    PtrMan<Task> task = createAuxDataTask( *hor, fnms );
+    if ( !task )
+    {
+	msg_ = task ? task->uiMessage()
+		    : uiStrings::phrCannotRead( tr("horizon data") );
+	return false;
+    }
+
+    task->setProgressMeter( progressMeter() );
+    if ( !task->execute() )
+    {
+	msg_ = task ? task->uiMessage()
+		    : uiStrings::phrCannotRead( tr("horizon data") );
+	return false;
+    }
+
+    return true;
+}
+
+bool finishSurface()
+{
+    if ( !rdr_.surface_ )
+	return true;
+
+    if ( notfull_.load() )
+	rdr_.fullyread_ = false;
+
+    if ( rdr_.par_ && !rdr_.surface_->usePar(*rdr_.par_) )
+    {
+	msg_ = tr("Could not parse header");
+	return false;
+    }
+
+    rdr_.surface_->setFullyLoaded( rdr_.fullyread_ );
+    rdr_.surface_->enableGeometryChecks( true );
+    rdr_.surface_->convertZValues( rdr_.surface_->surveyStorageUnit(), true );
+    if ( rdr_.surface_->zDomain().isDepth() )
+    {
+	const auto& zdom = ZDomain::Info::getFrom(
+			rdr_.surface_->zDomain().key(),
+			rdr_.surface_->surveyStorageUnit()->getLabel() );
+	rdr_.surface_->setZDomain( zdom );
+    }
+
+    rdr_.surface_->resetChangedFlag();
+    return true;
+}
+
+    dgbSurfaceReader&		rdr_;
+    Mode			mode_;
+    bool			is2d_;
+    char*			text_		= nullptr;
+    od_int64			filesz_		= 0;
+    bool			prepok_		= false;
+    int				nrows_		= 0;
+    int				firstrow_	= 0;
+    int				nrcrl_		= 0;
+    Array2D<float>*		arr_		= nullptr;
+    StepInterval<int>		inlrg_;
+    StepInterval<int>		crlrg_;
+    TypeSet<RowInfo>		rows_;
+    ObjectSet<LineNodes>	lines_;
+    Threads::Atomic<int>	anyread_;
+    Threads::Atomic<int>	notfull_;
+    uiString			msg_;
+};
+
+
+class Hor3DV3BinReader : public HorFileReader
+{
+public:
+    explicit Hor3DV3BinReader( dgbSurfaceReader& rdr )
+	: HorFileReader(rdr, V3Bin, false) {}
+};
+
+class Hor3DV3AscReader : public HorFileReader
+{
+public:
+    explicit Hor3DV3AscReader( dgbSurfaceReader& rdr )
+	: HorFileReader(rdr, V3Asc, false) {}
+};
+
+class Hor3DOldBinReader : public HorFileReader
+{
+public:
+    explicit Hor3DOldBinReader( dgbSurfaceReader& rdr )
+	: HorFileReader(rdr, OldBin, false) {}
+};
+
+class Hor3DOldAscReader : public HorFileReader
+{
+public:
+    explicit Hor3DOldAscReader( dgbSurfaceReader& rdr )
+	: HorFileReader(rdr, OldAsc, false) {}
+};
+
+class Hor2DV3BinReader : public HorFileReader
+{
+public:
+    explicit Hor2DV3BinReader( dgbSurfaceReader& rdr )
+	: HorFileReader(rdr, V3Bin, true) {}
+};
+
+class Hor2DV3AscReader : public HorFileReader
+{
+public:
+    explicit Hor2DV3AscReader( dgbSurfaceReader& rdr )
+	: HorFileReader(rdr, V3Asc, true) {}
+};
+
+class Hor2DOldBinReader : public HorFileReader
+{
+public:
+    explicit Hor2DOldBinReader( dgbSurfaceReader& rdr )
+	: HorFileReader(rdr, OldBin, true) {}
+};
+
+class Hor2DOldAscReader : public HorFileReader
+{
+public:
+    explicit Hor2DOldAscReader( dgbSurfaceReader& rdr )
+	: HorFileReader(rdr, OldAsc, true) {}
+};
+
+
+class LegacySurfaceReadTask : public ParallelTask
+{
+public:
+    explicit LegacySurfaceReadTask( dgbSurfaceReader& rdr )
+	: ParallelTask(rdr.name())
+	, rdr_(rdr)
+    {}
+
+    ~LegacySurfaceReadTask()			{ delete &rdr_; }
+    bool executeParallel( bool ) override	{ return rdr_.execute(); }
+    bool doWork( od_int64, od_int64, int ) override	{ return true; }
+    od_int64 nrIterations() const override	{ return 0; }
+    od_int64 nrDone() const override		{ return rdr_.nrDone(); }
+    od_int64 totalNr() const override		{ return rdr_.totalNr(); }
+    uiString uiMessage() const override		{ return rdr_.uiMessage(); }
+    uiString uiNrDoneText() const override
+    { return rdr_.uiNrDoneText(); }
+
+    dgbSurfaceReader&	rdr_;
+};
+
+
+class FailedReadTask : public ParallelTask
+{ mODTextTranslationClass(FailedReadTask);
+public:
+    FailedReadTask( dgbSurfaceReader& rdr, const uiString& msg )
+	: ParallelTask(rdr.name())
+	, rdr_(rdr)
+	, msg_(msg)
+    {}
+
+    ~FailedReadTask()				{ delete &rdr_; }
+    bool executeParallel( bool ) override	{ return false; }
+    bool doWork( od_int64, od_int64, int ) override	{ return false; }
+    od_int64 nrIterations() const override	{ return 0; }
+    uiString uiMessage() const override		{ return msg_; }
+
+    dgbSurfaceReader&	rdr_;
+    uiString		msg_;
+};
+
+
+Task* dgbSurfaceReader::createReadTask()
+{
+    mDynamicCastGet(const Horizon2D*,hor2d,surface_.ptr())
+    mDynamicCastGet(const Horizon3D*,hor3d,surface_.ptr())
+    const bool horizon = hor2d || hor3d;
+    if ( !horizon && !cube_ )
+	return new LegacySurfaceReadTask( *this );
+
+    if ( sectionids_.size() != 1 )
+    {
+	msg_ = tr("Cannot read a horizon with more than one section");
+	return new FailedReadTask( *this, msg_ );
+    }
+
+    const bool bin = isBinary();
+    const bool v3 = version_ == 3;
+    if ( hor2d )
+    {
+	if ( v3 && bin )
+	    return new Hor2DV3BinReader( *this );
+
+	if ( v3 )
+	    return new Hor2DV3AscReader( *this );
+
+	if ( bin )
+	    return new Hor2DOldBinReader( *this );
+
+	return new Hor2DOldAscReader( *this );
+    }
+
+    if ( v3 && bin )
+	return new Hor3DV3BinReader( *this );
+
+    if ( v3 )
+	return new Hor3DV3AscReader( *this );
+
+    if ( bin )
+	return new Hor3DOldBinReader( *this );
+
+    return new Hor3DOldAscReader( *this );
+}
+
+
+// dgbSurfaceWriter
+
 dgbSurfaceWriter::dgbSurfaceWriter( const IOObj* ioobj,
 				    const char* filetype,
 				    const Surface& surface,
@@ -1574,21 +2681,21 @@ void dgbSurfaceWriter::finishWriting()
     par_->setYN( dgbSurfaceReader::sKeyDepthOnly(), writeonlyz_ );
 
     const int rowrgstep = writerowrange_ ?
-                              writerowrange_->step_ : rowrange_.step_;
+			      writerowrange_->step_ : rowrange_.step_;
     par_->set( dgbSurfaceReader::sKeyRowRange(),
-               writtenrowrange_.start_, writtenrowrange_.stop_, rowrgstep );
+	       writtenrowrange_.start_, writtenrowrange_.stop_, rowrgstep );
 
     const int colrgstep = writecolrange_ ?
-                              writecolrange_->step_ : colrange_.step_;
+			      writecolrange_->step_ : colrange_.step_;
     par_->set( dgbSurfaceReader::sKeyColRange(),
-               writtencolrange_.start_, writtencolrange_.stop_, colrgstep );
+	       writtencolrange_.start_, writtencolrange_.stop_, colrgstep );
 
     par_->set( dgbSurfaceReader::sKeyZRange(), zrange_ );
 
     for (int idx=firstrow_; idx<firstrow_+rowrgstep*nrrows_; idx+=rowrgstep)
     {
-        const int idxcolstep = geometry_->colRange(idx).step_;
-        if ( idxcolstep && idxcolstep!=colrange_.step_ )
+	const int idxcolstep = geometry_->colRange(idx).step_;
+	if ( idxcolstep && idxcolstep!=colrange_.step_ )
 	    par_->set( dgbSurfaceReader::sColStepKey(idx).buf(),idxcolstep);
     }
 
@@ -1657,7 +2764,7 @@ int dgbSurfaceWriter::nrAuxVals() const
 const char* dgbSurfaceWriter::auxDataName( int idx ) const
 {
     mDynamicCastGet(const Horizon3D*,hor,&surface_);
-    return hor ? hor->auxdata.auxDataName(idx) : 0;
+    return hor ? hor->auxdata.auxDataName(idx) : nullptr;
 }
 
 
@@ -1681,15 +2788,15 @@ const StepInterval<int>& dgbSurfaceWriter::colInterval() const
 
 void dgbSurfaceWriter::setRowInterval( const StepInterval<int>& rg )
 {
-    if ( writerowrange_ ) delete writerowrange_;
-    writerowrange_ = new StepInterval<int>(rg);
+    delete writerowrange_;
+    writerowrange_ = new StepInterval<int>( rg );
 }
 
 
 void dgbSurfaceWriter::setColInterval( const StepInterval<int>& rg )
 {
-    if ( writecolrange_ ) delete writecolrange_;
-    writecolrange_ = new StepInterval<int>(rg);
+    delete writecolrange_;
+    writecolrange_ = new StepInterval<int>( rg );
 }
 
 
@@ -1745,10 +2852,11 @@ int dgbSurfaceWriter::nextStep()
 	conn_ = !fulluserexpr_.isEmpty() ?
 		    new StreamConn(fulluserexpr_,Conn::Write) : 0;
 	if ( !conn_ )
-	    {
-		msg_ = tr("Cannot open output surface file");
-                return ErrorOccurred();
-            }
+	{
+	    msg_ = tr("Cannot open output surface file");
+	    return ErrorOccurred();
+	}
+
 	od_ostream& strm = conn_->oStream();
 	if ( !strm.isOK() )
 	{
@@ -2018,7 +3126,9 @@ bool dgbSurfaceWriter::writeNewSection( od_ostream& strm )
 
 
 void dgbSurfaceWriter::setShift( float s )
-{ shift_ = s; }
+{
+    shift_ = s;
+}
 
 
 bool dgbSurfaceWriter::writeRow( od_ostream& strm )

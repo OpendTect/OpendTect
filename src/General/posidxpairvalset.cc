@@ -8,22 +8,21 @@ ________________________________________________________________________
 -*/
 
 #include "posidxpairvalset.h"
-#include "posidxpairvalue.h"
 
 #include "arrayndimpl.h"
 #include "binidvalset.h"
 #include "iopar.h"
 #include "separstr.h"
 #include "idxable.h"
+#include "od_istream.h"
+#include "od_ostream.h"
 #include "posinfo.h"
 #include "posinfo2d.h"
 #include "sorting.h"
-#include "strmoper.h"
 #include "statrand.h"
 #include "survgeom.h"
 #include "survgeom2d.h"
 #include "varlenarray.h"
-#include "od_iostream.h"
 
 static const float cMaxDistFromGeom = 1000.f;
 
@@ -640,6 +639,381 @@ void Pos::IdxPairValueSet::add( const PosInfo::CubeData& cubedata )
 {
     Pos::IdxPairValueSetFromCubeData task( *this, cubedata );
     task.execute();
+}
+
+
+bool Pos::IdxPairValueSet::appendSortedLine( int first, const int* scnds,
+					     const float* vals, int nr )
+{
+    if ( nr <= 0 )
+	return true;
+
+    if ( !scnds || (nrvals_>0 && !vals) )
+	return false;
+
+    if ( !isEmpty() && first<=frsts_.last() )
+	return false;
+
+    for ( int idx=1; idx<nr; idx++ )
+    {
+	if ( scnds[idx] <= scnds[idx-1] )
+	    return false;
+    }
+
+    PtrMan<TypeSet<IdxType> > newlines = new TypeSet<IdxType>;
+    PtrMan<TypeSet<float> > newvals = new TypeSet<float>;
+    const od_int64 nfloats = (od_int64)nr * nrvals_;
+    if ( (nrvals_>0 && (int)nfloats/nrvals_!=nr) ||
+	 !newlines->setSize(nr,0) ||
+	 (nrvals_>0 && !newvals->setSize((int)nfloats,0.f)) )
+	return false;
+
+    IdxType* newlinesarr = newlines->arr();
+    for ( int idx=0; idx<nr; idx++ )
+	newlinesarr[idx] = scnds[idx];
+    if ( nrvals_ > 0 )
+	OD::memCopy( newvals->arr(), vals, nfloats*sizeof(float) );
+
+    frsts_ += first;
+    scndsets_ += newlines.release();
+    valsets_ += newvals.release();
+    return true;
+}
+
+
+bool Pos::IdxPairValueSet::setGridValues( const StepInterval<int>& rowrg,
+					  const StepInterval<int>& colrg,
+					  const int* validxs,
+					  const float* const* vals, int nrdata,
+					  const char* skip )
+{
+    if ( nrdata<=0 || nrvals_<=0 )
+	return true;
+
+    if ( rowrg.step_<=0 || colrg.step_<=0 )
+	return false;
+
+    const int nrows = rowrg.nrSteps() + 1;
+    const int nrcols = colrg.nrSteps() + 1;
+    if ( nrows<=0 || nrcols<=0 )
+	return false;
+
+    mAllocLargeVarLenArr( const float*, src, nrdata );
+    mAllocLargeVarLenArr( int, useval, nrdata );
+    if ( !(mIsVarLenArrOK(src)) || !(mIsVarLenArrOK(useval)) )
+	return false;
+
+    const float** srcarr = mVarLenArr(src);
+    int* usevalarr = mVarLenArr(useval);
+    int nuse = 0;
+    for ( int idx=0; idx<nrdata; idx++ )
+    {
+	if ( !vals || !vals[idx] || !validxs ||
+	     validxs[idx]<0 || validxs[idx]>=nrvals_ )
+	    continue;
+
+	srcarr[nuse] = vals[idx];
+	usevalarr[nuse] = validxs[idx];
+	nuse++;
+    }
+
+    if ( nuse == 0 )
+	return true;
+
+    if ( allowdup_ )
+    {
+	mAllocLargeVarLenArr( float, cell, nrvals_ );
+	if ( !(mIsVarLenArrOK(cell)) )
+	    return false;
+
+	float* cellarr = mVarLenArr(cell);
+	for ( int irow=0; irow<nrows; irow++ )
+	{
+	    const int inl = rowrg.atIndex( irow );
+	    const char* skiprow = skip ? skip + (od_int64)irow*nrcols
+					: nullptr;
+	    for ( int icol=0; icol<nrcols; icol++ )
+	    {
+		if ( skiprow && skiprow[icol]=='1' )
+		    continue;
+
+		bool any = false;
+		setToUdf( cellarr, nrvals_ );
+		for ( int iu=0; iu<nuse; iu++ )
+		{
+		    const float v = srcarr[iu][(od_int64)irow*nrcols + icol];
+		    if ( mIsUdf(v) )
+			continue;
+
+		    cellarr[usevalarr[iu]] = v;
+		    any = true;
+		}
+
+		if ( !any )
+		    continue;
+
+		const IdxPair ip( inl, colrg.atIndex(icol) );
+		const SPos pos = find( ip );
+		if ( !pos.isValid() )
+		{
+		    add( ip, cellarr );
+		    continue;
+		}
+
+		float* dst = getVals( pos );
+		for ( int iu=0; iu<nuse; iu++ )
+		{
+		    const float v = srcarr[iu][(od_int64)irow*nrcols + icol];
+		    if ( !mIsUdf(v) )
+			dst[usevalarr[iu]] = v;
+		}
+	    }
+	}
+
+	return true;
+    }
+
+    TypeSet<IdxType> newfrsts;
+    ObjectSet< TypeSet<IdxType> > newscnds;
+    ObjectSet< TypeSet<float> > newvals;
+    mAllocLargeVarLenArr( const float*, rowbase, nuse );
+    if ( !(mIsVarLenArrOK(rowbase)) ||
+	 !newfrsts.setCapacity(nrows,false) )
+    {
+	deepErase( newscnds );
+	deepErase( newvals );
+	return false;
+    }
+
+    const float** rowbasearr = mVarLenArr(rowbase);
+
+    const int nb = frsts_.size();
+    int ib = 0;
+    bool ok = true;
+    for ( int irow=0; irow<nrows && ok; irow++ )
+    {
+	const int inl = rowrg.atIndex( irow );
+	while ( ib<nb && frsts_[ib]<inl )
+	{
+	    PtrMan<TypeSet<IdxType> > scnds =
+			new TypeSet<IdxType>(*scndsets_[ib]);
+	    PtrMan<TypeSet<float> > vset =
+			new TypeSet<float>(*valsets_[ib]);
+	    if ( !scnds || !scnds->arr() || !vset || !vset->arr() )
+	    {
+		ok = false;
+		break;
+	    }
+
+	    newfrsts += frsts_[ib];
+	    newscnds += scnds.release();
+	    newvals += vset.release();
+	    ib++;
+	}
+
+	if ( !ok )
+	    break;
+
+	const bool hasold = ib<nb && frsts_[ib]==inl;
+	const char* skiprow = skip ? skip + (od_int64)irow*nrcols : nullptr;
+	for ( int iu=0; iu<nuse; iu++ )
+	    rowbasearr[iu] = srcarr[iu] + (od_int64)irow * nrcols;
+
+	auto definedAt = [&]( int icol ) -> bool
+	{
+	    if ( skiprow && skiprow[icol]=='1' )
+		return false;
+
+	    for ( int iu=0; iu<nuse; iu++ )
+		if ( !mIsUdf(rowbasearr[iu][icol]) )
+		    return true;
+
+	    return false;
+	};
+
+	bool hasnew = false;
+	for ( int icol=0; icol<nrcols; icol++ )
+	{
+	    if ( definedAt(icol) )
+	    {
+		hasnew = true;
+		break;
+	    }
+	}
+
+	if ( !hasnew && !hasold )
+	    continue;
+
+	if ( !hasnew )
+	{
+	    PtrMan<TypeSet<IdxType> > scnds =
+			new TypeSet<IdxType>(*scndsets_[ib]);
+	    PtrMan<TypeSet<float> > vset =
+			new TypeSet<float>(*valsets_[ib]);
+	    if ( !scnds || !scnds->arr() || !vset || !vset->arr() )
+	    {
+		ok = false;
+		break;
+	    }
+
+	    newfrsts += frsts_[ib];
+	    newscnds += scnds.release();
+	    newvals += vset.release();
+	    ib++;
+	    continue;
+	}
+
+	const TypeSet<IdxType>* oldsc = hasold ? scndsets_[ib] : nullptr;
+	const TypeSet<float>* oldvs = hasold ? valsets_[ib] : nullptr;
+	const int nold = oldsc ? oldsc->size() : 0;
+	int nout = 0;
+	int j = 0;
+	for ( int icol=0; icol<nrcols; icol++ )
+	{
+	    const int crl = colrg.atIndex( icol );
+	    if ( oldsc )
+	    {
+		while ( j<nold && (*oldsc)[j]<crl )
+		{
+		    nout++;
+		    j++;
+		}
+
+		if ( j<nold && (*oldsc)[j]==crl )
+		{
+		    nout++;
+		    j++;
+		    continue;
+		}
+	    }
+
+	    if ( definedAt(icol) )
+		nout++;
+	}
+
+	if ( oldsc )
+	    nout += nold - j;
+
+	PtrMan<TypeSet<IdxType> > scnds = new TypeSet<IdxType>;
+	PtrMan<TypeSet<float> > vset = new TypeSet<float>;
+	const od_int64 nfloats = (od_int64)nout * nrvals_;
+	if ( !scnds || !vset || nout<1 ||
+	     (nrvals_>0 && (int)nfloats/nrvals_!=nout) ||
+	     !scnds->setCapacity(nout,false) ||
+	     !vset->setCapacity((int)nfloats,false) )
+	{
+	    ok = false;
+	    break;
+	}
+
+	auto appendOld = [&]( int jold )
+	{
+	    *scnds += (*oldsc)[jold];
+	    const float* srcv = oldvs->arr() + (od_int64)jold * nrvals_;
+	    for ( int iv=0; iv<nrvals_; iv++ )
+		*vset += srcv[iv];
+	};
+
+	j = 0;
+	for ( int icol=0; icol<nrcols; icol++ )
+	{
+	    const int crl = colrg.atIndex( icol );
+	    if ( oldsc )
+	    {
+		while ( j<nold && (*oldsc)[j]<crl )
+		{
+		    appendOld( j );
+		    j++;
+		}
+	    }
+
+	    const bool same = oldsc && j<nold && (*oldsc)[j]==crl;
+	    if ( !definedAt(icol) )
+	    {
+		if ( same )
+		{
+		    appendOld( j );
+		    j++;
+		}
+		continue;
+	    }
+
+	    *scnds += crl;
+	    const int base = vset->size();
+	    if ( same )
+	    {
+		const float* srcv = oldvs->arr() + (od_int64)j * nrvals_;
+		for ( int iv=0; iv<nrvals_; iv++ )
+		    *vset += srcv[iv];
+		j++;
+	    }
+	    else
+	    {
+		for ( int iv=0; iv<nrvals_; iv++ )
+		    *vset += mUdf(float);
+	    }
+
+	    for ( int iu=0; iu<nuse; iu++ )
+	    {
+		const float v = rowbasearr[iu][icol];
+		if ( !mIsUdf(v) )
+		    (*vset)[base + usevalarr[iu]] = v;
+	    }
+	}
+
+	if ( oldsc )
+	{
+	    while ( j<nold )
+	    {
+		appendOld( j );
+		j++;
+	    }
+	}
+
+	newfrsts += inl;
+	newscnds += scnds.release();
+	newvals += vset.release();
+	if ( hasold )
+	    ib++;
+    }
+
+    while ( ok && ib<nb )
+    {
+	PtrMan<TypeSet<IdxType> > scnds =
+			new TypeSet<IdxType>(*scndsets_[ib]);
+	PtrMan<TypeSet<float> > vset =
+			new TypeSet<float>(*valsets_[ib]);
+	if ( !scnds || !scnds->arr() || !vset || !vset->arr() )
+	{
+	    ok = false;
+	    break;
+	}
+
+	newfrsts += frsts_[ib];
+	newscnds += scnds.release();
+	newvals += vset.release();
+	ib++;
+    }
+
+    if ( !ok )
+    {
+	deepErase( newscnds );
+	deepErase( newvals );
+	return false;
+    }
+
+    deepErase( scndsets_ );
+    deepErase( valsets_ );
+    frsts_ = newfrsts;
+    for ( int idx=0; idx<newscnds.size(); idx++ )
+    {
+	scndsets_ += newscnds[idx];
+	newscnds.replace( idx, nullptr );
+	valsets_ += newvals[idx];
+	newvals.replace( idx, nullptr );
+    }
+
+    return true;
 }
 
 

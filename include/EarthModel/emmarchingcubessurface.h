@@ -9,7 +9,7 @@ ________________________________________________________________________
 -*/
 
 #include "earthmodelmod.h"
-#include "emobject.h"
+
 #include "embody.h"
 #include "samplingdata.h"
 
@@ -30,9 +30,9 @@ public:
 
     const char*			type() const override	{ return typeStr(); }
 
-    Executor*			loader() override;
-    Executor*			saver() override;
-    virtual Executor*		saver(const IOObj*);
+    Task*			loader() override;
+    Task*			saver() override;
+    virtual Task*		saver(const IOObj*);
     bool			isEmpty() const override;
 
     const IOObjContext&		getIOObjContext() const override;

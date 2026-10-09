@@ -9,19 +9,21 @@ ________________________________________________________________________
 
 #include "batchprog.h"
 
+#include "arrayndimpl.h"
+#include "datapointset.h"
 #include "embody.h"
 #include "emfault.h"
 #include "emfaultstickset.h"
 #include "emhorizon2d.h"
 #include "emhorizon3d.h"
+#include "emioobjinfo.h"
 #include "emstoredobjaccess.h"
-#include "horizonsorter.h"
-#include "moddepmgr.h"
-#include "multiid.h"
-#include "arrayndimpl.h"
-#include "ioman.h"
 #include "emsurfaceauxdata.h"
+#include "emsurfaceiodata.h"
 #include "emsurfacetr.h"
+#include "horizonsorter.h"
+#include "ioman.h"
+#include "multiid.h"
 #include "survinfo.h"
 
 
@@ -50,9 +52,9 @@ static bool testEMStoredObjAccess( od_ostream& strm )
 	      "EM::StoredObjAccess: Add non-existing MultiID should fail" );
     soa.dismiss( MultiID(100020,99795) );
 
-    PtrMan<Executor> exec = soa.reader();
-    TextTaskRunner ttr( strm );
-    const bool res = ttr.execute( *exec.ptr() );
+    PtrMan<Task> exec = soa.reader();
+    TextTaskRunner runner( strm );
+    const bool res = exec && runner.execute( *exec.ptr() );
     mRunStandardTestWithError( res, exec->name(), ::toString(soa.getError()) );
     exec = nullptr;
 
@@ -207,9 +209,8 @@ static bool createHorizon3D( const char* hornm )
     if ( newhor->setArray2D(arr.ptr(), tks.start_, tks.step_, false) )
     {
 	newhor->setFullyLoaded( true );
-	PtrMan<Executor> saver = newhor->saver();
-	mRunStandardTest( saver && TaskRunner::execute(nullptr, *saver),
-			  "Save 3D horizon" );
+	PtrMan<Task> saver = newhor->saver();
+	mRunStandardTest( saver && saver->execute(), "Save 3D horizon" );
     }
 
     const BufferString attribnm( "attrib_1" ) ;
@@ -226,8 +227,8 @@ static bool createHorizon3D( const char* hornm )
 					   -arr->get(i,j)*zfac );
 	}
     }
-    PtrMan<Executor> auxsaver = newhor->auxdata.auxDataSaver( auxidx, true );
-    mRunStandardTest( auxsaver && TaskRunner::execute( nullptr, *auxsaver ),
+    PtrMan<Task> auxsaver = newhor->auxdata.auxDataSaver( auxidx, true );
+    mRunStandardTest( auxsaver && auxsaver->execute(),
 		      "Save 3D horizon data" );
 
     return true;
@@ -269,7 +270,7 @@ static bool testHorizon3D( const char* hornm )
     mRunStandardTestWithError( allclose, "Check 3D horizon Z values",
 			       errmsg.str() );
 
-    PtrMan<Executor> auxloader = hor3d->auxdata.auxDataLoader( "attrib_1" );
+    PtrMan<Task> auxloader = hor3d->auxdata.auxDataLoader( "attrib_1" );
     mRunStandardTest( auxloader && TaskRunner::execute(nullptr, *auxloader),
 		      "Read 3D horizon data" );
 
@@ -355,7 +356,9 @@ static bool testHorizon3dAuxData()
     selattribs.add( "FailLast" );
 
     hor3d->auxdata.removeAll();
-    ExecutorGroup loaders( "Loading Horizon Data", false );
+    TaskGroup loaders;
+    loaders.setName( "Loading Horizon Data" );
+    int nloaders = 0;
 
     for ( const auto* attrname : selattribs )
     {
@@ -365,10 +368,13 @@ static bool testHorizon3dAuxData()
 
 	auto* loader = hor3d->auxdata.auxDataLoader( fileidx );
 	if ( loader )
-	    loaders.add( loader );
+	{
+	    loaders.addTask( loader );
+	    nloaders++;
+	}
     }
 
-    mRunStandardTestWithError( loaders.nrExecutors()==2,
+    mRunStandardTestWithError( nloaders==2,
 			       "Adding two loaders for aux data",
 			       "Found incorrect number of "
 			       "loaders for aux data" );
@@ -441,6 +447,56 @@ static bool testHorizon3dCopyGeom()
 }
 
 
+static bool testHorizonReadSpeed( od_ostream& strm )
+{
+    TextTaskRunner runner( strm );
+
+    auto& emm = EM::EMM();
+    const MultiID horid( 100020, 2 );
+    PtrMan<Task> loaderptr = emm.objectLoader( horid );
+    mRunStandardTest( loaderptr, "Creating loader for read speed" )
+    Task& loader = *loaderptr;
+    mRunStandardTestWithError( runner.execute( loader ),
+		"Executing loader for read speed",
+		toString(loader.uiMessage()) )
+
+    RefMan<EM::EMObject> emobj = emm.getObject( horid );
+    mDynamicCastGet( EM::Horizon3D*, hor3d, emobj.ptr() );
+    mRunStandardTest( hor3d, "Casting emobject to Horizon3D" );
+
+    const EM::IOObjInfo info( horid );
+    mRunStandardTest( info.isOK(),
+			"Getting info for horizon for read speed" )
+    BufferStringSet attribnms;
+    info.getAttribNames( attribnms );
+    mRunStandardTest( attribnms.size() == 2,
+			"Getting attrib names for horizon for read speed" )
+    EM::SurfaceIOData sd;
+    uiString errmsg;
+    mRunStandardTestWithError( info.getSurfaceData(sd, errmsg ) &&
+		sd.valnames == attribnms,
+		"Getting surface data for horizon for read speed",
+		toString(errmsg) )
+    EM::SurfaceIODataSelection selsd( sd );
+    selsd.setDefault();
+
+    hor3d->auxdata.removeAll();
+    PtrMan<Task> auxloader = hor3d->auxdata.auxDataLoader();
+    mRunStandardTest( auxloader, "Creating aux data loader for read speed" )
+    mRunStandardTestWithError( runner.execute( *auxloader ),
+		"Executing aux data loader for read speed",
+		toString(auxloader->uiMessage()) )
+
+    RefMan<DataPointSet> dps = new DataPointSet( false );
+    PtrMan<Task> dpsfiller = hor3d->auxdata.createDataPointSetTask(*dps.ptr());
+    mRunStandardTestWithError( dpsfiller && runner.execute( *dpsfiller ),
+		"Filling a DataPointSet from all AuxData",
+		toString(dpsfiller->uiMessage()) )
+
+    return true;
+}
+
+
 mLoad1Module("EarthModel")
 
 bool BatchProgram::doWork( od_ostream& strm )
@@ -453,7 +509,8 @@ bool BatchProgram::doWork( od_ostream& strm )
 	 !testHorizon3D(hor3dnm.str()) ||
 	 !removeHorizon3D(hor3dnm.str()) ||
 	 !testHorizon3dAuxData() ||
-	 !testHorizon3dCopyGeom() )
+	 !testHorizon3dCopyGeom() ||
+	 !testHorizonReadSpeed(strm) )
 	return false;
 
     return true;

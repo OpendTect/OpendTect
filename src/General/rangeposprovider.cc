@@ -8,6 +8,7 @@ ________________________________________________________________________
 -*/
 
 #include "rangeposprovider.h"
+
 #include "survinfo.h"
 #include "survgeom2d.h"
 #include "posinfo2d.h"
@@ -125,6 +126,12 @@ void Pos::RangeProvider3D::setSampling( const TrcKeyZSampling& tkzs )
 	tkzs_.zsamp_.step_ = sitkzs.zsamp_.step_;
     }
     zsampsz_ = tkzs.zsamp_.nrSteps()+1;
+}
+
+
+void Pos::RangeProvider3D::setHSampling( const TrcKeySampling& tks ) const
+{
+    tkzs_.hsamp_ = tks;
 }
 
 

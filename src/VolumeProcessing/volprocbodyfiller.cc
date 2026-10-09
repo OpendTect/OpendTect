@@ -9,14 +9,11 @@ ________________________________________________________________________
 
 #include "volprocbodyfiller.h"
 
-#include "emmarchingcubessurface.h"
 #include "emmanager.h"
 #include "empolygonbody.h"
-#include "executor.h"
 #include "iopar.h"
 #include "embody.h"
 #include "polygon.h"
-#include "rowcol.h"
 #include "seisdatapack.h"
 #include "separstr.h"
 #include "survinfo.h"
@@ -95,7 +92,7 @@ bool BodyFiller::setSurface( const MultiID& mid )
     RefMan<EM::EMObject> emobj = EM::EMM().getObject( emid );
     if ( !emobj || !emobj->isFullyLoaded() )
     {
-	PtrMan<Executor> loader = EM::EMM().objectLoader( mid );
+	PtrMan<Task> loader = EM::EMM().objectLoader( mid );
 	if ( !loader || !loader->execute() )
 	    return false;
 
@@ -420,7 +417,7 @@ bool BodyFiller::getFlatPlgZRange( const BinID& bid, Interval<double>& res )
     {
 	TypeSet<Coord3> knots;
 	for ( int idx=0; idx<plgknots_.size(); idx++ )
-            knots += Coord3( plgknots_[idx].x_, plgknots_[idx].y_, 0 );
+	    knots += Coord3( plgknots_[idx].x_, plgknots_[idx].y_, 0 );
 
 	if ( !pointInPolygon( Coord3(coord,0), knots, epsilon_ ) )
 	    return false;
@@ -430,9 +427,9 @@ bool BodyFiller::getFlatPlgZRange( const BinID& bid, Interval<double>& res )
 	    for ( int idx=0; idx<plgknots_.size(); idx++ )
 	    {
 		if ( !idx )
-                    res.start_ = res.stop_ = plgknots_[0].z_;
+		    res.start_ = res.stop_ = plgknots_[0].z_;
 		else
-                    res.include( plgknots_[idx].z_ );
+		    res.include( plgknots_[idx].z_ );
 	    }
 
 	    if ( mIsZero( res.width(), 1e-3 ) )
@@ -445,12 +442,13 @@ bool BodyFiller::getFlatPlgZRange( const BinID& bid, Interval<double>& res )
 	{
 	    const Coord3 normal = (plgknots_[1] - plgknots_[0]).cross(
 		    plgknots_[2] - plgknots_[1] );
-            if ( mIsZero(normal.z_, 1e-4) ) //Should not happen case
+	    if ( mIsZero(normal.z_, 1e-4) ) //Should not happen case
 		return false;
 
 	    const Coord diff = coord - plgknots_[0].coord();
-            const double z = plgknots_[0].z_ -
-                             ( normal.x_ * diff.x_ + normal.y_ * diff.y_ ) / normal.z_;
+	    const double z = plgknots_[0].z_ -
+			     ( normal.x_ * diff.x_ + normal.y_ * diff.y_ )
+			     / normal.z_;
 	    res.start_ = z - 0.5 * zstep;
 	    res.stop_ = z + 0.5 * zstep;
 	}

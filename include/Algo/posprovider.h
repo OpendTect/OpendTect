@@ -9,8 +9,11 @@ ________________________________________________________________________
 -*/
 
 #include "algomod.h"
+
 #include "posfilter.h"
 #include "ranges.h"
+#include "trckey.h"
+
 class TrcKeyZSampling;
 
 

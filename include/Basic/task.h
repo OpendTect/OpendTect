@@ -46,7 +46,7 @@ public:
 				 progress. */
     virtual double	progressFactor() const			{ return 1.; }
 			/*!\note conversion factor used to scale nrDone() and
-				 totalNr() when displayed in the GUI  	*/
+				 totalNr() when displayed. */
     virtual uiRetVal	errorWithDetails() const
 			{ return uiRetVal(uiMessage()); }
 

@@ -14,7 +14,6 @@ ________________________________________________________________________
 #include "emmanager.h"
 #include "emsurfaceauxdata.h"
 #include "emsurfacetr.h"
-#include "executor.h"
 #include "file.h"
 #include "filepath.h"
 #include "gmtdef.h"
@@ -23,6 +22,7 @@ ________________________________________________________________________
 #include "od_ostream.h"
 #include "strmprov.h"
 #include "survinfo.h"
+#include "task.h"
 
 
 int GMTContour::factoryid_ = -1;
@@ -103,7 +103,7 @@ bool GMTContour::doExecute( od_ostream& strm, const char* fnm )
 
     sd.rg.usePar( *subpar );
     PtrMan<EM::SurfaceIODataSelection> sel = new EM::SurfaceIODataSelection(sd);
-    PtrMan<Executor> exec = EM::EMM().objectLoader( id, sel.ptr() );
+    PtrMan<Task> exec = EM::EMM().objectLoader( id, sel.ptr() );
     if ( !exec || !exec->execute() )
 	mErrStrmRet("Cannot load horizon")
 

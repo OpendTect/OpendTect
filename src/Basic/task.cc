@@ -329,9 +329,10 @@ void ReportingTask::updateProgressMeter( bool forced, od_int64* totalnrcache )
 	 (Time::passedSince(lastupdate_) < mDefaultTimeLimit && !forced ) )
 	return;
 
-    const od_int64 nrdone = nrDone() * progressFactor();
-    const od_int64 totalnr = totalnrcache ? *totalnrcache
-					  : totalNr() * progressFactor();
+    const double factor = progressFactor();
+    const od_int64 nrdone = nrDone() * factor;
+    const od_int64 rawtotal = totalnrcache ? *totalnrcache : totalNr();
+    const od_int64 totalnr = rawtotal * factor;
     progressmeter_->setNrDone( nrdone );
     progressmeter_->setTotalNr( totalnr );
     progressmeter_->setNrDoneText( uiNrDoneText() );

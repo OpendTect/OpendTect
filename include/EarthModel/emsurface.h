@@ -9,9 +9,9 @@ ________________________________________________________________________
 -*/
 
 #include "earthmodelmod.h"
+
 #include "emobject.h"
 
-class IOObj;
 namespace Pos { class Filter; }
 
 namespace EM
@@ -32,9 +32,9 @@ public:
 
     bool			isAtEdge(const EM::PosID&) const override;
     bool			isLoaded() const override;
-    Executor*			saver() override;
-    virtual Executor*		saver(IOObj*)		{ return 0;}
-    Executor*			loader() override;
+    Task*			loader() override;
+    Task*			saver() override;
+    virtual Task*		saver( IOObj* )		{ return nullptr; }
 
     const char*			dbInfo() const		 { return dbinfo.buf();}
     void			setDBInfo(const char* s) { dbinfo = s; }

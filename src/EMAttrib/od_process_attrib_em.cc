@@ -363,9 +363,9 @@ bool BatchProgram::doWork( od_ostream& strm )
 	for ( int ids=0; ids<sd.sections.size(); ids++ )
 	    sels.selsections += ids;
 	sels.rg = hsamp;
-	PtrMan<Executor> loader =
+	PtrMan<Task> loader =
 		EMM().objectLoader( *mid, iscubeoutp ? &sels : nullptr );
-	if ( !loader || !loader->go(strm) )
+	if ( !loader || !loader->execute() )
 	{
 	    BufferString errstr = "Cannot load horizon: ";
 	    errstr += mid->toString();
@@ -442,7 +442,8 @@ bool BatchProgram::doWork( od_ostream& strm )
 	uiString uierrmsg;
 	mSetEngineMan()
 	Processor* proc = aem.createLocationOutput( uierrmsg, bivs );
-	if ( !proc ) mErrRet( uierrmsg.getFullString() );
+	if ( !proc )
+	    mErrRet( uierrmsg.getFullString() );
 
 	if ( !process(strm,proc,false,attribrefs) )
 	    return false;
@@ -450,14 +451,16 @@ bool BatchProgram::doWork( od_ostream& strm )
 	HorizonUtils::addHorizonData( *(midset[0]), attribrefs, bivs );
 	EMObject* obj = EMM().getObject( EMM().getObjectID(*midset[0]) );
 	mDynamicCastGet(Horizon3D*,horizon,obj)
-	if ( !horizon ) mErrRet( "Huh" );
+	if ( !horizon )
+	    mErrRet( "Huh" );
 
 	interpolate( horizon, attribrefs, pars(), strm );
 
 	SurfaceIOData sd; sd.use( *horizon );
 	SurfaceIODataSelection sels( sd );
-	PtrMan<Executor> saver = horizon->auxdata.auxDataSaver( -1, true );
-	if ( !saver || !saver->go(strm) )
+	PtrMan<Task> saver = horizon->auxdata.auxDataSaver( -1, true );
+	TextTaskRunner runner( strm );
+	if ( !saver || !runner.execute(*saver.ptr()) )
 	    mErrRet( "Cannot save data" );
     }
     else if ( geompar )

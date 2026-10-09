@@ -11,6 +11,8 @@ ________________________________________________________________________
 #include "attributesmod.h"
 #include "attribprovider.h"
 
+namespace Geom { template <class T> class Point2D; }
+
 namespace Attrib
 {
 

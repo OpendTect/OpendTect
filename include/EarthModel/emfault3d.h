@@ -9,8 +9,8 @@ ________________________________________________________________________
 -*/
 
 #include "earthmodelmod.h"
+
 #include "emfault.h"
-#include "locationbase.h"
 #include "tableascio.h"
 
 namespace Table { class FormatDesc; }
@@ -181,8 +181,5 @@ protected:
     TypeSet<TrcKeyZSampling>	    tkzsset_;
     TrcKeyZSampling		    tkzsenvelope_;
 };
-
-
-
 
 } // namespace EM

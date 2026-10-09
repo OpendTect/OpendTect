@@ -9,9 +9,11 @@ ________________________________________________________________________
 -*/
 
 #include "earthmodelmod.h"
+
 #include "objectset.h"
 #include "uistring.h"
-class Executor;
+
+class Task;
 
 namespace EM
 {
@@ -44,7 +46,7 @@ public:
     uiString		getError(int iobj=-1) const;
 
     bool		finishRead();	//!< may take a long time
-    Executor*		reader();     //!< will 'run' until reading is finished
+    Task*		reader();     //!< will 'run' until reading is finished
 
     EMObject*		object(int iobj=0); //!< returns null until ready
     const EMObject*	object(int iobj=0) const;

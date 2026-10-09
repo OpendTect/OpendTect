@@ -29,7 +29,7 @@ ________________________________________________________________________
 #include "emmanager.h"
 #include "emsurfaceauxdata.h"
 #include "emsurfacetr.h"
-#include "executor.h"
+#include "paralleltask.h"
 #include "ioobj.h"
 #include "survinfo.h"
 
@@ -265,7 +265,7 @@ void uiGMTContourGrp::readCB( CallBacker* )
     {
 	const int selidx = sd_.valnames.indexOf( attrnm.buf() );
 	if ( selidx < 0 ) return;
-	PtrMan<Executor> exec = hor_->auxdata.auxDataLoader( selidx );
+	PtrMan<Task> exec = hor_->auxdata.auxDataLoader( selidx );
 	if ( exec )
 	    exec->execute();
 
@@ -312,7 +312,7 @@ bool uiGMTContourGrp::loadHor()
     {
 	PtrMan<EM::SurfaceIODataSelection> sel =
 					new EM::SurfaceIODataSelection( sd_ );
-	PtrMan<Executor> exec = EM::EMM().objectLoader( ioobj->key(),
+	PtrMan<Task> exec = EM::EMM().objectLoader( ioobj->key(),
 							sel.ptr() );
 	if ( !exec )
 	    return false;

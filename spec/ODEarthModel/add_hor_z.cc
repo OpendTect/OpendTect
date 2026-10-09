@@ -20,6 +20,7 @@ ________________________________________________________________________
 #include "ptrman.h"
 #include "survinfo.h"
 #include "executor.h"
+#include "od_ostream.h"
 #include "keystrs.h"
 #include <iostream>
 
@@ -33,17 +34,26 @@ static int prUsage( const char* msg = 0 )
 
 int mProgMainFnName( int argc, char** argv )
 {
-    if ( argc < 4 ) return prUsage();
+    if ( argc < 4 )
+	return prUsage();
+
     bool incudf = argc > 4 && strcmp(argv[4],"--incudf");
 
-    IOObj* ioobj = IOM().get( argv[1] );
-    if ( !ioobj ) return prUsage( "Horizon_ID not OK" );
-    MultiID ioobjkey( ioobj->key() );
-    delete ioobj;
+    MultiID ioobjkey;
+    ioobjkey.fromString( argv[1] );
+
+    PrtMan<IOObj> ioobj = IOM().get( ioobjkey );
+    if ( !ioobj )
+	return prUsage( "Horizon_ID not OK" );
 
     EM::EMManager& em = EM::EMM();
-    PtrMan<Executor> exec = em.objectLoader( MultiID(argv[1]) );
-    exec->execute( &std::cerr );
+    PtrMan<Task> exec = em.objectLoader( ioobjkey );
+    if ( exec )
+    {
+	TextTaskRunner runner( od_cerr() );
+	runner.execute( *exec );
+    }
+
     EM::EMObject* emobj = em.getObject( em.getObjectID(ioobjkey) );
     mDynamicCastGet(EM::Horizon*,horizon,emobj)
     if ( !horizon ) return prUsage( "ID is not horizon" );

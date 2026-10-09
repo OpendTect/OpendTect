@@ -12,6 +12,7 @@ ________________________________________________________________________
 #include "emhorizon2d.h"
 #include "emhorizon3d.h"
 #include "executor.h"
+#include "posinfo2d.h"
 #include "survinfo.h"
 #include "survgeom2d.h"
 

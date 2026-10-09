@@ -15,7 +15,6 @@ ________________________________________________________________________
 #include "attribdescset.h"
 #include "attribengman.h"
 #include "attriboutput.h"
-#include "attribparambase.h"
 #include "attribprocessor.h"
 #include "attribstorprovider.h"
 #include "emhorizon3d.h"
@@ -75,11 +74,11 @@ bool parseAmplitudeOption( const char* optstr, Stats::Type& typ,
 }
 
 
-StratAmpCalc::StratAmpCalc( const EM::Horizon3D* tophor,
+StratAmpCalc::StratAmpCalc( const EM::Horizon3D& tophor,
 			    const EM::Horizon3D* bothor,
 			    const TrcKeySampling& hs, bool outputfold )
-    : Executor("Stratal amplitude Executor")
-    , tophorizon_(tophor)
+    : SequentialTask("Stratal amplitude Executor")
+    , tophorizon_(&tophor)
     , bothorizon_(bothor)
     , nrdone_(0)
     , outfold_(outputfold)
@@ -90,16 +89,6 @@ StratAmpCalc::StratAmpCalc( const EM::Horizon3D* tophor,
     totnr_ = hs.nrInl() * hs.nrCrl();
     descset_ = new Attrib::DescSet( false );
     msg_ = tr("Computing trace statistics");
-}
-
-
-StratAmpCalc::StratAmpCalc( const EM::Horizon3D* tophor,
-			    const EM::Horizon3D* bothor,
-			    Stats::Type stattyp, const TrcKeySampling& hs,
-			    bool outputfold )
-    : StratAmpCalc( tophor, bothor, hs, outputfold )
-{
-    stattyp_ = stattyp;
 }
 
 
@@ -117,11 +106,8 @@ uiString StratAmpCalc::uiNrDoneText() const
 }
 
 
-bool StratAmpCalc::init( const IOPar& pars )
+bool StratAmpCalc::usePar( const IOPar& pars )
 {
-    if ( !tophorizon_ )
-	return false;
-
     addtotop_ = false;
     pars.getYN( sKeyAddToTopYN(), addtotop_ );
     if ( !addtotop_ && !bothorizon_ )
@@ -264,17 +250,23 @@ const TypeSet<int>& StratAmpCalc::foldAttribIdxs() const
 }
 
 
-bool StratAmpCalc::doOutputFold() const
+int StratAmpCalc::getFoldIdx() const
 {
-    return outfold_;
+    return !dataidxsfold_.isEmpty() ? dataidxsfold_[0] : mUdf(int);
+}
+
+
+bool StratAmpCalc::doPrepare( od_ostream* strm )
+{
+    if ( ( !proc_ && !rdr_ ) || !tophorizon_ || dataidxs_.isEmpty() )
+	return false;
+
+    return SequentialTask::doPrepare( strm );
 }
 
 
 int StratAmpCalc::nextStep()
 {
-    if ( ( !proc_ && !rdr_ ) || !tophorizon_ || dataidxs_.isEmpty() )
-	return ErrorOccurred();
-
     int res = -1;
     SeisTrc* trc = nullptr;
     if ( usesstored_ )
@@ -387,22 +379,7 @@ int StratAmpCalc::nextStep()
 }
 
 
-bool StratAmpCalc::saveAttribute( const EM::Horizon3D& hor, int attribidx,
-				  bool overwrite, int foldidx,
-				  od_ostream* strm )
+bool StratAmpCalc::doFinish( bool success, od_ostream* strm )
 {
-    PtrMan<Executor> datasaver =
-			hor.auxdata.auxDataSaver( attribidx, overwrite );
-    if ( !(datasaver && datasaver->go(strm,false,false)) )
-	return false;
-
-    if ( outfold_ && dataidxsfold_.isPresent(foldidx) )
-    {
-	datasaver.erase();
-	datasaver = hor.auxdata.auxDataSaver( foldidx, overwrite);
-	if ( !(datasaver && datasaver->go(strm,false,false)) )
-	    return false;
-    }
-
-    return true;
+    return SequentialTask::doFinish( success, strm );
 }

@@ -320,10 +320,10 @@ bool RandomPosBody::setPos( const SubID& sub,
 }
 
 
-Executor* RandomPosBody::saver( IOObj* inpioobj )
+Task* RandomPosBody::saver( IOObj* inpioobj )
 {
-    PtrMan<IOObj> myioobj = 0;
-    IOObj* ioobj = 0;
+    PtrMan<IOObj> myioobj;
+    IOObj* ioobj = nullptr;
     if ( inpioobj )
 	ioobj = inpioobj;
     else
@@ -332,20 +332,20 @@ Executor* RandomPosBody::saver( IOObj* inpioobj )
 	ioobj = myioobj.ptr();
     }
 
-    Conn* conn = ioobj ? ioobj->getConn( Conn::Write ) : 0;
-    return conn ? new RandomPosBodyWriter( *this, conn ) : 0;
+    Conn* conn = ioobj ? ioobj->getConn( Conn::Write ) : nullptr;
+    return conn ? new RandomPosBodyWriter( *this, conn ) : nullptr;
 }
 
 
-Executor* RandomPosBody::saver()
-{ return saver(0); }
+Task* RandomPosBody::saver()
+{ return saver( nullptr ); }
 
 
-Executor* RandomPosBody::loader()
+Task* RandomPosBody::loader()
 {
     PtrMan<IOObj> ioobj = IOM().get( multiID() );
-    Conn* conn = ioobj ? ioobj->getConn( Conn::Read ) : 0;
-    return conn ? new RandomPosBodyReader( *this, conn ) : 0;
+    Conn* conn = ioobj ? ioobj->getConn( Conn::Read ) : nullptr;
+    return conn ? new RandomPosBodyReader( *this, conn ) : nullptr;
 }
 
 
@@ -355,10 +355,10 @@ bool RandomPosBody::isEmpty() const
 
 const IOObjContext& RandomPosBody::getIOObjContext() const
 {
-    mDefineStaticLocalObject( PtrMan<IOObjContext>, res, = 0 );
+    mDefineStaticLocalObject( PtrMan<IOObjContext>, res, );
     if ( !res )
     {
-	IOObjContext* newres =
+	auto* newres =
 	    new IOObjContext(EMBodyTranslatorGroup::ioContext() );
 	newres->fixTranslator( typeStr() );
 

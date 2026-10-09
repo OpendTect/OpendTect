@@ -21,9 +21,9 @@ ________________________________________________________________________
 #include "uistring.h"
 
 class TrcKeyZSampling;
-class Executor;
 class IOObj;
 class IOObjContext;
+class Task;
 class TaskRunner;
 class UnitOfMeasure;
 
@@ -260,9 +260,9 @@ public:
 
     CNotifier<EMObject,const EMObjectCallbackData&>	change;
 
-    virtual Executor*		loader()		{ return 0; }
+    virtual Task*		loader()		{ return nullptr; }
     virtual bool		isLoaded() const	{ return false; }
-    virtual Executor*		saver()			{ return 0; }
+    virtual Task*		saver()			{ return nullptr; }
     virtual bool		isChanged() const	{ return changed_; }
     virtual bool		isEmpty() const;
     virtual void		setChangedFlag()	{ changed_=true; }

@@ -50,7 +50,7 @@ FaultSet3D& FaultSet3D::operator =( const FaultSet3D& oth )
 }
 
 
-Executor* FaultSet3D::loader()
+Task* FaultSet3D::loader()
 {
     PtrMan<IOObj> ioobj = IOM().get( multiID() );
     if ( !ioobj )
@@ -144,7 +144,7 @@ int FaultSet3D::indexOf( FaultID fid ) const
 }
 
 
-Executor* FaultSet3D::saver()
+Task* FaultSet3D::saver()
 {
     PtrMan<IOObj> ioobj = IOM().get( multiID() );
     PtrMan<EMFaultSet3DTranslator> transl =
