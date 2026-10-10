@@ -25,7 +25,8 @@ set ( OD_PLUGIN_ALO_EXEC ${OD_MAIN_EXEC}
 	${OD_ZAXISTRANSFORM_EXECS} ${OD_DB_EXECS} test_hdf5 )
 
 OD_SETUP_HDF5()
-if ( HDF5_FOUND AND TARGET hdf5::hdf5-shared AND TARGET hdf5::hdf5_cpp-shared )
+if ( HDF5_FOUND AND ( ( TARGET hdf5::hdf5-shared AND TARGET hdf5::hdf5_cpp-shared ) OR
+		      ( TARGET hdf5::hdf5-static AND TARGET hdf5::hdf5_cpp-static ) ) )
     OD_INIT_MODULE()
 else()
 
