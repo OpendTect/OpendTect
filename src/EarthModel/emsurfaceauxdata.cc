@@ -880,6 +880,8 @@ bool doPrepare( int ) override
 bool doWork( od_int64 start, od_int64 stop, int ) override
 {
     const int naux = auxidxs_.size();
+    const int npack = dps_.bivSet().nrVals();
+    const bool minimal = dps_.isMinimal();
     for ( int irow=mCast(int,start); irow<=stop; irow++ )
     {
 	if ( !shouldContinue() )
@@ -917,10 +919,30 @@ bool doWork( od_int64 start, od_int64 stop, int ) override
 
 	    const bool hasaux = iaux<nauxpos && aux.crls[iaux]==crl;
 	    out.crls += crl;
-	    out.vals += z;
-	    out.vals += sectionval_;
-	    for ( int ia=0; ia<naux; ia++ )
-		out.vals += hasaux ? aux.vals[iaux*naux+ia] : mUdf(float);
+	    const int base = out.vals.size();
+	    if ( npack>0 &&
+		 (!out.vals.setSize(base+npack,mUdf(float)) || !out.vals.arr()) )
+		return false;
+
+	    if ( npack > 0 )
+	    {
+		float* dst = out.vals.arr() + base;
+		dst[0] = z;
+		if ( !minimal && npack>3 )
+		{
+		    dst[1] = 0.f;
+		    dst[2] = 0.f;
+		    dst[3] = -1.f;
+		}
+
+		const int aux0 = npack - naux;
+		if ( aux0 > 0 )
+		    dst[aux0-1] = sectionval_;
+		for ( int ia=0; ia<naux && aux0+ia<npack; ia++ )
+		    dst[aux0+ia] = hasaux ? aux.vals[iaux*naux+ia]
+					  : mUdf(float);
+	    }
+
 	    if ( hasaux )
 		iaux++;
 	}
@@ -938,7 +960,7 @@ bool doFinish( bool success ) override
     {
 	dps_.clearData();
 	dps_.bivSet().allowDuplicateBinIDs( false );
-	const int npack = auxidxs_.size() + 2;
+	const int npack = dps_.bivSet().nrVals();
 	for ( int irow=0; irow<nrows_; irow++ )
 	{
 	    const PosLine& row = rows_[irow];
