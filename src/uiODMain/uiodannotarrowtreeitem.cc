@@ -51,7 +51,7 @@ ArrowSubItem::ArrowSubItem( Pick::Set& pck, const VisID& displayid )
     , propmnuitem_( m3Dots(uiStrings::sProperties()) )
     , arrowtype_( 2 )
 {
-    defscale_ = mCast(float,set_->disp3d().size());
+    defscale_ = sCast(float,set_->disp3d().size());
     propmnuitem_.iconfnm = "disppars";
 }
 
@@ -185,7 +185,7 @@ void ArrowSubItem::handleMenuCB( CallBacker* cb )
 	dlg.setArrowType( arrowtype_ );
 	dlg.setLineWidth( ad->getLineWidth() );
 	dlg.propertyChange.notify( mCB(this,ArrowSubItem,propertyChange) );
-	dlg.setScale( mCast(float,set_->disp3d().size()/defscale_) );
+	dlg.setScale( sCast(float,set_->disp3d().size()/defscale_) );
 	dlg.go();
 	if ( set_->disp3d().color()!=dlg.getColor() )
 	{

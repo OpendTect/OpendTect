@@ -88,7 +88,7 @@ uiVoxelConnectivityFilter::uiVoxelConnectivityFilter( uiParent* p,
     connectivityfld_->attach( alignedBelow, cutoffrangefld_ );
     connectivityfld_->attach( ensureBelow, sep );
 
-    int minsz = mCast(int,step->getMinimumBodySize());
+    int minsz = sCast(int,step->getMinimumBodySize());
     if ( mIsUdf(minsz) ) minsz = mMinBodySize;
     minbodysizefld_ = new uiGenInput( this,
                                       tr("Keep bodies larger than [voxels]"),

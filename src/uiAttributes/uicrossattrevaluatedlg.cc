@@ -234,7 +234,7 @@ void uiCrossAttrEvaluateDlg::calcPush( CallBacker* )
 
     if ( enabstore_ ) storefld_->setSensitive( true );
     sliderfld_->setSensitive( true );
-    sliderfld_->setMaxValue( mCast(float,nrsteps-1) );
+    sliderfld_->setMaxValue( sCast(float,nrsteps-1) );
     sliderfld_->setTickStep( 1 );
     sliderMove(0);
 }

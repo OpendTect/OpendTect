@@ -625,9 +625,9 @@ void VolumeRenderScalarField::makeColorTables( int attr )
     osg::TransferFunction1D::ColorMap colmap;
     for ( int idx=0; idx<mNrColors-1; idx++ )
     {
-	const float idxfrac = mCast(float,idx) / (mNrColors-2);
+	const float idxfrac = sCast(float,idx) / (mNrColors-2);
 	const OD::Color col = sequence->color( idxfrac );
-	colmap[ mCast(float,idx)/(mNrColors-1) ] = Conv::to<osg::Vec4>( col );
+	colmap[ sCast(float,idx)/(mNrColors-1) ] = Conv::to<osg::Vec4>( col );
     }
 
     colmap[1.0] = Conv::to<osg::Vec4>( sequence->undefColor() );
@@ -782,7 +782,7 @@ void VolumeRenderScalarField::makeIndices( int attr, bool doset, TaskRunner* tr)
 	for ( int idx=0; idx<=255; idx++ )
 	{
 	    const OD::Color col = Conv::to<::OD::Color>(
-			    osgtransfunc_->getColor( mCast(float,idx)/255 ) );
+			    osgtransfunc_->getColor( sCast(float,idx)/255 ) );
 	    coltab[4*idx+0] = col.r();
 	    coltab[4*idx+1] = col.g();
 	    coltab[4*idx+2] = col.b();
@@ -893,7 +893,7 @@ void VolumeRenderScalarField::swapAttribs( int attr0, int attr1 )
 void VolumeRenderScalarField::setAttribTransparency( int attr,
 						     unsigned char trans )
 {
-    const float rescaledtrans = pow( mCast(float,trans)/255.0,
+    const float rescaledtrans = pow( sCast(float,trans)/255.0,
 				     mTransparencyBendPower );
     osgtransprop_->setValue( 1.0 - rescaledtrans );
     requestSingleRedraw();

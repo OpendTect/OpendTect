@@ -179,7 +179,7 @@ int DZT::Importer::nextStep()
     if ( istream_.lastNrBytesRead() != trcbytes )
 	return closeAll();
 
-    fh_.fillInfo( trc_.info(), mCast(int,nrdone_) );
+    fh_.fillInfo( trc_.info(), sCast(int,nrdone_) );
     trc_.info().sampling_.scale( zfac_ );
 
     for ( int ichan=0; ichan<fh_.nchan; ichan++ )

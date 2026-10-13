@@ -354,8 +354,8 @@ bool ContourTracer::doWork( od_int64 start, od_int64 stop, int )
     // Minimize wasted work: (Horizon) contours often align with shorter dim.
     const bool xisfastdim = xsize_ <= ysize_;
 
-    int pidx = mCast( int, xisfastdim ? start%xsize_ : start/ysize_ );
-    int pidy = mCast( int, xisfastdim ? start/xsize_ : start%ysize_ );
+    int pidx = sCast( int, xisfastdim ? start%xsize_ : start/ysize_ );
+    int pidy = sCast( int, xisfastdim ? start/xsize_ : start%ysize_ );
 
     for ( od_int64 count=start; count<=stop; count++ )
     {

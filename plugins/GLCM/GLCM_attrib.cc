@@ -230,8 +230,8 @@ GLCM_attrib::GLCM_attrib( Desc& desc )
     if ( !isOK() ) return;
 
     mGetInt( samprange_, sampStr() );
-    gate_.start_ = mCast( float, -2*samprange_);
-    gate_.stop_ = mCast( float, 2*samprange_);
+    gate_.start_ = sCast( float, -2*samprange_);
+    gate_.stop_ = sCast( float, 2*samprange_);
 
     mGetFloat( minlimit_, minlimitStr() );
     mGetFloat( maxlimit_, maxlimitStr() );
@@ -1464,7 +1464,7 @@ bool GLCM_attrib::computeData( const DataHolder& output, const BinID& relpos,
 	    }
 	}
 
-	outval = mCast(float,trcval);
+	outval = sCast(float,trcval);
 
 	setOutputValue( output, 0, idx, z0, outval );
 
@@ -1764,8 +1764,8 @@ double GLCM_attrib::computeCorrelation( Node* LinkedList,
     {
 	int i = values->nodeI;
 	int j = values->nodeJ;
-	double mval = values->numbercoocurrence / mCast(double,elements);
-	trcval += ( mCast(double,i+1) * mCast(double,j+1) * mval
+	double mval = values->numbercoocurrence / sCast(double,elements);
+	trcval += ( sCast(double,i+1) * sCast(double,j+1) * mval
 			- Mu.first*Mu.second ) / (Sigma.first*Sigma.second);
 	values = values->next;
     }
@@ -1783,7 +1783,7 @@ double GLCM_attrib::computeVariance( Node* LinkedList,
     while ( values )
     {
 	int i = values->nodeI;
-	double mval = values->numbercoocurrence / mCast(double,elements);
+	double mval = values->numbercoocurrence / sCast(double,elements);
 	trcval += (i-Mean+1) * (i-Mean+1) * mval;
 	values = values->next;
     }
@@ -1801,8 +1801,8 @@ double GLCM_attrib::computeInverseDifferenceMoment( Node* LinkedList,
     {
 	int i = values->nodeI;
 	int j = values->nodeJ;
-	double mval = values->numbercoocurrence / mCast(double,elements);
-	trcval += mval / (1+mCast(double,i-j+2) * mCast(double,i-j+2));
+	double mval = values->numbercoocurrence / sCast(double,elements);
+	trcval += mval / (1+sCast(double,i-j+2) * sCast(double,i-j+2));
 	values = values->next;
     }
     return trcval;

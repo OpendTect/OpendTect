@@ -617,7 +617,7 @@ float uiFlatViewStdControl::getCurrentPosPerCM( bool forx1 ) const
     const int nrpixels = forx1 ? bbrect.hNrPics() : bbrect.vNrPics();
     const OD::Pair<int,int> dpi = uiMain::getDPI();
     const int dpiindir = forx1 ? dpi.first() : dpi.second();
-    const float nrcms = (mCast(float,nrpixels)/dpiindir) * sInchToCMFac;
+    const float nrcms = (sCast(float,nrpixels)/dpiindir) * sInchToCMFac;
     const int extrastep = forx1 ? 1 : 0;
     //<-- For x2 all points are not considered as flatviewer does not expand
     //<-- boundingbox by extfac_(0.5) along x2 as wiggles are not drawn in

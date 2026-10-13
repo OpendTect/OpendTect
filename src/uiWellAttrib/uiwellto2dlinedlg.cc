@@ -50,7 +50,7 @@ void uiWellTo2DLineDlg::createFields()
 				       .arg(SI().getUiXYUnitString(true, true));
     float defdist = 100 * SI().inlDistance();
     extendfld_ = new uiGenInput( this, txt,
-				FloatInpSpec(mCast(float,mNINT32(defdist))) );
+				FloatInpSpec(sCast(float,mNINT32(defdist))) );
     extendfld_->setWithCheck( true );
     extendfld_->setChecked( true );
 

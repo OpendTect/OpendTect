@@ -534,7 +534,7 @@ int Seis2DLineMerger::doWork()
 	    return MoreToDo();
 	}
 
-	const SeisTrc& trc = *outbuf_.get( mCast(int,nrdone_) );
+	const SeisTrc& trc = *outbuf_.get( sCast(int,nrdone_) );
 	if ( !putter_->put(trc) )
 	    mErrRet(putter_->errMsg())
 

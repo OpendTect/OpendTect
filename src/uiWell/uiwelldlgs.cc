@@ -641,11 +641,11 @@ bool uiWellTrackDlg::updNow()
 	if ( idx > 0 && mIsUdf(dahval) )
 	{
 	    dahval = track_.dah(idx-1) +
-		     mCast(float, track_.pos(idx-1).distTo( newc ) );
+		     sCast(float, track_.pos(idx-1).distTo( newc ) );
 	    needfill = true;
 	}
 
-        track_.addPoint( newc, mCast(float,newc.z_), dahval );
+        track_.addPoint( newc, sCast(float,newc.z_), dahval );
     }
 
     if ( track_.size() > 1 )
@@ -754,7 +754,7 @@ void uiWellTrackDlg::updateKbElev( CallBacker* )
 	if ( mIsUdf(zval) )
 	    continue;
 
-	setZ( irow, mCast(float,zval) + shift );
+	setZ( irow, sCast(float,zval) + shift );
     }
 
     updNow(0); //write the new table data back to the track
@@ -1204,7 +1204,7 @@ void uiD2TModelDlg::fillTable( CallBacker* )
     for ( int idz=0; idz<dtsz; idz++ )
     {
 	const float dah = d2t->dah(idz);
-	const float tvdss = mCast(float,track.getPos(dah).z_);
+	const float tvdss = sCast(float,track.getPos(dah).z_);
 	const float tvd = tvdss + kbelev;
 	const float vint = getVelocity( wd_, dah, srd, cksh_ );
 	setDepthValue( idz, cMDCol, dah );
@@ -1460,7 +1460,7 @@ bool uiD2TModelDlg::updateDtpointDepth( int row )
     }
 
     const float dah = md2tvd ? inval : track.getDahForTVD( inval );
-    const float tvdss = !md2tvd ? inval : mCast(float,track.getPos(inval).z_);
+    const float tvdss = !md2tvd ? inval : sCast(float,track.getPos(inval).z_);
     if ( !md2tvd )
 	setDepthValue( row, cMDCol, dah );
 
@@ -1755,7 +1755,7 @@ void uiD2TModelDlg::expData( CallBacker* )
     {
 	const float dah = d2t->dah(idx);
 	const float tvdss = mConvertVal(
-			mCast(float,wd_.track().getPos(dah).z_), true );
+			sCast(float,wd_.track().getPos(dah).z_), true );
 	const float tvd = tvdss + kbelev;
 	vint = getVelocity( wd_, dah, srd, cksh_ );
 	strm << mConvertVal(dah,true) << od_tab << tvd << od_tab;

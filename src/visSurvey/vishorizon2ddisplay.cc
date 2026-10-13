@@ -316,7 +316,7 @@ bool doWork( od_int64 /*start*/, od_int64 /*stop*/, int ) override
 							rc.col()+=colrg.step_ )
 	{
 	    Coord3 pos = surf_->getKnot( rc );
-            const float zval = mCast(float,pos.z_);
+            const float zval = sCast(float,pos.z_);
 
 	    if ( !pos.isDefined() || (lineranges_ &&
 		 !Horizon2DDisplay::withinRanges(rc,zval,*lineranges_)) )
@@ -659,7 +659,7 @@ void Horizon2DDisplay::updateIntersectionPoint( const Pos::GeomID lngid,
 	intersectmkset_->getMaterial()->setColor( hor2d->preferredColor(),mid );
 	const int sz =
 		hor2d->getPosAttrMarkerStyle(EM::EMObject::sSeedNode()).size_;
-	intersectmkset_->setScreenSize( mCast(float,sz) );
+	intersectmkset_->setScreenSize( sCast(float,sz) );
     }
 }
 

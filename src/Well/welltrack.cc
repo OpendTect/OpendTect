@@ -101,7 +101,7 @@ void Well::Track::addPoint( const Coord3& c, float dahval )
     {
 	const int previdx = dah_.size() - 1;
 	dahval = previdx < 0 && previdx < pos_.size()-1 ? 0.f
-	    : mCast(float,pos_[previdx].distTo(pos_[previdx+1])+dah_[previdx] );
+	    : sCast(float,pos_[previdx].distTo(pos_[previdx+1])+dah_[previdx] );
     }
 
     dah_ += dahval;
@@ -134,8 +134,8 @@ void Well::Track::insertAfterIdx( int aftidx, const Coord3& c )
     }
 
     pos_.insert( aftidx+1, c );
-    dah_.insert( aftidx+1, mCast(float,owndah) );
-    addToDahFrom( aftidx+2, mCast(float,extradah) );
+    dah_.insert( aftidx+1, sCast(float,owndah) );
+    addToDahFrom( aftidx+2, sCast(float,extradah) );
 }
 
 
@@ -159,7 +159,7 @@ int Well::Track::insertPoint( const Coord3& c )
 	    pos_.erase(); dah_.erase();
 	    pos_ += cnew; pos_ += oth;
 	    dah_ += 0.f;
-	    dah_ += mCast(float,oth.distTo( cnew ));
+	    dah_ += sCast(float,oth.distTo( cnew ));
 	    return 0;
 	}
     }
@@ -246,7 +246,7 @@ bool Well::Track::insertAtDah( float dh, float zpos )
     if ( dh < dah_[0] )
     {
 	dah_.insert( 0, dh );
-        Coord3 crd( pos_[0] ); crd.z_ = mCast(double,zpos);
+        Coord3 crd( pos_[0] ); crd.z_ = sCast(double,zpos);
 	pos_.insert( 0, crd );
 	return true;
     }
@@ -294,8 +294,8 @@ void Well::Track::setPoint( int idx, const Coord3& c )
     }
 
     pos_[idx] = newpt;
-    dah_[idx] += mCast( float, newdist0 - olddist0 );
-    const float dist = mCast(float, newdist0 - olddist0 + newdist1 - olddist1 );
+    dah_[idx] += sCast( float, newdist0 - olddist0 );
+    const float dist = sCast(float, newdist0 - olddist0 + newdist1 - olddist1 );
     addToDahFrom( idx+1, dist );
 }
 
@@ -524,11 +524,11 @@ float Well::Track::getDahForTVD( double z, float prevdah ) const
     const int idx2 = idxafter;
     const double z1 = pos_[idx1].z_;
     const double z2 = pos_[idx2].z_;
-    const double dah1 = mCast(double,dah_[idx1]);
-    const double dah2 = mCast(double,dah_[idx2]);
+    const double dah1 = sCast(double,dah_[idx1]);
+    const double dah2 = sCast(double,dah_[idx2]);
     const double zdiff = z2 - z1;
     const double res = ( (z-z1) * dah2 + (z2-z) * dah1 ) / zdiff;
-    return mIsZero(zdiff,eps) ? dah_[idx2] : mCast( float, res );
+    return mIsZero(zdiff,eps) ? dah_[idx2] : sCast( float, res );
 }
 
 
@@ -571,8 +571,8 @@ float Well::Track::nearestDah( const Coord3& posin ) const
 	Vector3 dir = boundposstop-boundposstart;
 	Line3 newline(boundposstop,dir);
 
-        Interval<float> zintrvl( mCast(float,boundposstart.z_),
-                                 mCast(float,boundposstop.z_) );
+        Interval<float> zintrvl( sCast(float,boundposstart.z_),
+                                 sCast(float,boundposstop.z_) );
         if ( zintrvl.includes(curpos.z_,true) )
 	{
 	    Coord3 posonline = newline.getPoint(newline.closestPoint(curpos));
@@ -591,11 +591,11 @@ float Well::Track::nearestDah( const Coord3& posin ) const
 
     const double distfrmstart = Math::Sqrt( sqrdisttostart );
     const double disttoend = Math::Sqrt( sqrdisttostop );
-    const double dahnear = mCast(double,dah_[startidx]);
-    const double dahsec = mCast(double,dah_[startidx+1]);
+    const double dahnear = sCast(double,dah_[startidx]);
+    const double dahsec = sCast(double,dah_[startidx+1]);
     double res = ( distfrmstart*dahsec+disttoend*dahnear )/
 					  ( distfrmstart+disttoend );
-    return mCast( float, res );
+    return sCast( float, res );
 }
 
 
@@ -700,8 +700,8 @@ void Well::Track::toTime( const Data& wd )
 	const float dist = curdah - prevdah;
 	if ( dist > cDistTol )
 	{
-	    const int nrchunks = mCast( int, dist / cDistTol );
-	    const float step = dist / mCast(float, nrchunks );
+	    const int nrchunks = sCast( int, dist / cDistTol );
+	    const float step = dist / sCast(float, nrchunks );
 	    StepInterval<float> dahrange( prevdah, curdah, step );
 	    for ( int idx=1; idx<dahrange.nrSteps(); idx++ )
 	    {
@@ -731,7 +731,7 @@ void Well::Track::toTime( const Data& wd )
 	}
 
 	convValue( depth, depthstoruom, depthuom );
-	depth = mCast( double, abovesrd ? replvelmodel.getTime( (float)depth )
+	depth = sCast( double, abovesrd ? replvelmodel.getTime( (float)depth )
 					: dtmodel.getTime( (float)depth ) );
     }
 

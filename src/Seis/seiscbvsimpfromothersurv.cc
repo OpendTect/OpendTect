@@ -100,7 +100,7 @@ void SeisImpCBVSFromOtherSurvey::setPars( Interpol& interp, int cellsz,
     data_.tkzs_.limitTo( SI().sampling(false) );
     data_.tkzs_.hsamp_.snapToSurvey();
     data_.hsit_->setSampling( data_.tkzs_.hsamp_ );
-    totnr_ = mCast( int, data_.tkzs_.hsamp_.totalNr() );
+    totnr_ = sCast( int, data_.tkzs_.hsamp_.totalNr() );
     if ( !cellsz ) return;
     fft_ = Fourier::CC::createDefault();
     sz_ = fft_->getFastSize( cellsz );

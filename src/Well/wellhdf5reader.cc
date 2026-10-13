@@ -376,8 +376,8 @@ bool Well::HDF5Reader::readLogData( const HDF5::DataSetKey& dsky, Log& wl) const
     wl.setEmpty();
     for ( int idx=0; idx<sz; idx++ )
     {
-	const float dah = mCast(float,mds[idx]);
-	const float val = mCast(float,vals[idx]);
+	const float dah = sCast(float,mds[idx]);
+	const float val = sCast(float,vals[idx]);
 	wl.addValue( dah, val );
     }
 

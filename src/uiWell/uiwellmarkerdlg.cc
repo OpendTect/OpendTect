@@ -964,7 +964,7 @@ bool uiMarkerDlg::updateMarkerDepths( int rowidx, bool md2tvdss )
     }
 
     const float dah = md2tvdss ? inval : track_.getDahForTVD( inval );
-    const float tvdss = md2tvdss ? mCast(float,track_.getPos(inval).z_) : inval;
+    const float tvdss = md2tvdss ? sCast(float,track_.getPos(inval).z_) : inval;
     const float tvd = tvdss + kbelev;
     if ( !md2tvdss )
 	table_->setValue( RowCol(row,cDepthCol), dah * zfac, 0, 'f', cNrZDec );
@@ -1022,7 +1022,7 @@ float uiMarkerDlg::getOldMarkerVal( Well::Marker* marker ) const
     const float kbelev = track_.getKbElev();
 
     const float olddah = marker->dah();
-    const float oldtvdss = mCast(float,track_.getPos(olddah).z_);
+    const float oldtvdss = sCast(float,track_.getPos(olddah).z_);
     const float oldtvd = oldtvdss + kbelev;
     const float oldval = ismd ? olddah : istvd ? oldtvd : oldtvdss;
 

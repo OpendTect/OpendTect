@@ -163,7 +163,7 @@ uiPrepNLAData( uiParent* p, const DataPointSet& dps )
     bsetup_.nrptsperclss = statsfld_->funcDisp()->nrClasses() > 0
 		? statsfld_->funcDisp()->nrInpVals() /
 		  statsfld_->funcDisp()->nrClasses() : 1;
-    statsfld_->setMarkValue( mCast(float,bsetup_.nrptsperclss), false );
+    statsfld_->setMarkValue( sCast(float,bsetup_.nrptsperclss), false );
 
     auto* datagrp = new uiGroup( this, "Data group" );
     dobalfld = new uiGenInput( datagrp, tr("Balance data"), BoolInpSpec(true) );
@@ -204,13 +204,13 @@ void doBalChg( CallBacker* )
     nrptspclssfld->display( dobal );
     percnoisefld->display( dobal );
     bsetup_.nrptsperclss = dobal ? nrptspclssfld->getIntValue() : -1;
-    statsfld_->setMarkValue( mCast(float,bsetup_.nrptsperclss), false );
+    statsfld_->setMarkValue( sCast(float,bsetup_.nrptsperclss), false );
 }
 
 void cutoffChg( CallBacker* )
 {
     bsetup_.nrptsperclss = nrptspclssfld->getIntValue();
-    statsfld_->setMarkValue( mCast(float,bsetup_.nrptsperclss), false );
+    statsfld_->setMarkValue( sCast(float,bsetup_.nrptsperclss), false );
 }
 
 void valrgChg( CallBacker* )
@@ -507,7 +507,7 @@ void uiNLAPartServer::LithCodeData::fillCols( PosVecDataSet& vds,
 	    { pErrMsg("Logic error somewhere"); continue; }
 
 	for ( int icode=0; icode<usedcodes.size(); icode++ )
-	    vals[valnr+icode+1] = mCast( float, icode == codeidx ? 1 : 0 );
+	    vals[valnr+icode+1] = sCast( float, icode == codeidx ? 1 : 0 );
     }
 }
 

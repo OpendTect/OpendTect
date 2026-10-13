@@ -323,7 +323,7 @@ bool LogCubeCreator::doPrepare( int /* nrthreads */ )
 bool LogCubeCreator::doWork( od_int64 start, od_int64 stop,
 			     int /* threadidx */ )
 {
-    for ( int idx=mCast(int,start); idx<=stop; idx++, addToNrDone(1) )
+    for ( int idx=sCast(int,start); idx<=stop; idx++, addToNrDone(1) )
     {
 	const uiString msg = makeLogTraces(idx);
 	if ( msg.isSet() )

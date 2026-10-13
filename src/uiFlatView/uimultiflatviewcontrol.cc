@@ -92,8 +92,8 @@ bool MFVCViewManager::getViewRect( const uiFlatViewer* activevwr,
 	const TimeDepthModel& firstd2t = *d2tmodels_.first();
 	if ( isactiveintime )
 	{
-	    Interval<float> timerg( mCast(float,wr.top()),
-				    mCast(float,wr.bottom()) );
+	    Interval<float> timerg( sCast(float,wr.top()),
+				    sCast(float,wr.bottom()) );
 	    Interval<double> depthrg;
 	    if ( isflattened_ )
 	    {
@@ -136,8 +136,8 @@ bool MFVCViewManager::getViewRect( const uiFlatViewer* activevwr,
 	}
 	else
 	{
-	    Interval<float> depthrg( mCast(float,wr.top()),
-				     mCast(float,wr.bottom()) );
+	    Interval<float> depthrg( sCast(float,wr.top()),
+				     sCast(float,wr.bottom()) );
 	    Interval<double> timerg;
 	    if ( isflattened_ )
 	    {

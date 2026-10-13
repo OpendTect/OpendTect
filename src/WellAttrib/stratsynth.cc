@@ -1599,7 +1599,7 @@ bool doWork( od_int64 start, od_int64 stop, int /* threadidx */ ) override
 {
     const bool dosvelcheck = checktyp_ > RefLayer::Acoustic;
     const bool dodencheck = !dosvelcheck; // ??
-    for ( int imdl=mCast(int,start); imdl<=stop; imdl++, addToNrDone(1) )
+    for ( int imdl=sCast(int,start); imdl<=stop; imdl++, addToNrDone(1) )
     {
 	const int iseq = imdl * calceach_;
 	const Strat::LayerSequence& seq = lm_.sequence( iseq );
@@ -2032,8 +2032,8 @@ ConstRefMan<SyntheticData> StratSynth::DataMgr::genPSPostProcDataSet(
 	return nullptr;
 
     PreStack::PropCalc::Setup calcsetup;
-    calcsetup.anglerg_.set( mCast(float,sgp.anglerg_.start_),
-                            mCast(float,sgp.anglerg_.stop_) );
+    calcsetup.anglerg_.set( sCast(float,sgp.anglerg_.start_),
+                            sCast(float,sgp.anglerg_.stop_) );
     if ( isanglestack )
     {
 	calcsetup.calctype_ = PreStack::PropCalc::Stats;
@@ -2153,7 +2153,7 @@ bool doWork( od_int64 start, od_int64 stop, int /* threadidx */ ) override
 {
     const int nrlm = zrg_.nrSteps()+1;
 
-    for ( int itrc=mCast(int,start); itrc<=mCast(int,stop); itrc++,
+    for ( int itrc=sCast(int,start); itrc<=sCast(int,stop); itrc++,
 							    addToNrDone(1) )
     {
 	const int iseq = datamgr_.iSeq( itrc );
@@ -2170,7 +2170,7 @@ bool doWork( od_int64 start, od_int64 stop, int /* threadidx */ ) override
 	{
 	    Strat::LayerSequence& curseq =
 				  layermodels_.get( idz )->sequence( itrc );
-	    const float time = mCast( float, zrg_.atIndex(idz) );
+	    const float time = sCast( float, zrg_.atIndex(idz) );
 	    if ( !seqtimerg.includes(time,false) )
 		continue;
 
@@ -2284,12 +2284,12 @@ bool doWork( od_int64 start, od_int64 stop, int /* threadid */ ) override
 {
     const Strat::LayerModel& lm = datamgr_.layerModel( lmsidx_ );
     const int sz = layermodels_.size();
-    const float step = mCast( float, zrg_.step_ );
+    const float step = sCast( float, zrg_.step_ );
     ::FFTFilter filter( sz, step );
     const float f4 = 1.f / (2.f * step );
     filter.setLowPass( f4 );
     const PropertyRefSelection& props = lm.propertyRefs();
-    for ( int itrc=mCast(int,start); itrc<=mCast(int,stop); itrc++,
+    for ( int itrc=sCast(int,start); itrc<=sCast(int,stop); itrc++,
 							    addToNrDone(1) )
     {
 	const int iseq = datamgr_.iSeq( itrc );
@@ -2319,7 +2319,7 @@ bool doWork( od_int64 start, od_int64 stop, int /* threadid */ ) override
 
 	    for ( int idz=0; idz<sz; idz++ )
 	    {
-		const float time = mCast( float, zrg_.atIndex(idz) );
+		const float time = sCast( float, zrg_.atIndex(idz) );
 		if ( !seqtimerg.includes(time,false) )
 		    continue;
 
@@ -2348,7 +2348,7 @@ bool doWork( od_int64 start, od_int64 stop, int /* threadid */ ) override
 		    propval.addValue( propisvel ? 1.f / val : val,
 				      lay->thickness() );
 		}
-		const float val = mCast( float, propisclass
+		const float val = sCast( float, propisclass
 						? propval.mostFreq()
 						: propval.average() );
 		if ( mIsUdf(val) || ( propisvel && val < 1e-5f ) )
@@ -2361,7 +2361,7 @@ bool doWork( od_int64 start, od_int64 stop, int /* threadid */ ) override
 	    {
 		for ( int idz=0; idz<sz; idz++ )
 		{
-		    const float time = mCast( float, zrg_.atIndex(idz) );
+		    const float time = sCast( float, zrg_.atIndex(idz) );
 		    rawtrc->set( idz, propvals.getValue( time ), 0 );
 		}
 
@@ -2371,7 +2371,7 @@ bool doWork( od_int64 start, od_int64 stop, int /* threadid */ ) override
 	    Array1DImpl<float> proptr( sz );
 	    for ( int idz=0; idz<sz; idz++ )
 	    {
-		const float time = mCast( float, zrg_.atIndex(idz) );
+		const float time = sCast( float, zrg_.atIndex(idz) );
 		proptr.set( idz, propvals.getValue( time ) );
 	    }
 
@@ -2920,7 +2920,7 @@ bool doPrepare( int nrthreads ) override
 
 bool doWork( od_int64 start, od_int64 stop, int threadid ) override
 {
-    for ( int itrc=mCast(int,start); itrc<=mCast(int,stop); itrc++,
+    for ( int itrc=sCast(int,start); itrc<=sCast(int,stop); itrc++,
 							    addToNrDone(1) )
     {
 	auto* trc = seistrcbuf_.get( itrc );

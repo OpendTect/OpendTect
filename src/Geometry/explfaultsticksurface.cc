@@ -77,7 +77,7 @@ int minThreadSize() const override { return 100; }
 bool doWork( od_int64 start, od_int64 stop, int ) override
 {
     const TypeSet<int>& texturecols = explsurf_.texturecolcoords_;
-    for ( int stickpos=mCast(int,start); stickpos<=stop; stickpos++ )
+    for ( int stickpos=sCast(int,start); stickpos<=stop; stickpos++ )
     {
 	int stickidx = -1;
 	int panelidx = -1;
@@ -122,12 +122,12 @@ bool doWork( od_int64 start, od_int64 stop, int ) override
 	    DataPointSet::DataRow datarow( dpsetpos, 1 );
 	    datarow.data_.setSize( dpset_.nrCols(), mUdf(float) );
 	    datarow.data_[i_column_-dpset_.nrFixedCols()] =
-					          mCast( float, knotpos );
+					          sCast( float, knotpos );
 	    datarow.data_[j_column_-dpset_.nrFixedCols()] =
-						  mCast( float, stickpos );
+						  sCast( float, stickpos );
 	    if ( id_ >= 0 )
 		datarow.data_[id_column_-dpset_.nrFixedCols()] =
-						  mCast( float, id_ );
+						  sCast( float, id_ );
 	    dpsetlock_.lock();
 	    dpset_.addRow( datarow );
 	    dpsetlock_.unLock();
@@ -1197,7 +1197,7 @@ bool ExplFaultStickSurface::setProjTexturePositions( DataPointSet& dps,
 {
     //Refine needed for pos calculation
 
-    const float zscale = mCast( float, SI().zDomain().userFactor() );
+    const float zscale = sCast( float, SI().zDomain().userFactor() );
 
     TypeSet<Coord> knots;
     TypeSet<int> knotids;
@@ -1298,9 +1298,9 @@ bool ExplFaultStickSurface::setProjTexturePositions( DataPointSet& dps,
 	    DataPointSet::Pos dpsetpos( pos );
 	    DataPointSet::DataRow datarow( dpsetpos, 1 );
 	    datarow.data_.setSize( nrcs, mUdf(float) );
-	    datarow.data_[ic] =  mCast( float, row );
-	    datarow.data_[jc] =  mCast( float, col );
-	    datarow.data_[idc] =  mCast( float, id );
+	    datarow.data_[ic] =  sCast( float, row );
+	    datarow.data_[jc] =  sCast( float, col );
+	    datarow.data_[idc] =  sCast( float, id );
 
 	    dps.addRow( datarow );
 	}

@@ -560,7 +560,7 @@ void Wavelet::getExtrValues(Interval<float>& vals) const
 
 int Wavelet::getPos( float val, bool closetocenteronly ) const
 {
-    const int width = mCast( int, mCast(float, sz_ ) / 10.f );
+    const int width = sCast( int, sCast(float, sz_ ) / 10.f );
     int start = closetocenteronly ? cidx_ - width : 0;
     if ( start < 0 )
 	start = 0;

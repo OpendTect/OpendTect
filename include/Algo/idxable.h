@@ -366,7 +366,7 @@ void calibrateArray( const T* input, int sz,
 	    ? controlpts[idx]/input[sample]
 	    : controlpts[idx]-input[sample];
 
-	func.add( mCast(float,sample), value );
+	func.add( sCast(float,sample), value );
     }
 
     if ( func.isEmpty()  )
@@ -380,7 +380,7 @@ void calibrateArray( const T* input, int sz,
 	else if ( idx>=lastsample )
 	   calibration = func.yVals()[func.size()-1];
 	else
-	   calibration = func.getValue( mCast(float,idx) );
+	   calibration = func.getValue( sCast(float,idx) );
 
 	output[idx] = usefactor
 	    ? input[idx]*calibration

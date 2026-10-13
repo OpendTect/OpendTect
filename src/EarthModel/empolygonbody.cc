@@ -178,7 +178,7 @@ ImplicitBody* PolygonBody::createImplicitBody( TaskRunner* taskrunner,
      TypeSet<Coord3> pts;
      for ( int plg=rrg.start_; plg<=rrg.stop_; plg += rrg.step_ )
 	 surf->getCubicBezierCurve( plg, pts,
-				    mCast(float,SI().zDomain().userFactor()) );
+				    sCast(float,SI().zDomain().userFactor()) );
 
      BodyOperator bodyopt;
      return bodyopt.createImplicitBody( pts, taskrunner );

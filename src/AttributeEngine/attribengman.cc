@@ -346,9 +346,6 @@ class DataPackCopier : public ParallelTask
 {
 public:
 
-    typedef const unsigned char* ConstCompPtr;
-    typedef unsigned char* CompPtr;
-
 DataPackCopier( const RegularSeisDataPack& in, RegularSeisDataPack& out )
     : in_(in), out_(out)
     , domemcopy_(false)
@@ -367,8 +364,8 @@ DataPackCopier( const RegularSeisDataPack& in, RegularSeisDataPack& out )
 
     const int nrcomps = out_.nrComponents();
     incomp_ = new int[nrcomps];
-    inptr_ = new ConstCompPtr[nrcomps];
-    outptr_ = new CompPtr[nrcomps];
+    inptr_ = new const unsigned char*[nrcomps];
+    outptr_ = new unsigned char*[nrcomps];
 }
 
 ~DataPackCopier()
@@ -400,20 +397,21 @@ bool doPrepare( int nrthreads ) override
 
     for ( int idc=0; idc<out_.nrComponents(); idc++ )
     {
-	inptr_[idc] = mCast( ConstCompPtr, in_.data(incomp_[idc]).getData() );
+	inptr_[idc] = rCast( const unsigned char*,
+			     in_.data(incomp_[idc]).getData() );
 	mDynamicCastGet( const ConvMemValueSeries<float>*, instorage,
 			 in_.data(incomp_[idc]).getStorage() );
 	if ( instorage )
 	{
-	    inptr_[idc] = mCast( ConstCompPtr, instorage->storArr() );
+	    inptr_[idc] = rCast( const unsigned char*, instorage->storArr() );
 	    samplebytes_ = in_.getDataDesc().nrBytes();
 	}
 
-	outptr_[idc] = mCast( CompPtr, out_.data(idc).getData() );
-	mDynamicCastGet( const ConvMemValueSeries<float>*, outstorage,
+	outptr_[idc] = rCast( unsigned char*, out_.data(idc).getData() );
+	mDynamicCastGet( ConvMemValueSeries<float>*, outstorage,
 			 out_.data(idc).getStorage() );
 	if ( outstorage )
-	    outptr_[idc] = mCast( CompPtr, outstorage->storArr() );
+	    outptr_[idc] = rCast( unsigned char*, outstorage->storArr() );
 
 	if ( !inptr_[idc] || !outptr_[idc] )
 	    return true;
@@ -493,8 +491,8 @@ bool doWork( od_int64 start, od_int64 stop, int threadidx ) override
     }
 
     const int nrtrcs = worktks.nrTrcs();
-    int inlidx = mCast( int, start/nrtrcs );
-    int crlidx = mCast( int, start%nrtrcs );
+    int inlidx = sCast( int, start/nrtrcs );
+    int crlidx = sCast( int, start%nrtrcs );
 
     const int halfinlstep = intks.step_.lineNr() / 2;
     BinID bid = worktks.atIndex( inlidx, 0 );
@@ -589,8 +587,8 @@ protected:
 
     int				samplebytes_;
     int*			incomp_;
-    ConstCompPtr*		inptr_;
-    CompPtr*			outptr_;
+    const unsigned char**	inptr_;
+    unsigned char**		outptr_;
     od_int64			intracebytes_;
     od_int64			inlinebytes_;
     od_int64			outtracebytes_;

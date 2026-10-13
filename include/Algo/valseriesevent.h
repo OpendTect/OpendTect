@@ -386,7 +386,7 @@ inline bool ValueSeriesEvFinder<VT,PT>::findEvents( TypeSet<PT>& posset,
 
     const bool isascending = pg.stop_ > pg.start_;
     const PT width = pg.width();
-    PT eps = mCast( PT, 1e-5 );
+    PT eps = sCast( PT, 1e-5 );
     if ( !mIsUdf(width) && width>0 )
 	eps *= width;
 

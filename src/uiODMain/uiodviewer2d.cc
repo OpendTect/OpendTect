@@ -1264,7 +1264,7 @@ void uiODViewer2D::mouseMoveCB( CallBacker* cb )
 	}
 
 	const TrcKeyValue trckeyval =
-	    mousepos.isDefined() ? TrcKeyValue( tk, mCast(float,mousepos.z_ ) )
+	    mousepos.isDefined() ? TrcKeyValue( tk, sCast(float,mousepos.z_ ) )
 				 : TrcKeyValue::udf();
 
 	MouseCursorExchange::Info info( trckeyval );

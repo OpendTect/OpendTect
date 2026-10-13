@@ -432,11 +432,11 @@ void PosInfo::Line2DData::compDistBetwTrcsStats( float& max,
     if ( medset.size() )
     {
 	sort( medset );
-	median = mCast( float,
-			Math::Sqrt( medset[ mCast(int, medset.size()/2) ] ) );
+	median = sCast( float,
+			Math::Sqrt( medset[ sCast(int, medset.size()/2) ] ) );
     }
 
-    max = mCast( float, Math::Sqrt(maxsq) );
+    max = sCast( float, Math::Sqrt(maxsq) );
 }
 
 

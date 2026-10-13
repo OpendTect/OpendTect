@@ -595,7 +595,7 @@ void Seis2DDisplay::updatePanelStripPath()
     {
 	path += tdi.alltrcpos_[knots[idx]];
 	const float diff =
-		mCast(float,tdi.alltrcnrs_[knots[idx]]-tdi.rg_.start_);
+		sCast(float,tdi.alltrcnrs_[knots[idx]]-tdi.rg_.start_);
 	mapping += diff * (resolution_+1);
 
 	const Coord3 linepos( path[idx], tdi.zrg_.start_ );
@@ -608,7 +608,7 @@ void Seis2DDisplay::updatePanelStripPath()
     if ( getUpdateStageNr() )
     {
 	const float diff =
-		mCast(float,updatestageinfo_.oldtrcrgstart_-tdi.rg_.start_);
+		sCast(float,updatestageinfo_.oldtrcrgstart_-tdi.rg_.start_);
 	panelstrip_->setPathTextureShift( diff*(resolution_+1) );
     }
 
@@ -620,7 +620,7 @@ void Seis2DDisplay::updatePanelStripZRange()
 {
     panelstrip_->setZRange( trcdisplayinfo_.zrg_ );
     const Interval<float> mapping( 0.0f,
-		mCast(float,trcdisplayinfo_.zrg_.nrSteps())*(resolution_+1) );
+		sCast(float,trcdisplayinfo_.zrg_.nrSteps())*(resolution_+1) );
     panelstrip_->setZRange2TextureMapping( mapping );
 
     if ( getUpdateStageNr() )
@@ -645,9 +645,9 @@ void Seis2DDisplay::annotateNextUpdateStage( bool yn )
     else if ( !getUpdateStageNr() )
     {
 	updatestageinfo_.oldtrcrgstart_ =
-				mCast(float,trcdisplayinfo_.rg_.start_);
+				sCast(float,trcdisplayinfo_.rg_.start_);
 	updatestageinfo_.oldzrgstart_ =
-				mCast(float,trcdisplayinfo_.zrg_.start_);
+				sCast(float,trcdisplayinfo_.zrg_.start_);
     }
     else
 	panelstrip_->freezeDisplay( false );	// thaw to refreeze
@@ -1318,7 +1318,7 @@ void Seis2DDisplay::getLineSegmentProjection( const Coord3 pos1,
 	const int idx = panelidx2 + (panelidx1<panelidx2 ? 1-cnt : cnt );
 	const Coord pos = cnt ? tdi.alltrcpos_[tdi.alljoints_[idx]] : projpos2;
 
-	const float dist = mCast( float, pos.distTo(projcoords.last()) );
+	const float dist = sCast( float, pos.distTo(projcoords.last()) );
 	if ( dist > mDefEps )
 	{
 	    projcoords += Coord3( pos, 0.0 );

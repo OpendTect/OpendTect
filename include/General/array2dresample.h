@@ -209,8 +209,8 @@ void Array2DReSampler<T,TT>::updateScale(
     const int ysize = toinfo_.getSize( mYDim );
 
     Geom::PosRectangle<float> rectinfrom( 0, 0,
-				mCast(float,from_->info().getSize(mXDim)-1),
-				mCast(float,from_->info().getSize(mYDim)-1) );
+				sCast(float,from_->info().getSize(mXDim)-1),
+				sCast(float,from_->info().getSize(mYDim)-1) );
 
     if ( rectinfromptr )
     {
@@ -243,7 +243,7 @@ bool Array2DReSampler<T,TT>::doWork( od_int64 start, od_int64 stop, int )
     int localnrdone = 0;
     od_int64 offset = start*ysize;
     TT* toptr = toptr_ ? toptr_+offset : 0;
-    for ( int idx=mCast(int,start); idx<=stop; idx++ )
+    for ( int idx=sCast(int,start); idx<=stop; idx++ )
     {
 	const float sourcex = xsampling_.atIndex( idx );
 	for ( int idy=0; idy<ysize; idy++ )

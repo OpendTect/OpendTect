@@ -99,7 +99,7 @@ void PlaneFrom3DSpaceHoughTransform::setResolution( double dangle,
 
 
 int PlaneFrom3DSpaceHoughTransform::getParamSpaceSize() const
-{ return mCast(int, paramspace_->info().getTotalSz()); }
+{ return sCast(int, paramspace_->info().getTotalSz()); }
 
 
 int PlaneFrom3DSpaceHoughTransform::getNrDistVals() const
@@ -117,7 +117,7 @@ float PlaneFrom3DSpaceHoughTransform::clipRate() const
 void PlaneFrom3DSpaceHoughTransform::setData( const Array3D<float>* data )
 {
     const float* dataptr = data->getData();
-    const int datasize = mCast(int, data->info().getTotalSz());
+    const int datasize = sCast(int, data->info().getTotalSz());
 
     mAllocLargeVarLenArr( float, datacopy, datasize );
     mAllocLargeVarLenArr( unsigned int, indexes, datasize );
@@ -208,7 +208,7 @@ int PlaneFrom3DSpaceHoughTransform::getNrPointsAfterClip() const
 void PlaneFrom3DSpaceHoughTransform::incParamPos( int normalidx, double dist)
 {
     const int distid = mNINT32( dist/deltadist_ );
-    unsigned int memoffset = mCast( unsigned int,
+    unsigned int memoffset = sCast( unsigned int,
 			    reinterpret_cast<const Array2DInfo&>
 			    (paramspace_->info()).getOffset(normalidx,distid) );
     unsigned int* dataptr = paramspace_->getData();

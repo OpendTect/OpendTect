@@ -481,12 +481,12 @@ float uiAxisHandler::getVal( int pix ) const
     if ( isHor() )
     {
 	pix -= rgisrev_ ? pixAfter() : pixBefore();
-	relpix = mCast( float, pix );
+	relpix = sCast( float, pix );
     }
     else
     {
 	pix -= rgisrev_ ? pixBefore() : pixAfter();
-	relpix = mCast( float, axsz_-pix );
+	relpix = sCast( float, axsz_-pix );
     }
     relpix /= axsz_;
 

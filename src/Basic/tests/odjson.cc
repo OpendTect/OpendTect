@@ -116,7 +116,7 @@ static bool testUseJSON( bool created, bool allowmixed )
     mRunStandardTest( mIsEqual(numobj->getDoubleValue("double"),12.345,1e-5f),
 		      "Double in object" )
     mRunStandardTest( numobj->getIntValue("int32")==12345, "Integer in object" )
-    const int undefintval = mCast(int,numobj->getIntValue("undefint"));
+    const int undefintval = sCast(int,numobj->getIntValue("undefint"));
     mRunStandardTest( mIsUdf(undefintval),
 		      "Undefined integer 32-bit in object" )
     const od_int64 undefint64val = numobj->getIntValue("undefint64");

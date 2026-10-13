@@ -103,8 +103,8 @@ SamplingData<T>::SamplingData( const SamplingData<FT>& sd )
 template <class T>
 template <class FT> inline
 SamplingData<T>::SamplingData( const StepInterval<FT>& intv )
-    : start_(mCast(T,intv.start_))
-    , step_(mCast(T,intv.step_))
+    : start_(sCast(T,intv.start_))
+    , step_(sCast(T,intv.step_))
     , start(start_)
     , step(step_)
 {}

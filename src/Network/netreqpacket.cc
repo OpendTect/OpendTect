@@ -148,7 +148,7 @@ Network::PacketFiller* Network::RequestPacket::finalize(
     const od_int64 paysz = extendedhdr.getIntValue("content-length");
 
     const od_int32 payloadsz =
-			mCast(od_int32, PacketFiller::sizeFor(hdrstr) + paysz);
+			sCast(od_int32, PacketFiller::sizeFor(hdrstr) + paysz);
     void* payloadptr = allocPayload( payloadsz );
     if ( !payloadptr )
 	return nullptr;

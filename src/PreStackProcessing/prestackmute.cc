@@ -149,7 +149,7 @@ bool Mute::doWork( od_int64 start, od_int64 stop, int )
     if ( !muter_ )
 	return false;
 
-    for ( int idx=mCast(int,start); idx<=stop; idx++, addToNrDone(1) )
+    for ( int idx=sCast(int,start); idx<=stop; idx++, addToNrDone(1) )
     {
 	const int outidx = outidx_[idx];
 	const int ioffs = offsets_[idx];

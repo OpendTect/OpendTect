@@ -210,7 +210,7 @@ bool doImp( const FilePath& fp )
     }
 
     BufferString fullmaskfnm( maskfp.fullPath() );
-    int lnmoffs = mCast( int, firstOcc( fullmaskfnm.buf(), '*' ) -
+    int lnmoffs = sCast( int, firstOcc( fullmaskfnm.buf(), '*' ) -
 	                                   fullmaskfnm.buf() );
     const int orglen = fullmaskfnm.size();
     bool nofails = true;

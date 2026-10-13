@@ -186,7 +186,7 @@ bool GMTContour::doExecute( od_ostream& strm, const char* fnm )
 
     TrcKeySamplingIterator iter( sd.rg );
     BinID bid;
-    const float fac = mCast( float, SI().zDomain().userFactor() );
+    const float fac = sCast( float, SI().zDomain().userFactor() );
     const int dataidx = isz ? -1 : hor->auxdata.auxDataIndex( attribnm.str() );
     while ( iter.next(bid) )
     {
@@ -309,8 +309,8 @@ bool GMTContour::makeCPT( const char* cptfnm ) const
 	}
     }
 
-    const OD::Color bgcol = seq.color( mCast(float,doflip ? 1 : 0) );
-    const OD::Color fgcol = seq.color( mCast(float,doflip ? 0 : 1) );
+    const OD::Color bgcol = seq.color( sCast(float,doflip ? 1 : 0) );
+    const OD::Color fgcol = seq.color( sCast(float,doflip ? 0 : 1) );
     procstrm << "B" << "\t";  mPrintCol( bgcol, "\n" );
     procstrm << "F" << "\t";  mPrintCol( fgcol, "\n" );
     return true;

@@ -129,7 +129,7 @@ void SceneColTab::setSize( int width, int height )
 			  : std::clamp( width, ColorBarBounds::minVertWidth(),
 					       ColorBarBounds::maxVertWidth() );
 
-    aspratio_ = mCast(float,height_) / mCast(float,width_);
+    aspratio_ = sCast(float,height_) / sCast(float,width_);
     osgcolorbar_->setAspectRatio( aspratio_ );
     osgcolorbar_->setWidth( width_ );
     setPos( getPos() );

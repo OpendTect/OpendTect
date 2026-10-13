@@ -74,12 +74,12 @@ float* HilbertTransform::makeHilbWindow( int hlen )
 {
     float* h = new float[hlen*2+1];
     OD::memZero( h, (hlen*2+1)*sizeof(float) );
-    const double hlend = mCast(double,hlen);
+    const double hlend = sCast(double,hlen);
     for ( int i=1; i<=hlen; i+=2 )
     {
-	const double pii = M_PI * mCast(double,i);
+	const double pii = M_PI * sCast(double,i);
 	const double taper = ( 0.54 + 0.46 * cos( pii / hlend ) );
-	const float win = mCast( float, 2. * taper / pii );
+	const float win = sCast( float, 2. * taper / pii );
 	h[hlen-i] = -win;
 	h[hlen+i] = win;
     }

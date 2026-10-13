@@ -364,7 +364,7 @@ int StratAmpCalc::nextStep()
 	{
 	    posidfold_.setSubID( subid );
 	    addtohor.auxdata.setAuxDataVal( dataidxsfold_[idx], posidfold_,
-					      mCast(float,runcalc.count()) );
+					      sCast(float,runcalc.count()) );
 	}
 
     }

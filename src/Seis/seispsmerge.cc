@@ -102,7 +102,7 @@ SeisPSMerger::SeisPSMerger( const ObjectSet<const IOObj>& inobjs,
 	return;
     }
 
-    totnr_ = mCast( int, sd_ ? sd_->expectedNrTraces() : cs.hsamp_.totalNr() );
+    totnr_ = sCast( int, sd_ ? sd_->expectedNrTraces() : cs.hsamp_.totalNr() );
     iter_ = new TrcKeySamplingIterator( cs.hsamp_ );
     resampler_ = new SeisResampler( cs );
 

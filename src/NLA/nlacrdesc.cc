@@ -221,7 +221,7 @@ uiString NLACreationDesc::prepareData(const ObjectSet<DataPointSet>& dpss,
 	    if ( addcols )
 	    {
 		for ( int iout=0; iout<nrout; iout++ )
-		    outdr.data_ += mCast( float, iout == idps ? 1 : 0 );
+		    outdr.data_ += sCast( float, iout == idps ? 1 : 0 );
 	    }
 
 	    const bool istest = extractrand ? gen_.get() < tstratio

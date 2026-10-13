@@ -452,7 +452,7 @@ bool uiWellExportFacility::exportD2TModel( const char* fp, bool ischksht )
 
     const float kbelev = mConvertVal(wd_->track().getKbElev());
     const float groundevel = mConvertVal(wd_->info().groundelev_);
-    const float srd = mConvertVal(mCast(float,SI().seismicReferenceDatum()));
+    const float srd = mConvertVal(sCast(float,SI().seismicReferenceDatum()));
     const bool hastvdgl = !mIsUdf( groundevel );
     const bool hastvdsd = !mIsZero( srd, 1e-3f );
     BufferStringSet header;
@@ -479,7 +479,7 @@ bool uiWellExportFacility::exportD2TModel( const char* fp, bool ischksht )
     for ( int idx=0; idx<d2t->size(); idx++ )
     {
 	const float dah = d2t->dah(idx);
-        const float tvdss = mConvertVal(mCast(float,track.getPos(dah).z_));
+        const float tvdss = mConvertVal(sCast(float,track.getPos(dah).z_));
 	const float tvd = tvdss + kbelev;
 	*strm << mConvertVal(dah) << od_tab << tvd << od_tab;
 	if ( hastvdgl )
@@ -501,7 +501,7 @@ bool uiWellExportFacility::exportD2TModel( const char* fp, bool ischksht )
 	replvellayer.widen( 1e-2f, true );
         vint = replvellayer.includes( -1.f * track.getPos(dah).z_, true ) &&
 	    !mIsUdf(info.replvel_) ?
-	    info.replvel_ : mCast(float,d2t->getVelocityForDah(dah,track));
+	    info.replvel_ : sCast(float,d2t->getVelocityForDah(dah,track));
 	*strm << mConvertVal(vint) << od_newline;
     }
 
@@ -533,7 +533,7 @@ bool uiWellExportFacility::exportMarkers( const char* fp )
     {
 	const Well::Marker& mrkr = *mrks[idx];
 	const float dah = mrkr.dah();
-        const float tvdss = mCast(float,track.getPos(dah).z_);
+        const float tvdss = sCast(float,track.getPos(dah).z_);
 	const float tvd = tvdss + kbelev;
 	*strm << mConvertVal( dah ) << od_tab
 	     << mConvertVal( tvd ) << od_tab

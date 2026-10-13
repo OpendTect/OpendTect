@@ -951,7 +951,7 @@ void HorizonFlatViewEditor2D::polygonFinishedCB( CallBacker* )
 	    continue;
 
 	const int posidx = horpainter_->getDistances().indexOf(
-			   mCast(float,auxdata->poly_[selectedidxs[ids]].x_) );
+			   sCast(float,auxdata->poly_[selectedidxs[ids]].x_) );
 	const TypeSet<int>& trcnrs = horpainter_->getTrcNos();
 	if ( !trcnrs.validIdx(posidx) )
 	    continue;

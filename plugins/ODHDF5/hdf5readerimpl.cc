@@ -64,7 +64,7 @@ void HDF5::ReaderImpl::openFile( const char* fnm, uiRetVal& uirv, bool )
 
     closeFile();
     myfile_ = true;
-    fileid_.set( mCast(hid_t, fid) );
+    fileid_.set( sCast(hid_t, fid) );
 #ifdef __debug__
     if ( DBG::isOn(DGB_HDF5) )
     {
@@ -124,7 +124,7 @@ void HDF5::ReaderImpl::listObjs( const GroupID& dir,
 	    mCatchHDF( grp_hid, continue );
 
 	    BufferStringSet subnms;
-	    listObjs( GroupID::get(mCast(hid_t,grp_hid)), subnms,
+	    listObjs( GroupID::get(sCast(hid_t,grp_hid)), subnms,
 		      true );
 	    for ( int idx = 0; idx < subnms.size(); idx++ )
 	    {
@@ -256,7 +256,7 @@ HDF5::DatatypeID HDF5::ReaderImpl::h5DataType( const DatasetID& h5ds ) const
     const ::hid_t dt = H5Dget_type( h5ds.asInt() );
     mCatchHDF( dt, return DatatypeID::udf() );
 
-    const DatatypeID ret = DatatypeID::get( mCast(hid_t,dt) );
+    const DatatypeID ret = DatatypeID::get( sCast(hid_t,dt) );
     H5Tclose( dt );
     return ret;
 }
@@ -345,7 +345,7 @@ void HDF5::ReaderImpl::gtSlab( const DatasetID& h5ds,
 
     H5Sselect_all( filespace );
     TypeSet<hsize_t> counts;
-    selectSlab( DataspaceID::get(mCast(hid_t,filespace)),
+    selectSlab( DataspaceID::get(sCast(hid_t,filespace)),
 		spec, &counts );
     const ::hid_t memspace = H5Screate_simple( counts.size(),
 					       counts.arr(),
@@ -1064,7 +1064,7 @@ bool HDF5::ReaderImpl::getAttribute( const char* attrnm, type& res, \
     { \
 	return false; \
     } \
-    res = mCast(type, ival); \
+    res = sCast(type, ival); \
     return true; \
 }
 mGetIntAttr(od_int16)
@@ -1088,7 +1088,7 @@ bool HDF5::ReaderImpl::getAttribute( const char* attrnm, float& res,
     if ( !readNativeFloatAttr(scopeid.asInt(), attrnm, dval) )
 	return false;
 
-    res = mCast(float, dval);
+    res = sCast(float, dval);
     return true;
 }
 

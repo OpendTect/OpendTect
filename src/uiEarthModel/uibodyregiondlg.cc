@@ -101,7 +101,7 @@ bool doWork( od_int64 start, od_int64 stop, int threadid ) override
     const int horsz = hors_.size();
     const bool usepolygon = !plg_.isEmpty();
 
-    for ( int idx=mCast(int,start); idx<=stop && shouldContinue();
+    for ( int idx=sCast(int,start); idx<=stop && shouldContinue();
 						    idx++, addToNrDone(1) )
     {
 	const int inlidx = idx/crlsz;
@@ -115,8 +115,8 @@ bool doWork( od_int64 start, od_int64 stop, int threadid ) override
 
 	if ( usepolygon )
 	{
-	    Geom::Point2D<float> pt( mCast(float,bid.inl()),
-				     mCast(float,bid.crl()) );
+	    Geom::Point2D<float> pt( sCast(float,bid.inl()),
+				     sCast(float,bid.crl()) );
 	    if ( !plg_.isInside(pt,true,0.01) )
 		continue;
 	}
@@ -173,14 +173,14 @@ ImplicitBodyRegionExtractor( const TypeSet<MultiID>& surflist,
 {
     res_.setAll( 1 );
 
-    c_[0] = Geom::Point2D<float>( mCast(float,tkzs_.hsamp_.start_.inl()),
-	                          mCast(float,tkzs_.hsamp_.start_.crl()) );
-    c_[1] = Geom::Point2D<float>( mCast(float,tkzs_.hsamp_.stop_.inl()),
-				  mCast(float,tkzs_.hsamp_.start_.crl()) );
-    c_[2] = Geom::Point2D<float>( mCast(float,tkzs_.hsamp_.stop_.inl()),
-				  mCast(float,tkzs_.hsamp_.stop_.crl()) );
-    c_[3] = Geom::Point2D<float>( mCast(float,tkzs_.hsamp_.start_.inl()),
-				  mCast(float,tkzs_.hsamp_.stop_.crl()) );
+    c_[0] = Geom::Point2D<float>( sCast(float,tkzs_.hsamp_.start_.inl()),
+	                          sCast(float,tkzs_.hsamp_.start_.crl()) );
+    c_[1] = Geom::Point2D<float>( sCast(float,tkzs_.hsamp_.stop_.inl()),
+				  sCast(float,tkzs_.hsamp_.start_.crl()) );
+    c_[2] = Geom::Point2D<float>( sCast(float,tkzs_.hsamp_.stop_.inl()),
+				  sCast(float,tkzs_.hsamp_.stop_.crl()) );
+    c_[3] = Geom::Point2D<float>( sCast(float,tkzs_.hsamp_.start_.inl()),
+				  sCast(float,tkzs_.hsamp_.stop_.crl()) );
 
     for ( int idx=0; idx<surflist.size(); idx++ )
     {
@@ -226,8 +226,8 @@ ImplicitBodyRegionExtractor( const TypeSet<MultiID>& surflist,
 	    const int inlidx = tkzs_.hsamp_.inlIdx(bid.inl());
 	    const int crlidx = tkzs_.hsamp_.crlIdx(bid.crl());
 	    bidinplg_->set( inlidx, crlidx, plg_.isInside(
-		    Geom::Point2D<float>( mCast(float,bid.inl()),
-					 mCast(float,bid.crl()) ),true,0.01 ) );
+		    Geom::Point2D<float>( sCast(float,bid.inl()),
+					 sCast(float,bid.crl()) ),true,0.01 ) );
 	}
     }
 }
@@ -279,7 +279,7 @@ bool doWork( od_int64 start, od_int64 stop, int threadid ) override
     }
     const int cornersz = corners.size();
 
-    for ( int idz=mCast(int,start); idz<=stop && shouldContinue();
+    for ( int idz=sCast(int,start); idz<=stop && shouldContinue();
 	  idz++, addToNrDone(1) )
     {
 	if ( !idz || idz==lastzidx )
@@ -457,8 +457,8 @@ void getPolygon( int curidx, Geometry::ExplPlaneIntersection* epi,
     for ( int idx=0; idx<sz; idx++ )
     {
 	BinID bid = SI().transform( crds[idx] );
-	bidpos += Geom::Point2D<float>( mCast(float,bid.inl()),
-					mCast(float,bid.crl()) );
+	bidpos += Geom::Point2D<float>( sCast(float,bid.inl()),
+					sCast(float,bid.crl()) );
     }
 
     poly.setClosed( true );
@@ -513,8 +513,8 @@ bool inFaultRange( const BinID& pos, int curidx, ODPolygon<float>& poly )
 	return true;
 
     return poly.isInside(
-	Geom::Point2D<float>( mCast(float,pos.inl()),
-			      mCast(float,pos.crl())), true, 0 );
+	Geom::Point2D<float>( sCast(float,pos.inl()),
+			      sCast(float,pos.crl())), true, 0 );
 }
 
 
@@ -527,7 +527,7 @@ void computeHorOuterRange()
 	const Geometry::BinIDSurface* surf =
 	    hors_[idx]->geometry().geometryElement();
 	const Array2D<float>* depth = surf ? surf->getArray() : 0;
-	const int sz = depth ? mCast( int,depth->info().getTotalSz() ) : 0;
+	const int sz = depth ? sCast( int,depth->info().getTotalSz() ) : 0;
 	if ( !sz )
 	    continue;
 
@@ -926,7 +926,7 @@ bool uiBodyRegionDlg::createImplicitBody()
 	}
 	else
 	{
-	    sides += mCast(char,selbox->currentItem());
+	    sides += sCast(char,selbox->currentItem());
 	    mDynamicCastGet(uiSpinBox*, shiftfld,
 		    table_->getCellObject(RowCol(idx,cRelLayerCol)) );
 	    horshift += shiftfld ? shiftfld->getIntValue()/SI().zScale() : 0;

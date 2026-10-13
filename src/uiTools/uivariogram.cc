@@ -201,11 +201,11 @@ void uiVariogramDisplay::draw()
     }
 
     labelChangedCB(0);
-    disp_->setup().xrg_.stop_ = mCast( float, maxrg_ );
+    disp_->setup().xrg_.stop_ = sCast( float, maxrg_ );
     disp_->setup().yrg_.stop_ = maxdataval*1.1f;
 
-    rangefld_->setMaxValue( mCast( float, maxrg_ ) );
-    rangefld_->setStep( mCast( float, maxrg_/(100*(size-1)) ) );
+    rangefld_->setMaxValue( sCast( float, maxrg_ ) );
+    rangefld_->setStep( sCast( float, maxrg_/(100*(size-1)) ) );
     rangefld_->setValue( maxrg_/4 );
 
     sillfld_->setMinValue( 0 );

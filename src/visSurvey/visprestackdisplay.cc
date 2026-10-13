@@ -541,10 +541,10 @@ void PreStackDisplay::dataChangedCB( CallBacker* )
 
     flatviewer_->setPosition( c00, c01, c10, c11 );
 
-    Interval<float> xlim( mCast(float, SI().inlRange(true).start_),
-                          mCast(float, SI().inlRange(true).stop_) );
-    Interval<float> ylim( mCast(float, SI().crlRange(true).start_),
-                          mCast(float, SI().crlRange(true).stop_) );
+    Interval<float> xlim( sCast(float, SI().inlRange(true).start_),
+                          sCast(float, SI().inlRange(true).stop_) );
+    Interval<float> ylim( sCast(float, SI().crlRange(true).start_),
+                          sCast(float, SI().crlRange(true).stop_) );
 
     bool isinline = true;
     if ( section_ )
@@ -552,12 +552,12 @@ void PreStackDisplay::dataChangedCB( CallBacker* )
 	isinline = section_->getOrientation()==OD::SliceType::Inline;
 	if ( isinline )
 	{
-            xlim.set( mCast(float,startpos.x_), mCast(float,stoppos.x_) );
+            xlim.set( sCast(float,startpos.x_), sCast(float,stoppos.x_) );
 	    xlim.sort();
 	}
 	else
 	{
-            ylim.set( mCast(float,startpos.y_), mCast(float,stoppos.y_) );
+            ylim.set( sCast(float,startpos.y_), sCast(float,stoppos.y_) );
 	    ylim.sort();
 	}
     }
@@ -570,10 +570,10 @@ void PreStackDisplay::dataChangedCB( CallBacker* )
 	const BinID diff = stopbid - startbid;
 	isinline = Math::Abs(diff.inl()) < Math::Abs(diff.crl());
 
-        xlim.start_ = mCast(float, mMIN(startbid.inl(),stopbid.inl()));
-        xlim.stop_ = mCast(float, mMAX(startbid.inl(),stopbid.inl()));
-        ylim.start_ = mCast(float, mMIN(startbid.crl(),stopbid.crl()));
-        ylim.stop_ = mCast(float, mMAX(startbid.crl(),stopbid.crl()));
+        xlim.start_ = sCast(float, mMIN(startbid.inl(),stopbid.inl()));
+        xlim.stop_ = sCast(float, mMAX(startbid.inl(),stopbid.inl()));
+        ylim.start_ = sCast(float, mMIN(startbid.crl(),stopbid.crl()));
+        ylim.stop_ = sCast(float, mMAX(startbid.crl(),stopbid.crl()));
     }
     else
 	return;
@@ -906,7 +906,7 @@ void PreStackDisplay::draggerMotion( CallBacker* )
 			SI().binID2Coord().transformBackNoSnap( trcpos );
 
 	const Coord direction = posside_ ? basedirection_ : -basedirection_;
-	const float offsetscale = mCast(float,
+	const float offsetscale = sCast(float,
 			    Coord(basedirection_.x_*SI().inlDistance(),
 				  basedirection_.y_*SI().crlDistance()).abs());
 

@@ -216,7 +216,7 @@ void SeisDataPackWriter::setCurrentDataPackScope( const TrcKeySampling& tks )
     tks_ = tks;
     iterator_.setSampling( tks_ );
     totalnr_ = posinfo_ ? posinfo_->totalSizeInside( tks_ )
-			: mCast(int,tks_.totalNr());
+			: sCast(int,tks_.totalNr());
 }
 
 
@@ -293,7 +293,7 @@ int SeisDataPackWriter::nextStep()
 			    : outarr.get( inlpos, crlpos, cubesample++ );
 
 	    if ( scaler )
-		value = mCast(float,scaler->scale( value ));
+		value = sCast(float,scaler->scale( value ));
 
 	    trc_->set( idz, value, compidx );
 	}

@@ -89,7 +89,7 @@ SeisRandLineTo2D::SeisRandLineTo2D( const IOObj& inobj, const IOObj& outobj,
 	startpos = stoppos;
     }
 
-    totnr_ = mCast( int, seldata_.binidValueSet().totalSize() );
+    totnr_ = sCast( int, seldata_.binidValueSet().totalSize() );
     if ( rdr_ )
 	rdr_->setSelData( new Seis::TableSelData(seldata_) );
 

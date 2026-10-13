@@ -335,12 +335,12 @@ bool Frequency::computeData( const DataHolder& output, const BinID& relpos,
 
 	ArrayValueSeries<float,float> arr( freqdomainpower.arr(), false );
 	FreqFunc func( arr, fftsz );
-	float exactpos = findExtreme( func, false, mCast(float,maxnr-1),
-						      mCast(float,maxnr+1) );
+	float exactpos = findExtreme( func, false, sCast(float,maxnr-1),
+						      sCast(float,maxnr+1) );
 	if ( !mIsUdf(exactpos) )
 	    maxval = func.getValue( exactpos );
 	else
-	    exactpos = mCast( float, maxnr );
+	    exactpos = sCast( float, maxnr );
 
 	if ( mIsZero(sum,mDefEps) || exactpos<0.1 )
 	{

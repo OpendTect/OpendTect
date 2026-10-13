@@ -113,7 +113,7 @@ bool GMTFault::doExecute( od_ostream& strm, const char* fnm )
 				fault3d->geometry().geometryElement();
 	PtrMan<Geometry::ExplFaultStickSurface> fltsurf =
 	    new Geometry::ExplFaultStickSurface( fsssurf,
-				  mCast(float,SI().zDomain().userFactor()) );
+				  sCast(float,SI().zDomain().userFactor()) );
 	fltsurf->setCoordList( new Coord3ListImpl, new Coord3ListImpl, 0 );
 	if ( !fltsurf->update(true,0) )
 	    continue;

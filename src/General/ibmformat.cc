@@ -34,7 +34,7 @@ int IbmFormat::asInt( const void* buf )
 void IbmFormat::putInt( int value, void* buf )
 {
     if (value >= 0) {
-	mBuf[0] = mCast( unsigned char, value / (256 * 256 * 256) );
+	mBuf[0] = sCast( unsigned char, value / (256 * 256 * 256) );
 	mBuf[1] = value / (256 * 256       )  % 256;
 	mBuf[2] = value /  256                % 256;
 	mBuf[3] = value                       % 256;
@@ -42,7 +42,7 @@ void IbmFormat::putInt( int value, void* buf )
 	value = (-value);
 	value--;
 
-	mBuf[0] = mCast( unsigned char, 255 - value / (256 * 256 * 256) );
+	mBuf[0] = sCast( unsigned char, 255 - value / (256 * 256 * 256) );
 	mBuf[1] = 255 - value / (256 * 256       )  % 256;
 	mBuf[2] = 255 - value /  256                % 256;
 	mBuf[3] = 255 - value                       % 256;
@@ -65,13 +65,13 @@ short IbmFormat::asShort( const void* buf )
 void IbmFormat::putShort( short value, void* buf )
 {
     if (value >= 0) {
-	mBuf[0] = mCast( unsigned char, value / 256 );
+	mBuf[0] = sCast( unsigned char, value / 256 );
 	mBuf[1] = value % 256;
     } else {
 	value = (-value);
 	value--;
 
-	mBuf[0] = mCast( unsigned char, 255 - value / 256 );
+	mBuf[0] = sCast( unsigned char, 255 - value / 256 );
 	mBuf[1] = 255 - value % 256;
     }
 }
@@ -85,7 +85,7 @@ unsigned short IbmFormat::asUnsignedShort( const void* buf )
 
 void IbmFormat::putUnsignedShort( unsigned short value, void* buf )
 {
-    mBuf[0] = mCast( unsigned char, value / 256 );
+    mBuf[0] = sCast( unsigned char, value / 256 );
     mBuf[1] = value % 256;
 }
 

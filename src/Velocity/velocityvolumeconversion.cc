@@ -233,7 +233,7 @@ char VolumeConverter::getNewTrace( SeisTrc& trc, int threadidx )
 
     deleteAndNullPtr( reader_ );
 
-    return mCast( char, res );
+    return sCast( char, res );
 }
 
 } // namespace Vel

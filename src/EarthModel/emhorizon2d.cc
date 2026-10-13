@@ -418,7 +418,7 @@ void Horizon2D::initNodeSourceArray( const TrcKey& tk )
 float Horizon2D::getZ( const TrcKey& tk ) const
 {
     const Coord3 pos = getCoord( tk );
-    return pos.isDefined() ? mCast(float,pos.z_) : mUdf(float);
+    return pos.isDefined() ? sCast(float,pos.z_) : mUdf(float);
 }
 
 

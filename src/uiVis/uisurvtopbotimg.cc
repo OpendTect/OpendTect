@@ -78,7 +78,7 @@ void fillCurrent()
     imagefld_->setChecked( img_->isOn() );
     imagefld_->setInput( img_->getImageID() );
     transpfld_->setValue( img_->getTransparency()*100 );
-    zposfld_->setValue( mCast(float,img_->topLeft().z_) );
+    zposfld_->setValue( sCast(float,img_->topLeft().z_) );
 }
 
 void newImageCB( CallBacker* )

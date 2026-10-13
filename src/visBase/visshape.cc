@@ -840,7 +840,7 @@ public:
 	typename T::const_iterator res = std::find(
 	    element_->begin(), element_->end(), idx );
 	if ( res==element_->end() ) return -1;
-	return mCast( int,res-element_->begin() );
+	return sCast( int,res-element_->begin() );
     }
 
     osg::ref_ptr<T>	element_;

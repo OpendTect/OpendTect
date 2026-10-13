@@ -143,7 +143,7 @@ bool Phase::unWrap( float wrapparam )
     float prevph = phase_.get( domfreqidx_ );
     float domval = std::abs( cfreq_.get(domfreqidx_) );
     float prevdph = 0.f;
-    const float pibyw = mCast(float, wrapparam/M_PI );
+    const float pibyw = sCast(float, wrapparam/M_PI );
     int phcount = 0;
     for ( int idx=domfreqidx_+1; idx<sz; idx++ )
     {
@@ -185,7 +185,7 @@ bool Phase::unWrap( float wrapparam )
     }
 
     if ( phcount != 0 )
-	avgphase_ /= mCast(float,phcount);
+	avgphase_ /= sCast(float,phcount);
     else
 	avgphase_ = phase_.get( domfreqidx_ );
 

@@ -286,7 +286,7 @@ void HorizonUtils::getWantedPositions( od_ostream& strm,
 	    vals[0] = ( horizon2 && botz<topz ? botz : topz ) + extraz.start_;
 	    vals[1] = ( horizon2 && botz>topz ? botz : topz ) + extraz.stop_;
 	    wantedposbivs.add( bid, vals );
-	    nrpos = mCast( int, wantedposbivs.totalSize() );
+	    nrpos = sCast( int, wantedposbivs.totalSize() );
 	    meanzinter = ( meanzinter*( nrpos -1 ) + lastzinter) / nrpos;
 	    ++pm;
 	}

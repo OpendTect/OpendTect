@@ -379,7 +379,7 @@ void Well::ZRangeSelector::snapZRangeToSurvey(Interval<float>& zrg,bool zistime,
 	    ? wd->track().zRange().start_ \
 	    : wd->track().zRange().stop_ ; \
     else \
-	tvd = mCast( float, track.getPos( dah ).z_ ); \
+	tvd = sCast( float, track.getPos( dah ).z_ ); \
 }
 
 
@@ -769,7 +769,7 @@ bool Well::TrackSampler::getPos( const Data& wd, float dah,
     biv.set( SI().transform(pos) );
     if ( SI().zIsTime() && wd.d2TModel() )
     {
-	pos.z_ = mCast( double, wd.d2TModel()->getTime( dah, wd.track() ) );
+	pos.z_ = sCast( double, wd.d2TModel()->getTime( dah, wd.track() ) );
         if ( mIsUdf(pos.z_) )
 	    return false;
     }
@@ -1360,7 +1360,7 @@ od_int64 Well::LogSampler::nrIterations() const
 
 #define mGetZ(zvalue,dah,zintime) \
 	zvalue = zintime \
-	       ? mCast( float, track_.getPos( dah ).z_ ) \
+	       ? sCast( float, track_.getPos( dah ).z_ ) \
 	       : d2t_->getTime( dah, track_ );
 
 #undef mErrRet
@@ -1434,9 +1434,9 @@ bool Well::LogSampler::doPrepare( int /* nrthreads */ )
     }
 
     delete data_;
-    data_ = new Array2DImpl<float>( mCast(int,nrIterations()+2),
+    data_ = new Array2DImpl<float>( sCast(int,nrIterations()+2),
 				    dahs.size() );
-    const int winszidx = mCast(int,nrIterations())+1;
+    const int winszidx = sCast(int,nrIterations())+1;
     for ( int idz=0; idz<dahs.size(); idz++ )
     {
 	data_->set( 0, idz, dahs[idz] );
@@ -1450,7 +1450,7 @@ bool Well::LogSampler::doPrepare( int /* nrthreads */ )
 bool Well::LogSampler::doWork( od_int64 start, od_int64 stop,
 			       int /* threadidx */ )
 {
-    for ( int idx=mCast(int,start); idx<=stop; idx++, addToNrDone(1) )
+    for ( int idx=sCast(int,start); idx<=stop; idx++, addToNrDone(1) )
     {
 	if ( !shouldContinue() )
 	    return false;

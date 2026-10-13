@@ -45,7 +45,7 @@ bool doWork( od_int64 start, od_int64 stop, int /* threadid */ ) override
     const int ygate = fd_.setup_.boxwidth_;
     const int zgate = fd_.setup_.boxheight_;
 
-    for ( int idx=mCast(int, start); idx<=stop && shouldContinue();
+    for ( int idx=sCast(int, start); idx<=stop && shouldContinue();
 						idx++,addToNrDone(1) )
     {
 	int pos[3];
@@ -198,7 +198,7 @@ bool doWork( od_int64 start, od_int64 stop, int /* threadid */ ) override
     const int xgate = fd_.setup_.boxlength_;
     const int ygate = fd_.setup_.boxwidth_;
 
-    for ( int idx=mCast(int,start); idx<=stop && shouldContinue();
+    for ( int idx=sCast(int,start); idx<=stop && shouldContinue();
 							idx++,addToNrDone(1) )
     {
 	int pos[2];
@@ -571,7 +571,7 @@ bool Dip2D::fillGap()
 
 	    /* angle_index = fabs(min_energy)>fabs(max_energy) ?
 		min_energy_index : max_energy_index;*/
-	    dilation_->set(jt,jtrace,mCast(float,angleset[max_energy_index]));
+	    dilation_->set(jt,jtrace,sCast(float,angleset[max_energy_index]));
 	}
     }
 

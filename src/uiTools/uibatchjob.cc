@@ -357,7 +357,7 @@ uiSingleBatchJobDispatcherLauncher::uiSingleBatchJobDispatcherLauncher(
     const StepInterval<int> nicerg(
         OS::CommandExecPars::cMachineUserPriorityRange(false));
     jobspec_.execpars_.prioritylevel_ =
-        -1.f * mCast(float, niceval) / nicerg.width();
+        -1.f * sCast(float, niceval) / nicerg.width();
 #endif
 }
 
@@ -446,7 +446,7 @@ uiSingleBatchJobDispatcherPars( uiParent* p, const HostDataList& hdl,
     const StepInterval<int> unixmachpriorg(
 			OS::CommandExecPars::cMachineUserPriorityRange(false) );
     StepInterval<float> sliderrg( -1.f, 0.f, 1.f/
-				  mCast(float,unixmachpriorg.nrSteps()) );
+				  sCast(float,unixmachpriorg.nrSteps()) );
     unixpriofld_->setInterval( sliderrg );
     unixpriofld_->setValue( js.execpars_.prioritylevel_ );
     if ( remhostfld_ )
@@ -455,7 +455,7 @@ uiSingleBatchJobDispatcherPars( uiParent* p, const HostDataList& hdl,
     windowspriofld_ = new uiSlider( this, ssu, "winjobpriority" );
     const StepInterval<int> winmachpriorg(
 			OS::CommandExecPars::cMachineUserPriorityRange(true) );
-    sliderrg.step_ = 1.f / mCast(float,winmachpriorg.nrSteps() );
+    sliderrg.step_ = 1.f / sCast(float,winmachpriorg.nrSteps() );
     windowspriofld_->setInterval( sliderrg );
     windowspriofld_->setValue( js.execpars_.prioritylevel_ );
     if ( remhostfld_ )

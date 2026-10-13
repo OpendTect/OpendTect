@@ -68,7 +68,7 @@ bool TestRunner::testNetSocket( bool closeserver )
     connection.setTimeout( timeout_ );
 
     const Network::Authority nonexisting( "non_existing_host",
-				mCast(PortNr_Type,20000) );
+				sCast(PortNr_Type,20000) );
     mRunSockTest( !connection.connectToHost(nonexisting,true),
 		  "Not connecting to non-existing host" );
 

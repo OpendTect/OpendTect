@@ -280,7 +280,7 @@ void uiGapDeconAttrib::examPush( CallBacker* cb )
     TrcKeyZSampling tkzs;
     inpfld_->getRanges( tkzs ); // only valid for 3D
     Interval<float> gate = gatefld_->getFInterval();
-    const float zfac = mCast(float,SI().zDomain().userFactor());
+    const float zfac = sCast(float,SI().zDomain().userFactor());
     gate.scale(1.f/zfac);
 
     if ( !is2D() && !tkzs.zsamp_.includes(gate) )
@@ -597,7 +597,7 @@ void uiGapDeconAttrib::qCPush( CallBacker* cb )
     TrcKeyZSampling cs;
     inpfld_->getRanges(cs);
     Interval<float> gate = gatefld_->getFInterval();
-    const float zfac = mCast(float,SI().zDomain().userFactor());
+    const float zfac = sCast(float,SI().zDomain().userFactor());
     gate.scale(1.f/zfac);
     if ( !cs.zsamp_.includes(gate) )
     {

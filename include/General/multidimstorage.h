@@ -405,7 +405,7 @@ bool MultiDimStorage<T>::add( const V& vals, const POS& posarr,
 			      IDX* indexarr )
 {
     const int dim = nrdims_-1;
-    const int pos = mCast( int, posarr[dim] );
+    const int pos = sCast( int, posarr[dim] );
     int index = findFirstPos( pos );
 
     const bool match = positions_.validIdx(index) && positions_[index]==pos;
@@ -821,7 +821,7 @@ bool MultiDimStorage<T>::sort( TypeSet<IDXS>& indices ) const
     sort_coupled( sortkeys.arr(), idxs.arr(), idxs.size() );
 
     TypeSet<IDXS> copy = indices;
-    for ( int idx=mCast(int,idxs.size()-1); idx>=0; idx-- )
+    for ( int idx=sCast(int,idxs.size()-1); idx>=0; idx-- )
 	indices[idx] = copy[(int)idxs[idx]];
 
     return true;

@@ -275,7 +275,7 @@ HDF5::GroupID HDF5::AccessImpl::selectGroup( const char* grpnm ) const
 	 H5Iis_valid(oldgrpid) > 0 && H5Iget_type(oldgrpid) == H5I_GROUP )
 	previousgroupids_.addIfNew( oldgrpid );
 
-    group_ = GroupID::get( mCast(hid_t,grpid) );
+    group_ = GroupID::get( sCast(hid_t,grpid) );
     previousgroupids_.add( grpid );
     return group_;
 }
@@ -304,7 +304,7 @@ HDF5::DatasetID HDF5::AccessImpl::selectDataSet( const char* dsnm ) const
 	    return DatasetID::udf();
 
 	closeDatasetHandle( dataset_ );
-	dataset_ = DatasetID::get( mCast(hid_t,dsid) );
+	dataset_ = DatasetID::get( sCast(hid_t,dsid) );
 	const ::hid_t space = H5Dget_space( dsid );
 	nrdims_ = H5Sget_simple_extent_ndims( space );
 	H5Sclose( space );
@@ -438,7 +438,7 @@ void HDF5::AccessImpl::doCloseFile( Access& acc )
 HDF5::DatatypeID HDF5::AccessImpl::h5DataTypeFor( ODDataType datarep )
 {
 #   define mHandleCase(odtyp,hdftyp) \
-    case OD::odtyp: return DatatypeID::get( mCast(hid_t,H5T_NATIVE_##hdftyp) );
+    case OD::odtyp: return DatatypeID::get( sCast(hid_t,H5T_NATIVE_##hdftyp) );
 
     switch ( datarep )
     {
@@ -456,7 +456,7 @@ HDF5::DatatypeID HDF5::AccessImpl::h5DataTypeFor( ODDataType datarep )
     }
 #undef mHandleCase
 
-    return DatatypeID::get( mCast(hid_t,H5T_NATIVE_FLOAT) );
+    return DatatypeID::get( sCast(hid_t,H5T_NATIVE_FLOAT) );
 }
 
 

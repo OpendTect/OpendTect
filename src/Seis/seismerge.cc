@@ -242,9 +242,9 @@ void SeisMerger::init3DWorkSampling()
 
     totnrpos_ = 0;
     for ( const auto& rdrhs : rdrhsamps_ )
-	totnrpos_ += mCast( int, rdrhs.totalNr() );
+	totnrpos_ += sCast( int, rdrhs.totalNr() );
     if ( totnrpos_ < 1 )
-	totnrpos_ = mCast( int, hsamp_.totalNr() );
+	totnrpos_ = sCast( int, hsamp_.totalNr() );
 
     curbid_ = hsamp_.start_;
     if ( !posInAnyInput(curbid_) && !toNextPos() )
@@ -400,7 +400,7 @@ SeisTrc* SeisMerger::getStacked( SeisTrcBuf& buf )
     {
 	SeisTrcPropChg stckr( trc );
 	for ( int idx=1; idx<nrtrcs; idx++ )
-	    stckr.stack( *buf.get(idx), false, mCast(float,idx) );
+	    stckr.stack( *buf.get(idx), false, sCast(float,idx) );
     }
 
     ret = buf.remove( 0 );

@@ -105,7 +105,7 @@ bool AGC<T>::doPrepare( int nrthreads )
 	 (output_->reSizeable() && !output_->setSize(size_)) )
 	return false;
 
-    energies_.setSize( mCast(int,size_), mUdf(T) );
+    energies_.setSize( sCast(int,size_), mUdf(T) );
 
     if ( nrthreads )
     {
@@ -172,7 +172,7 @@ bool AGC<T>::doWork( od_int64 start, od_int64 stop, int threadidx )
 	computeEnergyMute();
     }
 
-    for ( int idx=mCast(int,start); idx<=stop; idx++ )
+    for ( int idx=sCast(int,start); idx<=stop; idx++ )
     {
 	int nrenergies = 0;
 	float energysum = 0;

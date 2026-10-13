@@ -90,20 +90,20 @@ bool Regular2RandomDataCopier::doPrepare( int nrthreads )
     if ( regsdp.getDataDesc() != ransdp.getDataDesc() )
 	return true;
 
-    srcptr_ = mCast( const unsigned char*, regsdp.data(regidx_).getData() );
+    srcptr_ = rCast( const unsigned char*, regsdp.data(regidx_).getData() );
     mDynamicCastGet( const ConvMemValueSeries<float>*, regstorage,
 		     regsdp.data(regidx_).getStorage() );
     if ( regstorage )
     {
-	srcptr_ = mCast( const unsigned char*, regstorage->storArr() );
+	srcptr_ = rCast( const unsigned char*, regstorage->storArr() );
 	samplebytes_ = regsdp.getDataDesc().nrBytes();
     }
 
-    dstptr_ = mCast( unsigned char*, ransdp.data(ranidx_).getData() );
-    mDynamicCastGet( const ConvMemValueSeries<float>*, ranstorage,
+    dstptr_ = rCast( unsigned char*, ransdp.data(ranidx_).getData() );
+    mDynamicCastGet( ConvMemValueSeries<float>*, ranstorage,
 		     ransdp.data(ranidx_).getStorage() );
     if ( ranstorage )
-	dstptr_ = mCast( unsigned char*, ranstorage->storArr() );
+	dstptr_ = rCast( unsigned char*, ranstorage->storArr() );
 
     if ( !srcptr_ || !dstptr_ )
 	return true;
@@ -138,7 +138,7 @@ bool Regular2RandomDataCopier::doWork( od_int64 start, od_int64 stop,
 {
     const RegularSeisDataPack& regsdp = *regsdp_.ptr();
     RandomSeisDataPack& ransdp = *ransdp_.ptr();
-    for ( int idx=mCast(int,start); idx<=mCast(int,stop); idx++ )
+    for ( int idx=sCast(int,start); idx<=sCast(int,stop); idx++ )
     {
 	const TrcKeySampling& hsamp = regsdp.sampling().hsamp_;
 	if ( !hsamp.lineRange().includes(path_[idx].lineNr(),true) ||
@@ -342,7 +342,7 @@ int RegularSeisDataPack::getGlobalIdx( const TrcKey& tk ) const
     if ( !sampling_.hsamp_.includes(tk) )
 	return -1;
 
-    return mCast(int,sampling_.hsamp_.globalIdx(tk));
+    return sCast(int,sampling_.hsamp_.globalIdx(tk));
 }
 
 
@@ -847,15 +847,15 @@ void SeisFlatDataPack::setPosData()
     {
 	const TrcKey& trckey = path[idx];
 	if ( trckey.isUdf() )
-	    pos[idx] = mCast(float,(pos[idx-1]));
+	    pos[idx] = sCast(float,(pos[idx-1]));
 	else
 	{
 	    const Coord::DistType dist = prevtk.distTo( trckey );
 	    if ( mIsUdf(dist) )
-		pos[idx] = mCast(float,(pos[idx-1]));
+		pos[idx] = sCast(float,(pos[idx-1]));
 	    else
 	    {
-		pos[idx] = mCast(float,(pos[idx-1] + dist));
+		pos[idx] = sCast(float,(pos[idx-1] + dist));
 		prevtk = trckey;
 	    }
 	}
@@ -1064,7 +1064,7 @@ void RegularSeisFlatDataPack::setSourceData()
 
 float RegularSeisFlatDataPack::getPosDistance( bool dim0, float posfidx ) const
 {
-    const int posidx = mCast(int,floor(posfidx));
+    const int posidx = sCast(int,floor(posfidx));
     const float dfposidx = posfidx - posidx;
     if ( dim0 )
     {
@@ -1084,7 +1084,7 @@ float RegularSeisFlatDataPack::getPosDistance( bool dim0, float posfidx ) const
 	    posdistatidx += (posdistatatnextidx - posdistatidx)*dfposidx;
 	}
 
-	return mCast(float,posdistatidx);
+	return sCast(float,posdistatidx);
     }
 
     return mUdf(float);
@@ -1227,7 +1227,7 @@ void RandomSeisFlatDataPack::setRegularizedPosData()
 	    if ( firstvalidposidx >= 0 && lastvalidposidx < 0 )
 		lastvalidposidx = idx - 1;
 
-	    pos[idx] = mCast(float,(pos[idx-1]));
+	    pos[idx] = sCast(float,(pos[idx-1]));
 	}
 	else
 	{
@@ -1237,9 +1237,9 @@ void RandomSeisFlatDataPack::setRegularizedPosData()
 	    const Coord::DistType dist = prevtk.isUdf() ? mUdf(Coord::DistType)
 						    : prevtk.distTo( trckey );
 	    if ( mIsUdf(dist) )
-		pos[idx] = mCast(float,(pos[idx-1]));
+		pos[idx] = sCast(float,(pos[idx-1]));
 	    else
-		pos[idx] = mCast(float,(pos[idx-1] + dist));
+		pos[idx] = sCast(float,(pos[idx-1] + dist));
 
 	    prevtk = trckey;
 	}
@@ -1256,7 +1256,7 @@ void RandomSeisFlatDataPack::setRegularizedPosData()
 	    const Coord::DistType unitdist =
 			    pos[lastvalidposidx] / nrpostoregularize;
 	    for ( int idx=firstvalidposidx+1; idx<=lastvalidposidx; idx++ )
-		pos[idx] = mCast(float,(pos[idx-1] + unitdist));
+		pos[idx] = sCast(float,(pos[idx-1] + unitdist));
 	}
     }
 
@@ -1267,7 +1267,7 @@ void RandomSeisFlatDataPack::setRegularizedPosData()
 
 float RandomSeisFlatDataPack::getPosDistance( bool dim0, float posfidx ) const
 {
-    const int posidx = mCast(int,floor(posfidx));
+    const int posidx = sCast(int,floor(posfidx));
     const float dfposidx = posfidx - posidx;
     if ( dim0 )
     {
@@ -1278,7 +1278,7 @@ float RandomSeisFlatDataPack::getPosDistance( bool dim0, float posfidx ) const
 	    posdistatidx += (posdistatatnextidx - posdistatidx)*dfposidx;
 	}
 
-	return mCast(float,posdistatidx);
+	return sCast(float,posdistatidx);
     }
 
     return mUdf(float);

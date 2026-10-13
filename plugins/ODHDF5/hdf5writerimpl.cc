@@ -82,8 +82,8 @@ void HDF5::WriterImpl::openFile( const char* fnm, uiRetVal& uirv, bool edit )
 	mAddHDFErr2uiRv( uiStrings::phrErrDuringWrite(fnm) );
 	return );
 
-    fileid_ = FileID::get( mCast(hid_t,fid) );
-    group_ = GroupID::get( mCast(hid_t,gid) );
+    fileid_ = FileID::get( sCast(hid_t,fid) );
+    group_ = GroupID::get( sCast(hid_t,gid) );
     dataset_ = DatasetID();
 }
 
@@ -129,7 +129,7 @@ HDF5::GroupID HDF5::WriterImpl::ensureGroup( const char* grpnm,
 	 H5Iis_valid(oldgrpid) > 0 && H5Iget_type(oldgrpid) == H5I_GROUP )
 	previousgroupids_.addIfNew( oldgrpid );
 
-    group_ = GroupID::get( mCast(hid_t,newgrp) );
+    group_ = GroupID::get( sCast(hid_t,newgrp) );
     previousgroupids_.add( newgrp );
     return group_;
 }
@@ -299,7 +299,7 @@ HDF5::DatasetID HDF5::WriterImpl::crDS( const DataSetKey& dsky,
 	 && H5Iget_type(oldid) == H5I_DATASET )
 	H5Dclose( oldid );
 
-    dataset_ = DatasetID::get( mCast(hid_t,dsid) );
+    dataset_ = DatasetID::get( sCast(hid_t,dsid) );
     return dataset_;
 }
 
@@ -384,7 +384,7 @@ HDF5::DatasetID HDF5::WriterImpl::crTxtDS( const DataSetKey& dsky,
     if ( (retval = H5Iis_valid(oldds)) > 0 )
 	H5Dclose( oldds );
 
-    dataset_ = DatasetID::get( mCast(hid_t,dsid) );
+    dataset_ = DatasetID::get( sCast(hid_t,dsid) );
     return dataset_;
 }
 
@@ -434,7 +434,7 @@ void HDF5::WriterImpl::ptSlab( const SlabSpec& spec, const void* data,
 
     H5Sselect_all( filespace );
     TypeSet<hsize_t> counts;
-    selectSlab( DataspaceID::get(mCast(hid_t,filespace)), spec, &counts );
+    selectSlab( DataspaceID::get(sCast(hid_t,filespace)), spec, &counts );
     const ::hid_t memspace = H5Screate_simple( counts.size(),
 					       counts.arr(),
 					       nullptr );
@@ -515,7 +515,7 @@ void HDF5::WriterImpl::ptStrings( const BufferStringSet& bss,
 	      && H5Iget_type(oldid) == H5I_DATASET )
 		H5Dclose( oldid );
 
-	    ds = DatasetID::get( mCast(hid_t,dsid) );
+	    ds = DatasetID::get( sCast(hid_t,dsid) );
 	    dataset_ = ds;
 	}
 	else
@@ -557,7 +557,7 @@ void HDF5::WriterImpl::ptStrings( const BufferStringSet& bss,
 	      && H5Iget_type(oldid) == H5I_DATASET )
 		H5Dclose( oldid );
 
-	    ds = DatasetID::get( mCast(hid_t,dsid) );
+	    ds = DatasetID::get( sCast(hid_t,dsid) );
 	    dataset_ = ds;
 	}
     }

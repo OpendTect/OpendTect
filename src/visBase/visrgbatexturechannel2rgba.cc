@@ -163,7 +163,7 @@ void RGBATextureChannel2RGBA::setTransparency( unsigned char transparency )
     proctransparency_ = transparency;
 
     if ( proc_ )
-	proc_->setOpacity( 1.0f - mCast(float,transparency)/255.0f );
+	proc_->setOpacity( 1.0f - sCast(float,transparency)/255.0f );
 }
 
 

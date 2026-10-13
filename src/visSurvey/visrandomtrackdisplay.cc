@@ -110,13 +110,13 @@ RandomTrackDisplay::RandomTrackDisplay()
 
     const ZSampling survinterval = SI().zRange(true);
     const ZSampling inlrange(
-		    mCast(float,SI().sampling(true).hsamp_.start_.inl()),
-		    mCast(float,SI().sampling(true).hsamp_.stop_.inl()),
-		    mCast(float,SI().inlStep()) );
+		    sCast(float,SI().sampling(true).hsamp_.start_.inl()),
+		    sCast(float,SI().sampling(true).hsamp_.stop_.inl()),
+		    sCast(float,SI().inlStep()) );
     const ZSampling crlrange(
-		    mCast(float,SI().sampling(true).hsamp_.start_.crl()),
-		    mCast(float,SI().sampling(true).hsamp_.stop_.crl()),
-		    mCast(float,SI().crlStep()) );
+		    sCast(float,SI().sampling(true).hsamp_.start_.crl()),
+		    sCast(float,SI().sampling(true).hsamp_.stop_.crl()),
+		    sCast(float,SI().crlStep()) );
 
     const BinID start( mNINT32(inlrange.snappedCenter()),
 		       mNINT32(crlrange.start_) );
@@ -814,7 +814,7 @@ void RandomTrackDisplay::updateTexOriginAndScale( int attrib,
 	    (zrg.start_-getDepthInterval().start_)/appliedZRangeStep(), idx0 );
 
     const Coord scale( zrg.step_/appliedZRangeStep(),
-		       mCast(float,idx1-idx0+1) / path.size() );
+		       sCast(float,idx1-idx0+1) / path.size() );
 
     channels_->setOrigin( attrib, origin*(resolution_+1) );
     channels_->setScale( attrib, scale );
@@ -942,7 +942,7 @@ void RandomTrackDisplay::updatePanelStripPath()
 		isMappingTraceOfBid(nodes_[nodeidx],trcidx,true) )
 	{
 	    pathcrds += Coord( nodes_[nodeidx].inl(), nodes_[nodeidx].crl() );
-	    mapping += mCast( float, trcidx*(resolution_+1) );
+	    mapping += sCast( float, trcidx*(resolution_+1) );
 	    nodeidx++;
 	}
     }
@@ -1452,7 +1452,7 @@ float RandomTrackDisplay::calcDist( const Coord3& pos ) const
 	    Swap(x1,y1);
 	}
 
-	const float slope = mCast(float,y1-y0) / mCast(float,x1-x0);
+	const float slope = sCast(float,y1-y0) / sCast(float,x1-x0);
 	const float ydiff = y - y0 - slope * (x-x0);
 
 	if ( fabs(ydiff) > 0.5 )

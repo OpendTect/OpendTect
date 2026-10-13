@@ -176,7 +176,7 @@ void Pos::IdxPairValueSet::randomSubselect( od_int64 maxsz )
 	DataRow dr;
 	for ( od_int64 idx=0; idx<poss.size(); idx++ )
 	{
-	    get( poss[mCast(int,idx)], dr );
+	    get( poss[sCast(int,idx)], dr );
 	    newvs.add( dr );
 	}
 	*this = newvs;
@@ -610,7 +610,7 @@ od_int64 nrIterations() const override { return cubedata_.size(); }
 
 bool doWork( od_int64 start, od_int64 stop, int ) override
 {
-    for ( int idx=mCast(int,start); idx<=stop; idx++ )
+    for ( int idx=sCast(int,start); idx<=stop; idx++ )
     {
 	const PosInfo::LineData& line = *cubedata_[idx];
 	const IdxType frst = line.linenr_;
@@ -1401,7 +1401,7 @@ Pos::IdxPairValueSet::SPos Pos::IdxPairValueSet::add( const PairVal& pv )
 
 Pos::IdxPairValueSet::SPos Pos::IdxPairValueSet::add( const Pos::IdxPair& ip,
 								double v )
-{ return add( ip, mCast(float,v) ); }
+{ return add( ip, sCast(float,v) ); }
 
 
 Pos::IdxPairValueSet::SPos Pos::IdxPairValueSet::add( const Pos::IdxPair& ip,

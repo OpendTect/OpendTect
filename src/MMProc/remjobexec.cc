@@ -80,14 +80,14 @@ void RemoteJobExec::checkConnection()
 
 PortNr_Type RemoteJobExec::legacyRemoteHandlerPort()
 {
-    return mCast(PortNr_Type,5050);
+    return sCast(PortNr_Type,5050);
 }
 
 
 PortNr_Type RemoteJobExec::stdRemoteHandlerPort()
 {
     static int portnr = GetEnvVarIVal( "DTECT_MM_ODREMPROC", 15050 );
-    return mCast(PortNr_Type,portnr);
+    return sCast(PortNr_Type,portnr);
 }
 
 

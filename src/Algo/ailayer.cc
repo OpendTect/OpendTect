@@ -259,7 +259,7 @@ bool AILayer::fillDenWithVp( bool onlyinvalid )
     if ( !isValidVel() )
 	return false;
 
-    setDen( mCast( float, 310. * Math::PowerOf( (double)vel_, 0.25 ) ) );
+    setDen( sCast( float, 310. * Math::PowerOf( (double)vel_, 0.25 ) ) );
     return isValidDen();
 }
 
@@ -356,7 +356,7 @@ bool ElasticLayer::fillVsWithVp( bool onlyinvalid )
     if ( !isValidVel() )
 	return false;
 
-    setSVel( mCast( float, 0.8619 * (double)getPVel() -1172. ) );
+    setSVel( sCast( float, 0.8619 * (double)getPVel() -1172. ) );
     return isValidVs();
 }
 
@@ -1145,7 +1145,7 @@ void ElasticModel::setMaxThickness( float maxthickness, bool extend )
 	return;
 
     int nrextra = 1;
-    const float pvel = mCast(float, 2. * abovethickness_ / starttime_ );
+    const float pvel = sCast(float, 2. * abovethickness_ / starttime_ );
     PtrMan<RefLayer> newlayer =
 			new AILayer( abovethickness_, pvel, mUdf(float) );
     if ( abovethickness_ > maxthickness - cMinLayerThickness() )

@@ -62,11 +62,11 @@ void EventFreq::findEvents( int z0, int nrsamples ) const
 			     z0 + dessamps_.stop_ + nrsamples - 1 );
     worksamps.limitTo( cubeintv_ );
 
-    SamplingData<float> sd( mCast(float,cubeintv_.start_), 1 );
+    SamplingData<float> sd( sCast(float,cubeintv_.start_), 1 );
     ValueSeriesEvFinder<float,float> evf( *inpseries_,
 					  inpdata_->nrsamples_-1, sd );
-    ValueSeriesEvent<float,float> curev( 0, mCast(float,worksamps.start_ - 2) );
-    Interval<float> sampsleft( 0, mCast(float,worksamps.stop_) );
+    ValueSeriesEvent<float,float> curev( 0, sCast(float,worksamps.start_ - 2) );
+    Interval<float> sampsleft( 0, sCast(float,worksamps.stop_) );
 
     VSEvent::Type prevtype = VSEvent::None;
     float prevpos = -999;
@@ -135,7 +135,7 @@ void EventFreq::fillFreqOutput( const DataHolder& output,
 
     for ( int idx=0; idx<nrsamples; idx++ )
     {
-	const float zpos = mCast(float,z0 + idx);
+	const float zpos = sCast(float,z0 + idx);
 
 	while ( evidxafter < evposns_.size()-1
 	     && evposns_[evidxafter+1] < zpos )
@@ -163,8 +163,8 @@ void EventFreq::fillPhaseOutput( const DataHolder& output,
     if ( evposns_.size() == 1 )
     {
 	firstevmax_ = !firstevmax_;
-	evposns_.insert( 0, mCast(float,z0) );
-	evposns_ += mCast( float, z0 + nrsamples - 1);
+	evposns_.insert( 0, sCast(float,z0) );
+	evposns_ += sCast( float, z0 + nrsamples - 1);
     }
 
     int evidxafter = 0;
@@ -175,7 +175,7 @@ void EventFreq::fillPhaseOutput( const DataHolder& output,
 
     for ( int idx=0; idx<nrsamples; idx++ )
     {
-	const float zpos = mCast(float,z0 + idx);
+	const float zpos = sCast(float,z0 + idx);
 
 	while ( evidxafter < evposns_.size()-1
 	     && evposns_[evidxafter+1] < zpos )
@@ -185,7 +185,7 @@ void EventFreq::fillPhaseOutput( const DataHolder& output,
 	}
 
 	float r = (zpos - p1) / dz[1];
-	float ph = mCast(float,r*M_PI);
+	float ph = sCast(float,r*M_PI);
 	bool oddevnr = evidxafter % 2;
 	bool aftermin = (oddevnr && !firstevmax_) || (!oddevnr && firstevmax_);
 	if ( aftermin ) ph -= M_PI;

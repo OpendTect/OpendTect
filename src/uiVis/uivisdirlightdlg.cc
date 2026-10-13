@@ -185,7 +185,7 @@ void uiDirLightDlg::pdDlgDoneCB( CallBacker* )
 	return;
 
     pd_ = new uiPolarDiagram( pddlg_ );
-    pd_->setValues( mCast(float,azimuthfld_->dial()->getValue()),
+    pd_->setValues( sCast(float,azimuthfld_->dial()->getValue()),
 		    dipfld_->getFValue() );
     mAttachCB( pd_->valueChanged, uiDirLightDlg::polarDiagramCB );
 }
@@ -314,7 +314,7 @@ void uiDirLightDlg::saveInitInfo()
 	const bool dosave = saveall || idx==scenefld_->box()->currentItem()-1;
 	if ( !dosave ) continue;
 
-	initinfo_[idx].azimuth_ = mCast(float, azimuthfld_->dial()->getValue());
+	initinfo_[idx].azimuth_ = sCast(float, azimuthfld_->dial()->getValue());
 	initinfo_[idx].dip_ = dipfld_->getFValue();
 	initinfo_[ idx ].dirintensity_ = dirintensityfld_->getFValue();
 	initinfo_[ idx ].cameraintensity_ =

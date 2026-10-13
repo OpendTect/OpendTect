@@ -56,7 +56,7 @@ protected:
 
 bool doWork( od_int64 start, od_int64 stop, int threadid ) override
 {
-    for ( int idx=mCast(int,start); idx<=stop && shouldContinue(); idx++ )
+    for ( int idx=sCast(int,start); idx<=stop && shouldContinue(); idx++ )
     {
 	int p[3];
 	arr_.info().getArrayPos( idx, p );
@@ -246,7 +246,7 @@ bool Expl2ImplBodyExtracter::doWork( od_int64 start, od_int64 stop, int )
     const int zsz = arr_.info().getSize(2);
     const int planesize = planes_.size();
 
-    for ( int idx=mCast(int,start); idx<=stop && shouldContinue(); idx++ )
+    for ( int idx=sCast(int,start); idx<=stop && shouldContinue(); idx++ )
     {
 	const int inlidx = idx / crlsz;
 	const int crlidx = idx % crlsz;
@@ -793,7 +793,7 @@ ImplicitBody* BodyOperator::createImplicitBody( const TypeSet<Coord3>& bodypts,
     if ( TaskRunner::execute(tr,triangulator) )
     {
 	StepInterval<float> tmpzrg( zrg );
-	tmpzrg.scale( mCast(float,zscale) );
+	tmpzrg.scale( sCast(float,zscale) );
 	PtrMan<Expl2ImplBodyExtracter> extract = new
 	    Expl2ImplBodyExtracter( dagtree, inlrg, crlrg, tmpzrg, *arr );
 	if ( TaskRunner::execute(tr,*extract) )

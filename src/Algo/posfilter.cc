@@ -391,7 +391,7 @@ bool Pos::Provider::isProvider() const
 float Pos::Provider::estRatio( const Pos::Provider& prov ) const
 {
     if ( is2D() )
-	return mCast( float, ( prov.estNrPos()*prov.estNrZPerPos() )/
+	return sCast( float, ( prov.estNrPos()*prov.estNrZPerPos() )/
 	       ( estNrPos() * estNrZPerPos() ) );
     else
     {

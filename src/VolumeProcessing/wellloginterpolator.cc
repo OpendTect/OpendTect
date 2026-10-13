@@ -224,7 +224,7 @@ bool createInterpolationFunctions( const InterpolationLayerModel& layermodel,
 	const float logval = log.value( idz );
 	const Coord3 pos = track_->getPos( md );
 	const TrcKey tk = hsamp.toTrcKey( pos );
-        const float layerz = layermodel.getLayerIndex( tk, mCast(float,pos.z_));
+        const float layerz = layermodel.getLayerIndex( tk, sCast(float,pos.z_));
 	if ( mIsUdf(layerz) || mIsUdf(logval) )
 	    continue;
 

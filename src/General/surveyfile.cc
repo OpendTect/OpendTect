@@ -498,9 +498,9 @@ bool EmptyTempSurvey::writeSurveyInfo()
 	     obj->isPresent(sJSONKey::StepZ()) )
 	{
 	    StepInterval<float> zrg(
-			mCast(float,obj->getDoubleValue(sJSONKey::FirstZ())),
-			mCast(float,obj->getDoubleValue(sJSONKey::LastZ())),
-			mCast(float,obj->getDoubleValue(sJSONKey::StepZ())) );
+			sCast(float,obj->getDoubleValue(sJSONKey::FirstZ())),
+			sCast(float,obj->getDoubleValue(sJSONKey::LastZ())),
+			sCast(float,obj->getDoubleValue(sJSONKey::StepZ())) );
 	    cs.zsamp_ = zrg;
 	}
 

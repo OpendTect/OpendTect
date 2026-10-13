@@ -107,7 +107,7 @@ bool SeisDataPackZAxisTransformer::doWork(
 
     for ( int idx=0; idx<outdp.nrComponents(); idx++ )
     {
-	for ( int posidx=mCast(int,start); posidx<=mCast(int,stop); posidx++ )
+	for ( int posidx=sCast(int,start); posidx<=sCast(int,stop); posidx++ )
 	{
 	    const int lineidx = posidx / nrtrcs;
 	    const int trcidx = posidx % nrtrcs;

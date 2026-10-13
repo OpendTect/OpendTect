@@ -472,7 +472,7 @@ void uiFunctionDisplay::drawMarker( const TypeSet<uiPoint>& ptlist, bool isy2 )
 	    curitmgrp->add( markeritem );
 	}
 	uiGraphicsItem* itm = curitmgrp->getUiItem(idx);
-        itm->setPos( mCast(float,ptlist[idx].x_), mCast(float,ptlist[idx].y_) );
+        itm->setPos( sCast(float,ptlist[idx].x_), sCast(float,ptlist[idx].y_) );
 	itm->setPenColor( mst.color_ );
     }
 
@@ -496,10 +496,10 @@ void uiFunctionDisplay::drawBorder()
 		scheight -yAxis(false)->pixAfter()-yAxis(false)->pixBefore() );
 
 	if ( !borderrectitem_ )
-	    borderrectitem_ = scene().addRect( mCast(float,r.left()),
-					       mCast(float,r.top()),
-					       mCast(float,r.right()),
-					       mCast(float,r.bottom()) );
+	    borderrectitem_ = scene().addRect( sCast(float,r.left()),
+					       sCast(float,r.top()),
+					       sCast(float,r.right()),
+					       sCast(float,r.bottom()) );
 	else
 	    borderrectitem_->setRect( r.left(), r.top(),
 				      r.right(), r.bottom() );

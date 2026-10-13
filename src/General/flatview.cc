@@ -659,9 +659,9 @@ float FlatView::Viewer::userFactor( const ZDomain::Info& datazdom,
 				    const ZDomain::Info* displayzdom )
 {
     if ( !displayzdom || displayzdom == &datazdom || !datazdom.isDepth() )
-	return mCast(float,datazdom.userFactor());
+	return sCast(float,datazdom.userFactor());
 
-    float userfac = mCast(float,displayzdom->userFactor());
+    float userfac = sCast(float,displayzdom->userFactor());
     if ( displayzdom->isDepthMeter() )
 	userfac *= mFromFeetFactorF;
     else if ( displayzdom->isDepthFeet() )

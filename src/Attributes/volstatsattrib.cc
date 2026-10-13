@@ -547,18 +547,18 @@ void VolStats::getIdealStackPos(
     if ( (isinline && optstackdir_ == mDirLine)
 	|| (iscrossline && optstackdir_ == mDirNorm) )
     {
-	pointa = Geom::Point2D<float>( mCast(float,cpos.inl()) ,
-				       mCast(float,cpos.crl()-optstackstep_) );
-	pointb = Geom::Point2D<float>( mCast(float,cpos.inl()),
-				       mCast(float,cpos.crl()+optstackstep_) );
+	pointa = Geom::Point2D<float>( sCast(float,cpos.inl()) ,
+				       sCast(float,cpos.crl()-optstackstep_) );
+	pointb = Geom::Point2D<float>( sCast(float,cpos.inl()),
+				       sCast(float,cpos.crl()+optstackstep_) );
     }
     else if ( (isinline && optstackdir_ == mDirNorm)
 	    || (iscrossline && optstackdir_ == mDirLine) )
     {
-	pointa = Geom::Point2D<float>( mCast(float,cpos.inl()-optstackstep_),
-				       mCast(float,cpos.crl()) );
-	pointb = Geom::Point2D<float>( mCast(float,cpos.inl()+optstackstep_),
-				       mCast(float,cpos.crl()) );
+	pointa = Geom::Point2D<float>( sCast(float,cpos.inl()-optstackstep_),
+				       sCast(float,cpos.crl()) );
+	pointb = Geom::Point2D<float>( sCast(float,cpos.inl()+optstackstep_),
+				       sCast(float,cpos.crl()) );
     }
     else
     {
@@ -566,19 +566,19 @@ void VolStats::getIdealStackPos(
 
 	//compute 4 intersections with 'stepout box'
 	const Geom::Point2D<float> inter1(
-			    mCast(float,cpos.inl() - optstackstep_),
+			    sCast(float,cpos.inl() - optstackstep_),
 			    (cpos.inl()-optstackstep_)*coeffa + coeffb );
 	const Geom::Point2D<float> inter2(
-			    mCast(float,cpos.inl() + optstackstep_),
+			    sCast(float,cpos.inl() + optstackstep_),
 			    (cpos.inl()+optstackstep_)*coeffa + coeffb );
 	const float interx3 = mIsZero(coeffa,1e-6) ? cpos.inl()
 				    : (cpos.crl()-optstackstep_-coeffb)/coeffa;
 	const Geom::Point2D<float> inter3( interx3,
-				       mCast(float,cpos.crl() - optstackstep_));
+				       sCast(float,cpos.crl() - optstackstep_));
 	const float interx4 = mIsZero(coeffa,1e-6) ? cpos.inl()
 				    : (cpos.crl()+optstackstep_-coeffb)/coeffa;
 	const Geom::Point2D<float> inter4( interx4,
-				       mCast(float,cpos.crl() + optstackstep_));
+				       sCast(float,cpos.crl() + optstackstep_));
 
 	//keep 2 points that cross the 'stepout box'
         pointa = inter1.x_>cpos.inl()-optstackstep_

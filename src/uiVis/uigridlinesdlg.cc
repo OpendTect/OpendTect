@@ -119,7 +119,7 @@ static float getDefaultStep( float width )
 
 static void getDefaultTrcKeySampling( int& start, int& stop, int& step )
 {
-    const float width = mCast( float, stop - start );
+    const float width = sCast( float, stop - start );
     step = mNINT32( getDefaultStep(width) );
 
     start = step * (int)( Math::Ceil( (float)start/(float)step ) );
@@ -147,7 +147,7 @@ void uiGridLinesDlg::setParameters()
     if ( hasgl )
     {
 	cs = pdd_->gridlines()->getGridTrcKeyZSampling();
-	cs.zsamp_.scale( mCast(float,SI().zDomain().userFactor()) );
+	cs.zsamp_.scale( sCast(float,SI().zDomain().userFactor()) );
     }
     else
     {

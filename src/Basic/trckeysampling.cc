@@ -283,7 +283,7 @@ float TrcKeySampling::lineDistance() const
     bid.inl() += step_.inl();
     Coord stoppos( toCoord( bid ) );
 
-    return mCast(float, stoppos.distTo(startpos) );
+    return sCast(float, stoppos.distTo(startpos) );
 }
 
 
@@ -294,7 +294,7 @@ float TrcKeySampling::trcDistance() const
     bid.crl() += step_.crl();
     Coord stoppos( toCoord( bid ) );
 
-    return mCast(float, stoppos.distTo(startpos) );
+    return sCast(float, stoppos.distTo(startpos) );
 }
 
 
@@ -501,11 +501,11 @@ void TrcKeySampling::limitToWithUdf( const TrcKeySampling& h )
 
 
 #define mSnapStop( start, stop, step, eps ) \
-    stop = start + step * mCast( int, (stop-start+eps)/step );
+    stop = start + step * sCast( int, (stop-start+eps)/step );
 
 #define mApproach( diff, var, assignoper, step ) \
     if ( diff>0 ) \
-	var assignoper step * mCast( int, (diff)/step );
+	var assignoper step * sCast( int, (diff)/step );
 
 void TrcKeySampling::shrinkTo( const TrcKeySampling& innertks )
 {

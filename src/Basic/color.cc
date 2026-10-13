@@ -187,14 +187,14 @@ void Color::setTransparency( unsigned char t_ )
 
 
 void Color::setTransparencyF( float tf )
-{ setTransparency( mCast(unsigned char,(tf*255.0f)) ); }
+{ setTransparency( sCast(unsigned char,(tf*255.0f)) ); }
 
 
 unsigned char Color::getUChar( float v )
 { return v > 254.5 ? 255 : (v < 0.5 ? 0 : (unsigned char)(v+.5)); }
 
 float Color::getFloat( unsigned char c )
-{ return (mCast(float,c)/255.0f); }
+{ return (sCast(float,c)/255.0f); }
 
 const int nrstddrawcols = 10;
 Color stddrawcols[] = {

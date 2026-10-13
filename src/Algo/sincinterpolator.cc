@@ -42,7 +42,7 @@ bool SincTableManager::Table::hasSameDesign( float fmax, int lmax ) const
 
 
 od_int64 SincTableManager::Table::getTableBytes() const
-{ return mCast(od_int64, sizeof(float) * asinc2_.info().getTotalSz()  ); }
+{ return sCast(od_int64, sizeof(float) * asinc2_.info().getTotalSz()  ); }
 
 int SincTableManager::Table::getNumbers() const
 { return asinc2_.info().getSize(0); }
@@ -104,7 +104,7 @@ const SincTableManager::Table* SincTableManager::makeTable( float fmax,
 
     KaiserWindow kwin;
     kwin.set( wwin, lmax );
-    float ewin = 3.f * mCast(float,kwin.getError());
+    float ewin = 3.f * sCast(float,kwin.getError());
     float emax = ewin / EWIN_FRAC;
     float etabMin = 1.1f*M_PIf*fmax/(NTAB_MAX-1.0f);
     float emaxMin = etabMin/(1.0f-EWIN_FRAC);
@@ -138,8 +138,8 @@ const SincTableManager::Table* SincTableManager::makeTable( float fmax,
     table->setValue( 0, lsinc/2-1, 1.0f );
     table->setValue( nsinc-1, lsinc/2, 1.0f );
 
-    dsinc = 1.f / mCast(float,nsinc-1);
-    const float lsinc2 = mCast(float,lsinc/2.0f);
+    dsinc = 1.f / sCast(float,nsinc-1);
+    const float lsinc2 = sCast(float,lsinc/2.0f);
     StepInterval<float> xvals( -lsinc2 + 1.f, -lsinc2, -dsinc );
     float sumvals; Array1DImpl<float> vals( lsinc );
     float* tapervals = vals.getData();

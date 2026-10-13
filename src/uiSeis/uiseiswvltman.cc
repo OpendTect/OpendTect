@@ -238,7 +238,7 @@ void uiSeisWvltMan::mkFileInfo()
     dispWavelet( wvlt );
     if ( wvlt )
     {
-	const float zfac = mCast( float, SI().zDomain().userFactor() );
+	const float zfac = sCast( float, SI().zDomain().userFactor() );
 	WaveletAttrib wvltattrib( *wvlt );
 
 	BufferString msg;
@@ -428,7 +428,7 @@ void uiSeisWvltMan::dispWavelet( const Wavelet* wvlt )
 
     const int wvltsz = wvlt->size();
     StepInterval<float> intxval = wvlt->samplePositions();
-    const float zfac = mCast(float,SI().zDomain().userFactor());
+    const float zfac = sCast(float,SI().zDomain().userFactor());
     intxval.scale( zfac );
     waveletdisplay_->setVals( intxval, wvlt->samples(), wvltsz );
 }

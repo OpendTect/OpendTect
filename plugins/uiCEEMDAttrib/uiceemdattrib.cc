@@ -221,7 +221,7 @@ bool uiCEEMDAttrib::getOutput( Attrib::Desc& desc )
     const bool needoutcompfld = attriboutputfld_->getIntValue()==3;
 
     const int outidx = needoutfreqfld
-	? mCast(int,outputfreqfld_->box()->getIntValue()
+	? sCast(int,outputfreqfld_->box()->getIntValue()
 		/stepoutfreqfld_->box()->getIntValue()-1)
 	: needoutcompfld ? outputcompfld_->getIntValue()-1
 			 : 0;

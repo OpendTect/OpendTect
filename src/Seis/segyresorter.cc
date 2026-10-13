@@ -317,7 +317,7 @@ bool SEGY::ReSorter::createOutput( const BinID& bid )
 	const int fidx = ensureFileOpen( fdstidx.filenr_ );
 	if ( fidx < 0 )
 	    return false;
-	else if ( !readData(fidx,mCast(int,fdstidx.trcidx_)) )
+	else if ( !readData(fidx,sCast(int,fdstidx.trcidx_)) )
 	    return false;
 	else if ( !writeData() )
 	    return false;

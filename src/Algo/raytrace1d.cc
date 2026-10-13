@@ -292,7 +292,7 @@ bool RayTracer1D::doPrepare( int nrthreads )
     if ( !msg_.isEmpty() )
 	return false;
 
-    const int layersize = mCast( int, nrIterations() );
+    const int layersize = sCast( int, nrIterations() );
     delete [] velmax_;
     mTryAlloc( velmax_, float[layersize] );
     if ( !velmax_ )
@@ -468,7 +468,7 @@ bool VrmsRayTracer1D::doWork( od_int64 start, od_int64 stop, int nrthreads )
     const float startdepth = setup().startdepth_;
     const bool offsetsinfeet = areOffsetsInFeet();
     const bool depthsinfeet = areDepthsInFeet();
-    for ( int layer=mCast(int,start); layer<=stop; layer++, addToNrDone(1) )
+    for ( int layer=sCast(int,start); layer<=stop; layer++, addToNrDone(1) )
     {
 	const RefLayer& ellayer = *model_.get( layer );
 	if ( !pdown && !ellayer.isElastic() )

@@ -175,7 +175,7 @@ int Texture::scaleVal( float val ) const
     if ( val <= 0 )
 	val = 0 ;
     else if ( val > glcmsize_ - 1 )
-	val = mCast( float, glcmsize_-1 );
+	val = sCast( float, glcmsize_-1 );
     return (int)val;
 }
 
@@ -257,7 +257,7 @@ void Texture::prepareForComputeData()
     sampgate_.start_ = mNINT32(gate_.start_/refstep_);
     sampgate_.stop_ = mNINT32(gate_.stop_/refstep_);
     const float biggestdist = mMAX (SI().inlDistance(), SI().crlDistance() );
-    const float safeextrasamp = mCast(float, biggestdist * mMAXDIP / refstep_);
+    const float safeextrasamp = sCast(float, biggestdist * mMAXDIP / refstep_);
     dessampgate_ = Interval<int>( mNINT32(sampgate_.start_-safeextrasamp),
 				  mNINT32(sampgate_.stop_+safeextrasamp) );
 }

@@ -53,7 +53,7 @@ public:
 
 protected:
     int		getIndex( GeomPosID param ) const
-		{ return mCast(int,(param-firstparam)/paramstep); }
+		{ return sCast(int,(param-firstparam)/paramstep); }
 
     Coord3	computeTangent( GeomPosID ) const;
 

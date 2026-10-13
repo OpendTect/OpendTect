@@ -591,7 +591,7 @@ bool Array::get( TypeSet<T>& arr ) const
 	for ( int idx=0; idx<sz; idx++ )
 	{
 	    const double val = getDoubleValue( idx );
-	    arr[idx] = mIsUdf(val) ? mUdf(T) : mCast(T,val);
+	    arr[idx] = mIsUdf(val) ? mUdf(T) : sCast(T,val);
 	}
     }
     else if constexpr ( std::is_integral<T>::value )
@@ -599,7 +599,7 @@ bool Array::get( TypeSet<T>& arr ) const
 	for ( int idx=0; idx<sz; idx++ )
 	{
 	    const od_int64 val = getIntValue( idx );
-	    arr[idx] = mIsUdf(val) ? mUdf(T) : mCast(T,val);
+	    arr[idx] = mIsUdf(val) ? mUdf(T) : sCast(T,val);
 	}
     }
 
@@ -725,7 +725,7 @@ bool Object::get( const char* key, Array1D<T>& arr ) const
 	    if ( mIsUdf(val) )
 		arr.set( idx, mUdf(T) );
 	    else
-		arr.set( idx, mCast(T,val) );
+		arr.set( idx, sCast(T,val) );
 	}
     }
     else if constexpr (std::is_same_v<T, BoolType>)
@@ -741,7 +741,7 @@ bool Object::get( const char* key, Array1D<T>& arr ) const
 	    if ( mIsUdf(val) )
 		arr.set( idx, mUdf(T) );
 	    else
-		arr.set( idx, mCast(T,val) );
+		arr.set( idx, sCast(T,val) );
 	}
     }
 
@@ -756,7 +756,7 @@ void Object::set( const char* key, const Array1D<T>& arr )
     if ( totsz > INT_MAX )
 	return;
 
-    const int sz = mCast(int,totsz);
+    const int sz = sCast(int,totsz);
     Array* jsarr = nullptr;
     if constexpr ( std::is_floating_point<T>::value )
     {
@@ -837,7 +837,7 @@ bool Object::get( const char* key, Array2D<T>& arr ) const
 		if ( mIsUdf(val) )
 		    arr.set( irow, icol, mUdf(T) );
 		else
-		    arr.set( irow, icol, mCast(T,val) );
+		    arr.set( irow, icol, sCast(T,val) );
 	    }
 	}
 	else if constexpr (std::is_same_v<T, BoolType>)
@@ -853,7 +853,7 @@ bool Object::get( const char* key, Array2D<T>& arr ) const
 		if ( mIsUdf(val) )
 		    arr.set( irow, icol, mUdf(T) );
 		else
-		    arr.set( irow, icol, mCast(T,val) );
+		    arr.set( irow, icol, sCast(T,val) );
 	    }
 	}
     }

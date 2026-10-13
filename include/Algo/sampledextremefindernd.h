@@ -76,7 +76,7 @@ bool SampledExtremeFinderND<T>::doWork( od_int64 start,
     iter.setPos<int*>( mVarLenArr(pos) );
 
     mAllocVarLenArr( int, currentextreme, ndim );
-    for ( int idx=mCast(int,start); idx<=stop && shouldContinue();
+    for ( int idx=sCast(int,start); idx<=stop && shouldContinue();
 	  idx++, addToNrDone(1), iter.next() )
     {
 	OD::sysMemCopy( mVarLenArr(currentextreme),

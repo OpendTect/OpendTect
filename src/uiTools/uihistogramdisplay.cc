@@ -324,7 +324,7 @@ void uiHistogramDisplay::updateHistogram()
     nrinpvals_ = 0;
     for ( od_int64 idx=0; idx<nrpts; idx++ )
     {
-	int seg = mCast(int,(rc_.medvals_[idx] - min) / step);
+	int seg = sCast(int,(rc_.medvals_[idx] - min) / step);
 	if ( seg<-1 || seg>nrclasses_ )
 	{
 	    pErrMsg("Huh");

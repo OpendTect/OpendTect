@@ -476,7 +476,7 @@ uiCurvedItem* uiDirectionalPlot::drawSectorPart( int isect, Interval<float> rrg,
     Interval<float> radangrg( data_.angle(isect,Angle::Rad,-1), 0 );
     radangrg.stop_ = radangrg.start_ - dangrad;
 
-    rrg.scale( mCast(float,radius_) );
+    rrg.scale( sCast(float,radius_) );
     uiCurvedItem* ci = new uiCurvedItem(
                            dataUIPos(rrg.start_,angrg.start_) );
     ci->drawTo( dataUIPos(rrg.stop_,angrg.start_) );

@@ -494,7 +494,7 @@ void uiExtensionArray2DInterpol::setValuesFrom( const Array2DInterpol& arr )
     if ( !extarr )
 	return;
 
-   nrstepsfld_->setValue( mCast(int,extarr->getNrSteps()) );
+   nrstepsfld_->setValue( sCast(int,extarr->getNrSteps()) );
 }
 
 

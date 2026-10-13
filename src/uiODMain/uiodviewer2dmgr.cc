@@ -471,12 +471,12 @@ void uiODViewer2DMgr::mouseMoveCB( CallBacker* cb )
 	return;
 
     const uiWorldPoint wperpixel = curvwr.getWorld2Ui().worldPerPixel();
-    const float x1eps  = mCast(float,wperpixel.x_) * sEPSPixWidth;
+    const float x1eps  = sCast(float,wperpixel.x_) * sEPSPixWidth;
     const int x1auxposidx =
-	curvwr.appearance().annot_.x1_.auxPosIdx( mCast(float,wp.x_), x1eps );
-    const float x2eps  = mCast(float,wperpixel.y_) * sEPSPixWidth;
+	curvwr.appearance().annot_.x1_.auxPosIdx( sCast(float,wp.x_), x1eps );
+    const float x2eps  = sCast(float,wperpixel.y_) * sEPSPixWidth;
     const int x2auxposidx =
-	curvwr.appearance().annot_.x2_.auxPosIdx( mCast(float,wp.y_), x2eps );
+	curvwr.appearance().annot_.x2_.auxPosIdx( sCast(float,wp.y_), x2eps );
 
     if ( !selauxannot_.isselected_ )
     {
@@ -523,7 +523,7 @@ void uiODViewer2DMgr::mouseMoveCB( CallBacker* cb )
 	    curvwr2d->viewwin()->viewer().posRange( selauxannot_.isx1_ );
 	const int newposidx = xrg.nearestIndex(
 					selauxannot_.isx1_ ? wp.x_ : wp.y_);
-	const float newpos = mCast(float, xrg.atIndex(newposidx) );
+	const float newpos = sCast(float, xrg.atIndex(newposidx) );
 	selauxannot.pos_ = newpos;
 	TrcKeyZSampling::Dir vwr2ddir =
 	    curvwr2d->getTrcKeyZSampling().defaultDir();
@@ -1085,7 +1085,7 @@ void uiODViewer2DMgr::setVWR2DIntersectionPositions( uiODViewer2D* vwr2d )
 		if ( idxvwrdir==TrcKeyZSampling::Crl )
 		{
 		    newannot.pos_ =
-			mCast(float,idxvwrtkzs.hsamp_.crlRange().start_);
+			sCast(float,idxvwrtkzs.hsamp_.crlRange().start_);
 		    newannot.txt_ = tr( "CRL %1" )
 				     .arg( idxvwrtkzs.hsamp_.crlRange().start_);
 		    intersecbid = BinID( tkzs.hsamp_.inlRange().start_,
@@ -1094,7 +1094,7 @@ void uiODViewer2DMgr::setVWR2DIntersectionPositions( uiODViewer2D* vwr2d )
 		}
 		else
 		{
-		    newannot.pos_ = mCast( float, idxvwrtkzs.zsamp_.start_ );
+		    newannot.pos_ = sCast( float, idxvwrtkzs.zsamp_.start_ );
 		    newannot.txt_ =
 			    tr( "ZSlice %1" ).arg( idxvwrtkzs.zsamp_.start_*
 					       SI().showZ2UserFactor() );
@@ -1106,7 +1106,7 @@ void uiODViewer2DMgr::setVWR2DIntersectionPositions( uiODViewer2D* vwr2d )
 		if ( idxvwrdir==TrcKeyZSampling::Inl )
 		{
 		    newannot.pos_ =
-			    mCast( float, idxvwrtkzs.hsamp_.inlRange().start_ );
+			    sCast( float, idxvwrtkzs.hsamp_.inlRange().start_ );
 		    newannot.txt_ = tr( "INL %1" )
 				     .arg( idxvwrtkzs.hsamp_.inlRange().start_);
 		    x1auxannot += newannot;
@@ -1116,7 +1116,7 @@ void uiODViewer2DMgr::setVWR2DIntersectionPositions( uiODViewer2D* vwr2d )
 		else
 		{
 		    newannot.pos_ =
-			mCast( float, idxvwrtkzs.zsamp_.start_ );
+			sCast( float, idxvwrtkzs.zsamp_.start_ );
 		    newannot.txt_ =
 			tr( "ZSlice %1" ).arg( idxvwrtkzs.zsamp_.start_*
 					       SI().showZ2UserFactor() );
@@ -1128,7 +1128,7 @@ void uiODViewer2DMgr::setVWR2DIntersectionPositions( uiODViewer2D* vwr2d )
 		if ( idxvwrdir==TrcKeyZSampling::Inl )
 		{
 		    newannot.pos_ =
-			mCast( float, idxvwrtkzs.hsamp_.inlRange().start_ );
+			sCast( float, idxvwrtkzs.hsamp_.inlRange().start_ );
 		    newannot.txt_ = tr( "INL %1" )
 				.arg( idxvwrtkzs.hsamp_.inlRange().start_);
 		    x1auxannot += newannot;
@@ -1136,7 +1136,7 @@ void uiODViewer2DMgr::setVWR2DIntersectionPositions( uiODViewer2D* vwr2d )
 		else
 		{
 		    newannot.pos_ =
-			mCast( float, idxvwrtkzs.hsamp_.crlRange().start_ );
+			sCast( float, idxvwrtkzs.hsamp_.crlRange().start_ );
 		    newannot.txt_ = tr( "CRL %1" )
 				.arg( idxvwrtkzs.hsamp_.crlRange().start_);
 		    x2auxannot += newannot;

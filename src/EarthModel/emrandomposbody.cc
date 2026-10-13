@@ -162,7 +162,7 @@ public:
 	}
 
 	const Coord3& crd( rdposbody_.getPositions()[nrdone_] );
-	const int idx = mCast( int, rdposbody_.posIDs()[nrdone_] );
+	const int idx = sCast( int, rdposbody_.posIDs()[nrdone_] );
 	BufferString str;
         str.add( crd.x_ ).add( " " ).add( crd.y_ ).add( " " ).add( crd.z_ )
 	    .add( " " ).add ( idx );
@@ -314,7 +314,7 @@ bool RandomPosBody::setPos( const SubID& sub,
     if ( !ids_.isPresent(sub) && sub==ids_.size() )
 	return addPos( pos );
     else
-	locations_[mCast(int,sub)] = pos;
+	locations_[sCast(int,sub)] = pos;
 
     return true;
 }

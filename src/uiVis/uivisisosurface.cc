@@ -132,7 +132,7 @@ bool uiVisIsoSurfaceThresholdDlg::revertChanges()
     if ( mIsZero(curvalue,mDefEps) && mIsZero(initialvalue_,mDefEps) )
 	return true;
 
-    const float prec = mCast(float,(curvalue+initialvalue_)*5e-4);
+    const float prec = sCast(float,(curvalue+initialvalue_)*5e-4);
     if ( !mIsEqual(curvalue,initialvalue_,prec) )
 	updateIsoDisplay(initialvalue_);
 

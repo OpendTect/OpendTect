@@ -294,7 +294,7 @@ IT VectorAccess<T,IT>::indexOf( const T& t, bool forward, IT start ) const
 	if ( res==endit )
 	    return -1;
 
-	return mCast( IT, res-v_.begin() );
+	return sCast( IT, res-v_.begin() );
     }
 
     typename std::vector<T>::const_reverse_iterator rebegit = v_.rbegin();
@@ -310,14 +310,14 @@ IT VectorAccess<T,IT>::indexOf( const T& t, bool forward, IT start ) const
     if ( res == rendit )
 	return -1;
 
-    return mCast( IT, rendit-res) - 1;
+    return sCast( IT, rendit-res) - 1;
 }
 
 
 template<class T,class IT> inline
 IT VectorAccess<T,IT>::count( const T& t ) const
 {
-    return mCast( IT, std::count(v_.cbegin(),v_.end(),t) );
+    return sCast( IT, std::count(v_.cbegin(),v_.end(),t) );
 }
 
 

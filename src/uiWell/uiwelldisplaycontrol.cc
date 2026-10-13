@@ -155,7 +155,7 @@ void uiWellDisplayControl::getPosInfo( BufferString& info ) const
     if ( track )
     {
 	info += "  TVD:";
-        const float tvdss = mCast(float,track->getPos(dah_).z_);
+        const float tvdss = sCast(float,track->getPos(dah_).z_);
 	const float tvd = track->getKbElev() + tvdss;
 	info += toString( getConvertedValue(tvd, zsuom, zduom), 0, 'f', 2 );
 	info += depthunitstr;

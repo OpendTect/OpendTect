@@ -124,7 +124,7 @@ mStartCompLoop
     }
 
     if ( count )
-	avg /= mCast(float,count);
+	avg /= sCast(float,count);
 
     for ( int idx=0; idx<sz; idx++ )
     {
@@ -259,11 +259,11 @@ mStartCompLoop
     const double sqrtacorr = Math::Sqrt( autocorr );
     for ( int idx=0; idx<sz; idx++ )
     {
-	const double val = mCast(double,trc.get( idx, icomp ) );
+	const double val = sCast(double,trc.get( idx, icomp ) );
 	if ( mIsUdf(val) )
 	    continue;
 
-	mtrc().set( idx, mCast(float,val/sqrtacorr), icomp );
+	mtrc().set( idx, sCast(float,val/sqrtacorr), icomp );
     }
 
 mEndCompLoop
@@ -306,7 +306,7 @@ mStartCompLoop
 	if ( mIsUdf(val) )
 	    continue;
 
-	mtrc().set( idx, val * mCast(float,taper), icomp );
+	mtrc().set( idx, val * sCast(float,taper), icomp );
     }
 
 mEndCompLoop
@@ -351,7 +351,7 @@ mStartCompLoop
 	if ( mIsUdf(val) )
 	    continue;
 
-	mtrc().set( idx, val * mCast(float,taper), icomp );
+	mtrc().set( idx, val * sCast(float,taper), icomp );
     }
 
 mEndCompLoop
@@ -405,7 +405,7 @@ float SeisTrcPropCalc::getPhase( float z, bool indegrees ) const
     const int quadsz = 2 * halfsz + 1;
     Array1DImpl<float> trcdata( quadsz );
     const float dz = trc.info().sampling_.step_;
-    z -= dz * mCast( float, halfsz );
+    z -= dz * sCast( float, halfsz );
     for ( int idx=0; idx<quadsz; idx++ )
     {
 	trcdata.set( idx, trc.getValue( z, curcomp ) );

@@ -87,7 +87,7 @@ inline bool duplicate_sort( T* arr, I sz, int maxnrvals )
 	    count[vidx] += 1;
     }
 
-    const int vsize = mCast(int,vals.size());
+    const int vsize = sCast(int,vals.size());
     TypeSet<int> idxs;
     for ( int idx=0; idx<vsize; idx++ )
 	idxs += idx;

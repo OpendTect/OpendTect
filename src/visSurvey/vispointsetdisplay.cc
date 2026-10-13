@@ -138,7 +138,7 @@ int nextStep() override
 	return Finished();
     }
 
-    DataPointSet::RowID rowid = mCast(DataPointSet::RowID,nrdone_);
+    DataPointSet::RowID rowid = sCast(DataPointSet::RowID,nrdone_);
     nrdone_++;
     if ( showselected_ && !dps_->isSelected(rowid) )
 	return MoreToDo();
@@ -210,7 +210,7 @@ od_int64 nrIterations() const override { return dps_->size(); }
 
 bool doWork( od_int64 start, od_int64 stop, int ) override
 {
-    for ( int idx=mCast(int,start); idx<=mCast(int,stop); idx++ )
+    for ( int idx=sCast(int,start); idx<=sCast(int,stop); idx++ )
     {
 	const float val = dps_->value( dpsdispprop_.dpsColID(), idx );
 	const OD::Color col = dpsdispprop_.getColor( val );

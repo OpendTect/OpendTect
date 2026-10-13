@@ -157,17 +157,17 @@ void PlaneDataDisplay::updateRanges( bool resetic, bool resetz )
 	return;
 
     TrcKeyZSampling survey = scene_->getTrcKeyZSampling();
-    const StepInterval<float> inlrg( mCast(float,survey.hsamp_.start_.inl()),
-				     mCast(float,survey.hsamp_.stop_.inl()),
-				     mCast(float,survey.hsamp_.step_.inl()) );
-    const StepInterval<float> crlrg( mCast(float,survey.hsamp_.start_.crl()),
-				     mCast(float,survey.hsamp_.stop_.crl()),
-				     mCast(float,survey.hsamp_.step_.crl()) );
+    const StepInterval<float> inlrg( sCast(float,survey.hsamp_.start_.inl()),
+				     sCast(float,survey.hsamp_.stop_.inl()),
+				     sCast(float,survey.hsamp_.step_.inl()) );
+    const StepInterval<float> crlrg( sCast(float,survey.hsamp_.start_.crl()),
+				     sCast(float,survey.hsamp_.stop_.crl()),
+				     sCast(float,survey.hsamp_.step_.crl()) );
 
     dragger_->setSpaceLimits( inlrg, crlrg, survey.zsamp_ );
     dragger_->setWidthLimits(
-      Interval<float>( mCast(float,4*survey.hsamp_.step_.inl()), mUdf(float) ),
-      Interval<float>( mCast(float,4*survey.hsamp_.step_.crl()), mUdf(float) ),
+      Interval<float>( sCast(float,4*survey.hsamp_.step_.inl()), mUdf(float) ),
+      Interval<float>( sCast(float,4*survey.hsamp_.step_.crl()), mUdf(float) ),
                 Interval<float>( 4*survey.zsamp_.step_, mUdf(float) ) );
 
     dragger_->setDragCtrlSpacing( inlrg, crlrg, survey.zsamp_ );
@@ -204,10 +204,10 @@ TrcKeyZSampling PlaneDataDisplay::snapPosition( const TrcKeyZSampling& cs,
 						bool onlyic ) const
 {
     TrcKeyZSampling res( cs );
-    const Interval<float> inlrg( mCast(float,res.hsamp_.start_.inl()),
-				 mCast(float,res.hsamp_.stop_.inl()) );
-    const Interval<float> crlrg( mCast(float,res.hsamp_.start_.crl()),
-				 mCast(float,res.hsamp_.stop_.crl()) );
+    const Interval<float> inlrg( sCast(float,res.hsamp_.start_.inl()),
+				 sCast(float,res.hsamp_.stop_.inl()) );
+    const Interval<float> crlrg( sCast(float,res.hsamp_.start_.crl()),
+				 sCast(float,res.hsamp_.stop_.crl()) );
 
     res.hsamp_.snapToSurvey();
     if ( orientation_==OD::SliceType::Inline )
@@ -1107,7 +1107,7 @@ PlaneDataDisplay* PlaneDataDisplay::createTransverseSection( const Coord3& pos,
 	return nullptr;
 
     TrcKey tk( SI().transform(pos) );
-    float zpos = mCast( float, pos.z_ );
+    float zpos = sCast( float, pos.z_ );
     const TrcKeyZSampling mytkzs( getTrcKeyZSampling() );
     tk = mytkzs.hsamp_.getNearest( tk );
     zpos = mytkzs.zsamp_.snap( zpos );
@@ -1285,7 +1285,7 @@ void PlaneDataDisplay::updateTexShiftAndGrowth()
     const TrcKeyZSampling& oldtkzs = updatestageinfo_.oldcs_;
 
     const TrcKeyZSampling& si = SI().sampling( true );
-    const float resolutionfactor = mCast( float, resolution_+1 );
+    const float resolutionfactor = sCast( float, resolution_+1 );
 
     const int inldif = tkzs.hsamp_.start_.inl() - si.hsamp_.start_.inl();
     const float inlfactor = resolutionfactor / si.hsamp_.step_.inl();
@@ -1340,7 +1340,7 @@ void PlaneDataDisplay::updateTexOriginAndScale( int attrib,
 	return;
 
     const TrcKeyZSampling& si = SI().sampling( true );
-    const float resolutionfactor = mCast( float, resolution_+1 );
+    const float resolutionfactor = sCast( float, resolution_+1 );
 
     const int inldif = tkzs.hsamp_.start_.inl() - si.hsamp_.start_.inl();
     const float inlfactor = resolutionfactor / si.hsamp_.step_.inl();

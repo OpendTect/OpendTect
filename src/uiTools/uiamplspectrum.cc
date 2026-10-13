@@ -398,7 +398,7 @@ void uiAmplSpectrum::valChgd( CallBacker* cb )
 	return;
 
     const float ratio = (xpos-posrange_.start_)/posrange_.width();
-    const float specsize = mCast( float, specvals_->info().getSize(0) );
+    const float specsize = sCast( float, specvals_->info().getSize(0) );
     const int specidx = mNINT32( ratio * specsize );
     const TypeSet<float>& specvals = disp_->yVals();
     if ( !specvals.validIdx(specidx) )

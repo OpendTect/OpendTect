@@ -140,8 +140,8 @@ void interpolateAndSetVals( const Pos::GeomID& geomid, int curtrcnr,
 	    continue;
 
 	const Coord newvec = pos.coord_ - prevpos.coord_;
-	const float sq = mCast(float,vec.sqAbs());
-	const float prod = mCast(float,vec.dot(newvec));
+	const float sq = sCast(float,vec.sqAbs());
+	const float prod = sCast(float,vec.dot(newvec));
 	const float factor = mIsZero(sq,mDefEps) ? 0 : prod / sq;
 	const float val = prevval + factor * ( curval - prevval );
 	hor2d_.setPos( geomid, trcnr, val, false );
@@ -235,7 +235,7 @@ bool getData( BufferString& hornm, BufferString& linenm, Coord3& crd,
     hornm = getText( 0 );
     linenm = getText(1);
     crd = getPos3D( 2, 3, 5, udfval_ );
-    trcnr = mCast(int,getDValue(4, udfval_));
+    trcnr = sCast(int,getDValue(4, udfval_));
     return true;
 }
 

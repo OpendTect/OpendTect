@@ -192,7 +192,7 @@ void AngleComputer::fftDepthSmooth( ::FFTFilter& filter,
 	float layertwt = 0, prevlayertwt = mUdf(float);
 	for ( int zidx=0; zidx<zsize; zidx++ )
 	{
-	    const float depth = mCast( float, zrange.atIndex(zidx) );
+	    const float depth = sCast( float, zrange.atIndex(zidx) );
 	    layertwt = td->getTime( depth );
 	    if ( mIsEqual(layertwt,prevlayertwt,1e-3) )
 		continue;
@@ -201,7 +201,7 @@ void AngleComputer::fftDepthSmooth( ::FFTFilter& filter,
 	    prevlayertwt = layertwt;
 	}
 
-	const int zsizeintime = mCast( int, layertwt/deftimestep );
+	const int zsizeintime = sCast( int, layertwt/deftimestep );
 	if ( mIsUdf(layertwt) || layertwt < 0 || layertwt > maxtwttime ||
 	     zsizeintime <= 0 )
 	{
@@ -321,7 +321,7 @@ void AngleComputer::averageSmooth( Array2D<float>& angledata )
 
     const int offsetsize = outputsampling_.nrPts( true );
     const int zsize = outputsampling_.nrPts( false );
-    const float zstep = mCast( float, outputsampling_.range( false ).step_ );
+    const float zstep = sCast( float, outputsampling_.range( false ).step_ );
     const int filtersz = mIsUdf(smoothinglength)
 		       ? mUdf(int) : mNINT32( smoothinglength/zstep );
 
@@ -394,7 +394,7 @@ bool AngleComputer::fillandInterpArray( Array2D<float>& angledata )
 	for ( int zidx=0; zidx<zsize; zidx++ )
 	{
 	    const double layerz = outputzrg.atIndex( zidx );
-	    const float zval = mCast(float, layerz );
+	    const float zval = sCast(float, layerz );
 	    float sinangle = sinanglevals.getValue( zval );
 	    if ( !mIsUdf(sinangle) && Math::IsNormalNumber(sinangle) )
 	    {

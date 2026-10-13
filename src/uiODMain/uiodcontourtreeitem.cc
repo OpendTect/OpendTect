@@ -81,7 +81,7 @@ static float getNiceNumber( float val, int& nrdec )
 
     const int nrdigits = mNINT32( Math::Ceil(logval) );
     if ( nrdigits > 6 )
-	return mCast(float, mNINT32(val/1e6) * 1e6);
+	return sCast(float, mNINT32(val/1e6) * 1e6);
 
     const float multiplier = Math::PowerOf( 10.f,
 					    (float)(6-nrdigits) );
@@ -97,7 +97,7 @@ static float getNiceNumber( float val, int& nrdec )
     if ( nrdec < 0 )
 	nrdec = 0;
 
-    return mCast(float, rounded / multiplier);
+    return sCast(float, rounded / multiplier);
 }
 
 
@@ -235,7 +235,7 @@ bool uiContourTreeItemContourGenerator::prepForContourGenerator()
     ConstRefMan<visSurvey::Scene> scene =
 				  visserv->getScene( uicitem_->sceneID() );
     ztransform_ = scene ? scene->getZAxisTransform() : nullptr;
-    zfactor_ = mCast( float, scene->zDomainInfo().userFactor() );
+    zfactor_ = sCast( float, scene->zDomainInfo().userFactor() );
     displaytrans_ =
 	uicitem_->lines_->getCoordinates()->getDisplayTransformation();
 
@@ -253,7 +253,7 @@ bool uiContourTreeItemContourGenerator::doWork( od_int64 start, od_int64 stop,
     ictracer->setSampling( rowrg_, colrg_ );
 
     uiContourTreeItemContourData newcontourdata;
-    for ( int contouridx=mCast(int,start); contouridx<=stop; contouridx++ )
+    for ( int contouridx=sCast(int,start); contouridx<=stop; contouridx++ )
     {
 	const int nrshapesbefore = newcontourdata.contourcoordrgs_.size() +
 				   newcontourdata.labels_.size();
@@ -550,7 +550,7 @@ uiContourParsDlg( uiParent* p, const char* attrnm, const Interval<float>& rg,
     ConstRefMan<visSurvey::Scene> scene = visserv->getScene( sceneid );
     if ( iszval_ )
     {
-	zfac_ = mCast( float, scene->zDomainInfo().userFactor() );
+	zfac_ = sCast( float, scene->zDomainInfo().userFactor() );
 	rg_.scale( zfac_ );
 	contourintv_.scale( zfac_ );
     }
@@ -720,7 +720,7 @@ void setLabelElevation( float angle )
 
 float getLabelElevation() const
 {
-    return mCast( float, elevationfld_->box()->getIntValue()*M_PI/180.0 );
+    return sCast( float, elevationfld_->box()->getIntValue()*M_PI/180.0 );
 }
 
 
@@ -1197,7 +1197,7 @@ void uiContourTreeItem::updateUICContours( const StepInterval<float>& newintv )
 {
     StepInterval<float> oldintv = contourintv_;
     const int nrsignificant = getInitialDec( newintv.start_ );
-    const float eps = Math::PowerOf( 10.f, -mCast(float,nrsignificant) );
+    const float eps = Math::PowerOf( 10.f, -sCast(float,nrsignificant) );
     oldintv += Interval<float>( zshift_, zshift_ );
     const bool intvchgd = !mIsEqual(newintv.start_,oldintv.start_,eps) ||
                           !mIsEqual(newintv.stop_,oldintv.stop_,eps) ||

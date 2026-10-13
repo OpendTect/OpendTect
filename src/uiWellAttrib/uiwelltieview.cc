@@ -201,7 +201,7 @@ void WellTie::uiTieView::setLogsParams()
     float zfac = 1.f;
     Interval<float> zrg( wd->d2TModel()->dahRange() );
     if ( params_.iszintime_ )
-	zfac = mCast( float, SI().zDomain().userFactor() );
+	zfac = sCast( float, SI().zDomain().userFactor() );
     else if ( SI().depthsInFeet() )
 	    zfac = mToFeetFactorF;
     zrg.scale(zfac);
@@ -531,7 +531,7 @@ void WellTie::uiCrossCorrView::set( const Data::CorrelData& cd )
     for ( int idx=0; idx<cd.vals_.size(); idx++ )
 	vals_ += cd.vals_[idx];
 
-    lag_ = mCast( float, cd.lag_ );
+    lag_ = sCast( float, cd.lag_ );
     coeff_ = (float) cd.coeff_;
 }
 

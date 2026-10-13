@@ -134,7 +134,7 @@ bool uiWaveletMatchDlg::calcFilter()
     if ( !refwvlt || !tarwvlt ) return false;
 
     const int filtersz = filterszfld_->getIntValue();
-    const int filtersz2 = mCast(int,filtersz/2);
+    const int filtersz2 = sCast(int,filtersz/2);
     mAllocVarLenArr(float,autoref,filtersz);
     mAllocVarLenArr(float,crossref,filtersz);
 

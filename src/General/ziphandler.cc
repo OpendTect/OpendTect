@@ -215,7 +215,7 @@ static bool getBitValue( const unsigned char byte, int bitposition )
 
 static void setBitValue( unsigned char& byte, int bitposition, bool value )
 {
-    unsigned char var = mCast( unsigned char, pow(2.0 ,(bitposition)) );
+    unsigned char var = sCast( unsigned char, pow(2.0 ,(bitposition)) );
     if ( value )
 	byte = byte | var;
     else
@@ -415,10 +415,10 @@ od_uint16 ZipFileInfo::getDosNrDays() const
     const od_int64 modtimems = Time::toMSecs( modtime );
     const QDateTime qdt = QDateTime::fromMSecsSinceEpoch( modtimems );
     const QDate fdate = qdt.date();
-    const unsigned char day = mCast( char, fdate.day() );
-    const unsigned char month = mCast( char, fdate.month() );
+    const unsigned char day = sCast( char, fdate.day() );
+    const unsigned char month = sCast( char, fdate.month() );
     const int year = fdate.year();
-    const unsigned char dosyear = mCast( unsigned char, (year - 1980) );
+    const unsigned char dosyear = sCast( unsigned char, (year - 1980) );
 
     unsigned char bte[2];
     bte[0] =  day;
@@ -445,12 +445,12 @@ od_uint16 ZipFileInfo::getDosNrSec() const
     const QDateTime qdt = QDateTime::fromMSecsSinceEpoch( modtimems );
     const QTime ftime = qdt.time();
     int sec = ftime.second();
-    const char min = mCast( char, ftime.minute() );
-    const char hr = mCast( char, ftime.hour() );
+    const char min = sCast( char, ftime.minute() );
+    const char hr = sCast( char, ftime.hour() );
     sec = sec/2;
 
     unsigned char bte[2];
-    bte[0] = mCast( char, sec );
+    bte[0] = sCast( char, sec );
     bte[1] = 0;
     int idx;
     for ( idx=5; idx<8; idx++ )
@@ -562,7 +562,7 @@ void ZipFileInfo::setFullFileName( const char* fnm, const FilePath& basepath )
     const QFileInfo qfinfo( fnm );
     const uint uid = qfinfo.ownerId();
     const uint gid = qfinfo.groupId();
-    if ( uid == mCast(uint,-2) || gid == mCast(uint,-2) )
+    if ( uid == sCast(uint,-2) || gid == sCast(uint,-2) )
 	return;
 
     uid_ = uid;
@@ -1194,7 +1194,7 @@ bool ZipHandler::setLocalFileHeader( const ZipFileInfo& fileinfo,
     mInsertToCharBuff( headerbuff, fileinfo.crc_, mLCRC32, mSizeFourBytes );
 
     const StringView srcfnm( fileinfo.getFileName() );
-    const od_uint16 srcfnmsize = mCast( od_uint16, srcfnm.size() );
+    const od_uint16 srcfnmsize = sCast( od_uint16, srcfnm.size() );
     mInsertToCharBuff( headerbuff, srcfnmsize, mLFnmLength, mSizeTwoBytes );
     const od_uint16 xtrafldlength = fileinfo.getHeaderLength( true );
     mInsertToCharBuff( headerbuff, xtrafldlength,
@@ -1459,7 +1459,7 @@ bool ZipHandler::setCentralDirHeader( const ObjectSet<ZipFileInfo>& fileinfos )
 			   mSizeFourBytes );
 
 	const StringView srcfnm( fileinfo->getFileName() );
-	const od_uint16 srcfnmsize = mCast( od_uint16, srcfnm.size() );
+	const od_uint16 srcfnmsize = sCast( od_uint16, srcfnm.size() );
 	mInsertToCharBuff( headerbuff, srcfnmsize, mLFnmLengthCentral,
 			   mSizeTwoBytes );
 
@@ -1467,7 +1467,7 @@ bool ZipHandler::setCentralDirHeader( const ObjectSet<ZipFileInfo>& fileinfos )
 	mInsertToCharBuff( headerbuff, xtrafldlength, mLExtraFldLengthCentral,
 			   mSizeTwoBytes );
 	const od_uint16 commentsz =
-				mCast(od_uint16, fileinfo->comment_.size() );
+				sCast(od_uint16, fileinfo->comment_.size() );
 	mInsertToCharBuff( headerbuff, commentsz, mLFileComntLength,
 			   mSizeTwoBytes );
 	fileinfo->writeAttrToBuffer( headerbuff+mLExtFileAttr );
@@ -2123,7 +2123,7 @@ bool ZipHandler::readXtraUIDGID( const unsigned char* xtrafld, od_uint16 size,
     else if ( uidsz == mSizeFourBytes )
 	uid = *mCast( od_uint32*, xtrafld + off );
     else if ( uidsz == mSizeEightBytes )
-	uid = mCast( od_uint32, *mCast(od_uint64*, xtrafld + off) );
+	uid = sCast( od_uint32, *mCast(od_uint64*, xtrafld + off) );
 
     off += uidsz;
     const od_uint8 gidsz = *mCast( od_uint8*, xtrafld + off );
@@ -2133,7 +2133,7 @@ bool ZipHandler::readXtraUIDGID( const unsigned char* xtrafld, od_uint16 size,
     else if ( gidsz == mSizeFourBytes )
 	gid = *mCast(od_uint32*, xtrafld + off);
     else if ( gidsz == mSizeEightBytes )
-	gid = mCast( od_uint32, *mCast(od_uint64*, xtrafld + off) );
+	gid = sCast( od_uint32, *mCast(od_uint64*, xtrafld + off) );
 
     return true;
 }

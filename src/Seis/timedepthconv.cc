@@ -230,7 +230,7 @@ int minThreadSize() const override	{ return 50; }
 bool doWork( od_int64 start, od_int64 stop, int ) override
 {
     float depth = zrg_.center();
-    for ( int idx=mCast(int,start); idx<=stop; idx++ )
+    for ( int idx=sCast(int,start); idx<=stop; idx++ )
     {
 	const float t = sd_.atIndex( idx );
 	res_[idx] = trg_.includes(t,false) &&

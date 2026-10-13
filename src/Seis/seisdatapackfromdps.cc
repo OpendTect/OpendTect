@@ -73,7 +73,7 @@ bool SeisDataPackFromDPS::doWork( od_int64 start, od_int64 stop, int threadidx )
 	    continue;
 
 	DataPointSet::ColID colid = selcols_[compidx];
-	for ( int idx=mCast(int,start); idx<=stop; idx++ )
+	for ( int idx=sCast(int,start); idx<=stop; idx++ )
 	{
 	    const TrcKey tkpos( dps_->binID(idx) );
 	    const int globidx = dp_.getGlobalIdx( tkpos );
