@@ -11,6 +11,7 @@ plugins/*/launch-*.cmd
 spec/*/launch-*.cmd
 external/
 .arcconfig
+.clangd
 CMakeModules/FindOpendTect.cmake
 CMakeModules/Info.plist
 LICENSE.txt
