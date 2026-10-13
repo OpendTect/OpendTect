@@ -12,6 +12,7 @@ ________________________________________________________________________
 #include "binidsurface.h"
 #include "mousecursor.h"
 #include "survinfo.h"
+#include "threadwork.h"
 #include "vishordatahandler.h"
 #include "vishorizonsectiontile.h"
 #include "vishorizonsectiontileglue.h"
@@ -267,6 +268,9 @@ HorizonSection::~HorizonSection()
     osghorizon_->setCullCallback( nullptr );
     unRefOsgPtr( nodecallbackhandler_ );
 
+    Threads::WorkManager::twm().removeQueue( queueid_, false );
+    stopTileTesselation();
+
     unRefOsgPtr( osghorizon_ );
     HorizonSectionTile** tileptrs = tiles_.getData();
     for ( int idx=0; idx<tiles_.info().getTotalSz(); idx++ )
@@ -279,8 +283,23 @@ HorizonSection::~HorizonSection()
 	delete tileptrs[idx];
 	writeUnLock();
     }
+}
 
-    Threads::WorkManager::twm().removeQueue( queueid_, false );
+
+void HorizonSection::stopTileTesselation()
+{
+    HorizonSectionTile** tileptrs = tiles_.getData();
+    if ( !tileptrs )
+	return;
+
+    for ( int idx=0; idx<tiles_.info().getTotalSz(); idx++ )
+    {
+	if ( !tileptrs[idx] )
+	    continue;
+
+	Threads::WorkManager::twm().removeQueue(
+				tileptrs[idx]->tesselationqueueid_, false );
+    }
 }
 
 
@@ -439,6 +458,9 @@ void HorizonSection::setDisplayRange( const StepInterval<int>& rrg,
 {
     if ( rrg.isUdf() || crg.isUdf() || (displayrrg_==rrg && displaycrg_==crg) )
 	return;
+
+    Threads::WorkManager::twm().emptyQueue( queueid_, true );
+    stopTileTesselation();
 
     HorizonSectionTile** tileptrs = tiles_.getData();
     for ( int idx=0; idx<tiles_.info().getTotalSz(); idx++ )

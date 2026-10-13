@@ -104,6 +104,8 @@ void HorizonSectionTile::initvertices()
 
 HorizonSectionTile::~HorizonSectionTile()
 {
+    Threads::WorkManager::twm().removeQueue( tesselationqueueid_, false );
+
     osgswitchnode_->removeChildren( 0, osgswitchnode_->getNumChildren() );
     unRefOsgPtr( osgswitchnode_ );
     unRefOsgPtr( stateset_ );
@@ -111,7 +113,6 @@ HorizonSectionTile::~HorizonSectionTile()
     if ( righttileglue_ ) delete righttileglue_;
     if ( bottomtileglue_ ) delete bottomtileglue_;
 
-    Threads::WorkManager::twm().removeQueue( tesselationqueueid_, false );
     deepErase( tileresolutiondata_ );
     unRefOsgPtr( normals_ );
     unRefOsgPtr( osgvertices_ );
