@@ -172,6 +172,7 @@ protected:
 
     void			setUpdateVar(bool& var,bool yn);
 				//! Will trigger redraw request if necessary
+    void			stopTileTesselation();
 
     bool			forceupdate_ = false;
 				// Only set via setUpdateVar(.)

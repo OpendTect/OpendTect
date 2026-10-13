@@ -9,9 +9,9 @@ ________________________________________________________________________
 -*/
 
 #include "visbasemod.h"
+
 #include "callback.h"
 #include "integerid.h"
-#include "sets.h"
 
 class SoSelection;
 class SoNode;
@@ -40,7 +40,7 @@ mExpClass(visBase) SelectionManager : public CallBacker
 {
 public:
 				SelectionManager();
-    virtual			~SelectionManager();
+				~SelectionManager();
 
     void			setAllowMultiple(bool yn);
     bool			allowMultiple() const { return allowmultiple_; }
@@ -49,7 +49,7 @@ public:
 				{ select( id, keepoldsel, true ); }
     void			deSelect( const VisID& id )
 				{ deSelect( id, true ); }
-    void			deSelectAll()		{ deSelectAll( true ); }
+    void			deSelectAll()	{ deSelectAll( true ); }
     void			updateSel( const VisID& id )
 				{ updateSel( id, true ); }
 
@@ -72,7 +72,7 @@ protected:
     void			updateSel(const VisID&,bool lock);
 
     TypeSet<VisID>		selectedids_;
-    bool			allowmultiple_;
+    bool			allowmultiple_	= false;
     Threads::Mutex&		mutex_;
 };
 

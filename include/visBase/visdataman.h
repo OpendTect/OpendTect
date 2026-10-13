@@ -13,7 +13,8 @@ ________________________________________________________________________
 #include "callback.h"
 #include "factory.h"
 #include "integerid.h"
-#include "sets.h"
+#include "threadlock.h"
+
 #include <typeinfo>
 #include <unordered_map>
 
@@ -68,6 +69,7 @@ private:
 
     std::unordered_map<DataObject*,int>     objidxmap_;
     std::unordered_map<int,DataObject*>     visidobjmap_;
+    mutable Threads::Lock	lock_;
 
     int				freeid_ = 0;
     SelectionManager&		selman_;

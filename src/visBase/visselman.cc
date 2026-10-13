@@ -8,20 +8,20 @@ ________________________________________________________________________
 -*/
 
 #include "visselman.h"
-#include "visscene.h"
-#include "visdataman.h"
+
 #include "thread.h"
+#include "visdataman.h"
+#include "visscene.h"
 
 namespace visBase
 {
 
 SelectionManager::SelectionManager()
-    : selnotifier( this )
-    , deselnotifier( this )
-    , updateselnotifier( this )
-    , reselnotifier( this )
-    , allowmultiple_( false )
-    , mutex_( *new Threads::Mutex )
+    : selnotifier(this)
+    , deselnotifier(this)
+    , updateselnotifier(this)
+    , reselnotifier(this)
+    , mutex_(*new Threads::Mutex)
 {}
 
 

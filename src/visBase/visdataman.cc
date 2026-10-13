@@ -8,11 +8,11 @@ ________________________________________________________________________
 -*/
 
 #include "visdataman.h"
-#include "visdata.h"
-#include "visselman.h"
 
 #include "iopar.h"
 #include "ptrman.h"
+#include "visdata.h"
+#include "visselman.h"
 
 #include <iostream>
 #include <typeinfo>
@@ -42,21 +42,25 @@ DataManager::DataManager()
 
 DataManager::~DataManager()
 {
-    objidxmap_.clear();
-    visidobjmap_.clear();
-    delete &selman_;
-#ifdef __debug__
-    const RefCount::WeakPtrSetBase::CleanupBlocker cleanupblock( objects_ );
-    for ( int idx=0; idx<objects_.size(); idx++ )
     {
-	ConstRefMan<DataObject> obj = objects_[idx];
-	if ( !obj )
-	    continue;
+	Threads::Locker locker( lock_ );
+	objidxmap_.clear();
+	visidobjmap_.clear();
+#ifdef __debug__
+	const RefCount::WeakPtrSetBase::CleanupBlocker cleanupblock( objects_ );
+	for ( int idx=0; idx<objects_.size(); idx++ )
+	{
+	    ConstRefMan<DataObject> obj = objects_[idx];
+	    if ( !obj )
+		continue;
 
-	std::cerr << "Vis object " << obj->name().buf() << " ("
-		  << obj->id().asInt() << ") is still referenced.\n";
-    }
+	    std::cerr << "Vis object " << obj->name().buf() << " ("
+		      << obj->id().asInt() << ") is still referenced.\n";
+	}
 #endif
+    }
+
+    delete &selman_;
 }
 
 
@@ -66,6 +70,7 @@ const char* DataManager::errMsg() const
 
 VisID DataManager::highestID() const
 {
+    Threads::Locker locker( lock_ );
     int max = 0;
 
     const int sz = nrObjects();
@@ -86,6 +91,7 @@ VisID DataManager::highestID() const
 
 void DataManager::updateID( const VisID& oldid, const VisID& newid )
 {
+    Threads::Locker locker( lock_ );
     auto it = visidobjmap_.find( oldid.asInt() );
     if ( it != visidobjmap_.end() )
     {
@@ -103,22 +109,22 @@ const DataObject* DataManager::getObject( const VisID& id ) const
 
 DataObject* DataManager::getObject( const VisID& id )
 {
-    auto it = visidobjmap_.find( id.asInt() );
-    if ( it != visidobjmap_.end() )
-	return visidobjmap_[id.asInt()];
-
-    return nullptr;
+    Threads::Locker locker( lock_ );
+    const auto it = visidobjmap_.find( id.asInt() );
+    return it==visidobjmap_.end() ? nullptr : it->second;
 }
 
 
 void DataManager::fillPar( IOPar& par ) const
 {
+    Threads::Locker locker( lock_ );
     par.set( sKeyFreeID(), freeid_ );
 }
 
 
 bool DataManager::usePar( const IOPar& par )
 {
+    Threads::Locker locker( lock_ );
     return par.get( sKeyFreeID(), freeid_ );
 }
 
@@ -128,6 +134,7 @@ VisID DataManager::getID( const osg::Node* node ) const
     if ( !node )
 	return VisID::udf();
 
+    Threads::Locker locker( lock_ );
     const int sz = nrObjects();
     for ( int idx=0; idx<sz; idx++ )
     {
@@ -142,6 +149,7 @@ VisID DataManager::getID( const osg::Node* node ) const
 
 void DataManager::addObject( DataObject* obj )
 {
+    Threads::Locker locker( lock_ );
     objects_ += obj;
     const VisID visid( freeid_++ );
     obj->setID( visid );
@@ -154,6 +162,7 @@ void DataManager::addObject( DataObject* obj )
 
 void DataManager::getIDs( const std::type_info& ti, TypeSet<VisID>& res ) const
 {
+    Threads::Locker locker( lock_ );
     const std::size_t tihash = ti.hash_code();
     const int sz = nrObjects();
     for ( int idx=0; idx<sz; idx++ )
@@ -172,6 +181,7 @@ void DataManager::getIDs( const std::type_info& ti, TypeSet<VisID>& res ) const
 
 void DataManager::runCleanup()
 {
+    Threads::Locker locker( lock_ );
     objidxmap_.clear();
     visidobjmap_.clear();
     objects_.cleanupNullPtrs();
@@ -190,8 +200,13 @@ void DataManager::runCleanup()
 
 void DataManager::removeObject( DataObject* dobj )
 {
+    Threads::Locker locker( lock_ );
     const RefCount::WeakPtrSetBase::CleanupBlocker cleanupblock( objects_ );
-    const int objidx = objidxmap_[dobj];
+    const auto it = objidxmap_.find( dobj );
+    if ( it==objidxmap_.end() )
+	return;
+
+    const int objidx = it->second;
     if ( objects_.validIdx(objidx) )
     {
 	objects_[objidx] = nullptr;
@@ -204,6 +219,7 @@ void DataManager::removeObject( DataObject* dobj )
 
 int DataManager::nrObjects() const
 {
+    Threads::Locker locker( lock_ );
     const RefCount::WeakPtrSetBase::CleanupBlocker cleanupblock( objects_ );
     return objects_.size();
 }
@@ -217,6 +233,7 @@ const DataObject* DataManager::getIndexedObject( int idx ) const
 
 DataObject* DataManager::getIndexedObject( int idx )
 {
+    Threads::Locker locker( lock_ );
     if ( !objects_.validIdx(idx) )
 	return nullptr;
 
