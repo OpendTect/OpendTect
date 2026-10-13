@@ -133,12 +133,11 @@ uiVisPartServer::uiVisPartServer( uiApplService& a )
     mAttachCB( menu_->createnotifier, uiVisPartServer::createMenuCB );
     mAttachCB( menu_->handlenotifier, uiVisPartServer::handleMenuCB );
 
-    mAttachCB( visBase::DM().selMan().selnotifier,
-	       uiVisPartServer::selectObjCB );
-    mAttachCB( visBase::DM().selMan().deselnotifier,
-	       uiVisPartServer::deselectObjCB );
-    mAttachCB( visBase::DM().selMan().updateselnotifier,
-	       uiVisPartServer::updateSelObjCB );
+    auto& selman = visBase::DM().selMan();
+    mAttachCB( selman.selnotifier, uiVisPartServer::selectObjCB );
+    mAttachCB( selman.deselnotifier, uiVisPartServer::deselectObjCB );
+    mAttachCB( selman.updateselnotifier, uiVisPartServer::updateSelObjCB );
+
     mAttachCB( IOM().implUpdated, uiVisPartServer::datasetUpdatedCB );
 
     vismgr_ = new uiVisModeMgr(this);
