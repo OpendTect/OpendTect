@@ -1342,6 +1342,14 @@ function( OD_CREATE_VSCODE_LAUNCHER )
 	get_template_filepath( "../launcher-templates/c_cpp_properties.json" VSCODE_CPP_PROPERTIES_TEMPLATE )
     	configure_file( "${VSCODE_CPP_PROPERTIES_TEMPLATE}" "${VSCODE_DIR}/c_cpp_properties.json" @ONLY )
     endif()
+    if ( OD_CREATE_COMPILE_DATABASE AND NOT EXISTS "${CMAKE_SOURCE_DIR}/.clangd" )
+	file( RELATIVE_PATH CLANGD_COMPILATION_DATABASE
+	      "${CMAKE_SOURCE_DIR}" "${CMAKE_BINARY_DIR}" )
+	file( WRITE "${CMAKE_SOURCE_DIR}/.clangd"
+"CompileFlags:
+  CompilationDatabase: ${CLANGD_COMPILATION_DATABASE}
+" )
+    endif()
     set( VSCODE_DIR "${VSCODE_DIR}" PARENT_SCOPE )
 
 endfunction( OD_CREATE_VSCODE_LAUNCHER )
