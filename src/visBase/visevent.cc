@@ -117,16 +117,18 @@ void EventCatchHandler::traverse( EventInfo& eventinfo, unsigned int mask,
 	return;
 
     osg::ref_ptr<osgUtil::LineSegmentIntersector> lineintersector =
-	new osgUtil::LineSegmentIntersector( osgUtil::Intersector::WINDOW,
-                                             eventinfo.mousepos.x_, eventinfo.mousepos.y_ );
+	new osgUtil::LineSegmentIntersector(
+				osgUtil::Intersector::WINDOW,
+				eventinfo.mousepos.x_, eventinfo.mousepos.y_ );
 
     const float frustrumPixelRadius = 1.0f;
     osg::ref_ptr<osgUtil::PolytopeIntersector> polyintersector =
-	new osgUtil::PolytopeIntersector( osgUtil::Intersector::WINDOW,
-                                          eventinfo.mousepos.x_-frustrumPixelRadius,
-                                          eventinfo.mousepos.y_-frustrumPixelRadius,
-                                          eventinfo.mousepos.x_+frustrumPixelRadius,
-                                          eventinfo.mousepos.y_+frustrumPixelRadius );
+	new osgUtil::PolytopeIntersector(
+				    osgUtil::Intersector::WINDOW,
+				    eventinfo.mousepos.x_-frustrumPixelRadius,
+				    eventinfo.mousepos.y_-frustrumPixelRadius,
+				    eventinfo.mousepos.x_+frustrumPixelRadius,
+				    eventinfo.mousepos.y_+frustrumPixelRadius );
 
     polyintersector->setDimensionMask( osgUtil::PolytopeIntersector::DimZero |
 				       osgUtil::PolytopeIntersector::DimOne );
@@ -223,7 +225,62 @@ void EventCatchHandler::traverse( EventInfo& eventinfo, unsigned int mask,
 	pos = eventinfo.displaypickedpos;
 	for ( int idx=eventcatcher_.utm2display_.size()-1; idx>=0; idx-- )
 	    eventcatcher_.utm2display_[idx]->transformBack( pos );
+
+	return;
     }
+
+    //Secondary pick: wide polytope with 3.0f as pixels radius
+    const float wideFrustrumPixelRadius = 3.0f;
+    osg::ref_ptr<osgUtil::PolytopeIntersector> widepolyinter =
+	new osgUtil::PolytopeIntersector( osgUtil::Intersector::WINDOW,
+	eventinfo.mousepos.x_ - wideFrustrumPixelRadius,
+	eventinfo.mousepos.y_ - wideFrustrumPixelRadius,
+	eventinfo.mousepos.x_ + wideFrustrumPixelRadius,
+	eventinfo.mousepos.y_ + wideFrustrumPixelRadius );
+
+    widepolyinter->setDimensionMask( osgUtil::PolytopeIntersector::DimZero |
+				     osgUtil::PolytopeIntersector::DimOne );
+
+    iv.setIntersector( widepolyinter.get() );
+    view->getCamera()->accept( iv );
+    bool widepolyhit = widepolyinter->containsIntersections();
+    const osgUtil::PolytopeIntersector::Intersection widepolypicks =
+					widepolyinter->getFirstIntersection();
+
+
+    if ( widepolyhit )
+    {
+	const auto& closestpick = widepolypicks;
+
+	const osg::NodePath& nodepath = closestpick.nodePath;
+
+	osg::NodePath::const_reverse_iterator it = nodepath.rbegin();
+	for ( ; it!=nodepath.rend(); it++ )
+	{
+	    const VisID objid = DataObject::getID( *it );
+	    if ( objid.isValid() )
+		eventinfo.pickedobjids += objid;
+	}
+
+	osg::Vec3 pickpos = closestpick.localIntersectionPoint;
+
+	eventinfo.localpickedpos = Conv::to<Coord3>( pickpos );
+
+	const osg::ref_ptr<osg::RefMatrix> mat = closestpick.matrix;
+
+	if ( mat.valid() )
+	    pickpos = pickpos * (*mat);
+
+	eventinfo.displaypickedpos = Conv::to<Coord3>( pickpos );
+	eventinfo.pickdepth =
+		eventinfo.mouseline.closestPoint( eventinfo.displaypickedpos );
+
+	Coord3& pos( eventinfo.worldpickedpos );
+	pos = eventinfo.displaypickedpos;
+	for ( int idx=eventcatcher_.utm2display_.size()-1; idx>=0; idx-- )
+	    eventcatcher_.utm2display_[idx]->transformBack( pos );
+    }
+
 }
 
 
