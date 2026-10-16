@@ -165,6 +165,7 @@ private:
 
 };
 
+#define mErrRet(s1) { msg_ = s1; return false; }
 
 bool RecursiveCopier::doPrepare( od_ostream* strm )
 {
@@ -172,53 +173,48 @@ bool RecursiveCopier::doPrepare( od_ostream* strm )
     if ( preserve_ )
 	dirsfp_.add( new FilePathAttribs(dest_.buf(),src_.buf()) );
 
+    if ( merge_ )
+    {
+	if ( File::exists(dest_) )
+	{
+	    if ( !File::isDirectory(dest_) )
+		mErrRet(tr("Cannot merge into %1").arg(dest_) )
+	}
+	else if ( !File::createDir(dest_) )
+	    mErrRet( uiStrings::phrCannotCreateDirectory(
+		toUiString(dest_)) )
+    }
+    else
+    {
+	if ( File::exists(dest_) )
+	{
+	    if ( File::isDirectory(dest_) && !File::isSymLink(dest_) )
+	    {
+		if ( !File::removeDir(dest_) )
+		    mErrRet(tr("Cannot overwrite %1").arg(dest_) )
+	    }
+	    else if ( !File::remove(dest_) )
+		mErrRet(tr("Cannot overwrite %1").arg(dest_) )
+	}
+
+	if ( !File::createDir(dest_) )
+	    mErrRet( uiStrings::phrCannotCreateDirectory( toUiString(dest_)) )
+    }
+
     return Executor::doPrepare( strm );
 }
 
 
+#undef mErrRet
 #define mErrRet(s1) { msg_ = s1; return ErrorOccurred(); }
+
 int RecursiveCopier::nextStep()
 {
-    if ( !fileidx_ )
-    {
-	if ( merge_ )
-	{
-	    if ( File::exists(dest_) )
-	    {
-		if ( !File::isDirectory(dest_) )
-		    mErrRet(tr("Cannot merge into %1").arg(dest_) )
-	    }
-	    else if ( !File::createDir(dest_) )
-		mErrRet( uiStrings::phrCannotCreateDirectory(
-						toUiString(dest_)) )
-	}
-	else
-	{
-	    if ( File::exists(dest_) )
-	    {
-		if ( File::isDirectory(dest_) && !File::isSymLink(dest_) )
-		{
-		    if ( !File::removeDir(dest_) )
-			mErrRet(tr("Cannot overwrite %1").arg(dest_) )
-		}
-		else if ( !File::remove(dest_) )
-		    mErrRet(tr("Cannot overwrite %1").arg(dest_) )
-	    }
-
-	    if ( !File::createDir(dest_) )
-		mErrRet( uiStrings::phrCannotCreateDirectory(
-						toUiString(dest_)) )
-	}
-    }
-
-    if ( fileidx_ >= filelist_.size() )
-	return Finished();
-
     const BufferString& srcfile = *filelist_[fileidx_];
     const QDir srcdir( src_.buf() );
     BufferString relpath( srcdir.relativeFilePath(srcfile.buf()) );
     const BufferString destfile = FilePath(dest_,relpath).fullPath();
-    if ( File::isSymLink(srcfile) )
+    if ( preserve_ && File::isSymLink(srcfile) && !__iswin__ )
     {
 	if ( merge_ && File::exists(destfile) )
 	{
@@ -247,7 +243,7 @@ int RecursiveCopier::nextStep()
 	    mErrRet(
 	       uiStrings::phrCannotCreate(tr("symbolic link %1").arg(destfile)))
 
-	if ( preserve_ )
+	if ( preserve_ && !__iswin__ ) //Not required on Windows
 	{
 	    Time::FileTimeSet times;
 	    if ( File::getTimes(srcfile.buf(),times,false) )
