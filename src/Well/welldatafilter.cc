@@ -649,4 +649,52 @@ void WellDataFilter::getWellsOfType( const OD::WellType wt,
     }
 }
 
+
+static bool hasValidSurfaceCoord( const Well::Data& wd )
+{
+    const Coord& crd = wd.info().surfacecoord_;
+    return crd.isDefined() && crd != Coord(0,0);
+}
+
+
+void WellDataFilter::getWellsInCoordRange( const Interval<double>& xrg,
+					   const Interval<double>& yrg,
+					   bool inside,
+					   BufferStringSet& wellnms ) const
+{
+    for ( const auto* wd : allwds_ )
+    {
+	if ( !wd || !hasValidSurfaceCoord( *wd ) )
+	    continue;
+
+	const Coord& crd = wd->info().surfacecoord_;
+	const bool inrange = xrg.includes( crd.x_, false ) &&
+			     yrg.includes( crd.y_, false );
+	if ( inrange == inside )
+	    wellnms.add( wd->name() );
+    }
+}
+
+
+void WellDataFilter::getWellsInInlCrlRange( const Interval<int>& inlrg,
+					    const Interval<int>& crlrg,
+					    bool inside,
+					    BufferStringSet& wellnms ) const
+{
+    for ( const auto* wd : allwds_ )
+    {
+	if ( !wd || !hasValidSurfaceCoord( *wd ) )
+	    continue;
+
+	const BinID bid = SI().transform( wd->info().surfacecoord_ );
+	if ( mIsUdf(bid.inl()) || mIsUdf(bid.crl()) )
+	    continue;
+
+	const bool inrange = inlrg.includes( bid.inl(), false ) &&
+			     crlrg.includes( bid.crl(), false );
+	if ( inrange == inside )
+	    wellnms.add( wd->name() );
+    }
+}
+
 } // namespace Well

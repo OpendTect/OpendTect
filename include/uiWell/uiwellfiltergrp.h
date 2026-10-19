@@ -85,6 +85,12 @@ public:
     void			depthRangeFilter(const Interval<float> depthrg);
     void			logValRangeFilter(const MnemonicSelection& mns,
 				    const TypeSet<Interval<float>>& logvalrg);
+    void			positionFilterXY(bool inside,
+					const Interval<double>& xrg,
+					const Interval<double>& yrg);
+    void			positionFilterInlCrl(bool inside,
+					const Interval<int>& inlrg,
+					const Interval<int>& crlrg);
     bool			isLogMode() const { return initdesc_.logmode_; }
     void			setLogMode(bool yn=true);
 
