@@ -500,6 +500,34 @@ void uiWellFilterGrp::logValRangeFilter( const MnemonicSelection& mns,
 }
 
 
+void uiWellFilterGrp::positionFilterXY( bool inside,
+					const Interval<double>& xrg,
+					const Interval<double>& yrg )
+{
+    if ( !initdesc_.wds_ )
+	return;
+
+    BufferStringSet wellnms;
+    Well::WellDataFilter wdf( *initdesc_.wds_ );
+    wdf.getWellsInCoordRange( xrg, yrg, inside, wellnms );
+    welllist_->setChosen( wellnms );
+}
+
+
+void uiWellFilterGrp::positionFilterInlCrl( bool inside,
+					    const Interval<int>& inlrg,
+					    const Interval<int>& crlrg )
+{
+    if ( !initdesc_.wds_ )
+	return;
+
+    BufferStringSet wellnms;
+    Well::WellDataFilter wdf( *initdesc_.wds_ );
+    wdf.getWellsInInlCrlRange( inlrg, crlrg, inside, wellnms );
+    welllist_->setChosen( wellnms );
+}
+
+
 void uiWellFilterGrp::selChgCB( CallBacker* )
 {
     const int selwells = welllist_->nrChosen();

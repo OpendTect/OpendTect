@@ -91,6 +91,16 @@ public:
     void			getWellsOfType(
 					const OD::WellType,
 					BufferStringSet& wellnms) const;
+    void			getWellsInCoordRange(
+					const Interval<double>& xrg,
+					const Interval<double>& yrg,
+					bool inside,
+					BufferStringSet& wellnms) const;
+    void			getWellsInInlCrlRange(
+					const Interval<int>& inlrg,
+					const Interval<int>& crlrg,
+					bool inside,
+					BufferStringSet& wellnms) const;
 
 private:
 
