@@ -194,6 +194,8 @@ public:
 					const IOPar* modifier=nullptr) const;
 
     void			setEmpty(); //!< removes everything
+    Coord			surfaceCoord() const;
+    void			updateSurfaceCoord();
 
     void			levelToBeRemoved(CallBacker*);
 

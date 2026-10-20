@@ -25,7 +25,11 @@ def test_Well_class(survey):
                 'replacement_velocity': 2000,
                 'ground_elevation': 1e+30
             }
-    assert info == pytest_helper.approx(well.info(), rel=0.001)
+    wellinfo = well.info()
+    assert info == pytest_helper.approx(wellinfo, rel=0.001)
+    track = well.track()
+    assert wellinfo['x'] == pytest.approx(track['x'][0], rel=0.001)
+    assert wellinfo['y'] == pytest.approx(track['y'][0], rel=0.001)
     feature =   {
                     'type': 'FeatureCollection',
                     'features': [{
