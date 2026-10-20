@@ -329,6 +329,8 @@ bool Well::odWriter::putTrack() const
 
 bool Well::odWriter::putInfo( od_ostream& strm ) const
 {
+    const_cast<Data&>( wd_ ).updateSurfaceCoord();
+
     if ( !wrHdr(strm,sKeyWell()) )
 	mErrRetStrmOper(tr("write header (info/track)"))
 
@@ -344,8 +346,7 @@ bool Well::odWriter::putInfo( od_ostream& strm ) const
     astrm.put( Info::sKeyProvince(), info.province_ );
     astrm.put( Info::sKeyCountry(), info.country_ );
     astrm.put( Info::sKeyWellType(), info.welltype_ );
-    if ( info.surfacecoord_ != Coord(0,0) )
-	astrm.put( Info::sKeyCoord(), info.surfacecoord_.toString() );
+    astrm.put( Info::sKeyCoord(), info.surfacecoord_.toString() );
     if ( info.surfacelatlong_.isDefined() )
 	astrm.put( sKey::LatLong(), info.surfacelatlong_.toString() );
     astrm.put( Info::sKeyReplVel(), info.replvel_ );

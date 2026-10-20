@@ -653,7 +653,7 @@ void WellDataFilter::getWellsOfType( const OD::WellType wt,
 static bool hasValidSurfaceCoord( const Well::Data& wd )
 {
     const Coord& crd = wd.info().surfacecoord_;
-    return crd.isDefined() && crd != Coord(0,0);
+    return crd.isDefined();
 }
 
 

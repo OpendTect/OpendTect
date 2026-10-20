@@ -9,11 +9,17 @@ ________________________________________________________________________
 
 #include "batchprog.h"
 
+#include <csignal>
+
+#include "coordsystem.h"
+#include "ctxtioobj.h"
 #include "executor.h"
+#include "ioman.h"
 #include "moddepmgr.h"
 #include "multiid.h"
 #include "oddirs.h"
 #include "plugins.h"
+#include "survinfo.h"
 #include "surveydisklocation.h"
 #include "welldata.h"
 #include "welldisp.h"
@@ -23,10 +29,25 @@ ________________________________________________________________________
 #include "wellman.h"
 #include "wellmarker.h"
 #include "wellreader.h"
+#include "welltransl.h"
 #include "wellwriter.h"
 
 
 MultiID F034mid_, F061mid_, wellAmid_, wellBmid_, wellCmid_, wellDmid_;
+
+static const Coord	cEmptySurfaceCoord( 0, 0 );
+static const Coord	cStaleSurfaceCoord( 500, 1200 );
+static const Coord3	cOriginTrackPos( 0, 0, -35 );
+static const Coord3	cNextTrackPos( 10, 20, -80 );
+static const Coord3	cRoundTripTrackPos( 15, 25, -35 );
+static const Coord	cF034SurfaceCoord( 2044803.0839895001,
+					   19955993.667978998 );
+static const Coord	cWellASurfaceCoord( 2033952.5919999999,
+					    19972460.039999999 );
+static const Coord	cF061SurfaceCoord( 1994432.415, 19938362.859999999 );
+static const LatLong	cSurfaceLatLong( 52.0, 4.0 );
+
+static const char*	sSurfaceCoordWellNm	= "surface coord";
 
 static Well::LoadReqs inforeqs_( false );
 static Well::LoadReqs trackreqs_( false );
@@ -202,6 +223,149 @@ static bool testIOAttribs()
 }
 
 
+static void removeWellIfPresent( const char* wellnm )
+{
+    if ( !IOM().isOK() || !wellnm || !*wellnm )
+	return;
+
+    PtrMan<IOObj> ioobj = IOM().get( mIOObjContext(Well), wellnm );
+    if ( !ioobj )
+	return;
+
+    const MultiID key = ioobj->key();
+    IOM().implRemove( *ioobj );
+    IOM().permRemove( key );
+}
+
+
+void cleanup()
+{
+    const BufferString odnm( sSurfaceCoordWellNm, " ",
+			     odWellTranslator::translKey() );
+    const BufferString hdfnm( sSurfaceCoordWellNm, " ",
+			      hdfWellTranslator::translKey() );
+    removeWellIfPresent( odnm.buf() );
+    removeWellIfPresent( hdfnm.buf() );
+}
+
+
+void signalHandler( int signum )
+{
+    errStream() << "Interrupt signal (" << signum << ") received." << od_endl;
+    exit( signum );
+}
+
+
+static bool testSurfaceCoordHelper()
+{
+    RefMan<Well::Data> wd = new Well::Data( sSurfaceCoordWellNm );
+    mRunStandardTest( wd->surfaceCoord() == cEmptySurfaceCoord,
+		      "New well surface coordinate is (0,0)" )
+
+    wd->info().surfacecoord_.setUdf();
+    mRunStandardTest( wd->surfaceCoord().isUdf(),
+		      "Empty track keeps an undefined coordinate" )
+
+    wd->track().addPoint( cOriginTrackPos, 0.f );
+    wd->track().addPoint( cNextTrackPos, 100.f );
+    mRunStandardTest( wd->surfaceCoord() == cOriginTrackPos,
+		      "(0,0) is a real first track point" )
+
+    wd->updateSurfaceCoord();
+    mRunStandardTest( wd->info().surfacecoord_ == cOriginTrackPos,
+		      "Update stores the first track point" )
+
+    wd->info().surfacecoord_ = cStaleSurfaceCoord;
+    mRunStandardTest( wd->surfaceCoord() == cOriginTrackPos,
+		      "A stale header does not override the track" )
+
+    wd->info().surfacelatlong_ = cSurfaceLatLong;
+    wd->updateSurfaceCoord();
+    ConstRefMan<Coords::CoordSystem> crs = SI().getCoordSystem();
+    const LatLong expll = crs ? LatLong::transform( wd->surfaceCoord(),
+						    crs->isWGS84() )
+			      : LatLong::udf();
+    mRunStandardTest( expll.isDefined() && wd->info().surfacelatlong_ == expll,
+		      "Stored lat/long follows the surface coordinate" )
+
+    wd->info().surfacelatlong_.setUdf();
+    wd->info().surfacecoord_ = cStaleSurfaceCoord;
+    wd->updateSurfaceCoord();
+    mRunStandardTest( wd->info().surfacelatlong_.isUdf(),
+		      "Undefined lat/long stays undefined" )
+    return true;
+}
+
+
+static bool roundTripSurfaceCoord( const IOObj& ioobj )
+{
+    RefMan<Well::Data> src = new Well::Data( ioobj.name() );
+    src->info().surfacecoord_ = cStaleSurfaceCoord;
+    src->info().surfacelatlong_ = cSurfaceLatLong;
+    src->track().addPoint( cRoundTripTrackPos, 0.f );
+    src->track().addPoint( cNextTrackPos, 100.f );
+
+    {
+	Well::Writer wrr( ioobj, *src );
+	const bool infoandtrackwritten = wrr.putInfoAndTrack() &&
+				       wrr.errMsg().isEmpty();
+	mRunStandardTestWithError( infoandtrackwritten, "Write info and track",
+				   wrr.errMsg().getFullString() )
+    }
+
+    const Coord storedcrd = src->info().surfacecoord_;
+    const LatLong storedll = src->info().surfacelatlong_;
+    RefMan<Well::Data> rd = new Well::Data;
+    Well::Reader rdr( ioobj, *rd );
+    mRunStandardTestWithError( rdr.getInfo(), "Read info",
+			       rdr.errMsg().getFullString() )
+    mRunStandardTest( rd->track().isEmpty(),
+		      "Info request does not load the track" )
+    mRunStandardTest( rd->info().surfacecoord_ == storedcrd,
+		      "Info request keeps the stored surface coordinate" )
+    mRunStandardTest( rd->info().surfacelatlong_ == storedll,
+		      "Info request keeps the stored lat/long" )
+    mRunStandardTest( rd->surfaceCoord() == storedcrd,
+		      "surfaceCoord uses the stored coordinate without a track")
+    mRunStandardTest( storedcrd == cRoundTripTrackPos,
+		      "Stored surface coordinate is the first track point" )
+    mRunStandardTestWithError( rdr.getTrack(), "Read track",
+			       rdr.errMsg().getFullString() )
+    mRunStandardTest( rd->surfaceCoord() == cRoundTripTrackPos,
+		      "surfaceCoord matches the track after read" )
+    return true;
+}
+
+
+static bool roundTripSurfaceCoord( const char* translkey )
+{
+    const BufferString wellnm( sSurfaceCoordWellNm, " ", translkey );
+    removeWellIfPresent( wellnm.buf() );
+
+    IOObjContext ctxt = mIOObjContext(Well);
+    ctxt.forread_ = false;
+    ctxt.fixTranslator( translkey );
+    CtxtIOObj ctio( ctxt );
+    ctio.setName( wellnm.buf() );
+    IOM().getEntry( ctio );
+    mRunStandardTest( ctio.ioobj_, "Temporary well entry" )
+
+    const MultiID key = ctio.ioobj_->key();
+    const bool ok = roundTripSurfaceCoord( *ctio.ioobj_ );
+    const bool filesremoved = IOM().implRemove( *ctio.ioobj_ );
+    const bool filesgone = !IOM().implExists( key );
+    const bool entryremoved = IOM().permRemove( key );
+    PtrMan<IOObj> leftover = IOM().get( key );
+    mRunStandardTest( filesremoved && filesgone,
+		      BufferString("Temporary well files removed ",
+				   translkey) )
+    mRunStandardTest( entryremoved && !leftover,
+		      BufferString("Temporary well entry removed ",
+				   translkey) )
+    return ok;
+}
+
+
 static bool isWellMGREmpty()
 {
     return Well::MGR().wells().size() < 1;
@@ -343,6 +507,12 @@ static bool getWD( const MultiID& wid, bool onlytrackd2t )
     mRunStandardTestWithError( wd && wd->track().size() == 2,
 		      BufferString("Has loaded track: ", wellnm.buf()),
 		      Well::MGR().errMsg().getFullString() )
+    mRunStandardTest( wd->info().surfacecoord_ == Coord(wd->track().pos(0)),
+		      BufferString("Surface coordinate follows track: ",
+				   wellnm.buf()) )
+    mRunStandardTest( Well::MGR().getMapLocation(wid) == wd->track().pos(0),
+		      BufferString("Map location follows track: ",
+				   wellnm.buf()) )
 
     wd = Well::MGR().get( wid, d2treqs_ );
     const int mind2tsize = onlytrackd2t ? 2 : 1475;
@@ -621,15 +791,17 @@ static bool testMultiWellReaderExt( const SurveyDiskLocation& sdl,
 			       rdr.allMessages().getText() )
     mRunStandardTest( wds.size() == wellkeys.size(),
 		      "Well::Data set size (3)" )
-    const Coord surfcrda( 2044803.0839895001, 19955993.667978998 );
-    const Coord surfcrdb( 2033952.5919999999, 19972460.039999999 );
-    const Coord surfcrdc( 1994432.415, 19938362.859999999 );
-    mRunStandardTest( wds.get(0)->info().surfacecoord_ == surfcrda,
-		      "Surface coordinate for well F03-4" )
-    mRunStandardTest( wds.get(1)->info().surfacecoord_ == surfcrdb,
-		      "Surface coordinate for well Well A" )
-    mRunStandardTest( wds.get(2)->info().surfacecoord_ == surfcrdc,
-		      "Surface coordinate for well F06-1" )
+    const Coord expected[] = { cF034SurfaceCoord, cWellASurfaceCoord,
+			       cF061SurfaceCoord };
+    for ( int idx=0; idx<wds.size(); idx++ )
+    {
+	const Well::Data& wd = *wds.get( idx );
+	const Coord& track0 = wd.track().pos( 0 );
+	mRunStandardTest( wd.info().surfacecoord_ == track0,
+			  "Surface coordinate is the first track point" )
+	mRunStandardTest( track0 == expected[idx],
+			  "First track point is unchanged" )
+    }
 
     return true;
 }
@@ -642,6 +814,11 @@ bool BatchProgram::doWork( od_ostream& strm )
     if ( !loadOpendTectPlugins("ODHDF5") )
 	return false;
 
+    signal( SIGINT, signalHandler );
+    signal( SIGTERM, signalHandler );
+    atexit( cleanup );
+    cleanup();
+
     inforeqs_ = Well::LoadReqs( Well::Inf );
     trackreqs_ = Well::LoadReqs( Well::Trck );
     d2treqs_ = Well::LoadReqs( Well::D2T );
@@ -652,7 +829,11 @@ bool BatchProgram::doWork( od_ostream& strm )
     dispprop2dreqs_ = Well::LoadReqs( Well::DispProps2D );
     dispprop3dreqs_ = Well::LoadReqs( Well::DispProps3D );
 
-    if ( !testLoadReqs() )
+    if ( !testLoadReqs() || !testSurfaceCoordHelper() )
+	return false;
+
+    if ( !roundTripSurfaceCoord(odWellTranslator::translKey()) ||
+	 !roundTripSurfaceCoord(hdfWellTranslator::translKey()) )
 	return false;
 
     mRunStandardTest( pars().get("F03-4",F034mid_), "MultiID for F03-4" )

@@ -10,10 +10,12 @@ ________________________________________________________________________
 #include "welldata.h"
 
 #include "bendpointfinder.h"
+#include "coordsystem.h"
 #include "idxable.h"
 #include "iopar.h"
 #include "mnemonics.h"
 #include "stratlevel.h"
+#include "survinfo.h"
 #include "uistrings.h"
 
 #include "welld2tmodel.h"
@@ -669,6 +671,33 @@ void Well::Data::setEmpty()
 }
 
 
+Coord Well::Data::surfaceCoord() const
+{
+    if ( track().isEmpty() )
+	return info().surfacecoord_;
+
+    return track().pos( 0 );
+}
+
+
+void Well::Data::updateSurfaceCoord()
+{
+    Info& inf = info();
+    const Coord oldcrd = inf.surfacecoord_;
+    inf.surfacecoord_ = surfaceCoord();
+    if ( !inf.surfacelatlong_.isDefined() || inf.surfacecoord_ == oldcrd )
+	return;
+
+    ConstRefMan<Coords::CoordSystem> crs = SI().getCoordSystem();
+    if ( !crs )
+	return;
+
+    const LatLong ll = LatLong::transform( inf.surfacecoord_, crs->isWGS84() );
+    if ( ll.isDefined() )
+	inf.surfacelatlong_ = ll;
+}
+
+
 uiString Well::Data::getInfoString( Well::Info::InfoType it,
 				    const IOPar* modifier ) const
 {
@@ -761,11 +790,11 @@ uiString Well::Data::getInfoString( Well::Info::InfoType it,
 
 	case Well::Info::SurfCoord:
 	    ret = toUiString(
-		    info().surfacecoord_.toPrettyString( SI().nrXYDecimals()) );
+		    surfaceCoord().toPrettyString( SI().nrXYDecimals()) );
 	    break;
 
 	case Well::Info::SurfBinID:
-	    surfbid = SI().transform( info().surfacecoord_ );
+	    surfbid = SI().transform( surfaceCoord() );
 	    ret = toUiString( surfbid.toString(false));
 	    break;
 

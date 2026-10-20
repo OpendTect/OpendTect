@@ -261,6 +261,8 @@ bool Well::HDF5Writer::putInfo() const
     if ( !ensureFileOpen() )
 	return false;
 
+    const_cast<Data&>( wd_ ).updateSurfaceCoord();
+
     auto& wrr = cCast(HDF5::Writer&,*wrr_);
 
     IOPar iop;
@@ -275,6 +277,9 @@ bool Well::HDF5Writer::putInfo() const
 
 bool Well::HDF5Writer::putTrack() const
 {
+    if ( !putInfo() )
+	return false;
+
     if ( !ensureFileOpen() )
 	return false;
 
