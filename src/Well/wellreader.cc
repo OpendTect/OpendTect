@@ -270,10 +270,13 @@ bool Well::Reader::getInfo() const
 bool Well::Reader::getTrack() const
 {
     const bool trackloaded = ra_ && ra_->getTrack();
-    if ( trackloaded )
-	const_cast<Track&>( data()->track() ).updateDahRange();
+    if ( !trackloaded || !data() )
+	return false;
 
-    return trackloaded;
+    Data& wd = const_cast<Data&>( *data() );
+    wd.track().updateDahRange();
+    wd.updateSurfaceCoord();
+    return true;
 }
 
 
@@ -365,9 +368,9 @@ bool Well::Reader::getMapLocation( Coord& coord ) const
     if ( !data() || !getInfo() )
 	return false;
 
-    const Data& wd = *data();
-    coord = wd.info().surfacecoord_;
-    return true;
+    getTrack();
+    coord = data()->surfaceCoord();
+    return coord.isDefined();
 }
 
 
@@ -632,22 +635,14 @@ bool Well::odReader::getInfo( od_istream& strm ) const
 	    wd_.info().welltype_ = (OD::WellType) astrm.getIValue();
 	else if ( astrm.hasKeyword(Info::sKeyCoord()) )
 	    wd_.info().surfacecoord_.fromString( astrm.value() );
+	else if ( astrm.hasKeyword(sKey::LatLong()) )
+	    wd_.info().surfacelatlong_.fromString( astrm.value() );
 	else if ( astrm.hasKeyword(sKeyOldreplvel()) ||
 		  astrm.hasKeyword(Info::sKeyReplVel()) )
 	    wd_.info().replvel_ = astrm.getFValue();
 	else if ( astrm.hasKeyword(sKeyOldgroundelev()) ||
 		  astrm.hasKeyword(Info::sKeyGroundElev()) )
 	    wd_.info().groundelev_ = astrm.getFValue();
-    }
-
-    Coord surfcoord = wd_.info().surfacecoord_;
-    if ( (mIsZero(surfcoord.x_,0.001) && mIsZero(surfcoord.x_,0.001))
-         || (mIsUdf(surfcoord.x_) && mIsUdf(surfcoord.x_)) )
-    {
-	if ( wd_.track().isEmpty() && !getTrack(strm) )
-	    return false;
-
-	wd_.info().surfacecoord_ = wd_.track().pos( 0 );
     }
 
     return true;
