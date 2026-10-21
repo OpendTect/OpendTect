@@ -38,6 +38,10 @@ if ( NOT OD_NO_QPRINTSUPPORT )
     list( APPEND OD_PLUGINS uiODPrintSupport )
 endif()
 
+if ( NOT OD_NO_VSG AND NOT OD_NO_OSG )
+    list( APPEND OD_PLUGINS vsgBase )
+endif()
+
 if ( NOT OD_NO_OSG )
     list( APPEND OD_PLUGINS
 	uiCmdDriverMgr
