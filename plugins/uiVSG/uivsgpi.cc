@@ -235,7 +235,7 @@ mDefODInitPlugin(uiVSG)
     dGBVis::initStdClasses();
     dGBVisSurvey::initStdClasses();
     dGBVis::EventCatcher::setModifierQuery( keyboardModifiers );
-    od_cout() << "VSG Viewer: this is the od plugin, not the dgb one"
+    od_cerr() << "VSG Viewer: this is the od plugin, not the dgb one"
 	      << od_endl;
 
     static PtrMan<uiVSGPIMgr> pimgr = new uiVSGPIMgr();
