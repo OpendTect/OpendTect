@@ -25,7 +25,7 @@ class Recorder : public CallBacker
 public:
     void onEvent( CallBacker* cb )
     {
-	mCBCapsuleUnpack(const visBase::EventInfo&,info,cb);
+	mCBCapsuleUnpack(const dGBVis::EventInfo&,info,cb);
 	last_ = info;
 	count_++;
 	if ( handle_ && catcher_ )
@@ -33,7 +33,7 @@ public:
     }
 
     dGBVis::EventCatcher*	catcher_ = nullptr;
-    visBase::EventInfo		last_;
+    dGBVis::EventInfo		last_;
     int				count_ = 0;
     bool			handle_ = false;
 };

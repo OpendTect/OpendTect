@@ -75,7 +75,7 @@ static bool testNormalMove()
     dragger->setEventCatcher( catcher.ptr() );
     dragger->setCenter( Coord3(0,0,0) );
     dragger->setSize( Coord3(4,4,0) );
-    visBase::EventInfo press;
+    dGBVis::EventInfo press;
     press.type = dGBVis::MouseClick;
     press.pressed = true;
     press.buttonstate_ = OD::LeftButton;
@@ -83,7 +83,7 @@ static bool testNormalMove()
     press.mouseline = Line3( 0., -10., 5., 0., 10., -5. );
     catcher->reHandle( press );
 
-    visBase::EventInfo move;
+    dGBVis::EventInfo move;
     move.type = dGBVis::MouseMovement;
     move.buttonstate_ = press.buttonstate_;
     move.mouseline = Line3( 0., -10., 5., 0., 10., -2. );
@@ -91,7 +91,7 @@ static bool testNormalMove()
     mRunStandardTest( closeTo(dragger->center(),0,0,3),
 		      "Plain drag moves the plane along its normal" );
 
-    visBase::EventInfo release;
+    dGBVis::EventInfo release;
     release.type = dGBVis::MouseClick;
     release.pressed = false;
     release.buttonstate_ = press.buttonstate_;

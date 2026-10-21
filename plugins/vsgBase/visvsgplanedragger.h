@@ -11,14 +11,14 @@ ________________________________________________________________________
 #include "vsgbasemod.h"
 
 #include "visvsgobject.h"
+#include "visvsgtransform.h"
 
 #include "color.h"
 #include "position.h"
 #include "ranges.h"
 
 namespace vsgGeo { class TabPlaneDragger; }
-namespace visBase { class EventInfo; }
-namespace dGBVis { class EventCatcher; class Transformation; }
+namespace dGBVis { class EventCatcher; class EventInfo; }
 
 namespace dGBVis
 {
@@ -103,12 +103,12 @@ private:
     void			clamp();
     bool			sceneToObject(const Coord3&,Coord3&) const;
     bool			objectToScene(const Coord3&,Coord3&) const;
-    bool			objectPoint(const visBase::EventInfo&,
+    bool			objectPoint(const EventInfo&,
 					    Coord3&) const;
-    bool			rayInObject(const visBase::EventInfo&,
+    bool			rayInObject(const EventInfo&,
 					    Coord3& start,Coord3& end) const;
-    void			initNormalProjector(const visBase::EventInfo&);
-    bool			normalDragPoint(const visBase::EventInfo&,
+    void			initNormalProjector(const EventInfo&);
+    bool			normalDragPoint(const EventInfo&,
 						Coord3&) const;
 
     vsg::ref_ptr<vsgGeo::TabPlaneDragger>	plane_;

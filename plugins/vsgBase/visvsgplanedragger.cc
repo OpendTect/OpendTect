@@ -328,7 +328,7 @@ bool DepthTabPlaneDragger::objectToScene( const Coord3& objectpt,
 }
 
 
-bool DepthTabPlaneDragger::objectPoint( const visBase::EventInfo& ev,
+bool DepthTabPlaneDragger::objectPoint( const EventInfo& ev,
 					Coord3& objectpt ) const
 {
     if ( !ev.mouseline.direction(false).isDefined() &&
@@ -353,7 +353,7 @@ bool DepthTabPlaneDragger::objectPoint( const visBase::EventInfo& ev,
 }
 
 
-bool DepthTabPlaneDragger::rayInObject( const visBase::EventInfo& ev,
+bool DepthTabPlaneDragger::rayInObject( const EventInfo& ev,
 					Coord3& start, Coord3& end ) const
 {
     if ( !ev.mouseline.direction(false).isDefined() )
@@ -386,7 +386,7 @@ static bool projectToWindow( const vsg::Camera& camera, const Coord3& scene,
 }
 
 
-void DepthTabPlaneDragger::initNormalProjector( const visBase::EventInfo& ev )
+void DepthTabPlaneDragger::initNormalProjector( const EventInfo& ev )
 {
     dragplaneok_ = false;
     dragmouse_ = ev.mousepos;
@@ -459,7 +459,7 @@ void DepthTabPlaneDragger::initNormalProjector( const visBase::EventInfo& ev )
 }
 
 
-bool DepthTabPlaneDragger::normalDragPoint( const visBase::EventInfo& ev,
+bool DepthTabPlaneDragger::normalDragPoint( const EventInfo& ev,
 					    Coord3& objectpt ) const
 {
     objectpt = dragstart_;
@@ -540,7 +540,7 @@ void DepthTabPlaneDragger::endDrag()
 
 void DepthTabPlaneDragger::eventCB( CallBacker* cb )
 {
-    mCBCapsuleUnpack(const visBase::EventInfo&,ev,cb);
+    mCBCapsuleUnpack(const EventInfo&,ev,cb);
     const bool hitself = !ev.pickedobjids.isEmpty() &&
 			 ev.pickedobjids[0]==id();
     const int buttons = int(ev.buttonstate_);

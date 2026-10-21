@@ -12,7 +12,11 @@ ________________________________________________________________________
 
 #include "visvsgdata.h"
 
-#include "visevent.h"
+#include "integerid.h"
+#include "keyenum.h"
+#include "position.h"
+#include "trigonometry.h"
+#include "typeset.h"
 
 #include <vsg/core/ref_ptr.h>
 
@@ -24,13 +28,42 @@ namespace dGBVis { class Transformation; class EventCatchHandler; }
 namespace dGBVis
 {
 
-using EventType = visBase::EventType;
-using visBase::MouseClick;
-using visBase::Keyboard;
-using visBase::MouseMovement;
-using visBase::MouseDoubleClick;
+enum EventType		{ Any=7, MouseClick=1, Keyboard=2, MouseMovement=4,
+			  MouseDoubleClick=5 };
 
-/*!\brief Turns viewer pointer events into visBase::EventInfo.
+/*!\brief What a viewer event tells: the pointer, the keys and what is under it.
+*/
+
+class EventInfo
+{
+public:
+    EventType			type		= Any;
+    OD::ButtonState		buttonstate_	= OD::NoButton;
+    Coord			mousepos	= Coord::udf();
+    Line3			mouseline;
+				/*!<From the mouse position into the scene,
+				    in display coordinates. */
+    double			pickdepth	= mUdf(double);
+				//!<Mouseline parameter value of picked pos
+
+    bool			pressed		= false;
+				/*!<Only set if type is MouseClick or Keyboard.
+				    False if the button has been released. */
+    bool			dragging	= false;
+				//!<Only set if type is MouseMovement
+
+    OD::KeyboardKey		key_;
+				//!<Only set if type is Keyboard
+
+    TypeSet<VisID>		pickedobjids;
+
+    Coord3			displaypickedpos = Coord3::udf();
+    Coord3			localpickedpos = Coord3::udf();
+    Coord3			worldpickedpos = Coord3::udf();
+};
+
+
+/*!\brief Turns viewer pointer events into EventInfo.
 
   Handlers run on the visualization thread, before the frame is recorded.
   There is no delayed queue: a handler may update dGBVis objects directly.
@@ -44,12 +77,12 @@ public:
     static RefMan<EventCatcher> create();
 				mCreateDGBVisObj(EventCatcher);
 
-    CNotifier<EventCatcher,const visBase::EventInfo&> eventhappened;
-    CNotifier<EventCatcher,const visBase::EventInfo&> nothandled;
+    CNotifier<EventCatcher,const EventInfo&> eventhappened;
+    CNotifier<EventCatcher,const EventInfo&> nothandled;
 
     bool			isHandled() const	{ return ishandled_; }
     void			setHandled()		{ ishandled_ = true; }
-    void			reHandle(const visBase::EventInfo&);
+    void			reHandle(const EventInfo&);
 
     void			setCamera(vsg::Camera*);
     vsg::Camera*		camera() const		{ return camera_; }
@@ -83,7 +116,7 @@ public:
 private:
 				~EventCatcher();
 
-    void			publish(visBase::EventInfo&);
+    void			publish(EventInfo&);
     static ModifierQuery&	modifierQuery();
 
     vsg::ref_ptr<vsg::Visitor>	handler_;

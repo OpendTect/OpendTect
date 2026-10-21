@@ -38,7 +38,7 @@ if ( NOT OD_NO_QPRINTSUPPORT )
     list( APPEND OD_PLUGINS uiODPrintSupport )
 endif()
 
-if ( NOT OD_NO_VSG AND NOT OD_NO_OSG )
+if ( NOT OD_NO_VSG )
     list( APPEND OD_PLUGINS vsgBase )
 endif()
 

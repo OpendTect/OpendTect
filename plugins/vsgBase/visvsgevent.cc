@@ -167,7 +167,7 @@ void EventCatcher::setUtm2Display( const Transformation* trans )
 }
 
 
-void EventCatcher::reHandle( const visBase::EventInfo& eventinfo )
+void EventCatcher::reHandle( const EventInfo& eventinfo )
 {
     eventhappened.trigger( eventinfo, this );
 }
@@ -179,7 +179,7 @@ bool EventCatcher::forwardToCamera( const EventCatcher& catcher )
 }
 
 
-void EventCatcher::publish( visBase::EventInfo& eventinfo )
+void EventCatcher::publish( EventInfo& eventinfo )
 {
     ishandled_ = false;
     eventhappened.trigger( eventinfo, this );
@@ -215,7 +215,7 @@ void EventCatcher::submit( EventType type, OD::ButtonState buttonstate,
     else if ( type==MouseMovement && dragging )
 	wasdragging_ = true;
 
-    visBase::EventInfo eventinfo;
+    EventInfo eventinfo;
     eventinfo.type = type;
     eventinfo.buttonstate_ = buttonstate;
     eventinfo.pressed = pressed;
