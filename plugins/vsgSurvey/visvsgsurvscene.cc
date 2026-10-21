@@ -784,7 +784,7 @@ uiString Scene::getMousePosString() const
 }
 
 
-void Scene::applyEvent( const visBase::EventInfo& eventinfo )
+void Scene::applyEvent( const dGBVis::EventInfo& eventinfo )
 {
     updateStatus( eventinfo );
     if ( interact_ )
@@ -794,7 +794,7 @@ void Scene::applyEvent( const visBase::EventInfo& eventinfo )
 
 void Scene::mouseCB( CallBacker* cb )
 {
-    mCBCapsuleUnpack(const visBase::EventInfo&,eventinfo,cb);
+    mCBCapsuleUnpack(const dGBVis::EventInfo&,eventinfo,cb);
     updateStatus( eventinfo );
 }
 
@@ -804,7 +804,7 @@ void Scene::notHandledCB( CallBacker* cb )
     if ( !interact_ )
 	return;
 
-    mCBCapsuleUnpack(const visBase::EventInfo&,eventinfo,cb);
+    mCBCapsuleUnpack(const dGBVis::EventInfo&,eventinfo,cb);
     updateMarkerInteraction( eventinfo );
     if ( events_ && events_->isHandled() )
 	return;
@@ -813,7 +813,7 @@ void Scene::notHandledCB( CallBacker* cb )
 }
 
 
-void Scene::updateStatus( const visBase::EventInfo& eventinfo )
+void Scene::updateStatus( const dGBVis::EventInfo& eventinfo )
 {
     if ( eventinfo.type!=dGBVis::MouseMovement &&
 	 eventinfo.type!=dGBVis::MouseClick )
@@ -853,7 +853,7 @@ void Scene::updateStatus( const visBase::EventInfo& eventinfo )
 }
 
 
-int Scene::markerUnderCursor( const visBase::EventInfo& eventinfo ) const
+int Scene::markerUnderCursor( const dGBVis::EventInfo& eventinfo ) const
 {
     if ( !picks_ || !events_ )
 	return -1;
@@ -881,7 +881,7 @@ bool Scene::surfaceUnderCursor( const Coord& mousepos,
 }
 
 
-void Scene::updateMarkerInteraction( const visBase::EventInfo& eventinfo )
+void Scene::updateMarkerInteraction( const dGBVis::EventInfo& eventinfo )
 {
     if ( !picks_ || !events_ )
 	return;
@@ -926,7 +926,7 @@ void Scene::updateMarkerInteraction( const visBase::EventInfo& eventinfo )
 }
 
 
-void Scene::updateSelection( const visBase::EventInfo& eventinfo )
+void Scene::updateSelection( const dGBVis::EventInfo& eventinfo )
 {
     if ( eventinfo.type != dGBVis::MouseClick )
 	return;

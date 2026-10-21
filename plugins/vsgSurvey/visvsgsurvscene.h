@@ -19,11 +19,11 @@ ________________________________________________________________________
 #include "trckeyzsampling.h"
 
 namespace ZDomain { class Info; }
-namespace visBase { class EventInfo; }
 namespace dGBVis
 {
     class Annotation;
     class EventCatcher;
+    class EventInfo;
     class MarkerSet;
     class VisualObject;
 }
@@ -118,7 +118,7 @@ public:
     TrcKeyValue		getMousePos() const;
     uiString		getMousePosString() const;
 
-    void		applyEvent(const visBase::EventInfo&);
+    void		applyEvent(const dGBVis::EventInfo&);
 			/*!<Status, then selection when interaction is on.
 			    The viewer uses the two notifiers instead, so a
 			    dragger can mark the event handled in between. */
@@ -145,11 +145,11 @@ private:
     void		notHandledCB(CallBacker*);
     void		annotSelCB(CallBacker*);
     void		annotDeSelCB(CallBacker*);
-    void		updateStatus(const visBase::EventInfo&);
-    void		updateMarkerInteraction(const visBase::EventInfo&);
-    int			markerUnderCursor(const visBase::EventInfo&) const;
+    void		updateStatus(const dGBVis::EventInfo&);
+    void		updateMarkerInteraction(const dGBVis::EventInfo&);
+    int			markerUnderCursor(const dGBVis::EventInfo&) const;
     bool		surfaceUnderCursor(const Coord&,Coord3&);
-    void		updateSelection(const visBase::EventInfo&);
+    void		updateSelection(const dGBVis::EventInfo&);
     void		addSurfacePick(const Coord3& displaypos);
     bool		displayToInlCrl(const Coord3& displaypos,
 					Coord3& objectpos) const;

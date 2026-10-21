@@ -405,7 +405,7 @@ bool testSurveyCorner( dGBVisSurvey::Scene& scene, int corner, float zstretch )
     Coord3 world( point.x, point.y, point.z );
     scene.getUTM2DisplayTransform()->transformBack( world );
 
-    visBase::EventInfo eventinfo;
+    dGBVis::EventInfo eventinfo;
     eventinfo.type = dGBVis::MouseMovement;
     eventinfo.displaypickedpos = Coord3( point.x, point.y, point.z );
     eventinfo.worldpickedpos = world;
@@ -445,7 +445,7 @@ bool testPicking()
 	    return false;
     }
 
-    visBase::EventInfo miss;
+    dGBVis::EventInfo miss;
     miss.type = dGBVis::MouseMovement;
     scene->applyEvent( miss );
     BufferString empty;
@@ -456,7 +456,7 @@ bool testPicking()
     RefMan<ClickTarget> second = ClickTarget::create();
     scene->setInteractionEnabled( true );
 
-    visBase::EventInfo click;
+    dGBVis::EventInfo click;
     click.type = dGBVis::MouseClick;
     click.buttonstate_ = OD::LeftButton;
     click.pressed = false;
