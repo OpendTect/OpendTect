@@ -882,7 +882,7 @@ bool doWork( od_int64 start, od_int64 stop, int ) override
     const int naux = auxidxs_.size();
     const int npack = dps_.bivSet().nrVals();
     const bool minimal = dps_.isMinimal();
-    for ( int irow=mCast(int,start); irow<=stop; irow++ )
+    for ( int irow=sCast(int,start); irow<=stop; irow++ )
     {
 	if ( !shouldContinue() )
 	    return false;
