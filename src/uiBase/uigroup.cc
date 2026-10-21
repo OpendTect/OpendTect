@@ -518,7 +518,24 @@ uiGroup::uiGroup( uiParent* parnt, const char* nm, bool manage )
 
 uiGroup::~uiGroup()
 {
-    if ( grpobj_ ) { grpobj_->uigrp_ = nullptr; delete grpobj_; }
+    if ( grpobj_ )
+    {
+	uiGroupObj* obj = grpobj_;
+	grpobj_ = nullptr;
+	if ( obj->uigrp_ == this )
+	{
+	    obj->uigrp_ = nullptr;
+	    delete obj;
+	}
+	else
+	{
+	    BufferString msg( "uiGroup '", name(),
+		    "': object does not point back to this group" );
+	    pErrMsg( msg );
+	    //The object now belongs to another group, which will delete it.
+	}
+    }
+
     if ( body_ )
     {
 	uiGroupParentBody* bd = body_;
@@ -756,11 +773,22 @@ uiGroupObj::uiGroupObj( uiGroup* bud, uiParent* parnt , const char* nm,
 uiGroupObj::~uiGroupObj()
 {
     detachAllNotifiers();
-    if ( uigrp_ )
+    if ( !uigrp_ )
+	return;
+
+    uiGroup* grp = uigrp_;
+    uigrp_ = nullptr;
+    if ( grp->grpobj_ != this )
     {
-	uigrp_->grpobj_ = nullptr;
-	delete uigrp_;
+	BufferString msg( "uiGroupObj '", name(),
+		"': group does not point back to this object" );
+	pErrMsg( msg );
+	//The group is not ours (anymore), so do not delete it here.
+	return;
     }
+
+    grp->grpobj_ = nullptr;
+    delete grp;
 }
 
 
