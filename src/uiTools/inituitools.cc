@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "uigridder2d.h"
 #include "uiinterpollayermodel.h"
 #include "uimainwin.h"
+#include "uiproxydlg.h"
 #include "uiraytrace1d.h"
 #include "uirefltrace1d.h"
 
@@ -25,7 +26,6 @@ ________________________________________________________________________
 #include "odiconfile.h"
 #include "plugins.h"
 #include "procdescdata.h"
-#include "settings.h"
 
 
 namespace OD
@@ -59,6 +59,8 @@ static void addODIconFolders( CallBacker* )
 mDefModInitFn(uiTools)
 {
     mIfNotFirstTime( return );
+
+    uiProxyDlg::initClass();
 
     uiInverseDistanceGridder2D::initClass();
     uiInverseDistanceArray2DInterpol::initClass();

@@ -9,13 +9,11 @@ ________________________________________________________________________
 -*/
 
 #include "networkmod.h"
-#include "sharedobject.h"
 
-#include "notify.h"
 #include "iopar.h"
 #include "limits.h"
-#include "manobjectset.h"
 #include "ptrman.h"
+#include "sharedobject.h"
 #include "uistring.h"
 
 class QEventLoop;
@@ -31,15 +29,50 @@ template <class T> class QList;
 
 namespace Network
 {
+class Authority;
 class HttpRequestProcess;
 class HttpRequestManager;
+
+/* One route for an HTTP request. Unset lets the caller pick a route. */
+
+mExpClass(Network) HttpProxyConfig
+{
+public:
+			HttpProxyConfig();
+			HttpProxyConfig(const HttpProxyConfig&);
+			~HttpProxyConfig();
+
+    HttpProxyConfig&	operator=(const HttpProxyConfig&);
+
+    enum class Type	{ Unset, Direct, Http, Socks5 };
+
+    Type		type_		= Type::Unset;
+    Authority&		authority_;
+    BufferString	username_;
+    BufferString	password_;
+};
+
+/* Parses http://, https://, socks5:// and host:port proxy specs. */
+mGlobal(Network) bool proxySpecToConfig(const char* spec,HttpProxyConfig&);
+
+/* Host is listed in a no_proxy/NO_PROXY style list. */
+mGlobal(Network) bool proxyExcludesHost(const char* host,const char* noproxy);
+
+/* Proxy from https_proxy, http_proxy or all_proxy for this URL.
+   A null URL checks those variables in that order. */
+mGlobal(Network) bool environmentProxyFor(const char* url,HttpProxyConfig&);
+
+/* First route to try: a route that already worked, then the environment,
+   the system proxy, a direct connection, and a saved manual proxy. */
+mGlobal(Network) HttpProxyConfig preferredDownloadProxy(const char* url);
+
 
 /*!Description of an HTTP request, including headers and post-data */
 
 mExpClass(Network) HttpRequest : public ReferencedObject
 {
 public:
-    enum AccessType		{ Get, Put, Delete, Post, Head };
+    enum class AccessType	{ Get, Put, Delete, Post, Head };
 				HttpRequest(const char* url,
 					    AccessType);
 				HttpRequest(const HttpRequest&);
@@ -56,6 +89,13 @@ public:
 					     const char* val);
     void			setEncodedData(const char* key,
 					       const char* val);
+    void			setProxyConfig(const HttpProxyConfig&);
+    const HttpProxyConfig&	proxyConfig() const	{ return proxy_; }
+    void			setTransferTimeoutMs(int timeoutms);
+				/*!<Aborts the transfer when nothing is
+				    received for this many milliseconds.
+				    Zero keeps the Qt default. */
+    const char*			url() const		{ return url_.buf(); }
 
 protected:
 				~HttpRequest();
@@ -71,6 +111,8 @@ private:
     IOPar			rawheaders_;
     IOPar			encodeddata_;
     const AccessType		accesstype_;
+    HttpProxyConfig		proxy_;
+    int				transfertimeoutms_	= 0;
 };
 
 
@@ -142,6 +184,10 @@ public:
     od_int64			getContentLengthHeader() const;
     int				httpStatusCode() const;
 
+    enum class FailureKind	{ NoFailure, ConnectFailure,
+				  ProxyAuthFailure, SslFailure, HttpFailure };
+    FailureKind			failureKind() const;
+
 				//Upload access
     Notifier<HttpRequestProcess> uploadProgress;
     od_int64			getBytesUploaded() const;
@@ -178,27 +224,28 @@ private:
 				HttpRequestProcess(const HttpRequest*);
 				~HttpRequestProcess();
 
-    enum Status			{ NotStarted, //Before setQNetworkReply
+    enum class Status		{ NotStarted, //Before setQNetworkReply
 				  Running, Error, Finished };
 
-    Status					status_ = NotStarted;
-    mutable Threads::ConditionVar		statuslock_;
+    Status			status_ = Status::NotStarted;
+    FailureKind			failurekind_ = FailureKind::NoFailure;
+    mutable Threads::ConditionVar statuslock_;
 
-    ConstRefMan<HttpRequest>			request_;
+    ConstRefMan<HttpRequest>	request_;
 
-    Threads::Atomic<od_int64>			bytesuploaded_;
-    Threads::Atomic<od_int64>			totalbytestoupload_;
-    Threads::Atomic<od_int64>			bytesdownloaded_;
-    Threads::Atomic<od_int64>			totalbytestodownload_;
-    Threads::Atomic<od_int64>			contentlengthheader_;
+    Threads::Atomic<od_int64>	bytesuploaded_;
+    Threads::Atomic<od_int64>	totalbytestoupload_;
+    Threads::Atomic<od_int64>	bytesdownloaded_;
+    Threads::Atomic<od_int64>	totalbytestodownload_;
+    Threads::Atomic<od_int64>	contentlengthheader_;
 
-    QNetworkReplyConn*				qnetworkreplyconn_ = nullptr;
-    QNetworkReply*				qnetworkreply_ = nullptr;
+    QNetworkReplyConn*		qnetworkreplyconn_ = nullptr;
+    QNetworkReply*		qnetworkreply_ = nullptr;
 
-    QByteArray*					receiveddata_ = nullptr;
-    mutable Threads::ConditionVar		receiveddatalock_;
+    QByteArray*			receiveddata_ = nullptr;
+    mutable Threads::ConditionVar receiveddatalock_;
 
-    uiRetVal					errmsgs_;
+    uiRetVal			errmsgs_;
 };
 
 } // namespace Network

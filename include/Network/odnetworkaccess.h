@@ -105,13 +105,13 @@ mExpClass(Network) NetworkUserQuery
 {
 public:
     virtual			~NetworkUserQuery();
-    virtual bool		setFromUser()		= 0;
+    virtual bool		setFromUser(void* objptr)	= 0;
 
     static void			setNetworkUserQuery(NetworkUserQuery*);
+				//!<Takes ownership and deletes the previous one
     static NetworkUserQuery*	getNetworkUserQuery();
 
 protected:
 				NetworkUserQuery();
 
-    static NetworkUserQuery*	inst_;
 };

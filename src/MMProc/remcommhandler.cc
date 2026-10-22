@@ -16,7 +16,7 @@ ________________________________________________________________________
 #include "ioman.h"
 #include "mmpkeystr.h"
 #include "mmpserver.h"
-#include "od_iostream.h"
+#include "od_ostream.h"
 #include "oddirs.h"
 #include "odjson.h"
 #include "oscommand.h"

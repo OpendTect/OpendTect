@@ -10,6 +10,7 @@ ________________________________________________________________________
 
 #include "networkcommon.h"
 
+#include "callback.h"
 #include "threadlock.h"
 #include "uistring.h"
 
