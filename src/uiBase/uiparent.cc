@@ -326,8 +326,8 @@ uiParentBody::uiParentBody( const char* nm )
 
 uiParentBody::~uiParentBody()
 {
-    sendDelNotif();
     detachAllNotifiers();
+    sendDelNotif();
     deleteAllChildren();
 }
 
@@ -369,11 +369,25 @@ void uiParentBody::clearChildren()
 
 void uiParentBody::deleteAllChildren()
 {
-    //avoid the problems from childDel() removal from
-    //children_
+    //Deleting a child can delete another child of this body as a side effect:
+    //a uiGroupObj deletes its uiGroup, whose body deletes its own children in
+    //turn, and those can be objects managed by this body. Such a child removes
+    //itself from children_ through childDel(), but only as long as we are
+    //still subscribed to it. detachAllNotifiers() may already have run (for
+    //instance in ~uiGroupParentBody), so subscribe explicitly before deleting
+    //anything.
     ObjectSet<uiBaseObject> childrencopy = children_;
+    for ( auto* child : childrencopy )
+	mAttachCBIfNotAttached( child->objectToBeDeleted(),
+				uiParentBody::childDel );
+
+    for ( auto* child : childrencopy )
+    {
+	if ( children_.isPresent(child) )
+	    delete child;
+    }
+
     children_.erase();
-    deepErase( childrencopy );
 }
 
 
