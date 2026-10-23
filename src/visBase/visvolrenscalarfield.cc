@@ -435,10 +435,7 @@ void VolumeRenderScalarField::setScalarField( int attr,
     else
     {
 	for ( int attridx=0; attridx<attribs_.size(); attridx++ )
-	{
-	    attribs_[attridx]->clearIndexCache();
 	    updateResizeCache( attridx, tr );
-	}
 
 	updateVolumeSlicing();
     }
@@ -625,9 +622,9 @@ void VolumeRenderScalarField::makeColorTables( int attr )
     osg::TransferFunction1D::ColorMap colmap;
     for ( int idx=0; idx<mNrColors-1; idx++ )
     {
-	const float idxfrac = mCast(float,idx) / (mNrColors-2);
+	const float idxfrac = sCast(float,idx) / (mNrColors-2);
 	const OD::Color col = sequence->color( idxfrac );
-	colmap[ mCast(float,idx)/(mNrColors-1) ] = Conv::to<osg::Vec4>( col );
+	colmap[ sCast(float,idx)/(mNrColors-1) ] = Conv::to<osg::Vec4>( col );
     }
 
     colmap[1.0] = Conv::to<osg::Vec4>( sequence->undefColor() );
@@ -694,64 +691,58 @@ void VolumeRenderScalarField::makeIndices( int attr, bool doset, TaskRunner* tr)
 			matkzs.nrTrcs()!=osgvoldata_->t() ||
 			matkzs.nrLines()!=osgvoldata_->r();
 
-    const bool renewimage = resize ||
-			    attribs_[attr]->indexcache_!=osgvoldata_->data();
-
-    if ( !useshading_ || isrgba_ )
-    {
-	if ( resize )
-	{
-	    osgvoldata_->allocateImage( matkzs.nrZ(),
-					matkzs.nrTrcs(),
-					matkzs.nrLines(),
-					GL_RGBA, GL_UNSIGNED_BYTE );
-	    if ( isrgba_ && !useshading_ )
-	    {
-		for ( int channel=0; channel<4; channel++ )
-		    setDefaultRGBAValue( channel );
-	    }
-	}
-    }
-
     const bool attribenabled = getChannels2RGBA() &&
 			       getChannels2RGBA()->isEnabled(attr);
 
     const bool usevolcache = isrgba_ && (useshading_ || attribenabled);
     const bool hasundefchannel = !isrgba_ && useshading_;
+    const int newstep = usevolcache ? 4 : hasundefchannel ? 2 : 1;
 
-    if ( !attribs_[attr]->indexcache_ )
+    const bool glbacked = attribs_[attr]->indexcache_ &&
+			  osgvoldata_->data() &&
+			  attribs_[attr]->indexcache_ >= osgvoldata_->data() &&
+			  attribs_[attr]->indexcache_ <
+				osgvoldata_->data() +
+				osgvoldata_->getTotalSizeInBytes();
+
+    // Task runners pump the GUI event loop, which can upload the live
+    // Texture3D while we still (re)build voxel indices. Never write into or
+    // free that image until the new buffer is complete.
+    const bool neednewcache = !attribs_[attr]->indexcache_ || resize ||
+			      attribs_[attr]->indexcachestep_ != newstep ||
+			      (tr && glbacked);
+
+    unsigned char* dest = attribs_[attr]->indexcache_;
+    bool destowned = false;
+    if ( neednewcache )
     {
-	const int offset = raytt_ ? raytt_->getSourceChannel(attr) : attr;
-	attribs_[attr]->indexcachestep_ = usevolcache ? 4 :
-					  hasundefchannel ? 2 : 1;
-	const od_int64 nrbytes = totalsz * attribs_[attr]->indexcachestep_;
-	if ( usevolcache )
-	    attribs_[attr]->indexcache_ = osgvoldata_->data()+offset;
-	else
-	    mTryAlloc( attribs_[attr]->indexcache_, unsigned char[nrbytes] );
-
-	attribs_[attr]->ownsindexcache_ = !usevolcache;
-	if ( !attribs_[attr]->indexcache_ )
+	mTryAlloc( dest, unsigned char[totalsz*newstep] );
+	if ( !dest )
 	    return;
+
+	destowned = true;
     }
 
-    if ( usevolcache && !attribenabled )
-	setDefaultRGBAValue( attr );
+    const bool wason = tr ? turnOn( false ) : isOn();
 
     // Reverse the index order, because osgVolume turns out to perform well
     // for one sense of the coordinate system only, and OD uses the other. A
     // transform in visSurvey::VolumeDisplay does the geometrical mirroring.
-    const int idxstep = -attribs_[attr]->indexcachestep_;
-    unsigned char* idxptr = attribs_[attr]->indexcache_ - (totalsz-1)*idxstep;
-//    const int idxstep = attribs_[attr]->indexcachestep_;
-//    unsigned char* idxptr = attribs_[attr]->indexcache_;
-    unsigned char* udfptr = hasundefchannel ? idxptr+1 : 0;
+    const int idxstep = -newstep;
+    unsigned char* idxptr = dest - (totalsz-1)*idxstep;
+    unsigned char* udfptr = hasundefchannel ? idxptr+1 : nullptr;
     ColTab::MapperTask<unsigned char> indexer( attribs_[attr]->mapper_,
 		    totalsz, mNrColors-1, *attribs_[attr]->resizecache_,
 		    idxptr, idxstep, udfptr, idxstep );
 
     if ( tr ? !tr->execute(indexer) : !indexer.execute() )
+    {
+	if ( destowned )
+	    delete [] dest;
+	if ( tr )
+	    turnOn( wason );
 	return;
+    }
 
     int max = 0;
     const unsigned int* histogram = indexer.getHistogram();
@@ -772,17 +763,30 @@ void VolumeRenderScalarField::makeIndices( int attr, bool doset, TaskRunner* tr)
     if ( isrgba_ && attr!=3 )
     {
 	// wrap indices by 1 to move RGBA undef color to default Vec4(0,0,0,1)
-	addDataStepwise( totalsz, &one, 0, attribs_[attr]->indexcache_,
-			 attribs_[attr]->indexcachestep_ );
+	addDataStepwise( totalsz, &one, 0, dest, newstep );
+    }
+
+    unsigned char* oldowned = nullptr;
+    if ( destowned )
+    {
+	if ( attribs_[attr]->ownsindexcache_ )
+	    oldowned = attribs_[attr]->indexcache_;
+
+	attribs_[attr]->indexcache_ = dest;
+	attribs_[attr]->indexcachestep_ = newstep;
+	attribs_[attr]->ownsindexcache_ = true;
     }
 
     if ( !useshading_ && !isrgba_ )
     {
+	osgvoldata_->allocateImage( matkzs.nrZ(), matkzs.nrTrcs(),
+				    matkzs.nrLines(),
+				    GL_RGBA, GL_UNSIGNED_BYTE );
 	unsigned char coltab[1024];
 	for ( int idx=0; idx<=255; idx++ )
 	{
 	    const OD::Color col = Conv::to<::OD::Color>(
-			    osgtransfunc_->getColor( mCast(float,idx)/255 ) );
+			    osgtransfunc_->getColor( sCast(float,idx)/255 ) );
 	    coltab[4*idx+0] = col.r();
 	    coltab[4*idx+1] = col.g();
 	    coltab[4*idx+2] = col.b();
@@ -792,7 +796,7 @@ void VolumeRenderScalarField::makeIndices( int attr, bool doset, TaskRunner* tr)
 	unsigned char* ptr = osgvoldata_->data();
 	for ( od_int64 idx=0; idx<totalsz; idx++ )
 	{
-	    OD::memCopy( ptr , coltab+4*attribs_[attr]->indexcache_[idx], 4 );
+	    OD::memCopy( ptr, coltab+4*attribs_[attr]->indexcache_[idx], 4 );
 	    ptr += 4;
 	}
 
@@ -801,7 +805,41 @@ void VolumeRenderScalarField::makeIndices( int attr, bool doset, TaskRunner* tr)
 	if ( fft )
 	    fft->setBorderColor( osgtransfunc_->getColor(1.0) );
     }
-    else if ( renewimage && !isrgba_ )
+    else if ( usevolcache )
+    {
+	if ( resize || !osgvoldata_->data() )
+	{
+	    osgvoldata_->allocateImage( matkzs.nrZ(), matkzs.nrTrcs(),
+					matkzs.nrLines(),
+					GL_RGBA, GL_UNSIGNED_BYTE );
+	    if ( !useshading_ )
+	    {
+		for ( int channel=0; channel<4; channel++ )
+		    setDefaultRGBAValue( channel );
+	    }
+	}
+
+	const int offset = raytt_ ? raytt_->getSourceChannel(attr) : attr;
+	if ( attribs_[attr]->ownsindexcache_ )
+	{
+	    copyDataStepwise( totalsz, attribs_[attr]->indexcache_,
+			      attribs_[attr]->indexcachestep_,
+			      osgvoldata_->data()+offset, 4 );
+	    delete [] oldowned;
+	    oldowned = attribs_[attr]->indexcache_;
+
+	    attribs_[attr]->indexcache_ = osgvoldata_->data()+offset;
+	    attribs_[attr]->indexcachestep_ = 4;
+	    attribs_[attr]->ownsindexcache_ = false;
+	}
+
+	if ( !attribenabled )
+	    setDefaultRGBAValue( attr );
+
+	osgvoldata_->dirty();
+    }
+    else if ( resize || destowned ||
+	      attribs_[attr]->indexcache_!=osgvoldata_->data() )
     {
 	osgvoldata_->setImage( matkzs.nrZ(), matkzs.nrTrcs(),
 			       matkzs.nrLines(), GL_LUMINANCE_ALPHA,
@@ -812,7 +850,10 @@ void VolumeRenderScalarField::makeIndices( int attr, bool doset, TaskRunner* tr)
     else
 	osgvoldata_->dirty();
 
+    delete [] oldowned;
     osgvoltile_->setDirty( true );
+    if ( tr )
+	turnOn( wason );
 }
 
 
@@ -893,7 +934,7 @@ void VolumeRenderScalarField::swapAttribs( int attr0, int attr1 )
 void VolumeRenderScalarField::setAttribTransparency( int attr,
 						     unsigned char trans )
 {
-    const float rescaledtrans = pow( mCast(float,trans)/255.0,
+    const float rescaledtrans = pow( sCast(float,trans)/255.0,
 				     mTransparencyBendPower );
     osgtransprop_->setValue( 1.0 - rescaledtrans );
     requestSingleRedraw();
