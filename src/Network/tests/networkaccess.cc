@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "filepath.h"
 #include "iopar.h"
 #include "moddepmgr.h"
+#include "networkcommon.h"
 #include "od_istream.h"
 #include "ascstream.h"
 #include "odnetworkaccess.h"
@@ -47,6 +48,43 @@ static BufferString intranetUrl( const char* url )
     BufferString res( "http://", intranetHost(), "/" );
     res.add( "testing/ctest/" ).add( url );
     return res;
+}
+
+
+bool testProxyRules()
+{
+    Network::HttpProxyConfig cfg;
+    mRunStandardTest( Network::proxySpecToConfig(
+	"http://user:secret@localhost:8080", cfg ),
+	"Parse proxy URL" );
+    mRunStandardTest( cfg.type_==Network::HttpProxyConfig::Type::Http,
+	"Proxy URL type" );
+    mRunStandardTest( cfg.authority_.getHost()=="localhost", "Proxy URL host" );
+    mRunStandardTest( cfg.authority_.getPort()==8080, "Proxy URL port" );
+    mRunStandardTest( cfg.username_=="user", "Proxy URL user" );
+    mRunStandardTest( cfg.password_=="secret", "Proxy URL password" );
+
+    mRunStandardTest( Network::proxySpecToConfig("localhost:3128",cfg),
+	"Parse host:port proxy" );
+    mRunStandardTest( cfg.type_==Network::HttpProxyConfig::Type::Http &&
+		      cfg.authority_.getPort()==3128, "Host:port proxy port" );
+
+    mRunStandardTest( Network::proxySpecToConfig("socks5://127.0.0.1:1080",cfg),
+	"Parse socks proxy" );
+    mRunStandardTest( cfg.type_==Network::HttpProxyConfig::Type::Socks5,
+	"Socks proxy type" );
+
+    mRunStandardTest( !Network::proxySpecToConfig("",cfg),
+	"Reject empty proxy spec" );
+    mRunStandardTest( Network::proxyExcludesHost("files.example.com",
+			"localhost, .example.com"),
+	"no_proxy suffix match" );
+    mRunStandardTest( !Network::proxyExcludesHost("example.org","localhost"),
+	"no_proxy miss" );
+    mRunStandardTest( Network::proxyExcludesHost("s3.amazonaws.com","*"),
+	"no_proxy star" );
+
+    return true;
 }
 
 
@@ -284,6 +322,9 @@ bool testFileSizes()
 
 bool runTests()
 {
+    if ( !testProxyRules() )
+	return false;
+
     if ( !testPing() )
 	return false;
 

@@ -21,11 +21,12 @@ ________________________________________________________________________
 #include "odsysmem.h"
 #include "thread.h"
 #include "uistrings.h"
-#include "winutils.h"
 #include "systeminfo.h"
 #include "keystrs.h"
 
-#include <fstream>
+#ifdef __win__
+# include "winutils.h"
+#endif
 
 namespace System
 {

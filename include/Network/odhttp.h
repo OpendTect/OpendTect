@@ -31,8 +31,44 @@ template <class T> class QList;
 
 namespace Network
 {
+class Authority;
 class HttpRequestProcess;
 class HttpRequestManager;
+
+/* One route for an HTTP request. Unset lets the caller pick a route.
+   HttpRequest keeps this beside the object so its layout stays unchanged. */
+
+mExpClass(Network) HttpProxyConfig
+{
+public:
+			HttpProxyConfig();
+			HttpProxyConfig(const HttpProxyConfig&);
+			~HttpProxyConfig();
+
+    HttpProxyConfig&	operator=(const HttpProxyConfig&);
+
+    enum class Type	{ Unset, Direct, Http, Socks5 };
+
+    Type		type_		= Type::Unset;
+    Authority&		authority_;
+    BufferString	username_;
+    BufferString	password_;
+};
+
+/* Parses http://, https://, socks5:// and host:port proxy specs. */
+mGlobal(Network) bool proxySpecToConfig(const char* spec,HttpProxyConfig&);
+
+/* Host is listed in a no_proxy/NO_PROXY style list. */
+mGlobal(Network) bool proxyExcludesHost(const char* host,const char* noproxy);
+
+/* Proxy from https_proxy, http_proxy or all_proxy for this URL.
+   A null URL checks those variables in that order. */
+mGlobal(Network) bool environmentProxyFor(const char* url,HttpProxyConfig&);
+
+/* First route to try: a route that already worked, then the environment,
+   the system proxy, a direct connection, and a saved manual proxy. */
+mGlobal(Network) HttpProxyConfig preferredDownloadProxy(const char* url);
+
 
 /*!Description of an HTTP request, including headers and post-data */
 
@@ -56,6 +92,13 @@ public:
 					     const char* val);
     void			setEncodedData(const char* key,
 					       const char* val);
+    void			setProxyConfig(const HttpProxyConfig&);
+    const HttpProxyConfig&	proxyConfig() const;
+    void			setTransferTimeout(int timeoutms);
+				/*!<Aborts the transfer when nothing is
+				    received for this many milliseconds.
+				    Zero keeps the Qt default. */
+    const char*			url() const	{ return url_.buf(); }
 
 protected:
 				~HttpRequest();
@@ -141,6 +184,10 @@ public:
 
     od_int64			getContentLengthHeader() const;
     int				httpStatusCode() const;
+
+    enum class FailureKind	{ NoFailure, ConnectFailure,
+				  ProxyAuthFailure, SslFailure, HttpFailure };
+    FailureKind			failureKind() const;
 
 				//Upload access
     Notifier<HttpRequestProcess> uploadProgress;

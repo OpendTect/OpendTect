@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "uigridder2d.h"
 #include "uiinterpollayermodel.h"
 #include "uimainwin.h"
+#include "uiproxydlg.h"
 #include "uiraytrace1d.h"
 #include "uirefltrace1d.h"
 
@@ -59,6 +60,8 @@ static void addODIconFolders( CallBacker* )
 mDefModInitFn(uiTools)
 {
     mIfNotFirstTime( return );
+
+    NetworkUserQuery::setNetworkUserQuery( new uiNetworkUserQuery );
 
     uiInverseDistanceGridder2D::initClass();
     uiInverseDistanceArray2DInterpol::initClass();

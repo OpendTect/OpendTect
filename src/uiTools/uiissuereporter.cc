@@ -102,10 +102,6 @@ uiIssueReporterDlg::uiIssueReporterDlg( uiParent* p,
 
     setCancelText( sDontSendReport() );
     setOkText( sSendReport() );
-
-    uiNetworkUserQuery* uinetquery = new uiNetworkUserQuery;
-    uinetquery->setMainWin( this );
-    NetworkUserQuery::setNetworkUserQuery( uinetquery );
 }
 
 
