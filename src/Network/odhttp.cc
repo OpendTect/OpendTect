@@ -12,7 +12,8 @@ ________________________________________________________________________
 #include "databuf.h"
 #include "envvars.h"
 #include "genc.h"
-#include "odnetworkaccess.h" //Proxy settings
+#include "hiddenparam.h"
+#include "networkcommon.h"
 #include "odruncontext.h"
 #include "od_ostream.h"
 
@@ -21,6 +22,8 @@ ________________________________________________________________________
 
 #include <QCoreApplication>
 #include <QEventLoop>
+#include <QNetworkProxy>
+#include <QNetworkReply>
 #include <QNetworkRequest>
 #include <QSslError>
 #include <QUrlQuery>
@@ -29,6 +32,50 @@ ________________________________________________________________________
 
 namespace Network
 {
+
+struct HttpRequestExtras
+{
+    HttpProxyConfig	proxy;
+    int			transfertimeoutms	= 0;
+};
+
+/* Route and failure kind stay off the exported objects. */
+static HiddenParam<HttpRequest,HttpRequestExtras*> hp_request_( nullptr );
+static HiddenParam<HttpRequestProcess,int> hp_failurekind_( 0 );
+
+
+// HttpProxyConfig
+
+HttpProxyConfig::HttpProxyConfig()
+    : authority_(*new Authority)
+{}
+
+
+HttpProxyConfig::HttpProxyConfig( const HttpProxyConfig& oth )
+    : authority_(*new Authority)
+{
+    *this = oth;
+}
+
+
+HttpProxyConfig::~HttpProxyConfig()
+{
+    delete &authority_;
+}
+
+
+HttpProxyConfig& HttpProxyConfig::operator=( const HttpProxyConfig& oth )
+{
+    if ( &oth == this )
+	return *this;
+
+    type_ = oth.type_;
+    authority_.setHost( oth.authority_.getHost() );
+    authority_.setPort( oth.authority_.getPort() );
+    username_ = oth.username_;
+    password_ = oth.password_;
+    return *this;
+}
 
 HttpRequestProcess::HttpRequestProcess( const HttpRequest* request )
     : finished(this)
@@ -42,11 +89,13 @@ HttpRequestProcess::HttpRequestProcess( const HttpRequest* request )
     , totalbytestodownload_(mUdf(od_int64))
     , contentlengthheader_(mUdf(od_int64))
 {
+    hp_failurekind_.setParam( this, (int)FailureKind::NoFailure );
 }
 
 
 HttpRequestProcess::~HttpRequestProcess()
 {
+    hp_failurekind_.removeParam( this );
 #ifndef OD_NO_QT
     if ( qnetworkreply_ )
 	qnetworkreply_->deleteLater();
@@ -162,6 +211,35 @@ void HttpRequestProcess::reportMetaDataChanged()
 }
 
 
+static HttpRequestProcess::FailureKind
+	failureKindFromQtError( QNetworkReply::NetworkError err )
+{
+    if ( err == QNetworkReply::NoError )
+	return HttpRequestProcess::FailureKind::NoFailure;
+
+    if ( err == QNetworkReply::SslHandshakeFailedError )
+	return HttpRequestProcess::FailureKind::SslFailure;
+
+    if ( err == QNetworkReply::ProxyAuthenticationRequiredError )
+	return HttpRequestProcess::FailureKind::ProxyAuthFailure;
+
+    if ( err >= QNetworkReply::ProxyConnectionRefusedError &&
+	 err <= QNetworkReply::UnknownProxyError )
+	return HttpRequestProcess::FailureKind::ConnectFailure;
+
+    if ( err >= QNetworkReply::ContentAccessDenied )
+	return HttpRequestProcess::FailureKind::HttpFailure;
+
+    return HttpRequestProcess::FailureKind::ConnectFailure;
+}
+
+
+HttpRequestProcess::FailureKind HttpRequestProcess::failureKind() const
+{
+    return sCast( FailureKind, hp_failurekind_.getParam(this) );
+}
+
+
 void HttpRequestProcess::reportSSLErrors( const QList<QSslError>& sslerrors )
 {
     uiRetVal errors;
@@ -176,6 +254,7 @@ void HttpRequestProcess::reportSSLErrors( const QList<QSslError>& sslerrors )
 
     statuslock_.lock();
     status_ = Error;
+    hp_failurekind_.setParam( this, (int)FailureKind::SslFailure );
     errmsgs_.add( errors );
     statuslock_.signal( true );
     statuslock_.unLock();
@@ -186,9 +265,19 @@ void HttpRequestProcess::reportSSLErrors( const QList<QSslError>& sslerrors )
 
 void HttpRequestProcess::reportError()
 {
+    const QNetworkReply::NetworkError qerr = qnetworkreply_
+	? qnetworkreply_->error()
+	: QNetworkReply::UnknownNetworkError;
+    const FailureKind kind = failureKindFromQtError( qerr );
+    const uiString errmsg = qnetworkreply_
+	? toUiString( qnetworkreply_->errorString() )
+	: tr("Network request failed");
+
     statuslock_.lock();
     status_ = Error;
-    const uiString errmsg = toUiString( qnetworkreply_->errorString() );
+    if ( hp_failurekind_.getParam(this) == (int)FailureKind::NoFailure )
+	hp_failurekind_.setParam( this, (int)kind );
+
     errmsgs_.add( errmsg );
 
     static int addprint = -1;
@@ -348,7 +437,9 @@ BufferString HttpRequestProcess::readAll()
 HttpRequest::HttpRequest( const char* url, AccessType at )
     : url_( url )
     , accesstype_( at )
-{}
+{
+    hp_request_.setParam( this, new HttpRequestExtras );
+}
 
 
 HttpRequest::HttpRequest( const HttpRequest& b )
@@ -356,12 +447,17 @@ HttpRequest::HttpRequest( const HttpRequest& b )
     , url_( b.url_ )
     , contenttype_( b.contenttype_ )
     , rawheaders_( b.rawheaders_ )
+    , encodeddata_( b.encodeddata_ )
     , accesstype_( b.accesstype_ )
-{}
+{
+    auto* extras = new HttpRequestExtras( *hp_request_.getParam(&b) );
+    hp_request_.setParam( this, extras );
+}
 
 
 HttpRequest::~HttpRequest()
 {
+    hp_request_.removeAndDeleteParam( this );
     delete payload_;
 }
 
@@ -412,6 +508,24 @@ void HttpRequest::setEncodedData( const char* key, const char* val )
 }
 
 
+void HttpRequest::setProxyConfig( const HttpProxyConfig& cfg )
+{
+    hp_request_.getParam( this )->proxy = cfg;
+}
+
+
+const HttpProxyConfig& HttpRequest::proxyConfig() const
+{
+    return hp_request_.getParam( this )->proxy;
+}
+
+
+void HttpRequest::setTransferTimeout( int timeoutms )
+{
+    hp_request_.getParam( this )->transfertimeoutms = timeoutms;
+}
+
+
 void HttpRequest::fillRequest( QNetworkRequest& req ) const
 {
     req.setUrl( QUrl(url_.buf()) );
@@ -438,6 +552,37 @@ void HttpRequest::fillRequest( QNetworkRequest& req ) const
 
     if ( payload_ )
 	req.setHeader( QNetworkRequest::ContentLengthHeader, payload_->size() );
+
+#if QT_VERSION >= QT_VERSION_CHECK(5,15,0)
+    const int timeoutms = hp_request_.getParam( this )->transfertimeoutms;
+    if ( timeoutms > 0 )
+	req.setTransferTimeout( timeoutms );
+#endif
+}
+
+
+static QNetworkProxy qNetworkProxy( const HttpProxyConfig& cfg )
+{
+    QNetworkProxy proxy;
+    if ( cfg.type_ == HttpProxyConfig::Type::Http ||
+	 cfg.type_ == HttpProxyConfig::Type::Socks5 )
+    {
+	proxy.setType( cfg.type_ == HttpProxyConfig::Type::Socks5
+		? QNetworkProxy::Socks5Proxy : QNetworkProxy::HttpProxy );
+	const BufferString host = cfg.authority_.getHost();
+	proxy.setHostName( host.buf() );
+	proxy.setPort( cfg.authority_.getPort() );
+	if ( !cfg.username_.isEmpty() )
+	{
+	    proxy.setUser( cfg.username_.buf() );
+	    proxy.setPassword( cfg.password_.buf() );
+	}
+
+	return proxy;
+    }
+
+    proxy.setType( QNetworkProxy::NoProxy );
+    return proxy;
 }
 
 
@@ -520,8 +665,9 @@ void HttpRequestManager::threadFuncCB(CallBacker*)
 #ifndef OD_NO_QT
     createReceiverForCurrentThread();
 
-    //Create outside of look as we'll trigger events and stuff in Qt
-    Network::setHttpProxyFromSettings();
+    //Create outside of look as we'll trigger events and stuff in Qt.
+    //The proxy is set on this access manager per request, so the
+    //application proxy used by OpendTect sockets stays unchanged.
     auto* eventloop = new QEventLoop( 0 );
     auto* qnam = new QNetworkAccessManager( eventloop );
 
@@ -563,6 +709,12 @@ void HttpRequestManager::doRequestCB( CallBacker* cb )
 
     QNetworkRequest qreq;
     reply->request_->fillRequest(qreq);
+
+    HttpProxyConfig proxy = reply->request_->proxyConfig();
+    if ( proxy.type_ == HttpProxyConfig::Type::Unset )
+	proxy = preferredDownloadProxy( reply->request_->url() );
+
+    qnam_->setProxy( qNetworkProxy(proxy) );
 
     if (reply->request_->accesstype_ == HttpRequest::Get)
 	reply->setQNetworkReply(qnam_->get(qreq));

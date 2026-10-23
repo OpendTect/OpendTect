@@ -11,10 +11,14 @@ ________________________________________________________________________
 
 #include "uibutton.h"
 #include "uigeninput.h"
-#include "uimsg.h"
 #include "uilabel.h"
 #include "uilineedit.h"
+#include "uimain.h"
+#include "uimsg.h"
 #include "uispinbox.h"
+
+#include "applicationdata.h"
+#include "networkcommon.h"
 #include "odnetworkaccess.h"
 #include "settings.h"
 #include "od_helpids.h"
@@ -63,6 +67,29 @@ void uiProxyDlg::initFromSettings()
 {
     Settings& setts = Settings::common();
     usePar( setts );
+
+    const BufferString host = hostfld_->text();
+    if ( !host.isEmpty() )
+	return;
+
+    Network::HttpProxyConfig cfg;
+    if ( !Network::environmentProxyFor(nullptr,cfg) )
+	return;
+
+    const BufferString envhost = cfg.authority_.getHost();
+    if ( envhost.isEmpty() )
+	return;
+
+    hostfld_->setText( envhost.buf() );
+    if ( cfg.authority_.getPort() > 1 )
+	portfld_->box()->setValue( cfg.authority_.getPort() );
+
+    if ( cfg.username_.isEmpty() )
+	return;
+
+    authenticationfld_->setChecked( true );
+    usernamefld_->setText( cfg.username_ );
+    pwdfld_->setText( cfg.password_ );
 }
 
 
@@ -183,9 +210,22 @@ uiNetworkUserQuery::~uiNetworkUserQuery()
 
 bool uiNetworkUserQuery::setFromUser()
 {
-    if ( !mainwin_ )
+    if ( !ApplicationData::hasInstance() )
 	return false;
 
-    uiProxyDlg dlg( mainwin_ );
+    uiParent* parent = mainwin_;
+    if ( !parent )
+	parent = uiMainWin::activeModalWindow();
+
+    if ( !parent )
+	parent = uiMain::instance().topLevel();
+
+    if ( !parent )
+	parent = uiMainWin::activeWindow();
+
+    if ( !parent )
+	return false;
+
+    uiProxyDlg dlg( parent );
     return dlg.go();
 }

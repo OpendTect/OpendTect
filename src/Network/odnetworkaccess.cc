@@ -10,9 +10,12 @@ ________________________________________________________________________
 #include "odnetworkaccess.h"
 
 #include "databuf.h"
+#include "envvars.h"
 #include "file.h"
 #include "filepath.h"
+#include "hiddenparam.h"
 #include "iopar.h"
+#include "networkcommon.h"
 #include "od_istream.h"
 #include "od_ostream.h"
 #include "oddirs.h"
@@ -21,15 +24,18 @@ ________________________________________________________________________
 #include "settings.h"
 #include "task.h"
 #include "thread.h"
+#include "stringview.h"
 #include "typeset.h"
 
 # include <QByteArray>
 # include <QNetworkProxy>
+# include <QNetworkProxyFactory>
+# include <QNetworkProxyQuery>
+# include <QUrl>
 
 
 static const int cMaxTransferRetries = 5;
-static const int cMaxSizeCheckRetries = 3;
-static const double cSizeCheckRetryDelaySec = 0.25;
+static const int cProxyProbeTimeoutMs = 5000;
 
 
 static double retryDelaySec( od_int64 filesz, int attempt, double maxdelaysec )
@@ -46,6 +52,13 @@ static double retryDelaySec( od_int64 filesz, int attempt, double maxdelaysec )
     delay *= ( 1. + jitterfrac );
     return delay;
 }
+
+
+struct DownloadRoutes
+{
+    bool					askproxydialog	= true;
+    ManagedObjectSet<Network::HttpProxyConfig>	urlproxies;
+};
 
 
 class FileDownloaderTask : public SequentialTask
@@ -113,6 +126,7 @@ private:
     uiString		msg_;
     uiRetVal		uirv_;
     uiRetVal		retryattemptmsgs_;
+    DownloadRoutes	routes_;
 };
 
 
@@ -147,6 +161,7 @@ FileDownloaderTask::FileDownloaderTask( const char* url )
     OD::OpenSSLAccess::loadOpenSSL(); //Keep at the first line
     readTimeOutFromSettings();
     urls_.add(url);
+    routes_.askproxydialog = false;
 }
 
 
@@ -290,51 +305,649 @@ bool FileDownloaderTask::doFinish( bool success, od_ostream* strm )
 }
 
 
+static Threads::Mutex& sessionProxyMutex()
+{
+    static Threads::Mutex lock( false );
+    return lock;
+}
+
+
+static PtrMan<Network::HttpProxyConfig>& sessionProxySlot()
+{
+    static PtrMan<Network::HttpProxyConfig> slot;
+    return slot;
+}
+
+
+static void rememberSessionProxy( const Network::HttpProxyConfig& cfg )
+{
+    Threads::MutexLocker locker( sessionProxyMutex() );
+    sessionProxySlot() = new Network::HttpProxyConfig( cfg );
+}
+
+
+static bool copySessionProxy( Network::HttpProxyConfig& cfg )
+{
+    Threads::MutexLocker locker( sessionProxyMutex() );
+    if ( !sessionProxySlot().ptr() )
+	return false;
+
+    cfg = *sessionProxySlot().ptr();
+    return true;
+}
+
+
+static const char* firstSetEnv( const char* primary, const char* secondary )
+{
+    const char* val = GetEnvVar( primary );
+    if ( val && *val )
+	return val;
+
+    val = GetEnvVar( secondary );
+    return val && *val ? val : nullptr;
+}
+
+
+static const char* noProxyEnv()
+{
+    return firstSetEnv( "no_proxy", "NO_PROXY" );
+}
+
+
+bool Network::proxyExcludesHost( const char* host, const char* noproxy )
+{
+    if ( !host || !*host || !noproxy || !*noproxy )
+	return false;
+
+    BufferString list( noproxy );
+    list.replace( '\t', ',' );
+    list.replace( ' ', ',' );
+    list.replace( ';', ',' );
+    const SeparString tokens( list.buf(), ',' );
+    for ( int idx=0; idx<tokens.size(); idx++ )
+    {
+	BufferString token( tokens[idx].buf() );
+	token.trimBlanks();
+	if ( token.isEmpty() )
+	    continue;
+
+	if ( token == "*" )
+	    return true;
+
+	if ( token.firstChar() == '.' )
+	{
+	    const BufferString stripped( token.buf() + 1 );
+	    token = stripped;
+	}
+
+	if ( token.isEmpty() )
+	    continue;
+
+	if ( StringView(host).isEqual(token.buf(),OD::CaseInsensitive) )
+	    return true;
+
+	const BufferString suffix( ".", token.buf() );
+	if ( StringView(host).endsWith(suffix.buf(),OD::CaseInsensitive) )
+	    return true;
+    }
+
+    return false;
+}
+
+
+bool Network::proxySpecToConfig( const char* spec, HttpProxyConfig& cfg )
+{
+    cfg = HttpProxyConfig();
+    if ( !spec || !*spec )
+	return false;
+
+    BufferString txt( spec );
+    txt.trimBlanks();
+    if ( txt.isEmpty() )
+	return false;
+
+    if ( !txt.contains("://") )
+	txt = BufferString( "http://", txt.buf() );
+
+    const QUrl qurl( txt.buf() );
+    if ( !qurl.isValid() || qurl.host().isEmpty() )
+	return false;
+
+    const BufferString scheme( qurl.scheme() );
+    if ( scheme.isEqual("socks5",OD::CaseInsensitive) ||
+	 scheme.isEqual("socks5h",OD::CaseInsensitive) ||
+	 scheme.isEqual("socks",OD::CaseInsensitive) )
+	cfg.type_ = HttpProxyConfig::Type::Socks5;
+    else if ( scheme.isEmpty() ||
+	      scheme.isEqual("http",OD::CaseInsensitive) ||
+	      scheme.isEqual("https",OD::CaseInsensitive) )
+	cfg.type_ = HttpProxyConfig::Type::Http;
+    else
+	return false;
+
+    const BufferString host( qurl.host() );
+    const int port = qurl.port( -1 );
+    cfg.authority_.setHost( host.buf() )
+		  .setPort( mCast(PortNr_Type,port > 0 ? port : 8080) );
+    cfg.username_ = BufferString( qurl.userName() );
+    cfg.password_ = BufferString( qurl.password() );
+    return !cfg.authority_.getHost().isEmpty();
+}
+
+
+bool Network::environmentProxyFor( const char* url, HttpProxyConfig& cfg )
+{
+    cfg = HttpProxyConfig();
+    const char* spec = nullptr;
+    if ( url && *url )
+    {
+	const QUrl qurl( url );
+	const BufferString host( qurl.host() );
+	const char* noproxy = noProxyEnv();
+	if ( noproxy && proxyExcludesHost(host.buf(),noproxy) )
+	    return false;
+
+	const BufferString scheme( qurl.scheme() );
+	if ( scheme.isEqual("https",OD::CaseInsensitive) )
+	    spec = firstSetEnv( "https_proxy", "HTTPS_PROXY" );
+	else
+	    spec = firstSetEnv( "http_proxy", "HTTP_PROXY" );
+    }
+    else
+    {
+	spec = firstSetEnv( "https_proxy", "HTTPS_PROXY" );
+	if ( !spec )
+	    spec = firstSetEnv( "http_proxy", "HTTP_PROXY" );
+    }
+
+    if ( !spec )
+	spec = firstSetEnv( "all_proxy", "ALL_PROXY" );
+
+    if ( !spec )
+	return false;
+
+    return proxySpecToConfig( spec, cfg );
+}
+
+
+struct UnsavedProxyPassword
+{
+    Network::Authority	authority;
+    BufferString	password;
+};
+
+static Threads::Lock& unsavedProxyLock()
+{
+    static Threads::Lock lock;
+    return lock;
+}
+
+static UnsavedProxyPassword& unsavedProxySlot()
+{
+    static UnsavedProxyPassword pwd;
+    return pwd;
+}
+
+static bool sameUnsavedAccount( const Network::Authority& stored,
+				const char* host, int port,
+				const char* username )
+{
+    Network::Authority query( host, mCast(PortNr_Type,port) );
+    query.setUserInfo( username );
+    return stored.getPort()==query.getPort() &&
+	   stored.getUserInfo()==query.getUserInfo() &&
+	   stored.getHost().isEqual( query.getHost().buf(),
+				     OD::CaseInsensitive );
+}
+
+static void clearUnsavedProxyPassword()
+{
+    Threads::Locker locker( unsavedProxyLock() );
+    unsavedProxySlot() = UnsavedProxyPassword();
+}
+
+static void setUnsavedProxyPassword( const char* host, int port,
+				     const char* username,
+				     const char* password )
+{
+    Threads::Locker locker( unsavedProxyLock() );
+    UnsavedProxyPassword& pwd = unsavedProxySlot();
+    if ( !password || !*password )
+    {
+	if ( !sameUnsavedAccount(pwd.authority,host,port,username) )
+	    pwd = UnsavedProxyPassword();
+	return;
+    }
+
+    pwd.authority = Network::Authority( host, mCast(PortNr_Type,port) );
+    pwd.authority.setUserInfo( username );
+    pwd.password = password;
+}
+
+static void fillUnsavedProxyPassword( const char* host, int port,
+				      const char* username,
+				      BufferString& password )
+{
+    Threads::Locker locker( unsavedProxyLock() );
+    const UnsavedProxyPassword& pwd = unsavedProxySlot();
+    if ( pwd.password.isEmpty() ||
+	 !sameUnsavedAccount(pwd.authority,host,port,username) )
+	return;
+
+    password = pwd.password;
+}
+
+static bool readStoredProxy( Network::HttpProxyConfig& cfg )
+{
+    cfg = Network::HttpProxyConfig();
+    Settings& setts = Settings::common();
+    bool useproxy = false;
+    setts.getYN( Network::sKeyUseProxy(), useproxy );
+    if ( !useproxy )
+	return false;
+
+    BufferString host;
+    setts.get( Network::sKeyProxyHost(), host );
+    if ( host.isEmpty() )
+	return false;
+
+    int port = 1;
+    setts.get( Network::sKeyProxyPort(), port );
+    // Port 1 is the value stored when no proxy was configured.
+    if ( port<=1 || port>65535 )
+	return false;
+
+    cfg.type_ = Network::HttpProxyConfig::Type::Http;
+    cfg.authority_.setHost( host.buf() ).setPort( mCast(PortNr_Type,port) );
+
+    bool auth = false;
+    setts.getYN( Network::sKeyUseAuthentication(), auth );
+    if ( !auth )
+	return true;
+
+    setts.get( Network::sKeyProxyUserName(), cfg.username_ );
+    BufferString password;
+    bool iscrypt = false;
+    setts.get( Network::sKeyProxyPassword(), password );
+    if ( setts.getYN(Network::sKeyCryptProxyPassword(),iscrypt) && iscrypt )
+    {
+	uiString str;
+	str.setFromHexEncoded( password );
+	password = toString( str );
+    }
+
+    if ( password.isEmpty() )
+	fillUnsavedProxyPassword( host.buf(), port, cfg.username_.buf(),
+				  password );
+
+    cfg.password_ = password;
+    return true;
+}
+
+
+static Network::HttpProxyConfig configFromQueryProxy( const QNetworkProxy& qp )
+{
+    Network::HttpProxyConfig cfg;
+    if ( qp.type()==QNetworkProxy::HttpProxy ||
+	 qp.type()==QNetworkProxy::HttpCachingProxy )
+	cfg.type_ = Network::HttpProxyConfig::Type::Http;
+    else if ( qp.type() == QNetworkProxy::Socks5Proxy )
+	cfg.type_ = Network::HttpProxyConfig::Type::Socks5;
+    else
+	return cfg;
+
+    if ( qp.hostName().isEmpty() )
+    {
+	cfg.type_ = Network::HttpProxyConfig::Type::Unset;
+	return cfg;
+    }
+
+    const BufferString host( qp.hostName() );
+    const int port = qp.port() > 0 ? qp.port() : 8080;
+    cfg.authority_.setHost( host.buf() ).setPort( mCast(PortNr_Type,port) );
+    cfg.username_ = BufferString( qp.user() );
+    cfg.password_ = BufferString( qp.password() );
+    return cfg;
+}
+
+
+static bool sameProxyEndpoint( const Network::HttpProxyConfig& a,
+			       const Network::HttpProxyConfig& b )
+{
+    if ( a.type_ != b.type_ )
+	return false;
+
+    if ( a.type_ == Network::HttpProxyConfig::Type::Direct )
+	return true;
+
+    return a.authority_.getPort()==b.authority_.getPort() &&
+	   a.authority_.getHost().isEqual( b.authority_.getHost().buf(),
+					   OD::CaseInsensitive );
+}
+
+
+static void addProxyCandidate(
+		ManagedObjectSet<Network::HttpProxyConfig>& cands,
+		const Network::HttpProxyConfig& cfg )
+{
+    if ( cfg.type_ == Network::HttpProxyConfig::Type::Unset )
+	return;
+
+    if ( cfg.type_!=Network::HttpProxyConfig::Type::Direct &&
+	 cfg.authority_.getHost().isEmpty() )
+	return;
+
+    for ( int idx=0; idx<cands.size(); idx++ )
+    {
+	Network::HttpProxyConfig& have = *cands.get( idx );
+	if ( !sameProxyEndpoint(have,cfg) )
+	    continue;
+
+	const bool takeuser = have.username_.isEmpty() &&
+			      !cfg.username_.isEmpty();
+	const bool takepwd = have.password_.isEmpty() &&
+			     !cfg.password_.isEmpty() &&
+			     (takeuser || have.username_==cfg.username_);
+	if ( takeuser )
+	    have.username_ = cfg.username_;
+	if ( takepwd )
+	    have.password_ = cfg.password_;
+
+	return;
+    }
+
+    cands.add( new Network::HttpProxyConfig(cfg) );
+}
+
+
+static Network::HttpProxyConfig* newDirectProxy()
+{
+    auto* cfg = new Network::HttpProxyConfig;
+    cfg->type_ = Network::HttpProxyConfig::Type::Direct;
+    return cfg;
+}
+
+
+static void collectDownloadProxies( const char* url,
+			ManagedObjectSet<Network::HttpProxyConfig>& cands )
+{
+    cands.erase();
+    const QUrl qurl( url ? url : "" );
+    const BufferString host( qurl.host() );
+    const char* noproxy = noProxyEnv();
+    if ( noproxy && Network::proxyExcludesHost(host.buf(),noproxy) )
+    {
+	cands.add( newDirectProxy() );
+	return;
+    }
+
+    Network::HttpProxyConfig session;
+    if ( copySessionProxy(session) )
+	addProxyCandidate( cands, session );
+
+    Network::HttpProxyConfig envproxy;
+    if ( Network::environmentProxyFor(url,envproxy) )
+	addProxyCandidate( cands, envproxy );
+
+    const QNetworkProxyQuery query( qurl );
+    const QList<QNetworkProxy> systemproxies =
+			QNetworkProxyFactory::systemProxyForQuery( query );
+    for ( int idx=0; idx<systemproxies.size(); idx++ )
+	addProxyCandidate( cands, configFromQueryProxy(systemproxies.at(idx)) );
+
+    Network::HttpProxyConfig direct;
+    direct.type_ = Network::HttpProxyConfig::Type::Direct;
+    addProxyCandidate( cands, direct );
+
+    Network::HttpProxyConfig stored;
+    if ( readStoredProxy(stored) )
+	addProxyCandidate( cands, stored );
+}
+
+
+Network::HttpProxyConfig Network::preferredDownloadProxy( const char* url )
+{
+    ManagedObjectSet<HttpProxyConfig> cands;
+    collectDownloadProxies( url, cands );
+    if ( cands.isEmpty() )
+    {
+	HttpProxyConfig direct;
+	direct.type_ = HttpProxyConfig::Type::Direct;
+	return direct;
+    }
+
+    return *cands.first();
+}
+
+
+static bool routeCanDownload( Network::HttpRequestProcess::FailureKind kind,
+			      int status )
+{
+    if ( kind == Network::HttpRequestProcess::FailureKind::NoFailure )
+	return true;
+
+    return kind==Network::HttpRequestProcess::FailureKind::HttpFailure &&
+	   ( status==405 || status==501 );
+}
+
+
+static bool routeReachedServer( Network::HttpRequestProcess::FailureKind kind,
+				int status )
+{
+    if ( kind == Network::HttpRequestProcess::FailureKind::NoFailure )
+	return true;
+
+    return kind==Network::HttpRequestProcess::FailureKind::HttpFailure &&
+	   status>=200 && status!=407;
+}
+
+
+static bool proxydialogdismissed_ = false;
+
+
+static bool probeHead( const char* url, const Network::HttpProxyConfig& proxy,
+		Network::HttpRequestProcess::FailureKind& kind,
+		int& status, od_int64& size, uiRetVal& errmsg, uiString& msg )
+{
+    kind = Network::HttpRequestProcess::FailureKind::ConnectFailure;
+    status = 0;
+    size = -1;
+    if ( proxy.type_ == Network::HttpProxyConfig::Type::Direct )
+	msg = od_static_tr( "probeHead", "Determining size of %1" ).arg( url );
+    else
+    {
+	const BufferString proxyhost = proxy.authority_.getHost();
+	msg = od_static_tr( "probeHead", "Determining size of %1 via %2" )
+		    .arg( url ).arg( proxyhost );
+    }
+
+    RefMan<Network::HttpRequest> req =
+	new Network::HttpRequest( url, Network::HttpRequest::Head );
+    req->setProxyConfig( proxy );
+    req->setTransferTimeout( cProxyProbeTimeoutMs );
+    RefMan<Network::HttpRequestProcess> odnr =
+		Network::HttpRequestManager::instance().request( req.ptr() );
+    if ( !odnr )
+    {
+	errmsg = od_static_tr( "probeHead",
+			       "Cannot start request for %1" ).arg( url );
+	return false;
+    }
+
+    odnr->waitForFinish( cProxyProbeTimeoutMs + 5000 );
+    if ( odnr->isRunning() )
+    {
+	errmsg = od_static_tr( "probeHead",
+			       "Connection to %1 timed out" ).arg( url );
+	return true;
+    }
+
+    status = odnr->httpStatusCode();
+    if ( odnr->isError() )
+	kind = odnr->failureKind();
+    else
+	kind = Network::HttpRequestProcess::FailureKind::NoFailure;
+    if ( status == 407 )
+	kind = Network::HttpRequestProcess::FailureKind::ProxyAuthFailure;
+
+    size = odnr->getContentLengthHeader();
+    if ( mIsUdf(size) || size < 0 )
+	size = 0;
+
+    if ( odnr->isError() )
+	errmsg = odnr->errMsgs();
+
+    return true;
+}
+
+
+static bool selectRoute( const char* url, DownloadRoutes& routes,
+			 od_int64& filesize, uiRetVal& errs, uiString& msg )
+{
+    ManagedObjectSet<Network::HttpProxyConfig> candidates;
+    collectDownloadProxies( url, candidates );
+    bool sawconnect = false;
+    bool sawssl = false;
+    for ( int idx=0; idx<candidates.size(); idx++ )
+    {
+	const Network::HttpProxyConfig& cand = *candidates.get( idx );
+	Network::HttpRequestProcess::FailureKind kind =
+		Network::HttpRequestProcess::FailureKind::ConnectFailure;
+	int status = 0;
+	od_int64 size = -1;
+	uiRetVal attemptmsg;
+	const bool started = probeHead( url, cand, kind, status, size,
+					attemptmsg, msg );
+	if ( !started )
+	{
+	    sawconnect = true;
+	    if ( !attemptmsg.isOK() )
+		errs.add( attemptmsg );
+	    continue;
+	}
+
+	if ( routeReachedServer(kind,status) && !routeCanDownload(kind,status) )
+	{
+	    rememberSessionProxy( cand );
+	    routes.urlproxies.add( new Network::HttpProxyConfig(cand) );
+	    filesize = -1;
+	    if ( !attemptmsg.isOK() )
+		errs.add( attemptmsg );
+	    else
+		errs.add( od_static_tr("selectRoute",
+				       "Server rejected %1").arg(url) );
+
+	    return false;
+	}
+
+	if ( routeCanDownload(kind,status) )
+	{
+	    rememberSessionProxy( cand );
+	    routes.urlproxies.add( new Network::HttpProxyConfig(cand) );
+	    filesize = size < 0 ? 0 : size;
+	    return true;
+	}
+
+	if ( kind == Network::HttpRequestProcess::FailureKind::SslFailure )
+	    sawssl = true;
+	else
+	    sawconnect = true;
+
+	if ( !attemptmsg.isOK() )
+	    errs.add( attemptmsg );
+    }
+
+    if ( sawssl && !sawconnect )
+    {
+	errs.add( od_static_tr("selectRoute",
+		"The server certificate could not be verified.") );
+	routes.urlproxies.add( newDirectProxy() );
+	filesize = -1;
+	return false;
+    }
+
+    if ( routes.askproxydialog && !proxydialogdismissed_ &&
+	 (sawconnect || candidates.isEmpty()) )
+    {
+	if ( !Network::getProxySettingsFromUser() )
+	    proxydialogdismissed_ = true;
+	else
+	{
+	    Network::HttpProxyConfig manual;
+	    if ( readStoredProxy(manual) )
+	    {
+		Network::HttpRequestProcess::FailureKind kind =
+		Network::HttpRequestProcess::FailureKind::ConnectFailure;
+		int status = 0;
+		od_int64 size = -1;
+		uiRetVal attemptmsg;
+		probeHead( url, manual, kind, status, size, attemptmsg, msg );
+		if ( routeCanDownload(kind,status) )
+		{
+		    rememberSessionProxy( manual );
+		    routes.urlproxies.add(
+				new Network::HttpProxyConfig(manual) );
+		    filesize = size < 0 ? 0 : size;
+		    return true;
+		}
+
+		if ( routeReachedServer(kind,status) )
+		{
+		    rememberSessionProxy( manual );
+		    routes.urlproxies.add(
+				new Network::HttpProxyConfig(manual) );
+		    filesize = -1;
+		    if ( !attemptmsg.isOK() )
+			errs.add( attemptmsg );
+
+		    return false;
+		}
+
+		if ( !attemptmsg.isOK() )
+		    errs.add( attemptmsg );
+	    }
+	}
+    }
+
+    routes.urlproxies.add( newDirectProxy() );
+    filesize = -1;
+    return false;
+}
+
+
+static HiddenParam<FileDownloader,DownloadRoutes*> hp_filedl_( nullptr );
+
+
+static DownloadRoutes& fileDownloaderRoutes( FileDownloader& dl )
+{
+    return *hp_filedl_.getParam( &dl );
+}
+
+
 od_int64 FileDownloaderTask::getDownloadSize()
 {
     od_int64 totalbytes = 0;
     filesizes_.setEmpty();
+    routes_.urlproxies.erase();
     bool anyfailed = false;
     for ( int idx=0; idx<urls_.size(); idx++ )
     {
 	const char* url = urls_.get( idx ).buf();
-	msg_ = tr( "Determining size of %1" ).arg( url );
-
 	od_int64 filesize = -1;
 	uiRetVal headerr;
-	for ( int attempt=1; attempt<=cMaxSizeCheckRetries; attempt++ )
-	{
-	    odnr_ = Network::HttpRequestManager::instance().head( url );
-	    odnr_->waitForFinish();
-
-	    if ( !odnr_->isError() )
-	    {
-		filesize = odnr_->getContentLengthHeader();
-		odnr_ = nullptr;
-		break;
-	    }
-
-	    headerr = odnr_->errMsgs();
-	    odnr_ = nullptr;
-
-	    if ( attempt < cMaxSizeCheckRetries )
-	    {
-		msg_ = tr( "Retrying size check (%1/%2): %3" )
-			.arg( attempt ).arg( cMaxSizeCheckRetries ).arg( url );
-		Threads::sleep( cSizeCheckRetryDelaySec );
-	    }
-	}
-
-	filesizes_ += filesize;
-	if ( filesize < 0 )
+	if ( !selectRoute(url,routes_,filesize,headerr,msg_) )
 	{
 	    anyfailed = true;
 	    uirv_.add( tr("Cannot determine size of %1").arg(url) );
 	    if ( !headerr.isOK() )
 		uirv_.add( headerr );
+	    if ( !routes_.urlproxies.validIdx(idx) )
+		routes_.urlproxies.add( newDirectProxy() );
 	}
-	else if ( !mIsUdf(filesize) )
+	else if ( !mIsUdf(filesize) && filesize > 0 )
 	    totalbytes += filesize;
+
+	filesizes_ += filesize;
     }
 
     odnr_ = nullptr;
@@ -420,19 +1033,28 @@ bool FileDownloaderTask::startDownload()
 	    osd_->close();
     }
 
+    RefMan<Network::HttpRequest> req =
+	new Network::HttpRequest( url, Network::HttpRequest::Get );
+    if ( routes_.urlproxies.validIdx(currurlidx_) &&
+	 routes_.urlproxies.get(currurlidx_) )
+	req->setProxyConfig( *routes_.urlproxies.get(currurlidx_) );
+    else
+	req->setProxyConfig( Network::preferredDownloadProxy(url) );
+
     if ( userange )
     {
-	RefMan<Network::HttpRequest> req =
-	    new Network::HttpRequest( url, Network::HttpRequest::Get );
 	BufferString hdrstr( "bytes=", bytesondisk_, "-" );
 	req->setRawHeader( "Range", hdrstr.str() );
-	odnr_ = Network::HttpRequestManager::instance().request( req.ptr() );
 	rangerequested_ = true;
     }
     else
-    {
-	odnr_ = Network::HttpRequestManager::instance().get( url );
 	rangerequested_ = false;
+
+    odnr_ = Network::HttpRequestManager::instance().request( req.ptr() );
+    if ( !odnr_ )
+    {
+	uirv_.add( tr("Cannot start request for %1").arg(url) );
+	return false;
     }
 
     if ( retrycount_ > 0 )
@@ -814,6 +1436,7 @@ FileDownloader::FileDownloader( const BufferStringSet& urls,
     , urls_( urls )
 {
     OD::OpenSSLAccess::loadOpenSSL(); //Keep at the first line
+    hp_filedl_.setParam( this, new DownloadRoutes );
     totalnr_ = getDownloadSize();
 }
 
@@ -823,6 +1446,7 @@ FileDownloader::FileDownloader( const char* url, DataBuffer& db )
     , databuffer_(&db)
 {
     OD::OpenSSLAccess::loadOpenSSL(); //Keep at the first line
+    hp_filedl_.setParam( this, new DownloadRoutes );
     urls_.add(url);
     totalnr_ = getDownloadSize();
 }
@@ -833,12 +1457,16 @@ FileDownloader::FileDownloader( const char* url )
     , osd_(new od_ostream())
 {
     OD::OpenSSLAccess::loadOpenSSL(); //Keep at the first line
+    auto* routes = new DownloadRoutes;
+    routes->askproxydialog = false;
+    hp_filedl_.setParam( this, routes );
     urls_.add(url);
 }
 
 
 FileDownloader::~FileDownloader()
 {
+    hp_filedl_.removeAndDeleteParam( this );
     delete osd_;
 }
 
@@ -855,7 +1483,18 @@ int FileDownloader::nextStep()
 	    return Finished();
 
 	const char* url = urls_.get(nrfilesdownloaded_).buf();
-	odnr_ = Network::HttpRequestManager::instance().get( url );
+	RefMan<Network::HttpRequest> req =
+	    new Network::HttpRequest( url, Network::HttpRequest::Get );
+	DownloadRoutes& routes = fileDownloaderRoutes( *this );
+	if ( routes.urlproxies.validIdx(nrfilesdownloaded_) &&
+	     routes.urlproxies.get(nrfilesdownloaded_) )
+	    req->setProxyConfig( *routes.urlproxies.get(nrfilesdownloaded_) );
+	else
+	    req->setProxyConfig( Network::preferredDownloadProxy(url) );
+
+	odnr_ = Network::HttpRequestManager::instance().request( req.ptr() );
+	if ( !odnr_ )
+	    return errorOccured();
     }
 
     if ( odnr_->isError() )
@@ -882,22 +1521,40 @@ int FileDownloader::nextStep()
 
 od_int64 FileDownloader::getDownloadSize()
 {
+    DownloadRoutes& routes = fileDownloaderRoutes( *this );
     od_int64 totalbytes = 0;
+    routes.urlproxies.erase();
+    bool anyfailed = false;
+    uiRetVal errs;
     for ( int idx=0; idx<urls_.size(); idx++ )
     {
 	const char* url = urls_.get(idx).buf();
-	odnr_ = Network::HttpRequestManager::instance().head( url );
-	odnr_->waitForFinish();
-
-	if ( odnr_->isError() )
-	    return errorOccured();
-
-
-	od_int64 filesize = odnr_->getContentLengthHeader();
-	totalbytes += filesize;
+	od_int64 filesize = -1;
+	uiRetVal headerr;
+	if ( !selectRoute(url,routes,filesize,headerr,msg_) )
+	{
+	    anyfailed = true;
+	    errs.add( tr("Cannot determine size of %1").arg(url) );
+	    if ( !headerr.isOK() )
+		errs.add( headerr );
+	    if ( !routes.urlproxies.validIdx(idx) )
+		routes.urlproxies.add( newDirectProxy() );
+	}
+	else if ( !mIsUdf(filesize) && filesize > 0 )
+	    totalbytes += filesize;
     }
 
     odnr_ = nullptr;
+    if ( anyfailed && urls_.size()==1 )
+    {
+	msg_ = errs.isOK() ? tr( "Cannot determine download size" )
+			   : errs.messages().cat();
+	return -1;
+    }
+
+    if ( !anyfailed )
+	msg_.setEmpty();
+
     return totalbytes;
 }
 
@@ -1094,6 +1751,15 @@ bool Network::uploadQuery( const char* url, const IOPar& querypars,
 }
 
 
+struct UploadRoute
+{
+    Network::HttpProxyConfig	proxy;
+    char			routeok		= 0;
+    char			askproxydialog	= 1;
+};
+
+static HiddenParam<DataUploader,UploadRoute*> hp_upload_( nullptr );
+
 DataUploader::DataUploader( const char* url, const DataBuffer& data,
 			    BufferString& header )
     : SequentialTask("Uploading data")
@@ -1104,11 +1770,31 @@ DataUploader::DataUploader( const char* url, const DataBuffer& data,
 {
     OD::OpenSSLAccess::loadOpenSSL(); //Keep at the first line
     readTimeOutFromSettings();
+    auto* route = new UploadRoute;
+    hp_upload_.setParam( this, route );
+
+    DownloadRoutes routes;
+    routes.askproxydialog = route->askproxydialog;
+    od_int64 filesize = -1;
+    uiRetVal errs;
+    uiString probedmsg;
+    const bool ok = selectRoute( url_.buf(), routes, filesize, errs,
+				 probedmsg );
+    route->routeok = ok ? 1 : 0;
+    if ( ok && !routes.urlproxies.isEmpty() )
+	route->proxy = *routes.urlproxies.first();
+    else if ( !errs.isOK() )
+	msg_ = errs.messages().cat();
+    else if ( !probedmsg.isEmpty() )
+	msg_ = probedmsg;
+    else if ( !ok )
+	msg_ = tr( "Cannot connect to %1" ).arg( url_ );
 }
 
 
 DataUploader::~DataUploader()
 {
+    hp_upload_.removeAndDeleteParam( this );
 }
 
 
@@ -1125,9 +1811,14 @@ void DataUploader::readTimeOutFromSettings()
 
 bool DataUploader::startUpload()
 {
+    UploadRoute* route = hp_upload_.getParam( this );
+    if ( !route || !route->routeok )
+	return false;
+
     nrdone_ = 0;
     RefMan<Network::HttpRequest> req = new Network::HttpRequest( url_,
 					   Network::HttpRequest::Post );
+    req->setProxyConfig( route->proxy );
     req->contentType( header_ );
     req->payloadData( data_ );
     odnr_ = Network::HttpRequestManager::instance().request( req.ptr() );
@@ -1242,31 +1933,23 @@ void Network::setHttpProxyFromSettings()
     Settings& setts = Settings::common();
     bool auth = false;
     setts.getYN( Network::sKeyUseAuthentication(), auth );
-    if ( !auth )
+    if ( auth )
     {
-	setHttpProxyFromIOPar( setts );
-	return;
+	BufferString password;
+	bool iscrypt = false;
+	setts.get( Network::sKeyProxyPassword(), password );
+	if ( !password.isEmpty() &&
+	     !setts.getYN(Network::sKeyCryptProxyPassword(),iscrypt) )
+	{
+	    uiString str = toUiString( password );
+	    str.getHexEncoded( password );
+	    setts.set( Network::sKeyProxyPassword(), password );
+	    setts.setYN( Network::sKeyCryptProxyPassword(), true );
+	    setts.write();
+	}
     }
 
-    IOPar parcp( setts );
-    BufferString password;
-    bool iscrypt = false;
-    parcp.get( Network::sKeyProxyPassword(), password );
-    if ( password.isEmpty() )
-    {
-	getProxySettingsFromUser();
-	return;
-    }
-    else if ( !setts.getYN(Network::sKeyCryptProxyPassword(),iscrypt) )
-    {
-	uiString str = toUiString( password );
-	str.getHexEncoded( password );
-	setts.set( Network::sKeyProxyPassword(), password );
-	setts.setYN( Network::sKeyCryptProxyPassword(), true );
-	setts.write();
-    }
-
-    setHttpProxyFromIOPar( parcp );
+    setHttpProxyFromIOPar( setts );
 }
 
 
@@ -1276,6 +1959,7 @@ void Network::setHttpProxyFromIOPar( const IOPar& pars )
     pars.getYN( Network::sKeyUseProxy(), useproxy );
     if ( !useproxy )
     {
+	clearUnsavedProxyPassword();
 	QNetworkProxy proxy;
 	proxy.setType( QNetworkProxy::NoProxy );
 	QNetworkProxy::setApplicationProxy( proxy );
@@ -1285,7 +1969,11 @@ void Network::setHttpProxyFromIOPar( const IOPar& pars )
     BufferString host;
     pars.get( Network::sKeyProxyHost(), host );
     if ( host.isEmpty() )
+    {
+	clearUnsavedProxyPassword();
+	setHttpProxy( nullptr, 0 );
 	return;
+    }
 
     int port = 1;
     pars.get( Network::sKeyProxyPort(), port );
@@ -1308,10 +1996,14 @@ void Network::setHttpProxyFromIOPar( const IOPar& pars )
 	    password = toString( str );
 	}
 
+	setUnsavedProxyPassword( host, port, username, password );
 	Network::setHttpProxy( host, port, auth, username, password );
     }
     else
+    {
+	clearUnsavedProxyPassword();
 	Network::setHttpProxy( host, port );
+    }
 }
 
 
@@ -1323,19 +2015,13 @@ bool Network::getProxySettingsFromUser()
     return inst->setFromUser();
 }
 
-void Network::setHttpProxy( const char* hostname, int port, bool auth,
-			    const char* username, const char* password )
+void Network::setHttpProxy( const char*, int, bool, const char*, const char* )
 {
+    // HTTP proxies cannot listen. Installing one as the application proxy
+    // makes QTcpServer::listen() fail, so every candidate port looks busy.
+    // Downloads apply the saved or environment proxy on each request.
     QNetworkProxy proxy;
-    proxy.setType( QNetworkProxy::DefaultProxy );
-    proxy.setHostName( hostname );
-    proxy.setPort( port );
-    if ( auth )
-    {
-	proxy.setUser( username );
-	proxy.setPassword( password );
-    }
-
+    proxy.setType( QNetworkProxy::NoProxy );
     QNetworkProxy::setApplicationProxy( proxy );
 }
 
