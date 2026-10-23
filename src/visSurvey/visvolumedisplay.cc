@@ -1146,7 +1146,8 @@ bool VolumeDisplay::setVolumeDataPack( int attrib, VolumeDataPack* voldp,
     }
 
     tkzs.hsamp_.survid_ = s3dgeom_->geomSystem();
-    scalarfield_->setScalarField( attrib, usedarray, !arrayismine, tkzs, taskr);
+    scalarfield_->setScalarField( attrib, usedarray, !arrayismine,
+				  tkzs, nullptr );
 
     setTrcKeyZSampling( getTrcKeyZSampling(true,true,0) );
 
