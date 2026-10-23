@@ -86,7 +86,7 @@ OD_USE_VSG()
 if ( UNIX )
     if ( NOT TARGET Fontconfig::Fontconfig OR NOT TARGET Freetype::Freetype )
 	message( SEND_ERROR
-	    "Fontconfig and Freetype are required to build text on Linux" )
+	    "Fontconfig and Freetype are required to build text on Unix" )
     else()
 	list( APPEND OD_MODULE_EXTERNAL_LIBS
 	      Fontconfig::Fontconfig Freetype::Freetype )

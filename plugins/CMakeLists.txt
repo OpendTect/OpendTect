@@ -39,10 +39,7 @@ if ( NOT OD_NO_QPRINTSUPPORT )
 endif()
 
 if ( NOT OD_NO_VSG )
-    list( APPEND OD_PLUGINS vsgBase vsgSurvey )
-    if ( NOT OD_NO_OSG )
-	list( APPEND OD_PLUGINS uiVSG )
-    endif()
+    list( APPEND OD_PLUGINS vsgBase vsgSurvey uiVSG )
 endif()
 
 if ( NOT OD_NO_OSG )
