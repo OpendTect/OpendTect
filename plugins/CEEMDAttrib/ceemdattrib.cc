@@ -127,7 +127,7 @@ const char* CEEMD::transOutputNamesStr(int type)
 
 void CEEMD::updateDesc( Desc& desc )
 {
-    int nyquist = mCast( int, 1.f/(2.f*SI().zStep()));
+    int nyquist = sCast( int, 1.f/(2.f*SI().zStep()));
     if ( desc.getValParam(usetfpanelStr())->getBoolValue() )
     {
 	desc.setNrOutputs( Seis::UnknowData, nyquist+1 );
@@ -146,7 +146,7 @@ void CEEMD::updateDesc( Desc& desc )
     {
 	float stepoutfreq =  desc.getValParam(stepoutfreqStr())->getFValue();
 
-	const float nyqfreq = 0.5f / mCast(float,SI().zStep());
+	const float nyqfreq = 0.5f / sCast(float,SI().zStep());
 	const int nrattribs = (int)( nyqfreq / stepoutfreq );
 	desc.setNrOutputs( Seis::UnknowData, nrattribs );
     }
@@ -233,7 +233,7 @@ bool CEEMD::computeData( const DataHolder& output, const BinID& /* relpos */,
 				.stopimf(stopimf_)
 				    , inpsz, gen_ );
 
-    int nyquist = mCast( int, 1.f/(2.f*SI().zStep()));
+    int nyquist = sCast( int, 1.f/(2.f*SI().zStep()));
     int first = 0;
     int last = 0;
     getFirstAndLastOutEnabled(first, last);

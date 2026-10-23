@@ -901,7 +901,7 @@ void Pos::IdxPairDataSet::randomSubselect( GlobIdxType maxsz )
 	IdxPair ip;
 	for ( GlobIdxType idx=0; idx<sposs.size(); idx++ )
 	{
-	    const void* data = get( sposs[mCast(int,idx)], ip );
+	    const void* data = get( sposs[sCast(int,idx)], ip );
 	    SPos newspos = newds.add( ip, data );
 	    if ( !newspos.isValid() )
 		{ mHandleMemFull() return; }

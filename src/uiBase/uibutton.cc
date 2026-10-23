@@ -913,7 +913,7 @@ void uiToolButton::setArrowType( ArrowType type )
 
 void uiToolButton::setToolButtonStyle( ButtonStyle style )
 {
-    auto qstyle = mCast(Qt::ToolButtonStyle,style);
+    auto qstyle = sCast(Qt::ToolButtonStyle,style);
     tbbody_->setToolButtonStyle( qstyle );
 }
 
@@ -921,7 +921,7 @@ void uiToolButton::setToolButtonStyle( ButtonStyle style )
 uiToolButton::ButtonStyle uiToolButton::toolButtonStyle() const
 {
     auto qstyle = tbbody_->toolButtonStyle();
-    return mCast(ButtonStyle,qstyle);
+    return sCast(ButtonStyle,qstyle);
 }
 
 
@@ -946,14 +946,14 @@ void uiToolButton::setMenu( uiMenu* mnu, PopupMode mode )
 	{
 	    QSize size = tbbody_->size();
 	    const int wdth =
-		hasmenu ? mCast(int,1.5*size.height()) : size.height();
+		hasmenu ? sCast(int,1.5*size.height()) : size.height();
 	    size.setWidth( wdth );
 	    tbbody_->resize( size );
 	}
 	else
 	{
 	    const int wdth =
-		hasmenu ? mCast(int,1.5*prefVNrPics()) : prefVNrPics();
+		hasmenu ? sCast(int,1.5*prefVNrPics()) : prefVNrPics();
 	    tbbody_->setPrefWidth( wdth );
 	}
     }

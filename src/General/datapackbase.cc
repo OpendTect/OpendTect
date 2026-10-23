@@ -110,8 +110,8 @@ public:
     MapDataPackXYRotator( MapDataPack& mdp )
 	: mdp_( mdp )
     {
-	float anglenorth = mCast(float,
-		 Math::Abs( mCast(double,SI().angleXInl()) - 90.*mDeg2RadD ) );
+	float anglenorth = sCast(float,
+		 Math::Abs( sCast(double,SI().angleXInl()) - 90.*mDeg2RadD ) );
 	if ( anglenorth > M_PI_2f )
 	    anglenorth =  M_PIf - anglenorth;
 
@@ -174,7 +174,7 @@ public:
 	iter.setPos( startpos );
 
 	BinID toreach00;
-	const int nriters = mCast( int, stop-start+1 );
+	const int nriters = sCast( int, stop-start+1 );
 	for ( od_int64 idx=0; idx<nriters && shouldContinue();
 		idx++, iter.next(), addToNrDone(1) )
 	{

@@ -196,7 +196,7 @@ unsigned short DataPointSet::DataRow::group() const
 void DataPointSet::DataRow::setGroup( unsigned short newgrp )
 {
     grp_ = grp_ >= 0 ? newgrp : -newgrp;
-    grp_ = mCast( short, getCompacted( -1, newgrp ) );
+    grp_ = sCast( short, getCompacted( -1, newgrp ) );
 }
 
 
@@ -734,7 +734,7 @@ void DataPointSet::setGroup( DataPointSet::RowID rid, unsigned short newgrp )
 
     mChkRowID(rid,);
     int grp = getCompacted( -1, newgrp ) ;
-    bivSet().getVals( bvsidxs_[rid] )[ groupcol_ ] = mCast( float, grp );
+    bivSet().getVals( bvsidxs_[rid] )[ groupcol_ ] = sCast( float, grp );
 }
 
 
@@ -746,7 +746,7 @@ void DataPointSet::setSelected( DataPointSet::RowID rid, int selgrp )
     mChkRowID(rid,);
     short grp = (short)group( rid );
     bivSet().getVals( bvsidxs_[rid] )[ groupcol_ ] =
-				  mCast( float, getCompacted( selgrp, grp) );
+				  sCast( float, getCompacted( selgrp, grp) );
 }
 
 
@@ -800,7 +800,7 @@ float DataPointSet::nrKBytes() const
     const int twointsz = 2 * sizeof(int);
     const float rowsz =
 	sKb2MbFac() * (twointsz + bivSet().nrVals()*sizeof(float));
-    const int nrrows = mCast( int, bivSet().totalSize() );
+    const int nrrows = sCast( int, bivSet().totalSize() );
     return nrrows * (rowsz + twointsz);
 }
 
@@ -1142,7 +1142,7 @@ bool DPSFromVolumeFiller::doWork( od_int64 start, od_int64 stop, int thridx )
     const SamplingData<float> sd( zsamp.start_, zsamp.step_ );
     for ( od_int64 idx=start; idx<=stop; idx++ )
     {
-	const DataPointSet::RowID rid = mCast(int,idx);
+	const DataPointSet::RowID rid = sCast(int,idx);
 	BinID bid = dps_->binID( rid );
 
 	if ( sampling_ )

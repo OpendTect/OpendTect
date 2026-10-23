@@ -545,8 +545,8 @@ mDefParallelCalcBody
      ,
 	const int iidx = iter[0];
 	const int iidy = iter[1];
-	Geom::Point2D<double> pos( mCast(double,iidx + origin_.inl()),
-				   mCast(double,iidy + origin_.crl()) );
+	Geom::Point2D<double> pos( sCast(double,iidx + origin_.inl()),
+				   sCast(double,iidy + origin_.crl()) );
 	if ( !poly_->isInside(pos,true,0) )
 	    arr_.set( iidx, iidy, mUdf(float) );
 
@@ -605,8 +605,8 @@ void Array2DInterpol::setFrom( od_int64 target, const od_int64* sources,
 	{
 	    mDoLoop( const od_int64 src = sources[idx];
 	        const float val =
-		  arr_->get(mCast(int,src/nrcols_),mCast(int,src%nrcols_) ) );
-	    arr_->set( mCast(int,target/nrcols_), mCast(int,target%nrcols_),
+		  arr_->get(sCast(int,src/nrcols_),sCast(int,src%nrcols_) ) );
+	    arr_->set( sCast(int,target/nrcols_), sCast(int,target%nrcols_),
 		isclassification_
 		? (float) calc.mostFreq()
 		: (float) calc.average());
@@ -1026,8 +1026,8 @@ bool InverseDistanceArray2DInterpol::doWork( od_int64, od_int64, int)
 		    break;
 		}
 
-		const float sourcerow = mCast(float,source/nrcols_);
-		const float sourcecol = mCast(float,source%nrcols_);
+		const float sourcerow = sCast(float,source/nrcols_);
+		const float sourcecol = sCast(float,source%nrcols_);
 
 		const float rowdist = (targetrow-sourcerow)*rowstep_;
 		const float rowdist2 = rowdist*rowdist;
@@ -1143,8 +1143,8 @@ public:
 	    if ( curdefined_[idx] || !nodestofill_[idx] )
 		continue;
 
-	    const int col = mCast(int,idx%nrcols_);
-	    const int row = mCast(int,idx/nrcols_);
+	    const int col = sCast(int,idx%nrcols_);
+	    const int row = sCast(int,idx/nrcols_);
 
 	    int nrsources = 0;
 
@@ -1546,7 +1546,7 @@ bool TriangulationArray2DInterpol::initFromArray( TaskRunner* taskrunner )
 	const Coord pos( curbid.inl(), curbid.crl() );
 	(*coordlist) += pos;
 	coordlistindices_ += corneridx_[idx];
-	cornerval_[idx] =  mCast(float,avgz/nrdef);
+	cornerval_[idx] =  sCast(float,avgz/nrdef);
 
 	trendpts += pos;
 	trendvals += cornerval_[idx];
@@ -1689,13 +1689,13 @@ bool TriangulationArray2DInterpol::doWork( od_int64, od_int64, int thread )
 		}
 
 		trend_->apply( Coord(pos[0],pos[1]), false, val );
-		arr_->set( pos[0], pos[1], mCast(float,val) );
+		arr_->set( pos[0], pos[1], sCast(float,val) );
 	    }
 	    else
 	    {
 		TypeSet<float> weights;
 		for ( int widx=0; widx<weightsd.size(); widx++ )
-		    weights += mCast(float,weightsd[widx]);
+		    weights += sCast(float,weightsd[widx]);
 
 		TypeSet<od_int64> usedindices;
 		for ( int vidx=0; vidx<sz; vidx++ )
@@ -1824,7 +1824,7 @@ bool Extension2DInterpolExecutor::doInterpolate( int irow, int icol )
     float val;
     if ( interpExtension(irow,icol,val) )
     {
-	state_[irow][icol] = mCast(short,curlvl_ + 1);
+	state_[irow][icol] = sCast(short,curlvl_ + 1);
 	aie_.arr_->set( irow, icol, val );
 	return true;
     }

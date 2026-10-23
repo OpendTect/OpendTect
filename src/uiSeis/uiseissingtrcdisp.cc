@@ -55,7 +55,7 @@ void uiSeisSingleTraceDisplay::setData( const Wavelet* wvlt )
 	//TODO: update once the wavelet has a ZDomain
 	//const ZDomain::Info& zdomain = wvlt->zDomain();
 	const ZDomain::Info& zdomain = SI().zDomainInfo();
-	const float zfac = mCast( float, zdomain.userFactor() );
+	const float zfac = sCast( float, zdomain.userFactor() );
 
 	auto* fva2d = new Array2DImpl<float>( 1, wvltsz );
 	dp = new FlatDataPack( "Wavelet", fva2d );
@@ -86,7 +86,7 @@ void uiSeisSingleTraceDisplay::setData( const SeisTrc* trc, const char* nm,
     if ( trc )
     {
 	const int trcsz = trc->size();
-	const float zfac = mCast( float, zdomain.userFactor() );
+	const float zfac = sCast( float, zdomain.userFactor() );
 
 	auto* fva2d = new Array2DImpl<float>( 1, trcsz );
 	dp = new FlatDataPack( "Wavelet", fva2d );
@@ -121,7 +121,7 @@ void uiSeisSingleTraceDisplay::setData( const SeisTrc* trc, const char* nm,
 
 void uiSeisSingleTraceDisplay::addRefZ( float zref )
 {
-    const float zfac = mCast( float, SI().zDomain().userFactor() );
+    const float zfac = sCast( float, SI().zDomain().userFactor() );
     if ( SI().zIsTime() )
 	zref *= zfac;
 

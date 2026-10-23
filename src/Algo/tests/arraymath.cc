@@ -15,7 +15,7 @@ using namespace ArrayMath;
 static bool testSmallFloatArray( Array1D<float>& prices,
 				 Array1D<float>& milage )
 {
-    const int sz = mCast(int,prices.info().getTotalSz());
+    const int sz = sCast(int,prices.info().getTotalSz());
     Array1DImpl<float> pricesplusmilage( sz ), pricestimesmilage( sz );
     prices.set(  0,   9300.f ); milage.set(  0,  7100.f );
     prices.set(  1,  10565.f ); milage.set(  1, 15500.f );
@@ -116,13 +116,13 @@ static bool testBigVector()
     {
 	const double t = sr * idx;
 	tvecd.set( idx, t );
-	tvec.set( idx, mCast(float,t) );
+	tvec.set( idx, sCast(float,t) );
 	const double coswave = A1 * cos( 2.*M_PI*f1*t );
 	const double sinwave = A2 * sin( 2.*M_PI*f2*t );
 	const double trend = intercept + gradient * t;
 	const double val = coswave + sinwave + trend;
 	data.set( idx, val );
-	dataf.set( idx, mCast(float,val) );
+	dataf.set( idx, sCast(float,val) );
     }
 
     double res = getSum( data, true, true );
@@ -166,7 +166,7 @@ static bool testBigVector()
     //Restore initial signal
     getScaledArray<double>( data, 0, 1., calcavg, true, true );
     for ( int idx=0; idx<sz; idx++ )
-	dataf.set( idx, mCast(float,data.get(idx)) );
+	dataf.set( idx, sCast(float,data.get(idx)) );
 
     if ( !removeTrend<double,double>(data) || !removeTrend<float,float>(dataf))
 	return false;
@@ -178,11 +178,11 @@ static bool testBigVector()
 
     res = getSumSq( data, true, true );
     mRunStandardTest( mIsEqual(res,1711550.3,1e-1), "SumSq no trend - double" )
-    resf = mCast(float,getSumProductD( data, data, true, true ) );
+    resf = sCast(float,getSumProductD( data, data, true, true ) );
     mRunStandardTest( mIsEqual(res,1711550.3f,1e-1f), "SumSq no trend - float" )
     res = getNorm2( data, true, true );
     mRunStandardTest( mIsEqual(res,1308.2623,1e-4), "Norm2 no trend - double" )
-    resf = mCast(float,getNorm2D( dataf, true, true ));
+    resf = sCast(float,getNorm2D( dataf, true, true ));
     mRunStandardTest( mIsEqual(res,1308.2623f,1e-4f), "Norm2 no trend - float" )
     res = getRMS( data, true, true );
     mRunStandardTest( mIsEqual(res,3.7766123,1e-7), "RMS no trend - double" )

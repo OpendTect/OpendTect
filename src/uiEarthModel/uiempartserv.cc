@@ -1432,7 +1432,7 @@ bool uiEMPartServer::changeAuxData( const EM::ObjectID& oid,
 	    bool* maskptr = mask->getData();
 	    if ( maskptr )
 	    {
-		for ( int idx=mCast(int,mask->info().getTotalSz()-1); idx>=0;
+		for ( int idx=sCast(int,mask->info().getTotalSz()-1); idx>=0;
 									idx-- )
 		{
 		    *maskptr = !mIsUdf(*arrptr);

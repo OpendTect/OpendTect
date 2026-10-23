@@ -160,8 +160,8 @@ void uiGraphicsSceneAxis::drawAtPos( float worldpos, bool drawgrid,
 
     mGetItem( uiLineItem, line, tickline );
 
-    Geom::Point2D<float> tickstart( axispos, mCast(float,ticklinestart) );
-    Geom::Point2D<float> tickstop( axispos, mCast(float,ticklinestop) );
+    Geom::Point2D<float> tickstart( axispos, sCast(float,ticklinestart) );
+    Geom::Point2D<float> tickstop( axispos, sCast(float,ticklinestop) );
 
     if ( !isx_ )
     {
@@ -175,8 +175,8 @@ void uiGraphicsSceneAxis::drawAtPos( float worldpos, bool drawgrid,
     if ( drawgridlines_ && drawgrid )
     {
 	mGetItem( uiLineItem, line, gridline );
-        Geom::Point2D<float> gridstart(axispos, mCast(float,datarg.start_));
-        Geom::Point2D<float> gridstop( axispos, mCast(float,datarg.stop_) );
+        Geom::Point2D<float> gridstart(axispos, sCast(float,datarg.start_));
+        Geom::Point2D<float> gridstop( axispos, sCast(float,datarg.stop_) );
 
 	if ( !isx_ )
 	{
@@ -241,18 +241,18 @@ void uiGraphicsSceneAxis::reDraw()
     const int nrsteps = mNINT32( fnrsteps )+2;
     if ( !mIsEqual(rg_.start_,axis.start_,axis.step_/100.f) &&
          (!annotinint_ || mIsEqual(rg_.start_,mNINT32(rg_.start_),1e-4)) )
-        drawAtPos( mCast(float,rg_.start_), false, curtextitm, curlineitm );
+        drawAtPos( sCast(float,rg_.start_), false, curtextitm, curlineitm );
     for ( int idx=0; idx<nrsteps; idx++ )
     {
 	const double worldpos = axis.atIndex(idx);
 	if ( !rg_.includes(worldpos,true) )
 	    continue;
-	drawAtPos( mCast(float,worldpos), true, curtextitm, curlineitm );
+	drawAtPos( sCast(float,worldpos), true, curtextitm, curlineitm );
     }
 
     if ( !mIsEqual(rg_.stop_,axis.atIndex(nrsteps-1),axis.step_/100.f) &&
          (!annotinint_ || mIsEqual(rg_.stop_,mNINT32(rg_.stop_),1e-4)) )
-        drawAtPos( mCast(float,rg_.stop_), false, curtextitm, curlineitm );
+        drawAtPos( sCast(float,rg_.stop_), false, curtextitm, curlineitm );
     while ( curlineitm<lines_.size() )
 	itmgrp_->remove( lines_.pop(), true );
 

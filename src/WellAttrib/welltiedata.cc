@@ -157,7 +157,7 @@ WellTie::Data::Data( const Setup& wts, Well::Data& wdata )
     const float td = track.td();
     float tdtime = d2t->getTime( td, track );
     if ( !mIsUdf(tdtime) && tdtime > stoptime )
-	stoptime = mCast( float, mNINT32(tdtime/cDefSeisSr())*cDefSeisSr() );
+	stoptime = sCast( float, mNINT32(tdtime/cDefSeisSr())*cDefSeisSr() );
 
     SeisIOObjInfo oinf( wts.seisid_ );
     if ( oinf.isOK() )

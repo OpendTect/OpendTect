@@ -217,8 +217,8 @@ bool uiGraphicsItem::isVisible() const
 
 Geom::Point2D<float> uiGraphicsItem::getPos() const
 {
-    return Geom::Point2D<float>( mCast(float,qgraphicsitem_->pos().x()),
-				 mCast(float,qgraphicsitem_->pos().y()) );
+    return Geom::Point2D<float>( sCast(float,qgraphicsitem_->pos().x()),
+				 sCast(float,qgraphicsitem_->pos().y()) );
 }
 
 

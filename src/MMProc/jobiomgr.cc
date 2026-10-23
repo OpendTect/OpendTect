@@ -404,7 +404,7 @@ JobIOMgr::JobIOMgr( PortNr_Type firstport, int niceval )
 #ifdef __unix__
     const StepInterval<int> nicerg(
 		    OS::CommandExecPars::cMachineUserPriorityRange( false ) );
-    execpars_.prioritylevel_ = -1.f * mCast(float,niceval) / nicerg.width();
+    execpars_.prioritylevel_ = -1.f * sCast(float,niceval) / nicerg.width();
 #endif
 }
 

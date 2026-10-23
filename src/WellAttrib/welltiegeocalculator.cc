@@ -328,7 +328,7 @@ void WellTie::GeoCalculator::deconvolve( const float* inp,
     removeBias<float_complex,float>( cfiltervals );
 
     DeconvolveData dcinp( inpsz ), dcfilter( inpsz );
-    const int cidx = mCast(int, inpsz/2 );
+    const int cidx = sCast(int, inpsz/2 );
     const int firstidx = dcinp.halfsz_ - cidx;
     for ( int idx=0; idx<inpsz; idx++ )
     {
@@ -360,7 +360,7 @@ void WellTie::GeoCalculator::deconvolve( const float* inp,
     }
 
     // one-forth of average + normalization by number of samples
-    const float minfreqamp = summod / mCast( float, 4 * inpsz );
+    const float minfreqamp = summod / sCast( float, 4 * inpsz );
     const float_complex cnullval = float_complex( 0., 0. );
     for ( int idx=0; idx<dcout.sz_; idx++ )
     {

@@ -320,7 +320,7 @@ float WVAA2DBitMapGenerator::getDim0Offset( float val ) const
 
 int WVAA2DBitMapGenerator::dim0SubSampling( int nrdisptrcs ) const
 {
-    const float nrpixperdim0 = setup_.availableXPix() / mCast(float,nrdisptrcs);
+    const float nrpixperdim0 = setup_.availableXPix() / sCast(float,nrdisptrcs);
     const int minpixperdim0 = gtPars().minpixperdim0_;
     const float fret = minpixperdim0 / nrpixperdim0;
     const int ret = mNINT32( Math::Ceil(fret) );
@@ -516,7 +516,7 @@ void VDA2DBitMapGenerator::doFill()
 
 bool VDA2DBitMapGenerator::doWork( od_int64 start, od_int64 stop, int )
 {
-    for ( int idx=mCast(int,start); idx<=stop; idx++ )
+    for ( int idx=sCast(int,start); idx<=stop; idx++ )
     {
 	drawStrip( stripstodraw_[idx] );
     }
@@ -709,7 +709,7 @@ void VDA2DBitMapGenerator::fillInterpPars(
     else if ( storage )
     {
 	const od_int64 offset =
-	    mCast(od_int64,inpdata.info().getOffset(idim0,idim1));
+	    sCast(od_int64,inpdata.info().getOffset(idim0,idim1));
 #define mGet( i0, i1 ) \
     (idim0+i0)<szdim0_ && (idim0+i0)>=0 && (idim1+i1)<szdim1_ && (idim1+i1)>=0 \
 	? storage->value(offset+i0*szdim1_+i1) : mUdf(float);

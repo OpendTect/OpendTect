@@ -491,7 +491,7 @@ void SeisTrcStorOutput::collectData( const DataHolder& data, float refstep,
     {
 	StepInterval<float> reqzrg = desiredvolume_.zsamp_;
 	reqzrg.limitTo( trc_->zRange() );
-	const int nrsamps = mCast( int, reqzrg.nrfSteps() + 1 );
+	const int nrsamps = sCast( int, reqzrg.nrfSteps() + 1 );
 	SeisTrc temptrc( *trc_ );
 	trc_->info().sampling_.step_ = desiredvolume_.zsamp_.step_;
 	trc_->reSize( nrsamps, false );

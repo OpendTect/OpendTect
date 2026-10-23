@@ -454,11 +454,11 @@ bool FaultTrace::getIntersectionZs( int trc, TypeSet<float>& zs ) const
 	if ( (trc<trc0 && trc<trc1) || (trc>trc0 && trc>trc1) )
 	    continue;
 
-        const float z0 = mCast(float,tracesegs_[idx].start_.y_) /
+        const float z0 = sCast(float,tracesegs_[idx].start_.y_) /
 	    SI().showZ2UserFactor();
-        const float z1 = mCast(float,tracesegs_[idx].stop_.y_) /
+        const float z1 = sCast(float,tracesegs_[idx].stop_.y_) /
 	    SI().showZ2UserFactor();
-	zs += trc1 ? z0 : z0+(z1-z0)*(trc-trc0)/mCast(float,trc1-trc0);
+	zs += trc1 ? z0 : z0+(z1-z0)*(trc-trc0)/sCast(float,trc1-trc0);
 	res = true;
     }
 
@@ -482,16 +482,16 @@ bool FaultTrace::getFaultTraceIntersection( const FaultTrace& flttrc,
         const int trc1 = mNINT32(flttrc.tracesegs_[idx].stop_.x_);
 	const BinID bid1( isinl_ ? nr_ : trc1, isinl_ ? trc1 : nr_ );
 
-        const float z0 = mCast(float,flttrc.tracesegs_[idx].start_.y_) /
+        const float z0 = sCast(float,flttrc.tracesegs_[idx].start_.y_) /
 	    SI().showZ2UserFactor();
-        const float z1 = mCast(float,flttrc.tracesegs_[idx].stop_.y_) /
+        const float z1 = sCast(float,flttrc.tracesegs_[idx].stop_.y_) /
 	    SI().showZ2UserFactor();
 
 	const Coord intsect = getIntersection( bid0, z0, bid1, z1 );
 	if ( intsect.isDefined() )
 	{
-            trace = mCast(int,intsect.x_);
-            zval = mCast(float,intsect.y_);
+            trace = sCast(int,intsect.x_);
+            zval = sCast(float,intsect.y_);
 	    return true;
 	}
     }
@@ -1021,7 +1021,7 @@ bool FaultTraceExtractor::doPrepare( int nrthreads )
 bool FaultTraceExtractor::doWork( od_int64 start, od_int64 stop,
 				  int nrthreads )
 {
-    for ( int idx=mCast(int,start); idx<=stop; idx++ )
+    for ( int idx=sCast(int,start); idx<=stop; idx++ )
     {
 	if ( !extractFaultTrace(idx) )
 	    return false;
@@ -1194,7 +1194,7 @@ static float getFloatTrcNr( const PosInfo::Line2DData& linegeom,
 	return mUdf(float);
 
     const float frac =
-	mCast(float,linepos1.distTo(posonline)/linepos1.distTo(linepos2));
+	sCast(float,linepos1.distTo(posonline)/linepos1.distTo(linepos2));
     return (float)(pos.nr_ + frac * ( posns[index2].nr_ - pos.nr_ ));
 }
 

@@ -40,12 +40,12 @@ protected:
 				step_.output_->sampling().hsamp_ );
 		    BinID curbid = hrg.start_;
 
-		    const int nrinls = mCast( int, start/hrg.nrCrl() );
-		    const int nrcrls = mCast( int, start - nrinls*hrg.nrCrl() );
+		    const int nrinls = sCast( int, start/hrg.nrCrl() );
+		    const int nrcrls = sCast( int, start - nrinls*hrg.nrCrl() );
 		    curbid.inl() += nrinls*hrg.step_.inl();
 		    curbid.crl() += nrcrls*hrg.step_.crl();
 
-		    for ( int idx=mCast(int,start); idx<=stop; idx++ )
+		    for ( int idx=sCast(int,start); idx<=stop; idx++ )
 		    {
 			if ( !step_.computeBinID( curbid, threadid ) )
 			    return false;

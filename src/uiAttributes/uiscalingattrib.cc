@@ -278,7 +278,7 @@ bool uiScalingAttrib::getParameters( Desc& desc )
 	int stop = table->getIntValue( RowCol(idx,stopcol) );
 	if ( mIsUdf(start) && mIsUdf(stop) ) continue;
 
-	tgs += ZGate( mCast(float,start), mCast(float,stop) );
+	tgs += ZGate( sCast(float,start), sCast(float,stop) );
 
 	if ( statsfld->getIntValue() == 3 )
 	{
@@ -613,15 +613,15 @@ void uiScalingAttrib::analyzeCB( CallBacker* )
 	    }
 
 	    StepInterval<double> dtrcrg = fdp->posData().range( true );
-	    Interval<int> trcrg( mCast(int,dtrcrg.start_),
-				 mCast(int,dtrcrg.stop_) );
+	    Interval<int> trcrg( sCast(int,dtrcrg.start_),
+				 sCast(int,dtrcrg.stop_) );
 	    cs.hsamp_.setCrlRange( trcrg );
 	    cs.hsamp_.setInlRange( Interval<int>(0,0) );
 
 	    StepInterval<double> dzrg = fdp->posData().range( false );
-	    StepInterval<float> zrg( mCast(float,dzrg.start_),
-				     mCast(float,dzrg.stop_),
-				     mCast(float,dzrg.step_) );
+	    StepInterval<float> zrg( sCast(float,dzrg.start_),
+				     sCast(float,dzrg.stop_),
+				     sCast(float,dzrg.step_) );
 	    cs.zsamp_ = zrg;
 	}
 	nrtrcs = subseldlg.nrTrcs();

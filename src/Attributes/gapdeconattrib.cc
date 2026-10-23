@@ -112,7 +112,7 @@ void GapDecon::initClass()
 
     ZGateParam* gate = new ZGateParam( gateStr() );
     StepInterval<float> zrange = SI().zRange( true );
-    zrange.scale( mCast(float,SI().zDomain().userFactor()) );
+    zrange.scale( sCast(float,SI().zDomain().userFactor()) );
     gate->setLimits( zrange );
     desc->addParam( gate );
 

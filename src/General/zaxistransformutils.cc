@@ -64,7 +64,7 @@ bool ZAxisTransformPointGenerator::doWork(
     if ( !dps_ ) return false;
     BinIDValue curpos;
     curpos.val() = tkzs_.zsamp_.start_;
-    for ( int idx=mCast(int,start); idx<=mCast(int,stop); idx++ )
+    for ( int idx=sCast(int,start); idx<=sCast(int,stop); idx++ )
     {
 	iter_.next(curpos);
 	const float depth = transform_.transformBack( curpos );

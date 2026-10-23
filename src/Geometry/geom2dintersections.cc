@@ -350,7 +350,7 @@ bool Line2DInterSectionFinder::doWork( od_int64 start, od_int64 stop, int tid )
     if ( geoms_.size() != nrlines )
 	return false;
 
-    for ( int curidx=mCast(int,start); curidx<=stop && shouldContinue();
+    for ( int curidx=sCast(int,start); curidx<=stop && shouldContinue();
 	      curidx++, addToNrDone(1) )
     {
 	if ( !geoms_[curidx] )

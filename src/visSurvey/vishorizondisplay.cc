@@ -92,7 +92,7 @@ bool LockedPointsPathFinder::doWork( od_int64 start, od_int64 stop, int thread )
 
     const TrcKeySampling tks = hor_.getTrackingSampling();
 
-    for ( int idx=mCast(int,start); idx<=mCast(int,stop); idx++ )
+    for ( int idx=sCast(int,start); idx<=sCast(int,stop); idx++ )
     {
 	const TrcKey tk = path_[idx];
 	if ( !tks.includes(tk) )
@@ -176,7 +176,7 @@ bool HorizonPathIntersector::doPrepare( int nrthreads )
 
 bool HorizonPathIntersector::doWork( od_int64 start, od_int64 stop, int thread )
 {
-    for ( int idx=mCast(int,start); idx<=mCast(int,stop); idx++ )
+    for ( int idx=sCast(int,start); idx<=sCast(int,stop); idx++ )
     {
 	TrcKey hortrc = TrcKey::udf();
 	const Coord intersectioncoord = idx>=crds_.size()

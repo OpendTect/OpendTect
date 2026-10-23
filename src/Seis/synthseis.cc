@@ -681,12 +681,12 @@ void SynthGenerator::sortOutput( const float_complex* cres,
     const SamplingData<float>& trcsampling = outtrc_->info().sampling_;
     const ZSampling twtrg = trcsampling.interval( outsz );
     const float step = trcsampling.step_;
-    float start = mCast( float, mCast( int, trcsampling.start_/step ) ) * step;
+    float start = sCast( float, sCast( int, trcsampling.start_/step ) ) * step;
     if ( start < trcsampling.start_ - 1e-4f )
 	start += step;
 
     const float width = step * convolvesize_;
-    const int nperiods = mCast( int, Math::Floor( start/width ) ) + 1;
+    const int nperiods = sCast( int, Math::Floor( start/width ) ) + 1;
     const SamplingData<float> fftsampling( start, step );
 
     const float stoptwt = start + width;
@@ -917,7 +917,7 @@ bool MultiTraceSynthGenerator::doPrepare( int nrthreads )
 bool MultiTraceSynthGenerator::doWork(od_int64 start, od_int64 stop, int thread)
 {
     SynthGenerator& synthgen = *synthgens_[thread];
-    for ( int idx=mCast(int,start); idx<=stop; idx++, addToNrDone(1) )
+    for ( int idx=sCast(int,start); idx<=stop; idx++, addToNrDone(1) )
     {
 	const ReflectivityModelTrace* refmodel =
 					refmodel_.getReflectivities(idx);
@@ -1229,7 +1229,7 @@ bool RaySynthGenerator::doWork( od_int64 start, od_int64 stop,
 	 !results_.validIdx(start) || !results_.validIdx(stop) )
 	return false;
 
-    for ( int idx=mCast(int,start); idx<=stop; idx++, addToNrDone(1) )
+    for ( int idx=sCast(int,start); idx<=stop; idx++, addToNrDone(1) )
     {
 	if ( !shouldContinue() || !refmodels_->get(idx) )
 	    return false;
@@ -1396,7 +1396,7 @@ SeisTrc* RaySynthGenerator::stackedTrc( int imdl, bool cansteal ) const
 	if ( !outtrc || outtrc->isNull() )
 	    continue;
 
-	stckr.stack( *outtrc, false, mCast(float,idx) );
+	stckr.stack( *outtrc, false, sCast(float,idx) );
     }
 
     return trc;

@@ -96,7 +96,7 @@ void uiPreviewGroup::wvavdChgCB( CallBacker* )
 {
     vwr_->appearance().ddpars_.show( wvafld_->isChecked(0),
 				     wvafld_->isChecked(1) );
-    vwr_->handleChange( mCast(unsigned int,FlatView::Viewer::All) );
+    vwr_->handleChange( sCast(unsigned int,FlatView::Viewer::All) );
 }
 
 
@@ -182,7 +182,7 @@ void uiPreviewGroup::updateWindowLines()
     maxline_->poly_[0] = FlatView::Point( tk.trcNr()-so, z+zintv.stop_ );
     maxline_->poly_[1] = FlatView::Point( tk.trcNr()+so, z+zintv.stop_ );
 
-    vwr_->handleChange( mCast(unsigned int,FlatView::Viewer::Auxdata) );
+    vwr_->handleChange( sCast(unsigned int,FlatView::Viewer::Auxdata) );
 }
 
 

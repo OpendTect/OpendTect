@@ -70,7 +70,7 @@ float clss##Window::getValue( float x ) const \
 #define mImplClass(clss) \
     mImplClassMinimal(clss) \
     if ( x < 0 ) x = -x; \
-    double val = mCast(double,x);
+    double val = sCast(double,x);
 
 void BoxWindow::initClass()
 {
@@ -95,8 +95,8 @@ float BartlettWindow::getValue( float x ) const
 {
     if ( x < -1 || x > 1 ) return 0;
     if ( x < 0 ) x = -x;
-    double val = mCast(double,x);
-    return mCast(float, 1. - val );
+    double val = sCast(double,x);
+    return sCast(float, 1. - val );
 }
 
 
@@ -110,8 +110,8 @@ float HanningWindow::getValue( float x ) const
 {
     if ( x < -1 || x > 1 ) return 0;
     if ( x < 0 ) x = -x;
-    double val = mCast(double,x);
-    return mCast(float, 0.50 * (1. + cos( M_PI * val )) );
+    double val = sCast(double,x);
+    return sCast(float, 0.50 * (1. + cos( M_PI * val )) );
 }
 
 
@@ -125,8 +125,8 @@ float HammingWindow::getValue( float x ) const
 {
     if ( x < -1 || x > 1 ) return 0;
     if ( x < 0 ) x = -x;
-    double val = mCast(double,x);
-    return mCast(float, 0.54 + 0.46 * cos( M_PI * val ) );
+    double val = sCast(double,x);
+    return sCast(float, 0.54 + 0.46 * cos( M_PI * val ) );
 }
 
 
@@ -140,8 +140,8 @@ float BlackmanWindow::getValue( float x ) const
 {
     if ( x < -1 || x > 1 ) return 0;
     if ( x < 0 ) x = -x;
-    double val = mCast(double,x);
-    return mCast(float, 0.42 + 0.50 * cos( M_PI  * val ) +
+    double val = sCast(double,x);
+    return sCast(float, 0.42 + 0.50 * cos( M_PI  * val ) +
 			       0.08 * cos( M_2PI * val ) );
 }
 
@@ -156,9 +156,9 @@ float FlatTopWindow::getValue( float x ) const
 {
     if ( x < -1 || x > 1 ) return 0;
     if ( x < 0 ) x = -x;
-    double val = mCast(double,x);
+    double val = sCast(double,x);
     const double pi_x = M_PI * val;
-    return mCast(float, ( 1.	+ 1.93	* cos(	    pi_x )
+    return sCast(float, ( 1.	+ 1.93	* cos(	    pi_x )
 				+ 1.29	* cos( 2. * pi_x )
 				+ 0.388 * cos( 3. * pi_x )
 				+ 0.032 * cos( 4. * pi_x )) / 4.64 );
@@ -175,11 +175,11 @@ float CosTaperWindow::getValue( float x ) const
 {
     if ( x < -1 || x > 1 ) return 0;
     if ( x < 0 ) x = -x;
-    double val = mCast(double,x);
+    double val = sCast(double,x);
     if ( threshold_==1.f || val < threshold_ )
        return 1;
     val -= threshold_; val *= factor_;
-    return mCast(float, (1. + cos( M_PI * val )) * 0.5 );
+    return sCast(float, (1. + cos( M_PI * val )) * 0.5 );
 }
 
 
@@ -193,9 +193,9 @@ float KaiserWindow::getValue( float x ) const
 {
     if ( x < -1 || x > 1 ) return 0;
     if ( x < 0 ) x = -x;
-    double val = mCast(double,x);
+    double val = sCast(double,x);
     const double num = Math::BesselI0( M_PI * alpha_ * Math::Sqrt(1-val*val) );
-    return mCast(float, num / denom_ );
+    return sCast(float, num / denom_ );
 }
 
 
@@ -271,7 +271,7 @@ bool KaiserWindow::setVariable( float alpha )
     if ( !isAcceptableVariable(alpha) )
 	return false;
 
-    alpha_ = mCast(double,alpha);
+    alpha_ = sCast(double,alpha);
     denom_ = Math::BesselI0( M_PI * alpha_ );
 
     return true;
@@ -280,7 +280,7 @@ bool KaiserWindow::setVariable( float alpha )
 
 bool KaiserWindow::set( double width, int nrsamples )
 {
-    double a = 14.36 * width * mCast(double,nrsamples) + 7.95;
+    double a = 14.36 * width * sCast(double,nrsamples) + 7.95;
     double alpha;
     if ( a <= 21. )
 	alpha = 0.;
@@ -295,7 +295,7 @@ bool KaiserWindow::set( double width, int nrsamples )
 	alpha = 0.1102 * a;
     }
 
-    if ( !setVariable(mCast(float,alpha/M_PI)) )
+    if ( !setVariable(sCast(float,alpha/M_PI)) )
 	return false;
 
     width_ = width;
@@ -317,7 +317,7 @@ double KaiserWindow::getWidth( int nrsamples ) const
 	return mUdf(double);
 
     double res = M_PI * alpha_ / 0.1102 + 8.7;
-    return ( res - 7.95 ) / ( 14.36 * mCast(double,nrsamples) );
+    return ( res - 7.95 ) / ( 14.36 * sCast(double,nrsamples) );
 }
 
 
@@ -327,7 +327,7 @@ double KaiserWindow::getError( int nrsamples ) const
     if ( mIsUdf(width) )
 	return mUdf(double);
 
-    const double a = 14.36 * width * mCast(double,nrsamples) + 7.95;
+    const double a = 14.36 * width * sCast(double,nrsamples) + 7.95;
     return Math::PowerOf( 10., -a/20. );
 }
 

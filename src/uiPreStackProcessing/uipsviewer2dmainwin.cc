@@ -202,7 +202,7 @@ void uiViewer2DMainWin::setUpView()
     uiProgressBar pb( &win );
     pb.setPrefWidthInChar( 50 );
     pb.setStretch( 2, 2 );
-    pb.setTotalSteps( mCast(int,gatherinfos_.size()) );
+    pb.setTotalSteps( sCast(int,gatherinfos_.size()) );
     win.show();
 
     removeAllGathers();
@@ -407,7 +407,7 @@ PreStack::Gather* uiViewer2DMainWin::getAngleGather(
 	const int x1rgsize = x1rg.nrSteps() + 1;
 	for ( int idx=0; idx<x1rgsize; idx++ )
 	{
-	    const float angleval = mCast( float, x1rg.atIndex(idx) );
+	    const float angleval = sCast( float, x1rg.atIndex(idx) );
 	    const float ampval = vals[zidx]->getValue( angleval );
 	    if ( mIsUdf(ampval) )
 		continue;
@@ -1235,8 +1235,8 @@ void uiStoredViewer2DMainWin::displayAngle()
 	    vdmapper.symmidval_ = mUdf(float);
 	    vdmapper.type_ = ColTab::MapperSetup::Fixed;
 	    Interval<float> anglerg(
-                        mCast(float,angleparams_->anglerange_.start_),
-                        mCast(float,angleparams_->anglerange_.stop_) );
+                        sCast(float,angleparams_->anglerange_.start_),
+                        sCast(float,angleparams_->anglerange_.stop_) );
 	    vdmapper.range_ = anglerg;
 	    psapp.ddpars_.vd_.ctab_ = ColTab::Sequence::sKeyRainbow();
 	}

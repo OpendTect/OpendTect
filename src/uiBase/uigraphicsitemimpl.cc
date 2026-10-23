@@ -556,8 +556,8 @@ void uiMultiColorPolyLineItem::setPolyLine( type ptlist ) \
 	if ( !ptlist[idx].isDefined() ) \
 	    qpolygonf += QPointF( mUdf(double), mUdf(double) ); \
 	else \
-	    qpolygonf += QPointF( mCast(double,ptlist[idx].x_), \
-				  mCast(double,ptlist[idx].y_) ); \
+	    qpolygonf += QPointF( sCast(double,ptlist[idx].x_), \
+				  sCast(double,ptlist[idx].y_) ); \
     } \
     odmulticoloritem_->setPolyLine( qpolygonf ); \
 }
@@ -981,8 +981,8 @@ void uiAdvancedTextItem::stPos( float x, float y )
 	const float xdist = Math::Sqrt(d10.x()*d10.x()+d10.y()*d10.y() );
 	const float ydist = Math::Sqrt(d01.x()*d01.x()+d01.y()*d01.y() );
 
-	const float xlin = x+mCast(float,boundrec.left())*xdist;
-	const float ylin = y+mCast(float,boundrec.top())*ydist;
+	const float xlin = x+sCast(float,boundrec.left())*xdist;
+	const float ylin = y+sCast(float,boundrec.top())*ydist;
 	uiGraphicsItem::stPos( xlin, ylin );
     }
 }

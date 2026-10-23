@@ -103,7 +103,7 @@ void FaultSS2D::draw()
 	    {
 		const TrcKey tk = regfdp->getTrcKey( idx, 0 );
 		trcnrs += tk.trcNr();
-		dists += mCast(float,regfdp->posData().position(true,idx));
+		dists += sCast(float,regfdp->posData().position(true,idx));
 	    }
 
 	    TypeSet<Coord>& coords = fsseds_[ivwr]->getCoords();

@@ -141,7 +141,7 @@ bool doWork( od_int64 start, od_int64 stop, int ) override
     if ( !explsurf_.nrPlanes() )
 	return false;
 
-    for ( int idx=mCast(int,start); idx<=stop; idx++, addToNrDone(1) )
+    for ( int idx=sCast(int,start); idx<=stop; idx++, addToNrDone(1) )
     {
 	const IndexedGeometry* geom =
 	    explsurf_.getShape()->getGeometry()[idx];
@@ -519,7 +519,7 @@ ExplPlaneIntersection::ExplPlaneIntersection()
     , intersection_( 0 )
     , shape_( 0 )
     , shapeversion_( -1 )
-    , zscale_( mCast( float, SI().zDomain().userFactor() ) )
+    , zscale_( sCast( float, SI().zDomain().userFactor() ) )
 { }
 
 

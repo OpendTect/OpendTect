@@ -125,7 +125,7 @@ T ConvMemValueSeries<T>::value(od_int64 idx) const
 	return mUdf(T);
 
     const T val = interpreter_.get( ptr_, idx );
-    return mCast( T, scaler_ ? scaler_->unScale(val) : val );
+    return sCast( T, scaler_ ? scaler_->unScale(val) : val );
 }
 
 
@@ -165,7 +165,7 @@ void ConvMemValueSeries<T>::setValue( od_int64 idx, T v )
 	undefhandler_->setUdf( ptr_, idx );
     else
     {
-	const T val = mCast( T, scaler_ ? scaler_->scale(v) : v );
+	const T val = sCast( T, scaler_ ? scaler_->scale(v) : v );
 	interpreter_.put( ptr_, idx, val );
 	if ( undefhandler_ ) undefhandler_->unSetUdf( ptr_, idx );
     }

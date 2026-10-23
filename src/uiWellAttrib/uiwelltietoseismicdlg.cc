@@ -960,9 +960,9 @@ bool WellTie::uiInfoDlg::updateZrg()
 
     if ( zrangeflds_[mTwtFldIdx] )
     {
-	const float zfact = mCast( float, SI().zDomain().userFactor() );
-	Interval<int> timergms( mCast( int, timerg.start_ * zfact ),
-				mCast( int, timerg.stop_ * zfact ) );
+	const float zfact = sCast( float, SI().zDomain().userFactor() );
+	Interval<int> timergms( sCast( int, timerg.start_ * zfact ),
+				sCast( int, timerg.stop_ * zfact ) );
 	zrangeflds_[mTwtFldIdx]->setValue( timergms );
     }
 
@@ -1022,7 +1022,7 @@ bool WellTie::uiInfoDlg::computeNewWavelet()
 	mErrRetYN( errmsg )
     }
 
-    const int zrgsz = mCast( int, zrg_.width(false) *
+    const int zrgsz = sCast( int, zrg_.width(false) *
 				  SI().zDomain().userFactor() ) + 1;
     const int wvltlgth = zrgsz < reqwvltlgthsz ? zrgsz : reqwvltlgthsz;
     if ( !server_.computeEstimatedWavelet(wvltlgth) )

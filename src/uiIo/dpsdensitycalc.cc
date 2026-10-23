@@ -99,7 +99,7 @@ bool DPSDensityCalcND::doWork( od_int64 start, od_int64 stop, int )
     for ( od_int64 rid=start; rid<=stop; rid++ )
     {
 	nrdone_++;
-	DataPointSet::RowID dpsrid = mCast(DataPointSet::RowID,rid);
+	DataPointSet::RowID dpsrid = sCast(DataPointSet::RowID,rid);
 	if ( dps_->isInactive(dpsrid) ||
 	     (grp_>0 && dps_->group(dpsrid) != grp_) )
 	    continue;

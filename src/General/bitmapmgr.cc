@@ -70,8 +70,8 @@ void BitMapMgr::setup()
 	return;
 
     pos_ = new A2DBitMapPosSetup( arr.info(), pd.getPositions(true) );
-    pos_->setDim1Positions( mCast(float,pd.range(false).start_),
-			    mCast(float,pd.range(false).stop_) );
+    pos_->setDim1Positions( sCast(float,pd.range(false).start_),
+			    sCast(float,pd.range(false).stop_) );
     data_ = new A2DBitMapInpData( arr );
 
     if ( !wva_ )
@@ -171,10 +171,10 @@ bool BitMapMgr::generate( const Geom::PosRectangle<double>& wr,
     Threads::Locker updlckr( datapack->updateLock() );
     const FlatPosData& pd = datapack->posData();
     pos_->setDimRange( 0, Interval<float>(
-				mCast(float,wr.left()-pd.offset(true)),
-				mCast(float,wr.right()-pd.offset(true))) );
+				sCast(float,wr.left()-pd.offset(true)),
+				sCast(float,wr.right()-pd.offset(true))) );
     pos_->setDimRange( 1,
-	Interval<float>(mCast(float,wr.bottom()),mCast(float,wr.top())) );
+	Interval<float>(sCast(float,wr.bottom()),sCast(float,wr.top())) );
 
     bmp_ = new A2DBitMapImpl( sz.width(), sz.height() );
     if ( !bmp_ || !bmp_->isOK() || !bmp_->getData() )

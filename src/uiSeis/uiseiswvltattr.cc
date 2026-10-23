@@ -137,9 +137,9 @@ uiSeisWvltTaperDlg::uiSeisWvltTaperDlg( uiParent* p, Wavelet& wvlt )
     s.yaxcaption_ = tr("Taper Amplitude");
 
     timedrawer_ = new uiFuncTaperDisp( this, s );
-    s.leftrg_ = Interval<float> ( 0, mCast(float,s.datasz_/6) );
-    s.rightrg_ = Interval<float> ( mCast(float,s.datasz_*5/6),
-				   mCast(float,s.datasz_) );
+    s.leftrg_ = Interval<float> ( 0, sCast(float,s.datasz_/6) );
+    s.rightrg_ = Interval<float> ( sCast(float,s.datasz_*5/6),
+				   sCast(float,s.datasz_) );
     s.is2sided_ = true;
     s.xaxcaption_ = istime ? tr("Frequency (Hz)")
 			   : SI().depthsInFeet() ? tr("Wavenumber (/miles)")
@@ -378,8 +378,8 @@ void uiWaveletDispProp::setAttrCurves( const Wavelet& wvlt )
 	}
     }
 
-    const float maxfreq = freqrange_.stop_ * mCast(float,idxnoamp) /
-			  mCast(float,attrarrays_[1]->info().getSize(0)/2);
+    const float maxfreq = freqrange_.stop_ * sCast(float,idxnoamp) /
+			  sCast(float,attrarrays_[1]->info().getSize(0)/2);
     if ( maxfreq > cMaxNyquistFreq )
     {
 	uiMSG().error( tr("Invalid Nyquist frequency: %1\n"

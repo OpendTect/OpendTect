@@ -888,8 +888,8 @@ void uiBulkD2TModelImport::readFile( od_istream& istrm,
 	}
 
 	D2TModelData* d2t = data[wellidx];
-	d2t->tvds_ += mCast(double,tvd);
-	d2t->twts_ += mCast(double,twt);
+	d2t->tvds_ += sCast(double,tvd);
+	d2t->twts_ += sCast(double,twt);
     }
 }
 
@@ -1027,7 +1027,7 @@ bool uiBulkDirectionalImport::acceptOK( CallBacker* )
 
 	wd->track().setEmpty();
 	for ( int idz=0; idz<dd->mds_.size(); idz++ )
-	    wd->track().addPoint( track[idz], mCast(float,dd->mds_[idz]) );
+	    wd->track().addPoint( track[idz], sCast(float,dd->mds_[idz]) );
 
 	Writer ww( *ioobj, *wd );
 	if ( !ww.putInfoAndTrack() )

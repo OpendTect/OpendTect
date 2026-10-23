@@ -141,7 +141,7 @@ bool doWork( od_int64 start, od_int64 stop, int threadidx ) override
     const  StepInterval<int> inlrg = section_.geometry_->rowRange();
     const  StepInterval<int> crlrg = section_.geometry_->colRange();
 
-    for ( int idx=mCast(int,start); idx<=stop; idx++ )
+    for ( int idx=sCast(int,start); idx<=stop; idx++ )
     {
 	const BinID bid = section_.geometry_->getKnotRowCol(idx);
 	const StepInterval<int> displayrrg = section_.displayrrg_;

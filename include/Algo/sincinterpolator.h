@@ -342,7 +342,7 @@ bool SincInterpolator1D<RT,PT>::initTable( float fmax, int lmax )
     return true;
 }
 
-#define mKSinc(frac) ( mCast(int,frac*nsincm1_+0.5) )
+#define mKSinc(frac) ( sCast(int,frac*nsincm1_+0.5) )
 #define mValidPos(is,ns)	( (is > -1 && is < ns) )
 #define mCheckUdf(totidx) \
 { \
@@ -373,7 +373,7 @@ RT SincInterpolator1D<RT,PT>::getValue( PT x ) const
     const PT floorx = floor(x);
     fracx = x - floorx;
     const float* asinc = asinc_[mKSinc(fracx)];
-    idx0 = mCast(int,floorx) + ishift_;
+    idx0 = sCast(int,floorx) + ishift_;
 
     float out = 0.f;
     if ( mValidPos(idx0,nxm_) )
@@ -402,7 +402,7 @@ RT SincInterpolator1D<RT,PT>::getValue( PT x ) const
 	if ( !mIsZero(sumweights,mDefEpsF) ) out /= sumweights;
     }
 
-    return mCast(RT,out);
+    return sCast(RT,out);
 }
 
 
@@ -449,8 +449,8 @@ RT SincInterpolator2D<RT,PT>::getValue( PT x, PT y ) const
     fracy = y - floory;
     const float* asincx = asinc_[mKSinc(fracx)];
     const float* asincy = asinc_[mKSinc(fracy)];
-    idx0 = mCast(int,floorx) + ishift_;
-    idy0 = mCast(int,floory) + ishift_;
+    idx0 = sCast(int,floorx) + ishift_;
+    idy0 = sCast(int,floory) + ishift_;
 
     double out = 0., outx;
     if ( mValidPos(idx0,nxm_) && mValidPos(idy0,nym_) )
@@ -513,7 +513,7 @@ RT SincInterpolator2D<RT,PT>::getValue( PT x, PT y ) const
 	if ( !mIsZero(sumweights,mDefEps) ) out /= sumweights;
     }
 
-    return mCast(RT,out);
+    return sCast(RT,out);
 }
 
 
@@ -571,9 +571,9 @@ RT SincInterpolator3D<RT,PT>::getValue( PT x, PT y, PT z ) const
     const float* asincx = asinc_[mKSinc(fracx)];
     const float* asincy = asinc_[mKSinc(fracy)];
     const float* asincz = asinc_[mKSinc(fracz)];
-    idx0 = mCast(int,floorx) + ishift_;
-    idy0 = mCast(int,floory) + ishift_;
-    idz0 = mCast(int,floorz) + ishift_;
+    idx0 = sCast(int,floorx) + ishift_;
+    idy0 = sCast(int,floory) + ishift_;
+    idz0 = sCast(int,floorz) + ishift_;
 
     double out = 0.;
     double outx, outy;
@@ -664,5 +664,5 @@ RT SincInterpolator3D<RT,PT>::getValue( PT x, PT y, PT z ) const
 	if ( !mIsZero(sumweights,mDefEps) ) out /= sumweights;
     }
 
-    return mCast(RT,out);
+    return sCast(RT,out);
 }

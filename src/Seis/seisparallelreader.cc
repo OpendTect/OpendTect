@@ -238,10 +238,10 @@ bool doTrace( int itrc )
 		float rawval = needresampling_
 			     ? databuf_.getValue( zval, itrc, idcin )
 			     : databuf_.get( trczidx++, itrc, idcin );
-		if ( trcscaler ) rawval = mCast(float,trcscaler->scale(rawval));
+		if ( trcscaler ) rawval = sCast(float,trcscaler->scale(rawval));
                 if ( needresampling_ ) zval += zsamp_.step_;
 		const float trcval = compscaler
-				   ? mCast(float,compscaler->scale(rawval) )
+				   ? sCast(float,compscaler->scale(rawval) )
 				   : rawval;
 		if ( storptr )
 		{
@@ -761,9 +761,9 @@ od_int64 Seis::ParallelReader2D::nrIterations() const
 bool Seis::ParallelReader2D::doWork( od_int64 start,od_int64 stop, int )
 {
     if ( stop < totalnr_ )
-        trcnrs_.removeRange( mCast(int,stop+1), mCast(int,totalnr_) );
+        trcnrs_.removeRange( sCast(int,stop+1), sCast(int,totalnr_) );
     if ( start > 0 )
-        trcnrs_.removeRange( 0, mCast(int,start-1) );
+        trcnrs_.removeRange( 0, sCast(int,start-1) );
 
     if ( trcnrs_.isEmpty() )
 	return true;
@@ -787,7 +787,7 @@ bool Seis::ParallelReader2D::doWork( od_int64 start,od_int64 stop, int )
     if ( !databuf ) return false;
 
     TypeSet<TrcKey>* tkss = new TypeSet<TrcKey>;
-    *tkss += tks.trcKeyAt( mCast(int,start) );
+    *tkss += tks.trcKeyAt( sCast(int,start) );
     databuf->setPositions( *tkss );
 
     if ( !seissummary.isOK() || !databuf->isOK() )

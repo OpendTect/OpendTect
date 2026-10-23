@@ -333,7 +333,7 @@ float uiSetPickDirs::calcPhi( float inldip, float crldip )
     const double xcrl = b2c.getTransform(true).c;
     double ycrl = b2c.getTransform(false).c;
 
-    const float angN = mCast(float, Math::Atan2( xcrl, ycrl ) );
+    const float angN = sCast(float, Math::Atan2( xcrl, ycrl ) );
 
     float phi;
     if ( SI().isRightHandSystem() )

@@ -47,9 +47,9 @@ uiFlatDPPosSel::uiFlatDPPosSel( uiParent* p, const DataPack::FullID& dpfid )
     possldr_ = new uiSlider( this, uiSlider::Setup(), "posslider" );
     mAttachCB( possldr_->valueChanged, uiFlatDPPosSel::sldrPosChangedCB );
     StepInterval<double> posdatarg = fdp_->posData().range( true );
-    StepInterval<float> floatrg( mCast(float,posdatarg.start_),
-				 mCast(float,posdatarg.stop_),
-				 mCast(float,posdatarg.step_) );
+    StepInterval<float> floatrg( sCast(float,posdatarg.start_),
+				 sCast(float,posdatarg.stop_),
+				 sCast(float,posdatarg.step_) );
     possldr_->setInterval( floatrg );
     possldr_->attach( rightOf, altdimnmflds_ );
     posvalfld_ = new uiGenInput( this, uiString::emptyString(),
@@ -171,9 +171,9 @@ uiTrcPositionDlg::uiTrcPositionDlg( uiParent* p, const DataPack::FullID& dpfid )
 	}
 
 	StepInterval<double> x2rg = fdp->posData().range( false );
-	StepInterval<float> fzrg( mCast(float,x2rg.start_),
-				  mCast(float,x2rg.stop_),
-				  mCast(float,x2rg.step_) );
+	StepInterval<float> fzrg( sCast(float,x2rg.start_),
+				  sCast(float,x2rg.stop_),
+				  sCast(float,x2rg.step_) );
 	zrg_ = fzrg;
     }
     else if ( dpmid == DataPackMgr::SeisID() )
@@ -304,7 +304,7 @@ TrcKeyZSampling uiTrcPositionDlg::getTrcKeyZSampling() const
     TrcKeyZSampling cs;
     if ( trcnrfld_ || fdpposfld_ )
     {
-	const int trcnr = fdpposfld_ ? mCast(int,fdpposfld_->getPos() )
+	const int trcnr = fdpposfld_ ? sCast(int,fdpposfld_->getPos() )
 				     : trcnrfld_->box()->getIntValue();
 	cs.hsamp_.set( getGeomID(), StepInterval<int>(trcnr,trcnr,1) );
     }

@@ -60,7 +60,7 @@ public:
             if ( !(idx%1000000) && !shouldContinue() )
                 return false;
 
-	    if ( !testFloatIndex( mCast(int,idx), mUdf(float) ) )
+	    if ( !testFloatIndex( sCast(int,idx), mUdf(float) ) )
 	    { return false; }
         }
 

@@ -263,7 +263,7 @@ int OS::CommandExecPars::getMachinePriority( float priority, bool iswin )
     const StepInterval<int> machpriorg( cMachineUserPriorityRange(iswin) );
     const float scale = iswin ? 1.f : -1.f;
 
-    int machprio = mCast(int, mNINT32(scale * priority * machpriorg.width()) );
+    int machprio = sCast(int, mNINT32(scale * priority * machpriorg.width()) );
 
     return machprio += iswin ? machpriorg.stop_ : machpriorg.start_;
 }

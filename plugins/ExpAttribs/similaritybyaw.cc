@@ -253,7 +253,7 @@ float SimilaritybyAW::calSimilaritybyAW(float *inpvolume) const
 		(inpvolume+pos0_, inpvolume+pos7_, 2*(verstep0_-iter)+1);
 	const float R8_ = calSimilarity
 		(inpvolume+pos0_, inpvolume+pos8_, 2*(verstep0_-iter)+1);
-	const float R_ = mCast(float,0.125*(R1_+R2_+R3_+R4_+R5_+R6_+R7_+R8_));
+	const float R_ = sCast(float,0.125*(R1_+R2_+R3_+R4_+R5_+R6_+R7_+R8_));
 
 	if( iter==0 )
 	    R_Std = R_;

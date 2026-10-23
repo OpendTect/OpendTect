@@ -225,7 +225,7 @@ void uiViewer3DAppearanceTab::applyButPushedCB( CallBacker* cb )
 		return;
 	    }
 
-	    const float zfac = mCast( float, SI().zDomain().userFactor() );
+	    const float zfac = sCast( float, SI().zDomain().userFactor() );
 	    zsmp.start_ /= zfac;
 	    zsmp.step_ /= zfac;
 	    manuzsampl_ = zsmp;

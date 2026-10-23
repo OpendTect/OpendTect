@@ -29,9 +29,9 @@ ________________________________________________________________________
 #include <type_traits>
 
 #define mComputeTrendAandB( sz ) { \
-	aval = mCast(T,( (fT)sz * crosssum - sum * sumindexes ) / \
+	aval = sCast(T,( (fT)sz * crosssum - sum * sumindexes ) / \
 	       ( (fT)sz * sumsqidx - sumindexes * sumindexes ) );\
-	bval = mCast(T,( sum * sumsqidx - sumindexes * crosssum ) / \
+	bval = sCast(T,( sum * sumsqidx - sumindexes * crosssum ) / \
 	       ( (fT)sz * sumsqidx - sumindexes * sumindexes ) ); }
 
 
@@ -60,7 +60,7 @@ inline bool removeLinPart( const T* inpptr, T* outptr, int sz, bool trend )
 	if ( !trend )
 	    continue;
 
-	const fT fidx = mCast(fT,idx);
+	const fT fidx = sCast(fT,idx);
 	sumindexes += fidx;
 	sumsqidx += fidx * fidx;
 	crosssum += inpptr[idx] * fidx;
@@ -337,14 +337,14 @@ inline bool interpUdf( Array1D<fT>& in,
     {
 	const fT val = in.get( idx );
 	if ( !mIsUdf(val) )
-	    data.add( mCast(fT,idx), val );
+	    data.add( sCast(fT,idx), val );
     }
 
     for ( int idx=0; idx<sz; idx++ )
     {
 	const fT val = in.get( idx );
 	if ( mIsUdf(val) )
-	    in.set( idx, data.getValue( mCast(fT,idx) ) );
+	    in.set( idx, data.getValue( sCast(fT,idx) ) );
     }
 
     return true;
@@ -937,7 +937,7 @@ private:
 		    const int startcrl = tks.start_.crl();
 		    const int startcrlidyin = tksin.trcIdx( startcrl );
 		    const int startcrlidyout = tksout.trcIdx( startcrl );
-		    for ( int idx=mCast(int,start); idx<=mCast(int,stop); idx++)
+		    for ( int idx=sCast(int,start); idx<=sCast(int,stop); idx++)
 		    {
 			const int inl = tks.lineRange().atIndex( idx );
 			const int inlidxin = tksin.lineIdx( inl );
@@ -1045,7 +1045,7 @@ private:
   const int z0in = tkzsin_.zsamp_.nearestIndex( zrg.start_ );
   const int z0out = tkzsout_.zsamp_.nearestIndex( zrg.start_ );
 		    const od_int64 nrbytes =
-				   mCast(od_int64,nrztocopy) * sizeof(T);
+				   sCast(od_int64,nrztocopy) * sizeof(T);
 		    const T* inptr = in_.getData();
 		    T* outptr = out_.getData();
 		    const ValueSeries<T>* instor = in_.getStorage();
@@ -1338,7 +1338,7 @@ private:
 			cumsum_ = mUdf(RT);
 
 		    if ( setup_.donormalizesum_ )
-			cumsum_ /= mCast(RT,xarr_.info().getTotalSz());
+			cumsum_ /= sCast(RT,xarr_.info().getTotalSz());
 
 		    if ( setup_.dosqrtsum_ )
 			cumsum_ = Math::Sqrt( cumsum_ );
@@ -1574,7 +1574,7 @@ bool ArrOperExec<OperType,ArrType>::doWork( od_int64 start, od_int64 stop, int )
 	if ( doshiftoutvals )
 	    xvalue += shift_;
 
-	mSetResAndContinue( mCast(ArrType,xvalue) )
+	mSetResAndContinue( sCast(ArrType,xvalue) )
     }
 
     delete xiter; delete yiter; delete outiter;
@@ -1617,7 +1617,7 @@ private:
 		{
 		    T sumval = 0;
 		    od_int64 count = 0;
-		    for ( int idx=mCast(int,start); idx<=stop; idx++ )
+		    for ( int idx=sCast(int,start); idx<=stop; idx++ )
 		    {
 			const T value = vals_[idx];
 			if ( !noudf_ && mIsUdf(value) )
@@ -1674,7 +1674,7 @@ inline T getSum( const ArrayND<T>& in, bool noudf, bool parallel )
     if ( !sumexec.executeParallel(parallel) )
 	return mUdf(T);
 
-    return mCast(T,sumexec.getSum());
+    return sCast(T,sumexec.getSum());
 }
 
 
@@ -1696,7 +1696,7 @@ inline T getAverage( const ArrayND<T>& in, bool noudf, bool parallel )
     if ( !avgexec.executeParallel(parallel) )
 	return mUdf(T);
 
-    return mCast(T,avgexec.getSum());
+    return sCast(T,avgexec.getSum());
 }
 
 
@@ -1707,7 +1707,7 @@ inline float_complex getAverage<float_complex>(const ArrayND<float_complex>& in,
 {
     const od_uint64 sz = in.info().getTotalSz();
     const float_complex sumvals = getSum( in, noudf, parallel );
-    return mIsUdf(sumvals) ? mUdf(float_complex) : sumvals / mCast(float,sz);
+    return mIsUdf(sumvals) ? mUdf(float_complex) : sumvals / sCast(float,sz);
 }
 
 
@@ -1810,7 +1810,7 @@ inline T getSumProduct( const ArrayND<T>& in1, const ArrayND<T>& in2,
     if ( !sumprodexec.executeParallel(parallel) )
 	return mUdf(T);
 
-    return mCast(T,sumprodexec.getSum());
+    return sCast(T,sumprodexec.getSum());
 }
 
 template <class T>
@@ -1839,7 +1839,7 @@ inline T getSumSq( const ArrayND<T>& in, bool noudf, bool parallel )
     if ( !sumsqexec.executeParallel(parallel) )
 	return mUdf(T);
 
-    return mCast(T,sumsqexec.getSum());
+    return sCast(T,sumsqexec.getSum());
 }
 
 
@@ -1855,7 +1855,7 @@ inline T getNorm2( const ArrayND<T>& in, bool noudf, bool parallel )
     if ( !norm2exec.executeParallel(parallel) )
 	return mUdf(T);
 
-    return mCast(T,norm2exec.getSum());
+    return sCast(T,norm2exec.getSum());
 }
 
 template <class T>
@@ -1885,7 +1885,7 @@ inline T getRMS( const ArrayND<T>& in, bool noudf, bool parallel )
     if ( !rmsexec.executeParallel(parallel) )
 	return mUdf(T);
 
-    return mCast(T,rmsexec.getSum());
+    return sCast(T,rmsexec.getSum());
 }
 
 
@@ -1937,7 +1937,7 @@ inline T getResidual( const ArrayND<T>& in1, const ArrayND<T>& in2, bool noudf,
     if ( !residualexec.executeParallel(parallel) )
 	return mUdf(T);
 
-    return mCast(T,residualexec.getSum());
+    return sCast(T,residualexec.getSum());
 }
 
 
@@ -1955,7 +1955,7 @@ inline T getSumXMY2( const ArrayND<T>& in1, const ArrayND<T>& in2, bool noudf,
     if ( !sumxmy2exec.executeParallel(parallel) )
 	return mUdf(T);
 
-    return mCast(T,sumxmy2exec.getSum());
+    return sCast(T,sumxmy2exec.getSum());
 }
 
 
@@ -1972,7 +1972,7 @@ inline T getSumX2PY2( const ArrayND<T>& in1, const ArrayND<T>& in2, bool noudf,
     if ( !sumx2py2exec.executeParallel(parallel) )
 	return mUdf(T);
 
-    return mCast(T,sumx2py2exec.getSum());
+    return sCast(T,sumx2py2exec.getSum());
 }
 
 
@@ -1990,7 +1990,7 @@ inline T getSumX2MY2( const ArrayND<T>& in1, const ArrayND<T>& in2, bool noudf,
     if ( !sumx2my2exec.executeParallel(parallel) )
 	return mUdf(T);
 
-    return mCast(T,sumx2my2exec.getSum());
+    return sCast(T,sumx2my2exec.getSum());
 }
 
 
@@ -2009,7 +2009,7 @@ inline bool getInterceptGradient( const ArrayND<T>& iny, const ArrayND<T>* inx_,
     const ArrayND<T>* inx = hasxvals ? inx_ : 0;
     if ( !hasxvals )
     {
-	Array1DImpl<T>* inxtmp = new Array1DImpl<T>( mCast(int,sz) );
+	Array1DImpl<T>* inxtmp = new Array1DImpl<T>( sCast(int,sz) );
 	if ( !inxtmp->isOK() )
 	    { delete inxtmp; return false; }
 
@@ -2017,7 +2017,7 @@ inline bool getInterceptGradient( const ArrayND<T>& iny, const ArrayND<T>* inx_,
 	if ( inxvals )
 	{
 	    for ( od_uint64 idx=0; idx<sz; idx++ )
-		inxvals[idx] = mCast(fT,idx);
+		inxvals[idx] = sCast(fT,idx);
 	}
 	else
 	{
@@ -2025,7 +2025,7 @@ inline bool getInterceptGradient( const ArrayND<T>& iny, const ArrayND<T>* inx_,
 	    od_uint64 idx = 0;
 	    do
 	    {
-		inxtmp->setND( iter.getPos(), mCast(fT,idx) );
+		inxtmp->setND( iter.getPos(), sCast(fT,idx) );
 		idx++;
 	    } while ( iter.next() );
 	}
@@ -2042,7 +2042,7 @@ inline bool getInterceptGradient( const ArrayND<T>& iny, const ArrayND<T>* inx_,
     removeBias<T,fT>( inyed );
     removeBias<T,fT>( inxed );
 
-    Array1DImpl<T> crossprodxy( mCast(int,sz) );
+    Array1DImpl<T> crossprodxy( sCast(int,sz) );
     if ( !crossprodxy.isOK() )
 	{ if ( !hasxvals ) delete inx; return false; }
 
@@ -2521,7 +2521,7 @@ public:
 		    , tks_(tks)
 		    , outp_(outp)
 		    , totalnr_(trcssampling.totalSizeInside(tks) ==
-			       mCast(int,tks.totalNr()) ? 0 :
+			       sCast(int,tks.totalNr()) ? 0 :
 			       outp.info().getTotalSz()/outp.info().getSize(2))
 		{}
 
@@ -2668,7 +2668,7 @@ private:
 
 		    topmute_.setAll( 0 );
 		    const int nrz =
-				mCast(int,data_.info().getTotalSz()/totalnr_);
+				sCast(int,data_.info().getTotalSz()/totalnr_);
 		    tailmute_.setAll( nrz-1 );
 
 		    return true;
@@ -2712,7 +2712,7 @@ private:
 		    if ( hiter )
 			hiter->setGlobalPos( start );
 
-		    const T zeroval = mCast(T,0);
+		    const T zeroval = sCast(T,0);
 		    mDeclareAndTryAlloc(int*,pos,int[ndim])
 		    if ( !pos )
 			return false;

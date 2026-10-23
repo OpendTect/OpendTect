@@ -443,11 +443,11 @@ void TrcKeyZSampling::limitTo( const TrcKeyZSampling& tkzs, bool ignoresteps )
       if ( !mIsUdf(v1) && !mIsUdf(v2) && v1 op v2 ) v1 = v2;
 
 #define mSnapStop( start, stop, step, eps ) \
-    stop = start + step * mCast( int, (stop-start+eps)/step );
+    stop = start + step * sCast( int, (stop-start+eps)/step );
 
 #define mApproach( diff, var, assignoper, step ) \
     if ( diff>0 ) \
-	var assignoper step * mCast( int, (diff)/step );
+	var assignoper step * sCast( int, (diff)/step );
 
 
 void TrcKeyZSampling::limitToWithUdf( const TrcKeyZSampling& c )

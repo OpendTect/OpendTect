@@ -37,7 +37,7 @@ uiAttribTransDlg::~uiAttribTransDlg()
 void uiAttribTransDlg::changeCB( CallBacker* )
 {
     const int val = 255*slider_->getIntValue()/100;
-    so_.setAttribTransparency( attrib_, mCast(unsigned char,val) );
+    so_.setAttribTransparency( attrib_, sCast(unsigned char,val) );
 }
 
 

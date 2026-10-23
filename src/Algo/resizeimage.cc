@@ -131,7 +131,7 @@ bool ImageResizer::doWork( od_int64 start, od_int64 stop,int)
 		int ires = mNINT32( res );
 		if ( ires<0 ) ires=0; else if ( ires>256 ) ires = 256;
 
-		outputimage_[idx*nrcomponents_+idc] = mCast(unsigned char,ires);
+		outputimage_[idx*nrcomponents_+idc] = sCast(unsigned char,ires);
 	    }
 
 	    idx++;

@@ -180,7 +180,7 @@ bool GrubbsFilter::computeData( const DataHolder& output, const BinID& relpos,
 	    const DataHolder* data = inputdata_[trcidx];
 	    for ( int zidx=samplegate.start_; zidx<=samplegate.stop_ ; zidx++ )
 	    {
-		float sampleidx = mCast( float, idx + zidx );
+		float sampleidx = sCast( float, idx + zidx );
 
 		float traceval = mUdf(float);
 		if ( data )

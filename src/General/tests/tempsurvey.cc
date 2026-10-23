@@ -217,7 +217,7 @@ static bool testSurveyAgainstJSON( const OD::JSON::Object& obj )
     const double expsrd =
 		obj.getDoubleValue( sJSONKey::SeismicRefDatum() );
     mRunStandardTestWithError(
-	mIsEqual(expsrd,mCast(double,SI().seismicReferenceDatum()),1e-4),
+	mIsEqual(expsrd,sCast(double,SI().seismicReferenceDatum()),1e-4),
 	"Seismic reference datum",
 	expectValErrMsg(expsrd,SI().seismicReferenceDatum()) );
 

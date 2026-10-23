@@ -421,10 +421,10 @@ bool uiGraphicsViewBody::gestureEvent( QGestureEvent* ev )
     {
 	const QPointF qcenter = pinch->centerPoint();
 	const QPoint pinchcenter = qwidget()->mapFromGlobal(qcenter.toPoint());
-	GestureEvent gevent( mCast(int,pinchcenter.x()),
-			     mCast(int,pinchcenter.y()),
-			     mCast(float,pinch->scaleFactor()),
-			     mCast(float,pinch->rotationAngle()));
+	GestureEvent gevent( sCast(int,pinchcenter.x()),
+			     sCast(int,pinchcenter.y()),
+			     sCast(float,pinch->scaleFactor()),
+			     sCast(float,pinch->rotationAngle()));
 
 	if ( pinch->state() == Qt::GestureStarted )
 	    gevent.setState( GestureEvent::Started );

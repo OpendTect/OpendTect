@@ -328,7 +328,7 @@ Sampled2DProbDenFunc* get2DPDF()
     { uiMSG().error( imp.errmsg_ ); act; } \
 }
 
-#define mCastPDF(pdfa,pdfb,pdf,act) \
+#define dCastPDF(pdfa,pdfb,pdf,act) \
 { \
     mDynamicCast(Sampled1DProbDenFunc*,pdfa,pdf) \
     mDynamicCast(Sampled2DProbDenFunc*,pdfb,pdf) \
@@ -346,7 +346,7 @@ void uiImpRokDocPDF::selChg( CallBacker* )
 
     Sampled1DProbDenFunc* pdf1d = nullptr;
     Sampled2DProbDenFunc* pdf2d = nullptr;
-    mCastPDF(pdf1d,pdf2d,pdf,delete pdf;return)
+    dCastPDF(pdf1d,pdf2d,pdf,delete pdf;return)
 
     varnmsfld_->setText( pdf1d ? pdf1d->dimName( 0 ) : pdf2d->dimName( 0 ) );
     const Interval<float> xrg = pdf->getRange( 0 );
@@ -426,7 +426,7 @@ ArrayNDProbDenFunc* uiImpRokDocPDF::getAdjustedPDF(
 {
     Sampled1DProbDenFunc* inpdf1d = nullptr;
     Sampled2DProbDenFunc* inpdf2d = nullptr;
-    mCastPDF(inpdf1d,inpdf2d,in,return nullptr)
+    dCastPDF(inpdf1d,inpdf2d,in,return nullptr)
 
     StepInterval<float> xrg, yrg;
     if ( !getPDFFldRes(xrgfld_,xnrbinfld_,xrg,false) ||
@@ -514,7 +514,7 @@ bool uiImpRokDocPDF::acceptOK( CallBacker* )
 
     Sampled1DProbDenFunc* pdf1d = nullptr;
     Sampled2DProbDenFunc* pdf2d = nullptr;
-    mCastPDF(pdf1d,pdf2d,pdf,return false)
+    dCastPDF(pdf1d,pdf2d,pdf,return false)
 
     uiString errmsg;
     if ( ( pdf1d && !ProbDenFuncTranslator::write(*pdf1d,*pdfioobj,&errmsg) ) ||

@@ -330,7 +330,7 @@ bool WellTie::DataPlayer::extractWvf( bool issynt )
 	stats += val;
 	idy++;
     }
-    const float wvfrms = mCast( float, stats.rms() );
+    const float wvfrms = sCast( float, stats.rms() );
     if ( issynt )
     {
 	delete [] syntarr_;

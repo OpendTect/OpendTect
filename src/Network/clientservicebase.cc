@@ -431,7 +431,7 @@ bool BatchServiceClientMgr::canParseRequest( const OD::JSON::Object& request,
 		 || !reqobj->isPresent(sKey::ID()) )
 	{ uirv = errstr.arg("Type/ID is missing"); return false; }
 
-    const Network::Service::ID servid = mCast(Network::Service::ID,
+    const Network::Service::ID servid = sCast(Network::Service::ID,
 					reqobj->getIntValue(sKey::ID()) );
     const Network::Service* service = getService( servid );
     if ( !service || !service->isOK() )
@@ -455,7 +455,7 @@ uiRetVal BatchServiceClientMgr::doHandleRequest( const OD::JSON::Object&
 
     const OD::JSON::Object* reqobj = request.getObject( sKeyBatchRequest() );
     const BufferString reqtype = reqobj->getStringValue( sKey::Type() );
-    const Network::Service::ID servid = mCast(Network::Service::ID,
+    const Network::Service::ID servid = sCast(Network::Service::ID,
 					reqobj->getIntValue(sKey::ID()) );
 
     if ( reqtype == StringView(sKey::Status()) )

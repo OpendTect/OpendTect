@@ -213,7 +213,7 @@ bool SEGYSeisTrcTranslator::readTapeHeader()
     if ( endpos < 0 )
 	estnrtrcs_ = -1;
     else
-	estnrtrcs_ = mCast( int, (endpos - cEndTapeHeader)
+	estnrtrcs_ = sCast( int, (endpos - cEndTapeHeader)
 			    / (cTraceHeaderBytes + dataBytes()*innrsamples_) );
 
     if ( estnrtrcs_ < -1 )
@@ -414,7 +414,7 @@ void SEGYSeisTrcTranslator::interpretBuf( SeisTrcInfo& ti )
 	    }
 	}
 
-	ti.coord_ = bp2c_->coordAt( mCast(float,ti.trcNr()) );
+	ti.coord_ = bp2c_->coordAt( sCast(float,ti.trcNr()) );
     }
 
     if ( ti.coord_.x_ > 1e9 || ti.coord_.y_ > 1e9 )
@@ -459,7 +459,7 @@ bool SEGYSeisTrcTranslator::writeTapeHeader()
 	mErrRet(tr("Cannot write SEG-Y Textual header"))
 
     binhead_.setForWrite();
-    binhead_.setFormat( mCast(short,filepars_.fmt_ < 2 ? 1 : filepars_.fmt_) );
+    binhead_.setFormat( sCast(short,filepars_.fmt_ < 2 ? 1 : filepars_.fmt_) );
     filepars_.fmt_ = binhead_.format();
     binhead_.setEntryVal( SEGY::BinHeader::EntryLino(), pinfo_.nr_ );
     mDefineStaticLocalObject( int, jobid, = 0 );
@@ -495,7 +495,7 @@ void SEGYSeisTrcTranslator::fillHeaderBuf( const SeisTrc& trc )
 	sdtoput.step_ *= zfac;
     }
 
-    trchead_.putSampling( sdtoput, mCast(unsigned short,nstoput) );
+    trchead_.putSampling( sdtoput, sCast(unsigned short,nstoput) );
 }
 
 

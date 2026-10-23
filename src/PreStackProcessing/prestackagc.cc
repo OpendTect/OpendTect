@@ -37,7 +37,7 @@ AGC::~AGC()
 
 bool AGC::prepareWork()
 {
-    totalnr_ = mCast(int,inputs_.size()*nrIterations());
+    totalnr_ = sCast(int,inputs_.size()*nrIterations());
 
     if ( !Processor::prepareWork() )
 	return false;
@@ -95,7 +95,7 @@ bool AGC::doWork( od_int64 start, od_int64 stop, int )
     agc.setMuteFraction( mutefraction_ );
     agc.setSampleGate( samplewindow_ );
 
-    const int incr = mCast( int, stop-start+1 );
+    const int incr = sCast( int, stop-start+1 );
     for ( int idx=outputs_.size()-1; idx>=0; idx--, addToNrDone(incr) )
     {
 	Gather* output = outputs_[idx];
@@ -111,8 +111,8 @@ bool AGC::doWork( od_int64 start, od_int64 stop, int )
 
 	const int lastoffset = input->size( Gather::offsetDim()==0 ) - 1;
 
-	const int curstop = mCast( int, mMIN(lastoffset,stop) );
-	for ( int offsetidx=mCast(int,start); offsetidx<=curstop; offsetidx++ )
+	const int curstop = sCast( int, mMIN(lastoffset,stop) );
+	for ( int offsetidx=sCast(int,start); offsetidx<=curstop; offsetidx++ )
 	{
 	    inputtrace.setPos( Gather::offsetDim(), offsetidx );
 	    outputtrace.setPos( Gather::offsetDim(), offsetidx );

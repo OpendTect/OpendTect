@@ -133,7 +133,7 @@ uiEventGroup::uiEventGroup( uiParent* p, bool is2d )
 					.arg(SI().getUiZUnitString());
     if ( sNrZDecimals==0 )
     {
-	const int step = mCast(int,SI().zStep()*SI().zDomain().userFactor());
+	const int step = sCast(int,SI().zStep()*SI().zDomain().userFactor());
 	StepInterval<int> intv( -10000, 10000, step );
 	IntInpIntervalSpec iis;
 	iis.setSymmetric( true );

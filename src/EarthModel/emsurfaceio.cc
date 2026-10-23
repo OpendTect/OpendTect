@@ -163,7 +163,7 @@ bool dgbSurfaceReader::readParData( od_istream& strm, const IOPar& toppar,
 
 	if ( !strm.isOK() ) { msg_ = sMsgReadError(); return false; }
 
-	parsoffset_ = mCast(int,strm.position());
+	parsoffset_ = sCast(int,strm.position());
 	ascistream parstream( strm, false );
 	parstream.next();
 	delete par_;
@@ -1054,8 +1054,7 @@ bool dgbSurfaceReader::readVersion1Row( od_istream& strm, int firstcol,
 	{
 	    int i, j;
 	    if ( getIndices(surfrc,i,j) )
-		arr_->set( i, j, mCast(float,pos.z_) );
-
+                arr_->set( i, j, sCast(float,pos.z_) );
 	}
 	else
 	    surface_->setPos( surfrc.toInt64(), pos, false );
@@ -1113,7 +1112,7 @@ bool dgbSurfaceReader::readVersion2Row( od_istream& strm,
 	{
 	    int i, j;
 	    if ( getIndices(rowcol,i,j) )
-                arr_->set( i, j, mCast(float,pos.z_) );
+                arr_->set( i, j, sCast(float,pos.z_) );
 	}
 	else
 	    surface_->setPos( rowcol.toInt64(), pos, false );
@@ -3247,7 +3246,7 @@ bool dgbSurfaceWriter::writeRow( od_ostream& strm )
                 const int index = mIsUdf(pos.z_)
                                   ? 0xFFFF : sd.nearestIndex(pos.z_);
 
-		if ( !writeInt16( strm, mCast(unsigned short,index),
+		if ( !writeInt16( strm, sCast(unsigned short,index),
 			          idx!=colcoords.size()-1 ? sEOLTab() : sEOL()))
 		{
 		    msg_ = sMsgWriteError();

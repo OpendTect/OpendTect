@@ -521,7 +521,7 @@ SeisTrcInfo::Fld SeisTrcInfo::getDefaultAxisFld( Seis::GeomType gt,
 void SeisTrcInfo::setPSFlds( const Coord& rcv, const Coord& src, bool setpos )
 {
     offset_ = (float) rcv.distTo( src );
-    azimuth_ = mCast(float, Math::Atan2( rcv.y_ - src.y_, rcv.x_ - src.x_ ) );
+    azimuth_ = sCast(float, Math::Atan2( rcv.y_ - src.y_, rcv.x_ - src.x_ ) );
     if ( setpos )
     {
 	coord_.x_ = .5 * (rcv.x_ + src.x_);

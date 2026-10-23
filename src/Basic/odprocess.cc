@@ -384,7 +384,7 @@ PID_Type OD::Process::processId() const
 
 #if QT_VERSION >= QT_VERSION_CHECK(5,3,0)
     const qint64 qpid = process_->processId();
-    return mCast( PID_Type, qpid );
+    return sCast( PID_Type, qpid );
 #else
 # ifdef __win__
     const PROCESS_INFORMATION* pi = (PROCESS_INFORMATION*) process_->pid();

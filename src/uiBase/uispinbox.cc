@@ -371,7 +371,7 @@ void uiSpinBox::setValue( float val )
 
 void uiSpinBox::setValue( double val )
 {
-    setValue( mCast(float,val) );
+    setValue( sCast(float,val) );
 }
 
 
@@ -410,7 +410,7 @@ float uiSpinBox::minFValue() const
 void uiSpinBox::setMaxValue( int val )
 {
     mBlockCmdRec;
-    const double maxval = mIsUdf(val) ? mUdf(double) : mCast(double,val);
+    const double maxval = mIsUdf(val) ? mUdf(double) : sCast(double,val);
     body_->setMaximum( maxval );
 }
 
@@ -418,14 +418,14 @@ void uiSpinBox::setMaxValue( int val )
 void uiSpinBox::setMaxValue( float val )
 {
     mBlockCmdRec;
-    const double maxval = mIsUdf(val) ? mUdf(double) : mCast(double,val);
+    const double maxval = mIsUdf(val) ? mUdf(double) : sCast(double,val);
     body_->setMaximum( maxval );
 }
 
 
 void uiSpinBox::setMaxValue( double val )
 {
-    setMaxValue( mCast(float,val) );
+    setMaxValue( sCast(float,val) );
 }
 
 
@@ -439,7 +439,7 @@ int uiSpinBox::maxValue() const
 float uiSpinBox::maxFValue() const
 {
     const double maxval = body_->maximum();
-    return mIsUdf(maxval) ? mUdf(float) : mCast(float,maxval);
+    return mIsUdf(maxval) ? mUdf(float) : sCast(float,maxval);
 }
 
 
@@ -476,7 +476,7 @@ void uiSpinBox::setStep( float stp, bool snapcur )
 
 void uiSpinBox::setStep( double stp, bool snapcur )
 {
-    setStep( mCast(float,stp), snapcur );
+    setStep( sCast(float,stp), snapcur );
 }
 
 

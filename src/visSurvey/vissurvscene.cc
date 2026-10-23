@@ -548,7 +548,7 @@ float Scene::getFixedZStretch() const
 float Scene::getTempZStretch() const
 {
     return tempzstretchtrans_
-            ? mCast(float,tempzstretchtrans_->getScale().z_)
+            ? sCast(float,tempzstretchtrans_->getScale().z_)
 	: 1.f;
 }
 

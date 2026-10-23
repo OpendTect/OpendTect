@@ -381,7 +381,7 @@ int RandomLine::getNearestPathPosIdx( const TrcKeySet& knots,
     for ( int ipath=linesegrg.start_; ipath<=linesegrg.stop_; ipath++ )
     {
 	const BinID rdlpos = path[ipath].position();
-	const double sqdist = mCast(double,rdlpos.sqDistTo( intsecbid ));
+	const double sqdist = sCast(double,rdlpos.sqDistTo( intsecbid ));
 	if ( minsqdist > sqdist )
 	{
 	    minsqdist = sqdist;

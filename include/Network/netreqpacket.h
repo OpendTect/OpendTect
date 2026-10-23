@@ -457,7 +457,7 @@ inline void PacketInterpreter::getArr( ArrayND<T>& arr, bool rawmode ) const
 	return;
     }
 
-    int arrsz = mCast(int,arr.totalSize());
+    int arrsz = sCast(int,arr.totalSize());
     if ( !rawmode )
     {
 	get( arrsz );

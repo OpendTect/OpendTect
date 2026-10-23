@@ -116,7 +116,7 @@ void Horizon2DScanner::report( IOPar& iopar ) const
     iopar.add( "Line names", validnms_.getDispString(-1,false) );
     iopar.add( "Rejected line names", invalidnms_.getDispString(-1,false) );
 
-    const int nrpos = mCast( int, bvalset_ ? bvalset_->totalSize() : 0 );
+    const int nrpos = sCast( int, bvalset_ ? bvalset_->totalSize() : 0 );
     if ( !nrpos )
     {
 	iopar.add( "No valid positions found",

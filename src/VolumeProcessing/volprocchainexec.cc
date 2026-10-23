@@ -338,8 +338,8 @@ bool VolProc::ChainExecutor::checkAndSplit( od_int64 memusage,
     if ( memusage >= freemem )
     {
 	nrexecs = freemem <= 0 ? 0
-			       : mNINT32( Math::Ceil( mCast(double,memusage) /
-					  mCast(double,freemem) ) );
+			       : mNINT32( Math::Ceil( sCast(double,memusage) /
+					  sCast(double,freemem) ) );
 	if ( nrexecs > 1 && !cansplit )
 	{
 	    bytesstrcalc.setUnitFrom( freemem );
@@ -390,7 +390,7 @@ int VolProc::ChainExecutor::nrChunks( const TrcKeySampling& tks,
 				      od_uint64& memusage )
 {
     memusage = calculateMaximumMemoryUsage( tks, zsamp );
-    const od_int64 nrbytes = mCast( od_int64, 1.01f * memusage );
+    const od_int64 nrbytes = sCast( od_int64, 1.01f * memusage );
     od_int64 freemem; int nrexecs;
     if ( !checkAndSplit(nrbytes,freemem,nrexecs) )
 	return 0;
@@ -398,8 +398,8 @@ int VolProc::ChainExecutor::nrChunks( const TrcKeySampling& tks,
     if ( nrexecs == 1 )
 	return 1;
 
-    int halfnrlinesperchunk = mNINT32( Math::Ceil( mCast(double,tks.nrLines()) /
-						mCast(double,2 * nrexecs) ) );
+    int halfnrlinesperchunk = mNINT32( Math::Ceil( sCast(double,tks.nrLines()) /
+						sCast(double,2 * nrexecs) ) );
     while ( halfnrlinesperchunk > 0 )
     {
 	TrcKeySampling starthsamp( tks ), centerhsamp( tks ), stophsamp( tks );
@@ -424,7 +424,7 @@ int VolProc::ChainExecutor::nrChunks( const TrcKeySampling& tks,
 	if ( memstop > memusage )
 	    memusage = memstop;
 
-	if ( mCast(od_uint64,1.01f*memusage) < freemem )
+	if ( sCast(od_uint64,1.01f*memusage) < freemem )
 	    break;
 
 	halfnrlinesperchunk--;
@@ -433,8 +433,8 @@ int VolProc::ChainExecutor::nrChunks( const TrcKeySampling& tks,
     if ( halfnrlinesperchunk < 1 )
 	return 0;
 
-    return mNINT32( Math::Ceil( mCast(double,tks.nrLines() /
-				mCast(double,2*halfnrlinesperchunk) ) ) );
+    return mNINT32( Math::Ceil( sCast(double,tks.nrLines() /
+				sCast(double,2*halfnrlinesperchunk) ) ) );
 }
 
 

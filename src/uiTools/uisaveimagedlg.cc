@@ -526,8 +526,8 @@ bool uiSaveImageDlg::usePar( const IOPar& par )
 
 void uiSaveImageDlg::setSizeInPix( int width, int height )
 {
-    sizepix_.setWidth( mCast(float,width) );
-    sizepix_.setHeight( mCast(float,height) );
+    sizepix_.setWidth( sCast(float,width) );
+    sizepix_.setHeight( sCast(float,height) );
     const float dpi = dpifld_->box()->getFValue();
     sPixels2Inch( sizepix_, sizeinch_, dpi );
     sInch2Cm( sizeinch_, sizecm_ );
@@ -551,12 +551,12 @@ uiSaveWinImageDlg::uiSaveWinImageDlg( uiParent* p )
     : uiSaveImageDlg(p,true,false)
 {
     enableSaveButton( uiStrings::sEmptyString() );
-    screendpi_ = mCast(float,uiMain::getMinDPI());
+    screendpi_ = sCast(float,uiMain::getMinDPI());
     mDynamicCastGet(uiMainWin*,mw,p);
     aspectratio_ = 1.0f;
     if ( mw )
-	aspectratio_ = mCast(float,mw->geometry().width())/
-		       mCast(float,mw->geometry().height());
+	aspectratio_ = sCast(float,mw->geometry().width())/
+		       sCast(float,mw->geometry().height());
     createGeomInpFlds( cliboardselfld_ );
     if ( useparsfld_ ) useparsfld_->display( false, true );
     dpifld_->box()->setValue( screendpi_ );

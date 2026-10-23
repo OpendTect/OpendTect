@@ -294,7 +294,7 @@ bool ReflCalc1D::doWork( od_int64 start, od_int64 stop, int threadidx )
 	stop--;
 
     const int nrmodels = refmodel_->nrRefModels();
-    for ( int layer=mCast(int,start); layer<=stop; layer++, addToNrDone(1) )
+    for ( int layer=sCast(int,start); layer<=stop; layer++, addToNrDone(1) )
     {
 	const AILayer& ailay0 = model_.get(layer)->asAcoustic();
 	const AILayer& ailay1 = model_.get(layer+1)->asAcoustic();

@@ -65,7 +65,7 @@ bool Stack::usePar( const IOPar& par )
 
 bool Stack::doWork( od_int64 start, od_int64 stop, int )
 {
-    for ( int idz=mCast(int,start); idz<=stop; idz++, addToNrDone(1) )
+    for ( int idz=sCast(int,start); idz<=stop; idz++, addToNrDone(1) )
     {
 	 for ( int idx=outputs_.size()-1; idx>=0; idx-- )
 	 {

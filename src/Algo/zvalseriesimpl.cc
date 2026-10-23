@@ -162,15 +162,15 @@ SamplingData<double> RegularZValues::getDoubleSamplingData(
     if ( Math::Abs(relpos) > nrsamplesf*1e-4f )
 	return ret;
 
-    ret.step_ = 1. / mCast(double,nrsamples);
+    ret.step_ = 1. / sCast(double,nrsamples);
 
-    nrsamplesf = mCast(float,ret.start_ / ret.step_);
+    nrsamplesf = sCast(float,ret.start_ / ret.step_);
     nrsamples = mNINT32( nrsamplesf );
     relpos = nrsamplesf - nrsamples;
     if ( Math::Abs(relpos) > nrsamplesf*1e-4f )
 	return ret;
 
-    ret.start_ = ret.step_ * mCast(double, nrsamples);
+    ret.start_ = ret.step_ * sCast(double, nrsamples);
 
     return ret;
 }

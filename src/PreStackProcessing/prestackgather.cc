@@ -79,8 +79,8 @@ Gather::Gather( const FlatPosData& fposdata, Seis::OffsetType offsettype,
 {
     posdata_ = fposdata;
     const StepInterval<double> zsamp = fposdata.range( false );
-    zrg_.set( mCast(float,zsamp.start_), mCast(float,zsamp.stop_),
-              mCast(float,zsamp.step_) );
+    zrg_.set( sCast(float,zsamp.start_), sCast(float,zsamp.stop_),
+              sCast(float,zsamp.step_) );
     setZDomain( zinfo );
 }
 

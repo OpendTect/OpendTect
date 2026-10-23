@@ -540,8 +540,8 @@ void uiStratDrawer::eraseAll()
 
 void uiStratDrawer::drawBorders( ColumnItem& colitm )
 {
-    int x1 = xax_->getPix( mCast( float, (colitm.pos_)*colitm.size_ ) );
-    int x2 = xax_->getPix( mCast( float, (colitm.pos_+1)*colitm.size_ ) );
+    int x1 = xax_->getPix( sCast( float, (colitm.pos_)*colitm.size_ ) );
+    int x2 = xax_->getPix( sCast( float, (colitm.pos_+1)*colitm.size_ ) );
     int y1 = yax_->getPix( yax_->range().stop_ );
     int y2 = yax_->getPix( yax_->range().start_ );
 
@@ -586,8 +586,8 @@ void uiStratDrawer::drawLevels( ColumnItem& colitm )
 	if ( !rg.includes(lvl.zpos_,false) )
 	    continue;
 
-	const int x1 = xax_->getPix( mCast(float,(colitm.pos_)*colitm.size_) );
-	const int x2 = xax_->getPix( mCast(float,(colitm.pos_+1)*colitm.size_));
+	const int x1 = xax_->getPix( sCast(float,(colitm.pos_)*colitm.size_) );
+	const int x2 = xax_->getPix( sCast(float,(colitm.pos_+1)*colitm.size_));
 	const int y = yax_->getPix( lvl.zpos_ );
 
 	uiLineItem* li = scene_.addItem( new uiLineItem(x1,y,x2,y) );
@@ -596,7 +596,7 @@ void uiStratDrawer::drawLevels( ColumnItem& colitm )
 						  : OD::LineStyle::Solid;
 	li->setPenStyle( OD::LineStyle(lst,2,lvl.color_) );
 	uiTextItem* ti = scene_.addItem( new uiTextItem(toUiString(lvl.name_)));
-	ti->setPos( mCast(float,x1+(x2-x1)/2), mCast(float,y) );
+	ti->setPos( sCast(float,x1+(x2-x1)/2), sCast(float,y) );
 	ti->setZValue( 4 );
 	ti->setTextColor( lvl.color_ );
 
@@ -645,8 +645,8 @@ void uiStratDrawer::drawUnits( ColumnItem& colitm )
 		|| !unit.isdisplayed_ ) continue;
 	unitrg.limitTo( rg );
 
-	int x1 = xax_->getPix( mCast(float,(colitm.pos_)*colitm.size_) );
-	int x2 = xax_->getPix( mCast(float,(colitm.pos_+1)*colitm.size_) );
+	int x1 = xax_->getPix( sCast(float,(colitm.pos_)*colitm.size_) );
+	int x2 = xax_->getPix( sCast(float,(colitm.pos_+1)*colitm.size_) );
 	bool ztop = ( unitrg.start_ < rg.stop_ );
 	bool zbase = ( unitrg.stop_ > rg.start_ );
 	int y1 = yax_->getPix( ztop ? rg.stop_ : unitrg.start_ );
@@ -674,7 +674,7 @@ void uiStratDrawer::drawUnits( ColumnItem& colitm )
 
 	uiTextItem* ti = scene_.addItem( new uiTextItem( toUiString(unm )) );
 	ti->setTextColor( OD::Color::Black() );
-	ti->setPos( mCast(float,(x1+x2)/2), mCast(float,y2-abs((y2-y1)/2)-10) );
+	ti->setPos( sCast(float,(x1+x2)/2), sCast(float,y2-abs((y2-y1)/2)-10) );
 	ti->setAlignment( Alignment::HCenter );
 	ti->setZValue( 3 );
 	colitm.txtitms_ += ti;
@@ -821,7 +821,7 @@ void uiStratViewControl::handDragStarted( CallBacker* )
     if ( mouseEventHandler().event().rightButton() )
 	return;
     mousepressed_ = true;
-    startdragpos_ = mCast( float, mouseEventHandler().event().pos().y_ );
+    startdragpos_ = sCast( float, mouseEventHandler().event().pos().y_ );
 }
 
 
@@ -830,7 +830,7 @@ void uiStratViewControl::handDragging( CallBacker* )
     if ( viewer_.dragMode() != uiGraphicsViewBase::ScrollHandDrag
 	|| !mousepressed_ ) return;
 
-    const float newpos = mCast(float,mouseEventHandler().event().pos().y_);
+    const float newpos = sCast(float,mouseEventHandler().event().pos().y_);
     const uiRect& allarea = viewer_.getSceneRect();
     LinScaler scaler( allarea.top()+border, range_.start_,
 		      allarea.bottom()-border, range_.stop_ );
@@ -865,8 +865,8 @@ void uiStratViewControl::rubBandCB( CallBacker* )
     const uiRect& allarea = viewer_.getSceneRect();
     LinScaler scaler( allarea.top()+border, range_.start_,
 		      allarea.bottom()-border, range_.stop_ );
-    const Interval<float> rg( mCast(float,scaler.scale(selarea->top())),
-			      mCast(float,scaler.scale(selarea->bottom())) );
+    const Interval<float> rg( sCast(float,scaler.scale(selarea->top())),
+			      sCast(float,scaler.scale(selarea->bottom())) );
     if ( rg.width()<=0.1 ) return;
 
     range_ = rg;

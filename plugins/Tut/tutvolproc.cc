@@ -151,7 +151,7 @@ TutOpCalculatorTask::TutOpCalculatorTask( const Array3D<float>& input,
 bool TutOpCalculatorTask::doWork( od_int64 start, od_int64 stop, int )
 {
     BinID curbid;
-    const int incr = mCast( int, stop-start+1 );
+    const int incr = sCast( int, stop-start+1 );
     const int nrinlines = input_.info().getSize( 0 );
     const int nrcrosslines = input_.info().getSize( 1 );
     const int nrsamples = input_.info().getSize( 2 );

@@ -44,7 +44,7 @@ void HistEqualizer::setRawData( const TypeSet<float>& datapts )
 
 void HistEqualizer::update()
 {
-    const int datasz = mCast( int, datapts_.size() );
+    const int datasz = sCast( int, datapts_.size() );
     if ( histeqdatarg_ )
 	delete histeqdatarg_;
     histeqdatarg_ = new TypeSet< Interval<float> >();
@@ -103,7 +103,7 @@ float HistEqualizer::position( float val ) const
 
 void HistEqualizer::getSegmentSizes( TypeSet<int>& segszs )
 {
-    const int datasz = mCast( int, datapts_.size() );
+    const int datasz = sCast( int, datapts_.size() );
     const int aindexlength = (int)(datasz/nrseg_);
     const int bindexlength = aindexlength+1;
     const int numberofa = bindexlength*nrseg_ - datasz;

@@ -458,7 +458,7 @@ void uiWellDahDisplay::drawMarkers()
 	markerdraws_ += mrkdraw;
 
 	uiLineItem* li = scene().addItem( new uiLineItem(
-	   mCast(float,x1),mCast(float,y),mCast(float,x2),mCast(float,y)));
+	   sCast(float,x1),sCast(float,y),sCast(float,x2),sCast(float,y)));
 	const int shapeint = mrkdisp_.shapeint_;
 	const int drawsize = mrkdisp_.getSize();
 	OD::LineStyle ls = OD::LineStyle( OD::LineStyle::Dot, drawsize, col );

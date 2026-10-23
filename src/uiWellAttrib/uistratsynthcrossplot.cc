@@ -274,7 +274,7 @@ RefMan<DataPointSet> uiStratSynthCrossplot::getData(
 	{
 	    if ( stoplvl && extrwin.isUdf() )
 		timerg.stop_ = twt + zstep *
-			mCast(float, mNINT32((maxtwt-twt)/zstep) );
+			sCast(float, mNINT32((maxtwt-twt)/zstep) );
 
 	    fillPosFromZSampling( *dps, *tdmodel, trc.info(),
 				  zstep, maxtwt, timerg );
@@ -397,7 +397,7 @@ bool uiStratSynthCrossplot::extractModelNr( DataPointSet& dps ) const
     for ( int dpsrid=0; dpsrid<dps.size(); dpsrid++ )
     {
 	float* dpsvals = dps.getValues( dpsrid );
-	dpsvals[modnridx] = mCast(float,dps.trcNr(dpsrid));
+	dpsvals[modnridx] = sCast(float,dps.trcNr(dpsrid));
     }
 
     return true;

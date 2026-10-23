@@ -155,10 +155,10 @@ void AxesDrawer::updateViewRect()
     }
 
     if ( !rectitem_ )
-	rectitem_ =  view_.scene().addRect( mCast(float,rect.left()),
-					    mCast(float,rect.top()),
-					    mCast(float,rect.width()),
-					    mCast(float,rect.height()) );
+	rectitem_ =  view_.scene().addRect( sCast(float,rect.left()),
+					    sCast(float,rect.top()),
+					    sCast(float,rect.width()),
+					    sCast(float,rect.height()) );
     else
 	rectitem_->setRect( rect.left(), rect.top(),
 			    rect.width(), rect.height() );
@@ -248,7 +248,7 @@ void AxesDrawer::transformAndSetAuxAnnotation( bool forx1 )
 
 	const int annotposidx = xrg.getIndex( xannot[idx].pos_ );
 	auxannot[idx].pos_ = altdim>=0 && forx1
-	    ? mCast(float,fdp->getAltDimValue(altdim,forx1,annotposidx))
+	    ? sCast(float,fdp->getAltDimValue(altdim,forx1,annotposidx))
 	    : xannot[idx].pos_;
 
 	if ( scalex2 )

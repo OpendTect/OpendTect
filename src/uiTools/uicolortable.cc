@@ -41,7 +41,7 @@ static char fmtFromSetting( const BufferString& str )
     if ( first=='e' || first=='f' || first=='g' )
 	return first;
 
-    const char code = mCast( char, toInt(str.buf()) );
+    const char code = sCast( char, toInt(str.buf()) );
     return (code=='e' || code=='f' || code=='g') ? code : 'g';
 }
 

@@ -274,12 +274,12 @@ void AttribParamGroup::updateDesc( Attrib::Desc& desc, int idx )
     if ( !evaloutput_ )
 	return;
 
-    double step = mCast( double, desced_.getOutputValue(0) );
+    double step = sCast( double, desced_.getOutputValue(0) );
     if ( mIsZero(step,mDefEps) )
-	step = mCast( double, desced_.getOutputValue(1) );
+	step = sCast( double, desced_.getOutputValue(1) );
 
     const double val = initfld_->getDValue() + idx*step;
-    desc.selectOutput( desced_.getOutputIdx(mCast(float,val)) );
+    desc.selectOutput( desced_.getOutputIdx(sCast(float,val)) );
     mCreateLabel1( val );
 }
 
@@ -437,7 +437,7 @@ void uiEvaluateDlg::calcPush( CallBacker* )
 
     if ( enabstore_ ) storefld_->setSensitive( true );
     sliderfld_->setSensitive( true );
-    sliderfld_->setMaxValue( mCast(float,nrsteps-1) );
+    sliderfld_->setMaxValue( sCast(float,nrsteps-1) );
     sliderfld_->setTickStep( 1 );
     sliderMove(0);
 }

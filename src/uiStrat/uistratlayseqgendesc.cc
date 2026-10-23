@@ -401,8 +401,8 @@ void uiExtLayerSequenceGenDesc::wheelMoveCB( CallBacker* cb )
     const uiSize scnrectsz = scenerect.size();
     const MouseEvent& mev = mevh.event();
     uiPoint prevmousescnpos = mev.pos();
-    const float relscnposy = mCast(float,(prevmousescnpos.y_-scenerect.top()))/
-			     mCast(float,scenerect.height());
+    const float relscnposy = sCast(float,(prevmousescnpos.y_-scenerect.top()))/
+			     sCast(float,scenerect.height());
 
     const double dheight = scnrectsz.height() * 0.2;
     uiSize dsize( 0, mNINT32(dheight) );
@@ -603,14 +603,14 @@ void uiBasicLayerSequenceGenDesc::fillDispUnit( int idx, float totth,
 	dispnm.add( "[" ).add( disp.gen_->content().name() ).add( "]" );
     disp.nm_->setText(toUiString(getLimitedDisplayString(dispnm,25, false)));
     midpt.y_ = (disp.topy_ + disp.boty_) / 2;
-    disp.nm_->setPos( mCast(float,midpt.x_), mCast(float,midpt.y_-2) );
+    disp.nm_->setPos( sCast(float,midpt.x_), sCast(float,midpt.y_-2) );
 	    // the 'y-2' makes the text more nicely centered in the box
 
     const uiSize txtsz( disp.nm_->getTextSize() );
     const int radius = txtsz.height()/7;
     disp.lithcol_->setRadius( radius );
-    disp.lithcol_->setPos( mCast(float,midpt.x_ - txtsz.width()/2 - radius),
-                           mCast(float,midpt.y_) );
+    disp.lithcol_->setPos( sCast(float,midpt.x_ - txtsz.width()/2 - radius),
+                           sCast(float,midpt.y_) );
 
     leftpt.y_ = rightpt.y_ = disp.topy_;
     disp.top_->setLine( leftpt, rightpt );

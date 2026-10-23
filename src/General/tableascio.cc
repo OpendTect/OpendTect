@@ -972,7 +972,7 @@ float Table::AscIO::getFValue( int ifld, float udf,
 	return mUdf(float);
 
     double val = toDouble( sval );
-    if ( mIsEqual(mCast(float,val),udf,mDefEps) )
+    if ( mIsEqual(sCast(float,val),udf,mDefEps) )
 	return mUdf(float);
 
     const UnitOfMeasure* unit = units_.size() > ifld ? units_[ifld] : nullptr;

@@ -217,9 +217,9 @@ void PickSet::drawAll()
 	uiFlatViewer& vwr = *viewers_[ivwr];
 	const uiWorldRect& curvw = vwr.curView();
 	const float zdiff = (float) curvw.height();
-	const float nrzpixels = mCast(float,vwr.getViewRect().vNrPics());
+	const float nrzpixels = sCast(float,vwr.getViewRect().vNrPics());
 	const float zfac = nrzpixels / zdiff;
-	const float nrxpixels = mCast(float,vwr.getViewRect().hNrPics());
+	const float nrxpixels = sCast(float,vwr.getViewRect().hNrPics());
 
 	FlatView::AuxData* picks = picks_[ivwr];
 	picks->poly_.erase();

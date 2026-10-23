@@ -155,7 +155,7 @@ bool ReflectivitySampler::doWork( od_int64 start, od_int64 stop, int threadidx )
 	angvel += frequencies[idx] * fact;
 
     const float_complex* stopptr = buffer+size;
-    for ( int idx=mCast(int,start); idx<=stop; idx++, addToNrDone(1) )
+    for ( int idx=sCast(int,start); idx<=stop; idx++, addToNrDone(1) )
     {
 	const float_complex reflectivity = modelrefs[idx];
 	const float time = spikestwt_[idx];
@@ -223,12 +223,12 @@ void ReflectivitySampler::updateTimeSamplingCache()
 
     const int sz = outsampling_.nrSteps() + 1;
     const float step = outsampling_.step_;
-    float start = mCast( float, mCast( int, outsampling_.start_/step ) ) * step;
+    float start = sCast( float, sCast( int, outsampling_.start_/step ) ) * step;
     if ( start < outsampling_.start_ - 1e-4f )
 	start += step;
 
     width_ = step * sz;
-    const int nperiods = mCast( int, Math::Floor( start/width_ ) ) + 1;
+    const int nperiods = sCast( int, Math::Floor( start/width_ ) ) + 1;
     fftsampling_.start_ = start;
     fftsampling_.step_ = step;
     firsttwt_ = width_ * nperiods;

@@ -707,8 +707,8 @@ bool SEGY::FileDataSet::getDetails( od_int64 idx, Seis::PosKey& pk,
     if ( storeddata_ )
 	return storeddata_->getKey( idx, pk, usable );
 
-    pk = keys_[mCast(int,idx)];
-    usable = usable_[mCast(int,idx)];
+    pk = keys_[sCast(int,idx)];
+    usable = usable_[sCast(int,idx)];
 
     return true;
 }

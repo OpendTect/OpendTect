@@ -289,7 +289,7 @@ float Strat::LaySeqAttribCalc::getLocalValue( const LayerSequence& seq,
     for ( int idx=0; idx<vals.size(); idx++ )
 	rc.addValue( vals[idx], wts[idx] );
 
-    const float rcout = mCast( float, rc.getValue( stattype_ ) );
+    const float rcout = sCast( float, rc.getValue( stattype_ ) );
     return propisvel ? 1.f / rcout : rcout;
 }
 
@@ -365,7 +365,7 @@ float Strat::LaySeqAttribCalc::getGlobalValue( const LayerSequence& seq ) const
     for ( int idx=0; idx<vals.size(); idx++ )
 	rc.addValue( vals[idx], isthick ? 1.f : wts[idx] );
 
-    const float rcout = mCast( float, rc.getValue( stattype_ ) );
+    const float rcout = sCast( float, rc.getValue( stattype_ ) );
     return propisvel ? 1.f / rcout : rcout;
 }
 
@@ -448,7 +448,7 @@ int Strat::LayModAttribCalc::nextStep()
     const int dpsdepthidx = dps_->indexOf( sKey::Depth() );
     if ( dpsdepthidx<0 )
 	mErrRet( tr("No depth data found") )
-    const LayerSequence& seq = lm_.sequence( mCast(int,seqidx_) );
+    const LayerSequence& seq = lm_.sequence( sCast(int,seqidx_) );
     uiString errmsg = tr("No extraction interval specified "
                          "for pseudo-well number %1");
     DataPointSet::RowID dpsrid = 0;
@@ -473,7 +473,7 @@ int Strat::LayModAttribCalc::nextStep()
 	   z *= mFromFeetFactorF;
 
 	Interval<float> zrg;
-	const int seqnb = mCast( int, seqidx_ );
+	const int seqnb = sCast( int, seqidx_ );
 	if ( extrgates_.isEmpty() )
 	{
 	    const int ilay = seq.nearestLayerIdxAtZ( z );

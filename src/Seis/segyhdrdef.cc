@@ -423,7 +423,7 @@ SEGY::HdrDef::HdrDef( bool binhead )
     {
 	HdrEntry& entry = const_cast<HdrEntry&>( *(*this)[idx] );
 	entry.bytepos_ = bytnr;
-	bytnr += mCast( SEGY::HdrEntry::BytePos, entry.byteSize() );
+	bytnr += sCast( SEGY::HdrEntry::BytePos, entry.byteSize() );
     }
 }
 
@@ -465,7 +465,7 @@ int SEGY::HdrDef::idxOfBytePos( SEGY::HdrEntry::BytePos bp,
 	else if ( he.bytepos_ > bp )
 	{
 	    if ( idx )
-		offs = mCast( unsigned char, bp - (*this)[idx-1]->bytepos_ );
+		offs = sCast( unsigned char, bp - (*this)[idx-1]->bytepos_ );
 	    return idx;
 	}
     }

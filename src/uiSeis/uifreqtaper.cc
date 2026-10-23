@@ -403,12 +403,12 @@ void uiFreqTaperGrp::taperChangedCB( CallBacker* )
 {\
     int ifr = mNINT32( val  );\
     if ( mIsZero(val-ifr,1e-2) )\
-	val = mCast(float,ifr);\
+	val = sCast(float,ifr);\
 }
 #define setTo1Decimal(val)\
 {\
     val*=10;\
-    val = mCast( float, (int)val );\
+    val = sCast( float, (int)val );\
     val = (float)val/10;\
 }
 void uiFreqTaperGrp::putToScreenCB( CallBacker* )

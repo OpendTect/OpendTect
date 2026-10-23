@@ -720,7 +720,7 @@ static bool valIsCode( float val, float eps )
     if ( mIsUdf(val) )
 	return true; //No reason for failure
 
-    return val < 10000.f && mIsEqual(val,mCast(float,mNINT32(val)),eps);
+    return val < 10000.f && mIsEqual(val,sCast(float,mNINT32(val)),eps);
 }
 
 

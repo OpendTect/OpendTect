@@ -217,7 +217,7 @@ bool MarchingCubesModel::operator==( const MarchingCubesModel& mc ) const
 	if ( axispos<0 ) axispos=0; \
 	else if ( axispos>cMaxAxisPos ) \
 	    axispos = cMaxAxisPos; \
-	axispos_[axis] = mCast( unsigned char, axispos ); \
+	axispos_[axis] = sCast( unsigned char, axispos ); \
     } \
     else \
 	axispos_[axis] = cUdfAxisPos; \
@@ -347,11 +347,11 @@ bool MarchingCubesModel::readFrom( od_istream& strm, bool binary )
     else
     {
 	int res;
-	strm >> res; model_ = mCast( unsigned char, res );
-	strm >> res; submodel_ = mCast( unsigned char, res );
-	strm >> res; axispos_[mX] = mCast( unsigned char, res );
-	strm >> res; axispos_[mY] = mCast( unsigned char, res );
-	strm >> res; axispos_[mZ] = mCast( unsigned char, res );
+	strm >> res; model_ = sCast( unsigned char, res );
+	strm >> res; submodel_ = sCast( unsigned char, res );
+	strm >> res; axispos_[mX] = sCast( unsigned char, res );
+	strm >> res; axispos_[mY] = sCast( unsigned char, res );
+	strm >> res; axispos_[mZ] = sCast( unsigned char, res );
     }
 
     return !strm.isBad();
@@ -469,7 +469,7 @@ bool Implicit2MarchingCubes::doWork( od_int64 start, od_int64 stop, int )
     ArrayNDIter iterator( array_.info() );
     iterator.setPos( arraypos );
 
-    const int nriters = mCast( int, stop-start+1 );
+    const int nriters = sCast( int, stop-start+1 );
     for ( int idx=0; idx<nriters && shouldContinue();
 	  idx++, iterator.next(), addToNrDone(1) )
     {
@@ -523,9 +523,9 @@ public:
 protected:
     bool doWork( od_int64 start, od_int64 stop, int ) override
     {
-	const int nrtimes = mCast( int, stop-start+1 );
+	const int nrtimes = sCast( int, stop-start+1 );
 	int surfaceidxs[3];
-	if ( !mc2i_.surface_.models_.getIndex( mCast(int,start), surfaceidxs ) )
+	if ( !mc2i_.surface_.models_.getIndex( sCast(int,start), surfaceidxs ) )
 	    return false;
 
 	if ( !mc2i_.surface_.models_.isValidPos( surfaceidxs ) )
@@ -715,7 +715,7 @@ bool MarchingCubes2Implicit::doWork( od_int64 start, od_int64 stop,
     {
 	//Get seeds from newfloodfillers_ and polulate activefloodfillers_
 	TypeSet<od_int64> newfloodfillers;
-	for ( int idx=mCast(int,start); idx<=stop; idx++ )
+	for ( int idx=sCast(int,start); idx<=stop; idx++ )
 	{
 	    if ( newfloodfillers_[idx] )
 	    {

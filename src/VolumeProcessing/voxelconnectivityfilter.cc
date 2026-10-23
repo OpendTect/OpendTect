@@ -237,7 +237,7 @@ bool VoxelConnectivityFilterTask::doWork( od_int64 start, od_int64 stop, int )
 
 	if ( nrdone>1000 )
 	{
-	    addToNrDone( mCast(int,nrdone) );
+	    addToNrDone( sCast(int,nrdone) );
 	    nrdone = 0;
 	}
 
@@ -354,13 +354,13 @@ bool VoxelConnectivityFilterTask::doWork( od_int64 start, od_int64 stop, int )
 
 	    if ( nrdone>1000 )
 	    {
-		addToNrDone( mCast(int,nrdone) );
+		addToNrDone( sCast(int,nrdone) );
 		nrdone = 0;
 	    }
 	}
     }
 
-    addToNrDone( mCast(int,nrdone) );
+    addToNrDone( sCast(int,nrdone) );
     nrdone = 0;
 
     barrier_.waitForAll( true ); //After this nothing more will be added
@@ -473,7 +473,7 @@ bool VoxelConnectivityFilterTask::doWork( od_int64 start, od_int64 stop, int )
 #define mOutputLoopStart \
         if ( nrdone>10000 ) \
 	{ \
-	    addToNrDone( mCast(int,nrdone) ); \
+	    addToNrDone( sCast(int,nrdone) ); \
 	    nrdone = 0; \
 	} \
 	int bodynr = statusarr_[idx]; \
@@ -495,7 +495,7 @@ bool VoxelConnectivityFilterTask::doWork( od_int64 start, od_int64 stop, int )
 	for ( od_int64 idx=start; idx<=stop; idx++ )
 	{
 	    mOutputLoopStart;
-	    outputvs->setValue( idx, mCast(float,bodyranking_[bodynr]) );
+	    outputvs->setValue( idx, sCast(float,bodyranking_[bodynr]) );
         }
     }
     else if ( acceptoutput==VoxelConnectivityFilter::BodySize )
@@ -503,7 +503,7 @@ bool VoxelConnectivityFilterTask::doWork( od_int64 start, od_int64 stop, int )
 	for ( od_int64 idx=start; idx<=stop; idx++ )
 	{
 	    mOutputLoopStart;
-	    outputvs->setValue( idx, mCast(float,bodysizes_[bodynr]) );
+	    outputvs->setValue( idx, sCast(float,bodysizes_[bodynr]) );
         }
     }
     else if ( acceptoutput==VoxelConnectivityFilter::Value )
@@ -524,7 +524,7 @@ bool VoxelConnectivityFilterTask::doWork( od_int64 start, od_int64 stop, int )
 	}
     }
 
-    addToNrDone( mCast(int,nrdone) );
+    addToNrDone( sCast(int,nrdone) );
 
     return true;
 }

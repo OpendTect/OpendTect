@@ -99,7 +99,7 @@ PilotTraceExtractor( const TrimStatics::Iteration& it, const Gather& gth )
     , it_(it)
 {
     nrz_ = gather_.data().info().getSize( Gather::zDim() );
-    pilottrc_ = new Array1DImpl<float>( mCast(int,nrz_) );
+    pilottrc_ = new Array1DImpl<float>( sCast(int,nrz_) );
     pilottrc_->setAll( mUdf(float) );
 }
 
@@ -109,7 +109,7 @@ od_int64 nrIterations() const override
 bool doWork( od_int64 start, od_int64 stop, int ) override
 {
     const int nroffsets = gather_.data().info().getSize( Gather::offsetDim() );
-    for ( int idz=mCast(int,start); idz<=stop; idz++, addToNrDone(1) )
+    for ( int idz=sCast(int,start); idz<=stop; idz++, addToNrDone(1) )
     {
 	int nrvals = 0;
 	float stack = mUdf(float);
@@ -184,7 +184,7 @@ bool TrimStatics::doPilotTraceOutput( od_int64 start, od_int64 stop )
     Gather* output = outputs_[0];
     const int nrz = output->data().info().getSize( Gather::zDim() );
 
-    for ( int ido=mCast(int,start); ido<=stop; ido++, addToNrDone(1) )
+    for ( int ido=sCast(int,start); ido<=stop; ido++, addToNrDone(1) )
     {
 	const float offset = output->getOffset( ido );
 	for ( int idx=0; idx<iterations_.size(); idx++ )

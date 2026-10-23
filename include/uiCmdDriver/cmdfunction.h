@@ -62,7 +62,7 @@ public: \
 			    : parentclass(cmddrv) \
 			{ \
 			    name_ = keyWord(); \
-			    *name_.getCStr() = mCast(char, \
+			    *name_.getCStr() = sCast(char, \
 						     tolower(*name_.buf())); \
 			} \
 \

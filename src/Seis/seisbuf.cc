@@ -329,7 +329,7 @@ void SeisTrcBuf::enforceNrTrcs( int nrrequired, SeisTrcInfo::Fld fld,
 	    {
 		if ( dostack )
 		{
-		    float wt = mCast(float,nrrequired); wt /= nrwithprevval - 1;
+		    float wt = sCast(float,nrrequired); wt /= nrwithprevval - 1;
 		    SeisTrcPropChg( *get(idx-1) ).stack(*trc,false,wt);
 		}
 		remove(trc); idx--; delete trc;

@@ -210,7 +210,7 @@ int mTestMainFnName( int argc, char** argv )
     clParser().setKeyHasValue( Network::Server::sKeyTimeout() );
     clParser().getVal( Network::Server::sKeyTimeout(), timeout );
 
-    Network::RequestEchoServer tester( auth, mCast(unsigned short,timeout) );
+    Network::RequestEchoServer tester( auth, sCast(unsigned short,timeout) );
 
     logStream() << "Listening to " << auth.toString()
 		<< " with a " << tester.timeout_ << " second timeout\n";

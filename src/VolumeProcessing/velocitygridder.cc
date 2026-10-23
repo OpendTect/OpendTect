@@ -296,7 +296,7 @@ bool VelGriddingFromFuncTask::doWork( od_int64 start, od_int64 stop,
     func->setDesiredZRange( zrg );
     const int zsz = output->sampling().nrZ();
 
-    for ( int idx=mCast(int,start); idx<=stop && shouldContinue(); idx++ )
+    for ( int idx=sCast(int,start); idx<=stop && shouldContinue(); idx++ )
     {
 	const BinID bid = task_.getNextBid();
 
@@ -378,7 +378,7 @@ bool VelGriddingFromVolumeTask::doWork( od_int64 start, od_int64 stop,
     const int zsz = output->sampling().nrZ();
 
     Gridder2D* gridder = gridders_[thread];
-    for ( int idx=mCast(int,start); idx<=stop && shouldContinue(); idx++ )
+    for ( int idx=sCast(int,start); idx<=stop && shouldContinue(); idx++ )
     {
 	const BinID bid = task_.getNextBid();
 	const Coord pos( hs.toCoord(bid) );
@@ -425,14 +425,14 @@ bool VelGriddingFromVolumeTask::doWork( od_int64 start, od_int64 stop,
 		if ( mIsUdf(val) )
 		    continue;
 
-		sum += mCast(double,val) * weights[idz];
+		sum += sCast(double,val) * weights[idz];
 		nrvals ++;
 		wsum += weights[idz];
 	    }
 
 	    const float val = !nrvals || mIsZero(wsum,1e-5)
 		? mUdf(float)
-		: mCast(float,sum/wsum);
+		: sCast(float,sum/wsum);
 
 	    if ( dstptr )
 		dstptr[zidx+targetoffset] = val;

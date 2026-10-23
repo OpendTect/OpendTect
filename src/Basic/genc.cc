@@ -230,7 +230,7 @@ void* operator new[]( std::size_t sz )
 	/* Setting one or two values per memory page is sufficient
 	   to ensure memory is allocated */
 	const od_int64 step = sysconf( _SC_PAGESIZE ) - 2;
-	const od_int64 nriterations = mCast(od_int64,mCast(float,sz)/step);
+	const od_int64 nriterations = sCast(od_int64,sCast(float,sz)/step);
 	MemPageMemorySetter memsetter( nriterations, (unsigned char*)p, step );
 	memsetter.setReport( false );
 	memsetter.execute();

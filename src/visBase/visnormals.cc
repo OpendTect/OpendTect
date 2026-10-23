@@ -57,7 +57,7 @@ bool DoTransformation::doWork(od_int64 start,od_int64 stop,int)
     osg::Vec3Array* osgnormals = mGetOsgVec3Arr( normals_->osgnormals_ );
     if ( !osgnormals )
 	return false;
-    for ( int idx = mCast(int,start); idx<=mCast(int,stop); idx++ )
+    for ( int idx = sCast(int,start); idx<=sCast(int,stop); idx++ )
     {
 	osg::Vec3f normal;
 	Transformation::transformBackNormal( oldtrans_, (*osgnormals)[idx],

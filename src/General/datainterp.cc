@@ -192,7 +192,7 @@ DataCharacteristics::UserType DataCharacteristics::userType() const
 }
 
 
-#define mGetLimitVal( typ, max ) mCast(double,max ? \
+#define mGetLimitVal( typ, max ) sCast(double,max ? \
 	std::numeric_limits<typ>::max() : std::numeric_limits<typ>::min());
 
 double DataCharacteristics::getLimitValue( bool max ) const

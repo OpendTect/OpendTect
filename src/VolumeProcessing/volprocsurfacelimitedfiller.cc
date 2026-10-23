@@ -46,7 +46,7 @@ SurfaceLimitedFiller::SurfaceLimitedFiller()
     : gradhorizon_( 0 )
     , gradauxdataselidx_( -1 )
     , gradauxidx_( -1 )
-    , fixedgradient_( mCast(float,SI().zDomain().userFactor()) )
+    , fixedgradient_( sCast(float,SI().zDomain().userFactor()) )
     , usegradient_( true )
     , gradvertical_( true )
     , starthorizon_( 0 )
@@ -488,14 +488,14 @@ bool SurfaceLimitedFiller::useHorInterFillerPar( const IOPar& pars )
     {
 	valrange_ = bottomvalue - topvalue;
 	const StepInterval<float>& zrange = SI().zRange(true);
-	fixedgradient_ = mCast(float,valrange_/(zrange.stop_-zrange.start_));
+	fixedgradient_ = sCast(float,valrange_/(zrange.stop_-zrange.start_));
 	if ( horids.size() > 0 )
 	    usebottomval_ = true;
     }
 
     TypeSet<char> sides;
     for ( int idx=0; idx<horids.size(); idx++ )
-	sides += mCast(char,idx?mAbove:mBelow);
+	sides += sCast(char,idx?mAbove:mBelow);
 
     if ( !setSurfaces(horids, sides) )
 	return false;
@@ -533,7 +533,7 @@ bool SurfaceLimitedFiller::usePar( const IOPar& pars )
 
 	int side;
 	pars.get( sidekey, side );
-	sides += mCast( char , side );
+	sides += sCast( char , side );
     }
 
     if ( !setSurfaces(horbds, sides) )

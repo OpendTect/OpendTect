@@ -53,7 +53,7 @@ void Horizon3DExtenderBase::setDirection( const TrcKeyValue& bdval )
 
 int Horizon3DExtenderBase::maxNrPosInExtArea() const
 {
-    return mCast( int, getExtBoundary().hsamp_.totalNr() );
+    return sCast( int, getExtBoundary().hsamp_.totalNr() );
 }
 
 

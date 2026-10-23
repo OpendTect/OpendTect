@@ -89,7 +89,7 @@ uiCorrelationGroup::uiCorrelationGroup( uiParent* p, bool is2d )
     uiString disptxt=tr("Data Display window %1").arg(SI().getUiZUnitString());
     if ( sNrZDecimals==0 )
     {
-	const int step = mCast(int,SI().zStep()*SI().zDomain().userFactor());
+	const int step = sCast(int,SI().zStep()*SI().zDomain().userFactor());
 	StepInterval<int> intv( -10000, 10000, step );
 	IntInpIntervalSpec diis;
 	diis.setSymmetric( true );

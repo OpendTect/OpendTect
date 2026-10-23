@@ -126,7 +126,7 @@ float Function::getVelocity( float z ) const
 	cachesd_ = RegularZValues::getDoubleSamplingData(
 					SamplingData<float>( sampling ) );
         const int zstart = mNINT32( cachesd_.start_ / cachesd_.step_ );
-	const int zstop = mNINT32( mCast(double,sampling.stop_)/cachesd_.step_);
+	const int zstop = mNINT32( sCast(double,sampling.stop_)/cachesd_.step_);
 	mTryAlloc( cache_, TypeSet<float>( zstop-zstart+1, mUdf(float) ) );
 	if ( !cache_ )
 	    return mUdf(float);
@@ -149,7 +149,7 @@ float Function::getVelocity( float z ) const
     else if ( sampidx>=sz-1 )
 	return (*cache_)[sz-1];
 
-    const float pos = mCast(float,( z - cachesd_.start_ ) / cachesd_.step_);
+    const float pos = sCast(float,( z - cachesd_.start_ ) / cachesd_.step_);
     if ( sampidx-pos > -cDefSampleSnapDist && sampidx-pos < cDefSampleSnapDist )
 	return (*cache_)[sampidx];
 

@@ -84,7 +84,7 @@ bool GMTArray2DInterpol::doPrepare( int nrthreads )
 bool GMTArray2DInterpol::doWork( od_int64 start, od_int64 stop, int threadid )
 {
     nrdone_ = 0;
-    for ( int ridx=mCast(int,start); ridx<stop; ridx++ )
+    for ( int ridx=sCast(int,start); ridx<stop; ridx++ )
     {
 	if ( !sd_ || !sdmask_ )
 	    break;

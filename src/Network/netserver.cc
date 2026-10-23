@@ -298,7 +298,7 @@ void Network::Authority::fromString( const char* str, bool resolveipv6 )
 	{
 	    const SeparString hostsep( hoststr, ':' );
 	    setPort( hostsep.size() > 1 ?
-		     mCast(PortNr_Type, hostsep[1].toInt()) : 0 );
+		     sCast(PortNr_Type, hostsep[1].toInt()) : 0 );
 	}
 	else
 	    setPort( 0 );
@@ -310,7 +310,7 @@ void Network::Authority::fromString( const char* str, bool resolveipv6 )
 	    const SeparString hostsep( hoststr, ':' );
 	    setHost( hostsep[0], resolveipv6 );
 	    setPort( hostsep.size() > 1 ?
-		 mCast(PortNr_Type, hostsep[1].toInt()) : 0 );
+		 sCast(PortNr_Type, hostsep[1].toInt()) : 0 );
 	}
 	else
 	{
@@ -499,7 +499,7 @@ Network::Authority& Network::Authority::setFrom(const CommandLineParser& parser,
         PortNr_Type port = defport;
         int portint;
         if ( parser.getVal(Server::sKeyPort(),portint) )
-            port = mCast(PortNr_Type,portint);
+            port = sCast(PortNr_Type,portint);
         port = Network::getUsablePort( port );
         return setHost( hostnm, false ).setPort( port );
     }

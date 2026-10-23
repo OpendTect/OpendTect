@@ -94,7 +94,7 @@ od_int64 nrIterations() const override
 
 bool doWork( od_int64 start, od_int64 stop, int ) override
 {
-    for ( int idx=mCast(int,start); idx<=stop; idx++ )
+    for ( int idx=sCast(int,start); idx<=stop; idx++ )
     {
 	BufferString jobcmd( cmd_ );
 	jobcmd += " \'";

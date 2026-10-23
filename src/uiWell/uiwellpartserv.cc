@@ -763,8 +763,8 @@ static void makeTimeDepthModel( bool addwellhead, double z0, double srddepth,
 	originz += vrepl * z0 / 2.;
 
     dpths.setSize( 3, (float)originz );
-    times.setSize( 3, wllheadbelowsrd ? mCast(float,z0) : 0.f );
-    dpths[0] -= (float)vtmp; times[0] -= mCast(float, 2. * vtmp / vrepl);
+    times.setSize( 3, wllheadbelowsrd ? sCast(float,z0) : 0.f );
+    dpths[0] -= (float)vtmp; times[0] -= sCast(float, 2. * vtmp / vrepl);
     dpths[2] += (float)vtmp; times[2] += 2.f;
     model.setModel( dpths.arr(), times.arr(), dpths.size() );
 }
@@ -802,13 +802,13 @@ bool uiWellPartServer::storeWell( const TypeSet<Coord3>& coords,
         makeTimeDepthModel( addwellhead, pos[0].z_, srddepth, well->info(),
 			    tdmodel );
 	for ( int idx=0; idx<pos.size(); idx++ )
-            pos[idx].z_ = mCast( float,tdmodel.getDepth( (float)pos[idx].z_ ) );
+            pos[idx].z_ = sCast( float,tdmodel.getDepth( (float)pos[idx].z_ ) );
     }
 
     track.addPoint( pos[0], 0.f );
     for ( int idx=1; idx<pos.size(); idx++ )
     {
-	const float dist = mCast( float, pos[idx].distTo( pos[idx-1] ) );
+	const float dist = sCast( float, pos[idx].distTo( pos[idx-1] ) );
 	track.addPoint( pos[idx], track.dah(idx-1) + dist );
     }
 

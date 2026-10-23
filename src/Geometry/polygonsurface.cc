@@ -65,7 +65,7 @@ char PolygonSurface::bodyDimension() const
 	return 0;
     
     if ( plygsz==1 )
-	return mCast( char, polygons_[0]->size() >= 3 ? 
+	return sCast( char, polygons_[0]->size() >= 3 ? 
 					 2 : polygons_[0]->size()-1 );
     
     int totalpts = 0;
@@ -74,7 +74,7 @@ char PolygonSurface::bodyDimension() const
     
     if ( !totalpts ) return 0;
     
-    return mCast( char, totalpts>3 ? 3 : totalpts-1 );
+    return sCast( char, totalpts>3 ? 3 : totalpts-1 );
 }
 
 

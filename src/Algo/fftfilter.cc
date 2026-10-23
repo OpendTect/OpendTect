@@ -132,12 +132,12 @@ void FFTFilter::buildFreqTaperWin()
     else if ( isHighPass() )
 	taperhp2lp = nyqfreqidx;
     else
-	taperhp2lp = mCast(int, ( cutfreq_[1] + cutfreq_[2] ) / ( 2.f * df_ ) );
+	taperhp2lp = sCast(int, ( cutfreq_[1] + cutfreq_[2] ) / ( 2.f * df_ ) );
 
     bool needreset = false;
     if ( dohighpasstaperwin )
     {
-	const int f1idx = mCast( int, cutfreq_[0] / df_ );
+	const int f1idx = sCast( int, cutfreq_[0] / df_ );
 	const float var = 1.f - ( cutfreq_[1] - cutfreq_[0] ) /
 				( df_ * taperhp2lp - cutfreq_[0] );
 	if ( taperhp2lp > f1idx && var >= 0.f && var <= 1.f )
@@ -159,7 +159,7 @@ void FFTFilter::buildFreqTaperWin()
 
     if ( dolowpasstaperwin )
     {
-	const int f4idx = mCast( int, cutfreq_[3] / df_ );
+	const int f4idx = sCast( int, cutfreq_[3] / df_ );
 	const float var = 1.f - ( cutfreq_[3] - cutfreq_[2] ) /
 				( cutfreq_[3] - df_ * taperhp2lp );
 	if ( taperhp2lp < f4idx && var >= 0.f && var <= 1.f )
@@ -377,7 +377,7 @@ bool FFTFilter::interpUdf( Array1DImpl<float>& outp, bool isimag )
     for ( int idx=0; idx<sz; idx++ )
     {
 	if ( isudf[idx] )
-	    outp.set( idx, data.getValue( mCast(float,idx) ) );
+	    outp.set( idx, data.getValue( sCast(float,idx) ) );
     }
 
     return true;

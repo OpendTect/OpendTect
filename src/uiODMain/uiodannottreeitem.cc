@@ -309,7 +309,7 @@ bool uiODAnnotTreeItem::readPicks( Pick::Set& ps )
 
 uiODAnnotSubItem::uiODAnnotSubItem( Pick::Set& set, const VisID& displayid )
     : set_( &set )
-    , defscale_(mCast(float,set.disp3d().size()))
+    , defscale_(sCast(float,set.disp3d().size()))
     , scalemnuitem_(m3Dots(uiStrings::sSize()))
     , storemnuitem_(uiStrings::sSave())
     , storeasmnuitem_(m3Dots(uiStrings::sSaveAs()))
@@ -399,7 +399,7 @@ void uiODAnnotSubItem::handleMenuCB( CallBacker* cb )
 			"Size" );
 	sliderfld->setMinValue( 0.1 );
 	sliderfld->setMaxValue( 10 );
-	sliderfld->setValue( mCast(float,set_->disp3d().size()/defscale_));
+	sliderfld->setValue( sCast(float,set_->disp3d().size()/defscale_));
 	sliderfld->valueChanged.notify( mCB(this,uiODAnnotSubItem,scaleChg) );
 	dlg.go();
     }

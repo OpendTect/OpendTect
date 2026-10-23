@@ -118,9 +118,9 @@ float Well::D2TModel::getDepth( float twt, const Track& track ) const
 
     const double curvel = getVelocityForTwt( twt, track );
     const double depth = depths.start_ +
-	(( mCast(double,twt) - mCast(double,times.start_) ) * curvel) / 2.f;
+	(( sCast(double,twt) - sCast(double,times.start_) ) * curvel) / 2.f;
 
-    return mCast( float, depth );
+    return sCast( float, depth );
 }
 
 
@@ -293,11 +293,11 @@ int Well::D2TModel::getVelocityIdx( float pos, const Track& track,
         const double reqz = track.getPos( pos ).z_;
 	idx = IdxAble::getUpperIdx( trckposz, trcksz, reqz );
 	if ( idx >= trcksz ) idx--;
-	const double dhtop = mCast( double, track.dah(idx-1) );
-	const double dhbase = mCast( double, track.dah(idx) );
+	const double dhtop = sCast( double, track.dah(idx-1) );
+	const double dhbase = sCast( double, track.dah(idx) );
 	const double fraction = ( reqz - track.value(idx-1) ) /
 				( track.value(idx) - track.value(idx-1) );
-	const float reqdh = mCast( float, dhtop + (fraction * (dhbase-dhtop)) );
+	const float reqdh = sCast( float, dhtop + (fraction * (dhbase-dhtop)) );
 	idah = IdxAble::getUpperIdx( dah_, dtsize, reqdh );
     }
 
@@ -415,10 +415,10 @@ void Well::D2TModel::makeFromTrack( const Track& track, float vel,
 	return;
 
     const double srddepth = -1. * SI().seismicReferenceDatum();
-    const double kb  = mCast(double,track.getKbElev());
-    const double veld = mCast(double,vel);
+    const double kb  = sCast(double,track.getKbElev());
+    const double veld = sCast(double,vel);
     const double bulkshift = mIsUdf( replvel ) ? 0. : ( kb+srddepth ) *
-			     ( (2. / veld) - (2. / mCast(double,replvel) ) );
+			     ( (2. / veld) - (2. / sCast(double,replvel) ) );
 
     int idahofminz = 0;
     int idahofmaxz = 0;
@@ -452,8 +452,8 @@ void Well::D2TModel::makeFromTrack( const Track& track, float vel,
 
     const float lastdah = track.dah( idahofmaxz );
 
-    add( firstdah, mCast(float,2.*( tvdmin-srddepth )/veld + bulkshift) );
-    add( lastdah, mCast(float,2.*( tvdmax-srddepth )/veld + bulkshift) );
+    add( firstdah, sCast(float,2.*( tvdmin-srddepth )/veld + bulkshift) );
+    add( lastdah, sCast(float,2.*( tvdmax-srddepth )/veld + bulkshift) );
 }
 
 
@@ -477,7 +477,7 @@ bool Well::D2TModel::getTimeDepthModel( const Well::Data& wd,
     {
 	const float curdah = d2t.dah( idx );
 	const float depth = getConvertedValue(
-                                mCast(float,track.getPos(curdah).z_ ),
+                                sCast(float,track.getPos(curdah).z_ ),
 				       depthstoruom, depthuom );
 	depths += depth;
 	times += d2t.t( idx );
@@ -694,7 +694,7 @@ void Well::D2TModel::checkReplacementVelocity( Well::Info& info,
     {
 	if ( mIsEqual(info.replvel_,Well::getDefaultVelocity(),mDefEpsV) )
 	{
-	    info.replvel_ = mCast(float,vreplinfile);
+	    info.replvel_ = sCast(float,vreplinfile);
 	}
 	else
 	{
@@ -752,7 +752,7 @@ void Well::D2TModel::convertDepthsToMD( const Well::Track& track,
     float prevdah = 0.f;
     for ( int idz=0; idz<zvals.size(); idz++ )
     {
-	const float depth = mCast( float, zvals[idz] );
+	const float depth = sCast( float, zvals[idz] );
 	float dah = track.getDahForTVD( depth, prevdah );
 	if ( mIsUdf(dah) )
 	    dah = track.getDahForTVD( depth );
@@ -810,7 +810,7 @@ bool Well::D2TModel::getTVDD2TModel( Well::D2TModel& d2t, const Well::Data& wll,
 
     removeDuplicatedVelocities( zvals, tvals );
     const double replveld = wllinfo.replvel_;
-    shiftTimesIfNecessary( tvals, zwllhead, mCast(double,replveld),
+    shiftTimesIfNecessary( tvals, zwllhead, sCast(double,replveld),
 			   origintwtinfile, warnmsg );
 
     if ( trackrg.includes(originz,false) )
@@ -825,7 +825,7 @@ bool Well::D2TModel::getTVDD2TModel( Well::D2TModel& d2t, const Well::Data& wll,
 
     d2t.setEmpty();
     for ( int idx=0; idx<zvals.size(); idx++ )
-	d2t.add( dahs[idx], mCast(float,tvals[idx]) );
+	d2t.add( dahs[idx], sCast(float,tvals[idx]) );
     d2t.updateDahRange();
     return true;
 }
@@ -849,7 +849,7 @@ bool Well::D2TModel::ensureValid( const Well::Data& wll, uiString& msg,
 	{
 	    const float curdah = dah_[idx];
             *zvals += track.getPos( curdah ).z_;
-	    *tvals += mCast( double, t_[idx] );
+	    *tvals += sCast( double, t_[idx] );
 	}
     }
 

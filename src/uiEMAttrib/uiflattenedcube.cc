@@ -118,7 +118,7 @@ uiWriteFlattenedCubeMaker( SeisTrcReader& rdr, SeisTrcWriter& wrr,
     , zval_(zval)
     , horzrg_(hz)
     , nrdone_(0)
-    , totnr_(mCast(int,pp.estNrPos()))
+    , totnr_(sCast(int,pp.estNrPos()))
     , msg_(tr("Creating cube"))
 {
 }

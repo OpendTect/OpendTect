@@ -434,9 +434,9 @@ void Seis::RangeSelData::include( const Seis::SelData& sd )
         tkzs_.hsamp_.stop_.crl() = rg.stop_;
     const Interval<float> zrg( sd.zRange() );
     if ( tkzs_.zsamp_.start_ > rg.start_ )
-        tkzs_.zsamp_.start_ = mCast(float,rg.start_);
+        tkzs_.zsamp_.start_ = sCast(float,rg.start_);
     if ( tkzs_.zsamp_.stop_ < rg.stop_ )
-        tkzs_.zsamp_.stop_ = mCast(float,rg.stop_);
+        tkzs_.zsamp_.stop_ = sCast(float,rg.stop_);
 }
 
 
@@ -717,7 +717,7 @@ int Seis::TableSelData::selRes2D( Pos::GeomID /* gid */, int /*trcnr */ ) const
 
 int Seis::TableSelData::expectedNrTraces( bool for2d, const BinID* step ) const
 {
-    return mCast( int, isall_ ? tracesInSI() : bvs_.totalSize() );
+    return sCast( int, isall_ ? tracesInSI() : bvs_.totalSize() );
 }
 
 
@@ -750,7 +750,7 @@ Seis::PolySelData::PolySelData( const ODPolygon<int>& poly,
     {
 	const Geom::Point2D<int>& pt = poly.getVertex( idx );
 	polys_[0]->add( Geom::Point2D<float>(
-                            mCast(float,pt.x_), mCast(float,pt.y_) ) );
+                            sCast(float,pt.x_), sCast(float,pt.y_) ) );
     }
 
     initZrg( zrg );
@@ -975,14 +975,14 @@ void Seis::PolySelData::include( const Seis::SelData& sd )
 
 	    ODPolygon<float>* rect = new ODPolygon<float>();
 	    Geom::Point2D<float> point(
-                        mCast(float,inlrg.start_ + stepoutreach_.inl()),
-                        mCast(float,crlrg.start_ + stepoutreach_.crl()) );
+                        sCast(float,inlrg.start_ + stepoutreach_.inl()),
+                        sCast(float,crlrg.start_ + stepoutreach_.crl()) );
 	    rect->add( point );
-            point.y_ = mCast( float, crlrg.stop_ - stepoutreach_.crl() );
+            point.y_ = sCast( float, crlrg.stop_ - stepoutreach_.crl() );
 	    rect->add( point );
-            point.x_ = mCast( float, inlrg.stop_ - stepoutreach_.inl() );
+            point.x_ = sCast( float, inlrg.stop_ - stepoutreach_.inl() );
 	    rect->add( point );
-            point.y_ = mCast( float, crlrg.start_ + stepoutreach_.crl() );
+            point.y_ = sCast( float, crlrg.start_ + stepoutreach_.crl() );
 	    rect->add( point );
 
 	    polys_ += rect;
@@ -1006,10 +1006,10 @@ int Seis::PolySelData::selRes3D( const BinID& bid ) const
     if ( isall_ )
 	return 0;
 
-    Interval<float> inlrg( mCast(float,bid.inl()), mCast(float,bid.inl()) );
-    inlrg.widen( mCast(float,stepoutreach_.inl()) );
-    Interval<float> crlrg( mCast(float,bid.crl()), mCast(float,bid.crl()) );
-    crlrg.widen( mCast(float,stepoutreach_.crl()) );
+    Interval<float> inlrg( sCast(float,bid.inl()), sCast(float,bid.inl()) );
+    inlrg.widen( sCast(float,stepoutreach_.inl()) );
+    Interval<float> crlrg( sCast(float,bid.crl()), sCast(float,bid.crl()) );
+    crlrg.widen( sCast(float,stepoutreach_.crl()) );
 
     for ( int idx=0; idx<polys_.size(); idx++ )
     {

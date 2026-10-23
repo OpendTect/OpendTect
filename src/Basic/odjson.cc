@@ -1275,8 +1275,8 @@ bool OD::JSON::Array::get( ::IdxPair& pos ) const
     if ( size() < 2 || (!isData() && !isMixed()) )
 	return false;
 
-    pos.first = mCast(int,getIntValue(0));
-    pos.second = mCast(int,getIntValue(1));
+    pos.first = sCast(int,getIntValue(0));
+    pos.second = sCast(int,getIntValue(1));
     return true;
 }
 

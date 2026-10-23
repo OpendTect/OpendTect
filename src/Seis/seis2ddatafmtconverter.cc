@@ -122,10 +122,10 @@ OD_FileListCopier( const BufferStringSet& fromlist,
 
 od_int64 totalNr() const override
 {
-    return mCast(od_int64,fromlist_.size());
+    return sCast(od_int64,fromlist_.size());
 }
 
-od_int64 nrDone() const override	{ return mCast(od_int64,curidx_); }
+od_int64 nrDone() const override	{ return sCast(od_int64,curidx_); }
 uiString uiNrDoneText() const override	{ return tr("Nr files done"); }
 
 uiString uiMessage() const override

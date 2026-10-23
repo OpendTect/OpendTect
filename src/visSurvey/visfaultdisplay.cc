@@ -1787,7 +1787,7 @@ bool FaultDisplay::coincidesWith2DLine( const Geometry::FaultStickSurface& fss,
 	    continue;
 
 	const float onestepdist =
-	    mCast( float, Coord3(1,1,mZScale()).dot(
+	    sCast( float, Coord3(1,1,mZScale()).dot(
 		    s3dgeom_->oneStepTranslation(Coord3(0,0,1)) ) );
 
 	const StepInterval<int> colrg = fss.colRange( rc.row() );
@@ -1842,7 +1842,7 @@ bool FaultDisplay::coincidesWithPlane(
 				   ? plane->getNormal( Coord3::udf() )
 				   : rdtd->getNormal( nmpos );
 	const float onestepdist =
-	    mCast( float, Coord3(1,1,mZScale()).dot(
+	    sCast( float, Coord3(1,1,mZScale()).dot(
 		    s3dgeom_->oneStepTranslation( planenormal ) ) );
 
 	float prevdist=-1;

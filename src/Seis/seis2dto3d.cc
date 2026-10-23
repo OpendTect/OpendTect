@@ -574,8 +574,8 @@ int SeisInterpol::nextStep()
 
     const float df = Fourier::CC::getDf( SI().zStep(), szz_ );
     const float mindist = mMIN(SI().inlDistance(),SI().crlDistance() );
-    const float fmax = mCast(float, maxvel_ / ( 2.f*mindist*sin( M_PIf/6.f ) ));
-    const int poscutfreq = mCast(int, fmax/df );
+    const float fmax = sCast(float, maxvel_ / ( 2.f*mindist*sin( M_PIf/6.f ) ));
+    const int poscutfreq = sCast(int, fmax/df );
 
     if ( nrdone_ == 0 )
 	doWork( true, poscutfreq );

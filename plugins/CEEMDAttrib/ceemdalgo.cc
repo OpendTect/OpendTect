@@ -149,7 +149,7 @@ bool DecompInput::doDecompMethod( int nrsamples, float refstep,
     int nrnoise=0, nrimf=0, nrmax=0, nrmin=0, nrzeros=0;
     float average, stopimf;
     float stdev;
-    float epsilon = setup_.noisepercentage_ / mCast(float,100.0);
+    float epsilon = setup_.noisepercentage_ / sCast(float,100.0);
 
     PointBasedMathFunction maxima( OD::InterpolationType::Polynomial,
 				   OD::ExtrapolationType::Gradient );
@@ -401,8 +401,8 @@ bool DecompInput::decompositionLoop( ObjectSet<IMFComponent>& components,
 		// continue sifting
 		for ( int idx=0; idx<size_; idx++ )
 		{
-		    const float min = minima.getValue(mCast(float,idx));
-		    const float max = maxima.getValue(mCast(float,idx));
+		    const float min = minima.getValue(sCast(float,idx));
+		    const float max = maxima.getValue(sCast(float,idx));
 		    mean = ( (max+min)/2 );
 		    const float val = values_[idx];
 		    dosift = (mean*mean) / (val*val);
@@ -590,8 +590,8 @@ void DecompInput::computeStats( float& average, float& stdev ) const
 	    continue;
 	stats += values_[idx];
     }
-    average = mCast(float,stats.average());
-    stdev = mCast(float,stats.stdDev());
+    average = sCast(float,stats.average());
+    stdev = sCast(float,stats.stdDev());
 }
 
 
@@ -1026,7 +1026,7 @@ bool DecompInput::useGridding(
 	return false;
 
     const int fsize = realizations.first()->size();
-    double step = mCast(double, stepoutfreq);
+    double step = sCast(double, stepoutfreq);
     if ( step > 1. )
 	step = 1.;
 
@@ -1045,8 +1045,8 @@ bool DecompInput::useGridding(
 	    const float* f3vals = realization3.get(f)->values_;
 	    for ( int t=-1; t<2; t++ ) // grid over three traces
 	    {
-		const double dff = mCast(double,f2vals[idt+t]);
-		const double dtt = mCast(double, idt+t);
+		const double dff = sCast(double,f2vals[idt+t]);
+		const double dtt = sCast(double, idt+t);
 		const float z = f3vals[idt+t];
 		maxf = mMAX( maxf, dff );
 		minf = mMIN( minf, dff );
@@ -1056,7 +1056,7 @@ bool DecompInput::useGridding(
 	}
 	for ( int t=-1; t<2; t++ ) // add zeros at either end
 	{
-	    const double dtt = mCast(double, idt+t);
+	    const double dtt = sCast(double, idt+t);
 	    pts.add(Coord( minf-step, dtt));
 	    zvals.add(0);
 	    pts.add(Coord( maxf+step, dtt));
@@ -1133,10 +1133,10 @@ bool DecompInput::usePolynomial(
 	    minf = mMIN( minf, unsortedfrequencies[f] );
 	}
 	// add zeros either end
-	float f_lowerbound = minf - mCast( float, stepoutfreq );
+	float f_lowerbound = minf - sCast( float, stepoutfreq );
 	unsortedfrequencies[fsize] = f_lowerbound < 0.f ? 0.f : f_lowerbound;
 	unsortedamplitudes[fsize] = 0.f;
-	unsortedfrequencies[fsize+1] = maxf+mCast(float, stepoutfreq);
+	unsortedfrequencies[fsize+1] = maxf+sCast(float, stepoutfreq);
 	unsortedamplitudes[fsize+1] = 0.f;
 
 	sortSpectrum( unsortedamplitudes, fsize+2, unsortedfrequencies,
@@ -1226,13 +1226,13 @@ void DecompInput::testFunction( int& nrmax, int& nrmin, int& nrzeros,
     strm << '\n' << "Envelop max:" << '\t';
     for ( int idx=0; idx<size_; idx++ )
     {
-	float val = maxima.getValue(mCast(float,idx));
+	float val = maxima.getValue(sCast(float,idx));
 	strm << val << '\t';
    }
     strm << '\n' << "Envelop min:" << '\t';
     for ( int idx=0; idx<size_; idx++ )
     {
-	float val = minima.getValue(mCast(float,idx));
+	float val = minima.getValue(sCast(float,idx));
 	strm << val << '\t';
     }
 }

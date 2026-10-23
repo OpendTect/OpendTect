@@ -107,7 +107,7 @@ bool doPrepare( int ) override
 	return false;
 
     bool found = false;
-    const int totalsz = mCast( int, depths->info().getTotalSz() );
+    const int totalsz = sCast( int, depths->info().getTotalSz() );
     for ( int idx=0; idx<totalsz; idx++ )
     {
 	if ( mIsUdf(data[idx]) )
@@ -143,7 +143,7 @@ bool doWork( od_int64 start, od_int64 stop, int ) override
     const StepInterval<int>& surfcrg = surf_.colRange();
     ConstRefMan<Coord3List> coordlist = shape_.coordList();
 
-    for ( int idx=mCast(int,start); idx<=stop; idx++ )
+    for ( int idx=sCast(int,start); idx<=stop; idx++ )
     {
 	const IndexedGeometry* inp = shape_.getGeometry()[idx];
 	if ( !inp ) continue;
@@ -534,7 +534,7 @@ int BulkFaultBinIDSurfaceIntersector::nextStep()
     mDynamicCastGet( FaultStickSurface*, fsssurf, fss );
     PtrMan<ExplFaultStickSurface> fltsurf =
 	new ExplFaultStickSurface( fsssurf,
-	    mCast( float, SI().zDomain().userFactor() ) );
+	    sCast( float, SI().zDomain().userFactor() ) );
     fltsurf->setCoordList( new Coord3ListImpl, new Coord3ListImpl, 0 );
     if ( !fltsurf->update( true, 0 ) )
 	return ErrorOccurred();

@@ -285,9 +285,9 @@ bool TrackAscIO::getData( Data& wdin, float kbelev, float td ) const
     if ( !computeMissingValues(pos,mdvals,kbelevinfile) )
 	return false;
 
-    adjustKBIfNecessary( pos, kbelevinfile, mCast(double,kbelev) );
+    adjustKBIfNecessary( pos, kbelevinfile, sCast(double,kbelev) );
     addOriginIfNecessary( pos, mdvals );
-    adjustToTDIfNecessary( pos, mdvals, mCast(double,td) );
+    adjustToTDIfNecessary( pos, mdvals, sCast(double,td) );
     if ( !adjustSurfaceLocation(pos,wd->info().surfacecoord_) )
 	return false;
 
@@ -296,7 +296,7 @@ bool TrackAscIO::getData( Data& wdin, float kbelev, float td ) const
 
     wd->track().setEmpty();
     for ( int idz=0; idz<pos.size(); idz++ )
-	wd->track().addPoint( pos[idz], mCast(float,mdvals[idz]) );
+	wd->track().addPoint( pos[idz], sCast(float,mdvals[idz]) );
 
     return !wd->track().isEmpty();
 }
@@ -475,7 +475,7 @@ bool D2TModelAscIO::get( od_istream& strm, D2TModel& d2t,
 
 	if ( !istvd )
 	{
-	    const Coord3 crd = wll.track().getPos( mCast(float,zval) );
+	    const Coord3 crd = wll.track().getPos( sCast(float,zval) );
 	    if ( mIsUdf(crd) )
 		continue;
 
@@ -658,7 +658,7 @@ bool BulkD2TModelAscIO::get( BufferString& wellnm, float& zval, float& twt )
     const int tmopt = formOf( false, 2 );
 
     if ( dpthopt == 0 )
-        zval = mCast(float,wellsdata_[wellidx]->track().getPos(zval).z_);
+        zval = sCast(float,wellsdata_[wellidx]->track().getPos(zval).z_);
     if ( dpthopt == 2 )
 	zval -= SI().seismicReferenceDatum();
     if ( dpthopt == 3 )
@@ -758,7 +758,7 @@ bool DirectionalAscIO::getData( Data& wdin, float kb ) const
 
     wd->track().setEmpty();
     for ( int idz=0; idz<mdvals.size(); idz++ )
-	wd->track().addPoint( track[idz], mCast(float,mdvals[idz]) );
+	wd->track().addPoint( track[idz], sCast(float,mdvals[idz]) );
 
     return !wd->track().isEmpty();
 }

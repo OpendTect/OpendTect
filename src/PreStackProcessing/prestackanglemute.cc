@@ -374,7 +374,7 @@ bool AngleMute::doWork( od_int64 start, od_int64 stop, int thread )
     bool allmuted = false;
     TypeSet<float> offsets;
     offsets.setCapacity( 100, true );
-    for ( int idx=mCast(int,start); idx<=stop; idx++, addToNrDone(1) )
+    for ( int idx=sCast(int,start); idx<=stop; idx++, addToNrDone(1) )
     {
 	const Gather* input = inputs_[idx];
 	Gather* output = outputs_[idx];

@@ -224,15 +224,15 @@ bool Mathematics::computeData( const DataHolder& output,
 	    const int specidx = formula_->specIdx( inpidx );
 	    switch ( formula_->specIdx(inpidx) )
 	    {
-		case 0: inpvals += mCast( double, refstep_ ); break;
-		case 1: inpvals += mCast( double, getInl() ); break;
-		case 2: inpvals += mCast( double, getCrl() ); break;
-		case 3: inpvals += mCast( double, (z0+idx) ); break;
+		case 0: inpvals += sCast( double, refstep_ ); break;
+		case 1: inpvals += sCast( double, getInl() ); break;
+		case 2: inpvals += sCast( double, getCrl() ); break;
+		case 3: inpvals += sCast( double, (z0+idx) ); break;
                 case 4: inpvals += getCurrentCoord().x_; break;
                 case 5: inpvals += getCurrentCoord().y_; break;
-		case 6: inpvals += mCast( double,(z0+idx)*refstep_ ); break;
-		case 7: inpvals += mCast( double, currentbid_.lineNr() ); break;
-		case 8: inpvals += mCast( double, currentbid_.trcNr() ); break;
+		case 6: inpvals += sCast( double,(z0+idx)*refstep_ ); break;
+		case 7: inpvals += sCast( double, currentbid_.lineNr() ); break;
+		case 8: inpvals += sCast( double, currentbid_.trcNr() ); break;
 	    }
 	    if ( specidx >=0 )
 	    {
@@ -245,7 +245,7 @@ bool Mathematics::computeData( const DataHolder& output,
 	    {
 		const int inpdataidx = inpidx-nrconstsandspecsfound;
 		const DataHolder* inpdh = inputdata_[inpdataidx];
-		inpvals += inpdh ? mCast( double, getInputValue( *inpdh,
+		inpvals += inpdh ? sCast( double, getInputValue( *inpdh,
 						  inputidxs_[inpdataidx],
 						  idx+reqshifts[ishft],z0 ) )
 				 : mUdf(double);

@@ -842,9 +842,9 @@ RefMan<FlatDataPack> Engine::getSeedPosDataPack( const TrcKey& tk, float z,
     trcrg.start_ = (double) tk.trcNr() - ((double) nrtrcs)/2;
     trcrg.stop_ = (double) tk.trcNr() + ((double) nrtrcs)/2;
     StepInterval<double> zrg;
-    zrg.start_ = mCast(double,zsamp.atIndex(zidx0));
-    zrg.stop_ = mCast(double,zsamp.atIndex(zidx0+nrz-1));
-    zrg.step_ = mCast(double,zsamp.step_);
+    zrg.start_ = sCast(double,zsamp.atIndex(zidx0));
+    zrg.stop_ = sCast(double,zsamp.atIndex(zidx0+nrz-1));
+    zrg.step_ = sCast(double,zsamp.step_);
 
     RefMan<FlatDataPack> fdp = new FlatDataPack( "Seismics", seeddata );
     fdp->posData().setRange( true, trcrg );

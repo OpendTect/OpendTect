@@ -34,7 +34,7 @@ od_int64 Array1DInterpol::totalNr() const
 
 
 void Array1DInterpol::setMaxGapSize( float maxgapsize )
-{ maxgapsize_ = mCast(int,maxgapsize); }
+{ maxgapsize_ = sCast(int,maxgapsize); }
 
 
 float Array1DInterpol::getMaxGapSize() const

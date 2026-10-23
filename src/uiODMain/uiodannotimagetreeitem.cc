@@ -22,7 +22,7 @@ ImageSubItem::ImageSubItem( Pick::Set& pck, const VisID& displayid )
     : uiODAnnotSubItem( pck, displayid )
     , filemnuitem_( m3Dots(tr("Select image")) )
 {
-    defscale_ = mCast(float,set_->disp3d().size());
+    defscale_ = sCast(float,set_->disp3d().size());
 }
 
 

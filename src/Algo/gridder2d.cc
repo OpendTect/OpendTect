@@ -215,7 +215,7 @@ float Gridder2D::getValue( const Coord& gridpoint,
     if ( trend_ )
 	trend_->apply( gridpoint, false, val );
 
-    return mCast( float, val );
+    return sCast( float, val );
 }
 
 
@@ -342,7 +342,7 @@ bool InverseDistanceGridder2D::getWeights( const Coord& gridpoint,
     double* mODRestrict weightvals = weights.arr();
     if ( useradius && mIsZero(weightsum,1e-30) )
     { //All sources are exactly at (1) radius distance from the grid point
-	const double equalweight = 1. / mCast(double,finsz);
+	const double equalweight = 1. / sCast(double,finsz);
 	for ( int idx=0; idx<finsz; idx++ )
 	    weightvals[idx] = equalweight;
     }
@@ -685,7 +685,7 @@ float RadialBasisFunctionGridder2D::getValue( const Coord& gridpoint,
     if ( trend_ )
 	trend_->apply( gridpoint, false, val );
 
-    return mCast(float,val);
+    return sCast(float,val);
 }
 
 

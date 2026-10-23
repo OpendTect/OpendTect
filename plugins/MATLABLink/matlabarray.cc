@@ -54,11 +54,11 @@ bool ArrayNDCopier::doWork( od_int64 start, od_int64 stop, int threadid )
     const int nrdim = arrnd_.info().getNDim();
     mAllocVarLenArr( int, pos, nrdim );
     double* mxarrptr = mxGetPr( mxarr_ );
-    for ( int idx=mCast(int,start); idx<=stop; idx++ )
+    for ( int idx=sCast(int,start); idx<=stop; idx++ )
     {
 	arrnd_.info().getArrayPos( idx, mVarLenArr(pos) );
 	const float fval = arrnd_.getND( mVarLenArr(pos) );
-	mxarrptr[idx] = mCast(double,fval);
+	mxarrptr[idx] = sCast(double,fval);
     }
 
     return true;
@@ -96,10 +96,10 @@ bool mxArrayCopier::doWork( od_int64 start, od_int64 stop, int threadid )
     double* mxarrptr = mxGetPr( &mxarr_ );
     const int nrdim = arrnd_.info().getNDim();
     mAllocVarLenArr( int, pos, nrdim );
-    for ( int idx=mCast(int,start); idx<=stop; idx++ )
+    for ( int idx=sCast(int,start); idx<=stop; idx++ )
     {
 	arrnd_.info().getArrayPos( idx, mVarLenArr(pos) );
-	arrnd_.setND( mVarLenArr(pos), mCast(float,mxarrptr[idx]) );
+	arrnd_.setND( mVarLenArr(pos), sCast(float,mxarrptr[idx]) );
     }
 
     return true;

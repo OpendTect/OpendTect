@@ -341,8 +341,8 @@ bool testFltOutput( const EM::EMObject* emobj, int survidx, int zatfidx )
 	zval2 *= mToFeetFactorF;
     }
 
-    const float firstz = mCast(float,firstcrd.z_);
-    const float secondz = mCast(float,lastcrd.z_);
+    const float firstz = sCast(float,firstcrd.z_);
+    const float secondz = sCast(float,lastcrd.z_);
     BufferString readvalstr( "Z-Values read: [" );
     readvalstr.add(toStringPrecise(firstz)).add(',')
 	      .add(toStringPrecise(secondz)).add("]");
@@ -404,8 +404,8 @@ bool testFltSetOutput( const EM::EMObject* emobj, int survidx, int zatfidx )
 	zval2 *= mToFeetFactorF;
     }
 
-    const float firstz = mCast(float,firstcrd.z_);
-    const float secondz = mCast(float,lastcrd.z_);
+    const float firstz = sCast(float,firstcrd.z_);
+    const float secondz = sCast(float,lastcrd.z_);
     BufferString readvalstr( "Z-Values read: [" );
     readvalstr.add(toStringPrecise(firstz)).add(',')
 	      .add(toStringPrecise(secondz)).add("]");

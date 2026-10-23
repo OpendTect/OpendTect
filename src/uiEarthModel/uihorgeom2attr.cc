@@ -242,7 +242,7 @@ int nextStep() override
 	const int crlidx = hortks_.crlIdx( bid.crl() );
 	if ( !horarray_->info().validPos(inlidx,crlidx) )
 	    continue;
-        horarray_->set( inlidx, crlidx, mCast(float,crd.z_) );
+        horarray_->set( inlidx, crlidx, sCast(float,crd.z_) );
     }
     stepnr_++;
     return MoreToDo();

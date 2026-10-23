@@ -103,7 +103,7 @@ void uiIOSurface::mkSectionFld( bool labelabove )
     uiListBox::Setup su( OD::ChooseAtLeastOne, tr("Available patches"),
 			labelabove ? uiListBox::AboveMid : uiListBox::LeftTop );
     sectionfld_ = new uiListBox( this, su, "sections" );
-    sectionfld_->setPrefHeightInChar( mCast(float,cListHeight) );
+    sectionfld_->setPrefHeightInChar( sCast(float,cListHeight) );
     sectionfld_->setStretch( 2, 2 );
     sectionfld_->selectionChanged.notify( mCB(this,uiIOSurface,ioDataSelChg) );
 }

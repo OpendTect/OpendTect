@@ -164,7 +164,7 @@ uiDataPointSet::uiDataPointSet( uiParent* p, const DataPointSet& dps,
     , rowRemoved(this)
     , dps_(const_cast<DataPointSet*>(&dps))
     , setup_(su)
-    , zfac_(mCast(float,SI().zDomain().userFactor()))
+    , zfac_(sCast(float,SI().zDomain().userFactor()))
     , zunitnm_(SI().getUiZUnitString(false))
     , dpsdispmgr_(dpsmgr)
 {
@@ -250,7 +250,7 @@ int uiDataPointSet::initVars()
 
     mCleanRunCalcs;
 
-    eachrow_ = mCast( float, dps_->nrActive() / setup_.initialmaxnrlines_ );
+    eachrow_ = sCast( float, dps_->nrActive() / setup_.initialmaxnrlines_ );
     if ( eachrow_ < 1.0 ) eachrow_ = 1.0;
     percentage_ = (float)100/eachrow_;
 
@@ -770,7 +770,7 @@ bool acceptOK( CallBacker* ) override
     pos.z_ = zinpfld_->getFValue();
 
     datarow_ =
-	DataPointSet::DataRow( pos, mCast( unsigned short,
+	DataPointSet::DataRow( pos, sCast( unsigned short,
 				 !grpfld_ ? 1 : grpfld_->currentItem() +1 ) );
     return true;
 }
@@ -802,7 +802,7 @@ void uiDataPointSet::rowAddedCB( CallBacker* )
 	    const double zval = tbl_->getDValue(RowCol(rownr,2));
 	    if ( showbids_ )
 	    {
-		const BinID bid( mCast(int,xval), mCast(int,yval) );
+		const BinID bid( sCast(int,xval), sCast(int,yval) );
                 if ( ( bid == newbid ) && mIsEqual(zval,newcoord.z_,1e-4) )
 		{
 		    tbl_->ensureCellVisible( RowCol(rownr,0) );
@@ -1175,7 +1175,7 @@ float uiDataPointSet::getVal( DColID dcid, DRowID drid, bool foruser ) const
 	return val * zfac_;
     }
 
-    return mCast(float,mGetHPosVal(dcid,drid));
+    return sCast(float,mGetHPosVal(dcid,drid));
 }
 
 
@@ -1219,7 +1219,7 @@ void uiDataPointSet::valChg( CallBacker* )
 	    if ( showbids_ )
 	    {
 		int& posval = ( dcid == -nrPosCols() ) ? bid.inl() : bid.crl();
-		posval = mCast(int,tbl_->getDValue(cell));
+		posval = sCast(int,tbl_->getDValue(cell));
 	    }
 	    else
 	    {
@@ -1612,9 +1612,9 @@ void uiDataPointSet::removeHiddenRows()
 	if ( sortcol_ == 2 )
 	    val = dps_->z( drowid );
 	else if ( sortcol_ == 1 )
-	    val = mCast(float,mGetHPosVal(-nrPosCols()+1,drowid));
+	    val = sCast(float,mGetHPosVal(-nrPosCols()+1,drowid));
 	else if ( sortcol_ == 0 )
-	    val = mCast(float,mGetHPosVal(-nrPosCols(),drowid));
+	    val = sCast(float,mGetHPosVal(-nrPosCols(),drowid));
 	else
 	    val = dps_->value( dColID(sortcol_), drowid );
 
@@ -1696,12 +1696,12 @@ void uiDataPointSet::addColumn( CallBacker* )
 			yval *= zfac_;
 		}
 		else
-		    yval = mCast(float,mGetHPosVal(colids[idx],rid));
+		    yval = sCast(float,mGetHPosVal(colids[idx],rid));
 
 		mathobj->setVariableValue( idx, yval );
 	    }
 
-	    vals[ vals.size()-1 ] = mCast(float,mathobj->getValue());
+	    vals[ vals.size()-1 ] = sCast(float,mathobj->getValue());
 	    bvs.set( pos, vals );
 	}
 

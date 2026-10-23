@@ -364,7 +364,7 @@ void uiODRandomLineParentTreeItem::genFromTable()
 				  mODHelpKey(mODRandomLineTreeItemHelpID) ) );
     auto* table = new uiPositionTable( &dlg, true, true, true );
     Interval<float> zrg = SI().zRange(true);
-    zrg.scale( mCast(float,SI().zDomain().userFactor()) );
+    zrg.scale( sCast(float,SI().zDomain().userFactor()) );
     table->setZRange( zrg );
 
     if ( dlg.go() )
@@ -799,7 +799,7 @@ void uiODRandomLineTreeItem::editNodes()
     table->setBinIDs( bids );
 
     Interval<float> zrg = rtd->getDataTraceRange();
-    zrg.scale( mCast(float,SI().zDomain().userFactor() ) );
+    zrg.scale( sCast(float,SI().zDomain().userFactor() ) );
     table->setZRange( zrg );
     if ( !dlg.go() )
 	return;

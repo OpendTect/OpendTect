@@ -654,7 +654,7 @@ uiSEGYFileManipDataExtracter( uiSEGYFileManip* p, const TypeSet<int>& sel,
 	    { totalnr_ = -1; return; }
 	trcrg_ = dlg.getFld(0)->getIInterval();
 	trcrg_.sort();
-	trcrg_.limitTo( Interval<int>(1,mCast(int,totalnr_)) );
+	trcrg_.limitTo( Interval<int>(1,sCast(int,totalnr_)) );
     }
     totalnr_ = trcrg_.stop_ - trcrg_.start_ + 1;
 
@@ -685,7 +685,7 @@ int nextStep() override
     fm_.calcset_.apply( buf_, fm_.binhdr_.isSwapped() );
 
     for ( int idx=0; idx<sel_.size(); idx++ )
-	*data_[idx] += mCast(float,hdef_[sel_[idx]]->getValue(buf_,needswap_));
+	*data_[idx] += sCast(float,hdef_[sel_[idx]]->getValue(buf_,needswap_));
 
     nrdone_++;
     return nrdone_ < totalnr_ ? MoreToDo() : Finished();

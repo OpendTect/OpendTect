@@ -778,7 +778,7 @@ void CmdRecorder::flush()
 	while ( *ptr && (*ptr!='\n' || *(ptr+1)!='\n') )
 	    ptr++;
 
-	const int newnrvoidchars = mCast( int, ptr + 2 - bufstr_.buf() );
+	const int newnrvoidchars = sCast( int, ptr + 2 - bufstr_.buf() );
 	if ( !*ptr || bufsize_>=sz-newnrvoidchars )
 	    break;
 
