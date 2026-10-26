@@ -9,21 +9,77 @@ ________________________________________________________________________
 
 #include "uiproxydlg.h"
 
+#include "uibaseobject.h"
 #include "uibutton.h"
 #include "uigeninput.h"
-#include "uimsg.h"
 #include "uilabel.h"
 #include "uilineedit.h"
+#include "uimain.h"
+#include "uimsg.h"
 #include "uispinbox.h"
+
+#include "applicationdata.h"
+#include "networkcommon.h"
 #include "odnetworkaccess.h"
-#include "settings.h"
 #include "od_helpids.h"
+#include "settings.h"
+
+
+class uiNetworkUserQuery : public NetworkUserQuery
+{ mODTextTranslationClass(uiNetworkUserQuery);
+public:
+			uiNetworkUserQuery();
+			~uiNetworkUserQuery();
+
+    bool		setFromUser(void*) override;
+			//!< Reads a non-null value as a uiParent.
+
+};
+
+
+// uiNetworkUserQuery
+uiNetworkUserQuery::uiNetworkUserQuery()
+{}
+
+
+uiNetworkUserQuery::~uiNetworkUserQuery()
+{}
+
+
+bool uiNetworkUserQuery::setFromUser( void* parentptr )
+{
+    if ( !ApplicationData::hasInstance() )
+	return false;
+
+    uiParent* parent = nullptr;
+    if ( parentptr )
+	parent = dynamic_cast<uiParent*>(
+				static_cast<uiBaseObject*>(parentptr) );
+
+    if ( !parent )
+	parent = uiMainWin::activeModalWindow();
+
+    if ( !parent )
+	parent = uiMain::instance().topLevel();
+
+    if ( !parent )
+	parent = uiMainWin::activeWindow();
+
+    if ( !parent )
+	return false;
+
+    uiProxyDlg dlg( parent );
+    return dlg.go();
+}
+
+
+// uiProxyDlg
 
 uiProxyDlg::uiProxyDlg( uiParent* p )
     : uiDialog(p,Setup(tr("Connection Settings"),mODHelpKey(mProxyDlgHelpID)))
 {
     useproxyfld_ = new uiGenInput( this, tr("Use proxy"), BoolInpSpec(true) );
-    useproxyfld_->valueChanged.notify( mCB(this,uiProxyDlg,useProxyCB) );
+    mAttachCB( useproxyfld_->valueChanged, uiProxyDlg::useProxyCB );
 
     hostfld_ = new uiGenInput( this, tr("HTTP Proxy"), StringInpSpec() );
     hostfld_->attach( alignedBelow, useproxyfld_ );
@@ -32,10 +88,8 @@ uiProxyDlg::uiProxyDlg( uiParent* p )
     portfld_->attach( rightTo, hostfld_ );
     portfld_->box()->setInterval( 1, 65535 );
 
-    authenticationfld_ =
-	new uiCheckBox( this, tr("Use authentication") );
-    authenticationfld_->activated.notify(
-				    mCB(this,uiProxyDlg,useProxyCB) );
+    authenticationfld_ = new uiCheckBox( this, tr("Use authentication"),
+					 mCB(this,uiProxyDlg,useProxyCB) );
     authenticationfld_->attach( alignedBelow, hostfld_ );
 
     usernamefld_ = new uiGenInput( this, tr("User name"), StringInpSpec() );
@@ -51,18 +105,43 @@ uiProxyDlg::uiProxyDlg( uiParent* p )
     savepwdfld_->attach( alignedBelow, pwdfld_ );
 
     initFromSettings();
-    useProxyCB(0);
+    useProxyCB( nullptr);
 }
 
 
 uiProxyDlg::~uiProxyDlg()
-{}
+{
+    detachAllNotifiers();
+}
 
 
 void uiProxyDlg::initFromSettings()
 {
     Settings& setts = Settings::common();
     usePar( setts );
+
+    const BufferString host = hostfld_->text();
+    if ( !host.isEmpty() )
+	return;
+
+    Network::HttpProxyConfig cfg;
+    if ( !Network::environmentProxyFor(nullptr,cfg) )
+	return;
+
+    const BufferString envhost = cfg.authority_.getHost();
+    if ( envhost.isEmpty() )
+	return;
+
+    hostfld_->setText( envhost.buf() );
+    if ( cfg.authority_.getPort() > 1 )
+	portfld_->box()->setValue( cfg.authority_.getPort() );
+
+    if ( cfg.username_.isEmpty() )
+	return;
+
+    authenticationfld_->setChecked( true );
+    usernamefld_->setText( cfg.username_ );
+    pwdfld_->setText( cfg.password_ );
 }
 
 
@@ -169,23 +248,14 @@ bool uiProxyDlg::acceptOK( CallBacker* )
 }
 
 
-
-// uiNetworkUserQuery
-uiNetworkUserQuery::uiNetworkUserQuery()
-    : mainwin_(0)
+void uiProxyDlg::initClass()
 {
+    NetworkUserQuery::setNetworkUserQuery( new uiNetworkUserQuery );
 }
 
 
-uiNetworkUserQuery::~uiNetworkUserQuery()
-{}
-
-
-bool uiNetworkUserQuery::setFromUser()
+bool uiProxyDlg::runDialog( uiParent* parent )
 {
-    if ( !mainwin_ )
-	return false;
-
-    uiProxyDlg dlg( mainwin_ );
-    return dlg.go();
+    auto* netuserquery = NetworkUserQuery::getNetworkUserQuery();
+    return netuserquery ? netuserquery->setFromUser( parent ) : false;
 }

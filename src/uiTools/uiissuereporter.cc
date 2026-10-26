@@ -17,12 +17,12 @@ ________________________________________________________________________
 #include "uibutton.h"
 #include "uiclipboard.h"
 #include "uidesktopservices.h"
-#include "uigroup.h"
 #include "uilabel.h"
 #include "uilineedit.h"
 #include "uimsg.h"
 #include "uiproxydlg.h"
 #include "uitextedit.h"
+
 
 static StringView sKeyAskBeforeSending()
 { return "Ask before sending issue-report"; }
@@ -93,24 +93,22 @@ uiIssueReporterDlg::uiIssueReporterDlg( uiParent* p,
 
     if ( withproxysettings )
     {
-	uiButton* proxybut = new uiPushButton( this, tr("Proxy settings"),
+	auto* proxybut = new uiPushButton( this, tr("Proxy settings"),
 					       false );
 	proxybut->setIcon( "proxysettings" );
-	proxybut->activated.notify( mCB(this,uiIssueReporterDlg,proxySetCB) );
+	mAttachCB( proxybut->activated, uiIssueReporterDlg::proxySetCB );
 	proxybut->attach( rightOf, emailfld_ );
     }
 
     setCancelText( sDontSendReport() );
     setOkText( sSendReport() );
-
-    uiNetworkUserQuery* uinetquery = new uiNetworkUserQuery;
-    uinetquery->setMainWin( this );
-    NetworkUserQuery::setNetworkUserQuery( uinetquery );
 }
 
 
 uiIssueReporterDlg::~uiIssueReporterDlg()
-{}
+{
+    detachAllNotifiers();
+}
 
 
 void uiIssueReporterDlg::viewReportCB( CallBacker* )
@@ -140,9 +138,7 @@ bool uiIssueReporterDlg::allowSending() const
 
 void uiIssueReporterDlg::proxySetCB( CallBacker* )
 {
-    uiProxyDlg dlg( this );
-    dlg.setHelpKey( mNoHelpKey );
-    dlg.go();
+    uiProxyDlg::runDialog( this );
 }
 
 
@@ -234,7 +230,7 @@ bool uiIssueReporterDlg::acceptOK(CallBacker *)
 		    "different proxy settings?") );
 	res = uiMSG().askGoOn( msg );
 	if ( res )
-	    proxySetCB( 0 );
+	    proxySetCB( nullptr );
     }
 
     setButSensitive( true );

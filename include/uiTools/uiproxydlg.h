@@ -9,14 +9,15 @@ ________________________________________________________________________
 -*/
 
 #include "uitoolsmod.h"
+
 #include "uidialog.h"
-#include "odnetworkaccess.h"
 
 class uiCheckBox;
 class uiGenInput;
 class uiLabel;
 class uiLabeledSpinBox;
 class uiLineEdit;
+
 
 mExpClass(uiTools) uiProxyDlg : public uiDialog
 { mODTextTranslationClass(uiProxyDlg);
@@ -31,6 +32,9 @@ public:
 
     bool		fillPar(IOPar&,bool) const;
     bool		usePar(const IOPar&);
+
+    static void		initClass();
+    static bool		runDialog(uiParent*);
 
 protected:
 
@@ -49,17 +53,3 @@ protected:
     uiLabeledSpinBox*	portfld_;
 };
 
-mExpClass(uiTools) uiNetworkUserQuery : public NetworkUserQuery
-{ mODTextTranslationClass(uiNetworkUserQuery);
-public:
-			uiNetworkUserQuery();
-			~uiNetworkUserQuery();
-
-    bool		setFromUser() override;
-
-    void		setMainWin(uiMainWin* mw)	{ mainwin_ = mw; }
-
-protected:
-
-    uiMainWin*		mainwin_;
-};

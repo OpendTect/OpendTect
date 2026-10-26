@@ -12,7 +12,7 @@ ________________________________________________________________________
 #include "databuf.h"
 #include "envvars.h"
 #include "genc.h"
-#include "odnetworkaccess.h" //Proxy settings
+#include "networkcommon.h"
 #include "odruncontext.h"
 #include "od_ostream.h"
 #include "testprog.h"
@@ -22,6 +22,8 @@ ________________________________________________________________________
 
 #include <QCoreApplication>
 #include <QEventLoop>
+#include <QNetworkProxy>
+#include <QNetworkReply>
 #include <QNetworkRequest>
 #include <QSslError>
 #include <QUrlQuery>
@@ -30,6 +32,43 @@ ________________________________________________________________________
 
 namespace Network
 {
+
+// HttpProxyConfig
+
+HttpProxyConfig::HttpProxyConfig()
+    : authority_(*new Authority)
+{}
+
+
+HttpProxyConfig::HttpProxyConfig( const HttpProxyConfig& oth )
+    : authority_(*new Authority)
+{
+    *this = oth;
+}
+
+
+HttpProxyConfig::~HttpProxyConfig()
+{
+    delete &authority_;
+}
+
+
+HttpProxyConfig& HttpProxyConfig::operator=( const HttpProxyConfig& oth )
+{
+    if ( &oth == this )
+	return *this;
+
+    type_ = oth.type_;
+    authority_.setHost( oth.authority_.getHost() );
+    authority_.setPort( oth.authority_.getPort() );
+    username_ = oth.username_;
+    password_ = oth.password_;
+
+    return *this;
+}
+
+
+// HttpRequestProcess
 
 HttpRequestProcess::HttpRequestProcess( const HttpRequest* request )
     : finished(this)
@@ -71,21 +110,21 @@ uiRetVal HttpRequestProcess::errMsgs() const
 bool HttpRequestProcess::isRunning() const
 {
     Threads::MutexLocker locker( statuslock_ );
-    return status_==Running;
+    return status_==Status::Running;
 }
 
 
 bool HttpRequestProcess::isFinished() const
 {
     Threads::MutexLocker locker( statuslock_ );
-    return status_==Finished;
+    return status_==Status::Finished;
 }
 
 
 bool HttpRequestProcess::isError() const
 {
     Threads::MutexLocker locker( statuslock_ );
-    return status_==Error;
+    return status_==Status::Error;
 }
 
 
@@ -100,7 +139,7 @@ od_int64 HttpRequestProcess::getTotalBytesToUpload() const
 bool HttpRequestProcess::waitForRequestStart()
 {
     statuslock_.lock();
-    while ( status_==NotStarted )
+    while ( status_==Status::NotStarted )
     {
 	if ( !statuslock_.wait( 10000 ) ) //timeout if for safety only
 	{
@@ -109,7 +148,7 @@ bool HttpRequestProcess::waitForRequestStart()
 	}
     }
 
-    const bool res = status_!=NotStarted;
+    const bool res = status_!=Status::NotStarted;
     statuslock_.unLock();
     return res;
 }
@@ -123,7 +162,7 @@ void HttpRequestProcess::setQNetworkReply( QNetworkReply* qnr )
 	qnetworkreplyconn_ = new QNetworkReplyConn(qnetworkreply_, this);
 
     statuslock_.lock();
-    status_ = qnr ? Running : Error;
+    status_ = qnr ? Status::Running : Status::Error;
     statuslock_.signal( true );
     statuslock_.unLock();
 
@@ -138,7 +177,7 @@ void HttpRequestProcess::waitForFinish( int timeout )
     unsigned long usedtimeout = timeout<0 ? ULONG_MAX : timeout;
 
     statuslock_.lock();
-    while ( status_ == Running )
+    while ( status_ == Status::Running )
     {
 	if ( !statuslock_.wait( usedtimeout ) )
 	    break;
@@ -163,6 +202,29 @@ void HttpRequestProcess::reportMetaDataChanged()
 }
 
 
+static HttpRequestProcess::FailureKind
+	failureKindFromQtError( QNetworkReply::NetworkError err )
+{
+    if ( err == QNetworkReply::NoError )
+	return HttpRequestProcess::FailureKind::NoFailure;
+
+    if ( err == QNetworkReply::SslHandshakeFailedError )
+	return HttpRequestProcess::FailureKind::SslFailure;
+
+    if ( err == QNetworkReply::ProxyAuthenticationRequiredError )
+	return HttpRequestProcess::FailureKind::ProxyAuthFailure;
+
+    if ( err >= QNetworkReply::ProxyConnectionRefusedError &&
+	 err <= QNetworkReply::UnknownProxyError )
+	return HttpRequestProcess::FailureKind::ConnectFailure;
+
+    if ( err >= QNetworkReply::ContentAccessDenied )
+	return HttpRequestProcess::FailureKind::HttpFailure;
+
+    return HttpRequestProcess::FailureKind::ConnectFailure;
+}
+
+
 void HttpRequestProcess::reportSSLErrors( const QList<QSslError>& sslerrors )
 {
     uiRetVal errors;
@@ -176,7 +238,8 @@ void HttpRequestProcess::reportSSLErrors( const QList<QSslError>& sslerrors )
 	errors.add( tr("SSL Error (unknown)") );
 
     statuslock_.lock();
-    status_ = Error;
+    status_ = Status::Error;
+    failurekind_ = FailureKind::SslFailure;
     errmsgs_.add( errors );
     statuslock_.signal( true );
     statuslock_.unLock();
@@ -185,11 +248,28 @@ void HttpRequestProcess::reportSSLErrors( const QList<QSslError>& sslerrors )
 }
 
 
+HttpRequestProcess::FailureKind HttpRequestProcess::failureKind() const
+{
+    Threads::MutexLocker locker( statuslock_ );
+    return failurekind_;
+}
+
+
 void HttpRequestProcess::reportError()
 {
+    const QNetworkReply::NetworkError qerr = qnetworkreply_
+	? qnetworkreply_->error()
+	: QNetworkReply::UnknownNetworkError;
+    const FailureKind kind = failureKindFromQtError( qerr );
+    const uiString errmsg = qnetworkreply_
+	? toUiString( qnetworkreply_->errorString() )
+	: tr("Network request failed");
+
     statuslock_.lock();
-    status_ = Error;
-    const uiString errmsg = toUiString( qnetworkreply_->errorString() );
+    status_ = Status::Error;
+    if ( failurekind_ == FailureKind::NoFailure )
+	failurekind_ = kind;
+
     errmsgs_.add( errmsg );
 
     static int addprint = -1;
@@ -250,7 +330,7 @@ void HttpRequestProcess::reportUploadProgress( od_int64 bytes,
 void HttpRequestProcess::reportFinished()
 {
     statuslock_.lock();
-    if ( status_==Running ) status_ = Finished;
+    if ( status_==Status::Running ) status_ = Status::Finished;
     statuslock_.signal( true );
     statuslock_.unLock();
 
@@ -358,7 +438,10 @@ HttpRequest::HttpRequest( const HttpRequest& b )
     , url_( b.url_ )
     , contenttype_( b.contenttype_ )
     , rawheaders_( b.rawheaders_ )
+    , encodeddata_( b.encodeddata_ )
     , accesstype_( b.accesstype_ )
+    , proxy_( b.proxy_ )
+    , transfertimeoutms_( b.transfertimeoutms_ )
 {}
 
 
@@ -414,6 +497,18 @@ void HttpRequest::setEncodedData( const char* key, const char* val )
 }
 
 
+void HttpRequest::setProxyConfig( const HttpProxyConfig& cfg )
+{
+    proxy_ = cfg;
+}
+
+
+void HttpRequest::setTransferTimeoutMs( int timeoutms )
+{
+    transfertimeoutms_ = timeoutms;
+}
+
+
 void HttpRequest::fillRequest( QNetworkRequest& req ) const
 {
     req.setUrl( QUrl(url_.buf()) );
@@ -440,6 +535,34 @@ void HttpRequest::fillRequest( QNetworkRequest& req ) const
 
     if ( payload_ )
 	req.setHeader( QNetworkRequest::ContentLengthHeader, payload_->size() );
+
+    if ( transfertimeoutms_ > 0 )
+	req.setTransferTimeout( transfertimeoutms_ );
+}
+
+
+static QNetworkProxy qNetworkProxy( const HttpProxyConfig& cfg )
+{
+    QNetworkProxy proxy;
+    if ( cfg.type_ == HttpProxyConfig::Type::Http ||
+	 cfg.type_ == HttpProxyConfig::Type::Socks5 )
+    {
+	proxy.setType( cfg.type_ == HttpProxyConfig::Type::Socks5
+		? QNetworkProxy::Socks5Proxy : QNetworkProxy::HttpProxy );
+	const BufferString host = cfg.authority_.getHost();
+	proxy.setHostName( host.buf() );
+	proxy.setPort( cfg.authority_.getPort() );
+	if ( !cfg.username_.isEmpty() )
+	{
+	    proxy.setUser( cfg.username_.buf() );
+	    proxy.setPassword( cfg.password_.buf() );
+	}
+
+	return proxy;
+    }
+
+    proxy.setType( QNetworkProxy::NoProxy );
+    return proxy;
 }
 
 
@@ -481,14 +604,16 @@ void HttpRequestManager::shutDownThreading()
 
 RefMan<HttpRequestProcess> HttpRequestManager::get( const char* url )
 {
-    RefMan<HttpRequest> req = new HttpRequest( url, HttpRequest::Get );
+    RefMan<HttpRequest> req =
+		new HttpRequest( url, HttpRequest::AccessType::Get );
     return request( req.ptr() );
 }
 
 
 RefMan<HttpRequestProcess> HttpRequestManager::head( const char* url )
 {
-    RefMan<HttpRequest> req = new HttpRequest( url, HttpRequest::Head );
+    RefMan<HttpRequest> req =
+		new HttpRequest( url, HttpRequest::AccessType::Head );
     return request( req.ptr() );
 }
 
@@ -522,8 +647,9 @@ void HttpRequestManager::threadFuncCB(CallBacker*)
 #ifndef OD_NO_QT
     createReceiverForCurrentThread();
 
-    //Create outside of look as we'll trigger events and stuff in Qt
-    Network::setHttpProxyFromSettings();
+    //Create outside of look as we'll trigger events and stuff in Qt.
+    //Proxy selection is applied per request so this thread does not
+    //change the application proxy used by OpendTect sockets.
     auto* eventloop = new QEventLoop( 0 );
     auto* qnam = new QNetworkAccessManager( eventloop );
 
@@ -566,13 +692,19 @@ void HttpRequestManager::doRequestCB( CallBacker* cb )
     QNetworkRequest qreq;
     reply->request_->fillRequest(qreq);
 
-    if (reply->request_->accesstype_ == HttpRequest::Get)
+    HttpProxyConfig proxy = reply->request_->proxyConfig();
+    if ( proxy.type_ == HttpProxyConfig::Type::Unset )
+	proxy = preferredDownloadProxy( reply->request_->url() );
+
+    qnam_->setProxy( qNetworkProxy(proxy) );
+
+    if (reply->request_->accesstype_ == HttpRequest::AccessType::Get)
 	reply->setQNetworkReply(qnam_->get(qreq));
-    else if (reply->request_->accesstype_ == HttpRequest::Put)
+    else if (reply->request_->accesstype_ == HttpRequest::AccessType::Put)
 	reply->setQNetworkReply(qnam_->put(qreq,*reply->request_->payload_));
-    else if (reply->request_->accesstype_ == HttpRequest::Post)
+    else if (reply->request_->accesstype_ == HttpRequest::AccessType::Post)
 	reply->setQNetworkReply(qnam_->post(qreq,*reply->request_->payload_));
-    else if (reply->request_->accesstype_ == HttpRequest::Delete )
+    else if (reply->request_->accesstype_ == HttpRequest::AccessType::Delete )
 	reply->setQNetworkReply(qnam_->deleteResource(qreq));
     else
 	reply->setQNetworkReply(qnam_->head(qreq));

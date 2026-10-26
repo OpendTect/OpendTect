@@ -12,16 +12,15 @@ ________________________________________________________________________
 #include "applicationdata.h"
 #include "debug.h"
 #include "envvars.h"
-#include "hostdata.h"
+#include "filepath.h"
+#include "genc.h"
 #include "msgh.h"
 #include "netsocket.h"
-#include "oddirs.h"
 #include "separstr.h"
 #include "strmdata.h"
 #include "systeminfo.h"
 #include "timefun.h"
 
-#include <iostream>
 #include "mmcommunicdefs.h"
 
 
@@ -53,7 +52,7 @@ JobCommunic::sendData::~sendData()
     { \
 	bool ret = fn; \
 	if ( ret ) return true; \
-	sleepSeconds(1); \
+	sleepSeconds(1.); \
     } \
     stillok_ = false; \
     directMsg("Lost connection with primary host[2]. Exiting."); \

@@ -164,7 +164,8 @@ Network::FileDownloadMgr::ChunkSizeType Network::FileDownloadMgr::getReplies(
 	    maxsz = intvsz;
 
 	RefMan<Network::HttpRequest> req =
-	    new Network::HttpRequest( url_, Network::HttpRequest::Get );
+		new Network::HttpRequest( url_,
+				Network::HttpRequest::AccessType::Get );
 	BufferString hdrstr( "bytes=", chunk.start_, "-" );
 	hdrstr.add( chunk.stop_ );
 	req->setRawHeader( "Range", hdrstr.str() );

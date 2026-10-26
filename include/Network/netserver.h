@@ -10,6 +10,8 @@ ________________________________________________________________________
 
 #include "networkcommon.h"
 
+#include "callback.h"
+
 mFDQtclass(QTcpSocket)
 mFDQtclass(QTcpServer)
 mFDQtclass(QLocalSocket)

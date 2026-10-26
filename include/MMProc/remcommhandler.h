@@ -10,6 +10,7 @@ ________________________________________________________________________
 
 #include "mmprocmod.h"
 
+#include "callback.h"
 #include "networkcommon.h"
 #include "od_iosfwd.h"
 

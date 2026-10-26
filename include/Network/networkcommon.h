@@ -11,7 +11,6 @@ ________________________________________________________________________
 #include "networkmod.h"
 
 #include "bufstring.h"
-#include "notify.h"
 #include "uistring.h"
 
 mFDQtclass(QString)
