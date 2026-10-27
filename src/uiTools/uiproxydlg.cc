@@ -65,10 +65,10 @@ bool uiNetworkUserQuery::setFromUser( void* parentptr )
     if ( !parent )
 	parent = uiMainWin::activeWindow();
 
-    if ( !parent )
-	return false;
-
     uiProxyDlg dlg( parent );
+    dlg.setModal( true );
+    // Always modal, in case this is reached before any top level window is
+    // created.
     return dlg.go();
 }
 
