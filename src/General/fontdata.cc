@@ -55,7 +55,8 @@ bool FontData::operator ==( const FontData& oth ) const
 
     return family_ == oth.family_ && pointsize_ == oth.pointsize_ &&
 	   weight_ == oth.weight_ && italic_ == oth.italic_ &&
-	   styleName() == oth.styleName();
+	   underline_ == oth.underline_ && strikeout_ == oth.strikeout_ &&
+	   stylename_ == oth.stylename_;
 }
 
 
@@ -71,6 +72,8 @@ FontData& FontData::operator =( const FontData& fd )
     pointsize_ = fd.pointsize_;
     weight_ = fd.weight_;
     italic_ = fd.italic_;
+    underline_ = fd.underline_;
+    strikeout_ = fd.strikeout_;
     setStyleName( fd.styleName() );
     return *this;
 }
@@ -134,6 +137,8 @@ bool FontData::getFrom( const char* s )
     if ( nr > 2 ) parseEnumWeight( fms[2], weight_ );
     if ( nr > 3 ) italic_ = toBool(fms[3],false);
     if ( nr > 4 ) setStyleName( fms[4] );
+    if ( nr > 5 ) underline_ = toBool(fms[5],false);
+    if ( nr > 6 ) strikeout_ = toBool(fms[6],false);
 
     return true;
 }
@@ -147,5 +152,7 @@ void FontData::putTo( BufferString& s ) const
     fms += FontData::getWeightString(weight_);
     fms += getYesNoString( italic_ );
     fms += styleName();
+    fms += getYesNoString( underline_ );
+    fms += getYesNoString( strikeout_ );
     s = fms;
 }
