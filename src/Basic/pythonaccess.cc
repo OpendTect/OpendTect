@@ -20,14 +20,18 @@ ________________________________________________________________________
 #include "genc.h"
 #include "keystrs.h"
 #include "oddirs.h"
+#include "odjson.h"
 #include "odplatform.h"
+#include "odprocess.h"
 #include "procdescdata.h"
+#include "pythonenv.h"
 #include "separstr.h"
 #include "settings.h"
 #include "string2.h"
 #include "survinfo.h"
 #include "threadwork.h"
 #include "uistrings.h"
+#include <cerrno>
 
 
 namespace OD
@@ -40,6 +44,85 @@ namespace OD
     static const char* sKeyPythonPathEnvStr()	{ return "PYTHONPATH"; }
 
 } // namespace OD
+
+
+namespace
+{
+
+/* Composes the environment for a child process. The parent process
+   environment is left untouched: the composed list is handed to the
+   process explicitly. */
+
+static BufferStringSet getPythonChildEnv( const BufferStringSet& basepaths,
+					  const BufferStringSet& userpaths,
+					  const BufferStringSet* baselinenv,
+					  const char* pathprepend=nullptr,
+					  const char* envprefix=nullptr,
+					  bool isvenv=false,
+					  bool cleancustomenv=false )
+{
+    OD::PythonEnv::ChildEnvPars pars;
+    pars.basepaths_ = basepaths;
+    pars.userpaths_ = userpaths;
+    pars.baselinenv_ = baselinenv;
+    if ( pathprepend )
+	pars.pathprepend_.set( pathprepend );
+    if ( envprefix )
+	pars.envprefix_.set( envprefix );
+    pars.isvenv_ = isvenv;
+    pars.cleancustomenv_ = cleancustomenv;
+    return OD::PythonEnv::getChildEnvironment( pars );
+}
+
+
+/* Determines if nm is a generic python executable name. Matches the
+   bare executable names as well as versioned names
+   (e.g. python3.11), so callers cannot silently bypass the env. */
+
+static bool isGenericPythonName( const char* nm )
+{
+    if ( !nm || !*nm )
+	return false;
+
+    BufferString base( nm );
+    base.toLower();
+    if ( !base.startsWith("python") )
+	return false;
+
+    int len = base.size();
+    if ( __iswin__ && base.endsWith(".exe") )
+	len -= 4;
+
+    if ( len==6 )
+	return true;
+
+    for ( int idx=6; idx<len; idx++ )
+    {
+	const char c = base[idx];
+	if ( (c<'0' || c>'9') && c!='.' )
+	    return false;
+    }
+    return true;
+}
+
+
+const IOPar& getPythonSettings()
+{
+    BufferString pythonstr( sKey::Python() ); pythonstr.toLower();
+    return Settings::fetch( pythonstr );
+}
+
+
+OD::PythonSource getConfiguredPythonSource( const IOPar& par,
+					    OD::PythonSource fallback )
+{
+    OD::PythonSourceDef().parse( par, OD::PythonAccess::sKeyPythonSrc(),
+				 fallback );
+    return fallback;
+}
+
+} // namespace
+
 
 BufferStringSet OD::PythonAccess::pystartpath_{0}; //From user environment
 
@@ -91,6 +174,7 @@ void EnumDefImpl<OD::PythonSource>::init()
 OD::PythonAccess::PythonAccess()
     : envChange(this)
     , envVerified(this)
+    , customenv_( *new PythonEnv )
     , lock_(Threads::Lock::SmallWork)
 {
     mAttachCB( ApplicationData::applicationToBeStarted(),
@@ -103,6 +187,7 @@ OD::PythonAccess::~PythonAccess()
 {
     detachAllNotifiers();
     delete activatefp_;
+    delete &customenv_;
 }
 
 
@@ -142,8 +227,7 @@ void OD::PythonAccess::addBasePath( const FilePath& fp )
 
 void OD::PythonAccess::updatePythonPath() const
 {
-    BufferString pythonstr( sKey::Python() ); pythonstr.toLower();
-    const IOPar& pythonsetts = Settings::fetch( pythonstr );
+    const IOPar& pythonsetts = getPythonSettings();
     PtrMan<IOPar> pathpar = pythonsetts.subselect( sKeyPythonPath() );
     if ( pathpar )
     {
@@ -187,10 +271,9 @@ void OD::PythonAccess::initClass()
     ManagedObjectSet<FilePath> fps;
     BufferStringSet envnms;
 
-    BufferString pythonstr( sKey::Python() ); pythonstr.toLower();
-    const IOPar& pythonsetts = Settings::fetch( pythonstr );
-    PythonSource source = hasInternalEnvironment() ? Internal : System;
-    PythonSourceDef().parse( pythonsetts, sKeyPythonSrc(), source );
+    const IOPar& pythonsetts = getPythonSettings();
+    PythonSource source = getConfiguredPythonSource( pythonsetts,
+			     hasInternalEnvironment() ? Internal : System );
     FilePath externalroot;
     CommandLineParser clp;
     const int totnrarg = GetArgC();
@@ -249,21 +332,20 @@ BufferString OD::PythonAccess::pyVersion() const
 
 uiString OD::PythonAccess::pySummary() const
 {
-    BufferString pythonstr( sKey::Python() ); pythonstr.toLower();
-    const IOPar& pythonsetts = Settings::fetch( pythonstr );
-    PythonSource source;
-    if (!PythonSourceDef().parse(pythonsetts,sKeyPythonSrc(),source))
-	source = System;
+    PythonSource source = getConfiguredPythonSource( getPythonSettings(),
+						     System );
 
     uiString result = tr("Using %1 %2").arg(source).arg(pyVersion());
     if ( source == Custom )
     {
-	BufferString virtenvloc;
-	if ( pythonsetts.get(sKeyEnviron(),virtenvloc) )
+	const uiRetVal uirv = updateCustomEnv();
+	if ( uirv.isOK() )
 	{
-	    if ( !virtenvnm_.isEmpty() )
-		result.append( tr("environment %1").arg(virtenvnm_) );
+	    const BufferString envnm = customenv_.prefixPath();
+	    result.append( tr("environment %1").arg(envnm) );
 	}
+	else
+	    result.append( uirv );
     }
 
     return result;
@@ -307,33 +389,24 @@ bool OD::PythonAccess::isUsable_( bool force, uiRetVal& ret,
 	moduleinfos_.setEmpty();
     }
 
-    BufferString pythonstr( sKey::Python() ); pythonstr.toLower();
-    const IOPar& pythonsetts = Settings::fetch( pythonstr );
-    PythonSource source = hasInternalEnvironment(false) ? Internal : System;
-    PythonSourceDef().parse( pythonsetts, sKeyPythonSrc(), source );
+    PythonSource source = getPythonSource();
     if ( source == System )
 	return isEnvUsable( nullptr, nullptr, ret, stdoutstr, stderrstr );
 
-    PtrMan<FilePath> externalroot = nullptr;
-    PtrMan<BufferString> virtenvnm;
     if ( source == Custom )
     {
-	BufferString virtenvloc;
-	if ( pythonsetts.get(sKeyEnviron(),virtenvloc) )
+	const uiRetVal uirv = updateCustomEnv();
+	if ( uirv.isError() )
 	{
-	    if ( !File::exists(virtenvloc) || !File::isDirectory(virtenvloc) )
-	    {
-		ret = tr("Selected custom python environment does "
-			 "not exist:\n'%1'").arg( virtenvloc );
-		return ret.isOK();
-	    }
-
-	    externalroot = new FilePath( virtenvloc );
+	    ret = uirv;
+	    return ret.isOK();
 	}
 
-	virtenvnm = new BufferString();
-	pythonsetts.get( sKey::Name(), *virtenvnm );
+	return isCustomEnvUsable( ret, stdoutstr, stderrstr );
     }
+
+    PtrMan<FilePath> externalroot;
+    PtrMan<BufferString> virtenvnm;
 
     ManagedObjectSet<FilePath> pythonenvsfp;
     BufferStringSet envnms;
@@ -417,21 +490,37 @@ FilePath* OD::PythonAccess::getActivateScript( const FilePath& rootfp )
 
 OD::PythonSource OD::PythonAccess::getPythonSource() const
 {
-    BufferString pythonstr( sKey::Python() ); pythonstr.toLower();
-    const IOPar& pythonsetts = Settings::fetch( pythonstr );
-    PythonSource source = hasInternalEnvironment(false) ? Internal : System;
-    OD::PythonSourceDef().parse( pythonsetts, sKeyPythonSrc(), source );
-    return source;
+    return getConfiguredPythonSource( getPythonSettings(),
+			    hasInternalEnvironment(false) ? Internal : System );
 }
 
 
 FilePath OD::PythonAccess::getPythonEnvFp() const
 {
+    if ( getPythonSource()==Custom && updateCustomEnv().isOK() &&
+	 customenv_.envType()!=PythonEnv::EnvType::Unknown )
+	    return FilePath( customenv_.prefixPath() );
+
     if ( !activatefp_ )
 	return FilePath();
 
     const FilePath envrootfp = getPythonEnvFp( *activatefp_ );
     return getPythonEnvFp( envrootfp );
+}
+
+
+BufferString OD::PythonAccess::getEnvName() const
+{
+    if ( getPythonSource()==Custom )
+    {
+	if ( updateCustomEnv().isError() ||
+	     customenv_.envType()==PythonEnv::EnvType::Unknown )
+	    return BufferString();
+
+	return FilePath( customenv_.prefixPath() ).baseName();
+    }
+
+    return virtenvnm_;
 }
 
 
@@ -462,6 +551,18 @@ FilePath OD::PythonAccess::getPythonEnvFp( const FilePath& activatefp )
 }
 
 
+uiRetVal OD::PythonAccess::setCustomEnvironment()
+{
+    Threads::Locker locker( lock_ );
+    istested_ = true;
+    isusable_ = false;
+    pythversion_.setEmpty();
+    moduleinfos_.setEmpty();
+    uiRetVal ret;
+    return isCustomEnvUsable( ret ) ? uiRetVal::OK() : ret;
+}
+
+
 uiRetVal OD::PythonAccess::setEnvironment( const FilePath* pythonenvfp,
 					   const char* envnm )
 {
@@ -475,11 +576,58 @@ uiRetVal OD::PythonAccess::setEnvironment( const FilePath* pythonenvfp,
 }
 
 
+bool OD::PythonAccess::isCustomEnvUsable( uiRetVal& ret,
+					  BufferString* stdoutstr,
+					  BufferString* stderrstr )
+{
+    const uiRetVal uirv = updateCustomEnv();
+    if ( uirv.isError() )
+    {
+	ret = uirv;
+	return false;
+    }
+
+    if ( customenv_.envType()==PythonEnv::EnvType::Unknown )
+    {
+	ret = tr("Invalid custom python environment");
+	return false;
+    }
+
+    const BufferString prefix = customenv_.prefixPath();
+    BufferString errstr, verstr;
+    if ( !customenv_.getPythonVersion(verstr, &errstr) )
+    {
+	ret = tr("Cannot detect python version: %1").arg(errstr);
+	return false;
+    }
+
+    bool notrigger = prefix == customenv_.prefixPath();
+    const bool firstinit = pythversion_.isEmpty() && moduleinfos_.isEmpty();
+    if ( firstinit )
+	notrigger = false;
+
+    isusable_ = true;
+    if ( !notrigger )
+    {
+	pythversion_ = verstr;
+	updatePythonPath();
+	Threads::Locker locker( lock_, Threads::Locker::DontWaitForLock );
+	locker.unlockNow();
+	envChange.trigger();
+    }
+
+    return isusable_;
+}
+
+
 bool OD::PythonAccess::isEnvUsable( const FilePath* pythonenvfp,
 				    const char* envnm, uiRetVal& ret,
 				    BufferString* stdoutstr,
 				    BufferString* stderrstr )
 {
+    if ( getPythonSource()==Custom )
+	return isCustomEnvUsable( ret, stdoutstr, stderrstr );
+
     PtrMan<FilePath> activatefp;
     BufferString venvnm( envnm );
     if ( pythonenvfp )
@@ -962,11 +1110,26 @@ void OD::PythonAccess::getPIDFromFile( const char* pidfnm, int* pid )
 }
 
 
-uiRetVal OD::PythonAccess::doExecute( const OS::MachineCommand& cmd,
-				  const OS::CommandExecPars* execpars, int* pid,
-				  const FilePath* activatefp, const char* envnm,
-				  BufferString* stdoutstr,
-				  BufferString* stderrstr, int* exitcode ) const
+uiRetVal OD::PythonAccess::updateCustomEnv() const
+{
+    if ( getPythonSource()!=Custom )
+	return uiRetVal( tr("Not using a custom Python environment") );
+
+    OD::JSON::Object jsobj;
+    getPythonSettings().fillJSON( jsobj, false );
+    const uiRetVal uirv = customenv_.useJSON( jsobj );
+    return uirv;
+}
+
+
+uiRetVal OD::PythonAccess::doExecuteHelper( const OS::MachineCommand& cmd,
+					const OS::CommandExecPars* execpars,
+					int* pid,
+					const FilePath* activatefp,
+					const char* envnm,
+					BufferString* stdoutstr,
+					BufferString* stderrstr,
+					int* exitcode ) const
 {
     FilePath scriptfp;
     const bool background = execpars && execpars->launchtype_ >= OS::RunInBG;
@@ -978,33 +1141,29 @@ uiRetVal OD::PythonAccess::doExecute( const OS::MachineCommand& cmd,
 		    .arg( cmd.toString(execpars) );
     }
 
-    BufferStringSet origpythonpathdirs;
-    GetEnvVarDirList( sKeyPythonPathEnvStr(), origpythonpathdirs, false );
-    BufferStringSet pythonpathdirs( getBasePythonPath() );
-    pythonpathdirs.add( pystartpath_, false );
-    SetEnvVarDirList( sKeyPythonPathEnvStr(), pythonpathdirs, false );
-
-    bool res;
+    OS::CommandExecPars pars( OS::Wait4Finish );
     if ( execpars )
-	res = cl->execute( *execpars );
-    else if ( stdoutstr )
-	res = cl->execute( *stdoutstr, stderrstr );
+	pars = *execpars;
     else
     {
-	BufferString tmpstdout;
-	res = cl->execute( tmpstdout, stderrstr );
+	pars.txtbufstdout( true );
+	pars.txtbufstderr( stderrstr != nullptr );
     }
+
+    const BufferStringSet* baselinenv = nullptr;
+    if ( execpars && !execpars->environment_.isEmpty() )
+	baselinenv = &execpars->environment_;
+
+    pars.environment( getPythonChildEnv(getBasePythonPath(),pystartpath_,
+					baselinenv) );
+
+    const bool res = cl->execute( pars );
 
     if ( pid )
 	*pid = cl->processID();
 
     if ( exitcode )
 	*exitcode = cl->exitCode();
-
-    if ( origpythonpathdirs.isEmpty() )
-	UnsetOSEnvVar( sKeyPythonPathEnvStr() );
-    else
-	SetEnvVarDirList( sKeyPythonPathEnvStr(), origpythonpathdirs, false );
 
     if ( !scriptfp.isEmpty() )
     {
@@ -1016,7 +1175,7 @@ uiRetVal OD::PythonAccess::doExecute( const OS::MachineCommand& cmd,
     }
 
     uiRetVal ret;
-    if ( execpars && stdoutstr && cl->hasStdOutput() )
+    if ( stdoutstr && cl->hasStdOutput() )
 	cl->getAll( *stdoutstr, true );
 
     if ( !res && !cl->errorMsg().isEmpty() )
@@ -1025,14 +1184,9 @@ uiRetVal OD::PythonAccess::doExecute( const OS::MachineCommand& cmd,
     if ( cl->hasStdError() )
     {
 	BufferString stderrorret;
-	if ( stderrstr && !execpars )
-	    stderrorret.set( stderrstr->buf() );
-	else
-	{
-	    cl->getAll( stderrorret, false );
-	    if ( stderrstr )
-		stderrstr->set( stderrorret.buf() );
-	}
+	cl->getAll( stderrorret, false );
+	if ( stderrstr )
+	    stderrstr->set( stderrorret.buf() );
 
 #ifdef __debug__
     if ( stderrorret.contains("(PE) HiddenParam") )
@@ -1043,6 +1197,112 @@ uiRetVal OD::PythonAccess::doExecute( const OS::MachineCommand& cmd,
     }
 
     return ret;
+}
+
+
+uiRetVal OD::PythonAccess::doCustomExecute( const OS::MachineCommand& cmd,
+					   const OS::CommandExecPars* execpars,
+					   int* pid,
+					   BufferString* stdoutstr,
+					   BufferString* stderrstr,
+					   int* exitcode ) const
+{
+    const uiRetVal envrv = updateCustomEnv();
+    if ( envrv.isError() )
+	return envrv;
+
+    if ( customenv_.envType()==PythonEnv::EnvType::Unknown )
+	return tr("Invalid custom python environment");
+
+
+    const StringView prognm( cmd.program() );
+    if ( prognm.isEmpty() )
+	return tr("doCustomExecute - program is empty.");
+
+    BufferStringSet cmdline;
+    if ( isGenericPythonName(FilePath(prognm.str()).fileName()) )
+	cmdline.add( customenv_.pythonPath().buf() );
+    else
+	cmdline.add( prognm.str() );
+
+    if ( !cmd.args().isEmpty() )
+	cmdline.append( cmd.args() );
+
+    BufferStringSet runcmd = customenv_.getRunCommand( cmdline );
+    if ( runcmd.isEmpty() )
+	return tr("Unable to build run command for '%1'").arg( cmd.toString() );
+
+    const bool background = execpars && execpars->launchtype_>=OS::RunInBG;
+    const BufferString workdir( execpars ? execpars->workingdir_ : nullptr );
+    const char* workdirptr = workdir.isEmpty() ? nullptr : workdir.buf();
+    const BufferString binpath( customenv_.pythonBinPath() );
+    const BufferString envprefix( customenv_.prefixPath() );
+    const bool isvenv = customenv_.envType()==PythonEnv::EnvType::Venv;
+
+    uiRetVal ret;
+    const BufferStringSet pythonenv =
+	getPythonChildEnv( getBasePythonPath(), pystartpath_, nullptr,
+			   binpath.buf(), envprefix.buf(), isvenv, true );
+    if ( !background )
+    {
+	BufferStringSet outstrs;
+	BufferString errstr;
+	const int res = customenv_.runCommand( runcmd,
+					       stdoutstr ? &outstrs : nullptr,
+					       &errstr, -1, workdirptr,
+					       &pythonenv );
+	if ( stdoutstr )
+	    stdoutstr->set( outstrs.cat() );
+
+	if ( stderrstr )
+	    stderrstr->set( errstr );
+
+	if ( exitcode )
+	    *exitcode = res;
+
+	if ( res!=0 )
+	{
+	    ret = tr("Cannot execute '%1'").arg( cmd.toString() );
+	    if ( !errstr.isEmpty() )
+		ret.add( ::toUiString(errstr.str()) );
+	}
+    }
+    else
+    {
+	BufferString errstr;
+	const PID_Type bgpid = customenv_.runCommandBG( runcmd, &errstr,
+							workdirptr, false,
+							&pythonenv );
+	if ( pid )
+	    *pid = bgpid;
+
+	if ( stderrstr )
+	    stderrstr->set( errstr );
+
+	if ( bgpid<0 )
+	{
+	    ret = tr("Cannot start '%1'").arg( cmd.toString() );
+	    if ( !errstr.isEmpty() )
+		ret.add( ::toUiString(errstr.str()) );
+	}
+    }
+
+    return ret;
+}
+
+
+uiRetVal OD::PythonAccess::doExecute( const OS::MachineCommand& cmd,
+				  const OS::CommandExecPars* execpars, int* pid,
+				  const FilePath* activatefp, const char* envnm,
+				  BufferString* stdoutstr,
+				  BufferString* stderrstr, int* exitcode ) const
+{
+    if ( getPythonSource()==Custom )
+	return doCustomExecute( cmd, execpars, pid, stdoutstr, stderrstr,
+				exitcode );
+
+    return doExecuteHelper( cmd, execpars, pid, activatefp, envnm,
+			    stdoutstr, stderrstr, exitcode );
 }
 
 
@@ -1254,25 +1514,25 @@ bool OD::PythonAccess::validInternalEnvironment( const FilePath& fp )
 
 void OD::PythonAccess::GetPythonEnvPath( FilePath& fp )
 {
-    BufferString pythonstr( sKey::Python() ); pythonstr.toLower();
-    const IOPar& pythonsetts = Settings::fetch( pythonstr );
-    PythonSource source;
-    if ( !PythonSourceDef().parse(pythonsetts,sKeyPythonSrc(),source) )
-	source = hasInternalEnvironment() ? Internal : System;
+    PythonSource source = getConfiguredPythonSource( getPythonSettings(),
+			     hasInternalEnvironment() ? Internal : System );
 
     if ( source == Custom )
     {
-	BufferString virtenvloc, virtenvnm;
-	pythonsetts.get( sKeyEnviron(), virtenvloc );
-	pythonsetts.get( sKey::Name(), virtenvnm );
-	fp.set( virtenvloc ).add( "envs" ).add( virtenvnm );
-	if ( !fp.exists() )
+	PythonEnv tmpenv;
+	if ( fp.isEmpty() )
 	{
-	    BufferStringSet txtenvnms;
-	    getCondaEnvsFromTxt( txtenvnms );
-	    if ( txtenvnms.isPresent(virtenvnm.str()) )
-		fp.set( virtenvnm );
+	    // The environment root is not known by the caller: read it from
+	    // the settings, as it may be a project root with an environment
+	    // name, or a stand-alone environment prefix.
+	    OD::JSON::Object jsobj;
+	    getPythonSettings().fillJSON( jsobj, false );
+	    if ( tmpenv.useJSON(jsobj, false).isOK() &&
+		 !tmpenv.prefixPath().isEmpty() )
+		fp.set( tmpenv.prefixPath() );
 	}
+	else if ( tmpenv.setEnvironmentRoot(fp.fullPath()).isOK() )
+	    fp.set( tmpenv.prefixPath() );
     }
     else if ( source == Internal )
     {
@@ -1290,8 +1550,21 @@ void OD::PythonAccess::GetPythonEnvPath( FilePath& fp )
 
 void OD::PythonAccess::GetPythonEnvBinPath( FilePath& fp )
 {
+    PythonSource source = getConfiguredPythonSource( getPythonSettings(),
+			     hasInternalEnvironment() ? Internal : System );
+
     GetPythonEnvPath( fp );
-    fp.add( __iswin__ ? "Scripts" : "bin" );
+    if ( fp.isEmpty() )
+	return;
+
+    if ( source==Custom )
+    {
+	PythonEnv tmpenv;
+	if ( tmpenv.setEnvironmentRoot(fp.fullPath()).isOK() )
+	    fp.set( tmpenv.pythonBinPath() );
+    }
+    else
+	fp.add( __iswin__ ? "Scripts" : "bin" );
 }
 
 
@@ -1380,8 +1653,7 @@ bool OD::PythonAccess::getInternalEnvironmentLocation( FilePath& fp,
     if ( !userdef )
 	return false;
 
-    BufferString pythonstr( sKey::Python() ); pythonstr.toLower();
-    const IOPar& pythonsetts = Settings::fetch( pythonstr );
+    const IOPar& pythonsetts = getPythonSettings();
     PythonSource source;
     if ( !PythonSourceDef().parse(pythonsetts,sKeyPythonSrc(),source) ||
 	 source != Internal || !pythonsetts.get(sKeyEnviron(),pythonloc) )
@@ -1408,6 +1680,14 @@ bool OD::PythonAccess::retrievePythonVersionStr()
 
     if ( nottested )
 	return !pythversion_.isEmpty();
+
+    if ( getPythonSource()==Custom )
+    {
+	if ( updateCustomEnv().isError() )
+	    return false;
+
+	return customenv_.getPythonVersion( pythversion_ );
+    }
 
     OS::MachineCommand cmd( sPythonExecNm(true) );
     cmd.addFlag( "version" );
@@ -1678,26 +1958,42 @@ uiRetVal OD::PythonAccess::updateModuleInfo( const char* defprog,
 	mc.addArg( defarg );
 
     moduleinfos_.setEmpty();
-    if ( mc.args().isEmpty() )
-	return uiRetVal( tr("Invalid command: %1").arg(mc.program()) );
-
+    BufferStringSet modstrs;
+    bool res = false;
     uiRetVal ret;
-    BufferString stdoutstr;
-    bool res = execute( mc, stdoutstr, ret );
-    if ( !ApplicationData::hasInstance() )
-	return uiStrings::sClose();
-
-#ifdef __unix__
-    if ( !res && StringView(mc.program()) == StringView("pip") )
+    if ( getPythonSource()!=Custom )
     {
-	mc.setProgram( "pip3" );
+	if ( mc.args().isEmpty() )
+	    return uiRetVal( tr("Invalid command: %1").arg(mc.program()) );
+
+	BufferString stdoutstr;
 	res = execute( mc, stdoutstr, ret );
 	if ( !ApplicationData::hasInstance() )
 	    return uiStrings::sClose();
-    }
+
+#ifdef __unix__
+	if ( !res && StringView(mc.program()) == StringView("pip") )
+	{
+	    mc.setProgram( "pip3" );
+	    res = execute( mc, stdoutstr, ret );
+	    if ( !ApplicationData::hasInstance() )
+		return uiStrings::sClose();
+	}
 #endif
-    BufferStringSet modstrs;
-    modstrs.unCat( stdoutstr );
+	modstrs.unCat( stdoutstr );
+    }
+    else
+    {
+	ret = updateCustomEnv();
+	if ( ret.isOK() )
+	{
+	    BufferString errtxt;
+	    res = customenv_.getModuleList( modstrs, &errtxt );
+	    if ( !errtxt.isEmpty() )
+		ret = tr("Error: %1").arg(errtxt);
+	}
+    }
+
     if ( !res || modstrs.isEmpty() )
     {
 	return uiRetVal( tr("Cannot generate a list of python modules:\n%1")
@@ -1706,10 +2002,11 @@ uiRetVal OD::PythonAccess::updateModuleInfo( const char* defprog,
 
     for ( auto* modstr : modstrs )
     {
-	if ( modstr->startsWith("#") ||
-	     modstr->startsWith("Package") || modstr->startsWith("----") )
+	if ( modstr->startsWith("#") || modstr->startsWith("Package") ||
+	     modstr->startsWith("----") )
 	    continue;
-	moduleinfos_.add( new ModuleInfo( modstr->trimBlanks().toLower() ) );
+
+	moduleinfos_.add( new ModuleInfo(modstr->trimBlanks().toLower()) );
     }
 
     return uiRetVal::OK();
@@ -1744,9 +2041,14 @@ void OD::PythonAccess::setForScript( const char* scriptnm,
 				     OS::MachineCommand& mc ) const
 {
     FilePath scriptfp;
-    GetPythonEnvPath( scriptfp );
-    if ( scriptfp.exists() && scriptfp.isAbsolute() )
-	scriptfp.add( __iswin__ ? "Scripts" : "bin" );
+    if ( getPythonSource()==Custom )
+	GetPythonEnvBinPath( scriptfp );
+    else
+    {
+	GetPythonEnvPath( scriptfp );
+	if ( scriptfp.exists() && scriptfp.isAbsolute() )
+	    scriptfp.add( __iswin__ ? "Scripts" : "bin" );
+    }
 
     scriptfp.add( scriptnm );
     if ( __iswin__ )
@@ -1785,8 +2087,33 @@ bool OD::PythonAccess::openTerminal( const char* cmdstr, uiRetVal& ret,
 	return false;
     }
 
-    if ( !getNonConst(*this).isUsable_(!istested_,ret) )
+    if ( !getNonConst(*this).isUsable_(true,ret) )
 	return false;
+
+//  Resolve the environment to be used before composing the terminal title and
+//  command, so a stale cache cannot be used.
+    const bool iscustom = getPythonSource()==Custom;
+    if ( iscustom )
+    {
+	ret = updateCustomEnv();
+	if ( ret.isError() )
+	    return false;
+
+	if ( customenv_.envType()==PythonEnv::EnvType::Unknown )
+	{
+	    ret = tr("Invalid custom python environment");
+	    return false;
+	}
+    }
+
+    BufferString promptnm;
+    if ( iscustom )
+	promptnm = FilePath( customenv_.prefixPath() ).baseName();
+    else if ( !virtenvnm_.isEmpty() )
+	promptnm = virtenvnm_;
+
+    if ( promptnm.isEmpty() )
+	promptnm.set( "base" );
 
     BufferString prognm( cmdstr );
     bool iswindowsterminal = false;
@@ -1805,9 +2132,6 @@ bool OD::PythonAccess::openTerminal( const char* cmdstr, uiRetVal& ret,
 		if ( args->get(idx) == "--title" &&
 		     args->get(idx+1) == "OpendTect" )
 		{
-		    const BufferString promptnm( virtenvnm_.isEmpty()
-						 ? "base"
-						 : virtenvnm_.str() );
 		    getNonConst(args->get(idx+1)) = promptnm.str();
 		}
 	    }
@@ -1821,14 +2145,51 @@ bool OD::PythonAccess::openTerminal( const char* cmdstr, uiRetVal& ret,
 	    {
 		if ( argstr->startsWith("prompt $COpendTect$F") )
 		{
-		    const BufferString promptnm( "$C",
-			    virtenvnm_.isEmpty() ? "base" : virtenvnm_.str(),
-			    "$F" );
+		    const BufferString title( "$C", promptnm.str(), "$F" );
 		    getNonConst( argstr )->replace( "$COpendTect$F",
-						    promptnm.str() );
+						    title.str() );
 		}
 	    }
 	}
+    }
+
+    if ( iscustom )
+    {
+	BufferStringSet cmdline;
+	cmdline.add( prognm.buf() );
+	if ( args )
+	    cmdline.append( *args );
+
+	BufferStringSet runcmd = customenv_.getShellRunCommand( cmdline );
+	if ( runcmd.isEmpty() )
+	{
+	    ret = tr("Cannot build run command for '%1'").arg( prognm.buf() );
+	    return false;
+	}
+
+	BufferString workingdir( workingdirstr );
+	if ( workingdir.isEmpty() )
+	    workingdir.set( GetPersonalDir() );
+
+	const BufferString binpath( customenv_.pythonBinPath() );
+	const BufferString envprefix( customenv_.prefixPath() );
+	const bool isvenv = customenv_.envType()==PythonEnv::EnvType::Venv;
+	const BufferStringSet pythonenv =
+	    getPythonChildEnv( getBasePythonPath(), pystartpath_, nullptr,
+			       binpath.buf(), envprefix.buf(), isvenv, true );
+
+	BufferString errtxt;
+	const PID_Type pid = customenv_.runCommandBG( runcmd, &errtxt,
+							workingdir.buf(),
+							iswindowsterminal,
+							&pythonenv );
+	if ( !errtxt.isEmpty() )
+	{
+	    ret = tr("Error: %1").arg( errtxt );
+	    return false;
+	}
+
+	return pid!=-1;
     }
 
     OS::MachineCommand mc( prognm.buf() );

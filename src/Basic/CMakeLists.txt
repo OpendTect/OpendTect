@@ -29,7 +29,8 @@ set( OD_TEST_PROGS
 	odlockfile.cc
 	oscommand.cc
 	paralleltask.cc
-	pythoncomm.cc
+	pythonaccess.cc
+	pythonenv.cc
 	ranges.cc
 	refcount.cc
 	sets.cc
@@ -112,6 +113,7 @@ set( OD_MODULE_SOURCES
 	procdescdata.cc
 	progressmeter.cc
 	pythonaccess.cc
+	pythonenv.cc
 	qstreambuf.cc
 	refcount.cc
 	repos.cc

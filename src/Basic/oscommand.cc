@@ -1143,7 +1143,11 @@ bool OS::CommandLauncher::doExecute( const MachineCommand& mc,
 
     const BufferStringSet& environment = pars.environment_;
     if ( !environment.isEmpty() )
+    {
 	process_->setEnvironment( environment );
+	if ( pipeprocess_ )
+	    pipeprocess_->setEnvironment( environment );
+    }
 
     const OD::Process::InputChannelMode inputchmode = pars.inputchmode_;
     if ( inputchmode != OD::Process::InputChannelMode::ManagedInputChannel )

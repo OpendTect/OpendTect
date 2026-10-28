@@ -108,7 +108,7 @@ cmd = "./inst/bin/lux64/Release/od_main"
 env = {QT_QPA_PLATFORM="xcb"}
 
 [target.linux-64.tasks.debug]
-cmd = "./inst/bin/lux64/Debug/od_maind"
+cmd = "gdb ./inst/bin/lux64/Debug/od_maind"
 env = {QT_QPA_PLATFORM="xcb"}
 
 [target.win-64.tasks.release]
