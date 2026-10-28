@@ -57,6 +57,9 @@ struct GlyphBitmap
     float		vertBearingX	= 0.f;
     float		vertBearingY	= 0.f;
     float		vertAdvance	= 0.f;
+    bool		cropped		= false;
+    float		cropleft	= 0.f;
+    float		cropright	= 0.f;
     TypeSet<od_int16>	sdf;
 
     bool		hasBitmap() const
@@ -80,7 +83,28 @@ struct DirectWriteCOMPtr
 };
 
 
-bool openDirectWriteFace( const BufferString& family, bool bold, bool italic,
+DWRITE_FONT_WEIGHT directWriteWeight( FontData::Weight weight )
+{
+    switch ( weight )
+    {
+	case FontData::Light:
+	    return DWRITE_FONT_WEIGHT_LIGHT;
+	case FontData::DemiBold:
+	    return DWRITE_FONT_WEIGHT_SEMI_BOLD;
+	case FontData::Bold:
+	    return DWRITE_FONT_WEIGHT_BOLD;
+	case FontData::Black:
+	    return DWRITE_FONT_WEIGHT_BLACK;
+	case FontData::Normal:
+	    break;
+    }
+
+    return DWRITE_FONT_WEIGHT_NORMAL;
+}
+
+
+bool openDirectWriteFace( const BufferString& family,
+			  FontData::Weight fontweight, bool italic,
 			  DirectWriteCOMPtr<IDWriteFactory>& factory,
 			  DirectWriteCOMPtr<IDWriteFontFace>& face )
 {
@@ -105,8 +129,7 @@ bool openDirectWriteFace( const BufferString& family, bool bold, bool italic,
     if ( FAILED(collection->GetFontFamily(familyindex,&fontfamily)) )
 	return false;
 
-    const DWRITE_FONT_WEIGHT weight =
-		bold ? DWRITE_FONT_WEIGHT_BOLD : DWRITE_FONT_WEIGHT_NORMAL;
+    const DWRITE_FONT_WEIGHT weight = directWriteWeight( fontweight );
     const DWRITE_FONT_STYLE style =
 		italic ? DWRITE_FONT_STYLE_ITALIC : DWRITE_FONT_STYLE_NORMAL;
 
@@ -176,6 +199,81 @@ void makeSdfFromAlpha( const TypeSet<od_uint8>& alpha,
 			     float(std::numeric_limits<od_int16>::max()) );
 	}
     }
+}
+
+
+constexpr int cBarThickness = 3;
+constexpr int cUnderlineTop = 5;
+constexpr int cStrikeOutTop = -16;
+
+
+/*!Adds the bars to a glyph bitmap. The bars run cMargin beyond both sides of
+  the glyph's quad, so that the distance field stays solid up to the edges of
+  the quad. The quad then covers exactly the advance (or the ink if that is
+  wider), and neighbouring quads meet without overlap: an overlap would add
+  the two thin bars together and make the line uneven.
+  cropleft and cropright are the sides of the quad, from the pen position. */
+
+bool addDecorationBars( TypeSet<od_uint8>& alpha, int& width, int& height,
+			int& originx, int& originy, float advance,
+			bool underline, bool strikeout,
+			float& cropleft, float& cropright )
+{
+    if ( !underline && !strikeout )
+	return false;
+
+    const bool hasink = width>0 && height>0;
+    cropleft = hasink ? mMIN( 0.f, float(originx) ) : 0.f;
+    cropright = hasink ? mMAX( advance, float(originx+width) ) : advance;
+    const int barleft = int( Math::Floor(cropleft) ) - cMargin;
+    const int barright = int( Math::Ceil(cropright) ) + cMargin;
+    if ( cropright <= cropleft )
+	return false;
+
+    int left = barleft;
+    int right = barright;
+    int top = underline ? cUnderlineTop : cStrikeOutTop;
+    int bottom = top + cBarThickness;
+    if ( underline && strikeout )
+	top = cStrikeOutTop;
+
+    if ( width>0 && height>0 )
+    {
+	left = mMIN( left, originx );
+	right = mMAX( right, originx + width );
+	top = mMIN( top, originy );
+	bottom = mMAX( bottom, originy + height );
+    }
+
+    const int newwidth = right - left;
+    const int newheight = bottom - top;
+    TypeSet<od_uint8> newalpha( newwidth*newheight, 0 );
+    for ( int row=0; row<height && width>0; ++row )
+    {
+	const int dstrow = ( originy + row - top ) * newwidth;
+	for ( int col=0; col<width; ++col )
+	    newalpha[dstrow + originx + col - left] = alpha[row*width + col];
+    }
+
+    for ( int bar=0; bar<2; ++bar )
+    {
+	if ( (bar==0 && !underline) || (bar==1 && !strikeout) )
+	    continue;
+
+	const int bartop = bar==0 ? cUnderlineTop : cStrikeOutTop;
+	for ( int row=bartop; row<bartop+cBarThickness; ++row )
+	{
+	    for ( int col=barleft; col<barright; ++col )
+		newalpha[(row-top)*newwidth + col - left] = 255;
+	}
+    }
+
+    alpha = newalpha;
+    width = newwidth;
+    height = newheight;
+    originx = left;
+    originy = top;
+    return true;
 }
 
 
@@ -262,19 +360,31 @@ vsg::ref_ptr<vsg::Font> assembleFont(
 	    }
 	}
 
+	const float cellleft = float(gb.originx) - float(cMargin);
+	const float cellright = cellleft + float(cellw);
+	float quadleft = cellleft;
+	float quadright = cellright;
+	if ( hasbitmap && gb.cropped )
+	{
+	    quadleft = mMAX( cellleft, gb.cropleft );
+	    quadright = mMIN( cellright, gb.cropright );
+	}
+
 	vsg::GlyphMetrics gm{};
 	if ( hasbitmap )
 	{
 	    gm.uvrect.set(
-		( float(xpos) - 1.f ) / float( atlaswidth - 1 ),
+		( float(xpos) - 1.f + (quadleft-cellleft) )
+					/ float( atlaswidth - 1 ),
 		float( ypos + cellh ) / float( atlasheight - 1 ),
-		float( xpos + cellw ) / float( atlaswidth - 1 ),
+		( float(xpos + cellw) - (cellright-quadright) )
+					/ float( atlaswidth - 1 ),
 		( float(ypos) - 1.f ) / float( atlasheight - 1 ) );
-	    gm.width = float( cellw ) / cEmSize;
+	    gm.width = ( quadright - quadleft ) / cEmSize;
 	    gm.height = float( cellh ) / cEmSize;
 	}
 
-	gm.horiBearingX = ( float(gb.originx) - float(cMargin) ) / cEmSize;
+	gm.horiBearingX = quadleft / cEmSize;
 	gm.horiBearingY = ( -float(gb.originy) + float(cMargin) ) / cEmSize;
 	gm.horiAdvance = gb.horiAdvance;
 	gm.vertBearingX = gb.vertBearingX;
@@ -332,11 +442,10 @@ BufferString systemFamily( const FontData& fd )
 vsg::ref_ptr<vsg::Font> createDirectWriteFont( const FontData& fd )
 {
     const BufferString family = systemFamily( fd );
-    const bool bold = fd.weight() >= FontData::Bold;
 
     DirectWriteCOMPtr<IDWriteFactory> factory;
     DirectWriteCOMPtr<IDWriteFontFace> face;
-    if ( !openDirectWriteFace(family,bold,fd.isItalic(),factory,face) )
+    if ( !openDirectWriteFace(family,fd.weight(),fd.isItalic(),factory,face) )
 	return {};
 
     DWRITE_FONT_METRICS fontmetrics{};
@@ -385,8 +494,10 @@ vsg::ref_ptr<vsg::Font> createDirectWriteFont( const FontData& fd )
 						    &bounds)) )
 	    continue;
 
-	const int width = bounds.right - bounds.left;
-	const int height = bounds.bottom - bounds.top;
+	int width = bounds.right - bounds.left;
+	int height = bounds.bottom - bounds.top;
+	int originx = bounds.left;
+	int originy = bounds.top;
 	const float horiadvance =
 		float( gmetrics.advanceWidth ) * du_to_px / cEmSize;
 	const float vertbearingx =
@@ -395,35 +506,47 @@ vsg::ref_ptr<vsg::Font> createDirectWriteFont( const FontData& fd )
 		float( gmetrics.topSideBearing ) * du_to_px / cEmSize;
 	const float vertadvance =
 		float( gmetrics.advanceHeight ) * du_to_px / cEmSize;
-	if ( width <= 0 || height <= 0 )
+
+	TypeSet<od_uint8> alpha;
+	if ( width>0 && height>0 )
 	{
-	    GlyphBitmap* empty = new GlyphBitmap;
-	    empty->charcode = ch;
-	    empty->horiAdvance = horiadvance;
-	    empty->vertBearingX = vertbearingx;
-	    empty->vertBearingY = vertbearingy;
-	    empty->vertAdvance = vertadvance;
-	    glyphs += empty;
-	    continue;
+	    alpha.setSize( width*height, 0 );
+	    if ( FAILED(analysis->CreateAlphaTexture(DWRITE_TEXTURE_ALIASED_1x1,
+						     &bounds,alpha.arr(),
+						     UINT32(alpha.size()))) )
+		continue;
+	}
+	else
+	{
+	    width = 0;
+	    height = 0;
 	}
 
-	TypeSet<od_uint8> alpha( width*height, 0 );
-	if ( FAILED(analysis->CreateAlphaTexture(DWRITE_TEXTURE_ALIASED_1x1,
-						 &bounds,alpha.arr(),
-						 UINT32(alpha.size()))) )
-	    continue;
+	float cropleft = 0.f;
+	float cropright = 0.f;
+	const bool decorated = addDecorationBars( alpha, width, height,
+				originx, originy, horiadvance*cEmSize,
+				fd.isUnderline(), fd.isStrikeOut(),
+				cropleft, cropright );
 
 	GlyphBitmap* gb = new GlyphBitmap;
 	gb->charcode = ch;
-	gb->width = width;
-	gb->height = height;
-	gb->originx = bounds.left;
-	gb->originy = bounds.top;
+	gb->cropped = decorated;
+	gb->cropleft = cropleft;
+	gb->cropright = cropright;
 	gb->horiAdvance = horiadvance;
 	gb->vertBearingX = vertbearingx;
 	gb->vertBearingY = vertbearingy;
 	gb->vertAdvance = vertadvance;
-	makeSdfFromAlpha( alpha, width, height, cMargin, gb->sdf );
+	if ( width>0 && height>0 )
+	{
+	    gb->width = width;
+	    gb->height = height;
+	    gb->originx = originx;
+	    gb->originy = originy;
+	    makeSdfFromAlpha( alpha, width, height, cMargin, gb->sdf );
+	}
+
 	glyphs += gb;
     }
 
@@ -491,8 +614,28 @@ bool familyMatches( const BufferStringSet& strongnames, FcPattern* match )
 }
 
 
-bool findFontFile( const BufferString& family, bool bold, bool italic,
-		   FontFile& fontfile )
+int fontconfigWeight( FontData::Weight weight )
+{
+    switch ( weight )
+    {
+	case FontData::Light:
+	    return FC_WEIGHT_LIGHT;
+	case FontData::DemiBold:
+	    return FC_WEIGHT_DEMIBOLD;
+	case FontData::Bold:
+	    return FC_WEIGHT_BOLD;
+	case FontData::Black:
+	    return FC_WEIGHT_BLACK;
+	case FontData::Normal:
+	    break;
+    }
+
+    return FC_WEIGHT_REGULAR;
+}
+
+
+bool findFontFile( const BufferString& family, FontData::Weight weight,
+		   bool italic, FontFile& fontfile )
 {
     static std::once_flag inited;
     std::call_once( inited, []() { FcInitLoadConfigAndFonts(); } );
@@ -505,8 +648,7 @@ bool findFontFile( const BufferString& family, bool bold, bool italic,
     const FcChar8* wfamily =
 		reinterpret_cast<const FcChar8*>( family.buf() );
     FcPatternAddString( pattern.pat_, FC_FAMILY, wfamily );
-    FcPatternAddInteger( pattern.pat_, FC_WEIGHT,
-			 bold ? FC_WEIGHT_BOLD : FC_WEIGHT_REGULAR );
+    FcPatternAddInteger( pattern.pat_, FC_WEIGHT, fontconfigWeight(weight) );
     FcPatternAddInteger( pattern.pat_, FC_SLANT,
 			 italic ? FC_SLANT_ITALIC : FC_SLANT_ROMAN );
     FcPatternAddString( pattern.pat_, FC_LANG,
@@ -583,10 +725,9 @@ void copyAlpha( const FT_Bitmap& bmp, TypeSet<od_uint8>& alpha )
 vsg::ref_ptr<vsg::Font> createFreeTypeFont( const FontData& fd )
 {
     const BufferString family = systemFamily( fd );
-    const bool bold = fd.weight() >= FontData::Bold;
 
     FontFile fontfile;
-    if ( !findFontFile(family,bold,fd.isItalic(),fontfile) )
+    if ( !findFontFile(family,fd.weight(),fd.isItalic(),fontfile) )
 	return {};
 
     FreeTypeLibrary library;
@@ -636,12 +777,21 @@ vsg::ref_ptr<vsg::Font> createFreeTypeFont( const FontData& fd )
 	    gb->vertAdvance =
 		float( face->size->metrics.height ) / 64.f / cEmSize;
 
+	TypeSet<od_uint8> alpha;
 	if ( gb->width>0 && gb->height>0 )
-	{
-	    TypeSet<od_uint8> alpha;
 	    copyAlpha( slot->bitmap, alpha );
-	    makeSdfFromAlpha( alpha, gb->width, gb->height, cMargin, gb->sdf );
+	else
+	{
+	    gb->width = 0;
+	    gb->height = 0;
 	}
+
+	gb->cropped = addDecorationBars( alpha, gb->width, gb->height,
+			gb->originx, gb->originy, gb->horiAdvance*cEmSize,
+			fd.isUnderline(), fd.isStrikeOut(),
+			gb->cropleft, gb->cropright );
+	if ( gb->width>0 && gb->height>0 )
+	    makeSdfFromAlpha( alpha, gb->width, gb->height, cMargin, gb->sdf );
 
 	glyphs += gb;
     }
@@ -708,8 +858,10 @@ const char* FontCreator::keyFor( const FontData& fd )
 {
     mDeclStaticString( key );
     key.set( fd.family() );
-    key.add( fd.weight()>=FontData::Bold ? "|bold" : "|normal" );
+    key.add( "|" ).add( FontData::getWeightString(fd.weight()) );
     key.add( fd.isItalic() ? "|italic" : "|upright" );
+    key.add( fd.isUnderline() ? "|underline" : "|plain" );
+    key.add( fd.isStrikeOut() ? "|strikeout" : "|solid" );
     return key.buf();
 }
 
