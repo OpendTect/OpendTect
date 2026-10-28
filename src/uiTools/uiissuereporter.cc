@@ -138,7 +138,8 @@ bool uiIssueReporterDlg::allowSending() const
 
 void uiIssueReporterDlg::proxySetCB( CallBacker* )
 {
-    uiProxyDlg::runDialog( this );
+    uiProxyDlg dlg( this );
+    dlg.go();
 }
 
 

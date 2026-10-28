@@ -34,7 +34,6 @@ public:
     bool		usePar(const IOPar&);
 
     static void		initClass();
-    static bool		runDialog(uiParent*);
 
 protected:
 

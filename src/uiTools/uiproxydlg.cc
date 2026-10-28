@@ -252,10 +252,3 @@ void uiProxyDlg::initClass()
 {
     NetworkUserQuery::setNetworkUserQuery( new uiNetworkUserQuery );
 }
-
-
-bool uiProxyDlg::runDialog( uiParent* parent )
-{
-    auto* netuserquery = NetworkUserQuery::getNetworkUserQuery();
-    return netuserquery ? netuserquery->setFromUser( parent ) : false;
-}
