@@ -28,7 +28,8 @@ class dGBVSGWindow;
 class uiVSGWindowHandler;
 struct VSGMouseStatus;
 namespace dGBVis
-{ class Axes; class Camera; class DataObjectGroup; class ThumbWheel; }
+{ class Axes; class Camera; class DataObjectGroup; class TextureChannels;
+  class ThumbWheel; }
 namespace dGBVisSurvey { class Scene; }
 namespace vsgGeo
 { class AxesHandler; class NearFar; class ThumbWheelHandler; class Trackball; }
@@ -74,6 +75,10 @@ public:
     bool		maxCaptureSize(uint32_t& maxwidth,
 				       uint32_t& maxheight) const;
 
+    dGBVisSurvey::Scene* scene();
+    dGBVis::TextureChannels* textureChannels();
+			/*!<The data of the test plane, null without it. */
+
     void		setViewMode(bool yn);
 			/*!<True: left button orbits. False: left button
 			    picks and drags. */
@@ -89,6 +94,7 @@ private:
 
     class		SceneBoundsWatch;
     class		WheelLink;
+    class		ColTabLink;
 
     void		showWheels(bool);
     void		thumbWheelRotated(CallBacker*,float delta);
@@ -124,6 +130,7 @@ private:
     vsg::ref_ptr<vsgGeo::AxesHandler>	axeshandler_;
     vsg::ref_ptr<vsgGeo::Trackball>	trackball_;
     PtrMan<WheelLink>			wheellink_;
+    PtrMan<ColTabLink>			coltablink_;
     WheelMode				wheelmode_ = WheelMode::OnHover;
     bool				wheelsgrow_ = true;
     bool				wheelsglass_ = true;

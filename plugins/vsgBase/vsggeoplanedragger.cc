@@ -11,8 +11,11 @@ ________________________________________________________________________
 
 #include "vsggeolines.h"
 
+#include <vsg/core/Visitor.h>
 #include <vsg/nodes/VertexDraw.h>
 #include <vsg/nodes/StateGroup.h>
+#include <vsg/state/ColorBlendState.h>
+#include <vsg/state/DepthStencilState.h>
 #include <vsg/state/InputAssemblyState.h>
 #include <vsg/state/material.h>
 #include <vsg/utils/GraphicsPipelineConfigurator.h>
@@ -23,14 +26,55 @@ ________________________________________________________________________
 namespace
 {
 
+constexpr int32_t cTransparentBin = 10;
+constexpr float cOpaqueAlpha = 0.999f;
+
+struct SetBlending : public vsg::Visitor
+{
+    void apply( vsg::Object& obj ) override
+    {
+	obj.traverse( *this );
+    }
+
+    void apply( vsg::ColorBlendState& cbs ) override
+    {
+	cbs.configureAttachments( true );
+    }
+};
+
+
 vsg::ref_ptr<vsg::Node> createTriangles(
 			const vsg::ref_ptr<vsg::vec3Array>& vertices,
-			const vsg::ref_ptr<vsg::vec4Array>& colors )
+			const vsg::ref_ptr<vsg::vec4Array>& colors,
+			bool blending=false )
 {
     vsg::ref_ptr<vsg::vec3Array> normal = vsg::vec3Array::create( 1 );
     normal->at( 0 ).set( 0.f, 0.f, 1.f );
 
     vsg::ref_ptr<vsg::ShaderSet> shaderset = vsg::createFlatShadedShaderSet();
+    if ( blending )
+    {
+	bool hasdepthstate = false;
+	for ( auto& state : shaderset->defaultGraphicsPipelineStates )
+	{
+	    vsg::ref_ptr<vsg::DepthStencilState> depthstate =
+					state.cast<vsg::DepthStencilState>();
+	    if ( depthstate )
+	    {
+		depthstate->depthWriteEnable = VK_FALSE;
+		hasdepthstate = true;
+	    }
+	}
+
+	if ( !hasdepthstate )
+	{
+	    vsg::ref_ptr<vsg::DepthStencilState> depthstate =
+					vsg::DepthStencilState::create();
+	    depthstate->depthWriteEnable = VK_FALSE;
+	    shaderset->defaultGraphicsPipelineStates.push_back( depthstate );
+	}
+    }
+
     vsg::ref_ptr<vsg::GraphicsPipelineConfigurator> config =
 			vsg::GraphicsPipelineConfigurator::create( shaderset );
     vsg::DataList arrays;
@@ -38,12 +82,22 @@ vsg::ref_ptr<vsg::Node> createTriangles(
 			 vertices );
     config->assignArray( arrays, "vsg_Normal", VK_VERTEX_INPUT_RATE_INSTANCE,
 			 normal );
-    config->assignArray( arrays, "vsg_Color", VK_VERTEX_INPUT_RATE_INSTANCE,
-			 colors );
+    const VkVertexInputRate colorrate = colors->size()==vertices->size()
+					? VK_VERTEX_INPUT_RATE_VERTEX
+					: VK_VERTEX_INPUT_RATE_INSTANCE;
+    config->assignArray( arrays, "vsg_Color", colorrate, colors );
     vsg::ref_ptr<vsg::PhongMaterialValue> mat =
 			vsg::PhongMaterialValue::create();
     mat->value().diffuse.set( 1.f, 1.f, 1.f, 1.f );
     config->assignDescriptor( "material", mat );
+    if ( blending )
+    {
+	SetBlending setblending;
+	config->accept( setblending );
+	if ( config->descriptorConfigurator )
+	    config->descriptorConfigurator->blending = true;
+    }
+
     config->init();
 
     vsg::ref_ptr<vsg::VertexDraw> draw = vsg::VertexDraw::create();
@@ -85,14 +139,22 @@ vsg::ref_ptr<TabPlaneDragger> createTabPlaneDragger()
 
 TabPlaneDragger::TabPlaneDragger()
 {
-    planeverts_ = vsg::vec3Array::create( 6 );
+    const uint32_t nrverts = uint32_t( 6 * cNrCells * cNrCells );
+    planeverts_ = vsg::vec3Array::create( nrverts );
     planeverts_->properties.dataVariance = vsg::DYNAMIC_DATA;
+    blendedverts_ = vsg::vec3Array::create( nrverts );
+    blendedverts_->properties.dataVariance = vsg::DYNAMIC_DATA;
     lineverts_ = vsg::vec3Array::create( 24 );
     lineverts_->properties.dataVariance = vsg::DYNAMIC_DATA;
-    planecolor_ = vsg::vec4Array::create( 1 );
+    planecolor_ = vsg::vec4Array::create( nrverts );
     planecolor_->properties.dataVariance = vsg::DYNAMIC_DATA;
-    planecolor_->at( 0 ) = vsg::vec4( 0.2f, 0.45f, 0.85f, 1.f );
+    for ( auto& col : *planecolor_ )
+	col = vsg::vec4( 0.2f, 0.45f, 0.85f, 1.f );
+    cellopaque_.assign( cNrCells*cNrCells, 1 );
     addChild( createTriangles(planeverts_,planecolor_) );
+    blendedplane_ = vsg::DepthSorted::create( cTransparentBin, vsg::dsphere(),
+			    createTriangles(blendedverts_,planecolor_,true) );
+    addChild( blendedplane_ );
     addChild( vsgGeo::createLineList(lineverts_,
 		vsgGeo::createLineColor(vsg::vec4(1.f,1.f,1.f,1.f))) );
     rebuild();
@@ -182,8 +244,36 @@ void TabPlaneDragger::setColor( const vsg::vec4& color )
     if ( !planecolor_ )
 	return;
 
-    planecolor_->at( 0 ) = color;
+    for ( auto& col : *planecolor_ )
+	col = color;
+
     planecolor_->dirty();
+    cellopaque_.assign( cNrCells*cNrCells, color.a>=cOpaqueAlpha ? 1 : 0 );
+    rebuild();
+}
+
+
+int TabPlaneDragger::nrCells()
+{
+    return cNrCells;
+}
+
+
+void TabPlaneDragger::setCellColors( const vsg::vec4* colors )
+{
+    if ( !planecolor_ || !colors )
+	return;
+
+    for ( int cell=0; cell<cNrCells*cNrCells; cell++ )
+    {
+	for ( int vert=0; vert<6; vert++ )
+	    planecolor_->at( size_t(cell*6 + vert) ) = colors[cell];
+
+	cellopaque_[cell] = colors[cell].a >= cOpaqueAlpha ? 1 : 0;
+    }
+
+    planecolor_->dirty();
+    rebuild();
 }
 
 
@@ -220,20 +310,43 @@ void TabPlaneDragger::rebuild()
     }
 
     const vsg::dvec3 hidden = center_;
-    auto putTri = [&]( int slot, const vsg::dvec3& p )
+    const vsg::dvec3 alongu = corner[1] - corner[0];
+    const vsg::dvec3 alongv = corner[2] - corner[0];
+    auto gridPoint = [&]( int iu, int iv )
     {
-	planeverts_->at( slot ) = showplane_
-		? vsg::vec3( float(p.x), float(p.y), float(p.z) )
-		: vsg::vec3( float(hidden.x), float(hidden.y),
-			     float(hidden.z) );
+	return corner[0] + alongu * ( double(iu) / cNrCells )
+			 + alongv * ( double(iv) / cNrCells );
     };
-    putTri( 0, corner[0] );
-    putTri( 1, corner[1] );
-    putTri( 2, corner[3] );
-    putTri( 3, corner[0] );
-    putTri( 4, corner[3] );
-    putTri( 5, corner[2] );
+    const vsg::vec3 hiddenvert( float(hidden.x), float(hidden.y),
+				float(hidden.z) );
+    int trislot = 0;
+    auto putTri = [&]( const vsg::dvec3& p )
+    {
+	const vsg::vec3 vert = showplane_
+		? vsg::vec3( float(p.x), float(p.y), float(p.z) )
+		: hiddenvert;
+	const bool opaque = cellopaque_[ trislot/6 ];
+	planeverts_->at( size_t(trislot) ) = opaque ? vert : hiddenvert;
+	blendedverts_->at( size_t(trislot) ) = opaque ? hiddenvert : vert;
+	trislot++;
+    };
+    for ( int iv=0; iv<cNrCells; iv++ )
+    {
+	for ( int iu=0; iu<cNrCells; iu++ )
+	{
+	    putTri( gridPoint(iu,iv) );
+	    putTri( gridPoint(iu+1,iv) );
+	    putTri( gridPoint(iu+1,iv+1) );
+	    putTri( gridPoint(iu,iv) );
+	    putTri( gridPoint(iu+1,iv+1) );
+	    putTri( gridPoint(iu,iv+1) );
+	}
+    }
+
     planeverts_->dirty();
+    blendedverts_->dirty();
+    blendedplane_->bound = vsg::dsphere( center_,
+			0.5 * vsg::length(corner[3]-corner[0]) );
 
     vsg::dvec3 edge[4];
     for ( int idx=0; idx<4; idx++ )

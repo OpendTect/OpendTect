@@ -18,7 +18,7 @@ ________________________________________________________________________
 #include "ranges.h"
 
 namespace vsgGeo { class TabPlaneDragger; }
-namespace dGBVis { class EventCatcher; class EventInfo; }
+namespace dGBVis { class EventCatcher; class EventInfo; class TextureChannels; }
 
 namespace dGBVis
 {
@@ -56,6 +56,11 @@ public:
 					       Interval<float>& z) const;
 
     void			setColor(const OD::Color&);
+    static int			nrCells();
+				//!<Cells on each side of the plane's color grid
+    TextureChannels*		getChannels()	{ return channels_.ptr(); }
+    void			setChannels(TextureChannels*);
+				//!<nrCells() by nrCells(); the plane follows them
 
     void			setWidthLimits(const Interval<float>& x,
 					       const Interval<float>& y,
@@ -99,6 +104,8 @@ private:
 				~DepthTabPlaneDragger();
 
     void			eventCB(CallBacker*);
+    void			channelsChangedCB(CallBacker*);
+    void			updateCellColors();
     void			pushGeometry();
     void			clamp();
     bool			sceneToObject(const Coord3&,Coord3&) const;
@@ -112,6 +119,7 @@ private:
 						Coord3&) const;
 
     vsg::ref_ptr<vsgGeo::TabPlaneDragger>	plane_;
+    RefMan<TextureChannels>	channels_;
     WeakPtr<mDGBVisTrans>	displaytrans_;
     WeakPtr<Transformation>	zstretch_;
     WeakPtr<Transformation>	rotation_;
