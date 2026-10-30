@@ -18,10 +18,12 @@ ________________________________________________________________________
 #include "keyboardevent.h"
 #include "mousecursor.h"
 #include "oddirs.h"
+#include "odjson.h"
 #include "oscommand.h"
 #include "od_helpids.h"
 #include "ptrman.h"
 #include "pythonaccess.h"
+#include "pythonenv.h"
 #include "settings.h"
 
 #include "uiaction.h"
@@ -42,6 +44,7 @@ ________________________________________________________________________
 #include "uitoolbar.h"
 #include "uitoolbarcmded.h"
 #include "uitoolbutton.h"
+#include <cerrno>
 
 
 namespace sKey {
@@ -57,6 +60,8 @@ public:
 			uiSafetyCheckDlg(uiParent*);
 			~uiSafetyCheckDlg();
 
+    void		setUseModuleForm( bool form ) { usemoduleform_ = form; }
+
 private:
     void		finalizeCB(CallBacker*);
     void		pyupCB(CallBacker*);
@@ -64,6 +69,7 @@ private:
     void		saveSettings();
     void		modeCB(CallBacker*);
     void		checkCB(CallBacker*);
+    void		setSafetyCommand(OS::MachineCommand&) const;
     void		licenseCB(CallBacker*);
     void		saveCB(CallBacker*);
     void		scan(const char* command);
@@ -72,6 +78,10 @@ private:
     uiGenInput*		apikeyfld_;
     uiTextBrowser*	outputfld_;
     uiToolButton*	savebut_;
+    bool		usemoduleform_ = false;
+    /*!< Run the bundled safety module (found via PYTHONPATH)
+     as "python -m safety" when the environment has its
+     dependencies but no safety executable. */
 };
 
 
@@ -182,6 +192,43 @@ void uiSafetyCheckDlg::saveSettings()
 }
 
 
+// 0 = not runnable, 1 = safety executable, 2 = "python -m safety".
+// The module form uses the bundled safety module (shipped in the binary
+// "bin/python" folder and visible via PYTHONPATH) and needs the
+// environment to provide its dependencies.
+static int safetyRunForm()
+{
+    OS::MachineCommand executemc;
+    OD::PythA().setForScript( "safety", executemc );
+    executemc.addFlag( "version" );
+    BufferString stdoutstr, stderrstr;
+    uiRetVal ret;
+    if ( OD::PythA().execute(executemc,stdoutstr,ret,&stderrstr) )
+	return 1;
+
+    OS::MachineCommand modmc( OD::PythonAccess::sPythonExecNm(true) );
+    modmc.addArg( "-m" ).addArg( "safety" ).addFlag( "version" );
+    stdoutstr.setEmpty(); stderrstr.setEmpty();
+    if ( OD::PythA().execute(modmc,stdoutstr,ret,&stderrstr) )
+	return 2;
+
+    return 0;
+}
+
+
+void uiSafetyCheckDlg::setSafetyCommand( OS::MachineCommand& mc ) const
+{
+    if ( usemoduleform_ )
+    {
+	mc.setProgram( OD::PythonAccess::sPythonExecNm(true) );
+	mc.addArg( "-m" ).addArg( "safety" );
+	return;
+    }
+
+    OD::PythA().setForScript( "safety", mc );
+}
+
+
 void uiSafetyCheckDlg::scan( const char* command )
 {
     outputfld_->setText( "" );
@@ -192,7 +239,7 @@ void uiSafetyCheckDlg::scan( const char* command )
     SetEnvVar( "SAFETY_CUSTOM_INTEGRATION", "True" );
 
     OS::MachineCommand mc;
-    OD::PythA().setForScript( "safety", mc );
+    setSafetyCommand( mc );
     mc.addArg( command );
     mc.addKeyedArg( "output", "text" );
     if ( needsapikey )
@@ -280,17 +327,21 @@ uiPythonSettings::uiPythonSettings(uiParent* p, const char* nm )
     customloc_->setSelectMode( uiFileDialog::DirectoryOnly );
     customloc_->attach( alignedBelow, pythonsrcfld_ );
 
-    customenvnmfld_ = new uiGenInput( this, tr("Virtual environment"),
-				      StringListInpSpec() );
-    customenvnmfld_->setWithCheck();
-    customenvnmfld_->setElemSzPol( uiObject::WideVar );
-    customenvnmfld_->attach( alignedBelow, customloc_ );
+    customenvselfld_ = new uiGenInput( this, tr("Environment"),
+				       StringListInpSpec() );
+    customenvselfld_->setElemSzPol( uiObject::WideVar );
+    customenvselfld_->attach( alignedBelow, customloc_ );
+
+    customenvstatusfld_ = new uiGenInput( this, uiStrings::sStatus() );
+    customenvstatusfld_->setReadOnly( true );
+    customenvstatusfld_->setElemSzPol( uiObject::WideVar );
+    customenvstatusfld_->attach( alignedBelow, customenvselfld_ );
 
     auto* sep1 = new uiSeparator( this );
-    sep1->attach( stretchedBelow, customenvnmfld_ );
+    sep1->attach( stretchedBelow, customenvstatusfld_ );
 
     custompathfld_ = new uiPathSel( this, tr("Custom Module Path") );
-    custompathfld_->attach( alignedBelow, customenvnmfld_ );
+    custompathfld_->attach( alignedBelow, customenvstatusfld_ );
     custompathfld_->attach( ensureBelow, sep1 );
 
     auto* sep2 = new uiSeparator( this );
@@ -324,15 +375,15 @@ uiPythonSettings::uiPythonSettings(uiParent* p, const char* nm )
     cmdwinbut->setIcon( "terminal" );
     cmdwinbut->attach( rightOf, testbut );
 
-    auto* safetychkbut = new uiPushButton( this, tr("Safety Check"),
+    safetycheckbut_ = new uiPushButton( this, tr("Safety Check"),
 			mCB(this,uiPythonSettings,safetycheckCB), true );
-    safetychkbut->setIcon( "safety" );
-    safetychkbut->attach( rightOf, cmdwinbut );
+    safetycheckbut_->setIcon( "safety" );
+    safetycheckbut_->attach( rightOf, cmdwinbut );
 
     clonebut_ = new uiPushButton( this, tr("Clone Environment"),
 				  mCB(this,uiPythonSettings,cloneCB), true );
     clonebut_->setIcon( "copyobj" );
-    clonebut_->attach( rightOf, safetychkbut );
+    clonebut_->attach( rightOf, safetycheckbut_ );
 
     mAttachCB( postFinalize(), uiPythonSettings::initDlg );
 }
@@ -354,8 +405,9 @@ void uiPythonSettings::initDlg( CallBacker* )
 	mAttachCB( internalloc_->valueChanged,
 		   uiPythonSettings::internalLocChgCB );
     mAttachCB( customloc_->valueChanged, uiPythonSettings::customEnvChgCB );
-    mAttachCB( customenvnmfld_->valueChanged, uiPythonSettings::parChgCB );
-    mAttachCB( customenvnmfld_->checked, uiPythonSettings::parChgCB );
+    mAttachCB( customloc_->valueChanged, uiPythonSettings::parChgCB );
+    mAttachCB( customenvselfld_->valueChanged,
+	       uiPythonSettings::customEnvSelCB );
     mAttachCB( custompathfld_->selChange, uiPythonSettings::parChgCB );
     mAttachCB( pyidefld_->changed, uiPythonSettings::parChgCB );
     mAttachCB( pyidefld_->checked, uiPythonSettings::parChgCB );
@@ -390,15 +442,17 @@ void uiPythonSettings::fillPar( IOPar& par ) const
     }
     else if ( source == OD::Custom )
     {
-	const BufferString envroot( customloc_->fileName() );
+	//	Save what is displayed, so the settings can never describe a
+	//	different environment than the one the user is looking at.
+	BufferString envroot( customloc_->fileName() );
+	if ( envroot.isEmpty() )
+	    envroot = customenv_.envRootPath();
+
 	if ( !envroot.isEmpty() )
-	{
 	    par.set( OD::PythonAccess::sKeyEnviron(), envroot );
-	    if ( customenvnmfld_->isChecked() )
-		par.set( sKey::Name(), customenvnmfld_->text() );
-	    else
-		par.removeWithKey( sKey::Name() );
-	}
+
+	if ( customenv_.size()>1 )
+	    par.set( sKey::Name(), customenv_.prefixPath() );
     }
 
     if ( custompathfld_->isChecked() )
@@ -435,7 +489,6 @@ void uiPythonSettings::usePar( const IOPar& par )
     }
 
     pythonsrcfld_->setValue( source );
-    customenvnmfld_->setChecked( false );
     if ( source == OD::Internal && internalloc_ )
     {
 	BufferString envroot;
@@ -444,18 +497,21 @@ void uiPythonSettings::usePar( const IOPar& par )
     }
     else if ( source == OD::Custom )
     {
-	BufferString envroot, envnm;
-	if ( par.get(OD::PythonAccess::sKeyEnviron(),envroot) )
+	OD::JSON::Object jsobj;
+	par.fillJSON( jsobj, false );
+	const uiRetVal uirv = customenv_.useJSON( jsobj );
+	if ( uirv.isOK() )
 	{
-	    customloc_->setFileName( envroot );
-	    setCustomEnvironmentNames();
+	    customloc_->setFileName( customenv_.envRootPath() );
+	    customEnvChgCB( nullptr );
+	    customenvselfld_->setValue( customenv_.currentEnvironment() );
 	}
-
-	customenvnmfld_->setChecked( par.get(sKey::Name(),envnm) &&
-				     !envnm.isEmpty() );
-	if ( customenvnmfld_->isChecked() )
-	    customenvnmfld_->setText( envnm );
+	else
+	    uiMSG().errorWithDetails( uirv, tr("uiPythonSettings::usePar - "
+					       "bad custom environment "
+					       "definition") );
     }
+
     PtrMan<IOPar> pathpar = par.subselect( OD::PythonAccess::sKeyPythonPath() );
     if ( pathpar )
     {
@@ -504,8 +560,11 @@ void uiPythonSettings::sourceChgCB( CallBacker* cb )
 
     const bool iscustom = source == OD::Custom;
     customloc_->display( iscustom );
-    customenvnmfld_->display( iscustom );
+    customenvselfld_->display( iscustom && customenv_.size() > 1 );
+    customenvstatusfld_->display( iscustom );
     clonebut_->display( source != OD::System );
+    updateCloneButton();
+    resetSafetyButton();
     updateIDEfld();
 
     if ( cb == pythonsrcfld_ )
@@ -513,12 +572,102 @@ void uiPythonSettings::sourceChgCB( CallBacker* cb )
 }
 
 
-void uiPythonSettings::customEnvChgCB( CallBacker* cb )
+bool uiPythonSettings::applyCustomEnv( const char* envroot, bool noerr )
 {
-    setCustomEnvironmentNames();
+    const BufferString root( envroot );
+    if ( root.isEmpty() )
+	return false;
+
+    const BufferString prevroot( customenv_.envRootPath() );
+    const int prevsel = customenv_.currentEnvironment();
+    const uiRetVal uirv = customenv_.setEnvironmentRoot( root.buf() );
+    if ( !uirv.isOK() ||
+	 customenv_.envType()==OD::PythonEnv::EnvType::Unknown )
+    {
+	if ( !noerr )
+	    uiMSG().errorWithDetails( uirv, tr("Bad custom environment") );
+
+	//	Do not keep a partially resolved environment around.
+	customenv_.reset();
+	if ( !prevroot.isEmpty() )
+	{
+	    customenv_.setEnvironmentRoot( prevroot.buf() );
+	    customenv_.selectEnvironment( prevsel );
+	}
+
+	customenvselfld_->display( customenv_.size() > 1 );
+	customenvstatusfld_->setText( customenv_.statusText() );
+	return false;
+    }
+
+    customenvselfld_->display( customenv_.size() > 1 );
+    if ( customenv_.size()>1 )
+    {
+	BufferStringSet displaynms;
+	for ( const auto* envinfo : customenv_.getEnvInfos() )
+	    displaynms.add( envinfo->display_ );
+
+	customenvselfld_->newSpec( StringListInpSpec(displaynms),
+				   customenv_.currentEnvironment() );
+    }
+
+    customenvstatusfld_->display( true );
+    customenvstatusfld_->setText( customenv_.statusText() );
     updateIDEfld();
-    if ( cb == customloc_ )
+    resetSafetyButton();
+    updateCloneButton();
+    return true;
+}
+
+
+bool uiPythonSettings::customEnvMatchesField() const
+{
+    if ( customenv_.envType()==OD::PythonEnv::EnvType::Unknown )
+	return false;
+
+    FilePath fieldfp( customloc_->fileName() );
+    if ( fieldfp.isEmpty() )
+	return false;
+
+    fieldfp.makeCanonical();
+    return fieldfp.fullPath() == customenv_.envRootPath();
+}
+
+
+void uiPythonSettings::customEnvChgCB( CallBacker* )
+{
+    const BufferString newroot( customloc_->fileName() );
+    if ( newroot.isEmpty() )
+    {
+	customenv_.reset();
+	customenvselfld_->display( false );
+	customenvstatusfld_->setText( customenv_.statusText() );
 	parChgCB( nullptr );
+	return;
+    }
+
+    if ( applyCustomEnv(newroot,false) )
+    {
+	parChgCB( nullptr );
+	return;
+    }
+
+    if ( !customenv_.envRootPath().isEmpty() )
+	customloc_->setFileName( customenv_.envRootPath() );
+}
+
+
+void uiPythonSettings::customEnvSelCB( CallBacker* )
+{
+    const int selidx = customenvselfld_->getIntValue();
+    if ( !customenv_.getEnvInfos().validIdx(selidx) )
+	return;
+
+    customenv_.selectEnvironment( selidx );
+    updateIDEfld();
+    updateCloneButton();
+    resetSafetyButton();
+    parChgCB( nullptr );
 }
 
 
@@ -526,43 +675,37 @@ void uiPythonSettings::internalLocChgCB( CallBacker* cb )
 {
     updateIDEfld();
     if ( cb == internalloc_ )
+    {
+	resetSafetyButton();
 	parChgCB( nullptr );
+    }
 }
 
 
 void uiPythonSettings::parChgCB( CallBacker* )
 {
-    if ( !isOK(true) )
-	return;
-
-    IOPar par;
-    fillPar( par );
-    needrestore_ = par != initialsetts_ && commitSetts( par );
+    //	Silent: the dialog may be in an intermediate state while the user is
+    //	editing. The Test/Launch/Prompt buttons validate with messages.
+    updateSetts( true );
 }
 
 
-void uiPythonSettings::setCustomEnvironmentNames()
+bool uiPythonSettings::updateSetts( bool noerr )
 {
-    const BufferString envroot( customloc_->fileName() );
-    const FilePath fp( envroot, "envs" );
-    if ( !fp.exists() )
-	return;
+    if ( !isOK(noerr) )
+	return false;
 
-    ManagedObjectSet<FilePath> fps;
-    BufferStringSet envnames;
-    const FilePath externalroot( envroot );
-    OD::PythonAccess::getSortedVirtualEnvironmentLoc( fps, envnames, nullptr,
-						      &externalroot );
-    for ( int idx=envnames.size()-1; idx>=0; idx-- )
-    {
-	if ( envnames.get(idx).isEmpty() )
-	    envnames.removeSingle(idx);
-    }
+    IOPar par;
+    fillPar( par );
 
-    customenvnmfld_->setEmpty();
-    customenvnmfld_->newSpec( StringListInpSpec(envnames), 0 );
-    customenvnmfld_->setChecked( !envnames.isEmpty() );
-    customenvnmfld_->display( !envnames.isEmpty() );
+    //	Compare with the settings as they are now, not with the snapshot
+    //	taken when the dialog opened: the settings may have been changed in
+    //	the meantime, and must then be updated even when the dialog is back
+    //	in its initial state.
+    if ( par == curSetts() )
+	return true;
+
+    return commitSetts( par );
 }
 
 
@@ -598,7 +741,7 @@ void uiPythonSettings::testPythonModules()
 
 void uiPythonSettings::testCB( CallBacker* )
 {
-    if ( !isOK() )
+    if ( !updateSetts(false) )
 	return;
 
     uiUserShowWait usw( this, tr("Retrieving Python testing") );
@@ -618,7 +761,7 @@ void uiPythonSettings::testCB( CallBacker* )
 
 void uiPythonSettings::promptCB( CallBacker* )
 {
-    if ( !isOK() )
+    if ( !updateSetts(false) )
 	return;
 
     uiRetVal uirv = uiSettsMgr().openTerminal( false );
@@ -630,12 +773,31 @@ void uiPythonSettings::promptCB( CallBacker* )
 }
 
 
+void uiPythonSettings::resetSafetyButton()
+{
+    safetycheckbut_->setSensitive( true );
+    safetycheckbut_->setToolTip( uiString::empty() );
+}
+
+
 void uiPythonSettings::safetycheckCB( CallBacker* )
 {
-    if ( !isOK() )
+    if ( !updateSetts(false) )
 	return;
 
+    const int runform = safetyRunForm();
+    if ( !runform )
+    {
+	uiMSG().error( tr("The safety module and its dependencies need to "
+			  "be installed to run a Safety Check.") );
+	safetycheckbut_->setSensitive( false );
+	safetycheckbut_->setToolTip( tr("Safety is not available in the "
+					"selected environment") );
+	return;
+    }
+
     uiSafetyCheckDlg dlg( this );
+    dlg.setUseModuleForm( runform==2 );
     dlg.go();
 }
 
@@ -709,11 +871,18 @@ uiGenInput*	destnmfld_;
 
 void uiPythonSettings::cloneCB( CallBacker* )
 {
-    if ( !isOK() )
+    if ( !updateSetts(false) )
 	return;
 
+    const int clnsourceidx = pythonsrcfld_->getIntValue();
+    const OD::PythonSource clnsource =
+		OD::PythonSourceDef().getEnumForIndex( clnsourceidx );
     FilePath envpath;
-    OD::PythA().GetPythonEnvPath( envpath );
+    if ( clnsource==OD::Custom &&
+	 customenv_.envType()!=OD::PythonEnv::EnvType::Unknown )
+	envpath.set( customenv_.envRootPath() );
+    else
+	OD::PythA().GetPythonEnvPath( envpath );
     const BufferString envname( envpath.baseName() );
     if ( envpath.isEmpty() )
     {
@@ -722,20 +891,67 @@ void uiPythonSettings::cloneCB( CallBacker* )
 	return;
     }
 
+    if ( clnsource==OD::Custom && !customenv_.isCloneable() )
+    {
+	uiMSG().message(
+		tr("Cloning of the selected environment is not supported.") );
+	clonebut_->setSensitive( false );
+	return;
+    }
+
     uiCloneEnvDlg dlg( this, envpath );
     if ( !dlg.go() )
 	return;
 
     const char* destdir = dlg.destDir();
-    BufferStringSet mcargs;
-    mcargs.add("create").add("--clone").add(envname.buf())
-	  .add("-p").add(destdir);
-    const OS::MachineCommand mc( "conda", mcargs );
+    const int sourceidx = pythonsrcfld_->getIntValue();
+    const OD::PythonSource source =
+		OD::PythonSourceDef().getEnumForIndex( sourceidx );
+
+    OS::MachineCommand mc;
+    if ( source==OD::Custom )
+    {
+	const BufferStringSet clonecmd = customenv_.getCloneCommand( destdir );
+	if ( clonecmd.isEmpty() )
+	{
+	    uiMSG().error(
+		tr("Cannot clone environment") );
+	    return;
+	}
+
+	mc.setProgram( clonecmd.get(0).buf() );
+	for ( int idx=1; idx<clonecmd.size(); idx++ )
+	    mc.addArg( clonecmd.get(idx).buf() );
+    }
+    else
+    {
+	BufferStringSet mcargs;
+	mcargs.add("create").add("--clone").add(envname.buf())
+	      .add("-p").add(destdir);
+	mc = OS::MachineCommand( "conda", mcargs );
+    }
+
     auto& mgr = Threads::CommandLaunchMgr::getMgr();
     CallBack cb( mCB(this,uiPythonSettings,cloneFinishedCB) );
     setButtonSensitive( OK, false );
     setButtonSensitive( CANCEL, false );
+    clonedir_.set( destdir );
     mgr.execute( mc, true, true, &cb, true );
+}
+
+
+void uiPythonSettings::updateCloneButton()
+{
+    const int sourceidx = pythonsrcfld_->getIntValue();
+    const OD::PythonSource source =
+		OD::PythonSourceDef().getEnumForIndex( sourceidx );
+    bool enable = true;
+    if ( source==OD::System )
+	enable = false;
+    else if ( source==OD::Custom )
+	enable = customenv_.isCloneable();
+
+    clonebut_->setSensitive( enable );
 }
 
 
@@ -749,71 +965,43 @@ void uiPythonSettings::cloneFinishedCB( CallBacker* cb )
 	if ( !stderrstr.isEmpty() )
 	{
 	    uiMSG().errorWithDetails( toUiString(stderrstr),
-				      tr("Error cloning conda environment") );
-	    return;
+				      tr("Error cloning python environment") );
 	}
-
-	uiMSG().message( tr("Cloning conda environment completed") );
-	setCustomEnvironmentNames();
+	else
+	{
+	    uiMSG().message( tr("Cloning environment completed:\n%1")
+				 .arg(clonedir_) );
+	    customEnvChgCB( nullptr );
+	}
     }
     setButtonSensitive( OK, true );
     setButtonSensitive( CANCEL, true );
 }
 
 
-bool uiPythonSettings::getPythonEnvBinPath( BufferString& pybinpath ) const
-{
-    pybinpath.setEmpty();
-    const int sourceidx = pythonsrcfld_->getIntValue();
-    const OD::PythonSource source =
-			OD::PythonSourceDef().getEnumForIndex(sourceidx);
-    FilePath pypath;
-    if ( source == OD::Internal )
-    {
-	if ( OD::PythonAccess::hasInternalEnvironment(false) )
-	    OD::PythonAccess::GetPythonEnvPath( pypath );
-	else if ( internalloc_ )
-	    pypath = FilePath( internalloc_->fileName() );
-    }
-    else if ( source == OD::Custom )
-    {
-	pypath = FilePath( customloc_->fileName() );
-	const BufferString envnm( customenvnmfld_->text() );
-	pypath.add( "envs" ).add( envnm );
-	if ( !pypath.exists() )
-	{
-	    ManagedObjectSet<FilePath> fps;
-	    OD::PythonAccess::getCondaEnvFromTxtPath( fps );
-	    for ( const auto fp : fps )
-	    {
-		if ( fp->fullPath() == envnm )
-		{
-		    pypath = *fp;
-		    break;
-		}
-	    }
-	}
-    }
-
-    if ( !pypath.isEmpty() )
-    {
-	pypath.add( __iswin__ ? "Scripts" : "bin" );
-	pybinpath = pypath.fullPath();
-	if ( !File::exists(pybinpath) || !File::isDirectory(pybinpath) )
-	    return false;
-    }
-
-    return true;
-}
-
-
 void uiPythonSettings::updateIDEfld()
 {
-    pyidefld_->updateCmdList( getPythonIDECommands() );
+    BufferStringSet paths;
+    const int sourceidx = pythonsrcfld_->getIntValue();
+    const OD::PythonSource source =
+			    OD::PythonSourceDef().getEnumForIndex(sourceidx);
+    if ( source!=OD::System )
+    {
+	FilePath pybinpath;
+	if ( source==OD::Custom )
+	    pybinpath = customenv_.pythonBinPath();
+	else
+	    OD::PythonAccess::GetPythonEnvBinPath( pybinpath );
+
+	if ( !pybinpath.isEmpty() )
+	    paths.add( pybinpath.fullPath() );
+    }
+
+    pyidefld_->updateCmdList( getPythonIDECommands( paths ) );
 }
 
 
-bool uiPythonSettings::isOK( bool noerr ) const
+bool uiPythonSettings::isOK( bool noerr )
 {
     const int sourceidx = pythonsrcfld_->getIntValue();
     const OD::PythonSource source =
@@ -841,21 +1029,19 @@ bool uiPythonSettings::isOK( bool noerr ) const
     else if ( source == OD::Custom )
     {
 	const BufferString envroot( customloc_->fileName() );
-	if ( !File::exists(envroot) || !File::isDirectory(envroot) )
+	if ( envroot.isEmpty() )
 	{
 	    if ( !noerr )
 		uiMSG().error( uiStrings::phrSelect(envrootstr) );
 	    return false;
 	}
 
-	const FilePath envrootfp( envroot, "envs" );
-	if ( !envrootfp.exists() )
-	{
-	    if ( !noerr )
-		uiMSG().error( tr("%1 does not contain a folder called %2")
-				    .arg(envrootstr).arg("'envs'") );
+	//	Make sure customenv_ describes what is displayed, so that a
+	//	stale environment cannot validate the dialog.
+	if ( !customEnvMatchesField() && !applyCustomEnv(envroot,noerr) )
 	    return false;
-	}
+
+	return customenv_.envType() != OD::PythonEnv::EnvType::Unknown;
     }
 
     return true;
@@ -864,32 +1050,38 @@ bool uiPythonSettings::isOK( bool noerr ) const
 
 bool uiPythonSettings::rejectOK( CallBacker* )
 {
-    if ( !needrestore_ )
+    //	A delete-on-close dialog re-enters rejectOK when acceptOK closes it.
+    //	Do not undo what acceptOK has just committed.
+    if ( accepted_ )
 	return true;
 
-    if ( commitSetts(initialsetts_) )
-	OD::PythA().isUsable( true );
-    else
-	uiMSG().warning( tr("Cannot restore the initial settings") );
+    //	Restore based on the current contents: the settings may have been
+    //	changed while the dialog was open, and the dialog may meanwhile be
+    //	back in the state it started from.
+    if ( curSetts() == initialsetts_ )
+	return true;
 
+    if ( !commitSetts(initialsetts_) )
+    {
+	uiMSG().warning( tr("Cannot restore the initial settings") );
+	return true;
+    }
+
+    OD::PythA().isUsable( true );
     return true;
 }
 
 
 bool uiPythonSettings::acceptOK( CallBacker* )
 {
-    if ( !isOK() )
+    if ( !updateSetts(false) )
 	return false;
 
-    IOPar par;
-    fillPar( par );
-    if ( par == initialsetts_ )
-	return true;
+    accepted_ = true;
 
-    if ( !commitSetts(par) )
-	return false;
-
-    needrestore_ = !OD::PythA().isUsable( true ).isOK();
+    //	Refresh the cached state, so the rest of the application uses the
+    //	environment which has just been written to the settings.
+    OD::PythA().isUsable( true );
     return true;
 }
 
@@ -897,13 +1089,22 @@ bool uiPythonSettings::acceptOK( CallBacker* )
 CommandDefs uiPythonSettings::getPythonIDECommands()
 {
     BufferStringSet paths;
-    if ( OD::PythA().getPythonSource()!=OD::System )
+    const OD::PythonSource source = OD::PythA().getPythonSource();
+    if ( source!=OD::System )
     {
 	FilePath pybinpath;
 	OD::PythonAccess::GetPythonEnvBinPath( pybinpath );
-	paths.add( pybinpath.fullPath() );
+	if ( !pybinpath.isEmpty() )
+	    paths.add( pybinpath.fullPath() );
     }
 
+    return getPythonIDECommands( paths );
+}
+
+
+CommandDefs uiPythonSettings::getPythonIDECommands(
+						const BufferStringSet& paths )
+{
     const BufferStringSet spyderargs( "--new-instance" );
 
     CommandDefs comms;
@@ -915,7 +1116,6 @@ CommandDefs uiPythonSettings::getPythonIDECommands()
 		  &spyderargs );
     const BufferString idlecmd( __iswin__ ? "idle" : "idle3" );
     comms.addCmd( idlecmd, tr("Idle"), "idle.png", tr("Idle"), paths );
-
     return comms;
 }
 

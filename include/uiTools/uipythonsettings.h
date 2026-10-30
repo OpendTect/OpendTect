@@ -11,6 +11,7 @@ ________________________________________________________________________
 #include "uidialog.h"
 
 #include "commanddefs.h"
+#include "pythonenv.h"
 
 class uiFileInput;
 class uiGenInput;
@@ -26,43 +27,56 @@ public:
     virtual		~uiPythonSettings();
 
     static CommandDefs	getPythonIDECommands();
+    static CommandDefs	getPythonIDECommands(const BufferStringSet&);
 
 private:
-    bool		isOK(bool noerr=false) const;
+    bool		isOK(bool noerr=false);
+    bool		updateSetts(bool noerr=false);
+    bool		applyCustomEnv(const char*,bool noerr);
+    bool		customEnvMatchesField() const;
     void		fillPar(IOPar&) const;
     void		usePar(const IOPar&);
     bool		commitSetts(const IOPar&);
     IOPar&		curSetts() const;
-    void		setCustomEnvironmentNames();
     void		testPythonModules();
-    bool		getPythonEnvBinPath(BufferString&) const;
     void		updateIDEfld();
 
     void		initDlg(CallBacker*);
     void		sourceChgCB(CallBacker*);
     void		customEnvChgCB(CallBacker*);
+    void		customEnvSelCB(CallBacker*);
     void		internalLocChgCB(CallBacker*);
     void		parChgCB(CallBacker*);
 
     void		testCB(CallBacker*);
     void		promptCB(CallBacker*);
     void		safetycheckCB(CallBacker*);
+    void		resetSafetyButton();
     void		cloneCB(CallBacker*);
     void		cloneFinishedCB(CallBacker*);
+    void		updateCloneButton();
     bool		rejectOK(CallBacker*) override;
     bool		acceptOK(CallBacker*) override;
 
     uiGenInput*		pythonsrcfld_;
     uiFileInput*	internalloc_ = nullptr;
     uiFileInput*	customloc_;
-    uiGenInput*		customenvnmfld_;
+    uiGenInput*		customenvselfld_ = nullptr;
+    uiGenInput*		customenvstatusfld_;
     uiPathSel*		custompathfld_;
     uiToolBarCommandEditor* pyidefld_;
     uiToolBarCommandEditor* pytermfld_;
     uiButton*		clonebut_;
+    uiButton*		safetycheckbut_;
 
+    OD::PythonEnv	customenv_;
+    BufferString	clonedir_;
+			/*!< Destination prefix of the running clone. */
+    BufferString	clonefreeze_;
+			/*!< Requirements file for the running pip-based
+			     clone (venv only). */
     IOPar		initialsetts_;
-    bool		needrestore_ = false;
+    bool		accepted_ = false;
 };
 
 

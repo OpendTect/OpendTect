@@ -28,6 +28,8 @@ namespace OS
 
 namespace OD
 {
+    class PythonEnv;
+
     enum PythonSource
     {
 	Internal, System, Custom
@@ -138,12 +140,16 @@ namespace OD
 				     const BufferStringSet* args=nullptr,
 				     const char* workdir=nullptr) const;
 
+	uiRetVal	updateCustomEnv() const;
 	uiRetVal	setEnvironment(const FilePath* rootfp,
 				       const char* envnm);
+	uiRetVal	setCustomEnvironment();
+	const PythonEnv& getCustomEnv() const	{ return customenv_; }
 
 	static void	getPathToInternalEnv(FilePath&,bool userdef);
 	static void	GetPythonEnvPath(FilePath&);
 	static void	GetPythonEnvBinPath(FilePath&);
+	static bool	GetCustomEnvRoot(BufferString& rootstr);
 	static void	reReadFWRules(const BufferString& fpstr);
 	static uiString firewallDesc();
 
@@ -152,7 +158,8 @@ namespace OD
 	bool		istested_ = false;
 	bool		isusable_ = false;
 	FilePath*	activatefp_ = nullptr;
-	BufferString	virtenvnm_;
+	mutable BufferString	virtenvnm_;
+	PythonEnv&	customenv_;
 
 	BufferString	pythversion_;
 	static BufferStringSet pystartpath_;
@@ -165,6 +172,14 @@ namespace OD
 							   bool userdef);
 	static FilePath getInternalEnvPath(bool userdef);
 	static bool	getCondaEnvsFromTxt( BufferStringSet& );
+	bool		isCustomEnvUsable(uiRetVal&,
+				    BufferString* stdoutstr =nullptr,
+				    BufferString* stderrstr =nullptr);
+	uiRetVal	doCustomExecute(const OS::MachineCommand&,
+				    const OS::CommandExecPars*,int* pid,
+				    BufferString* stdoutstr,
+				    BufferString* stderrstr,
+				    int* exitcode) const;
 	bool		isEnvUsable(const FilePath* pythonenvfp,
 				    const char* envnm,uiRetVal&,
 				    BufferString* stdoutstr =nullptr,
@@ -184,6 +199,13 @@ namespace OD
 				  const FilePath* activatefp,const char* envnm,
 				  BufferString* stdoutstr,
 				  BufferString* stderrstr,int* exitcode) const;
+	uiRetVal		doExecuteHelper(const OS::MachineCommand&,
+					const OS::CommandExecPars*,int* pid,
+					const FilePath* activatefp,
+					const char* envnm,
+					BufferString* stdoutstr,
+					BufferString* stderrstr,
+					int* exitcode) const;
 	static FilePath*	getActivateScript(const FilePath& root);
 	void			appToBeStartedCB(CallBacker*);
 	bool			retrievePythonVersionStr();
@@ -200,7 +222,7 @@ namespace OD
 	PythonSource	getPythonSource() const;
 	const FilePath* getActivateFp() const	{ return activatefp_; }
 	FilePath	getPythonEnvFp() const;
-	const char*	getEnvName() const	{ return virtenvnm_.buf(); }
+	BufferString	getEnvName() const;
 
 	static void	initClass();
 	static PythonSource getPythonSource(const FilePath* envrootfp);
@@ -217,8 +239,10 @@ namespace OD
 				      const FilePath* extroot=nullptr);
 
 	void		addBasePath(const FilePath&);
-			/*<! For plugins to update PYTHONPATH
-			     during initialization */
+			/*<! For plugins to register directories containing
+			     OpendTect Python modules. These are added to the
+			     environment of python processes executed by
+			     PythonAccess. */
 
     };
 

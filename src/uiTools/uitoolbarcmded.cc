@@ -327,9 +327,13 @@ void uiToolBarCommandEditor::fillPar( IOPar& par ) const
 
     if ( isChecked() && current==commands_.size() )
     {
-	par.set( sKey::Command(), getCommand() );
-	par.set( sKey::ToolTip(), getToolTip(), true );
-	par.set( sKey::IconFile(), getIconFile() );
+	const BufferString cmd( getCommand() );
+	if ( !cmd.isEmpty() )
+	{
+	    par.set( sKey::Command(), cmd );
+	    par.set( sKey::ToolTip(), getToolTip(), true );
+	    par.set( sKey::IconFile(), getIconFile() );
+	}
     }
     else if ( isChecked() && !commands_.isEmpty() )
 	par.set( sKey::ExeName(), commands_.get( current ) );
@@ -351,7 +355,10 @@ void uiToolBarCommandEditor::usePar( const IOPar& par )
 	par.get( sKey::ToolTip(), tooltip, true );
 	par.get( sKey::IconFile(), iconfile );
 	if ( exeselfld_ )
-	    exeselfld_->setCurrentItem( "Other" );
+	{
+	    const BufferString othrtxt( uiStrings::sOther().getFullString() );
+	    exeselfld_->setCurrentItem( othrtxt.buf() );
+	}
 
 	setCommand( cmd );
 	setToolTip( tooltip );

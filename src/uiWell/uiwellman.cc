@@ -238,21 +238,16 @@ void uiWellMan::fillLogsFld()
 	BufferStringSet lognms, deflognms;
 	wd->logs().getNames( lognms );
 	wd->logs().getDefaultLogs( deflognms );
-	for ( int idy=0; idy<availablelognms_.size(); )
+	for ( int idy=availablelognms_.size()-1; idy>=0; idy-- )
 	{
-	    if ( lognms.isPresent(availablelognms_.get(idy)) )
-		idy++;
-	    else
+	    if ( !lognms.isPresent(availablelognms_.get(idy)) )
 		availablelognms_.removeSingle( idy );
 	}
 
-	int index = 0;
-	for ( auto* deflognm : defaultlognms_ )
+	for ( int idy=defaultlognms_.size()-1; idy>=0; idy-- )
 	{
-	    if ( deflognms.isPresent(*deflognm) )
-		index++;
-	    else
-		defaultlognms_.removeSingle( index );
+	    if ( !deflognms.isPresent(defaultlognms_.get(idy)) )
+		defaultlognms_.removeSingle( idy );
 	}
     }
 

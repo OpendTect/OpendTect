@@ -522,9 +522,11 @@ uiRetVal ServiceMgrBase::pythEnvChangedReq( const OD::JSON::Object& reqobj )
 	{
 	    if ( source == OD::System )
 		return getNonConst( pytha ).setEnvironment( nullptr, nullptr );
-	    else
+	    else if ( source == OD::Internal )
 		return getNonConst( pytha ).setEnvironment( &envrootfp,
 							    virtenvnm.buf() );
+	    else if ( source == OD::Custom )
+		return getNonConst( pytha ).setCustomEnvironment();
 	}
     }
 
