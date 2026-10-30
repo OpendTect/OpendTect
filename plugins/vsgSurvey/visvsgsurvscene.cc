@@ -16,12 +16,14 @@ ________________________________________________________________________
 #include "visvsgobject.h"
 #include "visvsgplanedragger.h"
 #include "visvsgsurvtransmgr.h"
+#include "visvsgtexturechannels.h"
 #include "visvsgtransform.h"
 
 #include "iopar.h"
 #include "keyenum.h"
 #include "notify.h"
 #include "settings.h"
+#include "statrand.h"
 #include "string2.h"
 #include "survgeom3d.h"
 #include "survinfo.h"
@@ -66,6 +68,7 @@ void initStdClasses()
 
 Scene::Scene()
     : dGBVis::DataObjectGroup(vsg::Group::create().get())
+    , testchannelschanged(this)
     , sceneboundingboxupdated(this)
     , mouseposchange(this)
     , tkzs_(false)
@@ -1044,6 +1047,24 @@ void Scene::annotDeSelCB( CallBacker* )
 }
 
 
+static RefMan<dGBVis::TextureChannels> createTestChannels( int nrcells,
+						    Stats::RandGen& valuegen )
+{
+    TypeSet<float> values;
+    for ( int idx=0; idx<nrcells*nrcells; idx++ )
+	values += idx%50==49 ? mUdf(float) : float(valuegen.get());
+
+    RefMan<dGBVis::TextureChannels> channels = dGBVis::TextureChannels::create();
+    channels->setSize( 0, 1, nrcells, nrcells );
+    ColTab::MapperSetup mappersetup;
+    mappersetup.type_ = ColTab::MapperSetup::Auto;
+    channels->setColTabMapperSetup( 0, mappersetup );
+    channels->setColTabSequence( ColTab::Sequence("") );
+    channels->setUnMappedData( 0, 0, values.arr(), OD::UsePtr, nullptr );
+    return channels;
+}
+
+
 void Scene::addInteractionTest()
 {
     if ( testsceneadded_ || !tkzs_.isDefined() )
@@ -1059,6 +1080,9 @@ void Scene::addInteractionTest()
 		       mMAX(1,crlrg.width())*0.5,
 		       0. );
 
+    const int nrcells = dGBVis::DepthTabPlaneDragger::nrCells();
+    Stats::RandGen valuegen;
+
     RefMan<dGBVis::DepthTabPlaneDragger> dragger =
 			dGBVis::DepthTabPlaneDragger::create();
     dragger->setDim( 2 );
@@ -1068,6 +1092,8 @@ void Scene::addInteractionTest()
 	Interval<float>(float(inlrg.start_),float(inlrg.stop_)),
 	Interval<float>(float(crlrg.start_),float(crlrg.stop_)),
 	Interval<float>(zrg.start_,zrg.stop_) );
+    dragger->setChannels( createTestChannels(nrcells,valuegen).ptr() );
+    mAttachCB( dragger->started, Scene::draggerStartedCB );
     addInlCrlZObject( dragger.ptr() );
 
     const Coord3 size2( mMAX(1,inlrg.width())*0.25,
@@ -1087,6 +1113,8 @@ void Scene::addInteractionTest()
 	Interval<float>(float(inlrg.start_),float(inlrg.stop_)),
 	Interval<float>(float(crlrg.start_),float(crlrg.stop_)),
 	Interval<float>(zrg.start_,zrg.stop_) );
+    inner->setChannels( createTestChannels(nrcells,valuegen).ptr() );
+    mAttachCB( inner->started, Scene::draggerStartedCB );
     addInlCrlZObject( inner.ptr() );
 
     const Coord3 half( mMAX(1,inlrg.width())*0.08,
@@ -1100,7 +1128,36 @@ void Scene::addInteractionTest()
     q2.z_ += zoff;
     addInlCrlZObject( PickQuad::create(q1,half,OD::Color(220,60,60)).ptr() );
     addInlCrlZObject( PickQuad::create(q2,half,OD::Color(60,180,80)).ptr() );
+
+    testchannels_ = createTestChannels( nrcells, valuegen );
+    Coord3 center3 = center;
+    center3.z_ -= mMAX( 1e-3, double(zrg.width())*0.05 );
+    RefMan<dGBVis::DepthTabPlaneDragger> colored =
+			dGBVis::DepthTabPlaneDragger::create();
+    colored->setDim( 2 );
+    colored->setSize( size );
+    colored->setCenter( center3 );
+    colored->setSpaceLimits(
+	Interval<float>(float(inlrg.start_),float(inlrg.stop_)),
+	Interval<float>(float(crlrg.start_),float(crlrg.stop_)),
+	Interval<float>(zrg.start_,zrg.stop_) );
+    colored->setChannels( testchannels_.ptr() );
+    mAttachCB( colored->started, Scene::draggerStartedCB );
+    addInlCrlZObject( colored.ptr() );
     testsceneadded_ = true;
+}
+
+
+void Scene::draggerStartedCB( CallBacker* cb )
+{
+    mDynamicCastGet(dGBVis::DepthTabPlaneDragger*,dragger,cb)
+    dGBVis::TextureChannels* channels = dragger ? dragger->getChannels()
+						: nullptr;
+    if ( !channels || channels==testchannels_.ptr() )
+	return;
+
+    testchannels_ = channels;
+    testchannelschanged.trigger();
 }
 
 } // namespace dGBVisSurvey

@@ -187,9 +187,9 @@ static bool testSizeAndPlace()
 			       "Scene color bar: The size has a lower limit",
 			       BufferString("Size: ",coltab->getLength())
 				.add(" x ").add(coltab->getThickness()) );
-    coltab->setSize( 5000, 100 );
-    mRunStandardTestWithError( coltab->getLength()==1000 &&
-			       coltab->getThickness()==35,
+    coltab->setSize( 5000, 300 );
+    mRunStandardTestWithError( coltab->getLength()==1500 &&
+			       coltab->getThickness()==100,
 			       "Scene color bar: The size has an upper limit",
 			       BufferString("Size: ",coltab->getLength())
 				.add(" x ").add(coltab->getThickness()) );

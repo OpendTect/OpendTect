@@ -11,9 +11,13 @@ ________________________________________________________________________
 
 #include "visvsgdataman.h"
 #include "visvsgevent.h"
+#include "visvsgtexturechannels.h"
 #include "visvsgtransform.h"
+#include "vsggeolayeredtexture.h"
 #include "vsggeoplanedragger.h"
 
+#include "coltabindex.h"
+#include "coltabsequence.h"
 #include "color.h"
 #include "keyenum.h"
 #include "math2.h"
@@ -135,6 +139,64 @@ void DepthTabPlaneDragger::setColor( const OD::Color& col )
 {
     if ( plane_ )
 	plane_->setColor( toVec4(col,1.f) );
+}
+
+
+int DepthTabPlaneDragger::nrCells()
+{
+    return vsgGeo::TabPlaneDragger::nrCells();
+}
+
+
+void DepthTabPlaneDragger::setChannels( TextureChannels* channels )
+{
+    if ( channels_.ptr() == channels )
+	return;
+
+    if ( channels_ )
+	mDetachCB( channels_->colTabChanged,
+		   DepthTabPlaneDragger::channelsChangedCB );
+
+    channels_ = channels;
+    if ( channels_ )
+	mAttachCB( channels_->colTabChanged,
+		   DepthTabPlaneDragger::channelsChangedCB );
+
+    updateCellColors();
+}
+
+
+void DepthTabPlaneDragger::channelsChangedCB( CallBacker* )
+{
+    updateCellColors();
+}
+
+
+void DepthTabPlaneDragger::updateCellColors()
+{
+    if ( !plane_ || !channels_ || channels_->nrTiles()!=1 )
+	return;
+
+    const vsgGeo::LayeredTexture* texture = channels_->tile(0).texture_.get();
+    const int nrcells = nrCells();
+    if ( texture->width()!=nrcells || texture->height()!=nrcells )
+	return;
+
+    const ColTab::Sequence& seq = channels_->getColTabSequence();
+    const ColTab::IndexedLookUpTable table( seq, TextureChannels::nrSteps() );
+    TypeSet<vsg::vec4> colors;
+    for ( int idy=0; idy<nrcells; idy++ )
+    {
+	for ( int idx=0; idx<nrcells; idx++ )
+	{
+	    const OD::Color col = texture->isUndefAt(idx,idy)
+				? seq.undefColor()
+				: table.colorForIndex( texture->indexAt(idx,idy) );
+	    colors += toVec4( col );
+	}
+    }
+
+    plane_->setCellColors( colors.arr() );
 }
 
 

@@ -42,11 +42,15 @@ public:
     int			pointSize() const	{ return pointsize_; }
     Weight		weight() const		{ return weight_; }
     bool		isItalic() const	{ return italic_; }
+    bool		isUnderline() const	{ return underline_; }
+    bool		isStrikeOut() const	{ return strikeout_; }
 
     void		setFamily( const char* f ) { family_ = f; }
     void		setPointSize( int ps )	{ pointsize_ = ps; }
     void		setWeight( Weight w )	{ weight_= w; }
     void		setItalic( bool yn )	{ italic_ = yn; }
+    void		setUnderline( bool yn )	{ underline_ = yn; }
+    void		setStrikeOut( bool yn )	{ strikeout_ = yn; }
 
     void		setStyleName(const char*);
     const char*		styleName() const;
@@ -78,5 +82,7 @@ protected:
     int			pointsize_	= defaultPointSize();
     Weight		weight_		= defaultWeight();
     bool		italic_		= defaultItalic();
+    bool		underline_	= false;
+    bool		strikeout_	= false;
     BufferString	stylename_	= "Regular";
 };

@@ -94,7 +94,27 @@ void uiFont::setFontData( mQtclass(QFont)& qfont, const FontData& fd )
 		   fd.pointSize(),
 		   FontData::numWeight(fd.weight()),
 		   fd.isItalic() );
+    qfont.setUnderline( fd.isUnderline() );
+    qfont.setStrikeOut( fd.isStrikeOut() );
     qfont.setStyleName( fd.styleName() );
+}
+
+
+static FontData::Weight fontDataWeight( int qtweight )
+{
+    if ( qtweight <= 99 )
+	return FontData::enumWeight( qtweight );
+
+    if ( qtweight <= 350 )
+	return FontData::Light;
+    if ( qtweight <= 550 )
+	return FontData::Normal;
+    if ( qtweight <= 650 )
+	return FontData::DemiBold;
+    if ( qtweight <= 750 )
+	return FontData::Bold;
+
+    return FontData::Black;
 }
 
 
@@ -102,8 +122,10 @@ void uiFont::getFontData( FontData& fd, const mQtclass(QFont)& qfont )
 {
     const BufferString fontfamily = qfont.family();
     fd = FontData( qfont.pointSize(), fontfamily,
-		   FontData::enumWeight(qfont.weight()),
+		   fontDataWeight(qfont.weight()),
 		   qfont.italic() );
+    fd.setUnderline( qfont.underline() );
+    fd.setStrikeOut( qfont.strikeOut() );
     fd.setStyleName( BufferString(qfont.styleName()) );
 }
 

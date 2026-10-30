@@ -27,6 +27,7 @@ ________________________________________________________________________
 #include "uiodmenumgr.h"
 #include "uifont.h"
 #include "uiodscenemgr.h"
+#include "uivsgcoltabdlg.h"
 #include "uivsgscenesettingsdlg.h"
 #include "uivsgscreenshotdlg.h"
 #include "uivsgviewer.h"
@@ -51,8 +52,10 @@ private:
     void	font3DChangedCB( CallBacker* );
     void	screenshotCB( CallBacker* );
     void	sceneSettingsCB( CallBacker* );
+    void	colTabCB( CallBacker* );
 
     QPointer<uiVSGViewer>	viewer_;
+    PtrMan<uiVSGColTabDlg>	coltabdlg_;
     FontData			chosenfont_;
     bool			haschosenfont_ = false;
 };
@@ -97,6 +100,23 @@ void uiVSGPIMgr::dTectMenuChanged()
 	mCB(this,uiVSGPIMgr,screenshotCB) ) );
     scenemnu->insertAction( new uiAction( toUiString("VSG Scene Settings..."),
 	mCB(this,uiVSGPIMgr,sceneSettingsCB) ) );
+    scenemnu->insertAction( new uiAction( toUiString("VSG Color Table..."),
+	mCB(this,uiVSGPIMgr,colTabCB) ) );
+}
+
+
+void uiVSGPIMgr::colTabCB( CallBacker* )
+{
+    dGBVis::TextureChannels* channels = viewer_ ? viewer_->textureChannels()
+						: nullptr;
+    if ( !channels )
+    {
+	uiMSG().error( tr("Open the VSG Viewer with the test plane first") );
+	return;
+    }
+
+    coltabdlg_ = new uiVSGColTabDlg( &appl(), *viewer_->scene() );
+    coltabdlg_->show();
 }
 
 
@@ -115,6 +135,7 @@ void uiVSGPIMgr::sceneSettingsCB( CallBacker* )
 
 void uiVSGPIMgr::cleanup()
 {
+    coltabdlg_ = nullptr;
     if ( viewer_ )
     {
 	auto* subwin = qobject_cast<QMdiSubWindow*>( viewer_->parentWidget() );

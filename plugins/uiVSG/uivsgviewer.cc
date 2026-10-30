@@ -28,6 +28,7 @@ ________________________________________________________________________
 #include "visvsgevent.h"
 #include "visvsgscenecoltab.h"
 #include "visvsgsurvscene.h"
+#include "visvsgtexturechannels.h"
 #include "visvsgthumbwheel.h"
 #include "errmsg.h"
 #include "keyenum.h"
@@ -37,6 +38,7 @@ ________________________________________________________________________
 #include "uifont.h"
 #include "uimsg.h"
 #include "vsggeoaxes.h"
+#include "vsggeolayeredtexture.h"
 #include "vsggeonearfar.h"
 #include "vsggeotext.h"
 #include "vsggeothumbwheel.h"
@@ -563,6 +565,65 @@ private:
 };
 
 
+class uiVSGViewer::ColTabLink : public CallBacker
+{
+public:
+			ColTabLink(dGBVis::SceneColTab&,dGBVisSurvey::Scene&);
+			~ColTabLink();
+
+private:
+
+    void		channelsCB(CallBacker*);
+    void		changedCB(CallBacker*);
+
+    RefMan<dGBVis::SceneColTab>		bar_;
+    RefMan<dGBVisSurvey::Scene>		scene_;
+    RefMan<dGBVis::TextureChannels>	channels_;
+};
+
+
+uiVSGViewer::ColTabLink::ColTabLink( dGBVis::SceneColTab& bar,
+				     dGBVisSurvey::Scene& scene )
+    : bar_(&bar)
+    , scene_(&scene)
+{
+    mAttachCB( scene_->testchannelschanged,
+	       uiVSGViewer::ColTabLink::channelsCB );
+    channelsCB( nullptr );
+}
+
+
+uiVSGViewer::ColTabLink::~ColTabLink()
+{
+    detachAllNotifiers();
+}
+
+
+void uiVSGViewer::ColTabLink::channelsCB( CallBacker* )
+{
+    if ( channels_ )
+	mDetachCB( channels_->colTabChanged,
+		   uiVSGViewer::ColTabLink::changedCB );
+
+    channels_ = scene_->testTextureChannels();
+    if ( channels_ )
+	mAttachCB( channels_->colTabChanged,
+		   uiVSGViewer::ColTabLink::changedCB );
+
+    changedCB( nullptr );
+}
+
+
+void uiVSGViewer::ColTabLink::changedCB( CallBacker* )
+{
+    if ( !channels_ )
+	return;
+
+    bar_->setColTabSequence( channels_->getColTabSequence() );
+    bar_->setColTabMapperSetup( channels_->getColTabMapperSetup(0,0) );
+}
+
+
 uiVSGViewer::uiVSGViewer( QWidget* parent )
     : QWidget(parent)
 {
@@ -594,6 +655,7 @@ uiVSGViewer::~uiVSGViewer()
 {
     boundswatch_ = nullptr;
     wheellink_ = nullptr;
+    coltablink_ = nullptr;
     if ( trackball_ )
 	trackball_->setMovementCallback( nullptr );
 
@@ -634,6 +696,18 @@ uiVSGViewer::~uiVSGViewer()
     scene_ = nullptr;
     delete statuscb_;
     statuscb_ = nullptr;
+}
+
+
+dGBVisSurvey::Scene* uiVSGViewer::scene()
+{
+    return scene_.ptr();
+}
+
+
+dGBVis::TextureChannels* uiVSGViewer::textureChannels()
+{
+    return scene_ ? scene_->testTextureChannels() : nullptr;
 }
 
 
@@ -1102,6 +1176,9 @@ void uiVSGViewer::setupVSG()
 							root_ );
 
     setupHUD();
+    if ( scene_->testTextureChannels() )
+	coltablink_ = new ColTabLink( *scenecoltab_, *scene_ );
+
     axeshandler_ = vsgGeo::AxesHandler::create();
     axeshandler_->setAxes( axes_->vsgAxes() );
     viewer_->addEventHandler( axeshandler_ );
@@ -1160,6 +1237,15 @@ void uiVSGViewer::setupVSG()
     // After the first compile: from now on, changes to dGBVis objects are
     // compiled and released through this viewer's update operation.
     dGBVis::DataObject::setCommonViewer( viewer_.get() );
+
+    vsg::ref_ptr<vsg::Device> device = vsgwindow_->getDevice();
+    if ( device && device->getPhysicalDevice() )
+    {
+	const VkPhysicalDeviceLimits& limits =
+		device->getPhysicalDevice()->getProperties().limits;
+	vsgGeo::LayeredTexture::setMaxTextureSize(
+					int(limits.maxImageDimension2D) );
+    }
 
     setWheelDisplayMode( startWheelMode() );
     scenecoltab_->turnOn( false );

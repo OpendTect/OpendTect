@@ -25,6 +25,7 @@ namespace dGBVis
     class EventCatcher;
     class EventInfo;
     class MarkerSet;
+    class TextureChannels;
     class VisualObject;
 }
 
@@ -124,7 +125,12 @@ public:
 			    dragger can mark the event handled in between. */
 
     void		addInteractionTest();
+    dGBVis::TextureChannels* testTextureChannels()
+			{ return testchannels_.ptr(); }
+			//!<The data of the colored plane of the test that was
+			//!<grabbed last, if they were added
 
+    Notifier<Scene>	testchannelschanged;
     Notifier<Scene>	sceneboundingboxupdated;
     Notifier<Scene>	mouseposchange;
 
@@ -142,6 +148,7 @@ private:
     void		updateAnnotationText();
     void		bindDraggers();
     void		mouseCB(CallBacker*);
+    void		draggerStartedCB(CallBacker*);
     void		notHandledCB(CallBacker*);
     void		annotSelCB(CallBacker*);
     void		annotDeSelCB(CallBacker*);
@@ -161,6 +168,7 @@ private:
     RefMan<dGBVis::Annotation>	annot_;
     RefMan<dGBVis::EventCatcher> events_;
     RefMan<dGBVis::MarkerSet>	picks_;
+    RefMan<dGBVis::TextureChannels> testchannels_;
     int				draggingmarker_		= -1;
     Coord3			xytmousepos_		= Coord3::udf();
     TrcKey			mousetrckey_		= TrcKey::udf();
