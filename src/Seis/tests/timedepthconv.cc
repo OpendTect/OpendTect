@@ -10,6 +10,7 @@ ________________________________________________________________________
 #include "ioman.h"
 #include "ioobj.h"
 #include "filepath.h"
+#include "iopar.h"
 #include "moddepmgr.h"
 #include "multiid.h"
 #include "simpletimedepthmodel.h"
@@ -217,6 +218,26 @@ static bool testSimpleTimeDepthModel( const MultiID& mid )
 }
 
 
+static bool testLinearTransformRoundTrip( const ZAxisTransform& src,
+					 ZAxisTransform& restored )
+{
+    IOPar par;
+    src.fillPar( par );
+    mRunStandardTest( restored.usePar(par),
+		      mMsg("Linear model parameters") )
+    mRunStandardTest( restored.isOK(),
+		      mMsg("Restored linear model") )
+
+    const TrcKey& tk = TrcKey::udf();
+    const float zsrc = src.transformTrc( tk, timeval_ );
+    const float zrestored = restored.transformTrc( tk, timeval_ );
+    mRunStandardTest( mIsEqual(zsrc,zrestored,1e-4f),
+		      mMsg("Restored linear model uses V0 and gradient") )
+
+    return true;
+}
+
+
 static bool testLinearT2DTransform()
 {
     const double v0 =
@@ -244,7 +265,8 @@ static bool testLinearT2DTransform()
     mRunStandardTest( mIsEqual(timeval,timeval_,1e-5f),
 		      mMsg("Transformed back Z value") )
 
-    return true;
+    RefMan<LinearT2DTransform> restored = new LinearT2DTransform;
+    return testLinearTransformRoundTrip( *stretcher, *restored );
 }
 
 
@@ -278,7 +300,8 @@ static bool testLinearD2TTransform()
     mRunStandardTest( mIsEqual(sidepthval,1458.32f,1e-2f),
 		      mMsg("Transformed back Z value") )
 
-    return true;
+    RefMan<LinearD2TTransform> restored = new LinearD2TTransform;
+    return testLinearTransformRoundTrip( *stretcher, *restored );
 }
 
 
