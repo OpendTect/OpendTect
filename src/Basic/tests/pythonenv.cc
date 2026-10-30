@@ -20,6 +20,59 @@ ________________________________________________________________________
 using namespace PythonTestFixtures;
 
 
+/* resolveEnvironment() refuses conda environments when neither micromamba nor
+   conda can be found. The tests must not depend on the host installation, so
+   put a stub manager in a temporary folder and prepend that folder to PATH.
+   The destructor restores the original PATH and removes the folder. */
+
+class FakeCondaManager
+{
+public:
+    FakeCondaManager()
+    {
+	const FilePath mgrfp(
+		FilePath::getTempFullPath("odenvtest_condamgr", nullptr));
+	File::createDir( mgrfp.fullPath() );
+	writeStubExecutable( FilePath(mgrfp, execName()),
+			     "#!/bin/sh\nexit 0\n" );
+
+	oldpath_.set( GetOSEnvVar("PATH") );
+	BufferString path( mgrfp.fullPath() );
+	if ( !oldpath_.isEmpty() )
+	    path.add( __iswin__ ? ";" : ":" ).add( oldpath_ );
+
+	SetEnvVar( "PATH", path.buf() );
+	mgrfp_ = mgrfp;
+    }
+
+    ~FakeCondaManager()
+    {
+	if ( oldpath_.isEmpty() )
+	    UnsetOSEnvVar( "PATH" );
+	else
+	    SetEnvVar( "PATH", oldpath_.buf() );
+
+	removeFakeEnv( mgrfp_.fullPath() );
+    }
+
+    bool isOK() const
+    {
+	const BufferString exefp( FilePath(mgrfp_,execName()).fullPath() );
+	return File::exists( exefp.buf() ) &&
+	       (__iswin__ || File::isExecutable(exefp.buf()));
+    }
+
+private:
+    static const char* execName()
+    {
+	return __iswin__ ? "micromamba.exe" : "micromamba";
+    }
+
+    FilePath	mgrfp_;
+    BufferString oldpath_;
+};
+
+
 static bool testInvalidRoot()
 {
     OD::PythonEnv penv;
@@ -178,6 +231,10 @@ static bool testCondaEnv(const char* prefixpath=nullptr)
 			       toString(uirv) );
     mRunStandardTest( penv.envType()==OD::PythonEnv::EnvType::Conda,
 		      "Conda type is Conda" );
+    mRunStandardTest( penv.hasManager(),
+		      "Conda environment has a package manager" );
+    mRunStandardTest( penv.isCloneable(),
+		      "Conda environment is cloneable" );
     mRunStandardTest( penv.prefixPath()==path, "Conda prefix is the env dir" );
     mRunStandardTest( penv.pythonPath()==pythonexefp.fullPath(),
 		      "Conda python path is correct" );
@@ -547,6 +604,13 @@ static bool testRunCommandChildEnv()
 int mTestMainFnName( int argc, char** argv )
 {
     mInitTestProg();
+
+    const FakeCondaManager fakemanager;
+    if ( !fakemanager.isOK() )
+    {
+	errStream() << "Cannot create a fake conda manager" << od_endl;
+	return 1;
+    }
 
     if ( !testInvalidRoot() )
 	return 1;
