@@ -171,6 +171,26 @@ public:
     void		removeDuplicateIdxPairs();
     void		randomSubselect(od_int64 maxnr);
 
+    bool		setGridValues(const StepInterval<int>& rowrg,
+				      const StepInterval<int>& colrg,
+				      const int* validxs,
+				      const float* const* vals,int nrdata,
+				      const char* skip=nullptr);
+			/*!< Writes regular grids into value columns.
+			     vals[i] is row-major and has
+			     (rowrg.nrSteps()+1) * (colrg.nrSteps()+1)
+			     samples, stored in column validxs[i].
+			     Undefined samples are ignored. skip follows
+			     the same layout; a '1' leaves that position
+			     unchanged. A missing position is created when
+			     at least one supplied value is defined, with
+			     the other columns undefined. */
+    bool		appendSortedLine(int inl,const int* crls,
+					 const float* vals,int nr);
+			/*!< Appends one inline whose crosslines are strictly
+			     increasing and whose inline is past the last one.
+			     vals holds nrVals() floats per position. */
+
     void		extend(const IdxPairDelta& stepout,const IdxPairStep&);
 			    //!< Adds only IdxPair postions not yet in set
     void		removeRange(int valnr,const Interval<float>&,

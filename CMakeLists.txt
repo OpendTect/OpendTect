@@ -9,7 +9,7 @@
 
 cmake_minimum_required ( VERSION 3.24.0 )
 
-set( MAIN_GIT_BRANCH od8.0_rel )
+set( MAIN_GIT_BRANCH od8.0_custom_release_oct2026 )
 
 set( OpendTect_VERSION_MAJOR 8 )
 set( OpendTect_VERSION_MINOR 0 )
