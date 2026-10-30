@@ -12,8 +12,7 @@ ________________________________________________________________________
 #include "vsggeotextureplane.h"
 #include "vsgtesthelper.h"
 
-#include <cmath>
-#include <vector>
+#include "math2.h"
 
 namespace
 {
@@ -31,29 +30,47 @@ using Pixels = TypeSet<vsg::ubvec4>;
 void setRedToBlue( vsgGeo::LayeredTexture& texture )
 {
     const int nrcolors = texture.colorLookup().nrColors();
-    std::vector<vsg::vec4> colors( nrcolors );
+    TypeSet<vsg::vec4> colors( nrcolors, vsg::vec4() );
     for ( int idx=0; idx<nrcolors; idx++ )
     {
 	const float level = float(idx) / float(nrcolors-1);
 	colors[idx] = vsg::vec4( 1.f-level, 0.f, level, 1.f );
     }
 
-    texture.colorLookup().setColors( colors.data(), nrcolors,
+    texture.colorLookup().setColors( colors.arr(), nrcolors,
 				     vsg::vec4(0.f,1.f,0.f,1.f) );
 }
 
 
-bool setIndices( vsgGeo::LayeredTexture& texture,
-		 const std::vector<unsigned char>& indices )
+void setUniformColor( vsgGeo::LayeredTexture& texture, const vsg::vec4& color,
+		      const vsg::vec4& undefcolor )
 {
-    std::vector<unsigned char> bands;
-    for ( const unsigned char idx : indices )
+    const int nrcolors = texture.colorLookup().nrColors();
+    const TypeSet<vsg::vec4> colors( nrcolors, color );
+    texture.colorLookup().setColors( colors.arr(), nrcolors, undefcolor );
+}
+
+
+bool setIndices( vsgGeo::LayeredTexture& texture,
+		 const unsigned char* indices, int nrindices )
+{
+    TypeSet<unsigned char> bands;
+    for ( int idx=0; idx<nrindices; idx++ )
     {
-	bands.push_back( idx );
-	bands.push_back( idx==cUdfIdx ? 0 : 255 );
+	const unsigned char defined = indices[idx]==cUdfIdx ? 0 : 255;
+	bands += indices[idx];
+	bands += defined;
     }
 
-    return texture.setIndices( bands.data(), bands.size() );
+    return texture.setIndices( bands.arr(), size_t(bands.size()) );
+}
+
+
+template <size_t N>
+bool setIndices( vsgGeo::LayeredTexture& texture,
+		 const unsigned char (&indices)[N] )
+{
+    return setIndices( texture, indices, int(N) );
 }
 
 
@@ -100,7 +117,7 @@ bool isGreen( const vsg::ubvec4& pix )
 
 bool isMiddle( const vsg::ubvec4& pix )
 {
-    return std::abs(int(pix.r)-128)<20 && std::abs(int(pix.b)-127)<20 &&
+    return Math::Abs(int(pix.r)-128)<20 && Math::Abs(int(pix.b)-127)<20 &&
 	   pix.g<10;
 }
 
@@ -116,12 +133,13 @@ static bool testSetIndices()
     mRunStandardTest( texture->isUndefAt(0,0),
 		      "Texture: A new image is undefined" );
 
-    const std::vector<unsigned char> indices = { 0, 1, 2, 3, 4, 5, 6, 7 };
+    const unsigned char indices[] = { 0, 1, 2, 3, 4, 5, 6, 7 };
     mRunStandardTest( setIndices(*texture,indices), "Texture: Indices set" );
     mRunStandardTest( texture->indexAt(0,0)==0 && texture->indexAt(3,0)==3 &&
 		      texture->indexAt(0,1)==4 && texture->indexAt(3,1)==7,
 		      "Texture: The first row comes first" );
-    mRunStandardTest( !setIndices(*texture,std::vector<unsigned char>(5)),
+    const unsigned char wrongnr[5] = { 0, 0, 0, 0, 0 };
+    mRunStandardTest( !setIndices(*texture,wrongnr),
 		      "Texture: A wrong number of indices is refused" );
     return true;
 }
@@ -136,9 +154,8 @@ static bool testRendering()
     vsg::ref_ptr<vsgGeo::LayeredTexture> texture =
 		vsgGeo::LayeredTexture::create( cNrColumns, cNrRows );
     setRedToBlue( *texture );
-    const std::vector<unsigned char> indices =
-	{ 0, 127, 254, cUdfIdx,
-	  254, 254, 0, 0 };
+    const unsigned char indices[] = { 0, 127, 254, cUdfIdx,
+				      254, 254, 0, 0 };
     mRunStandardTest( setIndices(*texture,indices),
 		      "Texture plane: Indices set" );
 
@@ -167,9 +184,8 @@ static bool testRendering()
 			       "Texture plane: The second row is on top",
 			       describe(cellColor(pixels,0,1)) );
 
-    const std::vector<unsigned char> changed =
-	{ 254, 254, 254, 254,
-	  0, 0, 0, 0 };
+    const unsigned char changed[] = { 254, 254, 254, 254,
+				      0, 0, 0, 0 };
     mRunStandardTest( setIndices(*texture,changed),
 		      "Texture plane: Indices changed" );
     ov.frame( 3 );
@@ -180,10 +196,8 @@ static bool testRendering()
 			       "Texture plane: New indices are shown",
 			       describe(cellColor(pixels,0,0)) );
 
-    const int nrcolors = texture->colorLookup().nrColors();
-    texture->colorLookup().setColors(
-	std::vector<vsg::vec4>(nrcolors,vsg::vec4(1.f,1.f,0.f,1.f)).data(),
-	nrcolors, vsg::vec4(0.f,1.f,0.f,1.f) );
+    setUniformColor( *texture, vsg::vec4(1.f,1.f,0.f,1.f),
+		     vsg::vec4(0.f,1.f,0.f,1.f) );
     ov.frame( 3 );
     mRunStandardTest( ov.readColor(pixels),
 		      "Texture plane: Recolored image is read" );
@@ -211,7 +225,8 @@ static bool testInterpolation()
     setRedToBlue( *texture );
     mRunStandardTest( texture->isInterpolated(),
 		      "Interpolation: The texture is interpolated" );
-    mRunStandardTest( setIndices(*texture,{0,254,0,254}),
+    const unsigned char indices[] = { 0, 254, 0, 254 };
+    mRunStandardTest( setIndices(*texture,indices),
 		      "Interpolation: Indices set" );
     ov.scene().addChild( vsgGeo::TexturePlane::create( texture,
 		vsg::vec3(-1.f,0.f,-1.f), vsg::vec3(2.f,0.f,0.f),
@@ -227,8 +242,8 @@ static bool testInterpolation()
     mRunStandardTestWithError( isRed(first) && isBlue(second),
 			       "Interpolation: The middle of a cell has the "
 			       "color of its value", describe(first) );
-    mRunStandardTestWithError( std::abs(int(middle.r)-128)<14 &&
-			       std::abs(int(middle.b)-127)<14 && middle.g<10,
+    mRunStandardTestWithError( Math::Abs(int(middle.r)-128)<14 &&
+			       Math::Abs(int(middle.b)-127)<14 && middle.g<10,
 			       "Interpolation: Between two cells the colors "
 			       "blend", describe(middle) );
     return true;
@@ -244,7 +259,8 @@ static bool testInterpolationAtUndefined()
     vsg::ref_ptr<vsgGeo::LayeredTexture> texture =
 		vsgGeo::LayeredTexture::create( 2, 1, nullptr, true );
     setRedToBlue( *texture );
-    mRunStandardTest( setIndices(*texture,{0,cUdfIdx}),
+    const unsigned char indices[] = { 0, cUdfIdx };
+    mRunStandardTest( setIndices(*texture,indices),
 		      "Undefined: Indices set" );
     ov.scene().addChild( vsgGeo::TexturePlane::create( texture,
 		vsg::vec3(-1.f,0.f,-1.f), vsg::vec3(2.f,0.f,0.f),
@@ -267,26 +283,28 @@ static bool testInterpolationAtUndefined()
 }
 
 
+static vsg::ref_ptr<vsg::StateGroup> stateGroupOf(
+					const vsgGeo::TexturePlane& plane )
+{
+    vsg::ref_ptr<vsg::DepthSorted> sorted =
+			plane.children.front().cast<vsg::DepthSorted>();
+    return sorted ? sorted->child.cast<vsg::StateGroup>()
+		  : plane.children.front().cast<vsg::StateGroup>();
+}
+
+
 static bool testSharedPipeline()
 {
     vsg::ref_ptr<vsg::SharedObjects> shared = vsg::SharedObjects::create();
-    std::vector<vsg::ref_ptr<vsgGeo::TexturePlane>> planes;
+    TypeSet<vsg::ref_ptr<vsgGeo::TexturePlane>> planes;
     for ( int idx=0; idx<2; idx++ )
     {
-	planes.push_back( vsgGeo::TexturePlane::create(
+	planes += vsgGeo::TexturePlane::create(
 		vsgGeo::LayeredTexture::create(2,2), vsg::vec3(0.f,0.f,0.f),
 		vsg::vec3(1.f,0.f,0.f), vsg::vec3(0.f,0.f,1.f),
 		vsg::vec2(0.f,0.f), vsg::vec2(1.f,0.f), vsg::vec2(0.f,1.f),
-		shared ) );
+		shared );
     }
-
-    const auto stateGroupOf = []( const vsgGeo::TexturePlane& plane )
-    {
-	vsg::ref_ptr<vsg::DepthSorted> sorted =
-				plane.children.front().cast<vsg::DepthSorted>();
-	return sorted ? sorted->child.cast<vsg::StateGroup>()
-		      : plane.children.front().cast<vsg::StateGroup>();
-    };
 
     vsg::ref_ptr<vsg::StateGroup> first = stateGroupOf( *planes[0] );
     vsg::ref_ptr<vsg::StateGroup> second = stateGroupOf( *planes[1] );
@@ -303,11 +321,10 @@ vsg::ref_ptr<vsgGeo::LayeredTexture> makeWhiteTexture( float alpha )
 {
     vsg::ref_ptr<vsgGeo::LayeredTexture> texture =
 		vsgGeo::LayeredTexture::create( 2, 2 );
-    const int nrcolors = texture->colorLookup().nrColors();
-    texture->colorLookup().setColors(
-	std::vector<vsg::vec4>(nrcolors,vsg::vec4(1.f,1.f,1.f,alpha)).data(),
-	nrcolors, vsg::vec4(1.f,1.f,1.f,alpha) );
-    setIndices( *texture, {0,0,0,0} );
+    setUniformColor( *texture, vsg::vec4(1.f,1.f,1.f,alpha),
+		     vsg::vec4(1.f,1.f,1.f,alpha) );
+    const unsigned char indices[] = { 0, 0, 0, 0 };
+    setIndices( *texture, indices );
     return texture;
 }
 
@@ -364,11 +381,10 @@ vsg::ref_ptr<vsgGeo::LayeredTexture> makeColorTexture( float red, float blue )
 {
     vsg::ref_ptr<vsgGeo::LayeredTexture> texture =
 		vsgGeo::LayeredTexture::create( 2, 2 );
-    const int nrcolors = texture->colorLookup().nrColors();
-    texture->colorLookup().setColors(
-	std::vector<vsg::vec4>(nrcolors,vsg::vec4(red,0.f,blue,0.5f)).data(),
-	nrcolors, vsg::vec4(red,0.f,blue,0.5f) );
-    setIndices( *texture, {0,0,0,0} );
+    setUniformColor( *texture, vsg::vec4(red,0.f,blue,0.5f),
+		     vsg::vec4(red,0.f,blue,0.5f) );
+    const unsigned char indices[] = { 0, 0, 0, 0 };
+    setIndices( *texture, indices );
     return texture;
 }
 
@@ -381,11 +397,10 @@ static bool testOpaqueCellsHideWhatIsBehind()
 
     vsg::ref_ptr<vsgGeo::LayeredTexture> red =
 		vsgGeo::LayeredTexture::create( 2, 2 );
-    const int nrcolors = red->colorLookup().nrColors();
-    red->colorLookup().setColors(
-	std::vector<vsg::vec4>(nrcolors,vsg::vec4(1.f,0.f,0.f,1.f)).data(),
-	nrcolors, vsg::vec4(1.f,1.f,1.f,0.f) );
-    setIndices( *red, {0,0,0,255} );
+    setUniformColor( *red, vsg::vec4(1.f,0.f,0.f,1.f),
+		     vsg::vec4(1.f,1.f,1.f,0.f) );
+    const unsigned char redindices[] = { 0, 0, 0, 255 };
+    setIndices( *red, redindices );
 
     ov.scene().addChild( vsgGeo::TexturePlane::create( red,
 		vsg::vec3(-1.f,0.f,-1.f), vsg::vec3(2.f,0.f,0.f),
@@ -444,8 +459,8 @@ static bool testTransparentOrder()
 	Pixels pixels;
 	mRunStandardTest( ov.readColor(pixels), "Order: Image is read" );
 	const vsg::ubvec4 pix = pixelAt( pixels, 0.5, 0.5 );
-	mRunStandardTestWithError( std::abs(int(pix.r)-64)<12 && pix.g<6 &&
-				   std::abs(int(pix.b)-128)<12,
+	mRunStandardTestWithError( Math::Abs(int(pix.r)-64)<12 && pix.g<6 &&
+				   Math::Abs(int(pix.b)-128)<12,
 				   nearfirst ? "Order: Transparent planes are "
 				   "blended back to front when the near one "
 				   "comes first" : "Order: Transparent planes "
@@ -466,14 +481,13 @@ static bool testTransparency()
     vsg::ref_ptr<vsgGeo::LayeredTexture> texture =
 		vsgGeo::LayeredTexture::create( cNrColumns, cNrRows );
     const int nrcolors = texture->colorLookup().nrColors();
-    std::vector<vsg::vec4> colors( nrcolors, vsg::vec4(1.f,1.f,1.f,1.f) );
+    TypeSet<vsg::vec4> colors( nrcolors, vsg::vec4(1.f,1.f,1.f,1.f) );
     colors[1] = vsg::vec4( 1.f, 1.f, 1.f, 0.5f );
     colors[2] = vsg::vec4( 1.f, 1.f, 1.f, 0.f );
-    texture->colorLookup().setColors( colors.data(), nrcolors,
+    texture->colorLookup().setColors( colors.arr(), nrcolors,
 				      vsg::vec4(1.f,1.f,1.f,0.25f) );
-    const std::vector<unsigned char> indices =
-	{ 0, 1, 2, cUdfIdx,
-	  0, 1, 2, cUdfIdx };
+    const unsigned char indices[] = { 0, 1, 2, cUdfIdx,
+				      0, 1, 2, cUdfIdx };
     mRunStandardTest( setIndices(*texture,indices),
 		      "Transparency: Indices set" );
 
@@ -491,12 +505,12 @@ static bool testTransparency()
     const vsg::ubvec4 udf = cellColor( pixels, 3, 0 );
     mRunStandardTestWithError( opaque.g>250, "Transparency: An opaque color "
 			       "covers the background", describe(opaque) );
-    mRunStandardTestWithError( std::abs(int(half.g)-128)<12,
+    mRunStandardTestWithError( Math::Abs(int(half.g)-128)<12,
 			       "Transparency: A half transparent color is "
 			       "blended with the background", describe(half) );
     mRunStandardTestWithError( clear.g<6, "Transparency: A fully transparent "
 			       "color shows the background", describe(clear) );
-    mRunStandardTestWithError( std::abs(int(udf.g)-64)<12,
+    mRunStandardTestWithError( Math::Abs(int(udf.g)-64)<12,
 			       "Transparency: The undefined color is blended "
 			       "too", describe(udf) );
     mRunStandardTestWithError( ov.nrValidationMessages()==0,

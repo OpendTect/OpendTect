@@ -13,6 +13,7 @@ ________________________________________________________________________
 #include "visvsgcoltabmapping.h"
 
 #include "coltabsequence.h"
+#include "math2.h"
 #include "typeset.h"
 
 namespace
@@ -76,7 +77,7 @@ static bool testAgainstMapper()
 	const int expected = ColTab::Mapper::snappedPosition(
 		&mapping.mapper(), cValues[idx], dGBVis::ColTabMapping::nrSteps(),
 		dGBVis::ColTabMapping::nrSteps() );
-	mRunStandardTest( std::abs(int(idxs[idx])-expected)<=1,
+	mRunStandardTest( Math::Abs(int(idxs[idx])-expected)<=1,
 			  "Mapping: Segments follow the mapper" );
     }
 
@@ -120,8 +121,8 @@ static bool testColors()
 		      "Mapping: The range start is the first color" );
     mRunStandardTest( last.b>0.999f && last.r<0.001f,
 		      "Mapping: The range end is exactly the last color" );
-    mRunStandardTest( std::abs(udf.r-10.f/255.f)<0.01f &&
-		      std::abs(udf.b-30.f/255.f)<0.01f,
+    mRunStandardTest( Math::Abs(udf.r-10.f/255.f)<0.01f &&
+		      Math::Abs(udf.b-30.f/255.f)<0.01f,
 		      "Mapping: Undefined values get the undefined color" );
     return true;
 }

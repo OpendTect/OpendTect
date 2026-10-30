@@ -16,8 +16,6 @@ ________________________________________________________________________
 #include "errmsg.h"
 #include "undefval.h"
 
-#include <algorithm>
-
 namespace dGBVis
 {
 
@@ -71,8 +69,8 @@ void TextureChannels::createTiles()
     const int maxsz = vsgGeo::LayeredTexture::maxTextureSize();
     const int width = size_[2];
     const int height = size_[1];
-    const int stepx = width<=maxsz ? width : std::max( 1, maxsz-2 );
-    const int stepy = height<=maxsz ? height : std::max( 1, maxsz-2 );
+    const int stepx = width<=maxsz ? width : mMAX( 1, maxsz-2 );
+    const int stepy = height<=maxsz ? height : mMAX( 1, maxsz-2 );
     tiles_.setEmpty();
     for ( int y0=0; y0<height; y0+=stepy )
     {
@@ -81,8 +79,8 @@ void TextureChannels::createTiles()
 	    Tile tile;
 	    tile.x0_ = x0;
 	    tile.y0_ = y0;
-	    tile.nrx_ = std::min( stepx, width-x0 );
-	    tile.nry_ = std::min( stepy, height-y0 );
+	    tile.nrx_ = mMIN( stepx, width-x0 );
+	    tile.nry_ = mMIN( stepy, height-y0 );
 	    tile.overx_ = x0>0 ? 1 : 0;
 	    tile.overy_ = y0>0 ? 1 : 0;
 	    const int overafterx = x0+tile.nrx_<width ? 1 : 0;

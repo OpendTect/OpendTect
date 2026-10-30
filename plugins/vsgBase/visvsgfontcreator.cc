@@ -46,20 +46,25 @@ constexpr uint32_t cFirstChar = 32;
 constexpr uint32_t cLastChar = 126;
 
 
-struct GlyphBitmap
+struct GlyphBox
 {
-    uint32_t		charcode	= 0;
     int			width		= 0;
     int			height		= 0;
     int			originx		= 0;
     int			originy		= 0;
+    float		cropleft	= 0.f;
+    float		cropright	= 0.f;
+};
+
+
+struct GlyphBitmap : public GlyphBox
+{
+    uint32_t		charcode	= 0;
     float		horiAdvance	= 0.f;
     float		vertBearingX	= 0.f;
     float		vertBearingY	= 0.f;
     float		vertAdvance	= 0.f;
     bool		cropped		= false;
-    float		cropleft	= 0.f;
-    float		cropright	= 0.f;
     TypeSet<od_int16>	sdf;
 
     bool		hasBitmap() const
@@ -214,20 +219,19 @@ constexpr int cStrikeOutTop = -16;
   the two thin bars together and make the line uneven.
   cropleft and cropright are the sides of the quad, from the pen position. */
 
-bool addDecorationBars( TypeSet<od_uint8>& alpha, int& width, int& height,
-			int& originx, int& originy, float advance,
-			bool underline, bool strikeout,
-			float& cropleft, float& cropright )
+bool addDecorationBars( TypeSet<od_uint8>& alpha, GlyphBox& box,
+			float advance, bool underline, bool strikeout )
 {
     if ( !underline && !strikeout )
 	return false;
 
-    const bool hasink = width>0 && height>0;
-    cropleft = hasink ? mMIN( 0.f, float(originx) ) : 0.f;
-    cropright = hasink ? mMAX( advance, float(originx+width) ) : advance;
-    const int barleft = int( Math::Floor(cropleft) ) - cMargin;
-    const int barright = int( Math::Ceil(cropright) ) + cMargin;
-    if ( cropright <= cropleft )
+    const bool hasink = box.width>0 && box.height>0;
+    box.cropleft = hasink ? mMIN( 0.f, float(box.originx) ) : 0.f;
+    box.cropright = hasink ? mMAX( advance, float(box.originx+box.width) )
+			   : advance;
+    const int barleft = int( Math::Floor(box.cropleft) ) - cMargin;
+    const int barright = int( Math::Ceil(box.cropright) ) + cMargin;
+    if ( box.cropright <= box.cropleft )
 	return false;
 
     int left = barleft;
@@ -237,22 +241,23 @@ bool addDecorationBars( TypeSet<od_uint8>& alpha, int& width, int& height,
     if ( underline && strikeout )
 	top = cStrikeOutTop;
 
-    if ( width>0 && height>0 )
+    if ( hasink )
     {
-	left = mMIN( left, originx );
-	right = mMAX( right, originx + width );
-	top = mMIN( top, originy );
-	bottom = mMAX( bottom, originy + height );
+	left = mMIN( left, box.originx );
+	right = mMAX( right, box.originx + box.width );
+	top = mMIN( top, box.originy );
+	bottom = mMAX( bottom, box.originy + box.height );
     }
 
     const int newwidth = right - left;
     const int newheight = bottom - top;
     TypeSet<od_uint8> newalpha( newwidth*newheight, 0 );
-    for ( int row=0; row<height && width>0; ++row )
+    for ( int row=0; row<box.height && box.width>0; ++row )
     {
-	const int dstrow = ( originy + row - top ) * newwidth;
-	for ( int col=0; col<width; ++col )
-	    newalpha[dstrow + originx + col - left] = alpha[row*width + col];
+	const int dstrow = ( box.originy + row - top ) * newwidth;
+	for ( int col=0; col<box.width; ++col )
+	    newalpha[dstrow + box.originx + col - left] =
+						alpha[row*box.width + col];
     }
 
     for ( int bar=0; bar<2; ++bar )
@@ -269,10 +274,10 @@ bool addDecorationBars( TypeSet<od_uint8>& alpha, int& width, int& height,
     }
 
     alpha = newalpha;
-    width = newwidth;
-    height = newheight;
-    originx = left;
-    originy = top;
+    box.width = newwidth;
+    box.height = newheight;
+    box.originx = left;
+    box.originy = top;
     return true;
 }
 
@@ -494,10 +499,11 @@ vsg::ref_ptr<vsg::Font> createDirectWriteFont( const FontData& fd )
 						    &bounds)) )
 	    continue;
 
-	int width = bounds.right - bounds.left;
-	int height = bounds.bottom - bounds.top;
-	int originx = bounds.left;
-	int originy = bounds.top;
+	GlyphBox box;
+	box.width = bounds.right - bounds.left;
+	box.height = bounds.bottom - bounds.top;
+	box.originx = bounds.left;
+	box.originy = bounds.top;
 	const float horiadvance =
 		float( gmetrics.advanceWidth ) * du_to_px / cEmSize;
 	const float vertbearingx =
@@ -508,9 +514,9 @@ vsg::ref_ptr<vsg::Font> createDirectWriteFont( const FontData& fd )
 		float( gmetrics.advanceHeight ) * du_to_px / cEmSize;
 
 	TypeSet<od_uint8> alpha;
-	if ( width>0 && height>0 )
+	if ( box.width>0 && box.height>0 )
 	{
-	    alpha.setSize( width*height, 0 );
+	    alpha.setSize( box.width*box.height, 0 );
 	    if ( FAILED(analysis->CreateAlphaTexture(DWRITE_TEXTURE_ALIASED_1x1,
 						     &bounds,alpha.arr(),
 						     UINT32(alpha.size()))) )
@@ -518,33 +524,30 @@ vsg::ref_ptr<vsg::Font> createDirectWriteFont( const FontData& fd )
 	}
 	else
 	{
-	    width = 0;
-	    height = 0;
+	    box.width = 0;
+	    box.height = 0;
 	}
 
-	float cropleft = 0.f;
-	float cropright = 0.f;
-	const bool decorated = addDecorationBars( alpha, width, height,
-				originx, originy, horiadvance*cEmSize,
-				fd.isUnderline(), fd.isStrikeOut(),
-				cropleft, cropright );
+	const bool decorated = addDecorationBars( alpha, box,
+				horiadvance*cEmSize, fd.isUnderline(),
+				fd.isStrikeOut() );
 
 	GlyphBitmap* gb = new GlyphBitmap;
 	gb->charcode = ch;
 	gb->cropped = decorated;
-	gb->cropleft = cropleft;
-	gb->cropright = cropright;
+	gb->cropleft = box.cropleft;
+	gb->cropright = box.cropright;
 	gb->horiAdvance = horiadvance;
 	gb->vertBearingX = vertbearingx;
 	gb->vertBearingY = vertbearingy;
 	gb->vertAdvance = vertadvance;
-	if ( width>0 && height>0 )
+	if ( box.width>0 && box.height>0 )
 	{
-	    gb->width = width;
-	    gb->height = height;
-	    gb->originx = originx;
-	    gb->originy = originy;
-	    makeSdfFromAlpha( alpha, width, height, cMargin, gb->sdf );
+	    gb->width = box.width;
+	    gb->height = box.height;
+	    gb->originx = box.originx;
+	    gb->originy = box.originy;
+	    makeSdfFromAlpha( alpha, box.width, box.height, cMargin, gb->sdf );
 	}
 
 	glyphs += gb;
@@ -786,10 +789,8 @@ vsg::ref_ptr<vsg::Font> createFreeTypeFont( const FontData& fd )
 	    gb->height = 0;
 	}
 
-	gb->cropped = addDecorationBars( alpha, gb->width, gb->height,
-			gb->originx, gb->originy, gb->horiAdvance*cEmSize,
-			fd.isUnderline(), fd.isStrikeOut(),
-			gb->cropleft, gb->cropright );
+	gb->cropped = addDecorationBars( alpha, *gb, gb->horiAdvance*cEmSize,
+					 fd.isUnderline(), fd.isStrikeOut() );
 	if ( gb->width>0 && gb->height>0 )
 	    makeSdfFromAlpha( alpha, gb->width, gb->height, cMargin, gb->sdf );
 

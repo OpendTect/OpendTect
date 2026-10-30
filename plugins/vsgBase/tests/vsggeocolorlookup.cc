@@ -11,7 +11,7 @@ ________________________________________________________________________
 
 #include "vsggeocolorlookup.h"
 
-#include <cmath>
+#include "math2.h"
 
 namespace
 {
@@ -20,8 +20,8 @@ bool isNear( const vsg::vec4& col, float red, float green, float blue,
 	     float alpha )
 {
     const float eps = 1.5f / 255.f;
-    return std::abs(col.r-red)<eps && std::abs(col.g-green)<eps &&
-	   std::abs(col.b-blue)<eps && std::abs(col.a-alpha)<eps;
+    return Math::Abs(col.r-red)<eps && Math::Abs(col.g-green)<eps &&
+	   Math::Abs(col.b-blue)<eps && Math::Abs(col.a-alpha)<eps;
 }
 
 } // namespace

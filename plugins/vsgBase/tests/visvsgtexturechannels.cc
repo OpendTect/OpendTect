@@ -13,6 +13,7 @@ ________________________________________________________________________
 #include "vsggeolayeredtexture.h"
 
 #include "coltabsequence.h"
+#include "math2.h"
 #include "valseriesimpl.h"
 
 namespace
@@ -210,7 +211,7 @@ static bool testTiles()
 		const int expected = ColTab::Mapper::snappedPosition(
 			&mapper, val, dGBVis::ColTabMapping::nrSteps(),
 			dGBVis::ColTabMapping::nrSteps() );
-		if ( std::abs(int(tile.texture_->indexAt(idx,idy))-expected)>1 )
+		if ( Math::Abs(int(tile.texture_->indexAt(idx,idy))-expected)>1 )
 		    allok = false;
 	    }
 	}

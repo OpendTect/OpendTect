@@ -16,9 +16,7 @@ ________________________________________________________________________
 #include "vsgtesthelper.h"
 
 #include "coltabsequence.h"
-
-#include <algorithm>
-#include <cmath>
+#include "math2.h"
 
 namespace
 {
@@ -123,8 +121,8 @@ double cellFraction( int idx, int nrcells, double shift, double growth )
 {
     const double size = ( nrcells>1 ? nrcells-1 : 1 ) + growth;
     const double start = 0.5*nrcells + shift - 0.5*size;
-    const double lo = std::max( 0., std::min(1.,(idx-start)/size) );
-    const double hi = std::max( 0., std::min(1.,(idx+1-start)/size) );
+    const double lo = mMAX( 0., mMIN(1.,(idx-start)/size) );
+    const double hi = mMAX( 0., mMIN(1.,(idx+1-start)/size) );
     return 0.5 * ( lo+hi );
 }
 
@@ -150,18 +148,18 @@ vsg::ubvec4 cellPixel( const Pixels& pixels, const Setup& setup, int col,
     const double fv = setup.swapped_ ? fx : fy;
     const double fright = setup.rotated_ ? fv : fu;
     const double fup = setup.rotated_ ? fu : fv;
-    const int x = std::min( int(cSize)-1, int(fright*cSize) );
-    const int ytop = std::min( int(cSize)-1, int((1.-fup)*cSize) );
+    const int x = mMIN( int(cSize)-1, int(fright*cSize) );
+    const int ytop = mMIN( int(cSize)-1, int((1.-fup)*cSize) );
     return pixels[ ytop*int(cSize) + x ];
 }
 
 
 bool isExpectedColor( const vsg::ubvec4& pix, float value, int nrvalues )
 {
-    const int idx = std::min( 254, int(value/float(nrvalues-1)*255.f) );
+    const int idx = mMIN( 254, int(value/float(nrvalues-1)*255.f) );
     const float pos = float(idx) / 254.f;
-    return std::abs(int(pix.r)-int((1.f-pos)*255.f))<=8 &&
-	   std::abs(int(pix.b)-int(pos*255.f))<=8 && pix.g<=8;
+    return Math::Abs(int(pix.r)-int((1.f-pos)*255.f))<=8 &&
+	   Math::Abs(int(pix.b)-int(pos*255.f))<=8 && pix.g<=8;
 }
 
 
@@ -229,9 +227,9 @@ static bool testTilesLikeOne()
 	{
 	    const vsg::ubvec4& one = tiledpixels[idx];
 	    const vsg::ubvec4& other = singlepixels[idx];
-	    if ( std::abs(int(one.r)-int(other.r))>3 ||
-		 std::abs(int(one.g)-int(other.g))>3 ||
-		 std::abs(int(one.b)-int(other.b))>3 )
+	    if ( Math::Abs(int(one.r)-int(other.r))>3 ||
+		 Math::Abs(int(one.g)-int(other.g))>3 ||
+		 Math::Abs(int(one.b)-int(other.b))>3 )
 		nrdifferent++;
 	}
 
@@ -349,7 +347,7 @@ static bool testTransparentTable()
     ov.frame( 4 );
     mRunStandardTest( ov.readColor(pixels),
 		      "Transparent table: Image is read again" );
-    mRunStandardTestWithError( std::abs(int(pixels[centre].g)-128)<12,
+    mRunStandardTestWithError( Math::Abs(int(pixels[centre].g)-128)<12,
 			       "Transparent table: A transparent table is "
 			       "blended with the background",
 			       BufferString("Green: ",int(pixels[centre].g)) );

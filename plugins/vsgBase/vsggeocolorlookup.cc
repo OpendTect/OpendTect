@@ -26,6 +26,13 @@ uint8_t toByte( float val )
     return uint8_t( clipped*255.f + 0.5f );
 }
 
+
+vsg::ubvec4 toPixel( const vsg::vec4& col )
+{
+    return vsg::ubvec4( toByte(col.r), toByte(col.g), toByte(col.b),
+			toByte(col.a) );
+}
+
 } // anonymous namespace
 
 
@@ -64,12 +71,6 @@ bool ColorLookup::setColors( const vsg::vec4* colors, int nr,
 {
     if ( !colors || nr!=nrColors() )
 	return false;
-
-    auto toPixel = []( const vsg::vec4& col )
-    {
-	return vsg::ubvec4( toByte(col.r), toByte(col.g), toByte(col.b),
-			    toByte(col.a) );
-    };
 
     for ( int idx=0; idx<nr; idx++ )
 	strip_->set( uint32_t(idx), 0, toPixel(colors[idx]) );

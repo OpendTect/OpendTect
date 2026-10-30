@@ -7,9 +7,9 @@ layout(location = 0) in vec2 texCoord0;
 
 layout(location = 0) out vec4 outColor;
 
-// Must be the same as dGBVis::ColTabMapping::nrSteps(): the number of colours
-// the indices point to. The colour strip has a pixel for each of them, and
-// its last pixel is the undefined colour.
+// Must be the same as dGBVis::ColTabMapping::nrSteps(): the number of colors
+// the indices point to. The color strip has a pixel for each of them, and
+// its last pixel is the undefined color.
 const float nrSteps = 255.0;
 
 // The first band is the index multiplied by the second one, which is 1 for a

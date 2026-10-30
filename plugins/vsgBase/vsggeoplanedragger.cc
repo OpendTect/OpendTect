@@ -22,6 +22,7 @@ ________________________________________________________________________
 #include <vsg/utils/ShaderSet.h>
 
 #include <cmath>
+#include <functional>
 
 namespace
 {
@@ -312,7 +313,8 @@ void TabPlaneDragger::rebuild()
     const vsg::dvec3 hidden = center_;
     const vsg::dvec3 alongu = corner[1] - corner[0];
     const vsg::dvec3 alongv = corner[2] - corner[0];
-    auto gridPoint = [&]( int iu, int iv )
+    const std::function<vsg::dvec3(int,int)> gridPoint =
+					[&]( int iu, int iv )
     {
 	return corner[0] + alongu * ( double(iu) / cNrCells )
 			 + alongv * ( double(iv) / cNrCells );
@@ -320,7 +322,8 @@ void TabPlaneDragger::rebuild()
     const vsg::vec3 hiddenvert( float(hidden.x), float(hidden.y),
 				float(hidden.z) );
     int trislot = 0;
-    auto putTri = [&]( const vsg::dvec3& p )
+    const std::function<void(const vsg::dvec3&)> putTri =
+					[&]( const vsg::dvec3& p )
     {
 	const vsg::vec3 vert = showplane_
 		? vsg::vec3( float(p.x), float(p.y), float(p.z) )
