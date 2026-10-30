@@ -568,48 +568,60 @@ private:
 class uiVSGViewer::ColTabLink : public CallBacker
 {
 public:
-			ColTabLink( dGBVis::SceneColTab& bar,
-				    dGBVisSurvey::Scene& scene )
-			    : bar_(&bar)
-			    , scene_(&scene)
-			{
-			    mAttachCB( scene_->testchannelschanged,
-				       uiVSGViewer::ColTabLink::channelsCB );
-			    channelsCB( nullptr );
-			}
-			~ColTabLink()	{ detachAllNotifiers(); }
+			ColTabLink(dGBVis::SceneColTab&,dGBVisSurvey::Scene&);
+			~ColTabLink();
 
 private:
 
-    void		channelsCB( CallBacker* )
-			{
-			    if ( channels_ )
-				mDetachCB( channels_->colTabChanged,
-					   uiVSGViewer::ColTabLink::changedCB );
-
-			    channels_ = scene_->testTextureChannels();
-			    if ( channels_ )
-				mAttachCB( channels_->colTabChanged,
-					   uiVSGViewer::ColTabLink::changedCB );
-
-			    changedCB( nullptr );
-			}
-
-    void		changedCB( CallBacker* )
-			{
-			    if ( !channels_ )
-				return;
-
-			    bar_->setColTabSequence(
-					channels_->getColTabSequence() );
-			    bar_->setColTabMapperSetup(
-					channels_->getColTabMapperSetup(0,0) );
-			}
+    void		channelsCB(CallBacker*);
+    void		changedCB(CallBacker*);
 
     RefMan<dGBVis::SceneColTab>		bar_;
     RefMan<dGBVisSurvey::Scene>		scene_;
     RefMan<dGBVis::TextureChannels>	channels_;
 };
+
+
+uiVSGViewer::ColTabLink::ColTabLink( dGBVis::SceneColTab& bar,
+				     dGBVisSurvey::Scene& scene )
+    : bar_(&bar)
+    , scene_(&scene)
+{
+    mAttachCB( scene_->testchannelschanged,
+	       uiVSGViewer::ColTabLink::channelsCB );
+    channelsCB( nullptr );
+}
+
+
+uiVSGViewer::ColTabLink::~ColTabLink()
+{
+    detachAllNotifiers();
+}
+
+
+void uiVSGViewer::ColTabLink::channelsCB( CallBacker* )
+{
+    if ( channels_ )
+	mDetachCB( channels_->colTabChanged,
+		   uiVSGViewer::ColTabLink::changedCB );
+
+    channels_ = scene_->testTextureChannels();
+    if ( channels_ )
+	mAttachCB( channels_->colTabChanged,
+		   uiVSGViewer::ColTabLink::changedCB );
+
+    changedCB( nullptr );
+}
+
+
+void uiVSGViewer::ColTabLink::changedCB( CallBacker* )
+{
+    if ( !channels_ )
+	return;
+
+    bar_->setColTabSequence( channels_->getColTabSequence() );
+    bar_->setColTabMapperSetup( channels_->getColTabMapperSetup(0,0) );
+}
 
 
 uiVSGViewer::uiVSGViewer( QWidget* parent )
