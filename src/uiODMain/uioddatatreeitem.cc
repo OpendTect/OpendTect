@@ -1,7 +1,7 @@
 /*+
 ________________________________________________________________________
 
- Copyright:	(C) 1995-2022 dGB Beheer B.V.
+ Copyright:	(C) 1995-2026 dGB Beheer B.V.
  License:	https://dgbes.com/licensing
 ________________________________________________________________________
 
@@ -43,13 +43,13 @@ uiODDataTreeItem::uiODDataTreeItem( const char* parenttype )
     , statisticsitem_(m3Dots(uiStrings::sHistogram()))
     , amplspectrumitem_(m3Dots(tr("Amplitude Spectrum")))
     , fkspectrumitem_(m3Dots(tr("F-K Spectrum")))
-    , view2dwvaitem_(tr("2D Viewer - Wiggle"))
+    //, view2dwvaitem_(tr("2D Viewer - Wiggle"))
     , view2dvditem_(tr("2D Viewer"))
     , parenttype_(parenttype)
 {
     statisticsitem_.iconfnm = "histogram";
     removemnuitem_.iconfnm = "remove";
-    view2dwvaitem_.iconfnm = "wva";
+    //view2dwvaitem_.iconfnm = "wva";
     view2dvditem_.iconfnm = "vd";
     amplspectrumitem_.iconfnm = "amplspectrum";
 
@@ -280,8 +280,8 @@ void uiODDataTreeItem::createMenu( MenuHandler* menu, bool istb )
 
 	mAddMenuOrTBItem( istb, menu, &displaymnuitem_, &view2dvditem_,
 			  hasattrib, false )
-	const bool withwva = isvert;
-	if ( withwva )
+	//const bool withwva = isvert;
+	/*if ( withwva )
 	{
 	    mAddMenuOrTBItem( istb, menu, &displaymnuitem_, &view2dwvaitem_,
 			      hasattrib, false )
@@ -289,11 +289,11 @@ void uiODDataTreeItem::createMenu( MenuHandler* menu, bool istb )
 	else
 	{
 	    mResetMenuItem( &view2dwvaitem_ )
-	}
+	} */
     }
     else
     {
-	mResetMenuItem( &view2dwvaitem_ );
+	//mResetMenuItem( &view2dwvaitem_ );
 	mResetMenuItem( &view2dvditem_ );
     }
 }
@@ -410,13 +410,13 @@ void uiODDataTreeItem::handleMenuCB( CallBacker* cb )
 
 	    menu->setIsHandled( true );
 	}
-    }
+    }/*
     else if ( mnuid==view2dwvaitem_.id )
     {
 	ODMainWin()->viewer2DMgr().displayIn2DViewer( displayID(), attribNr(),
 						      FlatView::Viewer::WVA );
 	menu->setIsHandled( true );
-    }
+    }*/
     else if ( mnuid==view2dvditem_.id )
     {
 	ODMainWin()->viewer2DMgr().displayIn2DViewer( displayID(), attribNr(),
