@@ -183,7 +183,7 @@ void DepthTabPlaneDragger::updateCellColors()
 	return;
 
     const ColTab::Sequence& seq = channels_->getColTabSequence();
-    const ColTab::IndexedLookUpTable table( seq, ColTabMapping::nrSteps() );
+    const ColTab::IndexedLookUpTable table( seq, TextureChannels::nrSteps() );
     TypeSet<vsg::vec4> colors;
     for ( int idy=0; idy<nrcells; idy++ )
     {

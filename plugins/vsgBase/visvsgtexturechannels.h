@@ -11,7 +11,6 @@ ________________________________________________________________________
 #include "vsgbasemod.h"
 
 #include "visvsgcoltablookup.h"
-#include "visvsgcoltabmapping.h"
 #include "vsggeolayeredtexture.h"
 
 #include "coltabmapper.h"
@@ -30,9 +29,12 @@ namespace dGBVis
 /*!\brief Counterpart of visBase::TextureChannels, with one channel and version.
 
   The data is a plane, as in visBase: setSize(0,1,height,width), the values row
-  by row. They are mapped to color indices on the CPU and the shader looks the
-  colors up. Images larger than LayeredTexture::maxTextureSize() are split in
-  tiles that overlap by one row or column, so that interpolation shows no seam.
+  by row. They are mapped to color indices on the CPU, as in the OpenSceneGraph
+  display, and the shader looks the colors up. The mapper holds the range,
+  clipping, symmetry, segments and flip. The values become indices from 0 to
+  nrSteps()-1, undefined values get the index nrSteps(). Images larger than
+  LayeredTexture::maxTextureSize() are split in tiles that overlap by one row
+  or column, so that interpolation shows no seam.
 */
 
 mExpClass(vsgBase) TextureChannels : public CallBacker
@@ -40,6 +42,12 @@ mExpClass(vsgBase) TextureChannels : public CallBacker
 {
 public:
     static RefMan<TextureChannels> create();
+
+    static int			nrSteps()		{ return 255; }
+    static int			nrBands()		{ return 2; }
+					//!<Per cell the index, and a band that is
+					//!<255 for a defined and 0 for an
+					//!<undefined value, as in OpenSceneGraph
 
     int				nrChannels() const	{ return 1; }
     bool			validIdx(int channel) const
@@ -67,7 +75,7 @@ public:
     bool			setMappedData(int channel,int version,
 					      unsigned char*,OD::PtrPolicy);
 				//!<Per cell the color index and a band that is
-				//!<255 if defined, as ColTabMapping makes them
+				//!<255 if defined, as the mapping makes them
     bool			isCurrentDataPremapped(int channel) const
 				{ return validIdx(channel) && ispremapped_; }
     void			reMapData(int channel,bool dontreclip,
@@ -121,10 +129,13 @@ private:
 				~TextureChannels();
 
     void			createTiles();
+    void			mapToIndices(bool full,TaskRunner*);
     void			mapToTexture(bool full,TaskRunner*);
 
     ColTabLookup		lookup_;
-    ColTabMapping		mapping_;
+    ColTab::Mapper		mapper_;
+    TypeSet<unsigned char>	indices_;
+    TypeSet<float>		histogram_;
     TypeSet<float>		data_;
     TypeSet<unsigned char>	premapped_;
     bool			ispremapped_	= false;

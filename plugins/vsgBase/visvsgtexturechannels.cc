@@ -15,6 +15,7 @@ ________________________________________________________________________
 
 #include "errmsg.h"
 #include "undefval.h"
+#include "valseriesimpl.h"
 
 namespace dGBVis
 {
@@ -57,7 +58,7 @@ void TextureChannels::setSize( int channel, int sz0, int sz1, int sz2 )
     data_.setSize( sz1*sz2, mUdf(float) );
     data_.setAll( mUdf(float) );
     ispremapped_ = false;
-    mapping_.setData( data_.arr(), data_.size() );
+    mapper_.setData( data_.arr(), data_.size() );
     createTiles();
     mapToTexture( true, nullptr );
     textureChanged.trigger();
@@ -105,20 +106,20 @@ void TextureChannels::setColTabMapperSetup( int channel,
 					    const ColTab::MapperSetup& setup )
 {
     if ( validIdx(channel) )
-	mapping_.mapper().setup_ = setup;
+	mapper_.setup_ = setup;
 }
 
 
 const ColTab::MapperSetup& TextureChannels::getColTabMapperSetup( int, int )
 									const
 {
-    return mapping_.mapper().setup_;
+    return mapper_.setup_;
 }
 
 
 const ColTab::Mapper& TextureChannels::getColTabMapper( int, int ) const
 {
-    return mapping_.mapper();
+    return mapper_;
 }
 
 
@@ -132,7 +133,7 @@ bool TextureChannels::setUnMappedData( int channel, int version,
     {
 	OD::sysMemCopy( data_.arr(), data, data_.size()*sizeof(float) );
 	ispremapped_ = false;
-	mapping_.setData( data_.arr(), data_.size(), taskr );
+	mapper_.setData( data_.arr(), data_.size(), taskr );
 	mapToTexture( !skipclip, taskr );
     }
 
@@ -162,7 +163,7 @@ bool TextureChannels::setUnMappedVSData( int channel, int version,
 	}
 
 	ispremapped_ = false;
-	mapping_.setData( data_.arr(), data_.size(), taskr );
+	mapper_.setData( data_.arr(), data_.size(), taskr );
 	mapToTexture( !skipclip, taskr );
     }
 
@@ -176,7 +177,7 @@ bool TextureChannels::setUnMappedVSData( int channel, int version,
 bool TextureChannels::setMappedData( int channel, int version,
 				     unsigned char* data, OD::PtrPolicy policy )
 {
-    const int nrbytes = size_[1] * size_[2] * ColTabMapping::nrBands();
+    const int nrbytes = size_[1] * size_[2] * nrBands();
     const bool ok = validIdx( channel ) && version==0 && data &&
 		    !tiles_.isEmpty();
     if ( ok )
@@ -204,8 +205,7 @@ void TextureChannels::reMapData( int channel, bool dontreclip,
 
 const TypeSet<float>* TextureChannels::getHistogram( int channel ) const
 {
-    return validIdx(channel) && !ispremapped_ ? &mapping_.histogram()
-					      : nullptr;
+    return validIdx(channel) && !ispremapped_ ? &histogram_ : nullptr;
 }
 
 
@@ -232,17 +232,46 @@ void TextureChannels::setColTabSequence( const ColTab::Sequence& seq )
 }
 
 
+void TextureChannels::mapToIndices( bool full, TaskRunner* taskr )
+{
+    mapper_.update( full, taskr );
+    indices_.setSize( int(data_.size()*nrBands()), 0 );
+    histogram_.setSize( nrSteps(), 0.f );
+    histogram_.setAll( 0.f );
+    if ( data_.isEmpty() )
+	return;
+
+    ArrayValueSeries<float,float> values( data_.arr(), false, data_.size() );
+    ColTab::MapperTask<unsigned char> task( mapper_, data_.size(),
+	    (unsigned char)nrSteps(), values, indices_.arr(), nrBands(),
+	    indices_.arr()+1, nrBands() );
+    if ( !TaskRunner::execute(taskr,task) )
+	return;
+
+    const unsigned int* counts = task.getHistogram();
+    unsigned int max = 0;
+    for ( int idx=0; idx<nrSteps(); idx++ )
+    {
+	if ( counts[idx] > max )
+	    max = counts[idx];
+    }
+
+    for ( int idx=0; idx<nrSteps() && max>0; idx++ )
+	histogram_[idx] = float(counts[idx]) / float(max);
+}
+
+
 void TextureChannels::mapToTexture( bool full, TaskRunner* taskr )
 {
     if ( tiles_.isEmpty() )
 	return;
 
     if ( !ispremapped_ )
-	mapping_.update( full, taskr );
+	mapToIndices( full, taskr );
 
     const unsigned char* bands = ispremapped_ ? premapped_.arr()
-					      : mapping_.indices();
-    const od_int64 nrbands = ColTabMapping::nrBands();
+					      : indices_.arr();
+    const od_int64 nrbands = nrBands();
     TypeSet<unsigned char> tilebands;
     for ( const Tile& tile : tiles_ )
     {

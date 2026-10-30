@@ -34,7 +34,6 @@ set( OD_MODULE_SOURCES
 	visvsgaxes.cc
 	visvsgcamera.cc
 	visvsgcoltablookup.cc
-	visvsgcoltabmapping.cc
 	visvsgdata.cc
 	visvsgdatagroup.cc
 	visvsgdataman.cc
@@ -65,7 +64,6 @@ set( OD_TEST_PROGS
 	visvsgannotation.cc
 	visvsgaxes.cc
 	visvsgcoltablookup.cc
-	visvsgcoltabmapping.cc
 	visvsgevent.cc
 	visvsgfontcreator.cc
 	visvsgobjects.cc

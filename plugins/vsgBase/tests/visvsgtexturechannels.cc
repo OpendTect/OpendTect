@@ -40,14 +40,31 @@ ColTab::MapperSetup fixedSetup( bool flip=false )
 class ChangeCounter : public CallBacker
 {
 public:
-		ChangeCounter( dGBVis::TextureChannels& channels )
-		{ mAttachCB( channels.colTabChanged, ChangeCounter::changedCB ); }
-		~ChangeCounter()	{ detachAllNotifiers(); }
+		ChangeCounter(dGBVis::TextureChannels&);
+		~ChangeCounter();
 
-    void	changedCB( CallBacker* )	{ nrchanges_++; }
+    void	changedCB(CallBacker*);
 
     int		nrchanges_ = 0;
 };
+
+
+ChangeCounter::ChangeCounter( dGBVis::TextureChannels& channels )
+{
+    mAttachCB( channels.colTabChanged, ChangeCounter::changedCB );
+}
+
+
+ChangeCounter::~ChangeCounter()
+{
+    detachAllNotifiers();
+}
+
+
+void ChangeCounter::changedCB( CallBacker* )
+{
+    nrchanges_++;
+}
 
 
 RefMan<dGBVis::TextureChannels> makeChannels()
@@ -117,6 +134,60 @@ static bool testRemap()
 		      texture->indexAt(3,0)==0 &&
 		      texture->isUndefAt(2,1),
 		      "Channels: Flipping reverses the indices" );
+    return true;
+}
+
+
+static bool testSegments()
+{
+    RefMan<dGBVis::TextureChannels> channels = dGBVis::TextureChannels::create();
+    channels->setSize( 0, 1, cHeight, cWidth );
+    ColTab::MapperSetup setup = fixedSetup();
+    setup.nrsegs_ = 4;
+    channels->setColTabMapperSetup( 0, setup );
+    channels->setUnMappedData( 0, 0, cValues, OD::UsePtr, nullptr );
+    vsgGeo::LayeredTexture* texture = channels->tile(0).texture_.get();
+    const ColTab::Mapper& mapper = channels->getColTabMapper( 0, 0 );
+    for ( int idx=0; idx<cWidth*cHeight; idx++ )
+    {
+	if ( mIsUdf(cValues[idx]) )
+	    continue;
+
+	const int expected = ColTab::Mapper::snappedPosition( &mapper,
+		cValues[idx], dGBVis::TextureChannels::nrSteps(),
+		dGBVis::TextureChannels::nrSteps() );
+	const int got = texture->indexAt( idx%cWidth, idx/cWidth );
+	mRunStandardTest( Math::Abs(got-expected)<=1,
+			  "Channels: Segments follow the mapper" );
+    }
+
+    mRunStandardTest( texture->indexAt(0,0)==31 && texture->indexAt(1,0)==95,
+		      "Channels: A segment maps to its centre" );
+    return true;
+}
+
+
+static bool testColors()
+{
+    RefMan<dGBVis::TextureChannels> channels = makeChannels();
+    ColTab::Sequence seq;
+    seq.setColor( 0.f, 255, 0, 0 );
+    seq.setColor( 1.f, 0, 0, 255 );
+    seq.setUndefColor( OD::Color(10,20,30) );
+    channels->setColTabSequence( seq );
+    vsgGeo::LayeredTexture* texture = channels->tile(0).texture_.get();
+    const vsgGeo::ColorLookup& lookup = texture->colorLookup();
+    const float lastidx = float( dGBVis::TextureChannels::nrSteps()-1 );
+    const vsg::vec4 first = lookup.colorAt( texture->indexAt(0,0)/lastidx );
+    const vsg::vec4 last = lookup.colorAt( texture->indexAt(3,0)/lastidx );
+    const vsg::vec4 udf = lookup.undefColor();
+    mRunStandardTest( first.r>0.99f && first.b<0.01f,
+		      "Channels: The range start is the first color" );
+    mRunStandardTest( last.b>0.999f && last.r<0.001f,
+		      "Channels: The range end is exactly the last color" );
+    mRunStandardTest( Math::Abs(udf.r-10.f/255.f)<0.01f &&
+		      Math::Abs(udf.b-30.f/255.f)<0.01f,
+		      "Channels: Undefined values get the undefined color" );
     return true;
 }
 
@@ -209,8 +280,8 @@ static bool testTiles()
 		const float val = values[ (tile.y0_-tile.overy_+idy)*width +
 					  tile.x0_-tile.overx_+idx ];
 		const int expected = ColTab::Mapper::snappedPosition(
-			&mapper, val, dGBVis::ColTabMapping::nrSteps(),
-			dGBVis::ColTabMapping::nrSteps() );
+			&mapper, val, dGBVis::TextureChannels::nrSteps(),
+			dGBVis::TextureChannels::nrSteps() );
 		if ( Math::Abs(int(tile.texture_->indexAt(idx,idy))-expected)>1 )
 		    allok = false;
 	    }
@@ -303,6 +374,8 @@ int mTestMainFnName( int argc, char** argv )
     if ( !testSize() ||
 	 !testMapping() ||
 	 !testRemap() ||
+	 !testSegments() ||
+	 !testColors() ||
 	 !testSequence() ||
 	 !testColTabChanges() ||
 	 !testTiles() ||
