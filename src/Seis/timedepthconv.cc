@@ -1051,7 +1051,16 @@ bool LinearVelTransform::usePar( const IOPar& par )
     if ( !ZAxisTransform::usePar(par) )
 	return false;
 
-    return par.get( sKeyLinearTransKey(), v0_, k_);
+    double v0, k;
+    if ( !par.get(sKeyLinearTransKey(), v0, k) )
+	return false;
+
+    v0_ = v0;
+    k_ = k;
+    delete worker_;
+    worker_ = new Vel::Worker( v0_, k_, SI().seismicReferenceDatum(), velUnit(),
+			       UnitOfMeasure::surveyDefSRDStorageUnit() );
+    return true;
 }
 
 
