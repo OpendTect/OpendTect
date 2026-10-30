@@ -27,8 +27,11 @@ const char* DataManager::sKeySelManPrefix()	{ return "SelMan"; }
 
 static Threads::Lock& DataManagerLock()
 {
-    static Threads::Lock lock;
-    return lock;
+    // Do not try to 'fix' this 'memory leak'. This is to ensure that the
+    // lock is alive when it is used in the DataManager destructor call
+    // on application exit.
+    static Threads::Lock* lock = new Threads::Lock;
+    return *lock;
 }
 
 DataManager& DM()
