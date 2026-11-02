@@ -90,7 +90,6 @@ protected:
     MenuItem			statisticsitem_;
     MenuItem			amplspectrumitem_;
     MenuItem			fkspectrumitem_;
-    //MenuItem			view2dwvaitem_;
     MenuItem			view2dvditem_;
     const char*			parenttype_;
 
