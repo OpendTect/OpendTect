@@ -14,6 +14,7 @@ ________________________________________________________________________
 
 #include "arrayndimpl.h"
 #include "oddirs.h"
+#include "plugins.h"
 #include "welldatafilter.h"
 #include "wellextractdata.h"
 #include "welllogset.h"
