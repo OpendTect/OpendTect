@@ -24,6 +24,10 @@ ________________________________________________________________________
 #include "systeminfo.h"
 #include "keystrs.h"
 
+#ifdef __win__
+# include "winutils.h"
+#endif
+
 namespace System
 {
     static const char* sKeyReportHost()
