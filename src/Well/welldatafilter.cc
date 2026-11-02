@@ -227,6 +227,13 @@ void WellDataFilter::getLogPresence( const BufferStringSet& wellnms,
 				     const BufferStringSet& alllognms,
 				     Array2D<int>& presence ) const
 {
+    if ( presence.info().getSize(0) < allwds_.size() ||
+	 presence.info().getSize(1) < alllognms.size() )
+    {
+	pErrMsg("log presence array too small");
+	return;
+    }
+
     presence.setAll( -1 );
     for ( int widx=0; widx<allwds_.size(); widx++ )
     {
@@ -240,7 +247,11 @@ void WellDataFilter::getLogPresence( const BufferStringSet& wellnms,
 	if ( markerrg.isUdf() )
 	{
 	    for ( int lidx=0; lidx<alllognms.size(); lidx++ )
-		presence.set( widx, lidx, 100 );
+	    {
+		if ( presence.info().validPos(widx,lidx) )
+		    presence.set( widx, lidx, 100 );
+	    }
+
 	    continue;
 	}
 
@@ -265,7 +276,8 @@ void WellDataFilter::getLogPresence( const BufferStringSet& wellnms,
 		perc = mNINT32( 100.f * avlogrg.width()/markerwidth );
 	    }
 
-	    presence.set( widx, lidx, perc );
+	    if ( presence.info().validPos(widx,lidx) )
+		presence.set( widx, lidx, perc );
 	}
     }
 }
@@ -276,6 +288,13 @@ void WellDataFilter::getLogPresenceForMnems( const BufferStringSet& wellnms,
 				     const MnemonicSelection& mns,
 				     Array2D<int>& presence ) const
 {
+    if ( presence.info().getSize(0) < allwds_.size() ||
+	 presence.info().getSize(1) < mns.size() )
+    {
+	pErrMsg("log presence array too small");
+	return;
+    }
+
     presence.setAll( -1 );
 
     for ( int widx=0; widx<allwds_.size(); widx++ )
@@ -290,7 +309,10 @@ void WellDataFilter::getLogPresenceForMnems( const BufferStringSet& wellnms,
 	if ( markerrg.isUdf() )
 	{
 	    for ( int mnidx=0; mnidx<mns.size(); mnidx++ )
-		presence.set( widx, mnidx, 100 );
+	    {
+		if ( presence.info().validPos(widx,mnidx) )
+		    presence.set( widx, mnidx, 100 );
+	    }
 
 	    continue;
 	}
@@ -315,7 +337,9 @@ void WellDataFilter::getLogPresenceForMnems( const BufferStringSet& wellnms,
 		perc = mNINT32( 100.f * avlogrg.width()/markerwidth );
 	    }
 
-	    presence.set( widx, mns.indexOf(mn), perc );
+	    const int mnidx = mns.indexOf( mn );
+	    if ( presence.info().validPos(widx,mnidx) )
+		presence.set( widx, mnidx, perc );
 	}
     }
 }
@@ -329,6 +353,13 @@ void WellDataFilter::getLogPresenceFromValFilter(
 					const TypeSet<Interval<float>> valrg,
 					Array2D<int>& presence ) const
 {
+    if ( presence.info().getSize(0) < allwds_.size() ||
+	 presence.info().getSize(1) < alllognms.size() )
+    {
+	pErrMsg("log presence array too small");
+	return;
+    }
+
     for ( int widx=0; widx<allwds_.size(); widx++ )
     {
 	const int perc = 0;
@@ -337,7 +368,10 @@ void WellDataFilter::getLogPresenceFromValFilter(
 	if ( !haswellnm )
 	{
 	    for ( int lidx=0; lidx<alllognms.size(); lidx++ )
-		presence.set( widx, lidx, perc );
+	    {
+		if ( presence.info().validPos(widx,lidx) )
+		    presence.set( widx, lidx, perc );
+	    }
 	}
 
 	for ( const auto* mn : mns )
@@ -350,14 +384,15 @@ void WellDataFilter::getLogPresenceFromValFilter(
 		const int lidx = alllognms.indexOf( log->name() );
 		if ( !lognms.isPresent(log->name()) )
 		{
-		    presence.set( widx, lidx, perc );
+		    if ( presence.info().validPos(widx,lidx) )
+			presence.set( widx, lidx, perc );
 		    continue;
 		}
 
 		const bool perczero = !log ||
 				      !lognms.isPresent( log->name() ) ||
 				      !valrg[idx].includes( log->valueRange() );
-		if ( perczero )
+		if ( perczero && presence.info().validPos(widx,lidx) )
 		    presence.set( widx, lidx, perc );
 	    }
 	}
