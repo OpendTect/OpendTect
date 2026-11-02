@@ -64,8 +64,6 @@ namespace ODInst
     mGlobal(Basic) const char*		sKeyAutoInst();
     mGlobal(Basic) Settings&		userSettings();
 
-    mGlobal(Basic) RelType		getRelType();
-
     mDeprecatedObs
     mGlobal(Basic) const char*	sKeyODInstMgrExecNm(bool addexe=false);
     mDeprecated("Use HasInstaller")

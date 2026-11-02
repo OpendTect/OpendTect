@@ -19,7 +19,6 @@ ________________________________________________________________________
 #include "oddirs.h"
 #include "odplatform.h"
 #include "odver.h"
-#include "od_istream.h"
 #include "oscommand.h"
 #include "odruncontext.h"
 #include "perthreadrepos.h"
@@ -123,27 +122,6 @@ BufferString ODInst::GetRelInfoDir()
 
     ret.add( "relinfo" );
     return ret.fullPath();
-}
-
-
-ODInst::RelType ODInst::getRelType()
-{
-    FilePath relinfofp( GetRelInfoDir(), "README.txt" );
-    const BufferString reltxtfnm( relinfofp.fullPath() );
-    od_istream strm( reltxtfnm );
-    if ( !strm.isOK() )
-	return ODInst::RelType::OtherRelease;
-
-    BufferString appnm, relstr;
-    strm.getWord( appnm, false );
-    strm.getWord( relstr, false );
-    const int relsz = relstr.size();
-    if ( appnm[0] != '[' || relsz < 4 || relstr[0] != '('
-	|| relstr[relsz-1] != ']' || relstr[relsz-2] != ')' )
-	return ODInst::RelType::OtherRelease;
-
-    relstr[relsz-2] = '\0';
-    return ODInst::parseEnumRelType( relstr.buf()+1 );
 }
 
 
