@@ -19,7 +19,7 @@ ________________________________________________________________________
 #include "oddirs.h"
 #include "odplatform.h"
 #include "odver.h"
-#include "od_iostream.h"
+#include "od_istream.h"
 #include "oscommand.h"
 #include "odruncontext.h"
 #include "perthreadrepos.h"
@@ -33,7 +33,6 @@ ________________________________________________________________________
 # include <direct.h>
 # include "winutils.h"
 #else
-# include "unistd.h"
 # ifndef OD_NO_QT
 #  include <QProcess>
 # endif
@@ -240,22 +239,26 @@ static const char* getInstallerExe( QSettings::Scope scope, ActionType typ )
     mDeclStaticString(ret);
     ret.setEmpty();
     const QSettings instsetts( scope, qtEditorName(), sKeyqInstaller() );
-    const QVariant qvarinstexec = instsetts.value( sKeyqInstallerExecFnm() );
+    if ( instsetts.status() != QSettings::Status::NoError )
+	return nullptr;
+
+    QVariant qvarinstexec = instsetts.value( sKeyqInstallerExecFnm() );
+    if ( __islinux__ && scope == QSettings::Scope::UserScope &&
+	qvarinstexec.isNull() )
+    {
+	const QSettings instsettsnet( scope, qtEditorName(), "NetworkInstaller" );
+	qvarinstexec = instsettsnet.value( sKeyqInstallerExecFnm() );
+    }
+
+    if ( qvarinstexec.isNull() )
+	return nullptr;
+
     const QString qinstexec = qvarinstexec.toString();
     BufferString instexec( qinstexec );
     if ( __iswin__ && typ == ActionType::UpdateCheck )
     { // od_instmgr may have embedded UAC, needs to use run_installer.exe
 	FilePath instscriptfp( instexec );
 	instscriptfp.setFileName( "run_installer.exe" );
-	const BufferString instscript = instscriptfp.fullPath();
-	if ( File::isExecutable(instscript.buf()) &&
-	     !File::isDirectory(instscript.buf()) )
-	    instexec = instscript;
-    }
-    else if ( __islinux__ )
-    {
-	FilePath instscriptfp( instexec );
-	instscriptfp.setFileName( "run_installer" );
 	const BufferString instscript = instscriptfp.fullPath();
 	if ( File::isExecutable(instscript.buf()) &&
 	     !File::isDirectory(instscript.buf()) )
