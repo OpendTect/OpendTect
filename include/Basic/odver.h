@@ -9,10 +9,9 @@ ________________________________________________________________________
 -*/
 
 #include "basicmod.h"
-#include "odversion.h"
-#include "bufstringset.h"
 
-#include "gendefs.h"
+#include "bufstringset.h"
+#include "commondefs.h"
 
 extern "C"
 {

@@ -613,6 +613,7 @@ const char* ODInst::getPkgVersion( const char* file_pkg_basenm )
     File::getContent( fnm, ret );
     if ( ret.isEmpty() )
 	ret = "[error: empty version file]";
+
     return ret.buf();
 }
 

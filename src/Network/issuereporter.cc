@@ -14,18 +14,15 @@ ________________________________________________________________________
 #include "file.h"
 #include "nrbytes2string.h"
 #include "oddirs.h"
-#include "odinst.h"
+#include "odver.h"
 #include "odnetworkaccess.h"
 #include "od_istream.h"
 #include "odplatform.h"
 #include "odsysmem.h"
 #include "thread.h"
 #include "uistrings.h"
-#include "winutils.h"
 #include "systeminfo.h"
 #include "keystrs.h"
-
-#include <fstream>
 
 namespace System
 {
@@ -100,7 +97,7 @@ void System::IssueReporter::fillBasicReport()
 {
     report_.setEmpty();
     StringPairSet infoset;
-    infoset.add( "OpendTect version", ODInst::getPkgVersion("base") );
+    infoset.add( "OpendTect version", GetFullODVersion() );
     infoset.add( "User Name", GetUserNm() );
     infoset.add( "Platform", OD::Platform::local().longName() );
     infoset.add( "Operating System", System::productName() );
@@ -142,7 +139,7 @@ bool System::IssueReporter::send()
     postvars.setYN( "return_text", true );
 
     BufferString remotefname ( OD::Platform::local().shortName(), "_" );
-    remotefname.add( ODInst::getPkgVersion ("base") );
+    remotefname.add( GetFullODVersion() );
     remotefname.add( "_crash_report.dmp" );
 
     const char* filetype = "dumpfile";
