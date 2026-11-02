@@ -19,7 +19,6 @@ ________________________________________________________________________
 #include "oddirs.h"
 #include "odplatform.h"
 #include "odver.h"
-#include "od_iostream.h"
 #include "oscommand.h"
 #include "odruncontext.h"
 #include "perthreadrepos.h"
@@ -33,7 +32,6 @@ ________________________________________________________________________
 # include <direct.h>
 # include "winutils.h"
 #else
-# include "unistd.h"
 # ifndef OD_NO_QT
 #  include <QProcess>
 # endif
@@ -124,27 +122,6 @@ BufferString ODInst::GetRelInfoDir()
 
     ret.add( "relinfo" );
     return ret.fullPath();
-}
-
-
-ODInst::RelType ODInst::getRelType()
-{
-    FilePath relinfofp( GetRelInfoDir(), "README.txt" );
-    const BufferString reltxtfnm( relinfofp.fullPath() );
-    od_istream strm( reltxtfnm );
-    if ( !strm.isOK() )
-	return ODInst::RelType::OtherRelease;
-
-    BufferString appnm, relstr;
-    strm.getWord( appnm, false );
-    strm.getWord( relstr, false );
-    const int relsz = relstr.size();
-    if ( appnm[0] != '[' || relsz < 4 || relstr[0] != '('
-	|| relstr[relsz-1] != ']' || relstr[relsz-2] != ')' )
-	return ODInst::RelType::OtherRelease;
-
-    relstr[relsz-2] = '\0';
-    return ODInst::parseEnumRelType( relstr.buf()+1 );
 }
 
 
@@ -240,22 +217,26 @@ static const char* getInstallerExe( QSettings::Scope scope, ActionType typ )
     mDeclStaticString(ret);
     ret.setEmpty();
     const QSettings instsetts( scope, qtEditorName(), sKeyqInstaller() );
-    const QVariant qvarinstexec = instsetts.value( sKeyqInstallerExecFnm() );
+    if ( instsetts.status() != QSettings::Status::NoError )
+	return nullptr;
+
+    QVariant qvarinstexec = instsetts.value( sKeyqInstallerExecFnm() );
+    if ( __islinux__ && scope == QSettings::Scope::UserScope &&
+	qvarinstexec.isNull() )
+    {
+	const QSettings instsettsnet( scope, qtEditorName(), "NetworkInstaller" );
+	qvarinstexec = instsettsnet.value( sKeyqInstallerExecFnm() );
+    }
+
+    if ( qvarinstexec.isNull() )
+	return nullptr;
+
     const QString qinstexec = qvarinstexec.toString();
     BufferString instexec( qinstexec );
     if ( __iswin__ && typ == ActionType::UpdateCheck )
     { // od_instmgr may have embedded UAC, needs to use run_installer.exe
 	FilePath instscriptfp( instexec );
 	instscriptfp.setFileName( "run_installer.exe" );
-	const BufferString instscript = instscriptfp.fullPath();
-	if ( File::isExecutable(instscript.buf()) &&
-	     !File::isDirectory(instscript.buf()) )
-	    instexec = instscript;
-    }
-    else if ( __islinux__ )
-    {
-	FilePath instscriptfp( instexec );
-	instscriptfp.setFileName( "run_installer" );
 	const BufferString instscript = instscriptfp.fullPath();
 	if ( File::isExecutable(instscript.buf()) &&
 	     !File::isDirectory(instscript.buf()) )
