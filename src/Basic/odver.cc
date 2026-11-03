@@ -11,13 +11,11 @@ ________________________________________________________________________
 
 #include "odinst.h"
 #include "odplatform.h"
-#include "genc.h"
 #include "keystrs.h"
 #include "perthreadrepos.h"
 #ifndef OD_NO_QT
 # include "qglobal.h"
 #endif
-#include <string.h>
 
 
 mDefineEnumUtils(OD::Platform,Type,"Platform")
@@ -45,7 +43,7 @@ extern "C" const char* GetFullODVersion()
 
 void GetSpecificODVersion( const char* typ, BufferString& res )
 {
-    res = ODInst::getPkgVersion( typ ? typ : "basedata" );
+    res = ODInst::getPkgVersion( typ ? typ : "basebatch" );
     if ( res.matches( "*Internal*" ) || res.matches( "*error*" ) )
 	res.setEmpty();
 }

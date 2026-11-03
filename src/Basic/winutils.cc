@@ -222,16 +222,28 @@ namespace WinUtils {
 
 bool isFileInUse( const char* fnm )
 {
-    HANDLE handle = CreateFileA( fnm,
-                                 GENERIC_READ | GENERIC_WRITE,
-                                 0,
-                                 0,
-                                 OPEN_EXISTING,
-                                 0,
-                                 0 );
-    const bool ret = handle == INVALID_HANDLE_VALUE;
+    if ( StringView(fnm).isEmpty() )
+	return false;
+
+    const DWORD flags = File::isDirectory(fnm) ? FILE_FLAG_BACKUP_SEMANTICS
+					       : FILE_ATTRIBUTE_NORMAL;
+    const std::wstring wfnm = FilePath::getWLongPath(fnm);
+    HANDLE handle = CreateFileW( wfnm.c_str(),
+				 GENERIC_READ,
+				 0,
+				 nullptr,
+				 OPEN_EXISTING,
+				 flags,
+				 nullptr );
+    if ( handle == INVALID_HANDLE_VALUE )
+    {
+	const DWORD err = GetLastError();
+	CloseHandle( handle );
+	return err == ERROR_SHARING_VIOLATION || err == ERROR_LOCK_VIOLATION;
+    }
+
     CloseHandle( handle );
-    return ret;
+    return false;
 }
 
 
