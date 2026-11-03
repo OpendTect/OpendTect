@@ -30,7 +30,6 @@ ________________________________________________________________________
 #include "separstr.h"
 #include "settings.h"
 
-#include <iostream>
 
 static const FilePath& getProdListFP( const FilePath* newfp )
 {
@@ -289,11 +288,7 @@ void uiPluginMan::selChg( CallBacker* )
     {
 	BufferString vtxt;
 	if ( *piinf.version_ == '=' )
-	{
-	    GetSpecificODVersion( nullptr, vtxt );
-	    if ( vtxt.isEmpty() )
-		vtxt.set( ODInst::getPkgVersion(nullptr) );
-	}
+	    vtxt.set( GetFullODVersion() );
 	else
 	    vtxt.set( piinf.version_ );
 
