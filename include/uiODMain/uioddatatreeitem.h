@@ -2,7 +2,7 @@
 /*+
 ________________________________________________________________________
 
- Copyright:	(C) 1995-2026 dGB Beheer B.V.
+ Copyright:	(C) 1995-2022 dGB Beheer B.V.
  License:	https://dgbes.com/licensing
 ________________________________________________________________________
 
@@ -30,11 +30,11 @@ public:
 
     virtual void		show(bool yn)		{}
     bool			select() override;
-    [[nodiscard]] VisID		displayID() const;
-    [[nodiscard]] int		attribNr() const;
+    VisID			displayID() const;
+    int				attribNr() const;
 
-    [[nodiscard]] static int	cPixmapWidth()		{ return 16; }
-    [[nodiscard]] static int	cPixmapHeight()		{ return 10; }
+    static int			cPixmapWidth()		{ return 16; }
+    static int			cPixmapHeight()		{ return 10; }
 
 				mDefineFactory2ParamInClass(uiODDataTreeItem,
 					const Attrib::SelSpec&,const char*,
@@ -49,21 +49,21 @@ protected:
 				uiODDataTreeItem(const char* parenttype);
 				~uiODDataTreeItem();
 
-    [[nodiscard]] int		uiTreeViewItemType() const override;
+    int				uiTreeViewItemType() const override;
     bool			init() override;
 
     virtual void		checkCB(CallBacker*);
     void			keyPressCB(CallBacker*);
-    [[nodiscard]] bool		shouldSelect(int) const override;
+    bool			shouldSelect(int) const override;
 
-    [[nodiscard]] virtual bool	hasTransparencyMenu() const { return true; }
+    virtual bool		hasTransparencyMenu() const { return true; }
 
-    [[nodiscard]] uiODApplMgr*	applMgr() const;
+    uiODApplMgr*		applMgr() const;
     uiVisPartServer*		visserv_;
-    [[nodiscard]] SceneID	sceneID() const;
-    [[nodiscard]] bool		isSelectable() const override { return true; }
-    [[nodiscard]] bool		isExpandable() const override { return false; }
-    [[nodiscard]] const char*	parentType() const override
+    SceneID			sceneID() const;
+    bool			isSelectable() const override { return true; }
+    bool			isExpandable() const override { return false; }
+    const char*			parentType() const override
 				{ return parenttype_; }
 
     bool			showSubMenu() override;
@@ -73,11 +73,11 @@ protected:
     void			createMenuCB(CallBacker*);
     virtual void		handleMenuCB(CallBacker*);
     void			updateColumnText(int col) override;
-    [[nodiscard]] virtual uiString createDisplayName() const		= 0;
+    virtual uiString		createDisplayName() const		= 0;
 
     void			displayMiniCtab( const ColTab::Sequence* );
 
-    uiMenuHandler*		menu_				{nullptr};
+    uiMenuHandler*		menu_				= nullptr;
     MenuItem			movemnuitem_;
     MenuItem			movetotopmnuitem_;
     MenuItem			movetobottommnuitem_;
@@ -90,9 +90,10 @@ protected:
     MenuItem			statisticsitem_;
     MenuItem			amplspectrumitem_;
     MenuItem			fkspectrumitem_;
+    MenuItem			view2dwvaitem_;
     MenuItem			view2dvditem_;
     const char*			parenttype_;
 
-    uiAmplSpectrum*		ampspectrumwin_			{nullptr};
-    uiFKSpectrum*		fkspectrumwin_			{nullptr};
+    uiAmplSpectrum*		ampspectrumwin_			= nullptr;
+    uiFKSpectrum*		fkspectrumwin_			= nullptr;
 };
