@@ -1116,7 +1116,7 @@ void uiVSGViewer::setupVSG()
     const FontData font = hasannotfont_ ? annotfont_
 		: FontList().get(FontData::Graphics3D).fontData();
     scene_->setAnnotFont( font );
-    root_->addChild( vsg::ref_ptr<vsg::Node>(scene_->vsgNode()) );
+    root_->addChild( vsg::ref_ptr<vsg::Node>(scene_->vsgGroup()->vsgNode()) );
 
     const double fovy = 30.0;
     const ViewAll viewall = computeViewAll( *root_, fovy );

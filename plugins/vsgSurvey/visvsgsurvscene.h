@@ -11,6 +11,7 @@ ________________________________________________________________________
 #include "vsgsurveymod.h"
 
 #include "visvsgdatagroup.h"
+#include "vissurvscene.h"
 
 #include "color.h"
 #include "coord.h"
@@ -46,42 +47,42 @@ namespace dGBVisSurvey
 					inlcrlscale_)
 */
 
-mExpClass(vsgSurvey) Scene : public dGBVis::DataObjectGroup
+mExpClass(vsgSurvey) Scene : public visSurvey::Scene
 {
 public:
     static RefMan<Scene> create();
-			mCreateDGBVisObj(Scene);
 
-    using dGBVis::DataObjectGroup::addObject;
-    using dGBVis::DataObjectGroup::getObject;
+    dGBVis::DataObjectGroup* vsgGroup()		{ return group_.ptr(); }
 
     int			size() const override;
-    void		addObject(dGBVis::DataObject*) override;
-    void		insertObject(int idx,dGBVis::DataObject*) override;
+    void		addObject(dGBVis::DataObject*);
+    void		insertObject(int idx,dGBVis::DataObject*);
     void		addUTMObject(dGBVis::VisualObject*);
     void		addInlCrlZObject(dGBVis::DataObject*);
     void		removeObject(int idx) override;
-    dGBVis::DataObject* getObject(int idx) override;
+    dGBVis::DataObject* getVsgObject(int idx);
+    const dGBVis::DataObject* getVsgObject(int idx) const;
     int			getFirstIdx(const VisID&) const override;
-    int			getFirstIdx(const dGBVis::DataObject*) const override;
+    int			getFirstIdx(const dGBVis::DataObject*) const;
 
-    void		setTrcKeyZSampling(const TrcKeyZSampling&);
+    void		setTrcKeyZSampling(const TrcKeyZSampling&) override;
     void		setTrcKeyZSampling(const TrcKeyZSampling&,
-					   bool workarea);
-    const TrcKeyZSampling& getTrcKeyZSampling(bool workarea=true) const;
+					   bool workarea) override;
+    const TrcKeyZSampling& getTrcKeyZSampling(bool workarea=true) const
+								override;
 
     void		setAnnotScale(const TrcKeyZSampling&,
 				      const double* scalefacs=nullptr,
-				      int nrvals=0);
-    const TrcKeyZSampling& getAnnotScale(bool getdefault=true) const;
+				      int nrvals=0) override;
+    const TrcKeyZSampling& getAnnotScale(bool getdefault=true) const override;
 
-    void		setFixedZStretch(float);
-    float		getFixedZStretch() const;
-    void		setTempZStretch(float);
-    float		getTempZStretch() const;
-    void		setZScale(float);
-    float		getZScale() const;
-    float		getApparentVelocity(float zstretch) const;
+    void		setFixedZStretch(float) override;
+    float		getFixedZStretch() const override;
+    void		setTempZStretch(float) override;
+    float		getTempZStretch() const override;
+    void		setZScale(float) override;
+    float		getZScale() const override;
+    float		getApparentVelocity(float zstretch) const override;
 
     const mDGBVisTrans* getTempZStretchTransform() const;
     const mDGBVisTrans* getInlCrl2DisplayTransform() const;
@@ -89,23 +90,23 @@ public:
 
     bool		isRightHandSystem() const override;
 
-    void		setZDomainInfo(const ZDomain::Info&);
-    const ZDomain::Info& zDomainInfo() const;
-    uiString		zDomainUserName() const;
+    void		setZDomainInfo(const ZDomain::Info&) override;
+    const ZDomain::Info& zDomainInfo() const override;
+    uiString		zDomainUserName() const override;
 
-    void		showAnnotText(bool yn);
-    bool		isAnnotTextShown() const;
-    void		showAnnotScale(bool yn);
-    bool		isAnnotScaleShown() const;
-    void		showAnnotGrid(bool yn);
-    bool		isAnnotGridShown() const;
-    void		showAnnot(bool yn);
-    bool		isAnnotShown() const;
-    void		setAnnotText(int dim,const uiString&);
-    void		setAnnotColor(const OD::Color&);
-    const OD::Color	getAnnotColor() const;
-    void		setAnnotFont(const FontData&);
-    const FontData&	getAnnotFont() const;
+    void		showAnnotText(bool yn) override;
+    bool		isAnnotTextShown() const override;
+    void		showAnnotScale(bool yn) override;
+    bool		isAnnotScaleShown() const override;
+    void		showAnnotGrid(bool yn) override;
+    bool		isAnnotGridShown() const override;
+    void		showAnnot(bool yn) override;
+    bool		isAnnotShown() const override;
+    void		setAnnotText(int dim,const uiString&) override;
+    void		setAnnotColor(const OD::Color&) override;
+    const OD::Color	getAnnotColor() const override;
+    void		setAnnotFont(const FontData&) override;
+    const FontData&	getAnnotFont() const override;
 
     const dGBVis::Annotation* getAnnotation() const
 			{ return annot_.ptr(); }
@@ -116,8 +117,8 @@ public:
     void		setInteractionEnabled(bool yn);
     bool		isInteractionEnabled() const	{ return interact_; }
 
-    TrcKeyValue		getMousePos() const;
-    uiString		getMousePosString() const;
+    TrcKeyValue		getMousePos() const override;
+    uiString		getMousePosString() const override;
 
     void		applyEvent(const dGBVis::EventInfo&);
 			/*!<Status, then selection when interaction is on.
@@ -141,6 +142,7 @@ public:
     static const char*	sKeyZStretch();
 
 private:
+			Scene();
 			~Scene();
 
     void		setup();
@@ -161,6 +163,7 @@ private:
     bool		displayToInlCrl(const Coord3& displaypos,
 					Coord3& objectpos) const;
 
+    RefMan<dGBVis::DataObjectGroup> group_;
     RefMan<mDGBVisTrans>	tempzstretchtrans_;
     RefMan<mDGBVisTrans>	inlcrlrotation_;
     RefMan<mDGBVisTrans>	inlcrlscale_;

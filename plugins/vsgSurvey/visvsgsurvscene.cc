@@ -41,10 +41,15 @@ ________________________________________________________________________
 #include <vsg/utils/GraphicsPipelineConfigurator.h>
 #include <vsg/utils/ShaderSet.h>
 
-mCreateDGBVisFactoryEntry( dGBVisSurvey::Scene );
-
 namespace dGBVisSurvey
 {
+
+RefMan<Scene> Scene::create()
+{
+    RefMan<Scene> ret = new Scene;
+    return ret;
+}
+
 
 const char* Scene::sKeyShowAnnot()	{ return "Show text"; }
 const char* Scene::sKeyShowScale()	{ return "Show scale"; }
@@ -62,12 +67,11 @@ void initStdClasses()
     mIfNotFirstTime( return );
 
     dGBVis::Annotation::initClass();
-    Scene::initClass();
 }
 
 
 Scene::Scene()
-    : dGBVis::DataObjectGroup(vsg::Group::create().get())
+    : group_(dGBVis::DataObjectGroup::create())
     , testchannelschanged(this)
     , sceneboundingboxupdated(this)
     , mouseposchange(this)
@@ -160,7 +164,7 @@ void Scene::updateTransforms( const TrcKeyZSampling& tkzs )
     if ( !tempzstretchtrans_ )
     {
 	tempzstretchtrans_ = mDGBVisTrans::create();
-	dGBVis::DataObjectGroup::addObject( tempzstretchtrans_.ptr() );
+	group_->addObject( tempzstretchtrans_.ptr() );
     }
 
     RefMan<mDGBVisTrans> newinlcrlrotation = mDGBVisTrans::create();
@@ -345,7 +349,7 @@ int Scene::getFirstIdx( const dGBVis::DataObject* dobj ) const
 {
     for ( int idx=0; idx<size(); idx++ )
     {
-	if ( getObject(idx)==dobj )
+	if ( getVsgObject(idx)==dobj )
 	    return idx;
     }
 
@@ -357,7 +361,7 @@ int Scene::getFirstIdx( const VisID& did ) const
 {
     for ( int idx=0; idx<size(); idx++ )
     {
-	const dGBVis::DataObject* obj = getObject( idx );
+	const dGBVis::DataObject* obj = getVsgObject( idx );
 	if ( obj && obj->id()==did )
 	    return idx;
     }
@@ -366,7 +370,7 @@ int Scene::getFirstIdx( const VisID& did ) const
 }
 
 
-dGBVis::DataObject* Scene::getObject( int idx )
+dGBVis::DataObject* Scene::getVsgObject( int idx )
 {
     if ( !tempzstretchtrans_ || !inlcrlrotation_ || idx<0 )
 	return nullptr;
@@ -375,6 +379,12 @@ dGBVis::DataObject* Scene::getObject( int idx )
 	return tempzstretchtrans_->getObject( idx );
 
     return inlcrlrotation_->getObject( idx-tempzstretchtrans_->size() );
+}
+
+
+const dGBVis::DataObject* Scene::getVsgObject( int idx ) const
+{
+    return const_cast<Scene*>( this )->getVsgObject( idx );
 }
 
 

@@ -35,6 +35,7 @@ ________________________________________________________________________
 #include <vsg/maths/vec4.h>
 
 #include "visannot.h"
+#include "visdataman.h"
 #include "vistext.h"
 #include "vistransform.h"
 #include "vistransmgr.h"
@@ -355,6 +356,37 @@ static bool testWorkArea()
 }
 
 
+static bool testVirtualCalls()
+{
+    RefMan<dGBVisSurvey::Scene> scene = dGBVisSurvey::Scene::create();
+    visSurvey::Scene& osgscene = *scene.ptr();
+
+    const OD::Color col( 10, 20, 30 );
+    osgscene.setAnnotColor( col );
+    mRunStandardTest( scene->getAnnotColor()==col &&
+		      osgscene.getAnnotColor()==col,
+		      "setAnnotColor through visSurvey::Scene reaches the scene" );
+
+    osgscene.showAnnotGrid( false );
+    mRunStandardTest( !scene->isAnnotGridShown() &&
+		      !osgscene.isAnnotGridShown(),
+		      "showAnnotGrid through visSurvey::Scene reaches the scene" );
+
+    osgscene.showAnnotGrid( true );
+    mRunStandardTest( scene->isAnnotGridShown(),
+		      "The grid can be shown again through visSurvey::Scene" );
+
+    RefMan<visSurvey::Scene> other = visSurvey::Scene::create();
+    mRunStandardTest( scene->getID()!=other->getID(),
+		      "The scene has an id of its own among the OSG scenes" );
+    mRunStandardTest( visBase::DM().getObject(scene->id())==
+		      static_cast<visBase::DataObject*>(scene.ptr()),
+		      "The id of the scene finds it in the OSG data manager" );
+
+    return true;
+}
+
+
 class ClickTarget : public dGBVis::VisualObjectImpl
 {
 public:
@@ -546,7 +578,8 @@ int mTestMainFnName( int argc, char** argv )
 
 	sdl.setDirName( survdirnm->buf() );
 	SurveyChanger changer( sdl );
-	if ( !testTransforms(survdirnm->buf()) ||
+	if ( !testVirtualCalls() ||
+	     !testTransforms(survdirnm->buf()) ||
 	     !testAnnotation() ||
 	     !testWorkArea() ||
 	     !testPicking() )

@@ -77,9 +77,10 @@ void uiVSGWindowHandler::syncPointerPolicy()
     }
 
     const bool active = !viewmode_;
-    if ( scene_ && (scene_->isPickable(true)!=active ||
-		    !scene_->isPickable(false)) )
-	scene_->setPickable( active, true );
+    dGBVis::DataObjectGroup* group = scene_ ? scene_->vsgGroup() : nullptr;
+    if ( group && (group->isPickable(true)!=active ||
+		   !group->isPickable(false)) )
+	group->setPickable( active, true );
 }
 
 
