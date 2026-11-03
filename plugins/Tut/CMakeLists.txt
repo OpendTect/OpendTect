@@ -39,7 +39,7 @@ if ( NOT "${OD_SUBSYSTEM}" STREQUAL "od" )
     configure_file( "${CMAKE_SOURCE_DIR}/CMakeModules/version.h.in"
                     "${CMAKE_CURRENT_BINARY_DIR}/${MOD_PREFIX}version.h" )
     unset( MOD_PREFIX )
-    string( REPLACE ":\\" ":/" CMAKE_INSTALL_PREFIX_ed "${CMAKE_INSTALL_PREFIX}" )
+    file( TO_CMAKE_PATH "${CMAKE_INSTALL_PREFIX}" CMAKE_INSTALL_PREFIX_ed )
     install( CODE "
               file( WRITE \"${CMAKE_INSTALL_PREFIX_ed}/relinfo/ver.${${OD_MODULE_NAME}_PACKAGE}_${OD_PLFSUBDIR}.txt\" \"${PLUGIN_VERSION}\n\" ) " )
     unset( CMAKE_INSTALL_PREFIX_ed )

@@ -170,7 +170,7 @@ endmacro(QT_INSTALL_PLUGINS)
 macro( QT_SETUP_CORE_INTERNALS )
 
     set( QTCONFTXT "[Paths]\nPrefix=..\n" )
-    string( REPLACE ":\\" ":/" CMAKE_INSTALL_PREFIX_ed "${CMAKE_INSTALL_PREFIX}" )
+    file( TO_CMAKE_PATH "${CMAKE_INSTALL_PREFIX}" CMAKE_INSTALL_PREFIX_ed )
     if ( APPLE )
 	set( QTCONFTXT "${QTCONFTXT}Translations=Contents/translations\n" )
 	set( QTCONFTXT_DEBUG "[Paths]\nPrefix=../..\n" )
