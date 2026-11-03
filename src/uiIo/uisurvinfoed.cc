@@ -161,6 +161,8 @@ uiSurveyInfoEditor::uiSurveyInfoEditor( uiParent* p, SurveyInfo& si,
     survnmfld_ = new uiGenInput( topgrp_, tr("Survey name"),
 				StringInpSpec(si_.name()) );
     survnmfld_->setElemSzPol( uiObject::Wide );
+    if ( iscurr_ )
+	survnmfld_->setSensitive( false );
 
     pathfld_ = new uiGenInput( topgrp_, tr("Location on disk"),
 				StringInpSpec(orgstorepath_) );
