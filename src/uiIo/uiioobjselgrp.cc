@@ -1065,7 +1065,7 @@ void uiIOObjSelGrp::fullUpdate( int curidx )
 	    const bool issel = ctio_.ioobj_ && ctio_.ioobj_->key() == objid;
 	    if ( setup_.allowsetdefault_ )
 	    {
-		const OD::String& grpnm = ioobj->group();
+		const StringBase& grpnm = ioobj->group();
 		const TranslatorGroup* trl = !grpnm.isEmpty() &&
 			TranslatorGroup::hasGroup( grpnm.buf() )
 		    ? &TranslatorGroup::getGroup( ioobj->group())

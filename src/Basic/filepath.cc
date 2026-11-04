@@ -32,7 +32,7 @@ FilePath::FilePath( const char* fnm )
 }
 
 
-FilePath::FilePath( const OD::String& fnm )
+FilePath::FilePath( const StringBase& fnm )
     : FilePath(fnm.buf())
 {}
 
@@ -46,21 +46,21 @@ FilePath::FilePath( const char* p1, const char* p2, const char* p3,
 }
 
 
-FilePath::FilePath( const OD::String& p1, const char* p2, const char* p3,
+FilePath::FilePath( const StringBase& p1, const char* p2, const char* p3,
 		    const char* p4, const char* p5 )
     : FilePath(p1.buf(),p2,p3,p4,p5)
 {
 }
 
 
-FilePath::FilePath( const char* p1, const OD::String& p2, const char* p3,
+FilePath::FilePath( const char* p1, const StringBase& p2, const char* p3,
 		    const char* p4, const char* p5 )
     : FilePath(p1,p2.buf(),p3,p4,p5)
 {
 }
 
 
-FilePath::FilePath( const OD::String& p1, const OD::String& p2, const char* p3,
+FilePath::FilePath( const StringBase& p1, const StringBase& p2, const char* p3,
 		    const char* p4, const char* p5 )
     : FilePath(p1.buf(),p2.buf(),p3,p4,p5)
 {
@@ -76,7 +76,7 @@ FilePath::FilePath( const FilePath& fp, const char* p2, const char* p3,
 }
 
 
-FilePath::FilePath( const FilePath& fp, const OD::String& p2, const char* p3,
+FilePath::FilePath( const FilePath& fp, const StringBase& p2, const char* p3,
 		    const char* p4, const char* p5 )
     : FilePath(fp,p2.buf(),p3,p4,p5)
 {
@@ -111,7 +111,7 @@ FilePath& FilePath::operator =( const char* fnm )
 }
 
 
-FilePath& FilePath::operator =( const OD::String& fnm )
+FilePath& FilePath::operator =( const StringBase& fnm )
 {
     return operator=( FilePath(fnm.buf()) );
 }
@@ -232,7 +232,7 @@ FilePath& FilePath::erase()
 }
 
 
-FilePath& FilePath::set( const OD::String& inpfnm )
+FilePath& FilePath::set( const StringBase& inpfnm )
 {
     return set( inpfnm.buf() );
 }
@@ -559,7 +559,7 @@ const char* FilePath::extension() const
 }
 
 
-const OD::String& FilePath::fileName() const
+const StringBase& FilePath::fileName() const
 {
     return dir(-1);
 }
@@ -602,7 +602,7 @@ BufferString FilePath::pathOnly( Style f, bool cleanup ) const
 }
 
 
-const OD::String& FilePath::dir( int nr ) const
+const StringBase& FilePath::dir( int nr ) const
 {
     if ( nr < 0 || nr >= lvls_.size() )
 	nr = lvls_.size()-1;

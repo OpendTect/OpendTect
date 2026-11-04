@@ -45,7 +45,7 @@ const char* SeisJobExecProv::sKeyWorkLS()	{ return "Work Line Set"; }
 static const char* sKeyProcIs2D = "Processing is 2D";
 #define mOutKey(s) IOPar::compKey("Output.0",s)
 
-const OD::String& getOutSubSelKey()
+const StringBase& getOutSubSelKey()
 {
     mDefineStaticLocalObject( const BufferString, outsubselkey,
 			(IOPar::compKey(sKey::Output(),sKey::Subsel())) );

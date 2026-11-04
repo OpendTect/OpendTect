@@ -42,7 +42,7 @@ HostData::HostData( const char* nm )
 { init( nm ); }
 
 
-HostData::HostData( const OD::String& nm )
+HostData::HostData( const StringBase& nm )
     : HostData(nm.buf())
 {}
 
@@ -56,7 +56,7 @@ HostData::HostData( const char* nm, const HostData& localhost,
 }
 
 
-HostData::HostData( const OD::String& nm, const HostData& localhost,
+HostData::HostData( const StringBase& nm, const HostData& localhost,
 		    const OD::Platform& plf )
     : HostData(nm.buf(),localhost,plf)
 {}
@@ -335,7 +335,7 @@ FilePath HostData::convPath( PathType pt, const char* fnm,
 }
 
 
-FilePath HostData::convPath( PathType pt, const OD::String& fnm,
+FilePath HostData::convPath( PathType pt, const StringBase& fnm,
 			     const HostData* from ) const
 {
     return convPath(pt, FilePath(fnm), from );

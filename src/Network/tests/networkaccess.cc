@@ -174,7 +174,7 @@ bool testGetUrls( BufferStringSet& pkgurls, const bool& setfail )
 	if ( !isver || pkgsepar.isEmpty() )
 	    continue;
 
-	const OD::String& pkgver = pkgsepar.first();
+	const StringBase& pkgver = pkgsepar.first();
 	nm.add( ".zip" );
 	baseurl.add( *pkgnm ).add( pkgver ).add( nm );
 	pkgurls.add( baseurl.fullPath() );

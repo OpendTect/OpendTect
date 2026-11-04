@@ -35,14 +35,14 @@ SurveyDiskLocation::SurveyDiskLocation( const char* dirnm, const char* bp )
 }
 
 
-SurveyDiskLocation::SurveyDiskLocation( const OD::String& dirnm,
+SurveyDiskLocation::SurveyDiskLocation( const StringBase& dirnm,
 					const char* bp )
     : SurveyDiskLocation(dirnm.buf(),bp)
 {}
 
 
-SurveyDiskLocation::SurveyDiskLocation( const OD::String& dirnm,
-					const OD::String& bp )
+SurveyDiskLocation::SurveyDiskLocation( const StringBase& dirnm,
+					const StringBase& bp )
     : SurveyDiskLocation(dirnm.buf(),bp.buf())
 {}
 
@@ -113,7 +113,7 @@ SurveyDiskLocation& SurveyDiskLocation::set( const char* fullpath )
 }
 
 
-SurveyDiskLocation& SurveyDiskLocation::set( const OD::String& fullpath )
+SurveyDiskLocation& SurveyDiskLocation::set( const StringBase& fullpath )
 {
     return set( fullpath.buf() );
 }

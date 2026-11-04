@@ -221,7 +221,7 @@ static void setPathStr( const char* str, FilePath& fp )
 }
 
 
-static void addString( const OD::String& str, StringBuilder& sb )
+static void addString( const StringBase& str, StringBuilder& sb )
 {
     sb.add( "\"" );
     const char* strptr = str.buf();
@@ -321,7 +321,7 @@ void OD::JSON::ValArr::dumpJSon( StringBuilder& sb ) const
 	    } break;
 	    case String:
 	    {
-		const OD::String& str = strings().get(idx);
+		const StringBase& str = strings().get(idx);
 		addString( str, sb );
 	    } break;
 	    case Mixed:
@@ -1830,7 +1830,7 @@ OD::JSON::Array& OD::JSON::Array::add( const char* str )
 }
 
 
-OD::JSON::Array& OD::JSON::Array::add( const OD::String& odstr )
+OD::JSON::Array& OD::JSON::Array::add( const StringBase& odstr )
 {
     return add( odstr.buf() );
 }
@@ -2269,7 +2269,7 @@ void OD::JSON::Object::set( const char* ky, const char* str )
 }
 
 
-void OD::JSON::Object::set( const char* ky, const OD::String& str )
+void OD::JSON::Object::set( const char* ky, const StringBase& str )
 {
     set( ky, str.buf() );
 }

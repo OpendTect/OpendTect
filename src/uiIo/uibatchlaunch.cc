@@ -231,7 +231,7 @@ void uiStartBatchJobDialog::rmFile( CallBacker* )
     if ( selidx < 0 || !filenames_.validIdx(selidx) )
 	{ pErrMsg("Huh"); return; }
 
-    const OD::String& fnm( filenames_.get(selidx) );
+    const StringBase& fnm( filenames_.get(selidx) );
     if ( !File::remove(fnm) )
     { uiMSG().error(tr("Could not remove job file")); return; }
 

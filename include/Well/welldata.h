@@ -148,7 +148,7 @@ public:
     const MultiID&		multiID() const		{ return *mid_; }
     void			setMultiID(const MultiID&);
 
-    const OD::String&		name() const override	{ return info_.name(); }
+    const StringBase&		name() const override	{ return info_.name(); }
     void			setName(const char* nm) override
 				{ info_.setName( nm ); }
     const Info&			info() const		{ return info_; }

@@ -651,7 +651,7 @@ GatherSetDataPack::GatherSetDataPack( const char* /* ctgery */,
     , offsettype_(SI().xyInFeet() ? Seis::OffsetType::OffsetFeet
 				  : Seis::OffsetType::OffsetMeter)
 {
-    const OD::String& nm = name();
+    const StringBase& nm = name();
     for ( auto* gather : gathers_ )
 	gather->setName( nm );
 

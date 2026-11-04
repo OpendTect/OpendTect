@@ -82,7 +82,7 @@ public:
     explicit		MultiID( const char* idstr )
 			{ fromString(idstr); }
 			MultiID(int id)				= delete;
-			MultiID(const OD::String&)		= delete;
+			MultiID(const StringBase&)		= delete;
 
     void		setEmpty()				= delete;
     bool		isEmpty() const				= delete;

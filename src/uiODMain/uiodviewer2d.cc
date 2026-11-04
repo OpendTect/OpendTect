@@ -1058,7 +1058,7 @@ uiString uiODViewer2D::getInfoTitle() const
 	info.arg( uiStrings::sRandomLine() );
 	if ( rdmline )
 	{
-	    info.arg( rdmline->name().isEmpty() ? OD::String::empty()
+	    info.arg( rdmline->name().isEmpty() ? StringBase::empty()
 						: rdmline->name() );
 	}
 	else

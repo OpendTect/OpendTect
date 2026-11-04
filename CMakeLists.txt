@@ -144,7 +144,7 @@ endif()
 OD_WRITE_ALOFILES( "${OD_BINARY_BASEDIR}/${MISC_INSTALL_PREFIX}/plugins/${OD_PLFSUBDIR}" )
 
 OD_ADD_LINEEND_TEST()
-OD_ADD_KEYWORD_TEST( "strcmp(" strcmp "strcmp is not allowed. Use the OD::String methods instead" )
+OD_ADD_KEYWORD_TEST( "strcmp(" strcmp "strcmp is not allowed. Use the StringBase methods instead" )
 OD_ADD_KEYWORD_TEST( "sqrt(" sqrt "Use Math::Sqrt() instead of sqrt" )
 OD_ADD_KEYWORD_TEST( "atan2(" atan2 "Use Math::Atan2() instead of atan2" )
 OD_ADD_REGEXP_TEST( [=[ArrPtrMan[^;]+=[^?;]*new[[:space:]]+]=] mAllocLargeVarLenArr

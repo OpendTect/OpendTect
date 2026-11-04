@@ -44,7 +44,7 @@ public:
     virtual void	use(const Math::Expression*);
 
     int			varIdx() const		{ return varidx_; }
-    const OD::String&	varName() const		{ return varnm_; }
+    const StringBase&	varName() const		{ return varnm_; }
     bool		hasVarName( const char* nm ) const
 						{ return varnm_ == nm; }
 

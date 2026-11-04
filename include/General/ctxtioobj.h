@@ -182,7 +182,7 @@ public:
 
     void		destroyAll();
 
-    virtual const OD::String& name() const override { return ctxt_.name(); }
+    virtual const StringBase& name() const override { return ctxt_.name(); }
     void		setName(const char* nm) override { ctxt_.setName(nm); }
     BufferString	getName() const override { return ctxt_.getName(); }
 

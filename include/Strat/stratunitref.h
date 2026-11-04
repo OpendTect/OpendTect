@@ -51,9 +51,9 @@ public:
     CompoundKey		fullCode() const;
     CompoundKey		parentCode() const;
 
-    virtual const OD::String& code() const	= 0;
+    virtual const StringBase& code() const	= 0;
     virtual void	setCode(const char*)	{}
-    const OD::String&	description() const	{ return desc_; }
+    const StringBase&	description() const	{ return desc_; }
     virtual void	setDescription( const char* d ) { desc_ = d; }
     OD::Color		color() const		{ return color_; }
     void		setColor(OD::Color);
@@ -127,7 +127,7 @@ public:
 			    { return !refs_.isEmpty(); }
     virtual bool	hasLeaves() const	= 0;
 
-    const OD::String&	code() const override	{ return code_; }
+    const StringBase&	code() const override	{ return code_; }
     void		setCode( const char* c ) override { code_ = c; }
 
     virtual Interval<float> timeRange() const	{ return timerg_; }
@@ -245,7 +245,7 @@ public:
 
     Type		type() const override		{ return Leaf; }
     bool		hasChildren() const override	{ return false; }
-    const OD::String&	code() const override;
+    const StringBase&	code() const override;
     LithologyID		lithology() const		{ return lith_; }
     void		setLithology(const LithologyID&);
 

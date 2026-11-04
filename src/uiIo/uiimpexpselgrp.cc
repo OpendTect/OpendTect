@@ -527,7 +527,7 @@ bool acceptOK( CallBacker* ) override
 const ObjectSet<SelectionGrp>& selGrpSet() const	{ return selgrpset_; }
 
 const char* selGrSetNm() const				{ return selgrpsetnm_; }
-const OD::String& selGrpFileNm() const			{ return filenm_;}
+const StringBase& selGrpFileNm() const			{ return filenm_;}
 
 const char* xName() const				{ return xname_; }
 const char* yName() const				{ return yname_; }

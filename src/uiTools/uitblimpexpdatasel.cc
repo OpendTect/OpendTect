@@ -62,7 +62,7 @@ uiTableTargetInfoEd( uiParent* p, Table::TargetInfo& tinf, bool ishdr,
 				: (tinf_.selection_.isInFile(0) ? 2 : 0) );
     }
 
-    const OD::String& nmstr = tinf_.name();
+    const StringBase& nmstr = tinf_.name();
     if ( !nmstr.isEmpty() )
     {
 	uiString lbltxt = tinf_.isOptional() ? tr("[%1]").arg(tinf_.name()) :

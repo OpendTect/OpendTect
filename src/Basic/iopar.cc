@@ -1330,22 +1330,22 @@ void IOPar::set( const char* keyw, const uiString& uis, bool tohex )
 }
 
 
-void IOPar::set( const char* keyw, const OD::String& fs )
+void IOPar::set( const char* keyw, const StringBase& fs )
 {
     set( keyw, fs.buf() );
 }
 
 
-void IOPar::set( const char* keyw, const OD::String& fs1,
-				   const OD::String& fs2 )
+void IOPar::set( const char* keyw, const StringBase& fs1,
+				   const StringBase& fs2 )
 {
     set( keyw, fs1.buf(), fs2.buf() );
 }
 
 
-void IOPar::set( const char* keyw, const OD::String& fs1,
-				   const OD::String& fs2,
-				   const OD::String& fs3 )
+void IOPar::set( const char* keyw, const StringBase& fs1,
+				   const StringBase& fs2,
+				   const StringBase& fs3 )
 {
     set( keyw, fs1.buf(), fs2.buf(), fs3.buf() );
 }

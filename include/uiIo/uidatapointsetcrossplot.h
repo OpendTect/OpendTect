@@ -173,7 +173,7 @@ public:
     void			setMathObj(Math::Expression*);
     void			setMathObjStr( const char* str )
 							{ mathobjstr_ = str; }
-    const OD::String&		mathObjStr() const	{ return mathobjstr_; }
+    const StringBase&		mathObjStr() const	{ return mathobjstr_; }
     Math::Expression*		mathObj() const		{ return mathobj_; }
     void			setModifiedColIds(
 				    const TypeSet<uiDataPointSet::DColID>& ids )

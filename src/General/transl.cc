@@ -260,7 +260,7 @@ bool TranslatorGroup::hasConnType( const char* c ) const
 }
 
 
-static const OD::String& gtNm( const Translator* tr, bool user )
+static const StringBase& gtNm( const Translator* tr, bool user )
 {
     return user ? tr->userName() : tr->typeName();
 }

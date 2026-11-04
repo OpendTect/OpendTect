@@ -55,7 +55,7 @@ Well::LoadReqs::LoadReqs( SubObjType typ1, SubObjType typ2, SubObjType typ3 )
 }
 
 
-Well::LoadReqs::LoadReqs( const OD::String& lognm )
+Well::LoadReqs::LoadReqs( const StringBase& lognm )
 {
     addLog( lognm.buf() );
 }
@@ -1308,7 +1308,7 @@ void Well::Man::dumpMgrInfo( StringPairSet& infoset )
 	ConstRefMan<Data> wd = wells[idx];
 	if ( wd )
 	{
-	    const OD::String& wellname = wd->info().name();
+	    const StringBase& wellname = wd->info().name();
 	    infoset.add( IOPar::compKey(wellname,"References"),
 			 wd->nrRefs()-1 );
 	    infoset.add( IOPar::compKey(wellname,"Markers"),

@@ -35,7 +35,7 @@ public:
 						uiString&) const
 				{ return nullptr; }
 
-    const OD::String&		type() const		{ return type_; }
+    const StringBase&		type() const		{ return type_; }
 
 protected:
 				WellDataIOProvider(const char* type);

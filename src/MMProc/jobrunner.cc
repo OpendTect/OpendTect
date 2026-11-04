@@ -48,7 +48,7 @@ ________________________________________________________________________
     msg += Time::passedSince(ji.recvtime_)/1000; \
     msg += " seconds ago.";
 
-const OD::String& getTempBaseNm()
+const StringBase& getTempBaseNm()
 {
     mDeclStaticString( tmpfnm_base );
     if ( tmpfnm_base.isEmpty() )

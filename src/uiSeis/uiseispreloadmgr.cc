@@ -962,7 +962,7 @@ void uiSeisPreLoadedDataSel::updateCB( CallBacker* )
 
     const BufferString curselnm = nmfld_->text();
     nmfld_->setEmpty();
-    nmfld_->addItem( OD::String::empty() );
+    nmfld_->addItem( StringBase::empty() );
     nmfld_->addItems( names_ );
     if ( !curselnm.isEmpty() && names_.isPresent(curselnm) )
 	nmfld_->setCurrentItem( curselnm.buf() );

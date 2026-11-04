@@ -230,7 +230,7 @@ float Mnemonic::getMatchValue( const char* nm, const BufferStringSet& nms,
     if ( sz < 1 || nms.isEmpty() )
 	return 0.f;
 
-    const OD::String& mainnm = *nms.first();
+    const StringBase& mainnm = *nms.first();
     if ( mainnm == nm )
 	return 3000.f;
     else if ( !exactmatch && mainnm.matches(nm,OD::CaseInsensitive) )
@@ -238,7 +238,7 @@ float Mnemonic::getMatchValue( const char* nm, const BufferStringSet& nms,
 
     if ( hasaltnm && nms.size() > 1 )
     {
-	const OD::String& altnm = nms.get( 1 );
+	const StringBase& altnm = nms.get( 1 );
 	if ( altnm == nm )
 	    return 1000.f;
 	else if ( !exactmatch && altnm.matches(nm,OD::CaseInsensitive) )

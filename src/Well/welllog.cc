@@ -432,7 +432,7 @@ const Well::Log* Well::LogSet::getLog( const char* nm ) const
 }
 
 
-const Well::Log* Well::LogSet::getLog( const OD::String& nm ) const
+const Well::Log* Well::LogSet::getLog( const StringBase& nm ) const
 {
     return gtLog( nm.buf(), false );
 }
@@ -488,7 +488,7 @@ Well::Log* Well::LogSet::getLog( const char* nm )
 }
 
 
-Well::Log* Well::LogSet::getLog( const OD::String& nm )
+Well::Log* Well::LogSet::getLog( const StringBase& nm )
 {
     return gtLog( nm.buf(), false );
 }

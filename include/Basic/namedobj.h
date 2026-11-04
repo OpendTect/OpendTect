@@ -19,7 +19,7 @@ mExpClass(Basic) ObjectWithName
 {
 public:
 
-    typedef OD::String		name_type;
+    typedef StringBase		name_type;
 
     virtual			~ObjectWithName()			{}
 

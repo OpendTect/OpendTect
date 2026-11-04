@@ -50,19 +50,19 @@ Well::Marker::~Marker()
 }
 
 
-const OD::String& Well::Marker::name() const
+const StringBase& Well::Marker::name() const
 {
     return isValidStratLevelName() ? stratlvlnm_ : getDatabaseName();
 }
 
 
-const OD::String& Well::Marker::getDatabaseName() const
+const StringBase& Well::Marker::getDatabaseName() const
 {
     return NamedObject::name();
 }
 
 
-const OD::String& Well::Marker::getStratLvlName() const
+const StringBase& Well::Marker::getStratLvlName() const
 {
     isValidStratLevelName();
     return stratlvlnm_;

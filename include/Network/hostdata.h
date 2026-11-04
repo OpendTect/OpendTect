@@ -33,10 +33,10 @@ mExpClass(Network) HostData
 { mODTextTranslationClass(HostData)
 public:
 			HostData(const char* nm);
-			HostData(const OD::String& nm);
+			HostData(const StringBase& nm);
 			HostData(const char* nm,const HostData& localhost,
 				 const OD::Platform&);
-			HostData(const OD::String& nm,const HostData& localhost,
+			HostData(const StringBase& nm,const HostData& localhost,
 				 const OD::Platform&);
 			HostData(const HostData&);
     virtual		~HostData();
@@ -78,7 +78,7 @@ public:
 				 const HostData* from=nullptr) const;
     FilePath		convPath(PathType,const char* fnm,
 				 const HostData* from=nullptr) const;
-    FilePath		convPath(PathType,const OD::String& fnm,
+    FilePath		convPath(PathType,const StringBase& fnm,
 				 const HostData* from=nullptr) const;
 
     static const char*	localHostName();

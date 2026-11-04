@@ -540,7 +540,7 @@ void MathProperty::setPreV5Def( const char* inpstr )
     {
 	const PropertyRef& pr = idx<0 ? PropertyRef::thickness()
 				      : *props.get( idx );
-	const OD::String& propnm = pr.name();
+	const StringBase& propnm = pr.name();
 	if ( !defstr.contains(propnm.buf()) )
 	    continue;
 

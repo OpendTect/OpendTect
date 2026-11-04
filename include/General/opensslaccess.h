@@ -25,7 +25,7 @@ mExpClass(General) PassPhrase : public BufferString
 {
 public:
 			PassPhrase(const char*,Algorithm);
-			PassPhrase(const OD::String&,Algorithm);
+			PassPhrase(const StringBase&,Algorithm);
 
     Algorithm		getAlgo() const		{ return algo_; }
 
@@ -54,7 +54,7 @@ public:
 
     bool		isOK(uiRetVal* =nullptr) const;
 
-    bool		encryptToFile(const OD::String&,const char* fnm,
+    bool		encryptToFile(const StringBase&,const char* fnm,
 				uiRetVal&,const Crypto::PassPhrase&,
 				int nriters=sDefNrIters(),
 				bool base64=sDefBase64(),

@@ -548,7 +548,7 @@ const Strat::Lithology& Strat::LeafUnitRef::getLithology() const
 }
 
 
-const OD::String& Strat::LeafUnitRef::code() const
+const StringBase& Strat::LeafUnitRef::code() const
 {
     return getLithology().name();
 }

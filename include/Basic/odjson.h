@@ -314,7 +314,7 @@ public:
     Array&		add(const TypeSet<Coord3>&);
 
     Array&		add(const char*);
-    Array&		add(const OD::String&);
+    Array&		add(const StringBase&);
     Array&		add(const uiString&);
     Array&		add(const FilePath&);
     Array&		add(const MultiID&);
@@ -436,15 +436,15 @@ public:
     mFloatIntegralTemplate(T)
     bool		get(const char*,Array2D<T>&) const;
 
-    bool		getBoolValue( const OD::String& str ) const
+    bool		getBoolValue( const StringBase& str ) const
 			{ return getBoolValue( str.buf() ); }
-    od_int64		getIntValue( const OD::String& str ) const
+    od_int64		getIntValue( const StringBase& str ) const
 			{ return getIntValue( str.buf() ); }
-    double		getDoubleValue( const OD::String& str ) const
+    double		getDoubleValue( const StringBase& str ) const
 			{ return getDoubleValue( str.buf() ); }
-    BufferString	getStringValue( const OD::String& str ) const
+    BufferString	getStringValue( const StringBase& str ) const
 			{ return getStringValue( str.buf() ); }
-    FilePath		getFilePath( const OD::String& str ) const
+    FilePath		getFilePath( const StringBase& str ) const
 			{ return getFilePath( str.buf() ); }
 
     void		setNull(const char*);
@@ -460,7 +460,7 @@ public:
     void		set(const char* ky,float);
     void		set(const char* ky,double);
     void		set(const char* ky,const char*);
-    void		set(const char* ky,const OD::String&);
+    void		set(const char* ky,const StringBase&);
     void		set(const char* ky,const uiString&);
     void		set(const char* ky,const FilePath&);
     void		set(const char* ky,const MultiID&);

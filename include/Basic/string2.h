@@ -10,7 +10,7 @@ ________________________________________________________________________
 
 /* Functions making sure you don't need <string.h>
 
-   (1) Usually OD::String or its subclass BufferString can already do the job
+   (1) Usually StringBase or its subclass BufferString can already do the job
    (2) toString(XX) for all simple types
    (3) toXX from const char* for most used simple types
    (4) Replacement for strchr and strstr: firstOcc()
@@ -24,7 +24,7 @@ ________________________________________________________________________
 #include <ctype.h>
 #include <wctype.h>
 
-namespace OD { class String; }
+class StringBase;
 class BufferStringSet;
 class CompoundKey;
 class MultiID;
@@ -86,7 +86,7 @@ mGlobal(Basic) const char* toString(const char*);
 #ifdef __win__
 mGlobal(Basic) const char* toString(const wchar_t*);
 #endif
-mGlobal(Basic) const char* toString(const OD::String&);
+mGlobal(Basic) const char* toString(const StringBase&);
 mGlobal(Basic) const char* toString(const CompoundKey&);
 mGlobal(Basic) const char* toString(const MultiID&);
 mGlobal(Basic) const char* toStringPtr(const void*,od_uint16 width=0,

@@ -53,7 +53,7 @@ public:
 			LoadReqs(SubObjType,SubObjType);
 			LoadReqs(SubObjType,SubObjType,SubObjType);
     explicit		LoadReqs(const char*)			= delete;
-			LoadReqs(const OD::String& lognm);
+			LoadReqs(const StringBase& lognm);
 			LoadReqs(const BufferStringSet& lognms);
 			~LoadReqs();
 

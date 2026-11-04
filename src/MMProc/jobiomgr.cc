@@ -194,7 +194,7 @@ protected:
 
     JobHostRespInfo*		getJHRFor(int desc,const char* hostnm);
     bool			readTag(char& tag,SeparString& sepstr,
-					const OD::String& data);
+					const StringBase& data);
     void			socketCB(CallBacker*);
     char			getRespFor(int desc,const char* hostnm);
 
@@ -369,7 +369,7 @@ void JobIOHandler::socketCB( CallBacker* cb )
 
 
 bool JobIOHandler::readTag( char& tag, SeparString& sepstr,
-			    const OD::String& data )
+			    const StringBase& data )
 {
     tag = data[0];
     sepstr.setSepChar( data[1] );
@@ -466,7 +466,7 @@ bool JobIOMgr::startProg( const char* progname, IOPar& iop,
 
 
 #ifdef __win__
-extern const OD::String& getTempBaseNm();
+extern const StringBase& getTempBaseNm();
 
 extern int& MMJob_getTempFileNr();
 

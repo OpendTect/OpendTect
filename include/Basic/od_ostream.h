@@ -26,7 +26,7 @@ public:
 
 			od_ostream();
 			od_ostream(const char* fnm,bool useexist=false);
-			od_ostream(const OD::String& fnm,bool useexist=false);
+			od_ostream(const StringBase& fnm,bool useexist=false);
 			od_ostream(const FilePath& fp,bool useexist=false);
 			od_ostream(const OS::MachineCommand& mc,
 				   const char* workdir=nullptr);
@@ -63,7 +63,7 @@ public:
     od_ostream&		addPrecise(float);
     od_ostream&		addPrecise(double);
 
-    od_ostream&		add(const OD::String&);
+    od_ostream&		add(const StringBase&);
     od_ostream&		add(const uiString&);
     od_ostream&		add(const IOPar&);
     od_ostream&		add(const SeparString&);

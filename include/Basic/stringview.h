@@ -13,7 +13,7 @@ ________________________________________________________________________
 
 
 
-/*!\brief OD::String that holds an existing text string.
+/*!\brief StringBase that holds an existing text string.
 
 The string is assumed to be owned by someone else or be static. In any case, it
 is assumed be be alive and well for the lifetime of the StringView.
@@ -23,7 +23,7 @@ underlying string. It is comparable to std::string_view (C++17).
 
 */
 
-mExpClass(Basic) StringView : public OD::String
+mExpClass(Basic) StringView : public StringBase
 {
 public:
 			StringView(const char* =nullptr);
@@ -41,9 +41,9 @@ public:
 						{ return isEqual(s);}
     inline bool		operator!=( const char* s ) const
 						{ return !isEqual(s);}
-    inline bool		operator==( const OD::String& s ) const
+    inline bool		operator==( const StringBase& s ) const
 						{ return isEqual(s.str()); }
-    inline bool		operator!=( const OD::String& s ) const
+    inline bool		operator!=( const StringBase& s ) const
 						{ return !isEqual(s.str()); }
     bool		operator==(const BufferString&) const;
     bool		operator!=(const BufferString&) const;
@@ -67,8 +67,8 @@ protected:
 
     const char* str_;
 
-    StringView(const OD::String&)		= delete;
-    StringView & operator=(const OD::String&)	= delete;
+    StringView(const StringBase&)		= delete;
+    StringView & operator=(const StringBase&)	= delete;
 
 };
 

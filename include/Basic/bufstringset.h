@@ -70,14 +70,14 @@ public:
 						{ strs_.swap( i1, i2 ); }
 
     BufferStringSet&	add(const char*);
-    BufferStringSet&	add(const OD::String&);
+    BufferStringSet&	add(const StringBase&);
     BufferStringSet&	add(const mQtclass(QString)&);
     BufferStringSet&	add(const BufferStringSet&,bool allowduplicates);
     BufferStringSet&	add(const char* arr[],size_type len=-1);
     BufferStringSet&	add( BufferString* bs )	{ strs_.add(bs); return *this; }
     BufferStringSet&	addToAll(const char*,bool infront=false);
     bool		addIfNew(const char*);	//!< returns whether added
-    bool		addIfNew(const OD::String&);
+    bool		addIfNew(const StringBase&);
     void		append(const BufferStringSet&);
     BufferStringSet&	addWordsFrom(const char*);
 
@@ -132,7 +132,7 @@ public:
 				{ strs_.setNullAllowed( yn ); }
     BufferStringSet&	operator +=( BufferString* bs )	{ return add(bs); }
     BufferStringSet&	replace(idx_type,const char*);
-    BufferStringSet&	replace(idx_type,const OD::String&);
+    BufferStringSet&	replace(idx_type,const StringBase&);
     BufferStringSet&	replace(idx_type idx,BufferString* bs);
     BufferStringSet&	set( idx_type idx, BufferString* bs )
 				{ strs_.replace(idx,bs); return *this; }
@@ -198,8 +198,8 @@ public:
     StringPairSet&	add(const char*,od_int64);
     StringPairSet&	add(const char*,float);
     StringPairSet&	add(const char*,double);
-    StringPairSet&	add(const char*,const OD::String&);
-    StringPairSet&	add(const OD::String&,const OD::String&);
+    StringPairSet&	add(const char*,const StringBase&);
+    StringPairSet&	add(const StringBase&,const StringBase&);
     StringPairSet&	add(const StringPair&);
     StringPairSet&	add(const StringPairSet&);
     StringPairSet&	addYN(const char*,bool);

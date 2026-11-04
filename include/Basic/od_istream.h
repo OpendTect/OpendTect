@@ -23,7 +23,7 @@ public:
 
 			od_istream();
 			od_istream(const char* fnm);
-			od_istream(const OD::String& fnm);
+			od_istream(const StringBase& fnm);
 			od_istream(const FilePath&);
 			od_istream(const OS::MachineCommand&,
 				   const char* workdir=nullptr);

@@ -177,7 +177,7 @@ public:
 				AppendType apptyp=uiString::OnNewLine);
     uiString&		appendPlainText(const char*,bool addspace=false,
 					bool addquotes=false);
-    uiString&		appendPlainText(const OD::String&,bool addspace=false,
+    uiString&		appendPlainText(const StringBase&,bool addspace=false,
 					bool addquotes=false);
 
     uiString&		appendPhraseSameLine(const uiString&);
@@ -204,14 +204,14 @@ public:
 
     inline uiString&	appendIncorrect(const uiString&,char sep=' ');
     inline uiString&	appendIncorrect(const char*,char sep=' ');
-    inline uiString&	appendIncorrect(const OD::String&,char sep=' ');
+    inline uiString&	appendIncorrect(const StringBase&,char sep=' ');
 
     // TEMP-- comment out to fix a directory at a time
     inline uiString&	append( const uiString& s, bool nl=false )
 				{ return appendIncorrect(s,nl?'\n':' '); }
     inline uiString&	append( const char* s, bool nl=false )
 				{ return appendIncorrect(s,nl?'\n':' '); }
-    inline uiString&	append( const OD::String& s, bool nl=false )
+    inline uiString&	append( const StringBase& s, bool nl=false )
 				{ return appendIncorrect(s,nl?'\n':' '); }
     inline uiString&	addSpace( int =1 )	{ return append(" "); }
     inline uiString&	addTab( int =1 )	{ return append("\t"); }
@@ -293,7 +293,7 @@ public:
     static const uiString& emptyString()	{ return empty(); }
     bool	isSet() const			{ return !isEmpty(); }
 
-    const OD::String&		getFullString(BufferString* =nullptr) const;
+    const StringBase&		getFullString(BufferString* =nullptr) const;
 
     mDeprecated			("Use fillQString")
     const mQtclass(QString)&	getQString() const;
@@ -310,7 +310,7 @@ typedef uiString uiPhrase;
 
 mGlobal(Basic) uiString toUiString(const uiString&);
 mGlobal(Basic) uiString toUiString(const char*);
-mGlobal(Basic) uiString toUiString(const OD::String&);
+mGlobal(Basic) uiString toUiString(const StringBase&);
 mGlobal(Basic) uiString toUiString(short,int width=0);
 mGlobal(Basic) uiString toUiString(unsigned short,int width=0);
 mGlobal(Basic) uiString toUiString(od_int32,int width=0);
@@ -408,7 +408,7 @@ inline uiString& uiString::appendIncorrect( const uiString& str, char sep )
 { return appendPhrase( str, mDefIncorrectAppendPhrArgs ); }
 inline uiString& uiString::appendIncorrect( const char* str, char sep )
 { return appendPhrase( toUiString(str), mDefIncorrectAppendPhrArgs ); }
-inline uiString& uiString::appendIncorrect( const OD::String& str, char sep )
+inline uiString& uiString::appendIncorrect( const StringBase& str, char sep )
 { return appendPhrase( toUiString(str), mDefIncorrectAppendPhrArgs ); }
 
 

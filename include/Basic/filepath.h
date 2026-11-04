@@ -33,23 +33,23 @@ public:
     enum Style		{ Local, Unix, Windows };
 
 			FilePath(const char* fullinp=nullptr);
-			FilePath(const OD::String&);
+			FilePath(const StringBase&);
 			FilePath(const char* p1,const char* p2,
 				 const char* p3=nullptr,
 				 const char* p4=nullptr,const char* p5=nullptr);
-			FilePath(const OD::String& p1,const char* p2,
+			FilePath(const StringBase& p1,const char* p2,
 				 const char* p3=nullptr,
 				 const char* p4=nullptr,const char* p5=nullptr);
-			FilePath(const char* p1,const OD::String& p2,
+			FilePath(const char* p1,const StringBase& p2,
 				 const char* p3=nullptr,
 				 const char* p4=nullptr,const char* p5=nullptr);
-			FilePath(const OD::String& p1,const OD::String& p2,
+			FilePath(const StringBase& p1,const StringBase& p2,
 				 const char* p3=nullptr,
 				 const char* p4=nullptr,const char* p5=nullptr);
 			FilePath(const FilePath&,const char* p2,
 				 const char* p3=nullptr,const char* p4=nullptr,
 				 const char* p5=nullptr);
-			FilePath(const FilePath&,const OD::String& p2,
+			FilePath(const FilePath&,const StringBase& p2,
 				 const char* p3=nullptr,const char* p4=nullptr,
 				 const char* p5=nullptr);
 			FilePath(const FilePath&);
@@ -57,7 +57,7 @@ public:
 
     FilePath&		operator =(const FilePath&);
     FilePath&		operator =(const char* fullinp);
-    FilePath&		operator =(const OD::String& fullinp);
+    FilePath&		operator =(const StringBase& fullinp);
     bool		operator ==(const FilePath&) const;
     bool		operator ==(const char* fnm) const;
     bool		operator !=(const FilePath&) const;
@@ -65,7 +65,7 @@ public:
     bool		isEmpty() const;
 
     FilePath&		set(const char* fullinp);
-    FilePath&		set(const OD::String& fullinp);
+    FilePath&		set(const StringBase& fullinp);
     FilePath&		add(const char*);	//!< at end
     FilePath&		insert(const char*);	//!< after prefix at start
     FilePath&		setFileName(const char*); //!< pass null to remove level
@@ -94,11 +94,11 @@ public:
     const char*		extension() const;	//!< may return null
 
     BufferString	pathOnly(Style s=Local,bool cleanup=true) const;
-    const OD::String&	fileName() const;
+    const StringBase&	fileName() const;
     BufferString	baseName() const; //!<return name of file w/o path & ext
     BufferString	winDrive() const;
 
-    const OD::String&	dir(int nr=-1) const;
+    const StringBase&	dir(int nr=-1) const;
 			//!< nr < 0 returns last dir name
     BufferString	dirUpTo(int) const;
 			//!< nr < 0 returns last dir, including prefix

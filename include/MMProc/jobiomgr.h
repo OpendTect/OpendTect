@@ -114,7 +114,7 @@ private:
 };
 
 
-mGlobal(MMProc) const OD::String& getTempBaseNm();
+mGlobal(MMProc) const StringBase& getTempBaseNm();
 mGlobal(MMProc) int mkTmpFileNr();
 mGlobal(MMProc) int& MMJob_getTempFileNr();
 
@@ -133,7 +133,7 @@ public:
     void		addFlag(const char* flag,int value);
     void		addFilePath(const FilePath&);
 
-    const OD::String&	string()		{ return cmd_; }
+    const StringBase&	string()		{ return cmd_; }
 
 private:
 

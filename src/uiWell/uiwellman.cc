@@ -501,7 +501,7 @@ void uiWellMan::defD2T( bool chkshot )
     if ( !wd )
     {
 	uiString errmsg;
-	const OD::String& nm = curioobj_->name();
+	const StringBase& nm = curioobj_->name();
 	if ( chkshot )
 	    errmsg = tr("Checkshot data not present in %1").arg( nm );
 	else
