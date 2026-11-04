@@ -12,7 +12,7 @@
 
 if [ "$#" -lt 1 ]; then
     echo "Usage: command [ARGS]"
-    exit 1	
+    exit 1
 fi
 
 if [[ -z "${DTECT_APPL}" ]]; then
@@ -52,7 +52,7 @@ ld_cleanup () {
 		export func_result="${func_result}":"${ldpaths[index]}"
 	    else
 		export func_result="${ldpaths[index]}"
-	    fi	    
+	    fi
 	fi
     done
     echo "${func_result}"
@@ -70,4 +70,5 @@ if [[ -z $LC_ALL ]] && [[ -n ${LANG} ]]; then
     export LC_ALL=${LANG}
 fi
 
-"$@"
+exec "$@"
+exit $?
