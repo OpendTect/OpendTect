@@ -54,6 +54,8 @@ public:
 					 ZAxisTransform* =nullptr,
 					 const uiString& nm=uiString::empty());
 				//!<Returns scene id
+    SceneID			addVSGScene();
+				//!<Needs the VSG plugin, see isVSGAvailable()
     void			setSceneName(const SceneID&,const uiString&);
     uiString			getSceneName(const SceneID&) const;
     CNotifier<uiODSceneMgr,SceneID> sceneClosed;

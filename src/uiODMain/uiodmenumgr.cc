@@ -877,8 +877,20 @@ void uiODMenuMgr::insertNewSceneItem( uiMenu* mnu )
 }
 
 
+void uiODMenuMgr::updateVSGMenu()
+{
+    if ( vsgmnu_ || !isVSGAvailable() )
+	return;
+
+    vsgmnu_ = appl_.menuBar()->addMenu( new uiMenu(toUiString("VSG")),
+					helpmnu_ );
+    insertAction( vsgmnu_, tr("New VSG Scene"), mAddVSGSceneMnuItm );
+}
+
+
 void uiODMenuMgr::updateSceneMenu()
 {
+    updateVSGMenu();
     uiStringSet scenenms;
     int activescene = 0;
     sceneMgr().getSceneNames( scenenms, activescene );
@@ -1684,6 +1696,7 @@ void uiODMenuMgr::handleClick( CallBacker* cb )
     case mOpenXplotMnuItm:	applMgr().openCrossPlot(); break;
     case mAddSceneMnuItm:	sceneMgr().tile(); // leave this, or --> crash!
 				sceneMgr().addScene(true); break;
+    case mAddVSGSceneMnuItm:	sceneMgr().addVSGScene(); break;
     case mAddTimeDepth2DMnuItm: applMgr().addTimeDepthScene(true); break;
     case mAddTimeDepth3DMnuItm: applMgr().addTimeDepthScene(false); break;
     case mAddHorFlat2DMnuItm:	applMgr().addHorFlatScene(true); break;

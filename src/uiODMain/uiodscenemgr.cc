@@ -53,7 +53,9 @@ ________________________________________________________________________
 #include "ioobj.h"
 #include "uiosgutil.h"
 #include "pickset.h"
+#include "plugins.h"
 #include "ptrman.h"
+#include "sharedlibs.h"
 #include "sorting.h"
 #include "settingsaccess.h"
 #include "vissurvscene.h"
@@ -278,6 +280,39 @@ SceneID uiODSceneMgr::addScene( bool maximized, ZAxisTransform* zt,
     scn.vwr3d_->setStartupView();
 
     return sceneid;
+}
+
+
+typedef QWidget* (*VSGViewerCreator)(QWidget*,visSurvey::Scene**);
+
+SceneID uiODSceneMgr::addVSGScene()
+{
+    if ( !isVSGAvailable() )
+    {
+	uiMSG().error( tr("The VSG viewer plugin is not loaded") );
+	return SceneID::udf();
+    }
+
+    BufferString libnm( 256, false );
+    SharedLibAccess::getLibName( "uiVSG", libnm.getCStr(), libnm.bufSize() );
+    const PluginManager::Data* data = PIM().findData( libnm.buf() );
+    void* funcptr = nullptr;
+    if ( data && data->sla_ )
+	funcptr = data->sla_->getFunction( "createVSGViewer" );
+
+    if ( !funcptr )
+    {
+	uiMSG().error( tr("Cannot find the VSG viewer in the plugin") );
+	return SceneID::udf();
+    }
+
+    visSurvey::Scene* scene = nullptr;
+    auto creator = rCast( VSGViewerCreator, funcptr );
+    QWidget* viewer = creator( appl_.qWidget(), &scene );
+    if ( !viewer || !scene )
+	return SceneID::udf();
+
+    return scene->getID();
 }
 
 
