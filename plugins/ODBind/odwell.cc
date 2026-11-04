@@ -260,6 +260,51 @@ void odWell::getLogs( hAllocator allocator, const BufferStringSet& lognms,
 }
 
 
+void odWell::getLog( hAllocator allocator, const char* lognm,
+		     OD::JSON::Object& jsuomobj )
+{
+    survey_.activate();
+    jsuomobj.setEmpty();
+    if ( !wd_ )
+    {
+	errmsg_ = "odWell::getLog - invalid welldata object.";
+	return;
+    }
+
+    const BufferString nm( lognm );
+    if ( !wd_->logs().isPresent(nm) )
+    {
+	errmsg_ = "odWell::getLog - no log named: ";
+	errmsg_.add( nm );
+	return;
+    }
+
+    const Well::LoadReqs lreqs( nm );
+    ConstRefMan<Well::Data> wd = Well::MGR().get( wd_->multiID(), lreqs );
+    const Well::Log* log = wd ? wd->logs().getLog( nm ) : nullptr;
+    if ( !log || !log->isLoaded() )
+    {
+	errmsg_ = "odWell::getLog - cannot load requested log";
+	return;
+    }
+
+    const UnitOfMeasure* zduom = UnitOfMeasure::surveyDefDepthUnit();
+    const UnitOfMeasure* zsuom = UnitOfMeasure::surveyDefDepthStorageUnit();
+    const int ndim = 1;
+    int dims[ndim];
+    dims[0] = log->size();
+    float* dah_data = static_cast<float*>( allocator(ndim, dims, 'f') );
+    for ( int idx=0; idx<log->size(); idx++ )
+	*dah_data++ = getConvertedValue( log->dah(idx), zsuom, zduom );
+
+    jsuomobj.set( "dah", zduom->getLabel() );
+    float* log_data = static_cast<float*>( allocator(ndim, dims, 'f') );
+    for ( int idx=0; idx<log->size(); idx++ )
+	*log_data++ = mIsUdf(log->value(idx)) ? nanf("") : log->value(idx);
+
+    jsuomobj.set( nm.buf(), log->unitMeasLabel() );
+}
+
 void odWell::putLog( const char* lognm, const float* dah, const float* logdata,
 		     uint32_t sz, const char* uom, const char* mnem,
 		     bool overwrite )
@@ -491,6 +536,17 @@ const char* well_getlogs( hWell self, hAllocator allocator,
     return strdup( jsuomobj.dumpJSon().buf() );
 }
 
+
+const char* well_getlog( hWell self, hAllocator allocator, const char* lognm )
+{
+    auto* p = static_cast<odWell*>(self);
+    if ( !p || !lognm )
+	return nullptr;
+
+    OD::JSON::Object jsuomobj;
+    p->getLog( allocator, lognm, jsuomobj );
+    return strdup( jsuomobj.dumpJSon().buf() );
+}
 
 void well_putlog( hWell self, const char* lognm, const float* dah,
 		  const float* logdata, uint32_t sz,

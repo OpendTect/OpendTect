@@ -55,6 +55,8 @@ public:
     void		getLogs(hAllocator, const BufferStringSet&,
 				OD::JSON::Object&,
 				float zstep=0.5, SampleMode samplemode=Upscale);
+    void		getLog(hAllocator, const char* lognm,
+			       OD::JSON::Object&);
 
     void		putLog(const char* lognm, const float* dah,
 			       const float* logdata, uint32_t size,
@@ -88,6 +90,8 @@ mExternC(ODBind) void		well_gettrack(hWell, hAllocator);
 mExternC(ODBind) const char*	well_getlogs(hWell, hAllocator,
 					     const hStringSet, float zstep,
 					     bool upscale);
+mExternC(ODBind) const char*	well_getlog(hWell, hAllocator,
+					    const char* lognm);
 mExternC(ODBind) void		well_putlog(hWell, const char* lognm,
 					    const float* dah,
 					    const float* logdata,

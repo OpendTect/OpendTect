@@ -113,3 +113,22 @@ def test_Well_class(survey):
 
     well.delete_logs(['pytest'])
     assert 'pytest' not in well.log_names
+
+def test_Well_log(survey):
+    well = Well(survey, 'F03-4')
+    info = well.log_info(['Density'])[0]
+    log, uom = well.log('Density')
+    assert list(log.keys()) == ['dah', 'Density']
+    assert uom == {'dah': 'm', 'Density': 'g/cc'}
+    assert log['dah'].size == log['Density'].size
+    assert np.all(np.diff(log['dah']) > 0)
+    assert log['dah'][0] == pytest.approx(info['dah_range'][0], rel=0.001)
+    assert log['dah'][-1] == pytest.approx(info['dah_range'][1], rel=0.001)
+    sampled, _ = well.logs(['Density'], zstep=0.5, upscale=False)
+    assert sampled['dah'].size != log['dah'].size or not np.allclose(sampled['dah'], log['dah'])
+    df, _ = well.log_dataframe('Density')
+    assert np.array_equal(df['dah'].to_numpy(), log['dah'])
+
+    well = Well(survey, 'F03-4')
+    with pytest.raises(ValueError):
+        well.log('No such log')

@@ -16,6 +16,7 @@ class Well(_SurveyObject):
         clss._markerinfo = wrap_function(LIBODB, f'{bindnm}_markerinfo', ct.POINTER(ct.c_char_p), [ct.c_void_p, ct.c_void_p])
         clss._track = wrap_function(LIBODB, f'{bindnm}_gettrack', None, [ct.c_void_p, NumpyAllocator.CFUNCTYPE])
         clss._logs = wrap_function(LIBODB, f'{bindnm}_getlogs', ct.POINTER(ct.c_char_p), [ct.c_void_p, NumpyAllocator.CFUNCTYPE, ct.c_void_p, ct.c_float, ct.c_bool])
+        clss._log = wrap_function(LIBODB, f'{bindnm}_getlog', ct.POINTER(ct.c_char_p), [ct.c_void_p, NumpyAllocator.CFUNCTYPE, ct.c_char_p])
         putlogargs = [  ct.c_void_p, ct.c_char_p,
                         np.ctypeslib.ndpointer(dtype=np.float32, ndim=1, flags="C_CONTIGUOUS"),
                         np.ctypeslib.ndpointer(dtype=np.float32, ndim=1, flags="C_CONTIGUOUS"),
@@ -191,6 +192,47 @@ class Well(_SurveyObject):
         data, uoms = self.logs(lognms, zstep, upscale)
         df = DataFrame(data)
         return df, uoms
+
+    def log(self, lognm: str):
+        """Return a single log in this well as stored, without resampling
+
+        Parameters
+        ----------
+        lognm : str
+            the name of the log
+
+        Returns
+        -------
+        dict[np.arrays] with the stored depths keyed by 'dah' and the stored values keyed by the log name
+        dict[str] of the log unit of measures, keyed by 'dah' and the log name
+
+        """
+        allocator = NumpyAllocator()
+        uoms = pyjsonstr(self._log(self._handle, allocator.cfunc, lognm.encode()))
+        if not self.isok:
+            raise ValueError(self.errmsg)
+
+        logs = [key for key in uoms.keys()]
+        data = { log: allocator.allocated_arrays[logs.index(log)] for log in logs }
+        return data, uoms
+
+    def log_dataframe(self, lognm: str):
+        """Return a single log in this well as stored, without resampling, as a Pandas DataFrame
+
+        Parameters
+        ----------
+        lognm : str
+            the name of the log
+
+        Returns
+        -------
+        Pandas DataFrame
+        dict[str] of the log unit of measures, keyed by 'dah' and the log name
+
+        """
+        from pandas import DataFrame
+        data, uoms = self.log(lognm)
+        return DataFrame(data), uoms
 
     def put_log(self, lognm: str, dah: np.ndarray, logdata: np.ndarray, uom: str=None, mnem: str=None, overwrite: bool=False):
         """Add a log curve to this well
