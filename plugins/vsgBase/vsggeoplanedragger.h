@@ -13,7 +13,10 @@ ________________________________________________________________________
 #include <vsg/core/Array.h>
 #include <vsg/maths/vec3.h>
 #include <vsg/maths/vec4.h>
+#include <vsg/nodes/DepthSorted.h>
 #include <vsg/nodes/Group.h>
+
+#include <vector>
 
 namespace vsgGeo
 {
@@ -53,6 +56,13 @@ public:
     void		setShowPlane(bool);
     void		setShowBorder(bool);
     void		setColor(const vsg::vec4&);
+    static int		nrCells();
+			//!<Cells on each side of the plane's color grid
+    void		setCellColors(const vsg::vec4*);
+			/*!<nrCells() squared colors, row by row. Opaque cells
+			    are drawn with the opaque objects. Cells with
+			    transparency are blended in the transparent bin,
+			    without writing depth. */
     void		setTranslation1D(bool yn)	{ translate1d_ = yn; }
     bool		translation1D() const		{ return translate1d_; }
 
@@ -66,6 +76,8 @@ protected:
 			~TabPlaneDragger();
 
 private:
+
+    static constexpr int cNrCells = 32;
 
     void		rebuild();
     void		clampCenter();
@@ -92,6 +104,9 @@ private:
     vsg::ref_ptr<vsg::vec3Array>	planeverts_;
     vsg::ref_ptr<vsg::vec3Array>	lineverts_;
     vsg::ref_ptr<vsg::vec4Array>	planecolor_;
+    vsg::ref_ptr<vsg::vec3Array>	blendedverts_;
+    vsg::ref_ptr<vsg::DepthSorted>	blendedplane_;
+    std::vector<char>			cellopaque_;
 };
 
 

@@ -14,7 +14,9 @@ set( OD_IS_PLUGIN yes )
 set( OD_NO_ALO_ENTRY TRUE )
 set( OD_MODULE_SOURCES
 	vsggeoaxes.cc
+	vsggeocolorlookup.cc
 	vsggeocompiler.cc
+	vsggeolayeredtexture.cc
 	vsggeolines.cc
 	vsggeomarkerset.cc
 	vsggeonearfar.cc
@@ -23,6 +25,7 @@ set( OD_MODULE_SOURCES
 	vsggeoplanedragger.cc
 	vsggeoscalarbar.cc
 	vsggeotext.cc
+	vsggeotextureplane.cc
 	vsggeothumbwheel.cc
 	vsggeotrackball.cc
 	vsggeotriangles.cc
@@ -30,6 +33,7 @@ set( OD_MODULE_SOURCES
 	visvsgannotation.cc
 	visvsgaxes.cc
 	visvsgcamera.cc
+	visvsgcoltablookup.cc
 	visvsgdata.cc
 	visvsgdatagroup.cc
 	visvsgdataman.cc
@@ -40,6 +44,8 @@ set( OD_MODULE_SOURCES
 	visvsgplanedragger.cc
 	visvsgscenecoltab.cc
 	visvsgselman.cc
+	visvsgtexturechannels.cc
+	visvsgtexturerectangle.cc
 	visvsgtext.cc
 	visvsgthumbwheel.cc
 	visvsgtransform.cc
@@ -47,19 +53,24 @@ set( OD_MODULE_SOURCES
 set( OD_TEST_PROGS
 	vsggeo.cc
 	vsggeoaxes.cc
+	vsggeocolorlookup.cc
 	vsggeopick.cc
 	vsggeoscalarbar.cc
 	vsggeotext.cc
+	vsggeotextureplane.cc
 	vsggeotextperf.cc
 	vsggeothumbwheel.cc
 	vsggeotrackball.cc
 	visvsgannotation.cc
 	visvsgaxes.cc
+	visvsgcoltablookup.cc
 	visvsgevent.cc
 	visvsgfontcreator.cc
 	visvsgobjects.cc
 	visvsgplanedragger.cc
 	visvsgscenecoltab.cc
+	visvsgtexturechannels.cc
+	visvsgtexturerectangle.cc
 	visvsgtext.cc
 	visvsgthumbwheel.cc
 )
@@ -72,12 +83,14 @@ set( GPUTESTS
 	test_vsggeopick
 	test_vsggeoscalarbar
 	test_vsggeotext
+	test_vsggeotextureplane
 	test_vsggeotextperf
 	test_vsggeothumbwheel
 	test_visvsgobjects
 	test_visvsgfontcreator
 	test_visvsgannotation
 	test_visvsgtext
+	test_visvsgtexturerectangle
 	test_visvsgaxes
 )
 

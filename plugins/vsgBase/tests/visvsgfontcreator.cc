@@ -111,6 +111,81 @@ static bool testCreate()
 }
 
 
+static const vsg::GlyphMetrics& spaceMetrics( const vsg::Font& font )
+{
+    return font.glyphMetrics->at( font.glyphIndexForCharcode(U' ') );
+}
+
+
+static bool testDecorations()
+{
+    const FontData plain( 24, "Arial", FontData::Normal, false );
+    vsg::ref_ptr<vsg::Font> plainfont = dGBVis::FontCreator::create( plain );
+    mRunStandardTest( plainfont.valid(), "Decorations: Plain font is made" );
+
+    FontData underlined( plain );
+    underlined.setUnderline( true );
+    vsg::ref_ptr<vsg::Font> underfont =
+				dGBVis::FontCreator::create( underlined );
+    mRunStandardTest( underfont.valid(),
+		      "Decorations: Underlined font is made" );
+
+    FontData struck( plain );
+    struck.setStrikeOut( true );
+    vsg::ref_ptr<vsg::Font> strikefont = dGBVis::FontCreator::create( struck );
+    mRunStandardTest( strikefont.valid(),
+		      "Decorations: Strikeout font is made" );
+
+    const vsg::GlyphMetrics& plainspace = spaceMetrics( *plainfont );
+    const vsg::GlyphMetrics& underspace = spaceMetrics( *underfont );
+    const vsg::GlyphMetrics& strikespace = spaceMetrics( *strikefont );
+    mRunStandardTest( plainspace.width<=0.f,
+		      "Decorations: A space has no bitmap without them" );
+    mRunStandardTest( underspace.width>0.f,
+		      "Decorations: Underline draws a bar under a space" );
+    mRunStandardTest( strikespace.width>0.f,
+		      "Decorations: Strikeout draws a bar through a space" );
+    mRunStandardTest( strikespace.horiBearingY > underspace.horiBearingY,
+		      "Decorations: The strikeout bar is above the underline" );
+    mRunStandardTest( underspace.horiAdvance == plainspace.horiAdvance,
+		      "Decorations: The advance is not changed" );
+
+    return true;
+}
+
+
+static bool testWeights()
+{
+    const FontData normal( 24, "Arial", FontData::Normal, false );
+    const FontData black( 24, "Arial", FontData::Black, false );
+    vsg::ref_ptr<vsg::Font> normalfont = dGBVis::FontCreator::create( normal );
+    vsg::ref_ptr<vsg::Font> blackfont = dGBVis::FontCreator::create( black );
+    mRunStandardTest( normalfont.valid() && blackfont.valid(),
+		      "Weights: Normal and Black fonts are made" );
+
+    const float normaladv = normalfont->glyphMetrics->at(
+			normalfont->glyphIndexForCharcode(U'A') ).horiAdvance;
+    const float blackadv = blackfont->glyphMetrics->at(
+			blackfont->glyphIndexForCharcode(U'A') ).horiAdvance;
+    BufferString msg( "Advance of A, normal: ", normaladv );
+    msg.add( " black: " ).add( blackadv );
+    mRunStandardTestWithError( normaladv!=blackadv,
+			       "Weights: Black differs from Normal", msg );
+
+    FontData::Weight weights[] = { FontData::Light, FontData::Normal,
+				   FontData::DemiBold, FontData::Bold,
+				   FontData::Black };
+    for ( const FontData::Weight weight : weights )
+    {
+	const FontData fd( 24, "Arial", weight, false );
+	mRunStandardTest( dGBVis::FontCreator::create(fd).valid(),
+			  "Weights: A font is made for every weight" );
+    }
+
+    return true;
+}
+
+
 static bool testUniversalFamilies()
 {
     for ( const char* const* family=FontData::universalFamilies(); *family;
@@ -260,6 +335,8 @@ int mTestMainFnName( int argc, char** argv )
     mInitTestProg();
 
     if ( !testCreate() ||
+	 !testDecorations() ||
+	 !testWeights() ||
 	 !testUniversalFamilies() ||
 	 !testRequestAndAnnounce() ||
 	 !testDrawn() )

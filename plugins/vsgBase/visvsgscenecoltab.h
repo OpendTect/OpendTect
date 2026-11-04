@@ -26,14 +26,15 @@ namespace vsgGeo { class ScalarBar; }
 namespace dGBVis
 {
 
-/*!\brief The limits of the size of the color bar in pixels, as in OpendTect */
+/*!\brief The limits of the size of the color bar in pixels. Those of a
+  vertical bar are as in OpendTect, a horizontal bar may be larger. */
 
 struct ColorBarBounds
 {
     static constexpr int	minHorWidth()	{ return 350; }
-    static constexpr int	maxHorWidth()	{ return 1000; }
+    static constexpr int	maxHorWidth()	{ return 1500; }
     static constexpr int	minHorHeight()	{ return 20; }
-    static constexpr int	maxHorHeight()	{ return 35; }
+    static constexpr int	maxHorHeight()	{ return 100; }
     static constexpr int	minVertWidth()	{ return 20; }
     static constexpr int	maxVertWidth()	{ return 80; }
     static constexpr int	minVertHeight()	{ return 350; }
