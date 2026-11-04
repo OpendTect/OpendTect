@@ -19,7 +19,7 @@ ________________________________________________________________________
 #include "callback.h"
 #include "math2.h"
 #include "uimainwin.h"
-#include "uiodmain.h"
+//#include "uiodmain.h"
 #include "uistatusbar.h"
 #include "visvsgaxes.h"
 #include "visvsgcamera.h"
@@ -238,7 +238,7 @@ struct VSGMouseStatus : public CallBacker
 
     void update( CallBacker* )
     {
-	if ( !scene_ )
+	/*if (!scene_)
 	    return;
 
 	uiODMain* mainwin = ODMainWin();
@@ -246,7 +246,7 @@ struct VSGMouseStatus : public CallBacker
 	    return;
 
 	// Field 0 is the position field uiODSceneMgr writes.
-	mainwin->statusBar()->message( scene_->getMousePosString(), 0 );
+	mainwin->statusBar()->message( scene_->getMousePosString(), 0 );*/
     }
 };
 
@@ -673,11 +673,11 @@ uiVSGViewer::~uiVSGViewer()
     if ( statuscb_ && scene_ )
 	scene_->mouseposchange.remove( mCB(statuscb_,VSGMouseStatus,update) );
 
-    if ( uiODMain* mainwin = ODMainWin() )
+    /*if (uiODMain* mainwin = ODMainWin())
     {
 	if ( mainwin->statusBar() )
 	    mainwin->statusBar()->message( uiString::emptyString(), 0 );
-    }
+    }*/
 
     if ( root_ )
 	root_->children.clear();

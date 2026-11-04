@@ -23,10 +23,10 @@ ________________________________________________________________________
 #include "uiaction.h"
 #include "uimenu.h"
 #include "uimsg.h"
-#include "uiodmain.h"
-#include "uiodmenumgr.h"
+//#include "uiodmain.h"
+//#include "uiodmenumgr.h"
 #include "uifont.h"
-#include "uiodscenemgr.h"
+//#include "uiodscenemgr.h"
 #include "uivsgcoltabdlg.h"
 #include "uivsgscenesettingsdlg.h"
 #include "uivsgscreenshotdlg.h"
@@ -37,7 +37,7 @@ ________________________________________________________________________
 #include <QMdiSubWindow>
 #include <QPointer>
 
-
+/*
 class uiVSGPIMgr : public uiPluginInitMgr
 { mODTextTranslationClass(uiVSGPIMgr);
 public:
@@ -239,7 +239,7 @@ static OD::ButtonState keyboardModifiers()
 
     return OD::ButtonState( state );
 }
-
+*/
 
 mDefODPluginInfo(uiVSG)
 {
@@ -255,13 +255,13 @@ mDefODInitPlugin(uiVSG)
     ODVsg::DataObject::setVisualizationThread( Threads::currentThread() );
     ODVsg::initStdClasses();
     ODVsg::initSurveyClasses();
-    ODVsg::EventCatcher::setModifierQuery( keyboardModifiers );
+    //ODVsg::EventCatcher::setModifierQuery( keyboardModifiers );
     od_cerr() << "VSG Viewer: this is the od plugin, not the dgb one"
 	      << od_endl;
 
-    static PtrMan<uiVSGPIMgr> pimgr = new uiVSGPIMgr();
+  /*  static PtrMan<uiVSGPIMgr> pimgr = new uiVSGPIMgr();
     if ( !pimgr )
-	return "Cannot instantiate the VSG Viewer plugin";
+	return "Cannot instantiate the VSG Viewer plugin";*/
 
     return nullptr;
 }
