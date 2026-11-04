@@ -8,6 +8,7 @@ ________________________________________________________________________
 -*/
 
 #include "uiodviewer2d.h"
+#include "uiod2dviewerbackend.h"
 
 #include "uiattribpartserv.h"
 #include "uiflatauxdataeditor.h"
@@ -77,8 +78,7 @@ uiODViewer2D::uiODViewer2D( uiODMain& appl, const VisID& visid )
     , appl_(appl)
     , initialcentre_(uiWorldPoint::udf())
 {
-    mDefineStaticLocalObject( Threads::Atomic<int>, vwrid, (0) );
-    id_.set( vwrid++ );
+    id_ = OD2DViewer::allocateViewerID();
 
     setWinTitle( true );
 

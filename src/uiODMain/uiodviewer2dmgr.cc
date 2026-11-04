@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "uiflatviewstdcontrol.h"
 #include "uigraphicsview.h"
 #include "uimenu.h"
+#include "uimsg.h"
 #include "uiodviewer2d.h"
 #include "uiodscenemgr.h"
 #include "uiodvw2dfaulttreeitem.h"
@@ -75,13 +76,17 @@ uiODViewer2DMgr::SelectedAuxAnnot::~SelectedAuxAnnot()
 
 
 uiODViewer2DMgr::uiODViewer2DMgr( uiODMain* a )
-    : vw2dObjAdded(this)
+    : viewerPositionChanged(this)
+    , viewerClosed(this)
+    , vw2dObjAdded(this)
     , vw2dObjToBeRemoved(this)
     , l2dim_(Line2DIntersectionManager::instanceAdmin())
     , tifs2d_(new uiTreeFactorySet)
     , tifs3d_(new uiTreeFactorySet)
     , appl_(*a)
 {
+    initBackends();
+
     // for relevant 2D datapack
     tifs2d_->addFactory( new uiODView2DWiggleVarAreaTreeItemFactory, 1000 );
     tifs2d_->addFactory( new uiODView2DVariableDensityTreeItemFactory, 2000 );
@@ -107,6 +112,13 @@ uiODViewer2DMgr::uiODViewer2DMgr( uiODMain* a )
 
 uiODViewer2DMgr::~uiODViewer2DMgr()
 {
+    // The scene manager may already be gone during final application disposal.
+    NotifyStopper stopadded( vw2dObjAdded );
+    NotifyStopper stopremoved( vw2dObjToBeRemoved );
+    NotifyStopper stopclosed( viewerClosed );
+    NotifyStopper stopposition( viewerPositionChanged );
+    CallBack::removeFromThreadCalls( this );
+    destroyBackends();
     detachAllNotifiers();
     deepErase( viewers2d_ );
     delete tifs2d_;
@@ -115,11 +127,16 @@ uiODViewer2DMgr::~uiODViewer2DMgr()
 
 
 int uiODViewer2DMgr::nr2DViewers() const
-{ return viewers2d_.size(); }
+{
+    TypeSet<Viewer2DID> ids;
+    getViewerIDs( ids );
+    return ids.size();
+}
 
 
 void uiODViewer2DMgr::cleanup()
 {
+    commitCloseAll();
     deepErase( viewers2d_ );
     geom2dids_.erase();
 }
@@ -277,7 +294,7 @@ Viewer2DID uiODViewer2DMgr::displayIn2DViewer( DataPackID dpid,
 }
 
 
-Viewer2DID uiODViewer2DMgr::displayIn2DViewer( const VolumeDataPack& voldp,
+Viewer2DID uiODViewer2DMgr::nativeOpen( const VolumeDataPack& voldp,
 					const Attrib::SelSpec& as,
 					const FlatView::DataDispPars::VD& pars,
 					FlatView::Viewer::VwrDest dest )
@@ -315,7 +332,7 @@ Viewer2DID uiODViewer2DMgr::displayIn2DViewer( Viewer2DPosDataSel& posdatasel,
 }
 
 
-Viewer2DID uiODViewer2DMgr::displayIn2DViewer( Viewer2DPosDataSel& posdatasel,
+Viewer2DID uiODViewer2DMgr::nativeOpen( Viewer2DPosDataSel& posdatasel,
 					FlatView::Viewer::VwrDest dest,
 					float initialx1pospercm,
 					float initialx2pospercm )
@@ -387,7 +404,7 @@ void uiODViewer2DMgr::displayIn2DViewer( const VisID& visid, int attribid,
 }
 
 
-void uiODViewer2DMgr::displayIn2DViewer( const VisID& visid, int attribid,
+void uiODViewer2DMgr::nativeOpen( const VisID& visid, int attribid,
 					 FlatView::Viewer::VwrDest dest )
 {
     ConstRefMan<VolumeDataPack> voldp = visServ().getDisplayedVolumeDataPack(
@@ -409,7 +426,7 @@ void uiODViewer2DMgr::displayIn2DViewer( const VisID& visid, int attribid,
 	vwr2d = &addViewer2D( visid );
 	ConstRefMan<ZAxisTransform> zat =
 		visServ().getZAxisTransform( visServ().getSceneID(visid) );
-	vwr2d->setZAxisTransform( const_cast<ZAxisTransform*>(zat.ptr()) );
+	vwr2d->setZAxisTransform( cCast(ZAxisTransform*,zat.ptr()) );
 	ConstRefMan<visBase::DataObject> dataobj = visServ().getObject( visid );
 	mDynamicCastGet(const visSurvey::RandomTrackDisplay*,rtd,dataobj.ptr());
 	if ( rtd )
@@ -449,6 +466,33 @@ void uiODViewer2DMgr::displayIn2DViewer( const VisID& visid, int attribid,
     }
 
     vwr.handleChange( FlatView::Viewer::DisplayPars );
+}
+
+
+Viewer2DID uiODViewer2DMgr::displayIn2DViewer( const VolumeDataPack& dp,
+				const Attrib::SelSpec& ss,
+				const FlatView::DataDispPars::VD& pars,
+				FlatView::Viewer::VwrDest dest )
+{
+    const OD2DViewer::OpenResult2DV result = openViewer( dp, ss, pars, dest );
+    reportResult( result );
+    return result.id_;
+}
+
+
+Viewer2DID uiODViewer2DMgr::displayIn2DViewer( Viewer2DPosDataSel& sel,
+			FlatView::Viewer::VwrDest dest, float x1, float x2 )
+{
+    const OD2DViewer::OpenResult2DV result = openViewer( sel, dest, x1, x2 );
+    reportResult( result );
+    return result.id_;
+}
+
+
+void uiODViewer2DMgr::displayIn2DViewer( const VisID& id, int attr,
+				      FlatView::Viewer::VwrDest dest )
+{
+    reportResult( openViewer(id,attr,dest) );
 }
 
 
@@ -797,14 +841,17 @@ void uiODViewer2DMgr::create2DViewer( const uiODViewer2D& curvwr2d,
 				      const TrcKeyZSampling& newsampling,
 				      const uiWorldPoint& initialcentre )
 {
+    if ( advancedrequired_ || dispatchsuspended_ )
+	return;
+
     uiODViewer2D* vwr2d = &addViewer2D( VisID::udf() );
     vwr2d->setSelSpec( &curvwr2d.selSpec(FlatView::Viewer::WVA),
 		       FlatView::Viewer::WVA );
     vwr2d->setSelSpec( &curvwr2d.selSpec(FlatView::Viewer::VD),
 		       FlatView::Viewer::VD );
-    vwr2d->setZAxisTransform( const_cast<ZAxisTransform*>(
-					curvwr2d.getZAxisTransform() ) );
-    uiTaskRunner taskr( const_cast<uiODViewer2D&>(curvwr2d).viewerParent() );
+    vwr2d->setZAxisTransform(
+		cCast(ZAxisTransform*,curvwr2d.getZAxisTransform()) );
+    uiTaskRunner taskr( cCast(uiODViewer2D&,curvwr2d).viewerParent() );
     vwr2d->setTrcKeyZSampling( newsampling, &taskr );
 
     const uiFlatViewStdControl* control = curvwr2d.viewControl();
@@ -887,6 +934,7 @@ uiODViewer2D& uiODViewer2DMgr::addViewer2D( const VisID& visid )
     mAttachCB( vwr->dataMgr()->dataObjToBeRemoved,
 	       uiODViewer2DMgr::viewObjToBeRemoved );
     vwr->setMouseCursorExchange( &appl_.applMgr().mouseCursorExchange() );
+    mAttachCB( vwr->posChanged, uiODViewer2DMgr::nativePositionChanged );
     viewers2d_ += vwr;
     return *vwr;
 }
@@ -1230,13 +1278,19 @@ void uiODViewer2DMgr::viewWinClosedCB( CallBacker* cb )
 
 void uiODViewer2DMgr::remove2DViewer( const Viewer2DID& id )
 {
+    if ( advancedrequired_ )
+    {
+	closeViewer( id );
+	return;
+    }
     remove2DViewer( id.asInt(), false );
 }
 
 
 void uiODViewer2DMgr::remove2DViewer( const VisID& visid )
 {
-    remove2DViewer( visid.asInt(), true );
+    if ( prepareCloseForSource(visid) )
+	commitCloseForSource( visid );
 }
 
 
@@ -1253,7 +1307,12 @@ void uiODViewer2DMgr::remove2DViewer( int id, bool byvisid )
 		   uiODViewer2DMgr::viewObjAdded );
 	mDetachCB( viewers2d_[idx]->dataMgr()->dataObjToBeRemoved,
 		   uiODViewer2DMgr::viewObjToBeRemoved );
+	const Viewer2DID closedid = viewers2d_[idx]->ID();
+	mDetachCB( viewers2d_[idx]->posChanged,
+		   uiODViewer2DMgr::nativePositionChanged );
 	delete viewers2d_.removeSingle( idx );
+	forgetViewerSource( closedid );
+	viewerClosed.trigger( closedid );
 	setAllIntersectionPositions();
 	return;
     }
@@ -1327,6 +1386,15 @@ void uiODViewer2DMgr::usePar( const IOPar& iop )
 
 void uiODViewer2DMgr::getVwr2DObjIDs( TypeSet<Vis2DID>& vw2dobjids ) const
 {
+    if ( advancedrequired_ )
+    {
+	TypeSet<Viewer2DID> ids;
+	getViewerIDs( ids );
+	for ( const auto& id : ids )
+	    getViewerObjects( id, vw2dobjids );
+	return;
+    }
+
     for ( int vwridx=0; vwridx<viewers2d_.size(); vwridx++ )
 	viewers2d_[vwridx]->getVwr2DObjIDs( vw2dobjids );
 }
@@ -1335,6 +1403,13 @@ void uiODViewer2DMgr::getVwr2DObjIDs( TypeSet<Vis2DID>& vw2dobjids ) const
 void uiODViewer2DMgr::getHor3DVwr2DIDs( const EM::ObjectID& emid,
 					TypeSet<Vis2DID>& vw2dobjids ) const
 {
+    if ( advancedrequired_ )
+    {
+	getBackendObjectIDs( OD2DViewer::ObjectKind2DV::Horizon3D, emid,
+			     vw2dobjids );
+	return;
+    }
+
     for ( int vwridx=0; vwridx<viewers2d_.size(); vwridx++ )
 	viewers2d_[vwridx]->getHor3DVwr2DIDs( emid, vw2dobjids );
 }
@@ -1342,6 +1417,14 @@ void uiODViewer2DMgr::getHor3DVwr2DIDs( const EM::ObjectID& emid,
 
 void uiODViewer2DMgr::removeHorizon3D( const EM::ObjectID& emid )
 {
+    if ( advancedrequired_ )
+    {
+	if ( advancedbackend_ )
+	    advancedbackend_->removeObject(
+		OD2DViewer::ObjectKind2DV::Horizon3D, emid );
+	return;
+    }
+
     for ( int vwridx=0; vwridx<viewers2d_.size(); vwridx++ )
 	viewers2d_[vwridx]->removeHorizon3D( emid );
 }
@@ -1349,6 +1432,12 @@ void uiODViewer2DMgr::removeHorizon3D( const EM::ObjectID& emid )
 
 void uiODViewer2DMgr::getLoadedHorizon3Ds( TypeSet<EM::ObjectID>& emids ) const
 {
+    if ( advancedrequired_ )
+    {
+	getBackendLoaded( OD2DViewer::ObjectKind2DV::Horizon3D, emids );
+	return;
+    }
+
     for ( int vwridx=0; vwridx<viewers2d_.size(); vwridx++ )
 	viewers2d_[vwridx]->getLoadedHorizon3Ds( emids );
 }
@@ -1356,6 +1445,14 @@ void uiODViewer2DMgr::getLoadedHorizon3Ds( TypeSet<EM::ObjectID>& emids ) const
 
 void uiODViewer2DMgr::addHorizon3Ds( const TypeSet<EM::ObjectID>& emids )
 {
+    if ( advancedrequired_ )
+    {
+	if ( advancedbackend_ )
+	    advancedbackend_->addObjects(
+		OD2DViewer::ObjectKind2DV::Horizon3D, emids );
+	return;
+    }
+
     for ( int vwridx=0; vwridx<viewers2d_.size(); vwridx++ )
 	viewers2d_[vwridx]->addHorizon3Ds( emids );
 }
@@ -1370,8 +1467,23 @@ void uiODViewer2DMgr::addNewTrackingHorizon3D( const EM::ObjectID& emid )
 void uiODViewer2DMgr::addNewTrackingHorizon3D( const EM::ObjectID& emid,
 					       const SceneID& sceneid )
 {
-    for ( int vwridx=0; vwridx<viewers2d_.size(); vwridx++ )
-	viewers2d_[vwridx]->addNewTrackingHorizon3D( emid );
+    if ( advancedrequired_ )
+    {
+	TypeSet<EM::ObjectID> ids;
+	ids += emid;
+	if ( advancedbackend_ && nr2DViewers()>0 &&
+	     !advancedbackend_->addObjects(
+		OD2DViewer::ObjectKind2DV::Horizon3D,ids,true) )
+	    uiMSG().error( tr("This tracking operation is not supported "
+			      "by the Advanced 2D Viewer for the current "
+			      "section.") );
+    }
+    else
+    {
+	for ( int vwridx=0; vwridx<viewers2d_.size(); vwridx++ )
+	    viewers2d_[vwridx]->addNewTrackingHorizon3D( emid );
+    }
+
     TypeSet<EM::ObjectID> emids;
     appl_.sceneMgr().getLoadedEMIDs( emids, EM::Horizon3D::typeStr(), sceneid );
     if ( emids.isPresent(emid) )
@@ -1384,6 +1496,13 @@ void uiODViewer2DMgr::addNewTrackingHorizon3D( const EM::ObjectID& emid,
 void uiODViewer2DMgr::getHor2DVwr2DIDs( const EM::ObjectID& emid,
 					TypeSet<Vis2DID>& vw2dobjids ) const
 {
+    if ( advancedrequired_ )
+    {
+	getBackendObjectIDs( OD2DViewer::ObjectKind2DV::Horizon2D, emid,
+			     vw2dobjids );
+	return;
+    }
+
     for ( int vwridx=0; vwridx<viewers2d_.size(); vwridx++ )
 	viewers2d_[vwridx]->getHor2DVwr2DIDs( emid, vw2dobjids );
 }
@@ -1391,6 +1510,14 @@ void uiODViewer2DMgr::getHor2DVwr2DIDs( const EM::ObjectID& emid,
 
 void uiODViewer2DMgr::removeHorizon2D( const EM::ObjectID& emid )
 {
+    if ( advancedrequired_ )
+    {
+	if ( advancedbackend_ )
+	    advancedbackend_->removeObject(
+		OD2DViewer::ObjectKind2DV::Horizon2D, emid );
+	return;
+    }
+
     for ( int vwridx=0; vwridx<viewers2d_.size(); vwridx++ )
 	viewers2d_[vwridx]->removeHorizon2D( emid );
 }
@@ -1398,6 +1525,12 @@ void uiODViewer2DMgr::removeHorizon2D( const EM::ObjectID& emid )
 
 void uiODViewer2DMgr::getLoadedHorizon2Ds( TypeSet<EM::ObjectID>& emids ) const
 {
+    if ( advancedrequired_ )
+    {
+	getBackendLoaded( OD2DViewer::ObjectKind2DV::Horizon2D, emids );
+	return;
+    }
+
     for ( int vwridx=0; vwridx<viewers2d_.size(); vwridx++ )
 	viewers2d_[vwridx]->getLoadedHorizon2Ds( emids );
 }
@@ -1405,6 +1538,14 @@ void uiODViewer2DMgr::getLoadedHorizon2Ds( TypeSet<EM::ObjectID>& emids ) const
 
 void uiODViewer2DMgr::addHorizon2Ds( const TypeSet<EM::ObjectID>& emids )
 {
+    if ( advancedrequired_ )
+    {
+	if ( advancedbackend_ )
+	    advancedbackend_->addObjects(
+		OD2DViewer::ObjectKind2DV::Horizon2D, emids );
+	return;
+    }
+
     for ( int vwridx=0; vwridx<viewers2d_.size(); vwridx++ )
 	viewers2d_[vwridx]->addHorizon2Ds( emids );
 }
@@ -1419,8 +1560,23 @@ void uiODViewer2DMgr::addNewTrackingHorizon2D( const EM::ObjectID& emid )
 void uiODViewer2DMgr::addNewTrackingHorizon2D( const EM::ObjectID& emid,
 					       const SceneID& sceneid )
 {
-    for ( int vwridx=0; vwridx<viewers2d_.size(); vwridx++ )
-	viewers2d_[vwridx]->addNewTrackingHorizon2D( emid );
+    if ( advancedrequired_ )
+    {
+	TypeSet<EM::ObjectID> ids;
+	ids += emid;
+	if ( advancedbackend_ && nr2DViewers()>0 &&
+	     !advancedbackend_->addObjects(
+		OD2DViewer::ObjectKind2DV::Horizon2D,ids,true) )
+	    uiMSG().error( tr("This tracking operation is not supported "
+			      "by the Advanced 2D Viewer for the current "
+			      "section.") );
+    }
+    else
+    {
+	for ( int vwridx=0; vwridx<viewers2d_.size(); vwridx++ )
+	    viewers2d_[vwridx]->addNewTrackingHorizon2D( emid );
+    }
+
     TypeSet<EM::ObjectID> emids;
     appl_.sceneMgr().getLoadedEMIDs( emids, EM::Horizon2D::typeStr(), sceneid );
     if ( emids.isPresent(emid) )
@@ -1433,6 +1589,13 @@ void uiODViewer2DMgr::addNewTrackingHorizon2D( const EM::ObjectID& emid,
 void uiODViewer2DMgr::getFaultVwr2DIDs( const EM::ObjectID& emid,
 					TypeSet<Vis2DID>& vw2dobjids) const
 {
+    if ( advancedrequired_ )
+    {
+	getBackendObjectIDs( OD2DViewer::ObjectKind2DV::Fault, emid,
+			     vw2dobjids );
+	return;
+    }
+
     for ( int vwridx=0; vwridx<viewers2d_.size(); vwridx++ )
 	viewers2d_[vwridx]->getFaultVwr2DIDs( emid, vw2dobjids );
 }
@@ -1440,6 +1603,14 @@ void uiODViewer2DMgr::getFaultVwr2DIDs( const EM::ObjectID& emid,
 
 void uiODViewer2DMgr::removeFault( const EM::ObjectID& emid )
 {
+    if ( advancedrequired_ )
+    {
+	if ( advancedbackend_ )
+	    advancedbackend_->removeObject(
+		OD2DViewer::ObjectKind2DV::Fault, emid );
+	return;
+    }
+
     for ( int vwridx=0; vwridx<viewers2d_.size(); vwridx++ )
 	viewers2d_[vwridx]->removeFault( emid );
 }
@@ -1447,6 +1618,12 @@ void uiODViewer2DMgr::removeFault( const EM::ObjectID& emid )
 
 void uiODViewer2DMgr::getLoadedFaults( TypeSet<EM::ObjectID>& emids ) const
 {
+    if ( advancedrequired_ )
+    {
+	getBackendLoaded( OD2DViewer::ObjectKind2DV::Fault, emids );
+	return;
+    }
+
     for ( int vwridx=0; vwridx<viewers2d_.size(); vwridx++ )
 	viewers2d_[vwridx]->getLoadedFaults( emids );
 }
@@ -1454,6 +1631,14 @@ void uiODViewer2DMgr::getLoadedFaults( TypeSet<EM::ObjectID>& emids ) const
 
 void uiODViewer2DMgr::addFaults( const TypeSet<EM::ObjectID>& emids )
 {
+    if ( advancedrequired_ )
+    {
+	if ( advancedbackend_ )
+	    advancedbackend_->addObjects(
+		OD2DViewer::ObjectKind2DV::Fault, emids );
+	return;
+    }
+
     for ( int vwridx=0; vwridx<viewers2d_.size(); vwridx++ )
 	viewers2d_[vwridx]->addFaults( emids );
 }
@@ -1468,8 +1653,23 @@ void uiODViewer2DMgr::addNewTempFault( const EM::ObjectID& emid )
 void uiODViewer2DMgr::addNewTempFault( const EM::ObjectID& emid,
 				       const SceneID& sceneid )
 {
-    for ( int vwridx=0; vwridx<viewers2d_.size(); vwridx++ )
-	viewers2d_[vwridx]->addNewTempFault( emid );
+    if ( advancedrequired_ )
+    {
+	TypeSet<EM::ObjectID> ids;
+	ids += emid;
+	if ( advancedbackend_ && nr2DViewers()>0 &&
+	     !advancedbackend_->addObjects(
+		OD2DViewer::ObjectKind2DV::Fault,ids,true) )
+	    uiMSG().error( tr("This tracking operation is not supported "
+			      "by the Advanced 2D Viewer for the current "
+			      "section.") );
+    }
+    else
+    {
+	for ( int vwridx=0; vwridx<viewers2d_.size(); vwridx++ )
+	    viewers2d_[vwridx]->addNewTempFault( emid );
+    }
+
     TypeSet<EM::ObjectID> emids;
     appl_.sceneMgr().getLoadedEMIDs( emids, EM::Fault3D::typeStr(), sceneid );
     if ( emids.isPresent(emid) )
@@ -1482,6 +1682,13 @@ void uiODViewer2DMgr::addNewTempFault( const EM::ObjectID& emid,
 void uiODViewer2DMgr::getFaultSSVwr2DIDs( const EM::ObjectID& emid,
 					TypeSet<Vis2DID>& vw2dobjids ) const
 {
+    if ( advancedrequired_ )
+    {
+	getBackendObjectIDs( OD2DViewer::ObjectKind2DV::FaultSS3D, emid,
+			     vw2dobjids );
+	return;
+    }
+
     for ( int vwridx=0; vwridx<viewers2d_.size(); vwridx++ )
 	viewers2d_[vwridx]->getFaultSSVwr2DIDs( emid, vw2dobjids );
 }
@@ -1490,6 +1697,14 @@ void uiODViewer2DMgr::getFaultSSVwr2DIDs( const EM::ObjectID& emid,
 
 void uiODViewer2DMgr::removeFaultSS( const EM::ObjectID& emid )
 {
+    if ( advancedrequired_ )
+    {
+	if ( advancedbackend_ )
+	    advancedbackend_->removeObject(
+		OD2DViewer::ObjectKind2DV::FaultSS3D, emid );
+	return;
+    }
+
     for ( int vwridx=0; vwridx<viewers2d_.size(); vwridx++ )
 	viewers2d_[vwridx]->removeFaultSS( emid );
 }
@@ -1497,6 +1712,12 @@ void uiODViewer2DMgr::removeFaultSS( const EM::ObjectID& emid )
 
 void uiODViewer2DMgr::getLoadedFaultSSs( TypeSet<EM::ObjectID>& emids ) const
 {
+    if ( advancedrequired_ )
+    {
+	getBackendLoaded( OD2DViewer::ObjectKind2DV::FaultSS3D, emids );
+	return;
+    }
+
     for ( int vwridx=0; vwridx<viewers2d_.size(); vwridx++ )
 	viewers2d_[vwridx]->getLoadedFaultSSs( emids );
 }
@@ -1504,6 +1725,14 @@ void uiODViewer2DMgr::getLoadedFaultSSs( TypeSet<EM::ObjectID>& emids ) const
 
 void uiODViewer2DMgr::addFaultSSs( const TypeSet<EM::ObjectID>& emids )
 {
+    if ( advancedrequired_ )
+    {
+	if ( advancedbackend_ )
+	    advancedbackend_->addObjects(
+		OD2DViewer::ObjectKind2DV::FaultSS3D, emids );
+	return;
+    }
+
     for ( int vwridx=0; vwridx<viewers2d_.size(); vwridx++ )
 	viewers2d_[vwridx]->addFaultSSs( emids );
 }
@@ -1518,8 +1747,23 @@ void uiODViewer2DMgr::addNewTempFaultSS( const EM::ObjectID& emid )
 void uiODViewer2DMgr::addNewTempFaultSS( const EM::ObjectID& emid,
 					 const SceneID& sceneid )
 {
-    for ( int vwridx=0; vwridx<viewers2d_.size(); vwridx++ )
-	viewers2d_[vwridx]->addNewTempFaultSS( emid );
+    if ( advancedrequired_ )
+    {
+	TypeSet<EM::ObjectID> ids;
+	ids += emid;
+	if ( advancedbackend_ && nr2DViewers()>0 &&
+	     !advancedbackend_->addObjects(
+		OD2DViewer::ObjectKind2DV::FaultSS3D,ids,true) )
+	    uiMSG().error( tr("This tracking operation is not supported "
+			      "by the Advanced 2D Viewer for the current "
+			      "section.") );
+    }
+    else
+    {
+	for ( int vwridx=0; vwridx<viewers2d_.size(); vwridx++ )
+	    viewers2d_[vwridx]->addNewTempFaultSS( emid );
+    }
+
     TypeSet<EM::ObjectID> emids;
     appl_.sceneMgr().getLoadedEMIDs( emids, EM::FaultStickSet::typeStr(),
 				     sceneid );
@@ -1532,6 +1776,13 @@ void uiODViewer2DMgr::addNewTempFaultSS( const EM::ObjectID& emid,
 void uiODViewer2DMgr::getFaultSS2DVwr2DIDs( const EM::ObjectID& emid,
 					TypeSet<Vis2DID>& vw2dobjids ) const
 {
+    if ( advancedrequired_ )
+    {
+	getBackendObjectIDs( OD2DViewer::ObjectKind2DV::FaultSS2D, emid,
+			     vw2dobjids );
+	return;
+    }
+
     for ( int vwridx=0; vwridx<viewers2d_.size(); vwridx++ )
 	viewers2d_[vwridx]->getFaultSS2DVwr2DIDs( emid, vw2dobjids );
 }
@@ -1539,6 +1790,14 @@ void uiODViewer2DMgr::getFaultSS2DVwr2DIDs( const EM::ObjectID& emid,
 
 void uiODViewer2DMgr::removeFaultSS2D( const EM::ObjectID& emid )
 {
+    if ( advancedrequired_ )
+    {
+	if ( advancedbackend_ )
+	    advancedbackend_->removeObject(
+		OD2DViewer::ObjectKind2DV::FaultSS2D, emid );
+	return;
+    }
+
     for ( int vwridx=0; vwridx<viewers2d_.size(); vwridx++ )
 	viewers2d_[vwridx]->removeFaultSS2D( emid );
 }
@@ -1546,6 +1805,12 @@ void uiODViewer2DMgr::removeFaultSS2D( const EM::ObjectID& emid )
 
 void uiODViewer2DMgr::getLoadedFaultSS2Ds( TypeSet<EM::ObjectID>& emids ) const
 {
+    if ( advancedrequired_ )
+    {
+	getBackendLoaded( OD2DViewer::ObjectKind2DV::FaultSS2D, emids );
+	return;
+    }
+
     for ( int vwridx=0; vwridx<viewers2d_.size(); vwridx++ )
 	viewers2d_[vwridx]->getLoadedFaultSS2Ds( emids );
 }
@@ -1553,6 +1818,14 @@ void uiODViewer2DMgr::getLoadedFaultSS2Ds( TypeSet<EM::ObjectID>& emids ) const
 
 void uiODViewer2DMgr::addFaultSS2Ds( const TypeSet<EM::ObjectID>& emids )
 {
+    if ( advancedrequired_ )
+    {
+	if ( advancedbackend_ )
+	    advancedbackend_->addObjects(
+		OD2DViewer::ObjectKind2DV::FaultSS2D, emids );
+	return;
+    }
+
     for ( int vwridx=0; vwridx<viewers2d_.size(); vwridx++ )
 	viewers2d_[vwridx]->addFaultSS2Ds( emids );
 }
@@ -1567,8 +1840,23 @@ void uiODViewer2DMgr::addNewTempFaultSS2D( const EM::ObjectID& emid )
 void uiODViewer2DMgr::addNewTempFaultSS2D( const EM::ObjectID& emid,
 					   const SceneID& sceneid )
 {
-    for ( int vwridx=0; vwridx<viewers2d_.size(); vwridx++ )
-	viewers2d_[vwridx]->addNewTempFaultSS2D( emid );
+    if ( advancedrequired_ )
+    {
+	TypeSet<EM::ObjectID> ids;
+	ids += emid;
+	if ( advancedbackend_ && nr2DViewers()>0 &&
+	     !advancedbackend_->addObjects(
+		OD2DViewer::ObjectKind2DV::FaultSS2D,ids,true) )
+	    uiMSG().error( tr("This tracking operation is not supported "
+			      "by the Advanced 2D Viewer for the current "
+			      "section.") );
+    }
+    else
+    {
+	for ( int vwridx=0; vwridx<viewers2d_.size(); vwridx++ )
+	    viewers2d_[vwridx]->addNewTempFaultSS2D( emid );
+    }
+
     TypeSet<EM::ObjectID> emids;
     appl_.sceneMgr().getLoadedEMIDs( emids, EM::FaultStickSet::typeStr(),
 				     sceneid );
@@ -1583,6 +1871,21 @@ void uiODViewer2DMgr::addNewTempFaultSS2D( const EM::ObjectID& emid,
 void uiODViewer2DMgr::getPickSetVwr2DIDs( const MultiID& mid,
 					  TypeSet<Vis2DID>& vw2dobjids ) const
 {
+    if ( advancedrequired_ )
+    {
+	TypeSet<Vis2DID> ids;
+	getVwr2DObjIDs( ids );
+	for ( const auto& id : ids )
+	{
+	    OD2DViewer::Object2DVInfo info;
+	    if ( getObjectInfo(id,info) &&
+		 info.kind_==OD2DViewer::ObjectKind2DV::PickSet &&
+		 info.multiid_==mid )
+		vw2dobjids.addIfNew( id );
+	}
+	return;
+    }
+
     for ( int vwridx=0; vwridx<viewers2d_.size(); vwridx++ )
 	viewers2d_[vwridx]->getPickSetVwr2DIDs( mid, vw2dobjids );
 }
@@ -1590,6 +1893,13 @@ void uiODViewer2DMgr::getPickSetVwr2DIDs( const MultiID& mid,
 
 void uiODViewer2DMgr::removePickSet( const MultiID& mid )
 {
+    if ( advancedrequired_ )
+    {
+	if ( advancedbackend_ )
+	    advancedbackend_->removePickSet( mid );
+	return;
+    }
+
     for ( int vwridx=0; vwridx<viewers2d_.size(); vwridx++ )
 	viewers2d_[vwridx]->removePickSet( mid );
 }
@@ -1597,6 +1907,20 @@ void uiODViewer2DMgr::removePickSet( const MultiID& mid )
 
 void uiODViewer2DMgr::getLoadedPickSets( TypeSet<MultiID>& mids ) const
 {
+    if ( advancedrequired_ )
+    {
+	TypeSet<Vis2DID> ids;
+	getVwr2DObjIDs( ids );
+	for ( const auto& id : ids )
+	{
+	    OD2DViewer::Object2DVInfo info;
+	    if ( getObjectInfo(id,info) &&
+		 info.kind_==OD2DViewer::ObjectKind2DV::PickSet )
+		mids.addIfNew( info.multiid_ );
+	}
+	return;
+    }
+
     for ( int vwridx=0; vwridx<viewers2d_.size(); vwridx++ )
 	viewers2d_[vwridx]->getLoadedPickSets( mids );
 }
@@ -1604,6 +1928,13 @@ void uiODViewer2DMgr::getLoadedPickSets( TypeSet<MultiID>& mids ) const
 
 void uiODViewer2DMgr::addPickSets( const TypeSet<MultiID>& mids )
 {
+    if ( advancedrequired_ )
+    {
+	if ( advancedbackend_ )
+	    advancedbackend_->addPickSets( mids );
+	return;
+    }
+
     for ( int vwridx=0; vwridx<viewers2d_.size(); vwridx++ )
 	viewers2d_[vwridx]->addPickSets( mids );
 }

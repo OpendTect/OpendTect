@@ -27,6 +27,8 @@ public:
 
     virtual const char*		getClassName() const	{ return "Not impl"; }
 
+    static Vis2DID		allocateID();
+
     Vis2DID			id() const		{ return id_; }
     void			setID( const Vis2DID& id )	{ id_ = id; }
 

@@ -14,6 +14,9 @@ set( OD_MODULE_DEPS
 	uiViewer2D
 )
 set( OD_FOLDER "Base (GUI)" )
+set( OD_MODULE_INCFILES
+    ${CMAKE_SOURCE_DIR}/include/uiODMain/uiod2dviewerbackend.h
+)
 
 set( OD_MODULE_SOURCES
 	inituiodmain.cc
@@ -49,6 +52,8 @@ set( OD_MODULE_SOURCES
 	uiodseis2dtreeitem.cc
 	uiodviewer2d.cc
 	uiodviewer2dmgr.cc
+	uiodviewer2ddispatch.cc
+	uiod2dviewerbackend.cc
 	uiodviewer2dposgrp.cc
 	uiodviewer2dposdlg.cc
 	uiodvw2dtreeitem.cc

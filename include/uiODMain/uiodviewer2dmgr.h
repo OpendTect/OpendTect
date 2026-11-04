@@ -9,6 +9,7 @@ ________________________________________________________________________
 -*/
 
 #include "uiodmainmod.h"
+#include "uiod2dviewerbackend.h"
 #include "callback.h"
 #include "datapack.h"
 #include "emposid.h"
@@ -30,6 +31,58 @@ namespace Attrib	{ class SelSpec; }
 mExpClass(uiODMain) uiODViewer2DMgr : public CallBacker
 { mODTextTranslationClass(uiODViewer2DMgr);
 public:
+
+    //! Registers an Advanced backend without transferring ownership.
+    void			registerBackend(uiOD2DViewerBackend&);
+    //! Detaches the Advanced backend before it is destroyed.
+    void			unregisterBackend(uiOD2DViewerBackend&);
+    void			setAdvancedRequired(bool);
+    bool			isAdvancedRequired() const
+				{ return advancedrequired_; }
+    bool			isDispatchSuspended() const
+				{ return dispatchsuspended_; }
+    void			suspendDispatch();
+    void			resumeDispatch();
+
+    OD2DViewer::OpenResult2DV	openViewer(const VisID&,int,
+					   FlatView::Viewer::VwrDest);
+    OD2DViewer::OpenResult2DV	openViewer(const VolumeDataPack&,
+				 const Attrib::SelSpec&,
+				 const FlatView::DataDispPars::VD&,
+				 FlatView::Viewer::VwrDest);
+    OD2DViewer::OpenResult2DV	openViewer(Viewer2DPosDataSel&,
+				 FlatView::Viewer::VwrDest,
+				 float initialx1=mUdf(float),
+				 float initialx2=mUdf(float));
+
+    void			getViewerIDs(TypeSet<Viewer2DID>&) const;
+    bool			getViewerInfo(Viewer2DID,
+				      OD2DViewer::Viewer2DInfo&) const;
+    void			getViewerObjects(Viewer2DID,
+					 TypeSet<Vis2DID>&) const;
+    bool			getObjectInfo(Vis2DID,
+				      OD2DViewer::Object2DVInfo&) const;
+    bool			setViewerPosition(Viewer2DID,
+					  const TrcKeyZSampling&);
+    bool			updateViewerSeismic(Viewer2DID,
+				 const VolumeDataPack&,const Attrib::SelSpec&,
+				 const FlatView::DataDispPars::VD&,
+				 FlatView::Viewer::VwrDest);
+    bool			closeViewer(Viewer2DID);
+    void			associateViewerWithSource(Viewer2DID,
+						  const VisID&);
+    bool			prepareCloseViewers(const TypeSet<Viewer2DID>&,
+					    bool alreadySaved=false);
+    bool			prepareCloseForSource(const VisID&);
+    bool			prepareCloseForSources(const TypeSet<VisID>&);
+    bool			prepareCloseAll(bool alreadySaved=false);
+    void			commitCloseForSource(const VisID&);
+    void			commitCloseForSources(const TypeSet<VisID>&);
+    void			commitCloseAll();
+    void			cancelClosePreparation();
+
+    CNotifier<uiODViewer2DMgr,Viewer2DID> viewerPositionChanged;
+    CNotifier<uiODViewer2DMgr,Viewer2DID> viewerClosed;
 
     struct SelectedAuxAnnot
     {
@@ -146,6 +199,46 @@ protected:
 
     uiODViewer2D&		addViewer2D(const VisID&);
     void			remove2DViewer(int id,bool byvisid);
+
+    friend class uiODNative2DViewerBackend;
+    //! Manager-owned native adapter.
+    uiOD2DViewerBackend*		nativebackend_ {nullptr};
+    //! Plugin-owned Advanced backend, borrowed until unregistered.
+    uiOD2DViewerBackend*		advancedbackend_ {nullptr};
+    TypeSet<Viewer2DID>		associatedviewers_;
+    TypeSet<VisID>		associatedsources_;
+    bool			advancedrequired_ {false};
+    bool			dispatchsuspended_ {false};
+
+    void			forgetViewerSource(Viewer2DID);
+    uiOD2DViewerBackend*		selectedBackend() const;
+    uiOD2DViewerBackend*		readyBackend() const;
+    void			initBackends();
+    void			destroyBackends();
+    void			reportResult(
+				    const OD2DViewer::OpenResult2DV&) const;
+    void			backendObjectAdded(CallBacker*);
+    void			backendObjectRemoved(CallBacker*);
+    void			backendPositionChanged(CallBacker*);
+    void			backendViewerClosed(CallBacker*);
+    void			nativePositionChanged(CallBacker*);
+    void			afterSurveyChangeCB(CallBacker*);
+    void			resumeDispatchCB(CallBacker*);
+    void			getSourcesViewers(const TypeSet<VisID>&,
+				 TypeSet<Viewer2DID>&,
+				 const uiOD2DViewerBackend&) const;
+    void			getBackendObjectIDs(OD2DViewer::ObjectKind2DV,
+				 const EM::ObjectID&,TypeSet<Vis2DID>&) const;
+    void			getBackendLoaded(OD2DViewer::ObjectKind2DV,
+				 TypeSet<EM::ObjectID>&) const;
+    void			nativeOpen(const VisID&,int,
+				   FlatView::Viewer::VwrDest);
+    Viewer2DID			nativeOpen(const VolumeDataPack&,
+				 const Attrib::SelSpec&,
+				 const FlatView::DataDispPars::VD&,
+				 FlatView::Viewer::VwrDest);
+    Viewer2DID			nativeOpen(Viewer2DPosDataSel&,
+				 FlatView::Viewer::VwrDest,float,float);
 
     ObjectSet<uiODViewer2D>	viewers2d_;
     SelectedAuxAnnot		selauxannot_;
