@@ -230,6 +230,7 @@ mExternCPP(uiODMain) void ODMain( std::unique_ptr<uiDialog>& prodseldlgman,
 			   prodselnotif,skippluginsel]
     {
 	uiMain& app = uiMain::instance();
+	app.setQuitOnLastWindowClosed( false );
 	const CommandLineParser clp;
 	uiRetVal uirv = IOMan::setDataSource( clp );
 	mIfIOMNotOK( { app.exit(1); return; } )
@@ -302,6 +303,7 @@ mExternCPP(uiODMain) void ODMain( std::unique_ptr<uiDialog>& prodseldlgman,
 	odmain->go();
 	odmain->updateCaption();
 	splash.finish( odmain.get() );
+	uiMain::instance().setQuitOnLastWindowClosed( true );
     });
 
     starthandler->attachCB( *prodselnotif.get() );

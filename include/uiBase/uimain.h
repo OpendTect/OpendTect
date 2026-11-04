@@ -48,6 +48,8 @@ public:
     virtual int		exec();
     void		restart();
     void		exit(int retcode=0);
+    void		setQuitOnLastWindowClosed(bool);
+			//!<True by default: Qt quits when its last window closes
     void*		thread();
 
     void		getCmdLineArgs(BufferStringSet&) const;
