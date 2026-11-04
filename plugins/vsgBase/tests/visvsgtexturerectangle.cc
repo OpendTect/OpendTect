@@ -43,7 +43,7 @@ struct Setup
 
 float valueOf( const Setup& setup, int col, int row )
 {
-    return float( row*setup.width_ + col );
+    return sCast( float, row*setup.width_ + col );
 }
 
 
@@ -67,14 +67,14 @@ bool render( const Setup& setup, Pixels& pixels, Pixels* frozenpixels=nullptr )
     const int nrvalues = setup.width_ * setup.height_;
     TypeSet<float> values;
     for ( int idx=0; idx<nrvalues; idx++ )
-	values += float( idx );
+	values += sCast( float, idx );
 
     RefMan<dGBVis::TextureChannels> channels = dGBVis::TextureChannels::create();
     channels->enableTextureInterpolation( setup.interpolate_ );
     channels->setSize( 0, 1, setup.height_, setup.width_ );
     ColTab::MapperSetup mappersetup;
     mappersetup.type_ = ColTab::MapperSetup::Fixed;
-    mappersetup.range_ = Interval<float>( 0.f, float(nrvalues-1) );
+    mappersetup.range_ = Interval<float>( 0.f, sCast( float, nrvalues-1 ) );
     channels->setColTabMapperSetup( 0, mappersetup );
     ColTab::Sequence seq;
     seq.setColor( 0.f, 255, 0, 0 );
@@ -148,18 +148,18 @@ vsg::ubvec4 cellPixel( const Pixels& pixels, const Setup& setup, int col,
     const double fv = setup.swapped_ ? fx : fy;
     const double fright = setup.rotated_ ? fv : fu;
     const double fup = setup.rotated_ ? fu : fv;
-    const int x = mMIN( int(cSize)-1, int(fright*cSize) );
-    const int ytop = mMIN( int(cSize)-1, int((1.-fup)*cSize) );
-    return pixels[ ytop*int(cSize) + x ];
+    const int x = mMIN( sCast(int,cSize)-1, sCast(int,fright*cSize) );
+    const int ytop = mMIN( sCast(int,cSize)-1, sCast(int,(1.-fup)*cSize) );
+    return pixels[ ytop*sCast(int,cSize) + x ];
 }
 
 
 bool isExpectedColor( const vsg::ubvec4& pix, float value, int nrvalues )
 {
-    const int idx = mMIN( 254, int(value/float(nrvalues-1)*255.f) );
-    const float pos = float(idx) / 254.f;
-    return Math::Abs(int(pix.r)-int((1.f-pos)*255.f))<=8 &&
-	   Math::Abs(int(pix.b)-int(pos*255.f))<=8 && pix.g<=8;
+    const int idx = mMIN( 254, sCast(int,value/sCast(float,nrvalues-1)*255.f) );
+    const float pos = sCast( float, idx ) / 254.f;
+    return Math::Abs(sCast(int,pix.r)-sCast(int,(1.f-pos)*255.f))<=8 &&
+	   Math::Abs(sCast(int,pix.b)-sCast(int,pos*255.f))<=8 && pix.g<=8;
 }
 
 
@@ -183,8 +183,9 @@ BufferString checkCells( const Pixels& pixels, const Setup& setup )
 				  setup.width_*setup.height_) )
 	    {
 		wrong.add( "Cell " ).add( col ).add( "," ).add( row ).add( ": (" )
-		     .add( int(pix.r) ).add( "," ).add( int(pix.g) ).add( "," )
-		     .add( int(pix.b) ).add( ") " );
+		     .add( sCast( int, pix.r ) ).add( "," )
+		     .add( sCast( int, pix.g ) ).add( "," )
+		     .add( sCast( int, pix.b ) ).add( ") " );
 	    }
 	}
     }
@@ -227,9 +228,9 @@ static bool testTilesLikeOne()
 	{
 	    const vsg::ubvec4& one = tiledpixels[idx];
 	    const vsg::ubvec4& other = singlepixels[idx];
-	    if ( Math::Abs(int(one.r)-int(other.r))>3 ||
-		 Math::Abs(int(one.g)-int(other.g))>3 ||
-		 Math::Abs(int(one.b)-int(other.b))>3 )
+	    if ( Math::Abs(sCast(int,one.r)-sCast(int,other.r))>3 ||
+		 Math::Abs(sCast(int,one.g)-sCast(int,other.g))>3 ||
+		 Math::Abs(sCast(int,one.b)-sCast(int,other.b))>3 )
 		nrdifferent++;
 	}
 
@@ -332,11 +333,12 @@ static bool testTransparentTable()
 
     Pixels pixels;
     mRunStandardTest( ov.readColor(pixels), "Transparent table: Image is read" );
-    const int centre = int(cSize/2)*int(cSize) + int(cSize/2);
+    const int centre = sCast(int,cSize/2)*sCast(int,cSize) + sCast(int,cSize/2);
     mRunStandardTestWithError( pixels[centre].g>250,
 			       "Transparent table: An opaque table covers the "
 			       "background",
-			       BufferString("Green: ",int(pixels[centre].g)) );
+			       BufferString("Green: ",
+					    sCast(int,pixels[centre].g)) );
 
     ColTab::Sequence transparent = opaque;
     transparent.setTransparency( Geom::Point2D<float>(0.f,128.f) );
@@ -347,10 +349,11 @@ static bool testTransparentTable()
     ov.frame( 4 );
     mRunStandardTest( ov.readColor(pixels),
 		      "Transparent table: Image is read again" );
-    mRunStandardTestWithError( Math::Abs(int(pixels[centre].g)-128)<12,
+    mRunStandardTestWithError( Math::Abs(sCast(int,pixels[centre].g)-128)<12,
 			       "Transparent table: A transparent table is "
 			       "blended with the background",
-			       BufferString("Green: ",int(pixels[centre].g)) );
+			       BufferString("Green: ",
+					    sCast(int,pixels[centre].g)) );
 
     channels->setColTabSequence( opaque );
     ov.frame( 4 );
@@ -359,7 +362,8 @@ static bool testTransparentTable()
     mRunStandardTestWithError( pixels[centre].g>250,
 			       "Transparent table: An opaque table again "
 			       "covers the background",
-			       BufferString("Green: ",int(pixels[centre].g)) );
+			       BufferString("Green: ",
+					    sCast(int,pixels[centre].g)) );
 
     root = nullptr;
     ov.scene().children.clear();

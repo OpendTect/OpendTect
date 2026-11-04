@@ -33,7 +33,7 @@ void setRedToBlue( vsgGeo::LayeredTexture& texture )
     TypeSet<vsg::vec4> colors( nrcolors, vsg::vec4() );
     for ( int idx=0; idx<nrcolors; idx++ )
     {
-	const float level = float(idx) / float(nrcolors-1);
+	const float level = sCast( float, idx ) / sCast( float, nrcolors-1 );
 	colors[idx] = vsg::vec4( 1.f-level, 0.f, level, 1.f );
     }
 
@@ -62,7 +62,7 @@ bool setIndices( vsgGeo::LayeredTexture& texture,
 	bands += defined;
     }
 
-    return texture.setIndices( bands.arr(), size_t(bands.size()) );
+    return texture.setIndices( bands.arr(), sCast( size_t, bands.size() ) );
 }
 
 
@@ -70,13 +70,14 @@ template <size_t N>
 bool setIndices( vsgGeo::LayeredTexture& texture,
 		 const unsigned char (&indices)[N] )
 {
-    return setIndices( texture, indices, int(N) );
+    return setIndices( texture, indices, sCast( int, N ) );
 }
 
 
 vsg::ubvec4 pixelAt( const Pixels& pixels, double xfrac, double yfrac )
 {
-    return pixels[ int(yfrac*cSize)*int(cSize) + int(xfrac*cSize) ];
+    return pixels[ sCast(int,yfrac*cSize)*sCast(int,cSize) +
+		   sCast(int,xfrac*cSize) ];
 }
 
 
@@ -84,15 +85,16 @@ vsg::ubvec4 cellColor( const Pixels& pixels, int col, int row )
 {
     const int x = col*cCellWidth + cCellWidth/2;
     const int ytop = (cNrRows-1-row)*cCellHeight + cCellHeight/2;
-    return pixels[ int(ytop*cSize + x) ];
+    return pixels[ sCast( int, ytop*cSize + x ) ];
 }
 
 
 BufferString describe( const vsg::ubvec4& pix )
 {
     BufferString ret( "(" );
-    ret.add( int(pix.r) ).add( "," ).add( int(pix.g) ).add( "," )
-       .add( int(pix.b) ).add( ")" );
+    ret.add( sCast( int, pix.r ) ).add( "," )
+       .add( sCast( int, pix.g ) ).add( "," )
+       .add( sCast( int, pix.b ) ).add( ")" );
     return ret;
 }
 
@@ -117,8 +119,8 @@ bool isGreen( const vsg::ubvec4& pix )
 
 bool isMiddle( const vsg::ubvec4& pix )
 {
-    return Math::Abs(int(pix.r)-128)<20 && Math::Abs(int(pix.b)-127)<20 &&
-	   pix.g<10;
+    return Math::Abs(sCast(int,pix.r)-128)<20 &&
+	   Math::Abs(sCast(int,pix.b)-127)<20 && pix.g<10;
 }
 
 } // namespace
@@ -242,8 +244,9 @@ static bool testInterpolation()
     mRunStandardTestWithError( isRed(first) && isBlue(second),
 			       "Interpolation: The middle of a cell has the "
 			       "color of its value", describe(first) );
-    mRunStandardTestWithError( Math::Abs(int(middle.r)-128)<14 &&
-			       Math::Abs(int(middle.b)-127)<14 && middle.g<10,
+    mRunStandardTestWithError( Math::Abs(sCast(int,middle.r)-128)<14 &&
+			       Math::Abs(sCast(int,middle.b)-127)<14 &&
+			       middle.g<10,
 			       "Interpolation: Between two cells the colors "
 			       "blend", describe(middle) );
     return true;
@@ -459,8 +462,9 @@ static bool testTransparentOrder()
 	Pixels pixels;
 	mRunStandardTest( ov.readColor(pixels), "Order: Image is read" );
 	const vsg::ubvec4 pix = pixelAt( pixels, 0.5, 0.5 );
-	mRunStandardTestWithError( Math::Abs(int(pix.r)-64)<12 && pix.g<6 &&
-				   Math::Abs(int(pix.b)-128)<12,
+	mRunStandardTestWithError( Math::Abs(sCast(int,pix.r)-64)<12 &&
+				   pix.g<6 &&
+				   Math::Abs(sCast(int,pix.b)-128)<12,
 				   nearfirst ? "Order: Transparent planes are "
 				   "blended back to front when the near one "
 				   "comes first" : "Order: Transparent planes "
@@ -505,12 +509,12 @@ static bool testTransparency()
     const vsg::ubvec4 udf = cellColor( pixels, 3, 0 );
     mRunStandardTestWithError( opaque.g>250, "Transparency: An opaque color "
 			       "covers the background", describe(opaque) );
-    mRunStandardTestWithError( Math::Abs(int(half.g)-128)<12,
+    mRunStandardTestWithError( Math::Abs(sCast(int,half.g)-128)<12,
 			       "Transparency: A half transparent color is "
 			       "blended with the background", describe(half) );
     mRunStandardTestWithError( clear.g<6, "Transparency: A fully transparent "
 			       "color shows the background", describe(clear) );
-    mRunStandardTestWithError( Math::Abs(int(udf.g)-64)<12,
+    mRunStandardTestWithError( Math::Abs(sCast(int,udf.g)-64)<12,
 			       "Transparency: The undefined color is blended "
 			       "too", describe(udf) );
     mRunStandardTestWithError( ov.nrValidationMessages()==0,

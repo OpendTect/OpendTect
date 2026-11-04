@@ -138,7 +138,7 @@ bool TextureChannels::setUnMappedData( int channel, int version,
     }
 
     if ( policy == OD::TakeOverPtr )
-	delete [] const_cast<float*>( data );
+	delete [] cCast( float*, data );
 
     return ok;
 }
@@ -235,7 +235,7 @@ void TextureChannels::setColTabSequence( const ColTab::Sequence& seq )
 void TextureChannels::mapToIndices( bool full, TaskRunner* taskr )
 {
     mapper_.update( full, taskr );
-    indices_.setSize( int(data_.size()*nrBands()), 0 );
+    indices_.setSize( sCast( int, data_.size()*nrBands() ), 0 );
     histogram_.setSize( nrSteps(), 0.f );
     histogram_.setAll( 0.f );
     if ( data_.isEmpty() )
@@ -243,8 +243,8 @@ void TextureChannels::mapToIndices( bool full, TaskRunner* taskr )
 
     ArrayValueSeries<float,float> values( data_.arr(), false, data_.size() );
     ColTab::MapperTask<unsigned char> task( mapper_, data_.size(),
-	    (unsigned char)nrSteps(), values, indices_.arr(), nrBands(),
-	    indices_.arr()+1, nrBands() );
+	    sCast( unsigned char, nrSteps() ), values, indices_.arr(),
+	    nrBands(), indices_.arr()+1, nrBands() );
     if ( !TaskRunner::execute(taskr,task) )
 	return;
 
@@ -257,7 +257,7 @@ void TextureChannels::mapToIndices( bool full, TaskRunner* taskr )
     }
 
     for ( int idx=0; idx<nrSteps() && max>0; idx++ )
-	histogram_[idx] = float(counts[idx]) / float(max);
+	histogram_[idx] = sCast( float, counts[idx] ) / sCast( float, max );
 }
 
 
@@ -277,7 +277,7 @@ void TextureChannels::mapToTexture( bool full, TaskRunner* taskr )
     {
 	const od_int64 width = tile.texture_->width();
 	const od_int64 height = tile.texture_->height();
-	tilebands.setSize( int(width*height*nrbands) );
+	tilebands.setSize( sCast( int, width*height*nrbands ) );
 	for ( od_int64 idy=0; idy<height; idy++ )
 	{
 	    const od_int64 srcrow = tile.y0_ - tile.overy_ + idy;
@@ -287,7 +287,8 @@ void TextureChannels::mapToTexture( bool full, TaskRunner* taskr )
 			    width*nrbands );
 	}
 
-	tile.texture_->setIndices( tilebands.arr(), size_t(tilebands.size()) );
+	tile.texture_->setIndices( tilebands.arr(),
+				   sCast( size_t, tilebands.size() ) );
     }
 
     colTabChanged.trigger();

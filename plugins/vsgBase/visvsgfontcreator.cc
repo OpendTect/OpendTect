@@ -226,11 +226,12 @@ bool addDecorationBars( TypeSet<od_uint8>& alpha, GlyphBox& box,
 	return false;
 
     const bool hasink = box.width>0 && box.height>0;
-    box.cropleft = hasink ? mMIN( 0.f, float(box.originx) ) : 0.f;
-    box.cropright = hasink ? mMAX( advance, float(box.originx+box.width) )
+    box.cropleft = hasink ? mMIN( 0.f, sCast( float, box.originx ) ) : 0.f;
+    box.cropright = hasink ? mMAX( advance,
+				   sCast( float, box.originx+box.width ) )
 			   : advance;
-    const int barleft = int( Math::Floor(box.cropleft) ) - cMargin;
-    const int barright = int( Math::Ceil(box.cropright) ) + cMargin;
+    const int barleft = sCast( int, Math::Floor(box.cropleft) ) - cMargin;
+    const int barright = sCast( int, Math::Ceil(box.cropright) ) + cMargin;
     if ( box.cropright <= box.cropleft )
 	return false;
 
@@ -365,8 +366,9 @@ vsg::ref_ptr<vsg::Font> assembleFont(
 	    }
 	}
 
-	const float cellleft = float(gb.originx) - float(cMargin);
-	const float cellright = cellleft + float(cellw);
+	const float cellleft = sCast( float, gb.originx ) -
+			       sCast( float, cMargin );
+	const float cellright = cellleft + sCast( float, cellw );
 	float quadleft = cellleft;
 	float quadright = cellright;
 	if ( hasbitmap && gb.cropped )
@@ -379,12 +381,14 @@ vsg::ref_ptr<vsg::Font> assembleFont(
 	if ( hasbitmap )
 	{
 	    gm.uvrect.set(
-		( float(xpos) - 1.f + (quadleft-cellleft) )
-					/ float( atlaswidth - 1 ),
-		float( ypos + cellh ) / float( atlasheight - 1 ),
-		( float(xpos + cellw) - (cellright-quadright) )
-					/ float( atlaswidth - 1 ),
-		( float(ypos) - 1.f ) / float( atlasheight - 1 ) );
+		( sCast( float, xpos ) - 1.f + (quadleft-cellleft) )
+					/ sCast( float, atlaswidth-1 ),
+		sCast( float, ypos+cellh )
+					/ sCast( float, atlasheight-1 ),
+		( sCast( float, xpos+cellw ) - (cellright-quadright) )
+					/ sCast( float, atlaswidth-1 ),
+		( sCast( float, ypos ) - 1.f )
+					/ sCast( float, atlasheight-1 ) );
 	    gm.width = ( quadright - quadleft ) / cEmSize;
 	    gm.height = float( cellh ) / cEmSize;
 	}

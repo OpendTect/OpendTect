@@ -177,7 +177,7 @@ static bool testColors()
     channels->setColTabSequence( seq );
     vsgGeo::LayeredTexture* texture = channels->tile(0).texture_.get();
     const vsgGeo::ColorLookup& lookup = texture->colorLookup();
-    const float lastidx = float( dGBVis::TextureChannels::nrSteps()-1 );
+    const float lastidx = sCast( float, dGBVis::TextureChannels::nrSteps()-1 );
     const vsg::vec4 first = lookup.colorAt( texture->indexAt(0,0)/lastidx );
     const vsg::vec4 last = lookup.colorAt( texture->indexAt(3,0)/lastidx );
     const vsg::vec4 udf = lookup.undefColor();
@@ -238,14 +238,14 @@ static bool testTiles()
     for ( int idy=0; idy<height; idy++ )
     {
 	for ( int idx=0; idx<width; idx++ )
-	    values += float( idy*width + idx );
+	    values += sCast( float, idy*width + idx );
     }
 
     RefMan<dGBVis::TextureChannels> channels = dGBVis::TextureChannels::create();
     channels->setSize( 0, 1, height, width );
     ColTab::MapperSetup setup;
     setup.type_ = ColTab::MapperSetup::Fixed;
-    setup.range_ = Interval<float>( 0.f, float(width*height-1) );
+    setup.range_ = Interval<float>( 0.f, sCast( float, width*height-1 ) );
     channels->setColTabMapperSetup( 0, setup );
     channels->setUnMappedData( 0, 0, values.arr(), OD::UsePtr, nullptr );
     vsgGeo::LayeredTexture::setMaxTextureSize( oldmax );
@@ -282,7 +282,8 @@ static bool testTiles()
 		const int expected = ColTab::Mapper::snappedPosition(
 			&mapper, val, dGBVis::TextureChannels::nrSteps(),
 			dGBVis::TextureChannels::nrSteps() );
-		if ( Math::Abs(int(tile.texture_->indexAt(idx,idy))-expected)>1 )
+		const int found = sCast( int, tile.texture_->indexAt(idx,idy) );
+	if ( Math::Abs(found-expected)>1 )
 		    allok = false;
 	    }
 	}
@@ -325,7 +326,7 @@ static bool testMappedData()
     for ( int idx=0; idx<cWidth*cHeight; idx++ )
     {
 	const bool udf = idx==5;
-	bands += udf ? cUdfIdx : (unsigned char)(idx*10);
+	bands += udf ? cUdfIdx : sCast( unsigned char, idx*10 );
 	bands += udf ? 0 : 255;
     }
 

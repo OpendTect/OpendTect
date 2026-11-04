@@ -138,10 +138,10 @@ bool FontData::getFrom( const char* s )
     if ( nr > 3 ) italic_ = toBool(fms[3],false);
     if ( nr > 4 ) setStyleName( fms[4] );
     if ( nr > 5 )
-	underline_ = toBool(fms[5],false);
+	underline_ = toBool( fms[5], false );
 
     if ( nr > 6 )
-	strikeout_ = toBool(fms[6],false);
+	strikeout_ = toBool( fms[6], false );
 
     return true;
 }

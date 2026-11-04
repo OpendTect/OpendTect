@@ -1052,7 +1052,7 @@ static RefMan<dGBVis::TextureChannels> createTestChannels( int nrcells,
 {
     TypeSet<float> values;
     for ( int idx=0; idx<nrcells*nrcells; idx++ )
-	values += idx%50==49 ? mUdf(float) : float(valuegen.get());
+	values += idx%50==49 ? mUdf(float) : sCast( float, valuegen.get() );
 
     RefMan<dGBVis::TextureChannels> channels = dGBVis::TextureChannels::create();
     channels->setSize( 0, 1, nrcells, nrcells );
@@ -1131,15 +1131,15 @@ void Scene::addInteractionTest()
 
     testchannels_ = createTestChannels( nrcells, valuegen );
     Coord3 center3 = center;
-    center3.z_ -= mMAX( 1e-3, double(zrg.width())*0.05 );
+    center3.z_ -= mMAX( 1e-3, sCast( double, zrg.width() )*0.05 );
     RefMan<dGBVis::DepthTabPlaneDragger> colored =
 			dGBVis::DepthTabPlaneDragger::create();
     colored->setDim( 2 );
     colored->setSize( size );
     colored->setCenter( center3 );
     colored->setSpaceLimits(
-	Interval<float>(float(inlrg.start_),float(inlrg.stop_)),
-	Interval<float>(float(crlrg.start_),float(crlrg.stop_)),
+	Interval<float>(sCast(float,inlrg.start_),sCast(float,inlrg.stop_)),
+	Interval<float>(sCast(float,crlrg.start_),sCast(float,crlrg.stop_)),
 	Interval<float>(zrg.start_,zrg.stop_) );
     colored->setChannels( testchannels_.ptr() );
     mAttachCB( colored->started, Scene::draggerStartedCB );

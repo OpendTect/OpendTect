@@ -1244,7 +1244,7 @@ void uiVSGViewer::setupVSG()
 	const VkPhysicalDeviceLimits& limits =
 		device->getPhysicalDevice()->getProperties().limits;
 	vsgGeo::LayeredTexture::setMaxTextureSize(
-					int(limits.maxImageDimension2D) );
+				sCast( int, limits.maxImageDimension2D ) );
     }
 
     setWheelDisplayMode( startWheelMode() );

@@ -61,7 +61,8 @@ AxisSpan spanOf( int nrcells, double shift, double growth, int first, int nr,
 
 vsg::vec3 toVec3( const Coord3& crd )
 {
-    return vsg::vec3( float(crd.x_), float(crd.y_), float(crd.z_) );
+    return vsg::vec3( sCast( float, crd.x_ ), sCast( float, crd.y_ ),
+		      sCast( float, crd.z_ ) );
 }
 
 
@@ -266,12 +267,12 @@ void TextureRectangle::rebuild()
 
 	const AxisSpan& uspan = swapped_ ? yspan : xspan;
 	const AxisSpan& vspan = swapped_ ? xspan : yspan;
-	const double dtcx = xspan.tcend_ - xspan.tcstart_;
-	const double dtcy = yspan.tcend_ - yspan.tcstart_;
-	const vsg::vec2 tcu = swapped_ ? vsg::vec2( 0.f, float(dtcy) )
-				       : vsg::vec2( float(dtcx), 0.f );
-	const vsg::vec2 tcv = swapped_ ? vsg::vec2( float(dtcx), 0.f )
-				       : vsg::vec2( 0.f, float(dtcy) );
+	const float dtcx = sCast( float, xspan.tcend_ - xspan.tcstart_ );
+	const float dtcy = sCast( float, yspan.tcend_ - yspan.tcstart_ );
+	const vsg::vec2 tcu = swapped_ ? vsg::vec2( 0.f, dtcy )
+				       : vsg::vec2( dtcx, 0.f );
+	const vsg::vec2 tcv = swapped_ ? vsg::vec2( dtcx, 0.f )
+				       : vsg::vec2( 0.f, dtcy );
 	const Coord3 tileorigin = origin + uaxis*uspan.start_ +
 				  vaxis*vspan.start_;
 	const Coord3 tileu = uaxis * (uspan.end_-uspan.start_);
@@ -282,7 +283,8 @@ void TextureRectangle::rebuild()
 	vsg::ref_ptr<vsgGeo::TexturePlane> plane = vsgGeo::TexturePlane::create(
 	    tile.texture_, toVec3(start), toVec3(ustart-start),
 	    toVec3(vstart-start),
-	    vsg::vec2( float(xspan.tcstart_), float(yspan.tcstart_) ),
+	    vsg::vec2( sCast( float, xspan.tcstart_ ),
+		       sCast( float, yspan.tcstart_ ) ),
 	    tcu, tcv, shared, blended_ );
 	planes_ += plane;
 	addChild( plane.get() );
