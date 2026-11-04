@@ -23,13 +23,13 @@ ________________________________________________________________________
 
 namespace vsg { class Node; }
 
-namespace dGBVis
+namespace ODVsg
 {
 
 class DataObject;
 
-/*!\brief Keeps track of all dGBVis objects by id. Separate from
-  visBase::DM(), so a dGBVis id never refers to a visBase object. */
+/*!\brief Keeps track of all ODVsg objects by id. Separate from
+  visBase::DM(), so a ODVsg id never refers to a visBase object. */
 
 mExpClass(vsgBase) DataManager : public CallBacker
 {
@@ -80,4 +80,4 @@ mGlobal(vsgBase) DataManager& DM();
 
 mGlobal(vsgBase) void initStdClasses();
 
-} // namespace dGBVis
+} // namespace ODVsg

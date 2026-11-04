@@ -107,7 +107,7 @@ void uiVSGPIMgr::dTectMenuChanged()
 
 void uiVSGPIMgr::colTabCB( CallBacker* )
 {
-    dGBVis::TextureChannels* channels = viewer_ ? viewer_->textureChannels()
+    ODVsg::TextureChannels* channels = viewer_ ? viewer_->textureChannels()
 						: nullptr;
     if ( !channels )
     {
@@ -145,7 +145,7 @@ void uiVSGPIMgr::cleanup()
 	    delete viewer_.data();
     }
 
-    dGBVis::FontCreator::instance().clear();
+    ODVsg::FontCreator::instance().clear();
 }
 
 
@@ -252,10 +252,10 @@ mDefODPluginInfo(uiVSG)
 
 mDefODInitPlugin(uiVSG)
 {
-    dGBVis::DataObject::setVisualizationThread( Threads::currentThread() );
-    dGBVis::initStdClasses();
-    dGBVisSurvey::initStdClasses();
-    dGBVis::EventCatcher::setModifierQuery( keyboardModifiers );
+    ODVsg::DataObject::setVisualizationThread( Threads::currentThread() );
+    ODVsg::initStdClasses();
+    ODVsg::initSurveyClasses();
+    ODVsg::EventCatcher::setModifierQuery( keyboardModifiers );
     od_cerr() << "VSG Viewer: this is the od plugin, not the dgb one"
 	      << od_endl;
 

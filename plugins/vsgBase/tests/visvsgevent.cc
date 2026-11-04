@@ -25,15 +25,15 @@ class Recorder : public CallBacker
 public:
     void onEvent( CallBacker* cb )
     {
-	mCBCapsuleUnpack(const dGBVis::EventInfo&,info,cb);
+	mCBCapsuleUnpack(const ODVsg::EventInfo&,info,cb);
 	last_ = info;
 	count_++;
 	if ( handle_ && catcher_ )
 	    catcher_->setHandled();
     }
 
-    dGBVis::EventCatcher*	catcher_ = nullptr;
-    dGBVis::EventInfo		last_;
+    ODVsg::EventCatcher*	catcher_ = nullptr;
+    ODVsg::EventInfo		last_;
     int				count_ = 0;
     bool			handle_ = false;
 };
@@ -43,20 +43,20 @@ public:
 
 static bool testEventFields()
 {
-    RefMan<dGBVis::EventCatcher> catcher = dGBVis::EventCatcher::create();
+    RefMan<ODVsg::EventCatcher> catcher = ODVsg::EventCatcher::create();
     Recorder recorder;
     catcher->eventhappened.notify( mCB(&recorder,Recorder,onEvent) );
 
     const OD::ButtonState shiftleft = OD::ButtonState(
 		int(OD::LeftButton) | int(OD::ShiftButton) );
-    catcher->submit( dGBVis::MouseClick, shiftleft, true, false,
+    catcher->submit( ODVsg::MouseClick, shiftleft, true, false,
 		     Coord(4,5) );
     mRunStandardTest( recorder.count_==1 && recorder.last_.pressed &&
 		      !recorder.last_.dragging &&
 		      (int(recorder.last_.buttonstate_) & int(OD::ShiftButton)),
 		      "Press keeps Shift" );
 
-    catcher->submit( dGBVis::MouseMovement,
+    catcher->submit( ODVsg::MouseMovement,
 		 OD::ButtonState(int(OD::LeftButton)|int(OD::ControlButton)),
 		 false, true, Coord(6,7) );
     mRunStandardTest( recorder.last_.dragging &&
@@ -64,7 +64,7 @@ static bool testEventFields()
 		       int(OD::ControlButton)),
 		      "Drag keeps Ctrl" );
 
-    catcher->submit( dGBVis::MouseClick,
+    catcher->submit( ODVsg::MouseClick,
 		     OD::ButtonState(int(OD::LeftButton)|int(OD::AltButton)),
 		     false, false, Coord(6,7) );
     mRunStandardTest( recorder.last_.dragging &&
@@ -72,14 +72,14 @@ static bool testEventFields()
 		      (int(recorder.last_.buttonstate_) & int(OD::AltButton)),
 		      "Release reports the drag and keeps Alt" );
 
-    catcher->submit( dGBVis::MouseDoubleClick, OD::LeftButton, true, false,
+    catcher->submit( ODVsg::MouseDoubleClick, OD::LeftButton, true, false,
 		     Coord(1,1) );
-    mRunStandardTest( recorder.last_.type==dGBVis::MouseDoubleClick,
+    mRunStandardTest( recorder.last_.type==ODVsg::MouseDoubleClick,
 		      "Double click is published" );
 
-    catcher->submit( dGBVis::Keyboard, OD::NoButton, true, false, Coord::udf(),
+    catcher->submit( ODVsg::Keyboard, OD::NoButton, true, false, Coord::udf(),
 		     OD::KB_Space );
-    mRunStandardTest( recorder.last_.type==dGBVis::Keyboard &&
+    mRunStandardTest( recorder.last_.type==ODVsg::Keyboard &&
 		      recorder.last_.key_==OD::KB_Space,
 		      "Key is published" );
 
@@ -90,20 +90,20 @@ static bool testEventFields()
 
 static bool testHandled()
 {
-    RefMan<dGBVis::EventCatcher> catcher = dGBVis::EventCatcher::create();
+    RefMan<ODVsg::EventCatcher> catcher = ODVsg::EventCatcher::create();
     Recorder recorder;
     recorder.catcher_ = catcher.ptr();
     recorder.handle_ = true;
     catcher->eventhappened.notify( mCB(&recorder,Recorder,onEvent) );
-    catcher->submit( dGBVis::MouseClick, OD::LeftButton, true, false,
+    catcher->submit( ODVsg::MouseClick, OD::LeftButton, true, false,
 		     Coord(0,0) );
-    mRunStandardTest( !dGBVis::EventCatcher::forwardToCamera(*catcher),
+    mRunStandardTest( !ODVsg::EventCatcher::forwardToCamera(*catcher),
 		      "setHandled stops the trackball" );
 
     recorder.handle_ = false;
-    catcher->submit( dGBVis::MouseClick, OD::LeftButton, false, false,
+    catcher->submit( ODVsg::MouseClick, OD::LeftButton, false, false,
 		     Coord(0,0) );
-    mRunStandardTest( dGBVis::EventCatcher::forwardToCamera(*catcher),
+    mRunStandardTest( ODVsg::EventCatcher::forwardToCamera(*catcher),
 		      "An unhandled event reaches the trackball" );
 
     catcher->eventhappened.remove( mCB(&recorder,Recorder,onEvent) );
@@ -113,7 +113,7 @@ static bool testHandled()
 
 static bool testTakenEventsAreNotPublished()
 {
-    RefMan<dGBVis::EventCatcher> catcher = dGBVis::EventCatcher::create();
+    RefMan<ODVsg::EventCatcher> catcher = ODVsg::EventCatcher::create();
     Recorder recorder;
     catcher->eventhappened.notify( mCB(&recorder,Recorder,onEvent) );
 
@@ -150,8 +150,8 @@ int mTestMainFnName( int argc, char** argv )
 {
     mInitTestProg();
 
-    dGBVis::DataObject::setVisualizationThread( Threads::currentThread() );
-    dGBVis::initStdClasses();
+    ODVsg::DataObject::setVisualizationThread( Threads::currentThread() );
+    ODVsg::initStdClasses();
     if ( !testEventFields() || !testHandled() ||
 	 !testTakenEventsAreNotPublished() )
 	return 1;

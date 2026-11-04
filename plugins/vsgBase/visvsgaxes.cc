@@ -15,9 +15,9 @@ ________________________________________________________________________
 #include "math2.h"
 #include "vsggeoaxes.h"
 
-mCreateDGBVisFactoryEntry( dGBVis::Axes );
+mCreateDGBVisFactoryEntry( ODVsg::Axes );
 
-namespace dGBVis
+namespace ODVsg
 {
 
 Axes::Axes()
@@ -172,4 +172,4 @@ void Axes::setPrimaryCamera( Camera* camera )
 						 : nullptr) );
 }
 
-} // namespace dGBVis
+} // namespace ODVsg

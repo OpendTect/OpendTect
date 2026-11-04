@@ -17,7 +17,7 @@ ________________________________________________________________________
 #include "undefval.h"
 #include "valseriesimpl.h"
 
-namespace dGBVis
+namespace ODVsg
 {
 
 RefMan<TextureChannels> TextureChannels::create()
@@ -295,4 +295,4 @@ void TextureChannels::mapToTexture( bool full, TaskRunner* taskr )
     DataObject::requestSingleRedraw();
 }
 
-} // namespace dGBVis
+} // namespace ODVsg

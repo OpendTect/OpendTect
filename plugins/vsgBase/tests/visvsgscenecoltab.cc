@@ -78,7 +78,7 @@ bool hasLabels( const vsgGeo::ScalarBar& bar,
 
 static bool testColors()
 {
-    RefMan<dGBVis::SceneColTab> coltab = dGBVis::SceneColTab::create();
+    RefMan<ODVsg::SceneColTab> coltab = ODVsg::SceneColTab::create();
     vsgGeo::ScalarBar* bar = coltab->vsgBar();
     mRunStandardTest( coltab->getLength()==500 && coltab->getThickness()==20,
 		      "Scene color bar: The bar is 500 pixels long and 20 "
@@ -118,7 +118,7 @@ static bool testColors()
 
 static bool testRangeAndLabels()
 {
-    RefMan<dGBVis::SceneColTab> coltab = dGBVis::SceneColTab::create();
+    RefMan<ODVsg::SceneColTab> coltab = ODVsg::SceneColTab::create();
     vsgGeo::ScalarBar* bar = coltab->vsgBar();
     coltab->setColTabSequence( redToBlue() );
     coltab->setColTabMapperSetup( mapperSetup(10.f,50.f) );
@@ -161,7 +161,7 @@ static bool testRangeAndLabels()
 
 static bool testSizeAndPlace()
 {
-    RefMan<dGBVis::SceneColTab> coltab = dGBVis::SceneColTab::create();
+    RefMan<ODVsg::SceneColTab> coltab = ODVsg::SceneColTab::create();
     vsgGeo::ScalarBar* bar = coltab->vsgBar();
     coltab->setWindowSize( 800, 600 );
     mRunStandardTestWithError( bar->getPosition().x==150.f &&
@@ -199,15 +199,15 @@ static bool testSizeAndPlace()
 
 static bool testPositions()
 {
-    RefMan<dGBVis::SceneColTab> coltab = dGBVis::SceneColTab::create();
+    RefMan<ODVsg::SceneColTab> coltab = ODVsg::SceneColTab::create();
     vsgGeo::ScalarBar* bar = coltab->vsgBar();
     coltab->setWindowSize( 800, 600 );
-    mRunStandardTest( coltab->getPos()==dGBVis::SceneColTab::Bottom &&
+    mRunStandardTest( coltab->getPos()==ODVsg::SceneColTab::Bottom &&
 		      coltab->getOrientation(),
 		      "Scene color bar: The bar is horizontal at the bottom at "
 		      "first" );
 
-    coltab->setPos( dGBVis::SceneColTab::Top );
+    coltab->setPos( ODVsg::SceneColTab::Top );
     mRunStandardTestWithError( coltab->getOrientation() &&
 			       bar->getPosition().x==150.f &&
 			       bar->getPosition().y==545.f,
@@ -216,7 +216,7 @@ static bool testPositions()
 			       BufferString("Position: ",bar->getPosition().x)
 				.add(", ").add(bar->getPosition().y) );
 
-    coltab->setPos( dGBVis::SceneColTab::Left );
+    coltab->setPos( ODVsg::SceneColTab::Left );
     const Geom::Size2D<int> leftsz = coltab->getSize();
     const bool vertical = bar->orientation() ==
 				vsgGeo::ScalarBar::Orientation::Vertical;
@@ -229,7 +229,7 @@ static bool testPositions()
 			       BufferString("Position: ",bar->getPosition().x)
 				.add(", ").add(bar->getPosition().y) );
 
-    coltab->setPos( dGBVis::SceneColTab::Right );
+    coltab->setPos( ODVsg::SceneColTab::Right );
     const float rightx = 800.f - ( 1.5f*float(coltab->getThickness()) +
 				   float(coltab->getMinLabelWidth()) );
     mRunStandardTestWithError( bar->getPosition().x==rightx &&
@@ -254,9 +254,9 @@ static bool testPositions()
 			       BufferString("Size: ",coltab->getThickness())
 				.add(" x ").add(coltab->getLength()) );
 
-    coltab->setPos( dGBVis::SceneColTab::Bottom );
+    coltab->setPos( ODVsg::SceneColTab::Bottom );
     coltab->setSize( 1000, 35 );
-    coltab->setPos( dGBVis::SceneColTab::Left );
+    coltab->setPos( ODVsg::SceneColTab::Left );
     mRunStandardTestWithError( coltab->getLength()==800 &&
 			       coltab->getThickness()==35,
 			       "Scene color bar: A new orientation brings the "
@@ -269,9 +269,9 @@ static bool testPositions()
 
 static bool testVerticalLabels()
 {
-    RefMan<dGBVis::SceneColTab> coltab = dGBVis::SceneColTab::create();
+    RefMan<ODVsg::SceneColTab> coltab = ODVsg::SceneColTab::create();
     coltab->setWindowSize( 800, 600 );
-    coltab->setPos( dGBVis::SceneColTab::Left );
+    coltab->setPos( ODVsg::SceneColTab::Left );
     ColTab::Sequence segmented = redToBlue();
     segmented.setNrSegments( 8 );
     coltab->setAnnotFont( FontData(60,"Arial",FontData::Normal,false) );
@@ -294,7 +294,7 @@ static bool testVerticalLabels()
 
 static bool testSwitchedOff()
 {
-    RefMan<dGBVis::SceneColTab> coltab = dGBVis::SceneColTab::create();
+    RefMan<ODVsg::SceneColTab> coltab = ODVsg::SceneColTab::create();
     vsgGeo::ScalarBar* bar = coltab->vsgBar();
     coltab->setColTabSequence( redToBlue() );
     coltab->turnOn( false );
@@ -320,13 +320,13 @@ int mTestMainFnName( int argc, char** argv )
 {
     mInitTestProg();
 
-    dGBVis::DataObject::setVisualizationThread( Threads::currentThread() );
-    dGBVis::initStdClasses();
+    ODVsg::DataObject::setVisualizationThread( Threads::currentThread() );
+    ODVsg::initStdClasses();
 
     const bool res = testColors() && testRangeAndLabels() &&
 		     testSizeAndPlace() && testPositions() &&
 		     testVerticalLabels() && testSwitchedOff();
-    dGBVis::FontCreator::instance().clear();
+    ODVsg::FontCreator::instance().clear();
     if ( !res )
 	return 1;
 

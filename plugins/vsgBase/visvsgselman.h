@@ -15,13 +15,13 @@ ________________________________________________________________________
 
 namespace Threads { class Mutex; }
 
-namespace dGBVis
+namespace ODVsg
 {
 
 class DataManager;
 class DataObject;
 
-/*!\brief Which dGBVis objects are selected.
+/*!\brief Which ODVsg objects are selected.
 
   Counterpart of visBase::SelectionManager. DataManager owns one and
   exposes it through selMan().
@@ -56,4 +56,4 @@ private:
 				    Used when the object is being deleted. */
 };
 
-} // namespace dGBVis
+} // namespace ODVsg

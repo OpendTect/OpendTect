@@ -42,8 +42,8 @@ static bool closeTo( const Coord3& pos, double x, double y, double z )
 
 static bool testCenterSizeDim()
 {
-    RefMan<dGBVis::DepthTabPlaneDragger> dragger =
-				dGBVis::DepthTabPlaneDragger::create();
+    RefMan<ODVsg::DepthTabPlaneDragger> dragger =
+				ODVsg::DepthTabPlaneDragger::create();
     dragger->setDim( 2 );
     dragger->setCenter( Coord3(10,20,30), false );
     dragger->setSize( Coord3(4,5,6), false );
@@ -61,8 +61,8 @@ static bool testCenterSizeDim()
 
 static bool testNormalMove()
 {
-    RefMan<dGBVis::DepthTabPlaneDragger> dragger =
-				dGBVis::DepthTabPlaneDragger::create();
+    RefMan<ODVsg::DepthTabPlaneDragger> dragger =
+				ODVsg::DepthTabPlaneDragger::create();
     dragger->setDim( 2 );
     dragger->setCenter( Coord3(1,2,3) );
     dragger->beginDrag( Coord3(1,2,3), true );
@@ -71,28 +71,28 @@ static bool testNormalMove()
     mRunStandardTest( closeTo(dragger->center(),1,2,7),
 		      "Normal drag changes only that axis" );
 
-    RefMan<dGBVis::EventCatcher> catcher = dGBVis::EventCatcher::create();
+    RefMan<ODVsg::EventCatcher> catcher = ODVsg::EventCatcher::create();
     dragger->setEventCatcher( catcher.ptr() );
     dragger->setCenter( Coord3(0,0,0) );
     dragger->setSize( Coord3(4,4,0) );
-    dGBVis::EventInfo press;
-    press.type = dGBVis::MouseClick;
+    ODVsg::EventInfo press;
+    press.type = ODVsg::MouseClick;
     press.pressed = true;
     press.buttonstate_ = OD::LeftButton;
     press.pickedobjids += dragger->id();
     press.mouseline = Line3( 0., -10., 5., 0., 10., -5. );
     catcher->reHandle( press );
 
-    dGBVis::EventInfo move;
-    move.type = dGBVis::MouseMovement;
+    ODVsg::EventInfo move;
+    move.type = ODVsg::MouseMovement;
     move.buttonstate_ = press.buttonstate_;
     move.mouseline = Line3( 0., -10., 5., 0., 10., -2. );
     catcher->reHandle( move );
     mRunStandardTest( closeTo(dragger->center(),0,0,3),
 		      "Plain drag moves the plane along its normal" );
 
-    dGBVis::EventInfo release;
-    release.type = dGBVis::MouseClick;
+    ODVsg::EventInfo release;
+    release.type = ODVsg::MouseClick;
     release.pressed = false;
     release.buttonstate_ = press.buttonstate_;
     release.mouseline = move.mouseline;
@@ -103,8 +103,8 @@ static bool testNormalMove()
 
 static bool testClamp()
 {
-    RefMan<dGBVis::DepthTabPlaneDragger> dragger =
-				dGBVis::DepthTabPlaneDragger::create();
+    RefMan<ODVsg::DepthTabPlaneDragger> dragger =
+				ODVsg::DepthTabPlaneDragger::create();
     dragger->setDim( 2 );
     dragger->setSize( Coord3(1,1,0) );
     dragger->setSpaceLimits( Interval<float>(-1.f,1.f),
@@ -123,8 +123,8 @@ static bool testClamp()
     mRunStandardTest( closeTo(dragger->center(),0.5,-0.5,10),
 		      "In-plane drag stops when an edge hits the limit" );
 
-    RefMan<dGBVis::DepthTabPlaneDragger> edged =
-				dGBVis::DepthTabPlaneDragger::create();
+    RefMan<ODVsg::DepthTabPlaneDragger> edged =
+				ODVsg::DepthTabPlaneDragger::create();
     edged->setDim( 2 );
     edged->setSize( Coord3(1,1,0) );
     edged->setSpaceLimits( Interval<float>(-2.f,2.f),
@@ -170,15 +170,15 @@ static bool testGpuDrag()
 	return true;
     }
 
-    dGBVis::DataObject::setCommonViewer( &viewer.viewer() );
-    RefMan<dGBVis::DepthTabPlaneDragger> dragger =
-				dGBVis::DepthTabPlaneDragger::create();
+    ODVsg::DataObject::setCommonViewer( &viewer.viewer() );
+    RefMan<ODVsg::DepthTabPlaneDragger> dragger =
+				ODVsg::DepthTabPlaneDragger::create();
     dragger->setDim( 1 );
     dragger->setSize( Coord3(1.6,0,1.6) );
     dragger->setCenter( Coord3(0,0,0) );
     viewer.scene().addChild( vsg::ref_ptr<vsg::Node>(dragger->vsgNode()) );
 
-    RefMan<dGBVis::EventCatcher> catcher = dGBVis::EventCatcher::create();
+    RefMan<ODVsg::EventCatcher> catcher = ODVsg::EventCatcher::create();
     catcher->setCamera( &viewer.camera() );
     catcher->setSceneRoot( &viewer.scene() );
     dragger->setEventCatcher( catcher.ptr() );
@@ -196,11 +196,11 @@ static bool testGpuDrag()
 
     const int x = int(viewer.width()/2);
     const int y = int(viewer.height()/2);
-    catcher->submit( dGBVis::MouseClick, OD::LeftButton, true, false,
+    catcher->submit( ODVsg::MouseClick, OD::LeftButton, true, false,
 		     Coord(x,y) );
-    catcher->submit( dGBVis::MouseMovement, OD::LeftButton, false, true,
+    catcher->submit( ODVsg::MouseMovement, OD::LeftButton, false, true,
 		     Coord(x+4,y) );
-    catcher->submit( dGBVis::MouseClick, OD::LeftButton, false, false,
+    catcher->submit( ODVsg::MouseClick, OD::LeftButton, false, false,
 		     Coord(x+4,y) );
 
     BufferString msg( "Order: ", order.order_.buf(), " messages: " );
@@ -212,7 +212,7 @@ static bool testGpuDrag()
     dragger->started.remove( mCB(&order,Order,started) );
     dragger->motion.remove( mCB(&order,Order,motion) );
     dragger->finished.remove( mCB(&order,Order,finished) );
-    dGBVis::DataObject::setCommonViewer( nullptr );
+    ODVsg::DataObject::setCommonViewer( nullptr );
     return true;
 }
 
@@ -221,8 +221,8 @@ int mTestMainFnName( int argc, char** argv )
 {
     mInitTestProg();
 
-    dGBVis::DataObject::setVisualizationThread( Threads::currentThread() );
-    dGBVis::initStdClasses();
+    ODVsg::DataObject::setVisualizationThread( Threads::currentThread() );
+    ODVsg::initStdClasses();
     if ( !testCenterSizeDim() || !testNormalMove() || !testClamp() ||
 	 !testScaleTabs() || !testGpuDrag() )
 	return 1;

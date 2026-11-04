@@ -19,7 +19,7 @@ ________________________________________________________________________
 
 namespace vsgGeo { class ThumbWheel; }
 
-namespace dGBVis
+namespace ODVsg
 {
 
 /*!\brief Counterpart of visBase::ThumbWheel. */
@@ -56,4 +56,4 @@ protected:
     vsg::ref_ptr<vsgGeo::ThumbWheel>	wheel_;
 };
 
-} // namespace dGBVis
+} // namespace ODVsg

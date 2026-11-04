@@ -31,7 +31,7 @@ class TaskRunner;
 template <class T> class Selector;
 
 namespace ZDomain { class Info; }
-namespace dGBVisSurvey { class Scene; }
+namespace ODVsg { class Scene; }
 
 namespace visBase
 {
@@ -75,7 +75,7 @@ mExpClass(visSurvey) Scene : public visBase::Scene
 public:
     static RefMan<Scene>	create();
 				mCreateDataObj(Scene);
-    friend class		dGBVisSurvey::Scene;
+    friend class		ODVsg::Scene;
 
     void			removeAll() override;
     void			addObject(visBase::DataObject*) override;

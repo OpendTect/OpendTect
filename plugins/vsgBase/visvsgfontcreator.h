@@ -24,7 +24,7 @@ ________________________________________________________________________
 #include <set>
 #include <string>
 
-namespace dGBVis
+namespace ODVsg
 {
 
 /*!\brief: makes vsg::Font objects from FontData, and caches them.
@@ -95,4 +95,4 @@ private:
     vsg::ref_ptr<vsgGeo::Updatable> announcer_;
 };
 
-} // namespace dGBVis
+} // namespace ODVsg

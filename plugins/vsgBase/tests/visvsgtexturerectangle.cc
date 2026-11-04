@@ -56,8 +56,8 @@ bool render( const Setup& setup, Pixels& pixels, Pixels* frozenpixels=nullptr )
     if ( !ov.isOK() )
 	return false;
 
-    dGBVis::DataObject::setCommonViewer( &ov.viewer() );
-    RefMan<dGBVis::DataObjectGroup> root = dGBVis::DataObjectGroup::create();
+    ODVsg::DataObject::setCommonViewer( &ov.viewer() );
+    RefMan<ODVsg::DataObjectGroup> root = ODVsg::DataObjectGroup::create();
     ov.scene().addChild( vsg::ref_ptr<vsg::Node>(root->vsgNode()) );
     if ( !ov.compile() )
 	return false;
@@ -69,7 +69,7 @@ bool render( const Setup& setup, Pixels& pixels, Pixels* frozenpixels=nullptr )
     for ( int idx=0; idx<nrvalues; idx++ )
 	values += sCast( float, idx );
 
-    RefMan<dGBVis::TextureChannels> channels = dGBVis::TextureChannels::create();
+    RefMan<ODVsg::TextureChannels> channels = ODVsg::TextureChannels::create();
     channels->enableTextureInterpolation( setup.interpolate_ );
     channels->setSize( 0, 1, setup.height_, setup.width_ );
     ColTab::MapperSetup mappersetup;
@@ -83,8 +83,8 @@ bool render( const Setup& setup, Pixels& pixels, Pixels* frozenpixels=nullptr )
     channels->setUnMappedData( 0, 0, values.arr(), OD::UsePtr, nullptr );
     vsgGeo::LayeredTexture::setMaxTextureSize( oldmax );
 
-    RefMan<dGBVis::TextureRectangle> rectangle =
-					dGBVis::TextureRectangle::create();
+    RefMan<ODVsg::TextureRectangle> rectangle =
+					ODVsg::TextureRectangle::create();
     rectangle->freezeDisplay( setup.frozen_ );
     rectangle->setTextureChannels( channels.ptr() );
     rectangle->setCenter( Coord3(0.,0.,0.) );
@@ -112,7 +112,7 @@ bool render( const Setup& setup, Pixels& pixels, Pixels* frozenpixels=nullptr )
     root = nullptr;
     ov.scene().children.clear();
     ov.viewer().deviceWaitIdle();
-    dGBVis::DataObject::setCommonViewer( nullptr );
+    ODVsg::DataObject::setCommonViewer( nullptr );
     return ok;
 }
 
@@ -302,12 +302,12 @@ static bool testTransparentTable()
     mRunStandardTestWithError( ov.isOK(), "Transparent table: Off-screen "
 			       "viewer", ov.errMsg().c_str() );
 
-    dGBVis::DataObject::setCommonViewer( &ov.viewer() );
-    RefMan<dGBVis::DataObjectGroup> root = dGBVis::DataObjectGroup::create();
+    ODVsg::DataObject::setCommonViewer( &ov.viewer() );
+    RefMan<ODVsg::DataObjectGroup> root = ODVsg::DataObjectGroup::create();
     ov.scene().addChild( vsg::ref_ptr<vsg::Node>(root->vsgNode()) );
     mRunStandardTest( ov.compile(), "Transparent table: Viewer compiled" );
 
-    RefMan<dGBVis::TextureChannels> channels = dGBVis::TextureChannels::create();
+    RefMan<ODVsg::TextureChannels> channels = ODVsg::TextureChannels::create();
     channels->setSize( 0, 1, 2, 2 );
     ColTab::MapperSetup mappersetup;
     mappersetup.type_ = ColTab::MapperSetup::Fixed;
@@ -323,8 +323,8 @@ static bool testTransparentTable()
     mRunStandardTest( !channels->hasTransparency(),
 		      "Transparent table: An opaque table has no transparency" );
 
-    RefMan<dGBVis::TextureRectangle> rectangle =
-					dGBVis::TextureRectangle::create();
+    RefMan<ODVsg::TextureRectangle> rectangle =
+					ODVsg::TextureRectangle::create();
     rectangle->setTextureChannels( channels.ptr() );
     rectangle->setCenter( Coord3(0.,0.,0.) );
     rectangle->setWidth( Coord3(2.,0.,2.) );
@@ -368,7 +368,7 @@ static bool testTransparentTable()
     root = nullptr;
     ov.scene().children.clear();
     ov.viewer().deviceWaitIdle();
-    dGBVis::DataObject::setCommonViewer( nullptr );
+    ODVsg::DataObject::setCommonViewer( nullptr );
     return true;
 }
 

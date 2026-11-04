@@ -20,7 +20,7 @@ ________________________________________________________________________
 
 class QWidget;
 class QWindow;
-namespace dGBVisSurvey { class Scene; }
+namespace ODVsg { class Scene; }
 namespace vsgGeo { class Trackball; }
 
 mExpClass(uiVSG) uiVSGWindowHandler
@@ -30,7 +30,7 @@ public:
 				uiVSGWindowHandler(QWindow*,QWidget*);
 
     void			setTrackball(vsgGeo::Trackball*);
-    void			setScene(dGBVisSurvey::Scene*);
+    void			setScene(ODVsg::Scene*);
 
     void			setViewMode(bool yn);
 				/*!<True: left button orbits, Ctrl+left pans.
@@ -53,5 +53,5 @@ private:
     QWindow*				window_ = nullptr;
     QWidget*				container_ = nullptr;
     vsg::ref_ptr<vsgGeo::Trackball>	trackball_;
-    dGBVisSurvey::Scene*		scene_ = nullptr;
+    ODVsg::Scene*		scene_ = nullptr;
 };

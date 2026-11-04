@@ -20,7 +20,7 @@ ________________________________________________________________________
 #include "trckeyzsampling.h"
 
 namespace ZDomain { class Info; }
-namespace dGBVis
+namespace ODVsg
 {
     class Annotation;
     class EventCatcher;
@@ -28,10 +28,6 @@ namespace dGBVis
     class MarkerSet;
     class TextureChannels;
     class VisualObject;
-}
-
-namespace dGBVisSurvey
-{
 
 /*!\brief Counterpart of visSurvey::Scene: the transform chain, Z stretch,
   and the survey box annotation.
@@ -52,18 +48,18 @@ mExpClass(vsgSurvey) Scene : public visSurvey::Scene
 public:
     static RefMan<Scene> create();
 
-    dGBVis::DataObjectGroup* vsgGroup()		{ return group_.ptr(); }
+    ODVsg::DataObjectGroup* vsgGroup()		{ return group_.ptr(); }
 
     int			size() const override;
-    void		addObject(dGBVis::DataObject*);
-    void		insertObject(int idx,dGBVis::DataObject*);
-    void		addUTMObject(dGBVis::VisualObject*);
-    void		addInlCrlZObject(dGBVis::DataObject*);
+    void		addObject(ODVsg::DataObject*);
+    void		insertObject(int idx,ODVsg::DataObject*);
+    void		addUTMObject(ODVsg::VisualObject*);
+    void		addInlCrlZObject(ODVsg::DataObject*);
     void		removeObject(int idx) override;
-    dGBVis::DataObject* getVsgObject(int idx);
-    const dGBVis::DataObject* getVsgObject(int idx) const;
+    ODVsg::DataObject* getVsgObject(int idx);
+    const ODVsg::DataObject* getVsgObject(int idx) const;
     int			getFirstIdx(const VisID&) const override;
-    int			getFirstIdx(const dGBVis::DataObject*) const;
+    int			getFirstIdx(const ODVsg::DataObject*) const;
 
     void		setTrcKeyZSampling(const TrcKeyZSampling&) override;
     void		setTrcKeyZSampling(const TrcKeyZSampling&,
@@ -108,11 +104,11 @@ public:
     void		setAnnotFont(const FontData&) override;
     const FontData&	getAnnotFont() const override;
 
-    const dGBVis::Annotation* getAnnotation() const
+    const ODVsg::Annotation* getAnnotation() const
 			{ return annot_.ptr(); }
 
-    void		setEventCatcher(dGBVis::EventCatcher*);
-    dGBVis::EventCatcher* eventCatcher()	{ return events_.ptr(); }
+    void		setEventCatcher(ODVsg::EventCatcher*);
+    ODVsg::EventCatcher* eventCatcher()	{ return events_.ptr(); }
 
     void		setInteractionEnabled(bool yn);
     bool		isInteractionEnabled() const	{ return interact_; }
@@ -120,13 +116,13 @@ public:
     TrcKeyValue		getMousePos() const override;
     uiString		getMousePosString() const override;
 
-    void		applyEvent(const dGBVis::EventInfo&);
+    void		applyEvent(const ODVsg::EventInfo&);
 			/*!<Status, then selection when interaction is on.
 			    The viewer uses the two notifiers instead, so a
 			    dragger can mark the event handled in between. */
 
     void		addInteractionTest();
-    dGBVis::TextureChannels* testTextureChannels()
+    ODVsg::TextureChannels* testTextureChannels()
 			{ return testchannels_.ptr(); }
 			//!<The data of the colored plane of the test that was
 			//!<grabbed last, if they were added
@@ -154,24 +150,24 @@ private:
     void		notHandledCB(CallBacker*);
     void		annotSelCB(CallBacker*);
     void		annotDeSelCB(CallBacker*);
-    void		updateStatus(const dGBVis::EventInfo&);
-    void		updateMarkerInteraction(const dGBVis::EventInfo&);
-    int			markerUnderCursor(const dGBVis::EventInfo&) const;
+    void		updateStatus(const ODVsg::EventInfo&);
+    void		updateMarkerInteraction(const ODVsg::EventInfo&);
+    int			markerUnderCursor(const ODVsg::EventInfo&) const;
     bool		surfaceUnderCursor(const Coord&,Coord3&);
-    void		updateSelection(const dGBVis::EventInfo&);
+    void		updateSelection(const ODVsg::EventInfo&);
     void		addSurfacePick(const Coord3& displaypos);
     bool		displayToInlCrl(const Coord3& displaypos,
 					Coord3& objectpos) const;
 
-    RefMan<dGBVis::DataObjectGroup> group_;
+    RefMan<ODVsg::DataObjectGroup> group_;
     RefMan<mDGBVisTrans>	tempzstretchtrans_;
     RefMan<mDGBVisTrans>	inlcrlrotation_;
     RefMan<mDGBVisTrans>	inlcrlscale_;
     RefMan<mDGBVisTrans>	utm2disptransform_;
-    RefMan<dGBVis::Annotation>	annot_;
-    RefMan<dGBVis::EventCatcher> events_;
-    RefMan<dGBVis::MarkerSet>	picks_;
-    RefMan<dGBVis::TextureChannels> testchannels_;
+    RefMan<ODVsg::Annotation>	annot_;
+    RefMan<ODVsg::EventCatcher> events_;
+    RefMan<ODVsg::MarkerSet>	picks_;
+    RefMan<ODVsg::TextureChannels> testchannels_;
     int				draggingmarker_		= -1;
     Coord3			xytmousepos_		= Coord3::udf();
     TrcKey			mousetrckey_		= TrcKey::udf();
@@ -189,6 +185,6 @@ private:
 };
 
 
-mGlobal(vsgSurvey) void initStdClasses();
+mGlobal(vsgSurvey) void initSurveyClasses();
 
-} // namespace dGBVisSurvey
+} // namespace ODVsg

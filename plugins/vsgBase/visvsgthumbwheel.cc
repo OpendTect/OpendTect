@@ -12,9 +12,9 @@ ________________________________________________________________________
 #include "visvsgdataman.h"
 #include "vsggeothumbwheel.h"
 
-mCreateDGBVisFactoryEntry( dGBVis::ThumbWheel );
+mCreateDGBVisFactoryEntry( ODVsg::ThumbWheel );
 
-namespace dGBVis
+namespace ODVsg
 {
 
 ThumbWheel::ThumbWheel()
@@ -111,4 +111,4 @@ void ThumbWheel::setAngle( float angle, float rotationtime )
     requestSingleRedraw();
 }
 
-} // namespace dGBVis
+} // namespace ODVsg

@@ -31,7 +31,7 @@ void uiVSGWindowHandler::setTrackball( vsgGeo::Trackball* trackball )
 }
 
 
-void uiVSGWindowHandler::setScene( dGBVisSurvey::Scene* scene )
+void uiVSGWindowHandler::setScene( ODVsg::Scene* scene )
 {
     scene_ = scene;
 }
@@ -77,7 +77,7 @@ void uiVSGWindowHandler::syncPointerPolicy()
     }
 
     const bool active = !viewmode_;
-    dGBVis::DataObjectGroup* group = scene_ ? scene_->vsgGroup() : nullptr;
+    ODVsg::DataObjectGroup* group = scene_ ? scene_->vsgGroup() : nullptr;
     if ( group && (group->isPickable(true)!=active ||
 		   !group->isPickable(false)) )
 	group->setPickable( active, true );

@@ -24,7 +24,7 @@ ________________________________________________________________________
 #include "iopar.h"
 #include "ptrman.h"
 
-namespace dGBVis
+namespace ODVsg
 {
 
 mImplFactory( DataObject, DataManager::factory );
@@ -66,7 +66,7 @@ DataManager::~DataManager()
 #ifdef __debug__
     for ( const auto* obj : objects_ )
     {
-	BufferString msg( "dGBVis object " );
+	BufferString msg( "ODVsg object " );
 	msg.add( obj->name() ).add( " (" ).add( obj->id().asInt() )
 	   .add( ") is still referenced." );
 	pErrMsg( msg );
@@ -190,4 +190,4 @@ void DataManager::removeObject( DataObject* obj )
     visidobjmap_.erase( obj->id().asInt() );
 }
 
-} // namespace dGBVis
+} // namespace ODVsg

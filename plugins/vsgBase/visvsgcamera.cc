@@ -14,9 +14,9 @@ ________________________________________________________________________
 #include <vsg/app/ViewMatrix.h>
 #include <vsg/state/ViewportState.h>
 
-mCreateDGBVisFactoryEntry( dGBVis::Camera );
+mCreateDGBVisFactoryEntry( ODVsg::Camera );
 
-namespace dGBVis
+namespace ODVsg
 {
 
 Camera::Camera()
@@ -30,4 +30,4 @@ Camera::Camera()
 Camera::~Camera()
 {}
 
-} // namespace dGBVis
+} // namespace ODVsg

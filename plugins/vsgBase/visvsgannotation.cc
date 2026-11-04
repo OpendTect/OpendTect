@@ -25,9 +25,9 @@ ________________________________________________________________________
 static constexpr int cNrCorners = 8;
 static constexpr int cNrGridSides = 6;
 
-mCreateDGBVisFactoryEntry( dGBVis::Annotation );
+mCreateDGBVisFactoryEntry( ODVsg::Annotation );
 
-namespace dGBVis
+namespace ODVsg
 {
 
 const char* Annotation::textprefixstr()		{ return "Text "; }
@@ -568,4 +568,4 @@ bool Annotation::usePar( const IOPar& par )
     return true;
 }
 
-} // namespace dGBVis
+} // namespace ODVsg

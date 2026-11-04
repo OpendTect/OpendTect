@@ -19,7 +19,7 @@ ________________________________________________________________________
 
 namespace vsgGeo { class AxesNode; }
 
-namespace dGBVis
+namespace ODVsg
 {
 
 class Camera;
@@ -69,4 +69,4 @@ private:
     void			fontLoadedCB(CallBacker*);
 };
 
-} // namespace dGBVis
+} // namespace ODVsg
