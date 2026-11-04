@@ -114,6 +114,7 @@ if ( UNIX )
 endif()
 
 list( APPEND OD_TEST_PROGS
+	fontdata.cc
 	gis.cc
 	mathexpression.cc
 	mathformula.cc
