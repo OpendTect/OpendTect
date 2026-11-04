@@ -541,20 +541,12 @@ void ODInst::startUpdateCheck( CallBack cb )
     if ( mc.isBad() )
 	return;
 
-    OS::MachineCommand isolatedmc( mc, __islinux__ );
-    BufferString workdir;
-    if ( __iswin__ )
-    {
-	const FilePath execfp( mc.program() );
-	workdir = execfp.pathOnly();
-    }
-
+    OS::MachineCommand isolatedmc( mc, true );
     auto& mgr = Threads::CommandLaunchMgr::getMgr();
     const bool readstdoutput = true;
     const bool readstderror = true;
     const bool inpythonenv = false;
-    mgr.execute( isolatedmc, readstdoutput, readstderror, &cb, inpythonenv,
-		 workdir.buf() );
+    mgr.execute( isolatedmc, readstdoutput, readstderror, &cb, inpythonenv );
 }
 
 
