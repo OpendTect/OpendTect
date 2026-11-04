@@ -55,6 +55,9 @@ namespace ColTab    { class Sequence; class MapperSetup; }
 namespace ZDomain   { class Info; }
 
 
+mGlobal(uiVis) bool isVSGAvailable();
+
+
 /*!
 \brief The Visualization Part Server
 */

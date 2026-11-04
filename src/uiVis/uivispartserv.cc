@@ -20,8 +20,10 @@ ________________________________________________________________________
 #include "mouseevent.h"
 #include "od_helpids.h"
 #include "oddirs.h"
+#include "plugins.h"
 #include "seisdatapack.h"
 #include "separstr.h"
+#include "sharedlibs.h"
 #include "survinfo.h"
 #include "zaxistransform.h"
 #include "zdomain.h"
@@ -90,6 +92,15 @@ static const char* sceneprefix()		{ return "Scene"; }
 static const int cResetManipIdx = 800;
 static const int cPropertiesIdx = 600;
 static const int cResolutionIdx = 500;
+
+
+bool isVSGAvailable()
+{
+    BufferString libnm( 256, false );
+    SharedLibAccess::getLibName( "uiVSG", libnm.getCStr(), libnm.bufSize() );
+    const PluginManager::Data* data = PIM().findData( libnm.buf() );
+    return data && data->isloaded_;
+}
 
 
 uiVisPartServer::uiVisPartServer( uiApplService& a )
