@@ -99,7 +99,7 @@ static bool testLongPath()
 	fp.add( filenm.str() );
     }
 
-    const OD::String& lastdir = fp.dir( fp.nrLevels()-2 );
+    const StringBase& lastdir = fp.dir( fp.nrLevels()-2 );
     (char&) lastdir[7] = od_space;
     fp.setExtension( "extxt" ); // extension size: 5
     const BufferString dirnm = fp.pathOnly();

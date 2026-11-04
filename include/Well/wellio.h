@@ -25,7 +25,7 @@ mODTextTranslationClass(odIO)
 public:
     virtual		~odIO();
 
-    const OD::String&	baseName() const	{ return basenm_; }
+    const StringBase&	baseName() const	{ return basenm_; }
 
     const char*		getFileName(const char* ext,int nr=0) const;
     bool		removeAll(const char* ext) const;

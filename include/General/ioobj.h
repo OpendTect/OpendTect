@@ -131,9 +131,9 @@ public:
 
     virtual bool		isXObject() const	{ return false; }
     virtual bool		isHidden() const;
-    virtual const OD::String&	translator() const	{ return transl_; }
+    virtual const StringBase&	translator() const	{ return transl_; }
     virtual void		setTranslator( const char* s ) { transl_ = s; }
-    virtual const OD::String&	group() const		{ return group_; }
+    virtual const StringBase&	group() const		{ return group_; }
     virtual void		setGroup( const char* s )	{ group_ = s; }
     virtual const char*		fullUserExpr(bool forread=true) const = 0;
     virtual int			nrImpls() const;

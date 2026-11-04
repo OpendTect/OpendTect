@@ -93,7 +93,7 @@ OD::JSON::GeoJsonTree::createFeatCoordArray( const GIS::Property& props )
     featobj->set( "type", "Feature" );
 
     Object* propobj = featobj->set( "properties", new Object );
-    const OD::String& objname = props.name();
+    const StringBase& objname = props.name();
     if ( !objname.isEmpty() && objname != "NONE" )
 	propobj->set( "name", objname.str() );
 

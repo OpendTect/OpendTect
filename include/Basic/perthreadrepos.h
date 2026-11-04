@@ -54,8 +54,8 @@ typedef PerThreadObjectRepository<BufferString> StaticStringManager;
 /*!For Debugging only. Keeps a list of static strings and can tell
    if a particular string is a static string or not. */
 
-mGlobal(Basic) void addToStaticStringRepos(const OD::String*);
-mGlobal(Basic) bool isStaticString(const OD::String*);
+mGlobal(Basic) void addToStaticStringRepos(const StringBase*);
+mGlobal(Basic) bool isStaticString(const StringBase*);
 
 //Implementation
 

@@ -38,9 +38,9 @@ public:
 			Marker(const Marker&);
 			~Marker();
 
-    const OD::String&	name() const override;
-    const OD::String&	getDatabaseName() const;
-    const OD::String&	getStratLvlName() const;
+    const StringBase&	name() const override;
+    const StringBase&	getDatabaseName() const;
+    const StringBase&	getStratLvlName() const;
     Marker&		operator =(const Marker&);
     inline bool		operator ==( const Marker& m )
 			{ return m.name() == name(); }

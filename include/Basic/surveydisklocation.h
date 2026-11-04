@@ -35,10 +35,10 @@ public:
 			SurveyDiskLocation(); //!< current
 			SurveyDiskLocation(const char* dirnm,
 					   const char* bp=nullptr);
-			SurveyDiskLocation(const OD::String& dirnm,
+			SurveyDiskLocation(const StringBase& dirnm,
 					   const char* bp=nullptr);
-			SurveyDiskLocation(const OD::String& dirnm,
-					   const OD::String& bp);
+			SurveyDiskLocation(const StringBase& dirnm,
+					   const StringBase& bp);
 			SurveyDiskLocation(const FilePath& fulldir);
 			SurveyDiskLocation(const SurveyDiskLocation&);
 			~SurveyDiskLocation();
@@ -54,7 +54,7 @@ public:
     void		setDirName( const char* dn )	{ dirname_ = dn; }
 
     SurveyDiskLocation& set(const char* fullpath);
-    SurveyDiskLocation& set(const OD::String& fullpath);
+    SurveyDiskLocation& set(const StringBase& fullpath);
     SurveyDiskLocation& set(const FilePath&);
     BufferString	fullPath(bool trysi=true) const;
     BufferString	surveyName() const;

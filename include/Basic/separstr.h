@@ -61,7 +61,7 @@ public:
     SeparString&	add(const SeparString&);	//!< Concatenation
     SeparString&	add(const DBKey&,bool withsurvloc=true);
     SeparString&	add(const char* unescapedstr);
-    inline SeparString&	add( const OD::String& ods )
+    inline SeparString& add( const StringBase& ods )
 			{ return add( ods.buf() ); }
     template <class T>
     inline SeparString&	add( T t )
@@ -73,7 +73,7 @@ public:
 			{ setEmpty(); return add( s ); }
     SeparString&	set( const char* unescapedstr )
 			{ setEmpty(); return add( unescapedstr ); }
-    inline SeparString&	set( const OD::String& ods )
+    inline SeparString& set( const StringBase& ods )
 			{ return set( ods.buf() ); }
     template <class T>
     inline SeparString&	set( T t )
@@ -82,7 +82,7 @@ public:
     template <class T>
     inline SeparString&	operator +=( T t )	{ return add( t ); }
     template <class T>
-    inline SeparString&	operator +=( const OD::String& ods )
+    inline SeparString& operator +=( const StringBase& ods )
 						{ return add( ods.buf() ); }
 
     inline		operator const char*() const
@@ -148,13 +148,13 @@ public:
 			{ return add( sCast(const SeparString&,fms) ); }
     template <class T> inline
     FileMultiString&	operator +=( T t )		{ return add( t ); }
-    inline FileMultiString& operator +=( const OD::String& ods )
+    inline FileMultiString& operator +=( const StringBase& ods )
 						{ return add( ods.buf() ); }
 
     template <class T> inline
     FileMultiString&	add( T t )
 			{ SeparString::add( t ); return *this; }
-    inline FileMultiString& add( const OD::String& ods )
+    inline FileMultiString& add( const StringBase& ods )
 			{ return add( ods.buf() ); }
 
 };

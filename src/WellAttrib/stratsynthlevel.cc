@@ -39,7 +39,7 @@ StratSynth::Level& StratSynth::Level::dummy()
 }
 
 
-const OD::String& StratSynth::Level::name() const
+const StringBase& StratSynth::Level::name() const
 {
     mDeclStaticString( ret );
     ret = Strat::levelNameOf( id_ );

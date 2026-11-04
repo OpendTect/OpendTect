@@ -16,7 +16,7 @@ ________________________________________________________________________
 class QString;
 
 /*!
-\brief OD::String with its own variable length buffer. The buffer has a
+\brief StringBase with its own variable length buffer. The buffer has a
 guaranteed minimum size.
 
 The minimum buffer size makes life easier in worlds where strcpy etc. rule.
@@ -34,7 +34,7 @@ BufferString istr( "", intvar );
 
 */
 
-mExpClass(Basic) BufferString : public OD::String
+mExpClass(Basic) BufferString : public StringBase
 {
 public:
     inline		BufferString();
@@ -42,7 +42,7 @@ public:
 #ifdef __win__
     inline explicit	BufferString(const wchar_t*);
 #endif
-			BufferString(const OD::String&);
+			BufferString(const StringBase&);
 			BufferString(int minlen,bool setnull);
 			BufferString(const BufferString&);
     template <class T>
@@ -65,7 +65,7 @@ public:
 #endif
     inline BufferString& operator=( const StringView& s )
 						{ return assignTo(s.str()); }
-    inline BufferString& operator=( const OD::String& s )
+    inline BufferString& operator=( const StringBase& s )
 						{ return assignTo(s.str()); }
     BufferString&	operator=(const std::string&);
     BufferString&	operator=(const std::wstring&);
@@ -76,8 +76,8 @@ public:
     inline bool		operator!=(const BufferString&) const;
     inline bool		operator==(const char*) const;
     inline bool		operator!=(const char*) const;
-    inline bool		operator==(const OD::String&) const;
-    inline bool		operator!=(const OD::String&) const;
+    inline bool		operator==(const StringBase&) const;
+    inline bool		operator!=(const StringBase&) const;
     inline bool		operator==(const StringView&) const;
     inline bool		operator!=(const StringView&) const;
 
@@ -104,7 +104,7 @@ public:
 #ifdef __win__
     BufferString&	set(const wchar_t*);
 #endif
-    BufferString&	set(const OD::String&);
+    BufferString&	set(const StringBase&);
     template <class T>
     BufferString&	set(const T&);
     template <class T>
@@ -128,7 +128,7 @@ public:
 #ifdef __win__
     BufferString&	add(const wchar_t*);
 #endif
-    BufferString&	add(const OD::String&);
+    BufferString&	add(const StringBase&);
     BufferString&	add(const QString&);
     BufferString&	add(const std::string&);
     BufferString&	add(const std::wstring&);
@@ -204,7 +204,7 @@ public:
 #ifdef __win__
     inline BufferString& operator+=( const wchar_t* s ) { return add( s ); }
 #endif
-    inline BufferString& operator+=( const OD::String& s )
+    inline BufferString& operator+=( const StringBase& s )
 							{ return add(s.str()); }
     template <class T>
     inline BufferString& operator+=( const T& t )	{ return add( t ); }
@@ -227,7 +227,7 @@ inline BufferString::BufferString( const char* s )
 inline BufferString::BufferString( const wchar_t* s )
     : mBufferStringSimpConstrInitList	{ assignTo(s); }
 #endif
-inline BufferString::BufferString( const OD::String& s )
+inline BufferString::BufferString( const StringBase& s )
     : mBufferStringSimpConstrInitList	{ assignTo(s.str()); }
 
 template <class T> inline
@@ -255,19 +255,19 @@ inline bool BufferString::operator==( const StringView& s ) const
 { return isEqual( s.str() ); }
 inline bool BufferString::operator!=( const StringView& s ) const
 { return !isEqual( s.str() ); }
-inline bool BufferString::operator==( const OD::String& s ) const
+inline bool BufferString::operator==( const StringBase& s ) const
 { return isEqual( s.str() ); }
-inline bool BufferString::operator!=( const OD::String& s ) const
+inline bool BufferString::operator!=( const StringBase& s ) const
 { return !isEqual( s.str() ); }
 
 inline const char* BufferString::find( char c ) const
-{ return OD::String::find( c ); }
+{ return StringBase::find( c ); }
 inline const char* BufferString::find( const char* s ) const
-{ return OD::String::find( s ); }
+{ return StringBase::find( s ); }
 inline const char* BufferString::findLast( char c ) const
-{ return OD::String::findLast( c ); }
+{ return StringBase::findLast( c ); }
 inline const char* BufferString::findLast( const char* s ) const
-{ return OD::String::findLast( s ); }
+{ return StringBase::findLast( s ); }
 
 template <class T> inline BufferString& BufferString::operator=( const T& t )
 { return set( t ); }
@@ -358,8 +358,8 @@ public:
     BufferString&	second()	{ return second_; }
     bool		hasSecond() const	{ return !second_.isEmpty(); }
 
-    const OD::String&	getCompString() const;
-    const OD::String&	getCompString(bool withwhitespace) const;
+    const StringBase&	getCompString() const;
+    const StringBase&	getCompString(bool withwhitespace) const;
     const char*		buf() const;
 
 protected:

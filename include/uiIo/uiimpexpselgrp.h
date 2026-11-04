@@ -41,9 +41,9 @@ public:
     const ObjectSet<SelectionGrp>&	selGrpSet() const
 					{ return selgrpset_; }
 
-    const OD::String&			xName()		{ return xname_; }
-    const OD::String&			yName()		{ return yname_; }
-    const OD::String&			y2Name()	{ return y2name_; }
+    const StringBase&			xName()		{ return xname_; }
+    const StringBase&			yName()		{ return yname_; }
+    const StringBase&			y2Name()	{ return y2name_; }
 
     Notifier<uiSGSel>			selGrpSelected;
 
@@ -73,9 +73,9 @@ public:
     const char*			selGrpSetNm() const;
     bool			getCurSelGrpSet(ObjectSet<SelectionGrp>&);
 
-    const OD::String&		xName()			{ return xname_; }
-    const OD::String&		yName()			{ return yname_; }
-    const OD::String&		y2Name()		{ return y2name_; }
+    const StringBase&		xName()			{ return xname_; }
+    const StringBase&		yName()			{ return yname_; }
+    const StringBase&		y2Name()		{ return y2name_; }
 
     Notifier<uiSGSelGrp>	selectionDone;
 
@@ -116,9 +116,9 @@ public:
 
     ObjectSet<SelectionGrp>	getSelections();
     const uiString&		errMsg()		{ return errmsg_; }
-    const OD::String&		xName()			{ return xname_; }
-    const OD::String&		yName()			{ return yname_; }
-    const OD::String&		y2Name()		{ return y2name_; }
+    const StringBase&		xName()			{ return xname_; }
+    const StringBase&		yName()			{ return yname_; }
+    const StringBase&		y2Name()		{ return y2name_; }
 
 protected:
 

@@ -16,10 +16,6 @@ ________________________________________________________________________
 namespace Crypto { enum class Algorithm; }
 
 
-namespace OD
-{
-
-
 /*!\brief encapsulates the read-access-only part of strings in OD.
 
   buf() always returns a valid null-terminated string.
@@ -28,13 +24,13 @@ namespace OD
  */
 
 
-mExpClass(Basic) String
+mExpClass(Basic) StringBase
 {
 public:
-    virtual		~String();
+    virtual		~StringBase();
 
-    inline bool		operator==(const String&) const;
-    inline bool		operator!=(const String&) const;
+    inline bool		operator==(const StringBase&) const;
+    inline bool		operator!=(const StringBase&) const;
     inline bool		operator==(const char*) const;
     inline bool		operator!=(const char*) const;
     template <class T>
@@ -52,17 +48,17 @@ public:
     virtual char	lastChar() const	{ return gtBuf()[size()-1]; }
 
     bool		isEqual(const char*,
-				CaseSensitivity c=CaseSensitive) const;
+				OD::CaseSensitivity =OD::CaseSensitive) const;
     bool		isStartOf(const char*,
-				  CaseSensitivity c=CaseSensitive) const;
+				OD::CaseSensitivity =OD::CaseSensitive) const;
     bool		startsWith(const char*,
-				   CaseSensitivity c=CaseSensitive) const;
+				OD::CaseSensitivity =OD::CaseSensitive) const;
     bool		isEndOf(const char*,
-				CaseSensitivity c=CaseSensitive) const;
+				OD::CaseSensitivity =OD::CaseSensitive) const;
     bool		endsWith(const char*,
-				 CaseSensitivity c=CaseSensitive) const;
+				OD::CaseSensitivity =OD::CaseSensitive) const;
     bool		matches(const char*,
-				CaseSensitivity c=CaseSensitive) const;
+				OD::CaseSensitivity =OD::CaseSensitive) const;
 
     bool		contains(char) const;
     bool		contains(const char*) const;
@@ -84,8 +80,8 @@ public:
     std::wstring	toStdWString() const;
     const char*		getHash(Crypto::Algorithm) const;
 
-    bool		operator >(const String&) const;
-    bool		operator <(const String&) const;
+    bool		operator >(const StringBase&) const;
+    bool		operator <(const StringBase&) const;
     bool		operator >(const char*) const;
     bool		operator <(const char*) const;
     template <class T>
@@ -93,10 +89,10 @@ public:
     template <class T>
     inline bool		operator <(const T&) const;
 
-    static const String& empty();
+    static const StringBase& empty();
 
 protected:
-			String();
+			StringBase();
 
     virtual const char*	gtBuf() const			= 0;
 			//!<\return empty even if underlying is null
@@ -108,26 +104,24 @@ protected:
 
 
 
-inline bool String::operator==( const String& s ) const
+inline bool StringBase::operator==( const StringBase& s ) const
 { return isEqual( s.gtStr() ); }
-inline bool String::operator!=( const String& s ) const
+inline bool StringBase::operator!=( const StringBase& s ) const
 { return !isEqual( s.gtStr() ); }
-inline bool String::operator==( const char* s ) const
+inline bool StringBase::operator==( const char* s ) const
 { return isEqual( s ); }
-inline bool String::operator!=( const char* s ) const
+inline bool StringBase::operator!=( const char* s ) const
 { return !isEqual( s ); }
 
-inline bool String::operator >( const String& oth ) const
+inline bool StringBase::operator >( const StringBase& oth ) const
 { return *this > oth.gtStr(); }
-inline bool String::operator <( const String& oth ) const
+inline bool StringBase::operator <( const StringBase& oth ) const
 { return *this < oth.gtStr(); }
 
-template <class T> inline bool String::operator==( const T& t ) const
+template <class T> inline bool StringBase::operator==( const T& t ) const
 { return isEqual( toString(t) ); }
-template <class T> inline bool String::operator >( const T& t ) const
+template <class T> inline bool StringBase::operator >( const T& t ) const
 { return *this > ( toString( t ) ); }
-template <class T> inline bool String::operator <( const T& t ) const
+template <class T> inline bool StringBase::operator <( const T& t ) const
 { return *this < ( toString( t ) ); }
 
-
-} // namespace OD

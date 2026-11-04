@@ -39,11 +39,11 @@ CommandLineParser::~CommandLineParser()
 {}
 
 
-const OD::String& CommandLineParser::getExecutable() const
+const StringBase& CommandLineParser::getExecutable() const
 { return executable_; }
 
 
-const OD::String& CommandLineParser::getExecutableName() const
+const StringBase& CommandLineParser::getExecutableName() const
 {
     return progname_;
 }
@@ -84,7 +84,7 @@ bool CommandLineParser::isPresent( const char* arg ) const
 }
 
 
-const OD::String& CommandLineParser::lastArg() const
+const StringBase& CommandLineParser::lastArg() const
 {
     if ( argv_.isEmpty() )
 	return BufferString::empty();
@@ -122,7 +122,7 @@ bool CommandLineParser::isKey( int idx ) const
     if ( !argv_.validIdx( idx ) )
 	return false;
 
-    const OD::String& arg = getArg( idx );
+    const StringBase& arg = getArg( idx );
     if ( arg.size()<2 )
 	return false;
 

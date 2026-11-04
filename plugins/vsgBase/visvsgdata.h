@@ -84,7 +84,7 @@ public:
     static VisID		getID(const vsg::Node*);
 
     BufferString		getName() const override;
-    const OD::String&		name() const override;
+    const StringBase&		name() const override;
     void			setName(const char*) override;
     uiString			uiName() const;
     void			setUiName(const uiString&);

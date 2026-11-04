@@ -52,34 +52,34 @@ bool StringView::operator!=( const BufferString& s ) const
 }
 
 
-// OD::String
-OD::String::String()
+// StringBase
+StringBase::StringBase()
 {}
 
 
-OD::String::~String()
+StringBase::~StringBase()
 {}
 
 
-const OD::String& OD::String::empty()
+const StringBase& StringBase::empty()
 { return emptyfixedstring; }
 
 
-unsigned int OD::String::size() const
+unsigned int StringBase::size() const
 {
     const char* my_str = gtStr();
     return my_str ? (unsigned int)strlen( my_str ) : 0;
 }
 
 
-bool OD::String::operator >( const char* s ) const
+bool StringBase::operator >( const char* s ) const
 {
     const char* my_str = gtStr();
     return s && my_str ? strcmp(my_str,s) > 0 : (bool)my_str;
 }
 
 
-bool OD::String::operator <( const char* s ) const
+bool StringBase::operator <( const char* s ) const
 {
     const char* my_str = gtStr();
     return s && my_str ? strcmp(my_str,s) < 0 : (bool)s;
@@ -99,7 +99,7 @@ bool OD::String::operator <( const char* s ) const
     mRetEmptyEquality( me, s )
 
 
-bool OD::String::isEqual( const char* s, CaseSensitivity sens ) const
+bool StringBase::isEqual( const char* s, OD::CaseSensitivity sens ) const
 {
 #ifdef __debug__
     if ( s && gtStr()==s )
@@ -116,7 +116,7 @@ bool OD::String::isEqual( const char* s, CaseSensitivity sens ) const
 }
 
 
-bool OD::String::isStartOf( const char* s, CaseSensitivity sens ) const
+bool StringBase::isStartOf( const char* s, OD::CaseSensitivity sens ) const
 {
     mGetMeForEquality();
     return sens==OD::CaseInsensitive ? stringStartsWithCI(me,s)
@@ -124,7 +124,7 @@ bool OD::String::isStartOf( const char* s, CaseSensitivity sens ) const
 }
 
 
-bool OD::String::startsWith( const char* s, CaseSensitivity sens ) const
+bool StringBase::startsWith( const char* s, OD::CaseSensitivity sens ) const
 {
     mGetMeForEquality();
     return sens==OD::CaseInsensitive ? stringStartsWithCI(s,me)
@@ -132,7 +132,7 @@ bool OD::String::startsWith( const char* s, CaseSensitivity sens ) const
 }
 
 
-bool OD::String::isEndOf( const char* s, CaseSensitivity sens ) const
+bool StringBase::isEndOf( const char* s, OD::CaseSensitivity sens ) const
 {
     mGetMeForEquality();
     return sens==OD::CaseInsensitive ? stringEndsWithCI(me,s)
@@ -140,7 +140,7 @@ bool OD::String::isEndOf( const char* s, CaseSensitivity sens ) const
 }
 
 
-bool OD::String::endsWith( const char* s, CaseSensitivity sens ) const
+bool StringBase::endsWith( const char* s, OD::CaseSensitivity sens ) const
 {
     mGetMeForEquality();
     return sens==OD::CaseInsensitive ? stringEndsWithCI(s,me)
@@ -148,37 +148,37 @@ bool OD::String::endsWith( const char* s, CaseSensitivity sens ) const
 }
 
 
-bool OD::String::matches( const char* s, CaseSensitivity sens ) const
+bool StringBase::matches( const char* s, OD::CaseSensitivity sens ) const
 {
     mGetMeForEquality();
     return GlobExpr(s,sens).matches( me );
 }
 
 
-bool OD::String::contains( char tofind ) const
+bool StringBase::contains( char tofind ) const
 {
     const char* me = gtStr();
     return me ? (bool) firstOcc( me, tofind ) : false;
 }
 
 
-bool OD::String::contains( const char* tofind ) const
+bool StringBase::contains( const char* tofind ) const
 {
     return (bool) firstOcc( gtStr(), tofind );
 }
 
 
-const char* OD::String::find( char c ) const
+const char* StringBase::find( char c ) const
 { return firstOcc( str(), c ); }
-const char* OD::String::findLast( char c ) const
+const char* StringBase::findLast( char c ) const
 { return lastOcc( str(), c ); }
-const char* OD::String::find( const char* s ) const
+const char* StringBase::find( const char* s ) const
 { return firstOcc( str(), s ); }
-const char* OD::String::findLast( const char* s ) const
+const char* StringBase::findLast( const char* s ) const
 { return lastOcc( str(), s ); }
 
 
-unsigned int OD::String::count( char tocount ) const
+unsigned int StringBase::count( char tocount ) const
 {
     const char* ptr = gtStr();
     int ret = 0;
@@ -196,7 +196,7 @@ unsigned int OD::String::count( char tocount ) const
 }
 
 
-unsigned int OD::String::getLevenshteinDist( const char* s,
+unsigned int StringBase::getLevenshteinDist( const char* s,
 					     bool casesens ) const
 {
     const unsigned int len1 = size();
@@ -237,51 +237,51 @@ unsigned int OD::String::getLevenshteinDist( const char* s,
 }
 
 
-bool OD::String::isNumber( bool int_only ) const
+bool StringBase::isNumber( bool int_only ) const
 {
     return isNumberString( str(), int_only );
 }
 
 
-bool OD::String::isYesNo() const
+bool StringBase::isYesNo() const
 {
     return isEqual( "yes", OD::CaseInsensitive ) ||
 	   isEqual( "no", OD::CaseInsensitive );
 }
 
 
-int OD::String::toInt() const
+int StringBase::toInt() const
 {
     return ::toInt( str() );
 }
 
 
-od_uint64 OD::String::toUInt64() const
+od_uint64 StringBase::toUInt64() const
 {
     const double val = toDouble();
     return od_uint64(val);
 }
 
 
-float OD::String::toFloat() const
+float StringBase::toFloat() const
 {
     return ::toFloat( str() );
 }
 
 
-double OD::String::toDouble() const
+double StringBase::toDouble() const
 {
     return ::toDouble( str() );
 }
 
 
-bool OD::String::toBool() const
+bool StringBase::toBool() const
 {
     return ::toBool( str() );
 }
 
 
-std::wstring OD::String::toStdWString() const
+std::wstring StringBase::toStdWString() const
 {
     const QString qstr( buf() );
     return qstr.toStdWString();
@@ -310,7 +310,7 @@ static QCryptographicHash::Algorithm getAlgo( Algorithm typ )
 } // namespace Crypto
 
 
-const char* OD::String::getHash( Crypto::Algorithm typ ) const
+const char* StringBase::getHash( Crypto::Algorithm typ ) const
 {
     mDeclStaticString(ret);
     if ( typ == Crypto::Algorithm::None )

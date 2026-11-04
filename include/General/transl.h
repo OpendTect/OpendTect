@@ -95,7 +95,7 @@ protected:
 				TranslatorGroup(const char* clssnm);
     virtual			~TranslatorGroup();
 
-    const OD::String&		clssName() const	{ return clssname_; }
+    const StringBase&		clssName() const	{ return clssname_; }
 
     BufferString		clssname_;
     ObjectSet<const Translator>	templs_;
@@ -128,8 +128,8 @@ public:
     virtual			~Translator();
 				mOD_DisableCopy(Translator)
 
-    const OD::String&		typeName() const	{ return typname_; }
-    const OD::String&		userName() const	{ return usrname_; }
+    const StringBase&		typeName() const	{ return typname_; }
+    const StringBase&		userName() const	{ return usrname_; }
     virtual uiString		displayName() const;
 
     const TranslatorGroup*	group() const		{ return group_; }

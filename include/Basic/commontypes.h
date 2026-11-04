@@ -16,7 +16,7 @@ class BinID;
 class Coord;
 class Coord3;
 class BufferString;
-namespace OD { class String; }
+class StringBase;
 template<class T> class TypeSet;
 template<class T> class Interval;
 template<class T> class ObjectSet;

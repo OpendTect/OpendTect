@@ -998,7 +998,7 @@ void uiTable::setText( const RowCol& rc, const char* txt )
 }
 
 
-void uiTable::setText( const RowCol& rc, const OD::String& txt )
+void uiTable::setText( const RowCol& rc, const StringBase& txt )
 {
     setText( rc, toUiString(txt) );
 }

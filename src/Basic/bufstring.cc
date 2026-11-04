@@ -195,7 +195,7 @@ BufferString& BufferString::set( const wchar_t* s )
 #endif
 
 
-BufferString& BufferString::set( const OD::String& str )
+BufferString& BufferString::set( const StringBase& str )
 {
     setEmpty();
     return add( str.buf() );
@@ -315,7 +315,7 @@ BufferString& BufferString::add( const wchar_t* s )
 #endif
 
 
-BufferString& BufferString::add( const OD::String& str )
+BufferString& BufferString::add( const StringBase& str )
 {
     return add( str.buf() );
 }
@@ -1009,7 +1009,7 @@ BufferStringSet& BufferStringSet::add( const char* s )
 }
 
 
-BufferStringSet& BufferStringSet::add( const OD::String& s )
+BufferStringSet& BufferStringSet::add( const StringBase& s )
 {
     return add( s.str() );
 }
@@ -1079,7 +1079,7 @@ bool BufferStringSet::addIfNew( const char* s )
 }
 
 
-bool BufferStringSet::addIfNew( const OD::String& s )
+bool BufferStringSet::addIfNew( const StringBase& s )
 {
     return addIfNew( s.buf() );
 }
@@ -1110,7 +1110,7 @@ BufferStringSet& BufferStringSet::replace( idx_type idx, const char* s )
 }
 
 
-BufferStringSet& BufferStringSet::replace( idx_type idx, const OD::String& s )
+BufferStringSet& BufferStringSet::replace( idx_type idx, const StringBase& s )
 {
     get( idx ).set( s );
     return *this;
@@ -1507,13 +1507,13 @@ StringPair::~StringPair()
 {}
 
 
-const OD::String& StringPair::getCompString() const
+const StringBase& StringPair::getCompString() const
 {
     return getCompString( false );
 }
 
 
-const OD::String& StringPair::getCompString( bool withwhitespace ) const
+const StringBase& StringPair::getCompString( bool withwhitespace ) const
 {
     mDeclStaticString( ret );
     ret = first();
@@ -1600,15 +1600,15 @@ StringPairSet& StringPairSet::add( const char* first, double num )
 }
 
 
-StringPairSet& StringPairSet::add( const char* first, const OD::String& second )
+StringPairSet& StringPairSet::add( const char* first, const StringBase& second )
 {
     entries_.add( new StringPair(first,second.buf()) );
     return *this;
 }
 
 
-StringPairSet& StringPairSet::add( const OD::String& first,
-				   const OD::String& second )
+StringPairSet& StringPairSet::add( const StringBase& first,
+				   const StringBase& second )
 {
     entries_.add( new StringPair(first.buf(),second.buf()) );
     return *this;

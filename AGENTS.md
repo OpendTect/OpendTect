@@ -22,11 +22,11 @@
 * **Sources are enumerated, never globbed.** Any new `.cc`/`.h` must be added to the owning module's `CMakeLists.txt` (`OD_MODULE_SOURCES`, `OD_MODULE_INCFILES`) or it silently won't be built.
 
 ## Style
-* Use OD::String methods instead of `strcmp(`.
+* Use StringBase methods instead of `strcmp(`.
 * Use Math::Sqrt instead of `sqrt(`.
 * Use Math::Atan2() instead of `atan2(`.
 * Use `mAllocLargeVarLenArr` instead of `ArrPtrMan<Type> var = new`.
 * Source files must have Unix line endings and end with a newline (LineEndTest/FileEndTest). A PHP tab-lint test runs if `php` is installed.
-* Prefer `OD::String`/`BufferString` over `std::string`.
+* Prefer `StringBase`/`BufferString` over `std::string`.
 * See dGB coding guide: https://doc.opendtect.org/7.0.0/doc/Programmer/Default.htm
 

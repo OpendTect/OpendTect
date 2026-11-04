@@ -618,7 +618,7 @@ static const ColorDescriptionData cColDD[] = {
 };
 
 
-static const OD::String& getApproxDesc( const char* nm )
+static const StringBase& getApproxDesc( const char* nm )
 {
     mDeclStaticString( ret );
     ret = "~";
@@ -627,7 +627,7 @@ static const OD::String& getApproxDesc( const char* nm )
 }
 
 
-const OD::String& Color::getDescription() const
+const StringBase& Color::getDescription() const
 {
     mDeclStaticString( ret );
     int minsqdist = 16581376; int minidx = -1;
@@ -713,7 +713,7 @@ const TypeSet<Color>& Color::descriptionCenters()
 { return *cols.createIfNull( descCenterCreator ); }
 
 
-const OD::String& Color::largeUserInfoString() const
+const StringBase& Color::largeUserInfoString() const
 {
     mDeclStaticString( ret );
 

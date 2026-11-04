@@ -93,7 +93,7 @@ public:
 
 	    //Only available when the actual log data is loaded:
     const Log*		getLog(const char* nm) const;
-    const Log*		getLog(const OD::String&) const;
+    const Log*		getLog(const StringBase&) const;
     const Log&		getLogByIdx(int) const;
     const Log&		first() const;
     const Log&		last() const;
@@ -103,7 +103,7 @@ public:
     const Log*		getDefaultLog(const Mnemonic&) const;
 			//<! returns null if default is not assigned.
     Log*		getLog(const char* nm);
-    Log*		getLog(const OD::String&);
+    Log*		getLog(const StringBase&);
     Log&		getLogByIdx(int);
     Log&		first();
     Log&		last();

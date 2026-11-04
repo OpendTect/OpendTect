@@ -986,7 +986,7 @@ bool putContent( const BufferStringSet& lines, const char* tofnm,
 }
 
 
-bool putContent( const OD::String& str, const char* tofnm, uiString* errmsg,
+bool putContent( const StringBase& str, const char* tofnm, uiString* errmsg,
 		 TaskRunner* taskrun )
 {
     return putContent( str.buf(), str.size(), tofnm, errmsg, taskrun );

@@ -46,7 +46,7 @@ static Pos::GeomID getGeomIDFromFileName( const char* fnm )
 }
 
 
-const OD::String& SeisCBVS2DLineIOProvider::getFileName( const IOObj& obj,
+const StringBase& SeisCBVS2DLineIOProvider::getFileName( const IOObj& obj,
 							 Pos::GeomID geomid )
 {
     mDeclStaticString( ret );
@@ -76,7 +76,7 @@ SeisCBVS2DLineIOProvider::~SeisCBVS2DLineIOProvider()
 bool SeisCBVS2DLineIOProvider::isEmpty( const IOObj& obj,
 					Pos::GeomID geomid ) const
 {
-    const OD::String& fnm = getFileName( obj, geomid );
+    const StringBase& fnm = getFileName( obj, geomid );
     return fnm.isEmpty() || File::isEmpty(fnm);
 }
 
@@ -84,7 +84,7 @@ bool SeisCBVS2DLineIOProvider::isEmpty( const IOObj& obj,
 bool SeisCBVS2DLineIOProvider::getTxtInfo( const IOObj& obj, Pos::GeomID geomid,
 		BufferString& uinf, BufferString& stdinf ) const
 {
-    const OD::String& fnm = getFileName( obj, geomid );
+    const StringBase& fnm = getFileName( obj, geomid );
     if ( fnm.isEmpty() )
 	return false;
 
@@ -101,7 +101,7 @@ bool SeisCBVS2DLineIOProvider::getTxtInfo( const IOObj& obj, Pos::GeomID geomid,
 bool SeisCBVS2DLineIOProvider::getRanges( const IOObj& obj, Pos::GeomID geomid,
 		StepInterval<int>& trcrg, StepInterval<float>& zrg ) const
 {
-    const OD::String& fnm = getFileName( obj, geomid );
+    const StringBase& fnm = getFileName( obj, geomid );
     if ( fnm.isEmpty() )
 	return false;
 
@@ -118,7 +118,7 @@ bool SeisCBVS2DLineIOProvider::getRanges( const IOObj& obj, Pos::GeomID geomid,
 bool SeisCBVS2DLineIOProvider::removeImpl( const IOObj& obj,
 					   Pos::GeomID geomid ) const
 {
-    const OD::String& fnm = getFileName( obj, geomid );
+    const StringBase& fnm = getFileName( obj, geomid );
     if ( fnm.isEmpty() )
 	return false;
 
@@ -323,7 +323,7 @@ Executor* SeisCBVS2DLineIOProvider::getFetcher( const IOObj& obj,
 						SeisTrcBuf& tbuf, int ntps,
 						const Seis::SelData* sd )
 {
-    const OD::String& fnm = getFileName( obj, geomid );
+    const StringBase& fnm = getFileName( obj, geomid );
     if ( fnm.isEmpty() || !File::exists(fnm) )
     {
 	BufferString errmsg = "2D seismic line file '"; errmsg += fnm;

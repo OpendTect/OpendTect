@@ -72,7 +72,7 @@ od_stream::od_stream( const char* fnm, bool forwrite, bool useexist )
 }
 
 
-od_stream::od_stream( const OD::String& fnm, bool forwrite, bool useexist )
+od_stream::od_stream( const StringBase& fnm, bool forwrite, bool useexist )
     : od_stream(fnm.buf(),forwrite,useexist)
 {}
 
@@ -321,7 +321,7 @@ od_istream::od_istream( const char* fnm )
 {}
 
 
-od_istream::od_istream( const OD::String& fnm )
+od_istream::od_istream( const StringBase& fnm )
     : od_istream(fnm.buf())
 {}
 
@@ -760,7 +760,7 @@ od_ostream::od_ostream( const char* fnm, bool useexist )
 {}
 
 
-od_ostream::od_ostream( const OD::String& fnm, bool useexist )
+od_ostream::od_ostream( const StringBase& fnm, bool useexist )
     : od_ostream(fnm.buf(),useexist)
 {}
 
@@ -883,7 +883,7 @@ od_ostream& od_ostream::add( od_istream& strm )
 }
 
 
-od_ostream& od_ostream::add( const OD::String& ods )
+od_ostream& od_ostream::add( const StringBase& ods )
 {
     return ods.str() ? add( ods.str() ) : *this;
 }

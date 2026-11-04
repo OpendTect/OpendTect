@@ -384,7 +384,7 @@ void uiTextEdit::setText( const char* txt, bool trigger_notif )
 }
 
 
-void uiTextEdit::setText( const OD::String& txt )
+void uiTextEdit::setText( const StringBase& txt )
 {
     setText( txt.buf() );
 }

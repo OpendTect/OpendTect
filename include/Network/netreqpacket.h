@@ -276,18 +276,18 @@ inline int PacketFiller::sizeFor( const bool& var )
 }
 
 template <>
-inline int PacketFiller::sizeFor( const OD::String& str )
+inline int PacketFiller::sizeFor( const StringBase& str )
 {
     return sizeof(int) + str.size();
 }
 
 template <>
 inline int PacketFiller::sizeFor( const BufferString& str )
-{ return sizeFor( (const OD::String&) str ); }
+{ return sizeFor( (const StringBase&) str ); }
 
 template <>
 inline int PacketFiller::sizeFor( const StringView& str )
-{ return sizeFor( (const OD::String&) str ); }
+{ return sizeFor( (const StringBase&) str ); }
 
 template <>
 inline int PacketFiller::sizeFor( const BufferStringSet& bss )
@@ -349,7 +349,7 @@ inline const PacketFiller& PacketFiller::put( const bool& var ) const
 }
 
 template <>
-inline const PacketFiller& PacketFiller::put( const OD::String& str ) const
+inline const PacketFiller& PacketFiller::put( const StringBase& str ) const
 {
     const int sz = str.size();
     put( sz );
@@ -358,11 +358,11 @@ inline const PacketFiller& PacketFiller::put( const OD::String& str ) const
 
 template <>
 inline const PacketFiller& PacketFiller::put( const BufferString& str ) const
-{ return put( (const OD::String&) str ); }
+{ return put( (const StringBase&) str ); }
 
 template <>
 inline const PacketFiller& PacketFiller::put( const StringView& str ) const
-{ return put( (const OD::String&) str ); }
+{ return put( (const StringBase&) str ); }
 
 template <>
 inline const PacketFiller& PacketFiller::put( const BufferStringSet& bss ) const

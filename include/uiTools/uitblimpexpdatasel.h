@@ -41,7 +41,7 @@ public:
 				~uiTableImpDataSel();
 
     Table::FormatDesc&		desc()		{ return fd_; }
-    const OD::String&		fmtName()	{ return fmtname_; }
+    const StringBase&		fmtName()	{ return fmtname_; }
 				//!< May not be correct: it's the last selected
 
     void			updateSummary();

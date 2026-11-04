@@ -96,7 +96,7 @@ public:
 
     void		setText(const char* txt) { setText( txt, false ); }
 			//!<Does not trigger notification
-    void		setText(const OD::String& txt);
+    void		setText(const StringBase& txt);
 			//!<Does not trigger notification
     void		setText(const uiString&);
 			/*!<Will make object read only, does not trigger

@@ -152,7 +152,7 @@ Desc::~Desc()
 }
 
 
-const OD::String& Desc::attribName() const
+const StringBase& Desc::attribName() const
 {
     return attribname_;
 }

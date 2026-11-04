@@ -402,7 +402,7 @@ const char* uiString::getOriginalString() const
 }
 
 
-const OD::String& uiString::getFullString( BufferString* res ) const
+const StringBase& uiString::getFullString( BufferString* res ) const
 {
     if ( !res )
     {
@@ -791,7 +791,7 @@ uiString& uiString::appendPhrases( const uiStringSet& strs,
 }
 
 
-uiString& uiString::appendPlainText( const OD::String& odstr, bool addspace,
+uiString& uiString::appendPlainText( const StringBase& odstr, bool addspace,
 				     bool addquotes )
 {
     return appendPlainText( odstr.str(), addspace, addquotes );
@@ -935,7 +935,7 @@ BufferString uiString::getString() const
 uiString toUiString( const char* var ) { return uiString().set( var ); }
 uiString toUiString( const uiString& var ) { return var; }
 
-uiString toUiString( const OD::String& str ) { return toUiString( str.str() ); }
+uiString toUiString( const StringBase& str ) { return toUiString( str.str() ); }
 
 
 static bool useNumberLocale()

@@ -30,7 +30,7 @@ static const char* getStringUsingBuf()
 }
 
 
-static const OD::String& getStringFromRef()
+static const StringBase& getStringFromRef()
 {
     mDeclStaticString(ret);
     if ( ret.isEmpty() )
@@ -583,12 +583,12 @@ bool testStaticString()
 
     FilePath fp2;
     fp2.set( getStringFromRef().buf() );
-    mRunStandardTest( !fp2.isEmpty(), "Static buf of const OD::String& to buf");
+    mRunStandardTest( !fp2.isEmpty(), "Static buf of const StringBase& to buf");
 
     //new syntax
     FilePath fp3;
     fp3.set( getStringFromRef() );
-    mRunStandardTest( !fp3.isEmpty(), "Static const OD::String& to buf" );
+    mRunStandardTest( !fp3.isEmpty(), "Static const StringBase& to buf" );
 
     return true;
 }
@@ -626,10 +626,10 @@ bool testStringSetReplace()
     const BufferString replstr( "Str pos 1");
     strs.replace( 1, replstr );
     mRunStandardTest( strs.get(1)=="Str pos 1",
-		      "BufferStringSet replace test (OD::String&)" );
+		      "BufferStringSet replace test (StringBase&)" );
     strs.replace( 1, BufferString::empty() );
     mRunStandardTest( strs.get(1).isEmpty(),
-		      "BufferStringSet replace test (empty OD::String&)" );
+		      "BufferStringSet replace test (empty StringBase&)" );
 
     auto* newreplstr = new BufferString( "Str pos 1");
     strs.replace( 1, newreplstr );

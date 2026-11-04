@@ -26,7 +26,7 @@ Crypto::PassPhrase::PassPhrase( const char* str, Algorithm typ )
 }
 
 
-Crypto::PassPhrase::PassPhrase( const OD::String& str, Algorithm typ )
+Crypto::PassPhrase::PassPhrase( const StringBase& str, Algorithm typ )
     : BufferString(str)
     , algo_(typ)
 {
@@ -36,7 +36,7 @@ Crypto::PassPhrase::PassPhrase( const OD::String& str, Algorithm typ )
 namespace OD
 {
 
-using encryptToFileFn = bool(*)(const OD::String&,const char*,uiRetVal&,
+using encryptToFileFn = bool(*)(const StringBase&,const char*,uiRetVal&,
 			const Crypto::PassPhrase&,const char*,bool,int,bool);
 using decryptFromFileFn = bool(*)(const char*,BufferString&,uiRetVal&,
 			const Crypto::PassPhrase&,const char*,bool,int);
@@ -129,7 +129,7 @@ void OD::OpenSSLAccess::loadPlugin()
 }
 
 
-bool OD::OpenSSLAccess::encryptToFile( const OD::String& txt, const char* fnm,
+bool OD::OpenSSLAccess::encryptToFile( const StringBase& txt, const char* fnm,
 				uiRetVal& uirv,
 				const Crypto::PassPhrase& passphrase,
 				int nriters,

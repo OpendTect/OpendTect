@@ -358,7 +358,7 @@ bool Network::Socket::waitForWrite( bool forall ) const
 }
 
 
-bool Network::Socket::write( const OD::String& str )
+bool Network::Socket::write( const StringBase& str )
 {
     Threads::Locker locker( lock_ );
 

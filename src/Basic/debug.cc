@@ -75,13 +75,13 @@ class ForcedCrash {};
 class StaticStringRepos
 {
 public:
-    void			addIfNew( const OD::String* str )
+    void			addIfNew( const StringBase* str )
 				{
 				    Threads::Locker locker( lock_ );
 				    strings_.addIfNew( str );
 				}
 
-    bool			isPresent( const OD::String* str ) const
+    bool			isPresent( const StringBase* str ) const
 				{
 				    Threads::Locker locker( lock_ );
 				    return strings_.isPresent(str);
@@ -89,7 +89,7 @@ public:
 
 private:
 
-    ObjectSet<const OD::String>	strings_;
+    ObjectSet<const StringBase> strings_;
     mutable Threads::Lock	lock_;
 
 };
@@ -104,13 +104,13 @@ static OD::StaticStringRepos& getStaticStringRepos()
 }
 
 
-Export_Basic void addToStaticStringRepos( const OD::String* str )
+Export_Basic void addToStaticStringRepos( const StringBase* str )
 {
     getStaticStringRepos().addIfNew( str );
 }
 
 
-Export_Basic bool isStaticString( const OD::String* str )
+Export_Basic bool isStaticString( const StringBase* str )
 {
     return getStaticStringRepos().isPresent( str );
 }

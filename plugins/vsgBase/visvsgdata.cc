@@ -64,7 +64,7 @@ DataObject::~DataObject()
 }
 
 
-const OD::String& DataObject::name() const
+const StringBase& DataObject::name() const
 {
     mDeclStaticString( ret );
     ret = getName();

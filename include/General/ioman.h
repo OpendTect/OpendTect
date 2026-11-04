@@ -44,7 +44,7 @@ public:
 
     bool		isBad() const		{ return state_ != Good; }
     bool		isReady() const;
-    const OD::String&	message() const		{ return msg_.getFullString(); }
+    const StringBase&	message() const		{ return msg_.getFullString(); }
     const uiString&	uiMessage() const	{ return msg_; }
 
     bool		isUsable(const DBKey&) const;

@@ -97,8 +97,8 @@ public:
     static int		nrStdDrawColors();
     static Color	stdDrawColor(int);
 
-    const OD::String&	largeUserInfoString() const;
-    const OD::String&	getDescription() const;
+    const StringBase&	largeUserInfoString() const;
+    const StringBase&	getDescription() const;
     bool		fromDescription(const char*);
     static const BufferStringSet& descriptions();
     static const TypeSet<Color>& descriptionCenters();

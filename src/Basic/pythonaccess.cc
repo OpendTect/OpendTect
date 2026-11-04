@@ -922,7 +922,7 @@ FilePath* OD::PythonAccess::getCommand( OS::MachineCommand& cmd,
     {
 	strm.add( "Start \"%proctitle%\" ");
 	const FilePath progfp( cmd.program() );
-	const OD::String& prognm = progfp.fileName();
+	const StringBase& prognm = progfp.fileName();
 	if ( !prognm.startsWith("cmd",OD::CaseInsensitive) &&
 	     !prognm.startsWith("powershell",OD::CaseInsensitive) &&
 	     !prognm.startsWith("wt",OD::CaseInsensitive) )

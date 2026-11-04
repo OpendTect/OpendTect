@@ -44,7 +44,7 @@ public:
     bool		removeImpl(const IOObj&,Pos::GeomID) const override;
     bool		renameImpl(const IOObj&,const char*) const override;
 
-    static const OD::String&	getFileName(const IOObj&,Pos::GeomID);
+    static const StringBase&	getFileName(const IOObj&,Pos::GeomID);
 
 private:
 

@@ -48,7 +48,7 @@ VolumeReaderExecutor( const IOObj& ioobj, const TypeSet<int>& components,
 }
 
 
-const OD::String& name() const override
+const StringBase& name() const override
 {
     return rdr_.name();
 }

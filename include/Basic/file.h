@@ -214,7 +214,7 @@ mGlobal(Basic) bool		putContent(const BufferStringSet&,
 					   const char* tofnm,
 					   uiString* errmsg=nullptr,
 					   TaskRunner* =nullptr);
-mGlobal(Basic) bool		putContent(const OD::String&,const char* tofnm,
+mGlobal(Basic) bool		putContent(const StringBase&,const char* tofnm,
 					   uiString* errmsg=nullptr,
 					   TaskRunner* =nullptr);
 mGlobal(Basic) bool		putContent(const char* buf,int sz,

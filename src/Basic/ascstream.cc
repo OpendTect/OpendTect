@@ -135,7 +135,7 @@ bool ascostream::put( const char* keyword, const char* value )
 }
 
 
-bool ascostream::put( const char* keyword, const OD::String& value )
+bool ascostream::put( const char* keyword, const StringBase& value )
 {
     return put( keyword, value.buf() );
 }

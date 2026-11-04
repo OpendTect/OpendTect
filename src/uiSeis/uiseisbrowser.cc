@@ -292,7 +292,7 @@ bool uiSeisBrowser::openData( const uiSeisBrowser::Setup& su )
 	if ( !ds.isPresent(su.geomid_) )
 	    return false;
 
-	const OD::String& fnm =
+	const StringBase& fnm =
 		SeisCBVS2DLineIOProvider::getFileName( *ioobj, su.geomid_ );
 	tr_ = CBVSSeisTrcTranslator::make( fnm, false,
 					   Seis::is2D(su.geom_), &emsg );

@@ -108,11 +108,11 @@ public:
 				/*!<True if not a key, and previous is a key
 				    that has been set using setKeyHasValue. */
 
-    const OD::String&		getArg(int idx) const	{ return *argv_[idx]; }
-    const OD::String&		lastArg() const;
+    const StringBase&		getArg(int idx) const	{ return *argv_[idx]; }
+    const StringBase&		lastArg() const;
 
-    const OD::String&		getExecutable() const;
-    const OD::String&		getExecutableName() const;
+    const StringBase&		getExecutable() const;
+    const StringBase&		getExecutableName() const;
 
     mDeprecated			("Use BufferString createKey(const char*)")
     static void			createKey(const char* key,BufferString& res)

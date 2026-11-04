@@ -49,7 +49,7 @@ static Pos::GeomID getGeomIDFromFileName( const char* fnm )
 }
 
 
-const OD::String& SEGYDirect2DLineIOProvider::getFileName( const IOObj& obj,
+const StringBase& SEGYDirect2DLineIOProvider::getFileName( const IOObj& obj,
 							 Pos::GeomID geomid )
 {
     mDeclStaticString( ret );
@@ -74,7 +74,7 @@ SEGYDirect2DLineIOProvider::~SEGYDirect2DLineIOProvider()
 bool SEGYDirect2DLineIOProvider::isEmpty( const IOObj& obj,
 					Pos::GeomID geomid ) const
 {
-    const OD::String& fnm = getFileName( obj, geomid );
+    const StringBase& fnm = getFileName( obj, geomid );
     return fnm.isEmpty() || File::isEmpty(fnm);
 }
 
@@ -84,7 +84,7 @@ bool SEGYDirect2DLineIOProvider::getTxtInfo( const IOObj& obj,
 					     BufferString& uinf,
 					     BufferString& stdinf ) const
 {
-    const OD::String& fnm = getFileName( obj, geomid );
+    const StringBase& fnm = getFileName( obj, geomid );
     if ( fnm.isEmpty() )
 	return false;
 
@@ -105,7 +105,7 @@ bool SEGYDirect2DLineIOProvider::getRanges( const IOObj& obj,
 					    StepInterval<int>& trcrg,
 					    StepInterval<float>& zrg ) const
 {
-    const OD::String& fnm = getFileName( obj, geomid );
+    const StringBase& fnm = getFileName( obj, geomid );
     if ( fnm.isEmpty() || !File::exists(fnm) )
 	return false;
 
@@ -119,7 +119,7 @@ bool SEGYDirect2DLineIOProvider::getRanges( const IOObj& obj,
 bool SEGYDirect2DLineIOProvider::removeImpl( const IOObj& obj,
 					   Pos::GeomID geomid ) const
 {
-    const OD::String& fnm = getFileName( obj, geomid );
+    const StringBase& fnm = getFileName( obj, geomid );
     if ( fnm.isEmpty() )
 	return false;
 
@@ -257,7 +257,7 @@ int SEGYDirect2DLineGetter::nextStep()
 bool SEGYDirect2DLineIOProvider::getGeometry( const IOObj& obj,
 			Pos::GeomID geomid, PosInfo::Line2DData& geom ) const
 {
-    const OD::String& fnm = getFileName( obj, geomid );
+    const StringBase& fnm = getFileName( obj, geomid );
     if ( fnm.isEmpty() || !File::exists(fnm) )
     {
 	BufferString errmsg = "2D seismic line file '"; errmsg += fnm;
@@ -277,7 +277,7 @@ Executor* SEGYDirect2DLineIOProvider::getFetcher( const IOObj& obj,
 						SeisTrcBuf& tbuf, int ntps,
 						const Seis::SelData* sd )
 {
-    const OD::String& fnm = getFileName( obj, geomid );
+    const StringBase& fnm = getFileName( obj, geomid );
     if ( fnm.isEmpty() || !File::exists(fnm) )
     {
 	BufferString errmsg = "2D seismic line file '"; errmsg += fnm;
@@ -417,7 +417,7 @@ RefMan<Survey::Geometry> SEGYDirectSurvGeom2DTranslator::readGeometry(
 	return nullptr;
 
     const Pos::GeomID geomid( ioobj.key().objectID() );
-    const OD::String& segydeffnm =
+    const StringBase& segydeffnm =
 	SEGYDirect2DLineIOProvider::getFileName( *segydirectobj, geomid );
     SEGY::DirectDef sgydef( segydeffnm );
     const PosInfo::Line2DData& ld = sgydef.lineData();

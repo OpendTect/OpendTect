@@ -63,9 +63,9 @@ public:
 
     SpecVar*		find(const char* nm);
     const SpecVar*	find(const char* nm) const;
-    const OD::String&	varName( int idx ) const
+    const StringBase&	varName( int idx ) const
 			{ return get(idx)->varnm_; }
-    const OD::String&	dispName( int idx ) const
+    const StringBase&	dispName( int idx ) const
 			{ return get(idx)->dispnm_; }
     bool		hasUnits( int idx ) const
 			{ return get(idx)->hasunits_; }

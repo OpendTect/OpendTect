@@ -51,7 +51,7 @@ uiRetVal uiMMBatchJobDispatcher::initMMProgram( const CommandLineParser& clp,
     clp.setKeyHasValue( "parfile" );
     uiRetVal uirv;
 
-    const OD::String& execnm = clp.getExecutableName();
+    const StringBase& execnm = clp.getExecutableName();
 
     BufferString parfilenm;
     if ( !clp.getVal("parfile",parfilenm) )

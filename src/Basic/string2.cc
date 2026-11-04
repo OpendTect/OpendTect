@@ -965,7 +965,7 @@ const char* toString( const wchar_t* wstr )
 }
 #endif
 
-const char* toString( const OD::String& ods )
+const char* toString( const StringBase& ods )
 { return ods.buf(); }
 
 const char* toString( const CompoundKey& key )

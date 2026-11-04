@@ -28,7 +28,7 @@ public:
     bool			readReport(const char* filename);
     bool			setDumpFileName(const char* filename);
     BufferString&		getReport()	    { return report_; }
-    const OD::String&		getReport() const   { return report_; }
+    const StringBase&		getReport() const   { return report_; }
     bool			isBinary() const    { return isbinary_; }
 
     bool			send();
