@@ -12,6 +12,7 @@ set( OD_NO_ALO_ENTRY TRUE )
 set( OD_MODULE_SOURCES
 	visvsgsurvscene.cc
 	visvsgsurvtransmgr.cc
+	vsgsurveypi.cc
 )
 if ( NOT OD_NO_OSG )
     set( OD_TEST_PROGS visvsgsurvey.cc )
