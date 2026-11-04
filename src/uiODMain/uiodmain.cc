@@ -903,18 +903,17 @@ void uiODMain::updateStatusCB( CallBacker* cb )
     if ( !ct )
 	return;
 
-    const BufferString stdoutstr = ct->getStdOutput();
-    const BufferString stderrstr = ct->getStdError();
-    if ( stdoutstr.isEmpty() || !stderrstr.isEmpty() )
+    const int exitcode = ct->getExitCode();
+    if ( exitcode !=0 && exitcode != 2 )
     {
-	ODInst::updatesAvailable( 0 );
+	ODInst::updatesAvailable( 0 ); // actual status is unknown
+	const BufferString stderrstr = ct->getStdError();
 	if ( !stderrstr.isEmpty() )
 	    ErrMsg( BufferString("Error checking for software updates: ",
 				 stderrstr) );
     }
     else
-	ODInst::updatesAvailable(
-			    stdoutstr==ODInst::sKeyHasUpdate() ? 1 : 0 );
+	ODInst::updatesAvailable( exitcode == 2 ? 1 : 0);
 
     updateCaptionCB( nullptr );
 }
