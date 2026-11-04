@@ -654,13 +654,6 @@ void uiMain::restart()
 }
 
 
-void uiMain::setQuitOnLastWindowClosed( bool yn )
-{
-    if ( app_ )
-	app_->setQuitOnLastWindowClosed( yn );
-}
-
-
 int uiMain::exec()
 {
     if ( !app_ )
