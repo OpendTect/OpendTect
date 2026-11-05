@@ -18,6 +18,7 @@ ________________________________________________________________________
 #include "uimsg.h"
 #include "uiodapplmgr.h"
 #include "uiodscenemgr.h"
+#include "uiodviewer2dmgr.h"
 #include "uiscenepropdlg.h"
 #include "uitreeview.h"
 #include "uivispartserv.h"
@@ -218,6 +219,17 @@ void uiODTreeItem::handleStandardItems( int mnuid )
 			   .arg(name());
 	if ( !uiMSG().askRemove(msg) )
 	    return;
+
+	TypeSet<VisID> sources;
+	for ( const auto* child : children_ )
+	{
+	    mDynamicCastGet(const uiODDisplayTreeItem*,itm,child)
+	    if ( itm )
+		sources.addIfNew( itm->displayID() );
+	}
+	if ( !ODMainWin()->viewer2DMgr().prepareCloseForSources(sources) )
+	    return;
+	ODMainWin()->viewer2DMgr().commitCloseForSources( sources );
 
 	while ( children_.size() )
 	{
