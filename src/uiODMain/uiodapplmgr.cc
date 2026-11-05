@@ -250,9 +250,18 @@ void uiODApplMgr::prepSurveyChange()
 
 void uiODApplMgr::survToBeChanged()
 {
+    // The cancellable save stage completed while the old survey was valid.
+    // Release viewer-owned objects before their servers and plugins disappear.
+    appl_.viewer2DMgr().suspendDispatch();
+    appl_.viewer2DMgr().prepareCloseAll( true );
+    appl_.viewer2DMgr().commitCloseAll();
+
     visdpsdispmgr_->clearDisplays();
     dispatcher_.survChg(true);
     attrvishandler_.survChg(true);
+
+    if ( appl_.sceneMgrAvailable() )
+	sceneMgr().cleanUp( false, true );
 
     if ( nlaserv_ )
 	nlaserv_->reset();
@@ -262,8 +271,6 @@ void uiODApplMgr::survToBeChanged()
     deleteAndNullPtr( volprocserv_ );
     deleteAndNullPtr( mpeserv_ );
     deleteAndNullPtr( wellserv_ );
-    if ( appl_.sceneMgrAvailable() )
-	sceneMgr().cleanUp( false );
 
     uiApplMgr::survToBeChanged();
 }

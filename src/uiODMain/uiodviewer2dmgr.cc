@@ -1335,6 +1335,9 @@ void uiODViewer2DMgr::viewObjToBeRemoved( CallBacker* cb )
 
 void uiODViewer2DMgr::fillPar( IOPar& iop ) const
 {
+    if ( advancedrequired_ )
+	return;
+
     for ( int idx=0; idx<viewers2d_.size(); idx++ )
     {
 	const uiODViewer2D& vwr2d = *viewers2d_[idx];
@@ -1354,6 +1357,15 @@ void uiODViewer2DMgr::fillPar( IOPar& iop ) const
 
 void uiODViewer2DMgr::usePar( const IOPar& iop )
 {
+    if ( advancedrequired_ )
+    {
+	if ( iop.size() )
+	    appl_.restoreMsgs().add(
+		tr("Saved 2D viewer windows are not restored in OpendTect "
+		   "Pro. Open them again from the restored displays.") );
+	return;
+    }
+
     deepErase( viewers2d_ );
 
     for ( int idx=0; ; idx++ )

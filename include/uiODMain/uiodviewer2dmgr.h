@@ -208,7 +208,7 @@ protected:
     TypeSet<Viewer2DID>		associatedviewers_;
     TypeSet<VisID>		associatedsources_;
     bool			advancedrequired_ {false};
-    bool			dispatchsuspended_ {false};
+    bool			dispatchsuspended_ {true};
 
     void			forgetViewerSource(Viewer2DID);
     uiOD2DViewerBackend*		selectedBackend() const;
