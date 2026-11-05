@@ -361,8 +361,7 @@ static BufferString getLocalInstallerDir()
 }
 
 
-static const char* getLocalInstallerExe( const char* odinstdir,
-					 ActionType /*typ*/ )
+static const char* getLocalInstallerExe( ActionType typ )
 {
     mDeclStaticString(ret);
     const BufferString installerbasedir( getLocalInstallerDir() );
@@ -393,9 +392,26 @@ static const char* getLocalInstallerExe( const char* odinstdir,
 	FilePath execfp( *execdir );
 	if ( __iswin__ )
 	{
-	    execfp.add( "od_instmgr.exe" );
-	    if ( !execfp.exists() )
-		execfp.add( "od_instmgrd.exe" );
+	    if ( typ == ActionType::UpdateCheck )
+	    {
+		execfp.add( "run_installer.exe" );
+		if ( !execfp.exists() )
+		{
+		    execfp.setFileName( "run_installer.exe" );
+		    if ( !execfp.exists() )
+		    {
+			execfp.setFileName( "od_instmgr.exe" );
+			if ( !execfp.exists() )
+			    execfp.setFileName( "od_instmgrd.exe" );
+		    }
+		}
+	    }
+	    else
+	    {
+		execfp.add( "od_instmgr.exe" );
+		if ( !execfp.exists() )
+		    execfp.add( "od_instmgrd.exe" );
+	    }
 	}
 	else if ( __ismac__ )
 	{
@@ -434,7 +450,7 @@ static const char* getInstallerExe( ActionType typ=ActionType::Standard )
     BufferString instexec = isuserinst ? getUserInstallerExe( typ )
 				       : getSystemInstallerExe( typ );
     if ( instexec.isEmpty() )
-	instexec = getLocalInstallerExe( GetSoftwareDir(true), typ );
+	instexec = getLocalInstallerExe( typ );
 
     if ( !instexec.isEmpty() )
     {
@@ -488,18 +504,10 @@ static OS::MachineCommand getFullMachComm( const char* odinstdir,
 }
 
 
-static bool submitCommand( const OS::MachineCommand& mc, const char* odinstdir )
+static bool submitCommand( const OS::MachineCommand& mc )
 {
-    OS::CommandExecPars pars( OS::RunInBG );
-    if ( __iswin__ )
-    {
-	pars.workingdir( FilePath(mc.program()).pathOnly() );
-	pars.runasadmin( !canInstall(odinstdir) ||
-			 !canInstall(pars.workingdir_) );
-    }
-
-    OS::MachineCommand isolatedmc( mc, __islinux__ );
-    return isolatedmc.execute( pars );
+    OS::MachineCommand isolatedmc( mc, true );
+    return isolatedmc.execute( OS::RunInBG );
 }
 
 } // namespace ODInst
@@ -530,7 +538,7 @@ void ODInst::startInstManagement( ActionType typ )
     if ( mc.isBad() )
 	return;
 
-    submitCommand( mc, softwareDir() );
+    submitCommand( mc );
 }
 
 
@@ -709,5 +717,5 @@ void ODInst::startInstManagementWithRelDir( const char* reldir )
 {
     const OS::MachineCommand mc = getFullMachComm( reldir,ActionType::Standard);
     if ( !mc.isBad() )
-	submitCommand( mc, reldir );
+	submitCommand( mc );
 }
