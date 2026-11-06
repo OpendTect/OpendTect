@@ -133,6 +133,12 @@ else()
 	endif()
     endforeach()
 
+    if ( NOT "${MSVCDLLS_DEBUG}" STREQUAL "" )
+	foreach( LIB ${MSVCDLLS_DEBUG} )
+	    list( APPEND THIRDPARTY_LIBS ${LIB} )
+	endforeach()
+    endif()
+
     unset( REGEXESTR1 )
     unset( REGEXESTR2 )
 

@@ -14,8 +14,13 @@ macro( OD_ADD_PACKAGES_TARGET )
     GET_OD_BASE_EXECUTABLES()
     get_thirdparty_targets( OD_THIRDPARTY_TARGETS ${OD_MODULES} ${OD_PLUGINS} )
     get_thirdparty_libs( "${OD_THIRDPARTY_TARGETS}" OD_THIRDPARTY_LIBS )
+    if ( MSVC )
+	get_msvcdlls( MSVCDLLS_RELEASE MSVCDLLS_DEBUG )
+    elseif ( UNIX AND NOT APPLE )
+	get_linux_systemlibs( OD_THIRDPARTY_LIBS "${OD_THIRDPARTY_LIBS}" )
+    endif()
     set( CMAKE_FOLDER "Releases" )
-    add_custom_target( packages ${CMAKE_COMMAND} 
+    add_custom_target( packages ${CMAKE_COMMAND}
 	    -DOpendTect_INST_DIR=${OpendTect_INST_DIR}
 	    -DOpendTect_FULL_VERSION=${OpendTect_FULL_VERSION}
 	    -DSOURCE_DIR=${CMAKE_SOURCE_DIR}
@@ -46,11 +51,13 @@ macro( OD_ADD_PACKAGES_TARGET )
 	    "-DOD_GUI_EXECUTABLES=\"${OD_GUI_EXECUTABLES}\""
 	    "-DOD_THIRDPARTY_LIBS=\"${OD_THIRDPARTY_LIBS}\""
 	    "-DOD_THIRDPARTY_TARGETS=\"${OD_THIRDPARTY_TARGETS}\""
+	    "-DMSVCDLLS_RELEASE=\"${MSVCDLLS_RELEASE}\""
+	    "-DMSVCDLLS_DEBUG=\"${MSVCDLLS_DEBUG}\""
 	    "-DOD_QTPLUGINS=\"${OD_QTPLUGINS}\""
 	    -DSHLIB_PREFIX=${SHLIB_PREFIX}
 	    -DSHLIB_EXTENSION=${SHLIB_EXTENSION}
-	    -P "${CMAKE_SOURCE_DIR}/CMakeModules/packagescripts/ODMakePackages.cmake" 
-	    COMMENT "Creating packages" ) 
+	    -P "${CMAKE_SOURCE_DIR}/CMakeModules/packagescripts/ODMakePackages.cmake"
+	    COMMENT "Creating packages" )
     unset( CMAKE_FOLDER )
 endmacro()
 
