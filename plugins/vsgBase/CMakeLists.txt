@@ -14,6 +14,7 @@ set( OD_MODULE_SOURCES
 	vsggeoaxes.cc
 	vsggeocolorlookup.cc
 	vsggeocompiler.cc
+	vsggeogradientbackground.cc
 	vsggeolayeredtexture.cc
 	vsggeolines.cc
 	vsggeomarkerset.cc
@@ -52,6 +53,7 @@ set( OD_TEST_PROGS
 	vsggeo.cc
 	vsggeoaxes.cc
 	vsggeocolorlookup.cc
+	vsggeogradientbackground.cc
 	vsggeopick.cc
 	vsggeoscalarbar.cc
 	vsggeotext.cc
@@ -62,6 +64,7 @@ set( OD_TEST_PROGS
 	visvsgannotation.cc
 	visvsgaxes.cc
 	visvsgcoltablookup.cc
+	visvsgcontrastcolor.cc
 	visvsgevent.cc
 	visvsgfontcreator.cc
 	visvsgobjects.cc
@@ -78,6 +81,7 @@ endif()
 set( GPUTESTS
 	test_vsggeo
 	test_vsggeoaxes
+	test_vsggeogradientbackground
 	test_vsggeopick
 	test_vsggeoscalarbar
 	test_vsggeotext

@@ -27,6 +27,28 @@ static float mDefaultPixelDensity = 72.f;
 
 static const char* sKeyVsgID = "ID";
 static const char* sKeyVsgName = "Name";
+static constexpr float cMinColorContrast = 3.f;
+static constexpr float cTargetColorContrast = 5.f;
+
+
+OD::Color ODVsg::contrastingColor( const OD::Color& preferred,
+				    const OD::Color& background )
+{
+    if ( preferred.contrast(background) >= cMinColorContrast )
+	return preferred;
+
+    const bool darker = OD::Color::White().contrast(background) <
+			OD::Color::Black().contrast(background);
+    for ( int step=0; step<256; step++ )
+    {
+	const unsigned char level = darker ? 255-step : step;
+	const OD::Color gray( level, level, level );
+	if ( gray.contrast(background) >= cTargetColorContrast )
+	    return gray;
+    }
+
+    return darker ? OD::Color::Black() : OD::Color::White();
+}
 
 static vsg::observer_ptr<vsg::Viewer>& commonViewer()
 {
