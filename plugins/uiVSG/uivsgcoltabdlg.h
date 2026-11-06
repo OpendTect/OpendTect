@@ -27,7 +27,7 @@ class uiColorTableGroup;
 mExpClass(uiVSG) uiVSGColTabDlg : public uiDialog
 { mODTextTranslationClass(uiVSGColTabDlg);
 public:
-			uiVSGColTabDlg(uiParent*,dGBVisSurvey::Scene&);
+			uiVSGColTabDlg(uiParent*,ODVsg::Scene&);
 			~uiVSGColTabDlg();
 
 private:
@@ -37,7 +37,7 @@ private:
     void		channelsCB(CallBacker*);
     void		bind();
 
-    RefMan<dGBVisSurvey::Scene>		scene_;
-    RefMan<dGBVis::TextureChannels>	channels_;
+    RefMan<ODVsg::Scene>		scene_;
+    RefMan<ODVsg::TextureChannels>	channels_;
     uiColorTableGroup*			coltab_;
 };

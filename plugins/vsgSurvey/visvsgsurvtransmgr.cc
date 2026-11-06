@@ -15,7 +15,7 @@ ________________________________________________________________________
 #include "survinfo.h"
 #include "trckeyzsampling.h"
 
-namespace dGBVisSurvey
+namespace ODVsg
 {
 
 void SceneTransformManager::computeUTM2DisplayTransform(
@@ -125,4 +125,4 @@ void SceneTransformManager::computeICRotationTransform(
     }
 }
 
-} // namespace dGBVisSurvey
+} // namespace ODVsg

@@ -6,7 +6,7 @@ ________________________________________________________________________
  License:	https://dgbes.com/licensing
 ________________________________________________________________________
 
- dGBVis is the VSG counterpart of visBase. Class and function names follow
+ ODVsg is the VSG counterpart of visBase. Class and function names follow
  visBase; macros do not, because visBase's macros are visible here too.
 
 -*/
@@ -27,9 +27,9 @@ ________________________________________________________________________
 namespace vsg { class Node; class Object; class Switch; class Viewer; }
 namespace vsgGeo { class Updater; }
 
-#define mDGBVisTrans dGBVis::Transformation
+#define mDGBVisTrans ODVsg::Transformation
 
-namespace dGBVis
+namespace ODVsg
 {
 
 class DataManager;
@@ -64,7 +64,7 @@ public:
 };
 
 
-/*!\brief Base class of all dGBVis objects, shared in dGBVis::DM().
+/*!\brief Base class of all ODVsg objects, shared in ODVsg::DM().
 
   The top node of every object is a vsg::Switch with the object's own node
   as its only child, so turnOn() does not have to change parent groups
@@ -175,7 +175,7 @@ private:
     static Threads::ThreadID	visualizationthread_;
 };
 
-} // namespace dGBVis
+} // namespace ODVsg
 
 
 #define mCreateDGBVisObjImpl(clss)				\
@@ -189,7 +189,7 @@ RefMan<clss> clss::create()					\
 private:							\
 				clss();				\
 				mOD_DisableCopy(clss);		\
-    static dGBVis::DataObject*	createInternal()		\
+    static ODVsg::DataObject*	createInternal()		\
 				{ return new clss; }		\
 public:								\
     static void			initClass();			\
@@ -204,5 +204,5 @@ const char* clss::getClassName() const				\
 { return clss::getStaticClassName(); }				\
 const char* clss::sFactoryKeyword() { return #clss; }		\
 void clss::initClass()						\
-{ dGBVis::DataManager::factory().addCreator(			\
+{ ODVsg::DataManager::factory().addCreator(			\
 		    createInternal, getStaticClassName() ); }

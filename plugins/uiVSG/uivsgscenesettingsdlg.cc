@@ -164,7 +164,7 @@ void uiVSGSceneSettingsDlg::colorBarCB( CallBacker* )
 void uiVSGSceneSettingsDlg::colorBarPosCB( CallBacker* )
 {
     viewer_.setColorBarPos(
-		dGBVis::SceneColTab::Pos(colorbarposfld_->getIntValue()) );
+		ODVsg::SceneColTab::Pos(colorbarposfld_->getIntValue()) );
     NotifyStopper widthstopper( colorbarwidthfld_->valueChanging );
     NotifyStopper heightstopper( colorbarheightfld_->valueChanging );
     const Geom::Size2D<int> size = viewer_.getColorBarSize();
@@ -185,20 +185,20 @@ void uiVSGSceneSettingsDlg::colorBarSizeCB( CallBacker* )
 void uiVSGSceneSettingsDlg::setColorBarSizeLimits()
 {
     const int pos = colorbarposfld_->getIntValue();
-    const bool horizontal = pos==dGBVis::SceneColTab::Top ||
-			    pos==dGBVis::SceneColTab::Bottom;
+    const bool horizontal = pos==ODVsg::SceneColTab::Top ||
+			    pos==ODVsg::SceneColTab::Bottom;
     colorbarwidthfld_->setMaxValue( horizontal
-				? dGBVis::ColorBarBounds::maxHorWidth()
-				: dGBVis::ColorBarBounds::maxVertWidth() );
+				? ODVsg::ColorBarBounds::maxHorWidth()
+				: ODVsg::ColorBarBounds::maxVertWidth() );
     colorbarwidthfld_->setMinValue( horizontal
-				? dGBVis::ColorBarBounds::minHorWidth()
-				: dGBVis::ColorBarBounds::minVertWidth() );
+				? ODVsg::ColorBarBounds::minHorWidth()
+				: ODVsg::ColorBarBounds::minVertWidth() );
     colorbarheightfld_->setMaxValue( horizontal
-				? dGBVis::ColorBarBounds::maxHorHeight()
-				: dGBVis::ColorBarBounds::maxVertHeight() );
+				? ODVsg::ColorBarBounds::maxHorHeight()
+				: ODVsg::ColorBarBounds::maxVertHeight() );
     colorbarheightfld_->setMinValue( horizontal
-				? dGBVis::ColorBarBounds::minHorHeight()
-				: dGBVis::ColorBarBounds::minVertHeight() );
+				? ODVsg::ColorBarBounds::minHorHeight()
+				: ODVsg::ColorBarBounds::minVertHeight() );
 }
 
 
@@ -223,7 +223,7 @@ bool uiVSGSceneSettingsDlg::rejectOK( CallBacker* )
     viewer_.setWheelDisplayMode( uiVSGViewer::WheelMode(hadwheelmode_) );
     viewer_.setWheelsGrowOnHover( hadwheelgrow_ );
     viewer_.setGlassWheels( hadglasswheels_ );
-    viewer_.setColorBarPos( dGBVis::SceneColTab::Pos(hadcolorbarpos_) );
+    viewer_.setColorBarPos( ODVsg::SceneColTab::Pos(hadcolorbarpos_) );
     viewer_.setColorBarSize( hadcolorbarwidth_, hadcolorbarheight_ );
     viewer_.showColorBar( hadcolorbar_ );
     return true;

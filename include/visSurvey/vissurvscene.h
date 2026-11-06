@@ -31,6 +31,7 @@ class TaskRunner;
 template <class T> class Selector;
 
 namespace ZDomain { class Info; }
+namespace ODVsg { class Scene; }
 
 namespace visBase
 {
@@ -74,6 +75,7 @@ mExpClass(visSurvey) Scene : public visBase::Scene
 public:
     static RefMan<Scene>	create();
 				mCreateDataObj(Scene);
+    friend class		ODVsg::Scene;
 
     void			removeAll() override;
     void			addObject(visBase::DataObject*) override;
@@ -95,27 +97,27 @@ public:
     void			addInlCrlZObject(visBase::DataObject*);
     void			removeObject(int idx) override;
 
-    void			setTrcKeyZSampling(const TrcKeyZSampling&);
+    virtual void		setTrcKeyZSampling(const TrcKeyZSampling&);
     const TrcKeyZSampling&	getTrcKeyZSampling() const { return tkzs_; }
-    void			setTrcKeyZSampling(const TrcKeyZSampling&,
+    virtual void		setTrcKeyZSampling(const TrcKeyZSampling&,
 						   bool workarea);
-    const TrcKeyZSampling&	getTrcKeyZSampling(bool workarea) const;
+    virtual const TrcKeyZSampling& getTrcKeyZSampling(bool workarea) const;
 
-    void			showAnnotText(bool);
-    bool			isAnnotTextShown() const;
-    void			showAnnotScale(bool);
-    bool			isAnnotScaleShown() const;
-    void			showAnnotGrid(bool);
-    bool			isAnnotGridShown() const;
-    void			showAnnot(bool);
-    bool			isAnnotShown() const;
-    void			setAnnotText(int dim,const uiString&);
-    void			setAnnotFont(const FontData&);
-    const FontData&		getAnnotFont() const;
-    void			setAnnotScale(const TrcKeyZSampling&,
+    virtual void		showAnnotText(bool);
+    virtual bool		isAnnotTextShown() const;
+    virtual void		showAnnotScale(bool);
+    virtual bool		isAnnotScaleShown() const;
+    virtual void		showAnnotGrid(bool);
+    virtual bool		isAnnotGridShown() const;
+    virtual void		showAnnot(bool);
+    virtual bool		isAnnotShown() const;
+    virtual void		setAnnotText(int dim,const uiString&);
+    virtual void		setAnnotFont(const FontData&);
+    virtual const FontData&	getAnnotFont() const;
+    virtual void		setAnnotScale(const TrcKeyZSampling&,
 					      const double* scalefacs=nullptr,
 					      int nrvals=0);
-    const TrcKeyZSampling&	getAnnotScale(bool getdefault=true) const;
+    virtual const TrcKeyZSampling& getAnnotScale(bool getdefault=true) const;
     void			savePropertySettings();
 
     visBase::PolygonSelection*	getPolySelection();
@@ -130,9 +132,9 @@ public:
     Notifier<Scene>		mouseclicked;
     Notifier<Scene>		sceneboundingboxupdated;
     Coord3			getMousePos(bool displayspace) const;
-    TrcKeyValue			getMousePos() const;
+    virtual TrcKeyValue		getMousePos() const;
     BufferString		getMousePosValue() const;
-    uiString			getMousePosString() const;
+    virtual uiString		getMousePosString() const;
     const MouseCursor*		getMouseCursor() const;
     void			passMouseCursor(const MouseCursor&);
     const KeyboardEvent&	getKeyboardEvent() const { return kbevent_; }
@@ -141,27 +143,27 @@ public:
 
     void			objectMoved(CallBacker*);
 
-    void			setFixedZStretch(float);
+    virtual void		setFixedZStretch(float);
 				/*!<Used to set the z-strecthing according
 				    to the user's preference. Is unitless -
 				    all entities (i.e. distance vs time)
 				    should be handled by zscale.
 				*/
-    float			getFixedZStretch() const;
+    virtual float		getFixedZStretch() const;
 
-    void			setTempZStretch(float);
-    float			getTempZStretch() const;
+    virtual void		setTempZStretch(float);
+    virtual float		getTempZStretch() const;
 
-    void			setZScale(float);
+    virtual void		setZScale(float);
 				/*!<The zscale should compensate for different
 				   entities in xy and z respectively and
 				   remain constant through the life of the
 				   scene.  */
-    float			getZScale() const;
+    virtual float		getZScale() const;
 				/*!<Returns an anproximate figure how to scale Z
 				    relates to XY coordinates in this scene. */
 
-    float			getApparentVelocity(float zstretch) const;
+    virtual float		getApparentVelocity(float zstretch) const;
 				/*<!Velocity Unit depends on display depth in
 				    feet setting. */
 
@@ -174,19 +176,19 @@ public:
 
     bool			isRightHandSystem() const override;
 
-    void			setZDomainInfo(const ZDomain::Info&);
-    const ZDomain::Info&	zDomainInfo() const;
+    virtual void		setZDomainInfo(const ZDomain::Info&);
+    virtual const ZDomain::Info& zDomainInfo() const;
     void			getAllowedZDomains(BufferString&) const;
 
     // Convenience
     const char*			zDomainKey() const;
-    uiString			zDomainUserName() const;
+    virtual uiString		zDomainUserName() const;
     const char*			zDomainUnitStr(bool withparens=false) const;
     int				zDomainUserFactor() const;
     const MultiID		zDomainID() const;
 
-    void			setAnnotColor(const OD::Color&);
-    const OD::Color		getAnnotColor() const;
+    virtual void		setAnnotColor(const OD::Color&);
+    virtual const OD::Color	getAnnotColor() const;
     void			setMarkerPos(const TrcKeyValue&,const SceneID&);
     void			setMarkerSize(float );
     float			getMarkerSize() const;

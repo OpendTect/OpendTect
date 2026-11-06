@@ -17,7 +17,7 @@ ________________________________________________________________________
 
 namespace vsgGeo { class ColorLookup; }
 
-namespace dGBVis
+namespace ODVsg
 {
 
 /*!\brief The colors of a ColTab::Sequence as a strip a shader can look up.
@@ -50,4 +50,4 @@ private:
     vsg::ref_ptr<vsgGeo::ColorLookup> lookup_;
 };
 
-} // namespace dGBVis
+} // namespace ODVsg

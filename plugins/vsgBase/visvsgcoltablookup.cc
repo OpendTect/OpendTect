@@ -15,7 +15,7 @@ ________________________________________________________________________
 #include "coltabindex.h"
 #include "typeset.h"
 
-namespace dGBVis
+namespace ODVsg
 {
 
 ColTabLookup::ColTabLookup( int nrcolors )
@@ -74,4 +74,4 @@ void ColTabLookup::update()
     lookup_->setColors( colors.arr(), nrcols, toVec4(sequence_.undefColor()) );
 }
 
-} // namespace dGBVis
+} // namespace ODVsg

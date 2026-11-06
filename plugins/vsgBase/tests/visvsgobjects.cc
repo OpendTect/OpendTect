@@ -5,7 +5,7 @@ ________________________________________________________________________
  License:	https://dgbes.com/licensing
 ________________________________________________________________________
 
- The dGBVis object model, and rendering of the annotation box
+ The ODVsg object model, and rendering of the annotation box
  and grid lines. Needs a Vulkan device.
 
 -*/
@@ -27,7 +27,7 @@ ________________________________________________________________________
 namespace
 {
 
-class TestShape : public dGBVis::VisualObjectImpl
+class TestShape : public ODVsg::VisualObjectImpl
 {
 public:
 
@@ -69,8 +69,8 @@ public:
     SceneSetup( vsgTest::OffscreenViewer& ov )
 	: ov_(ov)
     {
-	dGBVis::DataObject::setCommonViewer( &ov.viewer() );
-	root_ = dGBVis::DataObjectGroup::create();
+	ODVsg::DataObject::setCommonViewer( &ov.viewer() );
+	root_ = ODVsg::DataObjectGroup::create();
 	ov.scene().addChild( vsg::ref_ptr<vsg::Node>(root_->vsgNode()) );
     }
 
@@ -79,11 +79,11 @@ public:
 	root_ = nullptr;
 	ov_.scene().children.clear();
 	ov_.viewer().deviceWaitIdle();
-	dGBVis::DataObject::setCommonViewer( nullptr );
+	ODVsg::DataObject::setCommonViewer( nullptr );
     }
 
     vsgTest::OffscreenViewer&		ov_;
-    RefMan<dGBVis::DataObjectGroup>	root_;
+    RefMan<ODVsg::DataObjectGroup>	root_;
 };
 
 } // namespace
@@ -96,7 +96,7 @@ static bool testRandomTree()
 		"Random object tree opens an off-screen viewer",
 			       ov.errMsg().c_str() );
 
-    const int nrobjsatstart = dGBVis::DM().nrObjects();
+    const int nrobjsatstart = ODVsg::DM().nrObjects();
     {
 	SceneSetup setup( ov );
 	mRunStandardTest( ov.compile(),
@@ -104,13 +104,13 @@ static bool testRandomTree()
 
 	vsg::ref_ptr<vsg::Builder> builder = vsg::Builder::create();
 	std::mt19937 rng( 1234 );
-	RefObjectSet<dGBVis::DataObjectGroup> groups;
+	RefObjectSet<ODVsg::DataObjectGroup> groups;
 	groups += setup.root_.ptr();
-	RefObjectSet<dGBVis::DataObject> objects;
+	RefObjectSet<ODVsg::DataObject> objects;
 
 	for ( int step=0; step<1000; step++ )
 	{
-	    dGBVis::DataObjectGroup* grp = groups[ rng() % groups.size() ];
+	    ODVsg::DataObjectGroup* grp = groups[ rng() % groups.size() ];
 	    const int op = int( rng() % 5 );
 	    if ( op==0 || op==1 )
 	    {
@@ -121,21 +121,21 @@ static bool testRandomTree()
 	    }
 	    else if ( op==2 )
 	    {
-		RefMan<dGBVis::DataObjectGroup> newgrp =
-					dGBVis::DataObjectGroup::create();
+		RefMan<ODVsg::DataObjectGroup> newgrp =
+					ODVsg::DataObjectGroup::create();
 		grp->addObject( newgrp.ptr() );
 		groups += newgrp.ptr();
 		objects += newgrp.ptr();
 	    }
 	    else if ( op==3 && !objects.isEmpty() )
 	    {
-		dGBVis::DataObject* obj = objects[ rng() % objects.size() ];
+		ODVsg::DataObject* obj = objects[ rng() % objects.size() ];
 		obj->turnOn( !obj->isOn() );
 	    }
 	    else if ( op==4 && grp->size() )
 	    {
 		const int idx = int( rng() % grp->size() );
-		const dGBVis::DataObject* obj = grp->getObject( idx );
+		const ODVsg::DataObject* obj = grp->getObject( idx );
 		grp->removeObject( idx );
 		const int objidx = objects.indexOf( obj );
 		if ( objects.validIdx(objidx) )
@@ -152,13 +152,13 @@ static bool testRandomTree()
 	objects.erase();
 
 	const int delay =
-	    int( dGBVis::DataObject::getUpdater()->compiler().releaseDelay() );
+	    int( ODVsg::DataObject::getUpdater()->compiler().releaseDelay() );
 	ov.frame( delay+2 );
     }
 
     BufferString msg( "Objects left: ",
-		      dGBVis::DM().nrObjects()-nrobjsatstart );
-    mRunStandardTestWithError( dGBVis::DM().nrObjects()==nrobjsatstart,
+		      ODVsg::DM().nrObjects()-nrobjsatstart );
+    mRunStandardTestWithError( ODVsg::DM().nrObjects()==nrobjsatstart,
 			       "DataManager empty after removing all",
 			       msg );
     msg.set( "Messages: " ).add( ov.nrValidationMessages() );
@@ -279,7 +279,7 @@ static bool testAnnotationGrid()
 
     // Inline 100-200 on X, crossline 300-400 on Y (away from the camera),
     // Z 0-1 downwards, all to [-0.8,0.8] in display space.
-    RefMan<dGBVis::Transformation> trans = dGBVis::Transformation::create();
+    RefMan<ODVsg::Transformation> trans = ODVsg::Transformation::create();
     trans->setA( 0.016, 0, 0, -150*0.016,
 		 0, 0.016, 0, -350*0.016,
 		 0, 0, -1.6, 0.8,
@@ -291,7 +291,7 @@ static bool testAnnotationGrid()
     tkzs.hsamp_.step_ = BinID( 1, 1 );
     tkzs.zsamp_.set( 0.f, 1.f, 0.004f );
 
-    RefMan<dGBVis::Annotation> annot = dGBVis::Annotation::create();
+    RefMan<ODVsg::Annotation> annot = ODVsg::Annotation::create();
     annot->setDisplayTransformation( trans.ptr() );
     annot->setTrcKeyZSampling( tkzs );
     annot->setColor( OD::Color(0,255,0) );
@@ -348,8 +348,8 @@ int mTestMainFnName( int argc, char** argv )
 {
     mInitTestProg();
 
-    dGBVis::DataObject::setVisualizationThread( Threads::currentThread() );
-    dGBVis::initStdClasses();
+    ODVsg::DataObject::setVisualizationThread( Threads::currentThread() );
+    ODVsg::initStdClasses();
 
     if ( !testParRoundTrip() ||
 	 !testBoundingBox() ||

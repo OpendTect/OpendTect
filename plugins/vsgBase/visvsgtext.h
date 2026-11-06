@@ -18,7 +18,7 @@ ________________________________________________________________________
 #include "uistring.h"
 #include "vsggeotext.h"
 
-namespace dGBVis
+namespace ODVsg
 {
 
 class Text2;
@@ -133,4 +133,4 @@ private:
     ConstRefMan<mDGBVisTrans>	displaytransform_;
 };
 
-} // namespace dGBVis
+} // namespace ODVsg

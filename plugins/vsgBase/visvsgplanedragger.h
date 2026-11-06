@@ -18,9 +18,9 @@ ________________________________________________________________________
 #include "ranges.h"
 
 namespace vsgGeo { class TabPlaneDragger; }
-namespace dGBVis { class EventCatcher; class EventInfo; class TextureChannels; }
+namespace ODVsg { class EventCatcher; class EventInfo; class TextureChannels; }
 
-namespace dGBVis
+namespace ODVsg
 {
 
 /*!\brief Counterpart of visBase::DepthTabPlaneDragger.
@@ -153,4 +153,4 @@ private:
     Coord3			dragsize_;
 };
 
-} // namespace dGBVis
+} // namespace ODVsg

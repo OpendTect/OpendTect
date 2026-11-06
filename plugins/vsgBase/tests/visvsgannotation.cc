@@ -78,18 +78,18 @@ public:
 	if ( viewerfirst )
 	    connect();
 
-	dGBVis::FontCreator::instance().clear();
+	ODVsg::FontCreator::instance().clear();
 	vsgGeo::Text::setViewportHeight( float(ov.height()) );
-	root_ = dGBVis::DataObjectGroup::create();
+	root_ = ODVsg::DataObjectGroup::create();
 	ov.scene().addChild( vsg::ref_ptr<vsg::Node>(root_->vsgNode()) );
 
-	trans_ = dGBVis::Transformation::create();
+	trans_ = ODVsg::Transformation::create();
 	trans_->setA( 0.016, 0, 0, -150*0.016,
 		      0, 0.016, 0, -350*0.016,
 		      0, 0, -1.6, 0.8,
 		      0, 0, 0, 1 );
 
-	annot_ = dGBVis::Annotation::create();
+	annot_ = ODVsg::Annotation::create();
 	annot_->setDisplayTransformation( trans_.ptr() );
 	setSampling( 200, 400 );
 	annot_->setFont( font() );
@@ -103,12 +103,12 @@ public:
     }
 
     void connect()
-    { dGBVis::DataObject::setCommonViewer( &ov_.viewer() ); }
+    { ODVsg::DataObject::setCommonViewer( &ov_.viewer() ); }
 
     bool waitFontWithoutViewer()
     {
-	dGBVis::FontCreator& creator =
-		dGBVis::FontCreator::instance();
+	ODVsg::FontCreator& creator =
+		ODVsg::FontCreator::instance();
 	for ( int idx=0; idx<1500; idx++ )
 	{
 	if ( creator.get(font()) )
@@ -126,9 +126,9 @@ public:
 	root_ = nullptr;
 	ov_.scene().children.clear();
 	ov_.viewer().deviceWaitIdle();
-	dGBVis::DataObject::setCommonViewer( nullptr );
+	ODVsg::DataObject::setCommonViewer( nullptr );
 	if ( clearfontsatend_ )
-	    dGBVis::FontCreator::instance().clear();
+	    ODVsg::FontCreator::instance().clear();
     }
 
     static FontData	font()
@@ -147,8 +147,8 @@ public:
 
     bool		waitFont()
 			{
-			    dGBVis::FontCreator& creator =
-					dGBVis::FontCreator::instance();
+			    ODVsg::FontCreator& creator =
+					ODVsg::FontCreator::instance();
 			    creator.request( font() );
 			    for ( int idx=0; idx<1500; idx++ )
 			    {
@@ -173,9 +173,9 @@ public:
 
     vsgTest::OffscreenViewer&		ov_;
     const bool				clearfontsatend_;
-    RefMan<dGBVis::DataObjectGroup>	root_;
-    RefMan<dGBVis::Transformation>	trans_;
-    RefMan<dGBVis::Annotation>		annot_;
+    RefMan<ODVsg::DataObjectGroup>	root_;
+    RefMan<ODVsg::Transformation>	trans_;
+    RefMan<ODVsg::Annotation>		annot_;
 };
 
 } // namespace
@@ -188,7 +188,7 @@ static bool testAnnotationText()
 			       ov.errMsg().c_str() );
 
     AnnotationSetup setup( ov );
-    dGBVis::Annotation& annot = *setup.annot_;
+    ODVsg::Annotation& annot = *setup.annot_;
     annot.setColor( OD::Color::White() );
     annot.setText( 0, toUiString("Inline") );
     annot.setText( 1, toUiString("Crossline") );
@@ -284,7 +284,7 @@ static bool testCreatedBeforeViewer()
 			       ov.errMsg().c_str() );
 
     AnnotationSetup setup( ov, false );
-    dGBVis::Annotation& annot = *setup.annot_;
+    ODVsg::Annotation& annot = *setup.annot_;
     annot.setColor( OD::Color::White() );
     annot.setText( 0, toUiString("Inline") );
     mRunStandardTest( setup.waitFontWithoutViewer(),
@@ -344,7 +344,7 @@ static bool testFontChange()
 			       ov.errMsg().c_str() );
 
     AnnotationSetup setup( ov );
-    dGBVis::Annotation& annot = *setup.annot_;
+    ODVsg::Annotation& annot = *setup.annot_;
     annot.setColor( OD::Color::White() );
     mRunStandardTest( ov.compile(), "Font change: Viewer compiled" );
     mRunStandardTest( setup.waitFont(), "Font change: Font is loaded" );
@@ -356,7 +356,7 @@ static bool testFontChange()
 
     const FontData newfont( 20, "Courier", FontData::Bold, false );
     annot.setFont( newfont );
-    dGBVis::FontCreator& creator = dGBVis::FontCreator::instance();
+    ODVsg::FontCreator& creator = ODVsg::FontCreator::instance();
     for ( int idx=0; idx<1500 && !creator.get(newfont); idx++ )
     {
 	ov.frame( 1 );
@@ -379,8 +379,8 @@ int mTestMainFnName( int argc, char** argv )
 {
     mInitTestProg();
 
-    dGBVis::DataObject::setVisualizationThread( Threads::currentThread() );
-    dGBVis::initStdClasses();
+    ODVsg::DataObject::setVisualizationThread( Threads::currentThread() );
+    ODVsg::initStdClasses();
 
     if ( !testAnnotationText() ||
 	 !testCreatedBeforeViewer() ||

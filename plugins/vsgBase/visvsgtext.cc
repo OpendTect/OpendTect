@@ -18,9 +18,9 @@ ________________________________________________________________________
 
 #include <string>
 
-mCreateDGBVisFactoryEntry( dGBVis::Text2 );
+mCreateDGBVisFactoryEntry( ODVsg::Text2 );
 
-namespace dGBVis
+namespace ODVsg
 {
 
 // An experience value, as in visBase::Text
@@ -408,4 +408,4 @@ void Text2::translationChangeCB( CallBacker* )
 	txt->setText( txt->getText() );
 }
 
-} // namespace dGBVis
+} // namespace ODVsg

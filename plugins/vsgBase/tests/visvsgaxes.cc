@@ -71,8 +71,8 @@ struct CommonViewerGuard
 {
     ~CommonViewerGuard()
     {
-	dGBVis::DataObject::setCommonViewer( nullptr );
-	dGBVis::FontCreator::instance().clear();
+	ODVsg::DataObject::setCommonViewer( nullptr );
+	ODVsg::FontCreator::instance().clear();
     }
 };
 
@@ -82,35 +82,35 @@ struct CommonViewerGuard
 static bool testAxes()
 {
     vsgTest::OffscreenViewer ov( cSize, cSize );
-    mRunStandardTestWithError( ov.isOK(), "dGBVis axes: Off-screen viewer",
+    mRunStandardTestWithError( ov.isOK(), "ODVsg axes: Off-screen viewer",
 			       ov.errMsg().c_str() );
 
     vsgGeo::Text::setViewportHeight( float(cSize) );
     CommonViewerGuard guard;
-    dGBVis::DataObject::setCommonViewer( &ov.viewer() );
-    dGBVis::FontCreator::instance().clear();
+    ODVsg::DataObject::setCommonViewer( &ov.viewer() );
+    ODVsg::FontCreator::instance().clear();
 
-    RefMan<dGBVis::Camera> camera = dGBVis::Camera::create();
+    RefMan<ODVsg::Camera> camera = ODVsg::Camera::create();
     camera->vsgCamera()->viewMatrix = ov.camera().viewMatrix;
-    RefMan<dGBVis::DataObjectGroup> hudscene =
-					    dGBVis::DataObjectGroup::create();
+    RefMan<ODVsg::DataObjectGroup> hudscene =
+					    ODVsg::DataObjectGroup::create();
     ov.addHud()->addChild( vsg::ref_ptr<vsg::Node>(hudscene->vsgNode()) );
 
-    RefMan<dGBVis::Axes> axes = dGBVis::Axes::create();
+    RefMan<ODVsg::Axes> axes = ODVsg::Axes::create();
     axes->setSize( 5.f, 55.f );
     axes->setPosition( float(cCenterX), float(cSize-cCenterY) );
     axes->setPrimaryCamera( camera.ptr() );
     axes->setAnnotationFont( FontData(30,"Arial",FontData::Normal,false) );
     hudscene->addObject( axes.ptr() );
-    mRunStandardTest( ov.compile(), "dGBVis axes: Viewer compiled" );
+    mRunStandardTest( ov.compile(), "ODVsg axes: Viewer compiled" );
 
     ov.frame( 2 );
     const vsgTest::Bounds arrows = vsgTest::brightBounds( ov );
     mRunStandardTestWithError( arrows.nrpix_>100 && arrows.nrred_<arrows.nrpix_,
-			       "dGBVis axes: The arrows are drawn at once",
+			       "ODVsg axes: The arrows are drawn at once",
 			       BufferString("Pixels: ",arrows.nrpix_) );
     mRunStandardTest( countWhite(ov).nrpix_==0,
-		      "dGBVis axes: No label is drawn before its font is "
+		      "ODVsg axes: No label is drawn before its font is "
 		      "loaded" );
 
     WhiteCount white;
@@ -127,13 +127,13 @@ static bool testAxes()
     msg.add( ", right of the arrows: " ).add( white.nrright_ )
        .add( ", below them: " ).add( white.nrbelow_ );
     mRunStandardTestWithError( white.nrpix_>=20,
-			       "dGBVis axes: The labels appear when the font "
+			       "ODVsg axes: The labels appear when the font "
 			       "is loaded", msg );
     mRunStandardTestWithError( white.nrright_>5 && white.nrbelow_>5,
-			       "dGBVis axes: The labels are at the tips of "
+			       "ODVsg axes: The labels are at the tips of "
 			       "the arrows", msg );
     mRunStandardTestWithError( ov.nrValidationMessages()==0,
-			       "dGBVis axes: No validation messages",
+			       "ODVsg axes: No validation messages",
 			       BufferString("Messages: ",
 					    ov.nrValidationMessages()) );
     axes = nullptr;
@@ -147,8 +147,8 @@ int mTestMainFnName( int argc, char** argv )
 {
     mInitTestProg();
 
-    dGBVis::DataObject::setVisualizationThread( Threads::currentThread() );
-    dGBVis::initStdClasses();
+    ODVsg::DataObject::setVisualizationThread( Threads::currentThread() );
+    ODVsg::initStdClasses();
 
     if ( !testAxes() )
 	return 1;

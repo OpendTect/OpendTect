@@ -18,7 +18,7 @@ ________________________________________________________________________
 
 #include <vsg/core/ref_ptr.h>
 
-namespace dGBVis
+namespace ODVsg
 {
 
 class TextureChannels;
@@ -102,4 +102,4 @@ private:
     TypeSet<vsg::ref_ptr<vsgGeo::TexturePlane>>	planes_;
 };
 
-} // namespace dGBVis
+} // namespace ODVsg

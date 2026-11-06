@@ -16,7 +16,7 @@ ________________________________________________________________________
 #include "uicolortable.h"
 
 
-uiVSGColTabDlg::uiVSGColTabDlg( uiParent* p, dGBVisSurvey::Scene& scene )
+uiVSGColTabDlg::uiVSGColTabDlg( uiParent* p, ODVsg::Scene& scene )
     : uiDialog(p,Setup(tr("VSG Color Table"),mNoHelpKey).modal(false))
     , scene_(&scene)
 {

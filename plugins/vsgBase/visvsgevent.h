@@ -23,9 +23,9 @@ ________________________________________________________________________
 #include <functional>
 
 namespace vsg { class Camera; class Node; class Visitor; }
-namespace dGBVis { class Transformation; class EventCatchHandler; }
+namespace ODVsg { class Transformation; class EventCatchHandler; }
 
-namespace dGBVis
+namespace ODVsg
 {
 
 enum EventType		{ Any=7, MouseClick=1, Keyboard=2, MouseMovement=4,
@@ -66,7 +66,7 @@ public:
 /*!\brief Turns viewer pointer events into EventInfo.
 
   Handlers run on the visualization thread, before the frame is recorded.
-  There is no delayed queue: a handler may update dGBVis objects directly.
+  There is no delayed queue: a handler may update ODVsg objects directly.
 */
 
 mExpClass(vsgBase) EventCatcher : public DataObject
@@ -128,4 +128,4 @@ private:
     int				markerindex_ = -1;
 };
 
-} // namespace dGBVis
+} // namespace ODVsg

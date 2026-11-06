@@ -32,7 +32,7 @@ ________________________________________________________________________
 
 #include <limits>
 
-namespace dGBVis
+namespace ODVsg
 {
 
 namespace
@@ -1009,4 +1009,4 @@ void FontCreator::clear()
     }
 }
 
-} // namespace dGBVis
+} // namespace ODVsg

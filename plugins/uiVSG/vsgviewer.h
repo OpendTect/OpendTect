@@ -29,7 +29,7 @@ ________________________________________________________________________
 
 
 mClass(uiVSG) dGBVSGViewer : public vsg::Inherit<vsg::Viewer, dGBVSGViewer>
-			   , public dGBVis::RedrawRequester
+			   , public ODVsg::RedrawRequester
 {
 public:
 		dGBVSGViewer(int msectimerinterval=0);

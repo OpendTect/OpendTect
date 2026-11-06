@@ -13,7 +13,7 @@ ________________________________________________________________________
 #include "visvsgdataman.h"
 #include "thread.h"
 
-namespace dGBVis
+namespace ODVsg
 {
 
 SelectionManager::SelectionManager()
@@ -84,4 +84,4 @@ void SelectionManager::drop( const VisID& id )
 	selectedids_.removeSingle( idx );
 }
 
-} // namespace dGBVis
+} // namespace ODVsg

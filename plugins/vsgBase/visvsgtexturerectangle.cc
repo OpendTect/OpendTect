@@ -74,7 +74,7 @@ Coord3 unitVec( int dim )
 } // namespace
 
 
-namespace dGBVis
+namespace ODVsg
 {
 
 RefMan<TextureRectangle> TextureRectangle::create()
@@ -291,4 +291,4 @@ void TextureRectangle::rebuild()
     }
 }
 
-} // namespace dGBVis
+} // namespace ODVsg

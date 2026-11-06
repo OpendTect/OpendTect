@@ -35,6 +35,7 @@ ________________________________________________________________________
 #include <vsg/maths/vec4.h>
 
 #include "visannot.h"
+#include "visdataman.h"
 #include "vistext.h"
 #include "vistransform.h"
 #include "vistransmgr.h"
@@ -160,7 +161,7 @@ static bool testTransforms( const char* survnm )
     const float zstretches[] = { 0.1f, 1.f, 2.f, 10.f };
     for ( const float zstretch : zstretches )
     {
-	RefMan<dGBVisSurvey::Scene> scene = dGBVisSurvey::Scene::create();
+	RefMan<ODVsg::Scene> scene = ODVsg::Scene::create();
 	scene->setFixedZStretch( zstretch );
 
 	RefTransforms ref;
@@ -168,7 +169,7 @@ static bool testTransforms( const char* survnm )
 
 	const mDGBVisTrans* rot = scene->getInlCrl2DisplayTransform();
 	const mDGBVisTrans* utm = scene->getUTM2DisplayTransform();
-	const dGBVis::Annotation* annot = scene->getAnnotation();
+	const ODVsg::Annotation* annot = scene->getAnnotation();
 	const mDGBVisTrans* scale = annot->getDisplayTransformation();
 	mRunStandardTest( rot && utm && scale, "Scene transforms exist" );
 
@@ -223,13 +224,13 @@ static bool compareAnnotations( const TrcKeyZSampling& tkzs,
     {
 	ConstRefMan<Survey::Geometry3D> geom = SI().get3DGeometry( true );
 	RefMan<mDGBVisTrans> rot = mDGBVisTrans::create();
-	dGBVisSurvey::SceneTransformManager::computeICRotationTransform(
+	ODVsg::SceneTransformManager::computeICRotationTransform(
 		*geom.ptr(), getZFactor(2.f),
 		SI().sampling(true).zsamp_.center(), rot.ptr(), scale.ptr() );
     }
 
     RefMan<visBase::Annotation> vbannot = visBase::Annotation::create();
-    RefMan<dGBVis::Annotation> annot = dGBVis::Annotation::create();
+    RefMan<ODVsg::Annotation> annot = ODVsg::Annotation::create();
     vbannot->setDisplayTransformation( ref.scale_.ptr() );
     annot->setDisplayTransformation( scale.ptr() );
     vbannot->setTrcKeyZSampling( tkzs );
@@ -258,7 +259,7 @@ static bool compareAnnotations( const TrcKeyZSampling& tkzs,
     }
 
     const visBase::Text2* vbtexts = vbannot->getAnnotTexts();
-    const TypeSet<dGBVis::Annotation::Tick>& ticks = annot->getTicks();
+    const TypeSet<ODVsg::Annotation::Tick>& ticks = annot->getTicks();
     BufferString msg( survnm );
     msg.add( int(ticks.size()) ).add( " ticks vs " )
        .add( vbtexts->nrTexts() );
@@ -268,7 +269,7 @@ static bool compareAnnotations( const TrcKeyZSampling& tkzs,
     for ( int idx=0; idx<vbtexts->nrTexts(); idx++ )
     {
 	const visBase::Text* vbtext = vbtexts->text( idx );
-	const dGBVis::Annotation::Tick& tick = ticks[idx];
+	const ODVsg::Annotation::Tick& tick = ticks[idx];
 	const Coord3 vbpos = vbtext->getPosition();
 	const BufferString vbval = vbtext->getText().getFullString();
 	const BufferString val = toUiString( tick.value_ ).getFullString();
@@ -306,13 +307,13 @@ static bool testAnnotation()
 }
 
 
-static bool checkCorners( const dGBVisSurvey::Scene& scene,
+static bool checkCorners( const ODVsg::Scene& scene,
 			  const TrcKeyZSampling& tkzs, float zstretch,
 			  const char* desc )
 {
     RefTransforms ref;
     computeRef( zstretch, tkzs.zsamp_.center(), ref );
-    const dGBVis::Annotation* annot = scene.getAnnotation();
+    const ODVsg::Annotation* annot = scene.getAnnotation();
     for ( int idx=0; idx<8; idx++ )
     {
 	Coord3 annotref = getCornerIC( tkzs, idx );
@@ -337,7 +338,7 @@ static bool testWorkArea()
     const StepInterval<float>& zrg = survtkzs.zsamp_;
     workarea.zsamp_.stop_ = zrg.atIndex( zrg.nrSteps()/2 );
 
-    RefMan<dGBVisSurvey::Scene> scene = dGBVisSurvey::Scene::create();
+    RefMan<ODVsg::Scene> scene = ODVsg::Scene::create();
     scene->setFixedZStretch( 3.f );
     scene->setTrcKeyZSampling( workarea, true );
     if ( !checkCorners(*scene,workarea,3.f,
@@ -355,7 +356,38 @@ static bool testWorkArea()
 }
 
 
-class ClickTarget : public dGBVis::VisualObjectImpl
+static bool testVirtualCalls()
+{
+    RefMan<ODVsg::Scene> scene = ODVsg::Scene::create();
+    visSurvey::Scene& osgscene = *scene.ptr();
+
+    const OD::Color col( 10, 20, 30 );
+    osgscene.setAnnotColor( col );
+    mRunStandardTest( scene->getAnnotColor()==col &&
+		      osgscene.getAnnotColor()==col,
+		      "setAnnotColor through visSurvey::Scene reaches the scene" );
+
+    osgscene.showAnnotGrid( false );
+    mRunStandardTest( !scene->isAnnotGridShown() &&
+		      !osgscene.isAnnotGridShown(),
+		      "showAnnotGrid through visSurvey::Scene reaches the scene" );
+
+    osgscene.showAnnotGrid( true );
+    mRunStandardTest( scene->isAnnotGridShown(),
+		      "The grid can be shown again through visSurvey::Scene" );
+
+    RefMan<visSurvey::Scene> other = visSurvey::Scene::create();
+    mRunStandardTest( scene->getID()!=other->getID(),
+		      "The scene has an id of its own among the OSG scenes" );
+    mRunStandardTest( visBase::DM().getObject(scene->id())==
+		      static_cast<visBase::DataObject*>(scene.ptr()),
+		      "The id of the scene finds it in the OSG data manager" );
+
+    return true;
+}
+
+
+class ClickTarget : public ODVsg::VisualObjectImpl
 {
 public:
     static RefMan<ClickTarget> create()
@@ -383,7 +415,7 @@ private:
 };
 
 
-bool testSurveyCorner( dGBVisSurvey::Scene& scene, int corner, float zstretch )
+bool testSurveyCorner( ODVsg::Scene& scene, int corner, float zstretch )
 {
     scene.setFixedZStretch( zstretch );
     const TrcKeyZSampling& cs = scene.getTrcKeyZSampling();
@@ -405,8 +437,8 @@ bool testSurveyCorner( dGBVisSurvey::Scene& scene, int corner, float zstretch )
     Coord3 world( point.x, point.y, point.z );
     scene.getUTM2DisplayTransform()->transformBack( world );
 
-    dGBVis::EventInfo eventinfo;
-    eventinfo.type = dGBVis::MouseMovement;
+    ODVsg::EventInfo eventinfo;
+    eventinfo.type = ODVsg::MouseMovement;
     eventinfo.displaypickedpos = Coord3( point.x, point.y, point.z );
     eventinfo.worldpickedpos = world;
     eventinfo.pickedobjids += scene.getAnnotation()->id();
@@ -436,7 +468,7 @@ bool testSurveyCorner( dGBVisSurvey::Scene& scene, int corner, float zstretch )
 
 bool testPicking()
 {
-    RefMan<dGBVisSurvey::Scene> scene = dGBVisSurvey::Scene::create();
+    RefMan<ODVsg::Scene> scene = ODVsg::Scene::create();
     scene->setInteractionEnabled( false );
     for ( int corner=0; corner<8; corner++ )
     {
@@ -445,8 +477,8 @@ bool testPicking()
 	    return false;
     }
 
-    dGBVis::EventInfo miss;
-    miss.type = dGBVis::MouseMovement;
+    ODVsg::EventInfo miss;
+    miss.type = ODVsg::MouseMovement;
     scene->applyEvent( miss );
     BufferString empty;
     scene->getMousePosString().getFullString( &empty );
@@ -456,8 +488,8 @@ bool testPicking()
     RefMan<ClickTarget> second = ClickTarget::create();
     scene->setInteractionEnabled( true );
 
-    dGBVis::EventInfo click;
-    click.type = dGBVis::MouseClick;
+    ODVsg::EventInfo click;
+    click.type = ODVsg::MouseClick;
     click.buttonstate_ = OD::LeftButton;
     click.pressed = false;
     click.dragging = false;
@@ -465,26 +497,26 @@ bool testPicking()
     click.worldpickedpos = Coord3( 0, 0, 0 );
     click.displaypickedpos = click.worldpickedpos;
     scene->applyEvent( click );
-    mRunStandardTest( dGBVis::DM().selMan().selected().size()==1 &&
-		      dGBVis::DM().selMan().selected()[0]==first->id(),
+    mRunStandardTest( ODVsg::DM().selMan().selected().size()==1 &&
+		      ODVsg::DM().selMan().selected()[0]==first->id(),
 		      "First click selects the object" );
 
     click.pickedobjids.setEmpty();
     click.pickedobjids += second->id();
     scene->applyEvent( click );
-    mRunStandardTest( dGBVis::DM().selMan().selected().size()==1 &&
-		      dGBVis::DM().selMan().selected()[0]==second->id(),
+    mRunStandardTest( ODVsg::DM().selMan().selected().size()==1 &&
+		      ODVsg::DM().selMan().selected()[0]==second->id(),
 		      "Second click replaces the selection" );
 
     click.pickedobjids.setEmpty();
     scene->applyEvent( click );
-    mRunStandardTest( dGBVis::DM().selMan().selected().isEmpty(),
+    mRunStandardTest( ODVsg::DM().selMan().selected().isEmpty(),
 		      "Empty click clears the selection" );
 
     scene->setInteractionEnabled( false );
     click.pickedobjids += first->id();
     scene->applyEvent( click );
-    mRunStandardTest( dGBVis::DM().selMan().selected().isEmpty(),
+    mRunStandardTest( ODVsg::DM().selMan().selected().isEmpty(),
 		      "View mode does not select" );
 
     scene->setInteractionEnabled( true );
@@ -501,7 +533,7 @@ bool testPicking()
     mRunStandardTest( first->rightclicks_==1,
 		      "Right drag does not fire rightClicked" );
 
-    dGBVis::DM().selMan().deSelectAll();
+    ODVsg::DM().selMan().deSelectAll();
     return true;
 }
 
@@ -511,9 +543,9 @@ int mTestMainFnName( int argc, char** argv )
     mInitTestProgDR();
 
     OD::ModDeps().ensureLoaded( "visSurvey" );
-    dGBVis::DataObject::setVisualizationThread( Threads::currentThread() );
-    dGBVis::initStdClasses();
-    dGBVisSurvey::initStdClasses();
+    ODVsg::DataObject::setVisualizationThread( Threads::currentThread() );
+    ODVsg::initStdClasses();
+    ODVsg::initSurveyClasses();
 
     clParser().setKeyHasValue( "datadir" );
     BufferString basedir;
@@ -546,7 +578,8 @@ int mTestMainFnName( int argc, char** argv )
 
 	sdl.setDirName( survdirnm->buf() );
 	SurveyChanger changer( sdl );
-	if ( !testTransforms(survdirnm->buf()) ||
+	if ( !testVirtualCalls() ||
+	     !testTransforms(survdirnm->buf()) ||
 	     !testAnnotation() ||
 	     !testWorkArea() ||
 	     !testPicking() )

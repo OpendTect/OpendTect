@@ -21,7 +21,7 @@ ________________________________________________________________________
 namespace vsg { class Camera; }
 namespace vsgGeo { class MarkerSet; }
 
-namespace dGBVis
+namespace ODVsg
 {
 
 /*!\brief Screen-sized markers, the visBase::MarkerSet used for picks.
@@ -59,4 +59,4 @@ private:
     ConstRefMan<mDGBVisTrans>		display_;
 };
 
-} // namespace dGBVis
+} // namespace ODVsg

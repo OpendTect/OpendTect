@@ -23,7 +23,7 @@ ________________________________________________________________________
 namespace ColTab { class MapperSetup; }
 namespace vsgGeo { class ScalarBar; }
 
-namespace dGBVis
+namespace ODVsg
 {
 
 /*!\brief The limits of the size of the color bar in pixels. Those of a
@@ -110,4 +110,4 @@ private:
     float			pixeldensity_;
 };
 
-} // namespace dGBVis
+} // namespace ODVsg

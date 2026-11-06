@@ -14,7 +14,7 @@ ________________________________________________________________________
 
 #include <vsg/app/Camera.h>
 
-namespace dGBVis
+namespace ODVsg
 {
 
 /*!\brief Counterpart of visBase::Camera: keeps the vsg::Camera of a view. */
@@ -34,4 +34,4 @@ private:
     vsg::ref_ptr<vsg::Camera>	camera_;
 };
 
-} // namespace dGBVis
+} // namespace ODVsg

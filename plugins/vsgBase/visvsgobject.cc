@@ -18,7 +18,7 @@ ________________________________________________________________________
 #include <vsg/nodes/Group.h>
 #include <vsg/utils/ComputeBounds.h>
 
-namespace dGBVis
+namespace ODVsg
 {
 
 const char* VisualObjectImpl::sKeyIsOn()	{ return "Is on"; }
@@ -187,4 +187,4 @@ void VisualObjectImpl::fillPar( IOPar& iopar ) const
     iopar.setYN( sKeyIsOn(), isOn() );
 }
 
-} // namespace dGBVis
+} // namespace ODVsg

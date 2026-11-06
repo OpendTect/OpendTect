@@ -25,9 +25,9 @@ ________________________________________________________________________
 #include <vsg/app/Camera.h>
 #include <vsg/maths/transform.h>
 
-mCreateDGBVisFactoryEntry( dGBVis::DepthTabPlaneDragger );
+mCreateDGBVisFactoryEntry( ODVsg::DepthTabPlaneDragger );
 
-namespace dGBVis
+namespace ODVsg
 {
 
 DepthTabPlaneDragger::DepthTabPlaneDragger()
@@ -664,4 +664,4 @@ void DepthTabPlaneDragger::eventCB( CallBacker* cb )
     }
 }
 
-} // namespace dGBVis
+} // namespace ODVsg

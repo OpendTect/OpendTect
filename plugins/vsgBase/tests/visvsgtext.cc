@@ -29,9 +29,9 @@ public:
     TextSetup( vsgTest::OffscreenViewer& ov )
 	: ov_(ov)
     {
-	dGBVis::DataObject::setCommonViewer( &ov.viewer() );
-	dGBVis::FontCreator::instance().clear();
-	texts_ = dGBVis::Text2::create();
+	ODVsg::DataObject::setCommonViewer( &ov.viewer() );
+	ODVsg::FontCreator::instance().clear();
+	texts_ = ODVsg::Text2::create();
 	ov.scene().addChild( vsg::ref_ptr<vsg::Node>(texts_->vsgNode()) );
     }
 
@@ -40,8 +40,8 @@ public:
 	texts_ = nullptr;
 	ov_.scene().children.clear();
 	ov_.viewer().deviceWaitIdle();
-	dGBVis::DataObject::setCommonViewer( nullptr );
-	dGBVis::FontCreator::instance().clear();
+	ODVsg::DataObject::setCommonViewer( nullptr );
+	ODVsg::FontCreator::instance().clear();
     }
 
     static FontData testFont()
@@ -49,18 +49,18 @@ public:
 
     static float testDensity()
     {
-	return dGBVis::DataObject::
+	return ODVsg::DataObject::
 		getDefaultPixelDensity() * 0.01f;
     }
 
-    dGBVis::Text* addLabel( const char* str )
+    ODVsg::Text* addLabel( const char* str )
     {
 	const int idx = texts_->addText();
-	dGBVis::Text* txt = texts_->text( idx );
+	ODVsg::Text* txt = texts_->text( idx );
 	txt->setCharacterSizeMode(
-			dGBVis::Text::Object );
-	txt->setAxisAlignment( dGBVis::Text::XZ );
-	txt->setJustification( dGBVis::Text::Center );
+			ODVsg::Text::Object );
+	txt->setAxisAlignment( ODVsg::Text::XZ );
+	txt->setJustification( ODVsg::Text::Center );
 	txt->setFontData( testFont(), testDensity() );
 	txt->setText( toUiString(str) );
 	return txt;
@@ -88,7 +88,7 @@ public:
     }
 
     vsgTest::OffscreenViewer&	ov_;
-    RefMan<dGBVis::Text2>	texts_;
+    RefMan<ODVsg::Text2>	texts_;
 };
 
 } // namespace
@@ -103,7 +103,7 @@ static bool testLabelDrawn()
     TextSetup setup( ov );
     mRunStandardTest( ov.compile(), "Label drawing: Viewer compiled" );
 
-    dGBVis::Text* txt = setup.addLabel( "Hi" );
+    ODVsg::Text* txt = setup.addLabel( "Hi" );
     mRunStandardTest( setup.texts_->nrTexts()==1,
 		      "Label drawing: One label added" );
     mRunStandardTest( setup.bounds().nrpix_==0,
@@ -138,7 +138,7 @@ static bool testConversions()
 
     TextSetup setup( ov );
     mRunStandardTest( ov.compile(), "OD type conversion: Viewer compiled" );
-    dGBVis::Text* txt = setup.addLabel( "Hi" );
+    ODVsg::Text* txt = setup.addLabel( "Hi" );
     mRunStandardTest( setup.waitDrawn(), "OD type conversion: Label is drawn" );
     const vsgTest::Bounds white = setup.bounds();
 
@@ -153,7 +153,7 @@ static bool testConversions()
 		      "OD type conversion: OD transparency is used" );
     txt->setColor( OD::Color::White() );
 
-    using Just = dGBVis::Text;
+    using Just = ODVsg::Text;
     txt->setJustification( Just::Left );
     bnds = setup.bounds();
     BufferString msg( "Left edge x: ", bnds.minx_ );
@@ -192,7 +192,7 @@ static bool testConversions()
 			       "OD type conversion: Position moves the label",
 			       BufferString("Centre x: ",bnds.cx()) );
 
-    RefMan<dGBVis::Transformation> trans = dGBVis::Transformation::create();
+    RefMan<ODVsg::Transformation> trans = ODVsg::Transformation::create();
     trans->setTranslation( Coord3(-0.5,0.,0.) );
     txt->setDisplayTransformation( trans.ptr() );
     bnds = setup.bounds();
@@ -215,10 +215,10 @@ static bool testConversions()
     txt->setPosition( Coord3(0.,0.,0.) );
     txt->setDisplayTransformation( nullptr );
     txt->setJustification( Just::Center );
-    txt->setAxisAlignment( dGBVis::Text::OnScreen );
-    txt->setCharacterSizeMode( dGBVis::Text::Screen );
+    txt->setAxisAlignment( ODVsg::Text::OnScreen );
+    txt->setCharacterSizeMode( ODVsg::Text::Screen );
     txt->setFontData( TextSetup::testFont(),
-		      dGBVis::DataObject::getDefaultPixelDensity() * 8.f );
+		      ODVsg::DataObject::getDefaultPixelDensity() * 8.f );
     ov.frame( 4 );
     bnds = setup.bounds( 3 );
     const int screenheight = bnds.maxy_ - bnds.miny_ + 1;
@@ -244,8 +244,8 @@ static bool testText2()
 
     TextSetup setup( ov );
     mRunStandardTest( ov.compile(), "Text2: Viewer compiled" );
-    dGBVis::Text* left = setup.addLabel( "Hi" );
-    dGBVis::Text* right = setup.addLabel( "Hi" );
+    ODVsg::Text* left = setup.addLabel( "Hi" );
+    ODVsg::Text* right = setup.addLabel( "Hi" );
     left->setPosition( Coord3(-0.5,0.,0.) );
     right->setPosition( Coord3(0.5,0.,0.) );
     mRunStandardTest( setup.texts_->nrTexts()==2, "Text2: Two labels added" );
@@ -279,8 +279,8 @@ static bool testText2()
 
 static bool testNonAsciiText()
 {
-    RefMan<dGBVis::Text2> texts = dGBVis::Text2::create();
-    dGBVis::Text* txt = texts->text( texts->addText() );
+    RefMan<ODVsg::Text2> texts = ODVsg::Text2::create();
+    ODVsg::Text* txt = texts->text( texts->addText() );
     txt->setText( toUiString("A\xC3\xB8\xE2\x82\xAC\xF0\x9F\x98\x80") );
     mRunStandardTest( txt->getVsgText().text()==U"A\u00F8\u20AC\U0001F600",
 		      "Text with 2, 3 and 4 byte characters is converted "
@@ -298,8 +298,8 @@ int mTestMainFnName( int argc, char** argv )
 {
     mInitTestProg();
 
-    dGBVis::DataObject::setVisualizationThread( Threads::currentThread() );
-    dGBVis::initStdClasses();
+    ODVsg::DataObject::setVisualizationThread( Threads::currentThread() );
+    ODVsg::initStdClasses();
 
     if ( !testLabelDrawn() ||
 	 !testConversions() ||

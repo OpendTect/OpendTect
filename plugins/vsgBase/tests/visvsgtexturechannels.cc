@@ -40,7 +40,7 @@ ColTab::MapperSetup fixedSetup( bool flip=false )
 class ChangeCounter : public CallBacker
 {
 public:
-		ChangeCounter(dGBVis::TextureChannels&);
+		ChangeCounter(ODVsg::TextureChannels&);
 		~ChangeCounter();
 
     void	changedCB(CallBacker*);
@@ -49,7 +49,7 @@ public:
 };
 
 
-ChangeCounter::ChangeCounter( dGBVis::TextureChannels& channels )
+ChangeCounter::ChangeCounter( ODVsg::TextureChannels& channels )
 {
     mAttachCB( channels.colTabChanged, ChangeCounter::changedCB );
 }
@@ -67,9 +67,9 @@ void ChangeCounter::changedCB( CallBacker* )
 }
 
 
-RefMan<dGBVis::TextureChannels> makeChannels()
+RefMan<ODVsg::TextureChannels> makeChannels()
 {
-    RefMan<dGBVis::TextureChannels> channels = dGBVis::TextureChannels::create();
+    RefMan<ODVsg::TextureChannels> channels = ODVsg::TextureChannels::create();
     channels->setSize( 0, 1, cHeight, cWidth );
     channels->setColTabMapperSetup( 0, fixedSetup() );
     channels->setUnMappedData( 0, 0, cValues, OD::UsePtr, nullptr );
@@ -81,7 +81,7 @@ RefMan<dGBVis::TextureChannels> makeChannels()
 
 static bool testSize()
 {
-    RefMan<dGBVis::TextureChannels> channels = dGBVis::TextureChannels::create();
+    RefMan<ODVsg::TextureChannels> channels = ODVsg::TextureChannels::create();
     mRunStandardTest( channels->nrTiles()==0, "Channels: No size, no tiles" );
     channels->setSize( 0, 1, cHeight, cWidth );
     mRunStandardTest( channels->nrTiles()==1, "Channels: A small image is one "
@@ -101,7 +101,7 @@ static bool testSize()
 
 static bool testMapping()
 {
-    RefMan<dGBVis::TextureChannels> channels = makeChannels();
+    RefMan<ODVsg::TextureChannels> channels = makeChannels();
     vsgGeo::LayeredTexture* texture = channels->tile(0).texture_.get();
     mRunStandardTest( texture->indexAt(0,0)==0 && texture->indexAt(1,0)==63 &&
 		      texture->indexAt(2,0)==127 && texture->indexAt(3,0)==254,
@@ -124,7 +124,7 @@ static bool testMapping()
 
 static bool testRemap()
 {
-    RefMan<dGBVis::TextureChannels> channels = makeChannels();
+    RefMan<ODVsg::TextureChannels> channels = makeChannels();
     channels->setColTabMapperSetup( 0, fixedSetup(true) );
     vsgGeo::LayeredTexture* texture = channels->tile(0).texture_.get();
     mRunStandardTest( texture->indexAt(0,0)==0,
@@ -140,7 +140,7 @@ static bool testRemap()
 
 static bool testSegments()
 {
-    RefMan<dGBVis::TextureChannels> channels = dGBVis::TextureChannels::create();
+    RefMan<ODVsg::TextureChannels> channels = ODVsg::TextureChannels::create();
     channels->setSize( 0, 1, cHeight, cWidth );
     ColTab::MapperSetup setup = fixedSetup();
     setup.nrsegs_ = 4;
@@ -154,8 +154,8 @@ static bool testSegments()
 	    continue;
 
 	const int expected = ColTab::Mapper::snappedPosition( &mapper,
-		cValues[idx], dGBVis::TextureChannels::nrSteps(),
-		dGBVis::TextureChannels::nrSteps() );
+		cValues[idx], ODVsg::TextureChannels::nrSteps(),
+		ODVsg::TextureChannels::nrSteps() );
 	const int got = texture->indexAt( idx%cWidth, idx/cWidth );
 	mRunStandardTest( Math::Abs(got-expected)<=1,
 			  "Channels: Segments follow the mapper" );
@@ -169,7 +169,7 @@ static bool testSegments()
 
 static bool testColors()
 {
-    RefMan<dGBVis::TextureChannels> channels = makeChannels();
+    RefMan<ODVsg::TextureChannels> channels = makeChannels();
     ColTab::Sequence seq;
     seq.setColor( 0.f, 255, 0, 0 );
     seq.setColor( 1.f, 0, 0, 255 );
@@ -177,7 +177,7 @@ static bool testColors()
     channels->setColTabSequence( seq );
     vsgGeo::LayeredTexture* texture = channels->tile(0).texture_.get();
     const vsgGeo::ColorLookup& lookup = texture->colorLookup();
-    const float lastidx = sCast( float, dGBVis::TextureChannels::nrSteps()-1 );
+    const float lastidx = sCast( float, ODVsg::TextureChannels::nrSteps()-1 );
     const vsg::vec4 first = lookup.colorAt( texture->indexAt(0,0)/lastidx );
     const vsg::vec4 last = lookup.colorAt( texture->indexAt(3,0)/lastidx );
     const vsg::vec4 udf = lookup.undefColor();
@@ -194,7 +194,7 @@ static bool testColors()
 
 static bool testSequence()
 {
-    RefMan<dGBVis::TextureChannels> channels = makeChannels();
+    RefMan<ODVsg::TextureChannels> channels = makeChannels();
     ColTab::Sequence seq;
     seq.setColor( 0.f, 255, 0, 0 );
     seq.setColor( 1.f, 0, 0, 255 );
@@ -209,7 +209,7 @@ static bool testSequence()
 
 static bool testColTabChanges()
 {
-    RefMan<dGBVis::TextureChannels> channels = makeChannels();
+    RefMan<ODVsg::TextureChannels> channels = makeChannels();
     ChangeCounter counter( *channels );
     ColTab::Sequence seq;
     seq.setColor( 0.f, 255, 0, 0 );
@@ -241,7 +241,7 @@ static bool testTiles()
 	    values += sCast( float, idy*width + idx );
     }
 
-    RefMan<dGBVis::TextureChannels> channels = dGBVis::TextureChannels::create();
+    RefMan<ODVsg::TextureChannels> channels = ODVsg::TextureChannels::create();
     channels->setSize( 0, 1, height, width );
     ColTab::MapperSetup setup;
     setup.type_ = ColTab::MapperSetup::Fixed;
@@ -251,7 +251,7 @@ static bool testTiles()
     vsgGeo::LayeredTexture::setMaxTextureSize( oldmax );
 
     mRunStandardTest( channels->nrTiles()==9, "Tiles: 3 by 3 tiles" );
-    const dGBVis::TextureChannels::Tile& last = channels->tile( 8 );
+    const ODVsg::TextureChannels::Tile& last = channels->tile( 8 );
     mRunStandardTest( last.x0_==6 && last.y0_==6 &&
 		      last.nrx_==2 && last.nry_==1 &&
 		      last.overx_==1 && last.overy_==1 &&
@@ -259,7 +259,7 @@ static bool testTiles()
 		      "Tiles: The last tile is the corner that is left, with "
 		      "the cells before it" );
 
-    const dGBVis::TextureChannels::Tile& second = channels->tile( 1 );
+    const ODVsg::TextureChannels::Tile& second = channels->tile( 1 );
     mRunStandardTest( second.x0_==3 && second.y0_==0 &&
 		      second.nrx_==3 && second.nry_==3 &&
 		      second.overx_==1 && second.overy_==0 &&
@@ -272,7 +272,7 @@ static bool testTiles()
     const ColTab::Mapper& mapper = channels->getColTabMapper( 0, 0 );
     for ( int itile=0; itile<channels->nrTiles(); itile++ )
     {
-	const dGBVis::TextureChannels::Tile& tile = channels->tile( itile );
+	const ODVsg::TextureChannels::Tile& tile = channels->tile( itile );
 	for ( int idy=0; idy<tile.texture_->height(); idy++ )
 	{
 	    for ( int idx=0; idx<tile.texture_->width(); idx++ )
@@ -280,8 +280,8 @@ static bool testTiles()
 		const float val = values[ (tile.y0_-tile.overy_+idy)*width +
 					  tile.x0_-tile.overx_+idx ];
 		const int expected = ColTab::Mapper::snappedPosition(
-			&mapper, val, dGBVis::TextureChannels::nrSteps(),
-			dGBVis::TextureChannels::nrSteps() );
+			&mapper, val, ODVsg::TextureChannels::nrSteps(),
+			ODVsg::TextureChannels::nrSteps() );
 		const int found = sCast( int, tile.texture_->indexAt(idx,idy) );
 	if ( Math::Abs(found-expected)>1 )
 		    allok = false;
@@ -297,7 +297,7 @@ static bool testTiles()
 
 static bool testValueSeries()
 {
-    RefMan<dGBVis::TextureChannels> channels = dGBVis::TextureChannels::create();
+    RefMan<ODVsg::TextureChannels> channels = ODVsg::TextureChannels::create();
     channels->setSize( 0, 1, cHeight, cWidth );
     channels->setColTabMapperSetup( 0, fixedSetup() );
 
@@ -317,7 +317,7 @@ static bool testValueSeries()
 
 static bool testMappedData()
 {
-    RefMan<dGBVis::TextureChannels> channels = dGBVis::TextureChannels::create();
+    RefMan<ODVsg::TextureChannels> channels = ODVsg::TextureChannels::create();
     channels->setSize( 0, 1, cHeight, cWidth );
     mRunStandardTest( !channels->isCurrentDataPremapped(0),
 		      "Channels: Data is not premapped at first" );
@@ -350,7 +350,7 @@ static bool testMappedData()
 
 static bool testInterpolation()
 {
-    RefMan<dGBVis::TextureChannels> channels = makeChannels();
+    RefMan<ODVsg::TextureChannels> channels = makeChannels();
     mRunStandardTest( channels->textureInterpolationEnabled() &&
 		      channels->tile(0).texture_->isInterpolated(),
 		      "Channels: The textures are interpolated by default" );

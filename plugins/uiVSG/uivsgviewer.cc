@@ -19,7 +19,7 @@ ________________________________________________________________________
 #include "callback.h"
 #include "math2.h"
 #include "uimainwin.h"
-#include "uiodmain.h"
+//#include "uiodmain.h"
 #include "uistatusbar.h"
 #include "visvsgaxes.h"
 #include "visvsgcamera.h"
@@ -133,7 +133,7 @@ public:
 	     vsg::ref_ptr<vsg::Orthographic> projection,
 	     vsg::ref_ptr<vsg::Camera> hudcamera,
 	     vsg::ref_ptr<vsg::ClearAttachments> clear,
-	     RefMan<dGBVis::Axes> axes,
+	     RefMan<ODVsg::Axes> axes,
 	     const std::function<void(uint32_t,uint32_t)>& placeitems )
 	: window_(window)
 	, windowgraph_(windowgraph)
@@ -178,7 +178,7 @@ private:
     vsg::ref_ptr<vsg::Orthographic>	projection_;
     vsg::ref_ptr<vsg::Camera>		hudcamera_;
     vsg::ref_ptr<vsg::ClearAttachments>	clear_;
-    RefMan<dGBVis::Axes>		axes_;
+    RefMan<ODVsg::Axes>		axes_;
     std::function<void(uint32_t,uint32_t)> placeitems_;
     uint32_t				width_ = 0;
     uint32_t				height_ = 0;
@@ -195,8 +195,8 @@ constexpr float cPi = 3.14159265358979f;
 constexpr float cDiscreteZoomTime = 0.2f;
 
 
-void placeWheels( dGBVis::ThumbWheel& hor, dGBVis::ThumbWheel& ver,
-		  dGBVis::ThumbWheel& dist, uint32_t height )
+void placeWheels( ODVsg::ThumbWheel& hor, ODVsg::ThumbWheel& ver,
+		  ODVsg::ThumbWheel& dist, uint32_t height )
 {
     const float longside = cWheelLongSideDistance + cWheelWidth/2.f;
     const float shortside = cWheelShortSideDistance + cWheelLength/2.f;
@@ -234,11 +234,11 @@ bool parseWheelMode( const char* str, uiVSGViewer::WheelMode& mode )
 
 struct VSGMouseStatus : public CallBacker
 {
-    dGBVisSurvey::Scene*	scene_ = nullptr;
+    ODVsg::Scene*	scene_ = nullptr;
 
     void update( CallBacker* )
     {
-	if ( !scene_ )
+	/*if (!scene_)
 	    return;
 
 	uiODMain* mainwin = ODMainWin();
@@ -246,7 +246,7 @@ struct VSGMouseStatus : public CallBacker
 	    return;
 
 	// Field 0 is the position field uiODSceneMgr writes.
-	mainwin->statusBar()->message( scene_->getMousePosString(), 0 );
+	mainwin->statusBar()->message( scene_->getMousePosString(), 0 );*/
     }
 };
 
@@ -519,7 +519,7 @@ public:
 			{}
 			~SceneBoundsWatch()	{ detachAllNotifiers(); }
 
-    void		watch( dGBVisSurvey::Scene& scene )
+    void		watch( ODVsg::Scene& scene )
 			{
 			    mAttachCB( scene.sceneboundingboxupdated,
 				       uiVSGViewer::SceneBoundsWatch::mark );
@@ -546,7 +546,7 @@ public:
 			{}
 			~WheelLink()	{ detachAllNotifiers(); }
 
-    void		watch( dGBVis::ThumbWheel& wheel )
+    void		watch( ODVsg::ThumbWheel& wheel )
 			{
 			    mAttachCB( wheel.rotation,
 				       uiVSGViewer::WheelLink::rotationCB );
@@ -568,7 +568,7 @@ private:
 class uiVSGViewer::ColTabLink : public CallBacker
 {
 public:
-			ColTabLink(dGBVis::SceneColTab&,dGBVisSurvey::Scene&);
+			ColTabLink(ODVsg::SceneColTab&,ODVsg::Scene&);
 			~ColTabLink();
 
 private:
@@ -576,14 +576,14 @@ private:
     void		channelsCB(CallBacker*);
     void		changedCB(CallBacker*);
 
-    RefMan<dGBVis::SceneColTab>		bar_;
-    RefMan<dGBVisSurvey::Scene>		scene_;
-    RefMan<dGBVis::TextureChannels>	channels_;
+    RefMan<ODVsg::SceneColTab>		bar_;
+    RefMan<ODVsg::Scene>		scene_;
+    RefMan<ODVsg::TextureChannels>	channels_;
 };
 
 
-uiVSGViewer::ColTabLink::ColTabLink( dGBVis::SceneColTab& bar,
-				     dGBVisSurvey::Scene& scene )
+uiVSGViewer::ColTabLink::ColTabLink( ODVsg::SceneColTab& bar,
+				     ODVsg::Scene& scene )
     : bar_(&bar)
     , scene_(&scene)
 {
@@ -663,8 +663,8 @@ uiVSGViewer::~uiVSGViewer()
     {
 	viewer_->deviceWaitIdle();
 	viewer_->getEventHandlers().clear();
-	if ( dGBVis::DataObject::getCommonViewer() == viewer_.get() )
-	    dGBVis::DataObject::setCommonViewer( nullptr );
+	if ( ODVsg::DataObject::getCommonViewer() == viewer_.get() )
+	    ODVsg::DataObject::setCommonViewer( nullptr );
     }
 
     if ( windowhandler_ )
@@ -673,11 +673,11 @@ uiVSGViewer::~uiVSGViewer()
     if ( statuscb_ && scene_ )
 	scene_->mouseposchange.remove( mCB(statuscb_,VSGMouseStatus,update) );
 
-    if ( uiODMain* mainwin = ODMainWin() )
+    /*if (uiODMain* mainwin = ODMainWin())
     {
 	if ( mainwin->statusBar() )
 	    mainwin->statusBar()->message( uiString::emptyString(), 0 );
-    }
+    }*/
 
     if ( root_ )
 	root_->children.clear();
@@ -699,13 +699,13 @@ uiVSGViewer::~uiVSGViewer()
 }
 
 
-dGBVisSurvey::Scene* uiVSGViewer::scene()
+ODVsg::Scene* uiVSGViewer::scene()
 {
     return scene_.ptr();
 }
 
 
-dGBVis::TextureChannels* uiVSGViewer::textureChannels()
+ODVsg::TextureChannels* uiVSGViewer::textureChannels()
 {
     return scene_ ? scene_->testTextureChannels() : nullptr;
 }
@@ -822,7 +822,7 @@ namespace
 {
 
 constexpr double cHudDepth = 1000.;
-constexpr dGBVis::Axes::Style cAxesStyle = dGBVis::Axes::Modern;
+constexpr ODVsg::Axes::Style cAxesStyle = ODVsg::Axes::Modern;
 
 
 // The depth of VSG is reversed: 0 is the far end
@@ -845,7 +845,7 @@ vsg::ref_ptr<vsg::ClearAttachments> createDepthClear()
 
 void uiVSGViewer::setupHUD()
 {
-    vishudcamera_ = dGBVis::Camera::create();
+    vishudcamera_ = ODVsg::Camera::create();
     vsg::ref_ptr<vsg::Camera> hudcamera( vishudcamera_->vsgCamera() );
     hudprojection_ = FixedOrthographic::create( 0., 1., 0., 1., -cHudDepth,
 						 cHudDepth );
@@ -854,13 +854,13 @@ void uiVSGViewer::setupHUD()
 		vsg::dvec3(0.,0.,0.), vsg::dvec3(0.,0.,-1.),
 		vsg::dvec3(0.,1.,0.) );
 
-    hudscene_ = dGBVis::DataObjectGroup::create();
+    hudscene_ = ODVsg::DataObjectGroup::create();
     hudclear_ = createDepthClear();
     hudview_ = vsg::View::create( hudcamera );
     hudview_->addChild( hudclear_ );
     hudview_->addChild( vsg::ref_ptr<vsg::Node>(hudscene_->vsgNode()) );
 
-    axes_ = dGBVis::Axes::create();
+    axes_ = ODVsg::Axes::create();
     axes_->setStyle( cAxesStyle );
     axes_->setSize( 5.f, 55.f );
     axes_->setAnnotationTextSize( FontData::defaultPointSize() + 6 );
@@ -869,21 +869,21 @@ void uiVSGViewer::setupHUD()
     hudscene_->addObject( axes_.ptr() );
     axes_->setPrimaryCamera( viscamera_.ptr() );
 
-    scenecoltab_ = dGBVis::SceneColTab::create();
+    scenecoltab_ = ODVsg::SceneColTab::create();
     scenecoltab_->setAnnotFont( annotationFont() );
     scenecoltab_->setLegendColor( scene_->getAnnotColor() );
     hudscene_->addObject( scenecoltab_.ptr() );
 
-    horthumbwheel_ = dGBVis::ThumbWheel::create();
-    verthumbwheel_ = dGBVis::ThumbWheel::create();
-    distancethumbwheel_ = dGBVis::ThumbWheel::create();
+    horthumbwheel_ = ODVsg::ThumbWheel::create();
+    verthumbwheel_ = ODVsg::ThumbWheel::create();
+    distancethumbwheel_ = ODVsg::ThumbWheel::create();
     wheellink_ = new WheelLink( *this );
     horthumbwheel_->setGrowDirection( 1 );
     verthumbwheel_->setGrowDirection( 1 );
     distancethumbwheel_->setGrowDirection( -1 );
-    dGBVis::ThumbWheel* wheels[] = { horthumbwheel_.ptr(), verthumbwheel_.ptr(),
+    ODVsg::ThumbWheel* wheels[] = { horthumbwheel_.ptr(), verthumbwheel_.ptr(),
 				     distancethumbwheel_.ptr() };
-    for ( dGBVis::ThumbWheel* wheel : wheels )
+    for ( ODVsg::ThumbWheel* wheel : wheels )
     {
 	wheel->setGrowOnHover( wheelsgrow_ );
 	wheel->setGlassLook( wheelsglass_ );
@@ -896,9 +896,9 @@ void uiVSGViewer::setupHUD()
 void uiVSGViewer::setWheelDisplayMode( WheelMode mode )
 {
     wheelmode_ = mode;
-    dGBVis::ThumbWheel* wheels[] = { horthumbwheel_.ptr(), verthumbwheel_.ptr(),
+    ODVsg::ThumbWheel* wheels[] = { horthumbwheel_.ptr(), verthumbwheel_.ptr(),
 				     distancethumbwheel_.ptr() };
-    for ( dGBVis::ThumbWheel* wheel : wheels )
+    for ( ODVsg::ThumbWheel* wheel : wheels )
     {
 	if ( !wheel )
 	    continue;
@@ -935,9 +935,9 @@ uiVSGViewer::WheelMode uiVSGViewer::startWheelMode()
 void uiVSGViewer::setWheelsGrowOnHover( bool yn )
 {
     wheelsgrow_ = yn;
-    dGBVis::ThumbWheel* wheels[] = { horthumbwheel_.ptr(), verthumbwheel_.ptr(),
+    ODVsg::ThumbWheel* wheels[] = { horthumbwheel_.ptr(), verthumbwheel_.ptr(),
 				     distancethumbwheel_.ptr() };
-    for ( dGBVis::ThumbWheel* wheel : wheels )
+    for ( ODVsg::ThumbWheel* wheel : wheels )
     {
 	if ( wheel )
 	    wheel->setGrowOnHover( yn );
@@ -954,9 +954,9 @@ bool uiVSGViewer::isWheelsGrowOnHover() const
 void uiVSGViewer::setGlassWheels( bool yn )
 {
     wheelsglass_ = yn;
-    dGBVis::ThumbWheel* wheels[] = { horthumbwheel_.ptr(), verthumbwheel_.ptr(),
+    ODVsg::ThumbWheel* wheels[] = { horthumbwheel_.ptr(), verthumbwheel_.ptr(),
 				     distancethumbwheel_.ptr() };
-    for ( dGBVis::ThumbWheel* wheel : wheels )
+    for ( ODVsg::ThumbWheel* wheel : wheels )
     {
 	if ( wheel )
 	    wheel->setGlassLook( yn );
@@ -972,9 +972,9 @@ bool uiVSGViewer::isGlassWheels() const
 
 void uiVSGViewer::showWheels( bool yn )
 {
-    dGBVis::ThumbWheel* wheels[] = { horthumbwheel_.ptr(), verthumbwheel_.ptr(),
+    ODVsg::ThumbWheel* wheels[] = { horthumbwheel_.ptr(), verthumbwheel_.ptr(),
 				     distancethumbwheel_.ptr() };
-    for ( dGBVis::ThumbWheel* wheel : wheels )
+    for ( ODVsg::ThumbWheel* wheel : wheels )
     {
 	if ( wheel )
 	    wheel->turnOn( yn );
@@ -1025,13 +1025,13 @@ bool uiVSGViewer::isAxisShown() const
 void uiVSGViewer::setModernAxes( bool yn )
 {
     if ( axes_ )
-	axes_->setStyle( yn ? dGBVis::Axes::Modern : dGBVis::Axes::Classic );
+	axes_->setStyle( yn ? ODVsg::Axes::Modern : ODVsg::Axes::Classic );
 }
 
 
 bool uiVSGViewer::isModernAxes() const
 {
-    return axes_ && axes_->getStyle()==dGBVis::Axes::Modern;
+    return axes_ && axes_->getStyle()==ODVsg::Axes::Modern;
 }
 
 
@@ -1048,16 +1048,16 @@ bool uiVSGViewer::isColorBarShown() const
 }
 
 
-void uiVSGViewer::setColorBarPos( dGBVis::SceneColTab::Pos pos )
+void uiVSGViewer::setColorBarPos( ODVsg::SceneColTab::Pos pos )
 {
     if ( scenecoltab_ )
 	scenecoltab_->setPos( pos );
 }
 
 
-dGBVis::SceneColTab::Pos uiVSGViewer::getColorBarPos() const
+ODVsg::SceneColTab::Pos uiVSGViewer::getColorBarPos() const
 {
-    return scenecoltab_ ? scenecoltab_->getPos() : dGBVis::SceneColTab::Bottom;
+    return scenecoltab_ ? scenecoltab_->getPos() : ODVsg::SceneColTab::Bottom;
 }
 
 
@@ -1112,11 +1112,11 @@ void uiVSGViewer::setupVSG()
     const uint32_t h = mMAX( 1u, vsgwindow_->extent2D().height );
 
     root_ = vsg::Group::create();
-    scene_ = dGBVisSurvey::Scene::create();
+    scene_ = ODVsg::Scene::create();
     const FontData font = hasannotfont_ ? annotfont_
 		: FontList().get(FontData::Graphics3D).fontData();
     scene_->setAnnotFont( font );
-    root_->addChild( vsg::ref_ptr<vsg::Node>(scene_->vsgNode()) );
+    root_->addChild( vsg::ref_ptr<vsg::Node>(scene_->vsgGroup()->vsgNode()) );
 
     const double fovy = 30.0;
     const ViewAll viewall = computeViewAll( *root_, fovy );
@@ -1126,7 +1126,7 @@ void uiVSGViewer::setupVSG()
 	    fovy, static_cast<double>(w) / h, viewall.near_, viewall.far_ );
     vsg::ref_ptr<vsg::ViewportState> viewport =
 			vsg::ViewportState::create( VkExtent2D{ w, h } );
-    viscamera_ = dGBVis::Camera::create();
+    viscamera_ = ODVsg::Camera::create();
     camera_ = viscamera_->vsgCamera();
     camera_->projectionMatrix = perspective;
     camera_->viewMatrix = lookAt;
@@ -1191,10 +1191,10 @@ void uiVSGViewer::setupVSG()
     vsg::ref_ptr<vsg::RenderGraph> windowgraph =
 		commandGraph->children.front().cast<vsg::RenderGraph>();
     windowgraph->addChild( hudview_ );
-    RefMan<dGBVis::ThumbWheel> horwheel = horthumbwheel_;
-    RefMan<dGBVis::ThumbWheel> verwheel = verthumbwheel_;
-    RefMan<dGBVis::ThumbWheel> distwheel = distancethumbwheel_;
-    RefMan<dGBVis::SceneColTab> coltab = scenecoltab_;
+    RefMan<ODVsg::ThumbWheel> horwheel = horthumbwheel_;
+    RefMan<ODVsg::ThumbWheel> verwheel = verthumbwheel_;
+    RefMan<ODVsg::ThumbWheel> distwheel = distancethumbwheel_;
+    RefMan<ODVsg::SceneColTab> coltab = scenecoltab_;
     const std::function<void(uint32_t,uint32_t)> placeitems =
 	[horwheel,verwheel,distwheel,coltab]( uint32_t width,
 					      uint32_t height ) mutable
@@ -1234,9 +1234,9 @@ void uiVSGViewer::setupVSG()
     viewer_->compile();
     offscreenswitch_->setAllChildren( false );
 
-    // After the first compile: from now on, changes to dGBVis objects are
+    // After the first compile: from now on, changes to ODVsg objects are
     // compiled and released through this viewer's update operation.
-    dGBVis::DataObject::setCommonViewer( viewer_.get() );
+    ODVsg::DataObject::setCommonViewer( viewer_.get() );
 
     vsg::ref_ptr<vsg::Device> device = vsgwindow_->getDevice();
     if ( device && device->getPhysicalDevice() )
