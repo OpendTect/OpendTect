@@ -112,6 +112,7 @@ uiODViewer2DMgr::uiODViewer2DMgr( uiODMain* a )
 
 uiODViewer2DMgr::~uiODViewer2DMgr()
 {
+    detachAllNotifiers();
     // The scene manager may already be gone during final application disposal.
     NotifyStopper stopadded( vw2dObjAdded );
     NotifyStopper stopremoved( vw2dObjToBeRemoved );
@@ -119,7 +120,6 @@ uiODViewer2DMgr::~uiODViewer2DMgr()
     NotifyStopper stopposition( viewerPositionChanged );
     CallBack::removeFromThreadCalls( this );
     destroyBackends();
-    detachAllNotifiers();
     deepErase( viewers2d_ );
     delete tifs2d_;
     delete tifs3d_;
