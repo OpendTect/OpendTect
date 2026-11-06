@@ -15,6 +15,8 @@ ________________________________________________________________________
 
 #include "visvsgscenecoltab.h"
 #include "fontdata.h"
+#include "integerid.h"
+#include "notify.h"
 #include "ptrman.h"
 #include "refcount.h"
 #include "uistringset.h"
@@ -22,7 +24,6 @@ ________________________________________________________________________
 #include <QWidget>
 #include <vsg/all.h>
 
-class CallBacker;
 class dGBVSGViewer;
 class dGBVSGWindow;
 class uiVSGWindowHandler;
@@ -33,7 +34,7 @@ namespace ODVsg
 namespace vsgGeo
 { class AxesHandler; class NearFar; class ThumbWheelHandler; class Trackball; }
 
-mExpClass(uiVSG) uiVSGViewer : public QWidget
+mExpClass(uiVSG) uiVSGViewer : public QWidget, public CallBacker
 {
 public:
 			uiVSGViewer(QWidget* parent=nullptr);
@@ -75,6 +76,9 @@ public:
 				       uint32_t& maxheight) const;
 
     ODVsg::Scene* scene();
+    void		setScene(ODVsg::Scene*);
+			//!<Only before the viewer is first shown. Without it
+			//!<the viewer makes a scene of its own
     ODVsg::TextureChannels* textureChannels();
 			/*!<The data of the test plane, null without it. */
 
@@ -83,6 +87,9 @@ public:
 			    picks and drags. */
     bool		isViewMode() const;
     void		syncCursor()		{ updateCursor(); }
+
+    CNotifier<uiVSGViewer,SceneID> closing;
+			//!<Triggered when the viewer is deleted
 
 protected:
 

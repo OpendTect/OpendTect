@@ -9,6 +9,8 @@ ________________________________________________________________________
 
 #include "uivsgviewer.h"
 
+#include <QMdiArea>
+#include <QMdiSubWindow>
 #include <QVBoxLayout>
 
 #include "vsgviewer.h"
@@ -626,6 +628,7 @@ void uiVSGViewer::ColTabLink::changedCB( CallBacker* )
 
 uiVSGViewer::uiVSGViewer( QWidget* parent )
     : QWidget(parent)
+    , closing(this)
 {
     setAttribute( Qt::WA_DeleteOnClose );
     setMinimumSize( 600, 400 );
@@ -653,6 +656,9 @@ uiVSGViewer::uiVSGViewer( QWidget* parent )
 
 uiVSGViewer::~uiVSGViewer()
 {
+    if ( scene_ )
+	closing.trigger( scene_->getID() );
+
     boundswatch_ = nullptr;
     wheellink_ = nullptr;
     coltablink_ = nullptr;
@@ -702,6 +708,13 @@ uiVSGViewer::~uiVSGViewer()
 ODVsg::Scene* uiVSGViewer::scene()
 {
     return scene_.ptr();
+}
+
+
+void uiVSGViewer::setScene( ODVsg::Scene* scene )
+{
+    if ( !vsgwindow_ )
+	scene_ = scene;
 }
 
 
@@ -1112,7 +1125,9 @@ void uiVSGViewer::setupVSG()
     const uint32_t h = mMAX( 1u, vsgwindow_->extent2D().height );
 
     root_ = vsg::Group::create();
-    scene_ = ODVsg::Scene::create();
+    if ( !scene_ )
+	scene_ = ODVsg::Scene::create();
+
     const FontData font = hasannotfont_ ? annotfont_
 		: FontList().get(FontData::Graphics3D).fontData();
     scene_->setAnnotFont( font );
@@ -1498,4 +1513,52 @@ uiRetVal uiVSGViewer::takeScreenshot( int width, int height,
 	return uiRetVal( toUiString("Screenshot failed: %1")
 			     .arg(exc.message.c_str()) );
     }
+}
+
+
+mExternC(uiVSG) visSurvey::Scene* createVSGScene();
+
+mExternC(uiVSG) visSurvey::Scene* createVSGScene()
+{
+    RefMan<ODVsg::Scene> scene = ODVsg::Scene::create();
+    scene.setNoDelete( true );
+    return scene.ptr();
+}
+
+
+mExternC(uiVSG) QWidget* createVSGViewer(QWidget*,visSurvey::Scene*,bool,
+					  const char*,NotifierAccess**);
+
+mExternC(uiVSG) QWidget* createVSGViewer( QWidget* mainwin,
+					  visSurvey::Scene* scene,
+					  bool maximized, const char* title,
+					  NotifierAccess** closing )
+{
+    auto* viewer = new uiVSGViewer();
+    viewer->setScene( dCast(ODVsg::Scene*,scene) );
+    if ( closing )
+	*closing = &viewer->closing;
+
+    QMdiArea* mdiarea = mainwin ? mainwin->findChild<QMdiArea*>() : nullptr;
+    if ( !mdiarea )
+    {
+	if ( maximized )
+	    viewer->showMaximized();
+	else
+	    viewer->show();
+
+	return viewer;
+    }
+
+    QMdiSubWindow* subwin = mdiarea->addSubWindow( viewer );
+    subwin->setAttribute( Qt::WA_DeleteOnClose );
+    subwin->setWindowTitle( (title && *title) ? title : "VSG Viewer" );
+    subwin->resize( 800, 600 );
+    if ( maximized )
+	subwin->showMaximized();
+    else
+	subwin->show();
+
+    mdiarea->setActiveSubWindow( subwin );
+    return viewer;
 }

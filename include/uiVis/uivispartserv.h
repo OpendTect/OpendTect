@@ -110,6 +110,14 @@ public:
 			/*!<Adds a scene. The argument is only used internally.
 			    Don't use the argument when calling from outside.
 			*/
+    SceneID		addVSGScene();
+			//!<Adds a VSG scene. Needs the VSG plugin
+    bool		createVSGViewer(const SceneID&,bool maximized,
+					const uiString& nm,
+					NotifierAccess** closing=nullptr);
+			/*!<Shows a VSG scene in a window of the main window.
+			    'closing' gets the notifier that triggers, with the
+			    scene id, when that window is closed. */
     void		removeScene(const SceneID&);
     int			nrScenes() const;
     NotifierAccess&	nrScenesChange() { return nrscenesChange; }
@@ -505,6 +513,8 @@ protected:
 					= visBase::PolygonSelection::Off;
     SelectionMode		selectionmode_			= Polygon;
 
+    void*			getVSGFunction(const char* fnnm) const;
+					//!<In the VSG plugin, null if not found
     void			mouseCursorCB(CallBacker*);
     void			rightClickCB(CallBacker*);
     void			selectObjCB(CallBacker*);

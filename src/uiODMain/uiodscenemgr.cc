@@ -53,9 +53,7 @@ ________________________________________________________________________
 #include "ioobj.h"
 #include "uiosgutil.h"
 #include "pickset.h"
-#include "plugins.h"
 #include "ptrman.h"
-#include "sharedlibs.h"
 #include "sorting.h"
 #include "settingsaccess.h"
 #include "vissurvscene.h"
@@ -183,8 +181,8 @@ bool uiODSceneMgr::canAddSceneAtStartup()
 
 void uiODSceneMgr::initMenuMgrDepObjs()
 {
-    if ( scenes_.isEmpty() )
-	addScene(true);
+    if ( visServ().nrScenes() == 0 )
+	addDefaultScene();
 }
 
 
@@ -196,7 +194,7 @@ void uiODSceneMgr::cleanUp( bool startnew )
     visServ().deleteAllObjects();
     vwridx_ = 0;
     if ( startnew )
-	addScene( true );
+	addDefaultScene();
 }
 
 
@@ -214,8 +212,16 @@ uiODSceneMgr::Scene& uiODSceneMgr::mkNewScene()
 }
 
 
-SceneID uiODSceneMgr::addScene( bool maximized, ZAxisTransform* zt,
+SceneID uiODSceneMgr::addScene( bool osg, bool maximized, ZAxisTransform* zt,
 				const uiString& name )
+{
+    return osg ? addOSGScene( maximized, zt, name )
+	       : addVSGScene( maximized, zt, name );
+}
+
+
+SceneID uiODSceneMgr::addOSGScene( bool maximized, ZAxisTransform* zt,
+				   const uiString& name )
 {
     if ( !canAddSceneAtStartup() )
 	return SceneID::udf();
@@ -283,36 +289,40 @@ SceneID uiODSceneMgr::addScene( bool maximized, ZAxisTransform* zt,
 }
 
 
-typedef QWidget* (*VSGViewerCreator)(QWidget*,visSurvey::Scene**);
-
-SceneID uiODSceneMgr::addVSGScene()
+SceneID uiODSceneMgr::addVSGScene( bool maximized, ZAxisTransform*,
+				   const uiString& nm )
 {
-    if ( !isVSGAvailable() )
+    const SceneID sceneid = visServ().addVSGScene();
+    if ( !sceneid.isValid() )
+	return SceneID::udf();
+
+    NotifierAccess* closing = nullptr;
+    if ( !visServ().createVSGViewer(sceneid,maximized,nm,&closing) )
     {
-	uiMSG().error( tr("The VSG viewer plugin is not loaded") );
+	visServ().removeScene( sceneid );
 	return SceneID::udf();
     }
 
-    BufferString libnm( 256, false );
-    SharedLibAccess::getLibName( "uiVSG", libnm.getCStr(), libnm.bufSize() );
-    const PluginManager::Data* data = PIM().findData( libnm.buf() );
-    void* funcptr = nullptr;
-    if ( data && data->sla_ )
-	funcptr = data->sla_->getFunction( "createVSGViewer" );
+    if ( nm.isSet() )
+	visServ().setSceneName( sceneid, nm );
 
-    if ( !funcptr )
-    {
-	uiMSG().error( tr("Cannot find the VSG viewer in the plugin") );
-	return SceneID::udf();
-    }
+    if ( closing )
+	mAttachCB( *closing, uiODSceneMgr::vsgViewerClosedCB );
 
-    visSurvey::Scene* scene = nullptr;
-    auto creator = rCast( VSGViewerCreator, funcptr );
-    QWidget* viewer = creator( appl_.qWidget(), &scene );
-    if ( !viewer || !scene )
-	return SceneID::udf();
+    return sceneid;
+}
 
-    return scene->getID();
+
+void uiODSceneMgr::vsgViewerClosedCB( CallBacker* cb )
+{
+    mCBCapsuleUnpack(SceneID,sceneid,cb);
+    visServ().removeScene( sceneid );
+}
+
+
+SceneID uiODSceneMgr::addDefaultScene()
+{
+    return addScene( !isVSGAvailable(), true );
 }
 
 

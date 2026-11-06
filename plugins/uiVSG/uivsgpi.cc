@@ -241,33 +241,6 @@ static OD::ButtonState keyboardModifiers()
 }
 */
 
-mExternC(uiVSG) QWidget* createVSGViewer(QWidget*,visSurvey::Scene**);
-
-mExternC(uiVSG) QWidget* createVSGViewer( QWidget* mainwin,
-					  visSurvey::Scene** scene )
-{
-    auto* viewer = new uiVSGViewer();
-    if ( scene )
-	*scene = viewer->scene();
-
-    QMdiArea* mdiarea = mainwin ? mainwin->findChild<QMdiArea*>() : nullptr;
-    if ( !mdiarea )
-    {
-	viewer->setAttribute( Qt::WA_DeleteOnClose );
-	viewer->showMaximized();
-	return viewer;
-    }
-
-    QMdiSubWindow* subwin = mdiarea->addSubWindow( viewer );
-    subwin->setAttribute( Qt::WA_DeleteOnClose );
-    subwin->setWindowTitle( "VSG Viewer" );
-    subwin->resize( 800, 600 );
-    subwin->showMaximized();
-    mdiarea->setActiveSubWindow( subwin );
-    return viewer;
-}
-
-
 mDefODPluginInfo(uiVSG)
 {
     static PluginInfo retpi(
