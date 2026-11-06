@@ -41,10 +41,15 @@ ________________________________________________________________________
 #include <vsg/utils/GraphicsPipelineConfigurator.h>
 #include <vsg/utils/ShaderSet.h>
 
-mCreateDGBVisFactoryEntry( dGBVisSurvey::Scene );
-
-namespace dGBVisSurvey
+namespace ODVsg
 {
+
+RefMan<Scene> Scene::create()
+{
+    RefMan<Scene> ret = new Scene;
+    return ret;
+}
+
 
 const char* Scene::sKeyShowAnnot()	{ return "Show text"; }
 const char* Scene::sKeyShowScale()	{ return "Show scale"; }
@@ -57,17 +62,16 @@ static const char* sKeyAnnotFont()	{ return "Annotation font"; }
 static const char* sKeyZScale()		{ return "Z Scale"; }
 
 
-void initStdClasses()
+void initSurveyClasses()
 {
     mIfNotFirstTime( return );
 
-    dGBVis::Annotation::initClass();
-    Scene::initClass();
+    ODVsg::Annotation::initClass();
 }
 
 
 Scene::Scene()
-    : dGBVis::DataObjectGroup(vsg::Group::create().get())
+    : group_(ODVsg::DataObjectGroup::create())
     , testchannelschanged(this)
     , sceneboundingboxupdated(this)
     , mouseposchange(this)
@@ -97,11 +101,11 @@ Scene::~Scene()
 
 void Scene::setup()
 {
-    events_ = dGBVis::EventCatcher::create();
+    events_ = ODVsg::EventCatcher::create();
     mAttachCB( events_->eventhappened, Scene::mouseCB );
     mAttachCB( events_->nothandled, Scene::notHandledCB );
 
-    annot_ = dGBVis::Annotation::create();
+    annot_ = ODVsg::Annotation::create();
     mAttachCB( annot_->selection(), Scene::annotSelCB );
     mAttachCB( annot_->deSelection(), Scene::annotDeSelCB );
 
@@ -160,7 +164,7 @@ void Scene::updateTransforms( const TrcKeyZSampling& tkzs )
     if ( !tempzstretchtrans_ )
     {
 	tempzstretchtrans_ = mDGBVisTrans::create();
-	dGBVis::DataObjectGroup::addObject( tempzstretchtrans_.ptr() );
+	group_->addObject( tempzstretchtrans_.ptr() );
     }
 
     RefMan<mDGBVisTrans> newinlcrlrotation = mDGBVisTrans::create();
@@ -189,7 +193,7 @@ void Scene::updateTransforms( const TrcKeyZSampling& tkzs )
 
 	for ( int idx=0; idx<oldinlcrlrotation->size(); idx++ )
 	{
-	    RefMan<dGBVis::DataObject> dobj =
+	    RefMan<ODVsg::DataObject> dobj =
 				oldinlcrlrotation->getObject( idx );
 	    inlcrlrotation_->addObject( dobj.ptr() );
 	    dobj->setDisplayTransformation( inlcrlscale_.ptr() );
@@ -207,7 +211,7 @@ void Scene::updateTransforms( const TrcKeyZSampling& tkzs )
     {
 	for ( int idx=0; idx<tempzstretchtrans_->size(); idx++ )
 	{
-	    dGBVis::DataObject* dobj = tempzstretchtrans_->getObject( idx );
+	    ODVsg::DataObject* dobj = tempzstretchtrans_->getObject( idx );
 	    if ( dobj->getDisplayTransformation()==utm2disptransform_.ptr() )
 		dobj->setDisplayTransformation( newutm2disptransform.ptr() );
 	}
@@ -341,11 +345,11 @@ int Scene::size() const
 }
 
 
-int Scene::getFirstIdx( const dGBVis::DataObject* dobj ) const
+int Scene::getFirstIdx( const ODVsg::DataObject* dobj ) const
 {
     for ( int idx=0; idx<size(); idx++ )
     {
-	if ( getObject(idx)==dobj )
+	if ( getVsgObject(idx)==dobj )
 	    return idx;
     }
 
@@ -357,7 +361,7 @@ int Scene::getFirstIdx( const VisID& did ) const
 {
     for ( int idx=0; idx<size(); idx++ )
     {
-	const dGBVis::DataObject* obj = getObject( idx );
+	const ODVsg::DataObject* obj = getVsgObject( idx );
 	if ( obj && obj->id()==did )
 	    return idx;
     }
@@ -366,7 +370,7 @@ int Scene::getFirstIdx( const VisID& did ) const
 }
 
 
-dGBVis::DataObject* Scene::getObject( int idx )
+ODVsg::DataObject* Scene::getVsgObject( int idx )
 {
     if ( !tempzstretchtrans_ || !inlcrlrotation_ || idx<0 )
 	return nullptr;
@@ -378,7 +382,13 @@ dGBVis::DataObject* Scene::getObject( int idx )
 }
 
 
-void Scene::addUTMObject( dGBVis::VisualObject* obj )
+const ODVsg::DataObject* Scene::getVsgObject( int idx ) const
+{
+    return const_cast<Scene*>( this )->getVsgObject( idx );
+}
+
+
+void Scene::addUTMObject( ODVsg::VisualObject* obj )
 {
     if ( !obj )
 	return;
@@ -389,7 +399,7 @@ void Scene::addUTMObject( dGBVis::VisualObject* obj )
 }
 
 
-void Scene::addInlCrlZObject( dGBVis::DataObject* obj )
+void Scene::addInlCrlZObject( ODVsg::DataObject* obj )
 {
     if ( !obj )
 	return;
@@ -397,7 +407,7 @@ void Scene::addInlCrlZObject( dGBVis::DataObject* obj )
     obj->setDisplayTransformation( inlcrlscale_.ptr() );
     inlcrlrotation_->addObject( obj );
 
-    mDynamicCastGet(dGBVis::DepthTabPlaneDragger*,dragger,obj)
+    mDynamicCastGet(ODVsg::DepthTabPlaneDragger*,dragger,obj)
     if ( dragger )
     {
 	dragger->setNodeTransforms( tempzstretchtrans_.ptr(),
@@ -409,9 +419,9 @@ void Scene::addInlCrlZObject( dGBVis::DataObject* obj )
 }
 
 
-void Scene::addObject( dGBVis::DataObject* obj )
+void Scene::addObject( ODVsg::DataObject* obj )
 {
-    mDynamicCastGet(dGBVis::VisualObject*,vo,obj)
+    mDynamicCastGet(ODVsg::VisualObject*,vo,obj)
     if ( vo )
 	addUTMObject( vo );
 
@@ -419,7 +429,7 @@ void Scene::addObject( dGBVis::DataObject* obj )
 }
 
 
-void Scene::insertObject( int, dGBVis::DataObject* obj )
+void Scene::insertObject( int, ODVsg::DataObject* obj )
 {
     addObject( obj );
 }
@@ -624,7 +634,7 @@ void fillSolidQuad( const vsg::ref_ptr<vsg::StateGroup>& group,
 }
 
 
-class PickQuad : public dGBVis::VisualObjectImpl
+class PickQuad : public ODVsg::VisualObjectImpl
 {
 public:
     static RefMan<PickQuad> create( const Coord3& center, const Coord3& half,
@@ -649,7 +659,7 @@ private:
     {
 	setPickable( true, true );
 	node_ = vsg::StateGroup::create();
-	fillSolidQuad( node_, vertices_, colors_, dGBVis::toVec4(col,1.f) );
+	fillSolidQuad( node_, vertices_, colors_, ODVsg::toVec4(col,1.f) );
 	addChild( node_.get() );
 	selection()->notify( mCB(this,PickQuad,selCB) );
 	deSelection()->notify( mCB(this,PickQuad,deSelCB) );
@@ -679,7 +689,7 @@ private:
 	if ( !colors_ )
 	    return;
 
-	colors_->at( 0 ) = dGBVis::toVec4( col, 1.f );
+	colors_->at( 0 ) = ODVsg::toVec4( col, 1.f );
 	colors_->dirty();
 	requestSingleRedraw();
     }
@@ -702,7 +712,7 @@ private:
 	for ( int idx=0; idx<6; idx++ )
 	{
 	    Coord3 disp = corner[order[idx]];
-	    dGBVis::Transformation::transform( display_.ptr(),
+	    ODVsg::Transformation::transform( display_.ptr(),
 					       corner[order[idx]], disp );
 	    vertices_->at( idx ) = vsg::vec3( float(disp.x_), float(disp.y_),
 					      float(disp.z_) );
@@ -731,7 +741,7 @@ void Scene::setInteractionEnabled( bool yn )
 }
 
 
-void Scene::setEventCatcher( dGBVis::EventCatcher* catcher )
+void Scene::setEventCatcher( ODVsg::EventCatcher* catcher )
 {
     if ( events_.ptr() == catcher )
 	return;
@@ -760,7 +770,7 @@ void Scene::bindDraggers()
 
     for ( int idx=0; idx<inlcrlrotation_->size(); idx++ )
     {
-	mDynamicCastGet(dGBVis::DepthTabPlaneDragger*,dragger,
+	mDynamicCastGet(ODVsg::DepthTabPlaneDragger*,dragger,
 			inlcrlrotation_->getObject(idx))
 	if ( !dragger )
 	    continue;
@@ -787,7 +797,7 @@ uiString Scene::getMousePosString() const
 }
 
 
-void Scene::applyEvent( const dGBVis::EventInfo& eventinfo )
+void Scene::applyEvent( const ODVsg::EventInfo& eventinfo )
 {
     updateStatus( eventinfo );
     if ( interact_ )
@@ -797,7 +807,7 @@ void Scene::applyEvent( const dGBVis::EventInfo& eventinfo )
 
 void Scene::mouseCB( CallBacker* cb )
 {
-    mCBCapsuleUnpack(const dGBVis::EventInfo&,eventinfo,cb);
+    mCBCapsuleUnpack(const ODVsg::EventInfo&,eventinfo,cb);
     updateStatus( eventinfo );
 }
 
@@ -807,7 +817,7 @@ void Scene::notHandledCB( CallBacker* cb )
     if ( !interact_ )
 	return;
 
-    mCBCapsuleUnpack(const dGBVis::EventInfo&,eventinfo,cb);
+    mCBCapsuleUnpack(const ODVsg::EventInfo&,eventinfo,cb);
     updateMarkerInteraction( eventinfo );
     if ( events_ && events_->isHandled() )
 	return;
@@ -816,10 +826,10 @@ void Scene::notHandledCB( CallBacker* cb )
 }
 
 
-void Scene::updateStatus( const dGBVis::EventInfo& eventinfo )
+void Scene::updateStatus( const ODVsg::EventInfo& eventinfo )
 {
-    if ( eventinfo.type!=dGBVis::MouseMovement &&
-	 eventinfo.type!=dGBVis::MouseClick )
+    if ( eventinfo.type!=ODVsg::MouseMovement &&
+	 eventinfo.type!=ODVsg::MouseClick )
 	return;
 
     mouseposstr_.setEmpty();
@@ -856,7 +866,7 @@ void Scene::updateStatus( const dGBVis::EventInfo& eventinfo )
 }
 
 
-int Scene::markerUnderCursor( const dGBVis::EventInfo& eventinfo ) const
+int Scene::markerUnderCursor( const ODVsg::EventInfo& eventinfo ) const
 {
     if ( !picks_ || !events_ )
 	return -1;
@@ -884,14 +894,14 @@ bool Scene::surfaceUnderCursor( const Coord& mousepos,
 }
 
 
-void Scene::updateMarkerInteraction( const dGBVis::EventInfo& eventinfo )
+void Scene::updateMarkerInteraction( const ODVsg::EventInfo& eventinfo )
 {
     if ( !picks_ || !events_ )
 	return;
 
     const int buttons = int( eventinfo.buttonstate_ );
     const bool left = buttons & int(OD::LeftButton);
-    if ( eventinfo.type==dGBVis::MouseClick && eventinfo.pressed && left )
+    if ( eventinfo.type==ODVsg::MouseClick && eventinfo.pressed && left )
     {
 	const int under = markerUnderCursor( eventinfo );
 	if ( under < 0 )
@@ -905,7 +915,7 @@ void Scene::updateMarkerInteraction( const dGBVis::EventInfo& eventinfo )
     if ( draggingmarker_ < 0 )
 	return;
 
-    if ( eventinfo.type==dGBVis::MouseMovement && left )
+    if ( eventinfo.type==ODVsg::MouseMovement && left )
     {
 	Coord3 displaypos;
 	Coord3 objectpos;
@@ -917,7 +927,7 @@ void Scene::updateMarkerInteraction( const dGBVis::EventInfo& eventinfo )
 	return;
     }
 
-    if ( eventinfo.type==dGBVis::MouseClick && !eventinfo.pressed && left )
+    if ( eventinfo.type==ODVsg::MouseClick && !eventinfo.pressed && left )
     {
 	const int idx = draggingmarker_;
 	draggingmarker_ = -1;
@@ -929,16 +939,16 @@ void Scene::updateMarkerInteraction( const dGBVis::EventInfo& eventinfo )
 }
 
 
-void Scene::updateSelection( const dGBVis::EventInfo& eventinfo )
+void Scene::updateSelection( const ODVsg::EventInfo& eventinfo )
 {
-    if ( eventinfo.type != dGBVis::MouseClick )
+    if ( eventinfo.type != ODVsg::MouseClick )
 	return;
 
     const int buttons = int( eventinfo.buttonstate_ );
-    dGBVis::DataObject* hit = nullptr;
+    ODVsg::DataObject* hit = nullptr;
     for ( const auto& id : eventinfo.pickedobjids )
     {
-	dGBVis::DataObject* obj = dGBVis::DM().getObject( id );
+	ODVsg::DataObject* obj = ODVsg::DM().getObject( id );
 	if ( obj && (obj->selectable() || obj->rightClickable()) )
 	{
 	    hit = obj;
@@ -958,7 +968,7 @@ void Scene::updateSelection( const dGBVis::EventInfo& eventinfo )
     {
 	const bool ctrl = buttons & int(OD::ControlButton);
 	const bool surface =
-		dynamic_cast<dGBVis::DepthTabPlaneDragger*>(hit) ||
+		dynamic_cast<ODVsg::DepthTabPlaneDragger*>(hit) ||
 		dynamic_cast<PickQuad*>(hit);
 	if ( ctrl )
 	{
@@ -968,16 +978,16 @@ void Scene::updateSelection( const dGBVis::EventInfo& eventinfo )
 	}
 
 	if ( hit && hit->selectable() )
-	    dGBVis::DM().selMan().select( hit->id() );
+	    ODVsg::DM().selMan().select( hit->id() );
 	else
-	    dGBVis::DM().selMan().deSelectAll();
+	    ODVsg::DM().selMan().deSelectAll();
 	return;
     }
 
     if ( (buttons & int(OD::RightButton)) && !eventinfo.pressed &&
 	 !eventinfo.dragging && hit && hit->rightClickable() )
     {
-	mDynamicCastGet(dGBVis::VisualObject*,vo,hit)
+	mDynamicCastGet(ODVsg::VisualObject*,vo,hit)
 	if ( vo )
 	    vo->rightClick();
     }
@@ -992,7 +1002,7 @@ void Scene::addSurfacePick( const Coord3& displaypos )
 
     if ( !picks_ )
     {
-	picks_ = dGBVis::MarkerSet::create();
+	picks_ = ODVsg::MarkerSet::create();
 	picks_->setScreenSize( 5.f );
 	picks_->setMarkersSingleColor( OD::Color::Red() );
 	if ( events_ )
@@ -1024,7 +1034,7 @@ bool Scene::displayToInlCrl( const Coord3& displaypos, Coord3& objectpos ) const
 	localpt = Coord3( local.x, local.y, local.z );
     }
 
-    dGBVis::Transformation::transformBack( inlcrlscale_.ptr(), localpt,
+    ODVsg::Transformation::transformBack( inlcrlscale_.ptr(), localpt,
 					   objectpos );
     return objectpos.isDefined();
 }
@@ -1047,14 +1057,14 @@ void Scene::annotDeSelCB( CallBacker* )
 }
 
 
-static RefMan<dGBVis::TextureChannels> createTestChannels( int nrcells,
+static RefMan<ODVsg::TextureChannels> createTestChannels( int nrcells,
 						    Stats::RandGen& valuegen )
 {
     TypeSet<float> values;
     for ( int idx=0; idx<nrcells*nrcells; idx++ )
 	values += idx%50==49 ? mUdf(float) : sCast( float, valuegen.get() );
 
-    RefMan<dGBVis::TextureChannels> channels = dGBVis::TextureChannels::create();
+    RefMan<ODVsg::TextureChannels> channels = ODVsg::TextureChannels::create();
     channels->setSize( 0, 1, nrcells, nrcells );
     ColTab::MapperSetup mappersetup;
     mappersetup.type_ = ColTab::MapperSetup::Auto;
@@ -1080,11 +1090,11 @@ void Scene::addInteractionTest()
 		       mMAX(1,crlrg.width())*0.5,
 		       0. );
 
-    const int nrcells = dGBVis::DepthTabPlaneDragger::nrCells();
+    const int nrcells = ODVsg::DepthTabPlaneDragger::nrCells();
     Stats::RandGen valuegen;
 
-    RefMan<dGBVis::DepthTabPlaneDragger> dragger =
-			dGBVis::DepthTabPlaneDragger::create();
+    RefMan<ODVsg::DepthTabPlaneDragger> dragger =
+			ODVsg::DepthTabPlaneDragger::create();
     dragger->setDim( 2 );
     dragger->setSize( size );
     dragger->setCenter( center );
@@ -1103,8 +1113,8 @@ void Scene::addInteractionTest()
     center2.x_ += inlrg.width() * 0.12;
     center2.y_ -= crlrg.width() * 0.12;
     center2.z_ -= mMAX( 1e-3, double(zrg.width())*0.25 );
-    RefMan<dGBVis::DepthTabPlaneDragger> inner =
-			dGBVis::DepthTabPlaneDragger::create();
+    RefMan<ODVsg::DepthTabPlaneDragger> inner =
+			ODVsg::DepthTabPlaneDragger::create();
     inner->setDim( 2 );
     inner->setColor( OD::Color(230,140,40) );
     inner->setSize( size2 );
@@ -1132,8 +1142,8 @@ void Scene::addInteractionTest()
     testchannels_ = createTestChannels( nrcells, valuegen );
     Coord3 center3 = center;
     center3.z_ -= mMAX( 1e-3, sCast( double, zrg.width() )*0.05 );
-    RefMan<dGBVis::DepthTabPlaneDragger> colored =
-			dGBVis::DepthTabPlaneDragger::create();
+    RefMan<ODVsg::DepthTabPlaneDragger> colored =
+			ODVsg::DepthTabPlaneDragger::create();
     colored->setDim( 2 );
     colored->setSize( size );
     colored->setCenter( center3 );
@@ -1150,8 +1160,8 @@ void Scene::addInteractionTest()
 
 void Scene::draggerStartedCB( CallBacker* cb )
 {
-    mDynamicCastGet(dGBVis::DepthTabPlaneDragger*,dragger,cb)
-    dGBVis::TextureChannels* channels = dragger ? dragger->getChannels()
+    mDynamicCastGet(ODVsg::DepthTabPlaneDragger*,dragger,cb)
+    ODVsg::TextureChannels* channels = dragger ? dragger->getChannels()
 						: nullptr;
     if ( !channels || channels==testchannels_.ptr() )
 	return;
@@ -1160,4 +1170,4 @@ void Scene::draggerStartedCB( CallBacker* cb )
     testchannelschanged.trigger();
 }
 
-} // namespace dGBVisSurvey
+} // namespace ODVsg

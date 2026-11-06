@@ -14,7 +14,7 @@ ________________________________________________________________________
 
 namespace vsg { class Group; }
 
-namespace dGBVis
+namespace ODVsg
 {
 
 /*!\brief Base class for all objects that are visual on the scene. */
@@ -90,4 +90,4 @@ private:
     vsg::Group*		vsgroot_;
 };
 
-} // namespace dGBVis
+} // namespace ODVsg

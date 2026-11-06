@@ -21,7 +21,7 @@ ________________________________________________________________________
 
 namespace vsgGeo { class OneSideRender; }
 
-namespace dGBVis
+namespace ODVsg
 {
 
 class Text2;
@@ -125,4 +125,4 @@ private:
     static const char*		showscalestr();
 };
 
-} // namespace dGBVis
+} // namespace ODVsg

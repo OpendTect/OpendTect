@@ -5,14 +5,12 @@
 #________________________________________________________________________
 #
 
-set( OD_MODULE_DEPS General )
-if ( NOT OD_NO_OSG )
-    list( APPEND OD_MODULE_DEPS visBase )
-endif()
+set( OD_MODULE_DEPS General visBase )
 set( OD_FOLDER "Visualization (3D)" )
 set( OD_IS_PLUGIN yes )
 set( OD_NO_ALO_ENTRY TRUE )
 set( OD_MODULE_SOURCES
+	vsgbasepi.cc
 	vsggeoaxes.cc
 	vsggeocolorlookup.cc
 	vsggeocompiler.cc

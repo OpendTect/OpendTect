@@ -19,7 +19,7 @@ ________________________________________________________________________
 #include "math2.h"
 #include "typeset.h"
 
-mCreateDGBVisFactoryEntry( dGBVis::SceneColTab );
+mCreateDGBVisFactoryEntry( ODVsg::SceneColTab );
 
 namespace
 {
@@ -35,7 +35,7 @@ using BarOrientation = vsgGeo::ScalarBar::Orientation;
 } // anonymous namespace
 
 
-namespace dGBVis
+namespace ODVsg
 {
 
 SceneColTab::SceneColTab()
@@ -292,4 +292,4 @@ int SceneColTab::getMinLabelHeight() const
     return charsize * ( horizontal_ ? 1 : nrlabels );
 }
 
-} // namespace dGBVis
+} // namespace ODVsg

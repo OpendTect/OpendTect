@@ -6,7 +6,7 @@ ________________________________________________________________________
  License:	https://dgbes.com/licensing
 ________________________________________________________________________
 
- dGBVisSurvey is the VSG counterpart of visSurvey.
+ ODVsg is the VSG counterpart of visSurvey.
 
 -*/
 
@@ -16,11 +16,11 @@ ________________________________________________________________________
 
 namespace Survey { class Geometry3D; }
 
-namespace dGBVisSurvey
+namespace ODVsg
 {
 
 /*!\brief The display transformations of visSurvey::SceneTransformManager,
-  computed for dGBVis::Transformation. */
+  computed for ODVsg::Transformation. */
 
 mExpClass(vsgSurvey) SceneTransformManager
 {
@@ -37,4 +37,4 @@ public:
 						   mDGBVisTrans* disptrans);
 };
 
-} // namespace dGBVisSurvey
+} // namespace ODVsg

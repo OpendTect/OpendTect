@@ -23,7 +23,7 @@ ________________________________________________________________________
 
 class TaskRunner;
 
-namespace dGBVis
+namespace ODVsg
 {
 
 /*!\brief Counterpart of visBase::TextureChannels, with one channel and version.
@@ -144,4 +144,4 @@ private:
     TypeSet<Tile>		tiles_;
 };
 
-} // namespace dGBVis
+} // namespace ODVsg

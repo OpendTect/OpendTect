@@ -16,7 +16,7 @@ ________________________________________________________________________
 
 #include <vsg/maths/vec3.h>
 
-namespace dGBVis
+namespace ODVsg
 {
 
 // visBase::MarkerSet multiplies the screen size by this before osgGeo
@@ -132,4 +132,4 @@ void MarkerSet::setDisplayTransformation( const mDGBVisTrans* trans )
     requestSingleRedraw();
 }
 
-} // namespace dGBVis
+} // namespace ODVsg

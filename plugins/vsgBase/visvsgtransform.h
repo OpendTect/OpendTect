@@ -18,7 +18,7 @@ ________________________________________________________________________
 
 namespace vsg { class AbsoluteTransform; class MatrixTransform; }
 
-namespace dGBVis
+namespace ODVsg
 {
 
 #define mDGBVisDefTransType( func, tp ) \
@@ -128,7 +128,7 @@ private:
     vsg::dquat		curso_;
 };
 
-} // namespace dGBVis
+} // namespace ODVsg
 
 #undef mDGBVisDefTransType
 #undef mDGBVisDefTrans

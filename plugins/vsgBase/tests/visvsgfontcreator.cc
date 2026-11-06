@@ -22,7 +22,7 @@ namespace
 class LoadedCounter : public CallBacker
 {
 public:
-			LoadedCounter( dGBVis::FontCreator& creator )
+			LoadedCounter( ODVsg::FontCreator& creator )
 			{
 			    mAttachCB( creator.fontLoaded,
 				       LoadedCounter::loadedCB );
@@ -48,8 +48,8 @@ struct CommonViewerGuard
 {
     ~CommonViewerGuard()
     {
-	dGBVis::DataObject::setCommonViewer( nullptr );
-	dGBVis::FontCreator::instance().clear();
+	ODVsg::DataObject::setCommonViewer( nullptr );
+	ODVsg::FontCreator::instance().clear();
     }
 };
 
@@ -74,7 +74,7 @@ static bool testCreate()
     const FontData normal( 24, "Arial", FontData::Normal, false );
     Time::Counter counter;
     counter.start();
-    vsg::ref_ptr<vsg::Font> font = dGBVis::FontCreator::create( normal );
+    vsg::ref_ptr<vsg::Font> font = ODVsg::FontCreator::create( normal );
     od_cout() << "Making the font took " << counter.elapsed() << " ms"
 	      << od_endl;
     mRunStandardTest( font.valid(), "Font creation: Font is made" );
@@ -90,7 +90,7 @@ static bool testCreate()
 		      "Font creation: Letters have their own glyphs" );
 
     const FontData bold( 24, "Arial", FontData::Bold, false );
-    vsg::ref_ptr<vsg::Font> boldfont = dGBVis::FontCreator::create( bold );
+    vsg::ref_ptr<vsg::Font> boldfont = ODVsg::FontCreator::create( bold );
     mRunStandardTest( boldfont.valid(), "Font creation: Bold font is made" );
     const float normaladv =
 	font->glyphMetrics->at( idxa ).horiAdvance;
@@ -104,7 +104,7 @@ static bool testCreate()
 
     const FontData unknown( 24, "NoSuchFontFamilyXyzzy", FontData::Normal,
 			    false );
-    mRunStandardTest( !dGBVis::FontCreator::create(unknown).valid(),
+    mRunStandardTest( !ODVsg::FontCreator::create(unknown).valid(),
 		      "Font creation: Unknown family gives no font, "
 		      "and no crash" );
     return true;
@@ -120,19 +120,19 @@ static const vsg::GlyphMetrics& spaceMetrics( const vsg::Font& font )
 static bool testDecorations()
 {
     const FontData plain( 24, "Arial", FontData::Normal, false );
-    vsg::ref_ptr<vsg::Font> plainfont = dGBVis::FontCreator::create( plain );
+    vsg::ref_ptr<vsg::Font> plainfont = ODVsg::FontCreator::create( plain );
     mRunStandardTest( plainfont.valid(), "Decorations: Plain font is made" );
 
     FontData underlined( plain );
     underlined.setUnderline( true );
     vsg::ref_ptr<vsg::Font> underfont =
-				dGBVis::FontCreator::create( underlined );
+				ODVsg::FontCreator::create( underlined );
     mRunStandardTest( underfont.valid(),
 		      "Decorations: Underlined font is made" );
 
     FontData struck( plain );
     struck.setStrikeOut( true );
-    vsg::ref_ptr<vsg::Font> strikefont = dGBVis::FontCreator::create( struck );
+    vsg::ref_ptr<vsg::Font> strikefont = ODVsg::FontCreator::create( struck );
     mRunStandardTest( strikefont.valid(),
 		      "Decorations: Strikeout font is made" );
 
@@ -158,8 +158,8 @@ static bool testWeights()
 {
     const FontData normal( 24, "Arial", FontData::Normal, false );
     const FontData black( 24, "Arial", FontData::Black, false );
-    vsg::ref_ptr<vsg::Font> normalfont = dGBVis::FontCreator::create( normal );
-    vsg::ref_ptr<vsg::Font> blackfont = dGBVis::FontCreator::create( black );
+    vsg::ref_ptr<vsg::Font> normalfont = ODVsg::FontCreator::create( normal );
+    vsg::ref_ptr<vsg::Font> blackfont = ODVsg::FontCreator::create( black );
     mRunStandardTest( normalfont.valid() && blackfont.valid(),
 		      "Weights: Normal and Black fonts are made" );
 
@@ -178,7 +178,7 @@ static bool testWeights()
     for ( const FontData::Weight weight : weights )
     {
 	const FontData fd( 24, "Arial", weight, false );
-	mRunStandardTest( dGBVis::FontCreator::create(fd).valid(),
+	mRunStandardTest( ODVsg::FontCreator::create(fd).valid(),
 			  "Weights: A font is made for every weight" );
     }
 
@@ -192,13 +192,13 @@ static bool testUniversalFamilies()
 	  family++ )
     {
 	const FontData fd( 12, *family, FontData::Normal, false );
-	mRunStandardTestWithError( dGBVis::FontCreator::create(fd).valid(),
+	mRunStandardTestWithError( ODVsg::FontCreator::create(fd).valid(),
 				   "Font families: A universal family of "
 				   "FontData is found",
 				   BufferString("Family: ",*family) );
     }
 
-    mRunStandardTestWithError( dGBVis::FontCreator::create(FontData()).valid(),
+    mRunStandardTestWithError( ODVsg::FontCreator::create(FontData()).valid(),
 			       "Font families: The default FontData "
 			       "gives a font",
 			       BufferString("Default family: ",
@@ -206,12 +206,12 @@ static bool testUniversalFamilies()
 
 #if defined(__unix__) && !defined(__mac__)
     const FontData nimbus( 12, "Nimbus Sans L", FontData::Normal, false );
-    mRunStandardTest( dGBVis::FontCreator::create(nimbus).valid(),
+    mRunStandardTest( ODVsg::FontCreator::create(nimbus).valid(),
 		      "Font families: The Linux default 3D font is found" );
 
     const FontData dialogname( 18, "Nimbus Sans [urw]", FontData::Normal,
 			       false );
-    mRunStandardTest( dGBVis::FontCreator::create(dialogname).valid(),
+    mRunStandardTest( ODVsg::FontCreator::create(dialogname).valid(),
 		      "Font families: A font-dialog family with a foundry "
 		      "is found" );
 #endif
@@ -226,10 +226,10 @@ static bool testRequestAndAnnounce()
 			       ov.errMsg().c_str() );
 
     CommonViewerGuard guard;
-    dGBVis::DataObject::setCommonViewer( &ov.viewer() );
+    ODVsg::DataObject::setCommonViewer( &ov.viewer() );
     mRunStandardTest( ov.compile(), "Font request: Viewer compiled" );
 
-    dGBVis::FontCreator& creator = dGBVis::FontCreator::instance();
+    ODVsg::FontCreator& creator = ODVsg::FontCreator::instance();
     creator.clear();
     LoadedCounter counter( creator );
 
@@ -286,11 +286,11 @@ static bool testDrawn()
 			       ov.errMsg().c_str() );
 
     CommonViewerGuard guard;
-    dGBVis::DataObject::setCommonViewer( &ov.viewer() );
-    vsgGeo::Updater* updater = dGBVis::DataObject::getUpdater();
+    ODVsg::DataObject::setCommonViewer( &ov.viewer() );
+    vsgGeo::Updater* updater = ODVsg::DataObject::getUpdater();
     mRunStandardTest( updater!=nullptr, "Created font: Common updater exists" );
 
-    dGBVis::FontCreator& creator = dGBVis::FontCreator::instance();
+    ODVsg::FontCreator& creator = ODVsg::FontCreator::instance();
     creator.clear();
     LoadedCounter counter( creator );
 

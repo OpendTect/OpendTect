@@ -14,9 +14,9 @@ ________________________________________________________________________
 
 #include <vsg/nodes/Group.h>
 
-mCreateDGBVisFactoryEntry( dGBVis::DataObjectGroup );
+mCreateDGBVisFactoryEntry( ODVsg::DataObjectGroup );
 
-namespace dGBVis
+namespace ODVsg
 {
 
 DataObjectGroup::DataObjectGroup()
@@ -198,4 +198,4 @@ void DataObjectGroup::setPixelDensity( float dpi )
 	obj->setPixelDensity( dpi );
 }
 
-} // namespace dGBVis
+} // namespace ODVsg

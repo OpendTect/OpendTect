@@ -16,7 +16,7 @@ ________________________________________________________________________
 #include <vsg/nodes/AbsoluteTransform.h>
 #include <vsg/nodes/MatrixTransform.h>
 
-mCreateDGBVisFactoryEntry( dGBVis::Transformation );
+mCreateDGBVisFactoryEntry( ODVsg::Transformation );
 
 namespace
 {
@@ -53,7 +53,7 @@ bool isZeroRotation( const vsg::dquat& q )
 } // namespace
 
 
-namespace dGBVis
+namespace ODVsg
 {
 
 Transformation::Transformation()
@@ -281,4 +281,4 @@ mDGBVisDeclConvTrans( Coord3, vsg::vec3 )
 mDGBVisDeclConvTrans( vsg::dvec3, Coord3 )
 mDGBVisDeclConvTrans( vsg::vec3, Coord3 )
 
-} // namespace dGBVis
+} // namespace ODVsg

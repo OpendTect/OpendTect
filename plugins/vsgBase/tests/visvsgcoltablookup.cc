@@ -41,7 +41,7 @@ bool isNear( const vsg::vec4& col, float red, float green, float blue,
 
 static bool testSequence()
 {
-    dGBVis::ColTabLookup lookup;
+    ODVsg::ColTabLookup lookup;
     mRunStandardTest( lookup.nrColors()==255, "Lookup: 255 colors" );
 
     lookup.setSequence( redToBlue() );
@@ -59,7 +59,7 @@ static bool testUndefColor()
 {
     ColTab::Sequence seq = redToBlue();
     seq.setUndefColor( OD::Color(10,20,30) );
-    dGBVis::ColTabLookup lookup;
+    ODVsg::ColTabLookup lookup;
     lookup.setSequence( seq );
     mRunStandardTest( isNear(lookup.undefColor(),10.f/255.f,20.f/255.f,
 			     30.f/255.f,1.f),

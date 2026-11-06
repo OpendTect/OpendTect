@@ -5,7 +5,7 @@
 #________________________________________________________________________
 #
 
-set( OD_MODULE_DEPS uiODMain vsgSurvey vsgBase )
+set( OD_MODULE_DEPS uiOSG vsgSurvey vsgBase )
 set( OD_FOLDER "Visualization (3D)" )
 set( OD_IS_PLUGIN yes )
 set( OD_USEQT Widgets;OpenGL;GuiPrivate )

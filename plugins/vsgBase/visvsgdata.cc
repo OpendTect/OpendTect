@@ -42,7 +42,7 @@ static vsg::ref_ptr<vsgGeo::Updater>& commonUpdater()
 }
 
 
-namespace dGBVis
+namespace ODVsg
 {
 
 Threads::ThreadID DataObject::visualizationthread_ = nullptr;
@@ -315,4 +315,4 @@ void DataObject::releaseNode( vsg::Object* obj )
 	updater->compiler().release( vsg::ref_ptr<vsg::Object>(obj) );
 }
 
-} // namespace dGBVis
+} // namespace ODVsg

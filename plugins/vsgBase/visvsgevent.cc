@@ -21,9 +21,9 @@ ________________________________________________________________________
 #include <vsg/nodes/Node.h>
 #include <vsg/ui/PointerEvent.h>
 
-mCreateDGBVisFactoryEntry( dGBVis::EventCatcher );
+mCreateDGBVisFactoryEntry( ODVsg::EventCatcher );
 
-namespace dGBVis
+namespace ODVsg
 {
 
 class EventCatchHandler : public vsg::Inherit<vsg::Visitor,EventCatchHandler>
@@ -274,4 +274,4 @@ void EventCatcher::submit( EventType type, OD::ButtonState buttonstate,
     publish( eventinfo );
 }
 
-} // namespace dGBVis
+} // namespace ODVsg

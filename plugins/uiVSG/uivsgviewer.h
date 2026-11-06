@@ -27,10 +27,9 @@ class dGBVSGViewer;
 class dGBVSGWindow;
 class uiVSGWindowHandler;
 struct VSGMouseStatus;
-namespace dGBVis
-{ class Axes; class Camera; class DataObjectGroup; class TextureChannels;
-  class ThumbWheel; }
-namespace dGBVisSurvey { class Scene; }
+namespace ODVsg
+{ class Axes; class Camera; class DataObjectGroup; class Scene;
+  class TextureChannels; class ThumbWheel; }
 namespace vsgGeo
 { class AxesHandler; class NearFar; class ThumbWheelHandler; class Trackball; }
 
@@ -50,8 +49,8 @@ public:
 
     void		showColorBar(bool);
     bool		isColorBarShown() const;
-    void		setColorBarPos(dGBVis::SceneColTab::Pos);
-    dGBVis::SceneColTab::Pos getColorBarPos() const;
+    void		setColorBarPos(ODVsg::SceneColTab::Pos);
+    ODVsg::SceneColTab::Pos getColorBarPos() const;
     void		setColorBarSize(int width,int height);
     Geom::Size2D<int>	getColorBarSize() const;
 
@@ -75,8 +74,8 @@ public:
     bool		maxCaptureSize(uint32_t& maxwidth,
 				       uint32_t& maxheight) const;
 
-    dGBVisSurvey::Scene* scene();
-    dGBVis::TextureChannels* textureChannels();
+    ODVsg::Scene* scene();
+    ODVsg::TextureChannels* textureChannels();
 			/*!<The data of the test plane, null without it. */
 
     void		setViewMode(bool yn);
@@ -117,15 +116,15 @@ private:
     vsg::ref_ptr<vsgGeo::NearFar>	nearfar_;
     PtrMan<SceneBoundsWatch>		boundswatch_;
     vsg::ref_ptr<vsg::Group>		root_;
-    RefMan<dGBVisSurvey::Scene>		scene_;
-    RefMan<dGBVis::Camera>		viscamera_;
-    RefMan<dGBVis::Camera>		vishudcamera_;
-    RefMan<dGBVis::DataObjectGroup>	hudscene_;
-    RefMan<dGBVis::Axes>		axes_;
-    RefMan<dGBVis::SceneColTab>		scenecoltab_;
-    RefMan<dGBVis::ThumbWheel>		horthumbwheel_;
-    RefMan<dGBVis::ThumbWheel>		verthumbwheel_;
-    RefMan<dGBVis::ThumbWheel>		distancethumbwheel_;
+    RefMan<ODVsg::Scene>		scene_;
+    RefMan<ODVsg::Camera>		viscamera_;
+    RefMan<ODVsg::Camera>		vishudcamera_;
+    RefMan<ODVsg::DataObjectGroup>	hudscene_;
+    RefMan<ODVsg::Axes>		axes_;
+    RefMan<ODVsg::SceneColTab>		scenecoltab_;
+    RefMan<ODVsg::ThumbWheel>		horthumbwheel_;
+    RefMan<ODVsg::ThumbWheel>		verthumbwheel_;
+    RefMan<ODVsg::ThumbWheel>		distancethumbwheel_;
     vsg::ref_ptr<vsgGeo::ThumbWheelHandler> wheelhandler_;
     vsg::ref_ptr<vsgGeo::AxesHandler>	axeshandler_;
     vsg::ref_ptr<vsgGeo::Trackball>	trackball_;

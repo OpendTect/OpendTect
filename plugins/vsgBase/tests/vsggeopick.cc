@@ -27,7 +27,7 @@ ________________________________________________________________________
 namespace
 {
 
-class PickItem : public dGBVis::VisualObjectImpl
+class PickItem : public ODVsg::VisualObjectImpl
 {
 public:
     static RefMan<PickItem> create()
@@ -91,7 +91,7 @@ VisID hitId( const vsg::Camera& camera, vsg::Node& root, int x, int y,
 
     for ( auto it=hit.nodePath.rbegin(); it!=hit.nodePath.rend(); ++it )
     {
-	const VisID id = dGBVis::DataObject::getID( *it );
+	const VisID id = ODVsg::DataObject::getID( *it );
 	if ( id.isValid() )
 	    return id;
     }
@@ -117,15 +117,15 @@ static bool testPicks( vsgTest::OffscreenViewer& viewer )
     viewer.scene().addChild( vsg::ref_ptr<vsg::Node>(passive->vsgNode()) );
 
     const VisID activehit = hitId( viewer.camera(), viewer.scene(), cx, cy,
-				   dGBVis::cActivePickMask );
+				   ODVsg::cActivePickMask );
     const VisID passivehit = hitId( viewer.camera(), viewer.scene(), cx, cy,
-				    dGBVis::cPassivePickMask );
+				    ODVsg::cPassivePickMask );
     mRunStandardTest( activehit==active->id() && passivehit==passive->id(),
 		      "Active and passive masks pick different objects" );
 
     active->turnOn( false );
     const VisID hidden = hitId( viewer.camera(), viewer.scene(), cx, cy,
-				dGBVis::cActivePickMask );
+				ODVsg::cActivePickMask );
     mRunStandardTest( !hidden.isValid(), "A hidden object is not hit" );
     active->turnOn( true );
 
@@ -136,7 +136,7 @@ static bool testPicks( vsgTest::OffscreenViewer& viewer )
     viewer.scene().addChild( vsg::ref_ptr<vsg::Node>(quad->vsgNode()) );
     const vsgGeo::Pick center = vsgGeo::intersect(
 		viewer.camera(), viewer.scene(), cx, cy,
-		dGBVis::cActivePickMask, 1. );
+		ODVsg::cActivePickMask, 1. );
     mRunStandardTest( center.valid &&
 		      std::abs(center.worldPoint.x)<0.05 &&
 		      std::abs(center.worldPoint.z)<0.05,
@@ -144,7 +144,7 @@ static bool testPicks( vsgTest::OffscreenViewer& viewer )
 
     const vsgGeo::Pick miss = vsgGeo::intersect(
 		viewer.camera(), viewer.scene(), 0, 0,
-		dGBVis::cActivePickMask, 1. );
+		ODVsg::cActivePickMask, 1. );
     mRunStandardTest( !miss.valid, "A corner pixel misses the quad" );
 
     const float dy = float( 0.5 * 2.0 / viewer.height() );
@@ -157,7 +157,7 @@ static bool testPicks( vsgTest::OffscreenViewer& viewer )
 		vsgGeo::createLineColor(vsg::vec4(0.f,1.f,0.f,1.f))).get() );
     viewer.scene().addChild( vsg::ref_ptr<vsg::Node>(line->vsgNode()) );
     const VisID front = hitId( viewer.camera(), viewer.scene(), cx, cy,
-			       dGBVis::cActivePickMask );
+			       ODVsg::cActivePickMask );
     mRunStandardTest( front==line->id(),
 		      "A line in front of a triangle wins" );
 
@@ -171,7 +171,7 @@ static bool testPicks( vsgTest::OffscreenViewer& viewer )
     viewer.scene().addChild( vsg::ref_ptr<vsg::Node>(nearquad->vsgNode()) );
     viewer.scene().addChild( vsg::ref_ptr<vsg::Node>(farquad->vsgNode()) );
     const VisID nearer = hitId( viewer.camera(), viewer.scene(), cx, cy,
-				dGBVis::cActivePickMask );
+				ODVsg::cActivePickMask );
     mRunStandardTest( nearer==nearquad->id(),
 		      "The nearer quad wins" );
     return true;
@@ -182,8 +182,8 @@ int mTestMainFnName( int argc, char** argv )
 {
     mInitTestProg();
 
-    dGBVis::DataObject::setVisualizationThread( Threads::currentThread() );
-    dGBVis::initStdClasses();
+    ODVsg::DataObject::setVisualizationThread( Threads::currentThread() );
+    ODVsg::initStdClasses();
 
     vsgTest::OffscreenViewer viewer( 64, 64, false );
     if ( !viewer.isOK() )

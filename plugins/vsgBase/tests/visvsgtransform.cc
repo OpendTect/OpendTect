@@ -5,7 +5,7 @@ ________________________________________________________________________
  License:	https://dgbes.com/licensing
 ________________________________________________________________________
 
- dGBVis::Transformation must give the same results as
+ ODVsg::Transformation must give the same results as
  visBase::Transformation. No GPU needed.
 
 -*/
@@ -25,7 +25,7 @@ namespace
 {
 
 using VBTrans = visBase::Transformation;
-using DVTrans = dGBVis::Transformation;
+using DVTrans = ODVsg::Transformation;
 
 bool isClose( const Coord3& a, const Coord3& b, const Coord3& ref,
 	      double releps=1e-12 )
@@ -52,7 +52,7 @@ struct TransformPair
     { \
 	msg.set( #fn ).add( " of " ).add( inp.toString() ) \
 	   .add( ": visBase " ).add( vbres.toString() ) \
-	   .add( ", dGBVis " ).add( dvres.toString() ); \
+	   .add( ", ODVsg " ).add( dvres.toString() ); \
 	return false; \
     } \
 }
@@ -242,7 +242,7 @@ int mTestMainFnName( int argc, char** argv )
 {
     mInitTestProg();
 
-    dGBVis::DataObject::setVisualizationThread( Threads::currentThread() );
+    ODVsg::DataObject::setVisualizationThread( Threads::currentThread() );
 
     if ( !testSetMatrix() ||
 	 !testSetA() ||

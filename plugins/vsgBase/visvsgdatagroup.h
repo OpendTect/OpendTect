@@ -14,7 +14,7 @@ ________________________________________________________________________
 
 namespace vsg { class Group; }
 
-namespace dGBVis
+namespace ODVsg
 {
 
 mExpClass(vsgBase) DataObjectGroup : public DataObject
@@ -70,4 +70,4 @@ private:
     RefObjectSet<DataObject>	objects_;
 };
 
-} // namespace dGBVis
+} // namespace ODVsg
