@@ -65,6 +65,12 @@ foreach( LIB ${OD_THIRDPARTY_LIBS} )
     endif()
 endforeach()
 
+if ( NOT "${MSVCDLLS_RELEASE}" STREQUAL "" )
+    foreach( LIB ${MSVCDLLS_RELEASE} )
+	list( APPEND THIRDPARTY_LIBS ${LIB} )
+    endforeach()
+endif()
+
 unset( REGEXESTR1 )
 unset( REGEXESTR2 )
 
