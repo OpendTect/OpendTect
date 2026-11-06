@@ -55,7 +55,7 @@ enum class ObjectKind2DV
     Seismic = 1,   //!< Seismic data layer.
     Horizon3D = 2, //!< Three-dimensional horizon.
     Horizon2D = 3, //!< Two-dimensional horizon.
-    Fault = 4,     //!< Fault surface.
+    Fault = 4,	   //!< Fault surface.
     FaultSS2D = 5, //!< Two-dimensional fault stick set.
     FaultSS3D = 6, //!< Three-dimensional fault stick set.
     PickSet = 7,   //!< Point set or polygon.
