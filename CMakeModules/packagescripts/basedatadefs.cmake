@@ -35,7 +35,8 @@ list( APPEND OTHERFILESDEST "${COPYTODIR}/doc" )
 set( PYTHONREQLIST
 	"basic_requirements"
 	"notebooks_requirements"
-	"presentation_maker_requirements" )
+	"presentation_maker_requirements"
+	"conda_requirements" )
 
 set( ISBASE TRUE )
 
