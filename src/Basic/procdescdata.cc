@@ -363,7 +363,7 @@ ProcDesc::DataEntry::ActionType ProcDesc::Data::getActionType()
 
 void gatherFireWallProcInf()
 {
-    const FilePath fp( GetSoftwareDir(false), "data", "Firewall" );
+    const FilePath fp( GetSWDirDataDir(), "Firewall" );
     const DirList filelist( fp.fullPath().buf(),
 			    File::DirListType::FilesInDir );
     for ( int idx=0; idx<filelist.size(); idx++ )
