@@ -62,6 +62,8 @@ export PATH="$(ld_cleanup "${PATH}" "${OD_INTERNAL_CLEANPATH}")"
 export LD_LIBRARY_PATH="$(ld_cleanup "${LD_LIBRARY_PATH}" "${OD_SYSTEM_LIBRARY_PATH}")"
 if [[ -z "${LD_LIBRARY_PATH}" ]]; then unset LD_LIBRARY_PATH; fi
 unset DTECT_APPL
+unset DTECT_DEBUG
+unset OD_USER_PLUGIN_DIR
 unset LD_BIND_NOW
 unset QT_XCB_GL_INTEGRATION
 
