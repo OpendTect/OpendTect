@@ -465,6 +465,13 @@ static const char* getInstallerExe( ActionType typ=ActionType::Standard )
 static OS::MachineCommand getFullMachComm( const char* odinstdir,
 					   ActionType typ )
 {
+    BufferString odinstdirstr;
+    if ( __iswin__ )
+	odinstdirstr = FilePath::getLongPath( odinstdir );
+    else
+	odinstdirstr.set( odinstdir );
+
+    odinstdir = odinstdirstr.buf();
     const BufferString installerexe( getInstallerExe(typ) );
     OS::MachineCommand mc;
     if ( installerexe.isEmpty() )
