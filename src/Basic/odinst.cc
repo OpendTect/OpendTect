@@ -190,25 +190,87 @@ static const char* sKeyqInstallerExecFnm()
 }
 
 
+#ifdef __win__
+static bool windowsPathIsInFolder( const FilePath& reqpathfp, int csidl )
+{
+    BufferString dir = GetSpecialFolderLocation( csidl );
+    if ( dir.isEmpty() )
+	return false;
+
+    dir = FilePath::getLongPath( dir.buf() );
+    const FilePath trustedfp( dir.buf() );
+    return reqpathfp == trustedfp || reqpathfp.isSubDirOf( trustedfp );
+}
+
+
+static bool isTrustedWindowsLocation( const FilePath& reqpathfp )
+{
+    return windowsPathIsInFolder( reqpathfp, CSIDL_PROGRAM_FILES ) ||
+	   windowsPathIsInFolder( reqpathfp, CSIDL_PROGRAM_FILESX86 ) ||
+	   windowsPathIsInFolder( reqpathfp, CSIDL_COMMON_APPDATA ) ||
+	   windowsPathIsInFolder( reqpathfp, CSIDL_WINDOWS );
+}
+
+
+static BufferString nearestExistingWindowsDir( const FilePath& reqpathfp )
+{
+    const BufferString fullpath = reqpathfp.fullPath();
+    if ( File::exists(fullpath.buf()) )
+	return fullpath;
+
+    for ( int idx=reqpathfp.nrLevels()-2; idx>=0; idx-- )
+    {
+	const BufferString dirpath = reqpathfp.dirUpTo( idx );
+	if ( File::exists(dirpath.buf()) )
+	    return dirpath;
+    }
+
+    return BufferString();
+}
+#endif
+
+
 static bool isUserInst()
 {
-    const FilePath reqpath( GetSoftwareDir(true) );
-    if ( reqpath.isEmpty() )
+    BufferString reqpathfnm( GetSoftwareDir(true) );
+    if ( reqpathfnm.isEmpty() )
 	return true;
 
-    const FilePath homepath( File::getHomePath() );
-    if ( reqpath.isSubDirOf(homepath) || reqpath == homepath )
+    BufferString homepathstr = File::getHomePath();
+    if ( __iswin__ )
+    {
+	reqpathfnm = FilePath::getLongPath( reqpathfnm.buf() );
+	homepathstr = FilePath::getLongPath( homepathstr.buf() );
+    }
+
+    const FilePath reqpathfp( reqpathfnm.buf() );
+    const FilePath homepath( homepathstr.buf() );
+    if ( reqpathfp.isSubDirOf(homepath) || reqpathfp == homepath )
 	return true;
 
-    const BufferString reqpathstr = reqpath.fullPath();
+    if ( __islinux__ )
+	return false; // Any path outside of home is Network for Linux
+
+    if ( __ismac__ )
+	return !reqpathfnm.startsWith("/Application");
+
 #ifdef __win__
-    if ( WinUtils::pathContainsTrustedInstaller(reqpathstr.buf()) )
-	return false;
-#endif
-    if ( __ismac__ && reqpathstr.startsWith("/Application") )
+    if ( isTrustedWindowsLocation(reqpathfp) )
 	return false;
 
-    return File::isWritable( reqpathstr );
+    const BufferString fullpath = reqpathfp.fullPath();
+    if ( !File::exists(fullpath.buf()) && WinUtils::IsUserAnAdmin() )
+	return false;
+
+    const BufferString existingdir = nearestExistingWindowsDir( reqpathfp );
+    if ( !existingdir.isEmpty() &&
+	 !WinUtils::belongsToStdUser(existingdir.buf()) )
+	return false;
+
+    return true;
+#endif
+
+    return false;
 }
 
 
