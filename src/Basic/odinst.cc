@@ -216,7 +216,8 @@ static const char* getInstallerExe( QSettings::Scope scope, ActionType typ )
 {
     mDeclStaticString(ret);
     ret.setEmpty();
-    const QSettings instsetts( scope, qtEditorName(), sKeyqInstaller() );
+    QSettings instsetts( scope, qtEditorName(), sKeyqInstaller() );
+    instsetts.setFallbacksEnabled( false );
     if ( instsetts.status() != QSettings::Status::NoError )
 	return nullptr;
 
@@ -224,7 +225,8 @@ static const char* getInstallerExe( QSettings::Scope scope, ActionType typ )
     if ( __islinux__ && scope == QSettings::Scope::UserScope &&
 	qvarinstexec.isNull() )
     {
-	const QSettings instsettsnet( scope, qtEditorName(), "NetworkInstaller" );
+	QSettings instsettsnet( scope, qtEditorName(), "NetworkInstaller" );
+	instsettsnet.setFallbacksEnabled( false );
 	qvarinstexec = instsettsnet.value( sKeyqInstallerExecFnm() );
     }
 
@@ -677,8 +679,20 @@ BufferString ODInst::GetInstallerDir()
     const bool isuserinst = isUserInst();
     const QSettings::Scope instscope = isuserinst ? QSettings::Scope::UserScope
 						: QSettings::Scope::SystemScope;
-    const QSettings instsetts( instscope, qtEditorName(), sKeyqInstaller() );
-    const QVariant qvarinstsettlist = instsetts.value( sKeyqInstallerDir() );
+    QSettings instsetts( instscope, qtEditorName(), sKeyqInstaller() );
+    instsetts.setFallbacksEnabled( false );
+    QVariant qvarinstsettlist = instsetts.value( sKeyqInstallerDir() );
+    if ( __islinux__ && instscope == QSettings::Scope::UserScope &&
+	qvarinstsettlist.isNull() )
+    {
+	QSettings instsettsnet( instscope, qtEditorName(), "NetworkInstaller" );
+	instsettsnet.setFallbacksEnabled( false );
+	qvarinstsettlist = instsettsnet.value( sKeyqInstallerDir() );
+    }
+
+    if ( qvarinstsettlist.isNull() )
+	return BufferString::empty();
+
     const QString qinstsettlist = qvarinstsettlist.toString();
     const BufferString instsettlist( qinstsettlist );
     if ( File::isDirectory(instsettlist.buf()) )
