@@ -27,6 +27,7 @@ ________________________________________________________________________
 #include "keyenum.h"
 #include "math2.h"
 #include "moddepmgr.h"
+#include "settings.h"
 #include "survgeom3d.h"
 #include "survinfo.h"
 #include "thread.h"
@@ -387,6 +388,70 @@ static bool testVirtualCalls()
 }
 
 
+static bool testBackgroundColor()
+{
+    const BufferString key( "dTect.Scene.",
+			    ODVsg::Scene::sKeyBackgroundColor() );
+    Settings& setts = Settings::common();
+    OD::Color savedcol;
+    const bool hadcol = setts.get( key.buf(), savedcol );
+    setts.removeWithKey( key.buf() );
+
+    RefMan<ODVsg::Scene> scene = ODVsg::Scene::create();
+    mRunStandardTest( scene->getBackgroundColor()==OD::Color::Anthracite(),
+		      "Background is anthracite without a setting" );
+    mRunStandardTest( !scene->isBackgroundGradient(),
+		      "The background has no gradient at first" );
+
+    const OD::Color col( 10, 20, 30 );
+    setts.set( key.buf(), col );
+    scene = ODVsg::Scene::create();
+    const bool isset = scene->getBackgroundColor() == col;
+    if ( hadcol )
+	setts.set( key.buf(), savedcol );
+    else
+	setts.removeWithKey( key.buf() );
+
+    mRunStandardTest( isset, "Background follows the OD scene setting" );
+
+    scene->setBackgroundColor( OD::Color::White() );
+    mRunStandardTest( scene->getBackgroundColor()==OD::Color::White(),
+		      "Background can be changed" );
+
+    scene->setAnnotColor( OD::Color::White() );
+    const OD::Color onwhite = scene->getDisplayedAnnotColor();
+    mRunStandardTest( scene->getAnnotColor()==OD::Color::White() &&
+		      onwhite.r()<160 && onwhite.r()==onwhite.g() &&
+		      onwhite.g()==onwhite.b(),
+		      "The annotation is drawn dark gray on a white background" );
+    scene->setBackgroundColor( OD::Color::Anthracite() );
+    mRunStandardTest( scene->getDisplayedAnnotColor()==OD::Color::White(),
+		      "The annotation is drawn white on a dark background" );
+
+    mRunStandardTest( !scene->isBackgroundGradient() &&
+		      scene->getBackgroundCornerColor()==
+						OD::Color::Anthracite(),
+		      "Without a gradient the corners have the background "
+		      "color" );
+    scene->setBackgroundGradient( true );
+    const OD::Color corner = scene->getBackgroundCornerColor();
+    mRunStandardTest( scene->isBackgroundGradient() && corner.r()>=16 &&
+		      corner.r()<=20 && corner.r()==corner.g() &&
+		      corner.g()==corner.b(),
+		      "With a gradient the corners are darker" );
+    mRunStandardTest( scene->getDisplayedAnnotColor()==OD::Color::White(),
+		      "The annotation stays white on the dark gradient" );
+
+    scene->setBackgroundColor( OD::Color(255,250,250) );
+    mRunStandardTest( scene->getDisplayedAnnotColor()!=OD::Color::White() &&
+		      scene->getDisplayedCornerAnnotColor()==OD::Color::White(),
+		      "On a light gradient the middle is drawn gray and the "
+		      "darker corners white" );
+    scene->setBackgroundGradient( false );
+    return true;
+}
+
+
 class ClickTarget : public ODVsg::VisualObjectImpl
 {
 public:
@@ -579,6 +644,7 @@ int mTestMainFnName( int argc, char** argv )
 	sdl.setDirName( survdirnm->buf() );
 	SurveyChanger changer( sdl );
 	if ( !testVirtualCalls() ||
+	     !testBackgroundColor() ||
 	     !testTransforms(survdirnm->buf()) ||
 	     !testAnnotation() ||
 	     !testWorkArea() ||

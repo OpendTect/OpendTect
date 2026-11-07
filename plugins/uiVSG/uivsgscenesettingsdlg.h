@@ -12,13 +12,16 @@ ________________________________________________________________________
 
 #include "uidialog.h"
 
+#include "color.h"
+
 class uiCheckBox;
+class uiColorInput;
 class uiGenInput;
 class uiSpinBox;
 class uiVSGViewer;
 
-/*!\brief The settings of the scene of the VSG viewer: the axes, the
-  thumbwheels and the color bar.
+/*!\brief The settings of the scene of the VSG viewer: the background and
+  annotation colors, the axes, the thumbwheels and the color bar.
 
   A change is applied to the viewer at once. Cancel puts back what was set
   when the dialog was opened.
@@ -32,6 +35,8 @@ public:
 
 private:
 
+    void		colorCB(CallBacker*);
+    void		gradientCB(CallBacker*);
     void		axesCB(CallBacker*);
     void		wheelModeCB(CallBacker*);
     void		wheelOptionsCB(CallBacker*);
@@ -43,6 +48,9 @@ private:
     bool		rejectOK(CallBacker*) override;
 
     uiVSGViewer&	viewer_;
+    const OD::Color	hadbgcolor_;
+    const OD::Color	hadannotcolor_;
+    const bool		hadgradient_;
     const bool		hadaxes_;
     const bool		hadmodernaxes_;
     const int		hadwheelmode_;
@@ -53,6 +61,9 @@ private:
     const int		hadcolorbarwidth_;
     const int		hadcolorbarheight_;
 
+    uiColorInput*	bgcolfld_;
+    uiCheckBox*		gradientfld_;
+    uiColorInput*	annotcolfld_;
     uiCheckBox*		axesfld_;
     uiGenInput*		axesstylefld_;
     uiGenInput*		wheelmodefld_;

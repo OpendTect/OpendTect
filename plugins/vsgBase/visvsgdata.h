@@ -53,6 +53,14 @@ inline vsg::vec4 toVec4( const OD::Color& col )
 }
 
 
+/*!The preferred color if it stands out against the background (contrast of
+  at least 3). Otherwise the gray closest to the background that has a
+  contrast of 5, or black or white if no gray has. */
+
+mGlobal(vsgBase) OD::Color contrastingColor(const OD::Color& preferred,
+					    const OD::Color& background);
+
+
 /*!\brief Implemented by a viewer that renders on request, so that a
   DataObject can ask for a redraw without knowing about the window system. */
 

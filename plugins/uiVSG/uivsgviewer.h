@@ -14,6 +14,7 @@ ________________________________________________________________________
 #include "uivsgmod.h"
 
 #include "visvsgscenecoltab.h"
+#include "color.h"
 #include "fontdata.h"
 #include "ptrman.h"
 #include "refcount.h"
@@ -31,7 +32,8 @@ namespace ODVsg
 { class Axes; class Camera; class DataObjectGroup; class Scene;
   class TextureChannels; class ThumbWheel; }
 namespace vsgGeo
-{ class AxesHandler; class NearFar; class ThumbWheelHandler; class Trackball; }
+{ class AxesHandler; class GradientBackground; class NearFar;
+  class ThumbWheelHandler; class Trackball; }
 
 mExpClass(uiVSG) uiVSGViewer : public QWidget
 {
@@ -53,6 +55,17 @@ public:
     ODVsg::SceneColTab::Pos getColorBarPos() const;
     void		setColorBarSize(int width,int height);
     Geom::Size2D<int>	getColorBarSize() const;
+
+    void		setBackgroundColor(const OD::Color&);
+    void		setBackgroundGradient(bool);
+    bool		isBackgroundGradient() const;
+			/*!<The background color is in the middle, the corners
+			    are darker */
+    OD::Color		getBackgroundColor() const;
+    void		setAnnotationColor(const OD::Color&);
+    OD::Color		getAnnotationColor() const;
+			/*!<Of the survey box, the axes, the wheels and the
+			    color bar text */
 
     enum class WheelMode	{ Never, Always, OnHover };
     void		setWheelDisplayMode(WheelMode);
@@ -96,6 +109,8 @@ private:
     class		ColTabLink;
 
     void		showWheels(bool);
+    void		applyAnnotationColor();
+    void		applyBackground();
     void		thumbWheelRotated(CallBacker*,float delta);
     void		cameraMoved(float hor,float vert,float dist,bool step);
     void		initializeVSG();
@@ -112,6 +127,7 @@ private:
     vsg::ref_ptr<uiVSGWindowHandler>	windowhandler_;
     vsg::ref_ptr<dGBVSGViewer>		viewer_;
     vsg::ref_ptr<vsg::Window>		vsgwindow_;
+    vsg::observer_ptr<vsg::RenderGraph>	windowgraph_;
     vsg::ref_ptr<vsg::Camera>		camera_;
     vsg::ref_ptr<vsgGeo::NearFar>	nearfar_;
     PtrMan<SceneBoundsWatch>		boundswatch_;
@@ -126,6 +142,9 @@ private:
     RefMan<ODVsg::ThumbWheel>		verthumbwheel_;
     RefMan<ODVsg::ThumbWheel>		distancethumbwheel_;
     vsg::ref_ptr<vsgGeo::ThumbWheelHandler> wheelhandler_;
+    vsg::ref_ptr<vsgGeo::GradientBackground> background_;
+    vsg::ref_ptr<vsg::ClearAttachments>	bgclear_;
+    vsg::ref_ptr<vsg::View>		bgview_;
     vsg::ref_ptr<vsgGeo::AxesHandler>	axeshandler_;
     vsg::ref_ptr<vsgGeo::Trackball>	trackball_;
     PtrMan<WheelLink>			wheellink_;
@@ -138,6 +157,8 @@ private:
     vsg::ref_ptr<vsg::ClearAttachments>	hudclear_;
     vsg::ref_ptr<vsg::Camera>		offscreenhudcamera_;
     vsg::ref_ptr<vsg::View>		offscreenhudview_;
+    vsg::ref_ptr<vsg::ClearAttachments>	offscreenbgclear_;
+    vsg::ref_ptr<vsg::View>		offscreenbgview_;
     vsg::ref_ptr<vsg::ClearAttachments>	offscreenhudclear_;
     FontData				annotfont_;
     bool				hasannotfont_ = false;
