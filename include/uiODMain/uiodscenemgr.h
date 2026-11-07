@@ -50,10 +50,21 @@ public:
 
     void			cleanUp(bool startnew=true);
     int				nrScenes()	{ return scenes_.size(); }
-    SceneID			addScene(bool maximized,
+    SceneID			addScene(bool osg,bool maximized,
 					 ZAxisTransform* =nullptr,
 					 const uiString& nm=uiString::empty());
 				//!<Returns scene id
+    SceneID			addOSGScene(bool maximized,
+					 ZAxisTransform* =nullptr,
+					 const uiString& nm=uiString::empty());
+    SceneID			addVSGScene(bool maximized,
+					 ZAxisTransform* =nullptr,
+					 //!<Not used by the VSG scene yet
+					 const uiString& nm=uiString::empty());
+				//!<Needs the VSG plugin, see uiVisPartServer
+    SceneID			addDefaultScene();
+				//!<A VSG scene if the VSG plugin is loaded,
+				//!<otherwise an OSG scene
     void			setSceneName(const SceneID&,const uiString&);
     uiString			getSceneName(const SceneID&) const;
     CNotifier<uiODSceneMgr,SceneID> sceneClosed;
@@ -238,6 +249,7 @@ protected:
     Scene&			mkNewScene();
     void			removeScene(Scene& scene);
     void			removeSceneCB(CallBacker*);
+    void			vsgViewerClosedCB(CallBacker*);
     void			initTree(Scene&,int);
     Scene*			getScene(const SceneID&);
     const Scene*		getScene(const SceneID&) const;
