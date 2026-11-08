@@ -45,10 +45,7 @@ ________________________________________________________________________
 #include "commandlineparser.h"
 #include "ctxtioobj.h"
 #include "envvars.h"
-#include "file.h"
-#include "filepath.h"
 #include "genc.h"
-#include "geom2dinit.h"
 #include "ioman.h"
 #include "ioobj.h"
 #include "moddepmgr.h"
@@ -277,7 +274,9 @@ mExternCPP(uiODMain) void ODMain( std::unique_ptr<uiDialog>& prodseldlgman,
 	    prodseldlg->show();
 	}
 	else
+	{
 	    prodselnotif->trigger();
+	}
     });
 
     starthandler->set( [&,starthandler,prodselnotif,skippluginsel]()
@@ -922,18 +921,17 @@ void uiODMain::updateStatusCB( CallBacker* cb )
     if ( !ct )
 	return;
 
-    const BufferString stdoutstr = ct->getStdOutput();
-    const BufferString stderrstr = ct->getStdError();
-    if ( stdoutstr.isEmpty() || !stderrstr.isEmpty() )
+    const int exitcode = ct->getExitCode();
+    if ( exitcode !=0 && exitcode != 2 )
     {
-	ODInst::updatesAvailable( 0 );
+	ODInst::updatesAvailable( 0 ); // actual status is unknown
+	const BufferString stderrstr = ct->getStdError();
 	if ( !stderrstr.isEmpty() )
 	    ErrMsg( BufferString("Error checking for software updates: ",
 				 stderrstr) );
     }
     else
-	ODInst::updatesAvailable(
-			    stdoutstr==ODInst::sKeyHasUpdate() ? 1 : 0 );
+	ODInst::updatesAvailable( exitcode == 2 ? 1 : 0);
 
     updateCaptionCB( nullptr );
 }
@@ -1002,6 +1000,7 @@ bool uiODMain::closeOK( bool withinteraction, bool doconfirm )
 	     return false;
 	 }
      }
+
 
      //Clean up all scenes manually.
      // If QT closes it down, it will trigger new rendering,
