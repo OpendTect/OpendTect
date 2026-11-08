@@ -325,20 +325,18 @@ static const char* getInstallerVersion( const char* execfnm )
 
 static const char* getUserInstallerExe( ActionType typ )
 {
+    // No cache, always read from the current settings
     mDeclStaticString(ret);
-    if ( ret.isEmpty() )
-	ret = getInstallerExe( QSettings::Scope::UserScope, typ );
-
+    ret = getInstallerExe( QSettings::Scope::UserScope, typ );
     return ret.buf();
 }
 
 
 static const char* getSystemInstallerExe( ActionType typ )
 {
+    // No cache, always read from the current settings
     mDeclStaticString(ret);
-    if ( ret.isEmpty() )
-	ret = getInstallerExe( QSettings::Scope::SystemScope, typ );
-
+    ret = getInstallerExe( QSettings::Scope::SystemScope, typ );
     return ret.buf();
 }
 
