@@ -297,14 +297,23 @@ static const char* getInstallerExe( QSettings::Scope scope, ActionType typ )
 
     const QString qinstexec = qvarinstexec.toString();
     BufferString instexec( qinstexec );
-    if ( __iswin__ && typ == ActionType::UpdateCheck )
-    { // od_instmgr may have embedded UAC, needs to use run_installer.exe
+    if ( __iswin__ && scope == QSettings::Scope::SystemScope &&
+	 typ != ActionType::UpdateCheck )
+    { // od_instmgr may have embedded UAC,
+      // run_installer.exe is stored under qvarinstexec
 	FilePath instscriptfp( instexec );
-	instscriptfp.setFileName( "run_installer.exe" );
-	const BufferString instscript = instscriptfp.fullPath();
+	instscriptfp.setFileName( "od_instmgr.exe" );
+	BufferString instscript = instscriptfp.fullPath();
 	if ( File::isExecutable(instscript.buf()) &&
 	     !File::isDirectory(instscript.buf()) )
 	    instexec = instscript;
+	else
+	{
+	    instscriptfp.setFileName( "od_instmgrd.exe" );
+	    if ( File::isExecutable(instscript.buf()) &&
+		 !File::isDirectory(instscript.buf()) )
+		instexec = instscript;
+	}
     }
 
     if ( File::isExecutable(instexec.buf()) &&
