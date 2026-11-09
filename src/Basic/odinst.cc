@@ -190,25 +190,87 @@ static const char* sKeyqInstallerExecFnm()
 }
 
 
+#ifdef __win__
+static bool windowsPathIsInFolder( const FilePath& reqpathfp, int csidl )
+{
+    BufferString dir = GetSpecialFolderLocation( csidl );
+    if ( dir.isEmpty() )
+	return false;
+
+    dir = FilePath::getLongPath( dir.buf() );
+    const FilePath trustedfp( dir.buf() );
+    return reqpathfp == trustedfp || reqpathfp.isSubDirOf( trustedfp );
+}
+
+
+static bool isTrustedWindowsLocation( const FilePath& reqpathfp )
+{
+    return windowsPathIsInFolder( reqpathfp, CSIDL_PROGRAM_FILES ) ||
+	   windowsPathIsInFolder( reqpathfp, CSIDL_PROGRAM_FILESX86 ) ||
+	   windowsPathIsInFolder( reqpathfp, CSIDL_COMMON_APPDATA ) ||
+	   windowsPathIsInFolder( reqpathfp, CSIDL_WINDOWS );
+}
+
+
+static BufferString nearestExistingWindowsDir( const FilePath& reqpathfp )
+{
+    const BufferString fullpath = reqpathfp.fullPath();
+    if ( File::exists(fullpath.buf()) )
+	return fullpath;
+
+    for ( int idx=reqpathfp.nrLevels()-2; idx>=0; idx-- )
+    {
+	const BufferString dirpath = reqpathfp.dirUpTo( idx );
+	if ( File::exists(dirpath.buf()) )
+	    return dirpath;
+    }
+
+    return BufferString();
+}
+#endif
+
+
 static bool isUserInst()
 {
-    const FilePath reqpath( GetSoftwareDir(true) );
-    if ( reqpath.isEmpty() )
+    BufferString reqpathfnm( GetSoftwareDir(true) );
+    if ( reqpathfnm.isEmpty() )
 	return true;
 
-    const FilePath homepath( File::getHomePath() );
-    if ( reqpath.isSubDirOf(homepath) || reqpath == homepath )
+    BufferString homepathstr = File::getHomePath();
+    if ( __iswin__ )
+    {
+	reqpathfnm = FilePath::getLongPath( reqpathfnm.buf() );
+	homepathstr = FilePath::getLongPath( homepathstr.buf() );
+    }
+
+    const FilePath reqpathfp( reqpathfnm.buf() );
+    const FilePath homepath( homepathstr.buf() );
+    if ( reqpathfp.isSubDirOf(homepath) || reqpathfp == homepath )
 	return true;
 
-    const BufferString reqpathstr = reqpath.fullPath();
+    if ( __islinux__ )
+	return false; // Any path outside of home is Network for Linux
+
+    if ( __ismac__ )
+	return !reqpathfnm.startsWith("/Application");
+
 #ifdef __win__
-    if ( WinUtils::pathContainsTrustedInstaller(reqpathstr.buf()) )
-	return false;
-#endif
-    if ( __ismac__ && reqpathstr.startsWith("/Application") )
+    if ( isTrustedWindowsLocation(reqpathfp) )
 	return false;
 
-    return File::isWritable( reqpathstr );
+    const BufferString fullpath = reqpathfp.fullPath();
+    if ( !File::exists(fullpath.buf()) && WinUtils::IsUserAnAdmin() )
+	return false;
+
+    const BufferString existingdir = nearestExistingWindowsDir( reqpathfp );
+    if ( !existingdir.isEmpty() &&
+	 !WinUtils::belongsToStdUser(existingdir.buf()) )
+	return false;
+
+    return true;
+#endif
+
+    return false;
 }
 
 
@@ -216,7 +278,8 @@ static const char* getInstallerExe( QSettings::Scope scope, ActionType typ )
 {
     mDeclStaticString(ret);
     ret.setEmpty();
-    const QSettings instsetts( scope, qtEditorName(), sKeyqInstaller() );
+    QSettings instsetts( scope, qtEditorName(), sKeyqInstaller() );
+    instsetts.setFallbacksEnabled( false );
     if ( instsetts.status() != QSettings::Status::NoError )
 	return nullptr;
 
@@ -224,7 +287,8 @@ static const char* getInstallerExe( QSettings::Scope scope, ActionType typ )
     if ( __islinux__ && scope == QSettings::Scope::UserScope &&
 	qvarinstexec.isNull() )
     {
-	const QSettings instsettsnet( scope, qtEditorName(), "NetworkInstaller" );
+	QSettings instsettsnet( scope, qtEditorName(), "NetworkInstaller" );
+	instsettsnet.setFallbacksEnabled( false );
 	qvarinstexec = instsettsnet.value( sKeyqInstallerExecFnm() );
     }
 
@@ -233,14 +297,23 @@ static const char* getInstallerExe( QSettings::Scope scope, ActionType typ )
 
     const QString qinstexec = qvarinstexec.toString();
     BufferString instexec( qinstexec );
-    if ( __iswin__ && typ == ActionType::UpdateCheck )
-    { // od_instmgr may have embedded UAC, needs to use run_installer.exe
+    if ( __iswin__ && scope == QSettings::Scope::SystemScope &&
+	 typ != ActionType::UpdateCheck )
+    { // od_instmgr may have embedded UAC,
+      // run_installer.exe is stored under qvarinstexec
 	FilePath instscriptfp( instexec );
-	instscriptfp.setFileName( "run_installer.exe" );
-	const BufferString instscript = instscriptfp.fullPath();
+	instscriptfp.setFileName( "od_instmgr.exe" );
+	BufferString instscript = instscriptfp.fullPath();
 	if ( File::isExecutable(instscript.buf()) &&
 	     !File::isDirectory(instscript.buf()) )
 	    instexec = instscript;
+	else
+	{
+	    instscriptfp.setFileName( "od_instmgrd.exe" );
+	    if ( File::isExecutable(instscript.buf()) &&
+		 !File::isDirectory(instscript.buf()) )
+		instexec = instscript;
+	}
     }
 
     if ( File::isExecutable(instexec.buf()) &&
@@ -291,20 +364,18 @@ static const char* getInstallerVersion( const char* execfnm )
 
 static const char* getUserInstallerExe( ActionType typ )
 {
+    // No cache, always read from the current settings
     mDeclStaticString(ret);
-    if ( ret.isEmpty() )
-	ret = getInstallerExe( QSettings::Scope::UserScope, typ );
-
+    ret = getInstallerExe( QSettings::Scope::UserScope, typ );
     return ret.buf();
 }
 
 
 static const char* getSystemInstallerExe( ActionType typ )
 {
+    // No cache, always read from the current settings
     mDeclStaticString(ret);
-    if ( ret.isEmpty() )
-	ret = getInstallerExe( QSettings::Scope::SystemScope, typ );
-
+    ret = getInstallerExe( QSettings::Scope::SystemScope, typ );
     return ret.buf();
 }
 
@@ -465,6 +536,13 @@ static const char* getInstallerExe( ActionType typ=ActionType::Standard )
 static OS::MachineCommand getFullMachComm( const char* odinstdir,
 					   ActionType typ )
 {
+    BufferString odinstdirstr;
+    if ( __iswin__ )
+	odinstdirstr = FilePath::getLongPath( odinstdir );
+    else
+	odinstdirstr.set( odinstdir );
+
+    odinstdir = odinstdirstr.buf();
     const BufferString installerexe( getInstallerExe(typ) );
     OS::MachineCommand mc;
     if ( installerexe.isEmpty() )
@@ -670,8 +748,20 @@ BufferString ODInst::GetInstallerDir()
     const bool isuserinst = isUserInst();
     const QSettings::Scope instscope = isuserinst ? QSettings::Scope::UserScope
 						: QSettings::Scope::SystemScope;
-    const QSettings instsetts( instscope, qtEditorName(), sKeyqInstaller() );
-    const QVariant qvarinstsettlist = instsetts.value( sKeyqInstallerDir() );
+    QSettings instsetts( instscope, qtEditorName(), sKeyqInstaller() );
+    instsetts.setFallbacksEnabled( false );
+    QVariant qvarinstsettlist = instsetts.value( sKeyqInstallerDir() );
+    if ( __islinux__ && instscope == QSettings::Scope::UserScope &&
+	qvarinstsettlist.isNull() )
+    {
+	QSettings instsettsnet( instscope, qtEditorName(), "NetworkInstaller" );
+	instsettsnet.setFallbacksEnabled( false );
+	qvarinstsettlist = instsettsnet.value( sKeyqInstallerDir() );
+    }
+
+    if ( qvarinstsettlist.isNull() )
+	return BufferString::empty();
+
     const QString qinstsettlist = qvarinstsettlist.toString();
     const BufferString instsettlist( qinstsettlist );
     if ( File::isDirectory(instsettlist.buf()) )
