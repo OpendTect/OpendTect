@@ -265,6 +265,7 @@ void odWell::getLog( hAllocator allocator, const char* lognm,
 {
     survey_.activate();
     jsuomobj.setEmpty();
+    errmsg_.setEmpty();
     if ( !wd_ )
     {
 	errmsg_ = "odWell::getLog - invalid welldata object.";

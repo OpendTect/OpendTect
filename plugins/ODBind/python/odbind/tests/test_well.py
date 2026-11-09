@@ -116,19 +116,28 @@ def test_Well_class(survey):
 
 def test_Well_log(survey):
     well = Well(survey, 'F03-4')
-    info = well.log_info(['Density'])[0]
-    log, uom = well.log('Density')
-    assert list(log.keys()) == ['dah', 'Density']
-    assert uom == {'dah': 'm', 'Density': 'g/cc'}
-    assert log['dah'].size == log['Density'].size
-    assert np.all(np.diff(log['dah']) > 0)
-    assert log['dah'][0] == pytest.approx(info['dah_range'][0], rel=0.001)
-    assert log['dah'][-1] == pytest.approx(info['dah_range'][1], rel=0.001)
-    sampled, _ = well.logs(['Density'], zstep=0.5, upscale=False)
-    assert sampled['dah'].size != log['dah'].size or not np.allclose(sampled['dah'], log['dah'])
-    df, _ = well.log_dataframe('Density')
-    assert np.array_equal(df['dah'].to_numpy(), log['dah'])
+    lognm = 'pytest'
+    if lognm in well.log_names:
+        well.delete_logs([lognm])
+    dep = np.array([10.0, 25.5, 50.25, 100.125], dtype=np.float32)
+    logval = np.array([1.5, np.nan, 2.5, 3.5], dtype=np.float32)
+    well.put_log(lognm, dep, logval, 'g/cc', None)
 
-    well = Well(survey, 'F03-4')
+    data, uom = well.log(lognm)
+    assert list(data.keys()) == ['dah', lognm]
+    assert uom == {'dah': 'm', lognm: 'g/cc'}
+    assert data['dah'].size == dep.size
+    np.testing.assert_allclose(data['dah'], dep, rtol=1e-6)
+    np.testing.assert_allclose(data[lognm], logval, rtol=1e-6, equal_nan=True)
+    assert np.isnan(data[lognm][1])
+
+    df, _ = well.log_dataframe(lognm)
+    np.testing.assert_allclose(df['dah'].to_numpy(), dep, rtol=1e-6)
+    np.testing.assert_allclose(df[lognm].to_numpy(), logval, rtol=1e-6, equal_nan=True)
+
     with pytest.raises(ValueError):
         well.log('No such log')
+    data, _ = well.log(lognm)
+    assert data[lognm].size == dep.size
+
+    well.delete_logs([lognm])
