@@ -67,6 +67,7 @@ odEMObject::~odEMObject()
 
 BufferStringSet* odEMObject::getAttribNames() const
 {
+    errmsg_.setEmpty();
     BufferStringSet* names = nullptr;
     ConstPtrMan<IOObj> ioobj( ioobj_ptr() );
     if ( !ioobj )
@@ -84,6 +85,7 @@ BufferStringSet* odEMObject::getAttribNames() const
 
 int odEMObject::getNrAttributes() const
 {
+    errmsg_.setEmpty();
     ConstPtrMan<IOObj> ioobj( ioobj_ptr() );
     if ( !ioobj )
 	return 0;
@@ -136,6 +138,7 @@ odHorizon3D::~odHorizon3D()
 
 EM::Horizon3D* odHorizon3D::getHorizonObj( bool create )
 {
+    errmsg_.setEmpty();
     ConstPtrMan<IOObj> ioobj( ioobj_ptr() );
     if ( !ioobj )
 	return nullptr;
@@ -174,13 +177,16 @@ EM::Horizon3D* odHorizon3D::getHorizonObj( bool create )
 
 void odHorizon3D::save()
 {
+    errmsg_.setEmpty();
     if ( array_ && writecount_ )
     {
 	RefMan<EM::Horizon3D> hor3d = getHorizonObj( true );
 	if ( !hor3d )
 	    return;
 
-	if ( hor3d->setArray2D(array_.ptr(),tk_.start_,tk_.step_) )
+	// Do not let the horizon take over array_: it stays owned by this
+	// object and is reused for subsequent putZ calls.
+	if ( hor3d->setArray2D(array_.ptr(),tk_.start_,tk_.step_,false) )
 	{
 	    hor3d->setFullyLoaded( true );
 	    PtrMan<Task> saver = hor3d->saver();
@@ -198,6 +204,7 @@ void odHorizon3D::save()
 
 void odHorizon3D::getInfo( OD::JSON::Object& jsobj ) const
 {
+    errmsg_.setEmpty();
     jsobj.setEmpty();
     ConstPtrMan<IOObj> ioobj( ioobj_ptr() );
     jsobj.set( "name", getName().buf() );
@@ -220,6 +227,7 @@ void odHorizon3D::getInfo( OD::JSON::Object& jsobj ) const
 
 void odHorizon3D::getPoints( OD::JSON::Array& jsarr, bool towgs ) const
 {
+    errmsg_.setEmpty();
     survey_.activate();
     TypeSet<Coord> coords;
     for ( int i=0; i<4; i++ )
@@ -233,6 +241,7 @@ void odHorizon3D::getPoints( OD::JSON::Array& jsarr, bool towgs ) const
 
 void odHorizon3D::getZ( hAllocator allocator )
 {
+    errmsg_.setEmpty();
     const ZDomain::Info* zdom = nullptr;
     if ( !array_ )
     {
@@ -306,6 +315,7 @@ void odHorizon3D::getXY( hAllocator allocator )
 
 void odHorizon3D::getAuxData( hAllocator allocator, const char* auxname )
 {
+    errmsg_.setEmpty();
     RefMan<EM::Horizon3D> hor = getHorizonObj();
     if ( !hor )
 	return;
@@ -447,6 +457,7 @@ void odHorizon3D::putAuxData( const char* name, const float* data,
 
 bool odHorizon3D::deleteAttribs( const BufferStringSet& attribnms )
 {
+    errmsg_.setEmpty();
     RefMan<EM::Horizon3D> hor = getHorizonObj();
     if ( !hor )
 	return false;
@@ -540,6 +551,7 @@ odHorizon2D::~odHorizon2D()
 
 void odHorizon2D::getInfo( OD::JSON::Object& jsobj ) const
 {
+    errmsg_.setEmpty();
     jsobj.setEmpty();
     ConstPtrMan<IOObj> ioobj( ioobj_ptr() );
     if ( !ioobj )
@@ -558,6 +570,7 @@ void odHorizon2D::getInfo( OD::JSON::Object& jsobj ) const
 
 BufferStringSet* odHorizon2D::getLineNames() const
 {
+    errmsg_.setEmpty();
     BufferStringSet* names = nullptr;
     ConstPtrMan<IOObj> ioobj( ioobj_ptr() );
     if ( !ioobj )
@@ -575,6 +588,13 @@ BufferStringSet* odHorizon2D::getLineNames() const
 
 BufferString odHorizon2D::getLineName( int lineid ) const
 {
+    errmsg_.setEmpty();
+    if ( !hor_ )
+    {
+	errmsg_ = "odHorizon2D::getLineName - invalid object.";
+	return BufferString();
+    }
+
     const int lidx = hor_->geometry().lineIndex( Pos::GeomID(lineid) );
     return BufferString( hor_->geometry().lineName(lidx) );
 }
@@ -582,6 +602,7 @@ BufferString odHorizon2D::getLineName( int lineid ) const
 
 int odHorizon2D::getNrLines() const
 {
+    errmsg_.setEmpty();
     ConstPtrMan<IOObj> ioobj( ioobj_ptr() );
     if ( !ioobj )
 	return 0;
@@ -597,6 +618,7 @@ int odHorizon2D::getNrLines() const
 
 void odHorizon2D::getLineIDs( int num, int* ids ) const
 {
+    errmsg_.setEmpty();
     ConstPtrMan<IOObj> ioobj( ioobj_ptr() );
     if ( !ioobj )
 	return;
@@ -615,6 +637,7 @@ void odHorizon2D::getLineIDs( int num, int* ids ) const
 
 void odHorizon2D::getZ( hAllocator allocator, int lineid )
 {
+    errmsg_.setEmpty();
     if ( !hor_ )
     {
 	errmsg_ = "odHorizon2D::getZ - invalid object.";
@@ -656,9 +679,10 @@ void odHorizon2D::getZ( hAllocator allocator, int lineid )
 
 void odHorizon2D::getXY( hAllocator allocator, int lineid )
 {
+    errmsg_.setEmpty();
     if ( !hor_ )
     {
-	errmsg_ = "odHorizon2D::getZ - invalid object.";
+	errmsg_ = "odHorizon2D::getXY - invalid object.";
 	return;
     }
 
@@ -693,6 +717,7 @@ void odHorizon2D::getXY( hAllocator allocator, int lineid )
 
 void odHorizon2D::getFeature( OD::JSON::Object& jsobj, bool towgs ) const
 {
+    errmsg_.setEmpty();
     jsobj.set( "type", "Feature" );
     auto* info = new OD::JSON::Object;
     getInfo( *info );
@@ -708,6 +733,13 @@ void odHorizon2D::getFeature( OD::JSON::Object& jsobj, bool towgs ) const
 
 void odHorizon2D::getPoints( OD::JSON::Array& jsarr, bool towgs ) const
 {
+    errmsg_.setEmpty();
+    if ( !hor_ )
+    {
+	errmsg_ = "odHorizon2D::getPoints - invalid object.";
+	return;
+    }
+
     survey_.activate();
     const auto* h2dline = hor_->geometry().geometryElement();
     for ( int idx=0; idx<h2dline->nrLines(); idx++ )

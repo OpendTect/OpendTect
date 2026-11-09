@@ -76,6 +76,7 @@ odGeom2D::~odGeom2D()
 
 void odGeom2D::close()
 {
+    errmsg_.setEmpty();
 }
 
 
@@ -158,6 +159,7 @@ void odGeom2D::putData( int32_t numpos, const int32_t* trcnrs,
 
 void odGeom2D::getInfo( OD::JSON::Object& jsobj ) const
 {
+    errmsg_.setEmpty();
     jsobj.setEmpty();
     survey_.activate();
     const Pos::GeomID geomid = Survey::GM().getGeomID( getName().buf() );
@@ -183,6 +185,7 @@ void odGeom2D::getInfo( OD::JSON::Object& jsobj ) const
 
 void odGeom2D::getFeature( OD::JSON::Object& jsobj, bool towgs ) const
 {
+    errmsg_.setEmpty();
     jsobj.set( "type", "Feature" );
     auto* info = new OD::JSON::Object;
     getInfo( *info );
@@ -198,6 +201,7 @@ void odGeom2D::getFeature( OD::JSON::Object& jsobj, bool towgs ) const
 
 void odGeom2D::getPoints( OD::JSON::Array& jsarr, bool towgs ) const
 {
+    errmsg_.setEmpty();
     survey_.activate();
     const Pos::GeomID geomid = Survey::GM().getGeomID( getName().buf() );
     if ( !geomid.is2D() )

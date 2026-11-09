@@ -66,11 +66,13 @@ Seis2DDataSet* odSeismic2D::seisdata_ptr() const
 
 void odSeismic2D::close()
 {
+    errmsg_.setEmpty();
 }
 
 
 bool odSeismic2D::isPresent( const char* line ) const
 {
+    errmsg_.setEmpty();
     PtrMan<Seis2DDataSet> seisdata( seisdata_ptr() );
     if ( seisdata )
 	return seisdata->isPresent( line );
@@ -81,6 +83,7 @@ bool odSeismic2D::isPresent( const char* line ) const
 
 int odSeismic2D::getNrLines() const
 {
+    errmsg_.setEmpty();
     PtrMan<Seis2DDataSet> seisdata( seisdata_ptr() );
     return seisdata ? seisdata->nrLines() : 0;
 }
@@ -88,6 +91,7 @@ int odSeismic2D::getNrLines() const
 
 BufferStringSet* odSeismic2D::getLineNames() const
 {
+    errmsg_.setEmpty();
     PtrMan<Seis2DDataSet> seisdata( seisdata_ptr() );
     if ( seisdata )
     {
@@ -103,6 +107,7 @@ BufferStringSet* odSeismic2D::getLineNames() const
 void odSeismic2D::getLineInfo( OD::JSON::Array& jsarr,
 			       const BufferStringSet& fornames ) const
 {
+    errmsg_.setEmpty();
     jsarr.setEmpty();
     BufferStringSet nms;
     PtrMan<BufferStringSet> allnms = getLineNames();
@@ -330,6 +335,7 @@ bool odSeismic2D::delLines( const BufferStringSet& linenms )
 
 void odSeismic2D::getInfo( OD::JSON::Object& jsobj ) const
 {
+    errmsg_.setEmpty();
     jsobj.setEmpty();
     ConstPtrMan<IOObj> ioobj( ioobj_ptr() );
     if ( !ioobj )
@@ -348,6 +354,7 @@ void odSeismic2D::getInfo( OD::JSON::Object& jsobj ) const
 
 void odSeismic2D::getFeature( OD::JSON::Object& jsobj, bool towgs ) const
 {
+    errmsg_.setEmpty();
     jsobj.set( "type", "Feature" );
     auto* info = new OD::JSON::Object;
     getInfo( *info );
@@ -363,6 +370,7 @@ void odSeismic2D::getFeature( OD::JSON::Object& jsobj, bool towgs ) const
 
 void odSeismic2D::getPoints( OD::JSON::Array& jsarr, bool towgs ) const
 {
+    errmsg_.setEmpty();
     TypeSet<Pos::GeomID> geomids;
     PtrMan<Seis2DDataSet> seisdata( seisdata_ptr() );
     if ( !seisdata )

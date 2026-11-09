@@ -42,6 +42,8 @@ odWell::odWell( const odSurvey& thesurvey, const char* name )
 	return;
 
     wd_ = Well::MGR().get( ioobj->key(), Well::LoadReqs::AllNoLogs() );
+    if ( !wd_ )
+	errmsg_ = BufferString( "cannot load well data for: ", name );
 }
 
 
@@ -54,6 +56,7 @@ const Well::Data* odWell::wd() const
 
 BufferStringSet* odWell::getLogNames() const
 {
+    errmsg_.setEmpty();
     survey_.activate();
     if ( !wd_ )
 	return nullptr;
@@ -67,15 +70,22 @@ BufferStringSet* odWell::getLogNames() const
 void odWell::getLogInfo( OD::JSON::Array& jsarr,
 			 const BufferStringSet& fornames ) const
 {
+    errmsg_.setEmpty();
     survey_.activate();
-    BufferStringSet nms;
+    jsarr.setEmpty();
     PtrMan<BufferStringSet> allnms = getLogNames();
+    if ( !allnms )
+    {
+	errmsg_ = "odWell::getLogInfo - invalid welldata object.";
+	return;
+    }
+
+    BufferStringSet nms;
     if ( fornames.isEmpty() )
 	nms = *allnms;
     else
 	nms = odSurvey::getCommonItems( *allnms, fornames );
 
-    jsarr.setEmpty();
     if ( !wd_ )
 	return;
 
@@ -105,6 +115,7 @@ void odWell::getLogInfo( OD::JSON::Array& jsarr,
 
 BufferStringSet* odWell::getMarkerNames() const
 {
+    errmsg_.setEmpty();
     survey_.activate();
     if ( !wd_ )
 	return nullptr;
@@ -119,15 +130,22 @@ BufferStringSet* odWell::getMarkerNames() const
 void odWell::getMarkerInfo( OD::JSON::Array& jsarr,
 			    const BufferStringSet& fornames ) const
 {
+    errmsg_.setEmpty();
     survey_.activate();
-    BufferStringSet nms;
+    jsarr.setEmpty();
     PtrMan<BufferStringSet> allnms = getMarkerNames();
+    if ( !allnms )
+    {
+	errmsg_ = "odWell::getMarkerInfo - invalid welldata object.";
+	return;
+    }
+
+    BufferStringSet nms;
     if ( fornames.isEmpty() )
 	nms = *allnms;
     else
 	nms = odSurvey::getCommonItems( *allnms, fornames );
 
-    jsarr.setEmpty();
     if ( !wd_ )
 	return;
 
@@ -152,6 +170,7 @@ void odWell::getMarkerInfo( OD::JSON::Array& jsarr,
 
 void odWell::getTrack( hAllocator allocator )
 {
+    errmsg_.setEmpty();
     survey_.activate();
     if ( !wd_ )
     {
@@ -185,6 +204,7 @@ void odWell::getLogs( hAllocator allocator, const BufferStringSet& lognms,
 		      OD::JSON::Object& jsuomobj, float zstep,
 		      SampleMode samplemode )
 {
+    errmsg_.setEmpty();
     survey_.activate();
     jsuomobj.setEmpty();
     if ( !wd_ )
@@ -264,6 +284,7 @@ void odWell::putLog( const char* lognm, const float* dah, const float* logdata,
 		     uint32_t sz, const char* uom, const char* mnem,
 		     bool overwrite )
 {
+    errmsg_.setEmpty();
     survey_.activate();
     if ( !wd_ )
     {
@@ -312,6 +333,7 @@ void odWell::putLog( const char* lognm, const float* dah, const float* logdata,
 
 void odWell::getInfo( OD::JSON::Object& jsobj ) const
 {
+    errmsg_.setEmpty();
     survey_.activate();
     jsobj.setEmpty();
     if ( !wd_ )
@@ -338,6 +360,7 @@ void odWell::getInfo( OD::JSON::Object& jsobj ) const
 
 void odWell::getFeature( OD::JSON::Object& jsobj, bool towgs ) const
 {
+    errmsg_.setEmpty();
     jsobj.set( "type", "Feature" );
     auto* info = new OD::JSON::Object;
     getInfo( *info );
@@ -358,6 +381,7 @@ void odWell::getFeature( OD::JSON::Object& jsobj, bool towgs ) const
 
 void odWell::getPoints( OD::JSON::Array& jsarr, bool towgs ) const
 {
+    errmsg_.setEmpty();
     survey_.activate();
     if ( !wd_ )
 	return;

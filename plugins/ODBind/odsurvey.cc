@@ -75,6 +75,7 @@ odSurvey::~odSurvey()
 
 BufferString odSurvey::type() const
 {
+    errmsg_.setEmpty();
     BufferString res;
     if (has2D()) res.add( "2D" );
     if (has3D()) res.add( "3D" );
@@ -83,6 +84,7 @@ BufferString odSurvey::type() const
 
 void odSurvey::getInfo( OD::JSON::Object& jsobj) const
 {
+    errmsg_.setEmpty();
     const auto& info = si();
     jsobj.set( "name", info.name().buf() );
     jsobj.set( "type", type().buf() );
@@ -98,6 +100,7 @@ void odSurvey::getInfo( OD::JSON::Object& jsobj) const
 
 void odSurvey::getFeature(OD::JSON::Object& jsobj, bool towgs) const
 {
+    errmsg_.setEmpty();
     jsobj.set( "type" , "Feature" );
     auto* info = new OD::JSON::Object;
     getInfo( *info );
@@ -115,6 +118,7 @@ void odSurvey::getFeature(OD::JSON::Object& jsobj, bool towgs) const
 
 void odSurvey::getPoints( OD::JSON::Array& points, bool towgs) const
 {
+    errmsg_.setEmpty();
     const TrcKeySampling tk = si().sampling( false ).hsamp_;
     TypeSet<Coord> coords;
     for ( int i=0; i<4; i++ )
@@ -156,16 +160,19 @@ void odSurvey::makeCoordsList( OD::JSON::Array& points,
 
 bool odSurvey::has2D() const
 {
+    errmsg_.setEmpty();
     return si().has2D();
 }
 
 bool odSurvey::has3D() const
 {
+    errmsg_.setEmpty();
     return si().has3D();
 }
 
 BufferString odSurvey::get_crsCode() const
 {
+    errmsg_.setEmpty();
     BufferString crscode;
     IOPar iop;
     ConstRefMan<Coords::CoordSystem> crs = si().getCoordSystem();
@@ -180,12 +187,14 @@ BufferString odSurvey::get_crsCode() const
 
 BufferString odSurvey::surveyPath() const
 {
+    errmsg_.setEmpty();
     FilePath fp(si().getDataDirName(), si().getDirName());
     return fp.fullPath();
 }
 
 BufferStringSet* odSurvey::getObjNames( const char* trgrpnm ) const
 {
+    errmsg_.setEmpty();
     BufferStringSet* res = nullptr;
     if ( !trgrpnm )
     {
@@ -217,6 +226,7 @@ BufferStringSet* odSurvey::getObjNames( const char* trgrpnm ) const
 void odSurvey::getObjInfoByID( const MultiID& mid,
 			       OD::JSON::Object& jsobj ) const
 {
+    errmsg_.setEmpty();
     if ( !activate() )
 	return;
 
@@ -251,6 +261,7 @@ void odSurvey::getObjInfoByID( const MultiID& mid,
 void odSurvey::getObjInfo( const char* objname, const char* trgrpnm,
 			   OD::JSON::Object& jsobj ) const
 {
+    errmsg_.setEmpty();
     if (!objname )
     {
 	errmsg_ = BufferString( "object name required" );
@@ -283,6 +294,7 @@ void odSurvey::getObjInfo( const char* objname, const char* trgrpnm,
 void odSurvey::getObjInfos( const char* trgrpnm, bool all,
 			    OD::JSON::Array& jsarr ) const
 {
+    errmsg_.setEmpty();
     jsarr.setEmpty();
     if ( !trgrpnm )
     {
@@ -319,6 +331,7 @@ void odSurvey::getObjInfos( const char* trgrpnm, bool all,
 
 bool odSurvey::isObjPresent( const char* objname, const char* trgrpnm ) const
 {
+    errmsg_.setEmpty();
     return activate() && IOM().isPresent( objname, trgrpnm );
 }
 
@@ -382,6 +395,7 @@ void odSurvey::createObj( const char* objname, const char* trgrpnm,
 
 void odSurvey::removeObj( const char* objname, const char* trgrpnm ) const
 {
+    errmsg_.setEmpty();
     if ( !objname )
     {
 	errmsg_ = "object name required";
@@ -405,6 +419,7 @@ void odSurvey::removeObj( const char* objname, const char* trgrpnm ) const
 
 void odSurvey::removeObjByID( const MultiID& mid ) const
 {
+    errmsg_.setEmpty();
     if ( mid.isUdf() )
 	errmsg_ = "invalid database id";
     else if ( !activate() || !IOM().implRemove(mid, true) )
