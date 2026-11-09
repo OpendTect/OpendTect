@@ -151,6 +151,23 @@ static const char* sKeyqInstallerExecFnm()
 }
 
 
+static const char* sKeyqInstallerVersion()
+{
+    return "ODInstallerVersion";
+}
+
+
+static BufferString qSettingsString( const QSettings& setts, const char* key )
+{
+    const QVariant qvar = setts.value( key );
+    if ( qvar.isNull() )
+	return BufferString::empty();
+
+    const QString qstr = qvar.toString();
+    return BufferString( qstr );
+}
+
+
 #ifdef __win__
 static bool windowsPathIsInFolder( const FilePath& reqpathfp, int csidl )
 {
@@ -235,170 +252,174 @@ static bool isUserInst()
 }
 
 
-static const char* getInstallerExe( QSettings::Scope scope, ActionType typ )
+static BufferString getInstallerExe( QSettings::Scope scope, ActionType typ,
+				     BufferString* verstr )
 {
-    mDeclStaticString(ret);
-    ret.setEmpty();
     QSettings instsetts( scope, qtEditorName(), sKeyqInstaller() );
     instsetts.setFallbacksEnabled( false );
     if ( instsetts.status() != QSettings::Status::NoError )
-	return nullptr;
+	return BufferString::empty();
 
+    BufferString instver;
     QVariant qvarinstexec = instsetts.value( sKeyqInstallerExecFnm() );
-    if ( __islinux__ && scope == QSettings::Scope::UserScope &&
+    if ( __islinux__ && scope == QSettings::Scope::SystemScope &&
 	qvarinstexec.isNull() )
     {
 	QSettings instsettsnet( scope, qtEditorName(), "NetworkInstaller" );
 	instsettsnet.setFallbacksEnabled( false );
 	qvarinstexec = instsettsnet.value( sKeyqInstallerExecFnm() );
+	instver = qSettingsString( instsettsnet, sKeyqInstallerVersion() );
     }
+    else
+	instver = qSettingsString( instsetts, sKeyqInstallerVersion() );
 
     if ( qvarinstexec.isNull() )
-	return nullptr;
+	return BufferString::empty();
 
     const QString qinstexec = qvarinstexec.toString();
-    BufferString instexec( qinstexec );
+    BufferString ret( qinstexec );
     if ( __iswin__ && scope == QSettings::Scope::SystemScope &&
 	 typ != ActionType::UpdateCheck )
     { // od_instmgr may have embedded UAC,
       // run_installer.exe is stored under qvarinstexec
-	FilePath instscriptfp( instexec );
+	FilePath instscriptfp( ret );
 	instscriptfp.setFileName( "od_instmgr.exe" );
 	BufferString instscript = instscriptfp.fullPath();
 	if ( File::isExecutable(instscript.buf()) &&
 	     !File::isDirectory(instscript.buf()) )
-	    instexec = instscript;
+	     ret = instscript;
 	else
 	{
 	    instscriptfp.setFileName( "od_instmgrd.exe" );
 	    if ( File::isExecutable(instscript.buf()) &&
 		 !File::isDirectory(instscript.buf()) )
-		instexec = instscript;
+		 ret = instscript;
 	}
     }
 
-    if ( File::isExecutable(instexec.buf()) &&
-	 !File::isDirectory(instexec.buf()) )
-	ret = File::getCanonicalPath( instexec.str() );
-
-    return ret.buf();
-}
-
-
-static const char* getInstallerVersion( const char* execfnm )
-{
-    mDeclStaticString(ret);
-    if ( !StringView(execfnm).isEmpty() )
+    if ( File::isExecutable(ret.buf()) &&
+	 !File::isDirectory(ret.buf()) )
     {
-	FilePath fp( execfnm );
-	fp.setFileName( nullptr );
-	const BufferString mask( "ver.*_", GetPlfSubDir(), ".txt" );
-	while ( !fp.isEmpty() )
-	{
-	    fp.setFileName( nullptr );
-	    if ( fp.isEmpty() )
-		break;
+	if ( verstr )
+	    *verstr = instver;
 
-	    if ( __ismac__ && fp.fileName() == "Contents" )
-		fp.setFileName( "Resources" );
-
-	    fp.setFileName( "relinfo" );
-	    if ( !fp.exists() )
-		continue;
-
-	    const DirList dl( fp.fullPath(), File::DirListType::FilesInDir,
-			      mask.str() );
-	    if ( !dl.isEmpty() )
-	    {
-		ret.setEmpty();
-		File::getContent( dl.fullPath(0), ret );
-	    }
-
-	    break;
-	}
+	const FilePath canonfp( File::getCanonicalPath( ret.str() ) );
+	return canonfp.fullPath();
     }
 
-    return ret.buf();
-
+    return BufferString::empty();
 }
 
 
-static const char* getUserInstallerExe( ActionType typ )
+static BufferString getUserInstallerExe( ActionType typ,
+					 BufferString* verstr )
 {
     // No cache, always read from the current settings
-    mDeclStaticString(ret);
-    ret = getInstallerExe( QSettings::Scope::UserScope, typ );
-    return ret.buf();
+    return getInstallerExe( QSettings::Scope::UserScope, typ, verstr );
 }
 
 
-static const char* getSystemInstallerExe( ActionType typ )
+static BufferString getSystemInstallerExe( ActionType typ,
+					  BufferString* verstr )
 {
     // No cache, always read from the current settings
-    mDeclStaticString(ret);
-    ret = getInstallerExe( QSettings::Scope::SystemScope, typ );
-    return ret.buf();
+    return getInstallerExe( QSettings::Scope::SystemScope, typ, verstr );
 }
 
 
-static BufferString getLocalInstallerDir()
+static FilePath installerRelInfoDir( const FilePath& installerdir )
 {
-    mDeclStaticString(ret);
-    BufferString appldir( softwareDir() );
-    if ( File::isSymLink(appldir) )
-	appldir = File::linkEnd( appldir );
-
-    FilePath installerdir( appldir );
-    installerdir.setFileName( __ismac__ ? "OpendTect Installer.app"
-					: "Installer" );
-    FilePath relinfosubdir( installerdir );
+    FilePath relinfodir( installerdir );
     if ( __ismac__ )
-	relinfosubdir.add( "Contents" ).add( "Resources" );
+	relinfodir.add( "Contents" ).add( "Resources" );
 
-    relinfosubdir.add( "relinfo" );
+    relinfodir.add( "relinfo" );
+    return relinfodir;
+}
+
+
+static bool isValidInstallerDir( const FilePath& installerdir )
+{
+    const FilePath relinfosubdir = installerRelInfoDir( installerdir );
     if ( !relinfosubdir.exists() )
-	return nullptr;
+	return false;
 
-    bool isvalid = false;
     FilePath moddepfp( installerdir );
     if ( __ismac__ )
 	moddepfp.add( "Contents" ).add( "Resources" );
 
     moddepfp.add( "share" ).add( "ModDeps.Installer" );
     if ( moddepfp.exists() )
+	return true;
+
+    const DirList dl( relinfosubdir.fullPath(),
+		      File::DirListType::FilesInDir );
+    for ( int idx=0; idx<dl.size(); idx++ )
     {
-	isvalid = true;
-    }
-    else
-    {
-	const DirList dl( relinfosubdir.fullPath(),
-			  File::DirListType::FilesInDir );
-	for ( int idx=0; idx<dl.size(); idx++ )
-	{
-	    if ( dl.get(idx).contains("instmgr") )
-	    {
-		isvalid = true;
-		break;
-	    }
-	}
+	if ( dl.get(idx).contains("instmgr") )
+	    return true;
     }
 
-    if ( isvalid )
-    {
-	const BufferString instdir = installerdir.fullPath();
-	ret = File::getCanonicalPath( instdir.str() );
-    }
-
-    return ret.buf();
+    return false;
 }
 
 
-static const char* getLocalInstallerExe( ActionType typ )
+static void readLocalInstallerVersion( const FilePath& installerdir,
+				       BufferString& verstr )
 {
-    mDeclStaticString(ret);
-    const BufferString installerbasedir( getLocalInstallerDir() );
+    FilePath verfp = installerRelInfoDir( installerdir );
+    const BufferString plfverfnm( "ver.instmgr_", GetPlfSubDir(), ".txt" );
+    verfp.add( plfverfnm.str() );
+    if ( !verfp.exists() )
+	verfp.setFileName( "ver.instmgr.txt" );
+
+    verstr.setEmpty();
+    if ( verfp.exists() )
+	File::getContent( verfp.fullPath(), verstr );
+
+    verstr.trimBlanks();
+}
+
+
+static BufferString getLocalInstallerDir( BufferString* verstr=nullptr )
+{
+    BufferString appldir( softwareDir() );
+    if ( File::isSymLink(appldir) )
+	appldir = File::linkEnd( appldir );
+
+    const char* instdirnm = __ismac__ ? "OpendTect Installer.app"
+				       : "Installer";
+    // The installer is installed at the installation root. Versioned layouts
+    // are <root>/<version>/<product>, so that root can be above the
+    // application directory.
+    FilePath basedir( appldir );
+    while ( basedir.nrLevels() > 0 )
+    {
+	FilePath installerdir( basedir );
+	installerdir.setFileName( instdirnm );
+	if ( isValidInstallerDir(installerdir) )
+	{
+	    if ( verstr )
+		readLocalInstallerVersion( installerdir, *verstr );
+
+	    const BufferString instdir = installerdir.fullPath();
+	    const FilePath canonfp( File::getCanonicalPath(instdir.str()) );
+	    return canonfp.fullPath();
+	}
+
+	basedir.setFileName( nullptr );
+    }
+
+    return BufferString::empty();
+}
+
+
+static BufferString getLocalInstallerExe( ActionType typ,
+					  BufferString* verstr=nullptr )
+{
+    const BufferString installerbasedir( getLocalInstallerDir(verstr) );
     if ( !File::isDirectory(installerbasedir.buf()) )
-	return nullptr;
+	return BufferString::empty();
 
     ManagedObjectSet<FilePath> installerbinfps;
     FilePath installerfp( installerbasedir.str() );
@@ -419,6 +440,7 @@ static const char* getLocalInstallerExe( ActionType typ )
 	installerbinfps.add( new FilePath(installerfp) );
     }
 
+    BufferString ret;
     for ( const auto* execdir : installerbinfps )
     {
 	FilePath execfp( *execdir );
@@ -466,31 +488,29 @@ static const char* getLocalInstallerExe( ActionType typ )
 	if ( File::isExecutable(instexec.buf()) &&
 	     !File::isDirectory(instexec.buf()) )
 	{
-	    ret = File::getCanonicalPath( instexec.str() );
+	    const FilePath canonfp( File::getCanonicalPath( instexec.str() ) );
+	    ret = canonfp.fullPath();
 	    break;
 	}
     }
 
-    return ret.buf();
+    if ( ret.isEmpty() && verstr )
+	verstr->setEmpty();
+
+    return ret;
 }
 
 
-static const char* getInstallerExe( ActionType typ=ActionType::Standard )
+static BufferString getInstallerExe( ActionType typ=ActionType::Standard,
+				     BufferString* verstr=nullptr )
 {
-    mDeclStaticString(ret);
     const bool isuserinst = isUserInst();
-    BufferString instexec = isuserinst ? getUserInstallerExe( typ )
-				       : getSystemInstallerExe( typ );
-    if ( instexec.isEmpty() )
-	instexec = getLocalInstallerExe( typ );
+    BufferString ret = isuserinst ? getUserInstallerExe( typ, verstr )
+				  : getSystemInstallerExe( typ, verstr );
+    if ( ret.isEmpty() )
+	ret = getLocalInstallerExe( typ, verstr );
 
-    if ( !instexec.isEmpty() )
-    {
-	getInstallerVersion( instexec.str() );
-	ret = instexec.str();
-    }
-
-    return ret.buf();
+    return ret;
 }
 
 
@@ -504,7 +524,8 @@ static OS::MachineCommand getFullMachComm( const char* odinstdir,
 	odinstdirstr.set( odinstdir );
 
     odinstdir = odinstdirstr.buf();
-    const BufferString installerexe( getInstallerExe(typ) );
+    BufferString instver;
+    const BufferString installerexe( getInstallerExe(typ,&instver) );
     OS::MachineCommand mc;
     if ( installerexe.isEmpty() )
 	return mc;
@@ -512,7 +533,7 @@ static OS::MachineCommand getFullMachComm( const char* odinstdir,
     mc.setProgram( installerexe )
       .addKeyedArg( "instdir", odinstdir );
 
-    const SeparString fms( getInstallerVersion(nullptr), '.' );
+    const SeparString fms( instver.buf(), '.' );
     const bool ispre2026 = !fms.isEmpty() && fms.getUI16Value(0) > 1999 &&
 			   fms.getUI16Value(0) < 2026;
 
@@ -700,7 +721,7 @@ BufferString ODInst::GetInstallerDir()
     QSettings instsetts( instscope, qtEditorName(), sKeyqInstaller() );
     instsetts.setFallbacksEnabled( false );
     QVariant qvarinstsettlist = instsetts.value( sKeyqInstallerDir() );
-    if ( __islinux__ && instscope == QSettings::Scope::UserScope &&
+    if ( __islinux__ && instscope == QSettings::Scope::SystemScope &&
 	qvarinstsettlist.isNull() )
     {
 	QSettings instsettsnet( instscope, qtEditorName(), "NetworkInstaller" );
