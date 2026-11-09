@@ -26,6 +26,8 @@ protected:
 			~uiODSceneTreeItem();
 
     bool		init() override;
+    bool		isVSGScene();
+			//!<True if the scene has no ui3DViewer
     void		createMenu(MenuHandler*,bool istb);
     bool		showSubMenu() override;
 

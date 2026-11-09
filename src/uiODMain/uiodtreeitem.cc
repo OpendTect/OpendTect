@@ -31,11 +31,18 @@ const char* uiODTreeTop::applmgrstr()		{ return "Applmgr"; }
 
 uiODTreeTop::uiODTreeTop( ui3DViewer* sovwr, uiTreeView* lv, uiODApplMgr* am,
 			    uiTreeFactorySet* tfs_ )
+    : uiODTreeTop(sovwr->sceneID(),lv,am,tfs_)
+{
+    setPropertyPtr( viewerptr(), sovwr );
+}
+
+
+uiODTreeTop::uiODTreeTop( const SceneID& sceneid, uiTreeView* lv,
+			  uiODApplMgr* am, uiTreeFactorySet* tfs_ )
     : uiTreeTopItem(lv)
     , tfs(tfs_)
 {
-    setProperty<int>( sceneidkey(), sovwr->sceneID().asInt() );
-    setPropertyPtr( viewerptr(), sovwr );
+    setProperty<int>( sceneidkey(), sceneid.asInt() );
     setPropertyPtr( applmgrstr(), am );
 
     mAttachCB(tfs->addnotifier, uiODTreeTop::addFactoryCB);
@@ -417,8 +424,17 @@ void uiODSceneTreeItem::addToToolBarCB( CallBacker* cb )
 }
 
 
+bool uiODSceneTreeItem::isVSGScene()
+{
+    return !viewer();
+}
+
+
 void uiODSceneTreeItem::createMenu( MenuHandler* menu, bool istb )
 {
+    if ( isVSGScene() )
+	return;
+
     mAddMenuOrTBItem( istb, menu, menu, &propitem_, true, false );
     mAddMenuOrTBItem( istb, nullptr, menu, &imageitem_, true, false );
     mAddMenuOrTBItem( istb, nullptr, menu, &coltabitem_, true, false );
@@ -471,5 +487,8 @@ void uiODSceneTreeItem::updateColumnText( int col )
 
 bool uiODSceneTreeItem::showSubMenu()
 {
+    if ( isVSGScene() )
+	return false;
+
     return menu_->executeMenu( uiMenuHandler::fromTree() );
 }
