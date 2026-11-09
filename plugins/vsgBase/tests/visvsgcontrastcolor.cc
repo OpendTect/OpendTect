@@ -36,7 +36,8 @@ static bool testContrastingColor()
     mRunStandardTest( ODVsg::contrastingColor(white,darkcyan) == white,
 		      "Contrasting color: White on a dark background is kept" );
     mRunStandardTest( ODVsg::contrastingColor(black,snow) == black,
-		      "Contrasting color: Black on a light background is kept" );
+		      "Contrasting color: Black on a light background is "
+		      "kept" );
 
     const OD::Color ondark = ODVsg::contrastingColor(black,
 						      OD::Color::Anthracite());

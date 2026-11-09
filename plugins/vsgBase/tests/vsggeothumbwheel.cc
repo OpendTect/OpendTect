@@ -82,7 +82,7 @@ vsg::ubvec4 pixelAt( const Pixels& pixels, const WheelSpec& spec, double along,
     if ( xpix<0 || ypix<0 || xpix>=int(cSize) || ypix>=int(cSize) )
 	return vsg::ubvec4( 0, 0, 0, 0 );
 
-    return pixels[ int((cSize-1-ypix)*cSize + xpix) ];
+    return pixels[ sCast(int,(cSize-1-ypix)*cSize + xpix) ];
 }
 
 
@@ -630,8 +630,8 @@ static bool testWheelGlassColor()
     mRunStandardTest( ov.readColor(pixels), "Glass color: Image is read" );
     const double between = 91.25 * cPi / 180.;
     const vsg::ubvec4 body = pixelAt( pixels, spec, alongAt(spec,between), 0 );
-    BufferString msg( "Pixel: ", int(body.r) );
-    msg.add( " " ).add( int(body.g) ).add( " " ).add( int(body.b) );
+    BufferString msg( "Pixel: ", sCast(int,body.r) );
+    msg.add( " " ).add( sCast(int,body.g) ).add( " " ).add( sCast(int,body.b) );
     mRunStandardTestWithError( body.r>=15 && body.g<=2 && body.b<=2,
 			       "Glass color: The glass takes the color that "
 			       "is set", msg );

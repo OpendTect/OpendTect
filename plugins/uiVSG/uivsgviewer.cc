@@ -134,7 +134,7 @@ public:
 	     vsg::ref_ptr<vsg::Orthographic> projection,
 	     vsg::ref_ptr<vsg::Camera> hudcamera,
 	     vsg::ref_ptr<vsg::ClearAttachments> clear,
-		     vsg::ref_ptr<vsg::ClearAttachments> bgclear,
+	     vsg::ref_ptr<vsg::ClearAttachments> bgclear,
 	     RefMan<ODVsg::Axes> axes,
 	     const std::function<void(uint32_t,uint32_t)>& placeitems )
 	: window_(window)
@@ -144,7 +144,7 @@ public:
 	, clear_(clear)
 	, axes_(axes)
 	, placeitems_(placeitems)
-		, bgclear_(bgclear)
+	, bgclear_(bgclear)
     {}
 
     void run() override
@@ -159,8 +159,7 @@ public:
 					mMAX(1u,base.height) );
 	clear_->rects.front().rect.extent = VkExtent2D{ mMAX(1u,base.width),
 							mMAX(1u,base.height) };
-		bgclear_->rects.front().rect.extent =
-					clear_->rects.front().rect.extent;
+	bgclear_->rects.front().rect.extent = clear_->rects.front().rect.extent;
 	const float offset = axes_->getLength() + axes_->getMargin();
 	if ( extent.width==width_ && extent.height==height_ &&
 	     offset==offset_ )
@@ -1119,13 +1118,20 @@ void uiVSGViewer::applyAnnotationColor()
     if ( scenecoltab_ )
 	scenecoltab_->setLegendColor( col );
 
-    ODVsg::ThumbWheel* wheels[] = { horthumbwheel_.ptr(), verthumbwheel_.ptr(),
-				     distancethumbwheel_.ptr() };
-    for ( ODVsg::ThumbWheel* wheel : wheels )
-    {
-	if ( wheel )
-	    wheel->setAnnotationColor( cornercol );
-    }
+    setWheelColor( cornercol );
+}
+
+
+void uiVSGViewer::setWheelColor( const OD::Color& col )
+{
+    if ( horthumbwheel_ )
+	horthumbwheel_->setAnnotationColor( col );
+
+    if ( verthumbwheel_ )
+	verthumbwheel_->setAnnotationColor( col );
+
+    if ( distancethumbwheel_ )
+	distancethumbwheel_->setAnnotationColor( col );
 }
 
 
@@ -1311,13 +1317,13 @@ void uiVSGViewer::setupVSG()
     RefMan<ODVsg::ThumbWheel> distwheel = distancethumbwheel_;
     RefMan<ODVsg::SceneColTab> coltab = scenecoltab_;
     const std::function<void(uint32_t,uint32_t)> placeitems =
-	[horwheel,verwheel,distwheel,coltab,background]( uint32_t width,
-							 uint32_t height ) mutable
+	[horwheel,verwheel,distwheel,coltab,background](
+			uint32_t width, uint32_t height ) mutable
 	{
 	    placeWheels( *horwheel.ptr(), *verwheel.ptr(), *distwheel.ptr(),
 			 height );
 	    coltab->setWindowSize( int(width), int(height) );
-	    background->setSize( float(width), float(height) );
+	    background->setSize( sCast(float,width), sCast(float,height) );
 	};
     viewer_->addUpdateOperation( HudSync::create(vsgwindow_,windowgraph,
 		hudprojection_,

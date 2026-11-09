@@ -44,6 +44,9 @@ ________________________________________________________________________
 namespace ODVsg
 {
 
+static constexpr float cGradientCornerFactor = 0.35f;
+
+
 RefMan<Scene> Scene::create()
 {
     RefMan<Scene> ret = new Scene;
@@ -601,17 +604,15 @@ const OD::Color Scene::getAnnotColor() const
 }
 
 
-static constexpr float cGradientCornerFactor = 0.35f;
-
 static unsigned char scaledColorValue( unsigned char val )
 {
-    return (unsigned char)( val*cGradientCornerFactor + 0.5f );
+    return sCast( unsigned char, val*cGradientCornerFactor + 0.5f );
 }
 
 
 static unsigned char meanColorValue( unsigned char val1, unsigned char val2 )
 {
-    return (unsigned char)( (int(val1)+int(val2)) / 2 );
+    return sCast( unsigned char, (sCast(int,val1)+sCast(int,val2)) / 2 );
 }
 
 

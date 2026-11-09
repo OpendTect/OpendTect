@@ -319,7 +319,7 @@ static bool testAnnotationGrid()
 
     int boxgreen = 0;
     for ( uint32_t y=edgey0; y<=edgey1; y++ )
-	boxgreen = mMAX( boxgreen, int(ov.pixel(pixels,cx,y).g) );
+	boxgreen = mMAX( boxgreen, sCast(int,ov.pixel(pixels,cx,y).g) );
 
     mRunStandardTestWithError( boxgreen>=250,
 			       "The box is drawn in the annotation color",
@@ -336,7 +336,7 @@ static bool testAnnotationGrid()
     int maxgreen = 0;
     for ( uint32_t y=y0; y<=y1; y++ )
 	for ( uint32_t x=x0; x<=x1; x++ )
-	    maxgreen = mMAX( maxgreen, int(ov.pixel(pixels,x,y).g) );
+	    maxgreen = mMAX( maxgreen, sCast(int,ov.pixel(pixels,x,y).g) );
 
     mRunStandardTestWithError( maxgreen>=250,
 			       "Grid lines are drawn in the annotation color",

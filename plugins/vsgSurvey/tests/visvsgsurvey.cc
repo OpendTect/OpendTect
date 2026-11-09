@@ -423,7 +423,8 @@ static bool testBackgroundColor()
     mRunStandardTest( scene->getAnnotColor()==OD::Color::White() &&
 		      onwhite.r()<160 && onwhite.r()==onwhite.g() &&
 		      onwhite.g()==onwhite.b(),
-		      "The annotation is drawn dark gray on a white background" );
+		      "The annotation is drawn dark gray on a white "
+		      "background" );
     scene->setBackgroundColor( OD::Color::Anthracite() );
     mRunStandardTest( scene->getDisplayedAnnotColor()==OD::Color::White(),
 		      "The annotation is drawn white on a dark background" );

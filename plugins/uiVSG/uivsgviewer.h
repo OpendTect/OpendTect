@@ -59,13 +59,9 @@ public:
     void		setBackgroundColor(const OD::Color&);
     void		setBackgroundGradient(bool);
     bool		isBackgroundGradient() const;
-			/*!<The background color is in the middle, the corners
-			    are darker */
     OD::Color		getBackgroundColor() const;
     void		setAnnotationColor(const OD::Color&);
     OD::Color		getAnnotationColor() const;
-			/*!<Of the survey box, the axes, the wheels and the
-			    color bar text */
 
     enum class WheelMode	{ Never, Always, OnHover };
     void		setWheelDisplayMode(WheelMode);
@@ -110,6 +106,7 @@ private:
 
     void		showWheels(bool);
     void		applyAnnotationColor();
+    void		setWheelColor(const OD::Color&);
     void		applyBackground();
     void		thumbWheelRotated(CallBacker*,float delta);
     void		cameraMoved(float hor,float vert,float dist,bool step);

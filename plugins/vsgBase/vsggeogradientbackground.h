@@ -19,11 +19,8 @@ ________________________________________________________________________
 namespace vsgGeo
 {
 
-/*!\brief The background of a view, in pixels with y up: the center color in the
-  middle and the corner color in the corners. The color changes linearly with
-  the distance from the middle, so that the lines of equal color are circles.
-  Meant for a view of its own that comes before the scene, with the depth
-  cleared after it. */
+/*!\brief The background of a view: the center color in the middle, fading to
+  the corner color in the corners. */
 
 class VSGGEO_EXPORT GradientBackground
     : public vsg::Inherit<vsg::Group,GradientBackground>

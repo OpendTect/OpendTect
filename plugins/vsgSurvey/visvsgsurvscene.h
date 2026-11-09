@@ -102,19 +102,12 @@ public:
     void		setAnnotColor(const OD::Color&) override;
     const OD::Color	getAnnotColor() const override;
     OD::Color		getDisplayedAnnotColor() const;
-			/*!<The annotation color, or black or white if that
-			    does not stand out against the background */
     OD::Color		getDisplayedCornerAnnotColor() const;
-			/*!<The same for what is drawn in the corners of the
-			    view, where a gradient is darker */
     void		setBackgroundGradient(bool);
     bool		isBackgroundGradient() const	{ return gradientbg_; }
     OD::Color		getBackgroundCornerColor() const;
-			/*!<The background color is the color in the middle. In
-			    the corners it is darker with a gradient. */
     void		setBackgroundColor(const OD::Color&);
     OD::Color		getBackgroundColor() const	{ return bgcolor_; }
-			//!<From the OD scene settings, anthracite if not set
     void		setAnnotFont(const FontData&) override;
     const FontData&	getAnnotFont() const override;
 
