@@ -35,6 +35,10 @@ public:
 
     const char*		errMsg() const;
 
+    static constexpr int cFirstID()	{ return 1000000; }
+			/*!<The first id of a visBase object. The ids of the
+			    ODVsg objects stay below it. */
+
     void		getIDs(const std::type_info&,TypeSet<VisID>&) const;
     VisID		highestID() const;
     void		updateID(const VisID& oldid,const VisID& newid);
@@ -71,7 +75,7 @@ private:
     std::unordered_map<int,DataObject*>     visidobjmap_;
     mutable Threads::Lock	lock_;
 
-    int				freeid_ = 0;
+    int				freeid_ = cFirstID();
     SelectionManager&		selman_;
     BufferString		errmsg_;
 

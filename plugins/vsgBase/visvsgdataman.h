@@ -29,7 +29,8 @@ namespace ODVsg
 class DataObject;
 
 /*!\brief Keeps track of all ODVsg objects by id. Separate from
-  visBase::DM(), so a ODVsg id never refers to a visBase object. */
+  visBase::DM(). The ids count up from 0 and the ids of visBase start at
+  visBase::DataManager::cFirstID(), so an id is never both. */
 
 mExpClass(vsgBase) DataManager : public CallBacker
 {

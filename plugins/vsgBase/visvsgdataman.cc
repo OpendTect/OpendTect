@@ -23,6 +23,7 @@ ________________________________________________________________________
 #include "errmsg.h"
 #include "iopar.h"
 #include "ptrman.h"
+#include "visdataman.h"
 
 namespace ODVsg
 {
@@ -174,6 +175,9 @@ void DataManager::addObject( DataObject* obj )
 {
     objects_ += obj;
     const VisID visid( freeid_++ );
+    if ( visid.asInt() >= visBase::DataManager::cFirstID() )
+	pErrMsg( "ODVsg ids reached the ids of the visBase objects" );
+
     visidobjmap_[visid.asInt()] = obj;
     obj->setID( visid );
 }
