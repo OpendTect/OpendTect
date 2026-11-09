@@ -224,6 +224,7 @@ void uiVSGPIMgr::screenshotCB( CallBacker* )
 	uiMSG().error( uirv );
 }
 
+*/
 
 static OD::ButtonState keyboardModifiers()
 {
@@ -231,15 +232,17 @@ static OD::ButtonState keyboardModifiers()
 				QGuiApplication::queryKeyboardModifiers();
     int state = 0;
     if ( mods & Qt::ShiftModifier )
-	state |= int(OD::ShiftButton);
-    if ( mods & Qt::ControlModifier )
-	state |= int(OD::ControlButton);
-    if ( mods & Qt::AltModifier )
-	state |= int(OD::AltButton);
+	state |= sCast( int, OD::ShiftButton );
 
-    return OD::ButtonState( state );
+    if ( mods & Qt::ControlModifier )
+	state |= sCast( int, OD::ControlButton );
+
+    if ( mods & Qt::AltModifier )
+	state |= sCast( int, OD::AltButton );
+
+    return sCast( OD::ButtonState, state );
 }
-*/
+
 
 mDefODPluginInfo(uiVSG)
 {
@@ -255,7 +258,7 @@ mDefODInitPlugin(uiVSG)
     ODVsg::DataObject::setVisualizationThread( Threads::currentThread() );
     ODVsg::initStdClasses();
     ODVsg::initSurveyClasses();
-    //ODVsg::EventCatcher::setModifierQuery( keyboardModifiers );
+    ODVsg::EventCatcher::setModifierQuery( keyboardModifiers );
     od_cerr() << "VSG Viewer: this is the od plugin, not the dgb one"
 	      << od_endl;
 

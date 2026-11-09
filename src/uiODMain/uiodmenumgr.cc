@@ -855,6 +855,10 @@ void uiODMenuMgr::fillSceneMenu()
 
     insertAction( scenemnu_, m3Dots(uiStrings::sProperties()),
 		 mScenePropMnuItm );
+    if ( isVSGAvailable() )
+	insertAction( scenemnu_, m3Dots(tr("VSG Color Table")),
+		      mVSGColTabMnuItm );
+
     scenemnu_->insertSeparator();
 
     updateSceneMenu();
@@ -1425,6 +1429,9 @@ void uiODMenuMgr::handleViewClick( CallBacker* cb )
 	{
 	    if ( vwr )
 		vwr->viewAll();
+	    else
+		applMgr().visServer()->doVSGViewAction(
+					    uiVisPartServer::VSGViewAll );
 	}
 	return;
     }
@@ -1524,7 +1531,7 @@ void uiODMenuMgr::dispColorBar( CallBacker* cb )
     mDynamicCastGet(uiAction*,itm,cb)
     if ( itm && itm->getID()==0 )
     {
-	visserv.manageSceneColorbar( sceneMgr().askSelectScene() );
+	visserv.manageSceneColorbar( sceneMgr().askSelectScene(true) );
 	return;
     }
 
@@ -1689,6 +1696,9 @@ void uiODMenuMgr::handleClick( CallBacker* cb )
 				sceneMgr().addScene(true); break;
     case mAddVSGSceneMnuItm:	sceneMgr().tile();
 				applMgr().visServer()->addVSGScene(true); break;
+    case mVSGColTabMnuItm:
+	applMgr().visServer()->showVSGDialog( uiVisPartServer::VSGColorTable );
+	break;
     case mAddTimeDepth2DMnuItm: applMgr().addTimeDepthScene(true); break;
     case mAddTimeDepth3DMnuItm: applMgr().addTimeDepthScene(false); break;
     case mAddHorFlat2DMnuItm:	applMgr().addHorFlatScene(true); break;

@@ -78,6 +78,8 @@ public:
     bool		maxCaptureSize(uint32_t& maxwidth,
 				       uint32_t& maxheight) const;
 
+			//! The last opened one if the id is not valid
+    static uiVSGViewer*	find(const SceneID&);
     ODVsg::Scene* scene();
     void		setScene(ODVsg::Scene*);
 			//!<Only before the viewer is first shown. Without it
@@ -91,8 +93,16 @@ public:
     bool		isViewMode() const;
     void		syncCursor()		{ updateCursor(); }
 
+			//! A saved home position is kept in the survey
+    void		toHomePos();
+    void		saveHomePos();
+    void		resetHomePos();
+    void		viewAll();
+
     CNotifier<uiVSGViewer,SceneID> closing;
 			//!<Triggered when the viewer is deleted
+			//! Triggered when the Esc key switched the mode
+    CNotifier<uiVSGViewer,bool> viewmodechanged;
 
 private:
 
@@ -100,12 +110,24 @@ private:
     class		WheelLink;
     class		ColTabLink;
 
+    struct Pose
+    {
+	vsg::dvec3	eye_;
+	vsg::dvec3	center_;
+	vsg::dvec3	up_;
+    };
+
     uiObjectBody&	mkBody(uiParent*,const char* nm);
 
     void		showWheels(bool);
     void		applyAnnotationColor();
     void		setWheelColor(const OD::Color&);
     void		applyBackground();
+    void		applyAnnotationFont(const FontData&);
+    void		font3DChangedCB(CallBacker*);
+    void		viewModeToggledCB(CallBacker*);
+    vsg::LookAt*	cameraLookAt() const;
+    void		initHomePos();
     void		thumbWheelRotated(CallBacker*,float delta);
     void		cameraMoved(float hor,float vert,float dist,bool step);
     void		initializeVSG();
@@ -156,6 +178,8 @@ private:
     vsg::ref_ptr<vsg::ClearAttachments>	offscreenbgclear_;
     vsg::ref_ptr<vsg::View>		offscreenbgview_;
     vsg::ref_ptr<vsg::ClearAttachments>	offscreenhudclear_;
+    Pose				homepose_;
+    bool				hashomepose_ = false;
     FontData				annotfont_;
     bool				hasannotfont_ = false;
     bool				initfailed_ = false;

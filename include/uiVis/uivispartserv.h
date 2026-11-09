@@ -100,6 +100,8 @@ public:
     CNotifier<uiVisPartServer,VisAttribID>	attribAdded;
     CNotifier<uiVisPartServer,VisAttribID>	attribRemoved;
     CNotifier<uiVisPartServer,VisAttribID>	datapackDisplayed;
+				//! After a VSG scene got its viewer
+    CNotifier<uiVisPartServer,SceneID>		vsgSceneAdded;
 
     void		removeSelection();
 
@@ -110,6 +112,21 @@ public:
     SceneID		addVSGScene(bool maximized,
 			const uiString& nm=uiString::empty());
 
+    enum VSGAction	{ VSGScreenshot, VSGSettings, VSGColorTable,
+			  VSGColorBar };
+    TypeSet<SceneID>	vsgSceneIds() const;
+			//! Without a scene: the last opened VSG viewer
+    bool		showVSGDialog(VSGAction,
+				      const SceneID& =SceneID::udf());
+    enum VSGViewAction	{ VSGToHome, VSGSaveHome, VSGResetHome,
+			  VSGViewAll };
+			//! In all the VSG scenes
+    void		doVSGViewAction(VSGViewAction);
+    void		setVSGViewMode(bool);
+			//! Triggers with a bool when Esc switched the mode
+    NotifierAccess*	vsgViewModeNotifier(const SceneID&);
+			//! Each time it is shown, modern and classic swap
+    void		showVSGAxis(bool);
     void		removeScene(const SceneID&);
     int			nrScenes() const;
     NotifierAccess&	nrScenesChange() { return nrscenesChange; }
@@ -509,8 +526,10 @@ protected:
     bool			createVSGViewer(const SceneID&,bool maximized,
 						const uiString& nm,
 						NotifierAccess** closing=nullptr);
-			
+
     void 			vsgViewerClosedCB(CallBacker*);
+				//! Calls fnnm of the plugin for each VSG scene
+    void			setVSGSceneFlag(const char* fnnm,bool yn) const;
     void			mouseCursorCB(CallBacker*);
     void			rightClickCB(CallBacker*);
     void			selectObjCB(CallBacker*);

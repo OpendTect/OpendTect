@@ -111,7 +111,7 @@ public:
     void			vWheelMoved(CallBacker*);
     void			dWheelMoved(CallBacker*);
 
-    SceneID			askSelectScene() const; // returns sceneid
+    SceneID			askSelectScene(bool includevsg=false) const;
     const ui3DViewer*		get3DViewer(const SceneID&) const;
     ui3DViewer*			get3DViewer(const SceneID&);
     void			get3DViewers(ObjectSet<ui3DViewer>&);
@@ -239,6 +239,8 @@ protected:
     Scene&			mkNewScene();
     void			removeScene(Scene& scene);
     void			removeSceneCB(CallBacker*);
+    void			vsgSceneAddedCB(CallBacker*);
+    void			vsgViewModeChangedCB(CallBacker*);
     void			initTree(Scene&,int);
     Scene*			getScene(const SceneID&);
     const Scene*		getScene(const SceneID&) const;
