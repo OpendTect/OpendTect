@@ -155,6 +155,7 @@ protected:
     void		handleClick(CallBacker*);
     void		removeSelection(CallBacker*);
     void		dispColorBar(CallBacker*);
+    void		axisStyleClick(CallBacker*);
     void		manSeis(CallBacker*);
     void		manHor(CallBacker*);
     void		manBody(CallBacker*);

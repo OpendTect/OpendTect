@@ -2811,6 +2811,12 @@ void uiVisPartServer::showVSGAxis( bool yn )
 }
 
 
+void uiVisPartServer::setVSGModernAxes( bool yn )
+{
+    setVSGSceneFlag( "setVSGModernAxes", yn );
+}
+
+
 void uiVisPartServer::setVSGViewMode( bool yn )
 {
     setVSGSceneFlag( "setVSGViewMode", yn );

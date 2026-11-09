@@ -1362,6 +1362,12 @@ void uiODMenuMgr::fillCoinTB( uiODSceneMgr* scenemgr )
 
     axisid_ = mAddTB(viewtb_,"axis",tr("Display Orientation Axis"),
 		     true,showRotAxis);
+    auto* axismnu = new uiMenu( &appl_, tr("Axis Menu") );
+    axismnu->insertAction( new uiAction(tr("Modern"),
+					mCB(this,uiODMenuMgr,axisStyleClick)), 0 );
+    axismnu->insertAction( new uiAction(tr("Classic"),
+					mCB(this,uiODMenuMgr,axisStyleClick)), 1 );
+    viewtb_->setButtonMenu( axisid_, axismnu );
     coltabid_ = viewtb_->addButton( "colorbar", tr("Display Color Bar"),
 			    mCB(this,uiODMenuMgr,dispColorBar), true );
     auto* colbarmnu = new uiMenu( &appl_, tr("ColorBar Menu") );
@@ -1544,6 +1550,16 @@ void uiODMenuMgr::dispColorBar( CallBacker* cb )
     }
 
     visserv.displaySceneColorbar( viewtb_->isOn(coltabid_) );
+}
+
+
+void uiODMenuMgr::axisStyleClick( CallBacker* cb )
+{
+    mDynamicCastGet(uiAction*,itm,cb)
+    if ( !itm )
+	return;
+
+    appl_.applMgr().visServer()->setVSGModernAxes( itm->getID()==0 );
 }
 
 

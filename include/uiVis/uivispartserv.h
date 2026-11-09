@@ -132,9 +132,9 @@ public:
 			/*!<Triggers, with a bool, when the mode of the scene
 			    was switched in its VSG window. Null if not found */
     void		showVSGAxis(bool);
-			/*!<Shows or hides the orientation axis of the VSG
-			    scenes. Each time it is shown, the style of the axis
-			    changes between modern and classic. */
+			//!<Shows or hides the axis of the VSG scenes
+    void		setVSGModernAxes(bool);
+			//!<True: the modern style of the axis, false: classic
     void		removeScene(const SceneID&);
     int			nrScenes() const;
     NotifierAccess&	nrScenesChange() { return nrscenesChange; }
