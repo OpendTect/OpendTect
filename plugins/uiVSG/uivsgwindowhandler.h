@@ -14,6 +14,7 @@ ________________________________________________________________________
 -*/
 
 #include "uivsgmod.h"
+#include "callback.h"
 #include "commondefs.h"
 
 #include <vsg/core/Inherit.h>
@@ -35,6 +36,8 @@ public:
 				/*!<True: left button orbits, Ctrl+left pans.
 				    False: left button picks and drags. */
     bool			isViewMode() const	{ return viewmode_; }
+    void			setViewModeToggledCB(const CallBack&);
+				//!<Called when the Esc key switched the mode
     void			syncCursor();
     void			syncPointerPolicy();
 
@@ -49,6 +52,7 @@ private:
     void			refresh();
 
     bool				viewmode_ = true;
+    CallBack				viewmodetoggledcb_;
     dGBVSGWindow*			window_ = nullptr;
     vsg::ref_ptr<vsgGeo::Trackball>	trackball_;
     ODVsg::Scene*		scene_ = nullptr;

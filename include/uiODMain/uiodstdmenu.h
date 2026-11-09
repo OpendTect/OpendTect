@@ -263,6 +263,8 @@ ________________________________________________________________________
 
 /* 'VSG' menu */
 #define mAddVSGSceneMnuItm	(mVSGMnu+1)
+#define mVSGSettingsMnuItm	(mVSGMnu+2)
+#define mVSGColTabMnuItm	(mVSGMnu+3)
 
 /* 'Help' menu */
 

@@ -116,6 +116,25 @@ public:
 			/*!<Adds a VSG scene and shows it in a window of the
 			    workspace. Needs the VSG plugin. The window is
 			    removed with the scene when the user closes it. */
+    enum VSGAction	{ VSGScreenshot, VSGSettings, VSGColorTable,
+			  VSGColorBar };
+    const TypeSet<SceneID>& vsgSceneIds() const { return vsgsceneids_; }
+    bool		showVSGDialog(VSGAction,
+				      const SceneID& =SceneID::udf());
+			/*!<A dialog of the VSG viewer of the scene. Without a
+			    scene it is the one of the last opened viewer. */
+    enum VSGViewAction	{ VSGToHome, VSGSaveHome, VSGResetHome, VSGViewAll };
+    void		doVSGViewAction(VSGViewAction);
+			//!<In all the VSG scenes
+    void		setVSGViewMode(bool);
+			//!<True: view mode, false: interact mode
+    NotifierAccess*	vsgViewModeNotifier(const SceneID&);
+			/*!<Triggers, with a bool, when the mode of the scene
+			    was switched in its VSG window. Null if not found */
+    void		showVSGAxis(bool);
+			/*!<Shows or hides the orientation axis of the VSG
+			    scenes. Each time it is shown, the style of the axis
+			    changes between modern and classic. */
     void		removeScene(const SceneID&);
     int			nrScenes() const;
     NotifierAccess&	nrScenesChange() { return nrscenesChange; }
@@ -511,12 +530,16 @@ protected:
 					= visBase::PolygonSelection::Off;
     SelectionMode		selectionmode_			= Polygon;
 
+    TypeSet<SceneID>		vsgsceneids_;
     void*			getVSGFunction(const char* fnnm) const;
 					//!<In the VSG plugin, null if not found
     class			VSGWindow;
     ObjectSet<VSGWindow>	vsgwindows_;
     void			vsgViewerClosedCB(CallBacker*);
     void			vsgFrameClosedCB(CallBacker*);
+    void			setVSGSceneFlag(const char* fnnm,bool yn) const;
+					//!<Calls fnnm of the VSG plugin for
+					//!<each VSG scene
     void			mouseCursorCB(CallBacker*);
     void			rightClickCB(CallBacker*);
     void			selectObjCB(CallBacker*);
