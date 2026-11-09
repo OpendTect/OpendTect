@@ -142,7 +142,8 @@ void setHdrEntry( const SEGY::HdrEntry& entry )
 void setEntries( const SEGY::HdrEntryDataSet& ds )
 {
     NotifyStopper ns( changed );
-    bytenrfld_->setEmpty(); heidxs_.setEmpty();
+    bytenrfld_->setEmpty();
+    heidxs_.setEmpty();
 
     for ( int idx=0; idx<ds.idxs_.size(); idx++ )
     {
@@ -151,15 +152,17 @@ void setEntries( const SEGY::HdrEntryDataSet& ds )
 	uiString txt( tr("%1 (byte %2) - \"%3\"")
 		     .arg(he.name()).arg(he.bytepos_+1).arg(he.description()) );
 
-	bytenrfld_->addItem( txt ); heidxs_ += heidx;
+	bytenrfld_->addItem( txt );
+	heidxs_ += heidx;
     }
 
-    uiString ttip; nonefound_ = false;
+    uiString ttip;
+    nonefound_ = false;
     if ( bytenrfld_->isEmpty() )
     {
 	nonefound_ = true;
 	ttip = tr("The scan found invalid numbers in all possible fields for "
-		    "this entry.");
+		  "this entry.");
 	bytenrfld_->addItem( tr("<Nothing valid found>") );
     }
     bytenrfld_->setToolTip( ttip );
@@ -525,8 +528,7 @@ void uiSEGYReadStartInfo::updateCellTexts()
     uiString xustxt; uiString yustxt;
     uiString ky1ustxt; uiString ky2ustxt;
     uiString nrtrcsusrtxt;
-    xittxt = yittxt = ky1ittxt = ky2ittxt = offsittxt = azitxt =
-    xustxt = yustxt = ky1ustxt = ky2ustxt = nrtrcsusrtxt = uiString::empty();
+
     if ( isvsp )
 	nrtrcsusrtxt = tr("(1 trace used)");
     else
@@ -665,8 +667,8 @@ void uiSEGYReadStartInfo::parChg( CallBacker* cb )
 	const bool fromheader = zsampsrcfld_->currentItem() == 0;
 	if ( fromheader )
 	{
-            zstartfld_->setValue( loaddefcache_.sampling_.start_ );
-            srfld_->setValue( loaddefcache_.sampling_.step_ );
+	    zstartfld_->setValue( loaddefcache_.sampling_.start_ );
+	    srfld_->setValue( loaddefcache_.sampling_.step_ );
 	}
 	showZSamplingSetting( !fromheader );
     }
@@ -687,16 +689,22 @@ bool uiSEGYReadStartInfo::hasRev1Value( const uiSEGYByteNr* fld ) const
     const SEGY::HdrDef& hdef = SEGY::TrcHeader::hdrDef();
     if ( fld == xcoordbytefld_ )
 	return fld->hasEntry( *hdef[SEGY::TrcHeader::EntryXcdp()] );
+
     if ( fld == ycoordbytefld_ )
 	return fld->hasEntry( *hdef[SEGY::TrcHeader::EntryYcdp()] );
+
     if ( fld == inlbytefld_ )
 	return fld->hasEntry( *hdef[SEGY::TrcHeader::EntryInline()] );
+
     if ( fld == crlbytefld_ )
 	return fld->hasEntry( *hdef[SEGY::TrcHeader::EntryCrossline()] );
+
     if ( fld == trcnrbytefld_ )
 	return fld->hasEntry( *hdef[SEGY::TrcHeader::EntryCdp()] );
+
     if ( fld == refnrbytefld_ )
 	return fld->hasEntry( *hdef[SEGY::TrcHeader::EntrySP()] );
+
     if ( fld == offsetbytefld_ )
 	return fld->hasEntry( *hdef[SEGY::TrcHeader::EntryOffset()] );
 
@@ -761,7 +769,9 @@ void uiSEGYReadStartInfo::setImpTypIdx( int idx, bool doupd )
     if ( idx != imptype_.tidx_ )
     {
 	if ( inptypfixed_ )
-	    { pErrMsg( "Input type fixed, should not set" ); }
+	{
+	    pErrMsg( "Input type fixed, should not set" );
+	}
 	imptype_.tidx_ = idx;
     }
 
@@ -850,10 +860,10 @@ void uiSEGYReadStartInfo::setScanInfoTexts( const SEGY::ScanInfoSet& sis )
     else
     {
 	txt.set( "%1 - %2 - %3" );
-        const float endz = bi.sampling_.start_
-                           + (bi.ns_-1) * bi.sampling_.step_;
-        txt.arg( bi.sampling_.start_ ).arg( endz )
-                .arg( bi.sampling_.step_ );
+	const float endz = bi.sampling_.start_
+			   + (bi.ns_-1) * bi.sampling_.step_;
+	txt.arg( bi.sampling_.start_ ).arg( endz )
+		.arg( bi.sampling_.step_ );
     }
     setCellTxt( mQSResCol, mZRangeRow, txt );
 
@@ -872,12 +882,12 @@ void uiSEGYReadStartInfo::setScanInfoTexts( const SEGY::ScanInfoSet& sis )
     yinfotxt_.set( rgstr ).arg( ystartuistr ).arg( ystopuistr );
     offsetinfotxt_.set( rgstr ).arg( rgs.offs_.start_ ).arg( rgs.offs_.stop_ );
     azimuthinfotxt_.set( rgstr ).arg( rgs.azims_.start_*360/M_PI )
-            .arg( rgs.azims_.stop_*360/M_PI );
+		   .arg( rgs.azims_.stop_*360/M_PI );
     if ( mIsUdf(rgs.refnrs_.start_) )
 	refnrinfotxt_ =  tr( "<no data>" );
     else
-        refnrinfotxt_.set(rgstr).arg( rgs.refnrs_.start_ )
-                .arg( rgs.refnrs_.stop_ );
+	refnrinfotxt_.set(rgstr).arg( rgs.refnrs_.start_ )
+		     .arg( rgs.refnrs_.stop_ );
 }
 
 
@@ -912,7 +922,10 @@ void uiSEGYReadStartInfo::useLoadDef()
 		{
 		    listidx += nrunswappedfmts_;
 		    if ( listidx >= fmtfld_->size() )
-			{ pErrMsg("Huh"); listidx -= nrunswappedfmts_; }
+		    {
+			pErrMsg("Huh");
+			listidx -= nrunswappedfmts_;
+		    }
 		}
 		fmtfld_->setCurrentItem( listidx );
 		break;
@@ -931,7 +944,10 @@ void uiSEGYReadStartInfo::useLoadDef()
     zstartfld_->setValue( loaddef_.sampling_.start_ );
     srfld_->setValue( loaddef_.sampling_.step_ );
     if ( imptype_.isVSP() )
-	{ parsbeingset_ = false; return; }
+    {
+	parsbeingset_ = false;
+	return;
+    }
 
     const Seis::GeomType gt = imptype_.geomType();
     if ( Seis::is2D(gt) )
@@ -947,8 +963,8 @@ void uiSEGYReadStartInfo::useLoadDef()
 
 	if ( trcnrgenstartfld_ && trcnrgenstepfld_ )
 	{
-            trcnrgenstartfld_->setValue( loaddef_.trcnrdef_.start_ );
-            trcnrgenstepfld_->setValue( loaddef_.trcnrdef_.step_ );
+	    trcnrgenstartfld_->setValue( loaddef_.trcnrdef_.start_ );
+	    trcnrgenstepfld_->setValue( loaddef_.trcnrdef_.step_ );
 	}
     }
 
@@ -980,8 +996,8 @@ void uiSEGYReadStartInfo::useLoadDef()
 
 	if ( offsgenstartfld_ && offsgenstepfld_ )
 	{
-            offsgenstartfld_->setValue( loaddef_.psoffsdef_.start_ );
-            offsgenstepfld_->setValue( loaddef_.psoffsdef_.step_ );
+	    offsgenstartfld_->setValue( loaddef_.psoffsdef_.start_ );
+	    offsgenstepfld_->setValue( loaddef_.psoffsdef_.step_ );
 	}
 
 	if ( azimuthbytefld_ )
@@ -1015,11 +1031,11 @@ void uiSEGYReadStartInfo::fillLoadDef()
     SamplingData<float> sampling = loaddef_.sampling_;
     sampling.start_ = zstartfld_->getFValue();
     if ( !mIsUdf(sampling.start_) )
-        loaddef_.sampling_.start_ = sampling.start_;
+	loaddef_.sampling_.start_ = sampling.start_;
 
     sampling.step_ = srfld_->getFValue();
     if ( !mIsUdf(sampling.step_) && sampling.step_ != 0.f )
-        loaddef_.sampling_.step_ = sampling.step_;
+	loaddef_.sampling_.step_ = sampling.step_;
 
     if ( imptype_.isVSP() )
 	return;
@@ -1045,13 +1061,13 @@ void uiSEGYReadStartInfo::fillLoadDef()
 	if ( trcnrgenstartfld_ && trcnrgenstepfld_ )
 	{
 	    SamplingData<int>& def = loaddef_.trcnrdef_;
-            def.start_ = trcnrgenstartfld_->getIntValue();
-            if ( mIsUdf(def.start_) )
-                def.start_ = 1;
+	    def.start_ = trcnrgenstartfld_->getIntValue();
+	    if ( mIsUdf(def.start_) )
+		def.start_ = 1;
 
-            def.step_ = trcnrgenstepfld_->getIntValue();
-            if ( mIsUdf(def.step_) || def.step_ == 0 )
-                def.step_ = 1;
+	    def.step_ = trcnrgenstepfld_->getIntValue();
+	    if ( mIsUdf(def.step_) || def.step_ == 0 )
+		def.step_ = 1;
 	}
     }
     else if ( inlbytefld_ && crlbytefld_ )
@@ -1072,13 +1088,17 @@ void uiSEGYReadStartInfo::fillLoadDef()
 	if ( offsgenstartfld_ && offsgenstepfld_ )
 	{
 	    SamplingData<float>& def = loaddef_.psoffsdef_;
-            def.start_ = offsgenstartfld_->getFValue();
-            if ( mIsUdf(def.start_) ) def.start_ = 0.f;
-            def.step_ = offsgenstepfld_->getFValue();
-            if ( mIsUdf(def.step_) ) def.step_ = 1.f;
+	    def.start_ = offsgenstartfld_->getFValue();
+	    if ( mIsUdf(def.start_) )
+		def.start_ = 0.f;
+
+	    def.step_ = offsgenstepfld_->getFValue();
+	    if ( mIsUdf(def.step_) )
+		def.step_ = 1.f;
 	}
 
-	loaddef_.hdrdef_->azim_ = azimuthbytefld_->hdrEntry();
+	if ( azimuthbytefld_ )
+	    loaddef_.hdrdef_->azim_ = azimuthbytefld_->hdrEntry();
     }
 }
 
@@ -1098,8 +1118,8 @@ void uiSEGYReadStartInfo::updateZRange( const SamplingData<float>& sd,
     else
     {
 	txt.set( "%1 - %2 [%3]" );
-        const float start = sd.start_;
-        const float step = sd.step_;
+	const float start = sd.start_;
+	const float step = sd.step_;
 	const int nrdec = Math::NrSignificantDecimals( step );
 	const float endz = start + (nrsamples-1) * step;
 	txt.arg( toUiStringDec(start,nrdec) )
