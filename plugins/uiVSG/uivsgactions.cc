@@ -150,11 +150,16 @@ mExternC(uiVSG) void showVSGRotAxis(const SceneID&,bool);
 mExternC(uiVSG) void showVSGRotAxis( const SceneID& sceneid, bool yn )
 {
     uiVSGViewer* viewer = uiVSGViewer::find( sceneid );
-    if ( !viewer )
-	return;
+    if ( viewer )
+	viewer->showRotAxis( yn );
+}
 
-    if ( yn && !viewer->isAxisShown() )
-	viewer->setModernAxes( !viewer->isModernAxes() );
 
-    viewer->showRotAxis( yn );
+mExternC(uiVSG) void setVSGModernAxes(const SceneID&,bool);
+
+mExternC(uiVSG) void setVSGModernAxes( const SceneID& sceneid, bool yn )
+{
+    uiVSGViewer* viewer = uiVSGViewer::find( sceneid );
+    if ( viewer )
+	viewer->setModernAxes( yn );
 }

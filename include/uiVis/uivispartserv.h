@@ -125,8 +125,9 @@ public:
     void		setVSGViewMode(bool);
 			//! Triggers with a bool when Esc switched the mode
     NotifierAccess*	vsgViewModeNotifier(const SceneID&);
-			//! Each time it is shown, modern and classic swap
     void		showVSGAxis(bool);
+			//! False: the classic style of the axis
+    void		setVSGModernAxes(bool);
     void		removeScene(const SceneID&);
     int			nrScenes() const;
     NotifierAccess&	nrScenesChange() { return nrscenesChange; }
