@@ -446,6 +446,10 @@ void uiColorTable::setDispPars( const FlatView::DataDispPars::VD& disppar )
     mapsetup_ = disppar.mappersetup_;
     if ( scalingdlg_ )
 	scalingdlg_->updateFields();
+
+    auto* coltabman = hp_coltabman.getParam( this );
+    if ( coltabman )
+	coltabman->setFlipped( mapsetup_.flipseq_ );
 }
 
 
@@ -677,6 +681,7 @@ void uiColorTable::colTabManRgChangeCB( CallBacker* cb )
 
     if ( minfld_ )
 	minfld_->setValue( mapsetup_.range_.start_ );
+
     if ( maxfld_ )
 	maxfld_->setValue( mapsetup_.range_.stop_ );
 
@@ -711,6 +716,10 @@ void uiColorTable::doFlip( CallBacker* )
     mapsetup_.flipseq_ = !mapsetup_.flipseq_;
     canvas_->setFlipped( mapsetup_.flipseq_ );
     canvas_->setRGB();
+    auto* coltabman = hp_coltabman.getParam( this );
+    if ( coltabman )
+	coltabman->setFlipped( mapsetup_.flipseq_ );
+
     scaleChanged.trigger();
 }
 
@@ -764,6 +773,7 @@ void uiColorTable::doManage( CallBacker* )
     const float maxval = maxfld_ ? maxfld_->getFValue() : mUdf(float);
 
     coltabman->setHistogram( histogram_, Interval<float>(minval,maxval) );
+    coltabman->setFlipped( mapsetup_.flipseq_ );
     coltabman->show();
 }
 
@@ -772,7 +782,10 @@ void uiColorTable::colTabChgdCB( CallBacker* )
 {
     auto* coltabman = hp_coltabman.getParam( this );
     if ( coltabman )
+    {
 	coltabman->setSelectedCT( coltabseq_.name() );
+	coltabman->setFlipped( mapsetup_.flipseq_ );
+    }
 }
 
 
