@@ -116,17 +116,20 @@ public:
 				    const FileSpec&,bool is2d,const IOPar&);
 			~FileIndexer();
 
-    int			nextStep() override;
-
     uiString		uiMessage() const override;
-    od_int64		nrDone() const override;
-    od_int64		totalNr() const override;
     uiString		uiNrDoneText() const override;
 
     const Scanner*	scanner() const		{ return scanner_; }
     Scanner*		scanner()		{ return scanner_; }
 
-protected:
+private:
+
+    bool		doPrepare(od_ostream*) override;
+    int			nextStep() override;
+    bool		doFinish(bool success,od_ostream*) override;
+
+    od_int64		nrDone() const override;
+    od_int64		totalNr() const override;
 
     IOObj*		ioobj_;
     Pos::GeomID		geomid_;

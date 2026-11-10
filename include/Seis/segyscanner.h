@@ -41,10 +41,9 @@ public:
     void		setRichInfo( bool yn )	{ richinfo_ = yn; }
     void		collectInfoPerTrace( bool yn )	{ notrcinfo_ = !yn; }
 
-    int			nextStep() override;
     uiString		uiMessage() const override	{ return msg_; }
     od_int64		nrDone() const override		{ return nrdone_; }
-    od_int64		totalNr() const override;
+    od_int64		totalNr() const override	{ return totnr_; }
     uiString		uiNrDoneText() const override
 			{ return tr("Traces scanned"); }
 
@@ -69,30 +68,35 @@ public:
 
 protected:
 
+			friend class FileIndexer;
+
+    bool		doPrepare(od_ostream*) override;
+    bool		doFinish(bool success,od_ostream*) override;
+    int			nextStep() override;
+
     Seis::GeomType	geom_;
     const IOPar&	pars_;
     FileDataSet&	fds_;
-    SEGYSeisTrcTranslator* tr_;
+    SEGYSeisTrcTranslator* tr_		= nullptr;
     DataClipSampler&	clipsmplr_;
-    int			nrtrcs_;
-    bool		forcerev0_;
-    bool		richinfo_;
+    int			nrtrcs_		= 0;
+    bool		forcerev0_	= false;
+    bool		richinfo_	= false;
 
     SeisTrc&		trc_;
-    int			curfidx_;
+    int			curfidx_	= -1;
     uiString		msg_;
-    od_int64		nrdone_;
-    mutable od_int64	totnr_;
+    od_int64		nrdone_		= 0;
+    od_int64		totnr_		= 1;
     PosInfo::Detector&	dtctor_;
     BufferStringSet	trwarns_;
-    bool		notrcinfo_;
+    bool		notrcinfo_	= false;
 
     int			openNext();
     int			readNext();
     void		closeTr();
 
     void		init(const FileSpec&);
-    int			finish(bool);
     void		addFailed(const uiString&);
     void		initFileData();
     void		addErrReport(StringPairSet&) const;
