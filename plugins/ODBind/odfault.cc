@@ -69,6 +69,7 @@ odFaultObject::~odFaultObject()
 
 void odFaultObject::getFeature( OD::JSON::Object& jsobj, bool towgs ) const
 {
+    errmsg_.setEmpty();
     jsobj.set( "type", "Feature" );
     auto* info = new OD::JSON::Object;
     getInfo( *info );
@@ -126,6 +127,7 @@ int odFaultObject::getNrSticks() const
 
 void odFaultObject::getStick( int idx, hAllocator allocator ) const
 {
+    errmsg_.setEmpty();
     survey_.activate();
     const auto* fss = stickset();
     if ( !fss )
@@ -213,6 +215,7 @@ odFault3D::~odFault3D()
 
 void odFault3D::getInfo( OD::JSON::Object& jsobj ) const
 {
+    errmsg_.setEmpty();
     jsobj.setEmpty();
     ConstPtrMan<IOObj> ioobj( ioobj_ptr() );
     jsobj.set( "name", getName().buf() );
@@ -268,6 +271,7 @@ odFaultStickSet::~odFaultStickSet()
 
 void odFaultStickSet::getInfo( OD::JSON::Object& jsobj ) const
 {
+    errmsg_.setEmpty();
     jsobj.setEmpty();
     jsobj.set( "name", getName().buf() );
     ConstPtrMan<IOObj> ioobj( ioobj_ptr() );
