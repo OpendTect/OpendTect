@@ -118,6 +118,7 @@ public:
     const ColTab::Sequence&	currentColTab()	const	{ return ctab_; }
 
     void			setSelectedCT(const char* ctnm);
+    void			setFlipped(bool yn);
     void			setHistogram(const TypeSet<float>& hist);
     void			setHistogram(const TypeSet<float>& hist,
 					     const Interval<float>& range);

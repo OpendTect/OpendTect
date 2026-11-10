@@ -1936,6 +1936,13 @@ void uiColorTableMan::setSelectedCT( const char* ctnm )
 }
 
 
+void uiColorTableMan::setFlipped( bool yn )
+{
+    ctabcanvas_->setFlipped( yn );
+    ctabcanvas_->setRGB();
+}
+
+
 void uiColorTableMan::setHistogram( const TypeSet<float>& hist )
 {
     setHistogram( hist, Interval<float>::udf(), false );
