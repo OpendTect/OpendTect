@@ -19,18 +19,11 @@ ________________________________________________________________________
 namespace View2D
 {
 
-Vis2DID DataObject::allocateID()
+DataObject::DataObject()
 {
     mDefineStaticLocalObject( Threads::Atomic<int>, vw2dobjid, (0) );
-    Vis2DID id;
-    id.set( vw2dobjid++ );
-    return id;
+    id_.set( vw2dobjid++ );
 }
-
-
-DataObject::DataObject()
-    : id_(allocateID())
-{}
 
 
 DataObject::~DataObject()

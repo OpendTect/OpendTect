@@ -56,7 +56,7 @@ public:
     Viewer2DID			ID() const	{ return id_; }
     VisID			visID() const	{ return visid_; }
 
-    void			makeUpView(FlatDataPack*,
+    virtual void		makeUpView(FlatDataPack*,
 					   FlatView::Viewer::VwrDest);
     void			setSelSpec(const Attrib::SelSpec*,
 					   FlatView::Viewer::VwrDest);
@@ -170,21 +170,21 @@ public:
     //Horizon 3D
     void			getHor3DVwr2DIDs(EM::ObjectID emid,
 						 TypeSet<Vis2DID>&) const;
-    void			removeHorizon3D(EM::ObjectID emid);
+    virtual void		removeHorizon3D(EM::ObjectID emid);
     void			getLoadedHorizon3Ds(
 					TypeSet<EM::ObjectID>&) const;
-    void			addHorizon3Ds(const TypeSet<EM::ObjectID>&);
-    void			addNewTrackingHorizon3D(EM::ObjectID);
+    virtual void		addHorizon3Ds(const TypeSet<EM::ObjectID>&);
+    virtual void		addNewTrackingHorizon3D(EM::ObjectID);
     void			setupTrackingHorizon3D(EM::ObjectID);
 
     //Horizon2D
     void			getHor2DVwr2DIDs(EM::ObjectID emid,
 						 TypeSet<Vis2DID>&) const;
-    void			removeHorizon2D(EM::ObjectID emid);
+    virtual void		removeHorizon2D(EM::ObjectID emid);
     void			getLoadedHorizon2Ds(
 					TypeSet<EM::ObjectID>&) const;
-    void			addHorizon2Ds(const TypeSet<EM::ObjectID>&);
-    void			addNewTrackingHorizon2D(EM::ObjectID emid);
+    virtual void		addHorizon2Ds(const TypeSet<EM::ObjectID>&);
+    virtual void		addNewTrackingHorizon2D(EM::ObjectID emid);
     void			setupTrackingHorizon2D(EM::ObjectID);
 
     //Fault
@@ -193,8 +193,8 @@ public:
     void			removeFault(EM::ObjectID emid);
     void			getLoadedFaults(
 					TypeSet<EM::ObjectID>&) const;
-    void			addFaults(const TypeSet<EM::ObjectID>&);
-    void			addNewTempFault(EM::ObjectID emid);
+    virtual void		addFaults(const TypeSet<EM::ObjectID>&);
+    virtual void		addNewTempFault(EM::ObjectID emid);
     void			setupNewTempFault(EM::ObjectID emid);
 
     //FaultStickSet
@@ -203,8 +203,8 @@ public:
     void			removeFaultSS(EM::ObjectID emid);
     void			getLoadedFaultSSs(
 					TypeSet<EM::ObjectID>&) const;
-    void			addFaultSSs(const TypeSet<EM::ObjectID>&);
-    void			addNewTempFaultSS(EM::ObjectID emid);
+    virtual void		addFaultSSs(const TypeSet<EM::ObjectID>&);
+    virtual void		addNewTempFaultSS(EM::ObjectID emid);
     void			setupNewTempFaultSS(EM::ObjectID emid);
 
     //FaultStickSet2D
@@ -223,7 +223,7 @@ public:
 						   TypeSet<Vis2DID>&) const;
     void			removePickSet(const MultiID&);
     void			getLoadedPickSets(TypeSet<MultiID>&) const;
-    void			addPickSets(const TypeSet<MultiID>&);
+    virtual void		addPickSets(const TypeSet<MultiID>&);
     void			setupNewPickSet(const MultiID&);
 
 protected:

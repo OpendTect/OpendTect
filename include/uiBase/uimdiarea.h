@@ -45,19 +45,6 @@ public:
     uiMdiArea&			getMdiArea()		{ return mdiarea_; }
 
     NotifierAccess&		closed();
-    //! Observers may veto before the MDI window or its contents are destroyed.
-    Notifier<uiMdiAreaWindow>	closeRequested;
-    //! Signals approval, or teardown that was already committed globally.
-    Notifier<uiMdiAreaWindow>	closeAccepted;
-    //! Discards preparations when a close request is cancelled or vetoed.
-    Notifier<uiMdiAreaWindow>	closeCancelled;
-    //! Runs vetoable observers without closing the window.
-    bool			prepareClose();
-    void			cancelClosePreparation();
-    //! Committed teardown bypasses observers that could veto or ask questions.
-    bool			requestClose(bool committed=false);
-    void			setCloseBlocked(bool yn=true)
-				{ closeblocked_ = yn; }
     Notifier<uiMdiAreaWindow>	changed;
     NotifierAccess&		windowShown();
     NotifierAccess&		windowHidden();
@@ -68,8 +55,6 @@ public:
 
 
 private:
-    bool				closeblocked_ = false;
-    bool				closeprepared_ = false;
     uiString				title_;
     uiMdiArea&				mdiarea_;
     mQtclass(QMdiSubWindow*)		qmdisubwindow_;
@@ -90,11 +75,7 @@ public:
     void		tileVertical();
     void		tile();
     void		cascade();
-    //! Prepares the complete batch before any window starts closing.
-    bool		prepareCloseAll();
-    void		cancelClosePreparation();
     void		closeAll();
-    void		closeAll(bool committed);
 
     void		addWindow(uiMdiAreaWindow*);
     uiMdiAreaWindow*	getWindow(const char*);

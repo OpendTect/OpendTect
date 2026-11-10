@@ -85,7 +85,6 @@ static const int cWSWidth = 600;
 static const int cWSHeight = 500;
 static const char* sKeyWarnStereo = "Warning.Stereo Viewing";
 
-
 #define mWSMCB(fn) mCB(this,uiODSceneMgr,fn)
 #define mDoAllScenes(memb,fn,arg) \
     for ( int idx=0; idx<scenes_.size(); idx++ ) \
@@ -157,7 +156,9 @@ uiODSceneMgr::uiODSceneMgr( uiODMain* a )
 uiODSceneMgr::~uiODSceneMgr()
 {
     detachAllNotifiers();
-    cleanUp( false, true );
+    cleanUp( false );
+    delete tifs_;
+    delete mdiarea_;
     for ( int idx=scenes_.size()-1; idx>=0; idx-- )
     {
 	Scene* scene = scenes_.get( idx );
@@ -166,8 +167,6 @@ uiODSceneMgr::~uiODSceneMgr()
     }
 
     deepErase( scenes_ );
-    delete mdiarea_;
-    delete tifs_;
     delete wingrabber_;
     delete tiletimer_;
 }
@@ -187,59 +186,21 @@ void uiODSceneMgr::initMenuMgrDepObjs()
 }
 
 
-bool uiODSceneMgr::prepareClose()
+void uiODSceneMgr::cleanUp( bool startnew )
 {
-    if ( !mdiarea_->prepareCloseAll() )
-	return false;
-
-    if ( appl_.viewer2DMgrAvailable() &&
-	 !appl_.viewer2DMgr().prepareCloseAll() )
-    {
-	mdiarea_->cancelClosePreparation();
-	return false;
-    }
-
-    return true;
-}
-
-
-bool uiODSceneMgr::cleanUp( bool startnew,bool committed )
-{
-    // Approve the complete batch before destroying any viewer or source scene.
-    if ( !committed && !prepareClose() )
-	return false;
-
-    if ( appl_.viewer2DMgrAvailable() )
-    {
-	if ( committed )
-	    appl_.viewer2DMgr().prepareCloseAll( true );
-	appl_.viewer2DMgr().commitCloseAll();
-    }
-
-    mdiarea_->closeAll( committed );
+    mdiarea_->closeAll();
     // closeAll() cascades callbacks which remove the scene from set
-
-    if ( !scenes_.isEmpty() )
-	return false;
 
     visServ().deleteAllObjects();
     vwridx_ = 0;
     if ( startnew )
 	addScene( true );
-
-    return true;
 }
 
 
 uiODSceneMgr::Scene& uiODSceneMgr::mkNewScene()
 {
     uiODSceneMgr::Scene& scn = *new uiODSceneMgr::Scene( mdiarea_ );
-    mAttachCB( scn.mdiwin_->closeRequested,
-	       uiODSceneMgr::prepareSceneCloseCB );
-    mAttachCB( scn.mdiwin_->closeAccepted,
-	       uiODSceneMgr::commitSceneCloseCB );
-    mAttachCB( scn.mdiwin_->closeCancelled,
-	       uiODSceneMgr::cancelSceneCloseCB );
     mAttachCB( scn.mdiwin_->closed(), uiODSceneMgr::removeSceneCB );
     mAttachCB( scn.mdiwin_->windowShown(), uiODSceneMgr::mdiAreaChanged );
     mAttachCB( scn.mdiwin_->windowHidden(), uiODSceneMgr::mdiAreaChanged );
@@ -367,61 +328,9 @@ void uiODSceneMgr::removeScene( uiODSceneMgr::Scene& scene )
 	sceneClosed.trigger( scene.itemmanager_->sceneID() );
     }
 
-    mDetachCB( scene.mdiwin_->closeRequested,
-	       uiODSceneMgr::prepareSceneCloseCB );
-    mDetachCB( scene.mdiwin_->closeAccepted,
-	       uiODSceneMgr::commitSceneCloseCB );
-    mDetachCB( scene.mdiwin_->closeCancelled,
-	       uiODSceneMgr::cancelSceneCloseCB );
     scene.mdiwin_->closed().remove( mWSMCB(removeSceneCB) );
     scenes_ -= &scene;
     delete &scene;
-}
-
-
-void uiODSceneMgr::prepareSceneCloseCB( CallBacker* cb )
-{
-    mDynamicCastGet(uiMdiAreaWindow*,window,cb)
-    if ( !window || !appl_.viewer2DMgrAvailable() )
-	return;
-
-    for ( const auto* scene : scenes_ )
-    {
-	if ( scene->mdiwin_ != window || !scene->itemmanager_ )
-	    continue;
-
-	TypeSet<VisID> sources;
-	visServ().getSceneChildIds( scene->itemmanager_->sceneID(), sources );
-	if ( !appl_.viewer2DMgr().prepareCloseForSources(sources) )
-	    window->setCloseBlocked();
-	return;
-    }
-}
-
-
-void uiODSceneMgr::cancelSceneCloseCB( CallBacker* )
-{
-    if ( appl_.viewer2DMgrAvailable() )
-	appl_.viewer2DMgr().cancelClosePreparation();
-}
-
-
-void uiODSceneMgr::commitSceneCloseCB( CallBacker* cb )
-{
-    mDynamicCastGet(uiMdiAreaWindow*,window,cb)
-    if ( !window || !appl_.viewer2DMgrAvailable() )
-	return;
-
-    for ( const auto* scene : scenes_ )
-    {
-	if ( scene->mdiwin_ != window || !scene->itemmanager_ )
-	    continue;
-
-	TypeSet<VisID> sources;
-	visServ().getSceneChildIds( scene->itemmanager_->sceneID(), sources );
-	appl_.viewer2DMgr().commitCloseForSources( sources );
-	return;
-    }
 }
 
 
@@ -1658,16 +1567,6 @@ VisID uiODSceneMgr::addZSliceItem( RegularSeisDataPack& dp,
 
 void uiODSceneMgr::removeTreeItem( const VisID& displayid )
 {
-    if ( !findItem(displayid) )
-	return;
-
-    if ( appl_.viewer2DMgrAvailable() )
-    {
-	if ( !appl_.viewer2DMgr().prepareCloseForSource(displayid) )
-	    return;
-	appl_.viewer2DMgr().commitCloseForSource( displayid );
-    }
-
     for ( int idx=0; idx<scenes_.size(); idx++ )
     {
 	Scene& scene = *scenes_[idx];

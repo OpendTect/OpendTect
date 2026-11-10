@@ -162,8 +162,7 @@ void uiVSGPIMgr::showCB( CallBacker* )
 	return;
     }
 
-    if ( !appl().sceneMgr().cleanUp(false) )
-	return;
+    appl().sceneMgr().cleanUp( false );
 
     auto* viewer = new uiVSGViewer();
     viewer_ = viewer;

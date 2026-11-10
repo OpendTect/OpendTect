@@ -27,7 +27,6 @@ ________________________________________________________________________
 mUseQtnamespace
 
 static bool sNoCloseMessage = false;
-static bool sCommittedClose = false;
 
 class uiMdiAreaBody : public uiObjBodyImpl<uiMdiArea,QMdiArea>
 {
@@ -238,50 +237,12 @@ void uiMdiArea::grpChanged( CallBacker* )
 { windowActivated.trigger(); }
 
 
-bool uiMdiArea::prepareCloseAll()
-{
-    for ( auto* window : grps_ )
-    {
-	if ( !window->prepareClose() )
-	{
-	    cancelClosePreparation();
-	    return false;
-	}
-    }
-
-    return true;
-}
-
-
-void uiMdiArea::cancelClosePreparation()
-{
-    for ( auto* window : grps_ )
-	window->cancelClosePreparation();
-}
-
-
 void uiMdiArea::closeAll()
 {
-    closeAll( false );
-}
-
-
-void uiMdiArea::closeAll( bool committed )
-{
-    if ( !committed && !prepareCloseAll() )
-	return;
-
-    const bool oldnoclosemessage = sNoCloseMessage;
-    const bool oldcommittedclose = sCommittedClose;
     sNoCloseMessage = true;
-    sCommittedClose = committed;
     body_->closeAllSubWindows();
-    sCommittedClose = oldcommittedclose;
-    sNoCloseMessage = oldnoclosemessage;
-    if ( !grps_.isEmpty() )
-	cancelClosePreparation();
-
     windowActivated.trigger();
+    sNoCloseMessage = false;
 }
 
 
@@ -359,12 +320,7 @@ void closeEvent( QCloseEvent* ev ) override
     BufferString bfstr = windowTitle();
     uiString msg =
 	od_static_tr("closeEvent","Do you want to close %1 ?").arg(bfstr);
-    if ( !sNoCloseMessage && !uiMSG().askGoOn(msg) )
-    {
-	mdiareawin_.cancelClosePreparation();
-	ev->ignore();
-    }
-    else if ( mdiareawin_.requestClose(sCommittedClose) )
+    if ( sNoCloseMessage || uiMSG().askGoOn(msg) )
     {
 	ev->accept();
 	QMdiSubWindow::closeEvent( ev );
@@ -395,11 +351,8 @@ void hideEvent( QHideEvent* ) override
 // uiMdiAreaWindow
 uiMdiAreaWindow::uiMdiAreaWindow( uiMdiArea& mdiarea, const uiString& title )
     : uiGroup(0,title.getFullString())
-    , closeRequested(this)
-    , closeAccepted(this)
-    , closeCancelled(this)
-    , changed(this)
     , mdiarea_(mdiarea)
+    , changed(this)
 {
     qmdisubwindow_ = new ODMdiSubWindow( *this );
     qmdisubwindow_->setWidget( attachObj()->body()->qwidget() );
@@ -410,43 +363,6 @@ uiMdiAreaWindow::uiMdiAreaWindow( uiMdiArea& mdiarea, const uiString& title )
 
 uiMdiAreaWindow::~uiMdiAreaWindow()
 {}
-
-
-bool uiMdiAreaWindow::prepareClose()
-{
-    if ( closeprepared_ )
-	return true;
-
-    closeblocked_ = false;
-    closeRequested.trigger();
-    if ( closeblocked_ )
-    {
-	cancelClosePreparation();
-	return false;
-    }
-
-    closeprepared_ = true;
-    return true;
-}
-
-
-void uiMdiAreaWindow::cancelClosePreparation()
-{
-    closeprepared_ = false;
-    closeblocked_ = false;
-    closeCancelled.trigger();
-}
-
-
-bool uiMdiAreaWindow::requestClose( bool committed )
-{
-    if ( !committed && !prepareClose() )
-	return false;
-
-    closeprepared_ = false;
-    closeAccepted.trigger();
-    return true;
-}
 
 
 void uiMdiAreaWindow::setTitle( const uiString& title )

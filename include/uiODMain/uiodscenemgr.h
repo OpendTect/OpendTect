@@ -48,11 +48,7 @@ mExpClass(uiODMain) uiODSceneMgr : public CallBacker
 { mODTextTranslationClass(uiODSceneMgr)
 public:
 
-    //! Prepares scene and viewer closure without destroying either.
-    bool			prepareClose();
-    //! Committed survey/final teardown cannot be vetoed again.
-    bool			cleanUp(bool startnew=true,
-					bool committed=false);
+    void			cleanUp(bool startnew=true);
     int				nrScenes()	{ return scenes_.size(); }
     SceneID			addScene(bool maximized,
 					 ZAxisTransform* =nullptr,
@@ -241,9 +237,6 @@ protected:
     ObjectSet<Scene>		scenes_;
     Scene&			mkNewScene();
     void			removeScene(Scene& scene);
-    void			prepareSceneCloseCB(CallBacker*);
-    void			commitSceneCloseCB(CallBacker*);
-    void			cancelSceneCloseCB(CallBacker*);
     void			removeSceneCB(CallBacker*);
     void			initTree(Scene&,int);
     Scene*			getScene(const SceneID&);

@@ -482,9 +482,6 @@ void uiODDisplayTreeItem::handleMenuCB( CallBacker* cb )
 	menu->setIsHandled(true);
 	if ( !askContinueAndSaveIfNeeded(true) )
 	    return;
-	if ( !ODMainWin()->viewer2DMgr().prepareCloseForSource(displayid_) )
-	    return;
-	ODMainWin()->viewer2DMgr().commitCloseForSource( displayid_ );
 
 	Threads::WorkManager::twm().addWork(
 	    Threads::Work( *new uiTreeItemRemover(parent_,this), true ), 0,
@@ -547,17 +544,10 @@ void uiODDisplayTreeItem::deleteObject()
 	return;
     }
 
-    if ( !ODMainWin()->viewer2DMgr().prepareCloseForSource(displayid_) )
-	return;
-
     const SceneID sceneid = sceneID(); // Don't change this order!
     if ( !uiIOObj(*ioobj).removeImpl(true,true) )
-    {
-	ODMainWin()->viewer2DMgr().cancelClosePreparation();
 	return;
-    }
 
-    ODMainWin()->viewer2DMgr().commitCloseForSource( displayid_ );
     visserv_->removeObject( displayid_, sceneid );
     parent_->removeChild( this );
 }

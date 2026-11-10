@@ -434,9 +434,8 @@ void uiODRandomLineParentTreeItem::rdlPolyLineDlgCloseCB( CallBacker* )
 	const auto* selspec = rdlpolylinedlg_->getSelSpec();
 	itm->displayData( selspec );
     }
-    else if ( ODMainWin()->viewer2DMgr().prepareCloseForSource(id) )
+    else
     {
-	ODMainWin()->viewer2DMgr().commitCloseForSource( id );
 	removeChild( itm );
 	applMgr()->visServer()->removeObject( id, sceneID() );
     }

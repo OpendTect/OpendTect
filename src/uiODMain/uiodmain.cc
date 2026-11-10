@@ -396,7 +396,6 @@ void uiODMain::initScene()
     readSettings();
 
     justBeforeGo.trigger();
-    viewer2DMgr().resumeDispatch();
 }
 
 
@@ -484,13 +483,6 @@ void uiODMain::saveSession()
 
     lastsession_ = sess;
     cursession_ = &lastsession_;
-    if ( viewer2DMgr().isAdvancedRequired() &&
-	 viewer2DMgr().nr2DViewers() > 0 )
-    {
-	uiMSG().message( tr("The session was saved without Advanced 2D Viewer "
-			   "window layouts. These windows are not restored "
-			   "in this version.") );
-    }
     mDelCtioRet()
 }
 
@@ -611,19 +603,6 @@ void uiODMain::restoreSession( const IOObj* ioobj )
 	return;
     }
 
-    if ( !sceneMgr().prepareClose() )
-	return;
-
-    const bool wassuspended = viewer2DMgr().isDispatchSuspended();
-    viewer2DMgr().suspendDispatch();
-    if ( !sceneMgr().cleanUp(false) )
-    {
-	viewer2DMgr().cancelClosePreparation();
-	if ( !wassuspended )
-	    viewer2DMgr().resumeDispatch();
-	return;
-    }
-
     cursession_ = &sess;
     doRestoreSession();
     cursession_ = &lastsession_;
@@ -663,13 +642,10 @@ bool uiODMain::updateSession()
 void uiODMain::doRestoreSession()
 {
     MouseCursorManager::setOverride( MouseCursor::Wait );
+    sceneMgr().cleanUp( false );
     applMgr().resetServers();
     restoringsess_ = true;
     restoremsgs_.setEmpty();
-    // Preserve native plugin restoration callbacks; Pro viewer layouts are
-    // deliberately deferred until a later release.
-    if ( !viewer2DMgr().isAdvancedRequired() )
-	viewer2DMgr().resumeDispatch();
 
     sessionRestoreEarly.trigger();
     applMgr().EMServer()->usePar( cursession_->empars() );
@@ -708,12 +684,9 @@ void uiODMain::doRestoreSession()
 	uiMSG().error( tr("An error occurred while reading session file.\n"
 			  "A new scene will be launched") );
 	MouseCursorManager::setOverride( MouseCursor::Wait );
-	// The old session was already replaced; complete error recovery.
-	viewer2DMgr().suspendDispatch();
-	sceneMgr().cleanUp( true, true );
+	sceneMgr().cleanUp( true );
     }
 
-    viewer2DMgr().resumeDispatch();
     if ( visok )
 	viewer2DMgr().usePar( cursession_->vwr2dpars() );
 
@@ -994,57 +967,32 @@ bool uiODMain::closeOK( bool withinteraction, bool doconfirm )
 	    return false;
     }
 
-    //This bool is not required. Keeping to maintain API.
-    bool dummy = false;
-    if ( withinteraction )
-    {
-	if ( !askStore(dummy,
-	     uiStrings::phrJoinStrings(actstr,toUiString(programname_))) )
-	{
-	    uiMSG().message( restarting_ ? tr("Restart cancelled")
-					 : tr("Closing cancelled") );
-	    return false;
-	}
-    }
+     //This bool is not required. Keeping to maintain API.
+     bool dummy = false;
+     if ( withinteraction )
+     {
+	 if ( !askStore(dummy,
+	      uiStrings::phrJoinStrings(actstr,toUiString(programname_))) )
+	 {
+	     uiMSG().message( restarting_ ? tr("Restart cancelled")
+					  : tr("Closing cancelled") );
+	     return false;
+	 }
+     }
 
-    if ( viewer2dmgr_ && !viewer2dmgr_->prepareCloseAll(true) )
-	return false;
 
-    if ( scenemgr_ && !scenemgr_->prepareClose() )
-    {
-	if ( viewer2dmgr_ )
-	    viewer2dmgr_->cancelClosePreparation();
-	return false;
-    }
+     //Clean up all scenes manually.
+     // If QT closes it down, it will trigger new rendering,
+     //which required GL context, which is only partial.
+     if ( scenemgr_ )
+        scenemgr_->cleanUp(false);
 
-    const bool wassuspended = viewer2dmgr_ &&
-			     viewer2dmgr_->isDispatchSuspended();
-    if ( viewer2dmgr_ )
-	viewer2dmgr_->suspendDispatch();
+     beforeExit.trigger();
 
-    //Clean up all scenes manually.
-    // If QT closes it down, it will trigger new rendering,
-    //which required GL context, which is only partial.
-    if ( scenemgr_ && !scenemgr_->cleanUp(false) )
-    {
-	if ( viewer2dmgr_ )
-	{
-	    viewer2dmgr_->cancelClosePreparation();
-	    if ( !wassuspended )
-		viewer2dmgr_->resumeDispatch();
-	}
-	return false;
-    }
-
-    if ( viewer2dmgr_ )
-	viewer2dmgr_->commitCloseAll();
-
-    beforeExit.trigger();
-
-    if ( failed_ )
+     if ( failed_ )
 	return true;
 
-    return true;
+     return true;
 }
 
 
