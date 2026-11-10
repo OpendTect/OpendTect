@@ -54,6 +54,7 @@ odSeismicObject::~odSeismicObject()
 
 BufferString odSeismicObject::getDtypeStr() const
 {
+    errmsg_.setEmpty();
     BufferString res;
     ConstPtrMan<IOObj> ioobj = ioobj_ptr();
     if ( ioobj )
@@ -68,6 +69,7 @@ BufferString odSeismicObject::getDtypeStr() const
 
 BufferString odSeismicObject::getDtypeStr( const SeisIOObjInfo& info ) const
 {
+    errmsg_.setEmpty();
     DataCharacteristics dc;
     info.getDataChar( dc );
     BufferString res;
@@ -78,6 +80,7 @@ BufferString odSeismicObject::getDtypeStr( const SeisIOObjInfo& info ) const
 
 BufferStringSet* odSeismicObject::getCompNames() const
 {
+    errmsg_.setEmpty();
     auto* nms = new BufferStringSet;
     nms->add( components_, true );
     return nms;

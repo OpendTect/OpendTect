@@ -103,6 +103,7 @@ odSeismic3D::~odSeismic3D()
 
 void odSeismic3D::close()
 {
+    errmsg_.setEmpty();
     if ( sequentialwriter_ )
     {
 	sequentialwriter_->finishWrite();
@@ -140,6 +141,7 @@ void odSeismic3D::close()
 
 od_int64 odSeismic3D::getNrTraces() const
 {
+    errmsg_.setEmpty();
     return cubeidx_ ? cubeidx_->lastTrc()+1 : -1;
 }
 
@@ -168,6 +170,7 @@ BinID odSeismic3D::getBinID( od_int64 trcnum ) const
 
 StepInterval<float> odSeismic3D::getZrange() const
 {
+    errmsg_.setEmpty();
     StepInterval<float> res;
     ConstPtrMan<IOObj> ioobj( ioobj_ptr() );
     if ( ioobj )
@@ -368,6 +371,7 @@ void odSeismic3D::putData( const float** data, const TrcKeyZSampling& tkz )
 void odSeismic3D::setBlockPars( const char* mergemode,
 				const Geom::Point3D<float>& overlap )
 {
+    errmsg_.setEmpty();
     if ( dataglueer_ )
     {
 	errmsg_ = "parameters can only be changed before first block output";
@@ -437,6 +441,7 @@ void odSeismic3D::putBlock( const float* data, const TrcKeyZSampling& tkz )
 
 void odSeismic3D::getInfo( OD::JSON::Object& jsobj ) const
 {
+    errmsg_.setEmpty();
     jsobj.setEmpty();
     ConstPtrMan<IOObj> ioobj( ioobj_ptr() );
     if ( !ioobj )
@@ -462,6 +467,7 @@ void odSeismic3D::getInfo( OD::JSON::Object& jsobj ) const
 
 void odSeismic3D::getPoints( OD::JSON::Array& jsarr, bool towgs ) const
 {
+    errmsg_.setEmpty();
     if ( !canRead() )
 	return;
 
@@ -540,6 +546,7 @@ void seismic3d_getinlcrldist( hSeismic3D self, float dist[2] )
     const auto* p = static_cast<odSeismic3D*>(self);
     if ( !p ) return;
 
+    p->setErrMsg( nullptr );
     const auto& tkz = p->tkz();
     dist[0] = tkz.hsamp_.step_.inl() * p->survey().si().inlDistance();
     dist[1] = tkz.hsamp_.step_.crl() * p->survey().si().crlDistance();
@@ -599,6 +606,7 @@ od_int64 seismic3d_nrbins( hSeismic3D self )
     if  ( !p )
 	return -1;
 
+    p->setErrMsg( nullptr );
     const auto& tkz = p->tkz();
     if ( tkz.isEmpty() )
 	return -1;
@@ -622,6 +630,7 @@ void seismic3d_shape( hSeismic3D self, int32_t dims[3] )
     const auto* p = static_cast<odSeismic3D*>(self);
     if ( !p ) return;
 
+    p->setErrMsg( nullptr );
     const auto& tkz = p->tkz();
     dims[0] = tkz.nrLines();
     dims[1] = tkz.nrTrcs();
@@ -664,6 +673,7 @@ bool seismic3d_validrange( hSeismic3D self, const int32_t inlrg[3],
     const auto* p = static_cast<odSeismic3D*>(self);
     if ( !p ) return false;
 
+    p->setErrMsg( nullptr );
     TrcKeyZSampling tkztochk = odSurvey::tkzFromRanges( inlrg, crlrg, zrg,
 							p->zIsTime() ) ;
     return p->tkz().includes( tkztochk );

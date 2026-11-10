@@ -88,6 +88,7 @@ BufferString odSurveyObject::getName() const
 
 void odSurveyObject::getFeature( OD::JSON::Object& jsobj, bool towgs ) const
 {
+    errmsg_.setEmpty();
     jsobj.set( "type", "Feature" );
     auto* info = new OD::JSON::Object;
     getInfo( *info );
