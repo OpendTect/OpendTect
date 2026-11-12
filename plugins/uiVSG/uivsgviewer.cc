@@ -9,18 +9,27 @@ ________________________________________________________________________
 
 #include "uivsgviewer.h"
 
-#include <QVBoxLayout>
+#include "bufstring.h"
+#include "callback.h"
+#include "errmsg.h"
+#include "keyenum.h"
+#include "math2.h"
+#include "notify.h"
+#include "settings.h"
+#include "stringview.h"
+#include "timer.h"
 
-#include "vsgviewer.h"
+#include "uieventfilter.h"
+#include "uifont.h"
+#include "uimainwin.h"
+//#include "uiodmain.h"
+#include "uimsg.h"
+#include "uiobjbody.h"
+#include "uiparentbody.h"
+#include "uistatusbar.h"
 #include "uivsgwindow.h"
 #include "uivsgwindowhandler.h"
 
-#include "bufstring.h"
-#include "callback.h"
-#include "math2.h"
-#include "uimainwin.h"
-//#include "uiodmain.h"
-#include "uistatusbar.h"
 #include "visvsgaxes.h"
 #include "visvsgcamera.h"
 #include "visvsgdata.h"
@@ -30,13 +39,6 @@ ________________________________________________________________________
 #include "visvsgsurvscene.h"
 #include "visvsgtexturechannels.h"
 #include "visvsgthumbwheel.h"
-#include "errmsg.h"
-#include "keyenum.h"
-#include "notify.h"
-#include "settings.h"
-#include "stringview.h"
-#include "uifont.h"
-#include "uimsg.h"
 #include "vsggeoaxes.h"
 #include "vsggeogradientbackground.h"
 #include "vsggeolayeredtexture.h"
@@ -44,6 +46,9 @@ ________________________________________________________________________
 #include "vsggeotext.h"
 #include "vsggeothumbwheel.h"
 #include "vsggeotrackball.h"
+#include "vsgviewer.h"
+
+#include <QWidget>
 
 #include <vsg/ui/KeyEvent.h>
 #include <vsg/ui/PointerEvent.h>
@@ -55,6 +60,8 @@ ________________________________________________________________________
 
 namespace
 {
+
+constexpr int cRenderTimeMs = 16;
 
 struct ViewAll
 {
@@ -629,37 +636,117 @@ void uiVSGViewer::ColTabLink::changedCB( CallBacker* )
 }
 
 
-uiVSGViewer::uiVSGViewer( QWidget* parent )
-    : QWidget(parent)
+/*!\brief The body of uiVSGViewer: the native Vulkan window and the widget
+  that contains it. Vulkan draws all of that widget, so the widget must not
+  fill it (WA_OpaquePaintEvent and WA_NoSystemBackground have no uiBase
+  wrapper). */
+
+class uiVSGViewerBody : public uiObjectBody
 {
-    setAttribute( Qt::WA_DeleteOnClose );
-    setMinimumSize( 600, 400 );
-    setWindowTitle( "VSG Viewer" );
-    setAttribute( Qt::WA_OpaquePaintEvent );
-    setAttribute( Qt::WA_NoSystemBackground );
-    viewer_ = dGBVSGViewer::create( rendertimems_ );
+public:
+			uiVSGViewerBody(uiVSGViewer&,uiParent*);
+			~uiVSGViewerBody();
+
+    vsg::ref_ptr<dGBVSGViewer>	vsgViewer()	{ return vsgviewer_; }
+    dGBVSGWindow*		window()	{ return window_; }
+    QWidget*			container()	{ return container_; }
+
+private:
+
+    const QWidget*	qwidget_() const override	{ return container_; }
+    uiObject&		uiObjHandle() override		{ return handle_; }
+    void		handleEventCB(CallBacker*);
+    void		showTimerCB(CallBacker*);
+
+    uiVSGViewer&		handle_;
+    vsg::ref_ptr<dGBVSGViewer>	vsgviewer_;
+    dGBVSGWindow*		window_ = nullptr;
+    QWidget*			container_ = nullptr;
+    uiEventFilter		eventfilter_;
+    Timer			showtimer_;
+};
+
+
+uiVSGViewerBody::uiVSGViewerBody( uiVSGViewer& handle, uiParent* parent )
+    : uiObjectBody(parent,nullptr)
+    , handle_(handle)
+{
+    vsgviewer_ = dGBVSGViewer::create( cRenderTimeMs );
 
     vsg::ref_ptr<vsg::WindowTraits> traits = vsg::WindowTraits::create();
     traits->decoration = true;
     traits->swapchainPreferences.surfaceFormat = VkSurfaceFormatKHR{
 		VK_FORMAT_B8G8R8A8_UNORM, VK_COLOR_SPACE_SRGB_NONLINEAR_KHR };
 
-    qtwindow_ = new dGBVSGWindow( viewer_, traits );
-    container_ = QWidget::createWindowContainer( qtwindow_, this );
+    window_ = new dGBVSGWindow( vsgviewer_, traits );
+    QWidget* parentwidget = parent->pbody()->managewidg();
+    container_ = QWidget::createWindowContainer( window_, parentwidget );
     container_->setFocusPolicy( Qt::StrongFocus );
-    container_->setSizePolicy( QSizePolicy::Expanding, QSizePolicy::Expanding );
-    statuscb_ = new VSGMouseStatus;
-    windowhandler_ = uiVSGWindowHandler::create( qtwindow_, container_ );
-    updateCursor();
+    container_->setAttribute( Qt::WA_OpaquePaintEvent );
+    container_->setAttribute( Qt::WA_NoSystemBackground );
 
-    auto* layout = new QVBoxLayout( this );
-    layout->setContentsMargins( 0, 0, 0, 0 );
-    layout->addWidget( container_, 1 );
+    eventfilter_.addEventType( uiEventFilter::Show );
+    eventfilter_.addEventType( uiEventFilter::Resize );
+    eventfilter_.attachToQObj( container_ );
+    mAttachCB( eventfilter_.eventhappened, uiVSGViewerBody::handleEventCB );
+    mAttachCB( showtimer_.tick, uiVSGViewerBody::showTimerCB );
+}
+
+
+uiVSGViewerBody::~uiVSGViewerBody()
+{
+    detachAllNotifiers();
+}
+
+
+void uiVSGViewerBody::handleEventCB( CallBacker* )
+{
+    const uiEventFilter::EventType evtype = eventfilter_.getCurrentEventType();
+    if ( evtype == uiEventFilter::Show )
+	showtimer_.start( 0, true );
+    else if ( evtype == uiEventFilter::Resize )
+	handle_.syncCameraViewport();
+}
+
+
+void uiVSGViewerBody::showTimerCB( CallBacker* )
+{
+    handle_.initializeVSG();
+    handle_.syncCameraViewport();
+}
+
+
+uiVSGViewer::uiVSGViewer( uiParent* parent, const char* nm )
+    : uiObject(parent,nm,mkBody(parent,nm))
+    , closing(this)
+{
+    setMinimumWidth( 600 );
+    setMinimumHeight( 400 );
+    setPrefWidth( 800 );
+    setPrefHeight( 600 );
+    setStretch( 2, 2 );
+    viewer_ = body_->vsgViewer();
+    statuscb_ = new VSGMouseStatus;
+    windowhandler_ = uiVSGWindowHandler::create( body_->window(),
+						 body_->container() );
+    updateCursor();
+}
+
+
+uiVSGViewerBody& uiVSGViewer::mkBody( uiParent* parent, const char* nm )
+{
+    body_ = new uiVSGViewerBody( *this, parent );
+    body_->setName( nm );
+    return *body_;
 }
 
 
 uiVSGViewer::~uiVSGViewer()
 {
+    detachAllNotifiers();
+    if ( scene_ )
+	closing.trigger( scene_->getID() );
+
     boundswatch_ = nullptr;
     wheellink_ = nullptr;
     coltablink_ = nullptr;
@@ -703,12 +790,20 @@ uiVSGViewer::~uiVSGViewer()
     scene_ = nullptr;
     delete statuscb_;
     statuscb_ = nullptr;
+    delete body_;
 }
 
 
 ODVsg::Scene* uiVSGViewer::scene()
 {
     return scene_.ptr();
+}
+
+
+void uiVSGViewer::setScene( ODVsg::Scene* scene )
+{
+    if ( !vsgwindow_ )
+	scene_ = scene;
 }
 
 
@@ -783,23 +878,6 @@ bool queryHardwareMaxCaptureSize( vsg::ref_ptr<vsg::Window> vsgwindow,
 }
 
 } // namespace
-
-
-void uiVSGViewer::showEvent( QShowEvent* event )
-{
-    QWidget::showEvent( event );
-    initializeVSG();
-
-    // Restoring from minimized doesn't reliably fire resizeEvent().
-    syncCameraViewport();
-}
-
-
-void uiVSGViewer::resizeEvent( QResizeEvent* event )
-{
-    QWidget::resizeEvent( event );
-    syncCameraViewport();
-}
 
 
 void uiVSGViewer::syncCameraViewport()
@@ -1194,7 +1272,7 @@ void uiVSGViewer::applyBackground()
 
 void uiVSGViewer::initializeVSG()
 {
-    if ( vsgwindow_ || initfailed_ || !qtwindow_ || !viewer_ )
+    if ( vsgwindow_ || initfailed_ || !body_->window() || !viewer_ )
 	return;
 
     try
@@ -1219,8 +1297,8 @@ void uiVSGViewer::initializeVSG()
 
 void uiVSGViewer::setupVSG()
 {
-    qtwindow_->initializeWindow();
-    vsgwindow_ = qtwindow_->vsgWindow();
+    body_->window()->initializeWindow();
+    vsgwindow_ = body_->window()->vsgWindow();
     if ( !vsgwindow_ )
 	return;
 
@@ -1228,7 +1306,9 @@ void uiVSGViewer::setupVSG()
     const uint32_t h = mMAX( 1u, vsgwindow_->extent2D().height );
 
     root_ = vsg::Group::create();
-    scene_ = ODVsg::Scene::create();
+    if ( !scene_ )
+	scene_ = ODVsg::Scene::create();
+
     const FontData font = hasannotfont_ ? annotfont_
 		: FontList().get(FontData::Graphics3D).fontData();
     scene_->setAnnotFont( font );
@@ -1254,7 +1334,7 @@ void uiVSGViewer::setupVSG()
 
     vsg::ref_ptr<vsgGeo::Trackball> trackball =
 					vsgGeo::Trackball::create( camera_ );
-    trackball->addWindow( qtwindow_->vsgWindow() );
+    trackball->addWindow( vsgwindow_ );
     trackball_ = trackball;
     trackball_->setMovementCallback(
 	[this]( float hor, float vert, float dist, bool step )
@@ -1289,7 +1369,7 @@ void uiVSGViewer::setupVSG()
     }
 
     vsg::ref_ptr<vsg::CommandGraph> commandGraph =
-			vsg::createCommandGraphForView( qtwindow_->vsgWindow(),
+			vsg::createCommandGraphForView( vsgwindow_,
 							camera_,
 							root_ );
 
@@ -1301,7 +1381,7 @@ void uiVSGViewer::setupVSG()
     axeshandler_->setAxes( axes_->vsgAxes() );
     viewer_->addEventHandler( axeshandler_ );
     vsg::observer_ptr<vsgGeo::AxesNode> axesnode( axes_->vsgAxes() );
-    qtwindow_->setLeaveCallback( [axesnode]()
+    body_->window()->setLeaveCallback( [axesnode]()
 	{
 	    if ( vsg::ref_ptr<vsgGeo::AxesNode> axes = axesnode.ref_ptr() )
 		axes->clearPointer();
