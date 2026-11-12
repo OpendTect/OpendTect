@@ -38,6 +38,7 @@ class SurfaceInfo;
 class TaskRunner;
 class ZAxisTransform;
 class uiMPEMan;
+class uiMdiArea;
 class uiMultiMapperRangeEditWin;
 class uiSlicePos3DDisp;
 class uiSurvTopBotImageDlg;
@@ -53,6 +54,9 @@ namespace visBase   { class DataObject; class EventCatcher; }
 namespace visSurvey { class Scene; }
 namespace ColTab    { class Sequence; class MapperSetup; }
 namespace ZDomain   { class Info; }
+
+
+mGlobal(uiVis) bool isVSGAvailable();
 
 
 /*!
@@ -107,6 +111,11 @@ public:
 			/*!<Adds a scene. The argument is only used internally.
 			    Don't use the argument when calling from outside.
 			*/
+    SceneID		addVSGScene(uiMdiArea&,bool maximized,
+				    const uiString& nm=uiString::empty());
+			/*!<Adds a VSG scene and shows it in a window of the
+			    workspace. Needs the VSG plugin. The window is
+			    removed with the scene when the user closes it. */
     void		removeScene(const SceneID&);
     int			nrScenes() const;
     NotifierAccess&	nrScenesChange() { return nrscenesChange; }
@@ -502,6 +511,12 @@ protected:
 					= visBase::PolygonSelection::Off;
     SelectionMode		selectionmode_			= Polygon;
 
+    void*			getVSGFunction(const char* fnnm) const;
+					//!<In the VSG plugin, null if not found
+    class			VSGWindow;
+    ObjectSet<VSGWindow>	vsgwindows_;
+    void			vsgViewerClosedCB(CallBacker*);
+    void			vsgFrameClosedCB(CallBacker*);
     void			mouseCursorCB(CallBacker*);
     void			rightClickCB(CallBacker*);
     void			selectObjCB(CallBacker*);

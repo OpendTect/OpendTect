@@ -24,6 +24,7 @@ ________________________________________________________________________
 #define mUtilMnu		5000
 #define mAppMnu			6000
 #define mTerraNubisMnu		7000
+#define mVSGMnu			8000
 #define mHelpMnu		1000000000
 
 /* 'File' menu */
@@ -259,6 +260,9 @@ ________________________________________________________________________
 /* 'TerraNubis' menu */
 #define mFreeProjects		(mTerraNubisMnu+1)
 #define mCommProjects		(mTerraNubisMnu+2)
+
+/* 'VSG' menu */
+#define mAddVSGSceneMnuItm	(mVSGMnu+1)
 
 /* 'Help' menu */
 
