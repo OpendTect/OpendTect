@@ -16,6 +16,7 @@ ________________________________________________________________________
 
 #include "uifont.h"
 #include "uimsg.h"
+#include "uimainwin.h"
 #include "uivsgwindow.h"
 #include "uivsgwindowhandler.h"
 
@@ -1650,22 +1651,24 @@ mExternC(uiVSG) visSurvey::Scene* createVSGScene()
 }
 
 
-mExternC(uiVSG) QWidget* createVSGViewer(QWidget*,visSurvey::Scene*,bool,
+mExternC(uiVSG) QWidget* createVSGViewer(uiParent* parent,visSurvey::Scene*,bool,
 					  const char*,NotifierAccess**);
 
-mExternC(uiVSG) QWidget* createVSGViewer(QWidget* mainwin,
+mExternC(uiVSG) QWidget* createVSGViewer(uiParent* parent,
     visSurvey::Scene* scene,
     bool maximized, const char* title,
     NotifierAccess** closing)
 {
     const char* nm = (title && *title) ? title : "VSG Viewer";
-    auto* viewer = new uiVSGViewer(nullptr, nm);
+    auto* viewer = new uiVSGViewer( parent, nm );
     viewer->setScene(dCast(ODVsg::Scene*, scene));
-    if (closing)
+    if ( closing )
 	*closing = &viewer->closing;
 
     QWidget* widget = viewer->qwidget();
-    QMdiArea* mdiarea = mainwin ? mainwin->findChild<QMdiArea*>() : nullptr;
+    mDynamicCastGet(uiMainWin*,mainwin,parent);
+    QWidget* mainwidget = mainwin ? mainwin->qWidget() : nullptr;
+    QMdiArea* mdiarea = mainwidget ? mainwidget->findChild<QMdiArea*>() : nullptr;
     if (!mdiarea)
     {
 	if (maximized)

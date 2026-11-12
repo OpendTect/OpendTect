@@ -279,7 +279,7 @@ SceneID uiVisPartServer::addScene( visSurvey::Scene* newscene_in )
 
 
 typedef visSurvey::Scene* (*VSGSceneCreator)();
-typedef mQtclass(QWidget*) (*VSGViewerCreator)(mQtclass(QWidget*),
+typedef mQtclass(QWidget*) (*VSGViewerCreator)(mQtclass(uiParent*),
 					       visSurvey::Scene*,bool,
 					       const char*,NotifierAccess**);
 
@@ -360,7 +360,7 @@ bool uiVisPartServer::createVSGViewer( const SceneID& sceneid, bool maximized,
 
     mDynamicCastGet(uiMainWin*,mainwin,appserv().parent())
     VSGViewerCreator creator = rCast( VSGViewerCreator, funcptr );
-    return creator( mainwin ? mainwin->qWidget() : nullptr, scene.ptr(),
+    return creator( mainwin, scene.ptr(),
 		    maximized, title.buf(), closing ) != nullptr;
 }
 

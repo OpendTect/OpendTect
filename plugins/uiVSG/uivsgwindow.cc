@@ -28,7 +28,6 @@ ________________________________________________________________________
 #include <vsg/all.h>
 #include "uivsgcontext.h"
 #include "uivsgwindow.h"
-#include "uivsgcontext.h"
 
 #include "timer.h"
 
@@ -356,8 +355,6 @@ void dGBVSGNativeWindow::cleanup()
     if (!vsgwindow_)
     {
 	initialized_ = false;
-	last_w_ = -1;
-	last_h_ = -1;
 	return;
     }
 
@@ -374,8 +371,6 @@ void dGBVSGNativeWindow::cleanup()
     uiVSGContext::instance().releaseWindow();
 
     initialized_ = false;
-    last_w_ = -1;
-    last_h_ = -1;
 }
 
 
@@ -444,7 +439,6 @@ void dGBVSGNativeWindow::resizeEvent( QResizeEvent* )
     if ( viewer_ ) // && isActive()
 	viewer_->request();
 
-    resizing_ = false;
 }
 
 
@@ -642,7 +636,7 @@ dGBVSGWindow::dGBVSGWindow( uiObject& handle, uiParent* parent, const char* nm,
     traits->decoration = true;
     traits->swapchainPreferences.surfaceFormat = VkSurfaceFormatKHR{
 		VK_FORMAT_B8G8R8A8_UNORM, VK_COLOR_SPACE_SRGB_NONLINEAR_KHR };
-    uiVSGContext::instance().applyTraits( *traits );
+    uiVSGContext::instance().applyToTraits( *traits );
     nativewin_ = new dGBVSGNativeWindow( viewer_, traits );
     body_ = new dGBVSGWindowBody( *this, handle, parent, nm, *nativewin_ );
 }
