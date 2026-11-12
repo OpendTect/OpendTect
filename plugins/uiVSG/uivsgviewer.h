@@ -12,10 +12,15 @@ ________________________________________________________________________
 -*/
 
 #include "uivsgmod.h"
-
 #include "uiobj.h"
-
 #include "visvsgscenecoltab.h"
+#include "color.h"
+#include "fontdata.h"
+#include "integerid.h"
+#include "notify.h"
+#include "ptrman.h"
+#include "refcount.h"
+#include "uistringset.h"
 
 #include <vsg/all.h>
 
@@ -93,7 +98,7 @@ public:
 
     CNotifier<uiVSGViewer,SceneID> closing;
 			//!<Triggered when the viewer is deleted
-
+			//! 
 private:
 
     class		SceneBoundsWatch;

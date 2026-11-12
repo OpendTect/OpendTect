@@ -26,7 +26,7 @@ ________________________________________________________________________
 #endif
 
 #include <vsg/all.h>
-
+#include "uivsgcontext.h"
 #include "uivsgwindow.h"
 
 #include "timer.h"
@@ -352,19 +352,27 @@ void dGBVSGNativeWindow::initializeWindow()
 
 void dGBVSGNativeWindow::cleanup()
 {
-    if ( vsgwindow_ )
+    if (!vsgwindow_)
     {
-	if ( viewer_ )
-	{
-	    viewer_->deviceWaitIdle();
-	    viewer_->removeWindow( vsgwindow_ );
-	}
-
-	vsgwindow_->releaseWindow();
+	initialized_ = false;
+	last_w_ = -1;
+	last_h_ = -1;
+	return;
     }
 
+    if (viewer_)
+    {
+	viewer_->stop();
+	viewer_->deviceWaitIdle();
+	viewer_->removeWindow(vsgwindow_);
+    }
+
+    vsgwindow_->releaseWindow();
     vsgwindow_ = {};
-    viewer_ = {};
+
+    initialized_ = false;
+    last_w_ = -1;
+    last_h_ = -1;
 }
 
 
@@ -411,16 +419,29 @@ void dGBVSGNativeWindow::hideEvent( QHideEvent* )
 
 void dGBVSGNativeWindow::resizeEvent( QResizeEvent* )
 {
-    if ( !vsgwindow_ )
+    if ( !vsgwindow_ ) // || resizing_
 	return;
+
+    const int w = convertCoord( width() );
+    const int h = convertCoord( height() );
+ ////   if ( w == last_w_ && h == last_h_ )
+	////return;
+
+ //   resizing_ = true;
+ //   last_w_ = w;
+ //   last_h_ = h;
 
     const vsg::clock::time_point eventtime = vsg::clock::now();
     vsgwindow_->bufferedEvents.push_back( vsg::ConfigureWindowEvent::create(
 		    vsgwindow_, eventtime, convertCoord(x()), convertCoord(y()),
-		    convertCoord(width()), convertCoord(height())) );
+		    uint32_t(w), uint32_t(h) ) );
     vsgwindow_->resize();
-    if ( viewer_ )
+    // Inactive MDI siblings still need extent updates, but must not both
+    // request frames during a maximize/layout fight.
+    if ( viewer_ ) // && isActive()
 	viewer_->request();
+
+    resizing_ = false;
 }
 
 
@@ -618,7 +639,7 @@ dGBVSGWindow::dGBVSGWindow( uiObject& handle, uiParent* parent, const char* nm,
     traits->decoration = true;
     traits->swapchainPreferences.surfaceFormat = VkSurfaceFormatKHR{
 		VK_FORMAT_B8G8R8A8_UNORM, VK_COLOR_SPACE_SRGB_NONLINEAR_KHR };
-
+    uiVSGContext::instance().applyTraits( *traits );
     nativewin_ = new dGBVSGNativeWindow( viewer_, traits );
     body_ = new dGBVSGWindowBody( *this, handle, parent, nm, *nativewin_ );
 }

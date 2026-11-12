@@ -181,8 +181,8 @@ bool uiODSceneMgr::canAddSceneAtStartup()
 
 void uiODSceneMgr::initMenuMgrDepObjs()
 {
-    if ( scenes_.isEmpty() )
-	addScene(true);
+    if ( visServ().nrScenes() == 0 )
+	addDefaultScene();
 }
 
 
@@ -194,7 +194,7 @@ void uiODSceneMgr::cleanUp( bool startnew )
     visServ().deleteAllObjects();
     vwridx_ = 0;
     if ( startnew )
-	addScene( true );
+	addDefaultScene();
 }
 
 
@@ -212,8 +212,16 @@ uiODSceneMgr::Scene& uiODSceneMgr::mkNewScene()
 }
 
 
-SceneID uiODSceneMgr::addScene( bool maximized, ZAxisTransform* zt,
+SceneID uiODSceneMgr::addScene( bool osg, bool maximized, ZAxisTransform* zt,
 				const uiString& name )
+{
+    return osg ? addOSGScene( maximized, zt, name )
+	       : addVSGScene( maximized, zt, name );
+}
+
+
+SceneID uiODSceneMgr::addOSGScene( bool maximized, ZAxisTransform* zt,
+				   const uiString& name )
 {
     if ( !canAddSceneAtStartup() )
 	return SceneID::udf();
@@ -278,6 +286,51 @@ SceneID uiODSceneMgr::addScene( bool maximized, ZAxisTransform* zt,
     scn.vwr3d_->setStartupView();
 
     return sceneid;
+}
+
+
+SceneID uiODSceneMgr::addVSGScene( bool maximized, ZAxisTransform*,
+				   const uiString& nm )
+{
+    const SceneID sceneid = visServ().addVSGScene();
+    if ( !sceneid.isValid() )
+	return SceneID::udf();
+
+    vwridx_++;
+    // Same naming convention applied as with OSGScenes. 
+    // Prevents confusion between N scenes named the same 
+    const uiString title = nm.isSet() ? nm : 
+	uiStrings::phrJoinStrings( uiStrings::sScene(), toUiString(vwridx_));
+
+    NotifierAccess* closing = nullptr;
+    if ( !visServ().createVSGViewer(sceneid,maximized,nm,&closing) )
+    {
+	visServ().removeScene( sceneid );
+	return SceneID::udf();
+    }
+
+    visServ().setSceneName( sceneid, title );
+
+    if ( closing )
+	mAttachCB( *closing, uiODSceneMgr::vsgViewerClosedCB );
+
+    return sceneid;
+}
+
+
+void uiODSceneMgr::vsgViewerClosedCB( CallBacker* cb )
+{
+    mCBCapsuleUnpack(SceneID,sceneid,cb);
+    visServ().removeScene( sceneid );
+}
+
+
+SceneID uiODSceneMgr::addDefaultScene()
+{
+    if ( isVSGAvailable() )
+	return visServ().addVSGScene();
+
+    return addScene( true, true );
 }
 
 

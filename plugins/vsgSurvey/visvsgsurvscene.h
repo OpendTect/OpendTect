@@ -51,6 +51,7 @@ public:
     ODVsg::DataObjectGroup* vsgGroup()		{ return group_.ptr(); }
 
     int			size() const override;
+    bool        isVSGScene() const override { return true; }
     void		addObject(ODVsg::DataObject*);
     void		insertObject(int idx,ODVsg::DataObject*);
     void		addUTMObject(ODVsg::VisualObject*);

@@ -8,8 +8,11 @@ ________________________________________________________________________
 -*/
 
 #include "uivsgviewer.h"
+#include "uivsgcontext.h"
+#include "vsggeocompiler.h"
 
 #include "settings.h"
+
 
 #include "uifont.h"
 #include "uimsg.h"
@@ -28,6 +31,8 @@ ________________________________________________________________________
 #include "vsggeothumbwheel.h"
 #include "vsggeotrackball.h"
 
+#include <QMdiArea>
+#include <QMdiSubWindow>
 #include <QImage>
 
 #include <cmath>
@@ -612,6 +617,7 @@ void uiVSGViewer::ColTabLink::changedCB( CallBacker* )
 }
 
 
+
 uiVSGViewer::uiVSGViewer( uiParent* parent, const char* nm )
     : uiObject(parent,nm,mkBody(parent,nm))
     , closing(this)
@@ -664,10 +670,11 @@ uiVSGViewer::~uiVSGViewer()
 
     if ( viewer_ )
     {
+	vsgGeo::Compiler::removeViewer(viewer_.get());
 	viewer_->deviceWaitIdle();
 	viewer_->getEventHandlers().clear();
-	if ( ODVsg::DataObject::getCommonViewer() == viewer_.get() )
-	    ODVsg::DataObject::setCommonViewer( nullptr );
+	if (ODVsg::DataObject::getCommonViewer() == viewer_.get())
+	    ODVsg::DataObject::setCommonViewer(nullptr);
     }
 
     if ( windowhandler_ )
@@ -1211,6 +1218,9 @@ void uiVSGViewer::setupVSG()
     if ( !vsgwindow_ )
 	return;
 
+    uiVSGContext::instance().setDeviceFromWindow( *vsgwindow_ );
+    vsgwindow_->clearColor() = vsg::vec4( 0.2f, 0.2f, 0.2f, 1.f );
+
     const uint32_t w = mMAX( 1u, vsgwindow_->extent2D().width );
     const uint32_t h = mMAX( 1u, vsgwindow_->extent2D().height );
 
@@ -1343,6 +1353,7 @@ void uiVSGViewer::setupVSG()
 
     offscreenswitch_->setAllChildren( true );
     viewer_->compile();
+    vsgGeo::Compiler::addViewer(viewer_.get());
     offscreenswitch_->setAllChildren( false );
 
     // After the first compile: from now on, changes to ODVsg objects are
@@ -1626,4 +1637,55 @@ uiRetVal uiVSGViewer::takeScreenshot( int width, int height,
 	return uiRetVal( toUiString("Screenshot failed: %1")
 			     .arg(exc.message.c_str()) );
     }
+}
+
+
+mExternC(uiVSG) visSurvey::Scene* createVSGScene();
+
+mExternC(uiVSG) visSurvey::Scene* createVSGScene()
+{
+    RefMan<ODVsg::Scene> scene = ODVsg::Scene::create();
+    scene.setNoDelete( true );
+    return scene.ptr();
+}
+
+
+mExternC(uiVSG) QWidget* createVSGViewer(QWidget*,visSurvey::Scene*,bool,
+					  const char*,NotifierAccess**);
+
+mExternC(uiVSG) QWidget* createVSGViewer(QWidget* mainwin,
+    visSurvey::Scene* scene,
+    bool maximized, const char* title,
+    NotifierAccess** closing)
+{
+    const char* nm = (title && *title) ? title : "VSG Viewer";
+    auto* viewer = new uiVSGViewer(nullptr, nm);
+    viewer->setScene(dCast(ODVsg::Scene*, scene));
+    if (closing)
+	*closing = &viewer->closing;
+
+    QWidget* widget = viewer->qwidget();
+    QMdiArea* mdiarea = mainwin ? mainwin->findChild<QMdiArea*>() : nullptr;
+    if (!mdiarea)
+    {
+	if (maximized)
+	    widget->showMaximized();
+	else
+	    widget->show();
+
+	return widget;
+    }
+
+    QMdiSubWindow* subwin = mdiarea->addSubWindow(widget);
+    subwin->setAttribute(Qt::WA_DeleteOnClose);
+    subwin->setWindowTitle(nm);
+    subwin->resize(800, 600);
+    mdiarea->setActiveSubWindow(subwin);
+
+    if (maximized)
+	subwin->showMaximized();
+    else
+	subwin->show();
+
+    return widget;
 }

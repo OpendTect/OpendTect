@@ -58,7 +58,6 @@ public:
     Notifier<dGBVSGWindow> resized;
 
 private:
-
     vsg::ref_ptr<dGBVSGViewer>	viewer_;
     dGBVSGNativeWindow*		nativewin_ = nullptr;
     dGBVSGWindowBody*		body_ = nullptr;
