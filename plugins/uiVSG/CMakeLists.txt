@@ -10,6 +10,8 @@ set( OD_FOLDER "Visualization (3D)" )
 set( OD_IS_PLUGIN yes )
 set( OD_USEQT Widgets;OpenGL;GuiPrivate )
 set( OD_MODULE_SOURCES
+	uivsgactions.cc
+	uivsgcolorbardlg.cc
 	uivsgcoltabdlg.cc
 	uivsgviewer.cc
 	uivsgwindowhandler.cc

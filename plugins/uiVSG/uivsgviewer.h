@@ -22,7 +22,6 @@ ________________________________________________________________________
 class dGBVSGViewer;
 class dGBVSGWindow;
 class uiVSGWindowHandler;
-struct VSGMouseStatus;
 namespace ODVsg
 { class Axes; class Camera; class DataObjectGroup; class Scene;
   class TextureChannels; class ThumbWheel; }
@@ -78,6 +77,8 @@ public:
     bool		maxCaptureSize(uint32_t& maxwidth,
 				       uint32_t& maxheight) const;
 
+    static uiVSGViewer*	find(const SceneID&);
+			//!<The last opened one if the id is not valid
     ODVsg::Scene* scene();
     void		setScene(ODVsg::Scene*);
 			//!<Only before the viewer is first shown. Without it
@@ -91,8 +92,19 @@ public:
     bool		isViewMode() const;
     void		syncCursor()		{ updateCursor(); }
 
+    void		toHomePos();
+    void		saveHomePos();
+    void		resetHomePos();
+    void		viewAll();
+			/*!<The home position is the view of a new viewer until
+			    it is saved. A saved one is kept in the settings
+			    of the survey. View all keeps the direction of the
+			    view. */
+
     CNotifier<uiVSGViewer,SceneID> closing;
 			//!<Triggered when the viewer is deleted
+    CNotifier<uiVSGViewer,bool> viewmodechanged;
+			//!<Triggered when the Esc key switched the mode
 
 private:
 
@@ -100,12 +112,24 @@ private:
     class		WheelLink;
     class		ColTabLink;
 
+    struct Pose
+    {
+	vsg::dvec3	eye_;
+	vsg::dvec3	center_;
+	vsg::dvec3	up_;
+    };
+
     uiObjectBody&	mkBody(uiParent*,const char* nm);
 
     void		showWheels(bool);
     void		applyAnnotationColor();
     void		setWheelColor(const OD::Color&);
     void		applyBackground();
+    void		applyAnnotationFont(const FontData&);
+    void		font3DChangedCB(CallBacker*);
+    void		viewModeToggledCB(CallBacker*);
+    vsg::LookAt*	cameraLookAt() const;
+    void		initHomePos();
     void		thumbWheelRotated(CallBacker*,float delta);
     void		cameraMoved(float hor,float vert,float dist,bool step);
     void		initializeVSG();
@@ -119,7 +143,6 @@ private:
 			/*!<Forwards to uiVSGWindowHandler. */
 
     dGBVSGWindow*			window_;
-    VSGMouseStatus*			statuscb_ = nullptr;
     vsg::ref_ptr<uiVSGWindowHandler>	windowhandler_;
     vsg::ref_ptr<dGBVSGViewer>		viewer_;
     vsg::ref_ptr<vsg::Window>		vsgwindow_;
@@ -156,6 +179,8 @@ private:
     vsg::ref_ptr<vsg::ClearAttachments>	offscreenbgclear_;
     vsg::ref_ptr<vsg::View>		offscreenbgview_;
     vsg::ref_ptr<vsg::ClearAttachments>	offscreenhudclear_;
+    Pose				homepose_;
+    bool				hashomepose_ = false;
     FontData				annotfont_;
     bool				hasannotfont_ = false;
     bool				initfailed_ = false;

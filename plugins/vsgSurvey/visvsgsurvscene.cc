@@ -78,7 +78,6 @@ Scene::Scene()
     : group_(ODVsg::DataObjectGroup::create())
     , testchannelschanged(this)
     , sceneboundingboxupdated(this)
-    , mouseposchange(this)
     , tkzs_(false)
     , inittkzs_(false)
     , annotscale_(false)
@@ -839,21 +838,6 @@ void Scene::bindDraggers()
 				    inlcrlrotation_.ptr() );
 	dragger->setEventCatcher( events_.ptr() );
     }
-}
-
-
-TrcKeyValue Scene::getMousePos() const
-{
-    if ( mousetrckey_.isUdf() || !xytmousepos_.isDefined() )
-	return TrcKeyValue::udf();
-
-    return TrcKeyValue( mousetrckey_, float(xytmousepos_.z_) );
-}
-
-
-uiString Scene::getMousePosString() const
-{
-    return mouseposstr_;
 }
 
 

@@ -116,6 +116,7 @@ protected:
     uiMenu*		helpmnu_;
     uiMenu*		settmnu_;
     uiMenu*		langmnu_			= nullptr;
+    uiMenu*		vsgmnu_				= nullptr;
     uiMenu*		toolsmnu_;
     uiMenu*		installmnu_;
     uiMenu*		csoitm_;
@@ -142,6 +143,7 @@ protected:
     void		fillSceneMenu();
     void		fillViewMenu();
     void		fillUtilMenu();
+    void		updateVSGMenu();
     void		addSurveyAction(uiODApplMgr*);
     void		fillDtectTB(uiODApplMgr*);
     void		fillCoinTB(uiODSceneMgr*);
@@ -153,6 +155,7 @@ protected:
     void		handleClick(CallBacker*);
     void		removeSelection(CallBacker*);
     void		dispColorBar(CallBacker*);
+    void		axisStyleClick(CallBacker*);
     void		manSeis(CallBacker*);
     void		manHor(CallBacker*);
     void		manBody(CallBacker*);

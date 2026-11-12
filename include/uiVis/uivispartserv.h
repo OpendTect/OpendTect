@@ -38,6 +38,7 @@ class SurfaceInfo;
 class TaskRunner;
 class ZAxisTransform;
 class uiMPEMan;
+class uiMdiArea;
 class uiMultiMapperRangeEditWin;
 class uiSlicePos3DDisp;
 class uiSurvTopBotImageDlg;
@@ -53,6 +54,9 @@ namespace visBase   { class DataObject; class EventCatcher; }
 namespace visSurvey { class Scene; }
 namespace ColTab    { class Sequence; class MapperSetup; }
 namespace ZDomain   { class Info; }
+
+
+mGlobal(uiVis) bool isVSGAvailable();
 
 
 /*!
@@ -107,6 +111,30 @@ public:
 			/*!<Adds a scene. The argument is only used internally.
 			    Don't use the argument when calling from outside.
 			*/
+    SceneID		addVSGScene(uiMdiArea&,bool maximized,
+				    const uiString& nm=uiString::empty());
+			/*!<Adds a VSG scene and shows it in a window of the
+			    workspace. Needs the VSG plugin. The window is
+			    removed with the scene when the user closes it. */
+    enum VSGAction	{ VSGScreenshot, VSGSettings, VSGColorTable,
+			  VSGColorBar };
+    const TypeSet<SceneID>& vsgSceneIds() const { return vsgsceneids_; }
+    bool		showVSGDialog(VSGAction,
+				      const SceneID& =SceneID::udf());
+			/*!<A dialog of the VSG viewer of the scene. Without a
+			    scene it is the one of the last opened viewer. */
+    enum VSGViewAction	{ VSGToHome, VSGSaveHome, VSGResetHome, VSGViewAll };
+    void		doVSGViewAction(VSGViewAction);
+			//!<In all the VSG scenes
+    void		setVSGViewMode(bool);
+			//!<True: view mode, false: interact mode
+    NotifierAccess*	vsgViewModeNotifier(const SceneID&);
+			/*!<Triggers, with a bool, when the mode of the scene
+			    was switched in its VSG window. Null if not found */
+    void		showVSGAxis(bool);
+			//!<Shows or hides the axis of the VSG scenes
+    void		setVSGModernAxes(bool);
+			//!<True: the modern style of the axis, false: classic
     void		removeScene(const SceneID&);
     int			nrScenes() const;
     NotifierAccess&	nrScenesChange() { return nrscenesChange; }
@@ -502,6 +530,16 @@ protected:
 					= visBase::PolygonSelection::Off;
     SelectionMode		selectionmode_			= Polygon;
 
+    TypeSet<SceneID>		vsgsceneids_;
+    void*			getVSGFunction(const char* fnnm) const;
+					//!<In the VSG plugin, null if not found
+    class			VSGWindow;
+    ObjectSet<VSGWindow>	vsgwindows_;
+    void			vsgViewerClosedCB(CallBacker*);
+    void			vsgFrameClosedCB(CallBacker*);
+    void			setVSGSceneFlag(const char* fnnm,bool yn) const;
+					//!<Calls fnnm of the VSG plugin for
+					//!<each VSG scene
     void			mouseCursorCB(CallBacker*);
     void			rightClickCB(CallBacker*);
     void			selectObjCB(CallBacker*);

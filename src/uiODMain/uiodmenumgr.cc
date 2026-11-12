@@ -877,8 +877,23 @@ void uiODMenuMgr::insertNewSceneItem( uiMenu* mnu )
 }
 
 
+void uiODMenuMgr::updateVSGMenu()
+{
+    if ( vsgmnu_ )
+	return;
+
+    vsgmnu_ = appl_.menuBar()->addMenu( new uiMenu(toUiString("VSG")),
+					helpmnu_ );
+    insertAction( vsgmnu_, tr("New VSG Scene"), mAddVSGSceneMnuItm );
+    vsgmnu_->insertSeparator();
+    insertAction( vsgmnu_, m3Dots(tr("Scene Settings")), mVSGSettingsMnuItm );
+    insertAction( vsgmnu_, m3Dots(tr("Color Table")), mVSGColTabMnuItm );
+}
+
+
 void uiODMenuMgr::updateSceneMenu()
 {
+    updateVSGMenu();
     uiStringSet scenenms;
     int activescene = 0;
     sceneMgr().getSceneNames( scenenms, activescene );
@@ -1347,6 +1362,12 @@ void uiODMenuMgr::fillCoinTB( uiODSceneMgr* scenemgr )
 
     axisid_ = mAddTB(viewtb_,"axis",tr("Display Orientation Axis"),
 		     true,showRotAxis);
+    auto* axismnu = new uiMenu( &appl_, tr("Axis Menu") );
+    axismnu->insertAction( new uiAction(tr("Modern"),
+					mCB(this,uiODMenuMgr,axisStyleClick)), 0 );
+    axismnu->insertAction( new uiAction(tr("Classic"),
+					mCB(this,uiODMenuMgr,axisStyleClick)), 1 );
+    viewtb_->setButtonMenu( axisid_, axismnu );
     coltabid_ = viewtb_->addButton( "colorbar", tr("Display Color Bar"),
 			    mCB(this,uiODMenuMgr,dispColorBar), true );
     auto* colbarmnu = new uiMenu( &appl_, tr("ColorBar Menu") );
@@ -1422,6 +1443,9 @@ void uiODMenuMgr::handleViewClick( CallBacker* cb )
 	{
 	    if ( vwr )
 		vwr->viewAll();
+	    else
+		applMgr().visServer()->doVSGViewAction(
+					    uiVisPartServer::VSGViewAll );
 	}
 	return;
     }
@@ -1521,11 +1545,21 @@ void uiODMenuMgr::dispColorBar( CallBacker* cb )
     mDynamicCastGet(uiAction*,itm,cb)
     if ( itm && itm->getID()==0 )
     {
-	visserv.manageSceneColorbar( sceneMgr().askSelectScene() );
+	visserv.manageSceneColorbar( sceneMgr().askSelectScene(true) );
 	return;
     }
 
     visserv.displaySceneColorbar( viewtb_->isOn(coltabid_) );
+}
+
+
+void uiODMenuMgr::axisStyleClick( CallBacker* cb )
+{
+    mDynamicCastGet(uiAction*,itm,cb)
+    if ( !itm )
+	return;
+
+    appl_.applMgr().visServer()->setVSGModernAxes( itm->getID()==0 );
 }
 
 
@@ -1683,7 +1717,15 @@ void uiODMenuMgr::handleClick( CallBacker* cb )
     case mAXplotMnuItm:		applMgr().doAttribXPlot(); break;
     case mOpenXplotMnuItm:	applMgr().openCrossPlot(); break;
     case mAddSceneMnuItm:	sceneMgr().tile(); // leave this, or --> crash!
-				sceneMgr().addScene(true); break;
+				sceneMgr().addScene(true,true); break;
+    case mAddVSGSceneMnuItm:	sceneMgr().tile();
+				sceneMgr().addScene(false,true); break;
+    case mVSGSettingsMnuItm:
+	sceneMgr().showVSGDialog( uiVisPartServer::VSGSettings );
+	break;
+    case mVSGColTabMnuItm:
+	sceneMgr().showVSGDialog( uiVisPartServer::VSGColorTable );
+	break;
     case mAddTimeDepth2DMnuItm: applMgr().addTimeDepthScene(true); break;
     case mAddTimeDepth3DMnuItm: applMgr().addTimeDepthScene(false); break;
     case mAddHorFlat2DMnuItm:	applMgr().addHorFlatScene(true); break;
@@ -1712,7 +1754,8 @@ void uiODMenuMgr::handleClick( CallBacker* cb )
 
     case mAddMapSceneMnuItm: {
 	sceneMgr().tile();
-	const SceneID sceneid = sceneMgr().addScene( true, 0, tr("Map View") );
+	const SceneID sceneid = sceneMgr().addScene( true, true, nullptr,
+						     tr("Map View") );
 	ui3DViewer* vwr = sceneMgr().get3DViewer( sceneid );
 	if ( vwr )
 	    vwr->setMapView( true );

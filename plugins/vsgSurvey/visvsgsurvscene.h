@@ -120,8 +120,6 @@ public:
     void		setInteractionEnabled(bool yn);
     bool		isInteractionEnabled() const	{ return interact_; }
 
-    TrcKeyValue		getMousePos() const override;
-    uiString		getMousePosString() const override;
 
     void		applyEvent(const ODVsg::EventInfo&);
 			/*!<Status, then selection when interaction is on.
@@ -136,7 +134,6 @@ public:
 
     Notifier<Scene>	testchannelschanged;
     Notifier<Scene>	sceneboundingboxupdated;
-    Notifier<Scene>	mouseposchange;
 
     static const char*	sKeyShowAnnot();
     static const char*	sKeyShowScale();
@@ -177,9 +174,6 @@ private:
     RefMan<ODVsg::MarkerSet>	picks_;
     RefMan<ODVsg::TextureChannels> testchannels_;
     int				draggingmarker_		= -1;
-    Coord3			xytmousepos_		= Coord3::udf();
-    TrcKey			mousetrckey_		= TrcKey::udf();
-    uiString			mouseposstr_;
     OD::Color			annotsavedcolor_	= OD::Color::White();
     OD::Color			annotcolor_	= OD::Color::White();
     OD::Color			bgcolor_	= OD::Color::Anthracite();

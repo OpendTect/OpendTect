@@ -20,8 +20,10 @@ ________________________________________________________________________
 #include "mouseevent.h"
 #include "od_helpids.h"
 #include "oddirs.h"
+#include "plugins.h"
 #include "seisdatapack.h"
 #include "separstr.h"
+#include "sharedlibs.h"
 #include "survinfo.h"
 #include "zaxistransform.h"
 #include "zdomain.h"
@@ -31,6 +33,7 @@ ________________________________________________________________________
 #include "uimain.h"
 #include "uimapperrangeeditordlg.h"
 #include "uimaterialdlg.h"
+#include "uimdiarea.h"
 #include "uimpeman.h"
 #include "uimsg.h"
 #include "uiposprovider.h"
@@ -92,6 +95,21 @@ static const int cPropertiesIdx = 600;
 static const int cResolutionIdx = 500;
 
 
+static const PluginManager::Data* vsgPluginData()
+{
+    BufferString libnm( 256, false );
+    SharedLibAccess::getLibName( "uiVSG", libnm.getCStr(), libnm.bufSize() );
+    return PIM().findData( libnm.buf() );
+}
+
+
+bool isVSGAvailable()
+{
+    const PluginManager::Data* data = vsgPluginData();
+    return data && data->isloaded_;
+}
+
+
 uiVisPartServer::uiVisPartServer( uiApplService& a )
     : uiApplPartServer(a)
     , objectAdded(this)
@@ -144,6 +162,7 @@ bool uiVisPartServer::sendVisEvent( int evid )
 uiVisPartServer::~uiVisPartServer()
 {
     detachAllNotifiers();
+    deepErase( vsgwindows_ );
     deleteAllObjects();
     delete vismgr_;
 
@@ -253,11 +272,163 @@ SceneID uiVisPartServer::addScene( visSurvey::Scene* newscene_in )
 }
 
 
+typedef void (*VSGFlagSetter)(const SceneID&,bool);
+typedef bool (*VSGDialogRunner)(const char*,uiParent*,const SceneID&);
+typedef void (*VSGViewActionRunner)(const char*,const SceneID&);
+typedef NotifierAccess* (*VSGNotifierGetter)(const SceneID&);
+typedef visSurvey::Scene* (*VSGSceneCreator)();
+typedef uiObject* (*VSGViewerCreator)(uiParent*,visSurvey::Scene*,
+				      NotifierAccess**);
+
+void* uiVisPartServer::getVSGFunction( const char* fnnm ) const
+{
+    if ( !isVSGAvailable() )
+    {
+	uiMSG().error( tr("The VSG viewer plugin is not loaded") );
+	return nullptr;
+    }
+
+    const PluginManager::Data* data = vsgPluginData();
+    void* funcptr = nullptr;
+    if ( data && data->sla_ )
+	funcptr = data->sla_->getFunction( fnnm );
+
+    if ( !funcptr )
+	uiMSG().error( tr("Cannot find %1 in the VSG plugin").arg(fnnm) );
+
+    return funcptr;
+}
+
+
+class uiVisPartServer::VSGWindow
+{
+public:
+			VSGWindow( uiMdiAreaWindow* frame, uiObject* viewer )
+			    : frame_(frame)
+			    , viewer_(viewer)
+			{}
+			~VSGWindow()
+			{
+			    delete viewer_;
+			    delete frame_;
+			}
+
+    uiMdiAreaWindow*	frame_;
+    uiObject*		viewer_;
+};
+
+
+SceneID uiVisPartServer::addVSGScene( uiMdiArea& mdiarea, bool maximized,
+				      const uiString& nm )
+{
+    void* scenefunc = getVSGFunction( "createVSGScene" );
+    if ( !scenefunc )
+	return SceneID::udf();
+
+    void* viewerfunc = getVSGFunction( "createVSGViewer" );
+    if ( !viewerfunc )
+	return SceneID::udf();
+
+    VSGSceneCreator scenecreator = rCast( VSGSceneCreator, scenefunc );
+    RefMan<visSurvey::Scene> scene = scenecreator();
+    if ( !scene )
+	return SceneID::udf();
+
+    const SceneID sceneid = addScene( scene.ptr() );
+    if ( nm.isSet() )
+	setSceneName( sceneid, nm );
+
+    const uiString title = nm.isSet() ? nm : toUiString( "VSG Viewer" );
+    auto* frame = new uiMdiAreaWindow( mdiarea, title );
+    NotifierAccess* closing = nullptr;
+    VSGViewerCreator viewercreator = rCast( VSGViewerCreator, viewerfunc );
+    uiObject* viewer = viewercreator( frame, scene.ptr(), &closing );
+    if ( !viewer )
+    {
+	delete frame;
+	removeScene( sceneid );
+	return SceneID::udf();
+    }
+
+    vsgwindows_ += new VSGWindow( frame, viewer );
+    if ( closing )
+	mAttachCB( *closing, uiVisPartServer::vsgViewerClosedCB );
+
+    mdiarea.addWindow( frame );
+    mAttachCB( frame->closed(), uiVisPartServer::vsgFrameClosedCB );
+    if ( maximized )
+	frame->showMaximized();
+    else
+	frame->show();
+
+    vsgsceneids_ += sceneid;
+    return sceneid;
+}
+
+
+void uiVisPartServer::vsgViewerClosedCB( CallBacker* cb )
+{
+    mCBCapsuleUnpack(SceneID,sceneid,cb);
+    removeScene( sceneid );
+}
+
+
+void uiVisPartServer::vsgFrameClosedCB( CallBacker* cb )
+{
+    mDynamicCastGet(uiObject*,uiobj,cb)
+    if ( !uiobj )
+	return;
+
+    for ( int idx=0; idx<vsgwindows_.size(); idx++ )
+    {
+	VSGWindow* win = vsgwindows_[idx];
+	if ( win->frame_->mainObject() != uiobj )
+	    continue;
+
+	mDetachCB( win->frame_->closed(), uiVisPartServer::vsgFrameClosedCB );
+	vsgwindows_.removeSingle( idx );
+	delete win;
+	return;
+    }
+}
+
+
+static const char* vsgActionKey( uiVisPartServer::VSGAction action )
+{
+    switch ( action )
+    {
+    case uiVisPartServer::VSGScreenshot:
+	return "Screenshot";
+    case uiVisPartServer::VSGSettings:
+	return "Settings";
+    case uiVisPartServer::VSGColorTable:
+	return "ColorTable";
+    case uiVisPartServer::VSGColorBar:
+	return "ColorBar";
+    }
+
+    return nullptr;
+}
+
+
+bool uiVisPartServer::showVSGDialog( VSGAction action, const SceneID& sceneid )
+{
+    void* funcptr = getVSGFunction( "showVSGDialog" );
+    if ( !funcptr )
+	return false;
+
+    VSGDialogRunner runner = rCast( VSGDialogRunner, funcptr );
+    return runner( vsgActionKey(action), appserv().parent(), sceneid );
+}
+
+
 void uiVisPartServer::removeScene( const SceneID& sceneid )
 {
     RefMan<visSurvey::Scene> scene = getScene( sceneid );
     if ( !scene )
 	return;
+
+    vsgsceneids_ -= sceneid;
 
     const int typesetidx = scenes_.indexOf( scene.ptr() );
     if ( displayids_.validIdx(typesetidx) )
@@ -614,7 +785,11 @@ void uiVisPartServer::getSceneChildIds( const SceneID& sceneid,
 	return;
 
     for ( int idx=0; idx<scene->size(); idx++ )
-	childids += scene->getObject( idx )->id();
+    {
+	const visBase::DataObject* dobj = scene->getObject( idx );
+	if ( dobj )
+	    childids += dobj->id();
+    }
 }
 
 
@@ -1439,6 +1614,9 @@ void uiVisPartServer::updateDraggers()
 	for ( int objidx=0; objidx<scene->size(); objidx++ )
 	{
 	    visBase::DataObject* dobj = scene->getObject( objidx );
+	    if ( !dobj )
+		continue;
+
 	    updateManipulatorStatus( dobj, selected.isPresent(dobj->id()) );
 	}
     }
@@ -2622,15 +2800,95 @@ void uiVisPartServer::displaySceneColorbar( bool yn )
 	    scenecoltab->turnOn( yn );
 	}
     }
+
+    setVSGSceneFlag( "showVSGColorBar", yn );
+}
+
+
+void uiVisPartServer::showVSGAxis( bool yn )
+{
+    setVSGSceneFlag( "showVSGRotAxis", yn );
+}
+
+
+void uiVisPartServer::setVSGModernAxes( bool yn )
+{
+    setVSGSceneFlag( "setVSGModernAxes", yn );
+}
+
+
+void uiVisPartServer::setVSGViewMode( bool yn )
+{
+    setVSGSceneFlag( "setVSGViewMode", yn );
+}
+
+
+static const char* vsgViewActionKey( uiVisPartServer::VSGViewAction action )
+{
+    switch ( action )
+    {
+    case uiVisPartServer::VSGToHome:
+	return "ToHome";
+    case uiVisPartServer::VSGSaveHome:
+	return "SaveHome";
+    case uiVisPartServer::VSGResetHome:
+	return "ResetHome";
+    case uiVisPartServer::VSGViewAll:
+	return "ViewAll";
+    }
+
+    return nullptr;
+}
+
+
+void uiVisPartServer::doVSGViewAction( VSGViewAction action )
+{
+    if ( vsgsceneids_.isEmpty() )
+	return;
+
+    void* funcptr = getVSGFunction( "doVSGViewAction" );
+    if ( !funcptr )
+	return;
+
+    VSGViewActionRunner runner = rCast( VSGViewActionRunner, funcptr );
+    for ( const SceneID& sceneid : vsgsceneids_ )
+	runner( vsgViewActionKey(action), sceneid );
+}
+
+
+NotifierAccess* uiVisPartServer::vsgViewModeNotifier( const SceneID& sceneid )
+{
+    void* funcptr = getVSGFunction( "getVSGViewModeNotifier" );
+    if ( !funcptr )
+	return nullptr;
+
+    VSGNotifierGetter getter = rCast( VSGNotifierGetter, funcptr );
+    return getter( sceneid );
+}
+
+
+void uiVisPartServer::setVSGSceneFlag( const char* fnnm, bool yn ) const
+{
+    if ( vsgsceneids_.isEmpty() )
+	return;
+
+    void* funcptr = getVSGFunction( fnnm );
+    if ( !funcptr )
+	return;
+
+    VSGFlagSetter setter = rCast( VSGFlagSetter, funcptr );
+    for ( const SceneID& sceneid : vsgsceneids_ )
+	setter( sceneid, yn );
 }
 
 
 bool uiVisPartServer::sceneColorbarDisplayed()
 {
-    if ( !scenes_.isEmpty() )
+    for ( auto* scene : scenes_ )
     {
-	visBase::SceneColTab* scenecoltab = scenes_[0]->getSceneColTab();
-	return scenecoltab ? scenecoltab->isOn() : false;
+	visBase::SceneColTab* scenecoltab = scene->getSceneColTab();
+	if ( scenecoltab )
+	    return scenecoltab->isOn();
     }
 
     return false;
@@ -2639,6 +2897,12 @@ bool uiVisPartServer::sceneColorbarDisplayed()
 
 void uiVisPartServer::manageSceneColorbar( const SceneID& sceneid )
 {
+    if ( vsgsceneids_.isPresent(sceneid) )
+    {
+	showVSGDialog( VSGColorBar, sceneid );
+	return;
+    }
+
     RefMan<visSurvey::Scene> scene = getScene( sceneid );
     if ( !scene )
 	return;
