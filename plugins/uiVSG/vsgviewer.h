@@ -11,7 +11,8 @@ ________________________________________________________________________
  */
 
 #include "uivsgmod.h"
-#include "commondefs.h"
+#include "timer.h"
+
 #include "visvsgdata.h"
 
 #ifdef min
@@ -25,11 +26,10 @@ ________________________________________________________________________
 
 #include <atomic>
 
-#include <QTimer>
-
 
 mClass(uiVSG) dGBVSGViewer : public vsg::Inherit<vsg::Viewer, dGBVSGViewer>
 			   , public ODVsg::RedrawRequester
+			   , public CallBacker
 {
 public:
 		dGBVSGViewer(int msectimerinterval=0);
@@ -45,8 +45,9 @@ public:
 private:
 
     void	setInterval(int msectimerinterval);
+    void	timerCB(CallBacker*);
 
-    QTimer	timer_;
+    Timer	timer_;
     std::atomic_uint	requests_	= 0;
     bool	continuousupdate_   = true;
 

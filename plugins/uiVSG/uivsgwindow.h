@@ -6,12 +6,12 @@ ________________________________________________________________________
  License:   https://dgbes.com/licensing
 ________________________________________________________________________
 
- Qt window that owns the Vulkan surface for a VSG viewer. Adapted from
+ The window that owns the Vulkan surface for a VSG viewer. Adapted from
  vsgQt 0.5.0 (https://github.com/vsg-dev/vsgQt)
  -*/
 
 #include "uivsgmod.h"
-#include "commondefs.h"
+#include "mousecursor.h"
 
 #include "vsgviewer.h"
 
@@ -25,56 +25,42 @@ ________________________________________________________________________
 #include <vsg/app/Window.h>
 
 #include <functional>
-#include <utility>
 
-#include <QWindow>
-
-class QEvent;
-class QExposeEvent;
-class QHideEvent;
-class QKeyEvent;
-class QMouseEvent;
-class QResizeEvent;
-class QScreen;
-class QWheelEvent;
+class dGBVSGNativeWindow;
+class dGBVSGWindowBody;
+class uiObject;
+class uiObjectBody;
+class uiParent;
 
 
-mClass(uiVSG) dGBVSGWindow : public QWindow
+/*!\brief The native Vulkan window of a VSG viewer, with the widget that
+  holds it in the user interface. It makes the VSG viewer that renders in it.
+  All the Qt code is in the source file. */
+
+mClass(uiVSG) dGBVSGWindow : public CallBacker
 {
 public:
-	    dGBVSGWindow(vsg::ref_ptr<dGBVSGViewer>,
-		    vsg::ref_ptr<vsg::WindowTraits>,
-		    QScreen* targetscreen=nullptr);
-	    ~dGBVSGWindow();
+			dGBVSGWindow(uiObject& handle,uiParent*,
+				     const char* nm,int rendertimems);
+			~dGBVSGWindow();
 
-    void	initializeWindow();
-    vsg::ref_ptr<vsg::Window> vsgWindow() const { return vsgwindow_; }
-    void	setLeaveCallback(const std::function<void()>&);
+    uiObjectBody&	body();
+    vsg::ref_ptr<dGBVSGViewer> vsgViewer() const	{ return viewer_; }
+    vsg::ref_ptr<vsg::Window> vsgWindow() const;
 
-protected:
+    void		initializeWindow();
+    void		setLeaveCallback(const std::function<void()>&);
+    void		setCursor(MouseCursor::Shape);
 
-    bool	event(QEvent*) override;
-    void	exposeEvent(QExposeEvent*) override;
-    void	hideEvent(QHideEvent*) override;
-    void	keyPressEvent(QKeyEvent*) override;
-    void	keyReleaseEvent(QKeyEvent*) override;
-    void	mouseMoveEvent(QMouseEvent*) override;
-    void	mousePressEvent(QMouseEvent*) override;
-    void	mouseReleaseEvent(QMouseEvent*) override;
-    void	resizeEvent(QResizeEvent*) override;
-    void	wheelEvent(QWheelEvent*) override;
+    Notifier<dGBVSGWindow> shown;
+			//!<Triggered after the widget was shown, when the
+			//!<native window exists
+    Notifier<dGBVSGWindow> resized;
 
 private:
 
-    void	cleanup();
-    int		convertCoord(double) const;
-    std::pair<int,int>	mousePosition(const QMouseEvent&) const;
-    void	postKey(const QKeyEvent&,bool press);
-
-    vsg::ref_ptr<vsg::WindowTraits> traits_;
-    vsg::ref_ptr<dGBVSGViewer>	    viewer_;
-    vsg::ref_ptr<vsg::Window>	    vsgwindow_;
-    std::function<void()>	    leavecb_;
-    bool		initialized_	= false;
+    vsg::ref_ptr<dGBVSGViewer>	viewer_;
+    dGBVSGNativeWindow*		nativewin_ = nullptr;
+    dGBVSGWindowBody*		body_ = nullptr;
 
 };

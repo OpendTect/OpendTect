@@ -9,19 +9,18 @@ ________________________________________________________________________
 
 #include "uivsgwindowhandler.h"
 
+#include "uivsgwindow.h"
+
 #include "visvsgsurvscene.h"
 #include "vsggeotrackball.h"
 
 #include <QGuiApplication>
-#include <QWidget>
-#include <QWindow>
 
 #include <vsg/ui/KeyEvent.h>
 #include <vsg/ui/PointerEvent.h>
 
-uiVSGWindowHandler::uiVSGWindowHandler( QWindow* window, QWidget* container )
+uiVSGWindowHandler::uiVSGWindowHandler( dGBVSGWindow* window )
     : window_(window)
-    , container_(container)
 {}
 
 
@@ -52,13 +51,14 @@ void uiVSGWindowHandler::syncCursor()
 {
     const bool ctrl = QGuiApplication::queryKeyboardModifiers() &
 		      Qt::ControlModifier;
-    const Qt::CursorShape shape = ctrl && !viewmode_ ? Qt::CrossCursor
-				       : (viewmode_ ? Qt::PointingHandCursor
-						    : Qt::ArrowCursor);
+    MouseCursor::Shape shape = MouseCursor::Arrow;
+    if ( viewmode_ )
+	shape = MouseCursor::PointingHand;
+    else if ( ctrl )
+	shape = MouseCursor::Cross;
+
     if ( window_ )
 	window_->setCursor( shape );
-    if ( container_ )
-	container_->setCursor( shape );
 }
 
 
