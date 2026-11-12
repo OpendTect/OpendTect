@@ -18,8 +18,7 @@ ________________________________________________________________________
 
 #include <vsg/core/Inherit.h>
 
-class QWidget;
-class QWindow;
+class dGBVSGWindow;
 namespace ODVsg { class Scene; }
 namespace vsgGeo { class Trackball; }
 
@@ -27,7 +26,7 @@ mExpClass(uiVSG) uiVSGWindowHandler
 			: public vsg::Inherit<vsg::Visitor,uiVSGWindowHandler>
 {
 public:
-				uiVSGWindowHandler(QWindow*,QWidget*);
+				uiVSGWindowHandler(dGBVSGWindow*);
 
     void			setTrackball(vsgGeo::Trackball*);
     void			setScene(ODVsg::Scene*);
@@ -50,8 +49,7 @@ private:
     void			refresh();
 
     bool				viewmode_ = true;
-    QWindow*				window_ = nullptr;
-    QWidget*				container_ = nullptr;
+    dGBVSGWindow*			window_ = nullptr;
     vsg::ref_ptr<vsgGeo::Trackball>	trackball_;
     ODVsg::Scene*		scene_ = nullptr;
 };

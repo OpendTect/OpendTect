@@ -23,6 +23,7 @@ dGBVSGViewer::dGBVSGViewer( int msectimerinterval )
 dGBVSGViewer::~dGBVSGViewer()
 {
     stop();
+    detachAllNotifiers();
 }
 
 
@@ -74,7 +75,12 @@ void dGBVSGViewer::render( double simulationtime )
 
 void dGBVSGViewer::setInterval( int msectimerinterval )
 {
-    timer_.setInterval( msectimerinterval );
-    QObject::connect( &timer_, &QTimer::timeout, [this]() { render(); } );
-    timer_.start();
+    mAttachCBIfNotAttached( timer_.tick, dGBVSGViewer::timerCB );
+    timer_.start( msectimerinterval );
+}
+
+
+void dGBVSGViewer::timerCB( CallBacker* )
+{
+    render();
 }

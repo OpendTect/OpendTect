@@ -6,24 +6,19 @@ ________________________________________________________________________
  License:	https://dgbes.com/licensing
 ________________________________________________________________________
 
- QWidget embedding a VSG-rendered Vulkan surface into the main
- window's MDI workspace.
+ uiObject showing a VSG-rendered Vulkan surface. Give it a
+ uiMdiAreaWindow as parent to put it in the MDI workspace.
 
 -*/
 
 #include "uivsgmod.h"
 
-#include "visvsgscenecoltab.h"
-#include "color.h"
-#include "fontdata.h"
-#include "ptrman.h"
-#include "refcount.h"
-#include "uistringset.h"
+#include "uiobj.h"
 
-#include <QWidget>
+#include "visvsgscenecoltab.h"
+
 #include <vsg/all.h>
 
-class CallBacker;
 class dGBVSGViewer;
 class dGBVSGWindow;
 class uiVSGWindowHandler;
@@ -35,10 +30,10 @@ namespace vsgGeo
 { class AxesHandler; class GradientBackground; class NearFar;
   class ThumbWheelHandler; class Trackball; }
 
-mExpClass(uiVSG) uiVSGViewer : public QWidget
+mExpClass(uiVSG) uiVSGViewer : public uiObject
 {
 public:
-			uiVSGViewer(QWidget* parent=nullptr);
+			uiVSGViewer(uiParent*,const char* nm="VSG Viewer");
 			~uiVSGViewer();
 
     void		setAnnotationFont(const FontData&);
@@ -84,6 +79,9 @@ public:
 				       uint32_t& maxheight) const;
 
     ODVsg::Scene* scene();
+    void		setScene(ODVsg::Scene*);
+			//!<Only before the viewer is first shown. Without it
+			//!<the viewer makes a scene of its own
     ODVsg::TextureChannels* textureChannels();
 			/*!<The data of the test plane, null without it. */
 
@@ -93,16 +91,16 @@ public:
     bool		isViewMode() const;
     void		syncCursor()		{ updateCursor(); }
 
-protected:
-
-    void		showEvent(QShowEvent*) override;
-    void		resizeEvent(QResizeEvent*) override;
+    CNotifier<uiVSGViewer,SceneID> closing;
+			//!<Triggered when the viewer is deleted
 
 private:
 
     class		SceneBoundsWatch;
     class		WheelLink;
     class		ColTabLink;
+
+    uiObjectBody&	mkBody(uiParent*,const char* nm);
 
     void		showWheels(bool);
     void		applyAnnotationColor();
@@ -115,11 +113,12 @@ private:
     void		setupHUD();
     void		setupOffscreenCapture();
     void		syncCameraViewport();
+    void		windowShownCB(CallBacker*);
+    void		windowResizedCB(CallBacker*);
     void		updateCursor();
 			/*!<Forwards to uiVSGWindowHandler. */
 
-    dGBVSGWindow*			qtwindow_ = nullptr;
-    QWidget*				container_ = nullptr;
+    dGBVSGWindow*			window_;
     VSGMouseStatus*			statuscb_ = nullptr;
     vsg::ref_ptr<uiVSGWindowHandler>	windowhandler_;
     vsg::ref_ptr<dGBVSGViewer>		viewer_;
@@ -160,7 +159,6 @@ private:
     FontData				annotfont_;
     bool				hasannotfont_ = false;
     bool				initfailed_ = false;
-    const int				rendertimems_ = 16;
 
     vsg::ref_ptr<vsg::Camera>		offscreencamera_;
     vsg::ref_ptr<vsg::View>		offscreenview_;
