@@ -485,9 +485,11 @@ void ThumbWheel::updateColors()
 	    const float tickalpha = cover *
 				    ( cGlassTickBase + cGlassTickGain*sinmid );
 	    const float corealpha = bandalpha + (1.f-bandalpha)*tickalpha;
-	    bandcolor = vsg::vec4( 1.f, 1.f, 1.f, bandalpha*opacity_ );
+	    bandcolor = vsg::vec4( bordercolor_.r, bordercolor_.g,
+				   bordercolor_.b, bandalpha*opacity_ );
 	    endcolor = bandcolor;
-	    corecolor = vsg::vec4( 1.f, 1.f, 1.f, corealpha*opacity_ );
+	    corecolor = vsg::vec4( bordercolor_.r, bordercolor_.g,
+				   bordercolor_.b, corealpha*opacity_ );
 	}
 	else
 	{

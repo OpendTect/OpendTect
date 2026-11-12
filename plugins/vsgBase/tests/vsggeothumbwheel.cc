@@ -72,17 +72,24 @@ vsg::ref_ptr<vsgGeo::ThumbWheel> createWheel( const WheelSpec& spec,
 }
 
 
-int grayAt( const Pixels& pixels, const WheelSpec& spec, double along,
-	    int offset )
+vsg::ubvec4 pixelAt( const Pixels& pixels, const WheelSpec& spec, double along,
+		     int offset )
 {
     const int alongpix = int( std::floor(along) ) + offset;
     const int acrosspix = int( spec.across_ );
     const int xpix = spec.horizontal_ ? alongpix : acrosspix;
     const int ypix = spec.horizontal_ ? acrosspix : alongpix;
     if ( xpix<0 || ypix<0 || xpix>=int(cSize) || ypix>=int(cSize) )
-	return 0;
+	return vsg::ubvec4( 0, 0, 0, 0 );
 
-    return pixels[ int((cSize-1-ypix)*cSize + xpix) ].r;
+    return pixels[ sCast(int,(cSize-1-ypix)*cSize + xpix) ];
+}
+
+
+int grayAt( const Pixels& pixels, const WheelSpec& spec, double along,
+	    int offset )
+{
+    return pixelAt( pixels, spec, along, offset ).r;
 }
 
 
@@ -605,6 +612,33 @@ static bool testWheelGlass()
 }
 
 
+static bool testWheelGlassColor()
+{
+    vsgTest::OffscreenViewer ov( cSize, cSize );
+    mRunStandardTestWithError( ov.isOK(), "Glass color: Off-screen viewer",
+			       ov.errMsg().c_str() );
+
+    const WheelSpec spec = horizontalSpec();
+    vsg::ref_ptr<vsgGeo::ThumbWheel> wheel = createWheel( spec, false );
+    wheel->setStyle( vsgGeo::ThumbWheel::Style::Glass );
+    wheel->setBorderColor( vsg::vec4(1.f,0.f,0.f,0.2f) );
+    ov.addHud()->addChild( wheel );
+    mRunStandardTest( ov.compile(), "Glass color: Viewer compiled" );
+    ov.frame( 3 );
+
+    Pixels pixels;
+    mRunStandardTest( ov.readColor(pixels), "Glass color: Image is read" );
+    const double between = 91.25 * cPi / 180.;
+    const vsg::ubvec4 body = pixelAt( pixels, spec, alongAt(spec,between), 0 );
+    BufferString msg( "Pixel: ", sCast(int,body.r) );
+    msg.add( " " ).add( sCast(int,body.g) ).add( " " ).add( sCast(int,body.b) );
+    mRunStandardTestWithError( body.r>=15 && body.g<=2 && body.b<=2,
+			       "Glass color: The glass takes the color that "
+			       "is set", msg );
+    return true;
+}
+
+
 static bool testWheelGrowLength()
 {
     const WheelSpec spec = horizontalSpec();
@@ -653,7 +687,8 @@ int mTestMainFnName( int argc, char** argv )
 	 !testWheelGrow() ||
 	 !testWheelGrowArea() ||
 	 !testWheelGrowLength() ||
-	 !testWheelGlass() )
+	 !testWheelGlass() ||
+	 !testWheelGlassColor() )
 	return 1;
 
     return 0;

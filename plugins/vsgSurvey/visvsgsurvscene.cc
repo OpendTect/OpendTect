@@ -44,6 +44,9 @@ ________________________________________________________________________
 namespace ODVsg
 {
 
+static constexpr float cGradientCornerFactor = 0.35f;
+
+
 RefMan<Scene> Scene::create()
 {
     RefMan<Scene> ret = new Scene;
@@ -55,6 +58,7 @@ const char* Scene::sKeyShowAnnot()	{ return "Show text"; }
 const char* Scene::sKeyShowScale()	{ return "Show scale"; }
 const char* Scene::sKeyShowGrid()	{ return "Show grid"; }
 const char* Scene::sKeyAnnotColor()	{ return "Annotation color"; }
+const char* Scene::sKeyBackgroundColor()	{ return "Background color"; }
 const char* Scene::sKeyZStretch()	{ return "Z Stretch"; }
 
 static const char* sKeydTectScene()	{ return "dTect.Scene"; }
@@ -153,6 +157,8 @@ void Scene::setup()
     setts.getYN( IOPar::compKey(sKeydTectScene(),sKeyShowGrid()), yn );
     showAnnotGrid( yn );
 
+    setts.get( IOPar::compKey(sKeydTectScene(),sKeyBackgroundColor()),
+	       bgcolor_ );
     OD::Color col = getAnnotColor();
     setts.get( IOPar::compKey(sKeydTectScene(),sKeyAnnotColor()), col );
     setAnnotColor( col );
@@ -587,13 +593,67 @@ void Scene::setAnnotText( int dim, const uiString& txt )
 
 void Scene::setAnnotColor( const OD::Color& col )
 {
-    annot_->setColor( col );
+    annotcolor_ = col;
+    annot_->setColor( getDisplayedAnnotColor() );
 }
 
 
 const OD::Color Scene::getAnnotColor() const
 {
-    return annot_->getColor();
+    return annotcolor_;
+}
+
+
+static unsigned char scaledColorValue( unsigned char val )
+{
+    return sCast( unsigned char, val*cGradientCornerFactor + 0.5f );
+}
+
+
+static unsigned char meanColorValue( unsigned char val1, unsigned char val2 )
+{
+    return sCast( unsigned char, (sCast(int,val1)+sCast(int,val2)) / 2 );
+}
+
+
+OD::Color Scene::getBackgroundCornerColor() const
+{
+    if ( !gradientbg_ )
+	return bgcolor_;
+
+    return OD::Color( scaledColorValue(bgcolor_.r()),
+		      scaledColorValue(bgcolor_.g()),
+		      scaledColorValue(bgcolor_.b()) );
+}
+
+
+OD::Color Scene::getDisplayedAnnotColor() const
+{
+    const OD::Color corner = getBackgroundCornerColor();
+    const OD::Color mean( meanColorValue(bgcolor_.r(),corner.r()),
+			  meanColorValue(bgcolor_.g(),corner.g()),
+			  meanColorValue(bgcolor_.b(),corner.b()) );
+    return ODVsg::contrastingColor( annotcolor_, mean );
+}
+
+
+OD::Color Scene::getDisplayedCornerAnnotColor() const
+{
+    return ODVsg::contrastingColor( annotcolor_, getBackgroundCornerColor() );
+}
+
+
+void Scene::setBackgroundColor( const OD::Color& col )
+{
+    bgcolor_ = col;
+    annot_->setColor( getDisplayedAnnotColor() );
+}
+
+
+void Scene::setBackgroundGradient( bool yn )
+{
+    gradientbg_ = yn;
+    annot_->setColor( getDisplayedAnnotColor() );
 }
 
 
