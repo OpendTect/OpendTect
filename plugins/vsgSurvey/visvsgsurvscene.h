@@ -101,6 +101,13 @@ public:
     void		setAnnotText(int dim,const uiString&) override;
     void		setAnnotColor(const OD::Color&) override;
     const OD::Color	getAnnotColor() const override;
+    OD::Color		getDisplayedAnnotColor() const;
+    OD::Color		getDisplayedCornerAnnotColor() const;
+    void		setBackgroundGradient(bool);
+    bool		isBackgroundGradient() const	{ return gradientbg_; }
+    OD::Color		getBackgroundCornerColor() const;
+    void		setBackgroundColor(const OD::Color&);
+    OD::Color		getBackgroundColor() const	{ return bgcolor_; }
     void		setAnnotFont(const FontData&) override;
     const FontData&	getAnnotFont() const override;
 
@@ -135,6 +142,7 @@ public:
     static const char*	sKeyShowScale();
     static const char*	sKeyShowGrid();
     static const char*	sKeyAnnotColor();
+    static const char*	sKeyBackgroundColor();
     static const char*	sKeyZStretch();
 
 private:
@@ -173,6 +181,9 @@ private:
     TrcKey			mousetrckey_		= TrcKey::udf();
     uiString			mouseposstr_;
     OD::Color			annotsavedcolor_	= OD::Color::White();
+    OD::Color			annotcolor_	= OD::Color::White();
+    OD::Color			bgcolor_	= OD::Color::Anthracite();
+    bool			gradientbg_	= false;
     bool			interact_		= false;
     bool			testsceneadded_		= false;
 

@@ -62,6 +62,8 @@ public:
     void			setGrowDirection(int);
     float			getGrowth() const	{ return growth_; }
     void			setBorderColor(const vsg::vec4&);
+					/*!The color of the outline, and of
+					    the glass look */
 
     void			setRotationCallback(
 					const std::function<void(float)>&);

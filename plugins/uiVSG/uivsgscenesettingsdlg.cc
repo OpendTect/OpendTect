@@ -11,6 +11,7 @@ ________________________________________________________________________
 
 #include "visvsgscenecoltab.h"
 #include "uibutton.h"
+#include "uicolor.h"
 #include "uigeninput.h"
 #include "uilabel.h"
 #include "uiseparator.h"
@@ -27,6 +28,9 @@ uiVSGSceneSettingsDlg::uiVSGSceneSettingsDlg( uiParent* p,
 					      uiVSGViewer& viewer )
     : uiDialog(p,Setup(tr("VSG Scene Settings"),mNoHelpKey))
     , viewer_(viewer)
+    , hadbgcolor_(viewer.getBackgroundColor())
+    , hadannotcolor_(viewer.getAnnotationColor())
+    , hadgradient_(viewer.isBackgroundGradient())
     , hadaxes_(viewer.isAxisShown())
     , hadmodernaxes_(viewer.isModernAxes())
     , hadwheelmode_(int(viewer.getWheelDisplayMode()))
@@ -37,8 +41,26 @@ uiVSGSceneSettingsDlg::uiVSGSceneSettingsDlg( uiParent* p,
     , hadcolorbarwidth_(viewer.getColorBarSize().width())
     , hadcolorbarheight_(viewer.getColorBarSize().height())
 {
+    bgcolfld_ = new uiColorInput( this, uiColorInput::Setup(hadbgcolor_)
+					.lbltxt(tr("Background color")) );
+    mAttachCB( bgcolfld_->colorChanged, uiVSGSceneSettingsDlg::colorCB );
+
+    gradientfld_ = new uiCheckBox( this, tr("Gradient background") );
+    gradientfld_->setChecked( hadgradient_ );
+    mAttachCB( gradientfld_->activated, uiVSGSceneSettingsDlg::gradientCB );
+    gradientfld_->attach( alignedBelow, bgcolfld_ );
+
+    annotcolfld_ = new uiColorInput( this, uiColorInput::Setup(hadannotcolor_)
+					.lbltxt(tr("Annotation color")) );
+    mAttachCB( annotcolfld_->colorChanged, uiVSGSceneSettingsDlg::colorCB );
+    annotcolfld_->attach( alignedBelow, gradientfld_ );
+
+    auto* bgsep = new uiSeparator( this, "Background separator" );
+    bgsep->attach( stretchedBelow, annotcolfld_ );
+
     auto* axeslbl = new uiLabel( this, tr("Axes") );
     axeslbl->attach( hCentered );
+    axeslbl->attach( ensureBelow, bgsep );
 
     axesfld_ = new uiCheckBox( this, tr("Show axes") );
     axesfld_->setChecked( hadaxes_ );
@@ -131,6 +153,19 @@ uiVSGSceneSettingsDlg::~uiVSGSceneSettingsDlg()
 }
 
 
+void uiVSGSceneSettingsDlg::colorCB( CallBacker* )
+{
+    viewer_.setBackgroundColor( bgcolfld_->color() );
+    viewer_.setAnnotationColor( annotcolfld_->color() );
+}
+
+
+void uiVSGSceneSettingsDlg::gradientCB( CallBacker* )
+{
+    viewer_.setBackgroundGradient( gradientfld_->isChecked() );
+}
+
+
 void uiVSGSceneSettingsDlg::axesCB( CallBacker* )
 {
     viewer_.showRotAxis( axesfld_->isChecked() );
@@ -218,6 +253,9 @@ void uiVSGSceneSettingsDlg::updateSensitivity()
 
 bool uiVSGSceneSettingsDlg::rejectOK( CallBacker* )
 {
+    viewer_.setBackgroundColor( hadbgcolor_ );
+    viewer_.setBackgroundGradient( hadgradient_ );
+    viewer_.setAnnotationColor( hadannotcolor_ );
     viewer_.showRotAxis( hadaxes_ );
     viewer_.setModernAxes( hadmodernaxes_ );
     viewer_.setWheelDisplayMode( uiVSGViewer::WheelMode(hadwheelmode_) );

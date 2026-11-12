@@ -316,6 +316,14 @@ static bool testAnnotationGrid()
     mRunStandardTest( ov.readColor(pixels) &&
 		      nrLitPixels(ov,pixels,cx,cx,edgey0,edgey1)>0,
 		      "Box drawn" );
+
+    int boxgreen = 0;
+    for ( od_int32 y=sCast(od_int32,edgey0); y<=sCast(od_int32,edgey1); y++ )
+	boxgreen = mMAX( boxgreen, sCast(int,ov.pixel(pixels,cx,y).g) );
+
+    mRunStandardTestWithError( boxgreen>=250,
+			       "The box is drawn in the annotation color",
+			       BufferString("Green: ",boxgreen) );
     mRunStandardTest( nrLitPixels(ov,pixels,x0,x1,y0,y1)==0,
 		      "No grid lines when grid is off" );
 
@@ -324,6 +332,15 @@ static bool testAnnotationGrid()
     mRunStandardTest( ov.readColor(pixels) &&
 		      nrLitPixels(ov,pixels,x0,x1,y0,y1)>0,
 		      "Grid lines drawn on the back side" );
+
+    int maxgreen = 0;
+    for ( od_int32 y=sCast(od_int32,y0); y<=sCast(od_int32,y1); y++ )
+	for ( od_int32 x=sCast(od_int32,x0); x<=sCast(od_int32,x1); x++ )
+	    maxgreen = mMAX( maxgreen, sCast(int,ov.pixel(pixels,x,y).g) );
+
+    mRunStandardTestWithError( maxgreen>=250,
+			       "Grid lines are drawn in the annotation color",
+			       BufferString("Green: ",maxgreen) );
 
     annot->showGridLines( false );
     ov.frame( 1 );

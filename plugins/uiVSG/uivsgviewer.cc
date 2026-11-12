@@ -38,6 +38,7 @@ ________________________________________________________________________
 #include "uifont.h"
 #include "uimsg.h"
 #include "vsggeoaxes.h"
+#include "vsggeogradientbackground.h"
 #include "vsggeolayeredtexture.h"
 #include "vsggeonearfar.h"
 #include "vsggeotext.h"
@@ -133,6 +134,7 @@ public:
 	     vsg::ref_ptr<vsg::Orthographic> projection,
 	     vsg::ref_ptr<vsg::Camera> hudcamera,
 	     vsg::ref_ptr<vsg::ClearAttachments> clear,
+	     vsg::ref_ptr<vsg::ClearAttachments> bgclear,
 	     RefMan<ODVsg::Axes> axes,
 	     const std::function<void(uint32_t,uint32_t)>& placeitems )
 	: window_(window)
@@ -142,6 +144,7 @@ public:
 	, clear_(clear)
 	, axes_(axes)
 	, placeitems_(placeitems)
+	, bgclear_(bgclear)
     {}
 
     void run() override
@@ -156,6 +159,7 @@ public:
 					mMAX(1u,base.height) );
 	clear_->rects.front().rect.extent = VkExtent2D{ mMAX(1u,base.width),
 							mMAX(1u,base.height) };
+	bgclear_->rects.front().rect.extent = clear_->rects.front().rect.extent;
 	const float offset = axes_->getLength() + axes_->getMargin();
 	if ( extent.width==width_ && extent.height==height_ &&
 	     offset==offset_ )
@@ -180,6 +184,7 @@ private:
     vsg::ref_ptr<vsg::ClearAttachments>	clear_;
     RefMan<ODVsg::Axes>		axes_;
     std::function<void(uint32_t,uint32_t)> placeitems_;
+    vsg::ref_ptr<vsg::ClearAttachments>	bgclear_;
     uint32_t				width_ = 0;
     uint32_t				height_ = 0;
     float				offset_ = 0.f;
@@ -636,6 +641,8 @@ uiVSGViewer::uiVSGViewer( QWidget* parent )
 
     vsg::ref_ptr<vsg::WindowTraits> traits = vsg::WindowTraits::create();
     traits->decoration = true;
+    traits->swapchainPreferences.surfaceFormat = VkSurfaceFormatKHR{
+		VK_FORMAT_B8G8R8A8_UNORM, VK_COLOR_SPACE_SRGB_NONLINEAR_KHR };
 
     qtwindow_ = new dGBVSGWindow( viewer_, traits );
     container_ = QWidget::createWindowContainer( qtwindow_, this );
@@ -825,6 +832,13 @@ constexpr double cHudDepth = 1000.;
 constexpr ODVsg::Axes::Style cAxesStyle = ODVsg::Axes::Modern;
 
 
+VkClearColorValue clearColorOf( const OD::Color& col )
+{
+    const vsg::vec4 vec = ODVsg::toVec4( col, 1.f );
+    return VkClearColorValue{{ vec.r, vec.g, vec.b, vec.a }};
+}
+
+
 // The depth of VSG is reversed: 0 is the far end
 vsg::ref_ptr<vsg::ClearAttachments> createDepthClear()
 {
@@ -860,18 +874,22 @@ void uiVSGViewer::setupHUD()
     hudview_->addChild( hudclear_ );
     hudview_->addChild( vsg::ref_ptr<vsg::Node>(hudscene_->vsgNode()) );
 
+    background_ = vsgGeo::GradientBackground::create();
+    bgclear_ = createDepthClear();
+    bgview_ = vsg::View::create( hudcamera );
+    bgview_->addChild( background_ );
+    bgview_->addChild( bgclear_ );
+
     axes_ = ODVsg::Axes::create();
     axes_->setStyle( cAxesStyle );
     axes_->setSize( 5.f, 55.f );
     axes_->setAnnotationTextSize( FontData::defaultPointSize() + 6 );
     axes_->setAnnotationFont( annotationFont() );
-    axes_->setAnnotationColor( scene_->getAnnotColor() );
     hudscene_->addObject( axes_.ptr() );
     axes_->setPrimaryCamera( viscamera_.ptr() );
 
     scenecoltab_ = ODVsg::SceneColTab::create();
     scenecoltab_->setAnnotFont( annotationFont() );
-    scenecoltab_->setLegendColor( scene_->getAnnotColor() );
     hudscene_->addObject( scenecoltab_.ptr() );
 
     horthumbwheel_ = ODVsg::ThumbWheel::create();
@@ -890,6 +908,9 @@ void uiVSGViewer::setupHUD()
 	hudscene_->addObject( wheel );
 	wheellink_->watch( *wheel );
     }
+
+    applyBackground();
+    applyAnnotationColor();
 }
 
 
@@ -1074,6 +1095,103 @@ Geom::Size2D<int> uiVSGViewer::getColorBarSize() const
 }
 
 
+void uiVSGViewer::setAnnotationColor( const OD::Color& col )
+{
+    if ( !scene_ )
+	return;
+
+    scene_->setAnnotColor( col );
+    applyAnnotationColor();
+}
+
+
+void uiVSGViewer::applyAnnotationColor()
+{
+    if ( !scene_ )
+	return;
+
+    const OD::Color col = scene_->getDisplayedAnnotColor();
+    const OD::Color cornercol = scene_->getDisplayedCornerAnnotColor();
+    if ( axes_ )
+	axes_->setAnnotationColor( cornercol );
+
+    if ( scenecoltab_ )
+	scenecoltab_->setLegendColor( col );
+
+    setWheelColor( cornercol );
+}
+
+
+void uiVSGViewer::setWheelColor( const OD::Color& col )
+{
+    if ( horthumbwheel_ )
+	horthumbwheel_->setAnnotationColor( col );
+
+    if ( verthumbwheel_ )
+	verthumbwheel_->setAnnotationColor( col );
+
+    if ( distancethumbwheel_ )
+	distancethumbwheel_->setAnnotationColor( col );
+}
+
+
+OD::Color uiVSGViewer::getAnnotationColor() const
+{
+    return scene_ ? scene_->getAnnotColor() : OD::Color::White();
+}
+
+
+void uiVSGViewer::setBackgroundColor( const OD::Color& col )
+{
+    if ( !scene_ )
+	return;
+
+    scene_->setBackgroundColor( col );
+    applyBackground();
+    applyAnnotationColor();
+    vsg::ref_ptr<vsg::RenderGraph> windowgraph = windowgraph_.ref_ptr();
+    if ( windowgraph )
+	windowgraph->setClearValues( clearColorOf(col) );
+
+    if ( offscreenrendergraph_ )
+	offscreenrendergraph_->setClearValues( clearColorOf(col) );
+}
+
+
+OD::Color uiVSGViewer::getBackgroundColor() const
+{
+    return scene_ ? scene_->getBackgroundColor() : OD::Color::Anthracite();
+}
+
+
+void uiVSGViewer::setBackgroundGradient( bool yn )
+{
+    if ( !scene_ )
+	return;
+
+    scene_->setBackgroundGradient( yn );
+    applyBackground();
+    applyAnnotationColor();
+}
+
+
+bool uiVSGViewer::isBackgroundGradient() const
+{
+    return scene_ && scene_->isBackgroundGradient();
+}
+
+
+void uiVSGViewer::applyBackground()
+{
+    if ( !scene_ || !background_ )
+	return;
+
+    background_->setColors( ODVsg::toVec4(scene_->getBackgroundColor(),1.f),
+			    ODVsg::toVec4(scene_->getBackgroundCornerColor(),
+					   1.f) );
+}
+
+
 void uiVSGViewer::initializeVSG()
 {
     if ( vsgwindow_ || initfailed_ || !qtwindow_ || !viewer_ )
@@ -1106,8 +1224,6 @@ void uiVSGViewer::setupVSG()
     if ( !vsgwindow_ )
 	return;
 
-    vsgwindow_->clearColor() = vsg::vec4( 0.2f, 0.2f, 0.2f, 1.f );
-
     const uint32_t w = mMAX( 1u, vsgwindow_->extent2D().width );
     const uint32_t h = mMAX( 1u, vsgwindow_->extent2D().height );
 
@@ -1116,6 +1232,8 @@ void uiVSGViewer::setupVSG()
     const FontData font = hasannotfont_ ? annotfont_
 		: FontList().get(FontData::Graphics3D).fontData();
     scene_->setAnnotFont( font );
+    vsgwindow_->clearColor() =
+		ODVsg::toVec4( scene_->getBackgroundColor(), 1.f );
     root_->addChild( vsg::ref_ptr<vsg::Node>(scene_->vsgGroup()->vsgNode()) );
 
     const double fovy = 30.0;
@@ -1190,23 +1308,27 @@ void uiVSGViewer::setupVSG()
 	} );
     vsg::ref_ptr<vsg::RenderGraph> windowgraph =
 		commandGraph->children.front().cast<vsg::RenderGraph>();
+    windowgraph_ = windowgraph;
     windowgraph->addChild( hudview_ );
+    windowgraph->children.insert( windowgraph->children.begin(), bgview_ );
+    vsg::ref_ptr<vsgGeo::GradientBackground> background = background_;
     RefMan<ODVsg::ThumbWheel> horwheel = horthumbwheel_;
     RefMan<ODVsg::ThumbWheel> verwheel = verthumbwheel_;
     RefMan<ODVsg::ThumbWheel> distwheel = distancethumbwheel_;
     RefMan<ODVsg::SceneColTab> coltab = scenecoltab_;
     const std::function<void(uint32_t,uint32_t)> placeitems =
-	[horwheel,verwheel,distwheel,coltab]( uint32_t width,
-					      uint32_t height ) mutable
+	[horwheel,verwheel,distwheel,coltab,background](
+			uint32_t width, uint32_t height ) mutable
 	{
 	    placeWheels( *horwheel.ptr(), *verwheel.ptr(), *distwheel.ptr(),
 			 height );
 	    coltab->setWindowSize( int(width), int(height) );
+	    background->setSize( sCast(float,width), sCast(float,height) );
 	};
     viewer_->addUpdateOperation( HudSync::create(vsgwindow_,windowgraph,
 		hudprojection_,
 		vsg::ref_ptr<vsg::Camera>(vishudcamera_->vsgCamera()),
-		hudclear_,axes_,placeitems),
+		hudclear_,bgclear_,axes_,placeitems),
 		vsg::UpdateOperations::ALL_FRAMES );
 
     windowswitch_ = vsg::Switch::create();
@@ -1291,7 +1413,7 @@ void uiVSGViewer::setupOffscreenCapture()
     offscreenrendergraph_->renderArea.offset = VkOffset2D{ 0, 0 };
     offscreenrendergraph_->renderArea.extent = captureextent_;
     offscreenrendergraph_->setClearValues(
-	    VkClearColorValue{{0.2f,0.2f,0.2f,1.f}} );
+		clearColorOf(scene_->getBackgroundColor()) );
 
     offscreenperspective_ = vsg::Perspective::create( 30.0,
 	    static_cast<double>(captureextent_.width) / captureextent_.height,
@@ -1313,6 +1435,14 @@ void uiVSGViewer::setupOffscreenCapture()
     offscreenhudview_->addChild(
 		    vsg::ref_ptr<vsg::Node>(hudscene_->vsgNode()) );
     offscreenrendergraph_->addChild( offscreenhudview_ );
+
+    offscreenbgclear_ = createDepthClear();
+    offscreenbgclear_->rects.front().rect.extent = captureextent_;
+    offscreenbgview_ = vsg::View::create( offscreenhudcamera_ );
+    offscreenbgview_->addChild( background_ );
+    offscreenbgview_->addChild( offscreenbgclear_ );
+    offscreenrendergraph_->children.insert(
+		offscreenrendergraph_->children.begin(), offscreenbgview_ );
 
     offscreenswitch_ = vsg::Switch::create();
     offscreenswitch_->addChild( false, offscreenrendergraph_ );
@@ -1406,6 +1536,15 @@ uiRetVal uiVSGViewer::takeScreenshot( int width, int height,
 					vsg::CompileTraversal::create();
 	compile->add( *offscreenrendergraph_->framebuffer, offscreenhudview_ );
 	compile->compile( offscreenhudview_ );
+    }
+
+    if ( offscreenrendergraph_->framebuffer && offscreenbgview_ )
+    {
+	offscreenbgclear_->rects.front().rect.extent = captureextent_;
+	vsg::ref_ptr<vsg::CompileTraversal> compile =
+					vsg::CompileTraversal::create();
+	compile->add( *offscreenrendergraph_->framebuffer, offscreenbgview_ );
+	compile->compile( offscreenbgview_ );
     }
 
     showWheels( false );
