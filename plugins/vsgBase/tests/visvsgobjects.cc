@@ -318,7 +318,7 @@ static bool testAnnotationGrid()
 		      "Box drawn" );
 
     int boxgreen = 0;
-    for ( uint32_t y=edgey0; y<=edgey1; y++ )
+    for ( od_int32 y=sCast(od_int32,edgey0); y<=sCast(od_int32,edgey1); y++ )
 	boxgreen = mMAX( boxgreen, sCast(int,ov.pixel(pixels,cx,y).g) );
 
     mRunStandardTestWithError( boxgreen>=250,
@@ -334,8 +334,8 @@ static bool testAnnotationGrid()
 		      "Grid lines drawn on the back side" );
 
     int maxgreen = 0;
-    for ( uint32_t y=y0; y<=y1; y++ )
-	for ( uint32_t x=x0; x<=x1; x++ )
+    for ( od_int32 y=sCast(od_int32,y0); y<=sCast(od_int32,y1); y++ )
+	for ( od_int32 x=sCast(od_int32,x0); x<=sCast(od_int32,x1); x++ )
 	    maxgreen = mMAX( maxgreen, sCast(int,ov.pixel(pixels,x,y).g) );
 
     mRunStandardTestWithError( maxgreen>=250,
