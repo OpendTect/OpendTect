@@ -28,6 +28,7 @@ ________________________________________________________________________
 #include <vsg/all.h>
 #include "uivsgcontext.h"
 #include "uivsgwindow.h"
+#include "uivsgcontext.h"
 
 #include "timer.h"
 
@@ -369,6 +370,8 @@ void dGBVSGNativeWindow::cleanup()
 
     vsgwindow_->releaseWindow();
     vsgwindow_ = {};
+
+    uiVSGContext::instance().releaseWindow();
 
     initialized_ = false;
     last_w_ = -1;

@@ -12,6 +12,7 @@ ________________________________________________________________________
 #include <vsg/app/Window.h>
 
 
+
 uiVSGContext& uiVSGContext::instance()
 {
     static uiVSGContext ctx;
@@ -40,8 +41,23 @@ void uiVSGContext::applyToTraits( vsg::WindowTraits& traits ) const
 
 void uiVSGContext::setDeviceFromWindow( vsg::Window& window )
 {
-    if ( device_ )
+    ++windowCount_;
+    if (device_)
 	return;
 
     device_ = window.getOrCreateDevice();
+}
+
+void uiVSGContext::releaseWindow()
+{
+    if ( windowCount_ == 0 ) {
+	return;
+    }
+
+    --windowCount_;
+    if ( windowCount_ > 0 ) {
+	return;
+    }
+
+    device_ = {};
 }

@@ -46,8 +46,11 @@ public:
 				/*!<Call after the first successful window
 				    init. No-op if already set. */
 
+    void			releaseWindow();
+
 private:
 				uiVSGContext() = default;
 
     vsg::ref_ptr<vsg::Device>	device_;
+    int				windowCount_{};
 };

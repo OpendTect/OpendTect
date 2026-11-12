@@ -211,16 +211,7 @@ uiODSceneMgr::Scene& uiODSceneMgr::mkNewScene()
     return scn;
 }
 
-
-SceneID uiODSceneMgr::addScene( bool osg, bool maximized, ZAxisTransform* zt,
-				const uiString& name )
-{
-    return osg ? addOSGScene( maximized, zt, name )
-	       : addVSGScene( maximized, zt, name );
-}
-
-
-SceneID uiODSceneMgr::addOSGScene( bool maximized, ZAxisTransform* zt,
+SceneID uiODSceneMgr::addScene( bool maximized, ZAxisTransform* zt,
 				   const uiString& name )
 {
     if ( !canAddSceneAtStartup() )
@@ -288,49 +279,17 @@ SceneID uiODSceneMgr::addOSGScene( bool maximized, ZAxisTransform* zt,
     return sceneid;
 }
 
-
-SceneID uiODSceneMgr::addVSGScene( bool maximized, ZAxisTransform*,
-				   const uiString& nm )
+SceneID uiODSceneMgr::addDefaultScene()
 {
-    const SceneID sceneid = visServ().addVSGScene();
-    if ( !sceneid.isValid() )
-	return SceneID::udf();
-
-    vwridx_++;
-    // Same naming convention applied as with OSGScenes. 
-    // Prevents confusion between N scenes named the same 
-    const uiString title = nm.isSet() ? nm : 
-	uiStrings::phrJoinStrings( uiStrings::sScene(), toUiString(vwridx_));
-
-    NotifierAccess* closing = nullptr;
-    if ( !visServ().createVSGViewer(sceneid,maximized,nm,&closing) )
-    {
-	visServ().removeScene( sceneid );
+    if ( !canAddSceneAtStartup() ) {
 	return SceneID::udf();
     }
 
-    visServ().setSceneName( sceneid, title );
+    if ( useVSGDefaultScene() ) {
+	return visServ().addVSGScene( true );
+    }
 
-    if ( closing )
-	mAttachCB( *closing, uiODSceneMgr::vsgViewerClosedCB );
-
-    return sceneid;
-}
-
-
-void uiODSceneMgr::vsgViewerClosedCB( CallBacker* cb )
-{
-    mCBCapsuleUnpack(SceneID,sceneid,cb);
-    visServ().removeScene( sceneid );
-}
-
-
-SceneID uiODSceneMgr::addDefaultScene()
-{
-    if ( isVSGAvailable() )
-	return visServ().addVSGScene();
-
-    return addScene( true, true );
+    return addScene( true );
 }
 
 

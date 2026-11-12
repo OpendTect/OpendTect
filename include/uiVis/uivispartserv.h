@@ -56,6 +56,7 @@ namespace ZDomain   { class Info; }
 
 
 mGlobal(uiVis) bool isVSGAvailable();
+mGlobal(uiVis) bool useVSGDefaultScene();
 
 
 /*!
@@ -110,14 +111,15 @@ public:
 			/*!<Adds a scene. The argument is only used internally.
 			    Don't use the argument when calling from outside.
 			*/
-    SceneID		addVSGScene();
-			//!<Adds a VSG scene. Needs the VSG plugin
-    bool		createVSGViewer(const SceneID&,bool maximized,
-					const uiString& nm,
-					NotifierAccess** closing=nullptr);
-			/*!<Shows a VSG scene in a window of the main window.
-			    'closing' gets the notifier that triggers, with the
-			    scene id, when that window is closed. */
+    SceneID		addVSGScene(bool maximized,
+			const uiString& nm = uiString::empty());
+			/*!<Creates a ODVsg::Scene and a uiVSGViewer by looking
+			the functions up in the uiVis plugin.
+			Returns SceneID::udf() when the plugin is not loaded or
+			either the ODVsg::Scene or the uiVSGViewer
+			cannot be created.
+			*/
+
     void		removeScene(const SceneID&);
     int			nrScenes() const;
     NotifierAccess&	nrScenesChange() { return nrscenesChange; }
@@ -514,7 +516,13 @@ protected:
     SelectionMode		selectionmode_			= Polygon;
 
     void*			getVSGFunction(const char* fnnm) const;
-					//!<In the VSG plugin, null if not found
+    bool			createVSGViewer(const SceneID&,bool maximized,
+						const uiString& nm,
+						NotifierAccess** closing=nullptr);
+			/*!<Shows a VSG scene in a window of the main window.
+			    'closing' gets the notifier that triggers, with the
+			    scene id, when that window is closed. */
+    void 			vsgViewerClosedCB(CallBacker*);
     void			mouseCursorCB(CallBacker*);
     void			rightClickCB(CallBacker*);
     void			selectObjCB(CallBacker*);

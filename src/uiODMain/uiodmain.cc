@@ -389,6 +389,8 @@ bool uiODMain::buildUI()
 
 void uiODMain::initScene()
 {
+    menumgr_->fillSceneMenu();
+
     const bool addscene = !GetEnvVarYN( "OD_NOSCENE_AT_STARTUP" );
     if ( addscene )
 	scenemgr_->initMenuMgrDepObjs();

@@ -24,7 +24,6 @@ ________________________________________________________________________
 #define mUtilMnu		5000
 #define mAppMnu			6000
 #define mTerraNubisMnu		7000
-#define mVSGMnu			8000
 #define mHelpMnu		1000000000
 
 /* 'File' menu */
@@ -206,6 +205,7 @@ ________________________________________________________________________
 #define mAddTmeDepthMnuItm	mAddTimeDepth3DMnuItm
 #define mAddHorFlat2DMnuItm	(mWinMnu + 14)
 #define mAddHorFlat3DMnuItm	(mWinMnu + 15)
+#define mAddVSGSceneMnuItm	(mWinMnu + 16)
 #define mCascadeMnuItm		(mWinMnu + 20)
 #define mTileAutoMnuItm		(mWinMnu + 30)
 #define mTileHorMnuItm		(mWinMnu + 31)
@@ -260,9 +260,6 @@ ________________________________________________________________________
 /* 'TerraNubis' menu */
 #define mFreeProjects		(mTerraNubisMnu+1)
 #define mCommProjects		(mTerraNubisMnu+2)
-
-/* 'VSG' menu */
-#define mAddVSGSceneMnuItm	(mVSGMnu+1)
 
 /* 'Help' menu */
 

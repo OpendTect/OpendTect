@@ -440,7 +440,7 @@ void uiODApplMgr::addTimeDepthScene( bool is2d )
 	    .arg( ztrans->factoryDisplayName() );
 
     sceneMgr().tile();
-    const SceneID sceneid = sceneMgr().addScene( true, true, ztrans.ptr(),
+    const SceneID sceneid = sceneMgr().addScene( true, ztrans.ptr(),
 						 snm );
     if ( !sceneid.isValid() )
 	return;
@@ -466,7 +466,7 @@ void uiODApplMgr::addHorFlatScene( bool is2d )
 		: transform->factoryDisplayName().getFullString();
     uiString scenenm = tr( "Flattened on '%1'").arg( hornm );
     sceneMgr().tile();
-    sceneMgr().addScene( true, true, transform.ptr(), scenenm );
+    sceneMgr().addScene( true, transform.ptr(), scenenm );
 }
 
 

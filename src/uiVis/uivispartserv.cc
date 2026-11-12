@@ -109,6 +109,13 @@ bool isVSGAvailable()
     return data && data->isloaded_;
 }
 
+bool useVSGDefaultScene()
+{
+	// Only use VSG as the default scene if the environment variable is set
+	// and the VSG plugin is available
+	return GetEnvVarYN( "OD_VSG_DEFAULT_SCENE" ) && isVSGAvailable();
+}
+
 
 uiVisPartServer::uiVisPartServer( uiApplService& a )
     : uiApplPartServer(a)
@@ -296,7 +303,7 @@ void* uiVisPartServer::getVSGFunction( const char* fnnm ) const
 }
 
 
-SceneID uiVisPartServer::addVSGScene()
+SceneID uiVisPartServer::addVSGScene( bool maximized, const uiString& nm )
 {
     void* funcptr = getVSGFunction( "createVSGScene" );
     if ( !funcptr )
@@ -304,7 +311,34 @@ SceneID uiVisPartServer::addVSGScene()
 
     VSGSceneCreator creator = rCast( VSGSceneCreator, funcptr );
     RefMan<visSurvey::Scene> scene = creator();
-    return scene ? addScene( scene.ptr() ) : SceneID::udf();
+    if ( !scene )
+	return SceneID::udf();
+
+    const SceneID sceneid = addScene( scene.ptr() );
+    if ( !sceneid.isValid() )
+	return SceneID::udf();
+
+    if ( nm.isSet() )
+	setSceneName( sceneid, nm );
+
+    NotifierAccess* closing = nullptr;
+    if ( !createVSGViewer(sceneid,maximized,nm,&closing) )
+    {
+	removeScene( sceneid );
+	return SceneID::udf();
+    }
+
+    if ( closing )
+	mAttachCB( *closing, uiVisPartServer::vsgViewerClosedCB );
+
+    return sceneid;
+}
+
+
+void uiVisPartServer::vsgViewerClosedCB( CallBacker* cb )
+{
+    mCBCapsuleUnpack(SceneID,sceneid,cb);
+    removeScene( sceneid );
 }
 
 

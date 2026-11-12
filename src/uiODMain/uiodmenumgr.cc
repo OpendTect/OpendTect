@@ -831,6 +831,9 @@ void uiODMenuMgr::fillSceneMenu()
 {
     scenemnu_->clear();
     insertAction( scenemnu_, uiStrings::sNew(), mAddSceneMnuItm );
+    if ( isVSGAvailable() ) {
+	insertAction( scenemnu_, tr("New VSG Scene"), mAddVSGSceneMnuItm );
+    }
     insertAction( scenemnu_, tr("New Map View"), mAddMapSceneMnuItm );
 
     uiString itmtxt = tr( "New [%1]" )
@@ -853,9 +856,6 @@ void uiODMenuMgr::fillSceneMenu()
     insertAction( scenemnu_, m3Dots(uiStrings::sProperties()),
 		 mScenePropMnuItm );
     scenemnu_->insertSeparator();
-
-    insertAction( scenemnu_, tr("New VSG Scene")
-    , mAddVSGSceneMnuItm );
 
     updateSceneMenu();
 }
@@ -1686,8 +1686,9 @@ void uiODMenuMgr::handleClick( CallBacker* cb )
     case mAXplotMnuItm:		applMgr().doAttribXPlot(); break;
     case mOpenXplotMnuItm:	applMgr().openCrossPlot(); break;
     case mAddSceneMnuItm:	sceneMgr().tile(); // leave this, or --> crash!
-				sceneMgr().addScene(true,true); break;
-    case mAddVSGSceneMnuItm:	sceneMgr().addScene(false,true); break;
+				sceneMgr().addScene(true); break;
+    case mAddVSGSceneMnuItm:	sceneMgr().tile();
+				applMgr().visServer()->addVSGScene(true); break;
     case mAddTimeDepth2DMnuItm: applMgr().addTimeDepthScene(true); break;
     case mAddTimeDepth3DMnuItm: applMgr().addTimeDepthScene(false); break;
     case mAddHorFlat2DMnuItm:	applMgr().addHorFlatScene(true); break;
@@ -1716,7 +1717,7 @@ void uiODMenuMgr::handleClick( CallBacker* cb )
 
     case mAddMapSceneMnuItm: {
 	sceneMgr().tile();
-	const SceneID sceneid = sceneMgr().addScene( true, true, nullptr,
+	const SceneID sceneid = sceneMgr().addScene( true, nullptr,
 						     tr("Map View") );
 	ui3DViewer* vwr = sceneMgr().get3DViewer( sceneid );
 	if ( vwr )
