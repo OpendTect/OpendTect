@@ -29,6 +29,11 @@ ________________________________________________________________________
 
 #include "uivsgwindow.h"
 
+#include "timer.h"
+
+#include "uieventfilter.h"
+#include "uiobjbody.h"
+
 #include <cmath>
 #include <map>
 
@@ -40,6 +45,8 @@ ________________________________________________________________________
 #include <QResizeEvent>
 #include <QScreen>
 #include <QWheelEvent>
+#include <QWidget>
+#include <QWindow>
 
 
 namespace
@@ -230,7 +237,51 @@ std::pair<vsg::ButtonMask,uint32_t> mouseButtons( const QMouseEvent& event )
 } // namespace
 
 
-dGBVSGWindow::dGBVSGWindow( vsg::ref_ptr<dGBVSGViewer> viewer,
+/*!\brief The Qt window that Vulkan renders in. It gets the native window
+  handle for the surface and the input events, which it passes to VSG. */
+
+class dGBVSGNativeWindow : public QWindow
+{
+public:
+	    dGBVSGNativeWindow(vsg::ref_ptr<dGBVSGViewer>,
+			       vsg::ref_ptr<vsg::WindowTraits>,
+			       QScreen* targetscreen=nullptr);
+	    ~dGBVSGNativeWindow();
+
+    void	initializeWindow();
+    vsg::ref_ptr<vsg::Window> vsgWindow() const { return vsgwindow_; }
+    void	setLeaveCallback(const std::function<void()>&);
+
+protected:
+
+    bool	event(QEvent*) override;
+    void	exposeEvent(QExposeEvent*) override;
+    void	hideEvent(QHideEvent*) override;
+    void	keyPressEvent(QKeyEvent*) override;
+    void	keyReleaseEvent(QKeyEvent*) override;
+    void	mouseMoveEvent(QMouseEvent*) override;
+    void	mousePressEvent(QMouseEvent*) override;
+    void	mouseReleaseEvent(QMouseEvent*) override;
+    void	resizeEvent(QResizeEvent*) override;
+    void	wheelEvent(QWheelEvent*) override;
+
+private:
+
+    void	cleanup();
+    int		convertCoord(double) const;
+    std::pair<int,int>	mousePosition(const QMouseEvent&) const;
+    void	postKey(const QKeyEvent&,bool press);
+
+    vsg::ref_ptr<vsg::WindowTraits> traits_;
+    vsg::ref_ptr<dGBVSGViewer>	    viewer_;
+    vsg::ref_ptr<vsg::Window>	    vsgwindow_;
+    std::function<void()>	    leavecb_;
+    bool		initialized_	= false;
+
+};
+
+
+dGBVSGNativeWindow::dGBVSGNativeWindow( vsg::ref_ptr<dGBVSGViewer> viewer,
     vsg::ref_ptr<vsg::WindowTraits> traits,
     QScreen* targetscreen )
     : QWindow(targetscreen)
@@ -253,26 +304,26 @@ dGBVSGWindow::dGBVSGWindow( vsg::ref_ptr<dGBVSGViewer> viewer,
 }
 
 
-dGBVSGWindow::~dGBVSGWindow()
+dGBVSGNativeWindow::~dGBVSGNativeWindow()
 {
     cleanup();
 }
 
 
-void dGBVSGWindow::setLeaveCallback( const std::function<void()>& cb )
+void dGBVSGNativeWindow::setLeaveCallback( const std::function<void()>& cb )
 {
     leavecb_ = cb;
 }
 
 
-int dGBVSGWindow::convertCoord( double coord ) const
+int dGBVSGNativeWindow::convertCoord( double coord ) const
 {
     return static_cast<int>( std::round(static_cast<qreal>(coord) *
 	devicePixelRatio()) );
 }
 
 
-void dGBVSGWindow::initializeWindow()
+void dGBVSGNativeWindow::initializeWindow()
 {
     if ( vsgwindow_ )
 	return;
@@ -299,7 +350,7 @@ void dGBVSGWindow::initializeWindow()
 }
 
 
-void dGBVSGWindow::cleanup()
+void dGBVSGNativeWindow::cleanup()
 {
     if ( vsgwindow_ )
     {
@@ -317,7 +368,7 @@ void dGBVSGWindow::cleanup()
 }
 
 
-bool dGBVSGWindow::event( QEvent* event )
+bool dGBVSGNativeWindow::event( QEvent* event )
 {
     if ( event->type() == QEvent::PlatformSurface )
     {
@@ -343,7 +394,7 @@ bool dGBVSGWindow::event( QEvent* event )
 }
 
 
-void dGBVSGWindow::exposeEvent( QExposeEvent* )
+void dGBVSGNativeWindow::exposeEvent( QExposeEvent* )
 {
     if ( !initialized_ && isExposed() )
 	initializeWindow();
@@ -353,12 +404,12 @@ void dGBVSGWindow::exposeEvent( QExposeEvent* )
 }
 
 
-void dGBVSGWindow::hideEvent( QHideEvent* )
+void dGBVSGNativeWindow::hideEvent( QHideEvent* )
 {
 }
 
 
-void dGBVSGWindow::resizeEvent( QResizeEvent* )
+void dGBVSGNativeWindow::resizeEvent( QResizeEvent* )
 {
     if ( !vsgwindow_ )
 	return;
@@ -373,7 +424,7 @@ void dGBVSGWindow::resizeEvent( QResizeEvent* )
 }
 
 
-void dGBVSGWindow::postKey( const QKeyEvent& event, bool press )
+void dGBVSGNativeWindow::postKey( const QKeyEvent& event, bool press )
 {
     if ( !vsgwindow_ )
 	return;
@@ -400,28 +451,29 @@ void dGBVSGWindow::postKey( const QKeyEvent& event, bool press )
 }
 
 
-void dGBVSGWindow::keyPressEvent( QKeyEvent* event )
+void dGBVSGNativeWindow::keyPressEvent( QKeyEvent* event )
 {
     if ( event )
 	postKey( *event, true );
 }
 
 
-void dGBVSGWindow::keyReleaseEvent( QKeyEvent* event )
+void dGBVSGNativeWindow::keyReleaseEvent( QKeyEvent* event )
 {
     if ( event )
 	postKey( *event, false );
 }
 
 
-std::pair<int,int> dGBVSGWindow::mousePosition( const QMouseEvent& event ) const
+std::pair<int,int> dGBVSGNativeWindow::mousePosition(
+					const QMouseEvent& event ) const
 {
     return { convertCoord(event.position().x()),
 	     convertCoord(event.position().y()) };
 }
 
 
-void dGBVSGWindow::mouseMoveEvent( QMouseEvent* event )
+void dGBVSGNativeWindow::mouseMoveEvent( QMouseEvent* event )
 {
     if ( !vsgwindow_ || !event )
 	return;
@@ -436,7 +488,7 @@ void dGBVSGWindow::mouseMoveEvent( QMouseEvent* event )
 }
 
 
-void dGBVSGWindow::mousePressEvent( QMouseEvent* event )
+void dGBVSGNativeWindow::mousePressEvent( QMouseEvent* event )
 {
     if ( !vsgwindow_ || !event )
 	return;
@@ -452,7 +504,7 @@ void dGBVSGWindow::mousePressEvent( QMouseEvent* event )
 }
 
 
-void dGBVSGWindow::mouseReleaseEvent( QMouseEvent* event )
+void dGBVSGNativeWindow::mouseReleaseEvent( QMouseEvent* event )
 {
     if ( !vsgwindow_ || !event )
 	return;
@@ -467,7 +519,7 @@ void dGBVSGWindow::mouseReleaseEvent( QMouseEvent* event )
 }
 
 
-void dGBVSGWindow::wheelEvent( QWheelEvent* event )
+void dGBVSGNativeWindow::wheelEvent( QWheelEvent* event )
 {
     if ( !vsgwindow_ || !event )
 	return;
@@ -480,4 +532,137 @@ void dGBVSGWindow::wheelEvent( QWheelEvent* event )
 		    vsg::ScrollWheelEvent::create(vsgwindow_,eventtime,delta) );
     if ( viewer_ )
 	viewer_->request();
+}
+
+
+/*!\brief The body of the uiObject of the VSG viewer: the widget that contains
+  the native window. Vulkan draws all of that widget, so the widget must not
+  fill it (WA_OpaquePaintEvent and WA_NoSystemBackground have no uiBase
+  wrapper). */
+
+class dGBVSGWindowBody : public uiObjectBody
+{
+public:
+			dGBVSGWindowBody(dGBVSGWindow&,uiObject& handle,
+					 uiParent*,const char* nm,
+					 dGBVSGNativeWindow&);
+			~dGBVSGWindowBody();
+
+private:
+
+    const QWidget*	qwidget_() const override	{ return container_; }
+    uiObject&		uiObjHandle() override		{ return handle_; }
+    void		handleEventCB(CallBacker*);
+    void		showTimerCB(CallBacker*);
+
+    dGBVSGWindow&	window_;
+    uiObject&		handle_;
+    QWidget*		container_ = nullptr;
+    uiEventFilter	eventfilter_;
+    Timer		showtimer_;
+};
+
+
+dGBVSGWindowBody::dGBVSGWindowBody( dGBVSGWindow& window, uiObject& handle,
+				    uiParent* parent, const char* nm,
+				    dGBVSGNativeWindow& nativewin )
+    : uiObjectBody(parent,nullptr)
+    , window_(window)
+    , handle_(handle)
+{
+    setName( nm );
+    QWidget* parentwidget = parent->pbody()->managewidg();
+    container_ = QWidget::createWindowContainer( &nativewin, parentwidget );
+    container_->setFocusPolicy( Qt::StrongFocus );
+    container_->setAttribute( Qt::WA_OpaquePaintEvent );
+    container_->setAttribute( Qt::WA_NoSystemBackground );
+
+    eventfilter_.addEventType( uiEventFilter::Show );
+    eventfilter_.addEventType( uiEventFilter::Resize );
+    eventfilter_.attachToQObj( container_ );
+    mAttachCB( eventfilter_.eventhappened, dGBVSGWindowBody::handleEventCB );
+    mAttachCB( showtimer_.tick, dGBVSGWindowBody::showTimerCB );
+}
+
+
+dGBVSGWindowBody::~dGBVSGWindowBody()
+{
+    detachAllNotifiers();
+}
+
+
+void dGBVSGWindowBody::handleEventCB( CallBacker* )
+{
+    const uiEventFilter::EventType evtype = eventfilter_.getCurrentEventType();
+    if ( evtype == uiEventFilter::Show )
+	showtimer_.start( 0, true );
+    else if ( evtype == uiEventFilter::Resize )
+	window_.resized.trigger();
+}
+
+
+void dGBVSGWindowBody::showTimerCB( CallBacker* )
+{
+    window_.shown.trigger();
+}
+
+
+dGBVSGWindow::dGBVSGWindow( uiObject& handle, uiParent* parent, const char* nm,
+			    int rendertimems )
+    : shown(this)
+    , resized(this)
+{
+    viewer_ = dGBVSGViewer::create( rendertimems );
+
+    vsg::ref_ptr<vsg::WindowTraits> traits = vsg::WindowTraits::create();
+    traits->decoration = true;
+    traits->swapchainPreferences.surfaceFormat = VkSurfaceFormatKHR{
+		VK_FORMAT_B8G8R8A8_UNORM, VK_COLOR_SPACE_SRGB_NONLINEAR_KHR };
+
+    nativewin_ = new dGBVSGNativeWindow( viewer_, traits );
+    body_ = new dGBVSGWindowBody( *this, handle, parent, nm, *nativewin_ );
+}
+
+
+dGBVSGWindow::~dGBVSGWindow()
+{
+    detachAllNotifiers();
+    delete body_;
+}
+
+
+uiObjectBody& dGBVSGWindow::body()
+{
+    return *body_;
+}
+
+
+vsg::ref_ptr<vsg::Window> dGBVSGWindow::vsgWindow() const
+{
+    return nativewin_->vsgWindow();
+}
+
+
+void dGBVSGWindow::initializeWindow()
+{
+    nativewin_->initializeWindow();
+}
+
+
+void dGBVSGWindow::setLeaveCallback( const std::function<void()>& cb )
+{
+    nativewin_->setLeaveCallback( cb );
+}
+
+
+void dGBVSGWindow::setCursor( MouseCursor::Shape shape )
+{
+    Qt::CursorShape qtshape = Qt::ArrowCursor;
+    if ( shape == MouseCursor::Cross )
+	qtshape = Qt::CrossCursor;
+    else if ( shape == MouseCursor::PointingHand )
+	qtshape = Qt::PointingHandCursor;
+
+    nativewin_->setCursor( qtshape );
+    body_->qwidget()->setCursor( qtshape );
 }

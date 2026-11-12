@@ -9,45 +9,26 @@ ________________________________________________________________________
 
 #include "uivsgviewer.h"
 
-#include <QVBoxLayout>
+#include "settings.h"
 
-#include "vsgviewer.h"
+#include "uifont.h"
+#include "uimsg.h"
 #include "uivsgwindow.h"
 #include "uivsgwindowhandler.h"
 
-#include "bufstring.h"
-#include "callback.h"
-#include "math2.h"
-#include "uimainwin.h"
-//#include "uiodmain.h"
-#include "uistatusbar.h"
 #include "visvsgaxes.h"
 #include "visvsgcamera.h"
-#include "visvsgdata.h"
-#include "visvsgdatagroup.h"
 #include "visvsgevent.h"
-#include "visvsgscenecoltab.h"
 #include "visvsgsurvscene.h"
 #include "visvsgtexturechannels.h"
 #include "visvsgthumbwheel.h"
-#include "errmsg.h"
-#include "keyenum.h"
-#include "notify.h"
-#include "settings.h"
-#include "stringview.h"
-#include "uifont.h"
-#include "uimsg.h"
 #include "vsggeoaxes.h"
 #include "vsggeogradientbackground.h"
-#include "vsggeolayeredtexture.h"
 #include "vsggeonearfar.h"
-#include "vsggeotext.h"
 #include "vsggeothumbwheel.h"
 #include "vsggeotrackball.h"
 
-#include <vsg/ui/KeyEvent.h>
-#include <vsg/ui/PointerEvent.h>
-#include <vsg/ui/ScrollWheelEvent.h>
+#include <QImage>
 
 #include <cmath>
 #include <functional>
@@ -55,6 +36,8 @@ ________________________________________________________________________
 
 namespace
 {
+
+constexpr int cRenderTimeMs = 16;
 
 struct ViewAll
 {
@@ -629,37 +612,50 @@ void uiVSGViewer::ColTabLink::changedCB( CallBacker* )
 }
 
 
-uiVSGViewer::uiVSGViewer( QWidget* parent )
-    : QWidget(parent)
+uiVSGViewer::uiVSGViewer( uiParent* parent, const char* nm )
+    : uiObject(parent,nm,mkBody(parent,nm))
+    , closing(this)
 {
-    setAttribute( Qt::WA_DeleteOnClose );
-    setMinimumSize( 600, 400 );
-    setWindowTitle( "VSG Viewer" );
-    setAttribute( Qt::WA_OpaquePaintEvent );
-    setAttribute( Qt::WA_NoSystemBackground );
-    viewer_ = dGBVSGViewer::create( rendertimems_ );
-
-    vsg::ref_ptr<vsg::WindowTraits> traits = vsg::WindowTraits::create();
-    traits->decoration = true;
-    traits->swapchainPreferences.surfaceFormat = VkSurfaceFormatKHR{
-		VK_FORMAT_B8G8R8A8_UNORM, VK_COLOR_SPACE_SRGB_NONLINEAR_KHR };
-
-    qtwindow_ = new dGBVSGWindow( viewer_, traits );
-    container_ = QWidget::createWindowContainer( qtwindow_, this );
-    container_->setFocusPolicy( Qt::StrongFocus );
-    container_->setSizePolicy( QSizePolicy::Expanding, QSizePolicy::Expanding );
+    setMinimumWidth( 600 );
+    setMinimumHeight( 400 );
+    setPrefWidth( 800 );
+    setPrefHeight( 600 );
+    setStretch( 2, 2 );
+    viewer_ = window_->vsgViewer();
     statuscb_ = new VSGMouseStatus;
-    windowhandler_ = uiVSGWindowHandler::create( qtwindow_, container_ );
+    windowhandler_ = uiVSGWindowHandler::create( window_ );
     updateCursor();
+    mAttachCB( window_->shown, uiVSGViewer::windowShownCB );
+    mAttachCB( window_->resized, uiVSGViewer::windowResizedCB );
+}
 
-    auto* layout = new QVBoxLayout( this );
-    layout->setContentsMargins( 0, 0, 0, 0 );
-    layout->addWidget( container_, 1 );
+
+uiObjectBody& uiVSGViewer::mkBody( uiParent* parent, const char* nm )
+{
+    window_ = new dGBVSGWindow( *this, parent, nm, cRenderTimeMs );
+    return window_->body();
+}
+
+
+void uiVSGViewer::windowShownCB( CallBacker* )
+{
+    initializeVSG();
+    syncCameraViewport();
+}
+
+
+void uiVSGViewer::windowResizedCB( CallBacker* )
+{
+    syncCameraViewport();
 }
 
 
 uiVSGViewer::~uiVSGViewer()
 {
+    detachAllNotifiers();
+    if ( scene_ )
+	closing.trigger( scene_->getID() );
+
     boundswatch_ = nullptr;
     wheellink_ = nullptr;
     coltablink_ = nullptr;
@@ -703,12 +699,20 @@ uiVSGViewer::~uiVSGViewer()
     scene_ = nullptr;
     delete statuscb_;
     statuscb_ = nullptr;
+    delete window_;
 }
 
 
 ODVsg::Scene* uiVSGViewer::scene()
 {
     return scene_.ptr();
+}
+
+
+void uiVSGViewer::setScene( ODVsg::Scene* scene )
+{
+    if ( !vsgwindow_ )
+	scene_ = scene;
 }
 
 
@@ -783,23 +787,6 @@ bool queryHardwareMaxCaptureSize( vsg::ref_ptr<vsg::Window> vsgwindow,
 }
 
 } // namespace
-
-
-void uiVSGViewer::showEvent( QShowEvent* event )
-{
-    QWidget::showEvent( event );
-    initializeVSG();
-
-    // Restoring from minimized doesn't reliably fire resizeEvent().
-    syncCameraViewport();
-}
-
-
-void uiVSGViewer::resizeEvent( QResizeEvent* event )
-{
-    QWidget::resizeEvent( event );
-    syncCameraViewport();
-}
 
 
 void uiVSGViewer::syncCameraViewport()
@@ -1194,7 +1181,7 @@ void uiVSGViewer::applyBackground()
 
 void uiVSGViewer::initializeVSG()
 {
-    if ( vsgwindow_ || initfailed_ || !qtwindow_ || !viewer_ )
+    if ( vsgwindow_ || initfailed_ || !window_ || !viewer_ )
 	return;
 
     try
@@ -1219,8 +1206,8 @@ void uiVSGViewer::initializeVSG()
 
 void uiVSGViewer::setupVSG()
 {
-    qtwindow_->initializeWindow();
-    vsgwindow_ = qtwindow_->vsgWindow();
+    window_->initializeWindow();
+    vsgwindow_ = window_->vsgWindow();
     if ( !vsgwindow_ )
 	return;
 
@@ -1228,7 +1215,9 @@ void uiVSGViewer::setupVSG()
     const uint32_t h = mMAX( 1u, vsgwindow_->extent2D().height );
 
     root_ = vsg::Group::create();
-    scene_ = ODVsg::Scene::create();
+    if ( !scene_ )
+	scene_ = ODVsg::Scene::create();
+
     const FontData font = hasannotfont_ ? annotfont_
 		: FontList().get(FontData::Graphics3D).fontData();
     scene_->setAnnotFont( font );
@@ -1254,7 +1243,7 @@ void uiVSGViewer::setupVSG()
 
     vsg::ref_ptr<vsgGeo::Trackball> trackball =
 					vsgGeo::Trackball::create( camera_ );
-    trackball->addWindow( qtwindow_->vsgWindow() );
+    trackball->addWindow( vsgwindow_ );
     trackball_ = trackball;
     trackball_->setMovementCallback(
 	[this]( float hor, float vert, float dist, bool step )
@@ -1289,7 +1278,7 @@ void uiVSGViewer::setupVSG()
     }
 
     vsg::ref_ptr<vsg::CommandGraph> commandGraph =
-			vsg::createCommandGraphForView( qtwindow_->vsgWindow(),
+			vsg::createCommandGraphForView( vsgwindow_,
 							camera_,
 							root_ );
 
@@ -1301,7 +1290,7 @@ void uiVSGViewer::setupVSG()
     axeshandler_->setAxes( axes_->vsgAxes() );
     viewer_->addEventHandler( axeshandler_ );
     vsg::observer_ptr<vsgGeo::AxesNode> axesnode( axes_->vsgAxes() );
-    qtwindow_->setLeaveCallback( [axesnode]()
+    window_->setLeaveCallback( [axesnode]()
 	{
 	    if ( vsg::ref_ptr<vsgGeo::AxesNode> axes = axesnode.ref_ptr() )
 		axes->clearPointer();
