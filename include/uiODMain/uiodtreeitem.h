@@ -52,6 +52,9 @@ mODTextTranslationClass(uiODTreeTop)
 public:
 			uiODTreeTop(ui3DViewer*,uiTreeView*,
 				    uiODApplMgr*,uiTreeFactorySet*);
+			uiODTreeTop(const SceneID&,uiTreeView*,
+				    uiODApplMgr*,uiTreeFactorySet*);
+			//!<For a scene without a ui3DViewer
 			~uiODTreeTop();
 
     static const char*	sceneidkey();

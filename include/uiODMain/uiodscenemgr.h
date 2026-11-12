@@ -50,10 +50,21 @@ public:
 
     void			cleanUp(bool startnew=true);
     int				nrScenes()	{ return scenes_.size(); }
-    SceneID			addScene(bool maximized,
+    SceneID			addScene(bool osg,bool maximized,
 					 ZAxisTransform* =nullptr,
 					 const uiString& nm=uiString::empty());
 				//!<Returns scene id
+    SceneID			addOSGScene(bool maximized,
+					 ZAxisTransform* =nullptr,
+					 const uiString& nm=uiString::empty());
+    SceneID			addVSGScene(bool maximized,
+					 ZAxisTransform* =nullptr,
+					 //!<Not used by the VSG scene yet
+					 const uiString& nm=uiString::empty());
+				//!<Needs the VSG plugin, see uiVisPartServer
+    SceneID			addDefaultScene();
+				//!<A VSG scene if the VSG plugin is loaded,
+				//!<otherwise an OSG scene
     void			setSceneName(const SceneID&,const uiString&);
     uiString			getSceneName(const SceneID&) const;
     CNotifier<uiODSceneMgr,SceneID> sceneClosed;
@@ -217,28 +228,51 @@ protected:
     int				vwridx_;
     uiTreeFactorySet*		tifs_;
     uiWindowGrabber*		wingrabber_;
+    bool			treesshown_	= true;
 
     inline uiODApplMgr&		applMgr()	{ return appl_.applMgr(); }
     inline uiVisPartServer&	visServ()     { return *applMgr().visServer(); }
 
-    mExpClass(uiODMain) Scene
+    mExpClass(uiODMain) TreeScene
+    {
+    public:
+				TreeScene();
+				~TreeScene();
+
+	uiDockWin*		dw_		= nullptr;
+	uiTreeView*		lv_		= nullptr;
+	uiODTreeTop*		itemmanager_	= nullptr;
+    };
+
+    mExpClass(uiODMain) Scene : public TreeScene
     {
     public:
 				Scene(uiMdiArea*);
 				~Scene();
 
-	uiDockWin*		dw_;
-	uiTreeView*		lv_;
 	uiMdiAreaWindow*	mdiwin_;
 	ui3DViewer*		vwr3d_;
-	uiODTreeTop*		itemmanager_;
     };
 
     ObjectSet<Scene>		scenes_;
+    ObjectSet<TreeScene>	vsgtrees_;
+				//!<The trees of the VSG scenes
     Scene&			mkNewScene();
     void			removeScene(Scene& scene);
     void			removeSceneCB(CallBacker*);
     void			initTree(Scene&,int);
+    void			mkTreeView(TreeScene&,int vwridx);
+    void			addFactoryItems(uiODTreeTop&);
+    void			tabifyTree(TreeScene&);
+				//!<Puts the dock on the one of another tree
+    void			addVSGTree(const SceneID&,const uiString&);
+    void			removeVSGTree(TreeScene&);
+    void			vsgScenesChangedCB(CallBacker*);
+				//!<Removes the trees of the closed VSG scenes
+    void			getTreeScenes(ObjectSet<TreeScene>&) const;
+				//!<The OSG scenes and the VSG trees
+    TreeScene*			getTreeScene(const SceneID&);
+    const TreeScene*		getTreeScene(const SceneID&) const;
     Scene*			getScene(const SceneID&);
     const Scene*		getScene(const SceneID&) const;
     void			newSceneUpdated(CallBacker*);

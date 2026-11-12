@@ -125,7 +125,11 @@ void DataManager::fillPar( IOPar& par ) const
 bool DataManager::usePar( const IOPar& par )
 {
     Threads::Locker locker( lock_ );
-    return par.get( sKeyFreeID(), freeid_ );
+    if ( !par.get(sKeyFreeID(),freeid_) )
+	return false;
+
+    freeid_ = mMAX( freeid_, cFirstID() );
+    return true;
 }
 
 

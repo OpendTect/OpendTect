@@ -1627,3 +1627,29 @@ uiRetVal uiVSGViewer::takeScreenshot( int width, int height,
 			     .arg(exc.message.c_str()) );
     }
 }
+
+
+mExternC(uiVSG) visSurvey::Scene* createVSGScene();
+
+mExternC(uiVSG) visSurvey::Scene* createVSGScene()
+{
+    RefMan<ODVsg::Scene> scene = ODVsg::Scene::create();
+    scene.setNoDelete( true );
+    return scene.ptr();
+}
+
+
+mExternC(uiVSG) uiObject* createVSGViewer(uiParent*,visSurvey::Scene*,
+					  NotifierAccess**);
+
+mExternC(uiVSG) uiObject* createVSGViewer( uiParent* parent,
+					   visSurvey::Scene* scene,
+					   NotifierAccess** closing )
+{
+    auto* viewer = new uiVSGViewer( parent );
+    viewer->setScene( dCast(ODVsg::Scene*,scene) );
+    if ( closing )
+	*closing = &viewer->closing;
+
+    return viewer;
+}

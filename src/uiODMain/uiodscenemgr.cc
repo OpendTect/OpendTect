@@ -166,6 +166,9 @@ uiODSceneMgr::~uiODSceneMgr()
 	removeScene( *scene ); // deletes "scene"
     }
 
+    for ( int idx=vsgtrees_.size()-1; idx>=0; idx-- )
+	removeVSGTree( *vsgtrees_[idx] );
+
     deepErase( scenes_ );
     delete wingrabber_;
     delete tiletimer_;
@@ -181,8 +184,8 @@ bool uiODSceneMgr::canAddSceneAtStartup()
 
 void uiODSceneMgr::initMenuMgrDepObjs()
 {
-    if ( scenes_.isEmpty() )
-	addScene(true);
+    if ( visServ().nrScenes() == 0 )
+	addDefaultScene();
 }
 
 
@@ -194,7 +197,7 @@ void uiODSceneMgr::cleanUp( bool startnew )
     visServ().deleteAllObjects();
     vwridx_ = 0;
     if ( startnew )
-	addScene( true );
+	addDefaultScene();
 }
 
 
@@ -212,8 +215,16 @@ uiODSceneMgr::Scene& uiODSceneMgr::mkNewScene()
 }
 
 
-SceneID uiODSceneMgr::addScene( bool maximized, ZAxisTransform* zt,
+SceneID uiODSceneMgr::addScene( bool osg, bool maximized, ZAxisTransform* zt,
 				const uiString& name )
+{
+    return osg ? addOSGScene( maximized, zt, name )
+	       : addVSGScene( maximized, zt, name );
+}
+
+
+SceneID uiODSceneMgr::addOSGScene( bool maximized, ZAxisTransform* zt,
+				   const uiString& name )
 {
     if ( !canAddSceneAtStartup() )
 	return SceneID::udf();
@@ -278,6 +289,83 @@ SceneID uiODSceneMgr::addScene( bool maximized, ZAxisTransform* zt,
     scn.vwr3d_->setStartupView();
 
     return sceneid;
+}
+
+
+SceneID uiODSceneMgr::addVSGScene( bool maximized, ZAxisTransform*,
+				   const uiString& nm )
+{
+    const uiString title = nm.isSet() ? nm : tr("VSG Scene");
+    const SceneID sceneid = visServ().addVSGScene( *mdiarea_, maximized,
+						   title );
+    if ( sceneid.isValid() )
+	addVSGTree( sceneid, title );
+
+    return sceneid;
+}
+
+
+void uiODSceneMgr::vsgScenesChangedCB( CallBacker* )
+{
+    for ( int idx=vsgtrees_.size()-1; idx>=0; idx-- )
+    {
+	TreeScene* tree = vsgtrees_[idx];
+	if ( !visServ().getScene(tree->itemmanager_->sceneID()) )
+	    removeVSGTree( *tree );
+    }
+}
+
+
+void uiODSceneMgr::addVSGTree( const SceneID& sceneid, const uiString& nm )
+{
+    mAttachCBIfNotAttached( visServ().nrScenesChange(),
+			    uiODSceneMgr::vsgScenesChangedCB );
+    vwridx_++;
+    auto* tree = new TreeScene;
+    mkTreeView( *tree, vwridx_ );
+    tree->itemmanager_ = new uiODTreeTop( sceneid, tree->lv_, &applMgr(),
+					  tifs_ );
+    tree->itemmanager_->disabRightClick( true );
+    tree->itemmanager_->disabAnyClick( true );
+    tree->itemmanager_->addChild( new uiODSceneTreeItem(nm,sceneid), false );
+    addFactoryItems( *tree->itemmanager_ );
+    vsgtrees_ += tree;
+
+    tree->lv_->display( true );
+    appl_.addDockWindow( *tree->dw_, uiMainWin::Left );
+    tabifyTree( *tree );
+    tree->dw_->setVisible( treeShown() );
+}
+
+
+void uiODSceneMgr::tabifyTree( TreeScene& tree )
+{
+    ObjectSet<TreeScene> trees;
+    getTreeScenes( trees );
+    for ( int idx=trees.size()-1; idx>=0; idx-- )
+    {
+	const TreeScene* other = trees[idx];
+	if ( other==&tree || !other->dw_ )
+	    continue;
+
+	appl_.tabifyDockWindow( *other->dw_, *tree.dw_ );
+	return;
+    }
+}
+
+
+void uiODSceneMgr::removeVSGTree( TreeScene& tree )
+{
+    appl_.removeDockWindow( tree.dw_ );
+    tree.itemmanager_->prepareForShutdown();
+    vsgtrees_ -= &tree;
+    delete &tree;
+}
+
+
+SceneID uiODSceneMgr::addDefaultScene()
+{
+    return addScene( !isVSGAvailable(), true );
 }
 
 
@@ -358,11 +446,14 @@ void uiODSceneMgr::setSceneName( const SceneID& sceneid, const uiString& nm )
 {
     visServ().setSceneName( sceneid, nm );
     Scene* scene = getScene( sceneid );
-    if ( !scene )
+    if ( scene )
+	scene->mdiwin_->setTitle( nm );
+
+    TreeScene* tree = getTreeScene( sceneid );
+    if ( !tree )
 	return;
 
-    scene->mdiwin_->setTitle( nm );
-    scene->dw_->setDockName( nm );
+    tree->dw_->setDockName( nm );
     uiTreeItem* itm = findSceneItem( sceneid );
     if ( itm )
 	itm->updateColumnText( uiODSceneMgr::cNameColumn() );
@@ -862,10 +953,12 @@ ui3DViewer* uiODSceneMgr::get3DViewer( const SceneID& sceneid )
 
 uiODTreeTop* uiODSceneMgr::getTreeItemMgr( const uiTreeView* lv ) const
 {
-    for ( int idx=0; idx<scenes_.size(); idx++ )
+    ObjectSet<TreeScene> trees;
+    getTreeScenes( trees );
+    for ( int idx=0; idx<trees.size(); idx++ )
     {
-	if ( scenes_[idx]->lv_ == lv )
-	    return scenes_[idx]->itemmanager_;
+	if ( trees[idx]->lv_ == lv )
+	    return trees[idx]->itemmanager_;
     }
 
     return nullptr;
@@ -874,16 +967,18 @@ uiODTreeTop* uiODSceneMgr::getTreeItemMgr( const uiTreeView* lv ) const
 
 uiODTreeTop* uiODSceneMgr::getTreeItemMgr( const SceneID& sceneid ) const
 {
-    const Scene* scene = getScene( sceneid );
-    return scene ? scene->itemmanager_ : nullptr;
+    const TreeScene* tree = getTreeScene( sceneid );
+    return tree ? tree->itemmanager_ : nullptr;
 }
 
 
 void uiODSceneMgr::translateText()
 {
-    for ( int idx=0; idx<scenes_.size(); idx++ )
+    ObjectSet<TreeScene> trees;
+    getTreeScenes( trees );
+    for ( int idx=0; idx<trees.size(); idx++ )
     {
-	scenes_[idx]->itemmanager_->translateText();
+	trees[idx]->itemmanager_->translateText();
     }
 }
 
@@ -986,7 +1081,7 @@ void uiODSceneMgr::setActiveScene( const SceneID& sceneid )
 }
 
 
-void uiODSceneMgr::initTree( Scene& scn, int vwridx )
+void uiODSceneMgr::mkTreeView( TreeScene& scn, int vwridx )
 {
     const uiString capt = tr( "Tree scene %1" ).arg( vwridx );
     scn.dw_ = new uiDockWin( &appl_, capt );
@@ -998,13 +1093,11 @@ void uiODSceneMgr::initTree( Scene& scn, int vwridx )
     labels.add( uiStrings::sColor() );
     scn.lv_->addColumns( labels );
     scn.lv_->setFixedColumnWidth( cColorColumn(), 40 );
+}
 
-    scn.itemmanager_ = new uiODTreeTop( scn.vwr3d_, scn.lv_, &applMgr(), tifs_);
-    uiODSceneTreeItem* sceneitm =
-	new uiODSceneTreeItem( scn.mdiwin_->getTitle(),
-			       scn.vwr3d_->sceneID() );
-    scn.itemmanager_->addChild( sceneitm, false );
 
+void uiODSceneMgr::addFactoryItems( uiODTreeTop& top )
+{
     TypeSet<int> idxs;
     TypeSet<int> placeidxs;
 
@@ -1025,21 +1118,24 @@ void uiODSceneMgr::initTree( Scene& scn, int vwridx )
     for ( int idx=0; idx<idxs.size(); idx++ )
     {
 	const int fidx = idxs[idx];
-	scn.itemmanager_->addChild(
-		tifs_->getFactory(fidx)->create(), true );
+	top.addChild( tifs_->getFactory(fidx)->create(), true );
     }
+}
+
+
+void uiODSceneMgr::initTree( Scene& scn, int vwridx )
+{
+    mkTreeView( scn, vwridx );
+    scn.itemmanager_ = new uiODTreeTop( scn.vwr3d_, scn.lv_, &applMgr(), tifs_);
+    uiODSceneTreeItem* sceneitm =
+	new uiODSceneTreeItem( scn.mdiwin_->getTitle(),
+			       scn.vwr3d_->sceneID() );
+    scn.itemmanager_->addChild( sceneitm, false );
+    addFactoryItems( *scn.itemmanager_ );
 
     scn.lv_->display( true );
     appl_.addDockWindow( *scn.dw_, uiMainWin::Left );
-    if ( scenes_.size() > 1 )
-    {
-	const int sceneidx = scenes_.indexOf( &scn );
-	Scene* prevscene = scenes_.validIdx(sceneidx-1) ? scenes_[sceneidx-1]
-							: nullptr;
-	if ( prevscene && prevscene->dw_ )
-	    appl_.tabifyDockWindow( *prevscene->dw_, *scn.dw_ );
-    }
-
+    tabifyTree( scn );
     scn.dw_->setVisible( treeShown() );
     sceneitm->select();
 }
@@ -1047,12 +1143,14 @@ void uiODSceneMgr::initTree( Scene& scn, int vwridx )
 
 void uiODSceneMgr::updateTrees()
 {
-    for ( int idx=0; idx<scenes_.size(); idx++ )
+    ObjectSet<TreeScene> trees;
+    getTreeScenes( trees );
+    for ( int idx=0; idx<trees.size(); idx++ )
     {
-	Scene& scene = *scenes_[idx];
-	scene.itemmanager_->updateColumnText( cNameColumn() );
-	scene.itemmanager_->updateColumnText( cColorColumn() );
-	scene.itemmanager_->updateCheckStatus();
+	TreeScene& tree = *trees[idx];
+	tree.itemmanager_->updateColumnText( cNameColumn() );
+	tree.itemmanager_->updateColumnText( cColorColumn() );
+	tree.itemmanager_->updateCheckStatus();
     }
 }
 
@@ -1084,21 +1182,24 @@ void uiODSceneMgr::rebuildTrees()
 
 uiTreeView* uiODSceneMgr::getTree( const SceneID& sceneid )
 {
-    Scene* scene = getScene( sceneid );
-    return scene ? scene->lv_ : nullptr;
+    TreeScene* tree = getTreeScene( sceneid );
+    return tree ? tree->lv_ : nullptr;
 }
 
 
 void uiODSceneMgr::showTree( bool yn )
 {
-    for ( int idx=0; idx<scenes_.size(); idx++ )
-	scenes_[idx]->dw_->setVisible( yn );
+    treesshown_ = yn;
+    ObjectSet<TreeScene> trees;
+    getTreeScenes( trees );
+    for ( int idx=0; idx<trees.size(); idx++ )
+	trees[idx]->dw_->setVisible( yn );
 }
 
 
 bool uiODSceneMgr::treeShown() const
 {
-    return scenes_.size()>1 ? scenes_[0]->dw_->isVisible() : true;
+    return treesshown_;
 }
 
 
@@ -1582,9 +1683,11 @@ void uiODSceneMgr::removeTreeItem( const VisID& displayid )
 
 uiTreeItem* uiODSceneMgr::findSceneItem( const SceneID& sceneid )
 {
-    for ( const auto* scene : scenes_ )
+    ObjectSet<TreeScene> trees;
+    getTreeScenes( trees );
+    for ( const auto* tree : trees )
     {
-	uiTreeItem* itm = scene->itemmanager_->findChild( sceneid.asInt() );
+	uiTreeItem* itm = tree->itemmanager_->findChild( sceneid.asInt() );
 	if ( itm )
 	    return itm;
     }
@@ -1682,6 +1785,37 @@ const uiODSceneMgr::Scene* uiODSceneMgr::getScene(
 { return getNonConst(*this).getScene( sceneid ); }
 
 
+void uiODSceneMgr::getTreeScenes( ObjectSet<TreeScene>& trees ) const
+{
+    ObjectSet<Scene>& scenes = getNonConst(*this).scenes_;
+    for ( int idx=0; idx<scenes.size(); idx++ )
+	trees += scenes[idx];
+
+    trees.append( vsgtrees_ );
+}
+
+
+uiODSceneMgr::TreeScene* uiODSceneMgr::getTreeScene( const SceneID& sceneid )
+{
+    ObjectSet<TreeScene> trees;
+    getTreeScenes( trees );
+    for ( int idx=0; idx<trees.size(); idx++ )
+    {
+	TreeScene* tree = trees[idx];
+	if ( tree && tree->itemmanager_ &&
+	     tree->itemmanager_->sceneID() == sceneid )
+	    return tree;
+    }
+
+    return nullptr;
+}
+
+
+const uiODSceneMgr::TreeScene* uiODSceneMgr::getTreeScene(
+						const SceneID& sceneid ) const
+{ return getNonConst(*this).getTreeScene( sceneid ); }
+
+
 void uiODSceneMgr::font3DChanged( CallBacker* )
 {
     uiFont& font3d = FontList().get( FontData::key(FontData::Graphics3D) );
@@ -1706,12 +1840,20 @@ void uiODSceneMgr::showIfMinimized( CallBacker* )
 }
 
 // uiODSceneMgr::Scene
+uiODSceneMgr::TreeScene::TreeScene()
+{}
+
+
+uiODSceneMgr::TreeScene::~TreeScene()
+{
+    delete itemmanager_;
+    delete dw_;
+}
+
+
 uiODSceneMgr::Scene::Scene( uiMdiArea* mdiarea )
-    : dw_(nullptr)
-    , lv_(nullptr)
-    , mdiwin_(nullptr)
+    : mdiwin_(nullptr)
     , vwr3d_(nullptr)
-    , itemmanager_(nullptr)
 {
     if ( !mdiarea )
 	return;
@@ -1729,8 +1871,6 @@ uiODSceneMgr::Scene::~Scene()
 {
     delete vwr3d_;
     delete mdiwin_;
-    delete itemmanager_;
-    delete dw_;
 }
 
 
