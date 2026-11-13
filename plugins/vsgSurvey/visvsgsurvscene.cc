@@ -86,6 +86,7 @@ Scene::Scene()
     , zscale_(SI().zScale(false))
 {
     ref();
+
     setup();
     unRefNoDelete();
 }

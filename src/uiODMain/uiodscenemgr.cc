@@ -181,8 +181,8 @@ bool uiODSceneMgr::canAddSceneAtStartup()
 
 void uiODSceneMgr::initMenuMgrDepObjs()
 {
-    if ( scenes_.isEmpty() )
-	addScene(true);
+    if ( visServ().nrScenes() == 0 )
+	addDefaultScene();
 }
 
 
@@ -194,7 +194,7 @@ void uiODSceneMgr::cleanUp( bool startnew )
     visServ().deleteAllObjects();
     vwridx_ = 0;
     if ( startnew )
-	addScene( true );
+	addDefaultScene();
 }
 
 
@@ -211,9 +211,8 @@ uiODSceneMgr::Scene& uiODSceneMgr::mkNewScene()
     return scn;
 }
 
-
 SceneID uiODSceneMgr::addScene( bool maximized, ZAxisTransform* zt,
-				const uiString& name )
+				   const uiString& name )
 {
     if ( !canAddSceneAtStartup() )
 	return SceneID::udf();
@@ -278,6 +277,18 @@ SceneID uiODSceneMgr::addScene( bool maximized, ZAxisTransform* zt,
     scn.vwr3d_->setStartupView();
 
     return sceneid;
+}
+
+SceneID uiODSceneMgr::addDefaultScene()
+{
+    if ( !canAddSceneAtStartup() ) {
+	return SceneID::udf();
+    }
+
+    if ( useVSGDefaultScene() )
+	return visServ().addVSGScene( true );
+
+    return addScene( true );
 }
 
 

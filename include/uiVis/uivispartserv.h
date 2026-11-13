@@ -16,13 +16,9 @@ ________________________________________________________________________
 
 #include "datapackbase.h"
 #include "flatview.h"
-#include "keyboardevent.h"
 #include "menuhandler.h"
-#include "mouseevent.h"
 #include "ranges.h"
-#include "trckeyzsampling.h"
 #include "thread.h"
-#include "vispolygonselection.h"
 #include "vissurvscene.h"
 
 #include <typeinfo>
@@ -53,6 +49,10 @@ namespace visBase   { class DataObject; class EventCatcher; }
 namespace visSurvey { class Scene; }
 namespace ColTab    { class Sequence; class MapperSetup; }
 namespace ZDomain   { class Info; }
+
+
+mGlobal(uiVis) bool isVSGAvailable();
+mGlobal(uiVis) bool useVSGDefaultScene();
 
 
 /*!
@@ -107,6 +107,9 @@ public:
 			/*!<Adds a scene. The argument is only used internally.
 			    Don't use the argument when calling from outside.
 			*/
+    SceneID		addVSGScene(bool maximized,
+			const uiString& nm=uiString::empty());
+
     void		removeScene(const SceneID&);
     int			nrScenes() const;
     NotifierAccess&	nrScenesChange() { return nrscenesChange; }
@@ -502,6 +505,12 @@ protected:
 					= visBase::PolygonSelection::Off;
     SelectionMode		selectionmode_			= Polygon;
 
+    void*			getVSGFunction(const char* fnnm) const;
+    bool			createVSGViewer(const SceneID&,bool maximized,
+						const uiString& nm,
+						NotifierAccess** closing=nullptr);
+			
+    void 			vsgViewerClosedCB(CallBacker*);
     void			mouseCursorCB(CallBacker*);
     void			rightClickCB(CallBacker*);
     void			selectObjCB(CallBacker*);

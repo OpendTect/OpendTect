@@ -20,6 +20,7 @@ ________________________________________________________________________
 #include "mouseevent.h"
 #include "od_helpids.h"
 #include "oddirs.h"
+#include "plugins.h"
 #include "seisdatapack.h"
 #include "separstr.h"
 #include "survinfo.h"
@@ -29,6 +30,7 @@ ________________________________________________________________________
 #include "uiattribtransdlg.h"
 #include "uifiledlg.h"
 #include "uimain.h"
+#include "uimainwin.h"
 #include "uimapperrangeeditordlg.h"
 #include "uimaterialdlg.h"
 #include "uimpeman.h"
@@ -90,6 +92,29 @@ static const char* sceneprefix()		{ return "Scene"; }
 static const int cResetManipIdx = 800;
 static const int cPropertiesIdx = 600;
 static const int cResolutionIdx = 500;
+
+
+static const PluginManager::Data* vsgPluginData()
+{
+    BufferString libnm( 256, false );
+    SharedLibAccess::getLibName( "uiVSG", libnm.getCStr(), libnm.bufSize() );
+    return PIM().findData( libnm.buf() );
+}
+
+
+bool isVSGAvailable()
+{
+    const PluginManager::Data* data = vsgPluginData();
+    return data && data->isloaded_;
+}
+
+
+bool useVSGDefaultScene()
+{
+	// Only use VSG as the default scene if the environment variable is set
+	// and the VSG plugin is available
+	return GetEnvVarYN( "OD_VSG_DEFAULT_SCENE" ) && isVSGAvailable();
+}
 
 
 uiVisPartServer::uiVisPartServer( uiApplService& a )
@@ -250,6 +275,93 @@ SceneID uiVisPartServer::addScene( visSurvey::Scene* newscene_in )
     newscene = nullptr;
     nrscenesChange.trigger();
     return sceneid;
+}
+
+
+typedef visSurvey::Scene* (*VSGSceneCreator)();
+typedef mQtclass(QWidget*) (*VSGViewerCreator)( mQtclass(uiParent*),
+					       visSurvey::Scene*,bool,
+					       const char*,NotifierAccess** );
+
+void* uiVisPartServer::getVSGFunction( const char* fnnm ) const
+{
+    if ( !isVSGAvailable() )
+    {
+	uiMSG().error( tr("The VSG viewer plugin is not loaded") );
+	return nullptr;
+    }
+
+    const PluginManager::Data* data = vsgPluginData();
+    void* funcptr = nullptr;
+    if ( data && data->sla_ )
+	funcptr = data->sla_->getFunction( fnnm );
+
+    if ( !funcptr )
+	uiMSG().error( tr("Cannot find %1 in the VSG plugin").arg(fnnm) );
+
+    return funcptr;
+}
+
+
+SceneID uiVisPartServer::addVSGScene( bool maximized, const uiString& nm )
+{
+    void* funcptr = getVSGFunction( "createVSGScene" );
+    if ( !funcptr )
+	return SceneID::udf();
+
+    VSGSceneCreator creator = rCast( VSGSceneCreator, funcptr );
+    RefMan<visSurvey::Scene> scene = creator();
+    if ( !scene )
+	return SceneID::udf();
+
+    const SceneID sceneid = addScene( scene.ptr() );
+    if ( !sceneid.isValid() )
+	return SceneID::udf();
+
+    if ( nm.isSet() )
+	setSceneName( sceneid, nm );
+
+    NotifierAccess* closing = nullptr;
+    if ( !createVSGViewer(sceneid,maximized,nm,&closing) )
+    {
+	removeScene( sceneid );
+	return SceneID::udf();
+    }
+
+    if ( closing )
+	mAttachCB( *closing, uiVisPartServer::vsgViewerClosedCB );
+
+    return sceneid;
+}
+
+
+void uiVisPartServer::vsgViewerClosedCB( CallBacker* cb )
+{
+    mCBCapsuleUnpack( SceneID,sceneid,cb );
+    removeScene( sceneid );
+}
+
+
+bool uiVisPartServer::createVSGViewer( const SceneID& sceneid, bool maximized,
+				       const uiString& nm,
+				       NotifierAccess** closing )
+{
+    RefMan<visSurvey::Scene> scene = getScene( sceneid );
+    if ( !scene )
+	return false;
+
+    void* funcptr = getVSGFunction( "createVSGViewer" );
+    if ( !funcptr )
+	return false;
+
+    BufferString title;
+    if ( nm.isSet() )
+	title = nm.getFullString();
+
+    mDynamicCastGet(uiMainWin*,mainwin,appserv().parent())
+    VSGViewerCreator creator = rCast( VSGViewerCreator, funcptr );
+    return creator( mainwin, scene.ptr(),
+		    maximized, title.buf(), closing ) != nullptr;
 }
 
 
@@ -614,7 +726,11 @@ void uiVisPartServer::getSceneChildIds( const SceneID& sceneid,
 	return;
 
     for ( int idx=0; idx<scene->size(); idx++ )
-	childids += scene->getObject( idx )->id();
+    {
+	const visBase::DataObject* dobj = scene->getObject( idx );
+	if ( dobj )
+	    childids += dobj->id();
+    }
 }
 
 
@@ -1439,6 +1555,9 @@ void uiVisPartServer::updateDraggers()
 	for ( int objidx=0; objidx<scene->size(); objidx++ )
 	{
 	    visBase::DataObject* dobj = scene->getObject( objidx );
+	    if ( !dobj )
+		continue;
+
 	    updateManipulatorStatus( dobj, selected.isPresent(dobj->id()) );
 	}
     }

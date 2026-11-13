@@ -277,7 +277,7 @@ void uiODApplMgr::survChanged()
     MultiID id;
     ODSession::getStartupData( douse, id );
     if ( !douse || id.isUdf() )
-	sceneMgr().addScene( true );
+	sceneMgr().addDefaultScene();
 
     attrserv_ = new uiAttribPartServer( applservice_ );
     attrserv_->setDPSDispMgr( visdpsdispmgr_ );
@@ -440,7 +440,8 @@ void uiODApplMgr::addTimeDepthScene( bool is2d )
 	    .arg( ztrans->factoryDisplayName() );
 
     sceneMgr().tile();
-    const SceneID sceneid = sceneMgr().addScene( true, ztrans.ptr(), snm );
+    const SceneID sceneid = sceneMgr().addScene( true, ztrans.ptr(),
+						 snm );
     if ( !sceneid.isValid() )
 	return;
 
@@ -465,7 +466,7 @@ void uiODApplMgr::addHorFlatScene( bool is2d )
 		: transform->factoryDisplayName().getFullString();
     uiString scenenm = tr( "Flattened on '%1'").arg( hornm );
     sceneMgr().tile();
-    sceneMgr().addScene( true, transform.ptr(), scenenm);
+    sceneMgr().addScene( true, transform.ptr(), scenenm );
 }
 
 

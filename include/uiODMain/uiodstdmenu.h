@@ -205,6 +205,7 @@ ________________________________________________________________________
 #define mAddTmeDepthMnuItm	mAddTimeDepth3DMnuItm
 #define mAddHorFlat2DMnuItm	(mWinMnu + 14)
 #define mAddHorFlat3DMnuItm	(mWinMnu + 15)
+#define mAddVSGSceneMnuItm	(mWinMnu + 16)
 #define mCascadeMnuItm		(mWinMnu + 20)
 #define mTileAutoMnuItm		(mWinMnu + 30)
 #define mTileHorMnuItm		(mWinMnu + 31)

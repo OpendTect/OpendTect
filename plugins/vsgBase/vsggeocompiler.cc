@@ -14,6 +14,7 @@ ________________________________________________________________________
 #include <vsg/io/Logger.h>
 #include <vsg/nodes/Group.h>
 #include <vsg/ui/FrameStamp.h>
+#include <algorithm>
 
 namespace vsgGeo
 {
@@ -42,7 +43,7 @@ void Compiler::release( vsg::ref_ptr<vsg::Object> obj )
 	return;
 
     std::scoped_lock lock( lock_ );
-    retired_.push_back( Retired{ lastframe_, obj } );
+    retired_.push_back( Retired{lastframe_, obj} );
 }
 
 
@@ -114,17 +115,68 @@ void Compiler::process( vsg::Viewer& viewer )
 }
 
 
-bool Compiler::compileObject( vsg::Viewer& viewer, vsg::ref_ptr<vsg::Object> obj )
+static std::vector<vsg::observer_ptr<vsg::Viewer>>& drawingViewers()
 {
-    const vsg::CompileResult result = viewer.compileManager->compile( obj );
-    if ( !result )
+    static std::vector<vsg::observer_ptr<vsg::Viewer>> viewers;
+    return viewers;
+}
+
+
+void Compiler::addViewer( vsg::Viewer* viewer )
+{
+    if ( !viewer )
+	return;
+
+    for ( const auto& obs : drawingViewers() )
     {
-	vsg::warn( "vsgGeo::Compiler: compile failed: ", result.message );
-	return false;
+	if ( obs.ref_ptr().get() == viewer )
+	    return;
     }
 
-    vsg::updateViewer( viewer, result );
-    return true;
+    drawingViewers().emplace_back( viewer );
+}
+
+
+void Compiler::removeViewer( vsg::Viewer* viewer )
+{
+    auto& viewers = drawingViewers();
+    viewers.erase(std::remove_if(viewers.begin(), viewers.end(),
+	[viewer](const vsg::observer_ptr<vsg::Viewer>& obs)
+	{
+	    const vsg::ref_ptr<vsg::Viewer> vwr = obs.ref_ptr();
+	    return !vwr || vwr.get() == viewer;
+	}), viewers.end());
+}
+
+
+bool Compiler::compileObject( vsg::Viewer& viewer, vsg::ref_ptr<vsg::Object> obj )
+{
+    std::vector<vsg::ref_ptr<vsg::Viewer>> targets;
+    for ( const auto& obs : drawingViewers() )
+    {
+	vsg::ref_ptr<vsg::Viewer> vwr = obs.ref_ptr();
+	if ( vwr && vwr->compileManager )
+	    targets.push_back(vwr);
+    }
+
+    if ( targets.empty() )	// tests: only the common viewer
+	targets.push_back( vsg::ref_ptr<vsg::Viewer>(&viewer) );
+
+    bool allok = true;
+    for ( auto& vwr : targets )
+    {
+	const vsg::CompileResult result = vwr->compileManager->compile(obj);
+	if ( !result )
+	{
+	    vsg::warn( "vsgGeo::Compiler: compile failed: ", result.message );
+	    allok = false;
+	    continue;
+	}
+
+	vsg::updateViewer( *vwr, result );
+    }
+
+    return allok;
 }
 
 
