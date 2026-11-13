@@ -1185,18 +1185,22 @@ int DescSet::removeUnused( bool remstored, bool kpdefault )
 	    if ( kpdefault && !descidx ) continue; //default desc always first
 
 	    DescID descid = getID( descidx );
-	    if ( torem.isPresent(descid) ) continue;
+	    if ( torem.isPresent(descid) )
+		continue;
 
-	    const Desc& dsc = *getDesc( descid );
+	    RefMan<Desc> dsc = getDesc( descid );
+	    if ( !dsc )
+		continue;
+
 	    bool iscandidate = false;
-	    if ( dsc.isStored() )
+	    if ( dsc->isStored() )
 	    {
-		const MultiID key = dsc.getStoredID();
+		const MultiID key = dsc->getStoredID();
 		PtrMan<IOObj> ioobj = IOM().get( key );
 		if ( remstored || !ioobj || !ioobj->implExists(true) )
 		    iscandidate = true;
 	    }
-	    else if ( dsc.isHidden() )
+	    else if ( dsc->isHidden() )
 		iscandidate = true;
 
 	    if ( iscandidate )
