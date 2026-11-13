@@ -56,6 +56,7 @@ set( OD_MODULE_SOURCES
 	iodirentry.cc
 	iodirtablemodel.cc
 	ioman.cc
+	surveylock.cc
 	ioobj.cc
 	iostrm.cc
 	keyboardevent.cc
@@ -122,6 +123,7 @@ list( APPEND OD_TEST_PROGS
 	posidxpairvalset.cc
 	raytracerrunner.cc
 	reflectivitysampler.cc
+	surveylock.cc
 	tempsurvey.cc
 	unitofmeasure.cc
 	veldesc.cc
