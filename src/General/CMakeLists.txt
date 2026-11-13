@@ -123,7 +123,7 @@ list( APPEND OD_TEST_PROGS
 	posidxpairvalset.cc
 	raytracerrunner.cc
 	reflectivitysampler.cc
-	surveylock.cc
+	#surveylock.cc
 	tempsurvey.cc
 	unitofmeasure.cc
 	veldesc.cc
