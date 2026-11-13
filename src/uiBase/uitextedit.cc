@@ -113,6 +113,34 @@ void uiTextEditBase::scrollToBottom()
 }
 
 
+bool uiTextEditBase::isAtBottom( int tolerance ) const
+{
+    QScrollBar* verticalscrollbar = qte().verticalScrollBar();
+    if ( !verticalscrollbar )
+	return true;
+
+    return verticalscrollbar->value() >=
+	   verticalscrollbar->maximum() - tolerance;
+}
+
+
+int uiTextEditBase::scrollBarValue() const
+{
+    const QScrollBar* verticalscrollbar = qte().verticalScrollBar();
+    return verticalscrollbar ? verticalscrollbar->value() : 0;
+}
+
+
+void uiTextEditBase::setScrollBarValue( int val )
+{
+    QScrollBar* verticalscrollbar = qte().verticalScrollBar();
+    if ( !verticalscrollbar )
+	return;
+
+    verticalscrollbar->setValue( val );
+}
+
+
 void uiTextEditBase::showScrollBar( OD::Orientation odor, bool alwayson )
 {
     const Qt::ScrollBarPolicy pol =

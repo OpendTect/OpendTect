@@ -52,6 +52,11 @@ public:
 
     void		hideFrame();
     void		scrollToBottom();
+    int			scrollBarValue() const;
+    void		setScrollBarValue(int);
+    bool		isAtBottom(int =0) const;
+			//!<Returns true in absence of the slider
+			//! use tolerance=1 for a smoother scrolling experience
 
     void		showScrollBar(OD::Orientation,bool alwayson=false);
 			//!<alwayson=false means showAsNeeded
