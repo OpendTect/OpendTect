@@ -1,5 +1,5 @@
-![OpendTect header logo](doc/pics/opendtect_header.png)
-![Example](doc/pics/supported-functionality.jpg)
+[![OpendTect header logo][header-img]](https://dgbes.com/software/opendtect)
+[![Example][example-img]](https://dgbes.com/software/supported-functionality)
 
 OpendTect is a free, open source seismic interpretation system and software development platform. The system supports all tools needed for visualizing, analyzing and interpreting 2D, 3D and 4D seismic and Ground Penetrating Radar (GPR) data. The software is written in C++ and the same codebase compiles and runs on [Windows, macOS and Linux](https://dgbes.com/software/supported-platforms). It also has a mature plugin programming interface that allows third parties to [develop plugins](https://dgbes.com/library#documentation) to add functionality to the system without touching the OpendTect source code. A binary installer for OpendTect can be downloaded from the [dGB download page](https://dgbes.com/software/download).
 
@@ -25,7 +25,6 @@ OpendTect is used worldwide by thousands of open source users, thousands of acad
       - [SQLite3](#sqlite3)
       - [HDF5](#hdf5)
     - [Windows](#windows)
-    - [macOS](#macos)
     - [Linux](#linux)
 - [Contributing](#contributing)
 - [Contacts and More Information](#contacts-and-more-information)
@@ -55,9 +54,10 @@ The [Pixi](https://pixi.prefix.dev/latest/) package manager can be used to obtai
 
 #### Install Pixi
 
-**Windows**
+<details>
+  <summary><b>Windows</b></summary>
 
-  **[Download installer](https://github.com/prefix-dev/pixi/releases/latest/download/pixi-x86_64-pc-windows-msvc.msi)**
+  <kbd>[**Download installer**](https://github.com/prefix-dev/pixi/releases/latest/download/pixi-x86_64-pc-windows-msvc.msi)</kbd>
 
   Or run:
 
@@ -65,71 +65,57 @@ The [Pixi](https://pixi.prefix.dev/latest/) package manager can be used to obtai
 powershell -ExecutionPolicy ByPass -c "irm -useb https://pixi.sh/install.ps1 | iex"
 ```
 
-**Linux**
+</details>
+<details>
+  <summary><b>Linux</b></summary>
 
 ```bash
   curl -fsSL https://pixi.sh/install.sh | sh
 ```
 
+</details>
+
 #### Git Clone the OpendTect Main Branch
-
 Assuming **git** is installed, open a shell window and enter:
-
 ```bash
 git clone -b main --depth 1 https://github.com/OpendTect/OpendTect.git
 ```
-
 This will create a folder called **OpendTect** with the source code.
-
 #### Configure
-
 To configure the build, change to the source code folder and enter:
-
 ```bash
 pixi run config
 ```
-
 #### Build
-
 To build in Release mode, open a shell, change to the source code folder (unless already there) and enter:
-
 ```bash
 pixi run build
 ```
-
 Or to build in Debug mode, open a shell, change to the source code folder (unless already there) and enter:
-
 ```bash
 pixi run build-dev
 ```
-
 #### Run
-
 To run the Release build, open a shell, change to the source code folder (unless already there) and enter:
-
 ```bash
 pixi run release
 ```
-
 Or to run the Debug build, open a shell, change to the source code folder (unless already there) and enter:
-
 ```bash
 pixi run debug
 ```
 
 ### Build Manually
-
 #### Requirements
 
 - A C++ compiler and compilation tool chain:
   - Windows: MSVC toolset 17.44 (64-bit). The free community edition is sufficient.
-  - macOS: SDK 14 (deployment version >= 12.0)
   - Linux: gcc 64 bit version 13.3.1 or higher
+  - macOS: SDK 14 (deployment version >= 12.0)
 - CMake version 3.24 or higher (3.27 or higher recommended)
 - The C++17 standard is enabled by default on all platforms.
 
 #### Dependencies
-
 To build the software you need to also download and install/build a few dependencies which probably are not installed in your system. The version of dependencies varies between the branches. The Qt dependencies are available in binary installers, the others have to be built from source.
 
 | BRANCH | DEPENDENCIES |
@@ -138,7 +124,6 @@ To build the software you need to also download and install/build a few dependen
 | od8.0_rel, od8.0 | [QT 6.8.3](https://download.qt.io/archive/qt/6.8/6.8.3/), [OSG 3.6.5](https://github.com/openscenegraph/OpenSceneGraph/archive/OpenSceneGraph-3.6.5.tar.gz), [PROJ 9.8.1 (optional)](https://download.osgeo.org/proj/proj-9.8.1.tar.gz), [SQLite3 3.51.1 (required when PROJ is enabled)](https://www.sqlite.org/download.html), [HDF5 1.14.6 (optional)](https://www.hdfgroup.org/downloads/hdf5) |
 
 ##### QT
-
 For the Qt install the following components must be selected depending on your build platform:
 
 - 'MSVC 2022 64-bit' (Windows), 'Desktop' (Linux/macOS)
@@ -150,27 +135,21 @@ For the Qt install the following components must be selected depending on your b
   - [Qt 6.8.3](https://dgbearthsciences.sharefile.com/public/share/web-sad64fa4ce9974762a877a682d9d1a679) : od8.0, od8.0_rel
 
 ##### OSG
-
 Configure using CMake, compile and install.
 
 ##### OPENSSL
-
 Configure, compile and install. OpenSSL 3 is required, including the SSL and Crypto components.
 
 ##### PROJ
-
 Configure using CMake, compile and install. OpendTect can be built and run without PROJ. Set `OD_NO_PROJ=ON` to disable it. Enabling PROJ makes building SQLite3 mandatory.
 
 ##### SQLite3
-
 Retrieve from their download site or the OpendTect SDK. OpendTect can be built and run without SQLite3. Building SQLite3 is mandatory when PROJ is enabled.
 
 ##### HDF5
-
 The link to HDF5 requires to provide the path to an existing HDF5 installation. All versions above 1.10.3 are supported, but using the current API 2.2 is preferred. Installation is best done using their binary installations (on Windows especially), or from the package manager on Linux. Windows developers however need to recompile the sources since no debug binary libraries can be downloaded. Only the C components of the HDF5 installation are required. The current Pixi setup does not work with HDF5 2.1.0 and Qt 6.9.3. There is a compatibility issue between these versions.
 
 #### Windows
-
 Configure CMake ensuring to set the following variables:
 
 - QT_ROOT= set this to the Qt install location for the appropriate version of Qt for the OpendTect version
@@ -183,7 +162,6 @@ Configure CMake ensuring to set the following variables:
 Start Visual Studio with the MSVC toolset 17.44, open the OpendTect solution and build.
 
 #### Linux
-
 Configure CMake ensuring to set the following variables:
 
 - QT_ROOT= set this to the Qt install location for the appropriate version of Qt for the OpendTect version
@@ -198,7 +176,7 @@ Configure CMake ensuring to set the following variables:
 Run make in the toplevel folder (i.e. where this README.md file is located)
 
 ## Contributing
-
+[//]: # (PROBABLY WANT TO EXPAND THIS WITH GUIDANCE ON WHAT TYPE OF CONTRIBUTIONS WILL BE WELCOME AND WHERE IN THE CODEBASE)
 You can contribute to the enhancement of OpendTect either by:
 
 - providing bug fixes or enhancements to the OpendTect source code following the usual GitHub Fork-Pull Request process.
@@ -212,3 +190,6 @@ An overview of the design principles and preferred coding style/practices employ
 - [OpendTect Documentation](https://dgbes.com/library#documentation)
 - [OpendTect Programmer's Manual](https://doc.opendtect.org/2026/doc/Programmer/Default.htm)
 - [OpendTect developers Google Group](https://dgbes.com/index.php/support/faq-developers-google-group)
+
+[header-img]: doc/pics/opendtect_header.png
+[example-img]: doc/pics/supported-functionality.jpg
