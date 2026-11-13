@@ -34,6 +34,14 @@ ________________________________________________________________________
 
 extern "C" { mGlobal(Basic) void SetCurBaseDataDir(const char*); }
 
+namespace SurveyLockImpl
+{
+    bool	registerInstance(const char* surveydir);
+    bool	unregisterInstance(const char* surveydir=nullptr);
+    bool	hasOtherLiveHolders(const char* surveydir);
+    void	getOtherLiveHolders(const char* surveydir,BufferStringSet&);
+} // namespace SurveyLockImpl
+
 using voidFromVoidFn = void(*)(void);
 static voidFromVoidFn geom2dinitfn_ = nullptr;
 
@@ -291,6 +299,9 @@ uiRetVal IOMan::init( SurveyInfo* nwsi )
 		"did you forgot to call ensureLoaded(Geometry)?");
     }
 
+    if ( state_ == Good )
+	SurveyLockImpl::registerInstance( rootdirnm.str() );
+
     return uirv;
 }
 
@@ -315,6 +326,8 @@ bool IOMan::close( bool dotrigger )
 
     if ( dotrigger && !isBad() )
 	surveyToBeChanged.trigger();
+
+    SurveyLockImpl::unregisterInstance();
 
     TranslatorGroup::clearSelHists();
 
@@ -353,8 +366,29 @@ uiRetVal IOMan::reInit( SurveyInfo* nwsi )
 
 IOMan::~IOMan()
 {
+    SurveyLockImpl::unregisterInstance();
     delete dirptr_;
     delete prevrootdir_;
+}
+
+
+void IOMan::applClosing()
+{
+    SurveyLockImpl::unregisterInstance();
+    applicationClosing.trigger();
+}
+
+
+bool IOMan::hasOtherSurveyHolders( const char* surveydir ) const
+{
+    return SurveyLockImpl::hasOtherLiveHolders( surveydir );
+}
+
+
+void IOMan::getOtherSurveyHolders( const char* surveydir,
+				   BufferStringSet& infos ) const
+{
+    SurveyLockImpl::getOtherLiveHolders( surveydir, infos );
 }
 
 

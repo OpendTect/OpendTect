@@ -627,6 +627,9 @@ void uiSurveyInfoEditor::appButPushed( CallBacker* )
 
 bool uiSurveyInfoEditor::doApply()
 {
+    if ( !checkNecessaryPermissions() )
+	return false;
+
     if ( !setSurvName() || !setRanges() )
 	return false;
 
@@ -743,16 +746,20 @@ bool uiSurveyInfoEditor::checkNecessaryPermissions() const
 	return false;
     }
 
-    const bool dirnamechanged = dirNameChanged();
-    if ( dirnamechanged && File::isInUse(olddir) )
+    BufferStringSet otherholders;
+    IOM().getOtherSurveyHolders( olddir, otherholders );
+    if ( !otherholders.isEmpty() )
     {
 	uiString errmsg =
-	    tr("It looks like the following survey folder is open:\n%1\n\n"
-	    "Please close the folder and try again.").arg(olddir);
+	    tr("The survey is currently open in another OpendTect "
+		"session:\n%1\n\nPlease close that session before changing "
+		"survey parameters.")
+		.arg( otherholders.cat("\n") );
 	uiMSG().error( errmsg );
 	return false;
     }
 
+    const bool dirnamechanged = dirNameChanged();
     const FilePath setupfp( orgstorepath_, orgdirname_,
 	SurveyInfo::sKeySetupFileName() );
     const BufferString setupfullpath = setupfp.fullPath();

@@ -169,6 +169,10 @@ public:
     uiRetVal		cancelTempSurvey();
     bool		isUsingTempSurvey() const { return prevrootdir_; }
 
+    bool		hasOtherSurveyHolders(const char* surveydir) const;
+    void		getOtherSurveyHolders(const char* surveydir,
+					      BufferStringSet&) const;
+
     static bool		isPreparedForSurveyChange();
 
 private:
@@ -208,7 +212,7 @@ private:
     const IOObj*	getIOObjFromCtxt(const CtxtIOObj&,bool isnew,
 					 bool newistmp,int translidxingroup);
     static bool		writeSettingsSurveyFile(const char* dirnm,uiRetVal&);
-    void		applClosing() { applicationClosing.trigger(); }
+    void		applClosing();
     void		getObjEntry(CtxtIOObj&,bool isnew, bool newistmp=false,
 				 int translidxingroup=-1);
     void		getObjEntries(const ObjectSet<CtxtIOObj>&,bool isnew,

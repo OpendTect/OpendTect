@@ -826,6 +826,17 @@ void uiSurvey::rmButPushed( CallBacker* )
     if ( selnm.isEmpty() || truedirnm.isEmpty() )
 	return;
 
+    BufferStringSet otherholders;
+    IOM().getOtherSurveyHolders( truedirnm, otherholders );
+    if ( !otherholders.isEmpty() )
+    {
+	uiMSG().error(
+	    tr("The survey is currently open in another OpendTect "
+		"session:\n%1\n\nPlease close that session before deleting the "
+		"survey.").arg( otherholders.cat("\n") ) );
+	return;
+    }
+
     uiString msg = tr("This will delete the entire survey folder:\n\n%1"
 		      "\n\nFull path: %2").arg(selnm).arg(truedirnm);
     if ( !uiMSG().askDelete(msg) )
