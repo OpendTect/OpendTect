@@ -674,7 +674,7 @@ uiVSGViewer::~uiVSGViewer()
 	vsgGeo::Compiler::removeViewer(viewer_.get());
 	viewer_->deviceWaitIdle();
 	viewer_->getEventHandlers().clear();
-	if (ODVsg::DataObject::getCommonViewer() == viewer_.get())
+	if ( ODVsg::DataObject::getCommonViewer() == viewer_.get() )
 	    ODVsg::DataObject::setCommonViewer(nullptr);
     }
 
@@ -1354,7 +1354,7 @@ void uiVSGViewer::setupVSG()
 
     offscreenswitch_->setAllChildren( true );
     viewer_->compile();
-    vsgGeo::Compiler::addViewer(viewer_.get());
+    vsgGeo::Compiler::addViewer( viewer_.get() );
     offscreenswitch_->setAllChildren( false );
 
     // After the first compile: from now on, changes to ODVsg objects are
@@ -1651,13 +1651,13 @@ mExternC(uiVSG) visSurvey::Scene* createVSGScene()
 }
 
 
-mExternC(uiVSG) QWidget* createVSGViewer(uiParent* parent,visSurvey::Scene*,bool,
-					  const char*,NotifierAccess**);
+mExternC(uiVSG) QWidget* createVSGViewer( uiParent* parent,visSurvey::Scene*,bool,
+					  const char*,NotifierAccess** );
 
-mExternC(uiVSG) QWidget* createVSGViewer(uiParent* parent,
+mExternC(uiVSG) QWidget* createVSGViewer( uiParent* parent,
     visSurvey::Scene* scene,
     bool maximized, const char* title,
-    NotifierAccess** closing)
+    NotifierAccess** closing )
 {
     const char* nm = (title && *title) ? title : "VSG Viewer";
     auto* viewer = new uiVSGViewer( parent, nm );

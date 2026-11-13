@@ -831,9 +831,9 @@ void uiODMenuMgr::fillSceneMenu()
 {
     scenemnu_->clear();
     insertAction( scenemnu_, uiStrings::sNew(), mAddSceneMnuItm );
-    if ( isVSGAvailable() ) {
+    if ( isVSGAvailable() )
 	insertAction( scenemnu_, tr("New VSG Scene"), mAddVSGSceneMnuItm );
-    }
+
     insertAction( scenemnu_, tr("New Map View"), mAddMapSceneMnuItm );
 
     uiString itmtxt = tr( "New [%1]" )

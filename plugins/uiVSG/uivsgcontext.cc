@@ -50,14 +50,12 @@ void uiVSGContext::setDeviceFromWindow( vsg::Window& window )
 
 void uiVSGContext::releaseWindow()
 {
-    if ( windowCount_ == 0 ) {
+    if ( windowCount_ == 0 )
 	return;
-    }
 
     --windowCount_;
-    if ( windowCount_ > 0 ) {
+    if ( windowCount_ > 0 )
 	return;
-    }
 
     device_ = {};
 }

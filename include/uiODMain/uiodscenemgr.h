@@ -16,7 +16,6 @@ ________________________________________________________________________
 
 #include "datapack.h"
 #include "emposid.h"
-#include "flatview.h"
 #include "uivispartserv.h"
 
 class BufferStringSet;
@@ -55,9 +54,7 @@ public:
 					 const uiString& nm=uiString::empty());
 
     SceneID			addDefaultScene();
-				//!<A VSG scene if the VSG plugin is loaded and
-				// the environment variable OD_VSG_DEFAULT_SCENE
-				// is set, otherwise an OSG scene
+
     void			setSceneName(const SceneID&,const uiString&);
     uiString			getSceneName(const SceneID&) const;
     CNotifier<uiODSceneMgr,SceneID> sceneClosed;

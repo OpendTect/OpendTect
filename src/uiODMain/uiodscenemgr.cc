@@ -285,9 +285,8 @@ SceneID uiODSceneMgr::addDefaultScene()
 	return SceneID::udf();
     }
 
-    if ( useVSGDefaultScene() ) {
+    if ( useVSGDefaultScene() )
 	return visServ().addVSGScene( true );
-    }
 
     return addScene( true );
 }

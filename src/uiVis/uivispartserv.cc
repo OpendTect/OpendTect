@@ -23,7 +23,6 @@ ________________________________________________________________________
 #include "plugins.h"
 #include "seisdatapack.h"
 #include "separstr.h"
-#include "sharedlibs.h"
 #include "survinfo.h"
 #include "zaxistransform.h"
 #include "zdomain.h"

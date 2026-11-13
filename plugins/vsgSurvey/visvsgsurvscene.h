@@ -13,12 +13,6 @@ ________________________________________________________________________
 #include "visvsgdatagroup.h"
 #include "vissurvscene.h"
 
-#include "color.h"
-#include "coord.h"
-#include "fontdata.h"
-#include "trckeyvalue.h"
-#include "trckeyzsampling.h"
-
 namespace ZDomain { class Info; }
 namespace ODVsg
 {

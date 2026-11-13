@@ -352,13 +352,13 @@ void dGBVSGNativeWindow::initializeWindow()
 
 void dGBVSGNativeWindow::cleanup()
 {
-    if (!vsgwindow_)
+    if ( !vsgwindow_ )
     {
 	initialized_ = false;
 	return;
     }
 
-    if (viewer_)
+    if ( viewer_ )
     {
 	viewer_->stop();
 	viewer_->deviceWaitIdle();
@@ -417,17 +417,11 @@ void dGBVSGNativeWindow::hideEvent( QHideEvent* )
 
 void dGBVSGNativeWindow::resizeEvent( QResizeEvent* )
 {
-    if ( !vsgwindow_ ) // || resizing_
+    if ( !vsgwindow_ )
 	return;
 
     const int w = convertCoord( width() );
     const int h = convertCoord( height() );
- ////   if ( w == last_w_ && h == last_h_ )
-	////return;
-
- //   resizing_ = true;
- //   last_w_ = w;
- //   last_h_ = h;
 
     const vsg::clock::time_point eventtime = vsg::clock::now();
     vsgwindow_->bufferedEvents.push_back( vsg::ConfigureWindowEvent::create(
@@ -436,7 +430,7 @@ void dGBVSGNativeWindow::resizeEvent( QResizeEvent* )
     vsgwindow_->resize();
     // Inactive MDI siblings still need extent updates, but must not both
     // request frames during a maximize/layout fight.
-    if ( viewer_ ) // && isActive()
+    if ( viewer_ )
 	viewer_->request();
 
 }
