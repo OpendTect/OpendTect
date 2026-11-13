@@ -93,7 +93,7 @@ public:
 
     CNotifier<uiVSGViewer,SceneID> closing;
 			//!<Triggered when the viewer is deleted
-			//! 
+
 private:
 
     class		SceneBoundsWatch;

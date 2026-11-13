@@ -48,6 +48,7 @@ void uiVSGContext::setDeviceFromWindow( vsg::Window& window )
     device_ = window.getOrCreateDevice();
 }
 
+
 void uiVSGContext::releaseWindow()
 {
     if ( windowCount_ == 0 )

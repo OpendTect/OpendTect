@@ -1643,6 +1643,7 @@ uiRetVal uiVSGViewer::takeScreenshot( int width, int height,
 
 mExternC(uiVSG) visSurvey::Scene* createVSGScene();
 
+
 mExternC(uiVSG) visSurvey::Scene* createVSGScene()
 {
     RefMan<ODVsg::Scene> scene = ODVsg::Scene::create();
@@ -1661,12 +1662,12 @@ mExternC(uiVSG) QWidget* createVSGViewer( uiParent* parent,
 {
     const char* nm = (title && *title) ? title : "VSG Viewer";
     auto* viewer = new uiVSGViewer( parent, nm );
-    viewer->setScene(dCast(ODVsg::Scene*, scene));
+    viewer->setScene( dCast(ODVsg::Scene*, scene) );
     if ( closing )
 	*closing = &viewer->closing;
 
     QWidget* widget = viewer->qwidget();
-    mDynamicCastGet(uiMainWin*,mainwin,parent);
+    mDynamicCastGet( uiMainWin*,mainwin,parent );
     QWidget* mainwidget = mainwin ? mainwin->qWidget() : nullptr;
     QMdiArea* mdiarea = mainwidget ? mainwidget->findChild<QMdiArea*>() : nullptr;
     if (!mdiarea)
