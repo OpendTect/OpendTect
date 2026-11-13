@@ -108,6 +108,7 @@ bool isVSGAvailable()
     return data && data->isloaded_;
 }
 
+
 bool useVSGDefaultScene()
 {
 	// Only use VSG as the default scene if the environment variable is set
@@ -278,9 +279,9 @@ SceneID uiVisPartServer::addScene( visSurvey::Scene* newscene_in )
 
 
 typedef visSurvey::Scene* (*VSGSceneCreator)();
-typedef mQtclass(QWidget*) (*VSGViewerCreator)(mQtclass(uiParent*),
+typedef mQtclass(QWidget*) (*VSGViewerCreator)( mQtclass(uiParent*),
 					       visSurvey::Scene*,bool,
-					       const char*,NotifierAccess**);
+					       const char*,NotifierAccess** );
 
 void* uiVisPartServer::getVSGFunction( const char* fnnm ) const
 {
@@ -336,7 +337,7 @@ SceneID uiVisPartServer::addVSGScene( bool maximized, const uiString& nm )
 
 void uiVisPartServer::vsgViewerClosedCB( CallBacker* cb )
 {
-    mCBCapsuleUnpack(SceneID,sceneid,cb);
+    mCBCapsuleUnpack( SceneID,sceneid,cb );
     removeScene( sceneid );
 }
 

@@ -671,11 +671,11 @@ uiVSGViewer::~uiVSGViewer()
 
     if ( viewer_ )
     {
-	vsgGeo::Compiler::removeViewer(viewer_.get());
+	vsgGeo::Compiler::removeViewer( viewer_.get() );
 	viewer_->deviceWaitIdle();
 	viewer_->getEventHandlers().clear();
 	if ( ODVsg::DataObject::getCommonViewer() == viewer_.get() )
-	    ODVsg::DataObject::setCommonViewer(nullptr);
+	    ODVsg::DataObject::setCommonViewer( nullptr );
     }
 
     if ( windowhandler_ )

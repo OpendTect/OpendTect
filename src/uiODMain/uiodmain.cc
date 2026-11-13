@@ -390,7 +390,6 @@ bool uiODMain::buildUI()
 void uiODMain::initScene()
 {
     menumgr_->fillSceneMenu();
-
     const bool addscene = !GetEnvVarYN( "OD_NOSCENE_AT_STARTUP" );
     if ( addscene )
 	scenemgr_->initMenuMgrDepObjs();
@@ -719,7 +718,7 @@ void uiODMain::handleStartupSession()
     const bool res = uiMSG().askGoOn( msg, true );
     if ( !res )
     {
-	if ( applMgr().visServer()->nrScenes()==0 )
+	if ( applMgr().visServer()->nrScenes() == 0 )
 	    sceneMgr().addDefaultScene();
 	return;
     }

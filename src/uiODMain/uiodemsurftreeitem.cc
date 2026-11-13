@@ -388,8 +388,7 @@ void uiODEarthModelSurfaceTreeItem::handleMenuCB( CallBacker* cb )
 	RefMan<EM::HorizonZTransform> transform = new EM::HorizonZTransform;
 	transform->setHorizon( *horizon );
 	ODMainWin()->sceneMgr().tile();
-	ODMainWin()->sceneMgr().addScene( true, transform.ptr(),
-					  scenenm );
+	ODMainWin()->sceneMgr().addScene( true, transform.ptr(), scenenm );
     }
 }
 

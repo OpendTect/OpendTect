@@ -407,6 +407,7 @@ void dGBVSGNativeWindow::exposeEvent( QExposeEvent* )
 
     if ( viewer_ )
 	viewer_->request();
+
 }
 
 
@@ -426,7 +427,7 @@ void dGBVSGNativeWindow::resizeEvent( QResizeEvent* )
     const vsg::clock::time_point eventtime = vsg::clock::now();
     vsgwindow_->bufferedEvents.push_back( vsg::ConfigureWindowEvent::create(
 		    vsgwindow_, eventtime, convertCoord(x()), convertCoord(y()),
-		    uint32_t(w), uint32_t(h) ) );
+		    uint32_t(w), uint32_t(h)) );
     vsgwindow_->resize();
     // Inactive MDI siblings still need extent updates, but must not both
     // request frames during a maximize/layout fight.

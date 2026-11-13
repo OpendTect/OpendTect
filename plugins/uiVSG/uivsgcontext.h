@@ -38,18 +38,18 @@ public:
     bool			hasDevice() const;
     vsg::ref_ptr<vsg::Device>	device() const;
 
-    void			applyToTraits(vsg::WindowTraits&) const;
-				/*!<If a device exists, set traits.device so
-				    Window::create reuses it. */
+    void		applyToTraits(vsg::WindowTraits&) const;
+			/*!<If a device exists, set traits.device so
+			    Window::create reuses it. */
 
-    void			setDeviceFromWindow(vsg::Window&);
-				/*!<Call after the first successful window
-				    init. No-op if already set. */
+    void		setDeviceFromWindow(vsg::Window&);
+			/*!<Call after the first successful window
+			    init. No-op if already set. */
 
-    void			releaseWindow();
+    void		releaseWindow();
 
 private:
-				uiVSGContext() = default;
+			uiVSGContext() = default;
 
     vsg::ref_ptr<vsg::Device>	device_;
     int				windowCount_{};

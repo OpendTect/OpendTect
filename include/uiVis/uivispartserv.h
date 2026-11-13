@@ -16,13 +16,9 @@ ________________________________________________________________________
 
 #include "datapackbase.h"
 #include "flatview.h"
-#include "keyboardevent.h"
 #include "menuhandler.h"
-#include "mouseevent.h"
 #include "ranges.h"
-#include "trckeyzsampling.h"
 #include "thread.h"
-#include "vispolygonselection.h"
 #include "vissurvscene.h"
 
 #include <typeinfo>
@@ -112,13 +108,7 @@ public:
 			    Don't use the argument when calling from outside.
 			*/
     SceneID		addVSGScene(bool maximized,
-			const uiString& nm = uiString::empty());
-			/*!<Creates a ODVsg::Scene and a uiVSGViewer by looking
-			the functions up in the uiVis plugin.
-			Returns SceneID::udf() when the plugin is not loaded or
-			either the ODVsg::Scene or the uiVSGViewer
-			cannot be created.
-			*/
+			const uiString& nm=uiString::empty());
 
     void		removeScene(const SceneID&);
     int			nrScenes() const;
@@ -519,9 +509,7 @@ protected:
     bool			createVSGViewer(const SceneID&,bool maximized,
 						const uiString& nm,
 						NotifierAccess** closing=nullptr);
-			/*!<Shows a VSG scene in a window of the main window.
-			    'closing' gets the notifier that triggers, with the
-			    scene id, when that window is closed. */
+			
     void 			vsgViewerClosedCB(CallBacker*);
     void			mouseCursorCB(CallBacker*);
     void			rightClickCB(CallBacker*);

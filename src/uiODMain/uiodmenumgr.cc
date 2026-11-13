@@ -1718,7 +1718,7 @@ void uiODMenuMgr::handleClick( CallBacker* cb )
     case mAddMapSceneMnuItm: {
 	sceneMgr().tile();
 	const SceneID sceneid = sceneMgr().addScene( true, nullptr,
-						     tr("Map View") );
+				tr("Map View") );
 	ui3DViewer* vwr = sceneMgr().get3DViewer( sceneid );
 	if ( vwr )
 	    vwr->setMapView( true );
