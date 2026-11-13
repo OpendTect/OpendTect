@@ -42,7 +42,7 @@ void uiVSGContext::applyToTraits( vsg::WindowTraits& traits ) const
 void uiVSGContext::setDeviceFromWindow( vsg::Window& window )
 {
     ++windowCount_;
-    if (device_)
+    if ( device_ )
 	return;
 
     device_ = window.getOrCreateDevice();
