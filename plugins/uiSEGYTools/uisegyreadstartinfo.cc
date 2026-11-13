@@ -667,8 +667,8 @@ void uiSEGYReadStartInfo::parChg( CallBacker* cb )
 	const bool fromheader = zsampsrcfld_->currentItem() == 0;
 	if ( fromheader )
 	{
-            zstartfld_->setValue( loaddefcache_.sampling_.start_ );
-            srfld_->setValue( loaddefcache_.sampling_.step_ );
+	    zstartfld_->setValue( loaddefcache_.sampling_.start_ );
+	    srfld_->setValue( loaddefcache_.sampling_.step_ );
 	}
 	showZSamplingSetting( !fromheader );
     }
@@ -860,10 +860,10 @@ void uiSEGYReadStartInfo::setScanInfoTexts( const SEGY::ScanInfoSet& sis )
     else
     {
 	txt.set( "%1 - %2 - %3" );
-        const float endz = bi.sampling_.start_
-                           + (bi.ns_-1) * bi.sampling_.step_;
-        txt.arg( bi.sampling_.start_ ).arg( endz )
-                .arg( bi.sampling_.step_ );
+	const float endz = bi.sampling_.start_
+			   + (bi.ns_-1) * bi.sampling_.step_;
+	txt.arg( bi.sampling_.start_ ).arg( endz )
+		.arg( bi.sampling_.step_ );
     }
     setCellTxt( mQSResCol, mZRangeRow, txt );
 
@@ -882,12 +882,12 @@ void uiSEGYReadStartInfo::setScanInfoTexts( const SEGY::ScanInfoSet& sis )
     yinfotxt_.set( rgstr ).arg( ystartuistr ).arg( ystopuistr );
     offsetinfotxt_.set( rgstr ).arg( rgs.offs_.start_ ).arg( rgs.offs_.stop_ );
     azimuthinfotxt_.set( rgstr ).arg( rgs.azims_.start_*360/M_PI )
-            .arg( rgs.azims_.stop_*360/M_PI );
+		   .arg( rgs.azims_.stop_*360/M_PI );
     if ( mIsUdf(rgs.refnrs_.start_) )
 	refnrinfotxt_ =  tr( "<no data>" );
     else
-        refnrinfotxt_.set(rgstr).arg( rgs.refnrs_.start_ )
-                .arg( rgs.refnrs_.stop_ );
+	refnrinfotxt_.set(rgstr).arg( rgs.refnrs_.start_ )
+		     .arg( rgs.refnrs_.stop_ );
 }
 
 
@@ -963,8 +963,8 @@ void uiSEGYReadStartInfo::useLoadDef()
 
 	if ( trcnrgenstartfld_ && trcnrgenstepfld_ )
 	{
-            trcnrgenstartfld_->setValue( loaddef_.trcnrdef_.start_ );
-            trcnrgenstepfld_->setValue( loaddef_.trcnrdef_.step_ );
+	    trcnrgenstartfld_->setValue( loaddef_.trcnrdef_.start_ );
+	    trcnrgenstepfld_->setValue( loaddef_.trcnrdef_.step_ );
 	}
     }
 
@@ -996,8 +996,8 @@ void uiSEGYReadStartInfo::useLoadDef()
 
 	if ( offsgenstartfld_ && offsgenstepfld_ )
 	{
-            offsgenstartfld_->setValue( loaddef_.psoffsdef_.start_ );
-            offsgenstepfld_->setValue( loaddef_.psoffsdef_.step_ );
+	    offsgenstartfld_->setValue( loaddef_.psoffsdef_.start_ );
+	    offsgenstepfld_->setValue( loaddef_.psoffsdef_.step_ );
 	}
 
 	if ( azimuthbytefld_ )
@@ -1031,11 +1031,11 @@ void uiSEGYReadStartInfo::fillLoadDef()
     SamplingData<float> sampling = loaddef_.sampling_;
     sampling.start_ = zstartfld_->getFValue();
     if ( !mIsUdf(sampling.start_) )
-        loaddef_.sampling_.start_ = sampling.start_;
+	loaddef_.sampling_.start_ = sampling.start_;
 
     sampling.step_ = srfld_->getFValue();
     if ( !mIsUdf(sampling.step_) && sampling.step_ != 0.f )
-        loaddef_.sampling_.step_ = sampling.step_;
+	loaddef_.sampling_.step_ = sampling.step_;
 
     if ( imptype_.isVSP() )
 	return;
@@ -1061,13 +1061,13 @@ void uiSEGYReadStartInfo::fillLoadDef()
 	if ( trcnrgenstartfld_ && trcnrgenstepfld_ )
 	{
 	    SamplingData<int>& def = loaddef_.trcnrdef_;
-            def.start_ = trcnrgenstartfld_->getIntValue();
-            if ( mIsUdf(def.start_) )
-                def.start_ = 1;
+	    def.start_ = trcnrgenstartfld_->getIntValue();
+	    if ( mIsUdf(def.start_) )
+		def.start_ = 1;
 
-            def.step_ = trcnrgenstepfld_->getIntValue();
-            if ( mIsUdf(def.step_) || def.step_ == 0 )
-                def.step_ = 1;
+	    def.step_ = trcnrgenstepfld_->getIntValue();
+	    if ( mIsUdf(def.step_) || def.step_ == 0 )
+		def.step_ = 1;
 	}
     }
     else if ( inlbytefld_ && crlbytefld_ )
@@ -1081,17 +1081,18 @@ void uiSEGYReadStartInfo::fillLoadDef()
 	if ( psoffsrcfld_ )
 	    loaddef_.psoffssrc_ = (SEGY::FileReadOpts::PSDefType)
 					psoffsrcfld_->currentItem();
+
 	if ( offsetbytefld_ )
 	    loaddef_.hdrdef_->offs_ = offsetbytefld_->hdrEntry();
 
 	if ( offsgenstartfld_ && offsgenstepfld_ )
 	{
 	    SamplingData<float>& def = loaddef_.psoffsdef_;
-            def.start_ = offsgenstartfld_->getFValue();
+	    def.start_ = offsgenstartfld_->getFValue();
 	    if ( mIsUdf(def.start_) )
 		def.start_ = 0.f;
 
-            def.step_ = offsgenstepfld_->getFValue();
+	    def.step_ = offsgenstepfld_->getFValue();
 	    if ( mIsUdf(def.step_) )
 		def.step_ = 1.f;
 	}
@@ -1117,8 +1118,8 @@ void uiSEGYReadStartInfo::updateZRange( const SamplingData<float>& sd,
     else
     {
 	txt.set( "%1 - %2 [%3]" );
-        const float start = sd.start_;
-        const float step = sd.step_;
+	const float start = sd.start_;
+	const float step = sd.step_;
 	const int nrdec = Math::NrSignificantDecimals( step );
 	const float endz = start + (nrsamples-1) * step;
 	txt.arg( toUiStringDec(start,nrdec) )
