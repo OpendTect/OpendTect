@@ -596,15 +596,12 @@ float Well::Log::gtVal( float dh, int& idx1 ) const
 
 void Well::Log::addValue( float dh, float val )
 {
+    iscode_ = (isEmpty() ? true : iscode_) && valIsCode(val, 1e-3f);
+
     dah_ += dh;
     dahrange_.include( dh );
     vals_ += val;
     range_.include( val );
-
-    if ( isEmpty() )
-	iscode_ = valIsCode( val, 1e-3f );
-    else if ( iscode_ && !valIsCode(val,1e-3f) )
-	 iscode_ = false;
 }
 
 
