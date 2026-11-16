@@ -32,9 +32,9 @@ class uiODViewer2D;
 mExpClass(uiODMain) uiODViewer2DServer
 {
 public:
-    		uiODViewer2DServer();
+		uiODViewer2DServer();
 
-    virtual 	~uiODViewer2DServer();
+    virtual	~uiODViewer2DServer();
 
     /*!
      * @brief Creates a new 2D viewer.
@@ -73,13 +73,13 @@ public:
  * @return A new uiODViewer2D for the given application and VisID. The caller
  * takes ownership.
  */
-uiODViewer2D* 	createViewer2D(uiODMain&, const VisID&) 	override;
+uiODViewer2D*	createViewer2D(uiODMain&, const VisID&)		override;
 
 /*!
  * @brief Identifies this server as the basic 2D viewer server.
  * @return Always returns true.
  */
-inline bool 	isBasic2DViewer() const 	override	{ return true; }
+inline bool	isBasic2DViewer() const		override	{ return true; }
 }; //end class uiODBasicViewer2DServer
 
 

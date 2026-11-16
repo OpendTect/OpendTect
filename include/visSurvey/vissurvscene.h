@@ -96,7 +96,7 @@ public:
     void			addUTMObject(visBase::VisualObject*);
     void			addInlCrlZObject(visBase::DataObject*);
     void			removeObject(int idx) override;
-
+    virtual  bool		isVSGScene() const { return false; }
     virtual void		setTrcKeyZSampling(const TrcKeyZSampling&);
     const TrcKeyZSampling&	getTrcKeyZSampling() const { return tkzs_; }
     virtual void		setTrcKeyZSampling(const TrcKeyZSampling&,

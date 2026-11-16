@@ -389,6 +389,7 @@ bool uiODMain::buildUI()
 
 void uiODMain::initScene()
 {
+    menumgr_->fillSceneMenu();
     const bool addscene = !GetEnvVarYN( "OD_NOSCENE_AT_STARTUP" );
     if ( addscene )
 	scenemgr_->initMenuMgrDepObjs();
@@ -631,6 +632,7 @@ bool uiODMain::updateSession()
     if ( applMgr().nlaServer()
       && !applMgr().nlaServer()->fillPar( cursession_->nlapars() ) )
 	return false;
+
     applMgr().mpeServer()->fillPar( cursession_->mpepars() );
     viewer2DMgr().fillPar( cursession_->vwr2dpars() );
 
@@ -717,8 +719,8 @@ void uiODMain::handleStartupSession()
     const bool res = uiMSG().askGoOn( msg, true );
     if ( !res )
     {
-	if ( sceneMgr().nrScenes()==0 )
-	    sceneMgr().addScene( true );
+	if ( applMgr().visServer()->nrScenes() == 0 )
+	    sceneMgr().addDefaultScene();
 	return;
     }
 

@@ -161,6 +161,4 @@ else()
 
 endif()
 
-set( ISDEVEL TRUE )
-
 set( PACK develbatch )

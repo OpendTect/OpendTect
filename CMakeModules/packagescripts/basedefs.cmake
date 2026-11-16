@@ -7,6 +7,8 @@
 # CMake script to define base package variables
 #
 
+include( "${SOURCE_DIR}/CMakeModules/packagescripts/basedatadefs.cmake" )
+
 #OpendTect modules and plugins
 set( LIBLIST ${OD_CORE_MODULES} )
 
@@ -83,7 +85,7 @@ endforeach()
 
 #No need to include shell scripts in windows base package.
 if( WIN32 )
-    set( ODSCRIPTS od_external.bat )
+    list( APPEND ODSCRIPTS od_external.bat )
 else()
     file( GLOB ODSCRIPTS RELATIVE "${COPYFROMSCRIPTSDIR}"
 	    "${COPYFROMSCRIPTSDIR}/od_*" )
@@ -92,7 +94,7 @@ else()
     if ( APPLE )
 	list( APPEND ODSCRIPTS macterm.in )
     endif()
-    set( SPECFILES .exec_prog .init_dtect .init_dtect_user install .lic_inst_common
+    list( APPEND SPECFILES .exec_prog .init_dtect .init_dtect_user install .lic_inst_common
 		   .lic_start_common mk_datadir .start_dtect setup.od )
 endif()
 

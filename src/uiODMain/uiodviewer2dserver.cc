@@ -20,8 +20,8 @@ uiODViewer2DServer& GetViewer2DServer( bool set, uiODViewer2DServer* server )
     // Function-local static: initialized only once, on the very first call
     // (whatever 'set' is), with the default uiODBasicViewer2DServer. Later
     // calls skip the initialization. Thread-safe.
-    mDefineStaticLocalObject( PtrMan<uiODViewer2DServer>, theserver,
-			      = new uiODBasicViewer2DServer );
+    static PtrMan<uiODViewer2DServer> theserver =
+		new uiODBasicViewer2DServer;
     if ( !set )
 	return *theserver.ptr();
 

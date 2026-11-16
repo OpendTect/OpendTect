@@ -43,6 +43,8 @@ public:
 
     void		process(vsg::Viewer&);
     void		releaseAll();
+    static void		addViewer(vsg::Viewer*);
+    static void		removeViewer(vsg::Viewer*);
 
 protected:
 			~Compiler();
