@@ -622,6 +622,7 @@ void uiVSGViewer::ColTabLink::changedCB( CallBacker* )
 uiVSGViewer::uiVSGViewer( uiParent* parent, const char* nm )
     : uiObject(parent,nm,mkBody(parent,nm))
     , closing(this)
+    , activated(this)
 {
     setMinimumWidth( 600 );
     setMinimumHeight( 400 );
@@ -1652,19 +1653,67 @@ mExternC(uiVSG) visSurvey::Scene* createVSGScene()
 }
 
 
+namespace
+{
+
+// Triggers the activated notifier of the viewer when its MDI sub-window
+// is about to become the active one.
+class SubWindowActivation : public QObject, public CallBacker
+{
+public:
+			SubWindowActivation( QMdiSubWindow& subwin,
+					     uiVSGViewer& viewer )
+			    : QObject(&subwin)
+			    , viewer_(&viewer)
+			{
+			    mAttachCB( viewer.closed,
+				       SubWindowActivation::viewerDeletedCB );
+			    connect( &subwin, &QMdiSubWindow::aboutToActivate,
+				     this, [this]() { activate(); } );
+			}
+
+			~SubWindowActivation()
+			{
+			    detachAllNotifiers();
+			}
+
+protected:
+
+    void		activate()
+			{
+			    if ( viewer_ && viewer_->scene() )
+				viewer_->activated.trigger(
+						viewer_->scene()->getID() );
+			}
+
+    void		viewerDeletedCB( CallBacker* )
+			{
+			    viewer_ = nullptr;
+			}
+
+    uiVSGViewer*	viewer_;
+};
+
+} // namespace
+
+
 mExternC(uiVSG) QWidget* createVSGViewer( uiParent* parent,visSurvey::Scene*,bool,
-					  const char*,NotifierAccess** );
+					  const char*,NotifierAccess**,
+					  NotifierAccess** );
 
 mExternC(uiVSG) QWidget* createVSGViewer( uiParent* parent,
     visSurvey::Scene* scene,
     bool maximized, const char* title,
-    NotifierAccess** closing )
+    NotifierAccess** closing, NotifierAccess** activated )
 {
     const char* nm = ( title && *title ) ? title : "VSG Viewer";
     auto* viewer = new uiVSGViewer( parent, nm );
     viewer->setScene( dCast(ODVsg::Scene*, scene) );
     if ( closing )
 	*closing = &viewer->closing;
+
+    if ( activated )
+	*activated = &viewer->activated;
 
     QWidget* widget = viewer->qwidget();
     mDynamicCastGet( uiMainWin*,mainwin,parent );
@@ -1682,6 +1731,7 @@ mExternC(uiVSG) QWidget* createVSGViewer( uiParent* parent,
 
     QMdiSubWindow* subwin = mdiarea->addSubWindow( widget );
     subwin->setAttribute( Qt::WA_DeleteOnClose );
+    new SubWindowActivation( *subwin, *viewer );
     subwin->setWindowTitle( nm );
     subwin->resize( 800, 600 );
     mdiarea->setActiveSubWindow( subwin );

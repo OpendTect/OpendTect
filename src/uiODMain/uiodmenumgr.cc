@@ -972,6 +972,7 @@ void uiODMenuMgr::toggleTreeMode( CallBacker* cb )
     mDynamicCastGet(uiAction*,action,cb)
     const bool ison = action ? action->isChecked() : true;
     sceneMgr().showTree( ison );
+    sceneMgr().showVSGTrees( ison );
 }
 
 
