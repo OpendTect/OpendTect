@@ -11,13 +11,6 @@ ________________________________________________________________________
 #include "uivsgmod.h"
 #include "commondefs.h"
 
-#ifdef min
-# undef min
-#endif
-#ifdef max
-# undef max
-#endif	
-   
 #include <vsg/app/WindowTraits.h>
 #include <vsg/vk/Device.h>
 

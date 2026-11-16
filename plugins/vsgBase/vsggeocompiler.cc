@@ -140,12 +140,12 @@ void Compiler::addViewer( vsg::Viewer* viewer )
 void Compiler::removeViewer( vsg::Viewer* viewer )
 {
     auto& viewers = drawingViewers();
-    viewers.erase(std::remove_if(viewers.begin(), viewers.end(),
+    viewers.erase( std::remove_if(viewers.begin(), viewers.end(),
 	[viewer](const vsg::observer_ptr<vsg::Viewer>& obs)
 	{
 	    const vsg::ref_ptr<vsg::Viewer> vwr = obs.ref_ptr();
 	    return !vwr || vwr.get() == viewer;
-	}), viewers.end());
+	}), viewers.end() );
 }
 
 

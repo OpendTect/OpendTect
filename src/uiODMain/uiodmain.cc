@@ -632,6 +632,7 @@ bool uiODMain::updateSession()
     if ( applMgr().nlaServer()
       && !applMgr().nlaServer()->fillPar( cursession_->nlapars() ) )
 	return false;
+
     applMgr().mpeServer()->fillPar( cursession_->mpepars() );
     viewer2DMgr().fillPar( cursession_->vwr2dpars() );
 

@@ -1660,7 +1660,7 @@ mExternC(uiVSG) QWidget* createVSGViewer( uiParent* parent,
     bool maximized, const char* title,
     NotifierAccess** closing )
 {
-    const char* nm = (title && *title) ? title : "VSG Viewer";
+    const char* nm = ( title && *title ) ? title : "VSG Viewer";
     auto* viewer = new uiVSGViewer( parent, nm );
     viewer->setScene( dCast(ODVsg::Scene*, scene) );
     if ( closing )
@@ -1670,7 +1670,7 @@ mExternC(uiVSG) QWidget* createVSGViewer( uiParent* parent,
     mDynamicCastGet( uiMainWin*,mainwin,parent );
     QWidget* mainwidget = mainwin ? mainwin->qWidget() : nullptr;
     QMdiArea* mdiarea = mainwidget ? mainwidget->findChild<QMdiArea*>() : nullptr;
-    if (!mdiarea)
+    if ( !mdiarea )
     {
 	if (maximized)
 	    widget->showMaximized();
@@ -1680,13 +1680,13 @@ mExternC(uiVSG) QWidget* createVSGViewer( uiParent* parent,
 	return widget;
     }
 
-    QMdiSubWindow* subwin = mdiarea->addSubWindow(widget);
-    subwin->setAttribute(Qt::WA_DeleteOnClose);
-    subwin->setWindowTitle(nm);
-    subwin->resize(800, 600);
-    mdiarea->setActiveSubWindow(subwin);
+    QMdiSubWindow* subwin = mdiarea->addSubWindow( widget );
+    subwin->setAttribute( Qt::WA_DeleteOnClose );
+    subwin->setWindowTitle( nm );
+    subwin->resize( 800, 600 );
+    mdiarea->setActiveSubWindow( subwin );
 
-    if (maximized)
+    if ( maximized )
 	subwin->showMaximized();
     else
 	subwin->show();

@@ -281,9 +281,8 @@ SceneID uiODSceneMgr::addScene( bool maximized, ZAxisTransform* zt,
 
 SceneID uiODSceneMgr::addDefaultScene()
 {
-    if ( !canAddSceneAtStartup() ) {
+    if ( !canAddSceneAtStartup() )
 	return SceneID::udf();
-    }
 
     if ( useVSGDefaultScene() )
 	return visServ().addVSGScene( true );

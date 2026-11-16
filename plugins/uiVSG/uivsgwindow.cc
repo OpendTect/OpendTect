@@ -362,7 +362,7 @@ void dGBVSGNativeWindow::cleanup()
     {
 	viewer_->stop();
 	viewer_->deviceWaitIdle();
-	viewer_->removeWindow(vsgwindow_);
+	viewer_->removeWindow( vsgwindow_ );
     }
 
     vsgwindow_->releaseWindow();
@@ -428,9 +428,7 @@ void dGBVSGNativeWindow::resizeEvent( QResizeEvent* )
     vsgwindow_->bufferedEvents.push_back( vsg::ConfigureWindowEvent::create(
 		    vsgwindow_, eventtime, convertCoord(x()), convertCoord(y()),
 		    uint32_t(w), uint32_t(h)) );
-    // Before setupVSG() has run there is no surface yet, and building a
-    // swapchain without one crashes. VSG creates the swapchain at the window
-    // size when it first needs it.
+    // Before setupVSG() has run there is no surface yet
     if ( vsgwindow_->getSwapchain() )
 	vsgwindow_->resize();
     // Inactive MDI siblings still need extent updates, but must not both
