@@ -12,7 +12,7 @@ if ( WIN32 OR ${PACKAGE_TYPE} STREQUAL "Devel" )
 endif()
 
 if ( ${PACKAGE_TYPE} STREQUAL "Production" )
-    list( APPEND PACKAGELIST basedatadefs basedefs baseguidefs )
+    list( APPEND PACKAGELIST basedefs baseguidefs )
     if ( BUILD_USERDOC AND EXISTS "${USERDOC_PROJECT}" )
 	list( APPEND PACKAGELIST docdefs )
     endif()

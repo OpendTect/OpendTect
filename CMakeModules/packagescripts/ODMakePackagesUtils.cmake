@@ -21,10 +21,8 @@ macro( CLEAN_PACK_VARIABLES )
     unset( COPY_LIBS ) #Link libraries, if different from runtime libraries, default false
     unset( COPY_PDBS ) #Windows only, default false
     unset( APPEND_TO_PACKAGE )
-    unset( ISBASE )
-    unset( ISDEVEL )
-    unset( ISUSERDOC )
     unset( ISCLASSDOC )
+    unset( ISUSERDOC )
 # root files
     unset( SPECFILES )
 # share files
@@ -47,17 +45,8 @@ macro( CLEAN_PACK_VARIABLES )
 endmacro(CLEAN_PACK_VARIABLES)
 
 macro( INIT_DESTINATIONDIR PACKAGE_NAME )
-    if ( ISBASE OR ISUSERDOC OR ISCLASSDOC )
-	set( VER_FILENAME "${PACKAGE_NAME}" )
-	if ( APPLE )
-	    set ( VER_FILENAME "${VER_FILENAME}_mac" )
-	endif()
-	set( PACKAGE_FILENAME "${VER_FILENAME}.zip" )
-    else()
-	set( VER_FILENAME "${PACKAGE_NAME}_${OD_PLFSUBDIR}" )
-	set( PACKAGE_FILENAME "${PACKAGE_NAME}_${OD_PLFSUBDIR}.zip" )
-    endif()
-
+    set( VER_FILENAME "${PACKAGE_NAME}_${OD_PLFSUBDIR}" )
+    set( PACKAGE_FILENAME "${PACKAGE_NAME}_${OD_PLFSUBDIR}.zip" )
     if( IS_DIRECTORY "${DESTINATION_DIR}" )
 	file( REMOVE_RECURSE "${DESTINATION_DIR}" )
     endif()
