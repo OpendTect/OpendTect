@@ -3,7 +3,7 @@ Attribute definitions
 Mon  June 8 10:57:25 2015
 !
 Attribute Descriptions
-0.Definition: Storage id=100010.x output=0
+0.Definition: Storage id=100010.-1 output=0
 0.UserRef: Seismic Data
 0.Hidden: No
 1.Definition: Hilbert halflen=30 output=0
