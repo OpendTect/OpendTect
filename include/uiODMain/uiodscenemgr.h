@@ -16,7 +16,6 @@ ________________________________________________________________________
 
 #include "datapack.h"
 #include "emposid.h"
-#include "flatview.h"
 #include "uivispartserv.h"
 
 class BufferStringSet;
@@ -53,7 +52,9 @@ public:
     SceneID			addScene(bool maximized,
 					 ZAxisTransform* =nullptr,
 					 const uiString& nm=uiString::empty());
-				//!<Returns scene id
+
+    SceneID			addDefaultScene();
+
     void			setSceneName(const SceneID&,const uiString&);
     uiString			getSceneName(const SceneID&) const;
     CNotifier<uiODSceneMgr,SceneID> sceneClosed;

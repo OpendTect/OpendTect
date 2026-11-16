@@ -12,10 +12,10 @@ ________________________________________________________________________
 -*/
 
 #include "uivsgmod.h"
-
 #include "uiobj.h"
-
 #include "visvsgscenecoltab.h"
+#include "ptrman.h"
+#include "uistringset.h"
 
 #include <vsg/all.h>
 

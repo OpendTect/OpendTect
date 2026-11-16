@@ -59,6 +59,12 @@ void dGBVSGViewer::render( double simulationtime )
     if ( !continuousupdate_ && requests_.load()==0 )
 	return;
 
+    if ( _windows.empty() ) 
+    {
+	requests_ = 0;
+	return;
+    }
+
     if ( advanceToNextFrame(simulationtime) )
     {
 	handleEvents();

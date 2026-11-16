@@ -12,6 +12,7 @@ set( OD_USEQT Widgets;OpenGL;GuiPrivate )
 set( OD_MODULE_SOURCES
 	uivsgcoltabdlg.cc
 	uivsgviewer.cc
+	uivsgcontext.cc
 	uivsgwindowhandler.cc
 	uivsgscenesettingsdlg.cc
 	uivsgscreenshotdlg.cc
