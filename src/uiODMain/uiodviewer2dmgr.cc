@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "uigraphicsview.h"
 #include "uimenu.h"
 #include "uiodviewer2d.h"
+#include "uiodviewer2dserver.h"
 #include "uiodscenemgr.h"
 #include "uiodvw2dfaulttreeitem.h"
 #include "uiodvw2dfaultss2dtreeitem.h"
@@ -882,7 +883,13 @@ void uiODViewer2DMgr::reCalc2DIntersetionIfNeeded( const Pos::GeomID& geomid )
 
 uiODViewer2D& uiODViewer2DMgr::addViewer2D( const VisID& visid )
 {
-    auto* vwr = new uiODViewer2D( appl_, visid );
+    auto* vwr = GetViewer2DServer().createViewer2D( appl_, visid );
+    if ( !vwr )
+    {
+	pErrMsg( "2D viewer server did not create a viewer" );
+	//falls back to default -> native 2D viewer
+	vwr = new uiODViewer2D( appl_, visid );
+    }
     mAttachCB( vwr->dataMgr()->dataObjAdded, uiODViewer2DMgr::viewObjAdded );
     mAttachCB( vwr->dataMgr()->dataObjToBeRemoved,
 	       uiODViewer2DMgr::viewObjToBeRemoved );
