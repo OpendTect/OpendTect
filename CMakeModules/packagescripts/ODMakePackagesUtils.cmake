@@ -360,15 +360,25 @@ macro( CREATE_PACKAGE PACKAGE_NAME )
 endmacro(CREATE_PACKAGE)
 
 macro( ZIPPACKAGE PACKAGE_FILENAME REL_DIR PACKAGE_DIR )
-    execute_process( COMMAND "${ZIP_EXEC}" u -tzip -mmt -mx5 -snl -r -ba -bso0 -bd
-			     "${PACKAGE_FILENAME}" "${REL_DIR}"
-			     WORKING_DIRECTORY "${PACKAGE_DIR}"
-			     RESULT_VARIABLE STATUS
-			     OUTPUT_VARIABLE OUTVAR
-			     ERROR_VARIABLE ERRVAR )
+    if ( EXISTS "${ZIP_EXEC}" )
+	execute_process( COMMAND "${ZIP_EXEC}" u -tzip -mmt -mx5 -snl -r -ba -bso0 -bd
+				 "${PACKAGE_FILENAME}" "${REL_DIR}"
+				 WORKING_DIRECTORY "${PACKAGE_DIR}"
+				 RESULT_VARIABLE STATUS
+				 OUTPUT_VARIABLE OUTVAR
+				 ERROR_VARIABLE ERRVAR )
 
-    if( NOT ${STATUS} EQUAL 0 )
-	message( SEND_ERROR "Failed to create zip file ${PACKAGE_FILENAME}: ${STATUS}" )
+	if ( NOT ${STATUS} EQUAL 0 )
+	    message( SEND_ERROR "Failed to create zip file ${PACKAGE_FILENAME}: ${STATUS}" )
+	endif()
+    elseif ( CMAKE_VERSION VERSION_GREATER_EQUAL 3.31 )
+	file( ARCHIVE_CREATE
+	      OUTPUT "${PACKAGE_DIR}/${PACKAGE_FILENAME}"
+	      PATHS "${REL_DIR}"
+	      FORMAT zip
+	      WORKING_DIRECTORY "${PACKAGE_DIR}" )
+    else()
+	message( SEND_ERROR "'7z/7za/7zz' executable is not installed or not in the path. Unable to create packages." )
     endif()
 
     file( REMOVE_RECURSE "${PACKAGE_DIR}/${REL_DIR}" )

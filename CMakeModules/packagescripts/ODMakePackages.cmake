@@ -30,7 +30,11 @@ find_program( ZIP_EXEC "7z" NAMES "7za" "7zz"
 		      "/opt/homebrew/bin"
 		NO_CACHE )
 if ( NOT ZIP_EXEC OR NOT EXISTS "${ZIP_EXEC}" )
-    message( FATAL_ERROR "'7z/7za/7zz' executable is not installed or not in the path. Unable to create packages." )
+    if ( CMAKE_VERSION VERSION_LESS 3.31 )
+	message( FATAL_ERROR "'7z/7za/7zz' executable is not installed or not in the path. Unable to create packages." )
+    else()
+	message( WARNING "7z not found. Using cmake ARCHIVE_CREATE to create packages." )
+    endif()
 endif()
 
 if ( NOT DEFINED OD_PLFSUBDIR )
