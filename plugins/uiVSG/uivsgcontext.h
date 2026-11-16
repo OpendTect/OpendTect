@@ -16,8 +16,8 @@ ________________________________________________________________________
 #endif
 #ifdef max
 # undef max
-#endif
-
+#endif	
+   
 #include <vsg/app/WindowTraits.h>
 #include <vsg/vk/Device.h>
 
