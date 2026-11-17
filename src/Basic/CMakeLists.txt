@@ -148,10 +148,12 @@ set( OD_MODULE_SOURCES
 	initbasic.cc
 )
 
+file( TO_CMAKE_PATH "${CMAKE_BINARY_DIR}" OD_BUILD_DIR )
+file( TO_CMAKE_PATH "${CMAKE_INSTALL_PREFIX}" OD_INSTALL_DIR )
 list( APPEND OD_MODULE_COMPILE_DEFINITIONS
-     "__od_build_dir__=\"${CMAKE_BINARY_DIR}\"" )
+     "__od_build_dir__=\"${OD_BUILD_DIR}\"" )
 list( APPEND OD_MODULE_COMPILE_DEFINITIONS
-     "__od_install_dir__=\"${CMAKE_INSTALL_PREFIX}\"" )
+     "__od_install_dir__=\"${OD_INSTALL_DIR}\"" )
 if ( DEFINED CMAKE_DEBUG_POSTFIX AND NOT ${CMAKE_DEBUG_POSTFIX} STREQUAL "" )
 	list ( APPEND OD_MODULE_COMPILE_DEFINITIONS
 		"__debug_postfix__=\"${CMAKE_DEBUG_POSTFIX}\"" )
