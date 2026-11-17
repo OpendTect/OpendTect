@@ -31,7 +31,6 @@ ________________________________________________________________________
 #endif
 #ifdef __win__
 # include "winutils.h"
-# include "windows.h"
 # include "Knownfolders.h"
 # define sDirSep	"\\"
 static const char* lostinspace = "C:\\";
@@ -947,7 +946,7 @@ mExternC(Basic) const char* GetScriptDir()
     return res.buf();
 }
 
-
+#ifndef __msvc__
 static const char* gtExecScript( const char* basedir, int remote )
 {
     mDeclStaticString( scriptnm );
@@ -955,11 +954,13 @@ static const char* gtExecScript( const char* basedir, int remote )
     if ( remote ) scriptnm.add( "_rmt" );
     return scriptnm;
 }
+#endif
 
 
 mExternC(Basic) const char* GetExecScript( int remote )
 {
 #ifdef __msvc__
+    (void)remote;
     return nullptr;
 #else
 
