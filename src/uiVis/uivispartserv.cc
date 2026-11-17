@@ -325,15 +325,9 @@ SceneID uiVisPartServer::addVSGScene( bool maximized, const uiString& nm )
     uiString title = nm;
     if ( !title.isSet() )
     {
-	int nr = 0;
-	for ( const visSurvey::Scene* vsgscene : scenes_ )
-	{
-	    if ( vsgscene && vsgscene->isVSGScene() )
-		nr++;
-	}
-
+	vsgscenenr_++;
 	title = uiStrings::phrJoinStrings( uiStrings::sScene(),
-					   toUiString(nr) );
+					   toUiString(vsgscenenr_) );
     }
 
     setSceneName( sceneid, title );
@@ -1386,6 +1380,7 @@ bool uiVisPartServer::deleteAllObjects()
 	    removeScene( sceneid );
     }
 
+    vsgscenenr_ = 0;
     closeAndNullPtr( multirgeditwin_ );
     closeAndNullPtr( topbotdlg_ );
     objectRemoved.trigger( VisID::udf() );

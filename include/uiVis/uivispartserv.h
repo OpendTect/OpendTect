@@ -502,6 +502,7 @@ protected:
     Threads::Mutex&		eventmutex_;
     VisID			eventobjid_			= VisID::udf();
     SceneID			vsgtreeeventid_;
+    int				vsgscenenr_			= 0;
     int				eventattrib_			= -1;
     int				selattrib_			= -1;
     VisID			curinterpobjid_;
