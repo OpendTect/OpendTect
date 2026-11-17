@@ -1682,21 +1682,21 @@ static uiMdiArea* findMdiArea( const ObjectSet<uiBaseObject>* children )
 }
 
 
-class SubWindowEventHandler : public QObject, public CallBacker
+class SubWindowEventHandler : public uiBaseObject
 {
 public:
 			SubWindowEventHandler( uiMdiAreaWindow& mdiwin,
 					       uiVSGViewer& viewer )
-			    : QObject(mdiwin.qWidget())
+			    : uiBaseObject("VSG window event handler")
 			    , viewer_(&viewer)
 			{
+			    mdiwin.addChild( *this );
 			    mAttachCB( viewer.closed,
 				       SubWindowEventHandler::viewerDeletedCB );
 			    mAttachCB( mdiwin.windowClosing(),
 				       SubWindowEventHandler::windowClosingCB );
-			    connect( mdiwin.qWidget(),
-				     &QMdiSubWindow::aboutToActivate,
-				     this, [this]() { activate(); } );
+			    mAttachCB( mdiwin.windowActivated(),
+				       SubWindowEventHandler::activatedCB );
 			}
 
 			~SubWindowEventHandler()
@@ -1706,7 +1706,7 @@ public:
 
 protected:
 
-    void		activate()
+    void		activatedCB( CallBacker* )
 			{
 			    if ( viewer_ && viewer_->scene() )
 				viewer_->activated.trigger(

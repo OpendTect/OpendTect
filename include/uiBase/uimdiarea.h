@@ -49,6 +49,7 @@ public:
     NotifierAccess&		windowShown();
     NotifierAccess&		windowHidden();
     NotifierAccess&		windowClosing();
+    NotifierAccess&		windowActivated();
 
     mQtclass(QMdiSubWindow*)		qWidget();
     const mQtclass(QMdiSubWindow*)	qWidget() const;
