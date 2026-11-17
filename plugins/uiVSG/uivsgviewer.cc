@@ -15,6 +15,7 @@ ________________________________________________________________________
 
 
 #include "uifont.h"
+#include "uimdiarea.h"
 #include "uimsg.h"
 #include "uimainwin.h"
 #include "uivsgwindow.h"
@@ -32,8 +33,6 @@ ________________________________________________________________________
 #include "vsggeothumbwheel.h"
 #include "vsggeotrackball.h"
 
-#include <QEvent>
-#include <QMdiArea>
 #include <QMdiSubWindow>
 #include <QImage>
 
@@ -1657,24 +1656,50 @@ mExternC(uiVSG) visSurvey::Scene* createVSGScene()
 namespace
 {
 
-// Triggers the activated notifier of the viewer when its MDI sub-window
-// is about to become the active one.
-class SubWindowActivation : public QObject, public CallBacker
+static uiMdiArea* findMdiArea( const ObjectSet<uiBaseObject>* children )
+{
+    if ( !children )
+	return nullptr;
+
+    for ( const uiBaseObject* child : *children )
+    {
+	uiBaseObject* obj = const_cast<uiBaseObject*>( child );
+	mDynamicCastGet(uiMdiArea*,mdiarea,obj)
+	if ( mdiarea )
+	    return mdiarea;
+
+	mDynamicCastGet(uiObject*,uiobj,obj)
+	if ( !uiobj )
+	    continue;
+
+	uiMdiArea* found = findMdiArea( uiobj->childList() );
+	if ( found )
+	    return found;
+
+    }
+
+    return nullptr;
+}
+
+
+class SubWindowEventHandler : public QObject, public CallBacker
 {
 public:
-			SubWindowActivation( QMdiSubWindow& subwin,
-					     uiVSGViewer& viewer )
-			    : QObject(&subwin)
+			SubWindowEventHandler( uiMdiAreaWindow& mdiwin,
+					       uiVSGViewer& viewer )
+			    : QObject(mdiwin.qWidget())
 			    , viewer_(&viewer)
 			{
 			    mAttachCB( viewer.closed,
-				       SubWindowActivation::viewerDeletedCB );
-			    connect( &subwin, &QMdiSubWindow::aboutToActivate,
+				       SubWindowEventHandler::viewerDeletedCB );
+			    mAttachCB( mdiwin.windowClosing(),
+				       SubWindowEventHandler::windowClosingCB );
+			    connect( mdiwin.qWidget(),
+				     &QMdiSubWindow::aboutToActivate,
 				     this, [this]() { activate(); } );
-			    subwin.installEventFilter( this ); 
 			}
 
-			~SubWindowActivation()
+			~SubWindowEventHandler()
 			{
 			    detachAllNotifiers();
 			}
@@ -1688,16 +1713,14 @@ protected:
 						viewer_->scene()->getID() );
 			}
 
-    bool		eventFilter( QObject* obj, QEvent* ev ) override
+    void		windowClosingCB( CallBacker* )
 			{
-			    if ( ev->type() == QEvent::Close && viewer_ ) 
-			    {
-				uiVSGViewer* vwr = viewer_;
-				viewer_ = nullptr;
-				delete vwr;
-			    }
-			    
-			    return QObject::eventFilter( obj, ev );
+			    if ( !viewer_ )
+				return;
+
+			    uiVSGViewer* vwr = viewer_;
+			    viewer_ = nullptr;
+			    delete vwr;
 			}
 
     void		viewerDeletedCB( CallBacker* )
@@ -1721,7 +1744,13 @@ mExternC(uiVSG) QWidget* createVSGViewer( uiParent* parent,
     NotifierAccess** closing, NotifierAccess** activated )
 {
     const char* nm = ( title && *title ) ? title : "VSG Viewer";
-    auto* viewer = new uiVSGViewer( parent, nm );
+    uiMdiArea* mdiarea = parent ? findMdiArea( parent->childList() ) : nullptr;
+    uiMdiAreaWindow* mdiwin = mdiarea
+		? new uiMdiAreaWindow( *mdiarea, toUiString(nm) ) : nullptr;
+    uiParent* viewerparent = mdiwin ? static_cast<uiParent*>( mdiwin )
+				    : parent;
+
+    auto* viewer = new uiVSGViewer( viewerparent, nm );
     viewer->setScene( dCast(ODVsg::Scene*, scene) );
     if ( closing )
 	*closing = &viewer->closing;
@@ -1730,12 +1759,15 @@ mExternC(uiVSG) QWidget* createVSGViewer( uiParent* parent,
 	*activated = &viewer->activated;
 
     QWidget* widget = viewer->qwidget();
-    mDynamicCastGet( uiMainWin*,mainwin,parent );
-    QWidget* mainwidget = mainwin ? mainwin->qWidget() : nullptr;
-    QMdiArea* mdiarea = mainwidget ? mainwidget->findChild<QMdiArea*>() : nullptr;
-    if ( !mdiarea )
+    if ( !widget )
     {
-	if (maximized)
+	delete viewer;
+	return nullptr;
+    }
+
+    if ( !mdiwin )
+    {
+	if ( maximized )
 	    widget->showMaximized();
 	else
 	    widget->show();
@@ -1743,17 +1775,11 @@ mExternC(uiVSG) QWidget* createVSGViewer( uiParent* parent,
 	return widget;
     }
 
-    QMdiSubWindow* subwin = mdiarea->addSubWindow( widget );
-    subwin->setAttribute( Qt::WA_DeleteOnClose );
-    new SubWindowActivation( *subwin, *viewer );
-    subwin->setWindowTitle( nm );
-    subwin->resize( 800, 600 );
-    mdiarea->setActiveSubWindow( subwin );
-
-    if ( maximized )
-	subwin->showMaximized();
-    else
-	subwin->show();
+    mdiarea->addWindow( mdiwin );
+    new SubWindowEventHandler( *mdiwin, *viewer );
+    mdiwin->qWidget()->resize( 800, 600 );
+    viewer->display( true );
+    mdiwin->display( true, false, maximized );
 
     return widget;
 }
