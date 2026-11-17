@@ -21,8 +21,6 @@ ________________________________________________________________________
 #include "pythonaccess.h"
 #include "settings.h"
 #include "survinfo.h"
-#include "thread.h"
-#include "winutils.h"
 
 #include <iostream>
 #include <QStandardPaths>
@@ -32,8 +30,8 @@ ________________________________________________________________________
 # include <Lmcons.h>
 #endif
 #ifdef __win__
-#include "windows.h"
-#include "Knownfolders.h"
+# include "winutils.h"
+# include "Knownfolders.h"
 # define sDirSep	"\\"
 static const char* lostinspace = "C:\\";
 #else
@@ -948,7 +946,7 @@ mExternC(Basic) const char* GetScriptDir()
     return res.buf();
 }
 
-
+#ifndef __msvc__
 static const char* gtExecScript( const char* basedir, int remote )
 {
     mDeclStaticString( scriptnm );
@@ -956,11 +954,13 @@ static const char* gtExecScript( const char* basedir, int remote )
     if ( remote ) scriptnm.add( "_rmt" );
     return scriptnm;
 }
+#endif
 
 
 mExternC(Basic) const char* GetExecScript( int remote )
 {
 #ifdef __msvc__
+    (void)remote;
     return nullptr;
 #else
 
@@ -1149,15 +1149,20 @@ mExternC(Basic) const char* GetLogsDir()
     {
 	FilePath fp;
 #ifdef __win__
-	const BufferString dirnm =
-			GetKnownFolderLocation( FOLDERID_LocalAppData );
+	const GUID folderid = WinUtils::IsUserAnAdmin()
+		? FOLDERID_ProgramData : FOLDERID_LocalAppData;
+	const BufferString dirnm = GetKnownFolderLocation( folderid );
 	fp.set( dirnm.buf() );
-#else
-	fp.set( GetPersonalDir() );
-	if ( __islinux__ )
-	    fp.add( ".local" ).add( "share" );
+#elif defined( __lux__ )
+	const BufferString statehome = GetEnvVar( "XDG_STATE_HOME" );
+	if ( statehome.isEmpty() )
+	    fp.set( GetPersonalDir() ).add( ".local" ).add( "state" );
 	else
-	    fp.add( "Library" ).add( "Application Support" );
+	    fp.set( statehome.buf() );
+#elif defined( __mac__ )
+	fp.set( GetPersonalDir() ).add( "Library" ).add( "Logs" );
+#else
+	fp.set( File::getTempPath() );
 #endif
 	BufferString editor;
 	if ( __ismac__ )
