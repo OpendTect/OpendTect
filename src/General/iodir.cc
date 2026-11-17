@@ -276,7 +276,8 @@ const IOObj* IODir::get( const char* objnm, const char* trgrpnm ) const
 
 int IODir::indexOf( const MultiID& ky ) const
 {
-    auto it = objidmap_.find( ky.objectID() );
+    const int mapkey = ky.objectID()==0 ? ky.groupID() : ky.objectID();
+    const auto it = objidmap_.find( mapkey );
     if ( it != objidmap_.end() )
 	return it->second;
 
@@ -336,7 +337,7 @@ void IODir::rebuild_objidmap()
     for (int idx=0; idx<objs_.size(); idx++ )
     {
 	const IOObj* ioobj = objs_[idx];
-	objidmap_[ioobj->key_.objectID()] = idx;
+	objidmap_[ioobj->myKey()] = idx;
     }
 }
 
@@ -407,7 +408,7 @@ bool IODir::commitChanges( const IOObj* ioobj )
     else
     {
 	objs_ += clone;
-	objidmap_[ioobj->key_.objectID()] = objs_.size()-1;
+	objidmap_[ioobj->myKey()] = objs_.size()-1;
     }
 
     return doWrite();
@@ -453,7 +454,7 @@ bool IODir::commitChanges( const ObjectSet<const IOObj>& objs )
 void IODir::addObjNoChecks( IOObj* ioobj )
 {
     objs_ += ioobj;
-    objidmap_[ioobj->key_.objectID()] = objs_.size()-1;
+    objidmap_[ioobj->myKey()] = objs_.size()-1;
     setDirName( *ioobj, dirName() );
 }
 
@@ -465,7 +466,7 @@ void IODir::addObjectNoWrite( IOObj* ioobj )
 
     ensureUniqueName( *ioobj );
     objs_ += ioobj;
-    objidmap_[ioobj->key_.objectID()] = objs_.size()-1;
+    objidmap_[ioobj->myKey()] = objs_.size()-1;
     setDirName( *ioobj, dirName() );
 }
 
