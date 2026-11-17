@@ -141,7 +141,7 @@ public:
     PtrMan<T>&		operator=(T*);
 
 private:
-			mOD_DisableCopy(PtrMan<T>);
+			mOD_DisableCopy(PtrMan);
 
     static void		deleteFunc( T* p )    { delete p; }
 
@@ -159,7 +159,7 @@ public:
     ConstPtrMan<T>&	operator=(const T*);
 
 private:
-			mOD_DisableCopy(ConstPtrMan<T>);
+			mOD_DisableCopy(ConstPtrMan);
 
     static void		deleteFunc( T* p )    { delete p; }
 };
@@ -182,7 +182,7 @@ public:
     void			setSize( od_int64 size ) { size_=size; }
 
 private:
-				mOD_DisableCopy(ArrPtrMan<T>);
+				mOD_DisableCopy(ArrPtrMan);
 
     static void			deleteFunc( T* p )	{ delete [] p; }
 
@@ -204,7 +204,7 @@ public:
     const T&		operator[](od_int64) const;
 
 private:
-			mOD_DisableCopy(ConstArrPtrMan<T>);
+			mOD_DisableCopy(ConstArrPtrMan);
 
     static void		deleteFunc( T* p )    { delete [] p; }
 };
