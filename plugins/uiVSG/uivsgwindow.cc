@@ -569,11 +569,14 @@ private:
     uiObject&		uiObjHandle() override		{ return handle_; }
     void		handleEventCB(CallBacker*);
     void		showTimerCB(CallBacker*);
+    void		focusInCB(CallBacker*);
 
     dGBVSGWindow&	window_;
     uiObject&		handle_;
+    dGBVSGNativeWindow& nativewin_;
     QWidget*		container_ = nullptr;
     uiEventFilter	eventfilter_;
+    uiEventFilter	focusfilter_;
     Timer		showtimer_;
 };
 
@@ -584,6 +587,7 @@ dGBVSGWindowBody::dGBVSGWindowBody( dGBVSGWindow& window, uiObject& handle,
     : uiObjectBody(parent,nullptr)
     , window_(window)
     , handle_(handle)
+    , nativewin_(nativewin)
 {
     setName( nm );
     QWidget* parentwidget = parent->pbody()->managewidg();
@@ -597,6 +601,10 @@ dGBVSGWindowBody::dGBVSGWindowBody( dGBVSGWindow& window, uiObject& handle,
     eventfilter_.attachToQObj( container_ );
     mAttachCB( eventfilter_.eventhappened, dGBVSGWindowBody::handleEventCB );
     mAttachCB( showtimer_.tick, dGBVSGWindowBody::showTimerCB );
+
+    focusfilter_.addEventType( uiEventFilter::FocusIn );
+    focusfilter_.attachToQObj( &nativewin );
+    mAttachCB( focusfilter_.eventhappened, dGBVSGWindowBody::focusInCB );
 }
 
 
@@ -619,6 +627,16 @@ void dGBVSGWindowBody::handleEventCB( CallBacker* )
 void dGBVSGWindowBody::showTimerCB( CallBacker* )
 {
     window_.shown.trigger();
+}
+
+
+// A covered native window that gets the focus would activate its MDI
+// sub-window, which shows the other VSG sub-windows normal again, and their
+// native windows take the focus back: the sub-windows activate each other
+// without end. The user can only click a window that is exposed.
+void dGBVSGWindowBody::focusInCB( CallBacker* )
+{
+    focusfilter_.setBlockEvent( !nativewin_.isExposed() );
 }
 
 

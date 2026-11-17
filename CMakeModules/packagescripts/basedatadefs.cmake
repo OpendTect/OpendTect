@@ -4,14 +4,14 @@
 # License:      https://dgbes.com/index.php/licensing
 #________________________________________________________________________
 #
-# CMake script to define basedata package variables
+# CMake script to define platform independent package data for OpendTect
 # Should only list files which are independent of the platform AND
 # the cmake configuration
 #
 
-set( SPECFILES GNU_GENERAL_PUBLIC_LICENSE.txt INSTALL.txt LICENSE.txt )
+list( APPEND SPECFILES GNU_GENERAL_PUBLIC_LICENSE.txt INSTALL.txt LICENSE.txt )
 
-set( DATALIST Attribs BasicSurvey CRS icons.Default Strat )
+list( APPEND DATALIST Attribs BasicSurvey CRS icons.Default Strat )
 list( APPEND DATALIST BatchPrograms ColTabs EnvVars FileFormats Mnemonics
 	ModDeps.od MouseControls odSettings omf qtdefaultstate.ini Properties
 	RockPhysics ShortCuts UnitsOfMeasure welldispSettings )
@@ -32,12 +32,8 @@ list( APPEND OTHERFILESDEST "${COPYTODIR}/doc/ReleaseInfo" )
 list( APPEND OTHERFILES "${COPYFROMDIR}/doc/Videos.od" )
 list( APPEND OTHERFILESDEST "${COPYTODIR}/doc" )
 
-set( PYTHONREQLIST
+list( APPEND PYTHONREQLIST
 	"basic_requirements"
 	"notebooks_requirements"
 	"presentation_maker_requirements"
 	"conda_requirements" )
-
-set( ISBASE TRUE )
-
-set( PACK basedata )

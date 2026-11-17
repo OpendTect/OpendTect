@@ -24,38 +24,37 @@ ________________________________________________________________________
 #include "uistrings.h"
 
 
-#define mDefMembInit \
-      Executor("SEG-Y file scan") \
-    , trc_(*new SeisTrc) \
-    , pars_(*new IOPar(i)) \
-    , fds_(*new FileDataSet(i)) \
-    , dtctor_(*new PosInfo::Detector( PosInfo::Detector::Setup(Seis::is2D(gt)) \
-			.isps(Seis::isPS(gt)).reqsorting(true) ) ) \
-    , tr_(0) \
-    , clipsmplr_(*new DataClipSampler) \
-    , geom_(gt) \
-    , forcerev0_(false) \
-    , curfidx_(-1) \
-    , msg_(Openff()) \
-    , richinfo_(false) \
-    , nrdone_(0) \
-    , notrcinfo_(false) \
-    , totnr_(-2) \
-    , nrtrcs_(0)
-
 SEGY::Scanner::Scanner( const FileSpec& fs, Seis::GeomType gt, const IOPar& i )
-    : mDefMembInit
+    : Executor("SEG-Y file scan")
+    , trc_(*new SeisTrc)
+    , pars_(*new IOPar(i))
+    , fds_(*new FileDataSet(i))
+    , dtctor_(*new PosInfo::Detector( PosInfo::Detector::Setup(Seis::is2D(gt))
+			.isps(Seis::isPS(gt)).reqsorting(true) ) )
+    , clipsmplr_(*new DataClipSampler)
+    , geom_(gt)
+    , msg_(Openff())
 {
     init( fs );
 }
 
 
-SEGY::Scanner::Scanner( const IOPar& i, Seis::GeomType gt )
-    : mDefMembInit
+namespace SEGY
 {
-    FileSpec fs; fs.usePar( pars_ );
-    init( fs );
+
+static FileSpec getFileSpec( const IOPar& iop )
+{
+    FileSpec fs;
+    fs.usePar( iop );
+    return fs;
 }
+
+} // namespace SEGY
+
+
+SEGY::Scanner::Scanner( const IOPar& iop, Seis::GeomType gt )
+    : Scanner( getFileSpec(iop), gt, iop )
+{}
 
 
 void SEGY::Scanner::init( const FileSpec& fs )
@@ -226,22 +225,29 @@ void SEGY::Scanner::addErrReport( IOPar& iop ) const
 mStopAllowDeprecatedSection
 
 
-od_int64 SEGY::Scanner::totalNr() const
+bool SEGY::Scanner::doPrepare( od_ostream* )
 {
-    if ( totnr_ == -2 )
+    while ( !tr_ )
     {
-	if ( !tr_ ) return -1;
-	totnr_ = tr_->estimatedNrTraces();
-	totnr_ *= fnms_.size();
+	const int res = openNext();
+	if ( res <= Finished() )
+	    return false;
     }
-    return totnr_;
+
+    totnr_ = tr_->estimatedNrTraces();
+    const int nrfiles = fnms_.size();
+    if ( nrfiles > 1 )
+	totnr_ *= nrfiles;
+
+    return true;
 }
 
 
 int SEGY::Scanner::nextStep()
 {
     if ( nrtrcs_ > 0 && nrdone_ >= nrtrcs_ )
-	return finish( true );
+	return Finished();
+
     return tr_ ? readNext() : openNext();
 }
 
@@ -249,7 +255,7 @@ int SEGY::Scanner::nextStep()
 int SEGY::Scanner::readNext()
 {
     if ( curfidx_ < 0 || curfidx_ >= fds_.nrFiles() )
-	return finish( true );
+	return Finished();
 
     if ( !tr_->read(trc_) )
     {
@@ -288,9 +294,10 @@ int SEGY::Scanner::openNext()
 	if ( fnms_.isEmpty() )
 	{
 	    msg_ = tr("No valid file found");
-	    return finish( false );
+	    return ErrorOccurred();
 	}
-	return finish( true );
+
+	return Finished();
     }
 
     BufferString path = fnms_.get(curfidx_);
@@ -324,10 +331,10 @@ int SEGY::Scanner::openNext()
 }
 
 
-int SEGY::Scanner::finish( bool allok )
+bool SEGY::Scanner::doFinish( bool success, od_ostream* strm )
 {
     dtctor_.finish();
-    return allok ? Finished() : ErrorOccurred();
+    return SequentialTask::doFinish( success, strm );
 }
 
 

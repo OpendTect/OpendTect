@@ -1,6 +1,6 @@
 #________________________________________________________________________
 #
-# Copyright:	(C) 1995-2022 dGB Beheer B.V.
+# Copyright:	(C) 1995-2026 dGB Beheer B.V.
 # License:	https://dgbes.com/licensing
 #________________________________________________________________________
 #
@@ -49,6 +49,7 @@ set( OD_MODULE_SOURCES
 	uiodseis2dtreeitem.cc
 	uiodviewer2d.cc
 	uiodviewer2dmgr.cc
+	uiodviewer2dserver.cc
 	uiodviewer2dposgrp.cc
 	uiodviewer2dposdlg.cc
 	uiodvw2dtreeitem.cc

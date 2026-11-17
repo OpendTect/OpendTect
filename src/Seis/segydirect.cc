@@ -630,6 +630,30 @@ SEGY::FileIndexer::~FileIndexer()
 }
 
 
+bool SEGY::FileIndexer::doPrepare( od_ostream* strm )
+{
+    if ( !scanner_ )
+	return false;
+
+    if ( !scanner_->doPrepare(strm) )
+    {
+	msg_ = scanner_->uiMessage();
+	return false;
+    }
+
+    return true;
+}
+
+
+bool SEGY::FileIndexer::doFinish( bool success, od_ostream* strm )
+{
+    if ( scanner_ )
+	success = scanner_->doFinish( success, strm );
+
+    return SequentialTask::doFinish( success, strm );
+}
+
+
 int SEGY::FileIndexer::nextStep()
 {
     if ( !ioobj_ ) return ErrorOccurred();
