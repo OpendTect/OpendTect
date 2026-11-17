@@ -420,6 +420,7 @@ Export_Basic od_ostream& logMsgStrm()
 	const BufferString dirnm = fp.fullPath();
 	if ( !File::exists(dirnm) )
 	    File::createDir( dirnm );
+
 	if ( !File::isDirectory(dirnm) )
 	    errmsg = "Cannot create proper folder for log file";
 	else
