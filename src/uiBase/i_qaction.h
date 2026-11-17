@@ -35,7 +35,7 @@ i_ActionMessenger( QAction* sndr, uiAction* rec )
 	     this, &i_ActionMessenger::hovered );
 }
 
-~i_ActionMessenger()
+~i_ActionMessenger() 
 {}
 
 private:

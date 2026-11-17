@@ -32,6 +32,7 @@ ________________________________________________________________________
 #include "vsggeothumbwheel.h"
 #include "vsggeotrackball.h"
 
+#include <QEvent>
 #include <QMdiArea>
 #include <QMdiSubWindow>
 #include <QImage>
@@ -1670,6 +1671,7 @@ public:
 				       SubWindowActivation::viewerDeletedCB );
 			    connect( &subwin, &QMdiSubWindow::aboutToActivate,
 				     this, [this]() { activate(); } );
+			    subwin.installEventFilter( this ); 
 			}
 
 			~SubWindowActivation()
@@ -1684,6 +1686,18 @@ protected:
 			    if ( viewer_ && viewer_->scene() )
 				viewer_->activated.trigger(
 						viewer_->scene()->getID() );
+			}
+
+    bool		eventFilter( QObject* obj, QEvent* ev ) override
+			{
+			    if ( ev->type() == QEvent::Close && viewer_ ) 
+			    {
+				uiVSGViewer* vwr = viewer_;
+				viewer_ = nullptr;
+				delete vwr;
+			    }
+			    
+			    return QObject::eventFilter( obj, ev );
 			}
 
     void		viewerDeletedCB( CallBacker* )
