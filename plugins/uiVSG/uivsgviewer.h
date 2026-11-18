@@ -40,7 +40,7 @@ public:
     FontData		annotationFont() const;
 
     void		showRotAxis(bool);
-    bool		isAxisShown() const;
+    bool		rotAxisShown() const;
     void		setModernAxes(bool);
     bool		isModernAxes() const;
 
@@ -78,7 +78,9 @@ public:
     bool		maxCaptureSize(uint32_t& maxwidth,
 				       uint32_t& maxheight) const;
 
-    ODVsg::Scene* scene();
+    ODVsg::Scene*	getScene();
+    const ODVsg::Scene*	getScene() const;
+    SceneID		sceneID() const;
     void		setScene(ODVsg::Scene*);
 			//!<Only before the viewer is first shown. Without it
 			//!<the viewer makes a scene of its own

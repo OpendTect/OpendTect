@@ -712,9 +712,21 @@ uiVSGViewer::~uiVSGViewer()
 }
 
 
-ODVsg::Scene* uiVSGViewer::scene()
+ODVsg::Scene* uiVSGViewer::getScene()
 {
     return scene_.ptr();
+}
+
+
+const ODVsg::Scene* uiVSGViewer::getScene() const
+{
+    return const_cast<uiVSGViewer*>(this)->getScene();
+}
+
+
+SceneID uiVSGViewer::sceneID() const
+{
+    return scene_ ? scene_->getID() : SceneID::udf();
 }
 
 
@@ -1033,7 +1045,7 @@ void uiVSGViewer::showRotAxis( bool yn )
 }
 
 
-bool uiVSGViewer::isAxisShown() const
+bool uiVSGViewer::rotAxisShown() const
 {
     return axes_ && axes_->isOn();
 }
@@ -1708,9 +1720,9 @@ protected:
 
     void		activatedCB( CallBacker* )
 			{
-			    if ( viewer_ && viewer_->scene() )
+			    if ( viewer_ && viewer_->getScene() )
 				viewer_->activated.trigger(
-						viewer_->scene()->getID() );
+						viewer_->getScene()->getID() );
 			}
 
     void		windowClosingCB( CallBacker* )
