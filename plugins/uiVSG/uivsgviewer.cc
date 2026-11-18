@@ -641,7 +641,7 @@ uiVSGViewer::uiVSGViewer( uiParent* parent, const char* nm )
 uiObjectBody& uiVSGViewer::mkBody( uiParent* parent, const char* nm )
 {
     window_ = new dGBVSGWindow( *this, parent, nm, cRenderTimeMs );
-    return window_->body();
+    return *window_;
 }
 
 

@@ -550,101 +550,15 @@ void dGBVSGNativeWindow::wheelEvent( QWheelEvent* event )
 }
 
 
-/*!\brief The body of the uiObject of the VSG viewer: the widget that contains
-  the native window. Vulkan draws all of that widget, so the widget must not
-  fill it (WA_OpaquePaintEvent and WA_NoSystemBackground have no uiBase
-  wrapper). */
-
-class dGBVSGWindowBody : public uiObjectBody
-{
-public:
-			dGBVSGWindowBody(dGBVSGWindow&,uiObject& handle,
-					 uiParent*,const char* nm,
-					 dGBVSGNativeWindow&);
-			~dGBVSGWindowBody();
-
-private:
-
-    const QWidget*	qwidget_() const override	{ return container_; }
-    uiObject&		uiObjHandle() override		{ return handle_; }
-    void		handleEventCB(CallBacker*);
-    void		showTimerCB(CallBacker*);
-    void		focusInCB(CallBacker*);
-
-    dGBVSGWindow&	window_;
-    uiObject&		handle_;
-    dGBVSGNativeWindow& nativewin_;
-    QWidget*		container_ = nullptr;
-    uiEventFilter	eventfilter_;
-    uiEventFilter	focusfilter_;
-    Timer		showtimer_;
-};
-
-
-dGBVSGWindowBody::dGBVSGWindowBody( dGBVSGWindow& window, uiObject& handle,
-				    uiParent* parent, const char* nm,
-				    dGBVSGNativeWindow& nativewin )
-    : uiObjectBody(parent,nullptr)
-    , window_(window)
-    , handle_(handle)
-    , nativewin_(nativewin)
-{
-    setName( nm );
-    QWidget* parentwidget = parent->pbody()->managewidg();
-    container_ = QWidget::createWindowContainer( &nativewin, parentwidget );
-    container_->setFocusPolicy( Qt::StrongFocus );
-    container_->setAttribute( Qt::WA_OpaquePaintEvent );
-    container_->setAttribute( Qt::WA_NoSystemBackground );
-
-    eventfilter_.addEventType( uiEventFilter::Show );
-    eventfilter_.addEventType( uiEventFilter::Resize );
-    eventfilter_.attachToQObj( container_ );
-    mAttachCB( eventfilter_.eventhappened, dGBVSGWindowBody::handleEventCB );
-    mAttachCB( showtimer_.tick, dGBVSGWindowBody::showTimerCB );
-
-    focusfilter_.addEventType( uiEventFilter::FocusIn );
-    focusfilter_.attachToQObj( &nativewin );
-    mAttachCB( focusfilter_.eventhappened, dGBVSGWindowBody::focusInCB );
-}
-
-
-dGBVSGWindowBody::~dGBVSGWindowBody()
-{
-    detachAllNotifiers();
-}
-
-
-void dGBVSGWindowBody::handleEventCB( CallBacker* )
-{
-    const uiEventFilter::EventType evtype = eventfilter_.getCurrentEventType();
-    if ( evtype == uiEventFilter::Show )
-	showtimer_.start( 0, true );
-    else if ( evtype == uiEventFilter::Resize )
-	window_.resized.trigger();
-}
-
-
-void dGBVSGWindowBody::showTimerCB( CallBacker* )
-{
-    window_.shown.trigger();
-}
-
-
-// A covered native window that gets the focus would activate its MDI
-// sub-window, which shows the other VSG sub-windows normal again, and their
-// native windows take the focus back: the sub-windows activate each other
-// without end. The user can only click a window that is exposed.
-void dGBVSGWindowBody::focusInCB( CallBacker* )
-{
-    focusfilter_.setBlockEvent( !nativewin_.isExposed() );
-}
-
-
 dGBVSGWindow::dGBVSGWindow( uiObject& handle, uiParent* parent, const char* nm,
 			    int rendertimems )
-    : shown(this)
+    : uiObjectBody(parent,nullptr)
+    , shown(this)
     , resized(this)
+    , handle_(handle)
 {
+    setName( nm );
+
     viewer_ = dGBVSGViewer::create( rendertimems );
 
     vsg::ref_ptr<vsg::WindowTraits> traits = vsg::WindowTraits::create();
@@ -653,20 +567,54 @@ dGBVSGWindow::dGBVSGWindow( uiObject& handle, uiParent* parent, const char* nm,
 		VK_FORMAT_B8G8R8A8_UNORM, VK_COLOR_SPACE_SRGB_NONLINEAR_KHR };
     uiVSGContext::instance().applyToTraits( *traits );
     nativewin_ = new dGBVSGNativeWindow( viewer_, traits );
-    body_ = new dGBVSGWindowBody( *this, handle, parent, nm, *nativewin_ );
+
+    QWidget* parentwidget = parent->pbody()->managewidg();
+    container_ = QWidget::createWindowContainer( nativewin_, parentwidget );
+    container_->setFocusPolicy( Qt::StrongFocus );
+    container_->setAttribute( Qt::WA_OpaquePaintEvent );
+    container_->setAttribute( Qt::WA_NoSystemBackground );
+
+    eventfilter_.addEventType( uiEventFilter::Show );
+    eventfilter_.addEventType( uiEventFilter::Resize );
+    eventfilter_.attachToQObj( container_ );
+    mAttachCB( eventfilter_.eventhappened, dGBVSGWindow::handleEventCB );
+    mAttachCB( showtimer_.tick, dGBVSGWindow::showTimerCB );
+
+    focusfilter_.addEventType( uiEventFilter::FocusIn );
+    focusfilter_.attachToQObj( nativewin_ );
+    mAttachCB( focusfilter_.eventhappened, dGBVSGWindow::focusInCB );
 }
 
 
 dGBVSGWindow::~dGBVSGWindow()
 {
     detachAllNotifiers();
-    delete body_;
 }
 
 
-uiObjectBody& dGBVSGWindow::body()
+void dGBVSGWindow::handleEventCB( CallBacker* )
 {
-    return *body_;
+    const uiEventFilter::EventType evtype = eventfilter_.getCurrentEventType();
+    if ( evtype == uiEventFilter::Show )
+	showtimer_.start( 0, true );
+    else if ( evtype == uiEventFilter::Resize )
+	resized.trigger();
+}
+
+
+void dGBVSGWindow::showTimerCB( CallBacker* )
+{
+    shown.trigger();
+}
+
+
+// A covered native window that gets the focus would activate its MDI
+// sub-window, which shows the other VSG sub-windows normal again, and their
+// native windows take the focus back: the sub-windows activate each other
+// without end. The user can only click a window that is exposed.
+void dGBVSGWindow::focusInCB( CallBacker* )
+{
+    focusfilter_.setBlockEvent( !nativewin_->isExposed() );
 }
 
 
@@ -697,5 +645,5 @@ void dGBVSGWindow::setCursor( MouseCursor::Shape shape )
 	qtshape = Qt::PointingHandCursor;
 
     nativewin_->setCursor( qtshape );
-    body_->qwidget()->setCursor( qtshape );
+    qwidget()->setCursor( qtshape );
 }
