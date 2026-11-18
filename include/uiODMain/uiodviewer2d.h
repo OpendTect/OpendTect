@@ -208,10 +208,10 @@ public:
     void			setupNewTempFaultSS(EM::ObjectID emid);
 
     //FaultStickSet2D
-    virtual void		removeFaultSS2D(EM::ObjectID emid);
+    void			removeFaultSS2D(EM::ObjectID emid);
     void			getLoadedFaultSS2Ds(
 					TypeSet<EM::ObjectID>&) const;
-    virtual void		addFaultSS2Ds(const TypeSet<EM::ObjectID>&);
+    void			addFaultSS2Ds(const TypeSet<EM::ObjectID>&);
     void			addNewTempFaultSS2D(EM::ObjectID emid);
     void			getFaultSS2DVwr2DIDs(EM::ObjectID emid,
 						TypeSet<Vis2DID>&) const;
