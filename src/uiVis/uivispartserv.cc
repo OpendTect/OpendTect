@@ -282,10 +282,10 @@ SceneID uiVisPartServer::addScene( visSurvey::Scene* newscene_in )
 
 
 typedef visSurvey::Scene* (*VSGSceneCreator)();
-typedef mQtclass(QWidget*) (*VSGViewerCreator)( mQtclass(uiParent*),
-					       visSurvey::Scene*,bool,
-					       const char*,NotifierAccess**,
-					       NotifierAccess** );
+typedef uiObject* (*VSGViewerCreator)( mQtclass(uiParent*),
+				       visSurvey::Scene*,bool,
+				       const char*,NotifierAccess**,
+				       NotifierAccess** );
 
 void* uiVisPartServer::getVSGFunction( const char* fnnm ) const
 {

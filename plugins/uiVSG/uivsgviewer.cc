@@ -1746,11 +1746,11 @@ protected:
 } // namespace
 
 
-mExternC(uiVSG) QWidget* createVSGViewer( uiParent* parent,visSurvey::Scene*,bool,
-					  const char*,NotifierAccess**,
-					  NotifierAccess** );
+mExternC(uiVSG) uiObject* createVSGViewer( uiParent* parent,visSurvey::Scene*,bool,
+					   const char*,NotifierAccess**,
+					   NotifierAccess** );
 
-mExternC(uiVSG) QWidget* createVSGViewer( uiParent* parent,
+mExternC(uiVSG) uiObject* createVSGViewer( uiParent* parent,
     visSurvey::Scene* scene,
     bool maximized, const char* title,
     NotifierAccess** closing, NotifierAccess** activated )
@@ -1770,21 +1770,10 @@ mExternC(uiVSG) QWidget* createVSGViewer( uiParent* parent,
     if ( activated )
 	*activated = &viewer->activated;
 
-    QWidget* widget = viewer->qwidget();
-    if ( !widget )
-    {
-	delete viewer;
-	return nullptr;
-    }
-
     if ( !mdiwin )
     {
-	if ( maximized )
-	    widget->showMaximized();
-	else
-	    widget->show();
-
-	return widget;
+	viewer->display( true, false, maximized );
+	return viewer;
     }
 
     mdiarea->addWindow( mdiwin );
@@ -1793,5 +1782,5 @@ mExternC(uiVSG) QWidget* createVSGViewer( uiParent* parent,
     viewer->display( true );
     mdiwin->display( true, false, maximized );
 
-    return widget;
+    return viewer;
 }
