@@ -354,8 +354,10 @@ int Scene::size() const
 
 int Scene::getFirstIdx( const visBase::DataObject* ) const
 {
+#ifdef __debug__
     pErrMsg( "A visBase object is not in a VSG scene" );
     DBG::forceCrash( false );
+#endif
     return -1;
 }
 
@@ -436,8 +438,10 @@ void Scene::addInlCrlZObject( ODVsg::DataObject* obj )
 
 void Scene::addObject( visBase::DataObject* )
 {
+#ifdef __debug__
     pErrMsg( "A visBase object is not drawn in a VSG scene" );
     DBG::forceCrash( false );
+#endif
 }
 
 
@@ -453,8 +457,10 @@ void Scene::addObject( ODVsg::DataObject* obj )
 
 void Scene::insertObject( int, visBase::DataObject* )
 {
+#ifdef __debug__
     pErrMsg( "A visBase object is not drawn in a VSG scene" );
     DBG::forceCrash( false );
+#endif
 }
 
 
