@@ -352,9 +352,11 @@ int Scene::size() const
 }
 
 
-int Scene::getFirstIdx( const visBase::DataObject* dobj ) const
+int Scene::getFirstIdx( const visBase::DataObject* ) const
 {
-    return visSurvey::Scene::getFirstIdx( dobj );
+    pErrMsg( "A visBase object is not in a VSG scene" );
+    DBG::forceCrash( false );
+    return -1;
 }
 
 
@@ -432,10 +434,10 @@ void Scene::addInlCrlZObject( ODVsg::DataObject* obj )
 }
 
 
-void Scene::addObject( visBase::DataObject* obj )
+void Scene::addObject( visBase::DataObject* )
 {
     pErrMsg( "A visBase object is not drawn in a VSG scene" );
-    visSurvey::Scene::addObject( obj );
+    DBG::forceCrash( false );
 }
 
 
@@ -449,10 +451,10 @@ void Scene::addObject( ODVsg::DataObject* obj )
 }
 
 
-void Scene::insertObject( int idx, visBase::DataObject* obj )
+void Scene::insertObject( int, visBase::DataObject* )
 {
     pErrMsg( "A visBase object is not drawn in a VSG scene" );
-    visSurvey::Scene::insertObject( idx, obj );
+    DBG::forceCrash( false );
 }
 
 
