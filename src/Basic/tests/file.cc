@@ -933,6 +933,72 @@ static bool testDirPermissions()
 }
 
 
+static bool testUtf8FilePath()
+{
+    const char* const folder =
+	"\xC3\xB8y_\xD9\x85\xD8\xB1\xD8\xAD\xD8\xA8\xD8\xA7";
+    const char* const fname =
+	"J\xC3\xBCrgen_\xE4\xBD\xA0\xE5\xA5\xBD.txt";
+    const char* const phrase =
+	"\xC3\xB8y j\xC3\xBCrgen "
+	"\xD9\x85\xD8\xB1\xD8\xAD\xD8\xA8\xD8\xA7 "
+	"\xCE\xB3\xCE\xB5\xCE\xB9\xCE\xB1 "
+	"\xD0\xBF\xD1\x80\xD0\xB8\xD0\xB2\xD0\xB5\xD1\x82 "
+	"\xE4\xBD\xA0\xE5\xA5\xBD "
+	"\xE3\x81\x93\xE3\x82\x93\xE3\x81\xAB\xE3\x81\xA1\xE3\x81\xAF";
+
+    const FilePath tempfp = FilePath::getTempFullPath("utf8file",nullptr);
+    const FilePath dirfp( tempfp, folder );
+    const FilePath filefp( dirfp, fname );
+    const BufferString dirnm = dirfp.fullPath();
+    const BufferString fnm = filefp.fullPath();
+    const int parentlvl = filefp.nrLevels() - 2;
+
+    mRunStandardTest( parentlvl >= 0 && filefp.dir(parentlvl) == folder,
+		      BufferString("FilePath folder: ",
+				   filefp.dir(parentlvl)) )
+    mRunStandardTest( filefp.fileName() == fname,
+		      BufferString("FilePath filename: ",filefp.fileName()) )
+
+    const FilePath parsed( fnm.buf() );
+    mRunStandardTest( parsed.fileName() == fname &&
+		      parsed.nrLevels() > 1 &&
+		      parsed.dir(parsed.nrLevels()-2) == folder,
+		      BufferString("FilePath parsed: ",parsed.fullPath()) )
+
+    FileDisposer dirdisposer( tempfp.fullPath().buf() );
+    mRunStandardTest( File::createDir(dirnm.buf()),
+			  BufferString("Create directory: ",dirnm) )
+
+    mRunStandardTest( File::putContent(BufferString(phrase),fnm.buf()),
+			  BufferString("Write content to: ",fnm) )
+    mRunStandardTest( File::exists(fnm.buf()) &&
+		      File::isFile(fnm.buf()) &&
+		      !File::isDirectory(fnm.buf()),
+		      BufferString("File ops on file: ",fnm) )
+    mRunStandardTest( File::exists(dirnm.buf()) &&
+		      File::isDirectory(dirnm.buf()) &&
+		      !File::isFile(dirnm.buf()),
+		      BufferString("File ops on directory: ",dirnm) )
+
+    BufferString recovered;
+    mRunStandardTest( File::getContent(fnm.buf(),recovered) &&
+		      recovered == phrase,
+		      BufferString("Recovered content: ",recovered) )
+
+    mRunStandardTest( File::remove( fnm.buf() ),
+		      BufferString("Remove file: ",fnm) )
+
+    mRunStandardTest( File::removeDir( dirnm.buf() ),
+		      BufferString("Remove directory: ",dirnm) )
+
+    mRunStandardTest( !File::exists(dirnm.buf()),
+		      "File and directories removed" )
+
+    return true;
+}
+
+
 int mTestMainFnName( int argc, char** argv )
 {
     mInitTestProg();
@@ -955,6 +1021,7 @@ int mTestMainFnName( int argc, char** argv )
     if ( !testWriteContent(emptytmpcontentfnm,tmpcontentfnm,tmpcontentsetfnm) ||
 	 !testReadContent(emptytmpcontentfnm.str(),tmpcontentfnm.str(),
 			  tmpcontentsetfnm.str()) ||
+	 !testUtf8FilePath() ||
 	 !testIStream(parfile.buf()) ||
 	 !testFilePathParsing() ||
 	 !testCleanPath() ||
