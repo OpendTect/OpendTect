@@ -51,7 +51,7 @@ public:
     void		setColorBarSize(int width,int height);
     Geom::Size2D<int>	getColorBarSize() const;
 
-    void		setBackgroundColor(const OD::Color&);
+    void		setBackgroundColor(const OD::Color&) override;
     void		setBackgroundGradient(bool);
     bool		isBackgroundGradient() const;
     OD::Color		getBackgroundColor() const;

@@ -62,7 +62,6 @@ const char* Scene::sKeyBackgroundColor()	{ return "Background color"; }
 const char* Scene::sKeyZStretch()	{ return "Z Stretch"; }
 
 static const char* sKeydTectScene()	{ return "dTect.Scene"; }
-static const char* sKeyAnnotFont()	{ return "Annotation font"; }
 static const char* sKeyZScale()		{ return "Z Scale"; }
 
 
@@ -352,6 +351,16 @@ int Scene::size() const
 }
 
 
+int Scene::getFirstIdx( const visBase::DataObject* ) const
+{
+    pErrMsg( "A visBase object is not in a VSG scene" );
+#ifdef __debug__
+    DBG::forceCrash( false );
+#endif
+    return mUdf(int);
+}
+
+
 int Scene::getFirstIdx( const ODVsg::DataObject* dobj ) const
 {
     for ( int idx=0; idx<size(); idx++ )
@@ -426,6 +435,15 @@ void Scene::addInlCrlZObject( ODVsg::DataObject* obj )
 }
 
 
+void Scene::addObject( visBase::DataObject* )
+{
+    pErrMsg( "A visBase object is not drawn in a VSG scene" );
+#ifdef __debug__
+    DBG::forceCrash( false );
+#endif
+}
+
+
 void Scene::addObject( ODVsg::DataObject* obj )
 {
     mDynamicCastGet(ODVsg::VisualObject*,vo,obj)
@@ -433,6 +451,15 @@ void Scene::addObject( ODVsg::DataObject* obj )
 	addUTMObject( vo );
 
     sceneboundingboxupdated.trigger();
+}
+
+
+void Scene::insertObject( int, visBase::DataObject* )
+{
+    pErrMsg( "A visBase object is not drawn in a VSG scene" );
+#ifdef __debug__
+    DBG::forceCrash( false );
+#endif
 }
 
 
