@@ -167,7 +167,7 @@ uiODSceneMgr::~uiODSceneMgr()
     }
 
     for ( int idx=vsgtrees_.size()-1; idx>=0; idx-- )
-	removeVSGTree( vsgtrees_[idx]->sceneid_ );
+	removeVSGScene( *vsgtrees_[idx] );
 
     deepErase( scenes_ );
     delete wingrabber_;
@@ -302,24 +302,18 @@ public:
 
 // Does not trigger treeToBeAdded, treeAdded or sceneClosed: their listeners
 // add OSG objects to the scene.
-void uiODSceneMgr::addVSGTree( const SceneID& sceneid, const uiString& title )
+void uiODSceneMgr::addVSGTree( const SceneID& sceneid, const uiString& title,
+			       uiMdiAreaWindow* mdiwin, uiObject* viewer )
 {
     if ( getVSGTree(sceneid) )
 	return;
 
     VSGTree* tree = new VSGTree;
     tree->sceneid_ = sceneid;
+    tree->mdiwin_ = mdiwin;
+    tree->vwr_ = viewer;
 
-    tree->dw_ = new uiDockWin( &appl_, title );
-    tree->dw_->setMinimumWidth( 200 );
-    tree->lv_ = new uiTreeView( tree->dw_, title.getFullString() );
-    tree->dw_->setObject( tree->lv_ );
-
-    uiStringSet labels;
-    labels.add( sElements() );
-    labels.add( uiStrings::sColor() );
-    tree->lv_->addColumns( labels );
-    tree->lv_->setFixedColumnWidth( cColorColumn(), 40 );
+    createTreeDock( title, tree->dw_, tree->lv_ );
 
     tree->itemmanager_ = new uiTreeTopItem( tree->lv_ );
     tree->itemmanager_->addChild( new VSGTreeItem(title), false );
@@ -335,33 +329,12 @@ void uiODSceneMgr::addVSGTree( const SceneID& sceneid, const uiString& title )
 }
 
 
-void uiODSceneMgr::raiseVSGTree( const SceneID& sceneid )
-{
-    VSGTree* tree = getVSGTree( sceneid );
-    if ( tree )
-	tree->dw_->raise();
-}
-
-
 // The names of the OSG category items, without their actions: an OSG item is
 // only made to read its name.
 void uiODSceneMgr::addVSGCategoryItems( uiTreeTopItem& top )
 {
     TypeSet<int> idxs;
-    TypeSet<int> placeidxs;
-    for ( int idx=0; idx<tifs_->nrFactories(); idx++ )
-    {
-	const OD::Pol2D3D pol2d = tifs_->getPol2D3D( idx );
-	if ( SI().survDataType() == OD::Both2DAnd3D ||
-	     pol2d == OD::Both2DAnd3D ||
-	     pol2d == SI().survDataType() )
-	{
-	    idxs += idx;
-	    placeidxs += tifs_->getPlacementIdx( idx );
-	}
-    }
-
-    sort_coupled( placeidxs.arr(), idxs.arr(), idxs.size() );
+    getFactoryIdxs( idxs );
     for ( int idx=0; idx<idxs.size(); idx++ )
     {
 	PtrMan<uiTreeItem> osgitem = tifs_->getFactory(idxs[idx])->create();
@@ -371,18 +344,59 @@ void uiODSceneMgr::addVSGCategoryItems( uiTreeTopItem& top )
 }
 
 
-void uiODSceneMgr::removeVSGTree( const SceneID& sceneid )
+SceneID uiODSceneMgr::addVSGScene( bool maximized, const uiString& nm )
 {
-    VSGTree* tree = getVSGTree( sceneid );
-    if ( !tree )
+    const SceneID sceneid = visServ().addVSGScene( nm );
+    if ( !sceneid.isValid() )
+	return SceneID::udf();
+
+    const uiString title = visServ().getSceneName( sceneid );
+    auto* mdiwin = new uiMdiAreaWindow( *mdiarea_, title );
+    uiObject* viewer = visServ().createVSGViewer( sceneid, mdiwin, title );
+    if ( !viewer )
+    {
+	delete mdiwin;
+	visServ().removeScene( sceneid );
+	return SceneID::udf();
+    }
+
+    mdiarea_->addWindow( mdiwin );
+    mAttachCB( mdiwin->closed(), uiODSceneMgr::removeVSGSceneCB );
+    addVSGTree( sceneid, title, mdiwin, viewer );
+    viewer->display( true );
+    mdiwin->display( true, false, maximized );
+    return sceneid;
+}
+
+
+void uiODSceneMgr::removeVSGSceneCB( CallBacker* cb )
+{
+    mDynamicCastGet(uiGroupObj*,grp,cb)
+    if ( !grp )
 	return;
 
-    appl_.removeDockWindow( tree->dw_ );
-    if ( tree->itemmanager_ )
-	tree->itemmanager_->prepareForShutdown();
+    for ( int idx=0; idx<vsgtrees_.size(); idx++ )
+    {
+	if ( grp == vsgtrees_[idx]->mdiwin_->mainObject() )
+	{
+	    removeVSGScene( *vsgtrees_[idx] );
+	    return;
+	}
+    }
+}
 
-    vsgtrees_ -= tree;
-    delete tree;
+
+void uiODSceneMgr::removeVSGScene( VSGTree& tree )
+{
+    const SceneID sceneid = tree.sceneid_;
+    tree.mdiwin_->closed().remove( mWSMCB(removeVSGSceneCB) );
+    appl_.removeDockWindow( tree.dw_ );
+    if ( tree.itemmanager_ )
+	tree.itemmanager_->prepareForShutdown();
+
+    vsgtrees_ -= &tree;
+    delete &tree;
+    visServ().removeScene( sceneid );
 }
 
 
@@ -436,7 +450,7 @@ SceneID uiODSceneMgr::addDefaultScene()
 	return SceneID::udf();
 
     if ( useVSGDefaultScene() )
-	return visServ().addVSGScene( true );
+	return addVSGScene( true );
 
     return addScene( true );
 }
@@ -1113,6 +1127,16 @@ void uiODSceneMgr::mdiAreaChanged( CallBacker* )
 
     const SceneID sceneid = getActiveSceneID();
     sceneChanged( sceneid );
+
+    const BufferString activenm = mdiarea_->getActiveWin();
+    for ( int idx=0; idx<vsgtrees_.size(); idx++ )
+    {
+	if ( activenm == vsgtrees_[idx]->mdiwin_->getTitle().getFullString() )
+	{
+	    vsgtrees_[idx]->dw_->raise();
+	    break;
+	}
+    }
 }
 
 
@@ -1147,31 +1171,27 @@ void uiODSceneMgr::setActiveScene( const SceneID& sceneid )
 }
 
 
-void uiODSceneMgr::initTree( Scene& scn, int vwridx )
+void uiODSceneMgr::createTreeDock( const uiString& caption, uiDockWin*& dw,
+				   uiTreeView*& lv )
 {
-    const uiString capt = tr( "Tree scene %1" ).arg( vwridx );
-    scn.dw_ = new uiDockWin( &appl_, capt );
-    scn.dw_->setMinimumWidth( 200 );
-    scn.lv_ = new uiTreeView( scn.dw_, capt.getFullString() );
-    scn.dw_->setObject( scn.lv_ );
+    dw = new uiDockWin( &appl_, caption );
+    dw->setMinimumWidth( 200 );
+    lv = new uiTreeView( dw, caption.getFullString() );
+    dw->setObject( lv );
     uiStringSet labels;
     labels.add( sElements() );
     labels.add( uiStrings::sColor() );
-    scn.lv_->addColumns( labels );
-    scn.lv_->setFixedColumnWidth( cColorColumn(), 40 );
+    lv->addColumns( labels );
+    lv->setFixedColumnWidth( cColorColumn(), 40 );
+}
 
-    scn.itemmanager_ = new uiODTreeTop( scn.vwr3d_, scn.lv_, &applMgr(), tifs_);
-    uiODSceneTreeItem* sceneitm =
-	new uiODSceneTreeItem( scn.mdiwin_->getTitle(),
-			       scn.vwr3d_->sceneID() );
-    scn.itemmanager_->addChild( sceneitm, false );
 
-    TypeSet<int> idxs;
+void uiODSceneMgr::getFactoryIdxs( TypeSet<int>& idxs ) const
+{
     TypeSet<int> placeidxs;
-
     for ( int idx=0; idx<tifs_->nrFactories(); idx++ )
     {
-	OD::Pol2D3D pol2d = tifs_->getPol2D3D( idx );
+	const OD::Pol2D3D pol2d = tifs_->getPol2D3D( idx );
 	if ( SI().survDataType() == OD::Both2DAnd3D ||
 	     pol2d == OD::Both2DAnd3D ||
 	     pol2d == SI().survDataType() )
@@ -1182,6 +1202,22 @@ void uiODSceneMgr::initTree( Scene& scn, int vwridx )
     }
 
     sort_coupled( placeidxs.arr(), idxs.arr(), idxs.size() );
+}
+
+
+void uiODSceneMgr::initTree( Scene& scn, int vwridx )
+{
+    const uiString capt = tr( "Tree scene %1" ).arg( vwridx );
+    createTreeDock( capt, scn.dw_, scn.lv_ );
+
+    scn.itemmanager_ = new uiODTreeTop( scn.vwr3d_, scn.lv_, &applMgr(), tifs_);
+    uiODSceneTreeItem* sceneitm =
+	new uiODSceneTreeItem( scn.mdiwin_->getTitle(),
+			       scn.vwr3d_->sceneID() );
+    scn.itemmanager_->addChild( sceneitm, false );
+
+    TypeSet<int> idxs;
+    getFactoryIdxs( idxs );
 
     for ( int idx=0; idx<idxs.size(); idx++ )
     {
@@ -1873,6 +1909,8 @@ uiODSceneMgr::VSGTree::VSGTree()
 
 uiODSceneMgr::VSGTree::~VSGTree()
 {
+    delete vwr_;
+    delete mdiwin_;
     delete itemmanager_;
     delete dw_;
 }

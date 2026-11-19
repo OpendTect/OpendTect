@@ -1440,15 +1440,6 @@ bool uiODApplMgr::handleVisServEv( int evid )
 
     if ( evid == uiVisPartServer::evUpdateTree() )
 	sceneMgr().updateTrees();
-    else if ( evid == uiVisPartServer::evAddVSGTree() )
-    {
-	const SceneID sceneid = visserv_->vsgTreeEventSceneID();
-	sceneMgr().addVSGTree( sceneid, visserv_->getSceneName(sceneid) );
-    }
-    else if ( evid == uiVisPartServer::evRemoveVSGTree() )
-	sceneMgr().removeVSGTree( visserv_->vsgTreeEventSceneID() );
-    else if ( evid == uiVisPartServer::evRaiseVSGTree() )
-	sceneMgr().raiseVSGTree( visserv_->vsgTreeEventSceneID() );
     else if ( evid == uiVisPartServer::evDeSelection()
 	   || evid == uiVisPartServer::evSelection() )
 	sceneMgr().updateSelectedTreeItem();

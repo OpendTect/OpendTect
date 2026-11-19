@@ -93,11 +93,6 @@ public:
     bool		isViewMode() const;
     void		syncCursor()		{ updateCursor(); }
 
-    CNotifier<uiVSGViewer,SceneID> closing;
-			//!<Triggered when the viewer is deleted
-			//! Triggered when its window becomes the active one
-    CNotifier<uiVSGViewer,SceneID> activated;
-
 private:
 
     class		SceneBoundsWatch;

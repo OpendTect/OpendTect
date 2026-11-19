@@ -80,9 +80,6 @@ int uiVisPartServer::evColorTableChange()		{ return 17; }
 int uiVisPartServer::evStoreEMObject()			{ return 19; }
 int uiVisPartServer::evStoreEMObjectAs()		{ return 20; }
 int uiVisPartServer::evShowSetupGroupOnTop()		{ return 21; }
-int uiVisPartServer::evAddVSGTree()			{ return 22; }
-int uiVisPartServer::evRemoveVSGTree()			{ return 23; }
-int uiVisPartServer::evRaiseVSGTree()			{ return 24; }
 
 const char* uiVisPartServer::sKeyAppVel()	{ return "AppVel"; }
 const char* uiVisPartServer::sKeyWorkArea()	{ return "Work Area"; }
@@ -282,10 +279,8 @@ SceneID uiVisPartServer::addScene( visSurvey::Scene* newscene_in )
 
 
 typedef visSurvey::Scene* (*VSGSceneCreator)();
-typedef uiObject* (*VSGViewerCreator)( mQtclass(uiParent*),
-				       visSurvey::Scene*,bool,
-				       const char*,NotifierAccess**,
-				       NotifierAccess** );
+typedef uiObject* (*VSGViewerCreator)( uiParent*,visSurvey::Scene*,
+				       const char* );
 
 void* uiVisPartServer::getVSGFunction( const char* fnnm ) const
 {
@@ -307,7 +302,7 @@ void* uiVisPartServer::getVSGFunction( const char* fnnm ) const
 }
 
 
-SceneID uiVisPartServer::addVSGScene( bool maximized, const uiString& nm )
+SceneID uiVisPartServer::addVSGScene( const uiString& nm )
 {
     void* funcptr = getVSGFunction( "createVSGScene" );
     if ( !funcptr )
@@ -331,76 +326,31 @@ SceneID uiVisPartServer::addVSGScene( bool maximized, const uiString& nm )
     }
 
     setSceneName( sceneid, title );
-    NotifierAccess* closing = nullptr;
-    NotifierAccess* activated = nullptr;
-    if ( !createVSGViewer(sceneid,maximized,title,&closing,&activated) )
-    {
-	removeVSGScene( sceneid );
-	return SceneID::udf();
-    }
-
-    if ( closing )
-	mAttachCB( *closing, uiVisPartServer::vsgViewerClosedCB );
-
-    if ( activated )
-	mAttachCB( *activated, uiVisPartServer::vsgViewerActivatedCB );
-
-    vsgtreeeventid_ = sceneid;
-    sendVisEvent( evAddVSGTree() );
     return sceneid;
 }
 
 
-void uiVisPartServer::vsgViewerClosedCB( CallBacker* cb )
+uiObject* uiVisPartServer::createVSGViewer( const SceneID& sceneid,
+					    uiParent* parent,
+					    const uiString& nm )
 {
-    mCBCapsuleUnpack( SceneID,sceneid,cb );
-    removeVSGScene( sceneid );
-}
+    if ( !parent )
+	return nullptr;
 
-
-void uiVisPartServer::vsgViewerActivatedCB( CallBacker* cb )
-{
-    mCBCapsuleUnpack( SceneID,sceneid,cb );
-    vsgtreeeventid_ = sceneid;
-    sendVisEvent( evRaiseVSGTree() );
-}
-
-
-void uiVisPartServer::removeVSGScene( const SceneID& sceneid )
-{
-    vsgtreeeventid_ = sceneid;
-    sendVisEvent( evRemoveVSGTree() );
-    removeScene( sceneid );
-}
-
-
-SceneID uiVisPartServer::vsgTreeEventSceneID() const
-{
-    return vsgtreeeventid_;
-}
-
-
-bool uiVisPartServer::createVSGViewer( const SceneID& sceneid, bool maximized,
-				       const uiString& nm,
-				       NotifierAccess** closing,
-				       NotifierAccess** activated )
-{
     RefMan<visSurvey::Scene> scene = getScene( sceneid );
     if ( !scene )
-	return false;
+	return nullptr;
 
     void* funcptr = getVSGFunction( "createVSGViewer" );
     if ( !funcptr )
-	return false;
+	return nullptr;
 
     BufferString title;
     if ( nm.isSet() )
 	title = nm.getFullString();
 
-    mDynamicCastGet(uiMainWin*,mainwin,appserv().parent())
     VSGViewerCreator creator = rCast( VSGViewerCreator, funcptr );
-    return creator( mainwin, scene.ptr(), maximized, title.buf(),
-		    closing, activated ) != nullptr;
+    return creator( parent, scene.ptr(), title.buf() );
 }
 
 
@@ -1374,10 +1324,7 @@ bool uiVisPartServer::deleteAllObjects()
     while ( !scenes_.isEmpty() )
     {
 	const SceneID sceneid = scenes_.first()->getID();
-	if ( scenes_.first()->isVSGScene() )
-	    removeVSGScene( sceneid );
-	else
-	    removeScene( sceneid );
+	removeScene( sceneid );
     }
 
     vsgscenenr_ = 0;

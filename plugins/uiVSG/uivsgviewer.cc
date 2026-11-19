@@ -15,9 +15,7 @@ ________________________________________________________________________
 
 
 #include "uifont.h"
-#include "uimdiarea.h"
 #include "uimsg.h"
-#include "uimainwin.h"
 #include "uivsgwindow.h"
 #include "uivsgwindowhandler.h"
 
@@ -33,7 +31,6 @@ ________________________________________________________________________
 #include "vsggeothumbwheel.h"
 #include "vsggeotrackball.h"
 
-#include <QMdiSubWindow>
 #include <QImage>
 
 #include <cmath>
@@ -621,8 +618,6 @@ void uiVSGViewer::ColTabLink::changedCB( CallBacker* )
 
 uiVSGViewer::uiVSGViewer( uiParent* parent, const char* nm )
     : uiObject(parent,nm,mkBody(parent,nm))
-    , closing(this)
-    , activated(this)
 {
     setMinimumWidth( 600 );
     setMinimumHeight( 400 );
@@ -661,8 +656,6 @@ void uiVSGViewer::windowResizedCB( CallBacker* )
 uiVSGViewer::~uiVSGViewer()
 {
     detachAllNotifiers();
-    if ( scene_ )
-	closing.trigger( scene_->getID() );
 
     boundswatch_ = nullptr;
     wheellink_ = nullptr;
@@ -1665,122 +1658,14 @@ mExternC(uiVSG) visSurvey::Scene* createVSGScene()
 }
 
 
-namespace
-{
-
-static uiMdiArea* findMdiArea( const ObjectSet<uiBaseObject>* children )
-{
-    if ( !children )
-	return nullptr;
-
-    for ( const uiBaseObject* child : *children )
-    {
-	uiBaseObject* obj = const_cast<uiBaseObject*>( child );
-	mDynamicCastGet(uiMdiArea*,mdiarea,obj)
-	if ( mdiarea )
-	    return mdiarea;
-
-	mDynamicCastGet(uiObject*,uiobj,obj)
-	if ( !uiobj )
-	    continue;
-
-	uiMdiArea* found = findMdiArea( uiobj->childList() );
-	if ( found )
-	    return found;
-
-    }
-
-    return nullptr;
-}
-
-
-class SubWindowEventHandler : public uiBaseObject
-{
-public:
-			SubWindowEventHandler( uiMdiAreaWindow& mdiwin,
-					       uiVSGViewer& viewer )
-			    : uiBaseObject("VSG window event handler")
-			    , viewer_(&viewer)
-			{
-			    mdiwin.addChild( *this );
-			    mAttachCB( viewer.closed,
-				       SubWindowEventHandler::viewerDeletedCB );
-			    mAttachCB( mdiwin.windowClosing(),
-				       SubWindowEventHandler::windowClosingCB );
-			    mAttachCB( mdiwin.windowActivated(),
-				       SubWindowEventHandler::activatedCB );
-			}
-
-			~SubWindowEventHandler()
-			{
-			    detachAllNotifiers();
-			}
-
-protected:
-
-    void		activatedCB( CallBacker* )
-			{
-			    if ( viewer_ && viewer_->getScene() )
-				viewer_->activated.trigger(
-						viewer_->getScene()->getID() );
-			}
-
-    void		windowClosingCB( CallBacker* )
-			{
-			    if ( !viewer_ )
-				return;
-
-			    uiVSGViewer* vwr = viewer_;
-			    viewer_ = nullptr;
-			    delete vwr;
-			}
-
-    void		viewerDeletedCB( CallBacker* )
-			{
-			    viewer_ = nullptr;
-			}
-
-    uiVSGViewer*	viewer_;
-};
-
-} // namespace
-
-
-mExternC(uiVSG) uiObject* createVSGViewer( uiParent* parent,visSurvey::Scene*,bool,
-					   const char*,NotifierAccess**,
-					   NotifierAccess** );
+mExternC(uiVSG) uiObject* createVSGViewer( uiParent* parent,
+					   visSurvey::Scene*,const char* );
 
 mExternC(uiVSG) uiObject* createVSGViewer( uiParent* parent,
-    visSurvey::Scene* scene,
-    bool maximized, const char* title,
-    NotifierAccess** closing, NotifierAccess** activated )
+    visSurvey::Scene* scene, const char* title )
 {
     const char* nm = ( title && *title ) ? title : "VSG Viewer";
-    uiMdiArea* mdiarea = parent ? findMdiArea( parent->childList() ) : nullptr;
-    uiMdiAreaWindow* mdiwin = mdiarea
-		? new uiMdiAreaWindow( *mdiarea, toUiString(nm) ) : nullptr;
-    uiParent* viewerparent = mdiwin ? static_cast<uiParent*>( mdiwin )
-				    : parent;
-
-    auto* viewer = new uiVSGViewer( viewerparent, nm );
+    auto* viewer = new uiVSGViewer( parent, nm );
     viewer->setScene( dCast(ODVsg::Scene*, scene) );
-    if ( closing )
-	*closing = &viewer->closing;
-
-    if ( activated )
-	*activated = &viewer->activated;
-
-    if ( !mdiwin )
-    {
-	viewer->display( true, false, maximized );
-	return viewer;
-    }
-
-    mdiarea->addWindow( mdiwin );
-    new SubWindowEventHandler( *mdiwin, *viewer );
-    mdiwin->qWidget()->resize( 800, 600 );
-    viewer->display( true );
-    mdiwin->display( true, false, maximized );
-
     return viewer;
 }

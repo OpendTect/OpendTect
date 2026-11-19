@@ -56,9 +56,10 @@ public:
 
     SceneID			addDefaultScene();
 
-    void			addVSGTree(const SceneID&,const uiString&);
-    void			removeVSGTree(const SceneID&);
-    void			raiseVSGTree(const SceneID&);
+    SceneID			addVSGScene(bool maximized,
+					const uiString& nm=uiString::empty());
+				/*!<Creates the scene, its window, viewer and tree */
+
     void			showVSGTrees(bool yn);
 
     void			setSceneName(const SceneID&,const uiString&);
@@ -251,17 +252,26 @@ protected:
 	uiDockWin*		dw_		= nullptr;
 	uiTreeView*		lv_		= nullptr;
 	uiTreeTopItem*		itemmanager_	= nullptr;
+	uiMdiAreaWindow*	mdiwin_		= nullptr;
+	uiObject*		vwr_		= nullptr;
     };
 
     ObjectSet<Scene>		scenes_;
     ObjectSet<VSGTree>		vsgtrees_;
     bool			vsgtreesshown_	= true;
     Scene&			mkNewScene();
-    void			removeScene(Scene& scene);
+    void			removeScene(Scene&);
     void			removeSceneCB(CallBacker*);
     void			initTree(Scene&,int);
+    void			createTreeDock(const uiString&,uiDockWin*&,
+						       uiTreeView*&);
+    void			getFactoryIdxs(TypeSet<int>&) const;
     VSGTree*			getVSGTree(const SceneID&);
     void			tabifyVSGTree(VSGTree&);
+    void			addVSGTree(const SceneID&,const uiString&,
+					   uiMdiAreaWindow*,uiObject*);
+    void			removeVSGScene(VSGTree&);
+    void			removeVSGSceneCB(CallBacker*);
     void			addVSGCategoryItems(uiTreeTopItem&);
     Scene*			getScene(const SceneID&);
     const Scene*		getScene(const SceneID&) const;

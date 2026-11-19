@@ -35,6 +35,8 @@ class TaskRunner;
 class ZAxisTransform;
 class uiMPEMan;
 class uiMultiMapperRangeEditWin;
+class uiObject;
+class uiParent;
 class uiSlicePos3DDisp;
 class uiSurvTopBotImageDlg;
 class uiToolBar;
@@ -107,8 +109,11 @@ public:
 			/*!<Adds a scene. The argument is only used internally.
 			    Don't use the argument when calling from outside.
 			*/
-    SceneID		addVSGScene(bool maximized,
-			const uiString& nm=uiString::empty());
+    SceneID		addVSGScene(const uiString& nm=uiString::empty());
+			/*!<Creates and registers the scene, no viewer */
+    uiObject*		createVSGViewer(const SceneID&,uiParent*,
+					const uiString& nm);
+			/*!<The viewer is a child of the parent. Null on failure */
 
     void		removeScene(const SceneID&);
     int			nrScenes() const;
@@ -268,10 +273,6 @@ public:
 
     static int		evUpdateTree();
     void		triggerTreeUpdate();
-    static int		evAddVSGTree();
-    static int		evRemoveVSGTree();
-    static int		evRaiseVSGTree();
-    SceneID		vsgTreeEventSceneID() const;
 
     static int		evSelection();
 			/*<! Get the id with getEventObjId() */
@@ -501,7 +502,6 @@ protected:
     bool			issolomode_			= false;
     Threads::Mutex&		eventmutex_;
     VisID			eventobjid_			= VisID::udf();
-    SceneID			vsgtreeeventid_;
     int				vsgscenenr_			= 0;
     int				eventattrib_			= -1;
     int				selattrib_			= -1;
@@ -512,14 +512,7 @@ protected:
     SelectionMode		selectionmode_			= Polygon;
 
     void*			getVSGFunction(const char* fnnm) const;
-    bool			createVSGViewer(const SceneID&,bool maximized,
-						const uiString& nm,
-						NotifierAccess** closing,
-						NotifierAccess** activated);
 
-    void 			vsgViewerClosedCB(CallBacker*);
-    void			vsgViewerActivatedCB(CallBacker*);
-    void			removeVSGScene(const SceneID&);
     void			mouseCursorCB(CallBacker*);
     void			rightClickCB(CallBacker*);
     void			selectObjCB(CallBacker*);
