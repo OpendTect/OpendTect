@@ -141,3 +141,48 @@ def test_Well_log(survey):
     assert data[lognm].size == dep.size
 
     well.delete_logs([lognm])
+
+def test_Well_put_log(survey):
+    well = Well(survey, 'F03-4')
+    lognm = 'pytest'
+    if lognm in well.log_names:
+        well.delete_logs([lognm])
+    dep = np.array([0.0, 500.0, 1000.0, 1500.0], dtype=np.float32)
+    logval = np.array([0.0, 1.0, 2.0, 3.0], dtype=np.float32)
+    well.put_log(lognm, dep, logval, 'g/cc', None)
+
+    # overwrite=False and the log exists: nothing is written, no error
+    well.put_log(lognm, dep, logval+10.0, 'g/cc', None)
+    assert well.isok
+    logs, _ = well.logs([lognm], zstep=500.0, upscale=False)
+    assert np.allclose(logs[lognm], logval, equal_nan=True)
+
+    # overwrite=True replaces the log and its unit of measure
+    well.put_log(lognm, dep, logval+10.0, 'us/ft', None, True)
+    logs, uom = well.logs([lognm], zstep=500.0, upscale=False)
+    assert np.allclose(logs[lognm], logval+10.0, equal_nan=True)
+    assert uom[lognm] == 'us/ft'
+
+    # a unit of measure OpendTect does not recognise is not stored
+    well.put_log(lognm, dep, logval, 'no-such-unit', None, True)
+    assert well.log_info([lognm])[0]['uom'] == ''
+
+    well.delete_logs([lognm])
+
+def test_Well_put_log_undefined_ends(survey):
+    well = Well(survey, 'F03-4')
+    lognm = 'pytest'
+    if lognm in well.log_names:
+        well.delete_logs([lognm])
+    dep = np.array([0.0, 500.0, 1000.0, 1500.0, 2000.0], dtype=np.float32)
+    logval = np.array([np.nan, 1.0, np.nan, 3.0, np.nan], dtype=np.float32)
+    well.put_log(lognm, dep, logval, 'g/cc', None)
+    del well
+
+    # reloaded: leading and trailing undefined values were not stored, the one in between was
+    well = Well(survey, 'F03-4')
+    data, _ = well.log(lognm)
+    np.testing.assert_allclose(data['dah'], dep[1:4], rtol=1e-6)
+    np.testing.assert_allclose(data[lognm], logval[1:4], rtol=1e-6, equal_nan=True)
+
+    well.delete_logs([lognm])
