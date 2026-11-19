@@ -46,6 +46,10 @@ public:
 
     int			size() const override;
     bool        	isVSGScene() const override { return true; }
+
+    using visSurvey::Scene::addObject;
+    using visSurvey::Scene::insertObject;
+    using visSurvey::Scene::getFirstIdx;
     void		addObject(ODVsg::DataObject*);
     void		insertObject(int idx,ODVsg::DataObject*);
     void		addUTMObject(ODVsg::VisualObject*);
