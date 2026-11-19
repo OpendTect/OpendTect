@@ -47,10 +47,9 @@ public:
     int			size() const override;
     bool        	isVSGScene() const override { return true; }
 
-    using visSurvey::Scene::addObject;
-    using visSurvey::Scene::insertObject;
-    using visSurvey::Scene::getFirstIdx;
+    void		addObject(visBase::DataObject*) override;
     void		addObject(ODVsg::DataObject*);
+    void		insertObject(int idx,visBase::DataObject*) override;
     void		insertObject(int idx,ODVsg::DataObject*);
     void		addUTMObject(ODVsg::VisualObject*);
     void		addInlCrlZObject(ODVsg::DataObject*);
@@ -58,6 +57,8 @@ public:
     ODVsg::DataObject* getVsgObject(int idx);
     const ODVsg::DataObject* getVsgObject(int idx) const;
     int			getFirstIdx(const VisID&) const override;
+    int			getFirstIdx(const visBase::DataObject*)
+							const override;
     int			getFirstIdx(const ODVsg::DataObject*) const;
 
     void		setTrcKeyZSampling(const TrcKeyZSampling&) override;

@@ -352,6 +352,12 @@ int Scene::size() const
 }
 
 
+int Scene::getFirstIdx( const visBase::DataObject* dobj ) const
+{
+    return visSurvey::Scene::getFirstIdx( dobj );
+}
+
+
 int Scene::getFirstIdx( const ODVsg::DataObject* dobj ) const
 {
     for ( int idx=0; idx<size(); idx++ )
@@ -426,6 +432,13 @@ void Scene::addInlCrlZObject( ODVsg::DataObject* obj )
 }
 
 
+void Scene::addObject( visBase::DataObject* obj )
+{
+    pErrMsg( "A visBase object is not drawn in a VSG scene" );
+    visSurvey::Scene::addObject( obj );
+}
+
+
 void Scene::addObject( ODVsg::DataObject* obj )
 {
     mDynamicCastGet(ODVsg::VisualObject*,vo,obj)
@@ -433,6 +446,13 @@ void Scene::addObject( ODVsg::DataObject* obj )
 	addUTMObject( vo );
 
     sceneboundingboxupdated.trigger();
+}
+
+
+void Scene::insertObject( int idx, visBase::DataObject* obj )
+{
+    pErrMsg( "A visBase object is not drawn in a VSG scene" );
+    visSurvey::Scene::insertObject( idx, obj );
 }
 
 
