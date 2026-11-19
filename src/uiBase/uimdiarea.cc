@@ -302,17 +302,11 @@ ODMdiSubWindow( uiMdiAreaWindow& mdiareawin,
     , mdiareawin_( mdiareawin )
     , windowShown(this)
     , windowHidden(this)
-    , windowClosing(this)
-    , windowActivated(this)
 {
-    connect( this, &QMdiSubWindow::aboutToActivate,
-	     this, [this]() { windowActivated.trigger(); } );
 }
 
 Notifier<ODMdiSubWindow>	windowShown;
 Notifier<ODMdiSubWindow>	windowHidden;
-Notifier<ODMdiSubWindow>	windowClosing;
-Notifier<ODMdiSubWindow>	windowActivated;
 
 protected:
 void closeEvent( QCloseEvent* ev ) override
@@ -329,7 +323,6 @@ void closeEvent( QCloseEvent* ev ) override
     if ( sNoCloseMessage || uiMSG().askGoOn(msg) )
     {
 	ev->accept();
-	windowClosing.trigger();
 	QMdiSubWindow::closeEvent( ev );
     }
     else
@@ -412,17 +405,6 @@ NotifierAccess& uiMdiAreaWindow::windowHidden()
     return odmdia->windowHidden;
 }
 
-NotifierAccess& uiMdiAreaWindow::windowClosing()
-{
-    mDynamicCastGet(ODMdiSubWindow*, odmdia, qmdisubwindow_);
-    return odmdia->windowClosing;
-}
-
-NotifierAccess& uiMdiAreaWindow::windowActivated()
-{
-    mDynamicCastGet(ODMdiSubWindow*, odmdia, qmdisubwindow_);
-    return odmdia->windowActivated;
-}
 
 QMdiSubWindow* uiMdiAreaWindow::qWidget()
 { return qmdisubwindow_; }

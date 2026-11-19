@@ -60,8 +60,6 @@ public:
 					const uiString& nm=uiString::empty());
 				/*!<Creates the scene, its window, viewer and tree */
 
-    void			showVSGTrees(bool yn);
-
     void			setSceneName(const SceneID&,const uiString&);
     uiString			getSceneName(const SceneID&) const;
     CNotifier<uiODSceneMgr,SceneID> sceneClosed;
@@ -229,9 +227,6 @@ protected:
     inline uiODApplMgr&		applMgr()	{ return appl_.applMgr(); }
     inline uiVisPartServer&	visServ()     { return *applMgr().visServer(); }
 
-    class ODSceneBundle;
-    class VSGSceneBundle;
-
     mExpClass(uiODMain) SceneBundle
     {
     public:
@@ -239,11 +234,6 @@ protected:
 
 	virtual SceneID		sceneID() const			= 0;
 	virtual bool		isVSG() const			= 0;
-
-	ODSceneBundle*		asODBundle();
-					/*!<Null for a VSG bundle */
-	VSGSceneBundle*		asVSGBundle();
-					/*!<Null for an OSG bundle */
 
 	void			setName(const uiString&);
 	void			raiseTree();
@@ -284,7 +274,6 @@ protected:
     };
 
     ObjectSet<SceneBundle>	scenes_;
-    bool			vsgtreesshown_	= true;
     ODSceneBundle&		mkNewScene();
     void			removeScene(ODSceneBundle&);
     void			removeSceneCB(CallBacker*);
@@ -292,11 +281,8 @@ protected:
     void			createTreeDock(const uiString&,uiDockWin*&,
 						       uiTreeView*&);
     void			getFactoryIdxs(TypeSet<int>&) const;
-    ObjectSet<ODSceneBundle>	odScenes() const;
     SceneBundle*		getBundle(const SceneID&);
     void			tabifyTree(SceneBundle&);
-    void			addVSGTree(const SceneID&,const uiString&,
-					   uiMdiAreaWindow*,uiObject*);
     void			removeVSGScene(VSGSceneBundle&);
     void			removeVSGSceneCB(CallBacker*);
     void			addVSGCategoryItems(uiTreeTopItem&);
