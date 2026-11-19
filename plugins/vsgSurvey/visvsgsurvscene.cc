@@ -357,7 +357,7 @@ int Scene::getFirstIdx( const visBase::DataObject* ) const
 #ifdef __debug__
     DBG::forceCrash( false );
 #endif
-    return -1;
+    return mUdf(int);
 }
 
 
