@@ -10,11 +10,11 @@
 
 #include "file.h"
 #include "filepath.h"
+#include "genc.h"
 #include "hdf5arraynd.h"
 #include "ioobj.h"
 #include "jsonkeystrs.h"
 #include "keystrs.h"
-#include "oddirs.h"
 #include "odjson.h"
 #include "welld2tmodel.h"
 #include "welldata.h"

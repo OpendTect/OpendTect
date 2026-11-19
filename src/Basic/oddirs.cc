@@ -25,10 +25,6 @@ ________________________________________________________________________
 #include <iostream>
 #include <QStandardPaths>
 
-#ifdef __msvc__
-# include <direct.h>
-# include <Lmcons.h>
-#endif
 #ifdef __win__
 # include "winutils.h"
 # include "Knownfolders.h"
@@ -992,53 +988,6 @@ mExternC(Basic) const char* GetODExternalScript()
 }
 
 
-mExternC(Basic) const char* GetSoftwareUser()
-{
-    mDeclStaticString( ret );
-    if ( ret.isEmpty() )
-    {
-	const char* envval = nullptr;
-	if ( __iswin__ )
-	    envval = GetEnvVar( "DTECT_WINUSER" );
-
-	if ( !envval || !*envval )
-	    envval = GetEnvVar( "DTECT_USER" );
-
-	if ( od_debug_isOn(DBG_SETTINGS) )
-	    mPrDebug( "GetSoftwareUser", envval ? envval : "<None>" );
-
-	ret = envval;
-    }
-
-    return ret.str();
-}
-
-
-mExternC(Basic) const char* GetUserNm()
-{
-    mDeclStaticString( ret );
-#ifdef __win__
-    mDefineStaticLocalObject( TCHAR, usernm, [UNLEN+1] );
-    DWORD len = UNLEN+1;
-    GetUserName( usernm, &len );
-    WinUtils::copyWString( usernm, ret );
-#else
-    ret = GetEnvVar( "USER" );
-#endif
-    return ret.buf();
-}
-
-
-mExternC(Basic) const char* GetInterpreterName()
-{
-    const StringView dtectuser = GetSoftwareUser();
-    if ( dtectuser.isEmpty() )
-	return GetUserNm();
-
-    return dtectuser;
-}
-
-
 static void getHomeDir( BufferString& homedir )
 {
     const char* dir;
@@ -1075,7 +1024,7 @@ static void getHomeDir( BufferString& homedir )
     if ( !dir ) dir = GetEnvVar( "DTECT_USERPROFILE_DIR" );// set by init script
     if ( !dir ) // Last resort. Is known to cause problems when used
 		// during initialization of statics. (0xc0000005)
-	dir = GetSpecialFolderLocation( CSIDL_PROFILE ); // "User profile"
+	dir = GetKnownFolderLocation( FOLDERID_Profile ); // "User profile"
 
 #endif
 

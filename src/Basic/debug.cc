@@ -580,8 +580,8 @@ static uiString* legalText();
 static const char* breakpadname = "Google Breakpad";
 # ifdef __win__
 static bool MinidumpCB( LPCWSTR dump_path, LPCWSTR id,
-			void* context, EXCEPTION_POINTERS *exinfo,
-			MDRawAssertionInfo *assertion, bool succeeded )
+			void* /*context*/, EXCEPTION_POINTERS */*exinfo*/,
+			MDRawAssertionInfo */*assertion*/, bool succeeded )
 {
     if ( !dumpsent.setIfValueIs(0,1,nullptr) )
 	return succeeded;

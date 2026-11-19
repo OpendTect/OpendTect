@@ -28,13 +28,8 @@ ________________________________________________________________________
 #include <QSettings>
 
 #ifdef __win__
-# include <Windows.h>
-# include <direct.h>
 # include "winutils.h"
-#else
-# ifndef OD_NO_QT
-#  include <QProcess>
-# endif
+# include <Knownfolders.h>
 #endif
 
 
@@ -128,9 +123,8 @@ BufferString ODInst::GetRelInfoDir()
 const char* sAutoInstTypeUserMsgs[] = {
     "[&Manager] Start the Installation Manager when updates are available",
     "[&Inform] When new updates are present, show this in OpendTect title bar",
-    "[&Auto] Automatically download and install new updates "
-	"(requires sufficient administrator rights)",
-    "[&None] Never check for updates", 0 };
+    "[&Auto] Automatically download and install new updates (requires sufficient administrator rights)",
+    "[&None] Never check for updates", nullptr };
 
 
 const BufferStringSet& ODInst::autoInstTypeUserMsgs()
@@ -208,9 +202,10 @@ static BufferString qSettingsString( const QSettings& setts, const char* key )
 
 
 #ifdef __win__
-static bool windowsPathIsInFolder( const FilePath& reqpathfp, int csidl )
+static bool windowsPathIsInFolder( const FilePath& reqpathfp,
+				   REFKNOWNFOLDERID folderid )
 {
-    BufferString dir = GetSpecialFolderLocation( csidl );
+    BufferString dir = GetKnownFolderLocation( folderid );
     if ( dir.isEmpty() )
 	return false;
 
@@ -222,10 +217,10 @@ static bool windowsPathIsInFolder( const FilePath& reqpathfp, int csidl )
 
 static bool isTrustedWindowsLocation( const FilePath& reqpathfp )
 {
-    return windowsPathIsInFolder( reqpathfp, CSIDL_PROGRAM_FILES ) ||
-	   windowsPathIsInFolder( reqpathfp, CSIDL_PROGRAM_FILESX86 ) ||
-	   windowsPathIsInFolder( reqpathfp, CSIDL_COMMON_APPDATA ) ||
-	   windowsPathIsInFolder( reqpathfp, CSIDL_WINDOWS );
+    return windowsPathIsInFolder( reqpathfp, FOLDERID_ProgramFiles ) ||
+	   windowsPathIsInFolder( reqpathfp, FOLDERID_ProgramFilesX86 ) ||
+	   windowsPathIsInFolder( reqpathfp, FOLDERID_ProgramData ) ||
+	   windowsPathIsInFolder( reqpathfp, FOLDERID_Windows );
 }
 
 

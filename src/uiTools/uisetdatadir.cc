@@ -30,6 +30,7 @@ ________________________________________________________________________
 #include "settings.h"
 
 #ifdef __win__
+# include <Knownfolders.h>
 # include "winutils.h"
 #endif
 
@@ -357,7 +358,7 @@ bool uiSetDataDir::setRootDataDir( uiParent* par, const char* inpdatadir )
     if ( !File::exists(datadir) )
     {
 #ifdef __win__
-	BufferString progfiles=GetSpecialFolderLocation(CSIDL_PROGRAM_FILES);
+	BufferString progfiles = GetKnownFolderLocation(FOLDERID_ProgramFiles);
 
 	if ( ( !progfiles.isEmpty() &&
 	       !strncasecmp(progfiles, datadir, strlen(progfiles)) )

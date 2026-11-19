@@ -9,11 +9,11 @@ ________________________________________________________________________
 -*/
 
 #include "earthmodelmod.h"
-#include "executor.h"
+
 #include "bufstringset.h"
-#include "posinfo2d.h"
+#include "executor.h"
 #include "ranges.h"
-#include "multiid.h"
+
 
 class BinIDValueSet;
 namespace Survey { class Geometry2D; }
@@ -51,23 +51,23 @@ protected:
 
     uiString			    msg_;
     mutable int			    totalnr_;
-    EM::Horizon2DAscIO*		    ascio_;
+    EM::Horizon2DAscIO*		    ascio_		= nullptr;
     BufferStringSet		    filenames_;
-    int				    fileidx_;
+    int				    fileidx_		= 0;
 
     BufferString		    curline_;
     bool			    isgeom_;
     TypeSet<Interval<float> >	    valranges_;
     Table::FormatDesc&		    fd_;
 
-    const Survey::Geometry2D*	    curlinegeom_;
+    const Survey::Geometry2D*	    curlinegeom_	= nullptr;
 
     BufferStringSet		    linenames_;
     BufferStringSet		    validnms_;
     BufferStringSet		    invalidnms_;
-    BinIDValueSet*		    bvalset_;
+    BinIDValueSet*		    bvalset_		= nullptr;
 
     const ZDomain::Info&	    zinfo_;
 
-    bool			    istracenr_;
+    bool			    istracenr_		= false;
 };

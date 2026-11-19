@@ -23,15 +23,14 @@ ________________________________________________________________________
 #include "keystrs.h"
 #include "moddepmgr.h"
 #include "oddirs.h"
-#include "odmemory.h"
 #include "oscommand.h"
 #include "odruncontext.h"
-#include "od_iostream.h"
+#include "od_istream.h"
+#include "od_ostream.h"
 #include "perthreadrepos.h"
 #include "plugins.h"
 #include "ptrman.h"
 #include "separstr.h"
-#include "survinfo.h"
 #include "threadlock.h"
 
 #include <iostream>
@@ -39,19 +38,22 @@ ________________________________________________________________________
 #include <memory>
 #include <stdlib.h>
 #include <string.h>
+
 #ifdef __win__
 # include <float.h>
 # include <time.h>
-# include "winutils.h"
 # include <sys/timeb.h>
 # include <shlobj.h>
 # include <Psapi.h>
+# include "winutils.h"
 # define mEnvVarDirSep ';'
 #else
 # include <unistd.h>
 # include <errno.h>
+# include <pwd.h>
 # include <netdb.h>
-# include <stdio.h>
+# include <string>
+# include <unordered_map>
 # include <sys/socket.h>
 # include <netinet/in.h>
 # include <arpa/inet.h>
@@ -139,6 +141,214 @@ bool OD::InUiProgRunContext()
 bool OD::InInstallerRunContext()
 {
     return GetRunContext() == RunCtxt::InstallerCtxt;
+}
+
+
+mExternC(Basic) const char* GetSoftwareUser()
+{
+    mDeclStaticString( ret );
+    if ( ret.isEmpty() )
+    {
+	const char* envval = nullptr;
+	if ( __iswin__ )
+	    envval = GetEnvVar( "DTECT_WINUSER" );
+
+	if ( !envval || !*envval )
+	    envval = GetEnvVar( "DTECT_USER" );
+
+	if ( od_debug_isOn(DBG_SETTINGS) )
+	{
+	    od_debug_message( BufferString("GetSoftwareUser",": ",
+					   envval ? envval : "<None>") );
+	}
+
+	ret = envval;
+    }
+
+    return ret.str();
+}
+
+
+mExternC(Basic) const char* GetUserNm()
+{
+    mDeclStaticString( ret );
+#ifdef __win__
+    WinUtils::GetUserName( ret );
+#else
+    ret = GetEnvVar( "USER" );
+#endif
+    return ret.buf();
+}
+
+
+mExternC(Basic) const char* GetInterpreterName()
+{
+    const StringView dtectuser = GetSoftwareUser();
+    if ( dtectuser.isEmpty() )
+	return GetUserNm();
+
+    return dtectuser;
+}
+
+
+#ifdef __unix__
+namespace OD
+{
+
+using DisplayNameMap = std::unordered_map<std::string,std::string>;
+
+static DisplayNameMap& unixDisplayNames()
+{
+    mDefineStaticLocalObject( PtrMan<DisplayNameMap>, names,
+			      = new DisplayNameMap )
+    return *names.ptr();
+}
+
+static Threads::Lock& unixDisplayNameLock()
+{
+    mDefineStaticLocalObject( PtrMan<Threads::Lock>, lock,
+			      = new Threads::Lock(false) )
+    return *lock.ptr();
+}
+
+static bool cachedDisplayName( const char* account, BufferString& name )
+{
+    if ( StringView(account).isEmpty() )
+	return false;
+
+    Threads::Locker lock( unixDisplayNameLock() );
+    const auto it = unixDisplayNames().find( account );
+    if ( it == unixDisplayNames().end() )
+	return false;
+
+    name = it->second.c_str();
+    return !name.isEmpty();
+}
+
+
+static void storeDisplayName( const char* account, const char* display )
+{
+    if ( StringView(account).isEmpty() || StringView(display).isEmpty() )
+	return;
+
+    Threads::Locker lock( unixDisplayNameLock() );
+    unixDisplayNames()[account] = display;
+}
+
+
+static void applyUnixGecos( const char* gecosstr, const char* loginstr,
+			    BufferString& name	)
+{
+    if ( StringView(gecosstr).isEmpty() )
+	return;
+
+    BufferString gecos( gecosstr );
+    BufferString login( loginstr );
+    char* comma = gecos.find( ',' );
+    if ( comma )
+	*comma = '\0';
+
+    if ( gecos.find('&') && !login.isEmpty() )
+    {
+	if ( login.first() >= 'a' && login.first() <= 'z' )
+	    login.first() = sCast(char, login.first() - 'a' + 'A');
+
+	gecos.replace( "&", login.str() );
+    }
+
+    gecos.trimBlanks();
+    if ( !gecos.isEmpty() )
+	name = gecos;
+}
+
+
+static bool lookupUnixSessionUser( const char* usernm, const od_uint32* uid,
+				   BufferString& name )
+{
+    if ( StringView(usernm).isEmpty() && !uid )
+	return false;
+
+    if ( cachedDisplayName(usernm,name) )
+	return true;
+
+    long bufsz = ::sysconf( _SC_GETPW_R_SIZE_MAX );
+    if ( bufsz < 1024 )
+	bufsz = 1024;
+
+    for ( int attempt=0; attempt<3; attempt++ )
+    {
+	mAllocLargeVarLenArr( char, buf, bufsz );
+	if ( !buf.ptr() )
+	    return false;
+
+	struct passwd pwd;
+	struct passwd* result = nullptr;
+	const int res = usernm
+	    ? ::getpwnam_r( usernm, &pwd, buf.ptr(),
+			    sCast(std::size_t,bufsz), &result )
+	    : ::getpwuid_r( sCast(uid_t,*uid), &pwd, buf.ptr(),
+			    sCast(std::size_t,bufsz), &result );
+	if ( res == ERANGE )
+	{
+	    bufsz *= 2;
+	    continue;
+	}
+
+	if ( res != 0 || !result )
+	    return false;
+
+	if ( result->pw_name && cachedDisplayName(result->pw_name,name) )
+	{
+	    storeDisplayName( usernm, name.buf() );
+	    return true;
+	}
+
+	applyUnixGecos( result->pw_gecos, result->pw_name, name );
+	if ( name.isEmpty() && result->pw_name )
+	    name = result->pw_name;
+
+	if ( !name.isEmpty() )
+	{
+	    storeDisplayName( result->pw_name, name.buf() );
+	    storeDisplayName( usernm, name.buf() );
+	}
+
+	return !name.isEmpty();
+    }
+
+    return false;
+}
+
+} // namespace OD
+#endif
+
+
+mExternC(Basic) const char* GetSessionUserNmFromID( void* user )
+{
+    mDeclStaticString( ret );
+    ret.setEmpty();
+#ifdef __win__
+    WinUtils::GetSessionUserNm( (PSID)user, ret );
+#else
+    OD::lookupUnixSessionUser( nullptr, sCast(const od_uint32*,user), ret );
+#endif
+    return ret.buf();
+}
+
+
+mGlobal(Basic) const char* GetSessionUserNm( const char* usernm )
+{
+    mDeclStaticString( ret );
+    ret.setEmpty();
+    if ( !usernm || !*usernm )
+	return ret.buf();
+
+#ifdef __win__
+    WinUtils::resolveSessionUserNm( usernm, ret );
+#else
+    OD::lookupUnixSessionUser( usernm, nullptr, ret );
+#endif
+    return ret.buf();
 }
 
 
@@ -292,16 +502,6 @@ mExternC( Basic ) int InSysAdmMode(void) { return insysadmmode_; }
 mExternC( Basic ) void SetInSysAdmMode(void) { insysadmmode_ = 1; }
 
 
-#ifdef __win__
-static int initWinSock()
-{
-    WSADATA wsaData;
-    WORD wVersion = MAKEWORD( 2, 0 ) ;
-    return WSAStartup( wVersion, &wsaData );
-}
-#endif
-
-
 const char* GetOSIdentifier()
 {
     mDefineStaticLocalObject( PtrMan<BufferString>, ret, )
@@ -356,13 +556,24 @@ bool is64BitWindows()
 #endif
 
 
-static void mUnusedVar GetLocalHostNameNoQt( char* ret )
+#if defined(OD_NO_QT) || QT_VERSION < QT_VERSION_CHECK(5,6,0)
+# ifdef __win__
+static int initWinSock()
 {
-#ifdef __win__
+    WSADATA wsaData;
+    WORD wVersion = MAKEWORD( 2, 0 ) ;
+    return WSAStartup( wVersion, &wsaData );
+}
+# endif
+
+static void GetLocalHostNameNoQt( char* ret )
+{
+# ifdef __win__
     initWinSock();
-#endif
+# endif
     gethostname( ret, 256 );
 }
+#endif
 
 
 static BufferString localhostnameoverrule;
@@ -384,19 +595,17 @@ const char* GetLocalHostName()
     if ( !localhostnameoverrule.isEmpty() )
 	ret->set( localhostnameoverrule );
 
-#ifndef OD_NO_QT
-# if QT_VERSION >= QT_VERSION_CHECK(5,6,0)
+#if !defined(OD_NO_QT) && QT_VERSION >= QT_VERSION_CHECK(5,6,0)
     BufferString hostnm( QSysInfo::machineHostName() );
     char* dot = hostnm.find( '.' );
-    if ( dot ) { *dot ='\0'; }
+    if ( dot )
+	*dot ='\0';
+
     ret->set( hostnm );
-# else
-    GetLocalHostNameNoQt( ret );
-# endif
 #else
-    GetLocalHostNameNoQt( ret );
+    GetLocalHostNameNoQt( ret->getCStr() );
 #endif
-    return ret->str();
+    return ret->buf();
 }
 
 static const char* noAddrFn( bool )	{ return nullptr; }

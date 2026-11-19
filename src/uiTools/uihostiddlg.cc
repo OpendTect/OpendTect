@@ -13,8 +13,9 @@ ________________________________________________________________________
 #include "file.h"
 #include "filepath.h"
 #include "generalinfo.h"
-#include "oddirs.h"
+#include "genc.h"
 #include "od_helpids.h"
+#include "oddirs.h"
 #include "odplatform.h"
 #include "systeminfo.h"
 
@@ -239,7 +240,7 @@ void addInfo( BufferStringSet& infos ) const override
 class uiGraphicInfoGrp : public uiInfoGroup
 { mODTextTranslationClass( uiSystemInfoGrp )
 public:
-uiGraphicInfoGrp( uiParent* p, const IOPar& pars )
+uiGraphicInfoGrp( uiParent* p, const IOPar& /*pars*/ )
     : uiInfoGroup( p, tr("Graphics Card Information") )
 {
     const IOPar& graphicsinfo = System::graphicsInformation();
