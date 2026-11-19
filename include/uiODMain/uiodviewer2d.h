@@ -190,7 +190,7 @@ public:
     //Fault
     void			getFaultVwr2DIDs(EM::ObjectID emid,
 						 TypeSet<Vis2DID>&) const;
-    void			removeFault(EM::ObjectID emid);
+    virtual void		removeFault(EM::ObjectID emid);
     void			getLoadedFaults(
 					TypeSet<EM::ObjectID>&) const;
     virtual void		addFaults(const TypeSet<EM::ObjectID>&);
@@ -200,7 +200,7 @@ public:
     //FaultStickSet
     void			getFaultSSVwr2DIDs(EM::ObjectID emid,
 						   TypeSet<Vis2DID>&) const;
-    void			removeFaultSS(EM::ObjectID emid);
+    virtual void		removeFaultSS(EM::ObjectID emid);
     void			getLoadedFaultSSs(
 					TypeSet<EM::ObjectID>&) const;
     virtual void		addFaultSSs(const TypeSet<EM::ObjectID>&);
@@ -221,7 +221,7 @@ public:
     //PickSets
     void			getPickSetVwr2DIDs(const MultiID& mid,
 						   TypeSet<Vis2DID>&) const;
-    void			removePickSet(const MultiID&);
+    virtual void		removePickSet(const MultiID&);
     void			getLoadedPickSets(TypeSet<MultiID>&) const;
     virtual void		addPickSets(const TypeSet<MultiID>&);
     void			setupNewPickSet(const MultiID&);
