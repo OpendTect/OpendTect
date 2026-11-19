@@ -62,7 +62,6 @@ const char* Scene::sKeyBackgroundColor()	{ return "Background color"; }
 const char* Scene::sKeyZStretch()	{ return "Z Stretch"; }
 
 static const char* sKeydTectScene()	{ return "dTect.Scene"; }
-static const char* sKeyAnnotFont()	{ return "Annotation font"; }
 static const char* sKeyZScale()		{ return "Z Scale"; }
 
 
@@ -354,8 +353,8 @@ int Scene::size() const
 
 int Scene::getFirstIdx( const visBase::DataObject* ) const
 {
-#ifdef __debug__
     pErrMsg( "A visBase object is not in a VSG scene" );
+#ifdef __debug__
     DBG::forceCrash( false );
 #endif
     return -1;
@@ -438,8 +437,8 @@ void Scene::addInlCrlZObject( ODVsg::DataObject* obj )
 
 void Scene::addObject( visBase::DataObject* )
 {
-#ifdef __debug__
     pErrMsg( "A visBase object is not drawn in a VSG scene" );
+#ifdef __debug__
     DBG::forceCrash( false );
 #endif
 }
@@ -457,8 +456,8 @@ void Scene::addObject( ODVsg::DataObject* obj )
 
 void Scene::insertObject( int, visBase::DataObject* )
 {
-#ifdef __debug__
     pErrMsg( "A visBase object is not drawn in a VSG scene" );
+#ifdef __debug__
     DBG::forceCrash( false );
 #endif
 }
