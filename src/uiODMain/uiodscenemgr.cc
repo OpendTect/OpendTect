@@ -299,34 +299,21 @@ SceneID uiODSceneMgr::addScene( bool maximized, ZAxisTransform* zt,
 }
 
 
-namespace
-{
-
-class VSGTreeItem : public uiTreeItem
-{
-public:
-			VSGTreeItem( const uiString& nm )
-			    : uiTreeItem(nm)
-			{}
-
-    const char*		parentType() const override
-			{ return typeid(uiTreeTopItem).name(); }
-};
-
-} // namespace
-
-
 // The names of the OSG category items, without their actions: an OSG item is
-// only made to read its name.
-void uiODSceneMgr::addVSGCategoryItems( uiTreeTopItem& top )
+// only made to read its name. Plain rows, which cannot be selected.
+void uiODSceneMgr::addVSGCategoryItems( uiTreeView& lv )
 {
     TypeSet<int> idxs;
     getFactoryIdxs( idxs );
     for ( int idx=0; idx<idxs.size(); idx++ )
     {
 	PtrMan<uiTreeItem> osgitem = tifs_->getFactory(idxs[idx])->create();
-	if ( osgitem )
-	    top.addChild( new VSGTreeItem(osgitem->name()), true );
+	if ( !osgitem )
+	    continue;
+
+	auto* item = new uiTreeViewItem( &lv,
+				uiTreeViewItem::Setup(osgitem->name()) );
+	item->setSelectable( false );
     }
 }
 
@@ -356,7 +343,7 @@ SceneID uiODSceneMgr::addVSGScene( bool maximized, const uiString& nm )
     }
 
     mdiarea_->addWindow( mdiwin );
-    mAttachCB( mdiwin->closed(), uiODSceneMgr::removeVSGSceneCB );
+    mAttachCB( mdiwin->closed(), uiODSceneMgr::removeSceneCB );
 
     // The tree. Does not trigger treeToBeAdded, treeAdded or sceneClosed:
     // their listeners add OSG objects to the scene.
@@ -367,9 +354,11 @@ SceneID uiODSceneMgr::addVSGScene( bool maximized, const uiString& nm )
 
     createTreeDock( title, tree->dw_, tree->lv_ );
 
-    tree->itemmanager_ = new uiTreeTopItem( tree->lv_ );
-    tree->itemmanager_->addChild( new VSGTreeItem(title), false );
-    addVSGCategoryItems( *tree->itemmanager_ );
+    // A plain tree: no uiTreeTopItem, so itemmanager_ stays null
+    auto* sceneitm = new uiTreeViewItem( tree->lv_,
+					 uiTreeViewItem::Setup(title) );
+    sceneitm->setSelectable( false );
+    addVSGCategoryItems( *tree->lv_ );
 
     scenes_ += tree;
     tree->lv_->display( true );
@@ -385,27 +374,10 @@ SceneID uiODSceneMgr::addVSGScene( bool maximized, const uiString& nm )
 }
 
 
-void uiODSceneMgr::removeVSGSceneCB( CallBacker* cb )
-{
-    mDynamicCastGet(uiGroupObj*,grp,cb)
-    if ( !grp )
-	return;
-
-    for ( auto* bundle : scenes_ )
-    {
-	if ( !bundle->isVSG() || grp != bundle->mdiwin_->mainObject() )
-	    continue;
-
-	removeVSGScene( *dCast(VSGSceneBundle*,bundle) );
-	return;
-    }
-}
-
-
 void uiODSceneMgr::removeVSGScene( VSGSceneBundle& tree )
 {
     const SceneID sceneid = tree.sceneid_;
-    tree.mdiwin_->closed().remove( mWSMCB(removeVSGSceneCB) );
+    tree.mdiwin_->closed().remove( mWSMCB(removeSceneCB) );
     appl_.removeDockWindow( tree.dw_ );
     if ( tree.itemmanager_ )
 	tree.itemmanager_->prepareForShutdown();
@@ -526,10 +498,14 @@ void uiODSceneMgr::removeSceneCB( CallBacker* cb )
     if ( !grp ) return;
     for ( auto* bundle : scenes_ )
     {
-	if ( bundle->isVSG() || grp != bundle->mdiwin_->mainObject() )
+	if ( grp != bundle->mdiwin_->mainObject() )
 	    continue;
 
-	removeScene( *dCast(ODSceneBundle*,bundle) );
+	if ( bundle->isVSG() )
+	    removeVSGScene( *dCast(VSGSceneBundle*,bundle) );
+	else
+	    removeScene( *dCast(ODSceneBundle*,bundle) );
+
 	return;
     }
 }

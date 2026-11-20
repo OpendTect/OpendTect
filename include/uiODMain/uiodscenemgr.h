@@ -284,8 +284,7 @@ protected:
     SceneBundle*		getBundle(const SceneID&);
     void			tabifyTree(SceneBundle&);
     void			removeVSGScene(VSGSceneBundle&);
-    void			removeVSGSceneCB(CallBacker*);
-    void			addVSGCategoryItems(uiTreeTopItem&);
+    void			addVSGCategoryItems(uiTreeView&);
     ODSceneBundle*		getScene(const SceneID&);
     const ODSceneBundle*	getScene(const SceneID&) const;
     void			newSceneUpdated(CallBacker*);
