@@ -377,7 +377,7 @@ SceneID uiODSceneMgr::addVSGScene( bool maximized, const uiString& nm )
 void uiODSceneMgr::removeVSGScene( VSGSceneBundle& tree )
 {
     const SceneID sceneid = tree.sceneid_;
-    tree.mdiwin_->closed().remove( mWSMCB(removeSceneCB) );
+    mDetachCB( tree.mdiwin_->closed(), uiODSceneMgr::removeSceneCB );
     appl_.removeDockWindow( tree.dw_ );
     scenes_ -= &tree;
     delete &tree;

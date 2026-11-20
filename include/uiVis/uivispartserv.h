@@ -113,7 +113,6 @@ public:
 			/*!<Creates and registers the scene, no viewer */
     uiObject*		createVSGViewer(const SceneID&,uiParent*,
 					const uiString& nm);
-			/*!<The viewer is a child of the parent. Null on failure */
 
     void		removeScene(const SceneID&);
     int			nrScenes() const;

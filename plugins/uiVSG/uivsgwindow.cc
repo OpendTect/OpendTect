@@ -550,7 +550,7 @@ void dGBVSGNativeWindow::wheelEvent( QWheelEvent* event )
 }
 
 
-dGBVSGWindow::dGBVSGWindow( uiObject& handle, uiParent* parent, const char* nm,
+dGBVSGWindow::dGBVSGWindow( uiParent* parent, uiObject& handle, const char* nm,
 			    int rendertimems )
     : uiObjectBody(parent,nullptr)
     , shown(this)

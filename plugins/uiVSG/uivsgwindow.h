@@ -41,7 +41,7 @@ class uiParent;
 mClass(uiVSG) dGBVSGWindow : public uiObjectBody
 {
 public:
-			dGBVSGWindow(uiObject& handle,uiParent*,
+			dGBVSGWindow(uiParent*,uiObject& handle,
 				     const char* nm,int rendertimems);
 			~dGBVSGWindow();
 
