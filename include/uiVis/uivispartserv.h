@@ -501,7 +501,6 @@ protected:
     bool			issolomode_			= false;
     Threads::Mutex&		eventmutex_;
     VisID			eventobjid_			= VisID::udf();
-    int				vsgscenenr_			= 0;
     int				eventattrib_			= -1;
     int				selattrib_			= -1;
     VisID			curinterpobjid_;

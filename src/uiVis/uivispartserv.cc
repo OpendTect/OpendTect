@@ -317,15 +317,9 @@ SceneID uiVisPartServer::addVSGScene( const uiString& nm )
     if ( !sceneid.isValid() )
 	return SceneID::udf();
 
-    uiString title = nm;
-    if ( !title.isSet() )
-    {
-	vsgscenenr_++;
-	title = uiStrings::phrJoinStrings( uiStrings::sScene(),
-					   toUiString(vsgscenenr_) );
-    }
+    if ( nm.isSet() )
+	setSceneName( sceneid, nm );
 
-    setSceneName( sceneid, title );
     return sceneid;
 }
 
@@ -1322,12 +1316,8 @@ bool uiVisPartServer::deleteAllObjects()
 
     NotifyStopper ns( nrscenesChange );
     while ( !scenes_.isEmpty() )
-    {
-	const SceneID sceneid = scenes_.first()->getID();
-	removeScene( sceneid );
-    }
+	removeScene( scenes_.first()->getID() );
 
-    vsgscenenr_ = 0;
     closeAndNullPtr( multirgeditwin_ );
     closeAndNullPtr( topbotdlg_ );
     objectRemoved.trigger( VisID::udf() );

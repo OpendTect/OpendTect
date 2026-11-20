@@ -169,7 +169,7 @@ uiODSceneMgr::~uiODSceneMgr()
 	    continue;
 	}
 
-	mDynamicCastGet(ODSceneBundle*,scene,bundle)
+	auto* scene = dCast(ODSceneBundle*,bundle);
 	scene->itemmanager_->prepareForShutdown();
 	removeScene( *scene ); // deletes "scene"
     }
@@ -263,7 +263,7 @@ SceneID uiODSceneMgr::addScene( bool maximized, ZAxisTransform* zt,
 	    continue;
 
 	if ( !firstscene )
-	    mDynamicCast(ODSceneBundle*,firstscene,bundle)
+	    firstscene = dCast(ODSceneBundle*,bundle);
 	nrodscenes++;
     }
 
@@ -434,7 +434,7 @@ void uiODSceneMgr::newSceneUpdated( CallBacker* )
 	if ( scenes_[idx]->isVSG() )
 	    continue;
 
-	mDynamicCast(ODSceneBundle*,lastscene,scenes_[idx])
+	lastscene = dCast(ODSceneBundle*,scenes_[idx]);
 	break;
     }
 
@@ -536,7 +536,7 @@ void uiODSceneMgr::getScenePars( IOPar& iopar )
 	if ( bundle->isVSG() )
 	    continue;
 
-	mDynamicCastGet(ODSceneBundle*,scene,bundle)
+	auto* scene = dCast(ODSceneBundle*,bundle);
 	IOPar iop;
 	scene->vwr3d_->fillPar( iop );
 	iopar.mergeComp( iop, toString(idx++) );
@@ -797,7 +797,7 @@ void uiODSceneMgr::setStereoType( int type )
 	if ( bundle->isVSG() )
 	    continue;
 
-	mDynamicCast(ODSceneBundle*,firstscene,bundle)
+	firstscene = dCast(ODSceneBundle*,bundle);
 	break;
     }
 
@@ -986,7 +986,7 @@ void uiODSceneMgr::soloMode( CallBacker* )
 	if ( bundle->isVSG() )
 	    continue;
 
-	mDynamicCastGet(ODSceneBundle*,scene,bundle)
+	auto* scene = dCast(ODSceneBundle*,bundle);
 	dispids += scene->treeTop()->getDisplayIds( selectedid,
 						    !issolomodeon );
     }
@@ -1019,7 +1019,7 @@ SceneID uiODSceneMgr::askSelectScene() const
 	if ( bundle->isVSG() )
 	    continue;
 
-	mDynamicCastGet(ODSceneBundle*,scene,bundle)
+	auto* scene = dCast(ODSceneBundle*,bundle);
 	SceneID sceneid = scene->treeTop()->sceneID();
 	sceneids += sceneid;
 	scenenms.add( getSceneName(sceneid) );
@@ -1119,7 +1119,7 @@ SceneID uiODSceneMgr::getActiveSceneID() const
 	if ( bundle->isVSG() || !bundle->itemmanager_ )
 	    continue;
 
-	mDynamicCastGet(ODSceneBundle*,scene,bundle)
+	auto* scene = dCast(ODSceneBundle*,bundle);
 	if ( scenenm ==
 	   getSceneName(scene->treeTop()->sceneID()).getFullString() )
 	    return scene->treeTop()->sceneID();
@@ -1194,7 +1194,7 @@ void uiODSceneMgr::setActiveScene( int idx )
 	if ( odidx++ != idx )
 	    continue;
 
-	mDynamicCastGet(ODSceneBundle*,scene,bundle)
+	auto* scene = dCast(ODSceneBundle*,bundle);
 	setActiveScene( scene->vwr3d_->sceneID() );
 	return;
     }
@@ -1951,7 +1951,7 @@ void uiODSceneMgr::font3DChanged( CallBacker* )
 	if ( bundle->isVSG() )
 	    continue;
 
-	mDynamicCastGet(ODSceneBundle*,scene,bundle)
+	auto* scene = dCast(ODSceneBundle*,bundle);
 	ui3DViewer* vwr3d = scene->vwr3d_;
 	if ( !vwr3d ) continue;
 
