@@ -244,13 +244,16 @@ class Well(_SurveyObject):
         dah : np.ndarray
             1D float32 numpy array with the depth-along-hole (MD) of the logdata in the survey's default depth unit
         logdata : np.ndarray
-            1D float32 numpy array with the log data
+            1D float32 numpy array with the log data, NaN for undefined values. Leading and trailing
+            undefined values are not stored, so once reloaded the log starts and ends at a defined value
         uom : str
-            the unit of measure of the new log
+            the unit of measure of the new log, a unit OpendTect does not recognise is not stored
+            and the log has no unit of measure
         mnem : str
             the Mnemonic of the new log
         overwrite : bool=False
-            whether to overwrite if lognm already exists in the well
+            whether to overwrite if lognm already exists in the well. If False and lognm exists, nothing
+            is written and no error is raised. If True the existing log is deleted before the new log is written
 
         """
         if dah.size!=logdata.size:
