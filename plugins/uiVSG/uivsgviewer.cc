@@ -12,6 +12,7 @@ ________________________________________________________________________
 #include "vsggeocompiler.h"
 
 #include "settings.h"
+#include "survinfo.h"
 
 
 #include "uifont.h"
@@ -44,6 +45,7 @@ namespace
 {
 
 constexpr int cRenderTimeMs = 16;
+constexpr double cFovY = 30.;
 
 struct ViewAll
 {
@@ -72,6 +74,23 @@ ViewAll computeViewAll( const vsg::Node& node, double fovydeg )
     ret.near_ = mMAX( dist - 2.*radius, 1e-3*radius );
     ret.far_ = dist + 2.*radius;
     return ret;
+}
+
+
+const char* sKeyHomePos()	{ return "VSG Home position"; }
+const char* sKeyEye()		{ return "Eye"; }
+const char* sKeyCenter()	{ return "Center"; }
+const char* sKeyUp()		{ return "Up"; }
+
+Coord3 toCoord3( const vsg::dvec3& vec )
+{
+    return Coord3( vec.x, vec.y, vec.z );
+}
+
+
+vsg::dvec3 toDVec3( const Coord3& crd )
+{
+    return vsg::dvec3( crd.x_, crd.y_, crd.z_ );
 }
 
 
@@ -618,11 +637,19 @@ void uiVSGViewer::ColTabLink::changedCB( CallBacker* )
 }
 
 
+static ObjectSet<uiVSGViewer>& openViewers()
+{
+    mDefineStaticLocalObject( ObjectSet<uiVSGViewer>, viewers, );
+    return viewers;
+}
+
 
 uiVSGViewer::uiVSGViewer( uiParent* parent, const char* nm )
     : uiObject(parent,nm,mkBody(parent,nm))
     , closing(this)
+    , viewmodechanged(this)
 {
+    openViewers() += this;
     setMinimumWidth( 600 );
     setMinimumHeight( 400 );
     setPrefWidth( 800 );
@@ -631,7 +658,11 @@ uiVSGViewer::uiVSGViewer( uiParent* parent, const char* nm )
     viewer_ = window_->vsgViewer();
     statuscb_ = new VSGMouseStatus;
     windowhandler_ = uiVSGWindowHandler::create( window_ );
+    windowhandler_->setViewModeToggledCB(
+		mCB(this,uiVSGViewer,viewModeToggledCB) );
     updateCursor();
+    mAttachCB( FontList().get(FontData::Graphics3D).changed,
+	       uiVSGViewer::font3DChangedCB );
     mAttachCB( window_->shown, uiVSGViewer::windowShownCB );
     mAttachCB( window_->resized, uiVSGViewer::windowResizedCB );
 }
@@ -660,6 +691,7 @@ void uiVSGViewer::windowResizedCB( CallBacker* )
 uiVSGViewer::~uiVSGViewer()
 {
     detachAllNotifiers();
+    openViewers() -= this;
     if ( scene_ )
 	closing.trigger( scene_->getID() );
 
@@ -679,7 +711,10 @@ uiVSGViewer::~uiVSGViewer()
     }
 
     if ( windowhandler_ )
+    {
+	windowhandler_->setViewModeToggledCB( CallBack() );
 	windowhandler_->setScene( nullptr );
+    }
 
     if ( statuscb_ && scene_ )
 	scene_->mouseposchange.remove( mCB(statuscb_,VSGMouseStatus,update) );
@@ -708,6 +743,22 @@ uiVSGViewer::~uiVSGViewer()
     delete statuscb_;
     statuscb_ = nullptr;
     delete window_;
+}
+
+
+uiVSGViewer* uiVSGViewer::find( const SceneID& sceneid )
+{
+    ObjectSet<uiVSGViewer>& viewers = openViewers();
+    if ( !sceneid.isValid() )
+	return viewers.isEmpty() ? nullptr : viewers.last();
+
+    for ( uiVSGViewer* viewer : viewers )
+    {
+	if ( viewer->scene() && viewer->scene()->getID()==sceneid )
+	    return viewer;
+    }
+
+    return nullptr;
 }
 
 
@@ -740,6 +791,101 @@ void uiVSGViewer::setViewMode( bool yn )
 bool uiVSGViewer::isViewMode() const
 {
     return windowhandler_ ? windowhandler_->isViewMode() : true;
+}
+
+
+void uiVSGViewer::viewModeToggledCB( CallBacker* )
+{
+    viewmodechanged.trigger( isViewMode() );
+}
+
+
+vsg::LookAt* uiVSGViewer::cameraLookAt() const
+{
+    return camera_ ? dCast( vsg::LookAt*, camera_->viewMatrix.get() )
+		   : nullptr;
+}
+
+
+void uiVSGViewer::saveHomePos()
+{
+    const vsg::LookAt* lookat = cameraLookAt();
+    if ( !lookat )
+	return;
+
+    homepose_ = { lookat->eye, lookat->center, lookat->up };
+    hashomepose_ = true;
+
+    IOPar par;
+    par.set( sKeyEye(), toCoord3(homepose_.eye_) );
+    par.set( sKeyCenter(), toCoord3(homepose_.center_) );
+    par.set( sKeyUp(), toCoord3(homepose_.up_) );
+    IOPar& sipars = SI().getPars();
+    sipars.removeSubSelection( sKeyHomePos() );
+    sipars.mergeComp( par, sKeyHomePos() );
+    SI().savePars();
+}
+
+
+void uiVSGViewer::initHomePos()
+{
+    const vsg::LookAt* lookat = cameraLookAt();
+    if ( !lookat )
+	return;
+
+    homepose_ = { lookat->eye, lookat->center, lookat->up };
+    hashomepose_ = true;
+    const PtrMan<IOPar> par = SI().pars().subselect( sKeyHomePos() );
+    Coord3 eye, center, up;
+    if ( !par || !par->get(sKeyEye(),eye) || !par->get(sKeyCenter(),center) ||
+	 !par->get(sKeyUp(),up) )
+	return;
+
+    homepose_ = { toDVec3(eye), toDVec3(center), toDVec3(up) };
+    toHomePos();
+}
+
+
+void uiVSGViewer::toHomePos()
+{
+    vsg::LookAt* lookat = cameraLookAt();
+    if ( !lookat || !hashomepose_ )
+	return;
+
+    lookat->eye = homepose_.eye_;
+    lookat->center = homepose_.center_;
+    lookat->up = homepose_.up_;
+}
+
+
+void uiVSGViewer::resetHomePos()
+{
+    if ( !cameraLookAt() || !root_ )
+	return;
+
+    const ViewAll viewall = computeViewAll( *root_, cFovY );
+    homepose_ = { viewall.eye_, viewall.center_, vsg::dvec3(0.,0.,1.) };
+    hashomepose_ = true;
+    SI().getPars().removeSubSelection( sKeyHomePos() );
+    SI().savePars();
+    toHomePos();
+}
+
+
+void uiVSGViewer::viewAll()
+{
+    vsg::LookAt* lookat = cameraLookAt();
+    if ( !lookat || !root_ )
+	return;
+
+    const ViewAll viewall = computeViewAll( *root_, cFovY );
+    vsg::dvec3 dir = lookat->eye - lookat->center;
+    if ( vsg::length(dir) <= 0. )
+	dir = viewall.eye_ - viewall.center_;
+
+    const double dist = vsg::length( viewall.eye_ - viewall.center_ );
+    lookat->center = viewall.center_;
+    lookat->eye = viewall.center_ + vsg::normalize( dir ) * dist;
 }
 
 
@@ -815,7 +961,7 @@ void uiVSGViewer::syncCameraViewport()
     {
 	if ( auto* persp = dynamic_cast<vsg::Perspective*>(
 				camera_->projectionMatrix.get()) )
-	    persp->aspectRatio = static_cast<double>(w) / h;
+	    persp->aspectRatio = sCast(double,w) / h;
     }
 }
 
@@ -1236,12 +1382,11 @@ void uiVSGViewer::setupVSG()
 		ODVsg::toVec4( scene_->getBackgroundColor(), 1.f );
     root_->addChild( vsg::ref_ptr<vsg::Node>(scene_->vsgGroup()->vsgNode()) );
 
-    const double fovy = 30.0;
-    const ViewAll viewall = computeViewAll( *root_, fovy );
+    const ViewAll viewall = computeViewAll( *root_, cFovY );
     vsg::ref_ptr<vsg::LookAt> lookAt = vsg::LookAt::create(
 	    viewall.eye_, viewall.center_, vsg::dvec3( 0.0, 0.0, 1.0 ) );
     vsg::ref_ptr<vsg::Perspective> perspective = vsg::Perspective::create(
-	    fovy, static_cast<double>(w) / h, viewall.near_, viewall.far_ );
+	    cFovY, sCast(double,w) / h, viewall.near_, viewall.far_ );
     vsg::ref_ptr<vsg::ViewportState> viewport =
 			vsg::ViewportState::create( VkExtent2D{ w, h } );
     viscamera_ = ODVsg::Camera::create();
@@ -1249,6 +1394,7 @@ void uiVSGViewer::setupVSG()
     camera_->projectionMatrix = perspective;
     camera_->viewMatrix = lookAt;
     camera_->viewportState = viewport;
+    initHomePos();
     viewer_->addUpdateOperation( ViewportHeightSync::create(camera_),
 				 vsg::UpdateOperations::ALL_FRAMES );
 
@@ -1453,8 +1599,21 @@ void uiVSGViewer::setupOffscreenCapture()
 
 void uiVSGViewer::setAnnotationFont( const FontData& fd )
 {
-    annotfont_ = fd;
     hasannotfont_ = true;
+    applyAnnotationFont( fd );
+}
+
+
+void uiVSGViewer::font3DChangedCB( CallBacker* )
+{
+    if ( !hasannotfont_ )
+	applyAnnotationFont( FontList().get(FontData::Graphics3D).fontData() );
+}
+
+
+void uiVSGViewer::applyAnnotationFont( const FontData& fd )
+{
+    annotfont_ = fd;
     if ( scene_ )
 	scene_->setAnnotFont( fd );
 

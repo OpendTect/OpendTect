@@ -211,6 +211,7 @@ ________________________________________________________________________
 #define mTileHorMnuItm		(mWinMnu + 31)
 #define mTileVerMnuItm		(mWinMnu + 32)
 #define mScenePropMnuItm	(mWinMnu + 35)
+#define mVSGColTabMnuItm	(mWinMnu + 36)
 #define mSceneSelMnuItm		(mWinMnu + 40)
 
 

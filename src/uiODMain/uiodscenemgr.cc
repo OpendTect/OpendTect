@@ -181,6 +181,7 @@ bool uiODSceneMgr::canAddSceneAtStartup()
 
 void uiODSceneMgr::initMenuMgrDepObjs()
 {
+    mAttachCB( visServ().vsgSceneAdded, uiODSceneMgr::vsgSceneAddedCB );
     if ( visServ().nrScenes() == 0 )
 	addDefaultScene();
 }
@@ -278,6 +279,29 @@ SceneID uiODSceneMgr::addScene( bool maximized, ZAxisTransform* zt,
 
     return sceneid;
 }
+
+
+void uiODSceneMgr::vsgSceneAddedCB( CallBacker* cb )
+{
+    mCBCapsuleUnpack(SceneID,sceneid,cb);
+    NotifierAccess* viewmodechanged = visServ().vsgViewModeNotifier( sceneid );
+    if ( viewmodechanged )
+	mAttachCB( *viewmodechanged, uiODSceneMgr::vsgViewModeChangedCB );
+
+    actMode( nullptr );
+
+    if ( scenes_.isEmpty() && visServ().vsgSceneIds().size()==1 &&
+	 appl_.menuMgrAvailable() )
+	appl_.menuMgr().updateAxisMode( true );
+}
+
+
+void uiODSceneMgr::vsgViewModeChangedCB( CallBacker* cb )
+{
+    mCBCapsuleUnpack(bool,viewmode,cb);
+    setToViewMode( viewmode );
+}
+
 
 SceneID uiODSceneMgr::addDefaultScene()
 {
@@ -466,23 +490,25 @@ void uiODSceneMgr::setSceneProperties()
 {
     ObjectSet<ui3DViewer> vwrs;
     get3DViewers( vwrs );
-    if ( vwrs.isEmpty() )
+    const TypeSet<SceneID> vsgids = visServ().vsgSceneIds();
+    if ( vwrs.isEmpty() && vsgids.isEmpty() )
     {
 	uiMSG().error( tr("No scenes available") );
 	return;
     }
 
-    int curvwridx = 0;
-    if ( vwrs.size() > 1 )
+    const SceneID sceneid = askSelectScene( true );
+    if ( vsgids.isPresent(sceneid) )
     {
-	const SceneID sceneid = askSelectScene();
-	const ui3DViewer* vwr = get3DViewer( sceneid );
-	if ( !vwr ) return;
-
-	curvwridx = vwrs.indexOf( vwr );
+	visServ().showVSGDialog( uiVisPartServer::VSGSettings, sceneid );
+	return;
     }
 
-    uiScenePropertyDlg dlg( &appl_, vwrs, curvwridx );
+    const ui3DViewer* vwr = get3DViewer( sceneid );
+    if ( !vwr )
+	return;
+
+    uiScenePropertyDlg dlg( &appl_, vwrs, vwrs.indexOf(vwr) );
     dlg.go();
 }
 
@@ -499,6 +525,7 @@ void uiODSceneMgr::viewModeChg( CallBacker* cb )
 void uiODSceneMgr::setToViewMode( bool yn )
 {
     mDoAllScenes(vwr3d_,setViewMode,yn);
+    visServ().setVSGViewMode( yn );
     visServ().setViewMode( yn , false );
     if ( appl_.menuMgrAvailable() )
 	appl_.menuMgr().updateViewMode( yn );
@@ -517,6 +544,7 @@ void uiODSceneMgr::setToWorkMode( uiVisPartServer::WorkMode wm )
     bool yn = ( wm == uiVisPartServer::View ) ? true : false;
 
     mDoAllScenes(vwr3d_,setViewMode,yn);
+    visServ().setVSGViewMode( yn );
     if ( appl_.menuMgrAvailable() )
 	appl_.menuMgr().updateViewMode( yn );
 
@@ -684,18 +712,30 @@ void uiODSceneMgr::layoutScenes()
 
 
 void uiODSceneMgr::toHomePos( CallBacker* )
-{ mDoAllScenes(vwr3d_,toHomePos,); }
+{
+    mDoAllScenes(vwr3d_,toHomePos,);
+    visServ().doVSGViewAction( uiVisPartServer::VSGToHome );
+}
+
 void uiODSceneMgr::saveHomePos( CallBacker* )
-{ mDoAllScenes(vwr3d_,saveHomePos,); }
+{
+    mDoAllScenes(vwr3d_,saveHomePos,);
+    visServ().doVSGViewAction( uiVisPartServer::VSGSaveHome );
+}
 
 void uiODSceneMgr::resetHomePos( CallBacker* )
 {
     mDoAllScenes(vwr3d_,resetHomePos,);
     mDoAllScenes(vwr3d_,setStartupView,);
+    visServ().doVSGViewAction( uiVisPartServer::VSGResetHome );
 }
 
 void uiODSceneMgr::viewAll( CallBacker* )
-{ mDoAllScenes(vwr3d_,viewAll,); }
+{
+    mDoAllScenes(vwr3d_,viewAll,);
+    visServ().doVSGViewAction( uiVisPartServer::VSGViewAll );
+}
+
 void uiODSceneMgr::align( CallBacker* )
 { mDoAllScenes(vwr3d_,align,); }
 
@@ -731,6 +771,7 @@ void uiODSceneMgr::showRotAxis( CallBacker* cb )
 {
     mDynamicCastGet(const uiAction*,act,cb)
     mDoAllScenes(vwr3d_,showRotAxis,act?act->isChecked():false);
+    visServ().showVSGAxis( act ? act->isChecked() : false );
     for ( int idx=0; idx<scenes_.size(); idx++ )
     {
 	const OD::Color& col = applMgr().visServer()->getSceneAnnotCol( idx );
@@ -781,6 +822,20 @@ void uiODSceneMgr::mkSnapshot( CallBacker* )
 
 	ObjectSet<ui3DViewer> viewers;
 	get3DViewers( viewers );
+	if ( !visServ().vsgSceneIds().isEmpty() )
+	{
+	    const SceneID sceneid = askSelectScene( true );
+	    if ( visServ().vsgSceneIds().isPresent(sceneid) )
+	    {
+		visServ().showVSGDialog( uiVisPartServer::VSGScreenshot,
+					 sceneid );
+		return;
+	    }
+
+	    if ( !sceneid.isValid() )
+		return;
+	}
+
 	if ( viewers.size() == 0 ) return;
 
 	uiPrintSceneDlg printdlg( &appl_, viewers );
@@ -827,7 +882,7 @@ void uiODSceneMgr::switchCameraType( CallBacker* )
 }
 
 
-SceneID uiODSceneMgr::askSelectScene() const
+SceneID uiODSceneMgr::askSelectScene( bool includevsg ) const
 {
     uiStringSet scenenms;
     TypeSet<SceneID> sceneids;
@@ -836,6 +891,17 @@ SceneID uiODSceneMgr::askSelectScene() const
 	SceneID sceneid = scenes_[idx]->itemmanager_->sceneID();
 	sceneids += sceneid;
 	scenenms.add( getSceneName(sceneid) );
+    }
+
+    if ( includevsg )
+    {
+	const TypeSet<SceneID>& vsgids =
+				getNonConst(*this).visServ().vsgSceneIds();
+	for ( const SceneID& sceneid : vsgids )
+	{
+	    sceneids += sceneid;
+	    scenenms.add( getSceneName(sceneid) );
+	}
     }
 
     if ( sceneids.size() < 2 )

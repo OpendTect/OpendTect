@@ -47,6 +47,12 @@ void uiVSGWindowHandler::setViewMode( bool yn )
 }
 
 
+void uiVSGWindowHandler::setViewModeToggledCB( const CallBack& cb )
+{
+    viewmodetoggledcb_ = cb;
+}
+
+
 void uiVSGWindowHandler::syncCursor()
 {
     const bool ctrl = QGuiApplication::queryKeyboardModifiers() &
@@ -115,6 +121,9 @@ void uiVSGWindowHandler::apply( vsg::KeyPressEvent& ev )
     if ( ev.keyBase==vsg::KEY_Escape && ev.repeatCount==0 )
     {
 	setViewMode( !viewmode_ );
+	if ( viewmodetoggledcb_.willCall() )
+	    viewmodetoggledcb_.doCall( nullptr );
+
 	ev.handled = true;
     }
 }
