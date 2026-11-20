@@ -14,6 +14,7 @@ ________________________________________________________________________
 #include "color.h"
 #include "convert.h"
 #include "file.h"
+#include "genc.h"
 #include "keystrs.h"
 #include "multiid.h"
 #include "oddirs.h"
@@ -21,12 +22,10 @@ ________________________________________________________________________
 #include "odver.h"
 #include "odversion.h"
 #include "perthreadrepos.h"
-#include "position.h"
 #include "separstr.h"
 #include "timefun.h"
 #include "trckey.h"
 
-#include <stdio.h>
 #include <string.h>
 
 #include <QHash>

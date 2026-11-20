@@ -67,9 +67,12 @@ def wrap_function(lib, funcname, restype, argtypes):
     return func
 
 def load_gssapi():
-    libfp = os.path.join( os.path.dirname( sys.executable ), '..', 'lib', 'libgssapi_krb5.so.2' )
-    if os.path.exists(libfp):
-      ct.CDLL( libfp )
+    for libdir in ( os.path.join( os.path.dirname( sys.executable ), '..', 'lib' ),
+                    os.path.join( sys.base_prefix, 'lib' ) ):
+      libfp = os.path.join( libdir, 'libgssapi_krb5.so.2' )
+      if os.path.exists(libfp):
+        ct.CDLL( libfp )
+        return
 
 class NumpyAllocator:
     CFUNCTYPE = ct.CFUNCTYPE(ct.c_void_p, ct.c_int, ct.POINTER(ct.c_int), ct.c_char)

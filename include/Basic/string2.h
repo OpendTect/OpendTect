@@ -21,8 +21,8 @@ ________________________________________________________________________
 #include "basicmod.h"
 
 #include "undefval.h"
-#include <ctype.h>
-#include <wctype.h>
+#include <ctype.h>	// IWYU pragma: keep
+#include <wctype.h>	// IWYU pragma: keep
 
 class StringBase;
 class BufferStringSet;
@@ -158,7 +158,8 @@ mGlobal(Basic) bool stringEndsWithCI(const char*,const char*);
 mGlobal(Basic) void removeTrailingBlanks(char*);
 	/*!< bluntly puts a '\0' on trailing white space. */
 mGlobal(Basic) void cleanupString(char*,bool,bool,bool);
-	/*!< replaces whitespace, file separators, dots -> underscores. */
+	/*!< Replaces disallowed characters with underscores. A well-formed
+	     UTF-8 letter, number, or mark is kept as one character. */
 mGlobal(Basic) bool isNumberString(const char*,bool int_only=false);
 	/*!< tells whether a string holds a parseable number */
 mGlobal(Basic) bool isAlphaNumString(const char*,bool allowspace = false);

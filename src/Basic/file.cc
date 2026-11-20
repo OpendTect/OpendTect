@@ -1147,6 +1147,20 @@ bool setTimes( const char* fnm, const Time::FileTimeSet& times, bool followlink)
 }
 
 
+const char* getOwner( const char* fnm, BufferString* groupnm, bool resolve )
+{
+    const auto& fsa = OD::FileSystemAccess::get( fnm );
+    return fsa.getOwner( fnm, groupnm, resolve );
+}
+
+
+od_uint32 getOwnerId( const char* fnm, od_uint32* groupid )
+{
+    const auto& fsa = OD::FileSystemAccess::get( fnm );
+    return fsa.getOwnerId( fnm, groupid );
+}
+
+
 bool waitUntilExists( const char* fnm, double maxwaittm,
 			    double* actualwaited )
 {

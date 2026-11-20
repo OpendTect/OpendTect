@@ -17,7 +17,6 @@ ________________________________________________________________________
 #include "winutils.h"
 
 #include <string.h>
-#include <time.h>
 
 #include <QStorageInfo>
 

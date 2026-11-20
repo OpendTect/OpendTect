@@ -12,6 +12,7 @@ ________________________________________________________________________
 #include "binidvalset.h"
 #include "emhorizonascio.h"
 #include "file.h"
+#include "genc.h"
 #include "iopar.h"
 #include "od_istream.h"
 #include "oddirs.h"

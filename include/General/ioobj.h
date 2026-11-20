@@ -138,6 +138,8 @@ public:
     virtual const char*		fullUserExpr(bool forread=true) const = 0;
     virtual int			nrImpls() const;
     virtual BufferString	mainFileName() const { return fullUserExpr(); }
+    virtual BufferString	userName(BufferString* groupnm=nullptr,
+					 bool resolve=true) const;
     virtual void		implFileNames(BufferStringSet&) const;
 
     virtual bool		implIsLink() const;

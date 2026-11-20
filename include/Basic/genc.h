@@ -9,9 +9,8 @@ ________________________________________________________________________
 -*/
 
 #include "basicmod.h"
-#include "gendefs.h"
-# include "string2.h"
 
+#include "commondefs.h"
 
 extern "C" {
 
@@ -20,6 +19,31 @@ mGlobal(Basic) const char* GetProjectVersionName(void);
 
 mGlobal(Basic) int GetPID(void);
 		/*!< returns process ID */
+
+mGlobal(Basic) const char* GetSoftwareUser(void);
+/*!< Sub-user of software: $DTECT_USER
+
+When multiple people want to run under a single account, they need to
+set DTECT_USER. The output of GetSoftwareUser() will therefore most often
+be null!
+*/
+
+mGlobal(Basic) const char* GetUserNm(void);
+/*!< user's name */
+
+mGlobal(Basic) const char* GetInterpreterName(void);
+/*!< Returns $DTECT_USER. Incase $DTECT_USER is null, returns user's name */
+
+mGlobal(Basic) const char* GetSessionUserNmFromID(void* user);
+/*!< Resolves an operating system user id into its session user's name
+     The argument is a pointer to an od_uint32 on Unix, typically the user id.
+     On Windows, it is a pointer to a PSID.
+*/
+
+mGlobal(Basic) const char* GetSessionUserNm(const char* accountnm);
+/*!< Resolves an account name into its session user name.
+     Display name when this machine has one, otherwise the account name.
+     Empty when the account cannot be resolved here. */
 
 mGlobal(Basic) const char* GetLocalHostName(void);
 		/*!< returns (as expected) local host name */
