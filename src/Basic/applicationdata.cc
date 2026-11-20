@@ -11,21 +11,58 @@ ________________________________________________________________________
 
 #include "debug.h"
 #include "genc.h"
-#include "odruncontext.h"
 #include "perthreadrepos.h"
 #include "ptrman.h"
 
 #include <QCoreApplication>
 #include <iostream>
 
+#ifdef __unix__
+# include <langinfo.h>
+# include <locale.h>
+# include <stdlib.h>
+#endif
+
 
 ApplicationData::ApplicationData()
 {
+    ensureLocaleForQt();
     if ( !hasInstance() )
     {
 	int argc = GetArgC();
 	application_ = new mQtclass(QCoreApplication)(argc, GetArgV() );
     }
+}
+
+
+void ApplicationData::ensureLocaleForQt()
+{
+#ifdef __unix__
+    if ( hasInstance() )
+	return;
+
+    setlocale( LC_ALL, "" );
+    if ( nl_langinfo(CODESET) )
+	return;
+
+    const char* locales[] =
+    {
+	"C.UTF-8", "C.utf8", "en_US.UTF-8", "en_US.utf8", "C", nullptr
+    };
+    for ( int idx=0; locales[idx]; idx++ )
+    {
+	const char* locale = locales[idx];
+	if ( !setlocale(LC_ALL,locale) || !nl_langinfo(CODESET) )
+	    continue;
+
+	// Qt calls setlocale(LC_ALL, "") and would otherwise restore the
+	// locale whose codeset pointer is null.
+	setenv( "LC_ALL", locale, 1 );
+	std::cerr << "Locale codeset is unset; setting LC_ALL="
+		  << locale << std::endl;
+	return;
+    }
+#endif
 }
 
 

@@ -599,6 +599,7 @@ void uiMain::init( QApplication* qap, int& argc, char **argv )
 
     BufferString stylestr;
     preInit( parser, stylestr );
+    ApplicationData::ensureLocaleForQt();
     app_ = qap ? qap : new QApplication( argc, argv );
 
     KeyboardEventHandler& kbeh = keyboardEventHandler();
@@ -654,8 +655,8 @@ void uiMain::init( QApplication* qap, int& argc, char **argv )
 void uiMain::setStyle( const char* stylestr )
 {
     QStyle* qstyl = QStyleFactory::create( stylestr );
-	if ( qstyl )
-	    app_->setStyle( qstyl );
+    if ( qstyl )
+	app_->setStyle( qstyl );
     else
     {
 	pErrMsg(BufferString("The requested style '", stylestr,
