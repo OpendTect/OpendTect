@@ -268,6 +268,10 @@ public:
 
     static int		evUpdateTree();
     void		triggerTreeUpdate();
+    static int		evAddVSGTree();
+    static int		evRemoveVSGTree();
+    static int		evRaiseVSGTree();
+    SceneID		vsgTreeEventSceneID() const;
 
     static int		evSelection();
 			/*<! Get the id with getEventObjId() */
@@ -497,6 +501,7 @@ protected:
     bool			issolomode_			= false;
     Threads::Mutex&		eventmutex_;
     VisID			eventobjid_			= VisID::udf();
+    SceneID			vsgtreeeventid_;
     int				eventattrib_			= -1;
     int				selattrib_			= -1;
     VisID			curinterpobjid_;
@@ -508,9 +513,12 @@ protected:
     void*			getVSGFunction(const char* fnnm) const;
     bool			createVSGViewer(const SceneID&,bool maximized,
 						const uiString& nm,
-						NotifierAccess** closing=nullptr);
-			
+						NotifierAccess** closing,
+						NotifierAccess** activated);
+
     void 			vsgViewerClosedCB(CallBacker*);
+    void			vsgViewerActivatedCB(CallBacker*);
+    void			removeVSGScene(const SceneID&);
     void			mouseCursorCB(CallBacker*);
     void			rightClickCB(CallBacker*);
     void			selectObjCB(CallBacker*);

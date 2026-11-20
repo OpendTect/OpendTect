@@ -166,6 +166,9 @@ uiODSceneMgr::~uiODSceneMgr()
 	removeScene( *scene ); // deletes "scene"
     }
 
+    for ( int idx=vsgtrees_.size()-1; idx>=0; idx-- )
+	removeVSGTree( vsgtrees_[idx]->sceneid_ );
+
     deepErase( scenes_ );
     delete wingrabber_;
     delete tiletimer_;
@@ -278,6 +281,154 @@ SceneID uiODSceneMgr::addScene( bool maximized, ZAxisTransform* zt,
 
     return sceneid;
 }
+
+
+namespace
+{
+
+class VSGTreeItem : public uiTreeItem
+{
+public:
+			VSGTreeItem( const uiString& nm )
+			    : uiTreeItem(nm)
+			{}
+
+    const char*		parentType() const override
+			{ return typeid(uiTreeTopItem).name(); }
+};
+
+} // namespace
+
+
+// Does not trigger treeToBeAdded, treeAdded or sceneClosed: their listeners
+// add OSG objects to the scene.
+void uiODSceneMgr::addVSGTree( const SceneID& sceneid, const uiString& title )
+{
+    if ( getVSGTree(sceneid) )
+	return;
+
+    VSGTree* tree = new VSGTree;
+    tree->sceneid_ = sceneid;
+
+    tree->dw_ = new uiDockWin( &appl_, title );
+    tree->dw_->setMinimumWidth( 200 );
+    tree->lv_ = new uiTreeView( tree->dw_, title.getFullString() );
+    tree->dw_->setObject( tree->lv_ );
+
+    uiStringSet labels;
+    labels.add( sElements() );
+    labels.add( uiStrings::sColor() );
+    tree->lv_->addColumns( labels );
+    tree->lv_->setFixedColumnWidth( cColorColumn(), 40 );
+
+    tree->itemmanager_ = new uiTreeTopItem( tree->lv_ );
+    tree->itemmanager_->addChild( new VSGTreeItem(title), false );
+    addVSGCategoryItems( *tree->itemmanager_ );
+
+    vsgtrees_ += tree;
+    tree->lv_->display( true );
+    appl_.addDockWindow( *tree->dw_, uiMainWin::Left );
+    tree->dw_->setDockName( title );
+    tabifyVSGTree( *tree );
+    tree->dw_->setVisible( vsgtreesshown_ );
+    tree->dw_->raise();
+}
+
+
+void uiODSceneMgr::raiseVSGTree( const SceneID& sceneid )
+{
+    VSGTree* tree = getVSGTree( sceneid );
+    if ( tree )
+	tree->dw_->raise();
+}
+
+
+// The names of the OSG category items, without their actions: an OSG item is
+// only made to read its name.
+void uiODSceneMgr::addVSGCategoryItems( uiTreeTopItem& top )
+{
+    TypeSet<int> idxs;
+    TypeSet<int> placeidxs;
+    for ( int idx=0; idx<tifs_->nrFactories(); idx++ )
+    {
+	const OD::Pol2D3D pol2d = tifs_->getPol2D3D( idx );
+	if ( SI().survDataType() == OD::Both2DAnd3D ||
+	     pol2d == OD::Both2DAnd3D ||
+	     pol2d == SI().survDataType() )
+	{
+	    idxs += idx;
+	    placeidxs += tifs_->getPlacementIdx( idx );
+	}
+    }
+
+    sort_coupled( placeidxs.arr(), idxs.arr(), idxs.size() );
+    for ( int idx=0; idx<idxs.size(); idx++ )
+    {
+	PtrMan<uiTreeItem> osgitem = tifs_->getFactory(idxs[idx])->create();
+	if ( osgitem )
+	    top.addChild( new VSGTreeItem(osgitem->name()), true );
+    }
+}
+
+
+void uiODSceneMgr::removeVSGTree( const SceneID& sceneid )
+{
+    VSGTree* tree = getVSGTree( sceneid );
+    if ( !tree )
+	return;
+
+    appl_.removeDockWindow( tree->dw_ );
+    if ( tree->itemmanager_ )
+	tree->itemmanager_->prepareForShutdown();
+
+    vsgtrees_ -= tree;
+    delete tree;
+}
+
+
+void uiODSceneMgr::showVSGTrees( bool yn )
+{
+    vsgtreesshown_ = yn;
+    for ( int idx=0; idx<vsgtrees_.size(); idx++ )
+	vsgtrees_[idx]->dw_->setVisible( yn );
+}
+
+
+uiODSceneMgr::VSGTree* uiODSceneMgr::getVSGTree( const SceneID& sceneid )
+{
+    for ( int idx=0; idx<vsgtrees_.size(); idx++ )
+    {
+	if ( vsgtrees_[idx]->sceneid_ == sceneid )
+	    return vsgtrees_[idx];
+    }
+
+    return nullptr;
+}
+
+
+void uiODSceneMgr::tabifyVSGTree( VSGTree& tree )
+{
+    for ( int idx=scenes_.size()-1; idx>=0; idx-- )
+    {
+	uiDockWin* other = scenes_[idx]->dw_;
+	if ( !other )
+	    continue;
+
+	appl_.tabifyDockWindow( *other, *tree.dw_ );
+	return;
+    }
+
+    for ( int idx=vsgtrees_.size()-1; idx>=0; idx-- )
+    {
+	VSGTree* other = vsgtrees_[idx];
+	if ( other==&tree || !other->dw_ )
+	    continue;
+
+	appl_.tabifyDockWindow( *other->dw_, *tree.dw_ );
+	return;
+    }
+}
+
 
 SceneID uiODSceneMgr::addDefaultScene()
 {
@@ -1714,6 +1865,18 @@ void uiODSceneMgr::showIfMinimized( CallBacker* )
     if ( appl_.isMinimized() )
 	appl_.show();
 }
+
+// uiODSceneMgr::VSGTree
+uiODSceneMgr::VSGTree::VSGTree()
+{}
+
+
+uiODSceneMgr::VSGTree::~VSGTree()
+{
+    delete itemmanager_;
+    delete dw_;
+}
+
 
 // uiODSceneMgr::Scene
 uiODSceneMgr::Scene::Scene( uiMdiArea* mdiarea )
