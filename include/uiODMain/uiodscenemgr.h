@@ -278,8 +278,7 @@ protected:
     void			removeScene(ODSceneBundle&);
     void			removeSceneCB(CallBacker*);
     void			initTree(ODSceneBundle&,int);
-    void			createTreeDock(const uiString&,uiDockWin*&,
-						       uiTreeView*&);
+    void			createTreeDock(SceneBundle&,const uiString&);
     void			getFactoryIdxs(TypeSet<int>&) const;
     SceneBundle*		getBundle(const SceneID&);
     void			tabifyTree(SceneBundle&);

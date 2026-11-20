@@ -352,7 +352,7 @@ SceneID uiODSceneMgr::addVSGScene( bool maximized, const uiString& nm )
     tree->mdiwin_ = mdiwin;
     tree->vwr_ = viewer;
 
-    createTreeDock( title, tree->dw_, tree->lv_ );
+    createTreeDock( *tree, title );
 
     // A plain tree: no uiTreeTopItem, so itemmanager_ stays null
     auto* sceneitm = new uiTreeViewItem( tree->lv_,
@@ -379,9 +379,6 @@ void uiODSceneMgr::removeVSGScene( VSGSceneBundle& tree )
     const SceneID sceneid = tree.sceneid_;
     tree.mdiwin_->closed().remove( mWSMCB(removeSceneCB) );
     appl_.removeDockWindow( tree.dw_ );
-    if ( tree.itemmanager_ )
-	tree.itemmanager_->prepareForShutdown();
-
     scenes_ -= &tree;
     delete &tree;
     visServ().removeScene( sceneid );
@@ -1212,18 +1209,18 @@ void uiODSceneMgr::setActiveScene( const SceneID& sceneid )
 }
 
 
-void uiODSceneMgr::createTreeDock( const uiString& caption, uiDockWin*& dw,
-				   uiTreeView*& lv )
+void uiODSceneMgr::createTreeDock( SceneBundle& bundle,
+				   const uiString& caption )
 {
-    dw = new uiDockWin( &appl_, caption );
-    dw->setMinimumWidth( 200 );
-    lv = new uiTreeView( dw, caption.getFullString() );
-    dw->setObject( lv );
+    bundle.dw_ = new uiDockWin( &appl_, caption );
+    bundle.dw_->setMinimumWidth( 200 );
+    bundle.lv_ = new uiTreeView( bundle.dw_, caption.getFullString() );
+    bundle.dw_->setObject( bundle.lv_ );
     uiStringSet labels;
     labels.add( sElements() );
     labels.add( uiStrings::sColor() );
-    lv->addColumns( labels );
-    lv->setFixedColumnWidth( cColorColumn(), 40 );
+    bundle.lv_->addColumns( labels );
+    bundle.lv_->setFixedColumnWidth( cColorColumn(), 40 );
 }
 
 
@@ -1249,7 +1246,7 @@ void uiODSceneMgr::getFactoryIdxs( TypeSet<int>& idxs ) const
 void uiODSceneMgr::initTree( ODSceneBundle& scn, int vwridx )
 {
     const uiString capt = tr( "Tree scene %1" ).arg( vwridx );
-    createTreeDock( capt, scn.dw_, scn.lv_ );
+    createTreeDock( scn, capt );
 
     scn.itemmanager_ = new uiODTreeTop( scn.vwr3d_, scn.lv_, &applMgr(), tifs_);
     uiODSceneTreeItem* sceneitm =
