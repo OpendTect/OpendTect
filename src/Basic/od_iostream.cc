@@ -25,7 +25,10 @@ ________________________________________________________________________
 #include <fstream>
 #include <iostream>
 #include <sstream>
-#include <string.h>
+
+#ifdef __win__
+# include "winutils.h"
+#endif
 
 const char* od_stream::sStdIO()		{ return StreamProvider::sStdIO(); }
 const char* od_stream::sStdErr()	{ return StreamProvider::sStdErr(); }
@@ -406,7 +409,13 @@ od_stream::Count od_istream::lastNrBytesRead() const
 std::istream& od_istream::stdStream()
 {
     if ( sd_.iStrm() )
+    {
+#ifdef __win__
+	if ( sd_.iStrm() == &std::cin )
+	    WinUtils::useUtf8StdConsoleInput();
+#endif
 	return *sd_.iStrm();
+    }
 
     BufferString msg( noStdStreamPErrMsg(), "\nFile " );
     const BufferString fnm( sd_.fileName() );
@@ -691,7 +700,8 @@ bool AscNrLinesReader::doPrepare( int nrthreads )
 }
 
 
-bool AscNrLinesReader::doWork( od_int64 start, od_int64 stop, int threadidx )
+bool AscNrLinesReader::doWork( od_int64 start, od_int64 stop,
+			       int /*threadidx*/ )
 {
     char ch;
     od_istream strm( fnm_ );
@@ -945,9 +955,28 @@ mImplSimpleAddGetFnsFP(double)
 mImplPreciseAddFn(float)
 mImplPreciseAddFn(double)
 
-mImplStrmAddFn(const char*,t)
-mImplStrmAddFn(const SeparString&,t.buf())
-mImplStrmAddFn(const CompoundKey&,t.buf())
+od_ostream& od_ostream::add( const char* txt )
+{
+#ifdef __win__
+    std::ostream* outstrm = sd_.oStrm();
+    if ( outstrm && WinUtils::writeUtf8ToStdConsole(txt,*outstrm) )
+	return *this;
+#endif
+    mAddWithRetry( strm << txt, *this );
+}
+
+
+od_ostream& od_ostream::add( const SeparString& ss )
+{
+    return add( ss.buf() );
+}
+
+
+od_ostream& od_ostream::add( const CompoundKey& key )
+{
+    return add( key.buf() );
+}
+
 mImplStrmAddFn(const MultiID&,t.toString().buf())
 
 
