@@ -115,7 +115,7 @@ void uiVSGPIMgr::colTabCB( CallBacker* )
 	return;
     }
 
-    coltabdlg_ = new uiVSGColTabDlg( &appl(), *viewer_->scene() );
+    coltabdlg_ = new uiVSGColTabDlg( &appl(), *viewer_->getScene() );
     coltabdlg_->show();
 }
 

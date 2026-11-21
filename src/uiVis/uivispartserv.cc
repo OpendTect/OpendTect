@@ -279,9 +279,8 @@ SceneID uiVisPartServer::addScene( visSurvey::Scene* newscene_in )
 
 
 typedef visSurvey::Scene* (*VSGSceneCreator)();
-typedef mQtclass(QWidget*) (*VSGViewerCreator)( mQtclass(uiParent*),
-					       visSurvey::Scene*,bool,
-					       const char*,NotifierAccess** );
+typedef uiObject* (*VSGViewerCreator)( uiParent*,visSurvey::Scene*,
+				       const char* );
 
 void* uiVisPartServer::getVSGFunction( const char* fnnm ) const
 {
@@ -303,7 +302,7 @@ void* uiVisPartServer::getVSGFunction( const char* fnnm ) const
 }
 
 
-SceneID uiVisPartServer::addVSGScene( bool maximized, const uiString& nm )
+SceneID uiVisPartServer::addVSGScene( const uiString& nm )
 {
     void* funcptr = getVSGFunction( "createVSGScene" );
     if ( !funcptr )
@@ -321,47 +320,31 @@ SceneID uiVisPartServer::addVSGScene( bool maximized, const uiString& nm )
     if ( nm.isSet() )
 	setSceneName( sceneid, nm );
 
-    NotifierAccess* closing = nullptr;
-    if ( !createVSGViewer(sceneid,maximized,nm,&closing) )
-    {
-	removeScene( sceneid );
-	return SceneID::udf();
-    }
-
-    if ( closing )
-	mAttachCB( *closing, uiVisPartServer::vsgViewerClosedCB );
-
     return sceneid;
 }
 
 
-void uiVisPartServer::vsgViewerClosedCB( CallBacker* cb )
+uiObject* uiVisPartServer::createVSGViewer( const SceneID& sceneid,
+					    uiParent* parent,
+					    const uiString& nm )
 {
-    mCBCapsuleUnpack( SceneID,sceneid,cb );
-    removeScene( sceneid );
-}
+    if ( !parent )
+	return nullptr;
 
-
-bool uiVisPartServer::createVSGViewer( const SceneID& sceneid, bool maximized,
-				       const uiString& nm,
-				       NotifierAccess** closing )
-{
     RefMan<visSurvey::Scene> scene = getScene( sceneid );
     if ( !scene )
-	return false;
+	return nullptr;
 
     void* funcptr = getVSGFunction( "createVSGViewer" );
     if ( !funcptr )
-	return false;
+	return nullptr;
 
     BufferString title;
     if ( nm.isSet() )
 	title = nm.getFullString();
 
-    mDynamicCastGet(uiMainWin*,mainwin,appserv().parent())
     VSGViewerCreator creator = rCast( VSGViewerCreator, funcptr );
-    return creator( mainwin, scene.ptr(),
-		    maximized, title.buf(), closing ) != nullptr;
+    return creator( parent, scene.ptr(), title.buf() );
 }
 
 

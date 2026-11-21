@@ -31,7 +31,7 @@ uiVSGSceneSettingsDlg::uiVSGSceneSettingsDlg( uiParent* p,
     , hadbgcolor_(viewer.getBackgroundColor())
     , hadannotcolor_(viewer.getAnnotationColor())
     , hadgradient_(viewer.isBackgroundGradient())
-    , hadaxes_(viewer.isAxisShown())
+    , hadaxes_(viewer.rotAxisShown())
     , hadmodernaxes_(viewer.isModernAxes())
     , hadwheelmode_(int(viewer.getWheelDisplayMode()))
     , hadwheelgrow_(viewer.isWheelsGrowOnHover())

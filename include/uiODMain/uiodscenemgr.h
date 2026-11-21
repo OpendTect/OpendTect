@@ -31,6 +31,7 @@ class uiODTreeTop;
 class ui3DViewer;
 class uiTreeFactorySet;
 class uiTreeItem;
+class uiTreeTopItem;
 class uiTreeView;
 class uiWindowGrabber;
 namespace Pick { class Set; }
@@ -54,6 +55,10 @@ public:
 					 const uiString& nm=uiString::empty());
 
     SceneID			addDefaultScene();
+
+    SceneID			addVSGScene(bool maximized,
+					const uiString& nm=uiString::empty());
+				/*!<Creates the scene, its window, viewer and tree */
 
     void			setSceneName(const SceneID&,const uiString&);
     uiString			getSceneName(const SceneID&) const;
@@ -222,34 +227,73 @@ protected:
     inline uiODApplMgr&		applMgr()	{ return appl_.applMgr(); }
     inline uiVisPartServer&	visServ()     { return *applMgr().visServer(); }
 
-    mExpClass(uiODMain) Scene
+    mExpClass(uiODMain) SceneBundle
     {
     public:
-				Scene(uiMdiArea*);
-				~Scene();
+	virtual			~SceneBundle();
 
-	uiDockWin*		dw_;
-	uiTreeView*		lv_;
-	uiMdiAreaWindow*	mdiwin_;
-	ui3DViewer*		vwr3d_;
-	uiODTreeTop*		itemmanager_;
+	virtual SceneID		sceneID() const			= 0;
+	virtual bool		isVSG() const			= 0;
+
+	void			setName(const uiString&);
+	void			raiseTree();
+	void			showTree(bool yn);
+	void			setTreeSensitive(bool yn);
+
+	uiDockWin*		dw_		= nullptr;
+	uiTreeView*		lv_		= nullptr;
+	uiMdiAreaWindow*	mdiwin_		= nullptr;
+	uiTreeTopItem*		itemmanager_	= nullptr;
     };
 
-    ObjectSet<Scene>		scenes_;
-    Scene&			mkNewScene();
-    void			removeScene(Scene& scene);
+    mExpClass(uiODMain) ODSceneBundle : public SceneBundle
+    {
+    public:
+				ODSceneBundle(uiMdiArea*);
+				~ODSceneBundle();
+
+	SceneID			sceneID() const override;
+	bool			isVSG() const override	{ return false; }
+	uiODTreeTop*		treeTop() const;
+
+	ui3DViewer*		vwr3d_		= nullptr;
+    };
+
+    mExpClass(uiODMain) VSGSceneBundle : public SceneBundle
+    {
+    public:
+				VSGSceneBundle();
+				~VSGSceneBundle();
+
+	SceneID			sceneID() const override
+				{ return sceneid_; }
+	bool			isVSG() const override	{ return true; }
+
+	SceneID			sceneid_;
+	uiObject*		vwr_		= nullptr;
+    };
+
+    ObjectSet<SceneBundle>	scenes_;
+    ODSceneBundle&		mkNewScene();
+    void			removeScene(ODSceneBundle&);
     void			removeSceneCB(CallBacker*);
-    void			initTree(Scene&,int);
-    Scene*			getScene(const SceneID&);
-    const Scene*		getScene(const SceneID&) const;
+    void			initTree(ODSceneBundle&,int);
+    void			createTreeDock(SceneBundle&,const uiString&);
+    void			getFactoryIdxs(TypeSet<int>&) const;
+    SceneBundle*		getBundle(const SceneID&);
+    void			tabifyTree(SceneBundle&);
+    void			removeVSGScene(VSGSceneBundle&);
+    void			addVSGCategoryItems(uiTreeView&);
+    ODSceneBundle*		getScene(const SceneID&);
+    const ODSceneBundle*	getScene(const SceneID&) const;
     void			newSceneUpdated(CallBacker*);
-    void			gtLoadedEMIDs(const Scene*,
+    void			gtLoadedEMIDs(const ODSceneBundle*,
 					      TypeSet<EM::ObjectID>&,
 					      const char* emtypestr) const;
     void			gtLoadedEMIDs(const uiTreeItem*,
 					      TypeSet<EM::ObjectID>&,
 					      const char* emtypestr) const;
-    void			gtLoadedPickSetIDs(const Scene&,
+    void			gtLoadedPickSetIDs(const ODSceneBundle&,
 				    TypeSet<MultiID>&, bool poly) const;
     void			gtLoadedPickSetIDs(const uiTreeItem&,
 				    TypeSet<MultiID>&,bool poly) const;

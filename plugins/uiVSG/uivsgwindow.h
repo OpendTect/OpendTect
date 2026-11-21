@@ -12,6 +12,9 @@ ________________________________________________________________________
 
 #include "uivsgmod.h"
 #include "mousecursor.h"
+#include "timer.h"
+#include "uieventfilter.h"
+#include "uiobjbody.h"
 
 #include "vsgviewer.h"
 
@@ -27,9 +30,7 @@ ________________________________________________________________________
 #include <functional>
 
 class dGBVSGNativeWindow;
-class dGBVSGWindowBody;
 class uiObject;
-class uiObjectBody;
 class uiParent;
 
 
@@ -37,14 +38,13 @@ class uiParent;
   holds it in the user interface. It makes the VSG viewer that renders in it.
   All the Qt code is in the source file. */
 
-mClass(uiVSG) dGBVSGWindow : public CallBacker
+mClass(uiVSG) dGBVSGWindow : public uiObjectBody
 {
 public:
-			dGBVSGWindow(uiObject& handle,uiParent*,
+			dGBVSGWindow(uiParent*,uiObject& handle,
 				     const char* nm,int rendertimems);
 			~dGBVSGWindow();
 
-    uiObjectBody&	body();
     vsg::ref_ptr<dGBVSGViewer> vsgViewer() const	{ return viewer_; }
     vsg::ref_ptr<vsg::Window> vsgWindow() const;
 
@@ -59,8 +59,19 @@ public:
 
 private:
 
+    const mQtclass(QWidget*)	qwidget_() const override { return container_; }
+    uiObject&		uiObjHandle() override		{ return handle_; }
+    void		handleEventCB(CallBacker*);
+    void		showTimerCB(CallBacker*);
+    void		focusInCB(CallBacker*);
+
+    uiObject&			handle_;
+
     vsg::ref_ptr<dGBVSGViewer>	viewer_;
     dGBVSGNativeWindow*		nativewin_ = nullptr;
-    dGBVSGWindowBody*		body_ = nullptr;
+    mQtclass(QWidget*)		container_ = nullptr;
+    uiEventFilter		eventfilter_;
+    uiEventFilter		focusfilter_;
+    Timer			showtimer_;
 
 };
