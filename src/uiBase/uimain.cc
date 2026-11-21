@@ -488,6 +488,29 @@ void uiMain::preInit( const CommandLineParser& parser, BufferString& stylestr )
 #if QT_VERSION >= QT_VERSION_CHECK(5,4,0)
     // Attributes added with Qt5.3 and Qt5.4
     QApplication::setAttribute( Qt::AA_ShareOpenGLContexts );
+#if QT_VERSION >= QT_VERSION_CHECK(6,9,0)
+    if ( __iswin__ && reqOpenGL() )
+    {
+	/* QOpenGLWidget forces the top-level widget compositor onto OpenGL.
+	   Qt 6.9 WebEngine always renders with ANGLE, then imports those
+	   DXGI buffers through WGL as NV12. The embedded view is corrupt.
+	   Qt 6.8 kept Chromium on desktop GL for an OpenGL compositor.
+	   Stay on that compositor and upload software frames instead. */
+	const BufferString rhibackend = GetOSEnvVar( "QSG_RHI_BACKEND" );
+	if ( rhibackend.isEmpty() )
+	    SetEnvVar( "QSG_RHI_BACKEND", "opengl" );
+
+	BufferString weflags = GetOSEnvVar( "QTWEBENGINE_CHROMIUM_FLAGS" );
+	if ( !weflags.contains("--disable-gpu") )
+	{
+	    if ( !weflags.isEmpty() )
+		weflags.addSpace();
+
+	    weflags.add( "--disable-gpu" );
+	    SetEnvVar( "QTWEBENGINE_CHROMIUM_FLAGS", weflags.buf() );
+	}
+    }
+#endif
     if ( QApplication::testAttribute(Qt::AA_UseDesktopOpenGL) ||
 	 QApplication::testAttribute(Qt::AA_UseOpenGLES) ||
 	 QApplication::testAttribute(Qt::AA_UseSoftwareOpenGL) )
