@@ -8,11 +8,12 @@ ________________________________________________________________________
 -*/
 
 #include "bufstringset.h"
-#include "dbkey.h"
+
 #include "iopar.h"
 #include "nrbytes2string.h"
 #include "perthreadrepos.h"
 #include "stringbuilder.h"
+#include "od_istream.h"
 #include "testprog.h"
 
 #ifdef __win__
@@ -527,6 +528,119 @@ static bool testEmptyStringComparison()
 }
 
 
+static bool testUtf8Names()
+{
+    const char* const capital = "\xC3\x98y";
+    const char* const lower = "\xC3\xB8y";
+    BufferString bs( capital );
+    mRunStandardTest( bs == capital,
+		      BufferString("UTF-8 name stored: ",bs) );
+
+    bs.toLower();
+    mRunStandardTest( bs == lower, BufferString("UTF-8 toLower: ",bs) );
+    bs.toUpper();
+    mRunStandardTest( bs == "\xC3\x98Y", BufferString("UTF-8 toUpper: ",bs) );
+
+    bs = "\xC3\xB8y j\xC3\xBCrgen";
+    bs.toTitleCase();
+    mRunStandardTest( bs == "\xC3\x98y J\xC3\xBCrgen",
+		      BufferString("UTF-8 toTitleCase: ",bs) );
+
+    bs = "stra\xC3\x9F" "e";
+    bs.toUpper();
+    mRunStandardTest( bs == "STRASSE",
+		      BufferString("UTF-8 sharp s toUpper: ",bs) );
+
+    bs = "\xC3\x9F" "tra\xC3\x9F" "e";
+    bs.toTitleCase();
+    mRunStandardTest( bs == "Ss" "tra\xC3\x9F" "e",
+		      BufferString("UTF-8 sharp s toTitleCase: ",bs) );
+
+    bs = "\xC3\x98y.dat";
+    bs.clean( BufferString::OnlyAlphaNum );
+    mRunStandardTest( bs == "\xC3\x98y_dat",
+		      BufferString("UTF-8 clean OnlyAlphaNum: ",bs) );
+
+    bs = "A\xE2\x80\x94" "B";
+    bs.clean( BufferString::OnlyAlphaNum );
+    mRunStandardTest( bs == "A_B",
+		      BufferString("UTF-8 clean replaces a non-letter: ",bs) );
+
+    mRunStandardTest( caseInsensitiveEqual(capital,lower,0),
+		      "UTF-8 case-insensitive equal" );
+    mRunStandardTest( !caseInsensitiveEqual(capital,"Ay",0),
+		      "UTF-8 case-insensitive not equal" );
+    mRunStandardTest( stringStartsWithCI(lower,"\xC3\x98y_1"),
+		      "UTF-8 startsWith CI" );
+    mRunStandardTest( stringEndsWithCI("\xC3\xBCrgen","J\xC3\xBCrgen"),
+		      "UTF-8 endsWith CI" );
+    mRunStandardTest( isAlphaNumString(capital), "UTF-8 isAlphaNum" );
+    mRunStandardTest( !isAlphaNumString("\xC3\x98y.dat"),
+		      "UTF-8 isAlphaNum rejects a dot" );
+
+    bs = "AbC";
+    bs.toLower();
+    mRunStandardTest( bs == "abc", BufferString("ASCII toLower: ",bs) );
+    bs.toUpper();
+    mRunStandardTest( bs == "ABC", BufferString("ASCII toUpper: ",bs) );
+    bs = "hello world";
+    bs.toTitleCase();
+    mRunStandardTest( bs == "Hello World",
+		      BufferString("ASCII toTitleCase: ",bs) );
+
+    // oy Jurgen, then hello in Arabic, Greek, Russian, Chinese, Japanese.
+    const char* const sentence =
+	"\xC3\xB8y j\xC3\xBCrgen "
+	"\xD9\x85\xD8\xB1\xD8\xAD\xD8\xA8\xD8\xA7 "
+	"\xCE\xB3\xCE\xB5\xCE\xB9\xCE\xB1 "
+	"\xD0\xBF\xD1\x80\xD0\xB8\xD0\xB2\xD0\xB5\xD1\x82 "
+	"\xE4\xBD\xA0\xE5\xA5\xBD "
+	"\xE3\x81\x93\xE3\x82\x93\xE3\x81\xAB\xE3\x81\xA1\xE3\x81\xAF";
+    const char* const sentenceupper =
+	"\xC3\x98" "Y J\xC3\x9C" "RGEN "
+	"\xD9\x85\xD8\xB1\xD8\xAD\xD8\xA8\xD8\xA7 "
+	"\xCE\x93\xCE\x95\xCE\x99\xCE\x91 "
+	"\xD0\x9F\xD0\xA0\xD0\x98\xD0\x92\xD0\x95\xD0\xA2 "
+	"\xE4\xBD\xA0\xE5\xA5\xBD "
+	"\xE3\x81\x93\xE3\x82\x93\xE3\x81\xAB\xE3\x81\xA1\xE3\x81\xAF";
+    const char* const sentencetitle =
+	"\xC3\x98y J\xC3\xBCrgen "
+	"\xD9\x85\xD8\xB1\xD8\xAD\xD8\xA8\xD8\xA7 "
+	"\xCE\x93\xCE\xB5\xCE\xB9\xCE\xB1 "
+	"\xD0\x9F\xD1\x80\xD0\xB8\xD0\xB2\xD0\xB5\xD1\x82 "
+	"\xE4\xBD\xA0\xE5\xA5\xBD "
+	"\xE3\x81\x93\xE3\x82\x93\xE3\x81\xAB\xE3\x81\xA1\xE3\x81\xAF";
+    bs = sentence;
+    mRunStandardTest( bs == sentence,
+		      BufferString("UTF-8 sentence stored: ",bs) );
+    bs.toLower();
+    mRunStandardTest( bs == sentence,
+		      BufferString("UTF-8 sentence toLower: ",bs) );
+    bs.toUpper();
+    mRunStandardTest( bs == sentenceupper,
+		      BufferString("UTF-8 sentence toUpper: ",bs) );
+    bs = sentence;
+    bs.toTitleCase();
+    mRunStandardTest( bs == sentencetitle,
+		      BufferString("UTF-8 sentence toTitleCase: ",bs) );
+    mRunStandardTest( caseInsensitiveEqual(sentence,sentenceupper,0),
+		      "UTF-8 sentence case-insensitive equal" );
+    mRunStandardTest( isAlphaNumString(sentence,true),
+		      "UTF-8 sentence isAlphaNum" );
+    bs = sentence;
+    bs.clean( BufferString::OnlyAlphaNum );
+    mRunStandardTest( bs ==
+	"\xC3\xB8y_j\xC3\xBCrgen_"
+	"\xD9\x85\xD8\xB1\xD8\xAD\xD8\xA8\xD8\xA7_"
+	"\xCE\xB3\xCE\xB5\xCE\xB9\xCE\xB1_"
+	"\xD0\xBF\xD1\x80\xD0\xB8\xD0\xB2\xD0\xB5\xD1\x82_"
+	"\xE4\xBD\xA0\xE5\xA5\xBD_"
+	"\xE3\x81\x93\xE3\x82\x93\xE3\x81\xAB\xE3\x81\xA1\xE3\x81\xAF",
+		      BufferString("UTF-8 sentence clean: ",bs) );
+    return true;
+}
+
+
 bool testStringContentType()
 {
     mRunStandardTest( isNumberString("693.56") == true, "Test number string" )
@@ -672,9 +786,48 @@ bool testStringConv()
 }
 
 
+static int testConsoleLine()
+{
+#ifdef __win__
+    DWORD consolemode = 0;
+    HANDLE handle = GetStdHandle( STD_INPUT_HANDLE );
+    if ( !handle || handle == INVALID_HANDLE_VALUE ||
+	 !GetConsoleMode(handle,&consolemode) )
+    {
+	od_cout() << "stdin is not a console. Run test_string --console "
+		     "in a console window." << od_endl;
+	return 1;
+    }
+#endif
+
+    od_cout() << "Type a line with UTF-8 characters and press Enter:"
+	      << od_endl;
+    BufferString line;
+    if ( !od_cin().getLine(line) || line.isEmpty() )
+    {
+	od_cout() << "No line read" << od_endl;
+	return 1;
+    }
+
+    od_cout() << "Read: " << line << od_endl;
+    od_cout() << "Bytes:";
+    const char* digits = "0123456789ABCDEF";
+    for ( unsigned int idx=0; idx<line.size(); idx++ )
+    {
+	const unsigned char byte = (unsigned char)line[idx];
+	od_cout() << ' ' << digits[byte >> 4] << digits[byte & 0x0F];
+    }
+    od_cout() << od_endl;
+    return 0;
+}
+
+
 int mTestMainFnName( int argc, char** argv )
 {
     mInitTestProg();
+
+    if ( clParser().hasKey("console") )
+	return testConsoleLine();
 
     if ( !testBuilder()
       || !testWords()
@@ -690,6 +843,7 @@ int mTestMainFnName( int argc, char** argv )
       || !testLimFToStringFns()
       || !testEmptyStringComparison()
       || !testStringContentType()
+      || !testUtf8Names()
       || !testGetFromString()
       || !testStaticString()
       || !testStringSetIOPar()

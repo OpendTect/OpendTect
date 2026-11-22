@@ -267,20 +267,174 @@ bool isNumberString( const char* str, bool int_only )
 }
 
 
+namespace OD
+{
+
+static unsigned char asciiLower( unsigned char c )
+{
+    return c >= 'A' && c <= 'Z' ? (unsigned char)(c - 'A' + 'a') : c;
+}
+
+
+static int utf8CodePoint( const char* str, char32_t& cp )
+{
+    const unsigned char c0 = (unsigned char)str[0];
+    if ( c0 < 0x80 )
+    {
+	cp = c0;
+	return 1;
+    }
+
+    int need = 0;
+    char32_t mincp = 0;
+    if ( (c0 & 0xE0) == 0xC0 )
+    {
+	need = 2;
+	cp = c0 & 0x1F;
+	mincp = 0x80;
+    }
+    else if ( (c0 & 0xF0) == 0xE0 )
+    {
+	need = 3;
+	cp = c0 & 0x0F;
+	mincp = 0x800;
+    }
+    else if ( (c0 & 0xF8) == 0xF0 )
+    {
+	need = 4;
+	cp = c0 & 0x07;
+	mincp = 0x10000;
+    }
+    else
+	return -1;
+
+    for ( int idx=1; idx<need; idx++ )
+    {
+	const unsigned char ci = (unsigned char)str[idx];
+	if ( (ci & 0xC0) != 0x80 )
+	    return -1;
+
+	cp = (cp << 6) | (ci & 0x3F);
+    }
+
+    const bool outofrange = cp < mincp || cp > 0x10FFFF;
+    const bool surrogate = cp >= 0xD800 && cp <= 0xDFFF;
+    if ( outofrange || surrogate )
+	return -1;
+
+    return need;
+}
+
+
+static bool isAsciiAlnum( unsigned char c )
+{
+    return (c >= '0' && c <= '9') || (c >= 'A' && c <= 'Z') ||
+	   (c >= 'a' && c <= 'z');
+}
+
+
+static bool keepAsciiByte( unsigned char c, bool spaceallow,
+			   bool fsepallow, bool dotallow )
+{
+    if ( isAsciiAlnum(c) )
+	return true;
+
+    bool dorepl = true;
+    switch ( c )
+    {
+	case ' ': case '\n': case '\t':
+	    if ( spaceallow )
+		dorepl = false;
+
+	    break;
+	case '.':
+	    if ( dotallow )
+		dorepl = false;
+
+	    break;
+	case '+': case '-':
+	    dorepl = false;			break;
+	default:				break;
+    }
+
+    if ( fsepallow )
+    {
+	if ( c == (unsigned char)*sDirSep )
+	    dorepl = false;
+#ifdef __win__
+	if ( c == ':' )
+	    dorepl = false;
+#endif
+    }
+
+    return !dorepl;
+}
+
+
+static bool isUnicodeLetterNumberOrMark( char32_t cp )
+{
+#ifndef OD_NO_QT
+    return QChar::isLetterOrNumber( cp ) || QChar::isMark( cp );
+#else
+    (void)cp;
+    return true;
+#endif
+}
+
+#ifndef OD_NO_QT
+
+struct Utf16Prefix
+{
+    int		units;
+    int		cps;
+};
+
+static Utf16Prefix utf16Prefix( const QString& str, int nchars )
+{
+    Utf16Prefix ret = { 0, 0 };
+    while ( ret.units < str.size() && ret.cps < nchars )
+    {
+	if ( str.at(ret.units).isHighSurrogate() &&
+	     ret.units + 1 < str.size() )
+	{
+	    ret.units += 2;
+	}
+	else
+	{
+	    ret.units += 1;
+	}
+
+	ret.cps++;
+    }
+
+    return ret;
+}
+
+#endif
+
+} // namespace OD
+
+
 bool isAlphaNumString( const char* str, bool allowspace )
 {
-    if ( !str || !*str )
+    if ( StringView(str).isEmpty() )
 	return false;
 
-#define mCheckChar (iswalnum(*str) || (allowspace && *str==' '))
     while ( *str )
     {
-	if ( !mCheckChar )
+	char32_t cp = 0;
+	const int seqlen = OD::utf8CodePoint( str, cp );
+	if ( seqlen == 1 )
+	{
+	    const unsigned char c = (unsigned char)*str;
+	    if ( !OD::isAsciiAlnum(c) && (c != ' ' || !allowspace) )
+		return false;
+	}
+	else if ( seqlen < 1 || !OD::isUnicodeLetterNumberOrMark(cp) )
 	    return false;
 
-	str++;
+	str += seqlen > 0 ? seqlen : 1;
     }
-#undef mCheckChar
 
     return true;
 }
@@ -288,13 +442,13 @@ bool isAlphaNumString( const char* str, bool allowspace )
 
 bool isAlpha( char c )
 {
-    return std::isalpha( c );
+    return std::isalpha( (unsigned char)c );
 }
 
 
 bool isDigit( char c )
 {
-    return std::isdigit( c );
+    return std::isdigit( (unsigned char)c );
 }
 
 
@@ -303,71 +457,119 @@ void cleanupString( char* str, bool spaceallow, bool fsepallow, bool dotallow )
     if ( !str )
 	return;
 
-    while ( *str )
+    char* dst = str;
+    const char* src = str;
+    while ( *src )
     {
-	if ( !iswalnum(*str) )
+	char32_t cp = 0;
+	const int seqlen = OD::utf8CodePoint( src, cp );
+	if ( seqlen == 1 )
 	{
-	    bool dorepl = true;
-	    switch ( *str )
-	    {
-	    case ' ': case '\n' : case '\t':
-			if ( spaceallow )	dorepl = false;	break;
-	    case '.':	if ( dotallow )		dorepl = false;	break;
-	    case '+':	case '-':		dorepl = false;	break;
-	    default:						break;
-	    }
-	    if ( fsepallow )
-	    {
-		if ( *str == *sDirSep )
-		    dorepl = false;
-#ifdef __win__
-		if ( *str == ':' )
-		    dorepl = false;
-#endif
-	    }
-
-	    if ( dorepl )
-		*str = '_';
+	    const bool keep = OD::keepAsciiByte(
+			(unsigned char)*src, spaceallow,
+			fsepallow, dotallow );
+	    *dst++ = keep ? *src : '_';
+	    src++;
+	    continue;
 	}
-	str++;
+
+	if ( seqlen > 1 && OD::isUnicodeLetterNumberOrMark(cp) )
+	{
+	    if ( dst != src )
+		memmove( dst, src, (size_t)seqlen );
+
+	    dst += seqlen;
+	    src += seqlen;
+	    continue;
+	}
+
+	*dst++ = '_';
+	src += seqlen > 1 ? seqlen : 1;
     }
+
+    *dst = '\0';
 }
 
 
 bool caseInsensitiveEqual( const char* str1, const char* str2, int nrchar )
 {
-    if ( !str1 && !str2 ) return true;
-    if ( !str1 || !str2 ) return false;
+    if ( !str1 && !str2 )
+	return true;
 
+    if ( !str1 || !str2 )
+	return false;
+
+#ifndef OD_NO_QT
+    const QString q1 = QString::fromUtf8( str1 );
+    const QString q2 = QString::fromUtf8( str2 );
+    if ( nrchar <= 0 )
+	return q1.compare( q2, Qt::CaseInsensitive ) == 0;
+
+    const OD::Utf16Prefix p1 = OD::utf16Prefix( q1, nrchar );
+    const OD::Utf16Prefix p2 = OD::utf16Prefix( q2, nrchar );
+    if ( q1.left(p1.units).compare(q2.left(p2.units),
+	 Qt::CaseInsensitive) != 0 )
+	return false;
+
+    if ( p1.cps >= nrchar && p2.cps >= nrchar )
+	return true;
+
+    return q1.size() == p1.units && q2.size() == p2.units;
+#else
     int chcount = 1;
     while ( *str1 && *str2 )
     {
-	if ( tolower(*str1) != tolower(*str2) )
+	if ( OD::asciiLower((unsigned char)*str1) !=
+	     OD::asciiLower((unsigned char)*str2) )
 	    return false;
-	str1++ ; str2++; chcount++;
+
+	str1++ ;
+	str2++;
+	chcount++;
 	if ( nrchar>0 && chcount>nrchar )
 	    return true;
     }
 
     return !*str1 && !*str2;
+#endif
 }
 
 
 static bool getStringStartsWith( const char* str1, const char* str2, int ci )
 {
-    if ( !str1 && !str2 ) return true;
-    if ( !str1 || !str2 ) return false;
-    if ( ! *str1 )	  return true;
-    if ( ! *str2 )	  return false;
+    if ( !str1 && !str2 )
+	return true;
+
+    if ( !str1 || !str2 )
+	return false;
+
+    if ( !*str1 )
+	return true;
+
+    if ( !*str2 )
+	return false;
+
+#ifndef OD_NO_QT
+    if ( ci )
+	return QString::fromUtf8( str2 ).startsWith(
+		QString::fromUtf8(str1), Qt::CaseInsensitive );
+#endif
 
     while ( *str1 )
     {
 	if ( ci )
-	    { if ( tolower(*str1) != tolower(*str2) ) return false; }
-	else
-	    { if ( *str1 != *str2 ) return false; }
-	str1++ ; str2++;
+	{
+	    if ( OD::asciiLower((unsigned char)*str1) !=
+		 OD::asciiLower((unsigned char)*str2) )
+		return false;
+	}
+	else if ( *str1 != *str2 )
+	    return false;
+
+	str1++ ;
+	str2++;
     }
+
     return true;
 }
 
@@ -380,33 +582,66 @@ bool stringStartsWithCI( const char* str1, const char* str2 )
 
 static bool getStringEndsWith( const char* str1, const char* str2, int ci )
 {
-    if ( !str1 && !str2 )	return true;
-    if ( !str1 || !str2 )	return false;
-    if ( !*str1 )		return true;
-    if ( !*str2 )		return false;
+    if ( !str1 && !str2 )
+	return true;
+
+    if ( !str1 || !str2 )
+	return false;
+
+    if ( !*str1 )
+	return true;
+
+    if ( !*str2 )
+	return false;
+
+#ifndef OD_NO_QT
+    if ( ci )
+	return QString::fromUtf8( str2 ).endsWith(
+		QString::fromUtf8(str1), Qt::CaseInsensitive );
+#endif
+
     const char* start1 = str1; const char* start2 = str2;
-    while ( *str1 ) str1++; while ( *str2 ) str2++;
-    str1-- ; str2--;
+    while ( *str1 )
+	str1++;
+    while ( *str2 )
+	str2++;
+    str1-- ;
+    str2--;
 
     while ( true )
     {
 	if ( ci )
-	    { if ( tolower(*str1) != tolower(*str2) ) return false; }
-	else
-	    { if ( *str1 != *str2 ) return false; }
-	str1-- ; str2--;
+	{
+	    if ( OD::asciiLower((unsigned char)*str1) !=
+			OD::asciiLower((unsigned char)*str2) )
+		return false;
+	}
+	else if ( *str1 != *str2 )
+	    return false;
+
+	str1-- ;
+	str2--;
 	if ( str1 == start1-1 )
 	    break;
+
 	if ( str2 == start2-1 )
 	    return false;
     }
+
     return true;
 }
 
+
 bool stringEndsWith( const char* str1, const char* str2 )
-{ return getStringEndsWith( str1, str2, false ); }
-bool stringEndsWithCI( const char* str1, const char* str2 ) \
-{ return getStringEndsWith( str1, str2, true ); }
+{
+    return getStringEndsWith( str1, str2, false );
+}
+
+
+bool stringEndsWithCI( const char* str1, const char* str2 )
+{
+    return getStringEndsWith( str1, str2, true );
+}
 
 
 static const char* getLastOcc( const char* str, const char* tofind )

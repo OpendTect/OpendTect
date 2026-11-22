@@ -26,6 +26,9 @@ ________________________________________________________________________
 #include "ptrman.h"
 #include "separstr.h"
 
+# include <streambuf>
+# include <string>
+# include <unordered_map>
 # include <windows.h>
 # include <process.h>
 # include <aclapi.h>
@@ -442,6 +445,194 @@ void copyWString( LPCTSTR wstrptr, BufferString& str )
 {
     const std::wstring wstr( wstrptr );
     str.setEmpty().add( wstr );
+}
+
+
+bool writeUtf8ToStdConsole( const char* txt, std::ostream& strm )
+{
+    if ( StringView(txt).isEmpty() )
+	return false;
+
+    HANDLE handle = nullptr;
+    if ( &strm == &std::cout )
+	handle = GetStdHandle( STD_OUTPUT_HANDLE );
+    else if ( &strm == &std::cerr )
+	handle = GetStdHandle( STD_ERROR_HANDLE );
+    else
+	return false;
+
+    DWORD consolemode = 0;
+    if ( !handle || handle == INVALID_HANDLE_VALUE ||
+	 !GetConsoleMode(handle,&consolemode) )
+	return false;
+
+    const int nbytes = sCast(int,strlen(txt));
+    if ( nbytes <= 0 )
+	return false;
+
+    const int wlen = MultiByteToWideChar( CP_UTF8, 0, txt, nbytes,
+					       nullptr, 0 );
+    if ( wlen <= 0 )
+	return false;
+
+    std::wstring wide( sCast(size_t,wlen), L'\0' );
+    MultiByteToWideChar( CP_UTF8, 0, txt, nbytes, wide.data(), wlen );
+
+    std::wstring out;
+    out.reserve( wide.size() + 4 );
+    for ( int idx=0; idx<wlen; idx++ )
+    {
+	const wchar_t wch = wide[sCast(size_t,idx)];
+	if ( wch == L'\n' && (out.empty() || out.back() != L'\r') )
+	    out.push_back( L'\r' );
+
+	out.push_back( wch );
+    }
+
+    // Drop any bytes still sitting in the C++ buffer so they stay in order.
+    strm.flush();
+
+    const wchar_t* ptr = out.data();
+    int left = sCast(int,out.size());
+    bool anywritten = false;
+    while ( left > 0 )
+    {
+	const DWORD chunk = left > 30000 ? 30000 : sCast(DWORD,left);
+	DWORD written = 0;
+	if ( !WriteConsoleW(handle,ptr,chunk,&written,nullptr) ||
+	     written == 0 )
+	    return anywritten;
+
+	anywritten = true;
+	ptr += written;
+	left -= sCast(int,written);
+    }
+
+    return true;
+}
+
+
+class Utf8ConsoleInBuf : public std::streambuf
+{
+public:
+
+Utf8ConsoleInBuf( HANDLE handle )
+    : handle_(handle)
+{}
+
+protected:
+
+int_type underflow() override
+{
+    if ( gptr() < egptr() )
+	return traits_type::to_int_type( *gptr() );
+
+    while ( !ateof_ )
+    {
+	wchar_t wbuf[1024];
+	DWORD nread = 0;
+	if ( !ReadConsoleW(handle_,wbuf,1024,&nread,nullptr) || nread == 0 )
+	    break;
+
+	DWORD nuse = nread;
+	for ( DWORD idx=0; idx<nread; idx++ )
+	{
+	    if ( wbuf[idx] == L'\x1a' )
+	    {
+		nuse = idx;
+		ateof_ = true;
+		break;
+	    }
+	}
+
+	std::wstring chars;
+	if ( heldcr_ )
+	{
+	    heldcr_ = false;
+	    if ( nuse == 0 || wbuf[0] != L'\n' )
+		chars.push_back( L'\r' );
+	}
+
+	for ( DWORD idx=0; idx<nuse; idx++ )
+	{
+	    if ( wbuf[idx] == L'\r' && idx + 1 == nuse )
+	    {
+		heldcr_ = true;
+		break;
+	    }
+
+	    if ( wbuf[idx] == L'\r' && wbuf[idx+1] == L'\n' )
+		continue;
+
+	    chars.push_back( wbuf[idx] );
+	}
+
+	if ( chars.empty() )
+	    continue;
+
+	if ( !storeUtf8(chars) )
+	    return traits_type::eof();
+
+	return traits_type::to_int_type( *gptr() );
+    }
+
+    ateof_ = true;
+    if ( !flushHeldCR() )
+	return traits_type::eof();
+
+    return traits_type::to_int_type( *gptr() );
+}
+
+private:
+
+bool flushHeldCR()
+{
+    if ( !heldcr_ )
+	return false;
+
+    heldcr_ = false;
+    const std::wstring cr( 1, L'\r' );
+    return storeUtf8( cr );
+}
+
+bool storeUtf8( const std::wstring& chars )
+{
+    const int wlen = sCast(int,chars.size());
+    const int nbytes = WideCharToMultiByte( CP_UTF8, 0, chars.data(), wlen,
+					     nullptr, 0, nullptr, nullptr );
+    if ( nbytes <= 0 )
+	return false;
+
+    utf8_.resize( sCast(size_t,nbytes) );
+    WideCharToMultiByte( CP_UTF8, 0, chars.data(), wlen,
+			  utf8_.data(), nbytes, nullptr, nullptr );
+    char* data = utf8_.data();
+    setg( data, data, data + nbytes );
+    return true;
+}
+
+    HANDLE		handle_;
+    std::string		utf8_;
+    bool		heldcr_ = false;
+    bool		ateof_	= false;
+
+};
+
+
+void useUtf8StdConsoleInput()
+{
+    static bool tried = false;
+    if ( tried )
+	return;
+
+    tried = true;
+    HANDLE handle = GetStdHandle( STD_INPUT_HANDLE );
+    DWORD consolemode = 0;
+    if ( !handle || handle == INVALID_HANDLE_VALUE ||
+	 !GetConsoleMode(handle,&consolemode) )
+	return;
+
+    std::cin.rdbuf( new Utf8ConsoleInBuf(handle) );
 }
 
 

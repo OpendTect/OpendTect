@@ -14,6 +14,7 @@ ________________________________________________________________________
 #ifdef __win__
 # include "shlobj.h"
 # include <ctime>
+# include <iostream>
 #endif
 
 extern "C"
@@ -64,6 +65,9 @@ mGlobal(Basic) void		TimespecToFileTime(const std::timespec&,
 mGlobal(Basic) void		FileTimeToTimet(const FILETIME&,std::timespec&);
 
 mGlobal(Basic) void		copyWString(LPCTSTR,BufferString&);
+mGlobal(Basic) bool		writeUtf8ToStdConsole(const char* txt,
+						      std::ostream&);
+mGlobal(Basic) void		useUtf8StdConsoleInput();
 
 }
 
