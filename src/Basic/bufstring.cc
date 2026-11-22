@@ -606,39 +606,92 @@ BufferString& BufferString::replaceAt( int atidx, const char* string, bool cut )
 }
 
 
-BufferString& BufferString::toLower()
+namespace OD
 {
-    char* ptr = getCStr();
+
+#ifndef OD_NO_QT
+static QByteArray convertedUtf8( const char* src, bool tolower )
+{
+    const QString qstr = QString::fromUtf8( src ? src : "" );
+    const QString folded = tolower ? qstr.toLower() : qstr.toUpper();
+    return folded.toUtf8();
+}
+#else
+static void foldAsciiLetters( char* ptr, bool tolower )
+{
+    if ( !ptr )
+	return;
+
     while ( *ptr )
     {
-	*ptr = tolower(*ptr);
-        ptr++;
+	const unsigned char c = (unsigned char)*ptr;
+	if ( tolower )
+	{
+	    if ( c >= 'A' && c <= 'Z' )
+		*ptr = (char)(c - 'A' + 'a');
+	}
+	else if ( c >= 'a' && c <= 'z' )
+	    *ptr = (char)(c - 'a' + 'A');
+
+	ptr++;
     }
+}
+#endif
+
+} // namespace OD
+
+
+BufferString& BufferString::toLower()
+{
+#ifndef OD_NO_QT
+    const QByteArray utf8 = OD::convertedUtf8( getCStr(), true );
+    set( utf8.constData() );
+#else
+    OD::foldAsciiLetters( getCStr(), true );
+#endif
     return *this;
 }
 
 
 BufferString& BufferString::toUpper()
 {
-    char* ptr = getCStr();
-    while ( *ptr )
-    {
-	*ptr = toupper(*ptr);
-        ptr++;
-    }
+#ifndef OD_NO_QT
+    const QByteArray utf8 = OD::convertedUtf8( getCStr(), false );
+    set( utf8.constData() );
+#else
+    OD::foldAsciiLetters( getCStr(), false );
+#endif
     return *this;
 }
 
 
 BufferString& BufferString::toTitleCase()
 {
-    this->toLower();
+    toLower();
     BufferStringSet words;
-    words.unCat( this->buf(), " " );
+    words.unCat( buf(), " " );
     for ( auto* word : words )
     {
-	char* ptr = word->getCStr();
-	*ptr = toupper( *ptr );
+	if ( !word || word->isEmpty() )
+	    continue;
+
+#ifndef OD_NO_QT
+	const QString lower = QString::fromUtf8( word->buf() );
+	int nrunits = 1;
+	if ( lower.at(0).isHighSurrogate() && lower.size() > 1 )
+	    nrunits = 2;
+
+	QString head = lower.left( nrunits ).toUpper();
+	if ( nrunits == 1 && head.size() > 1 )
+	    head = QString( head.at(0) ) + head.mid( 1 ).toLower();
+
+	const QByteArray utf8 = (head + lower.mid(nrunits)).toUtf8();
+	word->set( utf8.constData() );
+#else
+	unsigned char* ptr = (unsigned char*)word->getCStr();
+	if ( *ptr >= 'a' && *ptr <= 'z' )
+	    *ptr = (char)(*ptr - 'a' + 'A');
+#endif
     }
 
     *this = words.cat( " " );
@@ -1195,10 +1248,7 @@ idx_type* BufferStringSet::getSortIndexes( bool caseinsens, bool asc ) const
 	for ( idx_type idx=0; idx<sz; idx++ )
 	{
 	    BufferString newbs( get(idx) );
-	    const idx_type len = newbs.size();
-	    char* buf = newbs.getCStr();
-	    for ( idx_type ich=0; ich<len; ich++ )
-		buf[ich] = (char)toupper(buf[ich]);
+	    newbs.toUpper();
 	    uppercaseset.add( newbs );
 	}
     }
@@ -1314,7 +1364,7 @@ void BufferStringSet::use( const QList<QString>& from )
 
     for ( QList<QString>::const_iterator iter = from.constBegin();
 				      iter != from.constEnd(); ++iter )
-	add( (*iter).toLocal8Bit().constData() );
+	add( (*iter).toUtf8().constData() );
 #endif
 }
 
