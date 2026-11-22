@@ -186,3 +186,43 @@ def test_Well_put_log_undefined_ends(survey):
     np.testing.assert_allclose(data[lognm], logval[1:4], rtol=1e-6, equal_nan=True)
 
     well.delete_logs([lognm])
+
+def test_Well_put_markers(survey):
+    well = Well(survey, 'F03-4')
+    markernms = ['pytest A', 'pytest B']
+    well.delete_markers(markernms)
+    nmarkers = len(well.marker_names)
+    dah = np.array([1200.5, 300.25], dtype=np.float32)
+    well.put_markers(markernms, dah, ['#ff0000', '#00FF00'])
+    del well
+
+    # reloaded: stored in depth order between the existing markers
+    well = Well(survey, 'F03-4')
+    assert len(well.marker_names) == nmarkers+2
+    assert well.marker_names.index('pytest B') < well.marker_names.index('pytest A')
+    assert pytest_helper.approx(well.marker_info(markernms), rel=0.001) == [
+                                    {'name': 'pytest A', 'color': '#ff0000', 'dah': 1200.5},
+                                    {'name': 'pytest B', 'color': '#00ff00', 'dah': 300.25}
+                                ]
+
+    # overwrite=False and the marker exists: nothing is written, no error
+    well.put_markers(['pytest A'], np.array([900.0], dtype=np.float32))
+    assert well.isok
+    assert well.marker_info(['pytest A'])[0]['dah'] == pytest.approx(1200.5)
+
+    # overwrite=True replaces the marker, without a color it is white
+    well.put_markers(['pytest A'], np.array([900.0], dtype=np.float32), overwrite=True)
+    del well
+    well = Well(survey, 'F03-4')
+    assert pytest_helper.approx(well.marker_info(['pytest A']), rel=0.001) == [
+                                    {'name': 'pytest A', 'color': '#ffffff', 'dah': 900.0}
+                                ]
+
+    with pytest.raises(ValueError):
+        well.put_markers(['pytest C'], dah)
+
+    assert well.delete_markers(markernms)
+    del well
+    well = Well(survey, 'F03-4')
+    assert not any(nm in well.marker_names for nm in markernms)
+    assert len(well.marker_names) == nmarkers

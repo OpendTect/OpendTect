@@ -30,6 +30,7 @@ ________________________________________________________________________________
 #include "welllogset.h"
 #include "wellmarker.h"
 #include "welltrack.h"
+#include "wellwriter.h"
 
 #include <cmath>
 
@@ -377,6 +378,53 @@ void odWell::putLog( const char* lognm, const float* dah, const float* logdata,
 }
 
 
+void odWell::putMarkers( const BufferStringSet& markernms, const float* dah,
+			 const BufferStringSet& colors, bool overwrite )
+{
+    errmsg_.setEmpty();
+    survey_.activate();
+    if ( !wd_ )
+    {
+	errmsg_ = "odWell::putMarkers - invalid welldata object.";
+	return;
+    }
+
+    const UnitOfMeasure* zduom = UnitOfMeasure::surveyDefDepthUnit();
+    const UnitOfMeasure* zsuom = UnitOfMeasure::surveyDefDepthStorageUnit();
+    Well::MarkerSet& ms = wd_->markers();
+    bool changed = false;
+    for ( int idx=0; idx<markernms.size(); idx++ )
+    {
+	const char* markernm = markernms.get( idx ).buf();
+	const int mrkidx = ms.indexOf( markernm );
+	if ( mrkidx >= 0 )
+	{
+	    if ( !overwrite )
+		continue;
+
+	    delete ms.removeSingle( mrkidx );
+	}
+
+	OD::Color col;
+	if ( colors.validIdx(idx) )
+	    col.setStdStr( colors.get(idx).buf() );
+
+	const float dep = getConvertedValue( dah[idx], zduom, zsuom );
+	ms.insertNew( new Well::Marker(markernm,dep,col) );
+	changed = true;
+    }
+
+    if ( !changed )
+	return;
+
+    Well::Writer wtr( wd_->multiID(), *wd_ );
+    if ( !wtr.putMarkers() )
+	errmsg_ = "odWell::putMarkers - saving markers failed";
+
+    wd_->markerschanged.trigger();
+}
+
+
 void odWell::getInfo( OD::JSON::Object& jsobj ) const
 {
     errmsg_.setEmpty();
@@ -595,6 +643,32 @@ bool well_deletelogs( hWell self, const hStringSet lognms )
 	return true;
 
     return Well::MGR().deleteLogs( p->wd()->multiID(), *nms );
+}
+
+
+void well_putmarkers( hWell self, const hStringSet markernms, const float* dah,
+		      const hStringSet colors, bool overwrite )
+{
+    auto* p = static_cast<odWell*>(self);
+    const auto* nms = static_cast<BufferStringSet*>(markernms);
+    const auto* cols = static_cast<BufferStringSet*>(colors);
+    if ( !p || !nms || !cols )
+	return;
+
+    p->putMarkers( *nms, dah, *cols, overwrite );
+}
+
+
+bool well_deletemarkers( hWell self, const hStringSet markernms )
+{
+    auto* p = static_cast<odWell*>(self);
+    const auto* nms = static_cast<BufferStringSet*>(markernms);
+    if ( !p || !nms || !p->wd() ) return false;
+
+    if ( nms->isEmpty() )
+	return true;
+
+    return Well::MGR().deleteMarkers( p->wd()->multiID(), *nms );
 }
 
 
