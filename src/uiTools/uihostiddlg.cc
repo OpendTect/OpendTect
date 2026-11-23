@@ -79,11 +79,16 @@ uiSystemInfoGrp( uiParent* p )
     usernmfld_->attach( alignedBelow, productnmfld_ );
     usernmfld_->setElemSzPol( uiObject::Wide );
 
+    sessionusernmfld_ = new uiGenInput( this, tr("Session user name") );
+    sessionusernmfld_->setReadOnly();
+    sessionusernmfld_->attach( alignedBelow, usernmfld_ );
+    sessionusernmfld_->setElemSzPol( uiObject::Wide );
+
     if ( __islinux__ )
     {
 	kernelverfld_ = new uiGenInput( this, tr("Kernel Version") );
 	kernelverfld_->setReadOnly();
-	kernelverfld_->attach( alignedBelow, usernmfld_ );
+	kernelverfld_->attach( alignedBelow, sessionusernmfld_ );
 	kernelverfld_->setElemSzPol( uiObject::Wide );
 	kernelverfld_->setText( System::kernelVersion() );
     }
@@ -123,6 +128,7 @@ uiSystemInfoGrp( uiParent* p )
     osfld_->setText( OD::Platform().longName() );
     productnmfld_->setText( System::productName() );
     usernmfld_->setText( GetUserNm() );
+    sessionusernmfld_->setText( GetSessionUserNm(GetUserNm()) );
 }
 
 
@@ -143,6 +149,8 @@ void addInfo( BufferStringSet& infos ) const override
     const BufferString osstr( "Operating System: ", osfld_->text() );
     const BufferString productstr( "Product name: ", productnmfld_->text() );
     const BufferString userstr( "User name: ", usernmfld_->text() );
+    const BufferString sessionuserstr( "Session user name: ",
+				       sessionusernmfld_->text() );
 
     infos.add( idstr );
     infos.add( namestr );
@@ -152,6 +160,7 @@ void addInfo( BufferStringSet& infos ) const override
     infos.add( osstr );
     infos.add( productstr );
     infos.add( userstr );
+    infos.add( sessionuserstr );
 
     if ( kernelverfld_ )
     {
@@ -167,6 +176,7 @@ void addInfo( BufferStringSet& infos ) const override
     uiGenInput*		osfld_;
     uiGenInput*		productnmfld_;
     uiGenInput*		usernmfld_;
+    uiGenInput*		sessionusernmfld_;
     uiGenInput*		kernelverfld_		= nullptr;
 };
 
