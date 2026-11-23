@@ -65,6 +65,9 @@ ________________________________________________________________________
 #include <QString>
 #include <QSysInfo>
 
+#ifndef __debug__
+# include "odmemory.h"
+#endif
 
 static BufferString		initialdir_;
 static int			argc_ = -1;

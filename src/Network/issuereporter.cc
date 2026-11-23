@@ -10,8 +10,9 @@ ________________________________________________________________________
 #include "issuereporter.h"
 
 #include "commandlineparser.h"
-#include "iopar.h"
 #include "file.h"
+#include "genc.h"
+#include "iopar.h"
 #include "nrbytes2string.h"
 #include "oddirs.h"
 #include "odver.h"
@@ -103,6 +104,7 @@ void System::IssueReporter::fillBasicReport()
     StringPairSet infoset;
     infoset.add( "OpendTect version", GetFullODVersion() );
     infoset.add( "User Name", GetUserNm() );
+    infoset.add( "Session user name", GetSessionUserNm(GetUserNm()) );
     infoset.add( "Platform", OD::Platform::local().longName() );
     infoset.add( "Operating System", System::productName() );
 

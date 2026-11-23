@@ -13,6 +13,7 @@ ________________________________________________________________________
 #include "nrbytes2string.h"
 #include "perthreadrepos.h"
 #include "stringbuilder.h"
+#include "od_istream.h"
 #include "testprog.h"
 
 #ifdef __win__
@@ -785,9 +786,48 @@ bool testStringConv()
 }
 
 
+static int testConsoleLine()
+{
+#ifdef __win__
+    DWORD consolemode = 0;
+    HANDLE handle = GetStdHandle( STD_INPUT_HANDLE );
+    if ( !handle || handle == INVALID_HANDLE_VALUE ||
+	 !GetConsoleMode(handle,&consolemode) )
+    {
+	od_cout() << "stdin is not a console. Run test_string --console "
+		     "in a console window." << od_endl;
+	return 1;
+    }
+#endif
+
+    od_cout() << "Type a line with UTF-8 characters and press Enter:"
+	      << od_endl;
+    BufferString line;
+    if ( !od_cin().getLine(line) || line.isEmpty() )
+    {
+	od_cout() << "No line read" << od_endl;
+	return 1;
+    }
+
+    od_cout() << "Read: " << line << od_endl;
+    od_cout() << "Bytes:";
+    const char* digits = "0123456789ABCDEF";
+    for ( unsigned int idx=0; idx<line.size(); idx++ )
+    {
+	const unsigned char byte = (unsigned char)line[idx];
+	od_cout() << ' ' << digits[byte >> 4] << digits[byte & 0x0F];
+    }
+    od_cout() << od_endl;
+    return 0;
+}
+
+
 int mTestMainFnName( int argc, char** argv )
 {
     mInitTestProg();
+
+    if ( clParser().hasKey("console") )
+	return testConsoleLine();
 
     if ( !testBuilder()
       || !testWords()

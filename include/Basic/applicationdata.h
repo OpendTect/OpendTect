@@ -34,6 +34,9 @@ public:
 			mOD_DisableCopy(ApplicationData)
 
     static bool		hasInstance();
+    static void		ensureLocaleForQt();
+			/*!<On Unix, makes nl_langinfo(CODESET) a non-null
+			    string before the first QCoreApplication. */
 
     static int		exec();
 			//!<Starts the event loop
