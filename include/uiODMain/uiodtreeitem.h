@@ -17,6 +17,7 @@ class uiTreeView;
 class uiODApplMgr;
 class uiMenu;
 class ui3DViewer;
+class ui3DViewerBase;
 
 
 mExpClass(uiODMain) uiODTreeItem : public uiTreeItem
@@ -50,7 +51,7 @@ mExpClass(uiODMain) uiODTreeTop : public uiTreeTopItem
 {
 mODTextTranslationClass(uiODTreeTop)
 public:
-			uiODTreeTop(ui3DViewer*,uiTreeView*,
+			uiODTreeTop(ui3DViewerBase*,uiTreeView*,
 				    uiODApplMgr*,uiTreeFactorySet*);
 			~uiODTreeTop();
 

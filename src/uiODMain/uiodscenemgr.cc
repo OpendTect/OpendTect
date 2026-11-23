@@ -103,6 +103,7 @@ uiODSceneMgr::uiODSceneMgr( uiODMain* a )
     , mdiarea_(new uiMdiArea(a,"OpendTect work space"))
     , vwridx_(0)
     , tifs_(new uiTreeFactorySet)
+    , vsgtifs_(new uiTreeFactorySet)
     , wingrabber_(new uiWindowGrabber(a))
     , tiletimer_(new Timer)
 {
@@ -159,6 +160,7 @@ uiODSceneMgr::~uiODSceneMgr()
     detachAllNotifiers();
     cleanUp( false );
     delete tifs_;
+    delete vsgtifs_;
     delete mdiarea_;
     for ( int idx=scenes_.size()-1; idx>=0; idx-- )
     {
@@ -364,7 +366,8 @@ SceneID uiODSceneMgr::addVSGScene( bool maximized, const uiString& nm )
 
     createTreeDock( *tree, title );
 
-    // A plain tree: no uiTreeTopItem, so itemmanager_ stays null
+    tree->itemmanager_ = new uiODTreeTop( viewer, tree->lv_, &applMgr(),
+					  vsgtifs_ );
     auto* sceneitm = new uiTreeViewItem( tree->lv_,
 					 uiTreeViewItem::Setup(title) );
     sceneitm->setSelectable( false );
@@ -476,7 +479,7 @@ void uiODSceneMgr::removeScene( uiODSceneMgr::OSGSceneBundle& scene )
 
     if ( scene.itemmanager_ )
     {
-	const SceneID sceneid = scene.treeTop()->sceneID();
+	const SceneID sceneid = scene.itemmanager_->sceneID();
 	RefMan<visSurvey::Scene> visscene =
 			appl_.applMgr().visServer()->getScene( sceneid );
 	if ( visscene )
@@ -489,8 +492,8 @@ void uiODSceneMgr::removeScene( uiODSceneMgr::OSGSceneBundle& scene )
 
 	visscene = nullptr;
 	scene.itemmanager_->prepareForShutdown();
-	visServ().removeScene( scene.treeTop()->sceneID() );
-	sceneClosed.trigger( scene.treeTop()->sceneID() );
+	visServ().removeScene( scene.itemmanager_->sceneID() );
+	sceneClosed.trigger( scene.itemmanager_->sceneID() );
     }
 
     scene.mdiwin_->closed().remove( mWSMCB(removeSceneCB) );
@@ -1009,7 +1012,7 @@ void uiODSceneMgr::soloMode( CallBacker* )
 	    continue;
 
 	auto* scene = dCast(OSGSceneBundle*,bundle);
-	dispids += scene->treeTop()->getDisplayIds( selectedid,
+	dispids += scene->itemmanager_->getDisplayIds( selectedid,
 						    !issolomodeon );
     }
 
@@ -1042,7 +1045,7 @@ SceneID uiODSceneMgr::askSelectScene() const
 	    continue;
 
 	auto* scene = dCast(OSGSceneBundle*,bundle);
-	SceneID sceneid = scene->treeTop()->sceneID();
+	SceneID sceneid = scene->itemmanager_->sceneID();
 	sceneids += sceneid;
 	scenenms.add( getSceneName(sceneid) );
     }
@@ -1087,7 +1090,7 @@ uiODTreeTop* uiODSceneMgr::getTreeItemMgr( const uiTreeView* lv ) const
     for ( auto* bundle : scenes_ )
     {
 	if ( !bundle->isVSG() && bundle->lv_ == lv )
-	    return dCast(OSGSceneBundle*,bundle)->treeTop();
+	    return bundle->itemmanager_;
     }
 
     return nullptr;
@@ -1097,17 +1100,14 @@ uiODTreeTop* uiODSceneMgr::getTreeItemMgr( const uiTreeView* lv ) const
 uiODTreeTop* uiODSceneMgr::getTreeItemMgr( const SceneID& sceneid ) const
 {
     const OSGSceneBundle* scene = getScene( sceneid );
-    return scene ? scene->treeTop() : nullptr;
+    return scene ? scene->itemmanager_ : nullptr;
 }
 
 
 void uiODSceneMgr::translateText()
 {
     for ( auto* bundle : scenes_ )
-    {
-	if ( !bundle->isVSG() )
-	    bundle->itemmanager_->translateText();
-    }
+	bundle->itemmanager_->translateText();
 }
 
 
@@ -1143,8 +1143,8 @@ SceneID uiODSceneMgr::getActiveSceneID() const
 
 	auto* scene = dCast(OSGSceneBundle*,bundle);
 	if ( scenenm ==
-	   getSceneName(scene->treeTop()->sceneID()).getFullString() )
-	    return scene->treeTop()->sceneID();
+	   getSceneName(scene->itemmanager_->sceneID()).getFullString() )
+	    return scene->itemmanager_->sceneID();
     }
 
     return SceneID::udf();
@@ -1300,9 +1300,6 @@ void uiODSceneMgr::updateTrees()
 {
     for ( auto* bundle : scenes_ )
     {
-	if ( bundle->isVSG() )
-	    continue;
-
 	bundle->itemmanager_->updateColumnText( cNameColumn() );
 	bundle->itemmanager_->updateColumnText( cColorColumn() );
 	bundle->itemmanager_->updateCheckStatus();
@@ -1396,9 +1393,6 @@ void uiODSceneMgr::updateSelectedTreeItem()
     const int visidasint = id.asInt();
     for ( auto* bundle : scenes_ )
     {
-	if ( bundle->isVSG() )
-	    continue;
-
 	auto* itmmgr = bundle->itemmanager_;
 	itmmgr->updateSelection( visidasint );
 	itmmgr->updateSelTreeColumnText( cNameColumn() );
@@ -1429,9 +1423,6 @@ VisID uiODSceneMgr::getIDFromName( const char* str ) const
 {
     for ( const auto* bundle : scenes_ )
     {
-	if ( bundle->isVSG() )
-	    continue;
-
 	const uiTreeItem* itm = bundle->itemmanager_->findChild( str );
 	if ( itm )
 	    return VisID( itm->selectionKey() );
@@ -1846,9 +1837,6 @@ void uiODSceneMgr::removeTreeItem( const VisID& displayid )
 {
     for ( auto* bundle : scenes_ )
     {
-	if ( bundle->isVSG() )
-	    continue;
-
 	uiTreeItem* itm = bundle->itemmanager_->findChild( displayid.asInt() );
 	if ( itm )
 	{
@@ -1863,9 +1851,6 @@ uiTreeItem* uiODSceneMgr::findSceneItem( const SceneID& sceneid )
 {
     for ( const auto* bundle : scenes_ )
     {
-	if ( bundle->isVSG() )
-	    continue;
-
 	uiTreeItem* itm = bundle->itemmanager_->findChild( sceneid.asInt() );
 	if ( itm )
 	    return itm;
@@ -1879,9 +1864,6 @@ uiTreeItem* uiODSceneMgr::findItem( const VisID& displayid )
 {
     for ( const auto* bundle : scenes_ )
     {
-	if ( bundle->isVSG() )
-	    continue;
-
 	uiTreeItem* itm = bundle->itemmanager_->findChild( displayid.asInt() );
 	if ( itm )
 	    return itm;
@@ -1903,12 +1885,8 @@ void uiODSceneMgr::findItems( const char* nm, ObjectSet<uiTreeItem>& items,
     deepErase( items );
     for ( auto* bundle : scenes_ )
     {
-	if ( bundle->isVSG() )
-	    continue;
-
-	auto& scene = *dCast(OSGSceneBundle*,bundle);
-	if ( !sceneid.isValid() || scene.treeTop()->sceneID() == sceneid )
-	    scene.itemmanager_->findChildren( nm, items );
+	if ( !sceneid.isValid() || bundle->sceneID() == sceneid )
+	    bundle->itemmanager_->findChildren( nm, items );
     }
 }
 
@@ -2051,13 +2029,7 @@ uiODSceneMgr::OSGSceneBundle::OSGSceneBundle( uiMdiArea* mdiarea )
 
 SceneID uiODSceneMgr::OSGSceneBundle::sceneID() const
 {
-    return itemmanager_ ? treeTop()->sceneID() : SceneID::udf();
-}
-
-
-uiODTreeTop* uiODSceneMgr::OSGSceneBundle::treeTop() const
-{
-    return dCast( uiODTreeTop*, itemmanager_ );
+    return itemmanager_ ? itemmanager_->sceneID() : SceneID::udf();
 }
 
 

@@ -29,7 +29,7 @@ const char* uiODTreeTop::viewerptr()		{ return "Viewer"; }
 const char* uiODTreeTop::applmgrstr()		{ return "Applmgr"; }
 
 
-uiODTreeTop::uiODTreeTop( ui3DViewer* sovwr, uiTreeView* lv, uiODApplMgr* am,
+uiODTreeTop::uiODTreeTop( ui3DViewerBase* sovwr, uiTreeView* lv, uiODApplMgr* am,
 			    uiTreeFactorySet* tfs_ )
     : uiTreeTopItem(lv)
     , tfs(tfs_)
@@ -152,7 +152,7 @@ ui3DViewer* uiODTreeItem::viewer()
 {
     void* res = nullptr;
     getPropertyPtr( uiODTreeTop::viewerptr(), res );
-    return reinterpret_cast<ui3DViewer*>( res );
+    return dCast( ui3DViewer*, sCast(ui3DViewerBase*,res) );
 }
 
 

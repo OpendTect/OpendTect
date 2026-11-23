@@ -31,7 +31,6 @@ class uiODTreeTop;
 class ui3DViewer;
 class uiTreeFactorySet;
 class uiTreeItem;
-class uiTreeTopItem;
 class uiTreeView;
 class uiWindowGrabber;
 namespace Pick { class Set; }
@@ -222,6 +221,7 @@ protected:
 
     int				vwridx_;
     uiTreeFactorySet*		tifs_;
+    uiTreeFactorySet*		vsgtifs_;
     uiWindowGrabber*		wingrabber_;
 
     inline uiODApplMgr&		applMgr()	{ return appl_.applMgr(); }
@@ -244,7 +244,7 @@ protected:
 	uiDockWin*		dw_		= nullptr;
 	uiTreeView*		lv_		= nullptr;
 	uiMdiAreaWindow*	mdiwin_		= nullptr;
-	uiTreeTopItem*		itemmanager_	= nullptr;
+	uiODTreeTop*		itemmanager_	= nullptr;
     };
 
     mExpClass(uiODMain) OSGSceneBundle : public SceneBundle
@@ -254,7 +254,6 @@ protected:
 
 	SceneID			sceneID() const override;
 	bool			isVSG() const override	{ return false; }
-	uiODTreeTop*		treeTop() const;
 	ui3DViewer*		osgViewer() const;
     };
 
