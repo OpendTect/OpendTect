@@ -31,6 +31,7 @@ class uiODTreeTop;
 class ui3DViewer;
 class uiTreeFactorySet;
 class uiTreeItem;
+class uiTreeTopItem;
 class uiTreeView;
 class uiWindowGrabber;
 namespace Pick { class Set; }
@@ -54,6 +55,11 @@ public:
 					 const uiString& nm=uiString::empty());
 
     SceneID			addDefaultScene();
+
+    void			addVSGTree(const SceneID&,const uiString&);
+    void			removeVSGTree(const SceneID&);
+    void			raiseVSGTree(const SceneID&);
+    void			showVSGTrees(bool yn);
 
     void			setSceneName(const SceneID&,const uiString&);
     uiString			getSceneName(const SceneID&) const;
@@ -235,11 +241,28 @@ protected:
 	uiODTreeTop*		itemmanager_;
     };
 
+    mExpClass(uiODMain) VSGTree
+    {
+    public:
+				VSGTree();
+				~VSGTree();
+
+	SceneID			sceneid_;
+	uiDockWin*		dw_		= nullptr;
+	uiTreeView*		lv_		= nullptr;
+	uiTreeTopItem*		itemmanager_	= nullptr;
+    };
+
     ObjectSet<Scene>		scenes_;
+    ObjectSet<VSGTree>		vsgtrees_;
+    bool			vsgtreesshown_	= true;
     Scene&			mkNewScene();
     void			removeScene(Scene& scene);
     void			removeSceneCB(CallBacker*);
     void			initTree(Scene&,int);
+    VSGTree*			getVSGTree(const SceneID&);
+    void			tabifyVSGTree(VSGTree&);
+    void			addVSGCategoryItems(uiTreeTopItem&);
     Scene*			getScene(const SceneID&);
     const Scene*		getScene(const SceneID&) const;
     void			newSceneUpdated(CallBacker*);
