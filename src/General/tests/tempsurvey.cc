@@ -444,9 +444,10 @@ static bool testUtf8Survey( bool managed )
     tempsurvey.setManaged( managed );
     registerSurveyPaths( tempsurvey, utf8survbasedir_, utf8survzip_ );
     mRunStandardTest( tempsurvey.isOK(), "Constructed UTF-8 survey" );
-    mRunStandardTestWithError( tempsurvey.getSurveyDir()==survdirnm,
-	"UTF-8 survey directory name",
-	expectValErrMsg(survdirnm,tempsurvey.getSurveyDir().buf()) );
+    mRunStandardTestWithError(
+		tempsurvey.getSurveyDir()==survdirnm,
+		"UTF-8 survey directory name",
+		expectValErrMsg(survdirnm,tempsurvey.getSurveyDir().buf()) );
 
     uiRetVal ret = tempsurvey.mount();
     mRunStandardTestWithError( ret.isOK() && tempsurvey.isMounted(),
@@ -477,9 +478,10 @@ static bool testUtf8Survey( bool managed )
     surveyfile.setManaged( managed );
     utf8zipbasedir_.set( surveyfile.getTempBaseDir() );
     mRunStandardTest( surveyfile.isOK(), "Open UTF-8 survey zip file" );
-    mRunStandardTestWithError( surveyfile.getSurveyDir()==survdirnm,
-	"UTF-8 survey directory read from the zip",
-	expectValErrMsg(survdirnm,surveyfile.getSurveyDir().buf()) );
+    mRunStandardTestWithError(
+		surveyfile.getSurveyDir()==survdirnm,
+		"UTF-8 survey directory read from the zip",
+		expectValErrMsg(survdirnm,surveyfile.getSurveyDir().buf()) );
 
     ret = surveyfile.mount();
     mRunStandardTestWithError( ret.isOK() && surveyfile.isMounted(),
@@ -488,9 +490,11 @@ static bool testUtf8Survey( bool managed )
     ret = surveyfile.activate();
     mRunStandardTestWithError( ret.isOK(), "Activate unzipped UTF-8 survey",
 			       ret.getText() );
-    mRunStandardTestWithError( SI().diskLocation().dirName()==survdirnm,
-	"Active unzipped UTF-8 survey directory",
-	expectValErrMsg(survdirnm,SI().diskLocation().dirName().buf()) );
+    mRunStandardTestWithError(
+		SI().diskLocation().dirName()==survdirnm,
+		"Active unzipped UTF-8 survey directory",
+		expectValErrMsg(survdirnm,
+				SI().diskLocation().dirName().buf()) );
 
     ret = surveyfile.save();
     mRunStandardTestWithError( ret.isOK(), "Save unzipped UTF-8 survey back",

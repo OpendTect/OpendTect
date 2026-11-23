@@ -27,6 +27,9 @@ static BufferString zipfilename2_;
 static BufferString outputdir_;
 static BufferString utf8dir_;
 static BufferString utf8zipfnm_;
+static BufferString asciidir_;
+static BufferString asciizipfnm_;
+static BufferString mixedzipfnm_;
 
 
 void cleanup()
@@ -42,6 +45,15 @@ void cleanup()
 
     if ( File::exists(utf8zipfnm_.buf()) )
 	File::remove( utf8zipfnm_.buf() );
+
+    if ( File::exists(asciidir_.buf()) )
+	File::removeDir( asciidir_.buf() );
+
+    if ( File::exists(asciizipfnm_.buf()) )
+	File::remove( asciizipfnm_.buf() );
+
+    if ( File::exists(mixedzipfnm_.buf()) )
+	File::remove( mixedzipfnm_.buf() );
 
     if ( File::exists(zipfilename_.buf()) )
 	File::remove( zipfilename_.buf() );
@@ -191,16 +203,144 @@ static bool hasEntry( const BufferStringSet& entries, const char* fnm )
 }
 
 
-static bool hasUtf8NamesFlag( const char* zipfnm )
+struct ZipEntryFlags
 {
-    od_istream strm( zipfnm );
-    unsigned char header[8];
-    if ( !strm.isOK() || !strm.getBin(header,8) )
+    BufferString	name_;
+    od_uint16		centralflag_	= 0;
+    od_uint16		localflag_	= 0;
+};
+
+
+static od_uint32 getLittleEndian( const unsigned char* buf, int nrbytes )
+{
+    od_uint32 ret = 0;
+    for ( int idx=nrbytes-1; idx>=0; idx-- )
+	ret = (ret << 8) | buf[idx];
+
+    return ret;
+}
+
+
+static bool hasNonAsciiChars( const char* str )
+{
+    for ( const unsigned char* ptr = rCast(const unsigned char*,str);
+	  *ptr; ptr++ )
+    {
+	if ( *ptr > 127 )
+	    return true;
+    }
+
+    return false;
+}
+
+
+static bool readEntries( od_istream& strm, od_int64 zipsz,
+			 ManagedObjectSet<ZipEntryFlags>& entries )
+{
+    const int tailsz = sCast( int, mMIN(zipsz,65557) );
+    TypeSet<unsigned char> tail( tailsz, 0 );
+    strm.setReadPosition( zipsz-tailsz );
+    if ( !strm.getBin(tail.arr(),tailsz) )
 	return false;
 
-    const bool islocalheader = header[0]==0x50 && header[1]==0x4b &&
-			       header[2]==0x03 && header[3]==0x04;
-    return islocalheader && (header[7] & 0x08);
+    int eocd = tailsz - 22;
+    while ( eocd >= 0 && getLittleEndian(tail.arr()+eocd,4) != 0x06054b50 )
+	eocd--;
+
+    if ( eocd < 0 )
+	return false;
+
+    const int nrentries = sCast( int, getLittleEndian(tail.arr()+eocd+10,2) );
+    const int cdsize = sCast( int, getLittleEndian(tail.arr()+eocd+12,4) );
+    TypeSet<unsigned char> cd( cdsize, 0 );
+    strm.setReadPosition( getLittleEndian(tail.arr()+eocd+16,4) );
+    if ( !strm.getBin(cd.arr(),cdsize) )
+	return false;
+
+    int pos = 0;
+    for ( int idx=0; idx<nrentries; idx++ )
+    {
+	const unsigned char* hdr = cd.arr() + pos;
+	if ( pos+46 > cdsize || getLittleEndian(hdr,4) != 0x02014b50 )
+	    return false;
+
+	const int namelen = sCast( int, getLittleEndian(hdr+28,2) );
+	unsigned char localhdr[8];
+	strm.setReadPosition( getLittleEndian(hdr+42,4) );
+	if ( !strm.getBin(localhdr,8) ||
+	     getLittleEndian(localhdr,4) != 0x04034b50 )
+	    return false;
+
+	auto* entry = new ZipEntryFlags;
+	entry->centralflag_ = sCast( od_uint16, getLittleEndian(hdr+8,2) );
+	entry->localflag_ = sCast( od_uint16, getLittleEndian(localhdr+6,2) );
+	for ( int ich=0; ich<namelen; ich++ )
+	    entry->name_.add( sCast(char,hdr[46+ich]) );
+
+	entries += entry;
+	pos += 46 + namelen + sCast(int,getLittleEndian(hdr+30,2)) +
+	       sCast(int,getLittleEndian(hdr+32,2));
+    }
+
+    return true;
+}
+
+
+static bool readEntryFlags( const char* zipfnm,
+			    ManagedObjectSet<ZipEntryFlags>& entries )
+{
+    const od_int64 zipsz = File::getFileSize( zipfnm );
+    if ( zipsz < 22 )
+	return false;
+
+    od_istream strm( zipfnm );
+    const bool isread = strm.isOK() && readEntries( strm, zipsz, entries );
+    strm.close();
+    return isread;
+}
+
+
+static bool checkEntryFlags( const char* zipfnm, const char* desc,
+			     bool& hasutf8, bool& hasascii )
+{
+    ManagedObjectSet<ZipEntryFlags> entries;
+    mRunStandardTest( readEntryFlags(zipfnm,entries) && !entries.isEmpty(),
+		      BufferString("Read the headers of all entries: ",desc) );
+
+    hasutf8 = hasascii = false;
+    BufferString wrongmark, mismatch, unreadable;
+    for ( const auto* entry : entries )
+    {
+	const bool nonascii = hasNonAsciiChars( entry->name_.buf() );
+	if ( nonascii )
+	    hasutf8 = true;
+	else
+	    hasascii = true;
+
+	const bool marked = entry->centralflag_ & 0x0800;
+	if ( marked != nonascii )
+	    wrongmark.add( entry->name_ ).add( " " );
+
+	if ( entry->centralflag_ != entry->localflag_ )
+	    mismatch.add( entry->name_ ).add( " " );
+
+	if ( !nonascii && entry->localflag_ > 14 )
+	    unreadable.add( entry->name_ ).add( " " );
+    }
+
+    mRunStandardTestWithError(
+		wrongmark.isEmpty(),
+		BufferString("UTF-8 mark only on non-ASCII names: ",desc),
+		wrongmark );
+    mRunStandardTestWithError(
+		mismatch.isEmpty(),
+		BufferString("Local and central headers agree: ",desc),
+		mismatch );
+    mRunStandardTestWithError(
+		unreadable.isEmpty(),
+		BufferString("ASCII entries readable by older versions: ",desc),
+		unreadable );
+    return true;
 }
 
 
@@ -233,14 +373,16 @@ static bool checkUnzippedFile( const char* fnm, const FileState& before,
 		      BufferString("Unzipped UTF-8 path is a file: ",desc) );
     mRunStandardTest( after.size_ == before.size_,
 		      BufferString("Unzipped file size: ",desc) );
-    mRunStandardTestWithError( after.perms_ == before.perms_,
-		      BufferString("Unzipped file permissions: ",desc),
-		      BufferString("Got ",after.perms_.asInt(),", expected ")
-			.add(before.perms_.asInt()) );
-    mRunStandardTestWithError( Math::Abs(after.modtime_-before.modtime_) <= 2,
-		      BufferString("Unzipped file modification time: ",desc),
-		      BufferString("Got ",after.modtime_,", expected ")
-			.add(before.modtime_) );
+    mRunStandardTestWithError(
+		after.perms_ == before.perms_,
+		BufferString("Unzipped file permissions: ",desc),
+		BufferString("Got ",after.perms_.asInt(),", expected ")
+		    .add(before.perms_.asInt()) );
+    mRunStandardTestWithError(
+		Math::Abs(after.modtime_-before.modtime_) <= 2,
+		BufferString("Unzipped file modification time: ",desc),
+		BufferString("Got ",after.modtime_,", expected ")
+		    .add(before.modtime_) );
     return true;
 }
 
@@ -351,12 +493,55 @@ static bool testUtf8Names()
 		      recovered == subcontent,
 		      BufferString("Unzipped UTF-8 content in subdirectory: ",
 				   recovered) );
-    mRunStandardTest( hasUtf8NamesFlag(utf8zipfnm_.buf()),
-		      "Archive marks its names as UTF-8 (bit 11)" );
+    bool hasutf8 = false, hasascii = false;
+    if ( !checkEntryFlags(utf8zipfnm_.buf(),"UTF-8 archive",hasutf8,hasascii) )
+	return false;
+
+    mRunStandardTest( hasutf8 && !hasascii,
+		      "The UTF-8 archive has only non-ASCII names" );
+
+    const FilePath asciidirfp( tempdir.buf(), "od_test_zip_ascii" );
+    asciidir_ = asciidirfp.fullPath();
+    asciizipfnm_ =
+		FilePath( tempdir.buf(), "od_test_zip_ascii.zip" ).fullPath();
+    mixedzipfnm_ =
+		FilePath( tempdir.buf(), "od_test_zip_mixed.zip" ).fullPath();
+    const FilePath asciifilefp( asciidirfp, "ascii_only.txt" );
+    mRunStandardTest( File::createDir(asciidir_.buf()) &&
+		      File::putContent(BufferString("ascii"),
+				       asciifilefp.fullPath()),
+		      "Write a file with an ASCII name" );
+
+    mRunStandardTestWithError(
+		ZipUtils::makeZip(asciidir_.buf(),tempdir.buf(),
+				  asciizipfnm_.buf(),err),
+		"Zip archive with only ASCII names", toString(err) );
+    if ( !checkEntryFlags(asciizipfnm_.buf(),"ASCII archive",
+			  hasutf8,hasascii) )
+	return false;
+
+    mRunStandardTest( !hasutf8 && hasascii,
+		      "The ASCII archive has no non-ASCII names" );
+
+    BufferStringSet mixedsrcs;
+    mixedsrcs.add( asciidir_ ).add( utf8dir_ );
+    mRunStandardTestWithError(
+		ZipUtils::makeZip(mixedsrcs,tempdir.buf(),
+				  mixedzipfnm_.buf(),err),
+		"Zip archive with ASCII and UTF-8 names", toString(err) );
+    if ( !checkEntryFlags(mixedzipfnm_.buf(),"mixed archive",
+			  hasutf8,hasascii) )
+	return false;
+
+    mRunStandardTest( hasutf8 && hasascii,
+		      "The mixed archive has ASCII and non-ASCII names" );
 
     mRunStandardTest( File::remove(utf8zipfnm_.buf()) &&
+		      File::remove(asciizipfnm_.buf()) &&
+		      File::remove(mixedzipfnm_.buf()) &&
+		      File::removeDir(asciidir_.buf()) &&
 		      File::removeDir(utf8dir_.buf()),
-		      "Remove UTF-8 archive and directory" );
+		      "Remove the archives and directories" );
 
     return true;
 }
@@ -397,6 +582,10 @@ int mTestMainFnName( int argc, char** argv )
 		ZipUtils::makeZip( tozip.fullPath(), nullptr,
 				   zipfilename_.buf(), err, &taskrun ),
 		"Zipping", err.getFullString() );
+    bool hasutf8 = false, hasascii = false;
+    if ( !checkEntryFlags(zipfilename_.buf(),sKeySurvey,hasutf8,hasascii) )
+	return 1;
+
     mRunStandardTestWithError(
 		ZipUtils::makeZip( tozip.fullPath(), nullptr,
 				   zipfilename2_.buf(), err, &taskrun ),

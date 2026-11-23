@@ -228,6 +228,22 @@ static void setBitValue( unsigned char& byte, int bitposition, bool value )
     }
 }
 
+
+static bool hasNonAsciiChars( const char* str )
+{
+    if ( !str )
+	return false;
+
+    for ( const unsigned char* ptr = rCast(const unsigned char*,str);
+	  *ptr; ptr++ )
+    {
+	if ( *ptr > 127 )
+	    return true;
+    }
+
+    return false;
+}
+
 } // namespace OD
 
 
@@ -1122,8 +1138,6 @@ void ZipHandler::writeGeneralPurposeFlag( unsigned char* databuf ) const
 	    OD::setBitValue( databuf[0], 1, 0 );
 	    OD::setBitValue( databuf[0], 2, 0 );
     };
-
-    OD::setBitValue( databuf[1], mUtf8NamesBit, true );
 }
 
 
@@ -1190,7 +1204,8 @@ bool ZipHandler::setLocalFileHeader( const ZipFileInfo& fileinfo,
     mLocalFileHeaderSig ( headerbuff );
     mInsertToCharBuff( headerbuff, version,
 		       mLVerNeedToExtract, mSizeTwoBytes );
-    OD::setBitValue( headerbuff[mLGenPurBitFlag+1], mUtf8NamesBit, true );
+    OD::setBitValue( headerbuff[mLGenPurBitFlag+1], mUtf8NamesBit,
+		     OD::hasNonAsciiChars(fileinfo.getFileName()) );
     mInsertToCharBuff( headerbuff, fileinfo.compmethod_,
 		       mLCompMethod, mSizeTwoBytes );
     const od_uint16 dostime = fileinfo.getDosNrSec();
@@ -1444,6 +1459,8 @@ bool ZipHandler::setCentralDirHeader( const ObjectSet<ZipFileInfo>& fileinfos )
     for ( const auto* fileinfo : fileinfos )
     {
 	writeGeneralPurposeFlag( headerbuff+mLGenPurBitFlagCentral );
+	OD::setBitValue( headerbuff[mLGenPurBitFlagCentral+1], mUtf8NamesBit,
+			 OD::hasNonAsciiChars(fileinfo->getFileName()) );
 	mInsertToCharBuff( headerbuff, fileinfo->compmethod_,
 			   mLCompMethodCentral, mSizeTwoBytes );
 	const od_uint16 dostime = fileinfo->getDosNrSec();
@@ -2269,7 +2286,7 @@ bool ZipHandler::extractNextFile( ZipFileInfo& fileinfo )
 	    File::setTimes( destfile, fileinfo.times_, false );
 
 	if ( !fileinfo.getPermissions().isUdf() )
-		File::setPermissions( destfile, fileinfo.getPermissions() );
+	    File::setPermissions( destfile, fileinfo.getPermissions() );
     }
     // Do NOT set folder permissions before all files are unpacked
 
