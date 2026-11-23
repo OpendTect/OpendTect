@@ -828,7 +828,8 @@ bool uiWellPartServer::storeWell( const TypeSet<Coord3>& coords,
     }
 
     Well::Writer wwr( *ctio->ioobj_, *well );
-    if ( !wwr.put() )
+    const bool isnew = mid.isUdf();
+    if ( !wwr.putTrack() || (isnew && well->d2TModel() && !wwr.putD2T()) )
 	mErrRet( wwr.errMsg() )
 
     mid = ctio->ioobj_->key();

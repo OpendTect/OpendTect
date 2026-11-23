@@ -167,6 +167,11 @@ mGlobal(Basic) bool isAlphaNumString(const char*,bool allowspace = false);
 mGlobal(Basic) bool isBoolString(const char*);
 	/*!< tells whether a string holds a True/False/Yes/No */
 
+namespace OD
+{
+    mGlobal(Basic) bool hasUnicodeCharacters(const char*);
+}
+
 mGlobal(Basic) const char* getNextWord(const char*,char*);
 	/*!< Deprecated: choose between getNextWordElem and getNextNonBlanks. */
 

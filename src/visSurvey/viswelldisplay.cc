@@ -86,7 +86,18 @@ RefMan<Well::Data> WellDisplay::getWD( const Well::LoadReqs& reqs ) const
 	lreqs.includes( Well::DispProps3D );
 	const bool isloaded = wllmgr.isLoaded( wellid_ );
 	if ( isloaded )
-	    wllmgr.reload( wellid_, lreqs );
+	{
+	    RefMan<Well::Data> loaded = wllmgr.get( wellid_,
+						Well::LoadReqs(false) );
+	    if ( loaded )
+	    {
+		NotifyStopper nsreload( loaded->reloaded, this );
+		NotifyStopper nstrack( loaded->trackchanged, this );
+		wllmgr.reload( wellid_, lreqs );
+	    }
+	    else
+		wllmgr.reload( wellid_, lreqs );
+	}
 
 	self->wd_ = wllmgr.get( wellid_, lreqs );
 	if ( wd_ )
@@ -108,6 +119,9 @@ RefMan<Well::Data> WellDisplay::getWD( const Well::LoadReqs& reqs ) const
 	    attachCB( wd_->disp3dparschanged,mCB(self,WellDisplay,fullRedraw));
 	    if ( zistime_ )
 		attachCB( wd_->d2tchanged, mCB(self,WellDisplay,fullRedraw) );
+
+	    if ( isloaded )
+		self->fullRedraw( nullptr );
 	}
     }
     else
@@ -872,10 +886,8 @@ void WellDisplay::addPick( Coord3 pos )
     if ( !pseudotrack_ )
 	return;
 
-    const double zfactor =
-		double( scene_ ? scene_->getZScale() : SI().zScale() );
     const int insertidx = pseudotrack_->insertPoint(
-                              Coord3(pos.x_,pos.y_,pos.z_*zfactor) );
+			      Coord3(pos.x_,pos.y_,pos.z_) );
 
     TypeSet<Coord3> wcoords = getWellCoords();
     well_->setTrack( wcoords );
@@ -973,13 +985,10 @@ void WellDisplay::showKnownPositions()
 
 TypeSet<Coord3> WellDisplay::getWellCoords() const
 {
-    const double zfactor =
-		double( scene_ ? scene_->getZScale() : SI().zScale() );
-    TypeSet<Coord3> coords = pseudotrack_->getAllPos();
-    for ( int idx=0; idx<coords.size(); idx++ )
-        coords[idx].z_ /= zfactor;
+    if ( !pseudotrack_ )
+	return TypeSet<Coord3>();
 
-    return coords;
+    return pseudotrack_->getAllPos();
 }
 
 

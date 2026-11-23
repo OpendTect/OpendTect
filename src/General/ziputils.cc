@@ -59,6 +59,7 @@ private:
 
     ZipHandler			ziphd_;
     ObjectSet<ZipFileInfo>	fileinfos_;
+    ObjectSet<ZipFileInfo>	existingfileinfos_;
     int				nrdone_ = 0;
     bool			isok_;
 };
@@ -78,13 +79,27 @@ Zipper::Zipper( const char* srcfnm, const char* basepath,
     : Executor( "Making Zip Archive" )
 {
     ziphd_.setCompLevel( cl );
-    isok_ = ziphd_.initAppend( srcfnm, basepath, zipfnm );
+    const ZipArchiveInfo zai( zipfnm );
+    BufferStringSet fnms;
+    isok_ = zai.isOK() && zai.getAllFnms( fnms );
+    for ( const auto* fnm : fnms )
+    {
+	auto* fileinfo = new ZipFileInfo;
+	existingfileinfos_.add( fileinfo );
+	isok_ = zai.get( fnm->buf(), *fileinfo );
+	if ( !isok_ )
+	    break;
+    }
+
+    if ( isok_ )
+	isok_ = ziphd_.initAppend( srcfnm, basepath, zipfnm );
 }
 
 
 Zipper::~Zipper()
 {
     deepErase( fileinfos_ );
+    deepErase( existingfileinfos_ );
 }
 
 
@@ -121,7 +136,10 @@ bool Zipper::doFinish( bool success, od_ostream* strm )
 	return Executor::doFinish( success, strm );
     }
 
-    if ( !ziphd_.setEndOfArchiveHeaders(fileinfos_) )
+    ObjectSet<ZipFileInfo> allfileinfos;
+    allfileinfos.append( existingfileinfos_ );
+    allfileinfos.append( fileinfos_ );
+    if ( !ziphd_.setEndOfArchiveHeaders(allfileinfos) )
 	return false;
 
     deepErase( fileinfos_ );
@@ -462,8 +480,18 @@ bool ZipUtils::appendToArchive( const char* srcfnm, const char* basefp,
 	    basepath.set( srcfp.pathOnly() );
     }
 
-    const BufferStringSet srcfnms( srcfnm );
-    return makeZip( srcfnms, basepath.buf(), zipfilenm, errmsg, taskrunner, cl);
+    if ( !File::exists(zipfilenm) )
+	return makeZip( srcfnm, basepath.buf(), zipfilenm, errmsg, taskrunner,
+			cl );
+
+    Zipper exec( srcfnm, basepath.buf(), zipfilenm, cl );
+    if ( !TaskRunner::execute(taskrunner,exec) )
+    {
+	errmsg = exec.uiMessage();
+	return false;
+    }
+
+    return true;
 }
 
 
