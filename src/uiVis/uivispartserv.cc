@@ -279,8 +279,8 @@ SceneID uiVisPartServer::addScene( visSurvey::Scene* newscene_in )
 
 
 typedef visSurvey::Scene* (*VSGSceneCreator)();
-typedef uiObject* (*VSGViewerCreator)( uiParent*,visSurvey::Scene*,
-				       const char* );
+typedef ui3DViewerBase* (*VSGViewerCreator)( uiParent*,visSurvey::Scene*,
+					    const char* );
 
 void* uiVisPartServer::getVSGFunction( const char* fnnm ) const
 {
@@ -324,9 +324,9 @@ SceneID uiVisPartServer::addVSGScene( const uiString& nm )
 }
 
 
-uiObject* uiVisPartServer::createVSGViewer( const SceneID& sceneid,
-					    uiParent* parent,
-					    const uiString& nm )
+ui3DViewerBase* uiVisPartServer::createVSGViewer( const SceneID& sceneid,
+						  uiParent* parent,
+						  const uiString& nm )
 {
     if ( !parent )
 	return nullptr;

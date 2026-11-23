@@ -1661,10 +1661,10 @@ mExternC(uiVSG) visSurvey::Scene* createVSGScene()
 }
 
 
-mExternC(uiVSG) uiObject* createVSGViewer( uiParent* parent,
-					   visSurvey::Scene*,const char* );
+mExternC(uiVSG) ui3DViewerBase* createVSGViewer( uiParent* parent,
+					visSurvey::Scene*,const char* );
 
-mExternC(uiVSG) uiObject* createVSGViewer( uiParent* parent,
+mExternC(uiVSG) ui3DViewerBase* createVSGViewer( uiParent* parent,
     visSurvey::Scene* scene, const char* title )
 {
     const char* nm = ( title && *title ) ? title : "VSG Viewer";

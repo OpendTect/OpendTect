@@ -240,6 +240,7 @@ protected:
 	void			showTree(bool yn);
 	void			setTreeSensitive(bool yn);
 
+	ui3DViewerBase*		vwr3d_		= nullptr;
 	uiDockWin*		dw_		= nullptr;
 	uiTreeView*		lv_		= nullptr;
 	uiMdiAreaWindow*	mdiwin_		= nullptr;
@@ -250,27 +251,23 @@ protected:
     {
     public:
 				OSGSceneBundle(uiMdiArea*);
-				~OSGSceneBundle();
 
 	SceneID			sceneID() const override;
 	bool			isVSG() const override	{ return false; }
 	uiODTreeTop*		treeTop() const;
-
-	ui3DViewer*		vwr3d_		= nullptr;
+	ui3DViewer*		osgViewer() const;
     };
 
     mExpClass(uiODMain) VSGSceneBundle : public SceneBundle
     {
     public:
 				VSGSceneBundle();
-				~VSGSceneBundle();
 
 	SceneID			sceneID() const override
 				{ return sceneid_; }
 	bool			isVSG() const override	{ return true; }
 
 	SceneID			sceneid_;
-	uiObject*		vwr_		= nullptr;
     };
 
     ObjectSet<SceneBundle>	scenes_;

@@ -35,6 +35,7 @@ class TaskRunner;
 class ZAxisTransform;
 class uiMPEMan;
 class uiMultiMapperRangeEditWin;
+class ui3DViewerBase;
 class uiObject;
 class uiParent;
 class uiSlicePos3DDisp;
@@ -111,7 +112,7 @@ public:
 			*/
     SceneID		addVSGScene(const uiString& nm=uiString::empty());
 			/*!<Creates and registers the scene, no viewer */
-    uiObject*		createVSGViewer(const SceneID&,uiParent*,
+    ui3DViewerBase*	createVSGViewer(const SceneID&,uiParent*,
 					const uiString& nm);
 
     void		removeScene(const SceneID&);
