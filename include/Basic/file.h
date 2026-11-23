@@ -269,6 +269,16 @@ mGlobal(Basic) bool		setTimes(const char* filenm,
 					 const Time::FileTimeSet&,
 					 bool followlink=true);
 				//!< Set file timestamps (if supported by OS)
+mGlobal(Basic) const char*	getOwner(const char* filenm,
+					 BufferString* group=nullptr,
+					 bool resolve=true);
+				/*!< Raw account name. The owner display name
+				     is used when resolve is true. group, when
+				     set, receives the raw group name. */
+mGlobal(Basic) od_uint32	getOwnerId(const char* filenm,
+					   od_uint32* groupid=nullptr);
+				/*!< Owner id. groupid when non-null.
+				     if supported by OS, hence mostly on Unix */
 mGlobal(Basic) bool		waitUntilExists(const char* fnm,
 						double maxwaittm,
 						double* actualwaited);

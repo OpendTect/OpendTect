@@ -28,6 +28,11 @@ ________________________________________________________________________
 # include "winutils.h"
 #endif
 
+#include "hiddenparam.h"
+
+
+static HiddenParam<System::IssueReporter,char> issuereporthpmgr_(0);
+
 namespace System
 {
     static const char* sKeyReportHost()
@@ -41,6 +46,7 @@ System::IssueReporter::IssueReporter( const char* host, const char* path )
     : host_(host)
     , path_(path)
 {
+    issuereporthpmgr_.setParam( this, 1 );
     if ( host_.isEmpty() )
 	host_ = sKeyReportHost();
 
@@ -51,6 +57,7 @@ System::IssueReporter::IssueReporter( const char* host, const char* path )
 
 System::IssueReporter::~IssueReporter()
 {
+    issuereporthpmgr_.removeParam( this );
 }
 
 
@@ -78,7 +85,10 @@ bool System::IssueReporter::readReport( const char* filename )
     if ( fstream.isBad() )
 	mStreamError( tr("open") );
 
-    report_.add( "User: ").add( GetSoftwareUser() ).add( "\n\n" );
+    if ( includeUserName() )
+	report_.add( "User: " ).add( GetSoftwareUser() ).add( "\n\n" );
+    else if ( !report_.isEmpty() )
+	report_.addNewLine();
 
     BufferString unfilteredreport;
 
@@ -102,7 +112,13 @@ void System::IssueReporter::fillBasicReport()
     report_.setEmpty();
     StringPairSet infoset;
     infoset.add( "OpendTect version", GetFullODVersion() );
-    infoset.add( "User Name", GetUserNm() );
+    if ( includeUserName() )
+    {
+	const BufferString usernm = GetUserNm();
+	infoset.add( "User Name", usernm );
+	infoset.add( "Session user name", GetSessionUserNm(usernm) );
+    }
+
     infoset.add( "Platform", OD::Platform::local().longName() );
     infoset.add( "Operating System", System::productName() );
 
@@ -118,6 +134,31 @@ void System::IssueReporter::fillBasicReport()
     infoset.add( "Free memory before crash",
 		 conv.getString(precrashfreememory_) );
     infoset.dumpPretty( report_ );
+}
+
+
+bool System::IssueReporter::includeUserName() const
+{
+    return issuereporthpmgr_.getParam( this ) != 0;
+}
+
+
+void System::IssueReporter::setIncludeUserName( bool yn )
+{
+    if ( includeUserName() == yn )
+	return;
+
+    issuereporthpmgr_.setParam( this, yn ? 1 : 0 );
+    if ( crashreportpath_.isEmpty() )
+	return;
+
+    const BufferString prevreport = report_;
+    fillBasicReport();
+    if ( isbinary_ || readReport(crashreportpath_.buf()) )
+	return;
+
+    issuereporthpmgr_.setParam( this, yn ? 0 : 1 );
+    report_ = prevreport;
 }
 
 

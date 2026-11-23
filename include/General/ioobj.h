@@ -104,6 +104,10 @@ public:
     virtual const char*		fullUserExpr(bool forread=true) const = 0;
     virtual int			nrImpls() const;
     virtual BufferString	mainFileName() const { return fullUserExpr(); }
+    BufferString		userName(BufferString* groupnm=nullptr,
+					 bool resolve=true) const;
+				/*!< Owner of the dataset. "Created.By" when
+				     present, otherwise the main file owner. */
     virtual void		implFileNames(BufferStringSet&) const;
 
     virtual bool		implIsLink() const;

@@ -28,7 +28,7 @@ public:
 						   System::IssueReporter&,
 						   bool withproxysettings=true);
 				~uiIssueReporterDlg();
-    
+
     System::IssueReporter&	reporter() { return reporter_; }
     const char*			errMsg() const;
 
@@ -41,20 +41,21 @@ protected:
     bool			allowSending() const;
     void			proxySetCB(CallBacker*);
     void			machInfoCB(CallBacker*);
-    
+    void			userNameCB(CallBacker*);
+
     bool			acceptOK(CallBacker*) override;
     void			setButSensitive(bool);
     void			getReport(BufferString&) const;
 
     static uiString		sSendReport() { return tr("Send report"); }
     static uiString		sDontSendReport() { return tr("Do not send"); }
-    
+
     uiButton*			showbut_;
     uiTextBrowser*		machinfofld_;
     uiCheckBox*			machinfobut_;
     uiTextEdit*			commentfld_;
     uiLineEdit*			emailfld_;
-    
+
     System::IssueReporter&	reporter_;
     BufferString		filename_;
 

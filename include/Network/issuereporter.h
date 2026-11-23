@@ -41,6 +41,10 @@ public:
     bool			use(const char* filename,bool isbinary=true);
     bool			parseCommandLine();
     void			fillBasicReport();
+    void			setIncludeUserName(bool);
+				/*!< Rebuilds an already loaded report.
+				     On failure the previous report is kept. */
+    bool			includeUserName() const;
 
 protected:
 

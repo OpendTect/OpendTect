@@ -29,9 +29,19 @@ ________________________________________________________________________
 # include <streambuf>
 # include <string>
 # include <unordered_map>
+# include "threadlock.h"
 # include <windows.h>
 # include <process.h>
 # include <aclapi.h>
+# include <lm.h>
+# include <lmcons.h>
+# define SECURITY_WIN32
+# include <security.h>
+# include <tchar.h>
+# ifdef __msvc__
+#  pragma comment(lib, "netapi32.lib")
+#  pragma comment(lib, "secur32.lib")
+# endif
 
 // registry stuff
 # include <regstr.h>
@@ -385,6 +395,214 @@ bool belongsToTrusterInstaller( const char* fnm )
 	 !getTrustedInstallerSID().isOK() )
 	return false;
     return retSid == getTrustedInstallerSID();
+}
+
+
+void GetUserName( BufferString& name )
+{
+    mDefineStaticLocalObject( TCHAR, usernm, [UNLEN+1] );
+    DWORD len = UNLEN+1;
+    ::GetUserName( usernm, &len );
+    WinUtils::copyWString( usernm, name );
+}
+
+
+bool GetSessionUserNm( PSID sid, BufferString& name )
+{
+    if ( !sid )
+	return false;
+
+    TCHAR account[512];
+    TCHAR domain[512];
+    DWORD accountsz = 512;
+    DWORD domainsz = 512;
+    SID_NAME_USE use;
+    if ( !LookupAccountSid(nullptr,sid,account,&accountsz,
+			   domain,&domainsz,&use) )
+	return false;
+
+    WinUtils::copyWString( account, name );
+    return !name.isEmpty();
+}
+
+
+using DisplayNameMap = std::unordered_map<std::string,std::string>;
+
+static DisplayNameMap& winDisplayNames()
+{
+    mDefineStaticLocalObject( PtrMan<DisplayNameMap>, names,
+			      = new DisplayNameMap )
+    return *names.ptr();
+}
+
+static Threads::Lock& winDisplayNameLock()
+{
+    mDefineStaticLocalObject( PtrMan<Threads::Lock>, lock,
+			      = new Threads::Lock(false) )
+    return *lock.ptr();
+}
+
+static bool cachedDisplayName( const char* account, BufferString& name )
+{
+    if ( StringView(account).isEmpty() )
+	return false;
+
+    Threads::Locker lock( winDisplayNameLock() );
+    const auto it = winDisplayNames().find( account );
+    if ( it == winDisplayNames().end() )
+	return false;
+
+    name = it->second.c_str();
+    return !name.isEmpty();
+}
+
+static void storeDisplayName( const char* account, const char* display )
+{
+    if ( StringView(account).isEmpty() || StringView(display).isEmpty() )
+	return;
+
+    Threads::Locker lock( winDisplayNameLock() );
+    winDisplayNames()[account] = display;
+}
+
+
+bool GetDisplayName( PSID sid, BufferString& name )
+{
+#ifdef UNICODE
+    TCHAR account[512];
+    TCHAR domain[512];
+    DWORD accountsz = 512;
+    DWORD domainsz = 512;
+    SID_NAME_USE use;
+    if ( !sid || !LookupAccountSid(nullptr,sid,account,&accountsz,
+				   domain,&domainsz,&use) ||
+	 use != SidTypeUser )
+	return false;
+
+    BufferString accountnm;
+    WinUtils::copyWString( account, accountnm );
+    if ( cachedDisplayName(accountnm.buf(),name) )
+	return true;
+
+    LPUSER_INFO_10 info = nullptr;
+    NET_API_STATUS status = NetUserGetInfo( nullptr, account, 10,
+					    (LPBYTE*)&info );
+    if ( status != NERR_Success && domain[0] != L'\0' )
+    {
+	info = nullptr;
+	status = NetUserGetInfo( domain, account, 10, (LPBYTE*)&info );
+    }
+
+    if ( status == NERR_Success && info )
+    {
+	if ( info->usri10_full_name && info->usri10_full_name[0] != L'\0' )
+	    WinUtils::copyWString( info->usri10_full_name, name );
+
+	NetApiBufferFree( info );
+	if ( !name.isEmpty() )
+	{
+	    storeDisplayName( accountnm.buf(), name.buf() );
+	    return true;
+	}
+    }
+
+    if ( domain[0] == L'\0' )
+	return false;
+
+    TCHAR sam[1025];
+    if ( _tcscpy_s(sam,1025,domain) || _tcscat_s(sam,1025,__TEXT("\\")) ||
+	 _tcscat_s(sam,1025,account) )
+	return false;
+
+    TCHAR display[512];
+    ULONG displaysz = 512;
+    if ( !TranslateName(sam,NameSamCompatible,NameDisplay,
+			display,&displaysz) )
+	return false;
+
+    WinUtils::copyWString( display, name );
+    if ( !name.isEmpty() )
+	storeDisplayName( accountnm.buf(), name.buf() );
+
+    return !name.isEmpty();
+#else
+    return false;
+#endif
+}
+
+
+bool GetUserName( const char* fnm, BufferString& owner, BufferString* group,
+		  bool resolve )
+{
+    LPCTSTR tfnm = nullptr;
+#ifdef UNICODE
+    const std::wstring longfnm = FilePath::getWLongPath( fnm );
+    tfnm = longfnm.c_str();
+#else
+    const BufferString longfnm = FilePath::getLongPath( fnm );
+    tfnm = longfnm.str();
+#endif
+    PSID ownersid = nullptr;
+    PSID groupsid = nullptr;
+    PSECURITY_DESCRIPTOR sd = nullptr;
+    const DWORD rc = GetNamedSecurityInfo( tfnm, SE_FILE_OBJECT,
+		OWNER_SECURITY_INFORMATION | GROUP_SECURITY_INFORMATION,
+		&ownersid, &groupsid, nullptr, nullptr, &sd );
+    const bool res = rc == ERROR_SUCCESS;
+    if ( res )
+    {
+	if ( owner.isEmpty() )
+	    owner = GetSessionUserNmFromID( ownersid );
+
+	if ( group && group->isEmpty() )
+	    *group = GetSessionUserNmFromID( groupsid );
+
+	BufferString display;
+	if ( resolve && GetDisplayName(ownersid,display) )
+	    owner = display;
+    }
+
+    if ( sd )
+	LocalFree( sd );
+
+    return res;
+}
+
+
+bool resolveSessionUserNm( const char* usernm, BufferString& name )
+{
+    name.setEmpty();
+    if ( !usernm || !*usernm )
+	return false;
+
+    if ( cachedDisplayName(usernm,name) )
+	return true;
+
+    BYTE sidbuf[SECURITY_MAX_SID_SIZE];
+    DWORD sidsz = SECURITY_MAX_SID_SIZE;
+    TCHAR domain[512];
+    DWORD domainsz = 512;
+    SID_NAME_USE use;
+#ifdef UNICODE
+    const std::wstring wuser = StringView(usernm).toStdWString();
+    const BOOL found = LookupAccountName( nullptr, wuser.c_str(), sidbuf,
+					  &sidsz, domain, &domainsz, &use );
+#else
+    const BOOL found = LookupAccountName( nullptr, usernm, sidbuf, &sidsz,
+					  domain, &domainsz, &use );
+#endif
+    if ( !found || use != SidTypeUser )
+	return false;
+
+    const PSID sid = sCast(PSID,sidbuf);
+    if ( !GetDisplayName(sid,name) && !GetSessionUserNm(sid,name) )
+	return false;
+
+    if ( name.isEmpty() )
+	return false;
+
+    storeDisplayName( usernm, name.buf() );
+    return true;
 }
 
 

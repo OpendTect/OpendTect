@@ -56,6 +56,15 @@ mGlobal(Basic) bool		pathContainsTrustedInstaller(const char* fnm);
 				    not start with elevated privileges */
 mGlobal(Basic) bool		IsUserAnAdmin();
 mGlobal(Basic) bool		NTUserBelongsToAdminGrp();
+mGlobal(Basic) void		GetUserName(BufferString&);
+				/*!< Retrieves the user name running
+				     the current process */
+mGlobal(Basic) bool		GetSessionUserNm(PSID,BufferString&);
+mGlobal(Basic) bool		GetDisplayName(PSID,BufferString&);
+mGlobal(Basic) bool		GetUserName(const char* fnm,BufferString& owner,
+					    BufferString* groupnm,
+					    bool resolve=true);
+mGlobal(Basic) bool		resolveSessionUserNm(const char*,BufferString&);
 mGlobal(Basic) bool		serviceIsRunning(const char* nm);
 				/* See SERVICE_STATUS_PROCESS.dwCurrentState
 				    for possible values*/

@@ -76,6 +76,35 @@ static const int sNrFilesSEGYDir		= 1;
 			       trlnm->message().getString() );
 
 
+static bool testOwner( const IOObj& obj, const char* expectedowner,
+		       bool resolve )
+{
+    BufferString groupnm;
+    const BufferString ownernm = obj.userName( &groupnm, resolve );
+    mRunStandardTest( !ownernm.isEmpty(),
+		 BufferString( "Owner name: ", ownernm ) );
+    mRunStandardTest( !groupnm.isEmpty(),
+		 BufferString( "Group name: ", groupnm ) );
+    if ( !StringView(expectedowner).isEmpty() )
+    {
+	mRunStandardTest( ownernm == expectedowner,
+			  BufferString( "Expected owner: ", expectedowner ) );
+    }
+
+    if ( __iswin__ )
+	return true;
+
+    od_uint32 groupid = mUdf(od_uint32);
+    const od_uint32 ownerid = File::getOwnerId( obj.fullUserExpr(), &groupid );
+    mRunStandardTest( !mIsUdf(ownerid),
+		 BufferString( "Owner id: ", ownerid ) );
+    mRunStandardTest( !mIsUdf(groupid),
+		 BufferString( "Group id: ", groupid ) );
+
+    return true;
+}
+
+
 bool testCBVSSize( const IOObj& obj, od_ostream& strm )
 {
     const BufferString testname( "Single CBVS file size" );
@@ -104,6 +133,9 @@ bool testCBVSSize( const IOObj& obj, od_ostream& strm )
     mRunStandardTestWithError( totalsz == sCBVSSize,
 			       "CBVS dataset size calculated from Files",
 			       errmsg )
+
+    if ( !testOwner(obj,nullptr,true) )
+	return false;
 
     return true;
 }
@@ -249,6 +281,13 @@ bool testSEGYDirectSize( const IOObj& obj, od_ostream& strm )
     mRunStandardTestWithError( totalsz == sSEGYSize,
 			   "SEG-Y Direct dataset size calculated from Files",
 			   errmsg )
+
+    BufferString expectedowner( __iswin__ ? "dgb" : "dGB" );
+    if ( !__iswin__ )
+	expectedowner.add( "\xE2\x80\x99" ).add( "s Controlled Environments" );
+
+    if ( !testOwner(obj,expectedowner.str(),true) )
+	return false;
 
     return true;
 }
@@ -744,8 +783,14 @@ bool testCBVSRead2D( const IOObj& obj )
 		      mIsEqual(tkzs.zsamp_.step_,0.004f,1e-6f)
 		      , "Get CBVS 2D ranges" );
 
-    return testCBVS2DSeisSequentialReader( obj, tkzs ) &&
-	   testCBVS2DSeisTrcReader( obj, tkzs );
+    if ( !testCBVS2DSeisSequentialReader(obj,tkzs) ||
+	 !testCBVS2DSeisTrcReader(obj,tkzs) )
+	return false;
+
+    if ( !testOwner(obj,"dGB Earth Sciences",true) )
+	return false;
+
+    return true;
 }
 
 
@@ -765,8 +810,14 @@ bool testSEGYRead( const IOObj& obj )
 		      mIsEqual(tkzs.zsamp_.step_,0.004f,1e-6f)
 		      , "Get SEG-Y 3D ranges" );
 
-    return testSEGYSeisSequentialReader( obj, tkzs ) &&
-	   testSEGYSeisTrcReader( obj, tkzs );
+    if ( !testSEGYSeisSequentialReader(obj,tkzs) ||
+	 !testSEGYSeisTrcReader(obj,tkzs) )
+	return false;
+
+    if ( !testOwner(obj,"dgb",false) )
+	return false;
+
+    return true;
 }
 
 #define mIOObjAbsent(obj,id,msg,objtyp) \

@@ -17,12 +17,12 @@ ________________________________________________________________________
 #include "uibutton.h"
 #include "uiclipboard.h"
 #include "uidesktopservices.h"
-#include "uigroup.h"
 #include "uilabel.h"
 #include "uilineedit.h"
 #include "uimsg.h"
 #include "uiproxydlg.h"
 #include "uitextedit.h"
+
 
 static StringView sKeyAskBeforeSending()
 { return "Ask before sending issue-report"; }
@@ -68,10 +68,18 @@ uiIssueReporterDlg::uiIssueReporterDlg( uiParent* p,
     machinfobut_->setChecked( true );
     machinfobut_->attach( centeredLeftOf, machinfofld_ );
 
+    auto* usernmbut = new uiCheckBox( this, tr("Include user name"),
+				 mCB(this,uiIssueReporterDlg,userNameCB) );
+    usernmbut->setChecked( true );
+    usernmbut->setToolTip( tr("Uncheck to send this report\n"
+			       "without your user name") );
+    usernmbut->attach( alignedBelow, machinfobut_ );
+
     commentfld_ = new uiTextEdit( this );
     commentfld_->setPrefWidthInChar( mPrefWidthInChar );
     commentfld_->setPrefHeightInChar( 8 );
     commentfld_->attach( alignedBelow, machinfofld_, mExtraSpacing );
+    commentfld_->attach( ensureBelow, usernmbut );
     commentfld_->setPlaceholderText( tr("Please add as much detail as you wish"
 			"\nabout what you were doing when"
 			"\nthis problem occurred."
@@ -93,10 +101,10 @@ uiIssueReporterDlg::uiIssueReporterDlg( uiParent* p,
 
     if ( withproxysettings )
     {
-	uiButton* proxybut = new uiPushButton( this, tr("Proxy settings"),
+	auto* proxybut = new uiPushButton( this, tr("Proxy settings"),
 					       false );
 	proxybut->setIcon( "proxysettings" );
-	proxybut->activated.notify( mCB(this,uiIssueReporterDlg,proxySetCB) );
+	mAttachCB( proxybut->activated, uiIssueReporterDlg::proxySetCB );
 	proxybut->attach( rightOf, emailfld_ );
     }
 
@@ -106,7 +114,9 @@ uiIssueReporterDlg::uiIssueReporterDlg( uiParent* p,
 
 
 uiIssueReporterDlg::~uiIssueReporterDlg()
-{}
+{
+    detachAllNotifiers();
+}
 
 
 void uiIssueReporterDlg::viewReportCB( CallBacker* )
@@ -121,6 +131,28 @@ void uiIssueReporterDlg::machInfoCB( CallBacker* )
 }
 
 
+void uiIssueReporterDlg::userNameCB( CallBacker* cb )
+{
+    mDynamicCastGet( uiCheckBox*, usernmbut_, cb )
+    if ( !usernmbut_ )
+	return;
+
+    const bool include = usernmbut_->isChecked();
+    reporter_.setIncludeUserName( include );
+    if ( reporter_.includeUserName() != include )
+    {
+	NotifyStopper stopper( usernmbut_->activated );
+	usernmbut_->setChecked( reporter_.includeUserName() );
+	if ( !reporter_.errMsg().isEmpty() )
+	    uiMSG().error( reporter_.errMsg() );
+
+	return;
+    }
+
+    machinfofld_->setText( reporter_.getReport() );
+}
+
+
 bool uiIssueReporterDlg::allowSending() const
 {
     const BufferString env = GetEnvVar("PROHIBIT_SENDING_ISSUE_REPORT");
@@ -128,7 +160,7 @@ bool uiIssueReporterDlg::allowSending() const
 	return false;
 
     bool res = true;
-    Settings::common().getYN(sKeyAllowSending(),res );
+    Settings::common().getYN( sKeyAllowSending(), res );
 
     return res;
 }
@@ -137,7 +169,6 @@ bool uiIssueReporterDlg::allowSending() const
 void uiIssueReporterDlg::proxySetCB( CallBacker* )
 {
     uiProxyDlg dlg( this );
-    dlg.setHelpKey( mNoHelpKey );
     dlg.go();
 }
 
@@ -230,7 +261,7 @@ bool uiIssueReporterDlg::acceptOK(CallBacker *)
 		    "different proxy settings?") );
 	res = uiMSG().askGoOn( msg );
 	if ( res )
-	    proxySetCB( 0 );
+	    proxySetCB( nullptr );
     }
 
     setButSensitive( true );

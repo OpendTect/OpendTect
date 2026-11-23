@@ -14,6 +14,7 @@ ________________________________________________________________________
 #include "conn.h"
 #include "file.h"
 #include "filepath.h"
+#include "genc.h"
 #include "iodir.h"
 #include "ioman.h"
 #include "iopar.h"
@@ -502,6 +503,36 @@ int IOObj::nrImpls() const
 {
     PtrMan<Translator> tr = createTranslator();
     return tr->nrImpls( this );
+}
+
+
+BufferString IOObj::userName( BufferString* groupnm, bool resolve ) const
+{
+    FileMultiString createdby;
+    const bool hascreatedby =
+	    pars().get( sKey::CrBy(), createdby ) && !createdby.isEmpty();
+
+    BufferString ret;
+    if ( hascreatedby )
+    {
+	if ( resolve )
+	{
+	    const BufferString sessionnm = GetSessionUserNm( createdby[0] );
+	    ret = sessionnm.isEmpty() ? createdby[0].buf() : sessionnm.buf();
+	}
+	else
+	    ret = createdby[0].buf();
+    }
+
+    if ( !hascreatedby || groupnm )
+    {
+	const BufferString owner =
+		File::getOwner( mainFileName(), groupnm, resolve );
+	if ( !hascreatedby )
+	    ret = owner;
+    }
+
+    return ret;
 }
 
 

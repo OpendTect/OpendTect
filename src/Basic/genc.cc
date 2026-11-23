@@ -47,8 +47,12 @@ ________________________________________________________________________
 # include <Psapi.h>
 # define mEnvVarDirSep ';'
 #else
+# include "varlenarray.h"
 # include <unistd.h>
 # include <errno.h>
+# include <pwd.h>
+# include <string>
+# include <unordered_map>
 # include <netdb.h>
 # include <stdio.h>
 # include <sys/socket.h>
@@ -78,6 +82,167 @@ namespace OD
 {
     RunCtxt GetRunContext()		{ return runctxt_; }
     void SetRunContext( RunCtxt rm )	{ runctxt_ = rm; }
+}
+
+
+#ifdef __unix__
+namespace OD
+{
+
+using DisplayNameMap = std::unordered_map<std::string,std::string>;
+
+static DisplayNameMap& unixDisplayNames()
+{
+    mDefineStaticLocalObject( PtrMan<DisplayNameMap>, names,
+			      = new DisplayNameMap )
+    return *names.ptr();
+}
+
+static Threads::Lock& unixDisplayNameLock()
+{
+    mDefineStaticLocalObject( PtrMan<Threads::Lock>, lock,
+			      = new Threads::Lock(false) )
+    return *lock.ptr();
+}
+
+static bool cachedDisplayName( const char* account, BufferString& name )
+{
+    if ( StringView(account).isEmpty() )
+	return false;
+
+    Threads::Locker lock( unixDisplayNameLock() );
+    const auto it = unixDisplayNames().find( account );
+    if ( it == unixDisplayNames().end() )
+	return false;
+
+    name = it->second.c_str();
+    return !name.isEmpty();
+}
+
+
+static void storeDisplayName( const char* account, const char* display )
+{
+    if ( StringView(account).isEmpty() || StringView(display).isEmpty() )
+	return;
+
+    Threads::Locker lock( unixDisplayNameLock() );
+    unixDisplayNames()[account] = display;
+}
+
+
+static void applyUnixGecos( const char* gecosstr, const char* loginstr,
+			    BufferString& name )
+{
+    if ( StringView(gecosstr).isEmpty() )
+	return;
+
+    BufferString gecos( gecosstr );
+    BufferString login( loginstr );
+    const char* comma = gecos.find( ',' );
+    if ( comma )
+	gecos.getCStr()[comma-gecos.buf()] = '\0';
+
+    if ( gecos.find('&') && !login.isEmpty() )
+    {
+	if ( login.first() >= 'a' && login.first() <= 'z' )
+	    login.first() = sCast(char, login.first() - 'a' + 'A');
+
+	gecos.replace( "&", login.str() );
+    }
+
+    gecos.trimBlanks();
+    if ( !gecos.isEmpty() )
+	name = gecos;
+}
+
+
+static bool lookupUnixSessionUser( const char* usernm, const od_uint32* uid,
+				   BufferString& name )
+{
+    if ( StringView(usernm).isEmpty() && !uid )
+	return false;
+
+    if ( cachedDisplayName(usernm,name) )
+	return true;
+
+    long bufsz = ::sysconf( _SC_GETPW_R_SIZE_MAX );
+    if ( bufsz < 1024 )
+	bufsz = 1024;
+
+    for ( int attempt=0; attempt<3; attempt++ )
+    {
+	mAllocLargeVarLenArr( char, buf, bufsz );
+	if ( !buf.ptr() )
+	    return false;
+
+	struct passwd pwd;
+	struct passwd* result = nullptr;
+	const int res = usernm
+	    ? ::getpwnam_r( usernm, &pwd, buf.ptr(),
+			    sCast(std::size_t,bufsz), &result )
+	    : ::getpwuid_r( sCast(uid_t,*uid), &pwd, buf.ptr(),
+			    sCast(std::size_t,bufsz), &result );
+	if ( res == ERANGE )
+	{
+	    bufsz *= 2;
+	    continue;
+	}
+
+	if ( res != 0 || !result )
+	    return false;
+
+	if ( result->pw_name && cachedDisplayName(result->pw_name,name) )
+	{
+	    storeDisplayName( usernm, name.buf() );
+	    return true;
+	}
+
+	applyUnixGecos( result->pw_gecos, result->pw_name, name );
+	if ( name.isEmpty() && result->pw_name )
+	    name = result->pw_name;
+
+	if ( !name.isEmpty() )
+	{
+	    storeDisplayName( result->pw_name, name.buf() );
+	    storeDisplayName( usernm, name.buf() );
+	}
+
+	return !name.isEmpty();
+    }
+
+    return false;
+}
+
+} // namespace OD
+#endif
+
+
+mExternC(Basic) const char* GetSessionUserNmFromID( void* user )
+{
+    mDeclStaticString( ret );
+    ret.setEmpty();
+#ifdef __win__
+    WinUtils::GetSessionUserNm( (PSID)user, ret );
+#else
+    OD::lookupUnixSessionUser( nullptr, sCast(const od_uint32*,user), ret );
+#endif
+    return ret.buf();
+}
+
+
+mExternC(Basic) const char* GetSessionUserNm( const char* usernm )
+{
+    mDeclStaticString( ret );
+    ret.setEmpty();
+    if ( !usernm || !*usernm )
+	return ret.buf();
+
+#ifdef __win__
+    WinUtils::resolveSessionUserNm( usernm, ret );
+#else
+    OD::lookupUnixSessionUser( usernm, nullptr, ret );
+#endif
+    return ret.buf();
 }
 
 
