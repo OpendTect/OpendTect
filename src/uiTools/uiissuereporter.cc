@@ -68,10 +68,18 @@ uiIssueReporterDlg::uiIssueReporterDlg( uiParent* p,
     machinfobut_->setChecked( true );
     machinfobut_->attach( centeredLeftOf, machinfofld_ );
 
+    usernmbut_ = new uiCheckBox( this, tr("Include user name"),
+				 mCB(this,uiIssueReporterDlg,userNameCB) );
+    usernmbut_->setChecked( true );
+    usernmbut_->setToolTip( tr("Uncheck to send this report\n"
+			       "without your user name") );
+    usernmbut_->attach( alignedBelow, machinfobut_ );
+
     commentfld_ = new uiTextEdit( this );
     commentfld_->setPrefWidthInChar( mPrefWidthInChar );
     commentfld_->setPrefHeightInChar( 8 );
     commentfld_->attach( alignedBelow, machinfofld_, mExtraSpacing );
+    commentfld_->attach( ensureBelow, usernmbut_ );
     commentfld_->setPlaceholderText( tr("Please add as much detail as you wish"
 			"\nabout what you were doing when"
 			"\nthis problem occurred."
@@ -123,6 +131,24 @@ void uiIssueReporterDlg::machInfoCB( CallBacker* )
 }
 
 
+void uiIssueReporterDlg::userNameCB( CallBacker* )
+{
+    const bool include = usernmbut_->isChecked();
+    reporter_.setIncludeUserName( include );
+    if ( reporter_.includeUserName() != include )
+    {
+	NotifyStopper stopper( usernmbut_->activated );
+	usernmbut_->setChecked( reporter_.includeUserName() );
+	if ( !reporter_.errMsg().isEmpty() )
+	    uiMSG().error( reporter_.errMsg() );
+
+	return;
+    }
+
+    machinfofld_->setText( reporter_.getReport() );
+}
+
+
 bool uiIssueReporterDlg::allowSending() const
 {
     const BufferString env = GetEnvVar("PROHIBIT_SENDING_ISSUE_REPORT");
@@ -130,7 +156,7 @@ bool uiIssueReporterDlg::allowSending() const
 	return false;
 
     bool res = true;
-    Settings::common().getYN(sKeyAllowSending(),res );
+    Settings::common().getYN( sKeyAllowSending(), res );
 
     return res;
 }
