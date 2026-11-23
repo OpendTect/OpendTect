@@ -221,6 +221,10 @@ def test_Well_put_markers(survey):
     with pytest.raises(ValueError):
         well.put_markers(['pytest C'], dah)
 
+    # invalid color format
+    with pytest.raises(ValueError):
+        well.put_markers(['pytest C'], np.array([300.0], dtype=np.float32), ['not-a-color'])
+
     assert well.delete_markers(markernms)
     del well
     well = Well(survey, 'F03-4')

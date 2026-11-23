@@ -391,6 +391,7 @@ void odWell::putMarkers( const BufferStringSet& markernms, const float* dah,
 
     const UnitOfMeasure* zduom = UnitOfMeasure::surveyDefDepthUnit();
     const UnitOfMeasure* zsuom = UnitOfMeasure::surveyDefDepthStorageUnit();
+    const Well::MarkerSet origmarkers = wd_->markers();
     Well::MarkerSet& ms = wd_->markers();
     bool changed = false;
     for ( int idx=0; idx<markernms.size(); idx++ )
@@ -419,7 +420,11 @@ void odWell::putMarkers( const BufferStringSet& markernms, const float* dah,
 
     Well::Writer wtr( wd_->multiID(), *wd_ );
     if ( !wtr.putMarkers() )
+    {
+	wd_->markers() = origmarkers;
 	errmsg_ = "odWell::putMarkers - saving markers failed";
+	return;
+    }
 
     wd_->markerschanged.trigger();
 }
@@ -652,7 +657,7 @@ void well_putmarkers( hWell self, const hStringSet markernms, const float* dah,
     auto* p = static_cast<odWell*>(self);
     const auto* nms = static_cast<BufferStringSet*>(markernms);
     const auto* cols = static_cast<BufferStringSet*>(colors);
-    if ( !p || !nms || !cols )
+    if ( !p || !nms || !cols || !dah )
 	return;
 
     p->putMarkers( *nms, dah, *cols, overwrite );

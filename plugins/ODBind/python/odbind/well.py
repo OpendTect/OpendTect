@@ -1,7 +1,10 @@
+import re
 import numpy as np
 import ctypes as ct
 from odbind import wrap_function, LIBODB, makestrlist, NumpyAllocator, pyjsonstr, pystr, pystrlist, stringset_del 
 from odbind.survey import Survey, _SurveyObject
+
+_COLOR_RE = re.compile(r"^#[0-9a-fA-F]{6}$")
 
 class Well(_SurveyObject):
     """
@@ -309,6 +312,9 @@ class Well(_SurveyObject):
             raise ValueError("markernms and dah must be the same size")
         if colors and len(colors)!=len(markernms):
             raise ValueError("colors must be empty or the same size as markernms")
+        for i, color in enumerate(colors):
+            if not isinstance(color, str) or not _COLOR_RE.fullmatch(color):
+                raise ValueError(f"colors[{i}] must be a '#rrggbb' hex color string, got {color!r}")
 
         markernmsptr = makestrlist(markernms)
         colorsptr = makestrlist([color.lower() for color in colors])
