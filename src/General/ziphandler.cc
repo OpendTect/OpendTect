@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "od_iostream.h"
 #include "ptrman.h"
 #include "separstr.h"
+#include "string2.h"
 #include "task.h"
 #include "timefun.h"
 #include "uistrings.h"
@@ -26,7 +27,6 @@ ________________________________________________________________________
 #ifndef OD_NO_QT
 # include <QDate>
 # include <QFileInfo>
-# include <QString>
 # include <QTimeZone>
 #endif
 
@@ -1190,8 +1190,7 @@ bool ZipHandler::setLocalFileHeader( const ZipFileInfo& fileinfo,
     mLocalFileHeaderSig ( headerbuff );
     mInsertToCharBuff( headerbuff, version,
 		       mLVerNeedToExtract, mSizeTwoBytes );
-    const bool utf8name =
-	hasUnicodeCharacters( QString::fromUtf8(fileinfo.getFileName()) );
+    const bool utf8name = OD::hasUnicodeCharacters( fileinfo.getFileName() );
     OD::setBitValue( headerbuff[mLGenPurBitFlag+1], mUtf8NamesBit, utf8name );
     mInsertToCharBuff( headerbuff, fileinfo.compmethod_,
 		       mLCompMethod, mSizeTwoBytes );
@@ -1447,7 +1446,7 @@ bool ZipHandler::setCentralDirHeader( const ObjectSet<ZipFileInfo>& fileinfos )
     {
 	writeGeneralPurposeFlag( headerbuff+mLGenPurBitFlagCentral );
 	const bool utf8name =
-	    hasUnicodeCharacters( QString::fromUtf8(fileinfo->getFileName()) );
+	    OD::hasUnicodeCharacters( fileinfo->getFileName() );
 	OD::setBitValue( headerbuff[mLGenPurBitFlagCentral+1], mUtf8NamesBit,
 			 utf8name );
 	mInsertToCharBuff( headerbuff, fileinfo->compmethod_,
