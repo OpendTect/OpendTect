@@ -14,6 +14,7 @@ ________________________________________________________________________
 #include "file.h"
 #include "filepath.h"
 #include "math2.h"
+#include "string2.h"
 #include "timefun.h"
 
 #include <csignal>
@@ -30,6 +31,9 @@ static BufferString utf8zipfnm_;
 static BufferString asciidir_;
 static BufferString asciizipfnm_;
 static BufferString mixedzipfnm_;
+static BufferString appenddir_;
+static BufferString appendzipfnm_;
+static BufferString newzipfnm_;
 
 
 void cleanup()
@@ -54,6 +58,15 @@ void cleanup()
 
     if ( File::exists(mixedzipfnm_.buf()) )
 	File::remove( mixedzipfnm_.buf() );
+
+    if ( File::exists(appenddir_.buf()) )
+	File::removeDir( appenddir_.buf() );
+
+    if ( File::exists(appendzipfnm_.buf()) )
+	File::remove( appendzipfnm_.buf() );
+
+    if ( File::exists(newzipfnm_.buf()) )
+	File::remove( newzipfnm_.buf() );
 
     if ( File::exists(zipfilename_.buf()) )
 	File::remove( zipfilename_.buf() );
@@ -221,19 +234,6 @@ static od_uint32 getLittleEndian( const unsigned char* buf, int nrbytes )
 }
 
 
-static bool hasNonAsciiChars( const char* str )
-{
-    for ( const unsigned char* ptr = rCast(const unsigned char*,str);
-	  *ptr; ptr++ )
-    {
-	if ( *ptr > 127 )
-	    return true;
-    }
-
-    return false;
-}
-
-
 static bool readEntries( od_istream& strm, od_int64 zipsz,
 			 ManagedObjectSet<ZipEntryFlags>& entries )
 {
@@ -311,7 +311,7 @@ static bool checkEntryFlags( const char* zipfnm, const char* desc,
     BufferString wrongmark, mismatch, unreadable;
     for ( const auto* entry : entries )
     {
-	const bool nonascii = hasNonAsciiChars( entry->name_.buf() );
+	const bool nonascii = OD::hasUnicodeCharacters( entry->name_.buf() );
 	if ( nonascii )
 	    hasutf8 = true;
 	else
@@ -547,6 +547,95 @@ static bool testUtf8Names()
 }
 
 
+static bool testAppend()
+{
+    const char* const utf8fnm = "J\xC3\xBCrgen_\xE4\xBD\xA0\xE5\xA5\xBD.txt";
+    const BufferString tempdir = FilePath::getTempDir();
+    const FilePath dirfp( tempdir.buf(), "od_test_zip_append" );
+    const FilePath firstfp( dirfp, "first.txt" );
+    const FilePath secondfp( dirfp, "second.txt" );
+    const FilePath utf8fp( dirfp, utf8fnm );
+    appenddir_ = dirfp.fullPath();
+    appendzipfnm_ =
+	FilePath( tempdir.buf(), "od_test_zip_append.zip" ).fullPath();
+    newzipfnm_ = FilePath( tempdir.buf(), "od_test_zip_new.zip" ).fullPath();
+    if ( File::exists(appenddir_.buf()) )
+	File::removeDir( appenddir_.buf() );
+
+    if ( File::exists(appendzipfnm_.buf()) )
+	File::remove( appendzipfnm_.buf() );
+
+    if ( File::exists(newzipfnm_.buf()) )
+	File::remove( newzipfnm_.buf() );
+
+    mRunStandardTest( File::createDir(appenddir_.buf()) &&
+		      File::putContent(BufferString("first"),
+				       firstfp.fullPath()) &&
+		      File::putContent(BufferString("second"),
+				       secondfp.fullPath()) &&
+		      File::putContent(BufferString("utf8"),utf8fp.fullPath()),
+		      "Write the files to zip and append" );
+
+    uiString err;
+    mRunStandardTestWithError(
+		ZipUtils::makeZip(firstfp.fullPath(),tempdir.buf(),
+				  appendzipfnm_.buf(),err),
+		"Zip the first file", toString(err) );
+    mRunStandardTestWithError(
+		ZipUtils::appendToArchive(secondfp.fullPath(),tempdir.buf(),
+					  appendzipfnm_.buf(),err),
+		"Append a file", toString(err) );
+    mRunStandardTestWithError(
+		ZipUtils::appendToArchive(utf8fp.fullPath(),tempdir.buf(),
+					  appendzipfnm_.buf(),err),
+		"Append a file with a UTF-8 name", toString(err) );
+
+    BufferStringSet entries;
+    mRunStandardTestWithError(
+		ZipUtils::makeFileList(appendzipfnm_.buf(),entries,err),
+		"List the archive after appending", toString(err) );
+    mRunStandardTest( entries.size() == 3 &&
+		      hasEntry(entries,"first.txt") &&
+		      hasEntry(entries,"second.txt") &&
+		      hasEntry(entries,utf8fnm),
+		      BufferString("Entries kept after appending: ",
+				   entries.cat(", ")) );
+
+    bool hasutf8 = false, hasascii = false;
+    if ( !checkEntryFlags(appendzipfnm_.buf(),"appended archive",
+			  hasutf8,hasascii) )
+	return false;
+
+    mRunStandardTest( File::removeDir(appenddir_.buf()),
+		      "Remove the directory before unzipping" );
+    mRunStandardTestWithError(
+		ZipUtils::unZipArchive(appendzipfnm_.buf(),tempdir.buf(),err),
+		"Unzip the appended archive", toString(err) );
+
+    BufferString first, second, utf8;
+    mRunStandardTest( File::getContent(firstfp.fullPath(),first) &&
+		      File::getContent(secondfp.fullPath(),second) &&
+		      File::getContent(utf8fp.fullPath(),utf8) &&
+		      first == "first" && second == "second" && utf8 == "utf8",
+		      "Content of the old and the appended files" );
+
+    mRunStandardTestWithError(
+		ZipUtils::appendToArchive(firstfp.fullPath(),tempdir.buf(),
+					  newzipfnm_.buf(),err),
+		"Append to an archive that does not exist yet", toString(err) );
+    entries.setEmpty();
+    mRunStandardTest( ZipUtils::makeFileList(newzipfnm_.buf(),entries,err) &&
+		      entries.size() == 1 && hasEntry(entries,"first.txt"),
+		      "The new archive has the appended file" );
+
+    mRunStandardTest( File::remove(appendzipfnm_.buf()) &&
+		      File::remove(newzipfnm_.buf()) &&
+		      File::removeDir(appenddir_.buf()),
+		      "Remove the append archives and directory" );
+    return true;
+}
+
+
 int mTestMainFnName( int argc, char** argv )
 {
     mInitTestProg();
@@ -557,7 +646,7 @@ int mTestMainFnName( int argc, char** argv )
     if ( __iswin__ && !testLongPath() )
 	return 1;
 
-    if ( !testUtf8Names() )
+    if ( !testUtf8Names() || !testAppend() )
 	return 1;
 
     BufferString basedir;
