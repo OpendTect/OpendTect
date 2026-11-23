@@ -17,11 +17,11 @@ ________________________________________________________________________
 class uiCheckBox;
 class uiColorInput;
 class uiGenInput;
-class uiSpinBox;
 class uiVSGViewer;
 
 /*!\brief The settings of the scene of the VSG viewer: the background and
-  annotation colors, the axes, the thumbwheels and the color bar.
+  annotation colors and the thumbwheels. The color bar has its own dialog,
+  uiVSGColorBarDlg, and the axes are shown by the axis button.
 
   A change is applied to the viewer at once. Cancel puts back what was set
   when the dialog was opened.
@@ -37,13 +37,8 @@ private:
 
     void		colorCB(CallBacker*);
     void		gradientCB(CallBacker*);
-    void		axesCB(CallBacker*);
     void		wheelModeCB(CallBacker*);
     void		wheelOptionsCB(CallBacker*);
-    void		colorBarCB(CallBacker*);
-    void		colorBarPosCB(CallBacker*);
-    void		colorBarSizeCB(CallBacker*);
-    void		setColorBarSizeLimits();
     void		updateSensitivity();
     bool		rejectOK(CallBacker*) override;
 
@@ -51,26 +46,14 @@ private:
     const OD::Color	hadbgcolor_;
     const OD::Color	hadannotcolor_;
     const bool		hadgradient_;
-    const bool		hadaxes_;
-    const bool		hadmodernaxes_;
     const int		hadwheelmode_;
     const bool		hadwheelgrow_;
     const bool		hadglasswheels_;
-    const bool		hadcolorbar_;
-    const int		hadcolorbarpos_;
-    const int		hadcolorbarwidth_;
-    const int		hadcolorbarheight_;
 
     uiColorInput*	bgcolfld_;
     uiCheckBox*		gradientfld_;
     uiColorInput*	annotcolfld_;
-    uiCheckBox*		axesfld_;
-    uiGenInput*		axesstylefld_;
     uiGenInput*		wheelmodefld_;
     uiCheckBox*		wheelgrowfld_;
     uiGenInput*		wheellookfld_;
-    uiCheckBox*		colorbarfld_;
-    uiGenInput*		colorbarposfld_;
-    uiSpinBox*		colorbarwidthfld_;
-    uiSpinBox*		colorbarheightfld_;
 };
