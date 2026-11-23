@@ -42,7 +42,7 @@ mClass(uiVSG) dGBVSGWindow : public uiObjectBody
 {
 public:
 			dGBVSGWindow(uiParent*,uiObject& handle,
-				     const char* nm,int rendertimems);
+				     const char* nm, int rendertimems);
 			~dGBVSGWindow();
 
     vsg::ref_ptr<dGBVSGViewer> vsgViewer() const	{ return viewer_; }

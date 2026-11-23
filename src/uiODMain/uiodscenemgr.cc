@@ -89,7 +89,7 @@ static const char* sKeyWarnStereo = "Warning.Stereo Viewing";
 #define mDoAllScenes(memb,fn,arg) \
     for ( auto* bundle_ : scenes_ ) \
 	if ( !bundle_->isVSG() ) \
-	    dCast(ODSceneBundle*,bundle_)->memb->fn( arg )
+	    dCast(OSGSceneBundle*,bundle_)->memb->fn( arg )
 
 uiODSceneMgr::uiODSceneMgr( uiODMain* a )
     : sceneClosed(this)
@@ -169,7 +169,7 @@ uiODSceneMgr::~uiODSceneMgr()
 	    continue;
 	}
 
-	auto* scene = dCast(ODSceneBundle*,bundle);
+	auto* scene = dCast(OSGSceneBundle*,bundle);
 	scene->itemmanager_->prepareForShutdown();
 	removeScene( *scene ); // deletes "scene"
     }
@@ -206,9 +206,9 @@ void uiODSceneMgr::cleanUp( bool startnew )
 }
 
 
-uiODSceneMgr::ODSceneBundle& uiODSceneMgr::mkNewScene()
+uiODSceneMgr::SceneBundle& uiODSceneMgr::mkNewScene()
 {
-    auto& scn = *new uiODSceneMgr::ODSceneBundle( mdiarea_ );
+    auto& scn = *new uiODSceneMgr::OSGSceneBundle( mdiarea_ );
     mAttachCB( scn.mdiwin_->closed(), uiODSceneMgr::removeSceneCB );
     mAttachCB( scn.mdiwin_->windowShown(), uiODSceneMgr::mdiAreaChanged );
     mAttachCB( scn.mdiwin_->windowHidden(), uiODSceneMgr::mdiAreaChanged );
@@ -225,37 +225,40 @@ SceneID uiODSceneMgr::addScene( bool maximized, ZAxisTransform* zt,
     if ( !canAddSceneAtStartup() )
 	return SceneID::udf();
 
-    ODSceneBundle& scn = mkNewScene();
+    auto* scn = dCast(OSGSceneBundle*,&mkNewScene());
+    if ( !scn )
+	return SceneID::udf();
+
     const SceneID sceneid = visServ().addScene();
     RefMan<visSurvey::Scene> visscene = visServ().getScene( sceneid );
     if ( visscene )
     {
-	if ( scn.vwr3d_->getPolygonSelector() )
-	    visscene->setPolygonSelector( scn.vwr3d_->getPolygonSelector() );
-	if ( scn.vwr3d_->getSceneColTab() )
-	    visscene->setSceneColTab( scn.vwr3d_->getSceneColTab() );
+	if ( scn->vwr3d_->getPolygonSelector() )
+	    visscene->setPolygonSelector( scn->vwr3d_->getPolygonSelector() );
+	if ( scn->vwr3d_->getSceneColTab() )
+	    visscene->setSceneColTab( scn->vwr3d_->getSceneColTab() );
 	mAttachCB( visscene->sceneboundingboxupdated,
 		   uiODSceneMgr::newSceneUpdated );
     }
 
-    scn.vwr3d_->setScene( visscene.ptr() );
+    scn->vwr3d_->setScene( visscene.ptr() );
     uiString title = uiStrings::phrJoinStrings( uiStrings::sScene(),
 					       toUiString(vwridx_) );
 
-    scn.mdiwin_->setTitle( title );
+    scn->mdiwin_->setTitle( title );
     visServ().setSceneName( sceneid, title );
-    scn.vwr3d_->display( true );
-    scn.vwr3d_->setAnnotationFont( visscene ? visscene->getAnnotFont()
+    scn->vwr3d_->display( true );
+    scn->vwr3d_->setAnnotationFont( visscene ? visscene->getAnnotFont()
 					    : FontData() );
-    mAttachCB( scn.vwr3d_->viewmodechanged, uiODSceneMgr::viewModeChg );
-    mAttachCB( scn.vwr3d_->pageupdown, uiODSceneMgr::pageUpDownPressed );
-    scn.mdiwin_->display( true, false, maximized );
+    mAttachCB( scn->vwr3d_->viewmodechanged, uiODSceneMgr::viewModeChg );
+    mAttachCB( scn->vwr3d_->pageupdown, uiODSceneMgr::pageUpDownPressed );
+    scn->mdiwin_->display( true, false, maximized );
     actMode(0);
     treeToBeAdded.trigger( sceneid );
-    initTree( scn, vwridx_ );
+    initTree( *scn, vwridx_ );
     treeAdded.trigger( sceneid );
 
-    ODSceneBundle* firstscene = nullptr;
+    OSGSceneBundle* firstscene = nullptr;
     int nrodscenes = 0;
     for ( auto* bundle : scenes_ )
     {
@@ -263,17 +266,17 @@ SceneID uiODSceneMgr::addScene( bool maximized, ZAxisTransform* zt,
 	    continue;
 
 	if ( !firstscene )
-	    firstscene = dCast(ODSceneBundle*,bundle);
+	    firstscene = dCast(OSGSceneBundle*,bundle);
 	nrodscenes++;
     }
 
     if ( nrodscenes>1 && firstscene )
     {
-	scn.vwr3d_->setStereoType( firstscene->vwr3d_->getStereoType() );
-	scn.vwr3d_->setStereoOffset( firstscene->vwr3d_->getStereoOffset() );
-	scn.vwr3d_->showRotAxis( firstscene->vwr3d_->rotAxisShown() );
+	scn->vwr3d_->setStereoType( firstscene->vwr3d_->getStereoType() );
+	scn->vwr3d_->setStereoOffset( firstscene->vwr3d_->getStereoOffset() );
+	scn->vwr3d_->showRotAxis( firstscene->vwr3d_->rotAxisShown() );
 	if ( !firstscene->vwr3d_->isCameraPerspective() )
-	    scn.vwr3d_->toggleCameraType();
+	    scn->vwr3d_->toggleCameraType();
 	visServ().displaySceneColorbar( visServ().sceneColorbarDisplayed() );
     }
     else if ( firstscene )
@@ -284,7 +287,7 @@ SceneID uiODSceneMgr::addScene( bool maximized, ZAxisTransform* zt,
 	    appl_.menuMgr().setCameraPixmap( isperspective );
 	    appl_.menuMgr().updateAxisMode( true );
 	}
-	scn.vwr3d_->showRotAxis( true );
+	scn->vwr3d_->showRotAxis( true );
     }
 
     if ( name.isSet() )
@@ -293,7 +296,7 @@ SceneID uiODSceneMgr::addScene( bool maximized, ZAxisTransform* zt,
     visServ().setZAxisTransform( sceneid, zt, nullptr );
     visServ().turnSelectionModeOn( visServ().isSelectionModeOn() );
 
-    scn.vwr3d_->setStartupView();
+    scn->vwr3d_->setStartupView();
 
     return sceneid;
 }
@@ -428,13 +431,13 @@ SceneID uiODSceneMgr::addDefaultScene()
 
 void uiODSceneMgr::newSceneUpdated( CallBacker* )
 {
-    ODSceneBundle* lastscene = nullptr;
+    OSGSceneBundle* lastscene = nullptr;
     for ( int idx=scenes_.size()-1; idx>=0; idx-- )
     {
 	if ( scenes_[idx]->isVSG() )
 	    continue;
 
-	lastscene = dCast(ODSceneBundle*,scenes_[idx]);
+	lastscene = dCast(OSGSceneBundle*,scenes_[idx]);
 	break;
     }
 
@@ -459,7 +462,7 @@ void uiODSceneMgr::tileTimerCB( CallBacker* )
 }
 
 
-void uiODSceneMgr::removeScene( uiODSceneMgr::ODSceneBundle& scene )
+void uiODSceneMgr::removeScene( uiODSceneMgr::OSGSceneBundle& scene )
 {
     appl_.colTabEd().setColTab( 0, mUdf(int), mUdf(int) );
     appl_.removeDockWindow( scene.dw_ );
@@ -501,7 +504,7 @@ void uiODSceneMgr::removeSceneCB( CallBacker* cb )
 	if ( bundle->isVSG() )
 	    removeVSGScene( *dCast(VSGSceneBundle*,bundle) );
 	else
-	    removeScene( *dCast(ODSceneBundle*,bundle) );
+	    removeScene( *dCast(OSGSceneBundle*,bundle) );
 
 	return;
     }
@@ -536,7 +539,7 @@ void uiODSceneMgr::getScenePars( IOPar& iopar )
 	if ( bundle->isVSG() )
 	    continue;
 
-	auto* scene = dCast(ODSceneBundle*,bundle);
+	auto* scene = dCast(OSGSceneBundle*,bundle);
 	IOPar iop;
 	scene->vwr3d_->fillPar( iop );
 	iopar.mergeComp( iop, toString(idx++) );
@@ -555,21 +558,24 @@ void uiODSceneMgr::useScenePars( const IOPar& sessionpar )
 	    break;
 	}
 
-	ODSceneBundle& scn = mkNewScene();
-	if ( !scn.vwr3d_->usePar(*scenepar) )
+	auto* scn = dCast(OSGSceneBundle*,&mkNewScene());
+	if ( !scn )
+	    continue;
+
+	if ( !scn->vwr3d_->usePar(*scenepar) )
 	{
-	    removeScene( scn );
+	    removeScene( *scn );
 	    continue;
 	}
 
-	const SceneID sceneid = scn.vwr3d_->sceneID();
+	const SceneID sceneid = scn->vwr3d_->sceneID();
 	RefMan<visSurvey::Scene> visscene = visServ().getScene( sceneid );
 	if ( visscene )
 	{
-	    if ( scn.vwr3d_->getPolygonSelector() )
-		visscene->setPolygonSelector(scn.vwr3d_->getPolygonSelector());
-	    if ( scn.vwr3d_->getSceneColTab() )
-		visscene->setSceneColTab( scn.vwr3d_->getSceneColTab() );
+	    if ( scn->vwr3d_->getPolygonSelector() )
+		visscene->setPolygonSelector(scn->vwr3d_->getPolygonSelector());
+	    if ( scn->vwr3d_->getSceneColTab() )
+		visscene->setSceneColTab( scn->vwr3d_->getSceneColTab() );
 	}
 
 	visServ().displaySceneColorbar( visServ().sceneColorbarDisplayed() );
@@ -583,16 +589,16 @@ void uiODSceneMgr::useScenePars( const IOPar& sessionpar )
 	    visServ().setSceneName( sceneid, scenenm );
 	}
 
-	scn.mdiwin_->setTitle( scenenm );
+	scn->mdiwin_->setTitle( scenenm );
 
-	scn.vwr3d_->display( true );
-	scn.vwr3d_->showRotAxis( true );
-	mAttachCB( scn.vwr3d_->viewmodechanged, uiODSceneMgr::viewModeChg );
-	mAttachCB( scn.vwr3d_->pageupdown, uiODSceneMgr::pageUpDownPressed );
-	scn.mdiwin_->display( true, false );
+	scn->vwr3d_->display( true );
+	scn->vwr3d_->showRotAxis( true );
+	mAttachCB( scn->vwr3d_->viewmodechanged, uiODSceneMgr::viewModeChg );
+	mAttachCB( scn->vwr3d_->pageupdown, uiODSceneMgr::pageUpDownPressed );
+	scn->mdiwin_->display( true, false );
 
 	treeToBeAdded.trigger( sceneid );
-	initTree( scn, vwridx_ );
+	initTree( *scn, vwridx_ );
 	treeAdded.trigger( sceneid );
     }
 
@@ -659,7 +665,7 @@ bool uiODSceneMgr::inViewMode() const
     for ( auto* bundle : scenes_ )
     {
 	if ( !bundle->isVSG() )
-	    return dCast(ODSceneBundle*,bundle)->vwr3d_->isViewMode();
+	    return dCast(OSGSceneBundle*,bundle)->vwr3d_->isViewMode();
     }
 
     return false;
@@ -782,7 +788,7 @@ int uiODSceneMgr::getStereoType() const
     for ( auto* bundle : scenes_ )
     {
 	if ( !bundle->isVSG() )
-	    return (int)dCast(ODSceneBundle*,bundle)->vwr3d_->getStereoType();
+	    return (int)dCast(OSGSceneBundle*,bundle)->vwr3d_->getStereoType();
     }
 
     return 0;
@@ -791,13 +797,13 @@ int uiODSceneMgr::getStereoType() const
 
 void uiODSceneMgr::setStereoType( int type )
 {
-    ODSceneBundle* firstscene = nullptr;
+    OSGSceneBundle* firstscene = nullptr;
     for ( auto* bundle : scenes_ )
     {
 	if ( bundle->isVSG() )
 	    continue;
 
-	firstscene = dCast(ODSceneBundle*,bundle);
+	firstscene = dCast(OSGSceneBundle*,bundle);
 	break;
     }
 
@@ -825,7 +831,7 @@ void uiODSceneMgr::setStereoType( int type )
 	if ( bundle->isVSG() )
 	    continue;
 
-	ui3DViewer& vwr3d_ = *dCast(ODSceneBundle*,bundle)->vwr3d_;
+	ui3DViewer& vwr3d_ = *dCast(OSGSceneBundle*,bundle)->vwr3d_;
 	if ( !vwr3d_.setStereoType(stereotype) )
 	{
 	    uiMSG().error( tr("No support for this type of stereo rendering") );
@@ -911,7 +917,7 @@ void uiODSceneMgr::showRotAxis( CallBacker* cb )
 	    continue;
 
 	const OD::Color& col = applMgr().visServer()->getSceneAnnotCol( idx++ );
-	dCast(ODSceneBundle*,bundle)->vwr3d_->setAnnotationColor( col );
+	dCast(OSGSceneBundle*,bundle)->vwr3d_->setAnnotationColor( col );
     }
 }
 
@@ -986,7 +992,7 @@ void uiODSceneMgr::soloMode( CallBacker* )
 	if ( bundle->isVSG() )
 	    continue;
 
-	auto* scene = dCast(ODSceneBundle*,bundle);
+	auto* scene = dCast(OSGSceneBundle*,bundle);
 	dispids += scene->treeTop()->getDisplayIds( selectedid,
 						    !issolomodeon );
     }
@@ -1019,7 +1025,7 @@ SceneID uiODSceneMgr::askSelectScene() const
 	if ( bundle->isVSG() )
 	    continue;
 
-	auto* scene = dCast(ODSceneBundle*,bundle);
+	auto* scene = dCast(OSGSceneBundle*,bundle);
 	SceneID sceneid = scene->treeTop()->sceneID();
 	sceneids += sceneid;
 	scenenms.add( getSceneName(sceneid) );
@@ -1041,21 +1047,21 @@ void uiODSceneMgr::get3DViewers( ObjectSet<ui3DViewer>& vwrs )
     for ( auto* bundle : scenes_ )
     {
 	if ( !bundle->isVSG() )
-	    vwrs += dCast(ODSceneBundle*,bundle)->vwr3d_;
+	    vwrs += dCast(OSGSceneBundle*,bundle)->vwr3d_;
     }
 }
 
 
 const ui3DViewer* uiODSceneMgr::get3DViewer( const SceneID& sceneid ) const
 {
-    const ODSceneBundle* scene = getScene( sceneid );
+    const OSGSceneBundle* scene = getScene( sceneid );
     return scene ? scene->vwr3d_ : 0;
 }
 
 
 ui3DViewer* uiODSceneMgr::get3DViewer( const SceneID& sceneid )
 {
-    const ODSceneBundle* scene = getScene( sceneid );
+    const OSGSceneBundle* scene = getScene( sceneid );
     return scene ? scene->vwr3d_ : 0;
 }
 
@@ -1065,7 +1071,7 @@ uiODTreeTop* uiODSceneMgr::getTreeItemMgr( const uiTreeView* lv ) const
     for ( auto* bundle : scenes_ )
     {
 	if ( !bundle->isVSG() && bundle->lv_ == lv )
-	    return dCast(ODSceneBundle*,bundle)->treeTop();
+	    return dCast(OSGSceneBundle*,bundle)->treeTop();
     }
 
     return nullptr;
@@ -1074,7 +1080,7 @@ uiODTreeTop* uiODSceneMgr::getTreeItemMgr( const uiTreeView* lv ) const
 
 uiODTreeTop* uiODSceneMgr::getTreeItemMgr( const SceneID& sceneid ) const
 {
-    const ODSceneBundle* scene = getScene( sceneid );
+    const OSGSceneBundle* scene = getScene( sceneid );
     return scene ? scene->treeTop() : nullptr;
 }
 
@@ -1119,7 +1125,7 @@ SceneID uiODSceneMgr::getActiveSceneID() const
 	if ( bundle->isVSG() || !bundle->itemmanager_ )
 	    continue;
 
-	auto* scene = dCast(ODSceneBundle*,bundle);
+	auto* scene = dCast(OSGSceneBundle*,bundle);
 	if ( scenenm ==
 	   getSceneName(scene->treeTop()->sceneID()).getFullString() )
 	    return scene->treeTop()->sceneID();
@@ -1170,7 +1176,7 @@ void uiODSceneMgr::mdiAreaChanged( CallBacker* )
 
 void uiODSceneMgr::sceneChanged( SceneID sceneid )
 {
-    uiODSceneMgr::ODSceneBundle* scene = getScene( sceneid );
+    uiODSceneMgr::OSGSceneBundle* scene = getScene( sceneid );
     if ( scene )
     {
 	scene->raiseTree();
@@ -1194,7 +1200,7 @@ void uiODSceneMgr::setActiveScene( int idx )
 	if ( odidx++ != idx )
 	    continue;
 
-	auto* scene = dCast(ODSceneBundle*,bundle);
+	auto* scene = dCast(OSGSceneBundle*,bundle);
 	setActiveScene( scene->vwr3d_->sceneID() );
 	return;
     }
@@ -1243,7 +1249,7 @@ void uiODSceneMgr::getFactoryIdxs( TypeSet<int>& idxs ) const
 }
 
 
-void uiODSceneMgr::initTree( ODSceneBundle& scn, int vwridx )
+void uiODSceneMgr::initTree( OSGSceneBundle& scn, int vwridx )
 {
     const uiString capt = tr( "Tree scene %1" ).arg( vwridx );
     createTreeDock( scn, capt );
@@ -1294,7 +1300,7 @@ void uiODSceneMgr::rebuildTrees()
 	if ( bundle->isVSG() )
 	    continue;
 
-	auto& scene = *dCast(ODSceneBundle*,bundle);
+	auto& scene = *dCast(OSGSceneBundle*,bundle);
 	const SceneID sceneid = scene.vwr3d_->sceneID();
 	TypeSet<VisID> visids;
 	visServ().getSceneChildIds( sceneid, visids );
@@ -1317,7 +1323,7 @@ void uiODSceneMgr::rebuildTrees()
 
 uiTreeView* uiODSceneMgr::getTree( const SceneID& sceneid )
 {
-    ODSceneBundle* scene = getScene( sceneid );
+    OSGSceneBundle* scene = getScene( sceneid );
     return scene ? scene->lv_ : nullptr;
 }
 
@@ -1436,7 +1442,7 @@ void uiODSceneMgr::disabTrees( bool yn )
 
 
 #define mGetOrAskForScene \
-    ODSceneBundle* scene = getScene( scnid ); \
+    OSGSceneBundle* scene = getScene( scnid ); \
     const SceneID sceneid = scene ? scnid : askSelectScene(); \
     if ( !scene ) \
 	scene = getScene( sceneid ); \
@@ -1466,7 +1472,7 @@ void uiODSceneMgr::addWellItems( const TypeSet<MultiID>& mids,
     if ( mids.isEmpty() )
 	return;
 
-    ODSceneBundle* scene = getScene( scnid );
+    OSGSceneBundle* scene = getScene( scnid );
     const SceneID sceneid = scene ? scnid : askSelectScene();
     if ( !scene )
 	scene = getScene( sceneid );
@@ -1495,7 +1501,7 @@ void uiODSceneMgr::getLoadedPickSetIDs( TypeSet<MultiID>& picks, bool poly,
 {
     if ( sceneid.isValid() )
     {
-	const ODSceneBundle* scene = getScene( sceneid );
+	const OSGSceneBundle* scene = getScene( sceneid );
 	if ( !scene ) return;
 
 	gtLoadedPickSetIDs( *scene, picks, poly );
@@ -1505,14 +1511,14 @@ void uiODSceneMgr::getLoadedPickSetIDs( TypeSet<MultiID>& picks, bool poly,
     for ( const auto* bundle : scenes_ )
     {
 	if ( !bundle->isVSG() )
-	    gtLoadedPickSetIDs( *dCast(const ODSceneBundle*,bundle),
+	    gtLoadedPickSetIDs( *dCast(const OSGSceneBundle*,bundle),
 				picks, poly );
     }
 
 }
 
 
-void uiODSceneMgr::gtLoadedPickSetIDs( const ODSceneBundle& scene,
+void uiODSceneMgr::gtLoadedPickSetIDs( const OSGSceneBundle& scene,
 	TypeSet<MultiID>& picks, bool poly ) const
 {
     for ( int chidx=0; chidx<scene.itemmanager_->nrChildren(); chidx++ )
@@ -1561,7 +1567,7 @@ void uiODSceneMgr::getLoadedEMIDs( TypeSet<EM::ObjectID>& emids,
 {
     if ( sceneid.isValid() )
     {
-	const ODSceneBundle* scene = getScene( sceneid );
+	const OSGSceneBundle* scene = getScene( sceneid );
 	if ( !scene ) return;
 	gtLoadedEMIDs( scene, emids, type );
 	return;
@@ -1570,7 +1576,7 @@ void uiODSceneMgr::getLoadedEMIDs( TypeSet<EM::ObjectID>& emids,
     for ( const auto* bundle : scenes_ )
     {
 	if ( !bundle->isVSG() )
-	    gtLoadedEMIDs( dCast(const ODSceneBundle*,bundle),
+	    gtLoadedEMIDs( dCast(const OSGSceneBundle*,bundle),
 			   emids, type );
     }
 }
@@ -1621,7 +1627,7 @@ void uiODSceneMgr::gtLoadedEMIDs( const uiTreeItem* topitm,
 }
 
 
-void uiODSceneMgr::gtLoadedEMIDs( const ODSceneBundle* scene,
+void uiODSceneMgr::gtLoadedEMIDs( const OSGSceneBundle* scene,
 				  TypeSet<EM::ObjectID>& emids,
 				  const char* type ) const
 {
@@ -1883,7 +1889,7 @@ void uiODSceneMgr::findItems( const char* nm, ObjectSet<uiTreeItem>& items,
 	if ( bundle->isVSG() )
 	    continue;
 
-	auto& scene = *dCast(ODSceneBundle*,bundle);
+	auto& scene = *dCast(OSGSceneBundle*,bundle);
 	if ( !sceneid.isValid() || scene.treeTop()->sceneID() == sceneid )
 	    scene.itemmanager_->findChildren( nm, items );
     }
@@ -1928,17 +1934,17 @@ void uiODSceneMgr::doDirectionalLight(CallBacker*)
 }
 
 
-uiODSceneMgr::ODSceneBundle* uiODSceneMgr::getScene( const SceneID& sceneid )
+uiODSceneMgr::OSGSceneBundle* uiODSceneMgr::getScene( const SceneID& sceneid )
 {
     SceneBundle* bundle = getBundle( sceneid );
     if ( !bundle || bundle->isVSG() )
 	return nullptr;
 
-    return dCast(ODSceneBundle*,bundle);
+    return dCast(OSGSceneBundle*,bundle);
 }
 
 
-const uiODSceneMgr::ODSceneBundle* uiODSceneMgr::getScene(
+const uiODSceneMgr::OSGSceneBundle* uiODSceneMgr::getScene(
 						const SceneID& sceneid ) const
 { return getNonConst(*this).getScene( sceneid ); }
 
@@ -1951,7 +1957,7 @@ void uiODSceneMgr::font3DChanged( CallBacker* )
 	if ( bundle->isVSG() )
 	    continue;
 
-	auto* scene = dCast(ODSceneBundle*,bundle);
+	auto* scene = dCast(OSGSceneBundle*,bundle);
 	ui3DViewer* vwr3d = scene->vwr3d_;
 	if ( !vwr3d ) continue;
 
@@ -2022,8 +2028,8 @@ uiODSceneMgr::VSGSceneBundle::~VSGSceneBundle()
 }
 
 
-// uiODSceneMgr::ODSceneBundle
-uiODSceneMgr::ODSceneBundle::ODSceneBundle( uiMdiArea* mdiarea )
+// uiODSceneMgr::OSGSceneBundle
+uiODSceneMgr::OSGSceneBundle::OSGSceneBundle( uiMdiArea* mdiarea )
 {
     if ( !mdiarea )
 	return;
@@ -2037,19 +2043,19 @@ uiODSceneMgr::ODSceneBundle::ODSceneBundle( uiMdiArea* mdiarea )
 }
 
 
-uiODSceneMgr::ODSceneBundle::~ODSceneBundle()
+uiODSceneMgr::OSGSceneBundle::~OSGSceneBundle()
 {
     delete vwr3d_;
 }
 
 
-SceneID uiODSceneMgr::ODSceneBundle::sceneID() const
+SceneID uiODSceneMgr::OSGSceneBundle::sceneID() const
 {
     return itemmanager_ ? treeTop()->sceneID() : SceneID::udf();
 }
 
 
-uiODTreeTop* uiODSceneMgr::ODSceneBundle::treeTop() const
+uiODTreeTop* uiODSceneMgr::OSGSceneBundle::treeTop() const
 {
     return dCast( uiODTreeTop*, itemmanager_ );
 }

@@ -246,11 +246,11 @@ protected:
 	uiTreeTopItem*		itemmanager_	= nullptr;
     };
 
-    mExpClass(uiODMain) ODSceneBundle : public SceneBundle
+    mExpClass(uiODMain) OSGSceneBundle : public SceneBundle
     {
     public:
-				ODSceneBundle(uiMdiArea*);
-				~ODSceneBundle();
+				OSGSceneBundle(uiMdiArea*);
+				~OSGSceneBundle();
 
 	SceneID			sceneID() const override;
 	bool			isVSG() const override	{ return false; }
@@ -274,26 +274,26 @@ protected:
     };
 
     ObjectSet<SceneBundle>	scenes_;
-    ODSceneBundle&		mkNewScene();
-    void			removeScene(ODSceneBundle&);
+    SceneBundle&		mkNewScene();
+    void			removeScene(OSGSceneBundle&);
     void			removeSceneCB(CallBacker*);
-    void			initTree(ODSceneBundle&,int);
+    void			initTree(OSGSceneBundle&,int);
     void			createTreeDock(SceneBundle&,const uiString&);
     void			getFactoryIdxs(TypeSet<int>&) const;
     SceneBundle*		getBundle(const SceneID&);
     void			tabifyTree(SceneBundle&);
     void			removeVSGScene(VSGSceneBundle&);
     void			addVSGCategoryItems(uiTreeView&);
-    ODSceneBundle*		getScene(const SceneID&);
-    const ODSceneBundle*	getScene(const SceneID&) const;
+    OSGSceneBundle*		getScene(const SceneID&);
+    const OSGSceneBundle*	getScene(const SceneID&) const;
     void			newSceneUpdated(CallBacker*);
-    void			gtLoadedEMIDs(const ODSceneBundle*,
+    void			gtLoadedEMIDs(const OSGSceneBundle*,
 					      TypeSet<EM::ObjectID>&,
 					      const char* emtypestr) const;
     void			gtLoadedEMIDs(const uiTreeItem*,
 					      TypeSet<EM::ObjectID>&,
 					      const char* emtypestr) const;
-    void			gtLoadedPickSetIDs(const ODSceneBundle&,
+    void			gtLoadedPickSetIDs(const OSGSceneBundle&,
 				    TypeSet<MultiID>&, bool poly) const;
     void			gtLoadedPickSetIDs(const uiTreeItem&,
 				    TypeSet<MultiID>&,bool poly) const;

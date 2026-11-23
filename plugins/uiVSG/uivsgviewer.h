@@ -12,7 +12,7 @@ ________________________________________________________________________
 -*/
 
 #include "uivsgmod.h"
-#include "uiobj.h"
+#include "ui3dviewerbase.h"
 #include "visvsgscenecoltab.h"
 #include "ptrman.h"
 #include "uistringset.h"
@@ -30,17 +30,17 @@ namespace vsgGeo
 { class AxesHandler; class GradientBackground; class NearFar;
   class ThumbWheelHandler; class Trackball; }
 
-mExpClass(uiVSG) uiVSGViewer : public uiObject
+mExpClass(uiVSG) uiVSGViewer : public ui3DViewerBase
 {
 public:
 			uiVSGViewer(uiParent*,const char* nm="VSG Viewer");
 			~uiVSGViewer();
 
-    void		setAnnotationFont(const FontData&);
+    void		setAnnotationFont(const FontData&) override;
     FontData		annotationFont() const;
 
-    void		showRotAxis(bool);
-    bool		rotAxisShown() const;
+    void		showRotAxis(bool) override;
+    bool		rotAxisShown() const override;
     void		setModernAxes(bool);
     bool		isModernAxes() const;
 
@@ -51,12 +51,12 @@ public:
     void		setColorBarSize(int width,int height);
     Geom::Size2D<int>	getColorBarSize() const;
 
-    void		setBackgroundColor(const OD::Color&);
+    void		setBackgroundColor(const OD::Color&) override;
     void		setBackgroundGradient(bool);
     bool		isBackgroundGradient() const;
-    OD::Color		getBackgroundColor() const;
-    void		setAnnotationColor(const OD::Color&);
-    OD::Color		getAnnotationColor() const;
+    OD::Color		getBackgroundColor() const override;
+    void		setAnnotationColor(const OD::Color&) override;
+    OD::Color		getAnnotationColor() const override;
 
     enum class WheelMode	{ Never, Always, OnHover };
     void		setWheelDisplayMode(WheelMode);
@@ -80,17 +80,17 @@ public:
 
     ODVsg::Scene*	getScene();
     const ODVsg::Scene*	getScene() const;
-    SceneID		sceneID() const;
+    SceneID		sceneID() const override;
     void		setScene(ODVsg::Scene*);
 			//!<Only before the viewer is first shown. Without it
 			//!<the viewer makes a scene of its own
     ODVsg::TextureChannels* textureChannels();
 			/*!<The data of the test plane, null without it. */
 
-    void		setViewMode(bool yn);
+    void		setViewMode(bool yn) override;
 			/*!<True: left button orbits. False: left button
 			    picks and drags. */
-    bool		isViewMode() const;
+    bool		isViewMode() const override;
     void		syncCursor()		{ updateCursor(); }
 
 private:

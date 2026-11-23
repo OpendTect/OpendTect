@@ -617,7 +617,7 @@ void uiVSGViewer::ColTabLink::changedCB( CallBacker* )
 
 
 uiVSGViewer::uiVSGViewer( uiParent* parent, const char* nm )
-    : uiObject(parent,nm,mkBody(parent,nm))
+    : ui3DViewerBase(parent,nm,mkBody(parent,nm))
 {
     setMinimumWidth( 600 );
     setMinimumHeight( 400 );
@@ -635,7 +635,10 @@ uiVSGViewer::uiVSGViewer( uiParent* parent, const char* nm )
 
 uiObjectBody& uiVSGViewer::mkBody( uiParent* parent, const char* nm )
 {
-    window_ = new dGBVSGWindow( *this, parent, nm, cRenderTimeMs );
+    // Seems to be because of the latest changes, but weird since it does
+    // seem there are things that match
+    // Mark for distruction
+    window_ = new dGBVSGWindow( parent, *this, nm, cRenderTimeMs );
     return *window_;
 }
 

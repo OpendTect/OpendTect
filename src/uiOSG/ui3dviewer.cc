@@ -51,7 +51,7 @@ mDefineNameSpaceEnumUtils(OD,WheelMode,"WheelMode")
 // ui3DViewer
 
 ui3DViewer::ui3DViewer( uiParent* parnt, bool direct, const char* nm )
-    : uiObject(parnt,nm,mkBody(parnt,direct,nm))
+    : ui3DViewerBase(parnt,nm,mkBody(parnt,direct,nm))
     , destroyed(this)
     , viewmodechanged(this)
     , pageupdown(this)
