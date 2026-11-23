@@ -2359,7 +2359,7 @@ bool ZipHandler::readLocalFileHeader( ZipFileInfo& fileinfo )
     }
 
     const od_uint16 bitflag =
-			*mCast( od_uint16*, headerbuff + mLGenPurBitFlag );
+	*mCast( od_uint16*, headerbuff + mLGenPurBitFlag );
     if ( bitflag & ~mSupportedBitFlags )
     {
 	errormsg_ = tr("Failed to unzip '%1'").arg( srcfile );

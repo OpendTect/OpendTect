@@ -503,9 +503,9 @@ static bool testUtf8Names()
     const FilePath asciidirfp( tempdir.buf(), "od_test_zip_ascii" );
     asciidir_ = asciidirfp.fullPath();
     asciizipfnm_ =
-		FilePath( tempdir.buf(), "od_test_zip_ascii.zip" ).fullPath();
+	FilePath( tempdir.buf(), "od_test_zip_ascii.zip" ).fullPath();
     mixedzipfnm_ =
-		FilePath( tempdir.buf(), "od_test_zip_mixed.zip" ).fullPath();
+	FilePath( tempdir.buf(), "od_test_zip_mixed.zip" ).fullPath();
     const FilePath asciifilefp( asciidirfp, "ascii_only.txt" );
     mRunStandardTest( File::createDir(asciidir_.buf()) &&
 		      File::putContent(BufferString("ascii"),
