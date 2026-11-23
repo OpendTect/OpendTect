@@ -1113,13 +1113,17 @@ void ZipHandler::writeGeneralPurposeFlag( unsigned char* databuf ) const
 	case SuperFast:
 	    OD::setBitValue( databuf[0], 1, 1 );
 	    OD::setBitValue( databuf[0], 2, 1 );
+	    break;
 	case Fast:
 	    OD::setBitValue( databuf[0], 2, 1 );
+	    break;
 	case Normal:
 	    OD::setBitValue( databuf[0], 1, 0 );
 	    OD::setBitValue( databuf[0], 2, 0 );
+	    break;
 	case Maximum:
 	    OD::setBitValue( databuf[0], 1, 1 );
+	    break;
 	default:
 	    OD::setBitValue( databuf[0], 1, 0 );
 	    OD::setBitValue( databuf[0], 2, 0 );
