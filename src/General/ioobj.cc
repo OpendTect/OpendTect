@@ -417,7 +417,7 @@ bool IOObj::implIsLink() const
 
 bool IOObj::isKey( const char* ky )
 {
-    return IOM().isKey(ky);
+    return IOMan::isKey( ky );
 }
 
 

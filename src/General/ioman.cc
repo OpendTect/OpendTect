@@ -690,9 +690,11 @@ bool IOMan::to( const MultiID& ky, bool forcereread )
 
 IOObj* IOMan::get( const DBKey& ky ) const
 {
-    Threads::Locker lock( lock_ );
     if ( !IOObj::isKey(ky.MultiID::toString()) )
 	return nullptr;
+
+    if ( !ky.hasSurveyLocation() )
+	return get( sCast(const MultiID&,ky) );
 
     return IODir::getObj( ky );
 }
@@ -704,7 +706,7 @@ IOObj* IOMan::get( const MultiID& k ) const
     if ( !IOObj::isKey(k.toString()) )
 	return nullptr;
 
-    MultiID ky = k.mainID();
+    const MultiID ky = k.mainID();
     if ( dirptr_ && dirptr_->key().groupID() == ky.groupID() )
     {
 	const IOObj* ioobj = dirptr_->get( ky );
@@ -712,7 +714,10 @@ IOObj* IOMan::get( const MultiID& k ) const
 	    return ioobj->clone();
     }
 
-    return IODir::getObj( ky );
+    const BufferString dirnm = rootdir_.fullPath();
+    lock.unlockNow();
+
+    return IODir::getIOObj( dirnm.buf(), ky );
 }
 
 
@@ -734,7 +739,10 @@ IOObj* IOMan::get( const OD::DataSetKey& dsky, const char* tgname ) const
 	    return ioobj->clone();
     }
 
-    return IODir::getObj( dsky );
+    const BufferString dirnm = rootdir_.fullPath();
+    lock.unlockNow();
+
+    return IODir::getIOObj( dirnm.buf(), dsky );
 }
 
 
@@ -886,9 +894,10 @@ IOObj* IOMan::getFromPar( const IOPar& par, const char* bky,
 }
 
 
-bool IOMan::isKey( const char* ky ) const
+bool IOMan::isKey( const char* ky )
 {
-    if ( !ky || !*ky || !iswdigit(*ky) ) return false;
+    if ( StringView(ky).isEmpty() || !iswdigit(*ky) )
+	return false;
 
     bool digitseen = false;
     while ( *ky )
@@ -899,6 +908,7 @@ bool IOMan::isKey( const char* ky ) const
 	    return digitseen;
 	else if ( *ky != '.' )
 	    return false;
+
 	ky++;
     }
 
@@ -2044,10 +2054,10 @@ uiRetVal IOMan::setDataSource( const char* dataroot, const char* survdir,
     if ( !theinstmgr )
     {
 	IOM( rootdirfp, uirv );
-	locker.unlockNow();
 	return uirv;
     }
 
+    locker.unlockNow();
     return IOM().setRootDir( rootdirfp, true );
 }
 

@@ -13,17 +13,17 @@ data = {
         'y': np.array([0.0,0.0,0.0],dtype=np.float64)
         }
 
-def test_Survey_class(survey, request):
-    assert request.config.getoption('--survey') in Survey.names()
+def test_Survey_class(survey, datadir, request):
+    assert request.config.getoption('--survey') in Survey.names(datadir)
 
     try:
-        Survey("bogus")
+        Survey("bogus", datadir)
         assert False
     except Exception:
         assert True
 
     info = survey.info()
-    assert any(info == pytest_helper.approx(si, rel=0.001) for si in Survey.infos())
+    assert any(info == pytest_helper.approx(si, rel=0.001) for si in Survey.infos(basedir=datadir))
     assert survey.survey_type == info['type']
 
     inl0, crl0 = survey.inlrange[0], survey.crlrange[0]
