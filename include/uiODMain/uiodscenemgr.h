@@ -268,7 +268,7 @@ protected:
     SceneBundle&		mkNewScene(bool vsg=false);
     void			removeScene(SceneBundle&);
     void			removeSceneCB(CallBacker*);
-    void			initTree(OSGSceneBundle&,int);
+    void			initTree(SceneBundle&,int);
     void			createTreeDock(SceneBundle&,const uiString&);
     void			getFactoryIdxs(TypeSet<int>&) const;
     void			tabifyTree(SceneBundle&);

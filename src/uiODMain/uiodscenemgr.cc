@@ -356,23 +356,9 @@ SceneID uiODSceneMgr::addVSGScene( bool maximized, const uiString& nm )
 
     scn->mdiwin_->setTitle( title );
 
-    // The tree. Does not trigger treeToBeAdded, treeAdded or sceneClosed:
-    // their listeners add OSG objects to the scene.
-    createTreeDock( *scn, title );
-
-    scn->itemmanager_ = new uiODTreeTop( scn->vwr3d_, scn->lv_, &applMgr(),
-					 vsgtifs_ );
-    auto* sceneitm = new uiTreeViewItem( scn->lv_,
-					 uiTreeViewItem::Setup(title) );
-    sceneitm->setSelectable( false );
-    addVSGCategoryItems( *scn->lv_ );
-
-    scn->lv_->display( true );
-    appl_.addDockWindow( *scn->dw_, uiMainWin::Left );
-    scn->dw_->setDockName( title );
-    tabifyTree( *scn );
-    scn->dw_->setVisible( treeShown() );
-    scn->dw_->raise();
+    // No treeToBeAdded, treeAdded or sceneClosed: their listeners add OSG
+    // objects to the scene
+    initTree( *scn, vwridx_ );
 
     scn->vwr3d_->display( true );
     scn->mdiwin_->display( true, false, maximized );
@@ -456,14 +442,14 @@ void uiODSceneMgr::tileTimerCB( CallBacker* )
 
 void uiODSceneMgr::removeScene( uiODSceneMgr::SceneBundle& scene )
 {
-    const bool isvsg = scene.isVSG();
-    const SceneID vsgsceneid = isvsg ? scene.sceneID() : SceneID::udf();
-    if ( !isvsg )
+    if ( !scene.isVSG() )
 	appl_.colTabEd().setColTab( 0, mUdf(int), mUdf(int) );
 
     appl_.removeDockWindow( scene.dw_ );
 
-    if ( !isvsg && scene.itemmanager_ )
+    if ( scene.isVSG() )
+	visServ().removeScene( scene.sceneID() );
+    else if ( scene.itemmanager_ )
     {
 	const SceneID sceneid = scene.itemmanager_->sceneID();
 	RefMan<visSurvey::Scene> visscene =
@@ -485,8 +471,6 @@ void uiODSceneMgr::removeScene( uiODSceneMgr::SceneBundle& scene )
     scene.mdiwin_->closed().remove( mWSMCB(removeSceneCB) );
     scenes_ -= &scene;
     delete &scene;
-    if ( isvsg ) // The VSG viewer holds its scene: remove it afterwards
-	visServ().removeScene( vsgsceneid );
 }
 
 
@@ -1189,19 +1173,9 @@ void uiODSceneMgr::sceneChanged( SceneID sceneid )
 
 void uiODSceneMgr::setActiveScene( int idx )
 {
-    int odidx = 0;
-    for ( auto* bundle : scenes_ )
-    {
-	if ( bundle->isVSG() )
-	    continue;
-
-	if ( odidx++ != idx )
-	    continue;
-
-	auto* scene = dCast(OSGSceneBundle*,bundle);
+    SceneBundle* scene = scenes_.validIdx(idx) ? scenes_[idx] : nullptr;
+    if ( scene )
 	setActiveScene( scene->vwr3d_->sceneID() );
-	return;
-    }
 }
 
 
@@ -1247,25 +1221,38 @@ void uiODSceneMgr::getFactoryIdxs( TypeSet<int>& idxs ) const
 }
 
 
-void uiODSceneMgr::initTree( OSGSceneBundle& scn, int vwridx )
+void uiODSceneMgr::initTree( SceneBundle& scn, int vwridx )
 {
-    const uiString capt = tr( "Tree scene %1" ).arg( vwridx );
+    const uiString capt = scn.isVSG() ? scn.mdiwin_->getTitle()
+				      : tr( "Tree scene %1" ).arg( vwridx );
     createTreeDock( scn, capt );
 
-    scn.itemmanager_ = new uiODTreeTop( scn.vwr3d_, scn.lv_, &applMgr(), tifs_);
-    uiODSceneTreeItem* sceneitm =
-	new uiODSceneTreeItem( scn.mdiwin_->getTitle(),
-			       scn.vwr3d_->sceneID() );
-    scn.itemmanager_->addChild( sceneitm, false );
-
-    TypeSet<int> idxs;
-    getFactoryIdxs( idxs );
-
-    for ( int idx=0; idx<idxs.size(); idx++ )
+    scn.itemmanager_ = new uiODTreeTop( scn.vwr3d_, scn.lv_, &applMgr(),
+				scn.isVSG() ? vsgtifs_ : tifs_ );
+    uiODSceneTreeItem* sceneitm = nullptr;
+    if ( scn.isVSG() )
     {
-	const int fidx = idxs[idx];
-	scn.itemmanager_->addChild(
-		tifs_->getFactory(fidx)->create(), true );
+	// Plain rows: VSG has no tree items of its own yet
+	auto* row = new uiTreeViewItem( scn.lv_,
+			    uiTreeViewItem::Setup(scn.mdiwin_->getTitle()) );
+	row->setSelectable( false );
+	addVSGCategoryItems( *scn.lv_ );
+    }
+    else
+    {
+	sceneitm = new uiODSceneTreeItem( scn.mdiwin_->getTitle(),
+					  scn.vwr3d_->sceneID() );
+	scn.itemmanager_->addChild( sceneitm, false );
+
+	TypeSet<int> idxs;
+	getFactoryIdxs( idxs );
+
+	for ( int idx=0; idx<idxs.size(); idx++ )
+	{
+	    const int fidx = idxs[idx];
+	    scn.itemmanager_->addChild(
+		    tifs_->getFactory(fidx)->create(), true );
+	}
     }
 
     scn.lv_->display( true );
@@ -1273,7 +1260,10 @@ void uiODSceneMgr::initTree( OSGSceneBundle& scn, int vwridx )
     tabifyTree( scn );
 
     scn.dw_->setVisible( treeShown() );
-    sceneitm->select();
+    if ( sceneitm )
+	sceneitm->select();
+    else
+	scn.dw_->raise();
 }
 
 
