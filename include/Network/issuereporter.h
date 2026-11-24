@@ -41,6 +41,11 @@ public:
     bool			use(const char* filename,bool isbinary=true);
     bool			parseCommandLine();
     void			fillBasicReport();
+    void			setIncludeUserName(bool);
+				/*!< Rebuilds an already loaded report.
+				     On failure the previous report is kept. */
+    bool			includeUserName() const
+				{ return includeusername_; }
 
 protected:
 
@@ -55,6 +60,7 @@ protected:
     od_int64			precrashfreememory_;
     uiString			message_;
     bool			isbinary_ = true;
+    bool			includeusername_ = true;
 };
 
 } // namespace System
