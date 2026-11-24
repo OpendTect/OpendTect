@@ -148,6 +148,12 @@ class Seismic3D(_SurveyObject):
             None,
             [ct.c_void_p, ct.c_char_p, ct.POINTER(ct.c_float)],
         )
+        clss._setvelocitytype = wrap_function(
+            LIBODB,
+            f"{bindnm}_setvelocitytype",
+            None,
+            [ct.c_void_p, ct.c_char_p, ct.c_char_p],
+        )
 
     def __init__(self, survey: Survey, name: str):
         """Initialise an OpendTect 3D seismic volume object
@@ -394,6 +400,25 @@ class Seismic3D(_SurveyObject):
             self._writepool.shutdown(wait=True, cancel_futures=False)
             self._writepool = None
         self._close(self._handle)
+
+    def set_velocity_type(self, veltype: str, unit: str = ""):
+        """Tag this volume as a velocity volume, as OpendTect's velocity type dialog does
+
+        The type and unit are stored with the volume, so OpendTect's time-depth conversion
+        can use it as a velocity model. info() returns them as 'velocity_type' and 'velocity_unit'.
+        A volume being written must be closed first.
+
+        Parameters
+        ----------
+        veltype : str
+            one of 'Vint', 'Vrms', 'Vavg', 'Delta', 'Epsilon' or 'Eta', or 'Unknown' to remove the tag
+        unit : str=''
+            (Optional) the velocity unit, e.g. 'm/s' or 'ft/s'. If empty the survey's default velocity unit is used
+
+        """
+        self._setvelocitytype(self._handle, veltype.encode(), unit.encode())
+        if not self.isok:
+            raise ValueError(self.errmsg)
 
     def z_index(self, zval: float) -> int:
         """Return the z index for a given z value in this seismic volume

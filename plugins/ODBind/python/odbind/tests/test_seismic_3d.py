@@ -206,3 +206,50 @@ def test_Seismic3D_class(survey):
     Seismic3D.delete(survey, ['pytest', 'pytest_create'])
     assert 'pytest' not in Seismic3D.names(survey)
     assert 'pytest_create' not in Seismic3D.names(survey)
+
+def test_Seismic3D_velocity_type(survey):
+    si = survey.info()
+    data, data_info = make_data_volume(survey)
+    inlrg = data_info['iline']
+    crlrg = data_info['xline']
+    zrg = data_info[si['zdomain']]
+    zistime = si['zdomain']=='twt'
+    with Seismic3D.create(survey, 'pytest_vel', inlrg, crlrg, zrg, data_info['comp'], 'CBVS', zistime, True) as test:
+        test.putdata((data, data_info,))
+        # not while the volume is being written
+        with pytest.raises(ValueError):
+            test.set_velocity_type('Vint')
+
+    test = Seismic3D(survey, 'pytest_vel')
+    assert 'velocity_type' not in test.info()
+    # without a unit the survey's default velocity unit applies
+    test.set_velocity_type('Vint')
+    info = Seismic3D(survey, 'pytest_vel').info()
+    assert info['velocity_type'] == 'Vint'
+    defunit = info['velocity_unit']
+    assert defunit in ['m/s', 'ft/s']
+
+    test.set_velocity_type('Vint', 'km/s')
+    info = Seismic3D(survey, 'pytest_vel').info()
+    assert info['velocity_type'] == 'Vint'
+    assert info['velocity_unit'] == 'km/s'
+
+    test.set_velocity_type('Vavg')
+    info = Seismic3D(survey, 'pytest_vel').info()
+    assert info['velocity_type'] == 'Vavg'
+    assert info['velocity_unit'] == defunit
+
+    with pytest.raises(ValueError):
+        test.set_velocity_type('Vfast')
+    with pytest.raises(ValueError):
+        test.set_velocity_type('Vint', 'm')
+    assert Seismic3D(survey, 'pytest_vel').info()['velocity_type'] == 'Vavg'
+
+    # Unknown removes the tag
+    test.set_velocity_type('Unknown')
+    info = Seismic3D(survey, 'pytest_vel').info()
+    assert 'velocity_type' not in info
+    assert 'velocity_unit' not in info
+
+    Seismic3D.delete(survey, ['pytest_vel'])
+    assert 'pytest_vel' not in Seismic3D.names(survey)

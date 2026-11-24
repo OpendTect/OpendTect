@@ -62,6 +62,8 @@ public:
     void		putBlock(const float* data, const TrcKeyZSampling&);
     void		setBlockPars(const char* mergemode,
 				     const Geom::Point3D<float>&);
+    void		setVelocityType(const char* veltype,
+					const char* velunit);
 
     void		getInfo(OD::JSON::Object&) const override;
     void		getPoints(OD::JSON::Array&, bool towgs) const override;
@@ -134,6 +136,9 @@ mExternC(ODBind) void		seismic3d_putblock(hSeismic3D,
 mExternC(ODBind) void		seismic3d_setblockpars(hSeismic3D,
 						       const char* mergemode,
 						       const float overlap[3]);
+mExternC(ODBind) void		seismic3d_setvelocitytype(hSeismic3D,
+							  const char* veltype,
+							  const char* velunit);
 
 
 
