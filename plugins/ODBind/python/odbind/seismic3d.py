@@ -4,7 +4,7 @@ import math
 from collections import namedtuple
 from collections.abc import Generator, Sequence
 from concurrent.futures import ThreadPoolExecutor
-from enum import IntEnum
+from enum import Enum, IntEnum
 from typing import NamedTuple
 
 import numpy as np
@@ -36,6 +36,16 @@ class MergeMode(IntEnum):
     Average = 0
     Crop = 1
     Blend = 2
+
+
+class VelocityType(Enum):
+    Unknown = "Unknown"
+    Interval = "Vint"
+    RMS = "Vrms"
+    Avg = "Vavg"
+    Delta = "Delta"
+    Epsilon = "Epsilon"
+    Eta = "Eta"
 
 class Sampling(NamedTuple):
     inlrg: tuple[int,int,int]
@@ -401,7 +411,7 @@ class Seismic3D(_SurveyObject):
             self._writepool = None
         self._close(self._handle)
 
-    def set_velocity_type(self, veltype: str, unit: str = ""):
+    def set_velocity_type(self, veltype: VelocityType, unit: str = ""):
         """Tag this volume as a velocity volume, as OpendTect's velocity type dialog does
 
         The type and unit are stored with the volume, so OpendTect's time-depth conversion
@@ -410,13 +420,16 @@ class Seismic3D(_SurveyObject):
 
         Parameters
         ----------
-        veltype : str
-            one of 'Vint', 'Vrms', 'Vavg', 'Delta', 'Epsilon' or 'Eta', or 'Unknown' to remove the tag
+        veltype : VelocityType
+            the velocity type, e.g. VelocityType.Interval, or VelocityType.Unknown to remove the tag
         unit : str=''
-            (Optional) the velocity unit, e.g. 'm/s' or 'ft/s'. If empty the survey's default velocity unit is used
+            (Optional) the velocity unit, e.g. 'm/s' or 'ft/s', only for VelocityType.Interval,
+            VelocityType.RMS and VelocityType.Avg. If empty the survey's default velocity unit is used
 
         """
-        self._setvelocitytype(self._handle, veltype.encode(), unit.encode())
+        if not isinstance(veltype, VelocityType):
+            raise TypeError("veltype must be a VelocityType")
+        self._setvelocitytype(self._handle, veltype.value.encode(), unit.encode())
         if not self.isok:
             raise ValueError(self.errmsg)
 

@@ -20,6 +20,7 @@ ________________________________________________________________________________
 
 -*/
 
+#include "odcommonenums.h"
 #include "odsurvey_object.h"
 
 class odSurvey;
@@ -43,8 +44,11 @@ public:
 
     int			getNrComponents() const	{ return components_.size(); }
     BufferStringSet*	getCompNames() const;
+    virtual void	setVelocityType(OD::VelocityType,const char* velunit);
 
 protected:
+    void		getVelocityInfo(OD::JSON::Object&,const IOObj&) const;
+
     BufferStringSet	components_;
 };
 

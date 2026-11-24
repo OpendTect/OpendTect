@@ -4,7 +4,7 @@ import json
 import numpy as np
 import random
 import xarray as xr
-from odbind.seismic3d import Seismic3D
+from odbind.seismic3d import Seismic3D, VelocityType
 
 def make_data_volume(survey):
     si = survey.info()
@@ -218,35 +218,42 @@ def test_Seismic3D_velocity_type(survey):
         test.putdata((data, data_info,))
         # not while the volume is being written
         with pytest.raises(ValueError):
-            test.set_velocity_type('Vint')
+            test.set_velocity_type(VelocityType.Interval)
 
     test = Seismic3D(survey, 'pytest_vel')
     assert 'velocity_type' not in test.info()
     # without a unit the survey's default velocity unit applies
-    test.set_velocity_type('Vint')
+    test.set_velocity_type(VelocityType.Interval)
     info = Seismic3D(survey, 'pytest_vel').info()
     assert info['velocity_type'] == 'Vint'
     defunit = info['velocity_unit']
     assert defunit in ['m/s', 'ft/s']
 
-    test.set_velocity_type('Vint', 'km/s')
+    test.set_velocity_type(VelocityType.Interval, 'km/s')
     info = Seismic3D(survey, 'pytest_vel').info()
-    assert info['velocity_type'] == 'Vint'
+    assert info['velocity_type'] == VelocityType.Interval.value
     assert info['velocity_unit'] == 'km/s'
 
-    test.set_velocity_type('Vavg')
+    test.set_velocity_type(VelocityType.Avg)
     info = Seismic3D(survey, 'pytest_vel').info()
-    assert info['velocity_type'] == 'Vavg'
+    assert VelocityType(info['velocity_type']) == VelocityType.Avg
     assert info['velocity_unit'] == defunit
 
+    test.set_velocity_type(VelocityType.Eta)
+    info = Seismic3D(survey, 'pytest_vel').info()
+    assert info['velocity_type'] == 'Eta'
+    assert 'velocity_unit' not in info
+
+    with pytest.raises(TypeError):
+        test.set_velocity_type('Vint')
     with pytest.raises(ValueError):
-        test.set_velocity_type('Vfast')
+        test.set_velocity_type(VelocityType.Interval, 'm')
     with pytest.raises(ValueError):
-        test.set_velocity_type('Vint', 'm')
-    assert Seismic3D(survey, 'pytest_vel').info()['velocity_type'] == 'Vavg'
+        test.set_velocity_type(VelocityType.Delta, 'm/s')
+    assert Seismic3D(survey, 'pytest_vel').info()['velocity_type'] == 'Eta'
 
     # Unknown removes the tag
-    test.set_velocity_type('Unknown')
+    test.set_velocity_type(VelocityType.Unknown)
     info = Seismic3D(survey, 'pytest_vel').info()
     assert 'velocity_type' not in info
     assert 'velocity_unit' not in info

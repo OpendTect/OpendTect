@@ -62,8 +62,8 @@ public:
     void		putBlock(const float* data, const TrcKeyZSampling&);
     void		setBlockPars(const char* mergemode,
 				     const Geom::Point3D<float>&);
-    void		setVelocityType(const char* veltype,
-					const char* velunit);
+    void		setVelocityType(OD::VelocityType,
+					const char* velunit) override;
 
     void		getInfo(OD::JSON::Object&) const override;
     void		getPoints(OD::JSON::Array&, bool towgs) const override;

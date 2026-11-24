@@ -33,8 +33,6 @@ ________________________________________________________________________________
 #include "seistrc.h"
 #include "seisread.h"
 #include "seiswrite.h"
-#include "unitofmeasure.h"
-#include "veldesc.h"
 
 
 mDefineEnumUtils(odSeismic3D, Seis3DFormat, "Output format/translator")
@@ -386,49 +384,16 @@ void odSeismic3D::setBlockPars( const char* mergemode,
 }
 
 
-void odSeismic3D::setVelocityType( const char* veltype, const char* velunit )
+void odSeismic3D::setVelocityType( OD::VelocityType type,
+				   const char* velunit )
 {
-    errmsg_.setEmpty();
     if ( writer_ )
     {
 	errmsg_ = "close the volume before setting its velocity type";
 	return;
     }
 
-    PtrMan<IOObj> ioobj( ioobj_ptr() );
-    if ( !ioobj )
-	return;
-
-    OD::VelocityType type;
-    if ( !OD::parseEnum(veltype, type) )
-    {
-	errmsg_ = "invalid velocity type";
-	return;
-    }
-
-    VelocityDesc desc( type );
-    if ( velunit && *velunit )
-    {
-	const UnitOfMeasure* uom = UoMR().get( velunit );
-	if ( !desc.isVelocity() || !uom || uom->propType()!=Mnemonic::Vel )
-	{
-	    errmsg_ = "invalid velocity unit";
-	    return;
-	}
-
-	desc.setUnit( uom );
-    }
-
-    VelocityDesc olddesc;
-    if ( desc.isUdf() && !olddesc.usePar(ioobj->pars()) )
-	return;
-
-    VelocityDesc::removePars( ioobj->pars() );
-    if ( !desc.isUdf() )
-	desc.fillPar( ioobj->pars() );
-
-    if ( !IOM().commitChanges(*ioobj) )
-	errmsg_ = "cannot write the velocity type";
+    odSeismicObject::setVelocityType( type, velunit );
 }
 
 
@@ -510,13 +475,7 @@ void odSeismic3D::getInfo( OD::JSON::Object& jsobj ) const
     const BinID& step = tkz_.hsamp_.step_;
     jsobj.set( "inl_step", step.inl()*survey().si().inlDistance() );
     jsobj.set( "crl_step", step.crl()*survey().si().crlDistance() );
-    VelocityDesc veldesc;
-    if ( veldesc.usePar(ioobj->pars()) && !veldesc.isUdf() )
-    {
-	jsobj.set( "velocity_type", OD::toString(veldesc.type_) );
-	if ( veldesc.isVelocity() )
-	    jsobj.set( "velocity_unit", veldesc.getUnit()->getLabel() );
-    }
+    getVelocityInfo( jsobj, *ioobj );
 }
 
 
@@ -799,5 +758,12 @@ void seismic3d_setvelocitytype( hSeismic3D self, const char* veltype,
     if	( !p )
 	return;
 
-    p->setVelocityType( veltype, velunit );
+    OD::VelocityType type;
+    if ( !OD::parseEnum(veltype,type) )
+    {
+	p->setErrMsg( "invalid velocity type" );
+	return;
+    }
+
+    p->setVelocityType( type, velunit );
 }

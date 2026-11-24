@@ -20,7 +20,10 @@ ________________________________________________________________________________
 -*/
 #include "odseismic_object.h"
 
+#include "ioman.h"
 #include "seisioobjinfo.h"
+#include "unitofmeasure.h"
+#include "veldesc.h"
 
 
 odSeismicObject::odSeismicObject( const odSurvey& thesurvey, const char* name,
@@ -87,4 +90,55 @@ BufferStringSet* odSeismicObject::getCompNames() const
 }
 
 
+void odSeismicObject::setVelocityType( OD::VelocityType type,
+				       const char* velunit )
+{
+    errmsg_.setEmpty();
+    PtrMan<IOObj> ioobj( ioobj_ptr() );
+    if ( !ioobj )
+	return;
 
+    VelocityDesc desc( type );
+    const bool hasunit = velunit && *velunit;
+    if ( desc.isVelocity() )
+    {
+	const UnitOfMeasure* uom = hasunit ? UoMR().get( velunit )
+				: UnitOfMeasure::surveyDefVelUnit();
+	if ( !uom || uom->propType()!=Mnemonic::Vel )
+	{
+	    errmsg_ = "invalid velocity unit";
+	    return;
+	}
+
+	desc.setUnit( uom );
+    }
+    else if ( hasunit )
+    {
+	errmsg_ = "invalid velocity unit";
+	return;
+    }
+
+    VelocityDesc olddesc;
+    if ( desc.isUdf() && !olddesc.usePar(ioobj->pars()) )
+	return;
+
+    VelocityDesc::removePars( ioobj->pars() );
+    if ( !desc.isUdf() )
+	desc.fillPar( ioobj->pars() );
+
+    if ( !IOM().commitChanges(*ioobj) )
+	errmsg_ = "cannot write the velocity type";
+}
+
+
+void odSeismicObject::getVelocityInfo( OD::JSON::Object& jsobj,
+				       const IOObj& ioobj ) const
+{
+    VelocityDesc veldesc;
+    if ( !veldesc.usePar(ioobj.pars()) || veldesc.isUdf() )
+	return;
+
+    jsobj.set( "velocity_type", OD::toString(veldesc.type_) );
+    if ( veldesc.hasVelocityUnit() )
+	jsobj.set( "velocity_unit", veldesc.getUnit()->getLabel() );
+}
