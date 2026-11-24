@@ -110,8 +110,6 @@ bool isVSGAvailable()
 
 bool useVSGDefaultScene()
 {
-	// Only use VSG as the default scene if the environment variable is set
-	// and the VSG plugin is available
 	return GetEnvVarYN( "OD_VSG_DEFAULT_SCENE" ) && isVSGAvailable();
 }
 
@@ -285,7 +283,7 @@ void* uiVisPartServer::getVSGFunction( const char* fnnm ) const
 {
     if ( !isVSGAvailable() )
     {
-	uiMSG().error( tr("The VSG viewer plugin is not loaded") );
+	uiMSG().error( tr("The VSG viewer module is not loaded") );
 	return nullptr;
     }
 
