@@ -836,9 +836,6 @@ bool initModule( const char* odbindfnm )
 
 void exitModule()
 {
-    if ( IOMan::isOK() )
-	IOM().applicationClosing.trigger();
-
     CloseBindings();
 }
 
