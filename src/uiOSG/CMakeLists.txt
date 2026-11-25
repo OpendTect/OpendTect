@@ -15,6 +15,7 @@ set( OD_MODULE_SOURCES
 	keybindings.cc
 	odfontimplementation.cc
 	ui3dviewer.cc
+	ui3dviewerbase.cc
 	uiglinfo.cc
 	uiosgfont.cc
 	uiprintscenedlg.cc

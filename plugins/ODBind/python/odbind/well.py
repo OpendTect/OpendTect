@@ -13,6 +13,10 @@ class Well(_SurveyObject):
     @classmethod
     def _initbindings(clss, bindnm):
         clss._initbasebindings(bindnm)
+        clss._newout = wrap_function(LIBODB, f'{bindnm}_newout', ct.c_void_p,
+                                     [ct.c_void_p, ct.c_char_p, ct.c_double,
+                                      ct.c_double, ct.c_float, ct.c_float,
+                                      ct.c_bool])
         clss._lognames = wrap_function(LIBODB, f'{bindnm}_lognames', ct.c_void_p, [ct.c_void_p])
         clss._loginfo = wrap_function(LIBODB, f'{bindnm}_loginfo', ct.POINTER(ct.c_char_p), [ct.c_void_p, ct.c_void_p])
         clss._markernames = wrap_function(LIBODB, f'{bindnm}_markernames', ct.c_void_p, [ct.c_void_p])
@@ -37,6 +41,54 @@ class Well(_SurveyObject):
         clss._tvd = wrap_function(LIBODB, f'{bindnm}_tvd', None, [ct.c_void_p, ct.c_float, ct.POINTER(ct.c_float)])
         clss._commonmarkernames = wrap_function(LIBODB, f'{bindnm}_commonmarkernames', ct.c_void_p, [ct.c_void_p, ct.c_void_p])
         clss._commonlognames = wrap_function(LIBODB, f'{bindnm}_commonlognames', ct.c_void_p, [ct.c_void_p, ct.c_void_p])
+
+    @classmethod
+    def create(clss, survey: Survey, name: str, surfacecoord_x: float,
+               surfacecoord_y: float, kbelev: float, td: float,
+               overwrite: bool=False):
+        """Create a new OpendTect well object
+
+        Parameters
+        ----------
+        survey : Survey
+            An OpendTect survey object
+        name : str
+            OpendTect well name
+        surfacecoord_x : float
+            X coordinate of the well surface location
+        surfacecoord_y : float
+            Y coordinate of the well surface location
+        kbelev : float
+            Elevation of the Kelly Bushing, in the survey's default depth unit
+        td : float
+            Total depth (MD) of the well, in the survey's default depth unit
+        overwrite : bool=False
+            Flag to indicate if the new well can replace an existing well
+            of the same name
+
+        Returns
+        -------
+        A Well object with a simple vertical track from KB to TD
+
+        """
+
+        newwell = clss.__new__(clss)
+        newwell._survey = survey
+        newwell._handle = clss._newout(survey._handle, name.encode(),
+                                       surfacecoord_x, surfacecoord_y,
+                                       kbelev, td, overwrite)
+        if not newwell._handle or not survey.isok:
+            raise TypeError(survey.errmsg)
+        elif not newwell.isok:
+            raise TypeError(newwell.errmsg)
+
+        return newwell
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, type, value, traceback):
+        pass
 
     @property
     def log_names(self) ->list[str]:

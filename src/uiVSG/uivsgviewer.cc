@@ -16,7 +16,6 @@ ________________________________________________________________________
 
 #include "uifont.h"
 #include "uimsg.h"
-#include "uimainwin.h"
 #include "uivsgwindow.h"
 #include "uivsgwindowhandler.h"
 
@@ -32,8 +31,6 @@ ________________________________________________________________________
 #include "vsggeothumbwheel.h"
 #include "vsggeotrackball.h"
 
-#include <QMdiArea>
-#include <QMdiSubWindow>
 #include <QImage>
 
 #include <cmath>
@@ -620,8 +617,7 @@ void uiVSGViewer::ColTabLink::changedCB( CallBacker* )
 
 
 uiVSGViewer::uiVSGViewer( uiParent* parent, const char* nm )
-    : uiObject(parent,nm,mkBody(parent,nm))
-    , closing(this)
+    : ui3DViewerBase(parent,nm,mkBody(parent,nm))
 {
     setMinimumWidth( 600 );
     setMinimumHeight( 400 );
@@ -639,8 +635,8 @@ uiVSGViewer::uiVSGViewer( uiParent* parent, const char* nm )
 
 uiObjectBody& uiVSGViewer::mkBody( uiParent* parent, const char* nm )
 {
-    window_ = new dGBVSGWindow( *this, parent, nm, cRenderTimeMs );
-    return window_->body();
+    window_ = new dGBVSGWindow( parent, *this, nm, cRenderTimeMs );
+    return *window_;
 }
 
 
@@ -660,8 +656,6 @@ void uiVSGViewer::windowResizedCB( CallBacker* )
 uiVSGViewer::~uiVSGViewer()
 {
     detachAllNotifiers();
-    if ( scene_ )
-	closing.trigger( scene_->getID() );
 
     boundswatch_ = nullptr;
     wheellink_ = nullptr;
@@ -711,9 +705,21 @@ uiVSGViewer::~uiVSGViewer()
 }
 
 
-ODVsg::Scene* uiVSGViewer::scene()
+ODVsg::Scene* uiVSGViewer::getScene()
 {
     return scene_.ptr();
+}
+
+
+const ODVsg::Scene* uiVSGViewer::getScene() const
+{
+    return const_cast<uiVSGViewer*>(this)->getScene();
+}
+
+
+SceneID uiVSGViewer::sceneID() const
+{
+    return scene_ ? scene_->getID() : SceneID::udf();
 }
 
 
@@ -740,6 +746,44 @@ void uiVSGViewer::setViewMode( bool yn )
 bool uiVSGViewer::isViewMode() const
 {
     return windowhandler_ ? windowhandler_->isViewMode() : true;
+}
+
+
+void uiVSGViewer::viewPlane( PlaneType )
+{}
+
+
+void uiVSGViewer::align()
+{}
+
+
+void uiVSGViewer::viewAll( bool )
+{}
+
+
+void uiVSGViewer::setStartupView()
+{}
+
+
+void uiVSGViewer::toHomePos()
+{}
+
+
+void uiVSGViewer::saveHomePos()
+{}
+
+
+void uiVSGViewer::resetHomePos()
+{}
+
+
+void uiVSGViewer::toggleCameraType()
+{}
+
+
+bool uiVSGViewer::isCameraPerspective() const
+{
+    return true;
 }
 
 
@@ -1032,7 +1076,7 @@ void uiVSGViewer::showRotAxis( bool yn )
 }
 
 
-bool uiVSGViewer::isAxisShown() const
+bool uiVSGViewer::rotAxisShown() const
 {
     return axes_ && axes_->isOn();
 }
@@ -1652,44 +1696,14 @@ mExternC(uiVSG) visSurvey::Scene* createVSGScene()
 }
 
 
-mExternC(uiVSG) QWidget* createVSGViewer( uiParent* parent,visSurvey::Scene*,bool,
-					  const char*,NotifierAccess** );
+mExternC(uiVSG) ui3DViewerBase* createVSGViewer( uiParent* parent,
+					visSurvey::Scene*,const char* );
 
-mExternC(uiVSG) QWidget* createVSGViewer( uiParent* parent,
-    visSurvey::Scene* scene,
-    bool maximized, const char* title,
-    NotifierAccess** closing )
+mExternC(uiVSG) ui3DViewerBase* createVSGViewer( uiParent* parent,
+    visSurvey::Scene* scene, const char* title )
 {
     const char* nm = ( title && *title ) ? title : "VSG Viewer";
     auto* viewer = new uiVSGViewer( parent, nm );
     viewer->setScene( dCast(ODVsg::Scene*, scene) );
-    if ( closing )
-	*closing = &viewer->closing;
-
-    QWidget* widget = viewer->qwidget();
-    mDynamicCastGet( uiMainWin*,mainwin,parent );
-    QWidget* mainwidget = mainwin ? mainwin->qWidget() : nullptr;
-    QMdiArea* mdiarea = mainwidget ? mainwidget->findChild<QMdiArea*>() : nullptr;
-    if ( !mdiarea )
-    {
-	if (maximized)
-	    widget->showMaximized();
-	else
-	    widget->show();
-
-	return widget;
-    }
-
-    QMdiSubWindow* subwin = mdiarea->addSubWindow( widget );
-    subwin->setAttribute( Qt::WA_DeleteOnClose );
-    subwin->setWindowTitle( nm );
-    subwin->resize( 800, 600 );
-    mdiarea->setActiveSubWindow( subwin );
-
-    if ( maximized )
-	subwin->showMaximized();
-    else
-	subwin->show();
-
-    return widget;
+    return viewer;
 }

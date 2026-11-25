@@ -40,6 +40,9 @@ public:
     enum SampleMode { Upscale, Sample };
     enum ZMode { MD, TVD, TVDSS, TWT };
     odWell( const odSurvey& thesurvey, const char* name );
+    odWell( const odSurvey& thesurvey, const char* name,
+	    double surfacecoord_x, double surfacecoord_y,
+	    float kbelev, float td, bool overwrite );
 
     const Well::Data*	wd() const;
 
@@ -86,6 +89,9 @@ protected:
 mDeclareBaseBindings(Well, well)
 mDeclareRemoveBindings(Well, well)
 
+mExternC(ODBind) hWell	well_newout(hSurvey, const char* name,
+				    double x, double y,
+				    float kbelev, float td, bool overwrite);
 mExternC(ODBind) hStringSet	well_lognames(hWell);
 mExternC(ODBind) const char*	well_loginfo(hWell, const hStringSet);
 mExternC(ODBind) hStringSet	well_markernames(hWell);

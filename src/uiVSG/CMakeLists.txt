@@ -7,7 +7,6 @@
 
 set( OD_MODULE_DEPS uiOSG vsgSurvey vsgBase )
 set( OD_FOLDER "Visualization (3D)" )
-set( OD_IS_PLUGIN yes )
 set( OD_USEQT Widgets;OpenGL;GuiPrivate )
 set( OD_MODULE_SOURCES
 	uivsgcoltabdlg.cc
@@ -16,14 +15,13 @@ set( OD_MODULE_SOURCES
 	uivsgwindowhandler.cc
 	uivsgscenesettingsdlg.cc
 	uivsgscreenshotdlg.cc
-	uivsgpi.cc
+	inituivsg.cc
 	uivsgwindow.cc
 	vsgviewer.cc
 )
 if ( WIN32 OR TARGET vsgXchange::vsgXchange )
     set( OD_MODULE_PROGS od_vsgtestapp.cc )
 endif()
-set( OD_PLUGIN_ALO_EXEC ${OD_MAIN_EXEC} )
 
 OD_USE_VSG()
 

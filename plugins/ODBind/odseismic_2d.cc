@@ -349,6 +349,7 @@ void odSeismic2D::getInfo( OD::JSON::Object& jsobj ) const
     jsobj.set( "zunit", zdef.unitStr() );
     jsobj.set( "comp_count", getNrComponents() );
     jsobj.set( "storage_dtype", getDtypeStr(seisinfo).buf() );
+    getVelocityInfo( jsobj, *ioobj );
 }
 
 
@@ -513,4 +514,22 @@ hStringSet seismic2d_names_for( hSurvey survey, const char* line )
     if ( !p || !line ) return nullptr;
 
     return odSeismic2D::namesForLine( *p, line );
+}
+
+
+void seismic2d_setvelocitytype( hSeismic2D self, const char* veltype,
+				const char* velunit )
+{
+    auto* p = static_cast<odSeismic2D*>(self);
+    if	( !p )
+	return;
+
+    OD::VelocityType type;
+    if ( !OD::parseEnum(veltype,type) )
+    {
+	p->setErrMsg( "invalid velocity type" );
+	return;
+    }
+
+    p->setVelocityType( type, velunit );
 }

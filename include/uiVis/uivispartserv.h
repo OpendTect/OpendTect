@@ -35,6 +35,7 @@ class TaskRunner;
 class ZAxisTransform;
 class uiMPEMan;
 class uiMultiMapperRangeEditWin;
+class ui3DViewerBase;
 class uiSlicePos3DDisp;
 class uiSurvTopBotImageDlg;
 class uiToolBar;
@@ -107,8 +108,10 @@ public:
 			/*!<Adds a scene. The argument is only used internally.
 			    Don't use the argument when calling from outside.
 			*/
-    SceneID		addVSGScene(bool maximized,
-			const uiString& nm=uiString::empty());
+    SceneID		addVSGScene(const uiString& nm=uiString::empty());
+			/*!<Creates and registers the scene, no viewer */
+    ui3DViewerBase*	createVSGViewer(const SceneID&,uiParent*,
+					const uiString& nm);
 
     void		removeScene(const SceneID&);
     int			nrScenes() const;
@@ -506,11 +509,7 @@ protected:
     SelectionMode		selectionmode_			= Polygon;
 
     void*			getVSGFunction(const char* fnnm) const;
-    bool			createVSGViewer(const SceneID&,bool maximized,
-						const uiString& nm,
-						NotifierAccess** closing=nullptr);
-			
-    void 			vsgViewerClosedCB(CallBacker*);
+
     void			mouseCursorCB(CallBacker*);
     void			rightClickCB(CallBacker*);
     void			selectObjCB(CallBacker*);

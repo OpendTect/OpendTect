@@ -89,7 +89,7 @@ public:
     BufferString	curDirName() const;	//!< OS dir name
     const SurveyDiskLocation& rootDir() const		{ return rootdir_; }
 			//!< Full path to the root of the current project
-    bool		isKey(const char* keystr) const;
+    static bool		isKey(const char* keystr);
     const char*		nameOf(const char* keystr) const;
 			//!< if keystr is not an IOObj key, will return keystr
     const char*		nameOf(const MultiID&) const;

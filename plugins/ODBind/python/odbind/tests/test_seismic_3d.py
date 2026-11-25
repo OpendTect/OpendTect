@@ -5,6 +5,7 @@ import numpy as np
 import random
 import xarray as xr
 from odbind.seismic3d import Seismic3D
+from odbind.common_enums import VelocityType
 
 def make_data_volume(survey):
     si = survey.info()
@@ -206,3 +207,57 @@ def test_Seismic3D_class(survey):
     Seismic3D.delete(survey, ['pytest', 'pytest_create'])
     assert 'pytest' not in Seismic3D.names(survey)
     assert 'pytest_create' not in Seismic3D.names(survey)
+
+def test_Seismic3D_velocity_type(survey):
+    si = survey.info()
+    data, data_info = make_data_volume(survey)
+    inlrg = data_info['iline']
+    crlrg = data_info['xline']
+    zrg = data_info[si['zdomain']]
+    zistime = si['zdomain']=='twt'
+    with Seismic3D.create(survey, 'pytest_vel', inlrg, crlrg, zrg, data_info['comp'], 'CBVS', zistime, True) as test:
+        test.putdata((data, data_info,))
+        # not while the volume is being written
+        with pytest.raises(ValueError):
+            test.set_velocity_type(VelocityType.Interval)
+
+    test = Seismic3D(survey, 'pytest_vel')
+    assert 'velocity_type' not in test.info()
+    # without a unit the survey's default velocity unit applies
+    test.set_velocity_type(VelocityType.Interval)
+    info = Seismic3D(survey, 'pytest_vel').info()
+    assert info['velocity_type'] == 'Vint'
+    defunit = info['velocity_unit']
+    assert defunit in ['m/s', 'ft/s']
+
+    test.set_velocity_type(VelocityType.Interval, 'km/s')
+    info = Seismic3D(survey, 'pytest_vel').info()
+    assert info['velocity_type'] == VelocityType.Interval.value
+    assert info['velocity_unit'] == 'km/s'
+
+    test.set_velocity_type(VelocityType.Avg)
+    info = Seismic3D(survey, 'pytest_vel').info()
+    assert VelocityType(info['velocity_type']) == VelocityType.Avg
+    assert info['velocity_unit'] == defunit
+
+    test.set_velocity_type(VelocityType.Eta)
+    info = Seismic3D(survey, 'pytest_vel').info()
+    assert info['velocity_type'] == 'Eta'
+    assert 'velocity_unit' not in info
+
+    with pytest.raises(TypeError):
+        test.set_velocity_type('Vint')
+    with pytest.raises(ValueError):
+        test.set_velocity_type(VelocityType.Interval, 'm')
+    with pytest.raises(ValueError):
+        test.set_velocity_type(VelocityType.Delta, 'm/s')
+    assert Seismic3D(survey, 'pytest_vel').info()['velocity_type'] == 'Eta'
+
+    # Unknown removes the tag
+    test.set_velocity_type(VelocityType.Unknown)
+    info = Seismic3D(survey, 'pytest_vel').info()
+    assert 'velocity_type' not in info
+    assert 'velocity_unit' not in info
+
+    Seismic3D.delete(survey, ['pytest_vel'])
+    assert 'pytest_vel' not in Seismic3D.names(survey)

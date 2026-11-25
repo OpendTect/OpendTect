@@ -55,6 +55,10 @@ public:
 
     SceneID			addDefaultScene();
 
+    SceneID			addVSGScene(bool maximized,
+					const uiString& nm=uiString::empty());
+				/*!<Creates scene, window, viewer and tree */
+
     void			setSceneName(const SceneID&,const uiString&);
     uiString			getSceneName(const SceneID&) const;
     CNotifier<uiODSceneMgr,SceneID> sceneClosed;
@@ -222,34 +226,60 @@ protected:
     inline uiODApplMgr&		applMgr()	{ return appl_.applMgr(); }
     inline uiVisPartServer&	visServ()     { return *applMgr().visServer(); }
 
-    mExpClass(uiODMain) Scene
+    mExpClass(uiODMain) SceneBundle
     {
     public:
-				Scene(uiMdiArea*);
-				~Scene();
+	virtual			~SceneBundle();
 
-	uiDockWin*		dw_;
-	uiTreeView*		lv_;
-	uiMdiAreaWindow*	mdiwin_;
-	ui3DViewer*		vwr3d_;
-	uiODTreeTop*		itemmanager_;
+	SceneID			sceneID() const;
+	virtual bool		isVSG() const			= 0;
+
+	void			setName(const uiString&);
+	void			raiseTree();
+	void			showTree(bool yn);
+	void			setTreeSensitive(bool yn);
+
+	ui3DViewerBase*		vwr3d_		= nullptr;
+	uiDockWin*		dw_		= nullptr;
+	uiTreeView*		lv_		= nullptr;
+	uiMdiAreaWindow*	mdiwin_		= nullptr;
+	uiODTreeTop*		itemmanager_	= nullptr;
     };
 
-    ObjectSet<Scene>		scenes_;
-    Scene&			mkNewScene();
-    void			removeScene(Scene& scene);
+    mExpClass(uiODMain) OSGSceneBundle : public SceneBundle
+    {
+    public:
+				OSGSceneBundle(uiMdiArea*);
+
+	bool			isVSG() const override	{ return false; }
+    };
+
+    mExpClass(uiODMain) VSGSceneBundle : public SceneBundle
+    {
+    public:
+				VSGSceneBundle(uiMdiArea*);
+
+	bool			isVSG() const override	{ return true; }
+    };
+
+    ObjectSet<SceneBundle>	scenes_;
+    SceneBundle&		mkNewScene(bool vsg=false);
+    void			removeScene(SceneBundle&);
     void			removeSceneCB(CallBacker*);
-    void			initTree(Scene&,int);
-    Scene*			getScene(const SceneID&);
-    const Scene*		getScene(const SceneID&) const;
+    void			initTree(SceneBundle&,int);
+    void			createTreeDock(SceneBundle&,const uiString&);
+    void			getFactoryIdxs(TypeSet<int>&) const;
+    void			tabifyTree(SceneBundle&);
+    SceneBundle*		getScene(const SceneID&);
+    const SceneBundle*		getScene(const SceneID&) const;
     void			newSceneUpdated(CallBacker*);
-    void			gtLoadedEMIDs(const Scene*,
+    void			gtLoadedEMIDs(const SceneBundle*,
 					      TypeSet<EM::ObjectID>&,
 					      const char* emtypestr) const;
     void			gtLoadedEMIDs(const uiTreeItem*,
 					      TypeSet<EM::ObjectID>&,
 					      const char* emtypestr) const;
-    void			gtLoadedPickSetIDs(const Scene&,
+    void			gtLoadedPickSetIDs(const SceneBundle&,
 				    TypeSet<MultiID>&, bool poly) const;
     void			gtLoadedPickSetIDs(const uiTreeItem&,
 				    TypeSet<MultiID>&,bool poly) const;

@@ -384,6 +384,19 @@ void odSeismic3D::setBlockPars( const char* mergemode,
 }
 
 
+void odSeismic3D::setVelocityType( OD::VelocityType type,
+				   const char* velunit )
+{
+    if ( writer_ )
+    {
+	errmsg_ = "close the volume before setting its velocity type";
+	return;
+    }
+
+    odSeismicObject::setVelocityType( type, velunit );
+}
+
+
 void odSeismic3D::putBlock( const float* data, const TrcKeyZSampling& tkz )
 {
     errmsg_.setEmpty();
@@ -462,6 +475,7 @@ void odSeismic3D::getInfo( OD::JSON::Object& jsobj ) const
     const BinID& step = tkz_.hsamp_.step_;
     jsobj.set( "inl_step", step.inl()*survey().si().inlDistance() );
     jsobj.set( "crl_step", step.crl()*survey().si().crlDistance() );
+    getVelocityInfo( jsobj, *ioobj );
 }
 
 
@@ -737,3 +751,19 @@ void seismic3d_setblockpars( hSeismic3D self, const char* mergemode,
 }
 
 
+void seismic3d_setvelocitytype( hSeismic3D self, const char* veltype,
+				const char* velunit )
+{
+    auto* p = static_cast<odSeismic3D*>(self);
+    if	( !p )
+	return;
+
+    OD::VelocityType type;
+    if ( !OD::parseEnum(veltype,type) )
+    {
+	p->setErrMsg( "invalid velocity type" );
+	return;
+    }
+
+    p->setVelocityType( type, velunit );
+}

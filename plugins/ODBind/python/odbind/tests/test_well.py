@@ -23,7 +23,8 @@ def test_Well_class(survey):
                 'kb': 34.1,
                 'td': 2048,
                 'replacement_velocity': 2000,
-                'ground_elevation': 1e+30
+                'ground_elevation': 1e+30,
+                'd2tmodel_count': 1
             }
     wellinfo = well.info()
     assert info == pytest_helper.approx(wellinfo, rel=0.001)
@@ -113,6 +114,50 @@ def test_Well_class(survey):
 
     well.delete_logs(['pytest'])
     assert 'pytest' not in well.log_names
+
+def test_Well_create(survey):
+    name = 'pytest_well_create'
+    if name in Well.names(survey):
+        Well.delete(survey, [name])
+
+    x, y = survey.coords(survey.inlrange[0], survey.crlrange[0])
+    kbelev, td = 25.0, 1000.0
+
+    try:
+        with Well.create(survey, name, x, y, kbelev, td) as well:
+            assert name in Well.names(survey)
+            info = well.info()
+            assert info['name'] == name
+            assert info['x'] == pytest.approx(x)
+            assert info['y'] == pytest.approx(y)
+            assert info['kb'] == pytest.approx(kbelev)
+            assert info['td'] == pytest.approx(td)
+            track = well.track()
+            assert track['dah'][0] == pytest.approx(0.0)
+            assert track['dah'][-1] == pytest.approx(td)
+            assert track['tvdss'][0] == pytest.approx(-kbelev)
+            assert info['d2tmodel_count'] == 1
+
+            dep = np.array([0.0, 500.0], dtype=np.float32)
+            well.put_log('pytest', dep, np.array([1.0, 2.0], dtype=np.float32))
+            well.put_markers(['pytest'], np.array([500.0], dtype=np.float32))
+            assert 'pytest' in well.log_names
+            assert 'pytest' in well.marker_names
+
+        with pytest.raises(TypeError):
+            Well.create(survey, name, x, y, kbelev, td)
+
+        with Well.create(survey, name, x+10.0, y+10.0, 50.0, 2000.0, True) as well:
+            info = well.info()
+            assert info['x'] == pytest.approx(x+10.0)
+            assert info['kb'] == pytest.approx(50.0)
+            assert info['td'] == pytest.approx(2000.0)
+            assert well.track()['dah'][-1] == pytest.approx(2000.0)
+    finally:
+        if name in Well.names(survey):
+            Well.delete(survey, [name])
+
+    assert name not in Well.names(survey)
 
 def test_Well_log(survey):
     well = Well(survey, 'F03-4')

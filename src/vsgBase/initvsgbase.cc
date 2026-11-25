@@ -9,21 +9,12 @@ ________________________________________________________________________
 
 #include "vsgbasemod.h"
 
-#include "odplugin.h"
+#include "moddepmgr.h"
 #include "visvsgdataman.h"
 
 
-mDefODPluginInfo(vsgBase)
+mDefModInitFn(vsgBase)
 {
-    static PluginInfo retpi(
-	"VSG Viewer (Base)",
-	"The base classes of the Vulkan (VSG) 3D viewer." );
-    return &retpi;
-}
-
-
-mDefODInitPlugin(vsgBase)
-{
+    mIfNotFirstTime( return );
     ODVsg::initStdClasses();
-    return nullptr;
 }
