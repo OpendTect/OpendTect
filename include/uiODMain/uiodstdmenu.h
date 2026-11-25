@@ -41,6 +41,7 @@ ________________________________________________________________________
 #define mCurrSurvUpdItm		(mFileMnu + 25)
 #define mSessSaveMnuItm		(mFileSessMnu + 10)
 #define mSessRestMnuItm		(mFileSessMnu + 20)
+#define mSessAutoSaveMnuItm	(mFileSessMnu + 25)
 #define mSessAutoMnuItm		(mFileSessMnu + 30)
 
 #define mImpAttrMnuItm		(mFileImpMnu + 5)

@@ -100,7 +100,6 @@ uiODSceneMgr::uiODSceneMgr( uiODMain* a )
     , activeSceneChanged(this)
     , appl_(*a)
     , mdiarea_(new uiMdiArea(a,"OpendTect work space"))
-    , vwridx_(0)
     , tifs_(new uiTreeFactorySet)
     , wingrabber_(new uiWindowGrabber(a))
     , tiletimer_(new Timer)
@@ -206,14 +205,20 @@ uiODSceneMgr::SceneBundle& uiODSceneMgr::mkNewScene( bool vsg )
     else
 	scn = new uiODSceneMgr::OSGSceneBundle( mdiarea_ );
 
+    scenes_ += scn;
+    if ( !scn->mdiwin_ )
+    {
+	pErrMsg( "Failed to create scene window" );
+	return *scn;
+    }
+
     mAttachCB( scn->mdiwin_->closed(), uiODSceneMgr::removeSceneCB );
     mAttachCB( scn->mdiwin_->windowShown(), uiODSceneMgr::mdiAreaChanged );
     mAttachCB( scn->mdiwin_->windowHidden(), uiODSceneMgr::mdiAreaChanged );
-    scenes_ += scn;
     vwridx_++;
     if ( scn->vwr3d_ )
     {
-	BufferString vwrnm( "Viewer Scene ", vwridx_ );
+	const BufferString vwrnm( "Viewer Scene ", vwridx_ );
 	scn->vwr3d_->setName( vwrnm );
     }
 
@@ -253,10 +258,10 @@ SceneID uiODSceneMgr::addScene( bool maximized, ZAxisTransform* zt,
     scn->vwr3d_->display( true );
     scn->vwr3d_->setAnnotationFont( visscene ? visscene->getAnnotFont()
 					    : FontData() );
-    mAttachCB( vwr3d->viewmodechanged, uiODSceneMgr::viewModeChg );
-    mAttachCB( vwr3d->pageupdown, uiODSceneMgr::pageUpDownPressed );
+    mAttachCB( vwr3d->viewmodechanged, uiODSceneMgr::viewModeChgCB );
+    mAttachCB( vwr3d->pageupdown, uiODSceneMgr::pageUpDownPressedCB );
     scn->mdiwin_->display( true, false, maximized );
-    actMode(0);
+    actModeCB( nullptr );
     treeToBeAdded.trigger( sceneid );
     initTree( *scn, vwridx_ );
     treeAdded.trigger( sceneid );
@@ -505,7 +510,9 @@ void uiODSceneMgr::useScenePars( const IOPar& sessionpar )
 	PtrMan<IOPar> scenepar = sessionpar.subselect( toString(idx) );
 	if ( !scenepar || !scenepar->size() )
 	{
-	    if ( !idx ) continue;
+	    if ( !idx )
+		continue;
+
 	    break;
 	}
 
@@ -526,6 +533,7 @@ void uiODSceneMgr::useScenePars( const IOPar& sessionpar )
 	{
 	    if ( vwr3d->getPolygonSelector() )
 		visscene->setPolygonSelector( vwr3d->getPolygonSelector() );
+
 	    if ( vwr3d->getSceneColTab() )
 		visscene->setSceneColTab( vwr3d->getSceneColTab() );
 	}
@@ -536,8 +544,8 @@ void uiODSceneMgr::useScenePars( const IOPar& sessionpar )
 	uiString scenenm = visscene->uiName();
 	if ( scenenm.isEmpty() )
 	{
-	    scenenm = uiStrings::phrJoinStrings(
-				    uiStrings::sScene(), toUiString(vwridx_) );
+	    scenenm = uiStrings::phrJoinStrings( uiStrings::sScene(),
+						 toUiString(vwridx_) );
 	    visServ().setSceneName( sceneid, scenenm );
 	}
 
@@ -545,8 +553,8 @@ void uiODSceneMgr::useScenePars( const IOPar& sessionpar )
 
 	scn->vwr3d_->display( true );
 	scn->vwr3d_->showRotAxis( true );
-	mAttachCB( vwr3d->viewmodechanged, uiODSceneMgr::viewModeChg );
-	mAttachCB( vwr3d->pageupdown, uiODSceneMgr::pageUpDownPressed );
+	mAttachCB( vwr3d->viewmodechanged, uiODSceneMgr::viewModeChgCB );
+	mAttachCB( vwr3d->pageupdown, uiODSceneMgr::pageUpDownPressedCB );
 	scn->mdiwin_->display( true, false );
 
 	treeToBeAdded.trigger( sceneid );
@@ -564,7 +572,6 @@ void uiODSceneMgr::useScenePars( const IOPar& sessionpar )
     }
 
     rebuildTrees();
-
 }
 
 
@@ -583,7 +590,8 @@ void uiODSceneMgr::setSceneProperties()
     {
 	const SceneID sceneid = askSelectScene();
 	const ui3DViewer* vwr = get3DViewer( sceneid );
-	if ( !vwr ) return;
+	if ( !vwr )
+	    return;
 
 	curvwridx = vwrs.indexOf( vwr );
     }
@@ -593,10 +601,14 @@ void uiODSceneMgr::setSceneProperties()
 }
 
 
-void uiODSceneMgr::viewModeChg( CallBacker* cb )
+void uiODSceneMgr::viewModeChgCB( CallBacker* cb )
 {
+    if ( scenes_.isEmpty() )
+	return;
+
     mDynamicCastGet(ui3DViewer*,vwr3d_,cb)
-    if ( vwr3d_ ) setToViewMode( vwr3d_->isViewMode() );
+    if ( vwr3d_ )
+	setToViewMode( vwr3d_->isViewMode() );
 }
 
 
@@ -605,6 +617,7 @@ void uiODSceneMgr::setToViewMode( bool yn )
     for ( auto* bundle : scenes_ )
 	if ( bundle->vwr3d_ )
 	    bundle->vwr3d_->setViewMode( yn );
+
     visServ().setViewMode( yn , false );
     if ( appl_.menuMgrAvailable() )
 	appl_.menuMgr().updateViewMode( yn );
@@ -626,11 +639,12 @@ bool uiODSceneMgr::inViewMode() const
 
 void uiODSceneMgr::setToWorkMode( uiVisPartServer::WorkMode wm )
 {
-    bool yn = ( wm == uiVisPartServer::View ) ? true : false;
+    const bool yn = wm==uiVisPartServer::View;
 
     for ( auto* bundle : scenes_ )
 	if ( bundle->vwr3d_ )
 	    bundle->vwr3d_->setViewMode( yn );
+
     if ( appl_.menuMgrAvailable() )
 	appl_.menuMgr().updateViewMode( yn );
 
@@ -639,19 +653,19 @@ void uiODSceneMgr::setToWorkMode( uiVisPartServer::WorkMode wm )
 }
 
 
-void uiODSceneMgr::actMode( CallBacker* )
+void uiODSceneMgr::actModeCB( CallBacker* )
 {
     setToWorkMode( uiVisPartServer::Interactive );
 }
 
 
-void uiODSceneMgr::viewMode( CallBacker* )
+void uiODSceneMgr::viewModeCB( CallBacker* )
 {
     setToWorkMode( uiVisPartServer::View );
 }
 
 
-void uiODSceneMgr::pageUpDownPressed( CallBacker* cb )
+void uiODSceneMgr::pageUpDownPressedCB( CallBacker* cb )
 {
     mCBCapsuleUnpack(bool,up,cb);
     applMgr().pageUpDownPressed( up );
@@ -660,7 +674,9 @@ void uiODSceneMgr::pageUpDownPressed( CallBacker* cb )
 
 void uiODSceneMgr::resetStatusBar( const VisID& id )
 {
-    appl_.statusBar()->message( uiString::emptyString(), mPosField );
+    if ( !appl_.hasTransientStatusMsg() )
+	appl_.statusBar()->message( uiString::emptyString(), mPosField );
+
     appl_.statusBar()->message( uiString::emptyString(), mValueField );
     appl_.statusBar()->message(mToUiStringTodo(visServ().getInteractionMsg(id)),
 			       mNameField );
@@ -693,13 +709,14 @@ void uiODSceneMgr::updateStatusBar()
 	const Coord3 crd( xytpos, xytpos.z_ * zfact );
 	const int nrxydec = SI().nrXYDecimals();
 	const int nrzdec = displayzdom.nrDecimals( mUdf(float) );
-        const BinID bid( SI().transform( Coord(xytpos.x_,xytpos.y_) ) );
+	const BinID bid( SI().transform( Coord(xytpos.x_,xytpos.y_) ) );
 	msg = toUiString("%1	%2")
 			    .arg( bid )
 			    .arg( toUiString(crd,nrxydec,nrzdec) );
     }
 
-    appl_.statusBar()->message( msg, mPosField );
+    if ( !appl_.hasTransientStatusMsg() )
+	appl_.statusBar()->message( msg, mPosField );
 
     const BufferString valstr = visServ().getMousePosVal();
     if ( haspos )
@@ -761,15 +778,16 @@ void uiODSceneMgr::setStereoType( int type )
 	break;
     }
 
-    if ( !firstscene ) return;
+    if ( !firstscene )
+	return;
 
     if ( type )
     {
 	if ( !Settings::common().isFalse(sKeyWarnStereo) )
 	{
-	    bool wantmsg = uiMSG().showMsgNextTime(
-		tr("Stereo viewing is not officially supported."
-		"\nIt may not work well for your particular graphics setup.") );
+	    const bool wantmsg = uiMSG().showMsgNextTime(
+		tr("Stereo viewing is not officially supported.\n"
+		   "It may not work well for your particular graphics setup."));
 	    if ( !wantmsg )
 	    {
 		Settings::common().setYN( sKeyWarnStereo, false );
@@ -792,6 +810,7 @@ void uiODSceneMgr::setStereoType( int type )
 	    uiMSG().error( tr("No support for this type of stereo rendering") );
 	    return;
 	}
+
 	if ( type )
 	    vwr3d_.setStereoOffset( stereooffset );
     }
@@ -868,6 +887,7 @@ void uiODSceneMgr::showRotAxis( CallBacker* cb )
     for ( auto* bundle : scenes_ )
 	if ( bundle->vwr3d_ )
 	    bundle->vwr3d_->showRotAxis( show );
+
     int idx = 0;
     for ( auto* bundle : scenes_ )
     {
@@ -922,7 +942,8 @@ void uiODSceneMgr::mkSnapshot( CallBacker* )
 
 	ObjectSet<ui3DViewer> viewers;
 	get3DViewers( viewers );
-	if ( viewers.size() == 0 ) return;
+	if ( viewers.size() == 0 )
+	    return;
 
 	uiPrintSceneDlg printdlg( &appl_, viewers );
 	printdlg.go();
@@ -1013,14 +1034,14 @@ void uiODSceneMgr::get3DViewers( ObjectSet<ui3DViewer>& vwrs )
 const ui3DViewer* uiODSceneMgr::get3DViewer( const SceneID& sceneid ) const
 {
     const SceneBundle* scene = getScene( sceneid );
-    return scene ? dCast(ui3DViewer*,scene->vwr3d_) : 0;
+    return scene ? dCast(ui3DViewer*,scene->vwr3d_) : nullptr;
 }
 
 
 ui3DViewer* uiODSceneMgr::get3DViewer( const SceneID& sceneid )
 {
     const SceneBundle* scene = getScene( sceneid );
-    return scene ? dCast(ui3DViewer*,scene->vwr3d_) : 0;
+    return scene ? dCast(ui3DViewer*,scene->vwr3d_) : nullptr;
 }
 
 
@@ -1069,7 +1090,9 @@ void uiODSceneMgr::getSceneNames( uiStringSet& nms, int& active ) const
 
 
 void uiODSceneMgr::getActiveSceneName( BufferString& nm ) const
-{ nm = mdiarea_->getActiveWin(); }
+{
+    nm = mdiarea_->getActiveWin();
+}
 
 
 SceneID uiODSceneMgr::getActiveSceneID() const
@@ -1354,7 +1377,7 @@ void uiODSceneMgr::updateSelectedTreeItem()
     }
 
     if ( gotoact && !applMgr().attrServer()->attrSetEditorActive() )
-	actMode( 0 );
+	actModeCB( nullptr );
 }
 
 
@@ -1466,7 +1489,7 @@ void uiODSceneMgr::getLoadedPickSetIDs( TypeSet<MultiID>& picks, bool poly,
 
 
 void uiODSceneMgr::gtLoadedPickSetIDs( const SceneBundle& scene,
-	TypeSet<MultiID>& picks, bool poly ) const
+				    TypeSet<MultiID>& picks, bool poly ) const
 {
     for ( int chidx=0; chidx<scene.itemmanager_->nrChildren(); chidx++ )
     {
@@ -1480,7 +1503,7 @@ void uiODSceneMgr::gtLoadedPickSetIDs( const SceneBundle& scene,
 
 
 void uiODSceneMgr::gtLoadedPickSetIDs( const uiTreeItem& topitm,
-	TypeSet<MultiID>& picks, bool poly ) const
+				    TypeSet<MultiID>& picks, bool poly ) const
 {
     for ( int chidx=0; chidx<topitm.nrChildren(); chidx++ )
     {
@@ -2083,8 +2106,6 @@ bool uiKeyBindingSettingsGroup::acceptOK()
 	updateSettings( initialzoomfactor_, zoomfactor,
 			SettingsAccess::sKeyMouseWheelZoomFactor() );
     }
-
-
 
     updateSettings( initialkeybinding_, keybinding,
 		   ui3DViewer::sKeyBindingSettingsKey() );
