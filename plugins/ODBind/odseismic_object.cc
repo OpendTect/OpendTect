@@ -118,12 +118,9 @@ void odSeismicObject::setVelocityType( OD::VelocityType type,
 	return;
     }
 
-    VelocityDesc olddesc;
-    if ( desc.isUdf() && !olddesc.usePar(ioobj->pars()) )
-	return;
-
-    VelocityDesc::removePars( ioobj->pars() );
-    if ( !desc.isUdf() )
+    if ( desc.isUdf() )
+	VelocityDesc::removePars( ioobj->pars() );
+    else
 	desc.fillPar( ioobj->pars() );
 
     if ( !IOM().commitChanges(*ioobj) )

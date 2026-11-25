@@ -1,7 +1,8 @@
 import pytest
 import json
 import numpy as np
-from odbind.seismic2d import Seismic2D, VelocityType
+from odbind.seismic2d import Seismic2D
+from odbind.common_enums import VelocityType
 from odbind.geom2d import Geom2D
 
 def make_data(survey):

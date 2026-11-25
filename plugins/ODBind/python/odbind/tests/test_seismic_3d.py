@@ -4,7 +4,8 @@ import json
 import numpy as np
 import random
 import xarray as xr
-from odbind.seismic3d import Seismic3D, VelocityType
+from odbind.seismic3d import Seismic3D
+from odbind.common_enums import VelocityType
 
 def make_data_volume(survey):
     si = survey.info()

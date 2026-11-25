@@ -4,7 +4,7 @@ import math
 from collections import namedtuple
 from collections.abc import Generator, Sequence
 from concurrent.futures import ThreadPoolExecutor
-from enum import Enum, IntEnum
+from enum import IntEnum
 from typing import NamedTuple
 
 import numpy as np
@@ -21,6 +21,7 @@ from odbind import (
     unpack_slice,
     wrap_function,
 )
+from odbind.common_enums import VelocityType
 from odbind.survey import Survey, _SurveyObject
 
 UseThreadPool = True
@@ -36,16 +37,6 @@ class MergeMode(IntEnum):
     Average = 0
     Crop = 1
     Blend = 2
-
-
-class VelocityType(Enum):
-    Unknown = "Unknown"
-    Interval = "Vint"
-    RMS = "Vrms"
-    Avg = "Vavg"
-    Delta = "Delta"
-    Epsilon = "Epsilon"
-    Eta = "Eta"
 
 class Sampling(NamedTuple):
     inlrg: tuple[int,int,int]

@@ -6,7 +6,7 @@ from enum import Enum
 from odbind import wrap_function, LIBODB, makestrlist, NumpyAllocator, pyjsonstr, pystr, pystrlist, stringset_del, unpack_slice, is_none_slice 
 from odbind.survey import Survey, _SurveyObject
 from odbind.geom2d import Geom2D
-from odbind.seismic3d import VelocityType
+from odbind.common_enums import VelocityType
 
 class Seismic2D(_SurveyObject):
     """
