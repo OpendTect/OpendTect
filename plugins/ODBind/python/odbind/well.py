@@ -22,6 +22,9 @@ class Well(_SurveyObject):
         clss._markernames = wrap_function(LIBODB, f'{bindnm}_markernames', ct.c_void_p, [ct.c_void_p])
         clss._markerinfo = wrap_function(LIBODB, f'{bindnm}_markerinfo', ct.POINTER(ct.c_char_p), [ct.c_void_p, ct.c_void_p])
         clss._track = wrap_function(LIBODB, f'{bindnm}_gettrack', None, [ct.c_void_p, NumpyAllocator.CFUNCTYPE])
+        clss._d2tmodelnames = wrap_function(LIBODB, f'{bindnm}_d2tmodelnames', ct.c_void_p, [ct.c_void_p, ct.c_bool])
+        clss._actived2tmodel = wrap_function(LIBODB, f'{bindnm}_actived2tmodel', ct.c_int, [ct.c_void_p, ct.c_bool])
+        clss._d2tmodel = wrap_function(LIBODB, f'{bindnm}_getd2tmodel', None, [ct.c_void_p, NumpyAllocator.CFUNCTYPE, ct.c_bool, ct.c_char_p, ct.c_int])
         clss._logs = wrap_function(LIBODB, f'{bindnm}_getlogs', ct.POINTER(ct.c_char_p), [ct.c_void_p, NumpyAllocator.CFUNCTYPE, ct.c_void_p, ct.c_float, ct.c_bool])
         clss._log = wrap_function(LIBODB, f'{bindnm}_getlog', ct.POINTER(ct.c_char_p), [ct.c_void_p, NumpyAllocator.CFUNCTYPE, ct.c_char_p])
         putlogargs = [  ct.c_void_p, ct.c_char_p,
@@ -107,6 +110,28 @@ class Well(_SurveyObject):
     def marker_names(self) ->list[str]:
         """list[str]: Names of well logs in this well (readonly)"""
         return pystrlist(self._markernames(self._handle))
+
+    @property
+    def d2t_model_names(self) ->list[str]:
+        """list[str]: Names of the time-depth models in this well, in index order (readonly)"""
+        return pystrlist(self._d2tmodelnames(self._handle, False))
+
+    @property
+    def checkshot_model_names(self) ->list[str]:
+        """list[str]: Names of the checkshot models in this well, in index order (readonly)"""
+        return pystrlist(self._d2tmodelnames(self._handle, True))
+
+    @property
+    def active_d2t_model_index(self) ->int:
+        """int: Index in d2t_model_names of the active time-depth model, None if the well has none (readonly)"""
+        idx = self._actived2tmodel(self._handle, False)
+        return idx if idx >= 0 else None
+
+    @property
+    def active_checkshot_model_index(self) ->int:
+        """int: Index in checkshot_model_names of the active checkshot model, None if the well has none (readonly)"""
+        idx = self._actived2tmodel(self._handle, True)
+        return idx if idx >= 0 else None
 
     def log_info(self, forlognms: list[str]=[]) ->dict:
         """Return basic information for all or a subset of logs in this well.
@@ -209,6 +234,66 @@ class Well(_SurveyObject):
         """
         from pandas import DataFrame
         return DataFrame(self.track()) 
+
+    def d2t_model(self, name: str=None, index: int=None, checkshot: bool=False):
+        """Return dict of numpy arrays with a time-depth model of this well, or a checkshot model
+
+        The model is selected by name or by index; with neither the active model is returned.
+        The model is returned as OpendTect loads and uses it, checked against the well track: sorted by depth,
+        starting at the seismic reference datum or the well head, ending at or above the well's TD, and
+        without points that do not change the interval velocity, so it can have fewer points than the imported file
+
+        Parameters
+        ----------
+        name : str=None
+            (Optional) the name of the model, one of d2t_model_names (or checkshot_model_names)
+        index : int=None
+            (Optional) the index of the model in d2t_model_names (or checkshot_model_names)
+        checkshot : bool=False
+            (Optional) if True return a checkshot model instead of a time-depth model
+
+        Returns
+        -------
+        dict[np.arrays] with the depth-along-hole (MD) in the survey's default depth unit keyed by 'dah'
+        and the two-way time in milliseconds keyed by 'twt'
+
+        """
+        if name is not None and index is not None:
+            raise ValueError('give a model name or an index, not both')
+        if index is not None and index < 0:
+            raise ValueError(f'invalid model index: {index}')
+
+        allocator = NumpyAllocator()
+        self._d2tmodel(self._handle, allocator.cfunc, checkshot,
+                       name.encode() if name is not None else None,
+                       index if index is not None else -1)
+        if not self.isok:
+            raise ValueError(self.errmsg)
+
+        return  {
+                    'dah': allocator.allocated_arrays[0],
+                    'twt': allocator.allocated_arrays[1]
+                }
+
+    def d2t_model_dataframe(self, name: str=None, index: int=None, checkshot: bool=False):
+        """Return a time-depth model of this well, or a checkshot model, as a Pandas DataFrame
+
+        Parameters
+        ----------
+        name : str=None
+            (Optional) the name of the model, one of d2t_model_names (or checkshot_model_names)
+        index : int=None
+            (Optional) the index of the model in d2t_model_names (or checkshot_model_names)
+        checkshot : bool=False
+            (Optional) if True return a checkshot model instead of a time-depth model
+
+        Returns
+        -------
+        Pandas DataFrame
+
+        """
+        from pandas import DataFrame
+        return DataFrame(self.d2t_model(name, index, checkshot))
 
     def logs(self, lognms: list[str]=[], zstep: float=0.5, upscale: bool=True):
         """Return dict of numpy arrays for all or a subset of logs in this well

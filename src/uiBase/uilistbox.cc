@@ -10,10 +10,10 @@ ________________________________________________________________________
 #include "uilistbox.h"
 #include "i_qlistbox.h"
 
+#include "uicheckselgrp.h"
 #include "uifont.h"
 #include "uiicon.h"
 #include "uilabel.h"
-#include "uimenu.h"
 #include "uiobjbodyimpl.h"
 #include "uipixmap.h"
 #include "uitoolbutton.h"
@@ -429,15 +429,9 @@ void uiListBoxBody::keyPressEvent( QKeyEvent* qkeyev )
     {
 	if ( qkeyev->key() == Qt::Key_Delete )
 	    lb_->deleteButtonPressed.trigger();
-	else if ( isCtrlPressed(*qkeyev) )
-	{
-	    if ( qkeyev->key() == Qt::Key_A )
-		lb_->usrChooseAll( true );
-	    if ( qkeyev->key() == Qt::Key_Z )
-		lb_->usrChooseAll( false );
-	    if ( qkeyev->key() == Qt::Key_M )
-		lb_->menuCB( 0 );
-	}
+	else if ( isCtrlPressed(*qkeyev) && lb_->checkgrp_ )
+	    lb_->checkgrp_->handleShortcut(
+				OD::KeyboardKey(qkeyev->key()), true );
 
 	lb_->updateCheckState();
     }
@@ -474,8 +468,7 @@ uiListBoxBody& uiListBoxObj::mkbody( uiParent* p, const char* nm,
     , leftButtonClicked(this) \
     , deleteButtonPressed(this) \
     , checkAllClicked(this) \
-    , choicemode_(cm) \
-    , rightclickmnu_(*new uiMenu(p))
+    , choicemode_(cm)
 
 #define mStdConstrEnd \
     lb_->setBackgroundColor( lb_->roBackgroundColor() ); \
@@ -527,7 +520,6 @@ uiListBox::uiListBox( uiParent* p, const uiString& lbl, OD::ChoiceMode cm,
 
 uiListBox::~uiListBox()
 {
-    delete &rightclickmnu_;
 }
 
 
@@ -549,50 +541,27 @@ void uiListBox::addLabel( const uiString& txt, LblPos pos )
 
 void uiListBox::mkCheckGroup()
 {
-    checkgrp_ = new uiGroup( this, "CheckGroup" );
+    checkgrp_ = new uiCheckSelGrp( this, "CheckGroup" );
     checkgrp_->attach( alignedAbove, lb_ );
-
-    auto* pb = new uiPushButton( checkgrp_, uiStrings::sEmptyString() );
-    pb->activated.notify( mCB(this,uiListBox,menuCB) );
-    pb->setName( "Selection menu" );
-    pb->setIcon( "menu-arrow" );
-    pb->setPrefWidth( 40 );
-    pb->setMinimumWidth( 40 );
-    pb->setMaximumWidth( 40 );
-    pb->setFlat( true );
-#ifdef __win__
-    pb->setStyleSheet( ":pressed { background: transparent; }" );
-#else
-    pb->setStyleSheet( ":pressed { border: 0; background: transparent }" );
-#endif
-    cb_ = new uiCheckBox( checkgrp_, uiStrings::sEmptyString(),
-			  mCB(this,uiListBox,checkCB) );
-    cb_->setName( "Check-all box" );
-    cb_->setMaximumWidth( 20 );
-    mAttachCB( cb_->activated, uiListBox::checkAllClickedCB );
-
-    openbut_ = new uiToolButton( checkgrp_, "open",
-			tr("Read selection"), mCB(this,uiListBox,retrieveCB) );
-    openbut_->setPrefHeight( cIconSz );
-    openbut_->setPrefWidth( cIconSz );
-    openbut_->attach( centeredRightOf, pb, 1 );
-    openbut_->display( false );
-
-    savebut_ = new uiToolButton( checkgrp_, "save",
-			tr("Save selection"), mCB(this,uiListBox,saveCB) );
-    savebut_->setPrefHeight( cIconSz );
-    savebut_->setPrefWidth( cIconSz );
-    savebut_->attach( rightTo, openbut_, 2 );
-    savebut_->display( false );
-
     checkgrp_->display( isMultiChoice(), true );
+    mAttachCB( checkgrp_->beforeShowMenu, uiListBox::updateStateCB );
+    mAttachCB( checkgrp_->checkAllClicked, uiListBox::checkAllClickedCB );
+    mAttachCB( checkgrp_->invertSelection, uiListBox::invertSelectionCB );
+    mAttachCB( checkgrp_->showCheckedOnly,
+	       uiListBox::showCheckedOnlyCB );
 }
 
 
-void uiListBox::updateReadWriteButtonState()
+uiCheckSelGrp* uiListBox::checkGroup()
 {
-    openbut_->setSensitive( !isEmpty() );
-    savebut_->setSensitive( nrChecked() > 0 );
+    return checkgrp_;
+}
+
+
+void uiListBox::setPrimaryCheckBox( bool yn )
+{
+    if ( checkgrp_ )
+	checkgrp_->setPrimaryCheckBox( yn );
 }
 
 
@@ -601,9 +570,9 @@ void uiListBox::offerReadWriteSelection( const CallBack& rcb,
 {
     opencb_ = rcb;
     savecb_ = wcb;
-    openbut_->display( opencb_.willCall() );
-    savebut_->display( savecb_.willCall() );
-    updateReadWriteButtonState();
+    checkgrp_->offerReadWriteSelection(
+	    opencb_.willCall() ? mCB(this,uiListBox,retrieveCB) : CallBack(),
+	    savecb_.willCall() ? mCB(this,uiListBox,saveCB) : CallBack() );
 }
 
 
@@ -623,34 +592,56 @@ void uiListBox::saveCB( CallBacker* )
 }
 
 
-void uiListBox::checkCB( CallBacker* )
+void uiListBox::checkAllClickedCB( CallBacker* cb )
 {
-    const bool checkall = cb_->getCheckState()==OD::Checked;
-    setAllItemsChecked( checkall );
-    updateReadWriteButtonState();
+    mCBCapsuleUnpack( bool, yn, cb );
+    usrChooseAll( yn );
+    updateCheckState();
+    checkAllClicked.trigger();
 }
 
 
-void uiListBox::checkAllClickedCB( CallBacker* )
+void uiListBox::invertSelectionCB( CallBacker* )
 {
-    checkAllClicked.trigger();
+    bulkcheckchg_ = true;
+    const int selidx = currentItem();
+    const int sz = size();
+    TypeSet<int> checked;
+    getCheckedItems( checked );
+    for ( int idx=0; idx<sz; idx++ )
+	setItemChecked( idx, !checked.isPresent(idx) );
+
+    bulkcheckchg_ = false;
+    setCurrentItem( selidx );
+    updateCheckState();
+}
+
+
+void uiListBox::showCheckedOnlyCB( CallBacker* cb )
+{
+    mCBCapsuleUnpack( bool, onlychecked, cb );
+    const int selidx = currentItem();
+    const int sz = size();
+    TypeSet<int> checked;
+    getCheckedItems( checked );
+    for ( int idx=0; idx<sz; idx++ )
+	displayItem( idx, onlychecked ? checked.isPresent(idx) : true );
+
+    setCurrentItem( selidx );
+    updateCheckState();
+}
+
+
+void uiListBox::updateStateCB( CallBacker* )
+{
+    checkgrp_->updateState( nrChecked(), size() );
 }
 
 
 void uiListBox::updateCheckState()
 {
-    NotifyStopper ns( cb_->activated );
-    CmdRecStopper cmdrecstopper( cb_ );
-
-    const int nrchecked = nrChecked();
-    if ( nrchecked==0 )
-	cb_->setCheckState( OD::Unchecked );
-    else if ( nrchecked==size() )
-	cb_->setCheckState( OD::Checked );
-    else
-	cb_->setCheckState( OD::PartiallyChecked );
-
-    updateReadWriteButtonState();
+    if ( checkgrp_ )
+	checkgrp_->updateState( nrChecked(), size() );
 }
 
 
@@ -810,72 +801,10 @@ void uiListBox::updateFields2ChoiceMode()
 
 void uiListBox::menuCB( CallBacker* )
 {
-    rightclickmnu_.clear();
-    const int sz = size();
-    if ( sz < 1 || !isMultiChoice() )
+    if ( size()<1 || !isMultiChoice() || !checkgrp_ )
 	return;
 
-    const int nrchecked = nrChecked();
-    if ( nrchecked < sz )
-	rightclickmnu_.insertAction( new uiAction(tr("Check all (Ctrl-A)")), 0);
-    if ( nrchecked > 0 )
-	rightclickmnu_.insertAction(new uiAction(tr("Uncheck all (Ctrl-Z)")),1);
-    rightclickmnu_.insertAction( new uiAction(tr("Invert selection")), 2 );
-
-    if ( nrchecked > 0 )
-    {
-	rightclickmnu_.insertSeparator();
-	if ( allshown_ )
-	    rightclickmnu_.insertAction(
-		    new uiAction(tr("Show checked only")), 5 );
-	else
-	    rightclickmnu_.insertAction(new uiAction(tr("Show all")), 6);
-    }
-
-    const bool needretrieve = opencb_.willCall();
-    const bool needsave = savecb_.willCall() && nrchecked > 0;
-    if ( needretrieve || needsave )
-    {
-	rightclickmnu_.insertSeparator();
-	if ( needretrieve )
-	    rightclickmnu_.insertAction( new uiAction(tr("Read selection")), 3);
-	if ( needsave )
-	    rightclickmnu_.insertAction( new uiAction(tr("Save selection")), 4);
-    }
-
-    const int res = rightclickmnu_.exec();
-    if ( res==0 || res==1 )
-	usrChooseAll( res==0 );
-    else if ( res == 2 )
-    {
-	bulkcheckchg_ = true;
-	const int selidx = currentItem();
-	TypeSet<int> checked; getCheckedItems( checked );
-	for ( int idx=0; idx<sz; idx++ )
-	    setItemChecked( idx, !checked.isPresent(idx) );
-
-	bulkcheckchg_ = false;
-	setCurrentItem( selidx );
-    }
-    else if ( res == 3 )
-	opencb_.doCall( this );
-    else if ( res == 4 )
-	savecb_.doCall( this );
-    else if ( res == 5 || res == 6 )
-    {
-	allshown_ = !allshown_;
-	const int selidx = currentItem();
-	TypeSet<int> checked; getCheckedItems( checked );
-	for ( int idx=0; idx<sz; idx++ )
-	{
-	    if ( allshown_ )
-		displayItem( idx, true );
-	    else
-		displayItem( idx, checked.isPresent( idx ) );
-	}
-	setCurrentItem( selidx );
-    }
-
+    checkgrp_->showMenu();
     updateCheckState();
 }
 
@@ -1018,7 +947,7 @@ void uiListBox::addItems( const char** textList )
 	curidx = 0;
 
     setCurrentItem( curidx );
-    updateReadWriteButtonState();
+    updateCheckState();
 }
 
 
@@ -1032,7 +961,7 @@ void uiListBox::addItems( const BufferStringSet& strs )
 	curidx = 0;
 
     setCurrentItem( curidx );
-    updateReadWriteButtonState();
+    updateCheckState();
 }
 
 
@@ -1046,7 +975,7 @@ void uiListBox::addItems( const uiStringSet& strs )
 	curidx = 0;
 
     setCurrentItem( curidx );
-    updateReadWriteButtonState();
+    updateCheckState();
 }
 
 

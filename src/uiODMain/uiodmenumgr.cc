@@ -230,11 +230,14 @@ void uiODMenuMgr::fillSurveyMenu()
     insertAction( surveymnu_, m3Dots(tr("Edit Survey Parameters")),
 		  mCurrSurvUpdItm, "editcurrsurv" );
 
-    auto* sessionitm = new uiMenu( &appl_, tr("Session") ) ;
+    auto* sessionitm = new uiMenu( &appl_, uiStrings::sSession() );
     insertAction( sessionitm, m3Dots(uiStrings::sSave()), mSessSaveMnuItm,
 		  "save" );
     insertAction( sessionitm, m3Dots(tr("Restore")), mSessRestMnuItm, "open" );
+    sessionitm->insertSeparator();
+    insertAction( sessionitm, m3Dots(tr("Auto-save")), mSessAutoSaveMnuItm );
     insertAction( sessionitm, m3Dots(tr("Auto-load")), mSessAutoMnuItm );
+
     surveymnu_->addMenu( sessionitm );
     surveymnu_->insertSeparator();
 
@@ -246,7 +249,7 @@ void uiODMenuMgr::fillSurveyMenu()
     fillExportMenu();
     surveymnu_->addMenu( expmnu_ );
 
-    manmnu_ = new uiMenu( &appl_, tr("Manage"), "manage" );
+    manmnu_ = new uiMenu( &appl_, uiStrings::sManage(), "manage" );
     fillManMenu();
     surveymnu_->addMenu( manmnu_ );
 
@@ -1558,6 +1561,7 @@ void uiODMenuMgr::handleClick( CallBacker* cb )
 					break;
     case mSessSaveMnuItm:		appl_.saveSession(); break;
     case mSessRestMnuItm:		appl_.restoreSession(); break;
+    case mSessAutoSaveMnuItm:		appl_.autoSaveSession(); break;
     case mSessAutoMnuItm:		appl_.autoSession(); break;
     case mImpAttrMnuItm:		mDoOp(Imp,Attr,0); break;
     case mImpAttrOthSurvMnuItm:		mDoOp(Imp,Attr,1); break;
@@ -1920,9 +1924,9 @@ void uiODMenuMgr::toggViewMode( CallBacker* cb )
 			 inviewmode_ ? tr("Switch to Interact Mode")
 				     : tr("Switch to View Mode") );
     if ( inviewmode_ )
-	sceneMgr().viewMode( cb );
+	sceneMgr().viewModeCB( cb );
     else
-	sceneMgr().actMode( cb );
+	sceneMgr().actModeCB( cb );
 
     if ( inviewmode_ )
 	applMgr().visServer()->turnSelectionModeOn( false );

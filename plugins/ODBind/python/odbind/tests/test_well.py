@@ -1,6 +1,5 @@
 import pytest
 import json
-import pathlib
 import numpy as np
 import odbind.pytest_helper as pytest_helper
 from odbind.well import Well
@@ -277,14 +276,69 @@ def test_Well_put_markers(survey):
     assert not any(nm in well.marker_names for nm in markernms)
     assert len(well.marker_names) == nmarkers
 
-def _d2t_model(survey, name, well):
-    # dah and twt rows of the stored time-depth model, with the TVDSS of each dah on the current track
-    fnm = pathlib.Path(survey.get_object_info(name, 'Well')['File name']).with_suffix('.wlt')
-    lines = fnm.read_text().splitlines()
-    start = lines.index('!', lines.index('!')+1) + 1
-    rows = np.array([[float(val) for val in line.split()] for line in lines[start:] if line.strip()])
-    tvdss = np.array([well.tvdss(float(dah)) for dah in rows[:,0]])
-    return rows[:,0], tvdss, rows[:,1]
+def test_Well_d2t_model(survey):
+    well = Well(survey, 'F03-4')
+    d2t = well.d2t_model()
+    assert list(d2t.keys()) == ['dah', 'twt']
+    assert d2t['dah'].size == d2t['twt'].size == 7265
+    # starts at the seismic reference datum (KB is 34.1 m above it), twt in milliseconds
+    np.testing.assert_allclose(d2t['dah'][:2], [34.1, 502.5], rtol=1e-6)
+    np.testing.assert_allclose(d2t['twt'][:2], [0.0, 504.704], rtol=1e-6)
+    assert d2t['dah'][-1] == pytest.approx(1858.2)
+    assert d2t['twt'][-1] == pytest.approx(1812.268)
+    assert np.all(np.diff(d2t['twt']) > 0)
+
+    # the checkshot model ends at the well's TD, the FS6 marker depth is a checkshot at 840 ms
+    cs = well.d2t_model(checkshot=True)
+    assert cs['dah'].size == cs['twt'].size == 21
+    assert cs['dah'][-1] == pytest.approx(well.info()['td'])
+    fs6 = well.marker_info(['FS6'])[0]['dah']
+    assert cs['twt'][np.argmin(np.abs(cs['dah'] - fs6))] == pytest.approx(840.0)
+
+    df = well.d2t_model_dataframe(checkshot=True)
+    assert list(df.columns) == ['dah', 'twt']
+    np.testing.assert_allclose(df['twt'].to_numpy(), cs['twt'])
+
+def test_Well_d2t_model_by_name_index(survey):
+    well = Well(survey, 'F03-4')
+    # F3 wells store one time-depth model and one checkshot model each, the active one at index 0
+    assert well.d2t_model_names == ['Integrated Depth/Time Model']
+    assert well.active_d2t_model_index == 0
+    assert well.checkshot_model_names == ['/d29/surveys/F3_Demo/WellInfo/Checkshot/F03-4_TD.txt']
+    assert well.active_checkshot_model_index == 0
+
+    for checkshot, names, active in [(False, well.d2t_model_names, well.active_d2t_model_index),
+                                     (True, well.checkshot_model_names, well.active_checkshot_model_index)]:
+        default = well.d2t_model(checkshot=checkshot)
+        for d2t in [well.d2t_model(name=names[active], checkshot=checkshot),
+                    well.d2t_model(index=active, checkshot=checkshot)]:
+            np.testing.assert_array_equal(d2t['dah'], default['dah'])
+            np.testing.assert_array_equal(d2t['twt'], default['twt'])
+
+        df = well.d2t_model_dataframe(index=active, checkshot=checkshot)
+        np.testing.assert_array_equal(df['twt'].to_numpy(), default['twt'])
+
+    assert well.d2t_model(index=0)['dah'].size == 7265
+    assert well.d2t_model(index=0, checkshot=True)['dah'].size == 21
+
+    with pytest.raises(ValueError, match='no time-depth model named: no such model'):
+        well.d2t_model(name='no such model')
+    with pytest.raises(ValueError, match='no checkshot model named: Integrated Depth/Time Model'):
+        well.d2t_model(name='Integrated Depth/Time Model', checkshot=True)
+    with pytest.raises(ValueError, match='no time-depth model at index: 1'):
+        well.d2t_model(index=1)
+    with pytest.raises(ValueError, match='no checkshot model at index: 1'):
+        well.d2t_model(index=1, checkshot=True)
+    with pytest.raises(ValueError):
+        well.d2t_model(index=-1)
+    with pytest.raises(ValueError):
+        well.d2t_model(name=well.d2t_model_names[0], index=0)
+
+def _d2t_model(well):
+    # dah and twt (s) of the active time-depth model, with the TVDSS of each dah on the current track
+    model = well.d2t_model()
+    tvdss = np.array([well.tvdss(float(dah)) for dah in model['dah']])
+    return model['dah'], tvdss, model['twt']/1000.0
 
 def _twt_at(z, tvdss, twt):
     # linear in TVDSS, extrapolated below the last point with the last interval velocity
@@ -309,7 +363,7 @@ def test_Well_put_track(survey):
                         'x': np.array([x, x, x+150.0, x+300.0, x+450.0]),
                         'y': np.array([y, y, y, y, y])
                     }
-            _, oldtvdss, oldtwt = _d2t_model(survey, name, well)
+            _, oldtvdss, oldtwt = _d2t_model(well)
             well.put_track(**track)
         del well
 
@@ -327,7 +381,7 @@ def test_Well_put_track(survey):
 
         # the time-depth model is projected onto the new track: it reaches the new TD and keeps the TWT at each
         # TVDSS (times from SRD, as OpendTect reads the model)
-        dah, tvdss, twt = _d2t_model(survey, name, well)
+        dah, tvdss, twt = _d2t_model(well)
         assert dah[-1] == pytest.approx(1200.0, rel=1e-5)
         srdz = -survey.info()['srd']
         for z in [100.0, 500.0, 975.0, 1054.423]:

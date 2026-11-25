@@ -15,12 +15,10 @@ ________________________________________________________________________
 #include "draw.h"
 
 class BufferStringSet;
-class uiCheckBox;
+class uiCheckSelGrp;
 class uiLabel;
 class uiListBoxBody;
-class uiMenu;
 class uiString;
-class uiToolButton;
 
 mFDQtclass(QListWidgetItem)
 
@@ -116,8 +114,8 @@ public:
 			mOD_DisableCopy(uiListBox)
 
     uiListBoxObj*	box()				{ return lb_; }
-    uiGroup*		checkGroup()			{ return checkgrp_; }
-    uiCheckBox*		primaryCheckBox()		{ return cb_; }
+    uiCheckSelGrp*	checkGroup();
+    void		setPrimaryCheckBox(bool yn);
     int			nrLabels() const		{ return lbls_.size(); }
     uiLabel*		label( int nr=0 )		{ return lbls_[nr]; }
     void		setLabelText(const uiString&,int nr=0);
@@ -246,20 +244,18 @@ private:
     OD::ChoiceMode	choicemode_;
     Alignment::HPos	alignment_		= Alignment::Left;
     bool		allowduplicates_	= true;
-    uiMenu&		rightclickmnu_;
     mutable BufferString rettxt_;
     OD::ButtonState	buttonstate_		= OD::NoButton;
-    uiToolButton*	openbut_		= nullptr;
-    uiToolButton*	savebut_		= nullptr;
     CallBack		opencb_;
     CallBack		savecb_;
     bool		scrollingblocked_	= false;
-    bool		allshown_		= true;
     bool		bulkcheckchg_		= false;
 
-    void		updateReadWriteButtonState();
     void		menuCB(CallBacker*);
     void		checkAllClickedCB(CallBacker*);
+    void		invertSelectionCB(CallBacker*);
+    void		showCheckedOnlyCB(CallBacker*);
+    void		updateStateCB(CallBacker*);
     void		retrieveCB(CallBacker*);
     void		saveCB(CallBacker*);
     void		handleCheckChange(mQtclass(QListWidgetItem*));
@@ -293,12 +289,10 @@ private:
 protected:
     uiListBoxObj*	lb_;
     ObjectSet<uiLabel>	lbls_;
-    uiGroup*		checkgrp_;
-    uiCheckBox*		cb_;
+    uiCheckSelGrp*	checkgrp_		= nullptr;
 
     void		mkLabel(const uiString&,LblPos);
     void		mkCheckGroup();
-    void		checkCB(CallBacker*);
     void		updateCheckState();
     void		addItemNoUpdate(const uiString&,bool marked=false,
 								    int id=-1);
@@ -316,9 +310,6 @@ public:
 			uiListBox(uiParent*,const uiStringSet&,
 				  const char* nm,OD::ChoiceMode cm,
 				  int prefNrLines=0,int prefFieldWidth=0);
-
-    mDeprecated("Use primaryCheckBox()")
-    uiCheckBox*		masterCheckBox()		{ return cb_; }
 };
 
 

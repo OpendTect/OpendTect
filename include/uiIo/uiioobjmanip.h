@@ -91,6 +91,7 @@ public:
 			~uiIOObjManipGroup();
 
     void		selChg();
+    void		enableRename(bool yn,const uiString& tooltip);
 
     void		triggerButton(uiManipButGrp::Type);
 
