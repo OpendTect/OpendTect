@@ -231,7 +231,7 @@ protected:
     public:
 	virtual			~SceneBundle();
 
-	virtual SceneID		sceneID() const;
+	SceneID			sceneID() const;
 	virtual bool		isVSG() const			= 0;
 
 	void			setName(const uiString&);
@@ -251,7 +251,6 @@ protected:
     public:
 				OSGSceneBundle(uiMdiArea*);
 
-	SceneID			sceneID() const override;
 	bool			isVSG() const override	{ return false; }
     };
 

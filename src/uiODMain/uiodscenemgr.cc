@@ -346,7 +346,7 @@ uiODSceneMgr::SceneBundle* uiODSceneMgr::getScene( const SceneID& sceneid )
 
     for ( auto* bundle : scenes_ )
     {
-	if ( bundle->sceneID() == sceneid )
+	if ( bundle->itemmanager_ && bundle->sceneID() == sceneid )
 	    return bundle;
     }
 
@@ -1961,12 +1961,6 @@ uiODSceneMgr::OSGSceneBundle::OSGSceneBundle( uiMdiArea* mdiarea )
     vwr3d_->setPrefWidth( 400 );
     vwr3d_->setPrefHeight( 400 );
     mdiarea->addWindow( mdiwin_ );
-}
-
-
-SceneID uiODSceneMgr::OSGSceneBundle::sceneID() const
-{
-    return itemmanager_ ? itemmanager_->sceneID() : SceneID::udf();
 }
 
 

@@ -152,7 +152,8 @@ ui3DViewer* uiODTreeItem::viewer()
 {
     void* res = nullptr;
     getPropertyPtr( uiODTreeTop::viewerptr(), res );
-    return dCast( ui3DViewer*, sCast(ui3DViewerBase*,res) );
+    auto* basevwr = sCast(ui3DViewerBase*, res);
+    return dCast(ui3DViewer*, basevwr);
 }
 
 

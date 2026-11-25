@@ -36,8 +36,6 @@ class ZAxisTransform;
 class uiMPEMan;
 class uiMultiMapperRangeEditWin;
 class ui3DViewerBase;
-class uiObject;
-class uiParent;
 class uiSlicePos3DDisp;
 class uiSurvTopBotImageDlg;
 class uiToolBar;
