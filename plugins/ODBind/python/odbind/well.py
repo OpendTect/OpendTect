@@ -22,6 +22,7 @@ class Well(_SurveyObject):
         clss._markernames = wrap_function(LIBODB, f'{bindnm}_markernames', ct.c_void_p, [ct.c_void_p])
         clss._markerinfo = wrap_function(LIBODB, f'{bindnm}_markerinfo', ct.POINTER(ct.c_char_p), [ct.c_void_p, ct.c_void_p])
         clss._track = wrap_function(LIBODB, f'{bindnm}_gettrack', None, [ct.c_void_p, NumpyAllocator.CFUNCTYPE])
+        clss._d2tmodel = wrap_function(LIBODB, f'{bindnm}_getd2tmodel', None, [ct.c_void_p, NumpyAllocator.CFUNCTYPE, ct.c_bool])
         clss._logs = wrap_function(LIBODB, f'{bindnm}_getlogs', ct.POINTER(ct.c_char_p), [ct.c_void_p, NumpyAllocator.CFUNCTYPE, ct.c_void_p, ct.c_float, ct.c_bool])
         clss._log = wrap_function(LIBODB, f'{bindnm}_getlog', ct.POINTER(ct.c_char_p), [ct.c_void_p, NumpyAllocator.CFUNCTYPE, ct.c_char_p])
         putlogargs = [  ct.c_void_p, ct.c_char_p,
@@ -201,6 +202,50 @@ class Well(_SurveyObject):
         """
         from pandas import DataFrame
         return DataFrame(self.track()) 
+
+    def d2t_model(self, checkshot: bool=False):
+        """Return dict of numpy arrays with the time-depth model of this well, or its checkshot model
+
+        The model is returned as OpendTect loads and uses it, checked against the well track: sorted by depth,
+        starting at the seismic reference datum or the well head, ending at or above the well's TD, and
+        without points that do not change the interval velocity, so it can have fewer points than the imported file
+
+        Parameters
+        ----------
+        checkshot : bool=False
+            (Optional) if True return the checkshot model instead of the time-depth model
+
+        Returns
+        -------
+        dict[np.arrays] with the depth-along-hole (MD) in the survey's default depth unit keyed by 'dah'
+        and the two-way time in milliseconds keyed by 'twt'
+
+        """
+        allocator = NumpyAllocator()
+        self._d2tmodel(self._handle, allocator.cfunc, checkshot)
+        if not self.isok:
+            raise ValueError(self.errmsg)
+
+        return  {
+                    'dah': allocator.allocated_arrays[0],
+                    'twt': allocator.allocated_arrays[1]
+                }
+
+    def d2t_model_dataframe(self, checkshot: bool=False):
+        """Return the time-depth model of this well, or its checkshot model, as a Pandas DataFrame
+
+        Parameters
+        ----------
+        checkshot : bool=False
+            (Optional) if True return the checkshot model instead of the time-depth model
+
+        Returns
+        -------
+        Pandas DataFrame
+
+        """
+        from pandas import DataFrame
+        return DataFrame(self.d2t_model(checkshot))
 
     def logs(self, lognms: list[str]=[], zstep: float=0.5, upscale: bool=True):
         """Return dict of numpy arrays for all or a subset of logs in this well

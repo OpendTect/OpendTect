@@ -267,6 +267,46 @@ void odWell::getTrack( hAllocator allocator )
 }
 
 
+void odWell::getD2TModel( hAllocator allocator, bool checkshot )
+{
+    errmsg_.setEmpty();
+    survey_.activate();
+    if ( !wd_ )
+    {
+	errmsg_ = "odWell::getD2TModel - invalid welldata object.";
+	return;
+    }
+
+    const Well::LoadReqs lreqs( checkshot ? Well::CSMdl : Well::D2T );
+    ConstRefMan<Well::Data> wd = Well::MGR().get( wd_->multiID(), lreqs );
+    const Well::D2TModel* d2t = nullptr;
+    if ( wd )
+	d2t = checkshot ? wd->checkShotModel() : wd->d2TModel();
+
+    if ( !d2t )
+    {
+	errmsg_ = checkshot ? "odWell::getD2TModel - no checkshot model"
+			    : "odWell::getD2TModel - no time-depth model";
+	return;
+    }
+
+    const UnitOfMeasure* zduom = UnitOfMeasure::surveyDefDepthUnit();
+    const UnitOfMeasure* zsuom = UnitOfMeasure::surveyDefDepthStorageUnit();
+    const UnitOfMeasure* tduom = UnitOfMeasure::surveyDefTimeUnit();
+    const UnitOfMeasure* tsuom = UnitOfMeasure::surveyDefTimeStorageUnit();
+    const int ndim = 1;
+    int dims[ndim];
+    dims[0] = d2t->size();
+    float* dah_data = static_cast<float*>( allocator(ndim, dims, 'f') );
+    float* twt_data = static_cast<float*>( allocator(ndim, dims, 'f') );
+    for ( int idx=0; idx<dims[0]; idx++ )
+    {
+	*dah_data++ = getConvertedValue( d2t->dah(idx), zsuom, zduom );
+	*twt_data++ = getConvertedValue( d2t->t(idx), tsuom, tduom );
+    }
+}
+
+
 void odWell::getLogs( hAllocator allocator, const BufferStringSet& lognms,
 		      OD::JSON::Object& jsuomobj, float zstep,
 		      SampleMode samplemode )
@@ -679,6 +719,14 @@ void well_gettrack( hWell self, hAllocator allocator )
     auto* p = static_cast<odWell*>(self);
     if ( p )
 	p->getTrack( allocator );
+}
+
+
+void well_getd2tmodel( hWell self, hAllocator allocator, bool checkshot )
+{
+    auto* p = static_cast<odWell*>(self);
+    if ( p )
+	p->getD2TModel( allocator, checkshot );
 }
 
 

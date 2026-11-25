@@ -275,3 +275,26 @@ def test_Well_put_markers(survey):
     well = Well(survey, 'F03-4')
     assert not any(nm in well.marker_names for nm in markernms)
     assert len(well.marker_names) == nmarkers
+
+def test_Well_d2t_model(survey):
+    well = Well(survey, 'F03-4')
+    d2t = well.d2t_model()
+    assert list(d2t.keys()) == ['dah', 'twt']
+    assert d2t['dah'].size == d2t['twt'].size == 7265
+    # starts at the seismic reference datum (KB is 34.1 m above it), twt in milliseconds
+    np.testing.assert_allclose(d2t['dah'][:2], [34.1, 502.5], rtol=1e-6)
+    np.testing.assert_allclose(d2t['twt'][:2], [0.0, 504.704], rtol=1e-6)
+    assert d2t['dah'][-1] == pytest.approx(1858.2)
+    assert d2t['twt'][-1] == pytest.approx(1812.268)
+    assert np.all(np.diff(d2t['twt']) > 0)
+
+    # the checkshot model ends at the well's TD, the FS6 marker depth is a checkshot at 840 ms
+    cs = well.d2t_model(checkshot=True)
+    assert cs['dah'].size == cs['twt'].size == 21
+    assert cs['dah'][-1] == pytest.approx(well.info()['td'])
+    fs6 = well.marker_info(['FS6'])[0]['dah']
+    assert cs['twt'][np.argmin(np.abs(cs['dah'] - fs6))] == pytest.approx(840.0)
+
+    df = well.d2t_model_dataframe(checkshot=True)
+    assert list(df.columns) == ['dah', 'twt']
+    np.testing.assert_allclose(df['twt'].to_numpy(), cs['twt'])
