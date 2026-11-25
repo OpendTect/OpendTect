@@ -54,7 +54,10 @@ public:
 				      const BufferStringSet&) const;
 
     void		getTrack(hAllocator);
-    void		getD2TModel(hAllocator, bool checkshot=false);
+    BufferStringSet*	getD2TModelNames(bool checkshot=false) const;
+    int			getActiveD2TModelIndex(bool checkshot=false) const;
+    void		getD2TModel(hAllocator, bool checkshot=false,
+				    const char* name=nullptr, int index=-1);
 
     void		getLogs(hAllocator, const BufferStringSet&,
 				OD::JSON::Object&,
@@ -98,8 +101,11 @@ mExternC(ODBind) const char*	well_loginfo(hWell, const hStringSet);
 mExternC(ODBind) hStringSet	well_markernames(hWell);
 mExternC(ODBind) const char*	well_markerinfo(hWell, const hStringSet);
 mExternC(ODBind) void		well_gettrack(hWell, hAllocator);
+mExternC(ODBind) hStringSet	well_d2tmodelnames(hWell, bool checkshot);
+mExternC(ODBind) int		well_actived2tmodel(hWell, bool checkshot);
 mExternC(ODBind) void		well_getd2tmodel(hWell, hAllocator,
-						 bool checkshot);
+						 bool checkshot,
+						 const char* name, int index);
 mExternC(ODBind) const char*	well_getlogs(hWell, hAllocator,
 					     const hStringSet, float zstep,
 					     bool upscale);

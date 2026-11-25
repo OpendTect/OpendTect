@@ -298,3 +298,38 @@ def test_Well_d2t_model(survey):
     df = well.d2t_model_dataframe(checkshot=True)
     assert list(df.columns) == ['dah', 'twt']
     np.testing.assert_allclose(df['twt'].to_numpy(), cs['twt'])
+
+def test_Well_d2t_model_by_name_index(survey):
+    well = Well(survey, 'F03-4')
+    # F3 wells store one time-depth model and one checkshot model each, the active one at index 0
+    assert well.d2t_model_names == ['Integrated Depth/Time Model']
+    assert well.active_d2t_model_index == 0
+    assert well.checkshot_model_names == ['/d29/surveys/F3_Demo/WellInfo/Checkshot/F03-4_TD.txt']
+    assert well.active_checkshot_model_index == 0
+
+    for checkshot, names, active in [(False, well.d2t_model_names, well.active_d2t_model_index),
+                                     (True, well.checkshot_model_names, well.active_checkshot_model_index)]:
+        default = well.d2t_model(checkshot=checkshot)
+        for d2t in [well.d2t_model(name=names[active], checkshot=checkshot),
+                    well.d2t_model(index=active, checkshot=checkshot)]:
+            np.testing.assert_array_equal(d2t['dah'], default['dah'])
+            np.testing.assert_array_equal(d2t['twt'], default['twt'])
+
+        df = well.d2t_model_dataframe(index=active, checkshot=checkshot)
+        np.testing.assert_array_equal(df['twt'].to_numpy(), default['twt'])
+
+    assert well.d2t_model(index=0)['dah'].size == 7265
+    assert well.d2t_model(index=0, checkshot=True)['dah'].size == 21
+
+    with pytest.raises(ValueError, match='no time-depth model named: no such model'):
+        well.d2t_model(name='no such model')
+    with pytest.raises(ValueError, match='no checkshot model named: Integrated Depth/Time Model'):
+        well.d2t_model(name='Integrated Depth/Time Model', checkshot=True)
+    with pytest.raises(ValueError, match='no time-depth model at index: 1'):
+        well.d2t_model(index=1)
+    with pytest.raises(ValueError, match='no checkshot model at index: 1'):
+        well.d2t_model(index=1, checkshot=True)
+    with pytest.raises(ValueError):
+        well.d2t_model(index=-1)
+    with pytest.raises(ValueError):
+        well.d2t_model(name=well.d2t_model_names[0], index=0)
