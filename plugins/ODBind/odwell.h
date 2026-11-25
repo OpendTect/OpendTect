@@ -69,6 +69,9 @@ public:
 				   const float* dah,
 				   const BufferStringSet& colors,
 				   bool overwrite=false);
+    void		putTrack(const float* dah, const float* tvdss,
+				 const double* x, const double* y,
+				 uint32_t size);
 
     void		getInfo(OD::JSON::Object&) const override;
     void		getFeature(OD::JSON::Object&,
@@ -113,6 +116,10 @@ mExternC(ODBind) void		well_putmarkers(hWell, const hStringSet,
 						const hStringSet colors,
 						bool overwrite);
 mExternC(ODBind) bool		well_deletemarkers(hWell, const hStringSet);
+mExternC(ODBind) void		well_puttrack(hWell, const float* dah,
+					      const float* tvdss,
+					      const double* x, const double* y,
+					      uint32_t sz);
 mExternC(ODBind) void		well_tvd(hWell, const float dah, float* tvd);
 mExternC(ODBind) void		well_tvdss(hWell, const float dah,
 					   float* tvdss);

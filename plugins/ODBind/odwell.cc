@@ -496,6 +496,63 @@ void odWell::putMarkers( const BufferStringSet& markernms, const float* dah,
 }
 
 
+void odWell::putTrack( const float* dah, const float* tvdss,
+		       const double* x, const double* y, uint32_t sz )
+{
+    errmsg_.setEmpty();
+    survey_.activate();
+    if ( !wd_ )
+    {
+	errmsg_ = "odWell::putTrack - invalid welldata object.";
+	return;
+    }
+
+    if ( sz < 2 )
+    {
+	errmsg_ = "odWell::putTrack - a track needs at least two points.";
+	return;
+    }
+
+    const UnitOfMeasure* zduom = UnitOfMeasure::surveyDefDepthUnit();
+    const UnitOfMeasure* zsuom = UnitOfMeasure::surveyDefDepthStorageUnit();
+    Well::Track track;
+    for ( uint32_t idx=0; idx<sz; idx++ )
+    {
+	const float md = getConvertedValue( dah[idx], zduom, zsuom );
+	const float z = getConvertedValue( tvdss[idx], zduom, zsuom );
+	if ( mIsUdf(md) || mIsUdf(z) || mIsUdf(x[idx]) || mIsUdf(y[idx]) ||
+	     std::isnan(md) || std::isnan(z) || std::isnan(x[idx]) ||
+	     std::isnan(y[idx]) )
+	{
+	    errmsg_ = "odWell::putTrack - undefined value in the track.";
+	    return;
+	}
+
+	if ( idx>0 && md <= track.dah(idx-1) )
+	{
+	    errmsg_ = "odWell::putTrack - dah must increase.";
+	    return;
+	}
+
+	track.addPoint( Coord3(x[idx],y[idx],z), md );
+    }
+
+    const Well::Track origtrack = wd_->track();
+    const Coord origpos = wd_->info().surfacecoord_;
+    wd_->track() = track;
+    Well::Writer wtr( wd_->multiID(), *wd_ );
+    if ( !wtr.putTrack() )
+    {
+	wd_->track() = origtrack;
+	wd_->info().surfacecoord_ = origpos;
+	errmsg_ = "odWell::putTrack - saving track failed";
+	return;
+    }
+
+    wd_->trackchanged.trigger();
+}
+
+
 void odWell::getInfo( OD::JSON::Object& jsobj ) const
 {
     errmsg_.setEmpty();
@@ -757,6 +814,17 @@ bool well_deletemarkers( hWell self, const hStringSet markernms )
 	return true;
 
     return Well::MGR().deleteMarkers( p->wd()->multiID(), *nms );
+}
+
+
+void well_puttrack( hWell self, const float* dah, const float* tvdss,
+		    const double* x, const double* y, uint32_t sz )
+{
+    auto* p = static_cast<odWell*>(self);
+    if ( !p || !dah || !tvdss || !x || !y )
+	return;
+
+    p->putTrack( dah, tvdss, x, y, sz );
 }
 
 

@@ -275,3 +275,50 @@ def test_Well_put_markers(survey):
     well = Well(survey, 'F03-4')
     assert not any(nm in well.marker_names for nm in markernms)
     assert len(well.marker_names) == nmarkers
+
+def test_Well_put_track(survey):
+    name = 'pytest_well_track'
+    if name in Well.names(survey):
+        Well.delete(survey, [name])
+
+    x, y = survey.coords(survey.inlrange[0], survey.crlrange[0])
+    try:
+        with Well.create(survey, name, x, y, 25.0, 1000.0) as well:
+            well.put_markers(['pytest'], np.array([600.0], dtype=np.float32))
+
+            # vertical to 300 m MD, then 30 degrees from vertical towards +x
+            track = {
+                        'dah': np.array([0.0, 300.0, 600.0, 900.0, 1200.0], dtype=np.float32),
+                        'tvdss': np.array([-25.0, 275.0, 534.808, 794.615, 1054.423], dtype=np.float32),
+                        'x': np.array([x, x, x+150.0, x+300.0, x+450.0]),
+                        'y': np.array([y, y, y, y, y])
+                    }
+            well.put_track(**track)
+        del well
+
+        # reloaded: the track as written, KB, TD and the surface coordinate follow it, the marker keeps its dah
+        well = Well(survey, name)
+        res = well.track()
+        for key in track:
+            np.testing.assert_allclose(res[key], track[key], rtol=1e-6)
+        info = well.info()
+        assert info['kb'] == pytest.approx(25.0)
+        assert info['td'] == pytest.approx(1200.0)
+        assert info['x'] == pytest.approx(x)
+        assert well.tvdss(750.0) == pytest.approx(664.7115, rel=1e-5)
+        assert well.marker_info(['pytest'])[0]['dah'] == pytest.approx(600.0)
+
+        # refused, the track is not changed
+        with pytest.raises(ValueError):
+            well.put_track(track['dah'][:1], track['tvdss'][:1], track['x'][:1], track['y'][:1])
+        with pytest.raises(ValueError):
+            well.put_track(track['dah'][::-1].copy(), track['tvdss'], track['x'], track['y'])
+        with pytest.raises(ValueError):
+            well.put_track(track['dah'], track['tvdss'][:4], track['x'], track['y'])
+        np.testing.assert_allclose(well.track()['dah'], track['dah'], rtol=1e-6)
+        del well
+    finally:
+        if name in Well.names(survey):
+            Well.delete(survey, [name])
+
+    assert name not in Well.names(survey)

@@ -37,6 +37,14 @@ class Well(_SurveyObject):
                         ]
         clss._putmarkers = wrap_function(LIBODB, f'{bindnm}_putmarkers', None, putmarkersargs)
         clss._delmarkers = wrap_function(LIBODB, f'{bindnm}_deletemarkers', ct.c_bool, [ct.c_void_p, ct.c_void_p])
+        puttrackargs = [    ct.c_void_p,
+                            np.ctypeslib.ndpointer(dtype=np.float32, ndim=1, flags="C_CONTIGUOUS"),
+                            np.ctypeslib.ndpointer(dtype=np.float32, ndim=1, flags="C_CONTIGUOUS"),
+                            np.ctypeslib.ndpointer(dtype=np.float64, ndim=1, flags="C_CONTIGUOUS"),
+                            np.ctypeslib.ndpointer(dtype=np.float64, ndim=1, flags="C_CONTIGUOUS"),
+                            ct.c_int
+                        ]
+        clss._puttrack = wrap_function(LIBODB, f'{bindnm}_puttrack', None, puttrackargs)
         clss._tvdss = wrap_function(LIBODB, f'{bindnm}_tvdss', None, [ct.c_void_p, ct.c_float, ct.POINTER(ct.c_float)])
         clss._tvd = wrap_function(LIBODB, f'{bindnm}_tvd', None, [ct.c_void_p, ct.c_float, ct.POINTER(ct.c_float)])
         clss._commonmarkernames = wrap_function(LIBODB, f'{bindnm}_commonmarkernames', ct.c_void_p, [ct.c_void_p, ct.c_void_p])
@@ -393,6 +401,34 @@ class Well(_SurveyObject):
         res = self._delmarkers(self._handle, markernmsptr)
         stringset_del(markernmsptr)
         return res
+
+    def put_track(self, dah: np.ndarray, tvdss: np.ndarray, x: np.ndarray, y: np.ndarray):
+        """Replace the track of this well
+
+        The arguments are the arrays track() returns, so well.put_track(**track) writes such a dict back.
+        The KB elevation (dah - tvdss at the first point), the TD (last dah) and the surface coordinate
+        (first x, y) in info() follow the new track. Logs, markers and time-depth models are stored by
+        dah and are kept as they are, as OpendTect's own track editor does
+
+        Parameters
+        ----------
+        dah : np.ndarray
+            1D float32 numpy array with the depth-along-hole (MD) of each track point in the survey's default
+            depth unit, at least two points and increasing
+        tvdss : np.ndarray
+            1D float32 numpy array with the TVDSS of each track point in the survey's default depth unit
+        x : np.ndarray
+            1D float64 numpy array with the X coordinate of each track point
+        y : np.ndarray
+            1D float64 numpy array with the Y coordinate of each track point
+
+        """
+        if not dah.size==tvdss.size==x.size==y.size:
+            raise ValueError("dah, tvdss, x and y must be the same size")
+
+        self._puttrack(self._handle, dah, tvdss, x, y, dah.size)
+        if not self.isok:
+            raise ValueError(self.errmsg)
 
     def tvdss(self, dah: float):
         """Return TVDSS for a MD/dah depth, all in the survey's default depth unit"""
