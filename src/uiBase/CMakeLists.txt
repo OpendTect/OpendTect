@@ -19,6 +19,7 @@ set( OD_MODULE_SOURCES
 	uiaction.cc
 	uibutton.cc
 	uibuttongroup.cc
+	uicheckselgrp.cc
 	uiclipboard.cc
 	uicolor.cc
 	uicombobox.cc
