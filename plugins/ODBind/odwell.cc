@@ -272,6 +272,109 @@ void odWell::getTrack( hAllocator allocator )
 }
 
 
+BufferStringSet* odWell::getD2TModelNames( bool checkshot ) const
+{
+    errmsg_.setEmpty();
+    survey_.activate();
+    if ( !wd_ )
+	return nullptr;
+
+    auto* names = new BufferStringSet;
+    const Well::LoadReqs lreqs( checkshot ? Well::CSMdl : Well::D2T );
+    ConstRefMan<Well::Data> wd = Well::MGR().get( wd_->multiID(), lreqs );
+    if ( !wd )
+	return names;
+
+    if ( checkshot )
+	wd->getCheckShotModelNames( *names );
+    else
+	wd->getD2TModelNames( *names );
+
+    return names;
+}
+
+
+int odWell::getActiveD2TModelIndex( bool checkshot ) const
+{
+    errmsg_.setEmpty();
+    survey_.activate();
+    if ( !wd_ )
+	return -1;
+
+    const Well::LoadReqs lreqs( checkshot ? Well::CSMdl : Well::D2T );
+    ConstRefMan<Well::Data> wd = Well::MGR().get( wd_->multiID(), lreqs );
+    if ( !wd )
+	return -1;
+
+    const Well::D2TModel* active = checkshot ? wd->checkShotModel()
+					     : wd->d2TModel();
+    const int nrmodels = checkshot ? wd->nrCheckShotModels()
+				   : wd->nrD2TModels();
+    for ( int idx=0; active && idx<nrmodels; idx++ )
+    {
+	const Well::D2TModel* d2t = checkshot ? wd->checkShotModelByIndex( idx )
+					      : wd->d2TModelByIndex( idx );
+	if ( d2t == active )
+	    return idx;
+    }
+
+    return -1;
+}
+
+
+void odWell::getD2TModel( hAllocator allocator, bool checkshot,
+			  const char* name, int index )
+{
+    errmsg_.setEmpty();
+    survey_.activate();
+    if ( !wd_ )
+    {
+	errmsg_ = "odWell::getD2TModel - invalid welldata object.";
+	return;
+    }
+
+    const BufferString nm( name );
+    const Well::LoadReqs lreqs( checkshot ? Well::CSMdl : Well::D2T );
+    ConstRefMan<Well::Data> wd = Well::MGR().get( wd_->multiID(), lreqs );
+    const Well::D2TModel* d2t = nullptr;
+    if ( wd && !nm.isEmpty() )
+	d2t = checkshot ? wd->checkShotModelByName( nm )
+			: wd->d2TModelByName( nm );
+    else if ( wd && index >= 0 )
+	d2t = checkshot ? wd->checkShotModelByIndex( index )
+			: wd->d2TModelByIndex( index );
+    else if ( wd )
+	d2t = checkshot ? wd->checkShotModel() : wd->d2TModel();
+
+    if ( !d2t )
+    {
+	errmsg_ = checkshot ? "odWell::getD2TModel - no checkshot model"
+			    : "odWell::getD2TModel - no time-depth model";
+	if ( !nm.isEmpty() )
+	    errmsg_.add( " named: " ).add( nm );
+	else if ( index >= 0 )
+	    errmsg_.add( " at index: " ).add( index );
+
+	return;
+    }
+
+    const UnitOfMeasure* zduom = UnitOfMeasure::surveyDefDepthUnit();
+    const UnitOfMeasure* zsuom = UnitOfMeasure::surveyDefDepthStorageUnit();
+    const UnitOfMeasure* tduom = UnitOfMeasure::surveyDefTimeUnit();
+    const UnitOfMeasure* tsuom = UnitOfMeasure::surveyDefTimeStorageUnit();
+    const int ndim = 1;
+    int dims[ndim];
+    dims[0] = d2t->size();
+    float* dah_data = static_cast<float*>( allocator(ndim, dims, 'f') );
+    float* twt_data = static_cast<float*>( allocator(ndim, dims, 'f') );
+    for ( int idx=0; idx<dims[0]; idx++ )
+    {
+	*dah_data++ = getConvertedValue( d2t->dah(idx), zsuom, zduom );
+	*twt_data++ = getConvertedValue( d2t->t(idx), tsuom, tduom );
+    }
+}
+
+
 void odWell::getLogs( hAllocator allocator, const BufferStringSet& lognms,
 		      OD::JSON::Object& jsuomobj, float zstep,
 		      SampleMode samplemode )
@@ -674,6 +777,31 @@ void well_gettrack( hWell self, hAllocator allocator )
     auto* p = static_cast<odWell*>(self);
     if ( p )
 	p->getTrack( allocator );
+}
+
+
+hStringSet well_d2tmodelnames( hWell self, bool checkshot )
+{
+    auto* p = static_cast<odWell*>(self);
+    if ( !p ) return nullptr;
+    return p->getD2TModelNames( checkshot );
+}
+
+
+int well_actived2tmodel( hWell self, bool checkshot )
+{
+    auto* p = static_cast<odWell*>(self);
+    if ( !p ) return -1;
+    return p->getActiveD2TModelIndex( checkshot );
+}
+
+
+void well_getd2tmodel( hWell self, hAllocator allocator, bool checkshot,
+		       const char* name, int index )
+{
+    auto* p = static_cast<odWell*>(self);
+    if ( p )
+	p->getD2TModel( allocator, checkshot, name, index );
 }
 
 
