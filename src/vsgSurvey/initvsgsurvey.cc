@@ -9,21 +9,12 @@ ________________________________________________________________________
 
 #include "vsgsurveymod.h"
 
-#include "odplugin.h"
+#include "moddepmgr.h"
 #include "visvsgsurvscene.h"
 
 
-mDefODPluginInfo(vsgSurvey)
+mDefModInitFn(vsgSurvey)
 {
-    static PluginInfo retpi(
-	"VSG Viewer (Survey)",
-	"The survey scene of the Vulkan (VSG) 3D viewer." );
-    return &retpi;
-}
-
-
-mDefODInitPlugin(vsgSurvey)
-{
+    mIfNotFirstTime( return );
     ODVsg::initSurveyClasses();
-    return nullptr;
 }

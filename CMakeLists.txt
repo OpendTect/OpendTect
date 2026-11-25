@@ -106,10 +106,13 @@ set( OD_MODULES
 )
 
 if ( NOT OD_NO_OSG )
-    list( APPEND OD_MODULES
-	    visBase visSurvey uiOSG uiVis
-	    uiODMain
-    )
+    list( APPEND OD_MODULES visBase visSurvey uiOSG )
+    if ( NOT OD_NO_VSG )
+	list( APPEND OD_MODULES vsgBase vsgSurvey uiVSG )
+    endif()
+    list( APPEND OD_MODULES uiVis uiODMain )
+elseif ( NOT OD_NO_VSG )
+    message( FATAL_ERROR "OD_NO_VSG=OFF needs OSG: set OD_NO_OSG=OFF" )
 endif()
 
 set( OD_SPECPROGS ODSeis ODvisBase ODuiBase )

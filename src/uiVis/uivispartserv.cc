@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "flatview.h"
 #include "ioman.h"
 #include "iopar.h"
+#include "moddepmgr.h"
 #include "mousecursor.h"
 #include "mouseevent.h"
 #include "od_helpids.h"
@@ -94,26 +95,22 @@ static const int cPropertiesIdx = 600;
 static const int cResolutionIdx = 500;
 
 
-static const PluginManager::Data* vsgPluginData()
+static const SharedLibAccess* vsgLibAccess()
 {
-    BufferString libnm( 256, false );
-    SharedLibAccess::getLibName( "uiVSG", libnm.getCStr(), libnm.bufSize() );
-    return PIM().findData( libnm.buf() );
+    OD::ModDeps().ensureLoaded( "uiVSG" );
+    return OD::ModDeps().shLibAccess( "uiVSG" );
 }
 
 
 bool isVSGAvailable()
 {
-    const PluginManager::Data* data = vsgPluginData();
-    return data && data->isloaded_;
+    return vsgLibAccess();
 }
 
 
 bool useVSGDefaultScene()
 {
-	// Only use VSG as the default scene if the environment variable is set
-	// and the VSG plugin is available
-	return GetEnvVarYN( "OD_VSG_DEFAULT_SCENE" ) && isVSGAvailable();
+    return GetEnvVarYN( "OD_VSG_DEFAULT_SCENE" ) && isVSGAvailable();
 }
 
 
@@ -279,31 +276,28 @@ SceneID uiVisPartServer::addScene( visSurvey::Scene* newscene_in )
 
 
 typedef visSurvey::Scene* (*VSGSceneCreator)();
-typedef mQtclass(QWidget*) (*VSGViewerCreator)( mQtclass(uiParent*),
-					       visSurvey::Scene*,bool,
-					       const char*,NotifierAccess** );
+typedef ui3DViewerBase* (*VSGViewerCreator)( uiParent*,visSurvey::Scene*,
+					    const char* );
 
 void* uiVisPartServer::getVSGFunction( const char* fnnm ) const
 {
     if ( !isVSGAvailable() )
     {
-	uiMSG().error( tr("The VSG viewer plugin is not loaded") );
+	uiMSG().error( tr("The VSG viewer module is not loaded") );
 	return nullptr;
     }
 
-    const PluginManager::Data* data = vsgPluginData();
-    void* funcptr = nullptr;
-    if ( data && data->sla_ )
-	funcptr = data->sla_->getFunction( fnnm );
+    const SharedLibAccess* sla = vsgLibAccess();
+    void* funcptr = sla ? sla->getFunction(fnnm) : nullptr;
 
     if ( !funcptr )
-	uiMSG().error( tr("Cannot find %1 in the VSG plugin").arg(fnnm) );
+	uiMSG().error( tr("Cannot find %1 in the VSG module").arg(fnnm) );
 
     return funcptr;
 }
 
 
-SceneID uiVisPartServer::addVSGScene( bool maximized, const uiString& nm )
+SceneID uiVisPartServer::addVSGScene( const uiString& nm )
 {
     void* funcptr = getVSGFunction( "createVSGScene" );
     if ( !funcptr )
@@ -321,47 +315,31 @@ SceneID uiVisPartServer::addVSGScene( bool maximized, const uiString& nm )
     if ( nm.isSet() )
 	setSceneName( sceneid, nm );
 
-    NotifierAccess* closing = nullptr;
-    if ( !createVSGViewer(sceneid,maximized,nm,&closing) )
-    {
-	removeScene( sceneid );
-	return SceneID::udf();
-    }
-
-    if ( closing )
-	mAttachCB( *closing, uiVisPartServer::vsgViewerClosedCB );
-
     return sceneid;
 }
 
 
-void uiVisPartServer::vsgViewerClosedCB( CallBacker* cb )
+ui3DViewerBase* uiVisPartServer::createVSGViewer( const SceneID& sceneid,
+						  uiParent* parent,
+						  const uiString& nm )
 {
-    mCBCapsuleUnpack( SceneID,sceneid,cb );
-    removeScene( sceneid );
-}
+    if ( !parent )
+	return nullptr;
 
-
-bool uiVisPartServer::createVSGViewer( const SceneID& sceneid, bool maximized,
-				       const uiString& nm,
-				       NotifierAccess** closing )
-{
     RefMan<visSurvey::Scene> scene = getScene( sceneid );
     if ( !scene )
-	return false;
+	return nullptr;
 
     void* funcptr = getVSGFunction( "createVSGViewer" );
     if ( !funcptr )
-	return false;
+	return nullptr;
 
     BufferString title;
     if ( nm.isSet() )
 	title = nm.getFullString();
 
-    mDynamicCastGet(uiMainWin*,mainwin,appserv().parent())
     VSGViewerCreator creator = rCast( VSGViewerCreator, funcptr );
-    return creator( mainwin, scene.ptr(),
-		    maximized, title.buf(), closing ) != nullptr;
+    return creator( parent, scene.ptr(), title.buf() );
 }
 
 

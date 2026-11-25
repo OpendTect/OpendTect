@@ -11,7 +11,7 @@ ________________________________________________________________________
 #include "uiosgmod.h"
 
 #include "color.h"
-#include "uiobj.h"
+#include "ui3dviewerbase.h"
 #include "uiosgutil.h"
 
 class BufferStringSet;
@@ -22,7 +22,7 @@ class OD3DViewer;
 namespace visBase { class Scene; class PolygonSelection; class SceneColTab; }
 namespace osgViewer { class View; }
 
-mExpClass(uiOSG) ui3DViewer : public uiObject
+mExpClass(uiOSG) ui3DViewer : public ui3DViewerBase
 {
 
 public:
@@ -36,10 +36,10 @@ public:
     void		setScene(visBase::Scene*);
     visBase::Scene*	getScene();
     const visBase::Scene* getScene() const;
-    SceneID		sceneID() const;
+    SceneID		sceneID() const override;
 
-    void		setViewMode(bool);
-    bool		isViewMode() const;
+    void		setViewMode(bool) override;
+    bool		isViewMode() const override;
 
     void		enableAnimation(bool);
     bool		isAnimationEnabled() const;
@@ -51,9 +51,8 @@ public:
     float		getCameraZoom();
     const Coord3	getCameraPosition() const;
 
-    enum PlaneType	{ X, Y, Z, Inl, Crl, YZ };
-    void		viewPlane(PlaneType);
-    void		align();
+    void		viewPlane(PlaneType) override;
+    void		align() override;
 
     bool		setStereoType(OD::StereoType);
     OD::StereoType	getStereoType() const;
@@ -68,27 +67,27 @@ public:
     void		setReversedMouseWheelDirection(bool);
     bool		getReversedMouseWheelDirection() const;
 
-    void		setStartupView();
-    void		viewAll(bool animate=true);
-    void		toHomePos();
-    void		saveHomePos();
-    void		resetHomePos();
+    void		setStartupView() override;
+    void		viewAll(bool animate=true) override;
+    void		toHomePos() override;
+    void		saveHomePos() override;
+    void		resetHomePos() override;
 
-    void		showRotAxis(bool);
-    void		setAnnotationColor(const OD::Color&);
-    OD::Color		getAnnotationColor() const;
-    void		setAnnotationFont(const FontData&);
-    bool		rotAxisShown() const;
+    void		showRotAxis(bool) override;
+    void		setAnnotationColor(const OD::Color&) override;
+    OD::Color		getAnnotationColor() const override;
+    void		setAnnotationFont(const FontData&) override;
+    bool		rotAxisShown() const override;
 
-    void		toggleCameraType();
-    bool		isCameraPerspective() const;
+    void		toggleCameraType() override;
+    bool		isCameraPerspective() const override;
     void		setCameraPerspective(bool yn);
 
     void		setWheelDisplayMode(OD::WheelMode);
     OD::WheelMode	getWheelDisplayMode() const;
 
     void		setBackgroundColor(const OD::Color&) override;
-    OD::Color		getBackgroundColor() const;
+    OD::Color		getBackgroundColor() const override;
 
     Geom::Size2D<int>	getViewportSizePixels() const;
 
