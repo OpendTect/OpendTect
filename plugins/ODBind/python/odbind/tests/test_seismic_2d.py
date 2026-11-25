@@ -2,6 +2,7 @@ import pytest
 import json
 import numpy as np
 from odbind.seismic2d import Seismic2D
+from odbind.common_enums import VelocityType
 from odbind.geom2d import Geom2D
 
 def make_data(survey):
@@ -103,4 +104,53 @@ def test_Seismic2D_class(survey):
     assert data_info['line'] not in Geom2D.names(survey)
 
 
+def test_Seismic2D_velocity_type(survey):
+    si = survey.info()
+    zistime = si['zdomain']=='twt'
+    data, data_info = make_data(survey)
+    linenm = data_info['line']
+    linenm2 = 'pytest2d_vel'
+    with Seismic2D.create(survey, 'pytest_vel', data_info['comp'], 'CBVS', zistime, True) as test:
+        test.putdata(linenm, (data, data_info,), True, True)
+        assert 'velocity_type' not in test.info()
+        # without a unit the survey's default velocity unit applies
+        test.set_velocity_type(VelocityType.Interval)
+        data_info['line'] = linenm2
+        test.putdata(linenm2, (data, data_info,), True, True)
 
+    # the tag is kept when more lines are written
+    test = Seismic2D(survey, 'pytest_vel')
+    assert sorted(test.line_names) == sorted([linenm, linenm2])
+    info = test.info()
+    assert info['velocity_type'] == 'Vint'
+    defunit = info['velocity_unit']
+    assert defunit in ['m/s', 'ft/s']
+
+    test.set_velocity_type(VelocityType.RMS, 'km/s')
+    info = Seismic2D(survey, 'pytest_vel').info()
+    assert VelocityType(info['velocity_type']) == VelocityType.RMS
+    assert info['velocity_unit'] == 'km/s'
+
+    test.set_velocity_type(VelocityType.Epsilon)
+    info = Seismic2D(survey, 'pytest_vel').info()
+    assert info['velocity_type'] == 'Epsilon'
+    assert 'velocity_unit' not in info
+
+    with pytest.raises(TypeError):
+        test.set_velocity_type('Vint')
+    with pytest.raises(ValueError):
+        test.set_velocity_type(VelocityType.Interval, 'm')
+    assert Seismic2D(survey, 'pytest_vel').info()['velocity_type'] == 'Epsilon'
+
+    # Unknown removes the tag
+    test.set_velocity_type(VelocityType.Unknown)
+    info = Seismic2D(survey, 'pytest_vel').info()
+    assert 'velocity_type' not in info
+    assert 'velocity_unit' not in info
+
+    test.delete_lines([linenm, linenm2])
+    Seismic2D.delete(survey, ['pytest_vel'])
+    assert 'pytest_vel' not in Seismic2D.names(survey)
+    Geom2D.delete(survey, [linenm, linenm2])
+    assert linenm not in Geom2D.names(survey)
+    assert linenm2 not in Geom2D.names(survey)
