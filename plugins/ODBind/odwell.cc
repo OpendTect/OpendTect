@@ -26,6 +26,7 @@ ________________________________________________________________________________
 #include "ioobj.h"
 #include "latlong.h"
 #include "position.h"
+#include "welld2tmodel.h"
 #include "welllog.h"
 #include "welllogset.h"
 #include "wellmarker.h"
@@ -33,6 +34,9 @@ ________________________________________________________________________________
 #include "wellwriter.h"
 
 #include <cmath>
+
+float getDefaultTemporaryVelocity()
+{ return Well::getDefaultVelocity() * 1.25f; }
 
 
 odWell::odWell( const odSurvey& thesurvey, const char* name )
@@ -45,6 +49,68 @@ odWell::odWell( const odSurvey& thesurvey, const char* name )
     wd_ = Well::MGR().get( ioobj->key(), Well::LoadReqs::AllNoLogs() );
     if ( !wd_ )
 	errmsg_ = BufferString( "cannot load well data for: ", name );
+}
+
+
+odWell::odWell( const odSurvey& thesurvey, const char* name,
+		double surfacecoord_x, double surfacecoord_y,
+		float kbelev, float td, bool overwrite )
+    : odSurveyObject(thesurvey, name, translatorGrp(), overwrite)
+{
+    if ( !errmsg_.isEmpty() )
+	return;
+
+    ConstPtrMan<IOObj> ioobj( ioobj_ptr() );
+    if ( !ioobj )
+	return;
+
+    const UnitOfMeasure* zduom = UnitOfMeasure::surveyDefDepthUnit();
+    const UnitOfMeasure* zsuom = UnitOfMeasure::surveyDefDepthStorageUnit();
+    const float kb = getConvertedValue( kbelev, zduom, zsuom );
+    const float totaldepth = getConvertedValue( td, zduom, zsuom );
+    if ( mIsUdf(kb) || mIsUdf(totaldepth) || std::isnan(kb) ||
+	 std::isnan(totaldepth) || totaldepth <= kb )
+    {
+	errmsg_ = "odWell::odWell - invalid kbelev or td.";
+	return;
+    }
+
+    const Coord surfacecoord( surfacecoord_x, surfacecoord_y );
+    RefMan<Well::Data> newwd = new Well::Data( name_.buf() );
+    newwd->info().surfacecoord_ = surfacecoord;
+    newwd->track().addPoint( Coord3(surfacecoord,-kb), 0.f );
+    newwd->track().addPoint( Coord3(surfacecoord,totaldepth-kb), totaldepth );
+
+    Well::D2TModel* d2t = new Well::D2TModel( "constant_velocty");
+    newwd->info().replvel_ = Well::getDefaultVelocity();
+    d2t->makeFromTrack( newwd->track(),
+			getDefaultTemporaryVelocity(),
+			newwd->info().replvel_ );
+    newwd->setD2TModel( d2t );
+
+    Well::Writer wtr( *ioobj, *newwd );
+    if ( !wtr.put() )
+    {
+	errmsg_ = "odWell::odWell - cannot write well data: ";
+	errmsg_.add( wtr.errMsg().getFullString() );
+	return;
+    }
+
+    const MultiID key = ioobj->key();
+    if ( Well::MGR().isLoaded(key) &&
+	 !Well::MGR().reload(key,Well::LoadReqs::AllNoLogs()) )
+    {
+	errmsg_ = "odWell::odWell - cannot reload well data: ";
+	errmsg_.add( Well::MGR().errMsg().getFullString() );
+	return;
+    }
+
+    wd_ = Well::MGR().get( key, Well::LoadReqs::AllNoLogs() );
+    if ( !wd_ )
+    {
+	errmsg_ = "odWell::odWell - cannot load well data for: ";
+	errmsg_.add( name_.buf() );
+    }
 }
 
 
@@ -450,10 +516,16 @@ void odWell::getInfo( OD::JSON::Object& jsobj ) const
     const Coord cd = wd_->info().surfacecoord_;
     jsobj.set( "x", cd.x_ );
     jsobj.set( "y", cd.y_ );
-    jsobj.set( "kb", wd_->track().getKbElev() );
-    jsobj.set( "td", wd_->track().td() );
+
+    const UnitOfMeasure* zduom = UnitOfMeasure::surveyDefDepthUnit();
+    const UnitOfMeasure* zsuom = UnitOfMeasure::surveyDefDepthStorageUnit();
+    jsobj.set( "kb", getConvertedValue(wd_->track().getKbElev(),
+				       zsuom, zduom) );
+    jsobj.set( "td", getConvertedValue(wd_->track().td(), zsuom, zduom) );
     jsobj.set( "replacement_velocity", wd_->info().replvel_ );
-    jsobj.set( "ground_elevation", wd_->info().groundelev_ );
+    jsobj.set( "ground_elevation",
+	       getConvertedValue(wd_->info().groundelev_, zsuom, zduom) );
+    jsobj.set( "d2tmodel_count", wd_->nrD2TModels() );
 }
 
 
@@ -552,6 +624,17 @@ BufferStringSet* odWell::getCommonLogNames( const odSurvey& survey,
 
 mDefineBaseBindings(Well, well)
 mDefineRemoveBindings(Well, well)
+
+hWell well_newout( hSurvey survey, const char* name,
+		   double x, double y, float kbelev, float td, bool overwrite )
+{
+    const auto* p = static_cast<const odSurvey*>(survey);
+    if ( !p || !name )
+	return nullptr;
+
+    return new odWell( *p, name, x, y, kbelev, td, overwrite );
+}
+
 
 hStringSet well_lognames( hWell self )
 {
