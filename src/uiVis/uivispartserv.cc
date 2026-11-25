@@ -110,7 +110,7 @@ bool isVSGAvailable()
 
 bool useVSGDefaultScene()
 {
-	return GetEnvVarYN( "OD_VSG_DEFAULT_SCENE" ) && isVSGAvailable();
+    return GetEnvVarYN( "OD_VSG_DEFAULT_SCENE" ) && isVSGAvailable();
 }
 
 

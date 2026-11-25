@@ -51,9 +51,8 @@ public:
     float		getCameraZoom();
     const Coord3	getCameraPosition() const;
 
-    enum PlaneType	{ X, Y, Z, Inl, Crl, YZ };
-    void		viewPlane(PlaneType);
-    void		align();
+    void		viewPlane(PlaneType) override;
+    void		align() override;
 
     bool		setStereoType(OD::StereoType);
     OD::StereoType	getStereoType() const;
@@ -68,11 +67,11 @@ public:
     void		setReversedMouseWheelDirection(bool);
     bool		getReversedMouseWheelDirection() const;
 
-    void		setStartupView();
-    void		viewAll(bool animate=true);
-    void		toHomePos();
-    void		saveHomePos();
-    void		resetHomePos();
+    void		setStartupView() override;
+    void		viewAll(bool animate=true) override;
+    void		toHomePos() override;
+    void		saveHomePos() override;
+    void		resetHomePos() override;
 
     void		showRotAxis(bool) override;
     void		setAnnotationColor(const OD::Color&) override;
@@ -80,8 +79,8 @@ public:
     void		setAnnotationFont(const FontData&) override;
     bool		rotAxisShown() const override;
 
-    void		toggleCameraType();
-    bool		isCameraPerspective() const;
+    void		toggleCameraType() override;
+    bool		isCameraPerspective() const override;
     void		setCameraPerspective(bool yn);
 
     void		setWheelDisplayMode(OD::WheelMode);

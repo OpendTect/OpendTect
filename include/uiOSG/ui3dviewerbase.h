@@ -32,6 +32,18 @@ public:
     virtual OD::Color	getAnnotationColor() const			= 0;
     virtual void	setAnnotationFont(const FontData&)		= 0;
 
+    enum PlaneType	{ X, Y, Z, Inl, Crl, YZ };
+    virtual void	viewPlane(PlaneType)				= 0;
+    virtual void	align()						= 0;
+    virtual void	viewAll(bool animate=true)			= 0;
+    virtual void	setStartupView()				= 0;
+    virtual void	toHomePos()					= 0;
+    virtual void	saveHomePos()					= 0;
+    virtual void	resetHomePos()					= 0;
+
+    virtual void	toggleCameraType()				= 0;
+    virtual bool	isCameraPerspective() const			= 0;
+
     virtual OD::Color	getBackgroundColor() const			= 0;
 			//!<setBackgroundColor() is virtual in uiObject
 

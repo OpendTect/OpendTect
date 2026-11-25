@@ -749,6 +749,44 @@ bool uiVSGViewer::isViewMode() const
 }
 
 
+void uiVSGViewer::viewPlane( PlaneType )
+{}
+
+
+void uiVSGViewer::align()
+{}
+
+
+void uiVSGViewer::viewAll( bool )
+{}
+
+
+void uiVSGViewer::setStartupView()
+{}
+
+
+void uiVSGViewer::toHomePos()
+{}
+
+
+void uiVSGViewer::saveHomePos()
+{}
+
+
+void uiVSGViewer::resetHomePos()
+{}
+
+
+void uiVSGViewer::toggleCameraType()
+{}
+
+
+bool uiVSGViewer::isCameraPerspective() const
+{
+    return true;
+}
+
+
 void uiVSGViewer::updateCursor()
 {
     if ( windowhandler_ )

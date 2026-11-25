@@ -29,8 +29,8 @@ const char* uiODTreeTop::viewerptr()		{ return "Viewer"; }
 const char* uiODTreeTop::applmgrstr()		{ return "Applmgr"; }
 
 
-uiODTreeTop::uiODTreeTop( ui3DViewerBase* sovwr, uiTreeView* lv, uiODApplMgr* am,
-			    uiTreeFactorySet* tfs_ )
+uiODTreeTop::uiODTreeTop( ui3DViewerBase* sovwr, uiTreeView* lv,
+			  uiODApplMgr* am, uiTreeFactorySet* tfs_ )
     : uiTreeTopItem(lv)
     , tfs(tfs_)
 {

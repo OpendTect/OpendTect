@@ -87,14 +87,8 @@ static const char* sKeyWarnStereo = "Warning.Stereo Viewing";
 
 #define mWSMCB(fn) mCB(this,uiODSceneMgr,fn)
 #define mDoAllScenes(memb,fn,arg) \
-    for ( auto* bundle_ : scenes_ ) \
-	if ( !bundle_->isVSG() ) \
-	    dCast(OSGSceneBundle*,bundle_)->memb->fn( arg )
-
-#define mDoAllOSGViewers(fn,arg) \
-    for ( auto* bundle_ : scenes_ ) \
-	if ( !bundle_->isVSG() ) \
-	    dCast(ui3DViewer*,bundle_->vwr3d_)->fn( arg )
+    for ( int idx=0; idx<scenes_.size(); idx++ ) \
+	scenes_[idx]->memb->fn( arg )
 
 uiODSceneMgr::uiODSceneMgr( uiODMain* a )
     : sceneClosed(this)
@@ -108,7 +102,6 @@ uiODSceneMgr::uiODSceneMgr( uiODMain* a )
     , mdiarea_(new uiMdiArea(a,"OpendTect work space"))
     , vwridx_(0)
     , tifs_(new uiTreeFactorySet)
-    , vsgtifs_(new uiTreeFactorySet)
     , wingrabber_(new uiWindowGrabber(a))
     , tiletimer_(new Timer)
 {
@@ -165,7 +158,6 @@ uiODSceneMgr::~uiODSceneMgr()
     detachAllNotifiers();
     cleanUp( false );
     delete tifs_;
-    delete vsgtifs_;
     delete mdiarea_;
     for ( int idx=scenes_.size()-1; idx>=0; idx-- )
     {
@@ -315,25 +307,6 @@ SceneID uiODSceneMgr::addScene( bool maximized, ZAxisTransform* zt,
 }
 
 
-// The names of the OSG category items, without their actions: an OSG item is
-// only made to read its name. Plain rows, which cannot be selected.
-void uiODSceneMgr::addVSGCategoryItems( uiTreeView& lv )
-{
-    TypeSet<int> idxs;
-    getFactoryIdxs( idxs );
-    for ( int idx=0; idx<idxs.size(); idx++ )
-    {
-	PtrMan<uiTreeItem> osgitem = tifs_->getFactory(idxs[idx])->create();
-	if ( !osgitem )
-	    continue;
-
-	auto* item = new uiTreeViewItem( &lv,
-				uiTreeViewItem::Setup(osgitem->name()) );
-	item->setSelectable( false );
-    }
-}
-
-
 SceneID uiODSceneMgr::addVSGScene( bool maximized, const uiString& nm )
 {
     auto* scn = dCast(VSGSceneBundle*,&mkNewScene(true));
@@ -421,7 +394,7 @@ void uiODSceneMgr::newSceneUpdated( CallBacker* )
 
     if ( lastscene && lastscene->vwr3d_ )
     {
-	dCast(ui3DViewer*,lastscene->vwr3d_)->viewAll( false );
+	lastscene->vwr3d_->viewAll( false );
 	tiletimer_->start( 10,true );
 
 	RefMan<visSurvey::Scene> visscene = visServ().getScene(
@@ -845,35 +818,35 @@ void uiODSceneMgr::layoutScenes()
 
 
 void uiODSceneMgr::toHomePos( CallBacker* )
-{ mDoAllOSGViewers(toHomePos,); }
+{ mDoAllScenes(vwr3d_,toHomePos,); }
 void uiODSceneMgr::saveHomePos( CallBacker* )
-{ mDoAllOSGViewers(saveHomePos,); }
+{ mDoAllScenes(vwr3d_,saveHomePos,); }
 
 void uiODSceneMgr::resetHomePos( CallBacker* )
 {
-    mDoAllOSGViewers(resetHomePos,);
-    mDoAllOSGViewers(setStartupView,);
+    mDoAllScenes(vwr3d_,resetHomePos,);
+    mDoAllScenes(vwr3d_,setStartupView,);
 }
 
 void uiODSceneMgr::viewAll( CallBacker* )
-{ mDoAllOSGViewers(viewAll,); }
+{ mDoAllScenes(vwr3d_,viewAll,); }
 void uiODSceneMgr::align( CallBacker* )
-{ mDoAllOSGViewers(align,); }
+{ mDoAllScenes(vwr3d_,align,); }
 
 void uiODSceneMgr::viewX( CallBacker* )
-{ mDoAllOSGViewers(viewPlane,ui3DViewer::X); }
+{ mDoAllScenes(vwr3d_,viewPlane,ui3DViewer::X); }
 void uiODSceneMgr::viewY( CallBacker* )
-{ mDoAllOSGViewers(viewPlane,ui3DViewer::Y); }
+{ mDoAllScenes(vwr3d_,viewPlane,ui3DViewer::Y); }
 void uiODSceneMgr::viewZ( CallBacker* )
-{ mDoAllOSGViewers(viewPlane,ui3DViewer::Z); }
+{ mDoAllScenes(vwr3d_,viewPlane,ui3DViewer::Z); }
 void uiODSceneMgr::viewInl( CallBacker* )
-{ mDoAllOSGViewers(viewPlane,ui3DViewer::Inl); }
+{ mDoAllScenes(vwr3d_,viewPlane,ui3DViewer::Inl); }
 void uiODSceneMgr::viewCrl( CallBacker* )
-{ mDoAllOSGViewers(viewPlane,ui3DViewer::Crl); }
+{ mDoAllScenes(vwr3d_,viewPlane,ui3DViewer::Crl); }
 
 void uiODSceneMgr::setViewSelectMode( int md )
 {
-    mDoAllOSGViewers(viewPlane, sCast(ui3DViewer::PlaneType,md) );
+    mDoAllScenes(vwr3d_,viewPlane, sCast(ui3DViewer::PlaneType,md) );
 }
 
 
@@ -994,7 +967,7 @@ void uiODSceneMgr::switchCameraType( CallBacker* )
     if ( vwrs.isEmpty() )
 	return;
 
-    mDoAllOSGViewers(toggleCameraType,);
+    mDoAllScenes(vwr3d_,toggleCameraType,);
     const bool isperspective = vwrs[0]->isCameraPerspective();
     if ( appl_.menuMgrAvailable() )
 	appl_.menuMgr().setCameraPixmap( isperspective );
@@ -1162,9 +1135,9 @@ void uiODSceneMgr::sceneChanged( SceneID sceneid )
     if ( scene )
     {
 	scene->raiseTree();
-	auto* vwr3d = dCast(ui3DViewer*,scene->vwr3d_);
-	if ( vwr3d && appl_.menuMgrAvailable() )
-	    appl_.menuMgr().setCameraPixmap( vwr3d->isCameraPerspective() );
+	if ( scene->vwr3d_ && appl_.menuMgrAvailable() )
+	    appl_.menuMgr().setCameraPixmap(
+			scene->vwr3d_->isCameraPerspective() );
     }
 
     activeSceneChanged.trigger();
@@ -1227,32 +1200,27 @@ void uiODSceneMgr::initTree( SceneBundle& scn, int vwridx )
 				      : tr( "Tree scene %1" ).arg( vwridx );
     createTreeDock( scn, capt );
 
-    scn.itemmanager_ = new uiODTreeTop( scn.vwr3d_, scn.lv_, &applMgr(),
-				scn.isVSG() ? vsgtifs_ : tifs_ );
-    uiODSceneTreeItem* sceneitm = nullptr;
+    scn.itemmanager_ = new uiODTreeTop( scn.vwr3d_, scn.lv_, &applMgr(), tifs_);
+    uiODSceneTreeItem* sceneitm =
+	new uiODSceneTreeItem( scn.mdiwin_->getTitle(),
+			       scn.vwr3d_->sceneID() );
+    scn.itemmanager_->addChild( sceneitm, false );
+
+    TypeSet<int> idxs;
+    getFactoryIdxs( idxs );
+
+    for ( int idx=0; idx<idxs.size(); idx++ )
+    {
+	const int fidx = idxs[idx];
+	scn.itemmanager_->addChild(
+		tifs_->getFactory(fidx)->create(), true );
+    }
+
     if ( scn.isVSG() )
     {
-	// Plain rows: VSG has no tree items of its own yet
-	auto* row = new uiTreeViewItem( scn.lv_,
-			    uiTreeViewItem::Setup(scn.mdiwin_->getTitle()) );
-	row->setSelectable( false );
-	addVSGCategoryItems( *scn.lv_ );
-    }
-    else
-    {
-	sceneitm = new uiODSceneTreeItem( scn.mdiwin_->getTitle(),
-					  scn.vwr3d_->sceneID() );
-	scn.itemmanager_->addChild( sceneitm, false );
-
-	TypeSet<int> idxs;
-	getFactoryIdxs( idxs );
-
-	for ( int idx=0; idx<idxs.size(); idx++ )
-	{
-	    const int fidx = idxs[idx];
-	    scn.itemmanager_->addChild(
-		    tifs_->getFactory(fidx)->create(), true );
-	}
+	// The OSG items are only shown: they would add OSG objects
+	scn.itemmanager_->disabRightClick( true );
+	scn.itemmanager_->disabAnyClick( true );
     }
 
     scn.lv_->display( true );
@@ -1260,10 +1228,10 @@ void uiODSceneMgr::initTree( SceneBundle& scn, int vwridx )
     tabifyTree( scn );
 
     scn.dw_->setVisible( treeShown() );
-    if ( sceneitm )
-	sceneitm->select();
-    else
+    if ( scn.isVSG() )
 	scn.dw_->raise();
+    else
+	sceneitm->select();
 }
 
 
@@ -1405,7 +1373,11 @@ VisID uiODSceneMgr::getIDFromName( const char* str ) const
 
 void uiODSceneMgr::disabRightClick( bool yn )
 {
-    mDoAllScenes(itemmanager_,disabRightClick,yn);
+    for ( auto* bundle : scenes_ )
+    {
+	if ( !bundle->isVSG() ) // VSG trees keep their right-click off
+	    bundle->itemmanager_->disabRightClick( yn );
+    }
 }
 
 

@@ -93,6 +93,18 @@ public:
     bool		isViewMode() const override;
     void		syncCursor()		{ updateCursor(); }
 
+			// Not available in VSG yet: these do nothing
+    void		viewPlane(PlaneType) override;
+    void		align() override;
+    void		viewAll(bool animate=true) override;
+    void		setStartupView() override;
+    void		toHomePos() override;
+    void		saveHomePos() override;
+    void		resetHomePos() override;
+    void		toggleCameraType() override;
+    bool		isCameraPerspective() const override;
+			//!<Always true: the VSG camera is perspective
+
 private:
 
     class		SceneBoundsWatch;

@@ -57,7 +57,7 @@ public:
 
     SceneID			addVSGScene(bool maximized,
 					const uiString& nm=uiString::empty());
-				/*!<Creates the scene, its window, viewer and tree */
+				/*!<Creates scene, window, viewer and tree */
 
     void			setSceneName(const SceneID&,const uiString&);
     uiString			getSceneName(const SceneID&) const;
@@ -221,7 +221,6 @@ protected:
 
     int				vwridx_;
     uiTreeFactorySet*		tifs_;
-    uiTreeFactorySet*		vsgtifs_;
     uiWindowGrabber*		wingrabber_;
 
     inline uiODApplMgr&		applMgr()	{ return appl_.applMgr(); }
@@ -272,7 +271,6 @@ protected:
     void			createTreeDock(SceneBundle&,const uiString&);
     void			getFactoryIdxs(TypeSet<int>&) const;
     void			tabifyTree(SceneBundle&);
-    void			addVSGCategoryItems(uiTreeView&);
     SceneBundle*		getScene(const SceneID&);
     const SceneBundle*		getScene(const SceneID&) const;
     void			newSceneUpdated(CallBacker*);
