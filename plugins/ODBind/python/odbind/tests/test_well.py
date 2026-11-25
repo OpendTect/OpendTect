@@ -1,5 +1,6 @@
 import pytest
 import json
+import pathlib
 import numpy as np
 import odbind.pytest_helper as pytest_helper
 from odbind.well import Well
@@ -276,6 +277,21 @@ def test_Well_put_markers(survey):
     assert not any(nm in well.marker_names for nm in markernms)
     assert len(well.marker_names) == nmarkers
 
+def _d2t_model(survey, name, well):
+    # dah and twt rows of the stored time-depth model, with the TVDSS of each dah on the current track
+    fnm = pathlib.Path(survey.get_object_info(name, 'Well')['File name']).with_suffix('.wlt')
+    lines = fnm.read_text().splitlines()
+    start = lines.index('!', lines.index('!')+1) + 1
+    rows = np.array([[float(val) for val in line.split()] for line in lines[start:] if line.strip()])
+    tvdss = np.array([well.tvdss(float(dah)) for dah in rows[:,0]])
+    return rows[:,0], tvdss, rows[:,1]
+
+def _twt_at(z, tvdss, twt):
+    # linear in TVDSS, extrapolated below the last point with the last interval velocity
+    if z <= tvdss[-1]:
+        return np.interp(z, tvdss, twt)
+    return twt[-1] + (z-tvdss[-1]) * (twt[-1]-twt[-2]) / (tvdss[-1]-tvdss[-2])
+
 def test_Well_put_track(survey):
     name = 'pytest_well_track'
     if name in Well.names(survey):
@@ -293,6 +309,7 @@ def test_Well_put_track(survey):
                         'x': np.array([x, x, x+150.0, x+300.0, x+450.0]),
                         'y': np.array([y, y, y, y, y])
                     }
+            _, oldtvdss, oldtwt = _d2t_model(survey, name, well)
             well.put_track(**track)
         del well
 
@@ -307,6 +324,15 @@ def test_Well_put_track(survey):
         assert info['x'] == pytest.approx(x)
         assert well.tvdss(750.0) == pytest.approx(664.7115, rel=1e-5)
         assert well.marker_info(['pytest'])[0]['dah'] == pytest.approx(600.0)
+
+        # the time-depth model is projected onto the new track: it reaches the new TD and keeps the TWT at each
+        # TVDSS (times from SRD, as OpendTect reads the model)
+        dah, tvdss, twt = _d2t_model(survey, name, well)
+        assert dah[-1] == pytest.approx(1200.0, rel=1e-5)
+        srdz = -survey.info()['srd']
+        for z in [100.0, 500.0, 975.0, 1054.423]:
+            expected = _twt_at(z, oldtvdss, oldtwt) - _twt_at(srdz, oldtvdss, oldtwt)
+            assert _twt_at(z, tvdss, twt) == pytest.approx(expected, abs=1e-5)
 
         # refused, the track is not changed
         with pytest.raises(ValueError):

@@ -26,6 +26,7 @@ ________________________________________________________________________________
 #include "ioobj.h"
 #include "latlong.h"
 #include "position.h"
+#include "timedepthmodel.h"
 #include "welld2tmodel.h"
 #include "welllog.h"
 #include "welllogset.h"
@@ -537,19 +538,86 @@ void odWell::putTrack( const float* dah, const float* tvdss,
 	track.addPoint( Coord3(x[idx],y[idx],z), md );
     }
 
+    if ( !Well::MGR().get(wd_->multiID(),Well::LoadReqs(Well::D2T)) )
+    {
+	errmsg_ = "odWell::putTrack - cannot read the time-depth model.";
+	return;
+    }
+
+    Well::D2TModel* d2t = wd_->d2TModel();
+    TimeDepthModel dtmodel;
+    if ( d2t && !d2t->getTimeDepthModel(*wd_,dtmodel) )
+    {
+	errmsg_ = "odWell::putTrack - the time-depth model is invalid.";
+	return;
+    }
+
     const Well::Track origtrack = wd_->track();
     const Coord origpos = wd_->info().surfacecoord_;
+    const float origreplvel = wd_->info().replvel_;
+    PtrMan<Well::D2TModel> origd2t = d2t ? new Well::D2TModel( *d2t )
+					 : nullptr;
     wd_->track() = track;
+#define mRestore() \
+    wd_->track() = origtrack; \
+    wd_->info().surfacecoord_ = origpos; \
+    wd_->info().replvel_ = origreplvel; \
+    if ( d2t ) \
+	*d2t = *origd2t;
+
+    if ( d2t )
+    {
+	// The model as uiSetD2TFromOtherWell::acceptOK takes it, plus the
+	// time at the TVDSS of each point of the new track
+	const int mdlsz = dtmodel.size();
+	TypeSet<double> depths, times;
+	for ( int idx=0; idx<mdlsz; idx++ )
+	{
+	    depths += getConvertedValue( dtmodel.getDepth(idx), zduom, zsuom );
+	    times += dtmodel.getTime( idx );
+	}
+
+	for ( int idx=0; idx<track.size(); idx++ )
+	{
+	    const float z = sCast(float,track.pos(idx).z_);
+	    depths += z;
+	    times += dtmodel.getTime( getConvertedValue(z,zsuom,zduom) );
+	}
+
+	uiString msg;
+	if ( !d2t->ensureValid(*wd_,msg,&depths,&times) )
+	{
+	    mRestore()
+	    errmsg_ = "odWell::putTrack - cannot project the time-depth "
+		      "model onto the new track: ";
+	    errmsg_.add( msg.getFullString() );
+	    return;
+	}
+
+	d2t->ensureValid( *wd_, msg );
+	wd_->info().replvel_ = origreplvel;
+    }
+
     Well::Writer wtr( wd_->multiID(), *wd_ );
     if ( !wtr.putTrack() )
     {
-	wd_->track() = origtrack;
-	wd_->info().surfacecoord_ = origpos;
+	mRestore()
 	errmsg_ = "odWell::putTrack - saving track failed";
 	return;
     }
 
+    if ( d2t && !wtr.putD2T() )
+    {
+	mRestore()
+	wtr.putTrack();
+	errmsg_ = "odWell::putTrack - saving the time-depth model failed";
+	return;
+    }
+
+#undef mRestore
     wd_->trackchanged.trigger();
+    if ( d2t )
+	wd_->d2tchanged.trigger();
 }
 
 

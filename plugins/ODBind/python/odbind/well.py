@@ -407,8 +407,9 @@ class Well(_SurveyObject):
 
         The arguments are the arrays track() returns, so well.put_track(**track) writes such a dict back.
         The KB elevation (dah - tvdss at the first point), the TD (last dah) and the surface coordinate
-        (first x, y) in info() follow the new track. Logs, markers and time-depth models are stored by
-        dah and are kept as they are, as OpendTect's own track editor does
+        (first x, y) in info() follow the new track. The active time-depth model is projected onto the new
+        track: it keeps the TWT at each TVDSS and is extended to the new TD. Logs, markers and the checkshot
+        model are stored by dah and are kept as they are, as OpendTect's own track editor does
 
         Parameters
         ----------
