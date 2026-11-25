@@ -93,6 +93,9 @@ mExternC(ODBind) void		seismic2d_putdata(hSeismic2D, const char*,
 mExternC(ODBind) bool		seismic2d_deletelines(hSeismic2D,
 						      const hStringSet);
 mExternC(ODBind) hStringSet	seismic2d_names_for(hSurvey, const char* line);
+mExternC(ODBind) void		seismic2d_setvelocitytype(hSeismic2D,
+							  const char* veltype,
+							  const char* velunit);
 
 
 

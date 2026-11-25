@@ -6,6 +6,7 @@ from enum import Enum
 from odbind import wrap_function, LIBODB, makestrlist, NumpyAllocator, pyjsonstr, pystr, pystrlist, stringset_del, unpack_slice, is_none_slice 
 from odbind.survey import Survey, _SurveyObject
 from odbind.geom2d import Geom2D
+from odbind.common_enums import VelocityType
 
 class Seismic2D(_SurveyObject):
     """
@@ -28,6 +29,7 @@ class Seismic2D(_SurveyObject):
         clss._putdata = wrap_function(LIBODB, f'{bindnm}_putdata', None, putdataargs)
         clss._dellines = wrap_function(LIBODB, f'{bindnm}_deletelines', ct.c_bool, [ct.c_void_p, ct.c_void_p])
         clss._namesfor = wrap_function(LIBODB, f'{bindnm}_names_for', ct.c_void_p, [ct.c_void_p, ct.c_char_p])
+        clss._setvelocitytype = wrap_function(LIBODB, f'{bindnm}_setvelocitytype', None, [ct.c_void_p, ct.c_char_p, ct.c_char_p])
 
     def __init__(self, survey: Survey, name: str):
         """Initialise an OpendTect 2D seismic dataset object
@@ -99,6 +101,27 @@ class Seismic2D(_SurveyObject):
 
     def close(self):
         self._close(self._handle)
+
+    def set_velocity_type(self, veltype: VelocityType, unit: str=''):
+        """Tag this 2D dataset as a velocity dataset, as OpendTect's velocity type dialog does
+
+        The type and unit are stored with the dataset, so OpendTect's time-depth conversion
+        can use it as a velocity model. info() returns them as 'velocity_type' and 'velocity_unit'.
+
+        Parameters
+        ----------
+        veltype : VelocityType
+            the velocity type, e.g. VelocityType.Interval, or VelocityType.Unknown to remove the tag
+        unit : str=''
+            (Optional) the velocity unit, e.g. 'm/s' or 'ft/s', only for VelocityType.Interval,
+            VelocityType.RMS and VelocityType.Avg. If empty the survey's default velocity unit is used
+
+        """
+        if not isinstance(veltype, VelocityType):
+            raise TypeError('veltype must be a VelocityType')
+        self._setvelocitytype(self._handle, veltype.value.encode(), unit.encode())
+        if not self.isok:
+            raise ValueError(self.errmsg)
 
     def line_info(self, forlinenms: list[str]=[], use_dataframe: bool|None=None):
         """Return basic information for all or a subset of lines in this 2D dataset.
