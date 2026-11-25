@@ -1,7 +1,10 @@
+import re
 import numpy as np
 import ctypes as ct
 from odbind import wrap_function, LIBODB, makestrlist, NumpyAllocator, pyjsonstr, pystr, pystrlist, stringset_del 
 from odbind.survey import Survey, _SurveyObject
+
+_COLOR_RE = re.compile(r"^#[0-9a-fA-F]{6}$")
 
 class Well(_SurveyObject):
     """
@@ -24,6 +27,12 @@ class Well(_SurveyObject):
                     ]
         clss._putlog = wrap_function(LIBODB, f'{bindnm}_putlog', None, putlogargs)
         clss._dellogs = wrap_function(LIBODB, f'{bindnm}_deletelogs', ct.c_bool, [ct.c_void_p, ct.c_void_p])
+        putmarkersargs = [  ct.c_void_p, ct.c_void_p,
+                            np.ctypeslib.ndpointer(dtype=np.float32, ndim=1, flags="C_CONTIGUOUS"),
+                            ct.c_void_p, ct.c_bool
+                        ]
+        clss._putmarkers = wrap_function(LIBODB, f'{bindnm}_putmarkers', None, putmarkersargs)
+        clss._delmarkers = wrap_function(LIBODB, f'{bindnm}_deletemarkers', ct.c_bool, [ct.c_void_p, ct.c_void_p])
         clss._tvdss = wrap_function(LIBODB, f'{bindnm}_tvdss', None, [ct.c_void_p, ct.c_float, ct.POINTER(ct.c_float)])
         clss._tvd = wrap_function(LIBODB, f'{bindnm}_tvd', None, [ct.c_void_p, ct.c_float, ct.POINTER(ct.c_float)])
         clss._commonmarkernames = wrap_function(LIBODB, f'{bindnm}_commonmarkernames', ct.c_void_p, [ct.c_void_p, ct.c_void_p])
@@ -244,13 +253,16 @@ class Well(_SurveyObject):
         dah : np.ndarray
             1D float32 numpy array with the depth-along-hole (MD) of the logdata in the survey's default depth unit
         logdata : np.ndarray
-            1D float32 numpy array with the log data
+            1D float32 numpy array with the log data, NaN for undefined values. Leading and trailing
+            undefined values are not stored, so once reloaded the log starts and ends at a defined value
         uom : str
-            the unit of measure of the new log
+            the unit of measure of the new log, a unit OpendTect does not recognise is not stored
+            and the log has no unit of measure
         mnem : str
             the Mnemonic of the new log
         overwrite : bool=False
-            whether to overwrite if lognm already exists in the well
+            whether to overwrite if lognm already exists in the well. If False and lognm exists, nothing
+            is written and no error is raised. If True the existing log is deleted before the new log is written
 
         """
         if dah.size!=logdata.size:
@@ -277,6 +289,57 @@ class Well(_SurveyObject):
         lognmsptr = makestrlist(lognms)
         res = self._dellogs(self._handle, lognmsptr)
         stringset_del(lognmsptr)
+        return res
+
+    def put_markers(self, markernms: list[str], dah: np.ndarray, colors: list[str]=[], overwrite: bool=False):
+        """Add markers to this well
+
+        Parameters
+        ----------
+        markernms : list[str]
+            the names of the new markers
+        dah : np.ndarray
+            1D float32 numpy array with the depth-along-hole (MD) of each marker in the survey's default depth unit
+        colors : list[str]=[]
+            (Optional) the color of each marker as a '#rrggbb' string, the format marker_info returns.
+            For an empty list the markers get OpendTect's default color (white)
+        overwrite : bool=False
+            whether to overwrite markers that already exist in the well. If False an existing marker is
+            left as it is and no error is raised. If True the existing marker is replaced by the new one
+
+        """
+        if dah.size!=len(markernms):
+            raise ValueError("markernms and dah must be the same size")
+        if colors and len(colors)!=len(markernms):
+            raise ValueError("colors must be empty or the same size as markernms")
+        for i, color in enumerate(colors):
+            if not isinstance(color, str) or not _COLOR_RE.fullmatch(color):
+                raise ValueError(f"colors[{i}] must be a '#rrggbb' hex color string, got {color!r}")
+
+        markernmsptr = makestrlist(markernms)
+        colorsptr = makestrlist([color.lower() for color in colors])
+        self._putmarkers(self._handle, markernmsptr, dah, colorsptr, overwrite)
+        stringset_del(markernmsptr)
+        stringset_del(colorsptr)
+        if not self.isok:
+            raise ValueError(self.errmsg)
+
+    def delete_markers(self, markernms: list[str]=[]):
+        """Delete the listed markers from the well
+
+        Parameters
+        ----------
+        markernms : list[str]
+            list of marker names to be deleted
+
+        Returns
+        -------
+        bool : True/False indicating success/failure
+
+        """
+        markernmsptr = makestrlist(markernms)
+        res = self._delmarkers(self._handle, markernmsptr)
+        stringset_del(markernmsptr)
         return res
 
     def tvdss(self, dah: float):

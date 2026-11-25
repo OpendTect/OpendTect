@@ -10,12 +10,10 @@ ________________________________________________________________________
 #include "winutils.h"
 
 #include "bufstring.h"
-#include "debug.h"
 #include "envvars.h"
 #include "filepath.h"
 #include "genc.h"
 #include "perthreadrepos.h"
-#include "string2.h"
 
 #include <QSettings>
 
@@ -26,15 +24,27 @@ ________________________________________________________________________
 #include "ptrman.h"
 #include "separstr.h"
 
-# include <windows.h>
-# include <process.h>
-# include <aclapi.h>
-
-// registry stuff
-# include <regstr.h>
-# include <winreg.h>
-
 # include <iostream>
+# include <streambuf>
+# include <string>
+# include <unordered_map>
+# include <windows.h>
+# include <aclapi.h>
+# include <lm.h>
+# include <lmcons.h>
+# include <process.h>
+# include <regstr.h>
+# include <shlobj_core.h>
+# include "Knownfolders.h"
+# include <winreg.h>
+# define SECURITY_WIN32
+# include <security.h>
+# include <tchar.h>
+# ifdef __msvc__
+#  pragma comment(lib, "netapi32.lib")
+#  pragma comment(lib, "secur32.lib")
+# endif
+
 #endif
 
 
@@ -176,7 +186,7 @@ const char* GetSpecialFolderLocation( int nFolder )
 
 bool winCopy( const char* from, const char* to, bool isfile, bool ismove )
 {
-    if ( isfile && File::getFileSize(from) < mDef1MB )
+    if ( isfile && File::getFileSize(from) < (od_int64) mDef1MB )
     {
 	OS::MachineCommand mc( "copy", "/Y", from, to );
 	return mc.execute();
@@ -397,6 +407,214 @@ bool belongsToTrusterInstaller( const char* fnm )
 }
 
 
+void GetUserName( BufferString& name )
+{
+    mDefineStaticLocalObject( TCHAR, usernm, [UNLEN+1] );
+    DWORD len = UNLEN+1;
+    ::GetUserName( usernm, &len );
+    WinUtils::copyWString( usernm, name );
+}
+
+
+bool GetSessionUserNm( PSID sid, BufferString& name )
+{
+    if ( !sid )
+	return false;
+
+    TCHAR account[512];
+    TCHAR domain[512];
+    DWORD accountsz = 512;
+    DWORD domainsz = 512;
+    SID_NAME_USE use;
+    if ( !LookupAccountSid(nullptr,sid,account,&accountsz,
+			   domain,&domainsz,&use) )
+	return false;
+
+    WinUtils::copyWString( account, name );
+    return !name.isEmpty();
+}
+
+
+using DisplayNameMap = std::unordered_map<std::string,std::string>;
+
+static DisplayNameMap& winDisplayNames()
+{
+    mDefineStaticLocalObject( PtrMan<DisplayNameMap>, names,
+			      = new DisplayNameMap )
+    return *names.ptr();
+}
+
+static Threads::Lock& winDisplayNameLock()
+{
+    mDefineStaticLocalObject( PtrMan<Threads::Lock>, lock,
+			      = new Threads::Lock(false) )
+    return *lock.ptr();
+}
+
+static bool cachedDisplayName( const char* account, BufferString& name )
+{
+    if ( StringView(account).isEmpty() )
+	return false;
+
+    Threads::Locker lock( winDisplayNameLock() );
+    const auto it = winDisplayNames().find( account );
+    if ( it == winDisplayNames().end() )
+	return false;
+
+    name = it->second.c_str();
+    return !name.isEmpty();
+}
+
+static void storeDisplayName( const char* account, const char* display )
+{
+    if ( StringView(account).isEmpty() || StringView(display).isEmpty() )
+	return;
+
+    Threads::Locker lock( winDisplayNameLock() );
+    winDisplayNames()[account] = display;
+}
+
+
+bool GetDisplayName( PSID sid, BufferString& name )
+{
+#ifdef UNICODE
+    TCHAR account[512];
+    TCHAR domain[512];
+    DWORD accountsz = 512;
+    DWORD domainsz = 512;
+    SID_NAME_USE use;
+    if ( !sid || !LookupAccountSid(nullptr,sid,account,&accountsz,
+				   domain,&domainsz,&use) ||
+	 use != SidTypeUser )
+	return false;
+
+    BufferString accountnm;
+    WinUtils::copyWString( account, accountnm );
+    if ( cachedDisplayName(accountnm.buf(),name) )
+	return true;
+
+    LPUSER_INFO_10 info = nullptr;
+    NET_API_STATUS status = NetUserGetInfo( nullptr, account, 10,
+					    (LPBYTE*)&info );
+    if ( status != NERR_Success && domain[0] != L'\0' )
+    {
+	info = nullptr;
+	status = NetUserGetInfo( domain, account, 10, (LPBYTE*)&info );
+    }
+
+    if ( status == NERR_Success && info )
+    {
+	if ( info->usri10_full_name && info->usri10_full_name[0] != L'\0' )
+	    WinUtils::copyWString( info->usri10_full_name, name );
+
+	NetApiBufferFree( info );
+	if ( !name.isEmpty() )
+	{
+	    storeDisplayName( accountnm.buf(), name.buf() );
+	    return true;
+	}
+    }
+
+    if ( domain[0] == L'\0' )
+	return false;
+
+    TCHAR sam[1025];
+    if ( _tcscpy_s(sam,1025,domain) || _tcscat_s(sam,1025,__TEXT("\\")) ||
+	 _tcscat_s(sam,1025,account) )
+	return false;
+
+    TCHAR display[512];
+    ULONG displaysz = 512;
+    if ( !TranslateName(sam,NameSamCompatible,NameDisplay,
+			display,&displaysz) )
+	return false;
+
+    WinUtils::copyWString( display, name );
+    if ( !name.isEmpty() )
+	storeDisplayName( accountnm.buf(), name.buf() );
+
+    return !name.isEmpty();
+#else
+    return false;
+#endif
+}
+
+
+bool GetUserName( const char* fnm, BufferString& owner, BufferString* group,
+		  bool resolve )
+{
+    LPCTSTR tfnm = nullptr;
+#ifdef UNICODE
+    const std::wstring longfnm = FilePath::getWLongPath( fnm );
+    tfnm = longfnm.c_str();
+#else
+    const BufferString longfnm = FilePath::getLongPath( fnm );
+    tfnm = longfnm.str();
+#endif
+    PSID ownersid = nullptr;
+    PSID groupsid = nullptr;
+    PSECURITY_DESCRIPTOR sd = nullptr;
+    const DWORD rc = GetNamedSecurityInfo( tfnm, SE_FILE_OBJECT,
+		OWNER_SECURITY_INFORMATION | GROUP_SECURITY_INFORMATION,
+		&ownersid, &groupsid, nullptr, nullptr, &sd );
+    const bool res = rc == ERROR_SUCCESS;
+    if ( res )
+    {
+	if ( owner.isEmpty() )
+	    owner = GetSessionUserNmFromID( ownersid );
+
+	if ( group && group->isEmpty() )
+	    *group = GetSessionUserNmFromID( groupsid );
+
+	BufferString display;
+	if ( resolve && GetDisplayName(ownersid,display) )
+	    owner = display;
+    }
+
+    if ( sd )
+	LocalFree( sd );
+
+    return res;
+}
+
+
+bool resolveSessionUserNm( const char* usernm, BufferString& name )
+{
+    name.setEmpty();
+    if ( !usernm || !*usernm )
+	return false;
+
+    if ( cachedDisplayName(usernm,name) )
+	return true;
+
+    BYTE sidbuf[SECURITY_MAX_SID_SIZE];
+    DWORD sidsz = SECURITY_MAX_SID_SIZE;
+    TCHAR domain[512];
+    DWORD domainsz = 512;
+    SID_NAME_USE use;
+#ifdef UNICODE
+    const std::wstring wuser = StringView(usernm).toStdWString();
+    const BOOL found = LookupAccountName( nullptr, wuser.c_str(), sidbuf,
+					  &sidsz, domain, &domainsz, &use );
+#else
+    const BOOL found = LookupAccountName( nullptr, usernm, sidbuf, &sidsz,
+					  domain, &domainsz, &use );
+#endif
+    if ( !found || use != SidTypeUser )
+	return false;
+
+    const PSID sid = sCast(PSID,sidbuf);
+    if ( !GetDisplayName(sid,name) && !GetSessionUserNm(sid,name) )
+	return false;
+
+    if ( name.isEmpty() )
+	return false;
+
+    storeDisplayName( usernm, name.buf() );
+    return true;
+}
+
+
 bool serviceIsRunning( const char* nm )
 {
     return getServiceStatus(nm) == SERVICE_RUNNING;
@@ -406,7 +624,6 @@ bool serviceIsRunning( const char* nm )
 int getServiceStatus( const char* nm )
 {
     SC_HANDLE theService, scm;
-    SERVICE_STATUS m_SERVICE_STATUS;
     SERVICE_STATUS_PROCESS ssStatus;
     DWORD dwBytesNeeded;
 
@@ -457,6 +674,194 @@ void copyWString( LPCTSTR wstrptr, BufferString& str )
 }
 
 
+bool writeUtf8ToStdConsole( const char* txt, std::ostream& strm )
+{
+    if ( StringView(txt).isEmpty() )
+	return false;
+
+    HANDLE handle = nullptr;
+    if ( &strm == &std::cout )
+	handle = GetStdHandle( STD_OUTPUT_HANDLE );
+    else if ( &strm == &std::cerr )
+	handle = GetStdHandle( STD_ERROR_HANDLE );
+    else
+	return false;
+
+    DWORD consolemode = 0;
+    if ( !handle || handle == INVALID_HANDLE_VALUE ||
+	 !GetConsoleMode(handle,&consolemode) )
+	return false;
+
+    const int nbytes = sCast(int,strlen(txt));
+    if ( nbytes <= 0 )
+	return false;
+
+    const int wlen = MultiByteToWideChar( CP_UTF8, 0, txt, nbytes,
+					       nullptr, 0 );
+    if ( wlen <= 0 )
+	return false;
+
+    std::wstring wide( sCast(size_t,wlen), L'\0' );
+    MultiByteToWideChar( CP_UTF8, 0, txt, nbytes, wide.data(), wlen );
+
+    std::wstring out;
+    out.reserve( wide.size() + 4 );
+    for ( int idx=0; idx<wlen; idx++ )
+    {
+	const wchar_t wch = wide[sCast(size_t,idx)];
+	if ( wch == L'\n' && (out.empty() || out.back() != L'\r') )
+	    out.push_back( L'\r' );
+
+	out.push_back( wch );
+    }
+
+    // Drop any bytes still sitting in the C++ buffer so they stay in order.
+    strm.flush();
+
+    const wchar_t* ptr = out.data();
+    int left = sCast(int,out.size());
+    bool anywritten = false;
+    while ( left > 0 )
+    {
+	const DWORD chunk = left > 30000 ? 30000 : sCast(DWORD,left);
+	DWORD written = 0;
+	if ( !WriteConsoleW(handle,ptr,chunk,&written,nullptr) ||
+	     written == 0 )
+	    return anywritten;
+
+	anywritten = true;
+	ptr += written;
+	left -= sCast(int,written);
+    }
+
+    return true;
+}
+
+
+class Utf8ConsoleInBuf : public std::streambuf
+{
+public:
+
+Utf8ConsoleInBuf( HANDLE handle )
+    : handle_(handle)
+{}
+
+protected:
+
+int_type underflow() override
+{
+    if ( gptr() < egptr() )
+	return traits_type::to_int_type( *gptr() );
+
+    while ( !ateof_ )
+    {
+	wchar_t wbuf[1024];
+	DWORD nread = 0;
+	if ( !ReadConsoleW(handle_,wbuf,1024,&nread,nullptr) || nread == 0 )
+	    break;
+
+	DWORD nuse = nread;
+	for ( DWORD idx=0; idx<nread; idx++ )
+	{
+	    if ( wbuf[idx] == L'\x1a' )
+	    {
+		nuse = idx;
+		ateof_ = true;
+		break;
+	    }
+	}
+
+	std::wstring chars;
+	if ( heldcr_ )
+	{
+	    heldcr_ = false;
+	    if ( nuse == 0 || wbuf[0] != L'\n' )
+		chars.push_back( L'\r' );
+	}
+
+	for ( DWORD idx=0; idx<nuse; idx++ )
+	{
+	    if ( wbuf[idx] == L'\r' && idx + 1 == nuse )
+	    {
+		heldcr_ = true;
+		break;
+	    }
+
+	    if ( wbuf[idx] == L'\r' && wbuf[idx+1] == L'\n' )
+		continue;
+
+	    chars.push_back( wbuf[idx] );
+	}
+
+	if ( chars.empty() )
+	    continue;
+
+	if ( !storeUtf8(chars) )
+	    return traits_type::eof();
+
+	return traits_type::to_int_type( *gptr() );
+    }
+
+    ateof_ = true;
+    if ( !flushHeldCR() )
+	return traits_type::eof();
+
+    return traits_type::to_int_type( *gptr() );
+}
+
+private:
+
+bool flushHeldCR()
+{
+    if ( !heldcr_ )
+	return false;
+
+    heldcr_ = false;
+    const std::wstring cr( 1, L'\r' );
+    return storeUtf8( cr );
+}
+
+bool storeUtf8( const std::wstring& chars )
+{
+    const int wlen = sCast(int,chars.size());
+    const int nbytes = WideCharToMultiByte( CP_UTF8, 0, chars.data(), wlen,
+					     nullptr, 0, nullptr, nullptr );
+    if ( nbytes <= 0 )
+	return false;
+
+    utf8_.resize( sCast(size_t,nbytes) );
+    WideCharToMultiByte( CP_UTF8, 0, chars.data(), wlen,
+			  utf8_.data(), nbytes, nullptr, nullptr );
+    char* data = utf8_.data();
+    setg( data, data, data + nbytes );
+    return true;
+}
+
+    HANDLE		handle_;
+    std::string		utf8_;
+    bool		heldcr_ = false;
+    bool		ateof_	= false;
+
+};
+
+
+void useUtf8StdConsoleInput()
+{
+    static bool tried = false;
+    if ( tried )
+	return;
+
+    tried = true;
+    HANDLE handle = GetStdHandle( STD_INPUT_HANDLE );
+    DWORD consolemode = 0;
+    if ( !handle || handle == INVALID_HANDLE_VALUE ||
+	 !GetConsoleMode(handle,&consolemode) )
+	return;
+
+    std::cin.rdbuf( new Utf8ConsoleInBuf(handle) );
+}
+
+
 bool NTUserBelongsToAdminGrp()
 {
     mDefineStaticLocalObject(int, res, = -2);
@@ -495,7 +900,7 @@ bool NTUserBelongsToAdminGrp()
 
     // now, loop through groups in token and compare
     res = 0;
-    for ( int idx=0; idx<groupList.GroupCount; idx++)
+    for ( od_uint32 idx=0; idx<groupList.GroupCount; idx++)
     {
 	if (EqualSid(getAdminSID().sid_, groupList.Groups[idx].Sid))
 	{
@@ -697,8 +1102,8 @@ bool canHaveAppLocker()
     if ( !editionnm.matches("Enterprise") )
         return false;
 
-    const FilePath applockercachefp(GetSpecialFolderLocation(
-                        CSIDL_SYSTEM), "AppLocker" );
+    const FilePath applockercachefp( GetKnownFolderLocation(FOLDERID_System),
+				     "AppLocker" );
 
     const DirList dl( applockercachefp.fullPath(),
                       File::DirListType::FilesInDir );
@@ -818,7 +1223,7 @@ bool getDefaultApplication( const char* filetype,
     const bool res = readRegKeyVal( hkeyfp.fullPath(), "Default", cmd );
     if ( !res )
     {
-	errmsg =  "Cannot query registry for default application";
+	errmsg =  "Cannot query registry for default application"
 		  " with file type ";
 	errmsg.add( filetype );
     }

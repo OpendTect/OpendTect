@@ -11,6 +11,7 @@ ________________________________________________________________________
 
 #include "file.h"
 #include "filepath.h"
+#include "genc.h"
 #include "od_istream.h"
 #include "od_ostream.h"
 #include "oscommand.h"
@@ -31,6 +32,7 @@ ________________________________________________________________________
 # include <fstream>
 # include "sys/stat.h"
 # include <unistd.h>
+# include <pwd.h>
 #endif
 
 #include <QDateTime>
@@ -120,6 +122,10 @@ private:
 				 bool followlink) const override;
     bool		setTimes(const char*,const Time::FileTimeSet&,
 				 bool followlink) const override;
+    const char*		getOwner(const char*,BufferString* groupnm,
+				 bool resolve) const override;
+    od_uint32		getOwnerId(const char*,
+				   od_uint32* groupid=nullptr) const override;
 
     bool	setPermissions(const char*,
 			       const File::Permissions&) const override;
@@ -941,6 +947,78 @@ bool LocalFileSystemAccess::setTimes( const char* uri,
 }
 
 
+const char* LocalFileSystemAccess::getOwner( const char* uri,
+					     BufferString* groupnm,
+					     bool resolve ) const
+{
+    mDeclStaticString( ret );
+    ret.setEmpty();
+    if ( groupnm )
+	groupnm->setEmpty();
+
+    const BufferString fnm = withoutProtocol( uri );
+    if ( fnm.isEmpty() )
+	return nullptr;
+
+    const QFileInfo qfi( fnm.str() );
+    ret = qfi.owner();
+    if ( groupnm )
+	*groupnm = qfi.group();
+
+#ifdef __win__
+    if ( resolve || ret.isEmpty() || (groupnm && groupnm->isEmpty()) )
+	WinUtils::GetUserName( fnm.str(), ret, groupnm, resolve );
+#else
+    if ( resolve )
+    {
+	if ( ret.isEmpty() )
+	{
+	    const BufferString sessionnm = GetSessionUserNm( ret.buf() );
+	    if ( !sessionnm.isEmpty() )
+		ret = sessionnm;
+	}
+	else
+	{
+	    od_uint32 uid = qfi.ownerId();
+	    if ( uid != sCast(od_uint32,-2) )
+	    {
+		const BufferString sessionnm =
+			    GetSessionUserNmFromID( &uid );
+		if ( !sessionnm.isEmpty() )
+		    ret = sessionnm;
+	    }
+	}
+    }
+#endif
+
+    return ret.buf();
+}
+
+
+od_uint32 LocalFileSystemAccess::getOwnerId( const char* uri,
+					     od_uint32* groupid ) const
+{
+    const BufferString fnm = withoutProtocol( uri );
+    if ( fnm.isEmpty() )
+    {
+	if ( groupid )
+	    *groupid = mUdf(od_uint32);
+
+	return mUdf(od_uint32);
+    }
+
+    const QFileInfo qfi( fnm.str() );
+    const od_uint32 uid = qfi.ownerId();
+    if ( groupid )
+    {
+	const od_uint32 gid = qfi.groupId();
+	*groupid = gid == sCast(od_uint32,-2) ? mUdf(od_uint32) : gid;
+    }
+
+    return uid == sCast(od_uint32,-2) ? mUdf(od_uint32) : uid;
+}
+
+
 StreamData LocalFileSystemAccess::createOStream( const char* uri,
 					bool binary, bool editmode ) const
 {
@@ -1133,7 +1211,7 @@ bool FileSystemAccess::isSymLink( const char* uri ) const
 }
 
 
-od_int64 FileSystemAccess::getFileSize( const char* uri, bool followlink,
+od_int64 FileSystemAccess::getFileSize( const char* uri, bool /*followlink*/,
 					uiString* /*errmsg*/ ) const
 {
     return isReadable(uri) ? -1 : 0;

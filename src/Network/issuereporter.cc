@@ -78,7 +78,10 @@ bool System::IssueReporter::readReport( const char* filename )
     if ( fstream.isBad() )
 	mStreamError( tr("open") );
 
-    report_.add( "User: ").add( GetSoftwareUser() ).add( "\n\n" );
+    if ( includeusername_ )
+	report_.add( "User: " ).add( GetSoftwareUser() ).add( "\n\n" );
+    else if ( !report_.isEmpty() )
+	report_.addNewLine();
 
     BufferString unfilteredreport;
 
@@ -102,7 +105,13 @@ void System::IssueReporter::fillBasicReport()
     report_.setEmpty();
     StringPairSet infoset;
     infoset.add( "OpendTect version", GetFullODVersion() );
-    infoset.add( "User Name", GetUserNm() );
+    if ( includeusername_ )
+    {
+	const BufferString usernm = GetUserNm();
+	infoset.add( "User Name", usernm );
+	infoset.add( "Session user name", GetSessionUserNm(usernm) );
+    }
+
     infoset.add( "Platform", OD::Platform::local().longName() );
     infoset.add( "Operating System", System::productName() );
 
@@ -118,6 +127,25 @@ void System::IssueReporter::fillBasicReport()
     infoset.add( "Free memory before crash",
 		 conv.getString(precrashfreememory_) );
     infoset.dumpPretty( report_ );
+}
+
+
+void System::IssueReporter::setIncludeUserName( bool yn )
+{
+    if ( includeusername_ == yn )
+	return;
+
+    includeusername_ = yn;
+    if ( crashreportpath_.isEmpty() )
+	return;
+
+    const BufferString prevreport = report_;
+    fillBasicReport();
+    if ( isbinary_ || readReport(crashreportpath_.buf()) )
+	return;
+
+    includeusername_ = !yn;
+    report_ = prevreport;
 }
 
 

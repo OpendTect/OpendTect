@@ -168,20 +168,20 @@ public:
     void			getVwr2DObjIDs(TypeSet<Vis2DID>&) const;
 
     //Horizon 3D
-    void			getHor3DVwr2DIDs(EM::ObjectID emid,
+    virtual void		getHor3DVwr2DIDs(EM::ObjectID emid,
 						 TypeSet<Vis2DID>&) const;
     virtual void		removeHorizon3D(EM::ObjectID emid);
-    void			getLoadedHorizon3Ds(
+    virtual void		getLoadedHorizon3Ds(
 					TypeSet<EM::ObjectID>&) const;
     virtual void		addHorizon3Ds(const TypeSet<EM::ObjectID>&);
     virtual void		addNewTrackingHorizon3D(EM::ObjectID);
     void			setupTrackingHorizon3D(EM::ObjectID);
 
     //Horizon2D
-    void			getHor2DVwr2DIDs(EM::ObjectID emid,
+    virtual void		getHor2DVwr2DIDs(EM::ObjectID emid,
 						 TypeSet<Vis2DID>&) const;
     virtual void		removeHorizon2D(EM::ObjectID emid);
-    void			getLoadedHorizon2Ds(
+    virtual void		getLoadedHorizon2Ds(
 					TypeSet<EM::ObjectID>&) const;
     virtual void		addHorizon2Ds(const TypeSet<EM::ObjectID>&);
     virtual void		addNewTrackingHorizon2D(EM::ObjectID emid);
@@ -190,18 +190,18 @@ public:
     //Fault
     void			getFaultVwr2DIDs(EM::ObjectID emid,
 						 TypeSet<Vis2DID>&) const;
-    void			removeFault(EM::ObjectID emid);
-    void			getLoadedFaults(
+    virtual void		removeFault(EM::ObjectID emid);
+    virtual void		getLoadedFaults(
 					TypeSet<EM::ObjectID>&) const;
     virtual void		addFaults(const TypeSet<EM::ObjectID>&);
     virtual void		addNewTempFault(EM::ObjectID emid);
     void			setupNewTempFault(EM::ObjectID emid);
 
     //FaultStickSet
-    void			getFaultSSVwr2DIDs(EM::ObjectID emid,
+    virtual void		getFaultSSVwr2DIDs(EM::ObjectID emid,
 						   TypeSet<Vis2DID>&) const;
-    void			removeFaultSS(EM::ObjectID emid);
-    void			getLoadedFaultSSs(
+    virtual void		removeFaultSS(EM::ObjectID emid);
+    virtual void		getLoadedFaultSSs(
 					TypeSet<EM::ObjectID>&) const;
     virtual void		addFaultSSs(const TypeSet<EM::ObjectID>&);
     virtual void		addNewTempFaultSS(EM::ObjectID emid);
@@ -219,10 +219,10 @@ public:
 
 
     //PickSets
-    void			getPickSetVwr2DIDs(const MultiID& mid,
+    virtual void		getPickSetVwr2DIDs(const MultiID& mid,
 						   TypeSet<Vis2DID>&) const;
-    void			removePickSet(const MultiID&);
-    void			getLoadedPickSets(TypeSet<MultiID>&) const;
+    virtual void		removePickSet(const MultiID&);
+    virtual void		getLoadedPickSets(TypeSet<MultiID>&) const;
     virtual void		addPickSets(const TypeSet<MultiID>&);
     void			setupNewPickSet(const MultiID&);
 

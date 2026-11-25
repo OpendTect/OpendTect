@@ -8,10 +8,9 @@ ________________________________________________________________________
 
 -*/
 
-#ifndef gendefs_h
 #include "basicmod.h"
-#include "gendefs.h"
-#endif
+
+#include "commondefs.h"
 
 class BufferStringSet;
 
@@ -185,21 +184,7 @@ mGlobal(Basic) const char* GetODExternalScript();
    environment
 */
 
-mGlobal(Basic) const char* GetSoftwareUser(void);
-/*!< Sub-user of software: $DTECT_USER
-
- When multiple people want to run under a single account, they need to
- set DTECT_USER. The output of GetSoftwareUser() will therefore most often
- be null!
-*/
-
-mGlobal(Basic) const char* GetUserNm(void);
-/*!< user's name */
-
-mGlobal(Basic) const char* GetInterpreterName(void);
-/*!< Returns $DTECT_USER. Incase $DTECT_USER is null, returns user's name */
-
-    /* Functions delivering files/directories in the 'user-specific' scope */
+/* Functions delivering files/directories in the 'user-specific' scope */
 mGlobal(Basic) const char* GetPersonalDir(void);
 /*!< Directory for personal settings: 'Home directory'
 
@@ -211,7 +196,7 @@ Windows:
     DTECT_HOME	-> converted from unix to windows path (cygpath -w)
     HOMEDRIVE+HOMEPATH if exists and not equal to "C:\"
     That should be it. If that still fails, we try HOME, USERPROFILE, APPDATA,
-    DTECT_USERPROFILE_DIR. As a last resort, GetSpecialFolderLocation is used.
+    DTECT_USERPROFILE_DIR. As a last resort, GetKnownFolderLocation is used.
 
 UNIX:
     DTECT_HOME, HOME; in that order.

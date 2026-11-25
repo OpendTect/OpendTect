@@ -141,3 +141,92 @@ def test_Well_log(survey):
     assert data[lognm].size == dep.size
 
     well.delete_logs([lognm])
+
+def test_Well_put_log(survey):
+    well = Well(survey, 'F03-4')
+    lognm = 'pytest'
+    if lognm in well.log_names:
+        well.delete_logs([lognm])
+    dep = np.array([0.0, 500.0, 1000.0, 1500.0], dtype=np.float32)
+    logval = np.array([0.0, 1.0, 2.0, 3.0], dtype=np.float32)
+    well.put_log(lognm, dep, logval, 'g/cc', None)
+
+    # overwrite=False and the log exists: nothing is written, no error
+    well.put_log(lognm, dep, logval+10.0, 'g/cc', None)
+    assert well.isok
+    logs, _ = well.logs([lognm], zstep=500.0, upscale=False)
+    assert np.allclose(logs[lognm], logval, equal_nan=True)
+
+    # overwrite=True replaces the log and its unit of measure
+    well.put_log(lognm, dep, logval+10.0, 'us/ft', None, True)
+    logs, uom = well.logs([lognm], zstep=500.0, upscale=False)
+    assert np.allclose(logs[lognm], logval+10.0, equal_nan=True)
+    assert uom[lognm] == 'us/ft'
+
+    # a unit of measure OpendTect does not recognise is not stored
+    well.put_log(lognm, dep, logval, 'no-such-unit', None, True)
+    assert well.log_info([lognm])[0]['uom'] == ''
+
+    well.delete_logs([lognm])
+
+def test_Well_put_log_undefined_ends(survey):
+    well = Well(survey, 'F03-4')
+    lognm = 'pytest'
+    if lognm in well.log_names:
+        well.delete_logs([lognm])
+    dep = np.array([0.0, 500.0, 1000.0, 1500.0, 2000.0], dtype=np.float32)
+    logval = np.array([np.nan, 1.0, np.nan, 3.0, np.nan], dtype=np.float32)
+    well.put_log(lognm, dep, logval, 'g/cc', None)
+    del well
+
+    # reloaded: leading and trailing undefined values were not stored, the one in between was
+    well = Well(survey, 'F03-4')
+    data, _ = well.log(lognm)
+    np.testing.assert_allclose(data['dah'], dep[1:4], rtol=1e-6)
+    np.testing.assert_allclose(data[lognm], logval[1:4], rtol=1e-6, equal_nan=True)
+
+    well.delete_logs([lognm])
+
+def test_Well_put_markers(survey):
+    well = Well(survey, 'F03-4')
+    markernms = ['pytest A', 'pytest B']
+    well.delete_markers(markernms)
+    nmarkers = len(well.marker_names)
+    dah = np.array([1200.5, 300.25], dtype=np.float32)
+    well.put_markers(markernms, dah, ['#ff0000', '#00FF00'])
+    del well
+
+    # reloaded: stored in depth order between the existing markers
+    well = Well(survey, 'F03-4')
+    assert len(well.marker_names) == nmarkers+2
+    assert well.marker_names.index('pytest B') < well.marker_names.index('pytest A')
+    assert pytest_helper.approx(well.marker_info(markernms), rel=0.001) == [
+                                    {'name': 'pytest A', 'color': '#ff0000', 'dah': 1200.5},
+                                    {'name': 'pytest B', 'color': '#00ff00', 'dah': 300.25}
+                                ]
+
+    # overwrite=False and the marker exists: nothing is written, no error
+    well.put_markers(['pytest A'], np.array([900.0], dtype=np.float32))
+    assert well.isok
+    assert well.marker_info(['pytest A'])[0]['dah'] == pytest.approx(1200.5)
+
+    # overwrite=True replaces the marker, without a color it is white
+    well.put_markers(['pytest A'], np.array([900.0], dtype=np.float32), overwrite=True)
+    del well
+    well = Well(survey, 'F03-4')
+    assert pytest_helper.approx(well.marker_info(['pytest A']), rel=0.001) == [
+                                    {'name': 'pytest A', 'color': '#ffffff', 'dah': 900.0}
+                                ]
+
+    with pytest.raises(ValueError):
+        well.put_markers(['pytest C'], dah)
+
+    # invalid color format
+    with pytest.raises(ValueError):
+        well.put_markers(['pytest C'], np.array([300.0], dtype=np.float32), ['not-a-color'])
+
+    assert well.delete_markers(markernms)
+    del well
+    well = Well(survey, 'F03-4')
+    assert not any(nm in well.marker_names for nm in markernms)
+    assert len(well.marker_names) == nmarkers

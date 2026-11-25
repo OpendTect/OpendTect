@@ -11,7 +11,6 @@ ________________________________________________________________________
 
 #include "uibutton.h"
 #include "uidockwin.h"
-#include "uihelpview.h"
 #include "uilabel.h"
 #include "uimain.h"
 #include "uimenu.h"
@@ -20,10 +19,10 @@ ________________________________________________________________________
 #include "uistatusbar.h"
 #include "uitoolbar.h"
 
-#include "envvars.h"
 #include "file.h"
 #include "filepath.h"
-#include "keyboardevent.h"
+#include "genc.h"
+#include "keyenum.h"
 #include "oddirs.h"
 
 #include <QApplication>

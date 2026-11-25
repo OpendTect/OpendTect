@@ -62,6 +62,10 @@ public:
 			       const float* logdata, uint32_t size,
 			       const char* uom=nullptr,
 			       const char* mnem=nullptr, bool overwrite=false);
+    void		putMarkers(const BufferStringSet& markernms,
+				   const float* dah,
+				   const BufferStringSet& colors,
+				   bool overwrite=false);
 
     void		getInfo(OD::JSON::Object&) const override;
     void		getFeature(OD::JSON::Object&,
@@ -98,6 +102,11 @@ mExternC(ODBind) void		well_putlog(hWell, const char* lognm,
 					    uint32_t sz, const char* uom,
 					    const char* mnem, bool overwrite);
 mExternC(ODBind) bool		well_deletelogs(hWell, const hStringSet);
+mExternC(ODBind) void		well_putmarkers(hWell, const hStringSet,
+						const float* dah,
+						const hStringSet colors,
+						bool overwrite);
+mExternC(ODBind) bool		well_deletemarkers(hWell, const hStringSet);
 mExternC(ODBind) void		well_tvd(hWell, const float dah, float* tvd);
 mExternC(ODBind) void		well_tvdss(hWell, const float dah,
 					   float* tvdss);

@@ -8,34 +8,28 @@ ________________________________________________________________________
 -*/
 
 #include "horizon2dscanner.h"
+
 #include "binidvalset.h"
 #include "emhorizon2d.h"
 #include "emhorizonascio.h"
+#include "genc.h"
 #include "ioman.h"
-#include "ioobj.h"
 #include "iopar.h"
 #include "file.h"
 #include "survinfo.h"
 #include "oddirs.h"
-#include "trckeyzsampling.h"
-#include "keystrs.h"
+#include "posinfo2d.h"
 #include "survgeom2d.h"
 #include "tabledef.h"
 #include "uistrings.h"
 #include "unitofmeasure.h"
 
 
-
 Horizon2DScanner::Horizon2DScanner( const BufferStringSet& fnms,
 			    Table::FormatDesc& fd, const ZDomain::Info& zinfo )
     : Executor("Scan horizon file(s)")
-    , fd_(fd)
-    , ascio_(nullptr)
-    , bvalset_(nullptr)
-    , fileidx_(0)
-    , curlinegeom_(nullptr)
-    , istracenr_(false)
     , msg_(uiStrings::sScanning())
+    , fd_(fd)
     , zinfo_(zinfo)
 {
     filenames_ = fnms;
@@ -137,6 +131,7 @@ const char* Horizon2DScanner::defaultUserInfoFile()
     ret = GetProcFileName( "scan_horizon" );
     if ( GetSoftwareUser() )
 	{ ret += "_"; ret += GetSoftwareUser(); }
+
     ret += ".txt";
     return ret.buf();
 }

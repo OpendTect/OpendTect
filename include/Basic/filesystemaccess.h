@@ -65,7 +65,14 @@ public:
     virtual bool	setTimes(const char*,const Time::FileTimeSet&,
 				 bool followlink) const
 			{ return false; }
-
+    virtual const char* getOwner(const char*,BufferString* group,
+				 bool resolve) const
+			{ return nullptr; }
+			/*!< Raw account names when resolve is false. The owner
+			     display name is used when resolve is true. */
+    virtual od_uint32	getOwnerId(const char*,od_uint32* groupid) const
+			{ return mUdf(od_uint32); }
+			//!< Owner id. groupid when non-null.
     virtual bool	setPermissions(const char*,
 				       const File::Permissions&) const
 			{ return false; }
