@@ -8,6 +8,7 @@ ________________________________________________________________________
 -*/
 
 #include "uilistboxfilter.h"
+#include "uicheckselgrp.h"
 #include "uilistbox.h"
 #include "globexpr.h"
 

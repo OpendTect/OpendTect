@@ -193,7 +193,7 @@ void uiWellExportFacility::inputChngCB( CallBacker* )
 	d2tmodel_->setSensitive(  false );
 	checkshotdata_->setSensitive( false );
 	loggrp_->display( false );
-	loglist_->primaryCheckBox()->setChecked( false );
+	loglist_->setPrimaryCheckBox( false );
 	return;
     }
 
@@ -215,14 +215,14 @@ void uiWellExportFacility::inputChngCB( CallBacker* )
     if ( lognms.isEmpty() )
     {
 	loggrp_->display( false );
-	loglist_->primaryCheckBox()->setChecked( false );
+	loglist_->setPrimaryCheckBox( false );
     }
     else
     {
 	loglist_->setEmpty();
 	loglist_->addItems( lognms );
 	loggrp_->display( true );
-	loglist_->primaryCheckBox()->setChecked( true );
+	loglist_->setPrimaryCheckBox( true );
 	setDefaultRange();
     }
 }

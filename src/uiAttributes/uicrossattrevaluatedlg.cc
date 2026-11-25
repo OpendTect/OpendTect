@@ -17,6 +17,7 @@ ________________________________________________________________________
 
 #include "uiattrdescseted.h"
 #include "uibutton.h"
+#include "uicheckselgrp.h"
 #include "uievaluatedlg.h"
 #include "uilabel.h"
 #include "uilistbox.h"
