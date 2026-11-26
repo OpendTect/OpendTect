@@ -220,7 +220,7 @@ static bool testUnicodeEnvVars()
     SetEnvVar( envnm, utf8val );
     mRunStandardTest( StringView(GetOSEnvVar(envnm)) == utf8val,
 		      "UTF-8 environment variable read back" );
-#ifdef __win__
+#ifdef __msvc__
     const std::wstring wenvnm( L"OD_TEST_UNICODE_ENVVAR" );
     const std::wstring wval( L"C:/Users/J\u00FCrgen_\u4F60\u597D" );
     std::wstring wres( 64, L'\0' );

@@ -849,7 +849,7 @@ void RestartProgram()
 mExtern(Basic) const char* GetOSEnvVar( const char* env )
 {
     Threads::Locker lock( getEnvVarLock() );
-#ifdef __win__
+#ifdef __msvc__
     const std::wstring wenv = StringView( env ).toStdWString();
     size_t len = 0;
     if ( _wgetenv_s(&len,nullptr,0,wenv.c_str()) != 0 || len == 0 )
