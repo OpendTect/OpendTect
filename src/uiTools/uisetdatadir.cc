@@ -21,8 +21,10 @@ ________________________________________________________________________
 #include "uitoolbutton.h"
 
 #include "dirlist.h"
+#include "envvars.h"
 #include "file.h"
 #include "filepath.h"
+#include "genc.h"
 #include "ioman.h"
 #include "oddirs.h"
 #include "odinst.h"
@@ -136,7 +138,10 @@ uiSetDataDir::uiSetDataDir( uiParent* p )
 	    "'base' data store will be."
 #endif
 	    );
-	const FilePath fp( GetPersonalDir(), "ODData" );
+	const BufferString prefix = GetEnvVar( "DTECT_DATA_PREFIX" );
+	const FilePath fp = prefix.isEmpty()
+			  ? FilePath( GetPersonalDir(), "ODData" )
+			  : FilePath( prefix.buf(), GetUserNm(), "ODData" );
 	basedirnm = fp.fullPath();
     }
 
@@ -259,21 +264,16 @@ bool uiSetDataDir::acceptOK( CallBacker* )
 	mErrRet( tr("Please enter a valid (existing) location") )
     else if ( !File::isDirectory(seldir_) )
     {
-	const FilePath fp( seldir_ );
-	const BufferString selbasedir = fp.pathOnly();
-	if ( File::isDirectory(selbasedir.buf()) &&
-	     File::isWritable(selbasedir.str()) &&
-	     !File::exists(seldir_.str()) )
-	{
-	    if ( uiMSG().askGoOn(tr("Directory '%1' does not exists")
-				    .arg(seldir_),
-				uiStrings::sCreate(), uiStrings::sCancel()) )
-		File::createDir( seldir_ );
-	    else
-		return false;
-	}
-	else
+	if ( !FilePath(seldir_).isAbsolute() )
 	    mErrRet( tr("Please enter a valid (existing) location") )
+
+	if ( !uiMSG().askGoOn(tr("Directory '%1' does not exists")
+				.arg(seldir_),
+			    uiStrings::sCreate(), uiStrings::sCancel()) )
+	    return false;
+
+	if ( !File::createDir(seldir_) )
+	    mErrRet( uiStrings::phrCannotCreateDirectory(toUiString(seldir_)) )
     }
 
     if ( seldir_ == curdatadir_ && IOMan::isValidDataRoot(seldir_).isOK() )
